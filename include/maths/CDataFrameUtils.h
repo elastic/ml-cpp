@@ -97,7 +97,6 @@ public:
 
     //! Get the relative frequency of each category in \p frame.
     //!
-    //! \param[in] numberThreads The number of threads available.
     //! \param[in] frame The data frame for which to compute category frequencies.
     //! \param[in] columnMask A mask of the columns to include.
     //! \return The frequency of each category. The collection is indexed by column
@@ -176,6 +175,8 @@ private:
                                                    const TSizeVec& columnMask,
                                                    std::size_t targetColumn,
                                                    std::size_t numberSamples);
+    static void removeMetricColumns(const core::CDataFrame& frame, TSizeVec& columnMask);
+    static void removeCategoricalColumns(const core::CDataFrame& frame, TSizeVec& columnMask);
     static double unitWeight(const TRowRef&);
 };
 }

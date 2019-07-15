@@ -124,7 +124,7 @@ bool CDataFrameUtils::columnQuantiles(std::size_t numberThreads,
 
     result.assign(columnMask.size(), sketch);
 
-    auto results = frame.readRows(
+    auto quantiles = frame.readRows(
         numberThreads, 0, frame.numberRows(),
         core::bindRetrievableState(
             [&](TQuantileSketchVec& quantiles, TRowItr beginRows, TRowItr endRows) {
@@ -139,16 +139,16 @@ bool CDataFrameUtils::columnQuantiles(std::size_t numberThreads,
             std::move(result)),
         &rowMask);
 
-    if (results.second == false) {
+    if (quantiles.second == false) {
         LOG_ERROR(<< "Failed to compute column quantiles");
         return false;
     }
 
-    result = std::move(results.first[0].s_FunctionState);
+    result = std::move(quantiles.first[0].s_FunctionState);
 
-    for (std::size_t i = 1; i < results.first.size(); ++i) {
+    for (std::size_t i = 1; i < quantiles.first.size(); ++i) {
         for (std::size_t j = 0; j < columnMask.size(); ++j) {
-            result[j] += results.first[i].s_FunctionState[j];
+            result[j] += quantiles.first[i].s_FunctionState[j];
         }
     }
 
@@ -162,18 +162,12 @@ CDataFrameUtils::categoryFrequencies(std::size_t numberThreads,
 
     TDoubleVecVec result(frame.numberColumns());
 
-    const auto& columnIsCategorical = frame.columnIsCategorical();
-    columnMask.erase(std::remove_if(columnMask.begin(), columnMask.end(),
-                                    [&columnIsCategorical](std::size_t i) {
-                                        return columnIsCategorical[i] == false;
-                                    }),
-                     columnMask.end());
-
+    removeMetricColumns(frame, columnMask);
     if (frame.numberRows() == 0 || columnMask.empty()) {
         return result;
     }
 
-    auto results = frame.readRows(
+    auto categoryCounts = frame.readRows(
         numberThreads,
         core::bindRetrievableState(
             [&](TDoubleVecVec& counts, TRowItr beginRows, TRowItr endRows) {
@@ -187,18 +181,18 @@ CDataFrameUtils::categoryFrequencies(std::size_t numberThreads,
             },
             TDoubleVecVec(frame.numberColumns())));
 
-    if (results.second == false) {
+    if (categoryCounts.second == false) {
         HANDLE_FATAL(<< "Internal error: failed to calculate category"
                      << " frequencies. Please report this problem.");
         return result;
     }
 
-    for (const auto& counts_ : results.first) {
+    for (const auto& counts_ : categoryCounts.first) {
         for (std::size_t i = 0; i < counts_.s_FunctionState.size(); ++i) {
             result[i].resize(counts_.s_FunctionState[i].size());
         }
     }
-    for (const auto& counts_ : results.first) {
+    for (const auto& counts_ : categoryCounts.first) {
         for (std::size_t i = 0; i < counts_.s_FunctionState.size(); ++i) {
             for (std::size_t j = 0; j < counts_.s_FunctionState[i].size(); ++j) {
                 result[i][j] += counts_.s_FunctionState[i][j] /
@@ -225,13 +219,7 @@ CDataFrameUtils::meanValueOfTargetForCategories(std::size_t numberThreads,
         return result;
     }
 
-    const auto& columnIsCategorical = frame.columnIsCategorical();
-    columnMask.erase(std::remove_if(columnMask.begin(), columnMask.end(),
-                                    [&columnIsCategorical](std::size_t i) {
-                                        return columnIsCategorical[i] == false;
-                                    }),
-                     columnMask.end());
-
+    removeMetricColumns(frame, columnMask);
     if (frame.numberRows() == 0 || columnMask.empty()) {
         return result;
     }
@@ -239,7 +227,7 @@ CDataFrameUtils::meanValueOfTargetForCategories(std::size_t numberThreads,
     using TMeanAccumulatorVec = std::vector<CBasicStatistics::SSampleMean<double>::TAccumulator>;
     using TMeanAccumulatorVecVec = std::vector<TMeanAccumulatorVec>;
 
-    auto results = frame.readRows(
+    auto categoryMeanValues = frame.readRows(
         numberThreads,
         core::bindRetrievableState(
             [&](TMeanAccumulatorVecVec& means, TRowItr beginRows, TRowItr endRows) {
@@ -253,19 +241,19 @@ CDataFrameUtils::meanValueOfTargetForCategories(std::size_t numberThreads,
             },
             TMeanAccumulatorVecVec(frame.numberColumns())));
 
-    if (results.second == false) {
+    if (categoryMeanValues.second == false) {
         HANDLE_FATAL(<< "Internal error: failed to calculate mean target value"
                      << " for categories. Please report this problem.");
         return result;
     }
 
     TMeanAccumulatorVecVec means(frame.numberColumns());
-    for (const auto& means_ : results.first) {
+    for (const auto& means_ : categoryMeanValues.first) {
         for (std::size_t i = 0; i < means_.s_FunctionState.size(); ++i) {
             means[i].resize(means_.s_FunctionState[i].size());
         }
     }
-    for (const auto& means_ : results.first) {
+    for (const auto& means_ : categoryMeanValues.first) {
         for (std::size_t i = 0; i < means_.s_FunctionState.size(); ++i) {
             for (std::size_t j = 0; j < means_.s_FunctionState[i].size(); ++j) {
                 means[i][j] += means_.s_FunctionState[i][j];
@@ -289,21 +277,19 @@ CDataFrameUtils::categoryMicWithColumn(std::size_t numberThreads,
                                        std::size_t targetColumn,
                                        double minimumFrequency) {
 
+    TSizeDoublePrVecVec none(frame.numberColumns());
+
     if (targetColumn >= frame.numberColumns()) {
         HANDLE_FATAL(<< "Internal error: target column out of bounds '"
                      << targetColumn << " >= " << frame.numberColumns()
                      << "'. Please report this problem.");
-        return TSizeDoublePrVecVec(frame.numberColumns());
+        return none;
     }
 
-    const auto& columnIsCategorical = frame.columnIsCategorical();
-    columnMask.erase(std::remove_if(columnMask.begin(), columnMask.end(),
-                                    [&columnIsCategorical](std::size_t i) {
-                                        return columnIsCategorical[i] == false;
-                                    }),
-                     columnMask.end());
-    minimumFrequency = std::max(minimumFrequency,
-                                50.0 / static_cast<double>(frame.numberRows()));
+    removeMetricColumns(frame, columnMask);
+    if (frame.numberRows() == 0 || columnMask.empty()) {
+        return none;
+    }
 
     std::size_t numberSamples{std::min(NUMBER_SAMPLES_TO_COMPUTE_MIC, frame.numberRows())};
 
@@ -328,19 +314,19 @@ CDataFrameUtils::TDoubleVec CDataFrameUtils::micWithColumn(const core::CDataFram
                                                            TSizeVec columnMask,
                                                            std::size_t targetColumn) {
 
+    TDoubleVec zeros(frame.numberColumns(), 0.0);
+
     if (targetColumn >= frame.numberColumns()) {
         HANDLE_FATAL(<< "Internal error: target column out of bounds '"
                      << targetColumn << " >= " << frame.numberColumns()
                      << "'. Please report this problem.");
-        return TDoubleVec(frame.numberColumns(), 0.0);
+        return zeros;
     }
 
-    const auto& columnIsCategorical = frame.columnIsCategorical();
-    columnMask.erase(std::remove_if(columnMask.begin(), columnMask.end(),
-                                    [&columnIsCategorical](std::size_t i) {
-                                        return columnIsCategorical[i];
-                                    }),
-                     columnMask.end());
+    removeCategoricalColumns(frame, columnMask);
+    if (frame.numberRows() == 0 || columnMask.empty()) {
+        return zeros;
+    }
 
     std::size_t numberSamples{std::min(NUMBER_SAMPLES_TO_COMPUTE_MIC, frame.numberRows())};
 
@@ -571,6 +557,25 @@ CDataFrameUtils::micWithColumnDataFrameOnDisk(const core::CDataFrame& frame,
     }
 
     return mics;
+}
+
+void CDataFrameUtils::removeMetricColumns(const core::CDataFrame& frame, TSizeVec& columnMask) {
+    const auto& columnIsCategorical = frame.columnIsCategorical();
+    columnMask.erase(std::remove_if(columnMask.begin(), columnMask.end(),
+                                    [&columnIsCategorical](std::size_t i) {
+                                        return columnIsCategorical[i] == false;
+                                    }),
+                     columnMask.end());
+}
+
+void CDataFrameUtils::removeCategoricalColumns(const core::CDataFrame& frame,
+                                               TSizeVec& columnMask) {
+    const auto& columnIsCategorical = frame.columnIsCategorical();
+    columnMask.erase(std::remove_if(columnMask.begin(), columnMask.end(),
+                                    [&columnIsCategorical](std::size_t i) {
+                                        return columnIsCategorical[i];
+                                    }),
+                     columnMask.end());
 }
 
 double CDataFrameUtils::unitWeight(const TRowRef&) {
