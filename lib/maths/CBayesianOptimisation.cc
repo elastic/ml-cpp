@@ -7,12 +7,9 @@
 #include <maths/CBayesianOptimisation.h>
 
 #include <core/CIEEE754.h>
-#include <core/CJsonStatePersistInserter.h>
 #include <core/CJsonStateRestoreTraverser.h>
 #include <core/CPersistUtils.h>
-#include <core/CStateCompressor.h>
-#include <core/CStateDecompressor.h>
-#include <core/CTimeUtils.h>
+#include <core/RestoreMacros.h>
 
 #include <maths/CBasicStatistics.h>
 #include <maths/CLbfgs.h>
@@ -29,16 +26,12 @@ namespace maths {
 namespace {
 const std::string MIN_BOUNDARY_TAG{"a"};
 const std::string MAX_BOUNDARY_TAG{"b"};
-const std::string BOUNDARY_TAG{"c"};
 const std::string ERROR_VARIANCES_TAG{"d"};
 const std::string KERNEL_PARAMETERS_TAG{"f"};
-const std::string KERNEL_PARAMETER_TAG{"g"};
 const std::string MIN_KERNEL_COORDINATE_DISTANCE_SCALES_TAG{"h"};
-const std::string MIN_KERNEL_COORDINATE_DISTANCE_SCALE_TAG{"i"};
 const std::string FUNCTION_MEAN_VALUES_TAG{"j"};
 const std::string FUNCTION_PARAMETER_VALUE_PAIR_TAG{"k"};
 const std::string FUNCTION_PARAMETERS_TAG{"l"};
-const std::string FUNCTION_PARAMETER_TAG{"m"};
 const std::string FUNCTION_VALUE_TAG{"n"};
 }
 
@@ -396,37 +389,12 @@ double CBayesianOptimisation::kernel(const TVector& a, const TVector& x, const T
 }
 
 std::function<bool(core::CStateRestoreTraverser&)>
-CBayesianOptimisation::restoreVector(const std::string& tag,
-                                     CBayesianOptimisation::TVector& vector) {
-    auto restorationFunction = [&tag, &vector](core::CStateRestoreTraverser& traverser) {
-        double newValue{0.0};
-        CBayesianOptimisation::TDoubleVec newVector;
-        do {
-            if (traverser.name() == tag) {
-                if (core::CStringUtils::stringToType(traverser.value(), newValue) == false) {
-                    LOG_ERROR(<< "Error restoring vector: " << traverser.value());
-                    return false;
-                }
-                newVector.emplace_back(newValue);
-            }
-        } while (traverser.next());
-        CBayesianOptimisation::TVector newTVector(newVector.size());
-        for (std::size_t i = 0u; i < newVector.size(); ++i) {
-            newTVector(i) = newVector[i];
-        }
-        vector = std::move(newTVector);
-        return true;
-    };
-    return restorationFunction;
-}
-
-std::function<bool(core::CStateRestoreTraverser&)>
 CBayesianOptimisation::restoreParameterValuePair(TVector& parameters, double& functionValue) {
     auto restoreParameterValuePair = [&parameters, &functionValue,
                                       this](core::CStateRestoreTraverser& traverser) {
         do {
             if (traverser.name() == FUNCTION_PARAMETERS_TAG) {
-                if (TVector::restore(FUNCTION_PARAMETERS_TAG, traverser, parameters) == false) {
+                if (TVector::restore(FUNCTION_PARAMETERS_TAG, parameters, traverser) == false) {
                     return false;
                 }
             } else if (traverser.name() == FUNCTION_VALUE_TAG) {
@@ -448,11 +416,11 @@ CBayesianOptimisation::restoreParameterValuePair(TVector& parameters, double& fu
 bool CBayesianOptimisation::restoreFunctionMeanValues(CBayesianOptimisation::TVectorDoublePrVec& functionMeanValues,
                                                       core::CStateRestoreTraverser& traverser) {
     if (traverser.hasSubLevel()) {
-        auto restoreParameterValuePairs = [&functionMeanValues,
-                                           this](core::CStateRestoreTraverser& traverser) {
-            TVectorDoublePrVec newVector;
-            do {
-                if (traverser.name() == FUNCTION_PARAMETER_VALUE_PAIR_TAG) {
+        auto restoreParameterValuePairs =
+            [&functionMeanValues, this](core::CStateRestoreTraverser& traverser) {
+                TVectorDoublePrVec newVector;
+                do {
+                    if (traverser.name() == FUNCTION_PARAMETER_VALUE_PAIR_TAG) {
                         TVector parameters;
                         double functionValue;
                         if (traverser.traverseSubLevel(this->restoreParameterValuePair(
@@ -460,64 +428,47 @@ bool CBayesianOptimisation::restoreFunctionMeanValues(CBayesianOptimisation::TVe
                             return false;
                         }
                         newVector.emplace_back(parameters, functionValue);
-                } else {
-                    LOG_ERROR(<< "Unexpected name for function parameter value pair: "
-                              << traverser.name() << ". Expected name: "
-                              << FUNCTION_PARAMETER_VALUE_PAIR_TAG);
-                    return false;
-                }
+                    } else {
+                        LOG_ERROR(<< "Unexpected name for function parameter value pair: "
+                                  << traverser.name() << ". Expected name: "
+                                  << FUNCTION_PARAMETER_VALUE_PAIR_TAG);
+                        return false;
+                    }
 
-            } while (traverser.next());
-            functionMeanValues = std::move(newVector);
-            return true;
-        };
+                } while (traverser.next());
+                functionMeanValues = std::move(newVector);
+                return true;
+            };
         traverser.traverseSubLevel(restoreParameterValuePairs);
-
     }
     return true;
 }
 
 bool CBayesianOptimisation::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
     try {
-
         // Call name() to prime the traverser if it hasn't started
         traverser.name();
         if (traverser.isEof()) {
-            //            m_RestoredStateDetail.s_RestoredStateStatus = E_NoDetectorsRecovered;
             LOG_ERROR(<< "Expected persisted state but no state exists");
             return false;
         }
 
         do {
             const std::string& name = traverser.name();
-            if (name == MIN_BOUNDARY_TAG) {
-                if (TVector::restore(MIN_BOUNDARY_TAG, traverser, m_MinBoundary) == false) {
-                    return false;
-                }
-            } else if (name == MAX_BOUNDARY_TAG) {
-                if (TVector::restore(MAX_BOUNDARY_TAG, traverser, m_MaxBoundary) == false) {
-                    return false;
-                }
-            } else if (name == ERROR_VARIANCES_TAG) {
-                if (core::CPersistUtils::restore(ERROR_VARIANCES_TAG, m_ErrorVariances,
-                                                 traverser) == false) {
-                    return false;
-                }
-            } else if (name == KERNEL_PARAMETERS_TAG) {
-                if (TVector::restore(KERNEL_PARAMETERS_TAG, traverser,
-                                     m_KernelParameters) == false) {
-                    return false;
-                }
-            } else if (name == MIN_KERNEL_COORDINATE_DISTANCE_SCALES_TAG) {
-                if (TVector::restore(MIN_KERNEL_COORDINATE_DISTANCE_SCALES_TAG, traverser,
-                                     m_MinimumKernelCoordinateDistanceScale) == false) {
-                    return false;
-                }
-            } else if (name == FUNCTION_MEAN_VALUES_TAG) {
-                if (restoreFunctionMeanValues(m_FunctionMeanValues, traverser) == false) {
-                    return false;
-                }
-            } else {
+            RESTORE(MIN_BOUNDARY_TAG,
+                    TVector::restore(MIN_BOUNDARY_TAG, m_MinBoundary, traverser))
+            RESTORE(MAX_BOUNDARY_TAG,
+                    TVector::restore(MAX_BOUNDARY_TAG, m_MaxBoundary, traverser))
+            RESTORE(ERROR_VARIANCES_TAG,
+                    core::CPersistUtils::restore(ERROR_VARIANCES_TAG, m_ErrorVariances, traverser))
+            RESTORE(KERNEL_PARAMETERS_TAG,
+                    TVector::restore(KERNEL_PARAMETERS_TAG, m_KernelParameters, traverser))
+            RESTORE(MIN_KERNEL_COORDINATE_DISTANCE_SCALES_TAG,
+                    TVector::restore(MIN_KERNEL_COORDINATE_DISTANCE_SCALES_TAG,
+                                     m_MinimumKernelCoordinateDistanceScale, traverser))
+            RESTORE(FUNCTION_MEAN_VALUES_TAG,
+                    restoreFunctionMeanValues(m_FunctionMeanValues, traverser))
+            else {
                 LOG_ERROR(<< "Unexpected name for restoring bayesian optimization parameters: "
                           << traverser.name());
                 return false;
@@ -530,14 +481,6 @@ bool CBayesianOptimisation::acceptRestoreTraverser(core::CStateRestoreTraverser&
 
     return true;
 }
-
-//bool CBayesianOptimisation::restoreSubLevelVector(TVector& vector,
-//                                                  core::CStateRestoreTraverser& traverser) {
-//    auto restoreTVector = [&vector](auto& traverser) {
-//        return TVector::restore(<#initializer #>, traverser, vector);
-//    };
-//    return traverser.traverseSubLevel(restoreTVector);
-//}
 
 void CBayesianOptimisation::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
     try {

@@ -125,14 +125,6 @@ private:
     std::function<void(core::CStatePersistInserter&)>
     persistFunctionMeanValues(const TVectorDoublePrVec& functionMeanValues) const;
 
-//    std::function<bool(core::CStateRestoreTraverser&)>
-//    restoreVector(const std::string& tag, TDoubleVec& vector);
-
-    std::function<bool(core::CStateRestoreTraverser&)>
-    restoreVector(const std::string& tag, TVector& vector);
-
-//    bool restoreSubLevelVector(TVector& vector, core::CStateRestoreTraverser& traverser);
-
     bool restoreFunctionMeanValues(TVectorDoublePrVec& functionMeanValues,
                                    core::CStateRestoreTraverser& traverser);
 

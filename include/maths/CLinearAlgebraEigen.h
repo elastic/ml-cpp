@@ -304,8 +304,8 @@ public:
 
     //! Populate the object from serialized data
     static bool restore(const std::string& tag,
-                        core::CStateRestoreTraverser& traverser,
-                        CDenseVector<SCALAR>& vector) {
+                        CDenseVector<SCALAR>& vector,
+                        core::CStateRestoreTraverser& traverser) {
         try {
             std::vector<SCALAR> temporaryVector;
             core::CPersistUtils::restore(tag, temporaryVector, traverser);
