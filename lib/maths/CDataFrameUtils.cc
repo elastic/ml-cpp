@@ -127,11 +127,11 @@ bool CDataFrameUtils::columnQuantiles(std::size_t numberThreads,
     auto quantiles = frame.readRows(
         numberThreads, 0, frame.numberRows(),
         core::bindRetrievableState(
-            [&](TQuantileSketchVec& quantiles, TRowItr beginRows, TRowItr endRows) {
+            [&](TQuantileSketchVec& quantiles_, TRowItr beginRows, TRowItr endRows) {
                 for (auto row = beginRows; row != endRows; ++row) {
                     for (std::size_t i = 0; i < columnMask.size(); ++i) {
                         if (isMissing((*row)[columnMask[i]]) == false) {
-                            quantiles[i].add((*row)[columnMask[i]], weight(*row));
+                            quantiles_[i].add((*row)[columnMask[i]], weight(*row));
                         }
                     }
                 }
@@ -355,6 +355,8 @@ CDataFrameUtils::categoryMicWithColumnDataFrameInMemory(std::size_t numberThread
     TFloatFloatPrVec samples;
     TFloatUSet categories;
     CMic mic;
+
+    samples.reserve(numberSamples);
     mic.reserve(numberSamples);
 
     for (auto i : columnMask) {
@@ -405,7 +407,16 @@ CDataFrameUtils::categoryMicWithColumnDataFrameOnDisk(std::size_t numberThreads,
                                                       std::size_t numberSamples,
                                                       double minimumFrequency) {
 
+    TSizeDoublePrVecVec mics(frame.numberColumns());
+
     TDoubleVecVec frequencies(categoryFrequencies(numberThreads, frame, columnMask));
+
+    TFloatVecVec samples;
+    TFloatUSet categories;
+    CMic mic;
+
+    samples.reserve(numberSamples);
+    mic.reserve(numberSamples);
 
     // Sample
     //
@@ -413,9 +424,8 @@ CDataFrameUtils::categoryMicWithColumnDataFrameOnDisk(std::size_t numberThreads,
     // each category provided minimumFrequency * NUMBER_SAMPLES_TO_COMPUTE_MIC
     // is large (which we ensure it is).
 
-    TFloatVecVec samples;
     TRowSampler sampler{numberSamples, rowSampler(samples)};
-    auto results = frame.readRows(1, [&](TRowItr beginRows, TRowItr endRows) {
+    frame.readRows(1, [&](TRowItr beginRows, TRowItr endRows) {
         for (auto row = beginRows; row != endRows; ++row) {
             if (isMissing((*row)[targetColumn]) == false) {
                 sampler.sample(*row);
@@ -423,12 +433,6 @@ CDataFrameUtils::categoryMicWithColumnDataFrameOnDisk(std::size_t numberThreads,
         }
     });
     LOG_TRACE(<< "# samples = " << samples.size());
-
-    TSizeDoublePrVecVec mics(frame.numberColumns());
-
-    TFloatUSet categories;
-    CMic mic;
-    mic.reserve(samples.size());
 
     for (auto i : columnMask) {
         categories.clear();
@@ -463,14 +467,14 @@ CDataFrameUtils::micWithColumnDataFrameInMemory(const core::CDataFrame& frame,
     TDoubleVec mics(frame.numberColumns());
 
     TFloatFloatPrVec samples;
+    samples.reserve(numberSamples);
 
     for (auto i : columnMask) {
 
         // Do sampling
 
         TRowSampler sampler{numberSamples, rowFeatureSampler(i, targetColumn, samples)};
-
-        auto result = frame.readRows(
+        auto missingCount = frame.readRows(
             1, core::bindRetrievableState(
                    [&](std::size_t& missing, TRowItr beginRows, TRowItr endRows) {
                        for (auto row = beginRows; row != endRows; ++row) {
@@ -484,7 +488,7 @@ CDataFrameUtils::micWithColumnDataFrameInMemory(const core::CDataFrame& frame,
                    std::size_t{0}));
         LOG_TRACE(<< "# samples = " << samples.size());
 
-        double fractionMissing{static_cast<double>(result.first[0].s_FunctionState) /
+        double fractionMissing{static_cast<double>(missingCount.first[0].s_FunctionState) /
                                static_cast<double>(frame.numberRows())};
         LOG_TRACE(<< "Fraction missing = " << fractionMissing);
 
@@ -509,13 +513,15 @@ CDataFrameUtils::micWithColumnDataFrameOnDisk(const core::CDataFrame& frame,
                                               std::size_t targetColumn,
                                               std::size_t numberSamples) {
 
-    // Do sampling
+    TDoubleVec mics(frame.numberColumns());
 
     TFloatVecVec samples;
     samples.reserve(numberSamples);
-    TRowSampler sampler{numberSamples, rowSampler(samples)};
 
-    auto results = frame.readRows(
+    // Do sampling
+
+    TRowSampler sampler{numberSamples, rowSampler(samples)};
+    auto missingCounts = frame.readRows(
         1, core::bindRetrievableState(
                [&](TSizeVec& missing, TRowItr beginRows, TRowItr endRows) {
                    for (auto row = beginRows; row != endRows; ++row) {
@@ -532,16 +538,14 @@ CDataFrameUtils::micWithColumnDataFrameOnDisk(const core::CDataFrame& frame,
 
     TDoubleVec fractionMissing(frame.numberColumns());
     for (std::size_t i = 0; i < fractionMissing.size(); ++i) {
-        for (const auto& result : results.first) {
-            fractionMissing[i] += static_cast<double>(result.s_FunctionState[i]) /
+        for (const auto& missingCount : missingCounts.first) {
+            fractionMissing[i] += static_cast<double>(missingCount.s_FunctionState[i]) /
                                   static_cast<double>(frame.numberRows());
         }
     }
     LOG_TRACE(<< "Fraction missing = " << core::CContainerPrinter::print(fractionMissing));
 
     // Compute MICe
-
-    TDoubleVec mics(frame.numberColumns());
 
     for (auto i : columnMask) {
         if (i != targetColumn) {
