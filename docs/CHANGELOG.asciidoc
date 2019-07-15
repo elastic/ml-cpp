@@ -28,6 +28,15 @@
 
 //=== Regressions
 
+== {es} version 7.2.1
+
+=== Bug Fixes
+
+* Don't persist model state at the end of lookback if the lookback did not
+generate any input {ml-pull}527[#527] (issue: {ml-issue}519[#519])
+* Don't write model size stats when job is closed without any input
+{ml-pull}516[#516] (issue: {ml-issue}394[#394])
+
 == {es} version 7.2.0
 
 === Enhancements
