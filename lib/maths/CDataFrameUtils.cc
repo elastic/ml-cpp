@@ -34,8 +34,8 @@ using TRowItr = core::CDataFrame::TRowItr;
 using TRowRef = core::CDataFrame::TRowRef;
 using TRowSampler = CSampling::CRandomStreamSampler<TRowRef>;
 
-//! Get a row column sampler.
-auto onSample(std::size_t i, std::size_t targetColumn, TFloatFloatPrVec& samples) {
+//! Get a row feature sampler.
+auto rowFeatureSampler(std::size_t i, std::size_t targetColumn, TFloatFloatPrVec& samples) {
     return [i, targetColumn, &samples](std::size_t slot, const TRowRef& row) {
         if (slot >= samples.size()) {
             samples.resize(slot + 1, {0.0, 0.0});
@@ -46,7 +46,7 @@ auto onSample(std::size_t i, std::size_t targetColumn, TFloatFloatPrVec& samples
 }
 
 //! Get a row sampler.
-auto onSample(TFloatVecVec& samples) {
+auto rowSampler(TFloatVecVec& samples) {
     return [&samples](std::size_t slot, const TRowRef& row) {
         if (slot >= samples.size()) {
             samples.resize(slot + 1, TFloatVec(row.numberColumns()));
@@ -375,7 +375,7 @@ CDataFrameUtils::categoryMicWithColumnDataFrameInMemory(std::size_t numberThread
 
         // Sample
 
-        TRowSampler sampler{numberSamples, onSample(i, targetColumn, samples)};
+        TRowSampler sampler{numberSamples, rowFeatureSampler(i, targetColumn, samples)};
         frame.readRows(1, [&](TRowItr beginRows, TRowItr endRows) {
             for (auto row = beginRows; row != endRows; ++row) {
                 std::size_t j{static_cast<std::size_t>((*row)[i])};
@@ -428,7 +428,7 @@ CDataFrameUtils::categoryMicWithColumnDataFrameOnDisk(std::size_t numberThreads,
     // is large (which we ensure it is).
 
     TFloatVecVec samples;
-    TRowSampler sampler{numberSamples, onSample(samples)};
+    TRowSampler sampler{numberSamples, rowSampler(samples)};
     auto results = frame.readRows(1, [&](TRowItr beginRows, TRowItr endRows) {
         for (auto row = beginRows; row != endRows; ++row) {
             if (isMissing((*row)[targetColumn]) == false) {
@@ -482,7 +482,7 @@ CDataFrameUtils::micWithColumnDataFrameInMemory(const core::CDataFrame& frame,
 
         // Do sampling
 
-        TRowSampler sampler{numberSamples, onSample(i, targetColumn, samples)};
+        TRowSampler sampler{numberSamples, rowFeatureSampler(i, targetColumn, samples)};
 
         auto result = frame.readRows(
             1, core::bindRetrievableState(
@@ -527,14 +527,7 @@ CDataFrameUtils::micWithColumnDataFrameOnDisk(const core::CDataFrame& frame,
 
     TFloatVecVec samples;
     samples.reserve(numberSamples);
-
-    auto onSample = [&](std::size_t slot, const TRowRef& row) {
-        if (slot >= samples.size()) {
-            samples.resize(slot + 1, TFloatVec(row.numberColumns()));
-        }
-        row.copyTo(samples[slot].begin());
-    };
-    TRowSampler sampler{numberSamples, onSample};
+    TRowSampler sampler{numberSamples, rowSampler(samples)};
 
     auto results = frame.readRows(
         1, core::bindRetrievableState(
