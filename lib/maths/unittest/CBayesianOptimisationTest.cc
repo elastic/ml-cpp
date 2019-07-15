@@ -15,7 +15,6 @@
 
 #include <test/CRandomNumbers.h>
 
-
 #include <vector>
 
 using namespace ml;

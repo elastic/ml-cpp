@@ -9,9 +9,9 @@
 
 #include <core/CMemory.h>
 
+#include <core/CPersistUtils.h>
 #include <core/CStatePersistInserter.h>
 #include <core/CStateRestoreTraverser.h>
-#include <core/CPersistUtils.h>
 
 #include <maths/CChecksum.h>
 #include <maths/CLinearAlgebra.h>
@@ -276,7 +276,7 @@ public:
         return seed;
     }
 
-    std::vector<SCALAR> toStdVector() const{
+    std::vector<SCALAR> toStdVector() const {
         std::vector<SCALAR> result;
         for (int i = 0; i < this->size(); ++i) {
             result.push_back(this->operator()(i));
@@ -286,7 +286,7 @@ public:
 
     static CDenseVector<SCALAR> fromStdVector(const std::vector<SCALAR>& vector) {
         CDenseVector<SCALAR> result(vector.size());
-        for (auto element: vector) {
+        for (auto element : vector) {
             result << element;
         }
         return result;
