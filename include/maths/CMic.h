@@ -12,6 +12,7 @@
 
 #include <boost/operators.hpp>
 
+#include <array>
 #include <vector>
 
 class CMicTest;
@@ -35,6 +36,9 @@ public:
     //! Reserve space for the number of samples if this known in advance.
     void reserve(std::size_t n);
 
+    //! Clear all state.
+    void clear();
+
     //! Merge this and \p other.
     const CMic& operator+=(const CMic& other);
 
@@ -47,6 +51,7 @@ public:
 private:
     using TDoubleVec = std::vector<double>;
     using TSizeVec = std::vector<std::size_t>;
+    using TSizeVec2Ary = std::array<TSizeVec, 2>;
     using TVector2d = CVectorNx1<double, 2>;
     using TVector2dVec = std::vector<TVector2d>;
     using TVectorXd = CVector<double>;
@@ -62,7 +67,7 @@ private:
 
 private:
     TVector2dVec m_Samples;
-    TSizeVec m_Order[2];
+    TSizeVec2Ary m_Order;
 
     friend class ::CMicTest;
 };

@@ -26,7 +26,16 @@ const double EPS{std::numeric_limits<double>::epsilon()};
 }
 
 void CMic::reserve(std::size_t n) {
-    m_Samples.reserve(n);
+    if (n > 0) {
+        m_Samples.reserve(n);
+    }
+}
+
+void CMic::clear() {
+    m_Samples.clear();
+    for (auto& order : m_Order) {
+        order.clear();
+    }
 }
 
 const CMic& CMic::operator+=(const CMic& other) {

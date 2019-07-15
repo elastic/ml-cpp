@@ -154,6 +154,7 @@ void CDataFrame::reserve(std::size_t numberThreads, std::size_t rowCapacity) {
 
 void CDataFrame::resizeColumns(std::size_t numberThreads, std::size_t numberColumns) {
     this->reserve(numberThreads, numberColumns);
+    m_ColumnIsCategorical.resize(numberColumns, false);
     m_NumberColumns = numberColumns;
 }
 
