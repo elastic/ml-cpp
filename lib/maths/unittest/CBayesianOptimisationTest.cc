@@ -6,14 +6,16 @@
 
 #include "CBayesianOptimisationTest.h"
 
+#include <core/CJsonStatePersistInserter.h>
+#include <core/CJsonStateRestoreTraverser.h>
+
 #include <maths/CBasicStatistics.h>
 #include <maths/CBayesianOptimisation.h>
 #include <maths/CLinearAlgebraEigen.h>
 
 #include <test/CRandomNumbers.h>
 
-#include <core/CJsonStatePersistInserter.h>
-#include <core/CJsonStateRestoreTraverser.h>
+
 #include <vector>
 
 using namespace ml;

@@ -124,22 +124,14 @@ private:
 
     std::function<void(core::CStatePersistInserter&)>
     persistFunctionMeanValues(const TVectorDoublePrVec& functionMeanValues) const;
-    std::function<void(core::CStatePersistInserter&)>
-    persistVector(const std::string& tag, const TVector& vector) const;
 
-    std::function<void(core::CStatePersistInserter&)>
-    persistVector(const std::string& tag, const TDoubleVec& vector) const;
-
-    std::function<bool(core::CStateRestoreTraverser&)>
-    restoreVector(const std::string& tag, TDoubleVec& vector);
+//    std::function<bool(core::CStateRestoreTraverser&)>
+//    restoreVector(const std::string& tag, TDoubleVec& vector);
 
     std::function<bool(core::CStateRestoreTraverser&)>
     restoreVector(const std::string& tag, TVector& vector);
 
-    bool restoreSubLevelVector(const std::string& tag,
-                               const std::string& name,
-                               TVector& vector,
-                               core::CStateRestoreTraverser& traverser);
+//    bool restoreSubLevelVector(TVector& vector, core::CStateRestoreTraverser& traverser);
 
     bool restoreFunctionMeanValues(TVectorDoublePrVec& functionMeanValues,
                                    core::CStateRestoreTraverser& traverser);

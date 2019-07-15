@@ -9,6 +9,10 @@
 
 #include <core/CMemory.h>
 
+#include <core/CStatePersistInserter.h>
+#include <core/CStateRestoreTraverser.h>
+#include <core/CPersistUtils.h>
+
 #include <maths/CChecksum.h>
 #include <maths/CLinearAlgebra.h>
 #include <maths/CLinearAlgebraFwd.h>
@@ -271,7 +275,57 @@ public:
         }
         return seed;
     }
+
+    std::vector<SCALAR> toStdVector() const{
+        std::vector<SCALAR> result;
+        for (int i = 0; i < this->size(); ++i) {
+            result.push_back(this->operator()(i));
+        }
+        return result;
+    }
+
+    static CDenseVector<SCALAR> fromStdVector(const std::vector<SCALAR>& vector) {
+        CDenseVector<SCALAR> result(vector.size());
+        for (auto element: vector) {
+            result << element;
+        }
+        return result;
+    }
+
+    //! Persist by passing information to \p inserter.
+    static void persist(const CDenseVector<SCALAR>& vector,
+                        core::CStatePersistInserter& inserter) {
+        std::vector<SCALAR> temporaryVector;
+        for (int i = 0; i < vector.size(); ++i) {
+            temporaryVector.push_back(vector(i));
+        }
+        inserter.insertValue(DENSE_VECTOR_TAG, core::CPersistUtils::toString(temporaryVector));
+    }
+
+    //! Populate the object from serialized data
+    static bool restore(const std::string& tag,
+                        core::CStateRestoreTraverser& traverser,
+                        CDenseVector<SCALAR>& vector) {
+        try {
+            std::vector<SCALAR> temporaryVector;
+            core::CPersistUtils::restore(tag, temporaryVector, traverser);
+            vector.resize(temporaryVector.size());
+            for (std::size_t i = 0u; i < temporaryVector.size(); ++i) {
+                vector(i) = temporaryVector[i];
+            }
+        } catch (std::exception& e) {
+            LOG_ERROR(<< "Failed to restore dense vector! " << e.what());
+            return false;
+        }
+        return true;
+    }
+
+public:
+    static const std::string DENSE_VECTOR_TAG;
 };
+
+template<typename SCALAR>
+const std::string CDenseVector<SCALAR>::DENSE_VECTOR_TAG{"dense_vector"};
 
 //! \brief Gets a constant dense vector with specified dimension.
 template<typename SCALAR>

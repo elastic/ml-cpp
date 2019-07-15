@@ -397,27 +397,6 @@ double CBayesianOptimisation::kernel(const TVector& a, const TVector& x, const T
 
 std::function<bool(core::CStateRestoreTraverser&)>
 CBayesianOptimisation::restoreVector(const std::string& tag,
-                                     CBayesianOptimisation::TDoubleVec& vector) {
-    auto restorationFunction = [&tag, &vector](core::CStateRestoreTraverser& traverser) {
-        double newValue{0.0};
-        CBayesianOptimisation::TDoubleVec newVector;
-        do {
-            if (traverser.name() == tag) {
-                if (core::CStringUtils::stringToType(traverser.value(), newValue) == false) {
-                    LOG_ERROR(<< "Error restoring vector: " << traverser.value());
-                    return false;
-                }
-                newVector.emplace_back(newValue);
-            }
-        } while (traverser.next());
-        vector = std::move(newVector);
-        return true;
-    };
-    return restorationFunction;
-}
-
-std::function<bool(core::CStateRestoreTraverser&)>
-CBayesianOptimisation::restoreVector(const std::string& tag,
                                      CBayesianOptimisation::TVector& vector) {
     auto restorationFunction = [&tag, &vector](core::CStateRestoreTraverser& traverser) {
         double newValue{0.0};
@@ -447,8 +426,7 @@ CBayesianOptimisation::restoreParameterValuePair(TVector& parameters, double& fu
                                       this](core::CStateRestoreTraverser& traverser) {
         do {
             if (traverser.name() == FUNCTION_PARAMETERS_TAG) {
-                if (traverser.traverseSubLevel(this->restoreVector(
-                        FUNCTION_PARAMETER_TAG, parameters)) == false) {
+                if (TVector::restore(FUNCTION_PARAMETERS_TAG, traverser, parameters) == false) {
                     return false;
                 }
             } else if (traverser.name() == FUNCTION_VALUE_TAG) {
@@ -475,7 +453,6 @@ bool CBayesianOptimisation::restoreFunctionMeanValues(CBayesianOptimisation::TVe
             TVectorDoublePrVec newVector;
             do {
                 if (traverser.name() == FUNCTION_PARAMETER_VALUE_PAIR_TAG) {
-                    if (traverser.hasSubLevel()) {
                         TVector parameters;
                         double functionValue;
                         if (traverser.traverseSubLevel(this->restoreParameterValuePair(
@@ -483,11 +460,6 @@ bool CBayesianOptimisation::restoreFunctionMeanValues(CBayesianOptimisation::TVe
                             return false;
                         }
                         newVector.emplace_back(parameters, functionValue);
-                    } else {
-                        LOG_ERROR("Error restoring function parameter value paris: "
-                                  << traverser.value() << ". Expected to have a sublevel");
-                        return false;
-                    }
                 } else {
                     LOG_ERROR(<< "Unexpected name for function parameter value pair: "
                               << traverser.name() << ". Expected name: "
@@ -501,10 +473,6 @@ bool CBayesianOptimisation::restoreFunctionMeanValues(CBayesianOptimisation::TVe
         };
         traverser.traverseSubLevel(restoreParameterValuePairs);
 
-    } else {
-        LOG_ERROR("Error restoring function mean values: "
-                  << traverser.value() << ". Expected to have a sublevel");
-        return false;
     }
     return true;
 }
@@ -523,13 +491,11 @@ bool CBayesianOptimisation::acceptRestoreTraverser(core::CStateRestoreTraverser&
         do {
             const std::string& name = traverser.name();
             if (name == MIN_BOUNDARY_TAG) {
-                if (restoreSubLevelVector(BOUNDARY_TAG, "minimum boundary",
-                                          m_MinBoundary, traverser) == false) {
+                if (TVector::restore(MIN_BOUNDARY_TAG, traverser, m_MinBoundary) == false) {
                     return false;
                 }
             } else if (name == MAX_BOUNDARY_TAG) {
-                if (restoreSubLevelVector(BOUNDARY_TAG, "maximum boundary",
-                                          m_MaxBoundary, traverser) == false) {
+                if (TVector::restore(MAX_BOUNDARY_TAG, traverser, m_MaxBoundary) == false) {
                     return false;
                 }
             } else if (name == ERROR_VARIANCES_TAG) {
@@ -538,15 +504,13 @@ bool CBayesianOptimisation::acceptRestoreTraverser(core::CStateRestoreTraverser&
                     return false;
                 }
             } else if (name == KERNEL_PARAMETERS_TAG) {
-                if (restoreSubLevelVector(KERNEL_PARAMETER_TAG, "kernel parameters",
-                                          m_KernelParameters, traverser) == false) {
+                if (TVector::restore(KERNEL_PARAMETERS_TAG, traverser,
+                                     m_KernelParameters) == false) {
                     return false;
                 }
             } else if (name == MIN_KERNEL_COORDINATE_DISTANCE_SCALES_TAG) {
-                if (restoreSubLevelVector(MIN_KERNEL_COORDINATE_DISTANCE_SCALE_TAG,
-                                          "minimum kernel coordinate distance scale",
-                                          m_MinimumKernelCoordinateDistanceScale,
-                                          traverser) == false) {
+                if (TVector::restore(MIN_KERNEL_COORDINATE_DISTANCE_SCALES_TAG, traverser,
+                                     m_MinimumKernelCoordinateDistanceScale) == false) {
                     return false;
                 }
             } else if (name == FUNCTION_MEAN_VALUES_TAG) {
@@ -567,60 +531,32 @@ bool CBayesianOptimisation::acceptRestoreTraverser(core::CStateRestoreTraverser&
     return true;
 }
 
-bool CBayesianOptimisation::restoreSubLevelVector(const std::string& tag,
-                                                  const std::string& name,
-                                                  TVector& vector,
-                                                  core::CStateRestoreTraverser& traverser) {
-    if (traverser.hasSubLevel()) {
-        if (traverser.traverseSubLevel(restoreVector(tag, vector)) == false) {
-            return false;
-        }
-    } else {
-        LOG_ERROR(<< "Error restoring " << name << ": " << traverser.value()
-                  << ". Expected to have a sublevel");
-        return false;
-    }
-    return true;
-}
+//bool CBayesianOptimisation::restoreSubLevelVector(TVector& vector,
+//                                                  core::CStateRestoreTraverser& traverser) {
+//    auto restoreTVector = [&vector](auto& traverser) {
+//        return TVector::restore(<#initializer #>, traverser, vector);
+//    };
+//    return traverser.traverseSubLevel(restoreTVector);
+//}
 
 void CBayesianOptimisation::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
     try {
-        inserter.insertLevel(MIN_BOUNDARY_TAG, persistVector(BOUNDARY_TAG, m_MinBoundary));
-        inserter.insertLevel(MAX_BOUNDARY_TAG, persistVector(BOUNDARY_TAG, m_MaxBoundary));
+        inserter.insertValue(MIN_BOUNDARY_TAG,
+                             core::CPersistUtils::toString(m_MinBoundary.toStdVector()));
+        inserter.insertValue(MAX_BOUNDARY_TAG,
+                             core::CPersistUtils::toString(m_MaxBoundary.toStdVector()));
         inserter.insertValue(ERROR_VARIANCES_TAG,
                              core::CPersistUtils::toString(m_ErrorVariances));
-        inserter.insertLevel(KERNEL_PARAMETERS_TAG,
-                             persistVector(KERNEL_PARAMETER_TAG, m_KernelParameters));
-        inserter.insertLevel(MIN_KERNEL_COORDINATE_DISTANCE_SCALES_TAG,
-                             persistVector(MIN_KERNEL_COORDINATE_DISTANCE_SCALE_TAG,
-                                           m_MinimumKernelCoordinateDistanceScale));
+        inserter.insertValue(KERNEL_PARAMETERS_TAG,
+                             core::CPersistUtils::toString(m_KernelParameters.toStdVector()));
+        inserter.insertValue(MIN_KERNEL_COORDINATE_DISTANCE_SCALES_TAG,
+                             core::CPersistUtils::toString(
+                                 m_MinimumKernelCoordinateDistanceScale.toStdVector()));
         inserter.insertLevel(FUNCTION_MEAN_VALUES_TAG,
                              persistFunctionMeanValues(m_FunctionMeanValues));
     } catch (std::exception& e) {
         LOG_ERROR(<< "Failed to persist state! " << e.what());
     }
-}
-
-std::function<void(core::CStatePersistInserter&)>
-CBayesianOptimisation::persistVector(const std::string& tag,
-                                     const CBayesianOptimisation::TVector& vector) const {
-    auto persistenceFunction = [&tag, &vector](core::CStatePersistInserter& inserter) {
-        for (int i = 0; i < vector.size(); ++i) {
-            inserter.insertValue(tag, vector[i], core::CIEEE754::E_DoublePrecision);
-        }
-    };
-    return persistenceFunction;
-}
-
-std::function<void(core::CStatePersistInserter&)>
-CBayesianOptimisation::persistVector(const std::string& tag,
-                                     const CBayesianOptimisation::TDoubleVec& vector) const {
-    auto persistenceFunction = [&tag, &vector](core::CStatePersistInserter& inserter) {
-        for (std::size_t i = 0u; i < vector.size(); ++i) {
-            inserter.insertValue(tag, vector[i], core::CIEEE754::E_DoublePrecision);
-        }
-    };
-    return persistenceFunction;
 }
 
 std::function<void(core::CStatePersistInserter&)> CBayesianOptimisation::persistFunctionMeanValues(
@@ -630,9 +566,9 @@ std::function<void(core::CStatePersistInserter&)> CBayesianOptimisation::persist
         for (const auto& functionPoint : functionMeanValues) {
             auto persistParameterValuePair =
                 [&functionPoint, this](core::CStatePersistInserter& inserter_) {
-                    inserter_.insertLevel(FUNCTION_PARAMETERS_TAG,
-                                          persistVector(FUNCTION_PARAMETER_TAG,
-                                                        functionPoint.first));
+                    inserter_.insertValue(FUNCTION_PARAMETERS_TAG,
+                                          core::CPersistUtils::toString(
+                                              functionPoint.first.toStdVector()));
                     inserter_.insertValue(FUNCTION_VALUE_TAG, functionPoint.second,
                                           core::CIEEE754::E_DoublePrecision);
                 };
