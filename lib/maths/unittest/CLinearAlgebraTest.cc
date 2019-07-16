@@ -1507,17 +1507,16 @@ void CLinearAlgebraTest::testPersist() {
 
         LOG_DEBUG(<< "vector XML representation:\n" << origXml);
 
-        // Restore the XML into a new regression.
+        // Restore the XML into a new vector.
         core::CRapidXmlParser parser;
         CPPUNIT_ASSERT(parser.parseStringIgnoreCdata(origXml));
         core::CRapidXmlStateRestoreTraverser traverser(parser);
-
         maths::CDenseVector<double> restoredVector;
         CPPUNIT_ASSERT(traverser.traverseSubLevel(
             std::bind(&maths::CDenseVector<double>::acceptRestoreTraverser,
                       &restoredVector, std::placeholders::_1)));
 
-        CPPUNIT_ASSERT_EQUAL(origVector.checksum(0), restoredVector.checksum(0));
+        CPPUNIT_ASSERT_EQUAL(origVector.checksum(), restoredVector.checksum());
     }
 }
 
