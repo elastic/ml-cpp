@@ -169,6 +169,8 @@ private:
 
 private:
     TImplUPtr m_Impl;
+
+    friend class CBoostedTreeFactory;
 };
 }
 }
