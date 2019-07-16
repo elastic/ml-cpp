@@ -343,6 +343,8 @@ void CBayesianOptimisationTest::testPersistRestoreSubroutine(
         persistTwiceSStream.flush();
     }
     CPPUNIT_ASSERT_EQUAL(persistOnceSStream.str(), persistTwiceSStream.str());
+    LOG_DEBUG(<< "First string " << persistOnceSStream.str());
+    LOG_DEBUG(<< "Second string " << persistTwiceSStream.str());
 }
 
 CppUnit::Test* CBayesianOptimisationTest::suite() {

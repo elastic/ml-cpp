@@ -4,14 +4,14 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
-#include <maths/CLinearAlgebraEigen.h>
-#include <maths/CPRNG.h>
-#include <maths/ImportExport.h>
-
 #include <core/CDataSearcher.h>
 #include <core/CStatePersistInserter.h>
 #include <core/CStateRestoreTraverser.h>
 #include <core/CoreTypes.h>
+
+#include <maths/CLinearAlgebraEigen.h>
+#include <maths/CPRNG.h>
+#include <maths/ImportExport.h>
 
 #include <functional>
 #include <utility>
@@ -121,15 +121,6 @@ private:
     TMatrix kernel(const TVector& a, double v) const;
     TVectorDoublePr kernelCovariates(const TVector& a, const TVector& x, double vx) const;
     double kernel(const TVector& a, const TVector& x, const TVector& y) const;
-
-    std::function<void(core::CStatePersistInserter&)>
-    persistFunctionMeanValues(const TVectorDoublePrVec& functionMeanValues) const;
-
-    bool restoreFunctionMeanValues(TVectorDoublePrVec& functionMeanValues,
-                                   core::CStateRestoreTraverser& traverser);
-
-    std::function<bool(core::CStateRestoreTraverser&)>
-    restoreParameterValuePair(TVector& parameters, double& functionValue);
 
 private:
     CPRNG::CXorOShiro128Plus m_Rng;

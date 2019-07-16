@@ -8,10 +8,10 @@
 #define INCLUDED_ml_maths_CLinearAlgebraEigen_h
 
 #include <core/CMemory.h>
-
 #include <core/CPersistUtils.h>
 #include <core/CStatePersistInserter.h>
 #include <core/CStateRestoreTraverser.h>
+#include <core/RestoreMacros.h>
 
 #include <maths/CChecksum.h>
 #include <maths/CLinearAlgebra.h>
@@ -278,6 +278,7 @@ public:
 
     std::vector<SCALAR> toStdVector() const {
         std::vector<SCALAR> result;
+        result.reserve(this->size());
         for (int i = 0; i < this->size(); ++i) {
             result.push_back(this->operator()(i));
         }
@@ -293,30 +294,29 @@ public:
     }
 
     //! Persist by passing information to \p inserter.
-    static void persist(const CDenseVector<SCALAR>& vector,
-                        core::CStatePersistInserter& inserter) {
-        std::vector<SCALAR> temporaryVector;
-        for (int i = 0; i < vector.size(); ++i) {
-            temporaryVector.push_back(vector(i));
-        }
-        inserter.insertValue(DENSE_VECTOR_TAG, core::CPersistUtils::toString(temporaryVector));
+    void acceptPersistInserter(core::CStatePersistInserter& inserter) const {
+        inserter.insertValue(DENSE_VECTOR_TAG,
+                             core::CPersistUtils::toString(this->toStdVector()));
     }
 
     //! Populate the object from serialized data
-    static bool restore(const std::string& tag,
-                        CDenseVector<SCALAR>& vector,
-                        core::CStateRestoreTraverser& traverser) {
+    bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
+        std::vector<SCALAR> tempVector;
+        if (core::CPersistUtils::restore(DENSE_VECTOR_TAG, tempVector, traverser) == false) {
+            LOG_ERROR(<< "Failed to restore " << DENSE_VECTOR_TAG << ", got "
+                      << traverser.value());
+            return false;
+        }
         try {
-            std::vector<SCALAR> temporaryVector;
-            core::CPersistUtils::restore(tag, temporaryVector, traverser);
-            vector.resize(temporaryVector.size());
-            for (std::size_t i = 0u; i < temporaryVector.size(); ++i) {
-                vector(i) = temporaryVector[i];
+            this->resize(tempVector.size());
+            for (std::size_t i = 0u; i < tempVector.size(); ++i) {
+                this->operator()(i) = tempVector[i];
             }
         } catch (std::exception& e) {
             LOG_ERROR(<< "Failed to restore dense vector! " << e.what());
             return false;
         }
+
         return true;
     }
 
