@@ -15,8 +15,14 @@ public:
     void testMaximumLikelihoodKernel();
     void testExpectedImprovementGradient();
     void testMaximumExpectedImprovement();
+    void testPersistRestore();
 
     static CppUnit::Test* suite();
+
+private:
+    void testPersistRestoreSubroutine(const std::vector<double>& minBoundary,
+                                      const std::vector<double>& maxBoundary,
+                                      const std::vector<std::vector<double>>& parameterFunctionValues) const;
 };
 
 #endif // INCLUDED_CBayesianOptimisationTest_h

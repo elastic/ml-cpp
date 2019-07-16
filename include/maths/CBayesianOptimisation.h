@@ -4,6 +4,11 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
+#include <core/CDataSearcher.h>
+#include <core/CStatePersistInserter.h>
+#include <core/CStateRestoreTraverser.h>
+#include <core/CoreTypes.h>
+
 #include <maths/CLinearAlgebraEigen.h>
 #include <maths/CPRNG.h>
 #include <maths/ImportExport.h>
@@ -61,6 +66,12 @@ public:
     //! function evaluations added so far.
     TVector maximumExpectedImprovement();
 
+    //! Persist by passing information to \p inserter.
+    void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
+
+    //! Populate the object from serialized data
+    bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
+
     //! \name Test Interface
     //@{
     //! Get minus the data likelihood and its gradient as a function of the kernel
@@ -106,9 +117,9 @@ private:
     std::size_t m_Restarts = 10;
     double m_RangeShift = 0.0;
     double m_RangeScale = 1.0;
-    TVector m_A;
-    TVector m_B;
-    TVectorDoublePrVec m_Function;
+    TVector m_MinBoundary;
+    TVector m_MaxBoundary;
+    TVectorDoublePrVec m_FunctionMeanValues;
     TDoubleVec m_ErrorVariances;
     TVector m_KernelParameters;
     TVector m_MinimumKernelCoordinateDistanceScale;

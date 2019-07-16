@@ -6,6 +6,9 @@
 
 #include "CBayesianOptimisationTest.h"
 
+#include <core/CJsonStatePersistInserter.h>
+#include <core/CJsonStateRestoreTraverser.h>
+
 #include <maths/CBasicStatistics.h>
 #include <maths/CBayesianOptimisation.h>
 #include <maths/CLinearAlgebraEigen.h>
@@ -260,6 +263,90 @@ void CBayesianOptimisationTest::testMaximumExpectedImprovement() {
     CPPUNIT_ASSERT(maths::CBasicStatistics::mean(gain) > 1.29);
 }
 
+void CBayesianOptimisationTest::testPersistRestore() {
+    // 1d
+    {
+        std::vector<double> minBoundary{0.};
+        std::vector<double> maxBoundary{10.};
+        // empty
+        {
+            std::vector<std::vector<double>> parameterFunctionValues{};
+            testPersistRestoreSubroutine(minBoundary, maxBoundary, parameterFunctionValues);
+        }
+        // with data
+        {
+            std::vector<std::vector<double>> parameterFunctionValues{
+                {5., 1., 0.2},
+                {7., 1., 0.2},
+            };
+            testPersistRestoreSubroutine(minBoundary, maxBoundary, parameterFunctionValues);
+        }
+    }
+
+    // 2d
+    {
+        std::vector<double> minBoundary{0., -1.};
+        std::vector<double> maxBoundary{10., 1.};
+        // empty
+        {
+            std::vector<std::vector<double>> parameterFunctionValues{};
+            testPersistRestoreSubroutine(minBoundary, maxBoundary, parameterFunctionValues);
+        }
+        // with data
+        {
+            std::vector<std::vector<double>> parameterFunctionValues{
+                {5., 0., 1., 0.2},
+                {7., 0., 1., 0.2},
+            };
+            testPersistRestoreSubroutine(minBoundary, maxBoundary, parameterFunctionValues);
+        }
+    }
+}
+
+void CBayesianOptimisationTest::testPersistRestoreSubroutine(
+    const std::vector<double>& minBoundary,
+    const std::vector<double>& maxBoundary,
+    const std::vector<std::vector<double>>& parameterFunctionValues) const {
+    std::stringstream persistOnceSStream;
+    std::stringstream persistTwiceSStream;
+    std::size_t dimensions = minBoundary.size();
+    // persist
+    {
+        maths::CBayesianOptimisation::TDoubleDoublePrVec parameterBoundaries;
+        for (std::size_t i = 0u; i < dimensions; ++i) {
+            parameterBoundaries.emplace_back(minBoundary[i], maxBoundary[i]);
+        }
+        maths::CBayesianOptimisation bayesianOptimisation(parameterBoundaries);
+        if (parameterFunctionValues.empty() == false) {
+            for (auto parameterFunctionValue : parameterFunctionValues) {
+                maths::CBayesianOptimisation::TVector parameter(dimensions);
+                for (std::size_t i = 0u; i < dimensions; ++i) {
+                    parameter(i) = parameterFunctionValue[i];
+                }
+                bayesianOptimisation.add(parameter, parameterFunctionValue[dimensions],
+                                         parameterFunctionValue[dimensions + 1]);
+            }
+        }
+
+        core::CJsonStatePersistInserter inserter(persistOnceSStream);
+        bayesianOptimisation.acceptPersistInserter(inserter);
+        persistOnceSStream.flush();
+    }
+    // and restore
+    {
+        maths::CBayesianOptimisation bayesianOptimisation({});
+        core::CJsonStateRestoreTraverser traverser(persistOnceSStream);
+        bayesianOptimisation.acceptRestoreTraverser(traverser);
+
+        core::CJsonStatePersistInserter inserter(persistTwiceSStream);
+        bayesianOptimisation.acceptPersistInserter(inserter);
+        persistTwiceSStream.flush();
+    }
+    CPPUNIT_ASSERT_EQUAL(persistOnceSStream.str(), persistTwiceSStream.str());
+    LOG_DEBUG(<< "First string " << persistOnceSStream.str());
+    LOG_DEBUG(<< "Second string " << persistTwiceSStream.str());
+}
+
 CppUnit::Test* CBayesianOptimisationTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CBayesianOptimisationTest");
 
@@ -275,6 +362,9 @@ CppUnit::Test* CBayesianOptimisationTest::suite() {
     suiteOfTests->addTest(new CppUnit::TestCaller<CBayesianOptimisationTest>(
         "CBayesianOptimisationTest::testMaximumExpectedImprovement",
         &CBayesianOptimisationTest::testMaximumExpectedImprovement));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CBayesianOptimisationTest>(
+        "CBayesianOptimisationTest::testPersistRestore",
+        &CBayesianOptimisationTest::testPersistRestore));
 
     return suiteOfTests;
 }

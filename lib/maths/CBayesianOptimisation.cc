@@ -6,6 +6,11 @@
 
 #include <maths/CBayesianOptimisation.h>
 
+#include <core/CIEEE754.h>
+#include <core/CJsonStateRestoreTraverser.h>
+#include <core/CPersistUtils.h>
+#include <core/RestoreMacros.h>
+
 #include <maths/CBasicStatistics.h>
 #include <maths/CLbfgs.h>
 #include <maths/CLinearAlgebraEigen.h>
@@ -18,8 +23,17 @@
 namespace ml {
 namespace maths {
 
+namespace {
+const std::string MIN_BOUNDARY_TAG{"min_boundary"};
+const std::string MAX_BOUNDARY_TAG{"max_boundary"};
+const std::string ERROR_VARIANCES_TAG{"error_variances"};
+const std::string KERNEL_PARAMETERS_TAG{"kernel_parameters"};
+const std::string MIN_KERNEL_COORDINATE_DISTANCE_SCALES_TAG{"min_kernel_coordinate_distance_scales"};
+const std::string FUNCTION_MEAN_VALUES_TAG{"function_mean_values"};
+}
+
 CBayesianOptimisation::CBayesianOptimisation(TDoubleDoublePrVec parameterBounds)
-    : m_A(parameterBounds.size()), m_B(parameterBounds.size()),
+    : m_MinBoundary(parameterBounds.size()), m_MaxBoundary(parameterBounds.size()),
       m_KernelParameters(parameterBounds.size() + 1),
       m_MinimumKernelCoordinateDistanceScale(parameterBounds.size()) {
 
@@ -28,13 +42,14 @@ CBayesianOptimisation::CBayesianOptimisation(TDoubleDoublePrVec parameterBounds)
         parameterBounds.size(), MINIMUM_KERNEL_COORDINATE_DISTANCE_SCALE);
 
     for (std::size_t i = 0; i < parameterBounds.size(); ++i) {
-        m_A(i) = parameterBounds[i].first;
-        m_B(i) = parameterBounds[i].second;
+        m_MinBoundary(i) = parameterBounds[i].first;
+        m_MaxBoundary(i) = parameterBounds[i].second;
     }
 }
 
 void CBayesianOptimisation::add(TVector x, double fx, double vx) {
-    m_Function.emplace_back(x.cwiseQuotient(m_B - m_A), m_RangeScale * (fx - m_RangeShift));
+    m_FunctionMeanValues.emplace_back(x.cwiseQuotient(m_MaxBoundary - m_MinBoundary),
+                                      m_RangeScale * (fx - m_RangeShift));
     m_ErrorVariances.push_back(CTools::pow2(m_RangeScale) * vx);
 }
 
@@ -55,12 +70,12 @@ CBayesianOptimisation::TVector CBayesianOptimisation::maximumExpectedImprovement
     std::tie(minusEI, minusEIGradient) = this->minusExpectedImprovementAndGradient();
 
     // Use random restarts inside the constraint bounding box.
-    TVector interpolate(m_A.size());
+    TVector interpolate(m_MinBoundary.size());
     TDoubleVec interpolates;
     CSampling::uniformSample(m_Rng, 0.0, 1.0, 3 * m_Restarts * interpolate.size(), interpolates);
 
-    TVector a{m_A.cwiseQuotient(m_B - m_A)};
-    TVector b{m_B.cwiseQuotient(m_B - m_A)};
+    TVector a{m_MinBoundary.cwiseQuotient(m_MaxBoundary - m_MinBoundary)};
+    TVector b{m_MaxBoundary.cwiseQuotient(m_MaxBoundary - m_MinBoundary)};
     TMeanAccumulator rho_;
     TMinAccumulator seeds{m_Restarts};
 
@@ -102,10 +117,10 @@ CBayesianOptimisation::TVector CBayesianOptimisation::maximumExpectedImprovement
         }
     }
 
-    LOG_TRACE(<< "best = " << xmax.cwiseProduct(m_B - m_A).transpose()
+    LOG_TRACE(<< "best = " << xmax.cwiseProduct(m_MaxBoundary - m_MinBoundary).transpose()
               << " EI(best) = " << fmax);
 
-    return xmax.cwiseProduct(m_B - m_A);
+    return xmax.cwiseProduct(m_MaxBoundary - m_MinBoundary);
 }
 
 std::pair<CBayesianOptimisation::TLikelihoodFunc, CBayesianOptimisation::TLikelihoodGradientFunc>
@@ -121,7 +136,6 @@ CBayesianOptimisation::minusLikelihoodAndGradient() const {
     };
 
     auto likelihoodGradient = [f, v, this](const TVector& a) {
-
         TMatrix K{this->kernel(a, v)};
         Eigen::LDLT<Eigen::MatrixXd> Kldl{K};
 
@@ -165,14 +179,14 @@ CBayesianOptimisation::minusExpectedImprovementAndGradient() const {
 
     double vx{this->meanErrorVariance()};
 
-    double fmin{std::min_element(m_Function.begin(), m_Function.end(),
-                                 [](const TVectorDoublePr& lhs, const TVectorDoublePr& rhs) {
-                                     return lhs.second < rhs.second;
-                                 })
-                    ->second};
+    double fmin{
+        std::min_element(m_FunctionMeanValues.begin(), m_FunctionMeanValues.end(),
+                         [](const TVectorDoublePr& lhs, const TVectorDoublePr& rhs) {
+                             return lhs.second < rhs.second;
+                         })
+            ->second};
 
     auto EI = [Kldl, Kinvf, vx, fmin, this](const TVector& x) {
-
         double Kxx;
         TVector Kxn;
         std::tie(Kxn, Kxx) = this->kernelCovariates(m_KernelParameters, x, vx);
@@ -192,7 +206,6 @@ CBayesianOptimisation::minusExpectedImprovementAndGradient() const {
     };
 
     auto EIGradient = [Kldl, Kinvf, vx, fmin, this](const TVector& x) {
-
         double Kxx;
         TVector Kxn;
         std::tie(Kxn, Kxx) = this->kernelCovariates(m_KernelParameters, x, vx);
@@ -217,7 +230,7 @@ CBayesianOptimisation::minusExpectedImprovementAndGradient() const {
         for (int i = 0; i < x.size(); ++i) {
             TVector dKxndx{Kxn.size()};
             for (int j = 0; j < Kxn.size(); ++j) {
-                const TVector& xj{m_Function[j].first};
+                const TVector& xj{m_FunctionMeanValues[j].first};
                 dKxndx(j) = 2.0 *
                             (m_MinimumKernelCoordinateDistanceScale(0) +
                              CTools::pow2(m_KernelParameters(i + 1))) *
@@ -287,7 +300,7 @@ void CBayesianOptimisation::precondition() {
 
     using TMeanVarAccumulator = CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
 
-    for (auto& value : m_Function) {
+    for (auto& value : m_FunctionMeanValues) {
         value.second = m_RangeShift + value.second / m_RangeScale;
     }
     for (auto& variance : m_ErrorVariances) {
@@ -295,7 +308,7 @@ void CBayesianOptimisation::precondition() {
     }
 
     TMeanVarAccumulator rangeMoments;
-    for (const auto& value : m_Function) {
+    for (const auto& value : m_FunctionMeanValues) {
         rangeMoments.add(value.second);
     }
 
@@ -303,7 +316,7 @@ void CBayesianOptimisation::precondition() {
     m_RangeShift = CBasicStatistics::mean(rangeMoments);
     m_RangeScale = 1.0 / std::sqrt(CBasicStatistics::variance(rangeMoments) + eps);
 
-    for (auto& value : m_Function) {
+    for (auto& value : m_FunctionMeanValues) {
         value.second = m_RangeScale * (value.second - m_RangeShift);
     }
     for (auto& variance : m_ErrorVariances) {
@@ -312,9 +325,9 @@ void CBayesianOptimisation::precondition() {
 }
 
 CBayesianOptimisation::TVector CBayesianOptimisation::function() const {
-    TVector result(m_Function.size());
-    for (std::size_t i = 0; i < m_Function.size(); ++i) {
-        result(i) = m_Function[i].second;
+    TVector result(m_FunctionMeanValues.size());
+    for (std::size_t i = 0; i < m_FunctionMeanValues.size(); ++i) {
+        result(i) = m_FunctionMeanValues[i].second;
     }
     return result;
 }
@@ -327,12 +340,12 @@ double CBayesianOptimisation::meanErrorVariance() const {
 }
 
 CBayesianOptimisation::TMatrix CBayesianOptimisation::dKerneld(const TVector& a, int k) const {
-    TMatrix result{m_Function.size(), m_Function.size()};
-    for (std::size_t i = 0; i < m_Function.size(); ++i) {
+    TMatrix result{m_FunctionMeanValues.size(), m_FunctionMeanValues.size()};
+    for (std::size_t i = 0; i < m_FunctionMeanValues.size(); ++i) {
         result(i, i) = 0.0;
-        const TVector& xi{m_Function[i].first};
+        const TVector& xi{m_FunctionMeanValues[i].first};
         for (std::size_t j = 0; j < i; ++j) {
-            const TVector& xj{m_Function[j].first};
+            const TVector& xj{m_FunctionMeanValues[j].first};
             result(i, j) = result(j, i) = 2.0 * a(k) *
                                           CTools::pow2(xi(k - 1) - xj(k - 1)) *
                                           this->kernel(a, xi, xj);
@@ -342,12 +355,12 @@ CBayesianOptimisation::TMatrix CBayesianOptimisation::dKerneld(const TVector& a,
 }
 
 CBayesianOptimisation::TMatrix CBayesianOptimisation::kernel(const TVector& a, double v) const {
-    TMatrix result{m_Function.size(), m_Function.size()};
-    for (std::size_t i = 0; i < m_Function.size(); ++i) {
+    TMatrix result{m_FunctionMeanValues.size(), m_FunctionMeanValues.size()};
+    for (std::size_t i = 0; i < m_FunctionMeanValues.size(); ++i) {
         result(i, i) = CTools::pow2(a(0)) + v;
-        const TVector& xi{m_Function[i].first};
+        const TVector& xi{m_FunctionMeanValues[i].first};
         for (std::size_t j = 0; j < i; ++j) {
-            const TVector& xj{m_Function[j].first};
+            const TVector& xj{m_FunctionMeanValues[j].first};
             result(i, j) = result(j, i) = this->kernel(a, xi, xj);
         }
     }
@@ -357,9 +370,9 @@ CBayesianOptimisation::TMatrix CBayesianOptimisation::kernel(const TVector& a, d
 CBayesianOptimisation::TVectorDoublePr
 CBayesianOptimisation::kernelCovariates(const TVector& a, const TVector& x, double vx) const {
     double Kxx{CTools::pow2(a(0)) + vx};
-    TVector Kxn(m_Function.size());
-    for (std::size_t i = 0; i < m_Function.size(); ++i) {
-        Kxn(i) = this->kernel(a, x, m_Function[i].first);
+    TVector Kxn(m_FunctionMeanValues.size());
+    for (std::size_t i = 0; i < m_FunctionMeanValues.size(); ++i) {
+        Kxn(i) = this->kernel(a, x, m_FunctionMeanValues[i].first);
     }
     return {Kxn, Kxx};
 }
@@ -370,6 +383,55 @@ double CBayesianOptimisation::kernel(const TVector& a, const TVector& x, const T
                                           a.tail(a.size() - 1).cwiseAbs2().matrix())
                                              .asDiagonal() *
                                          (x - y));
+}
+
+bool CBayesianOptimisation::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
+    try {
+        do {
+            const std::string& name = traverser.name();
+            RESTORE(MIN_BOUNDARY_TAG,
+                    core::CPersistUtils::restore(MIN_BOUNDARY_TAG, m_MinBoundary, traverser))
+            RESTORE(MAX_BOUNDARY_TAG,
+                    core::CPersistUtils::restore(MAX_BOUNDARY_TAG, m_MaxBoundary, traverser))
+            RESTORE(ERROR_VARIANCES_TAG,
+                    core::CPersistUtils::restore(ERROR_VARIANCES_TAG, m_ErrorVariances, traverser))
+            RESTORE(KERNEL_PARAMETERS_TAG,
+                    core::CPersistUtils::restore(KERNEL_PARAMETERS_TAG,
+                                                 m_KernelParameters, traverser))
+            RESTORE(MIN_KERNEL_COORDINATE_DISTANCE_SCALES_TAG,
+                    core::CPersistUtils::restore(
+                        MIN_KERNEL_COORDINATE_DISTANCE_SCALES_TAG,
+                        m_MinimumKernelCoordinateDistanceScale, traverser))
+            RESTORE(FUNCTION_MEAN_VALUES_TAG,
+                    core::CPersistUtils::restore(FUNCTION_MEAN_VALUES_TAG,
+                                                 m_FunctionMeanValues, traverser))
+            else {
+                LOG_ERROR(<< "Unexpected name for restoring bayesian optimization parameters: "
+                          << traverser.name());
+                return false;
+            }
+        } while (traverser.next());
+    } catch (std::exception& e) {
+        LOG_ERROR(<< "Failed to restore state! " << e.what());
+        return false;
+    }
+
+    return true;
+}
+
+void CBayesianOptimisation::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
+    try {
+        core::CPersistUtils::persist(MIN_BOUNDARY_TAG, m_MinBoundary, inserter);
+
+        core::CPersistUtils::persist(MAX_BOUNDARY_TAG, m_MaxBoundary, inserter);
+        core::CPersistUtils::persist(ERROR_VARIANCES_TAG, m_ErrorVariances, inserter);
+        core::CPersistUtils::persist(KERNEL_PARAMETERS_TAG, m_KernelParameters, inserter);
+        core::CPersistUtils::persist(MIN_KERNEL_COORDINATE_DISTANCE_SCALES_TAG,
+                                     m_MinimumKernelCoordinateDistanceScale, inserter);
+        core::CPersistUtils::persist(FUNCTION_MEAN_VALUES_TAG, m_FunctionMeanValues, inserter);
+    } catch (std::exception& e) {
+        LOG_ERROR(<< "Failed to persist state! " << e.what());
+    }
 }
 
 const double CBayesianOptimisation::MINIMUM_KERNEL_COORDINATE_DISTANCE_SCALE{1e-3};
