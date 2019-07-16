@@ -77,13 +77,14 @@ private:
 //! \brief The MSE loss function.
 class MATHS_EXPORT CMse final : public CLoss {
 public:
-public:
     double value(double prediction, double actual) const override;
     double gradient(double prediction, double actual) const override;
     double curvature(double prediction, double actual) const override;
     TArgMinLossUPtr minimizer() const override;
 };
 }
+
+class CBoostedTreeImpl;
 
 //! \brief A boosted regression tree model.
 //!
@@ -126,6 +127,7 @@ public:
     //@{
     //! Set the number of folds to use for estimating the generalisation error.
     CBoostedTree& numberFolds(std::size_t folds);
+
     //! Set the lambda regularisation parameter.
     CBoostedTree& lambda(double lambda);
     //! Set the gamma regularisation parameter.
@@ -166,11 +168,12 @@ public:
     std::size_t estimateMemoryUsage(std::size_t numberRows, std::size_t numberColumns) const;
 
 private:
-    class CImpl;
-    using TImplUPtr = std::unique_ptr<CImpl>;
+    using TImplUPtr = std::unique_ptr<CBoostedTreeImpl>;
 
 private:
     TImplUPtr m_Impl;
+
+    friend class CBoostedTreeFactory;
 };
 }
 }

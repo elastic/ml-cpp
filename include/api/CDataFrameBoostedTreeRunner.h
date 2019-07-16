@@ -16,6 +16,7 @@
 namespace ml {
 namespace maths {
 class CBoostedTree;
+class CBoostedTreeFactory;
 }
 namespace api {
 
@@ -41,6 +42,7 @@ public:
 
 private:
     using TBoostedTreeUPtr = std::unique_ptr<maths::CBoostedTree>;
+    using TBoostedTreeFactoryUPtr = std::unique_ptr<maths::CBoostedTreeFactory>;
 
 private:
     void runImpl(core::CDataFrame& frame) override;
@@ -54,6 +56,7 @@ private:
 
     //! The tree.
     TBoostedTreeUPtr m_BoostedTree;
+    TBoostedTreeFactoryUPtr m_BoostedTreeFactory;
 };
 
 //! \brief Makes a core::CDataFrame boosted tree regression runner.
