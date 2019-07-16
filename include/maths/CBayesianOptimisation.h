@@ -66,9 +66,6 @@ public:
     //! function evaluations added so far.
     TVector maximumExpectedImprovement();
 
-    //! Restore previously saved state
-    bool restoreState(core::CDataSearcher& restoreSearcher, core_t::TTime& completeToTime);
-
     //! Persist by passing information to \p inserter.
     void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
 
