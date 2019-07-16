@@ -83,6 +83,25 @@ void CResourceMonitorTest::testMonitor() {
         }
     }
     {
+        // Test foreground persistence constructor
+        CResourceMonitor mon(true);
+        CPPUNIT_ASSERT(mon.m_ByteLimitHigh > 0);
+        CPPUNIT_ASSERT_EQUAL((49 * mon.m_ByteLimitHigh) / 50, mon.m_ByteLimitLow);
+        CPPUNIT_ASSERT(mon.m_ByteLimitHigh > mon.m_ByteLimitLow);
+        CPPUNIT_ASSERT(mon.m_AllowAllocations);
+        LOG_DEBUG(<< "Resource limit is: " << mon.m_ByteLimitHigh);
+        if (sizeof(std::size_t) == 4) {
+            // 32-bit platform
+            CPPUNIT_ASSERT_EQUAL(std::size_t(1024ull * 1024 * 1024 / 2), mon.m_ByteLimitHigh);
+        } else if (sizeof(std::size_t) == 8) {
+            // 64-bit platform
+            CPPUNIT_ASSERT_EQUAL(std::size_t(4096ull * 1024 * 1024), mon.m_ByteLimitHigh);
+        } else {
+            // Unexpected platform
+            CPPUNIT_ASSERT(false);
+        }
+    }
+    {
         // Test size constructor
         CResourceMonitor mon;
         mon.memoryLimit(543);
@@ -123,7 +142,7 @@ void CResourceMonitorTest::testMonitor() {
     }
     {
         // Check that High limit can be breached and then gone back
-        CResourceMonitor mon(1.0);
+        CResourceMonitor mon(false, 1.0);
         CPPUNIT_ASSERT(mem > 5); // This SHOULD be OK
 
         // Let's go above the low but below the high limit
@@ -309,7 +328,7 @@ void CResourceMonitorTest::testPruning() {
 
     CAnomalyDetectorModelConfig modelConfig =
         CAnomalyDetectorModelConfig::defaultConfig(BUCKET_LENGTH);
-    CLimits limits(1.0);
+    CLimits limits(false, 1.0);
 
     CSearchKey key(1, // identifier
                    function_t::E_IndividualMetric, false, model_t::E_XF_None,

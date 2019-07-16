@@ -25,7 +25,7 @@ class CDataAdder;
 class CDataSearcher;
 }
 namespace api {
-class CBackgroundPersister;
+class CPersistenceManager;
 
 //! \brief
 //! Interface for CDataProcessor output
@@ -86,10 +86,10 @@ public:
                               core_t::TTime& completeToTime);
 
     //! Persist current state
-    virtual bool persistState(core::CDataAdder& persister);
+    virtual bool persistState(core::CDataAdder& persister, const std::string& descriptionPrefix);
 
     //! Persist current state due to the periodic persistence being triggered.
-    virtual bool periodicPersistState(CBackgroundPersister& persister);
+    virtual bool periodicPersistStateInBackground(CPersistenceManager& persister);
 
     //! Is persistence needed?
     virtual bool isPersistenceNeeded(const std::string& description) const;

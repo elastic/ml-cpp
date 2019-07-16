@@ -3,8 +3,7 @@
  * or more contributor license agreements. Licensed under the Elastic License;
  * you may not use this file except in compliance with the Elastic License.
  */
-#include <api/CBackgroundPersister.h>
-
+#include <api/CPersistenceManager.h>
 #include <core/CLogger.h>
 #include <core/CProgramCounters.h>
 #include <core/CScopedFastLock.h>
@@ -20,9 +19,11 @@ namespace {
 const core_t::TTime PERSIST_INTERVAL_INCREMENT(300); // 5 minutes
 }
 
-CBackgroundPersister::CBackgroundPersister(core_t::TTime periodicPersistInterval,
-                                           core::CDataAdder& dataAdder)
+CPersistenceManager::CPersistenceManager(core_t::TTime periodicPersistInterval,
+                                         bool persistInForeground,
+                                         core::CDataAdder& dataAdder)
     : m_PeriodicPersistInterval(periodicPersistInterval),
+      m_PersistInForeground(persistInForeground),
       m_LastPeriodicPersistTime(core::CTimeUtils::now()), m_DataAdder(dataAdder),
       m_IsBusy(false), m_IsShutdown(false), m_BackgroundThread(*this) {
     if (m_PeriodicPersistInterval < PERSIST_INTERVAL_INCREMENT) {
@@ -32,10 +33,12 @@ CBackgroundPersister::CBackgroundPersister(core_t::TTime periodicPersistInterval
     }
 }
 
-CBackgroundPersister::CBackgroundPersister(core_t::TTime periodicPersistInterval,
-                                           const TFirstProcessorPeriodicPersistFunc& firstProcessorPeriodicPersistFunc,
-                                           core::CDataAdder& dataAdder)
+CPersistenceManager::CPersistenceManager(core_t::TTime periodicPersistInterval,
+                                         bool persistInForeground,
+                                         const TFirstProcessorPeriodicPersistFunc& firstProcessorPeriodicPersistFunc,
+                                         core::CDataAdder& dataAdder)
     : m_PeriodicPersistInterval(periodicPersistInterval),
+      m_PersistInForeground(persistInForeground),
       m_LastPeriodicPersistTime(core::CTimeUtils::now()),
       m_FirstProcessorPeriodicPersistFunc(firstProcessorPeriodicPersistFunc),
       m_DataAdder(dataAdder), m_IsBusy(false), m_IsShutdown(false),
@@ -47,15 +50,15 @@ CBackgroundPersister::CBackgroundPersister(core_t::TTime periodicPersistInterval
     }
 }
 
-CBackgroundPersister::~CBackgroundPersister() {
+CPersistenceManager::~CPersistenceManager() {
     this->waitForIdle();
 }
 
-bool CBackgroundPersister::isBusy() const {
+bool CPersistenceManager::isBusy() const {
     return m_IsBusy;
 }
 
-bool CBackgroundPersister::waitForIdle() {
+bool CPersistenceManager::waitForIdle() {
     {
         core::CScopedFastLock lock(m_Mutex);
 
@@ -67,7 +70,7 @@ bool CBackgroundPersister::waitForIdle() {
     return m_BackgroundThread.waitForFinish();
 }
 
-bool CBackgroundPersister::addPersistFunc(core::CDataAdder::TPersistFunc persistFunc) {
+bool CPersistenceManager::addPersistFunc(core::CDataAdder::TPersistFunc persistFunc) {
     if (!persistFunc) {
         return false;
     }
@@ -91,7 +94,7 @@ bool CBackgroundPersister::addPersistFunc(core::CDataAdder::TPersistFunc persist
     return true;
 }
 
-bool CBackgroundPersister::startPersist() {
+bool CPersistenceManager::startPersistInBackground() {
     core::CScopedFastLock lock(m_Mutex);
 
     if (this->isBusy()) {
@@ -119,7 +122,7 @@ bool CBackgroundPersister::startPersist() {
     return m_IsBusy;
 }
 
-bool CBackgroundPersister::clear() {
+bool CPersistenceManager::clear() {
     core::CScopedFastLock lock(m_Mutex);
 
     if (this->isBusy()) {
@@ -131,7 +134,7 @@ bool CBackgroundPersister::clear() {
     return true;
 }
 
-bool CBackgroundPersister::firstProcessorPeriodicPersistFunc(
+bool CPersistenceManager::firstProcessorPeriodicPersistFunc(
     const TFirstProcessorPeriodicPersistFunc& firstProcessorPeriodicPersistFunc) {
     core::CScopedFastLock lock(m_Mutex);
 
@@ -144,16 +147,7 @@ bool CBackgroundPersister::firstProcessorPeriodicPersistFunc(
     return true;
 }
 
-bool CBackgroundPersister::startBackgroundPersist() {
-    if (this->isBusy()) {
-        LOG_WARN(<< "Cannot start background persist as a previous "
-                    "persist is still in progress");
-        return false;
-    }
-    return this->startBackgroundPersist(core::CTimeUtils::now());
-}
-
-bool CBackgroundPersister::startBackgroundPersistIfAppropriate() {
+bool CPersistenceManager::startPersistIfAppropriate() {
     core_t::TTime due(m_LastPeriodicPersistTime + m_PeriodicPersistInterval);
     core_t::TTime now(core::CTimeUtils::now());
     if (now < due) {
@@ -172,13 +166,19 @@ bool CBackgroundPersister::startBackgroundPersistIfAppropriate() {
         return false;
     }
 
-    return this->startBackgroundPersist(now);
+    return this->startPersist(now);
 }
 
-bool CBackgroundPersister::startBackgroundPersist(core_t::TTime timeOfPersistence) {
-    bool backgroundPersistSetupOk = m_FirstProcessorPeriodicPersistFunc(*this);
-    if (!backgroundPersistSetupOk) {
-        LOG_ERROR(<< "Failed to create background persistence functions");
+bool CPersistenceManager::startPersist(core_t::TTime timeOfPersistence) {
+    if (this->isBusy()) {
+        LOG_WARN(<< "Cannot start persist as a previous "
+                    "background persist is still in progress");
+        return false;
+    }
+
+    bool persistSetupOk = m_FirstProcessorPeriodicPersistFunc(*this);
+    if (!persistSetupOk) {
+        LOG_ERROR(<< "Failed to create persistence functions");
         // It's possible that some functions were added before the failure, so
         // remove these
         this->clear();
@@ -187,36 +187,42 @@ bool CBackgroundPersister::startBackgroundPersist(core_t::TTime timeOfPersistenc
 
     m_LastPeriodicPersistTime = timeOfPersistence;
 
-    LOG_INFO(<< "Background persist starting background thread");
+    if (m_PersistInForeground) {
+        this->startPersist();
+    } else {
+        LOG_INFO(<< "Background persist starting background thread");
 
-    if (this->startPersist() == false) {
-        LOG_ERROR(<< "Failed to start background persistence");
-        this->clear();
-        return false;
+        if (this->startPersistInBackground() == false) {
+            LOG_ERROR(<< "Failed to start background persistence");
+            this->clear();
+            return false;
+        }
     }
 
     return true;
 }
 
-CBackgroundPersister::CBackgroundThread::CBackgroundThread(CBackgroundPersister& owner)
+void CPersistenceManager::startPersist() {
+    while (m_PersistFuncs.empty() == false) {
+        m_PersistFuncs.front()(m_DataAdder);
+        m_PersistFuncs.pop_front();
+    }
+}
+
+CPersistenceManager::CBackgroundThread::CBackgroundThread(CPersistenceManager& owner)
     : m_Owner(owner) {
 }
 
-void CBackgroundPersister::CBackgroundThread::run() {
+void CPersistenceManager::CBackgroundThread::run() {
     // The isBusy check will prevent concurrent access to
     // m_Owner.m_PersistFuncs here
-    while (!m_Owner.m_PersistFuncs.empty()) {
-        if (!m_Owner.m_IsShutdown) {
-            m_Owner.m_PersistFuncs.front()(m_Owner.m_DataAdder);
-        }
-        m_Owner.m_PersistFuncs.pop_front();
-    }
+    m_Owner.startPersist();
 
     core::CScopedFastLock lock(m_Owner.m_Mutex);
     m_Owner.m_IsBusy = false;
 }
 
-void CBackgroundPersister::CBackgroundThread::shutdown() {
+void CPersistenceManager::CBackgroundThread::shutdown() {
     m_Owner.m_IsShutdown = true;
 }
 }

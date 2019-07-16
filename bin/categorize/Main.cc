@@ -24,7 +24,6 @@
 
 #include <model/CLimits.h>
 
-#include <api/CBackgroundPersister.h>
 #include <api/CCmdSkeleton.h>
 #include <api/CCsvInputParser.h>
 #include <api/CFieldConfig.h>
@@ -34,6 +33,7 @@
 #include <api/CLengthEncodedInputParser.h>
 #include <api/CNullOutput.h>
 #include <api/COutputChainer.h>
+#include <api/CPersistenceManager.h>
 #include <api/CSingleStreamDataAdder.h>
 #include <api/CSingleStreamSearcher.h>
 #include <api/CStateRestoreStreamFilter.h>
@@ -65,12 +65,14 @@ int main(int argc, char** argv) {
     bool isRestoreFileNamedPipe(false);
     std::string persistFileName;
     bool isPersistFileNamedPipe(false);
+    bool isPersistInForeground(false);
     std::string categorizationFieldName;
     if (ml::categorize::CCmdLineParser::parse(
             argc, argv, limitConfigFile, jobId, logProperties, logPipe, delimiter,
             lengthEncodedInput, persistInterval, inputFileName, isInputFileNamedPipe,
-            outputFileName, isOutputFileNamedPipe, restoreFileName, isRestoreFileNamedPipe,
-            persistFileName, isPersistFileNamedPipe, categorizationFieldName) == false) {
+            outputFileName, isOutputFileNamedPipe, restoreFileName,
+            isRestoreFileNamedPipe, persistFileName, isPersistFileNamedPipe,
+            isPersistInForeground, categorizationFieldName) == false) {
         return EXIT_FAILURE;
     }
 
@@ -104,7 +106,7 @@ int main(int argc, char** argv) {
         return EXIT_FAILURE;
     }
 
-    ml::model::CLimits limits;
+    ml::model::CLimits limits(isPersistInForeground);
     if (!limitConfigFile.empty() && limits.init(limitConfigFile) == false) {
         LOG_FATAL(<< "Ml limit config file '" << limitConfigFile << "' could not be loaded");
         return EXIT_FAILURE;
@@ -146,13 +148,15 @@ int main(int argc, char** argv) {
                      "unless a place to persist to has been specified using the 'persist' argument");
         return EXIT_FAILURE;
     }
-    using TBackgroundPersisterUPtr = std::unique_ptr<ml::api::CBackgroundPersister>;
-    const TBackgroundPersisterUPtr periodicPersister{[persistInterval, &persister]() -> TBackgroundPersisterUPtr {
-        if (persistInterval >= 0) {
-            return std::make_unique<ml::api::CBackgroundPersister>(persistInterval, *persister);
-        }
-        return nullptr;
-    }()};
+    using TBackgroundPersisterUPtr = std::unique_ptr<ml::api::CPersistenceManager>;
+    const TBackgroundPersisterUPtr periodicPersister{
+        [persistInterval, isPersistInForeground, &persister]() -> TBackgroundPersisterUPtr {
+            if (persistInterval >= 0) {
+                return std::make_unique<ml::api::CPersistenceManager>(
+                    persistInterval, isPersistInForeground, *persister);
+            }
+            return nullptr;
+        }()};
 
     using TInputParserUPtr = std::unique_ptr<ml::api::CInputParser>;
     const TInputParserUPtr inputParser{[lengthEncodedInput, &ioMgr, delimiter]() -> TInputParserUPtr {
@@ -177,7 +181,9 @@ int main(int argc, char** argv) {
 
     if (periodicPersister != nullptr) {
         periodicPersister->firstProcessorPeriodicPersistFunc(std::bind(
-            &ml::api::CFieldDataTyper::periodicPersistState, &typer, std::placeholders::_1));
+            isPersistInForeground ? &ml::api::CFieldDataTyper::periodicPersistStateInForeground
+                                  : &ml::api::CFieldDataTyper::periodicPersistStateInBackground,
+            &typer, std::placeholders::_1));
     }
 
     // The skeleton avoids the need to duplicate a lot of boilerplate code

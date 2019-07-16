@@ -24,13 +24,13 @@ const size_t CLimits::DEFAULT_RESULTS_MAX_EXAMPLES(4);
 // The probability threshold is stored as a percentage in the config file
 const double CLimits::DEFAULT_RESULTS_UNUSUAL_PROBABILITY_THRESHOLD(3.5);
 
-CLimits::CLimits(double byteLimitMargin)
+CLimits::CLimits(bool persistenceInForeground, double byteLimitMargin)
     : m_AutoConfigEvents(DEFAULT_AUTOCONFIG_EVENTS),
       m_AnomalyMaxTimeBuckets(DEFAULT_ANOMALY_MAX_TIME_BUCKETS),
       m_MaxExamples(DEFAULT_RESULTS_MAX_EXAMPLES),
       m_UnusualProbabilityThreshold(DEFAULT_RESULTS_UNUSUAL_PROBABILITY_THRESHOLD),
       m_MemoryLimitMB(CResourceMonitor::DEFAULT_MEMORY_LIMIT_MB),
-      m_ResourceMonitor(byteLimitMargin) {
+      m_ResourceMonitor(persistenceInForeground, byteLimitMargin) {
 }
 
 bool CLimits::init(const std::string& configFile) {

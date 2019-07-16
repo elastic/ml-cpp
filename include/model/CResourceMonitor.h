@@ -62,7 +62,8 @@ public:
 
 public:
     //! Default constructor
-    explicit CResourceMonitor(double byteLimitMargin = DEFAULT_BYTE_LIMIT_MARGIN);
+    explicit CResourceMonitor(bool persistenceInForeground = false,
+                              double byteLimitMargin = DEFAULT_BYTE_LIMIT_MARGIN);
 
     //! Query the resource monitor to find out if the models are
     //! taking up too much memory and further allocations should be banned
@@ -232,6 +233,9 @@ private:
 
     //! The number of bytes over the high limit for memory usage at the last allocation failure
     std::size_t m_CurrentBytesExceeded;
+
+    //! Is persistence occurring in the foreground?
+    bool m_PersistenceInForeground;
 
     //! Test friends
     friend class ::CResourceMonitorTest;

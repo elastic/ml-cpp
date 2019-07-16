@@ -35,12 +35,12 @@
 #include <model/CSimpleCountDetector.h>
 #include <model/CStringStore.h>
 
-#include <api/CBackgroundPersister.h>
 #include <api/CConfigUpdater.h>
 #include <api/CFieldConfig.h>
 #include <api/CHierarchicalResultsWriter.h>
 #include <api/CJsonOutputWriter.h>
 #include <api/CModelPlotDataJsonWriter.h>
+#include <api/CPersistenceManager.h>
 
 #include <boost/property_tree/json_parser.hpp>
 #include <boost/property_tree/ptree.hpp>
@@ -99,7 +99,7 @@ CAnomalyJob::CAnomalyJob(const std::string& jobId,
                          model::CAnomalyDetectorModelConfig& modelConfig,
                          core::CJsonOutputStreamWrapper& outputStream,
                          const TPersistCompleteFunc& persistCompleteFunc,
-                         CBackgroundPersister* periodicPersister,
+                         CPersistenceManager* periodicPersister,
                          core_t::TTime maxQuantileInterval,
                          const std::string& timeFieldName,
                          const std::string& timeFieldFormat,
@@ -231,7 +231,7 @@ void CAnomalyJob::finalise() {
     }
 
     // Wait for any ongoing periodic persist to complete, so that the data adder
-    // is not used by both a periodic periodic persist and final persist at the
+    // is not used by both a periodic background persist and foreground persist at the
     // same time
     if (m_PeriodicPersister != nullptr) {
         m_PeriodicPersister->waitForIdle();
@@ -347,7 +347,7 @@ bool CAnomalyJob::handleControlMessage(const std::string& controlMessage) {
         break;
     case 'w':
         if (m_PeriodicPersister != nullptr && this->isPersistenceNeeded("state")) {
-            m_PeriodicPersister->startBackgroundPersist();
+            m_PeriodicPersister->startPersist(core::CTimeUtils::now());
         }
         break;
     default:
@@ -440,7 +440,7 @@ void CAnomalyJob::outputBucketResultsUntil(core_t::TTime time) {
         // for the last bucket but before adding the first piece of data for the
         // next bucket
         if (m_PeriodicPersister != nullptr) {
-            m_PeriodicPersister->startBackgroundPersistIfAppropriate();
+            m_PeriodicPersister->startPersistIfAppropriate();
         }
     }
 
@@ -972,18 +972,18 @@ bool CAnomalyJob::restoreDetectorState(const model::CSearchKey& key,
     return true;
 }
 
-bool CAnomalyJob::persistState(core::CDataAdder& persister) {
+bool CAnomalyJob::persistState(core::CDataAdder& persister, const std::string& descriptionPrefix) {
     if (m_PeriodicPersister != nullptr) {
         // This will not happen if finalise() was called before persisting state
         if (m_PeriodicPersister->isBusy()) {
-            LOG_ERROR(<< "Cannot do final persistence of state - periodic "
-                         "persister still busy");
+            LOG_ERROR(<< "Cannot perform foreground persistence of state - periodic "
+                         "background persistence is still in progress");
             return false;
         }
     }
 
     // Pass on the request in case we're chained
-    if (this->outputHandler().persistState(persister) == false) {
+    if (this->outputHandler().persistState(persister, descriptionPrefix) == false) {
         return false;
     }
 
@@ -1003,14 +1003,14 @@ bool CAnomalyJob::persistState(core::CDataAdder& persister) {
     core::CProgramCounters::cacheCounters();
 
     return this->persistState(
-        "State persisted due to job close at ", m_LastFinalisedBucketEndTime, detectors,
+        descriptionPrefix, m_LastFinalisedBucketEndTime, detectors,
         m_Limits.resourceMonitor().createMemoryUsageReport(
             m_LastFinalisedBucketEndTime - m_ModelConfig.bucketLength()),
         m_ModelConfig.interimBucketCorrector(), m_Aggregator, normaliserState,
         m_LatestRecordTime, m_LastResultsTime, persister);
 }
 
-bool CAnomalyJob::backgroundPersistState(CBackgroundPersister& backgroundPersister) {
+bool CAnomalyJob::backgroundPersistState(CPersistenceManager& backgroundPersister) {
     LOG_INFO(<< "Background persist starting data copy");
 
     // Pass arguments by value: this is what we want for
@@ -1058,6 +1058,15 @@ bool CAnomalyJob::backgroundPersistState(CBackgroundPersister& backgroundPersist
     }
 
     return true;
+}
+
+bool CAnomalyJob::runForegroundPersist(core::CDataAdder& persister) {
+    LOG_INFO(<< "Foreground persist commencing...");
+
+    // Finalise the processor so it gets a chance to write any remaining results
+    this->finalise();
+
+    return this->persistState(persister, "Periodic foreground persist at ");
 }
 
 bool CAnomalyJob::runBackgroundPersist(TBackgroundPersistArgsPtr args,
@@ -1159,9 +1168,9 @@ bool CAnomalyJob::persistState(const std::string& descriptionPrefix,
     return true;
 }
 
-bool CAnomalyJob::periodicPersistState(CBackgroundPersister& persister) {
+bool CAnomalyJob::periodicPersistStateInBackground(CPersistenceManager& persistenceManager) {
     // Pass on the request in case we're chained
-    if (this->outputHandler().periodicPersistState(persister) == false) {
+    if (this->outputHandler().periodicPersistStateInBackground(persistenceManager) == false) {
         return false;
     }
 
@@ -1179,7 +1188,17 @@ bool CAnomalyJob::periodicPersistState(CBackgroundPersister& persister) {
         m_Limits.resourceMonitor().forceRefresh(*detector);
     }
 
-    return this->backgroundPersistState(persister);
+    return this->backgroundPersistState(persistenceManager);
+}
+
+bool CAnomalyJob::periodicPersistStateInForeground(CPersistenceManager& persistenceManager) {
+    if (persistenceManager.addPersistFunc(std::bind(
+            &CAnomalyJob::runForegroundPersist, this, std::placeholders::_1)) == false) {
+        LOG_ERROR(<< "Failed to add anomaly detector foreground persistence function");
+        return false;
+    }
+
+    return true;
 }
 
 void CAnomalyJob::updateAggregatorAndAggregate(bool isInterim,
