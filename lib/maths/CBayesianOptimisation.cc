@@ -30,9 +30,6 @@ const std::string ERROR_VARIANCES_TAG{"error_variances"};
 const std::string KERNEL_PARAMETERS_TAG{"kernel_parameters"};
 const std::string MIN_KERNEL_COORDINATE_DISTANCE_SCALES_TAG{"min_kernel_coordinate_distance_scales"};
 const std::string FUNCTION_MEAN_VALUES_TAG{"function_mean_values"};
-const std::string FUNCTION_PARAMETER_VALUE_PAIR_TAG{"function_parameter_value_pair"};
-const std::string FUNCTION_PARAMETERS_TAG{"function_parameters"};
-const std::string FUNCTION_VALUE_TAG{"function_value"};
 }
 
 CBayesianOptimisation::CBayesianOptimisation(TDoubleDoublePrVec parameterBounds)

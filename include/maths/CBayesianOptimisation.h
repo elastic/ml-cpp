@@ -56,13 +56,6 @@ public:
     using TEIGradientFunc = std::function<TVector(const TVector&)>;
 
 public:
-    //! Elasticsearch index for state
-    static const std::string ML_STATE_INDEX;
-
-    //! Discriminant for Elasticsearch IDs
-    static const std::string STATE_TYPE;
-
-public:
     CBayesianOptimisation(TDoubleDoublePrVec parameterBounds);
 
     //! Add the result of evaluating the function to be \p fx at \p x where the
