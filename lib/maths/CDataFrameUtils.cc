@@ -34,6 +34,26 @@ using TRowItr = core::CDataFrame::TRowItr;
 using TRowRef = core::CDataFrame::TRowRef;
 using TRowSampler = CSampling::CRandomStreamSampler<TRowRef>;
 
+//! Reduce the results of a call to core::CDataFrame::readRows using \p reduceFirst
+//! for the first and \p reduce for the rest and writing the result \p reduction.
+//!
+//! \tparam REDUCER Must be a binary operator whose logical type is the function
+//! void (typeof(READER.s_FunctionState[0]), REDUCTION&).
+template<typename READER, typename REDUCER, typename FIRST_REDUCER, typename REDUCTION>
+bool doReduce(std::pair<std::vector<READER>, bool> readResults,
+              FIRST_REDUCER reduceFirst,
+              REDUCER reduce,
+              REDUCTION& reduction) {
+    if (readResults.second == false) {
+        return false;
+    }
+    reduceFirst(std::move(readResults.first[0].s_FunctionState), reduction);
+    for (std::size_t i = 1; i < readResults.first.size(); ++i) {
+        reduce(std::move(readResults.first[i].s_FunctionState), reduction);
+    }
+    return true;
+}
+
 //! Get a row feature sampler.
 auto rowFeatureSampler(std::size_t i, std::size_t targetColumn, TFloatFloatPrVec& samples) {
     return [i, targetColumn, &samples](std::size_t slot, const TRowRef& row) {
@@ -67,29 +87,33 @@ bool CDataFrameUtils::standardizeColumns(std::size_t numberThreads, core::CDataF
         return true;
     }
 
-    auto computeColumnMoments = core::bindRetrievableState(
-        [](TMeanVarAccumulatorVec& moments, TRowItr beginRows, TRowItr endRows) {
+    auto readColumnMoments = core::bindRetrievableState(
+        [](TMeanVarAccumulatorVec& moments_, TRowItr beginRows, TRowItr endRows) {
             for (auto row = beginRows; row != endRows; ++row) {
                 for (std::size_t i = 0; i < row->numberColumns(); ++i) {
                     if (isMissing((*row)[i]) == false) {
-                        moments[i].add((*row)[i]);
+                        moments_[i].add((*row)[i]);
                     }
                 }
             }
         },
         TMeanVarAccumulatorVec(frame.numberColumns()));
+    auto copyColumnMoments = [](TMeanVarAccumulatorVec moments_,
+                                TMeanVarAccumulatorVec& moments) {
+        moments = std::move(moments_);
+    };
+    auto reduceColumnMoments = [](TMeanVarAccumulatorVec moments_,
+                                  TMeanVarAccumulatorVec& moments) {
+        for (std::size_t i = 0; i < moments.size(); ++i) {
+            moments[i] += moments_[i];
+        }
+    };
 
-    auto results = frame.readRows(numberThreads, computeColumnMoments);
-    if (results.second == false) {
+    TMeanVarAccumulatorVec moments;
+    if (doReduce(frame.readRows(numberThreads, readColumnMoments),
+                 copyColumnMoments, reduceColumnMoments, moments) == false) {
         LOG_ERROR(<< "Failed to standardise columns");
         return false;
-    }
-
-    TMeanVarAccumulatorVec moments(frame.numberColumns());
-    for (const auto& result : results.first) {
-        for (std::size_t i = 0; i < moments.size(); ++i) {
-            moments[i] += result.s_FunctionState[i];
-        }
     }
 
     TDoubleVec mean(moments.size());
@@ -122,33 +146,30 @@ bool CDataFrameUtils::columnQuantiles(std::size_t numberThreads,
                                       TQuantileSketchVec& result,
                                       TWeightFunction weight) {
 
-    result.assign(columnMask.size(), sketch);
-
-    auto quantiles = frame.readRows(
-        numberThreads, 0, frame.numberRows(),
-        core::bindRetrievableState(
-            [&](TQuantileSketchVec& quantiles_, TRowItr beginRows, TRowItr endRows) {
-                for (auto row = beginRows; row != endRows; ++row) {
-                    for (std::size_t i = 0; i < columnMask.size(); ++i) {
-                        if (isMissing((*row)[columnMask[i]]) == false) {
-                            quantiles_[i].add((*row)[columnMask[i]], weight(*row));
-                        }
+    auto readQuantiles = core::bindRetrievableState(
+        [&](TQuantileSketchVec& quantiles, TRowItr beginRows, TRowItr endRows) {
+            for (auto row = beginRows; row != endRows; ++row) {
+                for (std::size_t i = 0; i < columnMask.size(); ++i) {
+                    if (isMissing((*row)[columnMask[i]]) == false) {
+                        quantiles[i].add((*row)[columnMask[i]], weight(*row));
                     }
                 }
-            },
-            std::move(result)),
-        &rowMask);
+            }
+        },
+        TQuantileSketchVec(columnMask.size(), sketch));
+    auto copyQuantiles = [](TQuantileSketchVec quantiles, TQuantileSketchVec& result_) {
+        result_ = std::move(quantiles);
+    };
+    auto reduceQuantiles = [&](TQuantileSketchVec quantiles, TQuantileSketchVec& result_) {
+        for (std::size_t i = 0; i < columnMask.size(); ++i) {
+            result_[i] += quantiles[i];
+        }
+    };
 
-    if (quantiles.second == false) {
+    if (doReduce(frame.readRows(numberThreads, 0, frame.numberRows(), readQuantiles, &rowMask),
+                 copyQuantiles, reduceQuantiles, result) == false) {
         LOG_ERROR(<< "Failed to compute column quantiles");
         return false;
-    }
-
-    result = std::move(quantiles.first[0].s_FunctionState);
-    for (std::size_t i = 1; i < quantiles.first.size(); ++i) {
-        for (std::size_t j = 0; j < columnMask.size(); ++j) {
-            result[j] += quantiles.first[i].s_FunctionState[j];
-        }
     }
 
     return true;
@@ -159,40 +180,43 @@ CDataFrameUtils::categoryFrequencies(std::size_t numberThreads,
                                      const core::CDataFrame& frame,
                                      TSizeVec columnMask) {
 
-    TDoubleVecVec result(frame.numberColumns());
-
     removeMetricColumns(frame, columnMask);
     if (frame.numberRows() == 0 || columnMask.empty()) {
-        return result;
+        return TDoubleVecVec(frame.numberColumns());
     }
 
-    auto categoryCounts = frame.readRows(
-        numberThreads,
-        core::bindRetrievableState(
-            [&](TDoubleVecVec& counts, TRowItr beginRows, TRowItr endRows) {
-                for (auto row = beginRows; row != endRows; ++row) {
-                    for (std::size_t i : columnMask) {
-                        std::size_t id{static_cast<std::size_t>((*row)[i])};
-                        counts[i].resize(std::max(counts[i].size(), id + 1), 0.0);
-                        counts[i][id] += 1.0;
-                    }
+    auto readCategoryCounts = core::bindRetrievableState(
+        [&](TDoubleVecVec& counts, TRowItr beginRows, TRowItr endRows) {
+            for (auto row = beginRows; row != endRows; ++row) {
+                for (std::size_t i : columnMask) {
+                    std::size_t id{static_cast<std::size_t>((*row)[i])};
+                    counts[i].resize(std::max(counts[i].size(), id + 1), 0.0);
+                    counts[i][id] += 1.0;
                 }
-            },
-            TDoubleVecVec(frame.numberColumns())));
+            }
+        },
+        TDoubleVecVec(frame.numberColumns()));
+    auto copyCategoryCounts = [](TDoubleVecVec counts, TDoubleVecVec& result) {
+        result = std::move(counts);
+    };
+    auto reduceCategoryCounts = [](TDoubleVecVec counts, TDoubleVecVec& result) {
+        for (std::size_t i = 0; i < counts.size(); ++i) {
+            for (std::size_t j = 0; j < counts[i].size(); ++j) {
+                result[i][j] += counts[i][j];
+            }
+        }
+    };
 
-    if (categoryCounts.second == false) {
+    TDoubleVecVec result;
+    if (doReduce(frame.readRows(numberThreads, readCategoryCounts),
+                 copyCategoryCounts, reduceCategoryCounts, result) == false) {
         HANDLE_FATAL(<< "Internal error: failed to calculate category"
                      << " frequencies. Please report this problem.");
         return result;
     }
-
-    for (const auto& counts_ : categoryCounts.first) {
-        for (std::size_t i = 0; i < counts_.s_FunctionState.size(); ++i) {
-            result[i].resize(counts_.s_FunctionState[i].size(), 0.0);
-            for (std::size_t j = 0; j < counts_.s_FunctionState[i].size(); ++j) {
-                result[i][j] += counts_.s_FunctionState[i][j] /
-                                static_cast<double>(frame.numberRows());
-            }
+    for (std::size_t i = 0; i < result.size(); ++i) {
+        for (std::size_t j = 0; j < result[i].size(); ++j) {
+            result[i][j] /= static_cast<double>(frame.numberRows());
         }
     }
 
@@ -222,34 +246,34 @@ CDataFrameUtils::meanValueOfTargetForCategories(std::size_t numberThreads,
     using TMeanAccumulatorVec = std::vector<CBasicStatistics::SSampleMean<double>::TAccumulator>;
     using TMeanAccumulatorVecVec = std::vector<TMeanAccumulatorVec>;
 
-    auto categoryMeanValues = frame.readRows(
-        numberThreads,
-        core::bindRetrievableState(
-            [&](TMeanAccumulatorVecVec& means, TRowItr beginRows, TRowItr endRows) {
-                for (auto row = beginRows; row != endRows; ++row) {
-                    for (std::size_t i : columnMask) {
-                        std::size_t id{static_cast<std::size_t>((*row)[i])};
-                        means[i].resize(std::max(means[i].size(), id + 1));
-                        means[i][id].add((*row)[targetColumn]);
-                    }
+    auto readColumnMeans = core::bindRetrievableState(
+        [&](TMeanAccumulatorVecVec& means_, TRowItr beginRows, TRowItr endRows) {
+            for (auto row = beginRows; row != endRows; ++row) {
+                for (std::size_t i : columnMask) {
+                    std::size_t id{static_cast<std::size_t>((*row)[i])};
+                    means_[i].resize(std::max(means_[i].size(), id + 1));
+                    means_[i][id].add((*row)[targetColumn]);
                 }
-            },
-            TMeanAccumulatorVecVec(frame.numberColumns())));
+            }
+        },
+        TMeanAccumulatorVecVec(frame.numberColumns()));
+    auto copyColumnMeans = [](TMeanAccumulatorVecVec means_, TMeanAccumulatorVecVec& means) {
+        means = std::move(means_);
+    };
+    auto reduceColumnMeans = [](TMeanAccumulatorVecVec means_, TMeanAccumulatorVecVec& means) {
+        for (std::size_t i = 0; i < means_.size(); ++i) {
+            for (std::size_t j = 0; j < means_[i].size(); ++j) {
+                means[i][j] += means_[i][j];
+            }
+        }
+    };
 
-    if (categoryMeanValues.second == false) {
+    TMeanAccumulatorVecVec means;
+    if (doReduce(frame.readRows(numberThreads, readColumnMeans),
+                 copyColumnMeans, reduceColumnMeans, means) == false) {
         HANDLE_FATAL(<< "Internal error: failed to calculate mean target value"
                      << " for categories. Please report this problem.");
         return result;
-    }
-
-    TMeanAccumulatorVecVec means(frame.numberColumns());
-    for (const auto& means_ : categoryMeanValues.first) {
-        for (std::size_t i = 0; i < means_.s_FunctionState.size(); ++i) {
-            means[i].resize(means_.s_FunctionState[i].size());
-            for (std::size_t j = 0; j < means_.s_FunctionState[i].size(); ++j) {
-                means[i][j] += means_.s_FunctionState[i][j];
-            }
-        }
     }
     for (std::size_t i = 0; i < result.size(); ++i) {
         result[i].resize(means[i].size());
