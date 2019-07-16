@@ -69,7 +69,7 @@ private:
 //! reasonable sample set and a catch all indicator feature for all rare categories.
 //!
 //! This also selects the independent metric features to use at the same time controlling
-//! the total number of features we use in total based on the quantity of training data.
+//! the number of features we use in total based on the quantity of training data.
 class MATHS_EXPORT CDataFrameCategoryEncoder final {
 public:
     using TBoolVec = std::vector<bool>;
@@ -83,15 +83,16 @@ public:
     //! \param[in] numberThreads The number of threads available.
     //! \param[in] frame The data frame for which to compute the encoding.
     //! \param[in] columnMask A mask of the columns to include.
-    //! \param[in] targetColumn The column whose mean values are computed.
+    //! \param[in] targetColumn The regression target variable.
     //! \param[in] minimumRowsPerFeature The minimum number of rows needed per dimension
     //! of the feature vector.
     //! \param[in] minimumFrequencyToHotOneEncode The minimum relative frequency of a
     //! category in \p frame to consider hot-one encoding it.
-    //! \param[in] lambda Controls the weight between category MICe and the count of
+    //! \param[in] lambda Controls the weight between category MIC and the count of
     //! categories already hot-one encoded for a feature when selecting features. This
-    //! should be positive and the higher the value the more it will prefer to choose
-    //! all the metrics and equal numbers from each category to hot-one encode.
+    //! should be non-negative and the higher the value the more this will prefer to
+    //! choose all the metrics and equal numbers of categories from each categorical
+    //! column to hot-one encode.
     CDataFrameCategoryEncoder(std::size_t numberThreads,
                               const core::CDataFrame& frame,
                               const TSizeVec& columnMask,
@@ -103,7 +104,7 @@ public:
     //! Get a row reference which encodes the categories in \p row.
     CEncodedDataFrameRowRef encode(TRowRef row);
 
-    //! Get an indicator vector of categorical columns.
+    //! Check if \p feature is categorical.
     bool columnIsCategorical(std::size_t feature) const;
 
     //! Get the selected metric features.
@@ -115,28 +116,28 @@ public:
     //! Get the selected categorical features.
     const TSizeVec& selectedCategoricalFeatures() const;
 
-    //! Get the number of dimensions in the feature vector.
+    //! Get the total number of dimensions in the feature vector.
     std::size_t numberFeatures() const;
 
     //! Get the encoding offset in feature vector of \p index.
     std::size_t encoding(std::size_t index) const;
 
-    //! Get the data frame column of the feature vector \p index.
+    //! Get the data frame column of \p index into the feature vector.
     std::size_t column(std::size_t index) const;
 
     //! Get the number of hot-one encoded categories for \p feature.
     std::size_t numberHotOneEncodedCategories(std::size_t feature) const;
 
-    //! Check if \p index is the hot-one for category \p category.
+    //! Check if \p index is the hot-one for category \p category of \p feature.
     bool isHotOne(std::size_t index, std::size_t feature, std::size_t category) const;
 
     //! Check if \p feature has rare categories.
     bool hasRareCategories(std::size_t feature) const;
 
-    //! Check if \p category is rare.
+    //! Check if \p category of \p feature is rare.
     bool isRareCategory(std::size_t feature, std::size_t category) const;
 
-    //! Get the mean value of the target variable for \p category.
+    //! Get the mean value of the target variable for \p category of \p feature.
     double targetMeanValue(std::size_t feature, std::size_t category) const;
 
 private:
