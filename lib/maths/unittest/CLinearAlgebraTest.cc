@@ -7,6 +7,9 @@
 #include "CLinearAlgebraTest.h"
 
 #include <core/CLogger.h>
+#include <core/CRapidXmlParser.h>
+#include <core/CRapidXmlStatePersistInserter.h>
+#include <core/CRapidXmlStateRestoreTraverser.h>
 
 #include <maths/CBasicStatistics.h>
 #include <maths/CBasicStatisticsCovariances.h>
@@ -1490,6 +1493,31 @@ void CLinearAlgebraTest::testPersist() {
         CPPUNIT_ASSERT(!restoredVector.fromDelimited(bad));
         bad = "0.1,0.3,a";
         CPPUNIT_ASSERT(!restoredVector.fromDelimited(bad));
+    }
+    {
+        maths::CDenseVector<double> origVector(4);
+        origVector << 1.3, 2.4, 3.1, 5.1;
+
+        std::string origXml;
+        {
+            core::CRapidXmlStatePersistInserter inserter("root");
+            origVector.acceptPersistInserter(inserter);
+            inserter.toXml(origXml);
+        }
+
+        LOG_DEBUG(<< "vector XML representation:\n" << origXml);
+
+        // Restore the XML into a new regression.
+        core::CRapidXmlParser parser;
+        CPPUNIT_ASSERT(parser.parseStringIgnoreCdata(origXml));
+        core::CRapidXmlStateRestoreTraverser traverser(parser);
+
+        maths::CDenseVector<double> restoredVector;
+        CPPUNIT_ASSERT(traverser.traverseSubLevel(
+            std::bind(&maths::CDenseVector<double>::acceptRestoreTraverser,
+                      &restoredVector, std::placeholders::_1)));
+
+        CPPUNIT_ASSERT_EQUAL(origVector.checksum(0), restoredVector.checksum(0));
     }
 }
 
