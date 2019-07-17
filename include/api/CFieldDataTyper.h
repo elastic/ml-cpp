@@ -31,10 +31,10 @@ namespace model {
 class CLimits;
 }
 namespace api {
-class CPersistenceManager;
 class CFieldConfig;
 class CJsonOutputWriter;
 class COutputHandler;
+class CPersistenceManager;
 
 //! \brief
 //! Assign categorisation fields to input records

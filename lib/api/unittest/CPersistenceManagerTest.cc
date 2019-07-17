@@ -3,7 +3,6 @@
  * or more contributor license agreements. Licensed under the Elastic License;
  * you may not use this file except in compliance with the Elastic License.
  */
-#include "../../../include/api/CPersistenceManager.h"
 #include "CPersistenceManagerTest.h"
 
 #include <core/CJsonOutputStreamWrapper.h>
@@ -24,6 +23,7 @@
 #include <api/CNdJsonInputParser.h>
 #include <api/CNullOutput.h>
 #include <api/COutputChainer.h>
+#include <api/CPersistenceManager.h>
 #include <api/CSingleStreamDataAdder.h>
 
 #include <algorithm>

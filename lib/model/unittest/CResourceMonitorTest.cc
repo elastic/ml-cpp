@@ -71,10 +71,7 @@ void CResourceMonitorTest::testMonitor() {
         CPPUNIT_ASSERT(mon.m_ByteLimitHigh > mon.m_ByteLimitLow);
         CPPUNIT_ASSERT(mon.m_AllowAllocations);
         LOG_DEBUG(<< "Resource limit is: " << mon.m_ByteLimitHigh);
-        if (sizeof(std::size_t) == 4) {
-            // 32-bit platform
-            CPPUNIT_ASSERT_EQUAL(std::size_t(1024ull * 1024 * 1024 / 2), mon.m_ByteLimitHigh);
-        } else if (sizeof(std::size_t) == 8) {
+        if (sizeof(std::size_t) == 8) {
             // 64-bit platform
             CPPUNIT_ASSERT_EQUAL(std::size_t(4096ull * 1024 * 1024 / 2), mon.m_ByteLimitHigh);
         } else {
@@ -90,10 +87,7 @@ void CResourceMonitorTest::testMonitor() {
         CPPUNIT_ASSERT(mon.m_ByteLimitHigh > mon.m_ByteLimitLow);
         CPPUNIT_ASSERT(mon.m_AllowAllocations);
         LOG_DEBUG(<< "Resource limit is: " << mon.m_ByteLimitHigh);
-        if (sizeof(std::size_t) == 4) {
-            // 32-bit platform
-            CPPUNIT_ASSERT_EQUAL(std::size_t(1024ull * 1024 * 1024 / 2), mon.m_ByteLimitHigh);
-        } else if (sizeof(std::size_t) == 8) {
+        if (sizeof(std::size_t) == 8) {
             // 64-bit platform
             CPPUNIT_ASSERT_EQUAL(std::size_t(4096ull * 1024 * 1024), mon.m_ByteLimitHigh);
         } else {

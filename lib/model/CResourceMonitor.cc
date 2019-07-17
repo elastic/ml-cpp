@@ -302,7 +302,7 @@ std::size_t CResourceMonitor::adjustedUsage(std::size_t usage) const {
         // If that gets implemented, we should only double when background
         // persist is configured.
 
-        adjustedUsage = static_cast<std::size_t>(2 * adjustedUsage);
+        adjustedUsage *= 2;
     }
 
     return adjustedUsage;

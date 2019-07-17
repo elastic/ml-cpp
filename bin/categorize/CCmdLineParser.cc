@@ -68,9 +68,9 @@ bool CCmdLineParser::parse(int argc,
             ("persistIsPipe", "Specified persist file is a named pipe")
             ("persistInterval", boost::program_options::value<core_t::TTime>(),
                         "Optional interval at which to periodically persist model state - if not specified then models will only be persisted at program exit")
-                        ("persistInForeground", "Persistence occurs in the foreground. Defaults to background persistence.")
+            ("persistInForeground", "Persistence occurs in the foreground. Defaults to background persistence.")
             ("categorizationfield", boost::program_options::value<std::string>(),
-                    "Field to compute mlcategory from")
+                        "Field to compute mlcategory from")
         ;
         // clang-format on
 

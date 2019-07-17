@@ -1063,8 +1063,8 @@ bool CAnomalyJob::backgroundPersistState(CPersistenceManager& backgroundPersiste
 bool CAnomalyJob::runForegroundPersist(core::CDataAdder& persister) {
     LOG_INFO(<< "Foreground persist commencing...");
 
-    // Finalise the processor so it gets a chance to write any remaining results
-    this->finalise();
+    // Prune the models so that the persisted state is as neat as possible
+    this->pruneAllModels();
 
     return this->persistState(persister, "Periodic foreground persist at ");
 }

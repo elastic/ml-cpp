@@ -157,10 +157,10 @@ private:
     bool clear();
 
 private:
-    //! How frequently should  persistence be attempted?
+    //! How frequently should persistence be attempted?
     core_t::TTime m_PeriodicPersistInterval;
 
-    //! Should  persistence occur in the foreground?
+    //! Should persistence occur in the foreground?
     const bool m_PersistInForeground;
 
     //! What was the wall clock time when we started our last periodic

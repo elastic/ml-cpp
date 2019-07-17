@@ -72,7 +72,7 @@ public:
 
     //! Persist current state
     virtual bool persistState(core::CDataAdder& persister,
-                              const std::string& descriptionPrefix = "") = 0;
+                              const std::string& descriptionPrefix) = 0;
 
     //! Persist current state n the background due to the periodic persistence being triggered.
     virtual bool periodicPersistStateInBackground(CPersistenceManager& persistenceManager);
