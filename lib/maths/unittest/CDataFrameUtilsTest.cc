@@ -26,6 +26,7 @@
 
 using namespace ml;
 
+namespace {
 using TDoubleVec = std::vector<double>;
 using TDoubleVecVec = std::vector<TDoubleVec>;
 using TSizeVec = std::vector<std::size_t>;
@@ -33,6 +34,30 @@ using TFactoryFunc = std::function<std::unique_ptr<core::CDataFrame>()>;
 using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
 using TMeanAccumulatorVec = std::vector<TMeanAccumulator>;
 using TMeanAccumulatorVecVec = std::vector<TMeanAccumulatorVec>;
+
+auto generateCategoricalData(test::CRandomNumbers& rng,
+                             std::size_t rows,
+                             std::size_t cols,
+                             TDoubleVec expectedFrequencies) {
+
+    TDoubleVecVec frequencies;
+    rng.generateDirichletSamples(expectedFrequencies, cols, frequencies);
+
+    TDoubleVecVec values(cols);
+    for (std::size_t i = 0; i < frequencies.size(); ++i) {
+        for (std::size_t j = 0; j < frequencies[i].size(); ++j) {
+            std::size_t target{static_cast<std::size_t>(
+                static_cast<double>(rows) * frequencies[i][j] + 0.5)};
+            values[i].resize(values[i].size() + target, static_cast<double>(j));
+        }
+        values[i].resize(rows, values[i].back());
+        rng.random_shuffle(values[i].begin(), values[i].end());
+        rng.discard(1000000); // Make sure the categories are not correlated
+    }
+
+    return std::make_pair(frequencies, values);
+}
+}
 
 void CDataFrameUtilsTest::testStandardizeColumns() {
 
@@ -350,19 +375,9 @@ void CDataFrameUtilsTest::testCategoryFrequencies() {
     test::CRandomNumbers rng;
 
     TDoubleVecVec expectedFrequencies;
-    rng.generateDirichletSamples({10.0, 30.0, 1.0, 5.0, 15.0, 9.0, 20.0, 10.0},
-                                 cols, expectedFrequencies);
-
-    TDoubleVecVec values(cols);
-    for (std::size_t i = 0; i < expectedFrequencies.size(); ++i) {
-        for (std::size_t j = 0; j < expectedFrequencies[i].size(); ++j) {
-            std::size_t target{static_cast<std::size_t>(
-                static_cast<double>(rows) * expectedFrequencies[i][j] + 0.5)};
-            std::size_t count{std::min(values[i].size() + target, rows)};
-            values[i].resize(count, j);
-        }
-        rng.random_shuffle(values[i].begin(), values[i].end());
-    }
+    TDoubleVecVec values;
+    std::tie(expectedFrequencies, values) = generateCategoricalData(
+        rng, rows, cols, {10.0, 30.0, 1.0, 5.0, 15.0, 9.0, 20.0, 10.0});
 
     TFactoryFunc makeOnDisk{[=] {
         return core::makeDiskStorageDataFrame(test::CTestTmpDir::tmpDir(), cols, rows, capacity)
@@ -379,6 +394,7 @@ void CDataFrameUtilsTest::testCategoryFrequencies() {
 
             auto frame = factory();
 
+            frame->writeCategoricalColumns({true, false, true, false});
             for (std::size_t i = 0; i < rows; ++i) {
                 frame->writeRow([&values, i, cols](core::CDataFrame::TFloatVecItr column,
                                                    std::int32_t&) {
@@ -388,7 +404,6 @@ void CDataFrameUtilsTest::testCategoryFrequencies() {
                 });
             }
             frame->finishWritingRows();
-            frame->writeCategoricalColumns({true, false, true, false});
 
             TDoubleVecVec actualFrequencies{maths::CDataFrameUtils::categoryFrequencies(
                 threads, *frame, {0, 1, 2, 3})};
@@ -423,21 +438,12 @@ void CDataFrameUtilsTest::testMeanValueOfTargetForCategories() {
     test::CRandomNumbers rng;
 
     TDoubleVecVec frequencies;
-    rng.generateDirichletSamples({10.0, 30.0, 1.0, 5.0, 15.0, 9.0, 20.0, 10.0},
-                                 cols - 1, frequencies);
+    TDoubleVecVec values;
+    std::tie(frequencies, values) = generateCategoricalData(
+        rng, rows, cols - 1, {10.0, 30.0, 1.0, 5.0, 15.0, 9.0, 20.0, 10.0});
 
-    TDoubleVecVec values(cols);
-    for (std::size_t i = 0; i < frequencies.size(); ++i) {
-        for (std::size_t j = 0; j < frequencies[i].size(); ++j) {
-            std::size_t target{static_cast<std::size_t>(
-                static_cast<double>(rows) * frequencies[i][j] + 0.5)};
-            std::size_t count{std::min(values[i].size() + target, rows)};
-            values[i].resize(count, j);
-        }
-        rng.random_shuffle(values[i].begin(), values[i].end());
-    }
-    values[cols - 1].resize(rows);
-
+    values.resize(cols);
+    values[cols - 1].resize(rows, 0.0);
     TMeanAccumulatorVecVec expectedMeans(cols, TMeanAccumulatorVec(8));
     for (std::size_t i = 0; i < rows; ++i) {
         for (std::size_t j = 0; j + 1 < cols; ++j) {
@@ -464,6 +470,7 @@ void CDataFrameUtilsTest::testMeanValueOfTargetForCategories() {
 
             auto frame = factory();
 
+            frame->writeCategoricalColumns({true, false, true, false});
             for (std::size_t i = 0; i < rows; ++i) {
                 frame->writeRow([&values, i, cols](core::CDataFrame::TFloatVecItr column,
                                                    std::int32_t&) {
@@ -473,7 +480,6 @@ void CDataFrameUtilsTest::testMeanValueOfTargetForCategories() {
                 });
             }
             frame->finishWritingRows();
-            frame->writeCategoricalColumns({true, false, true, false});
 
             TDoubleVecVec actualMeans{maths::CDataFrameUtils::meanValueOfTargetForCategories(
                 threads, *frame, {0, 1, 2}, 3)};
@@ -507,20 +513,11 @@ void CDataFrameUtilsTest::testCategoryMicWithColumn() {
     test::CRandomNumbers rng;
 
     TDoubleVecVec frequencies;
-    rng.generateDirichletSamples({20.0, 60.0, 5.0, 15.0, 1.0}, cols - 1, frequencies);
+    TDoubleVecVec values;
+    std::tie(frequencies, values) =
+        generateCategoricalData(rng, rows, cols - 1, {20.0, 60.0, 5.0, 15.0, 1.0});
 
-    TDoubleVecVec values(cols);
-    for (std::size_t i = 0; i < frequencies.size(); ++i) {
-        for (std::size_t j = 0; j < frequencies[i].size(); ++j) {
-            std::size_t target{static_cast<std::size_t>(
-                static_cast<double>(rows) * frequencies[i][j] + 0.5)};
-            std::size_t count{std::min(values[i].size() + target, rows)};
-            values[i].resize(count, j);
-        }
-        rng.random_shuffle(values[i].begin(), values[i].end());
-    }
-
-    values[cols - 1].resize(rows);
+    values.resize(cols);
     rng.generateNormalSamples(0.0, 1.0, rows, values[cols - 1]);
     for (std::size_t i = 0; i < rows; ++i) {
         values[cols - 1][i] += 2.0 * values[2][i];
@@ -541,6 +538,7 @@ void CDataFrameUtilsTest::testCategoryMicWithColumn() {
 
             auto frame = factory();
 
+            frame->writeCategoricalColumns({true, false, true, false});
             for (std::size_t i = 0; i < rows; ++i) {
                 frame->writeRow([&values, i, cols](core::CDataFrame::TFloatVecItr column,
                                                    std::int32_t&) {
@@ -550,7 +548,6 @@ void CDataFrameUtilsTest::testCategoryMicWithColumn() {
                 });
             }
             frame->finishWritingRows();
-            frame->writeCategoricalColumns({true, false, true, false});
 
             auto mics = maths::CDataFrameUtils::categoryMicWithColumn(
                 threads, *frame, {0, 1, 2}, 3);
@@ -573,8 +570,8 @@ void CDataFrameUtilsTest::testCategoryMicWithColumn() {
                 CPPUNIT_ASSERT(mics[i].empty());
             }
 
-            CPPUNIT_ASSERT(mics[0][0].second < 0.15);
-            CPPUNIT_ASSERT(mics[2][0].second > 0.45);
+            CPPUNIT_ASSERT(mics[0][0].second < 0.05);
+            CPPUNIT_ASSERT(mics[2][0].second > 0.50);
 
             TSizeVec categoryOrder;
             for (const auto& category : mics[2]) {
