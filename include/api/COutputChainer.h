@@ -58,7 +58,7 @@ public:
     //! Where the same field is present in both overrideDataRowFields and
     //! dataRowFields, the value in overrideDataRowFields will be written.
     bool writeRow(const TStrStrUMap& dataRowFields,
-                          const TStrStrUMap& overrideDataRowFields) override;
+                  const TStrStrUMap& overrideDataRowFields) override;
 
     //! Perform any final processing once all data for the current search
     //! has been seen.  Chained classes should NOT rely on this method being
@@ -69,11 +69,10 @@ public:
 
     //! Restore previously saved state
     bool restoreState(core::CDataSearcher& restoreSearcher,
-                              core_t::TTime& completeToTime) override;
+                      core_t::TTime& completeToTime) override;
 
     //! Persist current state
-    bool persistState(core::CDataAdder& persister,
-                              const std::string& descriptionPrefix) override;
+    bool persistState(core::CDataAdder& persister, const std::string& descriptionPrefix) override;
 
     //! Persist current state due to the periodic persistence being triggered.
     bool periodicPersistStateInBackground() override;

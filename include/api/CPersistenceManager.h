@@ -106,10 +106,11 @@ public:
     //! background persistence is currently in progress.
     //! This should be set once before startBackgroundPersistIfAppropriate is
     //! called.
-    bool firstProcessorBackgroundPeriodicPersistFunc(const TFirstProcessorPeriodicPersistFunc& firstProcessorPeriodicPersistFunc);
+    bool firstProcessorBackgroundPeriodicPersistFunc(
+        const TFirstProcessorPeriodicPersistFunc& firstProcessorPeriodicPersistFunc);
 
-    bool firstProcessorForegroundPeriodicPersistFunc(const TFirstProcessorPeriodicPersistFunc& firstProcessorPeriodicPersistFunc);
-
+    bool firstProcessorForegroundPeriodicPersistFunc(
+        const TFirstProcessorPeriodicPersistFunc& firstProcessorPeriodicPersistFunc);
 
     //! If the periodic persist interval has passed since the last persist
     //! then it is appropriate to persist now.  Start it by calling the
@@ -167,7 +168,6 @@ private:
     //! persistence.
     TFirstProcessorPeriodicPersistFunc m_FirstProcessorBackgroundPeriodicPersistFunc;
     TFirstProcessorPeriodicPersistFunc m_FirstProcessorForegroundPeriodicPersistFunc;
-
 
     //! Reference to the data adder to be used by the background thread.
     //! The data adder referred to must outlive this object. If the data

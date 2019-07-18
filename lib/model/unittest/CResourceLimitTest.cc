@@ -537,7 +537,6 @@ void doTestLargeAllocations(SLargeAllocationTestParams& param) {
     CPPUNIT_ASSERT_EQUAL(std::size_t(0), model->getNewAttributes());
     CPPUNIT_ASSERT_EQUAL(model->getNewPeople(), gatherer->numberActivePeople());
 }
-
 }
 
 void CResourceLimitTest::testLargeAllocations() {

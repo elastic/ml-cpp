@@ -32,8 +32,8 @@ CPersistenceManager::CPersistenceManager(core_t::TTime periodicPersistInterval,
     : m_PeriodicPersistInterval(periodicPersistInterval),
       m_PersistInForeground(persistInForeground),
       m_LastPeriodicPersistTime(core::CTimeUtils::now()),
-      m_BgDataAdder(bgDataAdder), m_FgDataAdder(fgDataAdder), m_IsBusy(false), m_IsShutdown(false),
-      m_BackgroundThread(*this)  {
+      m_BgDataAdder(bgDataAdder), m_FgDataAdder(fgDataAdder), m_IsBusy(false),
+      m_IsShutdown(false), m_BackgroundThread(*this) {
     if (m_PeriodicPersistInterval < PERSIST_INTERVAL_INCREMENT) {
         // This may be dynamically increased further depending on how long
         // persistence takes

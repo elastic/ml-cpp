@@ -415,12 +415,13 @@ bool CFieldDataTyper::periodicPersistStateInBackground() {
         return false;
     }
 
-    if (m_PeriodicPersister->addPersistFunc(std::bind(&CFieldDataTyper::doPersistState, this,
-                                           // Do NOT add std::ref wrappers
-                                           // around these arguments - they
-                                           // MUST be copied for thread safety
-                                           m_DataTyper->makePersistFunc(), m_ExamplesCollector,
-                                           std::placeholders::_1)) == false) {
+    if (m_PeriodicPersister->addPersistFunc(
+            std::bind(&CFieldDataTyper::doPersistState, this,
+                      // Do NOT add std::ref wrappers
+                      // around these arguments - they
+                      // MUST be copied for thread safety
+                      m_DataTyper->makePersistFunc(), m_ExamplesCollector,
+                      std::placeholders::_1)) == false) {
         LOG_ERROR(<< "Failed to add categorizer background persistence function");
         return false;
     }

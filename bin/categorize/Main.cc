@@ -181,12 +181,10 @@ int main(int argc, char** argv) {
 
     if (periodicPersister != nullptr) {
         periodicPersister->firstProcessorBackgroundPeriodicPersistFunc(std::bind(
-            &ml::api::CFieldDataTyper::periodicPersistStateInBackground,
-            &typer));
+            &ml::api::CFieldDataTyper::periodicPersistStateInBackground, &typer));
 
         periodicPersister->firstProcessorForegroundPeriodicPersistFunc(std::bind(
-            &ml::api::CFieldDataTyper::periodicPersistStateInForeground,
-            &typer));
+            &ml::api::CFieldDataTyper::periodicPersistStateInForeground, &typer));
     }
 
     // The skeleton avoids the need to duplicate a lot of boilerplate code

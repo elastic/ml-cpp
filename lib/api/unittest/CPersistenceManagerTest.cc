@@ -109,7 +109,8 @@ void CPersistenceManagerTest::testCategorizationOnlyPersist() {
 
     // The 300 second persist interval is irrelevant here - we bypass the timer
     // in this test and kick off the background persistence chain explicitly
-    ml::api::CPersistenceManager persistenceManager(300, false, backgroundDataAdder, foregroundDataAdder);
+    ml::api::CPersistenceManager persistenceManager(300, false, backgroundDataAdder,
+                                                    foregroundDataAdder);
 
     {
         ml::core::CJsonOutputStreamWrapper wrappedOutputStream(outputStrm);
@@ -187,7 +188,8 @@ void CPersistenceManagerTest::foregroundBackgroundCompCategorizationAndAnomalyDe
 
     // The 300 second persist interval is irrelevant here - we bypass the timer
     // in this test and kick off the background persistence chain explicitly
-    ml::api::CPersistenceManager persistenceManager(300, false, backgroundDataAdder, foregroundDataAdder);
+    ml::api::CPersistenceManager persistenceManager(300, false, backgroundDataAdder,
+                                                    foregroundDataAdder);
 
     std::string snapshotId;
     std::size_t numDocs(0);
@@ -195,7 +197,6 @@ void CPersistenceManagerTest::foregroundBackgroundCompCategorizationAndAnomalyDe
     std::string backgroundSnapshotId;
     std::string foregroundSnapshotId;
     std::string foregroundSnapshotId2;
-
 
     std::ostringstream* foregroundStream2(nullptr);
     ml::api::CSingleStreamDataAdder::TOStreamP foregroundStreamPtr2(
@@ -216,7 +217,8 @@ void CPersistenceManagerTest::foregroundBackgroundCompCategorizationAndAnomalyDe
         ml::api::COutputChainer outputChainer(job);
 
         // The typer knows how to assign categories to records
-        ml::api::CFieldDataTyper typer(JOB_ID, fieldConfig, limits, outputChainer, outputWriter, &persistenceManager);
+        ml::api::CFieldDataTyper typer(JOB_ID, fieldConfig, limits, outputChainer,
+                                       outputWriter, &persistenceManager);
 
         if (fieldConfig.fieldNameSuperset().count(ml::api::CFieldDataTyper::MLCATEGORY_NAME) > 0) {
             LOG_DEBUG(<< "Applying the categorization typer for anomaly detection");
@@ -311,7 +313,8 @@ void CPersistenceManagerTest::foregroundBackgroundCompAnomalyDetectionAfterStati
 
     // The 300 second persist interval is irrelevant here - we bypass the timer
     // in this test and kick off the background persistence chain explicitly
-    ml::api::CPersistenceManager persistenceManager(300, false, backgroundDataAdder, foregroundDataAdder);
+    ml::api::CPersistenceManager persistenceManager(300, false, backgroundDataAdder,
+                                                    foregroundDataAdder);
 
     std::string snapshotId;
     std::size_t numDocs(0);

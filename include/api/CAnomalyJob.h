@@ -171,11 +171,10 @@ public:
 
     //! Restore previously saved state
     bool restoreState(core::CDataSearcher& restoreSearcher,
-                              core_t::TTime& completeToTime) override;
+                      core_t::TTime& completeToTime) override;
 
     //! Persist current state
-    bool persistState(core::CDataAdder& persister,
-                              const std::string& descriptionPrefix) override;
+    bool persistState(core::CDataAdder& persister, const std::string& descriptionPrefix) override;
 
     //! Initialise normalizer from quantiles state
     virtual bool initNormalizer(const std::string& quantilesStateFile);
