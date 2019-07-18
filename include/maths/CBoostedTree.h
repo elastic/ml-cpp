@@ -106,7 +106,7 @@ public:
 //! there is a well ordering on each feature and looks for binary splits subject to this
 //! ordering. This leaves two choices for categorical fields a) use some predefined order
 //! knowing that only splits of the form \f$\{\{1,2,...,i\},\{i+1,i+2,...,m\}\}\f$ will
-//! be considered or b) use hot-one-encoding knowing splits of the form \f$\{\{0\},\{1\}\}\f$
+//! be considered or b) use one-hot-encoding knowing splits of the form \f$\{\{0\},\{1\}\}\f$
 //! will then be considered for each category. The first choice will rule out good splits
 //! because they aren't consistent with the ordering and the second choice will behave
 //! poorly for fields with high cardinality because it will be impossible to accurately

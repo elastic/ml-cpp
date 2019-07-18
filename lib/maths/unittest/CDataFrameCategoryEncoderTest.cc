@@ -25,9 +25,9 @@ using TSizeVecVec = std::vector<TSizeVec>;
 using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
 using TMeanAccumulatorVec = std::vector<TMeanAccumulator>;
 
-void CDataFrameCategoryEncoderTest::testHotOneEncoding() {
+void CDataFrameCategoryEncoderTest::testOneHotEncoding() {
 
-    // Test hot-one encoding of two categories carrying a lot of information
+    // Test one-hot encoding of two categories carrying a lot of information
     // about the target.
 
     TDoubleVec categoryValue{-15.0, 20.0, 0.0};
@@ -83,13 +83,13 @@ void CDataFrameCategoryEncoderTest::testHotOneEncoding() {
             CPPUNIT_ASSERT_EQUAL(expectedColumns[i], encoder.column(i));
         }
 
-        TSizeVecVec expectedHotOneEncodedCategories{{0, 1}, {}, {}, {}};
+        TSizeVecVec expectedOneHotEncodedCategories{{0, 1}, {}, {}, {}};
         for (std::size_t i = 0; i < cols; ++i) {
-            CPPUNIT_ASSERT_EQUAL(expectedHotOneEncodedCategories[i].size(),
-                                 encoder.numberHotOneEncodedCategories(i));
+            CPPUNIT_ASSERT_EQUAL(expectedOneHotEncodedCategories[i].size(),
+                                 encoder.numberOneHotEncodedCategories(i));
             if (encoder.columnIsCategorical(i)) {
-                for (auto j : expectedHotOneEncodedCategories[i]) {
-                    CPPUNIT_ASSERT_EQUAL(true, encoder.isHotOne(j, i, j));
+                for (auto j : expectedOneHotEncodedCategories[i]) {
+                    CPPUNIT_ASSERT_EQUAL(true, encoder.isOneHot(j, i, j));
                 }
             }
         }
@@ -206,7 +206,7 @@ void CDataFrameCategoryEncoderTest::testEncodedDataFrameRowRef() {
     // Test we get the feature vectors we expect after encoding.
 
     // The feature vector layout for each encoded category is as follows:
-    // | hot-one | is rare | mean target value |
+    // | one-hot | is rare | mean target value |
 
     TDoubleVec categoryValue[2]{{-15.0, 20.0, 0.0}, {10.0, -10.0, 0.0}};
 
@@ -259,7 +259,7 @@ void CDataFrameCategoryEncoderTest::testEncodedDataFrameRowRef() {
 
     auto expectedEncoded = [&](const core::CDataFrame::TRowRef& row, std::size_t i) {
 
-        // We should have hot-one encoded categories 0 and 1 for each categorical
+        // We should have one-hot encoded categories 0 and 1 for each categorical
         // feature, category 4 should be rare and 2 and 3 should be mean target
         // encoded.
 
@@ -267,7 +267,7 @@ void CDataFrameCategoryEncoderTest::testEncodedDataFrameRowRef() {
                                  static_cast<std::size_t>(row[3])};
 
         if (i < 2) {
-            return categories[0] == i ? 1.0 : 0.0; // hot-one
+            return categories[0] == i ? 1.0 : 0.0; // one-hot
         }
         if (i == 2) {
             return categories[0] == 4 ? 1.0 : 0.0; // rare
@@ -280,7 +280,7 @@ void CDataFrameCategoryEncoderTest::testEncodedDataFrameRowRef() {
             return static_cast<double>(row[i - 3]); // metrics
         }
         if (i < 8) {
-            return categories[1] == i - 6 ? 1.0 : 0.0; // hot-one
+            return categories[1] == i - 6 ? 1.0 : 0.0; // one-hot
         }
         if (i == 8) {
             return categories[1] == 4 ? 1.0 : 0.0; // rare
@@ -319,8 +319,8 @@ CppUnit::Test* CDataFrameCategoryEncoderTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CDataFrameCategoryEncoderTest");
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CDataFrameCategoryEncoderTest>(
-        "CDataFrameCategoryEncoderTest::testHotOneEncoding",
-        &CDataFrameCategoryEncoderTest::testHotOneEncoding));
+        "CDataFrameCategoryEncoderTest::testOneHotEncoding",
+        &CDataFrameCategoryEncoderTest::testOneHotEncoding));
     suiteOfTests->addTest(new CppUnit::TestCaller<CDataFrameCategoryEncoderTest>(
         "CDataFrameCategoryEncoderTest::testMeanValueEncoding",
         &CDataFrameCategoryEncoderTest::testMeanValueEncoding));

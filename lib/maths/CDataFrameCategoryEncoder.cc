@@ -36,14 +36,14 @@ CFloatStorage CEncodedDataFrameRowRef::operator[](std::size_t i) const {
     std::size_t encoding{m_Encoder->encoding(i)};
     std::size_t category{static_cast<std::size_t>(value)};
 
-    std::size_t numberHotOneEncodedCategories{
-        m_Encoder->numberHotOneEncodedCategories(feature)};
+    std::size_t numberOneHotEncodedCategories{
+        m_Encoder->numberOneHotEncodedCategories(feature)};
 
-    if (encoding < numberHotOneEncodedCategories) {
-        return m_Encoder->isHotOne(encoding, feature, category) ? 1.0 : 0.0;
+    if (encoding < numberOneHotEncodedCategories) {
+        return m_Encoder->isOneHot(encoding, feature, category) ? 1.0 : 0.0;
     }
 
-    if (encoding == numberHotOneEncodedCategories && m_Encoder->hasRareCategories(feature)) {
+    if (encoding == numberOneHotEncodedCategories && m_Encoder->hasRareCategories(feature)) {
         return m_Encoder->isRareCategory(feature, category) ? 1.0 : 0.0;
     }
 
@@ -63,7 +63,7 @@ CDataFrameCategoryEncoder::CDataFrameCategoryEncoder(std::size_t numberThreads,
                                                      const TSizeVec& columnMask,
                                                      std::size_t targetColumn,
                                                      std::size_t minimumRowsPerFeature,
-                                                     double minimumFrequencyToHotOneEncode,
+                                                     double minimumFrequencyToOneHotEncode,
                                                      double lambda)
     : m_Lambda{lambda}, m_ColumnIsCategorical(frame.columnIsCategorical()) {
 
@@ -90,7 +90,7 @@ CDataFrameCategoryEncoder::CDataFrameCategoryEncoder(std::size_t numberThreads,
 
     // The top-level strategy is as follows:
     //
-    // We hot-one encode the frequent categories with the highest non-zero MICe up
+    // We one-hot encode the frequent categories with the highest non-zero MICe up
     // to the permitted overall feature count.
     // We mean value encode the remaining features where we have a representative
     // sample size.
@@ -103,7 +103,7 @@ CDataFrameCategoryEncoder::CDataFrameCategoryEncoder(std::size_t numberThreads,
 
     this->hotOneEncode(numberThreads, frame, metricColumnMask,
                        categoricalColumnMask, targetColumn,
-                       minimumRowsPerFeature, minimumFrequencyToHotOneEncode);
+                       minimumRowsPerFeature, minimumFrequencyToOneHotEncode);
 
     this->setupEncodingMaps(frame);
 }
@@ -143,18 +143,18 @@ std::size_t CDataFrameCategoryEncoder::column(std::size_t index) const {
     return m_FeatureVectorColumnMap[index];
 }
 
-std::size_t CDataFrameCategoryEncoder::numberHotOneEncodedCategories(std::size_t feature) const {
-    return m_HotOneEncodedCategories[feature].size();
+std::size_t CDataFrameCategoryEncoder::numberOneHotEncodedCategories(std::size_t feature) const {
+    return m_OneHotEncodedCategories[feature].size();
 }
 
-bool CDataFrameCategoryEncoder::isHotOne(std::size_t index,
+bool CDataFrameCategoryEncoder::isOneHot(std::size_t index,
                                          std::size_t feature,
                                          std::size_t category) const {
-    auto one = std::lower_bound(m_HotOneEncodedCategories[feature].begin(),
-                                m_HotOneEncodedCategories[feature].end(), category);
-    return one != m_HotOneEncodedCategories[feature].end() && category == *one &&
+    auto one = std::lower_bound(m_OneHotEncodedCategories[feature].begin(),
+                                m_OneHotEncodedCategories[feature].end(), category);
+    return one != m_OneHotEncodedCategories[feature].end() && category == *one &&
            static_cast<std::ptrdiff_t>(index) ==
-               one - m_HotOneEncodedCategories[feature].begin();
+               one - m_OneHotEncodedCategories[feature].begin();
 }
 
 bool CDataFrameCategoryEncoder::hasRareCategories(std::size_t feature) const {
@@ -201,7 +201,7 @@ void CDataFrameCategoryEncoder::hotOneEncode(std::size_t numberThreads,
                                              const TSizeVec& categoricalColumnMask,
                                              std::size_t targetColumn,
                                              std::size_t minimumRowsPerFeature,
-                                             double minimumFrequencyToHotOneEncode) {
+                                             double minimumFrequencyToOneHotEncode) {
 
     // We expect information carried by distinct features to be less correlated
     // so want to prefer choosing distinct features if the decision is marginal.
@@ -209,11 +209,11 @@ void CDataFrameCategoryEncoder::hotOneEncode(std::size_t numberThreads,
     // selected so far. This would be very expensive since it requires training
     // a model on a subset of the features for each decision. Instead, we introduce
     // a single non-negative parameter lambda and the category MICe for each feature
-    // is scale by exp(-lambda x "count of categories hot-one encoded for feature").
+    // is scale by exp(-lambda x "count of categories one-hot encoded for feature").
     // In the limit lambda is zero this amounts to simply choosing the metrics
-    // and categories to hot-one encode with highest MICe. In the limit lambda is
+    // and categories to one-hot encode with highest MICe. In the limit lambda is
     // large this amounts to choosing all metrics then the same count of categories
-    // (with the highest MICe) to hot-one encode for each categorical feature.
+    // (with the highest MICe) to one-hot encode for each categorical feature.
 
     using TDoubleSizeSizeTr = core::CTriple<double, std::size_t, std::size_t>;
     using TDoubleSizeSizeTrList = std::list<TDoubleSizeSizeTr>;
@@ -222,7 +222,7 @@ void CDataFrameCategoryEncoder::hotOneEncode(std::size_t numberThreads,
 
     auto metricMics = CDataFrameUtils::micWithColumn(frame, metricColumnMask, targetColumn);
     auto categoricalMics = CDataFrameUtils::categoryMicWithColumn(
-        numberThreads, frame, categoricalColumnMask, targetColumn, minimumFrequencyToHotOneEncode);
+        numberThreads, frame, categoricalColumnMask, targetColumn, minimumFrequencyToOneHotEncode);
     LOG_TRACE(<< "metric MICe = " << core::CContainerPrinter::print(metricMics));
     LOG_TRACE(<< "categorical MICe = " << core::CContainerPrinter::print(categoricalMics));
 
@@ -245,7 +245,7 @@ void CDataFrameCategoryEncoder::hotOneEncode(std::size_t numberThreads,
     LOG_TRACE(<< "number possible features = " << numberFeatures
               << " maximum permitted features = " << maximumNumberFeatures);
 
-    m_HotOneEncodedCategories.resize(frame.numberColumns());
+    m_OneHotEncodedCategories.resize(frame.numberColumns());
 
     if (maximumNumberFeatures >= numberFeatures) {
         for (std::size_t i = 0; i < metricMics.size(); ++i) {
@@ -260,7 +260,7 @@ void CDataFrameCategoryEncoder::hotOneEncode(std::size_t numberThreads,
                 double mic;
                 std::tie(category, mic) = categoricalMics[i][j];
                 if (mic > 0.0) {
-                    m_HotOneEncodedCategories[i].push_back(category);
+                    m_OneHotEncodedCategories[i].push_back(category);
                 }
             }
         }
@@ -301,7 +301,7 @@ void CDataFrameCategoryEncoder::hotOneEncode(std::size_t numberThreads,
 
             if (m_ColumnIsCategorical[feature]) {
                 m_SelectedCategoricalFeatures.push_back(feature);
-                m_HotOneEncodedCategories[feature].push_back(category);
+                m_OneHotEncodedCategories[feature].push_back(category);
                 hotOneEncodedCounts[feature] += 1.0;
                 if (hotOneEncodedCounts[feature] == 1.0) {
                     i += 1 + (this->hasRareCategories(feature) ? 1 : 0);
@@ -315,15 +315,15 @@ void CDataFrameCategoryEncoder::hotOneEncode(std::size_t numberThreads,
         }
     }
 
-    for (auto& categories : m_HotOneEncodedCategories) {
+    for (auto& categories : m_OneHotEncodedCategories) {
         categories.shrink_to_fit();
         std::sort(categories.begin(), categories.end());
     }
     COrderings::simultaneousSort(m_SelectedMetricFeatures, m_SelectedMetricFeatureMics);
     LOG_TRACE(<< "selected metrics = "
               << core::CContainerPrinter::print(m_SelectedMetricFeatures));
-    LOG_TRACE(<< "hot-one encoded = "
-              << core::CContainerPrinter::print(m_HotOneEncodedCategories));
+    LOG_TRACE(<< "one-hot encoded = "
+              << core::CContainerPrinter::print(m_OneHotEncodedCategories));
 }
 
 void CDataFrameCategoryEncoder::targetMeanValueEncode(std::size_t numberThreads,
@@ -344,13 +344,13 @@ void CDataFrameCategoryEncoder::setupEncodingMaps(const core::CDataFrame& frame)
     for (std::size_t i = 0; i < frame.numberColumns(); ++i) {
 
         if (m_ColumnIsCategorical[i]) {
-            std::size_t numberHotOne{m_HotOneEncodedCategories[i].size()};
+            std::size_t numberOneHot{m_OneHotEncodedCategories[i].size()};
             std::size_t numberRare{m_RareCategories[i].size()};
             std::size_t numberCategories{m_TargetMeanValues[i].size()};
 
             std::size_t offset{m_FeatureVectorColumnMap.size()};
-            std::size_t extra{numberHotOne + (numberRare > 0 ? 1 : 0) +
-                              (numberCategories > numberHotOne + numberRare ? 1 : 0)};
+            std::size_t extra{numberOneHot + (numberRare > 0 ? 1 : 0) +
+                              (numberCategories > numberOneHot + numberRare ? 1 : 0)};
 
             m_FeatureVectorColumnMap.resize(offset + extra, i);
             m_FeatureVectorEncodingMap.resize(offset + extra);

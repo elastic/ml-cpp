@@ -23,7 +23,7 @@ class CDataFrameCategoryEncoder;
 //!
 //! DESCRIPTION:\n
 //! This implements a subset of the core::CDataFrame::TRowRef interface dealing with
-//! the extra dimensions introduced by hot-one encoded categories, extracting the mean
+//! the extra dimensions introduced by one-hot encoded categories, extracting the mean
 //! target variable value for other categories and so on. The intention is it provides
 //! a drop in replacement for core::CDataFrame::TRowRef when a data frame contains
 //! categorical columns.
@@ -64,7 +64,7 @@ private:
 //! DESCRIPTION:\n
 //! We select appropriate encodings for categorical values based on their cardinality,
 //! the information they carry about the regression target variable and so on. We use
-//! a mixture of hot-one encoding for the categories which carry the most information
+//! a mixture of one-hot encoding for the categories which carry the most information
 //! (because this is lossless), mean target encoding for categories where we have a
 //! reasonable sample set and a catch all indicator feature for all rare categories.
 //!
@@ -86,19 +86,19 @@ public:
     //! \param[in] targetColumn The regression target variable.
     //! \param[in] minimumRowsPerFeature The minimum number of rows needed per dimension
     //! of the feature vector.
-    //! \param[in] minimumFrequencyToHotOneEncode The minimum relative frequency of a
-    //! category in \p frame to consider hot-one encoding it.
+    //! \param[in] minimumFrequencyToOneHotEncode The minimum relative frequency of a
+    //! category in \p frame to consider one-hot encoding it.
     //! \param[in] lambda Controls the weight between category MIC and the count of
-    //! categories already hot-one encoded for a feature when selecting features. This
+    //! categories already one-hot encoded for a feature when selecting features. This
     //! should be non-negative and the higher the value the more this will prefer to
     //! choose all the metrics and equal numbers of categories from each categorical
-    //! column to hot-one encode.
+    //! column to one-hot encode.
     CDataFrameCategoryEncoder(std::size_t numberThreads,
                               const core::CDataFrame& frame,
                               const TSizeVec& columnMask,
                               std::size_t targetColumn,
                               std::size_t minimumRowsPerFeature,
-                              double minimumFrequencyToHotOneEncode = 0.01,
+                              double minimumFrequencyToOneHotEncode = 0.01,
                               double lambda = 0.2 * std::log(2.0));
 
     //! Get a row reference which encodes the categories in \p row.
@@ -125,11 +125,11 @@ public:
     //! Get the data frame column of \p index into the feature vector.
     std::size_t column(std::size_t index) const;
 
-    //! Get the number of hot-one encoded categories for \p feature.
-    std::size_t numberHotOneEncodedCategories(std::size_t feature) const;
+    //! Get the number of one-hot encoded categories for \p feature.
+    std::size_t numberOneHotEncodedCategories(std::size_t feature) const;
 
-    //! Check if \p index is the hot-one for category \p category of \p feature.
-    bool isHotOne(std::size_t index, std::size_t feature, std::size_t category) const;
+    //! Check if \p index is the one-hot for category \p category of \p feature.
+    bool isOneHot(std::size_t index, std::size_t feature, std::size_t category) const;
 
     //! Check if \p feature has rare categories.
     bool hasRareCategories(std::size_t feature) const;
@@ -156,7 +156,7 @@ private:
                       const TSizeVec& categoricalColumnMask,
                       std::size_t targetColumn,
                       std::size_t minimumRowsPerFeature,
-                      double minimumFrequencyToHotOneEncode);
+                      double minimumFrequencyToOneHotEncode);
     void targetMeanValueEncode(std::size_t numberThreads,
                                const core::CDataFrame& frame,
                                const TSizeVec& categoricalColumnMask,
@@ -173,7 +173,7 @@ private:
     TSizeVec m_FeatureVectorEncodingMap;
     TDoubleVecVec m_TargetMeanValues;
     TSizeVecVec m_RareCategories;
-    TSizeVecVec m_HotOneEncodedCategories;
+    TSizeVecVec m_OneHotEncodedCategories;
 };
 }
 }
