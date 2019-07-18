@@ -275,7 +275,7 @@ CResourceMonitor::SResults CResourceMonitor::createMemoryUsageReport(core_t::TTi
 }
 
 std::size_t CResourceMonitor::adjustedUsage(std::size_t usage) const {
-    // We  scale the reported memory usage by the inverse of the byte limit margin.
+    // We scale the reported memory usage by the inverse of the byte limit margin.
     // This gives the user a fairer indication of how close the job is to hitting
     // the model memory limit in a concise manner (as the limit is scaled down by
     // the margin during the beginning period of the job's existence).
