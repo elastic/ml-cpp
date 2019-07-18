@@ -12,6 +12,7 @@
 
 #include <api/CDataFrameAnalysisRunner.h>
 #include <api/CDataFrameAnalysisSpecification.h>
+#include <api/CDataFrameAnalysisSpecificationJsonWriter.h>
 #include <api/CDataFrameBoostedTreeRunner.h>
 #include <api/CDataFrameAnalysisSpecificationJsonWriter.h>
 #include <api/CDataFrameOutliersRunner.h>
@@ -35,6 +36,7 @@ using TRunnerFactoryUPtrVec = std::vector<TRunnerFactoryUPtr>;
 }
 
 void CDataFrameAnalysisSpecificationTest::testCreate() {
+
     // This test focuses on checking the validation code we apply to the object
     // rather than the JSON parsing so we don't bother with random fuzzing of the
     // input string and simply check validation for each field.
@@ -311,6 +313,7 @@ void CDataFrameAnalysisSpecificationTest::testCreate() {
 }
 
 void CDataFrameAnalysisSpecificationTest::testRunAnalysis() {
+
     // Check progress is monotonic and that it remains less than one until the end
     // of the analysis.
 
@@ -322,7 +325,7 @@ void CDataFrameAnalysisSpecificationTest::testRunAnalysis() {
     };
 
     std::string jsonSpec = api::CDataFrameAnalysisSpecificationJsonWriter::jsonString(
-        100, 10, 1000, 1, true, test::CTestTmpDir::tmpDir(), "", "test", "");
+        100, 10, 1000, 1, {}, true, test::CTestTmpDir::tmpDir(), "", "test", "");
 
     for (std::size_t i = 0; i < 10; ++i) {
         api::CDataFrameAnalysisSpecification spec{testFactory(), jsonSpec};
@@ -350,10 +353,9 @@ void CDataFrameAnalysisSpecificationTest::testRunAnalysis() {
 std::string
 CDataFrameAnalysisSpecificationTest::createSpecJsonForTempDirDiskUsageTest(bool tempDirPathSet,
                                                                            bool diskUsageAllowed) {
-
     std::string tempDir = tempDirPathSet ? test::CTestTmpDir::tmpDir() : "";
     return api::CDataFrameAnalysisSpecificationJsonWriter::jsonString(
-        100, 3, 500000, 1, diskUsageAllowed, tempDir, "", "outlier_detection", "");
+        100, 3, 500000, 1, {}, diskUsageAllowed, tempDir, "", "outlier_detection", "");
 }
 
 void CDataFrameAnalysisSpecificationTest::testTempDirDiskUsage() {
@@ -375,7 +377,8 @@ void CDataFrameAnalysisSpecificationTest::testTempDirDiskUsage() {
 
         // single error is registered that temp dir is empty
         CPPUNIT_ASSERT_EQUAL(static_cast<std::size_t>(1), errors.size());
-        CPPUNIT_ASSERT(errors[0].find("Input error: temporary directory path should be explicitly set if disk usage is allowed!") !=
+        CPPUNIT_ASSERT(errors[0].find("Input error: temporary directory path should"
+                                      " be explicitly set if disk usage is allowed!") !=
                        std::string::npos);
     }
 

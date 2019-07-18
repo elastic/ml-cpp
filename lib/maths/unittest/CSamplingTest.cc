@@ -12,8 +12,6 @@
 #include <maths/CBasicStatistics.h>
 #include <maths/CSampling.h>
 
-#include <boost/range.hpp>
-
 #include <cmath>
 #include <numeric>
 

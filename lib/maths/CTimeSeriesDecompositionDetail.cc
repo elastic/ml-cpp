@@ -41,7 +41,6 @@
 #include <boost/container/flat_set.hpp>
 #include <boost/math/distributions/normal.hpp>
 #include <boost/numeric/conversion/bounds.hpp>
-#include <boost/range.hpp>
 
 #include <algorithm>
 #include <cmath>

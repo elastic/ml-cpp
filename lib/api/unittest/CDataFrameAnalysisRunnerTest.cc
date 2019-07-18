@@ -32,7 +32,7 @@ void CDataFrameAnalysisRunnerTest::testComputeExecutionStrategyForOutliers() {
 
             // Give the process approximately 100MB.
             std::string jsonSpec{api::CDataFrameAnalysisSpecificationJsonWriter::jsonString(
-                numberRows, numberCols, 100000000, 1, true,
+                numberRows, numberCols, 100000000, 1, {}, true,
                 test::CTestTmpDir::tmpDir(), "", "outlier_detection", "")};
 
             api::CDataFrameAnalysisSpecification spec{jsonSpec};
@@ -68,7 +68,7 @@ CDataFrameAnalysisRunnerTest::createSpecJsonForDiskUsageTest(std::size_t numberR
                                                              std::size_t numberCols,
                                                              bool diskUsageAllowed) {
     return api::CDataFrameAnalysisSpecificationJsonWriter::jsonString(
-        numberRows, numberCols, 500000, 1, diskUsageAllowed,
+        numberRows, numberCols, 500000, 1, {}, diskUsageAllowed,
         test::CTestTmpDir::tmpDir(), "", "outlier_detection", "");
 }
 
@@ -123,6 +123,9 @@ CppUnit::Test* CDataFrameAnalysisRunnerTest::suite() {
     suiteOfTests->addTest(new CppUnit::TestCaller<CDataFrameAnalysisRunnerTest>(
         "CDataFrameAnalysisRunnerTest::testComputeExecutionStrategyForOutliers",
         &CDataFrameAnalysisRunnerTest::testComputeExecutionStrategyForOutliers));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CDataFrameAnalysisRunnerTest>(
+        "CDataFrameAnalysisRunnerTest::testComputeAndSaveExecutionStrategyDiskUsageFlag",
+        &CDataFrameAnalysisRunnerTest::testComputeAndSaveExecutionStrategyDiskUsageFlag));
 
     suiteOfTests->addTest(new CppUnit::TestCaller<CDataFrameAnalysisRunnerTest>(
         "CDataFrameAnalysisRunnerTest::testComputeAndSaveExecutionStrategyDiskUsageFlag",

@@ -137,9 +137,8 @@ std::string CDataFrameAnalysisConfigReader::CParameter::fallback(const std::stri
     return m_Value->GetString();
 }
 
-CDataFrameAnalysisConfigReader::CParameter::CParameter(const char* name,
-                                                       const rapidjson::Value& value)
-    : m_Name{name}, m_Value(&value), m_ArrayElement{true} {
+CDataFrameAnalysisConfigReader::CParameter::CParameter(const std::string& name, SArrayElementTag)
+    : m_Name{name}, m_ArrayElement{true} {
 }
 
 void CDataFrameAnalysisConfigReader::CParameter::handleFatal() const {

@@ -124,15 +124,15 @@ void CDataFrameBoostedTreeRunner::runImpl(core::CDataFrame& frame) {
 }
 
 std::size_t CDataFrameBoostedTreeRunner::estimateBookkeepingMemoryUsage(
-    std::size_t numberPartitions,
+    std::size_t /*numberPartitions*/,
     std::size_t totalNumberRows,
-    std::size_t partitionNumberRows,
+    std::size_t /*partitionNumberRows*/,
     std::size_t numberColumns) const {
-    return m_BoostedTree->estimateMemoryUsage(partitionNumberRows, numberColumns);
+    return m_BoostedTree->estimateMemoryUsage(totalNumberRows, numberColumns);
 }
 
-const char* CDataFrameBoostedTreeRunnerFactory::name() const {
-    return "regression";
+const std::string& CDataFrameBoostedTreeRunnerFactory::name() const {
+    return NAME;
 }
 
 CDataFrameBoostedTreeRunnerFactory::TRunnerUPtr
@@ -145,5 +145,7 @@ CDataFrameBoostedTreeRunnerFactory::makeImpl(const CDataFrameAnalysisSpecificati
                                              const rapidjson::Value& params) const {
     return std::make_unique<CDataFrameBoostedTreeRunner>(spec, params);
 }
+
+const std::string CDataFrameBoostedTreeRunnerFactory::NAME{"regression"};
 }
 }

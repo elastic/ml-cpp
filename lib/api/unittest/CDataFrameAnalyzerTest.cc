@@ -42,20 +42,6 @@ using TRowItr = core::CDataFrame::TRowItr;
 using TPoint = maths::CDenseVector<maths::CFloatStorage>;
 using TPointVec = std::vector<TPoint>;
 
-std::string toJsonArray(const TStrVec& categoricalFieldNames) {
-    if (categoricalFieldNames.empty()) {
-        return "[]";
-    }
-
-    std::ostringstream result;
-    result << "[ \"" << categoricalFieldNames[0] << "\"";
-    for (std::size_t i = 1; i < categoricalFieldNames.size(); ++i) {
-        result << ", \"" << categoricalFieldNames[i] << "\"";
-    }
-    result << " ]";
-    return result.str();
-}
-
 std::unique_ptr<api::CDataFrameAnalysisSpecification>
 outlierSpec(std::size_t rows = 110,
             std::size_t memoryLimit = 100000,
@@ -66,29 +52,28 @@ outlierSpec(std::size_t rows = 110,
     std::string parameters = "{\n";
     bool hasTrailingParameter{false};
     if (method != "") {
-        parameters += "      \"method\": \"" + method + "\"";
+        parameters += "\"method\": \"" + method + "\"";
         hasTrailingParameter = true;
     }
     if (numberNeighbours > 0) {
         parameters += (hasTrailingParameter ? ",\n" : "");
-        parameters += "      \"n_neighbors\": " +
-                      core::CStringUtils::typeToString(numberNeighbours);
+        parameters += "\"n_neighbors\": " + core::CStringUtils::typeToString(numberNeighbours);
         hasTrailingParameter = true;
     }
     if (computeFeatureInfluence == false) {
         parameters += (hasTrailingParameter ? ",\n" : "");
-        parameters += "      \"compute_feature_influence\": false";
+        parameters += "\"compute_feature_influence\": false";
         hasTrailingParameter = true;
     } else {
         parameters += (hasTrailingParameter ? ",\n" : "");
-        parameters += "      \"feature_influence_threshold\": 0.0";
+        parameters += "\"feature_influence_threshold\": 0.0";
         hasTrailingParameter = true;
     }
     parameters += (hasTrailingParameter ? "\n" : "");
-    parameters += "    }\n";
+    parameters += "}\n";
 
     std::string spec{api::CDataFrameAnalysisSpecificationJsonWriter::jsonString(
-        rows, 5, memoryLimit, 1, true, test::CTestTmpDir::tmpDir(), "ml",
+        rows, 5, memoryLimit, 1, {}, true, test::CTestTmpDir::tmpDir(), "ml",
         "outlier_detection", parameters)};
 
     LOG_TRACE(<< "spec =\n" << spec);
@@ -106,50 +91,31 @@ regressionSpec(std::size_t rows = 100,
                std::size_t maximumNumberTrees = 0,
                double featureBagFraction = -1.0) {
 
-    std::string spec{"{\n"
-                     "  \"rows\": " +
-                     std::to_string(rows) +
-                     ",\n"
-                     "  \"cols\": 5,\n"
-                     "  \"memory_limit\": " +
-                     std::to_string(memoryLimit) +
-                     ",\n"
-                     "  \"threads\": 1,\n"
-                     "  \"categorical_fields\": " +
-                     toJsonArray(categoricalFieldNames) +
-                     ",\n"
-                     "  \"analysis\": {\n"
-                     "    \"name\": \"regression\","};
-    spec += "\n    \"parameters\": {";
-    spec += "\n      \"dependent_variable\": 4";
+    std::string parameters = "{\n\"dependent_variable\": 4";
     if (lambda >= 0.0) {
-        spec += ",\n";
-        spec += "      \"lambda\": " + core::CStringUtils::typeToString(lambda);
+        parameters += ",\n\"lambda\": " + core::CStringUtils::typeToString(lambda);
     }
     if (gamma >= 0.0) {
-        spec += ",\n";
-        spec += "      \"gamma\": " + core::CStringUtils::typeToString(gamma);
+        parameters += ",\n\"gamma\": " + core::CStringUtils::typeToString(gamma);
     }
     if (eta > 0.0) {
-        spec += ",\n";
-        spec += "      \"eta\": " + core::CStringUtils::typeToString(eta);
+        parameters += ",\n\"eta\": " + core::CStringUtils::typeToString(eta);
     }
     if (maximumNumberTrees > 0) {
-        spec += ",\n";
-        spec += "      \"maximum_number_trees\": " +
-                core::CStringUtils::typeToString(maximumNumberTrees);
+        parameters += ",\n\"maximum_number_trees\": " +
+                      core::CStringUtils::typeToString(maximumNumberTrees);
     }
     if (featureBagFraction > 0.0) {
-        spec += ",\n";
-        spec += "      \"feature_bag_fraction\": " +
-                core::CStringUtils::typeToString(featureBagFraction);
+        parameters += ",\n\"feature_bag_fraction\": " +
+                      core::CStringUtils::typeToString(featureBagFraction);
     }
-    spec += "\n";
-    spec += "    }\n";
-    spec += "  }\n"
-            "}";
+    parameters += "\n}";
 
-    LOG_TRACE(<< "spec =\n" << spec);
+    std::string spec{api::CDataFrameAnalysisSpecificationJsonWriter::jsonString(
+        rows, 5, memoryLimit, 1, categoricalFieldNames, true,
+        test::CTestTmpDir::tmpDir(), "ml", "regression", parameters)};
+
+    LOG_DEBUG(<< "spec =\n" << spec);
 
     return std::make_unique<api::CDataFrameAnalysisSpecification>(spec);
 }
@@ -779,7 +745,7 @@ void CDataFrameAnalyzerTest::testCategoricalFields() {
     };
 
     {
-        api::CDataFrameAnalyzer analyzer{regressionSpec(1000, 100000, {"x1", "x2"}),
+        api::CDataFrameAnalyzer analyzer{regressionSpec(1000, 1000000, {"x1", "x2"}),
                                          outputWriterFactory};
 
         TStrVec x[]{{"x11", "x12", "x13", "x14", "x15"},
@@ -818,7 +784,7 @@ void CDataFrameAnalyzerTest::testCategoricalFields() {
     {
         std::size_t rows{api::CDataFrameAnalyzer::MAX_CATEGORICAL_CARDINALITY + 3};
 
-        api::CDataFrameAnalyzer analyzer{regressionSpec(rows, 1000000000, {"x1"}),
+        api::CDataFrameAnalyzer analyzer{regressionSpec(rows, 2800000000, {"x1"}),
                                          outputWriterFactory};
 
         TStrVec fieldNames{"x1", "x2", "x3", "x4", "x5", ".", "."};

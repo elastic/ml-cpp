@@ -20,8 +20,6 @@
 
 #include <test/CRandomNumbers.h>
 
-#include <boost/range.hpp>
-
 #include <utility>
 #include <vector>
 

@@ -229,8 +229,9 @@ bool CDataFrameAnalyzer::sufficientFieldValues(const TStrVec& fieldValues) const
     std::size_t expectedNumberFieldValues{m_AnalysisSpecification->numberColumns() +
                                           (m_ControlFieldIndex >= 0 ? 2 : 0)};
     if (fieldValues.size() != expectedNumberFieldValues) {
-        HANDLE_FATAL(<< "Input error: expected " << expectedNumberFieldValues << " field values and got "
-                     << fieldValues.size() << ". Please report this problem.");
+        HANDLE_FATAL(<< "Input error: expected " << expectedNumberFieldValues << " field"
+                     << " values and got " << core::CContainerPrinter::print(fieldValues)
+                     << ". Please report this problem.");
         return false;
     }
     return true;

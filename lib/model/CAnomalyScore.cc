@@ -25,7 +25,6 @@
 #include <model/CLimits.h>
 
 #include <boost/optional.hpp>
-#include <boost/range.hpp>
 
 #include <numeric>
 #include <vector>

@@ -59,7 +59,10 @@ private:
 //! \brief Makes a core::CDataFrame boosted tree regression runner.
 class API_EXPORT CDataFrameBoostedTreeRunnerFactory final : public CDataFrameAnalysisRunnerFactory {
 public:
-    const char* name() const override;
+    const std::string& name() const override;
+
+private:
+    static const std::string NAME;
 
 private:
     TRunnerUPtr makeImpl(const CDataFrameAnalysisSpecification& spec) const override;

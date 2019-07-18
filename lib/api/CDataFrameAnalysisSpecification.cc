@@ -32,10 +32,11 @@ const std::string CDataFrameAnalysisSpecification::MEMORY_LIMIT("memory_limit");
 const std::string CDataFrameAnalysisSpecification::THREADS("threads");
 const std::string CDataFrameAnalysisSpecification::TEMPORARY_DIRECTORY("temp_dir");
 const std::string CDataFrameAnalysisSpecification::RESULTS_FIELD("results_field");
+const std::string CDataFrameAnalysisSpecification::CATEGORICAL_FIELD_NAMES{"categorical_fields"};
+const std::string CDataFrameAnalysisSpecification::DISK_USAGE_ALLOWED("disk_usage_allowed");
 const std::string CDataFrameAnalysisSpecification::ANALYSIS("analysis");
 const std::string CDataFrameAnalysisSpecification::NAME("name");
 const std::string CDataFrameAnalysisSpecification::PARAMETERS("parameters");
-const std::string CDataFrameAnalysisSpecification::DISK_USAGE_ALLOWED("disk_usage_allowed");
 
 namespace {
 using TRunnerFactoryUPtrVec = ml::api::CDataFrameAnalysisSpecification::TRunnerFactoryUPtrVec;
@@ -65,14 +66,12 @@ const CDataFrameAnalysisConfigReader CONFIG_READER{[] {
                            CDataFrameAnalysisConfigReader::E_OptionalParameter);
     theReader.addParameter(CDataFrameAnalysisSpecification::RESULTS_FIELD,
                            CDataFrameAnalysisConfigReader::E_OptionalParameter);
-    theReader.addParameter(CDataFrameAnalysisSpecification::ANALYSIS,
-                           CDataFrameAnalysisConfigReader::E_RequiredParameter);
+    theReader.addParameter(CDataFrameAnalysisSpecification::CATEGORICAL_FIELD_NAMES,
+                           CDataFrameAnalysisConfigReader::E_OptionalParameter);
     theReader.addParameter(CDataFrameAnalysisSpecification::DISK_USAGE_ALLOWED,
                            CDataFrameAnalysisConfigReader::E_OptionalParameter);
-    theReader.addParameter(RESULTS_FIELD, CDataFrameAnalysisConfigReader::E_OptionalParameter);
-    theReader.addParameter(CATEGORICAL_FIELD_NAMES,
-                           CDataFrameAnalysisConfigReader::E_OptionalParameter);
-    theReader.addParameter(ANALYSIS, CDataFrameAnalysisConfigReader::E_RequiredParameter);
+    theReader.addParameter(CDataFrameAnalysisSpecification::ANALYSIS,
+                           CDataFrameAnalysisConfigReader::E_RequiredParameter);
     return theReader;
 }()};
 

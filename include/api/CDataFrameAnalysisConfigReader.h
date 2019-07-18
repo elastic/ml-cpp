@@ -117,15 +117,19 @@ public:
             }
             std::vector<T> result;
             result.reserve(m_Value->Size());
+            CParameter element{m_Name, SArrayElementTag{}};
             for (std::size_t i = 0; i < m_Value->Size(); ++i) {
-                CParameter element{m_Name, (*m_Value)[static_cast<int>(i)]};
+                element.m_Value = &(*m_Value)[static_cast<int>(i)];
                 result.push_back(element.as<T>());
             }
             return result;
         }
 
     private:
-        CParameter(const char* name, const rapidjson::Value& value);
+        struct SArrayElementTag {};
+
+    private:
+        CParameter(const std::string& name, SArrayElementTag);
         void handleFatal() const;
 
     private:

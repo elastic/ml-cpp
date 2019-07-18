@@ -148,7 +148,7 @@ public:
         }
 
         // shouldn't ever happen as it indicates that the default allocator is invalid
-        if (!rawAllocator) {
+        if (rawAllocator == nullptr) {
             LOG_ERROR(<< "No viable JSON memory allocator encountered. Recreating.");
             allocator = std::make_shared<CRapidJsonPoolAllocator>();
             m_JsonPoolAllocators.push(allocator);
