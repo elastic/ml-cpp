@@ -245,7 +245,7 @@ void CPersistenceManagerTest::foregroundBackgroundCompCategorizationAndAnomalyDe
         persistenceManager.startPersist();
         foregroundSnapshotId = snapshotId;
 
-        // ... persist in foreground againi by directly calling persistState
+        // ... persist in foreground again by directly calling persistState
         ml::api::CSingleStreamDataAdder foregroundDataAdder2(foregroundStreamPtr2);
         CPPUNIT_ASSERT(firstProcessor->persistState(
             foregroundDataAdder2, "Periodic foreground persistence at "));
