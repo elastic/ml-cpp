@@ -41,14 +41,14 @@ public:
     COutputChainer(CDataProcessor& dataProcessor);
 
     //! We're going to be writing to a new output stream
-    virtual void newOutputStream() override;
+    void newOutputStream() override;
 
     // Bring the other overload of fieldNames() into scope
     using COutputHandler::fieldNames;
 
     //! Set field names, adding extra field names if they're not already
     //! present - this is only allowed once
-    virtual bool fieldNames(const TStrVec& fieldNames, const TStrVec& extraFieldNames) override;
+    bool fieldNames(const TStrVec& fieldNames, const TStrVec& extraFieldNames) override;
 
     // Bring the other overload of writeRow() into scope
     using COutputHandler::writeRow;
@@ -57,7 +57,7 @@ public:
     //! values, optionally overriding some of the original field values.
     //! Where the same field is present in both overrideDataRowFields and
     //! dataRowFields, the value in overrideDataRowFields will be written.
-    virtual bool writeRow(const TStrStrUMap& dataRowFields,
+    bool writeRow(const TStrStrUMap& dataRowFields,
                           const TStrStrUMap& overrideDataRowFields) override;
 
     //! Perform any final processing once all data for the current search
@@ -65,25 +65,25 @@ public:
     //! called - they should do the best they can on the assumption that
     //! this method will not be called, but may be able to improve their
     //! output if this method is called.
-    virtual void finalise() override;
+    void finalise() override;
 
     //! Restore previously saved state
-    virtual bool restoreState(core::CDataSearcher& restoreSearcher,
+    bool restoreState(core::CDataSearcher& restoreSearcher,
                               core_t::TTime& completeToTime) override;
 
     //! Persist current state
-    virtual bool persistState(core::CDataAdder& persister,
+    bool persistState(core::CDataAdder& persister,
                               const std::string& descriptionPrefix) override;
 
     //! Persist current state due to the periodic persistence being triggered.
-    virtual bool periodicPersistStateInBackground(CPersistenceManager& persistenceManager) override;
+    bool periodicPersistStateInBackground() override;
 
     //! Is persistence needed?
-    virtual bool isPersistenceNeeded(const std::string& description) const override;
+    bool isPersistenceNeeded(const std::string& description) const override;
 
     //! The chainer does consume control messages, because it passes them on
     //! to whatever processor it's chained to.
-    virtual bool consumesControlMessages() override;
+    bool consumesControlMessages() override;
 
 private:
     //! The function that will be called for every record output via this

@@ -82,38 +82,38 @@ public:
                     CJsonOutputWriter& jsonOutputWriter,
                     CPersistenceManager* periodicPersister = nullptr);
 
-    virtual ~CFieldDataTyper() override;
+    ~CFieldDataTyper() override;
 
     //! We're going to be writing to a new output stream
-    virtual void newOutputStream() override;
+    void newOutputStream() override;
 
     //! Receive a single record to be typed, and output that record to
     //! STDOUT with its type field added
-    virtual bool handleRecord(const TStrStrUMap& dataRowFields) override;
+    bool handleRecord(const TStrStrUMap& dataRowFields) override;
 
     //! Perform any final processing once all input data has been seen.
-    virtual void finalise() override;
+    void finalise() override;
 
     //! Restore previously saved state
-    virtual bool restoreState(core::CDataSearcher& restoreSearcher,
+    bool restoreState(core::CDataSearcher& restoreSearcher,
                               core_t::TTime& completeToTime) override;
 
     //! Is persistence needed?
-    virtual bool isPersistenceNeeded(const std::string& description) const override;
+    bool isPersistenceNeeded(const std::string& description) const override;
 
     //! Persist current state
-    virtual bool persistState(core::CDataAdder& persister,
+    bool persistState(core::CDataAdder& persister,
                               const std::string& descriptionPrefix) override;
 
     //! Persist current state due to the periodic persistence being triggered.
-    virtual bool periodicPersistStateInBackground(CPersistenceManager& persister) override;
-    virtual bool periodicPersistStateInForeground(CPersistenceManager& persister) override;
+    bool periodicPersistStateInBackground() override;
+    bool periodicPersistStateInForeground() override;
 
     //! How many records did we handle?
-    virtual uint64_t numRecordsHandled() const override;
+    uint64_t numRecordsHandled() const override;
 
     //! Access the output handler
-    virtual COutputHandler& outputHandler() override;
+    COutputHandler& outputHandler() override;
 
 private:
     //! Create the typer to operate on the categorization field

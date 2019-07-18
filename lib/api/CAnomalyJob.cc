@@ -1010,8 +1010,12 @@ bool CAnomalyJob::persistState(core::CDataAdder& persister, const std::string& d
         m_LatestRecordTime, m_LastResultsTime, persister);
 }
 
-bool CAnomalyJob::backgroundPersistState(CPersistenceManager& backgroundPersister) {
+bool CAnomalyJob::backgroundPersistState() {
     LOG_INFO(<< "Background persist starting data copy");
+
+    if (m_PeriodicPersister == nullptr) {
+        return false;
+    }
 
     // Pass arguments by value: this is what we want for
     // passing to a new thread.
@@ -1051,11 +1055,13 @@ bool CAnomalyJob::backgroundPersistState(CPersistenceManager& backgroundPersiste
     std::sort(copiedDetectors.begin(), copiedDetectors.end(),
               maths::COrderings::SFirstLess());
 
-    if (backgroundPersister.addPersistFunc(std::bind(
+    if (m_PeriodicPersister->addPersistFunc(std::bind(
             &CAnomalyJob::runBackgroundPersist, this, args, std::placeholders::_1)) == false) {
         LOG_ERROR(<< "Failed to add anomaly detector background persistence function");
         return false;
     }
+
+    m_PeriodicPersister->persistInForeground(false);
 
     return true;
 }
@@ -1168,9 +1174,9 @@ bool CAnomalyJob::persistState(const std::string& descriptionPrefix,
     return true;
 }
 
-bool CAnomalyJob::periodicPersistStateInBackground(CPersistenceManager& persistenceManager) {
+bool CAnomalyJob::periodicPersistStateInBackground() {
     // Pass on the request in case we're chained
-    if (this->outputHandler().periodicPersistStateInBackground(persistenceManager) == false) {
+    if (this->outputHandler().periodicPersistStateInBackground() == false) {
         return false;
     }
 
@@ -1188,15 +1194,23 @@ bool CAnomalyJob::periodicPersistStateInBackground(CPersistenceManager& persiste
         m_Limits.resourceMonitor().forceRefresh(*detector);
     }
 
-    return this->backgroundPersistState(persistenceManager);
+    return this->backgroundPersistState();
 }
 
-bool CAnomalyJob::periodicPersistStateInForeground(CPersistenceManager& persistenceManager) {
-    if (persistenceManager.addPersistFunc(std::bind(
+bool CAnomalyJob::periodicPersistStateInForeground() {
+    // Do NOT pass this request on to the output chainer. That logic is already present in persistState.
+
+    if (m_PeriodicPersister == nullptr) {
+        return false;
+    }
+
+    if (m_PeriodicPersister->addPersistFunc(std::bind(
             &CAnomalyJob::runForegroundPersist, this, std::placeholders::_1)) == false) {
         LOG_ERROR(<< "Failed to add anomaly detector foreground persistence function");
         return false;
     }
+
+    m_PeriodicPersister->persistInForeground(true);
 
     return true;
 }

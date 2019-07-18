@@ -169,6 +169,9 @@ private:
     //! of background persistence.
     std::size_t adjustedUsage(std::size_t usage) const;
 
+    //! Returns the amount by which reported memory usage is scaled depending on the type of persistence in use
+    std::size_t persistenceMemoryIncreaseFactor() const;
+
 private:
     //! The registered collection of components
     TDetectorPtrSizeUMap m_Detectors;

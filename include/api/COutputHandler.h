@@ -89,7 +89,7 @@ public:
     virtual bool persistState(core::CDataAdder& persister, const std::string& descriptionPrefix);
 
     //! Persist current state due to the periodic persistence being triggered.
-    virtual bool periodicPersistStateInBackground(CPersistenceManager& persister);
+    virtual bool periodicPersistStateInBackground();
 
     //! Is persistence needed?
     virtual bool isPersistenceNeeded(const std::string& description) const;

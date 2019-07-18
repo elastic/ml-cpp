@@ -112,8 +112,8 @@ bool COutputChainer::persistState(core::CDataAdder& persister,
     return m_DataProcessor.persistState(persister, descriptionPrefix);
 }
 
-bool COutputChainer::periodicPersistStateInBackground(CPersistenceManager& persistenceManager) {
-    return m_DataProcessor.periodicPersistStateInBackground(persistenceManager);
+bool COutputChainer::periodicPersistStateInBackground() {
+    return m_DataProcessor.periodicPersistStateInBackground();
 }
 
 bool COutputChainer::isPersistenceNeeded(const std::string& description) const {

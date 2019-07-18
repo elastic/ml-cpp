@@ -42,7 +42,7 @@ bool COutputHandler::persistState(core::CDataAdder& /* persister */,
     return true;
 }
 
-bool COutputHandler::periodicPersistStateInBackground(CPersistenceManager& /* persister */) {
+bool COutputHandler::periodicPersistStateInBackground() {
     // NOOP unless overridden
     return true;
 }

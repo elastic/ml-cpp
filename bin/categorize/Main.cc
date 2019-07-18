@@ -148,9 +148,9 @@ int main(int argc, char** argv) {
                      "unless a place to persist to has been specified using the 'persist' argument");
         return EXIT_FAILURE;
     }
-    using TBackgroundPersisterUPtr = std::unique_ptr<ml::api::CPersistenceManager>;
-    const TBackgroundPersisterUPtr periodicPersister{
-        [persistInterval, isPersistInForeground, &persister]() -> TBackgroundPersisterUPtr {
+    using TPersistenceManagerUPtr = std::unique_ptr<ml::api::CPersistenceManager>;
+    const TPersistenceManagerUPtr periodicPersister{
+        [persistInterval, isPersistInForeground, &persister]() -> TPersistenceManagerUPtr {
             if (persistInterval >= 0) {
                 return std::make_unique<ml::api::CPersistenceManager>(
                     persistInterval, isPersistInForeground, *persister);
@@ -180,10 +180,13 @@ int main(int argc, char** argv) {
                                    outputWriter, periodicPersister.get());
 
     if (periodicPersister != nullptr) {
-        periodicPersister->firstProcessorPeriodicPersistFunc(std::bind(
-            isPersistInForeground ? &ml::api::CFieldDataTyper::periodicPersistStateInForeground
-                                  : &ml::api::CFieldDataTyper::periodicPersistStateInBackground,
-            &typer, std::placeholders::_1));
+        periodicPersister->firstProcessorBackgroundPeriodicPersistFunc(std::bind(
+            &ml::api::CFieldDataTyper::periodicPersistStateInBackground,
+            &typer));
+
+        periodicPersister->firstProcessorForegroundPeriodicPersistFunc(std::bind(
+            &ml::api::CFieldDataTyper::periodicPersistStateInForeground,
+            &typer));
     }
 
     // The skeleton avoids the need to duplicate a lot of boilerplate code

@@ -235,9 +235,23 @@ void CResourceLimitTest::testLimitByOver() {
 
 namespace {
 
+class CMockModelInterface {
+public:
+    CMockModelInterface() = default;
+    virtual ~CMockModelInterface() = default;
+
+    virtual void createNewModels(std::size_t n, std::size_t m) = 0;
+
+    virtual void test(core_t::TTime time) = 0;
+
+    virtual std::size_t getNewPeople() const = 0;
+
+    virtual std::size_t getNewAttributes() const = 0;
+};
+
 //! A test wrapper around a real model that tracks calls to createNewModels
 //! and simulates taking lots of memory
-class CMockEventRateModel : public ml::model::CEventRateModel {
+class CMockEventRateModel : public CEventRateModel, public CMockModelInterface {
 public:
     CMockEventRateModel(const SModelParams& params,
                         const TDataGathererPtr& dataGatherer,
@@ -282,7 +296,7 @@ private:
 
 //! A test wrapper around a real model that tracks calls to createNewModels
 //! and simulates taking lots of memory
-class CMockMetricModel : public ml::model::CMetricModel {
+class CMockMetricModel : public CMetricModel, public CMockModelInterface {
 public:
     CMockMetricModel(const SModelParams& params,
                      const TDataGathererPtr& dataGatherer,
@@ -371,270 +385,171 @@ void addPersonMetricData(std::size_t start,
         addMetricArrival(time, ssA.str(), gatherer, resourceMonitor);
     }
 }
-}
 
-void CResourceLimitTest::testLargeAllocations() {
-    {
+using TAddPersonDataFunc =
+    std::function<void(std::size_t, std::size_t, core_t::TTime, CDataGatherer&, CResourceMonitor&)>;
+using TMockModelInterfacePtr = std::shared_ptr<CMockModelInterface>;
+using TModelFactoryPtr = std::shared_ptr<CModelFactory>;
+
+TAddPersonDataFunc createModel(model_t::EModelType modelType,
+                               const std::string& emptyString,
+                               core_t::TTime firstTime,
+                               core_t::TTime bucketLength,
+                               CResourceMonitor& resourceMonitor,
+                               TMockModelInterfacePtr& model,
+                               CModelFactory::TDataGathererPtr& gatherer,
+                               TModelFactoryPtr& factory) {
+    switch (modelType) {
+    case model_t::E_EventRateOnline: {
         // Test CEventRateModel::createUpdateNewModels()
-        const std::string EMPTY_STRING("");
-        const core_t::TTime FIRST_TIME(358556400);
-        const core_t::TTime BUCKET_LENGTH(3600);
 
-        SModelParams params(BUCKET_LENGTH);
+        SModelParams params(bucketLength);
         params.s_DecayRate = 0.001;
-        auto interimBucketCorrector = std::make_shared<CInterimBucketCorrector>(BUCKET_LENGTH);
-        CEventRateModelFactory factory(params, interimBucketCorrector);
-        factory.identifier(1);
-        factory.fieldNames(EMPTY_STRING, EMPTY_STRING, "pers", EMPTY_STRING, TStrVec());
+        auto interimBucketCorrector = std::make_shared<CInterimBucketCorrector>(bucketLength);
+
+        factory = std::make_shared<CEventRateModelFactory>(params, interimBucketCorrector);
+        factory->identifier(1);
+        factory->fieldNames(emptyString, emptyString, "pers", emptyString, TStrVec());
         CModelFactory::TFeatureVec features;
         features.push_back(model_t::E_IndividualCountByBucketAndPerson);
-        factory.features(features);
+        factory->features(features);
 
-        {
-            CModelFactory::TDataGathererPtr gatherer(factory.makeDataGatherer(FIRST_TIME));
+        gatherer.reset(factory->makeDataGatherer(firstTime));
 
-            CResourceMonitor resourceMonitor(false, 1.0);
-            resourceMonitor.memoryLimit(std::size_t(70));
-            const maths::CMultinomialConjugate conjugate;
-            ::CMockEventRateModel model(
-                factory.modelParams(), gatherer,
-                factory.defaultFeatureModels(features, BUCKET_LENGTH, 0.4, true), conjugate,
-                CAnomalyDetectorModel::TFeatureInfluenceCalculatorCPtrPrVecVec(),
-                resourceMonitor);
+        const maths::CMultinomialConjugate conjugate;
+        std::shared_ptr<::CMockEventRateModel> model_ = std::make_shared<::CMockEventRateModel>(
+            factory->modelParams(), gatherer,
+            factory->defaultFeatureModels(features, bucketLength, 0.4, true), conjugate,
+            CAnomalyDetectorModel::TFeatureInfluenceCalculatorCPtrPrVecVec(),
+            resourceMonitor);
 
-            CPPUNIT_ASSERT_EQUAL(model_t::E_EventRateOnline, model.category());
-            CPPUNIT_ASSERT(model.isPopulation() == false);
-            core_t::TTime time = FIRST_TIME;
+        CPPUNIT_ASSERT_EQUAL(model_t::E_EventRateOnline, model_->category());
+        CPPUNIT_ASSERT(model_->isPopulation() == false);
 
-            CPPUNIT_ASSERT(resourceMonitor.areAllocationsAllowed());
+        model = model_;
 
-            // Add some people & attributes to the gatherer
-            // Run a sample
-            // Check that the models can create the right number of people/attributes
-            ::addPersonData(0, 400, time, *gatherer, resourceMonitor);
-
-            CPPUNIT_ASSERT_EQUAL(std::size_t(400), gatherer->numberActivePeople());
-
-            LOG_DEBUG(<< "Testing for 1st time");
-            model.test(time);
-            CPPUNIT_ASSERT_EQUAL(std::size_t(400), gatherer->numberActivePeople());
-            CPPUNIT_ASSERT_EQUAL(std::size_t(400), model.getNewPeople());
-            CPPUNIT_ASSERT_EQUAL(std::size_t(0), model.getNewAttributes());
-            time += BUCKET_LENGTH;
-
-            ::addPersonData(400, 1000, time, *gatherer, resourceMonitor);
-            model.test(time);
-
-            // This should add enough people to go over the memory limit
-            ::addPersonData(1000, 3000, time, *gatherer, resourceMonitor);
-
-            LOG_DEBUG(<< "Testing for 2nd time");
-            model.test(time);
-            LOG_DEBUG(<< "# new people = " << model.getNewPeople());
-            CPPUNIT_ASSERT(model.getNewPeople() > 2700 && model.getNewPeople() < 2900);
-            CPPUNIT_ASSERT_EQUAL(std::size_t(0), model.getNewAttributes());
-            CPPUNIT_ASSERT_EQUAL(model.getNewPeople(), gatherer->numberActivePeople());
-
-            // Adding a small number of new people should be fine though,
-            // as they're allowed in
-            time += BUCKET_LENGTH;
-            std::size_t oldNumberPeople{model.getNewPeople()};
-            ::addPersonData(3000, 3010, time, *gatherer, resourceMonitor);
-
-            LOG_DEBUG(<< "Testing for 3rd time");
-            model.test(time);
-            CPPUNIT_ASSERT_EQUAL(oldNumberPeople + 10, model.getNewPeople());
-            CPPUNIT_ASSERT_EQUAL(std::size_t(0), model.getNewAttributes());
-            CPPUNIT_ASSERT_EQUAL(model.getNewPeople(), gatherer->numberActivePeople());
-        }
-        {
-            CModelFactory::TDataGathererPtr gatherer(factory.makeDataGatherer(FIRST_TIME));
-
-            CResourceMonitor resourceMonitor(true, 1.0);
-            resourceMonitor.memoryLimit(std::size_t(70));
-            const maths::CMultinomialConjugate conjugate;
-            ::CMockEventRateModel model(
-                factory.modelParams(), gatherer,
-                factory.defaultFeatureModels(features, BUCKET_LENGTH, 0.4, true), conjugate,
-                CAnomalyDetectorModel::TFeatureInfluenceCalculatorCPtrPrVecVec(),
-                resourceMonitor);
-
-            CPPUNIT_ASSERT_EQUAL(model_t::E_EventRateOnline, model.category());
-            CPPUNIT_ASSERT(model.isPopulation() == false);
-            core_t::TTime time = FIRST_TIME;
-
-            CPPUNIT_ASSERT(resourceMonitor.areAllocationsAllowed());
-
-            // Add some people & attributes to the gatherer
-            // Run a sample
-            // Check that the models can create the right number of people/attributes
-            ::addPersonData(0, 400, time, *gatherer, resourceMonitor);
-
-            CPPUNIT_ASSERT_EQUAL(std::size_t(400), gatherer->numberActivePeople());
-
-            LOG_DEBUG(<< "Testing for 1st time");
-            model.test(time);
-            CPPUNIT_ASSERT_EQUAL(std::size_t(400), gatherer->numberActivePeople());
-            CPPUNIT_ASSERT_EQUAL(std::size_t(400), model.getNewPeople());
-            CPPUNIT_ASSERT_EQUAL(std::size_t(0), model.getNewAttributes());
-            time += BUCKET_LENGTH;
-
-            ::addPersonData(400, 1000, time, *gatherer, resourceMonitor);
-            model.test(time);
-
-            // This should add enough people to go over the memory limit
-            ::addPersonData(1000, 5000, time, *gatherer, resourceMonitor);
-
-            LOG_DEBUG(<< "Testing for 2nd time");
-            model.test(time);
-            LOG_DEBUG(<< "# new people = " << model.getNewPeople());
-            CPPUNIT_ASSERT(model.getNewPeople() > 4500 && model.getNewPeople() < 4700);
-            CPPUNIT_ASSERT_EQUAL(std::size_t(0), model.getNewAttributes());
-            CPPUNIT_ASSERT_EQUAL(model.getNewPeople(), gatherer->numberActivePeople());
-
-            // Adding a small number of new people should be fine though,
-            // as they're allowed in
-            time += BUCKET_LENGTH;
-            std::size_t oldNumberPeople{model.getNewPeople()};
-            ::addPersonData(5000, 5010, time, *gatherer, resourceMonitor);
-
-            LOG_DEBUG(<< "Testing for 3rd time");
-            model.test(time);
-            CPPUNIT_ASSERT_EQUAL(oldNumberPeople + 10, model.getNewPeople());
-            CPPUNIT_ASSERT_EQUAL(std::size_t(0), model.getNewAttributes());
-            CPPUNIT_ASSERT_EQUAL(model.getNewPeople(), gatherer->numberActivePeople());
-        }
+        return addPersonData;
     }
-    {
-        // Test CMetricModel::createUpdateNewModels()
-        const std::string EMPTY_STRING("");
-        const core_t::TTime FIRST_TIME(358556400);
-        const core_t::TTime BUCKET_LENGTH(3600);
 
-        SModelParams params(BUCKET_LENGTH);
+    case model_t::E_MetricOnline: {
+        SModelParams params(bucketLength);
         params.s_DecayRate = 0.001;
-        auto interimBucketCorrector = std::make_shared<CInterimBucketCorrector>(BUCKET_LENGTH);
-        CMetricModelFactory factory(params, interimBucketCorrector);
-        factory.identifier(1);
-        factory.fieldNames(EMPTY_STRING, EMPTY_STRING, "peep", "val", TStrVec());
-        factory.useNull(true);
+        auto interimBucketCorrector = std::make_shared<CInterimBucketCorrector>(bucketLength);
+        factory = std::make_shared<CMetricModelFactory>(params, interimBucketCorrector);
+        factory->identifier(1);
+        factory->fieldNames(emptyString, emptyString, "peep", "val", TStrVec());
+        factory->useNull(true);
         CModelFactory::TFeatureVec features;
         features.push_back(model_t::E_IndividualMeanByPerson);
         features.push_back(model_t::E_IndividualMinByPerson);
         features.push_back(model_t::E_IndividualMaxByPerson);
-        factory.features(features);
-        {
-            CModelFactory::TDataGathererPtr gatherer(factory.makeDataGatherer(FIRST_TIME));
+        factory->features(features);
 
-            CResourceMonitor resourceMonitor;
-            resourceMonitor.memoryLimit(std::size_t(100));
-            ::CMockMetricModel model(
-                factory.modelParams(), gatherer,
-                factory.defaultFeatureModels(features, BUCKET_LENGTH, 0.4, true),
-                CAnomalyDetectorModel::TFeatureInfluenceCalculatorCPtrPrVecVec(),
-                resourceMonitor);
+        gatherer.reset(factory->makeDataGatherer(firstTime));
 
-            CPPUNIT_ASSERT_EQUAL(model_t::E_MetricOnline, model.category());
-            CPPUNIT_ASSERT(model.isPopulation() == false);
-            core_t::TTime time = FIRST_TIME;
+        std::shared_ptr<::CMockMetricModel> model_ = std::make_shared<::CMockMetricModel>(
+            factory->modelParams(), gatherer,
+            factory->defaultFeatureModels(features, bucketLength, 0.4, true),
+            CAnomalyDetectorModel::TFeatureInfluenceCalculatorCPtrPrVecVec(),
+            resourceMonitor);
 
-            CPPUNIT_ASSERT(resourceMonitor.areAllocationsAllowed());
+        CPPUNIT_ASSERT_EQUAL(model_t::E_MetricOnline, model_->category());
+        CPPUNIT_ASSERT(model_->isPopulation() == false);
 
-            // Add some people & attributes to the gatherer
-            // Run a sample
-            // Check that the models can create the right number of people/attributes
-            ::addPersonMetricData(0, 400, time, *gatherer, resourceMonitor);
+        model = model_;
+        return addPersonMetricData;
+    }
 
-            CPPUNIT_ASSERT_EQUAL(std::size_t(400), gatherer->numberActivePeople());
+    case model_t::E_Counting:
+        return nullptr;
+    }
 
-            LOG_DEBUG(<< "Testing for 1st time");
-            model.test(time);
-            CPPUNIT_ASSERT_EQUAL(std::size_t(400), gatherer->numberActivePeople());
-            CPPUNIT_ASSERT_EQUAL(std::size_t(400), model.getNewPeople());
-            CPPUNIT_ASSERT_EQUAL(std::size_t(0), model.getNewAttributes());
-            time += BUCKET_LENGTH;
+    return nullptr;
+}
 
-            ::addPersonMetricData(400, 1000, time, *gatherer, resourceMonitor);
-            model.test(time);
+struct SLargeAllocationTestParams {
+    bool m_PersistInForeground;
+    std::size_t m_MemoryLimit;
+    std::size_t m_NumPeopleToBreachLimit;
+    std::size_t m_NewPeopleLowerBound;
+    std::size_t m_NewPeopleUpperBound;
+    model_t::EModelType m_ModelType;
+};
 
-            // This should add enough people to go over the memory limit
-            ::addPersonMetricData(1000, 3000, time, *gatherer, resourceMonitor);
+void doTestLargeAllocations(SLargeAllocationTestParams& param) {
 
-            LOG_DEBUG(<< "Testing for 2nd time");
-            model.test(time);
-            LOG_DEBUG(<< "# new people = " << model.getNewPeople());
-            CPPUNIT_ASSERT(model.getNewPeople() > 2600 && model.getNewPeople() < 3000);
-            CPPUNIT_ASSERT_EQUAL(std::size_t(0), model.getNewAttributes());
-            CPPUNIT_ASSERT_EQUAL(model.getNewPeople(), gatherer->numberActivePeople());
+    const std::string EMPTY_STRING("");
+    const core_t::TTime FIRST_TIME(358556400);
+    const core_t::TTime BUCKET_LENGTH(3600);
 
-            // Adding a small number of new people should be fine though,
-            // as they are are allowed in
-            time += BUCKET_LENGTH;
-            std::size_t oldNumberPeople{model.getNewPeople()};
-            ::addPersonMetricData(3000, 3010, time, *gatherer, resourceMonitor);
+    CResourceMonitor resourceMonitor(param.m_PersistInForeground, 1.0);
+    resourceMonitor.memoryLimit(std::size_t(param.m_MemoryLimit));
 
-            LOG_DEBUG(<< "Testing for 3rd time");
-            model.test(time);
-            CPPUNIT_ASSERT_EQUAL(oldNumberPeople + 10, model.getNewPeople());
-            CPPUNIT_ASSERT_EQUAL(std::size_t(0), model.getNewAttributes());
-            CPPUNIT_ASSERT_EQUAL(model.getNewPeople(), gatherer->numberActivePeople());
-        }
-        {
-            CModelFactory::TDataGathererPtr gatherer(factory.makeDataGatherer(FIRST_TIME));
+    TMockModelInterfacePtr model;
+    CModelFactory::TDataGathererPtr gatherer;
+    TModelFactoryPtr factory;
+    TAddPersonDataFunc personAdder =
+        createModel(param.m_ModelType, EMPTY_STRING, FIRST_TIME, BUCKET_LENGTH,
+                    resourceMonitor, model, gatherer, factory);
 
-            CResourceMonitor resourceMonitor(true);
-            resourceMonitor.memoryLimit(std::size_t(100));
-            ::CMockMetricModel model(
-                factory.modelParams(), gatherer,
-                factory.defaultFeatureModels(features, BUCKET_LENGTH, 0.4, true),
-                CAnomalyDetectorModel::TFeatureInfluenceCalculatorCPtrPrVecVec(),
-                resourceMonitor);
+    core_t::TTime time = FIRST_TIME;
 
-            CPPUNIT_ASSERT_EQUAL(model_t::E_MetricOnline, model.category());
-            CPPUNIT_ASSERT(model.isPopulation() == false);
-            core_t::TTime time = FIRST_TIME;
+    CPPUNIT_ASSERT(resourceMonitor.areAllocationsAllowed());
 
-            CPPUNIT_ASSERT(resourceMonitor.areAllocationsAllowed());
+    // Add some people & attributes to the gatherer
+    // Run a sample
+    // Check that the models can create the right number of people/attributes
+    personAdder(0, 400, time, *gatherer, resourceMonitor);
 
-            // Add some people & attributes to the gatherer
-            // Run a sample
-            // Check that the models can create the right number of people/attributes
-            ::addPersonMetricData(0, 400, time, *gatherer, resourceMonitor);
+    CPPUNIT_ASSERT_EQUAL(std::size_t(400), gatherer->numberActivePeople());
 
-            CPPUNIT_ASSERT_EQUAL(std::size_t(400), gatherer->numberActivePeople());
+    LOG_DEBUG(<< "Testing for 1st time");
+    model->test(time);
+    CPPUNIT_ASSERT_EQUAL(std::size_t(400), gatherer->numberActivePeople());
+    CPPUNIT_ASSERT_EQUAL(std::size_t(400), model->getNewPeople());
+    CPPUNIT_ASSERT_EQUAL(std::size_t(0), model->getNewAttributes());
+    time += BUCKET_LENGTH;
 
-            LOG_DEBUG(<< "Testing for 1st time");
-            model.test(time);
-            CPPUNIT_ASSERT_EQUAL(std::size_t(400), gatherer->numberActivePeople());
-            CPPUNIT_ASSERT_EQUAL(std::size_t(400), model.getNewPeople());
-            CPPUNIT_ASSERT_EQUAL(std::size_t(0), model.getNewAttributes());
-            time += BUCKET_LENGTH;
+    personAdder(400, 1000, time, *gatherer, resourceMonitor);
+    model->test(time);
 
-            ::addPersonMetricData(400, 1000, time, *gatherer, resourceMonitor);
-            model.test(time);
+    // This should add enough people to go over the memory limit
+    personAdder(1000, param.m_NumPeopleToBreachLimit, time, *gatherer, resourceMonitor);
 
-            // This should add enough people to go over the memory limit
-            ::addPersonMetricData(1000, 5000, time, *gatherer, resourceMonitor);
+    LOG_DEBUG(<< "Testing for 2nd time");
+    model->test(time);
+    LOG_DEBUG(<< "# new people = " << model->getNewPeople());
+    CPPUNIT_ASSERT(model->getNewPeople() > param.m_NewPeopleLowerBound &&
+                   model->getNewPeople() < param.m_NewPeopleUpperBound);
+    CPPUNIT_ASSERT_EQUAL(std::size_t(0), model->getNewAttributes());
+    CPPUNIT_ASSERT_EQUAL(model->getNewPeople(), gatherer->numberActivePeople());
 
-            LOG_DEBUG(<< "Testing for 2nd time");
-            model.test(time);
-            LOG_DEBUG(<< "# new people = " << model.getNewPeople());
-            CPPUNIT_ASSERT(model.getNewPeople() > 4600 && model.getNewPeople() < 4800);
-            CPPUNIT_ASSERT_EQUAL(std::size_t(0), model.getNewAttributes());
-            CPPUNIT_ASSERT_EQUAL(model.getNewPeople(), gatherer->numberActivePeople());
+    // Adding a small number of new people should be fine though,
+    // as they're allowed in
+    time += BUCKET_LENGTH;
+    std::size_t oldNumberPeople{model->getNewPeople()};
+    personAdder(param.m_NumPeopleToBreachLimit, param.m_NumPeopleToBreachLimit + 10,
+                time, *gatherer, resourceMonitor);
 
-            // Adding a small number of new people should be fine though,
-            // as they are are allowed in
-            time += BUCKET_LENGTH;
-            std::size_t oldNumberPeople{model.getNewPeople()};
-            ::addPersonMetricData(5000, 5010, time, *gatherer, resourceMonitor);
+    LOG_DEBUG(<< "Testing for 3rd time");
+    model->test(time);
+    CPPUNIT_ASSERT_EQUAL(oldNumberPeople + 10, model->getNewPeople());
+    CPPUNIT_ASSERT_EQUAL(std::size_t(0), model->getNewAttributes());
+    CPPUNIT_ASSERT_EQUAL(model->getNewPeople(), gatherer->numberActivePeople());
+}
 
-            LOG_DEBUG(<< "Testing for 3rd time");
-            model.test(time);
-            CPPUNIT_ASSERT_EQUAL(oldNumberPeople + 10, model.getNewPeople());
-            CPPUNIT_ASSERT_EQUAL(std::size_t(0), model.getNewAttributes());
-            CPPUNIT_ASSERT_EQUAL(model.getNewPeople(), gatherer->numberActivePeople());
-        }
+}
+
+void CResourceLimitTest::testLargeAllocations() {
+
+    SLargeAllocationTestParams params[] = {
+        {false, 70, 3000, 2700, 2900, model_t::E_EventRateOnline},
+        {true, 70, 5000, 4500, 4700, model_t::E_EventRateOnline},
+        {false, 100, 4000, 3500, 3700, model_t::E_MetricOnline},
+        {true, 100, 7000, 6100, 6300, model_t::E_MetricOnline}};
+
+    for (auto& param : params) {
+        doTestLargeAllocations(param);
     }
 }
 

@@ -154,37 +154,37 @@ public:
                 const std::string& timeFieldFormat = EMPTY_STRING,
                 size_t maxAnomalyRecords = 0u);
 
-    virtual ~CAnomalyJob() override;
+    ~CAnomalyJob() override;
 
     //! We're going to be writing to a new output stream
-    virtual void newOutputStream() override;
+    void newOutputStream() override;
 
     //! Access the output handler
-    virtual COutputHandler& outputHandler() override;
+    COutputHandler& outputHandler() override;
 
     //! Receive a single record to be processed, and produce output
     //! with any required modifications
-    virtual bool handleRecord(const TStrStrUMap& dataRowFields) override;
+    bool handleRecord(const TStrStrUMap& dataRowFields) override;
 
     //! Perform any final processing once all input data has been seen.
-    virtual void finalise() override;
+    void finalise() override;
 
     //! Restore previously saved state
-    virtual bool restoreState(core::CDataSearcher& restoreSearcher,
+    bool restoreState(core::CDataSearcher& restoreSearcher,
                               core_t::TTime& completeToTime) override;
 
     //! Persist current state
-    virtual bool persistState(core::CDataAdder& persister,
+    bool persistState(core::CDataAdder& persister,
                               const std::string& descriptionPrefix) override;
 
     //! Initialise normalizer from quantiles state
     virtual bool initNormalizer(const std::string& quantilesStateFile);
 
     //! How many records did we handle?
-    virtual uint64_t numRecordsHandled() const override;
+    uint64_t numRecordsHandled() const override;
 
     //! Is persistence needed?
-    virtual bool isPersistenceNeeded(const std::string& description) const override;
+    bool isPersistenceNeeded(const std::string& description) const override;
 
     //! Log a list of the detectors and keys
     void description() const;
@@ -244,7 +244,7 @@ private:
                               core::CStateRestoreTraverser& traverser);
 
     //! Persist current state in the background
-    bool backgroundPersistState(CPersistenceManager& backgroundPersister);
+    bool backgroundPersistState();
 
     //! This is the function that is called in a different thread to the
     //! main processing when background persistence is triggered.
@@ -265,8 +265,8 @@ private:
                       core::CDataAdder& persister);
 
     //! Persist current state due to the periodic persistence being triggered.
-    virtual bool periodicPersistStateInBackground(CPersistenceManager& persistenceManager) override;
-    virtual bool periodicPersistStateInForeground(CPersistenceManager& persistenceManager) override;
+    bool periodicPersistStateInBackground() override;
+    bool periodicPersistStateInForeground() override;
 
     //! Acknowledge a flush request
     void acknowledgeFlush(const std::string& flushId);

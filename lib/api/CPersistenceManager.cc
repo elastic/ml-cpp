@@ -22,27 +22,18 @@ const core_t::TTime PERSIST_INTERVAL_INCREMENT(300); // 5 minutes
 CPersistenceManager::CPersistenceManager(core_t::TTime periodicPersistInterval,
                                          bool persistInForeground,
                                          core::CDataAdder& dataAdder)
-    : m_PeriodicPersistInterval(periodicPersistInterval),
-      m_PersistInForeground(persistInForeground),
-      m_LastPeriodicPersistTime(core::CTimeUtils::now()), m_DataAdder(dataAdder),
-      m_IsBusy(false), m_IsShutdown(false), m_BackgroundThread(*this) {
-    if (m_PeriodicPersistInterval < PERSIST_INTERVAL_INCREMENT) {
-        // This may be dynamically increased further depending on how long
-        // persistence takes
-        m_PeriodicPersistInterval = PERSIST_INTERVAL_INCREMENT;
-    }
+    : CPersistenceManager(periodicPersistInterval, persistInForeground, dataAdder, dataAdder) {
 }
 
 CPersistenceManager::CPersistenceManager(core_t::TTime periodicPersistInterval,
                                          bool persistInForeground,
-                                         const TFirstProcessorPeriodicPersistFunc& firstProcessorPeriodicPersistFunc,
-                                         core::CDataAdder& dataAdder)
+                                         core::CDataAdder& bgDataAdder,
+                                         core::CDataAdder& fgDataAdder)
     : m_PeriodicPersistInterval(periodicPersistInterval),
       m_PersistInForeground(persistInForeground),
       m_LastPeriodicPersistTime(core::CTimeUtils::now()),
-      m_FirstProcessorPeriodicPersistFunc(firstProcessorPeriodicPersistFunc),
-      m_DataAdder(dataAdder), m_IsBusy(false), m_IsShutdown(false),
-      m_BackgroundThread(*this) {
+      m_BgDataAdder(bgDataAdder), m_FgDataAdder(fgDataAdder), m_IsBusy(false), m_IsShutdown(false),
+      m_BackgroundThread(*this)  {
     if (m_PeriodicPersistInterval < PERSIST_INTERVAL_INCREMENT) {
         // This may be dynamically increased further depending on how long
         // persistence takes
@@ -68,6 +59,10 @@ bool CPersistenceManager::waitForIdle() {
     }
 
     return m_BackgroundThread.waitForFinish();
+}
+
+void CPersistenceManager::persistInForeground(bool persistInForeground) {
+    m_PersistInForeground = persistInForeground;
 }
 
 bool CPersistenceManager::addPersistFunc(core::CDataAdder::TPersistFunc persistFunc) {
@@ -134,7 +129,7 @@ bool CPersistenceManager::clear() {
     return true;
 }
 
-bool CPersistenceManager::firstProcessorPeriodicPersistFunc(
+bool CPersistenceManager::firstProcessorBackgroundPeriodicPersistFunc(
     const TFirstProcessorPeriodicPersistFunc& firstProcessorPeriodicPersistFunc) {
     core::CScopedFastLock lock(m_Mutex);
 
@@ -142,7 +137,20 @@ bool CPersistenceManager::firstProcessorPeriodicPersistFunc(
         return false;
     }
 
-    m_FirstProcessorPeriodicPersistFunc = firstProcessorPeriodicPersistFunc;
+    m_FirstProcessorBackgroundPeriodicPersistFunc = firstProcessorPeriodicPersistFunc;
+
+    return true;
+}
+
+bool CPersistenceManager::firstProcessorForegroundPeriodicPersistFunc(
+    const TFirstProcessorPeriodicPersistFunc& firstProcessorPeriodicPersistFunc) {
+    core::CScopedFastLock lock(m_Mutex);
+
+    if (this->isBusy()) {
+        return false;
+    }
+
+    m_FirstProcessorForegroundPeriodicPersistFunc = firstProcessorPeriodicPersistFunc;
 
     return true;
 }
@@ -176,7 +184,12 @@ bool CPersistenceManager::startPersist(core_t::TTime timeOfPersistence) {
         return false;
     }
 
-    bool persistSetupOk = m_FirstProcessorPeriodicPersistFunc(*this);
+    auto firstProcessorPeriodicPersistFunc = [&]() {
+        return m_PersistInForeground ? m_FirstProcessorForegroundPeriodicPersistFunc
+                                     : m_FirstProcessorBackgroundPeriodicPersistFunc;
+    };
+
+    bool persistSetupOk = firstProcessorPeriodicPersistFunc()(*this);
     if (!persistSetupOk) {
         LOG_ERROR(<< "Failed to create persistence functions");
         // It's possible that some functions were added before the failure, so
@@ -204,7 +217,7 @@ bool CPersistenceManager::startPersist(core_t::TTime timeOfPersistence) {
 
 void CPersistenceManager::startPersist() {
     while (m_PersistFuncs.empty() == false) {
-        m_PersistFuncs.front()(m_DataAdder);
+        m_PersistFuncs.front()(m_PersistInForeground ? m_FgDataAdder : m_BgDataAdder);
         m_PersistFuncs.pop_front();
     }
 }

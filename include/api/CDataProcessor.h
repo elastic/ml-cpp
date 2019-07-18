@@ -74,11 +74,11 @@ public:
     virtual bool persistState(core::CDataAdder& persister,
                               const std::string& descriptionPrefix) = 0;
 
-    //! Persist current state n the background due to the periodic persistence being triggered.
-    virtual bool periodicPersistStateInBackground(CPersistenceManager& persistenceManager);
+    //! Persist current state in the background due to the periodic persistence being triggered.
+    virtual bool periodicPersistStateInBackground();
 
     //! Persist current state in the foreground due to the periodic persistence being triggered.
-    virtual bool periodicPersistStateInForeground(CPersistenceManager& persistenceManager);
+    virtual bool periodicPersistStateInForeground();
 
     //! How many records did we handle?
     virtual uint64_t numRecordsHandled() const = 0;

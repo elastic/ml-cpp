@@ -101,13 +101,16 @@ void CPersistenceManagerTest::testCategorizationOnlyPersist() {
     ml::api::CSingleStreamDataAdder::TOStreamP backgroundStreamPtr(
         backgroundStream = new std::ostringstream());
     ml::api::CSingleStreamDataAdder backgroundDataAdder(backgroundStreamPtr);
-    // The 300 second persist interval is irrelevant here - we bypass the timer
-    // in this test and kick off the background persistence chain explicitly
-    ml::api::CPersistenceManager persistenceManager(300, false, backgroundDataAdder);
 
     std::ostringstream* foregroundStream(nullptr);
     ml::api::CSingleStreamDataAdder::TOStreamP foregroundStreamPtr(
         foregroundStream = new std::ostringstream());
+    ml::api::CSingleStreamDataAdder foregroundDataAdder(foregroundStreamPtr);
+
+    // The 300 second persist interval is irrelevant here - we bypass the timer
+    // in this test and kick off the background persistence chain explicitly
+    ml::api::CPersistenceManager persistenceManager(300, false, backgroundDataAdder, foregroundDataAdder);
+
     {
         ml::core::CJsonOutputStreamWrapper wrappedOutputStream(outputStrm);
         ml::api::CJsonOutputWriter outputWriter(JOB_ID, wrappedOutputStream);
@@ -126,7 +129,7 @@ void CPersistenceManagerTest::testCategorizationOnlyPersist() {
             &ml::api::CDataProcessor::handleRecord, &typer, std::placeholders::_1)));
 
         // Persist the processors' state in the background
-        CPPUNIT_ASSERT(typer.periodicPersistStateInBackground(persistenceManager));
+        CPPUNIT_ASSERT(typer.periodicPersistStateInBackground());
         CPPUNIT_ASSERT(persistenceManager.startPersistInBackground());
 
         LOG_DEBUG(<< "Before waiting for the background persister to be idle");
@@ -134,12 +137,8 @@ void CPersistenceManagerTest::testCategorizationOnlyPersist() {
         LOG_DEBUG(<< "After waiting for the background persister to be idle");
 
         // Now persist the processors' state in the foreground
-        ml::api::CSingleStreamDataAdder foregroundDataAdder(foregroundStreamPtr);
-        // The 300 second persist interval is irrelevant here - we bypass the timer
-        // in this test and kick off the foreground persistence chain explicitly
-        ml::api::CPersistenceManager fgPersistenceManager(300, true, foregroundDataAdder);
-        CPPUNIT_ASSERT(typer.periodicPersistStateInForeground(fgPersistenceManager));
-        fgPersistenceManager.startPersist();
+        CPPUNIT_ASSERT(typer.periodicPersistStateInForeground());
+        persistenceManager.startPersist();
     }
 
     std::string backgroundState = backgroundStream->str();
@@ -180,9 +179,15 @@ void CPersistenceManagerTest::foregroundBackgroundCompCategorizationAndAnomalyDe
     ml::api::CSingleStreamDataAdder::TOStreamP backgroundStreamPtr(
         backgroundStream = new std::ostringstream());
     ml::api::CSingleStreamDataAdder backgroundDataAdder(backgroundStreamPtr);
+    std::ostringstream* foregroundStream(nullptr);
+    ml::api::CSingleStreamDataAdder::TOStreamP foregroundStreamPtr(
+        foregroundStream = new std::ostringstream());
+
+    ml::api::CSingleStreamDataAdder foregroundDataAdder(foregroundStreamPtr);
+
     // The 300 second persist interval is irrelevant here - we bypass the timer
     // in this test and kick off the background persistence chain explicitly
-    ml::api::CPersistenceManager persistenceManager(300, false, backgroundDataAdder);
+    ml::api::CPersistenceManager persistenceManager(300, false, backgroundDataAdder, foregroundDataAdder);
 
     std::string snapshotId;
     std::size_t numDocs(0);
@@ -191,9 +196,7 @@ void CPersistenceManagerTest::foregroundBackgroundCompCategorizationAndAnomalyDe
     std::string foregroundSnapshotId;
     std::string foregroundSnapshotId2;
 
-    std::ostringstream* foregroundStream(nullptr);
-    ml::api::CSingleStreamDataAdder::TOStreamP foregroundStreamPtr(
-        foregroundStream = new std::ostringstream());
+
     std::ostringstream* foregroundStream2(nullptr);
     ml::api::CSingleStreamDataAdder::TOStreamP foregroundStreamPtr2(
         foregroundStream2 = new std::ostringstream());
@@ -213,7 +216,7 @@ void CPersistenceManagerTest::foregroundBackgroundCompCategorizationAndAnomalyDe
         ml::api::COutputChainer outputChainer(job);
 
         // The typer knows how to assign categories to records
-        ml::api::CFieldDataTyper typer(JOB_ID, fieldConfig, limits, outputChainer, outputWriter);
+        ml::api::CFieldDataTyper typer(JOB_ID, fieldConfig, limits, outputChainer, outputWriter, &persistenceManager);
 
         if (fieldConfig.fieldNameSuperset().count(ml::api::CFieldDataTyper::MLCATEGORY_NAME) > 0) {
             LOG_DEBUG(<< "Applying the categorization typer for anomaly detection");
@@ -226,7 +229,7 @@ void CPersistenceManagerTest::foregroundBackgroundCompCategorizationAndAnomalyDe
             &ml::api::CDataProcessor::handleRecord, firstProcessor, std::placeholders::_1)));
 
         // Persist the processors' state in the background
-        CPPUNIT_ASSERT(firstProcessor->periodicPersistStateInBackground(persistenceManager));
+        CPPUNIT_ASSERT(firstProcessor->periodicPersistStateInBackground());
         CPPUNIT_ASSERT(persistenceManager.startPersistInBackground());
 
         LOG_DEBUG(<< "Before waiting for the background persister to be idle");
@@ -235,12 +238,9 @@ void CPersistenceManagerTest::foregroundBackgroundCompCategorizationAndAnomalyDe
         backgroundSnapshotId = snapshotId;
 
         // Now persist the processors' state in the foreground
-        ml::api::CSingleStreamDataAdder foregroundDataAdder(foregroundStreamPtr);
-        // The 300 second persist interval is irrelevant here - we bypass the timer
-        // in this test and kick off the foreground persistence chain explicitly
-        ml::api::CPersistenceManager fgPersistenceManager(300, true, foregroundDataAdder);
-        CPPUNIT_ASSERT(firstProcessor->periodicPersistStateInForeground(fgPersistenceManager));
-        fgPersistenceManager.startPersist();
+
+        CPPUNIT_ASSERT(firstProcessor->periodicPersistStateInForeground());
+        persistenceManager.startPersist();
         foregroundSnapshotId = snapshotId;
 
         // ... persist in foreground againi by directly calling persistState
@@ -301,9 +301,17 @@ void CPersistenceManagerTest::foregroundBackgroundCompAnomalyDetectionAfterStati
     ml::api::CSingleStreamDataAdder::TOStreamP backgroundStreamPtr(
         backgroundStream = new std::ostringstream());
     ml::api::CSingleStreamDataAdder backgroundDataAdder(backgroundStreamPtr);
+
+    std::ostringstream* foregroundStream(nullptr);
+    ml::api::CSingleStreamDataAdder::TOStreamP foregroundStreamPtr(
+        foregroundStream = new std::ostringstream());
+
+    // Persist the processors' state in the foreground
+    ml::api::CSingleStreamDataAdder foregroundDataAdder(foregroundStreamPtr);
+
     // The 300 second persist interval is irrelevant here - we bypass the timer
     // in this test and kick off the background persistence chain explicitly
-    ml::api::CPersistenceManager persistenceManager(300, false, backgroundDataAdder);
+    ml::api::CPersistenceManager persistenceManager(300, false, backgroundDataAdder, foregroundDataAdder);
 
     std::string snapshotId;
     std::size_t numDocs(0);
@@ -311,9 +319,6 @@ void CPersistenceManagerTest::foregroundBackgroundCompAnomalyDetectionAfterStati
     std::string backgroundSnapshotId;
     std::string foregroundSnapshotId;
 
-    std::ostringstream* foregroundStream(nullptr);
-    ml::api::CSingleStreamDataAdder::TOStreamP foregroundStreamPtr(
-        foregroundStream = new std::ostringstream());
     {
         ml::core::CJsonOutputStreamWrapper wrappedOutputStream(outputStrm);
         ml::api::CJsonOutputWriter outputWriter(JOB_ID, wrappedOutputStream);
@@ -334,19 +339,13 @@ void CPersistenceManagerTest::foregroundBackgroundCompAnomalyDetectionAfterStati
         // Ensure the model size stats are up to date
         job.finalise();
 
-        // Persist the processors' state in the foreground
-        ml::api::CSingleStreamDataAdder foregroundDataAdder(foregroundStreamPtr);
-
-        // The 300 second persist interval is irrelevant here - we bypass the timer
-        // in this test and kick off the foreground persistence chain explicitly
-        ml::api::CPersistenceManager fgPersistenceManager(300, true, foregroundDataAdder);
-        CPPUNIT_ASSERT(firstProcessor->periodicPersistStateInForeground(fgPersistenceManager));
-        fgPersistenceManager.startPersist();
+        CPPUNIT_ASSERT(firstProcessor->periodicPersistStateInForeground());
+        persistenceManager.startPersist();
 
         foregroundSnapshotId = snapshotId;
 
         // Now persist the processors' state in the background
-        CPPUNIT_ASSERT(firstProcessor->periodicPersistStateInBackground(persistenceManager));
+        CPPUNIT_ASSERT(firstProcessor->periodicPersistStateInBackground());
         CPPUNIT_ASSERT(persistenceManager.startPersistInBackground());
 
         //Increment one of the counter values

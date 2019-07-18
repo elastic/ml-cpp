@@ -19,6 +19,9 @@ class CResourceMonitor;
 
 class CResultWriter;
 
+
+
+
 class CResourceLimitTest : public CppUnit::TestFixture {
 public:
     void testLimitBy();
@@ -28,6 +31,8 @@ public:
     static CppUnit::Test* suite();
 
 private:
+
+
     void importCsvDataWithLimiter(ml::core_t::TTime firstTime,
                                   ml::core_t::TTime bucketLength,
                                   CResultWriter& outputResults,

@@ -81,19 +81,9 @@ void CResourceMonitor::updateMemoryLimitsAndPruneThreshold(std::size_t limitMBs)
         // number, such as "what would total memory usage be if we allocated 10
         // more models?", and it causes problems if these calculations overflow.
         m_ByteLimitHigh = std::numeric_limits<std::size_t>::max() / 2 + 1;
-    } else if (m_PersistenceInForeground == false) {
-        // Background persist causes the memory size to double due to copying
-        // the models. On top of that, after the persist is done we may not
-        // be able to retrieve that memory back. Thus, we halve the requested
-        // memory limit in order to allow for that.
-        // See https://github.com/elastic/x-pack-elasticsearch/issues/1020.
-        // Issue https://github.com/elastic/x-pack-elasticsearch/issues/857
-        // discusses adding an option to perform only foreground persist.
-        // If that gets implemented, we should only halve when background
-        // persist is configured.
-        m_ByteLimitHigh = static_cast<std::size_t>((limitMBs * 1024 * 1024) / 2);
     } else {
-        m_ByteLimitHigh = static_cast<std::size_t>((limitMBs * 1024 * 1024));
+        m_ByteLimitHigh = static_cast<std::size_t>(
+            (limitMBs * 1024 * 1024) / this->persistenceMemoryIncreaseFactor());
     }
     m_ByteLimitLow = (m_ByteLimitHigh * 49) / 50;
     m_PruneThreshold = (m_ByteLimitHigh * 3) / 5;
@@ -291,21 +281,22 @@ std::size_t CResourceMonitor::adjustedUsage(std::size_t usage) const {
     // the margin during the beginning period of the job's existence).
     size_t adjustedUsage{static_cast<std::size_t>(usage / m_ByteLimitMargin)};
 
-    if (m_PersistenceInForeground == false) {
-        // Background persist causes the memory size to double due to copying
-        // the models. On top of that, after the persist is done we may not
-        // be able to retrieve that memory back. Thus, we report twice the
-        // memory usage in order to allow for that.
-        // See https://github.com/elastic/x-pack-elasticsearch/issues/1020.
-        // Issue https://github.com/elastic/x-pack-elasticsearch/issues/857
-        // discusses adding an option to perform only foreground persist.
-        // If that gets implemented, we should only double when background
-        // persist is configured.
-
-        adjustedUsage *= 2;
-    }
+    adjustedUsage *= this->persistenceMemoryIncreaseFactor();
 
     return adjustedUsage;
+}
+
+std::size_t CResourceMonitor::persistenceMemoryIncreaseFactor() const {
+    // Background persist causes the memory size to double due to copying
+    // the models. On top of that, after the persist is done we may not
+    // be able to retrieve that memory back. Thus, we report twice the
+    // memory usage in order to allow for that.
+    // See https://github.com/elastic/x-pack-elasticsearch/issues/1020.
+    // Issue https://github.com/elastic/x-pack-elasticsearch/issues/857
+    // discusses adding an option to perform only foreground persist.
+    // If that gets implemented, we should only double when background
+    // persist is configured.
+    return m_PersistenceInForeground ? 1 : 2;
 }
 
 void CResourceMonitor::acceptAllocationFailureResult(core_t::TTime time) {

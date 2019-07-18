@@ -67,20 +67,19 @@ public:
     using TFirstProcessorPeriodicPersistFunc = std::function<bool(CPersistenceManager&)>;
 
 public:
-    //! The supplied data adder must outlive this object.  If the data
-    //! adder is not thread safe then it may not be used by any other
+    //! The supplied data adders must outlive this object.  If the data
+    //! adders are not thread safe then they may not be used by any other
     //! object until after this object is destroyed.  When using this
     //! constructor the first processor persistence function must be
     //! set before the object is used.
     CPersistenceManager(core_t::TTime periodicPersistInterval,
                         bool persistInForeground,
-                        core::CDataAdder& dataAdder);
+                        core::CDataAdder& bgDataAdder,
+                        core::CDataAdder& fgDataAdder);
 
-    //! As above, but also supply the first processor persistence
-    //! function at construction time.
+    //! As above, but using the same data adder for both foreground and background persistence.
     CPersistenceManager(core_t::TTime periodicPersistInterval,
                         bool persistInForeground,
-                        const TFirstProcessorPeriodicPersistFunc& firstProcessorPeriodicPersistFunc,
                         core::CDataAdder& dataAdder);
 
     ~CPersistenceManager();
@@ -91,6 +90,8 @@ public:
     //! Wait for any background persistence currently in progress to
     //! complete
     bool waitForIdle();
+
+    void persistInForeground(bool persistInForeground);
 
     //! Add a function to be called when persistence is started.
     //! This will be rejected if a background persistence is currently in
@@ -105,7 +106,10 @@ public:
     //! background persistence is currently in progress.
     //! This should be set once before startBackgroundPersistIfAppropriate is
     //! called.
-    bool firstProcessorPeriodicPersistFunc(const TFirstProcessorPeriodicPersistFunc& firstProcessorPeriodicPersistFunc);
+    bool firstProcessorBackgroundPeriodicPersistFunc(const TFirstProcessorPeriodicPersistFunc& firstProcessorPeriodicPersistFunc);
+
+    bool firstProcessorForegroundPeriodicPersistFunc(const TFirstProcessorPeriodicPersistFunc& firstProcessorPeriodicPersistFunc);
+
 
     //! If the periodic persist interval has passed since the last persist
     //! then it is appropriate to persist now.  Start it by calling the
@@ -113,7 +117,7 @@ public:
     //! Concurrent calls to this method are not threadsafe.
     bool startPersistIfAppropriate();
 
-    //! Start a  persist if a background one is not running.
+    //! Start a persist if a background one is not running.
     //! Calls the first processor periodic persist function first.
     //! Concurrent calls to this method are not threadsafe.
     bool startPersist(core_t::TTime timeOfPersistence);
@@ -135,14 +139,6 @@ private:
     };
 
 private:
-    //! Persist in the background setting the last persist time
-    //! to timeOfPersistence
-    bool startBackgroundPersist(core_t::TTime timeOfPersistence);
-
-    //! Persist in the foreground setting the last persist time
-    //! to timeOfPersistence
-    bool startForegroundPersist(core_t::TTime timeOfPersistence);
-
     //! When this function is called a background persistence will be
     //! triggered unless there is already one in progress.
     bool startPersistInBackground();
@@ -161,7 +157,7 @@ private:
     core_t::TTime m_PeriodicPersistInterval;
 
     //! Should persistence occur in the foreground?
-    const bool m_PersistInForeground;
+    bool m_PersistInForeground;
 
     //! What was the wall clock time when we started our last periodic
     //! persistence?
@@ -169,13 +165,19 @@ private:
 
     //! The function that will be called to start the chain of
     //! persistence.
-    TFirstProcessorPeriodicPersistFunc m_FirstProcessorPeriodicPersistFunc;
+    TFirstProcessorPeriodicPersistFunc m_FirstProcessorBackgroundPeriodicPersistFunc;
+    TFirstProcessorPeriodicPersistFunc m_FirstProcessorForegroundPeriodicPersistFunc;
+
 
     //! Reference to the data adder to be used by the background thread.
-    //! The data adder refered to must outlive this object.  If the data
+    //! The data adder referred to must outlive this object. If the data
     //! adder is not thread safe then it may not be used by any other
     //! object until after this object is destroyed.
-    core::CDataAdder& m_DataAdder;
+    core::CDataAdder& m_BgDataAdder;
+
+    //! Reference to the data adder to be used for foreground persistence.
+    //! The data adder referred to must outlive this object.
+    core::CDataAdder& m_FgDataAdder;
 
     //! Mutex to ensure atomicity of operations where required.
     core::CFastMutex m_Mutex;

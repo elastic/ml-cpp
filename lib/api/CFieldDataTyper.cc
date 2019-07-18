@@ -402,15 +402,20 @@ void CFieldDataTyper::acceptPersistInserter(const CDataTyper::TPersistFunc& data
                                    &examplesCollector, std::placeholders::_1));
 }
 
-bool CFieldDataTyper::periodicPersistStateInBackground(CPersistenceManager& persister) {
+bool CFieldDataTyper::periodicPersistStateInBackground() {
     LOG_DEBUG(<< "Periodic persist typer state");
 
     // Pass on the request in case we're chained
-    if (m_OutputHandler.periodicPersistStateInBackground(persister) == false) {
+    if (m_OutputHandler.periodicPersistStateInBackground() == false) {
         return false;
     }
 
-    if (persister.addPersistFunc(std::bind(&CFieldDataTyper::doPersistState, this,
+    if (m_PeriodicPersister == nullptr) {
+        LOG_ERROR(<< "NULL persistence manager");
+        return false;
+    }
+
+    if (m_PeriodicPersister->addPersistFunc(std::bind(&CFieldDataTyper::doPersistState, this,
                                            // Do NOT add std::ref wrappers
                                            // around these arguments - they
                                            // MUST be copied for thread safety
@@ -420,18 +425,27 @@ bool CFieldDataTyper::periodicPersistStateInBackground(CPersistenceManager& pers
         return false;
     }
 
+    m_PeriodicPersister->persistInForeground(false);
+
     return true;
 }
 
-bool CFieldDataTyper::periodicPersistStateInForeground(CPersistenceManager& persistenceManager) {
+bool CFieldDataTyper::periodicPersistStateInForeground() {
     LOG_DEBUG(<< "Periodic persist typer state");
 
-    if (persistenceManager.addPersistFunc([&](core::CDataAdder& persister) {
+    if (m_PeriodicPersister == nullptr) {
+        return false;
+    }
+
+    // Do NOT pass this request on to the output chainer. That logic is already present in persistState.
+    if (m_PeriodicPersister->addPersistFunc([&](core::CDataAdder& persister) {
             return this->persistState(persister, "Periodic foreground persist at ");
         }) == false) {
         LOG_ERROR(<< "Failed to add categorizer foreground persistence function");
         return false;
     }
+
+    m_PeriodicPersister->persistInForeground(true);
 
     return true;
 }
