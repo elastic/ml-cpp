@@ -4,6 +4,9 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
+#ifndef INCLUDED_ml_maths_CBayesianOptimisation_h
+#define INCLUDED_ml_maths_CBayesianOptimisation_h
+
 #include <maths/CLinearAlgebraEigen.h>
 #include <maths/CPRNG.h>
 #include <maths/ImportExport.h>
@@ -115,3 +118,5 @@ private:
 };
 }
 }
+
+#endif // INCLUDED_ml_maths_CBayesianOptimisation_h

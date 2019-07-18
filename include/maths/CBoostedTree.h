@@ -59,6 +59,7 @@ public:
     virtual TArgMinLossUPtr minimizer() const = 0;
 };
 
+
 //! \brief Finds the leaf node value which minimises the MSE.
 class MATHS_EXPORT CArgMinMse final : public CArgMinLoss {
 public:
@@ -84,6 +85,9 @@ public:
     TArgMinLossUPtr minimizer() const override;
 };
 }
+
+
+class CBoostedTreeImpl;
 
 //! \brief A boosted regression tree model.
 //!
@@ -164,13 +168,13 @@ public:
     std::size_t estimateMemoryUsage(std::size_t numberRows, std::size_t numberColumns) const;
 
 private:
-    class CImpl;
-    using TImplUPtr = std::unique_ptr<CImpl>;
+
+    using TImplUPtr = std::unique_ptr<CBoostedTreeImpl>;
 
 private:
     TImplUPtr m_Impl;
 
-    friend class CBoostedTreeFactory;
+    friend class CBoostedTreeBuilder;
 };
 }
 }
