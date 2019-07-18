@@ -207,7 +207,7 @@ bool CDataFrameAnalyzer::prepareToReceiveControlMessages(const TStrVec& fieldNam
     }
 
     if (m_DataFrame != nullptr) {
-        m_DataFrame->writeCategoricalColumns(std::move(isCategorical));
+        m_DataFrame->categoricalColumns(std::move(isCategorical));
     }
 
     return true;

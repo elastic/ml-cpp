@@ -11,7 +11,6 @@
 #include <core/CNonInstantiatable.h>
 
 #include <maths/CLinearAlgebraEigen.h>
-
 #include <maths/ImportExport.h>
 
 #include <functional>

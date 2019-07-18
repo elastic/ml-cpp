@@ -21,6 +21,7 @@
 #include "CChecksumTest.h"
 #include "CClustererTest.h"
 #include "CCountMinSketchTest.h"
+#include "CDataFrameCategoryEncoderTest.h"
 #include "CDataFrameUtilsTest.h"
 #include "CDecayRateControllerTest.h"
 #include "CEntropySketchTest.h"
@@ -108,6 +109,7 @@ int main(int argc, const char** argv) {
     runner.addTest(CChecksumTest::suite());
     runner.addTest(CClustererTest::suite());
     runner.addTest(CCountMinSketchTest::suite());
+    runner.addTest(CDataFrameCategoryEncoderTest::suite());
     runner.addTest(CDataFrameUtilsTest::suite());
     runner.addTest(CDecayRateControllerTest::suite());
     runner.addTest(CEqualWithToleranceTest::suite());

@@ -17,8 +17,6 @@
 #include <test/CRandomNumbers.h>
 #include <test/CTestTmpDir.h>
 
-#include <boost/filesystem.hpp>
-
 #include <functional>
 #include <limits>
 #include <numeric>
@@ -394,7 +392,7 @@ void CDataFrameUtilsTest::testCategoryFrequencies() {
 
             auto frame = factory();
 
-            frame->writeCategoricalColumns({true, false, true, false});
+            frame->categoricalColumns({true, false, true, false});
             for (std::size_t i = 0; i < rows; ++i) {
                 frame->writeRow([&values, i, cols](core::CDataFrame::TFloatVecItr column,
                                                    std::int32_t&) {
@@ -470,7 +468,7 @@ void CDataFrameUtilsTest::testMeanValueOfTargetForCategories() {
 
             auto frame = factory();
 
-            frame->writeCategoricalColumns({true, false, true, false});
+            frame->categoricalColumns({true, false, true, false});
             for (std::size_t i = 0; i < rows; ++i) {
                 frame->writeRow([&values, i, cols](core::CDataFrame::TFloatVecItr column,
                                                    std::int32_t&) {
@@ -538,7 +536,7 @@ void CDataFrameUtilsTest::testCategoryMicWithColumn() {
 
             auto frame = factory();
 
-            frame->writeCategoricalColumns({true, false, true, false});
+            frame->categoricalColumns({true, false, true, false});
             for (std::size_t i = 0; i < rows; ++i) {
                 frame->writeRow([&values, i, cols](core::CDataFrame::TFloatVecItr column,
                                                    std::int32_t&) {

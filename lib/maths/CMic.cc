@@ -207,7 +207,7 @@ CMic::TDoubleVec CMic::equipartitionAxis(std::size_t variable, std::size_t l) co
         std::unique(partitionBoundaries.begin(), partitionBoundaries.end()),
         partitionBoundaries.end());
     double max{m_Samples[m_Order[variable].back()](variable)};
-    partitionBoundaries.push_back((1.0 + std::copysign(EPS, max)) * max);
+    partitionBoundaries.push_back(max == 0.0 ? EPS : (1.0 + std::copysign(EPS, max)) * max);
 
     return partitionBoundaries;
 }

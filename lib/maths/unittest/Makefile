@@ -33,6 +33,7 @@ SRCS=\
 	CChecksumTest.cc \
 	CClustererTest.cc \
 	CCountMinSketchTest.cc \
+	CDataFrameCategoryEncoderTest.cc \
 	CDataFrameUtilsTest.cc \
 	CDecayRateControllerTest.cc \
 	CEntropySketchTest.cc \
