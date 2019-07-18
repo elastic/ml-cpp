@@ -128,8 +128,8 @@ public:
     //! Get the number of one-hot encoded categories for \p feature.
     std::size_t numberOneHotEncodedCategories(std::size_t feature) const;
 
-    //! Check if \p index is the one-hot for category \p category of \p feature.
-    bool isOneHot(std::size_t index, std::size_t feature, std::size_t category) const;
+    //! Check if \p index is one for category \p category of \p feature.
+    bool isOne(std::size_t index, std::size_t feature, std::size_t category) const;
 
     //! Check if \p feature has rare categories.
     bool hasRareCategories(std::size_t feature) const;

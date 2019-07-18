@@ -89,7 +89,7 @@ void CDataFrameCategoryEncoderTest::testOneHotEncoding() {
                                  encoder.numberOneHotEncodedCategories(i));
             if (encoder.columnIsCategorical(i)) {
                 for (auto j : expectedOneHotEncodedCategories[i]) {
-                    CPPUNIT_ASSERT_EQUAL(true, encoder.isOneHot(j, i, j));
+                    CPPUNIT_ASSERT_EQUAL(true, encoder.isOne(j, i, j));
                 }
             }
         }

@@ -40,7 +40,7 @@ CFloatStorage CEncodedDataFrameRowRef::operator[](std::size_t i) const {
         m_Encoder->numberOneHotEncodedCategories(feature)};
 
     if (encoding < numberOneHotEncodedCategories) {
-        return m_Encoder->isOneHot(encoding, feature, category) ? 1.0 : 0.0;
+        return m_Encoder->isOne(encoding, feature, category) ? 1.0 : 0.0;
     }
 
     if (encoding == numberOneHotEncodedCategories && m_Encoder->hasRareCategories(feature)) {
@@ -147,9 +147,26 @@ std::size_t CDataFrameCategoryEncoder::numberOneHotEncodedCategories(std::size_t
     return m_OneHotEncodedCategories[feature].size();
 }
 
-bool CDataFrameCategoryEncoder::isOneHot(std::size_t index,
-                                         std::size_t feature,
-                                         std::size_t category) const {
+bool CDataFrameCategoryEncoder::isOne(std::size_t index,
+                                      std::size_t feature,
+                                      std::size_t category) const {
+
+    // The most important categories are one-hot encode. In the encoded row the
+    // layout of the encoding dimensions, for each categorical feature, is as
+    // follows:
+    //   (...| one-hot | mean target | is rare |...)
+    //
+    // The ones are in the order the categories appear in m_OneHotEncodedCategories.
+    // For example, if m_OneHotEncodedCategories[feature] = (2, 5, 7) for any other
+    // category the encoded row will contain (...| 0 0 0 | ...). For 2, 5 and 7 it
+    // will contain (...| 1 0 0 | ...), (...| 0 1 0 | ...) and (...| 0 0 1 | ...),
+    // respectively.
+    //
+    // In the following we therefore 1) check to see if the category is being
+    // one-hot encoded, 2) check if the index of the dimension, i.e. its offset
+    // relative to the start of the encoding dimensions for the feature, is equal
+    // to the position of the one for the category.
+
     auto one = std::lower_bound(m_OneHotEncodedCategories[feature].begin(),
                                 m_OneHotEncodedCategories[feature].end(), category);
     return one != m_OneHotEncodedCategories[feature].end() && category == *one &&
