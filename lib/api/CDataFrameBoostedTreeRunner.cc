@@ -15,6 +15,7 @@
 #include <api/CDataFrameAnalysisConfigReader.h>
 #include <api/CDataFrameAnalysisSpecification.h>
 
+#include <maths/CBoostedTreeBuilder.h>
 #include <rapidjson/document.h>
 #include <rapidjson/writer.h>
 
@@ -79,24 +80,28 @@ CDataFrameBoostedTreeRunner::CDataFrameBoostedTreeRunner(const CDataFrameAnalysi
                      << "It should be in the range (0, 1]");
     }
 
-    m_BoostedTree = std::make_unique<maths::CBoostedTree>(
-        this->spec().numberThreads(), dependentVariable,
-        std::make_unique<maths::boosted_tree::CMse>());
+    maths::CBoostedTreeBuilder boostedTreeBuilder(this->spec().numberThreads(), dependentVariable,
+                                           std::make_unique<maths::boosted_tree::CMse>());
+
+//    m_BoostedTree = std::make_unique<maths::CBoostedTree>(
+//        this->spec().numberThreads(), dependentVariable,
+//        std::make_unique<maths::boosted_tree::CMse>());
     if (lambda >= 0.0) {
-        m_BoostedTree->lambda(lambda);
+        boostedTreeBuilder.lambda(lambda);
     }
     if (gamma >= 0.0) {
-        m_BoostedTree->gamma(gamma);
+        boostedTreeBuilder.gamma(gamma);
     }
     if (eta > 0.0 && eta <= 1.0) {
-        m_BoostedTree->eta(eta);
+        boostedTreeBuilder.eta(eta);
     }
     if (maximumNumberTrees > 0) {
-        m_BoostedTree->maximumNumberTrees(maximumNumberTrees);
+        boostedTreeBuilder.maximumNumberTrees(maximumNumberTrees);
     }
     if (featureBagFraction > 0.0 && featureBagFraction <= 1.0) {
-        m_BoostedTree->featureBagFraction(featureBagFraction);
+        boostedTreeBuilder.featureBagFraction(featureBagFraction);
     }
+    m_BoostedTree = boostedTreeBuilder.build();
 }
 
 CDataFrameBoostedTreeRunner::CDataFrameBoostedTreeRunner(const CDataFrameAnalysisSpecification& spec)

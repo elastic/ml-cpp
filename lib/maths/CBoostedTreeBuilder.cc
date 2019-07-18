@@ -14,7 +14,7 @@
 namespace ml {
 namespace maths {
 
-CBoostedTree CBoostedTreeBuilder::getResult() {
+CBoostedTreeBuilder::TCBoostedTreeUPtr CBoostedTreeBuilder::build() {
     this->initializeMissingFeatureMasks(*m_Frame);
     std::tie(m_Tree->m_Impl->m_TrainingRowMasks,
              m_Tree->m_Impl->m_TestingRowMasks) = this->crossValidationRowMasks();
@@ -30,7 +30,13 @@ CBoostedTree CBoostedTreeBuilder::getResult() {
     this->m_Tree->m_Impl->m_NumberRounds = this->numberHyperparameterTuningRounds();
 
     this->m_Tree->m_Impl->m_CurrentRound = 0; // for first start
+    return std::move(m_Tree);
 }
+
+CBoostedTreeBuilder::operator TCBoostedTreeUPtr(){
+return std::move(this->build());
+}
+
 
 //! Get the number of hyperparameter tuning rounds to use.
 std::size_t CBoostedTreeBuilder::numberHyperparameterTuningRounds() const {
@@ -318,6 +324,9 @@ CBoostedTreeBuilder::progressCallback(CBoostedTree::TProgressCallback callback) 
 CBoostedTreeBuilder& CBoostedTreeBuilder::frame(core::CDataFrame& frame) {
     this->m_Frame = &frame;
     return *this;
+}
+CBoostedTreeBuilder::operator CBoostedTree&&() {
+    return std::move(*(this->build()));
 }
 
 }

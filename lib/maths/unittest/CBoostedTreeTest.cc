@@ -10,6 +10,7 @@
 
 #include <maths/CBasicStatistics.h>
 #include <maths/CBoostedTree.h>
+#include <maths/CBoostedTreeBuilder.h>
 
 #include <boost/filesystem.hpp>
 
@@ -80,11 +81,11 @@ auto predictionStatistics(test::CRandomNumbers& rng,
                 }
             });
 
-            maths::CBoostedTree regression{
-                1, cols - 1, std::make_unique<maths::boosted_tree::CMse>()};
+            std::unique_ptr<maths::CBoostedTree> regression = maths::CBoostedTreeBuilder(
+                1, cols - 1, std::make_unique<maths::boosted_tree::CMse>());
 
-            regression.train(*frame);
-            regression.predict(*frame);
+            regression->train(*frame);
+            regression->predict(*frame);
 
             TMeanVarAccumulator functionMoments;
             TMeanVarAccumulator modelPredictionErrorMoments;
@@ -92,7 +93,7 @@ auto predictionStatistics(test::CRandomNumbers& rng,
             frame->readRows(1, [&](TRowItr beginRows, TRowItr endRows) {
                 for (auto row = beginRows; row != endRows; ++row) {
                     std::size_t index{
-                        regression.columnHoldingPrediction(row->numberColumns())};
+                        regression->columnHoldingPrediction(row->numberColumns())};
                     functionMoments.add(f(*row));
                     modelPredictionErrorMoments.add(f(*row) - (*row)[index]);
                 }

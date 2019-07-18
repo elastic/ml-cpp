@@ -30,6 +30,7 @@ class CBoostedTreeBuilder final {
 public:
 //    using TPackedBitVectorVec = std::vector<core::CPackedBitVector>;
 //    using TNodeVec = std::vector<CNode>;
+    using TCBoostedTreeUPtr = std::unique_ptr<CBoostedTree>;
 
 public:
     CBoostedTreeBuilder(std::size_t numberThreads,
@@ -56,7 +57,10 @@ public:
 
     CBoostedTreeBuilder& frame(core::CDataFrame& frame);
 
-    CBoostedTree getResult();
+    TCBoostedTreeUPtr build();
+
+    operator TCBoostedTreeUPtr();
+    operator CBoostedTree&&();
 
 private:
 
@@ -67,7 +71,7 @@ private:
     using TDoubleDoubleDoubleTr = std::tuple<double, double, double>;
     using TRowItr = core::CDataFrame::TRowItr;
     using TRowRef = core::CDataFrame::TRowRef;
-    using TCBoostedTreeUPtr = std::unique_ptr<CBoostedTree>;
+
     // use raw pointer since CDataFrame has copy constructor deleted
     using TCDataFramePtr = core::CDataFrame*;
     using TPackedBitVectorVec = std::vector<core::CPackedBitVector>;

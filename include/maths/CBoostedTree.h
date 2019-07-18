@@ -78,7 +78,6 @@ private:
 //! \brief The MSE loss function.
 class MATHS_EXPORT CMse final : public CLoss {
 public:
-public:
     double value(double prediction, double actual) const override;
     double gradient(double prediction, double actual) const override;
     double curvature(double prediction, double actual) const override;
