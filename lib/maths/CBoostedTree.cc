@@ -12,11 +12,11 @@
 
 #include <maths/CBasicStatistics.h>
 #include <maths/CBayesianOptimisation.h>
+#include <maths/CBoostedTreeImpl.h>
 #include <maths/CDataFrameUtils.h>
 #include <maths/CQuantileSketch.h>
 #include <maths/CSampling.h>
 #include <maths/CTools.h>
-#include <maths/CBoostedTreeImpl.h>
 
 #include <boost/operators.hpp>
 #include <boost/optional.hpp>
@@ -35,9 +35,6 @@ std::size_t predictionColumn(std::size_t numberColumns) {
     return numberColumns - 3;
 }
 }
-
-
-
 
 CBoostedTree::CBoostedTree(std::size_t numberThreads, std::size_t dependentVariable, TLossFunctionUPtr loss)
     : m_Impl{std::make_unique<CBoostedTreeImpl>(numberThreads, dependentVariable, std::move(loss))} {

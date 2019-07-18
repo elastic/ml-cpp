@@ -33,7 +33,6 @@
 namespace ml {
 namespace maths {
 
-
 namespace {
 const double INF{std::numeric_limits<double>::max()};
 }
@@ -55,19 +54,20 @@ public:
     CBoostedTreeImpl(std::size_t numberThreads,
                      std::size_t dependentVariable,
                      CBoostedTree::TLossFunctionUPtr loss);
-
+    //! Set the number of folds to use for estimating the generalisation error.
     void numberFolds(std::size_t numberFolds);
-
+    //! Set the lambda regularisation parameter.
     void lambda(double lambda);
-
+    //! Set the gamma regularisation parameter.
     void gamma(double gamma);
-
+    //! Set the amount we'll shrink the weights on each each iteration.
     void eta(double eta);
-
+    //! Set the maximum number of trees in the ensemble.
     void maximumNumberTrees(std::size_t maximumNumberTrees);
-
+    //! Set the fraction of features we'll use in the bag to build a tree.
     void featureBagFraction(double featureBagFraction);
-
+    //! Set the maximum number of optimisation rounds we'll use for hyperparameter
+    //! optimisation per parameter.
     void maximumOptimisationRoundsPerHyperparameter(std::size_t rounds);
 
     //! Train the model on the values in \p frame.
@@ -656,7 +656,6 @@ private:
     std::size_t maximumTreeSize(std::size_t numberRows) const;
 
     std::size_t numberFeatures(const core::CDataFrame& frame) const;
-
 
 private:
     mutable CPRNG::CXorOShiro128Plus m_Rng;

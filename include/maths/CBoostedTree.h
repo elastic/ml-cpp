@@ -59,7 +59,6 @@ public:
     virtual TArgMinLossUPtr minimizer() const = 0;
 };
 
-
 //! \brief Finds the leaf node value which minimises the MSE.
 class MATHS_EXPORT CArgMinMse final : public CArgMinLoss {
 public:
@@ -84,7 +83,6 @@ public:
     TArgMinLossUPtr minimizer() const override;
 };
 }
-
 
 class CBoostedTreeImpl;
 
@@ -122,7 +120,9 @@ public:
     using TLossFunctionUPtr = std::unique_ptr<boosted_tree::CLoss>;
 
 public:
+    CBoostedTree(std::size_t numberThreads, std::size_t dependentVariable, TLossFunctionUPtr loss);
     ~CBoostedTree() override;
+
     //! \name Parameter Setters
     //@{
     //! Set the number of folds to use for estimating the generalisation error.
@@ -165,9 +165,7 @@ public:
     //! frame with \p numberRows row and \p numberColumns columns will use.
     std::size_t estimateMemoryUsage(std::size_t numberRows, std::size_t numberColumns) const;
 
-    CBoostedTree(std::size_t numberThreads, std::size_t dependentVariable, TLossFunctionUPtr loss);
 private:
-
     using TImplUPtr = std::unique_ptr<CBoostedTreeImpl>;
 
 private:

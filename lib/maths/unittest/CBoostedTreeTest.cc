@@ -427,8 +427,8 @@ void CBoostedTreeTest::testConstantFeatures() {
     });
 
     std::unique_ptr<maths::CBoostedTree> regression =
-        maths::CBoostedTreeFactory::constructFromParameters(1, cols - 1,
-                                   std::make_unique<maths::boosted_tree::CMse>())
+        maths::CBoostedTreeFactory::constructFromParameters(
+            1, cols - 1, std::make_unique<maths::boosted_tree::CMse>())
             .frame(*frame);
 
     regression->train(*frame);
@@ -471,8 +471,8 @@ void CBoostedTreeTest::testConstantObjective() {
     });
 
     std::unique_ptr<maths::CBoostedTree> regression =
-        maths::CBoostedTreeFactory::constructFromParameters(1, cols - 1,
-                                   std::make_unique<maths::boosted_tree::CMse>())
+        maths::CBoostedTreeFactory::constructFromParameters(
+            1, cols - 1, std::make_unique<maths::boosted_tree::CMse>())
             .frame(*frame);
 
     regression->train(*frame);

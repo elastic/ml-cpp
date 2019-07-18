@@ -28,12 +28,10 @@ class CBoostedTreeImpl;
 //! SimpleFactory for CBoostedTree object
 class CBoostedTreeFactory final {
 public:
-    //    using TPackedBitVectorVec = std::vector<core::CPackedBitVector>;
-    //    using TNodeVec = std::vector<CNode>;
     using TCBoostedTreeUPtr = std::unique_ptr<CBoostedTree>;
 
 public:
-
+    //! Construct a boosted tree object from parameters
     static CBoostedTreeFactory constructFromParameters(std::size_t numberThreads,
                                                        std::size_t dependentVariable,
                                                        CBoostedTree::TLossFunctionUPtr loss);
@@ -53,14 +51,17 @@ public:
     //! Set the maximum number of optimisation rounds we'll use for hyperparameter
     //! optimisation per parameter.
     CBoostedTreeFactory& maximumOptimisationRoundsPerHyperparameter(std::size_t rounds);
-
+    //! Set the callback function for progress monitoring.
     CBoostedTreeFactory& progressCallback(CBoostedTree::TProgressCallback callback);
-
+    //! Set the reference to the data frame.
     CBoostedTreeFactory& frame(core::CDataFrame& frame);
-
+    //! Returns the reference to the CBoostedTree object before this was completely
+    //! initialized. This is useful since some functions, e.g estimateMemoryUsage has to be called before
+    //! data frame reference was passed
     const CBoostedTree& incompleteTreeObject() const;
-
+    //! implicit converter operator
     operator TCBoostedTreeUPtr();
+    //! implicit converter operator
     operator CBoostedTree &&();
 
 private:
@@ -71,12 +72,10 @@ private:
     using TDoubleDoubleDoubleTr = std::tuple<double, double, double>;
     using TRowItr = core::CDataFrame::TRowItr;
     using TRowRef = core::CDataFrame::TRowRef;
-
     // use raw pointer since CDataFrame has copy constructor deleted
     using TCDataFramePtr = core::CDataFrame*;
     using TPackedBitVectorVec = std::vector<core::CPackedBitVector>;
     using TNodeVec = std::vector<CNode>;
-    //    using TDoubleDoublePrVec = std::vector<std::pair<double, double>>;
 
 private:
     CBoostedTreeFactory(std::size_t numberThreads,
@@ -84,7 +83,6 @@ private:
                         CBoostedTree::TLossFunctionUPtr loss);
 
     TCBoostedTreeUPtr build();
-
 
     void initializeMissingFeatureMasks(const core::CDataFrame& frame);
 
@@ -109,7 +107,6 @@ private:
     TCDataFramePtr m_Frame;
     CBoostedTree::TProgressCallback m_ProgressCallback;
 };
-
 }
 }
 

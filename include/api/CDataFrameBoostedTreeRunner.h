@@ -11,12 +11,12 @@
 
 #include <api/ImportExport.h>
 
-#include <maths/CBoostedTreeFactory.h>
 #include <rapidjson/fwd.h>
 
 namespace ml {
 namespace maths {
 class CBoostedTree;
+class CBoostedTreeFactory;
 }
 namespace api {
 
@@ -57,7 +57,6 @@ private:
     //! The tree.
     TBoostedTreeUPtr m_BoostedTree;
     TBoostedTreeFactoryUPtr m_BoostedTreeFactory;
-
 };
 
 //! \brief Makes a core::CDataFrame boosted tree regression runner.

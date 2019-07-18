@@ -23,7 +23,6 @@ std::size_t lossGradientColumn(std::size_t numberColumns) {
 std::size_t lossCurvatureColumn(std::size_t numberColumns) {
     return numberColumns - 1;
 }
-
 }
 
 namespace boosted_tree {
@@ -617,13 +616,13 @@ CBoostedTreeImpl::TSizeVec CBoostedTreeImpl::candidateFeatures() const {
 }
 
 //! Get the root node of \p tree.
-const CBoostedTreeImpl::CNode& CBoostedTreeImpl::root(const CBoostedTreeImpl::TNodeVec& tree){
+const CBoostedTreeImpl::CNode& CBoostedTreeImpl::root(const CBoostedTreeImpl::TNodeVec& tree) {
     return tree[0];
 }
 
 //! Get the forest's prediction for \p row.
 double CBoostedTreeImpl::predictRow(const CBoostedTreeImpl::TRowRef& row,
-                                        const CBoostedTreeImpl::TNodeVecVec& forest) {
+                                    const CBoostedTreeImpl::TNodeVecVec& forest) {
     double result{0.0};
     for (const auto& tree : forest) {
         result += root(tree).value(row, tree);
@@ -735,6 +734,5 @@ const double CBoostedTreeImpl::MINIMUM_ETA{1e-3};
 const std::size_t CBoostedTreeImpl::MAXIMUM_NUMBER_TREES{
     static_cast<std::size_t>(2.0 / MINIMUM_ETA + 0.5)};
 const double CBoostedTreeImpl::MINIMUM_RELATIVE_GAIN_PER_SPLIT{1e-7};
-
 }
 }

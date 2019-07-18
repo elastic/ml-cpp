@@ -8,8 +8,6 @@
 
 #include <maths/CBayesianOptimisation.h>
 #include <maths/CBoostedTreeImpl.h>
-#include <maths/CDataFrameUtils.h>
-#include <maths/COutliers.h>
 
 namespace ml {
 namespace maths {
@@ -272,9 +270,10 @@ void CBoostedTreeFactory::initializeHyperparameters(core::CDataFrame& frame,
     }
 }
 
-CBoostedTreeFactory CBoostedTreeFactory::constructFromParameters(std::size_t numberThreads,
-                                                    std::size_t dependentVariable,
-                                                    CBoostedTree::TLossFunctionUPtr loss) {
+CBoostedTreeFactory
+CBoostedTreeFactory::constructFromParameters(std::size_t numberThreads,
+                                             std::size_t dependentVariable,
+                                             CBoostedTree::TLossFunctionUPtr loss) {
     return {numberThreads, dependentVariable, std::move(loss)};
 }
 
@@ -334,9 +333,8 @@ CBoostedTreeFactory::operator CBoostedTree &&() {
     return std::move(*(this->build()));
 }
 
-const CBoostedTree& CBoostedTreeFactory::incompleteTreeObject() const{
+const CBoostedTree& CBoostedTreeFactory::incompleteTreeObject() const {
     return *m_Tree;
 }
-
 }
 }
