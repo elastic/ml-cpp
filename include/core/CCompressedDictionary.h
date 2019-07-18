@@ -11,11 +11,11 @@
 #include <core/CHashing.h>
 #include <core/CStringUtils.h>
 
-#include <boost/array.hpp>
 #include <boost/operators.hpp>
 #include <boost/unordered/unordered_map_fwd.hpp>
 #include <boost/unordered/unordered_set_fwd.hpp>
 
+#include <array>
 #include <map>
 #include <set>
 #include <string>
@@ -42,7 +42,7 @@ namespace core {
 template<std::size_t N>
 class CCompressedDictionary {
 public:
-    using TUInt64Array = boost::array<uint64_t, N>;
+    using TUInt64Array = std::array<uint64_t, N>;
     using TStrCPtr = const std::string*;
 
     //! \brief A hash representation of a string in the dictionary

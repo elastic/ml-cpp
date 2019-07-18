@@ -13,9 +13,9 @@
 #include <config/ImportExport.h>
 
 #include <boost/operators.hpp>
-#include <boost/ref.hpp>
 
 #include <cstddef>
+#include <functional>
 #include <memory>
 #include <vector>
 
@@ -125,7 +125,7 @@ public:
     static bool scoreIsZeroFor(double penalty);
 
 protected:
-    using TAutoconfigurerParamsCRef = boost::reference_wrapper<const CAutoconfigurerParams>;
+    using TAutoconfigurerParamsCRef = std::reference_wrapper<const CAutoconfigurerParams>;
 
 protected:
     //! Get the parameters.

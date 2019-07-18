@@ -41,9 +41,10 @@ public:
     virtual void testingForChange(bool value);
 
     //! No-op returning false.
-    virtual bool addPoint(core_t::TTime time,
+    virtual void addPoint(core_t::TTime time,
                           double value,
-                          const maths_t::TDoubleWeightsAry& weights = TWeights::UNIT);
+                          const maths_t::TDoubleWeightsAry& weights = TWeights::UNIT,
+                          const TComponentChangeCallback& componentChangeCallback = noop);
 
     //! No-op returning false.
     virtual bool applyChange(core_t::TTime time, double value, const SChangeDescription& change);
@@ -82,11 +83,8 @@ public:
     virtual maths_t::TDoubleDoublePr
     scale(core_t::TTime time, double variance, double confidence, bool smooth = true) const;
 
-    //! Returns false.
-    virtual bool mightAddComponents(core_t::TTime time) const;
-
     //! Returns an empty vector.
-    virtual TTimeFloatMeanAccumulatorPrVec windowValues() const;
+    virtual TFloatMeanAccumulatorVec windowValues(const TPredictor& predictor) const;
 
     //! No-op.
     virtual void skipTime(core_t::TTime skipInterval);

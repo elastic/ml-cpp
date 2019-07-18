@@ -46,8 +46,7 @@
 
 #include "CCmdLineParser.h"
 
-#include <boost/bind.hpp>
-
+#include <functional>
 #include <memory>
 #include <string>
 
@@ -242,8 +241,8 @@ int main(int argc, char** argv) {
 
     // The anomaly job knows how to detect anomalies
     ml::api::CAnomalyJob job(jobId, limits, fieldConfig, modelConfig, wrappedOutputStream,
-                             boost::bind(&ml::api::CModelSnapshotJsonWriter::write,
-                                         &modelSnapshotWriter, _1),
+                             std::bind(&ml::api::CModelSnapshotJsonWriter::write,
+                                       &modelSnapshotWriter, std::placeholders::_1),
                              periodicPersister.get(), maxQuantileInterval,
                              timeField, timeFormat, maxAnomalyRecords);
 
@@ -274,8 +273,9 @@ int main(int argc, char** argv) {
     }
 
     if (periodicPersister != nullptr) {
-        periodicPersister->firstProcessorPeriodicPersistFunc(boost::bind(
-            &ml::api::CDataProcessor::periodicPersistState, firstProcessor, _1));
+        periodicPersister->firstProcessorPeriodicPersistFunc(
+            std::bind(&ml::api::CDataProcessor::periodicPersistState,
+                      firstProcessor, std::placeholders::_1));
     }
 
     // The skeleton avoids the need to duplicate a lot of boilerplate code

@@ -12,8 +12,6 @@
 
 #include <api/CTokenListReverseSearchCreatorIntf.h>
 
-#include <boost/bind.hpp>
-
 #include <algorithm>
 #include <cmath>
 #include <limits>
@@ -395,14 +393,16 @@ void CBaseTokenListDataTyper::acceptPersistInserter(const TTokenMIndex& tokenIdL
     }
 
     for (const CTokenListType& type : types) {
-        inserter.insertLevel(
-            TYPE_TAG, boost::bind(&CTokenListType::acceptPersistInserter, &type, _1));
+        inserter.insertLevel(TYPE_TAG, std::bind(&CTokenListType::acceptPersistInserter,
+                                                 &type, std::placeholders::_1));
     }
 }
 
 CDataTyper::TPersistFunc CBaseTokenListDataTyper::makePersistFunc() const {
-    return boost::bind(&CBaseTokenListDataTyper::acceptPersistInserter,
-                       m_TokenIdLookup, m_Types, _1);
+    return std::bind(
+        static_cast<void (*)(const TTokenMIndex&, const TTokenListTypeVec&, core::CStatePersistInserter&)>(
+            &CBaseTokenListDataTyper::acceptPersistInserter),
+        std::cref(m_TokenIdLookup), std::cref(m_Types), std::placeholders::_1);
 }
 
 void CBaseTokenListDataTyper::addTypeMatch(bool isDryRun,

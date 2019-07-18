@@ -25,6 +25,7 @@
 #include <limits>
 #include <memory>
 #include <string>
+#include <type_traits>
 
 using namespace ml;
 
@@ -595,7 +596,7 @@ void CMemoryUsageTest::testUsage() {
             LOG_TRACE(<< ss.str());
         }
         // boost:reference_wrapper should give zero
-        boost::reference_wrapper<CBase> baseRef(boost::ref(*base));
+        std::reference_wrapper<CBase> baseRef(std::ref(*base));
         CPPUNIT_ASSERT_EQUAL(std::size_t(0), core::CMemory::dynamicSize(baseRef));
         {
             core::CMemoryUsage mem;
@@ -758,34 +759,19 @@ void CMemoryUsageTest::testDebug() {
 }
 
 void CMemoryUsageTest::testDynamicSizeAlwaysZero() {
-// Without some (as yet unspecified) help from the compiler, is_pod will
-// never report that a class or struct is a POD; this is always safe, if
-// possibly sub-optimal. Currently (May 2011) compilers more recent than
-// Visual C++ 8, GCC-4.3, Greenhills 6.0, Intel-11.0, and Codegear have the
-// necessary compiler intrinsics to ensure that this trait "just works".
-// You may also test to see if the necessary intrinsics are available by
-// checking to see if the macro BOOST_IS_POD is defined.  (Taken from
-// http://www.boost.org/doc/libs/1_65_1/libs/type_traits/doc/html/boost_typetraits/reference/is_pod.html
-// .)
-#ifdef BOOST_IS_POD
-    bool haveStructPodCompilerSupport = true;
-#else
-    bool haveStructPodCompilerSupport = false;
-#endif
-
     bool test = core::memory_detail::SDynamicSizeAlwaysZero<int>::value();
     CPPUNIT_ASSERT_EQUAL(true, test);
     test = core::memory_detail::SDynamicSizeAlwaysZero<double>::value();
     CPPUNIT_ASSERT_EQUAL(true, test);
     test = core::memory_detail::SDynamicSizeAlwaysZero<SPod>::value();
-    CPPUNIT_ASSERT_EQUAL(haveStructPodCompilerSupport, test);
+    CPPUNIT_ASSERT_EQUAL(true, test);
     test = core::memory_detail::SDynamicSizeAlwaysZero<boost::optional<double>>::value();
     CPPUNIT_ASSERT_EQUAL(true, test);
     test = core::memory_detail::SDynamicSizeAlwaysZero<boost::optional<SPod>>::value();
-    CPPUNIT_ASSERT_EQUAL(haveStructPodCompilerSupport, test);
+    CPPUNIT_ASSERT_EQUAL(true, test);
     test = core::memory_detail::SDynamicSizeAlwaysZero<std::pair<int, int>>::value();
     CPPUNIT_ASSERT_EQUAL(true, test);
-    test = boost::is_pod<SFoo>::value;
+    test = std::is_pod<SFoo>::value;
     CPPUNIT_ASSERT_EQUAL(false, test);
     test = core::memory_detail::SDynamicSizeAlwaysZero<SFoo>::value();
     CPPUNIT_ASSERT_EQUAL(true, test);

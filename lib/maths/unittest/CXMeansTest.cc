@@ -363,7 +363,7 @@ void CXMeansTest::testFiveClusters() {
     maths::CSampling::seed();
 
     const std::size_t sizes_[] = {500, 800, 100, 400, 600};
-    TSizeVec sizes(boost::begin(sizes_), boost::end(sizes_));
+    TSizeVec sizes(std::begin(sizes_), std::end(sizes_));
 
     test::CRandomNumbers rng;
 
@@ -489,7 +489,7 @@ void CXMeansTest::testTwentyClusters() {
     const std::size_t sizes_[] = {1800, 800,  1100, 400, 600,  400, 600,
                                   1300, 400,  900,  500, 700,  400, 800,
                                   1500, 1200, 500,  300, 1200, 800};
-    TSizeVec sizes(boost::begin(sizes_), boost::end(sizes_));
+    TSizeVec sizes(std::begin(sizes_), std::end(sizes_));
 
     test::CRandomNumbers rng;
 

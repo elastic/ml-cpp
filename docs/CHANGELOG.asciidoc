@@ -33,6 +33,7 @@
 === Enhancements
 
 * Upgrade to a newer version of the Apache Portable Runtime library. (See {ml-pull}495[#495].)
+* Improve stability of modelling around change points. (See {ml-pull}496[#496].)
 
 === Bug Fixes
 
@@ -78,6 +79,13 @@ to the model. (See {ml-pull}214[#214].)
 * Ensure statics are persisted in a consistent manner {ml-pull}360[#360]
 
 == {es} version 7.0.0-alpha1
+
+== {es} version 6.8.2
+
+=== Bug Fixes
+
+* Don't write model size stats when job is closed without any input {ml-pull}512[#512] (issue: {ml-issue}394[#394])
+* Don't persist model state at the end of lookback if the lookback did not generate any input {ml-pull}521[#521] (issue: {ml-issue}519[#519])
 
 == {es} version 6.7.2
 

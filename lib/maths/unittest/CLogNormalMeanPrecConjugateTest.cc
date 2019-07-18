@@ -968,8 +968,8 @@ void CLogNormalMeanPrecConjugateTest::testAnomalyScore() {
                 TUIntVec candidateAnomalies;
                 for (unsigned int time = 0; time < samples.size(); ++time) {
                     double anomaly =
-                        anomalies[std::find(boost::begin(anomalyTimes), boost::end(anomalyTimes), time) -
-                                  boost::begin(anomalyTimes)] *
+                        anomalies[std::find(std::begin(anomalyTimes), std::end(anomalyTimes), time) -
+                                  std::begin(anomalyTimes)] *
                         boost::math::standard_deviation(logNormal);
                     double sample = samples[time] + anomaly;
 
@@ -997,7 +997,7 @@ void CLogNormalMeanPrecConjugateTest::testAnomalyScore() {
                 TUIntVec falsePositives;
                 std::set_difference(candidateAnomalies.begin(),
                                     candidateAnomalies.end(),
-                                    boost::begin(anomalyTimes), boost::end(anomalyTimes),
+                                    std::begin(anomalyTimes), std::end(anomalyTimes),
                                     std::back_inserter(falsePositives));
 
                 double falsePositiveRate = static_cast<double>(falsePositives.size()) /
@@ -1006,10 +1006,10 @@ void CLogNormalMeanPrecConjugateTest::testAnomalyScore() {
                 totalFalsePositiveRate += falsePositiveRate;
 
                 TUIntVec positives;
-                std::set_intersection(
-                    candidateAnomalies.begin(), candidateAnomalies.end(),
-                    boost::begin(anomalyTimes), boost::end(anomalyTimes),
-                    std::back_inserter(positives));
+                std::set_intersection(candidateAnomalies.begin(),
+                                      candidateAnomalies.end(),
+                                      std::begin(anomalyTimes), std::end(anomalyTimes),
+                                      std::back_inserter(positives));
 
                 LOG_DEBUG(<< "falsePositiveRate = " << falsePositiveRate
                           << ", positives = " << positives.size());

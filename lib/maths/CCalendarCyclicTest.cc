@@ -23,7 +23,6 @@
 #include <maths/CTools.h>
 #include <maths/Constants.h>
 
-#include <boost/bind.hpp>
 #include <boost/math/distributions/binomial.hpp>
 #include <boost/unordered_map.hpp>
 
@@ -89,8 +88,9 @@ bool CCalendarCyclicTest::acceptRestoreTraverser(core::CStateRestoreTraverser& t
         while (traverser.next()) {
             const std::string& name = traverser.name();
             RESTORE(ERROR_QUANTILES_6_4_TAG,
-                    traverser.traverseSubLevel(boost::bind(&CQuantileSketch::acceptRestoreTraverser,
-                                                           &m_ErrorQuantiles, _1)))
+                    traverser.traverseSubLevel(
+                        std::bind(&CQuantileSketch::acceptRestoreTraverser,
+                                  &m_ErrorQuantiles, std::placeholders::_1)))
             RESTORE_BUILT_IN(CURRENT_BUCKET_TIME_6_4_TAG, m_CurrentBucketTime)
             RESTORE_BUILT_IN(CURRENT_BUCKET_INDEX_6_4_TAG, m_CurrentBucketIndex)
             RESTORE(CURRENT_BUCKET_ERROR_STATS_6_4_TAG,
@@ -102,8 +102,9 @@ bool CCalendarCyclicTest::acceptRestoreTraverser(core::CStateRestoreTraverser& t
         do {
             const std::string& name = traverser.name();
             RESTORE(ERROR_QUANTILES_OLD_TAG,
-                    traverser.traverseSubLevel(boost::bind(&CQuantileSketch::acceptRestoreTraverser,
-                                                           &m_ErrorQuantiles, _1)))
+                    traverser.traverseSubLevel(
+                        std::bind(&CQuantileSketch::acceptRestoreTraverser,
+                                  &m_ErrorQuantiles, std::placeholders::_1)))
         } while (traverser.next());
         errors.resize(SIZE);
     }
@@ -114,8 +115,8 @@ bool CCalendarCyclicTest::acceptRestoreTraverser(core::CStateRestoreTraverser& t
 void CCalendarCyclicTest::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
     inserter.insertValue(VERSION_6_4_TAG, "");
     inserter.insertLevel(ERROR_QUANTILES_6_4_TAG,
-                         boost::bind(&CQuantileSketch::acceptPersistInserter,
-                                     &m_ErrorQuantiles, _1));
+                         std::bind(&CQuantileSketch::acceptPersistInserter,
+                                   &m_ErrorQuantiles, std::placeholders::_1));
     inserter.insertValue(CURRENT_BUCKET_TIME_6_4_TAG, m_CurrentBucketTime);
     inserter.insertValue(CURRENT_BUCKET_INDEX_6_4_TAG, m_CurrentBucketIndex);
     inserter.insertValue(CURRENT_BUCKET_ERROR_STATS_6_4_TAG,

@@ -133,8 +133,8 @@ void CAnomalyJobLimitTest::testAccuracy() {
             api::CCsvInputParser parser(inputStrm);
 
             LOG_TRACE(<< "Reading file");
-            CPPUNIT_ASSERT(parser.readStreamIntoMaps(
-                boost::bind(&api::CAnomalyJob::handleRecord, &job, _1)));
+            CPPUNIT_ASSERT(parser.readStreamIntoMaps(std::bind(
+                &api::CAnomalyJob::handleRecord, &job, std::placeholders::_1)));
 
             LOG_TRACE(<< "Checking results");
 
@@ -176,8 +176,8 @@ void CAnomalyJobLimitTest::testAccuracy() {
             api::CCsvInputParser parser(inputStrm);
 
             LOG_TRACE(<< "Reading file");
-            CPPUNIT_ASSERT(parser.readStreamIntoMaps(
-                boost::bind(&api::CAnomalyJob::handleRecord, &job, _1)));
+            CPPUNIT_ASSERT(parser.readStreamIntoMaps(std::bind(
+                &api::CAnomalyJob::handleRecord, &job, std::placeholders::_1)));
 
             LOG_TRACE(<< "Checking results");
 
@@ -224,8 +224,8 @@ void CAnomalyJobLimitTest::testLimit() {
         api::CCsvInputParser parser(inputStrm);
 
         LOG_TRACE(<< "Reading file");
-        CPPUNIT_ASSERT(parser.readStreamIntoMaps(
-            boost::bind(&api::CAnomalyJob::handleRecord, &job, _1)));
+        CPPUNIT_ASSERT(parser.readStreamIntoMaps(std::bind(
+            &api::CAnomalyJob::handleRecord, &job, std::placeholders::_1)));
         LOG_TRACE(<< "Checking results");
         CPPUNIT_ASSERT_EQUAL(uint64_t(1176), job.numRecordsHandled());
     }
@@ -270,8 +270,8 @@ void CAnomalyJobLimitTest::testLimit() {
         api::CCsvInputParser parser(inputStrm);
 
         LOG_TRACE(<< "Reading file");
-        CPPUNIT_ASSERT(parser.readStreamIntoMaps(
-            boost::bind(&api::CAnomalyJob::handleRecord, &job, _1)));
+        CPPUNIT_ASSERT(parser.readStreamIntoMaps(std::bind(
+            &api::CAnomalyJob::handleRecord, &job, std::placeholders::_1)));
         // Now turn on the resource limiting
         limits.resourceMonitor().m_ByteLimitHigh = 0;
         limits.resourceMonitor().m_ByteLimitLow = 0;
@@ -282,8 +282,8 @@ void CAnomalyJobLimitTest::testLimit() {
         api::CCsvInputParser parser2(inputStrm2);
 
         LOG_TRACE(<< "Reading second file");
-        CPPUNIT_ASSERT(parser2.readStreamIntoMaps(
-            boost::bind(&api::CAnomalyJob::handleRecord, &job, _1)));
+        CPPUNIT_ASSERT(parser2.readStreamIntoMaps(std::bind(
+            &api::CAnomalyJob::handleRecord, &job, std::placeholders::_1)));
         LOG_TRACE(<< "Checking results");
         CPPUNIT_ASSERT_EQUAL(uint64_t(1180), job.numRecordsHandled());
     }
@@ -354,7 +354,7 @@ void CAnomalyJobLimitTest::testModelledEntityCountForFixedMemoryLimit() {
         std::size_t s_ExpectedOverUsageRelativeErrorDivisor;
     } testParams[]{{600, 550, 6000, 300, 33, 40, 40},
                    {3600, 550, 5500, 300, 27, 25, 20},
-                   {172800, 150, 850, 120, 6, 6, 3}};
+                   {172800, 150, 850, 110, 6, 6, 3}};
 
     for (const auto& testParam : testParams) {
         TGeneratorVec generators{periodic, tradingDays, level, ramp, sparse};

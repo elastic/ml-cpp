@@ -16,10 +16,12 @@
 #include <maths/COutliers.h>
 
 #include <api/CDataFrameAnalysisSpecification.h>
+#include <api/CDataFrameAnalysisSpecificationJsonWriter.h>
 #include <api/CDataFrameAnalyzer.h>
 
 #include <test/CDataFrameTestUtils.h>
 #include <test/CRandomNumbers.h>
+#include <test/CTestTmpDir.h>
 
 #include <rapidjson/document.h>
 #include <rapidjson/error/en.h>
@@ -61,41 +63,33 @@ outlierSpec(std::size_t rows = 110,
             std::size_t numberNeighbours = 0,
             bool computeFeatureInfluence = false) {
 
-    std::string spec{"{\n"
-                     "  \"rows\": " +
-                     std::to_string(rows) +
-                     ",\n"
-                     "  \"cols\": 5,\n"
-                     "  \"memory_limit\": " +
-                     std::to_string(memoryLimit) +
-                     ",\n"
-                     "  \"threads\": 1,\n"
-                     "  \"analysis\": {\n"
-                     "    \"name\": \"outlier_detection\""};
-    spec += ",\n    \"parameters\": {\n";
+    std::string parameters = "{\n";
     bool hasTrailingParameter{false};
     if (method != "") {
-        spec += "      \"method\": \"" + method + "\"";
+        parameters += "      \"method\": \"" + method + "\"";
         hasTrailingParameter = true;
     }
     if (numberNeighbours > 0) {
-        spec += (hasTrailingParameter ? ",\n" : "");
-        spec += "      \"n_neighbors\": " + core::CStringUtils::typeToString(numberNeighbours);
+        parameters += (hasTrailingParameter ? ",\n" : "");
+        parameters += "      \"n_neighbors\": " +
+                      core::CStringUtils::typeToString(numberNeighbours);
         hasTrailingParameter = true;
     }
     if (computeFeatureInfluence == false) {
-        spec += (hasTrailingParameter ? ",\n" : "");
-        spec += "      \"compute_feature_influence\": false";
+        parameters += (hasTrailingParameter ? ",\n" : "");
+        parameters += "      \"compute_feature_influence\": false";
         hasTrailingParameter = true;
     } else {
-        spec += (hasTrailingParameter ? ",\n" : "");
-        spec += "      \"minimum_score_to_write_feature_influence\": 0.0";
+        parameters += (hasTrailingParameter ? ",\n" : "");
+        parameters += "      \"feature_influence_threshold\": 0.0";
         hasTrailingParameter = true;
     }
-    spec += (hasTrailingParameter ? "\n" : "");
-    spec += "    }\n";
-    spec += "  }\n"
-            "}";
+    parameters += (hasTrailingParameter ? "\n" : "");
+    parameters += "    }\n";
+
+    std::string spec{api::CDataFrameAnalysisSpecificationJsonWriter::jsonString(
+        rows, 5, memoryLimit, 1, true, test::CTestTmpDir::tmpDir(), "ml",
+        "outlier_detection", parameters)};
 
     LOG_TRACE(<< "spec =\n" << spec);
 
@@ -731,6 +725,20 @@ void CDataFrameAnalyzerTest::testErrors() {
         LOG_DEBUG(<< core::CContainerPrinter::print(errors));
         CPPUNIT_ASSERT(errors.size() > 0);
     }
+
+    // Test inconsistent number of rows
+    {
+        api::CDataFrameAnalyzer analyzer{outlierSpec(2), outputWriterFactory};
+        errors.clear();
+        CPPUNIT_ASSERT_EQUAL(
+            true, analyzer.handleRecord({"c1", "c2", "c3", "c4", "c5", ".", "."},
+                                        {"10", "10", "10", "10", "10", "0", ""}));
+        CPPUNIT_ASSERT_EQUAL(
+            true, analyzer.handleRecord({"c1", "c2", "c3", "c4", "c5", ".", "."},
+                                        {"", "", "", "", "", "", "$"}));
+        LOG_DEBUG(<< core::CContainerPrinter::print(errors));
+        CPPUNIT_ASSERT(errors.size() > 0);
+    }
 }
 
 void CDataFrameAnalyzerTest::testRoundTripDocHashes() {
@@ -740,7 +748,7 @@ void CDataFrameAnalyzerTest::testRoundTripDocHashes() {
         return std::make_unique<core::CJsonOutputStreamWrapper>(output);
     };
 
-    api::CDataFrameAnalyzer analyzer{outlierSpec(), outputWriterFactory};
+    api::CDataFrameAnalyzer analyzer{outlierSpec(9), outputWriterFactory};
     for (auto i : {"1", "2", "3", "4", "5", "6", "7", "8", "9"}) {
         analyzer.handleRecord({"c1", "c2", "c3", "c4", "c5", ".", "."},
                               {i, i, i, i, i, i, ""});

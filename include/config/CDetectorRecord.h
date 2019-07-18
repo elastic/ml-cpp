@@ -13,9 +13,9 @@
 #include <config/Constants.h>
 #include <config/ImportExport.h>
 
-#include <boost/array.hpp>
 #include <boost/unordered_map.hpp>
 
+#include <array>
 #include <string>
 #include <utility>
 #include <vector>
@@ -32,8 +32,8 @@ class CDetectorSpecification;
 //! and partitioning field(s) used by the detector.
 class CONFIG_EXPORT CDetectorRecord {
 public:
-    using TSizeAry = boost::array<std::size_t, constants::NUMBER_FIELD_INDICES>;
-    using TStrCPtrAry = boost::array<const std::string*, constants::NUMBER_FIELD_INDICES>;
+    using TSizeAry = std::array<std::size_t, constants::NUMBER_FIELD_INDICES>;
+    using TStrCPtrAry = std::array<const std::string*, constants::NUMBER_FIELD_INDICES>;
     using TStrStrUMap = boost::unordered_map<std::string, std::string>;
 
 public:
@@ -138,7 +138,7 @@ private:
     using TSizeVec = std::vector<std::size_t>;
     using TStrSizePr = std::pair<std::string, std::size_t>;
     using TStrSizePrVec = std::vector<TStrSizePr>;
-    using TSizeAry = boost::array<std::size_t, constants::NUMBER_FIELD_INDICES>;
+    using TSizeAry = std::array<std::size_t, constants::NUMBER_FIELD_INDICES>;
     using TSizeAryVec = std::vector<TSizeAry>;
     using TStrCPtrVec = std::vector<const std::string*>;
 

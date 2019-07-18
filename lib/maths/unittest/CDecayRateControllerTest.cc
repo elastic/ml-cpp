@@ -16,8 +16,6 @@
 
 #include "TestUtils.h"
 
-#include <boost/bind.hpp>
-
 using namespace ml;
 using namespace handy_typedefs;
 
@@ -99,9 +97,9 @@ void CDecayRateControllerTest::testPersist() {
         CPPUNIT_ASSERT(parser.parseStringIgnoreCdata(origXml));
         core::CRapidXmlStateRestoreTraverser traverser(parser);
         maths::CDecayRateController restoredController;
-        CPPUNIT_ASSERT_EQUAL(true, traverser.traverseSubLevel(boost::bind(
+        CPPUNIT_ASSERT_EQUAL(true, traverser.traverseSubLevel(std::bind(
                                        &maths::CDecayRateController::acceptRestoreTraverser,
-                                       &restoredController, _1)));
+                                       &restoredController, std::placeholders::_1)));
 
         LOG_DEBUG(<< "orig checksum = " << origController.checksum()
                   << ", new checksum = " << restoredController.checksum());

@@ -20,7 +20,6 @@
 #include <maths/CTools.h>
 #include <maths/ProbabilityAggregators.h>
 
-#include <boost/bind.hpp>
 #include <boost/math/distributions/gamma.hpp>
 #include <boost/math/distributions/negative_binomial.hpp>
 #include <boost/math/distributions/normal.hpp>
@@ -182,8 +181,8 @@ CPoissonMeanConjugate::CPoissonMeanConjugate(const SDistributionRestoreParams& p
                                              core::CStateRestoreTraverser& traverser)
     : CPrior(maths_t::E_IntegerData, params.s_DecayRate), m_Offset(0.0),
       m_Shape(0.0), m_Rate(0.0) {
-    traverser.traverseSubLevel(
-        boost::bind(&CPoissonMeanConjugate::acceptRestoreTraverser, this, _1));
+    traverser.traverseSubLevel(std::bind(&CPoissonMeanConjugate::acceptRestoreTraverser,
+                                         this, std::placeholders::_1));
 }
 
 bool CPoissonMeanConjugate::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
@@ -774,8 +773,8 @@ bool CPoissonMeanConjugate::probabilityOfLessLikelySamples(maths_t::EProbability
     CJointProbabilityOfLessLikelySamples probability;
     if (!detail::evaluateFunctionOnJointDistribution(
             samples, weights,
-            boost::bind<double>(CTools::CProbabilityOfLessLikelySample(calculation),
-                                _1, _2, boost::ref(tail_)),
+            std::bind<double>(CTools::CProbabilityOfLessLikelySample(calculation),
+                              std::placeholders::_1, std::placeholders::_2, std::ref(tail_)),
             CJointProbabilityOfLessLikelySamples::SAddProbability(), m_Offset,
             this->isNonInformative(), m_Shape, m_Rate, probability) ||
         !probability.calculate(value)) {

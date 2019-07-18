@@ -302,7 +302,7 @@ void CLinearAlgebraTest::testSymmetricMatrix() {
     {
         double m[]{1.1, 2.4, 3.2, 1.4, 1.8, 0.8, 3.7, 0.7,
                    4.7, 4.7, 4.0, 1.0, 3.1, 1.1, 1.0};
-        maths::CSymmetricMatrix<double> matrix(boost::begin(m), boost::end(m));
+        maths::CSymmetricMatrix<double> matrix(std::begin(m), std::end(m));
         LOG_DEBUG(<< "matrix = " << matrix);
         CPPUNIT_ASSERT_EQUAL(std::size_t(5), matrix.rows());
         CPPUNIT_ASSERT_EQUAL(std::size_t(5), matrix.columns());
@@ -316,7 +316,7 @@ void CLinearAlgebraTest::testSymmetricMatrix() {
     }
     {
         double v[]{1.0, 2.0, 3.0, 4.0};
-        maths::CVector<double> vector(boost::begin(v), boost::end(v));
+        maths::CVector<double> vector(std::begin(v), std::end(v));
         maths::CSymmetricMatrix<double> matrix(maths::E_OuterProduct, vector);
         LOG_DEBUG(<< "matrix = " << matrix);
         CPPUNIT_ASSERT_EQUAL(std::size_t(4), matrix.rows());
@@ -330,7 +330,7 @@ void CLinearAlgebraTest::testSymmetricMatrix() {
     }
     {
         double v[]{1.0, 2.0, 3.0, 4.0};
-        maths::CVector<double> vector(boost::begin(v), boost::end(v));
+        maths::CVector<double> vector(std::begin(v), std::end(v));
         maths::CSymmetricMatrix<double> matrix(maths::E_Diagonal, vector);
         LOG_DEBUG(<< "matrix = " << matrix);
         CPPUNIT_ASSERT_EQUAL(std::size_t(4), matrix.rows());
@@ -348,7 +348,7 @@ void CLinearAlgebraTest::testSymmetricMatrix() {
 
         double m[]{1.1, 2.4, 3.2, 1.4, 1.8, 0.8, 3.7, 0.7,
                    4.7, 4.7, 4.0, 1.0, 3.1, 1.1, 1.0};
-        maths::CSymmetricMatrix<double> matrix(boost::begin(m), boost::end(m));
+        maths::CSymmetricMatrix<double> matrix(std::begin(m), std::end(m));
         maths::CSymmetricMatrix<double> sum = matrix + matrix;
         LOG_DEBUG(<< "sum = " << sum);
         for (std::size_t i = 0u, k = 0u; i < 5; ++i) {
@@ -363,8 +363,8 @@ void CLinearAlgebraTest::testSymmetricMatrix() {
 
         double m1[]{1.1, 0.4, 1.2, 1.4, 1.8, 0.8};
         double m2[]{2.1, 0.3, 1.2, 0.4, 3.8, 0.2};
-        maths::CSymmetricMatrix<double> matrix1(boost::begin(m1), boost::end(m1));
-        maths::CSymmetricMatrix<double> matrix2(boost::begin(m2), boost::end(m2));
+        maths::CSymmetricMatrix<double> matrix1(std::begin(m1), std::end(m1));
+        maths::CSymmetricMatrix<double> matrix2(std::begin(m2), std::end(m2));
         maths::CSymmetricMatrix<double> difference = matrix1 - matrix2;
         LOG_DEBUG(<< "difference = " << difference);
         for (std::size_t i = 0u, k = 0u; i < 3; ++i) {
@@ -378,7 +378,7 @@ void CLinearAlgebraTest::testSymmetricMatrix() {
         LOG_DEBUG(<< "Matrix Scalar Multiplication");
 
         double v[]{1.0, 2.0, 3.0, 4.0, 5.0};
-        maths::CVector<double> vector(boost::begin(v), boost::end(v));
+        maths::CVector<double> vector(std::begin(v), std::end(v));
         maths::CSymmetricMatrix<double> m(maths::E_OuterProduct, vector);
         maths::CSymmetricMatrix<double> ms = m * 3.0;
         LOG_DEBUG(<< "3 * m = " << ms);
@@ -393,7 +393,7 @@ void CLinearAlgebraTest::testSymmetricMatrix() {
         LOG_DEBUG(<< "Matrix Scalar Division");
 
         double v[]{1.0, 2.0, 3.0, 4.0, 5.0};
-        maths::CVector<double> vector(boost::begin(v), boost::end(v));
+        maths::CVector<double> vector(std::begin(v), std::end(v));
         maths::CSymmetricMatrix<double> m(maths::E_OuterProduct, vector);
         maths::CSymmetricMatrix<double> ms = m / 4.0;
         LOG_DEBUG(<< "m / 4.0 = " << ms);
@@ -426,7 +426,7 @@ void CLinearAlgebraTest::testVector() {
     }
     {
         double v_[]{1.1, 2.4, 1.4, 3.7, 4.0};
-        TDoubleVec v(boost::begin(v_), boost::end(v_));
+        TDoubleVec v(std::begin(v_), std::end(v_));
         maths::CVector<double> vector(v);
         CPPUNIT_ASSERT_EQUAL(std::size_t(5), vector.dimension());
         LOG_DEBUG(<< "vector = " << vector);
@@ -436,7 +436,7 @@ void CLinearAlgebraTest::testVector() {
     }
     {
         double v[]{1.1, 2.4, 1.4, 3.7, 4.0};
-        maths::CVector<double> vector(boost::begin(v), boost::end(v));
+        maths::CVector<double> vector(std::begin(v), std::end(v));
         CPPUNIT_ASSERT_EQUAL(std::size_t(5), vector.dimension());
         LOG_DEBUG(<< "vector = " << vector);
         for (std::size_t i = 0u; i < 5; ++i) {
@@ -449,7 +449,7 @@ void CLinearAlgebraTest::testVector() {
         LOG_DEBUG(<< "Sum");
 
         double v[]{1.1, 2.4, 1.4, 3.7, 4.0};
-        maths::CVector<double> vector(boost::begin(v), boost::end(v));
+        maths::CVector<double> vector(std::begin(v), std::end(v));
         maths::CVector<double> sum = vector + vector;
         LOG_DEBUG(<< "vector = " << sum);
         for (std::size_t i = 0u; i < 5; ++i) {
@@ -461,8 +461,8 @@ void CLinearAlgebraTest::testVector() {
 
         double v1[]{1.1, 0.4, 1.4};
         double v2[]{2.1, 0.3, 0.4};
-        maths::CVector<double> vector1(boost::begin(v1), boost::end(v1));
-        maths::CVector<double> vector2(boost::begin(v2), boost::end(v2));
+        maths::CVector<double> vector1(std::begin(v1), std::end(v1));
+        maths::CVector<double> vector2(std::begin(v2), std::end(v2));
         maths::CVector<double> difference = vector1 - vector2;
         LOG_DEBUG(<< "vector = " << difference);
         for (std::size_t i = 0u; i < 3; ++i) {
@@ -498,7 +498,7 @@ void CLinearAlgebraTest::testVector() {
         LOG_DEBUG(<< "Vector Scalar Multiplication");
 
         double v[]{1.0, 2.0, 3.0, 4.0, 5.0};
-        maths::CVector<double> vector(boost::begin(v), boost::end(v));
+        maths::CVector<double> vector(std::begin(v), std::end(v));
         maths::CVector<double> vs = vector * 3.0;
         LOG_DEBUG(<< "3 * v = " << vs);
         for (std::size_t i = 0u; i < 5; ++i) {
@@ -509,7 +509,7 @@ void CLinearAlgebraTest::testVector() {
         LOG_DEBUG(<< "Matrix Scalar Division");
 
         double v[]{1.0, 2.0, 3.0, 4.0, 5.0};
-        maths::CVector<double> vector(boost::begin(v), boost::end(v));
+        maths::CVector<double> vector(std::begin(v), std::end(v));
         maths::CVector<double> vs = vector / 4.0;
         LOG_DEBUG(<< "v / 4.0 = " << vs);
         for (std::size_t i = 0u; i < 5; ++i) {
@@ -538,7 +538,7 @@ void CLinearAlgebraTest::testNorms() {
     double expectedFrobenius[]{13.78550, 18.00250, 20.72052, 14.80844};
 
     for (std::size_t i = 0u; i < boost::size(m); ++i) {
-        maths::CSymmetricMatrixNxN<double, 5> m_(boost::begin(m[i]), boost::end(m[i]));
+        maths::CSymmetricMatrixNxN<double, 5> m_(std::begin(m[i]), std::end(m[i]));
         CPPUNIT_ASSERT_DOUBLES_EQUAL(expectedFrobenius[i], m_.frobenius(), 5e-6);
     }
 }
@@ -1061,7 +1061,7 @@ void CLinearAlgebraTest::testProjected() {
 
     {
         std::size_t ss[]{0, 1};
-        TSizeVec subspace(boost::begin(ss), boost::end(ss));
+        TSizeVec subspace(std::begin(ss), std::end(ss));
 
         Eigen::MatrixXd projectedMatrix = maths::projectedMatrix(subspace, matrix);
         Eigen::MatrixXd projectedVector = maths::projectedVector(subspace, vector);
@@ -1072,7 +1072,7 @@ void CLinearAlgebraTest::testProjected() {
     }
     {
         std::size_t ss[]{1, 0};
-        TSizeVec subspace(boost::begin(ss), boost::end(ss));
+        TSizeVec subspace(std::begin(ss), std::end(ss));
 
         Eigen::MatrixXd projectedMatrix = maths::projectedMatrix(subspace, matrix);
         Eigen::MatrixXd projectedVector = maths::projectedVector(subspace, vector);
@@ -1083,7 +1083,7 @@ void CLinearAlgebraTest::testProjected() {
     }
     {
         std::size_t ss[]{1, 0, 4};
-        TSizeVec subspace(boost::begin(ss), boost::end(ss));
+        TSizeVec subspace(std::begin(ss), std::end(ss));
 
         Eigen::MatrixXd projectedMatrix = maths::projectedMatrix(subspace, matrix);
         Eigen::MatrixXd projectedVector = maths::projectedVector(subspace, vector);
@@ -1110,7 +1110,7 @@ void CLinearAlgebraTest::testShims() {
                            {1.3, 1.6, 8.9, 0.2},
                            {-1.3, 2.7, -4.7, 3.1}};
     TVector4 vector1(components[0]);
-    TVector vector2(boost::begin(components[0]), boost::end(components[0]));
+    TVector vector2(std::begin(components[0]), std::end(components[0]));
     TDenseVector vector3(4);
     vector3 << components[0][0], components[0][1], components[0][2], components[0][3];
     TMappedVector vector4(components[0], 4);
@@ -1164,18 +1164,18 @@ void CLinearAlgebraTest::testShims() {
     LOG_DEBUG(<< "Test min");
     {
         double placeholder[2][4];
-        std::copy(boost::begin(components[1]), boost::end(components[1]),
-                  boost::begin(placeholder[0]));
-        std::copy(boost::begin(components[2]), boost::end(components[2]),
-                  boost::begin(placeholder[1]));
+        std::copy(std::begin(components[1]), std::end(components[1]),
+                  std::begin(placeholder[0]));
+        std::copy(std::begin(components[2]), std::end(components[2]),
+                  std::begin(placeholder[1]));
         TVector4 vector5(components[1]);
-        TVector vector6(boost::begin(components[1]), boost::end(components[1]));
+        TVector vector6(std::begin(components[1]), std::end(components[1]));
         TDenseVector vector7(4);
         vector7 << components[1][0], components[1][1], components[1][2],
             components[1][3];
         TMappedVector vector8(placeholder[0], 4);
-        TVector4 vector9(boost::begin(components[2]), boost::end(components[2]));
-        TVector vector10(boost::begin(components[2]), boost::end(components[2]));
+        TVector4 vector9(std::begin(components[2]), std::end(components[2]));
+        TVector vector10(std::begin(components[2]), std::end(components[2]));
         TDenseVector vector11(4);
         vector11 << components[2][0], components[2][1], components[2][2],
             components[2][3];
@@ -1220,18 +1220,18 @@ void CLinearAlgebraTest::testShims() {
     LOG_DEBUG(<< "Test max");
     {
         double placeholder[2][4];
-        std::copy(boost::begin(components[1]), boost::end(components[1]),
-                  boost::begin(placeholder[0]));
-        std::copy(boost::begin(components[2]), boost::end(components[2]),
-                  boost::begin(placeholder[1]));
+        std::copy(std::begin(components[1]), std::end(components[1]),
+                  std::begin(placeholder[0]));
+        std::copy(std::begin(components[2]), std::end(components[2]),
+                  std::begin(placeholder[1]));
         TVector4 vector5(components[1]);
-        TVector vector6(boost::begin(components[1]), boost::end(components[1]));
+        TVector vector6(std::begin(components[1]), std::end(components[1]));
         TDenseVector vector7(4);
         vector7 << components[1][0], components[1][1], components[1][2],
             components[1][3];
         TMappedVector vector8(placeholder[0], 4);
         TVector4 vector9(components[2]);
-        TVector vector10(boost::begin(components[2]), boost::end(components[2]));
+        TVector vector10(std::begin(components[2]), std::end(components[2]));
         TDenseVector vector11(4);
         vector11 << components[2][0], components[2][1], components[2][2],
             components[2][3];
@@ -1276,7 +1276,7 @@ void CLinearAlgebraTest::testShims() {
     LOG_DEBUG(<< "Test componentwise divide");
     {
         TVector4 vector5(components[1]);
-        TVector vector6(boost::begin(components[1]), boost::end(components[1]));
+        TVector vector6(std::begin(components[1]), std::end(components[1]));
         TDenseVector vector7(4);
         vector7 << components[1][0], components[1][1], components[1][2],
             components[1][3];
@@ -1305,7 +1305,7 @@ void CLinearAlgebraTest::testShims() {
     LOG_DEBUG(<< "Test distance");
     {
         TVector4 vector5(components[2]);
-        TVector vector6(boost::begin(components[2]), boost::end(components[2]));
+        TVector vector6(std::begin(components[2]), std::end(components[2]));
         TDenseVector vector7(4);
         vector7 << components[2][0], components[2][1], components[2][2],
             components[2][3];
@@ -1341,7 +1341,7 @@ void CLinearAlgebraTest::testShims() {
     LOG_DEBUG(<< "Test L1");
     {
         TVector4 vector5(components[3]);
-        TVector vector6(boost::begin(components[3]), boost::end(components[3]));
+        TVector vector6(std::begin(components[3]), std::end(components[3]));
         TDenseVector vector7(4);
         vector7 << components[3][0], components[3][1], components[3][2],
             components[3][3];
@@ -1372,10 +1372,10 @@ void CLinearAlgebraTest::testShims() {
             }
         }
         TDoubleVecVec elements_;
-        elements_.emplace_back(boost::begin(elements[0]), boost::end(elements[0]));
-        elements_.emplace_back(boost::begin(elements[1]), boost::end(elements[1]));
-        elements_.emplace_back(boost::begin(elements[2]), boost::end(elements[2]));
-        elements_.emplace_back(boost::begin(elements[3]), boost::end(elements[3]));
+        elements_.emplace_back(std::begin(elements[0]), std::end(elements[0]));
+        elements_.emplace_back(std::begin(elements[1]), std::end(elements[1]));
+        elements_.emplace_back(std::begin(elements[2]), std::end(elements[2]));
+        elements_.emplace_back(std::begin(elements[3]), std::end(elements[3]));
         TMatrix4 matrix1(elements);
         TMatrix matrix2(elements_);
         TDenseMatrix matrix3(4, 4);
@@ -1401,7 +1401,7 @@ void CLinearAlgebraTest::testShims() {
     LOG_DEBUG(<< "Test inner");
     {
         TVector4 vector5(components[1]);
-        TVector vector6(boost::begin(components[1]), boost::end(components[1]));
+        TVector vector6(std::begin(components[1]), std::end(components[1]));
         TDenseVector vector7(4);
         vector7 << components[1][0], components[1][1], components[1][2],
             components[1][3];

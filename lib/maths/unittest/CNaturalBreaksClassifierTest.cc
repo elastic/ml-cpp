@@ -657,8 +657,8 @@ void CNaturalBreaksClassifierTest::testPersist() {
         maths_t::E_ContinuousData, 0.2, maths::MINIMUM_CLUSTER_SPLIT_FRACTION,
         maths::MINIMUM_CLUSTER_SPLIT_COUNT, maths::MINIMUM_CATEGORY_COUNT);
     CPPUNIT_ASSERT(traverser.traverseSubLevel(
-        boost::bind(&CNaturalBreaksClassifier::acceptRestoreTraverser,
-                    &restoredClassifier, boost::cref(params), _1)));
+        std::bind(&CNaturalBreaksClassifier::acceptRestoreTraverser,
+                  &restoredClassifier, std::cref(params), std::placeholders::_1)));
 
     LOG_DEBUG(<< "orig checksum = " << checksum
               << " restored checksum = " << restoredClassifier.checksum());

@@ -17,10 +17,10 @@
 #include <maths/MathsTypes.h>
 
 #include <boost/optional/optional_fwd.hpp>
-#include <boost/ref.hpp>
 #include <boost/unordered/unordered_map_fwd.hpp>
 #include <boost/unordered/unordered_set_fwd.hpp>
 
+#include <functional>
 #include <memory>
 #include <string>
 #include <utility>
@@ -147,7 +147,7 @@ public:
 
     //! Checksum of a reference_wrapper.
     template<typename T>
-    static uint64_t dispatch(uint64_t seed, const boost::reference_wrapper<T>& target) {
+    static uint64_t dispatch(uint64_t seed, const std::reference_wrapper<T>& target) {
         return CChecksumImpl<typename selector<T>::value>::dispatch(seed, target.get());
     }
 
@@ -269,7 +269,7 @@ public:
     //! Stable hash of unordered set.
     template<typename T>
     static uint64_t dispatch(uint64_t seed, const boost::unordered_set<T>& target) {
-        using TCRef = boost::reference_wrapper<const T>;
+        using TCRef = std::reference_wrapper<const T>;
         using TCRefVec = std::vector<TCRef>;
 
         TCRefVec ordered;
@@ -286,8 +286,8 @@ public:
     //! Stable hash of unordered map.
     template<typename U, typename V>
     static uint64_t dispatch(uint64_t seed, const boost::unordered_map<U, V>& target) {
-        using TUCRef = boost::reference_wrapper<const U>;
-        using TVCRef = boost::reference_wrapper<const V>;
+        using TUCRef = std::reference_wrapper<const U>;
+        using TVCRef = std::reference_wrapper<const V>;
         using TUCRefVCRefPr = std::pair<TUCRef, TVCRef>;
         using TUCRefVCRefPrVec = std::vector<TUCRefVCRefPr>;
 

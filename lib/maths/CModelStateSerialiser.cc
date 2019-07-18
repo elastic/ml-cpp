@@ -8,9 +8,6 @@
 
 #include <maths/CTimeSeriesModel.h>
 
-#include <boost/bind.hpp>
-#include <boost/make_unique.hpp>
-
 namespace ml {
 namespace maths {
 namespace {
@@ -27,13 +24,13 @@ bool CModelStateSerialiser::operator()(const SModelRestoreParams& params,
     do {
         const std::string& name = traverser.name();
         if (name == UNIVARIATE_TIME_SERIES_TAG) {
-            result = boost::make_unique<CUnivariateTimeSeriesModel>(params, traverser);
+            result = std::make_unique<CUnivariateTimeSeriesModel>(params, traverser);
             ++numResults;
         } else if (name == MULTIVARIATE_TIME_SERIES_TAG) {
-            result = boost::make_unique<CMultivariateTimeSeriesModel>(params, traverser);
+            result = std::make_unique<CMultivariateTimeSeriesModel>(params, traverser);
             ++numResults;
         } else if (name == MODEL_STUB_TAG) {
-            result = boost::make_unique<CModelStub>();
+            result = std::make_unique<CModelStub>();
             ++numResults;
         } else {
             LOG_ERROR(<< "No model corresponds to name " << traverser.name());
@@ -54,10 +51,12 @@ void CModelStateSerialiser::operator()(const CModel& model,
                                        core::CStatePersistInserter& inserter) const {
     if (dynamic_cast<const CUnivariateTimeSeriesModel*>(&model) != nullptr) {
         inserter.insertLevel(UNIVARIATE_TIME_SERIES_TAG,
-                             boost::bind(&CModel::acceptPersistInserter, &model, _1));
+                             std::bind(&CModel::acceptPersistInserter, &model,
+                                       std::placeholders::_1));
     } else if (dynamic_cast<const CMultivariateTimeSeriesModel*>(&model) != nullptr) {
         inserter.insertLevel(MULTIVARIATE_TIME_SERIES_TAG,
-                             boost::bind(&CModel::acceptPersistInserter, &model, _1));
+                             std::bind(&CModel::acceptPersistInserter, &model,
+                                       std::placeholders::_1));
     } else if (dynamic_cast<const CModelStub*>(&model) != nullptr) {
         inserter.insertValue(MODEL_STUB_TAG, "");
     } else {

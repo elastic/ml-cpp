@@ -21,8 +21,6 @@
 #include <api/COutputHandler.h>
 #include <api/CTokenListReverseSearchCreator.h>
 
-#include <boost/bind.hpp>
-
 #include <sstream>
 
 namespace ml {
@@ -279,8 +277,8 @@ bool CFieldDataTyper::acceptRestoreTraverser(core::CStateRestoreTraverser& trave
     }
 
     if (traverser.name() == TYPER_TAG) {
-        if (traverser.traverseSubLevel(boost::bind(&CDataTyper::acceptRestoreTraverser,
-                                                   m_DataTyper, _1)) == false) {
+        if (traverser.traverseSubLevel(std::bind(&CDataTyper::acceptRestoreTraverser, m_DataTyper,
+                                                 std::placeholders::_1)) == false) {
             LOG_ERROR(<< "Cannot restore categorizer, unexpected element: "
                       << traverser.value());
             return false;
@@ -298,9 +296,9 @@ bool CFieldDataTyper::acceptRestoreTraverser(core::CStateRestoreTraverser& trave
     }
 
     if (traverser.name() == EXAMPLES_COLLECTOR_TAG) {
-        if (traverser.traverseSubLevel(
-                boost::bind(&CCategoryExamplesCollector::acceptRestoreTraverser,
-                            boost::ref(m_ExamplesCollector), _1)) == false ||
+        if (traverser.traverseSubLevel(std::bind(
+                &CCategoryExamplesCollector::acceptRestoreTraverser,
+                std::ref(m_ExamplesCollector), std::placeholders::_1)) == false ||
             traverser.haveBadState()) {
             LOG_ERROR(<< "Cannot restore categorizer, unexpected element: "
                       << traverser.value());
@@ -399,8 +397,8 @@ void CFieldDataTyper::acceptPersistInserter(const CDataTyper::TPersistFunc& data
     inserter.insertValue(VERSION_TAG, STATE_VERSION);
     inserter.insertLevel(TYPER_TAG, dataTyperPersistFunc);
     inserter.insertLevel(EXAMPLES_COLLECTOR_TAG,
-                         boost::bind(&CCategoryExamplesCollector::acceptPersistInserter,
-                                     &examplesCollector, _1));
+                         std::bind(&CCategoryExamplesCollector::acceptPersistInserter,
+                                   &examplesCollector, std::placeholders::_1));
 }
 
 bool CFieldDataTyper::periodicPersistState(CBackgroundPersister& persister) {
@@ -411,12 +409,12 @@ bool CFieldDataTyper::periodicPersistState(CBackgroundPersister& persister) {
         return false;
     }
 
-    if (persister.addPersistFunc(boost::bind(&CFieldDataTyper::doPersistState, this,
-                                             // Do NOT add boost::ref wrappers
-                                             // around these arguments - they
-                                             // MUST be copied for thread safety
-                                             m_DataTyper->makePersistFunc(),
-                                             m_ExamplesCollector, _1)) == false) {
+    if (persister.addPersistFunc(std::bind(&CFieldDataTyper::doPersistState, this,
+                                           // Do NOT add std::ref wrappers
+                                           // around these arguments - they
+                                           // MUST be copied for thread safety
+                                           m_DataTyper->makePersistFunc(), m_ExamplesCollector,
+                                           std::placeholders::_1)) == false) {
         LOG_ERROR(<< "Failed to add categorizer background persistence function");
         return false;
     }

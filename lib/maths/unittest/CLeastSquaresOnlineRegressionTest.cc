@@ -21,6 +21,8 @@
 
 #include <test/CRandomNumbers.h>
 
+#include <array>
+
 using namespace ml;
 
 using TDoubleVec = std::vector<double>;
@@ -50,11 +52,11 @@ double squareResidual(const T& params, const TDoubleVec& x, const TDoubleVec& y)
     }
     return result;
 }
-
-using TDoubleArray2 = boost::array<double, 2>;
-using TDoubleArray3 = boost::array<double, 3>;
-using TDoubleArray4 = boost::array<double, 4>;
 }
+
+using TDoubleArray2 = std::array<double, 2>;
+using TDoubleArray3 = std::array<double, 3>;
+using TDoubleArray4 = std::array<double, 4>;
 
 void CLeastSquaresOnlineRegressionTest::testInvariants() {
     // Test at (local) minimum of quadratic residuals.
@@ -410,7 +412,7 @@ void CLeastSquaresOnlineRegressionTest::testAge() {
 
         lastParams = params;
         ls.age(exp(-4.0), true);
-        ls.parameters(params);
+        ls.parameters(params, ls.MAX_CONDITION);
         LOG_DEBUG(<< "params(5.0) = " << core::CContainerPrinter::print(params));
         CPPUNIT_ASSERT(params[0] > lastParams[0]);
         CPPUNIT_ASSERT(params[0] < 105.0);
@@ -429,7 +431,7 @@ void CLeastSquaresOnlineRegressionTest::testAge() {
         TDoubleArray3 params;
         TDoubleArray3 lastParams;
 
-        ls.parameters(params);
+        ls.parameters(params, ls.MAX_CONDITION);
         LOG_DEBUG(<< "params(0) = " << core::CContainerPrinter::print(params));
 
         lastParams = params;
@@ -947,9 +949,9 @@ void CLeastSquaresOnlineRegressionTest::testPersist() {
     core::CRapidXmlStateRestoreTraverser traverser(parser);
 
     maths::CLeastSquaresOnlineRegression<2, double> restoredRegression;
-    CPPUNIT_ASSERT(traverser.traverseSubLevel(boost::bind(
+    CPPUNIT_ASSERT(traverser.traverseSubLevel(std::bind(
         &maths::CLeastSquaresOnlineRegression<2, double>::acceptRestoreTraverser,
-        &restoredRegression, _1)));
+        &restoredRegression, std::placeholders::_1)));
 
     CPPUNIT_ASSERT_EQUAL(origRegression.checksum(), restoredRegression.checksum());
 

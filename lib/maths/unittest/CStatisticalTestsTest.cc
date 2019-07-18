@@ -21,9 +21,7 @@
 #include <boost/math/distributions/lognormal.hpp>
 #include <boost/math/distributions/normal.hpp>
 
-#include <boost/bind.hpp>
 #include <boost/range.hpp>
-#include <boost/ref.hpp>
 
 #include <vector>
 

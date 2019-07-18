@@ -89,7 +89,8 @@ std::string print(const POINT& t) {
 }
 
 void CKdTreeTest::testBuild() {
-    const std::size_t numberTests = 200;
+
+    const std::size_t numberTests{200};
 
     test::CRandomNumbers rng;
 
@@ -123,6 +124,7 @@ void CKdTreeTest::testBuild() {
 }
 
 void CKdTreeTest::testBuildWithMove() {
+
     test::CRandomNumbers rng;
 
     TDoubleVec samples;
@@ -157,7 +159,8 @@ void CKdTreeTest::testBuildWithMove() {
 }
 
 void CKdTreeTest::testNearestNeighbour() {
-    const std::size_t numberTests = 200u;
+
+    const std::size_t numberTests{200};
 
     test::CRandomNumbers rng;
 
@@ -202,7 +205,8 @@ void CKdTreeTest::testNearestNeighbour() {
 }
 
 void CKdTreeTest::testNearestNeighbours() {
-    const std::size_t numberTests = 200u;
+
+    const std::size_t numberTests{200};
 
     test::CRandomNumbers rng;
 
@@ -251,6 +255,32 @@ void CKdTreeTest::testNearestNeighbours() {
     }
 }
 
+void CKdTreeTest::testRequestingEveryPoint() {
+
+    test::CRandomNumbers rng;
+
+    TDoubleVec samples;
+    rng.generateUniformSamples(-100.0, 100.0, 5 * 5, samples);
+
+    TVector5Vec points;
+    for (std::size_t j = 0u; j < samples.size(); j += 5) {
+        points.emplace_back(&samples[j], &samples[j + 5]);
+    }
+    std::stable_sort(points.begin(), points.end());
+    std::string expected{core::CContainerPrinter::print(points)};
+
+    maths::CKdTree<TVector5> kdTree;
+    kdTree.build(points);
+    CPPUNIT_ASSERT(kdTree.checkInvariants());
+
+    TVector5Vec neighbours;
+    kdTree.nearestNeighbours(5, TVector5{0.0}, neighbours);
+    std::stable_sort(neighbours.begin(), neighbours.end());
+
+    CPPUNIT_ASSERT_EQUAL(kdTree.size(), neighbours.size());
+    CPPUNIT_ASSERT_EQUAL(expected, core::CContainerPrinter::print(neighbours));
+}
+
 CppUnit::Test* CKdTreeTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CKdTreeTest");
 
@@ -262,6 +292,8 @@ CppUnit::Test* CKdTreeTest::suite() {
         "CKdTreeTest::testNearestNeighbour", &CKdTreeTest::testNearestNeighbour));
     suiteOfTests->addTest(new CppUnit::TestCaller<CKdTreeTest>(
         "CKdTreeTest::testNearestNeighbours", &CKdTreeTest::testNearestNeighbours));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CKdTreeTest>(
+        "CKdTreeTest::testRequestingEveryPoint", &CKdTreeTest::testRequestingEveryPoint));
 
     return suiteOfTests;
 }

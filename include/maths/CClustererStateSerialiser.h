@@ -15,6 +15,7 @@
 #include <maths/ImportExport.h>
 #include <maths/MathsTypes.h>
 
+#include <functional>
 #include <memory>
 
 namespace ml {
@@ -117,8 +118,8 @@ public:
     void operator()(const CClusterer<CVectorNx1<T, N>>& clusterer,
                     core::CStatePersistInserter& inserter) {
         inserter.insertLevel(clusterer.persistenceTag(),
-                             boost::bind(&CClusterer<CVectorNx1<T, N>>::acceptPersistInserter,
-                                         &clusterer, _1));
+                             std::bind(&CClusterer<CVectorNx1<T, N>>::acceptPersistInserter,
+                                       &clusterer, std::placeholders::_1));
     }
 };
 }

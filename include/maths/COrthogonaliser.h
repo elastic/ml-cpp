@@ -12,8 +12,7 @@
 #include <maths/CLinearAlgebraEigen.h>
 #include <maths/CLinearAlgebraShims.h>
 
-#include <boost/array.hpp>
-
+#include <array>
 #include <vector>
 
 namespace ml {
@@ -41,7 +40,7 @@ public:
     //! an orthonormal basis.
     //! \return True if and only if there is an orthonormal basis of size N.
     template<typename VECTOR, std::size_t N>
-    static bool orthonormalBasis(boost::array<VECTOR, N>& vectors) {
+    static bool orthonormalBasis(std::array<VECTOR, N>& vectors) {
         return orthonormalBasisImpl(vectors);
     }
 
@@ -112,7 +111,7 @@ private:
         return true;
     }
     template<typename VECTOR, std::size_t N>
-    static bool resize(boost::array<VECTOR, N>&, std::size_t rank) {
+    static bool resize(std::array<VECTOR, N>&, std::size_t rank) {
         if (N > rank) {
             LOG_TRACE(<< "Found linear dependencies but require none");
             return false;

@@ -9,13 +9,12 @@
 
 #include <core/CHashing.h>
 #include <core/CStoredStringPtr.h>
+#include <core/UnwrapRef.h>
 
 #include <maths/COrderings.h>
 
 #include <model/FunctionTypes.h>
 #include <model/ImportExport.h>
-
-#include <boost/ref.hpp>
 
 #include <iosfwd>
 #include <string>
@@ -82,7 +81,7 @@ public:
     //! \note This is intended for map lookups when one doesn't want
     //! to copy the strings.
     using TStrCRefKeyCRefPr =
-        std::pair<boost::reference_wrapper<const std::string>, boost::reference_wrapper<const CSearchKey>>;
+        std::pair<std::reference_wrapper<const std::string>, std::reference_wrapper<const CSearchKey>>;
 
 public:
     //! If the "by" field name is "count" then the key represents
@@ -229,8 +228,8 @@ private:
     template<typename T>
     std::size_t hash(const T& key) const {
         core::CHashing::CSafeMurmurHash2String64 stringHasher;
-        uint64_t result = stringHasher(boost::unwrap_ref(key.first));
-        core::CHashing::hashCombine(boost::unwrap_ref(key.second).hash(), result);
+        uint64_t result = stringHasher(ml::core::unwrap_ref(key.first));
+        core::CHashing::hashCombine(ml::core::unwrap_ref(key.second).hash(), result);
         return static_cast<std::size_t>(result);
     }
 };
@@ -257,8 +256,8 @@ public:
 private:
     template<typename U, typename V>
     bool equal(const U& lhs, const V& rhs) const {
-        return boost::unwrap_ref(lhs.second) == boost::unwrap_ref(rhs.second) &&
-               boost::unwrap_ref(lhs.first) == boost::unwrap_ref(rhs.first);
+        return ml::core::unwrap_ref(lhs.second) == ml::core::unwrap_ref(rhs.second) &&
+               ml::core::unwrap_ref(lhs.first) == ml::core::unwrap_ref(rhs.first);
     }
 };
 }

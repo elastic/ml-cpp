@@ -30,11 +30,9 @@
 #include <model/CProbabilityAndInfluenceCalculator.h>
 #include <model/FrequencyPredicates.h>
 
-#include <boost/bind.hpp>
 #include <boost/iterator/counting_iterator.hpp>
 #include <boost/optional.hpp>
 #include <boost/range.hpp>
-#include <boost/ref.hpp>
 #include <boost/tuple/tuple.hpp>
 #include <boost/unordered_map.hpp>
 
@@ -103,8 +101,8 @@ CMetricPopulationModel::CMetricPopulationModel(
       m_InterimBucketCorrector(interimBucketCorrector), m_Probabilities(0.05) {
     this->initialize(newFeatureModels, newFeatureCorrelateModelPriors,
                      std::move(featureCorrelatesModels));
-    traverser.traverseSubLevel(
-        boost::bind(&CMetricPopulationModel::acceptRestoreTraverser, this, _1));
+    traverser.traverseSubLevel(std::bind(&CMetricPopulationModel::acceptRestoreTraverser,
+                                         this, std::placeholders::_1));
 }
 
 void CMetricPopulationModel::initialize(const TFeatureMathsModelSPtrPrVec& newFeatureModels,
@@ -162,17 +160,18 @@ CMetricPopulationModel::CMetricPopulationModel(bool isForPersistence,
 }
 
 void CMetricPopulationModel::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
-    inserter.insertLevel(
-        POPULATION_STATE_TAG,
-        boost::bind(&CMetricPopulationModel::doAcceptPersistInserter, this, _1));
+    inserter.insertLevel(POPULATION_STATE_TAG,
+                         std::bind(&CMetricPopulationModel::doAcceptPersistInserter,
+                                   this, std::placeholders::_1));
     for (const auto& feature : m_FeatureModels) {
-        inserter.insertLevel(FEATURE_MODELS_TAG, boost::bind(&SFeatureModels::acceptPersistInserter,
-                                                             &feature, _1));
+        inserter.insertLevel(FEATURE_MODELS_TAG,
+                             std::bind(&SFeatureModels::acceptPersistInserter,
+                                       &feature, std::placeholders::_1));
     }
     for (const auto& feature : m_FeatureCorrelatesModels) {
         inserter.insertLevel(FEATURE_CORRELATE_MODELS_TAG,
-                             boost::bind(&SFeatureCorrelateModels::acceptPersistInserter,
-                                         &feature, _1));
+                             std::bind(&SFeatureCorrelateModels::acceptPersistInserter,
+                                       &feature, std::placeholders::_1));
     }
     core::CPersistUtils::persist(MEMORY_ESTIMATOR_TAG, m_MemoryEstimator, inserter);
 }
@@ -182,18 +181,19 @@ bool CMetricPopulationModel::acceptRestoreTraverser(core::CStateRestoreTraverser
     do {
         const std::string& name = traverser.name();
         RESTORE(POPULATION_STATE_TAG,
-                traverser.traverseSubLevel(boost::bind(
-                    &CMetricPopulationModel::doAcceptRestoreTraverser, this, _1)))
+                traverser.traverseSubLevel(std::bind(&CMetricPopulationModel::doAcceptRestoreTraverser,
+                                                     this, std::placeholders::_1)))
         RESTORE(FEATURE_MODELS_TAG,
                 i == m_FeatureModels.size() ||
-                    traverser.traverseSubLevel(boost::bind(
-                        &SFeatureModels::acceptRestoreTraverser,
-                        &m_FeatureModels[i++], boost::cref(this->params()), _1)))
+                    traverser.traverseSubLevel(std::bind(
+                        &SFeatureModels::acceptRestoreTraverser, &m_FeatureModels[i++],
+                        std::cref(this->params()), std::placeholders::_1)))
         RESTORE(FEATURE_CORRELATE_MODELS_TAG,
                 j == m_FeatureCorrelatesModels.size() ||
-                    traverser.traverseSubLevel(boost::bind(
+                    traverser.traverseSubLevel(std::bind(
                         &SFeatureCorrelateModels::acceptRestoreTraverser,
-                        &m_FeatureCorrelatesModels[j++], boost::cref(this->params()), _1)))
+                        &m_FeatureCorrelatesModels[j++],
+                        std::cref(this->params()), std::placeholders::_1)))
         RESTORE(MEMORY_ESTIMATOR_TAG,
                 core::CPersistUtils::restore(MEMORY_ESTIMATOR_TAG, m_MemoryEstimator, traverser))
     } while (traverser.next());
@@ -666,7 +666,7 @@ uint64_t CMetricPopulationModel::checksum(bool includeCurrentBucketStats) const 
         for (std::size_t cid = 0u; cid < feature.s_Models.size(); ++cid) {
             if (gatherer.isAttributeActive(cid)) {
                 uint64_t& hash =
-                    hashes[{boost::cref(EMPTY_STRING), boost::cref(gatherer.attributeName(cid))}];
+                    hashes[{std::cref(EMPTY_STRING), std::cref(gatherer.attributeName(cid))}];
                 hash = maths::CChecksum::calculate(hash, feature.s_Models[cid]);
             }
         }
@@ -677,9 +677,8 @@ uint64_t CMetricPopulationModel::checksum(bool includeCurrentBucketStats) const 
             std::size_t cids[]{model.first.first, model.first.second};
             if (gatherer.isAttributeActive(cids[0]) &&
                 gatherer.isAttributeActive(cids[1])) {
-                uint64_t& hash =
-                    hashes[{boost::cref(gatherer.attributeName(cids[0])),
-                            boost::cref(gatherer.attributeName(cids[1]))}];
+                uint64_t& hash = hashes[{std::cref(gatherer.attributeName(cids[0])),
+                                         std::cref(gatherer.attributeName(cids[1]))}];
                 hash = maths::CChecksum::calculate(hash, model.second);
             }
         }
@@ -688,7 +687,7 @@ uint64_t CMetricPopulationModel::checksum(bool includeCurrentBucketStats) const 
     if (includeCurrentBucketStats) {
         for (const auto& personCount : this->personCounts()) {
             uint64_t& hash =
-                hashes[{boost::cref(gatherer.personName(personCount.first)), boost::cref(EMPTY_STRING)}];
+                hashes[{std::cref(gatherer.personName(personCount.first)), std::cref(EMPTY_STRING)}];
             hash = maths::CChecksum::calculate(hash, personCount.second);
         }
         for (const auto& feature : m_CurrentBucketStats.s_FeatureData) {
@@ -697,7 +696,7 @@ uint64_t CMetricPopulationModel::checksum(bool includeCurrentBucketStats) const 
                 std::size_t cid = CDataGatherer::extractAttributeId(data_);
                 const TFeatureData& data = CDataGatherer::extractData(data_);
                 uint64_t& hash =
-                    hashes[{boost::cref(this->personName(pid)), boost::cref(this->attributeName(cid))}];
+                    hashes[{std::cref(this->personName(pid)), std::cref(this->attributeName(cid))}];
                 hash = maths::CChecksum::calculate(hash, data.s_BucketValue);
                 hash = maths::CChecksum::calculate(hash, data.s_IsInteger);
                 hash = maths::CChecksum::calculate(hash, data.s_Samples);
@@ -830,8 +829,8 @@ void CMetricPopulationModel::refreshCorrelationModels(std::size_t resourceLimit,
     std::size_t n = this->numberOfPeople();
     double maxNumberCorrelations = this->params().s_CorrelationModelsOverhead *
                                    static_cast<double>(n);
-    auto memoryUsage = boost::bind(&CAnomalyDetectorModel::estimateMemoryUsageOrComputeAndUpdate,
-                                   this, n, 0, _1);
+    auto memoryUsage = std::bind(&CAnomalyDetectorModel::estimateMemoryUsageOrComputeAndUpdate,
+                                 this, n, 0, std::placeholders::_1);
     CTimeSeriesCorrelateModelAllocator allocator(
         resourceMonitor, memoryUsage, resourceLimit,
         static_cast<std::size_t>(maxNumberCorrelations + 0.5));

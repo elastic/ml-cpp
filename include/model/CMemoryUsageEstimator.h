@@ -11,10 +11,10 @@
 
 #include <model/ImportExport.h>
 
-#include <boost/array.hpp>
 #include <boost/circular_buffer.hpp>
 #include <boost/optional.hpp>
 
+#include <array>
 #include <utility>
 
 namespace ml {
@@ -46,7 +46,7 @@ public:
         E_Correlations,
         E_NumberPredictors
     };
-    using TSizeArray = boost::array<std::size_t, E_NumberPredictors>;
+    using TSizeArray = std::array<std::size_t, E_NumberPredictors>;
     using TOptionalSize = boost::optional<std::size_t>;
 
 public:

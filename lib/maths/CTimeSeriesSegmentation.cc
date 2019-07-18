@@ -549,7 +549,7 @@ void CTimeSeriesSegmentation::fitTopDownPiecewiseLinearScaledPeriodic(ITR begin,
     if (range > period + 2 && CBasicStatistics::variance(moments) > 0.0) {
         using TDoubleItrPr = std::pair<double, ITR>;
         using TMinAccumulator = CBasicStatistics::COrderStatisticsStack<TDoubleItrPr, 1>;
-        using TMeanAccumulatorAry = boost::array<TMeanAccumulator, 3>;
+        using TMeanAccumulatorAry = std::array<TMeanAccumulator, 3>;
 
         TMinAccumulator minResidualVariance;
 

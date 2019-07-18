@@ -24,9 +24,6 @@
 #include <maths/CPoissonMeanConjugate.h>
 #include <maths/CPrior.h>
 
-#include <boost/bind.hpp>
-#include <boost/make_unique.hpp>
-
 #include <memory>
 #include <string>
 #include <typeinfo>
@@ -56,7 +53,7 @@ void doRestore(std::shared_ptr<CPrior>& ptr, core::CStateRestoreTraverser& trave
 //! Implements restore for std::unique_ptr.
 template<typename T>
 void doRestore(std::unique_ptr<CPrior>& ptr, core::CStateRestoreTraverser& traverser) {
-    ptr = boost::make_unique<T>(traverser);
+    ptr = std::make_unique<T>(traverser);
 }
 
 //! Implements restore for std::shared_ptr.
@@ -72,7 +69,7 @@ template<typename T>
 void doRestore(const SDistributionRestoreParams& params,
                std::unique_ptr<CPrior>& ptr,
                core::CStateRestoreTraverser& traverser) {
-    ptr = boost::make_unique<T>(params, traverser);
+    ptr = std::make_unique<T>(params, traverser);
 }
 
 //! Implements restore into the supplied pointer.
@@ -165,7 +162,8 @@ void CPriorStateSerialiser::operator()(const CPrior& prior,
         return;
     }
 
-    inserter.insertLevel(tagName, boost::bind(&CPrior::acceptPersistInserter, &prior, _1));
+    inserter.insertLevel(tagName, std::bind(&CPrior::acceptPersistInserter,
+                                            &prior, std::placeholders::_1));
 }
 
 bool CPriorStateSerialiser::operator()(const SDistributionRestoreParams& params,
@@ -233,7 +231,8 @@ bool CPriorStateSerialiser::operator()(const SDistributionRestoreParams& params,
 void CPriorStateSerialiser::operator()(const CMultivariatePrior& prior,
                                        core::CStatePersistInserter& inserter) const {
     inserter.insertLevel(prior.persistenceTag(),
-                         boost::bind(&CMultivariatePrior::acceptPersistInserter, &prior, _1));
+                         std::bind(&CMultivariatePrior::acceptPersistInserter,
+                                   &prior, std::placeholders::_1));
 }
 }
 }

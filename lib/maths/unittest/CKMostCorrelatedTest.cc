@@ -138,7 +138,7 @@ void estimateCorrelation(const std::size_t trials,
                           uniform01[i + 9] < 0.5 ? -1.0 : 1.0
 
             };
-            projections.push_back(TVector10(boost::begin(v), boost::end(v)));
+            projections.push_back(TVector10(std::begin(v), std::end(v)));
         }
 
         TVector10 px(0.0);
@@ -177,8 +177,8 @@ void CKMostCorrelatedTest::testCorrelation() {
 
         double m[] = {10.0, 15.0};
         double c[] = {10.0, 2.0, 10.0};
-        TVector2 mean(boost::begin(m), boost::end(m));
-        TMatrix2 covariance(boost::begin(c), boost::end(c));
+        TVector2 mean(std::begin(m), std::end(m));
+        TMatrix2 covariance(std::begin(c), std::end(c));
 
         TMeanVarAccumulator correlationEstimate;
         estimateCorrelation(100, mean, covariance, correlationEstimate);
@@ -194,8 +194,8 @@ void CKMostCorrelatedTest::testCorrelation() {
 
         double m[] = {10.0, 15.0};
         double c[] = {10.0, 5.0, 10.0};
-        TVector2 mean(boost::begin(m), boost::end(m));
-        TMatrix2 covariance(boost::begin(c), boost::end(c));
+        TVector2 mean(std::begin(m), std::end(m));
+        TMatrix2 covariance(std::begin(c), std::end(c));
 
         TMeanVarAccumulator correlationEstimate;
         estimateCorrelation(100, mean, covariance, correlationEstimate);
@@ -211,8 +211,8 @@ void CKMostCorrelatedTest::testCorrelation() {
 
         double m[] = {10.0, 15.0};
         double c[] = {10.0, 9.0, 10.0};
-        TVector2 mean(boost::begin(m), boost::end(m));
-        TMatrix2 covariance(boost::begin(c), boost::end(c));
+        TVector2 mean(std::begin(m), std::end(m));
+        TMatrix2 covariance(std::begin(c), std::end(c));
 
         TMeanVarAccumulator correlationEstimate;
         estimateCorrelation(100, mean, covariance, correlationEstimate);
@@ -430,7 +430,7 @@ void CKMostCorrelatedTest::testRemoveVariables() {
     LOG_DEBUG(<< "correlatedPairs = " << core::CContainerPrinter::print(correlatedPairs));
 
     std::size_t remove_[] = {2, 5};
-    CKMostCorrelatedForTest::TSizeVec remove(boost::begin(remove_), boost::end(remove_));
+    CKMostCorrelatedForTest::TSizeVec remove(std::begin(remove_), std::end(remove_));
     mostCorrelated.removeVariables(remove);
     mostCorrelated.mostCorrelated(correlatedPairs);
     LOG_DEBUG(<< "correlatedPairs = " << core::CContainerPrinter::print(correlatedPairs));
@@ -804,8 +804,9 @@ void CKMostCorrelatedTest::testPersistence() {
     CPPUNIT_ASSERT(parser.parseStringIgnoreCdata(origXml));
     core::CRapidXmlStateRestoreTraverser traverser(parser);
     maths::CKMostCorrelated restoredMostCorrelated(10, 0.001);
-    CPPUNIT_ASSERT(traverser.traverseSubLevel(boost::bind(
-        &maths::CKMostCorrelated::acceptRestoreTraverser, &restoredMostCorrelated, _1)));
+    CPPUNIT_ASSERT(traverser.traverseSubLevel(
+        std::bind(&maths::CKMostCorrelated::acceptRestoreTraverser,
+                  &restoredMostCorrelated, std::placeholders::_1)));
 
     LOG_DEBUG(<< "orig checksum = " << origMostCorrelated.checksum()
               << ", new checksum = " << restoredMostCorrelated.checksum());

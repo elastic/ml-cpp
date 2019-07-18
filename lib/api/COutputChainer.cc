@@ -9,6 +9,8 @@
 
 #include <api/CDataProcessor.h>
 
+#include <functional>
+
 namespace ml {
 namespace api {
 
@@ -48,7 +50,7 @@ bool COutputChainer::fieldNames(const TStrVec& fieldNames, const TStrVec& extraF
     // callers)
     for (TStrVecCItr iter = m_FieldNames.begin(); iter != m_FieldNames.end(); ++iter) {
         m_Hashes.push_back(EMPTY_FIELD_OVERRIDES.hash_function()(*iter));
-        m_WorkRecordFieldRefs.push_back(boost::ref(m_WorkRecordFields[*iter]));
+        m_WorkRecordFieldRefs.push_back(std::ref(m_WorkRecordFields[*iter]));
     }
 
     return true;

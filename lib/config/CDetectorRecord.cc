@@ -16,6 +16,7 @@
 
 #include <boost/range.hpp>
 
+#include "../../include/config/ConfigTypes.h"
 namespace ml {
 namespace config {
 namespace {
@@ -182,7 +183,7 @@ void CDetectorRecordDirectAddressTable::detectorRecords(core_t::TTime time,
         std::size_t id = specs[i].id();
         const TSizeAry& schema = m_DetectorFieldSchema[id];
         config_t::EFunctionCategory function = specs[i].function();
-        for (std::size_t j = 0u; j < TSizeAry::size(); ++j) {
+        for (std::size_t j = 0u; j < schema.size(); ++j) {
             ni[j] = (specs[i].*FIELDS[j])().get_ptr();
             vi[j] = m_FieldValueTable[schema[j]];
             hi[j] = m_HashedFieldValueTable[schema[j]];

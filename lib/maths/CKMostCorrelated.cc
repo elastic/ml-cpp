@@ -27,6 +27,7 @@
 #include <boost/iterator/counting_iterator.hpp>
 #include <boost/unordered_set.hpp>
 
+#include <array>
 #include <cmath>
 #include <functional>
 
@@ -41,7 +42,7 @@ namespace {
 
 using TSizeSizePr = std::pair<std::size_t, std::size_t>;
 using TSizeSizePrUSet = boost::unordered_set<TSizeSizePr>;
-using TPoint = boost::array<double, CKMostCorrelated::NUMBER_PROJECTIONS>;
+using TPoint = std::array<double, CKMostCorrelated::NUMBER_PROJECTIONS>;
 using TPointSizePr = std::pair<TPoint, std::size_t>;
 using TPointSizePrVec = std::vector<TPointSizePr>;
 

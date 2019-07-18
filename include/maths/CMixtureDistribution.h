@@ -14,7 +14,6 @@
 #include <maths/CMathsFuncs.h>
 #include <maths/CSolvers.h>
 
-#include <boost/bind.hpp>
 #include <boost/math/distributions/fwd.hpp>
 #include <boost/math/distributions/gamma.hpp>
 #include <boost/math/distributions/lognormal.hpp>
@@ -24,6 +23,7 @@
 
 #include <cmath>
 #include <exception>
+#include <functional>
 #include <vector>
 
 namespace ml {
@@ -42,7 +42,7 @@ public:
 
     template<typename F>
     typename F::result_type visit(const F& f, double x) const {
-        return boost::apply_visitor(boost::bind(f, _1, x), m_Distribution);
+        return boost::apply_visitor(std::bind(f, std::placeholders::_1, x), m_Distribution);
     }
 
     template<typename F>

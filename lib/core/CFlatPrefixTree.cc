@@ -56,7 +56,7 @@ CFlatPrefixTree::CFlatPrefixTree() : m_FlatTree() {
 bool CFlatPrefixTree::build(const TStrVec& prefixes) {
     m_FlatTree.clear();
 
-    if (boost::algorithm::is_sorted(prefixes) == false) {
+    if (std::is_sorted(prefixes.begin(), prefixes.end()) == false) {
         LOG_ERROR(<< "FlatPrefixTree cannot be build from an unsorted vector of prefixes");
         return false;
     }

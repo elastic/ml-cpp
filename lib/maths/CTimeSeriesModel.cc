@@ -10,6 +10,7 @@
 #include <core/CFunctional.h>
 #include <core/CPersistUtils.h>
 #include <core/RestoreMacros.h>
+#include <core/UnwrapRef.h>
 
 #include <maths/CBasicStatisticsPersist.h>
 #include <maths/CDecayRateController.h>
@@ -28,8 +29,6 @@
 #include <maths/CTimeSeriesSegmentation.h>
 #include <maths/CTools.h>
 #include <maths/Constants.h>
-
-#include <boost/make_unique.hpp>
 
 #include <cmath>
 #include <cstddef>
@@ -621,28 +620,29 @@ std::size_t CTimeSeriesAnomalyModel::memoryUsage() const {
 
 bool CTimeSeriesAnomalyModel::acceptRestoreTraverser(const SModelRestoreParams& params,
                                                      core::CStateRestoreTraverser& traverser) {
-    m_BucketLength = boost::unwrap_ref(params.s_Params).bucketLength();
+    m_BucketLength = ml::core::unwrap_ref(params.s_Params).bucketLength();
     if (traverser.name() == VERSION_7_3_TAG) {
         std::size_t index{0};
         while (traverser.next()) {
             const std::string& name{traverser.name()};
             RESTORE_SETUP_TEARDOWN(ANOMALY_6_5_TAG, CAnomaly restored,
-                                   traverser.traverseSubLevel(boost::bind(
-                                       &CAnomaly::acceptRestoreTraverser, &restored, _1)),
+                                   traverser.traverseSubLevel(
+                                       std::bind(&CAnomaly::acceptRestoreTraverser,
+                                                 &restored, std::placeholders::_1)),
                                    m_Anomaly.reset(restored))
             RESTORE(ANOMALY_FEATURE_MODEL_6_5_TAG,
-                    traverser.traverseSubLevel(boost::bind(
+                    traverser.traverseSubLevel(std::bind(
                         &TMultivariateNormalConjugate::acceptRestoreTraverser,
-                        &m_AnomalyFeatureModels[index++], _1)))
+                        &m_AnomalyFeatureModels[index++], std::placeholders::_1)))
         }
     } else if (traverser.name() == VERSION_6_5_TAG) {
         std::size_t index{0};
         while (traverser.next()) {
             const std::string& name{traverser.name()};
             RESTORE(ANOMALY_FEATURE_MODEL_6_5_TAG,
-                    traverser.traverseSubLevel(boost::bind(
+                    traverser.traverseSubLevel(std::bind(
                         &TMultivariateNormalConjugate::acceptRestoreTraverser,
-                        &m_AnomalyFeatureModels[index++], _1)))
+                        &m_AnomalyFeatureModels[index++], std::placeholders::_1)))
         }
     }
     // else we can't upgrade the state of the anomaly model pre 6.5.
@@ -653,15 +653,16 @@ bool CTimeSeriesAnomalyModel::acceptRestoreTraverser(const SModelRestoreParams& 
 void CTimeSeriesAnomalyModel::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
     inserter.insertValue(VERSION_7_3_TAG, "");
     if (m_Anomaly) {
-        inserter.insertLevel(ANOMALY_6_5_TAG, boost::bind(&CAnomaly::acceptPersistInserter,
-                                                          m_Anomaly.get(), _1));
+        inserter.insertLevel(ANOMALY_6_5_TAG,
+                             std::bind(&CAnomaly::acceptPersistInserter,
+                                       m_Anomaly.get(), std::placeholders::_1));
     }
     inserter.insertLevel(ANOMALY_FEATURE_MODEL_6_5_TAG,
-                         boost::bind(&TMultivariateNormalConjugate::acceptPersistInserter,
-                                     &m_AnomalyFeatureModels[0], _1));
+                         std::bind(&TMultivariateNormalConjugate::acceptPersistInserter,
+                                   &m_AnomalyFeatureModels[0], std::placeholders::_1));
     inserter.insertLevel(ANOMALY_FEATURE_MODEL_6_5_TAG,
-                         boost::bind(&TMultivariateNormalConjugate::acceptPersistInserter,
-                                     &m_AnomalyFeatureModels[1], _1));
+                         std::bind(&TMultivariateNormalConjugate::acceptPersistInserter,
+                                   &m_AnomalyFeatureModels[1], std::placeholders::_1));
 }
 
 const maths_t::TDouble10VecWeightsAry1Vec CTimeSeriesAnomalyModel::UNIT{
@@ -680,21 +681,21 @@ CUnivariateTimeSeriesModel::CUnivariateTimeSeriesModel(
       m_MultibucketFeature(multibucketFeature != nullptr ? multibucketFeature->clone()
                                                          : nullptr),
       m_MultibucketFeatureModel(multibucketFeature != nullptr ? residualModel.clone() : nullptr),
-      m_AnomalyModel(modelAnomalies ? boost::make_unique<CTimeSeriesAnomalyModel>(
+      m_AnomalyModel(modelAnomalies ? std::make_unique<CTimeSeriesAnomalyModel>(
                                           params.bucketLength(),
                                           params.decayRate())
                                     : nullptr),
       m_CurrentChangeInterval(0), m_Correlations(nullptr) {
     if (controllers) {
-        m_Controllers = boost::make_unique<TDecayRateController2Ary>(*controllers);
+        m_Controllers = std::make_unique<TDecayRateController2Ary>(*controllers);
     }
 }
 
 CUnivariateTimeSeriesModel::CUnivariateTimeSeriesModel(const SModelRestoreParams& params,
                                                        core::CStateRestoreTraverser& traverser)
     : CModel(params.s_Params), m_IsForecastable(false), m_Correlations(nullptr) {
-    traverser.traverseSubLevel(boost::bind(&CUnivariateTimeSeriesModel::acceptRestoreTraverser,
-                                           this, boost::cref(params), _1));
+    traverser.traverseSubLevel(std::bind(&CUnivariateTimeSeriesModel::acceptRestoreTraverser,
+                                         this, std::cref(params), std::placeholders::_1));
 }
 
 CUnivariateTimeSeriesModel::~CUnivariateTimeSeriesModel() {
@@ -1353,42 +1354,43 @@ bool CUnivariateTimeSeriesModel::acceptRestoreTraverser(const SModelRestoreParam
             RESTORE_BOOL(IS_FORECASTABLE_6_3_TAG, m_IsForecastable)
             RESTORE_SETUP_TEARDOWN(
                 CONTROLLER_6_3_TAG,
-                m_Controllers = boost::make_unique<TDecayRateController2Ary>(),
+                m_Controllers = std::make_unique<TDecayRateController2Ary>(),
                 core::CPersistUtils::restore(CONTROLLER_6_3_TAG, *m_Controllers, traverser),
                 /**/)
-            RESTORE(TREND_MODEL_6_3_TAG, traverser.traverseSubLevel(boost::bind<bool>(
-                                             CTimeSeriesDecompositionStateSerialiser(),
-                                             boost::cref(params.s_DecompositionParams),
-                                             boost::ref(m_TrendModel), _1)))
+            RESTORE(TREND_MODEL_6_3_TAG,
+                    traverser.traverseSubLevel(std::bind<bool>(
+                        CTimeSeriesDecompositionStateSerialiser(),
+                        std::cref(params.s_DecompositionParams),
+                        std::ref(m_TrendModel), std::placeholders::_1)))
             RESTORE(RESIDUAL_MODEL_6_3_TAG,
-                    traverser.traverseSubLevel(boost::bind<bool>(
-                        CPriorStateSerialiser(), boost::cref(params.s_DistributionParams),
-                        boost::ref(m_ResidualModel), _1)))
+                    traverser.traverseSubLevel(std::bind<bool>(
+                        CPriorStateSerialiser(), std::cref(params.s_DistributionParams),
+                        std::ref(m_ResidualModel), std::placeholders::_1)))
             RESTORE(MULTIBUCKET_FEATURE_6_3_TAG,
-                    traverser.traverseSubLevel(
-                        boost::bind<bool>(CTimeSeriesMultibucketFeatureSerialiser(),
-                                          boost::ref(m_MultibucketFeature), _1)))
+                    traverser.traverseSubLevel(std::bind<bool>(
+                        CTimeSeriesMultibucketFeatureSerialiser(),
+                        std::ref(m_MultibucketFeature), std::placeholders::_1)))
             RESTORE(MULTIBUCKET_FEATURE_MODEL_6_3_TAG,
-                    traverser.traverseSubLevel(boost::bind<bool>(
-                        CPriorStateSerialiser(), boost::cref(params.s_DistributionParams),
-                        boost::ref(m_MultibucketFeatureModel), _1)))
+                    traverser.traverseSubLevel(std::bind<bool>(
+                        CPriorStateSerialiser(), std::cref(params.s_DistributionParams),
+                        std::ref(m_MultibucketFeatureModel), std::placeholders::_1)))
             RESTORE_SETUP_TEARDOWN(
                 ANOMALY_MODEL_6_3_TAG,
-                m_AnomalyModel = boost::make_unique<CTimeSeriesAnomalyModel>(),
-                traverser.traverseSubLevel(
-                    boost::bind(&CTimeSeriesAnomalyModel::acceptRestoreTraverser,
-                                m_AnomalyModel.get(), boost::cref(params), _1)),
+                m_AnomalyModel = std::make_unique<CTimeSeriesAnomalyModel>(),
+                traverser.traverseSubLevel(std::bind(
+                    &CTimeSeriesAnomalyModel::acceptRestoreTraverser,
+                    m_AnomalyModel.get(), std::cref(params), std::placeholders::_1)),
                 /**/)
             RESTORE(CANDIDATE_CHANGE_POINT_6_3_TAG,
                     fromDelimited(traverser.value(), m_CandidateChangePoint))
             RESTORE_BUILT_IN(CURRENT_CHANGE_INTERVAL_6_3_TAG, m_CurrentChangeInterval)
             RESTORE_SETUP_TEARDOWN(
                 CHANGE_DETECTOR_6_3_TAG,
-                m_ChangeDetector = boost::make_unique<CUnivariateTimeSeriesChangeDetector>(
+                m_ChangeDetector = std::make_unique<CUnivariateTimeSeriesChangeDetector>(
                     m_TrendModel, m_ResidualModel),
-                traverser.traverseSubLevel(boost::bind(
+                traverser.traverseSubLevel(std::bind(
                     &CUnivariateTimeSeriesChangeDetector::acceptRestoreTraverser,
-                    m_ChangeDetector.get(), boost::cref(params), _1)),
+                    m_ChangeDetector.get(), std::cref(params), std::placeholders::_1)),
                 /**/)
         }
     } else {
@@ -1400,23 +1402,23 @@ bool CUnivariateTimeSeriesModel::acceptRestoreTraverser(const SModelRestoreParam
             RESTORE_BOOL(IS_FORECASTABLE_OLD_TAG, m_IsForecastable)
             RESTORE_SETUP_TEARDOWN(
                 CONTROLLER_OLD_TAG,
-                m_Controllers = boost::make_unique<TDecayRateController2Ary>(),
+                m_Controllers = std::make_unique<TDecayRateController2Ary>(),
                 core::CPersistUtils::restore(CONTROLLER_OLD_TAG, *m_Controllers, traverser),
                 /**/)
-            RESTORE(TREND_OLD_TAG, traverser.traverseSubLevel(boost::bind<bool>(
+            RESTORE(TREND_OLD_TAG, traverser.traverseSubLevel(std::bind<bool>(
                                        CTimeSeriesDecompositionStateSerialiser(),
-                                       boost::cref(params.s_DecompositionParams),
-                                       boost::ref(m_TrendModel), _1)))
-            RESTORE(PRIOR_OLD_TAG, traverser.traverseSubLevel(boost::bind<bool>(
-                                       CPriorStateSerialiser(),
-                                       boost::cref(params.s_DistributionParams),
-                                       boost::ref(m_ResidualModel), _1)))
+                                       std::cref(params.s_DecompositionParams),
+                                       std::ref(m_TrendModel), std::placeholders::_1)))
+            RESTORE(PRIOR_OLD_TAG,
+                    traverser.traverseSubLevel(std::bind<bool>(
+                        CPriorStateSerialiser(), std::cref(params.s_DistributionParams),
+                        std::ref(m_ResidualModel), std::placeholders::_1)))
             RESTORE_SETUP_TEARDOWN(
                 ANOMALY_MODEL_OLD_TAG,
-                m_AnomalyModel = boost::make_unique<CTimeSeriesAnomalyModel>(),
-                traverser.traverseSubLevel(
-                    boost::bind(&CTimeSeriesAnomalyModel::acceptRestoreTraverser,
-                                m_AnomalyModel.get(), boost::cref(params), _1)),
+                m_AnomalyModel = std::make_unique<CTimeSeriesAnomalyModel>(),
+                traverser.traverseSubLevel(std::bind(
+                    &CTimeSeriesAnomalyModel::acceptRestoreTraverser,
+                    m_AnomalyModel.get(), std::cref(params), std::placeholders::_1)),
                 /**/)
         } while (traverser.next());
     }
@@ -1435,34 +1437,36 @@ void CUnivariateTimeSeriesModel::acceptPersistInserter(core::CStatePersistInsert
         core::CPersistUtils::persist(CONTROLLER_6_3_TAG, *m_Controllers, inserter);
     }
     inserter.insertLevel(TREND_MODEL_6_3_TAG,
-                         boost::bind<void>(CTimeSeriesDecompositionStateSerialiser{},
-                                           boost::cref(*m_TrendModel), _1));
+                         std::bind<void>(CTimeSeriesDecompositionStateSerialiser{},
+                                         std::cref(*m_TrendModel), std::placeholders::_1));
     if (m_ResidualModel != nullptr) {
         inserter.insertLevel(RESIDUAL_MODEL_6_3_TAG,
-                             boost::bind<void>(CPriorStateSerialiser{},
-                                               boost::cref(*m_ResidualModel), _1));
+                             std::bind<void>(CPriorStateSerialiser{}, std::cref(*m_ResidualModel),
+                                             std::placeholders::_1));
     }
     if (m_MultibucketFeature != nullptr) {
         inserter.insertLevel(MULTIBUCKET_FEATURE_6_3_TAG,
-                             boost::bind<void>(CTimeSeriesMultibucketFeatureSerialiser(),
-                                               boost::cref(m_MultibucketFeature), _1));
+                             std::bind<void>(CTimeSeriesMultibucketFeatureSerialiser(),
+                                             std::cref(m_MultibucketFeature),
+                                             std::placeholders::_1));
     }
     if (m_MultibucketFeatureModel != nullptr) {
         inserter.insertLevel(MULTIBUCKET_FEATURE_MODEL_6_3_TAG,
-                             boost::bind<void>(CPriorStateSerialiser{},
-                                               boost::cref(*m_MultibucketFeatureModel), _1));
+                             std::bind<void>(CPriorStateSerialiser{},
+                                             std::cref(*m_MultibucketFeatureModel),
+                                             std::placeholders::_1));
     }
     inserter.insertValue(CANDIDATE_CHANGE_POINT_6_3_TAG, toDelimited(m_CandidateChangePoint));
     inserter.insertValue(CURRENT_CHANGE_INTERVAL_6_3_TAG, m_CurrentChangeInterval);
     if (m_ChangeDetector != nullptr) {
         inserter.insertLevel(CHANGE_DETECTOR_6_3_TAG,
-                             boost::bind(&CUnivariateTimeSeriesChangeDetector::acceptPersistInserter,
-                                         m_ChangeDetector.get(), _1));
+                             std::bind(&CUnivariateTimeSeriesChangeDetector::acceptPersistInserter,
+                                       m_ChangeDetector.get(), std::placeholders::_1));
     }
     if (m_AnomalyModel != nullptr) {
         inserter.insertLevel(ANOMALY_MODEL_6_3_TAG,
-                             boost::bind(&CTimeSeriesAnomalyModel::acceptPersistInserter,
-                                         m_AnomalyModel.get(), _1));
+                             std::bind(&CTimeSeriesAnomalyModel::acceptPersistInserter,
+                                       m_AnomalyModel.get(), std::placeholders::_1));
     }
 }
 
@@ -1501,17 +1505,17 @@ CUnivariateTimeSeriesModel::CUnivariateTimeSeriesModel(const CUnivariateTimeSeri
                                     ? other.m_MultibucketFeatureModel->clone()
                                     : nullptr),
       m_AnomalyModel(!isForForecast && other.m_AnomalyModel != nullptr
-                         ? boost::make_unique<CTimeSeriesAnomalyModel>(*other.m_AnomalyModel)
+                         ? std::make_unique<CTimeSeriesAnomalyModel>(*other.m_AnomalyModel)
                          : nullptr),
       m_CandidateChangePoint(other.m_CandidateChangePoint),
       m_CurrentChangeInterval(other.m_CurrentChangeInterval),
-      m_ChangeDetector(
-          !isForForecast && other.m_ChangeDetector
-              ? boost::make_unique<CUnivariateTimeSeriesChangeDetector>(*other.m_ChangeDetector)
-              : nullptr),
+      m_ChangeDetector(!isForForecast && other.m_ChangeDetector
+                           ? std::make_unique<CUnivariateTimeSeriesChangeDetector>(
+                                 *other.m_ChangeDetector)
+                           : nullptr),
       m_Correlations(nullptr) {
     if (!isForForecast && other.m_Controllers != nullptr) {
-        m_Controllers = boost::make_unique<TDecayRateController2Ary>(*other.m_Controllers);
+        m_Controllers = std::make_unique<TDecayRateController2Ary>(*other.m_Controllers);
     }
 }
 
@@ -1532,7 +1536,7 @@ CUnivariateTimeSeriesModel::testAndApplyChange(const CModelAddSamplesParams& par
             m_CurrentChangeInterval += this->params().bucketLength();
             if (this->params().testForChange(m_CurrentChangeInterval)) {
                 LOG_TRACE(<< "Starting to test for change at " << time);
-                m_ChangeDetector = boost::make_unique<CUnivariateTimeSeriesChangeDetector>(
+                m_ChangeDetector = std::make_unique<CUnivariateTimeSeriesChangeDetector>(
                     m_TrendModel, m_ResidualModel, minimumTimeToDetect, maximumTimeToTest);
                 m_TrendModel->testingForChange(true);
                 m_CurrentChangeInterval = 0;
@@ -1569,14 +1573,17 @@ CUnivariateTimeSeriesModel::applyChange(const SChangeDescription& change) {
     newTrendModel->decayRate(m_TrendModel->decayRate());
     newResidualModel->decayRate(m_ResidualModel->decayRate());
 
-    TTimeFloatMeanAccumulatorPrVec window(m_TrendModel->windowValues());
-
-    m_TrendModel = newTrendModel;
-    if (m_TrendModel->applyChange(timeOfChangePoint, valueAtChangePoint, change)) {
-        this->reinitializeStateGivenNewComponent(window);
+    if (newTrendModel->applyChange(timeOfChangePoint, valueAtChangePoint, change)) {
+        TFloatMeanAccumulatorVec window(m_TrendModel->windowValues([this](core_t::TTime time) {
+            return CBasicStatistics::mean(m_TrendModel->value(time, 0.0));
+        }));
+        TSizeVec segmentation{CTimeSeriesSegmentation::piecewiseLinear(window)};
+        this->reinitializeStateGivenNewComponent(
+            CTimeSeriesSegmentation::removePiecewiseLinear(std::move(window), segmentation));
     } else {
         m_ResidualModel = newResidualModel;
     }
+    m_TrendModel = newTrendModel;
 
     return E_Success;
 }
@@ -1604,32 +1611,27 @@ CUnivariateTimeSeriesModel::updateTrend(const TTimeDouble2VecSizeTrVec& samples,
                              samples[rhs].first, samples[rhs].second);
                      });
 
-    // Maybe get a window of historical values with which to reinitialize
-    // the residual model if new components of the time series decomposition
-    // are identified.
-    TTimeFloatMeanAccumulatorPrVec window;
-    for (auto i : timeorder) {
-        if (m_TrendModel->mightAddComponents(samples[i].first)) {
-            window = m_TrendModel->windowValues();
-            break;
-        }
-    }
-
     // Do the update.
+
+    TFloatMeanAccumulatorVec window;
+    auto componentChangeCallback = [&window, &result](TFloatMeanAccumulatorVec window_) {
+        window = std::move(window_);
+        result = E_Reset;
+    };
     for (auto i : timeorder) {
         core_t::TTime time{samples[i].first};
         double value{samples[i].second[0]};
         TDoubleWeightsAry weight{unpack(weights[i])};
-        if (m_TrendModel->addPoint(time, value, weight)) {
-            result = E_Reset;
-        }
+        m_TrendModel->addPoint(time, value, weight, componentChangeCallback);
     }
 
     if (result == E_Reset) {
         if (window.empty()) {
-            window = m_TrendModel->windowValues();
+            window = m_TrendModel->windowValues([this](core_t::TTime time) {
+                return CBasicStatistics::mean(m_TrendModel->value(time, 0.0));
+            });
         }
-        this->reinitializeStateGivenNewComponent(window);
+        this->reinitializeStateGivenNewComponent(std::move(window));
     }
 
     return result;
@@ -1693,12 +1695,9 @@ void CUnivariateTimeSeriesModel::appendPredictionErrors(double interval,
     }
 }
 
-void CUnivariateTimeSeriesModel::reinitializeStateGivenNewComponent(
-    const TTimeFloatMeanAccumulatorPrVec& initialValues) {
-    using TFloatMeanAccumulatorVec = std::vector<TFloatMeanAccumulator>;
+void CUnivariateTimeSeriesModel::reinitializeStateGivenNewComponent(TFloatMeanAccumulatorVec residuals) {
 
     // Reinitialize the residual model with any values we've been given. We
-    // remove any trend we can fit accounting for step discontinuities and
     // re-weight so that the total sample weight corresponds to the sample
     // weight the model receives from a fixed (shortish) time interval.
 
@@ -1709,29 +1708,18 @@ void CUnivariateTimeSeriesModel::reinitializeStateGivenNewComponent(
         maths::CPrior::CModelFilter().remove(maths::CPrior::E_Poisson));
     m_ResidualModel->setToNonInformative(0.0, m_ResidualModel->decayRate());
 
-    if (initialValues.size() > 0) {
-        TFloatMeanAccumulatorVec samples;
-        samples.reserve(initialValues.size());
-        double totalWeight{0.0};
-
-        for (const auto& value : initialValues) {
-            CFloatStorage weight(CBasicStatistics::count(value.second));
-            samples.push_back(CBasicStatistics::momentsAccumulator(
-                weight, CFloatStorage(m_TrendModel->detrend(
-                            value.first, CBasicStatistics::mean(value.second), 0.0))));
-            totalWeight += weight;
-        }
-
-        TSizeVec segmentation{CTimeSeriesSegmentation::piecewiseLinear(samples)};
-        samples = CTimeSeriesSegmentation::removePiecewiseLinear(std::move(samples), segmentation);
-
+    if (residuals.size() > 0) {
+        double Z{std::accumulate(residuals.begin(), residuals.end(), 0.0,
+                                 [](double weight, const TFloatMeanAccumulator& sample) {
+                                     return weight + CBasicStatistics::count(sample);
+                                 })};
+        double weightScale{10.0 * std::max(this->params().learnRate(), 1.0) / Z};
         maths_t::TDoubleWeightsAry1Vec weights(1);
-        double weightScale{10.0 * std::max(this->params().learnRate(), 1.0) / totalWeight};
-        for (const auto& sample : samples) {
-            double weight(CBasicStatistics::count(sample));
+        for (const auto& residual : residuals) {
+            double weight(CBasicStatistics::count(residual));
             if (weight > 0.0) {
                 weights[0] = maths_t::countWeight(weightScale * weight);
-                m_ResidualModel->addSamples({CBasicStatistics::mean(sample)}, weights);
+                m_ResidualModel->addSamples({CBasicStatistics::mean(residual)}, weights);
             }
         }
     }
@@ -2036,14 +2024,15 @@ bool CTimeSeriesCorrelations::acceptRestoreTraverser(const SDistributionRestoreP
                                                      core::CStateRestoreTraverser& traverser) {
     do {
         const std::string& name{traverser.name()};
-        RESTORE(K_MOST_CORRELATED_TAG,
-                traverser.traverseSubLevel(boost::bind(
-                    &CKMostCorrelated::acceptRestoreTraverser, &m_Correlations, _1)))
+        RESTORE(K_MOST_CORRELATED_TAG, traverser.traverseSubLevel(std::bind(
+                                           &CKMostCorrelated::acceptRestoreTraverser,
+                                           &m_Correlations, std::placeholders::_1)))
         RESTORE(CORRELATED_LOOKUP_TAG,
                 core::CPersistUtils::restore(CORRELATED_LOOKUP_TAG, m_CorrelatedLookup, traverser))
         RESTORE(CORRELATION_MODELS_TAG,
-                traverser.traverseSubLevel(boost::bind(&CTimeSeriesCorrelations::restoreCorrelationModels,
-                                                       this, boost::cref(params), _1)))
+                traverser.traverseSubLevel(
+                    std::bind(&CTimeSeriesCorrelations::restoreCorrelationModels,
+                              this, std::cref(params), std::placeholders::_1)))
     } while (traverser.next());
     return true;
 }
@@ -2054,12 +2043,13 @@ void CTimeSeriesCorrelations::acceptPersistInserter(core::CStatePersistInserter&
     // maintained transitively during an update at the end of a bucket
     // and so always empty at the point persistence occurs.
 
-    inserter.insertLevel(K_MOST_CORRELATED_TAG, boost::bind(&CKMostCorrelated::acceptPersistInserter,
-                                                            &m_Correlations, _1));
+    inserter.insertLevel(K_MOST_CORRELATED_TAG,
+                         std::bind(&CKMostCorrelated::acceptPersistInserter,
+                                   &m_Correlations, std::placeholders::_1));
     core::CPersistUtils::persist(CORRELATED_LOOKUP_TAG, m_CorrelatedLookup, inserter);
-    inserter.insertLevel(
-        CORRELATION_MODELS_TAG,
-        boost::bind(&CTimeSeriesCorrelations::persistCorrelationModels, this, _1));
+    inserter.insertLevel(CORRELATION_MODELS_TAG,
+                         std::bind(&CTimeSeriesCorrelations::persistCorrelationModels,
+                                   this, std::placeholders::_1));
 }
 
 bool CTimeSeriesCorrelations::restoreCorrelationModels(const SDistributionRestoreParams& params,
@@ -2068,8 +2058,8 @@ bool CTimeSeriesCorrelations::restoreCorrelationModels(const SDistributionRestor
         const std::string& name{traverser.name()};
         RESTORE_SETUP_TEARDOWN(
             CORRELATION_MODEL_TAG, TSizeSizePrMultivariatePriorPtrDoublePrPr prior,
-            traverser.traverseSubLevel(boost::bind(&restore, boost::cref(params),
-                                                   boost::ref(prior), _1)),
+            traverser.traverseSubLevel(std::bind(
+                &restore, std::cref(params), std::ref(prior), std::placeholders::_1)),
             m_CorrelationDistributionModels.insert(std::move(prior)))
     } while (traverser.next());
     return true;
@@ -2088,7 +2078,7 @@ void CTimeSeriesCorrelations::persistCorrelationModels(core::CStatePersistInsert
               core::CFunctional::SDereference<COrderings::SFirstLess>());
     for (auto prior : ordered) {
         inserter.insertLevel(CORRELATION_MODEL_TAG,
-                             boost::bind(&persist, boost::cref(*prior), _1));
+                             std::bind(&persist, std::cref(*prior), std::placeholders::_1));
     }
 }
 
@@ -2099,9 +2089,10 @@ bool CTimeSeriesCorrelations::restore(const SDistributionRestoreParams& params,
         const std::string& name{traverser.name()};
         RESTORE_BUILT_IN(FIRST_CORRELATE_ID_TAG, model.first.first)
         RESTORE_BUILT_IN(SECOND_CORRELATE_ID_TAG, model.first.second)
-        RESTORE(CORRELATION_MODEL_TAG, traverser.traverseSubLevel(boost::bind<bool>(
-                                           CPriorStateSerialiser(), boost::cref(params),
-                                           boost::ref(model.second.first), _1)))
+        RESTORE(CORRELATION_MODEL_TAG,
+                traverser.traverseSubLevel(std::bind<bool>(
+                    CPriorStateSerialiser(), std::cref(params),
+                    std::ref(model.second.first), std::placeholders::_1)))
         RESTORE_BUILT_IN(CORRELATION_TAG, model.second.second)
 
     } while (traverser.next());
@@ -2113,8 +2104,9 @@ void CTimeSeriesCorrelations::persist(const TConstSizeSizePrMultivariatePriorPtr
     inserter.insertValue(FIRST_CORRELATE_ID_TAG, model.first.first);
     inserter.insertValue(SECOND_CORRELATE_ID_TAG, model.first.second);
     inserter.insertLevel(CORRELATION_MODEL_TAG,
-                         boost::bind<void>(CPriorStateSerialiser(),
-                                           boost::cref(*model.second.first), _1));
+                         std::bind<void>(CPriorStateSerialiser(),
+                                         std::cref(*model.second.first),
+                                         std::placeholders::_1));
     inserter.insertValue(CORRELATION_TAG, model.second.second, core::CIEEE754::E_SinglePrecision);
 }
 
@@ -2246,12 +2238,12 @@ CMultivariateTimeSeriesModel::CMultivariateTimeSeriesModel(
       m_MultibucketFeature(multibucketFeature != nullptr ? multibucketFeature->clone()
                                                          : nullptr),
       m_MultibucketFeatureModel(multibucketFeature != nullptr ? residualModel.clone() : nullptr),
-      m_AnomalyModel(modelAnomalies ? boost::make_unique<CTimeSeriesAnomalyModel>(
+      m_AnomalyModel(modelAnomalies ? std::make_unique<CTimeSeriesAnomalyModel>(
                                           params.bucketLength(),
                                           params.decayRate())
                                     : nullptr) {
     if (controllers) {
-        m_Controllers = boost::make_unique<TDecayRateController2Ary>(*controllers);
+        m_Controllers = std::make_unique<TDecayRateController2Ary>(*controllers);
     }
     for (std::size_t d = 0u; d < this->dimension(); ++d) {
         m_TrendModel.emplace_back(trend.clone());
@@ -2268,10 +2260,10 @@ CMultivariateTimeSeriesModel::CMultivariateTimeSeriesModel(const CMultivariateTi
                                     ? other.m_MultibucketFeatureModel->clone()
                                     : nullptr),
       m_AnomalyModel(other.m_AnomalyModel != nullptr
-                         ? boost::make_unique<CTimeSeriesAnomalyModel>(*other.m_AnomalyModel)
+                         ? std::make_unique<CTimeSeriesAnomalyModel>(*other.m_AnomalyModel)
                          : nullptr) {
     if (other.m_Controllers) {
-        m_Controllers = boost::make_unique<TDecayRateController2Ary>(*other.m_Controllers);
+        m_Controllers = std::make_unique<TDecayRateController2Ary>(*other.m_Controllers);
     }
     m_TrendModel.reserve(other.m_TrendModel.size());
     for (const auto& trend : other.m_TrendModel) {
@@ -2282,8 +2274,8 @@ CMultivariateTimeSeriesModel::CMultivariateTimeSeriesModel(const CMultivariateTi
 CMultivariateTimeSeriesModel::CMultivariateTimeSeriesModel(const SModelRestoreParams& params,
                                                            core::CStateRestoreTraverser& traverser)
     : CModel(params.s_Params) {
-    traverser.traverseSubLevel(boost::bind(&CMultivariateTimeSeriesModel::acceptRestoreTraverser,
-                                           this, boost::cref(params), _1));
+    traverser.traverseSubLevel(std::bind(&CMultivariateTimeSeriesModel::acceptRestoreTraverser,
+                                         this, std::cref(params), std::placeholders::_1));
 }
 
 CMultivariateTimeSeriesModel::~CMultivariateTimeSeriesModel() {
@@ -2794,34 +2786,33 @@ bool CMultivariateTimeSeriesModel::acceptRestoreTraverser(const SModelRestorePar
             RESTORE_BOOL(IS_NON_NEGATIVE_6_3_TAG, m_IsNonNegative)
             RESTORE_SETUP_TEARDOWN(
                 CONTROLLER_6_3_TAG,
-                m_Controllers = boost::make_unique<TDecayRateController2Ary>(),
+                m_Controllers = std::make_unique<TDecayRateController2Ary>(),
                 core::CPersistUtils::restore(CONTROLLER_6_3_TAG, *m_Controllers, traverser),
                 /**/)
             RESTORE_SETUP_TEARDOWN(
                 TREND_MODEL_6_3_TAG, m_TrendModel.push_back(TDecompositionPtr()),
-                traverser.traverseSubLevel(
-                    boost::bind<bool>(CTimeSeriesDecompositionStateSerialiser(),
-                                      boost::cref(params.s_DecompositionParams),
-                                      boost::ref(m_TrendModel.back()), _1)),
+                traverser.traverseSubLevel(std::bind<bool>(
+                    CTimeSeriesDecompositionStateSerialiser(), std::cref(params.s_DecompositionParams),
+                    std::ref(m_TrendModel.back()), std::placeholders::_1)),
                 /**/)
             RESTORE(RESIDUAL_MODEL_6_3_TAG,
-                    traverser.traverseSubLevel(boost::bind<bool>(
-                        CPriorStateSerialiser(), boost::cref(params.s_DistributionParams),
-                        boost::ref(m_ResidualModel), _1)))
+                    traverser.traverseSubLevel(std::bind<bool>(
+                        CPriorStateSerialiser(), std::cref(params.s_DistributionParams),
+                        std::ref(m_ResidualModel), std::placeholders::_1)))
             RESTORE(MULTIBUCKET_FEATURE_6_3_TAG,
-                    traverser.traverseSubLevel(
-                        boost::bind<bool>(CTimeSeriesMultibucketFeatureSerialiser(),
-                                          boost::ref(m_MultibucketFeature), _1)))
+                    traverser.traverseSubLevel(std::bind<bool>(
+                        CTimeSeriesMultibucketFeatureSerialiser(),
+                        std::ref(m_MultibucketFeature), std::placeholders::_1)))
             RESTORE(MULTIBUCKET_FEATURE_MODEL_6_3_TAG,
-                    traverser.traverseSubLevel(boost::bind<bool>(
-                        CPriorStateSerialiser(), boost::cref(params.s_DistributionParams),
-                        boost::ref(m_MultibucketFeatureModel), _1)))
+                    traverser.traverseSubLevel(std::bind<bool>(
+                        CPriorStateSerialiser(), std::cref(params.s_DistributionParams),
+                        std::ref(m_MultibucketFeatureModel), std::placeholders::_1)))
             RESTORE_SETUP_TEARDOWN(
                 ANOMALY_MODEL_6_3_TAG,
-                m_AnomalyModel = boost::make_unique<CTimeSeriesAnomalyModel>(),
-                traverser.traverseSubLevel(
-                    boost::bind(&CTimeSeriesAnomalyModel::acceptRestoreTraverser,
-                                m_AnomalyModel.get(), boost::cref(params), _1)),
+                m_AnomalyModel = std::make_unique<CTimeSeriesAnomalyModel>(),
+                traverser.traverseSubLevel(std::bind(
+                    &CTimeSeriesAnomalyModel::acceptRestoreTraverser,
+                    m_AnomalyModel.get(), std::cref(params), std::placeholders::_1)),
                 /**/)
         }
     } else {
@@ -2830,26 +2821,25 @@ bool CMultivariateTimeSeriesModel::acceptRestoreTraverser(const SModelRestorePar
             RESTORE_BOOL(IS_NON_NEGATIVE_OLD_TAG, m_IsNonNegative)
             RESTORE_SETUP_TEARDOWN(
                 CONTROLLER_OLD_TAG,
-                m_Controllers = boost::make_unique<TDecayRateController2Ary>(),
+                m_Controllers = std::make_unique<TDecayRateController2Ary>(),
                 core::CPersistUtils::restore(CONTROLLER_6_3_TAG, *m_Controllers, traverser),
                 /**/)
             RESTORE_SETUP_TEARDOWN(
                 TREND_OLD_TAG, m_TrendModel.push_back(TDecompositionPtr()),
-                traverser.traverseSubLevel(
-                    boost::bind<bool>(CTimeSeriesDecompositionStateSerialiser(),
-                                      boost::cref(params.s_DecompositionParams),
-                                      boost::ref(m_TrendModel.back()), _1)),
+                traverser.traverseSubLevel(std::bind<bool>(
+                    CTimeSeriesDecompositionStateSerialiser(), std::cref(params.s_DecompositionParams),
+                    std::ref(m_TrendModel.back()), std::placeholders::_1)),
                 /**/)
-            RESTORE(PRIOR_OLD_TAG, traverser.traverseSubLevel(boost::bind<bool>(
-                                       CPriorStateSerialiser(),
-                                       boost::cref(params.s_DistributionParams),
-                                       boost::ref(m_ResidualModel), _1)))
+            RESTORE(PRIOR_OLD_TAG,
+                    traverser.traverseSubLevel(std::bind<bool>(
+                        CPriorStateSerialiser(), std::cref(params.s_DistributionParams),
+                        std::ref(m_ResidualModel), std::placeholders::_1)))
             RESTORE_SETUP_TEARDOWN(
                 ANOMALY_MODEL_OLD_TAG,
-                m_AnomalyModel = boost::make_unique<CTimeSeriesAnomalyModel>(),
-                traverser.traverseSubLevel(
-                    boost::bind(&CTimeSeriesAnomalyModel::acceptRestoreTraverser,
-                                m_AnomalyModel.get(), boost::cref(params), _1)),
+                m_AnomalyModel = std::make_unique<CTimeSeriesAnomalyModel>(),
+                traverser.traverseSubLevel(std::bind(
+                    &CTimeSeriesAnomalyModel::acceptRestoreTraverser,
+                    m_AnomalyModel.get(), std::cref(params), std::placeholders::_1)),
                 /**/)
         } while (traverser.next());
     }
@@ -2866,26 +2856,28 @@ void CMultivariateTimeSeriesModel::acceptPersistInserter(core::CStatePersistInse
     }
     for (const auto& trend : m_TrendModel) {
         inserter.insertLevel(TREND_MODEL_6_3_TAG,
-                             boost::bind<void>(CTimeSeriesDecompositionStateSerialiser(),
-                                               boost::cref(*trend), _1));
+                             std::bind<void>(CTimeSeriesDecompositionStateSerialiser(),
+                                             std::cref(*trend), std::placeholders::_1));
     }
     inserter.insertLevel(RESIDUAL_MODEL_6_3_TAG,
-                         boost::bind<void>(CPriorStateSerialiser(),
-                                           boost::cref(*m_ResidualModel), _1));
+                         std::bind<void>(CPriorStateSerialiser(), std::cref(*m_ResidualModel),
+                                         std::placeholders::_1));
     if (m_MultibucketFeature != nullptr) {
         inserter.insertLevel(MULTIBUCKET_FEATURE_6_3_TAG,
-                             boost::bind<void>(CTimeSeriesMultibucketFeatureSerialiser(),
-                                               boost::cref(m_MultibucketFeature), _1));
+                             std::bind<void>(CTimeSeriesMultibucketFeatureSerialiser(),
+                                             std::cref(m_MultibucketFeature),
+                                             std::placeholders::_1));
     }
     if (m_MultibucketFeatureModel != nullptr) {
         inserter.insertLevel(MULTIBUCKET_FEATURE_MODEL_6_3_TAG,
-                             boost::bind<void>(CPriorStateSerialiser{},
-                                               boost::cref(*m_MultibucketFeatureModel), _1));
+                             std::bind<void>(CPriorStateSerialiser{},
+                                             std::cref(*m_MultibucketFeatureModel),
+                                             std::placeholders::_1));
     }
     if (m_AnomalyModel != nullptr) {
         inserter.insertLevel(ANOMALY_MODEL_6_3_TAG,
-                             boost::bind(&CTimeSeriesAnomalyModel::acceptPersistInserter,
-                                         m_AnomalyModel.get(), _1));
+                             std::bind(&CTimeSeriesAnomalyModel::acceptPersistInserter,
+                                       m_AnomalyModel.get(), std::placeholders::_1));
     }
 }
 
@@ -2935,25 +2927,13 @@ CMultivariateTimeSeriesModel::updateTrend(const TTimeDouble2VecSizeTrVec& sample
                              samples[rhs].first, samples[rhs].second);
                      });
 
-    // Maybe get a window of historical values with which to reinitialize
-    // the residual model if new components of the time series decomposition
-    // are identified.
-    EUpdateResult result{E_Success};
-    TTimeFloatMeanAccumulatorPrVec10Vec window;
-    for (auto i : timeorder) {
-        core_t::TTime time{samples[i].first};
-        if (std::any_of(m_TrendModel.begin(), m_TrendModel.end(),
-                        [time](const TDecompositionPtr& model) {
-                            return model->mightAddComponents(time);
-                        })) {
-            for (std::size_t d = 0; d < dimension; ++d) {
-                window.push_back(m_TrendModel[d]->windowValues());
-            }
-            break;
-        }
-    }
-
     // Do the update.
+
+    EUpdateResult result;
+    auto componentChangeCallback = [&result](TFloatMeanAccumulatorVec) {
+        result = E_Reset;
+    };
+
     maths_t::TDoubleWeightsAry weight;
     for (auto i : timeorder) {
         core_t::TTime time{samples[i].first};
@@ -2962,19 +2942,18 @@ CMultivariateTimeSeriesModel::updateTrend(const TTimeDouble2VecSizeTrVec& sample
             for (std::size_t j = 0; j < maths_t::NUMBER_WEIGHT_STYLES; ++j) {
                 weight[j] = weights[i][j][d];
             }
-            if (m_TrendModel[d]->addPoint(time, value[d], weight)) {
-                result = E_Reset;
-            }
+            m_TrendModel[d]->addPoint(time, value[d], weight, componentChangeCallback);
         }
     }
 
     if (result == E_Reset) {
-        if (window.empty()) {
-            for (std::size_t d = 0; d < dimension; ++d) {
-                window.push_back(m_TrendModel[d]->windowValues());
-            }
+        TFloatMeanAccumulatorVec10Vec window(dimension);
+        for (std::size_t d = 0; d < dimension; ++d) {
+            window[d] = m_TrendModel[d]->windowValues([this, d](core_t::TTime time) {
+                return CBasicStatistics::mean(m_TrendModel[d]->value(time));
+            });
         }
-        this->reinitializeStateGivenNewComponent(window);
+        this->reinitializeStateGivenNewComponent(std::move(window));
     }
 
     return result;
@@ -3031,57 +3010,45 @@ void CMultivariateTimeSeriesModel::appendPredictionErrors(double interval,
     }
 }
 
-void CMultivariateTimeSeriesModel::reinitializeStateGivenNewComponent(
-    const TTimeFloatMeanAccumulatorPrVec10Vec& initialValues) {
+void CMultivariateTimeSeriesModel::reinitializeStateGivenNewComponent(TFloatMeanAccumulatorVec10Vec residuals) {
+
+    using TDoubleVec = std::vector<double>;
     using TDouble10VecVec = std::vector<TDouble10Vec>;
-    using TFloatMeanAccumulatorVec = std::vector<TFloatMeanAccumulator>;
 
     // Reinitialize the residual model with any values we've been given. We
-    // remove any trend we can fit accounting for step discontinuities and
     // re-weight so that the total sample weight corresponds to the sample
     // weight the model receives from a fixed (shortish) time interval.
 
     m_ResidualModel->setToNonInformative(0.0, m_ResidualModel->decayRate());
 
-    if (initialValues.size() > 0) {
+    if (residuals.size() > 0) {
         std::size_t dimension{this->dimension()};
 
         TDouble10VecVec samples;
-
+        TDoubleVec weights;
         for (std::size_t d = 0; d < dimension; ++d) {
-            TFloatMeanAccumulatorVec samplesForDimension;
-            samplesForDimension.reserve(initialValues[d].size());
+            TSizeVec segmentation{CTimeSeriesSegmentation::piecewiseLinear(residuals[d])};
+            residuals[d] = CTimeSeriesSegmentation::removePiecewiseLinear(
+                std::move(residuals[d]), segmentation);
 
-            for (const auto& value : initialValues[d]) {
-                samplesForDimension.push_back(CBasicStatistics::momentsAccumulator(
-                    CBasicStatistics::count(value.second),
-                    CFloatStorage(m_TrendModel[d]->detrend(
-                        value.first, CBasicStatistics::mean(value.second), 0.0))));
-            }
-
-            TSizeVec segmentation{CTimeSeriesSegmentation::piecewiseLinear(samplesForDimension)};
-            samplesForDimension = CTimeSeriesSegmentation::removePiecewiseLinear(
-                std::move(samplesForDimension), segmentation);
-
-            samplesForDimension.erase(
-                std::remove_if(samplesForDimension.begin(), samplesForDimension.end(),
-                               [](const TFloatMeanAccumulator& sample) {
-                                   return CBasicStatistics::count(sample) == 0.0;
-                               }),
-                samplesForDimension.end());
-
-            samples.resize(samplesForDimension.size(), TDouble10Vec(dimension));
-            for (std::size_t i = 0; i < samplesForDimension.size(); ++i) {
-                samples[i][d] = CBasicStatistics::mean(samplesForDimension[i]);
+            samples.resize(residuals[d].size(), TDouble10Vec(dimension));
+            weights.resize(residuals[d].size(), std::numeric_limits<double>::max());
+            for (std::size_t i = 0; i < residuals[d].size(); ++i) {
+                samples[i][d] = CBasicStatistics::mean(residuals[d][i]);
+                weights[i] = std::min(
+                    weights[i],
+                    static_cast<double>(CBasicStatistics::count(residuals[d][i])));
             }
         }
 
-        maths_t::TDouble10VecWeightsAry1Vec weight{
-            maths_t::countWeight(10.0 * std::max(this->params().learnRate(), 1.0) /
-                                     static_cast<double>(samples.size()),
-                                 dimension)};
-        for (const auto& sample : samples) {
-            m_ResidualModel->addSamples({sample}, weight);
+        double Z{std::accumulate(weights.begin(), weights.end(), 0.0)};
+        double weightScale{10.0 * std::max(this->params().learnRate(), 1.0) / Z};
+        maths_t::TDouble10VecWeightsAry1Vec weight(1);
+        for (std::size_t i = 0; i < samples.size(); ++i) {
+            if (weights[i] > 0.0) {
+                weight[0] = maths_t::countWeight(weightScale * weights[i], dimension);
+                m_ResidualModel->addSamples({samples[i]}, weight);
+            }
         }
     }
 

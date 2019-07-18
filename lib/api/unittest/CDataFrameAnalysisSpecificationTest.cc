@@ -9,14 +9,14 @@
 #include <core/CContainerPrinter.h>
 #include <core/CDataFrame.h>
 #include <core/CLogger.h>
-#include <core/CStopWatch.h>
 
 #include <api/CDataFrameAnalysisRunner.h>
 #include <api/CDataFrameAnalysisSpecification.h>
 #include <api/CDataFrameBoostedTreeRunner.h>
+#include <api/CDataFrameAnalysisSpecificationJsonWriter.h>
 #include <api/CDataFrameOutliersRunner.h>
 
-#include <test/CRandomNumbers.h>
+#include <test/CTestTmpDir.h>
 
 #include "CDataFrameMockAnalysisRunner.h"
 
@@ -90,11 +90,11 @@ void CDataFrameAnalysisSpecificationTest::testCreate() {
             result << "     \"name\": \"" << name << "\"";
         }
         if (parameters.size() > 0) {
-            result << ",\n     \"parameters\": " << parameters << "\n";
+            result << ",\n     \"parameters\": " << parameters << ",\n";
         } else {
-            result << "\n";
+            result << ",\n";
         }
-        result << "   }\n}";
+        result << "     \"disk_usage_allowed\": true \n}\n}";
         return result.str();
     };
 
@@ -321,15 +321,8 @@ void CDataFrameAnalysisSpecificationTest::testRunAnalysis() {
         return factories;
     };
 
-    std::string jsonSpec{"{\n"
-                         "  \"rows\": 100,\n"
-                         "  \"cols\": 10,\n"
-                         "  \"memory_limit\": 1000,\n"
-                         "  \"threads\": 1,\n"
-                         "  \"analysis\": {\n"
-                         "    \"name\": \"test\""
-                         "  }"
-                         "}"};
+    std::string jsonSpec = api::CDataFrameAnalysisSpecificationJsonWriter::jsonString(
+        100, 10, 1000, 1, true, test::CTestTmpDir::tmpDir(), "", "test", "");
 
     for (std::size_t i = 0; i < 10; ++i) {
         api::CDataFrameAnalysisSpecification spec{testFactory(), jsonSpec};
@@ -354,6 +347,59 @@ void CDataFrameAnalysisSpecificationTest::testRunAnalysis() {
     }
 }
 
+std::string
+CDataFrameAnalysisSpecificationTest::createSpecJsonForTempDirDiskUsageTest(bool tempDirPathSet,
+                                                                           bool diskUsageAllowed) {
+
+    std::string tempDir = tempDirPathSet ? test::CTestTmpDir::tmpDir() : "";
+    return api::CDataFrameAnalysisSpecificationJsonWriter::jsonString(
+        100, 3, 500000, 1, diskUsageAllowed, tempDir, "", "outlier_detection", "");
+}
+
+void CDataFrameAnalysisSpecificationTest::testTempDirDiskUsage() {
+
+    std::vector<std::string> errors;
+    std::mutex errorsMutex;
+    auto errorHandler = [&errors, &errorsMutex](std::string error) {
+        std::lock_guard<std::mutex> lock{errorsMutex};
+        errors.push_back(error);
+    };
+
+    core::CLogger::CScopeSetFatalErrorHandler scope{errorHandler};
+
+    // No temp dir given, disk usage allowed
+    {
+        errors.clear();
+        std::string jsonSpec{createSpecJsonForTempDirDiskUsageTest(false, true)};
+        api::CDataFrameAnalysisSpecification spec{jsonSpec};
+
+        // single error is registered that temp dir is empty
+        CPPUNIT_ASSERT_EQUAL(static_cast<std::size_t>(1), errors.size());
+        CPPUNIT_ASSERT(errors[0].find("Input error: temporary directory path should be explicitly set if disk usage is allowed!") !=
+                       std::string::npos);
+    }
+
+    // No temp dir given, no disk usage allowed
+    {
+        errors.clear();
+        std::string jsonSpec{createSpecJsonForTempDirDiskUsageTest(false, false)};
+        api::CDataFrameAnalysisSpecification spec{jsonSpec};
+
+        // no error should be registered
+        CPPUNIT_ASSERT_EQUAL(static_cast<std::size_t>(0), errors.size());
+    }
+
+    // Temp dir given and disk usage allowed
+    {
+        errors.clear();
+        std::string jsonSpec{createSpecJsonForTempDirDiskUsageTest(true, true)};
+        api::CDataFrameAnalysisSpecification spec{jsonSpec};
+
+        // no error should be registered
+        CPPUNIT_ASSERT_EQUAL(static_cast<std::size_t>(0), errors.size());
+    }
+}
+
 CppUnit::Test* CDataFrameAnalysisSpecificationTest::suite() {
     CppUnit::TestSuite* suiteOfTests =
         new CppUnit::TestSuite("CDataFrameAnalysisSpecificationTest");
@@ -364,6 +410,9 @@ CppUnit::Test* CDataFrameAnalysisSpecificationTest::suite() {
     suiteOfTests->addTest(new CppUnit::TestCaller<CDataFrameAnalysisSpecificationTest>(
         "CDataFrameAnalysisSpecificationTest::testRunAnalysis",
         &CDataFrameAnalysisSpecificationTest::testRunAnalysis));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CDataFrameAnalysisSpecificationTest>(
+        "CDataFrameAnalysisSpecificationTest::testTempDirDiskUsage",
+        &CDataFrameAnalysisSpecificationTest::testTempDirDiskUsage));
 
     return suiteOfTests;
 }

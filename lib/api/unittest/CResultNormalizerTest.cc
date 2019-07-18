@@ -15,8 +15,6 @@
 
 #include <rapidjson/document.h>
 
-#include <boost/bind.hpp>
-
 #include <fstream>
 #include <sstream>
 #include <string>
@@ -47,8 +45,8 @@ void CResultNormalizerTest::testInitNormalizerPartitioned() {
 
     std::ifstream inputStrm("testfiles/new_normalizerInput.csv");
     ml::api::CCsvInputParser inputParser(inputStrm, ml::api::CCsvInputParser::COMMA);
-    CPPUNIT_ASSERT(inputParser.readStreamIntoMaps(
-        boost::bind(&ml::api::CResultNormalizer::handleRecord, &normalizer, _1)));
+    CPPUNIT_ASSERT(inputParser.readStreamIntoMaps(std::bind(
+        &ml::api::CResultNormalizer::handleRecord, &normalizer, std::placeholders::_1)));
 
     std::string results(outputWriter.internalString());
     LOG_INFO(<< "Results:\n" << results);
@@ -402,8 +400,8 @@ void CResultNormalizerTest::testInitNormalizer() {
 
     std::ifstream inputStrm("testfiles/normalizerInput.csv");
     ml::api::CCsvInputParser inputParser(inputStrm, ml::api::CCsvInputParser::COMMA);
-    CPPUNIT_ASSERT(inputParser.readStreamIntoMaps(
-        boost::bind(&ml::api::CResultNormalizer::handleRecord, &normalizer, _1)));
+    CPPUNIT_ASSERT(inputParser.readStreamIntoMaps(std::bind(
+        &ml::api::CResultNormalizer::handleRecord, &normalizer, std::placeholders::_1)));
 
     std::string results(outputWriter.internalString());
     LOG_DEBUG(<< "Results:\n" << results);

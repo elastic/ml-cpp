@@ -40,7 +40,6 @@
 #include <api/CSingleStreamDataAdder.h>
 #include <api/CSingleStreamSearcher.h>
 
-#include <boost/bind.hpp>
 #include <boost/filesystem.hpp>
 #include <boost/program_options.hpp>
 
@@ -189,7 +188,7 @@ bool persistAnomalyDetectorStateToFile(const std::string& configFileName,
             bucketSize, ml::model_t::E_None, "", bucketSize * latencyBuckets, false);
 
     ml::api::CAnomalyJob origJob(jobId, limits, fieldConfig, modelConfig, wrappedOutputStream,
-                                 boost::bind(&reportPersistComplete, _1),
+                                 std::bind(&reportPersistComplete, std::placeholders::_1),
                                  nullptr, -1, "time", timeFormat);
 
     using TInputParserUPtr = std::unique_ptr<ml::api::CInputParser>;
@@ -200,8 +199,8 @@ bool persistAnomalyDetectorStateToFile(const std::string& configFileName,
         return std::make_unique<ml::api::CNdJsonInputParser>(inputStrm);
     }()};
 
-    if (!parser->readStreamIntoMaps(
-            boost::bind(&ml::api::CAnomalyJob::handleRecord, &origJob, _1))) {
+    if (!parser->readStreamIntoMaps(std::bind(&ml::api::CAnomalyJob::handleRecord,
+                                              &origJob, std::placeholders::_1))) {
         LOG_ERROR(<< "Failed to processs input");
         return false;
     }

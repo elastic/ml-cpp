@@ -102,7 +102,7 @@ void CLassoLogisticRegressionTest::testCyclicCoordinateDescent() {
         initializeMatrix(x_, x);
         TSizeSizePrDoublePrVec xs_;
         initializeMatrix(x_, xs_);
-        TDoubleVec y(boost::begin(y_), boost::end(y_));
+        TDoubleVec y(std::begin(y_), std::end(y_));
 
         TDoubleVec beta1;
         std::size_t numberIterations;

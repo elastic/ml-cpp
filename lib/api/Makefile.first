@@ -29,6 +29,7 @@ CCsvOutputWriter.cc \
 CDataFrameAnalysisConfigReader.cc \
 CDataFrameAnalysisRunner.cc \
 CDataFrameAnalysisSpecification.cc \
+CDataFrameAnalysisSpecificationJsonWriter.cc \
 CDataFrameAnalyzer.cc \
 CDataFrameBoostedTreeRunner.cc \
 CDataFrameOutliersRunner.cc \

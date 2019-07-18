@@ -1114,11 +1114,11 @@ void CHierarchicalResultsTest::testAggregator() {
         maths::COrderings::simultaneousSort(probabilities, scores);
         TDoubleVec expectedScores;
         TDoubleVec expectedProbabilities;
-        addAggregateValues(0.5, 0.5, 5, boost::begin(rp1), boost::end(rp1),
+        addAggregateValues(0.5, 0.5, 5, std::begin(rp1), std::end(rp1),
                            expectedScores, expectedProbabilities);
-        addAggregateValues(0.5, 0.5, 5, boost::begin(rp2), boost::end(rp2),
+        addAggregateValues(0.5, 0.5, 5, std::begin(rp2), std::end(rp2),
                            expectedScores, expectedProbabilities);
-        addAggregateValues(0.5, 0.5, 5, boost::begin(rp3), boost::end(rp3),
+        addAggregateValues(0.5, 0.5, 5, std::begin(rp3), std::end(rp3),
                            expectedScores, expectedProbabilities);
         maths::COrderings::simultaneousSort(expectedProbabilities, expectedScores);
         LOG_DEBUG(<< "expectedScores = " << core::CContainerPrinter::print(expectedScores));
@@ -1820,9 +1820,9 @@ void CHierarchicalResultsTest::testDetectorEqualizing() {
             core::CRapidXmlParser parser;
             CPPUNIT_ASSERT(parser.parseStringIgnoreCdata(origXml));
             core::CRapidXmlStateRestoreTraverser traverser(parser);
-            CPPUNIT_ASSERT(traverser.traverseSubLevel(boost::bind(
+            CPPUNIT_ASSERT(traverser.traverseSubLevel(std::bind(
                 &model::CHierarchicalResultsAggregator::acceptRestoreTraverser,
-                &restoredAggregator, _1)));
+                &restoredAggregator, std::placeholders::_1)));
         }
 
         // Checksums should agree.

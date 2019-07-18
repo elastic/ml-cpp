@@ -231,9 +231,9 @@ void CExpandingWindowTest::testPersistence() {
             core::CRapidXmlStateRestoreTraverser traverser(parser);
             maths::CExpandingWindow restoredWindow{
                 bucketLength, TTimeCRng{BUCKET_LENGTHS, 0, 4}, size, decayRate, compressed};
-            CPPUNIT_ASSERT_EQUAL(true, traverser.traverseSubLevel(boost::bind(
+            CPPUNIT_ASSERT_EQUAL(true, traverser.traverseSubLevel(std::bind(
                                            &maths::CExpandingWindow::acceptRestoreTraverser,
-                                           &restoredWindow, _1)));
+                                           &restoredWindow, std::placeholders::_1)));
 
             LOG_DEBUG(<< "orig checksum = " << origWindow.checksum()
                       << ", new checksum = " << restoredWindow.checksum());

@@ -190,7 +190,7 @@ std::size_t numberPriorSamples(double x) {
     static const double THRESHOLDS[] = {100.0, 1000.0, 10000.0,
                                         boost::numeric::bounds<double>::highest()};
     static const std::size_t NUMBERS[] = {7u, 5u, 3u, 1u};
-    return NUMBERS[std::lower_bound(boost::begin(THRESHOLDS), boost::end(THRESHOLDS), x) - boost::begin(THRESHOLDS)];
+    return NUMBERS[std::lower_bound(std::begin(THRESHOLDS), std::end(THRESHOLDS), x) - std::begin(THRESHOLDS)];
 }
 
 //! Generate \p numberSamples samples of a beta R.V. with alpha \p a
@@ -277,8 +277,8 @@ CMultinomialConjugate::CMultinomialConjugate(const SDistributionRestoreParams& p
                                              core::CStateRestoreTraverser& traverser)
     : CPrior(maths_t::E_DiscreteData, params.s_DecayRate),
       m_NumberAvailableCategories(0), m_TotalConcentration(0.0) {
-    traverser.traverseSubLevel(
-        boost::bind(&CMultinomialConjugate::acceptRestoreTraverser, this, _1));
+    traverser.traverseSubLevel(std::bind(&CMultinomialConjugate::acceptRestoreTraverser,
+                                         this, std::placeholders::_1));
 }
 
 bool CMultinomialConjugate::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {

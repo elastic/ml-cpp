@@ -346,7 +346,7 @@ bool CQuantileSketch::checkInvariants() const {
         LOG_ERROR(<< "Invalid unsorted count: " << m_Unsorted << "/" << m_Knots.size());
         return false;
     }
-    if (!boost::algorithm::is_sorted(m_Knots.begin(), m_Knots.end() - m_Unsorted)) {
+    if (!std::is_sorted(m_Knots.begin(), m_Knots.end() - m_Unsorted)) {
         LOG_ERROR(<< "Unordered knots: "
                   << core::CContainerPrinter::print(m_Knots.begin(), m_Knots.end() - m_Unsorted));
         return false;

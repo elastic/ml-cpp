@@ -47,7 +47,7 @@ namespace api {
 //! This class expects to call a persistence function taking
 //! just the data adder as an argument.  It's easy to wrap up
 //! extra data to be passed to a function that requires more by
-//! using a boost:bind.  boost::bind copies its arguments, which
+//! using a std::bind.  std::bind copies its arguments, which
 //! is generally what is required for access in a separate
 //! thread.  However, note that a couple of copies are made, so
 //! if the bound data is very large then binding a

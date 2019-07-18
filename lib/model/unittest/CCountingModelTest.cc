@@ -148,7 +148,7 @@ void CCountingModelTest::testCheckScheduledEvents() {
     events.push_back(makeScheduledEvent("long event", 400, 1000));
     events.push_back(makeScheduledEvent("masked event", 600, 800));
     events.push_back(makeScheduledEvent("overlapping event", 900, 1100));
-    params.s_ScheduledEvents = boost::cref(events);
+    params.s_ScheduledEvents = std::cref(events);
     auto interimBucketCorrector = std::make_shared<CInterimBucketCorrector>(bucketLength);
 
     CCountingModelFactory factory(params, interimBucketCorrector);
