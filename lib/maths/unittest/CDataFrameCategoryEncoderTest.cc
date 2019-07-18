@@ -54,7 +54,7 @@ void CDataFrameCategoryEncoderTest::testOneHotEncoding() {
 
         auto frame = core::makeMainStorageDataFrame(cols, 2 * rows).first;
 
-        frame->writeCategoricalColumns({true, false, false, false});
+        frame->categoricalColumns({true, false, false, false});
         for (std::size_t i = 0; i < rows; ++i) {
             frame->writeRow([&](core::CDataFrame::TFloatVecItr column, std::int32_t&) {
                 *(column++) = std::floor(features[0][i]);
@@ -130,7 +130,7 @@ void CDataFrameCategoryEncoderTest::testMeanValueEncoding() {
 
         TMeanAccumulatorVec expectedTargetMeanValues(static_cast<std::size_t>(numberCategories));
 
-        frame->writeCategoricalColumns({true, false, false, false});
+        frame->categoricalColumns({true, false, false, false});
         for (std::size_t i = 0; i < rows; ++i) {
             frame->writeRow([&](core::CDataFrame::TFloatVecItr column, std::int32_t&) {
                 *(column++) = std::floor(features[0][i]);
@@ -180,7 +180,7 @@ void CDataFrameCategoryEncoderTest::testEncodingRare() {
 
     TSizeVec categoryCounts(static_cast<std::size_t>(numberCategories), 0);
 
-    frame->writeCategoricalColumns({false, false, true, false});
+    frame->categoricalColumns({false, false, true, false});
     for (std::size_t i = 0; i < rows; ++i) {
         frame->writeRow([&](core::CDataFrame::TFloatVecItr column, std::int32_t&) {
             for (std::size_t j = 0; j + 2 < cols; ++j, ++column) {
@@ -238,7 +238,7 @@ void CDataFrameCategoryEncoderTest::testEncodedDataFrameRowRef() {
         TMeanAccumulatorVec(static_cast<std::size_t>(std::ceil(numberCategories))),
         TMeanAccumulatorVec(static_cast<std::size_t>(std::ceil(numberCategories)))};
 
-    frame->writeCategoricalColumns({true, false, false, true, false});
+    frame->categoricalColumns({true, false, false, true, false});
     for (std::size_t i = 0; i < rows; ++i) {
         frame->writeRow([&](core::CDataFrame::TFloatVecItr column, std::int32_t&) {
             *(column++) = std::floor(features[0][i]);

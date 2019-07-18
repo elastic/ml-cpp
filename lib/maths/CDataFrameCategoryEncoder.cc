@@ -159,7 +159,7 @@ bool CDataFrameCategoryEncoder::isOne(std::size_t index,
     // The ones are in the order the categories appear in m_OneHotEncodedCategories.
     // For example, if m_OneHotEncodedCategories[feature] = (2, 5, 7) for any other
     // category the encoded row will contain (...| 0 0 0 | ...). For 2, 5 and 7 it
-    // will contain (...| 1 0 0 | ...), (...| 0 1 0 | ...) and (...| 0 0 1 | ...),
+    // will contain (...| 1 0 0 |...), (...| 0 1 0 |...) and (...| 0 0 1 |...),
     // respectively.
     //
     // In the following we therefore 1) check to see if the category is being

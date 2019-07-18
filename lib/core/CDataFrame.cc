@@ -208,7 +208,7 @@ void CDataFrame::writeRow(const TWriteFunc& writeRow) {
     (*m_Writer)(writeRow);
 }
 
-void CDataFrame::writeCategoricalColumns(TBoolVec columnIsCategorical) {
+void CDataFrame::categoricalColumns(TBoolVec columnIsCategorical) {
     if (columnIsCategorical.size() != m_NumberColumns) {
         HANDLE_FATAL(<< "Internal error: expected '" << m_NumberColumns << "' is"
                      << "categorical column values but got "

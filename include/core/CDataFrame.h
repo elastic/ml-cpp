@@ -406,7 +406,7 @@ public:
     void writeRow(const TWriteFunc& writeRow);
 
     //! Write which columns contain categorical data.
-    void writeCategoricalColumns(TBoolVec columnIsCategorical);
+    void categoricalColumns(TBoolVec columnIsCategorical);
 
     //! This retrieves the asynchronous work from writing the rows to the store
     //! and updates the stored rows.
