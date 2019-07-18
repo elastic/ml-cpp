@@ -691,7 +691,7 @@ private:
     TPackedBitVectorVec m_TrainingRowMasks;
     TPackedBitVectorVec m_TestingRowMasks;
 
-    friend class CBoostedTreeBuilder;
+    friend class CBoostedTreeFactory;
 };
 }
 }

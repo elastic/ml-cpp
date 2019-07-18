@@ -122,13 +122,12 @@ public:
     using TLossFunctionUPtr = std::unique_ptr<boosted_tree::CLoss>;
 
 public:
-    CBoostedTree(std::size_t numberThreads, std::size_t dependentVariable, TLossFunctionUPtr loss);
     ~CBoostedTree() override;
-
     //! \name Parameter Setters
     //@{
     //! Set the number of folds to use for estimating the generalisation error.
     CBoostedTree& numberFolds(std::size_t folds);
+
     //! Set the lambda regularisation parameter.
     CBoostedTree& lambda(double lambda);
     //! Set the gamma regularisation parameter.
@@ -166,6 +165,7 @@ public:
     //! frame with \p numberRows row and \p numberColumns columns will use.
     std::size_t estimateMemoryUsage(std::size_t numberRows, std::size_t numberColumns) const;
 
+    CBoostedTree(std::size_t numberThreads, std::size_t dependentVariable, TLossFunctionUPtr loss);
 private:
 
     using TImplUPtr = std::unique_ptr<CBoostedTreeImpl>;
@@ -173,7 +173,7 @@ private:
 private:
     TImplUPtr m_Impl;
 
-    friend class CBoostedTreeBuilder;
+    friend class CBoostedTreeFactory;
 };
 }
 }

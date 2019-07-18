@@ -10,7 +10,7 @@
 
 #include <maths/CBasicStatistics.h>
 #include <maths/CBoostedTree.h>
-#include <maths/CBoostedTreeBuilder.h>
+#include <maths/CBoostedTreeFactory.h>
 
 #include <boost/filesystem.hpp>
 
@@ -81,8 +81,10 @@ auto predictionStatistics(test::CRandomNumbers& rng,
                 }
             });
 
-            std::unique_ptr<maths::CBoostedTree> regression = maths::CBoostedTreeBuilder(
-                1, cols - 1, std::make_unique<maths::boosted_tree::CMse>());
+            std::unique_ptr<maths::CBoostedTree> regression =
+                maths::CBoostedTreeFactory::constructFromParameters(
+                    1, cols - 1, std::make_unique<maths::boosted_tree::CMse>())
+                    .frame(*frame);
 
             regression->train(*frame);
             regression->predict(*frame);
@@ -345,17 +347,19 @@ void CBoostedTreeTest::testThreading() {
             }
         });
 
-        maths::CBoostedTree regression{
-            2, cols - 1, std::make_unique<maths::boosted_tree::CMse>()};
+        std::unique_ptr<maths::CBoostedTree> regression =
+            maths::CBoostedTreeFactory::constructFromParameters(
+                2, cols - 1, std::make_unique<maths::boosted_tree::CMse>())
+                .frame(*frame);
 
-        regression.train(*frame);
-        regression.predict(*frame);
+        regression->train(*frame);
+        regression->predict(*frame);
 
         TMeanVarAccumulator modelPredictionErrorMoments;
 
         frame->readRows(1, [&](TRowItr beginRows, TRowItr endRows) {
             for (auto row = beginRows; row != endRows; ++row) {
-                std::size_t index{regression.columnHoldingPrediction(row->numberColumns())};
+                std::size_t index{regression->columnHoldingPrediction(row->numberColumns())};
                 modelPredictionErrorMoments.add(f(*row) - (*row)[index]);
             }
         });
@@ -422,12 +426,14 @@ void CBoostedTreeTest::testConstantFeatures() {
         }
     });
 
-    maths::CBoostedTree regression{1, cols - 1,
-                                   std::make_unique<maths::boosted_tree::CMse>()};
+    std::unique_ptr<maths::CBoostedTree> regression =
+        maths::CBoostedTreeFactory::constructFromParameters(1, cols - 1,
+                                   std::make_unique<maths::boosted_tree::CMse>())
+            .frame(*frame);
 
-    regression.train(*frame);
+    regression->train(*frame);
 
-    TDoubleVec featureWeights(regression.featureWeights());
+    TDoubleVec featureWeights(regression->featureWeights());
 
     LOG_DEBUG(<< "feature weights = " << core::CContainerPrinter::print(featureWeights));
     CPPUNIT_ASSERT_EQUAL(0.0, featureWeights[cols - 2]);
@@ -464,16 +470,18 @@ void CBoostedTreeTest::testConstantObjective() {
         }
     });
 
-    maths::CBoostedTree regression{1, cols - 1,
-                                   std::make_unique<maths::boosted_tree::CMse>()};
+    std::unique_ptr<maths::CBoostedTree> regression =
+        maths::CBoostedTreeFactory::constructFromParameters(1, cols - 1,
+                                   std::make_unique<maths::boosted_tree::CMse>())
+            .frame(*frame);
 
-    regression.train(*frame);
+    regression->train(*frame);
 
     TMeanVarAccumulator modelPredictionErrorMoments;
 
     frame->readRows(1, [&](TRowItr beginRows, TRowItr endRows) {
         for (auto row = beginRows; row != endRows; ++row) {
-            std::size_t index{regression.columnHoldingPrediction(row->numberColumns())};
+            std::size_t index{regression->columnHoldingPrediction(row->numberColumns())};
             modelPredictionErrorMoments.add(1.0 - (*row)[index]);
         }
     });

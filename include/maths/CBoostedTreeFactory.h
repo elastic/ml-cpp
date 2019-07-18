@@ -11,8 +11,8 @@
 #include <core/CDataFrame.h>
 #include <core/CPackedBitVector.h>
 
-#include <maths/CBoostedTree.h>
 #include <maths/CBayesianOptimisation.h>
+#include <maths/CBoostedTree.h>
 
 #include <numeric>
 #include <sstream>
@@ -26,44 +26,44 @@ class CNode;
 class CBoostedTreeImpl;
 
 //! SimpleFactory for CBoostedTree object
-class CBoostedTreeBuilder final {
+class CBoostedTreeFactory final {
 public:
-//    using TPackedBitVectorVec = std::vector<core::CPackedBitVector>;
-//    using TNodeVec = std::vector<CNode>;
+    //    using TPackedBitVectorVec = std::vector<core::CPackedBitVector>;
+    //    using TNodeVec = std::vector<CNode>;
     using TCBoostedTreeUPtr = std::unique_ptr<CBoostedTree>;
 
 public:
-    CBoostedTreeBuilder(std::size_t numberThreads,
-                                          std::size_t dependentVariable,
-                                          CBoostedTree::TLossFunctionUPtr loss);
+
+    static CBoostedTreeFactory constructFromParameters(std::size_t numberThreads,
+                                                       std::size_t dependentVariable,
+                                                       CBoostedTree::TLossFunctionUPtr loss);
 
     //! Set the number of folds to use for estimating the generalisation error.
-    CBoostedTreeBuilder& numberFolds(std::size_t folds);
+    CBoostedTreeFactory& numberFolds(std::size_t folds);
     //! Set the lambda regularisation parameter.
-    CBoostedTreeBuilder& lambda(double lambda);
+    CBoostedTreeFactory& lambda(double lambda);
     //! Set the gamma regularisation parameter.
-    CBoostedTreeBuilder& gamma(double gamma);
+    CBoostedTreeFactory& gamma(double gamma);
     //! Set the amount we'll shrink the weights on each each iteration.
-    CBoostedTreeBuilder& eta(double eta);
+    CBoostedTreeFactory& eta(double eta);
     //! Set the maximum number of trees in the ensemble.
-    CBoostedTreeBuilder& maximumNumberTrees(std::size_t maximumNumberTrees);
+    CBoostedTreeFactory& maximumNumberTrees(std::size_t maximumNumberTrees);
     //! Set the fraction of features we'll use in the bag to build a tree.
-    CBoostedTreeBuilder& featureBagFraction(double featureBagFraction);
+    CBoostedTreeFactory& featureBagFraction(double featureBagFraction);
     //! Set the maximum number of optimisation rounds we'll use for hyperparameter
     //! optimisation per parameter.
-    CBoostedTreeBuilder& maximumOptimisationRoundsPerHyperparameter(std::size_t rounds);
+    CBoostedTreeFactory& maximumOptimisationRoundsPerHyperparameter(std::size_t rounds);
 
-    CBoostedTreeBuilder& progressCallback(CBoostedTree::TProgressCallback callback);
+    CBoostedTreeFactory& progressCallback(CBoostedTree::TProgressCallback callback);
 
-    CBoostedTreeBuilder& frame(core::CDataFrame& frame);
+    CBoostedTreeFactory& frame(core::CDataFrame& frame);
 
-    TCBoostedTreeUPtr build();
+    const CBoostedTree& incompleteTreeObject() const;
 
     operator TCBoostedTreeUPtr();
-    operator CBoostedTree&&();
+    operator CBoostedTree &&();
 
 private:
-
     using TDoubleVec = std::vector<double>;
     using TDoubleVecVec = std::vector<TDoubleVec>;
     using TSizeVec = std::vector<std::size_t>;
@@ -79,10 +79,16 @@ private:
     //    using TDoubleDoublePrVec = std::vector<std::pair<double, double>>;
 
 private:
+    CBoostedTreeFactory(std::size_t numberThreads,
+                        std::size_t dependentVariable,
+                        CBoostedTree::TLossFunctionUPtr loss);
+
+    TCBoostedTreeUPtr build();
+
+
     void initializeMissingFeatureMasks(const core::CDataFrame& frame);
 
-    std::pair<TPackedBitVectorVec, TPackedBitVectorVec>
-    crossValidationRowMasks() const;
+    std::pair<TPackedBitVectorVec, TPackedBitVectorVec> crossValidationRowMasks() const;
 
     //! Initialize the regressors sample distribution.
     void initializeFeatureSampleDistribution(const core::CDataFrame& frame);
@@ -92,7 +98,6 @@ private:
     //! overfit tree.
     void initializeHyperparameters(core::CDataFrame& frame,
                                    CBoostedTree::TProgressCallback recordProgress);
-
 
     CBayesianOptimisation::TDoubleDoublePrVec hyperparameterBoundingBox() const;
 

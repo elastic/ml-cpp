@@ -4,7 +4,7 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
-#include <maths/CBoostedTreeBuilder.h>
+#include <maths/CBoostedTreeFactory.h>
 
 #include <maths/CBayesianOptimisation.h>
 #include <maths/CBoostedTreeImpl.h>
@@ -14,7 +14,7 @@
 namespace ml {
 namespace maths {
 
-CBoostedTreeBuilder::TCBoostedTreeUPtr CBoostedTreeBuilder::build() {
+CBoostedTreeFactory::TCBoostedTreeUPtr CBoostedTreeFactory::build() {
     this->initializeMissingFeatureMasks(*m_Frame);
     std::tie(m_Tree->m_Impl->m_TrainingRowMasks,
              m_Tree->m_Impl->m_TestingRowMasks) = this->crossValidationRowMasks();
@@ -33,20 +33,19 @@ CBoostedTreeBuilder::TCBoostedTreeUPtr CBoostedTreeBuilder::build() {
     return std::move(m_Tree);
 }
 
-CBoostedTreeBuilder::operator TCBoostedTreeUPtr(){
-return std::move(this->build());
+CBoostedTreeFactory::operator TCBoostedTreeUPtr() {
+    return std::move(this->build());
 }
 
-
 //! Get the number of hyperparameter tuning rounds to use.
-std::size_t CBoostedTreeBuilder::numberHyperparameterTuningRounds() const {
+std::size_t CBoostedTreeFactory::numberHyperparameterTuningRounds() const {
     return std::max(this->m_Tree->m_Impl->m_MaximumOptimisationRoundsPerHyperparameter *
                         this->m_Tree->m_Impl->numberHyperparametersToTune(),
                     std::size_t{1});
 }
 
 //! Get the bounding box to use for hyperparameter optimisation.
-CBayesianOptimisation::TDoubleDoublePrVec CBoostedTreeBuilder::hyperparameterBoundingBox() const {
+CBayesianOptimisation::TDoubleDoublePrVec CBoostedTreeFactory::hyperparameterBoundingBox() const {
 
     // We need sensible bounds for the region we'll search for optimal values.
     // For all parameters where we have initial estimates we use bounds of the
@@ -80,7 +79,7 @@ CBayesianOptimisation::TDoubleDoublePrVec CBoostedTreeBuilder::hyperparameterBou
 }
 
 //! Setup the missing feature row masks.
-void CBoostedTreeBuilder::initializeMissingFeatureMasks(const core::CDataFrame& frame) {
+void CBoostedTreeFactory::initializeMissingFeatureMasks(const core::CDataFrame& frame) {
 
     m_Tree->m_Impl->m_MissingFeatureRowMasks.resize(frame.numberColumns());
 
@@ -107,7 +106,7 @@ void CBoostedTreeBuilder::initializeMissingFeatureMasks(const core::CDataFrame& 
 //! Get the row masks to use for the training and testing sets for k-fold
 //! cross validation estimates of the generalisation error.
 std::pair<CBoostedTreeImpl::TPackedBitVectorVec, CBoostedTreeImpl::TPackedBitVectorVec>
-CBoostedTreeBuilder::crossValidationRowMasks() const {
+CBoostedTreeFactory::crossValidationRowMasks() const {
 
     core::CPackedBitVector mask{
         ~m_Tree->m_Impl->m_MissingFeatureRowMasks[m_Tree->m_Impl->m_DependentVariable]};
@@ -137,7 +136,7 @@ CBoostedTreeBuilder::crossValidationRowMasks() const {
 }
 
 //! Initialize the regressors sample distribution.
-void CBoostedTreeBuilder::initializeFeatureSampleDistribution(const core::CDataFrame& frame) {
+void CBoostedTreeFactory::initializeFeatureSampleDistribution(const core::CDataFrame& frame) {
 
     // Exclude all constant features by zeroing their probabilities.
 
@@ -189,7 +188,7 @@ void CBoostedTreeBuilder::initializeFeatureSampleDistribution(const core::CDataF
 //! Read overrides for hyperparameters and if necessary estimate the initial
 //! values for \f$\lambda\f$ and \f$\gamma\f$ which match the gain from an
 //! overfit tree.
-void CBoostedTreeBuilder::initializeHyperparameters(core::CDataFrame& frame,
+void CBoostedTreeFactory::initializeHyperparameters(core::CDataFrame& frame,
                                                     CBoostedTree::TProgressCallback recordProgress) {
 
     m_Tree->m_Impl->m_Lambda = m_Tree->m_Impl->m_LambdaOverride.value_or(0.0);
@@ -273,60 +272,70 @@ void CBoostedTreeBuilder::initializeHyperparameters(core::CDataFrame& frame,
     }
 }
 
-CBoostedTreeBuilder::CBoostedTreeBuilder(std::size_t numberThreads,
+CBoostedTreeFactory CBoostedTreeFactory::constructFromParameters(std::size_t numberThreads,
+                                                    std::size_t dependentVariable,
+                                                    CBoostedTree::TLossFunctionUPtr loss) {
+    return {numberThreads, dependentVariable, std::move(loss)};
+}
+
+CBoostedTreeFactory::CBoostedTreeFactory(std::size_t numberThreads,
                                          std::size_t dependentVariable,
                                          CBoostedTree::TLossFunctionUPtr loss)
     : m_Tree{std::make_unique<CBoostedTree>(numberThreads, dependentVariable, std::move(loss))} {
 }
 
-CBoostedTreeBuilder& CBoostedTreeBuilder::numberFolds(std::size_t folds) {
+CBoostedTreeFactory& CBoostedTreeFactory::numberFolds(std::size_t folds) {
     this->m_Tree->m_Impl->numberFolds(folds);
     return *this;
 }
 
-CBoostedTreeBuilder& CBoostedTreeBuilder::lambda(double lambda) {
+CBoostedTreeFactory& CBoostedTreeFactory::lambda(double lambda) {
     this->m_Tree->m_Impl->lambda(lambda);
     return *this;
 }
 
-CBoostedTreeBuilder& CBoostedTreeBuilder::gamma(double gamma) {
+CBoostedTreeFactory& CBoostedTreeFactory::gamma(double gamma) {
     this->m_Tree->m_Impl->gamma(gamma);
     return *this;
 }
 
-CBoostedTreeBuilder& CBoostedTreeBuilder::eta(double eta) {
+CBoostedTreeFactory& CBoostedTreeFactory::eta(double eta) {
     this->m_Tree->m_Impl->eta(eta);
     return *this;
 }
 
-CBoostedTreeBuilder& CBoostedTreeBuilder::maximumNumberTrees(std::size_t maximumNumberTrees) {
+CBoostedTreeFactory& CBoostedTreeFactory::maximumNumberTrees(std::size_t maximumNumberTrees) {
     this->m_Tree->m_Impl->maximumNumberTrees(maximumNumberTrees);
     return *this;
 }
 
-CBoostedTreeBuilder& CBoostedTreeBuilder::featureBagFraction(double featureBagFraction) {
+CBoostedTreeFactory& CBoostedTreeFactory::featureBagFraction(double featureBagFraction) {
     this->m_Tree->m_Impl->featureBagFraction(featureBagFraction);
     return *this;
 }
 
-CBoostedTreeBuilder&
-CBoostedTreeBuilder::maximumOptimisationRoundsPerHyperparameter(std::size_t rounds) {
+CBoostedTreeFactory&
+CBoostedTreeFactory::maximumOptimisationRoundsPerHyperparameter(std::size_t rounds) {
     this->m_Tree->m_Impl->maximumOptimisationRoundsPerHyperparameter(rounds);
     return *this;
 }
 
-CBoostedTreeBuilder&
-CBoostedTreeBuilder::progressCallback(CBoostedTree::TProgressCallback callback) {
+CBoostedTreeFactory&
+CBoostedTreeFactory::progressCallback(CBoostedTree::TProgressCallback callback) {
     this->m_ProgressCallback = callback;
     return *this;
 }
 
-CBoostedTreeBuilder& CBoostedTreeBuilder::frame(core::CDataFrame& frame) {
+CBoostedTreeFactory& CBoostedTreeFactory::frame(core::CDataFrame& frame) {
     this->m_Frame = &frame;
     return *this;
 }
-CBoostedTreeBuilder::operator CBoostedTree&&() {
+CBoostedTreeFactory::operator CBoostedTree &&() {
     return std::move(*(this->build()));
+}
+
+const CBoostedTree& CBoostedTreeFactory::incompleteTreeObject() const{
+    return *m_Tree;
 }
 
 }
