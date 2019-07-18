@@ -209,11 +209,13 @@ void CDataFrameCategoryEncoder::hotOneEncode(std::size_t numberThreads,
     // selected so far. This would be very expensive since it requires training
     // a model on a subset of the features for each decision. Instead, we introduce
     // a single non-negative parameter lambda and the category MICe for each feature
-    // is scale by exp(-lambda x "count of categories one-hot encoded for feature").
+    // is scaled by exp(-lambda x "count of categories one-hot encoded for feature").
     // In the limit lambda is zero this amounts to simply choosing the metrics
-    // and categories to one-hot encode with highest MICe. In the limit lambda is
-    // large this amounts to choosing all metrics then the same count of categories
-    // (with the highest MICe) to one-hot encode for each categorical feature.
+    // and categories to one-hot encode that carry the most information about, i.e.
+    // have the highest MICe with, the target variable. In the limit lambda is large
+    // this amounts to choosing all the metrics and the same count of categories to
+    // one-hot encode for each categorical feature. In this case the MICe with the
+    // target is maximised independently for each categorical feature.
 
     using TDoubleSizeSizeTr = core::CTriple<double, std::size_t, std::size_t>;
     using TDoubleSizeSizeTrList = std::list<TDoubleSizeSizeTr>;
