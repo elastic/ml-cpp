@@ -61,8 +61,12 @@ bool CPersistenceManager::waitForIdle() {
     return m_BackgroundThread.waitForFinish();
 }
 
-void CPersistenceManager::persistInForeground(bool persistInForeground) {
-    m_PersistInForeground = persistInForeground;
+void CPersistenceManager::useBackgroundPersistence() {
+    m_PersistInForeground = false;
+}
+
+void CPersistenceManager::useForegroundPersistence() {
+    m_PersistInForeground = true;
 }
 
 bool CPersistenceManager::addPersistFunc(core::CDataAdder::TPersistFunc persistFunc) {

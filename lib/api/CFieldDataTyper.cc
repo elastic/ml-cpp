@@ -426,7 +426,7 @@ bool CFieldDataTyper::periodicPersistStateInBackground() {
         return false;
     }
 
-    m_PeriodicPersister->persistInForeground(false);
+    m_PeriodicPersister->useBackgroundPersistence();
 
     return true;
 }
@@ -446,7 +446,7 @@ bool CFieldDataTyper::periodicPersistStateInForeground() {
         return false;
     }
 
-    m_PeriodicPersister->persistInForeground(true);
+    m_PeriodicPersister->useForegroundPersistence();
 
     return true;
 }

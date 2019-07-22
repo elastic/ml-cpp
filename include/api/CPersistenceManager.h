@@ -91,7 +91,11 @@ public:
     //! complete
     bool waitForIdle();
 
-    void persistInForeground(bool persistInForeground);
+    //! Configure persistence to be performed in the background
+    void useBackgroundPersistence();
+
+    //! Configure persistence to be performed in the foreground
+    void useForegroundPersistence();
 
     //! Add a function to be called when persistence is started.
     //! This will be rejected if a background persistence is currently in

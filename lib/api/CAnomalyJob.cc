@@ -1061,7 +1061,7 @@ bool CAnomalyJob::backgroundPersistState() {
         return false;
     }
 
-    m_PeriodicPersister->persistInForeground(false);
+    m_PeriodicPersister->useBackgroundPersistence();
 
     return true;
 }
@@ -1210,7 +1210,7 @@ bool CAnomalyJob::periodicPersistStateInForeground() {
         return false;
     }
 
-    m_PeriodicPersister->persistInForeground(true);
+    m_PeriodicPersister->useForegroundPersistence();
 
     return true;
 }
