@@ -1090,15 +1090,15 @@ bool CAnomalyJob::runBackgroundPersist(TBackgroundPersistArgsPtr args,
 }
 
 bool CAnomalyJob::persistCopiedState(const std::string& descriptionPrefix,
-                               core_t::TTime time,
-                               const TKeyCRefAnomalyDetectorPtrPrVec& detectors,
-                               const model::CResourceMonitor::SResults& modelSizeStats,
-                               const model::CInterimBucketCorrector& interimBucketCorrector,
-                               const model::CHierarchicalResultsAggregator& aggregator,
-                               const std::string& normalizerState,
-                               core_t::TTime latestRecordTime,
-                               core_t::TTime lastResultsTime,
-                               core::CDataAdder& persister) {
+                                     core_t::TTime time,
+                                     const TKeyCRefAnomalyDetectorPtrPrVec& detectors,
+                                     const model::CResourceMonitor::SResults& modelSizeStats,
+                                     const model::CInterimBucketCorrector& interimBucketCorrector,
+                                     const model::CHierarchicalResultsAggregator& aggregator,
+                                     const std::string& normalizerState,
+                                     core_t::TTime latestRecordTime,
+                                     core_t::TTime lastResultsTime,
+                                     core::CDataAdder& persister) {
     // Persist state for each detector separately by streaming
     try {
         core::CStateCompressor compressor(persister);

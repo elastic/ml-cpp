@@ -255,14 +255,14 @@ private:
     //! Persist the detectors to a stream.
     bool persistCopiedState(const std::string& descriptionPrefix,
                             core_t::TTime time,
-                      const TKeyCRefAnomalyDetectorPtrPrVec& detectors,
-                      const model::CResourceMonitor::SResults& modelSizeStats,
-                      const model::CInterimBucketCorrector& interimBucketCorrector,
-                      const model::CHierarchicalResultsAggregator& aggregator,
-                      const std::string& normalizerState,
-                      core_t::TTime latestRecordTime,
-                      core_t::TTime lastResultsTime,
-                      core::CDataAdder& persister);
+                            const TKeyCRefAnomalyDetectorPtrPrVec& detectors,
+                            const model::CResourceMonitor::SResults& modelSizeStats,
+                            const model::CInterimBucketCorrector& interimBucketCorrector,
+                            const model::CHierarchicalResultsAggregator& aggregator,
+                            const std::string& normalizerState,
+                            core_t::TTime latestRecordTime,
+                            core_t::TTime lastResultsTime,
+                            core::CDataAdder& persister);
 
     //! Persist current state due to the periodic persistence being triggered.
     bool periodicPersistStateInBackground() override;
