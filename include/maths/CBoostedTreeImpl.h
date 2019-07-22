@@ -8,8 +8,9 @@
 #define INCLUDED_ml_maths_CBoostedTreeImpl_h
 
 #include <core/CContainerPrinter.h>
-#include <core/CDataFrame.h>
 #include <core/CPackedBitVector.h>
+#include <core/CDataFrame.h>
+#include <core/CLogger.h>
 
 #include <maths/CBasicStatistics.h>
 #include <maths/CBayesianOptimisation.h>
@@ -24,7 +25,8 @@
 #include <boost/operators.hpp>
 #include <boost/optional.hpp>
 
-#include "COutliers.h"
+#include <limits>
+#include <memory>
 #include <numeric>
 #include <sstream>
 #include <utility>

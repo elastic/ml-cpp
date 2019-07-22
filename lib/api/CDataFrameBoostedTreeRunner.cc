@@ -124,7 +124,7 @@ void CDataFrameBoostedTreeRunner::writeOneRow(const TStrVec&,
         writer.Double(row[m_BoostedTree->columnHoldingPrediction(row.numberColumns())]);
         writer.EndObject();
     } else {
-        LOG_ERROR("Boosted tree object was not completely created. Please report this error.")
+        HANDLE_FATAL(<< "Boosted tree object was not completely created. Please report this error.");
     }
 }
 
@@ -136,12 +136,12 @@ void CDataFrameBoostedTreeRunner::runImpl(core::CDataFrame& frame) {
 std::size_t CDataFrameBoostedTreeRunner::estimateBookkeepingMemoryUsage(
     std::size_t /*numberPartitions*/,
     std::size_t totalNumberRows,
-    std::size_t partitionNumberRows,
+    std::size_t /*partitionNumberRows*/,
     std::size_t numberColumns) const {
     return m_BoostedTree
-               ? m_BoostedTree->estimateMemoryUsage(partitionNumberRows, numberColumns)
+               ? m_BoostedTree->estimateMemoryUsage(totalNumberRows, numberColumns)
                : m_BoostedTreeFactory->incompleteTreeObject().estimateMemoryUsage(
-                     partitionNumberRows, numberColumns);
+            totalNumberRows, numberColumns);
 }
 
 const std::string& CDataFrameBoostedTreeRunnerFactory::name() const {

@@ -152,7 +152,6 @@ void CBoostedTreeImpl::maximumOptimisationRoundsPerHyperparameter(std::size_t ro
     m_MaximumOptimisationRoundsPerHyperparameter = rounds;
 }
 
-//! Train the model on the values in \p frame.
 void CBoostedTreeImpl::train(core::CDataFrame& frame,
                              CBoostedTree::TProgressCallback recordProgress) {
     LOG_TRACE(<< "Main training loop...");
@@ -184,9 +183,6 @@ void CBoostedTreeImpl::train(core::CDataFrame& frame,
         frame, core::CPackedBitVector{frame.numberRows(), true}, recordProgress);
 }
 
-//! Write the predictions of the best trained model to \p frame.
-//!
-//! \note Must be called only if a trained model is available.
 void CBoostedTreeImpl::predict(core::CDataFrame& frame,
                                CBoostedTree::TProgressCallback /*recordProgress*/) const {
     if (m_BestForestTestLoss == INF) {
@@ -208,17 +204,14 @@ void CBoostedTreeImpl::predict(core::CDataFrame& frame,
     }
 }
 
-//! Write this model to \p writer.
 void CBoostedTreeImpl::write(core::CRapidJsonConcurrentLineWriter& /*writer*/) const {
     // TODO
 }
 
-//! Get the number of columns training the model will add to the data frame.
 std::size_t CBoostedTreeImpl::numberExtraColumnsForTrain() const {
     return 3;
 }
 
-//! Get the feature sample probabilities.
 CBoostedTree::TDoubleVec CBoostedTreeImpl::featureWeights() const {
     return m_FeatureSampleProbabilities;
 }
@@ -240,8 +233,6 @@ std::size_t CBoostedTreeImpl::estimateMemoryUsage(std::size_t numberRows,
            hyperparametersMemoryUsage + leafNodeStatisticsMemoryUsage;
 }
 
-//! Compute the sum loss for the predictions from \p frame and the leaf
-//! count and squared weight sum from \p forest.
 CBoostedTreeImpl::TDoubleDoubleDoubleTr
 CBoostedTreeImpl::regularisedLoss(const core::CDataFrame& frame,
                                   const core::CPackedBitVector& trainingRowMask,
@@ -279,7 +270,6 @@ CBoostedTreeImpl::regularisedLoss(const core::CDataFrame& frame,
     return {loss, leafCount, sumSquareLeafWeights};
 }
 
-//! Train the forest and compute loss moments on each fold.
 CBoostedTreeImpl::TMeanVarAccumulator
 CBoostedTreeImpl::crossValidateForest(core::CDataFrame& frame,
                                       const TPackedBitVectorVec& trainingRowMasks,
@@ -298,8 +288,6 @@ CBoostedTreeImpl::crossValidateForest(core::CDataFrame& frame,
     return lossMoments;
 }
 
-//! Initialize the predictions and loss function derivatives for the masked
-//! rows in \p frame.
 CBoostedTreeImpl::TNodeVec CBoostedTreeImpl::initializePredictionsAndLossDerivatives(
     core::CDataFrame& frame,
     const core::CPackedBitVector& trainingRowMask) const {
@@ -321,7 +309,6 @@ CBoostedTreeImpl::TNodeVec CBoostedTreeImpl::initializePredictionsAndLossDerivat
     return tree;
 }
 
-//! Train one forest on the rows of \p frame in the mask \p trainingRowMask.
 CBoostedTreeImpl::TNodeVecVec
 CBoostedTreeImpl::trainForest(core::CDataFrame& frame,
                               const core::CPackedBitVector& trainingRowMask,
@@ -367,7 +354,6 @@ CBoostedTreeImpl::trainForest(core::CDataFrame& frame,
     return forest;
 }
 
-//! Get the candidate splits values for each feature.
 CBoostedTreeImpl::TDoubleVecVec
 CBoostedTreeImpl::candidateSplits(const core::CDataFrame& frame,
                                   const core::CPackedBitVector& trainingRowMask) const {
@@ -414,7 +400,6 @@ CBoostedTreeImpl::candidateSplits(const core::CDataFrame& frame,
     return result;
 }
 
-//! Train one tree on the rows of \p frame in the mask \p trainingRowMask.
 CBoostedTreeImpl::TNodeVec
 CBoostedTreeImpl::trainTree(core::CDataFrame& frame,
                             const core::CPackedBitVector& trainingRowMask,
@@ -490,13 +475,11 @@ CBoostedTreeImpl::trainTree(core::CDataFrame& frame,
     return tree;
 }
 
-//! Get the number of features to consider splitting on.
 std::size_t CBoostedTreeImpl::featureBagSize(const core::CDataFrame& frame) const {
     return static_cast<std::size_t>(std::max(
         std::ceil(m_FeatureBagFraction * static_cast<double>(numberFeatures(frame))), 1.0));
 }
 
-//! Sample the features according to their categorical distribution.
 CBoostedTreeImpl::TSizeVec CBoostedTreeImpl::featureBag(const core::CDataFrame& frame) const {
 
     std::size_t size{this->featureBagSize(frame)};
@@ -513,8 +496,6 @@ CBoostedTreeImpl::TSizeVec CBoostedTreeImpl::featureBag(const core::CDataFrame& 
     return sample;
 }
 
-//! Refresh the predictions and loss function derivatives for the masked
-//! rows in \p frame with predictions of \p tree.
 void CBoostedTreeImpl::refreshPredictionsAndLossDerivatives(core::CDataFrame& frame,
                                                             const core::CPackedBitVector& trainingRowMask,
                                                             double eta,
@@ -575,7 +556,6 @@ void CBoostedTreeImpl::refreshPredictionsAndLossDerivatives(core::CDataFrame& fr
     LOG_TRACE(<< "training set loss = " << loss);
 }
 
-//! Compute the mean of the loss function on the masked rows of \p frame.
 double CBoostedTreeImpl::meanLoss(const core::CDataFrame& frame,
                                   const core::CPackedBitVector& rowMask,
                                   const TNodeVecVec& forest) const {
@@ -603,7 +583,6 @@ double CBoostedTreeImpl::meanLoss(const core::CDataFrame& frame,
     return CBasicStatistics::mean(loss);
 }
 
-//! Get a column mask of the suitable regressor features.
 CBoostedTreeImpl::TSizeVec CBoostedTreeImpl::candidateFeatures() const {
     TSizeVec result;
     result.reserve(m_FeatureSampleProbabilities.size());
@@ -615,12 +594,10 @@ CBoostedTreeImpl::TSizeVec CBoostedTreeImpl::candidateFeatures() const {
     return result;
 }
 
-//! Get the root node of \p tree.
 const CBoostedTreeImpl::CNode& CBoostedTreeImpl::root(const CBoostedTreeImpl::TNodeVec& tree) {
     return tree[0];
 }
 
-//! Get the forest's prediction for \p row.
 double CBoostedTreeImpl::predictRow(const CBoostedTreeImpl::TRowRef& row,
                                     const CBoostedTreeImpl::TNodeVecVec& forest) {
     double result{0.0};
@@ -630,7 +607,6 @@ double CBoostedTreeImpl::predictRow(const CBoostedTreeImpl::TRowRef& row,
     return result;
 }
 
-//! Select the next hyperparameters for which to train a model.
 bool CBoostedTreeImpl::selectNextHyperparameters(const TMeanVarAccumulator& lossMoments,
                                                  CBayesianOptimisation& bopt) {
 
@@ -680,7 +656,6 @@ bool CBoostedTreeImpl::selectNextHyperparameters(const TMeanVarAccumulator& loss
     return true;
 }
 
-//! Capture the current hyperparameter values.
 void CBoostedTreeImpl::captureBestHyperparameters(const TMeanVarAccumulator& lossMoments) {
     // We capture the parameters with the lowest error at one standard
     // deviation above the mean. If the mean error improvement is marginal
@@ -694,7 +669,6 @@ void CBoostedTreeImpl::captureBestHyperparameters(const TMeanVarAccumulator& los
     }
 }
 
-//! Set the hyperparamaters from the best recorded.
 void CBoostedTreeImpl::restoreBestHyperparameters() {
     m_Lambda = m_BestHyperparameters.s_Lambda;
     m_Gamma = m_BestHyperparameters.s_Gamma;
@@ -707,24 +681,15 @@ void CBoostedTreeImpl::restoreBestHyperparameters() {
               << ", feature bag fraction* = " << m_FeatureBagFraction);
 }
 
-//! Get the number of hyperparameters to tune.
 std::size_t CBoostedTreeImpl::numberHyperparametersToTune() const {
     return (m_LambdaOverride ? 0 : 1) + (m_GammaOverride ? 0 : 1) +
            (m_EtaOverride ? 0 : 2) + (m_FeatureBagFractionOverride ? 0 : 1);
 }
 
-//! Get the maximum number of nodes to use in a tree.
-//!
-//! \note This number will only be used if the regularised loss says its
-//! a good idea.
 std::size_t CBoostedTreeImpl::maximumTreeSize(const core::CDataFrame& frame) const {
     return maximumTreeSize(frame.numberRows());
 }
 
-//! Get the maximum number of nodes to use in a tree.
-//!
-//! \note This number will only be used if the regularised loss says its
-//! a good idea.
 std::size_t CBoostedTreeImpl::maximumTreeSize(std::size_t numberRows) const {
     return static_cast<std::size_t>(std::ceil(
         m_MaximumTreeSizeFraction * std::sqrt(static_cast<double>(numberRows))));

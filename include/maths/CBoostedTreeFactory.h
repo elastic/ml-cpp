@@ -14,6 +14,7 @@
 #include <maths/CBayesianOptimisation.h>
 #include <maths/CBoostedTree.h>
 
+#include <memory>
 #include <numeric>
 #include <sstream>
 #include <utility>
@@ -28,7 +29,7 @@ class CBoostedTreeImpl;
 //! SimpleFactory for CBoostedTree object
 class CBoostedTreeFactory final {
 public:
-    using TCBoostedTreeUPtr = std::unique_ptr<CBoostedTree>;
+    using TBoostedTreeUPtr = std::unique_ptr<CBoostedTree>;
 
 public:
     //! Construct a boosted tree object from parameters
@@ -60,9 +61,8 @@ public:
     //! data frame reference was passed
     const CBoostedTree& incompleteTreeObject() const;
     //! implicit converter operator
-    operator TCBoostedTreeUPtr();
-    //! implicit converter operator
-    operator CBoostedTree &&();
+    operator TBoostedTreeUPtr();
+
 
 private:
     using TDoubleVec = std::vector<double>;
@@ -73,7 +73,7 @@ private:
     using TRowItr = core::CDataFrame::TRowItr;
     using TRowRef = core::CDataFrame::TRowRef;
     // use raw pointer since CDataFrame has copy constructor deleted
-    using TCDataFramePtr = core::CDataFrame*;
+    using TDataFramePtr = core::CDataFrame*;
     using TPackedBitVectorVec = std::vector<core::CPackedBitVector>;
     using TNodeVec = std::vector<CNode>;
 
@@ -82,7 +82,7 @@ private:
                         std::size_t dependentVariable,
                         CBoostedTree::TLossFunctionUPtr loss);
 
-    TCBoostedTreeUPtr build();
+    TBoostedTreeUPtr build();
 
     void initializeMissingFeatureMasks(const core::CDataFrame& frame);
 
@@ -103,8 +103,8 @@ private:
     std::size_t numberHyperparameterTuningRounds() const;
 
 private:
-    TCBoostedTreeUPtr m_Tree;
-    TCDataFramePtr m_Frame;
+    TBoostedTreeUPtr m_Tree;
+    TDataFramePtr m_Frame;
     CBoostedTree::TProgressCallback m_ProgressCallback;
 };
 }

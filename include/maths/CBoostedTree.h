@@ -123,27 +123,7 @@ public:
     CBoostedTree(std::size_t numberThreads, std::size_t dependentVariable, TLossFunctionUPtr loss);
     ~CBoostedTree() override;
 
-    //! \name Parameter Setters
-    //@{
-    //! Set the number of folds to use for estimating the generalisation error.
-    CBoostedTree& numberFolds(std::size_t folds);
 
-    //! Set the lambda regularisation parameter.
-    CBoostedTree& lambda(double lambda);
-    //! Set the gamma regularisation parameter.
-    CBoostedTree& gamma(double gamma);
-    //! Set the amount we'll shrink the weights on each each iteration.
-    CBoostedTree& eta(double eta);
-    //! Set the maximum number of trees in the ensemble.
-    CBoostedTree& maximumNumberTrees(std::size_t maximumNumberTrees);
-    //! Set the number of rows required per regressor feature.
-    CBoostedTree& rowsPerFeature(std::size_t rowsPerFeature);
-    //! Set the fraction of features we'll use in the bag to build a tree.
-    CBoostedTree& featureBagFraction(double featureBagFraction);
-    //! Set the maximum number of optimisation rounds we'll use for hyperparameter
-    //! optimisation per parameter.
-    CBoostedTree& maximumOptimisationRoundsPerHyperparameter(std::size_t rounds);
-    //@}
 
     //! Train the model on the values in \p frame.
     void train(core::CDataFrame& frame, TProgressCallback recordProgress = noop) override;
@@ -169,6 +149,28 @@ public:
 
 private:
     using TImplUPtr = std::unique_ptr<CBoostedTreeImpl>;
+    
+private:
+    //! \name Parameter Setters
+    //@{
+    //! Set the number of folds to use for estimating the generalisation error.
+    CBoostedTree& numberFolds(std::size_t folds);
+    //! Set the lambda regularisation parameter.
+    CBoostedTree& lambda(double lambda);
+    //! Set the gamma regularisation parameter.
+    CBoostedTree& gamma(double gamma);
+    //! Set the amount we'll shrink the weights on each each iteration.
+    CBoostedTree& eta(double eta);
+    //! Set the maximum number of trees in the ensemble.
+    CBoostedTree& maximumNumberTrees(std::size_t maximumNumberTrees);
+    //! Set the number of rows required per regressor feature.
+    CBoostedTree& rowsPerFeature(std::size_t rowsPerFeature);
+    //! Set the fraction of features we'll use in the bag to build a tree.
+    CBoostedTree& featureBagFraction(double featureBagFraction);
+    //! Set the maximum number of optimisation rounds we'll use for hyperparameter
+    //! optimisation per parameter.
+    CBoostedTree& maximumOptimisationRoundsPerHyperparameter(std::size_t rounds);
+    //@}
 
 private:
     TImplUPtr m_Impl;

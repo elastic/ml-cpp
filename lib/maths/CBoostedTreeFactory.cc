@@ -12,7 +12,7 @@
 namespace ml {
 namespace maths {
 
-CBoostedTreeFactory::TCBoostedTreeUPtr CBoostedTreeFactory::build() {
+CBoostedTreeFactory::TBoostedTreeUPtr CBoostedTreeFactory::build() {
     this->initializeMissingFeatureMasks(*m_Frame);
     std::tie(m_Tree->m_Impl->m_TrainingRowMasks,
              m_Tree->m_Impl->m_TestingRowMasks) = this->crossValidationRowMasks();
@@ -31,18 +31,16 @@ CBoostedTreeFactory::TCBoostedTreeUPtr CBoostedTreeFactory::build() {
     return std::move(m_Tree);
 }
 
-CBoostedTreeFactory::operator TCBoostedTreeUPtr() {
+CBoostedTreeFactory::operator TBoostedTreeUPtr() {
     return std::move(this->build());
 }
 
-//! Get the number of hyperparameter tuning rounds to use.
 std::size_t CBoostedTreeFactory::numberHyperparameterTuningRounds() const {
     return std::max(this->m_Tree->m_Impl->m_MaximumOptimisationRoundsPerHyperparameter *
                         this->m_Tree->m_Impl->numberHyperparametersToTune(),
                     std::size_t{1});
 }
 
-//! Get the bounding box to use for hyperparameter optimisation.
 CBayesianOptimisation::TDoubleDoublePrVec CBoostedTreeFactory::hyperparameterBoundingBox() const {
 
     // We need sensible bounds for the region we'll search for optimal values.
@@ -76,7 +74,6 @@ CBayesianOptimisation::TDoubleDoublePrVec CBoostedTreeFactory::hyperparameterBou
     return result;
 }
 
-//! Setup the missing feature row masks.
 void CBoostedTreeFactory::initializeMissingFeatureMasks(const core::CDataFrame& frame) {
 
     m_Tree->m_Impl->m_MissingFeatureRowMasks.resize(frame.numberColumns());
@@ -101,8 +98,6 @@ void CBoostedTreeFactory::initializeMissingFeatureMasks(const core::CDataFrame& 
     }
 }
 
-//! Get the row masks to use for the training and testing sets for k-fold
-//! cross validation estimates of the generalisation error.
 std::pair<CBoostedTreeImpl::TPackedBitVectorVec, CBoostedTreeImpl::TPackedBitVectorVec>
 CBoostedTreeFactory::crossValidationRowMasks() const {
 
@@ -133,7 +128,6 @@ CBoostedTreeFactory::crossValidationRowMasks() const {
     return {trainingRowMasks, testingRowMasks};
 }
 
-//! Initialize the regressors sample distribution.
 void CBoostedTreeFactory::initializeFeatureSampleDistribution(const core::CDataFrame& frame) {
 
     // Exclude all constant features by zeroing their probabilities.
@@ -183,9 +177,6 @@ void CBoostedTreeFactory::initializeFeatureSampleDistribution(const core::CDataF
               << core::CContainerPrinter::print(m_Tree->m_Impl->m_FeatureSampleProbabilities));
 }
 
-//! Read overrides for hyperparameters and if necessary estimate the initial
-//! values for \f$\lambda\f$ and \f$\gamma\f$ which match the gain from an
-//! overfit tree.
 void CBoostedTreeFactory::initializeHyperparameters(core::CDataFrame& frame,
                                                     CBoostedTree::TProgressCallback recordProgress) {
 
@@ -328,9 +319,6 @@ CBoostedTreeFactory::progressCallback(CBoostedTree::TProgressCallback callback) 
 CBoostedTreeFactory& CBoostedTreeFactory::frame(core::CDataFrame& frame) {
     this->m_Frame = &frame;
     return *this;
-}
-CBoostedTreeFactory::operator CBoostedTree &&() {
-    return std::move(*(this->build()));
 }
 
 const CBoostedTree& CBoostedTreeFactory::incompleteTreeObject() const {
