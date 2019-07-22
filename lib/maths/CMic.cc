@@ -22,7 +22,6 @@ namespace {
 const std::size_t X{0};
 const std::size_t Y{1};
 const double INF{std::numeric_limits<double>::max()};
-const double EPS{std::numeric_limits<double>::epsilon()};
 }
 
 void CMic::reserve(std::size_t n) {
@@ -199,15 +198,17 @@ CMic::TDoubleVec CMic::equipartitionAxis(std::size_t variable, std::size_t l) co
     std::size_t desired{std::max((m_Samples.size() + l - 1) / l, std::size_t{1})};
     LOG_TRACE(<< "l = " << l << ", desired bucket size = " << desired);
 
-    for (std::size_t i = desired; i < m_Order[variable].size(); i += desired) {
+    for (std::size_t i = desired; i + desired / 2 < m_Samples.size(); i += desired) {
         std::size_t variableIthOrderStatisticIndex{m_Order[variable][i]};
         partitionBoundaries.push_back(m_Samples[variableIthOrderStatisticIndex](variable));
     }
+    std::size_t variableMaximumIndex{m_Order[variable].back()};
+    double max{m_Samples[variableMaximumIndex](variable)};
+    partitionBoundaries.push_back(max);
+
     partitionBoundaries.erase(
         std::unique(partitionBoundaries.begin(), partitionBoundaries.end()),
         partitionBoundaries.end());
-    double max{m_Samples[m_Order[variable].back()](variable)};
-    partitionBoundaries.push_back(max == 0.0 ? EPS : (1.0 + std::copysign(EPS, max)) * max);
 
     return partitionBoundaries;
 }
@@ -234,8 +235,8 @@ CMic::TDoubleVec CMic::optimizeXAxis(const TDoubleVec& q, std::size_t l, std::si
     // Compute grid cell and row and column probabilities.
     TVectorXdVec cump(ck, TVectorXd{l});
     for (const auto& sample : m_Samples) {
-        std::ptrdiff_t i{std::upper_bound(pi.begin(), pi.end(), sample(X)) - pi.begin()};
-        std::ptrdiff_t j{std::upper_bound(q.begin(), q.end(), sample(Y)) - q.begin()};
+        std::ptrdiff_t i{std::lower_bound(pi.begin(), pi.end(), sample(X)) - pi.begin()};
+        std::ptrdiff_t j{std::lower_bound(q.begin(), q.end(), sample(Y)) - q.begin()};
         cump[i](j) += w;
     }
 

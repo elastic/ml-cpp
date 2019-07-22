@@ -215,7 +215,7 @@ void CDataFrameCategoryEncoderTest::testEncodedDataFrameRowRef() {
             static_cast<std::size_t>(std::min(features[0][row], 2.0)),
             static_cast<std::size_t>(std::min(features[3][row], 2.0))};
         return categoryValue[0][categories[0]] + categoryValue[1][categories[1]] +
-               1.5 * features[1][row] - 5.3 * features[2][row];
+               1.8 * features[1][row] - 5.3 * features[2][row];
     };
 
     test::CRandomNumbers rng;
