@@ -249,11 +249,12 @@ private:
     //! main processing when background persistence is triggered.
     bool runBackgroundPersist(TBackgroundPersistArgsPtr args, core::CDataAdder& persister);
 
+    //! This function is called from the persistence manager when foreground persistence is triggered
     bool runForegroundPersist(core::CDataAdder& persister);
 
     //! Persist the detectors to a stream.
-    bool persistState(const std::string& descriptionPrefix,
-                      core_t::TTime time,
+    bool persistCopiedState(const std::string& descriptionPrefix,
+                            core_t::TTime time,
                       const TKeyCRefAnomalyDetectorPtrPrVec& detectors,
                       const model::CResourceMonitor::SResults& modelSizeStats,
                       const model::CInterimBucketCorrector& interimBucketCorrector,

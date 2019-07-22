@@ -1002,7 +1002,7 @@ bool CAnomalyJob::persistState(core::CDataAdder& persister, const std::string& d
     // also must ensure that foreground persistence has access to an up-to-date cache of counters as well.
     core::CProgramCounters::cacheCounters();
 
-    return this->persistState(
+    return this->persistCopiedState(
         descriptionPrefix, m_LastFinalisedBucketEndTime, detectors,
         m_Limits.resourceMonitor().createMemoryUsageReport(
             m_LastFinalisedBucketEndTime - m_ModelConfig.bucketLength()),
@@ -1082,15 +1082,15 @@ bool CAnomalyJob::runBackgroundPersist(TBackgroundPersistArgsPtr args,
         return false;
     }
 
-    return this->persistState("Periodic background persist at ", args->s_Time,
-                              args->s_Detectors, args->s_ModelSizeStats,
-                              args->s_InterimBucketCorrector, args->s_Aggregator,
-                              args->s_NormalizerState, args->s_LatestRecordTime,
-                              args->s_LastResultsTime, persister);
+    return this->persistCopiedState(
+        "Periodic background persist at ", args->s_Time, args->s_Detectors,
+        args->s_ModelSizeStats, args->s_InterimBucketCorrector,
+        args->s_Aggregator, args->s_NormalizerState, args->s_LatestRecordTime,
+        args->s_LastResultsTime, persister);
 }
 
-bool CAnomalyJob::persistState(const std::string& descriptionPrefix,
-                               core_t::TTime lastFinalisedBucketEnd,
+bool CAnomalyJob::persistCopiedState(const std::string& descriptionPrefix,
+                               core_t::TTime time,
                                const TKeyCRefAnomalyDetectorPtrPrVec& detectors,
                                const model::CResourceMonitor::SResults& modelSizeStats,
                                const model::CInterimBucketCorrector& interimBucketCorrector,
@@ -1116,7 +1116,7 @@ bool CAnomalyJob::persistState(const std::string& descriptionPrefix,
             {
                 // The JSON inserter must be destructed before the stream is complete
                 core::CJsonStatePersistInserter inserter(*strm);
-                inserter.insertValue(TIME_TAG, lastFinalisedBucketEnd);
+                inserter.insertValue(TIME_TAG, time);
                 inserter.insertValue(VERSION_TAG, model::CAnomalyDetector::STATE_VERSION);
                 inserter.insertLevel(
                     INTERIM_BUCKET_CORRECTOR_TAG,
@@ -1161,7 +1161,7 @@ bool CAnomalyJob::persistState(const std::string& descriptionPrefix,
                     // This needs to be the last final result time as it serves
                     // as the time after which all results are deleted when a
                     // model snapshot is reverted
-                    lastFinalisedBucketEnd - m_ModelConfig.bucketLength()};
+                    time - m_ModelConfig.bucketLength()};
 
                 m_PersistCompleteFunc(modelSnapshotReport);
             }

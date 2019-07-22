@@ -188,12 +188,11 @@ bool CPersistenceManager::startPersist(core_t::TTime timeOfPersistence) {
         return false;
     }
 
-    auto firstProcessorPeriodicPersistFunc = [&]() {
-        return m_PersistInForeground ? m_FirstProcessorForegroundPeriodicPersistFunc
-                                     : m_FirstProcessorBackgroundPeriodicPersistFunc;
-    };
+    const auto& firstProcessorPeriodicPersistFunc =
+        m_PersistInForeground ? m_FirstProcessorForegroundPeriodicPersistFunc
+                              : m_FirstProcessorBackgroundPeriodicPersistFunc;
 
-    bool persistSetupOk = firstProcessorPeriodicPersistFunc()(*this);
+    bool persistSetupOk = firstProcessorPeriodicPersistFunc(*this);
     if (!persistSetupOk) {
         LOG_ERROR(<< "Failed to create persistence functions");
         // It's possible that some functions were added before the failure, so
