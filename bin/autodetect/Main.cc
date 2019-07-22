@@ -109,6 +109,7 @@ int main(int argc, char** argv) {
     bool isRestoreFileNamedPipe(false);
     std::string persistFileName;
     bool isPersistFileNamedPipe(false);
+    bool isPersistInForeground(false);
     size_t maxAnomalyRecords(100u);
     bool memoryUsage(false);
     bool multivariateByFields(false);
@@ -116,10 +117,11 @@ int main(int argc, char** argv) {
     if (ml::autodetect::CCmdLineParser::parse(
             argc, argv, limitConfigFile, modelConfigFile, fieldConfigFile,
             modelPlotConfigFile, jobId, logProperties, logPipe, bucketSpan, latency,
-            summaryCountFieldName, delimiter, lengthEncodedInput, timeField, timeFormat,
-            quantilesStateFile, deleteStateFiles, persistInterval, bucketPersistInterval,
-            maxQuantileInterval, inputFileName, isInputFileNamedPipe, outputFileName,
-            isOutputFileNamedPipe, restoreFileName, isRestoreFileNamedPipe, persistFileName,
+            summaryCountFieldName, delimiter, lengthEncodedInput, timeField,
+            timeFormat, quantilesStateFile, deleteStateFiles, persistInterval,
+            bucketPersistInterval, maxQuantileInterval, inputFileName,
+            isInputFileNamedPipe, outputFileName, isOutputFileNamedPipe,
+            restoreFileName, isRestoreFileNamedPipe, persistFileName,
             isPersistFileNamedPipe, isPersistInForeground, maxAnomalyRecords,
             memoryUsage, multivariateByFields, clauseTokens) == false) {
         return EXIT_FAILURE;
@@ -220,7 +222,8 @@ int main(int argc, char** argv) {
 
     using TPersistenceManagerUPtr = std::unique_ptr<ml::api::CPersistenceManager>;
     const TPersistenceManagerUPtr periodicPersister{
-        [persistInterval, isPersistInForeground, &persister]() -> TPersistenceManagerUPtr {
+        [persistInterval, isPersistInForeground, &persister,
+         &bucketPersistInterval]() -> TPersistenceManagerUPtr {
             if (persistInterval >= 0 || bucketPersistInterval > 0) {
                 return std::make_unique<ml::api::CPersistenceManager>(
                     persistInterval, isPersistInForeground, *persister, bucketPersistInterval);

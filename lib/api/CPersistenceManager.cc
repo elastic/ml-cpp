@@ -22,25 +22,24 @@ const std::size_t PERSIST_BUCKET_INCREMENT{10};
 }
 
 CPersistenceManager::CPersistenceManager(core_t::TTime periodicPersistInterval,
-                                         std::size_t bucketPersistInterval,
                                          bool persistInForeground,
-                                         core::CDataAdder& dataAdder
-                                         )
-    : CPersistenceManager(periodicPersistInterval, bucketPersistInterval, persistInForeground, dataAdder, dataAdder) {
+                                         core::CDataAdder& dataAdder,
+                                         std::size_t bucketPersistInterval)
+    : CPersistenceManager(periodicPersistInterval, persistInForeground, dataAdder, dataAdder, bucketPersistInterval) {
 }
 
 CPersistenceManager::CPersistenceManager(core_t::TTime periodicPersistInterval,
-                                         std::size_t bucketPersistInterval,
                                          bool persistInForeground,
                                          core::CDataAdder& bgDataAdder,
-                                         core::CDataAdder& fgDataAdder)
+                                         core::CDataAdder& fgDataAdder,
+                                         std::size_t bucketPersistInterval)
     : m_PeriodicPersistInterval(periodicPersistInterval),
       m_PersistInForeground(persistInForeground),
       m_LastPeriodicPersistTime(core::CTimeUtils::now()),
       m_BucketPersistInterval(bucketPersistInterval),
       m_NumberBucketsUntilNextPersist(m_BucketPersistInterval),
-      m_BgDataAdder(bgDataAdder), m_FgDataAdder(fgDataAdder), m_IsBusy(false), m_IsShutdown(false),
-      m_BackgroundThread(*this) {
+      m_BgDataAdder(bgDataAdder), m_FgDataAdder(fgDataAdder), m_IsBusy(false),
+      m_IsShutdown(false), m_BackgroundThread(*this) {
     if (m_BucketPersistInterval == 0 && m_PeriodicPersistInterval < PERSIST_INTERVAL_INCREMENT) {
         // This may be dynamically increased further depending on how long
         // persistence takes
