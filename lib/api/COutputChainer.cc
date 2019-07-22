@@ -107,12 +107,13 @@ bool COutputChainer::restoreState(core::CDataSearcher& restoreSearcher,
     return m_DataProcessor.restoreState(restoreSearcher, completeToTime);
 }
 
-bool COutputChainer::persistState(core::CDataAdder& persister) {
-    return m_DataProcessor.persistState(persister);
+bool COutputChainer::persistState(core::CDataAdder& persister,
+                                  const std::string& descriptionPrefix) {
+    return m_DataProcessor.persistState(persister, descriptionPrefix);
 }
 
-bool COutputChainer::periodicPersistState(CBackgroundPersister& persister) {
-    return m_DataProcessor.periodicPersistState(persister);
+bool COutputChainer::periodicPersistStateInBackground() {
+    return m_DataProcessor.periodicPersistStateInBackground();
 }
 
 bool COutputChainer::isPersistenceNeeded(const std::string& description) const {

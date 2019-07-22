@@ -34,6 +34,7 @@ bool CCmdLineParser::parse(int argc,
                            bool& isRestoreFileNamedPipe,
                            std::string& persistFileName,
                            bool& isPersistFileNamedPipe,
+                           bool& isPersistInForeground,
                            std::string& categorizationFieldName) {
     try {
         boost::program_options::options_description desc(DESCRIPTION);
@@ -67,6 +68,7 @@ bool CCmdLineParser::parse(int argc,
             ("persistIsPipe", "Specified persist file is a named pipe")
             ("persistInterval", boost::program_options::value<core_t::TTime>(),
                         "Optional interval at which to periodically persist model state - if not specified then models will only be persisted at program exit")
+            ("persistInForeground", "Persistence occurs in the foreground. Defaults to background persistence.")
             ("categorizationfield", boost::program_options::value<std::string>(),
                         "Field to compute mlcategory from")
         ;
@@ -129,6 +131,9 @@ bool CCmdLineParser::parse(int argc,
         }
         if (vm.count("persistIsPipe") > 0) {
             isPersistFileNamedPipe = true;
+        }
+        if (vm.count("persistInForeground") > 0) {
+            isPersistInForeground = true;
         }
         if (vm.count("categorizationfield") > 0) {
             categorizationFieldName = vm["categorizationfield"].as<std::string>();
