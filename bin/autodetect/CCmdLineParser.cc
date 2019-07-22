@@ -49,6 +49,7 @@ bool CCmdLineParser::parse(int argc,
                            bool& isRestoreFileNamedPipe,
                            std::string& persistFileName,
                            bool& isPersistFileNamedPipe,
+                           bool& isPersistInForeground,
                            size_t& maxAnomalyRecords,
                            bool& memoryUsage,
                            bool& multivariateByFields,
@@ -105,6 +106,7 @@ bool CCmdLineParser::parse(int argc,
             ("persistIsPipe", "Specified persist file is a named pipe")
             ("persistInterval", boost::program_options::value<core_t::TTime>(),
                         "Optional time interval at which to periodically persist model state (Mutually exclusive with bucketPersistInterval)")
+            ("persistInForeground", "Persistence occurs in the foreground. Defaults to background persistence.")
             ("bucketPersistInterval", boost::program_options::value<std::size_t>(),
                         "Optional number of buckets after which to periodically persist model state (Mutually exclusive with persistInterval)")
             ("maxQuantileInterval", boost::program_options::value<core_t::TTime>(),
@@ -227,6 +229,9 @@ bool CCmdLineParser::parse(int argc,
         }
         if (vm.count("persistIsPipe") > 0) {
             isPersistFileNamedPipe = true;
+        }
+        if (vm.count("persistInForeground") > 0) {
+            isPersistInForeground = true;
         }
         if (vm.count("maxAnomalyRecords") > 0) {
             maxAnomalyRecords = vm["maxAnomalyRecords"].as<size_t>();

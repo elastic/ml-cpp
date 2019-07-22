@@ -66,9 +66,10 @@ bool CMockDataProcessor::restoreState(ml::core::CDataSearcher& restoreSearcher,
     return true;
 }
 
-bool CMockDataProcessor::persistState(ml::core::CDataAdder& persister) {
+bool CMockDataProcessor::persistState(ml::core::CDataAdder& persister,
+                                      const std::string& descriptionPrefix) {
     // Pass on the request in case we're chained
-    if (m_OutputHandler.persistState(persister) == false) {
+    if (m_OutputHandler.persistState(persister, descriptionPrefix) == false) {
         return false;
     }
 

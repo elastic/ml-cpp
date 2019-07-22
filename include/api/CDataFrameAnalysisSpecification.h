@@ -50,7 +50,19 @@ public:
     using TRunnerFactoryUPtrVec = std::vector<TRunnerFactoryUPtr>;
 
 public:
-    //! Inititialize from a JSON object.
+    static const std::string ROWS;
+    static const std::string COLS;
+    static const std::string MEMORY_LIMIT;
+    static const std::string THREADS;
+    static const std::string TEMPORARY_DIRECTORY;
+    static const std::string RESULTS_FIELD;
+    static const std::string ANALYSIS;
+    static const std::string NAME;
+    static const std::string PARAMETERS;
+    static const std::string DISK_USAGE_ALLOWED;
+
+public:
+    //! Initialize from a JSON object.
     //!
     //! The specification has the following expected form:
     //! <CODE>
@@ -61,6 +73,7 @@ public:
     //!   "threads": <integer>,
     //!   "temp_dir": <string>,
     //!   "results_field": <string>,
+    //!   "disk_usage_allowed": <boolean>,
     //!   "analysis": {
     //!     "name": <string>,
     //!     "parameters": <object>
@@ -109,6 +122,10 @@ public:
     //! \return The name of the results field.
     const std::string& resultsField() const;
 
+    //! \return If it is allowed to overflow data frame to the disk if it doesn't
+    //! fit in memory.
+    bool diskUsageAllowed() const;
+
     //! Make a data frame suitable for this analysis specification.
     //!
     //! This chooses the storage strategy based on the analysis constraints and
@@ -139,6 +156,7 @@ private:
     std::size_t m_NumberThreads = 0;
     std::string m_TemporaryDirectory;
     std::string m_ResultsField;
+    bool m_DiskUsageAllowed;
     // TODO Sparse table support
     // double m_TableLoadFactor = 0.0;
     TRunnerFactoryUPtrVec m_RunnerFactories;

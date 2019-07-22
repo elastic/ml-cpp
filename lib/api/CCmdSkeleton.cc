@@ -61,7 +61,7 @@ bool CCmdSkeleton::persistState() {
     }
 
     // Attempt to persist state
-    if (m_Processor.persistState(*m_Persister) == false) {
+    if (m_Processor.persistState(*m_Persister, "State persisted due to job close at ") == false) {
         LOG_FATAL(<< "Failed to persist state");
         return false;
     }
