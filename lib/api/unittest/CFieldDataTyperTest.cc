@@ -153,7 +153,7 @@ void CFieldDataTyperTest::testAll() {
     std::string origJson;
     {
         CTestDataAdder adder;
-        typer.persistState(adder);
+        typer.persistState(adder, "");
         std::ostringstream& ss = dynamic_cast<std::ostringstream&>(*adder.getStream());
         origJson = ss.str();
     }
@@ -174,7 +174,7 @@ void CFieldDataTyperTest::testAll() {
         newTyper.restoreState(restorer, time);
 
         CTestDataAdder adder;
-        newTyper.persistState(adder);
+        newTyper.persistState(adder, "");
         std::ostringstream& ss = dynamic_cast<std::ostringstream&>(*adder.getStream());
         newJson = ss.str();
     }

@@ -49,7 +49,12 @@ std::string CDataProcessor::debugPrintRecord(const TStrStrUMap& dataRowFields) {
     return result.str();
 }
 
-bool CDataProcessor::periodicPersistState(CBackgroundPersister& /*persister*/) {
+bool CDataProcessor::periodicPersistStateInBackground() {
+    // No-op
+    return true;
+}
+
+bool CDataProcessor::periodicPersistStateInForeground() {
     // No-op
     return true;
 }

@@ -196,6 +196,7 @@ The use of the words SHOULD, MUST etc., comply with RFC 2119.
 1.  Lambdas SHOULD be used in preference to any form of `bind`
 1.  Default lambda capture modes SHOULD be avoided
 1.  The `override` keyword SHOULD be used consistently within a source file
+1.  The `virtual` keyword SHOULD NOT be used in conjunction with `override`
 1.  Type aliases MUST be used in preference to typedefs - use `using` to create a type alias not `typedef`
 1.  Rvalue references SHOULD only be used in the following cases
     1.  For implementing move semantics

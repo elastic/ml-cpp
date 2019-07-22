@@ -36,12 +36,13 @@ bool COutputHandler::restoreState(core::CDataSearcher& /* restoreSearcher */,
     return true;
 }
 
-bool COutputHandler::persistState(core::CDataAdder& /* persister */) {
+bool COutputHandler::persistState(core::CDataAdder& /* persister */,
+                                  const std::string& /*descriptionPrefix*/) {
     // NOOP unless overridden
     return true;
 }
 
-bool COutputHandler::periodicPersistState(CBackgroundPersister& /* persister */) {
+bool COutputHandler::periodicPersistStateInBackground() {
     // NOOP unless overridden
     return true;
 }
