@@ -18,7 +18,6 @@ all: build
 
 SRCS= \
 CAnomalyJob.cc \
-CBackgroundPersister.cc \
 CBaseTokenListDataTyper.cc \
 CBenchMarker.cc \
 CCategoryExamplesCollector.cc \
@@ -52,6 +51,7 @@ CNdJsonOutputWriter.cc \
 CNullOutput.cc \
 COutputChainer.cc \
 COutputHandler.cc \
+CPersistenceManager.cc \
 CResultNormalizer.cc \
 CSingleStreamDataAdder.cc \
 CSingleStreamSearcher.cc \

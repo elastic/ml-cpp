@@ -21,7 +21,6 @@ SRCS=\
 	Main.cc \
 	CAnomalyJobLimitTest.cc \
 	CAnomalyJobTest.cc \
-	CBackgroundPersisterTest.cc \
 	CBaseTokenListDataTyperTest.cc \
 	CCategoryExamplesCollectorTest.cc \
 	CConfigUpdaterTest.cc \
@@ -47,6 +46,7 @@ SRCS=\
 	CNdJsonInputParserTest.cc \
 	CNdJsonOutputWriterTest.cc \
 	COutputChainerTest.cc \
+	CPersistenceManagerTest.cc \
 	CRestorePreviousStateTest.cc \
 	CResultNormalizerTest.cc \
 	CSingleStreamDataAdderTest.cc \

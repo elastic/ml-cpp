@@ -3,14 +3,14 @@
  * or more contributor license agreements. Licensed under the Elastic License;
  * you may not use this file except in compliance with the Elastic License.
  */
-#ifndef INCLUDED_CBackgroundPersisterTest_h
-#define INCLUDED_CBackgroundPersisterTest_h
+#ifndef INCLUDED_CPersistenceManagerTest_h
+#define INCLUDED_CPersistenceManagerTest_h
 
 #include <cppunit/extensions/HelperMacros.h>
 
 #include <string>
 
-class CBackgroundPersisterTest : public CppUnit::TestFixture {
+class CPersistenceManagerTest : public CppUnit::TestFixture {
 public:
     void testDetectorPersistBy();
     void testDetectorPersistOver();
@@ -25,4 +25,4 @@ private:
     void foregroundBackgroundCompAnomalyDetectionAfterStaticsUpdate(const std::string& configFileName);
 };
 
-#endif // INCLUDED_CBackgroundPersisterTest_h
+#endif // INCLUDED_CPersistenceManagerTest_h

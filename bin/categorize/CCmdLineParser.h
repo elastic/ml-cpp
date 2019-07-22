@@ -45,6 +45,7 @@ public:
                       bool& isRestoreFileNamedPipe,
                       std::string& persistFileName,
                       bool& isPersistFileNamedPipe,
+                      bool& isPersistInForeground,
                       std::string& categorizationFieldName);
 
 private:

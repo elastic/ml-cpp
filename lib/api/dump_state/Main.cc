@@ -124,7 +124,7 @@ bool writeNormalizerState(const std::string& outputFileName) {
 }
 
 bool persistCategorizerStateToFile(const std::string& outputFileName) {
-    ml::model::CLimits limits;
+    ml::model::CLimits limits(true);
     ml::api::CFieldConfig config("count", "mlcategory");
 
     std::ofstream outStream(ml::core::COsFileFuncs::NULL_FILENAME);
@@ -149,7 +149,7 @@ bool persistCategorizerStateToFile(const std::string& outputFileName) {
         }
 
         ml::api::CSingleStreamDataAdder persister(ptr);
-        if (!typer.persistState(persister)) {
+        if (!typer.persistState(persister, "State persisted due to job close at ")) {
             LOG_ERROR(<< "Error persisting state to " << outputFileName);
             return false;
         }
@@ -174,7 +174,7 @@ bool persistAnomalyDetectorStateToFile(const std::string& configFileName,
 
     ml::core::CJsonOutputStreamWrapper wrappedOutputStream(outputStrm);
 
-    ml::model::CLimits limits;
+    ml::model::CLimits limits(true);
     ml::api::CFieldConfig fieldConfig;
     if (!fieldConfig.initFromFile(configFileName)) {
         LOG_ERROR(<< "Failed to init field config from " << configFileName);
@@ -215,7 +215,7 @@ bool persistAnomalyDetectorStateToFile(const std::string& configFileName,
         }
 
         ml::api::CSingleStreamDataAdder persister(ptr);
-        if (!origJob.persistState(persister)) {
+        if (!origJob.persistState(persister, "State persisted due to job close at ")) {
             LOG_ERROR(<< "Error persisting state to " << outputFileName);
             return false;
         }
