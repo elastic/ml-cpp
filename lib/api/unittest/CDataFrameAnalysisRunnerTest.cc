@@ -93,7 +93,7 @@ void CDataFrameAnalysisRunnerTest::testComputeAndSaveExecutionStrategyDiskUsageF
         api::CDataFrameAnalysisSpecification spec{jsonSpec};
 
         // single error is registered that the memory limit is to low
-        LOG_DEBUG(<< core::CContainerPrinter::print(errors));
+        LOG_DEBUG(<< "errors = " << core::CContainerPrinter::print(errors));
         std::regex re{"Input error: memory limit.*"};
         CPPUNIT_ASSERT_EQUAL(1, static_cast<int>(errors.size()));
         CPPUNIT_ASSERT(std::regex_match(errors[0], re));
