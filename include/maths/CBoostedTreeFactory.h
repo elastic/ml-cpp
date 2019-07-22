@@ -24,12 +24,13 @@ namespace ml {
 namespace maths {
 
 class CNode;
-class CBoostedTreeImpl;
+class CBoostedTree;
 
 //! SimpleFactory for CBoostedTree object
 class CBoostedTreeFactory final {
 public:
     using TBoostedTreeUPtr = std::unique_ptr<CBoostedTree>;
+
 
 public:
     //! Construct a boosted tree object from parameters
@@ -63,7 +64,6 @@ public:
     //! implicit converter operator
     operator TBoostedTreeUPtr();
 
-
 private:
     using TDoubleVec = std::vector<double>;
     using TDoubleVecVec = std::vector<TDoubleVec>;
@@ -72,7 +72,6 @@ private:
     using TDoubleDoubleDoubleTr = std::tuple<double, double, double>;
     using TRowItr = core::CDataFrame::TRowItr;
     using TRowRef = core::CDataFrame::TRowRef;
-    // use raw pointer since CDataFrame has copy constructor deleted
     using TDataFramePtr = core::CDataFrame*;
     using TPackedBitVectorVec = std::vector<core::CPackedBitVector>;
     using TNodeVec = std::vector<CNode>;

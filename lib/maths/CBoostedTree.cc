@@ -82,8 +82,8 @@ CBoostedTree& CBoostedTree::maximumOptimisationRoundsPerHyperparameter(std::size
     return *this;
 }
 
-void CBoostedTree::train(core::CDataFrame& frame, TProgressCallback recordProgress) {
-    m_Impl->train(frame, recordProgress);
+void CBoostedTree::train(TProgressCallback recordProgress) {
+    m_Impl->train(recordProgress);
 }
 
 void CBoostedTree::predict(core::CDataFrame& frame, TProgressCallback recordProgress) const {
@@ -108,6 +108,10 @@ std::size_t CBoostedTree::columnHoldingPrediction(std::size_t numberColumns) con
 std::size_t CBoostedTree::estimateMemoryUsage(std::size_t numberRows,
                                               std::size_t numberColumns) const {
     return this->m_Impl->estimateMemoryUsage(numberRows, numberColumns);
+}
+CBoostedTree& CBoostedTree::frame(TDataFramePtr frame) {
+    this->m_Impl->frame(frame);
+    return *this;
 }
 }
 }

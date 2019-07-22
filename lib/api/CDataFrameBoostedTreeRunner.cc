@@ -16,6 +16,7 @@
 #include <api/CDataFrameAnalysisConfigReader.h>
 #include <api/CDataFrameAnalysisSpecification.h>
 
+#include <maths/CBoostedTreeFactory.h>
 #include <rapidjson/document.h>
 #include <rapidjson/writer.h>
 
@@ -130,7 +131,7 @@ void CDataFrameBoostedTreeRunner::writeOneRow(const TStrVec&,
 
 void CDataFrameBoostedTreeRunner::runImpl(core::CDataFrame& frame) {
     m_BoostedTree = m_BoostedTreeFactory->frame(frame);
-    m_BoostedTree->train(frame, this->progressRecorder());
+    m_BoostedTree->train( this->progressRecorder());
 }
 
 std::size_t CDataFrameBoostedTreeRunner::estimateBookkeepingMemoryUsage(

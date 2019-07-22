@@ -118,15 +118,13 @@ public:
     using TProgressCallback = std::function<void(double)>;
     using TRowRef = core::CDataFrame::TRowRef;
     using TLossFunctionUPtr = std::unique_ptr<boosted_tree::CLoss>;
+    using TDataFramePtr = core::CDataFrame*;
 
 public:
-    CBoostedTree(std::size_t numberThreads, std::size_t dependentVariable, TLossFunctionUPtr loss);
     ~CBoostedTree() override;
 
-
-
     //! Train the model on the values in \p frame.
-    void train(core::CDataFrame& frame, TProgressCallback recordProgress = noop) override;
+    void train(TProgressCallback recordProgress = noop) override;
 
     //! Write the predictions of this model to \p frame.
     void predict(core::CDataFrame& frame, TProgressCallback recordProgress = noop) const override;
@@ -149,8 +147,10 @@ public:
 
 private:
     using TImplUPtr = std::unique_ptr<CBoostedTreeImpl>;
-    
+
 private:
+    CBoostedTree(std::size_t numberThreads, std::size_t dependentVariable, TLossFunctionUPtr loss);
+
     //! \name Parameter Setters
     //@{
     //! Set the number of folds to use for estimating the generalisation error.
@@ -163,13 +163,15 @@ private:
     CBoostedTree& eta(double eta);
     //! Set the maximum number of trees in the ensemble.
     CBoostedTree& maximumNumberTrees(std::size_t maximumNumberTrees);
+    //! Set the fraction of features we'll use in the bag to build a tree.
     //! Set the number of rows required per regressor feature.
     CBoostedTree& rowsPerFeature(std::size_t rowsPerFeature);
-    //! Set the fraction of features we'll use in the bag to build a tree.
     CBoostedTree& featureBagFraction(double featureBagFraction);
     //! Set the maximum number of optimisation rounds we'll use for hyperparameter
     //! optimisation per parameter.
     CBoostedTree& maximumOptimisationRoundsPerHyperparameter(std::size_t rounds);
+    //! Set the maximum number of trees in the ensemble.
+    CBoostedTree& frame(TDataFramePtr frame);
     //@}
 
 private:

@@ -13,6 +13,7 @@
 
 #include <maths/CBasicStatistics.h>
 #include <maths/CBoostedTree.h>
+#include <maths/CBoostedTreeFactory.h>
 #include <maths/COutliers.h>
 
 #include <api/CDataFrameAnalysisSpecification.h>
@@ -239,30 +240,33 @@ void addRegressionTestData(TStrVec fieldNames,
 
     auto frame = test::CDataFrameTestUtils::toMainMemoryDataFrame(rows);
 
-    maths::CBoostedTree tree{1, weights.size(),
-                             std::make_unique<maths::boosted_tree::CMse>()};
+    maths::CBoostedTreeFactory treeFactory = maths::CBoostedTreeFactory::constructFromParameters(
+        1, weights.size(), std::make_unique<maths::boosted_tree::CMse>());
     if (lambda >= 0.0) {
-        tree.lambda(lambda);
+        treeFactory.lambda(lambda);
     }
     if (gamma >= 0.0) {
-        tree.gamma(gamma);
+        treeFactory.gamma(gamma);
     }
     if (eta > 0.0) {
-        tree.eta(eta);
+        treeFactory.eta(eta);
     }
     if (maximumNumberTrees > 0) {
-        tree.maximumNumberTrees(maximumNumberTrees);
+        treeFactory.maximumNumberTrees(maximumNumberTrees);
     }
     if (featureBagFraction > 0.0) {
-        tree.featureBagFraction(featureBagFraction);
+        treeFactory.featureBagFraction(featureBagFraction);
     }
+    treeFactory.frame(*frame);
 
-    tree.train(*frame);
+    std::unique_ptr<maths::CBoostedTree> tree = treeFactory;
+
+    tree->train(ml::maths::CBoostedTree::TProgressCallback());
 
     frame->readRows(1, [&](TRowItr beginRows, TRowItr endRows) {
         for (auto row = beginRows; row != endRows; ++row) {
             expectedPredictions.push_back(
-                (*row)[tree.columnHoldingPrediction(row->numberColumns())]);
+                (*row)[tree->columnHoldingPrediction(row->numberColumns())]);
         }
     });
 }

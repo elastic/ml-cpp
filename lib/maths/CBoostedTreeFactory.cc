@@ -130,6 +130,7 @@ CBoostedTreeFactory::crossValidationRowMasks() const {
 
 void CBoostedTreeFactory::initializeFeatureSampleDistribution(const core::CDataFrame& frame) {
 
+
     // Exclude all constant features by zeroing their probabilities.
 
     std::size_t n{m_Tree->m_Impl->numberFeatures(frame)};
@@ -138,43 +139,39 @@ void CBoostedTreeFactory::initializeFeatureSampleDistribution(const core::CDataF
     std::iota(regressors.begin(), regressors.end(), 0);
     regressors.erase(regressors.begin() + m_Tree->m_Impl->m_DependentVariable);
 
-    TDoubleVecVec distinct(n);
-    frame.readRows(1, [&](TRowItr beginRows, TRowItr endRows) {
-        for (auto row = beginRows; row != endRows; ++row) {
-            for (std::size_t i = 0; i < regressors.size(); ++i) {
-                double value{(*row)[regressors[i]]};
-                if (distinct[i].size() == 2) {
-                    continue;
-                }
-                if (distinct[i].empty()) {
-                    distinct[i].push_back(value);
-                }
-                if (value != distinct[i][0]) {
-                    distinct[i].push_back(value);
-                }
-            }
-        }
-    });
+    TDoubleVec mics(CDataFrameUtils::micWithColumn(frame, regressors, m_Tree->m_Impl->m_DependentVariable));
 
     regressors.erase(
         std::remove_if(regressors.begin(), regressors.end(),
-                       [&](std::size_t i) { return distinct[i].size() < 2; }),
+                       [&](std::size_t i) { return mics[i] == 0.0; }),
         regressors.end());
-    LOG_TRACE(<< "regressors = " << core::CContainerPrinter::print(regressors));
-
-    // TODO consider "correlation" with target variable.
+    LOG_TRACE(<< "candidate regressors = " << core::CContainerPrinter::print(regressors));
 
     m_Tree->m_Impl->m_FeatureSampleProbabilities.assign(n, 0.0);
     if (regressors.empty()) {
         HANDLE_FATAL(<< "Input error: all features constant.");
     } else {
-        double p{1.0 / static_cast<double>(regressors.size())};
-        for (auto feature : regressors) {
-            m_Tree->m_Impl->m_FeatureSampleProbabilities[feature] = p;
+        std::stable_sort(regressors.begin(), regressors.end(),
+                         [&mics](std::size_t lhs, std::size_t rhs) {
+                           return mics[lhs] > mics[rhs];
+                         });
+
+        std::size_t maximumNumberFeatures{frame.numberRows() / m_Tree->m_Impl->m_RowsPerFeature};
+        LOG_TRACE(<< "Using up to " << maximumNumberFeatures << " out of "
+                      << regressors.size() << " features");
+
+        regressors.resize(std::min(maximumNumberFeatures, regressors.size()));
+
+        double Z{std::accumulate(
+            regressors.begin(), regressors.end(), 0.0,
+            [&mics](double z, std::size_t i) { return z + mics[i]; })};
+        LOG_TRACE(<< "Z = " << Z);
+        for (auto i : regressors) {
+            m_Tree->m_Impl->m_FeatureSampleProbabilities[i] = mics[i] / Z;
         }
     }
     LOG_TRACE(<< "P(sample) = "
-              << core::CContainerPrinter::print(m_Tree->m_Impl->m_FeatureSampleProbabilities));
+                  << core::CContainerPrinter::print(m_Tree->m_Impl->m_FeatureSampleProbabilities));
 }
 
 void CBoostedTreeFactory::initializeHyperparameters(core::CDataFrame& frame,
@@ -271,7 +268,7 @@ CBoostedTreeFactory::constructFromParameters(std::size_t numberThreads,
 CBoostedTreeFactory::CBoostedTreeFactory(std::size_t numberThreads,
                                          std::size_t dependentVariable,
                                          CBoostedTree::TLossFunctionUPtr loss)
-    : m_Tree{std::make_unique<CBoostedTree>(numberThreads, dependentVariable, std::move(loss))} {
+    : m_Tree{new CBoostedTree(numberThreads, dependentVariable, std::move(loss))} {
 }
 
 CBoostedTreeFactory& CBoostedTreeFactory::numberFolds(std::size_t folds) {
@@ -318,6 +315,7 @@ CBoostedTreeFactory::progressCallback(CBoostedTree::TProgressCallback callback) 
 
 CBoostedTreeFactory& CBoostedTreeFactory::frame(core::CDataFrame& frame) {
     this->m_Frame = &frame;
+    this->m_Tree->frame(&frame);
     return *this;
 }
 

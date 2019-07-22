@@ -46,6 +46,7 @@ public:
     using TMeanVarAccumulator = CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
     using TBayesinOptimizationUPtr = std::unique_ptr<maths::CBayesianOptimisation>;
     using TDoubleVec = std::vector<double>;
+    using TDataFramePtr = core::CDataFrame*;
 
 public:
     static const double MINIMUM_ETA;
@@ -71,9 +72,11 @@ public:
     //! Set the maximum number of optimisation rounds we'll use for hyperparameter
     //! optimisation per parameter.
     void maximumOptimisationRoundsPerHyperparameter(std::size_t rounds);
+    //! Set the data frame for training.
+    void frame(TDataFramePtr frame);
 
     //! Train the model on the values in \p frame.
-    void train(core::CDataFrame& frame, CBoostedTree::TProgressCallback recordProgress);
+    void train(CBoostedTree::TProgressCallback recordProgress);
     //! Write the predictions of the best trained model to \p frame.
     //!
     //! \note Must be called only if a trained model is available.
@@ -694,6 +697,7 @@ private:
     std::size_t m_CurrentRound;
     TPackedBitVectorVec m_TrainingRowMasks;
     TPackedBitVectorVec m_TestingRowMasks;
+    TDataFramePtr m_Frame;
     std::size_t m_RowsPerFeature;
 
     friend class CBoostedTreeFactory;

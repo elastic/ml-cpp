@@ -86,7 +86,7 @@ auto predictionStatistics(test::CRandomNumbers& rng,
                     1, cols - 1, std::make_unique<maths::boosted_tree::CMse>())
                     .frame(*frame);
 
-            regression->train(*frame);
+            regression->train(ml::maths::CBoostedTree::TProgressCallback());
             regression->predict(*frame);
 
             TMeanVarAccumulator functionMoments;
@@ -352,7 +352,7 @@ void CBoostedTreeTest::testThreading() {
                 2, cols - 1, std::make_unique<maths::boosted_tree::CMse>())
                 .frame(*frame);
 
-        regression->train(*frame);
+        regression->train(ml::maths::CBoostedTree::TProgressCallback());
         regression->predict(*frame);
 
         TMeanVarAccumulator modelPredictionErrorMoments;
@@ -431,7 +431,7 @@ void CBoostedTreeTest::testConstantFeatures() {
             1, cols - 1, std::make_unique<maths::boosted_tree::CMse>())
             .frame(*frame);
 
-    regression->train(*frame);
+    regression->train(ml::maths::CBoostedTree::TProgressCallback());
 
     TDoubleVec featureWeights(regression->featureWeights());
 
@@ -475,7 +475,7 @@ void CBoostedTreeTest::testConstantObjective() {
             1, cols - 1, std::make_unique<maths::boosted_tree::CMse>())
             .frame(*frame);
 
-    regression->train(*frame);
+    regression->train(ml::maths::CBoostedTree::TProgressCallback());
 
     TMeanVarAccumulator modelPredictionErrorMoments;
 
