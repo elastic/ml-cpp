@@ -439,6 +439,47 @@ void CMicTest::testVsMutualInformation() {
     }
 }
 
+void CMicTest::testBinaryVariables() {
+
+    // Test we produce the correct results for binary variables. In particular,
+    // we should match mutual information (up to normalising constant log(2))
+    // since we only have one possible choice of 2x2 grid.
+
+    test::CRandomNumbers rng;
+
+    std::size_t numberSamples{1000};
+
+    for (std::size_t t = 0; t < 10; ++t) {
+
+        TDoubleVec x, y;
+        rng.generateUniformSamples(0.0, 1.0, numberSamples, x);
+        rng.generateUniformSamples(0.0, 1.0, numberSamples, y);
+        for (std::size_t i = 0; i < numberSamples; ++i) {
+            x[i] = x[i] < 0.5 ? 0.0 : 1.0;
+            y[i] = 0.2 * x[i] + 0.8 * y[i] < 0.5 ? 0.0 : 1.0;
+        }
+
+        TDoubleVec p(4, 0.0);
+        maths::CMic mic;
+        mic.reserve(numberSamples);
+        for (std::size_t i = 0; i < numberSamples; ++i) {
+            mic.add(x[i], y[i]);
+            p[static_cast<std::size_t>(2.0 * x[i] + y[i])] +=
+                1.0 / static_cast<double>(numberSamples);
+        }
+        double mic_{mic.compute()};
+
+        TDoubleVec px{p[0] + p[1], p[2] + p[3]};
+        TDoubleVec py{p[0] + p[2], p[1] + p[3]};
+
+        double mi{p[0] * maths::CTools::fastLog(p[0] / px[0] / py[0]) +
+                  p[1] * maths::CTools::fastLog(p[1] / px[0] / py[1]) +
+                  p[2] * maths::CTools::fastLog(p[2] / px[1] / py[0]) +
+                  p[3] * maths::CTools::fastLog(p[3] / px[1] / py[1])};
+        CPPUNIT_ASSERT_DOUBLES_EQUAL(maths::CTools::fastLog(2.0), mi / mic_, 1e-3);
+    }
+}
+
 void CMicTest::testEdgeCases() {
 
     // Test small number samples and constant.
@@ -490,6 +531,8 @@ CppUnit::Test* CMicTest::suite() {
         "CMicTest::testCorrelated", &CMicTest::testCorrelated));
     suiteOfTests->addTest(new CppUnit::TestCaller<CMicTest>(
         "CMicTest::testVsMutualInformation", &CMicTest::testVsMutualInformation));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CMicTest>(
+        "CMicTest::testBinaryVariables", &CMicTest::testBinaryVariables));
     suiteOfTests->addTest(new CppUnit::TestCaller<CMicTest>(
         "CMicTest::testEdgeCases", &CMicTest::testEdgeCases));
 
