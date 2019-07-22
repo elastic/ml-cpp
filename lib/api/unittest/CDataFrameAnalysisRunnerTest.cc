@@ -6,6 +6,7 @@
 
 #include "CDataFrameAnalysisRunnerTest.h"
 
+#include <core/CContainerPrinter.h>
 #include <core/CLogger.h>
 
 #include <api/CDataFrameAnalysisSpecification.h>
@@ -15,6 +16,7 @@
 #include <test/CTestTmpDir.h>
 
 #include <mutex>
+#include <regex>
 #include <string>
 #include <vector>
 
@@ -91,9 +93,10 @@ void CDataFrameAnalysisRunnerTest::testComputeAndSaveExecutionStrategyDiskUsageF
         api::CDataFrameAnalysisSpecification spec{jsonSpec};
 
         // single error is registered that the memory limit is to low
+        LOG_DEBUG(<< core::CContainerPrinter::print(errors));
+        std::regex re{"Input error: memory limit.*"};
         CPPUNIT_ASSERT_EQUAL(1, static_cast<int>(errors.size()));
-        CPPUNIT_ASSERT(errors[0].find("Input error: memory limit is too low to perform analysis.") !=
-                       std::string::npos);
+        CPPUNIT_ASSERT(std::regex_match(errors[0], re));
     }
 
     // Test large memory requirement with disk usage
@@ -123,10 +126,6 @@ CppUnit::Test* CDataFrameAnalysisRunnerTest::suite() {
     suiteOfTests->addTest(new CppUnit::TestCaller<CDataFrameAnalysisRunnerTest>(
         "CDataFrameAnalysisRunnerTest::testComputeExecutionStrategyForOutliers",
         &CDataFrameAnalysisRunnerTest::testComputeExecutionStrategyForOutliers));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CDataFrameAnalysisRunnerTest>(
-        "CDataFrameAnalysisRunnerTest::testComputeAndSaveExecutionStrategyDiskUsageFlag",
-        &CDataFrameAnalysisRunnerTest::testComputeAndSaveExecutionStrategyDiskUsageFlag));
-
     suiteOfTests->addTest(new CppUnit::TestCaller<CDataFrameAnalysisRunnerTest>(
         "CDataFrameAnalysisRunnerTest::testComputeAndSaveExecutionStrategyDiskUsageFlag",
         &CDataFrameAnalysisRunnerTest::testComputeAndSaveExecutionStrategyDiskUsageFlag));
