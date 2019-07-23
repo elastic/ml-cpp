@@ -14,7 +14,6 @@
 #include <api/CDataFrameAnalysisSpecification.h>
 #include <api/CDataFrameAnalysisSpecificationJsonWriter.h>
 #include <api/CDataFrameBoostedTreeRunner.h>
-#include <api/CDataFrameAnalysisSpecificationJsonWriter.h>
 #include <api/CDataFrameOutliersRunner.h>
 
 #include <test/CTestTmpDir.h>
