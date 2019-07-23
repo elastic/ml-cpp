@@ -156,7 +156,6 @@ void CBoostedTreeImpl::frame(CBoostedTreeImpl::TDataFramePtr frame) {
     m_Frame = frame;
 }
 
-
 //! Train the model on the values in \p frame.
 void CBoostedTreeImpl::train(CBoostedTree::TProgressCallback recordProgress) {
     LOG_TRACE(<< "Main training loop...");

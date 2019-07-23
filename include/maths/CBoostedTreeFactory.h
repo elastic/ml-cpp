@@ -31,7 +31,6 @@ class CBoostedTreeFactory final {
 public:
     using TBoostedTreeUPtr = std::unique_ptr<CBoostedTree>;
 
-
 public:
     //! Construct a boosted tree object from parameters
     static CBoostedTreeFactory constructFromParameters(std::size_t numberThreads,

@@ -32,7 +32,7 @@ public:
     virtual ~CDataFrameRegressionModel() = default;
 
     //! Train the model on the values in \p frame.
-    virtual void train(TProgressCallback recordProgress=noop) = 0;
+    virtual void train(TProgressCallback recordProgress = noop) = 0;
 
     //! Write the predictions of this model to \p frame.
     virtual void predict(core::CDataFrame& frame,

@@ -130,7 +130,6 @@ CBoostedTreeFactory::crossValidationRowMasks() const {
 
 void CBoostedTreeFactory::initializeFeatureSampleDistribution(const core::CDataFrame& frame) {
 
-
     // Exclude all constant features by zeroing their probabilities.
 
     std::size_t n{m_Tree->m_Impl->numberFeatures(frame)};
@@ -139,12 +138,12 @@ void CBoostedTreeFactory::initializeFeatureSampleDistribution(const core::CDataF
     std::iota(regressors.begin(), regressors.end(), 0);
     regressors.erase(regressors.begin() + m_Tree->m_Impl->m_DependentVariable);
 
-    TDoubleVec mics(CDataFrameUtils::micWithColumn(frame, regressors, m_Tree->m_Impl->m_DependentVariable));
+    TDoubleVec mics(CDataFrameUtils::micWithColumn(
+        frame, regressors, m_Tree->m_Impl->m_DependentVariable));
 
-    regressors.erase(
-        std::remove_if(regressors.begin(), regressors.end(),
-                       [&](std::size_t i) { return mics[i] == 0.0; }),
-        regressors.end());
+    regressors.erase(std::remove_if(regressors.begin(), regressors.end(),
+                                    [&](std::size_t i) { return mics[i] == 0.0; }),
+                     regressors.end());
     LOG_TRACE(<< "candidate regressors = " << core::CContainerPrinter::print(regressors));
 
     m_Tree->m_Impl->m_FeatureSampleProbabilities.assign(n, 0.0);
@@ -153,12 +152,12 @@ void CBoostedTreeFactory::initializeFeatureSampleDistribution(const core::CDataF
     } else {
         std::stable_sort(regressors.begin(), regressors.end(),
                          [&mics](std::size_t lhs, std::size_t rhs) {
-                           return mics[lhs] > mics[rhs];
+                             return mics[lhs] > mics[rhs];
                          });
 
         std::size_t maximumNumberFeatures{frame.numberRows() / m_Tree->m_Impl->m_RowsPerFeature};
         LOG_TRACE(<< "Using up to " << maximumNumberFeatures << " out of "
-                      << regressors.size() << " features");
+                  << regressors.size() << " features");
 
         regressors.resize(std::min(maximumNumberFeatures, regressors.size()));
 
@@ -171,7 +170,7 @@ void CBoostedTreeFactory::initializeFeatureSampleDistribution(const core::CDataF
         }
     }
     LOG_TRACE(<< "P(sample) = "
-                  << core::CContainerPrinter::print(m_Tree->m_Impl->m_FeatureSampleProbabilities));
+              << core::CContainerPrinter::print(m_Tree->m_Impl->m_FeatureSampleProbabilities));
 }
 
 void CBoostedTreeFactory::initializeHyperparameters(core::CDataFrame& frame,

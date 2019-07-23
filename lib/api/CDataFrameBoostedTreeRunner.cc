@@ -131,7 +131,7 @@ void CDataFrameBoostedTreeRunner::writeOneRow(const TStrVec&,
 
 void CDataFrameBoostedTreeRunner::runImpl(core::CDataFrame& frame) {
     m_BoostedTree = m_BoostedTreeFactory->frame(frame);
-    m_BoostedTree->train( this->progressRecorder());
+    m_BoostedTree->train(this->progressRecorder());
 }
 
 std::size_t CDataFrameBoostedTreeRunner::estimateBookkeepingMemoryUsage(
@@ -142,7 +142,7 @@ std::size_t CDataFrameBoostedTreeRunner::estimateBookkeepingMemoryUsage(
     return m_BoostedTree
                ? m_BoostedTree->estimateMemoryUsage(totalNumberRows, numberColumns)
                : m_BoostedTreeFactory->incompleteTreeObject().estimateMemoryUsage(
-            totalNumberRows, numberColumns);
+                     totalNumberRows, numberColumns);
 }
 
 const std::string& CDataFrameBoostedTreeRunnerFactory::name() const {

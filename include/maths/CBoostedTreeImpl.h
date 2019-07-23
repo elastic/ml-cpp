@@ -8,9 +8,9 @@
 #define INCLUDED_ml_maths_CBoostedTreeImpl_h
 
 #include <core/CContainerPrinter.h>
-#include <core/CPackedBitVector.h>
 #include <core/CDataFrame.h>
 #include <core/CLogger.h>
+#include <core/CPackedBitVector.h>
 
 #include <maths/CBasicStatistics.h>
 #include <maths/CBayesianOptimisation.h>
@@ -95,7 +95,6 @@ public:
     std::size_t estimateMemoryUsage(std::size_t numberRows, std::size_t numberColumns) const;
 
     void rowsPerFeature(std::size_t rowsPerFeature);
-
 
 private:
     using TDoubleDoublePrVec = std::vector<std::pair<double, double>>;
