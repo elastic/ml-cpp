@@ -35,11 +35,11 @@ std::size_t predictionColumn(std::size_t numberColumns) {
 }
 }
 
-CBoostedTree::CBoostedTree(std::size_t numberThreads, std::size_t dependentVariable, TLossFunctionUPtr loss)
-    : m_Impl{std::make_unique<CBoostedTreeImpl>(numberThreads, dependentVariable, std::move(loss))} {
+CBoostedTree::CBoostedTree(core::CDataFrame& frame, TImplUPtr impl)
+    : CDataFrameRegressionModel(frame), m_Impl{impl.release()} {
 }
 
-CBoostedTree::~CBoostedTree() {
+    CBoostedTree::~CBoostedTree() {
 }
 
 void CBoostedTree::train(TProgressCallback recordProgress) {

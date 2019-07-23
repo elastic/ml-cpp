@@ -92,6 +92,7 @@ public:
     //! Get the feature sample probabilities.
     TDoubleVec featureWeights() const;
 
+    //!
     std::size_t estimateMemoryUsage(std::size_t numberRows, std::size_t numberColumns) const;
 
     void rowsPerFeature(std::size_t rowsPerFeature);

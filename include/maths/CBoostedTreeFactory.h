@@ -62,6 +62,11 @@ public:
     const CBoostedTree& incompleteTreeObject() const;
     //! Create and return a new boosted tree trainer.
     operator TBoostedTreeUPtr();
+    //! Estimate the maximum booking memory that training the boosted tree on a data
+    //! frame with \p numberRows row and \p numberColumns columns will use.
+    std::size_t estimateMemoryUsage(std::size_t numberRows,
+                                    std::size_t numberColumns) const;
+
 
 private:
     using TDoubleVec = std::vector<double>;
@@ -74,6 +79,7 @@ private:
     using TDataFramePtr = core::CDataFrame*;
     using TPackedBitVectorVec = std::vector<core::CPackedBitVector>;
     using TNodeVec = std::vector<CNode>;
+    using TBoostedTreeImplUPtr = std::unique_ptr<CBoostedTreeImpl>;
 
 private:
     CBoostedTreeFactory(std::size_t numberThreads,
@@ -100,13 +106,10 @@ private:
     //! Get the number of hyperparameter tuning rounds to use.
     std::size_t numberHyperparameterTuningRounds() const;
 
-    //! Get pointer to tree implementation object.
-    CBoostedTreeImpl& tree() const;
-
-
 
 private:
     TBoostedTreeUPtr m_Tree;
+    TBoostedTreeImplUPtr m_Impl;
     TDataFramePtr m_Frame;
     CBoostedTree::TProgressCallback m_ProgressCallback;
 };

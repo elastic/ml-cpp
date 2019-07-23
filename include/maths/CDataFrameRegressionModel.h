@@ -50,8 +50,15 @@ public:
     //! Get the column containing the model's prediction for the dependent variable.
     virtual std::size_t columnHoldingPrediction(std::size_t numberColumns) const = 0;
 
+    //! Get the reference to the data frame object.
+    core::CDataFrame& frame(){return m_Frame;};
+
 protected:
+    CDataFrameRegressionModel(core::CDataFrame& frame):m_Frame{frame}{};
     static void noop(double);
+
+private:
+    core::CDataFrame& m_Frame;
 };
 }
 }

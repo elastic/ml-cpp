@@ -149,7 +149,7 @@ private:
     using TImplUPtr = std::unique_ptr<CBoostedTreeImpl>;
 
 private:
-    CBoostedTree(std::size_t numberThreads, std::size_t dependentVariable, TLossFunctionUPtr loss);
+    CBoostedTree(core::CDataFrame& frame, TImplUPtr impl);
 
 private:
     TImplUPtr m_Impl;
