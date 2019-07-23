@@ -8,6 +8,7 @@
 
 #include <core/CContainerPrinter.h>
 #include <core/CLogger.h>
+#include <core/CRegex.h>
 
 #include <api/CDataFrameAnalysisSpecification.h>
 #include <api/CDataFrameAnalysisSpecificationJsonWriter.h>
@@ -16,7 +17,6 @@
 #include <test/CTestTmpDir.h>
 
 #include <mutex>
-#include <regex>
 #include <string>
 #include <vector>
 
@@ -94,9 +94,10 @@ void CDataFrameAnalysisRunnerTest::testComputeAndSaveExecutionStrategyDiskUsageF
 
         // single error is registered that the memory limit is to low
         LOG_DEBUG(<< "errors = " << core::CContainerPrinter::print(errors));
-        std::regex re{"Input error: memory limit.*"};
+        core::CRegex re;
+        re.init("Input error: memory limit.*");
         CPPUNIT_ASSERT_EQUAL(1, static_cast<int>(errors.size()));
-        CPPUNIT_ASSERT(std::regex_match(errors[0], re));
+        CPPUNIT_ASSERT(re.matches(errors[0]));
     }
 
     // Test large memory requirement with disk usage
