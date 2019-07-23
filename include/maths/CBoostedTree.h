@@ -84,6 +84,8 @@ public:
 };
 }
 
+class CBoostedTreeImpl;
+
 //! \brief A boosted regression tree model.
 //!
 //! DESCRIPTION:\n
@@ -144,7 +146,6 @@ public:
     std::size_t estimateMemoryUsage(std::size_t numberRows, std::size_t numberColumns) const;
 
 private:
-    class CBoostedTreeImpl;
     using TImplUPtr = std::unique_ptr<CBoostedTreeImpl>;
 
 private:
