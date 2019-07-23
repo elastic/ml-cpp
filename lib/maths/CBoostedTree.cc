@@ -42,46 +42,6 @@ CBoostedTree::CBoostedTree(std::size_t numberThreads, std::size_t dependentVaria
 CBoostedTree::~CBoostedTree() {
 }
 
-CBoostedTree& CBoostedTree::numberFolds(std::size_t folds) {
-    m_Impl->numberFolds(folds);
-    return *this;
-}
-
-CBoostedTree& CBoostedTree::lambda(double lambda) {
-    m_Impl->lambda(lambda);
-    return *this;
-}
-
-CBoostedTree& CBoostedTree::gamma(double gamma) {
-    m_Impl->gamma(gamma);
-    return *this;
-}
-
-CBoostedTree& CBoostedTree::eta(double eta) {
-    m_Impl->eta(eta);
-    return *this;
-}
-
-CBoostedTree& CBoostedTree::maximumNumberTrees(std::size_t maximumNumberTrees) {
-    m_Impl->maximumNumberTrees(maximumNumberTrees);
-    return *this;
-}
-
-CBoostedTree& CBoostedTree::rowsPerFeature(std::size_t rowsPerFeature) {
-    m_Impl->rowsPerFeature(rowsPerFeature);
-    return *this;
-}
-
-CBoostedTree& CBoostedTree::featureBagFraction(double featureBagFraction) {
-    m_Impl->featureBagFraction(featureBagFraction);
-    return *this;
-}
-
-CBoostedTree& CBoostedTree::maximumOptimisationRoundsPerHyperparameter(std::size_t rounds) {
-    m_Impl->maximumOptimisationRoundsPerHyperparameter(rounds);
-    return *this;
-}
-
 void CBoostedTree::train(TProgressCallback recordProgress) {
     m_Impl->train(recordProgress);
 }
@@ -108,10 +68,6 @@ std::size_t CBoostedTree::columnHoldingPrediction(std::size_t numberColumns) con
 std::size_t CBoostedTree::estimateMemoryUsage(std::size_t numberRows,
                                               std::size_t numberColumns) const {
     return this->m_Impl->estimateMemoryUsage(numberRows, numberColumns);
-}
-CBoostedTree& CBoostedTree::frame(TDataFramePtr frame) {
-    this->m_Impl->frame(frame);
-    return *this;
 }
 }
 }

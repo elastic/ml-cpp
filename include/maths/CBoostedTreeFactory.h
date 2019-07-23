@@ -26,7 +26,7 @@ namespace maths {
 class CNode;
 class CBoostedTree;
 
-//! SimpleFactory for CBoostedTree object
+//! Factory for CBoostedTree objects.
 class CBoostedTreeFactory final {
 public:
     using TBoostedTreeUPtr = std::unique_ptr<CBoostedTree>;
@@ -60,7 +60,7 @@ public:
     //! initialized. This is useful since some functions, e.g estimateMemoryUsage has to be called before
     //! data frame reference was passed
     const CBoostedTree& incompleteTreeObject() const;
-    //! implicit converter operator
+    //! Create and return a new boosted tree trainer.
     operator TBoostedTreeUPtr();
 
 private:
@@ -99,6 +99,11 @@ private:
 
     //! Get the number of hyperparameter tuning rounds to use.
     std::size_t numberHyperparameterTuningRounds() const;
+
+    //! Get pointer to tree implementation object.
+    CBoostedTreeImpl& tree() const;
+
+
 
 private:
     TBoostedTreeUPtr m_Tree;

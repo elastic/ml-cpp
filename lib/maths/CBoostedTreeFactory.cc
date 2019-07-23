@@ -8,6 +8,8 @@
 
 #include <maths/CBayesianOptimisation.h>
 #include <maths/CBoostedTreeImpl.h>
+#include "../../include/maths/CBoostedTreeFactory.h"
+
 
 namespace ml {
 namespace maths {
@@ -23,21 +25,21 @@ CBoostedTreeFactory::TBoostedTreeUPtr CBoostedTreeFactory::build() {
 
     this->initializeFeatureSampleDistribution(*m_Frame);
     this->initializeHyperparameters(*m_Frame, m_ProgressCallback);
-    this->m_Tree->m_Impl->m_BayesianOptimization =
+    tree().m_BayesianOptimization =
         std::make_unique<CBayesianOptimisation>(this->hyperparameterBoundingBox());
-    this->m_Tree->m_Impl->m_NumberRounds = this->numberHyperparameterTuningRounds();
+    tree().m_NumberRounds = this->numberHyperparameterTuningRounds();
 
-    this->m_Tree->m_Impl->m_CurrentRound = 0; // for first start
+    tree().m_CurrentRound = 0; // for first start
     return std::move(m_Tree);
 }
 
 CBoostedTreeFactory::operator TBoostedTreeUPtr() {
-    return std::move(this->build());
+    return this->build();
 }
 
 std::size_t CBoostedTreeFactory::numberHyperparameterTuningRounds() const {
-    return std::max(this->m_Tree->m_Impl->m_MaximumOptimisationRoundsPerHyperparameter *
-                        this->m_Tree->m_Impl->numberHyperparametersToTune(),
+    return std::max(tree().m_MaximumOptimisationRoundsPerHyperparameter *
+                       tree().numberHyperparametersToTune(),
                     std::size_t{1});
 }
 
@@ -214,14 +216,14 @@ void CBoostedTreeFactory::initializeHyperparameters(core::CDataFrame& frame,
     } else {
         core::CPackedBitVector trainingRowMask{frame.numberRows(), true};
 
-        auto tree = m_Tree->m_Impl->initializePredictionsAndLossDerivatives(frame, trainingRowMask);
+        auto vector = m_Tree->m_Impl->initializePredictionsAndLossDerivatives(frame, trainingRowMask);
 
         double L[2];
         double T[2];
         double W[2];
 
-        std::tie(L[0], T[0], W[0]) = this->m_Tree->m_Impl->regularisedLoss(
-            frame, trainingRowMask, {std::move(tree)});
+        std::tie(L[0], T[0], W[0]) = tree().regularisedLoss(
+            frame, trainingRowMask, {std::move(vector)});
         LOG_TRACE(<< "loss = " << L[0] << ", # leaves = " << T[0]
                   << ", sum square weights = " << W[0]);
 
@@ -271,38 +273,38 @@ CBoostedTreeFactory::CBoostedTreeFactory(std::size_t numberThreads,
 }
 
 CBoostedTreeFactory& CBoostedTreeFactory::numberFolds(std::size_t folds) {
-    this->m_Tree->m_Impl->numberFolds(folds);
+    tree().numberFolds(folds);
     return *this;
 }
 
 CBoostedTreeFactory& CBoostedTreeFactory::lambda(double lambda) {
-    this->m_Tree->m_Impl->lambda(lambda);
+    tree().lambda(lambda);
     return *this;
 }
 
 CBoostedTreeFactory& CBoostedTreeFactory::gamma(double gamma) {
-    this->m_Tree->m_Impl->gamma(gamma);
+    tree().gamma(gamma);
     return *this;
 }
 
 CBoostedTreeFactory& CBoostedTreeFactory::eta(double eta) {
-    this->m_Tree->m_Impl->eta(eta);
+    tree().eta(eta);
     return *this;
 }
 
 CBoostedTreeFactory& CBoostedTreeFactory::maximumNumberTrees(std::size_t maximumNumberTrees) {
-    this->m_Tree->m_Impl->maximumNumberTrees(maximumNumberTrees);
+    tree().maximumNumberTrees(maximumNumberTrees);
     return *this;
 }
 
 CBoostedTreeFactory& CBoostedTreeFactory::featureBagFraction(double featureBagFraction) {
-    this->m_Tree->m_Impl->featureBagFraction(featureBagFraction);
+    tree().featureBagFraction(featureBagFraction);
     return *this;
 }
 
 CBoostedTreeFactory&
 CBoostedTreeFactory::maximumOptimisationRoundsPerHyperparameter(std::size_t rounds) {
-    this->m_Tree->m_Impl->maximumOptimisationRoundsPerHyperparameter(rounds);
+    tree().maximumOptimisationRoundsPerHyperparameter(rounds);
     return *this;
 }
 
@@ -314,12 +316,15 @@ CBoostedTreeFactory::progressCallback(CBoostedTree::TProgressCallback callback) 
 
 CBoostedTreeFactory& CBoostedTreeFactory::frame(core::CDataFrame& frame) {
     this->m_Frame = &frame;
-    this->m_Tree->frame(&frame);
+    tree().frame(&frame);
     return *this;
 }
 
 const CBoostedTree& CBoostedTreeFactory::incompleteTreeObject() const {
     return *m_Tree;
+}
+CBoostedTreeImpl& maths::CBoostedTreeFactory::tree() const {
+    return *m_Tree->m_Impl;
 }
 }
 }
