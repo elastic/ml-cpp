@@ -16,7 +16,6 @@
 #include <api/CDataFrameAnalysisConfigReader.h>
 #include <api/CDataFrameAnalysisSpecification.h>
 
-#include <maths/CBoostedTreeFactory.h>
 #include <rapidjson/document.h>
 #include <rapidjson/writer.h>
 

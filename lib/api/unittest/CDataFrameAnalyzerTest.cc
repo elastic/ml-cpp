@@ -257,9 +257,8 @@ void addRegressionTestData(TStrVec fieldNames,
     if (featureBagFraction > 0.0) {
         treeFactory.featureBagFraction(featureBagFraction);
     }
-    treeFactory.frame(*frame);
 
-    std::unique_ptr<maths::CBoostedTree> tree = treeFactory;
+    std::unique_ptr<maths::CBoostedTree> tree = treeFactory.frame(*frame);
 
     tree->train(ml::maths::CBoostedTree::TProgressCallback());
 
