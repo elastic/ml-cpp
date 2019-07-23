@@ -92,7 +92,7 @@ void CDataFrameAnalysisRunnerTest::testComputeAndSaveExecutionStrategyDiskUsageF
 
         // single error is registered that the memory limit is to low
         CPPUNIT_ASSERT_EQUAL(1, static_cast<int>(errors.size()));
-        CPPUNIT_ASSERT(errors[0].find("Input error: memory limit is too low to perform analysis.") !=
+        CPPUNIT_ASSERT(errors[0].find("Input error: memory limit 0MB is too low to perform analysis. You need to give the process at least 3MB, but preferably more.") !=
                        std::string::npos);
     }
 
