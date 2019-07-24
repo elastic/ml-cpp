@@ -39,7 +39,7 @@ namespace {
 const double INF{std::numeric_limits<double>::max()};
 }
 
-class CBoostedTreeImpl final {
+class MATHS_EXPORT CBoostedTreeImpl final {
 
 public:
     using TMeanAccumulator = CBasicStatistics::SSampleMean<double>::TAccumulator;

@@ -14,6 +14,7 @@
 #include <maths/CBayesianOptimisation.h>
 #include <maths/CBoostedTree.h>
 #include <maths/CBoostedTreeImpl.h>
+#include <maths/ImportExport.h>
 
 #include <memory>
 #include <numeric>
@@ -25,7 +26,7 @@ namespace ml {
 namespace maths {
 
 class CNode;
-class CBoostedTree;
+class MATHS_EXPORT CBoostedTree;
 
 //! Factory for CBoostedTree objects.
 class CBoostedTreeFactory final {
