@@ -13,6 +13,7 @@
 
 #include <maths/CBayesianOptimisation.h>
 #include <maths/CBoostedTree.h>
+#include <maths/CBoostedTreeImpl.h>
 
 #include <memory>
 #include <numeric>
@@ -64,9 +65,9 @@ public:
     operator TBoostedTreeUPtr();
     //! Estimate the maximum booking memory that training the boosted tree on a data
     //! frame with \p numberRows row and \p numberColumns columns will use.
-    std::size_t estimateMemoryUsage(std::size_t numberRows,
-                                    std::size_t numberColumns) const;
-
+    std::size_t estimateMemoryUsage(std::size_t numberRows, std::size_t numberColumns) const;
+    //! Get the number of columns training the model will add to the data frame.
+    std::size_t numberExtraColumnsForTrain() const;
 
 private:
     using TDoubleVec = std::vector<double>;
@@ -105,7 +106,6 @@ private:
 
     //! Get the number of hyperparameter tuning rounds to use.
     std::size_t numberHyperparameterTuningRounds() const;
-
 
 private:
     TBoostedTreeUPtr m_Tree;

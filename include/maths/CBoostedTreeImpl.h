@@ -87,7 +87,7 @@ public:
     void write(core::CRapidJsonConcurrentLineWriter& /*writer*/) const;
 
     //! Get the number of columns training the model will add to the data frame.
-    std::size_t numberExtraColumnsForTrain() const;
+    static std::size_t numberExtraColumnsForTrain();
 
     //! Get the feature sample probabilities.
     TDoubleVec featureWeights() const;

@@ -35,11 +35,11 @@ std::size_t predictionColumn(std::size_t numberColumns) {
 }
 }
 
-CBoostedTree::CBoostedTree(core::CDataFrame& frame, TImplUPtr impl)
-    : CDataFrameRegressionModel(frame), m_Impl{impl.release()} {
+CBoostedTree::CBoostedTree(core::CDataFrame& frame, TImplUPtr& impl)
+    : CDataFrameRegressionModel(frame), m_Impl{std::move(impl)} {
 }
 
-    CBoostedTree::~CBoostedTree() {
+CBoostedTree::~CBoostedTree() {
 }
 
 void CBoostedTree::train(TProgressCallback recordProgress) {
@@ -59,7 +59,7 @@ CBoostedTree::TDoubleVec CBoostedTree::featureWeights() const {
 }
 
 std::size_t CBoostedTree::numberExtraColumnsForTrain() const {
-    return m_Impl->numberExtraColumnsForTrain();
+    return this->m_Impl->numberExtraColumnsForTrain();
 }
 
 std::size_t CBoostedTree::columnHoldingPrediction(std::size_t numberColumns) const {

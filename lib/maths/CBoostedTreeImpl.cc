@@ -212,7 +212,7 @@ void CBoostedTreeImpl::write(core::CRapidJsonConcurrentLineWriter& /*writer*/) c
     // TODO
 }
 
-std::size_t CBoostedTreeImpl::numberExtraColumnsForTrain() const {
+std::size_t CBoostedTreeImpl::numberExtraColumnsForTrain() {
     return 3;
 }
 

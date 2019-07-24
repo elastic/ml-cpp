@@ -51,10 +51,10 @@ public:
     virtual std::size_t columnHoldingPrediction(std::size_t numberColumns) const = 0;
 
     //! Get the reference to the data frame object.
-    core::CDataFrame& frame(){return m_Frame;};
+    core::CDataFrame& frame() { return m_Frame; };
 
 protected:
-    CDataFrameRegressionModel(core::CDataFrame& frame):m_Frame{frame}{};
+    CDataFrameRegressionModel(core::CDataFrame& frame) : m_Frame{frame} {};
     static void noop(double);
 
 private:

@@ -110,9 +110,7 @@ CDataFrameBoostedTreeRunner::~CDataFrameBoostedTreeRunner() {
 }
 
 std::size_t CDataFrameBoostedTreeRunner::numberExtraColumns() const {
-    return m_BoostedTree
-               ? m_BoostedTree->numberExtraColumnsForTrain()
-               : m_BoostedTreeFactory->incompleteTreeObject().numberExtraColumnsForTrain();
+    return m_BoostedTreeFactory->numberExtraColumnsForTrain();
 }
 
 void CDataFrameBoostedTreeRunner::writeOneRow(const TStrVec&,
@@ -138,10 +136,8 @@ std::size_t CDataFrameBoostedTreeRunner::estimateBookkeepingMemoryUsage(
     std::size_t totalNumberRows,
     std::size_t /*partitionNumberRows*/,
     std::size_t numberColumns) const {
-    return m_BoostedTree
-               ? m_BoostedTree->estimateMemoryUsage(totalNumberRows, numberColumns)
-               : m_BoostedTreeFactory->incompleteTreeObject().estimateMemoryUsage(
-                     totalNumberRows, numberColumns);
+    return m_BoostedTreeFactory->incompleteTreeObject().estimateMemoryUsage(
+        totalNumberRows, numberColumns);
 }
 
 const std::string& CDataFrameBoostedTreeRunnerFactory::name() const {
