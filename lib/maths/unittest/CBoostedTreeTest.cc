@@ -84,7 +84,7 @@ auto predictionStatistics(test::CRandomNumbers& rng,
             std::unique_ptr<maths::CBoostedTree> regression =
                 maths::CBoostedTreeFactory::constructFromParameters(
                     1, cols - 1, std::make_unique<maths::boosted_tree::CMse>())
-                    .frame(*frame);
+                    .buildFor(*frame);
 
             regression->train();
             regression->predict(*frame);
@@ -350,7 +350,7 @@ void CBoostedTreeTest::testThreading() {
         std::unique_ptr<maths::CBoostedTree> regression =
             maths::CBoostedTreeFactory::constructFromParameters(
                 2, cols - 1, std::make_unique<maths::boosted_tree::CMse>())
-                .frame(*frame);
+                .buildFor(*frame);
 
         regression->train();
         regression->predict(*frame);
@@ -429,7 +429,7 @@ void CBoostedTreeTest::testConstantFeatures() {
     std::unique_ptr<maths::CBoostedTree> regression =
         maths::CBoostedTreeFactory::constructFromParameters(
             1, cols - 1, std::make_unique<maths::boosted_tree::CMse>())
-            .frame(*frame);
+            .buildFor(*frame);
 
     regression->train();
 
@@ -473,7 +473,7 @@ void CBoostedTreeTest::testConstantObjective() {
     std::unique_ptr<maths::CBoostedTree> regression =
         maths::CBoostedTreeFactory::constructFromParameters(
             1, cols - 1, std::make_unique<maths::boosted_tree::CMse>())
-            .frame(*frame);
+            .buildFor(*frame);
 
     regression->train();
 

@@ -26,7 +26,7 @@ namespace ml {
 namespace maths {
 
 class CNode;
-class  CBoostedTree;
+class CBoostedTree;
 
 //! Factory for CBoostedTree objects.
 class MATHS_EXPORT CBoostedTreeFactory final {
@@ -56,15 +56,13 @@ public:
     CBoostedTreeFactory& maximumOptimisationRoundsPerHyperparameter(std::size_t rounds);
     //! Set the callback function for progress monitoring.
     CBoostedTreeFactory& progressCallback(CBoostedTree::TProgressCallback callback);
-    //! Set the reference to the data frame.
-    CBoostedTreeFactory& frame(core::CDataFrame& frame);
-    //! Create and return a new boosted tree trainer.
-    operator TBoostedTreeUPtr();
     //! Estimate the maximum booking memory that training the boosted tree on a data
     //! frame with \p numberRows row and \p numberColumns columns will use.
     std::size_t estimateMemoryUsage(std::size_t numberRows, std::size_t numberColumns) const;
     //! Get the number of columns training the model will add to the data frame.
     std::size_t numberExtraColumnsForTrain() const;
+    //! Build a boosted tree object for a given data frame.
+    TBoostedTreeUPtr buildFor(core::CDataFrame& frame);
 
 private:
     using TDoubleVec = std::vector<double>;
@@ -74,7 +72,6 @@ private:
     using TDoubleDoubleDoubleTr = std::tuple<double, double, double>;
     using TRowItr = core::CDataFrame::TRowItr;
     using TRowRef = core::CDataFrame::TRowRef;
-    using TDataFramePtr = core::CDataFrame*;
     using TPackedBitVectorVec = std::vector<core::CPackedBitVector>;
     using TNodeVec = std::vector<CNode>;
     using TBoostedTreeImplUPtr = std::unique_ptr<CBoostedTreeImpl>;
@@ -83,8 +80,6 @@ private:
     CBoostedTreeFactory(std::size_t numberThreads,
                         std::size_t dependentVariable,
                         CBoostedTree::TLossFunctionUPtr loss);
-
-    TBoostedTreeUPtr build();
 
     void initializeMissingFeatureMasks(const core::CDataFrame& frame);
 
@@ -106,8 +101,7 @@ private:
 
 private:
     TBoostedTreeUPtr m_Tree;
-    TBoostedTreeImplUPtr m_Impl;
-    TDataFramePtr m_Frame;
+    TBoostedTreeImplUPtr m_TreeImpl;
     CBoostedTree::TProgressCallback m_ProgressCallback;
 };
 }

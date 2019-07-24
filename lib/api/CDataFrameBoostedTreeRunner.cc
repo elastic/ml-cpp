@@ -126,7 +126,7 @@ void CDataFrameBoostedTreeRunner::writeOneRow(const TStrVec&,
 }
 
 void CDataFrameBoostedTreeRunner::runImpl(core::CDataFrame& frame) {
-    m_BoostedTree = m_BoostedTreeFactory->frame(frame);
+    m_BoostedTree = m_BoostedTreeFactory->buildFor(frame);
     m_BoostedTree->train(this->progressRecorder());
 }
 

@@ -240,8 +240,8 @@ void addRegressionTestData(TStrVec fieldNames,
 
     auto frame = test::CDataFrameTestUtils::toMainMemoryDataFrame(rows);
 
-    maths::CBoostedTreeFactory treeFactory = maths::CBoostedTreeFactory::constructFromParameters(
-        1, weights.size(), std::make_unique<maths::boosted_tree::CMse>());
+    maths::CBoostedTreeFactory treeFactory{maths::CBoostedTreeFactory::constructFromParameters(
+        1, weights.size(), std::make_unique<maths::boosted_tree::CMse>())};
     if (lambda >= 0.0) {
         treeFactory.lambda(lambda);
     }
@@ -258,7 +258,7 @@ void addRegressionTestData(TStrVec fieldNames,
         treeFactory.featureBagFraction(featureBagFraction);
     }
 
-    std::unique_ptr<maths::CBoostedTree> tree = treeFactory.frame(*frame);
+    std::unique_ptr<maths::CBoostedTree> tree = treeFactory.buildFor(*frame);
 
     tree->train(ml::maths::CBoostedTree::TProgressCallback());
 

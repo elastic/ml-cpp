@@ -43,7 +43,7 @@ CBoostedTree::~CBoostedTree() {
 }
 
 void CBoostedTree::train(TProgressCallback recordProgress) {
-    m_Impl->train(this->m_Frame, recordProgress);
+    m_Impl->train(frame(), recordProgress);
 }
 
 void CBoostedTree::predict(core::CDataFrame& frame, TProgressCallback recordProgress) const {

@@ -6,45 +6,35 @@
 
 #include <maths/CBoostedTreeFactory.h>
 
-#include "../../include/maths/CBoostedTreeFactory.h"
 #include <maths/CBayesianOptimisation.h>
 #include <maths/CBoostedTreeImpl.h>
 
 namespace ml {
 namespace maths {
 
-CBoostedTreeFactory::TBoostedTreeUPtr CBoostedTreeFactory::build() {
+CBoostedTreeFactory::TBoostedTreeUPtr CBoostedTreeFactory::buildFor(core::CDataFrame& frame) {
 
-    if (m_Frame == nullptr) {
-        HANDLE_FATAL(<< "Input error: Boosted tree cannot be created without data "
-                     << "frame object specified. Please report this error.");
-    }
-
-    this->initializeMissingFeatureMasks(*m_Frame);
-    std::tie(m_Impl->m_TrainingRowMasks, m_Impl->m_TestingRowMasks) =
+    this->initializeMissingFeatureMasks(frame);
+    std::tie(m_TreeImpl->m_TrainingRowMasks, m_TreeImpl->m_TestingRowMasks) =
         this->crossValidationRowMasks();
 
     // We store the gradient and curvature of the loss function and the predicted
     // value for the dependent variable of the regression.
-    m_Frame->resizeColumns(m_Impl->m_NumberThreads, m_Frame->numberColumns() + 3);
+    frame.resizeColumns(m_TreeImpl->m_NumberThreads, frame.numberColumns() + 3);
 
-    this->initializeFeatureSampleDistribution(*m_Frame);
-    this->initializeHyperparameters(*m_Frame, m_ProgressCallback);
-    m_Impl->m_BayesianOptimization =
+    this->initializeFeatureSampleDistribution(frame);
+    this->initializeHyperparameters(frame, m_ProgressCallback);
+    m_TreeImpl->m_BayesianOptimization =
         std::make_unique<CBayesianOptimisation>(this->hyperparameterBoundingBox());
-    m_Impl->m_NumberRounds = this->numberHyperparameterTuningRounds();
+    m_TreeImpl->m_NumberRounds = this->numberHyperparameterTuningRounds();
 
-    m_Impl->m_CurrentRound = 0; // for first start
-    return std::unique_ptr<CBoostedTree>(new CBoostedTree(*m_Frame, m_Impl));
-}
-
-CBoostedTreeFactory::operator TBoostedTreeUPtr() {
-    return this->build();
+    m_TreeImpl->m_CurrentRound = 0; // for first start
+    return std::unique_ptr<CBoostedTree>(new CBoostedTree(frame, m_TreeImpl));
 }
 
 std::size_t CBoostedTreeFactory::numberHyperparameterTuningRounds() const {
-    return std::max(m_Impl->m_MaximumOptimisationRoundsPerHyperparameter *
-                        m_Impl->numberHyperparametersToTune(),
+    return std::max(m_TreeImpl->m_MaximumOptimisationRoundsPerHyperparameter *
+                        m_TreeImpl->numberHyperparametersToTune(),
                     std::size_t{1});
 }
 
@@ -61,20 +51,21 @@ CBayesianOptimisation::TDoubleDoublePrVec CBoostedTreeFactory::hyperparameterBou
     // less than p_1, this translates to using log parameter values.
 
     CBayesianOptimisation::TDoubleDoublePrVec result;
-    if (m_Impl->m_LambdaOverride == boost::none) {
-        result.emplace_back(std::log(m_Impl->m_Lambda / 10.0),
-                            std::log(10.0 * m_Impl->m_Lambda));
+    if (m_TreeImpl->m_LambdaOverride == boost::none) {
+        result.emplace_back(std::log(m_TreeImpl->m_Lambda / 10.0),
+                            std::log(10.0 * m_TreeImpl->m_Lambda));
     }
-    if (m_Impl->m_GammaOverride == boost::none) {
-        result.emplace_back(std::log(m_Impl->m_Gamma / 10.0),
-                            std::log(10.0 * m_Impl->m_Gamma));
+    if (m_TreeImpl->m_GammaOverride == boost::none) {
+        result.emplace_back(std::log(m_TreeImpl->m_Gamma / 10.0),
+                            std::log(10.0 * m_TreeImpl->m_Gamma));
     }
-    if (m_Impl->m_EtaOverride == boost::none) {
-        double rate{m_Impl->m_EtaGrowthRatePerTree - 1.0};
-        result.emplace_back(std::log(0.3 * m_Impl->m_Eta), std::log(3.0 * m_Impl->m_Eta));
+    if (m_TreeImpl->m_EtaOverride == boost::none) {
+        double rate{m_TreeImpl->m_EtaGrowthRatePerTree - 1.0};
+        result.emplace_back(std::log(0.3 * m_TreeImpl->m_Eta),
+                            std::log(3.0 * m_TreeImpl->m_Eta));
         result.emplace_back(1.0 + rate / 2.0, 1.0 + 1.5 * rate);
     }
-    if (m_Impl->m_FeatureBagFractionOverride == boost::none) {
+    if (m_TreeImpl->m_FeatureBagFractionOverride == boost::none) {
         result.emplace_back(0.2, 0.8);
     }
     return result;
@@ -82,23 +73,23 @@ CBayesianOptimisation::TDoubleDoublePrVec CBoostedTreeFactory::hyperparameterBou
 
 void CBoostedTreeFactory::initializeMissingFeatureMasks(const core::CDataFrame& frame) {
 
-    m_Impl->m_MissingFeatureRowMasks.resize(frame.numberColumns());
+    m_TreeImpl->m_MissingFeatureRowMasks.resize(frame.numberColumns());
 
     auto result = frame.readRows(1, [&](TRowItr beginRows, TRowItr endRows) {
         for (auto row = beginRows; row != endRows; ++row) {
             for (std::size_t i = 0; i < row->numberColumns(); ++i) {
                 double value{(*row)[i]};
                 if (CDataFrameUtils::isMissing(value)) {
-                    m_Impl->m_MissingFeatureRowMasks[i].extend(
-                        false,
-                        row->index() - m_Impl->m_MissingFeatureRowMasks[i].size());
-                    m_Impl->m_MissingFeatureRowMasks[i].extend(true);
+                    m_TreeImpl->m_MissingFeatureRowMasks[i].extend(
+                        false, row->index() -
+                                   m_TreeImpl->m_MissingFeatureRowMasks[i].size());
+                    m_TreeImpl->m_MissingFeatureRowMasks[i].extend(true);
                 }
             }
         }
     });
 
-    for (auto& mask : m_Impl->m_MissingFeatureRowMasks) {
+    for (auto& mask : m_TreeImpl->m_MissingFeatureRowMasks) {
         mask.extend(false, frame.numberRows() - mask.size());
         LOG_TRACE(<< "# missing = " << mask.manhattan());
     }
@@ -107,12 +98,14 @@ void CBoostedTreeFactory::initializeMissingFeatureMasks(const core::CDataFrame& 
 std::pair<CBoostedTreeImpl::TPackedBitVectorVec, CBoostedTreeImpl::TPackedBitVectorVec>
 CBoostedTreeFactory::crossValidationRowMasks() const {
 
-    core::CPackedBitVector mask{~m_Impl->m_MissingFeatureRowMasks[m_Impl->m_DependentVariable]};
+    core::CPackedBitVector mask{
+        ~m_TreeImpl->m_MissingFeatureRowMasks[m_TreeImpl->m_DependentVariable]};
 
-    TPackedBitVectorVec trainingRowMasks(m_Impl->m_NumberFolds);
+    TPackedBitVectorVec trainingRowMasks(m_TreeImpl->m_NumberFolds);
 
     for (auto row = mask.beginOneBits(); row != mask.endOneBits(); ++row) {
-        std::size_t fold{CSampling::uniformSample(m_Impl->m_Rng, 0, m_Impl->m_NumberFolds)};
+        std::size_t fold{CSampling::uniformSample(m_TreeImpl->m_Rng, 0,
+                                                  m_TreeImpl->m_NumberFolds)};
         trainingRowMasks[fold].extend(true, *row - trainingRowMasks[fold].size());
         trainingRowMasks[fold].extend(false);
     }
@@ -122,9 +115,9 @@ CBoostedTreeFactory::crossValidationRowMasks() const {
         LOG_TRACE(<< "# training = " << fold.manhattan());
     }
 
-    TPackedBitVectorVec testingRowMasks(m_Impl->m_NumberFolds,
+    TPackedBitVectorVec testingRowMasks(m_TreeImpl->m_NumberFolds,
                                         core::CPackedBitVector{mask.size(), true});
-    for (std::size_t i = 0; i < m_Impl->m_NumberFolds; ++i) {
+    for (std::size_t i = 0; i < m_TreeImpl->m_NumberFolds; ++i) {
         testingRowMasks[i] ^= trainingRowMasks[i];
         LOG_TRACE(<< "# testing = " << testingRowMasks[i].manhattan());
     }
@@ -136,20 +129,21 @@ void CBoostedTreeFactory::initializeFeatureSampleDistribution(const core::CDataF
 
     // Exclude all constant features by zeroing their probabilities.
 
-    std::size_t n{m_Impl->numberFeatures(frame)};
+    std::size_t n{m_TreeImpl->numberFeatures(frame)};
 
     TSizeVec regressors(n);
     std::iota(regressors.begin(), regressors.end(), 0);
-    regressors.erase(regressors.begin() + m_Impl->m_DependentVariable);
+    regressors.erase(regressors.begin() + m_TreeImpl->m_DependentVariable);
 
-    TDoubleVec mics(CDataFrameUtils::micWithColumn(frame, regressors, m_Impl->m_DependentVariable));
+    TDoubleVec mics(CDataFrameUtils::micWithColumn(frame, regressors,
+                                                   m_TreeImpl->m_DependentVariable));
 
     regressors.erase(std::remove_if(regressors.begin(), regressors.end(),
                                     [&](std::size_t i) { return mics[i] == 0.0; }),
                      regressors.end());
     LOG_TRACE(<< "candidate regressors = " << core::CContainerPrinter::print(regressors));
 
-    m_Impl->m_FeatureSampleProbabilities.assign(n, 0.0);
+    m_TreeImpl->m_FeatureSampleProbabilities.assign(n, 0.0);
     if (regressors.empty()) {
         HANDLE_FATAL(<< "Input error: all features constant.");
     } else {
@@ -158,7 +152,7 @@ void CBoostedTreeFactory::initializeFeatureSampleDistribution(const core::CDataF
                              return mics[lhs] > mics[rhs];
                          });
 
-        std::size_t maximumNumberFeatures{frame.numberRows() / m_Impl->m_RowsPerFeature};
+        std::size_t maximumNumberFeatures{frame.numberRows() / m_TreeImpl->m_RowsPerFeature};
         LOG_TRACE(<< "Using up to " << maximumNumberFeatures << " out of "
                   << regressors.size() << " features");
 
@@ -169,20 +163,20 @@ void CBoostedTreeFactory::initializeFeatureSampleDistribution(const core::CDataF
             [&mics](double z, std::size_t i) { return z + mics[i]; })};
         LOG_TRACE(<< "Z = " << Z);
         for (auto i : regressors) {
-            m_Impl->m_FeatureSampleProbabilities[i] = mics[i] / Z;
+            m_TreeImpl->m_FeatureSampleProbabilities[i] = mics[i] / Z;
         }
     }
     LOG_TRACE(<< "P(sample) = "
-              << core::CContainerPrinter::print(m_Impl->m_FeatureSampleProbabilities));
+              << core::CContainerPrinter::print(m_TreeImpl->m_FeatureSampleProbabilities));
 }
 
 void CBoostedTreeFactory::initializeHyperparameters(core::CDataFrame& frame,
                                                     CBoostedTree::TProgressCallback recordProgress) {
 
-    m_Impl->m_Lambda = m_Impl->m_LambdaOverride.value_or(0.0);
-    m_Impl->m_Gamma = m_Impl->m_GammaOverride.value_or(0.0);
-    if (m_Impl->m_EtaOverride) {
-        m_Impl->m_Eta = *(m_Impl->m_EtaOverride);
+    m_TreeImpl->m_Lambda = m_TreeImpl->m_LambdaOverride.value_or(0.0);
+    m_TreeImpl->m_Gamma = m_TreeImpl->m_GammaOverride.value_or(0.0);
+    if (m_TreeImpl->m_EtaOverride) {
+        m_TreeImpl->m_Eta = *(m_TreeImpl->m_EtaOverride);
     } else {
         // Eta is the learning rate. There is a lot of empirical evidence that
         // this should not be much larger than 0.1. Conceptually, we're making
@@ -197,64 +191,66 @@ void CBoostedTreeFactory::initializeHyperparameters(core::CDataFrame& frame,
         // the learning rate to maintain more equal tree weights. This tends to
         // produce forests which generalise as well but are much smaller and so
         // train faster.
-        m_Impl->m_Eta = 1.0 / std::max(10.0, std::sqrt(static_cast<double>(
-                                                 frame.numberColumns() - 4)));
-        m_Impl->m_EtaGrowthRatePerTree = 1.0 + m_Impl->m_Eta / 2.0;
+        m_TreeImpl->m_Eta = 1.0 / std::max(10.0, std::sqrt(static_cast<double>(
+                                                     frame.numberColumns() - 4)));
+        m_TreeImpl->m_EtaGrowthRatePerTree = 1.0 + m_TreeImpl->m_Eta / 2.0;
     }
-    if (m_Impl->m_MaximumNumberTreesOverride) {
-        m_Impl->m_MaximumNumberTrees = *(m_Impl->m_MaximumNumberTreesOverride);
+    if (m_TreeImpl->m_MaximumNumberTreesOverride) {
+        m_TreeImpl->m_MaximumNumberTrees = *(m_TreeImpl->m_MaximumNumberTreesOverride);
     } else {
         // This needs to be tied to the learn rate to avoid bias.
-        m_Impl->m_MaximumNumberTrees = static_cast<std::size_t>(2.0 / m_Impl->m_Eta + 0.5);
+        m_TreeImpl->m_MaximumNumberTrees =
+            static_cast<std::size_t>(2.0 / m_TreeImpl->m_Eta + 0.5);
     }
-    if (m_Impl->m_FeatureBagFractionOverride) {
-        m_Impl->m_FeatureBagFraction = *(m_Impl->m_FeatureBagFractionOverride);
+    if (m_TreeImpl->m_FeatureBagFractionOverride) {
+        m_TreeImpl->m_FeatureBagFraction = *(m_TreeImpl->m_FeatureBagFractionOverride);
     }
 
-    if (m_Impl->m_LambdaOverride && m_Impl->m_GammaOverride) {
+    if (m_TreeImpl->m_LambdaOverride && m_TreeImpl->m_GammaOverride) {
         // Fall through.
     } else {
         core::CPackedBitVector trainingRowMask{frame.numberRows(), true};
 
-        auto vector = m_Impl->initializePredictionsAndLossDerivatives(frame, trainingRowMask);
+        auto vector = m_TreeImpl->initializePredictionsAndLossDerivatives(frame, trainingRowMask);
 
         double L[2];
         double T[2];
         double W[2];
 
         std::tie(L[0], T[0], W[0]) =
-            m_Impl->regularisedLoss(frame, trainingRowMask, {std::move(vector)});
+            m_TreeImpl->regularisedLoss(frame, trainingRowMask, {std::move(vector)});
         LOG_TRACE(<< "loss = " << L[0] << ", # leaves = " << T[0]
                   << ", sum square weights = " << W[0]);
 
-        auto forest = m_Impl->trainForest(frame, trainingRowMask, recordProgress);
+        auto forest = m_TreeImpl->trainForest(frame, trainingRowMask, recordProgress);
 
-        std::tie(L[1], T[1], W[1]) = m_Impl->regularisedLoss(frame, trainingRowMask, forest);
+        std::tie(L[1], T[1], W[1]) =
+            m_TreeImpl->regularisedLoss(frame, trainingRowMask, forest);
         LOG_TRACE(<< "loss = " << L[1] << ", # leaves = " << T[1]
                   << ", sum square weights = " << W[1]);
 
-        double scale{static_cast<double>(m_Impl->m_NumberFolds - 1) /
-                     static_cast<double>(m_Impl->m_NumberFolds)};
+        double scale{static_cast<double>(m_TreeImpl->m_NumberFolds - 1) /
+                     static_cast<double>(m_TreeImpl->m_NumberFolds)};
         double lambda{scale * std::max((L[0] - L[1]) / (W[1] - W[0]), 0.0) / 5.0};
         double gamma{scale * std::max((L[0] - L[1]) / (T[1] - T[0]), 0.0) / 5.0};
 
-        if (m_Impl->m_LambdaOverride == boost::none) {
-            m_Impl->m_Lambda = m_Impl->m_GammaOverride ? lambda : 0.5 * lambda;
+        if (m_TreeImpl->m_LambdaOverride == boost::none) {
+            m_TreeImpl->m_Lambda = m_TreeImpl->m_GammaOverride ? lambda : 0.5 * lambda;
         }
-        if (m_Impl->m_GammaOverride == boost::none) {
-            m_Impl->m_Gamma = m_Impl->m_LambdaOverride ? gamma : 0.5 * gamma;
+        if (m_TreeImpl->m_GammaOverride == boost::none) {
+            m_TreeImpl->m_Gamma = m_TreeImpl->m_LambdaOverride ? gamma : 0.5 * gamma;
         }
-        LOG_TRACE(<< "lambda(initial) = " << m_Impl->m_Lambda
-                  << " gamma(initial) = " << m_Impl->m_Gamma);
+        LOG_TRACE(<< "lambda(initial) = " << m_TreeImpl->m_Lambda
+                  << " gamma(initial) = " << m_TreeImpl->m_Gamma);
     }
 
-    m_Impl->m_MaximumTreeSizeFraction = 10.0;
+    m_TreeImpl->m_MaximumTreeSizeFraction = 10.0;
 
-    if (m_Impl->m_MaximumNumberTreesOverride == boost::none) {
+    if (m_TreeImpl->m_MaximumNumberTreesOverride == boost::none) {
         // We allow a large number of trees by default in the main parameter
         // optimisation loop. In practice, we should use many fewer if they
         // don't significantly improve test error.
-        m_Impl->m_MaximumNumberTrees *= 10;
+        m_TreeImpl->m_MaximumNumberTrees *= 10;
     }
 }
 
@@ -268,42 +264,42 @@ CBoostedTreeFactory::constructFromParameters(std::size_t numberThreads,
 CBoostedTreeFactory::CBoostedTreeFactory(std::size_t numberThreads,
                                          std::size_t dependentVariable,
                                          CBoostedTree::TLossFunctionUPtr loss)
-    : m_Impl{new CBoostedTreeImpl(numberThreads, dependentVariable, std::move(loss))}, m_Frame{nullptr} {
+    : m_TreeImpl{new CBoostedTreeImpl(numberThreads, dependentVariable, std::move(loss))} {
 }
 
 CBoostedTreeFactory& CBoostedTreeFactory::numberFolds(std::size_t folds) {
-    m_Impl->numberFolds(folds);
+    m_TreeImpl->numberFolds(folds);
     return *this;
 }
 
 CBoostedTreeFactory& CBoostedTreeFactory::lambda(double lambda) {
-    m_Impl->lambda(lambda);
+    m_TreeImpl->lambda(lambda);
     return *this;
 }
 
 CBoostedTreeFactory& CBoostedTreeFactory::gamma(double gamma) {
-    m_Impl->gamma(gamma);
+    m_TreeImpl->gamma(gamma);
     return *this;
 }
 
 CBoostedTreeFactory& CBoostedTreeFactory::eta(double eta) {
-    m_Impl->eta(eta);
+    m_TreeImpl->eta(eta);
     return *this;
 }
 
 CBoostedTreeFactory& CBoostedTreeFactory::maximumNumberTrees(std::size_t maximumNumberTrees) {
-    m_Impl->maximumNumberTrees(maximumNumberTrees);
+    m_TreeImpl->maximumNumberTrees(maximumNumberTrees);
     return *this;
 }
 
 CBoostedTreeFactory& CBoostedTreeFactory::featureBagFraction(double featureBagFraction) {
-    m_Impl->featureBagFraction(featureBagFraction);
+    m_TreeImpl->featureBagFraction(featureBagFraction);
     return *this;
 }
 
 CBoostedTreeFactory&
 CBoostedTreeFactory::maximumOptimisationRoundsPerHyperparameter(std::size_t rounds) {
-    m_Impl->maximumOptimisationRoundsPerHyperparameter(rounds);
+    m_TreeImpl->maximumOptimisationRoundsPerHyperparameter(rounds);
     return *this;
 }
 
@@ -313,17 +309,12 @@ CBoostedTreeFactory::progressCallback(CBoostedTree::TProgressCallback callback) 
     return *this;
 }
 
-CBoostedTreeFactory& CBoostedTreeFactory::frame(core::CDataFrame& frame) {
-    this->m_Frame = &frame;
-    return *this;
-}
-
 std::size_t CBoostedTreeFactory::estimateMemoryUsage(std::size_t numberRows,
                                                      std::size_t numberColumns) const {
-    return m_Impl->estimateMemoryUsage(numberRows, numberColumns);
+    return m_TreeImpl->estimateMemoryUsage(numberRows, numberColumns);
 }
 std::size_t CBoostedTreeFactory::numberExtraColumnsForTrain() const {
-    return m_Impl->numberExtraColumnsForTrain();
+    return m_TreeImpl->numberExtraColumnsForTrain();
 }
 }
 }
