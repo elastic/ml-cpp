@@ -30,31 +30,30 @@ public:
 
 public:
     virtual ~CDataFrameRegressionModel() = default;
+    CDataFrameRegressionModel& operator=(const CDataFrameRegressionModel&) = delete;
 
-    //! Train the model on the values in \p frame.
+    //! Train on the examples in the data frame supplied to the constructor.
     virtual void train(TProgressCallback recordProgress = noop) = 0;
 
-    //! Write the predictions of this model to \p frame.
-    virtual void predict(core::CDataFrame& frame,
-                         TProgressCallback recordProgress = noop) const = 0;
+    //! Write the predictions to the data frame supplied to the constructor.
+    //!
+    //! \warning This can only be called after train.
+    virtual void predict(TProgressCallback recordProgress = noop) const = 0;
 
     //! Write this model to \p writer.
+    //!
+    //! \warning This can only be called after train.
     virtual void write(core::CRapidJsonConcurrentLineWriter& writer) const = 0;
 
     //! Get the feature weights the model has chosen.
     virtual TDoubleVec featureWeights() const = 0;
 
-    //! Get the number of columns training the model will add to the data frame.
-    virtual std::size_t numberExtraColumnsForTrain() const = 0;
-
     //! Get the column containing the model's prediction for the dependent variable.
     virtual std::size_t columnHoldingPrediction(std::size_t numberColumns) const = 0;
 
-    //! Get the reference to the data frame object.
-    core::CDataFrame& frame() { return m_Frame; };
-
 protected:
-    CDataFrameRegressionModel(core::CDataFrame& frame) : m_Frame{frame} {};
+    CDataFrameRegressionModel(core::CDataFrame& frame) : m_Frame{frame} {}
+    core::CDataFrame& frame() const { return m_Frame; }
     static void noop(double);
 
 private:

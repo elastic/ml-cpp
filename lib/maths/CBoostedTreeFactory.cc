@@ -8,9 +8,14 @@
 
 #include <maths/CBayesianOptimisation.h>
 #include <maths/CBoostedTreeImpl.h>
+#include <maths/CSampling.h>
 
 namespace ml {
 namespace maths {
+using namespace boosted_tree_detail;
+using TDoubleVec = std::vector<double>;
+using TSizeVec = std::vector<std::size_t>;
+using TRowItr = core::CDataFrame::TRowItr;
 
 CBoostedTreeFactory::TBoostedTreeUPtr CBoostedTreeFactory::buildFor(core::CDataFrame& frame) {
 
@@ -24,11 +29,8 @@ CBoostedTreeFactory::TBoostedTreeUPtr CBoostedTreeFactory::buildFor(core::CDataF
 
     this->initializeFeatureSampleDistribution(frame);
     this->initializeHyperparameters(frame, m_ProgressCallback);
-    m_TreeImpl->m_BayesianOptimization =
-        std::make_unique<CBayesianOptimisation>(this->hyperparameterBoundingBox());
-    m_TreeImpl->m_NumberRounds = this->numberHyperparameterTuningRounds();
+    this->initializeHyperparameterOptimisation();
 
-    m_TreeImpl->m_CurrentRound = 0; // for first start
     return std::unique_ptr<CBoostedTree>(new CBoostedTree(frame, m_TreeImpl));
 }
 
@@ -38,7 +40,7 @@ std::size_t CBoostedTreeFactory::numberHyperparameterTuningRounds() const {
                     std::size_t{1});
 }
 
-CBayesianOptimisation::TDoubleDoublePrVec CBoostedTreeFactory::hyperparameterBoundingBox() const {
+void CBoostedTreeFactory::initializeHyperparameterOptimisation() const {
 
     // We need sensible bounds for the region we'll search for optimal values.
     // For all parameters where we have initial estimates we use bounds of the
@@ -50,28 +52,32 @@ CBayesianOptimisation::TDoubleDoublePrVec CBoostedTreeFactory::hyperparameterBou
     // a ratio, i.e. roughly speaking difference(p_1, p_0) = p_1 / p_0 for p_0
     // less than p_1, this translates to using log parameter values.
 
-    CBayesianOptimisation::TDoubleDoublePrVec result;
+    CBayesianOptimisation::TDoubleDoublePrVec boundingBox;
     if (m_TreeImpl->m_LambdaOverride == boost::none) {
-        result.emplace_back(std::log(m_TreeImpl->m_Lambda / 10.0),
-                            std::log(10.0 * m_TreeImpl->m_Lambda));
+        boundingBox.emplace_back(std::log(m_TreeImpl->m_Lambda / 10.0),
+                                 std::log(10.0 * m_TreeImpl->m_Lambda));
     }
     if (m_TreeImpl->m_GammaOverride == boost::none) {
-        result.emplace_back(std::log(m_TreeImpl->m_Gamma / 10.0),
-                            std::log(10.0 * m_TreeImpl->m_Gamma));
+        boundingBox.emplace_back(std::log(m_TreeImpl->m_Gamma / 10.0),
+                                 std::log(10.0 * m_TreeImpl->m_Gamma));
     }
     if (m_TreeImpl->m_EtaOverride == boost::none) {
         double rate{m_TreeImpl->m_EtaGrowthRatePerTree - 1.0};
-        result.emplace_back(std::log(0.3 * m_TreeImpl->m_Eta),
-                            std::log(3.0 * m_TreeImpl->m_Eta));
-        result.emplace_back(1.0 + rate / 2.0, 1.0 + 1.5 * rate);
+        boundingBox.emplace_back(std::log(0.3 * m_TreeImpl->m_Eta),
+                                 std::log(3.0 * m_TreeImpl->m_Eta));
+        boundingBox.emplace_back(1.0 + rate / 2.0, 1.0 + 1.5 * rate);
     }
     if (m_TreeImpl->m_FeatureBagFractionOverride == boost::none) {
-        result.emplace_back(0.2, 0.8);
+        boundingBox.emplace_back(0.2, 0.8);
     }
-    return result;
+
+    m_TreeImpl->m_BayesianOptimization =
+        std::make_unique<CBayesianOptimisation>(std::move(boundingBox));
+    m_TreeImpl->m_NumberRounds = this->numberHyperparameterTuningRounds();
+    m_TreeImpl->m_CurrentRound = 0; // for first start
 }
 
-void CBoostedTreeFactory::initializeMissingFeatureMasks(const core::CDataFrame& frame) {
+void CBoostedTreeFactory::initializeMissingFeatureMasks(const core::CDataFrame& frame) const {
 
     m_TreeImpl->m_MissingFeatureRowMasks.resize(frame.numberColumns());
 
@@ -125,11 +131,11 @@ CBoostedTreeFactory::crossValidationRowMasks() const {
     return {trainingRowMasks, testingRowMasks};
 }
 
-void CBoostedTreeFactory::initializeFeatureSampleDistribution(const core::CDataFrame& frame) {
+void CBoostedTreeFactory::initializeFeatureSampleDistribution(const core::CDataFrame& frame) const {
 
     // Exclude all constant features by zeroing their probabilities.
 
-    std::size_t n{m_TreeImpl->numberFeatures(frame)};
+    std::size_t n{numberFeatures(frame)};
 
     TSizeVec regressors(n);
     std::iota(regressors.begin(), regressors.end(), 0);
@@ -171,7 +177,7 @@ void CBoostedTreeFactory::initializeFeatureSampleDistribution(const core::CDataF
 }
 
 void CBoostedTreeFactory::initializeHyperparameters(core::CDataFrame& frame,
-                                                    CBoostedTree::TProgressCallback recordProgress) {
+                                                    CBoostedTree::TProgressCallback recordProgress) const {
 
     m_TreeImpl->m_Lambda = m_TreeImpl->m_LambdaOverride.value_or(0.0);
     m_TreeImpl->m_Gamma = m_TreeImpl->m_GammaOverride.value_or(0.0);
@@ -261,6 +267,10 @@ CBoostedTreeFactory::constructFromParameters(std::size_t numberThreads,
     return {numberThreads, dependentVariable, std::move(loss)};
 }
 
+CBoostedTreeFactory::~CBoostedTreeFactory() = default;
+CBoostedTreeFactory::CBoostedTreeFactory(CBoostedTreeFactory&&) = default;
+CBoostedTreeFactory& CBoostedTreeFactory::operator=(CBoostedTreeFactory&&) = default;
+
 CBoostedTreeFactory::CBoostedTreeFactory(std::size_t numberThreads,
                                          std::size_t dependentVariable,
                                          CBoostedTree::TLossFunctionUPtr loss)
@@ -305,7 +315,7 @@ CBoostedTreeFactory::maximumOptimisationRoundsPerHyperparameter(std::size_t roun
 
 CBoostedTreeFactory&
 CBoostedTreeFactory::progressCallback(CBoostedTree::TProgressCallback callback) {
-    this->m_ProgressCallback = callback;
+    m_ProgressCallback = callback;
     return *this;
 }
 
@@ -313,6 +323,7 @@ std::size_t CBoostedTreeFactory::estimateMemoryUsage(std::size_t numberRows,
                                                      std::size_t numberColumns) const {
     return m_TreeImpl->estimateMemoryUsage(numberRows, numberColumns);
 }
+
 std::size_t CBoostedTreeFactory::numberExtraColumnsForTrain() const {
     return m_TreeImpl->numberExtraColumnsForTrain();
 }

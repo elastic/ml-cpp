@@ -123,27 +123,24 @@ public:
 public:
     ~CBoostedTree() override;
 
-    //! Train the model on the values in \p frame.
+    //! Train on the examples in the data frame supplied to the constructor.
     void train(TProgressCallback recordProgress = noop) override;
 
-    //! Write the predictions of this model to \p frame.
-    void predict(core::CDataFrame& frame, TProgressCallback recordProgress = noop) const override;
+    //! Write the predictions to the data frame supplied to the constructor.
+    //!
+    //! \warning This can only be called after train.
+    void predict(TProgressCallback recordProgress = noop) const override;
 
-    //! Write this model to \p writer.
+    //! Write the trained model to \p writer.
+    //!
+    //! \warning This can only be called after train.
     void write(core::CRapidJsonConcurrentLineWriter& writer) const override;
 
     //! Get the feature weights the model has chosen.
     TDoubleVec featureWeights() const override;
 
-    //! Get the number of columns training the model will add to the data frame.
-    std::size_t numberExtraColumnsForTrain() const override;
-
     //! Get the column containing the model's prediction for the dependent variable.
     std::size_t columnHoldingPrediction(std::size_t numberColumns) const override;
-
-    //! Estimate the maximum booking memory that training the boosted tree on a data
-    //! frame with \p numberRows row and \p numberColumns columns will use.
-    std::size_t estimateMemoryUsage(std::size_t numberRows, std::size_t numberColumns) const;
 
 private:
     using TImplUPtr = std::unique_ptr<CBoostedTreeImpl>;
