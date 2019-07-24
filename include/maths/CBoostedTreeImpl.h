@@ -681,6 +681,7 @@ private:
     std::size_t m_MaximumAttemptsToAddTree = 3;
     std::size_t m_NumberSplitsPerFeature = 40;
     std::size_t m_MaximumOptimisationRoundsPerHyperparameter = 5;
+    std::size_t m_RowsPerFeature = 50;
     double m_FeatureBagFraction = 0.5;
     double m_MaximumTreeSizeFraction = 1.0;
     TDoubleVec m_FeatureSampleProbabilities;
@@ -694,7 +695,6 @@ private:
     std::size_t m_CurrentRound;
     TPackedBitVectorVec m_TrainingRowMasks;
     TPackedBitVectorVec m_TestingRowMasks;
-    std::size_t m_RowsPerFeature;
 
     friend class CBoostedTreeFactory;
 };

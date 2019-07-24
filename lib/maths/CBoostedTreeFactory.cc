@@ -318,10 +318,6 @@ CBoostedTreeFactory& CBoostedTreeFactory::frame(core::CDataFrame& frame) {
     return *this;
 }
 
-const CBoostedTree& CBoostedTreeFactory::incompleteTreeObject() const {
-    return *m_Tree;
-}
-
 std::size_t CBoostedTreeFactory::estimateMemoryUsage(std::size_t numberRows,
                                                      std::size_t numberColumns) const {
     return m_Impl->estimateMemoryUsage(numberRows, numberColumns);

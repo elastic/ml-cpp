@@ -57,10 +57,6 @@ public:
     CBoostedTreeFactory& progressCallback(CBoostedTree::TProgressCallback callback);
     //! Set the reference to the data frame.
     CBoostedTreeFactory& frame(core::CDataFrame& frame);
-    //! Returns the reference to the CBoostedTree object before this was completely
-    //! initialized. This is useful since some functions, e.g estimateMemoryUsage has to be called before
-    //! data frame reference was passed
-    const CBoostedTree& incompleteTreeObject() const;
     //! Create and return a new boosted tree trainer.
     operator TBoostedTreeUPtr();
     //! Estimate the maximum booking memory that training the boosted tree on a data
