@@ -8,6 +8,8 @@
 #define INCLUDED_ml_maths_CBoostedTree_h
 
 #include <core/CDataFrame.h>
+#include <core/CStatePersistInserter.h>
+#include <core/CStateRestoreTraverser.h>
 
 #include <maths/CBasicStatistics.h>
 #include <maths/CDataFrameRegressionModel.h>
@@ -57,6 +59,8 @@ public:
     virtual double curvature(double prediction, double actual) const = 0;
     //! Get an object which computes the leaf value that minimises loss.
     virtual TArgMinLossUPtr minimizer() const = 0;
+    //! Get the name of the loss function
+    virtual std::string name() const = 0;
 };
 
 //! \brief Finds the leaf node value which minimises the MSE.
@@ -81,6 +85,10 @@ public:
     double gradient(double prediction, double actual) const override;
     double curvature(double prediction, double actual) const override;
     TArgMinLossUPtr minimizer() const override;
+    std::string name() const override;
+
+public:
+    static const std::string NAME;
 };
 }
 
@@ -142,11 +150,19 @@ public:
     //! Get the column containing the model's prediction for the dependent variable.
     std::size_t columnHoldingPrediction(std::size_t numberColumns) const override;
 
+    //! Persist by passing information to \p inserter.
+    void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
+
+    //! Populate the object from serialized data
+    bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
+
 private:
     using TImplUPtr = std::unique_ptr<CBoostedTreeImpl>;
 
 private:
     CBoostedTree(core::CDataFrame& frame, TImplUPtr& impl);
+
+    bool restoreImpl(TImplUPtr& impl, core::CStateRestoreTraverser& traverser);
 
 private:
     TImplUPtr m_Impl;

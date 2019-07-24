@@ -38,6 +38,12 @@ double CMse::curvature(double /*prediction*/, double /*actual*/) const {
     return 2.0;
 }
 
+const std::string CMse::NAME{"mse"};
+
+std::string CMse::name() const {
+    return NAME;
+}
+
 void CArgMinMse::addImpl(double prediction, double actual) {
     m_MeanError.add(actual - prediction);
 }
@@ -75,6 +81,37 @@ CBoostedTree::TDoubleVec CBoostedTree::featureWeights() const {
 
 std::size_t CBoostedTree::columnHoldingPrediction(std::size_t numberColumns) const {
     return predictionColumn(numberColumns);
+}
+
+namespace {
+const std::string BOOSTED_TREE_IMPL_TAG{"boosted_tree_impl"};
+}
+
+bool CBoostedTree::restoreImpl(TImplUPtr& implPtr, core::CStateRestoreTraverser& traverser) {
+    implPtr.reset(new CBoostedTreeImpl(0, 0, nullptr));
+    if (core::CPersistUtils::restore(BOOSTED_TREE_IMPL_TAG, *implPtr, traverser)) {
+        return true;
+    }
+    implPtr.release();
+    return false;
+}
+
+bool CBoostedTree::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
+    try {
+        do {
+            const std::string& name = traverser.name();
+            RESTORE(BOOSTED_TREE_IMPL_TAG, restoreImpl(m_Impl, traverser))
+        } while (traverser.next());
+    } catch (std::exception& e) {
+        LOG_ERROR(<< "Failed to restore state! " << e.what());
+        return false;
+    }
+
+    return true;
+}
+
+void CBoostedTree::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
+    core::CPersistUtils::persist(BOOSTED_TREE_IMPL_TAG, *m_Impl, inserter);
 }
 }
 }

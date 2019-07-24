@@ -11,6 +11,8 @@
 #include <core/CDataFrame.h>
 #include <core/CLogger.h>
 #include <core/CPackedBitVector.h>
+#include <core/CStatePersistInserter.h>
+#include <core/CStateRestoreTraverser.h>
 
 #include <maths/CBasicStatistics.h>
 #include <maths/CBayesianOptimisation.h>
@@ -99,6 +101,12 @@ public:
     //! frame with \p numberRows row and \p numberColumns columns will use.
     std::size_t estimateMemoryUsage(std::size_t numberRows, std::size_t numberColumns) const;
 
+    //! Persist by passing information to \p inserter.
+    void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
+
+    //! Populate the object from serialized data
+    bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
+
 private:
     using TDoubleDoublePrVec = std::vector<std::pair<double, double>>;
     using TOptionalDouble = boost::optional<double>;
@@ -123,6 +131,12 @@ private:
         double s_EtaGrowthRatePerTree;
         double s_FeatureBagFraction;
         TDoubleVec s_FeatureSampleProbabilities;
+
+        //! Persist by passing information to \p inserter.
+        void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
+
+        //! Populate the object from serialized data
+        bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
     };
 
     //! \brief A node of a regression tree.
@@ -233,6 +247,12 @@ private:
             std::ostringstream result;
             return this->doPrint("", tree, result).str();
         }
+
+        //! Persist by passing information to \p inserter.
+        void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
+
+        //! Populate the object from serialized data
+        bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
 
     private:
         std::ostringstream&
@@ -670,6 +690,10 @@ private:
     //! \note This number will only be used if the regularised loss says its
     //! a good idea.
     std::size_t maximumTreeSize(std::size_t numberRows) const;
+
+    //! Restore \p loss function pointer from the \p traverser.
+    bool restoreLoss(CBoostedTree::TLossFunctionUPtr& loss,
+                     core::CStateRestoreTraverser& traverser);
 
 private:
     static const double INF;

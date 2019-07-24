@@ -329,5 +329,9 @@ std::size_t CBoostedTreeFactory::estimateMemoryUsage(std::size_t numberRows,
 std::size_t CBoostedTreeFactory::numberExtraColumnsForTrain() const {
     return m_TreeImpl->numberExtraColumnsForTrain();
 }
+CBoostedTreeFactory& CBoostedTreeFactory::rowsPerFeature(std::size_t rowsPerFeature) {
+    this->m_TreeImpl->rowsPerFeature(rowsPerFeature);
+    return *this;
+}
 }
 }
