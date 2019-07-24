@@ -57,6 +57,8 @@ public:
     CBoostedTreeImpl(std::size_t numberThreads,
                      std::size_t dependentVariable,
                      CBoostedTree::TLossFunctionUPtr loss);
+
+    // TODO move all these methods factory since it is a friend anyway.
     //! Set the number of folds to use for estimating the generalisation error.
     void numberFolds(std::size_t numberFolds);
     //! Set the lambda regularisation parameter.
@@ -581,6 +583,13 @@ private:
     };
 
 private:
+    //! Check if we can train a model.
+    bool canTrain() const;
+
+    //! Get the full training set data mask, i.e. all rows which aren't missing
+    //! the dependent variable.
+    core::CPackedBitVector allTrainingRowsMask() const;
+
     //! Compute the sum loss for the predictions from \p frame and the leaf
     //! count and squared weight sum from \p forest.
     TDoubleDoubleDoubleTr regularisedLoss(const core::CDataFrame& frame,
@@ -588,16 +597,14 @@ private:
                                           const TNodeVecVec& forest) const;
 
     //! Train the forest and compute loss moments on each fold.
-    TMeanVarAccumulator
-    crossValidateForest(core::CDataFrame& frame,
-                        const TPackedBitVectorVec& trainingRowMasks,
-                        const TPackedBitVectorVec& testingRowMasks,
-                        CBoostedTree::TProgressCallback recordProgress) const;
+    TMeanVarAccumulator crossValidateForest(core::CDataFrame& frame,
+                                            CBoostedTree::TProgressCallback recordProgress) const;
 
     //! Initialize the predictions and loss function derivatives for the masked
     //! rows in \p frame.
     TNodeVec initializePredictionsAndLossDerivatives(core::CDataFrame& frame,
                                                      const core::CPackedBitVector& trainingRowMask) const;
+
     //! Train one forest on the rows of \p frame in the mask \p trainingRowMask.
     TNodeVecVec trainForest(core::CDataFrame& frame,
                             const core::CPackedBitVector& trainingRowMask,
@@ -691,14 +698,14 @@ private:
     double m_MaximumTreeSizeFraction = 1.0;
     TDoubleVec m_FeatureSampleProbabilities;
     TPackedBitVectorVec m_MissingFeatureRowMasks;
+    TPackedBitVectorVec m_TrainingRowMasks;
+    TPackedBitVectorVec m_TestingRowMasks;
     double m_BestForestTestLoss = INF;
     SHyperparameters m_BestHyperparameters;
     TNodeVecVec m_BestForest;
     TBayesinOptimizationUPtr m_BayesianOptimization;
     std::size_t m_NumberRounds;
     std::size_t m_CurrentRound;
-    TPackedBitVectorVec m_TrainingRowMasks;
-    TPackedBitVectorVec m_TestingRowMasks;
 
     friend class CBoostedTreeFactory;
 };

@@ -175,7 +175,7 @@ void CBoostedTreeTest::testPiecewiseConstant() {
     }
     LOG_DEBUG(<< "mean MSE improvement = "
               << maths::CBasicStatistics::mean(meanMseImprovement));
-    CPPUNIT_ASSERT(maths::CBasicStatistics::mean(meanMseImprovement) > 20.0);
+    CPPUNIT_ASSERT(maths::CBasicStatistics::mean(meanMseImprovement) > 19.0);
 }
 
 void CBoostedTreeTest::testLinear() {
@@ -485,9 +485,9 @@ void CBoostedTreeTest::testConstantObjective() {
         }
     });
 
-    LOG_DEBUG(<< maths::CBasicStatistics::mean(modelPredictionErrorMoments));
-    // TODO using eta < 1 in this case causes bias. Trap earlier?
-    //CPPUNIT_ASSERT_EQUAL(0.0, maths::CBasicStatistics::mean(modelPredictionErrorMoments));
+    LOG_DEBUG(<< "mean prediction error = "
+              << maths::CBasicStatistics::mean(modelPredictionErrorMoments));
+    CPPUNIT_ASSERT_EQUAL(0.0, maths::CBasicStatistics::mean(modelPredictionErrorMoments));
 }
 
 void CBoostedTreeTest::testMissingData() {

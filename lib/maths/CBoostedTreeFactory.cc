@@ -27,9 +27,11 @@ CBoostedTreeFactory::TBoostedTreeUPtr CBoostedTreeFactory::buildFor(core::CDataF
     // value for the dependent variable of the regression.
     frame.resizeColumns(m_TreeImpl->m_NumberThreads, frame.numberColumns() + 3);
 
-    this->initializeFeatureSampleDistribution(frame);
-    this->initializeHyperparameters(frame, m_ProgressCallback);
-    this->initializeHyperparameterOptimisation();
+    // TODO we should do feature selection per fold.
+    if (this->initializeFeatureSampleDistribution(frame)) {
+        this->initializeHyperparameters(frame, m_ProgressCallback);
+        this->initializeHyperparameterOptimisation();
+    }
 
     return std::unique_ptr<CBoostedTree>(new CBoostedTree(frame, m_TreeImpl));
 }
@@ -131,7 +133,7 @@ CBoostedTreeFactory::crossValidationRowMasks() const {
     return {trainingRowMasks, testingRowMasks};
 }
 
-void CBoostedTreeFactory::initializeFeatureSampleDistribution(const core::CDataFrame& frame) const {
+bool CBoostedTreeFactory::initializeFeatureSampleDistribution(const core::CDataFrame& frame) const {
 
     // Exclude all constant features by zeroing their probabilities.
 
@@ -150,9 +152,7 @@ void CBoostedTreeFactory::initializeFeatureSampleDistribution(const core::CDataF
     LOG_TRACE(<< "candidate regressors = " << core::CContainerPrinter::print(regressors));
 
     m_TreeImpl->m_FeatureSampleProbabilities.assign(n, 0.0);
-    if (regressors.empty()) {
-        HANDLE_FATAL(<< "Input error: all features constant.");
-    } else {
+    if (regressors.size() > 0) {
         std::stable_sort(regressors.begin(), regressors.end(),
                          [&mics](std::size_t lhs, std::size_t rhs) {
                              return mics[lhs] > mics[rhs];
@@ -171,9 +171,11 @@ void CBoostedTreeFactory::initializeFeatureSampleDistribution(const core::CDataF
         for (auto i : regressors) {
             m_TreeImpl->m_FeatureSampleProbabilities[i] = mics[i] / Z;
         }
+        LOG_TRACE(<< "P(sample) = "
+                  << core::CContainerPrinter::print(m_TreeImpl->m_FeatureSampleProbabilities));
+        return true;
     }
-    LOG_TRACE(<< "P(sample) = "
-              << core::CContainerPrinter::print(m_TreeImpl->m_FeatureSampleProbabilities));
+    return false;
 }
 
 void CBoostedTreeFactory::initializeHyperparameters(core::CDataFrame& frame,

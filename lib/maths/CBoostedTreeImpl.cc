@@ -126,31 +126,46 @@ void CBoostedTreeImpl::train(core::CDataFrame& frame,
                              CBoostedTree::TProgressCallback recordProgress) {
     LOG_TRACE(<< "Main training loop...");
 
-    do {
-        LOG_TRACE(<< "Optimisation round = " << m_CurrentRound + 1);
+    if (this->canTrain() == false) {
+        // Fallback to using the constant predictor which minimises the loss.
 
-        TMeanVarAccumulator lossMoments{this->crossValidateForest(
-            frame, m_TrainingRowMasks, m_TestingRowMasks, recordProgress)};
+        core::CPackedBitVector trainingRowMask{this->allTrainingRowsMask()};
 
-        this->captureBestHyperparameters(lossMoments);
+        double eta{1.0};
+        std::swap(eta, m_Eta);
+        m_BestForest.assign(1, this->initializePredictionsAndLossDerivatives(frame, trainingRowMask));
+        std::swap(eta, m_Eta);
 
-        // Trap the case that the dependent variable is (effectively) constant.
-        // There is no point adjusting hyperparameters in this case - and we run
-        // into numerical issues trying - since any forest will do.
-        if (std::sqrt(CBasicStatistics::variance(lossMoments)) <
-            1e-10 * std::fabs(CBasicStatistics::mean(lossMoments))) {
-            break;
-        }
-        if (this->selectNextHyperparameters(lossMoments, *m_BayesianOptimization) == false) {
-            break;
-        }
-    } while (m_CurrentRound++ < m_NumberRounds);
+        m_BestForestTestLoss = this->meanLoss(frame, trainingRowMask, m_BestForest);
+        LOG_TRACE(<< "Test loss = " << m_BestForestTestLoss);
 
-    LOG_TRACE(<< "Test loss = " << m_BestForestTestLoss);
+    } else {
+        // Hyperparameter optimisation loop.
 
-    this->restoreBestHyperparameters();
-    m_BestForest = this->trainForest(
-        frame, core::CPackedBitVector{frame.numberRows(), true}, recordProgress);
+        do {
+            LOG_TRACE(<< "Optimisation round = " << m_CurrentRound + 1);
+
+            TMeanVarAccumulator lossMoments{this->crossValidateForest(frame, recordProgress)};
+
+            this->captureBestHyperparameters(lossMoments);
+
+            // Trap the case that the dependent variable is (effectively) constant.
+            // There is no point adjusting hyperparameters in this case - and we run
+            // into numerical issues trying - since any forest will do.
+            if (std::sqrt(CBasicStatistics::variance(lossMoments)) <
+                1e-10 * std::fabs(CBasicStatistics::mean(lossMoments))) {
+                break;
+            }
+            if (this->selectNextHyperparameters(lossMoments, *m_BayesianOptimization) == false) {
+                break;
+            }
+        } while (m_CurrentRound++ < m_NumberRounds);
+
+        LOG_TRACE(<< "Test loss = " << m_BestForestTestLoss);
+
+        this->restoreBestHyperparameters();
+        m_BestForest = this->trainForest(frame, this->allTrainingRowsMask(), recordProgress);
+    }
 }
 
 void CBoostedTreeImpl::predict(core::CDataFrame& frame,
@@ -202,6 +217,15 @@ std::size_t CBoostedTreeImpl::estimateMemoryUsage(std::size_t numberRows,
            hyperparametersMemoryUsage + leafNodeStatisticsMemoryUsage;
 }
 
+bool CBoostedTreeImpl::canTrain() const {
+    return std::accumulate(m_FeatureSampleProbabilities.begin(),
+                           m_FeatureSampleProbabilities.end(), 0.0) > 0.0;
+}
+
+core::CPackedBitVector CBoostedTreeImpl::allTrainingRowsMask() const {
+    return ~m_MissingFeatureRowMasks[m_DependentVariable];
+}
+
 CBoostedTreeImpl::TDoubleDoubleDoubleTr
 CBoostedTreeImpl::regularisedLoss(const core::CDataFrame& frame,
                                   const core::CPackedBitVector& trainingRowMask,
@@ -241,13 +265,11 @@ CBoostedTreeImpl::regularisedLoss(const core::CDataFrame& frame,
 
 CBoostedTreeImpl::TMeanVarAccumulator
 CBoostedTreeImpl::crossValidateForest(core::CDataFrame& frame,
-                                      const TPackedBitVectorVec& trainingRowMasks,
-                                      const TPackedBitVectorVec& testingRowMasks,
                                       CBoostedTree::TProgressCallback recordProgress) const {
     TMeanVarAccumulator lossMoments;
     for (std::size_t i = 0; i < m_NumberFolds; ++i) {
-        TNodeVecVec forest(this->trainForest(frame, trainingRowMasks[i], recordProgress));
-        double loss{this->meanLoss(frame, testingRowMasks[i], forest)};
+        TNodeVecVec forest(this->trainForest(frame, m_TrainingRowMasks[i], recordProgress));
+        double loss{this->meanLoss(frame, m_TestingRowMasks[i], forest)};
         lossMoments.add(loss);
         LOG_TRACE(<< "fold = " << i << " forest size = " << forest.size()
                   << " test set loss = " << loss);
@@ -273,7 +295,7 @@ CBoostedTreeImpl::TNodeVec CBoostedTreeImpl::initializePredictionsAndLossDerivat
                        &trainingRowMask);
 
     TNodeVec tree(1);
-    refreshPredictionsAndLossDerivatives(frame, trainingRowMask, m_Eta, tree);
+    this->refreshPredictionsAndLossDerivatives(frame, trainingRowMask, m_Eta, tree);
 
     return tree;
 }
@@ -515,14 +537,14 @@ void CBoostedTreeImpl::refreshPredictionsAndLossDerivatives(core::CDataFrame& fr
                     loss += m_Loss->value(prediction, actual);
                 }
             },
-            0.0),
+            0.0 /*total loss*/),
         &trainingRowMask);
 
-    double loss{0.0};
+    double totalLoss{0.0};
     for (const auto& result : results.first) {
-        loss += result.s_FunctionState;
+        totalLoss += result.s_FunctionState;
     }
-    LOG_TRACE(<< "training set loss = " << loss);
+    LOG_TRACE(<< "training set loss = " << totalLoss);
 }
 
 double CBoostedTreeImpl::meanLoss(const core::CDataFrame& frame,
