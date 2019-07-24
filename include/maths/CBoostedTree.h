@@ -77,13 +77,14 @@ private:
 //! \brief The MSE loss function.
 class MATHS_EXPORT CMse final : public CLoss {
 public:
-public:
     double value(double prediction, double actual) const override;
     double gradient(double prediction, double actual) const override;
     double curvature(double prediction, double actual) const override;
     TArgMinLossUPtr minimizer() const override;
 };
 }
+
+class CBoostedTreeImpl;
 
 //! \brief A boosted regression tree model.
 //!
@@ -117,34 +118,13 @@ public:
     using TProgressCallback = std::function<void(double)>;
     using TRowRef = core::CDataFrame::TRowRef;
     using TLossFunctionUPtr = std::unique_ptr<boosted_tree::CLoss>;
+    using TDataFramePtr = core::CDataFrame*;
 
 public:
-    CBoostedTree(std::size_t numberThreads, std::size_t dependentVariable, TLossFunctionUPtr loss);
     ~CBoostedTree() override;
 
-    //! \name Parameter Setters
-    //@{
-    //! Set the number of folds to use for estimating the generalisation error.
-    CBoostedTree& numberFolds(std::size_t folds);
-    //! Set the lambda regularisation parameter.
-    CBoostedTree& lambda(double lambda);
-    //! Set the gamma regularisation parameter.
-    CBoostedTree& gamma(double gamma);
-    //! Set the amount we'll shrink the weights on each each iteration.
-    CBoostedTree& eta(double eta);
-    //! Set the maximum number of trees in the ensemble.
-    CBoostedTree& maximumNumberTrees(std::size_t maximumNumberTrees);
-    //! Set the number of rows required per regressor feature.
-    CBoostedTree& rowsPerFeature(std::size_t rowsPerFeature);
-    //! Set the fraction of features we'll use in the bag to build a tree.
-    CBoostedTree& featureBagFraction(double featureBagFraction);
-    //! Set the maximum number of optimisation rounds we'll use for hyperparameter
-    //! optimisation per parameter.
-    CBoostedTree& maximumOptimisationRoundsPerHyperparameter(std::size_t rounds);
-    //@}
-
     //! Train the model on the values in \p frame.
-    void train(core::CDataFrame& frame, TProgressCallback recordProgress = noop) override;
+    void train(TProgressCallback recordProgress = noop) override;
 
     //! Write the predictions of this model to \p frame.
     void predict(core::CDataFrame& frame, TProgressCallback recordProgress = noop) const override;
@@ -166,11 +146,15 @@ public:
     std::size_t estimateMemoryUsage(std::size_t numberRows, std::size_t numberColumns) const;
 
 private:
-    class CImpl;
-    using TImplUPtr = std::unique_ptr<CImpl>;
+    using TImplUPtr = std::unique_ptr<CBoostedTreeImpl>;
+
+private:
+    CBoostedTree(core::CDataFrame& frame, TImplUPtr& impl);
 
 private:
     TImplUPtr m_Impl;
+
+    friend class CBoostedTreeFactory;
 };
 }
 }

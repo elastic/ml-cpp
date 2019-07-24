@@ -11,6 +11,7 @@
 #include <core/CRapidJsonConcurrentLineWriter.h>
 
 #include <maths/CBoostedTree.h>
+#include <maths/CBoostedTreeFactory.h>
 
 #include <api/CDataFrameAnalysisConfigReader.h>
 #include <api/CDataFrameAnalysisSpecification.h>
@@ -78,23 +79,25 @@ CDataFrameBoostedTreeRunner::CDataFrameBoostedTreeRunner(const CDataFrameAnalysi
                      << "It should be in the range (0, 1]");
     }
 
-    m_BoostedTree = std::make_unique<maths::CBoostedTree>(
-        this->spec().numberThreads(), dependentVariable,
-        std::make_unique<maths::boosted_tree::CMse>());
+    m_BoostedTreeFactory = std::make_unique<maths::CBoostedTreeFactory>(
+        maths::CBoostedTreeFactory::constructFromParameters(
+            this->spec().numberThreads(), dependentVariable,
+            std::make_unique<maths::boosted_tree::CMse>()));
+
     if (lambda >= 0.0) {
-        m_BoostedTree->lambda(lambda);
+        m_BoostedTreeFactory->lambda(lambda);
     }
     if (gamma >= 0.0) {
-        m_BoostedTree->gamma(gamma);
+        m_BoostedTreeFactory->gamma(gamma);
     }
     if (eta > 0.0 && eta <= 1.0) {
-        m_BoostedTree->eta(eta);
+        m_BoostedTreeFactory->eta(eta);
     }
     if (maximumNumberTrees > 0) {
-        m_BoostedTree->maximumNumberTrees(maximumNumberTrees);
+        m_BoostedTreeFactory->maximumNumberTrees(maximumNumberTrees);
     }
     if (featureBagFraction > 0.0 && featureBagFraction <= 1.0) {
-        m_BoostedTree->featureBagFraction(featureBagFraction);
+        m_BoostedTreeFactory->featureBagFraction(featureBagFraction);
     }
 }
 
@@ -106,20 +109,25 @@ CDataFrameBoostedTreeRunner::~CDataFrameBoostedTreeRunner() {
 }
 
 std::size_t CDataFrameBoostedTreeRunner::numberExtraColumns() const {
-    return m_BoostedTree->numberExtraColumnsForTrain();
+    return m_BoostedTreeFactory->numberExtraColumnsForTrain();
 }
 
 void CDataFrameBoostedTreeRunner::writeOneRow(const TStrVec&,
                                               TRowRef row,
                                               core::CRapidJsonConcurrentLineWriter& writer) const {
-    writer.StartObject();
-    writer.Key(PREDICTION);
-    writer.Double(row[m_BoostedTree->columnHoldingPrediction(row.numberColumns())]);
-    writer.EndObject();
+    if (m_BoostedTree) {
+        writer.StartObject();
+        writer.Key(PREDICTION);
+        writer.Double(row[m_BoostedTree->columnHoldingPrediction(row.numberColumns())]);
+        writer.EndObject();
+    } else {
+        HANDLE_FATAL(<< "Boosted tree object was not completely created. Please report this error.");
+    }
 }
 
 void CDataFrameBoostedTreeRunner::runImpl(core::CDataFrame& frame) {
-    m_BoostedTree->train(frame, this->progressRecorder());
+    m_BoostedTree = m_BoostedTreeFactory->buildFor(frame);
+    m_BoostedTree->train(this->progressRecorder());
 }
 
 std::size_t CDataFrameBoostedTreeRunner::estimateBookkeepingMemoryUsage(
@@ -127,7 +135,7 @@ std::size_t CDataFrameBoostedTreeRunner::estimateBookkeepingMemoryUsage(
     std::size_t totalNumberRows,
     std::size_t /*partitionNumberRows*/,
     std::size_t numberColumns) const {
-    return m_BoostedTree->estimateMemoryUsage(totalNumberRows, numberColumns);
+    return m_BoostedTreeFactory->estimateMemoryUsage(totalNumberRows, numberColumns);
 }
 
 const std::string& CDataFrameBoostedTreeRunnerFactory::name() const {
