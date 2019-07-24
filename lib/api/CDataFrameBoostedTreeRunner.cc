@@ -23,12 +23,12 @@ namespace ml {
 namespace api {
 namespace {
 // Configuration
-const char* const DEPENDENT_VARIABLE{"dependent_variable"};
-const char* const LAMBDA{"lambda"};
-const char* const GAMMA{"gamma"};
-const char* const ETA{"eta"};
-const char* const MAXIMUM_NUMBER_TREES{"maximum_number_trees"};
-const char* const FEATURE_BAG_FRACTION{"feature_bag_fraction"};
+const std::string DEPENDENT_VARIABLE{"dependent_variable"};
+const std::string LAMBDA{"lambda"};
+const std::string GAMMA{"gamma"};
+const std::string ETA{"eta"};
+const std::string MAXIMUM_NUMBER_TREES{"maximum_number_trees"};
+const std::string FEATURE_BAG_FRACTION{"feature_bag_fraction"};
 
 const CDataFrameAnalysisConfigReader PARAMETER_READER{[] {
     CDataFrameAnalysisConfigReader theReader;
@@ -46,7 +46,7 @@ const CDataFrameAnalysisConfigReader PARAMETER_READER{[] {
 }()};
 
 // Output
-const char* const PREDICTION{"prediction"};
+const std::string PREDICTION{"prediction"};
 }
 
 CDataFrameBoostedTreeRunner::CDataFrameBoostedTreeRunner(const CDataFrameAnalysisSpecification& spec,
@@ -71,8 +71,7 @@ CDataFrameBoostedTreeRunner::CDataFrameBoostedTreeRunner(const CDataFrameAnalysi
         HANDLE_FATAL(<< "Input error: bad gamma value. It should be non-negative.");
     }
     if (eta != -1.0 && (eta <= 0.0 || eta > 1.0)) {
-        HANDLE_FATAL(<< "Input error: bad eta value. "
-                     << "It should be in the range (0, 1].");
+        HANDLE_FATAL(<< "Input error: bad eta value. It should be in the range (0, 1].");
     }
     if (featureBagFraction != -1.0 &&
         (featureBagFraction <= 0.0 || featureBagFraction > 1.0)) {
