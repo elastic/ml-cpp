@@ -10,6 +10,7 @@
 
 #include <maths/CBasicStatistics.h>
 #include <maths/CBoostedTree.h>
+#include <maths/CBoostedTreeFactory.h>
 
 #include <boost/filesystem.hpp>
 
@@ -80,11 +81,13 @@ auto predictionStatistics(test::CRandomNumbers& rng,
                 }
             });
 
-            maths::CBoostedTree regression{
-                1, cols - 1, std::make_unique<maths::boosted_tree::CMse>()};
+            std::unique_ptr<maths::CBoostedTree> regression =
+                maths::CBoostedTreeFactory::constructFromParameters(
+                    1, cols - 1, std::make_unique<maths::boosted_tree::CMse>())
+                    .buildFor(*frame);
 
-            regression.train(*frame);
-            regression.predict(*frame);
+            regression->train();
+            regression->predict(*frame);
 
             TMeanVarAccumulator functionMoments;
             TMeanVarAccumulator modelPredictionErrorMoments;
@@ -92,7 +95,7 @@ auto predictionStatistics(test::CRandomNumbers& rng,
             frame->readRows(1, [&](TRowItr beginRows, TRowItr endRows) {
                 for (auto row = beginRows; row != endRows; ++row) {
                     std::size_t index{
-                        regression.columnHoldingPrediction(row->numberColumns())};
+                        regression->columnHoldingPrediction(row->numberColumns())};
                     functionMoments.add(f(*row));
                     modelPredictionErrorMoments.add(f(*row) - (*row)[index]);
                 }
@@ -344,17 +347,19 @@ void CBoostedTreeTest::testThreading() {
             }
         });
 
-        maths::CBoostedTree regression{
-            2, cols - 1, std::make_unique<maths::boosted_tree::CMse>()};
+        std::unique_ptr<maths::CBoostedTree> regression =
+            maths::CBoostedTreeFactory::constructFromParameters(
+                2, cols - 1, std::make_unique<maths::boosted_tree::CMse>())
+                .buildFor(*frame);
 
-        regression.train(*frame);
-        regression.predict(*frame);
+        regression->train();
+        regression->predict(*frame);
 
         TMeanVarAccumulator modelPredictionErrorMoments;
 
         frame->readRows(1, [&](TRowItr beginRows, TRowItr endRows) {
             for (auto row = beginRows; row != endRows; ++row) {
-                std::size_t index{regression.columnHoldingPrediction(row->numberColumns())};
+                std::size_t index{regression->columnHoldingPrediction(row->numberColumns())};
                 modelPredictionErrorMoments.add(f(*row) - (*row)[index]);
             }
         });
@@ -421,12 +426,14 @@ void CBoostedTreeTest::testConstantFeatures() {
         }
     });
 
-    maths::CBoostedTree regression{1, cols - 1,
-                                   std::make_unique<maths::boosted_tree::CMse>()};
+    std::unique_ptr<maths::CBoostedTree> regression =
+        maths::CBoostedTreeFactory::constructFromParameters(
+            1, cols - 1, std::make_unique<maths::boosted_tree::CMse>())
+            .buildFor(*frame);
 
-    regression.train(*frame);
+    regression->train();
 
-    TDoubleVec featureWeights(regression.featureWeights());
+    TDoubleVec featureWeights(regression->featureWeights());
 
     LOG_DEBUG(<< "feature weights = " << core::CContainerPrinter::print(featureWeights));
     CPPUNIT_ASSERT(featureWeights[cols - 2] < 1e-4);
@@ -463,16 +470,18 @@ void CBoostedTreeTest::testConstantObjective() {
         }
     });
 
-    maths::CBoostedTree regression{1, cols - 1,
-                                   std::make_unique<maths::boosted_tree::CMse>()};
+    std::unique_ptr<maths::CBoostedTree> regression =
+        maths::CBoostedTreeFactory::constructFromParameters(
+            1, cols - 1, std::make_unique<maths::boosted_tree::CMse>())
+            .buildFor(*frame);
 
-    regression.train(*frame);
+    regression->train();
 
     TMeanVarAccumulator modelPredictionErrorMoments;
 
     frame->readRows(1, [&](TRowItr beginRows, TRowItr endRows) {
         for (auto row = beginRows; row != endRows; ++row) {
-            std::size_t index{regression.columnHoldingPrediction(row->numberColumns())};
+            std::size_t index{regression->columnHoldingPrediction(row->numberColumns())};
             modelPredictionErrorMoments.add(1.0 - (*row)[index]);
         }
     });

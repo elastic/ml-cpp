@@ -4,6 +4,9 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
+#ifndef INCLUDED_ml_maths_CBayesianOptimisation_h
+#define INCLUDED_ml_maths_CBayesianOptimisation_h
+
 #include <core/CDataSearcher.h>
 #include <core/CStatePersistInserter.h>
 #include <core/CStateRestoreTraverser.h>
@@ -126,3 +129,5 @@ private:
 };
 }
 }
+
+#endif // INCLUDED_ml_maths_CBayesianOptimisation_h

@@ -24,6 +24,8 @@ CBasicStatistics.cc \
 CBayesianOptimisation.cc \
 CBjkstUniqueValues.cc \
 CBoostedTree.cc \
+CBoostedTreeFactory.cc \
+CBoostedTreeImpl.cc \
 CCalendarCyclicTest.cc \
 CCalendarComponentAdaptiveBucketing.cc \
 CCalendarComponent.cc \
