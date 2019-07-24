@@ -26,10 +26,10 @@ namespace ml {
 namespace maths {
 
 class CNode;
-class MATHS_EXPORT CBoostedTree;
+class  CBoostedTree;
 
 //! Factory for CBoostedTree objects.
-class CBoostedTreeFactory final {
+class MATHS_EXPORT CBoostedTreeFactory final {
 public:
     using TBoostedTreeUPtr = std::unique_ptr<CBoostedTree>;
 
