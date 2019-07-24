@@ -57,7 +57,7 @@ protected:
     CDataFrameRegressionModel(core::CDataFrame& frame) : m_Frame{frame} {};
     static void noop(double);
 
-private:
+protected:
     core::CDataFrame& m_Frame;
 };
 }

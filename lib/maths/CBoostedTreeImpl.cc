@@ -152,19 +152,16 @@ void CBoostedTreeImpl::maximumOptimisationRoundsPerHyperparameter(std::size_t ro
     m_MaximumOptimisationRoundsPerHyperparameter = rounds;
 }
 
-void CBoostedTreeImpl::frame(CBoostedTreeImpl::TDataFramePtr frame) {
-    m_Frame = frame;
-}
-
 //! Train the model on the values in \p frame.
-void CBoostedTreeImpl::train(CBoostedTree::TProgressCallback recordProgress) {
+void CBoostedTreeImpl::train(core::CDataFrame& frame,
+                             CBoostedTree::TProgressCallback recordProgress) {
     LOG_TRACE(<< "Main training loop...");
 
     do {
         LOG_TRACE(<< "Optimisation round = " << m_CurrentRound + 1);
 
         TMeanVarAccumulator lossMoments{this->crossValidateForest(
-            *m_Frame, m_TrainingRowMasks, m_TestingRowMasks, recordProgress)};
+            frame, m_TrainingRowMasks, m_TestingRowMasks, recordProgress)};
 
         this->captureBestHyperparameters(lossMoments);
 
@@ -184,7 +181,7 @@ void CBoostedTreeImpl::train(CBoostedTree::TProgressCallback recordProgress) {
 
     this->restoreBestHyperparameters();
     m_BestForest = this->trainForest(
-        *m_Frame, core::CPackedBitVector{m_Frame->numberRows(), true}, recordProgress);
+        frame, core::CPackedBitVector{frame.numberRows(), true}, recordProgress);
 }
 
 void CBoostedTreeImpl::predict(core::CDataFrame& frame,

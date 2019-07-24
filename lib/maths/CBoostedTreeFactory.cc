@@ -315,7 +315,6 @@ CBoostedTreeFactory::progressCallback(CBoostedTree::TProgressCallback callback) 
 
 CBoostedTreeFactory& CBoostedTreeFactory::frame(core::CDataFrame& frame) {
     this->m_Frame = &frame;
-    m_Impl->frame(&frame);
     return *this;
 }
 
