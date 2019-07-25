@@ -82,11 +82,11 @@ public:
         //! Get a boolean parameter.
         bool fallback(bool value) const;
         //! Get an unsigned integer parameter.
-        std::size_t fallback(std::size_t fallback) const;
+        std::size_t fallback(std::size_t value) const;
         //! Get a floating point parameter.
-        double fallback(double fallback) const;
+        double fallback(double value) const;
         //! Get a string parameter.
-        std::string fallback(const std::string& fallback) const;
+        std::string fallback(const std::string& value) const;
         //! Get an enum point parameter.
         template<typename ENUM>
         ENUM fallback(ENUM value) const {
@@ -105,14 +105,38 @@ public:
             }
             return static_cast<ENUM>(pos->second);
         }
+        //! Get an array of objects of type T.
+        template<typename T>
+        std::vector<T> fallback(const std::vector<T>& value) const {
+            if (m_Value == nullptr) {
+                return value;
+            }
+            if (m_Value->IsArray() == false) {
+                this->handleFatal();
+                return value;
+            }
+            std::vector<T> result;
+            result.reserve(m_Value->Size());
+            CParameter element{m_Name, SArrayElementTag{}};
+            for (std::size_t i = 0; i < m_Value->Size(); ++i) {
+                element.m_Value = &(*m_Value)[static_cast<int>(i)];
+                result.push_back(element.as<T>());
+            }
+            return result;
+        }
 
     private:
+        struct SArrayElementTag {};
+
+    private:
+        CParameter(const std::string& name, SArrayElementTag);
         void handleFatal() const;
 
     private:
         std::string m_Name;
         const rapidjson::Value* m_Value = nullptr;
         const TStrIntMap* m_PermittedValues = nullptr;
+        bool m_ArrayElement = false;
     };
 
     //! \brief A collection of all parameters which have been read.

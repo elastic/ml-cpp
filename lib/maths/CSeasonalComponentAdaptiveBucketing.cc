@@ -26,8 +26,6 @@
 #include <maths/CSeasonalTime.h>
 #include <maths/CTools.h>
 
-#include <boost/range.hpp>
-
 #include <algorithm>
 #include <cmath>
 #include <cstddef>

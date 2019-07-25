@@ -8,8 +8,8 @@
 #define INCLUDED_ml_maths_CCooccurrences_h
 
 #include <core/CMemoryUsage.h>
+#include <core/CPackedBitVector.h>
 
-#include <maths/CPackedBitVector.h>
 #include <maths/ImportExport.h>
 
 #include <boost/unordered_set.hpp>
@@ -78,7 +78,7 @@ public:
 
 private:
     using TSizeUSet = boost::unordered_set<std::size_t>;
-    using TPackedBitVectorVec = std::vector<CPackedBitVector>;
+    using TPackedBitVectorVec = std::vector<core::CPackedBitVector>;
 
 private:
     //! The maximum permitted event sequence length.

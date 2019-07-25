@@ -14,9 +14,14 @@ public:
     void testCreation();
     void testExtend();
     void testContract();
-    void testOperators();
-    void testInner();
-    void testBitwiseOr();
+    void testComparisonAndLess();
+    void testBitwiseComplement();
+    void testBitwise();
+    void testOneBitIterators();
+    void testInnerProductBitwiseAnd();
+    void testInnerProductBitwiseOr();
+    void testLineScanProblemCase();
+    void testZeroLengthRunProblemCase();
     void testPersist();
 
     static CppUnit::Test* suite();
