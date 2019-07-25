@@ -374,7 +374,8 @@ CDataFrameUtils::categoryMicWithColumnDataFrameInMemory(const CColumnValue& targ
         for (const auto& sample : samples) {
             categories.insert(std::floor(sample.first));
         }
-        LOG_TRACE(<< "categories = " << core::CContainerPrinter::print(categories));
+        LOG_TRACE(<< "feature = " << i
+                  << " categories = " << core::CContainerPrinter::print(categories));
 
         TSizeDoublePrVec categoryMics;
         categoryMics.reserve(categories.size());
@@ -437,7 +438,8 @@ CDataFrameUtils::categoryMicWithColumnDataFrameOnDisk(const CColumnValue& target
                 categories.insert(std::floor(sample[i]));
             }
         }
-        LOG_TRACE(<< "categories = " << core::CContainerPrinter::print(categories));
+        LOG_TRACE(<< "feature = " << i
+                  << " categories = " << core::CContainerPrinter::print(categories));
 
         TSizeDoublePrVec categoryMics;
         categoryMics.reserve(categories.size());
@@ -486,7 +488,7 @@ CDataFrameUtils::micWithColumnDataFrameInMemory(const CColumnValue& target,
 
         double fractionMissing{static_cast<double>(missingCount.first[0].s_FunctionState) /
                                static_cast<double>(frame.numberRows())};
-        LOG_TRACE(<< "Fraction missing = " << fractionMissing);
+        LOG_TRACE(<< "feature = " << i << " fraction missing = " << fractionMissing);
 
         // Compute MICe
 

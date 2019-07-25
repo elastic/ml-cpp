@@ -10,6 +10,7 @@
 #include <core/CLogger.h>
 #include <core/CTriple.h>
 
+#include <maths/CBasicStatistics.h>
 #include <maths/CDataFrameUtils.h>
 #include <maths/COrderings.h>
 
@@ -18,6 +19,104 @@
 
 namespace ml {
 namespace maths {
+namespace {
+class CFeatureRmr;
+using TFeatureRmrList = std::list<CFeatureRmr>;
+
+//! \brief Supports computing the minimum redundancy maximum relevance feature
+//! selection.
+//!
+//! DESCRIPTION:\n
+//! As with Peng et al, we use a greedy search to approximately solve the
+//! optimization problem
+//!
+//! \f$arg\max_S \frac{1}{|S|} \sum_{f\in S}{MIC(f,t)} - \frac{1}{|S|^2} \sum_{f\in S, g\in S} {MIC(f,g)}\f$
+//!
+//! This trades redundancy of information in the feature set as a whole and
+//! relevance of each individual feature when deciding which to include. This
+//! class maintains the state to compute the mean MICe with the variables
+//! selected so far. It also provides an estimator of relevancy minus redundancy.
+//! We extend the basic measure by including a non-negative redundancy weight
+//! which controls the priority of minimizing redundancy vs maximizing relevancy.
+//!
+//! For more informatio see
+//! https://en.wikipedia.org/wiki/Feature_selection#Minimum-redundancy-maximum-relevance_(mRMR)_feature_selection
+//! and references therein.
+class CFeatureRmr {
+public:
+    using TDoubleVec = std::vector<double>;
+    using TMeanAccumulator = CBasicStatistics::SSampleMean<double>::TAccumulator;
+    using TSizeDoublePr = std::pair<std::size_t, double>;
+    using TSizeDoublePrVec = std::vector<TSizeDoublePr>;
+    using TSizeDoublePrVecVec = std::vector<TSizeDoublePrVec>;
+
+public:
+    CFeatureRmr(std::size_t feature, std::size_t category, bool categorical, double micWithDependentVariable)
+        : m_Feature{feature}, m_Category{category}, m_Categorical{categorical},
+          m_MicWithDependentVariable{micWithDependentVariable} {}
+
+    static TFeatureRmrList initialiseGreedySearch(const TDoubleVec& metricMics,
+                                                  const TSizeDoublePrVecVec& categoricalMics) {
+        TFeatureRmrList rmrs;
+        for (std::size_t i = 0; i < metricMics.size(); ++i) {
+            if (metricMics[i] > 0.0) {
+                rmrs.emplace_back(i, 0, false, metricMics[i]);
+            }
+        }
+        for (std::size_t i = 0; i < categoricalMics.size(); ++i) {
+            for (std::size_t j = 0; j < categoricalMics[i].size(); ++j) {
+                std::size_t category;
+                double mic;
+                std::tie(category, mic) = categoricalMics[i][j];
+                if (mic > 0.0) {
+                    rmrs.emplace_back(i, category, true, mic);
+                }
+            }
+        }
+        return rmrs;
+    }
+
+    double micWithDependentVariable() const {
+        return m_MicWithDependentVariable;
+    }
+
+    std::size_t feature() const { return m_Feature; }
+
+    std::size_t category() const { return m_Category; }
+
+    double relevanceMinusRedundancy(double redundancyWeight) const {
+        return m_MicWithDependentVariable -
+               redundancyWeight * this->micWithSelectedVariables();
+    }
+
+    void update(const TDoubleVec& metricMics, const TSizeDoublePrVecVec& categoricalMics) {
+        if (m_Categorical) {
+            auto i = std::find_if(categoricalMics[m_Feature].begin(),
+                                  categoricalMics[m_Feature].end(),
+                                  [this](const TSizeDoublePr& categoryMic) {
+                                      return categoryMic.first == m_Category;
+                                  });
+            if (i != categoricalMics[m_Feature].end()) {
+                m_MicWithSelectedVariables.add(i->second);
+            }
+        } else {
+            m_MicWithSelectedVariables.add(metricMics[m_Feature]);
+        }
+    }
+
+private:
+    double micWithSelectedVariables() const {
+        return CBasicStatistics::mean(m_MicWithSelectedVariables);
+    }
+
+private:
+    bool m_Categorical;
+    std::size_t m_Feature = 0;
+    std::size_t m_Category = 0;
+    double m_MicWithDependentVariable = 0.0;
+    TMeanAccumulator m_MicWithSelectedVariables;
+};
+}
 
 CEncodedDataFrameRowRef::CEncodedDataFrameRowRef(TRowRef row, const CDataFrameCategoryEncoder& encoder)
     : m_Row{std::move(row)}, m_Encoder{&encoder} {
@@ -64,8 +163,9 @@ CDataFrameCategoryEncoder::CDataFrameCategoryEncoder(std::size_t numberThreads,
                                                      std::size_t targetColumn,
                                                      std::size_t minimumRowsPerFeature,
                                                      double minimumFrequencyToOneHotEncode,
-                                                     double lambda)
-    : m_Lambda{lambda}, m_ColumnIsCategorical(frame.columnIsCategorical()) {
+                                                     double redundancyWeight)
+    : m_RedundancyWeight{redundancyWeight},
+      m_ColumnIsCategorical(frame.columnIsCategorical()) {
 
     TSizeVec metricColumnMask(columnMask);
     std::iota(metricColumnMask.begin(), metricColumnMask.end(), 0);
@@ -188,6 +288,30 @@ double CDataFrameCategoryEncoder::targetMeanValue(std::size_t feature,
     return m_TargetMeanValues[feature][category];
 }
 
+auto CDataFrameCategoryEncoder::mics(std::size_t numberThreads,
+                                     const core::CDataFrame& frame,
+                                     std::size_t feature,
+                                     std::size_t category,
+                                     const TSizeVec& metricColumnMask,
+                                     const TSizeVec& categoricalColumnMask,
+                                     double minimumFrequencyToOneHotEncode) const {
+    if (m_ColumnIsCategorical[feature]) {
+        return std::make_pair(
+            CDataFrameUtils::micWithColumn(
+                CDataFrameUtils::COneHotCategoricalColumnValue{feature, category},
+                frame, metricColumnMask),
+            CDataFrameUtils::categoryMicWithColumn(
+                CDataFrameUtils::COneHotCategoricalColumnValue{feature, category}, numberThreads,
+                frame, categoricalColumnMask, minimumFrequencyToOneHotEncode));
+    }
+    return std::make_pair(
+        CDataFrameUtils::micWithColumn(CDataFrameUtils::CMetricColumnValue{feature},
+                                       frame, metricColumnMask),
+        CDataFrameUtils::categoryMicWithColumn(
+            CDataFrameUtils::CMetricColumnValue{feature}, numberThreads, frame,
+            categoricalColumnMask, minimumFrequencyToOneHotEncode));
+}
+
 void CDataFrameCategoryEncoder::isRareEncode(std::size_t numberThreads,
                                              const core::CDataFrame& frame,
                                              const TSizeVec& categoricalColumnMask,
@@ -214,142 +338,138 @@ void CDataFrameCategoryEncoder::isRareEncode(std::size_t numberThreads,
 
 void CDataFrameCategoryEncoder::oneHotEncode(std::size_t numberThreads,
                                              const core::CDataFrame& frame,
-                                             const TSizeVec& metricColumnMask,
-                                             const TSizeVec& categoricalColumnMask,
+                                             TSizeVec metricColumnMask,
+                                             TSizeVec categoricalColumnMask,
                                              std::size_t targetColumn,
                                              std::size_t minimumRowsPerFeature,
                                              double minimumFrequencyToOneHotEncode) {
 
-    // We expect information carried by distinct features to be less correlated
-    // so want to prefer choosing distinct features if the decision is marginal.
-    // Ideally we'd recompute MICe w.r.t. target - prediction given the features
-    // selected so far. This would be very expensive since it requires training
-    // a model on a subset of the features for each decision. Instead, we introduce
-    // a single non-negative parameter lambda and the category MICe for each feature
-    // is scaled by exp(-lambda x "count of categories one-hot encoded for feature").
-    // In the limit lambda is zero this amounts to simply choosing the metrics
-    // and categories to one-hot encode that carry the most information about, i.e.
-    // have the highest MICe with, the target variable. In the limit lambda is large
-    // this amounts to choosing all the metrics and the same count of categories to
-    // one-hot encode for each categorical feature. In this case the MICe with the
-    // target is maximised independently for each categorical feature.
+    // We want to choose features which provide independent information about the
+    // target variable. Ideally, we'd recompute MICe w.r.t. target - f(x) with x
+    // the features selected so far. This would be very computationally expensive
+    // since it requires training a model f(.) on a subset of the features after
+    // each decision. Instead, we use the average MICe between the unselected and
+    // selected features as a useful proxy. This is essentially the mRMR approach
+    // of Peng et al. albeit with MICe rather than MI. We also support a parameter
+    // redundancy weight, which should be non-negative, controls the relative weight
+    // of MICe with the target vs the selected variables. A value of zero means
+    // exclusively maximise MICe with the target and as redundancy weight -> infinity
+    // means exclusively minimise MICe with the selected variables.
 
-    using TDoubleSizeSizeTr = core::CTriple<double, std::size_t, std::size_t>;
-    using TDoubleSizeSizeTrList = std::list<TDoubleSizeSizeTr>;
-
-    LOG_TRACE(<< "target column = " << targetColumn);
-
-    CDataFrameUtils::CMetricColumnValue target{targetColumn};
-    auto metricMics = CDataFrameUtils::micWithColumn(target, frame, metricColumnMask);
-    auto categoricalMics = CDataFrameUtils::categoryMicWithColumn(
-        target, numberThreads, frame, categoricalColumnMask, minimumFrequencyToOneHotEncode);
+    TDoubleVec metricMics;
+    TSizeDoublePrVecVec categoricalMics;
+    std::tie(metricMics, categoricalMics) =
+        this->mics(numberThreads, frame, targetColumn, 0, metricColumnMask,
+                   categoricalColumnMask, minimumFrequencyToOneHotEncode);
     LOG_TRACE(<< "metric MICe = " << core::CContainerPrinter::print(metricMics));
     LOG_TRACE(<< "categorical MICe = " << core::CContainerPrinter::print(categoricalMics));
 
-    std::size_t numberFeatures(std::count_if(metricMics.begin(), metricMics.end(),
-                                             [](double mic) { return mic > 0.0; }));
-    for (std::size_t i = 0; i < categoricalMics.size(); ++i) {
-        numberFeatures += std::count_if(categoricalMics[i].begin(),
-                                        categoricalMics[i].end(),
-                                        [&](auto categoryMic) {
-                                            std::size_t category;
-                                            double mic;
-                                            std::tie(category, mic) = categoryMic;
-                                            return mic > 0.0;
-                                        }) +
-                          (this->hasRareCategories(i) ? 1 : 0);
-    }
-
+    std::size_t numberAvailableFeatures{
+        this->numberAvailableFeatures(metricMics, categoricalMics)};
     std::size_t maximumNumberFeatures{
         (frame.numberRows() + minimumRowsPerFeature / 2) / minimumRowsPerFeature};
-    LOG_TRACE(<< "number possible features = " << numberFeatures
+    LOG_TRACE(<< "number possible features = " << numberAvailableFeatures
               << " maximum permitted features = " << maximumNumberFeatures);
 
     m_OneHotEncodedCategories.resize(frame.numberColumns());
 
-    if (maximumNumberFeatures >= numberFeatures) {
-        for (std::size_t i = 0; i < metricMics.size(); ++i) {
-            if (metricMics[i] > 0.0) {
-                m_SelectedMetricFeatures.push_back(i);
-                m_SelectedMetricFeatureMics.push_back(metricMics[i]);
-            }
-        }
-        for (std::size_t i = 0; i < categoricalMics.size(); ++i) {
-            for (std::size_t j = 0; j < categoricalMics[i].size(); ++j) {
-                std::size_t category;
-                double mic;
-                std::tie(category, mic) = categoricalMics[i][j];
-                if (mic > 0.0) {
-                    m_SelectedCategoricalFeatures.push_back(i);
-                    m_OneHotEncodedCategories[i].push_back(category);
-                }
-            }
-        }
+    if (maximumNumberFeatures >= numberAvailableFeatures) {
+        this->oneHotEncodeAll(metricMics, categoricalMics);
 
     } else {
-        TDoubleSizeSizeTrList mics;
-        for (std::size_t i = 0; i < metricMics.size(); ++i) {
-            if (metricMics[i] > 0.0) {
-                mics.emplace_back(metricMics[i], i, 0);
-            }
-        }
-        for (std::size_t i = 0; i < categoricalMics.size(); ++i) {
-            for (std::size_t j = 0; j < categoricalMics[i].size(); ++j) {
-                std::size_t category;
-                double mic;
-                std::tie(category, mic) = categoricalMics[i][j];
-                if (mic > 0.0) {
-                    mics.emplace_back(mic, i, category);
-                }
-            }
-        }
-        LOG_TRACE(<< "MICe = " << core::CContainerPrinter::print(mics));
+        TFeatureRmrList rmrs{CFeatureRmr::initialiseGreedySearch(metricMics, categoricalMics)};
+        TSizeVec oneHotEncodedCategoryCounts(frame.numberColumns(), 0);
 
-        TDoubleVec oneHotEncodedCounts(frame.numberColumns(), 0.0);
-
+        // A greedy search to jointly minimise redundancy and maximise relevancy.
         for (std::size_t i = 0; i < maximumNumberFeatures; ++i) {
 
-            auto next = std::max_element(
-                mics.begin(), mics.end(),
-                [&](const TDoubleSizeSizeTr& lhs, const TDoubleSizeSizeTr& rhs) {
-                    return std::exp(-m_Lambda * oneHotEncodedCounts[lhs.second]) * lhs.first <
-                           std::exp(-m_Lambda * oneHotEncodedCounts[rhs.second]) * rhs.first;
+            auto selected = std::max_element(
+                rmrs.begin(), rmrs.end(),
+                [this](const CFeatureRmr& lhs, const CFeatureRmr& rhs) {
+                    return lhs.relevanceMinusRedundancy(m_RedundancyWeight) <
+                           rhs.relevanceMinusRedundancy(m_RedundancyWeight);
                 });
 
-            double mic{next->first};
-            std::size_t feature{next->second};
-            std::size_t category{next->third};
+            double mic{selected->micWithDependentVariable()};
+            std::size_t feature{selected->feature()};
+            std::size_t category{selected->category()};
 
             if (m_ColumnIsCategorical[feature]) {
+                LOG_TRACE(<< "feature = " << feature << " category = " << category << " relevance = "
+                          << selected->relevanceMinusRedundancy(m_RedundancyWeight));
                 m_SelectedCategoricalFeatures.push_back(feature);
                 m_OneHotEncodedCategories[feature].push_back(category);
-                oneHotEncodedCounts[feature] += 1.0;
-                if (oneHotEncodedCounts[feature] == 1.0) {
+                ++oneHotEncodedCategoryCounts[feature];
+
+                if (oneHotEncodedCategoryCounts[feature] == 1) {
                     i += 1 + (this->hasRareCategories(feature) ? 1 : 0);
                 }
+                if (oneHotEncodedCategoryCounts[feature] ==
+                    categoricalMics[feature].size()) {
+                    categoricalColumnMask.erase(std::find(
+                        categoricalColumnMask.begin(), categoricalColumnMask.end(), feature));
+                }
             } else {
+                LOG_TRACE(<< "feature = " << feature << " relevance = "
+                          << selected->relevanceMinusRedundancy(m_RedundancyWeight));
                 m_SelectedMetricFeatures.push_back(feature);
                 m_SelectedMetricFeatureMics.push_back(mic);
+                metricColumnMask.erase(std::find(metricColumnMask.begin(),
+                                                 metricColumnMask.end(), feature));
             }
 
-            mics.erase(next);
+            std::tie(metricMics, categoricalMics) =
+                this->mics(numberThreads, frame, feature, category, metricColumnMask,
+                           categoricalColumnMask, minimumFrequencyToOneHotEncode);
+            for (auto& rmr : rmrs) {
+                rmr.update(metricMics, categoricalMics);
+            }
+
+            rmrs.erase(selected);
         }
     }
 
+    COrderings::simultaneousSort(m_SelectedMetricFeatures, m_SelectedMetricFeatureMics);
+    std::sort(m_SelectedCategoricalFeatures.begin(),
+              m_SelectedCategoricalFeatures.end());
     m_SelectedCategoricalFeatures.erase(
         std::unique(m_SelectedCategoricalFeatures.begin(),
                     m_SelectedCategoricalFeatures.end()),
         m_SelectedCategoricalFeatures.end());
+    m_SelectedCategoricalFeatures.shrink_to_fit();
 
     for (auto& categories : m_OneHotEncodedCategories) {
         categories.shrink_to_fit();
         std::sort(categories.begin(), categories.end());
     }
-    COrderings::simultaneousSort(m_SelectedMetricFeatures, m_SelectedMetricFeatureMics);
+
     LOG_TRACE(<< "selected metrics = "
               << core::CContainerPrinter::print(m_SelectedMetricFeatures));
     LOG_TRACE(<< "one-hot encoded = "
               << core::CContainerPrinter::print(m_OneHotEncodedCategories));
+}
+
+void CDataFrameCategoryEncoder::oneHotEncodeAll(const TDoubleVec& metricMics,
+                                                const TSizeDoublePrVecVec& categoricalMics) {
+
+    for (std::size_t i = 0; i < metricMics.size(); ++i) {
+        if (metricMics[i] > 0.0) {
+            m_SelectedMetricFeatures.push_back(i);
+            m_SelectedMetricFeatureMics.push_back(metricMics[i]);
+        }
+    }
+
+    for (std::size_t i = 0; i < categoricalMics.size(); ++i) {
+        for (std::size_t j = 0; j < categoricalMics[i].size(); ++j) {
+            std::size_t category;
+            double mic;
+            std::tie(category, mic) = categoricalMics[i][j];
+            if (mic > 0.0) {
+                m_SelectedCategoricalFeatures.push_back(i);
+                m_OneHotEncodedCategories[i].push_back(category);
+            }
+        }
+    }
 }
 
 void CDataFrameCategoryEncoder::targetMeanValueEncode(std::size_t numberThreads,
@@ -395,6 +515,25 @@ void CDataFrameCategoryEncoder::setupEncodingMaps(const core::CDataFrame& frame)
               << core::CContainerPrinter::print(m_FeatureVectorColumnMap));
     LOG_TRACE(<< "feature vector index to encoding map = "
               << core::CContainerPrinter::print(m_FeatureVectorEncodingMap));
+}
+
+std::size_t
+CDataFrameCategoryEncoder::numberAvailableFeatures(const TDoubleVec& metricMics,
+                                                   const TSizeDoublePrVecVec& categoricalMics) const {
+    std::size_t numberFeatures(std::count_if(metricMics.begin(), metricMics.end(),
+                                             [](double mic) { return mic > 0.0; }));
+    for (std::size_t i = 0; i < categoricalMics.size(); ++i) {
+        numberFeatures += std::count_if(categoricalMics[i].begin(),
+                                        categoricalMics[i].end(),
+                                        [&](auto categoryMic) {
+                                            std::size_t category;
+                                            double mic;
+                                            std::tie(category, mic) = categoryMic;
+                                            return mic > 0.0;
+                                        }) +
+                          (this->hasRareCategories(i) ? 1 : 0);
+    }
+    return numberFeatures;
 }
 }
 }

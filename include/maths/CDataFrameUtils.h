@@ -91,8 +91,8 @@ public:
     //! of the data frame.
     class COneHotCategoricalColumnValue final : public CColumnValue {
     public:
-        COneHotCategoricalColumnValue(std::size_t column, CFloatStorage category)
-            : m_Column{column}, m_Category{static_cast<std::size_t>(category)} {}
+        COneHotCategoricalColumnValue(std::size_t column, std::size_t category)
+            : m_Column{column}, m_Category{category} {}
         double operator()(const TRowRef& row) const override {
             return static_cast<std::size_t>(row[m_Column]) == m_Category ? 1.0 : 0.0;
         }
