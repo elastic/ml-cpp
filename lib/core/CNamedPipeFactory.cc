@@ -201,8 +201,7 @@ CNamedPipeFactory::initPipeHandle(const std::string& fileName, bool forWrite) {
     } else {
         if (errno != ENOENT) {
             LOG_WARN(<< "lstat of named pipe " << fileName
-                     << " failed with unexpected error "
-                     << ::strerror(errno));
+                     << " failed with unexpected error " << ::strerror(errno));
         }
 
         // The file didn't exist, so create a new FIFO for it, with permissions
