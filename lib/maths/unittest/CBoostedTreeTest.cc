@@ -176,7 +176,7 @@ void CBoostedTreeTest::testPiecewiseConstant() {
         // Unbiased...
         CPPUNIT_ASSERT_DOUBLES_EQUAL(
             0.0, modelBias[i],
-            5.0 * std::sqrt(noiseVariance / static_cast<double>(trainRows)));
+            7.0 * std::sqrt(noiseVariance / static_cast<double>(trainRows)));
         // Good R^2...
         CPPUNIT_ASSERT(modelRSquared[i] > 0.9);
 
@@ -229,7 +229,7 @@ void CBoostedTreeTest::testLinear() {
         // Unbiased...
         CPPUNIT_ASSERT_DOUBLES_EQUAL(
             0.0, modelBias[i],
-            5.0 * std::sqrt(noiseVariance / static_cast<double>(trainRows)));
+            7.0 * std::sqrt(noiseVariance / static_cast<double>(trainRows)));
         // Good R^2...
         CPPUNIT_ASSERT(modelRSquared[i] > 0.95);
 
@@ -294,7 +294,7 @@ void CBoostedTreeTest::testNonLinear() {
         // Unbiased...
         CPPUNIT_ASSERT_DOUBLES_EQUAL(
             0.0, modelBias[i],
-            5.0 * std::sqrt(noiseVariance / static_cast<double>(trainRows)));
+            7.0 * std::sqrt(noiseVariance / static_cast<double>(trainRows)));
         // Good R^2...
         CPPUNIT_ASSERT(modelRSquared[i] > 0.92);
 
