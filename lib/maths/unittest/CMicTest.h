@@ -17,6 +17,7 @@ public:
     void testOneToOne();
     void testCorrelated();
     void testVsMutualInformation();
+    void testBinaryVariables();
     void testEdgeCases();
 
     static CppUnit::Test* suite();

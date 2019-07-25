@@ -81,13 +81,13 @@ auto predictionStatistics(test::CRandomNumbers& rng,
                 }
             });
 
-            std::unique_ptr<maths::CBoostedTree> regression =
+            auto regression =
                 maths::CBoostedTreeFactory::constructFromParameters(
                     1, cols - 1, std::make_unique<maths::boosted_tree::CMse>())
                     .buildFor(*frame);
 
             regression->train();
-            regression->predict(*frame);
+            regression->predict();
 
             TMeanVarAccumulator functionMoments;
             TMeanVarAccumulator modelPredictionErrorMoments;
@@ -175,7 +175,7 @@ void CBoostedTreeTest::testPiecewiseConstant() {
     }
     LOG_DEBUG(<< "mean MSE improvement = "
               << maths::CBasicStatistics::mean(meanMseImprovement));
-    CPPUNIT_ASSERT(maths::CBasicStatistics::mean(meanMseImprovement) > 20.0);
+    CPPUNIT_ASSERT(maths::CBasicStatistics::mean(meanMseImprovement) > 18.0);
 }
 
 void CBoostedTreeTest::testLinear() {
@@ -277,13 +277,13 @@ void CBoostedTreeTest::testNonLinear() {
         CPPUNIT_ASSERT(std::fabs(modelPredictionBias[i]) <
                        2.5 * std::sqrt(noiseVariance / static_cast<double>(rows)));
         // Good reduction in MSE...
-        CPPUNIT_ASSERT(modelPredictionMseImprovement[i] > 30.0);
+        CPPUNIT_ASSERT(modelPredictionMseImprovement[i] > 25.0);
 
         meanMseImprovement.add(modelPredictionMseImprovement[i]);
     }
     LOG_DEBUG(<< "mean MSE improvement = "
               << maths::CBasicStatistics::mean(meanMseImprovement));
-    CPPUNIT_ASSERT(maths::CBasicStatistics::mean(meanMseImprovement) > 50.0);
+    CPPUNIT_ASSERT(maths::CBasicStatistics::mean(meanMseImprovement) > 45.0);
 }
 
 void CBoostedTreeTest::testThreading() {
@@ -347,13 +347,12 @@ void CBoostedTreeTest::testThreading() {
             }
         });
 
-        std::unique_ptr<maths::CBoostedTree> regression =
-            maths::CBoostedTreeFactory::constructFromParameters(
-                2, cols - 1, std::make_unique<maths::boosted_tree::CMse>())
-                .buildFor(*frame);
+        auto regression = maths::CBoostedTreeFactory::constructFromParameters(
+                              2, cols - 1, std::make_unique<maths::boosted_tree::CMse>())
+                              .buildFor(*frame);
 
         regression->train();
-        regression->predict(*frame);
+        regression->predict();
 
         TMeanVarAccumulator modelPredictionErrorMoments;
 
@@ -486,9 +485,9 @@ void CBoostedTreeTest::testConstantObjective() {
         }
     });
 
-    LOG_DEBUG(<< maths::CBasicStatistics::mean(modelPredictionErrorMoments));
-    // TODO using eta < 1 in this case causes bias. Trap earlier?
-    //CPPUNIT_ASSERT_EQUAL(0.0, maths::CBasicStatistics::mean(modelPredictionErrorMoments));
+    LOG_DEBUG(<< "mean prediction error = "
+              << maths::CBasicStatistics::mean(modelPredictionErrorMoments));
+    CPPUNIT_ASSERT_EQUAL(0.0, maths::CBasicStatistics::mean(modelPredictionErrorMoments));
 }
 
 void CBoostedTreeTest::testMissingData() {

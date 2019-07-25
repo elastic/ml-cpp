@@ -17,8 +17,6 @@
 #include <maths/CBoostedTree.h>
 #include <maths/CDataFrameUtils.h>
 #include <maths/CLinearAlgebraEigen.h>
-#include <maths/CQuantileSketch.h>
-#include <maths/CSampling.h>
 #include <maths/CTools.h>
 #include <maths/ImportExport.h>
 
@@ -34,13 +32,16 @@
 
 namespace ml {
 namespace maths {
-
-namespace {
-const double INF{std::numeric_limits<double>::max()};
+namespace boosted_tree_detail {
+inline std::size_t predictionColumn(std::size_t numberColumns) {
+    return numberColumns - 3;
+}
+inline std::size_t numberFeatures(const core::CDataFrame& frame) {
+    return frame.numberColumns() - 3;
+}
 }
 
 class MATHS_EXPORT CBoostedTreeImpl final {
-
 public:
     using TMeanAccumulator = CBasicStatistics::SSampleMean<double>::TAccumulator;
     using TMeanVarAccumulator = CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
@@ -56,6 +57,8 @@ public:
     CBoostedTreeImpl(std::size_t numberThreads,
                      std::size_t dependentVariable,
                      CBoostedTree::TLossFunctionUPtr loss);
+
+    // TODO move all these methods factory since it is a friend anyway.
     //! Set the number of folds to use for estimating the generalisation error.
     void numberFolds(std::size_t numberFolds);
     //! Set the lambda regularisation parameter.
@@ -71,9 +74,12 @@ public:
     //! Set the maximum number of optimisation rounds we'll use for hyperparameter
     //! optimisation per parameter.
     void maximumOptimisationRoundsPerHyperparameter(std::size_t rounds);
+    //! The number of training examples we need per feature we'll include.
+    void rowsPerFeature(std::size_t rowsPerFeature);
 
     //! Train the model on the values in \p frame.
     void train(core::CDataFrame& frame, CBoostedTree::TProgressCallback recordProgress);
+
     //! Write the predictions of the best trained model to \p frame.
     //!
     //! \note Must be called only if a trained model is available.
@@ -89,10 +95,9 @@ public:
     //! Get the feature sample probabilities.
     TDoubleVec featureWeights() const;
 
-    //!
+    //! Estimate the maximum booking memory that training the boosted tree on a data
+    //! frame with \p numberRows row and \p numberColumns columns will use.
     std::size_t estimateMemoryUsage(std::size_t numberRows, std::size_t numberColumns) const;
-
-    void rowsPerFeature(std::size_t rowsPerFeature);
 
 private:
     using TDoubleDoublePrVec = std::vector<std::pair<double, double>>;
@@ -278,6 +283,7 @@ private:
 
             this->computeAggregateLossDerivatives(numberThreads, frame);
         }
+
         //! This should only called by split but is public so it's accessible to make_shared.
         CLeafNodeStatistics(std::size_t id,
                             const CLeafNodeStatistics& parent,
@@ -577,6 +583,13 @@ private:
     };
 
 private:
+    //! Check if we can train a model.
+    bool canTrain() const;
+
+    //! Get the full training set data mask, i.e. all rows which aren't missing
+    //! the dependent variable.
+    core::CPackedBitVector allTrainingRowsMask() const;
+
     //! Compute the sum loss for the predictions from \p frame and the leaf
     //! count and squared weight sum from \p forest.
     TDoubleDoubleDoubleTr regularisedLoss(const core::CDataFrame& frame,
@@ -584,16 +597,14 @@ private:
                                           const TNodeVecVec& forest) const;
 
     //! Train the forest and compute loss moments on each fold.
-    TMeanVarAccumulator
-    crossValidateForest(core::CDataFrame& frame,
-                        const TPackedBitVectorVec& trainingRowMasks,
-                        const TPackedBitVectorVec& testingRowMasks,
-                        CBoostedTree::TProgressCallback recordProgress) const;
+    TMeanVarAccumulator crossValidateForest(core::CDataFrame& frame,
+                                            CBoostedTree::TProgressCallback recordProgress) const;
 
     //! Initialize the predictions and loss function derivatives for the masked
     //! rows in \p frame.
     TNodeVec initializePredictionsAndLossDerivatives(core::CDataFrame& frame,
                                                      const core::CPackedBitVector& trainingRowMask) const;
+
     //! Train one forest on the rows of \p frame in the mask \p trainingRowMask.
     TNodeVecVec trainForest(core::CDataFrame& frame,
                             const core::CPackedBitVector& trainingRowMask,
@@ -630,7 +641,7 @@ private:
     TSizeVec candidateFeatures() const;
 
     //! Get the root node of \p tree.
-    static const CBoostedTreeImpl::CNode& root(const TNodeVec& tree);
+    static const CNode& root(const TNodeVec& tree);
 
     //! Get the forest's prediction for \p row.
     static double predictRow(const TRowRef& row, const TNodeVecVec& forest);
@@ -660,7 +671,8 @@ private:
     //! a good idea.
     std::size_t maximumTreeSize(std::size_t numberRows) const;
 
-    std::size_t numberFeatures(const core::CDataFrame& frame) const;
+private:
+    static const double INF;
 
 private:
     mutable CPRNG::CXorOShiro128Plus m_Rng;
@@ -686,15 +698,14 @@ private:
     double m_MaximumTreeSizeFraction = 1.0;
     TDoubleVec m_FeatureSampleProbabilities;
     TPackedBitVectorVec m_MissingFeatureRowMasks;
+    TPackedBitVectorVec m_TrainingRowMasks;
+    TPackedBitVectorVec m_TestingRowMasks;
     double m_BestForestTestLoss = INF;
     SHyperparameters m_BestHyperparameters;
     TNodeVecVec m_BestForest;
     TBayesinOptimizationUPtr m_BayesianOptimization;
-    TNodeVecVec forest;
     std::size_t m_NumberRounds;
     std::size_t m_CurrentRound;
-    TPackedBitVectorVec m_TrainingRowMasks;
-    TPackedBitVectorVec m_TestingRowMasks;
 
     friend class CBoostedTreeFactory;
 };

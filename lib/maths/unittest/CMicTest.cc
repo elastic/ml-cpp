@@ -103,9 +103,9 @@ void CMicTest::testOptimizeXAxis() {
             TDoubleVec px(pi_.size(), 0.0);
             TDoubleVec py(q.size(), 0.0);
             for (const auto& sample : mic.m_Samples) {
-                std::ptrdiff_t i{std::upper_bound(pi_.begin(), pi_.end(), sample(0)) -
+                std::ptrdiff_t i{std::lower_bound(pi_.begin(), pi_.end(), sample(0)) -
                                  pi_.begin()};
-                std::ptrdiff_t j{std::upper_bound(q.begin(), q.end(), sample(1)) -
+                std::ptrdiff_t j{std::lower_bound(q.begin(), q.end(), sample(1)) -
                                  q.begin()};
                 p[i][j] += 1.0 / Z;
                 px[i] += 1.0 / Z;
@@ -193,7 +193,7 @@ void CMicTest::testIndependent() {
     test::CRandomNumbers rng;
 
     TSizeVec counts{100, 500, 1000, 5000, 10000};
-    TDoubleVec maximumMic{0.26, 0.14, 0.09, 0.03, 0.015};
+    TDoubleVec maximumMic{0.23, 0.14, 0.09, 0.03, 0.015};
 
     TDoubleVec samples;
 
@@ -278,7 +278,7 @@ void CMicTest::testOneToOne() {
 
         double mic_{mic.compute()};
         LOG_DEBUG(<< "MICe = " << mic_);
-        CPPUNIT_ASSERT(mic_ > 0.96);
+        CPPUNIT_ASSERT(mic_ > 0.97);
     }
 }
 
@@ -406,7 +406,7 @@ void CMicTest::testVsMutualInformation() {
     }
     LOG_DEBUG(<< "Error = " << maths::CBasicStatistics::mean(error));
 
-    CPPUNIT_ASSERT(maths::CBasicStatistics::mean(error) < 0.12);
+    CPPUNIT_ASSERT(maths::CBasicStatistics::mean(error) < 0.11);
 
     LOG_DEBUG(<< "Test circle");
 
@@ -435,7 +435,48 @@ void CMicTest::testVsMutualInformation() {
 
         double mic_{mic.compute()};
         LOG_DEBUG(<< "MICe = " << mic_);
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(0.6, mic_, 0.05);
+        CPPUNIT_ASSERT_DOUBLES_EQUAL(0.6, mic_, 0.02);
+    }
+}
+
+void CMicTest::testBinaryVariables() {
+
+    // Test we produce the correct results for binary variables. In particular,
+    // we should match mutual information (up to normalising constant log(2))
+    // since we only have one possible choice of 2x2 grid.
+
+    test::CRandomNumbers rng;
+
+    std::size_t numberSamples{1000};
+
+    for (std::size_t t = 0; t < 10; ++t) {
+
+        TDoubleVec x, y;
+        rng.generateUniformSamples(0.0, 1.0, numberSamples, x);
+        rng.generateUniformSamples(0.0, 1.0, numberSamples, y);
+        for (std::size_t i = 0; i < numberSamples; ++i) {
+            x[i] = x[i] < 0.5 ? 0.0 : 1.0;
+            y[i] = 0.2 * x[i] + 0.8 * y[i] < 0.5 ? 0.0 : 1.0;
+        }
+
+        TDoubleVec p(4, 0.0);
+        maths::CMic mic;
+        mic.reserve(numberSamples);
+        for (std::size_t i = 0; i < numberSamples; ++i) {
+            mic.add(x[i], y[i]);
+            p[static_cast<std::size_t>(2.0 * x[i] + y[i])] +=
+                1.0 / static_cast<double>(numberSamples);
+        }
+        double mic_{mic.compute()};
+
+        TDoubleVec px{p[0] + p[1], p[2] + p[3]};
+        TDoubleVec py{p[0] + p[2], p[1] + p[3]};
+
+        double mi{p[0] * maths::CTools::fastLog(p[0] / px[0] / py[0]) +
+                  p[1] * maths::CTools::fastLog(p[1] / px[0] / py[1]) +
+                  p[2] * maths::CTools::fastLog(p[2] / px[1] / py[0]) +
+                  p[3] * maths::CTools::fastLog(p[3] / px[1] / py[1])};
+        CPPUNIT_ASSERT_DOUBLES_EQUAL(maths::CTools::fastLog(2.0), mi / mic_, 1e-3);
     }
 }
 
@@ -447,7 +488,7 @@ void CMicTest::testEdgeCases() {
 
     LOG_DEBUG(<< "Test small n");
 
-    for (std::size_t t = 1; t < 10; ++t) {
+    for (std::size_t t = 1; t < 5; ++t) {
 
         TDoubleVec samples;
         rng.generateUniformSamples(0.0, 1.0, 2 * t, samples);
@@ -460,7 +501,7 @@ void CMicTest::testEdgeCases() {
 
         double mic_{mic.compute()};
         LOG_DEBUG(<< "MICe = " << mic_);
-        CPPUNIT_ASSERT(mic_ < 0.65);
+        CPPUNIT_ASSERT_EQUAL(0.0, mic_);
     }
 
     LOG_DEBUG(<< "Test constant");
@@ -490,6 +531,8 @@ CppUnit::Test* CMicTest::suite() {
         "CMicTest::testCorrelated", &CMicTest::testCorrelated));
     suiteOfTests->addTest(new CppUnit::TestCaller<CMicTest>(
         "CMicTest::testVsMutualInformation", &CMicTest::testVsMutualInformation));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CMicTest>(
+        "CMicTest::testBinaryVariables", &CMicTest::testBinaryVariables));
     suiteOfTests->addTest(new CppUnit::TestCaller<CMicTest>(
         "CMicTest::testEdgeCases", &CMicTest::testEdgeCases));
 

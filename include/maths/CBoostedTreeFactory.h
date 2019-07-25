@@ -7,26 +7,24 @@
 #ifndef INCLUDED_ml_maths_CBoostedTreeFactory_h
 #define INCLUDED_ml_maths_CBoostedTreeFactory_h
 
-#include <core/CContainerPrinter.h>
 #include <core/CDataFrame.h>
-#include <core/CPackedBitVector.h>
 
-#include <maths/CBayesianOptimisation.h>
 #include <maths/CBoostedTree.h>
-#include <maths/CBoostedTreeImpl.h>
 #include <maths/ImportExport.h>
 
 #include <memory>
-#include <numeric>
-#include <sstream>
 #include <utility>
 #include <vector>
 
 namespace ml {
+namespace core {
+class CPackedBitVector;
+}
 namespace maths {
 
 class CNode;
 class CBoostedTree;
+class CBoostedTreeImpl;
 
 //! Factory for CBoostedTree objects.
 class MATHS_EXPORT CBoostedTreeFactory final {
@@ -38,6 +36,12 @@ public:
     static CBoostedTreeFactory constructFromParameters(std::size_t numberThreads,
                                                        std::size_t dependentVariable,
                                                        CBoostedTree::TLossFunctionUPtr loss);
+
+    ~CBoostedTreeFactory();
+    CBoostedTreeFactory(CBoostedTreeFactory&) = delete;
+    CBoostedTreeFactory& operator=(CBoostedTreeFactory&) = delete;
+    CBoostedTreeFactory(CBoostedTreeFactory&&);
+    CBoostedTreeFactory& operator=(CBoostedTreeFactory&&);
 
     //! Set the number of folds to use for estimating the generalisation error.
     CBoostedTreeFactory& numberFolds(std::size_t folds);
@@ -56,6 +60,7 @@ public:
     CBoostedTreeFactory& maximumOptimisationRoundsPerHyperparameter(std::size_t rounds);
     //! Set the callback function for progress monitoring.
     CBoostedTreeFactory& progressCallback(CBoostedTree::TProgressCallback callback);
+
     //! Estimate the maximum booking memory that training the boosted tree on a data
     //! frame with \p numberRows row and \p numberColumns columns will use.
     std::size_t estimateMemoryUsage(std::size_t numberRows, std::size_t numberColumns) const;
@@ -65,15 +70,7 @@ public:
     TBoostedTreeUPtr buildFor(core::CDataFrame& frame);
 
 private:
-    using TDoubleVec = std::vector<double>;
-    using TDoubleVecVec = std::vector<TDoubleVec>;
-    using TSizeVec = std::vector<std::size_t>;
-    using TSizeDoublePr = std::pair<std::size_t, double>;
-    using TDoubleDoubleDoubleTr = std::tuple<double, double, double>;
-    using TRowItr = core::CDataFrame::TRowItr;
-    using TRowRef = core::CDataFrame::TRowRef;
     using TPackedBitVectorVec = std::vector<core::CPackedBitVector>;
-    using TNodeVec = std::vector<CNode>;
     using TBoostedTreeImplUPtr = std::unique_ptr<CBoostedTreeImpl>;
 
 private:
@@ -81,26 +78,26 @@ private:
                         std::size_t dependentVariable,
                         CBoostedTree::TLossFunctionUPtr loss);
 
-    void initializeMissingFeatureMasks(const core::CDataFrame& frame);
+    void initializeMissingFeatureMasks(const core::CDataFrame& frame) const;
 
     std::pair<TPackedBitVectorVec, TPackedBitVectorVec> crossValidationRowMasks() const;
 
     //! Initialize the regressors sample distribution.
-    void initializeFeatureSampleDistribution(const core::CDataFrame& frame);
+    bool initializeFeatureSampleDistribution(const core::CDataFrame& frame) const;
 
     //! Read overrides for hyperparameters and if necessary estimate the initial
     //! values for \f$\lambda\f$ and \f$\gamma\f$ which match the gain from an
     //! overfit tree.
     void initializeHyperparameters(core::CDataFrame& frame,
-                                   CBoostedTree::TProgressCallback recordProgress);
+                                   CBoostedTree::TProgressCallback recordProgress) const;
 
-    CBayesianOptimisation::TDoubleDoublePrVec hyperparameterBoundingBox() const;
+    //! Initialize the state for hyperparameter optimisation.
+    void initializeHyperparameterOptimisation() const;
 
     //! Get the number of hyperparameter tuning rounds to use.
     std::size_t numberHyperparameterTuningRounds() const;
 
 private:
-    TBoostedTreeUPtr m_Tree;
     TBoostedTreeImplUPtr m_TreeImpl;
     CBoostedTree::TProgressCallback m_ProgressCallback;
 };
