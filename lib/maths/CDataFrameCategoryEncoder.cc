@@ -20,69 +20,32 @@
 namespace ml {
 namespace maths {
 namespace {
-class CFeatureRmr;
-using TFeatureRmrList = std::list<CFeatureRmr>;
+using TDoubleVec = std::vector<double>;
+using TSizeDoublePr = std::pair<std::size_t, double>;
+using TSizeDoublePrVec = std::vector<TSizeDoublePr>;
+using TSizeDoublePrVecVec = std::vector<TSizeDoublePrVec>;
 
-//! \brief Supports computing the minimum redundancy maximum relevance feature
-//! selection.
-//!
-//! DESCRIPTION:\n
-//! As with Peng et al, we use a greedy search to approximately solve the
-//! optimization problem
-//!
-//! \f$arg\max_S \frac{1}{|S|} \sum_{f\in S}{MIC(f,t)} - \frac{1}{|S|^2} \sum_{f\in S, g\in S} {MIC(f,g)}\f$
-//!
-//! This trades redundancy of information in the feature set as a whole and
-//! relevance of each individual feature when deciding which to include. This
-//! class maintains the state to compute the mean MICe with the variables
-//! selected so far. It also provides an estimator of relevancy minus redundancy.
-//! We extend the basic measure by including a non-negative redundancy weight
-//! which controls the priority of minimizing redundancy vs maximizing relevancy.
-//!
-//! For more informatio see
-//! https://en.wikipedia.org/wiki/Feature_selection#Minimum-redundancy-maximum-relevance_(mRMR)_feature_selection
-//! and references therein.
-class CFeatureRmr {
+//! \brief Maintains the state for a single feature in a greedy search for the
+//! minimum redundancy maximum relevance feature selection.
+class CFeatureRelevanceMinusRedundancy {
 public:
-    using TDoubleVec = std::vector<double>;
     using TMeanAccumulator = CBasicStatistics::SSampleMean<double>::TAccumulator;
-    using TSizeDoublePr = std::pair<std::size_t, double>;
-    using TSizeDoublePrVec = std::vector<TSizeDoublePr>;
-    using TSizeDoublePrVecVec = std::vector<TSizeDoublePrVec>;
 
 public:
-    CFeatureRmr(std::size_t feature, std::size_t category, bool categorical, double micWithDependentVariable)
-        : m_Feature{feature}, m_Category{category}, m_Categorical{categorical},
+    CFeatureRelevanceMinusRedundancy(std::size_t feature,
+                                     std::size_t category,
+                                     bool isCategorical,
+                                     double micWithDependentVariable)
+        : m_Feature{feature}, m_Category{category}, m_IsCategorical{isCategorical},
           m_MicWithDependentVariable{micWithDependentVariable} {}
 
-    static TFeatureRmrList initialiseGreedySearch(const TDoubleVec& metricMics,
-                                                  const TSizeDoublePrVecVec& categoricalMics) {
-        TFeatureRmrList rmrs;
-        for (std::size_t i = 0; i < metricMics.size(); ++i) {
-            if (metricMics[i] > 0.0) {
-                rmrs.emplace_back(i, 0, false, metricMics[i]);
-            }
-        }
-        for (std::size_t i = 0; i < categoricalMics.size(); ++i) {
-            for (std::size_t j = 0; j < categoricalMics[i].size(); ++j) {
-                std::size_t category;
-                double mic;
-                std::tie(category, mic) = categoricalMics[i][j];
-                if (mic > 0.0) {
-                    rmrs.emplace_back(i, category, true, mic);
-                }
-            }
-        }
-        return rmrs;
-    }
+    bool isCategorical() const { return m_IsCategorical; }
+    std::size_t feature() const { return m_Feature; }
+    std::size_t category() const { return m_Category; }
 
     double micWithDependentVariable() const {
         return m_MicWithDependentVariable;
     }
-
-    std::size_t feature() const { return m_Feature; }
-
-    std::size_t category() const { return m_Category; }
 
     double relevanceMinusRedundancy(double redundancyWeight) const {
         return m_MicWithDependentVariable -
@@ -90,7 +53,7 @@ public:
     }
 
     void update(const TDoubleVec& metricMics, const TSizeDoublePrVecVec& categoricalMics) {
-        if (m_Categorical) {
+        if (m_IsCategorical) {
             auto i = std::find_if(categoricalMics[m_Feature].begin(),
                                   categoricalMics[m_Feature].end(),
                                   [this](const TSizeDoublePr& categoryMic) {
@@ -110,11 +73,77 @@ private:
     }
 
 private:
-    bool m_Categorical;
     std::size_t m_Feature = 0;
     std::size_t m_Category = 0;
+    bool m_IsCategorical;
     double m_MicWithDependentVariable = 0.0;
     TMeanAccumulator m_MicWithSelectedVariables;
+};
+
+//! \brief Manages a greedy search for the minimum redundancy maximum relevancy
+//! feature set.
+//!
+//! DESCRIPTION:\n
+//! As with Peng et al, we use a greedy search to approximately solve the
+//! optimization problem
+//!
+//! \f$arg\max_S \frac{1}{|S|} \sum_{f\in S}{MIC(f,t)} - \frac{1}{|S|^2} \sum_{f\in S, g\in S} {MIC(f,g)}\f$
+//!
+//! This trades redundancy of information in the feature set as a whole and
+//! relevance of each individual feature when deciding which to include. We
+//! extend the basic measure by including a non-negative redundancy weight
+//! which controls the priority of minimizing redundancy vs maximizing relevancy.
+//! For more information see
+//! https://en.wikipedia.org/wiki/Feature_selection#Minimum-redundancy-maximum-relevance_(mRMR)_feature_selection
+//! and references therein.
+class CMinRedundancyMaxRelevancyGreedySearch {
+public:
+    CMinRedundancyMaxRelevancyGreedySearch(double redundancyWeight,
+                                           const TDoubleVec& metricMics,
+                                           const TSizeDoublePrVecVec& categoricalMics)
+        : m_RedundancyWeight{redundancyWeight} {
+        for (std::size_t i = 0; i < metricMics.size(); ++i) {
+            if (metricMics[i] > 0.0) {
+                m_Features.emplace_back(i, 0, false, metricMics[i]);
+            }
+        }
+        for (std::size_t i = 0; i < categoricalMics.size(); ++i) {
+            for (std::size_t j = 0; j < categoricalMics[i].size(); ++j) {
+                std::size_t category;
+                double mic;
+                std::tie(category, mic) = categoricalMics[i][j];
+                if (mic > 0.0) {
+                    m_Features.emplace_back(i, category, true, mic);
+                }
+            }
+        }
+    }
+
+    CFeatureRelevanceMinusRedundancy selectNext() {
+        auto selected = std::max_element(
+            m_Features.begin(), m_Features.end(),
+            [this](const CFeatureRelevanceMinusRedundancy& lhs,
+                   const CFeatureRelevanceMinusRedundancy& rhs) {
+                return lhs.relevanceMinusRedundancy(m_RedundancyWeight) <
+                       rhs.relevanceMinusRedundancy(m_RedundancyWeight);
+            });
+        CFeatureRelevanceMinusRedundancy result{*selected};
+        m_Features.erase(selected);
+        return result;
+    }
+
+    void update(const TDoubleVec& metricMics, const TSizeDoublePrVecVec& categoricalMics) {
+        for (auto& feature : m_Features) {
+            feature.update(metricMics, categoricalMics);
+        }
+    }
+
+private:
+    using TFeatureRelevanceMinusRedundancyList = std::list<CFeatureRelevanceMinusRedundancy>;
+
+private:
+    double m_RedundancyWeight;
+    TFeatureRelevanceMinusRedundancyList m_Features;
 };
 }
 
@@ -377,41 +406,30 @@ void CDataFrameCategoryEncoder::oneHotEncode(std::size_t numberThreads,
         this->oneHotEncodeAll(metricMics, categoricalMics);
 
     } else {
-        TFeatureRmrList rmrs{CFeatureRmr::initialiseGreedySearch(metricMics, categoricalMics)};
-        TSizeVec oneHotEncodedCategoryCounts(frame.numberColumns(), 0);
+        CMinRedundancyMaxRelevancyGreedySearch search{m_RedundancyWeight,
+                                                      metricMics, categoricalMics};
 
-        // A greedy search to jointly minimise redundancy and maximise relevancy.
         for (std::size_t i = 0; i < maximumNumberFeatures; ++i) {
 
-            auto selected = std::max_element(
-                rmrs.begin(), rmrs.end(),
-                [this](const CFeatureRmr& lhs, const CFeatureRmr& rhs) {
-                    return lhs.relevanceMinusRedundancy(m_RedundancyWeight) <
-                           rhs.relevanceMinusRedundancy(m_RedundancyWeight);
-                });
+            CFeatureRelevanceMinusRedundancy selected{search.selectNext()};
 
-            double mic{selected->micWithDependentVariable()};
-            std::size_t feature{selected->feature()};
-            std::size_t category{selected->category()};
+            double mic{selected.micWithDependentVariable()};
+            std::size_t feature{selected.feature()};
+            std::size_t category{selected.category()};
 
-            if (m_ColumnIsCategorical[feature]) {
-                LOG_TRACE(<< "feature = " << feature << " category = " << category << " relevance = "
-                          << selected->relevanceMinusRedundancy(m_RedundancyWeight));
+            if (selected.isCategorical()) {
                 m_SelectedCategoricalFeatures.push_back(feature);
                 m_OneHotEncodedCategories[feature].push_back(category);
-                ++oneHotEncodedCategoryCounts[feature];
 
-                if (oneHotEncodedCategoryCounts[feature] == 1) {
+                if (m_OneHotEncodedCategories[feature].size() == 1) {
                     i += 1 + (this->hasRareCategories(feature) ? 1 : 0);
                 }
-                if (oneHotEncodedCategoryCounts[feature] ==
+                if (m_OneHotEncodedCategories[feature].size() ==
                     categoricalMics[feature].size()) {
                     categoricalColumnMask.erase(std::find(
                         categoricalColumnMask.begin(), categoricalColumnMask.end(), feature));
                 }
             } else {
-                LOG_TRACE(<< "feature = " << feature << " relevance = "
-                          << selected->relevanceMinusRedundancy(m_RedundancyWeight));
                 m_SelectedMetricFeatures.push_back(feature);
                 m_SelectedMetricFeatureMics.push_back(mic);
                 metricColumnMask.erase(std::find(metricColumnMask.begin(),
@@ -421,11 +439,7 @@ void CDataFrameCategoryEncoder::oneHotEncode(std::size_t numberThreads,
             std::tie(metricMics, categoricalMics) =
                 this->mics(numberThreads, frame, feature, category, metricColumnMask,
                            categoricalColumnMask, minimumFrequencyToOneHotEncode);
-            for (auto& rmr : rmrs) {
-                rmr.update(metricMics, categoricalMics);
-            }
-
-            rmrs.erase(selected);
+            search.update(metricMics, categoricalMics);
         }
     }
 
