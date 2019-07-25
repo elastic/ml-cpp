@@ -24,6 +24,7 @@ public:
     void testResizeColumns();
     void testWriteColumns();
     void testDocHashes();
+    void testRowMask();
 
     static CppUnit::Test* suite();
 };

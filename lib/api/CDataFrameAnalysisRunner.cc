@@ -73,11 +73,15 @@ void CDataFrameAnalysisRunner::computeAndSaveExecutionStrategy() {
     LOG_TRACE(<< "number partitions = " << m_NumberPartitions);
 
     if (memoryUsage > memoryLimit) {
+        auto roundMb = [](std::size_t memory) {
+            return 0.01 * static_cast<double>((100 * memory) / (1024 * 1024));
+        };
+
         // Report rounded up to the nearest MB.
-        std::size_t memoryUsageMb = (memoryUsage + (1024 * 1024 - 1)) / (1024 * 1024);
-        HANDLE_FATAL(<< "Input error: memory limit is too low to perform analysis."
-                     << " You need to give the process at least "
-                     << memoryUsageMb << "MB, but preferably more.");
+        HANDLE_FATAL(<< "Input error: memory limit " << roundMb(memoryLimit)
+                     << "MB is too low to perform analysis. You need to give the process"
+                     << " at least " << std::ceil(roundMb(memoryUsage))
+                     << "MB, but preferably more.");
 
     } else if (m_NumberPartitions > 1) {
         // The maximum number of rows is found by binary search in the interval

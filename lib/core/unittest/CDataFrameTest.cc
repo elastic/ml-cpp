@@ -9,6 +9,7 @@
 #include <core/CContainerPrinter.h>
 #include <core/CDataFrame.h>
 #include <core/CDataFrameRowSlice.h>
+#include <core/CPackedBitVector.h>
 #include <core/Concurrency.h>
 
 #include <test/CRandomNumbers.h>
@@ -693,6 +694,143 @@ void CDataFrameTest::testDocHashes() {
     }
 }
 
+void CDataFrameTest::testRowMask() {
+
+    // Test we read only the rows in a mask.
+
+    using TSizeVec = std::vector<std::size_t>;
+
+    TSizeVec rowsRead;
+
+    std::size_t rows{5000};
+    std::size_t cols{15};
+    std::size_t extraCols{3};
+    std::size_t capacity{1000};
+    TFloatVec components{testData(rows, cols + extraCols)};
+
+    test::CRandomNumbers rng;
+
+    TFactoryFunc makeOnDisk = [=] {
+        return core::makeDiskStorageDataFrame(
+                   boost::filesystem::current_path().string(), cols, rows,
+                   capacity, core::CDataFrame::EReadWriteToStorage::E_Async)
+            .first;
+    };
+    TFactoryFunc makeMainMemory = [=] {
+        return core::makeMainStorageDataFrame(
+                   cols, capacity, core::CDataFrame::EReadWriteToStorage::E_Sync)
+            .first;
+    };
+
+    std::string type[]{"on disk", "main memory"};
+    std::size_t t{0};
+    for (const auto& factory : {makeOnDisk, makeMainMemory}) {
+        LOG_DEBUG(<< "Test read rows " << type[t++]);
+
+        auto frame = factory();
+
+        for (std::size_t i = 0; i < components.size(); i += cols + extraCols) {
+            frame->writeRow(makeWriter(components, cols, i));
+        }
+        frame->finishWritingRows();
+
+        for (auto numberThreads : {1, 3}) {
+            LOG_DEBUG(<< "# threads = " << numberThreads);
+
+            TSizeVec readRowsIndices;
+
+            // Edge cases:
+            //   1) Mask doesn't intercept row range
+            //   2) Ends of range and slice
+
+            std::size_t ranges[][2]{{101, 3998}, {95, 5000}};
+            TSizeVec rangeRowMaskIndices[]{
+                {}, {95, 96, 97, 98, 99, 100, 3999, 4000, 4998, 4999}};
+
+            for (auto i : {0, 1}) {
+                core::CPackedBitVector rowMask{true};
+                rowMask.extend(true, 100);
+                rowMask.extend(false, 3898);
+                rowMask.extend(true, 2);
+                rowMask.extend(false, 997);
+                rowMask.extend(true, 2);
+
+                auto results =
+                    frame
+                        ->readRows(
+                            numberThreads, ranges[i][0], ranges[i][1],
+                            core::bindRetrievableState(
+                                [](TSizeVec& readerReadRowsIndices,
+                                   TRowItr beginRows, TRowItr endRows) mutable {
+                                    for (auto row = beginRows; row != endRows; ++row) {
+                                        readerReadRowsIndices.push_back(row->index());
+                                    }
+                                },
+                                TSizeVec{}),
+                            &rowMask)
+                        .first;
+
+                readRowsIndices.clear();
+                for (const auto& result : results) {
+                    readRowsIndices.insert(readRowsIndices.end(),
+                                           result.s_FunctionState.begin(),
+                                           result.s_FunctionState.end());
+                }
+                std::sort(readRowsIndices.begin(), readRowsIndices.end());
+
+                CPPUNIT_ASSERT_EQUAL(
+                    core::CContainerPrinter::print(rangeRowMaskIndices[i]),
+                    core::CContainerPrinter::print(readRowsIndices));
+            }
+
+            TSizeVec strides;
+            TSizeVec rowMaskIndices;
+            for (std::size_t i = 0; i < 200; ++i) {
+                rng.generateUniformSamples(0, 50, 150, strides);
+
+                core::CPackedBitVector rowMask{strides[0] == 0};
+                for (auto stride : strides) {
+                    if (rowMask.size() + stride > rows) {
+                        break;
+                    }
+                    if (stride > 0) {
+                        rowMask.extend(false, stride);
+                        rowMask.extend(true);
+                    }
+                }
+                rowMask.extend(false, rows - rowMask.size());
+                rowMaskIndices.assign(rowMask.beginOneBits(), rowMask.endOneBits());
+
+                auto results =
+                    frame
+                        ->readRows(
+                            numberThreads, 0, rows,
+                            core::bindRetrievableState(
+                                [](TSizeVec& readerReadRowsIndices,
+                                   TRowItr beginRows, TRowItr endRows) mutable {
+                                    for (auto row = beginRows; row != endRows; ++row) {
+                                        readerReadRowsIndices.push_back(row->index());
+                                    }
+                                },
+                                TSizeVec{}),
+                            &rowMask)
+                        .first;
+
+                readRowsIndices.clear();
+                for (const auto& result : results) {
+                    readRowsIndices.insert(readRowsIndices.end(),
+                                           result.s_FunctionState.begin(),
+                                           result.s_FunctionState.end());
+                }
+                std::sort(readRowsIndices.begin(), readRowsIndices.end());
+
+                CPPUNIT_ASSERT_EQUAL(core::CContainerPrinter::print(rowMaskIndices),
+                                     core::CContainerPrinter::print(readRowsIndices));
+            }
+        }
+    }
+}
+
 CppUnit::Test* CDataFrameTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CDataFrameTest");
 
@@ -720,6 +858,8 @@ CppUnit::Test* CDataFrameTest::suite() {
         "CDataFrameTest::testWriteColumns", &CDataFrameTest::testWriteColumns));
     suiteOfTests->addTest(new CppUnit::TestCaller<CDataFrameTest>(
         "CDataFrameTest::testDocHashes", &CDataFrameTest::testDocHashes));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CDataFrameTest>(
+        "CDataFrameTest::testRowMask", &CDataFrameTest::testRowMask));
 
     return suiteOfTests;
 }

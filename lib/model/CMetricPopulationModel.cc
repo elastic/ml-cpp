@@ -32,7 +32,6 @@
 
 #include <boost/iterator/counting_iterator.hpp>
 #include <boost/optional.hpp>
-#include <boost/range.hpp>
 #include <boost/tuple/tuple.hpp>
 #include <boost/unordered_map.hpp>
 

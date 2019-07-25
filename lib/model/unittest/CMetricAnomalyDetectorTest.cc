@@ -25,8 +25,6 @@
 
 #include <test/CTimeSeriesTestData.h>
 
-#include <boost/range.hpp>
-
 #include <algorithm>
 #include <fstream>
 #include <numeric>
@@ -259,9 +257,9 @@ void CMetricAnomalyDetectorTest::testAnomalies() {
     double highRateNoise = 0.0;
     double lowRateNoise = 0.0;
 
-    for (size_t i = 0; i < boost::size(BUCKET_LENGTHS); ++i) {
+    for (auto bucketLength : BUCKET_LENGTHS) {
         model::CAnomalyDetectorModelConfig modelConfig =
-            model::CAnomalyDetectorModelConfig::defaultConfig(BUCKET_LENGTHS[i]);
+            model::CAnomalyDetectorModelConfig::defaultConfig(bucketLength);
         modelConfig.useMultibucketFeatures(false);
         model::CLimits limits;
         model::CSearchKey key(1, // identifier
@@ -270,9 +268,9 @@ void CMetricAnomalyDetectorTest::testAnomalies() {
         model::CAnomalyDetector detector(1, // identifier
                                          limits, modelConfig, "", FIRST_TIME,
                                          modelConfig.factory(key));
-        CResultWriter writer(modelConfig, limits, BUCKET_LENGTHS[i]);
+        CResultWriter writer(modelConfig, limits, bucketLength);
 
-        importData(FIRST_TIME, LAST_TIME, BUCKET_LENGTHS[i], writer,
+        importData(FIRST_TIME, LAST_TIME, bucketLength, writer,
                    "testfiles/variable_rate_metric.data", detector);
 
         TTimeTimePrVec highAnomalyTimes(writer.highAnomalyTimes());
@@ -280,7 +278,7 @@ void CMetricAnomalyDetectorTest::testAnomalies() {
         TDoubleVec anomalyFactors(writer.anomalyFactors());
         TDoubleVec anomalyRates(writer.anomalyRates());
 
-        LOG_DEBUG(<< "bucket length = " << BUCKET_LENGTHS[i]);
+        LOG_DEBUG(<< "bucket length = " << bucketLength);
         LOG_DEBUG(<< "high anomalies in = "
                   << core::CContainerPrinter::print(highAnomalyTimes));
         LOG_DEBUG(<< "high anomaly factors = "
