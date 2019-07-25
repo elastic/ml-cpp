@@ -58,6 +58,24 @@ compiledb -o ../../../compile_commands.json -n make -j
 
 New files are usually **added** to `compile_commands.json` unless you additionally specify `-f` for override.
 
+Note that on macOS `compiledb` may not correctly populate the `compile_commands.json` output file when invoking `make`
+as above. An alternative is to call `make` directly and pipe the output to `compiledb`. For convenience these commands
+can be encapsulated in a shell script `compiledb.sh`
+```
+#!/usr/bin/env bash
+
+make -Bnwk -j7 | compiledb -o $1
+```
+Set the executable bit on the script
+```
+chmod a+x ./compiledb.sh
+```
+The script can then be used to populate the compilation database as follows
+```
+./compiledb.sh compile_commands.json
+for dir in `find lib -name unittest`; do echo $dir; (cd $dir; $CPP_SRC_HOME/compiledb.sh $CPP_SRC_HOME/compile_commands.json); done
+```
+
 If the command runs suspiciously quickly and the `compile_commands.json` file is empty, this means that your project is
 already built and `make` didn't do anything. Simply run `make clean` before running `compiledb`.
 
@@ -77,6 +95,16 @@ Makefile** located in the project root and subdirectories:
 **Program:** `compiledb`\
 **Arguments:** `-n -o $ProjectFileDir$/compile_commands.json make -j`\
 **Working directory:** `$ProjectFileDir$`
+- [x] Auto-save edited files to trigger the watcher
+- [x] Trigger the watcher on external changes
+
+Alternatively, if using the `compiledb.sh` wrapper script:
+
+**File type:** GNU Makefile\
+**Scope:** Project Files\
+**Program:** `$ProjectFileDir$/compiledb.sh`\
+**Arguments:** `$ProjectFileDir$/compile_commands.json`\
+**Working directory:** `$FileDir$`
 - [x] Auto-save edited files to trigger the watcher
 - [x] Trigger the watcher on external changes
 
@@ -151,16 +179,23 @@ You can now build the project manually by selecting the configuration `Libraries
 and clicking the green play button. Moreover, we will create a configuration for running unit tests and use `Libraries`
 as a build dependency so we ensure that the project is up-to-date every time we run those tests.
 
-Let's create another **Run/Debug Configuration** for running uni tests for the `core` module. Again, go to **Run | Edit
+Let's create another **Run/Debug Configuration** for building the `core` unit tests. Go to menu 
+**Run | Edit Configurations...** and click on **+** to create a new configuration.
+
+**Name:** `Build test core`\
+**Makefile:** Makefile\
+**Working Directory:** *Navigate to `lib/core/unittest/*\
+**Arguments:** `-j7 ML_DEBUG=1`
+- [x] Allow parallel run
+
+Finally we can create another **Run/Debug Configuration** for running unit tests for the `core` module. Again, go to **Run | Edit
 Configurations...** and click on the **+** symbol to create a new **Custom Build Application**:
 
-**Name:** Test core\
-**Target:** *Select the custom build target `make build` that we created before*
-
+**Name:** `Run test core`\
+**Target:** *Select the custom build target `make build` that we created before*\
 **Executable:** *Navigate to `lib/core/unittest/` and select the `ml_test` binary*\
 If you cannot find the executable `ml-test`, then you don't have one yet. Simply, build the unittests by executing 
-`make` in the `lib/core/unittest` directory once to create it.
-
+`make` in the `lib/core/unittest` directory once to create it.\
 **Working directory:** `lib/core/unittest`
 
 In the area **Before launch: Another Configuration, Build, Activate tool window** click on **+** and select **Run
@@ -172,6 +207,44 @@ If you want to run an individual test suite or a test case, you can specify thos
 arguments**.
 
 Now, you can run and debug your code by selecting the appropriate configuration and using **play** or **debug** symbols.
+
+Once build configurations for all unit tests have bee created it is possible to create a **Run/Debug Configuration** to
+invoke them all. Go to **Run | Edit Configurations...** and click on the **+** symbol to create a new 
+**Compound** configuration named e.g. `Test All`. Click on the **+** symbol repeatedly to add each of the `Build test...`
+configurations.
+
+### Integration with `clang-format`
+
+Recent versions of CLion come with integrated support for `clang-format`. To ensure that `clang-format` is used
+in preference to the built-in formatter navigate to Navigate to **Settings / Preferences | Tools | clang-format** and
+ensure that **Clang-format binary** is set to `clang-format` and that the **PATH** field is empty. Then navigate to
+**Settings / Preferences | Editor | Code Style** and tick **Enable ClangFormat with clangd server**.
+
+Alternatively, you may wish to set up a File Watcher to invoke `clang-format` from
+**Settings / Preferences | Tools | File Watchers**
+
+**File type:** C/C++\
+**Scope:** Project Files\
+**Program:** `clang-format`\
+**Arguments:** `-i $FileName$`\
+**Output paths to refresh:** `$FileName$`\
+**Working directory** `$FileDir`
+- [x] Auto-save edited files to trigger the watcher
+- [x] Trigger the watcher on external changes
+
+### Integration with `valgrind`
+
+Clion has full support for running and analyzing code using the `valgrind` suite. 
+Valgrind is readily available on most linux distributions but on macOS an experimental build is required
+```
+brew install --HEAD https://raw.githubusercontent.com/sowson/valgrind/master/valgrind.rb
+```
+
+Once installed go to **Settings / Preference | Build, Execution, Deployment | Dynamic Analysis Tools | Valgrind**
+and specify the full path to the `valgrind` executable. `Valgrind` can now be used to analyze `run` configurations from
+**Run | Run *Run Configuration* with Valgrind Memcheck**
+
+
 
 For more information and useful screenshots, please refer to the [Clion help page on custom build
 targets](https://www.jetbrains.com/help/clion/custom-build-targets.html). Here you can also find more information on
