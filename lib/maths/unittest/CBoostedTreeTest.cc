@@ -283,7 +283,7 @@ void CBoostedTreeTest::testNonLinear() {
     }
     LOG_DEBUG(<< "mean MSE improvement = "
               << maths::CBasicStatistics::mean(meanMseImprovement));
-    CPPUNIT_ASSERT(maths::CBasicStatistics::mean(meanMseImprovement) > 50.0);
+    CPPUNIT_ASSERT(maths::CBasicStatistics::mean(meanMseImprovement) > 45.0);
 }
 
 void CBoostedTreeTest::testThreading() {
