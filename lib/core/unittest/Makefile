@@ -60,6 +60,7 @@ CMapPopulationTest.cc \
 CMutexTest.cc \
 CNamedPipeFactoryTest.cc \
 COsFileFuncsTest.cc \
+CPackedBitVectorTest.cc \
 CPatternSetTest.cc \
 CPersistUtilsTest.cc \
 CPolymorphicStackObjectCPtrTest.cc \

@@ -150,7 +150,7 @@ public:
 
 public:
     CEnsemble(const TMethodFactoryVec& methodFactories,
-              TModelBuilderVec modelBuilders,
+              TModelBuilderVec builders,
               TMemoryUsageCallback recordMemoryUsage);
     ~CEnsemble() {
         m_RecordMemoryUsage(-std::int64_t(core::CMemory::dynamicSize(m_Models)));
@@ -954,7 +954,9 @@ bool computeOutliersNoPartitions(const COutliers::SComputeParameters& params,
                         (params.s_ComputeFeatureInfluence ? 2 : 1) * dimension + 1);
     recordMemoryUsage(frame.memoryUsage() - frameMemory);
 
-    if (frame.writeColumns(params.s_NumberThreads, writeScores) == false) {
+    bool successful;
+    std::tie(std::ignore, successful) = frame.writeColumns(params.s_NumberThreads, writeScores);
+    if (successful == false) {
         LOG_ERROR(<< "Failed to write scores to the data frame");
         return false;
     }
@@ -1037,8 +1039,9 @@ bool computeOutliersPartitioned(const COutliers::SComputeParameters& params,
             }
         };
 
-        if (frame.writeColumns(params.s_NumberThreads, beginPartitionRows,
-                               endPartitionRows, writeScores) == false) {
+        std::tie(std::ignore, successful) = frame.writeColumns(
+            params.s_NumberThreads, beginPartitionRows, endPartitionRows, writeScores);
+        if (successful == false) {
             LOG_ERROR(<< "Failed to write scores to the data frame");
             return false;
         }

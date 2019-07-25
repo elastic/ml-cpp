@@ -10,7 +10,6 @@
 #include <core/CLogger.h>
 
 #include <boost/optional.hpp>
-#include <boost/range.hpp>
 
 #include <list>
 #include <map>

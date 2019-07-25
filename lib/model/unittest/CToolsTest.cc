@@ -11,8 +11,6 @@
 
 #include <model/CModelTools.h>
 
-#include <boost/range.hpp>
-
 using namespace ml;
 using namespace model;
 
@@ -36,11 +34,9 @@ void CToolsTest::testProbabilityAggregator() {
 
         maths::CJointProbabilityOfLessLikelySamples expected;
 
-        double p[] = {0.01, 0.2, 0.001, 0.3, 0.456, 0.1};
-
-        for (std::size_t i = 0u; i < boost::size(p); ++i) {
-            actual.add(p[0]);
-            expected.add(p[0]);
+        for (double p : {0.01, 0.2, 0.001, 0.3, 0.456, 0.1}) {
+            actual.add(p);
+            expected.add(p);
             CPPUNIT_ASSERT(!actual.empty());
 
             double pi;
@@ -64,11 +60,9 @@ void CToolsTest::testProbabilityAggregator() {
 
         maths::CProbabilityOfExtremeSample expected;
 
-        double p[] = {0.01, 0.2, 0.001, 0.3, 0.456, 0.1};
-
-        for (std::size_t i = 0u; i < boost::size(p); ++i) {
-            actual.add(p[0]);
-            expected.add(p[0]);
+        for (double p : {0.01, 0.2, 0.001, 0.3, 0.456, 0.1}) {
+            actual.add(p);
+            expected.add(p);
             CPPUNIT_ASSERT(!actual.empty());
 
             double pi;
@@ -94,12 +88,10 @@ void CToolsTest::testProbabilityAggregator() {
         maths::CJointProbabilityOfLessLikelySamples joint;
         maths::CProbabilityOfExtremeSample extreme;
 
-        double p[] = {0.01, 0.2, 0.001, 0.3, 0.456, 0.1};
-
-        for (std::size_t i = 0u; i < boost::size(p); ++i) {
-            actual.add(p[0]);
-            joint.add(p[0]);
-            extreme.add(p[0]);
+        for (double p : {0.01, 0.2, 0.001, 0.3, 0.456, 0.1}) {
+            actual.add(p);
+            joint.add(p);
+            extreme.add(p);
             CPPUNIT_ASSERT(!actual.empty());
 
             double pi;
@@ -126,12 +118,10 @@ void CToolsTest::testProbabilityAggregator() {
         maths::CJointProbabilityOfLessLikelySamples joint;
         maths::CProbabilityOfExtremeSample extreme;
 
-        double p[] = {0.01, 0.2, 0.001, 0.3, 0.456, 0.1};
-
-        for (std::size_t i = 0u; i < boost::size(p); ++i) {
-            actual.add(p[0]);
-            joint.add(p[0]);
-            extreme.add(p[0]);
+        for (double p : {0.01, 0.2, 0.001, 0.3, 0.456, 0.1}) {
+            actual.add(p);
+            joint.add(p);
+            extreme.add(p);
             CPPUNIT_ASSERT(!actual.empty());
 
             double pi;

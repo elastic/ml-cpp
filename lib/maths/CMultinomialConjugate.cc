@@ -26,7 +26,6 @@
 
 #include <boost/math/distributions/beta.hpp>
 #include <boost/numeric/conversion/bounds.hpp>
-#include <boost/range.hpp>
 #include <boost/tuple/tuple.hpp>
 #include <boost/tuple/tuple_comparison.hpp>
 #include <boost/tuple/tuple_io.hpp>

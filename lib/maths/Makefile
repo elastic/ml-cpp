@@ -9,6 +9,7 @@ TARGET=$(OBJS_DIR)/libMlMaths$(DYNAMIC_LIB_EXT)
 
 USE_BOOST=1
 USE_BOOST_FILESYSTEM_LIBS=1
+USE_RAPIDJSON=1
 USE_EIGEN=1
 
 LIBS:=$(LIB_ML_CORE)
@@ -20,7 +21,11 @@ CAdaptiveBucketing.cc \
 CAgglomerativeClusterer.cc \
 CAssignment.cc \
 CBasicStatistics.cc \
+CBayesianOptimisation.cc \
 CBjkstUniqueValues.cc \
+CBoostedTree.cc \
+CBoostedTreeFactory.cc \
+CBoostedTreeImpl.cc \
 CCalendarCyclicTest.cc \
 CCalendarComponentAdaptiveBucketing.cc \
 CCalendarComponent.cc \
@@ -31,6 +36,8 @@ CClustererStateSerialiser.cc \
 CConstantPrior.cc \
 CCooccurrences.cc \
 CCountMinSketch.cc \
+CDataFrameCategoryEncoder.cc \
+CDataFrameRegressionModel.cc \
 CDataFrameUtils.cc \
 CDecayRateController.cc \
 CDecompositionComponent.cc \
@@ -50,6 +57,7 @@ CLinearAlgebraTools.cc \
 CLogNormalMeanPrecConjugate.cc \
 CLogTDistribution.cc \
 CMathsFuncs.cc \
+CMic.cc \
 CMixtureDistribution.cc \
 CModel.cc \
 CModelStateSerialiser.cc \
@@ -70,7 +78,6 @@ COneOfNPrior.cc \
 COrderings.cc \
 COrdinal.cc \
 COutliers.cc \
-CPackedBitVector.cc \
 CPeriodicityHypothesisTests.cc \
 CPoissonMeanConjugate.cc \
 CPrior.cc \

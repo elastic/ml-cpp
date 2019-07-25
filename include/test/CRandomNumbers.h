@@ -120,7 +120,7 @@ public:
                                     std::size_t numberSamples,
                                     TDoubleVec& samples);
 
-    //! Generate random samples from a Diriclet distribution with
+    //! Generate random samples from a Dirichlet distribution with
     //! concentration parameters \p concentrations.
     void generateDirichletSamples(const TDoubleVec& concentrations,
                                   std::size_t numberSamples,

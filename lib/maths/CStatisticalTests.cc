@@ -18,7 +18,6 @@
 
 #include <boost/math/distributions/fisher_f.hpp>
 #include <boost/numeric/conversion/bounds.hpp>
-#include <boost/range.hpp>
 
 #include <algorithm>
 #include <cmath>

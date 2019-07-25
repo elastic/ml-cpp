@@ -15,7 +15,7 @@
 
 #include <test/CRandomNumbers.h>
 
-#include <boost/range.hpp>
+#include <boost/optional.hpp>
 #include <boost/tuple/tuple.hpp>
 
 #include <utility>
@@ -359,7 +359,7 @@ void COrderingsTest::testDereference() {
     using TDoubleVecCItr = std::vector<double>::const_iterator;
     using TDoubleVecCItrVec = std::vector<TDoubleVecCItr>;
 
-    double values_[] = {10.0, 1.0, 5.0, 3.0, 1.0};
+    double values_[]{10.0, 1.0, 5.0, 3.0, 1.0};
     TDoubleVec values(std::begin(values_), std::end(values_));
     TDoubleVecCItrVec iterators;
     for (TDoubleVecCItr i = values.begin(); i != values.end(); ++i) {
@@ -369,7 +369,7 @@ void COrderingsTest::testDereference() {
     std::sort(iterators.begin(), iterators.end(),
               core::CFunctional::SDereference<maths::COrderings::SLess>());
     std::sort(std::begin(values_), std::end(values_));
-    for (std::size_t i = 0u; i < boost::size(values); ++i) {
+    for (std::size_t i = 0; i < values.size(); ++i) {
         LOG_DEBUG(<< "expected " << values_[i] << ", got " << *iterators[i]);
         CPPUNIT_ASSERT_EQUAL(values_[i], *iterators[i]);
     }

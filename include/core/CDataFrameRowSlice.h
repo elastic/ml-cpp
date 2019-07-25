@@ -57,14 +57,23 @@ public:
     CDataFrameRowSliceHandle& operator=(const CDataFrameRowSliceHandle& other);
     CDataFrameRowSliceHandle& operator=(CDataFrameRowSliceHandle&& other);
 
+    //! The size of the slice in floats.
     std::size_t size() const;
+    //! The index of the first row in the slice.
     std::size_t indexOfFirstRow() const;
+    //! An iterator over the rows in the slice.
     TFloatVecItr beginRows() const;
+    //! An iterator to the end of the rows in the slice.
     TFloatVecItr endRows() const;
+    //! An iterator over the document hashes of the rows in the slice.
     TInt32VecCItr beginDocHashes() const;
+    //! An iterator to the end of document hashes of the rows in the slice.
     TInt32VecCItr endDocHashes() const;
+    //! All the rows in the slice.
     const TFloatVec& rows() const;
+    //! The document hashes of all the rows in the slice.
     const TInt32Vec& docHashes() const;
+    //! Return true if the slice couldn't be read.
     bool bad() const;
 
 private:
@@ -79,12 +88,21 @@ public:
 
 public:
     virtual ~CDataFrameRowSlice() = default;
+    //! Space for \p extraColumns.
     virtual void reserve(std::size_t numberColumns, std::size_t extraColumns) = 0;
+    //! The index of the first row in the slice.
     virtual std::size_t indexOfFirstRow() const = 0;
+    //! The index of the last row in the slice.
+    virtual std::size_t indexOfLastRow(std::size_t rowCapacity) const = 0;
+    //! Read the slice and return a handle to it.
     virtual CDataFrameRowSliceHandle read() = 0;
+    //! Write the slice.
     virtual void write(const TFloatVec& rows, const TInt32Vec& docHashes) = 0;
+    //! The static size of this object.
     virtual std::size_t staticSize() const = 0;
+    //! The heap memory used by this object.
     virtual std::size_t memoryUsage() const = 0;
+    //! A checksum of this object.
     virtual std::uint64_t checksum() const = 0;
 };
 
@@ -104,6 +122,7 @@ public:
 
     void reserve(std::size_t numberColumns, std::size_t extraColumns) override;
     std::size_t indexOfFirstRow() const override;
+    std::size_t indexOfLastRow(std::size_t rowCapacity) const override;
     CDataFrameRowSliceHandle read() override;
     void write(const TFloatVec& rows, const TInt32Vec& docHashes) override;
     std::size_t staticSize() const override;
@@ -168,6 +187,7 @@ public:
 
     void reserve(std::size_t numberColumns, std::size_t extraColumns) override;
     std::size_t indexOfFirstRow() const override;
+    std::size_t indexOfLastRow(std::size_t rowCapacity) const override;
     CDataFrameRowSliceHandle read() override;
     void write(const TFloatVec& rows, const TInt32Vec& docHashes) override;
     std::size_t staticSize() const override;

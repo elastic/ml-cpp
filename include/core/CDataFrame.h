@@ -23,6 +23,7 @@ namespace ml {
 namespace core {
 class CDataFrameRowSlice;
 class CDataFrameRowSliceHandle;
+class CPackedBitVector;
 class CTemporaryDirectory;
 
 namespace data_frame_detail {
@@ -31,6 +32,7 @@ using TFloatVec = std::vector<CFloatStorage>;
 using TFloatVecItr = TFloatVec::iterator;
 using TInt32Vec = std::vector<std::int32_t>;
 using TInt32VecCItr = TInt32Vec::const_iterator;
+using TPopMaskedRowFunc = std::function<std::size_t()>;
 
 //! \brief A lightweight wrapper around a single row of the data frame.
 //!
@@ -86,7 +88,7 @@ private:
 };
 
 //! \brief Decorates CRowCRef to give it pointer semantics.
-class CORE_EXPORT CRowPtr : public CRowRef {
+class CORE_EXPORT CRowPtr final : public CRowRef {
 public:
     template<typename... ARGS>
     CRowPtr(ARGS&&... args) : CRowRef{std::forward<ARGS>(args)...} {}
@@ -100,7 +102,7 @@ public:
 //! DESCRIPTION:\n
 //! This is a helper class used to read rows of a CDataFrame object which
 //! dereferences to CRowRef objects.
-class CORE_EXPORT CRowIterator
+class CORE_EXPORT CRowIterator final
     : public std::iterator<std::forward_iterator_tag, CRowRef, std::ptrdiff_t, CRowPtr, CRowRef> {
 public:
     CRowIterator() = default;
@@ -112,11 +114,13 @@ public:
     //! at \p index.
     //! \param[in] docHashItr The iterator for the document hashes of rows
     //! starting at \p index.
+    //! \param[in] popMaskedRow Gets the next row in the mask.
     CRowIterator(std::size_t numberColumns,
                  std::size_t rowCapacity,
                  std::size_t index,
                  TFloatVecItr rowItr,
-                 TInt32VecCItr docHashItr);
+                 TInt32VecCItr docHashItr,
+                 TPopMaskedRowFunc popMaskedRow = nullptr);
 
     //! \name Forward Iterator Contract
     //@{
@@ -134,6 +138,7 @@ private:
     std::size_t m_Index = 0;
     TFloatVecItr m_RowItr;
     TInt32VecCItr m_DocHashItr;
+    TPopMaskedRowFunc m_PopMaskedRow;
 };
 }
 
@@ -181,6 +186,7 @@ private:
 //! time consuming.
 class CORE_EXPORT CDataFrame final {
 public:
+    using TBoolVec = std::vector<bool>;
     using TFloatVec = std::vector<CFloatStorage>;
     using TFloatVecItr = TFloatVec::iterator;
     using TInt32Vec = std::vector<std::int32_t>;
@@ -201,6 +207,7 @@ public:
     enum class EReadWriteToStorage { E_Async, E_Sync };
 
 public:
+    //! \param[in] inMainMemory True if the data frame is stored in main memory.
     //! \param[in] numberColumns The number of columns in the data frame.
     //! \param[in] sliceCapacityInRows The capacity of a slice of the data frame
     //! as a number of rows.
@@ -269,14 +276,17 @@ public:
     //! \param[in] beginRows The row at which to start reading.
     //! \param[in] endRows The row (exclusive) at which to stop reading.
     //! \param[in] reader The callback to read rows.
+    //! \param[in] rowMask If supplied only the rows corresponding to the one
+    //! bits of this vector are read.
     //! \return The readers used. This is intended to allow the reader to
-    //! accumulate state in the reader which is passed back. RVO means any
-    //! copy will be elided. Otherwise, the reader must hold the state by
-    //! reference and must synchronize access to it.
+    //! accumulate state and pass it back. RVO means the copy on return will
+    //! be elided. If the reader holds state by reference it must synchronize
+    //! access to it.
     TRowFuncVecBoolPr readRows(std::size_t numberThreads,
                                std::size_t beginRows,
                                std::size_t endRows,
-                               TRowFunc reader) const;
+                               TRowFunc reader,
+                               const CPackedBitVector* rowMask = nullptr) const;
 
     //! Convenience overload which reads all rows.
     TRowFuncVecBoolPr readRows(std::size_t numberThreads, TRowFunc reader) const {
@@ -292,21 +302,23 @@ public:
     //!
     //! \note READER must implement the TRowFunc contract.
     template<typename READER>
-    std::pair<std::vector<READER>, bool> readRows(std::size_t numberThreads,
-                                                  std::size_t beginRows,
-                                                  std::size_t endRows,
-                                                  READER reader) const {
+    std::pair<std::vector<READER>, bool>
+    readRows(std::size_t numberThreads,
+             std::size_t beginRows,
+             std::size_t endRows,
+             READER reader,
+             const CPackedBitVector* rowMask = nullptr) const {
 
-        TRowFuncVecBoolPr result_{this->readRows(numberThreads, beginRows, endRows,
-                                                 TRowFunc(std::move(reader)))};
+        TRowFuncVecBoolPr result{this->readRows(numberThreads, beginRows, endRows,
+                                                TRowFunc(std::move(reader)), rowMask)};
 
-        std::vector<READER> result;
-        result.reserve(result_.first.size());
-        for (auto& reader_ : result_.first) {
-            result.push_back(std::move(*reader_.target<READER>()));
+        std::vector<READER> readers;
+        readers.reserve(result.first.size());
+        for (auto& reader_ : result.first) {
+            readers.push_back(std::move(*reader_.target<READER>()));
         }
 
-        return {std::move(result), result_.second};
+        return {std::move(readers), result.second};
     }
 
     //! Convenience overload for typed reading of all rows.
@@ -327,11 +339,54 @@ public:
     //! \param[in] beginRows The row at which to start writing.
     //! \param[in] endRows The row (exclusive) at which to stop writing.
     //! \param[in] writer The callback to write the columns.
-    bool writeColumns(std::size_t numberThreads, std::size_t beginRows, std::size_t endRows, TRowFunc writer);
+    //! \param[in] rowMask If supplied only the rows corresponding to the one
+    //! bits of this vector are written.
+    //! \return The writers used. This is intended to allow the writer to
+    //! accumulate state and pass it back. RVO means the copy on return will
+    //! be elided. If the writer holds state by reference it must synchronize
+    //! access to it.
+    TRowFuncVecBoolPr writeColumns(std::size_t numberThreads,
+                                   std::size_t beginRows,
+                                   std::size_t endRows,
+                                   TRowFunc writer,
+                                   const CPackedBitVector* rowMask = nullptr);
 
     //! Convenience overload which writes all rows.
-    bool writeColumns(std::size_t numberThreads, TRowFunc reader) {
+    TRowFuncVecBoolPr writeColumns(std::size_t numberThreads, TRowFunc reader) {
         return this->writeColumns(numberThreads, 0, this->numberRows(), std::move(reader));
+    }
+
+    //! Convenience overload for typed writers.
+    //!
+    //! The reason for this is to wrap up the code to extract the typed writers
+    //! from the return type.
+    //!
+    //! \note WRITER must implement the TRowFunc contract.
+    template<typename WRITER>
+    std::pair<std::vector<WRITER>, bool>
+    writeColumns(std::size_t numberThreads,
+                 std::size_t beginRows,
+                 std::size_t endRows,
+                 WRITER writer,
+                 const CPackedBitVector* rowMask = nullptr) {
+
+        TRowFuncVecBoolPr result{this->writeColumns(
+            numberThreads, beginRows, endRows, TRowFunc(std::move(writer)), rowMask)};
+
+        std::vector<WRITER> writers;
+        writers.reserve(result.first.size());
+        for (auto& writer_ : result.first) {
+            writers.push_back(std::move(*writer_.target<WRITER>()));
+        }
+
+        return {std::move(writers), result.second};
+    }
+
+    //! Convenience overload for typed reading of all rows.
+    template<typename WRITER>
+    std::pair<std::vector<WRITER>, bool>
+    writeColumns(std::size_t numberThreads, WRITER writer) {
+        return this->writeColumns(numberThreads, 0, this->numberRows(), std::move(writer));
     }
 
     //! This writes a single row of the data frame via a callback.
@@ -350,6 +405,9 @@ public:
     //! writing rows.
     void writeRow(const TWriteFunc& writeRow);
 
+    //! Write which columns contain categorical data.
+    void categoricalColumns(TBoolVec columnIsCategorical);
+
     //! This retrieves the asynchronous work from writing the rows to the store
     //! and updates the stored rows.
     //!
@@ -359,6 +417,9 @@ public:
     //! \warning This MUST be called after the last row is written to commit the
     //! work and to join the thread used to store the slices.
     void finishWritingRows();
+
+    //! \return Indicator of columns containing categorical data.
+    const TBoolVec& columnIsCategorical() const;
 
     //! Get the memory used by the data frame.
     std::size_t memoryUsage() const;
@@ -378,6 +439,7 @@ public:
 private:
     using TSizeSizePr = std::pair<std::size_t, std::size_t>;
     using TSizeDataFrameRowSlicePtrVecPr = std::pair<std::size_t, TRowSlicePtrVec>;
+    using TPopMaskedRowFunc = data_frame_detail::TPopMaskedRowFunc;
 
     //! \brief Writes rows to the data frame.
     class CDataFrameRowSliceWriter final {
@@ -413,19 +475,28 @@ private:
                                              std::size_t beginRows,
                                              std::size_t endRows,
                                              TRowFunc func,
+                                             const CPackedBitVector* rowMask,
                                              bool commitResult) const;
     TRowFuncVecBoolPr sequentialApplyToAllRows(std::size_t beginRows,
                                                std::size_t endRows,
                                                TRowFunc func,
+                                               const CPackedBitVector* rowMask,
                                                bool commitResult) const;
 
     void applyToRowsOfOneSlice(TRowFunc& func,
-                               std::size_t beginRows,
-                               std::size_t endRows,
+                               std::size_t firstRowToRead,
+                               std::size_t endRowsToRead,
+                               TPopMaskedRowFunc popMaskedRow,
                                const CDataFrameRowSliceHandle& slice) const;
 
     TRowSlicePtrVecCItr beginSlices(std::size_t beginRows) const;
     TRowSlicePtrVecCItr endSlices(std::size_t endRows) const;
+
+    template<typename ITR>
+    bool maskedRowsInSlice(ITR& maskedRow,
+                           ITR endMaskedRows,
+                           std::size_t beginSliceRows,
+                           std::size_t endSliceRows) const;
 
 private:
     //! True if the data frame resides in main memory.
@@ -444,6 +515,9 @@ private:
     EReadWriteToStorage m_ReadAndWriteToStoreSyncStrategy;
     //! The callback to write a slice to storage.
     TWriteSliceToStoreFunc m_WriteSliceToStore;
+
+    //! Indicator vector of the columns which contain categorical values.
+    TBoolVec m_ColumnIsCategorical;
 
     //! The stored slices.
     TRowSlicePtrVec m_Slices;

@@ -21,8 +21,6 @@
 
 #include <test/CRandomNumbers.h>
 
-#include <boost/range.hpp>
-
 #include <memory>
 
 using namespace ml;
@@ -31,6 +29,7 @@ using namespace model;
 namespace {
 
 using TDoubleVec = std::vector<double>;
+using TSizeVec = std::vector<std::size_t>;
 
 std::size_t addPerson(const std::string& p, const CModelFactory::TDataGathererPtr& gatherer) {
     CDataGatherer::TStrCPtrVec person;
@@ -66,6 +65,7 @@ const std::string EMPTY_STRING;
 }
 
 void CModelMemoryTest::testOnlineEventRateModel() {
+
     // Tests to check that the memory usage of the model goes up
     // as data is fed in and that memoryUsage and debugMemory are
     // consistent.
@@ -75,8 +75,6 @@ void CModelMemoryTest::testOnlineEventRateModel() {
     SModelParams params(bucketLength);
     auto interimBucketCorrector = std::make_shared<CInterimBucketCorrector>(bucketLength);
     CEventRateModelFactory factory(params, interimBucketCorrector);
-
-    std::size_t bucketCounts[] = {5, 6, 3, 5, 0, 7, 8, 5, 4, 3, 5, 5, 6};
 
     CDataGatherer::TFeatureVec features;
     features.push_back(model_t::E_IndividualCountByBucketAndPerson);
@@ -94,8 +92,8 @@ void CModelMemoryTest::testOnlineEventRateModel() {
     LOG_DEBUG(<< "Memory used by model: " << model.memoryUsage());
 
     core_t::TTime time = startTime;
-    for (std::size_t i = 0u; i < boost::size(bucketCounts); ++i) {
-        for (std::size_t j = 0u; j < bucketCounts[i]; ++j) {
+    for (std::size_t bucketCounts : {5, 6, 3, 5, 0, 7, 8, 5, 4, 3, 5, 5, 6}) {
+        for (std::size_t j = 0; j < bucketCounts; ++j) {
             addArrival(*gatherer, time + static_cast<core_t::TTime>(j), "p");
         }
         model.sample(time, time + bucketLength, resourceMonitor);
@@ -112,6 +110,7 @@ void CModelMemoryTest::testOnlineEventRateModel() {
 }
 
 void CModelMemoryTest::testOnlineMetricModel() {
+
     // Tests to check that the memory usage of the model goes up
     // as data is fed in and that memoryUsage and debugMemory are
     // consistent.
@@ -121,8 +120,6 @@ void CModelMemoryTest::testOnlineMetricModel() {
     SModelParams params(bucketLength);
     auto interimBucketCorrector = std::make_shared<CInterimBucketCorrector>(bucketLength);
     CMetricModelFactory factory(params, interimBucketCorrector);
-
-    std::size_t bucketCounts[] = {5, 6, 3, 5, 0, 7, 8, 5, 4, 3, 5, 5, 6};
 
     double mean = 5.0;
     double variance = 2.0;
@@ -148,12 +145,14 @@ void CModelMemoryTest::testOnlineMetricModel() {
 
     test::CRandomNumbers rng;
 
+    TSizeVec bucketCounts{5, 6, 3, 5, 0, 7, 8, 5, 4, 3, 5, 5, 6};
+
     core_t::TTime time = startTime;
-    for (std::size_t i = 0u; i < boost::size(bucketCounts); ++i) {
+    for (std::size_t i = 0; i < bucketCounts.size(); ++i) {
         TDoubleVec values;
         rng.generateNormalSamples(mean, variance, bucketCounts[i], values);
 
-        for (std::size_t j = 0u; j < values.size(); ++j) {
+        for (std::size_t j = 0; j < values.size(); ++j) {
             addArrival(*gatherer, time + static_cast<core_t::TTime>(j), "p",
                        values[j] + (i == anomalousBucket ? anomaly : 0.0));
         }

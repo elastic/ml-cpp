@@ -10,6 +10,7 @@
 #include <core/CLogger.h>
 
 #include <api/CDataFrameAnalysisConfigReader.h>
+#include <api/CDataFrameBoostedTreeRunner.h>
 #include <api/CDataFrameOutliersRunner.h>
 
 #include <rapidjson/document.h>
@@ -31,16 +32,18 @@ const std::string CDataFrameAnalysisSpecification::MEMORY_LIMIT("memory_limit");
 const std::string CDataFrameAnalysisSpecification::THREADS("threads");
 const std::string CDataFrameAnalysisSpecification::TEMPORARY_DIRECTORY("temp_dir");
 const std::string CDataFrameAnalysisSpecification::RESULTS_FIELD("results_field");
+const std::string CDataFrameAnalysisSpecification::CATEGORICAL_FIELD_NAMES{"categorical_fields"};
+const std::string CDataFrameAnalysisSpecification::DISK_USAGE_ALLOWED("disk_usage_allowed");
 const std::string CDataFrameAnalysisSpecification::ANALYSIS("analysis");
 const std::string CDataFrameAnalysisSpecification::NAME("name");
 const std::string CDataFrameAnalysisSpecification::PARAMETERS("parameters");
-const std::string CDataFrameAnalysisSpecification::DISK_USAGE_ALLOWED("disk_usage_allowed");
 
 namespace {
 using TRunnerFactoryUPtrVec = ml::api::CDataFrameAnalysisSpecification::TRunnerFactoryUPtrVec;
 
 TRunnerFactoryUPtrVec analysisFactories() {
     TRunnerFactoryUPtrVec factories;
+    factories.push_back(std::make_unique<ml::api::CDataFrameBoostedTreeRunnerFactory>());
     factories.push_back(std::make_unique<ml::api::CDataFrameOutliersRunnerFactory>());
     // Add new analysis types here.
     return factories;
@@ -63,10 +66,12 @@ const CDataFrameAnalysisConfigReader CONFIG_READER{[] {
                            CDataFrameAnalysisConfigReader::E_OptionalParameter);
     theReader.addParameter(CDataFrameAnalysisSpecification::RESULTS_FIELD,
                            CDataFrameAnalysisConfigReader::E_OptionalParameter);
-    theReader.addParameter(CDataFrameAnalysisSpecification::ANALYSIS,
-                           CDataFrameAnalysisConfigReader::E_RequiredParameter);
+    theReader.addParameter(CDataFrameAnalysisSpecification::CATEGORICAL_FIELD_NAMES,
+                           CDataFrameAnalysisConfigReader::E_OptionalParameter);
     theReader.addParameter(CDataFrameAnalysisSpecification::DISK_USAGE_ALLOWED,
                            CDataFrameAnalysisConfigReader::E_OptionalParameter);
+    theReader.addParameter(CDataFrameAnalysisSpecification::ANALYSIS,
+                           CDataFrameAnalysisConfigReader::E_RequiredParameter);
     return theReader;
 }()};
 
@@ -107,6 +112,7 @@ CDataFrameAnalysisSpecification::CDataFrameAnalysisSpecification(TRunnerFactoryU
         m_NumberThreads = parameters[THREADS].as<std::size_t>();
         m_TemporaryDirectory = parameters[TEMPORARY_DIRECTORY].fallback(std::string{});
         m_ResultsField = parameters[RESULTS_FIELD].fallback(DEFAULT_RESULT_FIELD);
+        m_CategoricalFieldNames = parameters[CATEGORICAL_FIELD_NAMES].fallback(TStrVec{});
         m_DiskUsageAllowed = parameters[DISK_USAGE_ALLOWED].fallback(DEFAULT_DISK_USAGE_ALLOWED);
 
         if (m_DiskUsageAllowed && m_TemporaryDirectory.empty()) {
@@ -143,6 +149,11 @@ std::size_t CDataFrameAnalysisSpecification::numberThreads() const {
 
 const std::string& CDataFrameAnalysisSpecification::resultsField() const {
     return m_ResultsField;
+}
+
+const CDataFrameAnalysisSpecification::TStrVec&
+CDataFrameAnalysisSpecification::categoricalFieldNames() const {
+    return m_CategoricalFieldNames;
 }
 
 bool CDataFrameAnalysisSpecification::diskUsageAllowed() const {

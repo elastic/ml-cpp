@@ -154,8 +154,8 @@ void estimateCorrelation(const std::size_t trials,
                       std::sqrt(maths::CBasicStatistics::variance(sampleMoments)(1));
             }
         }
-        maths::CPackedBitVector ix(50, true);
-        maths::CPackedBitVector iy(50, true);
+        core::CPackedBitVector ix(50, true);
+        core::CPackedBitVector iy(50, true);
         double correlation =
             CKMostCorrelatedForTest::TCorrelation::correlation(px, ix, py, iy);
         if (t % 10 == 0) {
@@ -734,13 +734,6 @@ void CKMostCorrelatedTest::testScale() {
         elapsed[s] = watch.stop();
 
         LOG_DEBUG(<< "elapsed time = " << elapsed[s] << "ms");
-
-        //std::vector<std::pair<std::size_t, std::size_t>> pairs;
-        //mostCorrelated.mostCorrelated(n[s] / 2, pairs);
-        //LOG_DEBUG(<< "pairs = " << core::CContainerPrinter::print(pairs));
-        //TDoubleVec correlations;
-        //mostCorrelated.correlations(n[s] / 2, correlations);
-        //LOG_DEBUG(<< "correlations = " << core::CContainerPrinter::print(correlations));
     }
 
     LOG_DEBUG(<< "elapsed times = " << core::CContainerPrinter::print(elapsed));
