@@ -101,7 +101,7 @@ CDataFrameCategoryEncoder::CDataFrameCategoryEncoder(std::size_t numberThreads,
 
     this->targetMeanValueEncode(numberThreads, frame, categoricalColumnMask, targetColumn);
 
-    this->hotOneEncode(numberThreads, frame, metricColumnMask,
+    this->oneHotEncode(numberThreads, frame, metricColumnMask,
                        categoricalColumnMask, targetColumn,
                        minimumRowsPerFeature, minimumFrequencyToOneHotEncode);
 
@@ -147,7 +147,7 @@ std::size_t CDataFrameCategoryEncoder::numberOneHotEncodedCategories(std::size_t
     return m_OneHotEncodedCategories[feature].size();
 }
 
-bool CDataFrameCategoryEncoder::isOne(std::size_t index,
+bool CDataFrameCategoryEncoder::isOne(std::size_t encoding,
                                       std::size_t feature,
                                       std::size_t category) const {
 
@@ -163,14 +163,14 @@ bool CDataFrameCategoryEncoder::isOne(std::size_t index,
     // respectively.
     //
     // In the following we therefore 1) check to see if the category is being
-    // one-hot encoded, 2) check if the index of the dimension, i.e. its offset
+    // one-hot encoded, 2) check if the encoding of the dimension, i.e. its offset
     // relative to the start of the encoding dimensions for the feature, is equal
     // to the position of the one for the category.
 
     auto one = std::lower_bound(m_OneHotEncodedCategories[feature].begin(),
                                 m_OneHotEncodedCategories[feature].end(), category);
     return one != m_OneHotEncodedCategories[feature].end() && category == *one &&
-           static_cast<std::ptrdiff_t>(index) ==
+           static_cast<std::ptrdiff_t>(encoding) ==
                one - m_OneHotEncodedCategories[feature].begin();
 }
 
@@ -212,7 +212,7 @@ void CDataFrameCategoryEncoder::isRareEncode(std::size_t numberThreads,
     LOG_TRACE(<< "rare categories = " << core::CContainerPrinter::print(m_RareCategories));
 }
 
-void CDataFrameCategoryEncoder::hotOneEncode(std::size_t numberThreads,
+void CDataFrameCategoryEncoder::oneHotEncode(std::size_t numberThreads,
                                              const core::CDataFrame& frame,
                                              const TSizeVec& metricColumnMask,
                                              const TSizeVec& categoricalColumnMask,
@@ -279,6 +279,7 @@ void CDataFrameCategoryEncoder::hotOneEncode(std::size_t numberThreads,
                 double mic;
                 std::tie(category, mic) = categoricalMics[i][j];
                 if (mic > 0.0) {
+                    m_SelectedCategoricalFeatures.push_back(i);
                     m_OneHotEncodedCategories[i].push_back(category);
                 }
             }
@@ -303,15 +304,15 @@ void CDataFrameCategoryEncoder::hotOneEncode(std::size_t numberThreads,
         }
         LOG_TRACE(<< "MICe = " << core::CContainerPrinter::print(mics));
 
-        TDoubleVec hotOneEncodedCounts(frame.numberColumns(), 0.0);
+        TDoubleVec oneHotEncodedCounts(frame.numberColumns(), 0.0);
 
         for (std::size_t i = 0; i < maximumNumberFeatures; ++i) {
 
             auto next = std::max_element(
                 mics.begin(), mics.end(),
                 [&](const TDoubleSizeSizeTr& lhs, const TDoubleSizeSizeTr& rhs) {
-                    return std::exp(-m_Lambda * hotOneEncodedCounts[lhs.second]) * lhs.first <
-                           std::exp(-m_Lambda * hotOneEncodedCounts[rhs.second]) * rhs.first;
+                    return std::exp(-m_Lambda * oneHotEncodedCounts[lhs.second]) * lhs.first <
+                           std::exp(-m_Lambda * oneHotEncodedCounts[rhs.second]) * rhs.first;
                 });
 
             double mic{next->first};
@@ -321,8 +322,8 @@ void CDataFrameCategoryEncoder::hotOneEncode(std::size_t numberThreads,
             if (m_ColumnIsCategorical[feature]) {
                 m_SelectedCategoricalFeatures.push_back(feature);
                 m_OneHotEncodedCategories[feature].push_back(category);
-                hotOneEncodedCounts[feature] += 1.0;
-                if (hotOneEncodedCounts[feature] == 1.0) {
+                oneHotEncodedCounts[feature] += 1.0;
+                if (oneHotEncodedCounts[feature] == 1.0) {
                     i += 1 + (this->hasRareCategories(feature) ? 1 : 0);
                 }
             } else {
@@ -333,6 +334,11 @@ void CDataFrameCategoryEncoder::hotOneEncode(std::size_t numberThreads,
             mics.erase(next);
         }
     }
+
+    m_SelectedCategoricalFeatures.erase(
+        std::unique(m_SelectedCategoricalFeatures.begin(),
+                    m_SelectedCategoricalFeatures.end()),
+        m_SelectedCategoricalFeatures.end());
 
     for (auto& categories : m_OneHotEncodedCategories) {
         categories.shrink_to_fit();

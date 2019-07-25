@@ -150,7 +150,7 @@ private:
                       const core::CDataFrame& frame,
                       const TSizeVec& categoricalColumnMask,
                       std::size_t minimumRowsPerFeature);
-    void hotOneEncode(std::size_t numberThreads,
+    void oneHotEncode(std::size_t numberThreads,
                       const core::CDataFrame& frame,
                       const TSizeVec& metricColumnMask,
                       const TSizeVec& categoricalColumnMask,
