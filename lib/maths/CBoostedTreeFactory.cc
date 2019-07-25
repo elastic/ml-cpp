@@ -106,8 +106,7 @@ void CBoostedTreeFactory::initializeMissingFeatureMasks(const core::CDataFrame& 
 std::pair<CBoostedTreeImpl::TPackedBitVectorVec, CBoostedTreeImpl::TPackedBitVectorVec>
 CBoostedTreeFactory::crossValidationRowMasks() const {
 
-    core::CPackedBitVector mask{
-        ~m_TreeImpl->m_MissingFeatureRowMasks[m_TreeImpl->m_DependentVariable]};
+    core::CPackedBitVector mask{m_TreeImpl->allTrainingRowsMask()};
 
     TPackedBitVectorVec trainingRowMasks(m_TreeImpl->m_NumberFolds);
 
@@ -120,11 +119,11 @@ CBoostedTreeFactory::crossValidationRowMasks() const {
 
     for (auto& fold : trainingRowMasks) {
         fold.extend(true, mask.size() - fold.size());
+        fold &= mask;
         LOG_TRACE(<< "# training = " << fold.manhattan());
     }
 
-    TPackedBitVectorVec testingRowMasks(m_TreeImpl->m_NumberFolds,
-                                        core::CPackedBitVector{mask.size(), true});
+    TPackedBitVectorVec testingRowMasks(m_TreeImpl->m_NumberFolds, std::move(mask));
     for (std::size_t i = 0; i < m_TreeImpl->m_NumberFolds; ++i) {
         testingRowMasks[i] ^= trainingRowMasks[i];
         LOG_TRACE(<< "# testing = " << testingRowMasks[i].manhattan());
@@ -217,7 +216,7 @@ void CBoostedTreeFactory::initializeHyperparameters(core::CDataFrame& frame,
     if (m_TreeImpl->m_LambdaOverride && m_TreeImpl->m_GammaOverride) {
         // Fall through.
     } else {
-        core::CPackedBitVector trainingRowMask{frame.numberRows(), true};
+        core::CPackedBitVector trainingRowMask{m_TreeImpl->allTrainingRowsMask()};
 
         auto vector = m_TreeImpl->initializePredictionsAndLossDerivatives(frame, trainingRowMask);
 
@@ -279,39 +278,83 @@ CBoostedTreeFactory::CBoostedTreeFactory(std::size_t numberThreads,
     : m_TreeImpl{new CBoostedTreeImpl(numberThreads, dependentVariable, std::move(loss))} {
 }
 
-CBoostedTreeFactory& CBoostedTreeFactory::numberFolds(std::size_t folds) {
-    m_TreeImpl->numberFolds(folds);
+CBoostedTreeFactory& CBoostedTreeFactory::numberFolds(std::size_t numberFolds) {
+    if (numberFolds < 2) {
+        LOG_WARN(<< "Must use at least two-folds for cross validation");
+        numberFolds = 2;
+    }
+    m_TreeImpl->m_NumberFolds = numberFolds;
     return *this;
 }
 
 CBoostedTreeFactory& CBoostedTreeFactory::lambda(double lambda) {
-    m_TreeImpl->lambda(lambda);
+    if (lambda < 0.0) {
+        LOG_WARN(<< "Lambda must be non-negative");
+        lambda = 0.0;
+    }
+    m_TreeImpl->m_LambdaOverride = lambda;
     return *this;
 }
 
 CBoostedTreeFactory& CBoostedTreeFactory::gamma(double gamma) {
-    m_TreeImpl->gamma(gamma);
+    if (gamma < 0.0) {
+        LOG_WARN(<< "Gamma must be non-negative");
+        gamma = 0.0;
+    }
+    m_TreeImpl->m_GammaOverride = gamma;
     return *this;
 }
 
 CBoostedTreeFactory& CBoostedTreeFactory::eta(double eta) {
-    m_TreeImpl->eta(eta);
+    if (eta < MINIMUM_ETA) {
+        LOG_WARN(<< "Truncating supplied learning rate " << eta
+                 << " which must be no smaller than " << MINIMUM_ETA);
+        eta = std::max(eta, MINIMUM_ETA);
+    }
+    if (eta > 1.0) {
+        LOG_WARN(<< "Using a learning rate greater than one doesn't make sense");
+        eta = 1.0;
+    }
+    m_TreeImpl->m_EtaOverride = eta;
     return *this;
 }
 
 CBoostedTreeFactory& CBoostedTreeFactory::maximumNumberTrees(std::size_t maximumNumberTrees) {
-    m_TreeImpl->maximumNumberTrees(maximumNumberTrees);
+    if (maximumNumberTrees == 0) {
+        LOG_WARN(<< "Forest must have at least one tree");
+        maximumNumberTrees = 1;
+    }
+    if (maximumNumberTrees > MAXIMUM_NUMBER_TREES) {
+        LOG_WARN(<< "Truncating supplied maximum number of trees " << maximumNumberTrees
+                 << " which must be no larger than " << MAXIMUM_NUMBER_TREES);
+        maximumNumberTrees = std::min(maximumNumberTrees, MAXIMUM_NUMBER_TREES);
+    }
+    m_TreeImpl->m_MaximumNumberTreesOverride = maximumNumberTrees;
     return *this;
 }
 
 CBoostedTreeFactory& CBoostedTreeFactory::featureBagFraction(double featureBagFraction) {
-    m_TreeImpl->featureBagFraction(featureBagFraction);
+    if (featureBagFraction < 0.0 || featureBagFraction > 1.0) {
+        LOG_WARN(<< "Truncating supplied feature bag fraction " << featureBagFraction
+                 << " which must be positive and not more than one");
+        featureBagFraction = CTools::truncate(featureBagFraction, 0.0, 1.0);
+    }
+    m_TreeImpl->m_FeatureBagFractionOverride = featureBagFraction;
     return *this;
 }
 
 CBoostedTreeFactory&
 CBoostedTreeFactory::maximumOptimisationRoundsPerHyperparameter(std::size_t rounds) {
-    m_TreeImpl->maximumOptimisationRoundsPerHyperparameter(rounds);
+    m_TreeImpl->m_MaximumOptimisationRoundsPerHyperparameter = rounds;
+    return *this;
+}
+
+CBoostedTreeFactory& CBoostedTreeFactory::rowsPerFeature(std::size_t rowsPerFeature) {
+    if (m_TreeImpl->m_RowsPerFeature == 0) {
+        LOG_WARN(<< "Must have at least one training example per feature");
+        rowsPerFeature = 1;
+    }
+    m_TreeImpl->m_RowsPerFeature = rowsPerFeature;
     return *this;
 }
 
@@ -329,5 +372,9 @@ std::size_t CBoostedTreeFactory::estimateMemoryUsage(std::size_t numberRows,
 std::size_t CBoostedTreeFactory::numberExtraColumnsForTrain() const {
     return m_TreeImpl->numberExtraColumnsForTrain();
 }
+
+const double CBoostedTreeFactory::MINIMUM_ETA{1e-3};
+const std::size_t CBoostedTreeFactory::MAXIMUM_NUMBER_TREES{
+    static_cast<std::size_t>(2.0 / MINIMUM_ETA + 0.5)};
 }
 }
