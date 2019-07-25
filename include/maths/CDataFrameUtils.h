@@ -55,6 +55,7 @@ public:
     using TDoubleVec = std::vector<double>;
     using TDoubleVecVec = std::vector<TDoubleVec>;
     using TSizeVec = std::vector<std::size_t>;
+    using TFloatVec = std::vector<CFloatStorage>;
     using TSizeDoublePr = std::pair<std::size_t, double>;
     using TSizeDoublePrVec = std::vector<TSizeDoublePr>;
     using TSizeDoublePrVecVec = std::vector<TSizeDoublePrVec>;
@@ -62,6 +63,47 @@ public:
     using TWeightFunction = std::function<double(TRowRef)>;
     using TQuantileSketchVec = std::vector<CQuantileSketch>;
     using TPackedBitVectorVec = std::vector<core::CPackedBitVector>;
+
+    //! \brief Used to extract the value from a specific column of the data frame.
+    class CColumnValue {
+    public:
+        virtual ~CColumnValue() = default;
+        virtual double operator()(const TRowRef& row) const = 0;
+        virtual double operator()(const TFloatVec& row) const = 0;
+    };
+
+    //! \brief Used to extract the value from a metric column of the data frame.
+    class CMetricColumnValue final : public CColumnValue {
+    public:
+        CMetricColumnValue(std::size_t column) : m_Column{column} {}
+        double operator()(const TRowRef& row) const override {
+            return row[m_Column];
+        }
+        double operator()(const TFloatVec& row) const override {
+            return row[m_Column];
+        }
+
+    private:
+        std::size_t m_Column;
+    };
+
+    //! \brief Used to extract the value from a one-hot encoded categorical column
+    //! of the data frame.
+    class COneHotCategoricalColumnValue final : public CColumnValue {
+    public:
+        COneHotCategoricalColumnValue(std::size_t column, CFloatStorage category)
+            : m_Column{column}, m_Category{static_cast<std::size_t>(category)} {}
+        double operator()(const TRowRef& row) const override {
+            return static_cast<std::size_t>(row[m_Column]) == m_Category ? 1.0 : 0.0;
+        }
+        double operator()(const TFloatVec& row) const override {
+            return static_cast<std::size_t>(row[m_Column]) == m_Category ? 1.0 : 0.0;
+        }
+
+    private:
+        std::size_t m_Column;
+        std::size_t m_Category;
+    };
 
 public:
     //! Convert a row of the data frame to a specified vector type.
@@ -96,6 +138,7 @@ public:
 
     //! Get the relative frequency of each category in \p frame.
     //!
+    //! \param[in] numberThreads The number of threads available.
     //! \param[in] frame The data frame for which to compute category frequencies.
     //! \param[in] columnMask A mask of the columns to include.
     //! \return The frequency of each category. The collection is indexed by column
@@ -104,75 +147,75 @@ public:
                                              const core::CDataFrame& frame,
                                              TSizeVec columnMask);
 
-    //! Compute the mean value of \p targetColumn on the restriction to the rows
-    //! labelled by each distinct category of the categorical columns.
+    //! Compute the mean value of \p target on the restriction to the rows labelled
+    //! by each distinct category of the categorical columns.
     //!
+    //! \param[in] target Extracts the column value with which to compute MIC.
     //! \param[in] numberThreads The number of threads available.
     //! \param[in] frame The data frame for which to compute mean values.
     //! \param[in] columnMask A mask of the columns to include.
-    //! \param[in] targetColumn The column whose mean values are computed.
-    //! \return The mean values of \p targetColumn for each category. The collection
+    //! \return The mean values of \p target for each category. The collection
     //! is indexed by column and then category identifier.
-    static TDoubleVecVec meanValueOfTargetForCategories(std::size_t numberThreads,
+    static TDoubleVecVec meanValueOfTargetForCategories(const CColumnValue& target,
+                                                        std::size_t numberThreads,
                                                         const core::CDataFrame& frame,
-                                                        TSizeVec columnMask,
-                                                        std::size_t targetColumn);
+                                                        TSizeVec columnMask);
 
     //! Assess the strength of the relationship for each distinct category with
-    //! \p targetColumn by computing the maximum information coefficient (MIC).
+    //! \p target by computing the maximum information coefficient (MIC).
     //!
+    //! \param[in] target Extracts the column value with which to compute MIC.
     //! \param[in] numberThreads The number of threads available.
     //! \param[in] frame The data frame for which to compute the category MICs.
     //! \param[in] columnMask A mask of the columns to include.
-    //! \param[in] targetColumn The column with which to compute MIC.
     //! \param[in] minimumFrequency The minimum frequency of the category in the
     //! data set for which to compute MIC.
-    //! \return A collection containing (category, MIC with \p targetColumn) pairs
+    //! \return A collection containing (category, MIC with \p target) pairs
     //! for each category whose frequency in \p frame is greater than \p minimumFrequency
     //! and each categorical column. The collection is indexed by column.
-    static TSizeDoublePrVecVec categoryMicWithColumn(std::size_t numberThreads,
+    static TSizeDoublePrVecVec categoryMicWithColumn(const CColumnValue& target,
+                                                     std::size_t numberThreads,
                                                      const core::CDataFrame& frame,
                                                      TSizeVec columnMask,
-                                                     std::size_t targetColumn,
                                                      double minimumFrequency = 0.01);
 
     //! Assess the strength of the relationship for each metric valued column with
-    //! \p targetColumn by computing the maximum information coefficient (MIC).
+    //! \p target by computing the maximum information coefficient (MIC).
     //!
+    //! \param[in] target Extracts the column value with which to compute MIC.
     //! \param[in] frame The data frame for which to compute the column MICs.
     //! \param[in] columnMask A mask of the columns to include.
-    //! \param[in] targetColumn The column with which to compute MIC.
     //! \return A collection containing the MIC of each metric valued column with
-    //! \p targetColumn. The collectionis indexed by column.
-    static TDoubleVec micWithColumn(const core::CDataFrame& frame,
-                                    TSizeVec columnMask,
-                                    std::size_t targetColumn);
+    //! \p target. The collectionis indexed by column.
+    static TDoubleVec micWithColumn(const CColumnValue& target,
+                                    const core::CDataFrame& frame,
+                                    TSizeVec columnMask);
 
     //! Check if a data frame value is missing.
     static bool isMissing(double value);
 
 private:
     static TSizeDoublePrVecVec
-    categoryMicWithColumnDataFrameInMemory(std::size_t numberThreads,
+    categoryMicWithColumnDataFrameInMemory(const CColumnValue& target,
+                                           std::size_t numberThreads,
                                            const core::CDataFrame& frame,
                                            const TSizeVec& columnMask,
-                                           std::size_t targetColumn,
                                            std::size_t numberSamples,
                                            double minimumFrequency);
     static TSizeDoublePrVecVec
-    categoryMicWithColumnDataFrameOnDisk(std::size_t numberThreads,
+    categoryMicWithColumnDataFrameOnDisk(const CColumnValue& target,
+                                         std::size_t numberThreads,
                                          const core::CDataFrame& frame,
                                          const TSizeVec& columnMask,
-                                         std::size_t targetColumn,
                                          std::size_t numberSamples,
                                          double minimumFrequency);
-    static TDoubleVec micWithColumnDataFrameInMemory(const core::CDataFrame& frame,
+    static TDoubleVec micWithColumnDataFrameInMemory(const CColumnValue& target,
+                                                     const core::CDataFrame& frame,
                                                      const TSizeVec& columnMask,
-                                                     std::size_t targetColumn,
                                                      std::size_t numberSamples);
-    static TDoubleVec micWithColumnDataFrameOnDisk(const core::CDataFrame& frame,
+    static TDoubleVec micWithColumnDataFrameOnDisk(const CColumnValue& target,
+                                                   const core::CDataFrame& frame,
                                                    const TSizeVec& columnMask,
-                                                   std::size_t targetColumn,
                                                    std::size_t numberSamples);
     static void removeMetricColumns(const core::CDataFrame& frame, TSizeVec& columnMask);
     static void removeCategoricalColumns(const core::CDataFrame& frame, TSizeVec& columnMask);

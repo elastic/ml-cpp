@@ -239,9 +239,10 @@ void CDataFrameCategoryEncoder::oneHotEncode(std::size_t numberThreads,
 
     LOG_TRACE(<< "target column = " << targetColumn);
 
-    auto metricMics = CDataFrameUtils::micWithColumn(frame, metricColumnMask, targetColumn);
+    CDataFrameUtils::CMetricColumnValue target{targetColumn};
+    auto metricMics = CDataFrameUtils::micWithColumn(target, frame, metricColumnMask);
     auto categoricalMics = CDataFrameUtils::categoryMicWithColumn(
-        numberThreads, frame, categoricalColumnMask, targetColumn, minimumFrequencyToOneHotEncode);
+        target, numberThreads, frame, categoricalColumnMask, minimumFrequencyToOneHotEncode);
     LOG_TRACE(<< "metric MICe = " << core::CContainerPrinter::print(metricMics));
     LOG_TRACE(<< "categorical MICe = " << core::CContainerPrinter::print(categoricalMics));
 
@@ -357,7 +358,8 @@ void CDataFrameCategoryEncoder::targetMeanValueEncode(std::size_t numberThreads,
                                                       std::size_t targetColumn) {
 
     m_TargetMeanValues = CDataFrameUtils::meanValueOfTargetForCategories(
-        numberThreads, frame, categoricalColumnMask, targetColumn);
+        CDataFrameUtils::CMetricColumnValue{targetColumn}, numberThreads, frame,
+        categoricalColumnMask);
     LOG_TRACE(<< "target mean values = "
               << core::CContainerPrinter::print(m_TargetMeanValues));
 }

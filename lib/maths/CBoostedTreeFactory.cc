@@ -143,8 +143,8 @@ bool CBoostedTreeFactory::initializeFeatureSampleDistribution(const core::CDataF
     std::iota(regressors.begin(), regressors.end(), 0);
     regressors.erase(regressors.begin() + m_TreeImpl->m_DependentVariable);
 
-    TDoubleVec mics(CDataFrameUtils::micWithColumn(frame, regressors,
-                                                   m_TreeImpl->m_DependentVariable));
+    TDoubleVec mics(CDataFrameUtils::micWithColumn(
+        CDataFrameUtils::CMetricColumnValue{m_TreeImpl->m_DependentVariable}, frame, regressors));
 
     regressors.erase(std::remove_if(regressors.begin(), regressors.end(),
                                     [&](std::size_t i) { return mics[i] == 0.0; }),

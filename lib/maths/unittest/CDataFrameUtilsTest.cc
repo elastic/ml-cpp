@@ -301,7 +301,8 @@ void CDataFrameUtilsTest::testMicWithColumn() {
             expected[j] = mic.compute();
         }
 
-        TDoubleVec actual(maths::CDataFrameUtils::micWithColumn(*frame, {0, 1, 2}, 3));
+        TDoubleVec actual(maths::CDataFrameUtils::micWithColumn(
+            maths::CDataFrameUtils::CMetricColumnValue{3}, *frame, {0, 1, 2}));
 
         LOG_DEBUG(<< "expected = " << core::CContainerPrinter::print(expected));
         LOG_DEBUG(<< "actual   = " << core::CContainerPrinter::print(actual));
@@ -355,7 +356,8 @@ void CDataFrameUtilsTest::testMicWithColumn() {
                           mic.compute();
         }
 
-        TDoubleVec actual(maths::CDataFrameUtils::micWithColumn(*frame, {0, 1, 2}, 3));
+        TDoubleVec actual(maths::CDataFrameUtils::micWithColumn(
+            maths::CDataFrameUtils::CMetricColumnValue{3}, *frame, {0, 1, 2}));
 
         LOG_DEBUG(<< "expected = " << core::CContainerPrinter::print(expected));
         LOG_DEBUG(<< "actual   = " << core::CContainerPrinter::print(actual));
@@ -479,8 +481,8 @@ void CDataFrameUtilsTest::testMeanValueOfTargetForCategories() {
             }
             frame->finishWritingRows();
 
-            TDoubleVecVec actualMeans{maths::CDataFrameUtils::meanValueOfTargetForCategories(
-                threads, *frame, {0, 1, 2}, 3)};
+            TDoubleVecVec actualMeans(maths::CDataFrameUtils::meanValueOfTargetForCategories(
+                maths::CDataFrameUtils::CMetricColumnValue{3}, threads, *frame, {0, 1, 2}));
 
             CPPUNIT_ASSERT_EQUAL(std::size_t{4}, actualMeans.size());
             for (std::size_t i : {0, 2}) {
@@ -548,7 +550,7 @@ void CDataFrameUtilsTest::testCategoryMicWithColumn() {
             frame->finishWritingRows();
 
             auto mics = maths::CDataFrameUtils::categoryMicWithColumn(
-                threads, *frame, {0, 1, 2}, 3);
+                maths::CDataFrameUtils::CMetricColumnValue{3}, threads, *frame, {0, 1, 2});
 
             LOG_DEBUG(<< "mics[0] = " << core::CContainerPrinter::print(mics[0]));
             LOG_DEBUG(<< "mics[2] = " << core::CContainerPrinter::print(mics[2]));
