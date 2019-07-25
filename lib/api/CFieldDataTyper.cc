@@ -15,10 +15,10 @@
 #include <core/CStateRestoreTraverser.h>
 #include <core/CStringUtils.h>
 
-#include <api/CBackgroundPersister.h>
 #include <api/CFieldConfig.h>
 #include <api/CJsonOutputWriter.h>
 #include <api/COutputHandler.h>
+#include <api/CPersistenceManager.h>
 #include <api/CTokenListReverseSearchCreator.h>
 
 #include <sstream>
@@ -45,7 +45,7 @@ CFieldDataTyper::CFieldDataTyper(const std::string& jobId,
                                  const model::CLimits& limits,
                                  COutputHandler& outputHandler,
                                  CJsonOutputWriter& jsonOutputWriter,
-                                 CBackgroundPersister* periodicPersister)
+                                 CPersistenceManager* periodicPersister)
     : m_JobId(jobId), m_OutputHandler(outputHandler),
       m_ExtraFieldNames(1, MLCATEGORY_NAME), m_WriteFieldNames(true),
       m_NumRecordsHandled(0), m_OutputFieldCategory(m_Overrides[MLCATEGORY_NAME]),
@@ -168,7 +168,7 @@ int CFieldDataTyper::computeType(const TStrStrUMap& dataRowFields) {
 
     // Check if a periodic persist is due.
     if (m_PeriodicPersister != nullptr) {
-        m_PeriodicPersister->startBackgroundPersistIfAppropriate();
+        m_PeriodicPersister->startPersistIfAppropriate();
     }
 
     return type;
@@ -313,7 +313,8 @@ bool CFieldDataTyper::acceptRestoreTraverser(core::CStateRestoreTraverser& trave
     return true;
 }
 
-bool CFieldDataTyper::persistState(core::CDataAdder& persister) {
+bool CFieldDataTyper::persistState(core::CDataAdder& persister,
+                                   const std::string& descriptionPrefix) {
     if (m_PeriodicPersister != nullptr) {
         // This will not happen if finalise() was called before persisting state
         if (m_PeriodicPersister->isBusy()) {
@@ -324,7 +325,7 @@ bool CFieldDataTyper::persistState(core::CDataAdder& persister) {
     }
 
     // Pass on the request in case we're chained
-    if (m_OutputHandler.persistState(persister) == false) {
+    if (m_OutputHandler.persistState(persister, descriptionPrefix) == false) {
         return false;
     }
 
@@ -369,7 +370,7 @@ bool CFieldDataTyper::doPersistState(const CDataTyper::TPersistFunc& dataTyperPe
 
         {
             // Keep the JSON inserter scoped as it only finishes the stream
-            // when it is desctructed
+            // when it is destructed
             core::CJsonStatePersistInserter inserter(*strm);
             this->acceptPersistInserter(dataTyperPersistFunc, examplesCollector, inserter);
         }
@@ -401,23 +402,51 @@ void CFieldDataTyper::acceptPersistInserter(const CDataTyper::TPersistFunc& data
                                    &examplesCollector, std::placeholders::_1));
 }
 
-bool CFieldDataTyper::periodicPersistState(CBackgroundPersister& persister) {
+bool CFieldDataTyper::periodicPersistStateInBackground() {
     LOG_DEBUG(<< "Periodic persist typer state");
 
     // Pass on the request in case we're chained
-    if (m_OutputHandler.periodicPersistState(persister) == false) {
+    if (m_OutputHandler.periodicPersistStateInBackground() == false) {
         return false;
     }
 
-    if (persister.addPersistFunc(std::bind(&CFieldDataTyper::doPersistState, this,
-                                           // Do NOT add std::ref wrappers
-                                           // around these arguments - they
-                                           // MUST be copied for thread safety
-                                           m_DataTyper->makePersistFunc(), m_ExamplesCollector,
-                                           std::placeholders::_1)) == false) {
+    if (m_PeriodicPersister == nullptr) {
+        LOG_ERROR(<< "NULL persistence manager");
+        return false;
+    }
+
+    if (m_PeriodicPersister->addPersistFunc(
+            std::bind(&CFieldDataTyper::doPersistState, this,
+                      // Do NOT add std::ref wrappers
+                      // around these arguments - they
+                      // MUST be copied for thread safety
+                      m_DataTyper->makePersistFunc(), m_ExamplesCollector,
+                      std::placeholders::_1)) == false) {
         LOG_ERROR(<< "Failed to add categorizer background persistence function");
         return false;
     }
+
+    m_PeriodicPersister->useBackgroundPersistence();
+
+    return true;
+}
+
+bool CFieldDataTyper::periodicPersistStateInForeground() {
+    LOG_DEBUG(<< "Periodic persist typer state");
+
+    if (m_PeriodicPersister == nullptr) {
+        return false;
+    }
+
+    // Do NOT pass this request on to the output chainer. That logic is already present in persistState.
+    if (m_PeriodicPersister->addPersistFunc([&](core::CDataAdder& persister) {
+            return this->persistState(persister, "Periodic foreground persist at ");
+        }) == false) {
+        LOG_ERROR(<< "Failed to add categorizer foreground persistence function");
+        return false;
+    }
+
+    m_PeriodicPersister->useForegroundPersistence();
 
     return true;
 }

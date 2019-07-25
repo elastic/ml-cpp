@@ -38,16 +38,10 @@ std::string toString(const rapidjson::Value& value) {
 }
 }
 
-void CDataFrameAnalysisConfigReader::addParameter(const char* name,
-                                                  ERequirement requirement,
-                                                  TStrIntMap permittedValues) {
-    m_ParameterReaders.emplace_back(name, requirement, std::move(permittedValues));
-}
-
 void CDataFrameAnalysisConfigReader::addParameter(const std::string& name,
                                                   ERequirement requirement,
                                                   TStrIntMap permittedValues) {
-    addParameter(name.c_str(), requirement, std::move(permittedValues));
+    m_ParameterReaders.emplace_back(name, requirement, std::move(permittedValues));
 }
 
 CDataFrameAnalysisConfigReader::CParameters
@@ -68,7 +62,7 @@ CDataFrameAnalysisConfigReader::read(const rapidjson::Value& json) const {
             HANDLE_FATAL(<< "Input error: missing required parameter '"
                          << reader.name() << "'. Please report this problem.");
         } else {
-            result.add(reader.name());
+            result.add(CParameter{reader.name()});
         }
     }
 
@@ -76,7 +70,7 @@ CDataFrameAnalysisConfigReader::read(const rapidjson::Value& json) const {
     for (auto i = json.MemberBegin(); i != json.MemberEnd(); ++i) {
         bool found{false};
         for (const auto& param : m_ParameterReaders) {
-            if (std::strcmp(i->name.GetString(), param.name()) == 0) {
+            if (i->name.GetString() == param.name()) {
                 found = true;
                 break;
             }
@@ -90,7 +84,7 @@ CDataFrameAnalysisConfigReader::read(const rapidjson::Value& json) const {
     return result;
 }
 
-CDataFrameAnalysisConfigReader::CParameter::CParameter(const char* name,
+CDataFrameAnalysisConfigReader::CParameter::CParameter(const std::string& name,
                                                        const rapidjson::Value& value,
                                                        const TStrIntMap& permittedValues)
     : m_Name{name}, m_Value{&value}, m_PermittedValues{&permittedValues} {
@@ -148,22 +142,17 @@ void CDataFrameAnalysisConfigReader::CParameter::handleFatal() const {
                  << "' for '" << m_Name << "'.");
 }
 
-CDataFrameAnalysisConfigReader::CParameter
-    CDataFrameAnalysisConfigReader::CParameters::operator[](const char* name) const {
+CDataFrameAnalysisConfigReader::CParameter CDataFrameAnalysisConfigReader::CParameters::
+operator[](const std::string& name) const {
     for (const auto& value : m_ParameterValues) {
-        if (std::strcmp(name, value.name()) == 0) {
+        if (name == value.name()) {
             return value;
         }
     }
-    return {name};
+    return CParameter{name};
 }
 
-CDataFrameAnalysisConfigReader::CParameter CDataFrameAnalysisConfigReader::CParameters::
-operator[](const std::string& name) const {
-    return this->operator[](name.c_str());
-}
-
-CDataFrameAnalysisConfigReader::CParameterReader::CParameterReader(const char* name,
+CDataFrameAnalysisConfigReader::CParameterReader::CParameterReader(const std::string& name,
                                                                    ERequirement requirement,
                                                                    TStrIntMap permittedValues)
     : m_Name{name}, m_Requirement{requirement}, m_PermittedValues{std::move(permittedValues)} {

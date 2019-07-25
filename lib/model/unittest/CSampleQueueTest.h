@@ -8,7 +8,7 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-#include "../../../include/model/CSampleQueue.h"
+#include <model/CSampleQueue.h>
 
 class CSampleQueueTest : public CppUnit::TestFixture {
 public:

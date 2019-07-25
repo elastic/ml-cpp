@@ -60,6 +60,7 @@ public:
                       bool& isRestoreFileNamedPipe,
                       std::string& persistFileName,
                       bool& isPersistFileNamedPipe,
+                      bool& isPersistInForeground,
                       size_t& maxAnomalyRecords,
                       bool& memoryUsage,
                       bool& multivariateByFields,

@@ -7,7 +7,6 @@
 
 #include "CAnomalyJobLimitTest.h"
 #include "CAnomalyJobTest.h"
-#include "CBackgroundPersisterTest.h"
 #include "CBaseTokenListDataTyperTest.h"
 #include "CCategoryExamplesCollectorTest.h"
 #include "CConfigUpdaterTest.h"
@@ -29,6 +28,7 @@
 #include "CNdJsonInputParserTest.h"
 #include "CNdJsonOutputWriterTest.h"
 #include "COutputChainerTest.h"
+#include "CPersistenceManagerTest.h"
 #include "CRestorePreviousStateTest.h"
 #include "CResultNormalizerTest.h"
 #include "CSingleStreamDataAdderTest.h"
@@ -42,7 +42,6 @@ int main(int argc, const char** argv) {
 
     runner.addTest(CAnomalyJobLimitTest::suite());
     runner.addTest(CAnomalyJobTest::suite());
-    runner.addTest(CBackgroundPersisterTest::suite());
     runner.addTest(CBaseTokenListDataTyperTest::suite());
     runner.addTest(CCategoryExamplesCollectorTest::suite());
     runner.addTest(CConfigUpdaterTest::suite());
@@ -64,6 +63,7 @@ int main(int argc, const char** argv) {
     runner.addTest(CModelSnapshotJsonWriterTest::suite());
     runner.addTest(CMultiFileDataAdderTest::suite());
     runner.addTest(COutputChainerTest::suite());
+    runner.addTest(CPersistenceManagerTest::suite());
     runner.addTest(CRestorePreviousStateTest::suite());
     runner.addTest(CResultNormalizerTest::suite());
     runner.addTest(CSingleStreamDataAdderTest::suite());

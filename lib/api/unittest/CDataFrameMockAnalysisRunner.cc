@@ -41,8 +41,8 @@ std::size_t CDataFrameMockAnalysisRunner::estimateBookkeepingMemoryUsage(std::si
 
 ml::test::CRandomNumbers CDataFrameMockAnalysisRunner::ms_Rng;
 
-const char* CDataFrameMockAnalysisRunnerFactory::name() const {
-    return "test";
+const std::string& CDataFrameMockAnalysisRunnerFactory::name() const {
+    return NAME;
 }
 
 CDataFrameMockAnalysisRunnerFactory::TRunnerUPtr
@@ -55,3 +55,5 @@ CDataFrameMockAnalysisRunnerFactory::makeImpl(const ml::api::CDataFrameAnalysisS
                                               const rapidjson::Value&) const {
     return std::make_unique<CDataFrameMockAnalysisRunner>(spec);
 }
+
+const std::string CDataFrameMockAnalysisRunnerFactory::NAME{"test"};

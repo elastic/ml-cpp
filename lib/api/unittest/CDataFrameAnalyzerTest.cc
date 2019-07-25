@@ -15,10 +15,12 @@
 #include <maths/COutliers.h>
 
 #include <api/CDataFrameAnalysisSpecification.h>
+#include <api/CDataFrameAnalysisSpecificationJsonWriter.h>
 #include <api/CDataFrameAnalyzer.h>
 
 #include <test/CDataFrameTestUtils.h>
 #include <test/CRandomNumbers.h>
+#include <test/CTestTmpDir.h>
 
 #include <rapidjson/document.h>
 #include <rapidjson/error/en.h>
@@ -45,42 +47,33 @@ outlierSpec(std::size_t rows = 110,
             std::size_t numberNeighbours = 0,
             bool computeFeatureInfluence = false) {
 
-    std::string spec{"{\n"
-                     "  \"rows\": " +
-                     std::to_string(rows) +
-                     ",\n"
-                     "  \"cols\": 5,\n"
-                     "  \"memory_limit\": " +
-                     std::to_string(memoryLimit) +
-                     ",\n"
-                     "  \"threads\": 1,\n"
-                     "  \"disk_usage_allowed\": true,\n"
-                     "  \"analysis\": {\n"
-                     "    \"name\": \"outlier_detection\""};
-    spec += ",\n    \"parameters\": {\n";
+    std::string parameters = "{\n";
     bool hasTrailingParameter{false};
     if (method != "") {
-        spec += "      \"method\": \"" + method + "\"";
+        parameters += "      \"method\": \"" + method + "\"";
         hasTrailingParameter = true;
     }
     if (numberNeighbours > 0) {
-        spec += (hasTrailingParameter ? ",\n" : "");
-        spec += "      \"n_neighbors\": " + core::CStringUtils::typeToString(numberNeighbours);
+        parameters += (hasTrailingParameter ? ",\n" : "");
+        parameters += "      \"n_neighbors\": " +
+                      core::CStringUtils::typeToString(numberNeighbours);
         hasTrailingParameter = true;
     }
     if (computeFeatureInfluence == false) {
-        spec += (hasTrailingParameter ? ",\n" : "");
-        spec += "      \"compute_feature_influence\": false";
+        parameters += (hasTrailingParameter ? ",\n" : "");
+        parameters += "      \"compute_feature_influence\": false";
         hasTrailingParameter = true;
     } else {
-        spec += (hasTrailingParameter ? ",\n" : "");
-        spec += "      \"feature_influence_threshold\": 0.0";
+        parameters += (hasTrailingParameter ? ",\n" : "");
+        parameters += "      \"feature_influence_threshold\": 0.0";
         hasTrailingParameter = true;
     }
-    spec += (hasTrailingParameter ? "\n" : "");
-    spec += "    }\n";
-    spec += "  }\n"
-            "}";
+    parameters += (hasTrailingParameter ? "\n" : "");
+    parameters += "    }\n";
+
+    std::string spec{api::CDataFrameAnalysisSpecificationJsonWriter::jsonString(
+        rows, 5, memoryLimit, 1, true, test::CTestTmpDir::tmpDir(), "ml",
+        "outlier_detection", parameters)};
 
     LOG_TRACE(<< "spec =\n" << spec);
 
