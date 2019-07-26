@@ -28,6 +28,16 @@
 
 //=== Regressions
 
+== {es} version 7.3.1
+
+=== Bug Fixes
+
+* Only trap the case that more rows are supplied to outlier detection than expected.
+Previously, if rows were excluded from the data frame after supplying the row count
+in the configuration then we detected the inconsistency and failed outlier detection.
+However, this legitimately happens in case where the field values are non-numeric or
+array valued. (See {ml-pull}569[#569].)
+
 == {es} version 7.3.0
 
 === Enhancements
