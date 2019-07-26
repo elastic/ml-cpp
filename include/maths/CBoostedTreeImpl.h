@@ -38,6 +38,7 @@ namespace boosted_tree_detail {
 inline std::size_t predictionColumn(std::size_t numberColumns) {
     return numberColumns - 3;
 }
+
 inline std::size_t numberFeatures(const core::CDataFrame& frame) {
     return frame.numberColumns() - 3;
 }
@@ -63,19 +64,26 @@ public:
     // TODO move all these methods factory since it is a friend anyway.
     //! Set the number of folds to use for estimating the generalisation error.
     void numberFolds(std::size_t numberFolds);
+
     //! Set the lambda regularisation parameter.
     void lambda(double lambda);
+
     //! Set the gamma regularisation parameter.
     void gamma(double gamma);
+
     //! Set the amount we'll shrink the weights on each each iteration.
     void eta(double eta);
+
     //! Set the maximum number of trees in the ensemble.
     void maximumNumberTrees(std::size_t maximumNumberTrees);
+
     //! Set the fraction of features we'll use in the bag to build a tree.
     void featureBagFraction(double featureBagFraction);
+
     //! Set the maximum number of optimisation rounds we'll use for hyperparameter
     //! optimisation per parameter.
     void maximumOptimisationRoundsPerHyperparameter(std::size_t rounds);
+
     //! The number of training examples we need per feature we'll include.
     void rowsPerFeature(std::size_t rowsPerFeature);
 
@@ -119,7 +127,9 @@ private:
     using TRowItr = core::CDataFrame::TRowItr;
     using TRowRef = core::CDataFrame::TRowRef;
     using TPackedBitVectorVec = std::vector<core::CPackedBitVector>;
+
     class CNode;
+
     using TNodeVec = std::vector<CNode>;
     using TNodeVecVec = std::vector<TNodeVec>;
 
@@ -346,8 +356,11 @@ private:
         }
 
         CLeafNodeStatistics(const CLeafNodeStatistics&) = delete;
+
         CLeafNodeStatistics& operator=(const CLeafNodeStatistics&) = delete;
+
         CLeafNodeStatistics(CLeafNodeStatistics&&) = default;
+
         CLeafNodeStatistics& operator=(CLeafNodeStatistics&&) = default;
 
         //! Apply the split defined by (\p leftChildRowMask, \p rightChildRowMask).
@@ -603,6 +616,8 @@ private:
     };
 
 private:
+    CBoostedTreeImpl() = default;
+
     //! Check if we can train a model.
     bool canTrain() const;
 
@@ -628,7 +643,7 @@ private:
     //! Train one forest on the rows of \p frame in the mask \p trainingRowMask.
     TNodeVecVec trainForest(core::CDataFrame& frame,
                             const core::CPackedBitVector& trainingRowMask,
-                            CBoostedTree::TProgressCallback /*recordProgress*/) const;
+                            const CBoostedTree::TProgressCallback& /*recordProgress*/) const;
 
     //! Get the candidate splits values for each feature.
     TDoubleVecVec candidateSplits(const core::CDataFrame& frame,

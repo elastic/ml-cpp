@@ -161,8 +161,7 @@ private:
 
 private:
     CBoostedTree(core::CDataFrame& frame, TImplUPtr& impl);
-
-    bool restoreImpl(TImplUPtr& impl, core::CStateRestoreTraverser& traverser);
+    CBoostedTree(core::CDataFrame& frame, TImplUPtr&& impl);
 
 private:
     TImplUPtr m_Impl;

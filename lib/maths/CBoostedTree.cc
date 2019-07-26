@@ -61,6 +61,10 @@ CBoostedTree::CBoostedTree(core::CDataFrame& frame, TImplUPtr& impl)
     : CDataFrameRegressionModel(frame), m_Impl{std::move(impl)} {
 }
 
+CBoostedTree::CBoostedTree(core::CDataFrame& frame, TImplUPtr&& impl)
+    : CDataFrameRegressionModel(frame), m_Impl{std::move(impl)} {
+}
+
 CBoostedTree::~CBoostedTree() = default;
 
 void CBoostedTree::train(TProgressCallback recordProgress) {
@@ -87,20 +91,12 @@ namespace {
 const std::string BOOSTED_TREE_IMPL_TAG{"boosted_tree_impl"};
 }
 
-bool CBoostedTree::restoreImpl(TImplUPtr& implPtr, core::CStateRestoreTraverser& traverser) {
-    implPtr.reset(new CBoostedTreeImpl(0, 0, nullptr));
-    if (core::CPersistUtils::restore(BOOSTED_TREE_IMPL_TAG, *implPtr, traverser)) {
-        return true;
-    }
-    implPtr.release();
-    return false;
-}
-
 bool CBoostedTree::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
     try {
         do {
             const std::string& name = traverser.name();
-            RESTORE(BOOSTED_TREE_IMPL_TAG, restoreImpl(m_Impl, traverser))
+            RESTORE(BOOSTED_TREE_IMPL_TAG,
+                    core::CPersistUtils::restore(BOOSTED_TREE_IMPL_TAG, *m_Impl, traverser))
         } while (traverser.next());
     } catch (std::exception& e) {
         LOG_ERROR(<< "Failed to restore state! " << e.what());

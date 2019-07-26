@@ -20,6 +20,7 @@ namespace {
 std::size_t lossGradientColumn(std::size_t numberColumns) {
     return numberColumns - 2;
 }
+
 std::size_t lossCurvatureColumn(std::size_t numberColumns) {
     return numberColumns - 1;
 }
@@ -305,7 +306,7 @@ CBoostedTreeImpl::TNodeVec CBoostedTreeImpl::initializePredictionsAndLossDerivat
 CBoostedTreeImpl::TNodeVecVec
 CBoostedTreeImpl::trainForest(core::CDataFrame& frame,
                               const core::CPackedBitVector& trainingRowMask,
-                              CBoostedTree::TProgressCallback /*recordProgress*/) const {
+                              const CBoostedTree::TProgressCallback& /*recordProgress*/) const {
 
     LOG_TRACE(<< "Training one forest...");
 
@@ -606,7 +607,7 @@ bool CBoostedTreeImpl::selectNextHyperparameters(const TMeanVarAccumulator& loss
     TVector parameters{this->numberHyperparametersToTune()};
 
     // Read parameters for last round.
-    std::size_t i{0};
+    int i{0};
     if (m_LambdaOverride == boost::none) {
         parameters(i++) = std::log(m_Lambda);
     }
@@ -880,6 +881,7 @@ bool CBoostedTreeImpl::restoreLoss(CBoostedTree::TLossFunctionUPtr& loss,
 
 bool CBoostedTreeImpl::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
     try {
+        m_BayesianOptimization = std::make_unique<CBayesianOptimisation>();
         do {
             const std::string& name = traverser.name();
             RESTORE(BAYESIAN_OPTIMIZATION_TAG,
