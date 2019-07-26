@@ -112,7 +112,7 @@ public:
     //! Persist by passing information to \p inserter.
     void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
 
-    //! Populate the object from serialized data
+    //! Populate the object from serialized data.
     bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
 
 private:
@@ -129,7 +129,6 @@ private:
     using TPackedBitVectorVec = std::vector<core::CPackedBitVector>;
 
     class CNode;
-
     using TNodeVec = std::vector<CNode>;
     using TNodeVecVec = std::vector<TNodeVec>;
 
@@ -643,7 +642,7 @@ private:
     //! Train one forest on the rows of \p frame in the mask \p trainingRowMask.
     TNodeVecVec trainForest(core::CDataFrame& frame,
                             const core::CPackedBitVector& trainingRowMask,
-                            const CBoostedTree::TProgressCallback& /*recordProgress*/) const;
+                            CBoostedTree::TProgressCallback  /*recordProgress*/) const;
 
     //! Get the candidate splits values for each feature.
     TDoubleVecVec candidateSplits(const core::CDataFrame& frame,
