@@ -168,7 +168,6 @@ bool CPersistenceManager::firstProcessorForegroundPeriodicPersistFunc(
 bool CPersistenceManager::startPersistIfAppropriate() {
     // Trigger persistence if either the specified number of buckets have elapsed OR the time interval has elapsed
     // These are mutually exclusive.
-    core_t::TTime due(m_LastPeriodicPersistTime + m_PeriodicPersistInterval);
     core_t::TTime now(core::CTimeUtils::now());
     if (m_BucketPersistInterval > 0) {
         m_NumberBucketsUntilNextPersist--;
