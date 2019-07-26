@@ -80,9 +80,10 @@ auto predictionStatistics(test::CRandomNumbers& rng,
             frame->finishWritingRows();
             frame->writeColumns(1, [&](TRowItr beginRows, TRowItr endRows) {
                 for (auto row = beginRows; row != endRows; ++row) {
-                    row->writeColumn(cols - 1, row->index() < trainRows
-                                                   ? f(*row) + noise[row->index()]
-                                                   : std::numeric_limits<double>::quiet_NaN());
+                    double targetValue{row->index() < trainRows
+                                           ? f(*row) + noise[row->index()]
+                                           : std::numeric_limits<double>::quiet_NaN()};
+                    row->writeColumn(cols - 1, targetValue);
                 }
             });
 
