@@ -306,7 +306,7 @@ CBoostedTreeImpl::TNodeVec CBoostedTreeImpl::initializePredictionsAndLossDerivat
 CBoostedTreeImpl::TNodeVecVec
 CBoostedTreeImpl::trainForest(core::CDataFrame& frame,
                               const core::CPackedBitVector& trainingRowMask,
-                              CBoostedTree::TProgressCallback  /*recordProgress*/) const {
+                              CBoostedTree::TProgressCallback /*recordProgress*/) const {
 
     LOG_TRACE(<< "Training one forest...");
 

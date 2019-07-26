@@ -642,7 +642,7 @@ private:
     //! Train one forest on the rows of \p frame in the mask \p trainingRowMask.
     TNodeVecVec trainForest(core::CDataFrame& frame,
                             const core::CPackedBitVector& trainingRowMask,
-                            CBoostedTree::TProgressCallback  /*recordProgress*/) const;
+                            CBoostedTree::TProgressCallback /*recordProgress*/) const;
 
     //! Get the candidate splits values for each feature.
     TDoubleVecVec candidateSplits(const core::CDataFrame& frame,
