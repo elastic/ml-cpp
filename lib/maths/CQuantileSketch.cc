@@ -49,8 +49,11 @@ private:
 };
 
 //! \brief An iterator over just the unique knot values.
-class CUniqueIterator
-    : private boost::addable2<CUniqueIterator, ptrdiff_t, boost::subtractable2<CUniqueIterator, ptrdiff_t, boost::equality_comparable<CUniqueIterator>>> {
+// clang-format off
+class CUniqueIterator : private boost::addable2<CUniqueIterator, ptrdiff_t,
+                                boost::subtractable2<CUniqueIterator, ptrdiff_t,
+                                boost::equality_comparable<CUniqueIterator>>> {
+    // clang-format on
 public:
     CUniqueIterator(TFloatFloatPrVec& knots, std::size_t i)
         : m_Knots(&knots), m_I(i) {}

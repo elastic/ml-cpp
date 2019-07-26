@@ -62,3 +62,4 @@ specifically interested in working with the ml-cpp code, then information
 regarding setting up a build environment can be found in the
 [build-setup](build-setup) directory.
 
+To use CLion with the project, please refer to the ["Using CLion"](build-setup/clion/using_clion.md) tutorial.

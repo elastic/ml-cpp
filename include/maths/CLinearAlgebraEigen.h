@@ -8,6 +8,10 @@
 #define INCLUDED_ml_maths_CLinearAlgebraEigen_h
 
 #include <core/CMemory.h>
+#include <core/CPersistUtils.h>
+#include <core/CStatePersistInserter.h>
+#include <core/CStateRestoreTraverser.h>
+#include <core/RestoreMacros.h>
 
 #include <maths/CChecksum.h>
 #include <maths/CLinearAlgebra.h>
@@ -214,7 +218,7 @@ public:
     std::size_t memoryUsage() const { return sizeof(SCALAR) * this->size(); }
 
     //! Get a checksum of this object.
-    uint64_t checksum(uint64_t seed) const {
+    std::uint64_t checksum(std::uint64_t seed = 0) const {
         for (std::ptrdiff_t i = 0; i < this->size(); ++i) {
             seed = CChecksum::calculate(seed, this->coeff(i));
         }
@@ -241,6 +245,9 @@ public:
     using TBase = Eigen::Matrix<SCALAR, Eigen::Dynamic, 1>;
 
 public:
+    static const std::string DENSE_VECTOR_TAG;
+
+public:
     //! Forwarding constructor.
     template<typename... ARGS>
     CDenseVector(ARGS&&... args) : TBase(std::forward<ARGS>(args)...) {}
@@ -265,13 +272,51 @@ public:
     std::size_t memoryUsage() const { return sizeof(SCALAR) * this->size(); }
 
     //! Get a checksum of this object.
-    uint64_t checksum(uint64_t seed) const {
+    std::uint64_t checksum(std::uint64_t seed = 0) const {
         for (std::ptrdiff_t i = 0; i < this->size(); ++i) {
             seed = CChecksum::calculate(seed, this->coeff(i));
         }
         return seed;
     }
+
+    //! Persist by passing information to \p inserter.
+    void acceptPersistInserter(core::CStatePersistInserter& inserter) const {
+        inserter.insertValue(DENSE_VECTOR_TAG,
+                             core::CPersistUtils::toString(this->toStdVector()));
+    }
+
+    //! Populate the object from serialized data.
+    bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
+        std::vector<SCALAR> tempVector;
+        if (core::CPersistUtils::restore(DENSE_VECTOR_TAG, tempVector, traverser) == false) {
+            LOG_ERROR(<< "Failed to restore " << DENSE_VECTOR_TAG << ", got "
+                      << traverser.value());
+            return false;
+        }
+        *this = fromStdVector(tempVector);
+        return true;
+    }
+
+private:
+    std::vector<SCALAR> toStdVector() const {
+        std::vector<SCALAR> result;
+        result.reserve(this->size());
+        for (int i = 0; i < this->size(); ++i) {
+            result.push_back(this->coeff(i));
+        }
+        return result;
+    }
+    static CDenseVector<SCALAR> fromStdVector(const std::vector<SCALAR>& vector) {
+        CDenseVector<SCALAR> result(vector.size());
+        for (std::size_t i = 0; i < vector.size(); ++i) {
+            result(i) = vector[i];
+        }
+        return result;
+    }
 };
+
+template<typename SCALAR>
+const std::string CDenseVector<SCALAR>::DENSE_VECTOR_TAG{"dense_vector"};
 
 //! \brief Gets a constant dense vector with specified dimension.
 template<typename SCALAR>
@@ -426,7 +471,7 @@ public:
     //@}
 
     //! Get a checksum of this object.
-    uint64_t checksum(uint64_t seed) const {
+    std::uint64_t checksum(std::uint64_t seed = 0) const {
         for (std::ptrdiff_t i = 0; i < this->size(); ++i) {
             seed = CChecksum::calculate(seed, this->coeff(i));
         }
@@ -515,7 +560,7 @@ struct SDenseVector<CVectorNx1<T, 4>> {
 
 //! Get the Eigen vector for \p vector.
 template<typename VECTOR>
-typename SDenseMatrix<VECTOR>::Type toDenseVector(const VECTOR& vector) {
+typename SDenseVector<VECTOR>::Type toDenseVector(const VECTOR& vector) {
     return vector.template toType<typename SDenseVector<VECTOR>::Type>();
 }
 

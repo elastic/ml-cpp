@@ -18,8 +18,6 @@
 #include <maths/CMathsFuncs.h>
 #include <maths/CTools.h>
 
-#include <boost/range.hpp>
-
 #include <algorithm>
 #include <cstddef>
 #include <utility>

@@ -67,4 +67,4 @@ private:
 }
 }
 
-#endif /* INCLUDE_CORE_CRAPIDJSONLINEWRITER_H_ */
+#endif // INCLUDED_ml_core_CRapidJsonLineWriter_h

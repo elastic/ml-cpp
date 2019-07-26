@@ -11,11 +11,18 @@
 #include <core/CNonInstantiatable.h>
 
 #include <maths/CLinearAlgebraEigen.h>
-
 #include <maths/ImportExport.h>
 
+#include <functional>
+#include <vector>
+
 namespace ml {
+namespace core {
+class CPackedBitVector;
+}
 namespace maths {
+class CQuantileSketch;
+
 namespace data_frame_utils_detail {
 template<typename T>
 struct SRowTo {
@@ -45,6 +52,18 @@ struct SRowTo<CDenseVector<T>> {
 //! \brief A collection of basic utilities for analyses on a data frame.
 class MATHS_EXPORT CDataFrameUtils : private core::CNonInstantiatable {
 public:
+    using TDoubleVec = std::vector<double>;
+    using TDoubleVecVec = std::vector<TDoubleVec>;
+    using TSizeVec = std::vector<std::size_t>;
+    using TSizeDoublePr = std::pair<std::size_t, double>;
+    using TSizeDoublePrVec = std::vector<TSizeDoublePr>;
+    using TSizeDoublePrVecVec = std::vector<TSizeDoublePrVec>;
+    using TRowRef = core::CDataFrame::TRowRef;
+    using TWeightFunction = std::function<double(TRowRef)>;
+    using TQuantileSketchVec = std::vector<CQuantileSketch>;
+    using TPackedBitVectorVec = std::vector<core::CPackedBitVector>;
+
+public:
     //! Convert a row of the data frame to a specified vector type.
     template<typename VECTOR>
     static VECTOR rowTo(const core::CDataFrame::TRowRef& row) {
@@ -52,7 +71,112 @@ public:
     }
 
     //! Subtract the mean and divide each column value by its standard deviation.
+    //!
+    //! \param[in] numberThreads The number of threads available.
+    //! \param[in,out] frame The data frame whose columns are to be standardized.
     static bool standardizeColumns(std::size_t numberThreads, core::CDataFrame& frame);
+
+    //! Get a quantile sketch of each column's values.
+    //!
+    //! \param[in] numberThreads The number of threads available.
+    //! \param[in] frame The data frame for which to compute the column quantiles.
+    //! \param[in] rowMask A mask of the rows from which to compute quantiles.
+    //! \param[in] columnMask A mask of the columns for which to compute quantiles.
+    //! \param[in] sketch The sketch to be used to estimate column quantiles.
+    //! \param[out] result Filled in with the column quantile estimates.
+    //! \param[in] weight The weight to assign each row. The default is unity for
+    //! all rows.
+    static bool columnQuantiles(std::size_t numberThreads,
+                                const core::CDataFrame& frame,
+                                const core::CPackedBitVector& rowMask,
+                                const TSizeVec& columnMask,
+                                const CQuantileSketch& sketch,
+                                TQuantileSketchVec& result,
+                                TWeightFunction weight = unitWeight);
+
+    //! Get the relative frequency of each category in \p frame.
+    //!
+    //! \param[in] frame The data frame for which to compute category frequencies.
+    //! \param[in] columnMask A mask of the columns to include.
+    //! \return The frequency of each category. The collection is indexed by column
+    //! and then category identifier.
+    static TDoubleVecVec categoryFrequencies(std::size_t numberThreads,
+                                             const core::CDataFrame& frame,
+                                             TSizeVec columnMask);
+
+    //! Compute the mean value of \p targetColumn on the restriction to the rows
+    //! labelled by each distinct category of the categorical columns.
+    //!
+    //! \param[in] numberThreads The number of threads available.
+    //! \param[in] frame The data frame for which to compute mean values.
+    //! \param[in] columnMask A mask of the columns to include.
+    //! \param[in] targetColumn The column whose mean values are computed.
+    //! \return The mean values of \p targetColumn for each category. The collection
+    //! is indexed by column and then category identifier.
+    static TDoubleVecVec meanValueOfTargetForCategories(std::size_t numberThreads,
+                                                        const core::CDataFrame& frame,
+                                                        TSizeVec columnMask,
+                                                        std::size_t targetColumn);
+
+    //! Assess the strength of the relationship for each distinct category with
+    //! \p targetColumn by computing the maximum information coefficient (MIC).
+    //!
+    //! \param[in] numberThreads The number of threads available.
+    //! \param[in] frame The data frame for which to compute the category MICs.
+    //! \param[in] columnMask A mask of the columns to include.
+    //! \param[in] targetColumn The column with which to compute MIC.
+    //! \param[in] minimumFrequency The minimum frequency of the category in the
+    //! data set for which to compute MIC.
+    //! \return A collection containing (category, MIC with \p targetColumn) pairs
+    //! for each category whose frequency in \p frame is greater than \p minimumFrequency
+    //! and each categorical column. The collection is indexed by column.
+    static TSizeDoublePrVecVec categoryMicWithColumn(std::size_t numberThreads,
+                                                     const core::CDataFrame& frame,
+                                                     TSizeVec columnMask,
+                                                     std::size_t targetColumn,
+                                                     double minimumFrequency = 0.01);
+
+    //! Assess the strength of the relationship for each metric valued column with
+    //! \p targetColumn by computing the maximum information coefficient (MIC).
+    //!
+    //! \param[in] frame The data frame for which to compute the column MICs.
+    //! \param[in] columnMask A mask of the columns to include.
+    //! \param[in] targetColumn The column with which to compute MIC.
+    //! \return A collection containing the MIC of each metric valued column with
+    //! \p targetColumn. The collectionis indexed by column.
+    static TDoubleVec micWithColumn(const core::CDataFrame& frame,
+                                    TSizeVec columnMask,
+                                    std::size_t targetColumn);
+
+    //! Check if a data frame value is missing.
+    static bool isMissing(double value);
+
+private:
+    static TSizeDoublePrVecVec
+    categoryMicWithColumnDataFrameInMemory(std::size_t numberThreads,
+                                           const core::CDataFrame& frame,
+                                           const TSizeVec& columnMask,
+                                           std::size_t targetColumn,
+                                           std::size_t numberSamples,
+                                           double minimumFrequency);
+    static TSizeDoublePrVecVec
+    categoryMicWithColumnDataFrameOnDisk(std::size_t numberThreads,
+                                         const core::CDataFrame& frame,
+                                         const TSizeVec& columnMask,
+                                         std::size_t targetColumn,
+                                         std::size_t numberSamples,
+                                         double minimumFrequency);
+    static TDoubleVec micWithColumnDataFrameInMemory(const core::CDataFrame& frame,
+                                                     const TSizeVec& columnMask,
+                                                     std::size_t targetColumn,
+                                                     std::size_t numberSamples);
+    static TDoubleVec micWithColumnDataFrameOnDisk(const core::CDataFrame& frame,
+                                                   const TSizeVec& columnMask,
+                                                   std::size_t targetColumn,
+                                                   std::size_t numberSamples);
+    static void removeMetricColumns(const core::CDataFrame& frame, TSizeVec& columnMask);
+    static void removeCategoricalColumns(const core::CDataFrame& frame, TSizeVec& columnMask);
+    static double unitWeight(const TRowRef&);
 };
 }
 }

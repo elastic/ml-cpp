@@ -13,6 +13,7 @@
 #include <api/ImportExport.h>
 
 #include <string>
+#include <vector>
 
 namespace ml {
 namespace api {
@@ -21,6 +22,7 @@ namespace api {
 //! A static utility for writing data frame analysis specification in JSON.
 class API_EXPORT CDataFrameAnalysisSpecificationJsonWriter : private core::CNonInstantiatable {
 public:
+    using TStrVec = std::vector<std::string>;
     using TRapidJsonLineWriter = core::CRapidJsonLineWriter<rapidjson::StringBuffer>;
 
 public:
@@ -31,6 +33,7 @@ public:
                       std::size_t numberThreads,
                       const std::string& temporaryDirectory,
                       const std::string& resultsField,
+                      const TStrVec& categoricalFields,
                       bool diskUsageAllowed,
                       const std::string& analysisName,
                       const rapidjson::Document& analysisParametersDocument,
@@ -43,6 +46,7 @@ public:
                       std::size_t numberThreads,
                       const std::string& temporaryDirectory,
                       const std::string& resultsField,
+                      const TStrVec& categoricalFields,
                       bool diskUsageAllowed,
                       const std::string& analysisName,
                       const std::string& analysisParameters,
@@ -53,6 +57,7 @@ public:
                                   size_t cols,
                                   size_t memoryLimit,
                                   size_t numberThreads,
+                                  const TStrVec& categoricalFields,
                                   bool diskUsageAllowed,
                                   const std::string& tempDir,
                                   const std::string& resultField,
