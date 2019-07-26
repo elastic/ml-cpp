@@ -697,6 +697,7 @@ void CDataFrameAnalyzerTest::testErrors() {
 
     // Test inconsistent number of rows
     {
+        // Fewer rows than expected is ignored.
         api::CDataFrameAnalyzer analyzer{outlierSpec(2), outputWriterFactory};
         errors.clear();
         CPPUNIT_ASSERT_EQUAL(
