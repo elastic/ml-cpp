@@ -32,10 +32,6 @@ public:
     using TBoostedTreeUPtr = std::unique_ptr<CBoostedTree>;
 
 public:
-    static const double MINIMUM_ETA;
-    static const std::size_t MAXIMUM_NUMBER_TREES;
-
-public:
     //! Construct a boosted tree object from parameters
     static CBoostedTreeFactory constructFromParameters(std::size_t numberThreads,
                                                        std::size_t dependentVariable,
@@ -78,6 +74,10 @@ public:
 private:
     using TPackedBitVectorVec = std::vector<core::CPackedBitVector>;
     using TBoostedTreeImplUPtr = std::unique_ptr<CBoostedTreeImpl>;
+
+private:
+    static const double MINIMUM_ETA;
+    static const std::size_t MAXIMUM_NUMBER_TREES;
 
 private:
     CBoostedTreeFactory(std::size_t numberThreads,

@@ -72,7 +72,7 @@ auto predictionStatistics(test::CRandomNumbers& rng,
 
             for (std::size_t i = 0; i < rows; ++i) {
                 frame->writeRow([&](core::CDataFrame::TFloatVecItr column, std::int32_t&) {
-                    for (std::size_t j = 0; j + 1 < cols; ++j, ++column) {
+                    for (std::size_t j = 0; j < cols - 1; ++j, ++column) {
                         *column = x[j][i];
                     }
                 });
