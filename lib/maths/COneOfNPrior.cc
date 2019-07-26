@@ -61,18 +61,19 @@ const double LOG_MAXIMUM_RELATIVE_ERROR = std::log(MAXIMUM_RELATIVE_ERROR);
 const std::string VERSION_7_1_TAG("7.1");
 
 // Version 7.1
-const std::string MODEL_7_1_TAG("a");
-const std::string SAMPLE_MOMENTS_7_1_TAG("b");
-const std::string NUMBER_SAMPLES_7_1_TAG("c");
-const std::string DECAY_RATE_7_1_TAG("d");
+const core::TPersistenceTag MODEL_7_1_TAG("a", "model");
+const core::TPersistenceTag SAMPLE_MOMENTS_7_1_TAG("b", "sample_moments");
+const core::TPersistenceTag NUMBER_SAMPLES_7_1_TAG("c", "number_samples");
+const core::TPersistenceTag DECAY_RATE_7_1_TAG("d", "decay_rate");
+
 // Version < 7.1
 const std::string MODEL_OLD_TAG("a");
 const std::string NUMBER_SAMPLES_OLD_TAG("b");
 const std::string DECAY_RATE_OLD_TAG("e");
 
 // Nested tags
-const std::string WEIGHT_TAG("a");
-const std::string PRIOR_TAG("b");
+const core::TPersistenceTag WEIGHT_TAG("a", "weight");
+const core::TPersistenceTag PRIOR_TAG("b", "prior");
 
 const std::string EMPTY_STRING;
 

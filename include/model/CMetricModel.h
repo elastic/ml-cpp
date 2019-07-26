@@ -120,6 +120,11 @@ public:
 
     //! \name Persistence
     //@{
+    //! Persist the state of the residual models only.
+    virtual void persistResidualModelsState(core::CStatePersistInserter& /* inserter*/) const {
+        // NO-OP
+    }
+
     //! Persist state by passing information to \p inserter.
     virtual void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
 

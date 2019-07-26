@@ -18,6 +18,9 @@ CMockModel::CMockModel(const SModelParams& params,
       m_IsPopulation(false), m_InterimBucketCorrector(params.s_BucketLength) {
 }
 
+void CMockModel::persistResidualModelsState(core::CStatePersistInserter& /*inserter*/) const {
+}
+
 void CMockModel::acceptPersistInserter(core::CStatePersistInserter& /*inserter*/) const {
 }
 

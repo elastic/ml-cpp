@@ -52,14 +52,14 @@ using TSizeSet = std::set<std::size_t>;
 const std::size_t MODE_SPLIT_NUMBER_SAMPLES(50u);
 const std::size_t MODE_MERGE_NUMBER_SAMPLES(25u);
 
-// We use short field names to reduce the state size
-const std::string CLUSTERER_TAG("a");
-const std::string SEED_PRIOR_TAG("b");
-const std::string MODE_TAG("c");
-const std::string NUMBER_SAMPLES_TAG("d");
+const core::TPersistenceTag CLUSTERER_TAG("a", "clusterer");
+const core::TPersistenceTag SEED_PRIOR_TAG("b", "seed_prior");
+const core::TPersistenceTag MODE_TAG("c", "mode");
+const core::TPersistenceTag NUMBER_SAMPLES_TAG("d", "number_samples");
 //const std::string MINIMUM_TAG("e"); No longer used
 //const std::string MAXIMUM_TAG("f"); No longer used
-const std::string DECAY_RATE_TAG("g");
+const core::TPersistenceTag DECAY_RATE_TAG("g", "decay_rate");
+
 const std::string EMPTY_STRING;
 }
 

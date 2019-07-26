@@ -11,6 +11,7 @@ include $(CPP_SRC_HOME)/mk/defines.mk
 
 COMPONENTS= \
             unixtime_to_string \
+            model_extractor \
 
 include $(CPP_SRC_HOME)/mk/toplevel.mk
 

@@ -418,15 +418,17 @@ const double CLogMarginalLikelihood::LOG_2_PI =
 
 } // detail::
 
-// We use short field names to reduce the state size
-const std::string GAUSSIAN_MEAN_TAG("a");
-const std::string GAUSSIAN_PRECISION_TAG("b");
-const std::string GAMMA_SHAPE_TAG("c");
-const std::string GAMMA_RATE_TAG("d");
-const std::string NUMBER_SAMPLES_TAG("e");
+const core::TPersistenceTag GAUSSIAN_MEAN_TAG("a", "gaussian_mean");
+const core::TPersistenceTag GAUSSIAN_PRECISION_TAG("b", "gaussian_precision");
+const core::TPersistenceTag GAMMA_SHAPE_TAG("c", "gamma_shape");
+const core::TPersistenceTag GAMMA_RATE_TAG("d", "gamma_rate");
+const core::TPersistenceTag NUMBER_SAMPLES_TAG("e", "number_samples");
+const core::TPersistenceTag DECAY_RATE_TAG("h", "decay_rate");
+const std::string MEAN_TAG("mean");
+const std::string STANDARD_DEVIATION_TAG("standard_deviation");
+
 //const std::string MINIMUM_TAG("f"); No longer used
 //const std::string MAXIMUM_TAG("g"); No longer used
-const std::string DECAY_RATE_TAG("h");
 const std::string EMPTY_STRING;
 }
 
@@ -1153,10 +1155,22 @@ void CNormalMeanPrecConjugate::print(const std::string& indent, std::string& res
         result += "non-informative";
         return;
     }
-    double mean = this->marginalLikelihoodMean();
-    double sd = std::sqrt(this->marginalLikelihoodVariance());
-    result += "mean = " + core::CStringUtils::typeToStringPretty(mean);
-    result += " sd = " + core::CStringUtils::typeToStringPretty(sd);
+
+    std::string mean;
+    std::string sd;
+
+    std::tie(mean, sd) = this->printMarginalLikelihoodStatistics();
+
+    result += "mean = " + mean + " sd = " + sd;
+}
+
+CPrior::TStrStrPr CNormalMeanPrecConjugate::doPrintMarginalLikelihoodStatistics() const {
+    std::string mean =
+        core::CStringUtils::typeToStringPretty(this->marginalLikelihoodMean());
+    std::string sd = core::CStringUtils::typeToStringPretty(
+        std::sqrt(this->marginalLikelihoodVariance()));
+
+    return TStrStrPr{mean, sd};
 }
 
 std::string CNormalMeanPrecConjugate::printJointDensityFunction() const {
@@ -1245,6 +1259,16 @@ void CNormalMeanPrecConjugate::acceptPersistInserter(core::CStatePersistInserter
     inserter.insertValue(GAMMA_RATE_TAG, m_GammaRate, core::CIEEE754::E_DoublePrecision);
     inserter.insertValue(NUMBER_SAMPLES_TAG, this->numberSamples(),
                          core::CIEEE754::E_SinglePrecision);
+
+    if (inserter.readableTags() == true) {
+        std::string mean;
+        std::string sd;
+
+        std::tie(mean, sd) = this->printMarginalLikelihoodStatistics();
+
+        inserter.insertValue(MEAN_TAG, mean);
+        inserter.insertValue(STANDARD_DEVIATION_TAG, sd);
+    }
 }
 
 double CNormalMeanPrecConjugate::mean() const {

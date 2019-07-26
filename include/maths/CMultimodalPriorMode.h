@@ -31,8 +31,8 @@ namespace maths {
 //! See, for example, CMultimodalPrior for usage.
 template<typename PRIOR_PTR>
 struct SMultimodalPriorMode {
-    static const std::string INDEX_TAG;
-    static const std::string PRIOR_TAG;
+    static const core::TPersistenceTag INDEX_TAG;
+    static const core::TPersistenceTag PRIOR_TAG;
 
     SMultimodalPriorMode() : s_Index(0), s_Prior() {}
     SMultimodalPriorMode(std::size_t index, const PRIOR_PTR& prior)
@@ -101,9 +101,9 @@ struct SMultimodalPriorMode {
 };
 
 template<typename PRIOR>
-const std::string SMultimodalPriorMode<PRIOR>::INDEX_TAG("a");
+const core::TPersistenceTag SMultimodalPriorMode<PRIOR>::INDEX_TAG("a", "index");
 template<typename PRIOR>
-const std::string SMultimodalPriorMode<PRIOR>::PRIOR_TAG("b");
+const core::TPersistenceTag SMultimodalPriorMode<PRIOR>::PRIOR_TAG("b", "prior");
 }
 }
 

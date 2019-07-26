@@ -161,14 +161,15 @@ bool evaluateFunctionOnJointDistribution(const TDouble1Vec& samples,
 
 } // detail::
 
-// We use short field names to reduce the state size
-const std::string SHAPE_TAG("a");
-const std::string RATE_TAG("b");
-const std::string NUMBER_SAMPLES_TAG("c");
-const std::string OFFSET_TAG("d");
+const core::TPersistenceTag SHAPE_TAG("a", "shape");
+const core::TPersistenceTag RATE_TAG("b", "rate");
+const core::TPersistenceTag NUMBER_SAMPLES_TAG("c", "number_samples");
+const core::TPersistenceTag OFFSET_TAG("d", "offset");
 //const std::string MINIMUM_TAG("e"); No longer used
 //const std::string MAXIMUM_TAG("f"); No longer used
-const std::string DECAY_RATE_TAG("g");
+const core::TPersistenceTag DECAY_RATE_TAG("g", "decay_rate");
+const std::string MEAN_TAG("mean");
+const std::string STANDARD_DEVIATION_TAG("standard_deviation");
 const std::string EMPTY_STRING;
 }
 
@@ -799,10 +800,21 @@ void CPoissonMeanConjugate::print(const std::string& indent, std::string& result
         result += "non-informative";
         return;
     }
-    result += "mean = " + core::CStringUtils::typeToStringPretty(this->marginalLikelihoodMean()) +
-              " sd = " +
-              core::CStringUtils::typeToStringPretty(
-                  std::sqrt(this->marginalLikelihoodVariance()));
+
+    std::string mean;
+    std::string sd;
+
+    std::tie(mean, sd) = this->printMarginalLikelihoodStatistics();
+
+    result += "mean = " + mean + " sd = " + sd;
+}
+
+CPrior::TStrStrPr CPoissonMeanConjugate::doPrintMarginalLikelihoodStatistics() const {
+    std::string mean{core::CStringUtils::typeToStringPretty(this->marginalLikelihoodMean())};
+    std::string sd{core::CStringUtils::typeToStringPretty(
+        std::sqrt(this->marginalLikelihoodVariance()))};
+
+    return TStrStrPr{mean, sd};
 }
 
 std::string CPoissonMeanConjugate::printJointDensityFunction() const {
@@ -871,6 +883,16 @@ void CPoissonMeanConjugate::acceptPersistInserter(core::CStatePersistInserter& i
     inserter.insertValue(RATE_TAG, m_Rate.toString());
     inserter.insertValue(NUMBER_SAMPLES_TAG, this->numberSamples(),
                          core::CIEEE754::E_SinglePrecision);
+
+    if (inserter.readableTags() == true) {
+        std::string mean;
+        std::string sd;
+
+        std::tie(mean, sd) = this->printMarginalLikelihoodStatistics();
+
+        inserter.insertValue(MEAN_TAG, mean);
+        inserter.insertValue(STANDARD_DEVIATION_TAG, sd);
+    }
 }
 
 double CPoissonMeanConjugate::priorMean() const {

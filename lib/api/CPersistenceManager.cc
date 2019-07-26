@@ -4,6 +4,7 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 #include <api/CPersistenceManager.h>
+
 #include <core/CLogger.h>
 #include <core/CProgramCounters.h>
 #include <core/CScopedFastLock.h>
@@ -17,24 +18,29 @@ namespace api {
 
 namespace {
 const core_t::TTime PERSIST_INTERVAL_INCREMENT(300); // 5 minutes
+const std::size_t PERSIST_BUCKET_INCREMENT{10};
 }
 
 CPersistenceManager::CPersistenceManager(core_t::TTime periodicPersistInterval,
                                          bool persistInForeground,
-                                         core::CDataAdder& dataAdder)
-    : CPersistenceManager(periodicPersistInterval, persistInForeground, dataAdder, dataAdder) {
+                                         core::CDataAdder& dataAdder,
+                                         std::size_t bucketPersistInterval)
+    : CPersistenceManager(periodicPersistInterval, persistInForeground, dataAdder, dataAdder, bucketPersistInterval) {
 }
 
 CPersistenceManager::CPersistenceManager(core_t::TTime periodicPersistInterval,
                                          bool persistInForeground,
                                          core::CDataAdder& bgDataAdder,
-                                         core::CDataAdder& fgDataAdder)
+                                         core::CDataAdder& fgDataAdder,
+                                         std::size_t bucketPersistInterval)
     : m_PeriodicPersistInterval(periodicPersistInterval),
       m_PersistInForeground(persistInForeground),
       m_LastPeriodicPersistTime(core::CTimeUtils::now()),
+      m_BucketPersistInterval(bucketPersistInterval),
+      m_NumberBucketsUntilNextPersist(m_BucketPersistInterval),
       m_BgDataAdder(bgDataAdder), m_FgDataAdder(fgDataAdder), m_IsBusy(false),
       m_IsShutdown(false), m_BackgroundThread(*this) {
-    if (m_PeriodicPersistInterval < PERSIST_INTERVAL_INCREMENT) {
+    if (m_BucketPersistInterval == 0 && m_PeriodicPersistInterval < PERSIST_INTERVAL_INCREMENT) {
         // This may be dynamically increased further depending on how long
         // persistence takes
         m_PeriodicPersistInterval = PERSIST_INTERVAL_INCREMENT;
@@ -160,22 +166,49 @@ bool CPersistenceManager::firstProcessorForegroundPeriodicPersistFunc(
 }
 
 bool CPersistenceManager::startPersistIfAppropriate() {
-    core_t::TTime due(m_LastPeriodicPersistTime + m_PeriodicPersistInterval);
+    // Trigger persistence if either the specified number of buckets have elapsed OR the time interval has elapsed
+    // These are mutually exclusive.
     core_t::TTime now(core::CTimeUtils::now());
-    if (now < due) {
-        // Persist is not due
-        return false;
-    }
+    if (m_BucketPersistInterval > 0) {
+        m_NumberBucketsUntilNextPersist--;
 
-    if (this->isBusy()) {
-        m_PeriodicPersistInterval += PERSIST_INTERVAL_INCREMENT;
+        if (m_NumberBucketsUntilNextPersist > 0) {
+            // Persist is not due
+            return false;
+        }
 
-        LOG_WARN(<< "Periodic persist is due at " << due << " but previous persist started at "
-                 << core::CTimeUtils::toIso8601(m_LastPeriodicPersistTime)
-                 << " is still in progress - increased persistence interval to "
-                 << m_PeriodicPersistInterval << " seconds");
+        m_NumberBucketsUntilNextPersist = m_BucketPersistInterval;
 
-        return false;
+        if (this->isBusy()) {
+
+            LOG_WARN(<< "Periodic persist is due after processing "
+                     << m_BucketPersistInterval << " buckets but previous persist started at "
+                     << core::CTimeUtils::toIso8601(m_LastPeriodicPersistTime)
+                     << " is still in progress - increasing persistence interval by "
+                     << PERSIST_BUCKET_INCREMENT << " buckets");
+
+            m_BucketPersistInterval += PERSIST_BUCKET_INCREMENT;
+
+            return false;
+        }
+
+    } else {
+        core_t::TTime due(m_LastPeriodicPersistTime + m_PeriodicPersistInterval);
+        if (now < due) {
+            // Persist is not due
+            return false;
+        }
+
+        if (this->isBusy()) {
+            m_PeriodicPersistInterval += PERSIST_INTERVAL_INCREMENT;
+
+            LOG_WARN(<< "Periodic persist is due at " << due << " but previous persist started at "
+                     << core::CTimeUtils::toIso8601(m_LastPeriodicPersistTime)
+                     << " is still in progress - increased persistence interval to "
+                     << m_PeriodicPersistInterval << " seconds");
+
+            return false;
+        }
     }
 
     return this->startPersist(now);

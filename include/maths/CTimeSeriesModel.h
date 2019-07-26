@@ -185,6 +185,9 @@ public:
     //! Persist by passing information to \p inserter.
     virtual void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
 
+    //! Persist the state of the residual models only.
+    virtual void persistResidualModelsState(core::CStatePersistInserter& inserter) const;
+
     //! Get the type of data being modeled.
     virtual maths_t::EDataType dataType() const;
 
@@ -652,6 +655,9 @@ public:
 
     //! Persist by passing information to \p inserter.
     virtual void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
+
+    //! Persist the state of the residual models only.
+    virtual void persistResidualModelsState(core::CStatePersistInserter& inserter) const;
 
     //! Get the type of data being modeled.
     virtual maths_t::EDataType dataType() const;
