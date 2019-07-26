@@ -326,6 +326,12 @@ const CIndividualModel::TTimeVec& CIndividualModel::lastBucketTimes() const {
     return m_LastBucketTimes;
 }
 
+void CIndividualModel::doPersistResidualModelsState(core::CStatePersistInserter& inserter) const {
+    for (const auto& feature : m_FeatureModels) {
+        feature.persistResidualModelsState(inserter);
+    }
+}
+
 void CIndividualModel::doAcceptPersistInserter(core::CStatePersistInserter& inserter) const {
     inserter.insertValue(WINDOW_BUCKET_COUNT_TAG, this->windowBucketCount(),
                          core::CIEEE754::E_SinglePrecision);

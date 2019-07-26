@@ -103,6 +103,10 @@ CEventRateModel::CEventRateModel(bool isForPersistence, const CEventRateModel& o
     }
 }
 
+void CEventRateModel::persistResidualModelsState(core::CStatePersistInserter& inserter) const {
+    this->doPersistResidualModelsState(inserter);
+}
+
 void CEventRateModel::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
     inserter.insertLevel(INDIVIDUAL_STATE_TAG,
                          std::bind(&CEventRateModel::doAcceptPersistInserter,

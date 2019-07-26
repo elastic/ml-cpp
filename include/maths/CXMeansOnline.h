@@ -660,7 +660,7 @@ public:
     //! \name Clusterer Contract
     //@{
     //! Get the tag name for this clusterer.
-    virtual std::string persistenceTag() const {
+    virtual const core::TPersistenceTag& persistenceTag() const {
         return CClustererTypes::X_MEANS_ONLINE_TAG;
     }
 
@@ -1171,22 +1171,22 @@ private:
 private:
     //! \name Tags for Persisting CXMeansOnline
     //@{
-    static const std::string WEIGHT_CALC_TAG;
-    static const std::string MINIMUM_CLUSTER_FRACTION_TAG;
-    static const std::string MINIMUM_CLUSTER_COUNT_TAG;
-    static const std::string WINSORISATION_CONFIDENCE_INTERVAL_TAG;
-    static const std::string CLUSTER_INDEX_GENERATOR_TAG;
-    static const std::string CLUSTER_TAG;
-    static const std::string RNG_TAG;
-    static const std::string DECAY_RATE_TAG;
-    static const std::string HISTORY_LENGTH_TAG;
+    static const core::TPersistenceTag WEIGHT_CALC_TAG;
+    static const core::TPersistenceTag MINIMUM_CLUSTER_FRACTION_TAG;
+    static const core::TPersistenceTag MINIMUM_CLUSTER_COUNT_TAG;
+    static const core::TPersistenceTag WINSORISATION_CONFIDENCE_INTERVAL_TAG;
+    static const core::TPersistenceTag CLUSTER_INDEX_GENERATOR_TAG;
+    static const core::TPersistenceTag CLUSTER_TAG;
+    static const core::TPersistenceTag RNG_TAG;
+    static const core::TPersistenceTag DECAY_RATE_TAG;
+    static const core::TPersistenceTag HISTORY_LENGTH_TAG;
     //@}
 
     //! \name Tags for Persisting CXMeansOnline::CCluster
     //@{
-    static const std::string INDEX_TAG;
-    static const std::string COVARIANCES_TAG;
-    static const std::string STRUCTURE_TAG;
+    static const core::TPersistenceTag INDEX_TAG;
+    static const core::TPersistenceTag COVARIANCES_TAG;
+    static const core::TPersistenceTag STRUCTURE_TAG;
     //@}
 
     //! The minimum Kullback-Leibler divergence at which we'll
@@ -1247,27 +1247,31 @@ private:
 };
 
 template<typename T, std::size_t N>
-const std::string CXMeansOnline<T, N>::WEIGHT_CALC_TAG("a");
+const core::TPersistenceTag CXMeansOnline<T, N>::WEIGHT_CALC_TAG("a", "weight_calc");
 template<typename T, std::size_t N>
-const std::string CXMeansOnline<T, N>::MINIMUM_CLUSTER_FRACTION_TAG("b");
+const core::TPersistenceTag
+    CXMeansOnline<T, N>::MINIMUM_CLUSTER_FRACTION_TAG("b", "minimum_cluster_fraction");
 template<typename T, std::size_t N>
-const std::string CXMeansOnline<T, N>::MINIMUM_CLUSTER_COUNT_TAG("c");
+const core::TPersistenceTag
+    CXMeansOnline<T, N>::MINIMUM_CLUSTER_COUNT_TAG("c", "minimum_cluster_count");
 template<typename T, std::size_t N>
-const std::string CXMeansOnline<T, N>::CLUSTER_INDEX_GENERATOR_TAG("e");
+const core::TPersistenceTag
+    CXMeansOnline<T, N>::CLUSTER_INDEX_GENERATOR_TAG("e", "cluster_index_generator");
 template<typename T, std::size_t N>
-const std::string CXMeansOnline<T, N>::CLUSTER_TAG("f");
+const core::TPersistenceTag CXMeansOnline<T, N>::CLUSTER_TAG("f", "cluster");
 template<typename T, std::size_t N>
-const std::string CXMeansOnline<T, N>::RNG_TAG("g");
+const core::TPersistenceTag CXMeansOnline<T, N>::RNG_TAG("g", "rng");
 template<typename T, std::size_t N>
-const std::string CXMeansOnline<T, N>::DECAY_RATE_TAG("h");
+const core::TPersistenceTag CXMeansOnline<T, N>::DECAY_RATE_TAG("h", "decay_rate");
 template<typename T, std::size_t N>
-const std::string CXMeansOnline<T, N>::HISTORY_LENGTH_TAG("i");
+const core::TPersistenceTag CXMeansOnline<T, N>::HISTORY_LENGTH_TAG("i", "history_length");
 template<typename T, std::size_t N>
-const std::string CXMeansOnline<T, N>::INDEX_TAG("a");
+const core::TPersistenceTag CXMeansOnline<T, N>::INDEX_TAG("a", "index");
 template<typename T, std::size_t N>
-const std::string CXMeansOnline<T, N>::COVARIANCES_TAG("b");
+const core::TPersistenceTag CXMeansOnline<T, N>::COVARIANCES_TAG("b", "covariances");
 template<typename T, std::size_t N>
-const std::string CXMeansOnline<T, N>::STRUCTURE_TAG("c");
+const core::TPersistenceTag CXMeansOnline<T, N>::STRUCTURE_TAG("c", "structure");
+
 template<typename T, std::size_t N>
 const double CXMeansOnline<T, N>::MINIMUM_SPLIT_DISTANCE(6.0);
 template<typename T, std::size_t N>

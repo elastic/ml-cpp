@@ -31,10 +31,10 @@ namespace core {
 
 namespace persist_utils_detail {
 
-const std::string FIRST_TAG("a");
-const std::string SECOND_TAG("b");
-const std::string MAP_TAG("c");
-const std::string SIZE_TAG("d");
+const TPersistenceTag FIRST_TAG("a", "first");
+const TPersistenceTag SECOND_TAG("b", "second");
+const TPersistenceTag MAP_TAG("c", "map");
+const TPersistenceTag SIZE_TAG("d", "size");
 
 template<typename T>
 struct remove_const {
@@ -345,6 +345,13 @@ public:
     static bool
     persist(const std::string& tag, const T& collection, CStatePersistInserter& inserter) {
         return persist_utils_detail::persist(tag, collection, inserter);
+    }
+
+    template<typename T>
+    static bool
+    persist(const TPersistenceTag& tag, const T& collection, CStatePersistInserter& inserter) {
+        return persist_utils_detail::persist(tag.name(inserter.readableTags()),
+                                             collection, inserter);
     }
 
     //! Wrapper for containers of built in types.
@@ -891,7 +898,13 @@ private:
     template<typename A, typename B>
     static bool newLevel(std::pair<A, B>& t, CStateRestoreTraverser& traverser) {
         if (traverser.name() != FIRST_TAG) {
-            LOG_ERROR(<< "Tag mismatch at " << traverser.name() << ", expected " << FIRST_TAG);
+            // Long, meaningful tag names are only ever expected to be used to
+            // provide rich debug of model state, they are not expected to be present
+            // in the state from which we perform a restore operation. Hence we pass
+            // 'false' to the name method of the persistence tag object indicating
+            // that we wish to use the short tag name.
+            LOG_ERROR(<< "Tag mismatch at " << traverser.name() << ", expected "
+                      << FIRST_TAG.name(false));
             return false;
         }
         if (!restore(FIRST_TAG, t.first, traverser)) {
@@ -905,7 +918,13 @@ private:
             return false;
         }
         if (traverser.name() != SECOND_TAG) {
-            LOG_ERROR(<< "Tag mismatch at " << traverser.name() << ", expected " << SECOND_TAG);
+            // Long, meaningful tag names are only ever expected to be used to
+            // provide rich debug of model state, they are not expected to be present
+            // in the state from which we perform a restore operation. Hence we pass
+            // 'false' to the name method of the persistence tag object indicating
+            // that we wish to use the short tag name.
+            LOG_ERROR(<< "Tag mismatch at " << traverser.name() << ", expected "
+                      << SECOND_TAG.name(false));
             return false;
         }
         if (!restore(SECOND_TAG, t.second, traverser)) {
