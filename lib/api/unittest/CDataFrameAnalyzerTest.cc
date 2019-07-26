@@ -697,8 +697,27 @@ void CDataFrameAnalyzerTest::testErrors() {
 
     // Test inconsistent number of rows
     {
+        // Fewer rows than expected is ignored.
         api::CDataFrameAnalyzer analyzer{outlierSpec(2), outputWriterFactory};
         errors.clear();
+        CPPUNIT_ASSERT_EQUAL(
+            true, analyzer.handleRecord({"c1", "c2", "c3", "c4", "c5", ".", "."},
+                                        {"10", "10", "10", "10", "10", "0", ""}));
+        CPPUNIT_ASSERT_EQUAL(
+            true, analyzer.handleRecord({"c1", "c2", "c3", "c4", "c5", ".", "."},
+                                        {"", "", "", "", "", "", "$"}));
+        LOG_DEBUG(<< core::CContainerPrinter::print(errors));
+        CPPUNIT_ASSERT(errors.empty());
+    }
+    {
+        api::CDataFrameAnalyzer analyzer{outlierSpec(2), outputWriterFactory};
+        errors.clear();
+        CPPUNIT_ASSERT_EQUAL(
+            true, analyzer.handleRecord({"c1", "c2", "c3", "c4", "c5", ".", "."},
+                                        {"10", "10", "10", "10", "10", "0", ""}));
+        CPPUNIT_ASSERT_EQUAL(
+            true, analyzer.handleRecord({"c1", "c2", "c3", "c4", "c5", ".", "."},
+                                        {"10", "10", "10", "10", "10", "0", ""}));
         CPPUNIT_ASSERT_EQUAL(
             true, analyzer.handleRecord({"c1", "c2", "c3", "c4", "c5", ".", "."},
                                         {"10", "10", "10", "10", "10", "0", ""}));

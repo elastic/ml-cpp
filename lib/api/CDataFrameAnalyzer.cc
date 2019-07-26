@@ -122,8 +122,12 @@ void CDataFrameAnalyzer::run() {
         return;
     }
 
-    if (m_DataFrame->numberRows() != m_AnalysisSpecification->numberRows()) {
-        HANDLE_FATAL(<< "Input error: expected '"
+    // The main condition to care about is if the analysis is going to use more
+    // memory than was budgeted for. There are circumstances in which rows are
+    // excluded after the search filter is applied so this can't trap the case
+    // that the row counts are not equal.
+    if (m_DataFrame->numberRows() > m_AnalysisSpecification->numberRows()) {
+        HANDLE_FATAL(<< "Input error: expected no more than '"
                      << m_AnalysisSpecification->numberRows() << "' rows "
                      << "but got '" << m_DataFrame->numberRows() << "' rows"
                      << ". Please report this problem.");
