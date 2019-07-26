@@ -54,9 +54,7 @@ public:
     static const double MINIMUM_RELATIVE_GAIN_PER_SPLIT;
 
 public:
-    CBoostedTreeImpl(std::size_t numberThreads,
-                     std::size_t dependentVariable,
-                     CBoostedTree::TLossFunctionUPtr loss);
+    CBoostedTreeImpl(std::size_t numberThreads, CBoostedTree::TLossFunctionUPtr loss);
 
     // TODO move all these methods factory since it is a friend anyway.
     //! Set the number of folds to use for estimating the generalisation error.
@@ -677,7 +675,7 @@ private:
 private:
     mutable CPRNG::CXorOShiro128Plus m_Rng;
     std::size_t m_NumberThreads;
-    std::size_t m_DependentVariable;
+    std::size_t m_DependentVariable = std::numeric_limits<std::size_t>::max();
     CBoostedTree::TLossFunctionUPtr m_Loss;
     TOptionalDouble m_LambdaOverride;
     TOptionalDouble m_GammaOverride;
@@ -704,8 +702,8 @@ private:
     SHyperparameters m_BestHyperparameters;
     TNodeVecVec m_BestForest;
     TBayesinOptimizationUPtr m_BayesianOptimization;
-    std::size_t m_NumberRounds;
-    std::size_t m_CurrentRound;
+    std::size_t m_NumberRounds = 1;
+    std::size_t m_CurrentRound = 0;
 
     friend class CBoostedTreeFactory;
 };

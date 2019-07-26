@@ -17,7 +17,10 @@ using TDoubleVec = std::vector<double>;
 using TSizeVec = std::vector<std::size_t>;
 using TRowItr = core::CDataFrame::TRowItr;
 
-CBoostedTreeFactory::TBoostedTreeUPtr CBoostedTreeFactory::buildFor(core::CDataFrame& frame) {
+CBoostedTreeFactory::TBoostedTreeUPtr
+CBoostedTreeFactory::buildFor(core::CDataFrame& frame, std::size_t dependentVariable) {
+
+    m_TreeImpl->m_DependentVariable = dependentVariable;
 
     this->initializeMissingFeatureMasks(frame);
     std::tie(m_TreeImpl->m_TrainingRowMasks, m_TreeImpl->m_TestingRowMasks) =
@@ -264,9 +267,8 @@ void CBoostedTreeFactory::initializeHyperparameters(core::CDataFrame& frame,
 
 CBoostedTreeFactory
 CBoostedTreeFactory::constructFromParameters(std::size_t numberThreads,
-                                             std::size_t dependentVariable,
                                              CBoostedTree::TLossFunctionUPtr loss) {
-    return {numberThreads, dependentVariable, std::move(loss)};
+    return {numberThreads, std::move(loss)};
 }
 
 CBoostedTreeFactory::~CBoostedTreeFactory() = default;
@@ -274,9 +276,8 @@ CBoostedTreeFactory::CBoostedTreeFactory(CBoostedTreeFactory&&) = default;
 CBoostedTreeFactory& CBoostedTreeFactory::operator=(CBoostedTreeFactory&&) = default;
 
 CBoostedTreeFactory::CBoostedTreeFactory(std::size_t numberThreads,
-                                         std::size_t dependentVariable,
                                          CBoostedTree::TLossFunctionUPtr loss)
-    : m_TreeImpl{new CBoostedTreeImpl(numberThreads, dependentVariable, std::move(loss))} {
+    : m_TreeImpl{std::make_unique<CBoostedTreeImpl>(numberThreads, std::move(loss))} {
 }
 
 CBoostedTreeFactory& CBoostedTreeFactory::numberFolds(std::size_t folds) {

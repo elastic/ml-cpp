@@ -149,7 +149,7 @@ public:
     //! \note The commit of the results of the analysis is atomic per partition.
     //! \warning This assumes that there is no access to the data frame in the
     //! calling thread until the runner has finished.
-    CDataFrameAnalysisRunner* run(core::CDataFrame& frame) const;
+    CDataFrameAnalysisRunner* run(const TStrVec& featureNames, core::CDataFrame& frame) const;
 
 private:
     void initializeRunner(const rapidjson::Value& jsonAnalysis);

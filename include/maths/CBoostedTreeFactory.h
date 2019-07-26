@@ -34,7 +34,6 @@ public:
 public:
     //! Construct a boosted tree object from parameters
     static CBoostedTreeFactory constructFromParameters(std::size_t numberThreads,
-                                                       std::size_t dependentVariable,
                                                        CBoostedTree::TLossFunctionUPtr loss);
 
     ~CBoostedTreeFactory();
@@ -67,19 +66,19 @@ public:
     //! Get the number of columns training the model will add to the data frame.
     std::size_t numberExtraColumnsForTrain() const;
     //! Build a boosted tree object for a given data frame.
-    TBoostedTreeUPtr buildFor(core::CDataFrame& frame);
+    TBoostedTreeUPtr buildFor(core::CDataFrame& frame, std::size_t dependentVariable);
 
 private:
     using TPackedBitVectorVec = std::vector<core::CPackedBitVector>;
     using TBoostedTreeImplUPtr = std::unique_ptr<CBoostedTreeImpl>;
 
 private:
-    CBoostedTreeFactory(std::size_t numberThreads,
-                        std::size_t dependentVariable,
-                        CBoostedTree::TLossFunctionUPtr loss);
+    CBoostedTreeFactory(std::size_t numberThreads, CBoostedTree::TLossFunctionUPtr loss);
 
+    //! Compute the row masks for the missing values for each feature.
     void initializeMissingFeatureMasks(const core::CDataFrame& frame) const;
 
+    //! Get the (train, test) row masks for performing cross validation.
     std::pair<TPackedBitVectorVec, TPackedBitVectorVec> crossValidationRowMasks() const;
 
     //! Initialize the regressors sample distribution.

@@ -83,7 +83,8 @@ outlierSpec(std::size_t rows = 110,
 }
 
 std::unique_ptr<api::CDataFrameAnalysisSpecification>
-regressionSpec(std::size_t rows = 100,
+regressionSpec(std::string dependentVariable,
+               std::size_t rows = 100,
                std::size_t memoryLimit = 100000,
                const TStrVec& categoricalFieldNames = TStrVec{},
                double lambda = -1.0,
@@ -92,7 +93,7 @@ regressionSpec(std::size_t rows = 100,
                std::size_t maximumNumberTrees = 0,
                double featureBagFraction = -1.0) {
 
-    std::string parameters = "{\n\"dependent_variable\": 4";
+    std::string parameters = "{\n\"dependent_variable\": \"" + dependentVariable + "\"";
     if (lambda >= 0.0) {
         parameters += ",\n\"lambda\": " + core::CStringUtils::typeToString(lambda);
     }
@@ -241,7 +242,7 @@ void addRegressionTestData(TStrVec fieldNames,
     auto frame = test::CDataFrameTestUtils::toMainMemoryDataFrame(rows);
 
     maths::CBoostedTreeFactory treeFactory{maths::CBoostedTreeFactory::constructFromParameters(
-        1, weights.size(), std::make_unique<maths::boosted_tree::CMse>())};
+        1, std::make_unique<maths::boosted_tree::CMse>())};
     if (lambda >= 0.0) {
         treeFactory.lambda(lambda);
     }
@@ -258,7 +259,8 @@ void addRegressionTestData(TStrVec fieldNames,
         treeFactory.featureBagFraction(featureBagFraction);
     }
 
-    std::unique_ptr<maths::CBoostedTree> tree = treeFactory.buildFor(*frame);
+    std::unique_ptr<maths::CBoostedTree> tree =
+        treeFactory.buildFor(*frame, weights.size());
 
     tree->train(ml::maths::CBoostedTree::TProgressCallback());
 
@@ -518,7 +520,7 @@ void CDataFrameAnalyzerTest::testRunBoostedTreeTraining() {
         return std::make_unique<core::CJsonOutputStreamWrapper>(output);
     };
 
-    api::CDataFrameAnalyzer analyzer{regressionSpec(), outputWriterFactory};
+    api::CDataFrameAnalyzer analyzer{regressionSpec("c5"), outputWriterFactory};
 
     TDoubleVec expectedPredictions;
 
@@ -569,9 +571,9 @@ void CDataFrameAnalyzerTest::testRunBoostedTreeTrainingWithParams() {
         return std::make_unique<core::CJsonOutputStreamWrapper>(output);
     };
 
-    api::CDataFrameAnalyzer analyzer{
-        regressionSpec(100, 100000, {}, lambda, gamma, eta, maximumNumberTrees, featureBagFraction),
-        outputWriterFactory};
+    api::CDataFrameAnalyzer analyzer{regressionSpec("c5", 100, 100000, {}, lambda, gamma,
+                                                    eta, maximumNumberTrees, featureBagFraction),
+                                     outputWriterFactory};
 
     TDoubleVec expectedPredictions;
 
@@ -748,8 +750,8 @@ void CDataFrameAnalyzerTest::testCategoricalFields() {
     };
 
     {
-        api::CDataFrameAnalyzer analyzer{regressionSpec(1000, 1000000, {"x1", "x2"}),
-                                         outputWriterFactory};
+        api::CDataFrameAnalyzer analyzer{
+            regressionSpec("x5", 1000, 1000000, {"x1", "x2"}), outputWriterFactory};
 
         TStrVec x[]{{"x11", "x12", "x13", "x14", "x15"},
                     {"x21", "x22", "x23", "x24", "x25", "x26", "x27"}};
@@ -787,8 +789,8 @@ void CDataFrameAnalyzerTest::testCategoricalFields() {
     {
         std::size_t rows{api::CDataFrameAnalyzer::MAX_CATEGORICAL_CARDINALITY + 3};
 
-        api::CDataFrameAnalyzer analyzer{regressionSpec(rows, 2800000000, {"x1"}),
-                                         outputWriterFactory};
+        api::CDataFrameAnalyzer analyzer{
+            regressionSpec("x5", rows, 2800000000, {"x1"}), outputWriterFactory};
 
         TStrVec fieldNames{"x1", "x2", "x3", "x4", "x5", ".", "."};
         TStrVec fieldValues{"", "", "", "", "", "", ""};
