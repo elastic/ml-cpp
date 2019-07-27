@@ -38,6 +38,12 @@ double CMse::curvature(double /*prediction*/, double /*actual*/) const {
     return 2.0;
 }
 
+const std::string CMse::NAME{"mse"};
+
+const std::string& CMse::name() const {
+    return NAME;
+}
+
 void CArgMinMse::addImpl(double prediction, double actual) {
     m_MeanError.add(actual - prediction);
 }
@@ -52,6 +58,10 @@ double CArgMinMse::value() const {
 }
 
 CBoostedTree::CBoostedTree(core::CDataFrame& frame, TImplUPtr& impl)
+    : CDataFrameRegressionModel(frame), m_Impl{std::move(impl)} {
+}
+
+CBoostedTree::CBoostedTree(core::CDataFrame& frame, TImplUPtr&& impl)
     : CDataFrameRegressionModel(frame), m_Impl{std::move(impl)} {
 }
 
@@ -75,6 +85,29 @@ CBoostedTree::TDoubleVec CBoostedTree::featureWeights() const {
 
 std::size_t CBoostedTree::columnHoldingPrediction(std::size_t numberColumns) const {
     return predictionColumn(numberColumns);
+}
+
+namespace {
+const std::string BOOSTED_TREE_IMPL_TAG{"boosted_tree_impl"};
+}
+
+bool CBoostedTree::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
+    try {
+        do {
+            const std::string& name = traverser.name();
+            RESTORE(BOOSTED_TREE_IMPL_TAG,
+                    core::CPersistUtils::restore(BOOSTED_TREE_IMPL_TAG, *m_Impl, traverser))
+        } while (traverser.next());
+    } catch (std::exception& e) {
+        LOG_ERROR(<< "Failed to restore state! " << e.what());
+        return false;
+    }
+
+    return true;
+}
+
+void CBoostedTree::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
+    core::CPersistUtils::persist(BOOSTED_TREE_IMPL_TAG, *m_Impl, inserter);
 }
 }
 }

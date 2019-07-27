@@ -7,12 +7,11 @@
 #include "CBoostedTreeTest.h"
 
 #include <core/CDataFrame.h>
+#include <core/CJsonStatePersistInserter.h>
 
 #include <maths/CBasicStatistics.h>
 #include <maths/CBoostedTree.h>
 #include <maths/CBoostedTreeFactory.h>
-
-#include <boost/filesystem.hpp>
 
 #include <test/CRandomNumbers.h>
 #include <test/CTestTmpDir.h>
@@ -118,6 +117,63 @@ auto predictionStatistics(test::CRandomNumbers& rng,
 
     return std::make_pair(modelPredictionBias, modelPredictionMseImprovement);
 }
+}
+
+void CBoostedTreeTest::testPersistRestore() {
+    std::size_t rows{50};
+    std::size_t cols{3};
+    std::size_t capacity{50};
+    test::CRandomNumbers rng;
+
+    std::stringstream persistOnceSStream;
+    std::stringstream persistTwiceSStream;
+
+    TFactoryFunc makeMainMemory{
+        [=] { return core::makeMainStorageDataFrame(cols, capacity).first; }};
+
+    TDoubleVecVec x(cols);
+    for (std::size_t i = 0; i < cols; ++i) {
+        rng.generateUniformSamples(0.0, 10.0, rows, x[i]);
+    }
+    auto frame = makeMainMemory();
+
+    //generate completely random data
+    for (std::size_t i = 0; i < rows; ++i) {
+        frame->writeRow([&](core::CDataFrame::TFloatVecItr column, std::int32_t&) {
+            for (std::size_t j = 0; j < cols; ++j, ++column) {
+                *column = x[j][i];
+            }
+        });
+    }
+    frame->finishWritingRows();
+
+    //persist
+    {
+        auto boostedTree = maths::CBoostedTreeFactory::constructFromParameters(
+                               1, cols - 1, std::make_unique<maths::boosted_tree::CMse>())
+                               .numberFolds(2)
+                               .maximumNumberTrees(2)
+                               .maximumOptimisationRoundsPerHyperparameter(3)
+                               .buildFor(*frame);
+        core::CJsonStatePersistInserter inserter(persistOnceSStream);
+        boostedTree->acceptPersistInserter(inserter);
+        persistOnceSStream.flush();
+    }
+    //restore
+    auto boostedTree =
+        maths::CBoostedTreeFactory::constructFromString(persistOnceSStream, *frame);
+    {
+        core::CJsonStatePersistInserter inserter(persistTwiceSStream);
+        boostedTree->acceptPersistInserter(inserter);
+        persistTwiceSStream.flush();
+    }
+    CPPUNIT_ASSERT_EQUAL(persistOnceSStream.str(), persistTwiceSStream.str());
+    LOG_DEBUG(<< "First string " << persistOnceSStream.str());
+    LOG_DEBUG(<< "Second string " << persistTwiceSStream.str());
+
+    // and even run
+    CPPUNIT_ASSERT_NO_THROW(boostedTree->train());
+    CPPUNIT_ASSERT_NO_THROW(boostedTree->predict());
 }
 
 void CBoostedTreeTest::testPiecewiseConstant() {
@@ -515,6 +571,8 @@ CppUnit::Test* CBoostedTreeTest::suite() {
         "CBoostedTreeTest::testMissingData", &CBoostedTreeTest::testMissingData));
     suiteOfTests->addTest(new CppUnit::TestCaller<CBoostedTreeTest>(
         "CBoostedTreeTest::testErrors", &CBoostedTreeTest::testErrors));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CBoostedTreeTest>(
+        "CBoostedTreeTest::testPersistRestore", &CBoostedTreeTest::testPersistRestore));
 
     return suiteOfTests;
 }

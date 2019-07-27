@@ -16,6 +16,7 @@
 
 #include <boost/array.hpp>
 #include <boost/iterator/indirect_iterator.hpp>
+#include <boost/optional.hpp>
 #include <boost/type_traits/integral_constant.hpp>
 #include <boost/type_traits/is_arithmetic.hpp>
 #include <boost/type_traits/remove_const.hpp>
@@ -251,6 +252,15 @@ public:
             return value.toString();
         }
 
+        template<typename OPTIONAL_TYPE>
+        std::string operator()(const boost::optional<OPTIONAL_TYPE>& state) const {
+            if (state) {
+                return this->operator()(std::make_pair(true, state.get()));
+            } else {
+                return this->operator()(std::make_pair(false, OPTIONAL_TYPE()));
+            }
+        }
+
         template<typename U, typename V>
         std::string operator()(const std::pair<U, V>& value) const {
             return this->operator()(value.first) + m_PairDelimiter +
@@ -313,6 +323,20 @@ public:
 
         bool operator()(const std::string& token, CFloatStorage& value) const {
             return value.fromString(token);
+        }
+
+        template<typename OPTIONAL_TYPE>
+        bool operator()(const std::string& token, boost::optional<OPTIONAL_TYPE>& value) const {
+            std::pair<bool, OPTIONAL_TYPE> pairValue;
+            if (this->operator()(token, pairValue)) {
+                if (pairValue.first) {
+                    value = boost::optional<OPTIONAL_TYPE>(pairValue.second);
+                } else {
+                    value = boost::optional<OPTIONAL_TYPE>();
+                }
+                return true;
+            }
+            return false;
         }
 
         template<typename U, typename V>
