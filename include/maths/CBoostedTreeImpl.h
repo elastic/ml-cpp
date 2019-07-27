@@ -11,6 +11,8 @@
 #include <core/CDataFrame.h>
 #include <core/CLogger.h>
 #include <core/CPackedBitVector.h>
+#include <core/CStatePersistInserter.h>
+#include <core/CStateRestoreTraverser.h>
 
 #include <maths/CBasicStatistics.h>
 #include <maths/CBayesianOptimisation.h>
@@ -36,6 +38,7 @@ namespace boosted_tree_detail {
 inline std::size_t predictionColumn(std::size_t numberColumns) {
     return numberColumns - 3;
 }
+
 inline std::size_t numberFeatures(const core::CDataFrame& frame) {
     return frame.numberColumns() - 3;
 }
@@ -61,19 +64,26 @@ public:
     // TODO move all these methods factory since it is a friend anyway.
     //! Set the number of folds to use for estimating the generalisation error.
     void numberFolds(std::size_t numberFolds);
+
     //! Set the lambda regularisation parameter.
     void lambda(double lambda);
+
     //! Set the gamma regularisation parameter.
     void gamma(double gamma);
+
     //! Set the amount we'll shrink the weights on each each iteration.
     void eta(double eta);
+
     //! Set the maximum number of trees in the ensemble.
     void maximumNumberTrees(std::size_t maximumNumberTrees);
+
     //! Set the fraction of features we'll use in the bag to build a tree.
     void featureBagFraction(double featureBagFraction);
+
     //! Set the maximum number of optimisation rounds we'll use for hyperparameter
     //! optimisation per parameter.
     void maximumOptimisationRoundsPerHyperparameter(std::size_t rounds);
+
     //! The number of training examples we need per feature we'll include.
     void rowsPerFeature(std::size_t rowsPerFeature);
 
@@ -99,6 +109,12 @@ public:
     //! frame with \p numberRows row and \p numberColumns columns will use.
     std::size_t estimateMemoryUsage(std::size_t numberRows, std::size_t numberColumns) const;
 
+    //! Persist by passing information to \p inserter.
+    void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
+
+    //! Populate the object from serialized data.
+    bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
+
 private:
     using TDoubleDoublePrVec = std::vector<std::pair<double, double>>;
     using TOptionalDouble = boost::optional<double>;
@@ -111,6 +127,7 @@ private:
     using TRowItr = core::CDataFrame::TRowItr;
     using TRowRef = core::CDataFrame::TRowRef;
     using TPackedBitVectorVec = std::vector<core::CPackedBitVector>;
+
     class CNode;
     using TNodeVec = std::vector<CNode>;
     using TNodeVecVec = std::vector<TNodeVec>;
@@ -123,6 +140,12 @@ private:
         double s_EtaGrowthRatePerTree;
         double s_FeatureBagFraction;
         TDoubleVec s_FeatureSampleProbabilities;
+
+        //! Persist by passing information to \p inserter.
+        void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
+
+        //! Populate the object from serialized data.
+        bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
     };
 
     //! \brief A node of a regression tree.
@@ -234,6 +257,12 @@ private:
             return this->doPrint("", tree, result).str();
         }
 
+        //! Persist by passing information to \p inserter.
+        void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
+
+        //! Populate the object from serialized data.
+        bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
+
     private:
         std::ostringstream&
         doPrint(std::string pad, const TNodeVec& tree, std::ostringstream& result) const {
@@ -326,8 +355,11 @@ private:
         }
 
         CLeafNodeStatistics(const CLeafNodeStatistics&) = delete;
+
         CLeafNodeStatistics& operator=(const CLeafNodeStatistics&) = delete;
+
         CLeafNodeStatistics(CLeafNodeStatistics&&) = default;
+
         CLeafNodeStatistics& operator=(CLeafNodeStatistics&&) = default;
 
         //! Apply the split defined by (\p leftChildRowMask, \p rightChildRowMask).
@@ -583,6 +615,8 @@ private:
     };
 
 private:
+    CBoostedTreeImpl() = default;
+
     //! Check if we can train a model.
     bool canTrain() const;
 
@@ -670,6 +704,10 @@ private:
     //! \note This number will only be used if the regularised loss says its
     //! a good idea.
     std::size_t maximumTreeSize(std::size_t numberRows) const;
+
+    //! Restore \p loss function pointer from the \p traverser.
+    static bool restoreLoss(CBoostedTree::TLossFunctionUPtr& loss,
+                            core::CStateRestoreTraverser& traverser);
 
 private:
     static const double INF;

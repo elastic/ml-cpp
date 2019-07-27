@@ -6,6 +6,8 @@
 
 #include <maths/CBoostedTreeFactory.h>
 
+#include <core/CJsonStateRestoreTraverser.h>
+
 #include <maths/CBayesianOptimisation.h>
 #include <maths/CBoostedTreeImpl.h>
 #include <maths/CSampling.h>
@@ -270,7 +272,9 @@ CBoostedTreeFactory::constructFromParameters(std::size_t numberThreads,
 }
 
 CBoostedTreeFactory::~CBoostedTreeFactory() = default;
+
 CBoostedTreeFactory::CBoostedTreeFactory(CBoostedTreeFactory&&) = default;
+
 CBoostedTreeFactory& CBoostedTreeFactory::operator=(CBoostedTreeFactory&&) = default;
 
 CBoostedTreeFactory::CBoostedTreeFactory(std::size_t numberThreads,
@@ -328,6 +332,21 @@ std::size_t CBoostedTreeFactory::estimateMemoryUsage(std::size_t numberRows,
 
 std::size_t CBoostedTreeFactory::numberExtraColumnsForTrain() const {
     return m_TreeImpl->numberExtraColumnsForTrain();
+}
+
+CBoostedTreeFactory& CBoostedTreeFactory::rowsPerFeature(std::size_t rowsPerFeature) {
+    this->m_TreeImpl->rowsPerFeature(rowsPerFeature);
+    return *this;
+}
+
+CBoostedTreeFactory::TBoostedTreeUPtr
+CBoostedTreeFactory::constructFromString(std::stringstream& jsonStringStream,
+                                         core::CDataFrame& frame) {
+    TBoostedTreeUPtr treePtr(new CBoostedTree(
+        frame, std::unique_ptr<CBoostedTreeImpl>(new CBoostedTreeImpl())));
+    core::CJsonStateRestoreTraverser traverser(jsonStringStream);
+    treePtr->acceptRestoreTraverser(traverser);
+    return treePtr;
 }
 }
 }
