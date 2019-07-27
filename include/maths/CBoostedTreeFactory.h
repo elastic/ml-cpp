@@ -32,10 +32,14 @@ public:
     using TBoostedTreeUPtr = std::unique_ptr<CBoostedTree>;
 
 public:
-    //! Construct a boosted tree object from parameters
+    //! Construct a boosted tree object from parameters.
     static CBoostedTreeFactory constructFromParameters(std::size_t numberThreads,
                                                        std::size_t dependentVariable,
                                                        CBoostedTree::TLossFunctionUPtr loss);
+
+    //! Construct a boosted tree object from its serialized version.
+    static TBoostedTreeUPtr constructFromString(std::stringstream& jsonStringStream,
+                                                core::CDataFrame& frame);
 
     ~CBoostedTreeFactory();
     CBoostedTreeFactory(CBoostedTreeFactory&) = delete;
@@ -60,6 +64,8 @@ public:
     CBoostedTreeFactory& maximumOptimisationRoundsPerHyperparameter(std::size_t rounds);
     //! Set the callback function for progress monitoring.
     CBoostedTreeFactory& progressCallback(CBoostedTree::TProgressCallback callback);
+    //! Set the number of rows required to support a feature.
+    CBoostedTreeFactory& rowsPerFeature(std::size_t rowsPerFeature);
 
     //! Estimate the maximum booking memory that training the boosted tree on a data
     //! frame with \p numberRows row and \p numberColumns columns will use.

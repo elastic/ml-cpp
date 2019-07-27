@@ -334,7 +334,7 @@ void CBayesianOptimisationTest::testPersistRestoreSubroutine(
     }
     // and restore
     {
-        maths::CBayesianOptimisation bayesianOptimisation({});
+        maths::CBayesianOptimisation bayesianOptimisation;
         core::CJsonStateRestoreTraverser traverser(persistOnceSStream);
         bayesianOptimisation.acceptRestoreTraverser(traverser);
 
