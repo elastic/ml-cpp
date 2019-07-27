@@ -60,7 +60,7 @@ public:
     //! Get an object which computes the leaf value that minimises loss.
     virtual TArgMinLossUPtr minimizer() const = 0;
     //! Get the name of the loss function
-    virtual std::string name() const = 0;
+    virtual const std::string& name() const = 0;
 };
 
 //! \brief Finds the leaf node value which minimises the MSE.
@@ -85,7 +85,7 @@ public:
     double gradient(double prediction, double actual) const override;
     double curvature(double prediction, double actual) const override;
     TArgMinLossUPtr minimizer() const override;
-    std::string name() const override;
+    const std::string& name() const override;
 
 public:
     static const std::string NAME;

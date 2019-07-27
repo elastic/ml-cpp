@@ -144,7 +144,7 @@ private:
         //! Persist by passing information to \p inserter.
         void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
 
-        //! Populate the object from serialized data
+        //! Populate the object from serialized data.
         bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
     };
 
@@ -260,7 +260,7 @@ private:
         //! Persist by passing information to \p inserter.
         void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
 
-        //! Populate the object from serialized data
+        //! Populate the object from serialized data.
         bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
 
     private:
@@ -706,8 +706,8 @@ private:
     std::size_t maximumTreeSize(std::size_t numberRows) const;
 
     //! Restore \p loss function pointer from the \p traverser.
-    bool restoreLoss(CBoostedTree::TLossFunctionUPtr& loss,
-                     core::CStateRestoreTraverser& traverser);
+    static bool restoreLoss(CBoostedTree::TLossFunctionUPtr& loss,
+                            core::CStateRestoreTraverser& traverser);
 
 private:
     static const double INF;

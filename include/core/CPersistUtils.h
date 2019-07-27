@@ -255,9 +255,9 @@ public:
         template<typename OPTIONAL_TYPE>
         std::string operator()(const boost::optional<OPTIONAL_TYPE>& state) const {
             if (state) {
-                return operator()(std::make_pair(true, state.get()));
+                return this->operator()(std::make_pair(true, state.get()));
             } else {
-                return operator()(std::make_pair(false, OPTIONAL_TYPE()));
+                return this->operator()(std::make_pair(false, OPTIONAL_TYPE()));
             }
         }
 
@@ -328,7 +328,7 @@ public:
         template<typename OPTIONAL_TYPE>
         bool operator()(const std::string& token, boost::optional<OPTIONAL_TYPE>& value) const {
             std::pair<bool, OPTIONAL_TYPE> pairValue;
-            if (operator()(token, pairValue)) {
+            if (this->operator()(token, pairValue)) {
                 if (pairValue.first) {
                     value = boost::optional<OPTIONAL_TYPE>(pairValue.second);
                 } else {

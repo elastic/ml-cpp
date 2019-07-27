@@ -40,7 +40,7 @@ double CMse::curvature(double /*prediction*/, double /*actual*/) const {
 
 const std::string CMse::NAME{"mse"};
 
-std::string CMse::name() const {
+const std::string& CMse::name() const {
     return NAME;
 }
 
