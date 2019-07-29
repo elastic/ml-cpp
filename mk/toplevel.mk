@@ -50,16 +50,17 @@ SUFFIXED_COMPONENTS=$(addsuffix /targetdirectory, $(COMPONENTS))
 
 .PHONY: $(SUFFIXED_COMPONENTS)
 
-# The intention is that only the objcompile target should depend on this
+# The intention is that only the objcompile and test targets should depend on this
 $(SUFFIXED_COMPONENTS)::
 ifdef TOP_DIR_MKF_FIRST
-	-@ $(MAKE) objcompile -f $(TOP_DIR_MKF_FIRST)
+	-@ $(MAKE) $(MAKECMDGOALS) -f $(TOP_DIR_MKF_FIRST)
 endif
+	@echo "$(notdir $(MAKE)): Component=$@, Target=$(MAKECMDGOALS), Time=$(shell date)"
 	+@if ls $(dir $@)/*.cc > /dev/null 2>&1 || grep toplevel.mk $(dir $@i)/Makefile > /dev/null 2>&1 ; then \
-	 $(MAKE) -C $(dir $@) objcompile ; \
+	 $(MAKE) -C $(dir $@) $(MAKECMDGOALS) ; \
 	fi
 ifdef TOP_DIR_MKF_LAST
-	-@ $(MAKE) objcompile -f $(TOP_DIR_MKF_LAST)
+	-@ $(MAKE) $(MAKECMDGOALS) -f $(TOP_DIR_MKF_LAST)
 endif
 
 objcompile: $(SUFFIXED_COMPONENTS)
@@ -101,23 +102,9 @@ FIRST_TEST_CMD=$(MAKE) test -f $(TOP_DIR_MKF_FIRST)
 else
 FIRST_TEST_CMD=true
 endif
-test:
-	@ FAILED=0; \
-	 $(FIRST_TEST_CMD) ; \
-	 if [ $$? -ne 0 ] ; then \
-	   FAILED=1; \
-	   if [ -z "$(ML_KEEP_GOING)" ]; then exit 1; fi; \
-	 fi; \
-	 for i in $(COMPONENTS) ; \
-	 do \
-	 echo "$(notdir $(MAKE)): Component=$$i, Target=$@, Time=`date`"; \
-	 (cd $$i && $(MAKE) test ); \
-	 if [ $$? -ne 0 ] ; then \
-	   FAILED=1; \
-	   if [ -z "$(ML_KEEP_GOING)" ]; then exit 1; fi; \
-	 fi; \
-	 done; \
-	 exit $$FAILED
+
+test: $(SUFFIXED_COMPONENTS)
+
 ifdef TOP_DIR_MKF_LAST
 	@ $(MAKE) test -f $(TOP_DIR_MKF_LAST)
 endif
