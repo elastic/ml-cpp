@@ -314,13 +314,16 @@ void CBayesianOptimisationTest::testPersistRestoreIsIdempotent(
     std::stringstream persistOnceSStream;
     std::stringstream persistTwiceSStream;
     std::size_t dimensions = minBoundary.size();
+
+    std::string topLevelTag{"bayesian_optimisation"};
+
     // persist
     {
         maths::CBayesianOptimisation::TDoubleDoublePrVec parameterBoundaries;
         for (std::size_t i = 0; i < dimensions; ++i) {
             parameterBoundaries.emplace_back(minBoundary[i], maxBoundary[i]);
         }
-        maths::CBayesianOptimisation bayesianOptimisation(parameterBoundaries);
+        maths::CBayesianOptimisation bayesianOptimisation{parameterBoundaries};
         if (parameterFunctionValues.size() > 0) {
             for (auto parameterFunctionValue : parameterFunctionValues) {
                 maths::CBayesianOptimisation::TVector parameter(dimensions);
@@ -333,7 +336,9 @@ void CBayesianOptimisationTest::testPersistRestoreIsIdempotent(
         }
 
         core::CJsonStatePersistInserter inserter(persistOnceSStream);
-        bayesianOptimisation.acceptPersistInserter(inserter);
+        inserter.insertLevel(
+            topLevelTag, std::bind(&maths::CBayesianOptimisation::acceptPersistInserter,
+                                   &bayesianOptimisation, std::placeholders::_1));
         persistOnceSStream.flush();
     }
     // and restore
@@ -342,7 +347,9 @@ void CBayesianOptimisationTest::testPersistRestoreIsIdempotent(
         maths::CBayesianOptimisation bayesianOptimisation{traverser};
 
         core::CJsonStatePersistInserter inserter(persistTwiceSStream);
-        bayesianOptimisation.acceptPersistInserter(inserter);
+        inserter.insertLevel(
+            topLevelTag, std::bind(&maths::CBayesianOptimisation::acceptPersistInserter,
+                                   &bayesianOptimisation, std::placeholders::_1));
         persistTwiceSStream.flush();
     }
     LOG_DEBUG(<< "First string " << persistOnceSStream.str());
