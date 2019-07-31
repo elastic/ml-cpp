@@ -18,6 +18,7 @@ public:
     void testConstantFeatures();
     void testConstantObjective();
     void testMissingData();
+    void testPersistRestore();
     // TODO void testCategoricalRegressors();
     // TODO void testFeatureWeights();
     // TODO void testNuisanceFeatures();

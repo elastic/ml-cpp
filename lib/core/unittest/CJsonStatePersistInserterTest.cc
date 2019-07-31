@@ -22,29 +22,66 @@ CppUnit::Test* CJsonStatePersistInserterTest::suite() {
 }
 
 namespace {
+//! Persist state as JSON with meaningful tag names.
+class CReadableJsonStatePersistInserter : public ml::core::CJsonStatePersistInserter {
+public:
+    explicit CReadableJsonStatePersistInserter(std::ostream& outputStream)
+        : ml::core::CJsonStatePersistInserter(outputStream) {}
+    virtual bool readableTags() const { return true; }
+};
+
+const ml::core::TPersistenceTag LEVEL1A_TAG{"a", "level1A"};
+const ml::core::TPersistenceTag LEVEL1B_TAG{"b", "level1B"};
+const ml::core::TPersistenceTag LEVEL1C_TAG{"c", "level1C"};
+
+const ml::core::TPersistenceTag LEVEL2A_TAG{"a", "level2A"};
+const ml::core::TPersistenceTag LEVEL2B_TAG{"b", "level2B"};
 
 void insert2ndLevel(ml::core::CStatePersistInserter& inserter) {
-    inserter.insertValue("level2A", 3.14, ml::core::CIEEE754::E_SinglePrecision);
-    inserter.insertValue("level2B", 'z');
+    inserter.insertValue(LEVEL2A_TAG, 3.14, ml::core::CIEEE754::E_SinglePrecision);
+    inserter.insertValue(LEVEL2B_TAG, 'z');
 }
 }
 
 void CJsonStatePersistInserterTest::testPersist() {
-    std::ostringstream strm;
-
     {
-        ml::core::CJsonStatePersistInserter inserter(strm);
+        std::ostringstream strm;
 
-        inserter.insertValue("level1A", "a");
-        inserter.insertValue("level1B", 25);
-        inserter.insertLevel("level1C", &insert2ndLevel);
+        {
+            ml::core::CJsonStatePersistInserter inserter(strm);
+
+            inserter.insertValue(LEVEL1A_TAG, "a");
+            inserter.insertValue(LEVEL1B_TAG, 25);
+            inserter.insertLevel(LEVEL1C_TAG, &insert2ndLevel);
+        }
+
+        std::string json(strm.str());
+        ml::core::CStringUtils::trimWhitespace(json);
+
+        LOG_DEBUG(<< "JSON is: " << json);
+
+        CPPUNIT_ASSERT_EQUAL(std::string("{\"a\":\"a\",\"b\":\"25\",\"c\":{\"a\":\"3.14\",\"b\":\"z\"}}"),
+                             json);
     }
 
-    std::string json(strm.str());
-    ml::core::CStringUtils::trimWhitespace(json);
+    {
+        // Test persistence with meaningful tag names
+        std::ostringstream strm;
 
-    LOG_DEBUG(<< "JSON is: " << json);
+        {
+            CReadableJsonStatePersistInserter inserter(strm);
 
-    CPPUNIT_ASSERT_EQUAL(std::string("{\"level1A\":\"a\",\"level1B\":\"25\",\"level1C\":{\"level2A\":\"3.14\",\"level2B\":\"z\"}}"),
-                         json);
+            inserter.insertValue(LEVEL1A_TAG, "a");
+            inserter.insertValue(LEVEL1B_TAG, 25);
+            inserter.insertLevel(LEVEL1C_TAG, &insert2ndLevel);
+        }
+
+        std::string json(strm.str());
+        ml::core::CStringUtils::trimWhitespace(json);
+
+        LOG_DEBUG(<< "JSON is: " << json);
+
+        CPPUNIT_ASSERT_EQUAL(std::string("{\"level1A\":\"a\",\"level1B\":\"25\",\"level1C\":{\"level2A\":\"3.14\",\"level2B\":\"z\"}}"),
+                             json);
+    }
 }

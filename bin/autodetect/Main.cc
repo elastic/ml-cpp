@@ -99,6 +99,7 @@ int main(int argc, char** argv) {
     std::string quantilesStateFile;
     bool deleteStateFiles(false);
     ml::core_t::TTime persistInterval(-1);
+    std::size_t bucketPersistInterval(0);
     ml::core_t::TTime maxQuantileInterval(-1);
     std::string inputFileName;
     bool isInputFileNamedPipe(false);
@@ -118,8 +119,9 @@ int main(int argc, char** argv) {
             modelPlotConfigFile, jobId, logProperties, logPipe, bucketSpan, latency,
             summaryCountFieldName, delimiter, lengthEncodedInput, timeField,
             timeFormat, quantilesStateFile, deleteStateFiles, persistInterval,
-            maxQuantileInterval, inputFileName, isInputFileNamedPipe, outputFileName,
-            isOutputFileNamedPipe, restoreFileName, isRestoreFileNamedPipe, persistFileName,
+            bucketPersistInterval, maxQuantileInterval, inputFileName,
+            isInputFileNamedPipe, outputFileName, isOutputFileNamedPipe,
+            restoreFileName, isRestoreFileNamedPipe, persistFileName,
             isPersistFileNamedPipe, isPersistInForeground, maxAnomalyRecords,
             memoryUsage, multivariateByFields, clauseTokens) == false) {
         return EXIT_FAILURE;
@@ -210,18 +212,21 @@ int main(int argc, char** argv) {
         return nullptr;
     }()};
 
-    if (persistInterval >= 0 && persister == nullptr) {
-        LOG_FATAL(<< "Periodic persistence cannot be enabled using the 'persistInterval' argument "
+    if ((bucketPersistInterval > 0 || persistInterval >= 0) && persister == nullptr) {
+        LOG_FATAL(<< "Periodic persistence cannot be enabled using the '"
+                  << ((persistInterval >= 0) ? "persistInterval" : "bucketPersistInterval")
+                  << "' argument "
                      "unless a place to persist to has been specified using the 'persist' argument");
         return EXIT_FAILURE;
     }
 
     using TPersistenceManagerUPtr = std::unique_ptr<ml::api::CPersistenceManager>;
     const TPersistenceManagerUPtr periodicPersister{
-        [persistInterval, isPersistInForeground, &persister]() -> TPersistenceManagerUPtr {
-            if (persistInterval >= 0) {
+        [persistInterval, isPersistInForeground, &persister,
+         &bucketPersistInterval]() -> TPersistenceManagerUPtr {
+            if (persistInterval >= 0 || bucketPersistInterval > 0) {
                 return std::make_unique<ml::api::CPersistenceManager>(
-                    persistInterval, isPersistInForeground, *persister);
+                    persistInterval, isPersistInForeground, *persister, bucketPersistInterval);
             }
             return nullptr;
         }()};

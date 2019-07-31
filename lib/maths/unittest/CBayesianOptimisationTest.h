@@ -20,9 +20,9 @@ public:
     static CppUnit::Test* suite();
 
 private:
-    void testPersistRestoreSubroutine(const std::vector<double>& minBoundary,
-                                      const std::vector<double>& maxBoundary,
-                                      const std::vector<std::vector<double>>& parameterFunctionValues) const;
+    void testPersistRestoreIsIdempotent(const std::vector<double>& minBoundary,
+                                        const std::vector<double>& maxBoundary,
+                                        const std::vector<std::vector<double>>& parameterFunctionValues) const;
 };
 
 #endif // INCLUDED_CBayesianOptimisationTest_h

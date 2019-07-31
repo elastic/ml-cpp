@@ -6,6 +6,8 @@
 
 #include <maths/CBoostedTreeFactory.h>
 
+#include <core/CJsonStateRestoreTraverser.h>
+
 #include <maths/CBayesianOptimisation.h>
 #include <maths/CBoostedTreeImpl.h>
 #include <maths/CSampling.h>
@@ -33,7 +35,8 @@ CBoostedTreeFactory::TBoostedTreeUPtr CBoostedTreeFactory::buildFor(core::CDataF
         this->initializeHyperparameterOptimisation();
     }
 
-    return std::unique_ptr<CBoostedTree>(new CBoostedTree(frame, m_TreeImpl));
+    // TODO can only use factory to create one object since this is moved. This seems trappy.
+    return TBoostedTreeUPtr{new CBoostedTree(frame, std::move(m_TreeImpl))};
 }
 
 std::size_t CBoostedTreeFactory::numberHyperparameterTuningRounds() const {
@@ -270,14 +273,26 @@ CBoostedTreeFactory::constructFromParameters(std::size_t numberThreads,
     return {numberThreads, dependentVariable, std::move(loss)};
 }
 
+CBoostedTreeFactory::TBoostedTreeUPtr
+CBoostedTreeFactory::constructFromString(std::stringstream& jsonStringStream,
+                                         core::CDataFrame& frame) {
+    TBoostedTreeUPtr treePtr{
+        new CBoostedTree{frame, TBoostedTreeImplUPtr{new CBoostedTreeImpl{}}}};
+    core::CJsonStateRestoreTraverser traverser(jsonStringStream);
+    treePtr->acceptRestoreTraverser(traverser);
+    return treePtr;
+}
+
 CBoostedTreeFactory::~CBoostedTreeFactory() = default;
+
 CBoostedTreeFactory::CBoostedTreeFactory(CBoostedTreeFactory&&) = default;
+
 CBoostedTreeFactory& CBoostedTreeFactory::operator=(CBoostedTreeFactory&&) = default;
 
 CBoostedTreeFactory::CBoostedTreeFactory(std::size_t numberThreads,
                                          std::size_t dependentVariable,
                                          CBoostedTree::TLossFunctionUPtr loss)
-    : m_TreeImpl{new CBoostedTreeImpl(numberThreads, dependentVariable, std::move(loss))} {
+    : m_TreeImpl{new CBoostedTreeImpl{numberThreads, dependentVariable, std::move(loss)}} {
 }
 
 CBoostedTreeFactory& CBoostedTreeFactory::numberFolds(std::size_t numberFolds) {
