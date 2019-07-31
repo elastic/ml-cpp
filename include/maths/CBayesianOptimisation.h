@@ -60,9 +60,6 @@ public:
 
 public:
     CBayesianOptimisation(TDoubleDoublePrVec parameterBounds);
-
-    CBayesianOptimisation() = default;
-
     CBayesianOptimisation(core::CStateRestoreTraverser& traverser);
 
     //! Add the result of evaluating the function to be \p fx at \p x where the
