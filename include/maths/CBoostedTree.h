@@ -160,7 +160,6 @@ private:
     using TImplUPtr = std::unique_ptr<CBoostedTreeImpl>;
 
 private:
-    CBoostedTree(core::CDataFrame& frame, TImplUPtr& impl);
     CBoostedTree(core::CDataFrame& frame, TImplUPtr&& impl);
 
 private:
