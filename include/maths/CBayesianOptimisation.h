@@ -60,6 +60,7 @@ public:
 
 public:
     CBayesianOptimisation(TDoubleDoublePrVec parameterBounds);
+    CBayesianOptimisation(core::CStateRestoreTraverser& traverser);
 
     //! Add the result of evaluating the function to be \p fx at \p x where the
     //! variance in the error in \p fx w.r.t. the true value is \p vx.

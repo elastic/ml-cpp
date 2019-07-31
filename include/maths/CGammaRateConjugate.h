@@ -332,6 +332,10 @@ private:
         CBasicStatistics::SSampleMeanVar<CDoublePrecisionStorage>::TAccumulator;
 
 private:
+    //! Generate statistics - mean and standard deviation - that are useful in providing a description of this prior
+    //! \return A pair of strings containing representations of the marginal likelihood mean and standard deviation
+    TStrStrPr doPrintMarginalLikelihoodStatistics() const;
+
     //! Read parameters from \p traverser.
     bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
 

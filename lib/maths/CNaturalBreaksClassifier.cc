@@ -54,11 +54,11 @@ public:
 private:
     double m_Count;
 };
+const core::TPersistenceTag SPACE_TAG("a", "space");
+const core::TPersistenceTag CATEGORY_TAG("b", "category");
+const core::TPersistenceTag POINTS_TAG("c", "points");
+const core::TPersistenceTag DECAY_RATE_TAG("d", "decay_rate");
 
-const std::string SPACE_TAG("a");
-const std::string CATEGORY_TAG("b");
-const std::string POINTS_TAG("c");
-const std::string DECAY_RATE_TAG("d");
 const std::string EMPTY_STRING;
 }
 

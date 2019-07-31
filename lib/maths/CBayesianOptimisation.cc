@@ -47,6 +47,11 @@ CBayesianOptimisation::CBayesianOptimisation(TDoubleDoublePrVec parameterBounds)
     }
 }
 
+CBayesianOptimisation::CBayesianOptimisation(core::CStateRestoreTraverser& traverser) {
+    traverser.traverseSubLevel(std::bind(&CBayesianOptimisation::acceptRestoreTraverser,
+                                         this, std::placeholders::_1));
+}
+
 void CBayesianOptimisation::add(TVector x, double fx, double vx) {
     m_FunctionMeanValues.emplace_back(x.cwiseQuotient(m_MaxBoundary - m_MinBoundary),
                                       m_RangeScale * (fx - m_RangeShift));
@@ -405,11 +410,6 @@ bool CBayesianOptimisation::acceptRestoreTraverser(core::CStateRestoreTraverser&
             RESTORE(FUNCTION_MEAN_VALUES_TAG,
                     core::CPersistUtils::restore(FUNCTION_MEAN_VALUES_TAG,
                                                  m_FunctionMeanValues, traverser))
-            else {
-                LOG_ERROR(<< "Unexpected name for restoring bayesian optimization parameters: "
-                          << traverser.name());
-                return false;
-            }
         } while (traverser.next());
     } catch (std::exception& e) {
         LOG_ERROR(<< "Failed to restore state! " << e.what());

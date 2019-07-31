@@ -341,6 +341,10 @@ void CAnomalyDetector::legacyModelEnsembleAcceptPersistInserter(core::CStatePers
                                                this, std::placeholders::_1));
 }
 
+void CAnomalyDetector::persistResidualModelsState(core::CStatePersistInserter& inserter) const {
+    m_Model->persistResidualModelsState(inserter);
+}
+
 void CAnomalyDetector::legacyModelsAcceptPersistInserter(core::CStatePersistInserter& inserter) const {
     inserter.insertLevel(MODEL_TAG, std::bind(&CAnomalyDetectorModel::acceptPersistInserter,
                                               m_Model.get(), std::placeholders::_1));

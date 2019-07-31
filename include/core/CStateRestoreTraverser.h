@@ -54,7 +54,7 @@ public:
     //! Traverse the sub-level of the current element.  The supplied
     //! function will be called with the traverser pointing at the first
     //! element of the sub-level.  When the function returns, the traverser
-    //! will ascend back to the element at the higher level.  The supplied
+    //! will ascend back to the element at the higher level.  The supplied function
     //! should return a bool and this will be passed on as the return value
     //! of this method.
     template<typename FUNC>
