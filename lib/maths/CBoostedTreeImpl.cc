@@ -54,77 +54,6 @@ CBoostedTreeImpl::CBoostedTreeImpl(std::size_t numberThreads,
     : m_NumberThreads{numberThreads}, m_DependentVariable{dependentVariable}, m_Loss{std::move(loss)} {
 }
 
-void CBoostedTreeImpl::numberFolds(std::size_t numberFolds) {
-    if (numberFolds < 2) {
-        LOG_WARN(<< "Must use at least two-folds for cross validation");
-        numberFolds = 2;
-    }
-    m_NumberFolds = numberFolds;
-}
-
-void CBoostedTreeImpl::lambda(double lambda) {
-    if (lambda < 0.0) {
-        LOG_WARN(<< "Lambda must be non-negative");
-        lambda = 0.0;
-    }
-    m_LambdaOverride = lambda;
-}
-
-void CBoostedTreeImpl::gamma(double gamma) {
-    if (gamma < 0.0) {
-        LOG_WARN(<< "Gamma must be non-negative");
-        gamma = 0.0;
-    }
-    m_GammaOverride = gamma;
-}
-
-void CBoostedTreeImpl::eta(double eta) {
-    if (eta < MINIMUM_ETA) {
-        LOG_WARN(<< "Truncating supplied learning rate " << eta
-                 << " which must be no smaller than " << MINIMUM_ETA);
-        eta = std::max(eta, MINIMUM_ETA);
-    }
-    if (eta > 1.0) {
-        LOG_WARN(<< "Using a learning rate greater than one doesn't make sense");
-        eta = 1.0;
-    }
-    m_EtaOverride = eta;
-}
-
-void CBoostedTreeImpl::maximumNumberTrees(std::size_t maximumNumberTrees) {
-    if (maximumNumberTrees == 0) {
-        LOG_WARN(<< "Forest must have at least one tree");
-        maximumNumberTrees = 1;
-    }
-    if (maximumNumberTrees > MAXIMUM_NUMBER_TREES) {
-        LOG_WARN(<< "Truncating supplied maximum number of trees " << maximumNumberTrees
-                 << " which must be no larger than " << MAXIMUM_NUMBER_TREES);
-        maximumNumberTrees = std::min(maximumNumberTrees, MAXIMUM_NUMBER_TREES);
-    }
-    m_MaximumNumberTreesOverride = maximumNumberTrees;
-}
-
-void CBoostedTreeImpl::featureBagFraction(double featureBagFraction) {
-    if (featureBagFraction < 0.0 || featureBagFraction > 1.0) {
-        LOG_WARN(<< "Truncating supplied feature bag fraction " << featureBagFraction
-                 << " which must be positive and not more than one");
-        featureBagFraction = CTools::truncate(featureBagFraction, 0.0, 1.0);
-    }
-    m_FeatureBagFractionOverride = featureBagFraction;
-}
-
-void CBoostedTreeImpl::maximumOptimisationRoundsPerHyperparameter(std::size_t rounds) {
-    m_MaximumOptimisationRoundsPerHyperparameter = rounds;
-}
-
-void CBoostedTreeImpl::rowsPerFeature(std::size_t rowsPerFeature) {
-    if (m_RowsPerFeature == 0) {
-        LOG_WARN(<< "Must have at least one training example per feature");
-        rowsPerFeature = 1;
-    }
-    m_RowsPerFeature = rowsPerFeature;
-}
-
 void CBoostedTreeImpl::train(core::CDataFrame& frame,
                              CBoostedTree::TProgressCallback recordProgress) {
     LOG_TRACE(<< "Main training loop...");
@@ -776,7 +705,7 @@ void CBoostedTreeImpl::acceptPersistInserter(core::CStatePersistInserter& insert
     core::CPersistUtils::persist(LAMBDA_OVERRIDE_TAG, m_LambdaOverride, inserter);
     core::CPersistUtils::persist(MAXIMUM_NUMBER_TREES_OVERRIDE_TAG,
                                  m_MaximumNumberTreesOverride, inserter);
-    core::CPersistUtils::persist(LOSS_TAG, m_Loss->name(), inserter);
+    inserter.insertValue(LOSS_TAG, m_Loss->name());
 }
 
 void CBoostedTreeImpl::CNode::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
@@ -819,11 +748,6 @@ bool CBoostedTreeImpl::SHyperparameters::acceptRestoreTraverser(core::CStateRest
             RESTORE(HYPERPARAM_FEATURE_SAMPLE_PROBABILITIES_TAG,
                     core::CPersistUtils::restore(HYPERPARAM_FEATURE_SAMPLE_PROBABILITIES_TAG,
                                                  s_FeatureSampleProbabilities, traverser))
-            else {
-                LOG_ERROR(<< "Unexpected name for restoring hyperparameters: "
-                          << traverser.name());
-                return false;
-            }
         } while (traverser.next());
     } catch (std::exception& e) {
         LOG_ERROR(<< "Failed to restore state! " << e.what());
@@ -850,11 +774,6 @@ bool CBoostedTreeImpl::CNode::acceptRestoreTraverser(core::CStateRestoreTraverse
                     core::CPersistUtils::restore(NODE_VALUE_TAG, m_NodeValue, traverser))
             RESTORE(SPLIT_VALUE_TAG,
                     core::CPersistUtils::restore(SPLIT_VALUE_TAG, m_SplitValue, traverser))
-            else {
-                LOG_ERROR(<< "Unexpected name for restoring node class: "
-                          << traverser.name());
-                return false;
-            }
         } while (traverser.next());
     } catch (std::exception& e) {
         LOG_ERROR(<< "Failed to restore state! " << e.what());
@@ -866,27 +785,23 @@ bool CBoostedTreeImpl::CNode::acceptRestoreTraverser(core::CStateRestoreTraverse
 
 bool CBoostedTreeImpl::restoreLoss(CBoostedTree::TLossFunctionUPtr& loss,
                                    core::CStateRestoreTraverser& traverser) {
-    std::string lossFunctionName;
-    if (core::CPersistUtils::restore(LOSS_TAG, lossFunctionName, traverser)) {
-        if (lossFunctionName == CMse::NAME) {
-            loss = std::make_unique<CMse>();
-            return true;
-        } else {
-            LOG_ERROR(<< "Error restoring loss function. Unknown loss function type "
-                      << lossFunctionName);
-        }
+    const std::string& lossFunctionName{traverser.value()};
+    if (lossFunctionName == CMse::NAME) {
+        loss = std::make_unique<CMse>();
+        return true;
     }
+    LOG_ERROR(<< "Error restoring loss function. Unknown loss function type '"
+              << lossFunctionName << "'.");
     return false;
 }
 
 bool CBoostedTreeImpl::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
     try {
-        m_BayesianOptimization = std::make_unique<CBayesianOptimisation>();
         do {
             const std::string& name = traverser.name();
-            RESTORE(BAYESIAN_OPTIMIZATION_TAG,
-                    core::CPersistUtils::restore(BAYESIAN_OPTIMIZATION_TAG,
-                                                 *m_BayesianOptimization, traverser))
+            RESTORE_NO_ERROR(BAYESIAN_OPTIMIZATION_TAG,
+                             m_BayesianOptimization =
+                                 std::make_unique<CBayesianOptimisation>(traverser))
             RESTORE(BEST_FOREST_TEST_LOSS_TAG,
                     core::CPersistUtils::restore(BEST_FOREST_TEST_LOSS_TAG,
                                                  m_BestForestTestLoss, traverser))
@@ -958,11 +873,6 @@ bool CBoostedTreeImpl::acceptRestoreTraverser(core::CStateRestoreTraverser& trav
                     core::CPersistUtils::restore(MAXIMUM_NUMBER_TREES_OVERRIDE_TAG,
                                                  m_MaximumNumberTreesOverride, traverser))
             RESTORE(LOSS_TAG, restoreLoss(m_Loss, traverser))
-            else {
-                LOG_ERROR(<< "Unexpected name for restoring boosted tree implementation: "
-                          << traverser.name());
-                return false;
-            }
         } while (traverser.next());
     } catch (std::exception& e) {
         LOG_ERROR(<< "Failed to restore state! " << e.what());
@@ -972,9 +882,6 @@ bool CBoostedTreeImpl::acceptRestoreTraverser(core::CStateRestoreTraverser& trav
     return true;
 }
 
-const double CBoostedTreeImpl::MINIMUM_ETA{1e-3};
-const std::size_t CBoostedTreeImpl::MAXIMUM_NUMBER_TREES{
-    static_cast<std::size_t>(2.0 / MINIMUM_ETA + 0.5)};
 const double CBoostedTreeImpl::MINIMUM_RELATIVE_GAIN_PER_SPLIT{1e-7};
 const double CBoostedTreeImpl::INF{std::numeric_limits<double>::max()};
 }

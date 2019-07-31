@@ -47,28 +47,9 @@ CBayesianOptimisation::CBayesianOptimisation(TDoubleDoublePrVec parameterBounds)
     }
 }
 
-CBayesianOptimisation::CBayesianOptimisation(core::CStateRestoreTraverser& traverser)
-    : CBayesianOptimisation() {
-    do {
-        auto name = traverser.name();
-        RESTORE_NO_ERROR(MIN_BOUNDARY_TAG,
-                         core::CPersistUtils::restore(MIN_BOUNDARY_TAG, m_MinBoundary, traverser))
-        RESTORE_NO_ERROR(MAX_BOUNDARY_TAG,
-                         core::CPersistUtils::restore(MAX_BOUNDARY_TAG, m_MaxBoundary, traverser))
-        RESTORE_NO_ERROR(ERROR_VARIANCES_TAG,
-                         core::CPersistUtils::restore(ERROR_VARIANCES_TAG,
-                                                      m_ErrorVariances, traverser))
-        RESTORE_NO_ERROR(KERNEL_PARAMETERS_TAG,
-                         core::CPersistUtils::restore(KERNEL_PARAMETERS_TAG,
-                                                      m_KernelParameters, traverser))
-        RESTORE_NO_ERROR(MIN_KERNEL_COORDINATE_DISTANCE_SCALES_TAG,
-                         core::CPersistUtils::restore(
-                             MIN_KERNEL_COORDINATE_DISTANCE_SCALES_TAG,
-                             m_MinimumKernelCoordinateDistanceScale, traverser))
-        RESTORE_NO_ERROR(FUNCTION_MEAN_VALUES_TAG,
-                         core::CPersistUtils::restore(FUNCTION_MEAN_VALUES_TAG,
-                                                      m_FunctionMeanValues, traverser))
-    } while (traverser.next());
+CBayesianOptimisation::CBayesianOptimisation(core::CStateRestoreTraverser& traverser) {
+    traverser.traverseSubLevel(std::bind(&CBayesianOptimisation::acceptRestoreTraverser,
+                                         this, std::placeholders::_1));
 }
 
 void CBayesianOptimisation::add(TVector x, double fx, double vx) {
@@ -429,11 +410,6 @@ bool CBayesianOptimisation::acceptRestoreTraverser(core::CStateRestoreTraverser&
             RESTORE(FUNCTION_MEAN_VALUES_TAG,
                     core::CPersistUtils::restore(FUNCTION_MEAN_VALUES_TAG,
                                                  m_FunctionMeanValues, traverser))
-            else {
-                LOG_ERROR(<< "Unexpected name for restoring bayesian optimization parameters: "
-                          << traverser.name());
-                return false;
-            }
         } while (traverser.next());
     } catch (std::exception& e) {
         LOG_ERROR(<< "Failed to restore state! " << e.what());

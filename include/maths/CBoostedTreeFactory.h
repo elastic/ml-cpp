@@ -48,7 +48,7 @@ public:
     CBoostedTreeFactory& operator=(CBoostedTreeFactory&&);
 
     //! Set the number of folds to use for estimating the generalisation error.
-    CBoostedTreeFactory& numberFolds(std::size_t folds);
+    CBoostedTreeFactory& numberFolds(std::size_t numberFolds);
     //! Set the lambda regularisation parameter.
     CBoostedTreeFactory& lambda(double lambda);
     //! Set the gamma regularisation parameter.
@@ -62,10 +62,10 @@ public:
     //! Set the maximum number of optimisation rounds we'll use for hyperparameter
     //! optimisation per parameter.
     CBoostedTreeFactory& maximumOptimisationRoundsPerHyperparameter(std::size_t rounds);
+    //! Set the number of training examples we need per feature we'll include.
+    CBoostedTreeFactory& rowsPerFeature(std::size_t rowsPerFeature);
     //! Set the callback function for progress monitoring.
     CBoostedTreeFactory& progressCallback(CBoostedTree::TProgressCallback callback);
-    //! Set the number of rows required to support a feature.
-    CBoostedTreeFactory& rowsPerFeature(std::size_t rowsPerFeature);
 
     //! Estimate the maximum booking memory that training the boosted tree on a data
     //! frame with \p numberRows row and \p numberColumns columns will use.
@@ -78,6 +78,10 @@ public:
 private:
     using TPackedBitVectorVec = std::vector<core::CPackedBitVector>;
     using TBoostedTreeImplUPtr = std::unique_ptr<CBoostedTreeImpl>;
+
+private:
+    static const double MINIMUM_ETA;
+    static const std::size_t MAXIMUM_NUMBER_TREES;
 
 private:
     CBoostedTreeFactory(std::size_t numberThreads,

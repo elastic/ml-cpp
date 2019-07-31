@@ -52,40 +52,12 @@ public:
     using TDoubleVec = std::vector<double>;
 
 public:
-    static const double MINIMUM_ETA;
-    static const std::size_t MAXIMUM_NUMBER_TREES;
     static const double MINIMUM_RELATIVE_GAIN_PER_SPLIT;
 
 public:
     CBoostedTreeImpl(std::size_t numberThreads,
                      std::size_t dependentVariable,
                      CBoostedTree::TLossFunctionUPtr loss);
-
-    // TODO move all these methods factory since it is a friend anyway.
-    //! Set the number of folds to use for estimating the generalisation error.
-    void numberFolds(std::size_t numberFolds);
-
-    //! Set the lambda regularisation parameter.
-    void lambda(double lambda);
-
-    //! Set the gamma regularisation parameter.
-    void gamma(double gamma);
-
-    //! Set the amount we'll shrink the weights on each each iteration.
-    void eta(double eta);
-
-    //! Set the maximum number of trees in the ensemble.
-    void maximumNumberTrees(std::size_t maximumNumberTrees);
-
-    //! Set the fraction of features we'll use in the bag to build a tree.
-    void featureBagFraction(double featureBagFraction);
-
-    //! Set the maximum number of optimisation rounds we'll use for hyperparameter
-    //! optimisation per parameter.
-    void maximumOptimisationRoundsPerHyperparameter(std::size_t rounds);
-
-    //! The number of training examples we need per feature we'll include.
-    void rowsPerFeature(std::size_t rowsPerFeature);
 
     //! Train the model on the values in \p frame.
     void train(core::CDataFrame& frame, CBoostedTree::TProgressCallback recordProgress);
