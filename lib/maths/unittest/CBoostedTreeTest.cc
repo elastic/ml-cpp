@@ -25,6 +25,8 @@ using namespace ml;
 using TDoubleVec = std::vector<double>;
 using TDoubleVecVec = std::vector<TDoubleVec>;
 using TFactoryFunc = std::function<std::unique_ptr<core::CDataFrame>()>;
+using TFactoryFuncVec = std::vector<TFactoryFunc>;
+using TFactoryFuncVecVec = std::vector<TFactoryFuncVec>;
 using TRowRef = core::CDataFrame::TRowRef;
 using TRowItr = core::CDataFrame::TRowItr;
 using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
@@ -50,10 +52,13 @@ auto predictionStatistics(test::CRandomNumbers& rng,
     TFactoryFunc makeMainMemory{
         [=] { return core::makeMainStorageDataFrame(cols, capacity).first; }};
 
-    TDoubleVec modelBias;
-    TDoubleVec modelRSquared;
+    TFactoryFuncVecVec factories{
+        {makeOnDisk, makeMainMemory}, {makeMainMemory}, {makeMainMemory}};
 
-    for (std::size_t test = 0; test < 3; ++test) {
+    TDoubleVecVec modelBias(factories.size());
+    TDoubleVecVec modelRSquared(factories.size());
+
+    for (std::size_t test = 0; test < factories.size(); ++test) {
 
         auto f = generateFunction(rng, cols);
 
@@ -65,7 +70,7 @@ auto predictionStatistics(test::CRandomNumbers& rng,
         TDoubleVec noise;
         rng.generateNormalSamples(0.0, noiseVariance, rows, noise);
 
-        for (const auto& factory : {makeOnDisk, makeMainMemory}) {
+        for (const auto& factory : factories[test]) {
 
             auto frame = factory();
 
@@ -114,8 +119,8 @@ auto predictionStatistics(test::CRandomNumbers& rng,
             double predictionErrorVariance{
                 maths::CBasicStatistics::variance(modelPredictionErrorMoments)};
 
-            modelBias.push_back(predictionErrorMean);
-            modelRSquared.push_back(
+            modelBias[test].push_back(predictionErrorMean);
+            modelRSquared[test].push_back(
                 1.0 -
                 (predictionErrorVariance - noiseVariance / static_cast<double>(rows)) /
                     (functionVariance - noiseVariance / static_cast<double>(rows)));
@@ -152,8 +157,8 @@ void CBoostedTreeTest::testPiecewiseConstant() {
         };
     };
 
-    TDoubleVec modelBias;
-    TDoubleVec modelRSquared;
+    TDoubleVecVec modelBias;
+    TDoubleVecVec modelRSquared;
 
     test::CRandomNumbers rng;
     double noiseVariance{0.2};
@@ -167,20 +172,22 @@ void CBoostedTreeTest::testPiecewiseConstant() {
 
     TMeanAccumulator meanModelRSquared;
 
-    for (std::size_t i = 1; i < modelBias.size(); i += 2) {
+    for (std::size_t i = 0; i < modelBias.size(); ++i) {
 
         // In and out-of-core agree.
-        CPPUNIT_ASSERT_EQUAL(modelBias[i], modelBias[i - 1]);
-        CPPUNIT_ASSERT_EQUAL(modelRSquared[i], modelRSquared[i - 1]);
+        for (std::size_t j = 1; j < modelBias[i].size(); ++j) {
+            CPPUNIT_ASSERT_EQUAL(modelBias[i][0], modelBias[i][j]);
+            CPPUNIT_ASSERT_EQUAL(modelRSquared[i][0], modelRSquared[i][j]);
+        }
 
         // Unbiased...
         CPPUNIT_ASSERT_DOUBLES_EQUAL(
-            0.0, modelBias[i],
+            0.0, modelBias[i][0],
             7.0 * std::sqrt(noiseVariance / static_cast<double>(trainRows)));
         // Good R^2...
-        CPPUNIT_ASSERT(modelRSquared[i] > 0.9);
+        CPPUNIT_ASSERT(modelRSquared[i][0] > 0.9);
 
-        meanModelRSquared.add(modelRSquared[i]);
+        meanModelRSquared.add(modelRSquared[i][0]);
     }
     LOG_DEBUG(<< "mean R^2 = " << maths::CBasicStatistics::mean(meanModelRSquared));
     CPPUNIT_ASSERT(maths::CBasicStatistics::mean(meanModelRSquared) > 0.92);
@@ -205,8 +212,8 @@ void CBoostedTreeTest::testLinear() {
         };
     };
 
-    TDoubleVec modelBias;
-    TDoubleVec modelRSquared;
+    TDoubleVecVec modelBias;
+    TDoubleVecVec modelRSquared;
 
     test::CRandomNumbers rng;
     double noiseVariance{100.0};
@@ -220,20 +227,22 @@ void CBoostedTreeTest::testLinear() {
 
     TMeanAccumulator meanModelRSquared;
 
-    for (std::size_t i = 1; i < modelBias.size(); i += 2) {
+    for (std::size_t i = 0; i < modelBias.size(); ++i) {
 
         // In and out-of-core agree.
-        CPPUNIT_ASSERT_EQUAL(modelBias[i], modelBias[i - 1]);
-        CPPUNIT_ASSERT_EQUAL(modelRSquared[i], modelRSquared[i - 1]);
+        for (std::size_t j = 1; j < modelBias[i].size(); ++j) {
+            CPPUNIT_ASSERT_EQUAL(modelBias[i][0], modelBias[i][j]);
+            CPPUNIT_ASSERT_EQUAL(modelRSquared[i][0], modelRSquared[i][j]);
+        }
 
         // Unbiased...
         CPPUNIT_ASSERT_DOUBLES_EQUAL(
-            0.0, modelBias[i],
+            0.0, modelBias[i][0],
             7.0 * std::sqrt(noiseVariance / static_cast<double>(trainRows)));
         // Good R^2...
-        CPPUNIT_ASSERT(modelRSquared[i] > 0.95);
+        CPPUNIT_ASSERT(modelRSquared[i][0] > 0.95);
 
-        meanModelRSquared.add(modelRSquared[i]);
+        meanModelRSquared.add(modelRSquared[i][0]);
     }
     LOG_DEBUG(<< "mean R^2 = " << maths::CBasicStatistics::mean(meanModelRSquared));
     CPPUNIT_ASSERT(maths::CBasicStatistics::mean(meanModelRSquared) > 0.97);
@@ -270,8 +279,8 @@ void CBoostedTreeTest::testNonLinear() {
         };
     };
 
-    TDoubleVec modelBias;
-    TDoubleVec modelRSquared;
+    TDoubleVecVec modelBias;
+    TDoubleVecVec modelRSquared;
 
     test::CRandomNumbers rng;
     double noiseVariance{100.0};
@@ -285,20 +294,22 @@ void CBoostedTreeTest::testNonLinear() {
 
     TMeanAccumulator meanModelRSquared;
 
-    for (std::size_t i = 1; i < modelBias.size(); i += 2) {
+    for (std::size_t i = 0; i < modelBias.size(); ++i) {
 
         // In and out-of-core agree.
-        CPPUNIT_ASSERT_EQUAL(modelBias[i], modelBias[i - 1]);
-        CPPUNIT_ASSERT_EQUAL(modelRSquared[i], modelRSquared[i - 1]);
+        for (std::size_t j = 1; j < modelBias[i].size(); ++j) {
+            CPPUNIT_ASSERT_EQUAL(modelBias[i][0], modelBias[i][j]);
+            CPPUNIT_ASSERT_EQUAL(modelRSquared[i][0], modelRSquared[i][j]);
+        }
 
         // Unbiased...
         CPPUNIT_ASSERT_DOUBLES_EQUAL(
-            0.0, modelBias[i],
+            0.0, modelBias[i][0],
             7.0 * std::sqrt(noiseVariance / static_cast<double>(trainRows)));
         // Good R^2...
-        CPPUNIT_ASSERT(modelRSquared[i] > 0.92);
+        CPPUNIT_ASSERT(modelRSquared[i][0] > 0.92);
 
-        meanModelRSquared.add(modelRSquared[i]);
+        meanModelRSquared.add(modelRSquared[i][0]);
     }
     LOG_DEBUG(<< "mean R^2 = " << maths::CBasicStatistics::mean(meanModelRSquared));
     CPPUNIT_ASSERT(maths::CBasicStatistics::mean(meanModelRSquared) > 0.95);
