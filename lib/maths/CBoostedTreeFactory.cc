@@ -276,24 +276,31 @@ CBoostedTreeFactory::constructFromParameters(std::size_t numberThreads,
 CBoostedTreeFactory::TBoostedTreeUPtr
 CBoostedTreeFactory::constructFromString(std::stringstream& jsonStringStream,
                                          core::CDataFrame& frame) {
-    TBoostedTreeUPtr treePtr{
-        new CBoostedTree{frame, TBoostedTreeImplUPtr{new CBoostedTreeImpl{}}}};
-    core::CJsonStateRestoreTraverser traverser(jsonStringStream);
-    treePtr->acceptRestoreTraverser(traverser);
-    return treePtr;
+    try {
+        TBoostedTreeUPtr treePtr{
+            new CBoostedTree{frame, TBoostedTreeImplUPtr{new CBoostedTreeImpl{}}}};
+        core::CJsonStateRestoreTraverser traverser(jsonStringStream);
+        if (treePtr->acceptRestoreTraverser(traverser) == false) {
+            throw std::runtime_error{"failed to restore boosted tree"};
+        }
+        return treePtr;
+    } catch (const std::exception& e) {
+        HANDLE_FATAL(<< "Input error: '" << e.what() << "'. Check logs for more details.");
+    }
+    return nullptr;
 }
-
-CBoostedTreeFactory::~CBoostedTreeFactory() = default;
-
-CBoostedTreeFactory::CBoostedTreeFactory(CBoostedTreeFactory&&) = default;
-
-CBoostedTreeFactory& CBoostedTreeFactory::operator=(CBoostedTreeFactory&&) = default;
 
 CBoostedTreeFactory::CBoostedTreeFactory(std::size_t numberThreads,
                                          std::size_t dependentVariable,
                                          CBoostedTree::TLossFunctionUPtr loss)
     : m_TreeImpl{new CBoostedTreeImpl{numberThreads, dependentVariable, std::move(loss)}} {
 }
+
+CBoostedTreeFactory::CBoostedTreeFactory(CBoostedTreeFactory&&) = default;
+
+CBoostedTreeFactory& CBoostedTreeFactory::operator=(CBoostedTreeFactory&&) = default;
+
+CBoostedTreeFactory::~CBoostedTreeFactory() = default;
 
 CBoostedTreeFactory& CBoostedTreeFactory::numberFolds(std::size_t numberFolds) {
     if (numberFolds < 2) {
