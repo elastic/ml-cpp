@@ -554,11 +554,11 @@ void CBoostedTreeTest::testPersistRestore() {
     // persist
     {
         auto boostedTree = maths::CBoostedTreeFactory::constructFromParameters(
-                               1, cols - 1, std::make_unique<maths::boosted_tree::CMse>())
+                               1, std::make_unique<maths::boosted_tree::CMse>())
                                .numberFolds(2)
                                .maximumNumberTrees(2)
                                .maximumOptimisationRoundsPerHyperparameter(3)
-                               .buildFor(*frame);
+                               .buildFor(*frame, cols - 1);
         core::CJsonStatePersistInserter inserter(persistOnceSStream);
         boostedTree->acceptPersistInserter(inserter);
         persistOnceSStream.flush();
