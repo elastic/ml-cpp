@@ -35,7 +35,7 @@ public:
                      core::CRapidJsonConcurrentLineWriter& writer) const override;
 
 private:
-    void runImpl(core::CDataFrame& frame) override;
+    void runImpl(const TStrVec& featureNames, core::CDataFrame& frame) override;
     std::size_t estimateBookkeepingMemoryUsage(std::size_t numberPartitions,
                                                std::size_t totalNumberRows,
                                                std::size_t partitionNumberRows,

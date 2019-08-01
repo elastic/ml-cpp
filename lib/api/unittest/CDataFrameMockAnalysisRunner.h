@@ -24,7 +24,7 @@ public:
                      ml::core::CRapidJsonConcurrentLineWriter&) const override;
 
 private:
-    void runImpl(ml::core::CDataFrame&) override;
+    void runImpl(const TStrVec&, ml::core::CDataFrame&) override;
     std::size_t estimateBookkeepingMemoryUsage(std::size_t,
                                                std::size_t,
                                                std::size_t,

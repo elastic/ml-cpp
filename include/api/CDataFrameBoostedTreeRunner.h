@@ -45,18 +45,18 @@ private:
     using TBoostedTreeFactoryUPtr = std::unique_ptr<maths::CBoostedTreeFactory>;
 
 private:
-    void runImpl(core::CDataFrame& frame) override;
+    void runImpl(const TStrVec& featureNames, core::CDataFrame& frame) override;
     std::size_t estimateBookkeepingMemoryUsage(std::size_t numberPartitions,
                                                std::size_t totalNumberRows,
                                                std::size_t partitionNumberRows,
                                                std::size_t numberColumns) const override;
 
 private:
-    // Note custom config is written directly to the boosted tree object.
+    // Note custom config is written directly to the factory object.
 
-    //! The tree.
-    TBoostedTreeUPtr m_BoostedTree;
+    std::string m_DependentVariable;
     TBoostedTreeFactoryUPtr m_BoostedTreeFactory;
+    TBoostedTreeUPtr m_BoostedTree;
 };
 
 //! \brief Makes a core::CDataFrame boosted tree regression runner.

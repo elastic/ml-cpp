@@ -22,10 +22,9 @@ void CDataFrameMockAnalysisRunner::writeOneRow(const TStrVec&,
                                                ml::core::CRapidJsonConcurrentLineWriter&) const {
 }
 
-void CDataFrameMockAnalysisRunner::runImpl(ml::core::CDataFrame&) {
+void CDataFrameMockAnalysisRunner::runImpl(const TStrVec&, ml::core::CDataFrame&) {
     ml::core::CLoopProgress progress{31, this->progressRecorder()};
     for (std::size_t i = 0; i < 31; ++i, progress.increment()) {
-
         std::vector<std::size_t> wait;
         ms_Rng.generateUniformSamples(1, 20, 1, wait);
         std::this_thread::sleep_for(std::chrono::milliseconds(wait[0]));
