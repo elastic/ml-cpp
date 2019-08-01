@@ -12,6 +12,7 @@
 #include <api/CDataFrameAnalysisConfigReader.h>
 #include <api/CDataFrameBoostedTreeRunner.h>
 #include <api/CDataFrameOutliersRunner.h>
+#include <api/CMemoryUsageEstimationResultJsonWriter.h>
 
 #include <rapidjson/document.h>
 #include <rapidjson/ostreamwrapper.h>
@@ -181,6 +182,11 @@ CDataFrameAnalysisRunner* CDataFrameAnalysisSpecification::run(core::CDataFrame&
         return m_Runner.get();
     }
     return nullptr;
+}
+
+SMemoryUsageEstimationResult CDataFrameAnalysisSpecification::estimateMemoryUsage() const {
+    // TODO: What to do if m_Runner is nullptr?
+    return m_Runner->estimateMemoryUsage();
 }
 
 void CDataFrameAnalysisSpecification::initializeRunner(const rapidjson::Value& jsonAnalysis) {

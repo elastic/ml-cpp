@@ -13,6 +13,7 @@
 #include <api/CDataFrameAnalysisSpecification.h>
 #include <api/CDataFrameAnalysisSpecificationJsonWriter.h>
 #include <api/CDataFrameOutliersRunner.h>
+#include <api/CMemoryUsageEstimationResultJsonWriter.h>
 
 #include <test/CTestTmpDir.h>
 
@@ -121,6 +122,67 @@ void CDataFrameAnalysisRunnerTest::testComputeAndSaveExecutionStrategyDiskUsageF
     }
 }
 
+void CDataFrameAnalysisRunnerTest::testEstimateMemoryUsage() {
+
+    std::vector<std::string> errors;
+    std::mutex errorsMutex;
+    auto errorHandler = [&errors, &errorsMutex](std::string error) {
+        std::lock_guard<std::mutex> lock{errorsMutex};
+        errors.push_back(error);
+    };
+
+    core::CLogger::CScopeSetFatalErrorHandler scope{errorHandler};
+    api::CDataFrameOutliersRunnerFactory factory;
+
+    // Test estimation for empty data frame
+    {
+        errors.clear();
+        std::string jsonSpec{api::CDataFrameAnalysisSpecificationJsonWriter::jsonString(
+            0, 5, 100000000, 1, {}, true, test::CTestTmpDir::tmpDir(), "", "outlier_detection", "")};
+        api::CDataFrameAnalysisSpecification spec{jsonSpec};
+
+        // Check memory estimation result
+        api::SMemoryUsageEstimationResult result = spec.estimateMemoryUsage();
+        CPPUNIT_ASSERT_EQUAL(0, static_cast<int>(result.s_MemoryUsageWithOnePartition));
+        CPPUNIT_ASSERT_EQUAL(0, static_cast<int>(result.s_MemoryUsageWithMaxPartitions));
+
+        // no error should be registered
+        CPPUNIT_ASSERT_EQUAL(1, static_cast<int>(errors.size()));
+    }
+
+    // Test estimation for data frame with 1 row
+    {
+        errors.clear();
+        std::string jsonSpec{api::CDataFrameAnalysisSpecificationJsonWriter::jsonString(
+            1, 5, 100000000, 1, {}, true, test::CTestTmpDir::tmpDir(), "", "outlier_detection", "")};
+        api::CDataFrameAnalysisSpecification spec{jsonSpec};
+
+        // Check memory estimation result
+        api::SMemoryUsageEstimationResult result = spec.estimateMemoryUsage();
+        CPPUNIT_ASSERT_EQUAL(6050, static_cast<int>(result.s_MemoryUsageWithOnePartition));
+        CPPUNIT_ASSERT_EQUAL(6050, static_cast<int>(result.s_MemoryUsageWithMaxPartitions));
+
+        // no error should be registered
+        CPPUNIT_ASSERT_EQUAL(0, static_cast<int>(errors.size()));
+    }
+
+    // Test estimation for data frame with 4 rows
+    {
+        errors.clear();
+        std::string jsonSpec{api::CDataFrameAnalysisSpecificationJsonWriter::jsonString(
+            4, 5, 100000000, 1, {}, true, test::CTestTmpDir::tmpDir(), "", "outlier_detection", "")};
+        api::CDataFrameAnalysisSpecification spec{jsonSpec};
+
+        // Check memory estimation result
+        api::SMemoryUsageEstimationResult result = spec.estimateMemoryUsage();
+        CPPUNIT_ASSERT_EQUAL(9104, static_cast<int>(result.s_MemoryUsageWithOnePartition));
+        CPPUNIT_ASSERT_EQUAL(8528, static_cast<int>(result.s_MemoryUsageWithMaxPartitions));
+
+        // no error should be registered
+        CPPUNIT_ASSERT_EQUAL(0, static_cast<int>(errors.size()));
+    }
+}
+
 CppUnit::Test* CDataFrameAnalysisRunnerTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CDataFrameAnalysisRunnerTest");
 
@@ -130,6 +192,9 @@ CppUnit::Test* CDataFrameAnalysisRunnerTest::suite() {
     suiteOfTests->addTest(new CppUnit::TestCaller<CDataFrameAnalysisRunnerTest>(
         "CDataFrameAnalysisRunnerTest::testComputeAndSaveExecutionStrategyDiskUsageFlag",
         &CDataFrameAnalysisRunnerTest::testComputeAndSaveExecutionStrategyDiskUsageFlag));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CDataFrameAnalysisRunnerTest>(
+        "CDataFrameAnalysisRunnerTest::testEstimateMemoryUsage",
+        &CDataFrameAnalysisRunnerTest::testEstimateMemoryUsage));
 
     return suiteOfTests;
 }

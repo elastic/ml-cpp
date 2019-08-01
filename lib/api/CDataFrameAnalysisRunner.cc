@@ -11,6 +11,7 @@
 #include <core/CScopedFastLock.h>
 
 #include <api/CDataFrameAnalysisSpecification.h>
+#include <api/CMemoryUsageEstimationResultJsonWriter.h>
 
 #include <boost/iterator/counting_iterator.hpp>
 
@@ -34,6 +35,23 @@ CDataFrameAnalysisRunner::CDataFrameAnalysisRunner(const CDataFrameAnalysisSpeci
 
 CDataFrameAnalysisRunner::~CDataFrameAnalysisRunner() {
     this->waitToFinish();
+}
+
+SMemoryUsageEstimationResult CDataFrameAnalysisRunner::estimateMemoryUsage() const {
+    std::size_t numberRows{m_Spec.numberRows()};
+    std::size_t numberColumns{m_Spec.numberColumns() + this->numberExtraColumns()};
+    std::size_t maximumNumberPartitions{
+        static_cast<std::size_t>(std::sqrt(static_cast<double>(numberRows)) + 0.5)};
+    if (maximumNumberPartitions == 0) {
+        return SMemoryUsageEstimationResult(0, 0);
+    }
+    std::size_t memoryUsageWithOnePartition{
+        this->estimateMemoryUsage(numberRows, numberRows, numberColumns)};
+    std::size_t memoryUsageWithMaxPartitions{
+        this->estimateMemoryUsage(numberRows, numberRows / maximumNumberPartitions, numberColumns)};
+    return SMemoryUsageEstimationResult(
+        std::ceil(roundMb(memoryUsageWithOnePartition)),
+        std::ceil(roundMb(memoryUsageWithMaxPartitions)));
 }
 
 void CDataFrameAnalysisRunner::computeAndSaveExecutionStrategy() {

@@ -30,6 +30,7 @@
 #include <api/CDataFrameOutliersRunner.h>
 #include <api/CIoManager.h>
 #include <api/CLengthEncodedInputParser.h>
+#include <api/CMemoryUsageEstimationResultJsonWriter.h>
 
 #include "CCmdLineParser.h"
 
@@ -86,6 +87,7 @@ int main(int argc, char** argv) {
 
     // Read command line options
     std::string configFile;
+    bool memoryUsageEstimationOnly(false);
     std::string logProperties;
     std::string logPipe;
     bool lengthEncodedInput(false);
@@ -94,7 +96,7 @@ int main(int argc, char** argv) {
     std::string outputFileName;
     bool isOutputFileNamedPipe(false);
     if (ml::data_frame_analyzer::CCmdLineParser::parse(
-            argc, argv, configFile, logProperties, logPipe, lengthEncodedInput, inputFileName,
+            argc, argv, configFile, memoryUsageEstimationOnly, logProperties, logPipe, lengthEncodedInput, inputFileName,
             isInputFileNamedPipe, outputFileName, isOutputFileNamedPipe) == false) {
         return EXIT_FAILURE;
     }
@@ -127,13 +129,6 @@ int main(int argc, char** argv) {
     }
 
     using TInputParserUPtr = std::unique_ptr<ml::api::CInputParser>;
-    auto inputParser{[lengthEncodedInput, &ioMgr]() -> TInputParserUPtr {
-        if (lengthEncodedInput) {
-            return std::make_unique<ml::api::CLengthEncodedInputParser>(ioMgr.inputStream());
-        }
-        return std::make_unique<ml::api::CCsvInputParser>(
-            ioMgr.inputStream(), ml::api::CCsvInputParser::COMMA);
-    }()};
 
     std::string analysisSpecificationJson;
     bool couldReadConfigFile;
@@ -145,6 +140,17 @@ int main(int argc, char** argv) {
 
     auto analysisSpecification =
         std::make_unique<ml::api::CDataFrameAnalysisSpecification>(analysisSpecificationJson);
+
+    if (memoryUsageEstimationOnly) {
+        const auto result = analysisSpecification->estimateMemoryUsage();
+        auto outStream = [&ioMgr]() {
+            return std::make_unique<ml::core::CJsonOutputStreamWrapper>(ioMgr.outputStream());
+        }();
+        ml::api::CMemoryUsageEstimationResultJsonWriter jsonWriter(*outStream);
+        jsonWriter.write(result);
+        return EXIT_SUCCESS;
+    }
+
     if (analysisSpecification->numberThreads() > 1) {
         ml::core::startDefaultAsyncExecutor(analysisSpecification->numberThreads());
     }
@@ -156,6 +162,13 @@ int main(int argc, char** argv) {
 
     CCleanUpOnExit::add(dataFrameAnalyzer.dataFrameDirectory());
 
+    auto inputParser{[lengthEncodedInput, &ioMgr]() -> TInputParserUPtr {
+        if (lengthEncodedInput) {
+            return std::make_unique<ml::api::CLengthEncodedInputParser>(ioMgr.inputStream());
+        }
+        return std::make_unique<ml::api::CCsvInputParser>(
+            ioMgr.inputStream(), ml::api::CCsvInputParser::COMMA);
+    }()};
     if (inputParser->readStreamIntoVecs(
             [&dataFrameAnalyzer](const auto& fieldNames, const auto& fieldValues) {
                 return dataFrameAnalyzer.handleRecord(fieldNames, fieldValues);

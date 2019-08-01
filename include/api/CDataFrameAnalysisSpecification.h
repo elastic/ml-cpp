@@ -151,6 +151,11 @@ public:
     //! calling thread until the runner has finished.
     CDataFrameAnalysisRunner* run(core::CDataFrame& frame) const;
 
+    //! Estimates memory usage in two cases: one partition (the whole data frame
+    //! fits in main memory) and maximum tolerable number of partitions (only
+    //! one partition needs to be loaded to main memory.
+    SMemoryUsageEstimationResult estimateMemoryUsage() const;
+
 private:
     void initializeRunner(const rapidjson::Value& jsonAnalysis);
 
