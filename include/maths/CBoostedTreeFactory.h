@@ -32,9 +32,13 @@ public:
     using TBoostedTreeUPtr = std::unique_ptr<CBoostedTree>;
 
 public:
-    //! Construct a boosted tree object from parameters
+    //! Construct a boosted tree object from parameters.
     static CBoostedTreeFactory constructFromParameters(std::size_t numberThreads,
                                                        CBoostedTree::TLossFunctionUPtr loss);
+
+    //! Construct a boosted tree object from its serialized version.
+    static TBoostedTreeUPtr constructFromString(std::stringstream& jsonStringStream,
+                                                core::CDataFrame& frame);
 
     ~CBoostedTreeFactory();
     CBoostedTreeFactory(CBoostedTreeFactory&) = delete;
@@ -43,7 +47,7 @@ public:
     CBoostedTreeFactory& operator=(CBoostedTreeFactory&&);
 
     //! Set the number of folds to use for estimating the generalisation error.
-    CBoostedTreeFactory& numberFolds(std::size_t folds);
+    CBoostedTreeFactory& numberFolds(std::size_t numberFolds);
     //! Set the lambda regularisation parameter.
     CBoostedTreeFactory& lambda(double lambda);
     //! Set the gamma regularisation parameter.
@@ -57,6 +61,8 @@ public:
     //! Set the maximum number of optimisation rounds we'll use for hyperparameter
     //! optimisation per parameter.
     CBoostedTreeFactory& maximumOptimisationRoundsPerHyperparameter(std::size_t rounds);
+    //! Set the number of training examples we need per feature we'll include.
+    CBoostedTreeFactory& rowsPerFeature(std::size_t rowsPerFeature);
     //! Set the callback function for progress monitoring.
     CBoostedTreeFactory& progressCallback(CBoostedTree::TProgressCallback callback);
 
@@ -71,6 +77,10 @@ public:
 private:
     using TPackedBitVectorVec = std::vector<core::CPackedBitVector>;
     using TBoostedTreeImplUPtr = std::unique_ptr<CBoostedTreeImpl>;
+
+private:
+    static const double MINIMUM_ETA;
+    static const std::size_t MAXIMUM_NUMBER_TREES;
 
 private:
     CBoostedTreeFactory(std::size_t numberThreads, CBoostedTree::TLossFunctionUPtr loss);

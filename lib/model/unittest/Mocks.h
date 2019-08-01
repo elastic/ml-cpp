@@ -28,6 +28,8 @@ public:
                const TDataGathererPtr& dataGatherer,
                const TFeatureInfluenceCalculatorCPtrPrVecVec& influenceCalculators);
 
+    virtual void persistResidualModelsState(core::CStatePersistInserter& inserter) const;
+
     virtual void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
 
     virtual bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);

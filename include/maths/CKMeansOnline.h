@@ -105,10 +105,10 @@ protected:
     //! The maximum number of iterations to use for k-means in reduce.
     static const std::size_t MAX_ITERATIONS;
 
-    static const std::string K_TAG;
-    static const std::string CLUSTERS_TAG;
-    static const std::string POINTS_TAG;
-    static const std::string RNG_TAG;
+    static const core::TPersistenceTag K_TAG;
+    static const core::TPersistenceTag CLUSTERS_TAG;
+    static const core::TPersistenceTag POINTS_TAG;
+    static const core::TPersistenceTag RNG_TAG;
 
 public:
     //! \param[in] k The maximum space in numbers of clusters.
@@ -608,14 +608,15 @@ template<typename POINT>
 const std::size_t CKMeansOnline<POINT>::NUMBER_SEEDS = 5u;
 template<typename POINT>
 const std::size_t CKMeansOnline<POINT>::MAX_ITERATIONS = 10u;
+
 template<typename POINT>
-const std::string CKMeansOnline<POINT>::K_TAG("a");
+const core::TPersistenceTag CKMeansOnline<POINT>::K_TAG("a", "k");
 template<typename POINT>
-const std::string CKMeansOnline<POINT>::CLUSTERS_TAG("b");
+const core::TPersistenceTag CKMeansOnline<POINT>::CLUSTERS_TAG("b", "clusters");
 template<typename POINT>
-const std::string CKMeansOnline<POINT>::POINTS_TAG("c");
+const core::TPersistenceTag CKMeansOnline<POINT>::POINTS_TAG("c", "points");
 template<typename POINT>
-const std::string CKMeansOnline<POINT>::RNG_TAG("d");
+const core::TPersistenceTag CKMeansOnline<POINT>::RNG_TAG("d", "rng");
 }
 }
 

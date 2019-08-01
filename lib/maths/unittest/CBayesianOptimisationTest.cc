@@ -23,7 +23,7 @@ namespace {
 using TDoubleVec = std::vector<double>;
 using TVector = maths::CDenseVector<double>;
 
-TVector vector(std::vector<double> components) {
+TVector vector(TDoubleVec components) {
     TVector result(components.size());
     int i = 0;
     for (auto component : components) {
@@ -266,61 +266,68 @@ void CBayesianOptimisationTest::testMaximumExpectedImprovement() {
 void CBayesianOptimisationTest::testPersistRestore() {
     // 1d
     {
-        std::vector<double> minBoundary{0.};
-        std::vector<double> maxBoundary{10.};
+        TDoubleVec minBoundary{0.};
+        TDoubleVec maxBoundary{10.};
         // empty
         {
-            std::vector<std::vector<double>> parameterFunctionValues{};
-            testPersistRestoreSubroutine(minBoundary, maxBoundary, parameterFunctionValues);
+            std::vector<TDoubleVec> parameterFunctionValues{};
+            this->testPersistRestoreIsIdempotent(minBoundary, maxBoundary,
+                                                 parameterFunctionValues);
         }
         // with data
         {
-            std::vector<std::vector<double>> parameterFunctionValues{
+            std::vector<TDoubleVec> parameterFunctionValues{
                 {5., 1., 0.2},
                 {7., 1., 0.2},
             };
-            testPersistRestoreSubroutine(minBoundary, maxBoundary, parameterFunctionValues);
+            this->testPersistRestoreIsIdempotent(minBoundary, maxBoundary,
+                                                 parameterFunctionValues);
         }
     }
 
     // 2d
     {
-        std::vector<double> minBoundary{0., -1.};
-        std::vector<double> maxBoundary{10., 1.};
+        TDoubleVec minBoundary{0., -1.};
+        TDoubleVec maxBoundary{10., 1.};
         // empty
         {
-            std::vector<std::vector<double>> parameterFunctionValues{};
-            testPersistRestoreSubroutine(minBoundary, maxBoundary, parameterFunctionValues);
+            std::vector<TDoubleVec> parameterFunctionValues{};
+            this->testPersistRestoreIsIdempotent(minBoundary, maxBoundary,
+                                                 parameterFunctionValues);
         }
         // with data
         {
-            std::vector<std::vector<double>> parameterFunctionValues{
+            std::vector<TDoubleVec> parameterFunctionValues{
                 {5., 0., 1., 0.2},
                 {7., 0., 1., 0.2},
             };
-            testPersistRestoreSubroutine(minBoundary, maxBoundary, parameterFunctionValues);
+            this->testPersistRestoreIsIdempotent(minBoundary, maxBoundary,
+                                                 parameterFunctionValues);
         }
     }
 }
 
-void CBayesianOptimisationTest::testPersistRestoreSubroutine(
-    const std::vector<double>& minBoundary,
-    const std::vector<double>& maxBoundary,
-    const std::vector<std::vector<double>>& parameterFunctionValues) const {
+void CBayesianOptimisationTest::testPersistRestoreIsIdempotent(
+    const TDoubleVec& minBoundary,
+    const TDoubleVec& maxBoundary,
+    const std::vector<TDoubleVec>& parameterFunctionValues) const {
     std::stringstream persistOnceSStream;
     std::stringstream persistTwiceSStream;
     std::size_t dimensions = minBoundary.size();
+
+    std::string topLevelTag{"bayesian_optimisation"};
+
     // persist
     {
         maths::CBayesianOptimisation::TDoubleDoublePrVec parameterBoundaries;
-        for (std::size_t i = 0u; i < dimensions; ++i) {
+        for (std::size_t i = 0; i < dimensions; ++i) {
             parameterBoundaries.emplace_back(minBoundary[i], maxBoundary[i]);
         }
-        maths::CBayesianOptimisation bayesianOptimisation(parameterBoundaries);
-        if (parameterFunctionValues.empty() == false) {
+        maths::CBayesianOptimisation bayesianOptimisation{parameterBoundaries};
+        if (parameterFunctionValues.size() > 0) {
             for (auto parameterFunctionValue : parameterFunctionValues) {
                 maths::CBayesianOptimisation::TVector parameter(dimensions);
-                for (std::size_t i = 0u; i < dimensions; ++i) {
+                for (std::size_t i = 0; i < dimensions; ++i) {
                     parameter(i) = parameterFunctionValue[i];
                 }
                 bayesianOptimisation.add(parameter, parameterFunctionValue[dimensions],
@@ -329,22 +336,25 @@ void CBayesianOptimisationTest::testPersistRestoreSubroutine(
         }
 
         core::CJsonStatePersistInserter inserter(persistOnceSStream);
-        bayesianOptimisation.acceptPersistInserter(inserter);
+        inserter.insertLevel(
+            topLevelTag, std::bind(&maths::CBayesianOptimisation::acceptPersistInserter,
+                                   &bayesianOptimisation, std::placeholders::_1));
         persistOnceSStream.flush();
     }
     // and restore
     {
-        maths::CBayesianOptimisation bayesianOptimisation({});
-        core::CJsonStateRestoreTraverser traverser(persistOnceSStream);
-        bayesianOptimisation.acceptRestoreTraverser(traverser);
+        core::CJsonStateRestoreTraverser traverser{persistOnceSStream};
+        maths::CBayesianOptimisation bayesianOptimisation{traverser};
 
         core::CJsonStatePersistInserter inserter(persistTwiceSStream);
-        bayesianOptimisation.acceptPersistInserter(inserter);
+        inserter.insertLevel(
+            topLevelTag, std::bind(&maths::CBayesianOptimisation::acceptPersistInserter,
+                                   &bayesianOptimisation, std::placeholders::_1));
         persistTwiceSStream.flush();
     }
-    CPPUNIT_ASSERT_EQUAL(persistOnceSStream.str(), persistTwiceSStream.str());
     LOG_DEBUG(<< "First string " << persistOnceSStream.str());
     LOG_DEBUG(<< "Second string " << persistTwiceSStream.str());
+    CPPUNIT_ASSERT_EQUAL(persistOnceSStream.str(), persistTwiceSStream.str());
 }
 
 CppUnit::Test* CBayesianOptimisationTest::suite() {

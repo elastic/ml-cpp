@@ -241,15 +241,15 @@ using TDoubleDoubleSizeTr = boost::tuples::tuple<double, double, std::size_t>;
 using TDoubleDoubleSizeTrVec = std::vector<TDoubleDoubleSizeTr>;
 using TMeanAccumulator = CBasicStatistics::SSampleMean<double>::TAccumulator;
 
-// We use short field names to reduce the state size
-const std::string NUMBER_AVAILABLE_CATEGORIES_TAG("a");
-const std::string CATEGORY_TAG("b");
-const std::string CONCENTRATION_TAG("c");
-const std::string TOTAL_CONCENTRATION_TAG("d");
-const std::string NUMBER_SAMPLES_TAG("e");
+const core::TPersistenceTag NUMBER_AVAILABLE_CATEGORIES_TAG("a", "number_avalable_categories");
+const core::TPersistenceTag CATEGORY_TAG("b", "category");
+const core::TPersistenceTag CONCENTRATION_TAG("c", "concentration");
+const core::TPersistenceTag TOTAL_CONCENTRATION_TAG("d", "total_concentration");
+const core::TPersistenceTag NUMBER_SAMPLES_TAG("e", "number_samples");
 //const std::string MINIMUM_TAG("f"); No longer used
 //const std::string MAXIMUM_TAG("g"); No longer used
-const std::string DECAY_RATE_TAG("h");
+const core::TPersistenceTag DECAY_RATE_TAG("h", "decay_rate");
+
 const std::string EMPTY_STRING;
 }
 

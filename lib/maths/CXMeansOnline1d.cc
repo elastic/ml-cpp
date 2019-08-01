@@ -586,22 +586,23 @@ bool splitSearch(double minimumCount,
 const double HARD_ASSIGNMENT_THRESHOLD = 0.01;
 
 // CXMeansOnline1d
-const std::string WEIGHT_CALC_TAG("a");
-const std::string MINIMUM_CLUSTER_FRACTION_TAG("b");
-const std::string MINIMUM_CLUSTER_COUNT_TAG("c");
-const std::string WINSORISATION_CONFIDENCE_INTERVAL_TAG("d");
-const std::string CLUSTER_INDEX_GENERATOR_TAG("e");
-const std::string CLUSTER_TAG("f");
-const std::string AVAILABLE_DISTRIBUTIONS_TAG("g");
-const std::string SMALLEST_TAG("h");
-const std::string LARGEST_TAG("i");
-const std::string DECAY_RATE_TAG("j");
-const std::string HISTORY_LENGTH_TAG("k");
+const core::TPersistenceTag WEIGHT_CALC_TAG("a", "weight");
+const core::TPersistenceTag MINIMUM_CLUSTER_FRACTION_TAG("b", "cluster_fraction");
+const core::TPersistenceTag MINIMUM_CLUSTER_COUNT_TAG("c", "minimum_cluster_count");
+const core::TPersistenceTag
+    WINSORISATION_CONFIDENCE_INTERVAL_TAG("d", "winsorisation_confidence_interval");
+const core::TPersistenceTag CLUSTER_INDEX_GENERATOR_TAG("e", "index_generator");
+const core::TPersistenceTag CLUSTER_TAG("f", "cluster");
+const core::TPersistenceTag AVAILABLE_DISTRIBUTIONS_TAG("g", "available_distributions");
+const core::TPersistenceTag SMALLEST_TAG("h", "smallest");
+const core::TPersistenceTag LARGEST_TAG("i", "largest");
+const core::TPersistenceTag DECAY_RATE_TAG("j", "decay_rate");
+const core::TPersistenceTag HISTORY_LENGTH_TAG("k", "history_length");
 
 // CXMeansOnline1d::CCluster
-const std::string INDEX_TAG("a");
-const std::string STRUCTURE_TAG("b");
-const std::string PRIOR_TAG("c");
+const core::TPersistenceTag INDEX_TAG("a", "index");
+const core::TPersistenceTag STRUCTURE_TAG("b", "structure");
+const core::TPersistenceTag PRIOR_TAG("c", "prior");
 
 const std::string EMPTY_STRING;
 }
@@ -730,7 +731,7 @@ void CXMeansOnline1d::swap(CXMeansOnline1d& other) {
     m_Clusters.swap(other.m_Clusters);
 }
 
-std::string CXMeansOnline1d::persistenceTag() const {
+const core::TPersistenceTag& CXMeansOnline1d::persistenceTag() const {
     return X_MEANS_ONLINE_1D_TAG;
 }
 
