@@ -55,7 +55,7 @@ CDataFrameBoostedTreeRunner::CDataFrameBoostedTreeRunner(const CDataFrameAnalysi
 
     auto parameters = PARAMETER_READER.read(jsonParameters);
 
-    std::size_t dependentVariable{parameters[DEPENDENT_VARIABLE].as<std::size_t>()};
+    m_DependentVariable = parameters[DEPENDENT_VARIABLE].as<std::string>();
 
     std::size_t maximumNumberTrees{
         parameters[MAXIMUM_NUMBER_TREES].fallback(std::size_t{0})};
@@ -81,8 +81,7 @@ CDataFrameBoostedTreeRunner::CDataFrameBoostedTreeRunner(const CDataFrameAnalysi
 
     m_BoostedTreeFactory = std::make_unique<maths::CBoostedTreeFactory>(
         maths::CBoostedTreeFactory::constructFromParameters(
-            this->spec().numberThreads(), dependentVariable,
-            std::make_unique<maths::boosted_tree::CMse>()));
+            this->spec().numberThreads(), std::make_unique<maths::boosted_tree::CMse>()));
 
     if (lambda >= 0.0) {
         m_BoostedTreeFactory->lambda(lambda);
@@ -105,8 +104,7 @@ CDataFrameBoostedTreeRunner::CDataFrameBoostedTreeRunner(const CDataFrameAnalysi
     : CDataFrameAnalysisRunner{spec} {
 }
 
-CDataFrameBoostedTreeRunner::~CDataFrameBoostedTreeRunner() {
-}
+CDataFrameBoostedTreeRunner::~CDataFrameBoostedTreeRunner() = default;
 
 std::size_t CDataFrameBoostedTreeRunner::numberExtraColumns() const {
     return m_BoostedTreeFactory->numberExtraColumnsForTrain();
@@ -115,19 +113,30 @@ std::size_t CDataFrameBoostedTreeRunner::numberExtraColumns() const {
 void CDataFrameBoostedTreeRunner::writeOneRow(const TStrVec&,
                                               TRowRef row,
                                               core::CRapidJsonConcurrentLineWriter& writer) const {
-    if (m_BoostedTree) {
+    if (m_BoostedTree == nullptr) {
+        HANDLE_FATAL(<< "Internal error: boosted tree object missing. Please report this error.");
+    } else {
         writer.StartObject();
         writer.Key(PREDICTION);
         writer.Double(row[m_BoostedTree->columnHoldingPrediction(row.numberColumns())]);
         writer.EndObject();
-    } else {
-        HANDLE_FATAL(<< "Boosted tree object was not completely created. Please report this error.");
     }
 }
 
-void CDataFrameBoostedTreeRunner::runImpl(core::CDataFrame& frame) {
-    m_BoostedTree = m_BoostedTreeFactory->buildFor(frame);
-    m_BoostedTree->train(this->progressRecorder());
+void CDataFrameBoostedTreeRunner::runImpl(const TStrVec& featureNames,
+                                          core::CDataFrame& frame) {
+    auto dependentVariableColumn =
+        std::find(featureNames.begin(), featureNames.end(), m_DependentVariable);
+    if (dependentVariableColumn == featureNames.end()) {
+        HANDLE_FATAL(<< "Input error: supplied variable to predict '"
+                     << m_DependentVariable << "' is missing from training data "
+                     << core::CContainerPrinter::print(featureNames)
+                     << ". Please report this problem.");
+    } else {
+        m_BoostedTree = m_BoostedTreeFactory->buildFor(
+            frame, dependentVariableColumn - featureNames.begin());
+        m_BoostedTree->train(this->progressRecorder());
+    }
 }
 
 std::size_t CDataFrameBoostedTreeRunner::estimateBookkeepingMemoryUsage(

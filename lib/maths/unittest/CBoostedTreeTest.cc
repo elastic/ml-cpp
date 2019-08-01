@@ -91,10 +91,9 @@ auto predictionStatistics(test::CRandomNumbers& rng,
                 }
             });
 
-            auto regression =
-                maths::CBoostedTreeFactory::constructFromParameters(
-                    1, cols - 1, std::make_unique<maths::boosted_tree::CMse>())
-                    .buildFor(*frame);
+            auto regression = maths::CBoostedTreeFactory::constructFromParameters(
+                                  1, std::make_unique<maths::boosted_tree::CMse>())
+                                  .buildFor(*frame, cols - 1);
 
             regression->train();
             regression->predict();
@@ -377,8 +376,8 @@ void CBoostedTreeTest::testThreading() {
         });
 
         auto regression = maths::CBoostedTreeFactory::constructFromParameters(
-                              2, cols - 1, std::make_unique<maths::boosted_tree::CMse>())
-                              .buildFor(*frame);
+                              2, std::make_unique<maths::boosted_tree::CMse>())
+                              .buildFor(*frame, cols - 1);
 
         regression->train();
         regression->predict();
@@ -455,8 +454,8 @@ void CBoostedTreeTest::testConstantFeatures() {
 
     std::unique_ptr<maths::CBoostedTree> regression =
         maths::CBoostedTreeFactory::constructFromParameters(
-            1, cols - 1, std::make_unique<maths::boosted_tree::CMse>())
-            .buildFor(*frame);
+            1, std::make_unique<maths::boosted_tree::CMse>())
+            .buildFor(*frame, cols - 1);
 
     regression->train();
 
@@ -499,8 +498,8 @@ void CBoostedTreeTest::testConstantObjective() {
 
     std::unique_ptr<maths::CBoostedTree> regression =
         maths::CBoostedTreeFactory::constructFromParameters(
-            1, cols - 1, std::make_unique<maths::boosted_tree::CMse>())
-            .buildFor(*frame);
+            1, std::make_unique<maths::boosted_tree::CMse>())
+            .buildFor(*frame, cols - 1);
 
     regression->train();
 
@@ -555,11 +554,11 @@ void CBoostedTreeTest::testPersistRestore() {
     // persist
     {
         auto boostedTree = maths::CBoostedTreeFactory::constructFromParameters(
-                               1, cols - 1, std::make_unique<maths::boosted_tree::CMse>())
+                               1, std::make_unique<maths::boosted_tree::CMse>())
                                .numberFolds(2)
                                .maximumNumberTrees(2)
                                .maximumOptimisationRoundsPerHyperparameter(3)
-                               .buildFor(*frame);
+                               .buildFor(*frame, cols - 1);
         core::CJsonStatePersistInserter inserter(persistOnceSStream);
         boostedTree->acceptPersistInserter(inserter);
         persistOnceSStream.flush();

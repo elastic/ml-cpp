@@ -175,9 +175,10 @@ CDataFrameAnalysisSpecification::makeDataFrame() {
     return result;
 }
 
-CDataFrameAnalysisRunner* CDataFrameAnalysisSpecification::run(core::CDataFrame& frame) const {
+CDataFrameAnalysisRunner* CDataFrameAnalysisSpecification::run(const TStrVec& featureNames,
+                                                               core::CDataFrame& frame) const {
     if (m_Runner != nullptr) {
-        m_Runner->run(frame);
+        m_Runner->run(featureNames, frame);
         return m_Runner.get();
     }
     return nullptr;
