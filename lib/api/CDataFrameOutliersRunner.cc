@@ -101,7 +101,7 @@ void CDataFrameOutliersRunner::writeOneRow(const TStrVec& featureNames,
     writer.EndObject();
 }
 
-void CDataFrameOutliersRunner::runImpl(core::CDataFrame& frame) {
+void CDataFrameOutliersRunner::runImpl(const TStrVec&, core::CDataFrame& frame) {
 
     core::CProgramCounters::counter(counter_t::E_DFONumberPartitions) =
         this->numberPartitions();

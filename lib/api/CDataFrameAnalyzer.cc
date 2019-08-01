@@ -136,7 +136,7 @@ void CDataFrameAnalyzer::run() {
 
     LOG_TRACE(<< "Running analysis...");
 
-    CDataFrameAnalysisRunner* analysis{m_AnalysisSpecification->run(*m_DataFrame)};
+    CDataFrameAnalysisRunner* analysis{m_AnalysisSpecification->run(m_FieldNames, *m_DataFrame)};
 
     if (analysis == nullptr) {
         return;

@@ -48,14 +48,19 @@ void CBoostedTreeImpl::CLeafNodeStatistics::addRowDerivatives(const TRowRef& row
     }
 }
 
-CBoostedTreeImpl::CBoostedTreeImpl(std::size_t numberThreads,
-                                   std::size_t dependentVariable,
-                                   CBoostedTree::TLossFunctionUPtr loss)
-    : m_NumberThreads{numberThreads}, m_DependentVariable{dependentVariable}, m_Loss{std::move(loss)} {
+CBoostedTreeImpl::CBoostedTreeImpl(std::size_t numberThreads, CBoostedTree::TLossFunctionUPtr loss)
+    : m_NumberThreads{numberThreads}, m_Loss{std::move(loss)} {
 }
 
 void CBoostedTreeImpl::train(core::CDataFrame& frame,
                              CBoostedTree::TProgressCallback recordProgress) {
+
+    if (m_DependentVariable >= frame.numberColumns()) {
+        HANDLE_FATAL(<< "Internal error: dependent variable '" << m_DependentVariable
+                     << "' was incorrectly initialized. Please report this problem.");
+        return;
+    }
+
     LOG_TRACE(<< "Main training loop...");
 
     if (this->canTrain() == false) {
