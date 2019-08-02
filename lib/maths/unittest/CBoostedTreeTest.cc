@@ -8,6 +8,8 @@
 
 #include <core/CDataFrame.h>
 #include <core/CJsonStatePersistInserter.h>
+#include <core/CLogger.h>
+#include <core/CRegex.h>
 
 #include <maths/CBasicStatistics.h>
 #include <maths/CBoostedTree.h>
@@ -524,6 +526,7 @@ void CBoostedTreeTest::testErrors() {
 }
 
 void CBoostedTreeTest::testPersistRestore() {
+
     std::size_t rows{50};
     std::size_t cols{3};
     std::size_t capacity{50};
@@ -532,16 +535,13 @@ void CBoostedTreeTest::testPersistRestore() {
     std::stringstream persistOnceSStream;
     std::stringstream persistTwiceSStream;
 
-    TFactoryFunc makeMainMemory{
-        [=] { return core::makeMainStorageDataFrame(cols, capacity).first; }};
-
+    // generate completely random data
     TDoubleVecVec x(cols);
     for (std::size_t i = 0; i < cols; ++i) {
         rng.generateUniformSamples(0.0, 10.0, rows, x[i]);
     }
-    auto frame = makeMainMemory();
 
-    // generate completely random data
+    auto frame = core::makeMainStorageDataFrame(cols, capacity).first;
     for (std::size_t i = 0; i < rows; ++i) {
         frame->writeRow([&](core::CDataFrame::TFloatVecItr column, std::int32_t&) {
             for (std::size_t j = 0; j < cols; ++j, ++column) {
@@ -578,6 +578,99 @@ void CBoostedTreeTest::testPersistRestore() {
     // and even run
     CPPUNIT_ASSERT_NO_THROW(boostedTree->train());
     CPPUNIT_ASSERT_NO_THROW(boostedTree->predict());
+
+    // TODO test persist and restore produces same train result.
+}
+
+void CBoostedTreeTest::testPersistRestoreErrorHandling() {
+
+    auto errorHandler = [](std::string error) {
+        throw std::runtime_error{error};
+    };
+    core::CLogger::CScopeSetFatalErrorHandler scope{errorHandler};
+
+    std::size_t cols{3};
+    std::size_t capacity{50};
+
+    auto frame = core::makeMainStorageDataFrame(cols, capacity).first;
+
+    std::stringstream errorInBayesianOptimisationState;
+    errorInBayesianOptimisationState
+        << "{\"boosted_tree_impl\":{\"bayesian_optimization\":"
+           "{\"min_boundary\":{\"dense_vector\":\"-9.191737e-1:-2.041179:-3.506558:1.025:2e-1\"},"
+           "\"max_boundary\":{\"dense_vector\":\"3.685997:2.563991:-1.203973:a:8e-1\"},"
+           "\"error_variances\":\"\",\"kernel_parameters\":{\"dense_vector\":\"1:1:1:1:1:1\"},"
+           "\"min_kernel_coordinate_distance_scales\":{\"dense_vector\":\"1e-3:1e-3:1e-3:1e-3:1e-3\"},"
+           "\"function_mean_values\":{\"d\":\"0\"}},\"best_forest_test_loss\":\"1.797693e308\","
+           "\"current_round\":\"0\",\"dependent_variable\":\"2\",\"eta_growth_rate_per_tree\":\"1.05\","
+           "\"eta\":\"1e-1\",\"feature_bag_fraction\":\"5e-1\",\"feature_sample_probabilities\":\"1:0:0\","
+           "\"gamma\":\"1.298755\",\"lambda\":\"3.988485\",\"maximum_attempts_to_add_tree\":\"3\","
+           "\"maximum_optimisation_rounds_per_hyperparameter\":\"3\",\"maximum_tree_size_fraction\":\"10\","
+           "\"missing_feature_row_masks\":{\"d\":\"3\",\"a\":\"50:0:1:50\",\"a\":\"50:0:1:50\",\"a\":\"50:0:1:50\"},"
+           "\"number_folds\":\"2\",\"number_rounds\":\"15\",\"number_splits_per_feature\":\"40\","
+           "\"number_threads\":\"1\",\"rows_per_feature\":\"50\","
+           "\"testing_row_masks\":{\"d\":\"2\",\"a\":\"50:1:1:5:1:1:5:3:3:3:1:1:1:1:4:1:4:3:6:1:1:2:1:2\","
+           "\"a\":\"50:0:1:5:1:1:5:3:3:3:1:1:1:1:4:1:4:3:6:1:1:2:1:2\"},\"maximum_number_trees\":\"2\","
+           "\"training_row_masks\":{\"d\":\"2\",\"a\":\"50:0:1:5:1:1:5:3:3:3:1:1:1:1:4:1:4:3:6:1:1:2:1:2\","
+           "\"a\":\"50:1:1:5:1:1:5:3:3:3:1:1:1:1:4:1:4:3:6:1:1:2:1:2\"},\"best_forest\":{\"d\":\"0\"},"
+           "\"best_hyperparameters\":{\"hyperparam_lambda\":\"0\",\"hyperparam_gamma\":\"0\","
+           "\"hyperparam_eta\":\"0\",\"hyperparam_eta_growth_rate_per_tree\":\"0\","
+           "\"hyperparam_feature_bag_fraction\":\"0\",\"hyperparam_feature_sample_probabilities\":\"\"},"
+           "\"eta_override\":\"false;0\",\"feature_bag_fraction_override\":\"false;0\",\"gamma_override\":\"false;0\","
+           "\"lambda_override\":\"false;0\",\"maximum_number_trees_override\":\"true;2\",\"loss\":\"mse\"}}";
+    errorInBayesianOptimisationState.flush();
+
+    bool throwsExceptions{false};
+    try {
+        auto boostedTree = maths::CBoostedTreeFactory::constructFromString(
+            errorInBayesianOptimisationState, *frame);
+    } catch (const std::exception& e) {
+        LOG_DEBUG(<< "got = " << e.what());
+        throwsExceptions = true;
+        core::CRegex re;
+        re.init("Input error:.*");
+        CPPUNIT_ASSERT(re.matches(e.what()));
+    }
+    CPPUNIT_ASSERT(throwsExceptions);
+
+    std::stringstream errorInBoostedTreeImplState;
+    errorInBoostedTreeImplState
+        << "{\"boosted_tree_impl\":{\"bayesian_optimization\":"
+           "{\"min_boundary\":{\"dense_vector\":\"-9.191737e-1:-2.041179:-3.506558:1.025:2e-1\"},"
+           "\"max_boundary\":{\"dense_vector\":\"3.685997:2.563991:-1.203973:0.1:8e-1\"},"
+           "\"error_variances\":\"\",\"kernel_parameters\":{\"dense_vector\":\"1:1:1:1:1:1\"},"
+           "\"min_kernel_coordinate_distance_scales\":{\"dense_vector\":\"1e-3:1e-3:1e-3:1e-3:1e-3\"},"
+           "\"function_mean_values\":{\"d\":\"0\"}},\"best_forest_test_loss\":\"1.797693e308\","
+           "\"current_round\":\"0\",\"dependent_variable\":\"2\",\"eta_growth_rate_per_tree\":\"1.05\","
+           "\"eta\":\"1e-1\",\"feature_bag_fraction\":\"5e-1\",\"feature_sample_probabilities\":\"1:0:0\","
+           "\"gamma\":\"1.298755\",\"lambda\":\"3.988485\",\"maximum_attempts_to_add_tree\":\"3\","
+           "\"maximum_optimisation_rounds_per_hyperparameter\":\"3\",\"maximum_tree_size_fraction\":\"10\","
+           "\"missing_feature_row_masks\":{\"d\":\"3\",\"a\":\"50:0:1:50\",\"a\":\"50:0:1:50\",\"a\":\"50:0:1:50\"},"
+           "\"number_folds\":\"\",\"number_rounds\":\"15\",\"number_splits_per_feature\":\"40\","
+           "\"number_threads\":\"1\",\"rows_per_feature\":\"50\","
+           "\"testing_row_masks\":{\"d\":\"2\",\"a\":\"50:1:1:5:1:1:5:3:3:3:1:1:1:1:4:1:4:3:6:1:1:2:1:2\","
+           "\"a\":\"50:0:1:5:1:1:5:3:3:3:1:1:1:1:4:1:4:3:6:1:1:2:1:2\"},\"maximum_number_trees\":\"2\","
+           "\"training_row_masks\":{\"d\":\"2\",\"a\":\"50:0:1:5:1:1:5:3:3:3:1:1:1:1:4:1:4:3:6:1:1:2:1:2\","
+           "\"a\":\"50:1:1:5:1:1:5:3:3:3:1:1:1:1:4:1:4:3:6:1:1:2:1:2\"},\"best_forest\":{\"d\":\"0\"},"
+           "\"best_hyperparameters\":{\"hyperparam_lambda\":\"0\",\"hyperparam_gamma\":\"0\","
+           "\"hyperparam_eta\":\"0\",\"hyperparam_eta_growth_rate_per_tree\":\"0\","
+           "\"hyperparam_feature_bag_fraction\":\"0\",\"hyperparam_feature_sample_probabilities\":\"\"},"
+           "\"eta_override\":\"false;0\",\"feature_bag_fraction_override\":\"false;0\",\"gamma_override\":\"false;0\","
+           "\"lambda_override\":\"false;0\",\"maximum_number_trees_override\":\"true;2\",\"loss\":\"mse\"}}";
+    errorInBoostedTreeImplState.flush();
+
+    throwsExceptions = false;
+    try {
+        auto boostedTree = maths::CBoostedTreeFactory::constructFromString(
+            errorInBoostedTreeImplState, *frame);
+    } catch (const std::exception& e) {
+        LOG_DEBUG(<< "got = " << e.what());
+        throwsExceptions = true;
+        core::CRegex re;
+        re.init("Input error:.*");
+        CPPUNIT_ASSERT(re.matches(e.what()));
+    }
+    CPPUNIT_ASSERT(throwsExceptions);
 }
 
 CppUnit::Test* CBoostedTreeTest::suite() {
@@ -601,6 +694,9 @@ CppUnit::Test* CBoostedTreeTest::suite() {
         "CBoostedTreeTest::testErrors", &CBoostedTreeTest::testErrors));
     suiteOfTests->addTest(new CppUnit::TestCaller<CBoostedTreeTest>(
         "CBoostedTreeTest::testPersistRestore", &CBoostedTreeTest::testPersistRestore));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CBoostedTreeTest>(
+        "CBoostedTreeTest::testPersistRestoreErrorHandling",
+        &CBoostedTreeTest::testPersistRestoreErrorHandling));
 
     return suiteOfTests;
 }
