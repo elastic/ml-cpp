@@ -280,7 +280,7 @@ CBoostedTreeFactory::constructFromString(std::stringstream& jsonStringStream,
         TBoostedTreeUPtr treePtr{
             new CBoostedTree{frame, TBoostedTreeImplUPtr{new CBoostedTreeImpl{}}}};
         core::CJsonStateRestoreTraverser traverser(jsonStringStream);
-        if (treePtr->acceptRestoreTraverser(traverser) == false) {
+        if (treePtr->acceptRestoreTraverser(traverser) == false || traverser.haveBadState()) {
             throw std::runtime_error{"failed to restore boosted tree"};
         }
         return treePtr;
