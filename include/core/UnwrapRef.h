@@ -9,8 +9,8 @@
 //! file do not conform to the coding style to ease the eventual transition
 //! to std::unwrap_ref.
 
-#ifndef INCLUDED_ml_core_UNWRAPREF_H_
-#define INCLUDED_ml_core_UNWRAPREF_H_
+#ifndef INCLUDED_ml_core_UnwrapRef_h
+#define INCLUDED_ml_core_UnwrapRef_h
 
 #include <functional>
 
@@ -44,4 +44,4 @@ typename unwrap_reference<T>::type& unwrap_ref(T& t) {
 }
 }
 
-#endif /* INCLUDED_ml_core_UNWRAPREF_H_ */
+#endif // INCLUDED_ml_core_UnwrapRef_h

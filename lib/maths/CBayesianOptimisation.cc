@@ -20,6 +20,8 @@
 
 #include <boost/math/distributions/normal.hpp>
 
+#include <exception>
+
 namespace ml {
 namespace maths {
 
@@ -48,8 +50,10 @@ CBayesianOptimisation::CBayesianOptimisation(TDoubleDoublePrVec parameterBounds)
 }
 
 CBayesianOptimisation::CBayesianOptimisation(core::CStateRestoreTraverser& traverser) {
-    traverser.traverseSubLevel(std::bind(&CBayesianOptimisation::acceptRestoreTraverser,
-                                         this, std::placeholders::_1));
+    if (traverser.traverseSubLevel(std::bind(&CBayesianOptimisation::acceptRestoreTraverser,
+                                             this, std::placeholders::_1)) == false) {
+        throw std::runtime_error{"failed to restore Bayesian optimisation"};
+    }
 }
 
 void CBayesianOptimisation::add(TVector x, double fx, double vx) {

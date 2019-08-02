@@ -735,56 +735,44 @@ void CBoostedTreeImpl::SHyperparameters::acceptPersistInserter(core::CStatePersi
 }
 
 bool CBoostedTreeImpl::SHyperparameters::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
-    try {
-        do {
-            const std::string& name = traverser.name();
-            RESTORE(HYPERPARAM_LAMBDA_TAG,
-                    core::CPersistUtils::restore(HYPERPARAM_LAMBDA_TAG, s_Lambda, traverser))
-            RESTORE(HYPERPARAM_GAMMA_TAG,
-                    core::CPersistUtils::restore(HYPERPARAM_GAMMA_TAG, s_Gamma, traverser))
-            RESTORE(HYPERPARAM_ETA_TAG,
-                    core::CPersistUtils::restore(HYPERPARAM_ETA_TAG, s_Eta, traverser))
-            RESTORE(HYPERPARAM_ETA_GROWTH_RATE_PER_TREE_TAG,
-                    core::CPersistUtils::restore(HYPERPARAM_ETA_GROWTH_RATE_PER_TREE_TAG,
-                                                 s_EtaGrowthRatePerTree, traverser))
-            RESTORE(HYPERPARAM_FEATURE_BAG_FRACTION_TAG,
-                    core::CPersistUtils::restore(HYPERPARAM_FEATURE_BAG_FRACTION_TAG,
-                                                 s_FeatureBagFraction, traverser))
-            RESTORE(HYPERPARAM_FEATURE_SAMPLE_PROBABILITIES_TAG,
-                    core::CPersistUtils::restore(HYPERPARAM_FEATURE_SAMPLE_PROBABILITIES_TAG,
-                                                 s_FeatureSampleProbabilities, traverser))
-        } while (traverser.next());
-    } catch (std::exception& e) {
-        LOG_ERROR(<< "Failed to restore state! " << e.what());
-        return false;
-    }
-
+    do {
+        const std::string& name = traverser.name();
+        RESTORE(HYPERPARAM_LAMBDA_TAG,
+                core::CPersistUtils::restore(HYPERPARAM_LAMBDA_TAG, s_Lambda, traverser))
+        RESTORE(HYPERPARAM_GAMMA_TAG,
+                core::CPersistUtils::restore(HYPERPARAM_GAMMA_TAG, s_Gamma, traverser))
+        RESTORE(HYPERPARAM_ETA_TAG,
+                core::CPersistUtils::restore(HYPERPARAM_ETA_TAG, s_Eta, traverser))
+        RESTORE(HYPERPARAM_ETA_GROWTH_RATE_PER_TREE_TAG,
+                core::CPersistUtils::restore(HYPERPARAM_ETA_GROWTH_RATE_PER_TREE_TAG,
+                                             s_EtaGrowthRatePerTree, traverser))
+        RESTORE(HYPERPARAM_FEATURE_BAG_FRACTION_TAG,
+                core::CPersistUtils::restore(HYPERPARAM_FEATURE_BAG_FRACTION_TAG,
+                                             s_FeatureBagFraction, traverser))
+        RESTORE(HYPERPARAM_FEATURE_SAMPLE_PROBABILITIES_TAG,
+                core::CPersistUtils::restore(HYPERPARAM_FEATURE_SAMPLE_PROBABILITIES_TAG,
+                                             s_FeatureSampleProbabilities, traverser))
+    } while (traverser.next());
     return true;
 }
 
 bool CBoostedTreeImpl::CNode::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
-    try {
-        do {
-            const std::string& name = traverser.name();
-            RESTORE(LEFT_CHILD_TAG,
-                    core::CPersistUtils::restore(LEFT_CHILD_TAG, m_LeftChild, traverser))
-            RESTORE(RIGHT_CHILD_TAG,
-                    core::CPersistUtils::restore(RIGHT_CHILD_TAG, m_RightChild, traverser))
-            RESTORE(SPLIT_FEATURE_TAG,
-                    core::CPersistUtils::restore(SPLIT_FEATURE_TAG, m_SplitFeature, traverser))
-            RESTORE(ASSIGN_MISSING_TO_LEFT_TAG,
-                    core::CPersistUtils::restore(ASSIGN_MISSING_TO_LEFT_TAG,
-                                                 m_AssignMissingToLeft, traverser))
-            RESTORE(NODE_VALUE_TAG,
-                    core::CPersistUtils::restore(NODE_VALUE_TAG, m_NodeValue, traverser))
-            RESTORE(SPLIT_VALUE_TAG,
-                    core::CPersistUtils::restore(SPLIT_VALUE_TAG, m_SplitValue, traverser))
-        } while (traverser.next());
-    } catch (std::exception& e) {
-        LOG_ERROR(<< "Failed to restore state! " << e.what());
-        return false;
-    }
-
+    do {
+        const std::string& name = traverser.name();
+        RESTORE(LEFT_CHILD_TAG,
+                core::CPersistUtils::restore(LEFT_CHILD_TAG, m_LeftChild, traverser))
+        RESTORE(RIGHT_CHILD_TAG,
+                core::CPersistUtils::restore(RIGHT_CHILD_TAG, m_RightChild, traverser))
+        RESTORE(SPLIT_FEATURE_TAG,
+                core::CPersistUtils::restore(SPLIT_FEATURE_TAG, m_SplitFeature, traverser))
+        RESTORE(ASSIGN_MISSING_TO_LEFT_TAG,
+                core::CPersistUtils::restore(ASSIGN_MISSING_TO_LEFT_TAG,
+                                             m_AssignMissingToLeft, traverser))
+        RESTORE(NODE_VALUE_TAG,
+                core::CPersistUtils::restore(NODE_VALUE_TAG, m_NodeValue, traverser))
+        RESTORE(SPLIT_VALUE_TAG,
+                core::CPersistUtils::restore(SPLIT_VALUE_TAG, m_SplitValue, traverser))
+    } while (traverser.next());
     return true;
 }
 
@@ -801,89 +789,81 @@ bool CBoostedTreeImpl::restoreLoss(CBoostedTree::TLossFunctionUPtr& loss,
 }
 
 bool CBoostedTreeImpl::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
-    try {
-        do {
-            const std::string& name = traverser.name();
-            RESTORE_NO_ERROR(BAYESIAN_OPTIMIZATION_TAG,
-                             m_BayesianOptimization =
-                                 std::make_unique<CBayesianOptimisation>(traverser))
-            RESTORE(BEST_FOREST_TEST_LOSS_TAG,
-                    core::CPersistUtils::restore(BEST_FOREST_TEST_LOSS_TAG,
-                                                 m_BestForestTestLoss, traverser))
-            RESTORE(CURRENT_ROUND_TAG,
-                    core::CPersistUtils::restore(CURRENT_ROUND_TAG, m_CurrentRound, traverser))
-            RESTORE(DEPENDENT_VARIABLE_TAG,
-                    core::CPersistUtils::restore(DEPENDENT_VARIABLE_TAG,
-                                                 m_DependentVariable, traverser))
-            RESTORE(ETA_GROWTH_RATE_PER_TREE_TAG,
-                    core::CPersistUtils::restore(ETA_GROWTH_RATE_PER_TREE_TAG,
-                                                 m_EtaGrowthRatePerTree, traverser))
-            RESTORE(ETA_TAG, core::CPersistUtils::restore(ETA_TAG, m_Eta, traverser))
-            RESTORE(FEATURE_BAG_FRACTION_TAG,
-                    core::CPersistUtils::restore(FEATURE_BAG_FRACTION_TAG,
-                                                 m_FeatureBagFraction, traverser))
-            RESTORE(FEATURE_SAMPLE_PROBABILITIES_TAG,
-                    core::CPersistUtils::restore(FEATURE_SAMPLE_PROBABILITIES_TAG,
-                                                 m_FeatureSampleProbabilities, traverser))
-            RESTORE(GAMMA_TAG, core::CPersistUtils::restore(GAMMA_TAG, m_Gamma, traverser))
-            RESTORE(LAMBDA_TAG, core::CPersistUtils::restore(LAMBDA_TAG, m_Lambda, traverser))
-            RESTORE(MAXIMUM_ATTEMPTS_TO_ADD_TREE_TAG,
-                    core::CPersistUtils::restore(MAXIMUM_ATTEMPTS_TO_ADD_TREE_TAG,
-                                                 m_MaximumAttemptsToAddTree, traverser))
-            RESTORE(MAXIMUM_OPTIMISATION_ROUNDS_PER_HYPERPARAMETER_TAG,
-                    core::CPersistUtils::restore(
-                        MAXIMUM_OPTIMISATION_ROUNDS_PER_HYPERPARAMETER_TAG,
-                        m_MaximumOptimisationRoundsPerHyperparameter, traverser))
-            RESTORE(MAXIMUM_TREE_SIZE_FRACTION_TAG,
-                    core::CPersistUtils::restore(MAXIMUM_TREE_SIZE_FRACTION_TAG,
-                                                 m_MaximumTreeSizeFraction, traverser))
-            RESTORE(MISSING_FEATURE_ROW_MASKS_TAG,
-                    core::CPersistUtils::restore(MISSING_FEATURE_ROW_MASKS_TAG,
-                                                 m_MissingFeatureRowMasks, traverser))
-            RESTORE(NUMBER_FOLDS_TAG,
-                    core::CPersistUtils::restore(NUMBER_FOLDS_TAG, m_NumberFolds, traverser))
-            RESTORE(NUMBER_ROUNDS_TAG,
-                    core::CPersistUtils::restore(NUMBER_ROUNDS_TAG, m_NumberRounds, traverser))
-            RESTORE(NUMBER_SPLITS_PER_FEATURE_TAG,
-                    core::CPersistUtils::restore(NUMBER_SPLITS_PER_FEATURE_TAG,
-                                                 m_NumberSplitsPerFeature, traverser))
-            RESTORE(NUMBER_THREADS_TAG,
-                    core::CPersistUtils::restore(NUMBER_THREADS_TAG, m_NumberThreads, traverser))
-            RESTORE(ROWS_PER_FEATURE_TAG,
-                    core::CPersistUtils::restore(ROWS_PER_FEATURE_TAG, m_RowsPerFeature, traverser))
-            RESTORE(TESTING_ROW_MASKS_TAG,
-                    core::CPersistUtils::restore(TESTING_ROW_MASKS_TAG,
-                                                 m_TestingRowMasks, traverser))
-            RESTORE(MAXIMUM_NUMBER_TREES_TAG,
-                    core::CPersistUtils::restore(MAXIMUM_NUMBER_TREES_TAG,
-                                                 m_MaximumNumberTrees, traverser))
-            RESTORE(TRAINING_ROW_MASKS_TAG,
-                    core::CPersistUtils::restore(TRAINING_ROW_MASKS_TAG,
-                                                 m_TrainingRowMasks, traverser))
-            RESTORE(BEST_FOREST_TAG,
-                    core::CPersistUtils::restore(BEST_FOREST_TAG, m_BestForest, traverser))
-            RESTORE(BEST_HYPERPARAMETERS_TAG,
-                    core::CPersistUtils::restore(BEST_HYPERPARAMETERS_TAG,
-                                                 m_BestHyperparameters, traverser))
-            RESTORE(ETA_OVERRIDE_TAG,
-                    core::CPersistUtils::restore(ETA_OVERRIDE_TAG, m_EtaOverride, traverser))
-            RESTORE(FEATURE_BAG_FRACTION_OVERRIDE_TAG,
-                    core::CPersistUtils::restore(FEATURE_BAG_FRACTION_OVERRIDE_TAG,
-                                                 m_FeatureBagFractionOverride, traverser))
-            RESTORE(GAMMA_OVERRIDE_TAG,
-                    core::CPersistUtils::restore(GAMMA_OVERRIDE_TAG, m_GammaOverride, traverser))
-            RESTORE(LAMBDA_OVERRIDE_TAG,
-                    core::CPersistUtils::restore(LAMBDA_OVERRIDE_TAG, m_LambdaOverride, traverser))
-            RESTORE(MAXIMUM_NUMBER_TREES_OVERRIDE_TAG,
-                    core::CPersistUtils::restore(MAXIMUM_NUMBER_TREES_OVERRIDE_TAG,
-                                                 m_MaximumNumberTreesOverride, traverser))
-            RESTORE(LOSS_TAG, restoreLoss(m_Loss, traverser))
-        } while (traverser.next());
-    } catch (std::exception& e) {
-        LOG_ERROR(<< "Failed to restore state! " << e.what());
-        return false;
-    }
-
+    do {
+        const std::string& name = traverser.name();
+        RESTORE_NO_ERROR(BAYESIAN_OPTIMIZATION_TAG,
+                         m_BayesianOptimization =
+                             std::make_unique<CBayesianOptimisation>(traverser))
+        RESTORE(BEST_FOREST_TEST_LOSS_TAG,
+                core::CPersistUtils::restore(BEST_FOREST_TEST_LOSS_TAG,
+                                             m_BestForestTestLoss, traverser))
+        RESTORE(CURRENT_ROUND_TAG,
+                core::CPersistUtils::restore(CURRENT_ROUND_TAG, m_CurrentRound, traverser))
+        RESTORE(DEPENDENT_VARIABLE_TAG,
+                core::CPersistUtils::restore(DEPENDENT_VARIABLE_TAG,
+                                             m_DependentVariable, traverser))
+        RESTORE(ETA_GROWTH_RATE_PER_TREE_TAG,
+                core::CPersistUtils::restore(ETA_GROWTH_RATE_PER_TREE_TAG,
+                                             m_EtaGrowthRatePerTree, traverser))
+        RESTORE(ETA_TAG, core::CPersistUtils::restore(ETA_TAG, m_Eta, traverser))
+        RESTORE(FEATURE_BAG_FRACTION_TAG,
+                core::CPersistUtils::restore(FEATURE_BAG_FRACTION_TAG,
+                                             m_FeatureBagFraction, traverser))
+        RESTORE(FEATURE_SAMPLE_PROBABILITIES_TAG,
+                core::CPersistUtils::restore(FEATURE_SAMPLE_PROBABILITIES_TAG,
+                                             m_FeatureSampleProbabilities, traverser))
+        RESTORE(GAMMA_TAG, core::CPersistUtils::restore(GAMMA_TAG, m_Gamma, traverser))
+        RESTORE(LAMBDA_TAG, core::CPersistUtils::restore(LAMBDA_TAG, m_Lambda, traverser))
+        RESTORE(MAXIMUM_ATTEMPTS_TO_ADD_TREE_TAG,
+                core::CPersistUtils::restore(MAXIMUM_ATTEMPTS_TO_ADD_TREE_TAG,
+                                             m_MaximumAttemptsToAddTree, traverser))
+        RESTORE(MAXIMUM_OPTIMISATION_ROUNDS_PER_HYPERPARAMETER_TAG,
+                core::CPersistUtils::restore(
+                    MAXIMUM_OPTIMISATION_ROUNDS_PER_HYPERPARAMETER_TAG,
+                    m_MaximumOptimisationRoundsPerHyperparameter, traverser))
+        RESTORE(MAXIMUM_TREE_SIZE_FRACTION_TAG,
+                core::CPersistUtils::restore(MAXIMUM_TREE_SIZE_FRACTION_TAG,
+                                             m_MaximumTreeSizeFraction, traverser))
+        RESTORE(MISSING_FEATURE_ROW_MASKS_TAG,
+                core::CPersistUtils::restore(MISSING_FEATURE_ROW_MASKS_TAG,
+                                             m_MissingFeatureRowMasks, traverser))
+        RESTORE(NUMBER_FOLDS_TAG,
+                core::CPersistUtils::restore(NUMBER_FOLDS_TAG, m_NumberFolds, traverser))
+        RESTORE(NUMBER_ROUNDS_TAG,
+                core::CPersistUtils::restore(NUMBER_ROUNDS_TAG, m_NumberRounds, traverser))
+        RESTORE(NUMBER_SPLITS_PER_FEATURE_TAG,
+                core::CPersistUtils::restore(NUMBER_SPLITS_PER_FEATURE_TAG,
+                                             m_NumberSplitsPerFeature, traverser))
+        RESTORE(NUMBER_THREADS_TAG,
+                core::CPersistUtils::restore(NUMBER_THREADS_TAG, m_NumberThreads, traverser))
+        RESTORE(ROWS_PER_FEATURE_TAG,
+                core::CPersistUtils::restore(ROWS_PER_FEATURE_TAG, m_RowsPerFeature, traverser))
+        RESTORE(TESTING_ROW_MASKS_TAG,
+                core::CPersistUtils::restore(TESTING_ROW_MASKS_TAG, m_TestingRowMasks, traverser))
+        RESTORE(MAXIMUM_NUMBER_TREES_TAG,
+                core::CPersistUtils::restore(MAXIMUM_NUMBER_TREES_TAG,
+                                             m_MaximumNumberTrees, traverser))
+        RESTORE(TRAINING_ROW_MASKS_TAG,
+                core::CPersistUtils::restore(TRAINING_ROW_MASKS_TAG, m_TrainingRowMasks, traverser))
+        RESTORE(BEST_FOREST_TAG,
+                core::CPersistUtils::restore(BEST_FOREST_TAG, m_BestForest, traverser))
+        RESTORE(BEST_HYPERPARAMETERS_TAG,
+                core::CPersistUtils::restore(BEST_HYPERPARAMETERS_TAG,
+                                             m_BestHyperparameters, traverser))
+        RESTORE(ETA_OVERRIDE_TAG,
+                core::CPersistUtils::restore(ETA_OVERRIDE_TAG, m_EtaOverride, traverser))
+        RESTORE(FEATURE_BAG_FRACTION_OVERRIDE_TAG,
+                core::CPersistUtils::restore(FEATURE_BAG_FRACTION_OVERRIDE_TAG,
+                                             m_FeatureBagFractionOverride, traverser))
+        RESTORE(GAMMA_OVERRIDE_TAG,
+                core::CPersistUtils::restore(GAMMA_OVERRIDE_TAG, m_GammaOverride, traverser))
+        RESTORE(LAMBDA_OVERRIDE_TAG,
+                core::CPersistUtils::restore(LAMBDA_OVERRIDE_TAG, m_LambdaOverride, traverser))
+        RESTORE(MAXIMUM_NUMBER_TREES_OVERRIDE_TAG,
+                core::CPersistUtils::restore(MAXIMUM_NUMBER_TREES_OVERRIDE_TAG,
+                                             m_MaximumNumberTreesOverride, traverser))
+        RESTORE(LOSS_TAG, restoreLoss(m_Loss, traverser))
+    } while (traverser.next());
     return true;
 }
 
