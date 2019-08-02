@@ -143,10 +143,16 @@ public:
             VECTOR r2{x_ + z2 + w2 - b};
             double n1{las::norm(r1)};
             double n2{las::norm(r2)};
-            return f(x_) + 0.5 * rho * (n1 * n1 + n2 * n2);
+            // Explicitly construct the return type before returning from the lambda,
+            // otherwise the auto return type may be an Eigen closure type which
+            // references temporaries
+            return double{f(x_) + 0.5 * rho * (n1 * n1 + n2 * n2)};
         };
         auto gal = [&](const VECTOR& x_) {
-            return g(x_) + rho * (2 * x_ - z1 + z2 - a - b + w1 + w2);
+            // Explicitly construct the return type before returning from the lambda,
+            // otherwise the auto return type may be an Eigen closure type which
+            // references temporaries
+            return VECTOR{g(x_) + rho * (2 * x_ - z1 + z2 - a - b + w1 + w2)};
         };
 
         VECTOR xmin;

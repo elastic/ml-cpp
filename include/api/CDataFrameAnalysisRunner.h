@@ -115,7 +115,7 @@ public:
     //!
     //! \note The thread calling this is expected to be nearly always idle, i.e.
     //! just progress monitoring, so this doesn't count towards the thread limit.
-    void run(core::CDataFrame& frame);
+    void run(const TStrVec& featureNames, core::CDataFrame& frame);
 
     //! This waits to until the analysis has finished and joins the thread.
     void waitToFinish();
@@ -135,7 +135,7 @@ protected:
                                     std::size_t numberColumns) const;
 
 private:
-    virtual void runImpl(core::CDataFrame& frame) = 0;
+    virtual void runImpl(const TStrVec& featureNames, core::CDataFrame& frame) = 0;
     virtual std::size_t estimateBookkeepingMemoryUsage(std::size_t numberPartitions,
                                                        std::size_t totalNumberRows,
                                                        std::size_t partitionNumberRows,

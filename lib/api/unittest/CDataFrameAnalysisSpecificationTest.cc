@@ -332,7 +332,7 @@ void CDataFrameAnalysisSpecificationTest::testRunAnalysis() {
         auto frameAndDirectory = core::makeMainStorageDataFrame(10);
         auto frame = std::move(frameAndDirectory.first);
 
-        api::CDataFrameAnalysisRunner* runner{spec.run(*frame)};
+        api::CDataFrameAnalysisRunner* runner{spec.run({}, *frame)};
         CPPUNIT_ASSERT(runner != nullptr);
 
         double lastProgress{runner->progress()};
