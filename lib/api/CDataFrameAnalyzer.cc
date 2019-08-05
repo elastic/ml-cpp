@@ -133,6 +133,10 @@ void CDataFrameAnalyzer::run() {
                      << ". Please report this problem.");
         return;
     }
+    if (m_DataFrame->numberRows() == 0) {
+        HANDLE_FATAL(<< "Input error: no data sent.");
+        return;
+    }
 
     LOG_TRACE(<< "Running analysis...");
 
