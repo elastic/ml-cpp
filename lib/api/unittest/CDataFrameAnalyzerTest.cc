@@ -729,6 +729,18 @@ void CDataFrameAnalyzerTest::testErrors() {
         LOG_DEBUG(<< core::CContainerPrinter::print(errors));
         CPPUNIT_ASSERT(errors.size() > 0);
     }
+
+    // No data.
+    {
+        api::CDataFrameAnalyzer analyzer{outlierSpec(2), outputWriterFactory};
+        errors.clear();
+        CPPUNIT_ASSERT_EQUAL(
+            true, analyzer.handleRecord({"c1", "c2", "c3", "c4", "c5", ".", "."},
+                                        {"", "", "", "", "", "", "$"}));
+        LOG_DEBUG(<< core::CContainerPrinter::print(errors));
+        CPPUNIT_ASSERT(errors.size() > 0);
+        CPPUNIT_ASSERT_EQUAL(std::string{"Input error: no data sent."}, errors[0]);
+    }
 }
 
 void CDataFrameAnalyzerTest::testRoundTripDocHashes() {
