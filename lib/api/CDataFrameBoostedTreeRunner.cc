@@ -24,7 +24,7 @@ namespace api {
 namespace {
 // Configuration
 const std::string DEPENDENT_VARIABLE_NAME{"dependent_variable"};
-const std::string PREDICTION_COLUMN_NAME{"prediction_column_name"};
+const std::string PREDICTION_FIELD_NAME{"prediction_field_name"};
 const std::string LAMBDA{"lambda"};
 const std::string GAMMA{"gamma"};
 const std::string ETA{"eta"};
@@ -35,7 +35,7 @@ const CDataFrameAnalysisConfigReader PARAMETER_READER{[] {
     CDataFrameAnalysisConfigReader theReader;
     theReader.addParameter(DEPENDENT_VARIABLE_NAME,
                            CDataFrameAnalysisConfigReader::E_RequiredParameter);
-    theReader.addParameter(PREDICTION_COLUMN_NAME,
+    theReader.addParameter(PREDICTION_FIELD_NAME,
                            CDataFrameAnalysisConfigReader::E_OptionalParameter);
     // TODO objective function, support train and predict.
     theReader.addParameter(LAMBDA, CDataFrameAnalysisConfigReader::E_OptionalParameter);
@@ -55,10 +55,10 @@ CDataFrameBoostedTreeRunner::CDataFrameBoostedTreeRunner(const CDataFrameAnalysi
 
     auto parameters = PARAMETER_READER.read(jsonParameters);
 
-    m_DependentVariableName = parameters[DEPENDENT_VARIABLE_NAME].as<std::string>();
+    m_DependentVariableFieldName = parameters[DEPENDENT_VARIABLE_NAME].as<std::string>();
 
-    m_PredictionName = parameters[PREDICTION_COLUMN_NAME].fallback(
-        m_DependentVariableName + "_prediction");
+    m_PredictionFieldName = parameters[PREDICTION_FIELD_NAME].fallback(
+        m_DependentVariableFieldName + "_prediction");
 
     std::size_t maximumNumberTrees{
         parameters[MAXIMUM_NUMBER_TREES].fallback(std::size_t{0})};
@@ -120,7 +120,7 @@ void CDataFrameBoostedTreeRunner::writeOneRow(const TStrVec&,
         HANDLE_FATAL(<< "Internal error: boosted tree object missing. Please report this error.");
     } else {
         writer.StartObject();
-        writer.Key(m_PredictionName);
+        writer.Key(m_PredictionFieldName);
         writer.Double(row[m_BoostedTree->columnHoldingPrediction(row.numberColumns())]);
         writer.EndObject();
     }
@@ -128,11 +128,11 @@ void CDataFrameBoostedTreeRunner::writeOneRow(const TStrVec&,
 
 void CDataFrameBoostedTreeRunner::runImpl(const TStrVec& featureNames,
                                           core::CDataFrame& frame) {
-    auto dependentVariableColumn =
-        std::find(featureNames.begin(), featureNames.end(), m_DependentVariableName);
+    auto dependentVariableColumn = std::find(
+        featureNames.begin(), featureNames.end(), m_DependentVariableFieldName);
     if (dependentVariableColumn == featureNames.end()) {
         HANDLE_FATAL(<< "Input error: supplied variable to predict '"
-                     << m_DependentVariableName << "' is missing from training"
+                     << m_DependentVariableFieldName << "' is missing from training"
                      << " data " << core::CContainerPrinter::print(featureNames));
     } else {
         m_BoostedTree = m_BoostedTreeFactory->buildFor(
