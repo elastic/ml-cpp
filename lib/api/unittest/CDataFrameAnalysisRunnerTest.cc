@@ -174,19 +174,19 @@ void CDataFrameAnalysisRunnerTest::testEstimateMemoryUsage_0() {
 }
 
 void CDataFrameAnalysisRunnerTest::testEstimateMemoryUsage_1() {
-    testEstimateMemoryUsage(1, 6050, 6050, 0);
+    testEstimateMemoryUsage(1, 6144, 6144, 0);
 }
 
 void CDataFrameAnalysisRunnerTest::testEstimateMemoryUsage_10() {
-    testEstimateMemoryUsage(10, 15128, 13112, 0);
+    testEstimateMemoryUsage(10, 15360, 13312, 0);
 }
 
 void CDataFrameAnalysisRunnerTest::testEstimateMemoryUsage_100() {
-    testEstimateMemoryUsage(100, 63056, 35516, 0);
+    testEstimateMemoryUsage(100, 63488, 35840, 0);
 }
 
 void CDataFrameAnalysisRunnerTest::testEstimateMemoryUsage_1000() {
-    testEstimateMemoryUsage(1000, 460328, 146372, 0);
+    testEstimateMemoryUsage(1000, 460800, 146432, 0);
 }
 
 CppUnit::Test* CDataFrameAnalysisRunnerTest::suite() {

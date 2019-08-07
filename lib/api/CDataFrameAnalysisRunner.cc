@@ -56,7 +56,11 @@ void CDataFrameAnalysisRunner::estimateMemoryUsage(CMemoryUsageEstimationResultJ
         this->estimateMemoryUsage(numberRows, numberRows, numberColumns)};
     std::size_t expectedMemoryUsageWithMaxPartitions{this->estimateMemoryUsage(
         numberRows, numberRows / maxNumberPartitions, numberColumns)};
-    writer.write(expectedMemoryUsageWithOnePartition, expectedMemoryUsageWithMaxPartitions);
+    auto roundUpToNearestKilobyte = [](std::size_t bytes) {
+        return 1024 * ((bytes + 1024 - 1) / 1024);
+    };
+    writer.write(roundUpToNearestKilobyte(expectedMemoryUsageWithOnePartition),
+                 roundUpToNearestKilobyte(expectedMemoryUsageWithMaxPartitions));
 }
 
 void CDataFrameAnalysisRunner::computeAndSaveExecutionStrategy() {
