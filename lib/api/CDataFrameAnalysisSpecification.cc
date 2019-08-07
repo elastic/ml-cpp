@@ -184,9 +184,12 @@ CDataFrameAnalysisRunner* CDataFrameAnalysisSpecification::run(core::CDataFrame&
     return nullptr;
 }
 
-void CDataFrameAnalysisSpecification::estimateMemoryUsage(CMemoryUsageEstimationResultJsonWriter& resultWriter) const {
-    // TODO: What to do if m_Runner is nullptr?
-    m_Runner->estimateMemoryUsage(resultWriter);
+void CDataFrameAnalysisSpecification::estimateMemoryUsage(CMemoryUsageEstimationResultJsonWriter& writer) const {
+    if (m_Runner == nullptr) {
+        HANDLE_FATAL(<< "Internal error: no runner available so can't estimate memory. Please report this problem.");
+        return;
+    }
+    m_Runner->estimateMemoryUsage(writer);
 }
 
 void CDataFrameAnalysisSpecification::initializeRunner(const rapidjson::Value& jsonAnalysis) {

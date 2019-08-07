@@ -25,7 +25,7 @@ namespace api {
 //!
 class API_EXPORT CMemoryUsageEstimationResultJsonWriter : private core::CNonCopyable {
 public:
-    //! Constructor that causes output to be written to the specified wrapped stream
+    //! \param[in] strmOut The wrapped stream to which to write output.
     CMemoryUsageEstimationResultJsonWriter(core::CJsonOutputStreamWrapper& strmOut);
 
     //! Writes the given memory usage estimation result in JSON format.

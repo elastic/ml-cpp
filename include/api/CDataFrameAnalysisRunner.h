@@ -78,7 +78,7 @@ public:
 
     //! Estimates memory usage in two cases: one partition (the whole data frame
     //! fits in main memory) and maximum tolerable number of partitions (only
-    //! one partition needs to be loaded to main memory.
+    //! one partition needs to be loaded to main memory).
     void estimateMemoryUsage(CMemoryUsageEstimationResultJsonWriter& writer) const;
 
     //! Check if the data frame for this analysis should use in or out of core
