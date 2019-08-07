@@ -31,6 +31,7 @@ class CRowRef;
 }
 namespace api {
 class CDataFrameAnalysisSpecification;
+class CMemoryUsageEstimationResultJsonWriter;
 
 //! \brief Hierarchy for running a specific core::CDataFrame analyses.
 //!
@@ -74,6 +75,11 @@ public:
     //! the data frame will be stored, the size of the partition and the maximum
     //! number of rows per subset.
     void computeAndSaveExecutionStrategy();
+
+    //! Estimates memory usage in two cases: one partition (the whole data frame
+    //! fits in main memory) and maximum tolerable number of partitions (only
+    //! one partition needs to be loaded to main memory).
+    void estimateMemoryUsage(CMemoryUsageEstimationResultJsonWriter& writer) const;
 
     //! Check if the data frame for this analysis should use in or out of core
     //! storage.

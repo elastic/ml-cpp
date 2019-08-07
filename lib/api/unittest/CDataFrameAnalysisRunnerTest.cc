@@ -13,6 +13,7 @@
 #include <api/CDataFrameAnalysisSpecification.h>
 #include <api/CDataFrameAnalysisSpecificationJsonWriter.h>
 #include <api/CDataFrameOutliersRunner.h>
+#include <api/CMemoryUsageEstimationResultJsonWriter.h>
 
 #include <test/CTestTmpDir.h>
 
@@ -121,6 +122,75 @@ void CDataFrameAnalysisRunnerTest::testComputeAndSaveExecutionStrategyDiskUsageF
     }
 }
 
+void testEstimateMemoryUsage(int64_t numberRows,
+                             const std::string& expected_expected_memory_usage_with_one_partition,
+                             const std::string& expected_expected_memory_usage_with_max_partitions,
+                             int expected_number_errors) {
+
+    std::ostringstream sstream;
+    std::vector<std::string> errors;
+    std::mutex errorsMutex;
+    auto errorHandler = [&errors, &errorsMutex](std::string error) {
+        std::lock_guard<std::mutex> lock{errorsMutex};
+        errors.push_back(error);
+    };
+
+    core::CLogger::CScopeSetFatalErrorHandler scope{errorHandler};
+
+    // The output writer won't close the JSON structures until is is destroyed
+    {
+        std::string jsonSpec{api::CDataFrameAnalysisSpecificationJsonWriter::jsonString(
+            numberRows, 5, 100000000, 1, {}, true, test::CTestTmpDir::tmpDir(),
+            "", "outlier_detection", "")};
+        api::CDataFrameAnalysisSpecification spec{jsonSpec};
+
+        core::CJsonOutputStreamWrapper wrappedOutStream(sstream);
+        api::CMemoryUsageEstimationResultJsonWriter writer(wrappedOutStream);
+
+        spec.estimateMemoryUsage(writer);
+    }
+
+    rapidjson::Document arrayDoc;
+    arrayDoc.Parse<rapidjson::kParseDefaultFlags>(sstream.str().c_str());
+
+    CPPUNIT_ASSERT(arrayDoc.IsArray());
+    CPPUNIT_ASSERT_EQUAL(rapidjson::SizeType(1), arrayDoc.Size());
+
+    const rapidjson::Value& result = arrayDoc[rapidjson::SizeType(0)];
+    CPPUNIT_ASSERT(result.IsObject());
+
+    CPPUNIT_ASSERT(result.HasMember("expected_memory_usage_with_one_partition"));
+    CPPUNIT_ASSERT_EQUAL(
+        expected_expected_memory_usage_with_one_partition,
+        std::string(result["expected_memory_usage_with_one_partition"].GetString()));
+    CPPUNIT_ASSERT(result.HasMember("expected_memory_usage_with_max_partitions"));
+    CPPUNIT_ASSERT_EQUAL(
+        expected_expected_memory_usage_with_max_partitions,
+        std::string(result["expected_memory_usage_with_max_partitions"].GetString()));
+
+    CPPUNIT_ASSERT_EQUAL(expected_number_errors, static_cast<int>(errors.size()));
+}
+
+void CDataFrameAnalysisRunnerTest::testEstimateMemoryUsage_0() {
+    testEstimateMemoryUsage(0, "0", "0", 1);
+}
+
+void CDataFrameAnalysisRunnerTest::testEstimateMemoryUsage_1() {
+    testEstimateMemoryUsage(1, "6kB", "6kB", 0);
+}
+
+void CDataFrameAnalysisRunnerTest::testEstimateMemoryUsage_10() {
+    testEstimateMemoryUsage(10, "15kB", "13kB", 0);
+}
+
+void CDataFrameAnalysisRunnerTest::testEstimateMemoryUsage_100() {
+    testEstimateMemoryUsage(100, "62kB", "35kB", 0);
+}
+
+void CDataFrameAnalysisRunnerTest::testEstimateMemoryUsage_1000() {
+    testEstimateMemoryUsage(1000, "450kB", "143kB", 0);
+}
+
 CppUnit::Test* CDataFrameAnalysisRunnerTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CDataFrameAnalysisRunnerTest");
 
@@ -130,6 +200,21 @@ CppUnit::Test* CDataFrameAnalysisRunnerTest::suite() {
     suiteOfTests->addTest(new CppUnit::TestCaller<CDataFrameAnalysisRunnerTest>(
         "CDataFrameAnalysisRunnerTest::testComputeAndSaveExecutionStrategyDiskUsageFlag",
         &CDataFrameAnalysisRunnerTest::testComputeAndSaveExecutionStrategyDiskUsageFlag));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CDataFrameAnalysisRunnerTest>(
+        "CDataFrameAnalysisRunnerTest::testEstimateMemoryUsage_0",
+        &CDataFrameAnalysisRunnerTest::testEstimateMemoryUsage_0));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CDataFrameAnalysisRunnerTest>(
+        "CDataFrameAnalysisRunnerTest::testEstimateMemoryUsage_1",
+        &CDataFrameAnalysisRunnerTest::testEstimateMemoryUsage_1));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CDataFrameAnalysisRunnerTest>(
+        "CDataFrameAnalysisRunnerTest::testEstimateMemoryUsage_10",
+        &CDataFrameAnalysisRunnerTest::testEstimateMemoryUsage_10));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CDataFrameAnalysisRunnerTest>(
+        "CDataFrameAnalysisRunnerTest::testEstimateMemoryUsage_100",
+        &CDataFrameAnalysisRunnerTest::testEstimateMemoryUsage_100));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CDataFrameAnalysisRunnerTest>(
+        "CDataFrameAnalysisRunnerTest::testEstimateMemoryUsage_1000",
+        &CDataFrameAnalysisRunnerTest::testEstimateMemoryUsage_1000));
 
     return suiteOfTests;
 }
