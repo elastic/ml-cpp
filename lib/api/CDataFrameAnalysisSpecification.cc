@@ -12,6 +12,7 @@
 #include <api/CDataFrameAnalysisConfigReader.h>
 #include <api/CDataFrameBoostedTreeRunner.h>
 #include <api/CDataFrameOutliersRunner.h>
+#include <api/CMemoryUsageEstimationResultJsonWriter.h>
 
 #include <rapidjson/document.h>
 #include <rapidjson/ostreamwrapper.h>
@@ -182,6 +183,14 @@ CDataFrameAnalysisRunner* CDataFrameAnalysisSpecification::run(const TStrVec& fe
         return m_Runner.get();
     }
     return nullptr;
+}
+
+void CDataFrameAnalysisSpecification::estimateMemoryUsage(CMemoryUsageEstimationResultJsonWriter& writer) const {
+    if (m_Runner == nullptr) {
+        HANDLE_FATAL(<< "Internal error: no runner available so can't estimate memory. Please report this problem.");
+        return;
+    }
+    m_Runner->estimateMemoryUsage(writer);
 }
 
 void CDataFrameAnalysisSpecification::initializeRunner(const rapidjson::Value& jsonAnalysis) {
