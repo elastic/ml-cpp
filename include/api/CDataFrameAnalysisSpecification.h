@@ -154,7 +154,7 @@ public:
     //! Estimates memory usage in two cases: one partition (the whole data frame
     //! fits in main memory) and maximum tolerable number of partitions (only
     //! one partition needs to be loaded to main memory.
-    SMemoryUsageEstimationResult estimateMemoryUsage() const;
+    void estimateMemoryUsage(CMemoryUsageEstimationResultJsonWriter& resultWriter) const;
 
 private:
     void initializeRunner(const rapidjson::Value& jsonAnalysis);

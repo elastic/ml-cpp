@@ -142,12 +142,11 @@ int main(int argc, char** argv) {
         std::make_unique<ml::api::CDataFrameAnalysisSpecification>(analysisSpecificationJson);
 
     if (memoryUsageEstimationOnly) {
-        const auto result = analysisSpecification->estimateMemoryUsage();
         auto outStream = [&ioMgr]() {
             return std::make_unique<ml::core::CJsonOutputStreamWrapper>(ioMgr.outputStream());
         }();
-        ml::api::CMemoryUsageEstimationResultJsonWriter jsonWriter(*outStream);
-        jsonWriter.write(result);
+        ml::api::CMemoryUsageEstimationResultJsonWriter writer(*outStream);
+        analysisSpecification->estimateMemoryUsage(writer);
         return EXIT_SUCCESS;
     }
 

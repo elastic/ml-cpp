@@ -25,6 +25,13 @@ std::size_t memoryLimitWithSafetyMargin(const CDataFrameAnalysisSpecification& s
     return static_cast<std::size_t>(0.9 * static_cast<double>(spec.memoryLimit()) + 0.5);
 }
 
+std::size_t maximumNumberPartitions(const CDataFrameAnalysisSpecification& spec) {
+    // We limit the maximum number of partitions to rows^(1/2) because very
+    // large numbers of partitions are going to be slow and it is better to tell
+    // user to allocate more resources for the job in this case.
+    return static_cast<std::size_t>(std::sqrt(static_cast<double>(spec.numberRows())) + 0.5);
+}
+
 const std::size_t MAXIMUM_FRACTIONAL_PROGRESS{std::size_t{1}
                                               << ((sizeof(std::size_t) - 2) * 8)};
 }
@@ -37,21 +44,19 @@ CDataFrameAnalysisRunner::~CDataFrameAnalysisRunner() {
     this->waitToFinish();
 }
 
-SMemoryUsageEstimationResult CDataFrameAnalysisRunner::estimateMemoryUsage() const {
+void CDataFrameAnalysisRunner::estimateMemoryUsage(CMemoryUsageEstimationResultJsonWriter& writer) const {
     std::size_t numberRows{m_Spec.numberRows()};
     std::size_t numberColumns{m_Spec.numberColumns() + this->numberExtraColumns()};
-    std::size_t maximumNumberPartitions{
-        static_cast<std::size_t>(std::sqrt(static_cast<double>(numberRows)) + 0.5)};
-    if (maximumNumberPartitions == 0) {
-        return SMemoryUsageEstimationResult(0, 0);
+    std::size_t maxNumberPartitions{maximumNumberPartitions(m_Spec)};
+    if (maxNumberPartitions == 0) {
+        writer.write(0, 0);
+        return;
     }
-    std::size_t memoryUsageWithOnePartition{
+    std::size_t expectedMemoryUsageWithOnePartition{
         this->estimateMemoryUsage(numberRows, numberRows, numberColumns)};
-    std::size_t memoryUsageWithMaxPartitions{
-        this->estimateMemoryUsage(numberRows, numberRows / maximumNumberPartitions, numberColumns)};
-    return SMemoryUsageEstimationResult(
-        std::ceil(roundMb(memoryUsageWithOnePartition)),
-        std::ceil(roundMb(memoryUsageWithMaxPartitions)));
+    std::size_t expectedMemoryUsageWithMaxPartitions{
+        this->estimateMemoryUsage(numberRows, numberRows / maxNumberPartitions, numberColumns)};
+    writer.write(expectedMemoryUsageWithOnePartition, expectedMemoryUsageWithMaxPartitions);
 }
 
 void CDataFrameAnalysisRunner::computeAndSaveExecutionStrategy() {
@@ -63,16 +68,12 @@ void CDataFrameAnalysisRunner::computeAndSaveExecutionStrategy() {
     LOG_TRACE(<< "memory limit = " << memoryLimit);
 
     // Find the smallest number of partitions such that the size per partition
-    // is less than the memory limit. We limit this to rows^(1/2) because very
-    // large numbers of partitions are going to be slow and it is better to tell
-    // user to allocate more resources for the job in this case.
+    // is less than the memory limit.
 
-    std::size_t maximumNumberPartitions{
-        static_cast<std::size_t>(std::sqrt(static_cast<double>(numberRows)) + 0.5)};
-
+    std::size_t maxNumberPartitions{maximumNumberPartitions(m_Spec)};
     std::size_t memoryUsage{0};
 
-    for (m_NumberPartitions = 1; m_NumberPartitions < maximumNumberPartitions;
+    for (m_NumberPartitions = 1; m_NumberPartitions < maxNumberPartitions;
          ++m_NumberPartitions) {
         std::size_t partitionNumberRows{numberRows / m_NumberPartitions};
         memoryUsage = this->estimateMemoryUsage(numberRows, partitionNumberRows, numberColumns);

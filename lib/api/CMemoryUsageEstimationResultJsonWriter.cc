@@ -11,29 +11,23 @@ namespace api {
 namespace {
 
 // JSON field names
-const std::string MEMORY_USAGE_WITH_ONE_PARTITION("memory_usage_with_one_partition");
-const std::string MEMORY_USAGE_WITH_MAX_PARTITIONS("memory_usage_with_max_partitions");
+const std::string EXPECTED_MEMORY_USAGE_WITH_ONE_PARTITION("expected_memory_usage_with_one_partition");
+const std::string EXPECTED_MEMORY_USAGE_WITH_MAX_PARTITIONS("expected_memory_usage_with_max_partitions");
 }
 
-SMemoryUsageEstimationResult::SMemoryUsageEstimationResult(
-    std::size_t memoryUsageWithOnePartition, std::size_t memoryUsageWithMaxPartitions):
-s_MemoryUsageWithOnePartition(memoryUsageWithOnePartition), s_MemoryUsageWithMaxPartitions(memoryUsageWithMaxPartitions) {}
-
-SMemoryUsageEstimationResult::SMemoryUsageEstimationResult(
-    const SMemoryUsageEstimationResult& result):
-SMemoryUsageEstimationResult(result.s_MemoryUsageWithOnePartition, result.s_MemoryUsageWithMaxPartitions) {}
-
-CMemoryUsageEstimationResultJsonWriter::CMemoryUsageEstimationResultJsonWriter(core::CJsonOutputStreamWrapper& strmOut) : m_Writer(strmOut) {
+CMemoryUsageEstimationResultJsonWriter::CMemoryUsageEstimationResultJsonWriter(
+        core::CJsonOutputStreamWrapper& strmOut) : m_Writer(strmOut) {
     // Don't write any output in the constructor because, the way things work at
     // the moment, the output stream might be redirected after construction
 }
 
-void CMemoryUsageEstimationResultJsonWriter::write(const SMemoryUsageEstimationResult& result) {
+void CMemoryUsageEstimationResultJsonWriter::write(std::size_t expectedMemoryUsageWithOnePartition,
+                                                   std::size_t expectedMemoryUsageWithMaxPartitions) {
     m_Writer.StartObject();
-    m_Writer.Key(MEMORY_USAGE_WITH_ONE_PARTITION);
-    m_Writer.Uint64(result.s_MemoryUsageWithOnePartition);
-    m_Writer.Key(MEMORY_USAGE_WITH_MAX_PARTITIONS);
-    m_Writer.Uint64(result.s_MemoryUsageWithMaxPartitions);
+    m_Writer.Key(EXPECTED_MEMORY_USAGE_WITH_ONE_PARTITION);
+    m_Writer.Uint64(expectedMemoryUsageWithOnePartition);
+    m_Writer.Key(EXPECTED_MEMORY_USAGE_WITH_MAX_PARTITIONS);
+    m_Writer.Uint64(expectedMemoryUsageWithMaxPartitions);
     m_Writer.EndObject();
     m_Writer.flush();
 }

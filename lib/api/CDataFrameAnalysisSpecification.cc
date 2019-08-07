@@ -184,9 +184,9 @@ CDataFrameAnalysisRunner* CDataFrameAnalysisSpecification::run(core::CDataFrame&
     return nullptr;
 }
 
-SMemoryUsageEstimationResult CDataFrameAnalysisSpecification::estimateMemoryUsage() const {
+void CDataFrameAnalysisSpecification::estimateMemoryUsage(CMemoryUsageEstimationResultJsonWriter& resultWriter) const {
     // TODO: What to do if m_Runner is nullptr?
-    return m_Runner->estimateMemoryUsage();
+    m_Runner->estimateMemoryUsage(resultWriter);
 }
 
 void CDataFrameAnalysisSpecification::initializeRunner(const rapidjson::Value& jsonAnalysis) {

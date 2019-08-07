@@ -17,15 +17,6 @@
 namespace ml {
 namespace api {
 
-//! Structure to store the memory usage estimation result
-struct API_EXPORT SMemoryUsageEstimationResult {
-    SMemoryUsageEstimationResult(size_t memoryUsageWithOnePartition, size_t memoryUsageWithMaxPartitions);
-    SMemoryUsageEstimationResult(const SMemoryUsageEstimationResult& result);
-
-    const size_t s_MemoryUsageWithOnePartition;
-    const size_t s_MemoryUsageWithMaxPartitions;
-};
-
 //! \brief
 //! Write memory usage estimation result in JSON format
 //!
@@ -38,7 +29,8 @@ public:
     CMemoryUsageEstimationResultJsonWriter(core::CJsonOutputStreamWrapper& strmOut);
 
     //! Writes the given memory usage estimation result in JSON format.
-    void write(const SMemoryUsageEstimationResult& result);
+    void write(size_t expectedMemoryUsageWithOnePartition,
+    	       size_t expectedMemoryUsageWithMaxPartitions);
 
 private:
     //! JSON line writer

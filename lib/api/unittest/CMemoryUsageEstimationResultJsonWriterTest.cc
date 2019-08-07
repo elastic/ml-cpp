@@ -22,7 +22,8 @@ using namespace api;
 CppUnit::Test* CMemoryUsageEstimationResultJsonWriterTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CMemoryUsageEstimationResultJsonWriterTest");
     suiteOfTests->addTest(new CppUnit::TestCaller<CMemoryUsageEstimationResultJsonWriterTest>(
-        "CMemoryUsageEstimationResultJsonWriterTest::testWrite", &CMemoryUsageEstimationResultJsonWriterTest::testWrite));
+        "CMemoryUsageEstimationResultJsonWriterTest::testWrite",
+        &CMemoryUsageEstimationResultJsonWriterTest::testWrite));
     return suiteOfTests;
 }
 
@@ -33,8 +34,7 @@ void CMemoryUsageEstimationResultJsonWriterTest::testWrite() {
     {
         core::CJsonOutputStreamWrapper wrappedOutStream(sstream);
         CMemoryUsageEstimationResultJsonWriter writer(wrappedOutStream);
-        SMemoryUsageEstimationResult result(2000, 1000);
-        writer.write(result);
+        writer.write(static_cast<std::size_t>(2000), static_cast<std::size_t>(1000));
     }
 
     rapidjson::Document arrayDoc;
@@ -46,8 +46,8 @@ void CMemoryUsageEstimationResultJsonWriterTest::testWrite() {
     const rapidjson::Value& object = arrayDoc[rapidjson::SizeType(0)];
     CPPUNIT_ASSERT(object.IsObject());
 
-    CPPUNIT_ASSERT(object.HasMember("memory_usage_with_one_partition"));
-    CPPUNIT_ASSERT_EQUAL(int64_t(2000), object["memory_usage_with_one_partition"].GetInt64());
-    CPPUNIT_ASSERT(object.HasMember("memory_usage_with_max_partitions"));
-    CPPUNIT_ASSERT_EQUAL(int64_t(1000), object["memory_usage_with_max_partitions"].GetInt64());
+    CPPUNIT_ASSERT(object.HasMember("expected_memory_usage_with_one_partition"));
+    CPPUNIT_ASSERT_EQUAL(int64_t(2000), object["expected_memory_usage_with_one_partition"].GetInt64());
+    CPPUNIT_ASSERT(object.HasMember("expected_memory_usage_with_max_partitions"));
+    CPPUNIT_ASSERT_EQUAL(int64_t(1000), object["expected_memory_usage_with_max_partitions"].GetInt64());
 }
