@@ -54,8 +54,8 @@ void CDataFrameAnalysisRunner::estimateMemoryUsage(CMemoryUsageEstimationResultJ
     }
     std::size_t expectedMemoryUsageWithOnePartition{
         this->estimateMemoryUsage(numberRows, numberRows, numberColumns)};
-    std::size_t expectedMemoryUsageWithMaxPartitions{
-        this->estimateMemoryUsage(numberRows, numberRows / maxNumberPartitions, numberColumns)};
+    std::size_t expectedMemoryUsageWithMaxPartitions{this->estimateMemoryUsage(
+        numberRows, numberRows / maxNumberPartitions, numberColumns)};
     writer.write(expectedMemoryUsageWithOnePartition, expectedMemoryUsageWithMaxPartitions);
 }
 
@@ -73,8 +73,7 @@ void CDataFrameAnalysisRunner::computeAndSaveExecutionStrategy() {
     std::size_t maxNumberPartitions{maximumNumberPartitions(m_Spec)};
     std::size_t memoryUsage{0};
 
-    for (m_NumberPartitions = 1; m_NumberPartitions < maxNumberPartitions;
-         ++m_NumberPartitions) {
+    for (m_NumberPartitions = 1; m_NumberPartitions < maxNumberPartitions; ++m_NumberPartitions) {
         std::size_t partitionNumberRows{numberRows / m_NumberPartitions};
         memoryUsage = this->estimateMemoryUsage(numberRows, partitionNumberRows, numberColumns);
         LOG_TRACE(<< "partition number rows = " << partitionNumberRows);

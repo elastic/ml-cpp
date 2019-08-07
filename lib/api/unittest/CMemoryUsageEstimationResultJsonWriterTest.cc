@@ -20,7 +20,8 @@ using namespace ml;
 using namespace api;
 
 CppUnit::Test* CMemoryUsageEstimationResultJsonWriterTest::suite() {
-    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CMemoryUsageEstimationResultJsonWriterTest");
+    CppUnit::TestSuite* suiteOfTests =
+        new CppUnit::TestSuite("CMemoryUsageEstimationResultJsonWriterTest");
     suiteOfTests->addTest(new CppUnit::TestCaller<CMemoryUsageEstimationResultJsonWriterTest>(
         "CMemoryUsageEstimationResultJsonWriterTest::testWrite",
         &CMemoryUsageEstimationResultJsonWriterTest::testWrite));
@@ -47,7 +48,9 @@ void CMemoryUsageEstimationResultJsonWriterTest::testWrite() {
     CPPUNIT_ASSERT(object.IsObject());
 
     CPPUNIT_ASSERT(object.HasMember("expected_memory_usage_with_one_partition"));
-    CPPUNIT_ASSERT_EQUAL(int64_t(2000), object["expected_memory_usage_with_one_partition"].GetInt64());
+    CPPUNIT_ASSERT_EQUAL(int64_t(2000),
+                         object["expected_memory_usage_with_one_partition"].GetInt64());
     CPPUNIT_ASSERT(object.HasMember("expected_memory_usage_with_max_partitions"));
-    CPPUNIT_ASSERT_EQUAL(int64_t(1000), object["expected_memory_usage_with_max_partitions"].GetInt64());
+    CPPUNIT_ASSERT_EQUAL(int64_t(1000),
+                         object["expected_memory_usage_with_max_partitions"].GetInt64());
 }

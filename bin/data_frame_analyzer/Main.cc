@@ -96,8 +96,9 @@ int main(int argc, char** argv) {
     std::string outputFileName;
     bool isOutputFileNamedPipe(false);
     if (ml::data_frame_analyzer::CCmdLineParser::parse(
-            argc, argv, configFile, memoryUsageEstimationOnly, logProperties, logPipe, lengthEncodedInput, inputFileName,
-            isInputFileNamedPipe, outputFileName, isOutputFileNamedPipe) == false) {
+            argc, argv, configFile, memoryUsageEstimationOnly, logProperties,
+            logPipe, lengthEncodedInput, inputFileName, isInputFileNamedPipe,
+            outputFileName, isOutputFileNamedPipe) == false) {
         return EXIT_FAILURE;
     }
 

@@ -30,7 +30,7 @@ public:
 
     //! Writes the given memory usage estimation result in JSON format.
     void write(size_t expectedMemoryUsageWithOnePartition,
-    	       size_t expectedMemoryUsageWithMaxPartitions);
+               size_t expectedMemoryUsageWithMaxPartitions);
 
 private:
     //! JSON line writer

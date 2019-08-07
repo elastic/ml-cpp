@@ -123,7 +123,7 @@ void CDataFrameAnalysisRunnerTest::testComputeAndSaveExecutionStrategyDiskUsageF
 }
 
 void testEstimateMemoryUsage(int64_t numberRows,
-                             int64_t expected_expected_memory_usage_with_one_partition, 
+                             int64_t expected_expected_memory_usage_with_one_partition,
                              int64_t expected_expected_memory_usage_with_max_partitions,
                              int expected_number_errors) {
 
@@ -140,7 +140,8 @@ void testEstimateMemoryUsage(int64_t numberRows,
     // The output writer won't close the JSON structures until is is destroyed
     {
         std::string jsonSpec{api::CDataFrameAnalysisSpecificationJsonWriter::jsonString(
-            numberRows, 5, 100000000, 1, {}, true, test::CTestTmpDir::tmpDir(), "", "outlier_detection", "")};
+            numberRows, 5, 100000000, 1, {}, true, test::CTestTmpDir::tmpDir(),
+            "", "outlier_detection", "")};
         api::CDataFrameAnalysisSpecification spec{jsonSpec};
 
         core::CJsonOutputStreamWrapper wrappedOutStream(sstream);
@@ -162,7 +163,7 @@ void testEstimateMemoryUsage(int64_t numberRows,
     CPPUNIT_ASSERT_EQUAL(expected_expected_memory_usage_with_one_partition,
                          result["expected_memory_usage_with_one_partition"].GetInt64());
     CPPUNIT_ASSERT(result.HasMember("expected_memory_usage_with_max_partitions"));
-    CPPUNIT_ASSERT_EQUAL(expected_expected_memory_usage_with_max_partitions, 
+    CPPUNIT_ASSERT_EQUAL(expected_expected_memory_usage_with_max_partitions,
                          result["expected_memory_usage_with_max_partitions"].GetInt64());
 
     CPPUNIT_ASSERT_EQUAL(expected_number_errors, static_cast<int>(errors.size()));

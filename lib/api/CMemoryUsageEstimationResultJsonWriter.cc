@@ -15,8 +15,8 @@ const std::string EXPECTED_MEMORY_USAGE_WITH_ONE_PARTITION("expected_memory_usag
 const std::string EXPECTED_MEMORY_USAGE_WITH_MAX_PARTITIONS("expected_memory_usage_with_max_partitions");
 }
 
-CMemoryUsageEstimationResultJsonWriter::CMemoryUsageEstimationResultJsonWriter(
-        core::CJsonOutputStreamWrapper& strmOut) : m_Writer(strmOut) {
+CMemoryUsageEstimationResultJsonWriter::CMemoryUsageEstimationResultJsonWriter(core::CJsonOutputStreamWrapper& strmOut)
+    : m_Writer(strmOut) {
     // Don't write any output in the constructor because, the way things work at
     // the moment, the output stream might be redirected after construction
 }
