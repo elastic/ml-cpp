@@ -21,13 +21,13 @@ CMemoryUsageEstimationResultJsonWriter::CMemoryUsageEstimationResultJsonWriter(c
     // the moment, the output stream might be redirected after construction
 }
 
-void CMemoryUsageEstimationResultJsonWriter::write(std::size_t expectedMemoryUsageWithOnePartition,
-                                                   std::size_t expectedMemoryUsageWithMaxPartitions) {
+void CMemoryUsageEstimationResultJsonWriter::write(const std::string& expectedMemoryUsageWithOnePartition,
+                                                   const std::string& expectedMemoryUsageWithMaxPartitions) {
     m_Writer.StartObject();
     m_Writer.Key(EXPECTED_MEMORY_USAGE_WITH_ONE_PARTITION);
-    m_Writer.Uint64(expectedMemoryUsageWithOnePartition);
+    m_Writer.String(expectedMemoryUsageWithOnePartition);
     m_Writer.Key(EXPECTED_MEMORY_USAGE_WITH_MAX_PARTITIONS);
-    m_Writer.Uint64(expectedMemoryUsageWithMaxPartitions);
+    m_Writer.String(expectedMemoryUsageWithMaxPartitions);
     m_Writer.EndObject();
     m_Writer.flush();
 }

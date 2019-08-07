@@ -49,7 +49,7 @@ void CDataFrameAnalysisRunner::estimateMemoryUsage(CMemoryUsageEstimationResultJ
     std::size_t numberColumns{m_Spec.numberColumns() + this->numberExtraColumns()};
     std::size_t maxNumberPartitions{maximumNumberPartitions(m_Spec)};
     if (maxNumberPartitions == 0) {
-        writer.write(0, 0);
+        writer.write("0", "0");
         return;
     }
     std::size_t expectedMemoryUsageWithOnePartition{
@@ -57,7 +57,7 @@ void CDataFrameAnalysisRunner::estimateMemoryUsage(CMemoryUsageEstimationResultJ
     std::size_t expectedMemoryUsageWithMaxPartitions{this->estimateMemoryUsage(
         numberRows, numberRows / maxNumberPartitions, numberColumns)};
     auto roundUpToNearestKilobyte = [](std::size_t bytes) {
-        return 1024 * ((bytes + 1024 - 1) / 1024);
+        return std::to_string((bytes + 1024 - 1) / 1024) + "kB";
     };
     writer.write(roundUpToNearestKilobyte(expectedMemoryUsageWithOnePartition),
                  roundUpToNearestKilobyte(expectedMemoryUsageWithMaxPartitions));

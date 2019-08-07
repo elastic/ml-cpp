@@ -29,8 +29,8 @@ public:
     CMemoryUsageEstimationResultJsonWriter(core::CJsonOutputStreamWrapper& strmOut);
 
     //! Writes the given memory usage estimation result in JSON format.
-    void write(size_t expectedMemoryUsageWithOnePartition,
-               size_t expectedMemoryUsageWithMaxPartitions);
+    void write(const std::string& expectedMemoryUsageWithOnePartition,
+               const std::string& expectedMemoryUsageWithMaxPartitions);
 
 private:
     //! JSON line writer

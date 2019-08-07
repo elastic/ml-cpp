@@ -35,7 +35,7 @@ void CMemoryUsageEstimationResultJsonWriterTest::testWrite() {
     {
         core::CJsonOutputStreamWrapper wrappedOutStream(sstream);
         CMemoryUsageEstimationResultJsonWriter writer(wrappedOutStream);
-        writer.write(static_cast<std::size_t>(2000), static_cast<std::size_t>(1000));
+        writer.write("16kB", "8kB");
     }
 
     rapidjson::Document arrayDoc;
@@ -48,9 +48,11 @@ void CMemoryUsageEstimationResultJsonWriterTest::testWrite() {
     CPPUNIT_ASSERT(object.IsObject());
 
     CPPUNIT_ASSERT(object.HasMember("expected_memory_usage_with_one_partition"));
-    CPPUNIT_ASSERT_EQUAL(int64_t(2000),
-                         object["expected_memory_usage_with_one_partition"].GetInt64());
+    CPPUNIT_ASSERT_EQUAL(
+        std::string("16kB"),
+        std::string(object["expected_memory_usage_with_one_partition"].GetString()));
     CPPUNIT_ASSERT(object.HasMember("expected_memory_usage_with_max_partitions"));
-    CPPUNIT_ASSERT_EQUAL(int64_t(1000),
-                         object["expected_memory_usage_with_max_partitions"].GetInt64());
+    CPPUNIT_ASSERT_EQUAL(
+        std::string("8kB"),
+        std::string(object["expected_memory_usage_with_max_partitions"].GetString()));
 }

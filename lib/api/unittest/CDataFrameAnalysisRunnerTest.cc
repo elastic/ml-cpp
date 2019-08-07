@@ -123,8 +123,8 @@ void CDataFrameAnalysisRunnerTest::testComputeAndSaveExecutionStrategyDiskUsageF
 }
 
 void testEstimateMemoryUsage(int64_t numberRows,
-                             int64_t expected_expected_memory_usage_with_one_partition,
-                             int64_t expected_expected_memory_usage_with_max_partitions,
+                             const std::string& expected_expected_memory_usage_with_one_partition,
+                             const std::string& expected_expected_memory_usage_with_max_partitions,
                              int expected_number_errors) {
 
     std::ostringstream sstream;
@@ -160,33 +160,35 @@ void testEstimateMemoryUsage(int64_t numberRows,
     CPPUNIT_ASSERT(result.IsObject());
 
     CPPUNIT_ASSERT(result.HasMember("expected_memory_usage_with_one_partition"));
-    CPPUNIT_ASSERT_EQUAL(expected_expected_memory_usage_with_one_partition,
-                         result["expected_memory_usage_with_one_partition"].GetInt64());
+    CPPUNIT_ASSERT_EQUAL(
+        expected_expected_memory_usage_with_one_partition,
+        std::string(result["expected_memory_usage_with_one_partition"].GetString()));
     CPPUNIT_ASSERT(result.HasMember("expected_memory_usage_with_max_partitions"));
-    CPPUNIT_ASSERT_EQUAL(expected_expected_memory_usage_with_max_partitions,
-                         result["expected_memory_usage_with_max_partitions"].GetInt64());
+    CPPUNIT_ASSERT_EQUAL(
+        expected_expected_memory_usage_with_max_partitions,
+        std::string(result["expected_memory_usage_with_max_partitions"].GetString()));
 
     CPPUNIT_ASSERT_EQUAL(expected_number_errors, static_cast<int>(errors.size()));
 }
 
 void CDataFrameAnalysisRunnerTest::testEstimateMemoryUsage_0() {
-    testEstimateMemoryUsage(0, 0, 0, 1);
+    testEstimateMemoryUsage(0, "0", "0", 1);
 }
 
 void CDataFrameAnalysisRunnerTest::testEstimateMemoryUsage_1() {
-    testEstimateMemoryUsage(1, 6144, 6144, 0);
+    testEstimateMemoryUsage(1, "6kB", "6kB", 0);
 }
 
 void CDataFrameAnalysisRunnerTest::testEstimateMemoryUsage_10() {
-    testEstimateMemoryUsage(10, 15360, 13312, 0);
+    testEstimateMemoryUsage(10, "15kB", "13kB", 0);
 }
 
 void CDataFrameAnalysisRunnerTest::testEstimateMemoryUsage_100() {
-    testEstimateMemoryUsage(100, 63488, 35840, 0);
+    testEstimateMemoryUsage(100, "62kB", "35kB", 0);
 }
 
 void CDataFrameAnalysisRunnerTest::testEstimateMemoryUsage_1000() {
-    testEstimateMemoryUsage(1000, 460800, 146432, 0);
+    testEstimateMemoryUsage(1000, "450kB", "143kB", 0);
 }
 
 CppUnit::Test* CDataFrameAnalysisRunnerTest::suite() {
