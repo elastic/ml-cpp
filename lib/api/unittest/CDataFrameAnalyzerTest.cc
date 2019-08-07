@@ -294,7 +294,7 @@ void CDataFrameAnalyzerTest::testWithoutControlMessages() {
     analyzer.run();
 
     rapidjson::Document results;
-    rapidjson::ParseResult ok(results.Parse(output.str());
+    rapidjson::ParseResult ok(results.Parse(output.str()));
     CPPUNIT_ASSERT(static_cast<bool>(ok) == true);
 
     auto expectedScore = expectedScores.begin();
@@ -340,7 +340,7 @@ void CDataFrameAnalyzerTest::testRunOutlierDetection() {
     analyzer.handleRecord(fieldNames, {"", "", "", "", "", "", "$"});
 
     rapidjson::Document results;
-    rapidjson::ParseResult ok(results.Parse(output.str());
+    rapidjson::ParseResult ok(results.Parse(output.str()));
     CPPUNIT_ASSERT(static_cast<bool>(ok) == true);
 
     auto expectedScore = expectedScores.begin();
@@ -584,7 +584,7 @@ void CDataFrameAnalyzerTest::testRunBoostedTreeTrainingWithParams() {
     analyzer.handleRecord(fieldNames, {"", "", "", "", "", "", "$"});
 
     rapidjson::Document results;
-    rapidjson::ParseResult ok(results.Parse(output.str());
+    rapidjson::ParseResult ok(results.Parse(output.str()));
     CPPUNIT_ASSERT(static_cast<bool>(ok) == true);
 
     auto expectedPrediction = expectedPredictions.begin();
@@ -748,7 +748,7 @@ void CDataFrameAnalyzerTest::testRoundTripDocHashes() {
                           {"", "", "", "", "", "", "$"});
 
     rapidjson::Document results;
-    rapidjson::ParseResult ok(results.Parse(output.str());
+    rapidjson::ParseResult ok(results.Parse(output.str()));
     CPPUNIT_ASSERT(static_cast<bool>(ok) == true);
 
     int expectedHash{0};
