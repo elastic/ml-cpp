@@ -116,7 +116,7 @@ auto regressionSpec(std::string dependentVariable,
         rows, cols, memoryLimit, 1, categoricalFieldNames, true,
         test::CTestTmpDir::tmpDir(), "ml", "regression", parameters)};
 
-    LOG_DEBUG(<< "spec =\n" << spec);
+    LOG_TRACE(<< "spec =\n" << spec);
 
     return std::make_unique<api::CDataFrameAnalysisSpecification>(spec);
 }
@@ -293,7 +293,7 @@ void CDataFrameAnalyzerTest::testWithoutControlMessages() {
     analyzer.run();
 
     rapidjson::Document results;
-    rapidjson::ParseResult ok(results.Parse(output.str().c_str()));
+    rapidjson::ParseResult ok(results.Parse(output.str()));
     CPPUNIT_ASSERT(static_cast<bool>(ok) == true);
 
     auto expectedScore = expectedScores.begin();
@@ -339,7 +339,7 @@ void CDataFrameAnalyzerTest::testRunOutlierDetection() {
     analyzer.handleRecord(fieldNames, {"", "", "", "", "", "", "$"});
 
     rapidjson::Document results;
-    rapidjson::ParseResult ok(results.Parse(output.str().c_str()));
+    rapidjson::ParseResult ok(results.Parse(output.str()));
     CPPUNIT_ASSERT(static_cast<bool>(ok) == true);
 
     auto expectedScore = expectedScores.begin();
@@ -393,7 +393,7 @@ void CDataFrameAnalyzerTest::testRunOutlierDetectionPartitioned() {
     analyzer.handleRecord(fieldNames, {"", "", "", "", "", "", "$"});
 
     rapidjson::Document results;
-    rapidjson::ParseResult ok(results.Parse(output.str().c_str()));
+    rapidjson::ParseResult ok(results.Parse(output.str()));
     CPPUNIT_ASSERT(static_cast<bool>(ok) == true);
 
     auto expectedScore = expectedScores.begin();
@@ -440,7 +440,7 @@ void CDataFrameAnalyzerTest::testRunOutlierFeatureInfluences() {
     analyzer.handleRecord(fieldNames, {"", "", "", "", "", "", "$"});
 
     rapidjson::Document results;
-    rapidjson::ParseResult ok(results.Parse(output.str().c_str()));
+    rapidjson::ParseResult ok(results.Parse(output.str()));
     CPPUNIT_ASSERT(static_cast<bool>(ok) == true);
 
     auto expectedFeatureInfluence = expectedFeatureInfluences.begin();
@@ -491,7 +491,7 @@ void CDataFrameAnalyzerTest::testRunOutlierDetectionWithParams() {
             analyzer.handleRecord(fieldNames, {"", "", "", "", "", "", "$"});
 
             rapidjson::Document results;
-            rapidjson::ParseResult ok(results.Parse(output.str().c_str()));
+            rapidjson::ParseResult ok(results.Parse(output.str()));
             CPPUNIT_ASSERT(static_cast<bool>(ok) == true);
 
             auto expectedScore = expectedScores.begin();
@@ -529,7 +529,7 @@ void CDataFrameAnalyzerTest::testRunBoostedTreeTraining() {
     analyzer.handleRecord(fieldNames, {"", "", "", "", "", "", "$"});
 
     rapidjson::Document results;
-    rapidjson::ParseResult ok(results.Parse(output.str().c_str()));
+    rapidjson::ParseResult ok(results.Parse(output.str()));
     CPPUNIT_ASSERT(static_cast<bool>(ok) == true);
 
     auto expectedPrediction = expectedPredictions.begin();
@@ -539,7 +539,7 @@ void CDataFrameAnalyzerTest::testRunBoostedTreeTraining() {
             CPPUNIT_ASSERT(expectedPrediction != expectedPredictions.end());
             CPPUNIT_ASSERT_DOUBLES_EQUAL(
                 *expectedPrediction,
-                result["row_results"]["results"]["ml"]["prediction"].GetDouble(),
+                result["row_results"]["results"]["ml"]["c5_prediction"].GetDouble(),
                 1e-4 * std::fabs(*expectedPrediction));
             ++expectedPrediction;
             CPPUNIT_ASSERT(result.HasMember("progress_percent") == false);
@@ -584,7 +584,7 @@ void CDataFrameAnalyzerTest::testRunBoostedTreeTrainingWithParams() {
     analyzer.handleRecord(fieldNames, {"", "", "", "", "", "", "$"});
 
     rapidjson::Document results;
-    rapidjson::ParseResult ok(results.Parse(output.str().c_str()));
+    rapidjson::ParseResult ok(results.Parse(output.str()));
     CPPUNIT_ASSERT(static_cast<bool>(ok) == true);
 
     auto expectedPrediction = expectedPredictions.begin();
@@ -594,7 +594,7 @@ void CDataFrameAnalyzerTest::testRunBoostedTreeTrainingWithParams() {
             CPPUNIT_ASSERT(expectedPrediction != expectedPredictions.end());
             CPPUNIT_ASSERT_DOUBLES_EQUAL(
                 *expectedPrediction,
-                result["row_results"]["results"]["ml"]["prediction"].GetDouble(),
+                result["row_results"]["results"]["ml"]["c5_prediction"].GetDouble(),
                 1e-4 * std::fabs(*expectedPrediction));
             ++expectedPrediction;
             CPPUNIT_ASSERT(result.HasMember("progress_percent") == false);
@@ -782,6 +782,18 @@ void CDataFrameAnalyzerTest::testErrors() {
         LOG_DEBUG(<< core::CContainerPrinter::print(errors));
         CPPUNIT_ASSERT(errors.size() > 0);
     }
+
+    // No data.
+    {
+        api::CDataFrameAnalyzer analyzer{outlierSpec(2), outputWriterFactory};
+        errors.clear();
+        CPPUNIT_ASSERT_EQUAL(
+            true, analyzer.handleRecord({"c1", "c2", "c3", "c4", "c5", ".", "."},
+                                        {"", "", "", "", "", "", "$"}));
+        LOG_DEBUG(<< core::CContainerPrinter::print(errors));
+        CPPUNIT_ASSERT(errors.size() > 0);
+        CPPUNIT_ASSERT_EQUAL(std::string{"Input error: no data sent."}, errors[0]);
+    }
 }
 
 void CDataFrameAnalyzerTest::testRoundTripDocHashes() {
@@ -801,7 +813,7 @@ void CDataFrameAnalyzerTest::testRoundTripDocHashes() {
                           {"", "", "", "", "", "", "$"});
 
     rapidjson::Document results;
-    rapidjson::ParseResult ok(results.Parse(output.str().c_str()));
+    rapidjson::ParseResult ok(results.Parse(output.str()));
     CPPUNIT_ASSERT(static_cast<bool>(ok) == true);
 
     int expectedHash{0};

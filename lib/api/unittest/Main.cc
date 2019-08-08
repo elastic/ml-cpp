@@ -22,6 +22,7 @@
 #include "CIoManagerTest.h"
 #include "CJsonOutputWriterTest.h"
 #include "CLengthEncodedInputParserTest.h"
+#include "CMemoryUsageEstimationResultJsonWriterTest.h"
 #include "CModelPlotDataJsonWriterTest.h"
 #include "CModelSnapshotJsonWriterTest.h"
 #include "CMultiFileDataAdderTest.h"
@@ -57,11 +58,12 @@ int main(int argc, const char** argv) {
     runner.addTest(CIoManagerTest::suite());
     runner.addTest(CJsonOutputWriterTest::suite());
     runner.addTest(CLengthEncodedInputParserTest::suite());
-    runner.addTest(CNdJsonInputParserTest::suite());
-    runner.addTest(CNdJsonOutputWriterTest::suite());
+    runner.addTest(CMemoryUsageEstimationResultJsonWriterTest::suite());
     runner.addTest(CModelPlotDataJsonWriterTest::suite());
     runner.addTest(CModelSnapshotJsonWriterTest::suite());
     runner.addTest(CMultiFileDataAdderTest::suite());
+    runner.addTest(CNdJsonInputParserTest::suite());
+    runner.addTest(CNdJsonOutputWriterTest::suite());
     runner.addTest(COutputChainerTest::suite());
     runner.addTest(CPersistenceManagerTest::suite());
     runner.addTest(CRestorePreviousStateTest::suite());

@@ -37,6 +37,7 @@ SRCS=\
 	CIoManagerTest.cc \
 	CJsonOutputWriterTest.cc \
 	CLengthEncodedInputParserTest.cc \
+	CMemoryUsageEstimationResultJsonWriterTest.cc \
 	CMockDataAdder.cc \
 	CMockDataProcessor.cc \
 	CMockSearcher.cc \

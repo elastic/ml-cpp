@@ -43,6 +43,7 @@ CInputParser.cc \
 CIoManager.cc \
 CJsonOutputWriter.cc \
 CLengthEncodedInputParser.cc \
+CMemoryUsageEstimationResultJsonWriter.cc \
 CModelPlotDataJsonWriter.cc \
 CModelSizeStatsJsonWriter.cc \
 CModelSnapshotJsonWriter.cc \

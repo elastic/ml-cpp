@@ -13,6 +13,11 @@ class CDataFrameAnalysisRunnerTest : public CppUnit::TestFixture {
 public:
     void testComputeExecutionStrategyForOutliers();
     void testComputeAndSaveExecutionStrategyDiskUsageFlag();
+    void testEstimateMemoryUsage_0();
+    void testEstimateMemoryUsage_1();
+    void testEstimateMemoryUsage_10();
+    void testEstimateMemoryUsage_100();
+    void testEstimateMemoryUsage_1000();
 
     static CppUnit::Test* suite();
 
