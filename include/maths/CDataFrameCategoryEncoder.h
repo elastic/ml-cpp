@@ -87,7 +87,7 @@ public:
     //! of the feature vector.
     //! \param[in] minimumFrequencyToOneHotEncode The minimum relative frequency of a
     //! category in \p frame to consider one-hot encoding it.
-    //! \param[in] m_RedundancyWeight Controls the weight between feature MIC with the
+    //! \param[in] redundancyWeight Controls the weight between feature MIC with the
     //! target and with the features already selected. This should be non-negative and
     //! the higher the value the more the encoder will prefer to minimise MIC with the
     //! features already selected.

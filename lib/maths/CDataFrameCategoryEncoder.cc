@@ -197,7 +197,6 @@ CDataFrameCategoryEncoder::CDataFrameCategoryEncoder(std::size_t numberThreads,
       m_ColumnIsCategorical(frame.columnIsCategorical()) {
 
     TSizeVec metricColumnMask(columnMask);
-    std::iota(metricColumnMask.begin(), metricColumnMask.end(), 0);
     metricColumnMask.erase(
         std::remove_if(metricColumnMask.begin(), metricColumnMask.end(),
                        [targetColumn, this](std::size_t i) {
@@ -207,7 +206,6 @@ CDataFrameCategoryEncoder::CDataFrameCategoryEncoder(std::size_t numberThreads,
     LOG_TRACE(<< "metric column mask = " << core::CContainerPrinter::print(metricColumnMask));
 
     TSizeVec categoricalColumnMask(columnMask);
-    std::iota(categoricalColumnMask.begin(), categoricalColumnMask.end(), 0);
     categoricalColumnMask.erase(
         std::remove_if(categoricalColumnMask.begin(), categoricalColumnMask.end(),
                        [targetColumn, this](std::size_t i) {
