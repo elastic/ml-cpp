@@ -43,12 +43,11 @@ using TRowItr = core::CDataFrame::TRowItr;
 using TPoint = maths::CDenseVector<maths::CFloatStorage>;
 using TPointVec = std::vector<TPoint>;
 
-std::unique_ptr<api::CDataFrameAnalysisSpecification>
-outlierSpec(std::size_t rows = 110,
-            std::size_t memoryLimit = 100000,
-            std::string method = "",
-            std::size_t numberNeighbours = 0,
-            bool computeFeatureInfluence = false) {
+auto outlierSpec(std::size_t rows = 110,
+                 std::size_t memoryLimit = 100000,
+                 std::string method = "",
+                 std::size_t numberNeighbours = 0,
+                 bool computeFeatureInfluence = false) {
 
     std::string parameters = "{\n";
     bool hasTrailingParameter{false};
@@ -82,16 +81,16 @@ outlierSpec(std::size_t rows = 110,
     return std::make_unique<api::CDataFrameAnalysisSpecification>(spec);
 }
 
-std::unique_ptr<api::CDataFrameAnalysisSpecification>
-regressionSpec(std::string dependentVariable,
-               std::size_t rows = 100,
-               std::size_t memoryLimit = 100000,
-               const TStrVec& categoricalFieldNames = TStrVec{},
-               double lambda = -1.0,
-               double gamma = -1.0,
-               double eta = -1.0,
-               std::size_t maximumNumberTrees = 0,
-               double featureBagFraction = -1.0) {
+auto regressionSpec(std::string dependentVariable,
+                    std::size_t rows = 100,
+                    std::size_t cols = 5,
+                    std::size_t memoryLimit = 100000,
+                    const TStrVec& categoricalFieldNames = TStrVec{},
+                    double lambda = -1.0,
+                    double gamma = -1.0,
+                    double eta = -1.0,
+                    std::size_t maximumNumberTrees = 0,
+                    double featureBagFraction = -1.0) {
 
     std::string parameters = "{\n\"dependent_variable\": \"" + dependentVariable + "\"";
     if (lambda >= 0.0) {
@@ -114,7 +113,7 @@ regressionSpec(std::string dependentVariable,
     parameters += "\n}";
 
     std::string spec{api::CDataFrameAnalysisSpecificationJsonWriter::jsonString(
-        rows, 5, memoryLimit, 1, categoricalFieldNames, true,
+        rows, cols, memoryLimit, 1, categoricalFieldNames, true,
         test::CTestTmpDir::tmpDir(), "ml", "regression", parameters)};
 
     LOG_DEBUG(<< "spec =\n" << spec);
@@ -571,9 +570,10 @@ void CDataFrameAnalyzerTest::testRunBoostedTreeTrainingWithParams() {
         return std::make_unique<core::CJsonOutputStreamWrapper>(output);
     };
 
-    api::CDataFrameAnalyzer analyzer{regressionSpec("c5", 100, 100000, {}, lambda, gamma,
-                                                    eta, maximumNumberTrees, featureBagFraction),
-                                     outputWriterFactory};
+    api::CDataFrameAnalyzer analyzer{
+        regressionSpec("c5", 100, 5, 100000, {}, lambda, gamma, eta,
+                       maximumNumberTrees, featureBagFraction),
+        outputWriterFactory};
 
     TDoubleVec expectedPredictions;
 
@@ -607,6 +607,59 @@ void CDataFrameAnalyzerTest::testRunBoostedTreeTrainingWithParams() {
     }
     CPPUNIT_ASSERT(expectedPrediction == expectedPredictions.end());
     CPPUNIT_ASSERT(progressCompleted);
+}
+
+void CDataFrameAnalyzerTest::testRunBoostedTreeTrainingWithTestData() {
+
+    // Test we are able to predict value rows for which the dependent variable
+    // is missing.
+
+    test::CRandomNumbers rng;
+
+    std::stringstream output;
+    auto outputWriterFactory = [&output]() {
+        return std::make_unique<core::CJsonOutputStreamWrapper>(output);
+    };
+
+    auto target = [](double feature) { return 10.0 * feature; };
+
+    api::CDataFrameAnalyzer analyzer{regressionSpec("target", 50, 2, 100000), outputWriterFactory};
+
+    TDoubleVec feature;
+    rng.generateUniformSamples(1.0, 3.0, 50, feature);
+
+    TStrVec fieldNames{"feature", "target", ".", "."};
+    TStrVec fieldValues(4);
+
+    for (std::size_t i = 0; i < 40; ++i) {
+        fieldValues[0] = std::to_string(feature[i]);
+        fieldValues[1] = std::to_string(target(feature[i]));
+        fieldValues[2] = std::to_string(i);
+        analyzer.handleRecord(fieldNames, fieldValues);
+    }
+    for (std::size_t i = 40; i < 50; ++i) {
+        fieldValues[0] = std::to_string(feature[i]);
+        fieldValues[1] = "";
+        fieldValues[2] = std::to_string(i);
+        analyzer.handleRecord(fieldNames, fieldValues);
+    }
+    analyzer.handleRecord(fieldNames, {"", "", "", "$"});
+
+    rapidjson::Document results;
+    rapidjson::ParseResult ok(results.Parse(output.str().c_str()));
+    CPPUNIT_ASSERT(static_cast<bool>(ok) == true);
+
+    std::size_t numberResults{0};
+    for (const auto& result : results.GetArray()) {
+        if (result.HasMember("row_results")) {
+            double expected{target(feature[result["row_results"]["checksum"].GetUint64()])};
+            CPPUNIT_ASSERT_DOUBLES_EQUAL(
+                expected, result["row_results"]["results"]["ml"]["prediction"].GetDouble(),
+                0.15 * expected);
+            ++numberResults;
+        }
+    }
+    CPPUNIT_ASSERT_EQUAL(std::size_t{50}, numberResults);
 }
 
 void CDataFrameAnalyzerTest::testFlushMessage() {
@@ -770,7 +823,7 @@ void CDataFrameAnalyzerTest::testCategoricalFields() {
 
     {
         api::CDataFrameAnalyzer analyzer{
-            regressionSpec("x5", 1000, 1000000, {"x1", "x2"}), outputWriterFactory};
+            regressionSpec("x5", 1000, 5, 1000000, {"x1", "x2"}), outputWriterFactory};
 
         TStrVec x[]{{"x11", "x12", "x13", "x14", "x15"},
                     {"x21", "x22", "x23", "x24", "x25", "x26", "x27"}};
@@ -809,7 +862,7 @@ void CDataFrameAnalyzerTest::testCategoricalFields() {
         std::size_t rows{api::CDataFrameAnalyzer::MAX_CATEGORICAL_CARDINALITY + 3};
 
         api::CDataFrameAnalyzer analyzer{
-            regressionSpec("x5", rows, 2800000000, {"x1"}), outputWriterFactory};
+            regressionSpec("x5", rows, 5, 2800000000, {"x1"}), outputWriterFactory};
 
         TStrVec fieldNames{"x1", "x2", "x3", "x4", "x5", ".", "."};
         TStrVec fieldValues{"", "", "", "", "", "", ""};
@@ -865,6 +918,9 @@ CppUnit::Test* CDataFrameAnalyzerTest::suite() {
     suiteOfTests->addTest(new CppUnit::TestCaller<CDataFrameAnalyzerTest>(
         "CDataFrameAnalyzerTest::testRunBoostedTreeTrainingWithParams",
         &CDataFrameAnalyzerTest::testRunBoostedTreeTrainingWithParams));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CDataFrameAnalyzerTest>(
+        "CDataFrameAnalyzerTest::testRunBoostedTreeTrainingWithTestData",
+        &CDataFrameAnalyzerTest::testRunBoostedTreeTrainingWithTestData));
     suiteOfTests->addTest(new CppUnit::TestCaller<CDataFrameAnalyzerTest>(
         "CDataFrameAnalyzerTest::testFlushMessage", &CDataFrameAnalyzerTest::testFlushMessage));
     suiteOfTests->addTest(new CppUnit::TestCaller<CDataFrameAnalyzerTest>(

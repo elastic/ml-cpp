@@ -307,15 +307,17 @@ void CDataFrameAnalyzer::addRowToDataFrame(const TStrVec& fieldValues) {
             return core::CFloatStorage{static_cast<double>(id)};
         }
 
-        double value;
-        if (core::CStringUtils::stringToTypeSilent(fieldValue, value) == false) {
-            ++m_BadValueCount;
+        // Use NaN to indicate missing or bad values in the data frame. This
+        // needs handling with care from an analysis perspective. If analyses
+        // can deal with missing values they need to treat NaNs as missing
+        // otherwise we must impute or exit with failure.
 
-            // TODO this is a can of worms we can deal with later.
-            // Use NaN to indicate missing in the data frame, but this needs
-            // handling with care from an analysis perspective. If analyses
-            // can deal with missing values they need to treat NaNs as missing
-            // otherwise we must impute or exit with failure.
+        double value;
+        if (fieldValue.empty()) {
+            ++m_MissingValueCount;
+            return core::CFloatStorage{std::numeric_limits<float>::quiet_NaN()};
+        } else if (core::CStringUtils::stringToTypeSilent(fieldValue, value) == false) {
+            ++m_BadValueCount;
             return core::CFloatStorage{std::numeric_limits<float>::quiet_NaN()};
         }
 
