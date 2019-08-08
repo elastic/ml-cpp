@@ -54,7 +54,8 @@ private:
 private:
     // Note custom config is written directly to the factory object.
 
-    std::string m_DependentVariable;
+    std::string m_DependentVariableFieldName;
+    std::string m_PredictionFieldName;
     TBoostedTreeFactoryUPtr m_BoostedTreeFactory;
     TBoostedTreeUPtr m_BoostedTree;
 };
