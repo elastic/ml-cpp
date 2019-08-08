@@ -609,7 +609,7 @@ void CDataFrameAnalyzerTest::testRunBoostedTreeTrainingWithParams() {
     CPPUNIT_ASSERT(progressCompleted);
 }
 
-void CDataFrameAnalyzerTest::testRunBoostedTreeTrainingWithTestData() {
+void CDataFrameAnalyzerTest::testRunBoostedTreeTrainingWithRowsMissingTargetValue() {
 
     // Test we are able to predict value rows for which the dependent variable
     // is missing.
@@ -931,8 +931,8 @@ CppUnit::Test* CDataFrameAnalyzerTest::suite() {
         "CDataFrameAnalyzerTest::testRunBoostedTreeTrainingWithParams",
         &CDataFrameAnalyzerTest::testRunBoostedTreeTrainingWithParams));
     suiteOfTests->addTest(new CppUnit::TestCaller<CDataFrameAnalyzerTest>(
-        "CDataFrameAnalyzerTest::testRunBoostedTreeTrainingWithTestData",
-        &CDataFrameAnalyzerTest::testRunBoostedTreeTrainingWithTestData));
+        "CDataFrameAnalyzerTest::testRunBoostedTreeTrainingWithRowsMissingTargetValue",
+        &CDataFrameAnalyzerTest::testRunBoostedTreeTrainingWithRowsMissingTargetValue));
     suiteOfTests->addTest(new CppUnit::TestCaller<CDataFrameAnalyzerTest>(
         "CDataFrameAnalyzerTest::testFlushMessage", &CDataFrameAnalyzerTest::testFlushMessage));
     suiteOfTests->addTest(new CppUnit::TestCaller<CDataFrameAnalyzerTest>(
