@@ -126,7 +126,7 @@ public:
     //! Get the number of one-hot encoded categories for \p feature.
     std::size_t numberOneHotEncodedCategories(std::size_t feature) const;
 
-    //! Check if \p index is one for category \p category of \p feature.
+    //! Check if \p encoding is one for category \p category of \p feature.
     bool isOne(std::size_t encoding, std::size_t feature, std::size_t category) const;
 
     //! Check if \p feature has rare categories.
@@ -144,13 +144,14 @@ private:
     using TSizeDoublePrVecVec = std::vector<TSizeDoublePrVec>;
 
 private:
-    auto mics(std::size_t numberThreads,
-              const core::CDataFrame& frame,
-              std::size_t feature,
-              std::size_t category,
-              const TSizeVec& metricColumnMask,
-              const TSizeVec& categoricalColumnMask,
-              double minimumFrequencyToOneHotEncode) const;
+    std::pair<TDoubleVec, TSizeDoublePrVecVec>
+    mics(std::size_t numberThreads,
+         const core::CDataFrame& frame,
+         std::size_t feature,
+         std::size_t category,
+         const TSizeVec& metricColumnMask,
+         const TSizeVec& categoricalColumnMask,
+         double minimumFrequencyToOneHotEncode) const;
     void isRareEncode(std::size_t numberThreads,
                       const core::CDataFrame& frame,
                       const TSizeVec& categoricalColumnMask,

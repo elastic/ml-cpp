@@ -315,28 +315,27 @@ double CDataFrameCategoryEncoder::targetMeanValue(std::size_t feature,
     return m_TargetMeanValues[feature][category];
 }
 
-auto CDataFrameCategoryEncoder::mics(std::size_t numberThreads,
-                                     const core::CDataFrame& frame,
-                                     std::size_t feature,
-                                     std::size_t category,
-                                     const TSizeVec& metricColumnMask,
-                                     const TSizeVec& categoricalColumnMask,
-                                     double minimumFrequencyToOneHotEncode) const {
+std::pair<TDoubleVec, TSizeDoublePrVecVec>
+CDataFrameCategoryEncoder::mics(std::size_t numberThreads,
+                                const core::CDataFrame& frame,
+                                std::size_t feature,
+                                std::size_t category,
+                                const TSizeVec& metricColumnMask,
+                                const TSizeVec& categoricalColumnMask,
+                                double minimumFrequencyToOneHotEncode) const {
     if (m_ColumnIsCategorical[feature]) {
-        return std::make_pair(
-            CDataFrameUtils::micWithColumn(
-                CDataFrameUtils::COneHotCategoricalColumnValue{feature, category},
-                frame, metricColumnMask),
-            CDataFrameUtils::categoryMicWithColumn(
-                CDataFrameUtils::COneHotCategoricalColumnValue{feature, category}, numberThreads,
-                frame, categoricalColumnMask, minimumFrequencyToOneHotEncode));
+        return {CDataFrameUtils::micWithColumn(
+                    CDataFrameUtils::COneHotCategoricalColumnValue{feature, category},
+                    frame, metricColumnMask),
+                CDataFrameUtils::categoryMicWithColumn(
+                    CDataFrameUtils::COneHotCategoricalColumnValue{feature, category}, numberThreads,
+                    frame, categoricalColumnMask, minimumFrequencyToOneHotEncode)};
     }
-    return std::make_pair(
-        CDataFrameUtils::micWithColumn(CDataFrameUtils::CMetricColumnValue{feature},
-                                       frame, metricColumnMask),
-        CDataFrameUtils::categoryMicWithColumn(
-            CDataFrameUtils::CMetricColumnValue{feature}, numberThreads, frame,
-            categoricalColumnMask, minimumFrequencyToOneHotEncode));
+    return {CDataFrameUtils::micWithColumn(CDataFrameUtils::CMetricColumnValue{feature},
+                                           frame, metricColumnMask),
+            CDataFrameUtils::categoryMicWithColumn(
+                CDataFrameUtils::CMetricColumnValue{feature}, numberThreads,
+                frame, categoricalColumnMask, minimumFrequencyToOneHotEncode)};
 }
 
 void CDataFrameCategoryEncoder::isRareEncode(std::size_t numberThreads,
