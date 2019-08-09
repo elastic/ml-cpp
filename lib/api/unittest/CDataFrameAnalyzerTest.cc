@@ -654,7 +654,8 @@ void CDataFrameAnalyzerTest::testRunBoostedTreeTrainingWithRowsMissingTargetValu
         if (result.HasMember("row_results")) {
             double expected{target(feature[result["row_results"]["checksum"].GetUint64()])};
             CPPUNIT_ASSERT_DOUBLES_EQUAL(
-                expected, result["row_results"]["results"]["ml"]["prediction"].GetDouble(),
+                expected,
+                result["row_results"]["results"]["ml"]["target_prediction"].GetDouble(),
                 0.15 * expected);
             ++numberResults;
         }
