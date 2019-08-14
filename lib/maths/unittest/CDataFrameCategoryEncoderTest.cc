@@ -34,7 +34,7 @@ void CDataFrameCategoryEncoderTest::testOneHotEncoding() {
 
     auto target = [&](const TDoubleVecVec& features, std::size_t row) {
         return categoryValue[static_cast<std::size_t>(std::min(features[0][row], 2.0))] +
-               1.5 * features[1][row] - 5.3 * features[2][row];
+               2.8 * features[1][row] - 5.3 * features[2][row];
     };
 
     test::CRandomNumbers rng;
@@ -201,6 +201,100 @@ void CDataFrameCategoryEncoderTest::testEncodingRare() {
     }
 }
 
+void CDataFrameCategoryEncoderTest::testCorrelatedFeatures() {
+
+    // Test the case that if two fields are strongly correlated we will
+    // tend to just select one or the other.
+
+    test::CRandomNumbers rng;
+
+    // Two correlated metrics + 4 independent metrics.
+    {
+        auto target = [&](const TDoubleVecVec& features, std::size_t row) {
+            return 5.3 * features[0][row] + 4.8 * features[1][row] +
+                   1.6 * features[2][row] - 1.6 * features[3][row] +
+                   1.3 * features[4][row] - 5.5 * features[5][row];
+        };
+
+        std::size_t rows{100};
+        std::size_t cols{7};
+
+        TDoubleVecVec features(cols - 1);
+        rng.generateNormalSamples(0.0, 4.0, rows, features[0]);
+        rng.generateNormalSamples(0.0, 0.4, rows, features[1]);
+        for (std::size_t i = 0; i < rows; ++i) {
+            features[1][i] += features[0][i];
+        }
+        rng.discard(1000000);
+        rng.generateNormalSamples(0.0, 4.0, rows, features[2]);
+        rng.discard(1000000);
+        rng.generateNormalSamples(0.0, 4.0, rows, features[3]);
+        rng.discard(1000000);
+        rng.generateNormalSamples(0.0, 4.0, rows, features[4]);
+        rng.discard(1000000);
+        rng.generateNormalSamples(0.0, 4.0, rows, features[5]);
+
+        auto frame = core::makeMainStorageDataFrame(cols, 2 * rows).first;
+
+        frame->categoricalColumns({false, false, false, false, false, false, false});
+        for (std::size_t i = 0; i < rows; ++i) {
+            frame->writeRow([&](core::CDataFrame::TFloatVecItr column, std::int32_t&) {
+                for (std::size_t j = 0; j + 1 < cols; ++j, ++column) {
+                    *column = features[j][i];
+                }
+                *column = target(features, i);
+            });
+        }
+        frame->finishWritingRows();
+
+        maths::CDataFrameCategoryEncoder encoder{1, *frame, {0, 1, 2, 3, 4, 5}, 6, 50};
+
+        // Dispite both carrying a lot of information about the target nearly
+        // the same information is carried by columns 0 and 1 so we should
+        // choose columns 0 or 1 and column 5.
+
+        CPPUNIT_ASSERT_EQUAL(
+            std::string{"[1, 5]"},
+            core::CContainerPrinter::print(encoder.selectedMetricFeatures()));
+    }
+
+    // Two correlated categorical fields.
+    {
+        auto target = [&](const TDoubleVecVec& features, std::size_t row) {
+            return std::floor(features[0][row]) + std::floor(features[1][row]);
+        };
+
+        std::size_t rows{200};
+        std::size_t cols{3};
+        double numberCategories{3.0};
+
+        TDoubleVecVec features(cols - 1);
+        rng.generateUniformSamples(0.0, numberCategories, rows, features[0]);
+        features[1] = features[0];
+
+        auto frame = core::makeMainStorageDataFrame(cols, 2 * rows).first;
+
+        frame->categoricalColumns({true, true, false});
+        for (std::size_t i = 0; i < rows; ++i) {
+            frame->writeRow([&](core::CDataFrame::TFloatVecItr column, std::int32_t&) {
+                for (std::size_t j = 0; j + 1 < cols; ++j, ++column) {
+                    *column = features[j][i];
+                }
+                *column = target(features, i);
+            });
+        }
+        frame->finishWritingRows();
+
+        maths::CDataFrameCategoryEncoder encoder{1, *frame, {0, 1}, 6, 50};
+
+        CPPUNIT_ASSERT_EQUAL(
+            std::string{"[0]"},
+            core::CContainerPrinter::print(encoder.selectedCategoricalFeatures()));
+        CPPUNIT_ASSERT_EQUAL(static_cast<std::size_t>(numberCategories),
+                             encoder.numberOneHotEncodedCategories(0));
+    }
+}
+
 void CDataFrameCategoryEncoderTest::testEncodedDataFrameRowRef() {
 
     // Test we get the feature vectors we expect after encoding.
@@ -215,7 +309,7 @@ void CDataFrameCategoryEncoderTest::testEncodedDataFrameRowRef() {
             static_cast<std::size_t>(std::min(features[0][row], 2.0)),
             static_cast<std::size_t>(std::min(features[3][row], 2.0))};
         return categoryValue[0][categories[0]] + categoryValue[1][categories[1]] +
-               1.8 * features[1][row] - 5.3 * features[2][row];
+               2.6 * features[1][row] - 5.3 * features[2][row];
     };
 
     test::CRandomNumbers rng;
@@ -327,6 +421,9 @@ CppUnit::Test* CDataFrameCategoryEncoderTest::suite() {
     suiteOfTests->addTest(new CppUnit::TestCaller<CDataFrameCategoryEncoderTest>(
         "CDataFrameCategoryEncoderTest::testEncodingRare",
         &CDataFrameCategoryEncoderTest::testEncodingRare));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CDataFrameCategoryEncoderTest>(
+        "CDataFrameCategoryEncoderTest::testCorrelatedFeatures",
+        &CDataFrameCategoryEncoderTest::testCorrelatedFeatures));
     suiteOfTests->addTest(new CppUnit::TestCaller<CDataFrameCategoryEncoderTest>(
         "CDataFrameCategoryEncoderTest::testEncodedDataFrameRowRef",
         &CDataFrameCategoryEncoderTest::testEncodedDataFrameRowRef));
