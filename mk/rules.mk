@@ -47,6 +47,9 @@ $(OBJS_DIR)/%$(OBJECT_FILE_EXT): %.cc
 $(OBJS_DIR)/%$(OBJECT_FILE_EXT): %.c
 	$(CC) -c $(COMP_OUT_FLAG)$@ $(CFLAGS) $(PICFLAGS) $(PDB_FLAGS) $(CPPFLAGS) $(if $(MAKE_PREFIX_SRC_PATH), $(shell pwd)/)$<
 
+$(OBJS_DIR)/Info.plist: $(CPP_SRC_HOME)/gradle.properties $(CPP_SRC_HOME)/mk/make_info_plist.sh
+	$(CPP_SRC_HOME)/mk/make_info_plist.sh $(notdir $(TARGET)) > $@
+
 $(OBJS_DIR)/%.plist: %.cc
 	$(CXX) $(ANALYZE_OUT_FLAG)$@ $(ANALYZEFLAGS) $(filter-out -DNDEBUG, $(CPPFLAGS)) $(if $(MAKE_PREFIX_SRC_PATH), $(shell pwd)/)$<
 
