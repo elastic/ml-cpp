@@ -41,9 +41,6 @@ namespace boosted_tree_detail {
 inline std::size_t predictionColumn(std::size_t numberColumns) {
     return numberColumns - 3;
 }
-inline std::size_t numberColumnsAddedToDataFrame() {
-    return 3;
-}
 }
 
 class MATHS_EXPORT CBoostedTreeImpl final {

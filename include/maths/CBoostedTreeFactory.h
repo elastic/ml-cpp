@@ -93,6 +93,8 @@ private:
     //! Get the (train, test) row masks for performing cross validation.
     std::pair<TPackedBitVectorVec, TPackedBitVectorVec> crossValidationRowMasks() const;
 
+    //! Encode categorical fields and at the same time select the features to use
+    //! as regressors.
     void selectFeaturesAndEncodeCategories(const core::CDataFrame& frame) const;
 
     //! Initialize the regressors sample distribution.
