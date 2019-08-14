@@ -58,7 +58,7 @@ double CArgMinMse::value() const {
 }
 
 CBoostedTree::CBoostedTree(core::CDataFrame& frame, TImplUPtr&& impl)
-    : CDataFrameRegressionModel(frame), m_Impl{std::move(impl)} {
+    : CDataFrameRegressionModel{frame}, m_Impl{std::move(impl)} {
 }
 
 CBoostedTree::~CBoostedTree() = default;
