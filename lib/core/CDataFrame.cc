@@ -210,8 +210,8 @@ void CDataFrame::writeRow(const TWriteFunc& writeRow) {
 
 void CDataFrame::categoricalColumns(TBoolVec columnIsCategorical) {
     if (columnIsCategorical.size() != m_NumberColumns) {
-        HANDLE_FATAL(<< "Internal error: expected '" << m_NumberColumns << "' is"
-                     << "categorical column values but got "
+        HANDLE_FATAL(<< "Internal error: expected '" << m_NumberColumns
+                     << "' 'is categorical' column indicator values but got "
                      << CContainerPrinter::print(columnIsCategorical));
     } else {
         m_ColumnIsCategorical = std::move(columnIsCategorical);
