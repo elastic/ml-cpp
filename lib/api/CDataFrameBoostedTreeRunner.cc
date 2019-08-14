@@ -134,11 +134,13 @@ void CDataFrameBoostedTreeRunner::runImpl(const TStrVec& featureNames,
         HANDLE_FATAL(<< "Input error: supplied variable to predict '"
                      << m_DependentVariableFieldName << "' is missing from training"
                      << " data " << core::CContainerPrinter::print(featureNames));
-    } else {
-        m_BoostedTree = m_BoostedTreeFactory->buildFor(
-            frame, dependentVariableColumn - featureNames.begin());
-        m_BoostedTree->train(this->progressRecorder());
+        return;
     }
+
+    m_BoostedTree = m_BoostedTreeFactory->buildFor(
+        frame, dependentVariableColumn - featureNames.begin());
+    m_BoostedTree->train(this->progressRecorder());
+    m_BoostedTree->predict(this->progressRecorder());
 }
 
 std::size_t CDataFrameBoostedTreeRunner::estimateBookkeepingMemoryUsage(
