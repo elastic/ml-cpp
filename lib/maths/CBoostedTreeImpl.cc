@@ -71,7 +71,8 @@ CBoostedTreeImpl::CBoostedTreeImpl(std::size_t numberThreads, CBoostedTree::TLos
     : m_NumberThreads{numberThreads}, m_Loss{std::move(loss)} {
 }
 
-CBoostedTreeImpl::~CBoostedTreeImpl() = default;
+CBoostedTreeImpl::~CBoostedTreeImpl() {
+}
 
 CBoostedTreeImpl& CBoostedTreeImpl::operator=(CBoostedTreeImpl&&) = default;
 
