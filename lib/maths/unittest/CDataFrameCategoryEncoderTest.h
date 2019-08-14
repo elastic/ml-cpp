@@ -14,6 +14,7 @@ public:
     void testOneHotEncoding();
     void testMeanValueEncoding();
     void testEncodingRare();
+    void testCorrelatedFeatures();
     void testEncodedDataFrameRowRef();
 
     static CppUnit::Test* suite();

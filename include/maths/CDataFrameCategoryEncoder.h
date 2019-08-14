@@ -45,8 +45,7 @@ public:
 
     //! Copy the range to \p output iterator.
     //!
-    //! \warning The output iterator that must be able to receive numberColumns
-    //! values.
+    //! \warning The output iterator that must be able to receive numberColumns values.
     template<typename ITR>
     void copyTo(ITR output) const {
         for (std::size_t i = 0; i < this->numberColumns(); ++i, ++output) {
@@ -88,18 +87,17 @@ public:
     //! of the feature vector.
     //! \param[in] minimumFrequencyToOneHotEncode The minimum relative frequency of a
     //! category in \p frame to consider one-hot encoding it.
-    //! \param[in] lambda Controls the weight between category MIC and the count of
-    //! categories already one-hot encoded for a feature when selecting features. This
-    //! should be non-negative and the higher the value the more this will prefer to
-    //! choose all the metrics and equal numbers of categories from each categorical
-    //! column to one-hot encode.
+    //! \param[in] redundancyWeight Controls the weight between feature MIC with the
+    //! target and with the features already selected. This should be non-negative and
+    //! the higher the value the more the encoder will prefer to minimise MIC with the
+    //! features already selected.
     CDataFrameCategoryEncoder(std::size_t numberThreads,
                               const core::CDataFrame& frame,
                               const TSizeVec& columnMask,
                               std::size_t targetColumn,
                               std::size_t minimumRowsPerFeature,
                               double minimumFrequencyToOneHotEncode = 0.01,
-                              double lambda = 0.2 * std::log(2.0));
+                              double redundancyWeight = 0.5);
 
     //! Get a row reference which encodes the categories in \p row.
     CEncodedDataFrameRowRef encode(TRowRef row);
@@ -128,8 +126,8 @@ public:
     //! Get the number of one-hot encoded categories for \p feature.
     std::size_t numberOneHotEncodedCategories(std::size_t feature) const;
 
-    //! Check if \p index is one for category \p category of \p feature.
-    bool isOne(std::size_t index, std::size_t feature, std::size_t category) const;
+    //! Check if \p encoding is one for category \p category of \p feature.
+    bool isOne(std::size_t encoding, std::size_t feature, std::size_t category) const;
 
     //! Check if \p feature has rare categories.
     bool hasRareCategories(std::size_t feature) const;
@@ -146,25 +144,36 @@ private:
     using TSizeDoublePrVecVec = std::vector<TSizeDoublePrVec>;
 
 private:
+    std::pair<TDoubleVec, TSizeDoublePrVecVec>
+    mics(std::size_t numberThreads,
+         const core::CDataFrame& frame,
+         std::size_t feature,
+         std::size_t category,
+         const TSizeVec& metricColumnMask,
+         const TSizeVec& categoricalColumnMask,
+         double minimumFrequencyToOneHotEncode) const;
     void isRareEncode(std::size_t numberThreads,
                       const core::CDataFrame& frame,
                       const TSizeVec& categoricalColumnMask,
                       std::size_t minimumRowsPerFeature);
-    void hotOneEncode(std::size_t numberThreads,
+    void oneHotEncode(std::size_t numberThreads,
                       const core::CDataFrame& frame,
-                      const TSizeVec& metricColumnMask,
-                      const TSizeVec& categoricalColumnMask,
+                      TSizeVec metricColumnMask,
+                      TSizeVec categoricalColumnMask,
                       std::size_t targetColumn,
                       std::size_t minimumRowsPerFeature,
                       double minimumFrequencyToOneHotEncode);
+    void oneHotEncodeAll(const TDoubleVec& metricMics, const TSizeDoublePrVecVec& categoricalMics);
     void targetMeanValueEncode(std::size_t numberThreads,
                                const core::CDataFrame& frame,
                                const TSizeVec& categoricalColumnMask,
                                std::size_t targetColumn);
     void setupEncodingMaps(const core::CDataFrame& frame);
+    std::size_t numberAvailableFeatures(const TDoubleVec& metricMics,
+                                        const TSizeDoublePrVecVec& categoricalMics) const;
 
 private:
-    double m_Lambda;
+    double m_RedundancyWeight;
     TBoolVec m_ColumnIsCategorical;
     TSizeVec m_SelectedMetricFeatures;
     TDoubleVec m_SelectedMetricFeatureMics;
