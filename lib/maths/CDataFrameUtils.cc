@@ -244,9 +244,11 @@ CDataFrameUtils::meanValueOfTargetForCategories(const CColumnValue& target,
         [&](TMeanAccumulatorVecVec& means_, TRowItr beginRows, TRowItr endRows) {
             for (auto row = beginRows; row != endRows; ++row) {
                 for (std::size_t i : columnMask) {
-                    std::size_t id{static_cast<std::size_t>((*row)[i])};
-                    means_[i].resize(std::max(means_[i].size(), id + 1));
-                    means_[i][id].add(target(*row));
+                    if (isMissing(target(*row)) == false) {
+                        std::size_t id{static_cast<std::size_t>((*row)[i])};
+                        means_[i].resize(std::max(means_[i].size(), id + 1));
+                        means_[i][id].add(target(*row));
+                    }
                 }
             }
         },
