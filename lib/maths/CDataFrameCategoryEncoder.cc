@@ -27,29 +27,36 @@ using TSizeDoublePrVec = std::vector<TSizeDoublePr>;
 using TSizeDoublePrVecVec = std::vector<TSizeDoublePrVec>;
 using TSizeUSet = boost::unordered_set<std::size_t>;
 
-const std::size_t METRIC_CATEGORY{std::numeric_limits<std::size_t>::max()};
-const std::size_t RARE_CATEGORY{METRIC_CATEGORY - 1};
-const std::size_t TARGET_MEAN_CATEGORY{RARE_CATEGORY - 1};
-const std::size_t TARGET_CATEGORY{TARGET_MEAN_CATEGORY - 1};
+enum EEncoding {
+    E_OneHot = 0,
+    E_Frequency,
+    E_TargetMean,
+    E_CandidateEncodings
+};
+
+const std::size_t CATEGORY_FOR_METRICS{std::numeric_limits<std::size_t>::max()};
+const std::size_t CATEGORY_FOR_FREQUANCY_ENCODING{CATEGORY_FOR_METRICS - 1};
+const std::size_t CATEGORY_FOR_TARGET_MEAN_ENCODING{CATEGORY_FOR_FREQUANCY_ENCODING - 1};
+const std::size_t CATEGORY_FOR_DEPENDENT_VARIABLE{CATEGORY_FOR_TARGET_MEAN_ENCODING - 1};
 
 bool isMetric(std::size_t category) {
-    return category == METRIC_CATEGORY;
+    return category == CATEGORY_FOR_METRICS;
 }
-bool isRare(std::size_t category) {
-    return category == RARE_CATEGORY;
+bool isFrequency(std::size_t category) {
+    return category == CATEGORY_FOR_FREQUANCY_ENCODING;
 }
 bool isTargetMean(std::size_t category) {
-    return category == TARGET_MEAN_CATEGORY;
+    return category == CATEGORY_FOR_TARGET_MEAN_ENCODING;
 }
 bool isCategory(std::size_t category) {
-    return (isMetric(category) || isRare(category) || isTargetMean(category)) == false;
+    return (isMetric(category) || isFrequency(category) || isTargetMean(category)) == false;
 }
 std::string print(std::size_t category) {
     if (isMetric(category)) {
         return "metric";
     }
-    if (isRare(category)) {
-        return "rare";
+    if (isFrequency(category)) {
+        return "frequency";
     }
     if (isTargetMean(category)) {
         return "target mean";
@@ -69,7 +76,7 @@ public:
                                                         micWithDependentVariable} {}
 
     bool isMetric() const { return maths::isMetric(m_Category); }
-    bool isRare() const { return maths::isRare(m_Category); }
+    bool isFrequency() const { return maths::isFrequency(m_Category); }
     bool isTargetMean() const { return maths::isTargetMean(m_Category); }
     bool isCategory() const { return maths::isCategory(m_Category); }
     std::size_t feature() const { return m_Feature; }
@@ -91,7 +98,7 @@ public:
         if (this->isMetric()) {
             return std::make_unique<CDataFrameUtils::CMetricColumnValue>(m_Feature);
         }
-        if (this->isRare()) {
+        if (this->isFrequency()) {
             return std::make_unique<CDataFrameUtils::CFrequencyCategoricalColumnValue>(
                 m_Feature, frequencies);
         }
@@ -128,8 +135,7 @@ private:
 //! feature set.
 //!
 //! DESCRIPTION:\n
-//! As with Peng et al, we use a greedy search to approximately solve the
-//! optimization problem
+//! Implements a greedy search to approximately solve the optimization problem
 //!
 //! \f$arg\max_S \frac{1}{|S|} \sum_{f\in S}{MIC(f,t)} - \frac{1}{|S|^2} \sum_{f\in S, g\in S} {MIC(f,g)}\f$
 //!
@@ -458,42 +464,47 @@ CDataFrameCategoryEncoder::mics(std::size_t numberThreads,
                                 const TSizeVec& metricColumnMask,
                                 const TSizeVec& categoricalColumnMask) const {
 
-    CDataFrameUtils::TEncoderFactoryVec encoderFactories{
-        {[](std::size_t, std::size_t sampleColumn, std::size_t category) {
-             return std::make_unique<CDataFrameUtils::COneHotCategoricalColumnValue>(
-                 sampleColumn, category);
-         },
-         m_MinimumFrequencyToOneHotEncode},
-        {[this](std::size_t column, std::size_t sampleColumn, std::size_t) {
-             return std::make_unique<CDataFrameUtils::CTargetMeanCategoricalColumnValue>(
-                 sampleColumn, m_RareCategories[column], m_TargetMeanValues[column]);
-         },
-         0.0},
-        {[this](std::size_t column, std::size_t sampleColumn, std::size_t) {
-             return std::make_unique<CDataFrameUtils::CFrequencyCategoricalColumnValue>(
-                 sampleColumn, m_CategoryFrequencies[column]);
-         },
-         0.0}};
+    CDataFrameUtils::TEncoderFactoryVec encoderFactories(E_CandidateEncodings);
+    encoderFactories[E_OneHot] = std::make_pair(
+        [](std::size_t, std::size_t sampleColumn, std::size_t category) {
+            return std::make_unique<CDataFrameUtils::COneHotCategoricalColumnValue>(
+                sampleColumn, category);
+        },
+        m_MinimumFrequencyToOneHotEncode);
+    encoderFactories[E_TargetMean] = std::make_pair(
+        [this](std::size_t column, std::size_t sampleColumn, std::size_t) {
+            return std::make_unique<CDataFrameUtils::CTargetMeanCategoricalColumnValue>(
+                sampleColumn, m_RareCategories[column], m_TargetMeanValues[column]);
+        },
+        0.0);
+    encoderFactories[E_Frequency] = std::make_pair(
+        [this](std::size_t column, std::size_t sampleColumn, std::size_t) {
+            return std::make_unique<CDataFrameUtils::CFrequencyCategoricalColumnValue>(
+                sampleColumn, m_CategoryFrequencies[column]);
+        },
+        0.0);
 
     auto metricMics = CDataFrameUtils::metricMicWithColumn(target, frame, rowMask,
                                                            metricColumnMask);
     auto categoricalMics = CDataFrameUtils::categoricalMicWithColumn(
         target, numberThreads, frame, rowMask, categoricalColumnMask, encoderFactories);
 
-    TSizeDoublePrVecVec mics(std::move(categoricalMics[0]));
-    for (std::size_t i = 0; i < categoricalMics[1].size(); ++i) {
-        if (categoricalMics[1][i].size() > 0) {
-            mics[i].emplace_back(TARGET_MEAN_CATEGORY, categoricalMics[1][i][0].second);
+    TSizeDoublePrVecVec mics(std::move(categoricalMics[E_OneHot]));
+    for (std::size_t i = 0; i < categoricalMics[E_TargetMean].size(); ++i) {
+        if (categoricalMics[E_TargetMean][i].size() > 0) {
+            mics[i].emplace_back(CATEGORY_FOR_TARGET_MEAN_ENCODING,
+                                 categoricalMics[E_TargetMean][i][0].second);
         }
     }
-    for (std::size_t i = 0; i < categoricalMics[2].size(); ++i) {
-        if (categoricalMics[2][i].size() > 0) {
-            mics[i].emplace_back(RARE_CATEGORY, categoricalMics[2][i][0].second);
+    for (std::size_t i = 0; i < categoricalMics[E_Frequency].size(); ++i) {
+        if (categoricalMics[E_Frequency][i].size() > 0) {
+            mics[i].emplace_back(CATEGORY_FOR_FREQUANCY_ENCODING,
+                                 categoricalMics[E_Frequency][i][0].second);
         }
     }
     for (std::size_t i = 0; i < metricMics.size(); ++i) {
         if (metricMics[i] > 0.0) {
-            mics[i].emplace_back(METRIC_CATEGORY, metricMics[i]);
+            mics[i].emplace_back(CATEGORY_FOR_METRICS, metricMics[i]);
         }
     }
     LOG_TRACE(<< "MICe = " << core::CContainerPrinter::print(mics));
@@ -557,8 +568,10 @@ CDataFrameCategoryEncoder::selectAllFeatures(const TSizeDoublePrVecVec& mics) {
 
             if (isCategory(category)) {
                 m_OneHotEncodedCategories[feature].push_back(category);
-            } else if (isRare(category)) {
+            } else if (isFrequency(category)) {
                 m_ColumnUsesFrequencyEncoding[feature] = true;
+            } else if (isTargetMean(category)) {
+                // Nothing to do
             }
         }
     }
@@ -583,11 +596,12 @@ CDataFrameCategoryEncoder::selectFeatures(std::size_t numberThreads,
     // since it requires training a model f(.) on a subset of the features after
     // each decision. Instead, we use the average MICe between the unselected and
     // selected features as a useful proxy. This is essentially the mRMR approach
-    // of Peng et al. albeit with MICe rather than mutual information. We also
-    // a redundancy weight, which should be non-negative, is used to control the
-    // relative weight of MICe with the target vs the selected variables. A value
-    // of zero means exclusively maximise MICe with the target and as redundancy
-    // weight -> infinity means exclusively minimise MICe with the selected variables.
+    // of Peng et al. albeit with MICe rather than mutual information. Except, it
+    // also supports a redundancy weight, which should be non-negative and is used
+    // to control the relative weight of MICe with the target vs the selected
+    // variables. A value of zero means exclusively maximise MICe with the target
+    // and as redundancy weight -> infinity means exclusively minimise MICe with
+    // the selected variables.
 
     TSizeDoublePrVecVec mics(this->mics(
         numberThreads, frame, CDataFrameUtils::CMetricColumnValue{targetColumn},
@@ -626,8 +640,10 @@ CDataFrameCategoryEncoder::selectFeatures(std::size_t numberThreads,
 
             if (selected.isCategory()) {
                 m_OneHotEncodedCategories[feature].push_back(category);
-            } else if (selected.isRare()) {
+            } else if (selected.isFrequency()) {
                 m_ColumnUsesFrequencyEncoding[feature] = true;
+            } else if (selected.isTargetMean()) {
+                // Nothing to do
             } else if (selected.isMetric()) {
                 metricColumnMask.erase(std::find(metricColumnMask.begin(),
                                                  metricColumnMask.end(), feature));
@@ -660,7 +676,7 @@ void CDataFrameCategoryEncoder::finishEncoding(std::size_t targetColumn,
 
     // Fill in a mapping from encoded column indices to raw column indices.
 
-    selectedFeatureMics[{targetColumn, TARGET_CATEGORY}] = 0.0;
+    selectedFeatureMics[{targetColumn, CATEGORY_FOR_DEPENDENT_VARIABLE}] = 0.0;
 
     m_FeatureVectorMics.reserve(selectedFeatureMics.size());
     m_FeatureVectorColumnMap.reserve(selectedFeatureMics.size());
