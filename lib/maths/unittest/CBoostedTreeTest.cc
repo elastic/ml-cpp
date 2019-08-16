@@ -586,8 +586,8 @@ void CBoostedTreeTest::testCategoricalRegressors() {
     });
 
     auto regression = maths::CBoostedTreeFactory::constructFromParameters(
-                          1, cols - 1, std::make_unique<maths::boosted_tree::CMse>())
-                          .buildFor(*frame);
+                          1, std::make_unique<maths::boosted_tree::CMse>())
+                          .buildFor(*frame, cols - 1);
 
     regression->train();
     regression->predict();

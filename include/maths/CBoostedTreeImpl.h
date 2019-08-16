@@ -595,7 +595,7 @@ private:
     };
 
 private:
-    CBoostedTreeImpl() = default;
+    CBoostedTreeImpl();
 
     //! Check if we can train a model.
     bool canTrain() const;
