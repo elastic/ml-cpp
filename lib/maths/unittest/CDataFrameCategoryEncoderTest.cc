@@ -7,6 +7,8 @@
 #include "CDataFrameCategoryEncoderTest.h"
 
 #include <core/CDataFrame.h>
+#include <core/CJsonStatePersistInserter.h>
+#include <core/CJsonStateRestoreTraverser.h>
 #include <core/CPackedBitVector.h>
 
 #include <maths/CBasicStatistics.h>
@@ -15,6 +17,7 @@
 #include <test/CRandomNumbers.h>
 
 #include <numeric>
+#include <sstream>
 #include <vector>
 
 using namespace ml;
@@ -384,8 +387,6 @@ void CDataFrameCategoryEncoderTest::testEncodedDataFrameRowRef() {
 
     test::CRandomNumbers rng;
 
-    core::stopDefaultAsyncExecutor();
-
     std::size_t rows{500};
     std::size_t cols{5};
     double numberCategories{4.1};
@@ -485,6 +486,67 @@ void CDataFrameCategoryEncoderTest::testEncodedDataFrameRowRef() {
     CPPUNIT_ASSERT(passed);
 }
 
+void CDataFrameCategoryEncoderTest::testPersistRestore() {
+
+    // Test checksum of restored encoder matches persisted one.
+
+    TDoubleVec categoryValue[2]{{-15.0, 20.0, 0.0}, {10.0, -10.0, 0.0}};
+
+    auto target = [&](const TDoubleVecVec& features, std::size_t row) {
+        std::size_t categories[]{
+            static_cast<std::size_t>(std::min(features[0][row], 2.0)),
+            static_cast<std::size_t>(std::min(features[3][row], 2.0))};
+        return categoryValue[0][categories[0]] + categoryValue[1][categories[1]] +
+               2.6 * features[1][row] - 5.3 * features[2][row];
+    };
+
+    test::CRandomNumbers rng;
+
+    std::size_t rows{500};
+    std::size_t cols{5};
+    double numberCategories{4.1};
+
+    TDoubleVecVec features(cols - 1);
+    rng.generateUniformSamples(0.0, numberCategories, rows, features[0]);
+    rng.generateNormalSamples(0.0, 4.0, rows, features[1]);
+    rng.generateNormalSamples(2.0, 2.0, rows, features[2]);
+    rng.generateUniformSamples(0.0, numberCategories, rows, features[3]);
+
+    auto frame = core::makeMainStorageDataFrame(cols, 2 * rows).first;
+
+    frame->categoricalColumns({true, false, false, true, false});
+    for (std::size_t i = 0; i < rows; ++i) {
+        frame->writeRow([&](core::CDataFrame::TFloatVecItr column, std::int32_t&) {
+            *(column++) = std::floor(features[0][i]);
+            for (std::size_t j = 1; j + 2 < cols; ++j, ++column) {
+                *column = features[j][i];
+            }
+            *(column++) = std::floor(features[3][i]);
+            *column = target(features, i);
+        });
+    }
+    frame->finishWritingRows();
+
+    maths::CDataFrameCategoryEncoder encoder{
+        1, *frame, core::CPackedBitVector{rows, true}, {0, 1, 2, 3}, 4, 50};
+
+    std::stringstream persistTo;
+    core::CJsonStatePersistInserter inserter{persistTo};
+    inserter.insertLevel("top-level", std::bind(&maths::CDataFrameCategoryEncoder::acceptPersistInserter,
+                                                &encoder, std::placeholders::_1));
+    encoder.acceptPersistInserter(inserter);
+    persistTo.flush();
+
+    LOG_DEBUG(<< "persisted " << persistTo.str());
+
+    try {
+        core::CJsonStateRestoreTraverser traverser{persistTo};
+        maths::CDataFrameCategoryEncoder restoredEncoder{traverser};
+        CPPUNIT_ASSERT_EQUAL(encoder.checksum(), restoredEncoder.checksum());
+
+    } catch (const std::exception& e) { CPPUNIT_FAIL(e.what()); }
+}
+
 CppUnit::Test* CDataFrameCategoryEncoderTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CDataFrameCategoryEncoderTest");
 
@@ -506,6 +568,9 @@ CppUnit::Test* CDataFrameCategoryEncoderTest::suite() {
     suiteOfTests->addTest(new CppUnit::TestCaller<CDataFrameCategoryEncoderTest>(
         "CDataFrameCategoryEncoderTest::testEncodedDataFrameRowRef",
         &CDataFrameCategoryEncoderTest::testEncodedDataFrameRowRef));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CDataFrameCategoryEncoderTest>(
+        "CDataFrameCategoryEncoderTest::testPersistRestore",
+        &CDataFrameCategoryEncoderTest::testPersistRestore));
 
     return suiteOfTests;
 }

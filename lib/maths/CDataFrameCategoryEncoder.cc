@@ -183,6 +183,19 @@ private:
     double m_RedundancyWeight;
     TFeatureRelevanceMinusRedundancyList m_Features;
 };
+
+const std::string MINIMUM_ROWS_PER_FEATURE_TAG{"minimum_rows_per_feature"};
+const std::string MINIMUM_FREQUENCY_TO_ONE_HOT_ENCODE_TAG{"minimum_frequency_to_one_hot_encode"};
+const std::string REDUNDANCY_WEIGHT_TAG{"redundancy_weight"};
+const std::string COLUMN_IS_CATEGORICAL_TAG{"is_categorical"};
+const std::string COLUMN_USES_FREQUENCY_ENCODING_TAG{"uses_frequency_encoding"};
+const std::string ONE_HOT_ENCODED_CATEGORIES_TAG{"one_hot_encoded_categories"};
+const std::string RARE_CATEGORIES_TAG{"rare_categories"};
+const std::string CATEGORY_FREQUENCIES_TAG{"category_frequencies"};
+const std::string TARGET_MEAN_VALUES_TAG{"target_mean_values"};
+const std::string FEATURE_VECTOR_MICS_TAG{"feature_vector_mics"};
+const std::string FEATURE_VECTOR_COLUMN_MAP_TAG{"feature_vector_column_map"};
+const std::string FEATURE_VECTOR_ENCODING_MAP_TAG{"feature_vector_encoding_map"};
 }
 
 CEncodedDataFrameRowRef::CEncodedDataFrameRowRef(TRowRef row, const CDataFrameCategoryEncoder& encoder)
@@ -276,6 +289,13 @@ CDataFrameCategoryEncoder::CDataFrameCategoryEncoder(std::size_t numberThreads,
     this->finishEncoding(
         targetColumn, this->selectFeatures(numberThreads, frame, rowMask, metricColumnMask,
                                            categoricalColumnMask, targetColumn));
+}
+
+CDataFrameCategoryEncoder::CDataFrameCategoryEncoder(core::CStateRestoreTraverser& traverser) {
+    if (traverser.traverseSubLevel(std::bind(&CDataFrameCategoryEncoder::acceptRestoreTraverser,
+                                             this, std::placeholders::_1)) == false) {
+        throw std::runtime_error{"failed to restore category encoder"};
+    }
 }
 
 CEncodedDataFrameRowRef CDataFrameCategoryEncoder::encode(TRowRef row) const {
@@ -372,6 +392,62 @@ std::uint64_t CDataFrameCategoryEncoder::checksum(std::uint64_t seed) const {
     seed = CChecksum::calculate(seed, m_FeatureVectorMics);
     seed = CChecksum::calculate(seed, m_FeatureVectorColumnMap);
     return CChecksum::calculate(seed, m_FeatureVectorEncodingMap);
+}
+
+void CDataFrameCategoryEncoder::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
+    inserter.insertValue(MINIMUM_ROWS_PER_FEATURE_TAG, m_MinimumRowsPerFeature);
+    inserter.insertValue(MINIMUM_FREQUENCY_TO_ONE_HOT_ENCODE_TAG, m_MinimumFrequencyToOneHotEncode,
+                         core::CIEEE754::E_DoublePrecision);
+    inserter.insertValue(REDUNDANCY_WEIGHT_TAG, m_RedundancyWeight,
+                         core::CIEEE754::E_DoublePrecision);
+    core::CPersistUtils::persist(COLUMN_IS_CATEGORICAL_TAG, m_ColumnIsCategorical, inserter);
+    core::CPersistUtils::persist(COLUMN_USES_FREQUENCY_ENCODING_TAG,
+                                 m_ColumnUsesFrequencyEncoding, inserter);
+    core::CPersistUtils::persist(ONE_HOT_ENCODED_CATEGORIES_TAG,
+                                 m_OneHotEncodedCategories, inserter);
+    core::CPersistUtils::persist(RARE_CATEGORIES_TAG, m_RareCategories, inserter);
+    core::CPersistUtils::persist(CATEGORY_FREQUENCIES_TAG, m_CategoryFrequencies, inserter);
+    core::CPersistUtils::persist(TARGET_MEAN_VALUES_TAG, m_TargetMeanValues, inserter);
+    core::CPersistUtils::persist(FEATURE_VECTOR_MICS_TAG, m_FeatureVectorMics, inserter);
+    core::CPersistUtils::persist(FEATURE_VECTOR_COLUMN_MAP_TAG,
+                                 m_FeatureVectorColumnMap, inserter);
+    core::CPersistUtils::persist(FEATURE_VECTOR_ENCODING_MAP_TAG,
+                                 m_FeatureVectorEncodingMap, inserter);
+}
+
+bool CDataFrameCategoryEncoder::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
+    do {
+        const std::string& name{traverser.name()};
+        RESTORE_BUILT_IN(MINIMUM_ROWS_PER_FEATURE_TAG, m_MinimumRowsPerFeature)
+        RESTORE_BUILT_IN(MINIMUM_FREQUENCY_TO_ONE_HOT_ENCODE_TAG, m_MinimumFrequencyToOneHotEncode)
+        RESTORE_BUILT_IN(REDUNDANCY_WEIGHT_TAG, m_RedundancyWeight)
+        RESTORE(COLUMN_IS_CATEGORICAL_TAG,
+                core::CPersistUtils::restore(COLUMN_IS_CATEGORICAL_TAG,
+                                             m_ColumnIsCategorical, traverser))
+        RESTORE(COLUMN_USES_FREQUENCY_ENCODING_TAG,
+                core::CPersistUtils::restore(COLUMN_USES_FREQUENCY_ENCODING_TAG,
+                                             m_ColumnUsesFrequencyEncoding, traverser))
+        RESTORE(ONE_HOT_ENCODED_CATEGORIES_TAG,
+                core::CPersistUtils::restore(ONE_HOT_ENCODED_CATEGORIES_TAG,
+                                             m_OneHotEncodedCategories, traverser))
+        RESTORE(RARE_CATEGORIES_TAG,
+                core::CPersistUtils::restore(RARE_CATEGORIES_TAG, m_RareCategories, traverser))
+        RESTORE(CATEGORY_FREQUENCIES_TAG,
+                core::CPersistUtils::restore(CATEGORY_FREQUENCIES_TAG,
+                                             m_CategoryFrequencies, traverser))
+        RESTORE(TARGET_MEAN_VALUES_TAG,
+                core::CPersistUtils::restore(TARGET_MEAN_VALUES_TAG, m_TargetMeanValues, traverser))
+        RESTORE(FEATURE_VECTOR_MICS_TAG,
+                core::CPersistUtils::restore(FEATURE_VECTOR_MICS_TAG,
+                                             m_FeatureVectorMics, traverser))
+        RESTORE(FEATURE_VECTOR_COLUMN_MAP_TAG,
+                core::CPersistUtils::restore(FEATURE_VECTOR_COLUMN_MAP_TAG,
+                                             m_FeatureVectorColumnMap, traverser))
+        RESTORE(FEATURE_VECTOR_ENCODING_MAP_TAG,
+                core::CPersistUtils::restore(FEATURE_VECTOR_ENCODING_MAP_TAG,
+                                             m_FeatureVectorEncodingMap, traverser))
+    } while (traverser.next());
+    return true;
 }
 
 CDataFrameCategoryEncoder::TSizeDoublePrVecVec

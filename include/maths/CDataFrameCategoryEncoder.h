@@ -111,6 +111,9 @@ public:
                               double minimumFrequencyToOneHotEncode = 0.05,
                               double redundancyWeight = 0.5);
 
+    //! Initialize from serialized data.
+    CDataFrameCategoryEncoder(core::CStateRestoreTraverser& traverser);
+
     //! Get a row reference which encodes the categories in \p row.
     CEncodedDataFrameRowRef encode(TRowRef row) const;
 
@@ -152,6 +155,12 @@ public:
 
     //! Get a checksum of the state of this object seeded with \p seed.
     std::uint64_t checksum(std::uint64_t seed = 0) const;
+
+    //! Persist by passing information to \p inserter.
+    void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
+
+    //! Populate the object from serialized data.
+    bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
 
 private:
     using TSizeDoublePr = std::pair<std::size_t, double>;

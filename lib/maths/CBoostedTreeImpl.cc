@@ -676,6 +676,7 @@ const std::string ETA_OVERRIDE_TAG{"eta_override"};
 const std::string ETA_TAG{"eta"};
 const std::string FEATURE_BAG_FRACTION_OVERRIDE_TAG{"feature_bag_fraction_override"};
 const std::string FEATURE_BAG_FRACTION_TAG{"feature_bag_fraction"};
+const std::string ENCODER_TAG{"encoder_tag"};
 const std::string FEATURE_SAMPLE_PROBABILITIES_TAG{"feature_sample_probabilities"};
 const std::string GAMMA_OVERRIDE_TAG{"gamma_override"};
 const std::string GAMMA_TAG{"gamma"};
@@ -721,6 +722,7 @@ void CBoostedTreeImpl::acceptPersistInserter(core::CStatePersistInserter& insert
                                  m_EtaGrowthRatePerTree, inserter);
     core::CPersistUtils::persist(ETA_TAG, m_Eta, inserter);
     core::CPersistUtils::persist(FEATURE_BAG_FRACTION_TAG, m_FeatureBagFraction, inserter);
+    core::CPersistUtils::persist(ENCODER_TAG, *m_Encoder, inserter);
     core::CPersistUtils::persist(FEATURE_SAMPLE_PROBABILITIES_TAG,
                                  m_FeatureSampleProbabilities, inserter);
     core::CPersistUtils::persist(GAMMA_TAG, m_Gamma, inserter);
@@ -850,6 +852,8 @@ bool CBoostedTreeImpl::acceptRestoreTraverser(core::CStateRestoreTraverser& trav
         RESTORE(FEATURE_BAG_FRACTION_TAG,
                 core::CPersistUtils::restore(FEATURE_BAG_FRACTION_TAG,
                                              m_FeatureBagFraction, traverser))
+        RESTORE_NO_ERROR(ENCODER_TAG,
+                         m_Encoder = std::make_unique<CDataFrameCategoryEncoder>(traverser))
         RESTORE(FEATURE_SAMPLE_PROBABILITIES_TAG,
                 core::CPersistUtils::restore(FEATURE_SAMPLE_PROBABILITIES_TAG,
                                              m_FeatureSampleProbabilities, traverser))
