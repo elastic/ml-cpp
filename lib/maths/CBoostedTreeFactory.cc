@@ -289,7 +289,8 @@ CBoostedTreeFactory::constructFromString(std::stringstream& jsonStringStream,
 
 CBoostedTreeFactory::CBoostedTreeFactory(std::size_t numberThreads,
                                          CBoostedTree::TLossFunctionUPtr loss)
-    : m_TreeImpl{std::make_unique<CBoostedTreeImpl>(numberThreads, std::move(loss))} {
+    : m_MinimumFrequencyToOneHotEncode{CDataFrameCategoryEncoder::MINIMUM_FREQUENCY_TO_ONE_HOT_ENCODE},
+      m_TreeImpl{std::make_unique<CBoostedTreeImpl>(numberThreads, std::move(loss))} {
 }
 
 CBoostedTreeFactory::CBoostedTreeFactory(CBoostedTreeFactory&&) = default;

@@ -89,6 +89,16 @@ public:
     using TRowRef = core::CDataFrame::TRowRef;
 
 public:
+    //! This ensures we don't try and one-hot encode too many categories and thus
+    //! overfit. This represents a reasonable default, but this is likely better
+    //! estimated from the data characteristics.
+    static constexpr double MINIMUM_FREQUENCY_TO_ONE_HOT_ENCODE{0.05};
+
+    //! By default assign roughly twice the importance to maximising relevance vs
+    //! minimising redundancy when choosing the encoding and selecting features.
+    static constexpr double REDUNDANCY_WEIGHT{0.5};
+
+public:
     //! \param[in] numberThreads The number of threads available.
     //! \param[in] frame The data frame for which to compute the encoding.
     //! \param[in] rowMask A mask of the rows to use to determine the encoding.
@@ -108,8 +118,8 @@ public:
                               const TSizeVec& columnMask,
                               std::size_t targetColumn,
                               std::size_t minimumRowsPerFeature,
-                              double minimumFrequencyToOneHotEncode = 0.05,
-                              double redundancyWeight = 0.5);
+                              double minimumFrequencyToOneHotEncode = MINIMUM_FREQUENCY_TO_ONE_HOT_ENCODE,
+                              double redundancyWeight = REDUNDANCY_WEIGHT);
 
     //! Initialize from serialized data.
     CDataFrameCategoryEncoder(core::CStateRestoreTraverser& traverser);

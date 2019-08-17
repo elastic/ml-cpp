@@ -379,7 +379,7 @@ bool CDataFrameCategoryEncoder::isRareCategory(std::size_t feature, std::size_t 
 
 double CDataFrameCategoryEncoder::targetMeanValue(std::size_t feature,
                                                   std::size_t category) const {
-    // TODO make this better
+    // TODO combine rare categories and use one mapping for collections.
     return this->isRareCategory(feature, category)
                ? 0.0
                : m_TargetMeanValues[feature][category];
