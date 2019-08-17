@@ -75,7 +75,7 @@ public:
         virtual ~CColumnValue() = default;
         virtual double operator()(const TRowRef& row) const = 0;
         virtual double operator()(const TFloatVec& row) const = 0;
-        virtual std::size_t id() const = 0;
+        virtual std::size_t hash() const = 0;
 
     protected:
         std::size_t column() const { return m_Column; }
@@ -94,7 +94,7 @@ public:
         double operator()(const TFloatVec& row) const override {
             return row[this->column()];
         }
-        std::size_t id() const override { return 0; }
+        std::size_t hash() const override { return 0; }
     };
 
     //! \brief Used to extract the value from a one-hot encoded categorical column
@@ -109,7 +109,7 @@ public:
         double operator()(const TFloatVec& row) const override {
             return static_cast<std::size_t>(row[this->column()]) == m_Category ? 1.0 : 0.0;
         }
-        std::size_t id() const override { return m_Category; }
+        std::size_t hash() const override { return m_Category; }
 
     private:
         std::size_t m_Category;
@@ -129,7 +129,7 @@ public:
             std::size_t category{static_cast<std::size_t>(row[this->column()])};
             return (*m_Frequencies)[category];
         }
-        std::size_t id() const override { return 0; }
+        std::size_t hash() const override { return 0; }
 
     private:
         const TDoubleVec* m_Frequencies;
@@ -155,7 +155,7 @@ public:
             std::size_t category{static_cast<std::size_t>(row[this->column()])};
             return this->isRare(category) ? 0.0 : (*m_TargetMeanValues)[category];
         }
-        std::size_t id() const override { return 0; }
+        std::size_t hash() const override { return 0; }
 
     private:
         bool isRare(std::size_t category) const {
@@ -277,19 +277,19 @@ public:
 private:
     static TSizeDoublePrVecVecVec
     categoricalMicWithColumnDataFrameInMemory(const CColumnValue& target,
-                                              std::size_t numberThreads,
                                               const core::CDataFrame& frame,
                                               const core::CPackedBitVector& rowMask,
                                               const TSizeVec& columnMask,
                                               const TEncoderFactoryVec& encoderFactories,
+                                              const TDoubleVecVec& frequencies,
                                               std::size_t numberSamples);
     static TSizeDoublePrVecVecVec
     categoricalMicWithColumnDataFrameOnDisk(const CColumnValue& target,
-                                            std::size_t numberThreads,
                                             const core::CDataFrame& frame,
                                             const core::CPackedBitVector& rowMask,
                                             const TSizeVec& columnMask,
                                             const TEncoderFactoryVec& encoderFactories,
+                                            const TDoubleVecVec& frequencies,
                                             std::size_t numberSamples);
     static TDoubleVec
     metricMicWithColumnDataFrameInMemory(const CColumnValue& target,

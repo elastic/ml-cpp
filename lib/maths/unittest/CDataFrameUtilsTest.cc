@@ -228,7 +228,7 @@ void CDataFrameUtilsTest::testColumnQuantiles() {
                     CPPUNIT_ASSERT(expectedQuantiles[feature].quantile(x, qe));
                     CPPUNIT_ASSERT(actualQuantiles[feature].quantile(x, qa));
                     CPPUNIT_ASSERT_DOUBLES_EQUAL(
-                        qe, qa, 0.01 * std::max(std::fabs(qa), 1.5));
+                        qe, qa, 0.02 * std::max(std::fabs(qa), 1.5));
                     columnsMae[feature].add(std::fabs(qa - qe));
                 }
             }
@@ -237,11 +237,11 @@ void CDataFrameUtilsTest::testColumnQuantiles() {
             for (std::size_t i = 0; i < columnsMae.size(); ++i) {
                 LOG_DEBUG(<< "Column MAE = "
                           << maths::CBasicStatistics::mean(columnsMae[i]));
-                CPPUNIT_ASSERT(maths::CBasicStatistics::mean(columnsMae[i]) < 0.01);
+                CPPUNIT_ASSERT(maths::CBasicStatistics::mean(columnsMae[i]) < 0.03);
                 mae += columnsMae[i];
             }
             LOG_DEBUG(<< "MAE = " << maths::CBasicStatistics::mean(mae));
-            CPPUNIT_ASSERT(maths::CBasicStatistics::mean(mae) < 0.005);
+            CPPUNIT_ASSERT(maths::CBasicStatistics::mean(mae) < 0.015);
         }
 
         core::startDefaultAsyncExecutor();
@@ -640,7 +640,7 @@ void CDataFrameUtilsTest::testCategoryMicWithColumn() {
                       return std::make_unique<maths::CDataFrameUtils::COneHotCategoricalColumnValue>(
                           sampleColumn, category);
                   },
-                  0.05}})[0];
+                  0.01}})[0];
 
             LOG_DEBUG(<< "mics[0] = " << core::CContainerPrinter::print(mics[0]));
             LOG_DEBUG(<< "mics[2] = " << core::CContainerPrinter::print(mics[2]));
