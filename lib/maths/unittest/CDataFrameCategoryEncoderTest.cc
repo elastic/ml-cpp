@@ -152,7 +152,7 @@ void CDataFrameCategoryEncoderTest::testMeanValueEncoding() {
 
         for (std::size_t i = 0; i < expectedTargetMeanValues.size(); ++i) {
             CPPUNIT_ASSERT_EQUAL(
-                encoder.isRareCategory(0, i)
+                encoder.usesOneHotEncoding(0, i) || encoder.isRareCategory(0, i)
                     ? 0.0
                     : maths::CBasicStatistics::mean(expectedTargetMeanValues[i]),
                 encoder.targetMeanValue(0, i));
@@ -164,7 +164,7 @@ void CDataFrameCategoryEncoderTest::testMeanValueEncoding() {
     core::stopDefaultAsyncExecutor();
 }
 
-void CDataFrameCategoryEncoderTest::testFrequencyEncoding() {
+void CDataFrameCategoryEncoderTest::testRareCategories() {
 
     // Test we get the rare features we expect given the frequency threshold.
 
@@ -440,10 +440,13 @@ void CDataFrameCategoryEncoderTest::testEncodedDataFrameRowRef() {
             return categories[0] == expectedOneHot[0][encoder.encoding(i)] ? 1.0 : 0.0; // one-hot
         }
         if (i < expectedOneHot[0].size() + 1) {
-            return expectedFrequencies[0][categories[0]]; // frequency
+            return encoder.usesOneHotEncoding(0, categories[0])
+                       ? 0.0
+                       : expectedFrequencies[0][categories[0]]; // frequency
         }
         if (i < expectedOneHot[0].size() + 2) {
-            return encoder.isRareCategory(0, categories[0])
+            return encoder.usesOneHotEncoding(0, categories[0]) ||
+                           encoder.isRareCategory(0, categories[0])
                        ? 0.0
                        : maths::CBasicStatistics::mean(
                              expectedTargetMeanValues[0][categories[0]]); // target mean
@@ -455,7 +458,8 @@ void CDataFrameCategoryEncoderTest::testEncodedDataFrameRowRef() {
             return categories[1] == expectedOneHot[2][encoder.encoding(i)] ? 1.0 : 0.0; // one-hot
         }
         if (i < expectedOneHot[0].size() + 4 + expectedOneHot[2].size() + 1) {
-            return encoder.isRareCategory(0, categories[1])
+            return encoder.usesOneHotEncoding(3, categories[1]) ||
+                           encoder.isRareCategory(3, categories[1])
                        ? 0.0
                        : maths::CBasicStatistics::mean(
                              expectedTargetMeanValues[1][categories[1]]); // target mean
@@ -557,8 +561,8 @@ CppUnit::Test* CDataFrameCategoryEncoderTest::suite() {
         "CDataFrameCategoryEncoderTest::testMeanValueEncoding",
         &CDataFrameCategoryEncoderTest::testMeanValueEncoding));
     suiteOfTests->addTest(new CppUnit::TestCaller<CDataFrameCategoryEncoderTest>(
-        "CDataFrameCategoryEncoderTest::testFrequencyEncoding",
-        &CDataFrameCategoryEncoderTest::testFrequencyEncoding));
+        "CDataFrameCategoryEncoderTest::testRareCategories",
+        &CDataFrameCategoryEncoderTest::testRareCategories));
     suiteOfTests->addTest(new CppUnit::TestCaller<CDataFrameCategoryEncoderTest>(
         "CDataFrameCategoryEncoderTest::testCorrelatedFeatures",
         &CDataFrameCategoryEncoderTest::testCorrelatedFeatures));

@@ -148,6 +148,9 @@ public:
     //! Get the number of one-hot encoded categories for \p feature.
     std::size_t numberOneHotEncodedCategories(std::size_t feature) const;
 
+    //! Check if \p category of \p feature uses one-hot encoding.
+    bool usesOneHotEncoding(std::size_t feature, std::size_t category) const;
+
     //! Check if feature with encoding \p encoding is one for \p category of \p feature.
     bool isHot(std::size_t encoding, std::size_t feature, std::size_t category) const;
 

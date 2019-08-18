@@ -338,6 +338,12 @@ std::size_t CDataFrameCategoryEncoder::numberOneHotEncodedCategories(std::size_t
     return m_OneHotEncodedCategories[feature].size();
 }
 
+bool CDataFrameCategoryEncoder::usesOneHotEncoding(std::size_t feature,
+                                                   std::size_t category) const {
+    return std::binary_search(m_OneHotEncodedCategories[feature].begin(),
+                              m_OneHotEncodedCategories[feature].end(), category);
+}
+
 bool CDataFrameCategoryEncoder::isHot(std::size_t encoding,
                                       std::size_t feature,
                                       std::size_t category) const {
@@ -370,7 +376,9 @@ bool CDataFrameCategoryEncoder::usesFrequencyEncoding(std::size_t feature) const
 }
 
 double CDataFrameCategoryEncoder::frequency(std::size_t feature, std::size_t category) const {
-    return m_CategoryFrequencies[feature][category];
+    return this->usesOneHotEncoding(feature, category)
+               ? 0.0
+               : m_CategoryFrequencies[feature][category];
 }
 
 bool CDataFrameCategoryEncoder::isRareCategory(std::size_t feature, std::size_t category) const {
@@ -380,7 +388,8 @@ bool CDataFrameCategoryEncoder::isRareCategory(std::size_t feature, std::size_t 
 double CDataFrameCategoryEncoder::targetMeanValue(std::size_t feature,
                                                   std::size_t category) const {
     // TODO combine rare categories and use one mapping for collections.
-    return this->isRareCategory(feature, category)
+    return this->usesOneHotEncoding(feature, category) ||
+                   this->isRareCategory(feature, category)
                ? 0.0
                : m_TargetMeanValues[feature][category];
 }
@@ -570,9 +579,7 @@ CDataFrameCategoryEncoder::selectAllFeatures(const TSizeDoublePrVecVec& mics) {
                 m_OneHotEncodedCategories[feature].push_back(category);
             } else if (isFrequency(category)) {
                 m_ColumnUsesFrequencyEncoding[feature] = true;
-            } else if (isTargetMean(category)) {
-                // Nothing to do
-            }
+            } // else if (isTargetMean(category)) { nothing to do }
         }
     }
 
@@ -642,12 +649,10 @@ CDataFrameCategoryEncoder::selectFeatures(std::size_t numberThreads,
                 m_OneHotEncodedCategories[feature].push_back(category);
             } else if (selected.isFrequency()) {
                 m_ColumnUsesFrequencyEncoding[feature] = true;
-            } else if (selected.isTargetMean()) {
-                // Nothing to do
             } else if (selected.isMetric()) {
                 metricColumnMask.erase(std::find(metricColumnMask.begin(),
                                                  metricColumnMask.end(), feature));
-            }
+            } // else if (selected.isTargetMean()) { nothing to do }
 
             auto columnValue = selected.columnValue(m_RareCategories[feature],
                                                     m_CategoryFrequencies[feature],
