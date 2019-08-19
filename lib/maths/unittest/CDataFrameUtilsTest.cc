@@ -592,6 +592,8 @@ void CDataFrameUtilsTest::testMeanValueOfTargetForCategories() {
 
 void CDataFrameUtilsTest::testMeanValueOfTargetForCategoriesWithMissing() {
 
+    // Test that rows missing the target variable are ignored.
+
     std::size_t rows{2000};
     std::size_t cols{4};
     std::size_t capacity{500};
@@ -624,7 +626,6 @@ void CDataFrameUtilsTest::testMeanValueOfTargetForCategoriesWithMissing() {
     }
 
     auto frame = core::makeMainStorageDataFrame(cols, capacity).first;
-    ;
 
     frame->categoricalColumns({true, false, true, false});
     for (std::size_t i = 0; i < rows; ++i) {
