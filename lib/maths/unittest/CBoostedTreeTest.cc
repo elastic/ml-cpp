@@ -118,7 +118,7 @@ auto predictAndComputeEvaluationMetrics(const F& generateFunction,
                 for (auto row = beginRows; row != endRows; ++row) {
                     double targetValue{row->index() < trainRows
                                            ? target(*row) + noise[row->index()]
-                                           : std::numeric_limits<double>::quiet_NaN()};
+                                           : core::CDataFrame::valueOfMissing()};
                     row->writeColumn(cols - 1, targetValue);
                 }
             });
@@ -580,7 +580,7 @@ void CBoostedTreeTest::testCategoricalRegressors() {
         for (auto row = beginRows; row != endRows; ++row) {
             double targetValue{row->index() < trainRows
                                    ? target(*row)
-                                   : std::numeric_limits<double>::quiet_NaN()};
+                                   : core::CDataFrame::valueOfMissing()};
             row->writeColumn(cols - 1, targetValue);
         }
     });
