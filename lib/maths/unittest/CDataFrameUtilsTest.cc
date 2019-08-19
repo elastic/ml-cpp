@@ -575,7 +575,7 @@ void CDataFrameUtilsTest::testMeanValueOfTargetForCategories() {
                     CPPUNIT_ASSERT_DOUBLES_EQUAL(
                         maths::CBasicStatistics::mean(expectedMeans[i][j]),
                         actualMeans[i][j],
-                        std::numeric_limits<float>::epsilon() *
+                        static_cast<double>(std::numeric_limits<float>::epsilon()) *
                             maths::CBasicStatistics::mean(expectedMeans[i][j]));
                 }
             }
@@ -638,7 +638,8 @@ void CDataFrameUtilsTest::testMeanValueOfTargetForCategoriesWithMissing() {
     frame->finishWritingRows();
 
     TDoubleVecVec actualMeans(maths::CDataFrameUtils::meanValueOfTargetForCategories(
-        maths::CDataFrameUtils::CMetricColumnValue{3}, 1, *frame, {0, 1, 2}));
+        maths::CDataFrameUtils::CMetricColumnValue{3}, 1, *frame,
+        core::CPackedBitVector{rows, true}, {0, 1, 2}));
 
     CPPUNIT_ASSERT_EQUAL(std::size_t{4}, actualMeans.size());
     for (std::size_t i : {0, 2}) {
