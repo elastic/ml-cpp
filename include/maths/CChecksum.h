@@ -27,7 +27,6 @@
 
 namespace ml {
 namespace maths {
-
 namespace checksum_detail {
 
 class BasicChecksum {};
@@ -266,6 +265,15 @@ public:
         return result;
     }
 
+    //! Hash of vector bool.
+    //!
+    //! \note The default implementation generates a compiler warning for
+    //! std::vector<bool> because its operator[] doesn't return by reference.
+    //! In any case, the std::hash specialisation is more efficient.
+    static uint64_t dispatch(uint64_t seed, const std::vector<bool>& target) {
+        return core::CHashing::hashCombine(seed, ms_VectorBoolHasher(target));
+    }
+
     //! Stable hash of unordered set.
     template<typename T>
     static uint64_t dispatch(uint64_t seed, const boost::unordered_set<T>& target) {
@@ -302,10 +310,13 @@ public:
         return dispatch(seed, ordered);
     }
 
-    //! Handle std::string which has a const_iterator.
+    //! Handle std::string which resolves to a container.
     static uint64_t dispatch(uint64_t seed, const std::string& target) {
         return CChecksumImpl<BasicChecksum>::dispatch(seed, target);
     }
+
+private:
+    static const std::hash<std::vector<bool>> ms_VectorBoolHasher;
 };
 
 //! Convenience function to select implementation.
@@ -336,7 +347,7 @@ public:
         return checksum_detail::checksum(seed, target[SIZE - 1]);
     }
 
-    //! Overload for 2d arrays which chains checksums.
+    //! Overload for nested arrays which chains checksums.
     template<typename T, std::size_t SIZE1, std::size_t SIZE2>
     static uint64_t calculate(uint64_t seed, const T (&target)[SIZE1][SIZE2]) {
         for (std::size_t i = 0u; i + 1 < SIZE1; ++i) {

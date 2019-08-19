@@ -13,9 +13,11 @@ class CDataFrameCategoryEncoderTest : public CppUnit::TestFixture {
 public:
     void testOneHotEncoding();
     void testMeanValueEncoding();
-    void testEncodingRare();
+    void testRareCategories();
     void testCorrelatedFeatures();
+    void testWithRowMask();
     void testEncodedDataFrameRowRef();
+    void testPersistRestore();
 
     static CppUnit::Test* suite();
 };

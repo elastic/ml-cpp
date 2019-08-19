@@ -31,6 +31,7 @@ CCalendarComponentAdaptiveBucketing.cc \
 CCalendarComponent.cc \
 CCalendarFeature.cc \
 CCategoricalTools.cc \
+CChecksum.cc \
 CClusterer.cc \
 CClustererStateSerialiser.cc \
 CConstantPrior.cc \
