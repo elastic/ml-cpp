@@ -318,11 +318,13 @@ void CBoostedTreeTest::testNonLinear() {
 
 void CBoostedTreeTest::testThreading() {
 
-    // Test we get the same results whether we thread the code or not. Note
-    // because we compute approximate quantiles for each thread and merge we
-    // get slightly different results if threaded vs single threaded. However,
-    // we should get the same results whether executed asynchronously or not
-    // so test with and without starting the thread pool.
+    // Test we get the same results whether we run with multiple threads or not.
+    // Note because we compute approximate quantiles for a partition of the data
+    // (one subset for each thread) and merge we get slightly different results
+    // if running multiple vs single threaded. However, we should get the same
+    // results whether we actually execute in parallel or not provided we perform
+    // the same partitioning. Therefore, we test with two logical threads but
+    // with and without starting the thread pool.
 
     test::CRandomNumbers rng;
 
@@ -519,6 +521,82 @@ void CBoostedTreeTest::testConstantObjective() {
     CPPUNIT_ASSERT_EQUAL(0.0, maths::CBasicStatistics::mean(modelPredictionErrorMoments));
 }
 
+void CBoostedTreeTest::testProgressMonitoring() {
+
+    // Test progress monitoring invariants.
+
+    test::CRandomNumbers rng;
+
+    std::size_t rows{500};
+    std::size_t cols{6};
+    std::size_t capacity{600};
+
+    TDoubleVecVec x(cols);
+    for (std::size_t i = 0; i < cols; ++i) {
+        rng.generateUniformSamples(0.0, 10.0, rows, x[i]);
+    }
+
+    core::stopDefaultAsyncExecutor();
+
+    std::string tests[]{"serial", "parallel"};
+
+    for (std::size_t threads : {1, 2}) {
+
+        LOG_DEBUG(<< tests[threads == 1 ? 0 : 1]);
+
+        auto frame = core::makeMainStorageDataFrame(cols, capacity).first;
+        for (std::size_t i = 0; i < rows; ++i) {
+            frame->writeRow([&](core::CDataFrame::TFloatVecItr column, std::int32_t&) {
+                for (std::size_t j = 0; j < cols; ++j, ++column) {
+                    *column = x[j][i];
+                }
+            });
+        }
+        frame->finishWritingRows();
+
+        std::atomic_int totalFractionalProgress{0};
+
+        auto reportProgress = [&totalFractionalProgress](double fractionalProgress) {
+            totalFractionalProgress.fetch_add(
+                static_cast<int>(65536.0 * fractionalProgress + 0.5));
+        };
+
+        std::atomic_bool finished{false};
+
+        std::thread worker{[&]() {
+            auto regression = maths::CBoostedTreeFactory::constructFromParameters(
+                                  threads, std::make_unique<maths::boosted_tree::CMse>())
+                                  .progressCallback(reportProgress)
+                                  .buildFor(*frame, cols - 1);
+
+            regression->train();
+            finished.store(true);
+        }};
+
+        int lastTotalFractionalProgress{0};
+        int lastProgressReport{0};
+
+        bool monotonic{true};
+        std::size_t percentage{0};
+        while (finished.load() == false) {
+            if (totalFractionalProgress.load() > lastProgressReport) {
+                LOG_DEBUG(<< percentage << "% complete");
+                percentage += 10;
+                lastProgressReport += 6554;
+            }
+            monotonic &= (totalFractionalProgress.load() >= lastTotalFractionalProgress);
+            lastTotalFractionalProgress = totalFractionalProgress.load();
+        }
+        worker.join();
+
+        CPPUNIT_ASSERT(monotonic);
+
+        core::startDefaultAsyncExecutor();
+    }
+
+    core::stopDefaultAsyncExecutor();
+}
+
 void CBoostedTreeTest::testMissingData() {
 }
 
@@ -688,6 +766,8 @@ CppUnit::Test* CBoostedTreeTest::suite() {
         "CBoostedTreeTest::testConstantFeatures", &CBoostedTreeTest::testConstantFeatures));
     suiteOfTests->addTest(new CppUnit::TestCaller<CBoostedTreeTest>(
         "CBoostedTreeTest::testConstantObjective", &CBoostedTreeTest::testConstantObjective));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CBoostedTreeTest>(
+        "CBoostedTreeTest::testProgressMonitoring", &CBoostedTreeTest::testProgressMonitoring));
     suiteOfTests->addTest(new CppUnit::TestCaller<CBoostedTreeTest>(
         "CBoostedTreeTest::testMissingData", &CBoostedTreeTest::testMissingData));
     suiteOfTests->addTest(new CppUnit::TestCaller<CBoostedTreeTest>(

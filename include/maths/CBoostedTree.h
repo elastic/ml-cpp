@@ -132,12 +132,12 @@ public:
     ~CBoostedTree() override;
 
     //! Train on the examples in the data frame supplied to the constructor.
-    void train(TProgressCallback recordProgress = noop) override;
+    void train() override;
 
     //! Write the predictions to the data frame supplied to the constructor.
     //!
     //! \warning This can only be called after train.
-    void predict(TProgressCallback recordProgress = noop) const override;
+    void predict() const override;
 
     //! Write the trained model to \p writer.
     //!
@@ -160,7 +160,7 @@ private:
     using TImplUPtr = std::unique_ptr<CBoostedTreeImpl>;
 
 private:
-    CBoostedTree(core::CDataFrame& frame, TImplUPtr&& impl);
+    CBoostedTree(core::CDataFrame& frame, TImplUPtr&& impl, TProgressCallback recordProgress = noop);
 
 private:
     TImplUPtr m_Impl;

@@ -97,8 +97,7 @@ private:
     //! Read overrides for hyperparameters and if necessary estimate the initial
     //! values for \f$\lambda\f$ and \f$\gamma\f$ which match the gain from an
     //! overfit tree.
-    void initializeHyperparameters(core::CDataFrame& frame,
-                                   CBoostedTree::TProgressCallback recordProgress) const;
+    void initializeHyperparameters(core::CDataFrame& frame) const;
 
     //! Initialize the state for hyperparameter optimisation.
     void initializeHyperparameterOptimisation() const;
@@ -108,7 +107,7 @@ private:
 
 private:
     TBoostedTreeImplUPtr m_TreeImpl;
-    CBoostedTree::TProgressCallback m_ProgressCallback;
+    CBoostedTree::TProgressCallback m_RecordProgress;
 };
 }
 }

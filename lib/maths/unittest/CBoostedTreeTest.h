@@ -17,6 +17,7 @@ public:
     void testThreading();
     void testConstantFeatures();
     void testConstantObjective();
+    void testProgressMonitoring();
     void testMissingData();
     void testErrors();
     // TODO void testCategoricalRegressors();

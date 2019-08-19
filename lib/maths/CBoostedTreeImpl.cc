@@ -96,6 +96,9 @@ void CBoostedTreeImpl::train(core::CDataFrame& frame,
             if (this->selectNextHyperparameters(lossMoments, *m_BayesianOptimization) == false) {
                 break;
             }
+
+            recordProgress(1.0 / static_cast<double>(m_NumberRounds + 3));
+
         } while (m_CurrentRound++ < m_NumberRounds);
 
         LOG_TRACE(<< "Test loss = " << m_BestForestTestLoss);
@@ -103,6 +106,8 @@ void CBoostedTreeImpl::train(core::CDataFrame& frame,
         this->restoreBestHyperparameters();
         m_BestForest = this->trainForest(frame, this->allTrainingRowsMask(), recordProgress);
     }
+
+    recordProgress(1.0);
 }
 
 void CBoostedTreeImpl::predict(core::CDataFrame& frame,

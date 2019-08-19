@@ -34,12 +34,12 @@ CBoostedTreeFactory::buildFor(core::CDataFrame& frame, std::size_t dependentVari
 
     // TODO we should do feature selection per fold.
     if (this->initializeFeatureSampleDistribution(frame)) {
-        this->initializeHyperparameters(frame, m_ProgressCallback);
+        this->initializeHyperparameters(frame);
         this->initializeHyperparameterOptimisation();
     }
 
     // TODO can only use factory to create one object since this is moved. This seems trappy.
-    return TBoostedTreeUPtr{new CBoostedTree(frame, std::move(m_TreeImpl))};
+    return TBoostedTreeUPtr{new CBoostedTree(frame, std::move(m_TreeImpl), m_RecordProgress)};
 }
 
 std::size_t CBoostedTreeFactory::numberHyperparameterTuningRounds() const {
@@ -83,6 +83,8 @@ void CBoostedTreeFactory::initializeHyperparameterOptimisation() const {
         std::make_unique<CBayesianOptimisation>(std::move(boundingBox));
     m_TreeImpl->m_NumberRounds = this->numberHyperparameterTuningRounds();
     m_TreeImpl->m_CurrentRound = 0; // for first start
+
+    m_RecordProgress(1.0 / static_cast<double>(m_TreeImpl->m_NumberRounds + 3));
 }
 
 void CBoostedTreeFactory::initializeMissingFeatureMasks(const core::CDataFrame& frame) const {
@@ -185,8 +187,7 @@ bool CBoostedTreeFactory::initializeFeatureSampleDistribution(const core::CDataF
     return false;
 }
 
-void CBoostedTreeFactory::initializeHyperparameters(core::CDataFrame& frame,
-                                                    CBoostedTree::TProgressCallback recordProgress) const {
+void CBoostedTreeFactory::initializeHyperparameters(core::CDataFrame& frame) const {
 
     m_TreeImpl->m_Lambda = m_TreeImpl->m_LambdaOverride.value_or(0.0);
     m_TreeImpl->m_Gamma = m_TreeImpl->m_GammaOverride.value_or(0.0);
@@ -237,7 +238,7 @@ void CBoostedTreeFactory::initializeHyperparameters(core::CDataFrame& frame,
         LOG_TRACE(<< "loss = " << L[0] << ", # leaves = " << T[0]
                   << ", sum square weights = " << W[0]);
 
-        auto forest = m_TreeImpl->trainForest(frame, trainingRowMask, recordProgress);
+        auto forest = m_TreeImpl->trainForest(frame, trainingRowMask, m_RecordProgress);
 
         std::tie(L[1], T[1], W[1]) =
             m_TreeImpl->regularisedLoss(frame, trainingRowMask, forest);
@@ -385,7 +386,7 @@ CBoostedTreeFactory& CBoostedTreeFactory::rowsPerFeature(std::size_t rowsPerFeat
 
 CBoostedTreeFactory&
 CBoostedTreeFactory::progressCallback(CBoostedTree::TProgressCallback callback) {
-    m_ProgressCallback = callback;
+    m_RecordProgress = callback;
     return *this;
 }
 

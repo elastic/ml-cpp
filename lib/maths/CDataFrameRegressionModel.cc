@@ -9,6 +9,20 @@
 namespace ml {
 namespace maths {
 
+CDataFrameRegressionModel::CDataFrameRegressionModel(core::CDataFrame& frame,
+                                                     TProgressCallback recordProgress)
+    : m_Frame{frame}, m_RecordProgress{recordProgress} {
+}
+
+core::CDataFrame& CDataFrameRegressionModel::frame() const {
+    return m_Frame;
+}
+
+const CDataFrameRegressionModel::TProgressCallback&
+CDataFrameRegressionModel::progressRecorder() const {
+    return m_RecordProgress;
+}
+
 void CDataFrameRegressionModel::noop(double) {
 }
 }
