@@ -28,6 +28,13 @@
 
 //=== Regressions
 
+== {es} version 7.4.0
+
+=== Bug Fixes
+
+* Rename outlier detection method values knn and tnn to distance_kth_nn and distance_knn
+respectively to match the API. (See {ml-pull}598[#598].)
+
 == {es} version 7.3.1
 
 === Bug Fixes
