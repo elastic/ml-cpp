@@ -22,8 +22,5 @@ const CDataFrameRegressionModel::TProgressCallback&
 CDataFrameRegressionModel::progressRecorder() const {
     return m_RecordProgress;
 }
-
-void CDataFrameRegressionModel::noop(double) {
-}
 }
 }

@@ -52,11 +52,9 @@ public:
     virtual std::size_t columnHoldingPrediction(std::size_t numberColumns) const = 0;
 
 protected:
-    CDataFrameRegressionModel(core::CDataFrame& frame,
-                              TProgressCallback recordProgress = noop);
+    CDataFrameRegressionModel(core::CDataFrame& frame, TProgressCallback recordProgress);
     core::CDataFrame& frame() const;
     const TProgressCallback& progressRecorder() const;
-    static void noop(double);
 
 private:
     core::CDataFrame& m_Frame;

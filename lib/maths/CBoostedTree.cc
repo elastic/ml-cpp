@@ -57,7 +57,7 @@ double CArgMinMse::value() const {
 }
 }
 
-CBoostedTree::CBoostedTree(core::CDataFrame& frame, TImplUPtr&& impl, TProgressCallback recordProgress)
+CBoostedTree::CBoostedTree(core::CDataFrame& frame, TProgressCallback recordProgress, TImplUPtr&& impl)
     : CDataFrameRegressionModel{frame, std::move(recordProgress)}, m_Impl{std::move(impl)} {
 }
 

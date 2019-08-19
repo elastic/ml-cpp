@@ -30,6 +30,7 @@ class CBoostedTreeImpl;
 class MATHS_EXPORT CBoostedTreeFactory final {
 public:
     using TBoostedTreeUPtr = std::unique_ptr<CBoostedTree>;
+    using TProgressCallback = CBoostedTree::TProgressCallback;
 
 public:
     //! Construct a boosted tree object from parameters.
@@ -38,7 +39,8 @@ public:
 
     //! Construct a boosted tree object from its serialized version.
     static TBoostedTreeUPtr constructFromString(std::stringstream& jsonStringStream,
-                                                core::CDataFrame& frame);
+                                                core::CDataFrame& frame,
+                                                TProgressCallback recordProgress = noop);
 
     ~CBoostedTreeFactory();
     CBoostedTreeFactory(CBoostedTreeFactory&) = delete;
@@ -66,7 +68,7 @@ public:
     //! Set the number of training examples we need per feature we'll include.
     CBoostedTreeFactory& rowsPerFeature(std::size_t rowsPerFeature);
     //! Set the callback function for progress monitoring.
-    CBoostedTreeFactory& progressCallback(CBoostedTree::TProgressCallback callback);
+    CBoostedTreeFactory& progressCallback(TProgressCallback callback);
 
     //! Estimate the maximum booking memory that training the boosted tree on a data
     //! frame with \p numberRows row and \p numberColumns columns will use.
@@ -111,10 +113,12 @@ private:
     //! Get the number of hyperparameter tuning rounds to use.
     std::size_t numberHyperparameterTuningRounds() const;
 
+    static void noop(double);
+
 private:
     double m_MinimumFrequencyToOneHotEncode;
     TBoostedTreeImplUPtr m_TreeImpl;
-    CBoostedTree::TProgressCallback m_RecordProgress;
+    TProgressCallback m_RecordProgress = noop;
 };
 }
 }

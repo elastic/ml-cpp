@@ -16,7 +16,7 @@ public:
     void testNonLinear();
     void testThreading();
     void testConstantFeatures();
-    void testConstantObjective();
+    void testConstantTarget();
     void testCategoricalRegressors();
     void testProgressMonitoring();
     void testMissingData();

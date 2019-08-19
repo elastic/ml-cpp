@@ -482,7 +482,7 @@ void CBoostedTreeTest::testConstantFeatures() {
     CPPUNIT_ASSERT(featureWeights[cols - 2] < 1e-4);
 }
 
-void CBoostedTreeTest::testConstantObjective() {
+void CBoostedTreeTest::testConstantTarget() {
 
     // Test we correctly deal with a constant dependent variable.
 
@@ -847,7 +847,7 @@ CppUnit::Test* CBoostedTreeTest::suite() {
     suiteOfTests->addTest(new CppUnit::TestCaller<CBoostedTreeTest>(
         "CBoostedTreeTest::testConstantFeatures", &CBoostedTreeTest::testConstantFeatures));
     suiteOfTests->addTest(new CppUnit::TestCaller<CBoostedTreeTest>(
-        "CBoostedTreeTest::testConstantObjective", &CBoostedTreeTest::testConstantObjective));
+        "CBoostedTreeTest::testConstantTarget", &CBoostedTreeTest::testConstantTarget));
     suiteOfTests->addTest(new CppUnit::TestCaller<CBoostedTreeTest>(
         "CBoostedTreeTest::testCategoricalRegressors",
         &CBoostedTreeTest::testCategoricalRegressors));

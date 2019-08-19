@@ -42,7 +42,7 @@ CBoostedTreeFactory::buildFor(core::CDataFrame& frame, std::size_t dependentVari
     }
 
     // TODO can only use factory to create one object since this is moved. This seems trappy.
-    return TBoostedTreeUPtr{new CBoostedTree(frame, std::move(m_TreeImpl), m_RecordProgress)};
+    return TBoostedTreeUPtr{new CBoostedTree(frame, m_RecordProgress, std::move(m_TreeImpl))};
 }
 
 std::size_t CBoostedTreeFactory::numberHyperparameterTuningRounds() const {
@@ -271,10 +271,12 @@ CBoostedTreeFactory::constructFromParameters(std::size_t numberThreads,
 
 CBoostedTreeFactory::TBoostedTreeUPtr
 CBoostedTreeFactory::constructFromString(std::stringstream& jsonStringStream,
-                                         core::CDataFrame& frame) {
+                                         core::CDataFrame& frame,
+                                         TProgressCallback recordProgress) {
     try {
         TBoostedTreeUPtr treePtr{
-            new CBoostedTree{frame, TBoostedTreeImplUPtr{new CBoostedTreeImpl{}}}};
+            new CBoostedTree{frame, std::move(recordProgress),
+                             TBoostedTreeImplUPtr{new CBoostedTreeImpl{}}}};
         core::CJsonStateRestoreTraverser traverser(jsonStringStream);
         if (treePtr->acceptRestoreTraverser(traverser) == false || traverser.haveBadState()) {
             throw std::runtime_error{"failed to restore boosted tree"};
@@ -387,8 +389,7 @@ CBoostedTreeFactory& CBoostedTreeFactory::rowsPerFeature(std::size_t rowsPerFeat
     return *this;
 }
 
-CBoostedTreeFactory&
-CBoostedTreeFactory::progressCallback(CBoostedTree::TProgressCallback callback) {
+CBoostedTreeFactory& CBoostedTreeFactory::progressCallback(TProgressCallback callback) {
     m_RecordProgress = callback;
     return *this;
 }
@@ -400,6 +401,9 @@ std::size_t CBoostedTreeFactory::estimateMemoryUsage(std::size_t numberRows,
 
 std::size_t CBoostedTreeFactory::numberExtraColumnsForTrain() const {
     return m_TreeImpl->numberExtraColumnsForTrain();
+}
+
+void CBoostedTreeFactory::noop(double) {
 }
 
 const double CBoostedTreeFactory::MINIMUM_ETA{1e-3};

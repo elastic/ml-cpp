@@ -160,7 +160,7 @@ private:
     using TImplUPtr = std::unique_ptr<CBoostedTreeImpl>;
 
 private:
-    CBoostedTree(core::CDataFrame& frame, TImplUPtr&& impl, TProgressCallback recordProgress = noop);
+    CBoostedTree(core::CDataFrame& frame, TProgressCallback recordProgress, TImplUPtr&& impl);
 
 private:
     TImplUPtr m_Impl;
