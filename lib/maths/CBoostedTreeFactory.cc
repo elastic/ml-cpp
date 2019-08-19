@@ -86,8 +86,6 @@ void CBoostedTreeFactory::initializeHyperparameterOptimisation() const {
         std::make_unique<CBayesianOptimisation>(std::move(boundingBox));
     m_TreeImpl->m_NumberRounds = this->numberHyperparameterTuningRounds();
     m_TreeImpl->m_CurrentRound = 0; // for first start
-
-    m_RecordProgress(1.0 / static_cast<double>(m_TreeImpl->m_NumberRounds + 3));
 }
 
 void CBoostedTreeFactory::initializeMissingFeatureMasks(const core::CDataFrame& frame) const {

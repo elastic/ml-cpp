@@ -6,6 +6,7 @@
 
 #include <maths/CBoostedTreeImpl.h>
 
+#include <core/CLoopProgress.h>
 #include <core/CPersistUtils.h>
 
 #include <maths/CBayesianOptimisation.h>
@@ -88,6 +89,12 @@ void CBoostedTreeImpl::train(core::CDataFrame& frame,
 
     LOG_TRACE(<< "Main training loop...");
 
+    // We account for cost of setup as one round. The main optimisation loop runs
+    // for "m_NumberRounds + 1" rounds and training on the choosen hyperparameter
+    // values is counted as one round. This gives a total of m_NumberRounds + 3.
+    core::CLoopProgress progress{m_NumberRounds + 3, recordProgress};
+    progress.increment();
+
     if (this->canTrain() == false) {
         // Fallback to using the constant predictor which minimises the loss.
 
@@ -122,7 +129,7 @@ void CBoostedTreeImpl::train(core::CDataFrame& frame,
                 break;
             }
 
-            recordProgress(1.0 / static_cast<double>(m_NumberRounds + 3));
+            progress.increment();
 
         } while (m_CurrentRound++ < m_NumberRounds);
 
@@ -132,6 +139,8 @@ void CBoostedTreeImpl::train(core::CDataFrame& frame,
         m_BestForest = this->trainForest(frame, this->allTrainingRowsMask(), recordProgress);
     }
 
+    // Force to at least one here because we can have early exit from loop or take
+    // a different path.
     recordProgress(1.0);
 }
 
