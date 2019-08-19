@@ -600,7 +600,7 @@ void CBoostedTreeTest::testCategoricalRegressors() {
 
     LOG_DEBUG(<< "bias = " << modelBias);
     LOG_DEBUG(<< " R^2 = " << modelRSquared);
-    CPPUNIT_ASSERT_DOUBLES_EQUAL(0.0, modelBias, 0.05);
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(0.0, modelBias, 0.06);
     CPPUNIT_ASSERT(modelRSquared > 0.97);
 }
 
