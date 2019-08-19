@@ -8,8 +8,11 @@
 
 #include <core/CPersistUtils.h>
 
+#include <maths/CBayesianOptimisation.h>
+#include <maths/CDataFrameCategoryEncoder.h>
 #include <maths/CQuantileSketch.h>
 #include <maths/CSampling.h>
+#include <maths/CSetTools.h>
 
 namespace ml {
 namespace maths {
@@ -17,6 +20,8 @@ using namespace boosted_tree;
 using namespace boosted_tree_detail;
 
 namespace {
+using TRowRef = core::CDataFrame::TRowRef;
+
 std::size_t lossGradientColumn(std::size_t numberColumns) {
     return numberColumns - 2;
 }
@@ -24,26 +29,40 @@ std::size_t lossGradientColumn(std::size_t numberColumns) {
 std::size_t lossCurvatureColumn(std::size_t numberColumns) {
     return numberColumns - 1;
 }
+
+double readPrediction(const TRowRef& row) {
+    return row[predictionColumn(row.numberColumns())];
 }
 
-void CBoostedTreeImpl::CLeafNodeStatistics::addRowDerivatives(const TRowRef& row,
+double readLossGradient(const TRowRef& row) {
+    return row[lossGradientColumn(row.numberColumns())];
+}
+
+double readLossCurvature(const TRowRef& row) {
+    return row[lossCurvatureColumn(row.numberColumns())];
+}
+
+double readActual(const TRowRef& row, std::size_t dependentVariable) {
+    return row[dependentVariable];
+}
+}
+
+void CBoostedTreeImpl::CLeafNodeStatistics::addRowDerivatives(const CEncodedDataFrameRowRef& row,
                                                               SDerivatives& derivatives) const {
 
-    std::size_t numberColumns{row.numberColumns()};
-    std::size_t gradientColumn{lossGradientColumn(numberColumns)};
-    std::size_t curvatureColumn{lossCurvatureColumn(numberColumns)};
+    const TRowRef& unencodedRow{row.unencodedRow()};
 
     for (std::size_t i = 0; i < m_CandidateSplits.size(); ++i) {
         double featureValue{row[i]};
         if (CDataFrameUtils::isMissing(featureValue)) {
-            derivatives.s_MissingGradients[i] += row[gradientColumn];
-            derivatives.s_MissingCurvatures[i] += row[curvatureColumn];
+            derivatives.s_MissingGradients[i] += readLossGradient(unencodedRow);
+            derivatives.s_MissingCurvatures[i] += readLossCurvature(unencodedRow);
         } else {
             auto j = std::upper_bound(m_CandidateSplits[i].begin(),
                                       m_CandidateSplits[i].end(), featureValue) -
                      m_CandidateSplits[i].begin();
-            derivatives.s_Gradients[i][j] += row[gradientColumn];
-            derivatives.s_Curvatures[i][j] += row[curvatureColumn];
+            derivatives.s_Gradients[i][j] += readLossGradient(unencodedRow);
+            derivatives.s_Curvatures[i][j] += readLossCurvature(unencodedRow);
         }
     }
 }
@@ -51,6 +70,12 @@ void CBoostedTreeImpl::CLeafNodeStatistics::addRowDerivatives(const TRowRef& row
 CBoostedTreeImpl::CBoostedTreeImpl(std::size_t numberThreads, CBoostedTree::TLossFunctionUPtr loss)
     : m_NumberThreads{numberThreads}, m_Loss{std::move(loss)} {
 }
+
+CBoostedTreeImpl::CBoostedTreeImpl() = default;
+
+CBoostedTreeImpl::~CBoostedTreeImpl() = default;
+
+CBoostedTreeImpl& CBoostedTreeImpl::operator=(CBoostedTreeImpl&&) = default;
 
 void CBoostedTreeImpl::train(core::CDataFrame& frame,
                              CBoostedTree::TProgressCallback recordProgress) {
@@ -122,7 +147,7 @@ void CBoostedTreeImpl::predict(core::CDataFrame& frame,
         m_NumberThreads, 0, frame.numberRows(), [&](TRowItr beginRows, TRowItr endRows) {
             for (auto row = beginRows; row != endRows; ++row) {
                 row->writeColumn(predictionColumn(row->numberColumns()),
-                                 predictRow(*row, m_BestForest));
+                                 predictRow(m_Encoder->encode(*row), m_BestForest));
             }
         });
     if (successful == false) {
@@ -178,9 +203,8 @@ CBoostedTreeImpl::regularisedLoss(const core::CDataFrame& frame,
         core::bindRetrievableState(
             [&](double& loss, TRowItr beginRows, TRowItr endRows) {
                 for (auto row = beginRows; row != endRows; ++row) {
-                    std::size_t numberColumns{row->numberColumns()};
-                    loss += m_Loss->value((*row)[predictionColumn(numberColumns)],
-                                          (*row)[m_DependentVariable]);
+                    loss += m_Loss->value(readPrediction(*row),
+                                          readActual(*row, m_DependentVariable));
                 }
             },
             0.0),
@@ -293,19 +317,32 @@ CBoostedTreeImpl::candidateSplits(const core::CDataFrame& frame,
 
     using TQuantileSketchVec = std::vector<CQuantileSketch>;
 
-    TSizeVec features{this->candidateFeatures()};
+    TSizeVec features{this->candidateRegressorFeatures()};
     LOG_TRACE(<< "candidate features = " << core::CContainerPrinter::print(features));
 
+    TSizeVec binaryFeatures(features);
+    binaryFeatures.erase(std::remove_if(binaryFeatures.begin(), binaryFeatures.end(),
+                                        [this](std::size_t index) {
+                                            return m_Encoder->isBinary(index) == false;
+                                        }),
+                         binaryFeatures.end());
+    CSetTools::inplace_set_difference(features, binaryFeatures.begin(),
+                                      binaryFeatures.end());
+    LOG_TRACE(<< "binary features = " << core::CContainerPrinter::print(binaryFeatures)
+              << " other features = " << core::CContainerPrinter::print(features));
+
     TQuantileSketchVec columnQuantiles;
-    CDataFrameUtils::columnQuantiles(
-        m_NumberThreads, frame, trainingRowMask, features,
-        CQuantileSketch{CQuantileSketch::E_Linear, 100}, columnQuantiles,
-        [](const TRowRef& row) {
-            return row[lossCurvatureColumn(row.numberColumns())];
-        });
+    CDataFrameUtils::columnQuantiles(m_NumberThreads, frame, trainingRowMask, features,
+                                     CQuantileSketch{CQuantileSketch::E_Linear, 100},
+                                     columnQuantiles, m_Encoder.get(), readLossCurvature);
 
-    TDoubleVecVec result(numberFeatures(frame));
+    TDoubleVecVec candidateSplits(this->numberFeatures());
 
+    for (std::size_t i : binaryFeatures) {
+        candidateSplits[i] = TDoubleVec{0.5};
+        LOG_TRACE(<< "feature '" << i << "' splits = "
+                  << core::CContainerPrinter::print(candidateSplits[i]));
+    }
     for (std::size_t i = 0; i < features.size(); ++i) {
 
         TDoubleVec columnSplits;
@@ -324,21 +361,21 @@ CBoostedTreeImpl::candidateSplits(const core::CDataFrame& frame,
 
         columnSplits.erase(std::unique(columnSplits.begin(), columnSplits.end()),
                            columnSplits.end());
-        result[features[i]] = std::move(columnSplits);
+        candidateSplits[features[i]] = std::move(columnSplits);
 
         LOG_TRACE(<< "feature '" << features[i] << "' splits = "
-                  << core::CContainerPrinter::print(result[features[i]]));
+                  << core::CContainerPrinter::print(candidateSplits[features[i]]));
     }
 
-    return result;
+    LOG_TRACE(<< "candidate splits = " << core::CContainerPrinter::print(candidateSplits));
+
+    return candidateSplits;
 }
 
 CBoostedTreeImpl::TNodeVec
 CBoostedTreeImpl::trainTree(core::CDataFrame& frame,
                             const core::CPackedBitVector& trainingRowMask,
                             const TDoubleVecVec& candidateSplits) const {
-
-    // TODO improve categorical regressor treatment
 
     LOG_TRACE(<< "Training one tree...");
 
@@ -353,8 +390,8 @@ CBoostedTreeImpl::trainTree(core::CDataFrame& frame,
 
     TLeafNodeStatisticsPtrQueue leaves;
     leaves.push(std::make_shared<CLeafNodeStatistics>(
-        0 /*root*/, m_NumberThreads, frame, m_Lambda, m_Gamma, candidateSplits,
-        this->featureBag(frame), trainingRowMask));
+        0 /*root*/, m_NumberThreads, frame, *m_Encoder, m_Lambda, m_Gamma,
+        candidateSplits, this->featureBag(), trainingRowMask));
 
     // For each iteration we:
     //   1. Find the leaf with the greatest decrease in loss
@@ -385,19 +422,19 @@ CBoostedTreeImpl::trainTree(core::CDataFrame& frame,
         std::tie(leftChildId, rightChildId) = tree[leaf->id()].split(
             splitFeature, splitValue, assignMissingToLeft, tree);
 
-        TSizeVec featureBag{this->featureBag(frame)};
+        TSizeVec featureBag{this->featureBag()};
 
         core::CPackedBitVector leftChildRowMask;
         core::CPackedBitVector rightChildRowMask;
         std::tie(leftChildRowMask, rightChildRowMask) = tree[leaf->id()].rowMasks(
-            m_NumberThreads, frame, std::move(leaf->rowMask()));
+            m_NumberThreads, frame, *m_Encoder, std::move(leaf->rowMask()));
 
         TLeafNodeStatisticsPtr leftChild;
         TLeafNodeStatisticsPtr rightChild;
-        std::tie(leftChild, rightChild) =
-            leaf->split(leftChildId, rightChildId, m_NumberThreads, frame,
-                        m_Lambda, m_Gamma, candidateSplits, std::move(featureBag),
-                        std::move(leftChildRowMask), std::move(rightChildRowMask));
+        std::tie(leftChild, rightChild) = leaf->split(
+            leftChildId, rightChildId, m_NumberThreads, frame, *m_Encoder,
+            m_Lambda, m_Gamma, candidateSplits, std::move(featureBag),
+            std::move(leftChildRowMask), std::move(rightChildRowMask));
 
         leaves.push(std::move(leftChild));
         leaves.push(std::move(rightChild));
@@ -408,16 +445,20 @@ CBoostedTreeImpl::trainTree(core::CDataFrame& frame,
     return tree;
 }
 
-std::size_t CBoostedTreeImpl::featureBagSize(const core::CDataFrame& frame) const {
-    return static_cast<std::size_t>(std::max(
-        std::ceil(m_FeatureBagFraction * static_cast<double>(numberFeatures(frame))), 1.0));
+std::size_t CBoostedTreeImpl::numberFeatures() const {
+    return m_Encoder->numberFeatures();
 }
 
-CBoostedTreeImpl::TSizeVec CBoostedTreeImpl::featureBag(const core::CDataFrame& frame) const {
+std::size_t CBoostedTreeImpl::featureBagSize() const {
+    return static_cast<std::size_t>(std::max(
+        std::ceil(m_FeatureBagFraction * static_cast<double>(this->numberFeatures())), 1.0));
+}
 
-    std::size_t size{this->featureBagSize(frame)};
+CBoostedTreeImpl::TSizeVec CBoostedTreeImpl::featureBag() const {
 
-    TSizeVec features{this->candidateFeatures()};
+    std::size_t size{this->featureBagSize()};
+
+    TSizeVec features{this->candidateRegressorFeatures()};
     if (size >= features.size()) {
         return features;
     }
@@ -442,16 +483,17 @@ void CBoostedTreeImpl::refreshPredictionsAndLossDerivatives(core::CDataFrame& fr
         leafValues.push_back(m_Loss->minimizer());
     }
 
-    frame.readRows(1, 0, frame.numberRows(),
-                   [&](TRowItr beginRows, TRowItr endRows) {
-                       for (auto row = beginRows; row != endRows; ++row) {
-                           std::size_t numberColumns{row->numberColumns()};
-                           double prediction{(*row)[predictionColumn(numberColumns)]};
-                           double actual{(*row)[m_DependentVariable]};
-                           leafValues[root(tree).leafIndex(*row, tree)]->add(prediction, actual);
-                       }
-                   },
-                   &trainingRowMask);
+    frame.readRows(
+        1, 0, frame.numberRows(),
+        [&](TRowItr beginRows, TRowItr endRows) {
+            for (auto row = beginRows; row != endRows; ++row) {
+                double prediction{readPrediction(*row)};
+                double actual{readActual(*row, m_DependentVariable)};
+                leafValues[root(tree).leafIndex(m_Encoder->encode(*row), tree)]->add(
+                    prediction, actual);
+            }
+        },
+        &trainingRowMask);
 
     for (std::size_t i = 0; i < tree.size(); ++i) {
         tree[i].value(eta * leafValues[i]->value());
@@ -464,12 +506,11 @@ void CBoostedTreeImpl::refreshPredictionsAndLossDerivatives(core::CDataFrame& fr
         core::bindRetrievableState(
             [&](double& loss, TRowItr beginRows, TRowItr endRows) {
                 for (auto row = beginRows; row != endRows; ++row) {
+                    double prediction{readPrediction(*row) +
+                                      root(tree).value(m_Encoder->encode(*row), tree)};
+                    double actual{readActual(*row, m_DependentVariable)};
+
                     std::size_t numberColumns{row->numberColumns()};
-                    double actual{(*row)[m_DependentVariable]};
-                    double prediction{(*row)[predictionColumn(numberColumns)]};
-
-                    prediction += root(tree).value(*row, tree);
-
                     row->writeColumn(predictionColumn(numberColumns), prediction);
                     row->writeColumn(lossGradientColumn(numberColumns),
                                      m_Loss->gradient(prediction, actual));
@@ -498,8 +539,8 @@ double CBoostedTreeImpl::meanLoss(const core::CDataFrame& frame,
         core::bindRetrievableState(
             [&](TMeanAccumulator& loss, TRowItr beginRows, TRowItr endRows) {
                 for (auto row = beginRows; row != endRows; ++row) {
-                    double prediction{predictRow(*row, forest)};
-                    double actual{(*row)[m_DependentVariable]};
+                    double prediction{predictRow(m_Encoder->encode(*row), forest)};
+                    double actual{readActual(*row, m_DependentVariable)};
                     loss.add(m_Loss->value(prediction, actual));
                 }
             },
@@ -516,7 +557,7 @@ double CBoostedTreeImpl::meanLoss(const core::CDataFrame& frame,
     return CBasicStatistics::mean(loss);
 }
 
-CBoostedTreeImpl::TSizeVec CBoostedTreeImpl::candidateFeatures() const {
+CBoostedTreeImpl::TSizeVec CBoostedTreeImpl::candidateRegressorFeatures() const {
     TSizeVec result;
     result.reserve(m_FeatureSampleProbabilities.size());
     for (std::size_t i = 0; i < m_FeatureSampleProbabilities.size(); ++i) {
@@ -527,12 +568,12 @@ CBoostedTreeImpl::TSizeVec CBoostedTreeImpl::candidateFeatures() const {
     return result;
 }
 
-const CBoostedTreeImpl::CNode& CBoostedTreeImpl::root(const CBoostedTreeImpl::TNodeVec& tree) {
+const CBoostedTreeImpl::CNode& CBoostedTreeImpl::root(const TNodeVec& tree) {
     return tree[0];
 }
 
-double CBoostedTreeImpl::predictRow(const CBoostedTreeImpl::TRowRef& row,
-                                    const CBoostedTreeImpl::TNodeVecVec& forest) {
+double CBoostedTreeImpl::predictRow(const CEncodedDataFrameRowRef& row,
+                                    const TNodeVecVec& forest) {
     double result{0.0};
     for (const auto& tree : forest) {
         result += root(tree).value(row, tree);
@@ -640,6 +681,7 @@ const std::string ETA_OVERRIDE_TAG{"eta_override"};
 const std::string ETA_TAG{"eta"};
 const std::string FEATURE_BAG_FRACTION_OVERRIDE_TAG{"feature_bag_fraction_override"};
 const std::string FEATURE_BAG_FRACTION_TAG{"feature_bag_fraction"};
+const std::string ENCODER_TAG{"encoder_tag"};
 const std::string FEATURE_SAMPLE_PROBABILITIES_TAG{"feature_sample_probabilities"};
 const std::string GAMMA_OVERRIDE_TAG{"gamma_override"};
 const std::string GAMMA_TAG{"gamma"};
@@ -685,6 +727,7 @@ void CBoostedTreeImpl::acceptPersistInserter(core::CStatePersistInserter& insert
                                  m_EtaGrowthRatePerTree, inserter);
     core::CPersistUtils::persist(ETA_TAG, m_Eta, inserter);
     core::CPersistUtils::persist(FEATURE_BAG_FRACTION_TAG, m_FeatureBagFraction, inserter);
+    core::CPersistUtils::persist(ENCODER_TAG, *m_Encoder, inserter);
     core::CPersistUtils::persist(FEATURE_SAMPLE_PROBABILITIES_TAG,
                                  m_FeatureSampleProbabilities, inserter);
     core::CPersistUtils::persist(GAMMA_TAG, m_Gamma, inserter);
@@ -814,6 +857,8 @@ bool CBoostedTreeImpl::acceptRestoreTraverser(core::CStateRestoreTraverser& trav
         RESTORE(FEATURE_BAG_FRACTION_TAG,
                 core::CPersistUtils::restore(FEATURE_BAG_FRACTION_TAG,
                                              m_FeatureBagFraction, traverser))
+        RESTORE_NO_ERROR(ENCODER_TAG,
+                         m_Encoder = std::make_unique<CDataFrameCategoryEncoder>(traverser))
         RESTORE(FEATURE_SAMPLE_PROBABILITIES_TAG,
                 core::CPersistUtils::restore(FEATURE_SAMPLE_PROBABILITIES_TAG,
                                              m_FeatureSampleProbabilities, traverser))

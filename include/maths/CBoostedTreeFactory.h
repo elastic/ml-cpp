@@ -46,6 +46,8 @@ public:
     CBoostedTreeFactory(CBoostedTreeFactory&&);
     CBoostedTreeFactory& operator=(CBoostedTreeFactory&&);
 
+    //! Set the minimum fraction with a category value to one-hot encode.
+    CBoostedTreeFactory& minimumFrequencyToOneHotEncode(double frequency);
     //! Set the number of folds to use for estimating the generalisation error.
     CBoostedTreeFactory& numberFolds(std::size_t numberFolds);
     //! Set the lambda regularisation parameter.
@@ -91,8 +93,12 @@ private:
     //! Get the (train, test) row masks for performing cross validation.
     std::pair<TPackedBitVectorVec, TPackedBitVectorVec> crossValidationRowMasks() const;
 
+    //! Encode categorical fields and at the same time select the features to use
+    //! as regressors.
+    void selectFeaturesAndEncodeCategories(const core::CDataFrame& frame) const;
+
     //! Initialize the regressors sample distribution.
-    bool initializeFeatureSampleDistribution(const core::CDataFrame& frame) const;
+    bool initializeFeatureSampleDistribution() const;
 
     //! Read overrides for hyperparameters and if necessary estimate the initial
     //! values for \f$\lambda\f$ and \f$\gamma\f$ which match the gain from an
@@ -106,6 +112,7 @@ private:
     std::size_t numberHyperparameterTuningRounds() const;
 
 private:
+    double m_MinimumFrequencyToOneHotEncode;
     TBoostedTreeImplUPtr m_TreeImpl;
     CBoostedTree::TProgressCallback m_RecordProgress;
 };

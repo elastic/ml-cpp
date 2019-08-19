@@ -9,13 +9,20 @@
 
 #include <core/CDataFrame.h>
 
+#include <maths/CDataFrameUtils.h>
 #include <maths/ImportExport.h>
 #include <maths/MathsTypes.h>
 
+#include <boost/unordered_set.hpp>
+
+#include <cstdint>
 #include <utility>
 #include <vector>
 
 namespace ml {
+namespace core {
+class CPackedBitVector;
+}
 namespace maths {
 class CDataFrameCategoryEncoder;
 
@@ -53,6 +60,9 @@ public:
         }
     }
 
+    //! Get the underlying row reference.
+    const TRowRef& unencodedRow() const;
+
 private:
     TRowRef m_Row;
     const CDataFrameCategoryEncoder* m_Encoder;
@@ -79,8 +89,19 @@ public:
     using TRowRef = core::CDataFrame::TRowRef;
 
 public:
+    //! This ensures we don't try and one-hot encode too many categories and thus
+    //! overfit. This represents a reasonable default, but this is likely better
+    //! estimated from the data characteristics.
+    static constexpr double MINIMUM_FREQUENCY_TO_ONE_HOT_ENCODE{0.05};
+
+    //! By default assign roughly twice the importance to maximising relevance vs
+    //! minimising redundancy when choosing the encoding and selecting features.
+    static constexpr double REDUNDANCY_WEIGHT{0.5};
+
+public:
     //! \param[in] numberThreads The number of threads available.
     //! \param[in] frame The data frame for which to compute the encoding.
+    //! \param[in] rowMask A mask of the rows to use to determine the encoding.
     //! \param[in] columnMask A mask of the columns to include.
     //! \param[in] targetColumn The regression target variable.
     //! \param[in] minimumRowsPerFeature The minimum number of rows needed per dimension
@@ -93,26 +114,24 @@ public:
     //! features already selected.
     CDataFrameCategoryEncoder(std::size_t numberThreads,
                               const core::CDataFrame& frame,
+                              const core::CPackedBitVector& rowMask,
                               const TSizeVec& columnMask,
                               std::size_t targetColumn,
                               std::size_t minimumRowsPerFeature,
-                              double minimumFrequencyToOneHotEncode = 0.01,
-                              double redundancyWeight = 0.5);
+                              double minimumFrequencyToOneHotEncode = MINIMUM_FREQUENCY_TO_ONE_HOT_ENCODE,
+                              double redundancyWeight = REDUNDANCY_WEIGHT);
+
+    //! Initialize from serialized data.
+    CDataFrameCategoryEncoder(core::CStateRestoreTraverser& traverser);
 
     //! Get a row reference which encodes the categories in \p row.
-    CEncodedDataFrameRowRef encode(TRowRef row);
+    CEncodedDataFrameRowRef encode(TRowRef row) const;
 
     //! Check if \p feature is categorical.
     bool columnIsCategorical(std::size_t feature) const;
 
-    //! Get the selected metric features.
-    const TSizeVec& selectedMetricFeatures() const;
-
-    //! Get the selected metric features' MICs.
-    const TDoubleVec& selectedMetricFeatureMics() const;
-
-    //! Get the selected categorical features.
-    const TSizeVec& selectedCategoricalFeatures() const;
+    //! Get the MICs of the selected features.
+    const TDoubleVec& featureMics() const;
 
     //! Get the total number of dimensions in the feature vector.
     std::size_t numberFeatures() const;
@@ -123,66 +142,87 @@ public:
     //! Get the data frame column of \p index into the feature vector.
     std::size_t column(std::size_t index) const;
 
+    //! Check if \p index is a binary encoded feature.
+    bool isBinary(std::size_t index) const;
+
     //! Get the number of one-hot encoded categories for \p feature.
     std::size_t numberOneHotEncodedCategories(std::size_t feature) const;
 
-    //! Check if \p encoding is one for category \p category of \p feature.
-    bool isOne(std::size_t encoding, std::size_t feature, std::size_t category) const;
+    //! Check if \p category of \p feature uses one-hot encoding.
+    bool usesOneHotEncoding(std::size_t feature, std::size_t category) const;
 
-    //! Check if \p feature has rare categories.
-    bool hasRareCategories(std::size_t feature) const;
+    //! Check if feature with encoding \p encoding is one for \p category of \p feature.
+    bool isHot(std::size_t encoding, std::size_t feature, std::size_t category) const;
 
-    //! Check if \p category of \p feature is rare.
+    //! Check if \p feature uses frequency encoding.
+    bool usesFrequencyEncoding(std::size_t feature) const;
+
+    //! Check if \p category of \p feature is a rare category.
     bool isRareCategory(std::size_t feature, std::size_t category) const;
+
+    //! Get the frequency of \p category of \p feature.
+    double frequency(std::size_t feature, std::size_t category) const;
 
     //! Get the mean value of the target variable for \p category of \p feature.
     double targetMeanValue(std::size_t feature, std::size_t category) const;
+
+    //! Get a checksum of the state of this object seeded with \p seed.
+    std::uint64_t checksum(std::uint64_t seed = 0) const;
+
+    //! Persist by passing information to \p inserter.
+    void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
+
+    //! Populate the object from serialized data.
+    bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
 
 private:
     using TSizeDoublePr = std::pair<std::size_t, double>;
     using TSizeDoublePrVec = std::vector<TSizeDoublePr>;
     using TSizeDoublePrVecVec = std::vector<TSizeDoublePrVec>;
+    using TSizeSizePr = std::pair<std::size_t, std::size_t>;
+    using TSizeSizePrDoubleMap = std::map<TSizeSizePr, double>;
+    using TSizeUSet = boost::unordered_set<std::size_t>;
+    using TSizeUSetVec = std::vector<TSizeUSet>;
 
 private:
-    std::pair<TDoubleVec, TSizeDoublePrVecVec>
-    mics(std::size_t numberThreads,
-         const core::CDataFrame& frame,
-         std::size_t feature,
-         std::size_t category,
-         const TSizeVec& metricColumnMask,
-         const TSizeVec& categoricalColumnMask,
-         double minimumFrequencyToOneHotEncode) const;
-    void isRareEncode(std::size_t numberThreads,
-                      const core::CDataFrame& frame,
-                      const TSizeVec& categoricalColumnMask,
-                      std::size_t minimumRowsPerFeature);
-    void oneHotEncode(std::size_t numberThreads,
-                      const core::CDataFrame& frame,
-                      TSizeVec metricColumnMask,
-                      TSizeVec categoricalColumnMask,
-                      std::size_t targetColumn,
-                      std::size_t minimumRowsPerFeature,
-                      double minimumFrequencyToOneHotEncode);
-    void oneHotEncodeAll(const TDoubleVec& metricMics, const TSizeDoublePrVecVec& categoricalMics);
-    void targetMeanValueEncode(std::size_t numberThreads,
-                               const core::CDataFrame& frame,
-                               const TSizeVec& categoricalColumnMask,
-                               std::size_t targetColumn);
-    void setupEncodingMaps(const core::CDataFrame& frame);
-    std::size_t numberAvailableFeatures(const TDoubleVec& metricMics,
-                                        const TSizeDoublePrVecVec& categoricalMics) const;
+    TSizeDoublePrVecVec mics(std::size_t numberThreads,
+                             const core::CDataFrame& frame,
+                             const CDataFrameUtils::CColumnValue& target,
+                             const core::CPackedBitVector& rowMask,
+                             const TSizeVec& metricColumnMask,
+                             const TSizeVec& categoricalColumnMask) const;
+    void setupFrequencyEncoding(std::size_t numberThreads,
+                                const core::CDataFrame& frame,
+                                const core::CPackedBitVector& rowMask,
+                                const TSizeVec& categoricalColumnMask);
+    void setupTargetMeanValueEncoding(std::size_t numberThreads,
+                                      const core::CDataFrame& frame,
+                                      const core::CPackedBitVector& rowMask,
+                                      const TSizeVec& categoricalColumnMask,
+                                      std::size_t targetColumn);
+    TSizeSizePrDoubleMap selectFeatures(std::size_t numberThreads,
+                                        const core::CDataFrame& frame,
+                                        const core::CPackedBitVector& rowMask,
+                                        TSizeVec metricColumnMask,
+                                        TSizeVec categoricalColumnMask,
+                                        std::size_t targetColumn);
+    TSizeSizePrDoubleMap selectAllFeatures(const TSizeDoublePrVecVec& mics);
+    void finishEncoding(std::size_t targetColumn, TSizeSizePrDoubleMap selectedFeatureMics);
+    std::size_t numberAvailableFeatures(const TSizeDoublePrVecVec& mics) const;
 
 private:
+    std::size_t m_MinimumRowsPerFeature;
+    double m_MinimumFrequencyToOneHotEncode;
     double m_RedundancyWeight;
     TBoolVec m_ColumnIsCategorical;
-    TSizeVec m_SelectedMetricFeatures;
-    TDoubleVec m_SelectedMetricFeatureMics;
-    TSizeVec m_SelectedCategoricalFeatures;
+    TBoolVec m_ColumnUsesFrequencyEncoding;
+    TSizeVecVec m_OneHotEncodedCategories;
+    TSizeUSetVec m_RareCategories;
+    TDoubleVecVec m_CategoryFrequencies;
+    TDoubleVecVec m_TargetMeanValues;
+    TDoubleVec m_FeatureVectorMics;
     TSizeVec m_FeatureVectorColumnMap;
     TSizeVec m_FeatureVectorEncodingMap;
-    TDoubleVecVec m_TargetMeanValues;
-    TSizeVecVec m_RareCategories;
-    TSizeVecVec m_OneHotEncodedCategories;
 };
 }
 }
