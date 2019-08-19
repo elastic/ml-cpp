@@ -37,12 +37,12 @@ CBoostedTreeFactory::buildFor(core::CDataFrame& frame, std::size_t dependentVari
     this->selectFeaturesAndEncodeCategories(frame);
 
     if (this->initializeFeatureSampleDistribution()) {
-        this->initializeHyperparameters(frame, m_ProgressCallback);
+        this->initializeHyperparameters(frame);
         this->initializeHyperparameterOptimisation();
     }
 
     // TODO can only use factory to create one object since this is moved. This seems trappy.
-    return TBoostedTreeUPtr{new CBoostedTree(frame, std::move(m_TreeImpl))};
+    return TBoostedTreeUPtr{new CBoostedTree(frame, m_RecordProgress, std::move(m_TreeImpl))};
 }
 
 std::size_t CBoostedTreeFactory::numberHyperparameterTuningRounds() const {
@@ -180,8 +180,7 @@ bool CBoostedTreeFactory::initializeFeatureSampleDistribution() const {
     return false;
 }
 
-void CBoostedTreeFactory::initializeHyperparameters(core::CDataFrame& frame,
-                                                    CBoostedTree::TProgressCallback recordProgress) const {
+void CBoostedTreeFactory::initializeHyperparameters(core::CDataFrame& frame) const {
 
     m_TreeImpl->m_Lambda = m_TreeImpl->m_LambdaOverride.value_or(0.0);
     m_TreeImpl->m_Gamma = m_TreeImpl->m_GammaOverride.value_or(0.0);
@@ -232,7 +231,7 @@ void CBoostedTreeFactory::initializeHyperparameters(core::CDataFrame& frame,
         LOG_TRACE(<< "loss = " << L[0] << ", # leaves = " << T[0]
                   << ", sum square weights = " << W[0]);
 
-        auto forest = m_TreeImpl->trainForest(frame, trainingRowMask, recordProgress);
+        auto forest = m_TreeImpl->trainForest(frame, trainingRowMask, m_RecordProgress);
 
         std::tie(L[1], T[1], W[1]) =
             m_TreeImpl->regularisedLoss(frame, trainingRowMask, forest);
@@ -272,10 +271,12 @@ CBoostedTreeFactory::constructFromParameters(std::size_t numberThreads,
 
 CBoostedTreeFactory::TBoostedTreeUPtr
 CBoostedTreeFactory::constructFromString(std::stringstream& jsonStringStream,
-                                         core::CDataFrame& frame) {
+                                         core::CDataFrame& frame,
+                                         TProgressCallback recordProgress) {
     try {
         TBoostedTreeUPtr treePtr{
-            new CBoostedTree{frame, TBoostedTreeImplUPtr{new CBoostedTreeImpl{}}}};
+            new CBoostedTree{frame, std::move(recordProgress),
+                             TBoostedTreeImplUPtr{new CBoostedTreeImpl{}}}};
         core::CJsonStateRestoreTraverser traverser(jsonStringStream);
         if (treePtr->acceptRestoreTraverser(traverser) == false || traverser.haveBadState()) {
             throw std::runtime_error{"failed to restore boosted tree"};
@@ -388,9 +389,8 @@ CBoostedTreeFactory& CBoostedTreeFactory::rowsPerFeature(std::size_t rowsPerFeat
     return *this;
 }
 
-CBoostedTreeFactory&
-CBoostedTreeFactory::progressCallback(CBoostedTree::TProgressCallback callback) {
-    m_ProgressCallback = callback;
+CBoostedTreeFactory& CBoostedTreeFactory::progressCallback(TProgressCallback callback) {
+    m_RecordProgress = callback;
     return *this;
 }
 
@@ -401,6 +401,9 @@ std::size_t CBoostedTreeFactory::estimateMemoryUsage(std::size_t numberRows,
 
 std::size_t CBoostedTreeFactory::numberExtraColumnsForTrain() const {
     return m_TreeImpl->numberExtraColumnsForTrain();
+}
+
+void CBoostedTreeFactory::noop(double) {
 }
 
 const double CBoostedTreeFactory::MINIMUM_ETA{1e-3};

@@ -86,6 +86,7 @@ CDataFrameBoostedTreeRunner::CDataFrameBoostedTreeRunner(const CDataFrameAnalysi
         maths::CBoostedTreeFactory::constructFromParameters(
             this->spec().numberThreads(), std::make_unique<maths::boosted_tree::CMse>()));
 
+    m_BoostedTreeFactory->progressCallback(this->progressRecorder());
     if (lambda >= 0.0) {
         m_BoostedTreeFactory->lambda(lambda);
     }
@@ -139,8 +140,8 @@ void CDataFrameBoostedTreeRunner::runImpl(const TStrVec& featureNames,
 
     m_BoostedTree = m_BoostedTreeFactory->buildFor(
         frame, dependentVariableColumn - featureNames.begin());
-    m_BoostedTree->train(this->progressRecorder());
-    m_BoostedTree->predict(this->progressRecorder());
+    m_BoostedTree->train();
+    m_BoostedTree->predict();
 }
 
 std::size_t CDataFrameBoostedTreeRunner::estimateBookkeepingMemoryUsage(

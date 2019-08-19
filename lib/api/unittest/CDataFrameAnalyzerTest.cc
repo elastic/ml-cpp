@@ -261,7 +261,7 @@ void addRegressionTestData(TStrVec fieldNames,
     std::unique_ptr<maths::CBoostedTree> tree =
         treeFactory.buildFor(*frame, weights.size());
 
-    tree->train(ml::maths::CBoostedTree::TProgressCallback());
+    tree->train();
 
     frame->readRows(1, [&](TRowItr beginRows, TRowItr endRows) {
         for (auto row = beginRows; row != endRows; ++row) {

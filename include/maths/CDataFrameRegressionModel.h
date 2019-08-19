@@ -33,12 +33,12 @@ public:
     CDataFrameRegressionModel& operator=(const CDataFrameRegressionModel&) = delete;
 
     //! Train on the examples in the data frame supplied to the constructor.
-    virtual void train(TProgressCallback recordProgress = noop) = 0;
+    virtual void train() = 0;
 
     //! Write the predictions to the data frame supplied to the constructor.
     //!
     //! \warning This can only be called after train.
-    virtual void predict(TProgressCallback recordProgress = noop) const = 0;
+    virtual void predict() const = 0;
 
     //! Write this model to \p writer.
     //!
@@ -52,12 +52,13 @@ public:
     virtual std::size_t columnHoldingPrediction(std::size_t numberColumns) const = 0;
 
 protected:
-    CDataFrameRegressionModel(core::CDataFrame& frame) : m_Frame{frame} {}
-    core::CDataFrame& frame() const { return m_Frame; }
-    static void noop(double);
+    CDataFrameRegressionModel(core::CDataFrame& frame, TProgressCallback recordProgress);
+    core::CDataFrame& frame() const;
+    const TProgressCallback& progressRecorder() const;
 
 private:
     core::CDataFrame& m_Frame;
+    TProgressCallback m_RecordProgress;
 };
 }
 }
