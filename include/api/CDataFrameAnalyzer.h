@@ -96,8 +96,9 @@ private:
     std::ptrdiff_t m_BeginDataFieldValues = FIELD_UNSET;
     std::ptrdiff_t m_EndDataFieldValues = FIELD_UNSET;
     std::ptrdiff_t m_DocHashFieldIndex = FIELD_UNSET;
-    std::uint64_t m_BadValueCount;
-    std::uint64_t m_BadDocHashCount;
+    std::uint64_t m_MissingValueCount = 0;
+    std::uint64_t m_BadValueCount = 0;
+    std::uint64_t m_BadDocHashCount = 0;
     TDataFrameAnalysisSpecificationUPtr m_AnalysisSpecification;
     TStrVec m_CategoricalFieldNames;
     TStrSizeUMapVec m_CategoricalFieldValues;
