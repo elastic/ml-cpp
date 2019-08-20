@@ -410,7 +410,7 @@ void CDataFrameUtilsTest::testMicWithColumn() {
                 TDoubleVec p;
                 rng.generateUniformSamples(0.0, 1.0, 1, p);
                 if (p[0] < 0.01) {
-                    row[j] = std::numeric_limits<double>::quiet_NaN();
+                    row[j] = core::CDataFrame::valueOfMissing();
                     ++missing[j];
                 }
             }

@@ -319,10 +319,10 @@ void CDataFrameAnalyzer::addRowToDataFrame(const TStrVec& fieldValues) {
         double value;
         if (fieldValue.empty()) {
             ++m_MissingValueCount;
-            return core::CFloatStorage{std::numeric_limits<float>::quiet_NaN()};
+            return core::CFloatStorage{core::CDataFrame::valueOfMissing()};
         } else if (core::CStringUtils::stringToTypeSilent(fieldValue, value) == false) {
             ++m_BadValueCount;
-            return core::CFloatStorage{std::numeric_limits<float>::quiet_NaN()};
+            return core::CFloatStorage{core::CDataFrame::valueOfMissing()};
         }
 
         // Tuncation is very unlikely since the values will typically be

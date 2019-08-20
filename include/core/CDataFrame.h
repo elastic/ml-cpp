@@ -433,8 +433,8 @@ public:
                                            std::size_t numberRows,
                                            std::size_t numberColumns);
 
-    // TODO We may want an architecture agnostic check pointing mechanism for long
-    // running tasks.
+    //! Get the value to use for a missing element in a data frame.
+    static double valueOfMissing();
 
 private:
     using TSizeSizePr = std::pair<std::size_t, std::size_t>;

@@ -198,7 +198,9 @@ const std::string COLUMN_USES_FREQUENCY_ENCODING_TAG{"uses_frequency_encoding"};
 const std::string ONE_HOT_ENCODED_CATEGORIES_TAG{"one_hot_encoded_categories"};
 const std::string RARE_CATEGORIES_TAG{"rare_categories"};
 const std::string CATEGORY_FREQUENCIES_TAG{"category_frequencies"};
-const std::string TARGET_MEAN_VALUES_TAG{"target_mean_values"};
+const std::string MEAN_CATEGORY_FREQUENCIES_TAG{"mean_category_frequencies"};
+const std::string CATEGORY_TARGET_MEAN_VALUES_TAG{"category_target_mean_values"};
+const std::string MEAN_CATEGORY_TARGET_MEAN_VALUES_TAG{"mean_category_target_mean_values"};
 const std::string FEATURE_VECTOR_MICS_TAG{"feature_vector_mics"};
 const std::string FEATURE_VECTOR_COLUMN_MAP_TAG{"feature_vector_column_map"};
 const std::string FEATURE_VECTOR_ENCODING_MAP_TAG{"feature_vector_encoding_map"};
@@ -376,9 +378,9 @@ bool CDataFrameCategoryEncoder::usesFrequencyEncoding(std::size_t feature) const
 }
 
 double CDataFrameCategoryEncoder::frequency(std::size_t feature, std::size_t category) const {
-    return this->usesOneHotEncoding(feature, category)
-               ? 0.0
-               : m_CategoryFrequencies[feature][category];
+    const auto& frequencies = m_CategoryFrequencies[feature];
+    return category < frequencies.size() ? frequencies[category]
+                                         : m_MeanCategoryFrequencies[feature];
 }
 
 bool CDataFrameCategoryEncoder::isRareCategory(std::size_t feature, std::size_t category) const {
@@ -387,11 +389,9 @@ bool CDataFrameCategoryEncoder::isRareCategory(std::size_t feature, std::size_t 
 
 double CDataFrameCategoryEncoder::targetMeanValue(std::size_t feature,
                                                   std::size_t category) const {
-    // TODO combine rare categories and use one mapping for collections.
-    return this->usesOneHotEncoding(feature, category) ||
-                   this->isRareCategory(feature, category)
-               ? 0.0
-               : m_TargetMeanValues[feature][category];
+    const auto& targetMeanValues = m_CategoryTargetMeanValues[feature];
+    return category < targetMeanValues.size() ? targetMeanValues[category]
+                                              : m_MeanCategoryTargetMeanValues[feature];
 }
 
 std::uint64_t CDataFrameCategoryEncoder::checksum(std::uint64_t seed) const {
@@ -403,7 +403,9 @@ std::uint64_t CDataFrameCategoryEncoder::checksum(std::uint64_t seed) const {
     seed = CChecksum::calculate(seed, m_OneHotEncodedCategories);
     seed = CChecksum::calculate(seed, m_RareCategories);
     seed = CChecksum::calculate(seed, m_CategoryFrequencies);
-    seed = CChecksum::calculate(seed, m_TargetMeanValues);
+    seed = CChecksum::calculate(seed, m_MeanCategoryFrequencies);
+    seed = CChecksum::calculate(seed, m_CategoryTargetMeanValues);
+    seed = CChecksum::calculate(seed, m_MeanCategoryTargetMeanValues);
     seed = CChecksum::calculate(seed, m_FeatureVectorMics);
     seed = CChecksum::calculate(seed, m_FeatureVectorColumnMap);
     return CChecksum::calculate(seed, m_FeatureVectorEncodingMap);
@@ -422,7 +424,12 @@ void CDataFrameCategoryEncoder::acceptPersistInserter(core::CStatePersistInserte
                                  m_OneHotEncodedCategories, inserter);
     core::CPersistUtils::persist(RARE_CATEGORIES_TAG, m_RareCategories, inserter);
     core::CPersistUtils::persist(CATEGORY_FREQUENCIES_TAG, m_CategoryFrequencies, inserter);
-    core::CPersistUtils::persist(TARGET_MEAN_VALUES_TAG, m_TargetMeanValues, inserter);
+    core::CPersistUtils::persist(MEAN_CATEGORY_FREQUENCIES_TAG,
+                                 m_MeanCategoryFrequencies, inserter);
+    core::CPersistUtils::persist(CATEGORY_TARGET_MEAN_VALUES_TAG,
+                                 m_CategoryTargetMeanValues, inserter);
+    core::CPersistUtils::persist(MEAN_CATEGORY_TARGET_MEAN_VALUES_TAG,
+                                 m_MeanCategoryTargetMeanValues, inserter);
     core::CPersistUtils::persist(FEATURE_VECTOR_MICS_TAG, m_FeatureVectorMics, inserter);
     core::CPersistUtils::persist(FEATURE_VECTOR_COLUMN_MAP_TAG,
                                  m_FeatureVectorColumnMap, inserter);
@@ -450,8 +457,15 @@ bool CDataFrameCategoryEncoder::acceptRestoreTraverser(core::CStateRestoreTraver
         RESTORE(CATEGORY_FREQUENCIES_TAG,
                 core::CPersistUtils::restore(CATEGORY_FREQUENCIES_TAG,
                                              m_CategoryFrequencies, traverser))
-        RESTORE(TARGET_MEAN_VALUES_TAG,
-                core::CPersistUtils::restore(TARGET_MEAN_VALUES_TAG, m_TargetMeanValues, traverser))
+        RESTORE(MEAN_CATEGORY_FREQUENCIES_TAG,
+                core::CPersistUtils::restore(MEAN_CATEGORY_FREQUENCIES_TAG,
+                                             m_MeanCategoryFrequencies, traverser))
+        RESTORE(CATEGORY_TARGET_MEAN_VALUES_TAG,
+                core::CPersistUtils::restore(CATEGORY_TARGET_MEAN_VALUES_TAG,
+                                             m_CategoryTargetMeanValues, traverser))
+        RESTORE(MEAN_CATEGORY_TARGET_MEAN_VALUES_TAG,
+                core::CPersistUtils::restore(MEAN_CATEGORY_TARGET_MEAN_VALUES_TAG,
+                                             m_MeanCategoryTargetMeanValues, traverser))
         RESTORE(FEATURE_VECTOR_MICS_TAG,
                 core::CPersistUtils::restore(FEATURE_VECTOR_MICS_TAG,
                                              m_FeatureVectorMics, traverser))
@@ -483,7 +497,7 @@ CDataFrameCategoryEncoder::mics(std::size_t numberThreads,
     encoderFactories[E_TargetMean] = std::make_pair(
         [this](std::size_t column, std::size_t sampleColumn, std::size_t) {
             return std::make_unique<CDataFrameUtils::CTargetMeanCategoricalColumnValue>(
-                sampleColumn, m_RareCategories[column], m_TargetMeanValues[column]);
+                sampleColumn, m_RareCategories[column], m_CategoryTargetMeanValues[column]);
         },
         0.0);
     encoderFactories[E_Frequency] = std::make_pair(
@@ -531,8 +545,13 @@ void CDataFrameCategoryEncoder::setupFrequencyEncoding(std::size_t numberThreads
     LOG_TRACE(<< "category frequencies = "
               << core::CContainerPrinter::print(m_CategoryFrequencies));
 
-    m_RareCategories.resize(frame.numberColumns());
+    m_MeanCategoryFrequencies.resize(m_CategoryFrequencies.size());
+    m_RareCategories.resize(m_CategoryFrequencies.size());
     for (std::size_t i = 0; i < m_CategoryFrequencies.size(); ++i) {
+        m_MeanCategoryFrequencies[i] =
+            m_CategoryFrequencies[i].empty()
+                ? 1.0
+                : 1.0 / static_cast<double>(m_CategoryFrequencies[i].size());
         for (std::size_t j = 0; j < m_CategoryFrequencies[i].size(); ++j) {
             std::size_t count{static_cast<std::size_t>(
                 m_CategoryFrequencies[i][j] * static_cast<double>(frame.numberRows()) + 0.5)};
@@ -541,6 +560,8 @@ void CDataFrameCategoryEncoder::setupFrequencyEncoding(std::size_t numberThreads
             }
         }
     }
+    LOG_TRACE(<< "mean category frequencies = "
+              << core::CContainerPrinter::print(m_MeanCategoryFrequencies));
     LOG_TRACE(<< "rare categories = " << core::CContainerPrinter::print(m_RareCategories));
 }
 
@@ -550,11 +571,21 @@ void CDataFrameCategoryEncoder::setupTargetMeanValueEncoding(std::size_t numberT
                                                              const TSizeVec& categoricalColumnMask,
                                                              std::size_t targetColumn) {
 
-    m_TargetMeanValues = CDataFrameUtils::meanValueOfTargetForCategories(
+    m_CategoryTargetMeanValues = CDataFrameUtils::meanValueOfTargetForCategories(
         CDataFrameUtils::CMetricColumnValue{targetColumn}, numberThreads, frame,
         rowMask, categoricalColumnMask);
-    LOG_TRACE(<< "target mean values = "
-              << core::CContainerPrinter::print(m_TargetMeanValues));
+    LOG_TRACE(<< "category target mean values = "
+              << core::CContainerPrinter::print(m_CategoryTargetMeanValues));
+
+    m_MeanCategoryTargetMeanValues.resize(m_CategoryTargetMeanValues.size());
+    for (std::size_t i = 0; i < m_CategoryTargetMeanValues.size(); ++i) {
+        m_MeanCategoryTargetMeanValues[i] =
+            m_CategoryTargetMeanValues[i].empty()
+                ? 0.0
+                : CBasicStatistics::mean(m_CategoryTargetMeanValues[i]);
+    }
+    LOG_TRACE(<< "mean category target mean values = "
+              << core::CContainerPrinter::print(m_MeanCategoryTargetMeanValues));
 }
 
 CDataFrameCategoryEncoder::TSizeSizePrDoubleMap
@@ -654,9 +685,9 @@ CDataFrameCategoryEncoder::selectFeatures(std::size_t numberThreads,
                                                  metricColumnMask.end(), feature));
             } // else if (selected.isTargetMean()) { nothing to do }
 
-            auto columnValue = selected.columnValue(m_RareCategories[feature],
-                                                    m_CategoryFrequencies[feature],
-                                                    m_TargetMeanValues[feature]);
+            auto columnValue = selected.columnValue(
+                m_RareCategories[feature], m_CategoryFrequencies[feature],
+                m_CategoryTargetMeanValues[feature]);
             mics = this->mics(numberThreads, frame, *columnValue, rowMask,
                               metricColumnMask, categoricalColumnMask);
             search.update(mics);
@@ -678,6 +709,38 @@ CDataFrameCategoryEncoder::selectFeatures(std::size_t numberThreads,
 
 void CDataFrameCategoryEncoder::finishEncoding(std::size_t targetColumn,
                                                TSizeSizePrDoubleMap selectedFeatureMics) {
+
+    using TMeanAccumulator = CBasicStatistics::SSampleMean<double>::TAccumulator;
+
+    // Update the frequency and target mean encoding for one-hot and rare categories.
+
+    for (std::size_t i = 0; i < m_OneHotEncodedCategories.size(); ++i) {
+        TMeanAccumulator meanCategoryFrequency;
+        TMeanAccumulator meanCategoryTargetMeanValue;
+        for (auto category : m_OneHotEncodedCategories[i]) {
+            double frequency{m_CategoryFrequencies[i][category]};
+            double mean{m_CategoryTargetMeanValues[i][category]};
+            meanCategoryFrequency.add(frequency, frequency);
+            meanCategoryTargetMeanValue.add(mean, frequency);
+        }
+        for (auto category : m_OneHotEncodedCategories[i]) {
+            m_CategoryFrequencies[i][category] = CBasicStatistics::mean(meanCategoryFrequency);
+            m_CategoryTargetMeanValues[i][category] =
+                CBasicStatistics::mean(meanCategoryTargetMeanValue);
+        }
+    }
+    for (std::size_t i = 0; i < m_RareCategories.size(); ++i) {
+        TMeanAccumulator meanCategoryTargetMeanValue;
+        for (auto category : m_RareCategories[i]) {
+            double frequency{m_CategoryFrequencies[i][category]};
+            double mean{m_CategoryTargetMeanValues[i][category]};
+            meanCategoryTargetMeanValue.add(mean, frequency);
+        }
+        for (auto category : m_RareCategories[i]) {
+            m_CategoryTargetMeanValues[i][category] =
+                CBasicStatistics::mean(meanCategoryTargetMeanValue);
+        }
+    }
 
     // Fill in a mapping from encoded column indices to raw column indices.
 
