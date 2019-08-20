@@ -17,6 +17,7 @@ public:
     void testCorrelatedFeatures();
     void testWithRowMask();
     void testEncodedDataFrameRowRef();
+    void testUnseenCategoryEncoding();
     void testPersistRestore();
 
     static CppUnit::Test* suite();

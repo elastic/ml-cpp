@@ -548,7 +548,10 @@ void CDataFrameCategoryEncoder::setupFrequencyEncoding(std::size_t numberThreads
     m_MeanCategoryFrequencies.resize(m_CategoryFrequencies.size());
     m_RareCategories.resize(m_CategoryFrequencies.size());
     for (std::size_t i = 0; i < m_CategoryFrequencies.size(); ++i) {
-        m_MeanCategoryFrequencies[i] = CBasicStatistics::mean(m_CategoryFrequencies[i]);
+        m_MeanCategoryFrequencies[i] =
+            m_CategoryFrequencies[i].empty()
+                ? 1.0
+                : 1.0 / static_cast<double>(m_CategoryFrequencies[i].size());
         for (std::size_t j = 0; j < m_CategoryFrequencies[i].size(); ++j) {
             std::size_t count{static_cast<std::size_t>(
                 m_CategoryFrequencies[i][j] * static_cast<double>(frame.numberRows()) + 0.5)};
@@ -577,7 +580,9 @@ void CDataFrameCategoryEncoder::setupTargetMeanValueEncoding(std::size_t numberT
     m_MeanCategoryTargetMeanValues.resize(m_CategoryTargetMeanValues.size());
     for (std::size_t i = 0; i < m_CategoryTargetMeanValues.size(); ++i) {
         m_MeanCategoryTargetMeanValues[i] =
-            CBasicStatistics::mean(m_CategoryTargetMeanValues[i]);
+            m_CategoryTargetMeanValues[i].empty()
+                ? 0.0
+                : CBasicStatistics::mean(m_CategoryTargetMeanValues[i]);
     }
     LOG_TRACE(<< "mean category target mean values = "
               << core::CContainerPrinter::print(m_MeanCategoryTargetMeanValues));
@@ -710,24 +715,30 @@ void CDataFrameCategoryEncoder::finishEncoding(std::size_t targetColumn,
     // Update the frequency and target mean encoding for one-hot and rare categories.
 
     for (std::size_t i = 0; i < m_OneHotEncodedCategories.size(); ++i) {
-        TMeanAccumulator meanFrequency;
-        TMeanAccumulator meanTargetMean;
+        TMeanAccumulator meanCategoryFrequency;
+        TMeanAccumulator meanCategoryTargetMeanValue;
         for (auto category : m_OneHotEncodedCategories[i]) {
-            meanFrequency.add(m_CategoryFrequencies[i][category]);
-            meanTargetMean.add(m_CategoryTargetMeanValues[i][category]);
+            double frequency{m_CategoryFrequencies[i][category]};
+            double mean{m_CategoryTargetMeanValues[i][category]};
+            meanCategoryFrequency.add(frequency, frequency);
+            meanCategoryTargetMeanValue.add(mean, frequency);
         }
         for (auto category : m_OneHotEncodedCategories[i]) {
-            m_CategoryFrequencies[i][category] = CBasicStatistics::mean(meanFrequency);
-            m_CategoryTargetMeanValues[i][category] = CBasicStatistics::mean(meanTargetMean);
+            m_CategoryFrequencies[i][category] = CBasicStatistics::mean(meanCategoryFrequency);
+            m_CategoryTargetMeanValues[i][category] =
+                CBasicStatistics::mean(meanCategoryTargetMeanValue);
         }
     }
     for (std::size_t i = 0; i < m_RareCategories.size(); ++i) {
-        TMeanAccumulator meanTargetMean;
+        TMeanAccumulator meanCategoryTargetMeanValue;
         for (auto category : m_RareCategories[i]) {
-            meanTargetMean.add(m_CategoryTargetMeanValues[i][category]);
+            double frequency{m_CategoryFrequencies[i][category]};
+            double mean{m_CategoryTargetMeanValues[i][category]};
+            meanCategoryTargetMeanValue.add(mean, frequency);
         }
         for (auto category : m_RareCategories[i]) {
-            m_CategoryTargetMeanValues[i][category] = CBasicStatistics::mean(meanTargetMean);
+            m_CategoryTargetMeanValues[i][category] =
+                CBasicStatistics::mean(meanCategoryTargetMeanValue);
         }
     }
 
