@@ -47,12 +47,10 @@ void CMemoryUsageEstimationResultJsonWriterTest::testWrite() {
     const rapidjson::Value& object = arrayDoc[rapidjson::SizeType(0)];
     CPPUNIT_ASSERT(object.IsObject());
 
-    CPPUNIT_ASSERT(object.HasMember("expected_memory_usage_with_one_partition"));
-    CPPUNIT_ASSERT_EQUAL(
-        std::string("16kB"),
-        std::string(object["expected_memory_usage_with_one_partition"].GetString()));
-    CPPUNIT_ASSERT(object.HasMember("expected_memory_usage_with_max_partitions"));
-    CPPUNIT_ASSERT_EQUAL(
-        std::string("8kB"),
-        std::string(object["expected_memory_usage_with_max_partitions"].GetString()));
+    CPPUNIT_ASSERT(object.HasMember("expected_memory_without_disk"));
+    CPPUNIT_ASSERT_EQUAL(std::string("16kB"),
+                         std::string(object["expected_memory_without_disk"].GetString()));
+    CPPUNIT_ASSERT(object.HasMember("expected_memory_with_disk"));
+    CPPUNIT_ASSERT_EQUAL(std::string("8kB"),
+                         std::string(object["expected_memory_with_disk"].GetString()));
 }
