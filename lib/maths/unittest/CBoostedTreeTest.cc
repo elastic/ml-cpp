@@ -118,7 +118,7 @@ auto predictAndComputeEvaluationMetrics(const F& generateFunction,
                 for (auto row = beginRows; row != endRows; ++row) {
                     double targetValue{row->index() < trainRows
                                            ? target(*row) + noise[row->index()]
-                                           : std::numeric_limits<double>::quiet_NaN()};
+                                           : core::CDataFrame::valueOfMissing()};
                     row->writeColumn(cols - 1, targetValue);
                 }
             });
@@ -582,7 +582,7 @@ void CBoostedTreeTest::testCategoricalRegressors() {
         for (auto row = beginRows; row != endRows; ++row) {
             double targetValue{row->index() < trainRows
                                    ? target(*row)
-                                   : std::numeric_limits<double>::quiet_NaN()};
+                                   : core::CDataFrame::valueOfMissing()};
             row->writeColumn(cols - 1, targetValue);
         }
     });
@@ -602,8 +602,8 @@ void CBoostedTreeTest::testCategoricalRegressors() {
 
     LOG_DEBUG(<< "bias = " << modelBias);
     LOG_DEBUG(<< " R^2 = " << modelRSquared);
-    CPPUNIT_ASSERT_DOUBLES_EQUAL(0.0, modelBias, 0.06);
-    CPPUNIT_ASSERT(modelRSquared > 0.97);
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(0.0, modelBias, 0.1);
+    CPPUNIT_ASSERT(modelRSquared > 0.9);
 }
 
 void CBoostedTreeTest::testProgressMonitoring() {

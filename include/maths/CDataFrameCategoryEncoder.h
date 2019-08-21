@@ -219,7 +219,9 @@ private:
     TSizeVecVec m_OneHotEncodedCategories;
     TSizeUSetVec m_RareCategories;
     TDoubleVecVec m_CategoryFrequencies;
-    TDoubleVecVec m_TargetMeanValues;
+    TDoubleVec m_MeanCategoryFrequencies;
+    TDoubleVecVec m_CategoryTargetMeanValues;
+    TDoubleVec m_MeanCategoryTargetMeanValues;
     TDoubleVec m_FeatureVectorMics;
     TSizeVec m_FeatureVectorColumnMap;
     TSizeVec m_FeatureVectorEncodingMap;
