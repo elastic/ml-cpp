@@ -574,7 +574,9 @@ void CDataFrameUtilsTest::testMeanValueOfTargetForCategories() {
                 for (std::size_t j = 0; j < actualMeans[i].size(); ++j) {
                     CPPUNIT_ASSERT_DOUBLES_EQUAL(
                         maths::CBasicStatistics::mean(expectedMeans[i][j]),
-                        actualMeans[i][j], 1.0 / static_cast<double>(rows));
+                        actualMeans[i][j],
+                        static_cast<double>(std::numeric_limits<float>::epsilon()) *
+                            maths::CBasicStatistics::mean(expectedMeans[i][j]));
                 }
             }
             for (std::size_t i : {1, 3}) {
@@ -586,6 +588,67 @@ void CDataFrameUtilsTest::testMeanValueOfTargetForCategories() {
     }
 
     core::stopDefaultAsyncExecutor();
+}
+
+void CDataFrameUtilsTest::testMeanValueOfTargetForCategoriesWithMissing() {
+
+    // Test that rows missing the target variable are ignored.
+
+    std::size_t rows{2000};
+    std::size_t cols{4};
+    std::size_t capacity{500};
+
+    test::CRandomNumbers rng;
+
+    TDoubleVecVec frequencies;
+    TDoubleVecVec values;
+    std::tie(frequencies, values) = generateCategoricalData(
+        rng, rows, cols - 1, {10.0, 30.0, 1.0, 5.0, 15.0, 9.0, 20.0, 10.0});
+
+    TDoubleVec uniform01;
+    rng.generateUniformSamples(0.0, 1.0, rows, uniform01);
+
+    values.resize(cols);
+    values[cols - 1].resize(rows, 0.0);
+    TMeanAccumulatorVecVec expectedMeans(cols, TMeanAccumulatorVec(8));
+    for (std::size_t i = 0; i < rows; ++i) {
+        if (uniform01[i] < 0.9) {
+            for (std::size_t j = 0; j + 1 < cols; ++j) {
+                values[cols - 1][i] += values[j][i];
+            }
+            for (std::size_t j = 0; j + 1 < cols; ++j) {
+                expectedMeans[j][static_cast<std::size_t>(values[j][i])].add(
+                    values[cols - 1][i]);
+            }
+        } else {
+            values[cols - 1][i] = std::numeric_limits<double>::quiet_NaN();
+        }
+    }
+
+    auto frame = core::makeMainStorageDataFrame(cols, capacity).first;
+
+    frame->categoricalColumns({true, false, true, false});
+    for (std::size_t i = 0; i < rows; ++i) {
+        frame->writeRow([&values, i, cols](core::CDataFrame::TFloatVecItr column, std::int32_t&) {
+            for (std::size_t j = 0; j < cols; ++j, ++column) {
+                *column = values[j][i];
+            }
+        });
+    }
+    frame->finishWritingRows();
+
+    TDoubleVecVec actualMeans(maths::CDataFrameUtils::meanValueOfTargetForCategories(
+        maths::CDataFrameUtils::CMetricColumnValue{3}, 1, *frame,
+        core::CPackedBitVector{rows, true}, {0, 1, 2}));
+
+    CPPUNIT_ASSERT_EQUAL(std::size_t{4}, actualMeans.size());
+    for (std::size_t i : {0, 2}) {
+        CPPUNIT_ASSERT_EQUAL(actualMeans.size(), expectedMeans.size());
+        for (std::size_t j = 0; j < actualMeans[i].size(); ++j) {
+            CPPUNIT_ASSERT_EQUAL(maths::CBasicStatistics::mean(expectedMeans[i][j]),
+                                 actualMeans[i][j]);
+        }
+    }
 }
 
 void CDataFrameUtilsTest::testCategoryMicWithColumn() {
@@ -696,6 +759,9 @@ CppUnit::Test* CDataFrameUtilsTest::suite() {
     suiteOfTests->addTest(new CppUnit::TestCaller<CDataFrameUtilsTest>(
         "CDataFrameUtilsTest::testMeanValueOfTargetForCategories",
         &CDataFrameUtilsTest::testMeanValueOfTargetForCategories));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CDataFrameUtilsTest>(
+        "CDataFrameUtilsTest::testMeanValueOfTargetForCategoriesWithMissing",
+        &CDataFrameUtilsTest::testMeanValueOfTargetForCategoriesWithMissing));
     suiteOfTests->addTest(new CppUnit::TestCaller<CDataFrameUtilsTest>(
         "CDataFrameUtilsTest::testCategoryMicWithColumn",
         &CDataFrameUtilsTest::testCategoryMicWithColumn));
