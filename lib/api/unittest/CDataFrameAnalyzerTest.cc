@@ -464,7 +464,7 @@ void CDataFrameAnalyzerTest::testRunOutlierDetectionWithParams() {
     // Test the method and number of neighbours parameters are correctly
     // propagated to the analysis runner.
 
-    TStrVec methods{"lof", "ldof", "knn", "tnn"};
+    TStrVec methods{"lof", "ldof", "distance_kth_nn", "distance_knn"};
 
     for (const auto& method :
          {maths::COutliers::E_Lof, maths::COutliers::E_Ldof,
