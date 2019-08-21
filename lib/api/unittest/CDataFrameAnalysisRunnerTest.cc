@@ -123,8 +123,8 @@ void CDataFrameAnalysisRunnerTest::testComputeAndSaveExecutionStrategyDiskUsageF
 }
 
 void testEstimateMemoryUsage(int64_t numberRows,
-                             const std::string& expected_expected_memory_usage_with_one_partition,
-                             const std::string& expected_expected_memory_usage_with_max_partitions,
+                             const std::string& expected_expected_memory_without_disk,
+                             const std::string& expected_expected_memory_with_disk,
                              int expected_number_errors) {
 
     std::ostringstream sstream;
@@ -159,14 +159,12 @@ void testEstimateMemoryUsage(int64_t numberRows,
     const rapidjson::Value& result = arrayDoc[rapidjson::SizeType(0)];
     CPPUNIT_ASSERT(result.IsObject());
 
-    CPPUNIT_ASSERT(result.HasMember("expected_memory_usage_with_one_partition"));
-    CPPUNIT_ASSERT_EQUAL(
-        expected_expected_memory_usage_with_one_partition,
-        std::string(result["expected_memory_usage_with_one_partition"].GetString()));
-    CPPUNIT_ASSERT(result.HasMember("expected_memory_usage_with_max_partitions"));
-    CPPUNIT_ASSERT_EQUAL(
-        expected_expected_memory_usage_with_max_partitions,
-        std::string(result["expected_memory_usage_with_max_partitions"].GetString()));
+    CPPUNIT_ASSERT(result.HasMember("expected_memory_without_disk"));
+    CPPUNIT_ASSERT_EQUAL(expected_expected_memory_without_disk,
+                         std::string(result["expected_memory_without_disk"].GetString()));
+    CPPUNIT_ASSERT(result.HasMember("expected_memory_with_disk"));
+    CPPUNIT_ASSERT_EQUAL(expected_expected_memory_with_disk,
+                         std::string(result["expected_memory_with_disk"].GetString()));
 
     CPPUNIT_ASSERT_EQUAL(expected_number_errors, static_cast<int>(errors.size()));
 }
