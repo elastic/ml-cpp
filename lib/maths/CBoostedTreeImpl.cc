@@ -235,6 +235,7 @@ std::size_t CBoostedTreeImpl::estimateMemoryUsage(std::size_t numberRows,
         maximumNumberNodes * CLeafNodeStatistics::estimateMemoryUsage(
                                  numberRows, numberColumns, m_FeatureBagFraction,
                                  m_NumberSplitsPerFeature)};
+
     return forestMemoryUsage + extraColumnsMemoryUsage +
            hyperparametersMemoryUsage + leafNodeStatisticsMemoryUsage;
 }

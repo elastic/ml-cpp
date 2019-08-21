@@ -663,11 +663,11 @@ void CBoostedTreeTest::testEstimateMemoryUsedByTrain() {
     LOG_DEBUG(<< "estimated memory usage = " << estimatedMemory);
     LOG_DEBUG(<< "high water mark = " << maxMemoryUsage);
 
-    // Currently, the estimated memory is a little over 2 times the high water
+    // Currently, the estimated memory is a little over 3 times the high water
     // mark for the test data.
 
     CPPUNIT_ASSERT(maxMemoryUsage < estimatedMemory);
-    CPPUNIT_ASSERT(3 * maxMemoryUsage > estimatedMemory);
+    CPPUNIT_ASSERT(4 * maxMemoryUsage > estimatedMemory);
 }
 
 void CBoostedTreeTest::testProgressMonitoring() {

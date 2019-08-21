@@ -586,7 +586,7 @@ void CDataFrameAnalyzerTest::testRunBoostedTreeTrainingWithParams() {
     };
 
     api::CDataFrameAnalyzer analyzer{
-        regressionSpec("c5", 100, 5, 100000, {}, lambda, gamma, eta,
+        regressionSpec("c5", 100, 5, 1000000, {}, lambda, gamma, eta,
                        maximumNumberTrees, featureBagFraction),
         outputWriterFactory};
 
@@ -638,7 +638,7 @@ void CDataFrameAnalyzerTest::testRunBoostedTreeTrainingWithRowsMissingTargetValu
 
     auto target = [](double feature) { return 10.0 * feature; };
 
-    api::CDataFrameAnalyzer analyzer{regressionSpec("target", 50, 2, 100000), outputWriterFactory};
+    api::CDataFrameAnalyzer analyzer{regressionSpec("target", 50, 2, 1000000), outputWriterFactory};
 
     TDoubleVec feature;
     rng.generateUniformSamples(1.0, 3.0, 50, feature);
@@ -851,7 +851,7 @@ void CDataFrameAnalyzerTest::testCategoricalFields() {
 
     {
         api::CDataFrameAnalyzer analyzer{
-            regressionSpec("x5", 1000, 5, 1000000, {"x1", "x2"}), outputWriterFactory};
+            regressionSpec("x5", 1000, 5, 10000000, {"x1", "x2"}), outputWriterFactory};
 
         TStrVec x[]{{"x11", "x12", "x13", "x14", "x15"},
                     {"x21", "x22", "x23", "x24", "x25", "x26", "x27"}};
@@ -890,7 +890,7 @@ void CDataFrameAnalyzerTest::testCategoricalFields() {
         std::size_t rows{api::CDataFrameAnalyzer::MAX_CATEGORICAL_CARDINALITY + 3};
 
         api::CDataFrameAnalyzer analyzer{
-            regressionSpec("x5", rows, 5, 2800000000, {"x1"}), outputWriterFactory};
+            regressionSpec("x5", rows, 5, 3600000000, {"x1"}), outputWriterFactory};
 
         TStrVec fieldNames{"x1", "x2", "x3", "x4", "x5", ".", "."};
         TStrVec fieldValues{"", "", "", "", "", "", ""};
