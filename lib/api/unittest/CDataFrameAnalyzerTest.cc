@@ -638,7 +638,8 @@ void CDataFrameAnalyzerTest::testRunBoostedTreeTrainingWithRowsMissingTargetValu
 
     auto target = [](double feature) { return 10.0 * feature; };
 
-    api::CDataFrameAnalyzer analyzer{regressionSpec("target", 50, 2, 1000000), outputWriterFactory};
+    api::CDataFrameAnalyzer analyzer{regressionSpec("target", 50, 2, 1000000),
+                                     outputWriterFactory};
 
     TDoubleVec feature;
     rng.generateUniformSamples(1.0, 3.0, 50, feature);

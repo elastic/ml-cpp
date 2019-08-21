@@ -426,7 +426,8 @@ private:
                                                double featureBagFraction,
                                                std::size_t numberSplitsPerFeature) {
             std::size_t featureBagSize{
-                static_cast<std::size_t>(std::ceil(featureBagFraction * static_cast<double>(numberCols - 1))) *
+                static_cast<std::size_t>(std::ceil(
+                    featureBagFraction * static_cast<double>(numberCols - 1))) *
                 sizeof(std::size_t)};
             std::size_t rowMaskSize{numberRows / 256};
             std::size_t gradientsSize{(numberCols - 1) *
