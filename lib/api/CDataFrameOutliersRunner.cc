@@ -37,8 +37,8 @@ const std::string OUTLIER_FRACTION{"outlier_fraction"};
 const CDataFrameAnalysisConfigReader PARAMETER_READER{[] {
     const std::string lof{"lof"};
     const std::string ldof{"ldof"};
-    const std::string knn{"knn"};
-    const std::string tnn{"tnn"};
+    const std::string knn{"distance_kth_nn"};
+    const std::string tnn{"distance_knn"};
     CDataFrameAnalysisConfigReader theReader;
     theReader.addParameter(STANDARDIZE_COLUMNS,
                            CDataFrameAnalysisConfigReader::E_OptionalParameter);
