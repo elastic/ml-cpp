@@ -90,8 +90,12 @@ CDataFrameBoostedTreeRunner::CDataFrameBoostedTreeRunner(const CDataFrameAnalysi
 
     (*m_BoostedTreeFactory).progressCallback(this->progressRecorder()).memoryUsageCallback([this](std::int64_t delta) {
         std::int64_t memory{m_Memory.fetch_add(delta)};
-        if (memory > 0) {
+        if (memory >= 0) {
             core::CProgramCounters::counter(counter_t::E_DFTPMPeakMemoryUsage).max(memory);
+        } else {
+            // Something has gone wrong with memory estimation. Trap this case
+            // to avoid underflowing the peak memory usage statistic.
+            LOG_DEBUG(<< "Memory estimate " << memory << " is negative!");
         }
     });
     if (lambda >= 0.0) {
