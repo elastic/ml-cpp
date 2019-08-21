@@ -20,6 +20,18 @@ using TDoubleVec = std::vector<double>;
 using TSizeVec = std::vector<std::size_t>;
 using TRowItr = core::CDataFrame::TRowItr;
 
+namespace {
+const double MIN_REGULARIZER_SCALE{0.1};
+const double MAX_REGULARIZER_SCALE{10.0};
+const double MIN_ETA_SCALE{0.3};
+const double MAX_ETA_SCALE{3.0};
+const double MIN_ETA_GROWTH_RATE_SCALE{0.5};
+const double MAX_ETA_GROWTH_RATE_SCALE{1.5};
+const double MIN_FEATURE_BAG_FRACTION{0.2};
+const double MAX_FEATURE_BAG_FRACTION{0.8};
+const double MAIN_TRAINING_LOOP_TREE_SIZE_MULTIPLIER{10.0};
+}
+
 CBoostedTreeFactory::TBoostedTreeUPtr
 CBoostedTreeFactory::buildFor(core::CDataFrame& frame, std::size_t dependentVariable) {
 
@@ -42,7 +54,8 @@ CBoostedTreeFactory::buildFor(core::CDataFrame& frame, std::size_t dependentVari
     }
 
     // TODO can only use factory to create one object since this is moved. This seems trappy.
-    return TBoostedTreeUPtr{new CBoostedTree(frame, m_RecordProgress, std::move(m_TreeImpl))};
+    return TBoostedTreeUPtr{new CBoostedTree{
+        frame, m_RecordProgress, m_RecordMemoryUsage, std::move(m_TreeImpl)}};
 }
 
 std::size_t CBoostedTreeFactory::numberHyperparameterTuningRounds() const {
@@ -65,21 +78,22 @@ void CBoostedTreeFactory::initializeHyperparameterOptimisation() const {
 
     CBayesianOptimisation::TDoubleDoublePrVec boundingBox;
     if (m_TreeImpl->m_LambdaOverride == boost::none) {
-        boundingBox.emplace_back(std::log(m_TreeImpl->m_Lambda / 10.0),
-                                 std::log(10.0 * m_TreeImpl->m_Lambda));
+        boundingBox.emplace_back(std::log(MIN_REGULARIZER_SCALE * m_TreeImpl->m_Lambda),
+                                 std::log(MAX_REGULARIZER_SCALE * m_TreeImpl->m_Lambda));
     }
     if (m_TreeImpl->m_GammaOverride == boost::none) {
-        boundingBox.emplace_back(std::log(m_TreeImpl->m_Gamma / 10.0),
-                                 std::log(10.0 * m_TreeImpl->m_Gamma));
+        boundingBox.emplace_back(std::log(MIN_REGULARIZER_SCALE * m_TreeImpl->m_Gamma),
+                                 std::log(MAX_REGULARIZER_SCALE * m_TreeImpl->m_Gamma));
     }
     if (m_TreeImpl->m_EtaOverride == boost::none) {
         double rate{m_TreeImpl->m_EtaGrowthRatePerTree - 1.0};
-        boundingBox.emplace_back(std::log(0.3 * m_TreeImpl->m_Eta),
-                                 std::log(3.0 * m_TreeImpl->m_Eta));
-        boundingBox.emplace_back(1.0 + rate / 2.0, 1.0 + 1.5 * rate);
+        boundingBox.emplace_back(std::log(MIN_ETA_SCALE * m_TreeImpl->m_Eta),
+                                 std::log(MAX_ETA_SCALE * m_TreeImpl->m_Eta));
+        boundingBox.emplace_back(1.0 + MIN_ETA_GROWTH_RATE_SCALE * rate,
+                                 1.0 + MAX_ETA_GROWTH_RATE_SCALE * rate);
     }
     if (m_TreeImpl->m_FeatureBagFractionOverride == boost::none) {
-        boundingBox.emplace_back(0.2, 0.8);
+        boundingBox.emplace_back(MIN_FEATURE_BAG_FRACTION, MAX_FEATURE_BAG_FRACTION);
     }
 
     m_TreeImpl->m_BayesianOptimization =
@@ -231,7 +245,7 @@ void CBoostedTreeFactory::initializeHyperparameters(core::CDataFrame& frame) con
         LOG_TRACE(<< "loss = " << L[0] << ", # leaves = " << T[0]
                   << ", sum square weights = " << W[0]);
 
-        auto forest = m_TreeImpl->trainForest(frame, trainingRowMask, m_RecordProgress);
+        auto forest = m_TreeImpl->trainForest(frame, trainingRowMask, m_RecordMemoryUsage);
 
         std::tie(L[1], T[1], W[1]) =
             m_TreeImpl->regularisedLoss(frame, trainingRowMask, forest);
@@ -253,30 +267,32 @@ void CBoostedTreeFactory::initializeHyperparameters(core::CDataFrame& frame) con
                   << " gamma(initial) = " << m_TreeImpl->m_Gamma);
     }
 
-    m_TreeImpl->m_MaximumTreeSizeFraction = 10.0;
+    m_TreeImpl->m_MaximumTreeSizeMultiplier = MAIN_TRAINING_LOOP_TREE_SIZE_MULTIPLIER;
 
     if (m_TreeImpl->m_MaximumNumberTreesOverride == boost::none) {
-        // We allow a large number of trees by default in the main parameter
-        // optimisation loop. In practice, we should use many fewer if they
-        // don't significantly improve test error.
-        m_TreeImpl->m_MaximumNumberTrees *= 10;
+        // We actively optimise for eta and allow it to be up to MIN_ETA_SCALE
+        // smaller than the initial value. We need to allow the number of trees
+        // to increase proportionally to avoid bias. In practice, we should use
+        // fewer if they don't significantly improve the validation error.
+        m_TreeImpl->m_MaximumNumberTrees = static_cast<std::size_t>(
+            static_cast<double>(m_TreeImpl->m_MaximumNumberTrees) / MIN_ETA_SCALE + 0.5);
     }
 }
 
-CBoostedTreeFactory
-CBoostedTreeFactory::constructFromParameters(std::size_t numberThreads,
-                                             CBoostedTree::TLossFunctionUPtr loss) {
+CBoostedTreeFactory CBoostedTreeFactory::constructFromParameters(std::size_t numberThreads,
+                                                                 TLossFunctionUPtr loss) {
     return {numberThreads, std::move(loss)};
 }
 
 CBoostedTreeFactory::TBoostedTreeUPtr
 CBoostedTreeFactory::constructFromString(std::stringstream& jsonStringStream,
                                          core::CDataFrame& frame,
-                                         TProgressCallback recordProgress) {
+                                         TProgressCallback recordProgress,
+                                         TMemoryUsageCallback recordMemoryUsage) {
     try {
-        TBoostedTreeUPtr treePtr{
-            new CBoostedTree{frame, std::move(recordProgress),
-                             TBoostedTreeImplUPtr{new CBoostedTreeImpl{}}}};
+        TBoostedTreeUPtr treePtr{new CBoostedTree{
+            frame, std::move(recordProgress), std::move(recordMemoryUsage),
+            TBoostedTreeImplUPtr{new CBoostedTreeImpl{}}}};
         core::CJsonStateRestoreTraverser traverser(jsonStringStream);
         if (treePtr->acceptRestoreTraverser(traverser) == false || traverser.haveBadState()) {
             throw std::runtime_error{"failed to restore boosted tree"};
@@ -288,8 +304,7 @@ CBoostedTreeFactory::constructFromString(std::stringstream& jsonStringStream,
     return nullptr;
 }
 
-CBoostedTreeFactory::CBoostedTreeFactory(std::size_t numberThreads,
-                                         CBoostedTree::TLossFunctionUPtr loss)
+CBoostedTreeFactory::CBoostedTreeFactory(std::size_t numberThreads, TLossFunctionUPtr loss)
     : m_MinimumFrequencyToOneHotEncode{CDataFrameCategoryEncoder::MINIMUM_FREQUENCY_TO_ONE_HOT_ENCODE},
       m_TreeImpl{std::make_unique<CBoostedTreeImpl>(numberThreads, std::move(loss))} {
 }
@@ -390,20 +405,41 @@ CBoostedTreeFactory& CBoostedTreeFactory::rowsPerFeature(std::size_t rowsPerFeat
 }
 
 CBoostedTreeFactory& CBoostedTreeFactory::progressCallback(TProgressCallback callback) {
-    m_RecordProgress = callback;
+    m_RecordProgress = std::move(callback);
+    return *this;
+}
+
+CBoostedTreeFactory& CBoostedTreeFactory::memoryUsageCallback(TMemoryUsageCallback callback) {
+    m_RecordMemoryUsage = std::move(callback);
     return *this;
 }
 
 std::size_t CBoostedTreeFactory::estimateMemoryUsage(std::size_t numberRows,
                                                      std::size_t numberColumns) const {
-    return m_TreeImpl->estimateMemoryUsage(numberRows, numberColumns);
+    double maximumTreeSizeMultiplier{MAIN_TRAINING_LOOP_TREE_SIZE_MULTIPLIER *
+                                     m_TreeImpl->m_MaximumTreeSizeMultiplier};
+    std::size_t maximumNumberTrees{static_cast<std::size_t>(
+        static_cast<double>(m_TreeImpl->m_MaximumNumberTrees) / MIN_ETA_SCALE + 0.5)};
+
+    std::swap(maximumTreeSizeMultiplier, m_TreeImpl->m_MaximumTreeSizeMultiplier);
+    std::swap(maximumNumberTrees, m_TreeImpl->m_MaximumNumberTrees);
+
+    std::size_t result{m_TreeImpl->estimateMemoryUsage(numberRows, numberColumns)};
+
+    std::swap(maximumTreeSizeMultiplier, m_TreeImpl->m_MaximumTreeSizeMultiplier);
+    std::swap(maximumNumberTrees, m_TreeImpl->m_MaximumNumberTrees);
+
+    return result;
 }
 
 std::size_t CBoostedTreeFactory::numberExtraColumnsForTrain() const {
     return m_TreeImpl->numberExtraColumnsForTrain();
 }
 
-void CBoostedTreeFactory::noop(double) {
+void CBoostedTreeFactory::noopRecordProgress(double) {
+}
+
+void CBoostedTreeFactory::noopRecordMemoryUsage(std::int64_t) {
 }
 
 const double CBoostedTreeFactory::MINIMUM_ETA{1e-3};

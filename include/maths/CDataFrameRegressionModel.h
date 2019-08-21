@@ -52,13 +52,17 @@ public:
     virtual std::size_t columnHoldingPrediction(std::size_t numberColumns) const = 0;
 
 protected:
-    CDataFrameRegressionModel(core::CDataFrame& frame, TProgressCallback recordProgress);
+    CDataFrameRegressionModel(core::CDataFrame& frame,
+                              TProgressCallback recordProgress,
+                              TMemoryUsageCallback recordMemoryUsage);
     core::CDataFrame& frame() const;
     const TProgressCallback& progressRecorder() const;
+    const TMemoryUsageCallback& memoryUsageRecorder() const;
 
 private:
     core::CDataFrame& m_Frame;
     TProgressCallback m_RecordProgress;
+    TMemoryUsageCallback m_RecordMemoryUsage;
 };
 }
 }

@@ -18,6 +18,7 @@ public:
     void testConstantFeatures();
     void testConstantTarget();
     void testCategoricalRegressors();
+    void testEstimateMemoryUsedByTrain();
     void testProgressMonitoring();
     void testMissingData();
     // TODO void testFeatureWeights();

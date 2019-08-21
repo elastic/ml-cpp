@@ -574,7 +574,7 @@ void COutliersTest::testEstimateMemoryUsedByCompute() {
                                                             memoryUsage_) == false) {
                 }
                 LOG_TRACE(<< "current memory = " << memoryUsage_
-                          << ", high water mark " << maxMemoryUsage.load());
+                          << ", high water mark = " << maxMemoryUsage.load());
             });
 
         LOG_DEBUG(<< "estimated peak memory = " << estimatedMemoryUsage);

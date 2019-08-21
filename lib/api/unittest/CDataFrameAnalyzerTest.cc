@@ -9,6 +9,7 @@
 #include <core/CContainerPrinter.h>
 #include <core/CJsonOutputStreamWrapper.h>
 #include <core/CProgramCounters.h>
+#include <core/CStopWatch.h>
 #include <core/CStringUtils.h>
 
 #include <maths/CBasicStatistics.h>
@@ -84,7 +85,7 @@ auto outlierSpec(std::size_t rows = 110,
 auto regressionSpec(std::string dependentVariable,
                     std::size_t rows = 100,
                     std::size_t cols = 5,
-                    std::size_t memoryLimit = 100000,
+                    std::size_t memoryLimit = 1000000,
                     const TStrVec& categoricalFieldNames = TStrVec{},
                     double lambda = -1.0,
                     double gamma = -1.0,
@@ -519,14 +520,16 @@ void CDataFrameAnalyzerTest::testRunBoostedTreeTraining() {
         return std::make_unique<core::CJsonOutputStreamWrapper>(output);
     };
 
-    api::CDataFrameAnalyzer analyzer{regressionSpec("c5"), outputWriterFactory};
-
     TDoubleVec expectedPredictions;
 
     TStrVec fieldNames{"c1", "c2", "c3", "c4", "c5", ".", "."};
     TStrVec fieldValues{"", "", "", "", "", "0", ""};
+    api::CDataFrameAnalyzer analyzer{regressionSpec("c5"), outputWriterFactory};
     addRegressionTestData(fieldNames, fieldValues, analyzer, expectedPredictions);
+
+    core::CStopWatch watch{true};
     analyzer.handleRecord(fieldNames, {"", "", "", "", "", "", "$"});
+    std::uint64_t duration{watch.stop()};
 
     rapidjson::Document results;
     rapidjson::ParseResult ok(results.Parse(output.str()));
@@ -552,6 +555,18 @@ void CDataFrameAnalyzerTest::testRunBoostedTreeTraining() {
     }
     CPPUNIT_ASSERT(expectedPrediction == expectedPredictions.end());
     CPPUNIT_ASSERT(progressCompleted);
+
+    LOG_DEBUG(<< "estimated memory usage = "
+              << core::CProgramCounters::counter(counter_t::E_DFTPMEstimatedPeakMemoryUsage));
+    LOG_DEBUG(<< "peak memory = "
+              << core::CProgramCounters::counter(counter_t::E_DFTPMPeakMemoryUsage));
+    LOG_DEBUG(<< "time to train = " << core::CProgramCounters::counter(counter_t::E_DFTPMTimeToTrain)
+              << "ms");
+    CPPUNIT_ASSERT(core::CProgramCounters::counter(
+                       counter_t::E_DFTPMEstimatedPeakMemoryUsage) < 600000);
+    CPPUNIT_ASSERT(core::CProgramCounters::counter(counter_t::E_DFTPMPeakMemoryUsage) < 200000);
+    CPPUNIT_ASSERT(core::CProgramCounters::counter(counter_t::E_DFTPMTimeToTrain) > 0);
+    CPPUNIT_ASSERT(core::CProgramCounters::counter(counter_t::E_DFTPMTimeToTrain) <= duration);
 }
 
 void CDataFrameAnalyzerTest::testRunBoostedTreeTrainingWithParams() {

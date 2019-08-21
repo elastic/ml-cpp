@@ -8,7 +8,9 @@
 
 #include <core/CDataFrame.h>
 #include <core/CLogger.h>
+#include <core/CProgramCounters.h>
 #include <core/CRapidJsonConcurrentLineWriter.h>
+#include <core/CStopWatch.h>
 
 #include <maths/CBoostedTree.h>
 #include <maths/CBoostedTreeFactory.h>
@@ -86,7 +88,12 @@ CDataFrameBoostedTreeRunner::CDataFrameBoostedTreeRunner(const CDataFrameAnalysi
         maths::CBoostedTreeFactory::constructFromParameters(
             this->spec().numberThreads(), std::make_unique<maths::boosted_tree::CMse>()));
 
-    m_BoostedTreeFactory->progressCallback(this->progressRecorder());
+    (*m_BoostedTreeFactory).progressCallback(this->progressRecorder()).memoryUsageCallback([this](std::int64_t delta) {
+        std::int64_t memory{m_Memory.fetch_add(delta)};
+        if (memory > 0) {
+            core::CProgramCounters::counter(counter_t::E_DFTPMPeakMemoryUsage).max(memory);
+        }
+    });
     if (lambda >= 0.0) {
         m_BoostedTreeFactory->lambda(lambda);
     }
@@ -105,7 +112,7 @@ CDataFrameBoostedTreeRunner::CDataFrameBoostedTreeRunner(const CDataFrameAnalysi
 }
 
 CDataFrameBoostedTreeRunner::CDataFrameBoostedTreeRunner(const CDataFrameAnalysisSpecification& spec)
-    : CDataFrameAnalysisRunner{spec} {
+    : CDataFrameAnalysisRunner{spec}, m_Memory{0} {
 }
 
 CDataFrameBoostedTreeRunner::~CDataFrameBoostedTreeRunner() = default;
@@ -138,10 +145,19 @@ void CDataFrameBoostedTreeRunner::runImpl(const TStrVec& featureNames,
         return;
     }
 
+    core::CProgramCounters::counter(counter_t::E_DFTPMEstimatedPeakMemoryUsage) =
+        this->estimateMemoryUsage(frame.numberRows(),
+                                  frame.numberRows() / this->numberPartitions(),
+                                  frame.numberColumns());
+
+    core::CStopWatch watch{true};
+
     m_BoostedTree = m_BoostedTreeFactory->buildFor(
         frame, dependentVariableColumn - featureNames.begin());
     m_BoostedTree->train();
     m_BoostedTree->predict();
+
+    core::CProgramCounters::counter(counter_t::E_DFTPMTimeToTrain) = watch.stop();
 }
 
 std::size_t CDataFrameBoostedTreeRunner::estimateBookkeepingMemoryUsage(

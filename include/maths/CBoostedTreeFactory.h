@@ -31,16 +31,20 @@ class MATHS_EXPORT CBoostedTreeFactory final {
 public:
     using TBoostedTreeUPtr = std::unique_ptr<CBoostedTree>;
     using TProgressCallback = CBoostedTree::TProgressCallback;
+    using TMemoryUsageCallback = CBoostedTree::TMemoryUsageCallback;
+    using TLossFunctionUPtr = CBoostedTree::TLossFunctionUPtr;
 
 public:
     //! Construct a boosted tree object from parameters.
     static CBoostedTreeFactory constructFromParameters(std::size_t numberThreads,
-                                                       CBoostedTree::TLossFunctionUPtr loss);
+                                                       TLossFunctionUPtr loss);
 
     //! Construct a boosted tree object from its serialized version.
-    static TBoostedTreeUPtr constructFromString(std::stringstream& jsonStringStream,
-                                                core::CDataFrame& frame,
-                                                TProgressCallback recordProgress = noop);
+    static TBoostedTreeUPtr
+    constructFromString(std::stringstream& jsonStringStream,
+                        core::CDataFrame& frame,
+                        TProgressCallback recordProgress = noopRecordProgress,
+                        TMemoryUsageCallback recordMemoryUsage = noopRecordMemoryUsage);
 
     ~CBoostedTreeFactory();
     CBoostedTreeFactory(CBoostedTreeFactory&) = delete;
@@ -69,6 +73,8 @@ public:
     CBoostedTreeFactory& rowsPerFeature(std::size_t rowsPerFeature);
     //! Set the callback function for progress monitoring.
     CBoostedTreeFactory& progressCallback(TProgressCallback callback);
+    //! Set the callback function for memory monitoring.
+    CBoostedTreeFactory& memoryUsageCallback(TMemoryUsageCallback callback);
 
     //! Estimate the maximum booking memory that training the boosted tree on a data
     //! frame with \p numberRows row and \p numberColumns columns will use.
@@ -87,7 +93,7 @@ private:
     static const std::size_t MAXIMUM_NUMBER_TREES;
 
 private:
-    CBoostedTreeFactory(std::size_t numberThreads, CBoostedTree::TLossFunctionUPtr loss);
+    CBoostedTreeFactory(std::size_t numberThreads, TLossFunctionUPtr loss);
 
     //! Compute the row masks for the missing values for each feature.
     void initializeMissingFeatureMasks(const core::CDataFrame& frame) const;
@@ -113,12 +119,14 @@ private:
     //! Get the number of hyperparameter tuning rounds to use.
     std::size_t numberHyperparameterTuningRounds() const;
 
-    static void noop(double);
+    static void noopRecordProgress(double);
+    static void noopRecordMemoryUsage(std::int64_t);
 
 private:
     double m_MinimumFrequencyToOneHotEncode;
     TBoostedTreeImplUPtr m_TreeImpl;
-    TProgressCallback m_RecordProgress = noop;
+    TProgressCallback m_RecordProgress = noopRecordProgress;
+    TMemoryUsageCallback m_RecordMemoryUsage = noopRecordMemoryUsage;
 };
 }
 }

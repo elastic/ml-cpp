@@ -10,6 +10,7 @@
 #include <core/CContainerPrinter.h>
 #include <core/CDataFrame.h>
 #include <core/CLogger.h>
+#include <core/CMemory.h>
 #include <core/CPackedBitVector.h>
 #include <core/CStatePersistInserter.h>
 #include <core/CStateRestoreTraverser.h>
@@ -48,6 +49,8 @@ public:
     using TMeanAccumulator = CBasicStatistics::SSampleMean<double>::TAccumulator;
     using TMeanVarAccumulator = CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
     using TBayesinOptimizationUPtr = std::unique_ptr<maths::CBayesianOptimisation>;
+    using TProgressCallback = CBoostedTree::TProgressCallback;
+    using TMemoryUsageCallback = CBoostedTree::TMemoryUsageCallback;
     using TDoubleVec = std::vector<double>;
 
 public:
@@ -62,13 +65,14 @@ public:
     CBoostedTreeImpl& operator=(CBoostedTreeImpl&&);
 
     //! Train the model on the values in \p frame.
-    void train(core::CDataFrame& frame, CBoostedTree::TProgressCallback recordProgress);
+    void train(core::CDataFrame& frame,
+               const TProgressCallback& recordProgress,
+               const TMemoryUsageCallback& recordMemoryUsage);
 
     //! Write the predictions of the best trained model to \p frame.
     //!
     //! \note Must be called only if a trained model is available.
-    void predict(core::CDataFrame& frame,
-                 CBoostedTree::TProgressCallback /*recordProgress*/) const;
+    void predict(core::CDataFrame& frame, const TProgressCallback& /*recordProgress*/) const;
 
     //! Write this model to \p writer.
     void write(core::CRapidJsonConcurrentLineWriter& /*writer*/) const;
@@ -88,6 +92,9 @@ public:
 
     //! Populate the object from serialized data.
     bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
+
+    //! Get the memory used by this object.
+    std::size_t memoryUsage() const;
 
 private:
     using TDoubleDoublePrVec = std::vector<std::pair<double, double>>;
@@ -136,6 +143,9 @@ private:
     //! node bit masks from the node's bit mask.
     class CNode final {
     public:
+        //! See core::CMemory.
+        static bool dynamicSizeAlwaysZero() { return true; }
+
         //! Check if this is a leaf node.
         bool isLeaf() const { return m_LeftChild < 0; }
 
@@ -397,13 +407,24 @@ private:
         //! Get the row mask for this leaf node.
         core::CPackedBitVector& rowMask() { return m_RowMask; }
 
+        //! Get the memory used by this object.
+        std::size_t memoryUsage() const {
+            std::size_t mem{core::CMemory::dynamicSize(m_FeatureBag)};
+            mem += core::CMemory::dynamicSize(m_RowMask);
+            mem += core::CMemory::dynamicSize(m_Gradients);
+            mem += core::CMemory::dynamicSize(m_Curvatures);
+            mem += core::CMemory::dynamicSize(m_MissingGradients);
+            mem += core::CMemory::dynamicSize(m_MissingCurvatures);
+            return mem;
+        }
+
         //! Estimate maximum leaf statistics bookkeeping memory for training
         //! boosted trees on data frames with \p numberRows rows, \p numberCols columns
         //! with specified settings for \p featureBagFraction and \p numberSplitsPerFeature
-        static size_t estimateMemoryUsage(std::size_t numberRows,
-                                          std::size_t numberCols,
-                                          double featureBagFraction,
-                                          std::size_t numberSplitsPerFeature) {
+        static std::size_t estimateMemoryUsage(std::size_t numberRows,
+                                               std::size_t numberCols,
+                                               double featureBagFraction,
+                                               std::size_t numberSplitsPerFeature) {
             std::size_t featureBagSize{
                 static_cast<std::size_t>(ceil(featureBagFraction) * (numberCols - 1)) *
                 sizeof(std::size_t)};
@@ -612,7 +633,7 @@ private:
 
     //! Train the forest and compute loss moments on each fold.
     TMeanVarAccumulator crossValidateForest(core::CDataFrame& frame,
-                                            CBoostedTree::TProgressCallback recordProgress) const;
+                                            const TMemoryUsageCallback& recordMemoryUsage) const;
 
     //! Initialize the predictions and loss function derivatives for the masked
     //! rows in \p frame.
@@ -622,7 +643,7 @@ private:
     //! Train one forest on the rows of \p frame in the mask \p trainingRowMask.
     TNodeVecVec trainForest(core::CDataFrame& frame,
                             const core::CPackedBitVector& trainingRowMask,
-                            CBoostedTree::TProgressCallback /*recordProgress*/) const;
+                            const TMemoryUsageCallback& recordMemoryUsage) const;
 
     //! Get the candidate splits values for each feature.
     TDoubleVecVec candidateSplits(const core::CDataFrame& frame,
@@ -631,7 +652,8 @@ private:
     //! Train one tree on the rows of \p frame in the mask \p trainingRowMask.
     TNodeVec trainTree(core::CDataFrame& frame,
                        const core::CPackedBitVector& trainingRowMask,
-                       const TDoubleVecVec& candidateSplits) const;
+                       const TDoubleVecVec& candidateSplits,
+                       const TMemoryUsageCallback& recordMemoryUsage) const;
 
     //! Get the number of features including category encoding.
     std::size_t numberFeatures() const;
@@ -716,7 +738,7 @@ private:
     std::size_t m_MaximumOptimisationRoundsPerHyperparameter = 5;
     std::size_t m_RowsPerFeature = 50;
     double m_FeatureBagFraction = 0.5;
-    double m_MaximumTreeSizeFraction = 1.0;
+    double m_MaximumTreeSizeMultiplier = 1.0;
     TDataFrameCategoryEncoderUPtr m_Encoder;
     TDoubleVec m_FeatureSampleProbabilities;
     TPackedBitVectorVec m_MissingFeatureRowMasks;
