@@ -11,8 +11,8 @@ namespace api {
 namespace {
 
 // JSON field names
-const std::string EXPECTED_MEMORY_USAGE_WITH_ONE_PARTITION("expected_memory_usage_with_one_partition");
-const std::string EXPECTED_MEMORY_USAGE_WITH_MAX_PARTITIONS("expected_memory_usage_with_max_partitions");
+const std::string EXPECTED_MEMORY_WITHOUT_DISK("expected_memory_without_disk");
+const std::string EXPECTED_MEMORY_WITH_DISK("expected_memory_with_disk");
 }
 
 CMemoryUsageEstimationResultJsonWriter::CMemoryUsageEstimationResultJsonWriter(core::CJsonOutputStreamWrapper& strmOut)
@@ -21,13 +21,13 @@ CMemoryUsageEstimationResultJsonWriter::CMemoryUsageEstimationResultJsonWriter(c
     // the moment, the output stream might be redirected after construction
 }
 
-void CMemoryUsageEstimationResultJsonWriter::write(const std::string& expectedMemoryUsageWithOnePartition,
-                                                   const std::string& expectedMemoryUsageWithMaxPartitions) {
+void CMemoryUsageEstimationResultJsonWriter::write(const std::string& expectedMemoryWithoutDisk,
+                                                   const std::string& expectedMemoryWithDisk) {
     m_Writer.StartObject();
-    m_Writer.Key(EXPECTED_MEMORY_USAGE_WITH_ONE_PARTITION);
-    m_Writer.String(expectedMemoryUsageWithOnePartition);
-    m_Writer.Key(EXPECTED_MEMORY_USAGE_WITH_MAX_PARTITIONS);
-    m_Writer.String(expectedMemoryUsageWithMaxPartitions);
+    m_Writer.Key(EXPECTED_MEMORY_WITHOUT_DISK);
+    m_Writer.String(expectedMemoryWithoutDisk);
+    m_Writer.Key(EXPECTED_MEMORY_WITH_DISK);
+    m_Writer.String(expectedMemoryWithDisk);
     m_Writer.EndObject();
     m_Writer.flush();
 }
