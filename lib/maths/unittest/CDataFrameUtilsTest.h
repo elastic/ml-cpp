@@ -11,6 +11,7 @@
 
 class CDataFrameUtilsTest : public CppUnit::TestFixture {
 public:
+    void testColumnDataTypes();
     void testStandardizeColumns();
     void testColumnQuantiles();
     void testColumnQuantilesWithEncoding();

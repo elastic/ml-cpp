@@ -57,6 +57,107 @@ auto generateCategoricalData(test::CRandomNumbers& rng,
 
     return std::make_pair(frequencies, values);
 }
+
+core::CPackedBitVector maskAll(std::size_t rows) {
+    return {rows, true};
+}
+}
+
+void CDataFrameUtilsTest::testColumnDataTypes() {
+
+    test::CRandomNumbers rng;
+
+    std::size_t rows{2000};
+    std::size_t cols{4};
+
+    TFactoryFunc makeOnDisk{[=] {
+        return core::makeDiskStorageDataFrame(test::CTestTmpDir::tmpDir(), cols, rows)
+            .first;
+    }};
+    TFactoryFunc makeMainMemory{
+        [=] { return core::makeMainStorageDataFrame(cols).first; }};
+
+    TSizeVec columnMask(cols);
+    std::iota(columnMask.begin(), columnMask.end(), 0);
+
+    core::stopDefaultAsyncExecutor();
+
+    for (auto threads : {1, 2}) {
+        for (const auto& factory : {makeOnDisk, makeMainMemory}) {
+
+            auto frame = factory();
+
+            double min{0.0};
+            double max{10.0};
+            maths::CDataFrameUtils::TDataTypeVec expectedTypes{
+                {true, max, min}, {false, max, min}, {false, max, min}, {false, max, min}};
+
+            for (std::size_t i = 0; i < rows; ++i) {
+                frame->writeRow([&](core::CDataFrame::TFloatVecItr column, std::int32_t&) {
+                    TDoubleVec values;
+                    rng.generateUniformSamples(min, max, cols, values);
+                    *(column++) = std::floor(values[0]);
+                    expectedTypes[0].s_Min =
+                        std::min(expectedTypes[0].s_Min, std::floor(values[0]));
+                    expectedTypes[0].s_Max =
+                        std::max(expectedTypes[0].s_Max, std::floor(values[0]));
+                    for (std::size_t j = 1; j < cols; ++j, ++column) {
+                        *column = values[j];
+                        expectedTypes[j].s_Min =
+                            std::min(maths::CFloatStorage{expectedTypes[j].s_Min},
+                                     maths::CFloatStorage{values[j]});
+                        expectedTypes[j].s_Max =
+                            std::max(maths::CFloatStorage{expectedTypes[j].s_Max},
+                                     maths::CFloatStorage{values[j]});
+                    }
+                });
+            }
+            frame->finishWritingRows();
+
+            maths::CDataFrameUtils::TDataTypeVec actualTypes(maths::CDataFrameUtils::columnDataTypes(
+                threads, *frame, maskAll(rows), columnMask));
+
+            // Round trip the expected types to a string to check persistence.
+
+            maths::CDataFrameUtils::TDataTypeVec restoredTypes;
+            std::string delimitedCollection{core::CPersistUtils::toString(
+                expectedTypes,
+                [](const auto& type) { return type.toDelimited(); },
+                maths::CDataFrameUtils::SDataType::EXTERNAL_DELIMITER)};
+            LOG_DEBUG(<< "delimited = " << delimitedCollection);
+            CPPUNIT_ASSERT(core::CPersistUtils::fromString(
+                delimitedCollection,
+                [](const std::string& delimited, auto& type) {
+                    return type.fromDelimited(delimited);
+                },
+                restoredTypes, maths::CDataFrameUtils::SDataType::EXTERNAL_DELIMITER));
+
+            CPPUNIT_ASSERT_EQUAL(expectedTypes.size(), actualTypes.size());
+            for (std::size_t i = 0; i < expectedTypes.size(); ++i) {
+                double eps{100.0 * std::numeric_limits<double>::epsilon()};
+                CPPUNIT_ASSERT_EQUAL(expectedTypes[i].s_IsInteger,
+                                     actualTypes[i].s_IsInteger);
+                CPPUNIT_ASSERT_DOUBLES_EQUAL(expectedTypes[i].s_Min,
+                                             actualTypes[i].s_Min,
+                                             eps * expectedTypes[i].s_Min);
+                CPPUNIT_ASSERT_DOUBLES_EQUAL(expectedTypes[i].s_Max,
+                                             actualTypes[i].s_Max,
+                                             eps * expectedTypes[i].s_Max);
+                CPPUNIT_ASSERT_EQUAL(expectedTypes[i].s_IsInteger,
+                                     restoredTypes[i].s_IsInteger);
+                CPPUNIT_ASSERT_DOUBLES_EQUAL(expectedTypes[i].s_Min,
+                                             restoredTypes[i].s_Min,
+                                             eps * expectedTypes[i].s_Min);
+                CPPUNIT_ASSERT_DOUBLES_EQUAL(expectedTypes[i].s_Max,
+                                             restoredTypes[i].s_Max,
+                                             eps * expectedTypes[i].s_Max);
+            }
+        }
+
+        core::startDefaultAsyncExecutor();
+    }
+
+    core::stopDefaultAsyncExecutor();
 }
 
 void CDataFrameUtilsTest::testStandardizeColumns() {
@@ -190,7 +291,6 @@ void CDataFrameUtilsTest::testColumnQuantiles() {
     TFactoryFunc makeMainMemory{
         [=] { return core::makeMainStorageDataFrame(cols, capacity).first; }};
 
-    core::CPackedBitVector rowMask{rows, true};
     TSizeVec columnMask(cols);
     std::iota(columnMask.begin(), columnMask.end(), 0);
 
@@ -215,7 +315,7 @@ void CDataFrameUtilsTest::testColumnQuantiles() {
             maths::CQuantileSketch sketch{maths::CQuantileSketch::E_Linear, 100};
             TQuantileSketchVec actualQuantiles;
             CPPUNIT_ASSERT(maths::CDataFrameUtils::columnQuantiles(
-                threads, *frame, rowMask, columnMask, sketch, actualQuantiles));
+                threads, *frame, maskAll(rows), columnMask, sketch, actualQuantiles));
 
             // Check the quantile sketches match.
 
@@ -298,9 +398,8 @@ void CDataFrameUtilsTest::testColumnQuantilesWithEncoding() {
     frame->finishWritingRows();
 
     maths::CDataFrameCategoryEncoder encoder{
-        1, *frame, core::CPackedBitVector{rows, true}, {1, 2, 3, 4, 5}, 0, 50};
+        1, *frame, maskAll(rows), {1, 2, 3, 4, 5}, 0, 50};
 
-    core::CPackedBitVector rowMask{rows, true};
     TSizeVec columnMask(encoder.numberFeatures());
     std::iota(columnMask.begin(), columnMask.end(), 0);
 
@@ -318,7 +417,7 @@ void CDataFrameUtilsTest::testColumnQuantilesWithEncoding() {
     TQuantileSketchVec actualQuantiles;
     maths::CQuantileSketch sketch{maths::CQuantileSketch::E_Linear, 100};
     CPPUNIT_ASSERT(maths::CDataFrameUtils::columnQuantiles(
-        1, *frame, rowMask, columnMask, sketch, actualQuantiles, &encoder));
+        1, *frame, maskAll(rows), columnMask, sketch, actualQuantiles, &encoder));
 
     for (std::size_t i = 5; i < 100; i += 5) {
         for (std::size_t feature = 0; feature < columnMask.size(); ++feature) {
@@ -338,8 +437,6 @@ void CDataFrameUtilsTest::testMicWithColumn() {
     std::size_t capacity{500};
     std::size_t numberRows{2000};
     std::size_t numberCols{4};
-
-    core::CPackedBitVector rowMask{numberRows, true};
 
     TFactoryFunc makeOnDisk{[=] {
         return core::makeDiskStorageDataFrame(test::CTestTmpDir::tmpDir(),
@@ -385,7 +482,8 @@ void CDataFrameUtilsTest::testMicWithColumn() {
         }
 
         TDoubleVec actual(maths::CDataFrameUtils::metricMicWithColumn(
-            maths::CDataFrameUtils::CMetricColumnValue{3}, *frame, rowMask, {0, 1, 2}));
+            maths::CDataFrameUtils::CMetricColumnValue{3}, *frame,
+            maskAll(numberRows), {0, 1, 2}));
 
         LOG_DEBUG(<< "expected = " << core::CContainerPrinter::print(expected));
         LOG_DEBUG(<< "actual   = " << core::CContainerPrinter::print(actual));
@@ -440,7 +538,8 @@ void CDataFrameUtilsTest::testMicWithColumn() {
         }
 
         TDoubleVec actual(maths::CDataFrameUtils::metricMicWithColumn(
-            maths::CDataFrameUtils::CMetricColumnValue{3}, *frame, rowMask, {0, 1, 2}));
+            maths::CDataFrameUtils::CMetricColumnValue{3}, *frame,
+            maskAll(numberRows), {0, 1, 2}));
 
         LOG_DEBUG(<< "expected = " << core::CContainerPrinter::print(expected));
         LOG_DEBUG(<< "actual   = " << core::CContainerPrinter::print(actual));
@@ -489,7 +588,7 @@ void CDataFrameUtilsTest::testCategoryFrequencies() {
             frame->finishWritingRows();
 
             TDoubleVecVec actualFrequencies{maths::CDataFrameUtils::categoryFrequencies(
-                threads, *frame, core::CPackedBitVector{rows, true}, {0, 1, 2, 3})};
+                threads, *frame, maskAll(rows), {0, 1, 2, 3})};
 
             CPPUNIT_ASSERT_EQUAL(std::size_t{4}, actualFrequencies.size());
             for (std::size_t i : {0, 2}) {
@@ -566,7 +665,7 @@ void CDataFrameUtilsTest::testMeanValueOfTargetForCategories() {
 
             TDoubleVecVec actualMeans(maths::CDataFrameUtils::meanValueOfTargetForCategories(
                 maths::CDataFrameUtils::CMetricColumnValue{3}, threads, *frame,
-                core::CPackedBitVector{rows, true}, {0, 1, 2}));
+                maskAll(rows), {0, 1, 2}));
 
             CPPUNIT_ASSERT_EQUAL(std::size_t{4}, actualMeans.size());
             for (std::size_t i : {0, 2}) {
@@ -698,7 +797,7 @@ void CDataFrameUtilsTest::testCategoryMicWithColumn() {
 
             auto mics = maths::CDataFrameUtils::categoricalMicWithColumn(
                 maths::CDataFrameUtils::CMetricColumnValue{3}, threads, *frame,
-                core::CPackedBitVector{rows, true}, {0, 1, 2},
+                maskAll(rows), {0, 1, 2},
                 {{[](std::size_t, std::size_t sampleColumn, std::size_t category) {
                       return std::make_unique<maths::CDataFrameUtils::COneHotCategoricalColumnValue>(
                           sampleColumn, category);
@@ -743,6 +842,8 @@ void CDataFrameUtilsTest::testCategoryMicWithColumn() {
 CppUnit::Test* CDataFrameUtilsTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CDataFrameUtilsTest");
 
+    suiteOfTests->addTest(new CppUnit::TestCaller<CDataFrameUtilsTest>(
+        "CDataFrameUtilsTest::testColumnDataTypes", &CDataFrameUtilsTest::testColumnDataTypes));
     suiteOfTests->addTest(new CppUnit::TestCaller<CDataFrameUtilsTest>(
         "CDataFrameUtilsTest::testStandardizeColumns",
         &CDataFrameUtilsTest::testStandardizeColumns));
