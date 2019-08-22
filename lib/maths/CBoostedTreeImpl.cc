@@ -376,6 +376,11 @@ CBoostedTreeImpl::candidateSplits(const core::CDataFrame& frame,
         const auto& dataType = m_FeatureDataTypes[features[i]];
 
         if (dataType.s_IsInteger) {
+            // The key point here is that we know that if two distinct splits fall
+            // between two consecutive integers we know that they must produce
+            // identical partitions of the data and so always have the same loss.
+            // We only need to retain one such split for training. We achieve this
+            // by snapping to the midpoint and subsquently deduplicating.
             std::for_each(featureSplits.begin(), featureSplits.end(),
                           [](double& split) { split = std::floor(split) + 0.5; });
         }
