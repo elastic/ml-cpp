@@ -68,6 +68,21 @@ public:
     using TQuantileSketchVec = std::vector<CQuantileSketch>;
     using TPackedBitVectorVec = std::vector<core::CPackedBitVector>;
 
+    //! \brief Defines the data type of a collection of numbers.
+    struct MATHS_EXPORT SDataType {
+        static const char EXTERNAL_DELIMITER;
+        static const char INTERNAL_DELIMITER;
+
+        std::string toDelimited() const;
+        bool fromDelimited(const std::string& delimited);
+
+        bool s_IsInteger;
+        double s_Min;
+        double s_Max;
+    };
+
+    using TDataTypeVec = std::vector<SDataType>;
+
     //! \brief Used to extract the value from a specific column of the data frame.
     class MATHS_EXPORT CColumnValue {
     public:
@@ -183,6 +198,20 @@ public:
     //! \param[in] numberThreads The number of threads available.
     //! \param[in,out] frame The data frame whose columns are to be standardized.
     static bool standardizeColumns(std::size_t numberThreads, core::CDataFrame& frame);
+
+    //! Extract column data types.
+    //!
+    //! \param[in] numberThreads The number of threads available.
+    //! \param[in] frame The data frame whose columns are to be standardized.
+    //! \param[in] rowMask A mask of the rows from which to compute data types.
+    //! \param[in] columnMask A mask of the columns for which to compute data types.
+    //! \param[in] encoder If non-null used to encode the rows for which to compute
+    //! data types.
+    static TDataTypeVec columnDataTypes(std::size_t numberThreads,
+                                        const core::CDataFrame& frame,
+                                        const core::CPackedBitVector& rowMask,
+                                        const TSizeVec& columnMask,
+                                        const CDataFrameCategoryEncoder* encoder = nullptr);
 
     //! Get a quantile sketch of each column's values.
     //!

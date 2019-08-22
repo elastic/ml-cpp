@@ -858,7 +858,7 @@ CppUnit::Test* CBoostedTreeTest::suite() {
     suiteOfTests->addTest(new CppUnit::TestCaller<CBoostedTreeTest>(
         "CBoostedTreeTest::testPersistRestore", &CBoostedTreeTest::testPersistRestore));
     suiteOfTests->addTest(new CppUnit::TestCaller<CBoostedTreeTest>(
-        "CBoostedTreeTest::testErrors", &CBoostedTreeTest::testRestoreErrorHandling));
+        "CBoostedTreeTest::testRestoreErrorHandling", &CBoostedTreeTest::testRestoreErrorHandling));
 
     return suiteOfTests;
 }
