@@ -292,7 +292,7 @@ CBoostedTreeImpl::trainForest(core::CDataFrame& frame,
     //  4. Update predictions and loss derivatives
 
     double eta{m_Eta};
-    double sumEta{eta};
+    double oneMinusBias{eta};
 
     for (std::size_t retries = 0; forest.size() < m_MaximumNumberTrees; /**/) {
 
@@ -302,17 +302,22 @@ CBoostedTreeImpl::trainForest(core::CDataFrame& frame,
 
         retries = tree.size() == 1 ? retries + 1 : 0;
 
-        if (sumEta > 1.0 && retries == m_MaximumAttemptsToAddTree) {
+        if (oneMinusBias > 0.9 && retries == m_MaximumAttemptsToAddTree) {
             break;
         }
 
-        if (sumEta < 1.0 || retries == 0) {
+        if (tree.size() > 1) {
             this->refreshPredictionsAndLossDerivatives(frame, trainingRowMask, eta, tree);
             forest.push_back(std::move(tree));
             eta = std::min(1.0, m_EtaGrowthRatePerTree * eta);
-            sumEta += eta;
+            oneMinusBias += eta * (1.0 - oneMinusBias);
             retries = 0;
+        } else if (oneMinusBias < 1.0) {
+            this->refreshPredictionsAndLossDerivatives(frame, trainingRowMask, 1.0, tree);
+            oneMinusBias = 1.0;
+            forest.push_back(std::move(tree));
         }
+        LOG_TRACE(<< "bias = " << (1.0 - oneMinusBias));
     }
 
     LOG_TRACE(<< "Trained one forest");
