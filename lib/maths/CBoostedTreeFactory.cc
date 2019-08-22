@@ -35,6 +35,7 @@ CBoostedTreeFactory::buildFor(core::CDataFrame& frame, std::size_t dependentVari
                         frame.numberColumns() + this->numberExtraColumnsForTrain());
 
     this->selectFeaturesAndEncodeCategories(frame);
+    this->determineFeatureDataTypes(frame);
 
     if (this->initializeFeatureSampleDistribution()) {
         this->initializeHyperparameters(frame);
@@ -156,6 +157,21 @@ void CBoostedTreeFactory::selectFeaturesAndEncodeCategories(const core::CDataFra
         m_TreeImpl->m_NumberThreads, frame, m_TreeImpl->allTrainingRowsMask(),
         regressors, m_TreeImpl->m_DependentVariable,
         m_TreeImpl->m_RowsPerFeature, m_MinimumFrequencyToOneHotEncode);
+}
+
+void CBoostedTreeFactory::determineFeatureDataTypes(const core::CDataFrame& frame) const {
+
+    TSizeVec columnMask(m_TreeImpl->m_Encoder->numberFeatures());
+    std::iota(columnMask.begin(), columnMask.end(), 0);
+    columnMask.erase(std::remove_if(columnMask.begin(), columnMask.end(),
+                                    [this](std::size_t index) {
+                                        return m_TreeImpl->m_Encoder->isBinary(index);
+                                    }),
+                     columnMask.end());
+
+    m_TreeImpl->m_FeatureDataTypes = CDataFrameUtils::columnDataTypes(
+        m_TreeImpl->m_NumberThreads, frame, m_TreeImpl->allTrainingRowsMask(),
+        columnMask, m_TreeImpl->m_Encoder.get());
 }
 
 bool CBoostedTreeFactory::initializeFeatureSampleDistribution() const {
