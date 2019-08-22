@@ -197,7 +197,7 @@ void CBoostedTreeTest::testPiecewiseConstant() {
         // Unbiased...
         CPPUNIT_ASSERT_DOUBLES_EQUAL(
             0.0, modelBias[i][0],
-            6.0 * std::sqrt(noiseVariance / static_cast<double>(trainRows)));
+            7.0 * std::sqrt(noiseVariance / static_cast<double>(trainRows)));
         // Good R^2...
         CPPUNIT_ASSERT(modelRSquared[i][0] > 0.9);
 
@@ -252,7 +252,7 @@ void CBoostedTreeTest::testLinear() {
         // Unbiased...
         CPPUNIT_ASSERT_DOUBLES_EQUAL(
             0.0, modelBias[i][0],
-            6.0 * std::sqrt(noiseVariance / static_cast<double>(trainRows)));
+            7.0 * std::sqrt(noiseVariance / static_cast<double>(trainRows)));
         // Good R^2...
         CPPUNIT_ASSERT(modelRSquared[i][0] > 0.95);
 
@@ -602,8 +602,8 @@ void CBoostedTreeTest::testCategoricalRegressors() {
 
     LOG_DEBUG(<< "bias = " << modelBias);
     LOG_DEBUG(<< " R^2 = " << modelRSquared);
-    CPPUNIT_ASSERT_DOUBLES_EQUAL(0.0, modelBias, 0.05);
-    CPPUNIT_ASSERT(modelRSquared > 0.99);
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(0.0, modelBias, 0.15);
+    CPPUNIT_ASSERT(modelRSquared > 0.9);
 }
 
 void CBoostedTreeTest::testIntegerRegressor() {
@@ -646,6 +646,8 @@ void CBoostedTreeTest::testIntegerRegressor() {
 
     LOG_DEBUG(<< "bias = " << modelBias);
     LOG_DEBUG(<< " R^2 = " << modelRSquared);
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(0.0, modelBias, 0.05);
+    CPPUNIT_ASSERT(modelRSquared > 0.99);
 }
 
 void CBoostedTreeTest::testProgressMonitoring() {
