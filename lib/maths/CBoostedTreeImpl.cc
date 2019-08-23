@@ -236,7 +236,7 @@ CBoostedTreeImpl::regularisedLoss(const core::CDataFrame& frame,
         }
     }
 
-    return {loss, leafCount, sumSquareLeafWeights};
+    return {loss, leafCount, 0.5 * sumSquareLeafWeights};
 }
 
 CBoostedTreeImpl::TMeanVarAccumulator
@@ -638,7 +638,17 @@ bool CBoostedTreeImpl::selectNextHyperparameters(const TMeanVarAccumulator& loss
     double lossVariance{CBasicStatistics::variance(lossMoments)};
 
     bopt.add(parameters, meanLoss, lossVariance);
-    parameters = bopt.maximumExpectedImprovement();
+    if (3 * m_CurrentRound < m_NumberRounds) {
+        std::generate_n(parameters.data(), parameters.size(), [&]() {
+            return CSampling::uniformSample(m_Rng, 0.0, 1.0);
+        });
+        TVector minBoundary;
+        TVector maxBoundary;
+        std::tie(minBoundary, maxBoundary) = bopt.boundingBox();
+        parameters = minBoundary + parameters.cwiseProduct(maxBoundary - minBoundary);
+    } else {
+        parameters = bopt.maximumExpectedImprovement();
+    }
 
     // Write parameters for next round.
     i = 0;
