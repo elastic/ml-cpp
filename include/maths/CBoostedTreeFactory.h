@@ -105,6 +105,9 @@ private:
     //! as regressors.
     void selectFeaturesAndEncodeCategories(const core::CDataFrame& frame) const;
 
+    //! Determine the encoded feature types.
+    void determineFeatureDataTypes(const core::CDataFrame& frame) const;
+
     //! Initialize the regressors sample distribution.
     bool initializeFeatureSampleDistribution() const;
 

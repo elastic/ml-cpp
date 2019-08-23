@@ -100,6 +100,36 @@ auto computeEncodedCategory(CMic& mic,
 const std::size_t NUMBER_SAMPLES_TO_COMPUTE_MIC{10000};
 }
 
+std::string CDataFrameUtils::SDataType::toDelimited() const {
+    // clang-format off
+    return core::CStringUtils::typeToString(static_cast<int>(s_IsInteger)) +
+           INTERNAL_DELIMITER +
+           core::CStringUtils::typeToStringPrecise(s_Min, core::CIEEE754::E_DoublePrecision) +
+           INTERNAL_DELIMITER +
+           core::CStringUtils::typeToStringPrecise(s_Max, core::CIEEE754::E_DoublePrecision) +
+           INTERNAL_DELIMITER;
+    // clang-format on
+}
+
+bool CDataFrameUtils::SDataType::fromDelimited(const std::string& delimited) {
+    TDoubleVec state(3);
+    int pos{0}, i{0};
+    for (auto delimiter = delimited.find(INTERNAL_DELIMITER); delimiter != std::string::npos;
+         delimiter = delimited.find(INTERNAL_DELIMITER, pos)) {
+        if (core::CStringUtils::stringToType(delimited.substr(pos, delimiter - pos),
+                                             state[i++]) == false) {
+            return false;
+        }
+        pos = static_cast<int>(delimiter + 1);
+    }
+    std::tie(s_IsInteger, s_Min, s_Max) =
+        std::make_tuple(state[0] == 1.0, state[1], state[2]);
+    return true;
+}
+
+const char CDataFrameUtils::SDataType::INTERNAL_DELIMITER{':'};
+const char CDataFrameUtils::SDataType::EXTERNAL_DELIMITER{';'};
+
 bool CDataFrameUtils::standardizeColumns(std::size_t numberThreads, core::CDataFrame& frame) {
 
     using TMeanVarAccumulatorVec =
@@ -158,6 +188,74 @@ bool CDataFrameUtils::standardizeColumns(std::size_t numberThreads, core::CDataF
     };
 
     return frame.writeColumns(numberThreads, standardiseColumns).second;
+}
+
+CDataFrameUtils::TDataTypeVec
+CDataFrameUtils::columnDataTypes(std::size_t numberThreads,
+                                 const core::CDataFrame& frame,
+                                 const core::CPackedBitVector& rowMask,
+                                 const TSizeVec& columnMask,
+                                 const CDataFrameCategoryEncoder* encoder) {
+
+    if (frame.numberRows() == 0) {
+        return {};
+    }
+
+    using TMinMax = CBasicStatistics::CMinMax<double>;
+    using TMinMaxBoolPrVec = std::vector<std::pair<TMinMax, bool>>;
+
+    auto readDataTypes = core::bindRetrievableState(
+        [&](TMinMaxBoolPrVec& types, TRowItr beginRows, TRowItr endRows) {
+            double integerPart;
+            if (encoder != nullptr) {
+                for (auto row = beginRows; row != endRows; ++row) {
+                    CEncodedDataFrameRowRef encodedRow{encoder->encode(*row)};
+                    for (auto i : columnMask) {
+                        double value{encodedRow[i]};
+                        if (isMissing(value) == false) {
+                            types[i].first.add(value);
+                            types[i].second = types[i].second &&
+                                              (std::modf(value, &integerPart) == 0.0);
+                        }
+                    }
+                }
+            } else {
+                for (auto row = beginRows; row != endRows; ++row) {
+                    for (auto i : columnMask) {
+                        double value{(*row)[i]};
+                        if (isMissing(value) == false) {
+                            types[i].first.add(value);
+                            types[i].second = types[i].second &&
+                                              (std::modf(value, &integerPart) == 0.0);
+                        }
+                    }
+                }
+            }
+        },
+        TMinMaxBoolPrVec(encoder != nullptr ? encoder->numberFeatures() : frame.numberColumns(),
+                         {TMinMax{}, true}));
+
+    auto copyDataTypes = [](TMinMaxBoolPrVec types, TMinMaxBoolPrVec& result) {
+        result = std::move(types);
+    };
+    auto reduceDataTypes = [&](TMinMaxBoolPrVec types, TMinMaxBoolPrVec& result) {
+        for (auto i : columnMask) {
+            result[i].first += types[i].first;
+            result[i].second = result[i].second && types[i].second;
+        }
+    };
+
+    TMinMaxBoolPrVec types;
+    doReduce(frame.readRows(numberThreads, 0, frame.numberRows(), readDataTypes, &rowMask),
+             copyDataTypes, reduceDataTypes, types);
+
+    TDataTypeVec result(types.size());
+    for (auto i : columnMask) {
+        result[i] = SDataType{types[i].second, types[i].first.min(),
+                              types[i].first.max()};
+    }
+
+    return result;
 }
 
 bool CDataFrameUtils::columnQuantiles(std::size_t numberThreads,
@@ -288,9 +386,11 @@ CDataFrameUtils::meanValueOfTargetForCategories(const CColumnValue& target,
         [&](TMeanAccumulatorVecVec& means_, TRowItr beginRows, TRowItr endRows) {
             for (auto row = beginRows; row != endRows; ++row) {
                 for (std::size_t i : columnMask) {
-                    std::size_t category{static_cast<std::size_t>((*row)[i])};
-                    means_[i].resize(std::max(means_[i].size(), category + 1));
-                    means_[i][category].add(target(*row));
+                    if (isMissing(target(*row)) == false) {
+                        std::size_t category{static_cast<std::size_t>((*row)[i])};
+                        means_[i].resize(std::max(means_[i].size(), category + 1));
+                        means_[i][category].add(target(*row));
+                    }
                 }
             }
         },
