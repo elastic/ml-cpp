@@ -31,6 +31,7 @@ class CRowRef;
 }
 namespace api {
 class CDataFrameAnalysisSpecification;
+class CMemoryUsageEstimationResultJsonWriter;
 
 //! \brief Hierarchy for running a specific core::CDataFrame analyses.
 //!
@@ -75,6 +76,11 @@ public:
     //! number of rows per subset.
     void computeAndSaveExecutionStrategy();
 
+    //! Estimates memory usage in two cases:
+    //!   1. disk is not used (the whole data frame fits in main memory)
+    //!   2. disk is used (only one partition needs to be loaded to main memory)
+    void estimateMemoryUsage(CMemoryUsageEstimationResultJsonWriter& writer) const;
+
     //! Check if the data frame for this analysis should use in or out of core
     //! storage.
     bool storeDataFrameInMainMemory() const;
@@ -115,7 +121,7 @@ public:
     //!
     //! \note The thread calling this is expected to be nearly always idle, i.e.
     //! just progress monitoring, so this doesn't count towards the thread limit.
-    void run(core::CDataFrame& frame);
+    void run(const TStrVec& featureNames, core::CDataFrame& frame);
 
     //! This waits to until the analysis has finished and joins the thread.
     void waitToFinish();
@@ -130,16 +136,16 @@ public:
 protected:
     const CDataFrameAnalysisSpecification& spec() const;
     TProgressRecorder progressRecorder();
+    std::size_t estimateMemoryUsage(std::size_t totalNumberRows,
+                                    std::size_t partitionNumberRows,
+                                    std::size_t numberColumns) const;
 
 private:
-    virtual void runImpl(core::CDataFrame& frame) = 0;
+    virtual void runImpl(const TStrVec& featureNames, core::CDataFrame& frame) = 0;
     virtual std::size_t estimateBookkeepingMemoryUsage(std::size_t numberPartitions,
                                                        std::size_t totalNumberRows,
                                                        std::size_t partitionNumberRows,
                                                        std::size_t numberColumns) const = 0;
-    std::size_t estimateMemoryUsage(std::size_t totalNumberRows,
-                                    std::size_t partitionNumberRows,
-                                    std::size_t numberColumns) const;
 
     //! This adds \p fractionalProgess to the current progress.
     //!
@@ -171,7 +177,7 @@ public:
 
 public:
     virtual ~CDataFrameAnalysisRunnerFactory() = default;
-    virtual const char* name() const = 0;
+    virtual const std::string& name() const = 0;
 
     TRunnerUPtr make(const CDataFrameAnalysisSpecification& spec) const;
     TRunnerUPtr make(const CDataFrameAnalysisSpecification& spec,

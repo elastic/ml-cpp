@@ -18,7 +18,6 @@
 #include <maths/CSampling.h>
 #include <maths/CSeasonalTime.h>
 
-#include <boost/bind.hpp>
 #include <boost/math/distributions/chi_squared.hpp>
 #include <boost/math/distributions/normal.hpp>
 
@@ -63,9 +62,9 @@ bool CDecompositionComponent::acceptRestoreTraverser(core::CStateRestoreTraverse
             BOUNDARY_CONDITION_TAG, int boundaryCondition,
             core::CStringUtils::stringToType(traverser.value(), boundaryCondition),
             m_BoundaryCondition = static_cast<CSplineTypes::EBoundaryCondition>(boundaryCondition))
-        RESTORE(SPLINES_TAG, traverser.traverseSubLevel(
-                                 boost::bind(&CPackedSplines::acceptRestoreTraverser,
-                                             &m_Splines, m_BoundaryCondition, _1)))
+        RESTORE(SPLINES_TAG, traverser.traverseSubLevel(std::bind(
+                                 &CPackedSplines::acceptRestoreTraverser, &m_Splines,
+                                 m_BoundaryCondition, std::placeholders::_1)))
     } while (traverser.next());
 
     if (this->initialized()) {
@@ -79,8 +78,8 @@ bool CDecompositionComponent::acceptRestoreTraverser(core::CStateRestoreTraverse
 void CDecompositionComponent::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
     inserter.insertValue(MAX_SIZE_TAG, m_MaxSize);
     inserter.insertValue(BOUNDARY_CONDITION_TAG, static_cast<int>(m_BoundaryCondition));
-    inserter.insertLevel(SPLINES_TAG, boost::bind(&CPackedSplines::acceptPersistInserter,
-                                                  &m_Splines, _1));
+    inserter.insertLevel(SPLINES_TAG, std::bind(&CPackedSplines::acceptPersistInserter,
+                                                &m_Splines, std::placeholders::_1));
 }
 
 void CDecompositionComponent::swap(CDecompositionComponent& other) {
@@ -284,16 +283,16 @@ void CDecompositionComponent::CPackedSplines::shift(ESpline spline, double shift
 
 CDecompositionComponent::TSplineCRef
 CDecompositionComponent::CPackedSplines::spline(ESpline spline) const {
-    return TSplineCRef(m_Types[static_cast<std::size_t>(spline)], boost::cref(m_Knots),
-                       boost::cref(m_Values[static_cast<std::size_t>(spline)]),
-                       boost::cref(m_Curvatures[static_cast<std::size_t>(spline)]));
+    return TSplineCRef(m_Types[static_cast<std::size_t>(spline)], std::cref(m_Knots),
+                       std::cref(m_Values[static_cast<std::size_t>(spline)]),
+                       std::cref(m_Curvatures[static_cast<std::size_t>(spline)]));
 }
 
 CDecompositionComponent::TSplineRef
 CDecompositionComponent::CPackedSplines::spline(ESpline spline) {
-    return TSplineRef(m_Types[static_cast<std::size_t>(spline)], boost::ref(m_Knots),
-                      boost::ref(m_Values[static_cast<std::size_t>(spline)]),
-                      boost::ref(m_Curvatures[static_cast<std::size_t>(spline)]));
+    return TSplineRef(m_Types[static_cast<std::size_t>(spline)], std::ref(m_Knots),
+                      std::ref(m_Values[static_cast<std::size_t>(spline)]),
+                      std::ref(m_Curvatures[static_cast<std::size_t>(spline)]));
 }
 
 const CDecompositionComponent::TFloatVec& CDecompositionComponent::CPackedSplines::knots() const {

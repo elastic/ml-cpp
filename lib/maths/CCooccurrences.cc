@@ -34,7 +34,7 @@ using TSizeSizePr = std::pair<std::size_t, std::size_t>;
 using TSizeSizePrUSet = boost::unordered_set<TSizeSizePr>;
 using TPoint = CVector<double>;
 using TPointVec = std::vector<TPoint>;
-using TPackedBitVectorVec = std::vector<CPackedBitVector>;
+using TPackedBitVectorVec = std::vector<core::CPackedBitVector>;
 
 //! \brief Counts the (co-)occurrences of two variables.
 struct SCooccurrence {
@@ -57,7 +57,7 @@ using TMostSignificant = CBasicStatistics::COrderStatisticsHeap<SCooccurrence>;
 //!
 //! \param[in] dimension The dimension.
 //! \param[out] result Filled in with the projection.
-void generateProjection(std::size_t dimension, CPackedBitVector& result) {
+void generateProjection(std::size_t dimension, core::CPackedBitVector& result) {
     if (dimension == 0) {
         return;
     }
@@ -99,7 +99,7 @@ void generateProjections(const TPackedBitVectorVec& indicators,
                          TDoubleVecVec& result) {
     std::size_t dimension = indicators[0].dimension();
     for (std::size_t i = 0u; i < result.size(); ++i) {
-        CPackedBitVector projection;
+        core::CPackedBitVector projection;
         generateProjection(dimension, projection);
         double length = projection.euclidean();
         for (std::size_t j = 0u; j < mask.size(); ++j) {
@@ -450,7 +450,7 @@ void CCooccurrences::topNBySignificance(std::size_t n,
 void CCooccurrences::addEventStreams(std::size_t n) {
     if (n > m_Indicators.size()) {
         core::CAllocationStrategy::resize(m_Indicators, n,
-                                          CPackedBitVector(m_Length, false));
+                                          core::CPackedBitVector(m_Length, false));
     }
 }
 
@@ -458,7 +458,7 @@ void CCooccurrences::removeEventStreams(const TSizeVec& remove) {
     for (std::size_t i = 0u; i < remove.size(); ++i) {
         std::size_t X = remove[i];
         if (X < m_Indicators.size()) {
-            m_Indicators[X] = CPackedBitVector();
+            m_Indicators[X] = core::CPackedBitVector();
         }
     }
 }
@@ -467,7 +467,7 @@ void CCooccurrences::recycleEventStreams(const TSizeVec& recycle) {
     for (std::size_t i = 0u; i < recycle.size(); ++i) {
         std::size_t X = recycle[i];
         if (X < m_Indicators.size()) {
-            m_Indicators[X] = CPackedBitVector(m_Length, false);
+            m_Indicators[X] = core::CPackedBitVector(m_Length, false);
         }
     }
 }
@@ -489,7 +489,7 @@ void CCooccurrences::capture() {
     m_Length = std::min(m_Length + 1, m_MaximumLength);
 
     for (std::size_t X = 0u; X < m_Indicators.size(); ++X) {
-        CPackedBitVector& indicator = m_Indicators[X];
+        core::CPackedBitVector& indicator = m_Indicators[X];
         indicator.extend(m_CurrentIndicators.count(X) > 0);
         while (indicator.dimension() > m_MaximumLength) {
             indicator.contract();

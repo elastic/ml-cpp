@@ -10,8 +10,6 @@
 #include <core/CStateRestoreTraverser.h>
 #include <core/CStringUtils.h>
 
-#include <boost/bind.hpp>
-
 #include <algorithm>
 #include <functional>
 
@@ -66,8 +64,8 @@ CTokenListType::CTokenListType(bool isDryRun,
 CTokenListType::CTokenListType(core::CStateRestoreTraverser& traverser)
     : m_BaseWeight(0), m_MaxStringLen(0), m_OutOfOrderCommonTokenIndex(0),
       m_CommonUniqueTokenWeight(0), m_OrigUniqueTokenWeight(0), m_NumMatches(0) {
-    traverser.traverseSubLevel(
-        boost::bind(&CTokenListType::acceptRestoreTraverser, this, _1));
+    traverser.traverseSubLevel(std::bind(&CTokenListType::acceptRestoreTraverser,
+                                         this, std::placeholders::_1));
 }
 
 bool CTokenListType::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {

@@ -31,10 +31,10 @@ namespace model {
 class CLimits;
 }
 namespace api {
-class CBackgroundPersister;
 class CFieldConfig;
 class CJsonOutputWriter;
 class COutputHandler;
+class CPersistenceManager;
 
 //! \brief
 //! Assign categorisation fields to input records
@@ -80,35 +80,39 @@ public:
                     const model::CLimits& limits,
                     COutputHandler& outputHandler,
                     CJsonOutputWriter& jsonOutputWriter,
-                    CBackgroundPersister* periodicPersister = nullptr);
+                    CPersistenceManager* periodicPersister = nullptr);
 
-    virtual ~CFieldDataTyper();
+    ~CFieldDataTyper() override;
 
     //! We're going to be writing to a new output stream
-    virtual void newOutputStream();
+    void newOutputStream() override;
 
     //! Receive a single record to be typed, and output that record to
     //! STDOUT with its type field added
-    virtual bool handleRecord(const TStrStrUMap& dataRowFields);
+    bool handleRecord(const TStrStrUMap& dataRowFields) override;
 
     //! Perform any final processing once all input data has been seen.
-    virtual void finalise();
+    void finalise() override;
 
     //! Restore previously saved state
-    virtual bool restoreState(core::CDataSearcher& restoreSearcher,
-                              core_t::TTime& completeToTime);
+    bool restoreState(core::CDataSearcher& restoreSearcher,
+                      core_t::TTime& completeToTime) override;
+
+    //! Is persistence needed?
+    bool isPersistenceNeeded(const std::string& description) const override;
 
     //! Persist current state
-    virtual bool persistState(core::CDataAdder& persister);
+    bool persistState(core::CDataAdder& persister, const std::string& descriptionPrefix) override;
 
     //! Persist current state due to the periodic persistence being triggered.
-    virtual bool periodicPersistState(CBackgroundPersister& persister);
+    bool periodicPersistStateInBackground() override;
+    bool periodicPersistStateInForeground() override;
 
     //! How many records did we handle?
-    virtual uint64_t numRecordsHandled() const;
+    uint64_t numRecordsHandled() const override;
 
     //! Access the output handler
-    virtual COutputHandler& outputHandler();
+    COutputHandler& outputHandler() override;
 
 private:
     //! Create the typer to operate on the categorization field
@@ -196,7 +200,7 @@ private:
     //! Pointer to periodic persister that works in the background.  May be
     //! nullptr if this object is not responsible for starting periodic
     //! persistence.
-    CBackgroundPersister* m_PeriodicPersister;
+    CPersistenceManager* m_PeriodicPersister;
 };
 }
 }

@@ -41,8 +41,10 @@
 #include "CMutexTest.h"
 #include "CNamedPipeFactoryTest.h"
 #include "COsFileFuncsTest.h"
+#include "CPackedBitVectorTest.h"
 #include "CPatternSetTest.h"
 #include "CPersistUtilsTest.h"
+#include "CPersistenceTagTest.h"
 #include "CPolymorphicStackObjectCPtrTest.h"
 #include "CProcessPriorityTest.h"
 #include "CProcessTest.h"
@@ -119,7 +121,9 @@ int main(int argc, const char** argv) {
     runner.addTest(CMutexTest::suite());
     runner.addTest(CNamedPipeFactoryTest::suite());
     runner.addTest(COsFileFuncsTest::suite());
+    runner.addTest(CPackedBitVectorTest::suite());
     runner.addTest(CPatternSetTest::suite());
+    runner.addTest(CPersistenceTagTest::suite());
     runner.addTest(CPersistUtilsTest::suite());
     runner.addTest(CPolymorphicStackObjectCPtrTest::suite());
     runner.addTest(CProcessTest::suite());

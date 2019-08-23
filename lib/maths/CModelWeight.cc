@@ -21,8 +21,9 @@ namespace maths {
 namespace {
 
 // We use short field names to reduce the state size
-const std::string LOG_WEIGHT_TAG("a");
-const std::string LONG_TERM_LOG_WEIGHT_TAG("c");
+const core::TPersistenceTag LOG_WEIGHT_TAG("a", "log_weight");
+const core::TPersistenceTag LONG_TERM_LOG_WEIGHT_TAG("c", "long_term_log_weight");
+
 const double LOG_SMALLEST_WEIGHT = std::log(CTools::smallestProbability());
 }
 

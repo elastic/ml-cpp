@@ -98,8 +98,8 @@ const bool IGNORE_EMPTY[] = {false, true};
 
 //! Get the ignore empty unique identifier.
 std::size_t ignoreEmptyId(bool ignoreEmpty) {
-    return std::find(boost::begin(IGNORE_EMPTY), boost::end(IGNORE_EMPTY), ignoreEmpty) -
-           boost::begin(IGNORE_EMPTY);
+    return std::find(std::begin(IGNORE_EMPTY), std::end(IGNORE_EMPTY), ignoreEmpty) -
+           std::begin(IGNORE_EMPTY);
 }
 }
 
@@ -176,8 +176,8 @@ bool CDetectorSpecification::canAddPartitioning(std::size_t index,
     //   2) We can't have duplicate fields.
 
     return static_cast<int>(index) > this->highestFieldIndex() &&
-           std::find(boost::begin(m_FunctionFields), boost::end(m_FunctionFields),
-                     value) == boost::end(m_FunctionFields);
+           std::find(std::begin(m_FunctionFields), std::end(m_FunctionFields),
+                     value) == std::end(m_FunctionFields);
 }
 
 void CDetectorSpecification::addPartitioning(std::size_t index, const std::string& value) {
@@ -220,8 +220,8 @@ void CDetectorSpecification::setPenalty(const TPenaltyPtr& penalty) {
 double CDetectorSpecification::score() const {
     TSizeVecCPtrAry indicesInUse = this->penaltyIndicesInUse();
     double penalty = 0.0;
-    for (std::size_t iid = 0u; iid < TSizeVecCPtrAry::size(); ++iid) {
-        penalty = std::max(penalty, maxPenalty(*indicesInUse[iid], m_Penalties));
+    for (auto indexInUse : indicesInUse) {
+        penalty = std::max(penalty, maxPenalty(*indexInUse, m_Penalties));
     }
     return CPenalty::score(penalty);
 }
@@ -337,14 +337,14 @@ bool CDetectorSpecification::operator<(const CDetectorSpecification& rhs) const 
         return false;
     }
 
-    if (std::lexicographical_compare(boost::begin(m_FunctionFields), boost::end(m_FunctionFields),
-                                     boost::begin(rhs.m_FunctionFields),
-                                     boost::end(rhs.m_FunctionFields), less)) {
+    if (std::lexicographical_compare(std::begin(m_FunctionFields), std::end(m_FunctionFields),
+                                     std::begin(rhs.m_FunctionFields),
+                                     std::end(rhs.m_FunctionFields), less)) {
         return true;
     }
     if (std::lexicographical_compare(
-            boost::begin(rhs.m_FunctionFields), boost::end(rhs.m_FunctionFields),
-            boost::begin(m_FunctionFields), boost::end(m_FunctionFields), less)) {
+            std::begin(rhs.m_FunctionFields), std::end(rhs.m_FunctionFields),
+            std::begin(m_FunctionFields), std::end(m_FunctionFields), less)) {
         return false;
     }
 
@@ -354,8 +354,8 @@ bool CDetectorSpecification::operator<(const CDetectorSpecification& rhs) const 
 bool CDetectorSpecification::operator==(const CDetectorSpecification& rhs) const {
     return m_Function == rhs.m_Function && m_Side == rhs.m_Side &&
            m_IgnoreEmpty == rhs.m_IgnoreEmpty && m_BucketLength == rhs.m_BucketLength &&
-           std::equal(boost::begin(m_FunctionFields), boost::end(m_FunctionFields),
-                      boost::begin(rhs.m_FunctionFields)) &&
+           std::equal(std::begin(m_FunctionFields), std::end(m_FunctionFields),
+                      std::begin(rhs.m_FunctionFields)) &&
            m_Influencers == rhs.m_Influencers;
 }
 
@@ -483,8 +483,8 @@ CDetectorSpecification::TSizeVecCPtrAry CDetectorSpecification::penaltyIndicesIn
 void CDetectorSpecification::initializePenalties() {
     std::fill_n(m_Penalties.begin(), m_Penalties.size(), 0.0);
     TSizeVecCPtrAry indicesInUse = this->penaltyIndicesInUse();
-    for (std::size_t iid = 0u; iid < TSizeVecCPtrAry::size(); ++iid) {
-        fill(*indicesInUse[iid], 1.0, m_Penalties);
+    for (auto indexInUse : indicesInUse) {
+        fill(*indexInUse, 1.0, m_Penalties);
     }
     std::fill_n(m_PenaltyDescriptions.begin(), m_PenaltyDescriptions.size(), TStrVec());
 }

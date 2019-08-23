@@ -27,7 +27,7 @@ const double CResourceMonitor::DEFAULT_BYTE_LIMIT_MARGIN(0.7);
 const core_t::TTime
     CResourceMonitor::MAXIMUM_BYTE_LIMIT_MARGIN_PERIOD(2 * core::constants::HOUR);
 
-CResourceMonitor::CResourceMonitor(double byteLimitMargin)
+CResourceMonitor::CResourceMonitor(bool persistenceInForeground, double byteLimitMargin)
     : m_AllowAllocations(true), m_ByteLimitMargin{byteLimitMargin},
       m_ByteLimitHigh(0), m_ByteLimitLow(0), m_CurrentAnomalyDetectorMemory(0),
       m_ExtraMemory(0), m_PreviousTotal(this->totalMemory()), m_Peak(m_PreviousTotal),
@@ -35,7 +35,9 @@ CResourceMonitor::CResourceMonitor(double byteLimitMargin)
       m_HasPruningStarted(false), m_PruneThreshold(0), m_LastPruneTime(0),
       m_PruneWindow(std::numeric_limits<std::size_t>::max()),
       m_PruneWindowMaximum(std::numeric_limits<std::size_t>::max()),
-      m_PruneWindowMinimum(std::numeric_limits<std::size_t>::max()), m_NoLimit(false) {
+      m_PruneWindowMinimum(std::numeric_limits<std::size_t>::max()),
+      m_NoLimit(false), m_CurrentBytesExceeded(0),
+      m_PersistenceInForeground(persistenceInForeground) {
     this->updateMemoryLimitsAndPruneThreshold(DEFAULT_MEMORY_LIMIT_MB);
 }
 
@@ -80,16 +82,8 @@ void CResourceMonitor::updateMemoryLimitsAndPruneThreshold(std::size_t limitMBs)
         // more models?", and it causes problems if these calculations overflow.
         m_ByteLimitHigh = std::numeric_limits<std::size_t>::max() / 2 + 1;
     } else {
-        // Background persist causes the memory size to double due to copying
-        // the models. On top of that, after the persist is done we may not
-        // be able to retrieve that memory back. Thus, we halve the requested
-        // memory limit in order to allow for that.
-        // See https://github.com/elastic/x-pack-elasticsearch/issues/1020.
-        // Issue https://github.com/elastic/x-pack-elasticsearch/issues/857
-        // discusses adding an option to perform only foreground persist.
-        // If that gets implemented, we should only halve when background
-        // persist is configured.
-        m_ByteLimitHigh = static_cast<std::size_t>((limitMBs * 1024 * 1024) / 2);
+        m_ByteLimitHigh = static_cast<std::size_t>(
+            (limitMBs * 1024 * 1024) / this->persistenceMemoryIncreaseFactor());
     }
     m_ByteLimitLow = (m_ByteLimitHigh * 49) / 50;
     m_PruneThreshold = (m_ByteLimitHigh * 3) / 5;
@@ -108,18 +102,21 @@ void CResourceMonitor::refresh(CAnomalyDetector& detector) {
 
 void CResourceMonitor::forceRefresh(CAnomalyDetector& detector) {
     this->memUsage(&detector);
-    core::CProgramCounters::counter(counter_t::E_TSADMemoryUsage) = this->totalMemory();
-    LOG_TRACE(<< "Checking allocations: currently at " << this->totalMemory());
+
     this->updateAllowAllocations();
 }
 
 void CResourceMonitor::updateAllowAllocations() {
     std::size_t total{this->totalMemory()};
+    core::CProgramCounters::counter(counter_t::E_TSADMemoryUsage) = total;
+    LOG_TRACE(<< "Checking allocations: currently at " << total);
     if (m_AllowAllocations) {
         if (total > this->highLimit()) {
             LOG_INFO(<< "Over current allocation high limit. " << total
                      << " bytes used, the limit is " << this->highLimit());
             m_AllowAllocations = false;
+            std::size_t bytesExceeded{total - this->highLimit()};
+            m_CurrentBytesExceeded = this->adjustedUsage(bytesExceeded);
         }
     } else if (total < this->lowLimit()) {
         LOG_INFO(<< "Below current allocation low limit. " << total
@@ -204,13 +201,6 @@ bool CResourceMonitor::areAllocationsAllowed() const {
     return m_AllowAllocations;
 }
 
-bool CResourceMonitor::areAllocationsAllowed(std::size_t size) const {
-    if (m_AllowAllocations) {
-        return this->totalMemory() + size < this->highLimit();
-    }
-    return false;
-}
-
 std::size_t CResourceMonitor::allocationLimit() const {
     return this->highLimit() - std::min(this->highLimit(), this->totalMemory());
 }
@@ -268,6 +258,9 @@ CResourceMonitor::SResults CResourceMonitor::createMemoryUsageReport(core_t::TTi
     res.s_OverFields = 0;
     res.s_PartitionFields = 0;
     res.s_Usage = this->totalMemory();
+    res.s_AdjustedUsage = this->adjustedUsage(res.s_Usage);
+    res.s_BytesMemoryLimit = 2 * m_ByteLimitHigh;
+    res.s_BytesExceeded = m_CurrentBytesExceeded;
     res.s_AllocationFailures = 0;
     res.s_MemoryStatus = m_MemoryStatus;
     res.s_BucketStartTime = bucketStartTime;
@@ -279,6 +272,31 @@ CResourceMonitor::SResults CResourceMonitor::createMemoryUsageReport(core_t::TTi
     }
     res.s_AllocationFailures += m_AllocationFailures.size();
     return res;
+}
+
+std::size_t CResourceMonitor::adjustedUsage(std::size_t usage) const {
+    // We scale the reported memory usage by the inverse of the byte limit margin.
+    // This gives the user a fairer indication of how close the job is to hitting
+    // the model memory limit in a concise manner (as the limit is scaled down by
+    // the margin during the beginning period of the job's existence).
+    size_t adjustedUsage{static_cast<std::size_t>(usage / m_ByteLimitMargin)};
+
+    adjustedUsage *= this->persistenceMemoryIncreaseFactor();
+
+    return adjustedUsage;
+}
+
+std::size_t CResourceMonitor::persistenceMemoryIncreaseFactor() const {
+    // Background persist causes the memory size to double due to copying
+    // the models. On top of that, after the persist is done we may not
+    // be able to retrieve that memory back. Thus, we report twice the
+    // memory usage in order to allow for that.
+    // See https://github.com/elastic/x-pack-elasticsearch/issues/1020.
+    // Issue https://github.com/elastic/x-pack-elasticsearch/issues/857
+    // discusses adding an option to perform only foreground persist.
+    // If that gets implemented, we should only double when background
+    // persist is configured.
+    return m_PersistenceInForeground ? 1 : 2;
 }
 
 void CResourceMonitor::acceptAllocationFailureResult(core_t::TTime time) {

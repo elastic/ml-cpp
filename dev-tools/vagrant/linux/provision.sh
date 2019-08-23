@@ -18,7 +18,7 @@ if [ ! -f package.state ]; then
   echo "Installing misc packages..."
   add-apt-repository -y ppa:webupd8team/java
   apt-get update
-  apt-get -qq -y install git wget build-essential maven unzip perl libbz2-1.0 libbz2-dev python-setuptools zlib1g-dev
+  apt-get -qq -y install git wget build-essential maven unzip perl libbz2-1.0 libbz2-dev bzip2 python-setuptools zlib1g-dev
   touch package.state
 fi
 
@@ -31,6 +31,14 @@ if [ ! -f java.state ]; then
   touch java.state
 fi
 
+# Env variables for hardening and optimisation
+echo "Setting env variables..."
+export CFLAGS='-g -O3 -fstack-protector -D_FORTIFY_SOURCE=2'
+export CXXFLAGS='-g -O3 -fstack-protector -D_FORTIFY_SOURCE=2'
+export LDFLAGS='-Wl,-z,relro -Wl,-z,now'
+export LDFLAGS_FOR_TARGET='-Wl,-z,relro -Wl,-z,now'
+unset LIBRARY_PATH
+
 # ----------------- Compile gcc 7.3 -------------------------
 if [ ! -f gcc.state ]; then
   echo "Compiling GCC 7.3..."
@@ -41,6 +49,7 @@ if [ ! -f gcc.state ]; then
   tar xfz gcc-7.3.0.tar.gz -C gcc-source --strip-components=1
   cd gcc-source
   contrib/download_prerequisites
+  sed -i -e 's/$(SHLIB_LDFLAGS)/$(LDFLAGS) $(SHLIB_LDFLAGS)/' libgcc/config/t-slibgcc
   cd ..
   mkdir gcc-build
   cd gcc-build
@@ -54,12 +63,9 @@ if [ ! -f gcc.state ]; then
   touch gcc.state
 fi
 
-# Update paths to use the newly built compiler
+# Update paths to use the newly built compiler in C++14 mode
 export LD_LIBRARY_PATH=/usr/local/gcc73/lib64:/usr/local/gcc73/lib:/usr/lib:/lib
 export PATH=/usr/local/gcc73/bin:/usr/bin:/bin:/usr/sbin:/sbin:/home/vagrant/bin
-
-# Various env variables
-echo "Setting env variables..."
 export CXX='g++ -std=gnu++14'
 
 # ----------------- Compile libxml2 -------------------------
@@ -70,7 +76,6 @@ if [ ! -f libxml2.state ]; then
   mkdir libxml
   tar xfz LATEST_LIBXML2.tar.gz -C libxml --strip-components=1
   cd libxml
-  sed -i -e 's/-O2/-O3/g' configure
   echo "  Configuring..."
   ./configure --prefix=/usr/local/gcc73 --without-python --without-readline > configure.log 2>&1
   echo "  Making..."
@@ -81,21 +86,44 @@ if [ ! -f libxml2.state ]; then
   touch libxml2.state
 fi
 
+# ----------------- Compile expat -------------------------
+if [ ! -f expat.state ]; then
+  echo "Compiling expat..."
+  echo "  Downloading..."
+  wget --quiet http://github.com/libexpat/libexpat/releases/download/R_2_2_6/expat-2.2.6.tar.bz2
+  mkdir expat
+  tar xfj expat-2.2.6.tar.bz2 -C expat --strip-components=1
+  cd expat
+  echo "  Configuring..."
+
+  ./configure --prefix=/usr/local/gcc73 --without-docbook > configure.log 2>&1
+  echo "  Making..."
+  make -j$NUMCPUS --load-average=$NUMCPUS > make.log 2>&1
+  make install > make_install.log 2>&1
+  cd ..
+  rm expat-2.2.6.tar.bz2
+  touch expat.state
+fi
+
 # ----------------- Compile APR -------------------------
 if [ ! -f apr.state ]; then
   echo "Compiling APR..."
   echo "  Downloading..."
-  wget --quiet http://archive.apache.org/dist/apr/apr-1.5.2.tar.gz
+  wget --quiet http://archive.apache.org/dist/apr/apr-1.7.0.tar.gz
   mkdir apr
-  tar xfz apr-1.5.2.tar.gz -C apr --strip-components=1
+  tar xfz apr-1.7.0.tar.gz -C apr --strip-components=1
   cd apr
   echo "  Configuring..."
+
+  sed -i -e "s/for ac_lib in '' crypt ufc; do/for ac_lib in ''; do/" configure
+  sed -i -e 's/#define APR_HAVE_CRYPT_H         @crypth@/#define APR_HAVE_CRYPT_H         0/' include/apr.h.in
+
   ./configure --prefix=/usr/local/gcc73 > configure.log 2>&1
   echo "  Making..."
   make -j$NUMCPUS --load-average=$NUMCPUS > make.log 2>&1
   make install > make_install.log 2>&1
   cd ..
-  rm apr-1.5.2.tar.gz
+  rm apr-1.7.0.tar.gz
   touch apr.state
 fi
 
@@ -103,17 +131,21 @@ fi
 if [ ! -f apr-util.state ]; then
   echo "Compiling APR-Utilities..."
   echo "  Downloading..."
-  wget --quiet http://archive.apache.org/dist/apr/apr-util-1.5.4.tar.gz
+  wget --quiet http://archive.apache.org/dist/apr/apr-util-1.6.1.tar.gz
   mkdir apr-util
-  tar xfz apr-util-1.5.4.tar.gz -C apr-util --strip-components=1
+  tar xfz apr-util-1.6.1.tar.gz -C apr-util --strip-components=1
   cd apr-util
   echo "  Configuring..."
-  ./configure --prefix=/usr/local/gcc73 --with-apr=/usr/local/gcc73/bin/apr-1-config --with-expat=builtin > configure.log 2>&1
+
+  sed -i -e "s/for ac_lib in '' crypt ufc; do/for ac_lib in ''; do/" configure
+  sed -i -e 's/#define CRYPT_MISSING 0/#define CRYPT_MISSING 1/' crypto/apr_passwd.c
+
+  ./configure --prefix=/usr/local/gcc73 --with-apr=/usr/local/gcc73/bin/apr-1-config --with-expat=/usr/local/gcc73 > configure.log 2>&1
   echo "  Making..."
   make -j$NUMCPUS --load-average=$NUMCPUS > make.log 2>&1
   make install > make_install.log 2>&1
   cd ..
-  rm apr-util-1.5.4.tar.gz
+  rm apr-util-1.6.1.tar.gz
   touch apr-util.state
 fi
 
@@ -161,7 +193,7 @@ if [ ! -f boost.state ]; then
 
   cd boost
   echo "  Bootstrapping..."
-  ./bootstrap.sh cxxflags=-std=gnu++14 --without-libraries=context --without-libraries=coroutine --without-libraries=graph_parallel --without-libraries=log --without-libraries=mpi --without-libraries=python --without-icu > bootstrap.log 2>&1
+  ./bootstrap.sh --without-libraries=context --without-libraries=coroutine --without-libraries=graph_parallel --without-libraries=log --without-libraries=mpi --without-libraries=python --without-icu > bootstrap.log 2>&1
 
   echo "  Configuring..."
 
@@ -169,8 +201,8 @@ if [ ! -f boost.state ]; then
   sed -i -e 's%#if ((defined(__linux__) \&\& !defined(__UCLIBC__) \&\& !defined(BOOST_MATH_HAVE_FIXED_GLIBC)) || defined(__QNX__) || defined(__IBMCPP__)) \&\& !defined(BOOST_NO_FENV_H)%#if ((!defined(BOOST_MATH_NO_LONG_DOUBLE_MATH_FUNCTIONS) \&\& defined(__linux__) \&\& !defined(__UCLIBC__) \&\& !defined(BOOST_MATH_HAVE_FIXED_GLIBC)) || defined(__QNX__) || defined(__IBMCPP__)) \&\& !defined(BOOST_NO_FENV_H)%g' boost/math/tools/config.hpp
 
   echo "  Building..."
-  ./b2 -j$NUMCPUS --layout=versioned --disable-icu pch=off optimization=speed inlining=full define=BOOST_MATH_NO_LONG_DOUBLE_MATH_FUNCTIONS > b2_make.log 2>&1
-  ./b2 install --prefix=/usr/local/gcc73 --layout=versioned --disable-icu pch=off optimization=speed inlining=full define=BOOST_MATH_NO_LONG_DOUBLE_MATH_FUNCTIONS > b2_make_install.log 2>&1
+  ./b2 -j$NUMCPUS --layout=versioned --disable-icu pch=off optimization=speed inlining=full define=BOOST_MATH_NO_LONG_DOUBLE_MATH_FUNCTIONS define=_FORTIFY_SOURCE=2 cxxflags=-std=gnu++14 cxxflags=-fstack-protector linkflags=-Wl,-z,relro linkflags=-Wl,-z,now > b2_make.log 2>&1
+  ./b2 install --prefix=/usr/local/gcc73 --layout=versioned --disable-icu pch=off optimization=speed inlining=full define=BOOST_MATH_NO_LONG_DOUBLE_MATH_FUNCTIONS define=_FORTIFY_SOURCE=2 cxxflags=-std=gnu++14 cxxflags=-fstack-protector linkflags=-Wl,-z,relro linkflags=-Wl,-z,now > b2_make_install.log 2>&1
 
   cd ..
   rm boost_1_65_1.tar.gz

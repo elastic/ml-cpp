@@ -36,8 +36,8 @@ bool restore(const maths::SDistributionRestoreParams& params,
              core::CRapidXmlStateRestoreTraverser& traverser,
              maths::CXMeansOnline1d::CCluster& result) {
     return traverser.traverseSubLevel(
-        boost::bind(&maths::CXMeansOnline1d::CCluster::acceptRestoreTraverser,
-                    &result, boost::cref(params), _1));
+        std::bind(&maths::CXMeansOnline1d::CCluster::acceptRestoreTraverser,
+                  &result, std::cref(params), std::placeholders::_1));
 }
 
 void debug(const TClusterVec& clusters) {

@@ -437,6 +437,9 @@ public:
     //! Persist by passing information to \p inserter.
     virtual void acceptPersistInserter(core::CStatePersistInserter& inserter) const = 0;
 
+    //! Persist the state of the residual models only.
+    virtual void persistResidualModelsState(core::CStatePersistInserter& inserter) const = 0;
+
     //! Get the type of data being modeled.
     virtual maths_t::EDataType dataType() const = 0;
 
@@ -467,18 +470,14 @@ protected:
     predictionError(double propagationInterval, const PRIOR& prior, const VECTOR& sample);
 
     //! Correct \p probability with \p probabilityEmptyBucket.
-    static double correctForEmptyBucket(maths_t::EProbabilityCalculation calculation,
-                                        const TDouble2Vec& value,
-                                        bool bucketEmpty,
-                                        double probabilityBucketEmpty,
-                                        double probability);
+    static double jointProbabilityGivenBucket(bool bucketEmpty,
+                                              double probabilityBucketEmpty,
+                                              double probability);
 
     //! Correct \p probability with \p probabilityEmptyBucket.
-    static double correctForEmptyBucket(maths_t::EProbabilityCalculation calculation,
-                                        double value,
-                                        const TBool2Vec& bucketEmpty,
-                                        const TDouble2Vec& probabilityEmptyBucket,
-                                        double probability);
+    static double jointProbabilityGivenBucket(const TBool2Vec& bucketEmpty,
+                                              const TDouble2Vec& probabilityEmptyBucket,
+                                              double probability);
 
 private:
     //! The model parameters.
@@ -581,6 +580,9 @@ public:
 
     //! No-op.
     virtual void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
+
+    //! Persist the state of the residual models only.
+    virtual void persistResidualModelsState(core::CStatePersistInserter& inserter) const;
 
     //! Returns mixed data type since we don't know.
     virtual maths_t::EDataType dataType() const;

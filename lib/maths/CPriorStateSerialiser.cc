@@ -24,9 +24,6 @@
 #include <maths/CPoissonMeanConjugate.h>
 #include <maths/CPrior.h>
 
-#include <boost/bind.hpp>
-#include <boost/make_unique.hpp>
-
 #include <memory>
 #include <string>
 #include <typeinfo>
@@ -34,17 +31,17 @@
 namespace ml {
 namespace maths {
 namespace {
-// We use short field names to reduce the state size
 // There needs to be one constant here per sub-class of CPrior.
 // DO NOT change the existing tags if new sub-classes are added.
-const std::string GAMMA_TAG("a");
-const std::string LOG_NORMAL_TAG("b");
-const std::string MULTIMODAL_TAG("c");
-const std::string NORMAL_TAG("d");
-const std::string ONE_OF_N_TAG("e");
-const std::string POISSON_TAG("f");
-const std::string MULTINOMIAL_TAG("g");
-const std::string CONSTANT_TAG("h");
+const core::TPersistenceTag GAMMA_TAG("a", "gamma");
+const core::TPersistenceTag LOG_NORMAL_TAG("b", "log_normal");
+const core::TPersistenceTag MULTIMODAL_TAG("c", "multimodal");
+const core::TPersistenceTag NORMAL_TAG("d", "normal");
+const core::TPersistenceTag ONE_OF_N_TAG("e", "one-of-n");
+const core::TPersistenceTag POISSON_TAG("f", "poisson");
+const core::TPersistenceTag MULTINOMIAL_TAG("g", "multimonial");
+const core::TPersistenceTag CONSTANT_TAG("h", "constant");
+
 const std::string EMPTY_STRING;
 
 //! Implements restore for std::shared_ptr.
@@ -56,7 +53,7 @@ void doRestore(std::shared_ptr<CPrior>& ptr, core::CStateRestoreTraverser& trave
 //! Implements restore for std::unique_ptr.
 template<typename T>
 void doRestore(std::unique_ptr<CPrior>& ptr, core::CStateRestoreTraverser& traverser) {
-    ptr = boost::make_unique<T>(traverser);
+    ptr = std::make_unique<T>(traverser);
 }
 
 //! Implements restore for std::shared_ptr.
@@ -72,7 +69,7 @@ template<typename T>
 void doRestore(const SDistributionRestoreParams& params,
                std::unique_ptr<CPrior>& ptr,
                core::CStateRestoreTraverser& traverser) {
-    ptr = boost::make_unique<T>(params, traverser);
+    ptr = std::make_unique<T>(params, traverser);
 }
 
 //! Implements restore into the supplied pointer.
@@ -141,7 +138,7 @@ bool CPriorStateSerialiser::operator()(const SDistributionRestoreParams& params,
 
 void CPriorStateSerialiser::operator()(const CPrior& prior,
                                        core::CStatePersistInserter& inserter) const {
-    std::string tagName;
+    core::TPersistenceTag tagName;
 
     if (dynamic_cast<const CConstantPrior*>(&prior) != nullptr) {
         tagName = CONSTANT_TAG;
@@ -165,7 +162,8 @@ void CPriorStateSerialiser::operator()(const CPrior& prior,
         return;
     }
 
-    inserter.insertLevel(tagName, boost::bind(&CPrior::acceptPersistInserter, &prior, _1));
+    inserter.insertLevel(tagName, std::bind(&CPrior::acceptPersistInserter,
+                                            &prior, std::placeholders::_1));
 }
 
 bool CPriorStateSerialiser::operator()(const SDistributionRestoreParams& params,
@@ -233,7 +231,8 @@ bool CPriorStateSerialiser::operator()(const SDistributionRestoreParams& params,
 void CPriorStateSerialiser::operator()(const CMultivariatePrior& prior,
                                        core::CStatePersistInserter& inserter) const {
     inserter.insertLevel(prior.persistenceTag(),
-                         boost::bind(&CMultivariatePrior::acceptPersistInserter, &prior, _1));
+                         std::bind(&CMultivariatePrior::acceptPersistInserter,
+                                   &prior, std::placeholders::_1));
 }
 }
 }

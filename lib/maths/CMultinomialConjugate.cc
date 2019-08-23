@@ -26,7 +26,6 @@
 
 #include <boost/math/distributions/beta.hpp>
 #include <boost/numeric/conversion/bounds.hpp>
-#include <boost/range.hpp>
 #include <boost/tuple/tuple.hpp>
 #include <boost/tuple/tuple_comparison.hpp>
 #include <boost/tuple/tuple_io.hpp>
@@ -190,7 +189,7 @@ std::size_t numberPriorSamples(double x) {
     static const double THRESHOLDS[] = {100.0, 1000.0, 10000.0,
                                         boost::numeric::bounds<double>::highest()};
     static const std::size_t NUMBERS[] = {7u, 5u, 3u, 1u};
-    return NUMBERS[std::lower_bound(boost::begin(THRESHOLDS), boost::end(THRESHOLDS), x) - boost::begin(THRESHOLDS)];
+    return NUMBERS[std::lower_bound(std::begin(THRESHOLDS), std::end(THRESHOLDS), x) - std::begin(THRESHOLDS)];
 }
 
 //! Generate \p numberSamples samples of a beta R.V. with alpha \p a
@@ -242,15 +241,15 @@ using TDoubleDoubleSizeTr = boost::tuples::tuple<double, double, std::size_t>;
 using TDoubleDoubleSizeTrVec = std::vector<TDoubleDoubleSizeTr>;
 using TMeanAccumulator = CBasicStatistics::SSampleMean<double>::TAccumulator;
 
-// We use short field names to reduce the state size
-const std::string NUMBER_AVAILABLE_CATEGORIES_TAG("a");
-const std::string CATEGORY_TAG("b");
-const std::string CONCENTRATION_TAG("c");
-const std::string TOTAL_CONCENTRATION_TAG("d");
-const std::string NUMBER_SAMPLES_TAG("e");
+const core::TPersistenceTag NUMBER_AVAILABLE_CATEGORIES_TAG("a", "number_avalable_categories");
+const core::TPersistenceTag CATEGORY_TAG("b", "category");
+const core::TPersistenceTag CONCENTRATION_TAG("c", "concentration");
+const core::TPersistenceTag TOTAL_CONCENTRATION_TAG("d", "total_concentration");
+const core::TPersistenceTag NUMBER_SAMPLES_TAG("e", "number_samples");
 //const std::string MINIMUM_TAG("f"); No longer used
 //const std::string MAXIMUM_TAG("g"); No longer used
-const std::string DECAY_RATE_TAG("h");
+const core::TPersistenceTag DECAY_RATE_TAG("h", "decay_rate");
+
 const std::string EMPTY_STRING;
 }
 
@@ -277,8 +276,8 @@ CMultinomialConjugate::CMultinomialConjugate(const SDistributionRestoreParams& p
                                              core::CStateRestoreTraverser& traverser)
     : CPrior(maths_t::E_DiscreteData, params.s_DecayRate),
       m_NumberAvailableCategories(0), m_TotalConcentration(0.0) {
-    traverser.traverseSubLevel(
-        boost::bind(&CMultinomialConjugate::acceptRestoreTraverser, this, _1));
+    traverser.traverseSubLevel(std::bind(&CMultinomialConjugate::acceptRestoreTraverser,
+                                         this, std::placeholders::_1));
 }
 
 bool CMultinomialConjugate::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {

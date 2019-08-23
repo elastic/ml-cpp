@@ -789,7 +789,7 @@ void CProbabilityAndInfluenceCalculator::addInfluences(const std::string& influe
     if (influencerValues.empty()) {
         for (std::size_t i = 0u; i < params.s_PartitioningFields.size(); ++i) {
             if (params.s_PartitioningFields[i].first.get() == influencerName) {
-                influencerValue = params.s_PartitioningFields[i].second.get_pointer();
+                influencerValue = &(params.s_PartitioningFields[i].second.get());
                 break;
             }
         }
@@ -828,7 +828,7 @@ void CProbabilityAndInfluenceCalculator::addInfluences(const std::string& influe
     if (influencerValues.empty()) {
         for (std::size_t i = 0u; i < params.s_PartitioningFields.size(); ++i) {
             if (params.s_PartitioningFields[i].first.get() == influencerName) {
-                influencerValue = params.s_PartitioningFields[i].second.get_pointer();
+                influencerValue = &(params.s_PartitioningFields[i].second.get());
                 break;
             }
         }

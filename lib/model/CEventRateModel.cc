@@ -32,9 +32,7 @@
 #include <model/CResourceMonitor.h>
 #include <model/FrequencyPredicates.h>
 
-#include <boost/bind.hpp>
 #include <boost/iterator/counting_iterator.hpp>
-#include <boost/ref.hpp>
 
 #include <algorithm>
 #include <string>
@@ -92,8 +90,8 @@ CEventRateModel::CEventRateModel(const SModelParams& params,
                        influenceCalculators),
       m_CurrentBucketStats(CAnomalyDetectorModel::TIME_UNSET),
       m_InterimBucketCorrector(interimBucketCorrector) {
-    traverser.traverseSubLevel(
-        boost::bind(&CEventRateModel::acceptRestoreTraverser, this, _1));
+    traverser.traverseSubLevel(std::bind(&CEventRateModel::acceptRestoreTraverser,
+                                         this, std::placeholders::_1));
 }
 
 CEventRateModel::CEventRateModel(bool isForPersistence, const CEventRateModel& other)
@@ -105,20 +103,25 @@ CEventRateModel::CEventRateModel(bool isForPersistence, const CEventRateModel& o
     }
 }
 
+void CEventRateModel::persistResidualModelsState(core::CStatePersistInserter& inserter) const {
+    this->doPersistResidualModelsState(inserter);
+}
+
 void CEventRateModel::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
     inserter.insertLevel(INDIVIDUAL_STATE_TAG,
-                         boost::bind(&CEventRateModel::doAcceptPersistInserter, this, _1));
+                         std::bind(&CEventRateModel::doAcceptPersistInserter,
+                                   this, std::placeholders::_1));
     inserter.insertLevel(PROBABILITY_PRIOR_TAG,
-                         boost::bind(&maths::CMultinomialConjugate::acceptPersistInserter,
-                                     &m_ProbabilityPrior, _1));
+                         std::bind(&maths::CMultinomialConjugate::acceptPersistInserter,
+                                   &m_ProbabilityPrior, std::placeholders::_1));
 }
 
 bool CEventRateModel::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
     do {
         const std::string& name = traverser.name();
         if (name == INDIVIDUAL_STATE_TAG) {
-            if (traverser.traverseSubLevel(boost::bind(
-                    &CEventRateModel::doAcceptRestoreTraverser, this, _1)) == false) {
+            if (traverser.traverseSubLevel(std::bind(&CEventRateModel::doAcceptRestoreTraverser,
+                                                     this, std::placeholders::_1)) == false) {
                 // Logging handled already.
                 return false;
             }
@@ -452,13 +455,13 @@ uint64_t CEventRateModel::checksum(bool includeCurrentBucketStats) const {
     const TDoubleVec& concentrations = m_ProbabilityPrior.concentrations();
     for (std::size_t i = 0u; i < categories.size(); ++i) {
         uint64_t& hash =
-            hashes[boost::cref(this->personName(static_cast<std::size_t>(categories[i])))];
+            hashes[std::cref(this->personName(static_cast<std::size_t>(categories[i])))];
         hash = maths::CChecksum::calculate(hash, concentrations[i]);
     }
     if (includeCurrentBucketStats) {
         for (const auto& featureData_ : m_CurrentBucketStats.s_FeatureData) {
             for (const auto& data : featureData_.second) {
-                uint64_t& hash = hashes[boost::cref(this->personName(data.first))];
+                uint64_t& hash = hashes[std::cref(this->personName(data.first))];
                 hash = maths::CChecksum::calculate(hash, data.second.s_Count);
             }
         }

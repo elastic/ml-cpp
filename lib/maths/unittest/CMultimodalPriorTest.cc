@@ -1375,7 +1375,7 @@ void CMultimodalPriorTest::testProbabilityOfLessLikelySamples() {
         }
         rng.random_shuffle(samples.begin(), samples.end());
 
-        TDoubleVec mixtureWeights(boost::begin(weights), boost::end(weights));
+        TDoubleVec mixtureWeights(std::begin(weights), std::end(weights));
         TLogNormalVec modes;
         modes.push_back(boost::math::lognormal_distribution<>(
             locations[0], std::sqrt(squareScales[0])));
@@ -1439,7 +1439,7 @@ void CMultimodalPriorTest::testProbabilityOfLessLikelySamples() {
         }
         rng.random_shuffle(samples.begin(), samples.end());
 
-        TDoubleVec mixtureWeights(boost::begin(weights), boost::end(weights));
+        TDoubleVec mixtureWeights(std::begin(weights), std::end(weights));
         TGammaVec modes;
         modes.push_back(boost::math::gamma_distribution<>(shapes[0], scales[0]));
         modes.push_back(boost::math::gamma_distribution<>(shapes[1], scales[1]));

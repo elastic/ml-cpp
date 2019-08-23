@@ -19,11 +19,11 @@
 #include <config/ImportExport.h>
 
 #include <boost/optional.hpp>
-#include <boost/ref.hpp>
 #include <boost/unordered_map.hpp>
 #include <boost/unordered_set.hpp>
 
 #include <cstddef>
+#include <functional>
 #include <stdint.h>
 #include <vector>
 
@@ -203,7 +203,7 @@ private:
     using TSizeSizePr = std::pair<std::size_t, std::size_t>;
     using TSizeSizePrUSet = boost::unordered_set<TSizeSizePr>;
     using TOptionalTime = boost::optional<core_t::TTime>;
-    using TAutoconfigurerParamsCRef = boost::reference_wrapper<const CAutoconfigurerParams>;
+    using TAutoconfigurerParamsCRef = std::reference_wrapper<const CAutoconfigurerParams>;
     using TMinTimeAccumulator =
         maths::CBasicStatistics::COrderStatisticsStack<core_t::TTime, 1>;
     using TMaxTimeAccumulator =
@@ -340,7 +340,7 @@ private:
     using TSizeVec = std::vector<std::size_t>;
     using TPtrDiffVec = std::vector<ptrdiff_t>;
     using TPtrDiffVecVec = std::vector<TPtrDiffVec>;
-    using TAutoconfigurerParamsCRef = boost::reference_wrapper<const CAutoconfigurerParams>;
+    using TAutoconfigurerParamsCRef = std::reference_wrapper<const CAutoconfigurerParams>;
     using TDataCountStatisticsPtr = std::shared_ptr<CDataCountStatistics>;
     using TDataCountStatisticsPtrVec = std::vector<TDataCountStatisticsPtr>;
 

@@ -21,8 +21,7 @@
 #include <maths/CTrendComponent.h>
 #include <maths/ImportExport.h>
 
-#include <boost/ref.hpp>
-
+#include <array>
 #include <cstddef>
 #include <functional>
 #include <memory>
@@ -36,11 +35,9 @@ class CExpandingWindow;
 class CTimeSeriesDecomposition;
 
 //! \brief Utilities for computing the decomposition.
-class MATHS_EXPORT CTimeSeriesDecompositionDetail {
+class MATHS_EXPORT CTimeSeriesDecompositionDetail : private CTimeSeriesDecompositionTypes {
 public:
-    using TPredictor = std::function<double(core_t::TTime)>;
     using TDoubleVec = std::vector<double>;
-    using TTimeVec = std::vector<core_t::TTime>;
     class CMediator;
 
     //! \brief The base message passed.
@@ -63,7 +60,8 @@ public:
                   double seasonal,
                   double calendar,
                   const TPredictor& predictor,
-                  const CPeriodicityHypothesisTestsConfig& periodicityTestConfig);
+                  const CPeriodicityHypothesisTestsConfig& periodicityTestConfig,
+                  TComponentChangeCallback componentChangeCallback);
         SAddValue(const SAddValue&) = delete;
         SAddValue& operator=(const SAddValue&) = delete;
 
@@ -81,6 +79,8 @@ public:
         TPredictor s_Predictor;
         //! The periodicity test configuration.
         CPeriodicityHypothesisTestsConfig s_PeriodicityTestConfig;
+        //! Called if the components change.
+        TComponentChangeCallback s_ComponentChangeCallback;
     };
 
     //! \brief The message passed to indicate periodic components have
@@ -177,7 +177,7 @@ public:
         std::size_t memoryUsage() const;
 
     private:
-        using THandlerRef = boost::reference_wrapper<CHandler>;
+        using THandlerRef = std::reference_wrapper<CHandler>;
         using THandlerRefVec = std::vector<THandlerRef>;
 
     private:
@@ -189,10 +189,6 @@ public:
     //! diurnal and any other large amplitude seasonal components.
     class MATHS_EXPORT CPeriodicityTest : public CHandler {
     public:
-        using TFloatMeanAccumulator = CBasicStatistics::SSampleMean<CFloatStorage>::TAccumulator;
-        using TTimeFloatMeanAccumulatorPr = std::pair<core_t::TTime, TFloatMeanAccumulator>;
-        using TTimeFloatMeanAccumulatorPrVec = std::vector<TTimeFloatMeanAccumulatorPr>;
-
         //! Test types (categorised as short and long period tests).
         enum ETest { E_Short, E_Long };
 
@@ -216,11 +212,11 @@ public:
         //! Reset the test.
         virtual void handle(const SNewComponents& message);
 
-        //! Check if we should run the periodicity test on \p window.
-        bool shouldTest(ETest test, core_t::TTime time) const;
-
         //! Test to see whether any seasonal components are present.
         void test(const SAddValue& message);
+
+        //! Record a linear scale of \p scale at \p time.
+        void linearScale(core_t::TTime time, double scale);
 
         //! Shift the start of the tests' expanding windows by \p dt.
         void shiftTime(core_t::TTime dt);
@@ -230,7 +226,7 @@ public:
         void propagateForwards(core_t::TTime start, core_t::TTime end);
 
         //! Get the values in the window if we're going to test at \p time.
-        TTimeFloatMeanAccumulatorPrVec windowValues() const;
+        TFloatMeanAccumulatorVec windowValues(const TPredictor& predictor) const;
 
         //! Get a checksum for this object.
         uint64_t checksum(uint64_t seed = 0) const;
@@ -242,9 +238,10 @@ public:
         std::size_t memoryUsage() const;
 
     private:
-        using TTimeAry = boost::array<core_t::TTime, 2>;
+        using TTimeDoublePr = std::pair<core_t::TTime, double>;
+        using TTimeDoublePrVec = std::vector<std::pair<core_t::TTime, double>>;
         using TExpandingWindowPtr = std::unique_ptr<CExpandingWindow>;
-        using TExpandingWindowPtrAry = boost::array<TExpandingWindowPtr, 2>;
+        using TExpandingWindowPtrAry = std::array<TExpandingWindowPtr, 2>;
 
     private:
         //! The longest bucket length at which we'll test for periodic
@@ -255,12 +252,20 @@ public:
         //! Handle \p symbol.
         void apply(std::size_t symbol, const SMessage& message);
 
+        //! Check if we should run the periodicity test on \p window.
+        bool shouldTest(ETest test, core_t::TTime time) const;
+
         //! Get a new \p test. (Warning: this is owned by the caller.)
         CExpandingWindow* newWindow(ETest test, bool deflate = true) const;
 
-        //! Account for memory that is not yet allocated
-        //! during the initial state
+        //! Account for memory that is not allocated by initialisation.
         std::size_t extraMemoryOnInitialization() const;
+
+        //! Get the accounting for linear scales in the test window.
+        TPredictor scaledPredictor(const TPredictor& predictor) const;
+
+        //! Remove any linear scale events outside the test windows.
+        void pruneLinearScales();
 
     private:
         //! The state machine.
@@ -274,6 +279,9 @@ public:
 
         //! Expanding windows on the "recent" time series values.
         TExpandingWindowPtrAry m_Windows;
+
+        //! The times of linear scales in the window range.
+        TTimeDoublePrVec m_LinearScales;
     };
 
     //! \brief Tests for cyclic calendar components explaining large prediction
@@ -375,13 +383,6 @@ public:
         //! Set whether or not we're testing for a change.
         void testingForChange(bool value);
 
-        //! Start observing for modifications to the components.
-        void observeComponentsModified();
-
-        //! Check if any components were added or removed since observeComponentsModified
-        //! was last called.
-        bool componentsModified();
-
         //! Apply \p shift to the level at \p time and \p value.
         void shiftLevel(core_t::TTime time, double value, double shift);
 
@@ -444,12 +445,9 @@ public:
         std::size_t memoryUsage() const;
 
     private:
-        using TOptionalDouble = boost::optional<double>;
         using TMeanVarAccumulator = CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
         using TSeasonalComponentPtrVec = std::vector<CSeasonalComponent*>;
         using TCalendarComponentPtrVec = std::vector<CCalendarComponent*>;
-        using TFloatMeanAccumulator = CBasicStatistics::SSampleMean<CFloatStorage>::TAccumulator;
-        using TFloatMeanAccumulatorVec = std::vector<TFloatMeanAccumulator>;
 
         //! \brief Manages the setting of the error gain when updating
         //! the components with a value.
@@ -497,7 +495,7 @@ public:
             uint64_t checksum(uint64_t seed) const;
 
         private:
-            using TRegression = CRegression::CLeastSquaresOnline<1>;
+            using TRegression = CLeastSquaresOnlineRegression<1>;
 
         private:
             //! The origin for the mean prediction error regression model.
@@ -851,14 +849,14 @@ public:
         //! The moments of the error in the predictions including the trend.
         TMeanVarAccumulator m_PredictionErrorWithTrend;
 
+        //! Called if the components change.
+        TComponentChangeCallback m_ComponentChangeCallback;
+
         //! Set to true when testing for a change.
         bool m_TestingForChange = false;
 
         //! Set to true if the trend model should be used for prediction.
         bool m_UsingTrendForPrediction = false;
-
-        //! Set to true when new components are added or removed
-        bool m_ComponentsModified = false;
 
         //! Befriend a helper class used by the unit tests
         friend class ::CNanInjector;

@@ -35,7 +35,7 @@ namespace model {
 
 namespace {
 
-using TStrCRef = boost::reference_wrapper<const std::string>;
+using TStrCRef = std::reference_wrapper<const std::string>;
 using TStrCRefUInt64Map = std::map<TStrCRef, uint64_t, maths::COrderings::SLess>;
 using TStrCRefStrCRefPr = std::pair<TStrCRef, TStrCRef>;
 using TStrCRefStrCRefPrUInt64Map =
@@ -48,7 +48,7 @@ void hashActive(const CDataGatherer& gatherer,
                 TStrCRefUInt64Map& hashes) {
     for (std::size_t pid = 0u; pid < values.size(); ++pid) {
         if (gatherer.isPersonActive(pid)) {
-            uint64_t& hash = hashes[boost::cref(gatherer.personName(pid))];
+            uint64_t& hash = hashes[std::cref(gatherer.personName(pid))];
             hash = maths::CChecksum::calculate(hash, values[pid]);
         }
     }
@@ -257,8 +257,8 @@ uint64_t CIndividualModel::checksum(bool includeCurrentBucketStats) const {
         for (const auto& model : feature.s_Models->correlationModels()) {
             std::size_t pids[]{model.first.first, model.first.second};
             if (gatherer.isPersonActive(pids[0]) && gatherer.isPersonActive(pids[1])) {
-                uint64_t& hash = hashes2[{boost::cref(this->personName(pids[0])),
-                                          boost::cref(this->personName(pids[1]))}];
+                uint64_t& hash = hashes2[{std::cref(this->personName(pids[0])),
+                                          std::cref(this->personName(pids[1]))}];
                 hash = maths::CChecksum::calculate(hash, model.second);
             }
         }
@@ -268,7 +268,7 @@ uint64_t CIndividualModel::checksum(bool includeCurrentBucketStats) const {
         seed = maths::CChecksum::calculate(seed, this->currentBucketStartTime());
         const TSizeUInt64PrVec& personCounts = this->currentBucketPersonCounts();
         for (const auto& count : personCounts) {
-            uint64_t& hash = hashes1[boost::cref(this->personName(count.first))];
+            uint64_t& hash = hashes1[std::cref(this->personName(count.first))];
             hash = maths::CChecksum::calculate(hash, count.second);
         }
     }
@@ -326,6 +326,12 @@ const CIndividualModel::TTimeVec& CIndividualModel::lastBucketTimes() const {
     return m_LastBucketTimes;
 }
 
+void CIndividualModel::doPersistResidualModelsState(core::CStatePersistInserter& inserter) const {
+    for (const auto& feature : m_FeatureModels) {
+        feature.persistResidualModelsState(inserter);
+    }
+}
+
 void CIndividualModel::doAcceptPersistInserter(core::CStatePersistInserter& inserter) const {
     inserter.insertValue(WINDOW_BUCKET_COUNT_TAG, this->windowBucketCount(),
                          core::CIEEE754::E_SinglePrecision);
@@ -334,13 +340,14 @@ void CIndividualModel::doAcceptPersistInserter(core::CStatePersistInserter& inse
     core::CPersistUtils::persist(FIRST_BUCKET_TIME_TAG, m_FirstBucketTimes, inserter);
     core::CPersistUtils::persist(LAST_BUCKET_TIME_TAG, m_LastBucketTimes, inserter);
     for (const auto& feature : m_FeatureModels) {
-        inserter.insertLevel(FEATURE_MODELS_TAG, boost::bind(&SFeatureModels::acceptPersistInserter,
-                                                             &feature, _1));
+        inserter.insertLevel(FEATURE_MODELS_TAG,
+                             std::bind(&SFeatureModels::acceptPersistInserter,
+                                       &feature, std::placeholders::_1));
     }
     for (const auto& feature : m_FeatureCorrelatesModels) {
         inserter.insertLevel(FEATURE_CORRELATE_MODELS_TAG,
-                             boost::bind(&SFeatureCorrelateModels::acceptPersistInserter,
-                                         &feature, _1));
+                             std::bind(&SFeatureCorrelateModels::acceptPersistInserter,
+                                       &feature, std::placeholders::_1));
     }
     core::CPersistUtils::persist(MEMORY_ESTIMATOR_TAG, m_MemoryEstimator, inserter);
 }
@@ -360,14 +367,15 @@ bool CIndividualModel::doAcceptRestoreTraverser(core::CStateRestoreTraverser& tr
                 core::CPersistUtils::restore(name, m_LastBucketTimes, traverser))
         RESTORE(FEATURE_MODELS_TAG,
                 i == m_FeatureModels.size() ||
-                    traverser.traverseSubLevel(boost::bind(
-                        &SFeatureModels::acceptRestoreTraverser,
-                        &m_FeatureModels[i++], boost::cref(this->params()), _1)))
+                    traverser.traverseSubLevel(std::bind(
+                        &SFeatureModels::acceptRestoreTraverser, &m_FeatureModels[i++],
+                        std::cref(this->params()), std::placeholders::_1)))
         RESTORE(FEATURE_CORRELATE_MODELS_TAG,
                 j == m_FeatureCorrelatesModels.size() ||
-                    traverser.traverseSubLevel(boost::bind(
+                    traverser.traverseSubLevel(std::bind(
                         &SFeatureCorrelateModels::acceptRestoreTraverser,
-                        &m_FeatureCorrelatesModels[j++], boost::cref(this->params()), _1)))
+                        &m_FeatureCorrelatesModels[j++],
+                        std::cref(this->params()), std::placeholders::_1)))
         RESTORE(MEMORY_ESTIMATOR_TAG,
                 core::CPersistUtils::restore(MEMORY_ESTIMATOR_TAG, m_MemoryEstimator, traverser))
     } while (traverser.next());
@@ -480,8 +488,8 @@ void CIndividualModel::refreshCorrelationModels(std::size_t resourceLimit,
     std::size_t n = this->numberOfPeople();
     double maxNumberCorrelations = this->params().s_CorrelationModelsOverhead *
                                    static_cast<double>(n);
-    auto memoryUsage = boost::bind(&CAnomalyDetectorModel::estimateMemoryUsageOrComputeAndUpdate,
-                                   this, n, 0, _1);
+    auto memoryUsage = std::bind(&CAnomalyDetectorModel::estimateMemoryUsageOrComputeAndUpdate,
+                                 this, n, 0, std::placeholders::_1);
     CTimeSeriesCorrelateModelAllocator allocator(
         resourceMonitor, memoryUsage, resourceLimit,
         static_cast<std::size_t>(maxNumberCorrelations));

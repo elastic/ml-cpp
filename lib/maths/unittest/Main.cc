@@ -9,7 +9,9 @@
 #include "CAgglomerativeClustererTest.h"
 #include "CAssignmentTest.h"
 #include "CBasicStatisticsTest.h"
+#include "CBayesianOptimisationTest.h"
 #include "CBjkstUniqueValuesTest.h"
+#include "CBoostedTreeTest.h"
 #include "CBootstrapClustererTest.h"
 #include "CBoundingBoxTest.h"
 #include "CCalendarComponentAdaptiveBucketingTest.h"
@@ -19,6 +21,7 @@
 #include "CChecksumTest.h"
 #include "CClustererTest.h"
 #include "CCountMinSketchTest.h"
+#include "CDataFrameCategoryEncoderTest.h"
 #include "CDataFrameUtilsTest.h"
 #include "CDecayRateControllerTest.h"
 #include "CEntropySketchTest.h"
@@ -34,11 +37,14 @@
 #include "CKMostCorrelatedTest.h"
 #include "CKdTreeTest.h"
 #include "CLassoLogisticRegressionTest.h"
+#include "CLbfgsTest.h"
+#include "CLeastSquaresOnlineRegressionTest.h"
 #include "CLinearAlgebraTest.h"
 #include "CLogNormalMeanPrecConjugateTest.h"
 #include "CLogTDistributionTest.h"
 #include "CMathsFuncsTest.h"
 #include "CMathsMemoryTest.h"
+#include "CMicTest.h"
 #include "CMixtureDistributionTest.h"
 #include "CModelTest.h"
 #include "CMultimodalPriorTest.h"
@@ -56,7 +62,6 @@
 #include "COrthogonaliserTest.h"
 #include "COutliersTest.h"
 #include "CPRNGTest.h"
-#include "CPackedBitVectorTest.h"
 #include "CPeriodicityHypothesisTestsTest.h"
 #include "CPoissonMeanConjugateTest.h"
 #include "CPriorTest.h"
@@ -67,7 +72,6 @@
 #include "CRadialBasisFunctionTest.h"
 #include "CRandomProjectionClustererTest.h"
 #include "CRandomizedPeriodicityTestTest.h"
-#include "CRegressionTest.h"
 #include "CSamplingTest.h"
 #include "CSeasonalComponentAdaptiveBucketingTest.h"
 #include "CSeasonalComponentTest.h"
@@ -93,7 +97,9 @@ int main(int argc, const char** argv) {
     runner.addTest(CAgglomerativeClustererTest::suite());
     runner.addTest(CAssignmentTest::suite());
     runner.addTest(CBasicStatisticsTest::suite());
+    runner.addTest(CBayesianOptimisationTest::suite());
     runner.addTest(CBjkstUniqueValuesTest::suite());
+    runner.addTest(CBoostedTreeTest::suite());
     runner.addTest(CBootstrapClustererTest::suite());
     runner.addTest(CBoundingBoxTest::suite());
     runner.addTest(CCategoricalToolsTest::suite());
@@ -103,6 +109,7 @@ int main(int argc, const char** argv) {
     runner.addTest(CChecksumTest::suite());
     runner.addTest(CClustererTest::suite());
     runner.addTest(CCountMinSketchTest::suite());
+    runner.addTest(CDataFrameCategoryEncoderTest::suite());
     runner.addTest(CDataFrameUtilsTest::suite());
     runner.addTest(CDecayRateControllerTest::suite());
     runner.addTest(CEqualWithToleranceTest::suite());
@@ -118,12 +125,15 @@ int main(int argc, const char** argv) {
     runner.addTest(CKMeansOnlineTest::suite());
     runner.addTest(CKMostCorrelatedTest::suite());
     runner.addTest(CLassoLogisticRegressionTest::suite());
+    runner.addTest(CLbfgsTest::suite());
+    runner.addTest(CLeastSquaresOnlineRegressionTest::suite());
     runner.addTest(CLinearAlgebraTest::suite());
     runner.addTest(COutliersTest::suite());
     runner.addTest(CLogNormalMeanPrecConjugateTest::suite());
     runner.addTest(CLogTDistributionTest::suite());
     runner.addTest(CMathsFuncsTest::suite());
     runner.addTest(CMathsMemoryTest::suite());
+    runner.addTest(CMicTest::suite());
     runner.addTest(CMixtureDistributionTest::suite());
     runner.addTest(CModelTest::suite());
     runner.addTest(CMultimodalPriorTest::suite());
@@ -139,7 +149,6 @@ int main(int argc, const char** argv) {
     runner.addTest(COrderingsTest::suite());
     runner.addTest(COrdinalTest::suite());
     runner.addTest(COrthogonaliserTest::suite());
-    runner.addTest(CPackedBitVectorTest::suite());
     runner.addTest(CPeriodicityHypothesisTestsTest::suite());
     runner.addTest(CPoissonMeanConjugateTest::suite());
     runner.addTest(CPriorTest::suite());
@@ -151,7 +160,6 @@ int main(int argc, const char** argv) {
     runner.addTest(CRadialBasisFunctionTest::suite());
     runner.addTest(CRandomProjectionClustererTest::suite());
     runner.addTest(CRandomizedPeriodicityTestTest::suite());
-    runner.addTest(CRegressionTest::suite());
     runner.addTest(CSamplingTest::suite());
     runner.addTest(CSeasonalComponentTest::suite());
     runner.addTest(CSeasonalComponentAdaptiveBucketingTest::suite());

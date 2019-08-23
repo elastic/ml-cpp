@@ -15,7 +15,6 @@
 #include <model/ModelTypes.h>
 
 #include <boost/optional.hpp>
-#include <boost/ref.hpp>
 
 #include <utility>
 #include <vector>

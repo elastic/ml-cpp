@@ -82,7 +82,7 @@ core_t::TTime playData(core_t::TTime start,
     api::CCsvInputParser parser(ss);
 
     CPPUNIT_ASSERT(parser.readStreamIntoMaps(
-        boost::bind(&api::CAnomalyJob::handleRecord, &job, _1)));
+        std::bind(&api::CAnomalyJob::handleRecord, &job, std::placeholders::_1)));
 
     return t;
 }
@@ -178,7 +178,7 @@ void CStringStoreTest::testPersonStringPruning() {
         time += BUCKET_SPAN * 100;
         time = playData(time, BUCKET_SPAN, 100, 3, 2, 99, job);
 
-        CPPUNIT_ASSERT(job.persistState(adder));
+        CPPUNIT_ASSERT(job.persistState(adder, ""));
         wrappedOutputStream.syncFlush();
 
         CPPUNIT_ASSERT_EQUAL(std::size_t(1),
@@ -224,7 +224,7 @@ void CStringStoreTest::testPersonStringPruning() {
         time = playData(time, BUCKET_SPAN, 100, 3, 1, 101, job);
 
         job.finalise();
-        CPPUNIT_ASSERT(job.persistState(adder));
+        CPPUNIT_ASSERT(job.persistState(adder, ""));
     }
     LOG_DEBUG(<< "Restoring job again");
     {
@@ -266,7 +266,7 @@ void CStringStoreTest::testPersonStringPruning() {
         time = playData(time, BUCKET_SPAN, 100, 2, 2, 101, job);
 
         job.finalise();
-        CPPUNIT_ASSERT(job.persistState(adder));
+        CPPUNIT_ASSERT(job.persistState(adder, ""));
     }
     LOG_DEBUG(<< "Restoring yet again");
     {
@@ -368,7 +368,7 @@ void CStringStoreTest::testAttributeStringPruning() {
         time += BUCKET_SPAN * 100;
         time = playData(time, BUCKET_SPAN, 100, 3, 2, 99, job);
 
-        CPPUNIT_ASSERT(job.persistState(adder));
+        CPPUNIT_ASSERT(job.persistState(adder, ""));
         wrappedOutputStream.syncFlush();
         CPPUNIT_ASSERT_EQUAL(std::size_t(1),
                              countBuckets("records", outputStrm.str() + "]"));
@@ -413,7 +413,7 @@ void CStringStoreTest::testAttributeStringPruning() {
         time = playData(time, BUCKET_SPAN, 100, 3, 1, 101, job);
 
         job.finalise();
-        CPPUNIT_ASSERT(job.persistState(adder));
+        CPPUNIT_ASSERT(job.persistState(adder, ""));
     }
     LOG_DEBUG(<< "Restoring job again");
     {
@@ -456,7 +456,7 @@ void CStringStoreTest::testAttributeStringPruning() {
         time = playData(time, BUCKET_SPAN, 100, 2, 2, 101, job);
 
         job.finalise();
-        CPPUNIT_ASSERT(job.persistState(adder));
+        CPPUNIT_ASSERT(job.persistState(adder, ""));
     }
     LOG_DEBUG(<< "Restoring yet again");
     {

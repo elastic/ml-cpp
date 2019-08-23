@@ -15,11 +15,18 @@ RUN \
   rm /var/lib/rpm/__db.* && \
   yum install -y gcc gcc-c++ git unzip wget zip zlib-devel
 
+# For compiling with hardening and optimisation
+ENV CFLAGS "-g -O3 -fstack-protector -D_FORTIFY_SOURCE=2"
+ENV CXXFLAGS "-g -O3 -fstack-protector -D_FORTIFY_SOURCE=2"
+ENV LDFLAGS "-Wl,-z,relro -Wl,-z,now"
+ENV LDFLAGS_FOR_TARGET "-Wl,-z,relro -Wl,-z,now"
+
 # Build gcc 7.3
 RUN \
   wget --quiet -O - http://ftpmirror.gnu.org/gcc/gcc-7.3.0/gcc-7.3.0.tar.gz | tar zxf - && \
   cd gcc-7.3.0 && \
   contrib/download_prerequisites && \
+  sed -i -e 's/$(SHLIB_LDFLAGS)/$(LDFLAGS) $(SHLIB_LDFLAGS)/' libgcc/config/t-slibgcc && \
   cd .. && \
   mkdir gcc-7.3.0-build && \
   cd gcc-7.3.0-build && \
@@ -29,11 +36,9 @@ RUN \
   cd .. && \
   rm -rf gcc-7.3.0 gcc-7.3.0-build
 
-# Update paths to use the newly built compiler
+# Update paths to use the newly built compiler in C++14 mode
 ENV LD_LIBRARY_PATH /usr/local/gcc73/lib64:/usr/local/gcc73/lib:/usr/lib:/lib
 ENV PATH /usr/local/gcc73/bin:/usr/bin:/bin:/usr/sbin:/sbin
-
-# For compiling in C++14 mode
 ENV CXX "g++ -std=gnu++14"
 
 # Build libxml2
@@ -46,25 +51,39 @@ RUN \
   cd .. && \
   rm -rf libxml2-2.9.4
 
-# Build APR
+# Build expat
 RUN \
-  wget --quiet -O - http://archive.apache.org/dist/apr/apr-1.5.2.tar.bz2 | tar jxf - && \
-  cd apr-1.5.2 && \
+  wget --quiet -O - http://github.com/libexpat/libexpat/releases/download/R_2_2_6/expat-2.2.6.tar.bz2 | tar jxf - && \
+  cd expat-2.2.6 && \
   ./configure --prefix=/usr/local/gcc73 && \
   make -j`grep -c '^processor' /proc/cpuinfo` && \
   make install && \
   cd .. && \
-  rm -rf apr-1.5.2
+  rm -rf expat-2.2.6
 
-# Build APR utilities
+# Build APR
 RUN \
-  wget --quiet -O - http://archive.apache.org/dist/apr/apr-util-1.5.4.tar.bz2 | tar jxf - && \
-  cd apr-util-1.5.4 && \
-  ./configure --prefix=/usr/local/gcc73 --with-apr=/usr/local/gcc73/bin/apr-1-config --with-expat=builtin && \
+  wget --quiet -O - http://archive.apache.org/dist/apr/apr-1.7.0.tar.bz2 | tar jxf - && \
+  cd apr-1.7.0 && \
+  sed -i -e "s/for ac_lib in '' crypt ufc; do/for ac_lib in ''; do/" configure && \
+  sed -i -e 's/#define APR_HAVE_CRYPT_H         @crypth@/#define APR_HAVE_CRYPT_H         0/' include/apr.h.in && \
+  ./configure --prefix=/usr/local/gcc73 && \
   make -j`grep -c '^processor' /proc/cpuinfo` && \
   make install && \
   cd .. && \
-  rm -rf apr-util-1.5.4
+  rm -rf apr-1.7.0
+
+# Build APR utilities
+RUN \
+  wget --quiet -O - http://archive.apache.org/dist/apr/apr-util-1.6.1.tar.bz2 | tar jxf - && \
+  cd apr-util-1.6.1 && \
+  sed -i -e "s/for ac_lib in '' crypt ufc; do/for ac_lib in ''; do/" configure && \
+  sed -i -e 's/#define CRYPT_MISSING 0/#define CRYPT_MISSING 1/' crypto/apr_passwd.c && \
+  ./configure --prefix=/usr/local/gcc73 --with-apr=/usr/local/gcc73/bin/apr-1-config --with-expat=/usr/local/gcc73 && \
+  make -j`grep -c '^processor' /proc/cpuinfo` && \
+  make install && \
+  cd .. && \
+  rm -rf apr-util-1.6.1
 
 # Build log4cxx
 RUN \
@@ -90,11 +109,11 @@ RUN \
 RUN \
   wget --quiet -O - http://sourceforge.mirrorservice.org/b/bo/boost/boost/1.65.1/boost_1_65_1.tar.bz2 | tar jxf - && \
   cd boost_1_65_1 && \
-  ./bootstrap.sh cxxflags=-std=gnu++14 --without-libraries=context --without-libraries=coroutine --without-libraries=graph_parallel --without-libraries=log --without-libraries=mpi --without-libraries=python --without-icu && \
+  ./bootstrap.sh --without-libraries=context --without-libraries=coroutine --without-libraries=graph_parallel --without-libraries=log --without-libraries=mpi --without-libraries=python --without-icu && \
   sed -i -e 's/(17ul)(29ul)(37ul)(53ul)(67ul)(79ul) \\/(3ul)(17ul)(29ul)(37ul)(53ul)(67ul)(79ul) \\/' boost/unordered/detail/implementation.hpp && \
   sed -i -e 's%#if ((defined(__linux__) \&\& !defined(__UCLIBC__) \&\& !defined(BOOST_MATH_HAVE_FIXED_GLIBC)) || defined(__QNX__) || defined(__IBMCPP__)) \&\& !defined(BOOST_NO_FENV_H)%#if ((!defined(BOOST_MATH_NO_LONG_DOUBLE_MATH_FUNCTIONS) \&\& defined(__linux__) \&\& !defined(__UCLIBC__) \&\& !defined(BOOST_MATH_HAVE_FIXED_GLIBC)) || defined(__QNX__) || defined(__IBMCPP__)) \&\& !defined(BOOST_NO_FENV_H)%g' boost/math/tools/config.hpp && \
-  ./b2 -j`grep -c '^processor' /proc/cpuinfo` --layout=versioned --disable-icu pch=off optimization=speed inlining=full define=BOOST_MATH_NO_LONG_DOUBLE_MATH_FUNCTIONS && \
-  ./b2 install --prefix=/usr/local/gcc73 --layout=versioned --disable-icu pch=off optimization=speed inlining=full define=BOOST_MATH_NO_LONG_DOUBLE_MATH_FUNCTIONS && \
+  ./b2 -j`grep -c '^processor' /proc/cpuinfo` --layout=versioned --disable-icu pch=off optimization=speed inlining=full define=BOOST_MATH_NO_LONG_DOUBLE_MATH_FUNCTIONS define=_FORTIFY_SOURCE=2 cxxflags=-std=gnu++14 cxxflags=-fstack-protector linkflags=-Wl,-z,relro linkflags=-Wl,-z,now && \
+  ./b2 install --prefix=/usr/local/gcc73 --layout=versioned --disable-icu pch=off optimization=speed inlining=full define=BOOST_MATH_NO_LONG_DOUBLE_MATH_FUNCTIONS define=_FORTIFY_SOURCE=2 cxxflags=-std=gnu++14 cxxflags=-fstack-protector linkflags=-Wl,-z,relro linkflags=-Wl,-z,now && \
   cd .. && \
   rm -rf boost_1_65_1
 

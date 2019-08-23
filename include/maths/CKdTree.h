@@ -19,11 +19,11 @@
 #include <maths/CTypeTraits.h>
 
 #include <boost/operators.hpp>
-#include <boost/ref.hpp>
 
 #include <algorithm>
 #include <cmath>
 #include <cstddef>
+#include <functional>
 #include <limits>
 #include <type_traits>
 #include <vector>
@@ -66,7 +66,7 @@ public:
     using TPointVec = std::vector<POINT>;
     using TCoordinate = typename SCoordinate<POINT>::Type;
     using TCoordinatePrecise = typename SPromoted<TCoordinate>::Type;
-    using TPointCRef = boost::reference_wrapper<const POINT>;
+    using TPointCRef = std::reference_wrapper<const POINT>;
     using TCoordinatePrecisePointCRefPr = std::pair<TCoordinatePrecise, TPointCRef>;
     using TCoordinatePrecisePointCRefPrVec = std::vector<TCoordinatePrecisePointCRefPr>;
 
@@ -262,7 +262,7 @@ public:
             COrderings::SLess less;
             POINT distancesToHyperplanes{las::zero(point)};
             TCoordinatePrecisePointCRefPrVec neighbours(
-                n, {inf, boost::cref(m_Nodes[0].s_Point)});
+                n, {inf, std::cref(m_Nodes[0].s_Point)});
             this->nearestNeighbours(point, less, m_Nodes[0], distancesToHyperplanes,
                                     0 /*split coordinate*/, neighbours);
 
@@ -271,7 +271,7 @@ public:
             for (const auto& neighbour : neighbours) {
                 result.push_back(neighbour.second);
             }
-        } else if (n > m_Nodes.size()) {
+        } else if (n >= m_Nodes.size()) {
             TDoubleVec distances;
             distances.reserve(m_Nodes.size());
             result.reserve(m_Nodes.size());
@@ -434,7 +434,7 @@ private:
             (distance == nearest.front().first && node.s_Point < point)) {
             std::pop_heap(nearest.begin(), nearest.end(), less);
             nearest.back().first = distance;
-            nearest.back().second = boost::cref(node.s_Point);
+            nearest.back().second = std::cref(node.s_Point);
             std::push_heap(nearest.begin(), nearest.end(), less);
         }
 

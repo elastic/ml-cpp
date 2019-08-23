@@ -170,10 +170,12 @@ public:
     void recoverMemory() override {
         m_KDistances.resize(this->k() * m_StartAddresses);
         m_Lrd.resize(m_StartAddresses);
-        m_CoordinateLrd.resize(m_Dimension * m_StartAddresses);
         m_KDistances.shrink_to_fit();
         m_Lrd.shrink_to_fit();
-        m_CoordinateLrd.shrink_to_fit();
+        if (this->computeFeatureInfluence()) {
+            m_CoordinateLrd.resize(m_Dimension * m_StartAddresses);
+            m_CoordinateLrd.shrink_to_fit();
+        }
     }
 
     std::size_t staticSize() const override { return sizeof(*this); }
@@ -210,6 +212,8 @@ private:
         m_KDistances.resize(k * m_EndAddresses, {0, UNSET_DISTANCE});
         m_Lrd.resize(m_StartAddresses, UNSET_DISTANCE);
         m_Lrd.resize(m_EndAddresses, UNSET_DISTANCE);
+        std::copy(m_LrdOfLookupPoints.begin(), m_LrdOfLookupPoints.end(), m_Lrd.begin());
+        m_LrdOfLookupPoints.assign(m_Lrd.begin(), m_Lrd.begin() + m_StartAddresses);
 
         if (this->computeFeatureInfluence()) {
             m_CoordinateLrd.resize(m_Dimension * m_StartAddresses, UNSET_DISTANCE);
@@ -220,6 +224,9 @@ private:
     void add(const POINT& point, const TPointVec& neighbours, TDouble1VecVec&) override {
         // This is called exactly once for each point therefore an element
         // of m_KDistances is only ever written by one thread.
+        if (neighbours.size() < 2) {
+            return;
+        }
         std::size_t i{point.annotation()};
         std::size_t a(point == neighbours[0] ? 1 : 0);
         std::size_t b{std::min(this->k() + a - 1, neighbours.size() + a - 2)};
@@ -272,9 +279,11 @@ private:
             min += result.s_FunctionState;
         }
         if (min.count() > 0) {
-            // Use twice the maximum "density" at any other point if there
-            // are k-fold duplicates.
-            for (std::size_t i = m_StartAddresses; i < m_EndAddresses; ++i) {
+            // Use twice the maximum "density" at any other point if there are
+            // k-fold duplicates. Note it is possible that all lookup points are
+            // duplicates, in which case we need to set their local reachability
+            // density in this loop. The overwritten densities are reset in setup.
+            for (std::size_t i = 0; i < m_EndAddresses; ++i) {
                 if (m_Lrd[i] == UNSET_DISTANCE) {
                     m_Lrd[i] = 2.0 / min[0];
                 }
@@ -297,6 +306,11 @@ private:
 
                     std::size_t i{point.annotation()};
                     this->lookup().nearestNeighbours(this->k() + 1, point, neighbours);
+
+                    if (neighbours.size() < 2) {
+                        return;
+                    }
+
                     std::size_t a(point == neighbours[0] ? 1 : 0);
                     std::size_t b{std::min(this->k() + a - 1, neighbours.size() + a - 2)};
 
@@ -327,8 +341,10 @@ private:
                             double distance{las::distance(point_, neighbour)};
                             reachability_.add(std::max(kdistance, distance));
                         }
-                        double reachability{
-                            std::max(CBasicStatistics::mean(reachability_), min[0])};
+                        double reachability{CBasicStatistics::mean(reachability_)};
+                        if (min.count() > 0) {
+                            reachability = std::max(reachability, min[0]);
+                        }
 
                         point_(j) = point(j);
 
@@ -400,6 +416,7 @@ private:
     // flattened: [neighbours of 0, neighbours of 1,...].
     TUInt32CoordinatePrVec m_KDistances;
     TCoordinateVec m_Lrd;
+    TCoordinateVec m_LrdOfLookupPoints;
     // The coordinate local reachability distances are stored flattened:
     // [coordinates of 0, coordinates of 2, ...].
     TCoordinateVec m_CoordinateLrd;
@@ -423,6 +440,14 @@ public:
 private:
     void add(const POINT& point, const std::vector<POINT>& neighbours, TDouble1VecVec& scores) override {
 
+        std::size_t dimension{las::dimension(point)};
+        auto& score = scores[point.annotation()];
+        score.assign(this->computeFeatureInfluence() ? dimension + 1 : 1, 0.0);
+
+        if (neighbours.size() < 2) {
+            return;
+        }
+
         auto ldof = [](const TMeanAccumulator& d, const TMeanAccumulator& D) {
             return CBasicStatistics::mean(D) > 0.0
                        ? CBasicStatistics::mean(d) / CBasicStatistics::mean(D)
@@ -431,10 +456,6 @@ private:
 
         std::size_t a(point == neighbours[0] ? 1 : 0);
         std::size_t b{std::min(this->k() + a - 1, neighbours.size() + a - 2)};
-        std::size_t dimension{las::dimension(point)};
-
-        auto& score = scores[point.annotation()];
-        score.resize(this->computeFeatureInfluence() ? dimension + 1 : 1);
 
         TMeanAccumulator D;
         {
@@ -488,12 +509,16 @@ public:
 private:
     void add(const POINT& point, const std::vector<POINT>& neighbours, TDouble1VecVec& scores) override {
 
+        auto& score = scores[point.annotation()];
+        score.assign(this->computeFeatureInfluence() ? las::dimension(point) + 1 : 1, 0.0);
+
+        if (neighbours.size() < 2) {
+            return;
+        }
+
         std::size_t k{std::min(this->k() + 1, neighbours.size() - 1) -
                       (point == neighbours[0] ? 0 : 1)};
         const auto& kthNeighbour = neighbours[k];
-
-        auto& score = scores[point.annotation()];
-        score.resize(this->computeFeatureInfluence() ? las::dimension(point) + 1 : 1);
 
         double d{las::distance(point, kthNeighbour)};
         score[0] = d;
@@ -522,11 +547,15 @@ public:
 private:
     void add(const POINT& point, const std::vector<POINT>& neighbours, TDouble1VecVec& scores) override {
 
-        std::size_t a(point == neighbours[0] ? 1 : 0);
-        std::size_t b{std::min(this->k() + a - 1, neighbours.size() + a - 2)};
-
         auto& score = scores[point.annotation()];
         score.assign(this->computeFeatureInfluence() ? las::dimension(point) + 1 : 1, 0.0);
+
+        if (neighbours.size() < 2) {
+            return;
+        }
+
+        std::size_t a(point == neighbours[0] ? 1 : 0);
+        std::size_t b{std::min(this->k() + a - 1, neighbours.size() + a - 2)};
 
         for (std::size_t i = a; i <= b; ++i) {
             double d{las::distance(point, neighbours[i])};

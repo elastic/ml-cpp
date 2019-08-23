@@ -21,7 +21,9 @@ SRCS=\
 	CAgglomerativeClustererTest.cc \
 	CAssignmentTest.cc \
 	CBasicStatisticsTest.cc \
+	CBayesianOptimisationTest.cc \
 	CBjkstUniqueValuesTest.cc \
+	CBoostedTreeTest.cc \
 	CBootstrapClustererTest.cc \
 	CBoundingBoxTest.cc \
 	CCalendarComponentAdaptiveBucketingTest.cc \
@@ -31,6 +33,7 @@ SRCS=\
 	CChecksumTest.cc \
 	CClustererTest.cc \
 	CCountMinSketchTest.cc \
+	CDataFrameCategoryEncoderTest.cc \
 	CDataFrameUtilsTest.cc \
 	CDecayRateControllerTest.cc \
 	CEntropySketchTest.cc \
@@ -46,11 +49,14 @@ SRCS=\
 	CKMeansOnlineTest.cc \
 	CKMostCorrelatedTest.cc \
 	CLassoLogisticRegressionTest.cc \
+	CLbfgsTest.cc \
+	CLeastSquaresOnlineRegressionTest.cc \
 	CLinearAlgebraTest.cc \
 	CLogNormalMeanPrecConjugateTest.cc \
 	CLogTDistributionTest.cc \
 	CMathsFuncsTest.cc \
 	CMathsMemoryTest.cc \
+	CMicTest.cc \
 	CMixtureDistributionTest.cc \
 	CModelTest.cc \
 	CMultimodalPriorTest.cc \
@@ -67,7 +73,6 @@ SRCS=\
 	COrdinalTest.cc \
 	COrthogonaliserTest.cc \
 	COutliersTest.cc \
-	CPackedBitVectorTest.cc \
 	CPeriodicityHypothesisTestsTest.cc \
 	CPoissonMeanConjugateTest.cc \
 	CPriorTest.cc \
@@ -76,7 +81,6 @@ SRCS=\
 	CProbabilityCalibratorTest.cc \
 	CQDigestTest.cc \
 	CQuantileSketchTest.cc \
-	CRegressionTest.cc \
 	CRadialBasisFunctionTest.cc \
 	CRandomizedPeriodicityTestTest.cc \
 	CRandomProjectionClustererTest.cc \

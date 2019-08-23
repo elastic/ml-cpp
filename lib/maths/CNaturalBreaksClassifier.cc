@@ -54,11 +54,11 @@ public:
 private:
     double m_Count;
 };
+const core::TPersistenceTag SPACE_TAG("a", "space");
+const core::TPersistenceTag CATEGORY_TAG("b", "category");
+const core::TPersistenceTag POINTS_TAG("c", "points");
+const core::TPersistenceTag DECAY_RATE_TAG("d", "decay_rate");
 
-const std::string SPACE_TAG("a");
-const std::string CATEGORY_TAG("b");
-const std::string POINTS_TAG("c");
-const std::string DECAY_RATE_TAG("d");
 const std::string EMPTY_STRING;
 }
 
@@ -236,7 +236,7 @@ bool CNaturalBreaksClassifier::split(const TSizeVec& split, TClassifierVec& resu
 
     // Sanity checks.
     if (split.empty() || split[split.size() - 1] != m_Categories.size() ||
-        !boost::algorithm::is_sorted(split.begin(), split.end())) {
+        !std::is_sorted(split.begin(), split.end())) {
         LOG_ERROR(<< "Bad split = " << core::CContainerPrinter::print(split));
         return false;
     }
@@ -321,7 +321,7 @@ bool CNaturalBreaksClassifier::categories(const TSizeVec& split, TTupleVec& resu
 
     // Sanity checks.
     if (split.empty() || split[split.size() - 1] != m_Categories.size() ||
-        !boost::algorithm::is_sorted(split.begin(), split.end())) {
+        !std::is_sorted(split.begin(), split.end())) {
         LOG_ERROR(<< "Bad split = " << core::CContainerPrinter::print(split));
         return false;
     }

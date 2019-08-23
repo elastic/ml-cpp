@@ -51,9 +51,6 @@ struct STimeSeriesDecompositionRestoreParams;
 class MATHS_EXPORT CTimeSeriesDecomposition : public CTimeSeriesDecompositionInterface,
                                               private CTimeSeriesDecompositionDetail {
 public:
-    using TSizeVec = std::vector<std::size_t>;
-
-public:
     //! \param[in] decayRate The rate at which information is lost.
     //! \param[in] bucketLength The data bucketing length.
     //! \param[in] seasonalComponentSize The number of buckets to
@@ -99,16 +96,17 @@ public:
 
     //! Adds a time series point \f$(t, f(t))\f$.
     //!
-    //! \param[in] time The time of the function point.
-    //! \param[in] value The function value at \p time.
+    //! \param[in] time The time of the data point.
+    //! \param[in] value The value of the data point.
     //! \param[in] weights The weights of \p value. The smaller
     //! the count weight the less influence \p value has on the trend
     //! and it's local variance.
-    //! \return True if number of estimated components changed
-    //! and false otherwise.
-    virtual bool addPoint(core_t::TTime time,
+    //! \param[in] componentChangeCallback Called if the components
+    //! change as a result of adding the data point.
+    virtual void addPoint(core_t::TTime time,
                           double value,
-                          const maths_t::TDoubleWeightsAry& weights = TWeights::UNIT);
+                          const maths_t::TDoubleWeightsAry& weights = TWeights::UNIT,
+                          const TComponentChangeCallback& componentChangeCallback = noop);
 
     //! Apply \p change at \p time.
     //!
@@ -172,11 +170,8 @@ public:
     virtual maths_t::TDoubleDoublePr
     scale(core_t::TTime time, double variance, double confidence, bool smooth = true) const;
 
-    //! Check if this might add components between now and \p time.
-    virtual bool mightAddComponents(core_t::TTime time) const;
-
     //! Get the values in a recent time window.
-    virtual TTimeFloatMeanAccumulatorPrVec windowValues() const;
+    virtual TFloatMeanAccumulatorVec windowValues(const TPredictor& predictor) const;
 
     //! Roll time forwards by \p skipInterval.
     virtual void skipTime(core_t::TTime skipInterval);

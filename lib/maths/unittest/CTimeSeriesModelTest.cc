@@ -59,9 +59,6 @@ using TMeanAccumulator2Vec = core::CSmallVector<TMeanAccumulator, 2>;
 using TFloatMeanAccumulator =
     maths::CBasicStatistics::SSampleMean<maths::CFloatStorage>::TAccumulator;
 using TFloatMeanAccumulatorVec = std::vector<TFloatMeanAccumulator>;
-using TTimeFloatMeanAccumulatorPrVec =
-    std::vector<std::pair<core_t::TTime, TFloatMeanAccumulator>>;
-using TTimeFloatMeanAccumulatorPrVecVec = std::vector<TTimeFloatMeanAccumulatorPrVec>;
 using TDecompositionPtr = std::shared_ptr<maths::CTimeSeriesDecompositionInterface>;
 using TDecompositionPtr10Vec = core::CSmallVector<TDecompositionPtr, 10>;
 using TDecayRateController2Ary = maths::CUnivariateTimeSeriesModel::TDecayRateController2Ary;
@@ -174,96 +171,82 @@ decayRateControllers(std::size_t dimension) {
                                          dimension)}};
 }
 
-void reinitialize(const TTimeFloatMeanAccumulatorPrVec& window,
-                  maths::CTimeSeriesDecomposition& trend,
-                  maths::CPrior& prior,
-                  TDecayRateController2Ary* controllers = nullptr) {
+auto makeComponentDetectedCallback(maths::CPrior& prior,
+                                   TDecayRateController2Ary* controllers = nullptr) {
 
-    prior.setToNonInformative(0.0, prior.decayRate());
+    return [&prior, controllers](TFloatMeanAccumulatorVec residuals) {
 
-    double totalWeight{0.0};
-    TFloatMeanAccumulatorVec samples;
-    samples.reserve(window.size());
+        prior.setToNonInformative(0.0, prior.decayRate());
 
-    for (const auto& value : window) {
-        double weight(maths::CBasicStatistics::count(value.second));
-        samples.push_back(maths::CBasicStatistics::momentsAccumulator(
-            maths::CFloatStorage(weight),
-            maths::CFloatStorage(trend.detrend(
-                value.first, maths::CBasicStatistics::mean(value.second), 0.0))));
-        totalWeight += weight;
-    }
-
-    TSizeVec segmentation{maths::CTimeSeriesSegmentation::piecewiseLinear(samples)};
-    samples = maths::CTimeSeriesSegmentation::removePiecewiseLinear(
-        std::move(samples), segmentation);
-
-    maths_t::TDoubleWeightsAry1Vec weight(1);
-    for (const auto& sample : samples) {
-        weight[0] = maths_t::countWeight(10.0 / totalWeight *
-                                         maths::CBasicStatistics::count(sample));
-        prior.addSamples({maths::CBasicStatistics::mean(sample)}, weight);
-    }
-    if (controllers) {
-        prior.decayRate(prior.decayRate() / (*controllers)[1].multiplier());
-        (*controllers)[0].reset();
-        (*controllers)[1].reset();
-    }
+        if (residuals.size() > 0) {
+            double Z{std::accumulate(
+                residuals.begin(), residuals.end(), 0.0,
+                [](double weight, const TFloatMeanAccumulator& sample) {
+                    return weight + maths::CBasicStatistics::count(sample);
+                })};
+            double weightScale{10.0 / Z};
+            maths_t::TDoubleWeightsAry1Vec weights(1);
+            for (const auto& residual : residuals) {
+                double weight(maths::CBasicStatistics::count(residual));
+                if (weight > 0.0) {
+                    weights[0] = maths_t::countWeight(weightScale * weight);
+                    prior.addSamples({maths::CBasicStatistics::mean(residual)}, weights);
+                }
+            }
+        }
+        if (controllers != nullptr) {
+            prior.decayRate(prior.decayRate() / (*controllers)[1].multiplier());
+            (*controllers)[0].reset();
+            (*controllers)[1].reset();
+        }
+    };
 }
 
-TTimeFloatMeanAccumulatorPrVecVec
-reinitializationWindow(core_t::TTime time, const TDecompositionPtr10Vec& trends) {
-    TTimeFloatMeanAccumulatorPrVecVec window;
-    for (std::size_t d = 0; d < trends.size(); ++d) {
-        window.push_back(trends[d]->mightAddComponents(time)
-                             ? trends[d]->windowValues()
-                             : TTimeFloatMeanAccumulatorPrVec{});
-    }
-    return window;
-}
+void reinitializeResidualModel(TDecompositionPtr10Vec& trends,
+                               maths::CMultivariatePrior& prior,
+                               TDecayRateController2Ary* controllers = nullptr) {
 
-void reinitialize(const TTimeFloatMeanAccumulatorPrVecVec& window,
-                  TDecompositionPtr10Vec& trends,
-                  maths::CMultivariatePrior& prior,
-                  TDecayRateController2Ary* controllers = nullptr) {
+    using TFloatMeanAccumulatorVecVec = std::vector<TFloatMeanAccumulatorVec>;
 
     std::size_t dimension{prior.dimension()};
-    prior.setToNonInformative(0.0, prior.decayRate());
 
-    TDouble10Vec1Vec samples;
-
+    TFloatMeanAccumulatorVecVec residuals(dimension);
     for (std::size_t d = 0; d < dimension; ++d) {
-        TFloatMeanAccumulatorVec samplesForDimension;
-        samplesForDimension.reserve(window[d].size());
-
-        for (const auto& value : window[d]) {
-            samplesForDimension.push_back(maths::CBasicStatistics::momentsAccumulator(
-                maths::CBasicStatistics::count(value.second),
-                maths::CFloatStorage(trends[d]->detrend(
-                    value.first, maths::CBasicStatistics::mean(value.second), 0.0))));
-        }
-
-        TSizeVec segmentation{maths::CTimeSeriesSegmentation::piecewiseLinear(samplesForDimension)};
-        samplesForDimension = maths::CTimeSeriesSegmentation::removePiecewiseLinear(
-            std::move(samplesForDimension), segmentation);
-
-        samplesForDimension.erase(
-            std::remove_if(samplesForDimension.begin(), samplesForDimension.end(),
-                           [](const TFloatMeanAccumulator& sample) {
-                               return maths::CBasicStatistics::count(sample) == 0.0;
-                           }),
-            samplesForDimension.end());
-
-        samples.resize(samplesForDimension.size(), TDouble10Vec(dimension));
-        for (std::size_t i = 0; i < samplesForDimension.size(); ++i) {
-            samples[i][d] = maths::CBasicStatistics::mean(samplesForDimension[i]);
-        }
+        residuals[d] = trends[d]->windowValues([&trends, d](core_t::TTime time) {
+            return maths::CBasicStatistics::mean(trends[d]->value(time));
+        });
     }
 
-    maths_t::TDouble10VecWeightsAry1Vec weight{
-        maths_t::countWeight(10.0 / static_cast<double>(samples.size()), dimension)};
-    for (const auto& sample : samples) {
-        prior.addSamples({sample}, weight);
+    prior.setToNonInformative(0.0, prior.decayRate());
+
+    if (residuals.size() > 0) {
+        TDouble10Vec1Vec samples;
+        TDoubleVec weights;
+        for (std::size_t d = 0; d < dimension; ++d) {
+            TSizeVec segmentation{
+                maths::CTimeSeriesSegmentation::piecewiseLinear(residuals[d])};
+            residuals[d] = maths::CTimeSeriesSegmentation::removePiecewiseLinear(
+                std::move(residuals[d]), segmentation);
+
+            samples.resize(residuals[d].size(), TDouble10Vec(dimension));
+            weights.resize(residuals[d].size(), std::numeric_limits<double>::max());
+            for (std::size_t i = 0; i < residuals[d].size(); ++i) {
+                samples[i][d] = maths::CBasicStatistics::mean(residuals[d][i]);
+                weights[i] = std::min(
+                    weights[i],
+                    static_cast<double>(maths::CBasicStatistics::count(residuals[d][i])));
+            }
+        }
+
+        double Z{std::accumulate(weights.begin(), weights.end(), 0.0)};
+        double weightScale{10.0 / Z};
+        maths_t::TDouble10VecWeightsAry1Vec weight(1);
+        for (std::size_t i = 0; i < samples.size(); ++i) {
+            if (weights[i] > 0.0) {
+                weight[0] = maths_t::countWeight(weightScale * weights[i], dimension);
+                prior.addSamples({samples[i]}, weight);
+            }
+        }
     }
 
     if (controllers) {
@@ -462,12 +445,8 @@ void CTimeSeriesModelTest::testMode() {
             model.addSamples(addSampleParams(unit),
                              {core::make_triple(time, TDouble2Vec{sample}, TAG)});
 
-            auto window = trend.mightAddComponents(time)
-                              ? trend.windowValues()
-                              : TTimeFloatMeanAccumulatorPrVec{};
-            if (trend.addPoint(time, sample)) {
-                reinitialize(window, trend, prior);
-            }
+            trend.addPoint(time, sample, maths_t::CUnitWeights::UNIT,
+                           makeComponentDetectedCallback(prior));
 
             prior.addSamples({trend.detrend(time, sample, 0.0)},
                              maths_t::CUnitWeights::SINGLE_UNIT);
@@ -567,16 +546,18 @@ void CTimeSeriesModelTest::testMode() {
             model.addSamples(addSampleParams(weights),
                              {core::make_triple(time, TDouble2Vec(sample), TAG)});
 
-            auto window = reinitializationWindow(time, trends);
+            bool reinitialize{false};
 
-            bool shouldReinitialize{false};
             TDouble10Vec1Vec detrended{TDouble10Vec(3)};
-            for (std::size_t i = 0u; i < sample.size(); ++i) {
-                shouldReinitialize |= trends[i]->addPoint(time, sample[i]);
+            for (std::size_t i = 0; i < sample.size(); ++i) {
+                trends[i]->addPoint(time, sample[i], maths_t::CUnitWeights::UNIT,
+                                    [&reinitialize](TFloatMeanAccumulatorVec) {
+                                        reinitialize = true;
+                                    });
                 detrended[0][i] = trends[i]->detrend(time, sample[i], 0.0);
             }
-            if (shouldReinitialize) {
-                reinitialize(window, trends, prior);
+            if (reinitialize) {
+                reinitializeResidualModel(trends, prior);
             }
 
             prior.addSamples(detrended,
@@ -830,13 +811,8 @@ void CTimeSeriesModelTest::testAddSamples() {
 
             model.addSamples(addSampleParams(weights), sample_);
 
-            auto window = trend.mightAddComponents(time)
-                              ? trend.windowValues()
-                              : TTimeFloatMeanAccumulatorPrVec{};
-            if (trend.addPoint(time, sample)) {
-                trend.decayRate(trend.decayRate() / controllers[0].multiplier());
-                reinitialize(window, trend, prior, &controllers);
-            }
+            trend.addPoint(time, sample, maths_t::CUnitWeights::UNIT,
+                           makeComponentDetectedCallback(prior, &controllers));
 
             double detrended{trend.detrend(time, sample, 0.0)};
             prior.addSamples({detrended}, maths_t::CUnitWeights::SINGLE_UNIT);
@@ -904,20 +880,21 @@ void CTimeSeriesModelTest::testAddSamples() {
             model.addSamples(addSampleParams(weights),
                              {core::make_triple(time, TDouble2Vec(sample), TAG)});
 
-            auto window = reinitializationWindow(time, trends);
-
             bool hasTrend{false};
-            bool shouldReinitialize{false};
+            bool reinitialize{false};
 
             for (std::size_t i = 0u; i < sample.size(); ++i) {
-                shouldReinitialize |= trends[i]->addPoint(time, sample[i]);
+                trends[i]->addPoint(time, sample[i], maths_t::CUnitWeights::UNIT,
+                                    [&reinitialize](TFloatMeanAccumulatorVec) {
+                                        reinitialize = true;
+                                    });
                 detrended[0][i] = trends[i]->detrend(time, sample[i], 0.0);
                 mean[i] = trends[i]->meanValue(time);
                 hasTrend |= true;
             }
 
-            if (shouldReinitialize) {
-                reinitialize(window, trends, prior, &controllers);
+            if (reinitialize) {
+                reinitializeResidualModel(trends, prior, &controllers);
             }
 
             prior.addSamples(detrended,
@@ -983,12 +960,8 @@ void CTimeSeriesModelTest::testPredict() {
             model.addSamples(addSampleParams(weights),
                              {core::make_triple(time, TDouble2Vec{sample}, TAG)});
 
-            auto window = trend.mightAddComponents(time)
-                              ? trend.windowValues()
-                              : TTimeFloatMeanAccumulatorPrVec{};
-            if (trend.addPoint(time, sample)) {
-                reinitialize(window, trend, prior);
-            }
+            trend.addPoint(time, sample, maths_t::CUnitWeights::UNIT,
+                           makeComponentDetectedCallback(prior));
 
             prior.addSamples({trend.detrend(time, sample, 0.0)},
                              maths_t::CUnitWeights::SINGLE_UNIT);
@@ -1081,16 +1054,18 @@ void CTimeSeriesModelTest::testPredict() {
             model.addSamples(addSampleParams(weights),
                              {core::make_triple(time, TDouble2Vec(sample), TAG)});
 
-            auto window = reinitializationWindow(time, trends);
+            bool reinitialize{false};
 
-            bool shouldReinitialize{false};
             TDouble10Vec detrended;
-            for (std::size_t i = 0u; i < sample.size(); ++i) {
-                shouldReinitialize |= trends[i]->addPoint(time, sample[i]);
+            for (std::size_t i = 0; i < sample.size(); ++i) {
+                trends[i]->addPoint(time, sample[i], maths_t::CUnitWeights::UNIT,
+                                    [&reinitialize](TFloatMeanAccumulatorVec) {
+                                        reinitialize = true;
+                                    });
                 detrended.push_back(trends[i]->detrend(time, sample[i], 0.0));
             }
-            if (shouldReinitialize) {
-                reinitialize(window, trends, prior);
+            if (reinitialize) {
+                reinitializeResidualModel(trends, prior);
             }
 
             prior.addSamples({detrended},
@@ -2177,7 +2152,7 @@ void CTimeSeriesModelTest::testStepChangeDiscontinuities() {
         double percentageOutOfBounds{100.0 * outOfBounds /
                                      static_cast<double>(forecast.size())};
         LOG_DEBUG(<< "% out-of-bounds = " << percentageOutOfBounds);
-        CPPUNIT_ASSERT(percentageOutOfBounds < 1.0);
+        CPPUNIT_ASSERT(percentageOutOfBounds < 2.0);
     }
 
     LOG_DEBUG(<< "Univariate: Saw Tooth");

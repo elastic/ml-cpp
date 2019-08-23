@@ -9,8 +9,7 @@
 #include <api/COutputHandler.h>
 #include <api/ImportExport.h>
 
-#include <boost/ref.hpp>
-
+#include <functional>
 #include <string>
 
 namespace ml {
@@ -19,7 +18,7 @@ class CDataAdder;
 class CDataSearcher;
 }
 namespace api {
-class CBackgroundPersister;
+class CPersistenceManager;
 class CDataProcessor;
 
 //! \brief
@@ -42,14 +41,14 @@ public:
     COutputChainer(CDataProcessor& dataProcessor);
 
     //! We're going to be writing to a new output stream
-    virtual void newOutputStream();
+    void newOutputStream() override;
 
     // Bring the other overload of fieldNames() into scope
     using COutputHandler::fieldNames;
 
     //! Set field names, adding extra field names if they're not already
     //! present - this is only allowed once
-    virtual bool fieldNames(const TStrVec& fieldNames, const TStrVec& extraFieldNames);
+    bool fieldNames(const TStrVec& fieldNames, const TStrVec& extraFieldNames) override;
 
     // Bring the other overload of writeRow() into scope
     using COutputHandler::writeRow;
@@ -58,29 +57,32 @@ public:
     //! values, optionally overriding some of the original field values.
     //! Where the same field is present in both overrideDataRowFields and
     //! dataRowFields, the value in overrideDataRowFields will be written.
-    virtual bool writeRow(const TStrStrUMap& dataRowFields,
-                          const TStrStrUMap& overrideDataRowFields);
+    bool writeRow(const TStrStrUMap& dataRowFields,
+                  const TStrStrUMap& overrideDataRowFields) override;
 
     //! Perform any final processing once all data for the current search
     //! has been seen.  Chained classes should NOT rely on this method being
     //! called - they should do the best they can on the assumption that
     //! this method will not be called, but may be able to improve their
     //! output if this method is called.
-    virtual void finalise();
+    void finalise() override;
 
     //! Restore previously saved state
-    virtual bool restoreState(core::CDataSearcher& restoreSearcher,
-                              core_t::TTime& completeToTime);
+    bool restoreState(core::CDataSearcher& restoreSearcher,
+                      core_t::TTime& completeToTime) override;
 
     //! Persist current state
-    virtual bool persistState(core::CDataAdder& persister);
+    bool persistState(core::CDataAdder& persister, const std::string& descriptionPrefix) override;
 
     //! Persist current state due to the periodic persistence being triggered.
-    virtual bool periodicPersistState(CBackgroundPersister& persister);
+    bool periodicPersistStateInBackground() override;
+
+    //! Is persistence needed?
+    bool isPersistenceNeeded(const std::string& description) const override;
 
     //! The chainer does consume control messages, because it passes them on
     //! to whatever processor it's chained to.
-    virtual bool consumesControlMessages();
+    bool consumesControlMessages() override;
 
 private:
     //! The function that will be called for every record output via this
@@ -99,7 +101,7 @@ private:
     //! processor
     TStrStrUMap m_WorkRecordFields;
 
-    using TStrRef = boost::reference_wrapper<std::string>;
+    using TStrRef = std::reference_wrapper<std::string>;
     using TStrRefVec = std::vector<TStrRef>;
     using TStrRefVecCItr = TStrRefVec::const_iterator;
 

@@ -46,9 +46,8 @@ void CMultinomialConjugateTest::testMultipleUpdate() {
 
     const double rawCategories[] = {-1.2, 5.1, 2.0, 18.0, 10.3};
     const double rawProbabilities[] = {0.17, 0.13, 0.35, 0.3, 0.05};
-    const TDoubleVec categories(boost::begin(rawCategories), boost::end(rawCategories));
-    const TDoubleVec probabilities(boost::begin(rawProbabilities),
-                                   boost::end(rawProbabilities));
+    const TDoubleVec categories(std::begin(rawCategories), std::end(rawCategories));
+    const TDoubleVec probabilities(std::begin(rawProbabilities), std::end(rawProbabilities));
 
     test::CRandomNumbers rng;
 
@@ -74,9 +73,8 @@ void CMultinomialConjugateTest::testPropagation() {
 
     const double rawCategories[] = {0.0, 1.1, 2.0};
     const double rawProbabilities[] = {0.27, 0.13, 0.6};
-    const TDoubleVec categories(boost::begin(rawCategories), boost::end(rawCategories));
-    const TDoubleVec probabilities(boost::begin(rawProbabilities),
-                                   boost::end(rawProbabilities));
+    const TDoubleVec categories(std::begin(rawCategories), std::end(rawCategories));
+    const TDoubleVec probabilities(std::begin(rawProbabilities), std::end(rawProbabilities));
 
     test::CRandomNumbers rng;
 
@@ -114,9 +112,8 @@ void CMultinomialConjugateTest::testProbabilityEstimation() {
 
     const double rawCategories[] = {0.0, 1.1, 2.0, 5.0, 12.0, 15.0};
     const double rawProbabilities[] = {0.1, 0.15, 0.12, 0.31, 0.03, 0.29};
-    const TDoubleVec categories(boost::begin(rawCategories), boost::end(rawCategories));
-    const TDoubleVec probabilities(boost::begin(rawProbabilities),
-                                   boost::end(rawProbabilities));
+    const TDoubleVec categories(std::begin(rawCategories), std::end(rawCategories));
+    const TDoubleVec probabilities(std::begin(rawProbabilities), std::end(rawProbabilities));
 
     const double decayRates[] = {0.0, 0.001, 0.01};
 
@@ -197,9 +194,9 @@ void CMultinomialConjugateTest::testMarginalLikelihood() {
 
         const double rawCategories[] = {0.0, 1.0, 2.0};
         const double rawProbabilities[] = {0.15, 0.5, 0.35};
-        const TDoubleVec categories(boost::begin(rawCategories), boost::end(rawCategories));
-        const TDoubleVec probabilities(boost::begin(rawProbabilities),
-                                       boost::end(rawProbabilities));
+        const TDoubleVec categories(std::begin(rawCategories), std::end(rawCategories));
+        const TDoubleVec probabilities(std::begin(rawProbabilities),
+                                       std::end(rawProbabilities));
 
         TDoubleVec samples;
         rng.generateMultinomialSamples(categories, probabilities, 50, samples);
@@ -255,9 +252,9 @@ void CMultinomialConjugateTest::testMarginalLikelihood() {
 
         const double rawCategories[] = {0.0, 1.0, 2.0};
         const double rawProbabilities[] = {0.1, 0.6, 0.3};
-        const TDoubleVec categories(boost::begin(rawCategories), boost::end(rawCategories));
-        const TDoubleVec probabilities(boost::begin(rawProbabilities),
-                                       boost::end(rawProbabilities));
+        const TDoubleVec categories(std::begin(rawCategories), std::end(rawCategories));
+        const TDoubleVec probabilities(std::begin(rawProbabilities),
+                                       std::end(rawProbabilities));
 
         // Compute the outer products of size 2 and 3.
         TDoubleVecVec o2, o3;
@@ -278,8 +275,7 @@ void CMultinomialConjugateTest::testMarginalLikelihood() {
         LOG_DEBUG(<< "o3 = " << core::CContainerPrinter::print(o3));
 
         double rawConcentrations[] = {1000.0, 6000.0, 3000.0};
-        TDoubleVec concentrations(boost::begin(rawConcentrations),
-                                  boost::end(rawConcentrations));
+        TDoubleVec concentrations(std::begin(rawConcentrations), std::end(rawConcentrations));
 
         CMultinomialConjugate filter(maths::CMultinomialConjugate(3, categories, concentrations));
 
@@ -384,7 +380,7 @@ void CMultinomialConjugateTest::testSampleMarginalLikelihood() {
 
     {
         const double rawCategories[] = {1.1, 1.2, 2.1, 2.2};
-        const TDoubleVec categories(boost::begin(rawCategories), boost::end(rawCategories));
+        const TDoubleVec categories(std::begin(rawCategories), std::end(rawCategories));
 
         // The probabilities {P(i)} are proportional to the number of samples
         // of each category we add to the filter.
@@ -408,7 +404,7 @@ void CMultinomialConjugateTest::testSampleMarginalLikelihood() {
 
     {
         const double rawCategories[] = {1.1, 1.2, 2.1, 2.2, 3.2, 5.1};
-        const TDoubleVec categories(boost::begin(rawCategories), boost::end(rawCategories));
+        const TDoubleVec categories(std::begin(rawCategories), std::end(rawCategories));
 
         CMultinomialConjugate filter(CMultinomialConjugate::nonInformativePrior(6u));
 
@@ -431,7 +427,7 @@ void CMultinomialConjugateTest::testSampleMarginalLikelihood() {
 
     {
         const double rawCategories[] = {1.1, 1.2, 2.1, 2.2, 3.2, 5.1};
-        const TDoubleVec categories(boost::begin(rawCategories), boost::end(rawCategories));
+        const TDoubleVec categories(std::begin(rawCategories), std::end(rawCategories));
 
         CMultinomialConjugate filter(CMultinomialConjugate::nonInformativePrior(6u));
 
@@ -470,7 +466,7 @@ void CMultinomialConjugateTest::testProbabilityOfLessLikelySamples() {
     LOG_DEBUG(<< "**** two sided ****");
     {
         const double rawCategories[] = {1.1, 1.2, 2.1, 2.2, 3.2, 5.1};
-        const TDoubleVec categories(boost::begin(rawCategories), boost::end(rawCategories));
+        const TDoubleVec categories(std::begin(rawCategories), std::end(rawCategories));
 
         {
             CMultinomialConjugate filter(CMultinomialConjugate::nonInformativePrior(6u));
@@ -741,7 +737,7 @@ void CMultinomialConjugateTest::testProbabilityOfLessLikelySamples() {
         LOG_DEBUG(<< "expectedProbabilities = "
                   << core::CContainerPrinter::print(expectedProbabilities));
 
-        TDoubleVec categories(boost::begin(rawCategories), boost::end(rawCategories));
+        TDoubleVec categories(std::begin(rawCategories), std::end(rawCategories));
         CMultinomialConjugate filter(
             CMultinomialConjugate::nonInformativePrior(categories.size()));
         for (std::size_t i = 0u; i < categories.size(); ++i) {
@@ -786,9 +782,9 @@ void CMultinomialConjugateTest::testRemoveCategories() {
     double rawCategories[] = {1.0, 3.0, 15.0, 17.0, 19.0, 20.0};
     double rawConcentrations[] = {1.0, 2.0, 1.5, 12.0, 10.0, 2.0};
 
-    TDoubleVec categories(boost::begin(rawCategories), boost::end(rawCategories));
-    TDoubleVec concentrationParameters(boost::begin(rawConcentrations),
-                                       boost::end(rawConcentrations));
+    TDoubleVec categories(std::begin(rawCategories), std::end(rawCategories));
+    TDoubleVec concentrationParameters(std::begin(rawConcentrations),
+                                       std::end(rawConcentrations));
 
     {
         CMultinomialConjugate prior(
@@ -861,9 +857,8 @@ void CMultinomialConjugateTest::testRemoveCategories() {
 void CMultinomialConjugateTest::testPersist() {
     const double rawCategories[] = {-1.0, 5.0, 2.1, 78.0, 15.3};
     const double rawProbabilities[] = {0.1, 0.2, 0.35, 0.3, 0.05};
-    const TDoubleVec categories(boost::begin(rawCategories), boost::end(rawCategories));
-    const TDoubleVec probabilities(boost::begin(rawProbabilities),
-                                   boost::end(rawProbabilities));
+    const TDoubleVec categories(std::begin(rawCategories), std::end(rawCategories));
+    const TDoubleVec probabilities(std::begin(rawProbabilities), std::end(rawProbabilities));
 
     test::CRandomNumbers rng;
 

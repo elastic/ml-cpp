@@ -15,7 +15,7 @@
 
 #include <test/CRandomNumbers.h>
 
-#include <boost/range.hpp>
+#include <boost/optional.hpp>
 #include <boost/tuple/tuple.hpp>
 
 #include <utility>
@@ -359,8 +359,8 @@ void COrderingsTest::testDereference() {
     using TDoubleVecCItr = std::vector<double>::const_iterator;
     using TDoubleVecCItrVec = std::vector<TDoubleVecCItr>;
 
-    double values_[] = {10.0, 1.0, 5.0, 3.0, 1.0};
-    TDoubleVec values(boost::begin(values_), boost::end(values_));
+    double values_[]{10.0, 1.0, 5.0, 3.0, 1.0};
+    TDoubleVec values(std::begin(values_), std::end(values_));
     TDoubleVecCItrVec iterators;
     for (TDoubleVecCItr i = values.begin(); i != values.end(); ++i) {
         iterators.push_back(i);
@@ -368,8 +368,8 @@ void COrderingsTest::testDereference() {
 
     std::sort(iterators.begin(), iterators.end(),
               core::CFunctional::SDereference<maths::COrderings::SLess>());
-    std::sort(boost::begin(values_), boost::end(values_));
-    for (std::size_t i = 0u; i < boost::size(values); ++i) {
+    std::sort(std::begin(values_), std::end(values_));
+    for (std::size_t i = 0; i < values.size(); ++i) {
         LOG_DEBUG(<< "expected " << values_[i] << ", got " << *iterators[i]);
         CPPUNIT_ASSERT_EQUAL(values_[i], *iterators[i]);
     }
@@ -393,8 +393,8 @@ void COrderingsTest::testLexicographicalCompare() {
     TDoubleVec v1, v2;
     double a1[] = {1.2, 1.3, 2.1};
     double a2[] = {1.2, 2.2, 2.0};
-    v1.assign(boost::begin(a1), boost::end(a1));
-    v2.assign(boost::begin(a2), boost::end(a2));
+    v1.assign(std::begin(a1), std::end(a1));
+    v2.assign(std::begin(a2), std::end(a2));
 
     std::string s1("a");
     std::string s2("b");

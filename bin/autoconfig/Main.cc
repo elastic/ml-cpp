@@ -32,8 +32,6 @@
 
 #include "CCmdLineParser.h"
 
-#include <boost/bind.hpp>
-
 #include <memory>
 #include <string>
 

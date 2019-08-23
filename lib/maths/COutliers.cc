@@ -7,6 +7,8 @@
 #include <maths/COutliers.h>
 
 #include <core/CDataFrame.h>
+#include <core/CProgramCounters.h>
+#include <core/CStopWatch.h>
 
 #include <maths/CDataFrameUtils.h>
 #include <maths/CIntegration.h>
@@ -117,7 +119,7 @@ public:
         }
 
         static std::size_t estimateMemoryUsage(std::size_t dimension) {
-            return sizeof(TFloat2Vec) + (dimension + 2) * sizeof(CFloatStorage);
+            return (dimension + 2) * sizeof(CFloatStorage);
         }
 
     private:
@@ -148,7 +150,7 @@ public:
 
 public:
     CEnsemble(const TMethodFactoryVec& methodFactories,
-              TModelBuilderVec modelBuilders,
+              TModelBuilderVec builders,
               TMemoryUsageCallback recordMemoryUsage);
     ~CEnsemble() {
         m_RecordMemoryUsage(-std::int64_t(core::CMemory::dynamicSize(m_Models)));
@@ -203,6 +205,8 @@ private:
 
         std::size_t memoryUsage() const {
             return core::CMemory::dynamicSize(m_Lookup) +
+                   core::CMemory::dynamicSize(m_Projection) +
+                   core::CMemory::dynamicSize(m_RowNormalizedProjection) +
                    core::CMemory::dynamicSize(m_Method) +
                    core::CMemory::dynamicSize(m_LogScoreMoments);
         }
@@ -391,10 +395,8 @@ CEnsemble<POINT>::estimateMemoryUsedToComputeOutlierScores(TMethodSize methodSiz
     std::size_t numberNeighbours{(3 + maxNumberNeighbours) / 2};
 
     auto pointsMemory = [&] {
-        return partitionNumberPoints * las::estimateMemoryUsage<TPoint>(dimension);
-    };
-    auto projectedPointsMemory = [&] {
-        return partitionNumberPoints * las::estimateMemoryUsage<TPoint>(projectionDimension);
+        return partitionNumberPoints *
+               (sizeof(TPoint) + las::estimateMemoryUsage<TPoint>(dimension));
     };
     auto scorersMemory = [&] {
         return partitionNumberPoints *
@@ -414,8 +416,8 @@ CEnsemble<POINT>::estimateMemoryUsedToComputeOutlierScores(TMethodSize methodSiz
                methodSize(numberNeighbours, partitionNumberPoints, projectionDimension);
     };
 
-    return pointsMemory() + projectedPointsMemory() + scorersMemory() +
-           numberModels * modelMemory() + partitionScoringMemory();
+    return pointsMemory() + scorersMemory() + numberModels * modelMemory() +
+           partitionScoringMemory();
 }
 
 template<typename POINT>
@@ -556,23 +558,27 @@ void CEnsemble<POINT>::CScorer::add(const TMeanVarAccumulator2Vec& logScoreMomen
     // of benchmark sets to make this effective a priori. We also account for the
     // fact that the scores will be somewhat correlated.
 
+    // We lower bound the coefficient of variation (to 1e-4) of the log-normal we
+    // use to compute the score c.d.f. This is log(1 + CV^2) which for small CV is
+    // very nearly CV^2.
+    static const double MINIMUM_VARIANCE{1e-8};
+
     auto scoreCdfComplement = [&](std::size_t i, std::size_t j) {
         double location{CBasicStatistics::mean(logScoreMoments[i])};
-        double scale{std::sqrt(CBasicStatistics::variance(logScoreMoments[i]))};
-        if (scale > 0.0) {
-            try {
-                boost::math::lognormal lognormal{location, scale};
-                return CTools::safeCdfComplement(lognormal, shift(scores[i][j]));
-            } catch (const std::exception& e) {
-                // In this case, we use the initial value of 0.5 for the cdfComplement
-                // which means P(outlier | score) = P(inlier | score) = 0.5. The outcome
-                // is the score conveys no information about whether or not a point is
-                // an outlier, it is effectively ignored. The rationale for keeping going
-                // therefore is that this handling is good enough that the results may
-                // still be useful.
-                LOG_WARN(<< "Failed to normalise scores: '" << e.what()
-                         << "'. Results maybe compromised.");
-            }
+        double scale{std::sqrt(std::max(
+            CBasicStatistics::variance(logScoreMoments[i]), MINIMUM_VARIANCE))};
+        try {
+            boost::math::lognormal lognormal{location, scale};
+            return CTools::safeCdfComplement(lognormal, shift(scores[i][j]));
+        } catch (const std::exception& e) {
+            // In this case, we use the initial value of 0.5 for the cdfComplement
+            // which means P(outlier | score) = P(inlier | score) = 0.5. The outcome
+            // is the score conveys no information about whether or not a point is
+            // an outlier, it is effectively ignored. The rationale for keeping going
+            // therefore is that this handling is good enough that the results may
+            // still be useful.
+            LOG_WARN(<< "Failed to normalise scores: '" << e.what()
+                     << "'. Results maybe compromised.");
         }
         return 0.5;
     };
@@ -717,7 +723,6 @@ CEnsemble<POINT>::CModel::CModel(const TMethodFactoryVec& methodFactories,
     TProgressCallback noop{[](double) {}};
 
     for (auto& method : methods) {
-
         method->progressRecorder().swap(noop);
         TDouble1VecVec2Vec scores(method->run(sample, sample.size()));
         method->progressRecorder().swap(noop);
@@ -767,7 +772,7 @@ void CEnsemble<POINT>::CModel::addOutlierScores(const std::vector<POINT>& points
     // Recover temporary memory.
     m_Method->recoverMemory();
 
-    recordMemoryUsage(core::CMemory::dynamicSize(m_Method) - methodMemoryAfterRun);
+    recordMemoryUsage(std::int64_t(core::CMemory::dynamicSize(m_Method)) - methodMemoryAfterRun);
     std::int64_t scoresMemoryBeforeAdd(core::CMemory::dynamicSize(scores));
 
     // Update the scores.
@@ -780,8 +785,8 @@ void CEnsemble<POINT>::CModel::addOutlierScores(const std::vector<POINT>& points
         scores[i].add(m_LogScoreMoments, m_RowNormalizedProjection, pointScores);
     }
 
-    recordMemoryUsage(core::CMemory::dynamicSize(scores) - scoresMemoryBeforeAdd);
-    recordMemoryUsage(-pointsMemory);
+    recordMemoryUsage(std::int64_t(core::CMemory::dynamicSize(scores)) -
+                      scoresMemoryBeforeAdd - pointsMemory);
 }
 
 template<typename POINT>
@@ -887,9 +892,12 @@ bool computeOutliersNoPartitions(const COutliers::SComputeParameters& params,
 
     // Use scoping to recover memory before resizing the data frame.
     {
+        core::CStopWatch watch{true};
         CEnsemble<TPoint> ensemble{buildEnsemble<TPoint>(
             params, frame, std::move(recordProgress), recordMemoryUsage)};
         LOG_TRACE(<< "Ensemble = " << ensemble.print());
+        core::CProgramCounters::counter(counter_t::E_DFOTimeToCreateEnsemble) =
+            watch.stop();
 
         // The points will be entirely overwritten by readRows so the initial value
         // is not important. This is presized so that rowsToPoints only needs to
@@ -915,7 +923,11 @@ bool computeOutliersNoPartitions(const COutliers::SComputeParameters& params,
             return false;
         }
 
+        watch.reset(true);
         scores = ensemble.computeOutlierScores(points);
+        core::CProgramCounters::counter(counter_t::E_DFOTimeToComputeScores) =
+            watch.stop();
+
         recordMemoryUsage(-pointsMemory);
 
         // This is a sanity check against CEnsemble accidentally writing to the data
@@ -942,7 +954,9 @@ bool computeOutliersNoPartitions(const COutliers::SComputeParameters& params,
                         (params.s_ComputeFeatureInfluence ? 2 : 1) * dimension + 1);
     recordMemoryUsage(frame.memoryUsage() - frameMemory);
 
-    if (frame.writeColumns(params.s_NumberThreads, writeScores) == false) {
+    bool successful;
+    std::tie(std::ignore, successful) = frame.writeColumns(params.s_NumberThreads, writeScores);
+    if (successful == false) {
         LOG_ERROR(<< "Failed to write scores to the data frame");
         return false;
     }
@@ -957,12 +971,15 @@ bool computeOutliersPartitioned(const COutliers::SComputeParameters& params,
     using TPoint = CDenseVector<CFloatStorage>;
     using TPointVec = std::vector<TPoint>;
 
+    core::CStopWatch watch{true};
     CEnsemble<TPoint> ensemble{buildEnsemble<TPoint>(
         params, frame,
         [=](double progress) {
             recordProgress(progress / static_cast<double>(params.s_NumberPartitions));
         },
         recordMemoryUsage)};
+    core::CProgramCounters::counter(counter_t::E_DFOTimeToCreateEnsemble) =
+        watch.stop();
     LOG_TRACE(<< "Ensemble = " << ensemble.print());
 
     std::size_t dimension{frame.numberColumns()};
@@ -1007,7 +1024,10 @@ bool computeOutliersPartitioned(const COutliers::SComputeParameters& params,
             return false;
         }
 
+        watch.reset(true);
         auto scores = ensemble.computeOutlierScores(points);
+        core::CProgramCounters::counter(counter_t::E_DFOTimeToComputeScores) +=
+            watch.stop();
 
         auto writeScores = [&](TRowItr beginRows, TRowItr endRows) {
             for (auto row = beginRows; row != endRows; ++row) {
@@ -1019,11 +1039,14 @@ bool computeOutliersPartitioned(const COutliers::SComputeParameters& params,
             }
         };
 
-        if (frame.writeColumns(params.s_NumberThreads, beginPartitionRows,
-                               endPartitionRows, writeScores) == false) {
+        std::tie(std::ignore, successful) = frame.writeColumns(
+            params.s_NumberThreads, beginPartitionRows, endPartitionRows, writeScores);
+        if (successful == false) {
             LOG_ERROR(<< "Failed to write scores to the data frame");
             return false;
         }
+
+        recordMemoryUsage(-std::int64_t(core::CMemory::dynamicSize(scores)));
     }
 
     return true;
@@ -1072,14 +1095,25 @@ std::size_t COutliers::estimateMemoryUsedByCompute(const SComputeParameters& par
 
     auto methodSize = [=](std::size_t k, std::size_t numberPoints,
                           std::size_t projectionDimension) {
-        // On average half of models use CLof.
-        return TLof::estimateOwnMemoryOverhead(params.s_ComputeFeatureInfluence, k,
-                                               numberPoints, projectionDimension) /
-               2;
+
+        k = params.s_NumberNeighbours > 0 ? params.s_NumberNeighbours : k;
+
+        if (params.s_Method == E_Ensemble) {
+            // On average half of models use CLof.
+            return TLof::estimateOwnMemoryOverhead(params.s_ComputeFeatureInfluence,
+                                                   k, numberPoints, projectionDimension) /
+                   2;
+        }
+        if (params.s_Method == E_Lof) {
+            return TLof::estimateOwnMemoryOverhead(params.s_ComputeFeatureInfluence,
+                                                   k, numberPoints, projectionDimension);
+        }
+        return std::size_t{0};
     };
     return CEnsemble<POINT>::estimateMemoryUsedToComputeOutlierScores(
-        methodSize, 2 /*number methods*/, params.s_ComputeFeatureInfluence,
-        totalNumberPoints, partitionNumberPoints, dimension);
+        methodSize, params.s_Method == E_Ensemble ? 2 : 1 /*number methods*/,
+        params.s_ComputeFeatureInfluence, totalNumberPoints,
+        partitionNumberPoints, dimension);
 }
 
 void COutliers::noopRecordProgress(double) {

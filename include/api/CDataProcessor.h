@@ -25,7 +25,7 @@ class CDataSearcher;
 }
 
 namespace api {
-class CBackgroundPersister;
+class CPersistenceManager;
 class COutputHandler;
 
 //! \brief
@@ -71,16 +71,23 @@ public:
                               core_t::TTime& completeToTime) = 0;
 
     //! Persist current state
-    virtual bool persistState(core::CDataAdder& persister) = 0;
+    virtual bool persistState(core::CDataAdder& persister,
+                              const std::string& descriptionPrefix) = 0;
 
-    //! Persist current state due to the periodic persistence being triggered.
-    virtual bool periodicPersistState(CBackgroundPersister& persister);
+    //! Persist current state in the background due to the periodic persistence being triggered.
+    virtual bool periodicPersistStateInBackground();
+
+    //! Persist current state in the foreground due to the periodic persistence being triggered.
+    virtual bool periodicPersistStateInForeground();
 
     //! How many records did we handle?
     virtual uint64_t numRecordsHandled() const = 0;
 
     //! Access the output handler
     virtual COutputHandler& outputHandler() = 0;
+
+    //! Is persistence needed?
+    virtual bool isPersistenceNeeded(const std::string& description) const = 0;
 
     //! Create debug for a record.  This is expensive so should NOT be
     //! called for every record as a matter of course.

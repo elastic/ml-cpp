@@ -22,7 +22,6 @@
 #include <model/ModelTypes.h>
 
 #include <boost/optional.hpp>
-#include <boost/ref.hpp>
 #include <boost/unordered_map.hpp>
 
 #include <functional>
@@ -197,6 +196,9 @@ public:
 
     //! \name Persistence
     //@{
+    //! Persist the state of the residual models only.
+    virtual void persistResidualModelsState(core::CStatePersistInserter& inserter) const = 0;
+
     //! Persist state by passing information to the supplied inserter.
     virtual void acceptPersistInserter(core::CStatePersistInserter& inserter) const = 0;
 
@@ -483,7 +485,7 @@ public:
     virtual const TStr1Vec& scheduledEventDescriptions(core_t::TTime time) const;
 
 protected:
-    using TStrCRef = boost::reference_wrapper<const std::string>;
+    using TStrCRef = std::reference_wrapper<const std::string>;
     using TSizeSize1VecUMap = boost::unordered_map<std::size_t, TSize1Vec>;
     using TFeatureSizeSize1VecUMapPr = std::pair<model_t::EFeature, TSizeSize1VecUMap>;
     using TFeatureSizeSize1VecUMapPrVec = std::vector<TFeatureSizeSize1VecUMapPr>;
@@ -501,6 +503,9 @@ protected:
                                     core::CStateRestoreTraverser& traverser);
         //! Persist the models passing state to \p inserter.
         void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
+
+        //! Persist the state of the residual models only.
+        void persistResidualModelsState(core::CStatePersistInserter& inserter) const;
 
         //! Debug the memory used by this model.
         void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const;
@@ -681,7 +686,7 @@ protected:
     static maths::CModel* tinyModel();
 
 private:
-    using TModelParamsCRef = boost::reference_wrapper<const SModelParams>;
+    using TModelParamsCRef = std::reference_wrapper<const SModelParams>;
 
 private:
     //! Skip sampling the interval \p endTime - \p startTime.

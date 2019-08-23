@@ -20,6 +20,7 @@ const std::string CCmdLineParser::DESCRIPTION = "Usage: data_frame_analyzer [opt
 bool CCmdLineParser::parse(int argc,
                            const char* const* argv,
                            std::string& configFile,
+                           bool& memoryUsageEstimationOnly,
                            std::string& logProperties,
                            std::string& logPipe,
                            bool& lengthEncodedInput,
@@ -35,6 +36,7 @@ bool CCmdLineParser::parse(int argc,
             ("version", "Display version information and exit")
             ("config", boost::program_options::value<std::string>(),
                     "The configuration file")
+            ("memoryUsageEstimationOnly", "Whether to perform memory usage estimation only")
             ("logProperties", boost::program_options::value<std::string>(),
                     "Optional logger properties file")
             ("logPipe", boost::program_options::value<std::string>(),
@@ -65,6 +67,9 @@ bool CCmdLineParser::parse(int argc,
         }
         if (vm.count("config") > 0) {
             configFile = vm["config"].as<std::string>();
+        }
+        if (vm.count("memoryUsageEstimationOnly") > 0) {
+            memoryUsageEstimationOnly = true;
         }
         if (vm.count("logProperties") > 0) {
             logProperties = vm["logProperties"].as<std::string>();

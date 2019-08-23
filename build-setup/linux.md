@@ -36,14 +36,18 @@ On other Linux distributions the package names are generally the same and you ju
 
 ### General settings for building the tools
 
-Most of the tools are built via a GNU "configure" script. There are some environment variables that affect the behaviour of this. Therefore, when building ANY tool on Linux, set the following environment variable:
+Most of the tools are built via a GNU "configure" script. There are some environment variables that affect the behaviour of this. Therefore, when building ANY tool on Linux, set the following environment variables:
 
 ```
+export CFLAGS='-g -O3 -fstack-protector -D_FORTIFY_SOURCE=2'
 export CXX='g++ -std=gnu++14'
+export CXXFLAGS='-g -O3 -fstack-protector -D_FORTIFY_SOURCE=2'
+export LDFLAGS='-Wl,-z,relro -Wl,-z,now'
+export LDFLAGS_FOR_TARGET='-Wl,-z,relro -Wl,-z,now'
 unset LIBRARY_PATH
 ```
 
-The `CXX` environment variable only needs to be set when building tools on Linux. It should NOT be set when compiling the Machine Learning source code (as this should pick up all settings from our Makefiles).
+These environment variables only need to be set when building tools on Linux. They should NOT be set when compiling the Machine Learning source code (as this should pick up all settings from our Makefiles).
 
 ### gcc
 
@@ -57,6 +61,7 @@ Unlike most automake-based tools, gcc must be built in a directory adjacent to t
 tar zxvf gcc-7.3.0.tar.gz
 cd gcc-7.3.0
 contrib/download_prerequisites
+sed -i -e 's/$(SHLIB_LDFLAGS)/$(LDFLAGS) $(SHLIB_LDFLAGS)/' libgcc/config/t-slibgcc
 cd ..
 mkdir gcc-7.3.0-build
 cd gcc-7.3.0-build
@@ -145,17 +150,59 @@ sudo make install
 
 to install.
 
-### APR
+### expat
 
-For Linux, before building log4cxx you must download the Apache Portable Runtime (APR) from <http://archive.apache.org/dist/apr/apr-1.5.2.tar.bz2>.
+Download expat from <https://github.com/libexpat/libexpat/releases/download/R_2_2_6/expat-2.2.6.tar.bz2>.
 
 Extract the tarball to a temporary directory:
 
 ```
-tar jxvf apr-1.5.2.tar.bz2
+tar jxvf expat-2.2.6.tar.bz2
 ```
 
-Build using:
+Then build using:
+
+```
+./configure --prefix=/usr/local/gcc73 --without-docbook
+make
+sudo make install
+```
+
+### APR
+
+For Linux, before building log4cxx you must download the Apache Portable Runtime (APR) from <http://archive.apache.org/dist/apr/apr-1.7.0.tar.bz2>.
+
+Extract the tarball to a temporary directory:
+
+```
+tar jxvf apr-1.7.0.tar.bz2
+```
+
+We want to avoid a dependency on the operating system `libcrypt`, as this may not be available in all Linux distributions.  Therefore, before building, in `configure` change:
+
+```
+for ac_lib in '' crypt ufc; do
+```
+
+to:
+
+```
+for ac_lib in ''; do
+```
+
+And in `include/apr.h.in` change:
+
+```
+#define APR_HAVE_CRYPT_H         @crypth@
+```
+
+to:
+
+```
+#define APR_HAVE_CRYPT_H         0
+```
+
+Then build using:
 
 ```
 ./configure --prefix=/usr/local/gcc73
@@ -165,18 +212,42 @@ sudo make install
 
 ### APR utilities
 
-For Linux, before building log4cxx you must download the Apache Portable Runtime (APR) utilities from <http://archive.apache.org/dist/apr/apr-util-1.5.4.tar.bz2>.
+For Linux, before building log4cxx you must download the Apache Portable Runtime (APR) utilities from <http://archive.apache.org/dist/apr/apr-util-1.6.1.tar.bz2>.
 
 Extract the tarball to a temporary directory:
 
 ```
-tar jxvf apr-util-1.5.4.tar.bz2
+tar jxvf apr-util-1.6.1.tar.bz2
 ```
 
-Build using:
+We want to avoid a dependency on the operating system `libcrypt`, as this may not be available in all Linux distributions.  Therefore, before building, in `configure` change:
 
 ```
-./configure --prefix=/usr/local/gcc73 --with-apr=/usr/local/gcc73/bin/apr-1-config --with-expat=builtin
+for ac_lib in '' crypt ufc; do
+```
+
+to:
+
+```
+for ac_lib in ''; do
+```
+
+And in `crypto/apr_passwd.c` change:
+
+```
+#define CRYPT_MISSING 0
+```
+
+to:
+
+```
+#define CRYPT_MISSING 1
+```
+
+Then build using:
+
+```
+./configure --prefix=/usr/local/gcc73 --with-apr=/usr/local/gcc73/bin/apr-1-config --with-expat=/usr/local/gcc73
 make
 sudo make install
 ```
@@ -290,7 +361,7 @@ bzip2 -cd boost_1_65_1.tar.bz2 | tar xvf -
 In the resulting `boost_1_65_1` directory, run:
 
 ```
-./bootstrap.sh cxxflags=-std=gnu++14 --without-libraries=context --without-libraries=coroutine --without-libraries=graph_parallel --without-libraries=log --without-libraries=mpi --without-libraries=python --without-icu
+./bootstrap.sh --without-libraries=context --without-libraries=coroutine --without-libraries=graph_parallel --without-libraries=log --without-libraries=mpi --without-libraries=python --without-icu
 ```
 
 This should build the `b2` program, which in turn is used to build Boost.
@@ -322,8 +393,8 @@ to:
 Finally, run:
 
 ```
-./b2 -j6 --layout=versioned --disable-icu pch=off optimization=speed inlining=full define=BOOST_MATH_NO_LONG_DOUBLE_MATH_FUNCTIONS
-sudo env PATH="$PATH" ./b2 install --prefix=/usr/local/gcc73 --layout=versioned --disable-icu pch=off optimization=speed inlining=full define=BOOST_MATH_NO_LONG_DOUBLE_MATH_FUNCTIONS
+./b2 -j6 --layout=versioned --disable-icu pch=off optimization=speed inlining=full define=BOOST_MATH_NO_LONG_DOUBLE_MATH_FUNCTIONS define=_FORTIFY_SOURCE=2 cxxflags=-std=gnu++14 cxxflags=-fstack-protector linkflags=-Wl,-z,relro linkflags=-Wl,-z,now
+sudo env PATH="$PATH" ./b2 install --prefix=/usr/local/gcc73 --layout=versioned --disable-icu pch=off optimization=speed inlining=full define=BOOST_MATH_NO_LONG_DOUBLE_MATH_FUNCTIONS define=_FORTIFY_SOURCE=2 cxxflags=-std=gnu++14 cxxflags=-fstack-protector linkflags=-Wl,-z,relro linkflags=-Wl,-z,now
 ```
 
 to install the Boost headers and libraries.  (Note the `env PATH="$PATH"` bit in the install command - this is because `sudo` usually resets `PATH` and that will cause Boost to rebuild everything again with the default compiler as part of the install!)

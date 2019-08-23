@@ -28,6 +28,64 @@
 
 //=== Regressions
 
+== {es} version 7.4.0
+
+=== Bug Fixes
+
+* Rename outlier detection method values knn and tnn to distance_kth_nn and distance_knn
+respectively to match the API. (See {ml-pull}598[#598].)
+
+== {es} version 7.3.1
+
+=== Bug Fixes
+
+* Only trap the case that more rows are supplied to outlier detection than expected.
+Previously, if rows were excluded from the data frame after supplying the row count
+in the configuration then we detected the inconsistency and failed outlier detection.
+However, this legitimately happens in case where the field values are non-numeric or
+array valued. (See {ml-pull}569[#569].)
+
+== {es} version 7.3.0
+
+=== Enhancements
+
+* Upgrade to a newer version of the Apache Portable Runtime library. (See {ml-pull}495[#495].)
+* Improve stability of modelling around change points. (See {ml-pull}496[#496].)
+
+=== Bug Fixes
+
+* Reduce false positives associated with the multi-bucket feature. (See {ml-pull}491[#491].)
+* Reduce false positives for sum and count functions on sparse data. (See {ml-pull}492[#492].)
+
+== {es} version 7.2.1
+
+=== Bug Fixes
+
+* Fix an edge case causing spurious anomalies (false positives) if the variance in the count of events
+changed significantly throughout the period of a seasonal quantity. (See {ml-pull}489[#489].)
+
+== {es} version 7.2.0
+
+=== Enhancements
+
+* Remove hard limit for maximum forecast interval and limit based on the time interval of data added
+to the model. (See {ml-pull}214[#214].)
+
+* Use hardened compiler options to build 3rd party libraries. (See {ml-pull}453[#453].)
+
+* Only select more complex trend models for forecasting if there is evidence that they are needed.
+(See {ml-pull}463[#463].)
+
+* Improve residual model selection. (See {ml-pull}468[#468].)
+
+* Stop linking to libcrypt on Linux. (See {ml-pull}480[#480].)
+
+* Improvements to hard_limit audit message. (See {ml-pull}486[#486].)
+
+=== Bug Fixes
+
+* Handle NaNs when detrending seasonal components. {ml-pull}408[#408]
+
 == {es} version 7.0.0-alpha2
 
 === Bug Fixes
@@ -37,22 +95,34 @@
 
 * Ensure statics are persisted in a consistent manner {ml-pull}360[#360]
 
-== {es} version 7.1.0
-
-* Remove hard limit for maximum forecast interval and limit based on the time interval of data added
-to the model. (See {pull}214[#214].)
-
-* Handle NaNs when detrending seasonal components. {ml-pull}408[#408]
-
 == {es} version 7.0.0-alpha1
+
+== {es} version 6.8.2
+
+=== Bug Fixes
+
+* Don't write model size stats when job is closed without any input {ml-pull}512[#512] (issue: {ml-issue}394[#394])
+* Don't persist model state at the end of lookback if the lookback did not generate any input {ml-pull}521[#521] (issue: {ml-issue}519[#519])
+
+== {es} version 6.7.2
+
+=== Enhancements
+
+* Adjust seccomp filter to allow the "time" system call {ml-pull}459[#459]
 
 == {es} version 6.7.0
 
-== {es} version 6.6.2
+=== Bug Fixes
 
-* Fixes an issue where interim results would be calculated after advancing time into an empty bucket. {ml-pull}416[#416]
+* Improve autodetect logic for persistence. {ml-pull}437[#437]
+
+== {es} version 6.6.2
 
 === Enhancements
 
 * Adjust seccomp filter for Fedora 29. {ml-pull}354[#354]
+
+=== Bug Fixes
+
+* Fixes an issue where interim results would be calculated after advancing time into an empty bucket. {ml-pull}416[#416]
 

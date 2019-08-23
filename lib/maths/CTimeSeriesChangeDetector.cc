@@ -16,10 +16,10 @@
 #include <maths/CBasicStatistics.h>
 #include <maths/CBasicStatisticsPersist.h>
 #include <maths/CChecksum.h>
+#include <maths/CLeastSquaresOnlineRegressionDetail.h>
 #include <maths/CPrior.h>
 #include <maths/CPriorDetail.h>
 #include <maths/CPriorStateSerialiser.h>
-#include <maths/CRegressionDetail.h>
 #include <maths/CRestoreParams.h>
 #include <maths/CSeasonalComponent.h>
 #include <maths/CTimeSeriesDecompositionInterface.h>
@@ -27,10 +27,7 @@
 #include <maths/CTimeSeriesModel.h>
 #include <maths/CTools.h>
 
-#include <boost/bind.hpp>
-#include <boost/make_unique.hpp>
 #include <boost/optional.hpp>
-#include <boost/ref.hpp>
 #include <boost/utility/in_place_factory.hpp>
 
 namespace ml {
@@ -102,15 +99,15 @@ CUnivariateTimeSeriesChangeDetector::CUnivariateTimeSeriesChangeDetector(
       m_MinimumDeltaBicToDetect{minimumDeltaBicToDetect}, m_SampleCount{0},
       m_DecisionFunction{0.0}, m_TrendModel{trendModel->clone()} {
     m_ChangeModels.push_back(
-        boost::make_unique<CUnivariateNoChangeModel>(trendModel, residualModel));
+        std::make_unique<CUnivariateNoChangeModel>(trendModel, residualModel));
     m_ChangeModels.push_back(
-        boost::make_unique<CUnivariateLevelShiftModel>(m_TrendModel, residualModel));
+        std::make_unique<CUnivariateLevelShiftModel>(m_TrendModel, residualModel));
     if (trendModel->seasonalComponents().size() > 0) {
-        m_ChangeModels.push_back(boost::make_unique<CUnivariateTimeShiftModel>(
+        m_ChangeModels.push_back(std::make_unique<CUnivariateTimeShiftModel>(
             m_TrendModel, residualModel, -core::constants::HOUR));
-        m_ChangeModels.push_back(boost::make_unique<CUnivariateTimeShiftModel>(
+        m_ChangeModels.push_back(std::make_unique<CUnivariateTimeShiftModel>(
             m_TrendModel, residualModel, +core::constants::HOUR));
-        m_ChangeModels.push_back(boost::make_unique<CUnivariateLinearScaleModel>(
+        m_ChangeModels.push_back(std::make_unique<CUnivariateLinearScaleModel>(
             m_TrendModel, residualModel));
     }
 }
@@ -140,24 +137,25 @@ bool CUnivariateTimeSeriesChangeDetector::acceptRestoreTraverser(
         RESTORE_BUILT_IN(SAMPLE_COUNT_TAG, m_SampleCount)
         RESTORE_BUILT_IN(DECISION_FUNCTION_TAG, m_DecisionFunction)
         RESTORE(LOG_INVERSE_DECISION_FUNCTION_TREND_TAG,
-                traverser.traverseSubLevel(boost::bind(&TRegression::acceptRestoreTraverser,
-                                                       &m_LogInvDecisionFunctionTrend, _1)))
+                traverser.traverseSubLevel(std::bind(&TRegression::acceptRestoreTraverser,
+                                                     &m_LogInvDecisionFunctionTrend,
+                                                     std::placeholders::_1)))
         RESTORE_SETUP_TEARDOWN(MIN_TIME_TAG, core_t::TTime time,
                                core::CStringUtils::stringToType(traverser.value(), time),
                                m_TimeRange.add(time))
         RESTORE_SETUP_TEARDOWN(MAX_TIME_TAG, core_t::TTime time,
                                core::CStringUtils::stringToType(traverser.value(), time),
                                m_TimeRange.add(time))
-        RESTORE(TREND_MODEL_TAG, traverser.traverseSubLevel(boost::bind<bool>(
+        RESTORE(TREND_MODEL_TAG, traverser.traverseSubLevel(std::bind<bool>(
                                      CTimeSeriesDecompositionStateSerialiser(),
-                                     boost::cref(params.s_DecompositionParams),
-                                     boost::ref(m_TrendModel), _1)))
-        RESTORE_SETUP_TEARDOWN(CHANGE_MODEL_TAG,
-                               TChangeModelPtr restoredModel{(*model)->clone(m_TrendModel)},
-                               traverser.traverseSubLevel(boost::bind(
-                                   &CUnivariateChangeModel::acceptRestoreTraverser,
-                                   restoredModel.get(), boost::cref(params), _1)),
-                               *(model++) = std::move(restoredModel))
+                                     std::cref(params.s_DecompositionParams),
+                                     std::ref(m_TrendModel), std::placeholders::_1)))
+        RESTORE_SETUP_TEARDOWN(
+            CHANGE_MODEL_TAG, TChangeModelPtr restoredModel{(*model)->clone(m_TrendModel)},
+            traverser.traverseSubLevel(std::bind(
+                &CUnivariateChangeModel::acceptRestoreTraverser,
+                restoredModel.get(), std::cref(params), std::placeholders::_1)),
+            *(model++) = std::move(restoredModel))
     } while (traverser.next());
     return true;
 }
@@ -171,18 +169,19 @@ void CUnivariateTimeSeriesChangeDetector::acceptPersistInserter(core::CStatePers
     inserter.insertValue(DECISION_FUNCTION_TAG, m_DecisionFunction,
                          core::CIEEE754::E_SinglePrecision);
     inserter.insertLevel(LOG_INVERSE_DECISION_FUNCTION_TREND_TAG,
-                         boost::bind(&TRegression::acceptPersistInserter,
-                                     &m_LogInvDecisionFunctionTrend, _1));
+                         std::bind(&TRegression::acceptPersistInserter, &m_LogInvDecisionFunctionTrend,
+                                   std::placeholders::_1));
     if (m_TimeRange.initialized()) {
         inserter.insertValue(MIN_TIME_TAG, m_TimeRange.min());
         inserter.insertValue(MAX_TIME_TAG, m_TimeRange.max());
     }
     inserter.insertLevel(TREND_MODEL_TAG,
-                         boost::bind<void>(CTimeSeriesDecompositionStateSerialiser(),
-                                           boost::cref(*m_TrendModel), _1));
+                         std::bind<void>(CTimeSeriesDecompositionStateSerialiser(),
+                                         std::cref(*m_TrendModel), std::placeholders::_1));
     for (const auto& model : m_ChangeModels) {
-        inserter.insertLevel(CHANGE_MODEL_TAG, boost::bind(&CUnivariateChangeModel::acceptPersistInserter,
-                                                           model.get(), _1));
+        inserter.insertLevel(CHANGE_MODEL_TAG,
+                             std::bind(&CUnivariateChangeModel::acceptPersistInserter,
+                                       model.get(), std::placeholders::_1));
     }
 }
 
@@ -385,8 +384,9 @@ CUnivariateChangeModel::CUnivariateChangeModel(const CUnivariateChangeModel& oth
 
 bool CUnivariateChangeModel::restoreResidualModel(const SDistributionRestoreParams& params,
                                                   core::CStateRestoreTraverser& traverser) {
-    return traverser.traverseSubLevel(boost::bind<bool>(
-        CPriorStateSerialiser(), boost::cref(params), boost::ref(m_ResidualModel), _1));
+    return traverser.traverseSubLevel(
+        std::bind<bool>(CPriorStateSerialiser(), std::cref(params),
+                        std::ref(m_ResidualModel), std::placeholders::_1));
 }
 
 double CUnivariateChangeModel::logLikelihood() const {
@@ -458,7 +458,7 @@ CUnivariateNoChangeModel::CUnivariateNoChangeModel(const CUnivariateNoChangeMode
 
 CUnivariateNoChangeModel::TChangeModelPtr
 CUnivariateNoChangeModel::clone(const TDecompositionPtr& /*trendModel*/) const {
-    return boost::make_unique<CUnivariateNoChangeModel>(*this, this->trendModelPtr());
+    return std::make_unique<CUnivariateNoChangeModel>(*this, this->trendModelPtr());
 }
 
 bool CUnivariateNoChangeModel::acceptRestoreTraverser(const SModelRestoreParams& params,
@@ -533,7 +533,7 @@ CUnivariateLevelShiftModel::CUnivariateLevelShiftModel(const CUnivariateLevelShi
 
 CUnivariateLevelShiftModel::TChangeModelPtr
 CUnivariateLevelShiftModel::clone(const TDecompositionPtr& trendModel) const {
-    return boost::make_unique<CUnivariateLevelShiftModel>(*this, trendModel);
+    return std::make_unique<CUnivariateLevelShiftModel>(*this, trendModel);
 }
 
 bool CUnivariateLevelShiftModel::acceptRestoreTraverser(const SModelRestoreParams& params,
@@ -557,8 +557,9 @@ void CUnivariateLevelShiftModel::acceptPersistInserter(core::CStatePersistInsert
     inserter.insertValue(SHIFT_TAG, m_Shift.toDelimited());
     inserter.insertValue(SAMPLE_COUNT_TAG, m_SampleCount);
     inserter.insertLevel(RESIDUAL_MODEL_TAG,
-                         boost::bind<void>(CPriorStateSerialiser(),
-                                           boost::cref(this->residualModel()), _1));
+                         std::bind<void>(CPriorStateSerialiser(),
+                                         std::cref(this->residualModel()),
+                                         std::placeholders::_1));
 }
 
 double CUnivariateLevelShiftModel::bic() const {
@@ -653,7 +654,7 @@ CUnivariateLinearScaleModel::CUnivariateLinearScaleModel(const CUnivariateLinear
 
 CUnivariateLinearScaleModel::TChangeModelPtr
 CUnivariateLinearScaleModel::clone(const TDecompositionPtr& trendModel) const {
-    return boost::make_unique<CUnivariateLinearScaleModel>(*this, trendModel);
+    return std::make_unique<CUnivariateLinearScaleModel>(*this, trendModel);
 }
 
 bool CUnivariateLinearScaleModel::acceptRestoreTraverser(const SModelRestoreParams& params,
@@ -679,8 +680,9 @@ void CUnivariateLinearScaleModel::acceptPersistInserter(core::CStatePersistInser
     inserter.insertValue(MAGNITUDE_TAG, m_Magnitude.toDelimited());
     inserter.insertValue(SAMPLE_COUNT_TAG, m_SampleCount);
     inserter.insertLevel(RESIDUAL_MODEL_TAG,
-                         boost::bind<void>(CPriorStateSerialiser(),
-                                           boost::cref(this->residualModel()), _1));
+                         std::bind<void>(CPriorStateSerialiser(),
+                                         std::cref(this->residualModel()),
+                                         std::placeholders::_1));
 }
 
 double CUnivariateLinearScaleModel::bic() const {
@@ -783,7 +785,7 @@ CUnivariateTimeShiftModel::CUnivariateTimeShiftModel(const CUnivariateTimeShiftM
 
 CUnivariateTimeShiftModel::TChangeModelPtr
 CUnivariateTimeShiftModel::clone(const TDecompositionPtr& trendModel) const {
-    return boost::make_unique<CUnivariateTimeShiftModel>(*this, trendModel);
+    return std::make_unique<CUnivariateTimeShiftModel>(*this, trendModel);
 }
 
 bool CUnivariateTimeShiftModel::acceptRestoreTraverser(const SModelRestoreParams& params,
@@ -802,8 +804,9 @@ bool CUnivariateTimeShiftModel::acceptRestoreTraverser(const SModelRestoreParams
 void CUnivariateTimeShiftModel::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
     this->CUnivariateChangeModel::acceptPersistInserter(inserter);
     inserter.insertLevel(RESIDUAL_MODEL_TAG,
-                         boost::bind<void>(CPriorStateSerialiser(),
-                                           boost::cref(this->residualModel()), _1));
+                         std::bind<void>(CPriorStateSerialiser(),
+                                         std::cref(this->residualModel()),
+                                         std::placeholders::_1));
 }
 
 double CUnivariateTimeShiftModel::bic() const {

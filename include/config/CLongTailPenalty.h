@@ -10,7 +10,6 @@
 #include <config/CPenalty.h>
 #include <config/ImportExport.h>
 
-#include <boost/ref.hpp>
 #include <boost/unordered_map.hpp>
 
 namespace ml {

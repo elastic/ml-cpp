@@ -14,8 +14,6 @@
 #include <model/CHierarchicalResultsLevelSet.h>
 #include <model/CStringStore.h>
 
-#include <boost/make_unique.hpp>
-
 #include <memory>
 
 namespace {
@@ -70,7 +68,7 @@ auto makeNode(CConcreteHierarchicalResultsLevelSet::TNode& parent,
     spec.s_PersonFieldName = personName;
     spec.s_PersonFieldValue = personValue;
     ml::model::SAnnotatedProbability prob;
-    auto node = boost::make_unique<CConcreteHierarchicalResultsLevelSet::TNode>(spec, prob);
+    auto node = std::make_unique<CConcreteHierarchicalResultsLevelSet::TNode>(spec, prob);
     node->s_Parent = &parent;
     parent.s_Children.push_back(node.get());
     return node;

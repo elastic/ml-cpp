@@ -10,7 +10,6 @@
 
 #include <api/ImportExport.h>
 
-#include <boost/ref.hpp>
 #include <boost/unordered_map.hpp>
 
 #include <functional>
@@ -43,7 +42,7 @@ public:
 
     //! For fast access to the field values without repeatedly computing the
     //! hash, we maintain references to the values in the hash map
-    using TStrRef = boost::reference_wrapper<std::string>;
+    using TStrRef = std::reference_wrapper<std::string>;
     using TStrRefVec = std::vector<TStrRef>;
     using TStrRefVecItr = TStrRefVec::iterator;
     using TStrRefVecCItr = TStrRefVec::const_iterator;

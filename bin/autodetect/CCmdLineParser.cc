@@ -39,6 +39,7 @@ bool CCmdLineParser::parse(int argc,
                            std::string& quantilesState,
                            bool& deleteStateFiles,
                            core_t::TTime& persistInterval,
+                           std::size_t& bucketPersistInterval,
                            core_t::TTime& maxQuantileInterval,
                            std::string& inputFileName,
                            bool& isInputFileNamedPipe,
@@ -48,6 +49,7 @@ bool CCmdLineParser::parse(int argc,
                            bool& isRestoreFileNamedPipe,
                            std::string& persistFileName,
                            bool& isPersistFileNamedPipe,
+                           bool& isPersistInForeground,
                            size_t& maxAnomalyRecords,
                            bool& memoryUsage,
                            bool& multivariateByFields,
@@ -103,7 +105,10 @@ bool CCmdLineParser::parse(int argc,
                         "Optional file to persist state to - not present means no state persistence")
             ("persistIsPipe", "Specified persist file is a named pipe")
             ("persistInterval", boost::program_options::value<core_t::TTime>(),
-                        "Optional interval at which to periodically persist model state - if not specified then models will only be persisted at program exit")
+                        "Optional time interval at which to periodically persist model state (Mutually exclusive with bucketPersistInterval)")
+            ("persistInForeground", "Persistence occurs in the foreground. Defaults to background persistence.")
+            ("bucketPersistInterval", boost::program_options::value<std::size_t>(),
+                        "Optional number of buckets after which to periodically persist model state (Mutually exclusive with persistInterval)")
             ("maxQuantileInterval", boost::program_options::value<core_t::TTime>(),
                         "Optional interval at which to periodically output quantiles if they have not been output due to an anomaly - if not specified then quantiles will only be output following a big anomaly")
             ("maxAnomalyRecords", boost::program_options::value<size_t>(),
@@ -122,6 +127,14 @@ bool CCmdLineParser::parse(int argc,
                 .allow_unregistered()
                 .run();
         boost::program_options::store(parsed, vm);
+
+        auto checkConflictingOptions = [&vm](const std::string& opt1,
+                                             const std::string& opt2) {
+            if (vm.count(opt1) && (vm[opt1].defaulted() == false) &&
+                vm.count(opt2) && (vm[opt2].defaulted() == false))
+                throw std::runtime_error("Conflicting options '" + opt1 +
+                                         "' and '" + opt2 + "'.");
+        };
 
         if (vm.count("help") > 0) {
             std::cerr << desc << std::endl;
@@ -183,8 +196,12 @@ bool CCmdLineParser::parse(int argc,
         if (vm.count("deleteStateFiles") > 0) {
             deleteStateFiles = true;
         }
+        checkConflictingOptions("persistInterval", "bucketPersistInterval");
         if (vm.count("persistInterval") > 0) {
             persistInterval = vm["persistInterval"].as<core_t::TTime>();
+        }
+        if (vm.count("bucketPersistInterval") > 0) {
+            bucketPersistInterval = vm["bucketPersistInterval"].as<std::size_t>();
         }
         if (vm.count("maxQuantileInterval") > 0) {
             maxQuantileInterval = vm["maxQuantileInterval"].as<core_t::TTime>();
@@ -212,6 +229,9 @@ bool CCmdLineParser::parse(int argc,
         }
         if (vm.count("persistIsPipe") > 0) {
             isPersistFileNamedPipe = true;
+        }
+        if (vm.count("persistInForeground") > 0) {
+            isPersistInForeground = true;
         }
         if (vm.count("maxAnomalyRecords") > 0) {
             maxAnomalyRecords = vm["maxAnomalyRecords"].as<size_t>();

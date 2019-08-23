@@ -11,8 +11,6 @@
 #include <maths/CKMeansOnline1d.h>
 #include <maths/CXMeansOnline1d.h>
 
-#include <boost/make_unique.hpp>
-
 namespace ml {
 namespace maths {
 
@@ -33,10 +31,10 @@ bool CClustererStateSerialiser::operator()(const SDistributionRestoreParams& par
     do {
         const std::string& name = traverser.name();
         if (name == CClustererTypes::X_MEANS_ONLINE_1D_TAG) {
-            ptr = boost::make_unique<CXMeansOnline1d>(params, splitFunc, mergeFunc, traverser);
+            ptr = std::make_unique<CXMeansOnline1d>(params, splitFunc, mergeFunc, traverser);
             ++numResults;
         } else if (name == CClustererTypes::K_MEANS_ONLINE_1D_TAG) {
-            ptr = boost::make_unique<CKMeansOnline1d>(params, traverser);
+            ptr = std::make_unique<CKMeansOnline1d>(params, traverser);
             ++numResults;
         } else {
             LOG_ERROR(<< "No clusterer corresponds to node name " << traverser.name());
@@ -55,7 +53,8 @@ bool CClustererStateSerialiser::operator()(const SDistributionRestoreParams& par
 void CClustererStateSerialiser::operator()(const CClusterer1d& clusterer,
                                            core::CStatePersistInserter& inserter) {
     inserter.insertLevel(clusterer.persistenceTag(),
-                         boost::bind(&CClusterer1d::acceptPersistInserter, &clusterer, _1));
+                         std::bind(&CClusterer1d::acceptPersistInserter,
+                                   &clusterer, std::placeholders::_1));
 }
 }
 }

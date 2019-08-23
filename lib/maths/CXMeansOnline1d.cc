@@ -26,7 +26,6 @@
 #include <maths/Constants.h>
 #include <maths/MathsTypes.h>
 
-#include <boost/bind.hpp>
 #include <boost/math/constants/constants.hpp>
 #include <boost/math/distributions/normal.hpp>
 #include <boost/math/special_functions/digamma.hpp>
@@ -587,22 +586,23 @@ bool splitSearch(double minimumCount,
 const double HARD_ASSIGNMENT_THRESHOLD = 0.01;
 
 // CXMeansOnline1d
-const std::string WEIGHT_CALC_TAG("a");
-const std::string MINIMUM_CLUSTER_FRACTION_TAG("b");
-const std::string MINIMUM_CLUSTER_COUNT_TAG("c");
-const std::string WINSORISATION_CONFIDENCE_INTERVAL_TAG("d");
-const std::string CLUSTER_INDEX_GENERATOR_TAG("e");
-const std::string CLUSTER_TAG("f");
-const std::string AVAILABLE_DISTRIBUTIONS_TAG("g");
-const std::string SMALLEST_TAG("h");
-const std::string LARGEST_TAG("i");
-const std::string DECAY_RATE_TAG("j");
-const std::string HISTORY_LENGTH_TAG("k");
+const core::TPersistenceTag WEIGHT_CALC_TAG("a", "weight");
+const core::TPersistenceTag MINIMUM_CLUSTER_FRACTION_TAG("b", "cluster_fraction");
+const core::TPersistenceTag MINIMUM_CLUSTER_COUNT_TAG("c", "minimum_cluster_count");
+const core::TPersistenceTag
+    WINSORISATION_CONFIDENCE_INTERVAL_TAG("d", "winsorisation_confidence_interval");
+const core::TPersistenceTag CLUSTER_INDEX_GENERATOR_TAG("e", "index_generator");
+const core::TPersistenceTag CLUSTER_TAG("f", "cluster");
+const core::TPersistenceTag AVAILABLE_DISTRIBUTIONS_TAG("g", "available_distributions");
+const core::TPersistenceTag SMALLEST_TAG("h", "smallest");
+const core::TPersistenceTag LARGEST_TAG("i", "largest");
+const core::TPersistenceTag DECAY_RATE_TAG("j", "decay_rate");
+const core::TPersistenceTag HISTORY_LENGTH_TAG("k", "history_length");
 
 // CXMeansOnline1d::CCluster
-const std::string INDEX_TAG("a");
-const std::string STRUCTURE_TAG("b");
-const std::string PRIOR_TAG("c");
+const core::TPersistenceTag INDEX_TAG("a", "index");
+const core::TPersistenceTag STRUCTURE_TAG("b", "structure");
+const core::TPersistenceTag PRIOR_TAG("c", "prior");
 
 const std::string EMPTY_STRING;
 }
@@ -671,8 +671,8 @@ CXMeansOnline1d::CXMeansOnline1d(const SDistributionRestoreParams& params,
       m_HistoryLength(), m_MinimumClusterFraction(), m_MinimumClusterCount(),
       m_MinimumCategoryCount(params.s_MinimumCategoryCount),
       m_WinsorisationConfidenceInterval() {
-    traverser.traverseSubLevel(boost::bind(&CXMeansOnline1d::acceptRestoreTraverser,
-                                           this, boost::cref(params), _1));
+    traverser.traverseSubLevel(std::bind(&CXMeansOnline1d::acceptRestoreTraverser, this,
+                                         std::cref(params), std::placeholders::_1));
 }
 
 CXMeansOnline1d::CXMeansOnline1d(const SDistributionRestoreParams& params,
@@ -686,8 +686,8 @@ CXMeansOnline1d::CXMeansOnline1d(const SDistributionRestoreParams& params,
       m_HistoryLength(), m_MinimumClusterFraction(), m_MinimumClusterCount(),
       m_MinimumCategoryCount(params.s_MinimumCategoryCount),
       m_WinsorisationConfidenceInterval() {
-    traverser.traverseSubLevel(boost::bind(&CXMeansOnline1d::acceptRestoreTraverser,
-                                           this, boost::cref(params), _1));
+    traverser.traverseSubLevel(std::bind(&CXMeansOnline1d::acceptRestoreTraverser, this,
+                                         std::cref(params), std::placeholders::_1));
 }
 
 CXMeansOnline1d::CXMeansOnline1d(const CXMeansOnline1d& other)
@@ -731,14 +731,14 @@ void CXMeansOnline1d::swap(CXMeansOnline1d& other) {
     m_Clusters.swap(other.m_Clusters);
 }
 
-std::string CXMeansOnline1d::persistenceTag() const {
+const core::TPersistenceTag& CXMeansOnline1d::persistenceTag() const {
     return X_MEANS_ONLINE_1D_TAG;
 }
 
 void CXMeansOnline1d::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
     for (const auto& cluster : m_Clusters) {
-        inserter.insertLevel(
-            CLUSTER_TAG, boost::bind(&CCluster::acceptPersistInserter, &cluster, _1));
+        inserter.insertLevel(CLUSTER_TAG, std::bind(&CCluster::acceptPersistInserter,
+                                                    &cluster, std::placeholders::_1));
     }
     inserter.insertValue(AVAILABLE_DISTRIBUTIONS_TAG, m_AvailableDistributions.toString());
     inserter.insertValue(DECAY_RATE_TAG, m_DecayRate, core::CIEEE754::E_SinglePrecision);
@@ -751,8 +751,8 @@ void CXMeansOnline1d::acceptPersistInserter(core::CStatePersistInserter& inserte
     inserter.insertValue(WINSORISATION_CONFIDENCE_INTERVAL_TAG,
                          m_WinsorisationConfidenceInterval.toString());
     inserter.insertLevel(CLUSTER_INDEX_GENERATOR_TAG,
-                         boost::bind(&CIndexGenerator::acceptPersistInserter,
-                                     &m_ClusterIndexGenerator, _1));
+                         std::bind(&CIndexGenerator::acceptPersistInserter,
+                                   &m_ClusterIndexGenerator, std::placeholders::_1));
 }
 
 CXMeansOnline1d* CXMeansOnline1d::clone() const {
@@ -1102,9 +1102,9 @@ bool CXMeansOnline1d::acceptRestoreTraverser(const SDistributionRestoreParams& p
     do {
         const std::string& name = traverser.name();
         RESTORE_SETUP_TEARDOWN(CLUSTER_TAG, CCluster cluster(*this),
-                               traverser.traverseSubLevel(
-                                   boost::bind(&CCluster::acceptRestoreTraverser,
-                                               &cluster, boost::cref(params), _1)),
+                               traverser.traverseSubLevel(std::bind(
+                                   &CCluster::acceptRestoreTraverser, &cluster,
+                                   std::cref(params), std::placeholders::_1)),
                                m_Clusters.push_back(cluster))
         RESTORE(AVAILABLE_DISTRIBUTIONS_TAG,
                 m_AvailableDistributions.fromString(traverser.value()))
@@ -1115,8 +1115,9 @@ bool CXMeansOnline1d::acceptRestoreTraverser(const SDistributionRestoreParams& p
         RESTORE(SMALLEST_TAG, m_Smallest.fromDelimited(traverser.value()))
         RESTORE(LARGEST_TAG, m_Largest.fromDelimited(traverser.value()))
         RESTORE(CLUSTER_INDEX_GENERATOR_TAG,
-                traverser.traverseSubLevel(boost::bind(&CIndexGenerator::acceptRestoreTraverser,
-                                                       &m_ClusterIndexGenerator, _1)))
+                traverser.traverseSubLevel(
+                    std::bind(&CIndexGenerator::acceptRestoreTraverser,
+                              &m_ClusterIndexGenerator, std::placeholders::_1)))
         RESTORE_ENUM(WEIGHT_CALC_TAG, m_WeightCalc, maths_t::EClusterWeightCalc)
         RESTORE(MINIMUM_CLUSTER_FRACTION_TAG,
                 m_MinimumClusterFraction.fromString(traverser.value()))
@@ -1285,9 +1286,9 @@ bool CXMeansOnline1d::CCluster::acceptRestoreTraverser(const SDistributionRestor
         const std::string& name = traverser.name();
         RESTORE_BUILT_IN(INDEX_TAG, m_Index)
         RESTORE_NO_ERROR(PRIOR_TAG, m_Prior = CNormalMeanPrecConjugate(params, traverser))
-        RESTORE(STRUCTURE_TAG, traverser.traverseSubLevel(boost::bind(
-                                   &CNaturalBreaksClassifier::acceptRestoreTraverser,
-                                   &m_Structure, boost::cref(params), _1)))
+        RESTORE(STRUCTURE_TAG, traverser.traverseSubLevel(std::bind(
+                                   &CNaturalBreaksClassifier::acceptRestoreTraverser, &m_Structure,
+                                   std::cref(params), std::placeholders::_1)))
     } while (traverser.next());
 
     return true;
@@ -1295,10 +1296,11 @@ bool CXMeansOnline1d::CCluster::acceptRestoreTraverser(const SDistributionRestor
 
 void CXMeansOnline1d::CCluster::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
     inserter.insertValue(INDEX_TAG, m_Index);
-    inserter.insertLevel(PRIOR_TAG, boost::bind(&CNormalMeanPrecConjugate::acceptPersistInserter,
-                                                &m_Prior, _1));
-    inserter.insertLevel(STRUCTURE_TAG, boost::bind(&CNaturalBreaksClassifier::acceptPersistInserter,
-                                                    &m_Structure, _1));
+    inserter.insertLevel(PRIOR_TAG, std::bind(&CNormalMeanPrecConjugate::acceptPersistInserter,
+                                              &m_Prior, std::placeholders::_1));
+    inserter.insertLevel(STRUCTURE_TAG,
+                         std::bind(&CNaturalBreaksClassifier::acceptPersistInserter,
+                                   &m_Structure, std::placeholders::_1));
 }
 
 void CXMeansOnline1d::CCluster::dataType(maths_t::EDataType dataType) {

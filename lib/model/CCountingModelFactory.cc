@@ -16,8 +16,6 @@
 #include <model/CDataGatherer.h>
 #include <model/CSearchKey.h>
 
-#include <boost/make_unique.hpp>
-
 #include <memory>
 
 namespace ml {
@@ -79,19 +77,19 @@ CCountingModelFactory::makeDataGatherer(const std::string& partitionFieldValue,
 CCountingModelFactory::TPriorPtr
 CCountingModelFactory::defaultPrior(model_t::EFeature /*feature*/,
                                     const SModelParams& /*params*/) const {
-    return boost::make_unique<maths::CConstantPrior>();
+    return std::make_unique<maths::CConstantPrior>();
 }
 
 CCountingModelFactory::TMultivariatePriorUPtr
 CCountingModelFactory::defaultMultivariatePrior(model_t::EFeature feature,
                                                 const SModelParams& /*params*/) const {
-    return boost::make_unique<maths::CMultivariateConstantPrior>(model_t::dimension(feature));
+    return std::make_unique<maths::CMultivariateConstantPrior>(model_t::dimension(feature));
 }
 
 CCountingModelFactory::TMultivariatePriorUPtr
 CCountingModelFactory::defaultCorrelatePrior(model_t::EFeature /*feature*/,
                                              const SModelParams& /*params*/) const {
-    return boost::make_unique<maths::CMultivariateConstantPrior>(2);
+    return std::make_unique<maths::CMultivariateConstantPrior>(2);
 }
 
 const CSearchKey& CCountingModelFactory::searchKey() const {

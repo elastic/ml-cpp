@@ -61,11 +61,13 @@ public:
     //! \brief A single parameter which has been read.
     class API_EXPORT CParameter {
     public:
-        CParameter(const char* name) : m_Name{name} {}
-        CParameter(const char* name, const rapidjson::Value& value, const TStrIntMap& permittedValues);
+        explicit CParameter(const std::string& name) : m_Name{name} {}
+        CParameter(const std::string& name,
+                   const rapidjson::Value& value,
+                   const TStrIntMap& permittedValues);
 
         //! Get the name of the parameter.
-        const char* name() const { return m_Name; }
+        const std::string& name() const { return m_Name; }
         //! Get the parameter of type T.
         template<typename T>
         T as() const {
@@ -80,11 +82,11 @@ public:
         //! Get a boolean parameter.
         bool fallback(bool value) const;
         //! Get an unsigned integer parameter.
-        std::size_t fallback(std::size_t fallback) const;
+        std::size_t fallback(std::size_t value) const;
         //! Get a floating point parameter.
-        double fallback(double fallback) const;
+        double fallback(double value) const;
         //! Get a string parameter.
-        std::string fallback(const std::string& fallback) const;
+        std::string fallback(const std::string& value) const;
         //! Get an enum point parameter.
         template<typename ENUM>
         ENUM fallback(ENUM value) const {
@@ -103,14 +105,38 @@ public:
             }
             return static_cast<ENUM>(pos->second);
         }
+        //! Get an array of objects of type T.
+        template<typename T>
+        std::vector<T> fallback(const std::vector<T>& value) const {
+            if (m_Value == nullptr) {
+                return value;
+            }
+            if (m_Value->IsArray() == false) {
+                this->handleFatal();
+                return value;
+            }
+            std::vector<T> result;
+            result.reserve(m_Value->Size());
+            CParameter element{m_Name, SArrayElementTag{}};
+            for (std::size_t i = 0; i < m_Value->Size(); ++i) {
+                element.m_Value = &(*m_Value)[static_cast<int>(i)];
+                result.push_back(element.as<T>());
+            }
+            return result;
+        }
 
     private:
+        struct SArrayElementTag {};
+
+    private:
+        CParameter(const std::string& name, SArrayElementTag);
         void handleFatal() const;
 
     private:
-        const char* m_Name = nullptr;
+        std::string m_Name;
         const rapidjson::Value* m_Value = nullptr;
         const TStrIntMap* m_PermittedValues = nullptr;
+        bool m_ArrayElement = false;
     };
 
     //! \brief A collection of all parameters which have been read.
@@ -122,7 +148,7 @@ public:
         }
 
         //! Get the parameter called \p name.
-        CParameter operator[](const char* name) const;
+        CParameter operator[](const std::string& name) const;
 
     private:
         std::vector<CParameter> m_ParameterValues;
@@ -134,7 +160,7 @@ public:
     //! \param[in] name The parameter name.
     //! \param[in] requirement Is the parameter required or optional.
     //! \param[in] permittedValues The permitted values for an enumeration.
-    void addParameter(const char* name,
+    void addParameter(const std::string& name,
                       ERequirement requirement,
                       TStrIntMap permittedValues = TStrIntMap{});
 
@@ -145,16 +171,16 @@ private:
     //! Reads a parameter from the JSON configuration object.
     class API_EXPORT CParameterReader {
     public:
-        CParameterReader(const char* name, ERequirement requirement, TStrIntMap permittedValues);
+        CParameterReader(const std::string& name, ERequirement requirement, TStrIntMap permittedValues);
 
-        const char* name() const { return m_Name; }
+        const std::string& name() const { return m_Name; }
         bool required() const { return m_Requirement == E_RequiredParameter; }
         CParameter readFrom(const rapidjson::Value& json) const {
             return {m_Name, json[m_Name], m_PermittedValues};
         }
 
     private:
-        const char* m_Name;
+        std::string m_Name;
         ERequirement m_Requirement;
         TStrIntMap m_PermittedValues;
     };

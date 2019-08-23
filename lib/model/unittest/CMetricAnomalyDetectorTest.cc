@@ -25,9 +25,6 @@
 
 #include <test/CTimeSeriesTestData.h>
 
-#include <boost/bind.hpp>
-#include <boost/range.hpp>
-
 #include <algorithm>
 #include <fstream>
 #include <numeric>
@@ -260,9 +257,9 @@ void CMetricAnomalyDetectorTest::testAnomalies() {
     double highRateNoise = 0.0;
     double lowRateNoise = 0.0;
 
-    for (size_t i = 0; i < boost::size(BUCKET_LENGTHS); ++i) {
+    for (auto bucketLength : BUCKET_LENGTHS) {
         model::CAnomalyDetectorModelConfig modelConfig =
-            model::CAnomalyDetectorModelConfig::defaultConfig(BUCKET_LENGTHS[i]);
+            model::CAnomalyDetectorModelConfig::defaultConfig(bucketLength);
         modelConfig.useMultibucketFeatures(false);
         model::CLimits limits;
         model::CSearchKey key(1, // identifier
@@ -271,9 +268,9 @@ void CMetricAnomalyDetectorTest::testAnomalies() {
         model::CAnomalyDetector detector(1, // identifier
                                          limits, modelConfig, "", FIRST_TIME,
                                          modelConfig.factory(key));
-        CResultWriter writer(modelConfig, limits, BUCKET_LENGTHS[i]);
+        CResultWriter writer(modelConfig, limits, bucketLength);
 
-        importData(FIRST_TIME, LAST_TIME, BUCKET_LENGTHS[i], writer,
+        importData(FIRST_TIME, LAST_TIME, bucketLength, writer,
                    "testfiles/variable_rate_metric.data", detector);
 
         TTimeTimePrVec highAnomalyTimes(writer.highAnomalyTimes());
@@ -281,7 +278,7 @@ void CMetricAnomalyDetectorTest::testAnomalies() {
         TDoubleVec anomalyFactors(writer.anomalyFactors());
         TDoubleVec anomalyRates(writer.anomalyRates());
 
-        LOG_DEBUG(<< "bucket length = " << BUCKET_LENGTHS[i]);
+        LOG_DEBUG(<< "bucket length = " << bucketLength);
         LOG_DEBUG(<< "high anomalies in = "
                   << core::CContainerPrinter::print(highAnomalyTimes));
         LOG_DEBUG(<< "high anomaly factors = "
@@ -372,8 +369,8 @@ void CMetricAnomalyDetectorTest::testPersist() {
         CPPUNIT_ASSERT(parser.parseStringIgnoreCdata(origXml));
         core::CRapidXmlStateRestoreTraverser traverser(parser);
         CPPUNIT_ASSERT(traverser.traverseSubLevel(
-            boost::bind(&model::CAnomalyDetector::acceptRestoreTraverser,
-                        &restoredDetector, EMPTY_STRING, _1)));
+            std::bind(&model::CAnomalyDetector::acceptRestoreTraverser,
+                      &restoredDetector, EMPTY_STRING, std::placeholders::_1)));
     }
 
     // The XML representation of the new typer should be the same as the original
@@ -416,7 +413,7 @@ void CMetricAnomalyDetectorTest::testExcludeFrequent() {
 
         // expect there to be 2 anomalies
         CPPUNIT_ASSERT_EQUAL(std::size_t(2), highAnomalyTimes.size());
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(99.0, highAnomalyFactors[1], 0.5);
+        CPPUNIT_ASSERT_DOUBLES_EQUAL(92.0, highAnomalyFactors[1], 2.0);
     }
     {
         model::CAnomalyDetectorModelConfig modelConfig =
@@ -444,7 +441,7 @@ void CMetricAnomalyDetectorTest::testExcludeFrequent() {
 
         // expect there to be 1 anomaly
         CPPUNIT_ASSERT_EQUAL(std::size_t(1), highAnomalyTimes.size());
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(24.0, highAnomalyFactors[0], 0.5);
+        CPPUNIT_ASSERT_DOUBLES_EQUAL(12.0, highAnomalyFactors[0], 2.0);
     }
 }
 

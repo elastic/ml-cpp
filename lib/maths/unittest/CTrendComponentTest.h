@@ -15,6 +15,7 @@ public:
     void testDecayRate();
     void testForecast();
     void testPersist();
+    void testUpgradeTo7p1();
 
     static CppUnit::Test* suite();
 };

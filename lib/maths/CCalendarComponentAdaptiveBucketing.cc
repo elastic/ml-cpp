@@ -18,9 +18,6 @@
 #include <maths/CMathsFuncs.h>
 #include <maths/CTools.h>
 
-#include <boost/bind.hpp>
-#include <boost/range.hpp>
-
 #include <algorithm>
 #include <cstddef>
 #include <utility>
@@ -60,8 +57,8 @@ CCalendarComponentAdaptiveBucketing::CCalendarComponentAdaptiveBucketing(
     double minimumBucketLength,
     core::CStateRestoreTraverser& traverser)
     : CAdaptiveBucketing{decayRate, minimumBucketLength} {
-    traverser.traverseSubLevel(boost::bind(
-        &CCalendarComponentAdaptiveBucketing::acceptRestoreTraverser, this, _1));
+    traverser.traverseSubLevel(std::bind(&CCalendarComponentAdaptiveBucketing::acceptRestoreTraverser,
+                                         this, std::placeholders::_1));
 }
 
 void CCalendarComponentAdaptiveBucketing::acceptPersistInserter(core::CStatePersistInserter& inserter) const {

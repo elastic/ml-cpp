@@ -12,8 +12,6 @@
 #include <maths/CBasicStatistics.h>
 #include <maths/CSampling.h>
 
-#include <boost/range.hpp>
-
 #include <cmath>
 #include <numeric>
 
@@ -121,7 +119,7 @@ void CSamplingTest::testMultinomialSample() {
 
     double probabilities_[] = {0.4, 0.25, 0.2, 0.15};
 
-    TDoubleVec probabilities(boost::begin(probabilities_), boost::end(probabilities_));
+    TDoubleVec probabilities(std::begin(probabilities_), std::end(probabilities_));
 
     TSizeVecDoubleMap empiricalProbabilities;
 
@@ -160,12 +158,12 @@ void CSamplingTest::testMultivariateNormalSample() {
 
     {
         double m[] = {1.0, 3.0, 5.0};
-        TDoubleVec m_(boost::begin(m), boost::end(m));
+        TDoubleVec m_(std::begin(m), std::end(m));
         double C[][3] = {{3.0, 1.0, 0.1}, {1.0, 2.0, -0.3}, {0.1, -0.3, 1.0}};
         TDoubleVecVec C_;
-        C_.push_back(TDoubleVec(boost::begin(C[0]), boost::end(C[0])));
-        C_.push_back(TDoubleVec(boost::begin(C[1]), boost::end(C[1])));
-        C_.push_back(TDoubleVec(boost::begin(C[2]), boost::end(C[2])));
+        C_.push_back(TDoubleVec(std::begin(C[0]), std::end(C[0])));
+        C_.push_back(TDoubleVec(std::begin(C[1]), std::end(C[1])));
+        C_.push_back(TDoubleVec(std::begin(C[2]), std::end(C[2])));
 
         TDoubleVecVec samples;
         maths::CSampling::multivariateNormalSample(m_, C_, 1000, samples);

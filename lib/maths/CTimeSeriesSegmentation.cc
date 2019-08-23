@@ -8,8 +8,8 @@
 
 #include <core/CTriple.h>
 
-#include <maths/CRegression.h>
-#include <maths/CRegressionDetail.h>
+#include <maths/CLeastSquaresOnlineRegression.h>
+#include <maths/CLeastSquaresOnlineRegressionDetail.h>
 #include <maths/CStatisticalTests.h>
 #include <maths/CTools.h>
 
@@ -24,7 +24,7 @@ using TMeanAccumulator = CBasicStatistics::SSampleMean<double>::TAccumulator;
 using TMeanVarAccumulator = CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
 using TFloatMeanAccumulator = CBasicStatistics::SSampleMean<CFloatStorage>::TAccumulator;
 using TFloatMeanAccumulatorVec = std::vector<TFloatMeanAccumulator>;
-using TRegression = CRegression::CLeastSquaresOnline<1, double>;
+using TRegression = CLeastSquaresOnlineRegression<1, double>;
 using TDoubleDoubleFunc = std::function<double(double)>;
 using TDoubleSizeFunc = std::function<double(std::size_t)>;
 
@@ -137,7 +137,7 @@ residualMoments(ITR begin, ITR end, double startTime, double dt, const TRegressi
     for (double time = startTime + dt / 2.0; begin != end; ++begin, time += dt) {
         double w{CBasicStatistics::count(*begin)};
         if (w > 0.0) {
-            double x{CBasicStatistics::mean(*begin) - CRegression::predict(params, time)};
+            double x{CBasicStatistics::mean(*begin) - TRegression::predict(params, time)};
             moments.add(x, w);
         }
     }
@@ -549,7 +549,7 @@ void CTimeSeriesSegmentation::fitTopDownPiecewiseLinearScaledPeriodic(ITR begin,
     if (range > period + 2 && CBasicStatistics::variance(moments) > 0.0) {
         using TDoubleItrPr = std::pair<double, ITR>;
         using TMinAccumulator = CBasicStatistics::COrderStatisticsStack<TDoubleItrPr, 1>;
-        using TMeanAccumulatorAry = boost::array<TMeanAccumulator, 3>;
+        using TMeanAccumulatorAry = std::array<TMeanAccumulator, 3>;
 
         TMinAccumulator minResidualVariance;
 

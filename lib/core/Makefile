@@ -93,6 +93,7 @@ CMemoryUsage.cc \
 CMemoryUsageJsonWriter.cc \
 CompressUtils.cc \
 Concurrency.cc \
+CPackedBitVector.cc \
 CPatternSet.cc \
 CPersistUtils.cc \
 CProgramCounters.cc \

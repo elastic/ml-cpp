@@ -17,17 +17,16 @@
 #include <maths/MathsTypes.h>
 
 #include <boost/optional/optional_fwd.hpp>
-#include <boost/ref.hpp>
 #include <boost/unordered/unordered_map_fwd.hpp>
 #include <boost/unordered/unordered_set_fwd.hpp>
 
+#include <functional>
 #include <memory>
 #include <string>
 #include <utility>
 
 namespace ml {
 namespace maths {
-
 namespace checksum_detail {
 
 class BasicChecksum {};
@@ -147,7 +146,7 @@ public:
 
     //! Checksum of a reference_wrapper.
     template<typename T>
-    static uint64_t dispatch(uint64_t seed, const boost::reference_wrapper<T>& target) {
+    static uint64_t dispatch(uint64_t seed, const std::reference_wrapper<T>& target) {
         return CChecksumImpl<typename selector<T>::value>::dispatch(seed, target.get());
     }
 
@@ -266,10 +265,19 @@ public:
         return result;
     }
 
+    //! Hash of vector bool.
+    //!
+    //! \note The default implementation generates a compiler warning for
+    //! std::vector<bool> because its operator[] doesn't return by reference.
+    //! In any case, the std::hash specialisation is more efficient.
+    static uint64_t dispatch(uint64_t seed, const std::vector<bool>& target) {
+        return core::CHashing::hashCombine(seed, ms_VectorBoolHasher(target));
+    }
+
     //! Stable hash of unordered set.
     template<typename T>
     static uint64_t dispatch(uint64_t seed, const boost::unordered_set<T>& target) {
-        using TCRef = boost::reference_wrapper<const T>;
+        using TCRef = std::reference_wrapper<const T>;
         using TCRefVec = std::vector<TCRef>;
 
         TCRefVec ordered;
@@ -286,8 +294,8 @@ public:
     //! Stable hash of unordered map.
     template<typename U, typename V>
     static uint64_t dispatch(uint64_t seed, const boost::unordered_map<U, V>& target) {
-        using TUCRef = boost::reference_wrapper<const U>;
-        using TVCRef = boost::reference_wrapper<const V>;
+        using TUCRef = std::reference_wrapper<const U>;
+        using TVCRef = std::reference_wrapper<const V>;
         using TUCRefVCRefPr = std::pair<TUCRef, TVCRef>;
         using TUCRefVCRefPrVec = std::vector<TUCRefVCRefPr>;
 
@@ -302,10 +310,13 @@ public:
         return dispatch(seed, ordered);
     }
 
-    //! Handle std::string which has a const_iterator.
+    //! Handle std::string which resolves to a container.
     static uint64_t dispatch(uint64_t seed, const std::string& target) {
         return CChecksumImpl<BasicChecksum>::dispatch(seed, target);
     }
+
+private:
+    static const std::hash<std::vector<bool>> ms_VectorBoolHasher;
 };
 
 //! Convenience function to select implementation.
@@ -336,7 +347,7 @@ public:
         return checksum_detail::checksum(seed, target[SIZE - 1]);
     }
 
-    //! Overload for 2d arrays which chains checksums.
+    //! Overload for nested arrays which chains checksums.
     template<typename T, std::size_t SIZE1, std::size_t SIZE2>
     static uint64_t calculate(uint64_t seed, const T (&target)[SIZE1][SIZE2]) {
         for (std::size_t i = 0u; i + 1 < SIZE1; ++i) {

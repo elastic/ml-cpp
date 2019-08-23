@@ -24,9 +24,7 @@
 #include <maths/CTools.h>
 #include <maths/Constants.h>
 
-#include <boost/bind.hpp>
 #include <boost/numeric/conversion/bounds.hpp>
-#include <boost/ref.hpp>
 
 #include <algorithm>
 #include <cmath>
@@ -42,6 +40,7 @@ namespace {
 using TBool5Vec = core::CSmallVector<bool, 5>;
 using TDouble5Vec = core::CSmallVector<double, 5>;
 using TMeanAccumulator = CBasicStatistics::SSampleMean<double>::TAccumulator;
+using TMaxAccumulator = CBasicStatistics::SMax<double>::TAccumulator;
 
 //! Compute the log of \p n.
 double logn(std::size_t n) {
@@ -53,21 +52,28 @@ double logn(std::size_t n) {
 const double DERATE = 0.99999;
 const double MINUS_INF = DERATE * boost::numeric::bounds<double>::lowest();
 const double INF = DERATE * boost::numeric::bounds<double>::highest();
-const double LOG_INITIAL_WEIGHT = std::log(1e-6);
+const double MAXIMUM_LOG_BAYES_FACTOR = std::log(1e8);
+const double MAXIMUM_UNPENALISED_RELATIVE_VARIANCE_ERROR = 9.0;
 const double MINIMUM_SIGNIFICANT_WEIGHT = 0.01;
 const double MAXIMUM_RELATIVE_ERROR = 1e-3;
 const double LOG_MAXIMUM_RELATIVE_ERROR = std::log(MAXIMUM_RELATIVE_ERROR);
 
-// We use short field names to reduce the state size
-const std::string MODEL_TAG("a");
-const std::string NUMBER_SAMPLES_TAG("b");
-//const std::string MINIMUM_TAG("c"); No longer used
-//const std::string MAXIMUM_TAG("d"); No longer used
-const std::string DECAY_RATE_TAG("e");
+const std::string VERSION_7_1_TAG("7.1");
+
+// Version 7.1
+const core::TPersistenceTag MODEL_7_1_TAG("a", "model");
+const core::TPersistenceTag SAMPLE_MOMENTS_7_1_TAG("b", "sample_moments");
+const core::TPersistenceTag NUMBER_SAMPLES_7_1_TAG("c", "number_samples");
+const core::TPersistenceTag DECAY_RATE_7_1_TAG("d", "decay_rate");
+
+// Version < 7.1
+const std::string MODEL_OLD_TAG("a");
+const std::string NUMBER_SAMPLES_OLD_TAG("b");
+const std::string DECAY_RATE_OLD_TAG("e");
 
 // Nested tags
-const std::string WEIGHT_TAG("a");
-const std::string PRIOR_TAG("b");
+const core::TPersistenceTag WEIGHT_TAG("a", "weight");
+const core::TPersistenceTag PRIOR_TAG("b", "prior");
 
 const std::string EMPTY_STRING;
 
@@ -75,10 +81,10 @@ const std::string EMPTY_STRING;
 void modelAcceptPersistInserter(const CModelWeight& weight,
                                 const CPrior& prior,
                                 core::CStatePersistInserter& inserter) {
-    inserter.insertLevel(
-        WEIGHT_TAG, boost::bind(&CModelWeight::acceptPersistInserter, &weight, _1));
-    inserter.insertLevel(PRIOR_TAG, boost::bind<void>(CPriorStateSerialiser(),
-                                                      boost::cref(prior), _1));
+    inserter.insertLevel(WEIGHT_TAG, std::bind(&CModelWeight::acceptPersistInserter,
+                                               &weight, std::placeholders::_1));
+    inserter.insertLevel(PRIOR_TAG, std::bind<void>(CPriorStateSerialiser(), std::cref(prior),
+                                                    std::placeholders::_1));
 }
 }
 
@@ -120,30 +126,59 @@ COneOfNPrior::COneOfNPrior(const TDoublePriorPtrPrVec& models,
 COneOfNPrior::COneOfNPrior(const SDistributionRestoreParams& params,
                            core::CStateRestoreTraverser& traverser)
     : CPrior(params.s_DataType, params.s_DecayRate) {
-    traverser.traverseSubLevel(boost::bind(&COneOfNPrior::acceptRestoreTraverser,
-                                           this, boost::cref(params), _1));
+    traverser.traverseSubLevel(std::bind(&COneOfNPrior::acceptRestoreTraverser, this,
+                                         std::cref(params), std::placeholders::_1));
 }
 
 bool COneOfNPrior::acceptRestoreTraverser(const SDistributionRestoreParams& params,
                                           core::CStateRestoreTraverser& traverser) {
-    do {
-        const std::string& name = traverser.name();
-        RESTORE_SETUP_TEARDOWN(DECAY_RATE_TAG, double decayRate,
-                               core::CStringUtils::stringToType(traverser.value(), decayRate),
-                               this->decayRate(decayRate))
-        RESTORE(MODEL_TAG, traverser.traverseSubLevel(
-                               boost::bind(&COneOfNPrior::modelAcceptRestoreTraverser,
-                                           this, boost::cref(params), _1)))
-        RESTORE_SETUP_TEARDOWN(NUMBER_SAMPLES_TAG, double numberSamples,
-                               core::CStringUtils::stringToType(traverser.value(), numberSamples),
-                               this->numberSamples(numberSamples))
-    } while (traverser.next());
+    if (traverser.name() == VERSION_7_1_TAG) {
+        while (traverser.next()) {
+            const std::string& name = traverser.name();
+            RESTORE_SETUP_TEARDOWN(DECAY_RATE_7_1_TAG, double decayRate,
+                                   core::CStringUtils::stringToType(traverser.value(), decayRate),
+                                   this->decayRate(decayRate))
+            RESTORE(MODEL_7_1_TAG, traverser.traverseSubLevel(std::bind(
+                                       &COneOfNPrior::modelAcceptRestoreTraverser, this,
+                                       std::cref(params), std::placeholders::_1)))
+            RESTORE(SAMPLE_MOMENTS_7_1_TAG,
+                    m_SampleMoments.fromDelimited(traverser.value()))
+            RESTORE_SETUP_TEARDOWN(
+                NUMBER_SAMPLES_7_1_TAG, double numberSamples,
+                core::CStringUtils::stringToType(traverser.value(), numberSamples),
+                this->numberSamples(numberSamples))
+        }
+    } else {
+        do {
+            const std::string& name = traverser.name();
+            RESTORE_SETUP_TEARDOWN(DECAY_RATE_OLD_TAG, double decayRate,
+                                   core::CStringUtils::stringToType(traverser.value(), decayRate),
+                                   this->decayRate(decayRate))
+            RESTORE(MODEL_OLD_TAG, traverser.traverseSubLevel(std::bind(
+                                       &COneOfNPrior::modelAcceptRestoreTraverser, this,
+                                       std::cref(params), std::placeholders::_1)))
+            RESTORE_SETUP_TEARDOWN(
+                NUMBER_SAMPLES_OLD_TAG, double numberSamples,
+                core::CStringUtils::stringToType(traverser.value(), numberSamples),
+                this->numberSamples(numberSamples))
+        } while (traverser.next());
 
+        if (!this->isNonInformative()) {
+            double variance{INF};
+            for (const auto& model : m_Models) {
+                variance = std::min(variance, model.second->marginalLikelihoodVariance());
+            }
+            m_SampleMoments = CBasicStatistics::momentsAccumulator(
+                this->numberSamples(), this->marginalLikelihoodMean(), variance);
+        }
+    }
     return true;
 }
 
 COneOfNPrior::COneOfNPrior(const COneOfNPrior& other)
-    : CPrior(other.dataType(), other.decayRate()) {
+    : CPrior(other.dataType(), other.decayRate()),
+      m_SampleMoments(other.m_SampleMoments) {
+
     // Clone all the models up front so we can implement strong exception safety.
     m_Models.reserve(other.m_Models.size());
     for (const auto& model : other.m_Models) {
@@ -164,6 +199,7 @@ COneOfNPrior& COneOfNPrior::operator=(const COneOfNPrior& rhs) {
 void COneOfNPrior::swap(COneOfNPrior& other) {
     this->CPrior::swap(other);
     m_Models.swap(other.m_Models);
+    std::swap(m_SampleMoments, other.m_SampleMoments);
 }
 
 COneOfNPrior::EPrior COneOfNPrior::type() const {
@@ -193,6 +229,7 @@ void COneOfNPrior::setToNonInformative(double offset, double decayRate) {
         model.first.age(0.0);
         model.second->setToNonInformative(offset, decayRate);
     }
+    m_SampleMoments = TMeanVarAccumulator();
     this->decayRate(decayRate);
     this->numberSamples(0.0);
 }
@@ -268,9 +305,13 @@ void COneOfNPrior::addSamples(const TDouble1Vec& samples,
 
     this->adjustOffset(samples, weights);
 
-    double penalty = CTools::fastLog(this->numberSamples());
+    double n{this->numberSamples()};
     this->CPrior::addSamples(samples, weights);
-    penalty = (penalty - CTools::fastLog(this->numberSamples())) / 2.0;
+    n = this->numberSamples() - n;
+
+    for (std::size_t i = 0; i < samples.size(); ++i) {
+        m_SampleMoments.add(samples[i], maths_t::countForUpdate(weights[i]));
+    }
 
     // For this 1-of-n model we assume that all the data come from one
     // the distributions which comprise the model. The model can be
@@ -322,83 +363,93 @@ void COneOfNPrior::addSamples(const TDouble1Vec& samples,
     CScopeCanonicalizeWeights<TPriorPtr> canonicalize(m_Models);
 
     // We need to check *before* adding samples to the constituent models.
-    bool isNonInformative = this->isNonInformative();
+    bool isNonInformative{this->isNonInformative()};
 
-    // Compute the unnormalized posterior weights and update the component
-    // priors. These weights are computed on the side since they are only
-    // updated if all marginal likelihoods can be computed.
-    TDouble5Vec logLikelihoods;
-    TMaxAccumulator maxLogLikelihood;
-    TBool5Vec used, uses;
+    TDouble5Vec minusBics;
+    TDouble5Vec varianceMismatchPenalties;
+    TBool5Vec used;
+    TBool5Vec uses;
+    bool failed{false};
+
+    // If none of the models are a good fit for the new data then restrict
+    // the maximum Bayes Factor since the data likelihood given the model
+    // is most useful if one of the models is (mostly) correct.
+    double m{std::max(n, 1.0)};
+    double maxLogBayesFactor{-m * MAXIMUM_LOG_BAYES_FACTOR};
+
     for (auto& model : m_Models) {
-        bool use = model.second->participatesInModelSelection();
 
-        // Update the weights with the marginal likelihoods.
-        double logLikelihood = 0.0;
-        maths_t::EFloatingPointErrorStatus status =
-            use ? model.second->jointLogMarginalLikelihood(samples, weights, logLikelihood)
-                : maths_t::E_FpOverflowed;
+        double minusBic{0.0};
+        maths_t::EFloatingPointErrorStatus status{maths_t::E_FpOverflowed};
 
-        if (status & maths_t::E_FpFailed) {
-            LOG_ERROR(<< "Failed to compute log-likelihood");
-            LOG_ERROR(<< "samples = " << core::CContainerPrinter::print(samples));
-            return;
+        used.push_back(model.second->participatesInModelSelection());
+        if (used.back()) {
+            double logLikelihood;
+            status = model.second->jointLogMarginalLikelihood(samples, weights, logLikelihood);
+
+            minusBic = 2.0 * logLikelihood -
+                       model.second->unmarginalizedParameters() * CTools::fastLog(n);
+
+            double modeLogLikelihood;
+            TDouble1Vec modes;
+            modes.reserve(weights.size());
+            for (const auto& weight : weights) {
+                modes.push_back(model.second->marginalLikelihoodMode(weight));
+            }
+            model.second->jointLogMarginalLikelihood(modes, weights, modeLogLikelihood);
+            maxLogBayesFactor = std::max(
+                maxLogBayesFactor, logLikelihood - std::max(modeLogLikelihood, logLikelihood));
         }
 
-        if (!(status & maths_t::E_FpOverflowed)) {
-            logLikelihood += model.second->unmarginalizedParameters() * penalty;
-            logLikelihoods.push_back(logLikelihood);
-            maxLogLikelihood.add(logLikelihood);
-        } else {
-            logLikelihoods.push_back(MINUS_INF);
-        }
+        minusBics.push_back((status & maths_t::E_FpOverflowed) ? MINUS_INF : minusBic);
+        failed |= (status & maths_t::E_FpFailed);
 
         // Update the component prior distribution.
         model.second->addSamples(samples, weights);
 
-        used.push_back(use);
+        varianceMismatchPenalties.push_back(
+            -m * MAXIMUM_LOG_BAYES_FACTOR *
+            std::max(1.0 - MAXIMUM_UNPENALISED_RELATIVE_VARIANCE_ERROR *
+                               CBasicStatistics::variance(m_SampleMoments) /
+                               model.second->marginalLikelihoodVariance(),
+                     0.0));
+
         uses.push_back(model.second->participatesInModelSelection());
+        if (!uses.back()) {
+            model.first.logWeight(MINUS_INF);
+        }
+    }
+
+    if (failed) {
+        LOG_ERROR(<< "Failed to compute log-likelihood");
+        LOG_ERROR(<< "samples = " << core::CContainerPrinter::print(samples));
+        return;
+    }
+    if (isNonInformative) {
+        return;
+    }
+
+    maxLogBayesFactor += m * MAXIMUM_LOG_BAYES_FACTOR;
+
+    LOG_TRACE(<< "BICs = " << core::CContainerPrinter::print(minusBics));
+    LOG_TRACE(<< "max Bayes Factor = " << maxLogBayesFactor);
+    LOG_TRACE(<< "variance penalties = "
+              << core::CContainerPrinter::print(varianceMismatchPenalties));
+
+    double maxLogModelWeight{MINUS_INF + m * MAXIMUM_LOG_BAYES_FACTOR};
+    double maxMinusBic{*std::max_element(minusBics.begin(), minusBics.end())};
+    for (std::size_t i = 0; i < m_Models.size(); ++i) {
+        if (used[i] && uses[i]) {
+            m_Models[i].first.addLogFactor(
+                std::max(minusBics[i] / 2.0, maxMinusBic / 2.0 - maxLogBayesFactor) +
+                varianceMismatchPenalties[i]);
+            maxLogModelWeight = std::max(maxLogModelWeight, m_Models[i].first.logWeight());
+        }
     }
 
     for (std::size_t i = 0; i < m_Models.size(); ++i) {
-        if (!uses[i]) {
-            CModelWeight& weight = m_Models[i].first;
-            weight.logWeight(MINUS_INF);
-        }
-    }
-
-    if (!isNonInformative && maxLogLikelihood.count() > 0) {
-        LOG_TRACE(<< "logLikelihoods = " << core::CContainerPrinter::print(logLikelihoods));
-
-        double n = 0.0;
-        try {
-            for (const auto& weight : weights) {
-                n += maths_t::count(weight);
-            }
-        } catch (const std::exception& e) {
-            LOG_ERROR(<< "Failed to add samples: " << e.what());
-            return;
-        }
-
-        // The idea here is to limit the amount which extreme samples
-        // affect model selection, particularly early on in the model
-        // life-cycle.
-        double minLogLikelihood =
-            maxLogLikelihood[0] -
-            n * std::min(maxModelPenalty(this->numberSamples()), 100.0);
-
-        TMaxAccumulator maxLogWeight;
-        for (std::size_t i = 0; i < m_Models.size(); ++i) {
-            if (used[i]) {
-                CModelWeight& weight = m_Models[i].first;
-                weight.addLogFactor(std::max(logLikelihoods[i], minLogLikelihood));
-                maxLogWeight.add(weight.logWeight());
-            }
-        }
-        for (std::size_t i = 0u; i < m_Models.size(); ++i) {
-            if (!used[i] && uses[i]) {
-                m_Models[i].first.logWeight(maxLogWeight[0] + LOG_INITIAL_WEIGHT);
-            }
+        if (!used[i] && uses[i]) {
+            m_Models[i].first.logWeight(maxLogModelWeight - m * MAXIMUM_LOG_BAYES_FACTOR);
         }
     }
 
@@ -424,6 +475,7 @@ void COneOfNPrior::propagateForwardsByTime(double time) {
         model.first.age(alpha);
         model.second->propagateForwardsByTime(time);
     }
+    m_SampleMoments.age(alpha);
 
     this->numberSamples(this->numberSamples() * alpha);
 
@@ -943,7 +995,9 @@ std::string COneOfNPrior::printJointDensityFunction() const {
 
 uint64_t COneOfNPrior::checksum(uint64_t seed) const {
     seed = this->CPrior::checksum(seed);
-    return CChecksum::calculate(seed, m_Models);
+    seed = CChecksum::calculate(seed, m_Models);
+    seed = CChecksum::calculate(seed, m_SampleMoments);
+    return seed;
 }
 
 void COneOfNPrior::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const {
@@ -960,13 +1014,16 @@ std::size_t COneOfNPrior::staticSize() const {
 }
 
 void COneOfNPrior::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
+    inserter.insertValue(VERSION_7_1_TAG, "");
     for (const auto& model : m_Models) {
-        inserter.insertLevel(MODEL_TAG, boost::bind(&modelAcceptPersistInserter,
-                                                    boost::cref(model.first),
-                                                    boost::cref(*model.second), _1));
+        inserter.insertLevel(MODEL_7_1_TAG, std::bind(&modelAcceptPersistInserter,
+                                                      std::cref(model.first),
+                                                      std::cref(*model.second),
+                                                      std::placeholders::_1));
     }
-    inserter.insertValue(DECAY_RATE_TAG, this->decayRate(), core::CIEEE754::E_SinglePrecision);
-    inserter.insertValue(NUMBER_SAMPLES_TAG, this->numberSamples(),
+    inserter.insertValue(SAMPLE_MOMENTS_7_1_TAG, m_SampleMoments.toDelimited());
+    inserter.insertValue(DECAY_RATE_7_1_TAG, this->decayRate(), core::CIEEE754::E_SinglePrecision);
+    inserter.insertValue(NUMBER_SAMPLES_7_1_TAG, this->numberSamples(),
                          core::CIEEE754::E_SinglePrecision);
 }
 
@@ -1013,14 +1070,15 @@ bool COneOfNPrior::modelAcceptRestoreTraverser(const SDistributionRestoreParams&
 
     do {
         const std::string& name = traverser.name();
-        RESTORE_SETUP_TEARDOWN(WEIGHT_TAG,
-                               /*no-op*/,
-                               traverser.traverseSubLevel(boost::bind(
-                                   &CModelWeight::acceptRestoreTraverser, &weight, _1)),
-                               gotWeight = true)
-        RESTORE(PRIOR_TAG, traverser.traverseSubLevel(boost::bind<bool>(
-                               CPriorStateSerialiser(), boost::cref(params),
-                               boost::ref(model), _1)))
+        RESTORE_SETUP_TEARDOWN(
+            WEIGHT_TAG,
+            /*no-op*/,
+            traverser.traverseSubLevel(std::bind(&CModelWeight::acceptRestoreTraverser,
+                                                 &weight, std::placeholders::_1)),
+            gotWeight = true)
+        RESTORE(PRIOR_TAG, traverser.traverseSubLevel(std::bind<bool>(
+                               CPriorStateSerialiser(), std::cref(params),
+                               std::ref(model), std::placeholders::_1)))
     } while (traverser.next());
 
     if (!gotWeight) {

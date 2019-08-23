@@ -18,6 +18,7 @@
 #include <core/CLogger.h>
 #include <core/CNonInstantiatable.h>
 #include <core/CProcessPriority.h>
+#include <core/CProgramCounters.h>
 #include <core/Concurrency.h>
 
 #include <ver/CBuildInfo.h>
@@ -29,6 +30,7 @@
 #include <api/CDataFrameOutliersRunner.h>
 #include <api/CIoManager.h>
 #include <api/CLengthEncodedInputParser.h>
+#include <api/CMemoryUsageEstimationResultJsonWriter.h>
 
 #include "CCmdLineParser.h"
 
@@ -72,8 +74,20 @@ CCleanUpOnExit::TTemporaryDirectoryPtr CCleanUpOnExit::m_DataFrameDirectory{};
 }
 
 int main(int argc, char** argv) {
+    // Register the set of counters in which this program is interested
+    // clang-format off
+    const ml::counter_t::TCounterTypeSet counters{
+        ml::counter_t::E_DFOEstimatedPeakMemoryUsage,
+        ml::counter_t::E_DFOPeakMemoryUsage,
+        ml::counter_t::E_DFOTimeToCreateEnsemble,
+        ml::counter_t::E_DFOTimeToComputeScores,
+        ml::counter_t::E_DFONumberPartitions};
+    // clang-format on
+    ml::core::CProgramCounters::registerProgramCounterTypes(counters);
+
     // Read command line options
     std::string configFile;
+    bool memoryUsageEstimationOnly(false);
     std::string logProperties;
     std::string logPipe;
     bool lengthEncodedInput(false);
@@ -82,8 +96,9 @@ int main(int argc, char** argv) {
     std::string outputFileName;
     bool isOutputFileNamedPipe(false);
     if (ml::data_frame_analyzer::CCmdLineParser::parse(
-            argc, argv, configFile, logProperties, logPipe, lengthEncodedInput, inputFileName,
-            isInputFileNamedPipe, outputFileName, isOutputFileNamedPipe) == false) {
+            argc, argv, configFile, memoryUsageEstimationOnly, logProperties,
+            logPipe, lengthEncodedInput, inputFileName, isInputFileNamedPipe,
+            outputFileName, isOutputFileNamedPipe) == false) {
         return EXIT_FAILURE;
     }
 
@@ -115,13 +130,6 @@ int main(int argc, char** argv) {
     }
 
     using TInputParserUPtr = std::unique_ptr<ml::api::CInputParser>;
-    auto inputParser{[lengthEncodedInput, &ioMgr]() -> TInputParserUPtr {
-        if (lengthEncodedInput) {
-            return std::make_unique<ml::api::CLengthEncodedInputParser>(ioMgr.inputStream());
-        }
-        return std::make_unique<ml::api::CCsvInputParser>(
-            ioMgr.inputStream(), ml::api::CCsvInputParser::COMMA);
-    }()};
 
     std::string analysisSpecificationJson;
     bool couldReadConfigFile;
@@ -133,6 +141,16 @@ int main(int argc, char** argv) {
 
     auto analysisSpecification =
         std::make_unique<ml::api::CDataFrameAnalysisSpecification>(analysisSpecificationJson);
+
+    if (memoryUsageEstimationOnly) {
+        auto outStream = [&ioMgr]() {
+            return std::make_unique<ml::core::CJsonOutputStreamWrapper>(ioMgr.outputStream());
+        }();
+        ml::api::CMemoryUsageEstimationResultJsonWriter writer(*outStream);
+        analysisSpecification->estimateMemoryUsage(writer);
+        return EXIT_SUCCESS;
+    }
+
     if (analysisSpecification->numberThreads() > 1) {
         ml::core::startDefaultAsyncExecutor(analysisSpecification->numberThreads());
     }
@@ -144,6 +162,13 @@ int main(int argc, char** argv) {
 
     CCleanUpOnExit::add(dataFrameAnalyzer.dataFrameDirectory());
 
+    auto inputParser{[lengthEncodedInput, &ioMgr]() -> TInputParserUPtr {
+        if (lengthEncodedInput) {
+            return std::make_unique<ml::api::CLengthEncodedInputParser>(ioMgr.inputStream());
+        }
+        return std::make_unique<ml::api::CCsvInputParser>(
+            ioMgr.inputStream(), ml::api::CCsvInputParser::COMMA);
+    }()};
     if (inputParser->readStreamIntoVecs(
             [&dataFrameAnalyzer](const auto& fieldNames, const auto& fieldValues) {
                 return dataFrameAnalyzer.handleRecord(fieldNames, fieldValues);
@@ -159,9 +184,12 @@ int main(int argc, char** argv) {
         dataFrameAnalyzer.run();
     }
 
+    // Print out the runtime counters generated during this execution context.
+    LOG_DEBUG(<< ml::core::CProgramCounters::instance());
+
     // This message makes it easier to spot process crashes in a log file - if
     // this isn't present in the log for a given PID and there's no other log
-    // message indicating early exit then the process has probably core dumped
+    // message indicating early exit then the process has probably core dumped.
     LOG_DEBUG(<< "Ml data frame analyzer exiting");
 
     return EXIT_SUCCESS;

@@ -120,7 +120,7 @@ void CCalendarFeature::initialize(uint16_t feature, int dayOfWeek, int dayOfMont
 
 bool CCalendarFeature::fromDelimited(const std::string& value) {
     int state[2];
-    if (core::CPersistUtils::fromString(value, boost::begin(state), boost::end(state))) {
+    if (core::CPersistUtils::fromString(value, std::begin(state), std::end(state))) {
         m_Feature = static_cast<uint16_t>(state[0]);
         m_Value = static_cast<uint16_t>(state[1]);
         return true;
@@ -130,8 +130,8 @@ bool CCalendarFeature::fromDelimited(const std::string& value) {
 
 std::string CCalendarFeature::toDelimited() const {
     int state[2] = {static_cast<int>(m_Feature), static_cast<int>(m_Value)};
-    const int* begin = boost::begin(state);
-    const int* end = boost::end(state);
+    const int* begin = std::begin(state);
+    const int* end = std::end(state);
     return core::CPersistUtils::toString(begin, end);
 }
 

@@ -4,8 +4,8 @@
 # you may not use this file except in compliance with the Elastic License.
 #
 
-# Increment the version here when a new unit test image is built
-FROM docker.elastic.co/ml-dev/ml-linux-test:4
+# Increment the version here when a new tools/3rd party components image is built
+FROM docker.elastic.co/ml-dev/ml-linux-build:9
 
 MAINTAINER David Roberts <dave.roberts@elastic.co>
 

@@ -13,7 +13,8 @@
 #include <config/Constants.h>
 
 #include <boost/range.hpp>
-#include <boost/ref.hpp>
+
+#include <functional>
 
 namespace ml {
 namespace config {
@@ -21,7 +22,7 @@ namespace config {
 namespace {
 
 using TStrVec = std::vector<std::string>;
-using TStrVecCRef = boost::reference_wrapper<const TStrVec>;
+using TStrVecCRef = std::reference_wrapper<const TStrVec>;
 using TStrVecCRefVec = std::vector<TStrVecCRef>;
 
 //! Add detectors for the partitioning fields \p candidates.
@@ -132,9 +133,9 @@ void CDetectorEnumerator::generateNoPartitioning(TDetectorSpecificationVec& resu
 void CDetectorEnumerator::addOnePartitioning(std::size_t a,
                                              std::size_t b,
                                              TDetectorSpecificationVec& result) const {
-    TStrVecCRef candidates[] = {boost::cref(m_CandidateByFields),
-                                boost::cref(m_CandidateOverFields),
-                                boost::cref(m_CandidatePartitionFields)};
+    TStrVecCRef candidates[] = {std::cref(m_CandidateByFields),
+                                std::cref(m_CandidateOverFields),
+                                std::cref(m_CandidatePartitionFields)};
     add(boost::size(constants::CFieldIndices::PARTITIONING),
         constants::CFieldIndices::PARTITIONING, candidates, a, b, result);
 
@@ -159,8 +160,8 @@ void CDetectorEnumerator::addTwoPartitioning(std::size_t a,
                                              std::size_t b,
                                              TDetectorSpecificationVec& result) const {
     static std::size_t OVER_AND_PARTITION[] = {constants::OVER_INDEX, constants::PARTITION_INDEX};
-    TStrVecCRef candidates[] = {boost::cref(m_CandidateOverFields),
-                                boost::cref(m_CandidatePartitionFields)};
+    TStrVecCRef candidates[] = {std::cref(m_CandidateOverFields),
+                                std::cref(m_CandidatePartitionFields)};
     add(boost::size(OVER_AND_PARTITION), OVER_AND_PARTITION, candidates, a, b, result);
 }
 
@@ -168,7 +169,7 @@ void CDetectorEnumerator::addThreePartitioning(std::size_t a,
                                                std::size_t b,
                                                TDetectorSpecificationVec& result) const {
     static std::size_t PARTITION[] = {constants::PARTITION_INDEX};
-    TStrVecCRef candidates[] = {boost::cref(m_CandidatePartitionFields)};
+    TStrVecCRef candidates[] = {std::cref(m_CandidatePartitionFields)};
     add(boost::size(PARTITION), PARTITION, candidates, a, b, result);
 }
 }

@@ -133,8 +133,8 @@ void CAnomalyJobLimitTest::testAccuracy() {
             api::CCsvInputParser parser(inputStrm);
 
             LOG_TRACE(<< "Reading file");
-            CPPUNIT_ASSERT(parser.readStreamIntoMaps(
-                boost::bind(&api::CAnomalyJob::handleRecord, &job, _1)));
+            CPPUNIT_ASSERT(parser.readStreamIntoMaps(std::bind(
+                &api::CAnomalyJob::handleRecord, &job, std::placeholders::_1)));
 
             LOG_TRACE(<< "Checking results");
 
@@ -176,8 +176,8 @@ void CAnomalyJobLimitTest::testAccuracy() {
             api::CCsvInputParser parser(inputStrm);
 
             LOG_TRACE(<< "Reading file");
-            CPPUNIT_ASSERT(parser.readStreamIntoMaps(
-                boost::bind(&api::CAnomalyJob::handleRecord, &job, _1)));
+            CPPUNIT_ASSERT(parser.readStreamIntoMaps(std::bind(
+                &api::CAnomalyJob::handleRecord, &job, std::placeholders::_1)));
 
             LOG_TRACE(<< "Checking results");
 
@@ -224,8 +224,8 @@ void CAnomalyJobLimitTest::testLimit() {
         api::CCsvInputParser parser(inputStrm);
 
         LOG_TRACE(<< "Reading file");
-        CPPUNIT_ASSERT(parser.readStreamIntoMaps(
-            boost::bind(&api::CAnomalyJob::handleRecord, &job, _1)));
+        CPPUNIT_ASSERT(parser.readStreamIntoMaps(std::bind(
+            &api::CAnomalyJob::handleRecord, &job, std::placeholders::_1)));
         LOG_TRACE(<< "Checking results");
         CPPUNIT_ASSERT_EQUAL(uint64_t(1176), job.numRecordsHandled());
     }
@@ -270,8 +270,8 @@ void CAnomalyJobLimitTest::testLimit() {
         api::CCsvInputParser parser(inputStrm);
 
         LOG_TRACE(<< "Reading file");
-        CPPUNIT_ASSERT(parser.readStreamIntoMaps(
-            boost::bind(&api::CAnomalyJob::handleRecord, &job, _1)));
+        CPPUNIT_ASSERT(parser.readStreamIntoMaps(std::bind(
+            &api::CAnomalyJob::handleRecord, &job, std::placeholders::_1)));
         // Now turn on the resource limiting
         limits.resourceMonitor().m_ByteLimitHigh = 0;
         limits.resourceMonitor().m_ByteLimitLow = 0;
@@ -282,8 +282,8 @@ void CAnomalyJobLimitTest::testLimit() {
         api::CCsvInputParser parser2(inputStrm2);
 
         LOG_TRACE(<< "Reading second file");
-        CPPUNIT_ASSERT(parser2.readStreamIntoMaps(
-            boost::bind(&api::CAnomalyJob::handleRecord, &job, _1)));
+        CPPUNIT_ASSERT(parser2.readStreamIntoMaps(std::bind(
+            &api::CAnomalyJob::handleRecord, &job, std::placeholders::_1)));
         LOG_TRACE(<< "Checking results");
         CPPUNIT_ASSERT_EQUAL(uint64_t(1180), job.numRecordsHandled());
     }
@@ -349,12 +349,12 @@ void CAnomalyJobLimitTest::testModelledEntityCountForFixedMemoryLimit() {
         std::size_t s_ExpectedByFields;
         std::size_t s_ExpectedOverFields;
         std::size_t s_ExpectedPartitionFields;
-        std::size_t s_ExpectedByLowerMemoryLimit;
-        std::size_t s_ExpectedPartitionLowerMemoryLimit;
-        std::size_t s_ExpectedOverLowerMemoryLimit;
-    } testParams[] = {{600, 550, 6000, 300, 33, 40, 40},
-                      {3600, 550, 5500, 300, 30, 25, 20},
-                      {172800, 150, 850, 120, 6, 6, 3}};
+        std::size_t s_ExpectedByMemoryUsageRelativeErrorDivisor;
+        std::size_t s_ExpectedPartitionUsageRelativeErrorDivisor;
+        std::size_t s_ExpectedOverUsageRelativeErrorDivisor;
+    } testParams[]{{600, 550, 6000, 300, 33, 40, 40},
+                   {3600, 550, 5500, 300, 27, 25, 20},
+                   {172800, 150, 850, 110, 6, 6, 3}};
 
     for (const auto& testParam : testParams) {
         TGeneratorVec generators{periodic, tradingDays, level, ramp, sparse};
@@ -410,7 +410,7 @@ void CAnomalyJobLimitTest::testModelledEntityCountForFixedMemoryLimit() {
             CPPUNIT_ASSERT_EQUAL(std::size_t(2), used.s_PartitionFields);
             CPPUNIT_ASSERT_DOUBLES_EQUAL(
                 memoryLimit * 1024 * 1024 / 2, used.s_Usage,
-                memoryLimit * 1024 * 1024 / testParam.s_ExpectedByLowerMemoryLimit);
+                memoryLimit * 1024 * 1024 / testParam.s_ExpectedByMemoryUsageRelativeErrorDivisor);
         }
 
         LOG_DEBUG(<< "**** Test partition with bucketLength = " << testParam.s_BucketLength
@@ -461,7 +461,7 @@ void CAnomalyJobLimitTest::testModelledEntityCountForFixedMemoryLimit() {
                            0.96 * static_cast<double>(used.s_PartitionFields));
             CPPUNIT_ASSERT_DOUBLES_EQUAL(
                 memoryLimit * 1024 * 1024 / 2, used.s_Usage,
-                memoryLimit * 1024 * 1024 / testParam.s_ExpectedPartitionLowerMemoryLimit);
+                memoryLimit * 1024 * 1024 / testParam.s_ExpectedPartitionUsageRelativeErrorDivisor);
         }
 
         LOG_DEBUG(<< "**** Test over with bucketLength = " << testParam.s_BucketLength
@@ -508,7 +508,7 @@ void CAnomalyJobLimitTest::testModelledEntityCountForFixedMemoryLimit() {
                            used.s_OverFields < 7000);
             CPPUNIT_ASSERT_DOUBLES_EQUAL(
                 memoryLimit * 1024 * 1024 / 2, used.s_Usage,
-                memoryLimit * 1024 * 1024 / testParam.s_ExpectedOverLowerMemoryLimit);
+                memoryLimit * 1024 * 1024 / testParam.s_ExpectedOverUsageRelativeErrorDivisor);
         }
     }
 }

@@ -11,6 +11,7 @@
 #include <core/CScopedFastLock.h>
 
 #include <api/CDataFrameAnalysisSpecification.h>
+#include <api/CMemoryUsageEstimationResultJsonWriter.h>
 
 #include <boost/iterator/counting_iterator.hpp>
 
@@ -22,6 +23,13 @@ namespace api {
 namespace {
 std::size_t memoryLimitWithSafetyMargin(const CDataFrameAnalysisSpecification& spec) {
     return static_cast<std::size_t>(0.9 * static_cast<double>(spec.memoryLimit()) + 0.5);
+}
+
+std::size_t maximumNumberPartitions(const CDataFrameAnalysisSpecification& spec) {
+    // We limit the maximum number of partitions to rows^(1/2) because very
+    // large numbers of partitions are going to be slow and it is better to tell
+    // user to allocate more resources for the job in this case.
+    return static_cast<std::size_t>(std::sqrt(static_cast<double>(spec.numberRows())) + 0.5);
 }
 
 const std::size_t MAXIMUM_FRACTIONAL_PROGRESS{std::size_t{1}
@@ -36,6 +44,25 @@ CDataFrameAnalysisRunner::~CDataFrameAnalysisRunner() {
     this->waitToFinish();
 }
 
+void CDataFrameAnalysisRunner::estimateMemoryUsage(CMemoryUsageEstimationResultJsonWriter& writer) const {
+    std::size_t numberRows{m_Spec.numberRows()};
+    std::size_t numberColumns{m_Spec.numberColumns() + this->numberExtraColumns()};
+    std::size_t maxNumberPartitions{maximumNumberPartitions(m_Spec)};
+    if (maxNumberPartitions == 0) {
+        writer.write("0", "0");
+        return;
+    }
+    std::size_t expectedMemoryWithoutDisk{
+        this->estimateMemoryUsage(numberRows, numberRows, numberColumns)};
+    std::size_t expectedMemoryWithDisk{this->estimateMemoryUsage(
+        numberRows, numberRows / maxNumberPartitions, numberColumns)};
+    auto roundUpToNearestKilobyte = [](std::size_t bytes) {
+        return std::to_string((bytes + 1024 - 1) / 1024) + "kB";
+    };
+    writer.write(roundUpToNearestKilobyte(expectedMemoryWithoutDisk),
+                 roundUpToNearestKilobyte(expectedMemoryWithDisk));
+}
+
 void CDataFrameAnalysisRunner::computeAndSaveExecutionStrategy() {
 
     std::size_t numberRows{m_Spec.numberRows()};
@@ -45,17 +72,12 @@ void CDataFrameAnalysisRunner::computeAndSaveExecutionStrategy() {
     LOG_TRACE(<< "memory limit = " << memoryLimit);
 
     // Find the smallest number of partitions such that the size per partition
-    // is less than the memory limit. We limit this to rows^(1/2) because very
-    // large numbers of partitions are going to be slow and it is better to tell
-    // user to allocate more resources for the job in this case.
+    // is less than the memory limit.
 
-    std::size_t maximumNumberPartitions{
-        static_cast<std::size_t>(std::sqrt(static_cast<double>(numberRows)) + 0.5)};
-
+    std::size_t maxNumberPartitions{maximumNumberPartitions(m_Spec)};
     std::size_t memoryUsage{0};
 
-    for (m_NumberPartitions = 1; m_NumberPartitions < maximumNumberPartitions;
-         ++m_NumberPartitions) {
+    for (m_NumberPartitions = 1; m_NumberPartitions < maxNumberPartitions; ++m_NumberPartitions) {
         std::size_t partitionNumberRows{numberRows / m_NumberPartitions};
         memoryUsage = this->estimateMemoryUsage(numberRows, partitionNumberRows, numberColumns);
         LOG_TRACE(<< "partition number rows = " << partitionNumberRows);
@@ -63,16 +85,25 @@ void CDataFrameAnalysisRunner::computeAndSaveExecutionStrategy() {
         if (memoryUsage <= memoryLimit) {
             break;
         }
+        // if we are not allowed to spill over to disk then only one partition is possible
+        if (m_Spec.diskUsageAllowed() == false) {
+            LOG_TRACE(<< "stop partition number computation since disk usage is turned off");
+            break;
+        }
     }
 
     LOG_TRACE(<< "number partitions = " << m_NumberPartitions);
 
     if (memoryUsage > memoryLimit) {
+        auto roundMb = [](std::size_t memory) {
+            return 0.01 * static_cast<double>((100 * memory) / (1024 * 1024));
+        };
+
         // Report rounded up to the nearest MB.
-        std::size_t memoryUsageMb = (memoryUsage + (1024 * 1024 - 1)) / (1024 * 1024);
-        HANDLE_FATAL(<< "Input error: memory limit is too low to perform analysis."
-                     << " You need to give the process at least "
-                     << memoryUsageMb << "MB, but preferably more.");
+        HANDLE_FATAL(<< "Input error: memory limit " << roundMb(memoryLimit)
+                     << "MB is too low to perform analysis. You need to give the process"
+                     << " at least " << std::ceil(roundMb(memoryUsage))
+                     << "MB, but preferably more.");
 
     } else if (m_NumberPartitions > 1) {
         // The maximum number of rows is found by binary search in the interval
@@ -104,14 +135,14 @@ std::size_t CDataFrameAnalysisRunner::maximumNumberRowsPerPartition() const {
     return m_MaximumNumberRowsPerPartition;
 }
 
-void CDataFrameAnalysisRunner::run(core::CDataFrame& frame) {
+void CDataFrameAnalysisRunner::run(const TStrVec& featureNames, core::CDataFrame& frame) {
     if (m_Runner.joinable()) {
         LOG_INFO(<< "Already running analysis");
     } else {
         m_FractionalProgress.store(0.0);
         m_Finished.store(false);
-        m_Runner = std::thread([this, &frame]() {
-            this->runImpl(frame);
+        m_Runner = std::thread([&featureNames, &frame, this]() {
+            this->runImpl(featureNames, frame);
             this->setToFinished();
         });
     }

@@ -27,9 +27,7 @@
 
 #include <rapidjson/document.h>
 
-#include <boost/bind.hpp>
 #include <boost/filesystem.hpp>
-#include <boost/ref.hpp>
 
 #include <fstream>
 #include <ios>
@@ -186,8 +184,8 @@ void CMultiFileDataAdderTest::detectorPersistHelper(const std::string& configFil
     std::size_t numOrigDocs(0);
     ml::api::CAnomalyJob origJob(
         JOB_ID, limits, fieldConfig, modelConfig, wrappedOutputStream,
-        boost::bind(&reportPersistComplete, _1, boost::ref(origSnapshotId),
-                    boost::ref(numOrigDocs)),
+        std::bind(&reportPersistComplete, std::placeholders::_1,
+                  std::ref(origSnapshotId), std::ref(numOrigDocs)),
         nullptr, -1, "time", timeFormat);
 
     using TInputParserUPtr = std::unique_ptr<ml::api::CInputParser>;
@@ -198,8 +196,8 @@ void CMultiFileDataAdderTest::detectorPersistHelper(const std::string& configFil
         return std::make_unique<ml::api::CNdJsonInputParser>(inputStrm);
     }()};
 
-    CPPUNIT_ASSERT(parser->readStreamIntoMaps(
-        boost::bind(&ml::api::CAnomalyJob::handleRecord, &origJob, _1)));
+    CPPUNIT_ASSERT(parser->readStreamIntoMaps(std::bind(
+        &ml::api::CAnomalyJob::handleRecord, &origJob, std::placeholders::_1)));
 
     // Persist the detector state to file(s)
 
@@ -210,7 +208,7 @@ void CMultiFileDataAdderTest::detectorPersistHelper(const std::string& configFil
         CPPUNIT_ASSERT_NO_THROW(boost::filesystem::remove_all(origDir));
 
         ml::test::CMultiFileDataAdder persister(baseOrigOutputFilename);
-        CPPUNIT_ASSERT(origJob.persistState(persister));
+        CPPUNIT_ASSERT(origJob.persistState(persister, ""));
     }
 
     std::string origBaseDocId(JOB_ID + '_' + ml::api::CAnomalyJob::STATE_TYPE +
@@ -245,8 +243,8 @@ void CMultiFileDataAdderTest::detectorPersistHelper(const std::string& configFil
     std::size_t numRestoredDocs(0);
     ml::api::CAnomalyJob restoredJob(
         JOB_ID, limits, fieldConfig, modelConfig, wrappedOutputStream,
-        boost::bind(&reportPersistComplete, _1, boost::ref(restoredSnapshotId),
-                    boost::ref(numRestoredDocs)));
+        std::bind(&reportPersistComplete, std::placeholders::_1,
+                  std::ref(restoredSnapshotId), std::ref(numRestoredDocs)));
 
     {
         ml::core_t::TTime completeToTime(0);
@@ -265,7 +263,7 @@ void CMultiFileDataAdderTest::detectorPersistHelper(const std::string& configFil
         CPPUNIT_ASSERT_NO_THROW(boost::filesystem::remove_all(restoredDir));
 
         ml::test::CMultiFileDataAdder persister(baseRestoredOutputFilename);
-        CPPUNIT_ASSERT(restoredJob.persistState(persister));
+        CPPUNIT_ASSERT(restoredJob.persistState(persister, ""));
     }
 
     std::string restoredBaseDocId(JOB_ID + '_' + ml::api::CAnomalyJob::STATE_TYPE +

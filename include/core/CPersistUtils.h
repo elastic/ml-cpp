@@ -15,8 +15,8 @@
 #include <core/ImportExport.h>
 
 #include <boost/array.hpp>
-#include <boost/bind.hpp>
 #include <boost/iterator/indirect_iterator.hpp>
+#include <boost/optional.hpp>
 #include <boost/type_traits/integral_constant.hpp>
 #include <boost/type_traits/is_arithmetic.hpp>
 #include <boost/type_traits/remove_const.hpp>
@@ -32,10 +32,10 @@ namespace core {
 
 namespace persist_utils_detail {
 
-const std::string FIRST_TAG("a");
-const std::string SECOND_TAG("b");
-const std::string MAP_TAG("c");
-const std::string SIZE_TAG("d");
+const TPersistenceTag FIRST_TAG("a", "first");
+const TPersistenceTag SECOND_TAG("b", "second");
+const TPersistenceTag MAP_TAG("c", "map");
+const TPersistenceTag SIZE_TAG("d", "size");
 
 template<typename T>
 struct remove_const {
@@ -252,6 +252,15 @@ public:
             return value.toString();
         }
 
+        template<typename OPTIONAL_TYPE>
+        std::string operator()(const boost::optional<OPTIONAL_TYPE>& state) const {
+            if (state) {
+                return this->operator()(std::make_pair(true, state.get()));
+            } else {
+                return this->operator()(std::make_pair(false, OPTIONAL_TYPE()));
+            }
+        }
+
         template<typename U, typename V>
         std::string operator()(const std::pair<U, V>& value) const {
             return this->operator()(value.first) + m_PairDelimiter +
@@ -316,6 +325,20 @@ public:
             return value.fromString(token);
         }
 
+        template<typename OPTIONAL_TYPE>
+        bool operator()(const std::string& token, boost::optional<OPTIONAL_TYPE>& value) const {
+            std::pair<bool, OPTIONAL_TYPE> pairValue;
+            if (this->operator()(token, pairValue)) {
+                if (pairValue.first) {
+                    value = boost::optional<OPTIONAL_TYPE>(pairValue.second);
+                } else {
+                    value = boost::optional<OPTIONAL_TYPE>();
+                }
+                return true;
+            }
+            return false;
+        }
+
         template<typename U, typename V>
         bool operator()(const std::string& token, std::pair<U, V>& value) const {
             std::size_t delimPos(token.find(m_PairDelimiter));
@@ -346,6 +369,13 @@ public:
     static bool
     persist(const std::string& tag, const T& collection, CStatePersistInserter& inserter) {
         return persist_utils_detail::persist(tag, collection, inserter);
+    }
+
+    template<typename T>
+    static bool
+    persist(const TPersistenceTag& tag, const T& collection, CStatePersistInserter& inserter) {
+        return persist_utils_detail::persist(tag.name(inserter.readableTags()),
+                                             collection, inserter);
     }
 
     //! Wrapper for containers of built in types.
@@ -411,7 +441,7 @@ public:
     //! Wrapper for arrays of built in types.
     template<typename T, std::size_t N>
     static bool fromString(const std::string& state,
-                           boost::array<T, N>& collection,
+                           std::array<T, N>& collection,
                            const char delimiter = DELIMITER,
                            const char pairDelimiter = PAIR_DELIMITER) {
         CBuiltinFromString f(pairDelimiter);
@@ -486,7 +516,7 @@ public:
         return true;
     }
 
-    //! Restore a boost::array from a string created by toString.
+    //! Restore a std::array from a string created by toString.
     //!
     //! \param[in] state The string description of the
     //! collection.
@@ -507,7 +537,7 @@ public:
     template<typename T, std::size_t N, typename F>
     static bool fromString(const std::string& state,
                            const F& stringFunc,
-                           boost::array<T, N>& collection,
+                           std::array<T, N>& collection,
                            const char delimiter = DELIMITER) {
         if (state.empty()) {
             LOG_ERROR(<< "Unexpected number of elements 0"
@@ -693,7 +723,8 @@ public:
     static void dispatch(const std::string& tag,
                          const std::pair<A, B>& t,
                          CStatePersistInserter& inserter) {
-        inserter.insertLevel(tag, boost::bind(&newLevel<A, B>, boost::cref(t), _1));
+        inserter.insertLevel(
+            tag, std::bind(&newLevel<A, B>, std::cref(t), std::placeholders::_1));
     }
 
 private:
@@ -797,8 +828,9 @@ private:
                          boost::false_type,
                          boost::false_type) {
         using TCItr = typename T::const_iterator;
-        inserter.insertLevel(tag, boost::bind(&newLevel<TCItr>, container.begin(),
-                                              container.end(), container.size(), _1));
+        inserter.insertLevel(tag, std::bind(&newLevel<TCItr>, container.begin(),
+                                            container.end(), container.size(),
+                                            std::placeholders::_1));
     }
 
     //! Handle the case for a non-built-in type, which will be added
@@ -812,8 +844,9 @@ private:
                          boost::false_type,
                          boost::true_type) {
         using TCItr = boost::indirect_iterator<typename T::const_iterator>;
-        inserter.insertLevel(tag, boost::bind(&newLevel<TCItr>, TCItr(t.begin()),
-                                              TCItr(t.end()), t.size(), _1));
+        inserter.insertLevel(tag, std::bind(&newLevel<TCItr>, TCItr(t.begin()),
+                                            TCItr(t.end()), t.size(),
+                                            std::placeholders::_1));
     }
 
     //! Dispatch a collection of items
@@ -835,7 +868,8 @@ class CPersisterImpl<MemberPersist> {
 public:
     template<typename T>
     static void dispatch(const std::string& tag, const T& t, CStatePersistInserter& inserter) {
-        inserter.insertLevel(tag, boost::bind(&newLevel<T>, boost::cref(t), _1));
+        inserter.insertLevel(
+            tag, std::bind(&newLevel<T>, std::cref(t), std::placeholders::_1));
     }
 
 private:
@@ -879,7 +913,7 @@ public:
                 return false;
             }
             ret = traverser.traverseSubLevel(
-                boost::bind(&newLevel<A, B>, boost::ref(t), _1));
+                std::bind(&newLevel<A, B>, std::ref(t), std::placeholders::_1));
         }
         return ret;
     }
@@ -888,7 +922,13 @@ private:
     template<typename A, typename B>
     static bool newLevel(std::pair<A, B>& t, CStateRestoreTraverser& traverser) {
         if (traverser.name() != FIRST_TAG) {
-            LOG_ERROR(<< "Tag mismatch at " << traverser.name() << ", expected " << FIRST_TAG);
+            // Long, meaningful tag names are only ever expected to be used to
+            // provide rich debug of model state, they are not expected to be present
+            // in the state from which we perform a restore operation. Hence we pass
+            // 'false' to the name method of the persistence tag object indicating
+            // that we wish to use the short tag name.
+            LOG_ERROR(<< "Tag mismatch at " << traverser.name() << ", expected "
+                      << FIRST_TAG.name(false));
             return false;
         }
         if (!restore(FIRST_TAG, t.first, traverser)) {
@@ -902,7 +942,13 @@ private:
             return false;
         }
         if (traverser.name() != SECOND_TAG) {
-            LOG_ERROR(<< "Tag mismatch at " << traverser.name() << ", expected " << SECOND_TAG);
+            // Long, meaningful tag names are only ever expected to be used to
+            // provide rich debug of model state, they are not expected to be present
+            // in the state from which we perform a restore operation. Hence we pass
+            // 'false' to the name method of the persistence tag object indicating
+            // that we wish to use the short tag name.
+            LOG_ERROR(<< "Tag mismatch at " << traverser.name() << ", expected "
+                      << SECOND_TAG.name(false));
             return false;
         }
         if (!restore(SECOND_TAG, t.second, traverser)) {
@@ -960,9 +1006,9 @@ private:
         }
 
         template<typename T, std::size_t N>
-        bool operator()(boost::array<T, N>& container, CStateRestoreTraverser& traverser) {
+        bool operator()(std::array<T, N>& container, CStateRestoreTraverser& traverser) {
             using TValueType = typename remove_const<T>::type;
-            typename boost::array<T, N>::iterator i = container.begin();
+            typename std::array<T, N>::iterator i = container.begin();
             do {
                 TValueType value;
                 if (traverser.name() == FIRST_TAG) {
@@ -1001,8 +1047,8 @@ private:
                 LOG_ERROR(<< "SubLevel mismatch in restore, at " << traverser.name());
                 return false;
             }
-            ret = traverser.traverseSubLevel(
-                boost::bind<bool>(SSubLevel(), boost::ref(container), _1));
+            ret = traverser.traverseSubLevel(std::bind<bool>(
+                SSubLevel(), std::ref(container), std::placeholders::_1));
         }
         return ret;
     }
@@ -1020,7 +1066,8 @@ public:
                 LOG_ERROR(<< "SubLevel mismatch in restore, at " << traverser.name());
                 return false;
             }
-            ret = traverser.traverseSubLevel(boost::bind(&subLevel<T>, boost::ref(t), _1));
+            ret = traverser.traverseSubLevel(
+                std::bind(&subLevel<T>, std::ref(t), std::placeholders::_1));
         }
         return ret;
     }

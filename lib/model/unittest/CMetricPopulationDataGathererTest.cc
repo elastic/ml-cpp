@@ -11,6 +11,7 @@
 #include <core/CRapidXmlStatePersistInserter.h>
 #include <core/CRapidXmlStateRestoreTraverser.h>
 #include <core/CoreTypes.h>
+#include <core/UnwrapRef.h>
 
 #include <model/CDataGatherer.h>
 #include <model/CEventData.h>
@@ -516,9 +517,9 @@ void CMetricPopulationDataGathererTest::testFeatureData() {
                 }
                 TDoubleVec& samples = meanSamples[key];
                 for (std::size_t k = 0u;
-                     k < boost::unwrap_ref(data.second.s_Samples).size(); ++k) {
+                     k < ml::core::unwrap_ref(data.second.s_Samples).size(); ++k) {
                     samples.push_back(
-                        boost::unwrap_ref(data.second.s_Samples)[k].value()[0]);
+                        ml::core::unwrap_ref(data.second.s_Samples)[k].value()[0]);
                 }
             }
 
@@ -535,9 +536,9 @@ void CMetricPopulationDataGathererTest::testFeatureData() {
                 }
                 TDoubleVec& samples = minSamples[key];
                 for (std::size_t k = 0u;
-                     k < boost::unwrap_ref(data.second.s_Samples).size(); ++k) {
+                     k < ml::core::unwrap_ref(data.second.s_Samples).size(); ++k) {
                     samples.push_back(
-                        boost::unwrap_ref(data.second.s_Samples)[k].value()[0]);
+                        ml::core::unwrap_ref(data.second.s_Samples)[k].value()[0]);
                 }
             }
 
@@ -554,9 +555,9 @@ void CMetricPopulationDataGathererTest::testFeatureData() {
                 }
                 TDoubleVec& samples = maxSamples[key];
                 for (std::size_t k = 0u;
-                     k < boost::unwrap_ref(data.second.s_Samples).size(); ++k) {
+                     k < ml::core::unwrap_ref(data.second.s_Samples).size(); ++k) {
                     samples.push_back(
-                        boost::unwrap_ref(data.second.s_Samples)[k].value()[0]);
+                        ml::core::unwrap_ref(data.second.s_Samples)[k].value()[0]);
                 }
             }
 
@@ -958,7 +959,7 @@ void CMetricPopulationDataGathererTest::testInfluenceStatistics() {
     features.push_back(model_t::E_PopulationMinByPersonAndAttribute);
     features.push_back(model_t::E_PopulationMaxByPersonAndAttribute);
     features.push_back(model_t::E_PopulationHighSumByBucketPersonAndAttribute);
-    TStrVec influencerNames(boost::begin(influencerNames_), boost::end(influencerNames_));
+    TStrVec influencerNames(std::begin(influencerNames_), std::end(influencerNames_));
     CDataGatherer gatherer(model_t::E_PopulationMetric, model_t::E_None, params, EMPTY_STRING,
                            EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
                            influencerNames, searchKey, features, startTime, 2u);

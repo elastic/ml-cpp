@@ -25,7 +25,7 @@ namespace api {
 namespace {
 using TStrVec = std::vector<std::string>;
 
-double truncateToFloatRange(double value) {
+core::CFloatStorage truncateToFloatRange(double value) {
     double largest{static_cast<double>(std::numeric_limits<float>::max())};
     return maths::CTools::truncate(value, -largest, largest);
 }
@@ -101,9 +101,18 @@ bool CDataFrameAnalyzer::handleRecord(const TStrVec& fieldNames, const TStrVec& 
 }
 
 void CDataFrameAnalyzer::receivedAllRows() {
+
     if (m_DataFrame != nullptr) {
         m_DataFrame->finishWritingRows();
         LOG_DEBUG(<< "Received " << m_DataFrame->numberRows() << " rows");
+    }
+
+    for (std::size_t i = 0; i < m_CategoricalFieldValues.size(); ++i) {
+        std::size_t distinct{m_CategoricalFieldValues[i].size()};
+        if (distinct >= MAX_CATEGORICAL_CARDINALITY) {
+            LOG_WARN(<< "Failed to represent all distinct values of "
+                     << m_CategoricalFieldNames[i]);
+        }
     }
 }
 
@@ -113,9 +122,25 @@ void CDataFrameAnalyzer::run() {
         return;
     }
 
+    // The main condition to care about is if the analysis is going to use more
+    // memory than was budgeted for. There are circumstances in which rows are
+    // excluded after the search filter is applied so this can't trap the case
+    // that the row counts are not equal.
+    if (m_DataFrame->numberRows() > m_AnalysisSpecification->numberRows()) {
+        HANDLE_FATAL(<< "Input error: expected no more than '"
+                     << m_AnalysisSpecification->numberRows() << "' rows "
+                     << "but got '" << m_DataFrame->numberRows() << "' rows"
+                     << ". Please report this problem.");
+        return;
+    }
+    if (m_DataFrame->numberRows() == 0) {
+        HANDLE_FATAL(<< "Input error: no data sent.");
+        return;
+    }
+
     LOG_TRACE(<< "Running analysis...");
 
-    CDataFrameAnalysisRunner* analysis{m_AnalysisSpecification->run(*m_DataFrame)};
+    CDataFrameAnalysisRunner* analysis{m_AnalysisSpecification->run(m_FieldNames, *m_DataFrame)};
 
     if (analysis == nullptr) {
         return;
@@ -135,6 +160,13 @@ void CDataFrameAnalyzer::run() {
 
 const CDataFrameAnalyzer::TTemporaryDirectoryPtr& CDataFrameAnalyzer::dataFrameDirectory() const {
     return m_DataFrameDirectory;
+}
+
+const core::CDataFrame& CDataFrameAnalyzer::dataFrame() const {
+    if (m_DataFrame == nullptr) {
+        HANDLE_FATAL(<< "Internal error: missing data frame");
+    }
+    return *m_DataFrame;
 }
 
 bool CDataFrameAnalyzer::readyToReceiveControlMessages() const {
@@ -164,8 +196,8 @@ bool CDataFrameAnalyzer::prepareToReceiveControlMessages(const TStrVec& fieldNam
     } else if (fieldNames.size() < 2 || posDocHash != fieldNames.end() - 2 ||
                posControlMessage != fieldNames.end() - 1) {
 
-        HANDLE_FATAL(<< "Input error: expected exacly two special "
-                     << "fields in last two positions, got '"
+        HANDLE_FATAL(<< "Input error: expected exactly two special "
+                     << "fields in last two positions but got '"
                      << core::CContainerPrinter::print(fieldNames)
                      << "'. Please report this problem.");
         return false;
@@ -175,6 +207,23 @@ bool CDataFrameAnalyzer::prepareToReceiveControlMessages(const TStrVec& fieldNam
         m_BeginDataFieldValues = 0;
         m_EndDataFieldValues = posDocHash - fieldNames.begin();
         m_DocHashFieldIndex = m_ControlFieldIndex - 1;
+    }
+
+    m_CategoricalFieldNames.resize(m_EndDataFieldValues);
+    m_CategoricalFieldValues.resize(m_EndDataFieldValues);
+
+    std::vector<bool> isCategorical(m_EndDataFieldValues, false);
+
+    const auto& categoricalFieldNames = m_AnalysisSpecification->categoricalFieldNames();
+    for (std::ptrdiff_t i = 0; i < m_EndDataFieldValues; ++i) {
+        isCategorical[i] = std::find(categoricalFieldNames.begin(),
+                                     categoricalFieldNames.end(),
+                                     fieldNames[i]) != categoricalFieldNames.end();
+        m_CategoricalFieldNames[i] = isCategorical[i] ? fieldNames[i] : "";
+    }
+
+    if (m_DataFrame != nullptr) {
+        m_DataFrame->categoricalColumns(std::move(isCategorical));
     }
 
     return true;
@@ -188,8 +237,9 @@ bool CDataFrameAnalyzer::sufficientFieldValues(const TStrVec& fieldValues) const
     std::size_t expectedNumberFieldValues{m_AnalysisSpecification->numberColumns() +
                                           (m_ControlFieldIndex >= 0 ? 2 : 0)};
     if (fieldValues.size() != expectedNumberFieldValues) {
-        HANDLE_FATAL(<< "Input error: expected " << expectedNumberFieldValues << " field values and got "
-                     << fieldValues.size() << ". Please report this problem.");
+        HANDLE_FATAL(<< "Input error: expected " << expectedNumberFieldValues << " field"
+                     << " values and got " << core::CContainerPrinter::print(fieldValues)
+                     << ". Please report this problem.");
         return false;
     }
     return true;
@@ -236,24 +286,57 @@ void CDataFrameAnalyzer::addRowToDataFrame(const TStrVec& fieldValues) {
 
     using TFloatVecItr = core::CDataFrame::TFloatVecItr;
 
+    auto fieldToValue = [this](bool isCategorical, TStrSizeUMap& categoricalFields,
+                               const std::string& fieldValue) {
+        if (isCategorical) {
+            // This encodes in a format suitable for efficient storage. The
+            // actual encoding approach is chosen when the analysis runs.
+            std::int64_t id;
+            if (categoricalFields.size() == MAX_CATEGORICAL_CARDINALITY) {
+                auto itr = categoricalFields.find(fieldValue);
+                id = itr != categoricalFields.end()
+                         ? itr->second
+                         : static_cast<std::int64_t>(MAX_CATEGORICAL_CARDINALITY);
+            } else {
+                // We can represent up to float mantissa bits - 1 distinct
+                // categories so can faithfully store categorical fields with
+                // up to around 17M distinct values. For higher cardinalities
+                // one would need to use some form of dimension reduction such
+                // as hashing anyway.
+                id = static_cast<std::int64_t>(
+                    categoricalFields
+                        .emplace(fieldValue, categoricalFields.size())
+                        .first->second);
+            }
+            return core::CFloatStorage{static_cast<double>(id)};
+        }
+
+        // Use NaN to indicate missing or bad values in the data frame. This
+        // needs handling with care from an analysis perspective. If analyses
+        // can deal with missing values they need to treat NaNs as missing
+        // otherwise we must impute or exit with failure.
+
+        double value;
+        if (fieldValue.empty()) {
+            ++m_MissingValueCount;
+            return core::CFloatStorage{core::CDataFrame::valueOfMissing()};
+        } else if (core::CStringUtils::stringToTypeSilent(fieldValue, value) == false) {
+            ++m_BadValueCount;
+            return core::CFloatStorage{core::CDataFrame::valueOfMissing()};
+        }
+
+        // Tuncation is very unlikely since the values will typically be
+        // standardised.
+        return truncateToFloatRange(value);
+    };
+
+    const auto& isCategorical = m_DataFrame->columnIsCategorical();
+
     m_DataFrame->writeRow([&](TFloatVecItr columns, std::int32_t& docHash) {
         for (std::ptrdiff_t i = m_BeginDataFieldValues;
              i != m_EndDataFieldValues; ++i, ++columns) {
-            double value;
-            if (core::CStringUtils::stringToTypeSilent(fieldValues[i], value) == false) {
-                ++m_BadValueCount;
-
-                // TODO this is a can of worms we can deal with later.
-                // Use NaN to indicate missing in the data frame, but this needs
-                // handling with care from an analysis perspective. If analyses
-                // can deal with missing values they need to treat NaNs as missing
-                // otherwise we must impute or exit with failure.
-                *columns = core::CFloatStorage{std::numeric_limits<float>::quiet_NaN()};
-            } else {
-                // Tuncation is very unlikely since the values will typically be
-                // standardised.
-                *columns = truncateToFloatRange(value);
-            }
+            *columns = fieldToValue(isCategorical[i],
+                                    m_CategoricalFieldValues[i], fieldValues[i]);
         }
         docHash = 0;
         if (m_DocHashFieldIndex != FIELD_MISSING &&
@@ -303,7 +386,12 @@ void CDataFrameAnalyzer::writeResultsOf(const CDataFrameAnalysisRunner& analysis
             writer.Key(CHECKSUM);
             writer.Int(row->docHash());
             writer.Key(RESULTS);
+
+            writer.StartObject();
+            writer.Key(m_AnalysisSpecification->resultsField());
             analysis.writeOneRow(m_FieldNames, *row, writer);
+            writer.EndObject();
+
             writer.EndObject();
             writer.EndObject();
         }
@@ -311,5 +399,8 @@ void CDataFrameAnalyzer::writeResultsOf(const CDataFrameAnalysisRunner& analysis
 
     writer.flush();
 }
+
+const std::size_t CDataFrameAnalyzer::MAX_CATEGORICAL_CARDINALITY{
+    1 << (std::numeric_limits<float>::digits)};
 }
 }

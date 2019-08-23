@@ -165,12 +165,16 @@ void CAutoconfigurer::finalise() {
     m_Impl->finalise();
 }
 
+bool CAutoconfigurer::isPersistenceNeeded(const std::string& /*description*/) const {
+    return false;
+}
+
 bool CAutoconfigurer::restoreState(core::CDataSearcher& /*restoreSearcher*/,
                                    core_t::TTime& /*completeToTime*/) {
     return true;
 }
 
-bool CAutoconfigurer::persistState(core::CDataAdder& /*persister*/) {
+bool CAutoconfigurer::persistState(core::CDataAdder&, const std::string&) {
     return true;
 }
 

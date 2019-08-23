@@ -13,8 +13,8 @@
 
 #include <maths/CBasicStatistics.h>
 #include <maths/CDecayRateController.h>
-#include <maths/CRegression.h>
-#include <maths/CRegressionDetail.h>
+#include <maths/CLeastSquaresOnlineRegression.h>
+#include <maths/CLeastSquaresOnlineRegressionDetail.h>
 #include <maths/CRestoreParams.h>
 #include <maths/CTrendComponent.h>
 
@@ -37,15 +37,14 @@ using TDouble3VecVec = std::vector<TDouble3Vec>;
 using TGenerator = TDoubleVec (*)(test::CRandomNumbers&, core_t::TTime, core_t::TTime, core_t::TTime);
 using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
 using TMeanVarAccumulator = maths::CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
-using TRegression = maths::CRegression::CLeastSquaresOnline<2, double>;
+using TRegression = maths::CLeastSquaresOnlineRegression<2, double>;
 
-TDoubleVec multiscaleRandomWalk(test::CRandomNumbers& rng,
-                                core_t::TTime bucketLength,
-                                core_t::TTime start,
-                                core_t::TTime end) {
+const core_t::TTime BUCKET_LENGTH{600};
+
+TDoubleVec multiscaleRandomWalk(test::CRandomNumbers& rng, core_t::TTime start, core_t::TTime end) {
     TDoubleVecVec noise(4);
 
-    core_t::TTime buckets{(end - start) / bucketLength + 1};
+    core_t::TTime buckets{(end - start) / BUCKET_LENGTH + 1};
     rng.generateNormalSamples(0.0, 0.2, buckets, noise[0]);
     rng.generateNormalSamples(0.0, 0.5, buckets, noise[1]);
     rng.generateNormalSamples(0.0, 1.0, buckets, noise[2]);
@@ -71,11 +70,8 @@ TDoubleVec multiscaleRandomWalk(test::CRandomNumbers& rng,
     return result;
 }
 
-TDoubleVec piecewiseLinear(test::CRandomNumbers& rng,
-                           core_t::TTime bucketLength,
-                           core_t::TTime start,
-                           core_t::TTime end) {
-    core_t::TTime buckets{(end - start) / bucketLength + 1};
+TDoubleVec piecewiseLinear(test::CRandomNumbers& rng, core_t::TTime start, core_t::TTime end) {
+    core_t::TTime buckets{(end - start) / BUCKET_LENGTH + 1};
 
     TDoubleVec knots;
     rng.generateUniformSamples(100.0, 500.0, buckets / 200, knots);
@@ -92,8 +88,8 @@ TDoubleVec piecewiseLinear(test::CRandomNumbers& rng,
 
     auto knot = knots.begin();
     auto slope = slopes.begin();
-    for (core_t::TTime time = start; time < end; time += bucketLength) {
-        if (time > start + static_cast<core_t::TTime>(bucketLength * *knot)) {
+    for (core_t::TTime time = start; time < end; time += BUCKET_LENGTH) {
+        if (time > start + static_cast<core_t::TTime>(BUCKET_LENGTH * *knot)) {
             ++knot;
             ++slope;
         }
@@ -104,11 +100,8 @@ TDoubleVec piecewiseLinear(test::CRandomNumbers& rng,
     return result;
 }
 
-TDoubleVec staircase(test::CRandomNumbers& rng,
-                     core_t::TTime bucketLength,
-                     core_t::TTime start,
-                     core_t::TTime end) {
-    core_t::TTime buckets{(end - start) / bucketLength + 1};
+TDoubleVec staircase(test::CRandomNumbers& rng, core_t::TTime start, core_t::TTime end) {
+    core_t::TTime buckets{(end - start) / BUCKET_LENGTH + 1};
 
     TDoubleVec knots;
     rng.generateUniformSamples(200.0, 400.0, buckets / 200, knots);
@@ -125,8 +118,8 @@ TDoubleVec staircase(test::CRandomNumbers& rng,
 
     auto knot = knots.begin();
     auto step = steps.begin();
-    for (core_t::TTime time = start; time < end; time += bucketLength) {
-        if (time > start + static_cast<core_t::TTime>(bucketLength * *knot)) {
+    for (core_t::TTime time = start; time < end; time += BUCKET_LENGTH) {
+        if (time > start + static_cast<core_t::TTime>(BUCKET_LENGTH * *knot)) {
             value += *step;
             ++knot;
             ++step;
@@ -137,11 +130,8 @@ TDoubleVec staircase(test::CRandomNumbers& rng,
     return result;
 }
 
-TDoubleVec switching(test::CRandomNumbers& rng,
-                     core_t::TTime bucketLength,
-                     core_t::TTime start,
-                     core_t::TTime end) {
-    core_t::TTime buckets{(end - start) / bucketLength + 1};
+TDoubleVec switching(test::CRandomNumbers& rng, core_t::TTime start, core_t::TTime end) {
+    core_t::TTime buckets{(end - start) / BUCKET_LENGTH + 1};
 
     TDoubleVec knots;
     rng.generateUniformSamples(400.0, 800.0, buckets / 400, knots);
@@ -158,8 +148,8 @@ TDoubleVec switching(test::CRandomNumbers& rng,
 
     auto knot = knots.begin();
     auto step = steps.begin();
-    for (core_t::TTime time = start; time < end; time += bucketLength) {
-        if (time > start + static_cast<core_t::TTime>(bucketLength * *knot)) {
+    for (core_t::TTime time = start; time < end; time += BUCKET_LENGTH) {
+        if (time > start + static_cast<core_t::TTime>(BUCKET_LENGTH * *knot)) {
             value += *step;
             ++knot;
             ++step;
@@ -168,6 +158,60 @@ TDoubleVec switching(test::CRandomNumbers& rng,
     }
 
     return result;
+}
+
+template<typename ITR>
+auto trainModel(ITR beginValues, ITR endValues) {
+
+    maths::CTrendComponent component{0.012};
+    maths::CDecayRateController controller(maths::CDecayRateController::E_PredictionBias |
+                                               maths::CDecayRateController::E_PredictionErrorIncrease,
+                                           1);
+
+    core_t::TTime time{0};
+
+    for (ITR value = beginValues; value != endValues; ++value, time += BUCKET_LENGTH) {
+        component.add(time, *value);
+        component.propagateForwardsByTime(BUCKET_LENGTH);
+
+        double prediction{maths::CBasicStatistics::mean(component.value(time, 0.0))};
+        controller.multiplier({prediction}, {{*value - prediction}},
+                              BUCKET_LENGTH, 0.3, 0.012);
+        component.decayRate(0.012 * controller.multiplier());
+    }
+
+    component.shiftOrigin(time);
+
+    return std::make_pair(component, time);
+}
+
+template<typename ITR>
+auto forecastErrors(ITR actual, ITR endActual, core_t::TTime time, const maths::CTrendComponent& component) {
+
+    core_t::TTime interval(std::distance(actual, endActual) * BUCKET_LENGTH);
+
+    TDouble3VecVec forecast;
+    component.forecast(time, time + interval, BUCKET_LENGTH, 95.0,
+                       [](core_t::TTime) { return TDouble3Vec(3, 0.0); },
+                       [&forecast](core_t::TTime, const TDouble3Vec& value) {
+                           forecast.push_back(value);
+                       });
+
+    TMeanAccumulator meanError;
+    TMeanAccumulator meanErrorAt95;
+
+    for (auto errorbar = forecast.begin(); errorbar != forecast.end(); ++errorbar, ++actual) {
+        meanError.add(std::fabs((*actual - (*errorbar)[1]) / std::fabs(*actual)));
+        meanErrorAt95.add(
+            std::max(std::max(*actual - (*errorbar)[2], (*errorbar)[0] - *actual), 0.0) /
+            std::fabs(*actual));
+    }
+
+    LOG_DEBUG(<< "error       = " << maths::CBasicStatistics::mean(meanError));
+    LOG_DEBUG(<< "error @ 95% = " << maths::CBasicStatistics::mean(meanErrorAt95));
+
+    return std::make_pair(maths::CBasicStatistics::mean(meanError),
+                          maths::CBasicStatistics::mean(meanErrorAt95));
 }
 }
 
@@ -178,11 +222,10 @@ void CTrendComponentTest::testValueAndVariance() {
 
     test::CRandomNumbers rng;
 
-    core_t::TTime bucketLength{600};
     core_t::TTime start{1000000};
     core_t::TTime end{3000000};
 
-    TDoubleVec values(multiscaleRandomWalk(rng, bucketLength, start, end));
+    TDoubleVec values(multiscaleRandomWalk(rng, start, end));
 
     maths::CTrendComponent component{0.012};
     maths::CDecayRateController controller(maths::CDecayRateController::E_PredictionBias |
@@ -190,21 +233,21 @@ void CTrendComponentTest::testValueAndVariance() {
                                            1);
 
     TMeanVarAccumulator normalisedResiduals;
-    for (core_t::TTime time = start; time < end; time += bucketLength) {
-        double value{values[(time - start) / bucketLength]};
+    for (core_t::TTime time = start; time < end; time += BUCKET_LENGTH) {
+        double value{values[(time - start) / BUCKET_LENGTH]};
         double prediction{maths::CBasicStatistics::mean(component.value(time, 0.0))};
 
-        if (time > start + bucketLength) {
+        if (time > start + BUCKET_LENGTH) {
             double variance{maths::CBasicStatistics::mean(component.variance(0.0))};
             normalisedResiduals.add((value - prediction) / std::sqrt(variance));
         }
 
         component.add(time, value);
         controller.multiplier({prediction},
-                              {{values[(time - start) / bucketLength] - prediction}},
-                              bucketLength, 1.0, 0.012);
+                              {{values[(time - start) / BUCKET_LENGTH] - prediction}},
+                              BUCKET_LENGTH, 1.0, 0.012);
         component.decayRate(0.012 * controller.multiplier());
-        component.propagateForwardsByTime(bucketLength);
+        component.propagateForwardsByTime(BUCKET_LENGTH);
     }
 
     LOG_DEBUG(<< "normalised error moments = " << normalisedResiduals);
@@ -218,16 +261,10 @@ void CTrendComponentTest::testDecayRate() {
 
     test::CRandomNumbers rng;
 
-    core_t::TTime bucketLength{600};
     core_t::TTime start{0};
     core_t::TTime end{3000000};
 
-    //std::ofstream file;
-    //file.open("results.m");
-    //TDoubleVec predictions;
-    //TDoubleVec expectedPredictions;
-
-    TDoubleVec values(multiscaleRandomWalk(rng, bucketLength, start, end));
+    TDoubleVec values(multiscaleRandomWalk(rng, start, end));
 
     maths::CTrendComponent component{0.012};
     TRegression regression;
@@ -237,8 +274,8 @@ void CTrendComponentTest::testDecayRate() {
 
     TMeanAccumulator error;
     TMeanAccumulator level;
-    for (core_t::TTime time = start; time < end; time += bucketLength) {
-        double value{values[(time - start) / bucketLength]};
+    for (core_t::TTime time = start; time < end; time += BUCKET_LENGTH) {
+        double value{values[(time - start) / BUCKET_LENGTH]};
         component.add(time, value);
         regression.add(time / 604800.0, value);
 
@@ -248,23 +285,16 @@ void CTrendComponentTest::testDecayRate() {
         level.add(value);
 
         controller.multiplier({prediction},
-                              {{values[(time - start) / bucketLength] - prediction}},
-                              bucketLength, 1.0, 0.012);
+                              {{values[(time - start) / BUCKET_LENGTH] - prediction}},
+                              BUCKET_LENGTH, 1.0, 0.012);
         component.decayRate(0.012 * controller.multiplier());
-        component.propagateForwardsByTime(bucketLength);
+        component.propagateForwardsByTime(BUCKET_LENGTH);
         regression.age(std::exp(-0.012 * controller.multiplier() * 600.0 / 86400.0));
-
-        //predictions.push_back(prediction);
-        //expectedPredictions.push_back(expectedPrediction);
     }
 
     double relativeError{maths::CBasicStatistics::mean(error) /
                          std::fabs(maths::CBasicStatistics::mean(level))};
     LOG_DEBUG(<< "relative error = " << relativeError);
-
-    //file << "f  = " << core::CContainerPrinter::print(values) << ";" << std::endl;
-    //file << "p  = " << core::CContainerPrinter::print(predictions) << ";" << std::endl;
-    //file << "pe = " << core::CContainerPrinter::print(expectedPredictions) << ";" << std::endl;
 }
 
 void CTrendComponentTest::testForecast() {
@@ -272,103 +302,47 @@ void CTrendComponentTest::testForecast() {
 
     test::CRandomNumbers rng;
 
-    auto testForecast = [&rng](TGenerator generate, core_t::TTime start, core_t::TTime end) {
-        //std::ofstream file;
-        //file.open("results.m");
-        //TDoubleVec predictions;
-        //TDoubleVec forecastPredictions;
-        //TDoubleVec forecastLower;
-        //TDoubleVec forecastUpper;
-
-        core_t::TTime bucketLength{600};
-        TDoubleVec values(generate(rng, bucketLength, start, end + 1000 * bucketLength));
-
-        maths::CTrendComponent component{0.012};
-        maths::CDecayRateController controller(
-            maths::CDecayRateController::E_PredictionBias |
-                maths::CDecayRateController::E_PredictionErrorIncrease,
-            1);
-
-        core_t::TTime time{0};
-        for (/**/; time < end; time += bucketLength) {
-            component.add(time, values[time / bucketLength]);
-            component.propagateForwardsByTime(bucketLength);
-
-            double prediction{maths::CBasicStatistics::mean(component.value(time, 0.0))};
-            controller.multiplier({prediction},
-                                  {{values[time / bucketLength] - prediction}},
-                                  bucketLength, 0.3, 0.012);
-            component.decayRate(0.012 * controller.multiplier());
-            //predictions.push_back(prediction);
-        }
-
-        component.shiftOrigin(time);
-
-        TDouble3VecVec forecast;
-        component.forecast(time, time + 1000 * bucketLength, 3600, 95.0,
-                           [](core_t::TTime) { return TDouble3Vec(3, 0.0); },
-                           [&forecast](core_t::TTime, const TDouble3Vec& value) {
-                               forecast.push_back(value);
-                           });
-
-        TMeanAccumulator meanError;
-        TMeanAccumulator meanErrorAt95;
-        for (auto& errorbar : forecast) {
-            core_t::TTime bucket{(time - start) / bucketLength};
-            meanError.add(std::fabs((values[bucket] - errorbar[1]) /
-                                    std::fabs(values[bucket])));
-            meanErrorAt95.add(std::max(std::max(values[bucket] - errorbar[2],
-                                                errorbar[0] - values[bucket]),
-                                       0.0) /
-                              std::fabs(values[bucket]));
-            //forecastLower.push_back(errorbar[0]);
-            //forecastPredictions.push_back(errorbar[1]);
-            //forecastUpper.push_back(errorbar[2]);
-        }
-
-        //file << "f  = " << core::CContainerPrinter::print(values) << ";" << std::endl;
-        //file << "p  = " << core::CContainerPrinter::print(predictions) << ";" << std::endl;
-        //file << "fl = " << core::CContainerPrinter::print(forecastLower) << ";" << std::endl;
-        //file << "fm = " << core::CContainerPrinter::print(forecastPredictions) << ";" << std::endl;
-        //file << "fu = " << core::CContainerPrinter::print(forecastUpper) << ";" << std::endl;
-
-        LOG_DEBUG(<< "error       = " << maths::CBasicStatistics::mean(meanError));
-        LOG_DEBUG(<< "error @ 95% = " << maths::CBasicStatistics::mean(meanErrorAt95));
-
-        return std::make_pair(maths::CBasicStatistics::mean(meanError),
-                              maths::CBasicStatistics::mean(meanErrorAt95));
-    };
-
+    maths::CTrendComponent component{0.012};
+    TDoubleVec values;
+    core_t::TTime startForecast;
     double error;
     double errorAt95;
 
     LOG_DEBUG(<< "Random Walk");
-    {
-        boost::tie(error, errorAt95) = testForecast(multiscaleRandomWalk, 0, 3000000);
-        CPPUNIT_ASSERT(error < 0.16);
-        CPPUNIT_ASSERT(errorAt95 < 0.001);
-    }
+    values = multiscaleRandomWalk(rng, 0, 3000000 + 1000 * BUCKET_LENGTH);
+    std::tie(component, startForecast) =
+        trainModel(values.begin(), values.begin() + 3000000 / BUCKET_LENGTH);
+    std::tie(error, errorAt95) = forecastErrors(values.begin() + 3000000 / BUCKET_LENGTH,
+                                                values.end(), startForecast, component);
+    CPPUNIT_ASSERT(error < 0.17);
+    CPPUNIT_ASSERT(errorAt95 < 0.001);
 
     LOG_DEBUG(<< "Piecewise Linear");
-    {
-        boost::tie(error, errorAt95) = testForecast(piecewiseLinear, 0, 3200000);
-        CPPUNIT_ASSERT(error < 0.17);
-        CPPUNIT_ASSERT(errorAt95 < 0.07);
-    }
+    values = piecewiseLinear(rng, 0, 3200000 + 1000 * BUCKET_LENGTH);
+    std::tie(component, startForecast) =
+        trainModel(values.begin(), values.begin() + 3200000 / BUCKET_LENGTH);
+    std::tie(error, errorAt95) = forecastErrors(values.begin() + 3200000 / BUCKET_LENGTH,
+                                                values.end(), startForecast, component);
+    CPPUNIT_ASSERT(error < 0.03);
+    CPPUNIT_ASSERT(errorAt95 < 0.001);
 
     LOG_DEBUG(<< "Staircase");
-    {
-        boost::tie(error, errorAt95) = testForecast(staircase, 0, 2000000);
-        CPPUNIT_ASSERT(error < 0.03);
-        CPPUNIT_ASSERT(errorAt95 < 0.01);
-    }
+    values = staircase(rng, 0, 2000000 + 1000 * BUCKET_LENGTH);
+    std::tie(component, startForecast) =
+        trainModel(values.begin(), values.begin() + 2000000 / BUCKET_LENGTH);
+    std::tie(error, errorAt95) = forecastErrors(values.begin() + 2000000 / BUCKET_LENGTH,
+                                                values.end(), startForecast, component);
+    CPPUNIT_ASSERT(error < 0.15);
+    CPPUNIT_ASSERT(errorAt95 < 0.08);
 
     LOG_DEBUG(<< "Switching");
-    {
-        boost::tie(error, errorAt95) = testForecast(switching, 0, 3000000);
-        CPPUNIT_ASSERT(error < 0.06);
-        CPPUNIT_ASSERT(errorAt95 < 0.01);
-    }
+    values = switching(rng, 0, 3000000 + 1000 * BUCKET_LENGTH);
+    std::tie(component, startForecast) =
+        trainModel(values.begin(), values.begin() + 3000000 / BUCKET_LENGTH);
+    std::tie(error, errorAt95) = forecastErrors(values.begin() + 3000000 / BUCKET_LENGTH,
+                                                values.end(), startForecast, component);
+    CPPUNIT_ASSERT(error < 0.14);
+    CPPUNIT_ASSERT(errorAt95 < 0.001);
 }
 
 void CTrendComponentTest::testPersist() {
@@ -376,18 +350,17 @@ void CTrendComponentTest::testPersist() {
 
     test::CRandomNumbers rng;
 
-    core_t::TTime bucketLength{600};
     core_t::TTime start{1200};
     core_t::TTime end{200000};
 
-    TDoubleVec values(multiscaleRandomWalk(rng, bucketLength, start, end));
+    TDoubleVec values(multiscaleRandomWalk(rng, start, end));
 
     maths::CTrendComponent origComponent{0.012};
 
-    for (core_t::TTime time = start; time < end; time += bucketLength) {
-        double value{values[(time - start) / bucketLength]};
+    for (core_t::TTime time = start; time < end; time += BUCKET_LENGTH) {
+        double value{values[(time - start) / BUCKET_LENGTH]};
         origComponent.add(time, value);
-        origComponent.propagateForwardsByTime(bucketLength);
+        origComponent.propagateForwardsByTime(BUCKET_LENGTH);
     }
 
     std::string origXml;
@@ -399,15 +372,15 @@ void CTrendComponentTest::testPersist() {
 
     LOG_DEBUG(<< "decomposition XML representation:\n" << origXml);
 
-    // Restore the XML into a new filter
     core::CRapidXmlParser parser;
     CPPUNIT_ASSERT(parser.parseStringIgnoreCdata(origXml));
     core::CRapidXmlStateRestoreTraverser traverser(parser);
     maths::SDistributionRestoreParams params{maths_t::E_ContinuousData, 0.1};
 
     maths::CTrendComponent restoredComponent{0.1};
-    traverser.traverseSubLevel(boost::bind(&maths::CTrendComponent::acceptRestoreTraverser,
-                                           &restoredComponent, boost::cref(params), _1));
+    traverser.traverseSubLevel(
+        std::bind(&maths::CTrendComponent::acceptRestoreTraverser,
+                  &restoredComponent, std::cref(params), std::placeholders::_1));
 
     CPPUNIT_ASSERT_EQUAL(origComponent.checksum(), restoredComponent.checksum());
 
@@ -418,6 +391,52 @@ void CTrendComponentTest::testPersist() {
         inserter.toXml(newXml);
     }
     CPPUNIT_ASSERT_EQUAL(origXml, newXml);
+}
+
+void CTrendComponentTest::testUpgradeTo7p1() {
+    // Read in the old trend format and test we get an accurate forecast.
+
+    auto load = [](const std::string& name, std::string& result) {
+        std::ifstream file;
+        file.open(name);
+        std::stringbuf buf;
+        file >> &buf;
+        result = buf.str();
+    };
+
+    std::string xml;
+    std::string expectedValues;
+    load("testfiles/CTrendComponent.7.0.xml", xml);
+    load("testfiles/CTrendComponent.7.0.expected_values.txt", expectedValues);
+
+    TDoubleVec values;
+    std::vector<std::string> tokens;
+    std::string empty;
+    core::CStringUtils::tokenise(",", expectedValues, tokens, empty);
+    for (const auto& token : tokens) {
+        double value;
+        CPPUNIT_ASSERT(core::CStringUtils::stringToType(token, value));
+        values.push_back(value);
+    }
+
+    maths::SDistributionRestoreParams params{maths_t::E_ContinuousData, 0.012};
+    maths::CTrendComponent component{0.012};
+
+    core::CRapidXmlParser parser;
+    CPPUNIT_ASSERT(parser.parseStringIgnoreCdata(xml));
+    core::CRapidXmlStateRestoreTraverser traverser(parser);
+    traverser.traverseSubLevel(
+        std::bind(&maths::CTrendComponent::acceptRestoreTraverser, &component,
+                  std::cref(params), std::placeholders::_1));
+
+    test::CRandomNumbers rng;
+
+    double error;
+    double errorAt95;
+    std::tie(error, errorAt95) =
+        forecastErrors(values.begin(), values.end(), 3000000, component);
+    CPPUNIT_ASSERT(error < 0.17);
+    CPPUNIT_ASSERT(errorAt95 < 0.001);
 }
 
 CppUnit::Test* CTrendComponentTest::suite() {
@@ -431,6 +450,8 @@ CppUnit::Test* CTrendComponentTest::suite() {
         "CTrendComponentTest::testForecast", &CTrendComponentTest::testForecast));
     suiteOfTests->addTest(new CppUnit::TestCaller<CTrendComponentTest>(
         "CTrendComponentTest::testPersist", &CTrendComponentTest::testPersist));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CTrendComponentTest>(
+        "CTrendComponentTest::testUpgradeTo7p1", &CTrendComponentTest::testUpgradeTo7p1));
 
     return suiteOfTests;
 }

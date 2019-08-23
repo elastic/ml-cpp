@@ -28,7 +28,6 @@
 #include <model/ModelTypes.h>
 
 #include <api/CAnomalyJob.h>
-#include <api/CBackgroundPersister.h>
 #include <api/CCmdSkeleton.h>
 #include <api/CCsvInputParser.h>
 #include <api/CFieldConfig.h>
@@ -38,6 +37,7 @@
 #include <api/CLengthEncodedInputParser.h>
 #include <api/CModelSnapshotJsonWriter.h>
 #include <api/COutputChainer.h>
+#include <api/CPersistenceManager.h>
 #include <api/CSingleStreamDataAdder.h>
 #include <api/CSingleStreamSearcher.h>
 #include <api/CStateRestoreStreamFilter.h>
@@ -46,8 +46,7 @@
 
 #include "CCmdLineParser.h"
 
-#include <boost/bind.hpp>
-
+#include <functional>
 #include <memory>
 #include <string>
 
@@ -100,6 +99,7 @@ int main(int argc, char** argv) {
     std::string quantilesStateFile;
     bool deleteStateFiles(false);
     ml::core_t::TTime persistInterval(-1);
+    std::size_t bucketPersistInterval(0);
     ml::core_t::TTime maxQuantileInterval(-1);
     std::string inputFileName;
     bool isInputFileNamedPipe(false);
@@ -109,6 +109,7 @@ int main(int argc, char** argv) {
     bool isRestoreFileNamedPipe(false);
     std::string persistFileName;
     bool isPersistFileNamedPipe(false);
+    bool isPersistInForeground(false);
     size_t maxAnomalyRecords(100u);
     bool memoryUsage(false);
     bool multivariateByFields(false);
@@ -118,9 +119,10 @@ int main(int argc, char** argv) {
             modelPlotConfigFile, jobId, logProperties, logPipe, bucketSpan, latency,
             summaryCountFieldName, delimiter, lengthEncodedInput, timeField,
             timeFormat, quantilesStateFile, deleteStateFiles, persistInterval,
-            maxQuantileInterval, inputFileName, isInputFileNamedPipe, outputFileName,
-            isOutputFileNamedPipe, restoreFileName, isRestoreFileNamedPipe,
-            persistFileName, isPersistFileNamedPipe, maxAnomalyRecords,
+            bucketPersistInterval, maxQuantileInterval, inputFileName,
+            isInputFileNamedPipe, outputFileName, isOutputFileNamedPipe,
+            restoreFileName, isRestoreFileNamedPipe, persistFileName,
+            isPersistFileNamedPipe, isPersistInForeground, maxAnomalyRecords,
             memoryUsage, multivariateByFields, clauseTokens) == false) {
         return EXIT_FAILURE;
     }
@@ -155,7 +157,7 @@ int main(int argc, char** argv) {
         return EXIT_FAILURE;
     }
 
-    ml::model::CLimits limits;
+    ml::model::CLimits limits(isPersistInForeground);
     if (!limitConfigFile.empty() && limits.init(limitConfigFile) == false) {
         LOG_FATAL(<< "Ml limit config file '" << limitConfigFile << "' could not be loaded");
         return EXIT_FAILURE;
@@ -210,19 +212,24 @@ int main(int argc, char** argv) {
         return nullptr;
     }()};
 
-    if (persistInterval >= 0 && persister == nullptr) {
-        LOG_FATAL(<< "Periodic persistence cannot be enabled using the 'persistInterval' argument "
+    if ((bucketPersistInterval > 0 || persistInterval >= 0) && persister == nullptr) {
+        LOG_FATAL(<< "Periodic persistence cannot be enabled using the '"
+                  << ((persistInterval >= 0) ? "persistInterval" : "bucketPersistInterval")
+                  << "' argument "
                      "unless a place to persist to has been specified using the 'persist' argument");
         return EXIT_FAILURE;
     }
 
-    using TBackgroundPersisterUPtr = std::unique_ptr<ml::api::CBackgroundPersister>;
-    const TBackgroundPersisterUPtr periodicPersister{[persistInterval, &persister]() -> TBackgroundPersisterUPtr {
-        if (persistInterval >= 0) {
-            return std::make_unique<ml::api::CBackgroundPersister>(persistInterval, *persister);
-        }
-        return nullptr;
-    }()};
+    using TPersistenceManagerUPtr = std::unique_ptr<ml::api::CPersistenceManager>;
+    const TPersistenceManagerUPtr periodicPersister{
+        [persistInterval, isPersistInForeground, &persister,
+         &bucketPersistInterval]() -> TPersistenceManagerUPtr {
+            if (persistInterval >= 0 || bucketPersistInterval > 0) {
+                return std::make_unique<ml::api::CPersistenceManager>(
+                    persistInterval, isPersistInForeground, *persister, bucketPersistInterval);
+            }
+            return nullptr;
+        }()};
 
     using InputParserCUPtr = std::unique_ptr<ml::api::CInputParser>;
     const InputParserCUPtr inputParser{[lengthEncodedInput, &ioMgr, delimiter]() -> InputParserCUPtr {
@@ -242,8 +249,8 @@ int main(int argc, char** argv) {
 
     // The anomaly job knows how to detect anomalies
     ml::api::CAnomalyJob job(jobId, limits, fieldConfig, modelConfig, wrappedOutputStream,
-                             boost::bind(&ml::api::CModelSnapshotJsonWriter::write,
-                                         &modelSnapshotWriter, _1),
+                             std::bind(&ml::api::CModelSnapshotJsonWriter::write,
+                                       &modelSnapshotWriter, std::placeholders::_1),
                              periodicPersister.get(), maxQuantileInterval,
                              timeField, timeFormat, maxAnomalyRecords);
 
@@ -274,8 +281,11 @@ int main(int argc, char** argv) {
     }
 
     if (periodicPersister != nullptr) {
-        periodicPersister->firstProcessorPeriodicPersistFunc(boost::bind(
-            &ml::api::CDataProcessor::periodicPersistState, firstProcessor, _1));
+        periodicPersister->firstProcessorBackgroundPeriodicPersistFunc(std::bind(
+            &ml::api::CDataProcessor::periodicPersistStateInBackground, firstProcessor));
+
+        periodicPersister->firstProcessorForegroundPeriodicPersistFunc(std::bind(
+            &ml::api::CDataProcessor::periodicPersistStateInForeground, firstProcessor));
     }
 
     // The skeleton avoids the need to duplicate a lot of boilerplate code

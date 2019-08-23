@@ -12,7 +12,7 @@
 #include <api/CDataProcessor.h>
 #include <api/CInputParser.h>
 
-#include <boost/bind.hpp>
+#include <functional>
 
 namespace ml {
 namespace api {
@@ -36,8 +36,8 @@ bool CCmdSkeleton::ioLoop() {
         }
     }
 
-    if (m_InputParser.readStreamIntoMaps(
-            boost::bind(&CDataProcessor::handleRecord, &m_Processor, _1)) == false) {
+    if (m_InputParser.readStreamIntoMaps(std::bind(&CDataProcessor::handleRecord, &m_Processor,
+                                                   std::placeholders::_1)) == false) {
         LOG_FATAL(<< "Failed to handle all input data");
         return false;
     }
@@ -56,13 +56,12 @@ bool CCmdSkeleton::persistState() {
         return true;
     }
 
-    if (m_Processor.numRecordsHandled() == 0) {
-        LOG_DEBUG(<< "Zero records were handled - will not attempt to persist state");
+    if (m_Processor.isPersistenceNeeded("state") == false) {
         return true;
     }
 
     // Attempt to persist state
-    if (m_Processor.persistState(*m_Persister) == false) {
+    if (m_Processor.persistState(*m_Persister, "State persisted due to job close at ") == false) {
         LOG_FATAL(<< "Failed to persist state");
         return false;
     }

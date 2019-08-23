@@ -31,12 +31,13 @@
 #include <maths/CTools.h>
 #include <maths/ProbabilityAggregators.h>
 
-#include <boost/make_unique.hpp>
 #include <boost/math/special_functions/beta.hpp>
 #include <boost/numeric/conversion/bounds.hpp>
 #include <boost/optional.hpp>
 
 #include <cmath>
+#include <functional>
+#include <memory>
 #include <string>
 #include <utility>
 #include <vector>
@@ -139,8 +140,8 @@ public:
     CMultivariateNormalConjugate(const SDistributionRestoreParams& params,
                                  core::CStateRestoreTraverser& traverser)
         : CMultivariatePrior(params.s_DataType, params.s_DecayRate) {
-        traverser.traverseSubLevel(boost::bind(
-            &CMultivariateNormalConjugate::acceptRestoreTraverser, this, _1));
+        traverser.traverseSubLevel(std::bind(&CMultivariateNormalConjugate::acceptRestoreTraverser,
+                                             this, std::placeholders::_1));
     }
 
     virtual ~CMultivariateNormalConjugate() {}
@@ -378,7 +379,7 @@ public:
         double m1 = m(i1[0]);
         double c11 = c(i1[0], i1[0]);
         if (condition.empty()) {
-            return {boost::make_unique<CNormalMeanPrecConjugate>(
+            return {std::make_unique<CNormalMeanPrecConjugate>(
                         dataType, m1, p, s, c11 * v / 2.0, decayRate),
                     0.0};
         }
@@ -408,7 +409,7 @@ public:
             LOG_TRACE(<< "mean = " << mean << ", variance = " << variance
                       << ", weight = " << weight);
 
-            return {boost::make_unique<CNormalMeanPrecConjugate>(
+            return {std::make_unique<CNormalMeanPrecConjugate>(
                         dataType, mean, p, s, variance * v / 2.0, decayRate),
                     weight};
         } catch (const std::exception& e) {
@@ -472,7 +473,7 @@ public:
             }
         }
         if (condition.empty()) {
-            return {boost::make_unique<CMultivariateNormalConjugate<2>>(
+            return {std::make_unique<CMultivariateNormalConjugate<2>>(
                         dataType, m1, p, f, c11, decayRate),
                     0.0};
         }
@@ -505,7 +506,7 @@ public:
             weight -= 0.5 * (xc - m2).transpose() * c22SolvexcMinusm2;
             LOG_TRACE(<< "mean = " << mean << ", covariance = " << covariance);
 
-            return {boost::make_unique<CMultivariateNormalConjugate<2>>(
+            return {std::make_unique<CMultivariateNormalConjugate<2>>(
                         dataType, mean, p, f, covariance, decayRate),
                     weight};
         } catch (const std::exception& e) {

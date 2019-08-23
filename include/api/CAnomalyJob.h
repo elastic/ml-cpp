@@ -36,7 +36,7 @@
 
 #include <stdint.h>
 
-class CBackgroundPersisterTest;
+class CPersistenceManagerTest;
 class CAnomalyJobTest;
 
 namespace ml {
@@ -50,7 +50,7 @@ class CHierarchicalResults;
 class CLimits;
 }
 namespace api {
-class CBackgroundPersister;
+class CPersistenceManager;
 class CModelPlotDataJsonWriter;
 class CFieldConfig;
 
@@ -148,39 +148,47 @@ public:
                 model::CAnomalyDetectorModelConfig& modelConfig,
                 core::CJsonOutputStreamWrapper& outputBuffer,
                 const TPersistCompleteFunc& persistCompleteFunc = TPersistCompleteFunc(),
-                CBackgroundPersister* periodicPersister = nullptr,
+                CPersistenceManager* periodicPersister = nullptr,
                 core_t::TTime maxQuantileInterval = -1,
                 const std::string& timeFieldName = DEFAULT_TIME_FIELD_NAME,
                 const std::string& timeFieldFormat = EMPTY_STRING,
                 size_t maxAnomalyRecords = 0u);
 
-    virtual ~CAnomalyJob();
+    ~CAnomalyJob() override;
 
     //! We're going to be writing to a new output stream
-    virtual void newOutputStream();
+    void newOutputStream() override;
 
     //! Access the output handler
-    virtual COutputHandler& outputHandler();
+    COutputHandler& outputHandler() override;
 
     //! Receive a single record to be processed, and produce output
     //! with any required modifications
-    virtual bool handleRecord(const TStrStrUMap& dataRowFields);
+    bool handleRecord(const TStrStrUMap& dataRowFields) override;
 
     //! Perform any final processing once all input data has been seen.
-    virtual void finalise();
+    void finalise() override;
 
     //! Restore previously saved state
-    virtual bool restoreState(core::CDataSearcher& restoreSearcher,
-                              core_t::TTime& completeToTime);
+    bool restoreState(core::CDataSearcher& restoreSearcher,
+                      core_t::TTime& completeToTime) override;
 
     //! Persist current state
-    virtual bool persistState(core::CDataAdder& persister);
+    bool persistState(core::CDataAdder& persister, const std::string& descriptionPrefix) override;
+
+    //! Persist state of the residual models only
+    bool persistResidualModelsState(core::CDataAdder& persister,
+                                    core_t::TTime timestamp,
+                                    const std::string& outputFormat);
 
     //! Initialise normalizer from quantiles state
     virtual bool initNormalizer(const std::string& quantilesStateFile);
 
     //! How many records did we handle?
-    virtual uint64_t numRecordsHandled() const;
+    uint64_t numRecordsHandled() const override;
+
+    //! Is persistence needed?
+    bool isPersistenceNeeded(const std::string& description) const override;
 
     //! Log a list of the detectors and keys
     void description() const;
@@ -240,26 +248,36 @@ private:
                               core::CStateRestoreTraverser& traverser);
 
     //! Persist current state in the background
-    bool backgroundPersistState(CBackgroundPersister& backgroundPersister);
+    bool backgroundPersistState();
 
     //! This is the function that is called in a different thread to the
     //! main processing when background persistence is triggered.
     bool runBackgroundPersist(TBackgroundPersistArgsPtr args, core::CDataAdder& persister);
 
+    //! This function is called from the persistence manager when foreground persistence is triggered
+    bool runForegroundPersist(core::CDataAdder& persister);
+
     //! Persist the detectors to a stream.
-    bool persistState(const std::string& descriptionPrefix,
-                      core_t::TTime time,
-                      const TKeyCRefAnomalyDetectorPtrPrVec& detectors,
-                      const model::CResourceMonitor::SResults& modelSizeStats,
-                      const model::CInterimBucketCorrector& interimBucketCorrector,
-                      const model::CHierarchicalResultsAggregator& aggregator,
-                      const std::string& normalizerState,
-                      core_t::TTime latestRecordTime,
-                      core_t::TTime lastResultsTime,
-                      core::CDataAdder& persister);
+    bool persistCopiedState(const std::string& descriptionPrefix,
+                            core_t::TTime time,
+                            const TKeyCRefAnomalyDetectorPtrPrVec& detectors,
+                            const model::CResourceMonitor::SResults& modelSizeStats,
+                            const model::CInterimBucketCorrector& interimBucketCorrector,
+                            const model::CHierarchicalResultsAggregator& aggregator,
+                            const std::string& normalizerState,
+                            core_t::TTime latestRecordTime,
+                            core_t::TTime lastResultsTime,
+                            core::CDataAdder& persister);
 
     //! Persist current state due to the periodic persistence being triggered.
-    virtual bool periodicPersistState(CBackgroundPersister& persister);
+    bool periodicPersistStateInBackground() override;
+    bool periodicPersistStateInForeground() override;
+
+    //! Persist state of the residual models only
+    bool persistResidualModelsState(const TKeyCRefAnomalyDetectorPtrPrVec& detectors,
+                                    core::CDataAdder& persister,
+                                    core_t::TTime timestamp,
+                                    const std::string& outputFormat);
 
     //! Acknowledge a flush request
     void acknowledgeFlush(const std::string& flushId);
@@ -426,7 +444,7 @@ private:
     //! Pointer to periodic persister that works in the background.  May be
     //! nullptr if this object is not responsible for starting periodic
     //! persistence.
-    CBackgroundPersister* m_PeriodicPersister;
+    CPersistenceManager* m_PeriodicPersister;
 
     //! If we haven't output quantiles for this long due to a big anomaly
     //! we'll output them to reflect decay.  Non-positive values mean never.
@@ -454,7 +472,10 @@ private:
     //! The hierarchical results normalizer.
     model::CHierarchicalResultsNormalizer m_Normalizer;
 
-    friend class ::CBackgroundPersisterTest;
+    //! Flag indicating whether or not time has been advanced.
+    bool m_TimeAdvanced{false};
+
+    friend class ::CPersistenceManagerTest;
     friend class ::CAnomalyJobTest;
 };
 }

@@ -13,9 +13,9 @@
 #include <model/ImportExport.h>
 #include <model/ModelTypes.h>
 
-#include <boost/array.hpp>
 #include <boost/optional.hpp>
 
+#include <array>
 #include <cstddef>
 #include <string>
 #include <utility>
@@ -49,7 +49,7 @@ public:
     using TOptionalSizeVec = std::vector<TOptionalSize>;
     using TOptionalDouble = boost::optional<double>;
     // Fixed size array - one element per metric category
-    using TDouble1VecArray = boost::array<TDouble1Vec, model_t::NUM_METRIC_CATEGORIES>;
+    using TDouble1VecArray = std::array<TDouble1Vec, model_t::NUM_METRIC_CATEGORIES>;
     // Second element in pair stores count
     using TDouble1VecArraySizePr = std::pair<TDouble1VecArray, std::size_t>;
     using TOptionalDouble1VecArraySizePr = boost::optional<TDouble1VecArraySizePr>;

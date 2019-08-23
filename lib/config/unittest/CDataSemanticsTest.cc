@@ -79,8 +79,8 @@ void CDataSemanticsTest::testNumericCategorical() {
 
     TDoubleVec status;
     rng.generateMultinomialSamples(
-        TDoubleVec(boost::begin(codes), boost::end(codes)),
-        TDoubleVec(boost::begin(frequencies), boost::end(frequencies)), 5000, status);
+        TDoubleVec(std::begin(codes), std::end(codes)),
+        TDoubleVec(std::begin(frequencies), std::end(frequencies)), 5000, status);
 
     config::CDataSemantics semantics;
 

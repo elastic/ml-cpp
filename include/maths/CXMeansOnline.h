@@ -29,6 +29,7 @@
 
 #include <cmath>
 #include <cstddef>
+#include <functional>
 #include <numeric>
 #include <vector>
 
@@ -111,9 +112,9 @@ public:
                 const std::string& name = traverser.name();
                 RESTORE_BUILT_IN(INDEX_TAG, m_Index)
                 RESTORE(COVARIANCES_TAG, m_Covariances.fromDelimited(traverser.value()))
-                RESTORE(STRUCTURE_TAG, traverser.traverseSubLevel(boost::bind(
-                                           &TKMeansOnline::acceptRestoreTraverser,
-                                           &m_Structure, boost::cref(params), _1)))
+                RESTORE(STRUCTURE_TAG, traverser.traverseSubLevel(std::bind(
+                                           &TKMeansOnline::acceptRestoreTraverser, &m_Structure,
+                                           std::cref(params), std::placeholders::_1)))
             } while (traverser.next());
 
             return true;
@@ -123,8 +124,9 @@ public:
         void acceptPersistInserter(core::CStatePersistInserter& inserter) const {
             inserter.insertValue(INDEX_TAG, m_Index);
             inserter.insertValue(COVARIANCES_TAG, m_Covariances.toDelimited());
-            inserter.insertLevel(STRUCTURE_TAG, boost::bind(&TKMeansOnline::acceptPersistInserter,
-                                                            m_Structure, _1));
+            inserter.insertLevel(STRUCTURE_TAG,
+                                 std::bind(&TKMeansOnline::acceptPersistInserter,
+                                           m_Structure, std::placeholders::_1));
         }
 
         //! Efficiently swap the contents of this and \p other.
@@ -597,8 +599,8 @@ public:
           m_InitialDecayRate(params.s_DecayRate), m_DecayRate(params.s_DecayRate),
           m_HistoryLength(), m_MinimumClusterFraction(), m_MinimumClusterCount(),
           m_MinimumCategoryCount(params.s_MinimumCategoryCount) {
-        traverser.traverseSubLevel(boost::bind(&CXMeansOnline::acceptRestoreTraverser,
-                                               this, boost::cref(params), _1));
+        traverser.traverseSubLevel(std::bind(&CXMeansOnline::acceptRestoreTraverser, this,
+                                             std::cref(params), std::placeholders::_1));
     }
 
     //! Construct by traversing a state document.
@@ -611,8 +613,8 @@ public:
           m_InitialDecayRate(params.s_DecayRate), m_DecayRate(params.s_DecayRate),
           m_HistoryLength(), m_MinimumClusterFraction(), m_MinimumClusterCount(),
           m_MinimumCategoryCount(params.s_MinimumCategoryCount) {
-        traverser.traverseSubLevel(boost::bind(&CXMeansOnline::acceptRestoreTraverser,
-                                               this, boost::cref(params), _1));
+        traverser.traverseSubLevel(std::bind(&CXMeansOnline::acceptRestoreTraverser, this,
+                                             std::cref(params), std::placeholders::_1));
     }
 
     //! The x-means clusterer has value semantics.
@@ -658,15 +660,16 @@ public:
     //! \name Clusterer Contract
     //@{
     //! Get the tag name for this clusterer.
-    virtual std::string persistenceTag() const {
+    virtual const core::TPersistenceTag& persistenceTag() const {
         return CClustererTypes::X_MEANS_ONLINE_TAG;
     }
 
     //! Persist state by passing information to the supplied inserter.
     virtual void acceptPersistInserter(core::CStatePersistInserter& inserter) const {
         for (const auto& cluster : m_Clusters) {
-            inserter.insertLevel(CLUSTER_TAG, boost::bind(&CCluster::acceptPersistInserter,
-                                                          &cluster, _1));
+            inserter.insertLevel(CLUSTER_TAG,
+                                 std::bind(&CCluster::acceptPersistInserter,
+                                           &cluster, std::placeholders::_1));
         }
         inserter.insertValue(DECAY_RATE_TAG, m_DecayRate.toString());
         inserter.insertValue(HISTORY_LENGTH_TAG, m_HistoryLength.toString());
@@ -676,8 +679,8 @@ public:
                              m_MinimumClusterFraction.toString());
         inserter.insertValue(MINIMUM_CLUSTER_COUNT_TAG, m_MinimumClusterCount.toString());
         inserter.insertLevel(CLUSTER_INDEX_GENERATOR_TAG,
-                             boost::bind(&CClustererTypes::CIndexGenerator::acceptPersistInserter,
-                                         &m_ClusterIndexGenerator, _1));
+                             std::bind(&CClustererTypes::CIndexGenerator::acceptPersistInserter,
+                                       &m_ClusterIndexGenerator, std::placeholders::_1));
     }
 
     //! Creates a copy of the clusterer.
@@ -985,9 +988,9 @@ protected:
         do {
             const std::string& name = traverser.name();
             RESTORE_SETUP_TEARDOWN(CLUSTER_TAG, CCluster cluster(*this),
-                                   traverser.traverseSubLevel(boost::bind(
-                                       &CCluster::acceptRestoreTraverser,
-                                       &cluster, boost::cref(params), _1)),
+                                   traverser.traverseSubLevel(std::bind(
+                                       &CCluster::acceptRestoreTraverser, &cluster,
+                                       std::cref(params), std::placeholders::_1)),
                                    m_Clusters.push_back(cluster))
             RESTORE_SETUP_TEARDOWN(DECAY_RATE_TAG, double decayRate,
                                    core::CStringUtils::stringToType(traverser.value(), decayRate),
@@ -995,9 +998,9 @@ protected:
             RESTORE(HISTORY_LENGTH_TAG, m_HistoryLength.fromString(traverser.value()))
             RESTORE(RNG_TAG, m_Rng.fromString(traverser.value()));
             RESTORE(CLUSTER_INDEX_GENERATOR_TAG,
-                    traverser.traverseSubLevel(boost::bind(
+                    traverser.traverseSubLevel(std::bind(
                         &CClustererTypes::CIndexGenerator::acceptRestoreTraverser,
-                        &m_ClusterIndexGenerator, _1)))
+                        &m_ClusterIndexGenerator, std::placeholders::_1)))
             RESTORE_ENUM(WEIGHT_CALC_TAG, m_WeightCalc, maths_t::EClusterWeightCalc)
             RESTORE(MINIMUM_CLUSTER_FRACTION_TAG,
                     m_MinimumClusterFraction.fromString(traverser.value()))
@@ -1168,22 +1171,22 @@ private:
 private:
     //! \name Tags for Persisting CXMeansOnline
     //@{
-    static const std::string WEIGHT_CALC_TAG;
-    static const std::string MINIMUM_CLUSTER_FRACTION_TAG;
-    static const std::string MINIMUM_CLUSTER_COUNT_TAG;
-    static const std::string WINSORISATION_CONFIDENCE_INTERVAL_TAG;
-    static const std::string CLUSTER_INDEX_GENERATOR_TAG;
-    static const std::string CLUSTER_TAG;
-    static const std::string RNG_TAG;
-    static const std::string DECAY_RATE_TAG;
-    static const std::string HISTORY_LENGTH_TAG;
+    static const core::TPersistenceTag WEIGHT_CALC_TAG;
+    static const core::TPersistenceTag MINIMUM_CLUSTER_FRACTION_TAG;
+    static const core::TPersistenceTag MINIMUM_CLUSTER_COUNT_TAG;
+    static const core::TPersistenceTag WINSORISATION_CONFIDENCE_INTERVAL_TAG;
+    static const core::TPersistenceTag CLUSTER_INDEX_GENERATOR_TAG;
+    static const core::TPersistenceTag CLUSTER_TAG;
+    static const core::TPersistenceTag RNG_TAG;
+    static const core::TPersistenceTag DECAY_RATE_TAG;
+    static const core::TPersistenceTag HISTORY_LENGTH_TAG;
     //@}
 
     //! \name Tags for Persisting CXMeansOnline::CCluster
     //@{
-    static const std::string INDEX_TAG;
-    static const std::string COVARIANCES_TAG;
-    static const std::string STRUCTURE_TAG;
+    static const core::TPersistenceTag INDEX_TAG;
+    static const core::TPersistenceTag COVARIANCES_TAG;
+    static const core::TPersistenceTag STRUCTURE_TAG;
     //@}
 
     //! The minimum Kullback-Leibler divergence at which we'll
@@ -1244,27 +1247,31 @@ private:
 };
 
 template<typename T, std::size_t N>
-const std::string CXMeansOnline<T, N>::WEIGHT_CALC_TAG("a");
+const core::TPersistenceTag CXMeansOnline<T, N>::WEIGHT_CALC_TAG("a", "weight_calc");
 template<typename T, std::size_t N>
-const std::string CXMeansOnline<T, N>::MINIMUM_CLUSTER_FRACTION_TAG("b");
+const core::TPersistenceTag
+    CXMeansOnline<T, N>::MINIMUM_CLUSTER_FRACTION_TAG("b", "minimum_cluster_fraction");
 template<typename T, std::size_t N>
-const std::string CXMeansOnline<T, N>::MINIMUM_CLUSTER_COUNT_TAG("c");
+const core::TPersistenceTag
+    CXMeansOnline<T, N>::MINIMUM_CLUSTER_COUNT_TAG("c", "minimum_cluster_count");
 template<typename T, std::size_t N>
-const std::string CXMeansOnline<T, N>::CLUSTER_INDEX_GENERATOR_TAG("e");
+const core::TPersistenceTag
+    CXMeansOnline<T, N>::CLUSTER_INDEX_GENERATOR_TAG("e", "cluster_index_generator");
 template<typename T, std::size_t N>
-const std::string CXMeansOnline<T, N>::CLUSTER_TAG("f");
+const core::TPersistenceTag CXMeansOnline<T, N>::CLUSTER_TAG("f", "cluster");
 template<typename T, std::size_t N>
-const std::string CXMeansOnline<T, N>::RNG_TAG("g");
+const core::TPersistenceTag CXMeansOnline<T, N>::RNG_TAG("g", "rng");
 template<typename T, std::size_t N>
-const std::string CXMeansOnline<T, N>::DECAY_RATE_TAG("h");
+const core::TPersistenceTag CXMeansOnline<T, N>::DECAY_RATE_TAG("h", "decay_rate");
 template<typename T, std::size_t N>
-const std::string CXMeansOnline<T, N>::HISTORY_LENGTH_TAG("i");
+const core::TPersistenceTag CXMeansOnline<T, N>::HISTORY_LENGTH_TAG("i", "history_length");
 template<typename T, std::size_t N>
-const std::string CXMeansOnline<T, N>::INDEX_TAG("a");
+const core::TPersistenceTag CXMeansOnline<T, N>::INDEX_TAG("a", "index");
 template<typename T, std::size_t N>
-const std::string CXMeansOnline<T, N>::COVARIANCES_TAG("b");
+const core::TPersistenceTag CXMeansOnline<T, N>::COVARIANCES_TAG("b", "covariances");
 template<typename T, std::size_t N>
-const std::string CXMeansOnline<T, N>::STRUCTURE_TAG("c");
+const core::TPersistenceTag CXMeansOnline<T, N>::STRUCTURE_TAG("c", "structure");
+
 template<typename T, std::size_t N>
 const double CXMeansOnline<T, N>::MINIMUM_SPLIT_DISTANCE(6.0);
 template<typename T, std::size_t N>

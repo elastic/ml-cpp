@@ -50,7 +50,20 @@ public:
     using TRunnerFactoryUPtrVec = std::vector<TRunnerFactoryUPtr>;
 
 public:
-    //! Inititialize from a JSON object.
+    static const std::string ROWS;
+    static const std::string COLS;
+    static const std::string MEMORY_LIMIT;
+    static const std::string THREADS;
+    static const std::string TEMPORARY_DIRECTORY;
+    static const std::string RESULTS_FIELD;
+    static const std::string CATEGORICAL_FIELD_NAMES;
+    static const std::string DISK_USAGE_ALLOWED;
+    static const std::string ANALYSIS;
+    static const std::string NAME;
+    static const std::string PARAMETERS;
+
+public:
+    //! Initialize from a JSON object.
     //!
     //! The specification has the following expected form:
     //! <CODE>
@@ -60,6 +73,9 @@ public:
     //!   "memory_limit": <integer>,
     //!   "threads": <integer>,
     //!   "temp_dir": <string>,
+    //!   "results_field": <string>,
+    //!   "categorical_fields": [<string>],
+    //!   "disk_usage_allowed": <boolean>,
     //!   "analysis": {
     //!     "name": <string>,
     //!     "parameters": <object>
@@ -105,6 +121,16 @@ public:
     //! \return The number of threads the analysis can use.
     std::size_t numberThreads() const;
 
+    //! \return The name of the results field.
+    const std::string& resultsField() const;
+
+    //! \return The names of the categorical fields.
+    const TStrVec& categoricalFieldNames() const;
+
+    //! \return If it is allowed to overflow data frame to the disk if it doesn't
+    //! fit in memory.
+    bool diskUsageAllowed() const;
+
     //! Make a data frame suitable for this analysis specification.
     //!
     //! This chooses the storage strategy based on the analysis constraints and
@@ -123,7 +149,12 @@ public:
     //! \note The commit of the results of the analysis is atomic per partition.
     //! \warning This assumes that there is no access to the data frame in the
     //! calling thread until the runner has finished.
-    CDataFrameAnalysisRunner* run(core::CDataFrame& frame) const;
+    CDataFrameAnalysisRunner* run(const TStrVec& featureNames, core::CDataFrame& frame) const;
+
+    //! Estimates memory usage in two cases:
+    //!   1. disk is not used (the whole data frame fits in main memory)
+    //!   2. disk is used (only one partition needs to be loaded to main memory)
+    void estimateMemoryUsage(CMemoryUsageEstimationResultJsonWriter& writer) const;
 
 private:
     void initializeRunner(const rapidjson::Value& jsonAnalysis);
@@ -134,6 +165,9 @@ private:
     std::size_t m_MemoryLimit = 0;
     std::size_t m_NumberThreads = 0;
     std::string m_TemporaryDirectory;
+    std::string m_ResultsField;
+    TStrVec m_CategoricalFieldNames;
+    bool m_DiskUsageAllowed;
     // TODO Sparse table support
     // double m_TableLoadFactor = 0.0;
     TRunnerFactoryUPtrVec m_RunnerFactories;

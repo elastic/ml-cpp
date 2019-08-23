@@ -22,7 +22,6 @@
 
 #include "TestUtils.h"
 
-#include <boost/bind.hpp>
 #include <boost/optional.hpp>
 #include <boost/range.hpp>
 
@@ -72,8 +71,8 @@ void CCalendarCyclicTestTest::testTruePositives() {
         TDoubleVec error;
         for (core_t::TTime time = 0; time <= end; time += HALF_HOUR) {
             ptrdiff_t i = maths::CTools::truncate(
-                std::lower_bound(boost::begin(months), boost::end(months), time) -
-                    boost::begin(months),
+                std::lower_bound(std::begin(months), std::end(months), time) -
+                    std::begin(months),
                 ptrdiff_t(1), ptrdiff_t(boost::size(months)));
 
             rng.generateNormalSamples(0.0, 9.0, 1, error);
@@ -120,8 +119,8 @@ void CCalendarCyclicTestTest::testTruePositives() {
         TDoubleVec error;
         for (core_t::TTime time = 0; time <= end; time += HALF_HOUR) {
             ptrdiff_t i = maths::CTools::truncate(
-                std::lower_bound(boost::begin(months), boost::end(months), time) -
-                    boost::begin(months),
+                std::lower_bound(std::begin(months), std::end(months), time) -
+                    std::begin(months),
                 ptrdiff_t(1), ptrdiff_t(boost::size(months)));
 
             rng.generateNormalSamples(0.0, 9.0, 1, error);
@@ -164,8 +163,8 @@ void CCalendarCyclicTestTest::testTruePositives() {
         TDoubleVec error;
         for (core_t::TTime time = 0; time <= end; time += HALF_HOUR) {
             ptrdiff_t i = maths::CTools::truncate(
-                std::lower_bound(boost::begin(months), boost::end(months), time) -
-                    boost::begin(months),
+                std::lower_bound(std::begin(months), std::end(months), time) -
+                    std::begin(months),
                 ptrdiff_t(1), ptrdiff_t(boost::size(months)));
 
             rng.generateNormalSamples(0.0, 9.0, 1, error);
@@ -208,8 +207,8 @@ void CCalendarCyclicTestTest::testTruePositives() {
         TDoubleVec error;
         for (core_t::TTime time = 0; time <= end; time += HALF_HOUR) {
             ptrdiff_t i = maths::CTools::truncate(
-                std::lower_bound(boost::begin(months), boost::end(months), time) -
-                    boost::begin(months),
+                std::lower_bound(std::begin(months), std::end(months), time) -
+                    std::begin(months),
                 ptrdiff_t(1), ptrdiff_t(boost::size(months)));
 
             rng.generateNormalSamples(0.0, 9.0, 1, error);
@@ -355,8 +354,9 @@ void CCalendarCyclicTestTest::testPersist() {
         core::CRapidXmlParser parser;
         CPPUNIT_ASSERT(parser.parseStringIgnoreCdata(origXml));
         core::CRapidXmlStateRestoreTraverser traverser(parser);
-        CPPUNIT_ASSERT(traverser.traverseSubLevel(boost::bind(
-            &maths::CCalendarCyclicTest::acceptRestoreTraverser, &restored, _1)));
+        CPPUNIT_ASSERT(traverser.traverseSubLevel(
+            std::bind(&maths::CCalendarCyclicTest::acceptRestoreTraverser,
+                      &restored, std::placeholders::_1)));
     }
     CPPUNIT_ASSERT_EQUAL(orig.checksum(), restored.checksum());
 

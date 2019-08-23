@@ -513,8 +513,9 @@ public:
 
         if (!evaluateFunctionOnJointDistribution(
                 m_Samples, m_Weights,
-                boost::bind<double>(CTools::CProbabilityOfLessLikelySample(m_Calculation),
-                                    _1, _2, boost::ref(tail)),
+                std::bind<double>(CTools::CProbabilityOfLessLikelySample(m_Calculation),
+                                  std::placeholders::_1, std::placeholders::_2,
+                                  std::ref(tail)),
                 CJointProbabilityOfLessLikelySamples::SAddProbability(), m_IsNonInformative,
                 m_Offset + x, m_LikelihoodShape, m_PriorShape, m_PriorRate, probability) ||
             !probability.calculate(result)) {
@@ -690,18 +691,20 @@ private:
 
 } // detail::
 
-// We use short field names to reduce the state size
-const std::string OFFSET_TAG("a");
-const std::string LIKELIHOOD_SHAPE_TAG("b");
-const std::string LOG_SAMPLES_MEAN_TAG("c");
-const std::string SAMPLE_MOMENTS_TAG("d");
-const std::string PRIOR_SHAPE_TAG("e");
-const std::string PRIOR_RATE_TAG("f");
-const std::string NUMBER_SAMPLES_TAG("g");
+const core::TPersistenceTag OFFSET_TAG("a", "offset");
+const core::TPersistenceTag LIKELIHOOD_SHAPE_TAG("b", "likelihood_shape");
+const core::TPersistenceTag LOG_SAMPLES_MEAN_TAG("c", "log_samples_mean");
+const core::TPersistenceTag SAMPLE_MOMENTS_TAG("d", "sample_moments");
+const core::TPersistenceTag PRIOR_SHAPE_TAG("e", "prior_shape");
+const core::TPersistenceTag PRIOR_RATE_TAG("f", "prior_rate");
+const core::TPersistenceTag NUMBER_SAMPLES_TAG("g", "number_samples");
 //const std::string MINIMUM_TAG("h"); No longer used
 //const std::string MAXIMUM_TAG("i"); No longer used
-const std::string DECAY_RATE_TAG("j");
+const core::TPersistenceTag DECAY_RATE_TAG("j", "decay_rate");
+const std::string MEAN_TAG("mean");
+const std::string STANDARD_DEVIATION_TAG("standard_deviation");
 const std::string EMPTY_STRING;
+const std::string UNKNOWN_VALUE_STRING("<unknown>");
 }
 
 CGammaRateConjugate::CGammaRateConjugate(maths_t::EDataType dataType,
@@ -719,8 +722,8 @@ CGammaRateConjugate::CGammaRateConjugate(const SDistributionRestoreParams& param
                                          double offsetMargin)
     : CPrior(params.s_DataType, 0.0), m_Offset(0.0), m_OffsetMargin(offsetMargin),
       m_LikelihoodShape(1.0), m_PriorShape(0.0), m_PriorRate(0.0) {
-    traverser.traverseSubLevel(
-        boost::bind(&CGammaRateConjugate::acceptRestoreTraverser, this, _1));
+    traverser.traverseSubLevel(std::bind(&CGammaRateConjugate::acceptRestoreTraverser,
+                                         this, std::placeholders::_1));
 }
 
 bool CGammaRateConjugate::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
@@ -1438,6 +1441,17 @@ void CGammaRateConjugate::print(const std::string& indent, std::string& result) 
         return;
     }
 
+    std::string meanStr;
+    std::string sdStr;
+
+    std::tie(meanStr, sdStr) = this->printMarginalLikelihoodStatistics();
+
+    result += "mean = " + meanStr + " sd = " + sdStr;
+}
+
+CPrior::TStrStrPr CGammaRateConjugate::doPrintMarginalLikelihoodStatistics() const {
+    std::string meanStr;
+    std::string sdStr;
     try {
         if (this->priorShape() > 2.0) {
             double shape = (this->priorShape() - 2.0) /
@@ -1446,15 +1460,20 @@ void CGammaRateConjugate::print(const std::string& indent, std::string& result) 
             boost::math::gamma_distribution<> gamma(shape, rate);
             double mean = boost::math::mean(gamma);
             double deviation = boost::math::standard_deviation(gamma);
-            result += "mean = " + core::CStringUtils::typeToStringPretty(mean - m_Offset) +
-                      " sd = " + core::CStringUtils::typeToStringPretty(deviation);
-            return;
+
+            meanStr = core::CStringUtils::typeToStringPretty(mean - m_Offset);
+            sdStr = core::CStringUtils::typeToStringPretty(deviation);
+
+            return TStrStrPr{meanStr, sdStr};
         }
     } catch (const std::exception&) {}
     double mean = CBasicStatistics::mean(m_SampleMoments);
     double deviation = std::sqrt(CBasicStatistics::variance(m_SampleMoments));
-    result += "mean = " + core::CStringUtils::typeToStringPretty(mean - m_Offset) +
-              " sd = " + core::CStringUtils::typeToStringPretty(deviation);
+
+    meanStr = core::CStringUtils::typeToStringPretty(mean - m_Offset);
+    sdStr = core::CStringUtils::typeToStringPretty(deviation);
+
+    return TStrStrPr{meanStr, sdStr};
 }
 
 std::string CGammaRateConjugate::printJointDensityFunction() const {
@@ -1528,6 +1547,16 @@ void CGammaRateConjugate::acceptPersistInserter(core::CStatePersistInserter& ins
     inserter.insertValue(PRIOR_RATE_TAG, m_PriorRate.toString());
     inserter.insertValue(NUMBER_SAMPLES_TAG, this->numberSamples(),
                          core::CIEEE754::E_SinglePrecision);
+
+    if (inserter.readableTags() == true) {
+        std::string mean;
+        std::string sd;
+
+        std::tie(mean, sd) = this->printMarginalLikelihoodStatistics();
+
+        inserter.insertValue(MEAN_TAG, mean);
+        inserter.insertValue(STANDARD_DEVIATION_TAG, sd);
+    }
 }
 
 double CGammaRateConjugate::likelihoodShape() const {

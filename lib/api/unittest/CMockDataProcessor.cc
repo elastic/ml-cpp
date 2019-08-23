@@ -47,6 +47,15 @@ bool CMockDataProcessor::handleRecord(const TStrStrUMap& dataRowFields) {
 void CMockDataProcessor::finalise() {
 }
 
+bool CMockDataProcessor::isPersistenceNeeded(const std::string& description) const {
+    if (m_NumRecordsHandled == 0) {
+        LOG_DEBUG(<< "Zero records were handled - will not attempt to persist "
+                  << description << ".");
+        return false;
+    }
+    return true;
+}
+
 bool CMockDataProcessor::restoreState(ml::core::CDataSearcher& restoreSearcher,
                                       ml::core_t::TTime& completeToTime) {
     // Pass on the request in case we're chained
@@ -57,9 +66,10 @@ bool CMockDataProcessor::restoreState(ml::core::CDataSearcher& restoreSearcher,
     return true;
 }
 
-bool CMockDataProcessor::persistState(ml::core::CDataAdder& persister) {
+bool CMockDataProcessor::persistState(ml::core::CDataAdder& persister,
+                                      const std::string& descriptionPrefix) {
     // Pass on the request in case we're chained
-    if (m_OutputHandler.persistState(persister) == false) {
+    if (m_OutputHandler.persistState(persister, descriptionPrefix) == false) {
         return false;
     }
 

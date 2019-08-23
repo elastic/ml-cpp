@@ -31,6 +31,9 @@ generated-resources/
 .AppleDouble
 Thumbs.db
 
+# compilation database stuff
+compile_commands.json
+
 # native binary stuff:
 *.o
 *.obj

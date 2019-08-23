@@ -17,8 +17,6 @@
 #include <maths/CRestoreParams.h>
 #include <maths/MathsTypes.h>
 
-#include <boost/bind.hpp>
-
 #include <algorithm>
 #include <cmath>
 #include <string>
@@ -73,7 +71,7 @@ double logLikelihoodFromCluster(const TDouble1Vec& sample,
 // 1 - "smallest hard assignment weight"
 const double HARD_ASSIGNMENT_THRESHOLD = 0.01;
 
-const std::string CLUSTER_TAG("a");
+const core::TPersistenceTag CLUSTER_TAG("a", "cluster");
 }
 
 CKMeansOnline1d::CKMeansOnline1d(TNormalVec& clusters) {
@@ -83,8 +81,8 @@ CKMeansOnline1d::CKMeansOnline1d(TNormalVec& clusters) {
 
 CKMeansOnline1d::CKMeansOnline1d(const SDistributionRestoreParams& params,
                                  core::CStateRestoreTraverser& traverser) {
-    traverser.traverseSubLevel(boost::bind(&CKMeansOnline1d::acceptRestoreTraverser,
-                                           this, boost::cref(params), _1));
+    traverser.traverseSubLevel(std::bind(&CKMeansOnline1d::acceptRestoreTraverser, this,
+                                         std::cref(params), std::placeholders::_1));
 }
 
 bool CKMeansOnline1d::acceptRestoreTraverser(const SDistributionRestoreParams& params,
@@ -100,14 +98,15 @@ bool CKMeansOnline1d::acceptRestoreTraverser(const SDistributionRestoreParams& p
     return true;
 }
 
-std::string CKMeansOnline1d::persistenceTag() const {
+const core::TPersistenceTag& CKMeansOnline1d::persistenceTag() const {
     return K_MEANS_ONLINE_1D_TAG;
 }
 
 void CKMeansOnline1d::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
     for (std::size_t i = 0u; i < m_Clusters.size(); ++i) {
-        inserter.insertLevel(CLUSTER_TAG, boost::bind(&CNormalMeanPrecConjugate::acceptPersistInserter,
-                                                      &m_Clusters[i], _1));
+        inserter.insertLevel(CLUSTER_TAG,
+                             std::bind(&CNormalMeanPrecConjugate::acceptPersistInserter,
+                                       &m_Clusters[i], std::placeholders::_1));
     }
 }
 

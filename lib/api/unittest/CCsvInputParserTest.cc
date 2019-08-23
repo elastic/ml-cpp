@@ -14,8 +14,6 @@
 
 #include <api/CCsvInputParser.h>
 
-#include <boost/range.hpp>
-
 #include <algorithm>
 #include <fstream>
 #include <functional>
@@ -367,8 +365,8 @@ void CCsvInputParserTest::testDateParse() {
         1359331349, 1359331352, 1359331370, 1359331382, 1359331385, 1359331386,
         1359331395, 1359331404, 1359331416, 1359331416, 1359331424, 1359331429};
 
-    CTimeCheckingVisitor::TTimeVec expectedTimes(boost::begin(EXPECTED_TIMES),
-                                                 boost::end(EXPECTED_TIMES));
+    CTimeCheckingVisitor::TTimeVec expectedTimes(std::begin(EXPECTED_TIMES),
+                                                 std::end(EXPECTED_TIMES));
 
     // Ensure we are in UK timewise
     CPPUNIT_ASSERT(ml::core::CTimezone::setTimezone("Europe/London"));

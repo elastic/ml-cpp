@@ -19,6 +19,8 @@ public:
     void testFeatureInfluences();
     void testEstimateMemoryUsedByCompute();
     void testProgressMonitoring();
+    void testMostlyDuplicate();
+    void testFewPoints();
 
     static CppUnit::Test* suite();
 };

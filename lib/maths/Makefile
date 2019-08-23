@@ -9,6 +9,7 @@ TARGET=$(OBJS_DIR)/libMlMaths$(DYNAMIC_LIB_EXT)
 
 USE_BOOST=1
 USE_BOOST_FILESYSTEM_LIBS=1
+USE_RAPIDJSON=1
 USE_EIGEN=1
 
 LIBS:=$(LIB_ML_CORE)
@@ -20,17 +21,24 @@ CAdaptiveBucketing.cc \
 CAgglomerativeClusterer.cc \
 CAssignment.cc \
 CBasicStatistics.cc \
+CBayesianOptimisation.cc \
 CBjkstUniqueValues.cc \
+CBoostedTree.cc \
+CBoostedTreeFactory.cc \
+CBoostedTreeImpl.cc \
 CCalendarCyclicTest.cc \
 CCalendarComponentAdaptiveBucketing.cc \
 CCalendarComponent.cc \
 CCalendarFeature.cc \
 CCategoricalTools.cc \
+CChecksum.cc \
 CClusterer.cc \
 CClustererStateSerialiser.cc \
 CConstantPrior.cc \
 CCooccurrences.cc \
 CCountMinSketch.cc \
+CDataFrameCategoryEncoder.cc \
+CDataFrameRegressionModel.cc \
 CDataFrameUtils.cc \
 CDecayRateController.cc \
 CDecompositionComponent.cc \
@@ -44,11 +52,13 @@ CIntegration.cc \
 CKMeansOnline1d.cc \
 CKMostCorrelated.cc \
 CLassoLogisticRegression.cc \
+CLeastSquaresOnlineRegression.cc \
 CLinearAlgebra.cc \
 CLinearAlgebraTools.cc \
 CLogNormalMeanPrecConjugate.cc \
 CLogTDistribution.cc \
 CMathsFuncs.cc \
+CMic.cc \
 CMixtureDistribution.cc \
 CModel.cc \
 CModelStateSerialiser.cc \
@@ -66,11 +76,9 @@ CNaiveBayes.cc \
 CNaturalBreaksClassifier.cc \
 CNormalMeanPrecConjugate.cc \
 COneOfNPrior.cc \
-Constants.cc \
 COrderings.cc \
 COrdinal.cc \
 COutliers.cc \
-CPackedBitVector.cc \
 CPeriodicityHypothesisTests.cc \
 CPoissonMeanConjugate.cc \
 CPrior.cc \
@@ -81,7 +89,6 @@ CQDigest.cc \
 CQuantileSketch.cc \
 CRadialBasisFunction.cc \
 CRandomizedPeriodicityTest.cc \
-CRegression.cc \
 CRestoreParams.cc \
 CSampling.cc \
 CSeasonalComponent.cc \

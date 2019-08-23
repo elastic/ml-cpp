@@ -49,8 +49,11 @@ private:
 };
 
 //! \brief An iterator over just the unique knot values.
-class CUniqueIterator
-    : private boost::addable2<CUniqueIterator, ptrdiff_t, boost::subtractable2<CUniqueIterator, ptrdiff_t, boost::equality_comparable<CUniqueIterator>>> {
+// clang-format off
+class CUniqueIterator : private boost::addable2<CUniqueIterator, ptrdiff_t,
+                                boost::subtractable2<CUniqueIterator, ptrdiff_t,
+                                boost::equality_comparable<CUniqueIterator>>> {
+    // clang-format on
 public:
     CUniqueIterator(TFloatFloatPrVec& knots, std::size_t i)
         : m_Knots(&knots), m_I(i) {}
@@ -343,7 +346,7 @@ bool CQuantileSketch::checkInvariants() const {
         LOG_ERROR(<< "Invalid unsorted count: " << m_Unsorted << "/" << m_Knots.size());
         return false;
     }
-    if (!boost::algorithm::is_sorted(m_Knots.begin(), m_Knots.end() - m_Unsorted)) {
+    if (!std::is_sorted(m_Knots.begin(), m_Knots.end() - m_Unsorted)) {
         LOG_ERROR(<< "Unordered knots: "
                   << core::CContainerPrinter::print(m_Knots.begin(), m_Knots.end() - m_Unsorted));
         return false;

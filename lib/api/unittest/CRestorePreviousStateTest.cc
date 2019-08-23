@@ -55,7 +55,7 @@ const std::vector<SRestoreTestConfig> BWC_VERSIONS{
 CppUnit::Test* CRestorePreviousStateTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CRestorePreviousStateTest");
     suiteOfTests->addTest(new CppUnit::TestCaller<CRestorePreviousStateTest>(
-        "CRestorePreviousStateTest::testRestoreDetectorPersistBy",
+        "CRestorePreviousStateTest::testRestoreDetectorBy",
         &CRestorePreviousStateTest::testRestoreDetectorBy));
     suiteOfTests->addTest(new CppUnit::TestCaller<CRestorePreviousStateTest>(
         "CRestorePreviousStateTest::testRestoreDetectorOver",
@@ -179,7 +179,7 @@ void CRestorePreviousStateTest::categorizerRestoreHelper(const std::string& stat
             std::ostringstream* strm(nullptr);
             ml::api::CSingleStreamDataAdder::TOStreamP ptr(strm = new std::ostringstream());
             ml::api::CSingleStreamDataAdder persister(ptr);
-            CPPUNIT_ASSERT(restoredTyper.persistState(persister));
+            CPPUNIT_ASSERT(restoredTyper.persistState(persister, ""));
             newPersistedState = strm->str();
         }
         CPPUNIT_ASSERT_EQUAL(this->stripDocIds(origPersistedState),
@@ -218,8 +218,8 @@ void CRestorePreviousStateTest::anomalyDetectorRestoreHelper(const std::string& 
     std::size_t numRestoredDocs(0);
     ml::api::CAnomalyJob restoredJob(
         JOB_ID, limits, fieldConfig, modelConfig, wrappedOutputStream,
-        boost::bind(&reportPersistComplete, _1, boost::ref(restoredSnapshotId),
-                    boost::ref(numRestoredDocs)));
+        std::bind(&reportPersistComplete, std::placeholders::_1,
+                  std::ref(restoredSnapshotId), std::ref(numRestoredDocs)));
 
     std::size_t numDocsInStateFile(0);
     {
@@ -249,7 +249,7 @@ void CRestorePreviousStateTest::anomalyDetectorRestoreHelper(const std::string& 
             std::ostringstream* strm(nullptr);
             ml::api::CSingleStreamDataAdder::TOStreamP ptr(strm = new std::ostringstream());
             ml::api::CSingleStreamDataAdder persister(ptr);
-            CPPUNIT_ASSERT(restoredJob.persistState(persister));
+            CPPUNIT_ASSERT(restoredJob.persistState(persister, ""));
             newPersistedState = strm->str();
         }
 

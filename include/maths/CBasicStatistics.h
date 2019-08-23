@@ -15,10 +15,10 @@
 #include <maths/CTypeTraits.h>
 #include <maths/ImportExport.h>
 
-#include <boost/array.hpp>
 #include <boost/operators.hpp>
 
 #include <algorithm>
+#include <array>
 #include <cmath>
 #include <cstdint>
 #include <functional>
@@ -938,7 +938,7 @@ private:
         //! Initialize from a delimited string using \p fromString to initialize
         //! values of type T from a string.
         //!
-        //! \warning This functions must not use CBasicStatistics::INTERNAL_DELIMITER.
+        //! \warning This function must not use CBasicStatistics::EXTERNAL_DELIMITER.
         bool fromDelimited(const std::string& value, const TFromString& fromString);
 
         //! Convert to a delimited string.
@@ -947,7 +947,7 @@ private:
         //! Convert to a delimited string using \p toString to convert individual
         //! values of type T to a string.
         //!
-        //! \warning This functions must not use CBasicStatistics::INTERNAL_DELIMITER.
+        //! \warning This function must not use CBasicStatistics::EXTERNAL_DELIMITER.
         std::string toDelimited(const TToString& toString) const;
         //@}
 
@@ -1146,13 +1146,13 @@ public:
     //! if one object of type T is less than another.
     template<typename T, std::size_t N, typename LESS = std::less<T>>
     class COrderStatisticsStack
-        : public COrderStatisticsImpl<T, boost::array<T, N>, LESS>,
+        : public COrderStatisticsImpl<T, std::array<T, N>, LESS>,
           private boost::addable<COrderStatisticsStack<T, N, LESS>> {
 
         static_assert(N > 0, "N must be > 0");
 
     private:
-        using TArray = boost::array<T, N>;
+        using TArray = std::array<T, N>;
         using TImpl = COrderStatisticsImpl<T, TArray, LESS>;
 
     public:
@@ -1168,12 +1168,12 @@ public:
     public:
         explicit COrderStatisticsStack(const LESS& less = LESS{})
             : TImpl{TArray(), less} {
-            this->statistics().assign(T{});
+            this->statistics().fill(T{});
         }
 
         explicit COrderStatisticsStack(std::size_t /*n*/, const LESS& less = LESS{})
             : TImpl{TArray(), less} {
-            this->statistics().assign(T{});
+            this->statistics().fill(T{});
         }
 
         //! Combine two statistics. This is equivalent to running a

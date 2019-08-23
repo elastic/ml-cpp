@@ -9,6 +9,8 @@
 
 #include <api/CDataProcessor.h>
 
+#include <functional>
+
 namespace ml {
 namespace api {
 
@@ -48,7 +50,7 @@ bool COutputChainer::fieldNames(const TStrVec& fieldNames, const TStrVec& extraF
     // callers)
     for (TStrVecCItr iter = m_FieldNames.begin(); iter != m_FieldNames.end(); ++iter) {
         m_Hashes.push_back(EMPTY_FIELD_OVERRIDES.hash_function()(*iter));
-        m_WorkRecordFieldRefs.push_back(boost::ref(m_WorkRecordFields[*iter]));
+        m_WorkRecordFieldRefs.push_back(std::ref(m_WorkRecordFields[*iter]));
     }
 
     return true;
@@ -105,12 +107,17 @@ bool COutputChainer::restoreState(core::CDataSearcher& restoreSearcher,
     return m_DataProcessor.restoreState(restoreSearcher, completeToTime);
 }
 
-bool COutputChainer::persistState(core::CDataAdder& persister) {
-    return m_DataProcessor.persistState(persister);
+bool COutputChainer::persistState(core::CDataAdder& persister,
+                                  const std::string& descriptionPrefix) {
+    return m_DataProcessor.persistState(persister, descriptionPrefix);
 }
 
-bool COutputChainer::periodicPersistState(CBackgroundPersister& persister) {
-    return m_DataProcessor.periodicPersistState(persister);
+bool COutputChainer::periodicPersistStateInBackground() {
+    return m_DataProcessor.periodicPersistStateInBackground();
+}
+
+bool COutputChainer::isPersistenceNeeded(const std::string& description) const {
+    return m_DataProcessor.isPersistenceNeeded(description);
 }
 
 bool COutputChainer::consumesControlMessages() {

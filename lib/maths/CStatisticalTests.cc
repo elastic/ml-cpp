@@ -16,10 +16,8 @@
 #include <maths/CChecksum.h>
 #include <maths/CTools.h>
 
-#include <boost/bind.hpp>
 #include <boost/math/distributions/fisher_f.hpp>
 #include <boost/numeric/conversion/bounds.hpp>
-#include <boost/range.hpp>
 
 #include <algorithm>
 #include <cmath>
@@ -79,7 +77,7 @@ double CStatisticalTests::leftTailFTest(double x, double d1, double d2) {
         return 1.0;
     }
     try {
-        boost::math::fisher_f_distribution<> F(d1, d2);
+        boost::math::fisher_f F(d1, d2);
         return boost::math::cdf(F, x);
     } catch (const std::exception& e) {
         LOG_ERROR(<< "Failed to compute significance " << e.what()
@@ -100,7 +98,7 @@ double CStatisticalTests::rightTailFTest(double x, double d1, double d2) {
         return 1.0;
     }
     try {
-        boost::math::fisher_f_distribution<> F(d1, d2);
+        boost::math::fisher_f F(d1, d2);
         return boost::math::cdf(boost::math::complement(F, x));
     } catch (const std::exception& e) {
         LOG_ERROR(<< "Failed to compute significance " << e.what()
@@ -152,8 +150,8 @@ CStatisticalTests::CCramerVonMises::CCramerVonMises(std::size_t size)
 }
 
 CStatisticalTests::CCramerVonMises::CCramerVonMises(core::CStateRestoreTraverser& traverser) {
-    traverser.traverseSubLevel(boost::bind(
-        &CStatisticalTests::CCramerVonMises::acceptRestoreTraverser, this, _1));
+    traverser.traverseSubLevel(std::bind(&CStatisticalTests::CCramerVonMises::acceptRestoreTraverser,
+                                         this, std::placeholders::_1));
 }
 
 bool CStatisticalTests::CCramerVonMises::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
@@ -212,9 +210,9 @@ double CStatisticalTests::CCramerVonMises::pValue() const {
     // Linearly interpolate between the rows of the T statistic
     // values.
     double tt[16];
-    ptrdiff_t row = CTools::truncate(
-        std::lower_bound(boost::begin(N), boost::end(N), m_Size + 1) - N,
-        ptrdiff_t(1), ptrdiff_t(12));
+    ptrdiff_t row =
+        CTools::truncate(std::lower_bound(std::begin(N), std::end(N), m_Size + 1) - N,
+                         ptrdiff_t(1), ptrdiff_t(12));
     double alpha = static_cast<double>(m_Size + 1 - N[row - 1]) /
                    static_cast<double>(N[row] - N[row - 1]);
     double beta = 1.0 - alpha;
@@ -230,9 +228,8 @@ double CStatisticalTests::CCramerVonMises::pValue() const {
         return 1.0;
     }
 
-    ptrdiff_t col =
-        CTools::truncate(std::lower_bound(boost::begin(tt), boost::end(tt), t) - tt,
-                         ptrdiff_t(1), ptrdiff_t(15));
+    ptrdiff_t col = CTools::truncate(std::lower_bound(std::begin(tt), std::end(tt), t) - tt,
+                                     ptrdiff_t(1), ptrdiff_t(15));
     double a = tt[col - 1];
     double b = tt[col];
     double fa = P_VALUES[col - 1];

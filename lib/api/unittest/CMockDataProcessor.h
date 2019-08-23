@@ -40,12 +40,15 @@ public:
 
     virtual void finalise();
 
+    virtual bool isPersistenceNeeded(const std::string& description) const;
+
     //! Restore previously saved state
     virtual bool restoreState(ml::core::CDataSearcher& restoreSearcher,
                               ml::core_t::TTime& completeToTime);
 
     //! Persist current state
-    virtual bool persistState(ml::core::CDataAdder& persister);
+    virtual bool persistState(ml::core::CDataAdder& persister,
+                              const std::string& descriptionPrefix);
 
     //! How many records did we handle?
     virtual uint64_t numRecordsHandled() const;

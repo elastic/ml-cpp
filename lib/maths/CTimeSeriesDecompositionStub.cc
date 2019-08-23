@@ -36,10 +36,10 @@ bool CTimeSeriesDecompositionStub::initialized() const {
 void CTimeSeriesDecompositionStub::testingForChange(bool /*value*/) {
 }
 
-bool CTimeSeriesDecompositionStub::addPoint(core_t::TTime /*time*/,
+void CTimeSeriesDecompositionStub::addPoint(core_t::TTime /*time*/,
                                             double /*value*/,
-                                            const maths_t::TDoubleWeightsAry& /*weights*/) {
-    return false;
+                                            const maths_t::TDoubleWeightsAry& /*weights*/,
+                                            const TComponentChangeCallback& /*componentChangeCallback*/) {
 }
 
 bool CTimeSeriesDecompositionStub::applyChange(core_t::TTime /*time*/,
@@ -92,12 +92,8 @@ maths_t::TDoubleDoublePr CTimeSeriesDecompositionStub::scale(core_t::TTime /*tim
     return {1.0, 1.0};
 }
 
-bool CTimeSeriesDecompositionStub::mightAddComponents(core_t::TTime /*time*/) const {
-    return false;
-}
-
-CTimeSeriesDecompositionStub::TTimeFloatMeanAccumulatorPrVec
-CTimeSeriesDecompositionStub::windowValues() const {
+CTimeSeriesDecompositionStub::TFloatMeanAccumulatorVec
+CTimeSeriesDecompositionStub::windowValues(const TPredictor& /*predictor*/) const {
     return {};
 }
 

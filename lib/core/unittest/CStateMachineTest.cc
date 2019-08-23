@@ -113,8 +113,8 @@ void randomMachines(std::size_t n, TMachineVec& result) {
             rng.generateUniformSamples(0, ns[i], ns[i], result[i].s_TransitionFunction[j]);
         }
 
-        std::next_permutation(boost::begin(states), boost::end(states));
-        std::next_permutation(boost::begin(alphabet), boost::end(alphabet));
+        std::next_permutation(std::begin(states), std::end(states));
+        std::next_permutation(std::begin(alphabet), std::end(alphabet));
     }
 }
 }

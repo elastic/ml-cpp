@@ -39,7 +39,6 @@
 
 #include <test/CRandomNumbers.h>
 
-#include <boost/bind.hpp>
 #include <boost/foreach.hpp>
 #include <boost/range.hpp>
 
@@ -82,7 +81,7 @@ TUInt64Vec rawEventCounts(std::size_t copies = 1) {
                          48, 53, 51, 50, 57, 53, 49};
     TUInt64Vec result;
     for (std::size_t i = 0u; i < copies; ++i) {
-        result.insert(result.end(), boost::begin(counts), boost::end(counts));
+        result.insert(result.end(), std::begin(counts), std::end(counts));
     }
     return result;
 }
@@ -592,7 +591,7 @@ void CEventRateModelTest::testProbabilityCalculation() {
             for (int j = 0; j < 2; ++j) {
                 double multiBucketImpact = minProbabilities[j].third.s_MultiBucketImpact;
                 LOG_DEBUG(<< "multi_bucket_impact = " << multiBucketImpact);
-                CPPUNIT_ASSERT(multiBucketImpact > expectedMultiBucketImpactThresholds[j]);
+                CPPUNIT_ASSERT(multiBucketImpact >= expectedMultiBucketImpactThresholds[j]);
                 CPPUNIT_ASSERT(multiBucketImpact <= CAnomalyDetectorModelConfig::MAXIMUM_MULTI_BUCKET_IMPACT_MAGNITUDE);
             }
         }
@@ -932,8 +931,8 @@ void CEventRateModelTest::testCorrelatedTrend() {
     std::size_t anomalyBuckets[] = {1950, 2400, 2700, numberBuckets};
     double anomalies[][4] = {
         {-23.9, 19.7, 0.0, 0.0}, {0.0, 0.0, 36.4, 36.4}, {-28.7, 30.4, 36.4, 36.4}};
-    TMinAccumulator probabilities[4] = {TMinAccumulator(3), TMinAccumulator(3),
-                                        TMinAccumulator(3), TMinAccumulator(3)};
+    TMinAccumulator probabilities[4] = {TMinAccumulator(4), TMinAccumulator(4),
+                                        TMinAccumulator(4), TMinAccumulator(4)};
 
     SModelParams params(bucketLength);
     params.s_DecayRate = 0.0002;
@@ -1503,8 +1502,8 @@ void CEventRateModelTest::testCountProbabilityCalculationWithInfluence() {
         CPPUNIT_ASSERT_EQUAL(std::size_t(2), lastInfluencersResult.size());
         CPPUNIT_ASSERT_DOUBLES_EQUAL(lastInfluencersResult[0].second,
                                      lastInfluencersResult[1].second, 0.05);
-        CPPUNIT_ASSERT(lastInfluencersResult[0].second > 0.4);
-        CPPUNIT_ASSERT(lastInfluencersResult[0].second < 0.5);
+        CPPUNIT_ASSERT(lastInfluencersResult[0].second > 0.5);
+        CPPUNIT_ASSERT(lastInfluencersResult[0].second < 0.6);
     }
     {
         // Test single influence name, two asymmetric influence values

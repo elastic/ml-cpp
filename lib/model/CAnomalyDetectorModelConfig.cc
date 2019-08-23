@@ -30,8 +30,8 @@
 
 #include <boost/property_tree/ini_parser.hpp>
 #include <boost/property_tree/ptree.hpp>
-#include <boost/range.hpp>
 
+#include <algorithm>
 #include <fstream>
 
 namespace ml {
@@ -166,8 +166,8 @@ CAnomalyDetectorModelConfig::CAnomalyDetectorModelConfig()
       m_MaximumAnomalousProbability(DEFAULT_MAXIMUM_ANOMALOUS_PROBABILITY),
       m_NoisePercentile(DEFAULT_NOISE_PERCENTILE),
       m_NoiseMultiplier(DEFAULT_NOISE_MULTIPLIER),
-      m_NormalizedScoreKnotPoints(boost::begin(DEFAULT_NORMALIZED_SCORE_KNOT_POINTS),
-                                  boost::end(DEFAULT_NORMALIZED_SCORE_KNOT_POINTS)),
+      m_NormalizedScoreKnotPoints(std::begin(DEFAULT_NORMALIZED_SCORE_KNOT_POINTS),
+                                  std::end(DEFAULT_NORMALIZED_SCORE_KNOT_POINTS)),
       m_DetectionRules(EMPTY_RULES_MAP), m_ScheduledEvents(EMPTY_EVENTS) {
     for (std::size_t i = 0u; i < model_t::NUMBER_AGGREGATION_STYLES; ++i) {
         for (std::size_t j = 0u; j < model_t::NUMBER_AGGREGATION_PARAMS; ++j) {
@@ -295,14 +295,12 @@ bool CAnomalyDetectorModelConfig::normalizedScoreKnotPoints(const TDoubleDoubleP
             return false;
         }
     }
-    if (!boost::algorithm::is_sorted(points.begin(), points.end(),
-                                     maths::COrderings::SFirstLess())) {
+    if (!std::is_sorted(points.begin(), points.end(), maths::COrderings::SFirstLess())) {
         LOG_ERROR(<< "Percentiles must be monotonic increasing "
                   << core::CContainerPrinter::print(points));
         return false;
     }
-    if (!boost::algorithm::is_sorted(points.begin(), points.end(),
-                                     maths::COrderings::SSecondLess())) {
+    if (!std::is_sorted(points.begin(), points.end(), maths::COrderings::SSecondLess())) {
         LOG_ERROR(<< "Scores must be monotonic increasing "
                   << core::CContainerPrinter::print(points));
         return false;

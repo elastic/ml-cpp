@@ -17,6 +17,7 @@
 
 #include <test/CDataFrameTestUtils.h>
 #include <test/CRandomNumbers.h>
+#include <test/CTestTmpDir.h>
 
 #include <boost/filesystem.hpp>
 
@@ -230,6 +231,7 @@ void COutliersTest::testLof() {
 }
 
 void COutliersTest::testDlof() {
+
     // Test against definition without projecting.
 
     test::CRandomNumbers rng;
@@ -269,6 +271,7 @@ void COutliersTest::testDlof() {
 }
 
 void COutliersTest::testDistancekNN() {
+
     // Test against definition without projecting.
 
     test::CRandomNumbers rng;
@@ -301,6 +304,7 @@ void COutliersTest::testDistancekNN() {
 }
 
 void COutliersTest::testTotalDistancekNN() {
+
     // Test against definition without projecting.
 
     test::CRandomNumbers rng;
@@ -338,6 +342,7 @@ void COutliersTest::testTotalDistancekNN() {
 }
 
 void COutliersTest::testEnsemble() {
+
     // Check error stats for scores, 0.1, 0.5 and 0.9. We should see precision increase
     // for higher scores but recall decrease.
     //
@@ -350,7 +355,7 @@ void COutliersTest::testEnsemble() {
     }};
     TFactoryFunc toOnDiskDataFrame{[](const TPointVec& points) {
         return test::CDataFrameTestUtils::toOnDiskDataFrame(
-            boost::filesystem::current_path().string(), points);
+            test::CTestTmpDir::tmpDir(), points);
     }};
     TFactoryFunc factories[]{toMainMemoryDataFrame, toOnDiskDataFrame};
     std::size_t numberPartitions[]{1, 3};
@@ -413,7 +418,7 @@ void COutliersTest::testFeatureInfluences() {
     }};
     TFactoryFunc toOnDiskDataFrame{[](const TPointVec& points) {
         return test::CDataFrameTestUtils::toOnDiskDataFrame(
-            boost::filesystem::current_path().string(), points);
+            test::CTestTmpDir::tmpDir(), points);
     }};
     TFactoryFunc factories[]{toMainMemoryDataFrame, toOnDiskDataFrame};
     std::size_t numberPartitions[]{1, 3};
@@ -514,7 +519,7 @@ void COutliersTest::testEstimateMemoryUsedByCompute() {
     }};
     TFactoryFunc toOnDiskDataFrame{[](const TPointVec& points) {
         return test::CDataFrameTestUtils::toOnDiskDataFrame(
-            boost::filesystem::current_path().string(), points);
+            test::CTestTmpDir::tmpDir(), points);
     }};
     TFactoryFunc factories[]{toMainMemoryDataFrame, toOnDiskDataFrame};
 
@@ -574,9 +579,8 @@ void COutliersTest::testEstimateMemoryUsedByCompute() {
 
         LOG_DEBUG(<< "estimated peak memory = " << estimatedMemoryUsage);
         LOG_DEBUG(<< "high water mark = " << maxMemoryUsage);
-        // TODO we need to improve estimation accuracy for partitioned analyses.
         CPPUNIT_ASSERT(std::abs(maxMemoryUsage - estimatedMemoryUsage) <
-                       std::max(maxMemoryUsage.load(), estimatedMemoryUsage) / 2);
+                       std::max(maxMemoryUsage.load(), estimatedMemoryUsage) / 10);
     }
 }
 
@@ -589,7 +593,7 @@ void COutliersTest::testProgressMonitoring() {
     }};
     TFactoryFunc toOnDiskDataFrame{[](const TPointVec& points) {
         return test::CDataFrameTestUtils::toOnDiskDataFrame(
-            boost::filesystem::current_path().string(), points);
+            test::CTestTmpDir::tmpDir(), points);
     }};
     TFactoryFunc factories[]{toMainMemoryDataFrame, toOnDiskDataFrame};
     std::size_t numberPartitions[]{1, 3};
@@ -656,6 +660,105 @@ void COutliersTest::testProgressMonitoring() {
     core::startDefaultAsyncExecutor();
 }
 
+void COutliersTest::testMostlyDuplicate() {
+    using TSizeDoublePr = std::pair<std::size_t, double>;
+    using TSizeDoublePrVec = std::vector<TSizeDoublePr>;
+
+    TPointVec points;
+
+    TSizeDoublePrVec outliers{{68, 0.4},   {5252, 0.2},  {5822, 0.2},
+                              {7929, 0.2}, {12692, 0.4}, {16792, 0.4}};
+    for (std::size_t i = 0; i < 16793; ++i) {
+        auto outlier = std::find_if(
+            outliers.begin(), outliers.end(),
+            [i](const TSizeDoublePr& outlier_) { return i == outlier_.first; });
+        TPoint point(1);
+        point(0) = outlier != outliers.end() ? outlier->second : 0.0;
+        points.push_back(std::move(point));
+    }
+
+    for (std::size_t numberPartitions : {1, 3}) {
+        auto frame = test::CDataFrameTestUtils::toMainMemoryDataFrame(points);
+
+        maths::COutliers::SComputeParameters params{1, // Number threads
+                                                    numberPartitions,
+                                                    true, // Standardize columns
+                                                    maths::COutliers::E_Ensemble,
+                                                    0, // Compute number neighbours
+                                                    false, // Compute feature influences
+                                                    0.05}; // Outlier fraction
+        maths::COutliers::compute(params, *frame);
+
+        TDoubleVec outlierScores(outliers.size());
+        frame->readRows(1, [&](core::CDataFrame::TRowItr beginRows,
+                               core::CDataFrame::TRowItr endRows) {
+            for (auto row = beginRows; row != endRows; ++row) {
+                auto outlier = std::find_if(
+                    outliers.begin(),
+                    outliers.end(), [i = row->index()](const TSizeDoublePr& outlier_) {
+                        return i == outlier_.first;
+                    });
+                if (outlier != outliers.end()) {
+                    outlierScores[outlier - outliers.begin()] = (*row)[1];
+                }
+            }
+        });
+
+        LOG_DEBUG(<< "outlier scores = " << core::CContainerPrinter::print(outlierScores));
+        for (auto score : outlierScores) {
+            CPPUNIT_ASSERT_DOUBLES_EQUAL(0.98, score, 0.02);
+        }
+    }
+}
+
+void COutliersTest::testFewPoints() {
+
+    // Check there are no failures when there only a few points.
+
+    std::size_t rows{101};
+    test::CRandomNumbers rng;
+
+    for (std::size_t numberPoints : {1, 2, 5}) {
+
+        LOG_DEBUG(<< "# points = " << numberPoints);
+
+        TPointVec points;
+        TDoubleVec components;
+        for (std::size_t i = 0; i < numberPoints; ++i) {
+            TPoint point(rows);
+            rng.generateUniformSamples(0.0, 10.0, rows, components);
+            for (std::size_t j = 0; j < components.size(); ++j) {
+                point(j) = components[j];
+            }
+            points.push_back(std::move(point));
+        }
+
+        auto frame = test::CDataFrameTestUtils::toMainMemoryDataFrame(points);
+
+        maths::COutliers::SComputeParameters params{1,    // Number threads
+                                                    1,    // Number partitions,
+                                                    true, // Standardize columns
+                                                    maths::COutliers::E_Ensemble,
+                                                    0, // Compute number neighbours
+                                                    true, // Compute feature influences
+                                                    0.05}; // Outlier fraction
+        maths::COutliers::compute(params, *frame);
+
+        bool passed{true};
+
+        frame->readRows(1, [&](core::CDataFrame::TRowItr beginRows,
+                               core::CDataFrame::TRowItr endRows) {
+            for (auto row = beginRows; row != endRows; ++row) {
+                // Check score is in range 0 to 1.
+                LOG_DEBUG(<< "outlier score = " << (*row)[rows]);
+                passed &= (*row)[rows] >= 0.0 && (*row)[rows] <= 1.0;
+            }
+        });
+
+        CPPUNIT_ASSERT(passed);
+    }
+}
+
 CppUnit::Test* COutliersTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("COutliersTest");
 
@@ -676,6 +779,10 @@ CppUnit::Test* COutliersTest::suite() {
         &COutliersTest::testEstimateMemoryUsedByCompute));
     suiteOfTests->addTest(new CppUnit::TestCaller<COutliersTest>(
         "COutliersTest::testProgressMonitoring", &COutliersTest::testProgressMonitoring));
+    suiteOfTests->addTest(new CppUnit::TestCaller<COutliersTest>(
+        "COutliersTest::testMostlyDuplicate", &COutliersTest::testMostlyDuplicate));
+    suiteOfTests->addTest(new CppUnit::TestCaller<COutliersTest>(
+        "COutliersTest::testFewPoints", &COutliersTest::testFewPoints));
 
     return suiteOfTests;
 }

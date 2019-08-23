@@ -15,11 +15,10 @@
 
 #include <maths/CChecksum.h>
 #include <maths/CIntegerTools.h>
-#include <maths/CRegressionDetail.h>
+#include <maths/CLeastSquaresOnlineRegressionDetail.h>
 #include <maths/CSampling.h>
 #include <maths/CSeasonalTime.h>
 
-#include <boost/bind.hpp>
 #include <boost/math/distributions/chi_squared.hpp>
 #include <boost/math/distributions/normal.hpp>
 
@@ -57,8 +56,9 @@ CSeasonalComponent::CSeasonalComponent(double decayRate,
                                        CSplineTypes::EType varianceInterpolationType)
     : CDecompositionComponent{0, CSplineTypes::E_Periodic,
                               valueInterpolationType, varianceInterpolationType} {
-    traverser.traverseSubLevel(boost::bind(&CSeasonalComponent::acceptRestoreTraverser,
-                                           this, decayRate, minimumBucketLength, _1));
+    traverser.traverseSubLevel(std::bind(&CSeasonalComponent::acceptRestoreTraverser,
+                                         this, decayRate, minimumBucketLength,
+                                         std::placeholders::_1));
 }
 
 void CSeasonalComponent::swap(CSeasonalComponent& other) {
@@ -73,9 +73,9 @@ bool CSeasonalComponent::acceptRestoreTraverser(double decayRate,
     do {
         const std::string& name{traverser.name()};
         RESTORE(DECOMPOSITION_COMPONENT_TAG,
-                traverser.traverseSubLevel(
-                    boost::bind(&CDecompositionComponent::acceptRestoreTraverser,
-                                static_cast<CDecompositionComponent*>(this), _1)))
+                traverser.traverseSubLevel(std::bind(
+                    &CDecompositionComponent::acceptRestoreTraverser,
+                    static_cast<CDecompositionComponent*>(this), std::placeholders::_1)))
         RESTORE(RNG_TAG, m_Rng.fromString(traverser.value()))
         RESTORE_SETUP_TEARDOWN(BUCKETING_TAG,
                                CSeasonalComponentAdaptiveBucketing bucketing(
@@ -87,13 +87,14 @@ bool CSeasonalComponent::acceptRestoreTraverser(double decayRate,
 }
 
 void CSeasonalComponent::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
-    inserter.insertLevel(
-        DECOMPOSITION_COMPONENT_TAG,
-        boost::bind(&CDecompositionComponent::acceptPersistInserter,
-                    static_cast<const CDecompositionComponent*>(this), _1));
+    inserter.insertLevel(DECOMPOSITION_COMPONENT_TAG,
+                         std::bind(&CDecompositionComponent::acceptPersistInserter,
+                                   static_cast<const CDecompositionComponent*>(this),
+                                   std::placeholders::_1));
     inserter.insertValue(RNG_TAG, m_Rng.toString());
-    inserter.insertLevel(BUCKETING_TAG, boost::bind(&CSeasonalComponentAdaptiveBucketing::acceptPersistInserter,
-                                                    &m_Bucketing, _1));
+    inserter.insertLevel(BUCKETING_TAG,
+                         std::bind(&CSeasonalComponentAdaptiveBucketing::acceptPersistInserter,
+                                   &m_Bucketing, std::placeholders::_1));
 }
 
 bool CSeasonalComponent::initialized() const {

@@ -26,8 +26,6 @@
 #include <model/CStringStore.h>
 #include <model/FunctionTypes.h>
 
-#include <boost/bind.hpp>
-#include <boost/ref.hpp>
 #include <boost/unordered_set.hpp>
 
 #include <algorithm>
@@ -129,8 +127,9 @@ struct SStrDataBucketSerializer {
                                  CDataGatherer::extractAttributeId(*ordered[i]));
             inserter.insertLevel(
                 STRING_ITEM_TAG,
-                boost::bind(&CUniqueStringFeatureData::acceptPersistInserter,
-                            boost::cref(CDataGatherer::extractData(*ordered[i])), _1));
+                std::bind(&CUniqueStringFeatureData::acceptPersistInserter,
+                          std::cref(CDataGatherer::extractData(*ordered[i])),
+                          std::placeholders::_1));
         }
     }
     bool operator()(TSizeSizePrStrDataUMap& map, core::CStateRestoreTraverser& traverser) const {
@@ -140,9 +139,10 @@ struct SStrDataBucketSerializer {
             const std::string& name = traverser.name();
             RESTORE_BUILT_IN(PERSON_TAG, pid)
             RESTORE_BUILT_IN(ATTRIBUTE_TAG, cid)
-            RESTORE(STRING_ITEM_TAG, traverser.traverseSubLevel(boost::bind(
-                                         &CUniqueStringFeatureData::acceptRestoreTraverser,
-                                         boost::ref(map[TSizeSizePr(pid, cid)]), _1)))
+            RESTORE(STRING_ITEM_TAG,
+                    traverser.traverseSubLevel(std::bind(
+                        &CUniqueStringFeatureData::acceptRestoreTraverser,
+                        std::ref(map[TSizeSizePr(pid, cid)]), std::placeholders::_1)))
         } while (traverser.next());
 
         return true;
@@ -181,10 +181,10 @@ void persistFeatureData(const TCategoryAnyMap& featureData,
             case model_t::E_DiurnalTimes:
                 inserter.insertLevel(
                     TIMES_OF_DAY_TAG,
-                    boost::bind<void>(
+                    std::bind<void>(
                         TSizeSizePrMeanAccumulatorUMapQueue::CSerializer<STimesBucketSerializer>(),
-                        boost::cref(boost::any_cast<const TSizeSizePrMeanAccumulatorUMapQueue&>(data)),
-                        _1));
+                        std::cref(boost::any_cast<const TSizeSizePrMeanAccumulatorUMapQueue&>(data)),
+                        std::placeholders::_1));
                 break;
             case model_t::E_MeanArrivalTimes:
                 // TODO
@@ -192,16 +192,17 @@ void persistFeatureData(const TCategoryAnyMap& featureData,
             case model_t::E_AttributePeople:
                 inserter.insertLevel(
                     ATTRIBUTE_PEOPLE_TAG,
-                    boost::bind(&persistAttributePeopleData,
-                                boost::cref(boost::any_cast<const TSizeUSetVec&>(data)), _1));
+                    std::bind(&persistAttributePeopleData,
+                              std::cref(boost::any_cast<const TSizeUSetVec&>(data)),
+                              std::placeholders::_1));
                 break;
             case model_t::E_UniqueValues:
                 inserter.insertLevel(
                     UNIQUE_VALUES_TAG,
-                    boost::bind<void>(
+                    std::bind<void>(
                         TSizeSizePrStrDataUMapQueue::CSerializer<SStrDataBucketSerializer>(),
-                        boost::cref(boost::any_cast<const TSizeSizePrStrDataUMapQueue&>(data)),
-                        _1));
+                        std::cref(boost::any_cast<const TSizeSizePrStrDataUMapQueue&>(data)),
+                        std::placeholders::_1));
                 break;
             }
         } catch (const std::exception& e) {
@@ -255,8 +256,8 @@ bool restoreFeatureData(core::CStateRestoreTraverser& traverser,
         TSizeUSetVec* data{boost::unsafe_any_cast<TSizeUSetVec>(
             &featureData.emplace(model_t::E_AttributePeople, TSizeUSetVec())
                  .first->second)};
-        if (traverser.traverseSubLevel(boost::bind(&restoreAttributePeopleData, _1,
-                                                   boost::ref(*data))) == false) {
+        if (traverser.traverseSubLevel(std::bind(&restoreAttributePeopleData, std::placeholders::_1,
+                                                 std::ref(*data))) == false) {
             LOG_ERROR(<< "Invalid attribute/people mapping in " << traverser.value());
             return false;
         }
@@ -270,10 +271,10 @@ bool restoreFeatureData(core::CStateRestoreTraverser& traverser,
                           TSizeSizePrStrDataUMapQueue(latencyBuckets, bucketLength, currentBucketStartTime,
                                                       TSizeSizePrStrDataUMap(1)))
                  .first->second)};
-        if (traverser.traverseSubLevel(boost::bind<bool>(
+        if (traverser.traverseSubLevel(std::bind<bool>(
                 TSizeSizePrStrDataUMapQueue::CSerializer<SStrDataBucketSerializer>(
                     TSizeSizePrStrDataUMap(1)),
-                boost::ref(*data), _1)) == false) {
+                std::ref(*data), std::placeholders::_1)) == false) {
             LOG_ERROR(<< "Invalid unique value mapping in " << traverser.value());
             return false;
         }
@@ -286,9 +287,9 @@ bool restoreFeatureData(core::CStateRestoreTraverser& traverser,
                  .emplace(model_t::E_DiurnalTimes,
                           TSizeSizePrMeanAccumulatorUMapQueue(latencyBuckets, bucketLength, currentBucketStartTime))
                  .first->second)};
-        if (traverser.traverseSubLevel(boost::bind<bool>(
+        if (traverser.traverseSubLevel(std::bind<bool>(
                 TSizeSizePrMeanAccumulatorUMapQueue::CSerializer<STimesBucketSerializer>(),
-                boost::ref(*data), _1)) == false) {
+                std::ref(*data), std::placeholders::_1)) == false) {
             LOG_ERROR(<< "Invalid times mapping in " << traverser.value());
             return false;
         }
@@ -465,7 +466,7 @@ struct SChecksum {
     void operator()(const TSizeUSetVec& attributePeople,
                     const CDataGatherer& gatherer,
                     TStrUInt64Map& hashes) const {
-        using TStrCRef = boost::reference_wrapper<const std::string>;
+        using TStrCRef = std::reference_wrapper<const std::string>;
         using TStrCRefVec = std::vector<TStrCRef>;
 
         for (std::size_t cid = 0u; cid < attributePeople.size(); ++cid) {
@@ -745,8 +746,8 @@ CEventRateBucketGatherer::CEventRateBucketGatherer(CDataGatherer& dataGatherer,
       m_BeginInfluencingFields(0), m_BeginValueField(0), m_BeginSummaryFields(0) {
     this->initializeFieldNames(personFieldName, attributeFieldName, valueFieldName,
                                summaryCountFieldName, influenceFieldNames);
-    traverser.traverseSubLevel(
-        boost::bind(&CEventRateBucketGatherer::acceptRestoreTraverser, this, _1));
+    traverser.traverseSubLevel(std::bind(&CEventRateBucketGatherer::acceptRestoreTraverser,
+                                         this, std::placeholders::_1));
 }
 
 CEventRateBucketGatherer::CEventRateBucketGatherer(bool isForPersistence,
@@ -765,8 +766,9 @@ bool CEventRateBucketGatherer::acceptRestoreTraverser(core::CStateRestoreTravers
     this->clear();
     do {
         const std::string& name = traverser.name();
-        RESTORE(BASE_TAG, traverser.traverseSubLevel(boost::bind(
-                              &CBucketGatherer::baseAcceptRestoreTraverser, this, _1)))
+        RESTORE(BASE_TAG,
+                traverser.traverseSubLevel(std::bind(&CBucketGatherer::baseAcceptRestoreTraverser,
+                                                     this, std::placeholders::_1)))
         if (restoreFeatureData(traverser, m_FeatureData, m_DataGatherer.params().s_LatencyBuckets,
                                this->bucketLength(), this->currentBucketStartTime()) == false) {
             LOG_ERROR(<< "Invalid feature data in " << traverser.value());
@@ -778,8 +780,8 @@ bool CEventRateBucketGatherer::acceptRestoreTraverser(core::CStateRestoreTravers
 }
 
 void CEventRateBucketGatherer::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
-    inserter.insertLevel(
-        BASE_TAG, boost::bind(&CBucketGatherer::baseAcceptPersistInserter, this, _1));
+    inserter.insertLevel(BASE_TAG, std::bind(&CBucketGatherer::baseAcceptPersistInserter,
+                                             this, std::placeholders::_1));
     persistFeatureData(m_FeatureData, inserter);
 }
 
@@ -958,15 +960,15 @@ void CEventRateBucketGatherer::recyclePeople(const TSizeVec& peopleToRemove) {
         return;
     }
 
-    apply(m_FeatureData,
-          boost::bind<void>(SRemovePeople(), _1, boost::cref(peopleToRemove)));
+    apply(m_FeatureData, std::bind<void>(SRemovePeople(), std::placeholders::_1,
+                                         std::cref(peopleToRemove)));
 
     this->CBucketGatherer::recyclePeople(peopleToRemove);
 }
 
 void CEventRateBucketGatherer::removePeople(std::size_t lowestPersonToRemove) {
-    apply(m_FeatureData, boost::bind<void>(SRemovePeople(), _1, lowestPersonToRemove,
-                                           m_DataGatherer.numberPeople()));
+    apply(m_FeatureData, std::bind<void>(SRemovePeople(), std::placeholders::_1, lowestPersonToRemove,
+                                         m_DataGatherer.numberPeople()));
     this->CBucketGatherer::removePeople(lowestPersonToRemove);
 }
 
@@ -975,14 +977,15 @@ void CEventRateBucketGatherer::recycleAttributes(const TSizeVec& attributesToRem
         return;
     }
 
-    apply(m_FeatureData, boost::bind<void>(SRemoveAttributes(), _1,
-                                           boost::cref(attributesToRemove)));
+    apply(m_FeatureData, std::bind<void>(SRemoveAttributes(), std::placeholders::_1,
+                                         std::cref(attributesToRemove)));
 
     this->CBucketGatherer::recycleAttributes(attributesToRemove);
 }
 
 void CEventRateBucketGatherer::removeAttributes(std::size_t lowestAttributeToRemove) {
-    apply(m_FeatureData, boost::bind<void>(SRemoveAttributes(), _1, lowestAttributeToRemove));
+    apply(m_FeatureData, std::bind<void>(SRemoveAttributes(), std::placeholders::_1,
+                                         lowestAttributeToRemove));
     this->CBucketGatherer::removeAttributes(lowestAttributeToRemove);
 }
 
@@ -990,8 +993,8 @@ uint64_t CEventRateBucketGatherer::checksum() const {
     uint64_t seed = this->CBucketGatherer::checksum();
 
     TStrUInt64Map hashes;
-    apply(m_FeatureData, boost::bind<void>(SChecksum(), _1, boost::cref(m_DataGatherer),
-                                           boost::ref(hashes)));
+    apply(m_FeatureData, std::bind<void>(SChecksum(), std::placeholders::_1,
+                                         std::cref(m_DataGatherer), std::ref(hashes)));
     LOG_TRACE(<< "seed = " << seed);
     LOG_TRACE(<< "hashes = " << core::CContainerPrinter::print(hashes));
     core::CHashing::CSafeMurmurHash2String64 hasher;
@@ -1507,7 +1510,7 @@ void CEventRateBucketGatherer::bucketMeanTimesPerPersonAttribute(model_t::EFeatu
 }
 
 void CEventRateBucketGatherer::resize(std::size_t pid, std::size_t cid) {
-    apply(m_FeatureData, boost::bind<void>(SResize(), _1, pid, cid));
+    apply(m_FeatureData, std::bind<void>(SResize(), std::placeholders::_1, pid, cid));
 }
 
 void CEventRateBucketGatherer::addValue(std::size_t pid,
@@ -1519,13 +1522,13 @@ void CEventRateBucketGatherer::addValue(std::size_t pid,
                                         const TStoredStringPtrVec& influences) {
     // Check that we are correctly sized - a person/attribute might have been added
     this->resize(pid, cid);
-    apply(m_FeatureData,
-          boost::bind<void>(SAddValue(), _1, pid, cid, time, count, boost::cref(values),
-                            boost::cref(stringValue), boost::cref(influences)));
+    apply(m_FeatureData, std::bind<void>(SAddValue(), std::placeholders::_1, pid,
+                                         cid, time, count, std::cref(values),
+                                         std::cref(stringValue), std::cref(influences)));
 }
 
 void CEventRateBucketGatherer::startNewBucket(core_t::TTime time, bool /*skipUpdates*/) {
-    apply(m_FeatureData, boost::bind<void>(SNewBucket(), _1, time));
+    apply(m_FeatureData, std::bind<void>(SNewBucket(), std::placeholders::_1, time));
 }
 
 void CEventRateBucketGatherer::initializeFieldNames(const std::string& personFieldName,
@@ -1809,13 +1812,14 @@ void CUniqueStringFeatureData::populateInfoContentFeatureData(SEventRateFeatureD
 }
 
 void CUniqueStringFeatureData::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
-    inserter.insertLevel(
-        UNIQUE_STRINGS_TAG,
-        boost::bind(&persistUniqueStrings, boost::cref(m_UniqueStrings), _1));
+    inserter.insertLevel(UNIQUE_STRINGS_TAG, std::bind(&persistUniqueStrings,
+                                                       std::cref(m_UniqueStrings),
+                                                       std::placeholders::_1));
     for (std::size_t i = 0u; i < m_InfluencerUniqueStrings.size(); ++i) {
         inserter.insertLevel(INFLUENCER_UNIQUE_STRINGS_TAG,
-                             boost::bind(&persistInfluencerUniqueStrings,
-                                         boost::cref(m_InfluencerUniqueStrings[i]), _1));
+                             std::bind(&persistInfluencerUniqueStrings,
+                                       std::cref(m_InfluencerUniqueStrings[i]),
+                                       std::placeholders::_1));
     }
 }
 
@@ -1823,14 +1827,14 @@ bool CUniqueStringFeatureData::acceptRestoreTraverser(core::CStateRestoreTravers
     do {
         const std::string& name = traverser.name();
         RESTORE(UNIQUE_STRINGS_TAG,
-                traverser.traverseSubLevel(boost::bind(
-                    &restoreUniqueStrings, _1, boost::ref(m_UniqueStrings))))
+                traverser.traverseSubLevel(std::bind(&restoreUniqueStrings, std::placeholders::_1,
+                                                     std::ref(m_UniqueStrings))))
         RESTORE_SETUP_TEARDOWN(
             INFLUENCER_UNIQUE_STRINGS_TAG,
             m_InfluencerUniqueStrings.push_back(TStoredStringPtrWordSetUMap()),
             traverser.traverseSubLevel(
-                boost::bind(&restoreInfluencerUniqueStrings, _1,
-                            boost::ref(m_InfluencerUniqueStrings.back()))),
+                std::bind(&restoreInfluencerUniqueStrings, std::placeholders::_1,
+                          std::ref(m_InfluencerUniqueStrings.back()))),
             /**/)
     } while (traverser.next());
 

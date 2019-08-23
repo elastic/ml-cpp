@@ -24,7 +24,7 @@ public:
                      ml::core::CRapidJsonConcurrentLineWriter&) const override;
 
 private:
-    void runImpl(ml::core::CDataFrame&) override;
+    void runImpl(const TStrVec&, ml::core::CDataFrame&) override;
     std::size_t estimateBookkeepingMemoryUsage(std::size_t,
                                                std::size_t,
                                                std::size_t,
@@ -36,7 +36,10 @@ private:
 
 class CDataFrameMockAnalysisRunnerFactory final : public ml::api::CDataFrameAnalysisRunnerFactory {
 public:
-    const char* name() const override;
+    const std::string& name() const override;
+
+private:
+    static const std::string NAME;
 
 private:
     TRunnerUPtr makeImpl(const ml::api::CDataFrameAnalysisSpecification& spec) const override;

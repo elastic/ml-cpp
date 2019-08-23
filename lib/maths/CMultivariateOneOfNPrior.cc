@@ -22,10 +22,7 @@
 #include <maths/CTools.h>
 #include <maths/Constants.h>
 
-#include <boost/bind.hpp>
-#include <boost/make_unique.hpp>
 #include <boost/numeric/conversion/bounds.hpp>
-#include <boost/ref.hpp>
 
 #include <algorithm>
 #include <cmath>
@@ -53,13 +50,6 @@ const std::string NUMBER_SAMPLES_TAG("b");
 const std::string WEIGHT_TAG("c");
 const std::string PRIOR_TAG("d");
 const std::string DECAY_RATE_TAG("e");
-
-//! Add elements of \p x to \p y.
-void add(const TDouble10Vec& x, TDouble10Vec& y) {
-    for (std::size_t i = 0u; i < x.size(); ++i) {
-        y[i] += x[i];
-    }
-}
 
 //! Get the min of \p x and \p y.
 TDouble10Vec min(const TDouble10Vec& x, const TDouble10Vec& y) {
@@ -103,11 +93,6 @@ void updateMean(const TDouble10Vec10Vec& x, double nx, TDouble10Vec10Vec& mean, 
     n += nx;
 }
 
-//! Get the largest element of \p x.
-double largest(const TDouble10Vec& x) {
-    return *std::max_element(x.begin(), x.end());
-}
-
 //! Add a model vector entry reading parameters from \p traverser.
 bool modelAcceptRestoreTraverser(const SDistributionRestoreParams& params,
                                  TWeightPriorPtrPrVec& models,
@@ -118,14 +103,15 @@ bool modelAcceptRestoreTraverser(const SDistributionRestoreParams& params,
 
     do {
         const std::string& name = traverser.name();
-        RESTORE_SETUP_TEARDOWN(WEIGHT_TAG,
-                               /**/,
-                               traverser.traverseSubLevel(boost::bind(
-                                   &CModelWeight::acceptRestoreTraverser, &weight, _1)),
-                               gotWeight = true)
-        RESTORE(PRIOR_TAG, traverser.traverseSubLevel(boost::bind<bool>(
-                               CPriorStateSerialiser(), boost::cref(params),
-                               boost::ref(model), _1)))
+        RESTORE_SETUP_TEARDOWN(
+            WEIGHT_TAG,
+            /**/,
+            traverser.traverseSubLevel(std::bind(&CModelWeight::acceptRestoreTraverser,
+                                                 &weight, std::placeholders::_1)),
+            gotWeight = true)
+        RESTORE(PRIOR_TAG, traverser.traverseSubLevel(std::bind<bool>(
+                               CPriorStateSerialiser(), std::cref(params),
+                               std::ref(model), std::placeholders::_1)))
     } while (traverser.next());
 
     if (!gotWeight) {
@@ -151,9 +137,9 @@ bool acceptRestoreTraverser(const SDistributionRestoreParams& params,
     do {
         const std::string& name = traverser.name();
         RESTORE_BUILT_IN(DECAY_RATE_TAG, decayRate)
-        RESTORE(MODEL_TAG, traverser.traverseSubLevel(boost::bind(
-                               &modelAcceptRestoreTraverser,
-                               boost::cref(params), boost::ref(models), _1)))
+        RESTORE(MODEL_TAG, traverser.traverseSubLevel(std::bind(
+                               &modelAcceptRestoreTraverser, std::cref(params),
+                               std::ref(models), std::placeholders::_1)))
         RESTORE_BUILT_IN(NUMBER_SAMPLES_TAG, numberSamples)
     } while (traverser.next());
 
@@ -165,16 +151,16 @@ bool acceptRestoreTraverser(const SDistributionRestoreParams& params,
 void modelAcceptPersistInserter(const CModelWeight& weight,
                                 const CMultivariatePrior& prior,
                                 core::CStatePersistInserter& inserter) {
-    inserter.insertLevel(
-        WEIGHT_TAG, boost::bind(&CModelWeight::acceptPersistInserter, &weight, _1));
-    inserter.insertLevel(PRIOR_TAG, boost::bind<void>(CPriorStateSerialiser(),
-                                                      boost::cref(prior), _1));
+    inserter.insertLevel(WEIGHT_TAG, std::bind(&CModelWeight::acceptPersistInserter,
+                                               &weight, std::placeholders::_1));
+    inserter.insertLevel(PRIOR_TAG, std::bind<void>(CPriorStateSerialiser(), std::cref(prior),
+                                                    std::placeholders::_1));
 }
 
 const double DERATE = 0.99999;
 const double MINUS_INF = DERATE * boost::numeric::bounds<double>::lowest();
 const double INF = DERATE * boost::numeric::bounds<double>::highest();
-const double LOG_INITIAL_WEIGHT = std::log(1e-6);
+const double MAXIMUM_LOG_BAYES_FACTOR = std::log(1e6);
 const double MINIMUM_SIGNIFICANT_WEIGHT = 0.01;
 }
 
@@ -222,9 +208,9 @@ CMultivariateOneOfNPrior::CMultivariateOneOfNPrior(std::size_t dimension,
       m_Dimension(dimension) {
     double decayRate;
     double numberSamples;
-    if (traverser.traverseSubLevel(boost::bind(
-            &acceptRestoreTraverser, boost::cref(params), boost::ref(m_Models),
-            boost::ref(decayRate), boost::ref(numberSamples), _1)) == false) {
+    if (traverser.traverseSubLevel(std::bind(
+            &acceptRestoreTraverser, std::cref(params), std::ref(m_Models),
+            std::ref(decayRate), std::ref(numberSamples), std::placeholders::_1)) == false) {
         return;
     }
     this->decayRate(decayRate);
@@ -306,81 +292,94 @@ void CMultivariateOneOfNPrior::addSamples(const TDouble10Vec1Vec& samples,
 
     this->adjustOffset(samples, weights);
 
-    double penalty = CTools::fastLog(this->numberSamples());
+    double n{this->numberSamples()};
     this->CMultivariatePrior::addSamples(samples, weights);
-    penalty = (penalty - CTools::fastLog(this->numberSamples())) / 2.0;
+    n = this->numberSamples() - n;
 
     // See COneOfNPrior::addSamples for a discussion.
 
     CScopeCanonicalizeWeights<TPriorPtr> canonicalize(m_Models);
 
     // We need to check *before* adding samples to the constituent models.
-    bool isNonInformative = this->isNonInformative();
+    bool isNonInformative{this->isNonInformative()};
 
     // Compute the unnormalized posterior weights and update the component
     // priors. These weights are computed on the side since they are only
     // updated if all marginal likelihoods can be computed.
-    TDouble3Vec logLikelihoods;
-    TMaxAccumulator maxLogLikelihood;
-    TBool3Vec used, uses;
+    TDouble3Vec minusBics;
+    TBool3Vec used;
+    TBool3Vec uses;
+    bool failed{false};
+
+    // If none of the models are a good fit for the new data then restrict
+    // the maximum Bayes Factor since the data likelihood given the model
+    // is most useful if one of the models is (mostly) correct.
+    double m{std::max(n, 1.0)};
+    double maxLogBayesFactor{-m * MAXIMUM_LOG_BAYES_FACTOR};
+
     for (auto& model : m_Models) {
-        bool use = model.second->participatesInModelSelection();
 
-        // Update the weights with the marginal likelihoods.
-        double logLikelihood = 0.0;
-        maths_t::EFloatingPointErrorStatus status =
-            use ? model.second->jointLogMarginalLikelihood(samples, weights, logLikelihood)
-                : maths_t::E_FpOverflowed;
-        if (status & maths_t::E_FpFailed) {
-            LOG_ERROR(<< "Failed to compute log-likelihood");
-            LOG_ERROR(<< "samples = " << core::CContainerPrinter::print(samples));
-        } else {
-            if (!(status & maths_t::E_FpOverflowed)) {
-                logLikelihood += model.second->unmarginalizedParameters() * penalty;
-                logLikelihoods.push_back(logLikelihood);
-                maxLogLikelihood.add(logLikelihood);
-            } else {
-                logLikelihoods.push_back(MINUS_INF);
+        double minusBic{0.0};
+        maths_t::EFloatingPointErrorStatus status{maths_t::E_FpOverflowed};
+
+        used.push_back(model.second->participatesInModelSelection());
+        if (used.back()) {
+            double logLikelihood;
+            status = model.second->jointLogMarginalLikelihood(samples, weights, logLikelihood);
+
+            minusBic = 2.0 * logLikelihood -
+                       model.second->unmarginalizedParameters() * CTools::fastLog(n);
+
+            double modeLogLikelihood;
+            TDouble10Vec1Vec modes;
+            modes.reserve(weights.size());
+            for (const auto& weight : weights) {
+                modes.push_back(model.second->marginalLikelihoodMode(weight));
             }
+            model.second->jointLogMarginalLikelihood(modes, weights, modeLogLikelihood);
+            maxLogBayesFactor = std::max(
+                maxLogBayesFactor, logLikelihood - std::max(modeLogLikelihood, logLikelihood));
+        }
 
-            // Update the component prior distribution.
-            model.second->addSamples(samples, weights);
+        minusBics.push_back((status & maths_t::E_FpOverflowed) ? MINUS_INF : minusBic);
+        failed |= (status & maths_t::E_FpFailed);
 
-            used.push_back(use);
-            uses.push_back(model.second->participatesInModelSelection());
+        // Update the component prior distribution.
+        model.second->addSamples(samples, weights);
+
+        uses.push_back(model.second->participatesInModelSelection());
+        if (!uses.back()) {
+            model.first.logWeight(MINUS_INF);
         }
     }
 
-    TDouble10Vec n(m_Dimension, 0.0);
-    for (const auto& weight : weights) {
-        add(maths_t::count(weight), n);
+    if (failed) {
+        LOG_ERROR(<< "Failed to compute log-likelihood");
+        LOG_ERROR(<< "samples = " << core::CContainerPrinter::print(samples));
+        LOG_ERROR(<< "weights = " << core::CContainerPrinter::print(weights));
+        return;
+    }
+    if (isNonInformative) {
+        return;
     }
 
-    if (!isNonInformative && maxLogLikelihood.count() > 0) {
-        LOG_TRACE(<< "logLikelihoods = " << core::CContainerPrinter::print(logLikelihoods));
+    maxLogBayesFactor += m * MAXIMUM_LOG_BAYES_FACTOR;
 
-        // The idea here is to limit the amount which extreme samples
-        // affect model selection, particularly early on in the model
-        // life-cycle.
-        double l = largest(n);
-        double minLogLikelihood =
-            maxLogLikelihood[0] -
-            l * std::min(maxModelPenalty(this->numberSamples()), 100.0);
+    LOG_TRACE(<< "BICs = " << core::CContainerPrinter::print(minusBics));
+    LOG_TRACE(<< "max Bayes Factor = " << maxLogBayesFactor);
 
-        TMaxAccumulator maxLogWeight;
-        for (std::size_t i = 0; i < logLikelihoods.size(); ++i) {
-            CModelWeight& weight = m_Models[i].first;
-            if (!uses[i]) {
-                weight.logWeight(MINUS_INF);
-            } else if (used[i]) {
-                weight.addLogFactor(std::max(logLikelihoods[i], minLogLikelihood));
-                maxLogWeight.add(weight.logWeight());
-            }
+    double maxLogModelWeight{MINUS_INF + m * MAXIMUM_LOG_BAYES_FACTOR};
+    double maxMinusBic{*std::max_element(minusBics.begin(), minusBics.end())};
+    for (std::size_t i = 0; i < m_Models.size(); ++i) {
+        if (used[i] && uses[i]) {
+            m_Models[i].first.addLogFactor(
+                std::max(minusBics[i] / 2.0, maxMinusBic / 2.0 - maxLogBayesFactor));
+            maxLogModelWeight = std::max(maxLogModelWeight, m_Models[i].first.logWeight());
         }
-        for (std::size_t i = 0u; i < m_Models.size(); ++i) {
-            if (!used[i] && uses[i]) {
-                m_Models[i].first.logWeight(maxLogWeight[0] + LOG_INITIAL_WEIGHT);
-            }
+    }
+    for (std::size_t i = 0; i < m_Models.size(); ++i) {
+        if (!used[i] && uses[i]) {
+            m_Models[i].first.logWeight(maxLogModelWeight - m * MAXIMUM_LOG_BAYES_FACTOR);
         }
     }
 
@@ -439,7 +438,7 @@ CMultivariateOneOfNPrior::univariate(const TSize10Vec& marginalize,
         models[i].first *= std::exp(weights[i] - maxWeight[0]) / Z;
     }
 
-    return {boost::make_unique<COneOfNPrior>(models, this->dataType(), this->decayRate()),
+    return {std::make_unique<COneOfNPrior>(models, this->dataType(), this->decayRate()),
             maxWeight.count() > 0 ? maxWeight[0] : 0.0};
 }
 
@@ -472,8 +471,8 @@ CMultivariateOneOfNPrior::bivariate(const TSize10Vec& marginalize,
         models[i].first *= std::exp(weights[i] - maxWeight[0]) / Z;
     }
 
-    return {boost::make_unique<CMultivariateOneOfNPrior>(2, models, this->dataType(),
-                                                         this->decayRate()),
+    return {std::make_unique<CMultivariateOneOfNPrior>(2, models, this->dataType(),
+                                                       this->decayRate()),
             maxWeight.count() > 0 ? maxWeight[0] : 0.0};
 }
 
@@ -767,9 +766,9 @@ std::string CMultivariateOneOfNPrior::persistenceTag() const {
 
 void CMultivariateOneOfNPrior::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
     for (const auto& model : m_Models) {
-        inserter.insertLevel(MODEL_TAG, boost::bind(&modelAcceptPersistInserter,
-                                                    boost::cref(model.first),
-                                                    boost::cref(*model.second), _1));
+        inserter.insertLevel(
+            MODEL_TAG, std::bind(&modelAcceptPersistInserter, std::cref(model.first),
+                                 std::cref(*model.second), std::placeholders::_1));
     }
     inserter.insertValue(DECAY_RATE_TAG, this->decayRate(), core::CIEEE754::E_SinglePrecision);
     inserter.insertValue(NUMBER_SAMPLES_TAG, this->numberSamples(),

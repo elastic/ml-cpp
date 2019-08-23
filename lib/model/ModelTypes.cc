@@ -1208,7 +1208,7 @@ univariateMultibucketFeature(model_t::EFeature feature, std::size_t windowLength
         case E_IndividualInfoContentByBucketAndPerson:
         case E_IndividualLowInfoContentByBucketAndPerson:
         case E_IndividualHighInfoContentByBucketAndPerson:
-            return boost::make_unique<maths::CTimeSeriesMultibucketMean<double>>(windowLength);
+            return std::make_unique<maths::CTimeSeriesMultibucketMean<double>>(windowLength);
         case E_IndividualTotalBucketCountByPerson:
         case E_IndividualIndicatorOfBucketPerson:
         case E_IndividualTimeOfDayByBucketAndPerson:
@@ -1236,7 +1236,7 @@ univariateMultibucketFeature(model_t::EFeature feature, std::size_t windowLength
         case E_IndividualMinVelocityByPerson:
         case E_IndividualMaxByPerson:
         case E_IndividualMaxVelocityByPerson:
-            return boost::make_unique<maths::CTimeSeriesMultibucketMean<double>>(windowLength);
+            return std::make_unique<maths::CTimeSeriesMultibucketMean<double>>(windowLength);
         case E_IndividualMeanLatLongByPerson:
             break;
 

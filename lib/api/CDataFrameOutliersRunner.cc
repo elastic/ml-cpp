@@ -8,6 +8,7 @@
 
 #include <core/CDataFrame.h>
 #include <core/CLogger.h>
+#include <core/CProgramCounters.h>
 #include <core/CRapidJsonConcurrentLineWriter.h>
 
 #include <maths/COutliers.h>
@@ -26,22 +27,22 @@ namespace ml {
 namespace api {
 namespace {
 // Configuration
-const char* const STANDARDIZE_COLUMNS{"standardize_columns"};
-const char* const NUMBER_NEIGHBOURS{"number_neighbours"};
-const char* const METHOD{"method"};
-const char* const COMPUTE_FEATURE_INFLUENCE{"compute_feature_influence"};
-const char* const MINIMUM_SCORE_TO_WRITE_FEATURE_INFLUENCE{"minimum_score_to_write_feature_influence"};
-const char* const OUTLIER_FRACTION{"outlier_fraction"};
+const std::string STANDARDIZE_COLUMNS{"standardize_columns"};
+const std::string N_NEIGHBORS{"n_neighbors"};
+const std::string METHOD{"method"};
+const std::string COMPUTE_FEATURE_INFLUENCE{"compute_feature_influence"};
+const std::string FEATURE_INFLUENCE_THRESHOLD{"feature_influence_threshold"};
+const std::string OUTLIER_FRACTION{"outlier_fraction"};
 
 const CDataFrameAnalysisConfigReader PARAMETER_READER{[] {
     const std::string lof{"lof"};
     const std::string ldof{"ldof"};
-    const std::string knn{"knn"};
-    const std::string tnn{"tnn"};
+    const std::string knn{"distance_kth_nn"};
+    const std::string tnn{"distance_knn"};
     CDataFrameAnalysisConfigReader theReader;
     theReader.addParameter(STANDARDIZE_COLUMNS,
                            CDataFrameAnalysisConfigReader::E_OptionalParameter);
-    theReader.addParameter(NUMBER_NEIGHBOURS, CDataFrameAnalysisConfigReader::E_OptionalParameter);
+    theReader.addParameter(N_NEIGHBORS, CDataFrameAnalysisConfigReader::E_OptionalParameter);
     theReader.addParameter(METHOD, CDataFrameAnalysisConfigReader::E_OptionalParameter,
                            {{lof, int{maths::COutliers::E_Lof}},
                             {ldof, int{maths::COutliers::E_Ldof}},
@@ -49,15 +50,15 @@ const CDataFrameAnalysisConfigReader PARAMETER_READER{[] {
                             {tnn, int{maths::COutliers::E_TotalDistancekNN}}});
     theReader.addParameter(COMPUTE_FEATURE_INFLUENCE,
                            CDataFrameAnalysisConfigReader::E_OptionalParameter);
-    theReader.addParameter(MINIMUM_SCORE_TO_WRITE_FEATURE_INFLUENCE,
+    theReader.addParameter(FEATURE_INFLUENCE_THRESHOLD,
                            CDataFrameAnalysisConfigReader::E_OptionalParameter);
     theReader.addParameter(OUTLIER_FRACTION, CDataFrameAnalysisConfigReader::E_OptionalParameter);
     return theReader;
 }()};
 
 // Output
-const char* const OUTLIER_SCORE{"outlier_score"};
-const char* const FEATURE_INFLUENCE_PREFIX{"feature_influence."};
+const std::string OUTLIER_SCORE{"outlier_score"};
+const std::string FEATURE_INFLUENCE_PREFIX{"feature_influence."};
 }
 
 CDataFrameOutliersRunner::CDataFrameOutliersRunner(const CDataFrameAnalysisSpecification& spec,
@@ -66,11 +67,10 @@ CDataFrameOutliersRunner::CDataFrameOutliersRunner(const CDataFrameAnalysisSpeci
 
     auto parameters = PARAMETER_READER.read(jsonParameters);
     m_StandardizeColumns = parameters[STANDARDIZE_COLUMNS].fallback(true);
-    m_NumberNeighbours = parameters[NUMBER_NEIGHBOURS].fallback(std::size_t{0});
+    m_NumberNeighbours = parameters[N_NEIGHBORS].fallback(std::size_t{0});
     m_Method = parameters[METHOD].fallback(maths::COutliers::E_Ensemble);
     m_ComputeFeatureInfluence = parameters[COMPUTE_FEATURE_INFLUENCE].fallback(true);
-    m_MinimumScoreToWriteFeatureInfluence =
-        parameters[MINIMUM_SCORE_TO_WRITE_FEATURE_INFLUENCE].fallback(0.1);
+    m_FeatureInfluenceThreshold = parameters[FEATURE_INFLUENCE_THRESHOLD].fallback(0.1);
     m_OutlierFraction = parameters[OUTLIER_FRACTION].fallback(0.05);
 }
 
@@ -92,7 +92,7 @@ void CDataFrameOutliersRunner::writeOneRow(const TStrVec& featureNames,
     writer.StartObject();
     writer.Key(OUTLIER_SCORE);
     writer.Double(row[scoreColumn]);
-    if (row[scoreColumn] > m_MinimumScoreToWriteFeatureInfluence) {
+    if (row[scoreColumn] > m_FeatureInfluenceThreshold) {
         for (std::size_t i = 0; i < numberFeatureScoreColumns; ++i) {
             writer.Key(FEATURE_INFLUENCE_PREFIX + featureNames[i]);
             writer.Double(row[beginFeatureScoreColumns + i]);
@@ -101,7 +101,15 @@ void CDataFrameOutliersRunner::writeOneRow(const TStrVec& featureNames,
     writer.EndObject();
 }
 
-void CDataFrameOutliersRunner::runImpl(core::CDataFrame& frame) {
+void CDataFrameOutliersRunner::runImpl(const TStrVec&, core::CDataFrame& frame) {
+
+    core::CProgramCounters::counter(counter_t::E_DFONumberPartitions) =
+        this->numberPartitions();
+    core::CProgramCounters::counter(counter_t::E_DFOEstimatedPeakMemoryUsage) =
+        this->estimateMemoryUsage(frame.numberRows(),
+                                  frame.numberRows() / this->numberPartitions(),
+                                  frame.numberColumns());
+
     maths::COutliers::SComputeParameters params{this->spec().numberThreads(),
                                                 this->numberPartitions(),
                                                 m_StandardizeColumns,
@@ -109,7 +117,12 @@ void CDataFrameOutliersRunner::runImpl(core::CDataFrame& frame) {
                                                 m_NumberNeighbours,
                                                 m_ComputeFeatureInfluence,
                                                 m_OutlierFraction};
-    maths::COutliers::compute(params, frame, this->progressRecorder());
+    std::atomic<std::int64_t> memory{0};
+    maths::COutliers::compute(
+        params, frame, this->progressRecorder(), [&memory](std::int64_t delta) {
+            std::int64_t memory_{memory.fetch_add(delta)};
+            core::CProgramCounters::counter(counter_t::E_DFOPeakMemoryUsage).max(memory_);
+        });
 }
 
 std::size_t
@@ -128,8 +141,8 @@ CDataFrameOutliersRunner::estimateBookkeepingMemoryUsage(std::size_t numberParti
         params, totalNumberRows, partitionNumberRows, numberColumns);
 }
 
-const char* CDataFrameOutliersRunnerFactory::name() const {
-    return "outlier_detection";
+const std::string& CDataFrameOutliersRunnerFactory::name() const {
+    return NAME;
 }
 
 CDataFrameOutliersRunnerFactory::TRunnerUPtr
@@ -142,5 +155,7 @@ CDataFrameOutliersRunnerFactory::makeImpl(const CDataFrameAnalysisSpecification&
                                           const rapidjson::Value& params) const {
     return std::make_unique<CDataFrameOutliersRunner>(spec, params);
 }
+
+const std::string CDataFrameOutliersRunnerFactory::NAME{"outlier_detection"};
 }
 }

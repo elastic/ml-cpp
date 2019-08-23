@@ -10,7 +10,6 @@
 #include <core/CLogger.h>
 
 #include <boost/optional.hpp>
-#include <boost/range.hpp>
 
 #include <list>
 #include <map>
@@ -59,9 +58,9 @@ void CContainerPrinterTest::testAll() {
                                   std::auto_ptr<int>(new int(3)),
                                   std::auto_ptr<int>(new int(2))};
     LOG_DEBUG(<< "pints = "
-              << CContainerPrinter::print(boost::begin(pints), boost::end(pints)));
+              << CContainerPrinter::print(std::begin(pints), std::end(pints)));
     CPPUNIT_ASSERT_EQUAL(std::string("[2, 3, 2]"),
-                         CContainerPrinter::print(boost::begin(pints), boost::end(pints)));
+                         CContainerPrinter::print(std::begin(pints), std::end(pints)));
 
     std::vector<boost::optional<double>> ovec(2, boost::optional<double>());
     LOG_DEBUG(<< "ovec = " << CContainerPrinter::print(ovec));

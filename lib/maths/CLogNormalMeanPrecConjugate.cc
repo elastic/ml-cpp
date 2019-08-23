@@ -346,8 +346,9 @@ public:
 
         if (!evaluateFunctionOnJointDistribution(
                 m_Samples, m_Weights,
-                boost::bind<double>(CTools::CProbabilityOfLessLikelySample(m_Calculation),
-                                    _1, _2, boost::ref(tail)),
+                std::bind<double>(CTools::CProbabilityOfLessLikelySample(m_Calculation),
+                                  std::placeholders::_1, std::placeholders::_2,
+                                  std::ref(tail)),
                 CJointProbabilityOfLessLikelySamples::SAddProbability(), m_IsNonInformative,
                 m_Offset + x, m_Shape, m_Rate, m_Mean, m_Precision, probability) ||
             !probability.calculate(result)) {
@@ -594,16 +595,17 @@ private:
 
 } // detail::
 
-// We use short field names to reduce the state size
-const std::string OFFSET_TAG("a");
-const std::string GAUSSIAN_MEAN_TAG("b");
-const std::string GAUSSIAN_PRECISION_TAG("c");
-const std::string GAMMA_SHAPE_TAG("d");
-const std::string GAMMA_RATE_TAG("e");
-const std::string NUMBER_SAMPLES_TAG("f");
+const core::TPersistenceTag OFFSET_TAG("a", "offset");
+const core::TPersistenceTag GAUSSIAN_MEAN_TAG("b", "gaussian_mean");
+const core::TPersistenceTag GAUSSIAN_PRECISION_TAG("c", "gaussian_precision");
+const core::TPersistenceTag GAMMA_SHAPE_TAG("d", "gamma_shape");
+const core::TPersistenceTag GAMMA_RATE_TAG("e", "gamma_rate");
+const core::TPersistenceTag NUMBER_SAMPLES_TAG("f", "number_samples");
 //const std::string MINIMUM_TAG("g"); No longer used
 //const std::string MAXIMUM_TAG("h"); No longer used
-const std::string DECAY_RATE_TAG("i");
+const core::TPersistenceTag DECAY_RATE_TAG("i", "decay_rate");
+const std::string MEAN_TAG("mean");
+const std::string STANDARD_DEVIATION_TAG("standard_deviation");
 const std::string EMPTY_STRING;
 }
 
@@ -626,8 +628,8 @@ CLogNormalMeanPrecConjugate::CLogNormalMeanPrecConjugate(const SDistributionRest
     : CPrior(params.s_DataType, params.s_DecayRate), m_Offset(0.0),
       m_OffsetMargin(offsetMargin), m_GaussianMean(0.0),
       m_GaussianPrecision(0.0), m_GammaShape(0.0), m_GammaRate(0.0) {
-    traverser.traverseSubLevel(
-        boost::bind(&CLogNormalMeanPrecConjugate::acceptRestoreTraverser, this, _1));
+    traverser.traverseSubLevel(std::bind(&CLogNormalMeanPrecConjugate::acceptRestoreTraverser,
+                                         this, std::placeholders::_1));
 }
 
 bool CLogNormalMeanPrecConjugate::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
@@ -1395,17 +1397,29 @@ void CLogNormalMeanPrecConjugate::print(const std::string& indent, std::string& 
         return;
     }
 
+    std::string mean;
+    std::string sd;
+    std::tie(mean, sd) = this->printMarginalLikelihoodStatistics();
+
+    result += "mean = " + mean + " sd = " + sd;
+}
+
+CPrior::TStrStrPr CLogNormalMeanPrecConjugate::doPrintMarginalLikelihoodStatistics() const {
     double scale = std::sqrt((m_GaussianPrecision + 1.0) / m_GaussianPrecision *
                              m_GammaRate / m_GammaShape);
+
     try {
         boost::math::lognormal lognormal(m_GaussianMean, scale);
         double mean = boost::math::mean(lognormal);
         double deviation = boost::math::standard_deviation(lognormal);
-        result += "mean = " + core::CStringUtils::typeToStringPretty(mean - m_Offset) +
-                  " sd = " + core::CStringUtils::typeToStringPretty(deviation);
-        return;
-    } catch (const std::exception&) {}
-    result += "mean = <unknown> variance = <unknown>";
+
+        const std::string meanStr{core::CStringUtils::typeToStringPretty(mean - m_Offset)};
+        const std::string sdStr{core::CStringUtils::typeToStringPretty(deviation)};
+
+        return TStrStrPr{meanStr, sdStr};
+    } catch (std::exception&) {}
+
+    return {CPrior::UNKNOWN_VALUE_STRING, CPrior::UNKNOWN_VALUE_STRING};
 }
 
 std::string CLogNormalMeanPrecConjugate::printJointDensityFunction() const {
@@ -1496,6 +1510,14 @@ void CLogNormalMeanPrecConjugate::acceptPersistInserter(core::CStatePersistInser
     inserter.insertValue(GAMMA_RATE_TAG, m_GammaRate, core::CIEEE754::E_DoublePrecision);
     inserter.insertValue(NUMBER_SAMPLES_TAG, this->numberSamples(),
                          core::CIEEE754::E_SinglePrecision);
+
+    if (inserter.readableTags() == true) {
+        std::string mean;
+        std::string sd;
+        std::tie(mean, sd) = this->printMarginalLikelihoodStatistics();
+        inserter.insertValue(MEAN_TAG, mean);
+        inserter.insertValue(STANDARD_DEVIATION_TAG, sd);
+    }
 }
 
 double CLogNormalMeanPrecConjugate::normalMean() const {

@@ -24,9 +24,6 @@
 #include <model/CSearchKey.h>
 #include <model/FunctionTypes.h>
 
-#include <boost/bind.hpp>
-#include <boost/ref.hpp>
-
 #include <fstream>
 
 namespace {
@@ -176,8 +173,8 @@ void CEventRateAnomalyDetectorTest::testAnomalies() {
     // We have 11 instances of correlated 503s and rare SQL statements
     // and one extended drop in status 200s, which are the principal
     // anomalies to find in this data set.
-    static const double HIGH_ANOMALY_SCORE(0.002);
-    static const size_t EXPECTED_ANOMALOUS_HOURS(12);
+    static const double HIGH_ANOMALY_SCORE(0.0018);
+    static const size_t EXPECTED_ANOMALOUS_HOURS(13);
 
     static const ml::core_t::TTime FIRST_TIME(1346713620);
     static const ml::core_t::TTime LAST_TIME(1347317974);
@@ -270,8 +267,8 @@ void CEventRateAnomalyDetectorTest::testPersist() {
         CPPUNIT_ASSERT(parser.parseStringIgnoreCdata(origXml));
         ml::core::CRapidXmlStateRestoreTraverser traverser(parser);
         CPPUNIT_ASSERT(traverser.traverseSubLevel(
-            boost::bind(&ml::model::CAnomalyDetector::acceptRestoreTraverser,
-                        &restoredDetector, EMPTY_STRING, _1)));
+            std::bind(&ml::model::CAnomalyDetector::acceptRestoreTraverser,
+                      &restoredDetector, EMPTY_STRING, std::placeholders::_1)));
     }
 
     // The XML representation of the new typer should be the same as the original
