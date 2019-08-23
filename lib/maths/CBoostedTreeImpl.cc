@@ -294,9 +294,9 @@ CBoostedTreeImpl::trainForest(core::CDataFrame& frame,
     double eta{m_Eta};
     double oneMinusBias{eta};
 
-    for (std::size_t retries = 0; forest.size() < m_MaximumNumberTrees; /**/) {
+    TDoubleVecVec candidateSplits(this->candidateSplits(frame, trainingRowMask));
 
-        TDoubleVecVec candidateSplits(this->candidateSplits(frame, trainingRowMask));
+    for (std::size_t retries = 0; forest.size() < m_MaximumNumberTrees; /**/) {
 
         auto tree = this->trainTree(frame, trainingRowMask, candidateSplits);
 
@@ -318,6 +318,10 @@ CBoostedTreeImpl::trainForest(core::CDataFrame& frame,
             forest.push_back(std::move(tree));
         }
         LOG_TRACE(<< "bias = " << (1.0 - oneMinusBias));
+
+        if (m_Loss->isCurvatureConstant() == false) {
+            candidateSplits = this->candidateSplits(frame, trainingRowMask);
+        }
     }
 
     LOG_TRACE(<< "Trained one forest");
