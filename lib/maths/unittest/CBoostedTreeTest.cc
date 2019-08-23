@@ -739,7 +739,7 @@ void CBoostedTreeTest::testPersistRestore() {
     std::stringstream persistOnceSStream;
     std::stringstream persistTwiceSStream;
 
-    // generate completely random data
+    // Generate completely random data.
     TDoubleVecVec x(cols);
     for (std::size_t i = 0; i < cols; ++i) {
         rng.generateUniformSamples(0.0, 10.0, rows, x[i]);
