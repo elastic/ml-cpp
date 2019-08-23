@@ -938,7 +938,7 @@ private:
         //! Initialize from a delimited string using \p fromString to initialize
         //! values of type T from a string.
         //!
-        //! \warning This functions must not use CBasicStatistics::INTERNAL_DELIMITER.
+        //! \warning This function must not use CBasicStatistics::EXTERNAL_DELIMITER.
         bool fromDelimited(const std::string& value, const TFromString& fromString);
 
         //! Convert to a delimited string.
@@ -947,7 +947,7 @@ private:
         //! Convert to a delimited string using \p toString to convert individual
         //! values of type T to a string.
         //!
-        //! \warning This functions must not use CBasicStatistics::INTERNAL_DELIMITER.
+        //! \warning This function must not use CBasicStatistics::EXTERNAL_DELIMITER.
         std::string toDelimited(const TToString& toString) const;
         //@}
 

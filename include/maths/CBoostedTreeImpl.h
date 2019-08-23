@@ -105,6 +105,7 @@ private:
     using TRowItr = core::CDataFrame::TRowItr;
     using TPackedBitVectorVec = std::vector<core::CPackedBitVector>;
     using TDataFrameCategoryEncoderUPtr = std::unique_ptr<CDataFrameCategoryEncoder>;
+    using TDataTypeVec = CDataFrameUtils::TDataTypeVec;
 
     class CNode;
     using TNodeVec = std::vector<CNode>;
@@ -721,6 +722,7 @@ private:
     std::size_t m_RowsPerFeature = 50;
     double m_FeatureBagFraction = 0.5;
     double m_MaximumTreeSizeFraction = 1.0;
+    TDataTypeVec m_FeatureDataTypes;
     TDataFrameCategoryEncoderUPtr m_Encoder;
     TDoubleVec m_FeatureSampleProbabilities;
     TPackedBitVectorVec m_MissingFeatureRowMasks;

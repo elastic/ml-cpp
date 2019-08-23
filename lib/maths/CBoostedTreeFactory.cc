@@ -35,6 +35,7 @@ CBoostedTreeFactory::buildFor(core::CDataFrame& frame, std::size_t dependentVari
                         frame.numberColumns() + this->numberExtraColumnsForTrain());
 
     this->selectFeaturesAndEncodeCategories(frame);
+    this->determineFeatureDataTypes(frame);
 
     if (this->initializeFeatureSampleDistribution()) {
         this->initializeHyperparameters(frame);
@@ -158,6 +159,21 @@ void CBoostedTreeFactory::selectFeaturesAndEncodeCategories(const core::CDataFra
         m_TreeImpl->m_RowsPerFeature, m_MinimumFrequencyToOneHotEncode);
 }
 
+void CBoostedTreeFactory::determineFeatureDataTypes(const core::CDataFrame& frame) const {
+
+    TSizeVec columnMask(m_TreeImpl->m_Encoder->numberFeatures());
+    std::iota(columnMask.begin(), columnMask.end(), 0);
+    columnMask.erase(std::remove_if(columnMask.begin(), columnMask.end(),
+                                    [this](std::size_t index) {
+                                        return m_TreeImpl->m_Encoder->isBinary(index);
+                                    }),
+                     columnMask.end());
+
+    m_TreeImpl->m_FeatureDataTypes = CDataFrameUtils::columnDataTypes(
+        m_TreeImpl->m_NumberThreads, frame, m_TreeImpl->allTrainingRowsMask(),
+        columnMask, m_TreeImpl->m_Encoder.get());
+}
+
 bool CBoostedTreeFactory::initializeFeatureSampleDistribution() const {
 
     // Compute feature sample probabilities.
@@ -238,15 +254,23 @@ void CBoostedTreeFactory::initializeHyperparameters(core::CDataFrame& frame) con
         LOG_TRACE(<< "loss = " << L[1] << ", # leaves = " << T[1]
                   << ", sum square weights = " << W[1]);
 
+        // If we can't improve the loss with no regularisation on the train set
+        // we're not going to be able to make much headway! In this case we just
+        // force the regularisation parameters to zero and don't try to optimise
+        // them.
         double scale{static_cast<double>(m_TreeImpl->m_NumberFolds - 1) /
                      static_cast<double>(m_TreeImpl->m_NumberFolds)};
-        double lambda{scale * std::max((L[0] - L[1]) / (W[1] - W[0]), 0.0) / 5.0};
-        double gamma{scale * std::max((L[0] - L[1]) / (T[1] - T[0]), 0.0) / 5.0};
+        double lambda{scale * (L[0] <= L[1] ? 0.0 : (L[0] - L[1]) / (W[1] - W[0])) / 5.0};
+        double gamma{scale * (L[0] <= L[1] ? 0.0 : (L[0] - L[1]) / (T[1] - T[0])) / 5.0};
 
-        if (m_TreeImpl->m_LambdaOverride == boost::none) {
+        if (lambda == 0.0) {
+            m_TreeImpl->m_LambdaOverride = lambda;
+        } else if (m_TreeImpl->m_LambdaOverride == boost::none) {
             m_TreeImpl->m_Lambda = m_TreeImpl->m_GammaOverride ? lambda : 0.5 * lambda;
         }
-        if (m_TreeImpl->m_GammaOverride == boost::none) {
+        if (gamma == 0.0) {
+            m_TreeImpl->m_GammaOverride = gamma;
+        } else if (m_TreeImpl->m_GammaOverride == boost::none) {
             m_TreeImpl->m_Gamma = m_TreeImpl->m_LambdaOverride ? gamma : 0.5 * gamma;
         }
         LOG_TRACE(<< "lambda(initial) = " << m_TreeImpl->m_Lambda
