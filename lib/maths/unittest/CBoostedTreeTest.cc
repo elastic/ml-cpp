@@ -682,6 +682,9 @@ void CBoostedTreeTest::testEstimateMemoryUsedByTrain() {
                 *column = x[j][i];
             }
             *column = target(i);
+        });
+    }
+    frame->finishWritingRows();
 
     std::int64_t estimatedMemory(maths::CBoostedTreeFactory::constructFromParameters(
                                      1, std::make_unique<maths::boosted_tree::CMse>())
