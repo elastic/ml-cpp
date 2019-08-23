@@ -76,9 +76,9 @@ public:
     //! number of rows per subset.
     void computeAndSaveExecutionStrategy();
 
-    //! Estimates memory usage in two cases: one partition (the whole data frame
-    //! fits in main memory) and maximum tolerable number of partitions (only
-    //! one partition needs to be loaded to main memory).
+    //! Estimates memory usage in two cases:
+    //!   1. disk is not used (the whole data frame fits in main memory)
+    //!   2. disk is used (only one partition needs to be loaded to main memory)
     void estimateMemoryUsage(CMemoryUsageEstimationResultJsonWriter& writer) const;
 
     //! Check if the data frame for this analysis should use in or out of core
