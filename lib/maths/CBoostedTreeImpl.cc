@@ -283,7 +283,7 @@ CBoostedTreeImpl::regularisedLoss(const core::CDataFrame& frame,
         }
     }
 
-    return {loss, leafCount, sumSquareLeafWeights};
+    return {loss, leafCount, 0.5 * sumSquareLeafWeights};
 }
 
 CBoostedTreeImpl::TMeanVarAccumulator
@@ -344,9 +344,9 @@ CBoostedTreeImpl::trainForest(core::CDataFrame& frame,
     double eta{m_Eta};
     double oneMinusBias{eta};
 
-    for (std::size_t retries = 0; forest.size() < m_MaximumNumberTrees; /**/) {
+    TDoubleVecVec candidateSplits(this->candidateSplits(frame, trainingRowMask));
 
-        TDoubleVecVec candidateSplits(this->candidateSplits(frame, trainingRowMask));
+    for (std::size_t retries = 0; forest.size() < m_MaximumNumberTrees; /**/) {
 
         auto tree = this->trainTree(frame, trainingRowMask, candidateSplits, recordMemoryUsage);
 
@@ -369,6 +369,10 @@ CBoostedTreeImpl::trainForest(core::CDataFrame& frame,
             forest.push_back(std::move(tree));
         }
         LOG_TRACE(<< "bias = " << (1.0 - oneMinusBias));
+
+        if (m_Loss->isCurvatureConstant() == false) {
+            candidateSplits = this->candidateSplits(frame, trainingRowMask);
+        }
     }
 
     LOG_TRACE(<< "Trained one forest");
@@ -397,13 +401,15 @@ CBoostedTreeImpl::candidateSplits(const core::CDataFrame& frame,
               << " other features = " << core::CContainerPrinter::print(features));
 
     TQuantileSketchVec featureQuantiles;
-    CDataFrameUtils::columnQuantiles(m_NumberThreads, frame, trainingRowMask, features,
-                                     CQuantileSketch{CQuantileSketch::E_Linear, 100},
-                                     featureQuantiles, m_Encoder.get(), readLossCurvature);
+    CDataFrameUtils::columnQuantiles(
+        m_NumberThreads, frame, trainingRowMask, features,
+        CQuantileSketch{CQuantileSketch::E_Linear,
+                        std::max(2 * m_NumberSplitsPerFeature, std::size_t{50})},
+        featureQuantiles, m_Encoder.get(), readLossCurvature);
 
     TDoubleVecVec candidateSplits(this->numberFeatures());
 
-    for (std::size_t i : binaryFeatures) {
+    for (auto i : binaryFeatures) {
         candidateSplits[i] = TDoubleVec{0.5};
         LOG_TRACE(<< "feature '" << i << "' splits = "
                   << core::CContainerPrinter::print(candidateSplits[i]));
@@ -710,7 +716,17 @@ bool CBoostedTreeImpl::selectNextHyperparameters(const TMeanVarAccumulator& loss
     double lossVariance{CBasicStatistics::variance(lossMoments)};
 
     bopt.add(parameters, meanLoss, lossVariance);
-    parameters = bopt.maximumExpectedImprovement();
+    if (3 * m_CurrentRound < m_NumberRounds) {
+        std::generate_n(parameters.data(), parameters.size(), [&]() {
+            return CSampling::uniformSample(m_Rng, 0.0, 1.0);
+        });
+        TVector minBoundary;
+        TVector maxBoundary;
+        std::tie(minBoundary, maxBoundary) = bopt.boundingBox();
+        parameters = minBoundary + parameters.cwiseProduct(maxBoundary - minBoundary);
+    } else {
+        parameters = bopt.maximumExpectedImprovement();
+    }
 
     // Write parameters for next round.
     i = 0;

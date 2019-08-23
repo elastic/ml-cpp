@@ -38,6 +38,10 @@ double CMse::curvature(double /*prediction*/, double /*actual*/) const {
     return 2.0;
 }
 
+bool CMse::isCurvatureConstant() const {
+    return true;
+}
+
 const std::string CMse::NAME{"mse"};
 
 const std::string& CMse::name() const {

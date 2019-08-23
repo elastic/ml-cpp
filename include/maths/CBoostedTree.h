@@ -57,6 +57,8 @@ public:
     virtual double gradient(double prediction, double actual) const = 0;
     //! The curvature of the loss function.
     virtual double curvature(double prediction, double actual) const = 0;
+    //! Returns true if the loss curvature is constant.
+    virtual bool isCurvatureConstant() const = 0;
     //! Get an object which computes the leaf value that minimises loss.
     virtual TArgMinLossUPtr minimizer() const = 0;
     //! Get the name of the loss function
@@ -84,6 +86,7 @@ public:
     double value(double prediction, double actual) const override;
     double gradient(double prediction, double actual) const override;
     double curvature(double prediction, double actual) const override;
+    bool isCurvatureConstant() const override;
     TArgMinLossUPtr minimizer() const override;
     const std::string& name() const override;
 

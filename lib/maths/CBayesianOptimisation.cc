@@ -63,6 +63,11 @@ void CBayesianOptimisation::add(TVector x, double fx, double vx) {
     m_ErrorVariances.push_back(CTools::pow2(m_RangeScale) * vx);
 }
 
+std::pair<CBayesianOptimisation::TVector, CBayesianOptimisation::TVector>
+CBayesianOptimisation::boundingBox() const {
+    return {m_MinBoundary, m_MaxBoundary};
+}
+
 CBayesianOptimisation::TVector CBayesianOptimisation::maximumExpectedImprovement() {
 
     using TMeanAccumulator = CBasicStatistics::SSampleMean<double>::TAccumulator;
