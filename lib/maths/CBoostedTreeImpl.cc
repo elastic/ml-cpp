@@ -69,7 +69,8 @@ void CBoostedTreeImpl::CLeafNodeStatistics::addRowDerivatives(const CEncodedData
 }
 
 CBoostedTreeImpl::CBoostedTreeImpl(std::size_t numberThreads, CBoostedTree::TLossFunctionUPtr loss)
-    : m_NumberThreads{numberThreads}, m_Loss{std::move(loss)} {
+    : m_NumberThreads{numberThreads}, m_Loss{std::move(loss)},
+      m_BestHyperparameters{m_Lambda, m_Gamma, m_Eta, m_EtaGrowthRatePerTree, m_FeatureBagFraction, m_FeatureSampleProbabilities} {
 }
 
 CBoostedTreeImpl::CBoostedTreeImpl() = default;
