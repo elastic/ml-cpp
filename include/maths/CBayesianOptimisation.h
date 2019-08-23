@@ -66,6 +66,9 @@ public:
     //! variance in the error in \p fx w.r.t. the true value is \p vx.
     void add(TVector x, double fx, double vx);
 
+    //! Get the bounding box (in the function domain) in which we're minimizing.
+    std::pair<TVector, TVector> boundingBox() const;
+
     //! Compute the location which maximizes the expected improvement given the
     //! function evaluations added so far.
     TVector maximumExpectedImprovement();

@@ -197,9 +197,9 @@ void CBoostedTreeTest::testPiecewiseConstant() {
         // Unbiased...
         CPPUNIT_ASSERT_DOUBLES_EQUAL(
             0.0, modelBias[i][0],
-            7.0 * std::sqrt(noiseVariance / static_cast<double>(trainRows)));
+            5.0 * std::sqrt(noiseVariance / static_cast<double>(trainRows)));
         // Good R^2...
-        CPPUNIT_ASSERT(modelRSquared[i][0] > 0.9);
+        CPPUNIT_ASSERT(modelRSquared[i][0] > 0.91);
 
         meanModelRSquared.add(modelRSquared[i][0]);
     }
@@ -252,9 +252,9 @@ void CBoostedTreeTest::testLinear() {
         // Unbiased...
         CPPUNIT_ASSERT_DOUBLES_EQUAL(
             0.0, modelBias[i][0],
-            7.0 * std::sqrt(noiseVariance / static_cast<double>(trainRows)));
+            5.0 * std::sqrt(noiseVariance / static_cast<double>(trainRows)));
         // Good R^2...
-        CPPUNIT_ASSERT(modelRSquared[i][0] > 0.95);
+        CPPUNIT_ASSERT(modelRSquared[i][0] > 0.96);
 
         meanModelRSquared.add(modelRSquared[i][0]);
     }
@@ -319,9 +319,9 @@ void CBoostedTreeTest::testNonLinear() {
         // Unbiased...
         CPPUNIT_ASSERT_DOUBLES_EQUAL(
             0.0, modelBias[i][0],
-            6.0 * std::sqrt(noiseVariance / static_cast<double>(trainRows)));
+            8.0 * std::sqrt(noiseVariance / static_cast<double>(trainRows)));
         // Good R^2...
-        CPPUNIT_ASSERT(modelRSquared[i][0] > 0.92);
+        CPPUNIT_ASSERT(modelRSquared[i][0] > 0.93);
 
         meanModelRSquared.add(modelRSquared[i][0]);
     }
@@ -602,8 +602,8 @@ void CBoostedTreeTest::testCategoricalRegressors() {
 
     LOG_DEBUG(<< "bias = " << modelBias);
     LOG_DEBUG(<< " R^2 = " << modelRSquared);
-    CPPUNIT_ASSERT_DOUBLES_EQUAL(0.0, modelBias, 0.15);
-    CPPUNIT_ASSERT(modelRSquared > 0.9);
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(0.0, modelBias, 0.1);
+    CPPUNIT_ASSERT(modelRSquared > 0.91);
 }
 
 void CBoostedTreeTest::testIntegerRegressor() {
@@ -739,7 +739,7 @@ void CBoostedTreeTest::testPersistRestore() {
     std::stringstream persistOnceSStream;
     std::stringstream persistTwiceSStream;
 
-    // generate completely random data
+    // Generate completely random data.
     TDoubleVecVec x(cols);
     for (std::size_t i = 0; i < cols; ++i) {
         rng.generateUniformSamples(0.0, 10.0, rows, x[i]);
