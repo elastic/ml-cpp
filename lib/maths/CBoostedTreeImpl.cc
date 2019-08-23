@@ -170,7 +170,7 @@ void CBoostedTreeImpl::write(core::CRapidJsonConcurrentLineWriter& /*writer*/) c
     // TODO
 }
 
-const TDoubleVec& CBoostedTreeImpl::featureWeights() const {
+const CBoostedTreeImpl::TDoubleVec& CBoostedTreeImpl::featureWeights() const {
     return m_FeatureSampleProbabilities;
 }
 
