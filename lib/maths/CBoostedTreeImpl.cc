@@ -351,13 +351,15 @@ CBoostedTreeImpl::candidateSplits(const core::CDataFrame& frame,
               << " other features = " << core::CContainerPrinter::print(features));
 
     TQuantileSketchVec featureQuantiles;
-    CDataFrameUtils::columnQuantiles(m_NumberThreads, frame, trainingRowMask, features,
-                                     CQuantileSketch{CQuantileSketch::E_Linear, 100},
-                                     featureQuantiles, m_Encoder.get(), readLossCurvature);
+    CDataFrameUtils::columnQuantiles(
+        m_NumberThreads, frame, trainingRowMask, features,
+        CQuantileSketch{CQuantileSketch::E_Linear,
+                        std::max(2 * m_NumberSplitsPerFeature, std::size_t{50})},
+        featureQuantiles, m_Encoder.get(), readLossCurvature);
 
     TDoubleVecVec candidateSplits(this->numberFeatures());
 
-    for (std::size_t i : binaryFeatures) {
+    for (auto i : binaryFeatures) {
         candidateSplits[i] = TDoubleVec{0.5};
         LOG_TRACE(<< "feature '" << i << "' splits = "
                   << core::CContainerPrinter::print(candidateSplits[i]));
