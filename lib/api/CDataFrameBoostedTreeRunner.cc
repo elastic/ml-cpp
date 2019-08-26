@@ -12,6 +12,7 @@
 
 #include <maths/CBoostedTree.h>
 #include <maths/CBoostedTreeFactory.h>
+#include <maths/CDataFrameUtils.h>
 
 #include <api/CDataFrameAnalysisConfigReader.h>
 #include <api/CDataFrameAnalysisSpecification.h>
@@ -47,6 +48,9 @@ const CDataFrameAnalysisConfigReader PARAMETER_READER{[] {
                            CDataFrameAnalysisConfigReader::E_OptionalParameter);
     return theReader;
 }()};
+
+// Output
+const std::string IS_TRAINING_FIELD_NAME{"is_training"};
 }
 
 CDataFrameBoostedTreeRunner::CDataFrameBoostedTreeRunner(const CDataFrameAnalysisSpecification& spec,
@@ -123,6 +127,9 @@ void CDataFrameBoostedTreeRunner::writeOneRow(const TStrVec&,
         writer.StartObject();
         writer.Key(m_PredictionFieldName);
         writer.Double(row[m_BoostedTree->columnHoldingPrediction(row.numberColumns())]);
+        writer.Key(IS_TRAINING_FIELD_NAME);
+        writer.Bool(maths::CDataFrameUtils::isMissing(
+                        row[m_BoostedTree->columnHoldingDependentVariable()]) == false);
         writer.EndObject();
     }
 }

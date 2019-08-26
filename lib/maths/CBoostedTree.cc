@@ -75,8 +75,12 @@ void CBoostedTree::write(core::CRapidJsonConcurrentLineWriter& writer) const {
     m_Impl->write(writer);
 }
 
-CBoostedTree::TDoubleVec CBoostedTree::featureWeights() const {
+const CBoostedTree::TDoubleVec& CBoostedTree::featureWeights() const {
     return m_Impl->featureWeights();
+}
+
+std::size_t CBoostedTree::columnHoldingDependentVariable() const {
+    return m_Impl->columnHoldingDependentVariable();
 }
 
 std::size_t CBoostedTree::columnHoldingPrediction(std::size_t numberColumns) const {

@@ -46,7 +46,10 @@ public:
     virtual void write(core::CRapidJsonConcurrentLineWriter& writer) const = 0;
 
     //! Get the feature weights the model has chosen.
-    virtual TDoubleVec featureWeights() const = 0;
+    virtual const TDoubleVec& featureWeights() const = 0;
+
+    //! Get the column containing the dependent variable.
+    virtual std::size_t columnHoldingDependentVariable() const = 0;
 
     //! Get the column containing the model's prediction for the dependent variable.
     virtual std::size_t columnHoldingPrediction(std::size_t numberColumns) const = 0;
