@@ -43,6 +43,7 @@ inline std::size_t predictionColumn(std::size_t numberColumns) {
 }
 }
 
+//! \brief Implementation of CBoostedTree.
 class MATHS_EXPORT CBoostedTreeImpl final {
 public:
     using TMeanAccumulator = CBasicStatistics::SSampleMean<double>::TAccumulator;
@@ -73,11 +74,14 @@ public:
     //! Write this model to \p writer.
     void write(core::CRapidJsonConcurrentLineWriter& /*writer*/) const;
 
+    //! Get the feature sample probabilities.
+    const TDoubleVec& featureWeights() const;
+
+    //! Get the column containing the dependent variable.
+    std::size_t columnHoldingDependentVariable() const;
+
     //! Get the number of columns training the model will add to the data frame.
     static std::size_t numberExtraColumnsForTrain();
-
-    //! Get the feature sample probabilities.
-    TDoubleVec featureWeights() const;
 
     //! Estimate the maximum booking memory that training the boosted tree on a data
     //! frame with \p numberRows row and \p numberColumns columns will use.
