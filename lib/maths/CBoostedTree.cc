@@ -61,14 +61,19 @@ double CArgMinMse::value() const {
 }
 }
 
-CBoostedTree::CBoostedTree(core::CDataFrame& frame, TProgressCallback recordProgress, TImplUPtr&& impl)
-    : CDataFrameRegressionModel{frame, std::move(recordProgress)}, m_Impl{std::move(impl)} {
+CBoostedTree::CBoostedTree(core::CDataFrame& frame,
+                           TProgressCallback recordProgress,
+                           TMemoryUsageCallback recordMemoryUsage,
+                           TImplUPtr&& impl)
+    : CDataFrameRegressionModel{frame, std::move(recordProgress),
+                                std::move(recordMemoryUsage)},
+      m_Impl{std::move(impl)} {
 }
 
 CBoostedTree::~CBoostedTree() = default;
 
 void CBoostedTree::train() {
-    m_Impl->train(this->frame(), this->progressRecorder());
+    m_Impl->train(this->frame(), this->progressRecorder(), this->memoryUsageRecorder());
 }
 
 void CBoostedTree::predict() const {

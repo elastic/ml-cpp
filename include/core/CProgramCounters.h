@@ -27,6 +27,8 @@ namespace counter_t {
 //! The E_LastEnumCounter value must be bumped for every new enum added.
 //! Don't forget to also add a description of the new enum value to m_CounterDefinitions.
 enum ECounterTypes {
+    // Time Series Anomaly Detection
+
     //! The number of new people not created in the data gatherer
     //! because there wasn't enough free resource
     E_TSADNumberNewPeopleNotAllowed = 0,
@@ -86,7 +88,9 @@ enum ECounterTypes {
     //! The number of times partial memory estimates have been carried out
     E_TSADNumberMemoryUsageEstimates = 18,
 
-    //! The estimated peak memory usage for outlier detection
+    // Data Frame Outlier Detection
+
+    //! The estimated peak memory usage for outlier detection in bytes
     E_DFOEstimatedPeakMemoryUsage = 19,
 
     //! The peak memory usage of outlier detection in bytes
@@ -101,10 +105,21 @@ enum ECounterTypes {
     //! The number of partitions used
     E_DFONumberPartitions = 23,
 
+    // Data Frame Train Predictive Model
+
+    //! The estimated peak memory usage for training a predictive model
+    E_DFTPMEstimatedPeakMemoryUsage = 24,
+
+    //! The peak memory usage of outlier detection in bytes
+    E_DFTPMPeakMemoryUsage = 25,
+
+    //! The time in ms to train the model
+    E_DFTPMTimeToTrain = 26,
+
     // Add any new values here
 
     //! This MUST be last, increment the value for every new enum added
-    E_LastEnumCounter = 24
+    E_LastEnumCounter = 27
 };
 
 static constexpr size_t NUM_COUNTERS = static_cast<size_t>(E_LastEnumCounter);
@@ -296,14 +311,20 @@ private:
          {counter_t::E_TSADNumberPrunedItems, "E_TSADNumberPrunedItems",
           "The number of old people or attributes pruned from the models"},
          {counter_t::E_DFOEstimatedPeakMemoryUsage, "E_DFOEstimatedPeakMemoryUsage",
-          "The estimate of the peak memory outlier detection will use"},
+          "The upfront estimate of the peak memory outlier detection would use"},
          {counter_t::E_DFOPeakMemoryUsage, "E_DFOPeakMemoryUsage", "The peak memory outlier detection used"},
          {counter_t::E_DFOTimeToCreateEnsemble, "E_DFOTimeToCreateEnsemble",
-          "The time it takes to create the ensemble used for outlier detection"},
+          "The time it took to create the ensemble used for outlier detection"},
          {counter_t::E_DFOTimeToComputeScores, "E_DFOTimeToComputeScores",
-          "The time it takes to compute outlier scores"},
+          "The time it took to compute outlier scores"},
          {counter_t::E_DFONumberPartitions, "E_DFONumberPartitions",
-          "The number of partitions outlier detection used"}}};
+          "The number of partitions outlier detection used"},
+         {counter_t::E_DFTPMEstimatedPeakMemoryUsage, "E_DFTPMEstimatedPeakMemoryUsage",
+          "The upfront estimate of the peak memory training the predictive model would use"},
+         {counter_t::E_DFTPMPeakMemoryUsage, "E_DFTPMPeakMemoryUsage",
+          "The peak memory training the predictive model used"},
+         {counter_t::E_DFTPMTimeToTrain, "E_DFTPMTimeToTrain",
+          "The time it took to train the predictive model"}}};
 
     //! Enabling printing out the current counters.
     friend CORE_EXPORT std::ostream& operator<<(std::ostream& o,
