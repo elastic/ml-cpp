@@ -650,6 +650,70 @@ void CBoostedTreeTest::testIntegerRegressor() {
     CPPUNIT_ASSERT(modelRSquared > 0.99);
 }
 
+void CBoostedTreeTest::testEstimateMemoryUsedByTrain() {
+
+    // Test estimation of the memory used training a model.
+
+    test::CRandomNumbers rng;
+
+    std::size_t rows{1000};
+    std::size_t cols{6};
+    std::size_t capacity{600};
+
+    TDoubleVecVec x(cols - 1);
+    for (std::size_t i = 0; i < cols - 1; ++i) {
+        rng.generateUniformSamples(0.0, 10.0, rows, x[i]);
+    }
+
+    auto target = [&](std::size_t i) {
+        double result{0.0};
+        for (std::size_t j = 0; j < cols - 1; ++j) {
+            result += x[j][i];
+        }
+        return result;
+    };
+
+    auto frame = core::makeMainStorageDataFrame(cols, capacity).first;
+    frame->categoricalColumns({true, false, false, false, false, false});
+    for (std::size_t i = 0; i < rows; ++i) {
+        frame->writeRow([&](core::CDataFrame::TFloatVecItr column, std::int32_t&) {
+            *(column++) = std::floor(x[0][i]);
+            for (std::size_t j = 1; j < cols - 1; ++j, ++column) {
+                *column = x[j][i];
+            }
+            *column = target(i);
+        });
+    }
+    frame->finishWritingRows();
+
+    std::int64_t estimatedMemory(maths::CBoostedTreeFactory::constructFromParameters(
+                                     1, std::make_unique<maths::boosted_tree::CMse>())
+                                     .estimateMemoryUsage(rows, cols));
+
+    std::int64_t memoryUsage{0};
+    std::int64_t maxMemoryUsage{0};
+    auto regression = maths::CBoostedTreeFactory::constructFromParameters(
+                          1, std::make_unique<maths::boosted_tree::CMse>())
+                          .memoryUsageCallback([&](std::int64_t delta) {
+                              memoryUsage += delta;
+                              maxMemoryUsage = std::max(maxMemoryUsage, memoryUsage);
+                              LOG_TRACE(<< "current memory = " << memoryUsage
+                                        << ", high water mark = " << maxMemoryUsage);
+                          })
+                          .buildFor(*frame, cols - 1);
+
+    regression->train();
+
+    LOG_DEBUG(<< "estimated memory usage = " << estimatedMemory);
+    LOG_DEBUG(<< "high water mark = " << maxMemoryUsage);
+
+    // Currently, the estimated memory is a little over 3 times the high water
+    // mark for the test data.
+
+    CPPUNIT_ASSERT(maxMemoryUsage < estimatedMemory);
+    CPPUNIT_ASSERT(4 * maxMemoryUsage > estimatedMemory);
+}
+
 void CBoostedTreeTest::testProgressMonitoring() {
 
     // Test progress monitoring invariants.
@@ -897,6 +961,9 @@ CppUnit::Test* CBoostedTreeTest::suite() {
         &CBoostedTreeTest::testCategoricalRegressors));
     suiteOfTests->addTest(new CppUnit::TestCaller<CBoostedTreeTest>(
         "CBoostedTreeTest::testIntegerRegressor", &CBoostedTreeTest::testIntegerRegressor));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CBoostedTreeTest>(
+        "CBoostedTreeTest::testEstimateMemoryUsedByTrain",
+        &CBoostedTreeTest::testEstimateMemoryUsedByTrain));
     suiteOfTests->addTest(new CppUnit::TestCaller<CBoostedTreeTest>(
         "CBoostedTreeTest::testProgressMonitoring", &CBoostedTreeTest::testProgressMonitoring));
     suiteOfTests->addTest(new CppUnit::TestCaller<CBoostedTreeTest>(

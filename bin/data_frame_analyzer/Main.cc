@@ -75,14 +75,15 @@ CCleanUpOnExit::TTemporaryDirectoryPtr CCleanUpOnExit::m_DataFrameDirectory{};
 
 int main(int argc, char** argv) {
     // Register the set of counters in which this program is interested
-    // clang-format off
     const ml::counter_t::TCounterTypeSet counters{
         ml::counter_t::E_DFOEstimatedPeakMemoryUsage,
         ml::counter_t::E_DFOPeakMemoryUsage,
         ml::counter_t::E_DFOTimeToCreateEnsemble,
         ml::counter_t::E_DFOTimeToComputeScores,
-        ml::counter_t::E_DFONumberPartitions};
-    // clang-format on
+        ml::counter_t::E_DFONumberPartitions,
+        ml::counter_t::E_DFTPMEstimatedPeakMemoryUsage,
+        ml::counter_t::E_DFTPMPeakMemoryUsage,
+        ml::counter_t::E_DFTPMTimeToTrain};
     ml::core::CProgramCounters::registerProgramCounterTypes(counters);
 
     // Read command line options

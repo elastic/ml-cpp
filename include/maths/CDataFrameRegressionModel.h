@@ -46,19 +46,26 @@ public:
     virtual void write(core::CRapidJsonConcurrentLineWriter& writer) const = 0;
 
     //! Get the feature weights the model has chosen.
-    virtual TDoubleVec featureWeights() const = 0;
+    virtual const TDoubleVec& featureWeights() const = 0;
+
+    //! Get the column containing the dependent variable.
+    virtual std::size_t columnHoldingDependentVariable() const = 0;
 
     //! Get the column containing the model's prediction for the dependent variable.
     virtual std::size_t columnHoldingPrediction(std::size_t numberColumns) const = 0;
 
 protected:
-    CDataFrameRegressionModel(core::CDataFrame& frame, TProgressCallback recordProgress);
+    CDataFrameRegressionModel(core::CDataFrame& frame,
+                              TProgressCallback recordProgress,
+                              TMemoryUsageCallback recordMemoryUsage);
     core::CDataFrame& frame() const;
     const TProgressCallback& progressRecorder() const;
+    const TMemoryUsageCallback& memoryUsageRecorder() const;
 
 private:
     core::CDataFrame& m_Frame;
     TProgressCallback m_RecordProgress;
+    TMemoryUsageCallback m_RecordMemoryUsage;
 };
 }
 }

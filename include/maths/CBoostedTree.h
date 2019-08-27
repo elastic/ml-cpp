@@ -102,31 +102,28 @@ class CBoostedTreeImpl;
 //! DESCRIPTION:\n
 //! This is strongly based on xgboost. We deviate in two important respect: we have
 //! hyperparameters which control the chance of selecting a feature in the feature
-//! bag for a tree, we have different handling of categorical fields.
+//! bag for a tree, we have automatic handling of categorical fields, we roll in a
+//! hyperparameter optimisation loop based on Bayesian Optimisation seeded with a
+//! random search and we use an increasing learn rate training a single forest.
 //!
 //! The probability of selecting a feature behave like a feature weight, allowing us
 //! to:
-//!   1. Incorporate some estimate of strength of relationship between a feature and
+//!   1. Incorporate an estimate of strength of relationship between a regressor and
 //!      the target variable upfront,
 //!   2. Use optimisation techniques suited for smooth cost functions to fine tune
-//!      the features used during training.
-//! All in all this gives us improved resilience to nuisance variables and allows
+//!      the regressors the tree will focus on during training.
+//! All in all this gives us improved resilience to nuisance regressors and allows
 //! us to perform feature selection by imposing a hard cutoff on the minimum probability
 //! of a feature we will accept in the final model.
 //!
 //! The original xgboost paper doesn't explicitly deal with categorical data, it assumes
 //! there is a well ordering on each feature and looks for binary splits subject to this
-//! ordering. This leaves two choices for categorical fields a) use some predefined order
-//! knowing that only splits of the form \f$\{\{1,2,...,i\},\{i+1,i+2,...,m\}\}\f$ will
-//! be considered or b) use one-hot-encoding knowing splits of the form \f$\{\{0\},\{1\}\}\f$
-//! will then be considered for each category. The first choice will rule out good splits
-//! because they aren't consistent with the ordering and the second choice will behave
-//! poorly for fields with high cardinality because it will be impossible to accurately
-//! estimate the change in loss corresponding to the splits.
-// TODO
+//! ordering. We use a mixed strategy which considers one-hot, target mean and frequency
+//! encoding. We choose the "best" strategy based on simultaneously maximising measures
+//! of relevancy and redundancy in the feature set as a whole. We use the MICe statistic
+//! proposed by Reshef for this purpose. See CDataFrameCategoryEncoder for more details.
 class MATHS_EXPORT CBoostedTree final : public CDataFrameRegressionModel {
 public:
-    using TProgressCallback = std::function<void(double)>;
     using TRowRef = core::CDataFrame::TRowRef;
     using TLossFunctionUPtr = std::unique_ptr<boosted_tree::CLoss>;
     using TDataFramePtr = core::CDataFrame*;
@@ -148,7 +145,10 @@ public:
     void write(core::CRapidJsonConcurrentLineWriter& writer) const override;
 
     //! Get the feature weights the model has chosen.
-    TDoubleVec featureWeights() const override;
+    const TDoubleVec& featureWeights() const override;
+
+    //! Get the column containing the dependent variable.
+    std::size_t columnHoldingDependentVariable() const override;
 
     //! Get the column containing the model's prediction for the dependent variable.
     std::size_t columnHoldingPrediction(std::size_t numberColumns) const override;
@@ -163,7 +163,10 @@ private:
     using TImplUPtr = std::unique_ptr<CBoostedTreeImpl>;
 
 private:
-    CBoostedTree(core::CDataFrame& frame, TProgressCallback recordProgress, TImplUPtr&& impl);
+    CBoostedTree(core::CDataFrame& frame,
+                 TProgressCallback recordProgress,
+                 TMemoryUsageCallback recordMemoryUsage,
+                 TImplUPtr&& impl);
 
 private:
     TImplUPtr m_Impl;

@@ -79,6 +79,9 @@ public:
     //! Populate the object from serialized data
     bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
 
+    //! Get the memory used by this object.
+    std::size_t memoryUsage() const;
+
     //! \name Test Interface
     //@{
     //! Get minus the data likelihood and its gradient as a function of the kernel

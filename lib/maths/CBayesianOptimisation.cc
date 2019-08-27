@@ -8,6 +8,7 @@
 
 #include <core/CIEEE754.h>
 #include <core/CJsonStateRestoreTraverser.h>
+#include <core/CMemory.h>
 #include <core/CPersistUtils.h>
 #include <core/RestoreMacros.h>
 
@@ -399,6 +400,21 @@ double CBayesianOptimisation::kernel(const TVector& a, const TVector& x, const T
                                          (x - y));
 }
 
+void CBayesianOptimisation::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
+    try {
+        core::CPersistUtils::persist(MIN_BOUNDARY_TAG, m_MinBoundary, inserter);
+
+        core::CPersistUtils::persist(MAX_BOUNDARY_TAG, m_MaxBoundary, inserter);
+        core::CPersistUtils::persist(ERROR_VARIANCES_TAG, m_ErrorVariances, inserter);
+        core::CPersistUtils::persist(KERNEL_PARAMETERS_TAG, m_KernelParameters, inserter);
+        core::CPersistUtils::persist(MIN_KERNEL_COORDINATE_DISTANCE_SCALES_TAG,
+                                     m_MinimumKernelCoordinateDistanceScale, inserter);
+        core::CPersistUtils::persist(FUNCTION_MEAN_VALUES_TAG, m_FunctionMeanValues, inserter);
+    } catch (std::exception& e) {
+        LOG_ERROR(<< "Failed to persist state! " << e.what());
+    }
+}
+
 bool CBayesianOptimisation::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
     try {
         do {
@@ -428,19 +444,14 @@ bool CBayesianOptimisation::acceptRestoreTraverser(core::CStateRestoreTraverser&
     return true;
 }
 
-void CBayesianOptimisation::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
-    try {
-        core::CPersistUtils::persist(MIN_BOUNDARY_TAG, m_MinBoundary, inserter);
-
-        core::CPersistUtils::persist(MAX_BOUNDARY_TAG, m_MaxBoundary, inserter);
-        core::CPersistUtils::persist(ERROR_VARIANCES_TAG, m_ErrorVariances, inserter);
-        core::CPersistUtils::persist(KERNEL_PARAMETERS_TAG, m_KernelParameters, inserter);
-        core::CPersistUtils::persist(MIN_KERNEL_COORDINATE_DISTANCE_SCALES_TAG,
-                                     m_MinimumKernelCoordinateDistanceScale, inserter);
-        core::CPersistUtils::persist(FUNCTION_MEAN_VALUES_TAG, m_FunctionMeanValues, inserter);
-    } catch (std::exception& e) {
-        LOG_ERROR(<< "Failed to persist state! " << e.what());
-    }
+std::size_t CBayesianOptimisation::memoryUsage() const {
+    std::size_t mem{core::CMemory::dynamicSize(m_MinBoundary)};
+    mem += core::CMemory::dynamicSize(m_MaxBoundary);
+    mem += core::CMemory::dynamicSize(m_FunctionMeanValues);
+    mem += core::CMemory::dynamicSize(m_ErrorVariances);
+    mem += core::CMemory::dynamicSize(m_KernelParameters);
+    mem += core::CMemory::dynamicSize(m_MinimumKernelCoordinateDistanceScale);
+    return mem;
 }
 
 const double CBayesianOptimisation::MINIMUM_KERNEL_COORDINATE_DISTANCE_SCALE{1e-3};
