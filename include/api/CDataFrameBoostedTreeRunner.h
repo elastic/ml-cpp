@@ -13,6 +13,8 @@
 
 #include <rapidjson/fwd.h>
 
+#include <atomic>
+
 namespace ml {
 namespace maths {
 class CBoostedTree;
@@ -58,6 +60,7 @@ private:
     std::string m_PredictionFieldName;
     TBoostedTreeFactoryUPtr m_BoostedTreeFactory;
     TBoostedTreeUPtr m_BoostedTree;
+    std::atomic<std::int64_t> m_Memory;
 };
 
 //! \brief Makes a core::CDataFrame boosted tree regression runner.

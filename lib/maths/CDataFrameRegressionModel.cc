@@ -10,8 +10,10 @@ namespace ml {
 namespace maths {
 
 CDataFrameRegressionModel::CDataFrameRegressionModel(core::CDataFrame& frame,
-                                                     TProgressCallback recordProgress)
-    : m_Frame{frame}, m_RecordProgress{recordProgress} {
+                                                     TProgressCallback recordProgress,
+                                                     TMemoryUsageCallback recordMemoryUsage)
+    : m_Frame{frame}, m_RecordProgress{std::move(recordProgress)},
+      m_RecordMemoryUsage{std::move(recordMemoryUsage)} {
 }
 
 core::CDataFrame& CDataFrameRegressionModel::frame() const {
@@ -21,6 +23,11 @@ core::CDataFrame& CDataFrameRegressionModel::frame() const {
 const CDataFrameRegressionModel::TProgressCallback&
 CDataFrameRegressionModel::progressRecorder() const {
     return m_RecordProgress;
+}
+
+const CDataFrameRegressionModel::TMemoryUsageCallback&
+CDataFrameRegressionModel::memoryUsageRecorder() const {
+    return m_RecordMemoryUsage;
 }
 }
 }
