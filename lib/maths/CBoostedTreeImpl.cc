@@ -216,12 +216,16 @@ void CBoostedTreeImpl::write(core::CRapidJsonConcurrentLineWriter& /*writer*/) c
     // TODO
 }
 
-std::size_t CBoostedTreeImpl::numberExtraColumnsForTrain() {
-    return 3;
+const CBoostedTreeImpl::TDoubleVec& CBoostedTreeImpl::featureWeights() const {
+    return m_FeatureSampleProbabilities;
 }
 
-CBoostedTree::TDoubleVec CBoostedTreeImpl::featureWeights() const {
-    return m_FeatureSampleProbabilities;
+std::size_t CBoostedTreeImpl::columnHoldingDependentVariable() const {
+    return m_DependentVariable;
+}
+
+std::size_t CBoostedTreeImpl::numberExtraColumnsForTrain() {
+    return 3;
 }
 
 std::size_t CBoostedTreeImpl::estimateMemoryUsage(std::size_t numberRows,

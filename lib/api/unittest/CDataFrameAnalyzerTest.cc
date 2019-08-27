@@ -662,17 +662,21 @@ void CDataFrameAnalyzerTest::testRunBoostedTreeTrainingWithRowsMissingTargetValu
     analyzer.handleRecord(fieldNames, {"", "", "", "$"});
 
     rapidjson::Document results;
-    rapidjson::ParseResult ok(results.Parse(output.str().c_str()));
+    rapidjson::ParseResult ok(results.Parse(output.str()));
     CPPUNIT_ASSERT(static_cast<bool>(ok) == true);
 
     std::size_t numberResults{0};
     for (const auto& result : results.GetArray()) {
         if (result.HasMember("row_results")) {
-            double expected{target(feature[result["row_results"]["checksum"].GetUint64()])};
+            std::size_t index(result["row_results"]["checksum"].GetUint64());
+            double expected{target(feature[index])};
             CPPUNIT_ASSERT_DOUBLES_EQUAL(
                 expected,
                 result["row_results"]["results"]["ml"]["target_prediction"].GetDouble(),
                 0.15 * expected);
+            CPPUNIT_ASSERT_EQUAL(
+                index < 40,
+                result["row_results"]["results"]["ml"]["is_training"].GetBool());
             ++numberResults;
         }
     }
