@@ -434,6 +434,11 @@ private:
                 static_cast<std::size_t>(std::ceil(
                     featureBagFraction * static_cast<double>(numberCols - 1))) *
                 sizeof(std::size_t)};
+            // 256 is the number of rows encoded by a single byte in the packed bit
+            // vector assuming best compression. We will typically get this for most
+            // of the leaves when the set of splits becomes large, corresponding to
+            // the worst case for memory usage. This is because the masks will mainly
+            // contain 0 bits in this case.
             std::size_t rowMaskSize{numberRows / 256};
             std::size_t gradientsSize{(numberCols - 1) *
                                       numberSplitsPerFeature * sizeof(double)};
