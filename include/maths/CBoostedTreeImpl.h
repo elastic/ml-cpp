@@ -717,7 +717,7 @@ private:
     std::size_t m_NumberFolds = 4;
     std::size_t m_MaximumNumberTrees = 20;
     std::size_t m_MaximumAttemptsToAddTree = 3;
-    std::size_t m_NumberSplitsPerFeature = 40;
+    std::size_t m_NumberSplitsPerFeature = 75;
     std::size_t m_MaximumOptimisationRoundsPerHyperparameter = 5;
     std::size_t m_RowsPerFeature = 50;
     double m_FeatureBagFraction = 0.5;

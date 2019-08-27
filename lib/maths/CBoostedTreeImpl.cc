@@ -299,9 +299,9 @@ CBoostedTreeImpl::trainForest(core::CDataFrame& frame,
     double eta{m_Eta};
     double oneMinusBias{eta};
 
-    for (std::size_t retries = 0; forest.size() < m_MaximumNumberTrees; /**/) {
+    TDoubleVecVec candidateSplits(this->candidateSplits(frame, trainingRowMask));
 
-        TDoubleVecVec candidateSplits(this->candidateSplits(frame, trainingRowMask));
+    for (std::size_t retries = 0; forest.size() < m_MaximumNumberTrees; /**/) {
 
         auto tree = this->trainTree(frame, trainingRowMask, candidateSplits);
 
@@ -323,6 +323,10 @@ CBoostedTreeImpl::trainForest(core::CDataFrame& frame,
             forest.push_back(std::move(tree));
         }
         LOG_TRACE(<< "bias = " << (1.0 - oneMinusBias));
+
+        if (m_Loss->isCurvatureConstant() == false) {
+            candidateSplits = this->candidateSplits(frame, trainingRowMask);
+        }
     }
 
     LOG_TRACE(<< "Trained one forest");
@@ -351,13 +355,15 @@ CBoostedTreeImpl::candidateSplits(const core::CDataFrame& frame,
               << " other features = " << core::CContainerPrinter::print(features));
 
     TQuantileSketchVec featureQuantiles;
-    CDataFrameUtils::columnQuantiles(m_NumberThreads, frame, trainingRowMask, features,
-                                     CQuantileSketch{CQuantileSketch::E_Linear, 100},
-                                     featureQuantiles, m_Encoder.get(), readLossCurvature);
+    CDataFrameUtils::columnQuantiles(
+        m_NumberThreads, frame, trainingRowMask, features,
+        CQuantileSketch{CQuantileSketch::E_Linear,
+                        std::max(2 * m_NumberSplitsPerFeature, std::size_t{50})},
+        featureQuantiles, m_Encoder.get(), readLossCurvature);
 
     TDoubleVecVec candidateSplits(this->numberFeatures());
 
-    for (std::size_t i : binaryFeatures) {
+    for (auto i : binaryFeatures) {
         candidateSplits[i] = TDoubleVec{0.5};
         LOG_TRACE(<< "feature '" << i << "' splits = "
                   << core::CContainerPrinter::print(candidateSplits[i]));

@@ -84,7 +84,7 @@ auto outlierSpec(std::size_t rows = 110,
 auto regressionSpec(std::string dependentVariable,
                     std::size_t rows = 100,
                     std::size_t cols = 5,
-                    std::size_t memoryLimit = 100000,
+                    std::size_t memoryLimit = 1000000,
                     const TStrVec& categoricalFieldNames = TStrVec{},
                     double lambda = -1.0,
                     double gamma = -1.0,
@@ -571,7 +571,7 @@ void CDataFrameAnalyzerTest::testRunBoostedTreeTrainingWithParams() {
     };
 
     api::CDataFrameAnalyzer analyzer{
-        regressionSpec("c5", 100, 5, 100000, {}, lambda, gamma, eta,
+        regressionSpec("c5", 100, 5, 1000000, {}, lambda, gamma, eta,
                        maximumNumberTrees, featureBagFraction),
         outputWriterFactory};
 
