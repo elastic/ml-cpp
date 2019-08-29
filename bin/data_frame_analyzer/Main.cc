@@ -186,7 +186,7 @@ int main(int argc, char** argv) {
     }
 
     // Print out the runtime counters generated during this execution context.
-    LOG_DEBUG(<< ml::core::CProgramCounters::instance());
+    LOG_INFO(<< ml::core::CProgramCounters::instance());
 
     // This message makes it easier to spot process crashes in a log file - if
     // this isn't present in the log for a given PID and there's no other log
