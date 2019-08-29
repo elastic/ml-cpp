@@ -52,6 +52,7 @@ public:
     using TBayesinOptimizationUPtr = std::unique_ptr<maths::CBayesianOptimisation>;
     using TProgressCallback = CBoostedTree::TProgressCallback;
     using TMemoryUsageCallback = CBoostedTree::TMemoryUsageCallback;
+    using TTrainingStateCallback = CBoostedTree::TTrainingStateCallback;
     using TDoubleVec = std::vector<double>;
 
 public:
@@ -68,7 +69,8 @@ public:
     //! Train the model on the values in \p frame.
     void train(core::CDataFrame& frame,
                const TProgressCallback& recordProgress,
-               const TMemoryUsageCallback& recordMemoryUsage);
+               const TMemoryUsageCallback& recordMemoryUsage,
+               const TTrainingStateCallback& recordTrainStateCallback);
 
     //! Write the predictions of the best trained model to \p frame.
     //!
@@ -764,6 +766,8 @@ private:
     std::size_t m_CurrentRound = 0;
 
     friend class CBoostedTreeFactory;
+
+    void recordState(const TTrainingStateCallback& recordTrainState) const;
 };
 }
 }

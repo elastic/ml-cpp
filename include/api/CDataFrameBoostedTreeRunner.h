@@ -9,6 +9,8 @@
 
 #include <api/CDataFrameAnalysisRunner.h>
 
+#include <core/CConcurrentQueue.h>
+
 #include <api/ImportExport.h>
 
 #include <rapidjson/fwd.h>
@@ -61,6 +63,8 @@ private:
     TBoostedTreeFactoryUPtr m_BoostedTreeFactory;
     TBoostedTreeUPtr m_BoostedTree;
     std::atomic<std::int64_t> m_Memory;
+    // we only interested in the most recent training states, hence queue size can be small
+    core::CConcurrentQueue<std::string, 3> m_TrainingStateQueue;
 };
 
 //! \brief Makes a core::CDataFrame boosted tree regression runner.

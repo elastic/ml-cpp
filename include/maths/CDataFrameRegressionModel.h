@@ -27,6 +27,7 @@ public:
     using TDoubleVec = std::vector<double>;
     using TProgressCallback = std::function<void(double)>;
     using TMemoryUsageCallback = std::function<void(std::uint64_t)>;
+    using TTrainingStateCallback = std::function<void(std::string)>;
 
 public:
     virtual ~CDataFrameRegressionModel() = default;
@@ -61,11 +62,13 @@ protected:
     core::CDataFrame& frame() const;
     const TProgressCallback& progressRecorder() const;
     const TMemoryUsageCallback& memoryUsageRecorder() const;
+    const TTrainingStateCallback& trainingStateRecorder() const;
 
 private:
     core::CDataFrame& m_Frame;
     TProgressCallback m_RecordProgress;
     TMemoryUsageCallback m_RecordMemoryUsage;
+    TTrainingStateCallback m_RecordTrainingState;
 };
 }
 }

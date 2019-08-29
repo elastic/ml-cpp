@@ -29,5 +29,10 @@ const CDataFrameRegressionModel::TMemoryUsageCallback&
 CDataFrameRegressionModel::memoryUsageRecorder() const {
     return m_RecordMemoryUsage;
 }
+
+const CDataFrameRegressionModel::TTrainingStateCallback&
+CDataFrameRegressionModel::trainingStateRecorder() const {
+    return m_RecordTrainingState;
+}
 }
 }

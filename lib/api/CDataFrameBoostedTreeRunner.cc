@@ -102,6 +102,16 @@ CDataFrameBoostedTreeRunner::CDataFrameBoostedTreeRunner(const CDataFrameAnalysi
             LOG_DEBUG(<< "Memory estimate " << memory << " is negative!");
         }
     });
+
+    // callback for storing intermediate training state
+    (*m_BoostedTreeFactory).trainingStateCallback([this](std::string trainingState) {
+        if (trainingState.empty() == false) {
+            m_TrainingStateQueue.push(trainingState);
+        } else {
+            // If training state is empty then something has gone wrong with persistence
+            LOG_DEBUG(<< "Training state is empty!")
+        }
+    });
     if (lambda >= 0.0) {
         m_BoostedTreeFactory->lambda(lambda);
     }

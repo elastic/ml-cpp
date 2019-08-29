@@ -438,6 +438,11 @@ CBoostedTreeFactory& CBoostedTreeFactory::memoryUsageCallback(TMemoryUsageCallba
     return *this;
 }
 
+CBoostedTreeFactory& CBoostedTreeFactory::trainingStateCallback(TTrainingStateCallback callback) {
+    m_RecordTrainingState = std::move(callback);
+    return *this;
+}
+
 std::size_t CBoostedTreeFactory::estimateMemoryUsage(std::size_t numberRows,
                                                      std::size_t numberColumns) const {
     double maximumTreeSizeMultiplier{MAIN_TRAINING_LOOP_TREE_SIZE_MULTIPLIER *
@@ -458,6 +463,9 @@ std::size_t CBoostedTreeFactory::estimateMemoryUsage(std::size_t numberRows,
 
 std::size_t CBoostedTreeFactory::numberExtraColumnsForTrain() const {
     return m_TreeImpl->numberExtraColumnsForTrain();
+}
+
+void CBoostedTreeFactory::noopRecordTrainingState(std::string) {
 }
 
 void CBoostedTreeFactory::noopRecordProgress(double) {

@@ -6,6 +6,7 @@
 
 #include <maths/CBoostedTreeImpl.h>
 
+#include <core/CJsonStatePersistInserter.h>
 #include <core/CLoopProgress.h>
 #include <core/CPersistUtils.h>
 
@@ -116,7 +117,8 @@ CBoostedTreeImpl& CBoostedTreeImpl::operator=(CBoostedTreeImpl&&) = default;
 
 void CBoostedTreeImpl::train(core::CDataFrame& frame,
                              const TProgressCallback& recordProgress,
-                             const TMemoryUsageCallback& recordMemoryUsage) {
+                             const TMemoryUsageCallback& recordMemoryUsage,
+                             const TTrainingStateCallback& recordTrainStateCallback) {
 
     if (m_DependentVariable >= frame.numberColumns()) {
         HANDLE_FATAL(<< "Internal error: dependent variable '" << m_DependentVariable
@@ -175,11 +177,15 @@ void CBoostedTreeImpl::train(core::CDataFrame& frame,
             recordMemoryUsage(memoryUsage - lastMemoryUsage);
             lastMemoryUsage = memoryUsage;
 
+            //store the training state after each hyperparameter search step
+            recordState(recordTrainStateCallback);
+
         } while (m_CurrentRound++ < m_NumberRounds);
 
         LOG_TRACE(<< "Test loss = " << m_BestForestTestLoss);
 
         this->restoreBestHyperparameters();
+        recordState(recordTrainStateCallback);
         m_BestForest = this->trainForest(frame, this->allTrainingRowsMask(), recordMemoryUsage);
     }
 
@@ -189,6 +195,14 @@ void CBoostedTreeImpl::train(core::CDataFrame& frame,
 
     std::int64_t memoryUsage(this->memoryUsage());
     recordMemoryUsage(memoryUsage - lastMemoryUsage);
+}
+
+void CBoostedTreeImpl::recordState(const CBoostedTreeImpl::TTrainingStateCallback& recordTrainState) const {
+    std::stringstream persistStream;
+    core::CJsonStatePersistInserter inserter(persistStream);
+    acceptPersistInserter(inserter);
+    persistStream.flush();
+    recordTrainState(persistStream.str());
 }
 
 void CBoostedTreeImpl::predict(core::CDataFrame& frame,
@@ -327,10 +341,9 @@ CBoostedTreeImpl::TNodeVec CBoostedTreeImpl::initializePredictionsAndLossDerivat
     return tree;
 }
 
-CBoostedTreeImpl::TNodeVecVec
-CBoostedTreeImpl::trainForest(core::CDataFrame& frame,
-                              const core::CPackedBitVector& trainingRowMask,
-                              const TMemoryUsageCallback& recordMemoryUsage) const {
+CBoostedTreeImpl::TNodeVecVec CBoostedTreeImpl::trainForest(core::CDataFrame& frame,
+                                          const core::CPackedBitVector& trainingRowMask,
+                                          const TMemoryUsageCallback& recordMemoryUsage) const {
 
     LOG_TRACE(<< "Training one forest...");
 

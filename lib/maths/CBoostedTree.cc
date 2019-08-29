@@ -73,7 +73,8 @@ CBoostedTree::CBoostedTree(core::CDataFrame& frame,
 CBoostedTree::~CBoostedTree() = default;
 
 void CBoostedTree::train() {
-    m_Impl->train(this->frame(), this->progressRecorder(), this->memoryUsageRecorder());
+    m_Impl->train(this->frame(), this->progressRecorder(),
+                  this->memoryUsageRecorder(), this->trainingStateRecorder());
 }
 
 void CBoostedTree::predict() const {
