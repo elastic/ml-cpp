@@ -20,28 +20,72 @@
 
 namespace ml {
 namespace maths {
+namespace boosted_tree_detail {
+class MATHS_EXPORT CArgMinLossImpl {
+public:
+    virtual ~CArgMinLossImpl() = default;
+
+    virtual std::unique_ptr<CArgMinLossImpl> clone() const = 0;
+    virtual void add(double prediction, double actual) = 0;
+    virtual void merge(const CArgMinLossImpl& other) = 0;
+    virtual double value() const = 0;
+};
+
+//! \brief Finds the value to add to a set of predictions which minimises the MSE.
+class MATHS_EXPORT CArgMinMseImpl final : public CArgMinLossImpl {
+public:
+    std::unique_ptr<CArgMinLossImpl> clone() const override;
+    void add(double prediction, double actual) override;
+    void merge(const CArgMinLossImpl& other) override;
+    double value() const override;
+
+private:
+    using TMeanAccumulator = CBasicStatistics::SSampleMean<double>::TAccumulator;
+
+private:
+    TMeanAccumulator m_MeanError;
+};
+}
+
 namespace boosted_tree {
+
 //! \brief Computes the leaf value which minimizes the loss function.
 class MATHS_EXPORT CArgMinLoss {
 public:
-    virtual ~CArgMinLoss() = default;
+    CArgMinLoss(const CArgMinLoss& other);
+    CArgMinLoss(CArgMinLoss&& other) = default;
+
+    CArgMinLoss& operator=(const CArgMinLoss& other);
+    CArgMinLoss& operator=(CArgMinLoss&& other) = default;
 
     //! Update with a point prediction and actual value.
-    virtual void add(double prediction, double actual) = 0;
+    void add(double prediction, double actual);
 
-    //! Returns the value at the node which minimises the loss for the
-    //! at the predictions added.
+    //! Get the minimiser over the predictions and actual values added to both
+    //! this and \p other.
+    void merge(CArgMinLoss& other);
+
+    //! Returns the value to add to the predictions which minimises the loss
+    //! with respect to the actuals.
     //!
     //! Formally, returns \f$x^* = arg\min_x\{\sum_i{L(p_i + x, a_i)}\}\f$
     //! for predictions and actuals \f$p_i\f$ and \f$a_i\f$, respectively.
-    virtual double value() const = 0;
+    double value() const;
+
+private:
+    using TArgMinLossImplUPtr = std::unique_ptr<boosted_tree_detail::CArgMinLossImpl>;
+
+private:
+    CArgMinLoss(const boosted_tree_detail::CArgMinLossImpl& impl);
+
+private:
+    TArgMinLossImplUPtr m_Impl;
+
+    friend class CLoss;
 };
 
 //! \brief Defines the loss function for the regression problem.
 class MATHS_EXPORT CLoss {
-public:
-    using TArgMinLossUPtr = std::unique_ptr<CArgMinLoss>;
-
 public:
     virtual ~CLoss() = default;
     //! The value of the loss function.
@@ -53,22 +97,12 @@ public:
     //! Returns true if the loss curvature is constant.
     virtual bool isCurvatureConstant() const = 0;
     //! Get an object which computes the leaf value that minimises loss.
-    virtual TArgMinLossUPtr minimizer() const = 0;
+    virtual CArgMinLoss minimizer() const = 0;
     //! Get the name of the loss function
     virtual const std::string& name() const = 0;
-};
 
-//! \brief Finds the leaf node value which minimises the MSE.
-class MATHS_EXPORT CArgMinMse final : public CArgMinLoss {
-public:
-    void add(double prediction, double actual) override;
-    double value() const override;
-
-private:
-    using TMeanAccumulator = CBasicStatistics::SSampleMean<double>::TAccumulator;
-
-private:
-    TMeanAccumulator m_MeanError;
+protected:
+    CArgMinLoss makeMinimizer(const boosted_tree_detail::CArgMinLossImpl& impl) const;
 };
 
 //! \brief The MSE loss function.
@@ -78,7 +112,7 @@ public:
     double gradient(double prediction, double actual) const override;
     double curvature(double prediction, double actual) const override;
     bool isCurvatureConstant() const override;
-    TArgMinLossUPtr minimizer() const override;
+    CArgMinLoss minimizer() const override;
     const std::string& name() const override;
 
 public:

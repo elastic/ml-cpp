@@ -17,9 +17,60 @@
 
 namespace ml {
 namespace maths {
-using namespace boosted_tree_detail;
+namespace boosted_tree_detail {
 
+std::unique_ptr<CArgMinLossImpl> CArgMinMseImpl::clone() const {
+    return std::make_unique<CArgMinMseImpl>(*this);
+}
+
+void CArgMinMseImpl::add(double prediction, double actual) {
+    m_MeanError.add(actual - prediction);
+}
+
+void CArgMinMseImpl::merge(const CArgMinLossImpl& other) {
+    const auto* mse = dynamic_cast<const CArgMinMseImpl*>(&other);
+    if (mse != nullptr) {
+        m_MeanError += mse->m_MeanError;
+    }
+}
+
+double CArgMinMseImpl::value() const {
+    return CBasicStatistics::mean(m_MeanError);
+}
+}
+
+using namespace boosted_tree_detail;
 namespace boosted_tree {
+
+CArgMinLoss::CArgMinLoss(const CArgMinLoss& other)
+    : m_Impl{other.m_Impl->clone()} {
+}
+
+CArgMinLoss& CArgMinLoss::operator=(const CArgMinLoss& other) {
+    if (this != &other) {
+        m_Impl = other.m_Impl->clone();
+    }
+    return *this;
+}
+
+void CArgMinLoss::add(double prediction, double actual) {
+    return m_Impl->add(prediction, actual);
+}
+
+void CArgMinLoss::merge(CArgMinLoss& other) {
+    return m_Impl->merge(*other.m_Impl);
+}
+
+double CArgMinLoss::value() const {
+    return m_Impl->value();
+}
+
+CArgMinLoss::CArgMinLoss(const CArgMinLossImpl& impl) : m_Impl{impl.clone()} {
+}
+
+CArgMinLoss CLoss::makeMinimizer(const boosted_tree_detail::CArgMinLossImpl& impl) const {
+    return {impl};
+}
 
 double CMse::value(double prediction, double actual) const {
     return CTools::pow2(prediction - actual);
@@ -37,23 +88,15 @@ bool CMse::isCurvatureConstant() const {
     return true;
 }
 
-const std::string CMse::NAME{"mse"};
+CArgMinLoss CMse::minimizer() const {
+    return this->makeMinimizer(CArgMinMseImpl{});
+}
 
 const std::string& CMse::name() const {
     return NAME;
 }
 
-void CArgMinMse::add(double prediction, double actual) {
-    m_MeanError.add(actual - prediction);
-}
-
-CMse::TArgMinLossUPtr CMse::minimizer() const {
-    return std::make_unique<CArgMinMse>();
-}
-
-double CArgMinMse::value() const {
-    return CBasicStatistics::mean(m_MeanError);
-}
+const std::string CMse::NAME{"mse"};
 }
 
 CBoostedTree::CBoostedTree(core::CDataFrame& frame,

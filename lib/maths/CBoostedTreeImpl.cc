@@ -595,29 +595,32 @@ void CBoostedTreeImpl::refreshPredictionsAndLossDerivatives(core::CDataFrame& fr
                                                             double eta,
                                                             TNodeVec& tree) const {
 
-    using TArgMinLossUPtrVec = std::vector<CLoss::TArgMinLossUPtr>;
+    using TArgMinLossVec = std::vector<CArgMinLoss>;
 
-    TArgMinLossUPtrVec leafValues;
-    leafValues.reserve(tree.size());
-    for (std::size_t i = 0; i < tree.size(); ++i) {
-        leafValues.push_back(m_Loss->minimizer());
-    }
-
-    frame.readRows(
-        1, 0, frame.numberRows(),
-        [&](TRowItr beginRows, TRowItr endRows) {
-            for (auto itr = beginRows; itr != endRows; ++itr) {
-                const TRowRef& row{*itr};
-                double prediction{readPrediction(row)};
-                double actual{readActual(row, m_DependentVariable)};
-                leafValues[root(tree).leafIndex(m_Encoder->encode(row), tree)]->add(
-                    prediction, actual);
-            }
-        },
+    auto result = frame.readRows(
+        m_NumberThreads, 0, frame.numberRows(),
+        core::bindRetrievableState(
+            [&](TArgMinLossVec& leafValues, TRowItr beginRows, TRowItr endRows) {
+                for (auto itr = beginRows; itr != endRows; ++itr) {
+                    const TRowRef& row{*itr};
+                    double prediction{readPrediction(row)};
+                    double actual{readActual(row, m_DependentVariable)};
+                    leafValues[root(tree).leafIndex(m_Encoder->encode(row), tree)]
+                        .add(prediction, actual);
+                }
+            },
+            TArgMinLossVec(tree.size(), m_Loss->minimizer())),
         &trainingRowMask);
 
+    auto leafValues = std::move(result.first[0].s_FunctionState);
+    for (std::size_t i = 1; i < result.first.size(); ++i) {
+        for (std::size_t j = 0; j < leafValues.size(); ++j) {
+            leafValues[j].merge(result.first[i].s_FunctionState[j]);
+        }
+    }
+
     for (std::size_t i = 0; i < tree.size(); ++i) {
-        tree[i].value(eta * leafValues[i]->value());
+        tree[i].value(eta * leafValues[i].value());
     }
 
     LOG_TRACE(<< "tree =\n" << root(tree).print(tree));
@@ -645,8 +648,8 @@ void CBoostedTreeImpl::refreshPredictionsAndLossDerivatives(core::CDataFrame& fr
         &trainingRowMask);
 
     double totalLoss{0.0};
-    for (const auto& result : results.first) {
-        totalLoss += result.s_FunctionState;
+    for (const auto& loss : results.first) {
+        totalLoss += loss.s_FunctionState;
     }
     LOG_TRACE(<< "training set loss = " << totalLoss);
 }
