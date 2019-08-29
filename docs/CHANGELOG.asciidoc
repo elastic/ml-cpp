@@ -28,6 +28,14 @@
 
 //=== Regressions
 
+== {es} version 7.5.0
+
+=== Enhancements
+
+* Improve performance and concurrency training boosted tree regression model.
+For large data sets this was observed to give a 10% to 20% decrease in train
+time. (See {ml-pull}622[#622].)
+
 == {es} version 7.4.0
 
 === Bug Fixes
