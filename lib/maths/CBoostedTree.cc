@@ -21,11 +21,6 @@ using namespace boosted_tree_detail;
 
 namespace boosted_tree {
 
-void CArgMinLoss::add(double prediction, double actual) {
-    std::unique_lock<std::mutex> lock{m_Mutex};
-    this->addImpl(prediction, actual);
-}
-
 double CMse::value(double prediction, double actual) const {
     return CTools::pow2(prediction - actual);
 }
@@ -48,7 +43,7 @@ const std::string& CMse::name() const {
     return NAME;
 }
 
-void CArgMinMse::addImpl(double prediction, double actual) {
+void CArgMinMse::add(double prediction, double actual) {
     m_MeanError.add(actual - prediction);
 }
 
