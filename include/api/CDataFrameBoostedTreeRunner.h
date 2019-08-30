@@ -44,6 +44,10 @@ public:
                      TRowRef row,
                      core::CRapidJsonConcurrentLineWriter& writer) const override;
 
+    bool canRecordState() const override;
+
+    TOptionalString retrieveState() override;
+
 private:
     using TBoostedTreeUPtr = std::unique_ptr<maths::CBoostedTree>;
     using TBoostedTreeFactoryUPtr = std::unique_ptr<maths::CBoostedTreeFactory>;

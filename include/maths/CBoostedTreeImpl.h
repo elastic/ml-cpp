@@ -727,6 +727,9 @@ private:
     static bool restoreLoss(CBoostedTree::TLossFunctionUPtr& loss,
                             core::CStateRestoreTraverser& traverser);
 
+    //! Record the training state using the \p recordTrainState callback function
+    void recordState(const TTrainingStateCallback& recordTrainState) const;
+
 private:
     static const double INF;
 
@@ -766,8 +769,6 @@ private:
     std::size_t m_CurrentRound = 0;
 
     friend class CBoostedTreeFactory;
-
-    void recordState(const TTrainingStateCallback& recordTrainState) const;
 };
 }
 }

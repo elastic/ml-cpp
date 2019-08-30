@@ -205,9 +205,11 @@ void CBoostedTreeImpl::train(core::CDataFrame& frame,
 
 void CBoostedTreeImpl::recordState(const CBoostedTreeImpl::TTrainingStateCallback& recordTrainState) const {
     std::stringstream persistStream;
-    core::CJsonStatePersistInserter inserter(persistStream);
-    acceptPersistInserter(inserter);
-    persistStream.flush();
+    {
+        core::CJsonStatePersistInserter inserter(persistStream);
+        acceptPersistInserter(inserter);
+        persistStream.flush();
+    }
     recordTrainState(persistStream.str());
 }
 

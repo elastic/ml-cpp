@@ -38,6 +38,7 @@ const char FINISHED_DATA_CONTROL_MESSAGE_FIELD_VALUE{'$'};
 // Result types
 const std::string ROW_RESULTS{"row_results"};
 const std::string PROGRESS_PERCENT{"progress_percent"};
+const std::string ANALYZER_STATE{"analyzer_state"};
 
 // Row result fields
 const std::string CHECKSUM{"checksum"};
@@ -358,7 +359,33 @@ void CDataFrameAnalyzer::monitorProgress(const CDataFrameAnalysisRunner& analysi
             progress = latestProgress;
             this->writeProgress(progress, writer);
         }
+
+        // write stored analysis runner states
+        if (analysis.canRecordState()) {
+            while (auto oState = const_cast<CDataFrameAnalysisRunner&>(analysis).retrieveState()) {
+                this->writeState(*oState, writer);
+            }
+        }
     }
+}
+
+void CDataFrameAnalyzer::writeState(std::string state,
+                                    core::CRapidJsonConcurrentLineWriter& writer) const {
+    rapidjson::Document analyzerStateDoc;
+    if (state.empty() == false) {
+        analyzerStateDoc.Parse(state);
+        if (analyzerStateDoc.GetParseError()) {
+            LOG_ERROR(<< "Input error: analyzer state " << state
+                      << " cannot be parsed as json. Please report this problem.")
+            return;
+        }
+    }
+
+    writer.StartObject();
+    writer.Key(ANALYZER_STATE);
+    writer.write(analyzerStateDoc);
+    writer.EndObject();
+    writer.flush();
 }
 
 void CDataFrameAnalyzer::writeProgress(int progress,

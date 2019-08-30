@@ -195,6 +195,14 @@ void CDataFrameAnalysisRunner::setToFinished() {
     m_FractionalProgress.store(MAXIMUM_FRACTIONAL_PROGRESS);
 }
 
+bool CDataFrameAnalysisRunner::canRecordState() const {
+    return false;
+}
+
+CDataFrameAnalysisRunner::TOptionalString CDataFrameAnalysisRunner::retrieveState() {
+    return boost::none;
+}
+
 CDataFrameAnalysisRunnerFactory::TRunnerUPtr
 CDataFrameAnalysisRunnerFactory::make(const CDataFrameAnalysisSpecification& spec) const {
     auto result = this->makeImpl(spec);

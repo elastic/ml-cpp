@@ -511,6 +511,61 @@ void CDataFrameAnalyzerTest::testRunOutlierDetectionWithParams() {
     }
 }
 
+void CDataFrameAnalyzerTest::testRunBoostedTreeTrainingWithParams() {
+
+    // Test the regression hyperparameter settings are correctly propagated to the
+    // analysis runner.
+
+    double lambda{1.0};
+    double gamma{10.0};
+    double eta{0.9};
+    std::size_t maximumNumberTrees{1};
+    double featureBagFraction{0.3};
+
+    std::stringstream output;
+    auto outputWriterFactory = [&output]() {
+        return std::make_unique<core::CJsonOutputStreamWrapper>(output);
+    };
+
+    api::CDataFrameAnalyzer analyzer{
+        regressionSpec("c5", 100, 5, 1500000, {}, lambda, gamma, eta,
+                       maximumNumberTrees, featureBagFraction),
+        outputWriterFactory};
+
+    TDoubleVec expectedPredictions;
+
+    TStrVec fieldNames{"c1", "c2", "c3", "c4", "c5", ".", "."};
+    TStrVec fieldValues{"", "", "", "", "", "0", ""};
+    addRegressionTestData(fieldNames, fieldValues, analyzer, expectedPredictions, 100,
+                          lambda, gamma, eta, maximumNumberTrees, featureBagFraction);
+    analyzer.handleRecord(fieldNames, {"", "", "", "", "", "", "$"});
+
+    rapidjson::Document results;
+    rapidjson::ParseResult ok(results.Parse(output.str()));
+    CPPUNIT_ASSERT(static_cast<bool>(ok) == true);
+
+    auto expectedPrediction = expectedPredictions.begin();
+    bool progressCompleted{false};
+    for (const auto& result : results.GetArray()) {
+        if (result.HasMember("row_results")) {
+            CPPUNIT_ASSERT(expectedPrediction != expectedPredictions.end());
+            CPPUNIT_ASSERT_DOUBLES_EQUAL(
+                *expectedPrediction,
+                result["row_results"]["results"]["ml"]["c5_prediction"].GetDouble(),
+                1e-4 * std::fabs(*expectedPrediction));
+            ++expectedPrediction;
+            CPPUNIT_ASSERT(result.HasMember("progress_percent") == false);
+        } else if (result.HasMember("progress_percent")) {
+            CPPUNIT_ASSERT(result["progress_percent"].GetInt() >= 0);
+            CPPUNIT_ASSERT(result["progress_percent"].GetInt() <= 100);
+            CPPUNIT_ASSERT(result.HasMember("row_results") == false);
+            progressCompleted = result["progress_percent"].GetInt() == 100;
+        }
+    }
+    CPPUNIT_ASSERT(expectedPrediction == expectedPredictions.end());
+    CPPUNIT_ASSERT(progressCompleted);
+}
+
 void CDataFrameAnalyzerTest::testRunBoostedTreeTraining() {
 
     // Test the results the analyzer produces match running the regression directly.
@@ -567,61 +622,6 @@ void CDataFrameAnalyzerTest::testRunBoostedTreeTraining() {
     CPPUNIT_ASSERT(core::CProgramCounters::counter(counter_t::E_DFTPMPeakMemoryUsage) < 250000);
     CPPUNIT_ASSERT(core::CProgramCounters::counter(counter_t::E_DFTPMTimeToTrain) > 0);
     CPPUNIT_ASSERT(core::CProgramCounters::counter(counter_t::E_DFTPMTimeToTrain) <= duration);
-}
-
-void CDataFrameAnalyzerTest::testRunBoostedTreeTrainingWithParams() {
-
-    // Test the regression hyperparameter settings are correctly propagated to the
-    // analysis runner.
-
-    double lambda{1.0};
-    double gamma{10.0};
-    double eta{0.9};
-    std::size_t maximumNumberTrees{1};
-    double featureBagFraction{0.3};
-
-    std::stringstream output;
-    auto outputWriterFactory = [&output]() {
-        return std::make_unique<core::CJsonOutputStreamWrapper>(output);
-    };
-
-    api::CDataFrameAnalyzer analyzer{
-        regressionSpec("c5", 100, 5, 1500000, {}, lambda, gamma, eta,
-                       maximumNumberTrees, featureBagFraction),
-        outputWriterFactory};
-
-    TDoubleVec expectedPredictions;
-
-    TStrVec fieldNames{"c1", "c2", "c3", "c4", "c5", ".", "."};
-    TStrVec fieldValues{"", "", "", "", "", "0", ""};
-    addRegressionTestData(fieldNames, fieldValues, analyzer, expectedPredictions, 100,
-                          lambda, gamma, eta, maximumNumberTrees, featureBagFraction);
-    analyzer.handleRecord(fieldNames, {"", "", "", "", "", "", "$"});
-
-    rapidjson::Document results;
-    rapidjson::ParseResult ok(results.Parse(output.str()));
-    CPPUNIT_ASSERT(static_cast<bool>(ok) == true);
-
-    auto expectedPrediction = expectedPredictions.begin();
-    bool progressCompleted{false};
-    for (const auto& result : results.GetArray()) {
-        if (result.HasMember("row_results")) {
-            CPPUNIT_ASSERT(expectedPrediction != expectedPredictions.end());
-            CPPUNIT_ASSERT_DOUBLES_EQUAL(
-                *expectedPrediction,
-                result["row_results"]["results"]["ml"]["c5_prediction"].GetDouble(),
-                1e-4 * std::fabs(*expectedPrediction));
-            ++expectedPrediction;
-            CPPUNIT_ASSERT(result.HasMember("progress_percent") == false);
-        } else if (result.HasMember("progress_percent")) {
-            CPPUNIT_ASSERT(result["progress_percent"].GetInt() >= 0);
-            CPPUNIT_ASSERT(result["progress_percent"].GetInt() <= 100);
-            CPPUNIT_ASSERT(result.HasMember("row_results") == false);
-            progressCompleted = result["progress_percent"].GetInt() == 100;
-        }
-    }
-    CPPUNIT_ASSERT(expectedPrediction == expectedPredictions.end());
-    CPPUNIT_ASSERT(progressCompleted);
 }
 
 void CDataFrameAnalyzerTest::testRunBoostedTreeTrainingWithRowsMissingTargetValue() {
@@ -949,6 +949,9 @@ CppUnit::Test* CDataFrameAnalyzerTest::suite() {
         "CDataFrameAnalyzerTest::testRunBoostedTreeTraining",
         &CDataFrameAnalyzerTest::testRunBoostedTreeTraining));
     suiteOfTests->addTest(new CppUnit::TestCaller<CDataFrameAnalyzerTest>(
+        "CDataFrameAnalyzerTest::testRunBoostedTreeTrainingWithStateRecovery",
+        &CDataFrameAnalyzerTest::testRunBoostedTreeTrainingWithStateRecovery));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CDataFrameAnalyzerTest>(
         "CDataFrameAnalyzerTest::testRunBoostedTreeTrainingWithParams",
         &CDataFrameAnalyzerTest::testRunBoostedTreeTrainingWithParams));
     suiteOfTests->addTest(new CppUnit::TestCaller<CDataFrameAnalyzerTest>(
@@ -966,4 +969,83 @@ CppUnit::Test* CDataFrameAnalyzerTest::suite() {
         &CDataFrameAnalyzerTest::testCategoricalFields));
 
     return suiteOfTests;
+}
+
+void CDataFrameAnalyzerTest::testRunBoostedTreeTrainingWithStateRecovery() {
+    double lambda{1.0};
+    double gamma{10.0};
+    double eta{0.9};
+    std::size_t maximumNumberTrees{1};
+    double featureBagFraction{0.3};
+
+    std::stringstream output;
+    auto outputWriterFactory = [&output]() {
+        return std::make_unique<core::CJsonOutputStreamWrapper>(output);
+    };
+
+    api::CDataFrameAnalyzer analyzer{
+        regressionSpec("c5", 100, 5, 1500000, {}, lambda, gamma, eta,
+                       maximumNumberTrees, featureBagFraction),
+        outputWriterFactory};
+
+    TStrVec fieldNames{"c1", "c2", "c3", "c4", "c5", ".", "."};
+    TStrVec fieldValues{"", "", "", "", "", "0", ""};
+    size_t numberExamples = 100;
+
+    auto f = [](const TDoubleVec& weights, const TPoint& regressors) {
+        double result{0.0};
+        for (std::size_t i = 0; i < weights.size(); ++i) {
+            result += weights[i] * regressors(i);
+        }
+        return result;
+    };
+
+    test::CRandomNumbers rng;
+
+    TDoubleVec weights{0.1, 2.0, 0.4, -0.5};
+
+    TDoubleVec values;
+    rng.generateUniformSamples(-10.0, 10.0, weights.size() * numberExamples, values);
+
+    TPointVec rows;
+    for (std::size_t i = 0; i < values.size(); i += weights.size()) {
+        TPoint row{weights.size() + 1};
+        for (std::size_t j = 0; j < weights.size(); ++j) {
+            row(j) = values[i + j];
+        }
+        row(weights.size()) = f(weights, row);
+
+        for (int j = 0; j < row.size(); ++j) {
+            fieldValues[j] = core::CStringUtils::typeToStringPrecise(
+                row(j), core::CIEEE754::E_DoublePrecision);
+            double xj;
+            core::CStringUtils::stringToType(fieldValues[j], xj);
+            row(j) = xj;
+        }
+        analyzer.handleRecord(fieldNames, fieldValues);
+
+        rows.push_back(std::move(row));
+    }
+    analyzer.handleRecord(fieldNames, {"", "", "", "", "", "", "$"});
+    std::cout << output.str() << std::endl;
+
+    //    auto frame = test::CDataFrameTestUtils::toMainMemoryDataFrame(rows);
+    //
+    //    maths::CBoostedTreeFactory treeFactory{maths::CBoostedTreeFactory::constructFromParameters(
+    //            1, std::make_unique<maths::boosted_tree::CMse>())};
+    //    if (lambda >= 0.0) {
+    //        treeFactory.lambda(lambda);
+    //    }
+    //    if (gamma >= 0.0) {
+    //        treeFactory.gamma(gamma);
+    //    }
+    //    if (eta > 0.0) {
+    //        treeFactory.eta(eta);
+    //    }
+    //    if (maximumNumberTrees > 0) {
+    //        treeFactory.maximumNumberTrees(maximumNumberTrees);
+    //    }
+    //    if (featureBagFraction > 0.0) {
+    //        treeFactory.featureBagFraction(featureBagFraction);
+    //    }
 }

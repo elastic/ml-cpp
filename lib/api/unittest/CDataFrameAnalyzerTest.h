@@ -17,6 +17,7 @@ public:
     void testRunOutlierFeatureInfluences();
     void testRunOutlierDetectionWithParams();
     void testRunBoostedTreeTraining();
+    void testRunBoostedTreeTrainingWithStateRecovery();
     void testRunBoostedTreeTrainingWithParams();
     void testRunBoostedTreeTrainingWithRowsMissingTargetValue();
     void testFlushMessage();

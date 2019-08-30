@@ -13,6 +13,8 @@
 
 #include <rapidjson/fwd.h>
 
+#include <boost/optional.hpp>
+
 #include <atomic>
 #include <cstddef>
 #include <functional>
@@ -61,6 +63,7 @@ public:
     using TStrVec = std::vector<std::string>;
     using TRowRef = core::data_frame_detail::CRowRef;
     using TProgressRecorder = std::function<void(double)>;
+    using TOptionalString = boost::optional<std::string>;
 
 public:
     //! The intention is that concrete objects of this hierarchy are constructed
@@ -132,6 +135,10 @@ public:
     //! \return The progress of the analysis in the range [0,1] being an estimate
     //! of the proportion of total work complete for a single run.
     double progress() const;
+
+    virtual bool canRecordState() const;
+
+    virtual TOptionalString retrieveState();
 
 protected:
     const CDataFrameAnalysisSpecification& spec() const;
