@@ -359,6 +359,7 @@ void CDataFrameAnalyzer::monitorProgress(const CDataFrameAnalysisRunner& analysi
             this->writeProgress(progress, writer);
         }
     }
+    this->writeProgress(100, writer);
 }
 
 void CDataFrameAnalyzer::writeProgress(int progress,
