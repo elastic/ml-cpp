@@ -9,6 +9,7 @@
 #include <core/CLoopProgress.h>
 #include <core/CPersistUtils.h>
 
+#include <maths/CBasicStatisticsPersist.h>
 #include <maths/CBayesianOptimisation.h>
 #include <maths/CDataFrameCategoryEncoder.h>
 #include <maths/CQuantileSketch.h>
@@ -243,9 +244,15 @@ std::size_t CBoostedTreeImpl::estimateMemoryUsage(std::size_t numberRows,
         maximumNumberNodes * CLeafNodeStatistics::estimateMemoryUsage(
                                  numberRows, numberColumns, m_FeatureBagFraction,
                                  m_NumberSplitsPerFeature)};
-
-    return forestMemoryUsage + extraColumnsMemoryUsage +
-           hyperparametersMemoryUsage + leafNodeStatisticsMemoryUsage;
+    std::size_t missingFeatureMaskMemoryUsage{numberColumns * numberRows};
+    std::size_t trainTestMaskMemoryUsage{2 * m_NumberFolds * numberRows /
+                                         PACKED_BIT_VECTOR_MAXIMUM_ROWS_PER_BYTE};
+    std::size_t bayesianOptimisationMemoryUsage{CBayesianOptimisation::estimateMemoryUsage(
+        this->numberHyperparametersToTune(), m_NumberRounds)};
+    return sizeof(*this) + forestMemoryUsage + extraColumnsMemoryUsage +
+           hyperparametersMemoryUsage + leafNodeStatisticsMemoryUsage +
+           missingFeatureMaskMemoryUsage + trainTestMaskMemoryUsage +
+           bayesianOptimisationMemoryUsage;
 }
 
 bool CBoostedTreeImpl::canTrain() const {
@@ -815,7 +822,11 @@ std::size_t CBoostedTreeImpl::maximumTreeSize(std::size_t numberRows) const {
         m_MaximumTreeSizeMultiplier * std::sqrt(static_cast<double>(numberRows))));
 }
 
+const std::size_t CBoostedTreeImpl::PACKED_BIT_VECTOR_MAXIMUM_ROWS_PER_BYTE{256};
+
 namespace {
+const std::string BASE_GAMMA_TAG{"base_gamma_tag"};
+const std::string BASE_LAMBDA_TAG{"base_Lambda_tag"};
 const std::string BAYESIAN_OPTIMIZATION_TAG{"bayesian_optimization"};
 const std::string BEST_FOREST_TAG{"best_forest"};
 const std::string BEST_FOREST_TEST_LOSS_TAG{"best_forest_test_loss"};
@@ -841,11 +852,14 @@ const std::string MAXIMUM_NUMBER_TREES_TAG{"maximum_number_trees"};
 const std::string MAXIMUM_OPTIMISATION_ROUNDS_PER_HYPERPARAMETER_TAG{
     "maximum_optimisation_rounds_per_hyperparameter"};
 const std::string MAXIMUM_TREE_SIZE_MULTIPLIER_TAG{"maximum_tree_size_multiplier"};
+const std::string MEAN_LOSS_VARIANCE_TAG{"mean_loss_variance"};
 const std::string MISSING_FEATURE_ROW_MASKS_TAG{"missing_feature_row_masks"};
 const std::string NUMBER_FOLDS_TAG{"number_folds"};
 const std::string NUMBER_ROUNDS_TAG{"number_rounds"};
 const std::string NUMBER_SPLITS_PER_FEATURE_TAG{"number_splits_per_feature"};
 const std::string NUMBER_THREADS_TAG{"number_threads"};
+const std::string REGULARIZATION_SCALE_TAG{"regularization_scale"};
+const std::string REGULARIZATION_GAMMA_FRACTION_TAG{"regularization_gamma_fraction"};
 const std::string ROWS_PER_FEATURE_TAG{"rows_per_feature"};
 const std::string TESTING_ROW_MASKS_TAG{"testing_row_masks"};
 const std::string TRAINING_ROW_MASKS_TAG{"training_row_masks"};
@@ -866,6 +880,8 @@ const std::string HYPERPARAM_FEATURE_SAMPLE_PROBABILITIES_TAG{"hyperparam_featur
 }
 
 void CBoostedTreeImpl::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
+    core::CPersistUtils::persist(BASE_GAMMA_TAG, m_BaseGamma, inserter);
+    core::CPersistUtils::persist(BASE_LAMBDA_TAG, m_BaseLambda, inserter);
     core::CPersistUtils::persist(BAYESIAN_OPTIMIZATION_TAG, *m_BayesianOptimization, inserter);
     core::CPersistUtils::persist(BEST_FOREST_TEST_LOSS_TAG, m_BestForestTestLoss, inserter);
     core::CPersistUtils::persist(CURRENT_ROUND_TAG, m_CurrentRound, inserter);
@@ -886,6 +902,7 @@ void CBoostedTreeImpl::acceptPersistInserter(core::CStatePersistInserter& insert
                                  m_MaximumOptimisationRoundsPerHyperparameter, inserter);
     core::CPersistUtils::persist(MAXIMUM_TREE_SIZE_MULTIPLIER_TAG,
                                  m_MaximumTreeSizeMultiplier, inserter);
+    inserter.insertValue(MEAN_LOSS_VARIANCE_TAG, m_MeanLossVariance.toDelimited());
     core::CPersistUtils::persist(MISSING_FEATURE_ROW_MASKS_TAG,
                                  m_MissingFeatureRowMasks, inserter);
     core::CPersistUtils::persist(NUMBER_FOLDS_TAG, m_NumberFolds, inserter);
@@ -893,6 +910,9 @@ void CBoostedTreeImpl::acceptPersistInserter(core::CStatePersistInserter& insert
     core::CPersistUtils::persist(NUMBER_SPLITS_PER_FEATURE_TAG,
                                  m_NumberSplitsPerFeature, inserter);
     core::CPersistUtils::persist(NUMBER_THREADS_TAG, m_NumberThreads, inserter);
+    core::CPersistUtils::persist(REGULARIZATION_SCALE_TAG, m_RegularizationScale, inserter);
+    core::CPersistUtils::persist(REGULARIZATION_GAMMA_FRACTION_TAG,
+                                 m_RegularizationGammaFraction, inserter);
     core::CPersistUtils::persist(ROWS_PER_FEATURE_TAG, m_RowsPerFeature, inserter);
     core::CPersistUtils::persist(TESTING_ROW_MASKS_TAG, m_TestingRowMasks, inserter);
     core::CPersistUtils::persist(MAXIMUM_NUMBER_TREES_TAG, m_MaximumNumberTrees, inserter);
@@ -987,6 +1007,10 @@ bool CBoostedTreeImpl::restoreLoss(CBoostedTree::TLossFunctionUPtr& loss,
 bool CBoostedTreeImpl::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
     do {
         const std::string& name = traverser.name();
+        RESTORE(BASE_GAMMA_TAG,
+                core::CPersistUtils::restore(BASE_GAMMA_TAG, m_BaseGamma, traverser))
+        RESTORE(BASE_LAMBDA_TAG,
+                core::CPersistUtils::restore(BASE_LAMBDA_TAG, m_BaseLambda, traverser))
         RESTORE_NO_ERROR(BAYESIAN_OPTIMIZATION_TAG,
                          m_BayesianOptimization =
                              std::make_unique<CBayesianOptimisation>(traverser))
@@ -1044,6 +1068,14 @@ bool CBoostedTreeImpl::acceptRestoreTraverser(core::CStateRestoreTraverser& trav
         RESTORE(MAXIMUM_NUMBER_TREES_TAG,
                 core::CPersistUtils::restore(MAXIMUM_NUMBER_TREES_TAG,
                                              m_MaximumNumberTrees, traverser))
+        RESTORE(MEAN_LOSS_VARIANCE_TAG,
+                m_MeanLossVariance.fromDelimited(traverser.value()))
+        RESTORE(REGULARIZATION_SCALE_TAG,
+                core::CPersistUtils::restore(REGULARIZATION_SCALE_TAG,
+                                             m_RegularizationScale, traverser))
+        RESTORE(REGULARIZATION_GAMMA_FRACTION_TAG,
+                core::CPersistUtils::restore(REGULARIZATION_GAMMA_FRACTION_TAG,
+                                             m_RegularizationGammaFraction, traverser))
         RESTORE(TRAINING_ROW_MASKS_TAG,
                 core::CPersistUtils::restore(TRAINING_ROW_MASKS_TAG, m_TrainingRowMasks, traverser))
         RESTORE(BEST_FOREST_TAG,

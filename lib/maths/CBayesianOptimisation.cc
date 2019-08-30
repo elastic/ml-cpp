@@ -454,6 +454,18 @@ std::size_t CBayesianOptimisation::memoryUsage() const {
     return mem;
 }
 
+std::size_t CBayesianOptimisation::estimateMemoryUsage(std::size_t numberParameters,
+                                                       std::size_t numberRounds) {
+    std::size_t boundaryMemoryUsage{2 * numberParameters * sizeof(double)};
+    std::size_t functionMeanValuesMemoryUsage{numberRounds * sizeof(TVectorDoublePr)};
+    std::size_t errorVariancesMemoryUsage{numberRounds * sizeof(double)};
+    std::size_t kernelParametersMemoryUsage{(numberParameters + 1) * sizeof(double)};
+    std::size_t minimumKernelCoordinateDistanceScale{numberParameters * sizeof(double)};
+    return sizeof(CBayesianOptimisation) + boundaryMemoryUsage +
+           functionMeanValuesMemoryUsage + errorVariancesMemoryUsage +
+           kernelParametersMemoryUsage + minimumKernelCoordinateDistanceScale;
+}
+
 const double CBayesianOptimisation::MINIMUM_KERNEL_COORDINATE_DISTANCE_SCALE{1e-3};
 }
 }
