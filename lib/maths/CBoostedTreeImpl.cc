@@ -178,14 +178,20 @@ void CBoostedTreeImpl::train(core::CDataFrame& frame,
             lastMemoryUsage = memoryUsage;
 
             //store the training state after each hyperparameter search step
+            LOG_DEBUG(<< "Round " << m_CurrentRound << " state recording started")
             recordState(recordTrainStateCallback);
+            LOG_DEBUG(<< "Round " << m_CurrentRound << " state recording finished")
 
         } while (m_CurrentRound++ < m_NumberRounds);
 
         LOG_TRACE(<< "Test loss = " << m_BestForestTestLoss);
 
         this->restoreBestHyperparameters();
+
+        LOG_DEBUG(<< "Best hyperparameters: state recording started")
         recordState(recordTrainStateCallback);
+        LOG_DEBUG(<< "Best hyperparameters: state recording finished")
+
         m_BestForest = this->trainForest(frame, this->allTrainingRowsMask(), recordMemoryUsage);
     }
 

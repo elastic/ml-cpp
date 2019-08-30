@@ -106,7 +106,9 @@ CDataFrameBoostedTreeRunner::CDataFrameBoostedTreeRunner(const CDataFrameAnalysi
     // callback for storing intermediate training state
     (*m_BoostedTreeFactory).trainingStateCallback([this](std::string trainingState) {
         if (trainingState.empty() == false) {
-            m_TrainingStateQueue.push(trainingState);
+            if (m_TrainingStateQueue.tryPush(std::move(trainingState)) == false) {
+                LOG_DEBUG(<< "Pushing to the training state queue failed. The queue is full.")
+            }
         } else {
             // If training state is empty then something has gone wrong with persistence
             LOG_DEBUG(<< "Training state is empty!")
