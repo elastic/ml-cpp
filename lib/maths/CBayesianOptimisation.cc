@@ -99,7 +99,7 @@ CBayesianOptimisation::TVector CBayesianOptimisation::maximumExpectedImprovement
         for (int j = 0; j < interpolate.size(); ++i, ++j) {
             interpolate(j) = interpolates[i];
         }
-        TVector x{a + interpolate.asDiagonal() * (b - a)};
+        TVector x{a + interpolate.cwiseProduct(b - a)};
         double fx{minusEI(x)};
         LOG_TRACE(<< "x = " << x.transpose() << " EI(x) = " << fx);
 
@@ -124,12 +124,19 @@ CBayesianOptimisation::TVector CBayesianOptimisation::maximumExpectedImprovement
         double fcand;
         std::tie(xcand, fcand) = lbfgs.constrainedMinimize(
             minusEI, minusEIGradient, a, b, std::move(x0.second), rho);
-        LOG_TRACE(<< "xcand = " << xcand.transpose() << " EI(cand) = " << fcand);
+        LOG_TRACE(<< "x0 = " << x0.second.transpose()
+                  << " xcand = " << xcand.transpose() << " EI(cand) = " << fcand);
 
         if (-fcand > fmax) {
             xmax = std::move(xcand);
             fmax = -fcand;
         }
+    }
+
+    // fmax was probably NaN, in anycase xmax wasn't initialised so fallback to
+    // random search.
+    if (xmax.size() == 0) {
+        xmax = a + interpolate.cwiseProduct(b - a);
     }
 
     LOG_TRACE(<< "best = " << xmax.cwiseProduct(m_MaxBoundary - m_MinBoundary).transpose()
