@@ -246,10 +246,6 @@ std::size_t CEncodedDataFrameRowRef::numberColumns() const {
     return m_Encoder->numberFeatures();
 }
 
-const CEncodedDataFrameRowRef::TRowRef& CEncodedDataFrameRowRef::unencodedRow() const {
-    return m_Row;
-}
-
 CDataFrameCategoryEncoder::CDataFrameCategoryEncoder(std::size_t numberThreads,
                                                      const core::CDataFrame& frame,
                                                      const core::CPackedBitVector& rowMask,
