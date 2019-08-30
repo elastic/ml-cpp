@@ -58,7 +58,8 @@ public:
 protected:
     CDataFrameRegressionModel(core::CDataFrame& frame,
                               TProgressCallback recordProgress,
-                              TMemoryUsageCallback recordMemoryUsage);
+                              TMemoryUsageCallback recordMemoryUsage,
+                              TTrainingStateCallback recordTrainingState);
     core::CDataFrame& frame() const;
     const TProgressCallback& progressRecorder() const;
     const TMemoryUsageCallback& memoryUsageRecorder() const;

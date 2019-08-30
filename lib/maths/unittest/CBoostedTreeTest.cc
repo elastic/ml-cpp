@@ -832,8 +832,10 @@ void CBoostedTreeTest::testPersistRestore() {
         persistOnceSStream.flush();
     }
     // restore
-    auto boostedTree =
-        maths::CBoostedTreeFactory::constructFromString(persistOnceSStream, *frame);
+    auto boostedTree = maths::CBoostedTreeFactory::constructFromString(
+        persistOnceSStream, *frame, ml::maths::CBoostedTreeFactory::TProgressCallback(),
+        ml::maths::CBoostedTreeFactory::TMemoryUsageCallback(),
+        ml::maths::CBoostedTreeFactory::TTrainingStateCallback());
     {
         core::CJsonStatePersistInserter inserter(persistTwiceSStream);
         boostedTree->acceptPersistInserter(inserter);
@@ -891,7 +893,10 @@ void CBoostedTreeTest::testRestoreErrorHandling() {
     bool throwsExceptions{false};
     try {
         auto boostedTree = maths::CBoostedTreeFactory::constructFromString(
-            errorInBayesianOptimisationState, *frame);
+            errorInBayesianOptimisationState, *frame,
+            ml::maths::CBoostedTreeFactory::TProgressCallback(),
+            ml::maths::CBoostedTreeFactory::TMemoryUsageCallback(),
+            ml::maths::CBoostedTreeFactory::TTrainingStateCallback());
     } catch (const std::exception& e) {
         LOG_DEBUG(<< "got = " << e.what());
         throwsExceptions = true;
@@ -930,7 +935,10 @@ void CBoostedTreeTest::testRestoreErrorHandling() {
     throwsExceptions = false;
     try {
         auto boostedTree = maths::CBoostedTreeFactory::constructFromString(
-            errorInBoostedTreeImplState, *frame);
+            errorInBoostedTreeImplState, *frame,
+            ml::maths::CBoostedTreeFactory::TProgressCallback(),
+            ml::maths::CBoostedTreeFactory::TMemoryUsageCallback(),
+            ml::maths::CBoostedTreeFactory::TTrainingStateCallback());
     } catch (const std::exception& e) {
         LOG_DEBUG(<< "got = " << e.what());
         throwsExceptions = true;

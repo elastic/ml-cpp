@@ -55,8 +55,8 @@ CBoostedTreeFactory::buildFor(core::CDataFrame& frame, std::size_t dependentVari
     }
 
     // TODO can only use factory to create one object since this is moved. This seems trappy.
-    return TBoostedTreeUPtr{new CBoostedTree{
-        frame, m_RecordProgress, m_RecordMemoryUsage, std::move(m_TreeImpl)}};
+    return TBoostedTreeUPtr{new CBoostedTree{frame, m_RecordProgress, m_RecordMemoryUsage,
+                                             m_RecordTrainingState, std::move(m_TreeImpl)}};
 }
 
 std::size_t CBoostedTreeFactory::numberHyperparameterTuningRounds() const {
@@ -312,11 +312,12 @@ CBoostedTreeFactory::TBoostedTreeUPtr
 CBoostedTreeFactory::constructFromString(std::stringstream& jsonStringStream,
                                          core::CDataFrame& frame,
                                          TProgressCallback recordProgress,
-                                         TMemoryUsageCallback recordMemoryUsage) {
+                                         TMemoryUsageCallback recordMemoryUsage,
+                                         TTrainingStateCallback recordTrainingState) {
     try {
         TBoostedTreeUPtr treePtr{new CBoostedTree{
             frame, std::move(recordProgress), std::move(recordMemoryUsage),
-            TBoostedTreeImplUPtr{new CBoostedTreeImpl{}}}};
+            std::move(recordTrainingState), TBoostedTreeImplUPtr{new CBoostedTreeImpl{}}}};
         core::CJsonStateRestoreTraverser traverser(jsonStringStream);
         if (treePtr->acceptRestoreTraverser(traverser) == false || traverser.haveBadState()) {
             throw std::runtime_error{"failed to restore boosted tree"};

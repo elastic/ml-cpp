@@ -341,9 +341,10 @@ CBoostedTreeImpl::TNodeVec CBoostedTreeImpl::initializePredictionsAndLossDerivat
     return tree;
 }
 
-CBoostedTreeImpl::TNodeVecVec CBoostedTreeImpl::trainForest(core::CDataFrame& frame,
-                                          const core::CPackedBitVector& trainingRowMask,
-                                          const TMemoryUsageCallback& recordMemoryUsage) const {
+CBoostedTreeImpl::TNodeVecVec
+CBoostedTreeImpl::trainForest(core::CDataFrame& frame,
+                              const core::CPackedBitVector& trainingRowMask,
+                              const TMemoryUsageCallback& recordMemoryUsage) const {
 
     LOG_TRACE(<< "Training one forest...");
 

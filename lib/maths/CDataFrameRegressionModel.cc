@@ -11,9 +11,11 @@ namespace maths {
 
 CDataFrameRegressionModel::CDataFrameRegressionModel(core::CDataFrame& frame,
                                                      TProgressCallback recordProgress,
-                                                     TMemoryUsageCallback recordMemoryUsage)
+                                                     TMemoryUsageCallback recordMemoryUsage,
+                                                     TTrainingStateCallback recordTrainingState)
     : m_Frame{frame}, m_RecordProgress{std::move(recordProgress)},
-      m_RecordMemoryUsage{std::move(recordMemoryUsage)} {
+      m_RecordMemoryUsage{std::move(recordMemoryUsage)},
+      m_RecordTrainingState(std::move(recordTrainingState)) {
 }
 
 core::CDataFrame& CDataFrameRegressionModel::frame() const {
