@@ -104,16 +104,18 @@ const std::string BOOSTED_TREE_IMPL_TAG{"boosted_tree_impl"};
 }
 
 bool CBoostedTree::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
-    do {
-        const std::string& name = traverser.name();
-        RESTORE(BOOSTED_TREE_IMPL_TAG,
-                core::CPersistUtils::restore(BOOSTED_TREE_IMPL_TAG, *m_Impl, traverser))
-    } while (traverser.next());
-    return true;
+    return m_Impl->acceptRestoreTraverser(traverser);
+//    do {
+//        const std::string& name = traverser.name();
+//        RESTORE(BOOSTED_TREE_IMPL_TAG,
+//                core::CPersistUtils::restore(BOOSTED_TREE_IMPL_TAG, *m_Impl, traverser))
+//    } while (traverser.next());
+//    return true;
 }
 
 void CBoostedTree::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
-    core::CPersistUtils::persist(BOOSTED_TREE_IMPL_TAG, *m_Impl, inserter);
+    m_Impl->acceptPersistInserter(inserter);
+//    core::CPersistUtils::persist(BOOSTED_TREE_IMPL_TAG, *m_Impl, inserter);
 }
 }
 }

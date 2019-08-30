@@ -1051,7 +1051,7 @@ void CDataFrameAnalyzerTest::testRunBoostedTreeTrainingWithStateRecovery() {
             std::stringstream jsonStateStream;
             jsonStateStream << stringBuffer.GetString();
             auto tree = maths::CBoostedTreeFactory::constructFromString(jsonStateStream, *frame);
-
+            tree->train();
         }
 
     }
