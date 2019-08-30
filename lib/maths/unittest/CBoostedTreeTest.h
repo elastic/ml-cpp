@@ -19,11 +19,11 @@ public:
     void testConstantTarget();
     void testCategoricalRegressors();
     void testIntegerRegressor();
+    void testMissingData();
+    //void testFeatureWeights();
+    //void testNuisanceFeatures();
     void testEstimateMemoryUsedByTrain();
     void testProgressMonitoring();
-    void testMissingData();
-    // TODO void testFeatureWeights();
-    // TODO void testNuisanceFeatures();
     void testPersistRestore();
     void testRestoreErrorHandling();
 

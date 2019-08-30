@@ -702,11 +702,11 @@ bool CBoostedTreeImpl::selectNextHyperparameters(const TMeanVarAccumulator& loss
 
     // Read parameters for last round.
     int i{0};
-    if (m_LambdaOverride == boost::none) {
-        parameters(i++) = std::log(m_Lambda);
+    if (m_LambdaOverride == boost::none || m_GammaOverride == boost::none) {
+        parameters(i++) = std::log(m_RegularizationScale);
     }
-    if (m_GammaOverride == boost::none) {
-        parameters(i++) = std::log(m_Gamma);
+    if (m_LambdaOverride == boost::none && m_GammaOverride == boost::none) {
+        parameters(i++) = m_RegularizationGammaFraction;
     }
     if (m_EtaOverride == boost::none) {
         parameters(i++) = std::log(m_Eta);
@@ -715,11 +715,18 @@ bool CBoostedTreeImpl::selectNextHyperparameters(const TMeanVarAccumulator& loss
     if (m_FeatureBagFractionOverride == boost::none) {
         parameters(i++) = m_FeatureBagFraction;
     }
+    LOG_TRACE(<< "loss moments = " << lossMoments << " for lambda = " << m_Lambda
+              << ", gamma = " << m_Gamma << ", eta = " << m_Eta
+              << ", eta growth rate per tree = " << m_EtaGrowthRatePerTree
+              << ", feature bag fraction = " << m_FeatureBagFraction);
 
     double meanLoss{CBasicStatistics::mean(lossMoments)};
-    double lossVariance{CBasicStatistics::variance(lossMoments)};
+    double meanLossVariance{CBasicStatistics::variance(lossMoments) /
+                            CBasicStatistics::count(lossMoments)};
+    m_MeanLossVariance.add(meanLossVariance);
 
-    bopt.add(parameters, meanLoss, lossVariance);
+    bopt.add(parameters, meanLoss + std::sqrt(meanLossVariance),
+             CBasicStatistics::mean(m_MeanLossVariance));
     if (3 * m_CurrentRound < m_NumberRounds) {
         std::generate_n(parameters.data(), parameters.size(), [&]() {
             return CSampling::uniformSample(m_Rng, 0.0, 1.0);
@@ -734,11 +741,17 @@ bool CBoostedTreeImpl::selectNextHyperparameters(const TMeanVarAccumulator& loss
 
     // Write parameters for next round.
     i = 0;
+    if (m_LambdaOverride == boost::none || m_GammaOverride == boost::none) {
+        m_RegularizationScale = std::exp(parameters(i++));
+    }
+    if (m_LambdaOverride == boost::none && m_GammaOverride == boost::none) {
+        m_RegularizationGammaFraction = parameters(i++);
+    }
     if (m_LambdaOverride == boost::none) {
-        m_Lambda = std::exp(parameters(i++));
+        m_Lambda = m_RegularizationScale * (1.0 - m_RegularizationGammaFraction) * m_BaseLambda;
     }
     if (m_GammaOverride == boost::none) {
-        m_Gamma = std::exp(parameters(i++));
+        m_Gamma = m_RegularizationScale * m_RegularizationGammaFraction * m_BaseGamma;
     }
     if (m_EtaOverride == boost::none) {
         m_Eta = std::exp(parameters(i++));
@@ -748,18 +761,16 @@ bool CBoostedTreeImpl::selectNextHyperparameters(const TMeanVarAccumulator& loss
         m_FeatureBagFraction = parameters(i++);
     }
 
-    LOG_TRACE(<< "lambda = " << m_Lambda << ", gamma = " << m_Gamma << ", eta = " << m_Eta
-              << ", eta growth rate per tree = " << m_EtaGrowthRatePerTree
-              << ", feature bag fraction = " << m_FeatureBagFraction);
     return true;
 }
 
 void CBoostedTreeImpl::captureBestHyperparameters(const TMeanVarAccumulator& lossMoments) {
-    // We capture the parameters with the lowest error at one standard
-    // deviation above the mean. If the mean error improvement is marginal
-    // we prefer the solution with the least variation across the folds.
-    double loss{CBasicStatistics::mean(lossMoments) +
-                std::sqrt(CBasicStatistics::variance(lossMoments))};
+    // We capture the parameters with the lowest loss at one standard deviation
+    // above the mean: if the mean loss improvement is marginal we therefore
+    // prefer the parameters with the least variation in loss across the folds.
+    double meanLossVariance{CBasicStatistics::variance(lossMoments) /
+                            CBasicStatistics::count(lossMoments)};
+    double loss{CBasicStatistics::mean(lossMoments) + std::sqrt(meanLossVariance)};
     if (loss < m_BestForestTestLoss) {
         m_BestForestTestLoss = loss;
         m_BestHyperparameters = SHyperparameters{
@@ -774,8 +785,9 @@ void CBoostedTreeImpl::restoreBestHyperparameters() {
     m_EtaGrowthRatePerTree = m_BestHyperparameters.s_EtaGrowthRatePerTree;
     m_FeatureBagFraction = m_BestHyperparameters.s_FeatureBagFraction;
     m_FeatureSampleProbabilities = m_BestHyperparameters.s_FeatureSampleProbabilities;
-    LOG_TRACE(<< "lambda* = " << m_Lambda << ", gamma* = " << m_Gamma
-              << ", eta* = " << m_Eta << ", eta growth rate per tree* = " << m_EtaGrowthRatePerTree
+    LOG_TRACE(<< "loss = " << m_BestForestTestLoss << ": lambda* = " << m_Lambda
+              << ", gamma* = " << m_Gamma << ", eta* = " << m_Eta
+              << ", eta growth rate per tree* = " << m_EtaGrowthRatePerTree
               << ", feature bag fraction* = " << m_FeatureBagFraction);
 }
 

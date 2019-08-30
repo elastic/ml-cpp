@@ -21,10 +21,10 @@ using TSizeVec = std::vector<std::size_t>;
 using TRowItr = core::CDataFrame::TRowItr;
 
 namespace {
-const double MIN_REGULARIZER_SCALE{0.1};
-const double MAX_REGULARIZER_SCALE{10.0};
+const double MIN_REGULARIZER_SCALE{0.01};
+const double MAX_REGULARIZER_SCALE{100.0};
 const double MIN_ETA_SCALE{0.3};
-const double MAX_ETA_SCALE{3.0};
+const double MAX_ETA_SCALE{2.0};
 const double MIN_ETA_GROWTH_RATE_SCALE{0.5};
 const double MAX_ETA_GROWTH_RATE_SCALE{1.5};
 const double MIN_FEATURE_BAG_FRACTION{0.2};
@@ -78,13 +78,14 @@ void CBoostedTreeFactory::initializeHyperparameterOptimisation() const {
     // less than p_1, this translates to using log parameter values.
 
     CBayesianOptimisation::TDoubleDoublePrVec boundingBox;
-    if (m_TreeImpl->m_LambdaOverride == boost::none) {
-        boundingBox.emplace_back(std::log(MIN_REGULARIZER_SCALE * m_TreeImpl->m_Lambda),
-                                 std::log(MAX_REGULARIZER_SCALE * m_TreeImpl->m_Lambda));
+    if (m_TreeImpl->m_LambdaOverride == boost::none ||
+        m_TreeImpl->m_GammaOverride == boost::none) {
+        boundingBox.emplace_back(std::log(MIN_REGULARIZER_SCALE),
+                                 std::log(MAX_REGULARIZER_SCALE));
     }
-    if (m_TreeImpl->m_GammaOverride == boost::none) {
-        boundingBox.emplace_back(std::log(MIN_REGULARIZER_SCALE * m_TreeImpl->m_Gamma),
-                                 std::log(MAX_REGULARIZER_SCALE * m_TreeImpl->m_Gamma));
+    if (m_TreeImpl->m_LambdaOverride == boost::none &&
+        m_TreeImpl->m_GammaOverride == boost::none) {
+        boundingBox.emplace_back(0.0, 1.0);
     }
     if (m_TreeImpl->m_EtaOverride == boost::none) {
         double rate{m_TreeImpl->m_EtaGrowthRatePerTree - 1.0};
@@ -280,12 +281,14 @@ void CBoostedTreeFactory::initializeHyperparameters(core::CDataFrame& frame) con
         if (lambda == 0.0) {
             m_TreeImpl->m_LambdaOverride = lambda;
         } else if (m_TreeImpl->m_LambdaOverride == boost::none) {
-            m_TreeImpl->m_Lambda = m_TreeImpl->m_GammaOverride ? lambda : 0.5 * lambda;
+            m_TreeImpl->m_BaseLambda = m_TreeImpl->m_Lambda =
+                m_TreeImpl->m_GammaOverride ? lambda : 0.5 * lambda;
         }
         if (gamma == 0.0) {
             m_TreeImpl->m_GammaOverride = gamma;
         } else if (m_TreeImpl->m_GammaOverride == boost::none) {
-            m_TreeImpl->m_Gamma = m_TreeImpl->m_LambdaOverride ? gamma : 0.5 * gamma;
+            m_TreeImpl->m_BaseGamma = m_TreeImpl->m_Gamma =
+                m_TreeImpl->m_LambdaOverride ? gamma : 0.5 * gamma;
         }
         LOG_TRACE(<< "lambda(initial) = " << m_TreeImpl->m_Lambda
                   << " gamma(initial) = " << m_TreeImpl->m_Gamma);

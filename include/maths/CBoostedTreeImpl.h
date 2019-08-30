@@ -738,6 +738,10 @@ private:
     TOptionalDouble m_EtaOverride;
     TOptionalSize m_MaximumNumberTreesOverride;
     TOptionalDouble m_FeatureBagFractionOverride;
+    double m_RegularizationScale = 1.0;
+    double m_RegularizationGammaFraction = 0.5;
+    double m_BaseGamma = 0.0;
+    double m_BaseLambda = 0.0;
     double m_Lambda = 0.0;
     double m_Gamma = 0.0;
     double m_Eta = 0.1;
@@ -760,6 +764,7 @@ private:
     SHyperparameters m_BestHyperparameters;
     TNodeVecVec m_BestForest;
     TBayesinOptimizationUPtr m_BayesianOptimization;
+    TMeanAccumulator m_MeanLossVariance;
     std::size_t m_NumberRounds = 1;
     std::size_t m_CurrentRound = 0;
 
