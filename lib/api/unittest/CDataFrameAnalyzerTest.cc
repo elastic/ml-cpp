@@ -1026,8 +1026,35 @@ void CDataFrameAnalyzerTest::testRunBoostedTreeTrainingWithStateRecovery() {
 
         rows.push_back(std::move(row));
     }
+    auto frame = test::CDataFrameTestUtils::toMainMemoryDataFrame(rows);
+
     analyzer.handleRecord(fieldNames, {"", "", "", "", "", "", "$"});
     std::cout << output.str() << std::endl;
+
+    rapidjson::Document results;
+    rapidjson::ParseResult ok(results.Parse(output.str()));
+    CPPUNIT_ASSERT(static_cast<bool>(ok) == true);
+
+    for (const auto& result : results.GetArray()) {
+        if (result.HasMember("analyzer_state") && result["analyzer_state"]["current_round"] == "1") {
+            auto state = result["analyzer_state"].GetObject();
+            rapidjson::StringBuffer stringBuffer;
+            api::CDataFrameAnalysisSpecificationJsonWriter::TRapidJsonLineWriter writer;
+            {
+
+                writer.Reset(stringBuffer);
+                writer.write( result["analyzer_state"]);
+                writer.Flush();
+
+
+            }
+            std::stringstream jsonStateStream;
+            jsonStateStream << stringBuffer.GetString();
+            auto tree = maths::CBoostedTreeFactory::constructFromString(jsonStateStream, *frame);
+
+        }
+
+    }
 
     //    auto frame = test::CDataFrameTestUtils::toMainMemoryDataFrame(rows);
     //
