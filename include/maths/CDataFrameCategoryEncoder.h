@@ -61,7 +61,7 @@ public:
     }
 
     //! Get the underlying row reference.
-    const TRowRef& unencodedRow() const;
+    const TRowRef& unencodedRow() const { return m_Row; }
 
 private:
     TRowRef m_Row;
