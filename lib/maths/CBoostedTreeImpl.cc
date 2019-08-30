@@ -87,18 +87,21 @@ void CBoostedTreeImpl::CLeafNodeStatistics::addRowDerivatives(const CEncodedData
                                                               SDerivatives& derivatives) const {
 
     const TRowRef& unencodedRow{row.unencodedRow()};
+    double gradient{readLossGradient(unencodedRow)};
+    double curvature{readLossCurvature(unencodedRow)};
 
     for (std::size_t i = 0; i < m_CandidateSplits.size(); ++i) {
         double featureValue{row[i]};
         if (CDataFrameUtils::isMissing(featureValue)) {
-            derivatives.s_MissingGradients[i] += readLossGradient(unencodedRow);
-            derivatives.s_MissingCurvatures[i] += readLossCurvature(unencodedRow);
+            derivatives.s_MissingGradients[i] += gradient;
+            derivatives.s_MissingCurvatures[i] += curvature;
         } else {
-            auto j = std::upper_bound(m_CandidateSplits[i].begin(),
-                                      m_CandidateSplits[i].end(), featureValue) -
-                     m_CandidateSplits[i].begin();
-            derivatives.s_Gradients[i][j] += readLossGradient(unencodedRow);
-            derivatives.s_Curvatures[i][j] += readLossCurvature(unencodedRow);
+            const auto& featureCandidateSplits = m_CandidateSplits[i];
+            auto j = std::upper_bound(featureCandidateSplits.begin(),
+                                      featureCandidateSplits.end(), featureValue) -
+                     featureCandidateSplits.begin();
+            derivatives.s_Gradients[i][j] += gradient;
+            derivatives.s_Curvatures[i][j] += curvature;
         }
     }
 }
@@ -532,15 +535,18 @@ CBoostedTreeImpl::trainTree(core::CDataFrame& frame,
 
             core::CPackedBitVector leftChildRowMask;
             core::CPackedBitVector rightChildRowMask;
-            std::tie(leftChildRowMask, rightChildRowMask) = tree[leaf->id()].rowMasks(
-                m_NumberThreads, frame, *m_Encoder, std::move(leaf->rowMask()));
+            bool leftChildHasFewerRows;
+            std::tie(leftChildRowMask, rightChildRowMask, leftChildHasFewerRows) =
+                tree[leaf->id()].rowMasks(m_NumberThreads, frame, *m_Encoder,
+                                          std::move(leaf->rowMask()));
 
             TLeafNodeStatisticsPtr leftChild;
             TLeafNodeStatisticsPtr rightChild;
-            std::tie(leftChild, rightChild) = leaf->split(
-                leftChildId, rightChildId, m_NumberThreads, frame, *m_Encoder,
-                m_Lambda, m_Gamma, candidateSplits, std::move(featureBag),
-                std::move(leftChildRowMask), std::move(rightChildRowMask));
+            std::tie(leftChild, rightChild) =
+                leaf->split(leftChildId, rightChildId, m_NumberThreads, frame,
+                            *m_Encoder, m_Lambda, m_Gamma, candidateSplits,
+                            std::move(featureBag), std::move(leftChildRowMask),
+                            std::move(rightChildRowMask), leftChildHasFewerRows);
 
             scopeMemoryUsage.add(leftChild);
             scopeMemoryUsage.add(rightChild);
@@ -589,28 +595,32 @@ void CBoostedTreeImpl::refreshPredictionsAndLossDerivatives(core::CDataFrame& fr
                                                             double eta,
                                                             TNodeVec& tree) const {
 
-    using TArgMinLossUPtrVec = std::vector<CLoss::TArgMinLossUPtr>;
+    using TArgMinLossVec = std::vector<CArgMinLoss>;
 
-    TArgMinLossUPtrVec leafValues;
-    leafValues.reserve(tree.size());
-    for (std::size_t i = 0; i < tree.size(); ++i) {
-        leafValues.push_back(m_Loss->minimizer());
-    }
-
-    frame.readRows(
-        1, 0, frame.numberRows(),
-        [&](TRowItr beginRows, TRowItr endRows) {
-            for (auto row = beginRows; row != endRows; ++row) {
-                double prediction{readPrediction(*row)};
-                double actual{readActual(*row, m_DependentVariable)};
-                leafValues[root(tree).leafIndex(m_Encoder->encode(*row), tree)]->add(
-                    prediction, actual);
-            }
-        },
+    auto result = frame.readRows(
+        m_NumberThreads, 0, frame.numberRows(),
+        core::bindRetrievableState(
+            [&](TArgMinLossVec& leafValues, TRowItr beginRows, TRowItr endRows) {
+                for (auto itr = beginRows; itr != endRows; ++itr) {
+                    const TRowRef& row{*itr};
+                    double prediction{readPrediction(row)};
+                    double actual{readActual(row, m_DependentVariable)};
+                    leafValues[root(tree).leafIndex(m_Encoder->encode(row), tree)]
+                        .add(prediction, actual);
+                }
+            },
+            TArgMinLossVec(tree.size(), m_Loss->minimizer())),
         &trainingRowMask);
 
+    auto leafValues = std::move(result.first[0].s_FunctionState);
+    for (std::size_t i = 1; i < result.first.size(); ++i) {
+        for (std::size_t j = 0; j < leafValues.size(); ++j) {
+            leafValues[j].merge(result.first[i].s_FunctionState[j]);
+        }
+    }
+
     for (std::size_t i = 0; i < tree.size(); ++i) {
-        tree[i].value(eta * leafValues[i]->value());
+        tree[i].value(eta * leafValues[i].value());
     }
 
     LOG_TRACE(<< "tree =\n" << root(tree).print(tree));
@@ -638,8 +648,8 @@ void CBoostedTreeImpl::refreshPredictionsAndLossDerivatives(core::CDataFrame& fr
         &trainingRowMask);
 
     double totalLoss{0.0};
-    for (const auto& result : results.first) {
-        totalLoss += result.s_FunctionState;
+    for (const auto& loss : results.first) {
+        totalLoss += loss.s_FunctionState;
     }
     LOG_TRACE(<< "training set loss = " << totalLoss);
 }
