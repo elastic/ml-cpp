@@ -234,25 +234,30 @@ std::size_t CBoostedTreeImpl::numberExtraColumnsForTrain() {
 
 std::size_t CBoostedTreeImpl::estimateMemoryUsage(std::size_t numberRows,
                                                   std::size_t numberColumns) const {
-    std::size_t maximumNumberNodes{this->maximumTreeSize(numberRows)};
-    std::size_t forestMemoryUsage{m_MaximumNumberTrees * maximumNumberNodes * sizeof(CNode)};
+    // The maximum tree size is defined is the maximum number of leaves minus one.
+    // A binary tree with n + 1 leaves has 2n + 1 nodes in total.
+    std::size_t maximumNumberNodes{2 * this->maximumTreeSize(numberRows) + 1};
+    std::size_t forestMemoryUsage{
+        m_MaximumNumberTrees * (sizeof(TNodeVec) + maximumNumberNodes * sizeof(CNode))};
     std::size_t extraColumnsMemoryUsage{this->numberExtraColumnsForTrain() *
                                         numberRows * sizeof(CFloatStorage)};
-    std::size_t hyperparametersMemoryUsage{sizeof(SHyperparameters) +
-                                           numberColumns * sizeof(double)};
+    std::size_t hyperparametersMemoryUsage{numberColumns * sizeof(double)};
     std::size_t leafNodeStatisticsMemoryUsage{
         maximumNumberNodes * CLeafNodeStatistics::estimateMemoryUsage(
                                  numberRows, numberColumns, m_FeatureBagFraction,
                                  m_NumberSplitsPerFeature)};
-    std::size_t missingFeatureMaskMemoryUsage{numberColumns * numberRows};
+    std::size_t dataTypeMemoryUsage{numberColumns * sizeof(CDataFrameUtils::SDataType)};
+    std::size_t featureSampleProbabilities{numberColumns * sizeof(double)};
+    std::size_t missingFeatureMaskMemoryUsage{
+        numberColumns * numberRows / PACKED_BIT_VECTOR_MAXIMUM_ROWS_PER_BYTE};
     std::size_t trainTestMaskMemoryUsage{2 * m_NumberFolds * numberRows /
                                          PACKED_BIT_VECTOR_MAXIMUM_ROWS_PER_BYTE};
     std::size_t bayesianOptimisationMemoryUsage{CBayesianOptimisation::estimateMemoryUsage(
         this->numberHyperparametersToTune(), m_NumberRounds)};
     return sizeof(*this) + forestMemoryUsage + extraColumnsMemoryUsage +
            hyperparametersMemoryUsage + leafNodeStatisticsMemoryUsage +
-           missingFeatureMaskMemoryUsage + trainTestMaskMemoryUsage +
-           bayesianOptimisationMemoryUsage;
+           dataTypeMemoryUsage + featureSampleProbabilities + missingFeatureMaskMemoryUsage +
+           trainTestMaskMemoryUsage + bayesianOptimisationMemoryUsage;
 }
 
 bool CBoostedTreeImpl::canTrain() const {
@@ -359,6 +364,7 @@ CBoostedTreeImpl::trainForest(core::CDataFrame& frame,
     double oneMinusBias{eta};
 
     TDoubleVecVec candidateSplits(this->candidateSplits(frame, trainingRowMask));
+    scopeMemoryUsage.add(candidateSplits);
 
     for (std::size_t retries = 0; forest.size() < m_MaximumNumberTrees; /**/) {
 
@@ -378,6 +384,7 @@ CBoostedTreeImpl::trainForest(core::CDataFrame& frame,
             oneMinusBias += eta * (1.0 - oneMinusBias);
             retries = 0;
         } else if (oneMinusBias < 1.0) {
+            scopeMemoryUsage.add(tree);
             this->refreshPredictionsAndLossDerivatives(frame, trainingRowMask, 1.0, tree);
             oneMinusBias = 1.0;
             forest.push_back(std::move(tree));
@@ -489,7 +496,7 @@ CBoostedTreeImpl::trainTree(core::CDataFrame& frame,
     std::size_t maximumTreeSize{this->maximumTreeSize(frame)};
 
     TNodeVec tree(1);
-    tree.reserve(maximumTreeSize);
+    tree.reserve(2 * maximumTreeSize + 1);
 
     TLeafNodeStatisticsPtrQueue leaves;
     leaves.push(std::make_shared<CLeafNodeStatistics>(
@@ -504,63 +511,61 @@ CBoostedTreeImpl::trainTree(core::CDataFrame& frame,
         memory += delta;
         maxMemory = std::max(maxMemory, memory);
     }};
-    {
-        CScopeRecordMemoryUsage scopeMemoryUsage{leaves, localRecordMemoryUsage};
+    CScopeRecordMemoryUsage scopeMemoryUsage{leaves, localRecordMemoryUsage};
 
-        // For each iteration we:
-        //   1. Find the leaf with the greatest decrease in loss
-        //   2. If no split (significantly) reduced the loss we terminate
-        //   3. Otherwise we split that leaf
+    // For each iteration we:
+    //   1. Find the leaf with the greatest decrease in loss
+    //   2. If no split (significantly) reduced the loss we terminate
+    //   3. Otherwise we split that leaf
 
-        double totalGain{0.0};
+    double totalGain{0.0};
 
-        for (std::size_t i = 0; i < maximumTreeSize; ++i) {
+    for (std::size_t i = 0; i < maximumTreeSize; ++i) {
 
-            auto leaf = leaves.top();
-            leaves.pop();
+        auto leaf = leaves.top();
+        leaves.pop();
 
-            scopeMemoryUsage.remove(leaf);
+        scopeMemoryUsage.remove(leaf);
 
-            if (leaf->gain() < MINIMUM_RELATIVE_GAIN_PER_SPLIT * totalGain) {
-                break;
-            }
-
-            totalGain += leaf->gain();
-            LOG_TRACE(<< "splitting " << leaf->id() << " total gain = " << totalGain);
-
-            std::size_t splitFeature;
-            double splitValue;
-            std::tie(splitFeature, splitValue) = leaf->bestSplit();
-
-            bool assignMissingToLeft{leaf->assignMissingToLeft()};
-
-            std::size_t leftChildId, rightChildId;
-            std::tie(leftChildId, rightChildId) = tree[leaf->id()].split(
-                splitFeature, splitValue, assignMissingToLeft, tree);
-
-            TSizeVec featureBag{this->featureBag()};
-
-            core::CPackedBitVector leftChildRowMask;
-            core::CPackedBitVector rightChildRowMask;
-            bool leftChildHasFewerRows;
-            std::tie(leftChildRowMask, rightChildRowMask, leftChildHasFewerRows) =
-                tree[leaf->id()].rowMasks(m_NumberThreads, frame, *m_Encoder,
-                                          std::move(leaf->rowMask()));
-
-            TLeafNodeStatisticsPtr leftChild;
-            TLeafNodeStatisticsPtr rightChild;
-            std::tie(leftChild, rightChild) =
-                leaf->split(leftChildId, rightChildId, m_NumberThreads, frame,
-                            *m_Encoder, m_Lambda, m_Gamma, candidateSplits,
-                            std::move(featureBag), std::move(leftChildRowMask),
-                            std::move(rightChildRowMask), leftChildHasFewerRows);
-
-            scopeMemoryUsage.add(leftChild);
-            scopeMemoryUsage.add(rightChild);
-
-            leaves.push(std::move(leftChild));
-            leaves.push(std::move(rightChild));
+        if (leaf->gain() < MINIMUM_RELATIVE_GAIN_PER_SPLIT * totalGain) {
+            break;
         }
+
+        totalGain += leaf->gain();
+        LOG_TRACE(<< "splitting " << leaf->id() << " total gain = " << totalGain);
+
+        std::size_t splitFeature;
+        double splitValue;
+        std::tie(splitFeature, splitValue) = leaf->bestSplit();
+
+        bool assignMissingToLeft{leaf->assignMissingToLeft()};
+
+        std::size_t leftChildId, rightChildId;
+        std::tie(leftChildId, rightChildId) = tree[leaf->id()].split(
+            splitFeature, splitValue, assignMissingToLeft, tree);
+
+        TSizeVec featureBag{this->featureBag()};
+
+        core::CPackedBitVector leftChildRowMask;
+        core::CPackedBitVector rightChildRowMask;
+        bool leftChildHasFewerRows;
+        std::tie(leftChildRowMask, rightChildRowMask, leftChildHasFewerRows) =
+            tree[leaf->id()].rowMasks(m_NumberThreads, frame, *m_Encoder,
+                                      std::move(leaf->rowMask()));
+
+        TLeafNodeStatisticsPtr leftChild;
+        TLeafNodeStatisticsPtr rightChild;
+        std::tie(leftChild, rightChild) =
+            leaf->split(leftChildId, rightChildId, m_NumberThreads, frame,
+                        *m_Encoder, m_Lambda, m_Gamma, candidateSplits,
+                        std::move(featureBag), std::move(leftChildRowMask),
+                        std::move(rightChildRowMask), leftChildHasFewerRows);
+
+        scopeMemoryUsage.add(leftChild);
+        scopeMemoryUsage.add(rightChild);
+
+        leaves.push(std::move(leftChild));
+        leaves.push(std::move(rightChild));
     }
 
     // Flush the maximum memory used by the leaf statistics to the callback.
@@ -802,7 +807,7 @@ void CBoostedTreeImpl::restoreBestHyperparameters() {
     m_EtaGrowthRatePerTree = m_BestHyperparameters.s_EtaGrowthRatePerTree;
     m_FeatureBagFraction = m_BestHyperparameters.s_FeatureBagFraction;
     m_FeatureSampleProbabilities = m_BestHyperparameters.s_FeatureSampleProbabilities;
-    LOG_TRACE(<< "loss = " << m_BestForestTestLoss << ": lambda* = " << m_Lambda
+    LOG_DEBUG(<< "loss = " << m_BestForestTestLoss << ": lambda* = " << m_Lambda
               << ", gamma* = " << m_Gamma << ", eta* = " << m_Eta
               << ", eta growth rate per tree* = " << m_EtaGrowthRatePerTree
               << ", feature bag fraction* = " << m_FeatureBagFraction);
@@ -814,7 +819,7 @@ std::size_t CBoostedTreeImpl::numberHyperparametersToTune() const {
 }
 
 std::size_t CBoostedTreeImpl::maximumTreeSize(const core::CDataFrame& frame) const {
-    return maximumTreeSize(frame.numberRows());
+    return this->maximumTreeSize(frame.numberRows());
 }
 
 std::size_t CBoostedTreeImpl::maximumTreeSize(std::size_t numberRows) const {

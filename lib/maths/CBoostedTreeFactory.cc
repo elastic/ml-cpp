@@ -21,8 +21,8 @@ using TSizeVec = std::vector<std::size_t>;
 using TRowItr = core::CDataFrame::TRowItr;
 
 namespace {
-const double MIN_REGULARIZER_SCALE{0.01};
-const double MAX_REGULARIZER_SCALE{100.0};
+const double MIN_REGULARIZER_SCALE{0.05};
+const double MAX_REGULARIZER_SCALE{20.0};
 const double MIN_ETA_SCALE{0.3};
 const double MAX_ETA_SCALE{2.0};
 const double MIN_ETA_GROWTH_RATE_SCALE{0.5};

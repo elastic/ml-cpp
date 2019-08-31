@@ -202,7 +202,7 @@ void CBoostedTreeTest::testPiecewiseConstant() {
         // Unbiased...
         CPPUNIT_ASSERT_DOUBLES_EQUAL(
             0.0, modelBias[i][0],
-            5.0 * std::sqrt(noiseVariance / static_cast<double>(trainRows)));
+            6.0 * std::sqrt(noiseVariance / static_cast<double>(trainRows)));
         // Good R^2...
         CPPUNIT_ASSERT(modelRSquared[i][0] > 0.94);
 
@@ -721,7 +721,7 @@ void CBoostedTreeTest::testMissingData() {
 
     CPPUNIT_ASSERT_EQUAL(expectedPredictions.size(), actualPredictions.size());
     for (std::size_t i = 0; i < expectedPredictions.size(); ++i) {
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(expectedPredictions[i], actualPredictions[i], 0.75);
+        CPPUNIT_ASSERT_DOUBLES_EQUAL(expectedPredictions[i], actualPredictions[i], 0.8);
     }
 }
 
