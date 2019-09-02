@@ -708,6 +708,10 @@ void CBoostedTreeTest::testMissingData() {
     regression->train();
     regression->predict();
 
+    // For each missing value given we censor for regression variables greater
+    // than 9.0, target = sum_i{R_i} for regressors R_i and R_i ~ U([0,10]) so
+    // we expect a n * E[U([0, 10]) | U([0, 10]) > 9.0] = 9.5 * n contribution
+    // to the target for n equal to the number of missing variables.
     TDoubleVec expectedPredictions{17.5, 17.5, 17.5, 22.0};
     TDoubleVec actualPredictions;
 
