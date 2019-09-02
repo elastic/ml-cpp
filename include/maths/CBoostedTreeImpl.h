@@ -756,17 +756,48 @@ private:
     std::size_t m_NumberThreads;
     std::size_t m_DependentVariable = std::numeric_limits<std::size_t>::max();
     CBoostedTree::TLossFunctionUPtr m_Loss;
+
+    //! \name User Defined Overrides for the Hyperparameters
+    //!
+    //! If non-null, these fix the corresponding parameter value to a supplied
+    //! value in the hyperparameter optimisation loop.
+    //@{
     TOptionalDouble m_LambdaOverride;
     TOptionalDouble m_GammaOverride;
     TOptionalDouble m_EtaOverride;
     TOptionalSize m_MaximumNumberTreesOverride;
     TOptionalDouble m_FeatureBagFractionOverride;
+    //@}
+
+    //! The scale which is being applied to the amount of regularisation, i.e.
+    //! we use:
+    //!   m_Lambda = m_RegularizationScale * m_LambdaBase and
+    //!   m_Gamma = m_RegularizationScale * m_GammaBase
     double m_RegularizationScale = 1.0;
+
+    //! The proportion of gamma vs lambda regularisation, i.e. we use
+    //!   m_Lambda *= 1.0 - m_RegularizationGammaFraction and
+    //!   m_Gamma *= m_RegularizationGammaFraction
     double m_RegularizationGammaFraction = 0.5;
+
+    //! The initial choice for gamma based on the change in loss from fitting
+    //! a tree with zero regularisation.
     double m_BaseGamma = 0.0;
+
+    //! The initial choice for lambda based on the change in loss from fitting
+    //! a tree with zero regularisation.
     double m_BaseLambda = 0.0;
+
+    //! The actual choice for lambda for the current iteration of the hyperparameter
+    //! optimisation loop. This is the regularisation term proportional to the sum
+    //! squared leaf weights.
     double m_Lambda = 0.0;
+
+    //! The actual choice for gamma for the current iteration of the hyperparameter
+    //! optimisation loop. This is the regularisation term proportional to the size
+    //! of the tree.
     double m_Gamma = 0.0;
+
     double m_Eta = 0.1;
     double m_EtaGrowthRatePerTree = 1.05;
     std::size_t m_NumberFolds = 4;

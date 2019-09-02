@@ -807,7 +807,7 @@ void CBoostedTreeImpl::restoreBestHyperparameters() {
     m_EtaGrowthRatePerTree = m_BestHyperparameters.s_EtaGrowthRatePerTree;
     m_FeatureBagFraction = m_BestHyperparameters.s_FeatureBagFraction;
     m_FeatureSampleProbabilities = m_BestHyperparameters.s_FeatureSampleProbabilities;
-    LOG_DEBUG(<< "loss = " << m_BestForestTestLoss << ": lambda* = " << m_Lambda
+    LOG_TRACE(<< "loss = " << m_BestForestTestLoss << ": lambda* = " << m_Lambda
               << ", gamma* = " << m_Gamma << ", eta* = " << m_Eta
               << ", eta growth rate per tree* = " << m_EtaGrowthRatePerTree
               << ", feature bag fraction* = " << m_FeatureBagFraction);
