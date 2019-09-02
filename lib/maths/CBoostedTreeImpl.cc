@@ -153,7 +153,7 @@ void CBoostedTreeImpl::train(core::CDataFrame& frame,
     } else {
         // Hyperparameter optimisation loop.
 
-        do {
+        while(m_CurrentRound < m_NumberRounds) {
             LOG_TRACE(<< "Optimisation round = " << m_CurrentRound + 1);
 
             TMeanVarAccumulator lossMoments{this->crossValidateForest(frame, recordMemoryUsage)};
@@ -165,9 +165,13 @@ void CBoostedTreeImpl::train(core::CDataFrame& frame,
             // into numerical issues trying - since any forest will do.
             if (std::sqrt(CBasicStatistics::variance(lossMoments)) <
                 1e-10 * std::fabs(CBasicStatistics::mean(lossMoments))) {
+                LOG_DEBUG(<< "Stopped optimization due to the constant loss: "
+                << (std::sqrt(CBasicStatistics::variance(lossMoments))) << " < "
+                                  << (1e-10 * std::fabs(CBasicStatistics::mean(lossMoments))));
                 break;
             }
             if (this->selectNextHyperparameters(lossMoments, *m_BayesianOptimization) == false) {
+                LOG_DEBUG(<< "Stopped optimization, cannot select next hyper-parameter");
                 break;
             }
 
@@ -182,7 +186,8 @@ void CBoostedTreeImpl::train(core::CDataFrame& frame,
             recordState(recordTrainStateCallback);
             LOG_DEBUG(<< "Round " << m_CurrentRound << " state recording finished")
 
-        } while (m_CurrentRound++ < m_NumberRounds);
+            m_CurrentRound++;
+        }
 
         LOG_TRACE(<< "Test loss = " << m_BestForestTestLoss);
 
@@ -211,6 +216,7 @@ void CBoostedTreeImpl::recordState(const CBoostedTreeImpl::TTrainingStateCallbac
         persistStream.flush();
     }
     recordTrainState(persistStream.str());
+    LOG_DEBUG(<< "State: " << persistStream.str())
 }
 
 void CBoostedTreeImpl::predict(core::CDataFrame& frame,
