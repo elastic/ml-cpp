@@ -188,7 +188,7 @@ CBayesianOptimisation::minusLikelihoodAndGradient() const {
         return gradient;
     };
 
-    return {std::move(likelihood), std::move(likelihoodGradient)};
+    return {std::move(minusLogLikelihood), std::move(minusLogLikelihoodGradient)};
 }
 
 std::pair<CBayesianOptimisation::TEIFunc, CBayesianOptimisation::TEIGradientFunc>
