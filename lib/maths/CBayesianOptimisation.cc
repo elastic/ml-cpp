@@ -144,13 +144,20 @@ CBayesianOptimisation::minusLikelihoodAndGradient() const {
     TVector f{this->function()};
     double v{this->meanErrorVariance()};
 
-    auto likelihood = [f, v, this](const TVector& a) {
+    auto minusLogLikelihood = [f, v, this](const TVector& a) {
         Eigen::LDLT<Eigen::MatrixXd> Kldl{this->kernel(a, v)};
         TVector Kinvf{Kldl.solve(f)};
-        return 0.5 * (f.transpose() * Kinvf + Kldl.vectorD().array().log().sum());
+        // We can only determine values up to eps * "max diagonal". If the diagonal
+        // has a zero it blows up the determinant term. In practice, we know the
+        // kernel can't be singular by construction so we perturb the diagonal by
+        // the numerical error in such a way as to recover a non-singular matrix.
+        // (Note that the solve routine deals with the zero for us.)
+        double eps{std::numeric_limits<double>::epsilon() * Kldl.vectorD().maxCoeff()};
+        return 0.5 *
+               (f.transpose() * Kinvf + (Kldl.vectorD().array() + eps).log().sum());
     };
 
-    auto likelihoodGradient = [f, v, this](const TVector& a) {
+    auto minusLogLikelihoodGradient = [f, v, this](const TVector& a) {
         TMatrix K{this->kernel(a, v)};
         Eigen::LDLT<Eigen::MatrixXd> Kldl{K};
 
@@ -307,6 +314,7 @@ const CBayesianOptimisation::TVector& CBayesianOptimisation::maximumLikelihoodKe
     }
 
     m_KernelParameters = std::move(amax);
+    LOG_TRACE(<< "kernel parameters = " << m_KernelParameters.transpose());
 
     return m_KernelParameters;
 }
