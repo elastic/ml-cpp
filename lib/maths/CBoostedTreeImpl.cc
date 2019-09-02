@@ -743,6 +743,10 @@ bool CBoostedTreeImpl::selectNextHyperparameters(const TMeanVarAccumulator& loss
               << ", feature bag fraction = " << m_FeatureBagFraction);
 
     double meanLoss{CBasicStatistics::mean(lossMoments)};
+    // We have a sample moments estimates for the validation error. We use the
+    // mean estimate of the validation error for the n-folds and we expect the
+    // sample variance of this statistic to be 1/n * sample variance for the
+    // validation error for the individual folds.
     double meanLossVariance{CBasicStatistics::variance(lossMoments) /
                             CBasicStatistics::count(lossMoments)};
     m_MeanLossVariance.add(meanLossVariance);
