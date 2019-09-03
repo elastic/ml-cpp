@@ -344,18 +344,18 @@ cd /c/tools/apache-log4cxx-0.10.0/src/main/include
 tar cf - `find log4cxx -name '*.h'` | (cd /c/usr/local/include && tar xvf -)
 ```
 
-### Boost 1.65.1
+### Boost 1.71.0
 
-Download version 1.65.1 of Boost from <http://sourceforge.net/projects/boost/files/boost/1.65.1/> . You must get this exact version, as the Machine Learning Makefiles expect it.
+Download version 1.71.0 of Boost from <https://dl.bintray.com/boostorg/release/1.71.0/source/boost_1_71_0.tar.bz2> . You must get this exact version, as the Machine Learning Makefiles expect it.
 
 Assuming you chose the `.bz2` version, extract it in a Git bash shell using the GNU tar that comes with Git for Windows, e.g.:
 
 ```
 cd /c/tools
-tar jxvf /z/cpp_src/boost_1_65_1.tar.bz2
+tar jxvf /z/cpp_src/boost_1_71_0.tar.bz2
 ```
 
-Edit `boost/unordered/detail/implementation.hpp` and change line 270 from:
+Edit `boost/unordered/detail/implementation.hpp` and change line 287 from:
 
 ```
     (17ul)(29ul)(37ul)(53ul)(67ul)(79ul) \
@@ -370,10 +370,10 @@ to:
 Start a command prompt using Start Menu -&gt; Apps -&gt; Visual Studio 2017 -&gt; x64 Native Tools Command Prompt for VS 2017, then in it type:
 
 ```
-cd \tools\boost_1_65_1
+cd \tools\boost_1_71_0
 bootstrap.bat
-b2 -j6 --layout=versioned --disable-icu --toolset=msvc-14.1 --build-type=complete -sZLIB_INCLUDE="C:\tools\zlib-1.2.11" -sZLIB_LIBPATH="C:\tools\zlib-1.2.11" -sZLIB_NAME=zdll --without-context --without-coroutine --without-graph_parallel --without-log --without-mpi --without-python architecture=x86 address-model=64 optimization=speed inlining=full define=BOOST_MATH_NO_LONG_DOUBLE_MATH_FUNCTIONS define=_WIN32_WINNT=0x0601
-b2 install --prefix=C:\usr\local --layout=versioned --disable-icu --toolset=msvc-14.1 --build-type=complete -sZLIB_INCLUDE="C:\tools\zlib-1.2.11" -sZLIB_LIBPATH="C:\tools\zlib-1.2.11" -sZLIB_NAME=zdll --without-context --without-coroutine --without-graph_parallel --without-log --without-mpi --without-python architecture=x86 address-model=64 optimization=speed inlining=full define=BOOST_MATH_NO_LONG_DOUBLE_MATH_FUNCTIONS define=_WIN32_WINNT=0x0601
+b2 -j6 --layout=versioned --disable-icu --toolset=msvc-14.1 --build-type=complete -sZLIB_INCLUDE="C:\tools\zlib-1.2.11" -sZLIB_LIBPATH="C:\tools\zlib-1.2.11" -sZLIB_NAME=zdll --without-context --without-coroutine --without-graph_parallel --without-mpi --without-python architecture=x86 address-model=64 optimization=speed inlining=full define=BOOST_MATH_NO_LONG_DOUBLE_MATH_FUNCTIONS define=BOOST_LOG_WITHOUT_DEBUG_OUTPUT define=BOOST_LOG_WITHOUT_EVENT_LOG define=BOOST_LOG_WITHOUT_SYSLOG define=BOOST_LOG_WITHOUT_IPC define=_WIN32_WINNT=0x0601
+b2 install --prefix=C:\usr\local --layout=versioned --disable-icu --toolset=msvc-14.1 --build-type=complete -sZLIB_INCLUDE="C:\tools\zlib-1.2.11" -sZLIB_LIBPATH="C:\tools\zlib-1.2.11" -sZLIB_NAME=zdll --without-context --without-coroutine --without-graph_parallel --without-mpi --without-python architecture=x86 address-model=64 optimization=speed inlining=full define=BOOST_MATH_NO_LONG_DOUBLE_MATH_FUNCTIONS define=BOOST_LOG_WITHOUT_DEBUG_OUTPUT define=BOOST_LOG_WITHOUT_EVENT_LOG define=BOOST_LOG_WITHOUT_SYSLOG define=BOOST_LOG_WITHOUT_IPC define=_WIN32_WINNT=0x0601
 ```
 
 The Boost headers and appropriate libraries should end up in `C:\usr\local\include` and `C:\usr\local\lib` respectively.

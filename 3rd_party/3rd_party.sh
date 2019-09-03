@@ -38,7 +38,7 @@ case `uname` in
         APR_LOCATION=
         BOOST_LOCATION=/usr/local/lib
         BOOST_COMPILER=clang
-        BOOST_EXTENSION=mt-1_65_1.dylib
+        BOOST_EXTENSION=mt-x64-1_71.dylib
         BOOST_LIBRARIES='date_time filesystem iostreams program_options regex system thread'
         LOG4CXX_LOCATION=/usr/local/lib
         LOG4CXX_EXTENSION=.10.dylib
@@ -58,7 +58,7 @@ case `uname` in
                 APR_EXTENSION=1.so.0
                 BOOST_LOCATION=/usr/local/gcc73/lib
                 BOOST_COMPILER=gcc
-                BOOST_EXTENSION=mt-1_65_1.so.1.65.1
+                BOOST_EXTENSION=mt-x64-1_71.so.1.71.0
                 BOOST_LIBRARIES='date_time filesystem iostreams program_options regex system thread'
                 LOG4CXX_LOCATION=/usr/local/gcc73/lib
                 LOG4CXX_EXTENSION=.so.10
@@ -78,7 +78,7 @@ case `uname` in
                 APR_EXTENSION=1.so.0
                 BOOST_LOCATION=/usr/local/lib
                 BOOST_COMPILER=gcc
-                BOOST_EXTENSION=mt-1_65_1.so.1.65.1
+                BOOST_EXTENSION=mt-x64-1_71.so.1.71.0
                 BOOST_LIBRARIES='date_time filesystem iostreams program_options regex system thread'
                 LOG4CXX_LOCATION=/usr/local/lib
                 LOG4CXX_EXTENSION=.so.10
@@ -97,7 +97,7 @@ case `uname` in
                 APR_LOCATION=
                 BOOST_LOCATION=$SYSROOT/usr/local/lib
                 BOOST_COMPILER=clang
-                BOOST_EXTENSION=mt-1_65_1.dylib
+                BOOST_EXTENSION=mt-x64-1_71.dylib
                 BOOST_LIBRARIES='date_time filesystem iostreams program_options regex system thread'
                 LOG4CXX_LOCATION=$SYSROOT/usr/local/lib
                 LOG4CXX_EXTENSION=.10.dylib
@@ -124,7 +124,7 @@ case `uname` in
         APR_EXTENSION=1.dll
         BOOST_LOCATION=/$LOCAL_DRIVE/usr/local/lib
         BOOST_COMPILER=vc
-        BOOST_EXTENSION=mt-1_65_1.dll
+        BOOST_EXTENSION=mt-x64-1_71.dll
         BOOST_LIBRARIES='chrono date_time filesystem iostreams program_options regex system thread'
         LOG4CXX_LOCATION=/$LOCAL_DRIVE/usr/local/bin
         LOG4CXX_EXTENSION=.dll
