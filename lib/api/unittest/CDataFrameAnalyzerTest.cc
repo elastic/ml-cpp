@@ -970,11 +970,13 @@ CppUnit::Test *CDataFrameAnalyzerTest::suite() {
 }
 
 void CDataFrameAnalyzerTest::testRunBoostedTreeTrainingWithStateRecovery() {
-    double lambda{1.0};
+    double lambda{-1.0}; //{1.0};
     double gamma{10.0};
     double eta{0.9};
-    std::size_t maximumNumberTrees{1};
+    std::size_t maximumNumberTrees{2};
     double featureBagFraction{0.3};
+    size_t numberExamples = 1000;
+
 
     size_t numberRoundsPerHyperparameter = 5;
 
@@ -984,13 +986,13 @@ void CDataFrameAnalyzerTest::testRunBoostedTreeTrainingWithStateRecovery() {
     };
 
     api::CDataFrameAnalyzer analyzer{
-            regressionSpec("c5", 100, 5, 1500000, numberRoundsPerHyperparameter, {}, lambda, gamma, eta,
-                           maximumNumberTrees),
+            regressionSpec("c5", numberExamples, 5, 15000000,
+                           numberRoundsPerHyperparameter, {}, lambda, gamma, eta,
+                           maximumNumberTrees, featureBagFraction),
             outputWriterFactory};
 
     TStrVec fieldNames{"c1", "c2", "c3", "c4", "c5", ".", "."};
     TStrVec fieldValues{"", "", "", "", "", "0", ""};
-    size_t numberExamples = 100;
 
     auto f = [](const TDoubleVec &weights, const TPoint &regressors) {
         double result{0.0};
