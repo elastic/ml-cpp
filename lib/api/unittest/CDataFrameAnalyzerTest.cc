@@ -85,7 +85,7 @@ auto outlierSpec(std::size_t rows = 110,
 auto regressionSpec(std::string dependentVariable,
                     std::size_t rows = 100,
                     std::size_t cols = 5,
-                    std::size_t memoryLimit = 1500000,
+                    std::size_t memoryLimit = 3000000,
                     const TStrVec& categoricalFieldNames = TStrVec{},
                     double lambda = -1.0,
                     double gamma = -1.0,
@@ -563,8 +563,8 @@ void CDataFrameAnalyzerTest::testRunBoostedTreeTraining() {
     LOG_DEBUG(<< "time to train = " << core::CProgramCounters::counter(counter_t::E_DFTPMTimeToTrain)
               << "ms");
     CPPUNIT_ASSERT(core::CProgramCounters::counter(
-                       counter_t::E_DFTPMEstimatedPeakMemoryUsage) < 760000);
-    CPPUNIT_ASSERT(core::CProgramCounters::counter(counter_t::E_DFTPMPeakMemoryUsage) < 250000);
+                       counter_t::E_DFTPMEstimatedPeakMemoryUsage) < 2300000);
+    CPPUNIT_ASSERT(core::CProgramCounters::counter(counter_t::E_DFTPMPeakMemoryUsage) < 1050000);
     CPPUNIT_ASSERT(core::CProgramCounters::counter(counter_t::E_DFTPMTimeToTrain) > 0);
     CPPUNIT_ASSERT(core::CProgramCounters::counter(counter_t::E_DFTPMTimeToTrain) <= duration);
 }
@@ -586,7 +586,7 @@ void CDataFrameAnalyzerTest::testRunBoostedTreeTrainingWithParams() {
     };
 
     api::CDataFrameAnalyzer analyzer{
-        regressionSpec("c5", 100, 5, 1500000, {}, lambda, gamma, eta,
+        regressionSpec("c5", 100, 5, 3000000, {}, lambda, gamma, eta,
                        maximumNumberTrees, featureBagFraction),
         outputWriterFactory};
 
@@ -638,7 +638,7 @@ void CDataFrameAnalyzerTest::testRunBoostedTreeTrainingWithRowsMissingTargetValu
 
     auto target = [](double feature) { return 10.0 * feature; };
 
-    api::CDataFrameAnalyzer analyzer{regressionSpec("target", 50, 2, 1000000),
+    api::CDataFrameAnalyzer analyzer{regressionSpec("target", 50, 2, 2000000),
                                      outputWriterFactory};
 
     TDoubleVec feature;
@@ -856,7 +856,7 @@ void CDataFrameAnalyzerTest::testCategoricalFields() {
 
     {
         api::CDataFrameAnalyzer analyzer{
-            regressionSpec("x5", 1000, 5, 4000000, {"x1", "x2"}), outputWriterFactory};
+            regressionSpec("x5", 1000, 5, 8000000, {"x1", "x2"}), outputWriterFactory};
 
         TStrVec x[]{{"x11", "x12", "x13", "x14", "x15"},
                     {"x21", "x22", "x23", "x24", "x25", "x26", "x27"}};
@@ -895,7 +895,7 @@ void CDataFrameAnalyzerTest::testCategoricalFields() {
         std::size_t rows{api::CDataFrameAnalyzer::MAX_CATEGORICAL_CARDINALITY + 3};
 
         api::CDataFrameAnalyzer analyzer{
-            regressionSpec("x5", rows, 5, 4000000000, {"x1"}), outputWriterFactory};
+            regressionSpec("x5", rows, 5, 8000000000, {"x1"}), outputWriterFactory};
 
         TStrVec fieldNames{"x1", "x2", "x3", "x4", "x5", ".", "."};
         TStrVec fieldValues{"", "", "", "", "", "", ""};
