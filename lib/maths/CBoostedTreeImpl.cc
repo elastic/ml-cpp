@@ -156,8 +156,9 @@ void CBoostedTreeImpl::train(core::CDataFrame& frame,
     } else {
         // Hyperparameter optimisation loop.
 
-        while(m_CurrentRound < m_NumberRounds) {
-            LOG_TRACE(<< "Optimisation round = " << m_CurrentRound + 1);
+        while(m_CurrentRound++ < m_NumberRounds) {
+
+            LOG_TRACE(<< "Optimisation round = " << m_CurrentRound );
 
             TMeanVarAccumulator lossMoments{this->crossValidateForest(frame, recordMemoryUsage)};
 
@@ -189,7 +190,7 @@ void CBoostedTreeImpl::train(core::CDataFrame& frame,
             recordState(recordTrainStateCallback);
             LOG_DEBUG(<< "Round " << m_CurrentRound << " state recording finished")
 
-            m_CurrentRound++;
+//            m_CurrentRound++;
         }
 
         LOG_TRACE(<< "Test loss = " << m_BestForestTestLoss);
