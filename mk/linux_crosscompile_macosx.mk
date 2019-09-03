@@ -11,9 +11,9 @@ CPP_PLATFORM_HOME=$(CPP_DISTRIBUTION_HOME)/platform/darwin-x86_64
 CROSS_TARGET_PLATFORM=x86_64-apple-macosx10.11
 SYSROOT=/usr/local/sysroot-$(CROSS_TARGET_PLATFORM)
 CLANGVER=3.9
-# We build Boost natively even when cross compiling, and Apple's clang
-# versions are different to LLVM's clang versions, so the natively
-# built library file names will contain different versions.  Then
+# We use a natively compiled Boost even when cross compiling our own source
+# code, and Apple's clang versions are different to LLVM's clang versions, so
+# the natively built library file names will contain different versions.  Then
 # Boost also truncates the Apple clang version.  Known mappings are:
 # 3.8 -> 70 (Xcode 7.2)
 # 3.9 -> 80 (Xcode 8.2)
