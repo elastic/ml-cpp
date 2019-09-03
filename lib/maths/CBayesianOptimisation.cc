@@ -269,7 +269,7 @@ const CBayesianOptimisation::TVector& CBayesianOptimisation::maximumLikelihoodKe
 
     // Use random restarts of L-BFGS to find maximum likelihood parameters.
 
-    this->precondition();
+//    this->precondition();
 
     std::size_t n(m_KernelParameters.size());
 
