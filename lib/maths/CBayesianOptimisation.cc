@@ -33,6 +33,9 @@ const std::string ERROR_VARIANCES_TAG{"error_variances"};
 const std::string KERNEL_PARAMETERS_TAG{"kernel_parameters"};
 const std::string MIN_KERNEL_COORDINATE_DISTANCE_SCALES_TAG{"min_kernel_coordinate_distance_scales"};
 const std::string FUNCTION_MEAN_VALUES_TAG{"function_mean_values"};
+const std::string RANGE_SHIFT_TAG{"range_shift"};
+const std::string RANGE_SCALE_TAG{"range_scale"};
+const std::string RESTARTS_TAG{"restarts"};
 }
 
 CBayesianOptimisation::CBayesianOptimisation(TDoubleDoublePrVec parameterBounds)
@@ -418,6 +421,9 @@ void CBayesianOptimisation::acceptPersistInserter(core::CStatePersistInserter& i
         core::CPersistUtils::persist(MIN_KERNEL_COORDINATE_DISTANCE_SCALES_TAG,
                                      m_MinimumKernelCoordinateDistanceScale, inserter);
         core::CPersistUtils::persist(FUNCTION_MEAN_VALUES_TAG, m_FunctionMeanValues, inserter);
+        core::CPersistUtils::persist(RANGE_SCALE_TAG, m_RangeScale, inserter);
+        core::CPersistUtils::persist(RANGE_SHIFT_TAG, m_RangeShift, inserter);
+        core::CPersistUtils::persist(RESTARTS_TAG, m_Restarts, inserter);
     } catch (std::exception& e) {
         LOG_ERROR(<< "Failed to persist state! " << e.what());
     }
@@ -433,6 +439,12 @@ bool CBayesianOptimisation::acceptRestoreTraverser(core::CStateRestoreTraverser&
                     core::CPersistUtils::restore(MAX_BOUNDARY_TAG, m_MaxBoundary, traverser))
             RESTORE(ERROR_VARIANCES_TAG,
                     core::CPersistUtils::restore(ERROR_VARIANCES_TAG, m_ErrorVariances, traverser))
+            RESTORE(RANGE_SHIFT_TAG,
+                    core::CPersistUtils::restore(RANGE_SHIFT_TAG, m_RangeShift, traverser))
+            RESTORE(RANGE_SCALE_TAG,
+                    core::CPersistUtils::restore(RANGE_SCALE_TAG, m_RangeScale, traverser))
+            RESTORE(RESTARTS_TAG,
+                    core::CPersistUtils::restore(RESTARTS_TAG, m_Restarts, traverser))
             RESTORE(KERNEL_PARAMETERS_TAG,
                     core::CPersistUtils::restore(KERNEL_PARAMETERS_TAG,
                                                  m_KernelParameters, traverser))
