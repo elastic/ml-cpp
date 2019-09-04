@@ -34,6 +34,8 @@
 
 * Rename outlier detection method values knn and tnn to distance_kth_nn and distance_knn
 respectively to match the API. (See {ml-pull}598[#598].)
+* Fix occasional (non-deterministic) reinitialisation of modelling for the lat_long
+function. (See {ml-pull}641[#641].)
 
 == {es} version 7.3.1
 
