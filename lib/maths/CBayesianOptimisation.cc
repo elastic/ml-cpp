@@ -33,6 +33,9 @@ const std::string ERROR_VARIANCES_TAG{"error_variances"};
 const std::string KERNEL_PARAMETERS_TAG{"kernel_parameters"};
 const std::string MIN_KERNEL_COORDINATE_DISTANCE_SCALES_TAG{"min_kernel_coordinate_distance_scales"};
 const std::string FUNCTION_MEAN_VALUES_TAG{"function_mean_values"};
+const std::string RANGE_SHIFT_TAG{"range_shift"};
+const std::string RANGE_SCALE_TAG{"range_scale"};
+const std::string RESTARTS_TAG{"restarts"};
 }
 
 CBayesianOptimisation::CBayesianOptimisation(TDoubleDoublePrVec parameterBounds)
@@ -144,13 +147,20 @@ CBayesianOptimisation::minusLikelihoodAndGradient() const {
     TVector f{this->function()};
     double v{this->meanErrorVariance()};
 
-    auto likelihood = [f, v, this](const TVector& a) {
+    auto minusLogLikelihood = [f, v, this](const TVector& a) {
         Eigen::LDLT<Eigen::MatrixXd> Kldl{this->kernel(a, v)};
         TVector Kinvf{Kldl.solve(f)};
-        return 0.5 * (f.transpose() * Kinvf + Kldl.vectorD().array().log().sum());
+        // We can only determine values up to eps * "max diagonal". If the diagonal
+        // has a zero it blows up the determinant term. In practice, we know the
+        // kernel can't be singular by construction so we perturb the diagonal by
+        // the numerical error in such a way as to recover a non-singular matrix.
+        // (Note that the solve routine deals with the zero for us.)
+        double eps{std::numeric_limits<double>::epsilon() * Kldl.vectorD().maxCoeff()};
+        return 0.5 *
+               (f.transpose() * Kinvf + (Kldl.vectorD().array() + eps).log().sum());
     };
 
-    auto likelihoodGradient = [f, v, this](const TVector& a) {
+    auto minusLogLikelihoodGradient = [f, v, this](const TVector& a) {
         TMatrix K{this->kernel(a, v)};
         Eigen::LDLT<Eigen::MatrixXd> Kldl{K};
 
@@ -181,7 +191,7 @@ CBayesianOptimisation::minusLikelihoodAndGradient() const {
         return gradient;
     };
 
-    return {std::move(likelihood), std::move(likelihoodGradient)};
+    return {std::move(minusLogLikelihood), std::move(minusLogLikelihoodGradient)};
 }
 
 std::pair<CBayesianOptimisation::TEIFunc, CBayesianOptimisation::TEIGradientFunc>
@@ -309,6 +319,7 @@ const CBayesianOptimisation::TVector& CBayesianOptimisation::maximumLikelihoodKe
 
     // ensure that kernel lengths are always positive. It shouldn't change the results but improves tracibility
     m_KernelParameters = std::move(amax.cwiseAbs());
+    LOG_TRACE(<< "kernel parameters = " << m_KernelParameters.transpose());
 
     return m_KernelParameters;
 }
@@ -412,6 +423,9 @@ void CBayesianOptimisation::acceptPersistInserter(core::CStatePersistInserter& i
         core::CPersistUtils::persist(MIN_KERNEL_COORDINATE_DISTANCE_SCALES_TAG,
                                      m_MinimumKernelCoordinateDistanceScale, inserter);
         core::CPersistUtils::persist(FUNCTION_MEAN_VALUES_TAG, m_FunctionMeanValues, inserter);
+        core::CPersistUtils::persist(RANGE_SCALE_TAG, m_RangeScale, inserter);
+        core::CPersistUtils::persist(RANGE_SHIFT_TAG, m_RangeShift, inserter);
+        core::CPersistUtils::persist(RESTARTS_TAG, m_Restarts, inserter);
     } catch (std::exception& e) {
         LOG_ERROR(<< "Failed to persist state! " << e.what());
     }
@@ -427,6 +441,12 @@ bool CBayesianOptimisation::acceptRestoreTraverser(core::CStateRestoreTraverser&
                     core::CPersistUtils::restore(MAX_BOUNDARY_TAG, m_MaxBoundary, traverser))
             RESTORE(ERROR_VARIANCES_TAG,
                     core::CPersistUtils::restore(ERROR_VARIANCES_TAG, m_ErrorVariances, traverser))
+            RESTORE(RANGE_SHIFT_TAG,
+                    core::CPersistUtils::restore(RANGE_SHIFT_TAG, m_RangeShift, traverser))
+            RESTORE(RANGE_SCALE_TAG,
+                    core::CPersistUtils::restore(RANGE_SCALE_TAG, m_RangeScale, traverser))
+            RESTORE(RESTARTS_TAG,
+                    core::CPersistUtils::restore(RESTARTS_TAG, m_Restarts, traverser))
             RESTORE(KERNEL_PARAMETERS_TAG,
                     core::CPersistUtils::restore(KERNEL_PARAMETERS_TAG,
                                                  m_KernelParameters, traverser))
@@ -454,6 +474,18 @@ std::size_t CBayesianOptimisation::memoryUsage() const {
     mem += core::CMemory::dynamicSize(m_KernelParameters);
     mem += core::CMemory::dynamicSize(m_MinimumKernelCoordinateDistanceScale);
     return mem;
+}
+
+std::size_t CBayesianOptimisation::estimateMemoryUsage(std::size_t numberParameters,
+                                                       std::size_t numberRounds) {
+    std::size_t boundaryMemoryUsage{2 * numberParameters * sizeof(double)};
+    std::size_t functionMeanValuesMemoryUsage{numberRounds * sizeof(TVectorDoublePr)};
+    std::size_t errorVariancesMemoryUsage{numberRounds * sizeof(double)};
+    std::size_t kernelParametersMemoryUsage{(numberParameters + 1) * sizeof(double)};
+    std::size_t minimumKernelCoordinateDistanceScale{numberParameters * sizeof(double)};
+    return sizeof(CBayesianOptimisation) + boundaryMemoryUsage +
+           functionMeanValuesMemoryUsage + errorVariancesMemoryUsage +
+           kernelParametersMemoryUsage + minimumKernelCoordinateDistanceScale;
 }
 
 const double CBayesianOptimisation::MINIMUM_KERNEL_COORDINATE_DISTANCE_SCALE{1e-3};

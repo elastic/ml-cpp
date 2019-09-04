@@ -180,7 +180,7 @@ void CDataFrameBoostedTreeRunner::runImpl(const TStrVec& featureNames,
     core::CProgramCounters::counter(counter_t::E_DFTPMEstimatedPeakMemoryUsage) =
         this->estimateMemoryUsage(frame.numberRows(),
                                   frame.numberRows() / this->numberPartitions(),
-                                  frame.numberColumns());
+                                  frame.numberColumns() + this->numberExtraColumns());
 
     core::CStopWatch watch{true};
 

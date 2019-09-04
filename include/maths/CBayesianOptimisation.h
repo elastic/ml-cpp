@@ -82,6 +82,11 @@ public:
     //! Get the memory used by this object.
     std::size_t memoryUsage() const;
 
+    //! Estimate the maximum booking memory used by this class for optimising
+    //! \p numberParameters using \p numberRounds rounds.
+    static std::size_t estimateMemoryUsage(std::size_t numberParameters,
+                                           std::size_t numberRounds);
+
     //! \name Test Interface
     //@{
     //! Get minus the data likelihood and its gradient as a function of the kernel

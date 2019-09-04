@@ -204,7 +204,7 @@ void CBoostedTreeTest::testPiecewiseConstant() {
         meanModelRSquared.add(modelRSquared[i][0]);
     }
     LOG_DEBUG(<< "mean R^2 = " << maths::CBasicStatistics::mean(meanModelRSquared));
-    CPPUNIT_ASSERT(maths::CBasicStatistics::mean(meanModelRSquared) > 0.96);
+    CPPUNIT_ASSERT(maths::CBasicStatistics::mean(meanModelRSquared) > 0.95);
 }
 
 void CBoostedTreeTest::testLinear() {
@@ -660,58 +660,56 @@ void CBoostedTreeTest::testEstimateMemoryUsedByTrain() {
     std::size_t cols{6};
     std::size_t capacity{600};
 
-    TDoubleVecVec x(cols - 1);
-    for (std::size_t i = 0; i < cols - 1; ++i) {
-        rng.generateUniformSamples(0.0, 10.0, rows, x[i]);
-    }
-
-    auto target = [&](std::size_t i) {
-        double result{0.0};
-        for (std::size_t j = 0; j < cols - 1; ++j) {
-            result += x[j][i];
+    for (std::size_t test = 0; test < 3; ++test) {
+        TDoubleVecVec x(cols - 1);
+        for (std::size_t i = 0; i < cols - 1; ++i) {
+            rng.generateUniformSamples(0.0, 10.0, rows, x[i]);
         }
-        return result;
-    };
 
-    auto frame = core::makeMainStorageDataFrame(cols, capacity).first;
-    frame->categoricalColumns({true, false, false, false, false, false});
-    for (std::size_t i = 0; i < rows; ++i) {
-        frame->writeRow([&](core::CDataFrame::TFloatVecItr column, std::int32_t&) {
-            *(column++) = std::floor(x[0][i]);
-            for (std::size_t j = 1; j < cols - 1; ++j, ++column) {
-                *column = x[j][i];
+        auto target = [&](std::size_t i) {
+            double result{0.0};
+            for (std::size_t j = 0; j < cols - 1; ++j) {
+                result += x[j][i];
             }
-            *column = target(i);
-        });
+            return result;
+        };
+
+        auto frame = core::makeMainStorageDataFrame(cols, capacity).first;
+        frame->categoricalColumns({true, false, false, false, false, false});
+        for (std::size_t i = 0; i < rows; ++i) {
+            frame->writeRow([&](core::CDataFrame::TFloatVecItr column, std::int32_t&) {
+                *(column++) = std::floor(x[0][i]);
+                for (std::size_t j = 1; j < cols - 1; ++j, ++column) {
+                    *column = x[j][i];
+                }
+                *column = target(i);
+            });
+        }
+        frame->finishWritingRows();
+
+        std::int64_t estimatedMemory(maths::CBoostedTreeFactory::constructFromParameters(
+                                         1, std::make_unique<maths::boosted_tree::CMse>())
+                                         .estimateMemoryUsage(rows, cols));
+
+        std::int64_t memoryUsage{0};
+        std::int64_t maxMemoryUsage{0};
+        auto regression = maths::CBoostedTreeFactory::constructFromParameters(
+                              1, std::make_unique<maths::boosted_tree::CMse>())
+                              .memoryUsageCallback([&](std::int64_t delta) {
+                                  memoryUsage += delta;
+                                  maxMemoryUsage = std::max(maxMemoryUsage, memoryUsage);
+                                  LOG_TRACE(<< "current memory = " << memoryUsage
+                                            << ", high water mark = " << maxMemoryUsage);
+                              })
+                              .buildFor(*frame, cols - 1);
+
+        regression->train();
+
+        LOG_DEBUG(<< "estimated memory usage = " << estimatedMemory);
+        LOG_DEBUG(<< "high water mark = " << maxMemoryUsage);
+
+        CPPUNIT_ASSERT(maxMemoryUsage < estimatedMemory);
     }
-    frame->finishWritingRows();
-
-    std::int64_t estimatedMemory(maths::CBoostedTreeFactory::constructFromParameters(
-                                     1, std::make_unique<maths::boosted_tree::CMse>())
-                                     .estimateMemoryUsage(rows, cols));
-
-    std::int64_t memoryUsage{0};
-    std::int64_t maxMemoryUsage{0};
-    auto regression = maths::CBoostedTreeFactory::constructFromParameters(
-                          1, std::make_unique<maths::boosted_tree::CMse>())
-                          .memoryUsageCallback([&](std::int64_t delta) {
-                              memoryUsage += delta;
-                              maxMemoryUsage = std::max(maxMemoryUsage, memoryUsage);
-                              LOG_TRACE(<< "current memory = " << memoryUsage
-                                        << ", high water mark = " << maxMemoryUsage);
-                          })
-                          .buildFor(*frame, cols - 1);
-
-    regression->train();
-
-    LOG_DEBUG(<< "estimated memory usage = " << estimatedMemory);
-    LOG_DEBUG(<< "high water mark = " << maxMemoryUsage);
-
-    // Currently, the estimated memory is a little over 3 times the high water
-    // mark for the test data.
-
-    CPPUNIT_ASSERT(maxMemoryUsage < estimatedMemory);
-    CPPUNIT_ASSERT(4 * maxMemoryUsage > estimatedMemory);
 }
 
 void CBoostedTreeTest::testProgressMonitoring() {
