@@ -43,6 +43,32 @@ using TRowItr = core::CDataFrame::TRowItr;
 using TPoint = maths::CDenseVector<maths::CFloatStorage>;
 using TPointVec = std::vector<TPoint>;
 
+rapidjson::Document stringToJsonDocument(const std::string& inputString) {
+    rapidjson::Document results;
+    rapidjson::ParseResult ok(results.Parse(inputString));
+    CPPUNIT_ASSERT(static_cast<bool>(ok) == true);
+    return results;
+}
+
+std::string jsonObjectToString(const rapidjson::GenericValue<rapidjson::UTF8<>>& jsonObject) {
+    rapidjson::StringBuffer stringBuffer;
+    api::CDataFrameAnalysisSpecificationJsonWriter::TRapidJsonLineWriter writer;
+    {
+        writer.Reset(stringBuffer);
+        writer.write(jsonObject);
+        writer.Flush();
+    }
+    return stringBuffer.GetString();
+}
+
+std::unique_ptr<maths::CBoostedTree>
+createTreeFromJsonObject(std::unique_ptr<ml::core::CDataFrame>& frame,
+                         const rapidjson::GenericValue<rapidjson::UTF8<>>& jsonObject) {
+    std::stringstream jsonStateStream;
+    jsonStateStream << jsonObjectToString(jsonObject["analyzer_state"]);
+    return maths::CBoostedTreeFactory::constructFromString(jsonStateStream, *frame);
+}
+
 auto outlierSpec(std::size_t rows = 110,
                  std::size_t memoryLimit = 100000,
                  std::string method = "",
@@ -978,27 +1004,63 @@ CppUnit::Test* CDataFrameAnalyzerTest::suite() {
 }
 
 void CDataFrameAnalyzerTest::testRunBoostedTreeTrainingWithStateRecovery() {
-    double lambda{-1.0}; //{1.0};
+
+    // no hyperparameter search
+    double lambda{1.0};
     double gamma{10.0};
     double eta{0.9};
     std::size_t maximumNumberTrees{2};
     double featureBagFraction{0.3};
-    size_t numberExamples = 1000;
+    size_t numberRoundsPerHyperparameter{5};
 
-    size_t numberRoundsPerHyperparameter = 5;
+    size_t intermediateIteration{1};
+    size_t finalIteration{2};
 
+    // zero hyperparameters to search
+    LOG_DEBUG(<< "No hyperparameters to search")
+    testRunBoostedTreeTrainingWithStateRecoverySubroutine(
+        0, lambda, gamma, eta, maximumNumberTrees, featureBagFraction,
+        numberRoundsPerHyperparameter, intermediateIteration, finalIteration);
+
+    // one hyperparameter to search
+    LOG_DEBUG(<< "One hyperparameter to search")
+    lambda = -1.0;
+    gamma = 10.0;
+    finalIteration = 1 * numberRoundsPerHyperparameter + 1;
+    testRunBoostedTreeTrainingWithStateRecoverySubroutine(
+        1, lambda, gamma, eta, maximumNumberTrees, featureBagFraction,
+        numberRoundsPerHyperparameter, intermediateIteration, finalIteration);
+
+    // two hyperparameters to search
+    LOG_DEBUG(<< "Two hyperparameters to search")
+    lambda = -1.0;
+    gamma = -1.0;
+    finalIteration = 2 * numberRoundsPerHyperparameter + 1;
+    testRunBoostedTreeTrainingWithStateRecoverySubroutine(
+        2, lambda, gamma, eta, maximumNumberTrees, featureBagFraction,
+        numberRoundsPerHyperparameter, intermediateIteration, finalIteration);
+}
+
+void CDataFrameAnalyzerTest::testRunBoostedTreeTrainingWithStateRecoverySubroutine(
+    size_t numberHyperparameters,
+    double lambda,
+    double gamma,
+    double eta,
+    size_t maximumNumberTrees,
+    double featureBagFraction,
+    size_t numberRoundsPerHyperparameter,
+    size_t intermediateIteration,
+    size_t finalIteration) const {
     std::stringstream output;
     auto outputWriterFactory = [&output]() {
         return std::make_unique<core::CJsonOutputStreamWrapper>(output);
     };
 
-    api::CDataFrameAnalyzer analyzer{
-        regressionSpec("c5", numberExamples, 5, 15000000, numberRoundsPerHyperparameter,
-                       {}, lambda, gamma, eta, maximumNumberTrees, featureBagFraction),
-        outputWriterFactory};
+    size_t numberExamples{400};
 
     TStrVec fieldNames{"c1", "c2", "c3", "c4", "c5", ".", "."};
     TStrVec fieldValues{"", "", "", "", "", "0", ""};
+    TDoubleVec weights{0.1, 2.0, 0.4, -0.5};
 
     auto f = [](const TDoubleVec& weights, const TPoint& regressors) {
         double result{0.0};
@@ -1008,9 +1070,12 @@ void CDataFrameAnalyzerTest::testRunBoostedTreeTrainingWithStateRecovery() {
         return result;
     };
 
-    test::CRandomNumbers rng;
+    api::CDataFrameAnalyzer analyzer{
+        regressionSpec("c5", numberExamples, 5, 6000000, numberRoundsPerHyperparameter,
+                       {}, lambda, gamma, eta, maximumNumberTrees, featureBagFraction),
+        outputWriterFactory};
 
-    TDoubleVec weights{0.1, 2.0, 0.4, -0.5};
+    test::CRandomNumbers rng;
 
     TDoubleVec values;
     rng.generateUniformSamples(-10.0, 10.0, weights.size() * numberExamples, values);
@@ -1037,7 +1102,7 @@ void CDataFrameAnalyzerTest::testRunBoostedTreeTrainingWithStateRecovery() {
     auto frame = test::CDataFrameTestUtils::toMainMemoryDataFrame(rows);
     frame->resizeColumns(1, frame->numberColumns() + 3);
     analyzer.handleRecord(fieldNames, {"", "", "", "", "", "", "$"});
-    std::cout << output.str() << std::endl;
+    //    std::cout << output.str() << std::endl;
 
     rapidjson::Document results = stringToJsonDocument(output.str());
 
@@ -1045,19 +1110,15 @@ void CDataFrameAnalyzerTest::testRunBoostedTreeTrainingWithStateRecovery() {
     std::unique_ptr<maths::CBoostedTree> finalTree;
     for (const auto& result : results.GetArray()) {
         if (result.HasMember("analyzer_state") &&
-            result["analyzer_state"]["current_round"] == "1") {
-            std::stringstream jsonStateStream;
-            jsonStateStream << jsonObjectToString(result["analyzer_state"]);
-            intermediateTree = maths::CBoostedTreeFactory::constructFromString(
-                jsonStateStream, *frame);
+            result["analyzer_state"]["current_round"] == std::to_string(intermediateIteration)) {
+            intermediateTree = createTreeFromJsonObject(frame, result);
+            continue;
         }
 
         if (result.HasMember("analyzer_state") &&
-            result["analyzer_state"]["current_round"] == "6") {
-            std::stringstream jsonStateStream;
-            jsonStateStream << jsonObjectToString(result["analyzer_state"]);
-            finalTree = maths::CBoostedTreeFactory::constructFromString(
-                jsonStateStream, *frame);
+            result["analyzer_state"]["current_round"] == std::to_string(finalIteration)) {
+            finalTree = createTreeFromJsonObject(frame, result);
+            continue;
         }
     }
 
@@ -1067,25 +1128,7 @@ void CDataFrameAnalyzerTest::testRunBoostedTreeTrainingWithStateRecovery() {
         stringToJsonDocument(finalTree->toJsonString())["best_hyperparameters"]);
     std::string actualBestHyperparameters = jsonObjectToString(
         stringToJsonDocument(intermediateTree->toJsonString())["best_hyperparameters"]);
-    CPPUNIT_ASSERT_EQUAL(expectedBestHyperparameters, actualBestHyperparameters);
-}
-
-std::string CDataFrameAnalyzerTest::jsonObjectToString(
-    const rapidjson::GenericValue<rapidjson::UTF8<>>& jsonObject) {
-    rapidjson::StringBuffer stringBuffer;
-    api::CDataFrameAnalysisSpecificationJsonWriter::TRapidJsonLineWriter writer;
-    {
-        writer.Reset(stringBuffer);
-        writer.write(jsonObject);
-        writer.Flush();
-    }
-    return stringBuffer.GetString();
-}
-
-rapidjson::Document
-CDataFrameAnalyzerTest::stringToJsonDocument(const std::string& inputString) const {
-    rapidjson::Document results;
-    rapidjson::ParseResult ok(results.Parse(inputString));
-    CPPUNIT_ASSERT(static_cast<bool>(ok) == true);
-    return results;
+    CPPUNIT_ASSERT_EQUAL_MESSAGE(
+        "Error after searching for " + std::to_string(numberHyperparameters) + " hyperparameters",
+        expectedBestHyperparameters, actualBestHyperparameters);
 }

@@ -188,18 +188,18 @@ void CBoostedTreeImpl::train(core::CDataFrame& frame,
             lastMemoryUsage = memoryUsage;
 
             //store the training state after each hyperparameter search step
-            LOG_DEBUG(<< "Round " << m_CurrentRound << " state recording started")
+            LOG_TRACE(<< "Round " << m_CurrentRound << " state recording started");
             recordState(recordTrainStateCallback);
-            LOG_DEBUG(<< "Round " << m_CurrentRound << " state recording finished")
+            LOG_TRACE(<< "Round " << m_CurrentRound << " state recording finished");
         }
 
         LOG_TRACE(<< "Test loss = " << m_BestForestTestLoss);
 
         this->restoreBestHyperparameters();
 
-        LOG_DEBUG(<< "Best hyperparameters: state recording started")
+        LOG_TRACE(<< "Best hyperparameters: state recording started");
         recordState(recordTrainStateCallback);
-        LOG_DEBUG(<< "Best hyperparameters: state recording finished")
+        LOG_TRACE(<< "Best hyperparameters: state recording finished");
 
         m_BestForest = this->trainForest(frame, this->allTrainingRowsMask(), recordMemoryUsage);
     }
@@ -220,7 +220,7 @@ void CBoostedTreeImpl::recordState(const CBoostedTreeImpl::TTrainingStateCallbac
         persistStream.flush();
     }
     recordTrainState(persistStream.str());
-    LOG_DEBUG(<< "State: " << persistStream.str())
+    LOG_TRACE(<< "State: " << persistStream.str());
 }
 
 void CBoostedTreeImpl::predict(core::CDataFrame& frame,
