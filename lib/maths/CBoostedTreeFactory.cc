@@ -322,6 +322,9 @@ CBoostedTreeFactory::constructFromString(std::stringstream& jsonStringStream,
         if (treePtr->acceptRestoreTraverser(traverser) == false || traverser.haveBadState()) {
             throw std::runtime_error{"failed to restore boosted tree"};
         }
+        frame.resizeColumns(treePtr->m_Impl->m_NumberThreads,
+                            frame.numberColumns() +
+                                treePtr->m_Impl->numberExtraColumnsForTrain());
         return treePtr;
     } catch (const std::exception& e) {
         HANDLE_FATAL(<< "Input error: '" << e.what() << "'. Check logs for more details.");

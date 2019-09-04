@@ -1099,9 +1099,7 @@ void CDataFrameAnalyzerTest::testRunBoostedTreeTrainingWithStateRecoverySubrouti
         rows.push_back(std::move(row));
     }
     auto frame = test::CDataFrameTestUtils::toMainMemoryDataFrame(rows);
-    frame->resizeColumns(1, frame->numberColumns() + 3);
     analyzer.handleRecord(fieldNames, {"", "", "", "", "", "", "$"});
-    //    std::cout << output.str() << std::endl;
 
     rapidjson::Document results = stringToJsonDocument(output.str());
 
