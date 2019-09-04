@@ -260,7 +260,7 @@ void CBayesianOptimisationTest::testMaximumExpectedImprovement() {
     }
 
     LOG_DEBUG(<< "mean gain = " << maths::CBasicStatistics::mean(gain));
-    CPPUNIT_ASSERT(maths::CBasicStatistics::mean(gain) > 1.29);
+    CPPUNIT_ASSERT(maths::CBasicStatistics::mean(gain) > 1.27);
 }
 
 void CBayesianOptimisationTest::testPersistRestore() {
