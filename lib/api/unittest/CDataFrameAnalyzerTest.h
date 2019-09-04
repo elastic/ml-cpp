@@ -31,7 +31,6 @@ public:
     static CppUnit::Test* suite();
 
 private:
-
     void
     testRunBoostedTreeTrainingWithStateRecoverySubroutine(size_t numberHyperparameters,
                                                           double lambda,

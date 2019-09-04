@@ -1055,7 +1055,7 @@ void CDataFrameAnalyzerTest::testRunBoostedTreeTrainingWithStateRecoverySubrouti
         return std::make_unique<core::CJsonOutputStreamWrapper>(output);
     };
 
-    size_t numberExamples{400};
+    size_t numberExamples{1000};
 
     TStrVec fieldNames{"c1", "c2", "c3", "c4", "c5", ".", "."};
     TStrVec fieldValues{"", "", "", "", "", "0", ""};
@@ -1070,7 +1070,7 @@ void CDataFrameAnalyzerTest::testRunBoostedTreeTrainingWithStateRecoverySubrouti
     };
 
     api::CDataFrameAnalyzer analyzer{
-        regressionSpec("c5", numberExamples, 5, 6000000, numberRoundsPerHyperparameter,
+        regressionSpec("c5", numberExamples, 5, 15000000, numberRoundsPerHyperparameter,
                        {}, lambda, gamma, eta, maximumNumberTrees, featureBagFraction),
         outputWriterFactory};
 
