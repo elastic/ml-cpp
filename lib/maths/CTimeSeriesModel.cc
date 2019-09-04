@@ -1607,8 +1607,6 @@ CUnivariateTimeSeriesModel::updateTrend(const TTimeDouble2VecSizeTrVec& samples,
         }
     }
 
-    EUpdateResult result = E_Success;
-
     // Time order is not reliable, for example if the data are polled
     // or for count feature, the times of all samples will be the same.
     TSizeVec timeorder(samples.size());
@@ -1623,6 +1621,7 @@ CUnivariateTimeSeriesModel::updateTrend(const TTimeDouble2VecSizeTrVec& samples,
     // Do the update.
 
     TFloatMeanAccumulatorVec window;
+    EUpdateResult result{E_Success};
     auto componentChangeCallback = [&window, &result](TFloatMeanAccumulatorVec window_) {
         window = std::move(window_);
         result = E_Reset;
@@ -2944,7 +2943,7 @@ CMultivariateTimeSeriesModel::updateTrend(const TTimeDouble2VecSizeTrVec& sample
 
     // Do the update.
 
-    EUpdateResult result;
+    EUpdateResult result{E_Success};
     auto componentChangeCallback = [&result](TFloatMeanAccumulatorVec) {
         result = E_Reset;
     };
