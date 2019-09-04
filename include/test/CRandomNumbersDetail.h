@@ -60,7 +60,8 @@ void CRandomNumbers::generateRandomMultivariateNormals(
     TDoubleVec variances;
     this->generateUniformSamples(10.0, 100.0, N * k, variances);
     for (std::size_t i = 0; i < k; ++i) {
-        Eigen::Matrix<T, N, N> covariance = Eigen::Matrix<T, N, N>::Zero();
+        constexpr int N_{static_cast<int>(N)};
+        Eigen::Matrix<T, N_, N_> covariance = Eigen::Matrix<T, N_, N_>::Zero();
 
         for (std::size_t j = 0u; j < N; ++j) {
             covariance(j, j) = variances[i * N + j];
@@ -76,12 +77,12 @@ void CRandomNumbers::generateRandomMultivariateNormals(
         TDoubleVec thetas;
         this->generateUniformSamples(0.0, boost::math::constants::two_pi<double>(), 2, thetas);
 
-        Eigen::Matrix<T, N, N> rotation = Eigen::Matrix<T, N, N>::Identity();
+        Eigen::Matrix<T, N_, N_> rotation = Eigen::Matrix<T, N_, N_>::Identity();
         for (std::size_t j = 1u; j < coordinates.size(); j += 2) {
             double ct = std::cos(thetas[j / 2]);
             double st = std::sin(thetas[j / 2]);
 
-            Eigen::Matrix<T, N, N> r = Eigen::Matrix<T, N, N>::Identity();
+            Eigen::Matrix<T, N_, N_> r = Eigen::Matrix<T, N_, N_>::Identity();
             r(coordinates[j / 2], coordinates[j / 2]) = ct;
             r(coordinates[j / 2], coordinates[j / 2 + 1]) = -st;
             r(coordinates[j / 2 + 1], coordinates[j / 2]) = st;
