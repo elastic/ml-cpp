@@ -7,13 +7,12 @@
 #include <maths/CBoostedTree.h>
 
 #include <core/CDataFrame.h>
+#include <core/CJsonStatePersistInserter.h>
 
 #include <maths/CBoostedTreeImpl.h>
 
-#include <numeric>
 #include <sstream>
 #include <utility>
-#include <vector>
 
 namespace ml {
 namespace maths {
@@ -143,17 +142,20 @@ const std::string BOOSTED_TREE_IMPL_TAG{"boosted_tree_impl"};
 
 bool CBoostedTree::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
     return m_Impl->acceptRestoreTraverser(traverser);
-//    do {
-//        const std::string& name = traverser.name();
-//        RESTORE(BOOSTED_TREE_IMPL_TAG,
-//                core::CPersistUtils::restore(BOOSTED_TREE_IMPL_TAG, *m_Impl, traverser))
-//    } while (traverser.next());
-//    return true;
 }
 
 void CBoostedTree::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
     m_Impl->acceptPersistInserter(inserter);
-//    core::CPersistUtils::persist(BOOSTED_TREE_IMPL_TAG, *m_Impl, inserter);
+}
+
+std::string CBoostedTree::toJsonString() const {
+    std::stringstream persistStream;
+    {
+        core::CJsonStatePersistInserter inserter(persistStream);
+        this->acceptPersistInserter(inserter);
+        persistStream.flush();
+    }
+    return persistStream.str();
 }
 }
 }

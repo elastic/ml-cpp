@@ -7,6 +7,9 @@
 #ifndef INCLUDED_CDataFrameAnalyzerTest_h
 #define INCLUDED_CDataFrameAnalyzerTest_h
 
+#include <rapidjson/document.h>
+#include <rapidjson/stringbuffer.h>
+
 #include <cppunit/extensions/HelperMacros.h>
 
 class CDataFrameAnalyzerTest : public CppUnit::TestFixture {
@@ -26,6 +29,12 @@ public:
     void testCategoricalFields();
 
     static CppUnit::Test* suite();
+
+private:
+    rapidjson::GenericDocument<rapidjson::UTF8<>>
+    stringToJsonDocument(const std::string& inputString) const;
+
+    std::string jsonObjectToString(const rapidjson::GenericValue<rapidjson::UTF8<>>& jsonObject);
 };
 
 #endif // INCLUDED_CDataFrameAnalyzerTest_h

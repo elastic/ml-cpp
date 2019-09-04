@@ -269,10 +269,11 @@ const CBayesianOptimisation::TVector& CBayesianOptimisation::maximumLikelihoodKe
 
     // Use random restarts of L-BFGS to find maximum likelihood parameters.
 
-//    this->precondition();
+    //    this->precondition();
 
     std::size_t n(m_KernelParameters.size());
 
+    // We restart optimization with initial guess on different scales for global probing
     TDoubleVec scales;
     scales.reserve((m_Restarts - 1) * n);
     CSampling::uniformSample(m_Rng, std::log(0.1), std::log(4.0),
@@ -306,7 +307,8 @@ const CBayesianOptimisation::TVector& CBayesianOptimisation::maximumLikelihoodKe
         }
     }
 
-    m_KernelParameters = std::move(amax);
+    // ensure that kernel lengths are always positive. It shouldn't change the results but improves tracibility
+    m_KernelParameters = std::move(amax.cwiseAbs());
 
     return m_KernelParameters;
 }
