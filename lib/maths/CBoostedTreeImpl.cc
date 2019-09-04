@@ -349,6 +349,8 @@ CBoostedTreeImpl::trainForest(core::CDataFrame& frame,
 
     LOG_TRACE(<< "Training one forest...");
 
+    std::size_t maximumTreeSize{this->maximumTreeSize(trainingRowMask)};
+
     TNodeVecVec forest{this->initializePredictionsAndLossDerivatives(frame, trainingRowMask)};
     forest.reserve(m_MaximumNumberTrees);
 
@@ -368,7 +370,8 @@ CBoostedTreeImpl::trainForest(core::CDataFrame& frame,
 
     for (std::size_t retries = 0; forest.size() < m_MaximumNumberTrees; /**/) {
 
-        auto tree = this->trainTree(frame, trainingRowMask, candidateSplits, recordMemoryUsage);
+        auto tree = this->trainTree(frame, trainingRowMask, candidateSplits,
+                                    maximumTreeSize, recordMemoryUsage);
 
         retries = tree.size() == 1 ? retries + 1 : 0;
 
@@ -485,6 +488,7 @@ CBoostedTreeImpl::TNodeVec
 CBoostedTreeImpl::trainTree(core::CDataFrame& frame,
                             const core::CPackedBitVector& trainingRowMask,
                             const TDoubleVecVec& candidateSplits,
+                            const std::size_t maximumTreeSize,
                             const TMemoryUsageCallback& recordMemoryUsage) const {
 
     LOG_TRACE(<< "Training one tree...");
@@ -492,8 +496,6 @@ CBoostedTreeImpl::trainTree(core::CDataFrame& frame,
     using TLeafNodeStatisticsPtr = std::shared_ptr<CLeafNodeStatistics>;
     using TLeafNodeStatisticsPtrQueue =
         std::priority_queue<TLeafNodeStatisticsPtr, std::vector<TLeafNodeStatisticsPtr>, COrderings::SLess>;
-
-    std::size_t maximumTreeSize{this->maximumTreeSize(frame)};
 
     TNodeVec tree(1);
     tree.reserve(2 * maximumTreeSize + 1);
@@ -808,8 +810,8 @@ std::size_t CBoostedTreeImpl::numberHyperparametersToTune() const {
            (m_EtaOverride ? 0 : 2) + (m_FeatureBagFractionOverride ? 0 : 1);
 }
 
-std::size_t CBoostedTreeImpl::maximumTreeSize(const core::CDataFrame& frame) const {
-    return this->maximumTreeSize(frame.numberRows());
+std::size_t CBoostedTreeImpl::maximumTreeSize(const core::CPackedBitVector& trainingRowMask) const {
+    return this->maximumTreeSize(static_cast<std::size_t>(trainingRowMask.manhattan()));
 }
 
 std::size_t CBoostedTreeImpl::maximumTreeSize(std::size_t numberRows) const {

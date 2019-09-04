@@ -12,6 +12,8 @@
 #include <maths/CBoostedTree.h>
 #include <maths/ImportExport.h>
 
+#include <boost/optional.hpp>
+
 #include <memory>
 #include <utility>
 #include <vector>
@@ -85,6 +87,7 @@ public:
     TBoostedTreeUPtr buildFor(core::CDataFrame& frame, std::size_t dependentVariable);
 
 private:
+    using TOptionalDouble = boost::optional<double>;
     using TPackedBitVectorVec = std::vector<core::CPackedBitVector>;
     using TBoostedTreeImplUPtr = std::unique_ptr<CBoostedTreeImpl>;
 
@@ -126,7 +129,7 @@ private:
     static void noopRecordMemoryUsage(std::int64_t);
 
 private:
-    double m_MinimumFrequencyToOneHotEncode;
+    TOptionalDouble m_MinimumFrequencyToOneHotEncode;
     TBoostedTreeImplUPtr m_TreeImpl;
     TProgressCallback m_RecordProgress = noopRecordProgress;
     TMemoryUsageCallback m_RecordMemoryUsage = noopRecordMemoryUsage;
