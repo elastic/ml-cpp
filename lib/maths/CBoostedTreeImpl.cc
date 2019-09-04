@@ -836,6 +836,7 @@ std::size_t CBoostedTreeImpl::maximumTreeSize(std::size_t numberRows) const {
 }
 
 namespace {
+const std::string RANDOM_NUMBER_GENERATOR_TAG{"random_number_generator"};
 const std::string BAYESIAN_OPTIMIZATION_TAG{"bayesian_optimization"};
 const std::string BEST_FOREST_TAG{"best_forest"};
 const std::string BEST_FOREST_TEST_LOSS_TAG{"best_forest_test_loss"};
@@ -888,6 +889,7 @@ const std::string HYPERPARAM_FEATURE_SAMPLE_PROBABILITIES_TAG{"hyperparam_featur
 void CBoostedTreeImpl::acceptPersistInserter(core::CStatePersistInserter &inserter) const {
     core::CPersistUtils::persist(BAYESIAN_OPTIMIZATION_TAG, *m_BayesianOptimization, inserter);
     core::CPersistUtils::persist(BEST_FOREST_TEST_LOSS_TAG, m_BestForestTestLoss, inserter);
+    inserter.insertValue(RANDOM_NUMBER_GENERATOR_TAG, m_Rng.toString());
     core::CPersistUtils::persist(CURRENT_ROUND_TAG, m_CurrentRound, inserter);
     core::CPersistUtils::persist(DEPENDENT_VARIABLE_TAG, m_DependentVariable, inserter);
     core::CPersistUtils::persist(ENCODER_TAG, *m_Encoder, inserter);
@@ -899,9 +901,10 @@ void CBoostedTreeImpl::acceptPersistInserter(core::CStatePersistInserter &insert
     core::CPersistUtils::persist(FEATURE_SAMPLE_PROBABILITIES_TAG,
                                  m_FeatureSampleProbabilities, inserter);
     core::CPersistUtils::persist(GAMMA_TAG, m_Gamma, inserter);
-    core::CPersistUtils::persist(LAMBDA_TAG,
-                                 core::CStringUtils::typeToStringPrecise(m_Lambda, core::CIEEE754::E_DoublePrecision),
-                                 inserter);
+    core::CPersistUtils::persist(LAMBDA_TAG, m_Lambda, inserter);
+//    core::CPersistUtils::persist(LAMBDA_TAG,
+//                                 core::CStringUtils::typeToStringPrecise(m_Lambda, core::CIEEE754::E_DoublePrecision),
+//                                 inserter);
     core::CPersistUtils::persist(MAXIMUM_ATTEMPTS_TO_ADD_TREE_TAG,
                                  m_MaximumAttemptsToAddTree, inserter);
     core::CPersistUtils::persist(MAXIMUM_OPTIMISATION_ROUNDS_PER_HYPERPARAMETER_TAG,
@@ -1015,6 +1018,8 @@ bool CBoostedTreeImpl::acceptRestoreTraverser(core::CStateRestoreTraverser &trav
         RESTORE(BEST_FOREST_TEST_LOSS_TAG,
                 core::CPersistUtils::restore(BEST_FOREST_TEST_LOSS_TAG,
                                              m_BestForestTestLoss, traverser))
+        RESTORE(RANDOM_NUMBER_GENERATOR_TAG, m_Rng.fromString(traverser.value()))
+
         RESTORE(CURRENT_ROUND_TAG,
                 core::CPersistUtils::restore(CURRENT_ROUND_TAG, m_CurrentRound, traverser))
         RESTORE(DEPENDENT_VARIABLE_TAG,
