@@ -15,7 +15,7 @@
 # Finally, the Docker container used for the build is deleted.
 
 usage() {
-    echo "Usage: $0 linux|linux-musl|macosx ..."
+    echo "Usage: $0 linux|macosx ..."
     exit 1
 }
 
@@ -25,7 +25,7 @@ while [ -n "$1" ]
 do
 
     case "$1" in
-        linux|linux-musl|macosx)
+        linux|macosx)
             PLATFORMS="$1 $PLATFORMS"
             ;;
         *)
