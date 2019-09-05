@@ -584,8 +584,8 @@ private:
                 double hl[]{m_MissingCurvatures[i], 0.0};
 
                 double maximumGain{-INF};
-                std::size_t splitAt{m_FeatureBag.size()};
-                std::size_t assignMissingTo{ASSIGN_MISSING_TO_LEFT};
+                double splitAt{-INF};
+                bool assignMissingToLeft{true};
 
                 for (std::size_t j = 0; j + 1 < m_Gradients[i].size(); ++j) {
                     gl[ASSIGN_MISSING_TO_LEFT] += m_Gradients[i][j];
@@ -604,20 +604,19 @@ private:
 
                     if (gain[ASSIGN_MISSING_TO_LEFT] > maximumGain) {
                         maximumGain = gain[ASSIGN_MISSING_TO_LEFT];
-                        splitAt = j;
-                        assignMissingTo = ASSIGN_MISSING_TO_LEFT;
+                        splitAt = m_CandidateSplits[i][j];
+                        assignMissingToLeft = true;
                     }
                     if (gain[ASSIGN_MISSING_TO_RIGHT] > maximumGain) {
                         maximumGain = gain[ASSIGN_MISSING_TO_RIGHT];
-                        splitAt = j;
-                        assignMissingTo = ASSIGN_MISSING_TO_RIGHT;
+                        splitAt = m_CandidateSplits[i][j];
+                        assignMissingToLeft = false;
                     }
                 }
 
                 double gain{0.5 * (maximumGain - CTools::pow2(g) / (h + m_Lambda)) - m_Gamma};
 
-                SSplitStatistics candidate{gain, i, m_CandidateSplits[i][splitAt],
-                                           assignMissingTo == ASSIGN_MISSING_TO_LEFT};
+                SSplitStatistics candidate{gain, i, splitAt, assignMissingToLeft};
                 LOG_TRACE(<< "candidate split: " << candidate.print());
 
                 if (candidate > result) {
