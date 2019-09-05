@@ -49,7 +49,8 @@ The first major piece of development software to install is Apple's development 
 - If you are using Yosemite, you must install Xcode 7.2.x
 - If you are using El Capitan, you must install Xcode 8.2.x
 - If you are using Sierra, you must install Xcode 9.2.x
-- If you are using High Sierra/Mojave, you must install Xcode 10.0.x
+- If you are using High Sierra, you must install Xcode 10.1.x
+- If you are using Mojave, you must install Xcode 10.3.x
 
 Older versions of Xcode are installed by dragging the app from the `.dmg` file to the `/Applications` directory on your Mac (or if you got it from the App Store it will already be in the `/Applications` directory). More modern versions of Xcode are distributed as a `.xip` file; simply double click the `.xip` file to expand it, then drag `Xcode.app` to your `/Applications` directory.
 
@@ -149,25 +150,25 @@ cd /usr/local/lib
 sudo install_name_tool -id "@rpath/liblog4cxx.10.dylib" liblog4cxx.10.dylib
 ```
 
-### Boost 1.65.1
+### Boost 1.71.0
 
-Download version 1.65.1 of Boost from <http://sourceforge.net/projects/boost/files/boost/1.65.1/>. You must get this exact version, as the Machine Learning Makefiles expect it.
+Download version 1.71.0 of Boost from <https://dl.bintray.com/boostorg/release/1.71.0/source/boost_1_71_0.tar.bz2>. You must get this exact version, as the Machine Learning Makefiles expect it.
 
 Assuming you chose the `.bz2` version, extract it to a temporary directory:
 
 ```
-bzip2 -cd boost_1_65_1.tar.bz2 | tar xvf -
+bzip2 -cd boost_1_71_0.tar.bz2 | tar xvf -
 ```
 
-In the resulting `boost_1_65_1` directory, run:
+In the resulting `boost_1_71_0` directory, run:
 
 ```
-./bootstrap.sh --with-toolset=clang --without-libraries=context --without-libraries=coroutine --without-libraries=graph_parallel --without-libraries=log --without-libraries=mpi --without-libraries=python --without-icu
-````
+./bootstrap.sh --with-toolset=clang --without-libraries=context --without-libraries=coroutine --without-libraries=graph_parallel --without-libraries=mpi --without-libraries=python --without-icu
+```
 
 This should build the `b2` program, which in turn is used to build Boost.
 
-Edit `boost/unordered/detail/implementation.hpp` and change line 270 from:
+Edit `boost/unordered/detail/implementation.hpp` and change line 287 from:
 
 ```
     (17ul)(29ul)(37ul)(53ul)(67ul)(79ul) \
@@ -182,12 +183,8 @@ to:
 To complete the build, type:
 
 ```
-./b2 -j8 --layout=versioned --disable-icu cxxflags="-std=c++14 -stdlib=libc++" linkflags="-std=c++14 -stdlib=libc++ -Wl,-headerpad_max_install_names" optimization=speed inlining=full define=BOOST_MATH_NO_LONG_DOUBLE_MATH_FUNCTIONS
-sudo ./b2 install --layout=versioned --disable-icu cxxflags="-std=c++14 -stdlib=libc++" linkflags="-std=c++14 -stdlib=libc++ -Wl,-headerpad_max_install_names" optimization=speed inlining=full define=BOOST_MATH_NO_LONG_DOUBLE_MATH_FUNCTIONS
-cd /usr/local/lib
-for FILE in libboost*1_65_1.dylib ; do sudo install_name_tool -id "@rpath/$FILE" $FILE ; done
-sudo install_name_tool -change libboost_system-clang-darwin42-mt-1_65_1.dylib "@rpath/libboost_system-clang-darwin42-mt-1_65_1.dylib" -add_rpath "@loader_path/../lib" libboost_filesystem-clang-darwin42-mt-1_65_1.dylib
-sudo install_name_tool -change libboost_system-clang-darwin42-mt-1_65_1.dylib "@rpath/libboost_system-clang-darwin42-mt-1_65_1.dylib" -add_rpath "@loader_path/../lib" libboost_thread-clang-darwin42-mt-1_65_1.dylib
+./b2 -j8 --layout=versioned --disable-icu cxxflags="-std=c++14 -stdlib=libc++" linkflags="-std=c++14 -stdlib=libc++ -Wl,-headerpad_max_install_names" optimization=speed inlining=full define=BOOST_MATH_NO_LONG_DOUBLE_MATH_FUNCTIONS define=BOOST_LOG_WITHOUT_DEBUG_OUTPUT define=BOOST_LOG_WITHOUT_EVENT_LOG define=BOOST_LOG_WITHOUT_SYSLOG define=BOOST_LOG_WITHOUT_IPC
+sudo ./b2 install --layout=versioned --disable-icu cxxflags="-std=c++14 -stdlib=libc++" linkflags="-std=c++14 -stdlib=libc++ -Wl,-headerpad_max_install_names" optimization=speed inlining=full define=BOOST_MATH_NO_LONG_DOUBLE_MATH_FUNCTIONS define=BOOST_LOG_WITHOUT_DEBUG_OUTPUT define=BOOST_LOG_WITHOUT_EVENT_LOG define=BOOST_LOG_WITHOUT_SYSLOG define=BOOST_LOG_WITHOUT_IPC
 ```
 
 to install the Boost headers and libraries.
