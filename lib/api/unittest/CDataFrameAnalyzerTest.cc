@@ -1119,6 +1119,7 @@ void CDataFrameAnalyzerTest::testRunBoostedTreeTrainingWithStateRecoverySubrouti
         }
     }
 
+    CPPUNIT_ASSERT(intermediateTree.get() != nullptr);
     intermediateTree->train();
 
     rapidjson::Document expectedResults{stringToJsonDocument(finalTree->toJsonString())};
