@@ -1055,7 +1055,7 @@ void CDataFrameAnalyzerTest::testRunBoostedTreeTrainingWithStateRecoverySubrouti
         return std::make_unique<core::CJsonOutputStreamWrapper>(output);
     };
 
-    size_t numberExamples{1000};
+    size_t numberExamples{100};
 
     TStrVec fieldNames{"c1", "c2", "c3", "c4", "c5", ".", "."};
     TStrVec fieldValues{"", "", "", "", "", "0", ""};
@@ -1121,11 +1121,34 @@ void CDataFrameAnalyzerTest::testRunBoostedTreeTrainingWithStateRecoverySubrouti
 
     intermediateTree->train();
 
-    std::string expectedBestHyperparameters = jsonObjectToString(
-        stringToJsonDocument(finalTree->toJsonString())["best_hyperparameters"]);
-    std::string actualBestHyperparameters = jsonObjectToString(
-        stringToJsonDocument(intermediateTree->toJsonString())["best_hyperparameters"]);
-    CPPUNIT_ASSERT_EQUAL_MESSAGE(
-        "Error after searching for " + std::to_string(numberHyperparameters) + " hyperparameters",
-        expectedBestHyperparameters, actualBestHyperparameters);
+    rapidjson::Document expectedResults{stringToJsonDocument(finalTree->toJsonString())};
+    const auto& expectedHyperparameters = expectedResults["best_hyperparameters"];
+
+    rapidjson::Document actualResults{stringToJsonDocument(intermediateTree->toJsonString())};
+    const auto& actualHyperparameters = actualResults["best_hyperparameters"];
+
+    auto assertDoublesEqual = [&expectedHyperparameters,
+                               &actualHyperparameters](std::string key) {
+        CPPUNIT_ASSERT_DOUBLES_EQUAL(
+            std::stod(expectedHyperparameters[key].GetString()),
+            std::stod(actualHyperparameters[key].GetString()), 1e-4);
+    };
+    auto assertDoublesArrayEqual = [&expectedHyperparameters,
+                                    &actualHyperparameters](std::string key) {
+        std::vector<double> expectedVector;
+        core::CPersistUtils::fromString(expectedHyperparameters[key].GetString(), expectedVector);
+        std::vector<double> actualVector;
+        core::CPersistUtils::fromString(actualHyperparameters[key].GetString(), actualVector);
+        CPPUNIT_ASSERT_EQUAL(expectedVector.size(), actualVector.size());
+        for (size_t i = 0; i < expectedVector.size(); i++) {
+            CPPUNIT_ASSERT_DOUBLES_EQUAL(expectedVector[i], actualVector[i], 1e-4);
+        }
+
+    };
+    assertDoublesEqual("hyperparam_lambda");
+    assertDoublesEqual("hyperparam_gamma");
+    assertDoublesEqual("hyperparam_eta");
+    assertDoublesEqual("hyperparam_eta_growth_rate_per_tree");
+    assertDoublesEqual("hyperparam_feature_bag_fraction");
+    assertDoublesArrayEqual("hyperparam_feature_sample_probabilities");
 }
