@@ -9,6 +9,7 @@
 
 #include <api/ImportExport.h>
 
+#include <core/CDataSearcher.h>
 #include <core/CRapidJsonConcurrentLineWriter.h>
 
 #include <boost/unordered_map.hpp>
@@ -36,6 +37,8 @@ public:
     using TJsonOutputStreamWrapperUPtr = std::unique_ptr<core::CJsonOutputStreamWrapper>;
     using TJsonOutputStreamWrapperUPtrSupplier =
         std::function<TJsonOutputStreamWrapperUPtr()>;
+    using TDataSearcherUPtrSupplier =
+        std::function<std::unique_ptr<ml::core::CDataSearcher>()>;
     using TDataFrameAnalysisSpecificationUPtr = std::unique_ptr<CDataFrameAnalysisSpecification>;
     using TTemporaryDirectoryPtr = std::shared_ptr<core::CTemporaryDirectory>;
 
@@ -46,7 +49,9 @@ public:
 
 public:
     CDataFrameAnalyzer(TDataFrameAnalysisSpecificationUPtr analysisSpecification,
-                       TJsonOutputStreamWrapperUPtrSupplier outStreamSupplier);
+                       TJsonOutputStreamWrapperUPtrSupplier outStreamSupplier,
+                       TJsonOutputStreamWrapperUPtrSupplier persistStreamSupplier,
+                       TDataSearcherUPtrSupplier dataSearcher = nullptr);
     ~CDataFrameAnalyzer();
 
     //! This is true if the analyzer is receiving control messages.
@@ -85,7 +90,8 @@ private:
     void captureFieldNames(const TStrVec& fieldNames);
     void addRowToDataFrame(const TStrVec& fieldValues);
     void monitorProgress(const CDataFrameAnalysisRunner& analysis,
-                         core::CRapidJsonConcurrentLineWriter& writer) const;
+                         core::CRapidJsonConcurrentLineWriter& writer,
+                         core::CRapidJsonConcurrentLineWriter& persistenceWriter) const;
     void writeProgress(int progress, core::CRapidJsonConcurrentLineWriter& writer) const;
     void writeState(std::string state, core::CRapidJsonConcurrentLineWriter& writer) const;
     void writeResultsOf(const CDataFrameAnalysisRunner& analysis,
@@ -107,6 +113,8 @@ private:
     TStrVec m_FieldNames;
     TTemporaryDirectoryPtr m_DataFrameDirectory;
     TJsonOutputStreamWrapperUPtrSupplier m_OutStreamSupplier;
+    TJsonOutputStreamWrapperUPtrSupplier m_PersistStreamSupplier;
+    TDataSearcherUPtrSupplier m_DataSearcher;
 };
 }
 }

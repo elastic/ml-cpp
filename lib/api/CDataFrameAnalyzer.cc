@@ -46,8 +46,11 @@ const std::string RESULTS{"results"};
 }
 
 CDataFrameAnalyzer::CDataFrameAnalyzer(TDataFrameAnalysisSpecificationUPtr analysisSpecification,
-                                       TJsonOutputStreamWrapperUPtrSupplier outStreamSupplier)
-    : m_AnalysisSpecification{std::move(analysisSpecification)}, m_OutStreamSupplier{outStreamSupplier} {
+                                       TJsonOutputStreamWrapperUPtrSupplier outStreamSupplier,
+                                       TJsonOutputStreamWrapperUPtrSupplier persistStreamSupplier,
+                                       TDataSearcherUPtrSupplier dataSearcher)
+    : m_AnalysisSpecification{std::move(analysisSpecification)}, m_OutStreamSupplier{outStreamSupplier},
+      m_PersistStreamSupplier{persistStreamSupplier}, m_DataSearcher{dataSearcher} {
 
     if (m_AnalysisSpecification != nullptr) {
         auto frameAndDirectory = m_AnalysisSpecification->makeDataFrame();
@@ -154,7 +157,15 @@ void CDataFrameAnalyzer::run() {
     auto outStream = m_OutStreamSupplier();
     core::CRapidJsonConcurrentLineWriter outputWriter{*outStream};
 
-    this->monitorProgress(*analysis, outputWriter);
+    auto persistStream = m_PersistStreamSupplier();
+    if (persistStream.get() == nullptr) {
+        HANDLE_FATAL(<< "Input error: File for state persistence has to be specified.");
+        return;
+    }
+
+    core::CRapidJsonConcurrentLineWriter persistWriter{*persistStream};
+
+    this->monitorProgress(*analysis, outputWriter, persistWriter);
     analysis->waitToFinish();
     this->writeResultsOf(*analysis, outputWriter);
 }
@@ -349,7 +360,8 @@ void CDataFrameAnalyzer::addRowToDataFrame(const TStrVec& fieldValues) {
 }
 
 void CDataFrameAnalyzer::monitorProgress(const CDataFrameAnalysisRunner& analysis,
-                                         core::CRapidJsonConcurrentLineWriter& writer) const {
+                                         core::CRapidJsonConcurrentLineWriter& resultsWriter,
+                                         core::CRapidJsonConcurrentLineWriter& persistenceWriter) const {
     // Progress as percentage
     int progress{0};
     while (analysis.finished() == false) {
@@ -357,17 +369,17 @@ void CDataFrameAnalyzer::monitorProgress(const CDataFrameAnalysisRunner& analysi
         int latestProgress{static_cast<int>(std::floor(100.0 * analysis.progress()))};
         if (latestProgress > progress) {
             progress = latestProgress;
-            this->writeProgress(progress, writer);
+            this->writeProgress(progress, resultsWriter);
         }
 
         // write stored analysis runner states
         if (analysis.canRecordState()) {
             while (auto oState = const_cast<CDataFrameAnalysisRunner&>(analysis).retrieveState()) {
-                this->writeState(*oState, writer);
+                this->writeState(*oState, persistenceWriter);
             }
         }
     }
-    this->writeProgress(100, writer);
+    this->writeProgress(100, resultsWriter);
 }
 
 void CDataFrameAnalyzer::writeState(std::string state,

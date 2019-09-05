@@ -310,7 +310,12 @@ void CDataFrameAnalyzerTest::testWithoutControlMessages() {
         return std::make_unique<core::CJsonOutputStreamWrapper>(output);
     };
 
-    api::CDataFrameAnalyzer analyzer{outlierSpec(), outputWriterFactory};
+    std::stringstream persistStream;
+    auto persistWriterFactory = [&persistStream]() {
+        return std::make_unique<core::CJsonOutputStreamWrapper>(persistStream);
+    };
+
+    api::CDataFrameAnalyzer analyzer{outlierSpec(), outputWriterFactory, persistWriterFactory};
 
     TDoubleVec expectedScores;
     TDoubleVecVec expectedFeatureInfluences;
@@ -358,7 +363,12 @@ void CDataFrameAnalyzerTest::testRunOutlierDetection() {
         return std::make_unique<core::CJsonOutputStreamWrapper>(output);
     };
 
-    api::CDataFrameAnalyzer analyzer{outlierSpec(), outputWriterFactory};
+    std::stringstream persistStream;
+    auto persistWriterFactory = [&persistStream]() {
+        return std::make_unique<core::CJsonOutputStreamWrapper>(persistStream);
+    };
+
+    api::CDataFrameAnalyzer analyzer{outlierSpec(), outputWriterFactory, persistWriterFactory};
 
     TDoubleVec expectedScores;
     TDoubleVecVec expectedFeatureInfluences;
@@ -412,7 +422,12 @@ void CDataFrameAnalyzerTest::testRunOutlierDetectionPartitioned() {
         return std::make_unique<core::CJsonOutputStreamWrapper>(output);
     };
 
-    api::CDataFrameAnalyzer analyzer{outlierSpec(1000), outputWriterFactory};
+    std::stringstream persistStream;
+    auto persistWriterFactory = [&persistStream]() {
+        return std::make_unique<core::CJsonOutputStreamWrapper>(persistStream);
+    };
+
+    api::CDataFrameAnalyzer analyzer{outlierSpec(1000), outputWriterFactory, persistWriterFactory};
 
     TDoubleVec expectedScores;
     TDoubleVecVec expectedFeatureInfluences;
@@ -457,7 +472,13 @@ void CDataFrameAnalyzerTest::testRunOutlierFeatureInfluences() {
         return std::make_unique<core::CJsonOutputStreamWrapper>(output);
     };
 
-    api::CDataFrameAnalyzer analyzer{outlierSpec(110, 100000, "", 0, true), outputWriterFactory};
+    std::stringstream persistStream;
+    auto persistWriterFactory = [&persistStream]() {
+        return std::make_unique<core::CJsonOutputStreamWrapper>(persistStream);
+    };
+
+    api::CDataFrameAnalyzer analyzer{outlierSpec(110, 100000, "", 0, true),
+                                     outputWriterFactory, persistWriterFactory};
 
     TDoubleVec expectedScores;
     TDoubleVecVec expectedFeatureInfluences;
@@ -509,8 +530,13 @@ void CDataFrameAnalyzerTest::testRunOutlierDetectionWithParams() {
                 return std::make_unique<core::CJsonOutputStreamWrapper>(output);
             };
 
-            api::CDataFrameAnalyzer analyzer{
-                outlierSpec(110, 1000000, methods[method], k), outputWriterFactory};
+            std::stringstream persistStream;
+            auto persistWriterFactory = [&persistStream]() {
+                return std::make_unique<core::CJsonOutputStreamWrapper>(persistStream);
+            };
+
+            api::CDataFrameAnalyzer analyzer{outlierSpec(110, 1000000, methods[method], k),
+                                             outputWriterFactory, persistWriterFactory};
 
             TDoubleVec expectedScores;
             TDoubleVecVec expectedFeatureInfluences;
@@ -550,11 +576,17 @@ void CDataFrameAnalyzerTest::testRunBoostedTreeTraining() {
         return std::make_unique<core::CJsonOutputStreamWrapper>(output);
     };
 
+    std::stringstream persistStream;
+    auto persistWriterFactory = [&persistStream]() {
+        return std::make_unique<core::CJsonOutputStreamWrapper>(persistStream);
+    };
+
     TDoubleVec expectedPredictions;
 
     TStrVec fieldNames{"c1", "c2", "c3", "c4", "c5", ".", "."};
     TStrVec fieldValues{"", "", "", "", "", "0", ""};
-    api::CDataFrameAnalyzer analyzer{regressionSpec("c5"), outputWriterFactory};
+    api::CDataFrameAnalyzer analyzer{regressionSpec("c5"), outputWriterFactory,
+                                     persistWriterFactory};
     addRegressionTestData(fieldNames, fieldValues, analyzer, expectedPredictions);
 
     core::CStopWatch watch{true};
@@ -615,10 +647,15 @@ void CDataFrameAnalyzerTest::testRunBoostedTreeTrainingWithParams() {
         return std::make_unique<core::CJsonOutputStreamWrapper>(output);
     };
 
+    std::stringstream persistStream;
+    auto persistWriterFactory = [&persistStream]() {
+        return std::make_unique<core::CJsonOutputStreamWrapper>(persistStream);
+    };
+
     api::CDataFrameAnalyzer analyzer{
         regressionSpec("c5", 100, 5, 3000000, 0, {}, lambda, gamma, eta,
                        maximumNumberTrees, featureBagFraction),
-        outputWriterFactory};
+        outputWriterFactory, persistWriterFactory};
 
     TDoubleVec expectedPredictions;
 
@@ -666,10 +703,15 @@ void CDataFrameAnalyzerTest::testRunBoostedTreeTrainingWithRowsMissingTargetValu
         return std::make_unique<core::CJsonOutputStreamWrapper>(output);
     };
 
+    std::stringstream persistStream;
+    auto persistWriterFactory = [&persistStream]() {
+        return std::make_unique<core::CJsonOutputStreamWrapper>(persistStream);
+    };
+
     auto target = [](double feature) { return 10.0 * feature; };
 
     api::CDataFrameAnalyzer analyzer{regressionSpec("target", 50, 2, 2000000),
-                                     outputWriterFactory};
+                                     outputWriterFactory, persistWriterFactory};
 
     TDoubleVec feature;
     rng.generateUniformSamples(1.0, 3.0, 50, feature);
@@ -722,7 +764,12 @@ void CDataFrameAnalyzerTest::testFlushMessage() {
         return std::make_unique<core::CJsonOutputStreamWrapper>(output);
     };
 
-    api::CDataFrameAnalyzer analyzer{outlierSpec(), outputWriterFactory};
+    std::stringstream persistStream;
+    auto persistWriterFactory = [&persistStream]() {
+        return std::make_unique<core::CJsonOutputStreamWrapper>(persistStream);
+    };
+
+    api::CDataFrameAnalyzer analyzer{outlierSpec(), outputWriterFactory, persistWriterFactory};
     CPPUNIT_ASSERT_EQUAL(
         true, analyzer.handleRecord({"c1", "c2", "c3", "c4", "c5", ".", "."},
                                     {"", "", "", "", "", "", "           "}));
@@ -742,6 +789,11 @@ void CDataFrameAnalyzerTest::testErrors() {
         return std::make_unique<core::CJsonOutputStreamWrapper>(output);
     };
 
+    std::stringstream persistStream;
+    auto persistWriterFactory = [&persistStream]() {
+        return std::make_unique<core::CJsonOutputStreamWrapper>(persistStream);
+    };
+
     core::CLogger::CScopeSetFatalErrorHandler scope{errorHandler};
 
     // Test with bad analysis specification.
@@ -749,7 +801,7 @@ void CDataFrameAnalyzerTest::testErrors() {
         errors.clear();
         api::CDataFrameAnalyzer analyzer{
             std::make_unique<api::CDataFrameAnalysisSpecification>(std::string{"junk"}),
-            outputWriterFactory};
+            outputWriterFactory, persistWriterFactory};
         LOG_DEBUG(<< core::CContainerPrinter::print(errors));
         CPPUNIT_ASSERT(errors.size() > 0);
         CPPUNIT_ASSERT_EQUAL(false,
@@ -760,7 +812,7 @@ void CDataFrameAnalyzerTest::testErrors() {
     // Test special field in the wrong position
     {
         errors.clear();
-        api::CDataFrameAnalyzer analyzer{outlierSpec(), outputWriterFactory};
+        api::CDataFrameAnalyzer analyzer{outlierSpec(), outputWriterFactory, persistWriterFactory};
         CPPUNIT_ASSERT_EQUAL(
             false, analyzer.handleRecord({"c1", "c2", "c3", ".", "c4", "c5", "."},
                                          {"10", "10", "10", "", "10", "10", ""}));
@@ -770,7 +822,7 @@ void CDataFrameAnalyzerTest::testErrors() {
 
     // Test missing special field
     {
-        api::CDataFrameAnalyzer analyzer{outlierSpec(), outputWriterFactory};
+        api::CDataFrameAnalyzer analyzer{outlierSpec(), outputWriterFactory, persistWriterFactory};
         errors.clear();
         CPPUNIT_ASSERT_EQUAL(
             false, analyzer.handleRecord({"c1", "c2", "c3", "c4", "c5", "."},
@@ -781,7 +833,7 @@ void CDataFrameAnalyzerTest::testErrors() {
 
     // Test bad control message
     {
-        api::CDataFrameAnalyzer analyzer{outlierSpec(), outputWriterFactory};
+        api::CDataFrameAnalyzer analyzer{outlierSpec(), outputWriterFactory, persistWriterFactory};
         errors.clear();
         CPPUNIT_ASSERT_EQUAL(
             false, analyzer.handleRecord({"c1", "c2", "c3", "c4", "c5", ".", "."},
@@ -792,7 +844,7 @@ void CDataFrameAnalyzerTest::testErrors() {
 
     // Test bad input
     {
-        api::CDataFrameAnalyzer analyzer{outlierSpec(), outputWriterFactory};
+        api::CDataFrameAnalyzer analyzer{outlierSpec(), outputWriterFactory, persistWriterFactory};
         errors.clear();
         CPPUNIT_ASSERT_EQUAL(
             false, analyzer.handleRecord({"c1", "c2", "c3", "c4", "c5", ".", "."},
@@ -804,7 +856,8 @@ void CDataFrameAnalyzerTest::testErrors() {
     // Test inconsistent number of rows
     {
         // Fewer rows than expected is ignored.
-        api::CDataFrameAnalyzer analyzer{outlierSpec(2), outputWriterFactory};
+        api::CDataFrameAnalyzer analyzer{outlierSpec(2), outputWriterFactory,
+                                         persistWriterFactory};
         errors.clear();
         CPPUNIT_ASSERT_EQUAL(
             true, analyzer.handleRecord({"c1", "c2", "c3", "c4", "c5", ".", "."},
@@ -816,7 +869,8 @@ void CDataFrameAnalyzerTest::testErrors() {
         CPPUNIT_ASSERT(errors.empty());
     }
     {
-        api::CDataFrameAnalyzer analyzer{outlierSpec(2), outputWriterFactory};
+        api::CDataFrameAnalyzer analyzer{outlierSpec(2), outputWriterFactory,
+                                         persistWriterFactory};
         errors.clear();
         CPPUNIT_ASSERT_EQUAL(
             true, analyzer.handleRecord({"c1", "c2", "c3", "c4", "c5", ".", "."},
@@ -836,7 +890,8 @@ void CDataFrameAnalyzerTest::testErrors() {
 
     // No data.
     {
-        api::CDataFrameAnalyzer analyzer{outlierSpec(2), outputWriterFactory};
+        api::CDataFrameAnalyzer analyzer{outlierSpec(2), outputWriterFactory,
+                                         persistWriterFactory};
         errors.clear();
         CPPUNIT_ASSERT_EQUAL(
             true, analyzer.handleRecord({"c1", "c2", "c3", "c4", "c5", ".", "."},
@@ -854,7 +909,12 @@ void CDataFrameAnalyzerTest::testRoundTripDocHashes() {
         return std::make_unique<core::CJsonOutputStreamWrapper>(output);
     };
 
-    api::CDataFrameAnalyzer analyzer{outlierSpec(9), outputWriterFactory};
+    std::stringstream persistStream;
+    auto persistWriterFactory = [&persistStream]() {
+        return std::make_unique<core::CJsonOutputStreamWrapper>(persistStream);
+    };
+
+    api::CDataFrameAnalyzer analyzer{outlierSpec(9), outputWriterFactory, persistWriterFactory};
     for (auto i : {"1", "2", "3", "4", "5", "6", "7", "8", "9"}) {
         analyzer.handleRecord({"c1", "c2", "c3", "c4", "c5", ".", "."},
                               {i, i, i, i, i, i, ""});
@@ -884,9 +944,15 @@ void CDataFrameAnalyzerTest::testCategoricalFields() {
         return std::make_unique<core::CJsonOutputStreamWrapper>(output);
     };
 
+    std::stringstream persistStream;
+    auto persistWriterFactory = [&persistStream]() {
+        return std::make_unique<core::CJsonOutputStreamWrapper>(persistStream);
+    };
+
     {
         api::CDataFrameAnalyzer analyzer{
-            regressionSpec("x5", 1000, 5, 8000000, 0, {"x1", "x2"}), outputWriterFactory};
+            regressionSpec("x5", 1000, 5, 8000000, 0, {"x1", "x2"}),
+            outputWriterFactory, persistWriterFactory};
 
         TStrVec x[]{{"x11", "x12", "x13", "x14", "x15"},
                     {"x21", "x22", "x23", "x24", "x25", "x26", "x27"}};
@@ -926,7 +992,7 @@ void CDataFrameAnalyzerTest::testCategoricalFields() {
 
         api::CDataFrameAnalyzer analyzer{
             regressionSpec("x5", rows, 5, 8000000000, 0, {"x1"}, 0, 0, 0, 0, 0),
-            outputWriterFactory};
+            outputWriterFactory, persistWriterFactory};
 
         TStrVec fieldNames{"x1", "x2", "x3", "x4", "x5", ".", "."};
         TStrVec fieldValues{"", "", "", "", "", "", ""};
@@ -1050,9 +1116,13 @@ void CDataFrameAnalyzerTest::testRunBoostedTreeTrainingWithStateRecoverySubrouti
     size_t numberRoundsPerHyperparameter,
     size_t intermediateIteration,
     size_t finalIteration) const {
-    std::stringstream output;
-    auto outputWriterFactory = [&output]() {
-        return std::make_unique<core::CJsonOutputStreamWrapper>(output);
+    std::stringstream outputStream;
+    std::stringstream persistenceStream;
+    auto outputWriterFactory = [&outputStream]() {
+        return std::make_unique<core::CJsonOutputStreamWrapper>(outputStream);
+    };
+    auto persistWriterFactory = [&persistenceStream]() {
+        return std::make_unique<core::CJsonOutputStreamWrapper>(persistenceStream);
     };
 
     size_t numberExamples{100};
@@ -1072,7 +1142,7 @@ void CDataFrameAnalyzerTest::testRunBoostedTreeTrainingWithStateRecoverySubrouti
     api::CDataFrameAnalyzer analyzer{
         regressionSpec("c5", numberExamples, 5, 15000000, numberRoundsPerHyperparameter,
                        {}, lambda, gamma, eta, maximumNumberTrees, featureBagFraction),
-        outputWriterFactory};
+        outputWriterFactory, persistWriterFactory};
 
     test::CRandomNumbers rng;
 
@@ -1101,11 +1171,11 @@ void CDataFrameAnalyzerTest::testRunBoostedTreeTrainingWithStateRecoverySubrouti
     auto frame = test::CDataFrameTestUtils::toMainMemoryDataFrame(rows);
     analyzer.handleRecord(fieldNames, {"", "", "", "", "", "", "$"});
 
-    rapidjson::Document results = stringToJsonDocument(output.str());
+    rapidjson::Document persistedStates = stringToJsonDocument(persistenceStream.str());
 
     std::unique_ptr<maths::CBoostedTree> intermediateTree;
     std::unique_ptr<maths::CBoostedTree> finalTree;
-    for (const auto& result : results.GetArray()) {
+    for (const auto& result : persistedStates.GetArray()) {
         if (result.HasMember("analyzer_state") &&
             result["analyzer_state"]["current_round"] == std::to_string(intermediateIteration)) {
             intermediateTree = createTreeFromJsonObject(frame, result);
