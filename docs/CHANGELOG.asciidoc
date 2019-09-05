@@ -35,6 +35,7 @@
 * Improve performance and concurrency training boosted tree regression models.
 For large data sets this change was observed to give a 10% to 20% decrease in
 train time. (See {ml-pull}622[#622].)
+* Upgrade Boost libraries to version 1.71. (See {ml-pull}638[#638].)
 
 == {es} version 7.4.0
 

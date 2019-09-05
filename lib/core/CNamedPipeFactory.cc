@@ -55,7 +55,7 @@ const bool SIGPIPE_IGNORED(ignoreSigPipe());
 //! be a fatal error (see https://svn.boost.org/trac10/ticket/4913).
 //!
 //! This class is a reimplementation of the Sink concept (see
-//! http://www.boost.org/doc/libs/1_65_1/libs/iostreams/doc/concepts/sink.html)
+//! http://www.boost.org/doc/libs/1_71_0/libs/iostreams/doc/concepts/sink.html)
 //! that will retry writes that get interrupted.
 //!
 class CRetryingFileDescriptorSink : private boost::iostreams::file_descriptor {
