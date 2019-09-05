@@ -49,18 +49,18 @@ void CLoggerTest::testLogging() {
     std::string t("Test message");
 
     LOG_TRACE(<< "Trace");
-    LOG_AT_LEVEL("TRACE", << "Dynamic TRACE " << 1);
+    LOG_AT_LEVEL(ml::core::CLogger::E_Trace, << "Dynamic TRACE " << 1);
     LOG_DEBUG(<< "Debug");
-    LOG_AT_LEVEL("DEBUG", << "Dynamic DEBUG " << 2.0);
+    LOG_AT_LEVEL(ml::core::CLogger::E_Debug, << "Dynamic DEBUG " << 2.0);
     LOG_INFO(<< "Info " << std::boolalpha << true);
-    LOG_AT_LEVEL("INFO", << "Dynamic INFO " << false);
+    LOG_AT_LEVEL(ml::core::CLogger::E_Info, << "Dynamic INFO " << false);
     LOG_WARN(<< "Warn " << t);
-    LOG_AT_LEVEL("WARN", "Dynamic WARN "
-                             << "abc");
+    LOG_AT_LEVEL(ml::core::CLogger::E_Warn, << "Dynamic WARN "
+                                            << "abc");
     LOG_ERROR(<< "Error " << 1000 << ' ' << 0.23124F);
-    LOG_AT_LEVEL("ERROR", << "Dynamic ERROR");
+    LOG_AT_LEVEL(ml::core::CLogger::E_Error, << "Dynamic ERROR");
     LOG_FATAL(<< "Fatal - application to handle exit");
-    LOG_AT_LEVEL("FATAL", << "Dynamic FATAL " << t);
+    LOG_AT_LEVEL(ml::core::CLogger::E_Fatal, << "Dynamic FATAL " << t);
     try {
         LOG_ABORT(<< "Throwing exception " << 1221U << ' ' << 0.23124);
 

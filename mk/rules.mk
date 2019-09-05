@@ -95,8 +95,10 @@ $(OBJS_DIR)/%.res: $(CPP_SRC_HOME)/mk/%.rc $(CPP_SRC_HOME)/gradle.properties $(C
 INCLUDE_PATH+=-I$(CPP_SRC_HOME)/include
 
 # We link to the logging library by default, but very occasionally exclude it
-ifndef NO_LOG4CXX
-LOCALLIBS+=$(LOG4CXXLIBS)
+ifndef NO_BOOST_LOG_LIBS
+USE_BOOST=1
+LDFLAGS+=$(BOOSTLOGLDFLAGS)
+LOCALLIBS+=$(BOOSTLOGLIBS)
 endif
 
 ifdef USE_XML

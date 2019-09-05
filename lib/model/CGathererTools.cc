@@ -50,7 +50,7 @@ struct SSumSerializer {
         if (traverser.name() != SUM_SAMPLE_TAG ||
             core::CPersistUtils::fromString(
                 traverser.value(), CSample::SFromString(), sample) == false) {
-            LOG_ERROR(<< "Invalid sample in: " << traverser.value())
+            LOG_ERROR(<< "Invalid sample in: " << traverser.value());
             return false;
         }
         return true;

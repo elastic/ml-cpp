@@ -8,35 +8,29 @@
 
 #include <core/ImportExport.h>
 
-#include <log4cxx/layout.h>
+#include <boost/log/core/record_view.hpp>
+#include <boost/log/utility/formatting_ostream_fwd.hpp>
 
 class CJsonLogLayoutTest;
 
-// NB: log4cxx extensions have to go in the log4cxx namespace, hence cannot
-// stick to the convention of our code being in the ml namespace.  This
-// is due to use of (log4cxx mandated) macros in the implementation.
-namespace log4cxx {
-namespace helpers {
+namespace ml {
+namespace core {
 
 //! \brief
 //! Output log messages as ND-JSON.
 //!
 //! DESCRIPTION:\n
 //! Logs messages as ND-JSON (one log message on one line).  The
-//! fields are based on those used by log4cxx's built in XMLLayout class.
+//! fields are based on those used by log4cxx's XMLLayout class.
 //!
 //! IMPLEMENTATION DECISIONS:\n
-//! Violates several aspects of the Ml coding standards in order
-//! to work with log4cxx macros and other conventions.
+//! This was originally implemented as a log4cxx layout extension,
+//! and the JSON documents it creates are designed to feed into
+//! log4j on the Java side, so the field names are still in the
+//! log4cxx/log4j style rather than Boost.Log.
 //!
-class CORE_EXPORT CJsonLogLayout : public Layout {
+class CORE_EXPORT CJsonLogLayout {
 public:
-    DECLARE_LOG4CXX_OBJECT(CJsonLogLayout)
-    BEGIN_LOG4CXX_CAST_MAP()
-    LOG4CXX_CAST_ENTRY(CJsonLogLayout)
-    LOG4CXX_CAST_ENTRY_CHAIN(Layout)
-    END_LOG4CXX_CAST_MAP()
-
     CJsonLogLayout();
 
     //! Accessors for location info (i.e. should file/line be included in
@@ -44,41 +38,20 @@ public:
     void locationInfo(bool locationInfo);
     bool locationInfo() const;
 
-    //! Accessors for whether MDC key-value pairs should be output.
-    void properties(bool properties);
-    bool properties() const;
-
-    //! No options to activate.
-    void activateOptions(Pool& p);
-
-    //! Set options.
-    virtual void setOption(const LogString& option, const LogString& value);
-
-    //! Formats a LoggingEvent as JSON.
-    virtual void format(LogString& output, const spi::LoggingEventPtr& event, Pool& p) const;
-
-    //! The CJsonLogLayout prints and does not ignore exceptions.
-    virtual bool ignoresThrowable() const;
+    //! Formats a Boost.Log record as JSON.
+    void operator()(const boost::log::record_view& rec,
+                    boost::log::formatting_ostream& strm) const;
 
 private:
     //! Include location info by default
     bool m_LocationInfo;
-    bool m_Properties;
 
     static std::string cropPath(const std::string& filename);
 
     // For unit testing
     friend class ::CJsonLogLayoutTest;
 };
-
-LOG4CXX_PTR_DEF(CJsonLogLayout);
-
-} // end helpers
-
-namespace classes {
-extern const helpers::ClassRegistration& CJsonLogLayoutRegistration;
 }
-
-} // end log4cxx
+}
 
 #endif // INCLUDED_ml_core_CJsonLogLayout_h

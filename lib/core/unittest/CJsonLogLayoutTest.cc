@@ -20,17 +20,16 @@ CppUnit::Test* CJsonLogLayoutTest::suite() {
 void CJsonLogLayoutTest::testPathCropping() {
 #ifdef Windows
     CPPUNIT_ASSERT_EQUAL(std::string("source.h"),
-                         log4cxx::helpers::CJsonLogLayout::cropPath(
+                         ml::core::CJsonLogLayout::cropPath(
                              "c:\\\\home\\hendrik\\src\\include/source.h"));
     CPPUNIT_ASSERT_EQUAL(std::string("source.h"),
-                         log4cxx::helpers::CJsonLogLayout::cropPath(
+                         ml::core::CJsonLogLayout::cropPath(
                              "c:\\\\home\\hendrik\\src\\include\\source.h"));
 #else
     CPPUNIT_ASSERT_EQUAL(std::string("source.h"),
-                         log4cxx::helpers::CJsonLogLayout::cropPath(
-                             "/home/hendrik/src/include/source.h"));
+                         ml::core::CJsonLogLayout::cropPath("/home/hendrik/src/include/source.h"));
     CPPUNIT_ASSERT_EQUAL(std::string("source.h"),
-                         log4cxx::helpers::CJsonLogLayout::cropPath(
+                         ml::core::CJsonLogLayout::cropPath(
                              "/home/hendrik/work/../src/include/source.h"));
 #endif
 }
