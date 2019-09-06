@@ -1079,7 +1079,7 @@ void CDataFrameAnalyzerTest::testRunBoostedTreeTrainingWithStateRecovery() {
     size_t numberRoundsPerHyperparameter{5};
 
     size_t intermediateIteration{1};
-    size_t finalIteration{2};
+    size_t finalIteration{1};
 
     // zero hyperparameters to search
     LOG_DEBUG(<< "No hyperparameters to search")
@@ -1091,7 +1091,7 @@ void CDataFrameAnalyzerTest::testRunBoostedTreeTrainingWithStateRecovery() {
     LOG_DEBUG(<< "One hyperparameter to search")
     lambda = -1.0;
     gamma = 10.0;
-    finalIteration = 1 * numberRoundsPerHyperparameter + 1;
+    finalIteration = 1 * numberRoundsPerHyperparameter;
     testRunBoostedTreeTrainingWithStateRecoverySubroutine(
         1, lambda, gamma, eta, maximumNumberTrees, featureBagFraction,
         numberRoundsPerHyperparameter, intermediateIteration, finalIteration);
@@ -1100,7 +1100,7 @@ void CDataFrameAnalyzerTest::testRunBoostedTreeTrainingWithStateRecovery() {
     LOG_DEBUG(<< "Two hyperparameters to search")
     lambda = -1.0;
     gamma = -1.0;
-    finalIteration = 2 * numberRoundsPerHyperparameter + 1;
+    finalIteration = 2 * numberRoundsPerHyperparameter;
     testRunBoostedTreeTrainingWithStateRecoverySubroutine(
         2, lambda, gamma, eta, maximumNumberTrees, featureBagFraction,
         numberRoundsPerHyperparameter, intermediateIteration, finalIteration);
@@ -1179,13 +1179,11 @@ void CDataFrameAnalyzerTest::testRunBoostedTreeTrainingWithStateRecoverySubrouti
         if (result.HasMember("analyzer_state") &&
             result["analyzer_state"]["current_round"] == std::to_string(intermediateIteration)) {
             intermediateTree = createTreeFromJsonObject(frame, result);
-            continue;
         }
 
         if (result.HasMember("analyzer_state") &&
             result["analyzer_state"]["current_round"] == std::to_string(finalIteration)) {
             finalTree = createTreeFromJsonObject(frame, result);
-            continue;
         }
     }
 

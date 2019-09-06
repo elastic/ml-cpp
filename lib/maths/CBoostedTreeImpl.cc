@@ -198,10 +198,6 @@ void CBoostedTreeImpl::train(core::CDataFrame& frame,
 
         this->restoreBestHyperparameters();
 
-        LOG_TRACE(<< "Best hyperparameters: state recording started");
-        recordState(recordTrainStateCallback);
-        LOG_TRACE(<< "Best hyperparameters: state recording finished");
-
         m_BestForest = this->trainForest(frame, this->allTrainingRowsMask(), recordMemoryUsage);
     }
 
