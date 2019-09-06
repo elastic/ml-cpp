@@ -143,12 +143,7 @@ void CBoostedTreeImpl::train(core::CDataFrame& frame,
         // Fallback to using the constant predictor which minimises the loss.
 
         core::CPackedBitVector trainingRowMask{this->allTrainingRowsMask()};
-
-        double eta{1.0};
-        std::swap(eta, m_Eta);
         m_BestForest.assign(1, this->initializePredictionsAndLossDerivatives(frame, trainingRowMask));
-        std::swap(eta, m_Eta);
-
         m_BestForestTestLoss = this->meanLoss(frame, trainingRowMask, m_BestForest);
         LOG_TRACE(<< "Test loss = " << m_BestForestTestLoss);
 
@@ -336,8 +331,9 @@ CBoostedTreeImpl::TNodeVec CBoostedTreeImpl::initializePredictionsAndLossDerivat
                        },
                        &trainingRowMask);
 
+    // At the start we will centre the data w.r.t. the given loss function.
     TNodeVec tree(1);
-    this->refreshPredictionsAndLossDerivatives(frame, trainingRowMask, m_Eta, tree);
+    this->refreshPredictionsAndLossDerivatives(frame, trainingRowMask, 1.0, tree);
 
     return tree;
 }
@@ -368,8 +364,8 @@ CBoostedTreeImpl::trainForest(core::CDataFrame& frame,
     TDoubleVecVec candidateSplits(this->candidateSplits(frame, trainingRowMask));
     scopeMemoryUsage.add(candidateSplits);
 
-    for (std::size_t retries = 0; forest.size() < m_MaximumNumberTrees; /**/) {
-
+    std::size_t retries = 0;
+    do {
         auto tree = this->trainTree(frame, trainingRowMask, candidateSplits,
                                     maximumTreeSize, recordMemoryUsage);
 
@@ -397,7 +393,7 @@ CBoostedTreeImpl::trainForest(core::CDataFrame& frame,
         if (m_Loss->isCurvatureConstant() == false) {
             candidateSplits = this->candidateSplits(frame, trainingRowMask);
         }
-    }
+    } while (forest.size() < m_MaximumNumberTrees);
 
     LOG_TRACE(<< "Trained one forest");
 
