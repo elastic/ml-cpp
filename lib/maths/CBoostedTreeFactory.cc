@@ -280,8 +280,10 @@ void CBoostedTreeFactory::initializeHyperparameters(core::CDataFrame& frame) con
         // them.
         double scale{static_cast<double>(m_TreeImpl->m_NumberFolds - 1) /
                      static_cast<double>(m_TreeImpl->m_NumberFolds)};
-        double lambda{m_TreeImpl->m_Eta * scale * (L[0] <= L[1] ? 0.0 : (L[0] - L[1]) / (W[1] - W[0]))};
-        double gamma{m_TreeImpl->m_Eta * scale * (L[0] <= L[1] ? 0.0 : (L[0] - L[1]) / (T[1] - T[0]))};
+        double lambda{m_TreeImpl->m_Eta * scale *
+                      (L[0] <= L[1] ? 0.0 : (L[0] - L[1]) / (W[1] - W[0]))};
+        double gamma{m_TreeImpl->m_Eta * scale *
+                     (L[0] <= L[1] ? 0.0 : (L[0] - L[1]) / (T[1] - T[0]))};
 
         if (lambda == 0.0) {
             m_TreeImpl->m_LambdaOverride = lambda;
