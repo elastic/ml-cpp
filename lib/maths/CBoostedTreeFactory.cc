@@ -250,18 +250,24 @@ void CBoostedTreeFactory::initializeHyperparameters(core::CDataFrame& frame) con
     } else {
         core::CPackedBitVector trainingRowMask{m_TreeImpl->allTrainingRowsMask()};
 
-        auto vector = m_TreeImpl->initializePredictionsAndLossDerivatives(frame, trainingRowMask);
+        auto tree = m_TreeImpl->initializePredictionsAndLossDerivatives(frame, trainingRowMask);
 
         double L[2];
         double T[2];
         double W[2];
 
         std::tie(L[0], T[0], W[0]) =
-            m_TreeImpl->regularisedLoss(frame, trainingRowMask, {std::move(vector)});
+            m_TreeImpl->regularisedLoss(frame, trainingRowMask, {std::move(tree)});
         LOG_TRACE(<< "loss = " << L[0] << ", # leaves = " << T[0]
                   << ", sum square weights = " << W[0]);
 
+        double eta{1.0};
+        std::size_t maximumNumberOfTrees{1};
+        std::swap(eta, m_TreeImpl->m_Eta);
+        std::swap(maximumNumberOfTrees, m_TreeImpl->m_MaximumNumberTrees);
         auto forest = m_TreeImpl->trainForest(frame, trainingRowMask, m_RecordMemoryUsage);
+        std::swap(eta, m_TreeImpl->m_Eta);
+        std::swap(maximumNumberOfTrees, m_TreeImpl->m_MaximumNumberTrees);
 
         std::tie(L[1], T[1], W[1]) =
             m_TreeImpl->regularisedLoss(frame, trainingRowMask, forest);
@@ -274,8 +280,10 @@ void CBoostedTreeFactory::initializeHyperparameters(core::CDataFrame& frame) con
         // them.
         double scale{static_cast<double>(m_TreeImpl->m_NumberFolds - 1) /
                      static_cast<double>(m_TreeImpl->m_NumberFolds)};
-        double lambda{scale * (L[0] <= L[1] ? 0.0 : (L[0] - L[1]) / (W[1] - W[0])) / 5.0};
-        double gamma{scale * (L[0] <= L[1] ? 0.0 : (L[0] - L[1]) / (T[1] - T[0])) / 5.0};
+        double lambda{m_TreeImpl->m_Eta * scale *
+                      (L[0] <= L[1] ? 0.0 : (L[0] - L[1]) / (W[1] - W[0]))};
+        double gamma{m_TreeImpl->m_Eta * scale *
+                     (L[0] <= L[1] ? 0.0 : (L[0] - L[1]) / (T[1] - T[0]))};
 
         if (lambda == 0.0) {
             m_TreeImpl->m_LambdaOverride = lambda;
