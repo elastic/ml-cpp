@@ -41,7 +41,7 @@ public:
                                                        TLossFunctionUPtr loss);
 
     //! Construct a boosted tree object from its serialized version.
-    static CBoostedTreeFactory::TBoostedTreeUPtr
+    static TBoostedTreeUPtr
     constructFromString(std::stringstream& jsonStringStream,
                         core::CDataFrame& frame,
                         TProgressCallback recordProgress = noopRecordProgress,

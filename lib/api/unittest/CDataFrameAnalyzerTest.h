@@ -7,9 +7,6 @@
 #ifndef INCLUDED_CDataFrameAnalyzerTest_h
 #define INCLUDED_CDataFrameAnalyzerTest_h
 
-#include <rapidjson/document.h>
-#include <rapidjson/stringbuffer.h>
-
 #include <cppunit/extensions/HelperMacros.h>
 
 class CDataFrameAnalyzerTest : public CppUnit::TestFixture {

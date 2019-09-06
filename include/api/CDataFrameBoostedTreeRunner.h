@@ -44,8 +44,10 @@ public:
                      TRowRef row,
                      core::CRapidJsonConcurrentLineWriter& writer) const override;
 
+    //! \return True if the analysis runner is able to records its state
     bool canRecordState() const override;
 
+    //! \return Optional state as a string.
     TOptionalString retrieveState() override;
 
 private:

@@ -172,13 +172,9 @@ void CBoostedTreeImpl::train(core::CDataFrame& frame,
             // into numerical issues trying - since any forest will do.
             if (std::sqrt(CBasicStatistics::variance(lossMoments)) <
                 1e-10 * std::fabs(CBasicStatistics::mean(lossMoments))) {
-                LOG_DEBUG(<< "Stopped optimization due to the constant loss: "
-                          << (std::sqrt(CBasicStatistics::variance(lossMoments))) << " < "
-                          << (1e-10 * std::fabs(CBasicStatistics::mean(lossMoments))));
                 break;
             }
             if (this->selectNextHyperparameters(lossMoments, *m_BayesianOptimization) == false) {
-                LOG_DEBUG(<< "Stopped optimization, cannot select next hyper-parameter");
                 break;
             }
 

@@ -136,8 +136,10 @@ public:
     //! of the proportion of total work complete for a single run.
     double progress() const;
 
+    //! \return True if the analysis runner is able to records its state.
     virtual bool canRecordState() const;
 
+    //! \return Optional state as a string.
     virtual TOptionalString retrieveState();
 
 protected:

@@ -184,6 +184,7 @@ public:
     //! Populate the object from serialized data.
     bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
 
+    //! \return string representation of the object in json format.
     std::string toJsonString() const;
 
 private:
