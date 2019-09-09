@@ -49,7 +49,7 @@ public:
 
 public:
     CDataFrameAnalyzer(TDataFrameAnalysisSpecificationUPtr analysisSpecification,
-                       TJsonOutputStreamWrapperUPtrSupplier outStreamSupplier,
+                       TJsonOutputStreamWrapperUPtrSupplier resultsStreamSupplier,
                        TDataSearcherUPtrSupplier dataSearcher = nullptr);
     ~CDataFrameAnalyzer();
 
@@ -109,7 +109,7 @@ private:
     TDataFrameUPtr m_DataFrame;
     TStrVec m_FieldNames;
     TTemporaryDirectoryPtr m_DataFrameDirectory;
-    TJsonOutputStreamWrapperUPtrSupplier m_OutStreamSupplier;
+    TJsonOutputStreamWrapperUPtrSupplier m_ResultsStreamSupplier;
     TDataSearcherUPtrSupplier m_DataSearcher;
 };
 }

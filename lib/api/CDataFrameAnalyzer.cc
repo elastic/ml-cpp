@@ -46,10 +46,10 @@ const std::string RESULTS{"results"};
 }
 
 CDataFrameAnalyzer::CDataFrameAnalyzer(TDataFrameAnalysisSpecificationUPtr analysisSpecification,
-                                       TJsonOutputStreamWrapperUPtrSupplier outStreamSupplier,
+                                       TJsonOutputStreamWrapperUPtrSupplier resultsStreamSupplier,
                                        TDataSearcherUPtrSupplier dataSearcher)
     : m_AnalysisSpecification{std::move(analysisSpecification)},
-      m_OutStreamSupplier{outStreamSupplier}, m_DataSearcher{dataSearcher} {
+      m_ResultsStreamSupplier{std::move(resultsStreamSupplier)}, m_DataSearcher{std::move(dataSearcher)} {
 
     if (m_AnalysisSpecification != nullptr) {
         auto frameAndDirectory = m_AnalysisSpecification->makeDataFrame();
@@ -153,7 +153,7 @@ void CDataFrameAnalyzer::run() {
     // get called and the wrapped stream does its job to close the array.
 
     // TODO Revisit this can probably be core::CRapidJsonLineWriter.
-    auto outStream = m_OutStreamSupplier();
+    auto outStream = m_ResultsStreamSupplier();
     core::CRapidJsonConcurrentLineWriter outputWriter{*outStream};
 
     this->monitorProgress(*analysis, outputWriter);

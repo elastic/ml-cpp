@@ -148,7 +148,7 @@ int main(int argc, char** argv) {
         return EXIT_FAILURE;
     }
 
-    auto outputStreamSupplier = [&ioMgr]() {
+    auto resultsStreamSupplier = [&ioMgr]() {
         return std::make_unique<ml::core::CJsonOutputStreamWrapper>(ioMgr.outputStream());
     };
 
@@ -166,7 +166,7 @@ int main(int argc, char** argv) {
         if (ioMgr.restoreStream()) {
             // Check whether state is restored from a file, if so we assume that this is a debugging case
             // and therefore does not originate from the ML Java code.
-            if (!isRestoreFileNamedPipe) {
+            if (isRestoreFileNamedPipe == false) {
                 // apply a filter to overcome differences in the way persistence vs. restore works
                 auto strm = std::make_shared<boost::iostreams::filtering_istream>();
                 strm->push(ml::api::CStateRestoreStreamFilter());
@@ -195,7 +195,8 @@ int main(int argc, char** argv) {
     }
 
     ml::api::CDataFrameAnalyzer dataFrameAnalyzer{
-        std::move(analysisSpecification), outputStreamSupplier, restoreSearcherSupplier};
+        std::move(analysisSpecification), std::move(resultsStreamSupplier),
+        std::move(restoreSearcherSupplier)};
 
     CCleanUpOnExit::add(dataFrameAnalyzer.dataFrameDirectory());
 

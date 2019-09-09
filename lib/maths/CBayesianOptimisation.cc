@@ -324,7 +324,7 @@ const CBayesianOptimisation::TVector& CBayesianOptimisation::maximumLikelihoodKe
         }
     }
 
-    // ensure that kernel lengths are always positive. It shouldn't change the results but improves tracibility
+    // Ensure that kernel lengths are always positive. It shouldn't change the results but improves traceability.
     m_KernelParameters = std::move(amax.cwiseAbs());
     LOG_TRACE(<< "kernel parameters = " << m_KernelParameters.transpose());
 
