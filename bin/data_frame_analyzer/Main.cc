@@ -90,6 +90,7 @@ int main(int argc, char** argv) {
 
     // Read command line options
     std::string configFile;
+    std::string jobId;
     bool memoryUsageEstimationOnly(false);
     std::string logProperties;
     std::string logPipe;
@@ -103,10 +104,10 @@ int main(int argc, char** argv) {
     std::string persistFileName;
     bool isPersistFileNamedPipe(false);
     if (ml::data_frame_analyzer::CCmdLineParser::parse(
-            argc, argv, configFile, memoryUsageEstimationOnly, logProperties, logPipe,
-            lengthEncodedInput, inputFileName, isInputFileNamedPipe, outputFileName,
-            isOutputFileNamedPipe, restoreFileName, isRestoreFileNamedPipe,
-            persistFileName, isPersistFileNamedPipe) == false) {
+            argc, argv, configFile, jobId, memoryUsageEstimationOnly, logProperties,
+            logPipe, lengthEncodedInput, inputFileName, isInputFileNamedPipe,
+            outputFileName, isOutputFileNamedPipe, restoreFileName,
+            isRestoreFileNamedPipe, persistFileName, isPersistFileNamedPipe) == false) {
         return EXIT_FAILURE;
     }
 
@@ -152,11 +153,21 @@ int main(int argc, char** argv) {
         return std::make_unique<ml::core::CJsonOutputStreamWrapper>(ioMgr.outputStream());
     };
 
-    auto persistStreamSupplier = [&ioMgr]() -> std::shared_ptr<std::ostream> {
-        if (ioMgr.persistStream()) {
-            return ioMgr.persistStream();
-        }
-        return nullptr;
+    // TODO Factor out these constants to an extra header file, e.g api/ElasticsearchStateIndex.h
+    const std::string ML_STATE_INDEX(".ml-state");
+    const std::string REGRESSION_TRAIN_STATE_TYPE("model_state");
+
+    using TDataAdderUPtr = std::unique_ptr<ml::core::CDataAdder>;
+    TDataAdderUPtr persister;
+    if (ioMgr.persistStream() != nullptr) {
+        persister = std::make_unique<ml::api::CSingleStreamDataAdder>(ioMgr.persistStream());
+    }
+    auto persistStreamSupplier =
+        [&persister, &jobId, &ML_STATE_INDEX,
+         &REGRESSION_TRAIN_STATE_TYPE]() -> std::shared_ptr<std::ostream> {
+        return persister != nullptr
+                   ? persister->addStreamed(ML_STATE_INDEX, jobId + '_' + REGRESSION_TRAIN_STATE_TYPE)
+                   : nullptr;
     };
 
     using TDataSearcherUPtr = std::unique_ptr<ml::core::CDataSearcher>;
