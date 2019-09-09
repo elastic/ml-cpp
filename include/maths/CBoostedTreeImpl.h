@@ -736,7 +736,7 @@ private:
     //!
     //! \note This number will only be used if the regularised loss says its
     //! a good idea.
-    std::size_t maximumTreeSize(const core::CPackedBitVector& frame) const;
+    std::size_t maximumTreeSize(const core::CPackedBitVector& trainingRowMask) const;
 
     //! Get the maximum number of nodes to use in a tree.
     //!
