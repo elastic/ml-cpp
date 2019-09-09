@@ -6,7 +6,6 @@
 
 #include <maths/CBoostedTreeImpl.h>
 
-#include <core/CJsonStatePersistInserter.h>
 #include <core/CLoopProgress.h>
 #include <core/CPersistUtils.h>
 
@@ -186,7 +185,7 @@ void CBoostedTreeImpl::train(core::CDataFrame& frame,
 
             //store the training state after each hyperparameter search step
             LOG_TRACE(<< "Round " << m_CurrentRound << " state recording started");
-            recordState(recordTrainStateCallback);
+            this->recordState(recordTrainStateCallback);
             LOG_TRACE(<< "Round " << m_CurrentRound << " state recording finished");
         }
 
@@ -205,7 +204,7 @@ void CBoostedTreeImpl::train(core::CDataFrame& frame,
     recordMemoryUsage(memoryUsage - lastMemoryUsage);
 }
 
-void CBoostedTreeImpl::recordState(const CBoostedTreeImpl::TTrainingStateCallback& recordTrainState) const {
+void CBoostedTreeImpl::recordState(const TTrainingStateCallback& recordTrainState) const {
     recordTrainState([this](core::CStatePersistInserter& inserter) {
         this->acceptPersistInserter(inserter);
     });

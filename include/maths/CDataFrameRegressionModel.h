@@ -29,8 +29,8 @@ public:
     using TDoubleVec = std::vector<double>;
     using TProgressCallback = std::function<void(double)>;
     using TMemoryUsageCallback = std::function<void(std::uint64_t)>;
-    using TTrainingStateCallback =
-        std::function<void(std::function<void(core::CStatePersistInserter&)>)>;
+    using TPersistFunc = std::function<void(core::CStatePersistInserter&)>;
+    using TTrainingStateCallback = std::function<void(TPersistFunc)>;
 
 public:
     virtual ~CDataFrameRegressionModel() = default;

@@ -8,6 +8,7 @@
 
 #include <core/CContainerPrinter.h>
 #include <core/CJsonOutputStreamWrapper.h>
+#include <core/CJsonStatePersistInserter.h>
 #include <core/CProgramCounters.h>
 #include <core/CStopWatch.h>
 #include <core/CStringUtils.h>
@@ -44,16 +45,24 @@ using TRowItr = core::CDataFrame::TRowItr;
 using TPoint = maths::CDenseVector<maths::CFloatStorage>;
 using TPointVec = std::vector<TPoint>;
 
+std::string treeToJsonString(const maths::CBoostedTree& tree) {
+    std::stringstream persistStream;
+    {
+        core::CJsonStatePersistInserter inserter(persistStream);
+        tree.acceptPersistInserter(inserter);
+        persistStream.flush();
+    }
+    return persistStream.str();
+}
+
 std::vector<rapidjson::Document> stringToJsonDocumentVector(std::string input) {
     rapidjson::StringStream stringStream{input.c_str()};
     std::vector<rapidjson::Document> results;
-    size_t i = 0;
     while (stringStream.Tell() < input.size() - 1) {
         results.emplace_back();
         rapidjson::ParseResult ok(
-            results[i].ParseStream<rapidjson::ParseFlag::kParseStopWhenDoneFlag>(stringStream));
+            results.back().ParseStream<rapidjson::ParseFlag::kParseStopWhenDoneFlag>(stringStream));
         CPPUNIT_ASSERT(static_cast<bool>(ok) == true);
-        i++;
     }
     return results;
 }
@@ -1140,10 +1149,11 @@ void CDataFrameAnalyzerTest::testRunBoostedTreeTrainingWithStateRecoverySubrouti
     CPPUNIT_ASSERT(intermediateTree.get() != nullptr);
     intermediateTree->train();
 
-    rapidjson::Document expectedResults{stringToJsonDocument(finalTree->toJsonString())};
+    rapidjson::Document expectedResults{stringToJsonDocument(treeToJsonString(*finalTree))};
     const auto& expectedHyperparameters = expectedResults["best_hyperparameters"];
 
-    rapidjson::Document actualResults{stringToJsonDocument(intermediateTree->toJsonString())};
+    rapidjson::Document actualResults{
+        stringToJsonDocument(treeToJsonString(*intermediateTree))};
     const auto& actualHyperparameters = actualResults["best_hyperparameters"];
 
     auto assertDoublesEqual = [&expectedHyperparameters,
@@ -1154,15 +1164,14 @@ void CDataFrameAnalyzerTest::testRunBoostedTreeTrainingWithStateRecoverySubrouti
     };
     auto assertDoublesArrayEqual = [&expectedHyperparameters,
                                     &actualHyperparameters](std::string key) {
-        std::vector<double> expectedVector;
+        TDoubleVec expectedVector;
         core::CPersistUtils::fromString(expectedHyperparameters[key].GetString(), expectedVector);
-        std::vector<double> actualVector;
+        TDoubleVec actualVector;
         core::CPersistUtils::fromString(actualHyperparameters[key].GetString(), actualVector);
         CPPUNIT_ASSERT_EQUAL(expectedVector.size(), actualVector.size());
         for (size_t i = 0; i < expectedVector.size(); i++) {
             CPPUNIT_ASSERT_DOUBLES_EQUAL(expectedVector[i], actualVector[i], 1e-4);
         }
-
     };
     assertDoublesEqual("hyperparam_lambda");
     assertDoublesEqual("hyperparam_gamma");

@@ -134,8 +134,9 @@ public:
     //! of the proportion of total work complete for a single run.
     double progress() const;
 
-    //! \return Callback function for writing state using given persist inserter
-    std::function<void(std::function<void(core::CStatePersistInserter&)>)> statePersister();
+protected:
+    using TStatePersister =
+        std::function<void(std::function<void(core::CStatePersistInserter&)>)>;
 
 protected:
     const CDataFrameAnalysisSpecification& spec() const;
@@ -143,6 +144,9 @@ protected:
     std::size_t estimateMemoryUsage(std::size_t totalNumberRows,
                                     std::size_t partitionNumberRows,
                                     std::size_t numberColumns) const;
+
+    //! \return Callback function for writing state using given persist inserter
+    TStatePersister statePersister();
 
 private:
     virtual void runImpl(const TStrVec& featureNames, core::CDataFrame& frame) = 0;

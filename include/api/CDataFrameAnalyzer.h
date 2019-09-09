@@ -31,6 +31,8 @@ class CDataFrameAnalysisRunner;
 class CDataFrameAnalysisSpecification;
 
 //! \brief Handles input to the data_frame_analyzer command.
+//! TODO implement functionality for restoring state from the index
+//!
 class API_EXPORT CDataFrameAnalyzer {
 public:
     using TStrVec = std::vector<std::string>;

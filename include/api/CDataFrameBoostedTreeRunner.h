@@ -9,8 +9,6 @@
 
 #include <api/CDataFrameAnalysisRunner.h>
 
-#include <core/CStatePersistInserter.h>
-
 #include <api/ImportExport.h>
 
 #include <rapidjson/fwd.h>

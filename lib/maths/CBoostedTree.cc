@@ -147,15 +147,5 @@ bool CBoostedTree::acceptRestoreTraverser(core::CStateRestoreTraverser& traverse
 void CBoostedTree::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
     m_Impl->acceptPersistInserter(inserter);
 }
-
-std::string CBoostedTree::toJsonString() const {
-    std::stringstream persistStream;
-    {
-        core::CJsonStatePersistInserter inserter(persistStream);
-        this->acceptPersistInserter(inserter);
-        persistStream.flush();
-    }
-    return persistStream.str();
-}
 }
 }
