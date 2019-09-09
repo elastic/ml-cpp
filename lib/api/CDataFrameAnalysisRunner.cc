@@ -195,8 +195,7 @@ void CDataFrameAnalysisRunner::setToFinished() {
     m_FractionalProgress.store(MAXIMUM_FRACTIONAL_PROGRESS);
 }
 
-std::function<void(std::function<void(core::CStatePersistInserter&)>)>
-CDataFrameAnalysisRunner::statePersister() {
+CDataFrameAnalysisRunner::TStatePersister CDataFrameAnalysisRunner::statePersister() {
     return [this](std::function<void(core::CStatePersistInserter&)> persistFunction) -> void {
         auto persistStream = m_Spec.persistStreamSupplier();
         if (persistStream != nullptr) {

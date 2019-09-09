@@ -352,7 +352,6 @@ void CDataFrameAnalyzerTest::testWithoutControlMessages() {
     CPPUNIT_ASSERT(static_cast<bool>(ok) == true);
 
     auto expectedScore = expectedScores.begin();
-    //    bool progressCompleted{false};
     for (const auto& result : results.GetArray()) {
         if (result.HasMember("row_results")) {
             CPPUNIT_ASSERT(expectedScore != expectedScores.end());
@@ -366,7 +365,6 @@ void CDataFrameAnalyzerTest::testWithoutControlMessages() {
             CPPUNIT_ASSERT(result["progress_percent"].GetInt() >= 0);
             CPPUNIT_ASSERT(result["progress_percent"].GetInt() <= 100);
             CPPUNIT_ASSERT(result.HasMember("row_results") == false);
-            //            progressCompleted = result["progress_percent"].GetInt() == 100;
         }
     }
     CPPUNIT_ASSERT(expectedScore == expectedScores.end());

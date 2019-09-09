@@ -155,7 +155,7 @@ int main(int argc, char** argv) {
 
     // TODO Factor out these constants to an extra header file, e.g api/ElasticsearchStateIndex.h
     const std::string ML_STATE_INDEX(".ml-state");
-    const std::string REGRESSION_TRAIN_STATE_TYPE("model_state");
+    const std::string REGRESSION_TRAIN_STATE_TYPE("predictive_model_train_state");
 
     using TDataAdderUPtr = std::unique_ptr<ml::core::CDataAdder>;
     TDataAdderUPtr persister;
