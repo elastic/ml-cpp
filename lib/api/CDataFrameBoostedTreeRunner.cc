@@ -19,6 +19,7 @@
 #include <api/CDataFrameAnalysisConfigReader.h>
 #include <api/CDataFrameAnalysisSpecification.h>
 
+#include <core/CJsonStatePersistInserter.h>
 #include <rapidjson/document.h>
 #include <rapidjson/writer.h>
 
@@ -110,16 +111,7 @@ CDataFrameBoostedTreeRunner::CDataFrameBoostedTreeRunner(const CDataFrameAnalysi
     });
 
     // callback for storing intermediate training state
-    (*m_BoostedTreeFactory).trainingStateCallback([this](std::string trainingState) {
-        if (trainingState.empty() == false) {
-            if (m_TrainingStateQueue.tryPush(std::move(trainingState)) == false) {
-                LOG_DEBUG(<< "Pushing to the training state queue failed. The queue is full.")
-            }
-        } else {
-            // If training state is empty then something has gone wrong with persistence
-            LOG_DEBUG(<< "Training state is empty!")
-        }
-    });
+    (*m_BoostedTreeFactory).trainingStateCallback(statePersister());
     if (lambda >= 0.0) {
         m_BoostedTreeFactory->lambda(lambda);
     }

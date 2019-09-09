@@ -47,10 +47,9 @@ const std::string RESULTS{"results"};
 
 CDataFrameAnalyzer::CDataFrameAnalyzer(TDataFrameAnalysisSpecificationUPtr analysisSpecification,
                                        TJsonOutputStreamWrapperUPtrSupplier outStreamSupplier,
-                                       TJsonOutputStreamWrapperUPtrSupplier persistStreamSupplier,
                                        TDataSearcherUPtrSupplier dataSearcher)
-    : m_AnalysisSpecification{std::move(analysisSpecification)}, m_OutStreamSupplier{outStreamSupplier},
-      m_PersistStreamSupplier{persistStreamSupplier}, m_DataSearcher{dataSearcher} {
+    : m_AnalysisSpecification{std::move(analysisSpecification)},
+      m_OutStreamSupplier{outStreamSupplier}, m_DataSearcher{dataSearcher} {
 
     if (m_AnalysisSpecification != nullptr) {
         auto frameAndDirectory = m_AnalysisSpecification->makeDataFrame();
@@ -157,15 +156,7 @@ void CDataFrameAnalyzer::run() {
     auto outStream = m_OutStreamSupplier();
     core::CRapidJsonConcurrentLineWriter outputWriter{*outStream};
 
-    auto persistStream = m_PersistStreamSupplier();
-    if (persistStream.get() == nullptr) {
-        HANDLE_FATAL(<< "Input error: File for state persistence has to be specified.");
-        return;
-    }
-
-    core::CRapidJsonConcurrentLineWriter persistWriter{*persistStream};
-
-    this->monitorProgress(*analysis, outputWriter, persistWriter);
+    this->monitorProgress(*analysis, outputWriter);
     analysis->waitToFinish();
     this->writeResultsOf(*analysis, outputWriter);
 }
@@ -360,8 +351,7 @@ void CDataFrameAnalyzer::addRowToDataFrame(const TStrVec& fieldValues) {
 }
 
 void CDataFrameAnalyzer::monitorProgress(const CDataFrameAnalysisRunner& analysis,
-                                         core::CRapidJsonConcurrentLineWriter& resultsWriter,
-                                         core::CRapidJsonConcurrentLineWriter& persistenceWriter) const {
+                                         core::CRapidJsonConcurrentLineWriter& writer) const {
     // Progress as percentage
     int progress{0};
     while (analysis.finished() == false) {
@@ -369,36 +359,10 @@ void CDataFrameAnalyzer::monitorProgress(const CDataFrameAnalysisRunner& analysi
         int latestProgress{static_cast<int>(std::floor(100.0 * analysis.progress()))};
         if (latestProgress > progress) {
             progress = latestProgress;
-            this->writeProgress(progress, resultsWriter);
-        }
-
-        // write stored analysis runner states
-        if (analysis.canRecordState()) {
-            while (auto oState = const_cast<CDataFrameAnalysisRunner&>(analysis).retrieveState()) {
-                this->writeState(*oState, persistenceWriter);
-            }
+            this->writeProgress(progress, writer);
         }
     }
-    this->writeProgress(100, resultsWriter);
-}
-
-void CDataFrameAnalyzer::writeState(std::string state,
-                                    core::CRapidJsonConcurrentLineWriter& writer) const {
-    rapidjson::Document analyzerStateDoc;
-    if (state.empty() == false) {
-        analyzerStateDoc.Parse(state);
-        if (analyzerStateDoc.GetParseError()) {
-            LOG_ERROR(<< "Input error: analyzer state " << state
-                      << " cannot be parsed as json. Please report this problem.")
-            return;
-        }
-    }
-
-    writer.StartObject();
-    writer.Key(ANALYZER_STATE);
-    writer.write(analyzerStateDoc);
-    writer.EndObject();
-    writer.flush();
+    this->writeProgress(100, writer);
 }
 
 void CDataFrameAnalyzer::writeProgress(int progress,

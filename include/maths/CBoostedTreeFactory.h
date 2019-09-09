@@ -128,7 +128,7 @@ private:
 
     static void noopRecordProgress(double);
     static void noopRecordMemoryUsage(std::int64_t);
-    static void noopRecordTrainingState(std::string);
+    static void noopRecordTrainingState(std::function<void(core::CStatePersistInserter&)>);
 
 private:
     double m_MinimumFrequencyToOneHotEncode;

@@ -50,7 +50,6 @@ public:
 public:
     CDataFrameAnalyzer(TDataFrameAnalysisSpecificationUPtr analysisSpecification,
                        TJsonOutputStreamWrapperUPtrSupplier outStreamSupplier,
-                       TJsonOutputStreamWrapperUPtrSupplier persistStreamSupplier,
                        TDataSearcherUPtrSupplier dataSearcher = nullptr);
     ~CDataFrameAnalyzer();
 
@@ -90,10 +89,8 @@ private:
     void captureFieldNames(const TStrVec& fieldNames);
     void addRowToDataFrame(const TStrVec& fieldValues);
     void monitorProgress(const CDataFrameAnalysisRunner& analysis,
-                         core::CRapidJsonConcurrentLineWriter& writer,
-                         core::CRapidJsonConcurrentLineWriter& persistenceWriter) const;
+                         core::CRapidJsonConcurrentLineWriter& writer) const;
     void writeProgress(int progress, core::CRapidJsonConcurrentLineWriter& writer) const;
-    void writeState(std::string state, core::CRapidJsonConcurrentLineWriter& writer) const;
     void writeResultsOf(const CDataFrameAnalysisRunner& analysis,
                         core::CRapidJsonConcurrentLineWriter& writer) const;
 
@@ -113,7 +110,6 @@ private:
     TStrVec m_FieldNames;
     TTemporaryDirectoryPtr m_DataFrameDirectory;
     TJsonOutputStreamWrapperUPtrSupplier m_OutStreamSupplier;
-    TJsonOutputStreamWrapperUPtrSupplier m_PersistStreamSupplier;
     TDataSearcherUPtrSupplier m_DataSearcher;
 };
 }

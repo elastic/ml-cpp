@@ -28,16 +28,14 @@ public:
     static CppUnit::Test* suite();
 
 private:
-    void
-    testRunBoostedTreeTrainingWithStateRecoverySubroutine(size_t numberHyperparameters,
-                                                          double lambda,
-                                                          double gamma,
-                                                          double eta,
-                                                          size_t maximumNumberTrees,
-                                                          double featureBagFraction,
-                                                          size_t numberRoundsPerHyperparameter,
-                                                          size_t intermediateIteration,
-                                                          size_t finalIteration) const;
+    void testRunBoostedTreeTrainingWithStateRecoverySubroutine(double lambda,
+                                                               double gamma,
+                                                               double eta,
+                                                               size_t maximumNumberTrees,
+                                                               double featureBagFraction,
+                                                               size_t numberRoundsPerHyperparameter,
+                                                               size_t intermediateIteration,
+                                                               size_t finalIteration) const;
 };
 
 #endif // INCLUDED_CDataFrameAnalyzerTest_h

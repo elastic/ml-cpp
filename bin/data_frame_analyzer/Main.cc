@@ -148,30 +148,13 @@ int main(int argc, char** argv) {
         return EXIT_FAILURE;
     }
 
-    auto analysisSpecification =
-        std::make_unique<ml::api::CDataFrameAnalysisSpecification>(analysisSpecificationJson);
-
-    if (memoryUsageEstimationOnly) {
-        auto outStream = [&ioMgr]() {
-            return std::make_unique<ml::core::CJsonOutputStreamWrapper>(ioMgr.outputStream());
-        }();
-        ml::api::CMemoryUsageEstimationResultJsonWriter writer(*outStream);
-        analysisSpecification->estimateMemoryUsage(writer);
-        return EXIT_SUCCESS;
-    }
-
-    if (analysisSpecification->numberThreads() > 1) {
-        ml::core::startDefaultAsyncExecutor(analysisSpecification->numberThreads());
-    }
-
     auto outputStreamSupplier = [&ioMgr]() {
         return std::make_unique<ml::core::CJsonOutputStreamWrapper>(ioMgr.outputStream());
     };
 
-    auto persistStreamSupplier = [&ioMgr]() -> std::unique_ptr<ml::core::CJsonOutputStreamWrapper> {
+    auto persistStreamSupplier = [&ioMgr]() -> std::shared_ptr<std::ostream> {
         if (ioMgr.persistStream()) {
-            return std::make_unique<ml::core::CJsonOutputStreamWrapper>(
-                *(ioMgr.persistStream()));
+            return ioMgr.persistStream();
         }
         return nullptr;
     };
@@ -195,9 +178,24 @@ int main(int argc, char** argv) {
         return nullptr;
     };
 
+    auto analysisSpecification = std::make_unique<ml::api::CDataFrameAnalysisSpecification>(
+        analysisSpecificationJson, persistStreamSupplier);
+
+    if (memoryUsageEstimationOnly) {
+        auto outStream = [&ioMgr]() {
+            return std::make_unique<ml::core::CJsonOutputStreamWrapper>(ioMgr.outputStream());
+        }();
+        ml::api::CMemoryUsageEstimationResultJsonWriter writer(*outStream);
+        analysisSpecification->estimateMemoryUsage(writer);
+        return EXIT_SUCCESS;
+    }
+
+    if (analysisSpecification->numberThreads() > 1) {
+        ml::core::startDefaultAsyncExecutor(analysisSpecification->numberThreads());
+    }
+
     ml::api::CDataFrameAnalyzer dataFrameAnalyzer{
-        std::move(analysisSpecification), outputStreamSupplier,
-        persistStreamSupplier, restoreSearcherSupplier};
+        std::move(analysisSpecification), outputStreamSupplier, restoreSearcherSupplier};
 
     CCleanUpOnExit::add(dataFrameAnalyzer.dataFrameDirectory());
 

@@ -86,13 +86,17 @@ const CDataFrameAnalysisConfigReader ANALYSIS_READER{[] {
 }()};
 }
 
-CDataFrameAnalysisSpecification::CDataFrameAnalysisSpecification(const std::string& jsonSpecification)
-    : CDataFrameAnalysisSpecification{analysisFactories(), jsonSpecification} {
+CDataFrameAnalysisSpecification::CDataFrameAnalysisSpecification(const std::string& jsonSpecification,
+                                                                 TPersistStreamSupplier persistStreamSupplier)
+    : CDataFrameAnalysisSpecification{analysisFactories(), jsonSpecification,
+                                      persistStreamSupplier} {
 }
 
-CDataFrameAnalysisSpecification::CDataFrameAnalysisSpecification(TRunnerFactoryUPtrVec runnerFactories,
-                                                                 const std::string& jsonSpecification)
-    : m_RunnerFactories{std::move(runnerFactories)} {
+CDataFrameAnalysisSpecification::CDataFrameAnalysisSpecification(
+    TRunnerFactoryUPtrVec runnerFactories,
+    const std::string& jsonSpecification,
+    TPersistStreamSupplier persistStreamSupplier)
+    : m_RunnerFactories{std::move(runnerFactories)}, m_PersistStreamSupplier{persistStreamSupplier} {
 
     rapidjson::Document specification;
     if (specification.Parse(jsonSpecification.c_str()) == false) {
@@ -212,6 +216,16 @@ void CDataFrameAnalysisSpecification::initializeRunner(const rapidjson::Value& j
 
     HANDLE_FATAL(<< "Input error: unexpected analysis name '" << name
                  << "'. Please report this problem.");
+}
+
+CDataFrameAnalysisSpecification::TOStreamSPtr
+CDataFrameAnalysisSpecification::persistStreamSupplier() const {
+    return m_PersistStreamSupplier();
+}
+
+CDataFrameAnalysisSpecification::TPersistStreamSupplier
+CDataFrameAnalysisSpecification::noPersistStreamSupplier() {
+    return nullptr;
 }
 }
 }

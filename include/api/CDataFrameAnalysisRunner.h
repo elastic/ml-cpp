@@ -8,6 +8,7 @@
 #define INCLUDED_ml_api_CDataFrameAnalysisRunner_h
 
 #include <core/CFastMutex.h>
+#include <core/CStatePersistInserter.h>
 
 #include <api/ImportExport.h>
 
@@ -141,6 +142,9 @@ public:
 
     //! \return Optional state as a string.
     virtual TOptionalString retrieveState();
+
+    //! \return Callback function for writing state using given persist inserter
+    std::function<void(std::function<void(core::CStatePersistInserter&)>)> statePersister();
 
 protected:
     const CDataFrameAnalysisSpecification& spec() const;

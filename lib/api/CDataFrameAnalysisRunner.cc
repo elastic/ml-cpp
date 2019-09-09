@@ -7,8 +7,8 @@
 #include <api/CDataFrameAnalysisRunner.h>
 
 #include <core/CDataFrame.h>
+#include <core/CJsonStatePersistInserter.h>
 #include <core/CLogger.h>
-#include <core/CScopedFastLock.h>
 
 #include <api/CDataFrameAnalysisSpecification.h>
 #include <api/CMemoryUsageEstimationResultJsonWriter.h>
@@ -201,6 +201,17 @@ bool CDataFrameAnalysisRunner::canRecordState() const {
 
 CDataFrameAnalysisRunner::TOptionalString CDataFrameAnalysisRunner::retrieveState() {
     return boost::none;
+}
+
+std::function<void(std::function<void(core::CStatePersistInserter&)>)>
+CDataFrameAnalysisRunner::statePersister() {
+    return [this](std::function<void(core::CStatePersistInserter&)> persistFunction) -> void {
+        auto persistStream = m_Spec.persistStreamSupplier();
+        if (persistStream != nullptr) {
+            core::CJsonStatePersistInserter inserter{*persistStream};
+            persistFunction(inserter);
+        }
+    };
 }
 
 CDataFrameAnalysisRunnerFactory::TRunnerUPtr

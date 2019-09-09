@@ -10,6 +10,7 @@
 #include <api/CDataFrameAnalysisRunner.h>
 
 #include <core/CConcurrentQueue.h>
+#include <core/CStatePersistInserter.h>
 
 #include <api/ImportExport.h>
 

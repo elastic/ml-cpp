@@ -469,7 +469,7 @@ std::size_t CBoostedTreeFactory::numberExtraColumnsForTrain() const {
     return m_TreeImpl->numberExtraColumnsForTrain();
 }
 
-void CBoostedTreeFactory::noopRecordTrainingState(std::string) {
+void CBoostedTreeFactory::noopRecordTrainingState(std::function<void(core::CStatePersistInserter&)>) {
 }
 
 void CBoostedTreeFactory::noopRecordProgress(double) {
