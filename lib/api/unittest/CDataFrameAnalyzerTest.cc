@@ -45,16 +45,6 @@ using TRowItr = core::CDataFrame::TRowItr;
 using TPoint = maths::CDenseVector<maths::CFloatStorage>;
 using TPointVec = std::vector<TPoint>;
 
-std::string treeToJsonString(const maths::CBoostedTree& tree) {
-    std::stringstream persistStream;
-    {
-        core::CJsonStatePersistInserter inserter(persistStream);
-        tree.acceptPersistInserter(inserter);
-        persistStream.flush();
-    }
-    return persistStream.str();
-}
-
 std::vector<rapidjson::Document> stringToJsonDocumentVector(std::string input) {
     rapidjson::StringStream stringStream{input.c_str()};
     std::vector<rapidjson::Document> results;
@@ -67,9 +57,15 @@ std::vector<rapidjson::Document> stringToJsonDocumentVector(std::string input) {
     return results;
 }
 
-rapidjson::Document stringToJsonDocument(const std::string& inputString) {
+rapidjson::Document treeToJsonDocument(const maths::CBoostedTree& tree) {
+    std::stringstream persistStream;
+    {
+        core::CJsonStatePersistInserter inserter(persistStream);
+        tree.acceptPersistInserter(inserter);
+        persistStream.flush();
+    }
     rapidjson::Document results;
-    rapidjson::ParseResult ok(results.Parse(inputString));
+    rapidjson::ParseResult ok(results.Parse(persistStream.str()));
     CPPUNIT_ASSERT(static_cast<bool>(ok) == true);
     return results;
 }
@@ -1149,11 +1145,10 @@ void CDataFrameAnalyzerTest::testRunBoostedTreeTrainingWithStateRecoverySubrouti
     CPPUNIT_ASSERT(intermediateTree.get() != nullptr);
     intermediateTree->train();
 
-    rapidjson::Document expectedResults{stringToJsonDocument(treeToJsonString(*finalTree))};
+    rapidjson::Document expectedResults{treeToJsonDocument(*finalTree)};
     const auto& expectedHyperparameters = expectedResults["best_hyperparameters"];
 
-    rapidjson::Document actualResults{
-        stringToJsonDocument(treeToJsonString(*intermediateTree))};
+    rapidjson::Document actualResults{treeToJsonDocument(*intermediateTree)};
     const auto& actualHyperparameters = actualResults["best_hyperparameters"];
 
     auto assertDoublesEqual = [&expectedHyperparameters,
