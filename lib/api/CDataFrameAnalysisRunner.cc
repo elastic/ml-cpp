@@ -195,14 +195,6 @@ void CDataFrameAnalysisRunner::setToFinished() {
     m_FractionalProgress.store(MAXIMUM_FRACTIONAL_PROGRESS);
 }
 
-bool CDataFrameAnalysisRunner::canRecordState() const {
-    return false;
-}
-
-CDataFrameAnalysisRunner::TOptionalString CDataFrameAnalysisRunner::retrieveState() {
-    return boost::none;
-}
-
 std::function<void(std::function<void(core::CStatePersistInserter&)>)>
 CDataFrameAnalysisRunner::statePersister() {
     return [this](std::function<void(core::CStatePersistInserter&)> persistFunction) -> void {

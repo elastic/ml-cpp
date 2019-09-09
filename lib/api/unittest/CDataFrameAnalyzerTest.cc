@@ -328,9 +328,6 @@ void CDataFrameAnalyzerTest::testWithoutControlMessages() {
     };
 
     std::stringstream persistStream;
-    auto persistWriterFactory = [&persistStream]() {
-        return std::make_unique<core::CJsonOutputStreamWrapper>(persistStream);
-    };
 
     api::CDataFrameAnalyzer analyzer{outlierSpec(), outputWriterFactory};
 

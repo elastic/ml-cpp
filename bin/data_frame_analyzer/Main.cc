@@ -160,8 +160,6 @@ int main(int argc, char** argv) {
     };
 
     using TDataSearcherUPtr = std::unique_ptr<ml::core::CDataSearcher>;
-    using TDataSearcherUPtrSupplier =
-        std::function<std::unique_ptr<ml::core::CDataSearcher>()>;
     auto restoreSearcherSupplier = [isRestoreFileNamedPipe, &ioMgr]() -> TDataSearcherUPtr {
         if (ioMgr.restoreStream()) {
             // Check whether state is restored from a file, if so we assume that this is a debugging case
@@ -179,7 +177,7 @@ int main(int argc, char** argv) {
     };
 
     auto analysisSpecification = std::make_unique<ml::api::CDataFrameAnalysisSpecification>(
-        analysisSpecificationJson, persistStreamSupplier);
+        analysisSpecificationJson, std::move(persistStreamSupplier));
 
     if (memoryUsageEstimationOnly) {
         auto outStream = [&ioMgr]() {

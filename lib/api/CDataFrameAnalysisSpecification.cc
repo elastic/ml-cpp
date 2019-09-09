@@ -89,14 +89,15 @@ const CDataFrameAnalysisConfigReader ANALYSIS_READER{[] {
 CDataFrameAnalysisSpecification::CDataFrameAnalysisSpecification(const std::string& jsonSpecification,
                                                                  TPersistStreamSupplier persistStreamSupplier)
     : CDataFrameAnalysisSpecification{analysisFactories(), jsonSpecification,
-                                      persistStreamSupplier} {
+                                      std::move(persistStreamSupplier)} {
 }
 
 CDataFrameAnalysisSpecification::CDataFrameAnalysisSpecification(
     TRunnerFactoryUPtrVec runnerFactories,
     const std::string& jsonSpecification,
     TPersistStreamSupplier persistStreamSupplier)
-    : m_RunnerFactories{std::move(runnerFactories)}, m_PersistStreamSupplier{persistStreamSupplier} {
+    : m_RunnerFactories{std::move(runnerFactories)}, m_PersistStreamSupplier{std::move(
+                                                         persistStreamSupplier)} {
 
     rapidjson::Document specification;
     if (specification.Parse(jsonSpecification.c_str()) == false) {
@@ -224,7 +225,7 @@ CDataFrameAnalysisSpecification::persistStreamSupplier() const {
 }
 
 CDataFrameAnalysisSpecification::TPersistStreamSupplier
-CDataFrameAnalysisSpecification::noPersistStreamSupplier() {
+CDataFrameAnalysisSpecification::noopPersistStreamSupplier() {
     return nullptr;
 }
 }

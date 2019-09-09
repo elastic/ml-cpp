@@ -9,7 +9,6 @@
 
 #include <api/CDataFrameAnalysisRunner.h>
 
-#include <core/CConcurrentQueue.h>
 #include <core/CStatePersistInserter.h>
 
 #include <api/ImportExport.h>
@@ -45,12 +44,6 @@ public:
                      TRowRef row,
                      core::CRapidJsonConcurrentLineWriter& writer) const override;
 
-    //! \return True if the analysis runner is able to records its state
-    bool canRecordState() const override;
-
-    //! \return Optional state as a string.
-    TOptionalString retrieveState() override;
-
 private:
     using TBoostedTreeUPtr = std::unique_ptr<maths::CBoostedTree>;
     using TBoostedTreeFactoryUPtr = std::unique_ptr<maths::CBoostedTreeFactory>;
@@ -70,8 +63,6 @@ private:
     TBoostedTreeFactoryUPtr m_BoostedTreeFactory;
     TBoostedTreeUPtr m_BoostedTree;
     std::atomic<std::int64_t> m_Memory;
-    // queue size is a trade-off between consumer speed and memory requirements
-    core::CConcurrentQueue<std::string, 10> m_TrainingStateQueue;
 };
 
 //! \brief Makes a core::CDataFrame boosted tree regression runner.

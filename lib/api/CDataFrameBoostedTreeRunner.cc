@@ -192,14 +192,6 @@ std::size_t CDataFrameBoostedTreeRunner::estimateBookkeepingMemoryUsage(
     return m_BoostedTreeFactory->estimateMemoryUsage(totalNumberRows, numberColumns);
 }
 
-bool CDataFrameBoostedTreeRunner::canRecordState() const {
-    return true;
-}
-
-CDataFrameAnalysisRunner::TOptionalString CDataFrameBoostedTreeRunner::retrieveState() {
-    return m_TrainingStateQueue.tryPop();
-}
-
 const std::string& CDataFrameBoostedTreeRunnerFactory::name() const {
     return NAME;
 }

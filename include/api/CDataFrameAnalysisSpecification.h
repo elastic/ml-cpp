@@ -96,7 +96,7 @@ public:
     //! partitioning.
     //! \param persistStream Shared pointer to the string with  persist stream name.
     CDataFrameAnalysisSpecification(const std::string& jsonSpecification,
-                                    TPersistStreamSupplier persistStreamSupplier = noPersistStreamSupplier());
+                                    TPersistStreamSupplier persistStreamSupplier = noopPersistStreamSupplier());
 
     //! This construtor provides support for custom analysis types and is mainly
     //! intended for testing.
@@ -104,7 +104,7 @@ public:
     //! \param[in] runnerFactories Plugins for the supported analyses.
     CDataFrameAnalysisSpecification(TRunnerFactoryUPtrVec runnerFactories,
                                     const std::string& jsonSpecification,
-                                    TPersistStreamSupplier persistStreamSupplier = noPersistStreamSupplier());
+                                    TPersistStreamSupplier persistStreamSupplier = noopPersistStreamSupplier());
 
     CDataFrameAnalysisSpecification(const CDataFrameAnalysisSpecification&) = delete;
     CDataFrameAnalysisSpecification& operator=(const CDataFrameAnalysisSpecification&) = delete;
@@ -167,7 +167,7 @@ public:
 private:
     void initializeRunner(const rapidjson::Value& jsonAnalysis);
 
-    static TPersistStreamSupplier noPersistStreamSupplier();
+    static TPersistStreamSupplier noopPersistStreamSupplier();
 
 private:
     std::size_t m_NumberRows = 0;

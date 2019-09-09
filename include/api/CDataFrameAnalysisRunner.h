@@ -14,8 +14,6 @@
 
 #include <rapidjson/fwd.h>
 
-#include <boost/optional.hpp>
-
 #include <atomic>
 #include <cstddef>
 #include <functional>
@@ -64,7 +62,6 @@ public:
     using TStrVec = std::vector<std::string>;
     using TRowRef = core::data_frame_detail::CRowRef;
     using TProgressRecorder = std::function<void(double)>;
-    using TOptionalString = boost::optional<std::string>;
 
 public:
     //! The intention is that concrete objects of this hierarchy are constructed
@@ -136,12 +133,6 @@ public:
     //! \return The progress of the analysis in the range [0,1] being an estimate
     //! of the proportion of total work complete for a single run.
     double progress() const;
-
-    //! \return True if the analysis runner is able to records its state.
-    virtual bool canRecordState() const;
-
-    //! \return Optional state as a string.
-    virtual TOptionalString retrieveState();
 
     //! \return Callback function for writing state using given persist inserter
     std::function<void(std::function<void(core::CStatePersistInserter&)>)> statePersister();
