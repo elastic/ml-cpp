@@ -19,6 +19,7 @@
 #include <api/CDataFrameAnalysisConfigReader.h>
 #include <api/CDataFrameAnalysisSpecification.h>
 
+#include <core/CJsonStatePersistInserter.h>
 #include <rapidjson/document.h>
 #include <rapidjson/writer.h>
 
@@ -33,6 +34,7 @@ const std::string GAMMA{"gamma"};
 const std::string ETA{"eta"};
 const std::string MAXIMUM_NUMBER_TREES{"maximum_number_trees"};
 const std::string FEATURE_BAG_FRACTION{"feature_bag_fraction"};
+const std::string NUMBER_ROUNDS_PER_HYPERPARAMETER{"number_rounds_per_hyperparameter"};
 
 const CDataFrameAnalysisConfigReader PARAMETER_READER{[] {
     CDataFrameAnalysisConfigReader theReader;
@@ -47,6 +49,8 @@ const CDataFrameAnalysisConfigReader PARAMETER_READER{[] {
     theReader.addParameter(MAXIMUM_NUMBER_TREES,
                            CDataFrameAnalysisConfigReader::E_OptionalParameter);
     theReader.addParameter(FEATURE_BAG_FRACTION,
+                           CDataFrameAnalysisConfigReader::E_OptionalParameter);
+    theReader.addParameter(NUMBER_ROUNDS_PER_HYPERPARAMETER,
                            CDataFrameAnalysisConfigReader::E_OptionalParameter);
     return theReader;
 }()};
@@ -68,6 +72,9 @@ CDataFrameBoostedTreeRunner::CDataFrameBoostedTreeRunner(const CDataFrameAnalysi
 
     std::size_t maximumNumberTrees{
         parameters[MAXIMUM_NUMBER_TREES].fallback(std::size_t{0})};
+
+    std::size_t numberRoundsPerHyperparameter{
+        parameters[NUMBER_ROUNDS_PER_HYPERPARAMETER].fallback(std::size_t{0})};
 
     double lambda{parameters[LAMBDA].fallback(-1.0)};
     double gamma{parameters[GAMMA].fallback(-1.0)};
@@ -102,6 +109,9 @@ CDataFrameBoostedTreeRunner::CDataFrameBoostedTreeRunner(const CDataFrameAnalysi
             LOG_DEBUG(<< "Memory estimate " << memory << " is negative!");
         }
     });
+
+    // callback for storing intermediate training state
+    (*m_BoostedTreeFactory).trainingStateCallback(statePersister());
     if (lambda >= 0.0) {
         m_BoostedTreeFactory->lambda(lambda);
     }
@@ -116,6 +126,9 @@ CDataFrameBoostedTreeRunner::CDataFrameBoostedTreeRunner(const CDataFrameAnalysi
     }
     if (featureBagFraction > 0.0 && featureBagFraction <= 1.0) {
         m_BoostedTreeFactory->featureBagFraction(featureBagFraction);
+    }
+    if (numberRoundsPerHyperparameter > 0) {
+        m_BoostedTreeFactory->maximumOptimisationRoundsPerHyperparameter(numberRoundsPerHyperparameter);
     }
 }
 
