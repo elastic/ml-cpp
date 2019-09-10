@@ -158,16 +158,13 @@ int main(int argc, char** argv) {
     const std::string REGRESSION_TRAIN_STATE_TYPE("predictive_model_train_state");
 
     using TDataAdderUPtr = std::unique_ptr<ml::core::CDataAdder>;
-    TDataAdderUPtr persister;
-    if (ioMgr.persistStream() != nullptr) {
-        persister = std::make_unique<ml::api::CSingleStreamDataAdder>(ioMgr.persistStream());
-    }
-    auto persistStreamSupplier =
-        [&persister, &jobId, &ML_STATE_INDEX,
-         &REGRESSION_TRAIN_STATE_TYPE]() -> std::shared_ptr<std::ostream> {
-        return persister != nullptr
-                   ? persister->addStreamed(ML_STATE_INDEX, jobId + '_' + REGRESSION_TRAIN_STATE_TYPE)
-                   : nullptr;
+    auto persisterSupplier =
+        [&ioMgr]() -> TDataAdderUPtr {
+        if (ioMgr.persistStream() != nullptr) {
+
+            return std::make_unique<ml::api::CSingleStreamDataAdder>(ioMgr.persistStream());
+        }
+        return nullptr;
     };
 
     using TDataSearcherUPtr = std::unique_ptr<ml::core::CDataSearcher>;
@@ -188,7 +185,7 @@ int main(int argc, char** argv) {
     };
 
     auto analysisSpecification = std::make_unique<ml::api::CDataFrameAnalysisSpecification>(
-        analysisSpecificationJson, std::move(persistStreamSupplier));
+        analysisSpecificationJson, std::move(persisterSupplier));
 
     if (memoryUsageEstimationOnly) {
         auto outStream = [&ioMgr]() {

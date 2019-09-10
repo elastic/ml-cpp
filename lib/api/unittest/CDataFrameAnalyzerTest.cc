@@ -34,6 +34,7 @@
 #include <memory>
 #include <string>
 #include <vector>
+#include <api/CSingleStreamDataAdder.h>
 
 using namespace ml;
 
@@ -138,8 +139,8 @@ auto regressionSpec(std::string dependentVariable,
                     double eta = -1.0,
                     std::size_t maximumNumberTrees = 0,
                     double featureBagFraction = -1.0,
-                    std::function<std::shared_ptr<std::ostream>(void)> persistStreamSupplier =
-                        []() -> std::shared_ptr<std::ostream> { return nullptr; }) {
+                    std::function<std::unique_ptr<core::CDataAdder>(void)> persisterSupplier =
+                        []() -> std::unique_ptr<core::CDataAdder> { return nullptr; }) {
 
     std::string parameters = "{\n\"dependent_variable\": \"" + dependentVariable + "\"";
     if (lambda >= 0.0) {
@@ -171,7 +172,7 @@ auto regressionSpec(std::string dependentVariable,
 
     LOG_TRACE(<< "spec =\n" << spec);
 
-    return std::make_unique<api::CDataFrameAnalysisSpecification>(spec, persistStreamSupplier);
+    return std::make_unique<api::CDataFrameAnalysisSpecification>(spec, persisterSupplier);
 }
 
 void addOutlierTestData(TStrVec fieldNames,
@@ -765,16 +766,13 @@ void CDataFrameAnalyzerTest::testErrors() {
     };
 
     core::CLogger::CScopeSetFatalErrorHandler scope{errorHandler};
-    auto noPersistStreamSupplier = []() -> std::shared_ptr<std::ostream> {
-        return nullptr;
-    };
 
     // Test with bad analysis specification.
     {
         errors.clear();
         api::CDataFrameAnalyzer analyzer{
             std::make_unique<api::CDataFrameAnalysisSpecification>(
-                std::string{"junk"}, noPersistStreamSupplier),
+                std::string{"junk"}),
             outputWriterFactory};
         LOG_DEBUG(<< core::CContainerPrinter::print(errors));
         CPPUNIT_ASSERT(errors.size() > 0);
@@ -1081,8 +1079,8 @@ void CDataFrameAnalyzerTest::testRunBoostedTreeTrainingWithStateRecoverySubrouti
     auto outputWriterFactory = [&outputStream]() {
         return std::make_unique<core::CJsonOutputStreamWrapper>(outputStream);
     };
-    auto persistStreamSupplier = [&persistenceStream]() -> std::shared_ptr<std::ostream> {
-        return persistenceStream;
+    auto persisterSupplier = [&persistenceStream]() -> std::unique_ptr<core::CDataAdder> {
+        return std::make_unique<api::CSingleStreamDataAdder>(persistenceStream);
     };
 
     size_t numberExamples{100};
@@ -1102,7 +1100,7 @@ void CDataFrameAnalyzerTest::testRunBoostedTreeTrainingWithStateRecoverySubrouti
     api::CDataFrameAnalyzer analyzer{
         regressionSpec("c5", numberExamples, 5, 15000000,
                        numberRoundsPerHyperparameter, {}, lambda, gamma, eta,
-                       maximumNumberTrees, featureBagFraction, persistStreamSupplier),
+                       maximumNumberTrees, featureBagFraction, persisterSupplier),
         outputWriterFactory};
 
     test::CRandomNumbers rng;

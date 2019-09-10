@@ -17,6 +17,8 @@
 
 #include <algorithm>
 #include <cstddef>
+#include <api/CSingleStreamDataAdder.h>
+#include <api/ElasticsearchStateIndex.h>
 
 namespace ml {
 namespace api {
@@ -197,10 +199,14 @@ void CDataFrameAnalysisRunner::setToFinished() {
 
 CDataFrameAnalysisRunner::TStatePersister CDataFrameAnalysisRunner::statePersister() {
     return [this](std::function<void(core::CStatePersistInserter&)> persistFunction) -> void {
-        auto persistStream = m_Spec.persistStream();
-        if (persistStream != nullptr) {
+        auto persister = m_Spec.persister();
+        if (persister != nullptr) {
+            auto persistStream = persister->addStreamed(api::ML_STATE_INDEX, m_Spec.jobId() + '_' + REGRESSION_TRAIN_STATE_TYPE);
             core::CJsonStatePersistInserter inserter{*persistStream};
             persistFunction(inserter);
+            if(persister->streamComplete(persistStream, true) == false || persistStream->bad()) {
+                LOG_ERROR(<<"Failed to complete last persistence stream");
+            }
         }
     };
 }
