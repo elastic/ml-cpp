@@ -1173,7 +1173,8 @@ void CDataFrameAnalyzerTest::testRunBoostedTreeTrainingWithStateRecoverySubrouti
         core::CPersistUtils::fromString(actualHyperparameters[key].GetString(), actualVector);
         CPPUNIT_ASSERT_EQUAL(expectedVector.size(), actualVector.size());
         for (size_t i = 0; i < expectedVector.size(); i++) {
-            CPPUNIT_ASSERT_DOUBLES_EQUAL(expectedVector[i], actualVector[i], 1e-4 * expectedVector[i]);
+            CPPUNIT_ASSERT_DOUBLES_EQUAL(expectedVector[i], actualVector[i],
+                                         1e-4 * expectedVector[i]);
         }
     };
     assertDoublesEqual("hyperparam_lambda");
