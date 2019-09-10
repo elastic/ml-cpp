@@ -97,8 +97,9 @@ void CBoostedTreeFactory::initializeHyperparameterOptimisation() const {
         boundingBox.emplace_back(MIN_FEATURE_BAG_FRACTION, MAX_FEATURE_BAG_FRACTION);
     }
 
-    m_TreeImpl->m_BayesianOptimization =
-        std::make_unique<CBayesianOptimisation>(std::move(boundingBox));
+    m_TreeImpl->m_BayesianOptimization = std::make_unique<CBayesianOptimisation>(
+        std::move(boundingBox),
+        m_BayesianOptimisationRestarts.value_or(CBayesianOptimisation::RESTARTS));
     m_TreeImpl->m_NumberRounds = this->numberHyperparameterTuningRounds();
     m_TreeImpl->m_CurrentRound = 0; // for first start
 }
@@ -168,9 +169,12 @@ void CBoostedTreeFactory::selectFeaturesAndEncodeCategories(const core::CDataFra
     LOG_TRACE(<< "candidate regressors = " << core::CContainerPrinter::print(regressors));
 
     m_TreeImpl->m_Encoder = std::make_unique<CDataFrameCategoryEncoder>(
-        m_TreeImpl->m_NumberThreads, frame, m_TreeImpl->allTrainingRowsMask(),
-        regressors, m_TreeImpl->m_DependentVariable,
-        m_TreeImpl->m_RowsPerFeature, m_MinimumFrequencyToOneHotEncode);
+        CMakeDataFrameCategoryEncoder{m_TreeImpl->m_NumberThreads, frame,
+                                      m_TreeImpl->m_DependentVariable}
+            .minimumRowsPerFeature(m_TreeImpl->m_RowsPerFeature)
+            .minimumFrequencyToOneHotEncode(m_MinimumFrequencyToOneHotEncode)
+            .rowMask(m_TreeImpl->allTrainingRowsMask())
+            .columnMask(std::move(regressors)));
 }
 
 void CBoostedTreeFactory::determineFeatureDataTypes(const core::CDataFrame& frame) const {
@@ -341,8 +345,7 @@ CBoostedTreeFactory::constructFromString(std::stringstream& jsonStringStream,
 }
 
 CBoostedTreeFactory::CBoostedTreeFactory(std::size_t numberThreads, TLossFunctionUPtr loss)
-    : m_MinimumFrequencyToOneHotEncode{CDataFrameCategoryEncoder::MINIMUM_FREQUENCY_TO_ONE_HOT_ENCODE},
-      m_TreeImpl{std::make_unique<CBoostedTreeImpl>(numberThreads, std::move(loss))} {
+    : m_TreeImpl{std::make_unique<CBoostedTreeImpl>(numberThreads, std::move(loss))} {
 }
 
 CBoostedTreeFactory::CBoostedTreeFactory(CBoostedTreeFactory&&) = default;
@@ -428,6 +431,11 @@ CBoostedTreeFactory& CBoostedTreeFactory::featureBagFraction(double featureBagFr
 CBoostedTreeFactory&
 CBoostedTreeFactory::maximumOptimisationRoundsPerHyperparameter(std::size_t rounds) {
     m_TreeImpl->m_MaximumOptimisationRoundsPerHyperparameter = rounds;
+    return *this;
+}
+
+CBoostedTreeFactory& CBoostedTreeFactory::bayesianOptimisationRestarts(std::size_t restarts) {
+    m_BayesianOptimisationRestarts = std::max(restarts, std::size_t{1});
     return *this;
 }
 

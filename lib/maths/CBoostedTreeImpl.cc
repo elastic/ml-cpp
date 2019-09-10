@@ -153,9 +153,9 @@ void CBoostedTreeImpl::train(core::CDataFrame& frame,
     } else {
         // Hyperparameter optimisation loop.
 
-        while (m_CurrentRound++ < m_NumberRounds) {
+        while (m_CurrentRound < m_NumberRounds) {
 
-            LOG_TRACE(<< "Optimisation round = " << m_CurrentRound);
+            LOG_TRACE(<< "Optimisation round = " << m_CurrentRound + 1);
 
             TMeanVarAccumulator lossMoments{this->crossValidateForest(frame, recordMemoryUsage)};
 
@@ -178,7 +178,8 @@ void CBoostedTreeImpl::train(core::CDataFrame& frame,
             recordMemoryUsage(memoryUsage - lastMemoryUsage);
             lastMemoryUsage = memoryUsage;
 
-            //store the training state after each hyperparameter search step
+            // Store the training state after each hyperparameter search step.
+            m_CurrentRound += 1;
             LOG_TRACE(<< "Round " << m_CurrentRound << " state recording started");
             this->recordState(recordTrainStateCallback);
             LOG_TRACE(<< "Round " << m_CurrentRound << " state recording finished");
@@ -360,6 +361,8 @@ CBoostedTreeImpl::trainForest(core::CDataFrame& frame,
 
     LOG_TRACE(<< "Training one forest...");
 
+    std::size_t maximumTreeSize{this->maximumTreeSize(trainingRowMask)};
+
     TNodeVecVec forest{this->initializePredictionsAndLossDerivatives(frame, trainingRowMask)};
     forest.reserve(m_MaximumNumberTrees);
 
@@ -379,7 +382,8 @@ CBoostedTreeImpl::trainForest(core::CDataFrame& frame,
 
     std::size_t retries = 0;
     do {
-        auto tree = this->trainTree(frame, trainingRowMask, candidateSplits, recordMemoryUsage);
+        auto tree = this->trainTree(frame, trainingRowMask, candidateSplits,
+                                    maximumTreeSize, recordMemoryUsage);
 
         retries = tree.size() == 1 ? retries + 1 : 0;
 
@@ -496,6 +500,7 @@ CBoostedTreeImpl::TNodeVec
 CBoostedTreeImpl::trainTree(core::CDataFrame& frame,
                             const core::CPackedBitVector& trainingRowMask,
                             const TDoubleVecVec& candidateSplits,
+                            const std::size_t maximumTreeSize,
                             const TMemoryUsageCallback& recordMemoryUsage) const {
 
     LOG_TRACE(<< "Training one tree...");
@@ -503,8 +508,6 @@ CBoostedTreeImpl::trainTree(core::CDataFrame& frame,
     using TLeafNodeStatisticsPtr = std::shared_ptr<CLeafNodeStatistics>;
     using TLeafNodeStatisticsPtrQueue =
         std::priority_queue<TLeafNodeStatisticsPtr, std::vector<TLeafNodeStatisticsPtr>, COrderings::SLess>;
-
-    std::size_t maximumTreeSize{this->maximumTreeSize(frame)};
 
     TNodeVec tree(1);
     tree.reserve(2 * maximumTreeSize + 1);
@@ -783,7 +786,8 @@ bool CBoostedTreeImpl::selectNextHyperparameters(const TMeanVarAccumulator& loss
         m_FeatureBagFraction = parameters(i++);
     }
 
-    LOG_TRACE(<< "lambda = " << m_Lambda << ", gamma = " << m_Gamma << ", eta = " << m_Eta
+    LOG_TRACE(<< "round = " << m_CurrentRound << ": lambda = " << m_Lambda
+              << ", gamma = " << m_Gamma << ", eta = " << m_Eta
               << ", eta growth rate per tree = " << m_EtaGrowthRatePerTree
               << ", feature bag fraction = " << m_FeatureBagFraction);
     return true;
@@ -819,8 +823,8 @@ std::size_t CBoostedTreeImpl::numberHyperparametersToTune() const {
            (m_EtaOverride ? 0 : 2) + (m_FeatureBagFractionOverride ? 0 : 1);
 }
 
-std::size_t CBoostedTreeImpl::maximumTreeSize(const core::CDataFrame& frame) const {
-    return this->maximumTreeSize(frame.numberRows());
+std::size_t CBoostedTreeImpl::maximumTreeSize(const core::CPackedBitVector& trainingRowMask) const {
+    return this->maximumTreeSize(static_cast<std::size_t>(trainingRowMask.manhattan()));
 }
 
 std::size_t CBoostedTreeImpl::maximumTreeSize(std::size_t numberRows) const {

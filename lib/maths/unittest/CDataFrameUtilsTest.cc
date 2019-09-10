@@ -397,8 +397,7 @@ void CDataFrameUtilsTest::testColumnQuantilesWithEncoding() {
     }
     frame->finishWritingRows();
 
-    maths::CDataFrameCategoryEncoder encoder{
-        1, *frame, maskAll(rows), {1, 2, 3, 4, 5}, 0, 50};
+    maths::CDataFrameCategoryEncoder encoder{{1, *frame, 0}};
 
     TSizeVec columnMask(encoder.numberFeatures());
     std::iota(columnMask.begin(), columnMask.end(), 0);

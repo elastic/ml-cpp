@@ -688,6 +688,7 @@ private:
     TNodeVec trainTree(core::CDataFrame& frame,
                        const core::CPackedBitVector& trainingRowMask,
                        const TDoubleVecVec& candidateSplits,
+                       const std::size_t maximumTreeSize,
                        const TMemoryUsageCallback& recordMemoryUsage) const;
 
     //! Get the number of features including category encoding.
@@ -737,7 +738,7 @@ private:
     //!
     //! \note This number will only be used if the regularised loss says its
     //! a good idea.
-    std::size_t maximumTreeSize(const core::CDataFrame& frame) const;
+    std::size_t maximumTreeSize(const core::CPackedBitVector& trainingRowMask) const;
 
     //! Get the maximum number of nodes to use in a tree.
     //!
