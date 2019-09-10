@@ -34,6 +34,7 @@ public:
     using TBoostedTreeUPtr = std::unique_ptr<CBoostedTree>;
     using TProgressCallback = CBoostedTree::TProgressCallback;
     using TMemoryUsageCallback = CBoostedTree::TMemoryUsageCallback;
+    using TTrainingStateCallback = CBoostedTree::TTrainingStateCallback;
     using TLossFunctionUPtr = CBoostedTree::TLossFunctionUPtr;
 
 public:
@@ -46,7 +47,8 @@ public:
     constructFromString(std::stringstream& jsonStringStream,
                         core::CDataFrame& frame,
                         TProgressCallback recordProgress = noopRecordProgress,
-                        TMemoryUsageCallback recordMemoryUsage = noopRecordMemoryUsage);
+                        TMemoryUsageCallback recordMemoryUsage = noopRecordMemoryUsage,
+                        TTrainingStateCallback recordTrainingState = noopRecordTrainingState);
 
     ~CBoostedTreeFactory();
     CBoostedTreeFactory(CBoostedTreeFactory&) = delete;
@@ -77,6 +79,8 @@ public:
     CBoostedTreeFactory& progressCallback(TProgressCallback callback);
     //! Set the callback function for memory monitoring.
     CBoostedTreeFactory& memoryUsageCallback(TMemoryUsageCallback callback);
+    //! Set the callback function for training state recording.
+    CBoostedTreeFactory& trainingStateCallback(TTrainingStateCallback callback);
 
     //! Estimate the maximum booking memory that training the boosted tree on a data
     //! frame with \p numberRows row and \p numberColumns columns will use.
@@ -127,12 +131,14 @@ private:
 
     static void noopRecordProgress(double);
     static void noopRecordMemoryUsage(std::int64_t);
+    static void noopRecordTrainingState(CDataFrameRegressionModel::TPersistFunc);
 
 private:
     TOptionalDouble m_MinimumFrequencyToOneHotEncode;
     TBoostedTreeImplUPtr m_TreeImpl;
     TProgressCallback m_RecordProgress = noopRecordProgress;
     TMemoryUsageCallback m_RecordMemoryUsage = noopRecordMemoryUsage;
+    TTrainingStateCallback m_RecordTrainingState = noopRecordTrainingState;
 };
 }
 }

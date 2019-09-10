@@ -8,6 +8,7 @@
 #define INCLUDED_ml_api_CDataFrameAnalysisSpecification_h
 
 #include <core/CFastMutex.h>
+#include <core/CJsonOutputStreamWrapper.h>
 
 #include <api/CDataFrameAnalysisRunner.h>
 #include <api/ImportExport.h>
@@ -43,6 +44,8 @@ public:
     using TStrVec = std::vector<std::string>;
     using TDataFrameUPtr = std::unique_ptr<core::CDataFrame>;
     using TTemporaryDirectoryPtr = std::shared_ptr<core::CTemporaryDirectory>;
+    using TOStreamSPtr = std::shared_ptr<std::ostream>;
+    using TPersistStreamSupplier = std::function<TOStreamSPtr()>;
     using TDataFrameUPtrTemporaryDirectoryPtrPr =
         std::pair<TDataFrameUPtr, TTemporaryDirectoryPtr>;
     using TRunnerUPtr = std::unique_ptr<CDataFrameAnalysisRunner>;
@@ -91,14 +94,17 @@ public:
     //! \note temp_dir Is a directory which can be used to store the data frame
     //! out-of-core if we can't meet the memory constraint for the analysis without
     //! partitioning.
-    CDataFrameAnalysisSpecification(const std::string& jsonSpecification);
+    //! \param persistStreamSupplier Shared pointer to the string with  persist stream name.
+    CDataFrameAnalysisSpecification(const std::string& jsonSpecification,
+                                    TPersistStreamSupplier persistStreamSupplier = noopPersistStreamSupplier());
 
     //! This construtor provides support for custom analysis types and is mainly
     //! intended for testing.
     //!
     //! \param[in] runnerFactories Plugins for the supported analyses.
     CDataFrameAnalysisSpecification(TRunnerFactoryUPtrVec runnerFactories,
-                                    const std::string& jsonSpecification);
+                                    const std::string& jsonSpecification,
+                                    TPersistStreamSupplier persistStreamSupplier = noopPersistStreamSupplier());
 
     CDataFrameAnalysisSpecification(const CDataFrameAnalysisSpecification&) = delete;
     CDataFrameAnalysisSpecification& operator=(const CDataFrameAnalysisSpecification&) = delete;
@@ -156,8 +162,13 @@ public:
     //!   2. disk is used (only one partition needs to be loaded to main memory)
     void estimateMemoryUsage(CMemoryUsageEstimationResultJsonWriter& writer) const;
 
+    //! \return shared pointer to the persistence stream.
+    TOStreamSPtr persistStream() const;
+
 private:
     void initializeRunner(const rapidjson::Value& jsonAnalysis);
+
+    static TPersistStreamSupplier noopPersistStreamSupplier();
 
 private:
     std::size_t m_NumberRows = 0;
@@ -172,6 +183,7 @@ private:
     // double m_TableLoadFactor = 0.0;
     TRunnerFactoryUPtrVec m_RunnerFactories;
     TRunnerUPtr m_Runner;
+    TPersistStreamSupplier m_PersistStreamSupplier;
 };
 }
 }

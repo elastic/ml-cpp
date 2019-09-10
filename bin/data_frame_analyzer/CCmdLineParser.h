@@ -27,6 +27,7 @@ public:
     static bool parse(int argc,
                       const char* const* argv,
                       std::string& configFile,
+                      std::string& jobId,
                       bool& memoryUsageEstimationOnly,
                       std::string& logProperties,
                       std::string& logPipe,
@@ -34,7 +35,11 @@ public:
                       std::string& inputFileName,
                       bool& isInputFileNamedPipe,
                       std::string& outputFileName,
-                      bool& isOutputFileNamedPipe);
+                      bool& isOutputFileNamedPipe,
+                      std::string& restoreFileName,
+                      bool& isRestoreFileNamedPipe,
+                      std::string& persistFileName,
+                      bool& isPersistFileNamedPipe);
 
 private:
     static const std::string DESCRIPTION;
