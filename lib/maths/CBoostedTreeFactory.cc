@@ -97,8 +97,9 @@ void CBoostedTreeFactory::initializeHyperparameterOptimisation() const {
         boundingBox.emplace_back(MIN_FEATURE_BAG_FRACTION, MAX_FEATURE_BAG_FRACTION);
     }
 
-    m_TreeImpl->m_BayesianOptimization =
-        std::make_unique<CBayesianOptimisation>(std::move(boundingBox));
+    m_TreeImpl->m_BayesianOptimization = std::make_unique<CBayesianOptimisation>(
+        std::move(boundingBox),
+        m_BayesianOptimisationRestarts.value_or(CBayesianOptimisation::RESTARTS));
     m_TreeImpl->m_NumberRounds = this->numberHyperparameterTuningRounds();
     m_TreeImpl->m_CurrentRound = 0; // for first start
 }
@@ -430,6 +431,11 @@ CBoostedTreeFactory& CBoostedTreeFactory::featureBagFraction(double featureBagFr
 CBoostedTreeFactory&
 CBoostedTreeFactory::maximumOptimisationRoundsPerHyperparameter(std::size_t rounds) {
     m_TreeImpl->m_MaximumOptimisationRoundsPerHyperparameter = rounds;
+    return *this;
+}
+
+CBoostedTreeFactory& CBoostedTreeFactory::bayesianOptimisationRestarts(std::size_t restarts) {
+    m_BayesianOptimisationRestarts = std::max(restarts, std::size_t{1});
     return *this;
 }
 

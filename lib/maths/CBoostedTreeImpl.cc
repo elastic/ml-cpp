@@ -153,9 +153,9 @@ void CBoostedTreeImpl::train(core::CDataFrame& frame,
     } else {
         // Hyperparameter optimisation loop.
 
-        while (m_CurrentRound++ < m_NumberRounds) {
+        while (m_CurrentRound < m_NumberRounds) {
 
-            LOG_TRACE(<< "Optimisation round = " << m_CurrentRound);
+            LOG_TRACE(<< "Optimisation round = " << m_CurrentRound + 1);
 
             TMeanVarAccumulator lossMoments{this->crossValidateForest(frame, recordMemoryUsage)};
 
@@ -178,7 +178,8 @@ void CBoostedTreeImpl::train(core::CDataFrame& frame,
             recordMemoryUsage(memoryUsage - lastMemoryUsage);
             lastMemoryUsage = memoryUsage;
 
-            //store the training state after each hyperparameter search step
+            // Store the training state after each hyperparameter search step.
+            m_CurrentRound += 1;
             LOG_TRACE(<< "Round " << m_CurrentRound << " state recording started");
             this->recordState(recordTrainStateCallback);
             LOG_TRACE(<< "Round " << m_CurrentRound << " state recording finished");
@@ -785,7 +786,8 @@ bool CBoostedTreeImpl::selectNextHyperparameters(const TMeanVarAccumulator& loss
         m_FeatureBagFraction = parameters(i++);
     }
 
-    LOG_TRACE(<< "lambda = " << m_Lambda << ", gamma = " << m_Gamma << ", eta = " << m_Eta
+    LOG_TRACE(<< "round = " << m_CurrentRound << ": lambda = " << m_Lambda
+              << ", gamma = " << m_Gamma << ", eta = " << m_Eta
               << ", eta growth rate per tree = " << m_EtaGrowthRatePerTree
               << ", feature bag fraction = " << m_FeatureBagFraction);
     return true;
