@@ -94,7 +94,7 @@ public:
     //! \note temp_dir Is a directory which can be used to store the data frame
     //! out-of-core if we can't meet the memory constraint for the analysis without
     //! partitioning.
-    //! \param persistStream Shared pointer to the string with  persist stream name.
+    //! \param persistStreamSupplier Shared pointer to the string with  persist stream name.
     CDataFrameAnalysisSpecification(const std::string& jsonSpecification,
                                     TPersistStreamSupplier persistStreamSupplier = noopPersistStreamSupplier());
 
@@ -162,7 +162,8 @@ public:
     //!   2. disk is used (only one partition needs to be loaded to main memory)
     void estimateMemoryUsage(CMemoryUsageEstimationResultJsonWriter& writer) const;
 
-    TOStreamSPtr persistStreamSupplier() const;
+    //! \return shared pointer to the persistence stream.
+    TOStreamSPtr persistStream() const;
 
 private:
     void initializeRunner(const rapidjson::Value& jsonAnalysis);

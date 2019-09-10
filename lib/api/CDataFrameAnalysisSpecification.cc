@@ -220,7 +220,7 @@ void CDataFrameAnalysisSpecification::initializeRunner(const rapidjson::Value& j
 }
 
 CDataFrameAnalysisSpecification::TOStreamSPtr
-CDataFrameAnalysisSpecification::persistStreamSupplier() const {
+CDataFrameAnalysisSpecification::persistStream() const {
     return m_PersistStreamSupplier();
 }
 

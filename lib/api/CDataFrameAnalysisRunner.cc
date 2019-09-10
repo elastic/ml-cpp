@@ -197,7 +197,7 @@ void CDataFrameAnalysisRunner::setToFinished() {
 
 CDataFrameAnalysisRunner::TStatePersister CDataFrameAnalysisRunner::statePersister() {
     return [this](std::function<void(core::CStatePersistInserter&)> persistFunction) -> void {
-        auto persistStream = m_Spec.persistStreamSupplier();
+        auto persistStream = m_Spec.persistStream();
         if (persistStream != nullptr) {
             core::CJsonStatePersistInserter inserter{*persistStream};
             persistFunction(inserter);
