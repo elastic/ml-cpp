@@ -55,8 +55,8 @@ CBoostedTreeFactory::buildFor(core::CDataFrame& frame, std::size_t dependentVari
     }
 
     // TODO can only use factory to create one object since this is moved. This seems trappy.
-    return TBoostedTreeUPtr{new CBoostedTree{
-        frame, m_RecordProgress, m_RecordMemoryUsage, std::move(m_TreeImpl)}};
+    return TBoostedTreeUPtr{new CBoostedTree{frame, m_RecordProgress, m_RecordMemoryUsage,
+                                             m_RecordTrainingState, std::move(m_TreeImpl)}};
 }
 
 std::size_t CBoostedTreeFactory::numberHyperparameterTuningRounds() const {
@@ -320,15 +320,19 @@ CBoostedTreeFactory::TBoostedTreeUPtr
 CBoostedTreeFactory::constructFromString(std::stringstream& jsonStringStream,
                                          core::CDataFrame& frame,
                                          TProgressCallback recordProgress,
-                                         TMemoryUsageCallback recordMemoryUsage) {
+                                         TMemoryUsageCallback recordMemoryUsage,
+                                         TTrainingStateCallback recordTrainingState) {
     try {
         TBoostedTreeUPtr treePtr{new CBoostedTree{
             frame, std::move(recordProgress), std::move(recordMemoryUsage),
-            TBoostedTreeImplUPtr{new CBoostedTreeImpl{}}}};
+            std::move(recordTrainingState), TBoostedTreeImplUPtr{new CBoostedTreeImpl{}}}};
         core::CJsonStateRestoreTraverser traverser(jsonStringStream);
         if (treePtr->acceptRestoreTraverser(traverser) == false || traverser.haveBadState()) {
             throw std::runtime_error{"failed to restore boosted tree"};
         }
+        frame.resizeColumns(treePtr->m_Impl->m_NumberThreads,
+                            frame.numberColumns() +
+                                treePtr->m_Impl->numberExtraColumnsForTrain());
         return treePtr;
     } catch (const std::exception& e) {
         HANDLE_FATAL(<< "Input error: '" << e.what() << "'. Check logs for more details.");
@@ -446,6 +450,11 @@ CBoostedTreeFactory& CBoostedTreeFactory::memoryUsageCallback(TMemoryUsageCallba
     return *this;
 }
 
+CBoostedTreeFactory& CBoostedTreeFactory::trainingStateCallback(TTrainingStateCallback callback) {
+    m_RecordTrainingState = std::move(callback);
+    return *this;
+}
+
 std::size_t CBoostedTreeFactory::estimateMemoryUsage(std::size_t numberRows,
                                                      std::size_t numberColumns) const {
     double maximumTreeSizeMultiplier{MAIN_TRAINING_LOOP_TREE_SIZE_MULTIPLIER *
@@ -466,6 +475,9 @@ std::size_t CBoostedTreeFactory::estimateMemoryUsage(std::size_t numberRows,
 
 std::size_t CBoostedTreeFactory::numberExtraColumnsForTrain() const {
     return m_TreeImpl->numberExtraColumnsForTrain();
+}
+
+void CBoostedTreeFactory::noopRecordTrainingState(std::function<void(core::CStatePersistInserter&)>) {
 }
 
 void CBoostedTreeFactory::noopRecordProgress(double) {

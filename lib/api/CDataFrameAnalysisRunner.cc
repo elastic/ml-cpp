@@ -7,8 +7,8 @@
 #include <api/CDataFrameAnalysisRunner.h>
 
 #include <core/CDataFrame.h>
+#include <core/CJsonStatePersistInserter.h>
 #include <core/CLogger.h>
-#include <core/CScopedFastLock.h>
 
 #include <api/CDataFrameAnalysisSpecification.h>
 #include <api/CMemoryUsageEstimationResultJsonWriter.h>
@@ -193,6 +193,16 @@ void CDataFrameAnalysisRunner::recordProgress(double fractionalProgress) {
 void CDataFrameAnalysisRunner::setToFinished() {
     m_Finished.store(true);
     m_FractionalProgress.store(MAXIMUM_FRACTIONAL_PROGRESS);
+}
+
+CDataFrameAnalysisRunner::TStatePersister CDataFrameAnalysisRunner::statePersister() {
+    return [this](std::function<void(core::CStatePersistInserter&)> persistFunction) -> void {
+        auto persistStream = m_Spec.persistStream();
+        if (persistStream != nullptr) {
+            core::CJsonStatePersistInserter inserter{*persistStream};
+            persistFunction(inserter);
+        }
+    };
 }
 
 CDataFrameAnalysisRunnerFactory::TRunnerUPtr

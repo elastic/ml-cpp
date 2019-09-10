@@ -290,6 +290,7 @@ const CBayesianOptimisation::TVector& CBayesianOptimisation::maximumLikelihoodKe
 
     std::size_t n(m_KernelParameters.size());
 
+    // We restart optimization with initial guess on different scales for global probing
     TDoubleVec scales;
     scales.reserve((m_Restarts - 1) * n);
     CSampling::uniformSample(m_Rng, std::log(0.1), std::log(4.0),
@@ -323,7 +324,8 @@ const CBayesianOptimisation::TVector& CBayesianOptimisation::maximumLikelihoodKe
         }
     }
 
-    m_KernelParameters = std::move(amax);
+    // Ensure that kernel lengths are always positive. It shouldn't change the results but improves traceability.
+    m_KernelParameters = std::move(amax.cwiseAbs());
     LOG_TRACE(<< "kernel parameters = " << m_KernelParameters.transpose());
 
     return m_KernelParameters;
