@@ -14,6 +14,7 @@
 //! Standalone program.
 //!
 #include <core/CDataFrameRowSlice.h>
+#include <core/CDataSearcher.h>
 #include <core/CJsonOutputStreamWrapper.h>
 #include <core/CLogger.h>
 #include <core/CNonInstantiatable.h>
@@ -24,13 +25,14 @@
 #include <ver/CBuildInfo.h>
 
 #include <api/CCsvInputParser.h>
-#include <api/CDataFrameAnalysisRunner.h>
 #include <api/CDataFrameAnalysisSpecification.h>
 #include <api/CDataFrameAnalyzer.h>
-#include <api/CDataFrameOutliersRunner.h>
 #include <api/CIoManager.h>
 #include <api/CLengthEncodedInputParser.h>
 #include <api/CMemoryUsageEstimationResultJsonWriter.h>
+#include <api/CSingleStreamDataAdder.h>
+#include <api/CSingleStreamSearcher.h>
+#include <api/CStateRestoreStreamFilter.h>
 
 #include "CCmdLineParser.h"
 
@@ -88,6 +90,7 @@ int main(int argc, char** argv) {
 
     // Read command line options
     std::string configFile;
+    std::string jobId;
     bool memoryUsageEstimationOnly(false);
     std::string logProperties;
     std::string logPipe;
@@ -96,10 +99,15 @@ int main(int argc, char** argv) {
     bool isInputFileNamedPipe(false);
     std::string outputFileName;
     bool isOutputFileNamedPipe(false);
+    std::string restoreFileName;
+    bool isRestoreFileNamedPipe(false);
+    std::string persistFileName;
+    bool isPersistFileNamedPipe(false);
     if (ml::data_frame_analyzer::CCmdLineParser::parse(
-            argc, argv, configFile, memoryUsageEstimationOnly, logProperties,
+            argc, argv, configFile, jobId, memoryUsageEstimationOnly, logProperties,
             logPipe, lengthEncodedInput, inputFileName, isInputFileNamedPipe,
-            outputFileName, isOutputFileNamedPipe) == false) {
+            outputFileName, isOutputFileNamedPipe, restoreFileName,
+            isRestoreFileNamedPipe, persistFileName, isPersistFileNamedPipe) == false) {
         return EXIT_FAILURE;
     }
 
@@ -110,8 +118,9 @@ int main(int argc, char** argv) {
 
     // Construct the IO manager before reconfiguring the logger, as it performs
     // std::ios actions that only work before first use
-    ml::api::CIoManager ioMgr(inputFileName, isInputFileNamedPipe,
-                              outputFileName, isOutputFileNamedPipe);
+    ml::api::CIoManager ioMgr(inputFileName, isInputFileNamedPipe, outputFileName,
+                              isOutputFileNamedPipe, restoreFileName, isRestoreFileNamedPipe,
+                              persistFileName, isPersistFileNamedPipe);
 
     if (ml::core::CLogger::instance().reconfigure(logPipe, logProperties) == false) {
         LOG_FATAL(<< "Could not reconfigure logging");
@@ -140,8 +149,46 @@ int main(int argc, char** argv) {
         return EXIT_FAILURE;
     }
 
-    auto analysisSpecification =
-        std::make_unique<ml::api::CDataFrameAnalysisSpecification>(analysisSpecificationJson);
+    auto resultsStreamSupplier = [&ioMgr]() {
+        return std::make_unique<ml::core::CJsonOutputStreamWrapper>(ioMgr.outputStream());
+    };
+
+    // TODO Factor out these constants to an extra header file, e.g api/ElasticsearchStateIndex.h
+    const std::string ML_STATE_INDEX(".ml-state");
+    const std::string REGRESSION_TRAIN_STATE_TYPE("predictive_model_train_state");
+
+    using TDataAdderUPtr = std::unique_ptr<ml::core::CDataAdder>;
+    TDataAdderUPtr persister;
+    if (ioMgr.persistStream() != nullptr) {
+        persister = std::make_unique<ml::api::CSingleStreamDataAdder>(ioMgr.persistStream());
+    }
+    auto persistStreamSupplier =
+        [&persister, &jobId, &ML_STATE_INDEX,
+         &REGRESSION_TRAIN_STATE_TYPE]() -> std::shared_ptr<std::ostream> {
+        return persister != nullptr
+                   ? persister->addStreamed(ML_STATE_INDEX, jobId + '_' + REGRESSION_TRAIN_STATE_TYPE)
+                   : nullptr;
+    };
+
+    using TDataSearcherUPtr = std::unique_ptr<ml::core::CDataSearcher>;
+    auto restoreSearcherSupplier = [isRestoreFileNamedPipe, &ioMgr]() -> TDataSearcherUPtr {
+        if (ioMgr.restoreStream()) {
+            // Check whether state is restored from a file, if so we assume that this is a debugging case
+            // and therefore does not originate from the ML Java code.
+            if (isRestoreFileNamedPipe == false) {
+                // apply a filter to overcome differences in the way persistence vs. restore works
+                auto strm = std::make_shared<boost::iostreams::filtering_istream>();
+                strm->push(ml::api::CStateRestoreStreamFilter());
+                strm->push(*ioMgr.restoreStream());
+                return std::make_unique<ml::api::CSingleStreamSearcher>(strm);
+            }
+            return std::make_unique<ml::api::CSingleStreamSearcher>(ioMgr.restoreStream());
+        }
+        return nullptr;
+    };
+
+    auto analysisSpecification = std::make_unique<ml::api::CDataFrameAnalysisSpecification>(
+        analysisSpecificationJson, std::move(persistStreamSupplier));
 
     if (memoryUsageEstimationOnly) {
         auto outStream = [&ioMgr]() {
@@ -157,9 +204,8 @@ int main(int argc, char** argv) {
     }
 
     ml::api::CDataFrameAnalyzer dataFrameAnalyzer{
-        std::move(analysisSpecification), [&ioMgr]() {
-            return std::make_unique<ml::core::CJsonOutputStreamWrapper>(ioMgr.outputStream());
-        }};
+        std::move(analysisSpecification), std::move(resultsStreamSupplier),
+        std::move(restoreSearcherSupplier)};
 
     CCleanUpOnExit::add(dataFrameAnalyzer.dataFrameDirectory());
 

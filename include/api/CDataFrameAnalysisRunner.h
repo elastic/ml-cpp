@@ -8,6 +8,7 @@
 #define INCLUDED_ml_api_CDataFrameAnalysisRunner_h
 
 #include <core/CFastMutex.h>
+#include <core/CStatePersistInserter.h>
 
 #include <api/ImportExport.h>
 
@@ -134,11 +135,18 @@ public:
     double progress() const;
 
 protected:
+    using TStatePersister =
+        std::function<void(std::function<void(core::CStatePersistInserter&)>)>;
+
+protected:
     const CDataFrameAnalysisSpecification& spec() const;
     TProgressRecorder progressRecorder();
     std::size_t estimateMemoryUsage(std::size_t totalNumberRows,
                                     std::size_t partitionNumberRows,
                                     std::size_t numberColumns) const;
+
+    //! \return Callback function for writing state using given persist inserter
+    TStatePersister statePersister();
 
 private:
     virtual void runImpl(const TStrVec& featureNames, core::CDataFrame& frame) = 0;
