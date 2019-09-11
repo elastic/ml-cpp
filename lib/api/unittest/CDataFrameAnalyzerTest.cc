@@ -49,10 +49,15 @@ using TPointVec = std::vector<TPoint>;
 std::vector<rapidjson::Document> stringToJsonDocumentVector(std::string input) {
     rapidjson::StringStream stringStream{input.c_str()};
     std::vector<rapidjson::Document> results;
-    while (stringStream.Tell() < input.size() - 1) {
+    while (stringStream.Tell() < input.size() - 3) {
         results.emplace_back();
         rapidjson::ParseResult ok(
             results.back().ParseStream<rapidjson::ParseFlag::kParseStopWhenDoneFlag>(stringStream));
+        if (ok.Code() == rapidjson::kParseErrorDocumentEmpty) {
+            results.pop_back();
+            stringStream.Take(); // move one character forward
+            continue;
+        }
         CPPUNIT_ASSERT(static_cast<bool>(ok) == true);
     }
     return results;
@@ -1135,8 +1140,9 @@ void CDataFrameAnalyzerTest::testRunBoostedTreeTrainingWithStateRecoverySubrouti
 
     std::unique_ptr<maths::CBoostedTree> intermediateTree;
     std::unique_ptr<maths::CBoostedTree> finalTree;
-    intermediateTree = createTreeFromJsonObject(frame, persistedStates[intermediateIteration]);
-    finalTree = createTreeFromJsonObject(frame, persistedStates[finalIteration]);
+    // as the first doc contains index name, we need to access the second one.
+    intermediateTree = createTreeFromJsonObject(frame, persistedStates[2*intermediateIteration+1]);
+    finalTree = createTreeFromJsonObject(frame, persistedStates[2*finalIteration+1]);
 
     CPPUNIT_ASSERT(intermediateTree.get() != nullptr);
     intermediateTree->train();
