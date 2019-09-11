@@ -7,13 +7,12 @@
 #include <maths/CBoostedTree.h>
 
 #include <core/CDataFrame.h>
+#include <core/CJsonStatePersistInserter.h>
 
 #include <maths/CBoostedTreeImpl.h>
 
-#include <numeric>
 #include <sstream>
 #include <utility>
-#include <vector>
 
 namespace ml {
 namespace maths {
@@ -102,16 +101,19 @@ const std::string CMse::NAME{"mse"};
 CBoostedTree::CBoostedTree(core::CDataFrame& frame,
                            TProgressCallback recordProgress,
                            TMemoryUsageCallback recordMemoryUsage,
+                           TTrainingStateCallback recordTrainingState,
                            TImplUPtr&& impl)
     : CDataFrameRegressionModel{frame, std::move(recordProgress),
-                                std::move(recordMemoryUsage)},
+                                std::move(recordMemoryUsage),
+                                std::move(recordTrainingState)},
       m_Impl{std::move(impl)} {
 }
 
 CBoostedTree::~CBoostedTree() = default;
 
 void CBoostedTree::train() {
-    m_Impl->train(this->frame(), this->progressRecorder(), this->memoryUsageRecorder());
+    m_Impl->train(this->frame(), this->progressRecorder(),
+                  this->memoryUsageRecorder(), this->trainingStateRecorder());
 }
 
 void CBoostedTree::predict() const {
@@ -139,16 +141,11 @@ const std::string BOOSTED_TREE_IMPL_TAG{"boosted_tree_impl"};
 }
 
 bool CBoostedTree::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
-    do {
-        const std::string& name = traverser.name();
-        RESTORE(BOOSTED_TREE_IMPL_TAG,
-                core::CPersistUtils::restore(BOOSTED_TREE_IMPL_TAG, *m_Impl, traverser))
-    } while (traverser.next());
-    return true;
+    return m_Impl->acceptRestoreTraverser(traverser);
 }
 
 void CBoostedTree::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
-    core::CPersistUtils::persist(BOOSTED_TREE_IMPL_TAG, *m_Impl, inserter);
+    m_Impl->acceptPersistInserter(inserter);
 }
 }
 }

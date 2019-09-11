@@ -19,6 +19,7 @@ public:
     void testConstantTarget();
     void testCategoricalRegressors();
     void testIntegerRegressor();
+    void testTranslationInvariance();
     void testEstimateMemoryUsedByTrain();
     void testProgressMonitoring();
     void testMissingData();

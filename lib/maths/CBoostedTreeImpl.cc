@@ -35,9 +35,11 @@ public:
           m_MemoryUsage(core::CMemory::dynamicSize(object)) {
         m_RecordMemoryUsage(m_MemoryUsage);
     }
+
     ~CScopeRecordMemoryUsage() { m_RecordMemoryUsage(-m_MemoryUsage); }
 
     CScopeRecordMemoryUsage(const CScopeRecordMemoryUsage&) = delete;
+
     CScopeRecordMemoryUsage& operator=(const CScopeRecordMemoryUsage&) = delete;
 
     template<typename T>
@@ -120,7 +122,8 @@ CBoostedTreeImpl& CBoostedTreeImpl::operator=(CBoostedTreeImpl&&) = default;
 
 void CBoostedTreeImpl::train(core::CDataFrame& frame,
                              const TProgressCallback& recordProgress,
-                             const TMemoryUsageCallback& recordMemoryUsage) {
+                             const TMemoryUsageCallback& recordMemoryUsage,
+                             const TTrainingStateCallback& recordTrainStateCallback) {
 
     if (m_DependentVariable >= frame.numberColumns()) {
         HANDLE_FATAL(<< "Internal error: dependent variable '" << m_DependentVariable
@@ -143,19 +146,15 @@ void CBoostedTreeImpl::train(core::CDataFrame& frame,
         // Fallback to using the constant predictor which minimises the loss.
 
         core::CPackedBitVector trainingRowMask{this->allTrainingRowsMask()};
-
-        double eta{1.0};
-        std::swap(eta, m_Eta);
         m_BestForest.assign(1, this->initializePredictionsAndLossDerivatives(frame, trainingRowMask));
-        std::swap(eta, m_Eta);
-
         m_BestForestTestLoss = this->meanLoss(frame, trainingRowMask, m_BestForest);
         LOG_TRACE(<< "Test loss = " << m_BestForestTestLoss);
 
     } else {
         // Hyperparameter optimisation loop.
 
-        do {
+        while (m_CurrentRound < m_NumberRounds) {
+
             LOG_TRACE(<< "Optimisation round = " << m_CurrentRound + 1);
 
             TMeanVarAccumulator lossMoments{this->crossValidateForest(frame, recordMemoryUsage)};
@@ -179,11 +178,17 @@ void CBoostedTreeImpl::train(core::CDataFrame& frame,
             recordMemoryUsage(memoryUsage - lastMemoryUsage);
             lastMemoryUsage = memoryUsage;
 
-        } while (m_CurrentRound++ < m_NumberRounds);
+            // Store the training state after each hyperparameter search step.
+            m_CurrentRound += 1;
+            LOG_TRACE(<< "Round " << m_CurrentRound << " state recording started");
+            this->recordState(recordTrainStateCallback);
+            LOG_TRACE(<< "Round " << m_CurrentRound << " state recording finished");
+        }
 
         LOG_TRACE(<< "Test loss = " << m_BestForestTestLoss);
 
         this->restoreBestHyperparameters();
+
         m_BestForest = this->trainForest(frame, this->allTrainingRowsMask(), recordMemoryUsage);
     }
 
@@ -193,6 +198,12 @@ void CBoostedTreeImpl::train(core::CDataFrame& frame,
 
     std::int64_t memoryUsage(this->memoryUsage());
     recordMemoryUsage(memoryUsage - lastMemoryUsage);
+}
+
+void CBoostedTreeImpl::recordState(const TTrainingStateCallback& recordTrainState) const {
+    recordTrainState([this](core::CStatePersistInserter& inserter) {
+        this->acceptPersistInserter(inserter);
+    });
 }
 
 void CBoostedTreeImpl::predict(core::CDataFrame& frame,
@@ -336,8 +347,9 @@ CBoostedTreeImpl::TNodeVec CBoostedTreeImpl::initializePredictionsAndLossDerivat
                        },
                        &trainingRowMask);
 
+    // At the start we will centre the data w.r.t. the given loss function.
     TNodeVec tree(1);
-    this->refreshPredictionsAndLossDerivatives(frame, trainingRowMask, m_Eta, tree);
+    this->refreshPredictionsAndLossDerivatives(frame, trainingRowMask, 1.0, tree);
 
     return tree;
 }
@@ -348,6 +360,8 @@ CBoostedTreeImpl::trainForest(core::CDataFrame& frame,
                               const TMemoryUsageCallback& recordMemoryUsage) const {
 
     LOG_TRACE(<< "Training one forest...");
+
+    std::size_t maximumTreeSize{this->maximumTreeSize(trainingRowMask)};
 
     TNodeVecVec forest{this->initializePredictionsAndLossDerivatives(frame, trainingRowMask)};
     forest.reserve(m_MaximumNumberTrees);
@@ -366,9 +380,10 @@ CBoostedTreeImpl::trainForest(core::CDataFrame& frame,
     TDoubleVecVec candidateSplits(this->candidateSplits(frame, trainingRowMask));
     scopeMemoryUsage.add(candidateSplits);
 
-    for (std::size_t retries = 0; forest.size() < m_MaximumNumberTrees; /**/) {
-
-        auto tree = this->trainTree(frame, trainingRowMask, candidateSplits, recordMemoryUsage);
+    std::size_t retries = 0;
+    do {
+        auto tree = this->trainTree(frame, trainingRowMask, candidateSplits,
+                                    maximumTreeSize, recordMemoryUsage);
 
         retries = tree.size() == 1 ? retries + 1 : 0;
 
@@ -394,7 +409,7 @@ CBoostedTreeImpl::trainForest(core::CDataFrame& frame,
         if (m_Loss->isCurvatureConstant() == false) {
             candidateSplits = this->candidateSplits(frame, trainingRowMask);
         }
-    }
+    } while (forest.size() < m_MaximumNumberTrees);
 
     LOG_TRACE(<< "Trained one forest");
 
@@ -485,6 +500,7 @@ CBoostedTreeImpl::TNodeVec
 CBoostedTreeImpl::trainTree(core::CDataFrame& frame,
                             const core::CPackedBitVector& trainingRowMask,
                             const TDoubleVecVec& candidateSplits,
+                            const std::size_t maximumTreeSize,
                             const TMemoryUsageCallback& recordMemoryUsage) const {
 
     LOG_TRACE(<< "Training one tree...");
@@ -492,8 +508,6 @@ CBoostedTreeImpl::trainTree(core::CDataFrame& frame,
     using TLeafNodeStatisticsPtr = std::shared_ptr<CLeafNodeStatistics>;
     using TLeafNodeStatisticsPtrQueue =
         std::priority_queue<TLeafNodeStatisticsPtr, std::vector<TLeafNodeStatisticsPtr>, COrderings::SLess>;
-
-    std::size_t maximumTreeSize{this->maximumTreeSize(frame)};
 
     TNodeVec tree(1);
     tree.reserve(2 * maximumTreeSize + 1);
@@ -772,7 +786,8 @@ bool CBoostedTreeImpl::selectNextHyperparameters(const TMeanVarAccumulator& loss
         m_FeatureBagFraction = parameters(i++);
     }
 
-    LOG_TRACE(<< "lambda = " << m_Lambda << ", gamma = " << m_Gamma << ", eta = " << m_Eta
+    LOG_TRACE(<< "round = " << m_CurrentRound << ": lambda = " << m_Lambda
+              << ", gamma = " << m_Gamma << ", eta = " << m_Eta
               << ", eta growth rate per tree = " << m_EtaGrowthRatePerTree
               << ", feature bag fraction = " << m_FeatureBagFraction);
     return true;
@@ -808,8 +823,8 @@ std::size_t CBoostedTreeImpl::numberHyperparametersToTune() const {
            (m_EtaOverride ? 0 : 2) + (m_FeatureBagFractionOverride ? 0 : 1);
 }
 
-std::size_t CBoostedTreeImpl::maximumTreeSize(const core::CDataFrame& frame) const {
-    return this->maximumTreeSize(frame.numberRows());
+std::size_t CBoostedTreeImpl::maximumTreeSize(const core::CPackedBitVector& trainingRowMask) const {
+    return this->maximumTreeSize(static_cast<std::size_t>(trainingRowMask.manhattan()));
 }
 
 std::size_t CBoostedTreeImpl::maximumTreeSize(std::size_t numberRows) const {
@@ -820,6 +835,7 @@ std::size_t CBoostedTreeImpl::maximumTreeSize(std::size_t numberRows) const {
 const std::size_t CBoostedTreeImpl::PACKED_BIT_VECTOR_MAXIMUM_ROWS_PER_BYTE{256};
 
 namespace {
+const std::string RANDOM_NUMBER_GENERATOR_TAG{"random_number_generator"};
 const std::string BAYESIAN_OPTIMIZATION_TAG{"bayesian_optimization"};
 const std::string BEST_FOREST_TAG{"best_forest"};
 const std::string BEST_FOREST_TEST_LOSS_TAG{"best_forest_test_loss"};
@@ -872,6 +888,7 @@ const std::string HYPERPARAM_FEATURE_SAMPLE_PROBABILITIES_TAG{"hyperparam_featur
 void CBoostedTreeImpl::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
     core::CPersistUtils::persist(BAYESIAN_OPTIMIZATION_TAG, *m_BayesianOptimization, inserter);
     core::CPersistUtils::persist(BEST_FOREST_TEST_LOSS_TAG, m_BestForestTestLoss, inserter);
+    inserter.insertValue(RANDOM_NUMBER_GENERATOR_TAG, m_Rng.toString());
     core::CPersistUtils::persist(CURRENT_ROUND_TAG, m_CurrentRound, inserter);
     core::CPersistUtils::persist(DEPENDENT_VARIABLE_TAG, m_DependentVariable, inserter);
     core::CPersistUtils::persist(ENCODER_TAG, *m_Encoder, inserter);
@@ -997,6 +1014,8 @@ bool CBoostedTreeImpl::acceptRestoreTraverser(core::CStateRestoreTraverser& trav
         RESTORE(BEST_FOREST_TEST_LOSS_TAG,
                 core::CPersistUtils::restore(BEST_FOREST_TEST_LOSS_TAG,
                                              m_BestForestTestLoss, traverser))
+        RESTORE(RANDOM_NUMBER_GENERATOR_TAG, m_Rng.fromString(traverser.value()))
+
         RESTORE(CURRENT_ROUND_TAG,
                 core::CPersistUtils::restore(CURRENT_ROUND_TAG, m_CurrentRound, traverser))
         RESTORE(DEPENDENT_VARIABLE_TAG,

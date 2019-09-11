@@ -19,6 +19,7 @@
 #include <api/CDataFrameAnalysisConfigReader.h>
 #include <api/CDataFrameAnalysisSpecification.h>
 
+#include <core/CJsonStatePersistInserter.h>
 #include <rapidjson/document.h>
 #include <rapidjson/writer.h>
 
@@ -33,6 +34,8 @@ const std::string GAMMA{"gamma"};
 const std::string ETA{"eta"};
 const std::string MAXIMUM_NUMBER_TREES{"maximum_number_trees"};
 const std::string FEATURE_BAG_FRACTION{"feature_bag_fraction"};
+const std::string NUMBER_ROUNDS_PER_HYPERPARAMETER{"number_rounds_per_hyperparameter"};
+const std::string BAYESIAN_OPTIMISATION_RESTARTS{"bayesian_optimisation_restarts"};
 
 const CDataFrameAnalysisConfigReader PARAMETER_READER{[] {
     CDataFrameAnalysisConfigReader theReader;
@@ -47,6 +50,10 @@ const CDataFrameAnalysisConfigReader PARAMETER_READER{[] {
     theReader.addParameter(MAXIMUM_NUMBER_TREES,
                            CDataFrameAnalysisConfigReader::E_OptionalParameter);
     theReader.addParameter(FEATURE_BAG_FRACTION,
+                           CDataFrameAnalysisConfigReader::E_OptionalParameter);
+    theReader.addParameter(NUMBER_ROUNDS_PER_HYPERPARAMETER,
+                           CDataFrameAnalysisConfigReader::E_OptionalParameter);
+    theReader.addParameter(BAYESIAN_OPTIMISATION_RESTARTS,
                            CDataFrameAnalysisConfigReader::E_OptionalParameter);
     return theReader;
 }()};
@@ -68,6 +75,11 @@ CDataFrameBoostedTreeRunner::CDataFrameBoostedTreeRunner(const CDataFrameAnalysi
 
     std::size_t maximumNumberTrees{
         parameters[MAXIMUM_NUMBER_TREES].fallback(std::size_t{0})};
+
+    std::size_t numberRoundsPerHyperparameter{
+        parameters[NUMBER_ROUNDS_PER_HYPERPARAMETER].fallback(std::size_t{0})};
+    std::size_t bayesianOptimisationRestarts{
+        parameters[BAYESIAN_OPTIMISATION_RESTARTS].fallback(std::size_t{0})};
 
     double lambda{parameters[LAMBDA].fallback(-1.0)};
     double gamma{parameters[GAMMA].fallback(-1.0)};
@@ -92,16 +104,21 @@ CDataFrameBoostedTreeRunner::CDataFrameBoostedTreeRunner(const CDataFrameAnalysi
         maths::CBoostedTreeFactory::constructFromParameters(
             this->spec().numberThreads(), std::make_unique<maths::boosted_tree::CMse>()));
 
-    (*m_BoostedTreeFactory).progressCallback(this->progressRecorder()).memoryUsageCallback([this](std::int64_t delta) {
-        std::int64_t memory{m_Memory.fetch_add(delta)};
-        if (memory >= 0) {
-            core::CProgramCounters::counter(counter_t::E_DFTPMPeakMemoryUsage).max(memory);
-        } else {
-            // Something has gone wrong with memory estimation. Trap this case
-            // to avoid underflowing the peak memory usage statistic.
-            LOG_DEBUG(<< "Memory estimate " << memory << " is negative!");
-        }
-    });
+    (*m_BoostedTreeFactory)
+        .progressCallback(this->progressRecorder())
+        .trainingStateCallback(this->statePersister())
+        .memoryUsageCallback([this](std::int64_t delta) {
+            std::int64_t memory{m_Memory.fetch_add(delta)};
+            if (memory >= 0) {
+                core::CProgramCounters::counter(counter_t::E_DFTPMPeakMemoryUsage)
+                    .max(memory);
+            } else {
+                // Something has gone wrong with memory estimation. Trap this case
+                // to avoid underflowing the peak memory usage statistic.
+                LOG_DEBUG(<< "Memory estimate " << memory << " is negative!");
+            }
+        });
+
     if (lambda >= 0.0) {
         m_BoostedTreeFactory->lambda(lambda);
     }
@@ -116,6 +133,12 @@ CDataFrameBoostedTreeRunner::CDataFrameBoostedTreeRunner(const CDataFrameAnalysi
     }
     if (featureBagFraction > 0.0 && featureBagFraction <= 1.0) {
         m_BoostedTreeFactory->featureBagFraction(featureBagFraction);
+    }
+    if (numberRoundsPerHyperparameter > 0) {
+        m_BoostedTreeFactory->maximumOptimisationRoundsPerHyperparameter(numberRoundsPerHyperparameter);
+    }
+    if (bayesianOptimisationRestarts > 0) {
+        m_BoostedTreeFactory->bayesianOptimisationRestarts(bayesianOptimisationRestarts);
     }
 }
 
