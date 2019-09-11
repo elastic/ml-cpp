@@ -53,11 +53,11 @@ void CDataFrameAnalysisSpecificationTest::testCreate() {
         factories.push_back(std::move(regression));
         return factories;
     };
-    auto jsonSpec = [](const std::string& jobId, const std::string& rows, const std::string& cols,
-                       const std::string& memory, const std::string& threads,
-                       const std::string& resultsField, const TStrVec& categoricalFields,
-                       const std::string& name, const std::string& parameters = "",
-                       const std::string& junk = "") {
+    auto jsonSpec = [](const std::string& jobId, const std::string& rows,
+                       const std::string& cols, const std::string& memory,
+                       const std::string& threads, const std::string& resultsField,
+                       const TStrVec& categoricalFields, const std::string& name,
+                       const std::string& parameters = "", const std::string& junk = "") {
         std::ostringstream result;
         result << "{\n";
         if (jobId.size() > 0) {
@@ -104,7 +104,8 @@ void CDataFrameAnalysisSpecificationTest::testCreate() {
 
     LOG_DEBUG(<< "Valid input");
     {
-        LOG_TRACE(<< jsonSpec("foo", "1000", "20", "100000", "2", "custom_ml", {}, "outlier_detection"));
+        LOG_TRACE(<< jsonSpec("foo", "1000", "20", "100000", "2", "custom_ml",
+                              {}, "outlier_detection"));
         api::CDataFrameAnalysisSpecification spec{
             runnerFactories(), jsonSpec("foo", "1000", "20", "100000", "2",
                                         "custom_ml", {}, "outlier_detection")};
@@ -146,8 +147,8 @@ void CDataFrameAnalysisSpecificationTest::testCreate() {
         LOG_TRACE(<< jsonSpec("foo", "1000", "", "100000", "2", "ml", {}, "outlier_detection"));
         errors.clear();
         api::CDataFrameAnalysisSpecification spec{
-            runnerFactories(),
-            jsonSpec("foo", "1000", "", "100000", "2", "ml", {}, "outlier_detection")};
+            runnerFactories(), jsonSpec("foo", "1000", "", "100000", "2", "ml",
+                                        {}, "outlier_detection")};
         LOG_DEBUG(<< core::CContainerPrinter::print(errors));
         CPPUNIT_ASSERT(errors.size() > 0);
     }
@@ -155,7 +156,8 @@ void CDataFrameAnalysisSpecificationTest::testCreate() {
         LOG_TRACE(<< jsonSpec("foo", "1000", "20", "", "2", "ml", {}, "outlier_detection"));
         errors.clear();
         api::CDataFrameAnalysisSpecification spec{
-            runnerFactories(), jsonSpec("foo", "1000", "20", "", "2", "ml", {}, "outlier_detection")};
+            runnerFactories(),
+            jsonSpec("foo", "1000", "20", "", "2", "ml", {}, "outlier_detection")};
         LOG_DEBUG(<< core::CContainerPrinter::print(errors));
         CPPUNIT_ASSERT(errors.size() > 0);
     }
@@ -163,8 +165,8 @@ void CDataFrameAnalysisSpecificationTest::testCreate() {
         LOG_TRACE(<< jsonSpec("foo", "1000", "20", "100000", "", "ml", {}, "outlier_detection"));
         errors.clear();
         api::CDataFrameAnalysisSpecification spec{
-            runnerFactories(),
-            jsonSpec("foo", "1000", "20", "100000", "", "ml", {}, "outlier_detection")};
+            runnerFactories(), jsonSpec("foo", "1000", "20", "100000", "", "ml",
+                                        {}, "outlier_detection")};
         LOG_DEBUG(<< core::CContainerPrinter::print(errors));
         CPPUNIT_ASSERT(errors.size() > 0);
     }
@@ -180,8 +182,8 @@ void CDataFrameAnalysisSpecificationTest::testCreate() {
         LOG_TRACE(<< jsonSpec("foo", "-3", "20", "100000", "2", "ml", {}, "outlier_detection"));
         errors.clear();
         api::CDataFrameAnalysisSpecification spec{
-            runnerFactories(),
-            jsonSpec("foo", "-3", "20", "100000", "2", "ml", {}, "outlier_detection")};
+            runnerFactories(), jsonSpec("foo", "-3", "20", "100000", "2", "ml",
+                                        {}, "outlier_detection")};
         LOG_DEBUG(<< core::CContainerPrinter::print(errors));
         CPPUNIT_ASSERT(errors.size() > 0);
     }
@@ -189,8 +191,8 @@ void CDataFrameAnalysisSpecificationTest::testCreate() {
         LOG_TRACE(<< jsonSpec("foo", "1000", "0", "100000", "2", "ml", {}, "outlier_detection"));
         errors.clear();
         api::CDataFrameAnalysisSpecification spec{
-            runnerFactories(),
-            jsonSpec("foo", "1000", "0", "100000", "2", "ml", {}, "outlier_detection")};
+            runnerFactories(), jsonSpec("foo", "1000", "0", "100000", "2", "ml",
+                                        {}, "outlier_detection")};
         LOG_DEBUG(<< core::CContainerPrinter::print(errors));
         CPPUNIT_ASSERT(errors.size() > 0);
     }
@@ -198,8 +200,8 @@ void CDataFrameAnalysisSpecificationTest::testCreate() {
         LOG_TRACE(<< jsonSpec("foo", "1000", "20", "ZZ", "2", "ml", {}, "outlier_detection"));
         errors.clear();
         api::CDataFrameAnalysisSpecification spec{
-            runnerFactories(),
-            jsonSpec("foo", "1000", "20", "\"ZZ\"", "2", "ml", {}, "outlier_detection")};
+            runnerFactories(), jsonSpec("foo", "1000", "20", "\"ZZ\"", "2",
+                                        "ml", {}, "outlier_detection")};
         LOG_DEBUG(<< core::CContainerPrinter::print(errors));
         CPPUNIT_ASSERT(errors.size() > 0);
     }
@@ -207,8 +209,8 @@ void CDataFrameAnalysisSpecificationTest::testCreate() {
         LOG_TRACE(<< jsonSpec("foo", "1000", "20", "100000", "-1", "ml", {}, "outlier_detection"));
         errors.clear();
         api::CDataFrameAnalysisSpecification spec{
-            runnerFactories(),
-            jsonSpec("foo", "1000", "20", "100000", "-1", "ml", {}, "outlier_detection")};
+            runnerFactories(), jsonSpec("foo", "1000", "20", "100000", "-1",
+                                        "ml", {}, "outlier_detection")};
         LOG_DEBUG(<< core::CContainerPrinter::print(errors));
         CPPUNIT_ASSERT(errors.size() > 0);
     }
@@ -216,7 +218,8 @@ void CDataFrameAnalysisSpecificationTest::testCreate() {
         LOG_TRACE(<< jsonSpec("foo", "100", "20", "100000", "2", "ml", {}, "outl1ers"));
         errors.clear();
         api::CDataFrameAnalysisSpecification spec{
-            runnerFactories(), jsonSpec("foo", "100", "20", "100000", "2", "ml", {}, "outl1ers")};
+            runnerFactories(),
+            jsonSpec("foo", "100", "20", "100000", "2", "ml", {}, "outl1ers")};
         LOG_DEBUG(<< core::CContainerPrinter::print(errors));
         CPPUNIT_ASSERT(errors.size() > 0);
     }
@@ -287,8 +290,9 @@ void CDataFrameAnalysisSpecificationTest::testCreate() {
                               "{\"compute_feature_influence\": 1}"));
         errors.clear();
         api::CDataFrameAnalysisSpecification spec{
-            runnerFactories(), jsonSpec("foo", "100", "20", "100000", "2", "ml", {}, "outlier_detection",
-                                        "{\"compute_feature_influence\": 1}")};
+            runnerFactories(),
+            jsonSpec("foo", "100", "20", "100000", "2", "ml", {},
+                     "outlier_detection", "{\"compute_feature_influence\": 1}")};
         LOG_DEBUG(<< core::CContainerPrinter::print(errors));
         CPPUNIT_ASSERT(errors.size() > 0);
     }
@@ -311,8 +315,8 @@ void CDataFrameAnalysisSpecificationTest::testCreate() {
                               "outlier_detection", "", "threeds"));
         errors.clear();
         api::CDataFrameAnalysisSpecification spec{
-            runnerFactories(), jsonSpec("foo", "1000", "2", "100000", "2", "ml", {},
-                                        "outlier_detection", "", "threeds")};
+            runnerFactories(), jsonSpec("foo", "1000", "2", "100000", "2", "ml",
+                                        {}, "outlier_detection", "", "threeds")};
         LOG_DEBUG(<< core::CContainerPrinter::print(errors));
         CPPUNIT_ASSERT(errors.size() > 0);
     }
