@@ -202,7 +202,7 @@ CDataFrameAnalysisRunner::TStatePersister CDataFrameAnalysisRunner::statePersist
         auto persister = m_Spec.persister();
         if (persister != nullptr) {
             auto persistStream = persister->addStreamed(
-                api::ML_STATE_INDEX, m_Spec.jobId() + '_' + REGRESSION_TRAIN_STATE_TYPE);
+                ML_STATE_INDEX, m_Spec.jobId() + '_' + REGRESSION_TRAIN_STATE_TYPE);
             {
                 core::CJsonStatePersistInserter inserter{*persistStream};
                 persistFunction(inserter);
