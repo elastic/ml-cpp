@@ -259,7 +259,7 @@ void CBoostedTreeTest::testLinear() {
         meanModelRSquared.add(modelRSquared[i][0]);
     }
     LOG_DEBUG(<< "mean R^2 = " << maths::CBasicStatistics::mean(meanModelRSquared));
-    CPPUNIT_ASSERT(maths::CBasicStatistics::mean(meanModelRSquared) > 0.97);
+    CPPUNIT_ASSERT(maths::CBasicStatistics::mean(meanModelRSquared) > 0.96);
 }
 
 void CBoostedTreeTest::testNonLinear() {
@@ -321,12 +321,12 @@ void CBoostedTreeTest::testNonLinear() {
             0.0, modelBias[i][0],
             8.0 * std::sqrt(noiseVariance / static_cast<double>(trainRows)));
         // Good R^2...
-        CPPUNIT_ASSERT(modelRSquared[i][0] > 0.93);
+        CPPUNIT_ASSERT(modelRSquared[i][0] > 0.92);
 
         meanModelRSquared.add(modelRSquared[i][0]);
     }
     LOG_DEBUG(<< "mean R^2 = " << maths::CBasicStatistics::mean(meanModelRSquared));
-    CPPUNIT_ASSERT(maths::CBasicStatistics::mean(meanModelRSquared) > 0.95);
+    CPPUNIT_ASSERT(maths::CBasicStatistics::mean(meanModelRSquared) > 0.94);
 }
 
 void CBoostedTreeTest::testThreading() {

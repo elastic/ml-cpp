@@ -31,10 +31,6 @@ using TFloatVec = std::vector<maths::CFloatStorage>;
 using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
 using TMeanAccumulatorVec = std::vector<TMeanAccumulator>;
 using TMeanAccumulatorVecVec = std::vector<TMeanAccumulatorVec>;
-
-core::CPackedBitVector maskAll(std::size_t rows) {
-    return {rows, true};
-}
 }
 
 void CDataFrameCategoryEncoderTest::testOneHotEncoding() {
@@ -78,8 +74,7 @@ void CDataFrameCategoryEncoderTest::testOneHotEncoding() {
         }
         frame->finishWritingRows();
 
-        maths::CDataFrameCategoryEncoder encoder{
-            threads, *frame, maskAll(rows), {0, 1, 2}, 3, 50};
+        maths::CDataFrameCategoryEncoder encoder{{threads, *frame, 3}};
 
         for (std::size_t i = 0; i < cols; ++i) {
             CPPUNIT_ASSERT_EQUAL(bool{frame->columnIsCategorical()[i]},
@@ -153,8 +148,7 @@ void CDataFrameCategoryEncoderTest::testMeanValueEncoding() {
         }
         frame->finishWritingRows();
 
-        maths::CDataFrameCategoryEncoder encoder{
-            threads, *frame, maskAll(rows), {0, 1, 2}, 3, 50};
+        maths::CDataFrameCategoryEncoder encoder{{threads, *frame, 3}};
 
         TMeanAccumulator oneHotTargetMean;
         TMeanAccumulator rareTargetMean;
@@ -224,7 +218,7 @@ void CDataFrameCategoryEncoderTest::testRareCategories() {
     frame->finishWritingRows();
 
     maths::CDataFrameCategoryEncoder encoder{
-        1, *frame, maskAll(rows), {0, 1, 2}, 3, 50, 0.1};
+        maths::CMakeDataFrameCategoryEncoder{1, *frame, 3}.minimumFrequencyToOneHotEncode(0.1)};
 
     CPPUNIT_ASSERT(encoder.usesFrequencyEncoding(2));
     for (std::size_t i = 0; i < categoryCounts.size(); ++i) {
@@ -278,8 +272,7 @@ void CDataFrameCategoryEncoderTest::testCorrelatedFeatures() {
         }
         frame->finishWritingRows();
 
-        maths::CDataFrameCategoryEncoder encoder{
-            1, *frame, maskAll(rows), {0, 1, 2, 3, 4, 5}, 6, 50};
+        maths::CDataFrameCategoryEncoder encoder{{1, *frame, 6}};
 
         // Dispite both carrying a lot of information about the target nearly
         // the same information is carried by columns 0 and 1 so we should
@@ -324,8 +317,7 @@ void CDataFrameCategoryEncoderTest::testCorrelatedFeatures() {
         }
         frame->finishWritingRows();
 
-        maths::CDataFrameCategoryEncoder encoder{
-            1, *frame, maskAll(rows), {0, 1, 2, 3}, 4, 50};
+        maths::CDataFrameCategoryEncoder encoder{{1, *frame, 4}};
 
         // Dispite both carrying a lot of information about the target nearly
         // the same information is carried by columns 0 and 1 so we should
@@ -384,9 +376,9 @@ void CDataFrameCategoryEncoderTest::testWithRowMask() {
     frame->finishWritingRows();
     maskedFrame->finishWritingRows();
 
-    maths::CDataFrameCategoryEncoder encoder(1, *frame, rowMask, {0, 1, 2}, 3, 50);
-    maths::CDataFrameCategoryEncoder maskedEncoder{
-        1, *maskedFrame, maskAll(rows), {0, 1, 2}, 3, 50};
+    maths::CDataFrameCategoryEncoder encoder{
+        maths::CMakeDataFrameCategoryEncoder{1, *frame, 3}.rowMask(rowMask)};
+    maths::CDataFrameCategoryEncoder maskedEncoder{{1, *maskedFrame, 3}};
 
     CPPUNIT_ASSERT_EQUAL(encoder.checksum(), maskedEncoder.checksum());
 }
@@ -476,8 +468,7 @@ void CDataFrameCategoryEncoderTest::testEncodedDataFrameRowRef() {
         }
     }
 
-    maths::CDataFrameCategoryEncoder encoder{
-        1, *frame, maskAll(rows), {0, 1, 2, 3}, 4, 50};
+    maths::CDataFrameCategoryEncoder encoder{{1, *frame, 4}};
     LOG_DEBUG(<< "# features = " << encoder.numberFeatures());
 
     auto expectedEncoded = [&](const core::CDataFrame::TRowRef& row, std::size_t i) {
@@ -565,7 +556,7 @@ void CDataFrameCategoryEncoderTest::testUnseenCategoryEncoding() {
     }
     frame->finishWritingRows();
 
-    maths::CDataFrameCategoryEncoder encoder(1, *frame, maskAll(rows), {0, 1, 2}, 3, 50);
+    maths::CDataFrameCategoryEncoder encoder{{1, *frame, 3}};
 
     TFloatVec unseen{3.0, 5.0, 4.0, 1.5};
     core::CDataFrame::TRowRef row{rows, unseen.begin(), unseen.end(), 0};
@@ -586,6 +577,50 @@ void CDataFrameCategoryEncoderTest::testUnseenCategoryEncoding() {
     CPPUNIT_ASSERT_EQUAL(maths::CFloatStorage{1.5},
                          encodedRow[encodedRow.numberColumns() - 1]);
     LOG_DEBUG(<< "encoded = [" << rep.str() << "]");
+}
+
+void CDataFrameCategoryEncoderTest::testDiscardNuisanceFeatures() {
+
+    // Test we discard features altogether which don't carry any information.
+
+    test::CRandomNumbers rng;
+
+    std::size_t rows{10000};
+    std::size_t cols{7};
+
+    TDoubleVecVec features(cols - 1);
+    rng.generateUniformSamples(0.0, 6.0, rows, features[0]);
+    rng.generateUniformSamples(0.0, 5.0, rows, features[1]);
+    rng.generateUniformSamples(0.0, 7.0, rows, features[2]);
+    rng.generateUniformSamples(0.0, 5.0, rows, features[3]);
+    rng.generateUniformSamples(0.0, 6.0, rows, features[4]);
+    rng.generateUniformSamples(0.0, 5.0, rows, features[5]);
+
+    auto frame = core::makeMainStorageDataFrame(cols).first;
+    frame->categoricalColumns({false, false, false, false, false, false, false});
+    for (std::size_t i = 0; i < rows; ++i) {
+        auto writeOneRow = [&](core::CDataFrame::TFloatVecItr column, std::int32_t&) {
+            double target{0.0};
+            std::size_t j = 0;
+            for (/**/; j + 2 < cols; ++j, ++column) {
+                target += * column = features[j][i];
+            }
+            *(column++) = features[j][i];
+            *column = target;
+        };
+
+        frame->writeRow(writeOneRow);
+    }
+    frame->finishWritingRows();
+
+    maths::CDataFrameCategoryEncoder encoder{
+        maths::CMakeDataFrameCategoryEncoder{1, *frame, 6}.minimumRelativeMicToSelectFeature(0.02)};
+
+    LOG_DEBUG(<< "number selected features = " << encoder.numberFeatures() << " / " << cols);
+    CPPUNIT_ASSERT_EQUAL(cols - 1, encoder.numberFeatures());
+    for (std::size_t i = 0; i < encoder.numberFeatures(); ++i) {
+        CPPUNIT_ASSERT(encoder.column(i) != 5);
+    }
 }
 
 void CDataFrameCategoryEncoderTest::testPersistRestore() {
@@ -629,8 +664,7 @@ void CDataFrameCategoryEncoderTest::testPersistRestore() {
     }
     frame->finishWritingRows();
 
-    maths::CDataFrameCategoryEncoder encoder{
-        1, *frame, maskAll(rows), {0, 1, 2, 3}, 4, 50};
+    maths::CDataFrameCategoryEncoder encoder{{1, *frame, 4}};
 
     std::stringstream persistTo;
     core::CJsonStatePersistInserter inserter{persistTo};
@@ -673,6 +707,9 @@ CppUnit::Test* CDataFrameCategoryEncoderTest::suite() {
     suiteOfTests->addTest(new CppUnit::TestCaller<CDataFrameCategoryEncoderTest>(
         "CDataFrameCategoryEncoderTest::testUnseenCategoryEncoding",
         &CDataFrameCategoryEncoderTest::testUnseenCategoryEncoding));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CDataFrameCategoryEncoderTest>(
+        "CDataFrameCategoryEncoderTest::testDiscardNuisanceFeatures",
+        &CDataFrameCategoryEncoderTest::testDiscardNuisanceFeatures));
     suiteOfTests->addTest(new CppUnit::TestCaller<CDataFrameCategoryEncoderTest>(
         "CDataFrameCategoryEncoderTest::testPersistRestore",
         &CDataFrameCategoryEncoderTest::testPersistRestore));

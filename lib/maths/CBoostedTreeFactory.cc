@@ -168,9 +168,12 @@ void CBoostedTreeFactory::selectFeaturesAndEncodeCategories(const core::CDataFra
     LOG_TRACE(<< "candidate regressors = " << core::CContainerPrinter::print(regressors));
 
     m_TreeImpl->m_Encoder = std::make_unique<CDataFrameCategoryEncoder>(
-        m_TreeImpl->m_NumberThreads, frame, m_TreeImpl->allTrainingRowsMask(),
-        regressors, m_TreeImpl->m_DependentVariable,
-        m_TreeImpl->m_RowsPerFeature, m_MinimumFrequencyToOneHotEncode);
+        CMakeDataFrameCategoryEncoder{m_TreeImpl->m_NumberThreads, frame,
+                                      m_TreeImpl->m_DependentVariable}
+            .minimumRowsPerFeature(m_TreeImpl->m_RowsPerFeature)
+            .minimumFrequencyToOneHotEncode(m_MinimumFrequencyToOneHotEncode)
+            .rowMask(m_TreeImpl->allTrainingRowsMask())
+            .columnMask(std::move(regressors)));
 }
 
 void CBoostedTreeFactory::determineFeatureDataTypes(const core::CDataFrame& frame) const {
@@ -337,8 +340,7 @@ CBoostedTreeFactory::constructFromString(std::stringstream& jsonStringStream,
 }
 
 CBoostedTreeFactory::CBoostedTreeFactory(std::size_t numberThreads, TLossFunctionUPtr loss)
-    : m_MinimumFrequencyToOneHotEncode{CDataFrameCategoryEncoder::MINIMUM_FREQUENCY_TO_ONE_HOT_ENCODE},
-      m_TreeImpl{std::make_unique<CBoostedTreeImpl>(numberThreads, std::move(loss))} {
+    : m_TreeImpl{std::make_unique<CBoostedTreeImpl>(numberThreads, std::move(loss))} {
 }
 
 CBoostedTreeFactory::CBoostedTreeFactory(CBoostedTreeFactory&&) = default;

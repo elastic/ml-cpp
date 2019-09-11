@@ -8,6 +8,7 @@
 
 #include <core/CContainerPrinter.h>
 #include <core/CLogger.h>
+#include <core/CPackedBitVector.h>
 #include <core/CTriple.h>
 
 #include <maths/CBasicStatistics.h>
@@ -193,6 +194,8 @@ private:
 const std::string MINIMUM_ROWS_PER_FEATURE_TAG{"minimum_rows_per_feature"};
 const std::string MINIMUM_FREQUENCY_TO_ONE_HOT_ENCODE_TAG{"minimum_frequency_to_one_hot_encode"};
 const std::string REDUNDANCY_WEIGHT_TAG{"redundancy_weight"};
+const std::string MINIMUM_RELATIVE_MIC_TO_SELECT_FEATURE_TAG{
+    "minimum_relative_mic_to_select_feature_tag"};
 const std::string COLUMN_IS_CATEGORICAL_TAG{"is_categorical"};
 const std::string COLUMN_USES_FREQUENCY_ENCODING_TAG{"uses_frequency_encoding"};
 const std::string ONE_HOT_ENCODED_CATEGORIES_TAG{"one_hot_encoded_categories"};
@@ -250,32 +253,29 @@ const CEncodedDataFrameRowRef::TRowRef& CEncodedDataFrameRowRef::unencodedRow() 
     return m_Row;
 }
 
-CDataFrameCategoryEncoder::CDataFrameCategoryEncoder(std::size_t numberThreads,
-                                                     const core::CDataFrame& frame,
-                                                     const core::CPackedBitVector& rowMask,
-                                                     const TSizeVec& columnMask,
-                                                     std::size_t targetColumn,
-                                                     std::size_t minimumRowsPerFeature,
-                                                     double minimumFrequencyToOneHotEncode,
-                                                     double redundancyWeight)
-    : m_MinimumRowsPerFeature{minimumRowsPerFeature},
-      m_MinimumFrequencyToOneHotEncode{minimumFrequencyToOneHotEncode}, m_RedundancyWeight{redundancyWeight},
-      m_ColumnIsCategorical(frame.columnIsCategorical()) {
+CDataFrameCategoryEncoder::CDataFrameCategoryEncoder(const CMakeDataFrameCategoryEncoder& parameters)
+    : m_MinimumRowsPerFeature{parameters.m_MinimumRowsPerFeature},
+      m_MinimumFrequencyToOneHotEncode{parameters.m_MinimumFrequencyToOneHotEncode},
+      m_MinimumRelativeMicToSelectFeature{parameters.m_MinimumRelativeMicToSelectFeature},
+      m_RedundancyWeight{parameters.m_RedundancyWeight},
+      m_ColumnIsCategorical(parameters.m_Frame.columnIsCategorical()) {
 
-    TSizeVec metricColumnMask(columnMask);
-    metricColumnMask.erase(
-        std::remove_if(metricColumnMask.begin(), metricColumnMask.end(),
-                       [targetColumn, this](std::size_t i) {
-                           return i == targetColumn || m_ColumnIsCategorical[i];
-                       }),
-        metricColumnMask.end());
+    TSizeVec metricColumnMask(parameters.m_ColumnMask);
+    metricColumnMask.erase(std::remove_if(metricColumnMask.begin(),
+                                          metricColumnMask.end(),
+                                          [&parameters, this](std::size_t i) {
+                                              return i == parameters.m_TargetColumn ||
+                                                     m_ColumnIsCategorical[i];
+                                          }),
+                           metricColumnMask.end());
     LOG_TRACE(<< "metric column mask = " << core::CContainerPrinter::print(metricColumnMask));
 
-    TSizeVec categoricalColumnMask(columnMask);
+    TSizeVec categoricalColumnMask(parameters.m_ColumnMask);
     categoricalColumnMask.erase(
         std::remove_if(categoricalColumnMask.begin(), categoricalColumnMask.end(),
-                       [targetColumn, this](std::size_t i) {
-                           return i == targetColumn || m_ColumnIsCategorical[i] == false;
+                       [&parameters, this](std::size_t i) {
+                           return i == parameters.m_TargetColumn ||
+                                  m_ColumnIsCategorical[i] == false;
                        }),
         categoricalColumnMask.end());
     LOG_TRACE(<< "categorical column mask = "
@@ -289,14 +289,18 @@ CDataFrameCategoryEncoder::CDataFrameCategoryEncoder(std::size_t numberThreads,
     // sample size.
     // We frequency encode all rare categories of a categorical feature.
 
-    this->setupFrequencyEncoding(numberThreads, frame, rowMask, categoricalColumnMask);
+    this->setupFrequencyEncoding(parameters.m_NumberThreads, parameters.m_Frame,
+                                 parameters.m_RowMask, categoricalColumnMask);
 
-    this->setupTargetMeanValueEncoding(numberThreads, frame, rowMask,
-                                       categoricalColumnMask, targetColumn);
+    this->setupTargetMeanValueEncoding(parameters.m_NumberThreads, parameters.m_Frame,
+                                       parameters.m_RowMask, categoricalColumnMask,
+                                       parameters.m_TargetColumn);
 
     this->finishEncoding(
-        targetColumn, this->selectFeatures(numberThreads, frame, rowMask, metricColumnMask,
-                                           categoricalColumnMask, targetColumn));
+        parameters.m_TargetColumn,
+        this->selectFeatures(parameters.m_NumberThreads, parameters.m_Frame,
+                             parameters.m_RowMask, metricColumnMask,
+                             categoricalColumnMask, parameters.m_TargetColumn));
 }
 
 CDataFrameCategoryEncoder::CDataFrameCategoryEncoder(core::CStateRestoreTraverser& traverser) {
@@ -398,6 +402,7 @@ std::uint64_t CDataFrameCategoryEncoder::checksum(std::uint64_t seed) const {
     seed = CChecksum::calculate(seed, m_MinimumRowsPerFeature);
     seed = CChecksum::calculate(seed, m_MinimumFrequencyToOneHotEncode);
     seed = CChecksum::calculate(seed, m_RedundancyWeight);
+    seed = CChecksum::calculate(seed, m_MinimumRelativeMicToSelectFeature);
     seed = CChecksum::calculate(seed, m_ColumnIsCategorical);
     seed = CChecksum::calculate(seed, m_ColumnUsesFrequencyEncoding);
     seed = CChecksum::calculate(seed, m_OneHotEncodedCategories);
@@ -416,6 +421,9 @@ void CDataFrameCategoryEncoder::acceptPersistInserter(core::CStatePersistInserte
     inserter.insertValue(MINIMUM_FREQUENCY_TO_ONE_HOT_ENCODE_TAG, m_MinimumFrequencyToOneHotEncode,
                          core::CIEEE754::E_DoublePrecision);
     inserter.insertValue(REDUNDANCY_WEIGHT_TAG, m_RedundancyWeight,
+                         core::CIEEE754::E_DoublePrecision);
+    inserter.insertValue(MINIMUM_RELATIVE_MIC_TO_SELECT_FEATURE_TAG,
+                         m_MinimumRelativeMicToSelectFeature,
                          core::CIEEE754::E_DoublePrecision);
     core::CPersistUtils::persist(COLUMN_IS_CATEGORICAL_TAG, m_ColumnIsCategorical, inserter);
     core::CPersistUtils::persist(COLUMN_USES_FREQUENCY_ENCODING_TAG,
@@ -443,6 +451,7 @@ bool CDataFrameCategoryEncoder::acceptRestoreTraverser(core::CStateRestoreTraver
         RESTORE_BUILT_IN(MINIMUM_ROWS_PER_FEATURE_TAG, m_MinimumRowsPerFeature)
         RESTORE_BUILT_IN(MINIMUM_FREQUENCY_TO_ONE_HOT_ENCODE_TAG, m_MinimumFrequencyToOneHotEncode)
         RESTORE_BUILT_IN(REDUNDANCY_WEIGHT_TAG, m_RedundancyWeight)
+        RESTORE_BUILT_IN(MINIMUM_RELATIVE_MIC_TO_SELECT_FEATURE_TAG, m_MinimumRelativeMicToSelectFeature)
         RESTORE(COLUMN_IS_CATEGORICAL_TAG,
                 core::CPersistUtils::restore(COLUMN_IS_CATEGORICAL_TAG,
                                              m_ColumnIsCategorical, traverser))
@@ -644,11 +653,13 @@ CDataFrameCategoryEncoder::selectFeatures(std::size_t numberThreads,
     TSizeDoublePrVecVec mics(this->mics(
         numberThreads, frame, CDataFrameUtils::CMetricColumnValue{targetColumn},
         rowMask, metricColumnMask, categoricalColumnMask));
+    this->discardNuisanceFeatures(mics);
     LOG_TRACE(<< "features MICe = " << core::CContainerPrinter::print(mics));
 
     std::size_t numberAvailableFeatures{this->numberAvailableFeatures(mics)};
     std::size_t maximumNumberFeatures{
-        (frame.numberRows() + m_MinimumRowsPerFeature / 2) / m_MinimumRowsPerFeature};
+        (static_cast<std::size_t>(rowMask.manhattan()) + m_MinimumRowsPerFeature / 2) /
+        m_MinimumRowsPerFeature};
     LOG_TRACE(<< "number possible features = " << numberAvailableFeatures
               << " maximum permitted features = " << maximumNumberFeatures);
 
@@ -773,6 +784,34 @@ void CDataFrameCategoryEncoder::finishEncoding(std::size_t targetColumn,
               << core::CContainerPrinter::print(m_FeatureVectorEncodingMap));
 }
 
+void CDataFrameCategoryEncoder::discardNuisanceFeatures(TSizeDoublePrVecVec& mics) const {
+
+    // Discard features carrying very little relative information about the target.
+    // These will have a low chance of being selected and including them represents
+    // a poor runtime QoR tradeoff. We achieve this by zeroing their MICe.
+
+    using TSizeDoublePrVecItrVec = std::vector<TSizeDoublePrVec::iterator>;
+
+    TSizeDoublePrVecItrVec flatMics;
+    for (auto& featureMics : mics) {
+        for (auto i = featureMics.begin(); i != featureMics.end(); ++i) {
+            flatMics.push_back(i);
+        }
+    }
+    std::stable_sort(flatMics.begin(), flatMics.end(),
+                     [](auto lhs, auto rhs) { return lhs->second > rhs->second; });
+
+    double totalMic{0.0};
+    auto firstFeatureToDiscard =
+        std::find_if(flatMics.begin(), flatMics.end(), [&](auto mic) {
+            totalMic += mic->second;
+            return mic->second < m_MinimumRelativeMicToSelectFeature * totalMic;
+        });
+    for (auto i = firstFeatureToDiscard; i != flatMics.end(); ++i) {
+        (*i)->second = 0.0;
+    }
+}
+
 std::size_t CDataFrameCategoryEncoder::numberAvailableFeatures(const TSizeDoublePrVecVec& mics) const {
     std::size_t count{0};
     for (const auto& featureMics : mics) {
@@ -780,6 +819,58 @@ std::size_t CDataFrameCategoryEncoder::numberAvailableFeatures(const TSizeDouble
                                [](const auto& mic) { return mic.second > 0.0; });
     }
     return count;
+}
+
+CMakeDataFrameCategoryEncoder::CMakeDataFrameCategoryEncoder(std::size_t numberThreads,
+                                                             const core::CDataFrame& frame,
+                                                             std::size_t targetColumn)
+    : m_NumberThreads{numberThreads}, m_Frame{frame}, m_RowMask{frame.numberRows(), true},
+      m_TargetColumn{targetColumn} {
+
+    m_ColumnMask.resize(frame.numberColumns());
+    std::iota(m_ColumnMask.begin(), m_ColumnMask.end(), 0);
+    m_ColumnMask.erase(m_ColumnMask.begin() + targetColumn);
+}
+
+CMakeDataFrameCategoryEncoder&
+CMakeDataFrameCategoryEncoder::minimumRowsPerFeature(std::size_t minimumRowsPerFeature) {
+    m_MinimumRowsPerFeature = minimumRowsPerFeature;
+    return *this;
+}
+
+CMakeDataFrameCategoryEncoder&
+CMakeDataFrameCategoryEncoder::minimumFrequencyToOneHotEncode(TOptionalDouble minimumFrequencyToOneHotEncode) {
+    if (minimumFrequencyToOneHotEncode != boost::none) {
+        m_MinimumFrequencyToOneHotEncode = *minimumFrequencyToOneHotEncode;
+    }
+    return *this;
+}
+
+CMakeDataFrameCategoryEncoder&
+CMakeDataFrameCategoryEncoder::redundancyWeight(TOptionalDouble redundancyWeight) {
+    if (redundancyWeight != boost::none) {
+        m_RedundancyWeight = *redundancyWeight;
+    }
+    return *this;
+}
+
+CMakeDataFrameCategoryEncoder&
+CMakeDataFrameCategoryEncoder::minimumRelativeMicToSelectFeature(TOptionalDouble minimumRelativeMicToSelectFeature) {
+    if (minimumRelativeMicToSelectFeature != boost::none) {
+        m_MinimumRelativeMicToSelectFeature = *minimumRelativeMicToSelectFeature;
+    }
+    return *this;
+}
+
+CMakeDataFrameCategoryEncoder&
+CMakeDataFrameCategoryEncoder::rowMask(core::CPackedBitVector rowMask) {
+    m_RowMask = std::move(rowMask);
+    return *this;
+}
+
+CMakeDataFrameCategoryEncoder& CMakeDataFrameCategoryEncoder::columnMask(TSizeVec columnMask) {
+    m_ColumnMask = std::move(columnMask);
+    return *this;
 }
 }
 }
