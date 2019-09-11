@@ -222,7 +222,8 @@ CMic::TDoubleVec CMic::optimizeXAxis(const TDoubleVec& q, std::size_t l, std::si
 
     LOG_TRACE(<< "Optimize x-axis, k = " << k);
 
-    std::size_t ck{static_cast<std::size_t>(this->maximumXAxisPartitionSizeToSearch() * k)};
+    std::size_t ck{static_cast<std::size_t>(
+        this->maximumXAxisPartitionSizeToSearch() * static_cast<double>(k))};
     LOG_TRACE(<< "c * k = " << ck);
 
     TDoubleVec pi(this->equipartitionAxis(X, ck));
