@@ -8,11 +8,13 @@
 #define INCLUDED_ml_maths_CDataFrameCategoryEncoder_h
 
 #include <core/CDataFrame.h>
+#include <core/CPackedBitVector.h>
 
 #include <maths/CDataFrameUtils.h>
 #include <maths/ImportExport.h>
 #include <maths/MathsTypes.h>
 
+#include <boost/optional.hpp>
 #include <boost/unordered_set.hpp>
 
 #include <cstdint>
@@ -68,6 +70,8 @@ private:
     const CDataFrameCategoryEncoder* m_Encoder;
 };
 
+class CMakeDataFrameCategoryEncoder;
+
 //! \brief Performs encoding of the categorical columns in a data frame.
 //!
 //! DESCRIPTION:\n
@@ -89,37 +93,7 @@ public:
     using TRowRef = core::CDataFrame::TRowRef;
 
 public:
-    //! This ensures we don't try and one-hot encode too many categories and thus
-    //! overfit. This represents a reasonable default, but this is likely better
-    //! estimated from the data characteristics.
-    static constexpr double MINIMUM_FREQUENCY_TO_ONE_HOT_ENCODE{0.05};
-
-    //! By default assign roughly twice the importance to maximising relevance vs
-    //! minimising redundancy when choosing the encoding and selecting features.
-    static constexpr double REDUNDANCY_WEIGHT{0.5};
-
-public:
-    //! \param[in] numberThreads The number of threads available.
-    //! \param[in] frame The data frame for which to compute the encoding.
-    //! \param[in] rowMask A mask of the rows to use to determine the encoding.
-    //! \param[in] columnMask A mask of the columns to include.
-    //! \param[in] targetColumn The regression target variable.
-    //! \param[in] minimumRowsPerFeature The minimum number of rows needed per dimension
-    //! of the feature vector.
-    //! \param[in] minimumFrequencyToOneHotEncode The minimum relative frequency of a
-    //! category in \p frame to consider one-hot encoding it.
-    //! \param[in] redundancyWeight Controls the weight between feature MIC with the
-    //! target and with the features already selected. This should be non-negative and
-    //! the higher the value the more the encoder will prefer to minimise MIC with the
-    //! features already selected.
-    CDataFrameCategoryEncoder(std::size_t numberThreads,
-                              const core::CDataFrame& frame,
-                              const core::CPackedBitVector& rowMask,
-                              const TSizeVec& columnMask,
-                              std::size_t targetColumn,
-                              std::size_t minimumRowsPerFeature,
-                              double minimumFrequencyToOneHotEncode = MINIMUM_FREQUENCY_TO_ONE_HOT_ENCODE,
-                              double redundancyWeight = REDUNDANCY_WEIGHT);
+    CDataFrameCategoryEncoder(const CMakeDataFrameCategoryEncoder& parameters);
 
     //! Initialize from serialized data.
     CDataFrameCategoryEncoder(core::CStateRestoreTraverser& traverser);
@@ -208,11 +182,13 @@ private:
                                         std::size_t targetColumn);
     TSizeSizePrDoubleMap selectAllFeatures(const TSizeDoublePrVecVec& mics);
     void finishEncoding(std::size_t targetColumn, TSizeSizePrDoubleMap selectedFeatureMics);
+    void discardNuisanceFeatures(TSizeDoublePrVecVec& mics) const;
     std::size_t numberAvailableFeatures(const TSizeDoublePrVecVec& mics) const;
 
 private:
     std::size_t m_MinimumRowsPerFeature;
     double m_MinimumFrequencyToOneHotEncode;
+    double m_MinimumRelativeMicToSelectFeature;
     double m_RedundancyWeight;
     TBoolVec m_ColumnIsCategorical;
     TBoolVec m_ColumnUsesFrequencyEncoding;
@@ -225,6 +201,77 @@ private:
     TDoubleVec m_FeatureVectorMics;
     TSizeVec m_FeatureVectorColumnMap;
     TSizeVec m_FeatureVectorEncodingMap;
+};
+
+//! \brief Implements the named parameter idiom for CDataFrameCategoryEncoder.
+class MATHS_EXPORT CMakeDataFrameCategoryEncoder {
+public:
+    using TSizeVec = std::vector<std::size_t>;
+    using TOptionalDouble = boost::optional<double>;
+
+public:
+    //! The minimum number of training rows needed per feature used.
+    static constexpr std::size_t MINIMUM_ROWS_PER_FEATURE{50};
+
+    //! This ensures we don't try and one-hot encode too many categories and thus
+    //! overfit. This represents a reasonable default, but this is likely better
+    //! estimated from the data characteristics.
+    static constexpr double MINIMUM_FREQUENCY_TO_ONE_HOT_ENCODE{0.05};
+
+    //! The minimum relative MIC of a feature to select it for training.
+    static constexpr double MINIMUM_RELATIVE_MIC_TO_SELECT_FEATURE{1e-3};
+
+    //! By default assign roughly twice the importance to maximising relevance vs
+    //! minimising redundancy when choosing the encoding and selecting features.
+    static constexpr double REDUNDANCY_WEIGHT{0.5};
+
+public:
+    //! \param[in] numberThreads The number of threads available.
+    //! \param[in] frame The data frame for which to compute the encoding.
+    //! \param[in] targetColumn The regression target variable.
+    CMakeDataFrameCategoryEncoder(std::size_t numberThreads,
+                                  const core::CDataFrame& frame,
+                                  std::size_t targetColumn);
+
+    CMakeDataFrameCategoryEncoder(const CMakeDataFrameCategoryEncoder&) = delete;
+    CMakeDataFrameCategoryEncoder& operator=(const CMakeDataFrameCategoryEncoder&) = delete;
+
+    //! Set the minimum number of training rows needed per feature used.
+    CMakeDataFrameCategoryEncoder& minimumRowsPerFeature(std::size_t minimumRowsPerFeature);
+
+    //! Set the minimum relative frequency of a category in \p frame to consider one-hot
+    //! encoding it.
+    CMakeDataFrameCategoryEncoder&
+    minimumFrequencyToOneHotEncode(TOptionalDouble minimumFrequencyToOneHotEncode);
+
+    //! Set the minimum relative MIC, i.e. one vs all, of a feature to consider using it.
+    CMakeDataFrameCategoryEncoder&
+    minimumRelativeMicToSelectFeature(TOptionalDouble minimumRelativeMicToSelectFeature);
+
+    //! Set the weight between feature MIC with the target and with the features already
+    //! selected when choosing the order in which to select features. This should be non-
+    //! negative and the higher the value the more the encoder will prefer to minimise
+    //! MIC with the features already selected.
+    CMakeDataFrameCategoryEncoder& redundancyWeight(TOptionalDouble redundancyWeight);
+
+    //! Set a mask of the rows to use to determine the encoding.
+    CMakeDataFrameCategoryEncoder& rowMask(core::CPackedBitVector rowMask);
+
+    //! Set a mask of the columns to include.
+    CMakeDataFrameCategoryEncoder& columnMask(TSizeVec columnMask);
+
+private:
+    std::size_t m_MinimumRowsPerFeature = MINIMUM_ROWS_PER_FEATURE;
+    double m_MinimumFrequencyToOneHotEncode = MINIMUM_FREQUENCY_TO_ONE_HOT_ENCODE;
+    double m_MinimumRelativeMicToSelectFeature = MINIMUM_RELATIVE_MIC_TO_SELECT_FEATURE;
+    double m_RedundancyWeight = REDUNDANCY_WEIGHT;
+    std::size_t m_NumberThreads;
+    const core::CDataFrame& m_Frame;
+    core::CPackedBitVector m_RowMask;
+    TSizeVec m_ColumnMask;
+    std::size_t m_TargetColumn;
+
+    friend CDataFrameCategoryEncoder;
 };
 }
 }

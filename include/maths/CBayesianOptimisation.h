@@ -59,7 +59,10 @@ public:
     using TEIGradientFunc = std::function<TVector(const TVector&)>;
 
 public:
-    CBayesianOptimisation(TDoubleDoublePrVec parameterBounds);
+    static const std::size_t RESTARTS;
+
+public:
+    CBayesianOptimisation(TDoubleDoublePrVec parameterBounds, std::size_t restarts = RESTARTS);
     CBayesianOptimisation(core::CStateRestoreTraverser& traverser);
 
     //! Add the result of evaluating the function to be \p fx at \p x where the
@@ -129,7 +132,7 @@ private:
 
 private:
     CPRNG::CXorOShiro128Plus m_Rng;
-    std::size_t m_Restarts = 10;
+    std::size_t m_Restarts;
     double m_RangeShift = 0.0;
     double m_RangeScale = 1.0;
     TVector m_MinBoundary;
