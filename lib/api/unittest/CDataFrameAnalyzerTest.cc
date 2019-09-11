@@ -21,6 +21,7 @@
 #include <api/CDataFrameAnalysisSpecification.h>
 #include <api/CDataFrameAnalysisSpecificationJsonWriter.h>
 #include <api/CDataFrameAnalyzer.h>
+#include <api/CSingleStreamDataAdder.h>
 
 #include <test/CDataFrameTestUtils.h>
 #include <test/CRandomNumbers.h>
@@ -49,10 +50,15 @@ using TPointVec = std::vector<TPoint>;
 std::vector<rapidjson::Document> stringToJsonDocumentVector(std::string input) {
     rapidjson::StringStream stringStream{input.c_str()};
     std::vector<rapidjson::Document> results;
-    while (stringStream.Tell() < input.size() - 1) {
+    while (stringStream.Tell() < input.size() - 3) {
         results.emplace_back();
         rapidjson::ParseResult ok(
             results.back().ParseStream<rapidjson::ParseFlag::kParseStopWhenDoneFlag>(stringStream));
+        if (ok.Code() == rapidjson::kParseErrorDocumentEmpty) {
+            results.pop_back();
+            stringStream.Take(); // move one character forward
+            continue;
+        }
         CPPUNIT_ASSERT(static_cast<bool>(ok) == true);
     }
     return results;
@@ -138,8 +144,10 @@ auto regressionSpec(std::string dependentVariable,
                     double eta = -1.0,
                     std::size_t maximumNumberTrees = 0,
                     double featureBagFraction = -1.0,
-                    std::function<std::shared_ptr<std::ostream>(void)> persistStreamSupplier =
-                        []() -> std::shared_ptr<std::ostream> { return nullptr; }) {
+                    std::function<std::unique_ptr<core::CDataAdder>(void)> persisterSupplier =
+                        []() -> std::unique_ptr<core::CDataAdder> {
+                        return nullptr;
+                    }) {
 
     std::string parameters = "{\n\"dependent_variable\": \"" + dependentVariable + "\"";
     if (lambda >= 0.0) {
@@ -175,7 +183,7 @@ auto regressionSpec(std::string dependentVariable,
 
     LOG_TRACE(<< "spec =\n" << spec);
 
-    return std::make_unique<api::CDataFrameAnalysisSpecification>(spec, persistStreamSupplier);
+    return std::make_unique<api::CDataFrameAnalysisSpecification>(spec, persisterSupplier);
 }
 
 void addOutlierTestData(TStrVec fieldNames,
@@ -769,16 +777,12 @@ void CDataFrameAnalyzerTest::testErrors() {
     };
 
     core::CLogger::CScopeSetFatalErrorHandler scope{errorHandler};
-    auto noPersistStreamSupplier = []() -> std::shared_ptr<std::ostream> {
-        return nullptr;
-    };
 
     // Test with bad analysis specification.
     {
         errors.clear();
         api::CDataFrameAnalyzer analyzer{
-            std::make_unique<api::CDataFrameAnalysisSpecification>(
-                std::string{"junk"}, noPersistStreamSupplier),
+            std::make_unique<api::CDataFrameAnalysisSpecification>(std::string{"junk"}),
             outputWriterFactory};
         LOG_DEBUG(<< core::CContainerPrinter::print(errors));
         CPPUNIT_ASSERT(errors.size() > 0);
@@ -1052,6 +1056,7 @@ void CDataFrameAnalyzerTest::testRunBoostedTreeTrainingWithStateRecovery() {
         lambda, gamma, eta, maximumNumberTrees, featureBagFraction,
         numberRoundsPerHyperparameter, 0, finalIteration);
 
+    // one hyperparameter to search
     LOG_DEBUG(<< "One hyperparameter to search")
     lambda = -1.0;
     gamma = 10.0;
@@ -1092,8 +1097,8 @@ void CDataFrameAnalyzerTest::testRunBoostedTreeTrainingWithStateRecoverySubrouti
     auto outputWriterFactory = [&outputStream]() {
         return std::make_unique<core::CJsonOutputStreamWrapper>(outputStream);
     };
-    auto persistStreamSupplier = [&persistenceStream]() -> std::shared_ptr<std::ostream> {
-        return persistenceStream;
+    auto persisterSupplier = [&persistenceStream]() -> std::unique_ptr<core::CDataAdder> {
+        return std::make_unique<api::CSingleStreamDataAdder>(persistenceStream);
     };
 
     std::size_t numberExamples{200};
@@ -1111,9 +1116,9 @@ void CDataFrameAnalyzerTest::testRunBoostedTreeTrainingWithStateRecoverySubrouti
     };
 
     api::CDataFrameAnalyzer analyzer{
-        regressionSpec("c5", numberExamples, 5, 15000000, numberRoundsPerHyperparameter,
-                       12, {}, lambda, gamma, eta, maximumNumberTrees,
-                       featureBagFraction, persistStreamSupplier),
+        regressionSpec("c5", numberExamples, 5, 15000000,
+                       numberRoundsPerHyperparameter, 12, {}, lambda, gamma, eta,
+                       maximumNumberTrees, featureBagFraction, persisterSupplier),
         outputWriterFactory};
 
     test::CRandomNumbers rng;
@@ -1146,9 +1151,11 @@ void CDataFrameAnalyzerTest::testRunBoostedTreeTrainingWithStateRecoverySubrouti
     std::vector<rapidjson::Document> persistedStates =
         stringToJsonDocumentVector(persistenceStream->str());
 
-    auto intermediateTree =
-        createTreeFromJsonObject(frame, persistedStates[intermediateIteration]);
-    auto finalTree = createTreeFromJsonObject(frame, persistedStates[finalIteration]);
+    // as the first doc contains index name, we need to access the second one.
+    auto intermediateTree = createTreeFromJsonObject(
+        frame, persistedStates[2 * intermediateIteration + 1]);
+    auto finalTree =
+        createTreeFromJsonObject(frame, persistedStates[2 * finalIteration + 1]);
 
     CPPUNIT_ASSERT(intermediateTree.get() != nullptr);
     intermediateTree->train();
