@@ -12,6 +12,8 @@
 #include <maths/CBoostedTree.h>
 #include <maths/ImportExport.h>
 
+#include <boost/optional.hpp>
+
 #include <memory>
 #include <utility>
 #include <vector>
@@ -71,6 +73,8 @@ public:
     //! Set the maximum number of optimisation rounds we'll use for hyperparameter
     //! optimisation per parameter.
     CBoostedTreeFactory& maximumOptimisationRoundsPerHyperparameter(std::size_t rounds);
+    //! Set the number of restarts to use in global probing for Bayesian Optimisation.
+    CBoostedTreeFactory& bayesianOptimisationRestarts(std::size_t restarts);
     //! Set the number of training examples we need per feature we'll include.
     CBoostedTreeFactory& rowsPerFeature(std::size_t rowsPerFeature);
     //! Set the callback function for progress monitoring.
@@ -89,6 +93,8 @@ public:
     TBoostedTreeUPtr buildFor(core::CDataFrame& frame, std::size_t dependentVariable);
 
 private:
+    using TOptionalDouble = boost::optional<double>;
+    using TOptionalSize = boost::optional<std::size_t>;
     using TPackedBitVectorVec = std::vector<core::CPackedBitVector>;
     using TBoostedTreeImplUPtr = std::unique_ptr<CBoostedTreeImpl>;
 
@@ -131,7 +137,8 @@ private:
     static void noopRecordTrainingState(CDataFrameRegressionModel::TPersistFunc);
 
 private:
-    double m_MinimumFrequencyToOneHotEncode;
+    TOptionalDouble m_MinimumFrequencyToOneHotEncode;
+    TOptionalSize m_BayesianOptimisationRestarts;
     TBoostedTreeImplUPtr m_TreeImpl;
     TProgressCallback m_RecordProgress = noopRecordProgress;
     TMemoryUsageCallback m_RecordMemoryUsage = noopRecordMemoryUsage;

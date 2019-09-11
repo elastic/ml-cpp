@@ -41,6 +41,7 @@ using namespace ml;
 namespace {
 using TDoubleVec = std::vector<double>;
 using TDoubleVecVec = std::vector<TDoubleVec>;
+using TSizeVec = std::vector<std::size_t>;
 using TStrVec = std::vector<std::string>;
 using TRowItr = core::CDataFrame::TRowItr;
 using TPoint = maths::CDenseVector<maths::CFloatStorage>;
@@ -79,11 +80,9 @@ rapidjson::Document treeToJsonDocument(const maths::CBoostedTree& tree) {
 std::string jsonObjectToString(const rapidjson::GenericValue<rapidjson::UTF8<>>& jsonObject) {
     rapidjson::StringBuffer stringBuffer;
     api::CDataFrameAnalysisSpecificationJsonWriter::TRapidJsonLineWriter writer;
-    {
-        writer.Reset(stringBuffer);
-        writer.write(jsonObject);
-        writer.Flush();
-    }
+    writer.Reset(stringBuffer);
+    writer.write(jsonObject);
+    writer.Flush();
     return stringBuffer.GetString();
 }
 
@@ -138,6 +137,7 @@ auto regressionSpec(std::string dependentVariable,
                     std::size_t cols = 5,
                     std::size_t memoryLimit = 3000000,
                     std::size_t numberRoundsPerHyperparameter = 0,
+                    std::size_t bayesianOptimisationRestarts = 0,
                     const TStrVec& categoricalFieldNames = TStrVec{},
                     double lambda = -1.0,
                     double gamma = -1.0,
@@ -168,6 +168,10 @@ auto regressionSpec(std::string dependentVariable,
     if (numberRoundsPerHyperparameter > 0) {
         parameters += ",\n\"number_rounds_per_hyperparameter\": " +
                       core::CStringUtils::typeToString(numberRoundsPerHyperparameter);
+    }
+    if (bayesianOptimisationRestarts > 0) {
+        parameters += ",\n\"bayesian_optimisation_restarts\": " +
+                      core::CStringUtils::typeToString(bayesianOptimisationRestarts);
     }
     parameters += "\n}";
 
@@ -644,7 +648,7 @@ void CDataFrameAnalyzerTest::testRunBoostedTreeTrainingWithParams() {
     };
 
     api::CDataFrameAnalyzer analyzer{
-        regressionSpec("c5", 100, 5, 3000000, 0, {}, lambda, gamma, eta,
+        regressionSpec("c5", 100, 5, 3000000, 0, 0, {}, lambda, gamma, eta,
                        maximumNumberTrees, featureBagFraction),
         outputWriterFactory};
 
@@ -915,7 +919,7 @@ void CDataFrameAnalyzerTest::testCategoricalFields() {
 
     {
         api::CDataFrameAnalyzer analyzer{
-            regressionSpec("x5", 1000, 5, 8000000, 0, {"x1", "x2"}), outputWriterFactory};
+            regressionSpec("x5", 1000, 5, 8000000, 0, 0, {"x1", "x2"}), outputWriterFactory};
 
         TStrVec x[]{{"x11", "x12", "x13", "x14", "x15"},
                     {"x21", "x22", "x23", "x24", "x25", "x26", "x27"}};
@@ -954,7 +958,7 @@ void CDataFrameAnalyzerTest::testCategoricalFields() {
         std::size_t rows{api::CDataFrameAnalyzer::MAX_CATEGORICAL_CARDINALITY + 3};
 
         api::CDataFrameAnalyzer analyzer{
-            regressionSpec("x5", rows, 5, 8000000000, 0, {"x1"}, 0, 0, 0, 0, 0),
+            regressionSpec("x5", rows, 5, 8000000000, 0, 0, {"x1"}, 0, 0, 0, 0, 0),
             outputWriterFactory};
 
         TStrVec fieldNames{"x1", "x2", "x3", "x4", "x5", ".", "."};
@@ -1039,45 +1043,53 @@ void CDataFrameAnalyzerTest::testRunBoostedTreeTrainingWithStateRecovery() {
     double eta{0.9};
     std::size_t maximumNumberTrees{2};
     double featureBagFraction{0.3};
-    size_t numberRoundsPerHyperparameter{5};
+    std::size_t numberRoundsPerHyperparameter{5};
 
-    size_t intermediateIteration{0};
-    size_t finalIteration{0};
+    TSizeVec intermediateIterations;
+    std::size_t finalIteration{0};
 
-    // zero hyperparameters to search
+    test::CRandomNumbers rng;
+
     LOG_DEBUG(<< "No hyperparameters to search")
     testRunBoostedTreeTrainingWithStateRecoverySubroutine(
         lambda, gamma, eta, maximumNumberTrees, featureBagFraction,
-        numberRoundsPerHyperparameter, intermediateIteration, finalIteration);
+        numberRoundsPerHyperparameter, 0, finalIteration);
 
     // one hyperparameter to search
     LOG_DEBUG(<< "One hyperparameter to search")
     lambda = -1.0;
     gamma = 10.0;
     finalIteration = 1 * numberRoundsPerHyperparameter - 1;
-    testRunBoostedTreeTrainingWithStateRecoverySubroutine(
-        lambda, gamma, eta, maximumNumberTrees, featureBagFraction,
-        numberRoundsPerHyperparameter, intermediateIteration, finalIteration);
+    rng.generateUniformSamples(1, finalIteration - 1, 3, intermediateIterations);
+    for (auto intermediateIteration : intermediateIterations) {
+        LOG_DEBUG(<< "restart from " << intermediateIteration);
+        testRunBoostedTreeTrainingWithStateRecoverySubroutine(
+            lambda, gamma, eta, maximumNumberTrees, featureBagFraction,
+            numberRoundsPerHyperparameter, intermediateIteration, finalIteration);
+    }
 
-    // two hyperparameters to search
     LOG_DEBUG(<< "Two hyperparameters to search")
     lambda = -1.0;
     gamma = -1.0;
     finalIteration = 2 * numberRoundsPerHyperparameter - 1;
-    testRunBoostedTreeTrainingWithStateRecoverySubroutine(
-        lambda, gamma, eta, maximumNumberTrees, featureBagFraction,
-        numberRoundsPerHyperparameter, intermediateIteration, finalIteration);
+    rng.generateUniformSamples(finalIteration / 2, finalIteration - 1, 3, intermediateIterations);
+    for (auto intermediateIteration : intermediateIterations) {
+        LOG_DEBUG(<< "restart from " << intermediateIteration);
+        testRunBoostedTreeTrainingWithStateRecoverySubroutine(
+            lambda, gamma, eta, maximumNumberTrees, featureBagFraction,
+            numberRoundsPerHyperparameter, intermediateIteration, finalIteration);
+    }
 }
 
 void CDataFrameAnalyzerTest::testRunBoostedTreeTrainingWithStateRecoverySubroutine(
     double lambda,
     double gamma,
     double eta,
-    size_t maximumNumberTrees,
+    std::size_t maximumNumberTrees,
     double featureBagFraction,
-    size_t numberRoundsPerHyperparameter,
-    size_t intermediateIteration,
-    size_t finalIteration) const {
+    std::size_t numberRoundsPerHyperparameter,
+    std::size_t intermediateIteration,
+    std::size_t finalIteration) const {
     std::stringstream outputStream;
     std::shared_ptr<std::ostringstream> persistenceStream =
         std::make_shared<std::ostringstream>();
@@ -1088,24 +1100,24 @@ void CDataFrameAnalyzerTest::testRunBoostedTreeTrainingWithStateRecoverySubrouti
         return std::make_unique<api::CSingleStreamDataAdder>(persistenceStream);
     };
 
-    size_t numberExamples{100};
+    std::size_t numberExamples{200};
 
     TStrVec fieldNames{"c1", "c2", "c3", "c4", "c5", ".", "."};
     TStrVec fieldValues{"", "", "", "", "", "0", ""};
     TDoubleVec weights{0.1, 2.0, 0.4, -0.5};
 
-    auto f = [](const TDoubleVec& weights, const TPoint& regressors) {
+    auto f = [](const TDoubleVec& weights_, const TPoint& regressors) {
         double result{0.0};
-        for (std::size_t i = 0; i < weights.size(); ++i) {
-            result += weights[i] * regressors(i);
+        for (std::size_t i = 0; i < weights_.size(); ++i) {
+            result += weights_[i] * regressors(i);
         }
         return result;
     };
 
     api::CDataFrameAnalyzer analyzer{
-        regressionSpec("c5", numberExamples, 5, 15000000,
-                       numberRoundsPerHyperparameter, {}, lambda, gamma, eta,
-                       maximumNumberTrees, featureBagFraction, persisterSupplier),
+        regressionSpec("c5", numberExamples, 5, 15000000, numberRoundsPerHyperparameter,
+                       12, {}, lambda, gamma, eta, maximumNumberTrees,
+                       featureBagFraction, persisterSupplier),
         outputWriterFactory};
 
     test::CRandomNumbers rng;
@@ -1138,11 +1150,9 @@ void CDataFrameAnalyzerTest::testRunBoostedTreeTrainingWithStateRecoverySubrouti
     std::vector<rapidjson::Document> persistedStates =
         stringToJsonDocumentVector(persistenceStream->str());
 
-    std::unique_ptr<maths::CBoostedTree> intermediateTree;
-    std::unique_ptr<maths::CBoostedTree> finalTree;
     // as the first doc contains index name, we need to access the second one.
-    intermediateTree = createTreeFromJsonObject(frame, persistedStates[2*intermediateIteration+1]);
-    finalTree = createTreeFromJsonObject(frame, persistedStates[2*finalIteration+1]);
+    auto intermediateTree = createTreeFromJsonObject(frame, persistedStates[2*intermediateIteration+1]);
+    auto finalTree = createTreeFromJsonObject(frame, persistedStates[2*finalIteration+1]);
 
     CPPUNIT_ASSERT(intermediateTree.get() != nullptr);
     intermediateTree->train();
@@ -1155,9 +1165,9 @@ void CDataFrameAnalyzerTest::testRunBoostedTreeTrainingWithStateRecoverySubrouti
 
     auto assertDoublesEqual = [&expectedHyperparameters,
                                &actualHyperparameters](std::string key) {
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(
-            std::stod(expectedHyperparameters[key].GetString()),
-            std::stod(actualHyperparameters[key].GetString()), 1e-4);
+        double expected{std::stod(expectedHyperparameters[key].GetString())};
+        double actual{std::stod(actualHyperparameters[key].GetString())};
+        CPPUNIT_ASSERT_DOUBLES_EQUAL(expected, actual, 1e-4 * expected);
     };
     auto assertDoublesArrayEqual = [&expectedHyperparameters,
                                     &actualHyperparameters](std::string key) {
@@ -1167,7 +1177,8 @@ void CDataFrameAnalyzerTest::testRunBoostedTreeTrainingWithStateRecoverySubrouti
         core::CPersistUtils::fromString(actualHyperparameters[key].GetString(), actualVector);
         CPPUNIT_ASSERT_EQUAL(expectedVector.size(), actualVector.size());
         for (size_t i = 0; i < expectedVector.size(); i++) {
-            CPPUNIT_ASSERT_DOUBLES_EQUAL(expectedVector[i], actualVector[i], 1e-4);
+            CPPUNIT_ASSERT_DOUBLES_EQUAL(expectedVector[i], actualVector[i],
+                                         1e-4 * expectedVector[i]);
         }
     };
     assertDoublesEqual("hyperparam_lambda");
