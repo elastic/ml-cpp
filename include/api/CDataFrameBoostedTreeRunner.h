@@ -52,6 +52,7 @@ private:
                                                std::size_t totalNumberRows,
                                                std::size_t partitionNumberRows,
                                                std::size_t numberColumns) const override;
+    std::function<void(int64_t)> memoryEstimator();
 
 private:
     // Note custom config is written directly to the factory object.

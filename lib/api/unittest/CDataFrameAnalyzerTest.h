@@ -9,7 +9,15 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
+#include <core/CDataSearcher.h>
+
 class CDataFrameAnalyzerTest : public CppUnit::TestFixture {
+public:
+    using TOStreamSPtr = std::shared_ptr<std::ostream>;
+    using TPersistStreamSupplier = std::function<TOStreamSPtr()>;
+    using TDataSearcherUPtr = std::unique_ptr<ml::core::CDataSearcher>;
+    using TRestoreSearcherSupplier = std::function<TDataSearcherUPtr()>;
+
 public:
     void testWithoutControlMessages();
     void testRunOutlierDetection();

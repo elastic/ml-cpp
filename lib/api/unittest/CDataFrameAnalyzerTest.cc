@@ -126,20 +126,23 @@ auto outlierSpec(std::size_t rows = 110,
     return std::make_unique<api::CDataFrameAnalysisSpecification>(spec);
 }
 
-auto regressionSpec(std::string dependentVariable,
-                    std::size_t rows = 100,
-                    std::size_t cols = 5,
-                    std::size_t memoryLimit = 3000000,
-                    std::size_t numberRoundsPerHyperparameter = 0,
-                    std::size_t bayesianOptimisationRestarts = 0,
-                    const TStrVec& categoricalFieldNames = TStrVec{},
-                    double lambda = -1.0,
-                    double gamma = -1.0,
-                    double eta = -1.0,
-                    std::size_t maximumNumberTrees = 0,
-                    double featureBagFraction = -1.0,
-                    std::function<std::shared_ptr<std::ostream>(void)> persistStreamSupplier =
-                        []() -> std::shared_ptr<std::ostream> { return nullptr; }) {
+auto regressionSpec(
+    std::string dependentVariable,
+    std::size_t rows = 100,
+    std::size_t cols = 5,
+    std::size_t memoryLimit = 3000000,
+    std::size_t numberRoundsPerHyperparameter = 0,
+    std::size_t bayesianOptimisationRestarts = 0,
+    const TStrVec& categoricalFieldNames = TStrVec{},
+    double lambda = -1.0,
+    double gamma = -1.0,
+    double eta = -1.0,
+    std::size_t maximumNumberTrees = 0,
+    double featureBagFraction = -1.0,
+    const CDataFrameAnalyzerTest::TPersistStreamSupplier& persistStreamSupplier =
+        []() -> CDataFrameAnalyzerTest::TOStreamSPtr { return nullptr; },
+    const CDataFrameAnalyzerTest::TRestoreSearcherSupplier& restoreSearcherSupplier =
+        []() -> CDataFrameAnalyzerTest::TDataSearcherUPtr { return nullptr; }) {
 
     std::string parameters = "{\n\"dependent_variable\": \"" + dependentVariable + "\"";
     if (lambda >= 0.0) {
@@ -175,7 +178,8 @@ auto regressionSpec(std::string dependentVariable,
 
     LOG_TRACE(<< "spec =\n" << spec);
 
-    return std::make_unique<api::CDataFrameAnalysisSpecification>(spec, persistStreamSupplier);
+    return std::make_unique<api::CDataFrameAnalysisSpecification>(
+        spec, persistStreamSupplier, restoreSearcherSupplier);
 }
 
 void addOutlierTestData(TStrVec fieldNames,

@@ -107,17 +107,7 @@ CDataFrameBoostedTreeRunner::CDataFrameBoostedTreeRunner(const CDataFrameAnalysi
     (*m_BoostedTreeFactory)
         .progressCallback(this->progressRecorder())
         .trainingStateCallback(this->statePersister())
-        .memoryUsageCallback([this](std::int64_t delta) {
-            std::int64_t memory{m_Memory.fetch_add(delta)};
-            if (memory >= 0) {
-                core::CProgramCounters::counter(counter_t::E_DFTPMPeakMemoryUsage)
-                    .max(memory);
-            } else {
-                // Something has gone wrong with memory estimation. Trap this case
-                // to avoid underflowing the peak memory usage statistic.
-                LOG_DEBUG(<< "Memory estimate " << memory << " is negative!");
-            }
-        });
+        .memoryUsageCallback(this->memoryEstimator());
 
     if (lambda >= 0.0) {
         m_BoostedTreeFactory->lambda(lambda);
@@ -140,6 +130,19 @@ CDataFrameBoostedTreeRunner::CDataFrameBoostedTreeRunner(const CDataFrameAnalysi
     if (bayesianOptimisationRestarts > 0) {
         m_BoostedTreeFactory->bayesianOptimisationRestarts(bayesianOptimisationRestarts);
     }
+}
+
+std::function<void(int64_t)> CDataFrameBoostedTreeRunner::memoryEstimator() {
+    return [this](int64_t delta) {
+        int64_t memory{m_Memory.fetch_add(delta)};
+        if (memory >= 0) {
+            core::CProgramCounters::counter(counter_t::E_DFTPMPeakMemoryUsage).max(memory);
+        } else {
+            // Something has gone wrong with memory estimation. Trap this case
+            // to avoid underflowing the peak memory usage statistic.
+            LOG_DEBUG(<< "Memory estimate " << memory << " is negative!");
+        }
+    };
 }
 
 CDataFrameBoostedTreeRunner::CDataFrameBoostedTreeRunner(const CDataFrameAnalysisSpecification& spec)
@@ -185,9 +188,20 @@ void CDataFrameBoostedTreeRunner::runImpl(const TStrVec& featureNames,
                                   frame.numberColumns() + this->numberExtraColumns());
 
     core::CStopWatch watch{true};
+    auto restoreSearcher{m_Spec.restoreSearcher()};
+    if (restoreSearcher != nullptr) {
+        // TODO uncomment the next line
+        //        restoreSearcher->setStateRestoreSearch(ML_INDEX, getRegressionStateId(m_Spec.jobId()));
+        restoreSearcher->setStateRestoreSearch(".ml-state", "predictive_model_train_state_ABC");
+        core::CDataSearcher::TIStreamP inputStream{restoreSearcher->search(1, 1)}; // search arguments are ignored
+        m_BoostedTree = maths::CBoostedTreeFactory::constructFromString(
+            *inputStream, frame, this->progressRecorder(),
+            this->memoryEstimator(), this->statePersister());
+    } else {
 
-    m_BoostedTree = m_BoostedTreeFactory->buildFor(
-        frame, dependentVariableColumn - featureNames.begin());
+        m_BoostedTree = m_BoostedTreeFactory->buildFor(
+            frame, dependentVariableColumn - featureNames.begin());
+    }
     m_BoostedTree->train();
     m_BoostedTree->predict();
 
