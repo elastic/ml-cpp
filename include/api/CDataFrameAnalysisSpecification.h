@@ -7,6 +7,7 @@
 #ifndef INCLUDED_ml_api_CDataFrameAnalysisSpecification_h
 #define INCLUDED_ml_api_CDataFrameAnalysisSpecification_h
 
+#include <core/CDataAdder.h>
 #include <core/CFastMutex.h>
 #include <core/CJsonOutputStreamWrapper.h>
 
@@ -44,8 +45,8 @@ public:
     using TStrVec = std::vector<std::string>;
     using TDataFrameUPtr = std::unique_ptr<core::CDataFrame>;
     using TTemporaryDirectoryPtr = std::shared_ptr<core::CTemporaryDirectory>;
-    using TOStreamSPtr = std::shared_ptr<std::ostream>;
-    using TPersistStreamSupplier = std::function<TOStreamSPtr()>;
+    using TDataAdderUPtr = std::unique_ptr<ml::core::CDataAdder>;
+    using TPersisterSupplier = std::function<TDataAdderUPtr()>;
     using TDataFrameUPtrTemporaryDirectoryPtrPr =
         std::pair<TDataFrameUPtr, TTemporaryDirectoryPtr>;
     using TRunnerUPtr = std::unique_ptr<CDataFrameAnalysisRunner>;
@@ -53,6 +54,7 @@ public:
     using TRunnerFactoryUPtrVec = std::vector<TRunnerFactoryUPtr>;
 
 public:
+    static const std::string JOB_ID;
     static const std::string ROWS;
     static const std::string COLS;
     static const std::string MEMORY_LIMIT;
@@ -71,6 +73,7 @@ public:
     //! The specification has the following expected form:
     //! <CODE>
     //! {
+    //!   "job_id": <string>,
     //!   "rows": <integer>,
     //!   "cols": <integer>,
     //!   "memory_limit": <integer>,
@@ -94,9 +97,9 @@ public:
     //! \note temp_dir Is a directory which can be used to store the data frame
     //! out-of-core if we can't meet the memory constraint for the analysis without
     //! partitioning.
-    //! \param persistStreamSupplier Shared pointer to the string with  persist stream name.
+    //! \param persisterSupplier Shared pointer to the CDataAdder instance.
     CDataFrameAnalysisSpecification(const std::string& jsonSpecification,
-                                    TPersistStreamSupplier persistStreamSupplier = noopPersistStreamSupplier());
+                                    TPersisterSupplier persisterSupplier = noopPersisterSupplier());
 
     //! This construtor provides support for custom analysis types and is mainly
     //! intended for testing.
@@ -104,7 +107,7 @@ public:
     //! \param[in] runnerFactories Plugins for the supported analyses.
     CDataFrameAnalysisSpecification(TRunnerFactoryUPtrVec runnerFactories,
                                     const std::string& jsonSpecification,
-                                    TPersistStreamSupplier persistStreamSupplier = noopPersistStreamSupplier());
+                                    TPersisterSupplier persisterSupplier = noopPersisterSupplier());
 
     CDataFrameAnalysisSpecification(const CDataFrameAnalysisSpecification&) = delete;
     CDataFrameAnalysisSpecification& operator=(const CDataFrameAnalysisSpecification&) = delete;
@@ -129,6 +132,9 @@ public:
 
     //! \return The name of the results field.
     const std::string& resultsField() const;
+
+    //! \return The jobId.
+    const std::string& jobId() const;
 
     //! \return The names of the categorical fields.
     const TStrVec& categoricalFieldNames() const;
@@ -163,12 +169,12 @@ public:
     void estimateMemoryUsage(CMemoryUsageEstimationResultJsonWriter& writer) const;
 
     //! \return shared pointer to the persistence stream.
-    TOStreamSPtr persistStream() const;
+    TDataAdderUPtr persister() const;
 
 private:
     void initializeRunner(const rapidjson::Value& jsonAnalysis);
 
-    static TPersistStreamSupplier noopPersistStreamSupplier();
+    static TPersisterSupplier noopPersisterSupplier();
 
 private:
     std::size_t m_NumberRows = 0;
@@ -177,13 +183,14 @@ private:
     std::size_t m_NumberThreads = 0;
     std::string m_TemporaryDirectory;
     std::string m_ResultsField;
+    std::string m_JobId;
     TStrVec m_CategoricalFieldNames;
     bool m_DiskUsageAllowed;
     // TODO Sparse table support
     // double m_TableLoadFactor = 0.0;
     TRunnerFactoryUPtrVec m_RunnerFactories;
     TRunnerUPtr m_Runner;
-    TPersistStreamSupplier m_PersistStreamSupplier;
+    TPersisterSupplier m_PersisterSupplier;
 };
 }
 }

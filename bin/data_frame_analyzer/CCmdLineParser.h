@@ -27,7 +27,6 @@ public:
     static bool parse(int argc,
                       const char* const* argv,
                       std::string& configFile,
-                      std::string& jobId,
                       bool& memoryUsageEstimationOnly,
                       std::string& logProperties,
                       std::string& logPipe,

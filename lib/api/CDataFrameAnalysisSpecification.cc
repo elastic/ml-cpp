@@ -27,6 +27,7 @@ namespace ml {
 namespace api {
 
 // These must be consistent with Java names.
+const std::string CDataFrameAnalysisSpecification::JOB_ID("job_id");
 const std::string CDataFrameAnalysisSpecification::ROWS("rows");
 const std::string CDataFrameAnalysisSpecification::COLS("cols");
 const std::string CDataFrameAnalysisSpecification::MEMORY_LIMIT("memory_limit");
@@ -87,17 +88,15 @@ const CDataFrameAnalysisConfigReader ANALYSIS_READER{[] {
 }
 
 CDataFrameAnalysisSpecification::CDataFrameAnalysisSpecification(const std::string& jsonSpecification,
-                                                                 TPersistStreamSupplier persistStreamSupplier)
+                                                                 TPersisterSupplier persisterSupplier)
     : CDataFrameAnalysisSpecification{analysisFactories(), jsonSpecification,
-                                      std::move(persistStreamSupplier)} {
+                                      std::move(persisterSupplier)} {
 }
 
-CDataFrameAnalysisSpecification::CDataFrameAnalysisSpecification(
-    TRunnerFactoryUPtrVec runnerFactories,
-    const std::string& jsonSpecification,
-    TPersistStreamSupplier persistStreamSupplier)
-    : m_RunnerFactories{std::move(runnerFactories)}, m_PersistStreamSupplier{std::move(
-                                                         persistStreamSupplier)} {
+CDataFrameAnalysisSpecification::CDataFrameAnalysisSpecification(TRunnerFactoryUPtrVec runnerFactories,
+                                                                 const std::string& jsonSpecification,
+                                                                 TPersisterSupplier persisterSupplier)
+    : m_RunnerFactories{std::move(runnerFactories)}, m_PersisterSupplier{std::move(persisterSupplier)} {
 
     rapidjson::Document specification;
     if (specification.Parse(jsonSpecification.c_str()) == false) {
@@ -117,6 +116,7 @@ CDataFrameAnalysisSpecification::CDataFrameAnalysisSpecification(
         m_MemoryLimit = parameters[MEMORY_LIMIT].as<std::size_t>();
         m_NumberThreads = parameters[THREADS].as<std::size_t>();
         m_TemporaryDirectory = parameters[TEMPORARY_DIRECTORY].fallback(std::string{});
+        m_JobId = parameters[JOB_ID].fallback(std::string{});
         m_ResultsField = parameters[RESULTS_FIELD].fallback(DEFAULT_RESULT_FIELD);
         m_CategoricalFieldNames = parameters[CATEGORICAL_FIELD_NAMES].fallback(TStrVec{});
         m_DiskUsageAllowed = parameters[DISK_USAGE_ALLOWED].fallback(DEFAULT_DISK_USAGE_ALLOWED);
@@ -219,14 +219,18 @@ void CDataFrameAnalysisSpecification::initializeRunner(const rapidjson::Value& j
                  << "'. Please report this problem.");
 }
 
-CDataFrameAnalysisSpecification::TOStreamSPtr
-CDataFrameAnalysisSpecification::persistStream() const {
-    return m_PersistStreamSupplier();
+CDataFrameAnalysisSpecification::TDataAdderUPtr
+CDataFrameAnalysisSpecification::persister() const {
+    return m_PersisterSupplier();
 }
 
-CDataFrameAnalysisSpecification::TPersistStreamSupplier
-CDataFrameAnalysisSpecification::noopPersistStreamSupplier() {
+CDataFrameAnalysisSpecification::TPersisterSupplier
+CDataFrameAnalysisSpecification::noopPersisterSupplier() {
     return nullptr;
+}
+
+const std::string& CDataFrameAnalysisSpecification::jobId() const {
+    return m_JobId;
 }
 }
 }
