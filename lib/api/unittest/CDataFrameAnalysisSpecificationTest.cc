@@ -109,7 +109,7 @@ void CDataFrameAnalysisSpecificationTest::testCreate() {
         api::CDataFrameAnalysisSpecification spec{
             runnerFactories(), jsonSpec("foo", "1000", "20", "100000", "2",
                                         "custom_ml", {}, "outlier_detection")};
-        CPPUNIT_ASSERT_EQUAL(std::string("foo"), spec.jobId());
+        CPPUNIT_ASSERT_EQUAL(std::string{"foo"}, spec.jobId());
         CPPUNIT_ASSERT_EQUAL(std::size_t{1000}, spec.numberRows());
         CPPUNIT_ASSERT_EQUAL(std::size_t{20}, spec.numberColumns());
         CPPUNIT_ASSERT_EQUAL(std::size_t{100000}, spec.memoryLimit());
@@ -123,7 +123,7 @@ void CDataFrameAnalysisSpecificationTest::testCreate() {
         api::CDataFrameAnalysisSpecification spec{
             runnerFactories(), jsonSpec("bar", "1000", "20", "100000", "2", "custom_ml",
                                         {"x", "y"}, "outlier_detection")};
-        CPPUNIT_ASSERT_EQUAL(std::string("bar"), spec.jobId());
+        CPPUNIT_ASSERT_EQUAL(std::string{"bar"}, spec.jobId());
         CPPUNIT_ASSERT_EQUAL(std::size_t{1000}, spec.numberRows());
         CPPUNIT_ASSERT_EQUAL(std::size_t{20}, spec.numberColumns());
         CPPUNIT_ASSERT_EQUAL(std::size_t{100000}, spec.memoryLimit());
