@@ -93,12 +93,10 @@ CDataFrameAnalysisSpecification::CDataFrameAnalysisSpecification(const std::stri
                                       std::move(persisterSupplier)} {
 }
 
-CDataFrameAnalysisSpecification::CDataFrameAnalysisSpecification(
-        TRunnerFactoryUPtrVec runnerFactories,
-        const std::string& jsonSpecification,
-        TPersisterSupplier persisterSupplier)
-    : m_RunnerFactories{std::move(runnerFactories)}, m_PersisterSupplier{std::move(
-        persisterSupplier)} {
+CDataFrameAnalysisSpecification::CDataFrameAnalysisSpecification(TRunnerFactoryUPtrVec runnerFactories,
+                                                                 const std::string& jsonSpecification,
+                                                                 TPersisterSupplier persisterSupplier)
+    : m_RunnerFactories{std::move(runnerFactories)}, m_PersisterSupplier{std::move(persisterSupplier)} {
 
     rapidjson::Document specification;
     if (specification.Parse(jsonSpecification.c_str()) == false) {
@@ -231,7 +229,7 @@ CDataFrameAnalysisSpecification::noopPersisterSupplier() {
     return nullptr;
 }
 
-const std::string &CDataFrameAnalysisSpecification::jobId() const {
+const std::string& CDataFrameAnalysisSpecification::jobId() const {
     return m_JobId;
 }
 }

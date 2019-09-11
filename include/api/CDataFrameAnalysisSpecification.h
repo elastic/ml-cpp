@@ -7,9 +7,9 @@
 #ifndef INCLUDED_ml_api_CDataFrameAnalysisSpecification_h
 #define INCLUDED_ml_api_CDataFrameAnalysisSpecification_h
 
+#include <core/CDataAdder.h>
 #include <core/CFastMutex.h>
 #include <core/CJsonOutputStreamWrapper.h>
-#include <core/CDataAdder.h>
 
 #include <api/CDataFrameAnalysisRunner.h>
 #include <api/ImportExport.h>
@@ -22,7 +22,6 @@
 #include <string>
 #include <thread>
 #include <vector>
-
 
 namespace ml {
 namespace core {

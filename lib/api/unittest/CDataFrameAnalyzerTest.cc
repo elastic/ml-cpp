@@ -21,6 +21,7 @@
 #include <api/CDataFrameAnalysisSpecification.h>
 #include <api/CDataFrameAnalysisSpecificationJsonWriter.h>
 #include <api/CDataFrameAnalyzer.h>
+#include <api/CSingleStreamDataAdder.h>
 
 #include <test/CDataFrameTestUtils.h>
 #include <test/CRandomNumbers.h>
@@ -34,7 +35,6 @@
 #include <memory>
 #include <string>
 #include <vector>
-#include <api/CSingleStreamDataAdder.h>
 
 using namespace ml;
 
@@ -145,7 +145,9 @@ auto regressionSpec(std::string dependentVariable,
                     std::size_t maximumNumberTrees = 0,
                     double featureBagFraction = -1.0,
                     std::function<std::unique_ptr<core::CDataAdder>(void)> persisterSupplier =
-                        []() -> std::unique_ptr<core::CDataAdder> { return nullptr; }) {
+                        []() -> std::unique_ptr<core::CDataAdder> {
+                        return nullptr;
+                    }) {
 
     std::string parameters = "{\n\"dependent_variable\": \"" + dependentVariable + "\"";
     if (lambda >= 0.0) {
@@ -780,8 +782,7 @@ void CDataFrameAnalyzerTest::testErrors() {
     {
         errors.clear();
         api::CDataFrameAnalyzer analyzer{
-            std::make_unique<api::CDataFrameAnalysisSpecification>(
-                std::string{"junk"}),
+            std::make_unique<api::CDataFrameAnalysisSpecification>(std::string{"junk"}),
             outputWriterFactory};
         LOG_DEBUG(<< core::CContainerPrinter::print(errors));
         CPPUNIT_ASSERT(errors.size() > 0);
@@ -1115,9 +1116,9 @@ void CDataFrameAnalyzerTest::testRunBoostedTreeTrainingWithStateRecoverySubrouti
     };
 
     api::CDataFrameAnalyzer analyzer{
-        regressionSpec("c5", numberExamples, 5, 15000000, numberRoundsPerHyperparameter,
-                       12, {}, lambda, gamma, eta, maximumNumberTrees,
-                       featureBagFraction, persisterSupplier),
+        regressionSpec("c5", numberExamples, 5, 15000000,
+                       numberRoundsPerHyperparameter, 12, {}, lambda, gamma, eta,
+                       maximumNumberTrees, featureBagFraction, persisterSupplier),
         outputWriterFactory};
 
     test::CRandomNumbers rng;
@@ -1151,8 +1152,10 @@ void CDataFrameAnalyzerTest::testRunBoostedTreeTrainingWithStateRecoverySubrouti
         stringToJsonDocumentVector(persistenceStream->str());
 
     // as the first doc contains index name, we need to access the second one.
-    auto intermediateTree = createTreeFromJsonObject(frame, persistedStates[2*intermediateIteration+1]);
-    auto finalTree = createTreeFromJsonObject(frame, persistedStates[2*finalIteration+1]);
+    auto intermediateTree = createTreeFromJsonObject(
+        frame, persistedStates[2 * intermediateIteration + 1]);
+    auto finalTree =
+        createTreeFromJsonObject(frame, persistedStates[2 * finalIteration + 1]);
 
     CPPUNIT_ASSERT(intermediateTree.get() != nullptr);
     intermediateTree->train();

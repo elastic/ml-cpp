@@ -158,8 +158,7 @@ int main(int argc, char** argv) {
     const std::string REGRESSION_TRAIN_STATE_TYPE("predictive_model_train_state");
 
     using TDataAdderUPtr = std::unique_ptr<ml::core::CDataAdder>;
-    auto persisterSupplier =
-        [&ioMgr]() -> TDataAdderUPtr {
+    auto persisterSupplier = [&ioMgr]() -> TDataAdderUPtr {
         if (ioMgr.persistStream() != nullptr) {
 
             return std::make_unique<ml::api::CSingleStreamDataAdder>(ioMgr.persistStream());
