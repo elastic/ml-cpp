@@ -13,8 +13,8 @@
 
 class CDataFrameAnalyzerTest : public CppUnit::TestFixture {
 public:
-    using TOStreamSPtr = std::shared_ptr<std::ostream>;
-    using TPersistStreamSupplier = std::function<TOStreamSPtr()>;
+    using TDataAdderUPtr = std::unique_ptr<ml::core::CDataAdder>;
+    using TPersisterSupplier = std::function<TDataAdderUPtr()>;
     using TDataSearcherUPtr = std::unique_ptr<ml::core::CDataSearcher>;
     using TRestoreSearcherSupplier = std::function<TDataSearcherUPtr()>;
 
