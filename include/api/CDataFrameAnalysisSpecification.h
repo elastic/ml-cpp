@@ -7,8 +7,8 @@
 #ifndef INCLUDED_ml_api_CDataFrameAnalysisSpecification_h
 #define INCLUDED_ml_api_CDataFrameAnalysisSpecification_h
 
-#include <core/CDataSearcher.h>
 #include <core/CDataAdder.h>
+#include <core/CDataSearcher.h>
 #include <core/CFastMutex.h>
 #include <core/CJsonOutputStreamWrapper.h>
 

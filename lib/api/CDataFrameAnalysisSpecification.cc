@@ -87,9 +87,10 @@ const CDataFrameAnalysisConfigReader ANALYSIS_READER{[] {
 }()};
 }
 
-CDataFrameAnalysisSpecification::CDataFrameAnalysisSpecification(const std::string& jsonSpecification,
-                                                                 TPersisterSupplier persisterSupplier,
-                                                                 TRestoreSearcherSupplier restoreSearcherSupplier)
+CDataFrameAnalysisSpecification::CDataFrameAnalysisSpecification(
+    const std::string& jsonSpecification,
+    TPersisterSupplier persisterSupplier,
+    TRestoreSearcherSupplier restoreSearcherSupplier)
     : CDataFrameAnalysisSpecification{analysisFactories(), jsonSpecification,
                                       std::move(persisterSupplier),
                                       std::move(restoreSearcherSupplier)} {
@@ -99,11 +100,9 @@ CDataFrameAnalysisSpecification::CDataFrameAnalysisSpecification(
     TRunnerFactoryUPtrVec runnerFactories,
     const std::string& jsonSpecification,
     TPersisterSupplier persisterSupplier,
-    TRestoreSearcherSupplier restoreSearcherSupplier,
-    )
-    : m_RunnerFactories{std::move(runnerFactories)},
-    m_PersisterSupplier{std::move(persisterSupplier)},
-    m_RestoreSearcherSupplier{std::move(restoreSearcherSupplier)} {
+    TRestoreSearcherSupplier restoreSearcherSupplier)
+    : m_RunnerFactories{std::move(runnerFactories)}, m_PersisterSupplier{std::move(persisterSupplier)},
+      m_RestoreSearcherSupplier{std::move(restoreSearcherSupplier)} {
 
     rapidjson::Document specification;
     if (specification.Parse(jsonSpecification.c_str()) == false) {

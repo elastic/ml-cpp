@@ -145,7 +145,7 @@ auto regressionSpec(
     double eta = -1.0,
     std::size_t maximumNumberTrees = 0,
     double featureBagFraction = -1.0,
-    const CDataFrameAnalyzerTest::TPersisterSupplier & persistStreamSupplier =
+    const CDataFrameAnalyzerTest::TPersisterSupplier& persisterSupplier =
         []() -> CDataFrameAnalyzerTest::TDataAdderUPtr { return nullptr; },
     const CDataFrameAnalyzerTest::TRestoreSearcherSupplier& restoreSearcherSupplier =
         []() -> CDataFrameAnalyzerTest::TDataSearcherUPtr { return nullptr; }) {
@@ -1098,7 +1098,7 @@ void CDataFrameAnalyzerTest::testRunBoostedTreeTrainingWithStateRecoverySubrouti
     auto outputWriterFactory = [&outputStream]() {
         return std::make_unique<core::CJsonOutputStreamWrapper>(outputStream);
     };
-    auto persisterSupplier = [&persistenceStream]() -> std::unique_ptr<core::CDataAdder> {
+    auto persisterSupplier = [&persistenceStream]() -> TDataAdderUPtr {
         return std::make_unique<api::CSingleStreamDataAdder>(persistenceStream);
     };
 
