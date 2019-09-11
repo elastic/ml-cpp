@@ -477,12 +477,12 @@ bool CBayesianOptimisation::acceptRestoreTraverser(core::CStateRestoreTraverser&
             RESTORE(FUNCTION_MEAN_VALUES_TAG,
                     core::CPersistUtils::restore(FUNCTION_MEAN_VALUES_TAG,
                                                  m_FunctionMeanValues, traverser))
-          RESTORE(RANGE_SHIFT_TAG,
-                  core::CPersistUtils::restore(RANGE_SHIFT_TAG, m_RangeShift, traverser))
-          RESTORE(RANGE_SCALE_TAG,
-                  core::CPersistUtils::restore(RANGE_SCALE_TAG, m_RangeScale, traverser))
-          RESTORE(RESTARTS_TAG,
-                  core::CPersistUtils::restore(RESTARTS_TAG, m_Restarts, traverser))
+            RESTORE(RANGE_SHIFT_TAG,
+                    core::CPersistUtils::restore(RANGE_SHIFT_TAG, m_RangeShift, traverser))
+            RESTORE(RANGE_SCALE_TAG,
+                    core::CPersistUtils::restore(RANGE_SCALE_TAG, m_RangeScale, traverser))
+            RESTORE(RESTARTS_TAG,
+                    core::CPersistUtils::restore(RESTARTS_TAG, m_Restarts, traverser))
         } while (traverser.next());
     } catch (std::exception& e) {
         LOG_ERROR(<< "Failed to restore state! " << e.what());

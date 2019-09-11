@@ -326,7 +326,7 @@ void CBoostedTreeTest::testNonLinear() {
         meanModelRSquared.add(modelRSquared[i][0]);
     }
     LOG_DEBUG(<< "mean R^2 = " << maths::CBasicStatistics::mean(meanModelRSquared));
-    CPPUNIT_ASSERT(maths::CBasicStatistics::mean(meanModelRSquared) > 0.95);
+    CPPUNIT_ASSERT(maths::CBasicStatistics::mean(meanModelRSquared) > 0.94);
 }
 
 void CBoostedTreeTest::testThreading() {
