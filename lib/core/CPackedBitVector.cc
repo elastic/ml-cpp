@@ -73,7 +73,7 @@ void CPackedBitVector::contract() {
                               [](std::uint8_t run) { return complete(run); });
 
     if (*front == 0) {
-        *front = MAX_RUN_LENGTH - 1;
+        *front = static_cast<std::uint8_t>(MAX_RUN_LENGTH - 1);
     } else if (--(*front) == 0) {
         if (front == m_RunLengths.begin()) {
             m_First = !m_First;
@@ -90,7 +90,7 @@ void CPackedBitVector::extend(bool bit, std::size_t n) {
         return;
     }
 
-    m_Dimension += n;
+    m_Dimension += static_cast<std::uint32_t>(n);
 
     if (m_Dimension == n) {
         m_First = bit;
@@ -214,11 +214,11 @@ bool CPackedBitVector::operator()(std::size_t i) const {
 }
 
 double CPackedBitVector::inner(const CPackedBitVector& covector, EOperation op) const {
-    double result{0.0};
+    std::size_t result{0};
     this->lineScan(covector, [op, &result](int value, int covalue, std::size_t run) {
-        result += static_cast<double>(bit(op, value, covalue)) * run;
+        result += static_cast<std::size_t>(bit(op, value, covalue)) * run;
     });
-    return result;
+    return static_cast<double>(result);
 }
 
 CPackedBitVector::TBoolVec CPackedBitVector::toBitVector() const {
@@ -369,7 +369,7 @@ void CPackedBitVector::extendRun(std::size_t run, TUInt8Vec& runLengths) {
         runLengths.back() = MAX_RUN_LENGTH;
     }
     if (runLengths.back() + run < MAX_RUN_LENGTH) {
-        runLengths.back() += run;
+        runLengths.back() += static_cast<std::uint8_t>(run);
     } else if (runLengths.back() + run == MAX_RUN_LENGTH) {
         runLengths.back() = 0;
     } else {

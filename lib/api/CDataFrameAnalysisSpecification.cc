@@ -56,6 +56,8 @@ const bool DEFAULT_DISK_USAGE_ALLOWED(false);
 
 const CDataFrameAnalysisConfigReader CONFIG_READER{[] {
     CDataFrameAnalysisConfigReader theReader;
+    theReader.addParameter(CDataFrameAnalysisSpecification::JOB_ID,
+                           CDataFrameAnalysisConfigReader::E_OptionalParameter);
     theReader.addParameter(CDataFrameAnalysisSpecification::ROWS,
                            CDataFrameAnalysisConfigReader::E_RequiredParameter);
     theReader.addParameter(CDataFrameAnalysisSpecification::COLS,
