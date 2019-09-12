@@ -36,10 +36,20 @@ const std::string FUNCTION_MEAN_VALUES_TAG{"function_mean_values"};
 const std::string RANGE_SHIFT_TAG{"range_shift"};
 const std::string RANGE_SCALE_TAG{"range_scale"};
 const std::string RESTARTS_TAG{"restarts"};
+const std::string RNG_TAG{"rng"};
+
+// The kernel we use is v * I + a(0)^2 * O(I). We fall back to random search when
+// a(0)^2 < eps * v since for small eps and a reasonable number of dimensions the
+// expected improvement will be constant in the space we search. We don't terminate
+// altogether because it is possible that the function we're interpolating has a
+// narrow deep valley that the Gaussian Process hasn't sampled.
+const double MINIMUM_KERNEL_SCALE_FOR_EXPECTATION_MAXIMISATION{1e-8};
 }
 
-CBayesianOptimisation::CBayesianOptimisation(TDoubleDoublePrVec parameterBounds)
-    : m_MinBoundary(parameterBounds.size()), m_MaxBoundary(parameterBounds.size()),
+CBayesianOptimisation::CBayesianOptimisation(TDoubleDoublePrVec parameterBounds,
+                                             std::size_t restarts)
+    : m_Restarts{restarts}, m_MinBoundary(parameterBounds.size()),
+      m_MaxBoundary(parameterBounds.size()),
       m_KernelParameters(parameterBounds.size() + 1),
       m_MinimumKernelCoordinateDistanceScale(parameterBounds.size()) {
 
@@ -97,42 +107,59 @@ CBayesianOptimisation::TVector CBayesianOptimisation::maximumExpectedImprovement
     TMeanAccumulator rho_;
     TMinAccumulator seeds{m_Restarts};
 
-    for (std::size_t i = 0; i < interpolates.size(); /**/) {
+    if (CTools::pow2(m_KernelParameters(0)) <
+        MINIMUM_KERNEL_SCALE_FOR_EXPECTATION_MAXIMISATION * this->meanErrorVariance()) {
 
-        for (int j = 0; j < interpolate.size(); ++i, ++j) {
+        for (int i = 0, j = 0; j < interpolate.size(); ++i, ++j) {
             interpolate(j) = interpolates[i];
         }
-        TVector x{a + interpolate.asDiagonal() * (b - a)};
-        double fx{minusEI(x)};
-        LOG_TRACE(<< "x = " << x.transpose() << " EI(x) = " << fx);
+        xmax = a + interpolate.cwiseProduct(b - a);
 
-        if (-fx > fmax) {
-            xmax = std::move(x);
-            fmax = -fx;
+    } else {
+
+        for (std::size_t i = 0; i < interpolates.size(); /**/) {
+
+            for (int j = 0; j < interpolate.size(); ++i, ++j) {
+                interpolate(j) = interpolates[i];
+            }
+            TVector x{a + interpolate.cwiseProduct(b - a)};
+            double fx{minusEI(x)};
+            LOG_TRACE(<< "x = " << x.transpose() << " EI(x) = " << fx);
+
+            if (-fx > fmax) {
+                xmax = std::move(x);
+                fmax = -fx;
+            }
+            rho_.add(std::fabs(fx));
+            seeds.add({fx, std::move(x)});
         }
-        rho_.add(std::fabs(fx));
-        seeds.add({fx, std::move(x)});
+
+        // We set rho to give the constraint and objective approximately equal priority
+        // in the following constrained optimisation problem.
+        double rho{CBasicStatistics::mean(rho_)};
+        LOG_TRACE(<< "rho = " << rho);
+
+        CLbfgs<TVector> lbfgs{10};
+
+        for (auto& x0 : seeds) {
+
+            TVector xcand;
+            double fcand;
+            std::tie(xcand, fcand) = lbfgs.constrainedMinimize(
+                minusEI, minusEIGradient, a, b, std::move(x0.second), rho);
+            LOG_TRACE(<< "x0 = " << x0.second.transpose()
+                      << " xcand = " << xcand.transpose() << " EI(cand) = " << fcand);
+
+            if (-fcand > fmax) {
+                std::tie(xmax, fmax) = std::make_pair(std::move(xcand), -fcand);
+            }
+        }
     }
 
-    // We set rho to give the constraint and objective approximately equal priority
-    // in the following constrained optimisation problem.
-    double rho{CBasicStatistics::mean(rho_)};
-    LOG_TRACE(<< "rho = " << rho);
-
-    CLbfgs<TVector> lbfgs{10};
-
-    for (auto& x0 : seeds) {
-
-        TVector xcand;
-        double fcand;
-        std::tie(xcand, fcand) = lbfgs.constrainedMinimize(
-            minusEI, minusEIGradient, a, b, std::move(x0.second), rho);
-        LOG_TRACE(<< "xcand = " << xcand.transpose() << " EI(cand) = " << fcand);
-
-        if (-fcand > fmax) {
-            xmax = std::move(xcand);
-            fmax = -fcand;
-        }
+    // fmax was probably NaN, in anycase xmax wasn't initialised so fallback to
+    // random search.
+    if (xmax.size() == 0) {
+        xmax = a + interpolate.cwiseProduct(b - a);
     }
 
     LOG_TRACE(<< "best = " << xmax.cwiseProduct(m_MaxBoundary - m_MinBoundary).transpose()
@@ -283,6 +310,7 @@ const CBayesianOptimisation::TVector& CBayesianOptimisation::maximumLikelihoodKe
 
     std::size_t n(m_KernelParameters.size());
 
+    // We restart optimization with initial guess on different scales for global probing.
     TDoubleVec scales;
     scales.reserve((m_Restarts - 1) * n);
     CSampling::uniformSample(m_Rng, std::log(0.1), std::log(4.0),
@@ -316,7 +344,9 @@ const CBayesianOptimisation::TVector& CBayesianOptimisation::maximumLikelihoodKe
         }
     }
 
-    m_KernelParameters = std::move(amax);
+    // Ensure that kernel lengths are always positive. It shouldn't change the results
+    // but improves traceability.
+    m_KernelParameters = amax.cwiseAbs();
     LOG_TRACE(<< "kernel parameters = " << m_KernelParameters.transpose());
 
     return m_KernelParameters;
@@ -413,8 +443,8 @@ double CBayesianOptimisation::kernel(const TVector& a, const TVector& x, const T
 
 void CBayesianOptimisation::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
     try {
+        inserter.insertValue(RNG_TAG, m_Rng.toString());
         core::CPersistUtils::persist(MIN_BOUNDARY_TAG, m_MinBoundary, inserter);
-
         core::CPersistUtils::persist(MAX_BOUNDARY_TAG, m_MaxBoundary, inserter);
         core::CPersistUtils::persist(ERROR_VARIANCES_TAG, m_ErrorVariances, inserter);
         core::CPersistUtils::persist(KERNEL_PARAMETERS_TAG, m_KernelParameters, inserter);
@@ -433,6 +463,7 @@ bool CBayesianOptimisation::acceptRestoreTraverser(core::CStateRestoreTraverser&
     try {
         do {
             const std::string& name = traverser.name();
+            RESTORE(RNG_TAG, m_Rng.fromString(traverser.value()))
             RESTORE(MIN_BOUNDARY_TAG,
                     core::CPersistUtils::restore(MIN_BOUNDARY_TAG, m_MinBoundary, traverser))
             RESTORE(MAX_BOUNDARY_TAG,
@@ -486,6 +517,7 @@ std::size_t CBayesianOptimisation::estimateMemoryUsage(std::size_t numberParamet
            kernelParametersMemoryUsage + minimumKernelCoordinateDistanceScale;
 }
 
+const std::size_t CBayesianOptimisation::RESTARTS{10};
 const double CBayesianOptimisation::MINIMUM_KERNEL_COORDINATE_DISTANCE_SCALE{1e-3};
 }
 }

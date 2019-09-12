@@ -18,6 +18,7 @@ public:
     void testWithRowMask();
     void testEncodedDataFrameRowRef();
     void testUnseenCategoryEncoding();
+    void testDiscardNuisanceFeatures();
     void testPersistRestore();
 
     static CppUnit::Test* suite();

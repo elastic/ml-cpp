@@ -7,6 +7,8 @@
 #ifndef INCLUDED_ml_maths_CDataFrameRegressionModel_h
 #define INCLUDED_ml_maths_CDataFrameRegressionModel_h
 
+#include <core/CStatePersistInserter.h>
+
 #include <maths/ImportExport.h>
 
 #include <functional>
@@ -27,6 +29,8 @@ public:
     using TDoubleVec = std::vector<double>;
     using TProgressCallback = std::function<void(double)>;
     using TMemoryUsageCallback = std::function<void(std::uint64_t)>;
+    using TPersistFunc = std::function<void(core::CStatePersistInserter&)>;
+    using TTrainingStateCallback = std::function<void(TPersistFunc)>;
 
 public:
     virtual ~CDataFrameRegressionModel() = default;
@@ -57,15 +61,18 @@ public:
 protected:
     CDataFrameRegressionModel(core::CDataFrame& frame,
                               TProgressCallback recordProgress,
-                              TMemoryUsageCallback recordMemoryUsage);
+                              TMemoryUsageCallback recordMemoryUsage,
+                              TTrainingStateCallback recordTrainingState);
     core::CDataFrame& frame() const;
     const TProgressCallback& progressRecorder() const;
     const TMemoryUsageCallback& memoryUsageRecorder() const;
+    const TTrainingStateCallback& trainingStateRecorder() const;
 
 private:
     core::CDataFrame& m_Frame;
     TProgressCallback m_RecordProgress;
     TMemoryUsageCallback m_RecordMemoryUsage;
+    TTrainingStateCallback m_RecordTrainingState;
 };
 }
 }

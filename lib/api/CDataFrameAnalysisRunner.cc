@@ -7,11 +7,13 @@
 #include <api/CDataFrameAnalysisRunner.h>
 
 #include <core/CDataFrame.h>
+#include <core/CJsonStatePersistInserter.h>
 #include <core/CLogger.h>
-#include <core/CScopedFastLock.h>
 
 #include <api/CDataFrameAnalysisSpecification.h>
 #include <api/CMemoryUsageEstimationResultJsonWriter.h>
+#include <api/CSingleStreamDataAdder.h>
+#include <api/ElasticsearchStateIndex.h>
 
 #include <boost/iterator/counting_iterator.hpp>
 
@@ -193,6 +195,24 @@ void CDataFrameAnalysisRunner::recordProgress(double fractionalProgress) {
 void CDataFrameAnalysisRunner::setToFinished() {
     m_Finished.store(true);
     m_FractionalProgress.store(MAXIMUM_FRACTIONAL_PROGRESS);
+}
+
+CDataFrameAnalysisRunner::TStatePersister CDataFrameAnalysisRunner::statePersister() {
+    return [this](std::function<void(core::CStatePersistInserter&)> persistFunction) -> void {
+        auto persister = m_Spec.persister();
+        if (persister != nullptr) {
+            auto persistStream = persister->addStreamed(
+                ML_STATE_INDEX, getRegressionStateId(m_Spec.jobId()));
+            {
+                core::CJsonStatePersistInserter inserter{*persistStream};
+                persistFunction(inserter);
+            }
+            if (persister->streamComplete(persistStream, true) == false ||
+                persistStream->bad()) {
+                LOG_ERROR(<< "Failed to complete last persistence stream");
+            }
+        }
+    };
 }
 
 CDataFrameAnalysisRunnerFactory::TRunnerUPtr

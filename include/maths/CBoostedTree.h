@@ -191,6 +191,7 @@ private:
     CBoostedTree(core::CDataFrame& frame,
                  TProgressCallback recordProgress,
                  TMemoryUsageCallback recordMemoryUsage,
+                 TTrainingStateCallback recordTrainingState,
                  TImplUPtr&& impl);
 
 private:

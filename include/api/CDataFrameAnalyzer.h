@@ -9,6 +9,7 @@
 
 #include <api/ImportExport.h>
 
+#include <core/CDataSearcher.h>
 #include <core/CRapidJsonConcurrentLineWriter.h>
 
 #include <boost/unordered_map.hpp>
@@ -30,12 +31,16 @@ class CDataFrameAnalysisRunner;
 class CDataFrameAnalysisSpecification;
 
 //! \brief Handles input to the data_frame_analyzer command.
+//! TODO implement functionality for restoring state from the index
+//!
 class API_EXPORT CDataFrameAnalyzer {
 public:
     using TStrVec = std::vector<std::string>;
     using TJsonOutputStreamWrapperUPtr = std::unique_ptr<core::CJsonOutputStreamWrapper>;
     using TJsonOutputStreamWrapperUPtrSupplier =
         std::function<TJsonOutputStreamWrapperUPtr()>;
+    using TDataSearcherUPtrSupplier =
+        std::function<std::unique_ptr<ml::core::CDataSearcher>()>;
     using TDataFrameAnalysisSpecificationUPtr = std::unique_ptr<CDataFrameAnalysisSpecification>;
     using TTemporaryDirectoryPtr = std::shared_ptr<core::CTemporaryDirectory>;
 
@@ -46,7 +51,8 @@ public:
 
 public:
     CDataFrameAnalyzer(TDataFrameAnalysisSpecificationUPtr analysisSpecification,
-                       TJsonOutputStreamWrapperUPtrSupplier outStreamSupplier);
+                       TJsonOutputStreamWrapperUPtrSupplier resultsStreamSupplier,
+                       TDataSearcherUPtrSupplier dataSearcher = nullptr);
     ~CDataFrameAnalyzer();
 
     //! This is true if the analyzer is receiving control messages.
@@ -105,7 +111,8 @@ private:
     TDataFrameUPtr m_DataFrame;
     TStrVec m_FieldNames;
     TTemporaryDirectoryPtr m_DataFrameDirectory;
-    TJsonOutputStreamWrapperUPtrSupplier m_OutStreamSupplier;
+    TJsonOutputStreamWrapperUPtrSupplier m_ResultsStreamSupplier;
+    TDataSearcherUPtrSupplier m_DataSearcher;
 };
 }
 }

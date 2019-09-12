@@ -12,6 +12,8 @@
 #include <maths/CBoostedTree.h>
 #include <maths/ImportExport.h>
 
+#include <boost/optional.hpp>
+
 #include <memory>
 #include <utility>
 #include <vector>
@@ -32,6 +34,7 @@ public:
     using TBoostedTreeUPtr = std::unique_ptr<CBoostedTree>;
     using TProgressCallback = CBoostedTree::TProgressCallback;
     using TMemoryUsageCallback = CBoostedTree::TMemoryUsageCallback;
+    using TTrainingStateCallback = CBoostedTree::TTrainingStateCallback;
     using TLossFunctionUPtr = CBoostedTree::TLossFunctionUPtr;
 
 public:
@@ -44,7 +47,8 @@ public:
     constructFromString(std::stringstream& jsonStringStream,
                         core::CDataFrame& frame,
                         TProgressCallback recordProgress = noopRecordProgress,
-                        TMemoryUsageCallback recordMemoryUsage = noopRecordMemoryUsage);
+                        TMemoryUsageCallback recordMemoryUsage = noopRecordMemoryUsage,
+                        TTrainingStateCallback recordTrainingState = noopRecordTrainingState);
 
     ~CBoostedTreeFactory();
     CBoostedTreeFactory(CBoostedTreeFactory&) = delete;
@@ -69,12 +73,16 @@ public:
     //! Set the maximum number of optimisation rounds we'll use for hyperparameter
     //! optimisation per parameter.
     CBoostedTreeFactory& maximumOptimisationRoundsPerHyperparameter(std::size_t rounds);
+    //! Set the number of restarts to use in global probing for Bayesian Optimisation.
+    CBoostedTreeFactory& bayesianOptimisationRestarts(std::size_t restarts);
     //! Set the number of training examples we need per feature we'll include.
     CBoostedTreeFactory& rowsPerFeature(std::size_t rowsPerFeature);
     //! Set the callback function for progress monitoring.
     CBoostedTreeFactory& progressCallback(TProgressCallback callback);
     //! Set the callback function for memory monitoring.
     CBoostedTreeFactory& memoryUsageCallback(TMemoryUsageCallback callback);
+    //! Set the callback function for training state recording.
+    CBoostedTreeFactory& trainingStateCallback(TTrainingStateCallback callback);
 
     //! Estimate the maximum booking memory that training the boosted tree on a data
     //! frame with \p numberRows row and \p numberColumns columns will use.
@@ -85,6 +93,8 @@ public:
     TBoostedTreeUPtr buildFor(core::CDataFrame& frame, std::size_t dependentVariable);
 
 private:
+    using TOptionalDouble = boost::optional<double>;
+    using TOptionalSize = boost::optional<std::size_t>;
     using TPackedBitVectorVec = std::vector<core::CPackedBitVector>;
     using TBoostedTreeImplUPtr = std::unique_ptr<CBoostedTreeImpl>;
 
@@ -124,12 +134,15 @@ private:
 
     static void noopRecordProgress(double);
     static void noopRecordMemoryUsage(std::int64_t);
+    static void noopRecordTrainingState(CDataFrameRegressionModel::TPersistFunc);
 
 private:
-    double m_MinimumFrequencyToOneHotEncode;
+    TOptionalDouble m_MinimumFrequencyToOneHotEncode;
+    TOptionalSize m_BayesianOptimisationRestarts;
     TBoostedTreeImplUPtr m_TreeImpl;
     TProgressCallback m_RecordProgress = noopRecordProgress;
     TMemoryUsageCallback m_RecordMemoryUsage = noopRecordMemoryUsage;
+    TTrainingStateCallback m_RecordTrainingState = noopRecordTrainingState;
 };
 }
 }
