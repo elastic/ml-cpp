@@ -68,7 +68,7 @@ public:
     using TFatalErrorHandler = std::function<void(std::string)>;
 
     //! Used to set the level we should log at
-    enum ELevel { E_Fatal, E_Error, E_Warn, E_Info, E_Debug, E_Trace };
+    enum ELevel { E_Trace, E_Debug, E_Info, E_Warn, E_Error, E_Fatal };
 
     using TLevelSeverityLogger = boost::log::sources::severity_logger_mt<ELevel>;
     using TLevelSeverityLoggerPtr = std::shared_ptr<TLevelSeverityLogger>;
@@ -139,6 +139,10 @@ public:
     //! Handle a fatal problem using the registered fatal error handler.
     void handleFatal(std::string message);
 
+    boost::log::attribute_name fileAttributeName() const;
+    boost::log::attribute_name lineAttributeName() const;
+    boost::log::attribute_name functionAttributeName() const;
+
 private:
     //! Constructor for a singleton is private.
     CLogger();
@@ -164,8 +168,10 @@ private:
     //! away reads of it.
     volatile bool m_Reconfigured;
 
-    //! Cache the program name
-    std::string m_ProgramName;
+    //! Custom Boost.Log attribute names
+    boost::log::attribute_name m_FileAttributeName;
+    boost::log::attribute_name m_LineAttributeName;
+    boost::log::attribute_name m_FunctionAttributeName;
 
     //! When logging to a named pipe this stores the C FILE pointer to
     //! access the pipe.  Should be NULL otherwise.

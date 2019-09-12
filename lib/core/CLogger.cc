@@ -7,9 +7,11 @@
 
 #include <core/CCrashHandler.h>
 #include <core/COsFileFuncs.h>
+#include <core/CProcess.h>
 #include <core/CUname.h>
 #include <core/CoreTypes.h>
 
+#include <boost/core/null_deleter.hpp>
 #include <boost/log/attributes.hpp>
 #include <boost/log/common.hpp>
 #include <boost/log/expressions.hpp>
@@ -17,7 +19,8 @@
 #include <boost/log/sources/logger.hpp>
 #include <boost/log/support/date_time.hpp>
 #include <boost/log/utility/manipulators/add_value.hpp>
-#include <boost/log/utility/setup/common_attributes.hpp>
+#include <boost/smart_ptr/make_shared.hpp>
+#include <boost/smart_ptr/shared_ptr.hpp>
 
 #include <cerrno>
 #include <cstdlib>
@@ -45,17 +48,38 @@ const std::string FATAL{"FATAL"};
 // course, the instance may already be constructed before this if another static
 // object has used it.
 const ml::core::CLogger& DO_NOT_USE_THIS_VARIABLE = ml::core::CLogger::instance();
+
+// This must be boost::shared_ptr, not std, as that's what the Boost.Log interface
+// uses
+using TOStreamPtr = boost::shared_ptr<std::ostream>;
+using TTextOStream = boost::log::sinks::text_ostream_backend;
+using TTextOStreamSynchronousSink =
+    boost::log::sinks::synchronous_sink<boost::log::sinks::text_ostream_backend>;
 }
 
 namespace ml {
 namespace core {
 
 CLogger::CLogger()
-    : m_Reconfigured(false), m_OrigStderrFd(-1),
-      m_FatalErrorHandler(defaultFatalErrorHandler) {
+    : m_Reconfigured(false), m_FileAttributeName("File"),
+      m_LineAttributeName("Line"), m_FunctionAttributeName("Function"),
+      m_OrigStderrFd(-1), m_FatalErrorHandler(defaultFatalErrorHandler) {
     CCrashHandler::installCrashHandler();
-    // This adds LineID, TimeStamp, ProcessID and ThreadID
-    boost::log::add_common_attributes();
+    auto loggingCorePtr = boost::log::core::get();
+    // By default Boost.Log logs in local time but doesn't remember the timezone.
+    // For the case of logging to the ES JVM over a named pipe we want to send
+    // the timestamp as milliseconds since the epoch, which requires either a
+    // UTC timestamp or knowledge of the timezone.  For logging to a log file or
+    // the console we want to print the timezone.  However, logging to a log
+    // file or the console is only for internal development.  The pragmatic
+    // approach here is to always log in UTC.  (This can be revisited in the
+    // future if having console logs in UTC is ever a problem, but any fix would
+    // be non-trivial.)
+    loggingCorePtr->add_global_attribute(boost::log::aux::default_attribute_names::timestamp(),
+                                         boost::log::attributes::utc_clock());
+    loggingCorePtr->add_global_attribute(
+        boost::log::aux::default_attribute_names::thread_id(),
+        boost::log::attributes::current_thread_id());
     this->reset();
 }
 
@@ -82,24 +106,39 @@ void CLogger::reset() {
 
     m_Reconfigured = false;
 
+    auto loggingCorePtr = boost::log::core::get();
+    loggingCorePtr->remove_all_sinks();
+    loggingCorePtr->reset_filter();
+
+    // This must be boost::shared_ptr, not std, as that's what the Boost Log
+    // interface uses
+    auto backend{boost::make_shared<TTextOStream>()};
+    // Need a shared_ptr to std::cerr that will NOT delete it
+    backend->add_stream(TOStreamPtr(&std::cerr, boost::null_deleter()));
+
+    // TODO maybe store this as member?
+    auto sinkPtr{boost::make_shared<TTextOStreamSynchronousSink>(backend)};
+
     TLevelSeverityLoggerPtr newLogger{std::make_shared<TLevelSeverityLogger>()};
 
-    // TODO log4j.appender.A1.layout.ConversionPattern=%d %d{%Z} %-5p [PID] %F@%L %m%n
+    // Default filter is level debug and higher
+    sinkPtr->set_filter(boost::log::expressions::attr<ELevel>(
+                            boost::log::aux::default_attribute_names::severity()) >= E_Debug);
 
-    boost::log::formatter formatter =
+    // Default format is as close as possible to log4cxx's %d %d{%Z} %-5p [PID] %F@%L %m%n
+    sinkPtr->set_formatter(
         boost::log::expressions::stream
         << boost::log::expressions::format_date_time<boost::posix_time::ptime>(
-               "TimeStamp", "%Y-%m-%d, %H:%M:%S,%f %z")
-        << " " << std::setw(5) << boost::log::expressions::attr<ELevel>("Severity") << " ["
-        << boost::log::expressions::attr<boost::log::attributes::current_process_id::value_type>("ProcessID")
-        << "] "
-        << "TODO file@line"
-        << " - " << boost::log::expressions::smessage;
+               boost::log::aux::default_attribute_names::timestamp(), "%Y-%m-%d %H:%M:%S,%f")
+        << " UTC " << std::setw(5) << std::left
+        << boost::log::expressions::attr<ELevel>(
+               boost::log::aux::default_attribute_names::severity())
+        << " [" << ml::core::CProcess::instance().id() << "] "
+        << boost::log::expressions::attr<std::string>(m_FileAttributeName)
+        << "@" << boost::log::expressions::attr<int>(m_LineAttributeName) << " "
+        << boost::log::expressions::smessage);
 
-    /* TODO
-            // We can't use the log macros if the pointer to the logger is NULL
-            std::cerr << "Could not initialise logger: " << e.what() << std::endl;
-    */
+    loggingCorePtr->add_sink(sinkPtr);
 
     m_Logger = newLogger;
 }
@@ -148,6 +187,18 @@ const CLogger::TFatalErrorHandler& CLogger::fatalErrorHandler() const {
 
 void CLogger::handleFatal(std::string message) {
     m_FatalErrorHandler(std::move(message));
+}
+
+boost::log::attribute_name CLogger::fileAttributeName() const {
+    return m_FileAttributeName;
+}
+
+boost::log::attribute_name CLogger::lineAttributeName() const {
+    return m_LineAttributeName;
+}
+
+boost::log::attribute_name CLogger::functionAttributeName() const {
+    return m_FunctionAttributeName;
 }
 
 bool CLogger::setLoggingLevel(ELevel level) {

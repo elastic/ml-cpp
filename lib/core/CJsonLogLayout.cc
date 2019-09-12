@@ -72,11 +72,15 @@ void CJsonLogLayout::operator()(const boost::log::record_view& rec,
 
     writer.String(TIMESTAMP_NAME);
     const boost::posix_time::ptime& timeStamp{
-        boost::log::extract<boost::posix_time::ptime>("TimeStamp", rec).get()};
+        boost::log::extract<boost::posix_time::ptime>(
+            boost::log::aux::default_attribute_names::timestamp(), rec)
+            .get()};
     writer.Int64((timeStamp - EPOCH).total_milliseconds());
 
     writer.String(LEVEL_NAME);
-    CLogger::ELevel level{boost::log::extract<CLogger::ELevel>("Severity", rec).get()};
+    CLogger::ELevel level{boost::log::extract<CLogger::ELevel>(
+                              boost::log::aux::default_attribute_names::severity(), rec)
+                              .get()};
     writer.String(CLogger::levelToString(level));
 
     writer.String(PID_NAME);
@@ -84,7 +88,8 @@ void CJsonLogLayout::operator()(const boost::log::record_view& rec,
 
     writer.String(THREAD_NAME);
     const boost::log::attributes::current_thread_id::value_type threadId{
-        boost::log::extract<boost::log::attributes::current_thread_id::value_type>("ThreadID", rec)
+        boost::log::extract<boost::log::attributes::current_thread_id::value_type>(
+            boost::log::aux::default_attribute_names::thread_id(), rec)
             .get()};
     std::ostringstream oss;
     oss << threadId;
@@ -94,29 +99,54 @@ void CJsonLogLayout::operator()(const boost::log::record_view& rec,
     const std::string& message{rec[boost::log::expressions::smessage].get()};
     writer.String(message);
 
-    /* TODO
     if (m_LocationInfo) {
-        const spi::LocationInfo& locInfo = rec->getLocationInformation();
 
-        const std::string& className = locInfo.getClassName();
-        if (!className.empty()) {
+        std::string functionName{boost::log::extract<std::string>(
+                                     CLogger::instance().functionAttributeName(), rec)
+                                     .get()};
+
+        // Example:
+        //
+        // Function = std::string ns1::ns1::clazz::someMethod(int arg1, char arg2)
+        //
+        // gets mapped to:
+        //
+        // Class = ns1::ns1::clazz
+        // Method = someMethod
+
+        std::size_t argsStartPos{functionName.find('(')};
+        if (argsStartPos != std::string::npos) {
+            functionName.erase(argsStartPos);
+        }
+        std::size_t returnTypeSeparatorPos{functionName.rfind(' ')};
+        if (returnTypeSeparatorPos != std::string::npos) {
+            functionName.erase(0, returnTypeSeparatorPos + 1);
+        }
+        std::size_t lastScopeOperatorPos{functionName.rfind("::")};
+
+        if (lastScopeOperatorPos != std::string::npos) {
             writer.String(CLASS_NAME);
-            writer.String(className);
+            writer.String(functionName.c_str(),
+                          static_cast<rapidjson::SizeType>(lastScopeOperatorPos));
         }
 
-        const std::string& methodName = locInfo.getMethodName();
-        if (!methodName.empty()) {
-            writer.String(METHOD_NAME);
-            writer.String(methodName);
+        writer.String(METHOD_NAME);
+        if (lastScopeOperatorPos != std::string::npos) {
+            writer.String(functionName.c_str() + lastScopeOperatorPos + 2);
+        } else {
+            writer.String(functionName);
         }
 
         writer.String(FILE_NAME);
-        writer.String(CJsonLogLayout::cropPath(locInfo.getFileName()));
+        const std::string& fullFileName{
+            boost::log::extract<std::string>(CLogger::instance().fileAttributeName(), rec)
+                .get()};
+        writer.String(CJsonLogLayout::cropPath(fullFileName));
 
         writer.String(LINE_NAME);
-        writer.Int(locInfo.getLineNumber());
+        writer.Int(boost::log::extract<int>(CLogger::instance().lineAttributeName(), rec)
+                       .get());
     }
-*/
 
     writer.EndObject();
 
