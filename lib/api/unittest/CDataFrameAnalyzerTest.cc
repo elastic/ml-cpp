@@ -34,6 +34,7 @@
 #include <iostream>
 #include <memory>
 #include <string>
+#include <test/CMockDataAdder.h>
 #include <vector>
 
 using namespace ml;
@@ -47,7 +48,39 @@ using TRowItr = core::CDataFrame::TRowItr;
 using TPoint = maths::CDenseVector<maths::CFloatStorage>;
 using TPointVec = std::vector<TPoint>;
 
-std::vector<rapidjson::Document> stringToJsonDocumentVector(std::string input) {
+class CTestDataSearcher : public core::CDataSearcher {
+public:
+    CTestDataSearcher(const std::string& data)
+        : m_Stream(new std::istringstream(data)) {}
+
+    virtual TIStreamP search(size_t /*currentDocNum*/, size_t /*limit*/) {
+        return m_Stream;
+    }
+
+private:
+    TIStreamP m_Stream;
+};
+
+class CTestDataAdder : public core::CDataAdder {
+public:
+    CTestDataAdder() : m_Stream(new std::ostringstream) {}
+
+    virtual TOStreamP addStreamed(const std::string& /*index*/, const std::string& /*id*/) {
+        return m_Stream;
+    }
+
+    virtual bool streamComplete(TOStreamP& /*strm*/, bool /*force*/) {
+        return true;
+    }
+
+    TOStreamP getStream() { return m_Stream; }
+
+private:
+    TOStreamP m_Stream;
+};
+}
+
+std::vector<rapidjson::Document> stringToJsonDocumentVector(const std::string& input) {
     rapidjson::StringStream stringStream{input.c_str()};
     std::vector<rapidjson::Document> results;
     while (stringStream.Tell() < input.size() - 3) {
@@ -60,6 +93,16 @@ std::vector<rapidjson::Document> stringToJsonDocumentVector(std::string input) {
             continue;
         }
         CPPUNIT_ASSERT(static_cast<bool>(ok) == true);
+    }
+    return results;
+}
+
+std::vector<std::string> streamToStringVector(const std::string& input) {
+    std::vector<std::string> results;
+    std::istringstream tokenStream{input};
+    std::string token;
+    while (std::getline(tokenStream, token, '\0')) {
+        results.push_back(token);
     }
     return results;
 }
@@ -336,7 +379,6 @@ void addRegressionTestData(TStrVec fieldNames,
                 (*row)[tree->columnHoldingPrediction(row->numberColumns())]);
         }
     });
-}
 }
 
 void CDataFrameAnalyzerTest::testWithoutControlMessages() {
@@ -1151,6 +1193,15 @@ void CDataFrameAnalyzerTest::testRunBoostedTreeTrainingWithStateRecoverySubrouti
 
     std::vector<rapidjson::Document> persistedStates =
         stringToJsonDocumentVector(persistenceStream->str());
+    std::vector<std::string> persistedStatesString{
+        streamToStringVector(persistenceStream->str())};
+
+    CTestDataAdder dataAdder;
+    {
+        auto strm = dataAdder.addStreamed("1", "");
+        { *strm << persistedStatesString[intermediateIteration]; }
+        dataAdder.streamComplete(strm, true);
+    }
 
     // as the first doc contains index name, we need to access the second one.
     auto intermediateTree = createTreeFromJsonObject(

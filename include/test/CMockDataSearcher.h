@@ -10,9 +10,7 @@
 
 #include <test/CMockDataAdder.h>
 
-
 #include <map>
-
 
 namespace ml {
 namespace test {
@@ -22,12 +20,13 @@ public:
     using TSizeStrMap = std::map<std::size_t, std::string>;
     using TSizeStrMapCItr = TSizeStrMap::const_iterator;
     using TOStreamP = ml::core::CDataAdder::TOStreamP;
+
 public:
-    CMockDataSearcher(CMockDataAdder &adder) : m_Adder(adder), m_AskedFor(0) {}
+    CMockDataSearcher(CMockDataAdder& adder) : m_Adder(adder), m_AskedFor(0) {}
 
     virtual TIStreamP search(size_t /*currentDocNum*/, size_t /*limit*/) {
         TIStreamP stream;
-        const TSizeStrMap &events = m_Adder.data();
+        const TSizeStrMap& events = m_Adder.data();
 
         TSizeStrMapCItr iter = events.find(m_AskedFor + 1);
         if (iter == events.end()) {
@@ -46,10 +45,9 @@ public:
     std::size_t askedFor() const { return m_AskedFor; }
 
 private:
-    CMockDataAdder &m_Adder;
+    CMockDataAdder& m_Adder;
     std::size_t m_AskedFor;
 };
-
 }
 }
 #endif // INCLUDED_ml_test_CMockDataSearcher_h

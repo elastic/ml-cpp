@@ -56,9 +56,6 @@ void insert1stLevel(ml::core::CStatePersistInserter& inserter, std::size_t n) {
         inserter.insertLevel("levelC" + core::CStringUtils::typeToString(i), &insert2ndLevel);
     }
 }
-
-
-
 }
 
 void CStateCompressorTest::testForApiNoKey() {

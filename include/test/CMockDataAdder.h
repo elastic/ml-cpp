@@ -12,7 +12,6 @@
 
 #include <string>
 
-
 namespace ml {
 namespace test {
 
@@ -23,28 +22,28 @@ public:
 
 public:
     CMockDataAdder(std::size_t maxDocSize)
-            : m_CurrentDocNum(0), m_MaxDocumentSize(maxDocSize) {}
+        : m_CurrentDocNum(0), m_MaxDocumentSize(maxDocSize) {}
 
-    virtual TOStreamP addStreamed(const std::string & /*index*/, const std::string & /*id*/) {
+    virtual TOStreamP addStreamed(const std::string& /*index*/, const std::string& /*id*/) {
         ++m_CurrentDocNum;
         m_CurrentStream = TOStreamP(new std::ostringstream);
         return m_CurrentStream;
     }
 
-    virtual bool streamComplete(TOStreamP &strm, bool /*force*/) {
+    virtual bool streamComplete(TOStreamP& strm, bool /*force*/) {
         CPPUNIT_ASSERT_EQUAL(m_CurrentStream, strm);
-        std::ostringstream *ss =
-                dynamic_cast<std::ostringstream *>(m_CurrentStream.get());
+        std::ostringstream* ss =
+            dynamic_cast<std::ostringstream*>(m_CurrentStream.get());
         CPPUNIT_ASSERT(ss);
-        LOG_TRACE( << ss->str());
+        LOG_TRACE(<< ss->str());
         m_Data[m_CurrentDocNum] = ss->str();
-        LOG_TRACE( << m_Data[m_CurrentDocNum]);
+        LOG_TRACE(<< m_Data[m_CurrentDocNum]);
         return true;
     }
 
     virtual std::size_t maxDocumentSize() const { return m_MaxDocumentSize; }
 
-    const TSizeStrMap &data() const { return m_Data; }
+    const TSizeStrMap& data() const { return m_Data; }
 
 private:
     TSizeStrMap m_Data;
@@ -52,7 +51,6 @@ private:
     TOStreamP m_CurrentStream;
     std::size_t m_MaxDocumentSize;
 };
-
 }
 }
 
