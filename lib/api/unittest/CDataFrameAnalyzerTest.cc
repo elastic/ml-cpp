@@ -167,8 +167,8 @@ auto outlierSpec(std::size_t rows = 110,
     parameters += "}\n";
 
     std::string spec{api::CDataFrameAnalysisSpecificationJsonWriter::jsonString(
-        rows, 5, memoryLimit, 1, {}, true, test::CTestTmpDir::tmpDir(), "ml",
-        "outlier_detection", parameters)};
+        "testJob", rows, 5, memoryLimit, 1, {}, true,
+        test::CTestTmpDir::tmpDir(), "ml", "outlier_detection", parameters)};
 
     LOG_TRACE(<< "spec =\n" << spec);
 
@@ -222,7 +222,7 @@ auto regressionSpec(
     parameters += "\n}";
 
     std::string spec{api::CDataFrameAnalysisSpecificationJsonWriter::jsonString(
-        rows, cols, memoryLimit, 1, categoricalFieldNames, true,
+        "testJob", rows, cols, memoryLimit, 1, categoricalFieldNames, true,
         test::CTestTmpDir::tmpDir(), "ml", "regression", parameters)};
 
     LOG_TRACE(<< "spec =\n" << spec);
@@ -1095,10 +1095,10 @@ void CDataFrameAnalyzerTest::testRunBoostedTreeTrainingWithStateRecovery() {
 
     test::CRandomNumbers rng;
 
-    LOG_DEBUG(<< "No hyperparameters to search")
-    testRunBoostedTreeTrainingWithStateRecoverySubroutine(
-        lambda, gamma, eta, maximumNumberTrees, featureBagFraction,
-        numberRoundsPerHyperparameter, 0, finalIteration);
+    //    LOG_DEBUG(<< "No hyperparameters to search")
+    //    testRunBoostedTreeTrainingWithStateRecoverySubroutine(
+    //        lambda, gamma, eta, maximumNumberTrees, featureBagFraction,
+    //        numberRoundsPerHyperparameter, 0, finalIteration);
 
     LOG_DEBUG(<< "One hyperparameter to search")
     lambda = -1.0;
@@ -1147,16 +1147,11 @@ void CDataFrameAnalyzerTest::testRunBoostedTreeTrainingWithStateRecoverySubrouti
     std::size_t numberExamples{200};
 
     TStrVec fieldNames{"c1", "c2", "c3", "c4", "c5", ".", "."};
-    TStrVec fieldValues{"", "", "", "", "", "0", ""};
     TDoubleVec weights{0.1, 2.0, 0.4, -0.5};
 
-    auto f = [](const TDoubleVec& weights_, const TPoint& regressors) {
-        double result{0.0};
-        for (std::size_t i = 0; i < weights_.size(); ++i) {
-            result += weights_[i] * regressors(i);
-        }
-        return result;
-    };
+    TDoubleVec values;
+    test::CRandomNumbers rng;
+    rng.generateUniformSamples(-10.0, 10.0, weights.size() * numberExamples, values);
 
     api::CDataFrameAnalyzer analyzer{
         regressionSpec("c5", numberExamples, 5, 15000000,
@@ -1164,58 +1159,64 @@ void CDataFrameAnalyzerTest::testRunBoostedTreeTrainingWithStateRecoverySubrouti
                        maximumNumberTrees, featureBagFraction, persisterSupplier),
         outputWriterFactory};
 
-    test::CRandomNumbers rng;
+    std::unique_ptr<core::CDataFrame> frame =
+        passDataToAnalyzer(weights, values, analyzer, fieldNames);
 
-    TDoubleVec values;
-    rng.generateUniformSamples(-10.0, 10.0, weights.size() * numberExamples, values);
-
-    TPointVec rows;
-    for (std::size_t i = 0; i < values.size(); i += weights.size()) {
-        TPoint row{weights.size() + 1};
-        for (std::size_t j = 0; j < weights.size(); ++j) {
-            row(j) = values[i + j];
-        }
-        row(weights.size()) = f(weights, row);
-
-        for (int j = 0; j < row.size(); ++j) {
-            fieldValues[j] = core::CStringUtils::typeToStringPrecise(
-                row(j), core::CIEEE754::E_DoublePrecision);
-            double xj;
-            core::CStringUtils::stringToType(fieldValues[j], xj);
-            row(j) = xj;
-        }
-        analyzer.handleRecord(fieldNames, fieldValues);
-
-        rows.push_back(std::move(row));
-    }
-    auto frame = test::CDataFrameTestUtils::toMainMemoryDataFrame(rows);
     analyzer.handleRecord(fieldNames, {"", "", "", "", "", "", "$"});
 
     std::vector<rapidjson::Document> persistedStates =
         stringToJsonDocumentVector(persistenceStream->str());
     std::vector<std::string> persistedStatesString{
         streamToStringVector(persistenceStream->str())};
+    auto expectedTree = createTreeFromJsonObject(frame, persistedStates.back());
+    // ------------------------------------------------------
+    std::stringstream outputStream2;
+    std::shared_ptr<std::ostringstream> persistenceStream2 =
+        std::make_shared<std::ostringstream>();
+    auto outputWriterFactory2 = [&outputStream2]() {
+        return std::make_unique<core::CJsonOutputStreamWrapper>(outputStream2);
+    };
+    auto persisterSupplier2 = [&persistenceStream2]() -> TDataAdderUPtr {
+        return std::make_unique<api::CSingleStreamDataAdder>(persistenceStream2);
+    };
 
-    CTestDataAdder dataAdder;
-    {
-        auto strm = dataAdder.addStreamed("1", "");
-        { *strm << persistedStatesString[intermediateIteration]; }
-        dataAdder.streamComplete(strm, true);
-    }
+    std::istringstream intermediateStateStream{persistedStatesString[intermediateIteration]};
+    intermediateStateStream.ignore(256, '\n');
+    std::string intermediateState;
+    std::getline(intermediateStateStream, intermediateState);
+
+    using TDataSearcherUPtr = std::unique_ptr<ml::core::CDataSearcher>;
+    auto restoreSearcherSupplier = [&intermediateState]() -> TDataSearcherUPtr {
+        return std::make_unique<CTestDataSearcher>(intermediateState);
+    };
+
+    api::CDataFrameAnalyzer analyzerToRestore{
+        regressionSpec("c5", numberExamples, 5, 15000000, numberRoundsPerHyperparameter,
+                       12, {}, lambda, gamma, eta, maximumNumberTrees, featureBagFraction,
+                       persisterSupplier2, restoreSearcherSupplier),
+        outputWriterFactory2};
+
+    passDataToAnalyzer(weights, values, analyzerToRestore, fieldNames);
+    analyzerToRestore.handleRecord(fieldNames, {"", "", "", "", "", "", "$"});
+
+    std::vector<rapidjson::Document> persistedStates2 =
+        stringToJsonDocumentVector(persistenceStream2->str());
+    std::vector<std::string> persistedStatesString2{
+        streamToStringVector(persistenceStream2->str())};
+    auto actualTree = createTreeFromJsonObject(frame, persistedStates2.back());
 
     // as the first doc contains index name, we need to access the second one.
-    auto intermediateTree = createTreeFromJsonObject(
-        frame, persistedStates[2 * intermediateIteration + 1]);
-    auto finalTree =
-        createTreeFromJsonObject(frame, persistedStates[2 * finalIteration + 1]);
+    //    auto intermediateTree = createTreeFromJsonObject(
+    //        frame, persistedStates[2 * intermediateIteration + 1]);
+    //
+    //
+    //    CPPUNIT_ASSERT(intermediateTree.get() != nullptr);
+    //    intermediateTree->train();
 
-    CPPUNIT_ASSERT(intermediateTree.get() != nullptr);
-    intermediateTree->train();
-
-    rapidjson::Document expectedResults{treeToJsonDocument(*finalTree)};
+    rapidjson::Document expectedResults{treeToJsonDocument(*expectedTree)};
     const auto& expectedHyperparameters = expectedResults["best_hyperparameters"];
 
-    rapidjson::Document actualResults{treeToJsonDocument(*intermediateTree)};
+    rapidjson::Document actualResults{treeToJsonDocument(*actualTree)};
     const auto& actualHyperparameters = actualResults["best_hyperparameters"];
 
     auto assertDoublesEqual = [&expectedHyperparameters,
@@ -1242,4 +1243,44 @@ void CDataFrameAnalyzerTest::testRunBoostedTreeTrainingWithStateRecoverySubrouti
     assertDoublesEqual("hyperparam_eta_growth_rate_per_tree");
     assertDoublesEqual("hyperparam_feature_bag_fraction");
     assertDoublesArrayEqual("hyperparam_feature_sample_probabilities");
+}
+
+std::unique_ptr<core::CDataFrame>
+CDataFrameAnalyzerTest::passDataToAnalyzer(const TDoubleVec& weights,
+                                           const TDoubleVec& values,
+                                           api::CDataFrameAnalyzer& analyzer,
+                                           const TStrVec& fieldNames) const {
+
+    TStrVec fieldValues{"", "", "", "", "", "0", ""};
+
+    auto f = [](const TDoubleVec& weights_, const TPoint& regressors) {
+        double result{0.0};
+        for (std::size_t i = 0; i < weights_.size(); ++i) {
+            result += weights_[i] * regressors(i);
+        }
+        return result;
+    };
+
+    TPointVec rows;
+
+    for (std::size_t i = 0; i < values.size(); i += weights.size()) {
+        TPoint row{weights.size() + 1};
+        for (std::size_t j = 0; j < weights.size(); ++j) {
+            row(j) = values[i + j];
+        }
+        row(weights.size()) = f(weights, row);
+
+        for (int j = 0; j < row.size(); ++j) {
+            fieldValues[j] = core::CStringUtils::typeToStringPrecise(
+                row(j), core::CIEEE754::E_DoublePrecision);
+            double xj;
+            core::CStringUtils::stringToType(fieldValues[j], xj);
+            row(j) = xj;
+        }
+        analyzer.handleRecord(fieldNames, fieldValues);
+
+        rows.push_back(std::move(row));
+    }
+
+    return test::CDataFrameTestUtils::toMainMemoryDataFrame(rows);
 }

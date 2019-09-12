@@ -18,10 +18,9 @@
 
 #include <api/CDataFrameAnalysisConfigReader.h>
 #include <api/CDataFrameAnalysisSpecification.h>
+#include <api/ElasticsearchStateIndex.h>
 
-#include <core/CJsonStatePersistInserter.h>
 #include <rapidjson/document.h>
-#include <rapidjson/writer.h>
 
 namespace ml {
 namespace api {
@@ -190,9 +189,8 @@ void CDataFrameBoostedTreeRunner::runImpl(const TStrVec& featureNames,
     core::CStopWatch watch{true};
     auto restoreSearcher{m_Spec.restoreSearcher()};
     if (restoreSearcher != nullptr) {
-        // TODO uncomment the next line
-        //        restoreSearcher->setStateRestoreSearch(ML_INDEX, getRegressionStateId(m_Spec.jobId()));
-        restoreSearcher->setStateRestoreSearch(".ml-state", "predictive_model_train_state_ABC");
+        restoreSearcher->setStateRestoreSearch(
+            ML_STATE_INDEX, getRegressionStateId(m_Spec.jobId()));
         core::CDataSearcher::TIStreamP inputStream{restoreSearcher->search(1, 1)}; // search arguments are ignored
         m_BoostedTree = maths::CBoostedTreeFactory::constructFromString(
             *inputStream, frame, this->progressRecorder(),

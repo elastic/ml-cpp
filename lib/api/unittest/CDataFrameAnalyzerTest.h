@@ -7,9 +7,14 @@
 #ifndef INCLUDED_CDataFrameAnalyzerTest_h
 #define INCLUDED_CDataFrameAnalyzerTest_h
 
-#include <cppunit/extensions/HelperMacros.h>
-
+#include <core/CDataFrame.h>
 #include <core/CDataSearcher.h>
+
+#include <maths/CLinearAlgebraEigen.h>
+
+#include <api/CDataFrameAnalyzer.h>
+
+#include <cppunit/extensions/HelperMacros.h>
 
 class CDataFrameAnalyzerTest : public CppUnit::TestFixture {
 public:
@@ -36,6 +41,10 @@ public:
     static CppUnit::Test* suite();
 
 private:
+    using TDoubleVec = std::vector<double>;
+    using TStrVec = std::vector<std::string>;
+
+private:
     void testRunBoostedTreeTrainingWithStateRecoverySubroutine(double lambda,
                                                                double gamma,
                                                                double eta,
@@ -44,6 +53,12 @@ private:
                                                                size_t numberRoundsPerHyperparameter,
                                                                size_t intermediateIteration,
                                                                size_t finalIteration) const;
+
+    std::unique_ptr<ml::core::CDataFrame>
+    passDataToAnalyzer(const TDoubleVec& weights,
+                       const TDoubleVec& values,
+                       ml::api::CDataFrameAnalyzer& analyzer,
+                       const TStrVec& fieldNames) const;
 };
 
 #endif // INCLUDED_CDataFrameAnalyzerTest_h
