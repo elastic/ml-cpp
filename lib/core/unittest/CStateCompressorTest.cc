@@ -12,9 +12,6 @@
 #include <core/CStateCompressor.h>
 #include <core/CStateDecompressor.h>
 
-#include <test/CMockDataAdder.h>
-#include <test/CMockDataSearcher.h>
-
 #include <boost/generator_iterator.hpp>
 #include <boost/random.hpp>
 #include <boost/random/uniform_int.hpp>
@@ -56,6 +53,68 @@ void insert1stLevel(ml::core::CStatePersistInserter& inserter, std::size_t n) {
         inserter.insertLevel("levelC" + core::CStringUtils::typeToString(i), &insert2ndLevel);
     }
 }
+
+class CMockDataAdder : public ml::core::CDataAdder {
+public:
+    CMockDataAdder(std::size_t maxDocSize)
+        : m_CurrentDocNum(0), m_MaxDocumentSize(maxDocSize) {}
+
+    virtual TOStreamP addStreamed(const std::string& /*index*/, const std::string& /*id*/) {
+        ++m_CurrentDocNum;
+        m_CurrentStream = TOStreamP(new std::ostringstream);
+        return m_CurrentStream;
+    }
+
+    virtual bool streamComplete(TOStreamP& strm, bool /*force*/) {
+        CPPUNIT_ASSERT_EQUAL(m_CurrentStream, strm);
+        std::ostringstream* ss =
+            dynamic_cast<std::ostringstream*>(m_CurrentStream.get());
+        CPPUNIT_ASSERT(ss);
+        LOG_TRACE(<< ss->str());
+        m_Data[m_CurrentDocNum] = ss->str();
+        LOG_TRACE(<< m_Data[m_CurrentDocNum]);
+        return true;
+    }
+
+    virtual std::size_t maxDocumentSize() const { return m_MaxDocumentSize; }
+
+    const TSizeStrMap& data() const { return m_Data; }
+
+private:
+    TSizeStrMap m_Data;
+    std::size_t m_CurrentDocNum;
+    TOStreamP m_CurrentStream;
+    std::size_t m_MaxDocumentSize;
+};
+
+class CMockDataSearcher : public ml::core::CDataSearcher {
+public:
+    CMockDataSearcher(CMockDataAdder& adder) : m_Adder(adder), m_AskedFor(0) {}
+
+    virtual TIStreamP search(size_t /*currentDocNum*/, size_t /*limit*/) {
+        TIStreamP stream;
+        const TSizeStrMap& events = m_Adder.data();
+
+        TSizeStrMapCItr iter = events.find(m_AskedFor + 1);
+        if (iter == events.end()) {
+            // return a stream here that is in the fail state
+            stream.reset(new std::stringstream);
+            stream->setstate(std::ios_base::failbit);
+        } else {
+            stream.reset(new std::stringstream(iter->second));
+            ++m_AskedFor;
+        }
+        return stream;
+    }
+
+    std::size_t totalDocs() const { return m_Adder.data().size(); }
+
+    std::size_t askedFor() const { return m_AskedFor; }
+
+private:
+    CMockDataAdder& m_Adder;
+    std::size_t m_AskedFor;
+};
 }
 
 void CStateCompressorTest::testForApiNoKey() {
@@ -64,7 +123,7 @@ void CStateCompressorTest::testForApiNoKey() {
     // and one compress/decompress stream
 
     std::ostringstream referenceStream;
-    ml::test::CMockDataAdder mockKvAdder(3000);
+    ::CMockDataAdder mockKvAdder(3000);
     {
         ml::core::CStateCompressor compressor(mockKvAdder);
 
@@ -83,7 +142,7 @@ void CStateCompressorTest::testForApiNoKey() {
     std::string restored;
     {
         LOG_DEBUG(<< "Restoring data");
-        ml::test::CMockDataSearcher mockKvSearcher(mockKvAdder);
+        CMockDataSearcher mockKvSearcher(mockKvAdder);
         ml::core::CStateDecompressor decompressor(mockKvSearcher);
         decompressor.setStateRestoreSearch("1", "");
         TIStreamP istrm = decompressor.search(1, 1);
@@ -104,7 +163,7 @@ void CStateCompressorTest::testStreaming() {
     // read in stream chunks, not all at once. CMockDataSearcher has a
     // method to return how much of the stored content has been accessed.
 
-    ml::test::CMockDataAdder mockKvAdder(3000);
+    ::CMockDataAdder mockKvAdder(3000);
     {
         // Add lots of data to the mock datastore (compressed on the way)
         ml::core::CStateCompressor compressor(mockKvAdder);
@@ -122,7 +181,7 @@ void CStateCompressorTest::testStreaming() {
         // Read the datastore via a JSON traverser, and show that the
         // data is streamed, not read all at once
         std::size_t lastAskedFor = 0;
-        ml::test::CMockDataSearcher mockKvSearcher(mockKvAdder);
+        ::CMockDataSearcher mockKvSearcher(mockKvAdder);
         LOG_TRACE(<< "After compression, there are " << mockKvSearcher.totalDocs()
                   << " docs, asked for " << mockKvSearcher.askedFor());
         ml::core::CStateDecompressor decompressor(mockKvSearcher);
@@ -177,7 +236,7 @@ void CStateCompressorTest::testChunking() {
     for (std::size_t i = 500; i < 5000001; i *= 10) {
         // check string data from sizes 1 to 200000
         for (std::size_t j = 1; j < 2570000; j *= 4) {
-            ml::test::CMockDataAdder adder(i);
+            CMockDataAdder adder(i);
             std::ostringstream ss;
             std::string decompressed;
             try {
@@ -191,7 +250,7 @@ void CStateCompressorTest::testChunking() {
                     }
                 }
                 {
-                    ml::test::CMockDataSearcher searcher(adder);
+                    CMockDataSearcher searcher(adder);
                     ml::core::CStateDecompressor decompressor(searcher);
                     decompressor.setStateRestoreSearch("1", "");
                     ml::core::CDataSearcher::TIStreamP strm = decompressor.search(1, 1);
@@ -210,7 +269,7 @@ void CStateCompressorTest::testChunking() {
 
     // Do a really big string test
     {
-        ml::test::CMockDataAdder adder(0xffffffff);
+        CMockDataAdder adder(0xffffffff);
         std::ostringstream ss;
         std::string decompressed;
         try {
@@ -224,7 +283,7 @@ void CStateCompressorTest::testChunking() {
                 }
             }
             {
-                ml::test::CMockDataSearcher searcher(adder);
+                CMockDataSearcher searcher(adder);
                 ml::core::CStateDecompressor decompressor(searcher);
                 decompressor.setStateRestoreSearch("1", "");
                 ml::core::CDataSearcher::TIStreamP strm = decompressor.search(1, 1);
