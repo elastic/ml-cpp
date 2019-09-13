@@ -39,7 +39,8 @@ BOOSTGCCVER:=$(shell $(CXX) -dumpversion | awk -F. '{ print $$1; }')
 # Use -isystem instead of -I for Boost headers to suppress warnings from Boost
 BOOSTINCLUDES=-isystem /usr/local/gcc73/include/boost-$(BOOSTVER)
 BOOSTCPPFLAGS=-DBOOST_ALL_DYN_LINK -DBOOST_MATH_NO_LONG_DOUBLE_MATH_FUNCTIONS
-BOOSTLOGLIBS=-lboost_log-gcc$(BOOSTGCCVER)-mt-x64-$(BOOSTVER) -lboost_log_setup-gcc$(BOOSTGCCVER)-mt-x64-$(BOOSTVER)
+BOOSTLOGLIBS=-lboost_log-gcc$(BOOSTGCCVER)-mt-x64-$(BOOSTVER)
+BOOSTLOGSETUPLIBS=-lboost_log_setup-gcc$(BOOSTGCCVER)-mt-x64-$(BOOSTVER)
 BOOSTREGEXLIBS=-lboost_regex-gcc$(BOOSTGCCVER)-mt-x64-$(BOOSTVER)
 BOOSTIOSTREAMSLIBS=-lboost_iostreams-gcc$(BOOSTGCCVER)-mt-x64-$(BOOSTVER)
 BOOSTPROGRAMOPTIONSLIBS=-lboost_program_options-gcc$(BOOSTGCCVER)-mt-x64-$(BOOSTVER)

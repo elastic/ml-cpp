@@ -31,9 +31,9 @@
 #endif
 #ifdef PROMOTE_LOGGING_TO_INFO
 // When this option is set all LOG_TRACE macros are promoted to LOG_INFO
-#define LOG_TRACE(message)                                                                   \
-    BOOST_LOG_STREAM_SEV(*ml::core::CLogger::instance().logger(), ml::core::CLogger::E_Info) \
-    LOG_LOCATION_INFO                                                                        \
+#define LOG_TRACE(message)                                                                  \
+    BOOST_LOG_STREAM_SEV(ml::core::CLogger::instance().logger(), ml::core::CLogger::E_Info) \
+    LOG_LOCATION_INFO                                                                       \
     message
 #elif defined(EXCLUDE_TRACE_LOGGING)
 // When this option is set TRACE logging is expanded to dummy code that can be
@@ -43,9 +43,9 @@
 #define LOG_TRACE(message)                                                     \
     static_cast<void>([&]() { std::ostringstream() << "" message; })
 #else
-#define LOG_TRACE(message)                                                                    \
-    BOOST_LOG_STREAM_SEV(*ml::core::CLogger::instance().logger(), ml::core::CLogger::E_Trace) \
-    LOG_LOCATION_INFO                                                                         \
+#define LOG_TRACE(message)                                                                   \
+    BOOST_LOG_STREAM_SEV(ml::core::CLogger::instance().logger(), ml::core::CLogger::E_Trace) \
+    LOG_LOCATION_INFO                                                                        \
     message
 #endif
 #ifdef LOG_DEBUG
@@ -53,43 +53,43 @@
 #endif
 #ifdef PROMOTE_LOGGING_TO_INFO
 // When this option is set all LOG_DEBUG macros are promoted to LOG_INFO
-#define LOG_DEBUG(message)                                                                   \
-    BOOST_LOG_STREAM_SEV(*ml::core::CLogger::instance().logger(), ml::core::CLogger::E_Info) \
-    LOG_LOCATION_INFO                                                                        \
+#define LOG_DEBUG(message)                                                                  \
+    BOOST_LOG_STREAM_SEV(ml::core::CLogger::instance().logger(), ml::core::CLogger::E_Info) \
+    LOG_LOCATION_INFO                                                                       \
     message
 #else
-#define LOG_DEBUG(message)                                                                    \
-    BOOST_LOG_STREAM_SEV(*ml::core::CLogger::instance().logger(), ml::core::CLogger::E_Debug) \
-    LOG_LOCATION_INFO                                                                         \
+#define LOG_DEBUG(message)                                                                   \
+    BOOST_LOG_STREAM_SEV(ml::core::CLogger::instance().logger(), ml::core::CLogger::E_Debug) \
+    LOG_LOCATION_INFO                                                                        \
     message
 #endif
 #ifdef LOG_INFO
 #undef LOG_INFO
 #endif
-#define LOG_INFO(message)                                                                    \
-    BOOST_LOG_STREAM_SEV(*ml::core::CLogger::instance().logger(), ml::core::CLogger::E_Info) \
-    LOG_LOCATION_INFO                                                                        \
+#define LOG_INFO(message)                                                                   \
+    BOOST_LOG_STREAM_SEV(ml::core::CLogger::instance().logger(), ml::core::CLogger::E_Info) \
+    LOG_LOCATION_INFO                                                                       \
     message
 #ifdef LOG_WARN
 #undef LOG_WARN
 #endif
-#define LOG_WARN(message)                                                                    \
-    BOOST_LOG_STREAM_SEV(*ml::core::CLogger::instance().logger(), ml::core::CLogger::E_Warn) \
-    LOG_LOCATION_INFO                                                                        \
+#define LOG_WARN(message)                                                                   \
+    BOOST_LOG_STREAM_SEV(ml::core::CLogger::instance().logger(), ml::core::CLogger::E_Warn) \
+    LOG_LOCATION_INFO                                                                       \
     message
 #ifdef LOG_ERROR
 #undef LOG_ERROR
 #endif
-#define LOG_ERROR(message)                                                                    \
-    BOOST_LOG_STREAM_SEV(*ml::core::CLogger::instance().logger(), ml::core::CLogger::E_Error) \
-    LOG_LOCATION_INFO                                                                         \
+#define LOG_ERROR(message)                                                                   \
+    BOOST_LOG_STREAM_SEV(ml::core::CLogger::instance().logger(), ml::core::CLogger::E_Error) \
+    LOG_LOCATION_INFO                                                                        \
     message
 #ifdef LOG_FATAL
 #undef LOG_FATAL
 #endif
-#define LOG_FATAL(message)                                                                    \
-    BOOST_LOG_STREAM_SEV(*ml::core::CLogger::instance().logger(), ml::core::CLogger::E_Fatal) \
-    LOG_LOCATION_INFO                                                                         \
+#define LOG_FATAL(message)                                                                   \
+    BOOST_LOG_STREAM_SEV(ml::core::CLogger::instance().logger(), ml::core::CLogger::E_Fatal) \
+    LOG_LOCATION_INFO                                                                        \
     message
 
 #ifdef HANDLE_FATAL
@@ -105,10 +105,10 @@
 #ifdef LOG_ABORT
 #undef LOG_ABORT
 #endif
-#define LOG_ABORT(message)                                                                    \
-    BOOST_LOG_STREAM_SEV(*ml::core::CLogger::instance().logger(), ml::core::CLogger::E_Fatal) \
-    LOG_LOCATION_INFO                                                                         \
-    message;                                                                                  \
+#define LOG_ABORT(message)                                                                   \
+    BOOST_LOG_STREAM_SEV(ml::core::CLogger::instance().logger(), ml::core::CLogger::E_Fatal) \
+    LOG_LOCATION_INFO                                                                        \
+    message;                                                                                 \
     ml::core::CLogger::fatal()
 
 // Log at a level specified at runtime as a string, for example
@@ -118,6 +118,6 @@
 #undef LOG_AT_LEVEL
 #endif
 #define LOG_AT_LEVEL(level, message)                                           \
-    BOOST_LOG_STREAM_SEV(*ml::core::CLogger::instance().logger(), level)       \
+    BOOST_LOG_STREAM_SEV(ml::core::CLogger::instance().logger(), level)        \
     LOG_LOCATION_INFO                                                          \
     message

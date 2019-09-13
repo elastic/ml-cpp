@@ -10,6 +10,8 @@
 
 class CLoggerTest : public CppUnit::TestFixture {
 public:
+    void tearDown();
+
     void testLogging();
     void testReconfiguration();
     void testSetLevel();

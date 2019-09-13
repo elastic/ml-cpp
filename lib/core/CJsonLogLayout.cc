@@ -107,11 +107,11 @@ void CJsonLogLayout::operator()(const boost::log::record_view& rec,
 
         // Example:
         //
-        // Function = std::string ns1::ns1::clazz::someMethod(int arg1, char arg2)
+        // Function = std::string ns1::ns2::clazz::someMethod(int arg1, char arg2)
         //
         // gets mapped to:
         //
-        // Class = ns1::ns1::clazz
+        // Class = ns1::ns2::clazz
         // Method = someMethod
 
         std::size_t argsStartPos{functionName.find('(')};

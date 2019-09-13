@@ -39,7 +39,8 @@ BOOSTCLANGVER:=$(shell $(CXX) --version | grep ' version ' | sed 's/.* version /
 # Use -isystem instead of -I for Boost headers to suppress warnings from Boost
 BOOSTINCLUDES=-isystem /usr/local/include/boost-$(BOOSTVER)
 BOOSTCPPFLAGS=-DBOOST_ALL_DYN_LINK -DBOOST_MATH_NO_LONG_DOUBLE_MATH_FUNCTIONS
-BOOSTLOGLIBS=-lboost_log-clang-darwin$(BOOSTCLANGVER)-mt-x64-$(BOOSTVER) -lboost_log_setup-clang-darwin$(BOOSTCLANGVER)-mt-x64-$(BOOSTVER)
+BOOSTLOGLIBS=-lboost_log-clang-darwin$(BOOSTCLANGVER)-mt-x64-$(BOOSTVER)
+BOOSTLOGSETUPLIBS=-lboost_log_setup-clang-darwin$(BOOSTCLANGVER)-mt-x64-$(BOOSTVER)
 BOOSTREGEXLIBS=-lboost_regex-clang-darwin$(BOOSTCLANGVER)-mt-x64-$(BOOSTVER)
 BOOSTIOSTREAMSLIBS=-lboost_iostreams-clang-darwin$(BOOSTCLANGVER)-mt-x64-$(BOOSTVER)
 BOOSTPROGRAMOPTIONSLIBS=-lboost_program_options-clang-darwin$(BOOSTCLANGVER)-mt-x64-$(BOOSTVER)

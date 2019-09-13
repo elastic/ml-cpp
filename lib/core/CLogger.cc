@@ -6,6 +6,7 @@
 #include <core/CLogger.h>
 
 #include <core/CCrashHandler.h>
+#include <core/CJsonLogLayout.h>
 #include <core/COsFileFuncs.h>
 #include <core/CProcess.h>
 #include <core/CUname.h>
@@ -18,7 +19,7 @@
 #include <boost/log/sinks.hpp>
 #include <boost/log/sources/logger.hpp>
 #include <boost/log/support/date_time.hpp>
-#include <boost/log/utility/manipulators/add_value.hpp>
+#include <boost/log/utility/setup.hpp>
 #include <boost/smart_ptr/make_shared.hpp>
 #include <boost/smart_ptr/shared_ptr.hpp>
 
@@ -28,6 +29,7 @@
 #include <fstream>
 #include <iomanip>
 #include <iostream>
+#include <stdexcept>
 
 // environ is a global variable from the C runtime library
 #ifdef Windows
@@ -49,12 +51,34 @@ const std::string FATAL{"FATAL"};
 // object has used it.
 const ml::core::CLogger& DO_NOT_USE_THIS_VARIABLE = ml::core::CLogger::instance();
 
-// This must be boost::shared_ptr, not std, as that's what the Boost.Log interface
+// These must use boost::shared_ptr, not std, as that's what the Boost.Log interface
 // uses
 using TOStreamPtr = boost::shared_ptr<std::ostream>;
 using TTextOStream = boost::log::sinks::text_ostream_backend;
-using TTextOStreamSynchronousSink =
-    boost::log::sinks::synchronous_sink<boost::log::sinks::text_ostream_backend>;
+using TTextOStreamSynchronousSink = boost::log::sinks::synchronous_sink<TTextOStream>;
+
+class CTimeStampFormatterFactory
+    : public boost::log::basic_formatter_factory<char, boost::posix_time::ptime> {
+private:
+    static const std::string FORMAT;
+
+public:
+    formatter_type create_formatter(const boost::log::attribute_name& name,
+                                    const args_map& args) {
+        args_map::const_iterator iter{args.find(FORMAT)};
+        if (iter != args.end()) {
+            return boost::log::expressions::stream
+                   << boost::log::expressions::format_date_time<boost::posix_time::ptime>(
+                          boost::log::expressions::attr<boost::posix_time::ptime>(name),
+                          iter->second);
+        } else {
+            return boost::log::expressions::stream
+                   << boost::log::expressions::attr<boost::posix_time::ptime>(name);
+        }
+    }
+};
+
+const std::string CTimeStampFormatterFactory::FORMAT{"format"};
 }
 
 namespace ml {
@@ -65,7 +89,14 @@ CLogger::CLogger()
       m_LineAttributeName("Line"), m_FunctionAttributeName("Function"),
       m_OrigStderrFd(-1), m_FatalErrorHandler(defaultFatalErrorHandler) {
     CCrashHandler::installCrashHandler();
-    auto loggingCorePtr = boost::log::core::get();
+    // These formatter factories are not needed for programmatic configuration
+    // of the format, but without them formats defined in settings files don't
+    // work correctly.
+    boost::log::register_simple_formatter_factory<ELevel, char>("Severity");
+    boost::log::register_simple_filter_factory<ELevel, char>("Severity");
+    boost::log::register_formatter_factory(
+        "TimeStamp", boost::make_shared<CTimeStampFormatterFactory>());
+    auto loggingCorePtr{boost::log::core::get()};
     // By default Boost.Log logs in local time but doesn't remember the timezone.
     // For the case of logging to the ES JVM over a named pipe we want to send
     // the timestamp as milliseconds since the epoch, which requires either a
@@ -78,13 +109,18 @@ CLogger::CLogger()
     loggingCorePtr->add_global_attribute(boost::log::aux::default_attribute_names::timestamp(),
                                          boost::log::attributes::utc_clock());
     loggingCorePtr->add_global_attribute(
+        boost::log::aux::default_attribute_names::process_id(),
+        boost::log::attributes::current_process_id());
+    loggingCorePtr->add_global_attribute(
         boost::log::aux::default_attribute_names::thread_id(),
         boost::log::attributes::current_thread_id());
     this->reset();
 }
 
 CLogger::~CLogger() {
-    m_Logger.reset();
+    auto loggingCorePtr{boost::log::core::get()};
+    loggingCorePtr->flush();
+    loggingCorePtr->remove_all_sinks();
 
     if (m_PipeFile != nullptr) {
         // Revert the stderr file descriptor.
@@ -104,11 +140,7 @@ void CLogger::reset() {
         m_PipeFile.reset();
     }
 
-    m_Reconfigured = false;
-
-    auto loggingCorePtr = boost::log::core::get();
-    loggingCorePtr->remove_all_sinks();
-    loggingCorePtr->reset_filter();
+    auto loggingCorePtr{boost::log::core::get()};
 
     // This must be boost::shared_ptr, not std, as that's what the Boost Log
     // interface uses
@@ -116,21 +148,14 @@ void CLogger::reset() {
     // Need a shared_ptr to std::cerr that will NOT delete it
     backend->add_stream(TOStreamPtr(&std::cerr, boost::null_deleter()));
 
-    // TODO maybe store this as member?
     auto sinkPtr{boost::make_shared<TTextOStreamSynchronousSink>(backend)};
-
-    TLevelSeverityLoggerPtr newLogger{std::make_shared<TLevelSeverityLogger>()};
-
-    // Default filter is level debug and higher
-    sinkPtr->set_filter(boost::log::expressions::attr<ELevel>(
-                            boost::log::aux::default_attribute_names::severity()) >= E_Debug);
 
     // Default format is as close as possible to log4cxx's %d %d{%Z} %-5p [PID] %F@%L %m%n
     sinkPtr->set_formatter(
         boost::log::expressions::stream
         << boost::log::expressions::format_date_time<boost::posix_time::ptime>(
                boost::log::aux::default_attribute_names::timestamp(), "%Y-%m-%d %H:%M:%S,%f")
-        << " UTC " << std::setw(5) << std::left
+        << " UTC "
         << boost::log::expressions::attr<ELevel>(
                boost::log::aux::default_attribute_names::severity())
         << " [" << ml::core::CProcess::instance().id() << "] "
@@ -138,9 +163,16 @@ void CLogger::reset() {
         << "@" << boost::log::expressions::attr<int>(m_LineAttributeName) << " "
         << boost::log::expressions::smessage);
 
+    loggingCorePtr->flush();
+    loggingCorePtr->remove_all_sinks();
     loggingCorePtr->add_sink(sinkPtr);
 
-    m_Logger = newLogger;
+    // Default filter is level debug and higher
+    loggingCorePtr->set_filter(
+        boost::log::expressions::attr<ELevel>(
+            boost::log::aux::default_attribute_names::severity()) >= E_Debug);
+
+    m_Reconfigured = false;
 }
 
 CLogger& CLogger::instance() {
@@ -166,7 +198,7 @@ void CLogger::logEnvironment() const {
     LOG_INFO(<< env);
 }
 
-CLogger::TLevelSeverityLoggerPtr CLogger::logger() {
+CLogger::TLevelSeverityLogger& CLogger::logger() {
     return m_Logger;
 }
 
@@ -203,8 +235,9 @@ boost::log::attribute_name CLogger::functionAttributeName() const {
 
 bool CLogger::setLoggingLevel(ELevel level) {
 
-    // TODO m_Logger->setLevel(level);
-
+    boost::log::core::get()->set_filter(
+        boost::log::expressions::attr<ELevel>(
+            boost::log::aux::default_attribute_names::severity()) >= level);
     return true;
 }
 
@@ -272,7 +305,23 @@ bool CLogger::reconfigureLogToNamedPipe(const std::string& pipeName) {
 
 bool CLogger::reconfigureLogJson() {
 
-    // TODO use CJsonLogLayout
+    auto loggingCorePtr{boost::log::core::get()};
+
+    // This must be boost::shared_ptr, not std, as that's what the Boost Log
+    // interface uses
+    auto backend{boost::make_shared<TTextOStream>()};
+    // Need a shared_ptr to std::cerr that will NOT delete it
+    backend->add_stream(TOStreamPtr(&std::cerr, boost::null_deleter()));
+
+    auto sinkPtr{boost::make_shared<TTextOStreamSynchronousSink>(backend)};
+
+    CJsonLogLayout jsonLogLayout;
+    sinkPtr->set_formatter(jsonLogLayout);
+
+    loggingCorePtr->flush();
+    loggingCorePtr->remove_all_sinks();
+    loggingCorePtr->add_sink(sinkPtr);
+
     return true;
 }
 
@@ -296,18 +345,17 @@ bool CLogger::reconfigureFromFile(const std::string& propertiesFile) {
 
 bool CLogger::reconfigureFromSettings(std::istream& settingsStrm) {
 
-    //m_Logger = TODO
-
-    if (m_Logger == nullptr) {
-        // We can't use the log macros if the pointer to the logger is NULL
-        std::cerr << "Failed to reinitialise logger" << std::endl;
+    try {
+        boost::log::init_from_stream(settingsStrm);
+    } catch (std::exception& e) {
+        std::cerr << "Error initializing logger from settings: " << e.what() << std::endl;
         return false;
     }
 
     m_Reconfigured = true;
 
-    // Start the new log file off with "uname -a" information so we know what
-    // hardware problems occurred on
+    // Start the new log off with "uname -a" information so we know what
+    // hardware any subsequent problems occurred on
     LOG_DEBUG(<< "uname -a: " << CUname::all());
 
     return true;
@@ -328,7 +376,29 @@ CLogger::CScopeSetFatalErrorHandler::~CScopeSetFatalErrorHandler() {
 }
 
 std::ostream& operator<<(std::ostream& strm, CLogger::ELevel level) {
-    strm << CLogger::levelToString(level);
+    strm << std::setw(5) << std::left << CLogger::levelToString(level);
+    return strm;
+}
+
+std::istream& operator>>(std::istream& strm, CLogger::ELevel& level) {
+
+    std::string token;
+    strm >> token;
+
+    if (token == FATAL) {
+        level = CLogger::E_Fatal;
+    } else if (token == ERROR) {
+        level = CLogger::E_Error;
+    } else if (token == WARN) {
+        level = CLogger::E_Warn;
+    } else if (token == INFO) {
+        level = CLogger::E_Info;
+    } else if (token == DEBUG) {
+        level = CLogger::E_Debug;
+    } else {
+        level = CLogger::E_Trace;
+    }
+
     return strm;
 }
 }

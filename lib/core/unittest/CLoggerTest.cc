@@ -45,6 +45,12 @@ CppUnit::Test* CLoggerTest::suite() {
     return suiteOfTests;
 }
 
+void CLoggerTest::tearDown() {
+    // Tests in this file can leave the logger in an unusual state, so reset it
+    // after each test
+    ml::core::CLogger::instance().reset();
+}
+
 void CLoggerTest::testLogging() {
     std::string t("Test message");
 
@@ -81,9 +87,9 @@ void CLoggerTest::testReconfiguration() {
     CPPUNIT_ASSERT(logger.reconfigureLogJson());
     LOG_INFO(<< "This should be logged as JSON!");
 
-    // The test log4cxx.properties is very similar to the hardcoded default, but
+    // The test boost.log.ini is very similar to the hardcoded default, but
     // with the level set to TRACE rather than DEBUG
-    CPPUNIT_ASSERT(logger.reconfigureFromFile("testfiles/log4cxx.properties"));
+    CPPUNIT_ASSERT(logger.reconfigureFromFile("testfiles/boost.log.ini"));
 
     LOG_TRACE(<< "This should be seen because the reconfigured log level is TRACE");
     CPPUNIT_ASSERT(logger.hasBeenReconfigured());

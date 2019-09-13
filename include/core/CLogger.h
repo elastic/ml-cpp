@@ -14,7 +14,7 @@
 #include <boost/log/sources/severity_logger.hpp>
 
 #include <functional>
-#include <memory>
+#include <iosfwd>
 
 #include <stdio.h> // fileno() is not C++ so need the C header
 
@@ -24,10 +24,10 @@ namespace ml {
 namespace core {
 
 //! \brief
-//! Core logging class in Ml
+//! Core logging class in ML.
 //!
 //! DESCRIPTION:\n
-//! Core logging class in Ml.  Access to the actual logging
+//! Core logging class in ML.  Access to the actual logging
 //! commands should be through macros.
 //!
 //! Errors that mean something has gone wrong, but the application
@@ -71,7 +71,6 @@ public:
     enum ELevel { E_Trace, E_Debug, E_Info, E_Warn, E_Error, E_Fatal };
 
     using TLevelSeverityLogger = boost::log::sources::severity_logger_mt<ELevel>;
-    using TLevelSeverityLoggerPtr = std::shared_ptr<TLevelSeverityLogger>;
 
     //! \brief Sets the fatal error handler to a specified value for
     //! the object lifetime.
@@ -121,7 +120,7 @@ public:
     void logEnvironment() const;
 
     //! Access to underlying logger (must only be called from macros)
-    TLevelSeverityLoggerPtr logger();
+    TLevelSeverityLogger& logger();
 
     //! Throw a fatal exception
     [[noreturn]] static void fatal();
@@ -139,9 +138,14 @@ public:
     //! Handle a fatal problem using the registered fatal error handler.
     void handleFatal(std::string message);
 
+    //! Attribute names for efficient access to our custom attributes
     boost::log::attribute_name fileAttributeName() const;
     boost::log::attribute_name lineAttributeName() const;
     boost::log::attribute_name functionAttributeName() const;
+
+    //! Reset the logger, this is primarily a helper for unit testing as
+    //! CLogger is a singleton, so we can not just create new instances
+    void reset();
 
 private:
     //! Constructor for a singleton is private.
@@ -151,16 +155,12 @@ private:
     //! Helper for other reconfiguration methods
     bool reconfigureFromSettings(std::istream& settingsStrm);
 
-    //! Reset the logger, this is a helper for unit testing as
-    //! CLogger is a singleton, so we can not just create new instances
-    void reset();
-
     //! The default implementation of the fatal error handler causes the process
     //! to exit with non zero return code.
     [[noreturn]] static void defaultFatalErrorHandler(std::string message);
 
 private:
-    TLevelSeverityLoggerPtr m_Logger;
+    TLevelSeverityLogger m_Logger;
 
     //! Has the logger ever been reconfigured?  This is not protected by a
     //! lock despite the fact that it may be accessed from different
@@ -189,6 +189,7 @@ private:
 };
 
 CORE_EXPORT std::ostream& operator<<(std::ostream& strm, CLogger::ELevel level);
+CORE_EXPORT std::istream& operator>>(std::istream& strm, CLogger::ELevel& level);
 }
 }
 
