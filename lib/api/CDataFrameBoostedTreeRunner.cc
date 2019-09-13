@@ -188,7 +188,7 @@ void CDataFrameBoostedTreeRunner::runImpl(const TStrVec& featureNames,
                                   frame.numberColumns() + this->numberExtraColumns());
 
     core::CStopWatch watch{true};
-    auto restoreSearcher{m_Spec.restoreSearcher()};
+    auto restoreSearcher{this->spec().restoreSearcher()};
     bool treeRestored{false};
     if (restoreSearcher != nullptr) {
         treeRestored = restoreBoostedTree(frame, restoreSearcher);
@@ -211,7 +211,7 @@ bool CDataFrameBoostedTreeRunner::restoreBoostedTree(
     try {
         core::CStateDecompressor decompressor(*restoreSearcher);
         decompressor.setStateRestoreSearch(ML_STATE_INDEX,
-                                           getRegressionStateId(m_Spec.jobId()));
+                                           getRegressionStateId(this->spec().jobId()));
         core::CDataSearcher::TIStreamP inputStream{decompressor.search(1, 1)}; // search arguments are ignored
         if (inputStream == nullptr) {
             LOG_ERROR(<< "Unable to connect to data store");

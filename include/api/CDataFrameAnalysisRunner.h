@@ -148,9 +148,6 @@ protected:
     //! \return Callback function for writing state using given persist inserter
     TStatePersister statePersister();
 
-protected:
-    const CDataFrameAnalysisSpecification& m_Spec;
-
 private:
     virtual void runImpl(const TStrVec& featureNames, core::CDataFrame& frame) = 0;
     virtual std::size_t estimateBookkeepingMemoryUsage(std::size_t numberPartitions,
@@ -170,6 +167,8 @@ private:
     void setToFinished();
 
 private:
+    const CDataFrameAnalysisSpecification& m_Spec;
+
     std::size_t m_NumberPartitions = 0;
     std::size_t m_MaximumNumberRowsPerPartition = 0;
 
