@@ -415,7 +415,7 @@ void CDataFrameAnalyzerTest::testRunOutlierDetectionPartitioned() {
     LOG_DEBUG(<< "peak memory = "
               << core::CProgramCounters::counter(counter_t::E_DFOPeakMemoryUsage));
     CPPUNIT_ASSERT(core::CProgramCounters::counter(counter_t::E_DFONumberPartitions) > 1);
-    CPPUNIT_ASSERT(core::CProgramCounters::counter(counter_t::E_DFOPeakMemoryUsage) < 110000); // + 10%
+    CPPUNIT_ASSERT(core::CProgramCounters::counter(counter_t::E_DFOPeakMemoryUsage) < 115000); // + 15%
 }
 
 void CDataFrameAnalyzerTest::testRunOutlierFeatureInfluences() {
