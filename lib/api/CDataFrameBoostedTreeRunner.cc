@@ -210,8 +210,8 @@ bool CDataFrameBoostedTreeRunner::restoreBoostedTree(
     CDataFrameAnalysisSpecification::TDataSearcherUPtr& restoreSearcher) { // Restore from Elasticsearch compressed data
     try {
         core::CStateDecompressor decompressor(*restoreSearcher);
-        decompressor.setStateRestoreSearch(ML_STATE_INDEX,
-                                           getRegressionStateId(this->spec().jobId()));
+        decompressor.setStateRestoreSearch(
+            ML_STATE_INDEX, getRegressionStateId(this->spec().jobId()));
         core::CDataSearcher::TIStreamP inputStream{decompressor.search(1, 1)}; // search arguments are ignored
         if (inputStream == nullptr) {
             LOG_ERROR(<< "Unable to connect to data store");
