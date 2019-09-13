@@ -10,6 +10,7 @@
 #include <core/CJsonOutputStreamWrapper.h>
 #include <core/CJsonStatePersistInserter.h>
 #include <core/CProgramCounters.h>
+#include <core/CStateDecompressor.h>
 #include <core/CStopWatch.h>
 #include <core/CStringUtils.h>
 
@@ -22,19 +23,17 @@
 #include <api/CDataFrameAnalysisSpecificationJsonWriter.h>
 #include <api/CDataFrameAnalyzer.h>
 #include <api/CSingleStreamDataAdder.h>
+#include <api/ElasticsearchStateIndex.h>
 
 #include <test/CDataFrameTestUtils.h>
 #include <test/CRandomNumbers.h>
 #include <test/CTestTmpDir.h>
 
-#include <rapidjson/document.h>
 #include <rapidjson/error/en.h>
-#include <rapidjson/reader.h>
 
 #include <iostream>
 #include <memory>
 #include <string>
-#include <test/CMockDataAdder.h>
 #include <vector>
 
 using namespace ml;
@@ -54,7 +53,12 @@ public:
         : m_Stream(new std::istringstream(data)) {}
 
     virtual TIStreamP search(size_t /*currentDocNum*/, size_t /*limit*/) {
-        return m_Stream;
+        std::istringstream* intermediateStateStream{
+            static_cast<std::istringstream*>(m_Stream.get())};
+        intermediateStateStream->ignore(256, '\n');
+        std::string intermediateState;
+        std::getline(*intermediateStateStream, intermediateState);
+        return std::make_shared<std::istringstream>(intermediateState);
     }
 
 private:
@@ -80,26 +84,8 @@ private:
 };
 }
 
-std::vector<rapidjson::Document> stringToJsonDocumentVector(const std::string& input) {
-    rapidjson::StringStream stringStream{input.c_str()};
-    std::vector<rapidjson::Document> results;
-    while (stringStream.Tell() < input.size() - 3) {
-        results.emplace_back();
-        rapidjson::ParseResult ok(
-            results.back().ParseStream<rapidjson::ParseFlag::kParseStopWhenDoneFlag>(stringStream));
-        if (ok.Code() == rapidjson::kParseErrorDocumentEmpty) {
-            results.pop_back();
-            stringStream.Take(); // move one character forward
-            continue;
-        }
-        CPPUNIT_ASSERT(static_cast<bool>(ok) == true);
-    }
-    return results;
-}
-
-std::vector<std::string> streamToStringVector(const std::string& input) {
+std::vector<std::string> streamToStringVector(std::stringstream&& tokenStream) {
     std::vector<std::string> results;
-    std::istringstream tokenStream{input};
     std::string token;
     while (std::getline(tokenStream, token, '\0')) {
         results.push_back(token);
@@ -118,23 +104,6 @@ rapidjson::Document treeToJsonDocument(const maths::CBoostedTree& tree) {
     rapidjson::ParseResult ok(results.Parse(persistStream.str()));
     CPPUNIT_ASSERT(static_cast<bool>(ok) == true);
     return results;
-}
-
-std::string jsonObjectToString(const rapidjson::GenericValue<rapidjson::UTF8<>>& jsonObject) {
-    rapidjson::StringBuffer stringBuffer;
-    api::CDataFrameAnalysisSpecificationJsonWriter::TRapidJsonLineWriter writer;
-    writer.Reset(stringBuffer);
-    writer.write(jsonObject);
-    writer.Flush();
-    return stringBuffer.GetString();
-}
-
-std::unique_ptr<maths::CBoostedTree>
-createTreeFromJsonObject(std::unique_ptr<ml::core::CDataFrame>& frame,
-                         const rapidjson::GenericValue<rapidjson::UTF8<>>& jsonObject) {
-    std::stringstream jsonStateStream;
-    jsonStateStream << jsonObjectToString(jsonObject);
-    return maths::CBoostedTreeFactory::constructFromString(jsonStateStream, *frame);
 }
 
 auto outlierSpec(std::size_t rows = 110,
@@ -1095,6 +1064,7 @@ void CDataFrameAnalyzerTest::testRunBoostedTreeTrainingWithStateRecovery() {
 
     test::CRandomNumbers rng;
 
+    // TODO reactivate this test case
     //    LOG_DEBUG(<< "No hyperparameters to search")
     //    testRunBoostedTreeTrainingWithStateRecoverySubroutine(
     //        lambda, gamma, eta, maximumNumberTrees, featureBagFraction,
@@ -1109,7 +1079,7 @@ void CDataFrameAnalyzerTest::testRunBoostedTreeTrainingWithStateRecovery() {
         LOG_DEBUG(<< "restart from " << intermediateIteration);
         testRunBoostedTreeTrainingWithStateRecoverySubroutine(
             lambda, gamma, eta, maximumNumberTrees, featureBagFraction,
-            numberRoundsPerHyperparameter, intermediateIteration, finalIteration);
+            numberRoundsPerHyperparameter, intermediateIteration);
     }
 
     LOG_DEBUG(<< "Two hyperparameters to search")
@@ -1121,7 +1091,7 @@ void CDataFrameAnalyzerTest::testRunBoostedTreeTrainingWithStateRecovery() {
         LOG_DEBUG(<< "restart from " << intermediateIteration);
         testRunBoostedTreeTrainingWithStateRecoverySubroutine(
             lambda, gamma, eta, maximumNumberTrees, featureBagFraction,
-            numberRoundsPerHyperparameter, intermediateIteration, finalIteration);
+            numberRoundsPerHyperparameter, intermediateIteration);
     }
 }
 
@@ -1132,26 +1102,26 @@ void CDataFrameAnalyzerTest::testRunBoostedTreeTrainingWithStateRecoverySubrouti
     std::size_t maximumNumberTrees,
     double featureBagFraction,
     std::size_t numberRoundsPerHyperparameter,
-    std::size_t intermediateIteration,
-    std::size_t finalIteration) const {
+    std::size_t iterationToRestartFrom) const {
     std::stringstream outputStream;
-    std::shared_ptr<std::ostringstream> persistenceStream =
-        std::make_shared<std::ostringstream>();
     auto outputWriterFactory = [&outputStream]() {
         return std::make_unique<core::CJsonOutputStreamWrapper>(outputStream);
     };
+
+    std::size_t numberExamples{200};
+    TStrVec fieldNames{"c1", "c2", "c3", "c4", "c5", ".", "."};
+    TDoubleVec weights{0.1, 2.0, 0.4, -0.5};
+    TDoubleVec values;
+    test::CRandomNumbers rng;
+    rng.generateUniformSamples(-10.0, 10.0, weights.size() * numberExamples, values);
+
+    std::shared_ptr<std::ostringstream> persistenceStream =
+        std::make_shared<std::ostringstream>();
     auto persisterSupplier = [&persistenceStream]() -> TDataAdderUPtr {
         return std::make_unique<api::CSingleStreamDataAdder>(persistenceStream);
     };
 
-    std::size_t numberExamples{200};
-
-    TStrVec fieldNames{"c1", "c2", "c3", "c4", "c5", ".", "."};
-    TDoubleVec weights{0.1, 2.0, 0.4, -0.5};
-
-    TDoubleVec values;
-    test::CRandomNumbers rng;
-    rng.generateUniformSamples(-10.0, 10.0, weights.size() * numberExamples, values);
+    // compute expected tree
 
     api::CDataFrameAnalyzer analyzer{
         regressionSpec("c5", numberExamples, 5, 15000000,
@@ -1161,57 +1131,34 @@ void CDataFrameAnalyzerTest::testRunBoostedTreeTrainingWithStateRecoverySubrouti
 
     std::unique_ptr<core::CDataFrame> frame =
         passDataToAnalyzer(weights, values, analyzer, fieldNames);
-
     analyzer.handleRecord(fieldNames, {"", "", "", "", "", "", "$"});
 
-    std::vector<rapidjson::Document> persistedStates =
-        stringToJsonDocumentVector(persistenceStream->str());
-    std::vector<std::string> persistedStatesString{
-        streamToStringVector(persistenceStream->str())};
-    auto expectedTree = createTreeFromJsonObject(frame, persistedStates.back());
-    // ------------------------------------------------------
-    std::stringstream outputStream2;
-    std::shared_ptr<std::ostringstream> persistenceStream2 =
-        std::make_shared<std::ostringstream>();
-    auto outputWriterFactory2 = [&outputStream2]() {
-        return std::make_unique<core::CJsonOutputStreamWrapper>(outputStream2);
-    };
-    auto persisterSupplier2 = [&persistenceStream2]() -> TDataAdderUPtr {
-        return std::make_unique<api::CSingleStreamDataAdder>(persistenceStream2);
-    };
+    TStrVec persistedStatesString{
+        streamToStringVector(std::stringstream(persistenceStream->str()))};
+    auto expectedTree{getFinalTree(persistedStatesString, frame)};
 
-    std::istringstream intermediateStateStream{persistedStatesString[intermediateIteration]};
-    intermediateStateStream.ignore(256, '\n');
-    std::string intermediateState;
-    std::getline(intermediateStateStream, intermediateState);
+    // Compute actual tree
+    persistenceStream->str("");
 
-    using TDataSearcherUPtr = std::unique_ptr<ml::core::CDataSearcher>;
-    auto restoreSearcherSupplier = [&intermediateState]() -> TDataSearcherUPtr {
-        return std::make_unique<CTestDataSearcher>(intermediateState);
+    std::istringstream intermediateStateStream{persistedStatesString[iterationToRestartFrom]};
+    auto restoreSearcherSupplier = [&intermediateStateStream]() -> TDataSearcherUPtr {
+        return std::make_unique<CTestDataSearcher>(intermediateStateStream.str());
     };
 
     api::CDataFrameAnalyzer analyzerToRestore{
         regressionSpec("c5", numberExamples, 5, 15000000, numberRoundsPerHyperparameter,
-                       12, {}, lambda, gamma, eta, maximumNumberTrees, featureBagFraction,
-                       persisterSupplier2, restoreSearcherSupplier),
-        outputWriterFactory2};
+                       12, {}, lambda, gamma, eta, maximumNumberTrees,
+                       featureBagFraction, persisterSupplier, restoreSearcherSupplier),
+        outputWriterFactory};
 
     passDataToAnalyzer(weights, values, analyzerToRestore, fieldNames);
     analyzerToRestore.handleRecord(fieldNames, {"", "", "", "", "", "", "$"});
 
-    std::vector<rapidjson::Document> persistedStates2 =
-        stringToJsonDocumentVector(persistenceStream2->str());
-    std::vector<std::string> persistedStatesString2{
-        streamToStringVector(persistenceStream2->str())};
-    auto actualTree = createTreeFromJsonObject(frame, persistedStates2.back());
+    persistedStatesString =
+        streamToStringVector(std::stringstream(persistenceStream->str()));
+    auto actualTree{getFinalTree(persistedStatesString, frame)};
 
-    // as the first doc contains index name, we need to access the second one.
-    //    auto intermediateTree = createTreeFromJsonObject(
-    //        frame, persistedStates[2 * intermediateIteration + 1]);
-    //
-    //
-    //    CPPUNIT_ASSERT(intermediateTree.get() != nullptr);
-    //    intermediateTree->train();
+    // compare hyperparameter
 
     rapidjson::Document expectedResults{treeToJsonDocument(*expectedTree)};
     const auto& expectedHyperparameters = expectedResults["best_hyperparameters"];
@@ -1243,6 +1190,17 @@ void CDataFrameAnalyzerTest::testRunBoostedTreeTrainingWithStateRecoverySubrouti
     assertDoublesEqual("hyperparam_eta_growth_rate_per_tree");
     assertDoublesEqual("hyperparam_feature_bag_fraction");
     assertDoublesArrayEqual("hyperparam_feature_sample_probabilities");
+}
+
+maths::CBoostedTreeFactory::TBoostedTreeUPtr
+CDataFrameAnalyzerTest::getFinalTree(const TStrVec& persistedStates,
+                                     std::unique_ptr<core::CDataFrame>& frame) const {
+    CTestDataSearcher dataSearcher(persistedStates.back());
+    auto decompressor{std::make_unique<core::CStateDecompressor>(dataSearcher)};
+    decompressor->setStateRestoreSearch(api::ML_STATE_INDEX,
+                                        api::getRegressionStateId("testJob"));
+    auto stream{decompressor->search(1, 1)};
+    return maths::CBoostedTreeFactory::constructFromString(*stream, *frame);
 }
 
 std::unique_ptr<core::CDataFrame>

@@ -9,6 +9,8 @@
 
 #include <api/CDataFrameAnalysisRunner.h>
 
+#include <core/CDataSearcher.h>
+
 #include <api/ImportExport.h>
 
 #include <rapidjson/fwd.h>
@@ -62,6 +64,9 @@ private:
     TBoostedTreeFactoryUPtr m_BoostedTreeFactory;
     TBoostedTreeUPtr m_BoostedTree;
     std::atomic<std::int64_t> m_Memory;
+
+    bool restoreBoostedTree(core::CDataFrame& frame,
+                            std::unique_ptr<ml::core::CDataSearcher>& restoreSearcher);
 };
 
 //! \brief Makes a core::CDataFrame boosted tree regression runner.

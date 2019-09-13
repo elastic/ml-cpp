@@ -10,6 +10,7 @@
 #include <core/CLogger.h>
 #include <core/CProgramCounters.h>
 #include <core/CRapidJsonConcurrentLineWriter.h>
+#include <core/CStateDecompressor.h>
 #include <core/CStopWatch.h>
 
 #include <maths/CBoostedTree.h>
@@ -188,14 +189,12 @@ void CDataFrameBoostedTreeRunner::runImpl(const TStrVec& featureNames,
 
     core::CStopWatch watch{true};
     auto restoreSearcher{m_Spec.restoreSearcher()};
+    bool treeRestored{false};
     if (restoreSearcher != nullptr) {
-        restoreSearcher->setStateRestoreSearch(
-            ML_STATE_INDEX, getRegressionStateId(m_Spec.jobId()));
-        core::CDataSearcher::TIStreamP inputStream{restoreSearcher->search(1, 1)}; // search arguments are ignored
-        m_BoostedTree = maths::CBoostedTreeFactory::constructFromString(
-            *inputStream, frame, this->progressRecorder(),
-            this->memoryEstimator(), this->statePersister());
-    } else {
+        treeRestored = restoreBoostedTree(frame, restoreSearcher);
+    }
+
+    if (treeRestored == false) {
 
         m_BoostedTree = m_BoostedTreeFactory->buildFor(
             frame, dependentVariableColumn - featureNames.begin());
@@ -204,6 +203,39 @@ void CDataFrameBoostedTreeRunner::runImpl(const TStrVec& featureNames,
     m_BoostedTree->predict();
 
     core::CProgramCounters::counter(counter_t::E_DFTPMTimeToTrain) = watch.stop();
+}
+
+bool CDataFrameBoostedTreeRunner::restoreBoostedTree(
+    core::CDataFrame& frame,
+    CDataFrameAnalysisSpecification::TDataSearcherUPtr& restoreSearcher) { // Restore from Elasticsearch compressed data
+    try {
+        core::CStateDecompressor decompressor(*restoreSearcher);
+        decompressor.setStateRestoreSearch(ML_STATE_INDEX,
+                                           getRegressionStateId(m_Spec.jobId()));
+        core::CDataSearcher::TIStreamP inputStream{decompressor.search(1, 1)}; // search arguments are ignored
+        if (inputStream == nullptr) {
+            LOG_ERROR(<< "Unable to connect to data store");
+            return false;
+        }
+
+        if (inputStream->bad()) {
+            LOG_ERROR(<< "State restoration search returned bad stream");
+            return false;
+        }
+
+        if (inputStream->fail()) {
+            // This is fatal. If the stream exists and has failed then state is missing
+            LOG_ERROR(<< "State restoration search returned failed stream");
+            return false;
+        }
+
+        m_BoostedTree = maths::CBoostedTreeFactory::constructFromString(
+            *inputStream, frame, progressRecorder(), memoryEstimator(), statePersister());
+    } catch (std::exception& e) {
+        LOG_ERROR(<< "Failed to restore state! " << e.what());
+        return false;
+    }
+    return true;
 }
 
 std::size_t CDataFrameBoostedTreeRunner::estimateBookkeepingMemoryUsage(

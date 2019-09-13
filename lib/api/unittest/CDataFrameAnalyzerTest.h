@@ -10,6 +10,7 @@
 #include <core/CDataFrame.h>
 #include <core/CDataSearcher.h>
 
+#include <maths/CBoostedTreeFactory.h>
 #include <maths/CLinearAlgebraEigen.h>
 
 #include <api/CDataFrameAnalyzer.h>
@@ -45,20 +46,24 @@ private:
     using TStrVec = std::vector<std::string>;
 
 private:
-    void testRunBoostedTreeTrainingWithStateRecoverySubroutine(double lambda,
-                                                               double gamma,
-                                                               double eta,
-                                                               size_t maximumNumberTrees,
-                                                               double featureBagFraction,
-                                                               size_t numberRoundsPerHyperparameter,
-                                                               size_t intermediateIteration,
-                                                               size_t finalIteration) const;
+    void testRunBoostedTreeTrainingWithStateRecoverySubroutine(
+        double lambda,
+        double gamma,
+        double eta,
+        std::size_t maximumNumberTrees,
+        double featureBagFraction,
+        std::size_t numberRoundsPerHyperparameter,
+        std::size_t iterationToRestartFrom) const;
 
     std::unique_ptr<ml::core::CDataFrame>
     passDataToAnalyzer(const TDoubleVec& weights,
                        const TDoubleVec& values,
                        ml::api::CDataFrameAnalyzer& analyzer,
                        const TStrVec& fieldNames) const;
+
+    ml::maths::CBoostedTreeFactory::TBoostedTreeUPtr
+    getFinalTree(const TStrVec& persistedStates,
+                 std::unique_ptr<ml::core::CDataFrame>& frame) const;
 };
 
 #endif // INCLUDED_CDataFrameAnalyzerTest_h
