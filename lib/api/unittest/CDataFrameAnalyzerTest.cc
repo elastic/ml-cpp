@@ -1115,8 +1115,7 @@ void CDataFrameAnalyzerTest::testRunBoostedTreeTrainingWithStateRecoverySubrouti
     test::CRandomNumbers rng;
     rng.generateUniformSamples(-10.0, 10.0, weights.size() * numberExamples, values);
 
-    std::shared_ptr<std::ostringstream> persistenceStream =
-        std::make_shared<std::ostringstream>();
+    auto persistenceStream{std::make_shared<std::ostringstream>()};
     auto persisterSupplier = [&persistenceStream]() -> TDataAdderUPtr {
         return std::make_unique<api::CSingleStreamDataAdder>(persistenceStream);
     };
@@ -1129,8 +1128,7 @@ void CDataFrameAnalyzerTest::testRunBoostedTreeTrainingWithStateRecoverySubrouti
                        maximumNumberTrees, featureBagFraction, persisterSupplier),
         outputWriterFactory};
 
-    std::unique_ptr<core::CDataFrame> frame =
-        passDataToAnalyzer(weights, values, analyzer, fieldNames);
+    auto frame{passDataToAnalyzer(weights, values, analyzer, fieldNames)};
     analyzer.handleRecord(fieldNames, {"", "", "", "", "", "", "$"});
 
     TStrVec persistedStatesString{

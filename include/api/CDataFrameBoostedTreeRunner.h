@@ -7,10 +7,10 @@
 #ifndef INCLUDED_ml_api_CDataFrameBoostedTreeRunner_h
 #define INCLUDED_ml_api_CDataFrameBoostedTreeRunner_h
 
-#include <api/CDataFrameAnalysisRunner.h>
-
 #include <core/CDataSearcher.h>
 
+#include <api/CDataFrameAnalysisRunner.h>
+#include <api/CDataFrameAnalysisSpecification.h>
 #include <api/ImportExport.h>
 
 #include <rapidjson/fwd.h>
@@ -66,7 +66,7 @@ private:
     std::atomic<std::int64_t> m_Memory;
 
     bool restoreBoostedTree(core::CDataFrame& frame,
-                            std::unique_ptr<ml::core::CDataSearcher>& restoreSearcher);
+                            CDataFrameAnalysisSpecification::TDataSearcherUPtr& restoreSearcher);
 };
 
 //! \brief Makes a core::CDataFrame boosted tree regression runner.

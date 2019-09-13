@@ -23,6 +23,7 @@ public:
     using TPersisterSupplier = std::function<TDataAdderUPtr()>;
     using TDataSearcherUPtr = std::unique_ptr<ml::core::CDataSearcher>;
     using TRestoreSearcherSupplier = std::function<TDataSearcherUPtr()>;
+    using TDataFrameUPtr = std::unique_ptr<ml::core::CDataFrame>;
 
 public:
     void testWithoutControlMessages();
@@ -62,8 +63,7 @@ private:
                        const TStrVec& fieldNames) const;
 
     ml::maths::CBoostedTreeFactory::TBoostedTreeUPtr
-    getFinalTree(const TStrVec& persistedStates,
-                 std::unique_ptr<ml::core::CDataFrame>& frame) const;
+    getFinalTree(const TStrVec& persistedStates, TDataFrameUPtr& frame) const;
 };
 
 #endif // INCLUDED_CDataFrameAnalyzerTest_h
