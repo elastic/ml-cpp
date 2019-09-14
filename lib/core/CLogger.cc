@@ -155,12 +155,11 @@ void CLogger::reset() {
         boost::log::expressions::stream
         << boost::log::expressions::format_date_time<boost::posix_time::ptime>(
                boost::log::aux::default_attribute_names::timestamp(), "%Y-%m-%d %H:%M:%S,%f")
-        << " UTC "
+        << " UTC [" << ml::core::CProcess::instance().id() << "] "
         << boost::log::expressions::attr<ELevel>(
                boost::log::aux::default_attribute_names::severity())
-        << " [" << ml::core::CProcess::instance().id() << "] "
-        << boost::log::expressions::attr<std::string>(m_FileAttributeName)
-        << "@" << boost::log::expressions::attr<int>(m_LineAttributeName) << " "
+        << ' ' << boost::log::expressions::attr<std::string>(m_FileAttributeName)
+        << '@' << boost::log::expressions::attr<int>(m_LineAttributeName) << ' '
         << boost::log::expressions::smessage);
 
     loggingCorePtr->flush();
