@@ -22,6 +22,7 @@ COVERAGE=--coverage
 endif
 endif
 
+SDK_PATH:=$(shell xcrun --show-sdk-path)
 # Start by enabling all warnings and then disable the really pointless/annoying ones
 CFLAGS=-g $(OPTCFLAGS) -msse4.2 -fstack-protector -Weverything -Werror-switch -Wno-deprecated -Wno-disabled-macro-expansion -Wno-documentation-deprecated-sync -Wno-documentation-unknown-command -Wno-float-equal -Wno-gnu -Wno-missing-prototypes -Wno-padded -Wno-sign-conversion -Wno-unreachable-code -Wno-used-but-marked-unused $(COVERAGE)
 CXXFLAGS=$(CFLAGS) -Wno-c++98-compat -Wno-c++98-compat-pedantic -Wno-exit-time-destructors -Wno-global-constructors -Wno-undefined-reinterpret-cast -Wno-unused-member-function -Wno-weak-vtables
@@ -48,7 +49,7 @@ BOOSTDATETIMELIBS=-lboost_date_time-clang-darwin$(BOOSTCLANGVER)-mt-x64-$(BOOSTV
 RAPIDJSONINCLUDES=-isystem $(CPP_SRC_HOME)/3rd_party/rapidjson/include
 RAPIDJSONCPPFLAGS=-DRAPIDJSON_HAS_STDSTRING -DRAPIDJSON_SSE42
 EIGENCPPFLAGS=-DEIGEN_MPL2_ONLY
-XMLINCLUDES=-isystem /usr/include/libxml2
+XMLINCLUDES=-isystem $(SDK_PATH)/usr/include/libxml2
 XMLLIBLDFLAGS=-L/usr/lib
 XMLLIBS=-lxml2
 JAVANATIVEINCLUDES=-I`/usr/libexec/java_home`/include
