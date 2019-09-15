@@ -285,11 +285,12 @@ bool CLogger::reconfigureLogToNamedPipe(const std::string& pipeName) {
         return false;
     }
 
-    // Boost.Log logs to the std::clog stream, which in turn outputs to the OS
-    // standard error file.  Rather than redirect at the C++ stream level it's
-    // better to redirect at the level of the OS file because then errors
-    // written directly to standard error by library/OS code will get redirected
-    // to the pipe too, so switch this for a FILE opened on the named pipe.
+    // By default Boost.Log logs to the std::clog stream, which in turn outputs
+    // to the OS standard error file.  Rather than redirect at the C++ stream
+    // level it's better to redirect at the level of the OS file because then
+    // errors written directly to standard error by library/OS code will get
+    // redirected to the pipe too, so switch this for a FILE opened on the
+    // named pipe.
     m_OrigStderrFd = COsFileFuncs::dup(::fileno(stderr));
     COsFileFuncs::dup2(::fileno(m_PipeFile.get()), ::fileno(stderr));
 
@@ -344,9 +345,21 @@ bool CLogger::reconfigureFromFile(const std::string& propertiesFile) {
 
 bool CLogger::reconfigureFromSettings(std::istream& settingsStrm) {
 
+    // This is not ideal.  The settings file adds to the current config rather
+    // than replacing it, so we have to remove the current config before parsing
+    // the new settings.  But if there's an error in the new settings this means
+    // we've lost the old ones.  Configuration files are currently only an
+    // internal debugging feature, so it's not worth putting more effort into
+    // this problem unless that changes.
+    auto loggingCorePtr{boost::log::core::get()};
+    loggingCorePtr->flush();
+    loggingCorePtr->remove_all_sinks();
+    loggingCorePtr->reset_filter();
+
     try {
         boost::log::init_from_stream(settingsStrm);
     } catch (std::exception& e) {
+        this->reset();
         std::cerr << "Error initializing logger from settings: " << e.what() << std::endl;
         return false;
     }
@@ -394,8 +407,14 @@ std::istream& operator>>(std::istream& strm, CLogger::ELevel& level) {
         level = CLogger::E_Info;
     } else if (token == DEBUG) {
         level = CLogger::E_Debug;
-    } else {
+    } else if (token == TRACE) {
         level = CLogger::E_Trace;
+    } else {
+        // This is fatal on the assumption that we only specify logging levels
+        // in configuration files during internal development.  Obviously this
+        // would need changing if specifying the logging level in a way that
+        // required this parsing was available to end users.
+        HANDLE_FATAL(<< "Input error: unknown logging level: '" << token << "'");
     }
 
     return strm;
