@@ -62,12 +62,6 @@ xcode-select --install
 
 at the command prompt.
 
-If you are using Mojave you must take the further step of installing the developer header files into `/usr/include`. Previous versions did this automatically when the command line tools were installed. Create `/usr/include` by installing `/Library/Developer/CommandLineTools/Packages/macOS_SDK_headers_for_macOS_10.14.pkg` this can be done with the command:
-
-```
-installer -pkg /Library/Developer/CommandLineTools/Packages/macOS_SDK_headers_for_macOS_10.14.pkg -target /
-```
-
 ### Boost 1.71.0
 
 Download version 1.71.0 of Boost from <https://dl.bintray.com/boostorg/release/1.71.0/source/boost_1_71_0.tar.bz2>. You must get this exact version, as the Machine Learning Makefiles expect it.
