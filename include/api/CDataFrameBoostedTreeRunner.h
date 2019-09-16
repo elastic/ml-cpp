@@ -47,6 +47,7 @@ public:
 private:
     using TBoostedTreeUPtr = std::unique_ptr<maths::CBoostedTree>;
     using TBoostedTreeFactoryUPtr = std::unique_ptr<maths::CBoostedTreeFactory>;
+    using TMemoryEstimator = std::function<void(std::int64_t)>;
 
 private:
     void runImpl(const TStrVec& featureNames, core::CDataFrame& frame) override;
@@ -54,7 +55,10 @@ private:
                                                std::size_t totalNumberRows,
                                                std::size_t partitionNumberRows,
                                                std::size_t numberColumns) const override;
-    std::function<void(int64_t)> memoryEstimator();
+    TMemoryEstimator memoryEstimator();
+
+    bool restoreBoostedTree(core::CDataFrame& frame,
+                            CDataFrameAnalysisSpecification::TDataSearcherUPtr& restoreSearcher);
 
 private:
     // Note custom config is written directly to the factory object.
@@ -64,9 +68,6 @@ private:
     TBoostedTreeFactoryUPtr m_BoostedTreeFactory;
     TBoostedTreeUPtr m_BoostedTree;
     std::atomic<std::int64_t> m_Memory;
-
-    bool restoreBoostedTree(core::CDataFrame& frame,
-                            CDataFrameAnalysisSpecification::TDataSearcherUPtr& restoreSearcher);
 };
 
 //! \brief Makes a core::CDataFrame boosted tree regression runner.

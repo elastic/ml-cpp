@@ -132,7 +132,7 @@ CDataFrameBoostedTreeRunner::CDataFrameBoostedTreeRunner(const CDataFrameAnalysi
     }
 }
 
-std::function<void(int64_t)> CDataFrameBoostedTreeRunner::memoryEstimator() {
+CDataFrameBoostedTreeRunner::TMemoryEstimator CDataFrameBoostedTreeRunner::memoryEstimator() {
     return [this](int64_t delta) {
         int64_t memory{m_Memory.fetch_add(delta)};
         if (memory >= 0) {

@@ -201,8 +201,8 @@ void CDataFrameAnalysisRunner::setToFinished() {
 CDataFrameAnalysisRunner::TStatePersister CDataFrameAnalysisRunner::statePersister() {
     return [this](std::function<void(core::CStatePersistInserter&)> persistFunction) -> void {
         auto persister = m_Spec.persister();
-        core::CStateCompressor compressor(*persister);
         if (persister != nullptr) {
+            core::CStateCompressor compressor(*persister);
             auto persistStream = compressor.addStreamed(
                 ML_STATE_INDEX, getRegressionStateId(m_Spec.jobId()));
             {

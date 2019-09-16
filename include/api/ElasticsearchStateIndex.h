@@ -11,13 +11,11 @@
 namespace ml {
 namespace api {
 //! Elasticsearch index for state
-static const std::string ML_STATE_INDEX(".ml-state");
-static const std::string MODEL_STATE_TYPE("model_state");
-static const std::string REGRESSION_TRAIN_STATE_TYPE("regression_state");
+extern const std::string ML_STATE_INDEX;
+extern const std::string MODEL_STATE_TYPE;
+extern const std::string REGRESSION_TRAIN_STATE_TYPE;
 
-static std::string getRegressionStateId(const std::string& jobId) {
-    return jobId + '_' + REGRESSION_TRAIN_STATE_TYPE;
-}
+std::string getRegressionStateId(const std::string& jobId);
 }
 }
 
