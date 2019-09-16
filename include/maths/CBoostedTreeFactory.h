@@ -44,7 +44,7 @@ public:
 
     //! Construct a boosted tree object from its serialized version.
     static TBoostedTreeUPtr
-    constructFromString(std::stringstream& jsonStringStream,
+    constructFromString(std::istream& jsonStringStream,
                         core::CDataFrame& frame,
                         TProgressCallback recordProgress = noopRecordProgress,
                         TMemoryUsageCallback recordMemoryUsage = noopRecordMemoryUsage,
