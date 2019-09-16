@@ -27,8 +27,7 @@ public:
 
 public:
     //! Writes the data frame analysis specification in JSON format.
-    static void write(const std::string& jobId,
-                      std::size_t rows,
+    static void write(std::size_t rows,
                       std::size_t cols,
                       std::size_t memoryLimit,
                       std::size_t numberThreads,
@@ -41,8 +40,7 @@ public:
                       TRapidJsonLineWriter& writer);
 
     //! Writes the data frame analysis specification in JSON format.
-    static void write(const std::string& jobId,
-                      std::size_t rows,
+    static void write(std::size_t rows,
                       std::size_t cols,
                       std::size_t memoryLimit,
                       std::size_t numberThreads,
@@ -55,8 +53,7 @@ public:
                       TRapidJsonLineWriter& writer);
 
     //! Returns a string with the data frame analysis specification in JSON format.
-    static std::string jsonString(const std::string& jobId,
-                                  size_t rows,
+    static std::string jsonString(size_t rows,
                                   size_t cols,
                                   size_t memoryLimit,
                                   size_t numberThreads,

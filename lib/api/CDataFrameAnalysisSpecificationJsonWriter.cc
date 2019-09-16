@@ -13,8 +13,7 @@
 namespace ml {
 namespace api {
 
-void CDataFrameAnalysisSpecificationJsonWriter::write(const std::string& jobId,
-                                                      std::size_t rows,
+void CDataFrameAnalysisSpecificationJsonWriter::write(std::size_t rows,
                                                       std::size_t cols,
                                                       std::size_t memoryLimit,
                                                       std::size_t numberThreads,
@@ -33,13 +32,12 @@ void CDataFrameAnalysisSpecificationJsonWriter::write(const std::string& jobId,
                          << " cannot be parsed as json. Please report this problem.")
         }
     }
-    write(jobId, rows, cols, memoryLimit, numberThreads, temporaryDirectory,
+    write(rows, cols, memoryLimit, numberThreads, temporaryDirectory,
           resultsField, categoricalFields, diskUsageAllowed, analysisName,
           analysisParametersDoc, writer);
 }
 
-void CDataFrameAnalysisSpecificationJsonWriter::write(const std::string& jobId,
-                                                      std::size_t rows,
+void CDataFrameAnalysisSpecificationJsonWriter::write(std::size_t rows,
                                                       std::size_t cols,
                                                       std::size_t memoryLimit,
                                                       std::size_t numberThreads,
@@ -51,9 +49,6 @@ void CDataFrameAnalysisSpecificationJsonWriter::write(const std::string& jobId,
                                                       const rapidjson::Document& analysisParametersDocument,
                                                       TRapidJsonLineWriter& writer) {
     writer.StartObject();
-
-    writer.Key(CDataFrameAnalysisSpecification::JOB_ID);
-    writer.String(jobId);
 
     writer.Key(CDataFrameAnalysisSpecification::ROWS);
     writer.Uint64(rows);
@@ -106,8 +101,7 @@ void CDataFrameAnalysisSpecificationJsonWriter::write(const std::string& jobId,
 }
 
 std::string
-CDataFrameAnalysisSpecificationJsonWriter::jsonString(const std::string& jobId,
-                                                      size_t rows,
+CDataFrameAnalysisSpecificationJsonWriter::jsonString(size_t rows,
                                                       size_t cols,
                                                       size_t memoryLimit,
                                                       size_t numberThreads,
@@ -121,8 +115,8 @@ CDataFrameAnalysisSpecificationJsonWriter::jsonString(const std::string& jobId,
     api::CDataFrameAnalysisSpecificationJsonWriter::TRapidJsonLineWriter writer;
     writer.Reset(stringBuffer);
 
-    write(jobId, rows, cols, memoryLimit, numberThreads, tempDir, resultField,
-          categoricalFields, diskUsageAllowed, analysisName, analysisParameters, writer);
+    write(rows, cols, memoryLimit, numberThreads, tempDir, resultField, categoricalFields,
+          diskUsageAllowed, analysisName, analysisParameters, writer);
 
     return stringBuffer.GetString();
 }

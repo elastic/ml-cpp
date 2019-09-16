@@ -61,7 +61,6 @@ CStateRestoreStreamFilter.cc \
 CTokenListReverseSearchCreator.cc \
 CTokenListReverseSearchCreatorIntf.cc \
 CTokenListType.cc \
-ElasticsearchStateIndex.cc \
 
 include $(CPP_SRC_HOME)/mk/dynamiclib.mk
 

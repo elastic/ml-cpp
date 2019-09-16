@@ -321,7 +321,7 @@ CBoostedTreeFactory CBoostedTreeFactory::constructFromParameters(std::size_t num
 }
 
 CBoostedTreeFactory::TBoostedTreeUPtr
-CBoostedTreeFactory::constructFromString(std::istream& jsonStringStream,
+CBoostedTreeFactory::constructFromString(std::stringstream& jsonStringStream,
                                          core::CDataFrame& frame,
                                          TProgressCallback recordProgress,
                                          TMemoryUsageCallback recordMemoryUsage,

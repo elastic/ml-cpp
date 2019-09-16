@@ -35,7 +35,7 @@ void CDataFrameAnalysisRunnerTest::testComputeExecutionStrategyForOutliers() {
 
             // Give the process approximately 100MB.
             std::string jsonSpec{api::CDataFrameAnalysisSpecificationJsonWriter::jsonString(
-                "testJob", numberRows, numberCols, 100000000, 1, {}, true,
+                numberRows, numberCols, 100000000, 1, {}, true,
                 test::CTestTmpDir::tmpDir(), "", "outlier_detection", "")};
 
             api::CDataFrameAnalysisSpecification spec{jsonSpec};
@@ -71,7 +71,7 @@ CDataFrameAnalysisRunnerTest::createSpecJsonForDiskUsageTest(std::size_t numberR
                                                              std::size_t numberCols,
                                                              bool diskUsageAllowed) {
     return api::CDataFrameAnalysisSpecificationJsonWriter::jsonString(
-        "testJob", numberRows, numberCols, 500000, 1, {}, diskUsageAllowed,
+        numberRows, numberCols, 500000, 1, {}, diskUsageAllowed,
         test::CTestTmpDir::tmpDir(), "", "outlier_detection", "");
 }
 
@@ -140,8 +140,8 @@ void testEstimateMemoryUsage(int64_t numberRows,
     // The output writer won't close the JSON structures until is is destroyed
     {
         std::string jsonSpec{api::CDataFrameAnalysisSpecificationJsonWriter::jsonString(
-            "testJob", numberRows, 5, 100000000, 1, {}, true,
-            test::CTestTmpDir::tmpDir(), "", "outlier_detection", "")};
+            numberRows, 5, 100000000, 1, {}, true, test::CTestTmpDir::tmpDir(),
+            "", "outlier_detection", "")};
         api::CDataFrameAnalysisSpecification spec{jsonSpec};
 
         core::CJsonOutputStreamWrapper wrappedOutStream(sstream);

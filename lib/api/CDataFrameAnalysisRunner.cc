@@ -9,7 +9,6 @@
 #include <core/CDataFrame.h>
 #include <core/CJsonStatePersistInserter.h>
 #include <core/CLogger.h>
-#include <core/CStateCompressor.h>
 
 #include <api/CDataFrameAnalysisSpecification.h>
 #include <api/CMemoryUsageEstimationResultJsonWriter.h>
@@ -198,14 +197,13 @@ CDataFrameAnalysisRunner::TStatePersister CDataFrameAnalysisRunner::statePersist
     return [this](std::function<void(core::CStatePersistInserter&)> persistFunction) -> void {
         auto persister = m_Spec.persister();
         if (persister != nullptr) {
-            core::CStateCompressor compressor(*persister);
-            auto persistStream = compressor.addStreamed(
+            auto persistStream = persister->addStreamed(
                 ML_STATE_INDEX, getRegressionStateId(m_Spec.jobId()));
             {
                 core::CJsonStatePersistInserter inserter{*persistStream};
                 persistFunction(inserter);
             }
-            if (compressor.streamComplete(persistStream, true) == false ||
+            if (persister->streamComplete(persistStream, true) == false ||
                 persistStream->bad()) {
                 LOG_ERROR(<< "Failed to complete last persistence stream");
             }
