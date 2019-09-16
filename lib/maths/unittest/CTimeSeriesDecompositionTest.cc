@@ -891,7 +891,7 @@ void CTimeSeriesDecompositionTest::testVarianceScale() {
         }
 
         LOG_DEBUG(<< "mean error = " << maths::CBasicStatistics::mean(error));
-        LOG_DEBUG(<< "mean 70% error = " << maths::CBasicStatistics::mean(percentileError));
+        LOG_DEBUG(<< "mean 70% error = " << maths::CBasicStatistics::mean(percentileError))
         LOG_DEBUG(<< "mean scale = " << maths::CBasicStatistics::mean(meanScale));
         CPPUNIT_ASSERT(maths::CBasicStatistics::mean(error) < 0.3);
         CPPUNIT_ASSERT(maths::CBasicStatistics::mean(percentileError) < 0.05);
@@ -1404,7 +1404,7 @@ void CTimeSeriesDecompositionTest::testDiurnalPeriodicityWithMissingValues() {
             }
         }
 
-        LOG_DEBUG(<< "mean error = " << maths::CBasicStatistics::mean(error));
+        LOG_DEBUG(<< "mean error = " << maths::CBasicStatistics::mean(error))
         CPPUNIT_ASSERT(maths::CBasicStatistics::mean(error) < 0.11);
     }
 }

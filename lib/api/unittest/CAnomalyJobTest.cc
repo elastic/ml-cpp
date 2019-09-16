@@ -682,7 +682,7 @@ void CAnomalyJobTest::testInterimResultEdgeCases() {
 
     std::remove(logFile);
     CPPUNIT_ASSERT(ml::core::CLogger::instance().reconfigureFromFile(
-        "testfiles/testLogErrors.boost.log.ini"));
+        "testfiles/testLogErrorsLog4cxx.properties"));
 
     api::CAnomalyJob::TStrStrUMap dataRows;
     dataRows["time"] = "3610";
@@ -709,21 +709,18 @@ void CAnomalyJobTest::testInterimResultEdgeCases() {
     dataRows["."] = "i";
     CPPUNIT_ASSERT(job.handleRecord(dataRows));
 
-    // Revert to the default logger settings
-    ml::core::CLogger::instance().reset();
+    // The test log4cxx.properties is very similar to the hardcoded default.
+    CPPUNIT_ASSERT(ml::core::CLogger::instance().reconfigureFromFile("testfiles/log4cxx.properties"));
 
     std::ifstream log(logFile);
-    // Boost.Log only creates files when the first message is logged,
-    // and here we're asserting no messages logged
-    if (log.is_open()) {
-        char line[256];
-        while (log.getline(line, 256)) {
-            LOG_DEBUG(<< "Got '" << line << "'");
-            CPPUNIT_ASSERT(false);
-        }
-        log.close();
-        std::remove(logFile);
+    CPPUNIT_ASSERT(log.is_open());
+    char line[256];
+    while (log.getline(line, 256)) {
+        LOG_DEBUG(<< "Got '" << line << "'");
+        CPPUNIT_ASSERT(false);
     }
+    log.close();
+    std::remove(logFile);
 }
 
 void CAnomalyJobTest::testRestoreFailsWithEmptyStream() {

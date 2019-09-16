@@ -33,7 +33,7 @@ bool checkTridiagonal(const TDoubleVec& a, const TDoubleVec& b, const TDoubleVec
     if (b.size() != x.size()) {
         LOG_ERROR(<< "Dimension mismatch:"
                   << " x = " << core::CContainerPrinter::print(x)
-                  << ", b = " << core::CContainerPrinter::print(b));
+                  << ", b = " << core::CContainerPrinter::print(b))
         return false;
     }
     return true;

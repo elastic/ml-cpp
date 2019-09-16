@@ -507,7 +507,7 @@ void CPoissonMeanConjugateTest::testSampleMarginalLikelihoodInSupportBounds() {
     std::remove(logFile);
     // log at level ERROR only
     CPPUNIT_ASSERT(ml::core::CLogger::instance().reconfigureFromFile(
-        "testfiles/testLogErrors.boost.log.ini"));
+        "testfiles/testLogErrorsLog4cxx.properties"));
 
     CPoissonMeanConjugate filter(CPoissonMeanConjugate::nonInformativePrior());
 
@@ -528,21 +528,18 @@ void CPoissonMeanConjugateTest::testSampleMarginalLikelihoodInSupportBounds() {
         prevSample = sample;
     }
 
-    // Revert to the default logger settings
-    ml::core::CLogger::instance().reset();
+    // Revert to the default properties for the test framework - very similar to the hardcoded default.
+    CPPUNIT_ASSERT(ml::core::CLogger::instance().reconfigureFromFile("testfiles/log4cxx.properties"));
 
     std::ifstream log(logFile);
-    // Boost.Log only creates files when the first message is logged,
-    // and here we're asserting no messages logged
-    if (log.is_open()) {
-        char line[256];
-        while (log.getline(line, 256)) {
-            LOG_DEBUG(<< "Got '" << line << "'");
-            CPPUNIT_ASSERT(false);
-        }
-        log.close();
-        std::remove(logFile);
+    CPPUNIT_ASSERT(log.is_open());
+    char line[256];
+    while (log.getline(line, 256)) {
+        LOG_INFO(<< "Got '" << line << "'");
+        CPPUNIT_ASSERT(false);
     }
+    log.close();
+    std::remove(logFile);
 }
 
 void CPoissonMeanConjugateTest::testCdf() {

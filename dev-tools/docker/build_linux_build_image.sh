@@ -17,7 +17,7 @@
 HOST=push.docker.elastic.co
 ACCOUNT=ml-dev
 REPOSITORY=ml-linux-build
-VERSION=11
+VERSION=10
 
 set -e
 

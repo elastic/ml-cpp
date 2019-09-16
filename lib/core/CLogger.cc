@@ -6,30 +6,31 @@
 #include <core/CLogger.h>
 
 #include <core/CCrashHandler.h>
-#include <core/CJsonLogLayout.h>
 #include <core/COsFileFuncs.h>
 #include <core/CProcess.h>
+#include <core/CProgName.h>
+#include <core/CResourceLocator.h>
+#include <core/CTimezone.h>
 #include <core/CUname.h>
 #include <core/CoreTypes.h>
 
-#include <boost/core/null_deleter.hpp>
-#include <boost/log/attributes.hpp>
-#include <boost/log/common.hpp>
-#include <boost/log/expressions.hpp>
-#include <boost/log/sinks.hpp>
-#include <boost/log/sources/logger.hpp>
-#include <boost/log/support/date_time.hpp>
-#include <boost/log/utility/setup.hpp>
-#include <boost/smart_ptr/make_shared.hpp>
-#include <boost/smart_ptr/shared_ptr.hpp>
+#include <log4cxx/appender.h>
+#include <log4cxx/helpers/exception.h>
+#include <log4cxx/helpers/fileinputstream.h>
+#include <log4cxx/helpers/transcoder.h>
+#include <log4cxx/logmanager.h>
+#include <log4cxx/logstring.h>
+#include <log4cxx/propertyconfigurator.h>
+#include <log4cxx/writerappender.h>
 
-#include <cerrno>
-#include <cstdlib>
-#include <cstring>
-#include <fstream>
-#include <iomanip>
 #include <iostream>
+#include <mutex>
+#include <sstream>
 #include <stdexcept>
+
+#include <errno.h>
+#include <stdlib.h>
+#include <string.h>
 
 // environ is a global variable from the C runtime library
 #ifdef Windows
@@ -38,98 +39,28 @@ __declspec(dllimport)
     extern char** environ;
 
 namespace {
-const std::string TRACE{"TRACE"};
-const std::string DEBUG{"DEBUG"};
-const std::string INFO{"INFO"};
-const std::string WARN{"WARN"};
-const std::string ERROR{"ERROR"};
-const std::string FATAL{"FATAL"};
-
 // To ensure the singleton is constructed before multiple threads may require it
 // call instance() during the static initialisation phase of the program.  Of
 // course, the instance may already be constructed before this if another static
 // object has used it.
 const ml::core::CLogger& DO_NOT_USE_THIS_VARIABLE = ml::core::CLogger::instance();
 
-// These must use boost::shared_ptr, not std, as that's what the Boost.Log interface
-// uses
-using TOStreamPtr = boost::shared_ptr<std::ostream>;
-using TTextOStream = boost::log::sinks::text_ostream_backend;
-using TTextOStreamSynchronousSink = boost::log::sinks::synchronous_sink<TTextOStream>;
-using TTextOStreamSynchronousSinkPtr =
-    boost::shared_ptr<boost::log::sinks::synchronous_sink<TTextOStream>>;
-
-class CTimeStampFormatterFactory
-    : public boost::log::basic_formatter_factory<char, boost::posix_time::ptime> {
-private:
-    static const std::string FORMAT;
-
-public:
-    formatter_type create_formatter(const boost::log::attribute_name& name,
-                                    const args_map& args) {
-        args_map::const_iterator iter{args.find(FORMAT)};
-        if (iter != args.end()) {
-            return boost::log::expressions::stream
-                   << boost::log::expressions::format_date_time<boost::posix_time::ptime>(
-                          boost::log::expressions::attr<boost::posix_time::ptime>(name),
-                          iter->second);
-        } else {
-            return boost::log::expressions::stream
-                   << boost::log::expressions::attr<boost::posix_time::ptime>(name);
-        }
-    }
-};
-
-const std::string CTimeStampFormatterFactory::FORMAT{"format"};
-
-void resetSink(const TTextOStreamSynchronousSinkPtr& newSink) {
-    auto loggingCorePtr = boost::log::core::get();
-    loggingCorePtr->flush();
-    loggingCorePtr->remove_all_sinks();
-    if (newSink != nullptr) {
-        loggingCorePtr->add_sink(newSink);
-    }
-}
+std::mutex fatalErrorHandlerMutex;
 }
 
 namespace ml {
 namespace core {
 
 CLogger::CLogger()
-    : m_Reconfigured(false), m_FileAttributeName("File"),
-      m_LineAttributeName("Line"), m_FunctionAttributeName("Function"),
+    : m_Logger(0), m_Reconfigured(false), m_ProgramName(CProgName::progName()),
       m_OrigStderrFd(-1), m_FatalErrorHandler(defaultFatalErrorHandler) {
     CCrashHandler::installCrashHandler();
-    // These formatter factories are not needed for programmatic configuration
-    // of the format, but without them formats defined in settings files don't
-    // work correctly.
-    boost::log::register_simple_formatter_factory<ELevel, char>("Severity");
-    boost::log::register_simple_filter_factory<ELevel, char>("Severity");
-    boost::log::register_formatter_factory(
-        "TimeStamp", boost::make_shared<CTimeStampFormatterFactory>());
-    auto loggingCorePtr = boost::log::core::get();
-    // By default Boost.Log logs in local time but doesn't remember the timezone.
-    // For the case of logging to the ES JVM over a named pipe we want to send
-    // the timestamp as milliseconds since the epoch, which requires either a
-    // UTC timestamp or knowledge of the timezone.  For logging to a log file or
-    // the console we want to print the timezone.  However, logging to a log
-    // file or the console is only for internal development.  The pragmatic
-    // approach here is to always log in UTC.  (This can be revisited in the
-    // future if having console logs in UTC is ever a problem, but any fix would
-    // be non-trivial.)
-    loggingCorePtr->add_global_attribute(boost::log::aux::default_attribute_names::timestamp(),
-                                         boost::log::attributes::utc_clock());
-    loggingCorePtr->add_global_attribute(
-        boost::log::aux::default_attribute_names::process_id(),
-        boost::log::attributes::current_process_id());
-    loggingCorePtr->add_global_attribute(
-        boost::log::aux::default_attribute_names::thread_id(),
-        boost::log::attributes::current_thread_id());
     this->reset();
 }
 
 CLogger::~CLogger() {
-    resetSink(nullptr);
+    log4cxx::LogManager::shutdown();
+    m_Logger = nullptr;
 
     if (m_PipeFile != nullptr) {
         // Revert the stderr file descriptor.
@@ -149,34 +80,63 @@ void CLogger::reset() {
         m_PipeFile.reset();
     }
 
-    // This must be boost::shared_ptr, not std, as that's what the Boost Log
-    // interface uses
-    auto backend = boost::make_shared<TTextOStream>();
-    // Need a shared_ptr to std::cerr that will NOT delete it
-    backend->add_stream(TOStreamPtr(&std::cerr, boost::null_deleter()));
-
-    auto sinkPtr = boost::make_shared<TTextOStreamSynchronousSink>(backend);
-
-    // Default format is as close as possible to log4cxx's %d %d{%Z} %-5p [PID] %F@%L %m%n
-    sinkPtr->set_formatter(
-        boost::log::expressions::stream
-        << boost::log::expressions::format_date_time<boost::posix_time::ptime>(
-               boost::log::aux::default_attribute_names::timestamp(), "%Y-%m-%d %H:%M:%S,%f")
-        << " UTC [" << ml::core::CProcess::instance().id() << "] "
-        << boost::log::expressions::attr<ELevel>(
-               boost::log::aux::default_attribute_names::severity())
-        << ' ' << boost::log::expressions::attr<std::string>(m_FileAttributeName)
-        << '@' << boost::log::expressions::attr<int>(m_LineAttributeName) << ' '
-        << boost::log::expressions::smessage);
-
-    resetSink(sinkPtr);
-
-    // Default filter is level debug and higher
-    boost::log::core::get()->set_filter(
-        boost::log::expressions::attr<ELevel>(
-            boost::log::aux::default_attribute_names::severity()) >= E_Debug);
-
     m_Reconfigured = false;
+
+    // Configure the logger
+    try {
+        // This info can come from an XML file or other source.
+        // When the logger first starts up, configure it by setting properties
+        // equivalent to this properties file:
+        //
+        // # Set root logger level to DEBUG and its only appender to A1.
+        // log4j.rootLogger=DEBUG, A1
+        //
+        // # A1 is set to be a ConsoleAppender.
+        // log4j.appender.A1=org.apache.log4j.ConsoleAppender
+        // log4j.appender.A1.Target=System.err
+        //
+        // # A1 uses PatternLayout.
+        // log4j.appender.A1.layout=org.apache.log4j.PatternLayout
+        // log4j.appender.A1.layout.ConversionPattern=%d %d{%Z} %-5p [PID] %F@%L %m%n
+        //
+        // Having this hardcoded configuration means that the unit tests and
+        // other utility programs just work with minimal effort.  Longer
+        // running daemon processes are expected to reconfigure the logging
+        // using a real properties file.
+
+        log4cxx::helpers::Properties props;
+        props.put(LOG4CXX_STR("log4j.rootLogger"), LOG4CXX_STR("DEBUG, A1"));
+        props.put(LOG4CXX_STR("log4j.appender.A1"),
+                  LOG4CXX_STR("org.apache.log4j.ConsoleAppender"));
+        props.put(LOG4CXX_STR("log4j.appender.A1.Target"), LOG4CXX_STR("System.err"));
+        props.put(LOG4CXX_STR("log4j.appender.A1.layout"),
+                  LOG4CXX_STR("org.apache.log4j.PatternLayout"));
+
+        // The pattern includes the process ID to make it easier to see if a
+        // process dies and restarts
+        std::ostringstream strm;
+        strm << "%d %d{%Z} [" << CProcess::instance().id() << "] %-5p %F@%L %m%n";
+        log4cxx::LogString logPattern;
+        log4cxx::helpers::Transcoder::decode(strm.str(), logPattern);
+        props.put(LOG4CXX_STR("log4j.appender.A1.layout.ConversionPattern"), logPattern);
+
+        // Make sure the timezone names have been frigged on Windows before
+        // configuring the properties
+        CTimezone::instance();
+
+        log4cxx::PropertyConfigurator::configure(props);
+
+        m_Logger = log4cxx::Logger::getRootLogger();
+    } catch (log4cxx::helpers::Exception& e) {
+        if (m_Logger != nullptr) {
+            // (Can't use the Ml LOG_ERROR macro here, as the object
+            // it references is only part constructed.)
+            LOG4CXX_ERROR(m_Logger, "Could not initialise logger: " << e.what());
+        } else {
+            // We can't use the log macros if the pointer to the logger is NULL
+            std::cerr << "Could not initialise logger: " << e.what() << std::endl;
+        }
+    }
 }
 
 CLogger& CLogger::instance() {
@@ -202,7 +162,7 @@ void CLogger::logEnvironment() const {
     LOG_INFO(<< env);
 }
 
-CLogger::TLevelSeverityLogger& CLogger::logger() {
+log4cxx::LoggerPtr CLogger::logger() {
     return m_Logger;
 }
 
@@ -225,45 +185,64 @@ void CLogger::handleFatal(std::string message) {
     m_FatalErrorHandler(std::move(message));
 }
 
-boost::log::attribute_name CLogger::fileAttributeName() const {
-    return m_FileAttributeName;
-}
-
-boost::log::attribute_name CLogger::lineAttributeName() const {
-    return m_LineAttributeName;
-}
-
-boost::log::attribute_name CLogger::functionAttributeName() const {
-    return m_FunctionAttributeName;
-}
-
 bool CLogger::setLoggingLevel(ELevel level) {
-
-    boost::log::core::get()->set_filter(
-        boost::log::expressions::attr<ELevel>(
-            boost::log::aux::default_attribute_names::severity()) >= level);
-    return true;
-}
-
-const std::string& CLogger::levelToString(ELevel level) {
+    log4cxx::LevelPtr levelToSet(0);
 
     switch (level) {
-    case E_Trace:
-        return TRACE;
-    case E_Debug:
-        return DEBUG;
-    case E_Info:
-        return INFO;
-    case E_Warn:
-        return WARN;
-    case E_Error:
-        return ERROR;
     case E_Fatal:
-        return FATAL;
+        levelToSet = log4cxx::Level::getFatal();
+        break;
+    case E_Error:
+        levelToSet = log4cxx::Level::getError();
+        break;
+    case E_Warn:
+        levelToSet = log4cxx::Level::getWarn();
+        break;
+    case E_Info:
+        levelToSet = log4cxx::Level::getInfo();
+        break;
+    case E_Debug:
+        levelToSet = log4cxx::Level::getDebug();
+        break;
+    case E_Trace:
+        levelToSet = log4cxx::Level::getTrace();
+        break;
     }
 
-    // Default to warning on invalid input
-    return WARN;
+    // Defend against corrupt argument
+    if (levelToSet == nullptr) {
+        return false;
+    }
+
+    // Get a smart pointer to the current logger - this may be different to the
+    // active logger when we call its setLevel() method, but because it's a
+    // smart pointer, at least it will still exist
+    log4cxx::LoggerPtr loggerToChange(m_Logger);
+    if (loggerToChange == nullptr) {
+        return false;
+    }
+
+    loggerToChange->setLevel(levelToSet);
+
+    // The appenders of the logger can also have seperate thresholds, and where
+    // these are more restrictive than the logger itself, the above level
+    // change will have no effect.  Therefore, we adjust all appender thresholds
+    // here as well for appenders that write to a file or the console.
+    log4cxx::AppenderList appendersToChange(loggerToChange->getAllAppenders());
+    for (log4cxx::AppenderList::iterator iter = appendersToChange.begin();
+         iter != appendersToChange.end(); ++iter) {
+        log4cxx::Appender* appenderToChange(*iter);
+
+        // Unfortunately, thresholds are a concept lower down the inheritance
+        // hierarchy than the Appender base class, so we have to downcast.
+        log4cxx::WriterAppender* writerToChange(
+            dynamic_cast<log4cxx::WriterAppender*>(appenderToChange));
+        if (writerToChange != nullptr) {
+            writerToChange->setThreshold(levelToSet);
+        }
+    }
+
+    return true;
 }
 
 bool CLogger::reconfigure(const std::string& pipeName, const std::string& propertiesFile) {
@@ -290,12 +269,8 @@ bool CLogger::reconfigureLogToNamedPipe(const std::string& pipeName) {
         return false;
     }
 
-    // By default Boost.Log logs to the std::clog stream, which in turn outputs
-    // to the OS standard error file.  Rather than redirect at the C++ stream
-    // level it's better to redirect at the level of the OS file because then
-    // errors written directly to standard error by library/OS code will get
-    // redirected to the pipe too, so switch this for a FILE opened on the
-    // named pipe.
+    // When logging to standard error, log4cxx logs to the C FILE called stderr,
+    // so switch this for a FILE opened on the named pipe.
     m_OrigStderrFd = COsFileFuncs::dup(::fileno(stderr));
     COsFileFuncs::dup2(::fileno(m_PipeFile.get()), ::fileno(stderr));
 
@@ -309,33 +284,46 @@ bool CLogger::reconfigureLogToNamedPipe(const std::string& pipeName) {
 }
 
 bool CLogger::reconfigureLogJson() {
+    log4cxx::helpers::Properties props;
+    log4cxx::LogString logStr;
+    log4cxx::helpers::Transcoder::decode(m_ProgramName, logStr);
+    props.put(LOG4CXX_STR("log4j.logger.") + logStr, LOG4CXX_STR("DEBUG, A2"));
+    props.put(LOG4CXX_STR("log4j.appender.A2"),
+              LOG4CXX_STR("org.apache.log4j.ConsoleAppender"));
+    props.put(LOG4CXX_STR("log4j.appender.A2.Target"), LOG4CXX_STR("System.err"));
+    props.put(LOG4CXX_STR("log4j.appender.A2.layout"),
+              LOG4CXX_STR("org.apache.log4j.CJsonLogLayout"));
 
-    // This must be boost::shared_ptr, not std, as that's what the Boost Log
-    // interface uses
-    auto backend{boost::make_shared<TTextOStream>()};
-    // Need a shared_ptr to std::cerr that will NOT delete it
-    backend->add_stream(TOStreamPtr(&std::cerr, boost::null_deleter()));
-
-    auto sinkPtr{boost::make_shared<TTextOStreamSynchronousSink>(backend)};
-
-    CJsonLogLayout jsonLogLayout;
-    sinkPtr->set_formatter(jsonLogLayout);
-
-    resetSink(sinkPtr);
-
-    return true;
+    return this->reconfigureFromProps(props);
 }
 
 bool CLogger::reconfigureFromFile(const std::string& propertiesFile) {
     COsFileFuncs::TStat statBuf;
     if (COsFileFuncs::stat(propertiesFile.c_str(), &statBuf) != 0) {
         LOG_ERROR(<< "Unable to access properties file " << propertiesFile
-                  << " for logger re-initialisation: " << std::strerror(errno));
+                  << " for logger re-initialisation: " << ::strerror(errno));
         return false;
     }
 
-    std::ifstream fileStrm(propertiesFile);
-    if (this->reconfigureFromSettings(fileStrm) == false) {
+    // Load the properties prior to starting the reconfiguration.  This means
+    // we get the chance to massage the properties to include the name of the
+    // current application, before log4cxx uses them.
+    log4cxx::helpers::Properties props;
+    try {
+        // InputStreamPtr is a smart pointer
+        log4cxx::helpers::InputStreamPtr inputStream(
+            new log4cxx::helpers::FileInputStream(propertiesFile));
+        props.load(inputStream);
+    } catch (const log4cxx::helpers::Exception& e) {
+        LOG_ERROR(<< "Unable to read from properties file " << propertiesFile
+                  << " for logger re-initialisation: " << e.what());
+        return false;
+    }
+
+    // Massage the properties with our extensions
+    this->massageProperties(props);
+
+    if (this->reconfigureFromProps(props) == false) {
         return false;
     }
 
@@ -344,32 +332,113 @@ bool CLogger::reconfigureFromFile(const std::string& propertiesFile) {
     return true;
 }
 
-bool CLogger::reconfigureFromSettings(std::istream& settingsStrm) {
-
-    // This is not ideal.  The settings file adds to the current config rather
-    // than replacing it, so we have to remove the current config before parsing
-    // the new settings.  But if there's an error in the new settings this means
-    // we've lost the old ones.  Configuration files are currently only an
-    // internal debugging feature, so it's not worth putting more effort into
-    // this problem unless that changes.
-    resetSink(nullptr);
-    boost::log::core::get()->reset_filter();
-
+bool CLogger::reconfigureFromProps(log4cxx::helpers::Properties& props) {
+    // Now attempt the reconfiguration using the new properties
     try {
-        boost::log::init_from_stream(settingsStrm);
-    } catch (std::exception& e) {
-        this->reset();
-        std::cerr << "Error initializing logger from settings: " << e.what() << std::endl;
+        log4cxx::LogManager::resetConfiguration();
+        log4cxx::PropertyConfigurator::configure(props);
+
+        // Get a logger with the same name as our log identifier, and use this
+        // for logging.  Anything written to this logger will also go to the
+        // root logger (due to additivity) and using a logger named after our
+        // log identifier has the advantage that any messages sent to a remote
+        // TCP server can be identified as having come from this process.
+        m_Logger = log4cxx::Logger::getLogger(m_ProgramName);
+
+        if (m_Logger == nullptr) {
+            // We can't use the log macros if the pointer to the logger is NULL
+            std::cerr << "Failed to reinitialise logger for " << m_ProgramName << std::endl;
+            return false;
+        }
+    } catch (log4cxx::helpers::Exception& e) {
+        if (m_Logger != nullptr) {
+            LOG_ERROR(<< "Failed to reinitialise logger: " << e.what());
+        } else {
+            // We can't use the log macros if the pointer to the logger is NULL
+            std::cerr << "Failed to reinitialise logger: " << e.what() << std::endl;
+        }
+
         return false;
     }
 
     m_Reconfigured = true;
 
-    // Start the new log off with "uname -a" information so we know what
-    // hardware any subsequent problems occurred on
+    // Start the new log file off with "uname -a" information so we know what
+    // hardware problems occurred on
     LOG_DEBUG(<< "uname -a: " << CUname::all());
 
     return true;
+}
+
+void CLogger::massageProperties(log4cxx::helpers::Properties& props) const {
+    // Get the process ID as a string
+    std::ostringstream pidStrm;
+    pidStrm << CProcess::instance().id();
+
+    // Set up Ml specific mappings
+    // 1) %D with the path to the Ml base log directory
+    // 2) %N with the program name
+    // 3) %P with the program's process ID
+    TLogCharLogStrMap mappings;
+    log4cxx::LogString logStr;
+    log4cxx::helpers::Transcoder::decode(CResourceLocator::logDir(), logStr);
+    mappings.insert(TLogCharLogStrMap::value_type(static_cast<log4cxx::logchar>('D'), logStr));
+    logStr.clear();
+    log4cxx::helpers::Transcoder::decode(m_ProgramName, logStr);
+    mappings.insert(TLogCharLogStrMap::value_type(static_cast<log4cxx::logchar>('N'), logStr));
+    logStr.clear();
+    log4cxx::helpers::Transcoder::decode(pidStrm.str(), logStr);
+    mappings.insert(TLogCharLogStrMap::value_type(static_cast<log4cxx::logchar>('P'), logStr));
+
+    // Map the properties
+    using TLogStringVec = std::vector<log4cxx::LogString>;
+    using TLogStringVecCItr = TLogStringVec::const_iterator;
+
+    TLogStringVec propNames(props.propertyNames());
+    for (TLogStringVecCItr iter = propNames.begin(); iter != propNames.end(); ++iter) {
+        log4cxx::LogString oldKey(*iter);
+        log4cxx::LogString newKey;
+        newKey.reserve(oldKey.length());
+        this->massageString(mappings, oldKey, newKey);
+
+        log4cxx::LogString oldValue(props.get(oldKey));
+        log4cxx::LogString newValue;
+        newValue.reserve(oldValue.length());
+        this->massageString(mappings, oldValue, newValue);
+
+        if (newValue != oldValue || newKey != oldKey) {
+            props.put(newKey, newValue);
+        }
+    }
+}
+
+void CLogger::massageString(const TLogCharLogStrMap& mappings,
+                            const log4cxx::LogString& oldStr,
+                            log4cxx::LogString& newStr) const {
+    newStr.clear();
+
+    for (log4cxx::LogString::const_iterator iter = oldStr.begin();
+         iter != oldStr.end(); ++iter) {
+        // We ONLY want to replace the patterns in our map - other patterns are
+        // left for log4cxx itself
+        if (*iter == static_cast<log4cxx::logchar>('%')) {
+            ++iter;
+            if (iter == oldStr.end()) {
+                newStr += static_cast<log4cxx::logchar>('%');
+                break;
+            }
+
+            TLogCharLogStrMapCItr mapping = mappings.find(*iter);
+            if (mapping == mappings.end()) {
+                newStr += static_cast<log4cxx::logchar>('%');
+                newStr += *iter;
+            } else {
+                newStr += mapping->second;
+            }
+        } else {
+            newStr += *iter;
+        }
+    }
 }
 
 void CLogger::defaultFatalErrorHandler(std::string message) {
@@ -384,39 +453,6 @@ CLogger::CScopeSetFatalErrorHandler::CScopeSetFatalErrorHandler(const TFatalErro
 
 CLogger::CScopeSetFatalErrorHandler::~CScopeSetFatalErrorHandler() {
     CLogger::instance().fatalErrorHandler(m_OriginalFatalErrorHandler);
-}
-
-std::ostream& operator<<(std::ostream& strm, CLogger::ELevel level) {
-    strm << std::setw(5) << std::left << CLogger::levelToString(level);
-    return strm;
-}
-
-std::istream& operator>>(std::istream& strm, CLogger::ELevel& level) {
-
-    std::string token;
-    strm >> token;
-
-    if (token == FATAL) {
-        level = CLogger::E_Fatal;
-    } else if (token == ERROR) {
-        level = CLogger::E_Error;
-    } else if (token == WARN) {
-        level = CLogger::E_Warn;
-    } else if (token == INFO) {
-        level = CLogger::E_Info;
-    } else if (token == DEBUG) {
-        level = CLogger::E_Debug;
-    } else if (token == TRACE) {
-        level = CLogger::E_Trace;
-    } else {
-        // This is fatal on the assumption that we only specify logging levels
-        // in configuration files during internal development.  Obviously this
-        // would need changing if specifying the logging level in a way that
-        // required this parsing was available to end users.
-        HANDLE_FATAL(<< "Input error: unknown logging level: '" << token << "'");
-    }
-
-    return strm;
 }
 }
 }

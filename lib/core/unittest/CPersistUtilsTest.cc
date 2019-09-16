@@ -267,8 +267,7 @@ void CPersistUtilsTest::testPersistContainers() {
         set.insert(4);
         testPersistRestore(set);
     }
-    LOG_DEBUG(<< "*** nested ***");
-    {
+    LOG_DEBUG(<< "*** nested ***") {
         TDoubleVecVec vec(3);
         vec[0].push_back(22.22);
         vec[0].push_back(3456245);

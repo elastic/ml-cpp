@@ -11,7 +11,6 @@
 class CJsonLogLayoutTest : public CppUnit::TestFixture {
 public:
     void testPathCropping();
-    void testExtractClassAndMethod();
 
     static CppUnit::Test* suite();
 };

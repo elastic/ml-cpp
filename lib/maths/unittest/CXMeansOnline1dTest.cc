@@ -249,7 +249,7 @@ void CXMeansOnline1dTest::testMixtureOfGaussians() {
             const TClusterVec& clusters = clusterer.clusters();
 
             debug(clusters);
-            LOG_DEBUG(<< "expected = " << core::CContainerPrinter::print(expectedClusters));
+            LOG_DEBUG(<< "expected = " << core::CContainerPrinter::print(expectedClusters))
 
             LOG_DEBUG(<< "# clusters = " << clusters.size());
             CPPUNIT_ASSERT_EQUAL(std::size_t(3), clusters.size());

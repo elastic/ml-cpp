@@ -421,8 +421,7 @@ void CBasicStatisticsTest::testCentralMoments() {
         }
     }
 
-    LOG_DEBUG(<< "test vector");
-    {
+    LOG_DEBUG(<< "test vector") {
         using TVectorMeanAccumulator =
             maths::CBasicStatistics::SSampleMean<maths::CVectorNx1<double, 4>>::TAccumulator;
         using TVectorMeanVarAccumulator =

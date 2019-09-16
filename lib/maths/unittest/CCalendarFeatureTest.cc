@@ -178,8 +178,7 @@ void CCalendarFeatureTest::testOffset() {
         }
     }
 
-    LOG_DEBUG(<< "Test days before end of month");
-    {
+    LOG_DEBUG(<< "Test days before end of month") {
         maths::CCalendarFeature feature(
             maths::CCalendarFeature::DAYS_BEFORE_END_OF_MONTH, feb1st);
         for (core_t::TTime time = march1st; time < april1st; time += DAY) {

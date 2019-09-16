@@ -567,6 +567,7 @@ void CStringUtilsTest::testTrim() {
 }
 
 void CStringUtilsTest::testJoin() {
+    LOG_DEBUG(<< "*** testJoin ***")
     using namespace ml;
     using namespace core;
     using TStrVec = std::vector<std::string>;
@@ -574,35 +575,35 @@ void CStringUtilsTest::testJoin() {
 
     TStrVec strVec;
 
-    LOG_DEBUG(<< "Test empty container");
+    LOG_DEBUG(<< "Test empty container")
     CPPUNIT_ASSERT_EQUAL(std::string(""), CStringUtils::join(strVec, std::string(",")));
 
-    LOG_DEBUG(<< "Test container has empty strings");
+    LOG_DEBUG(<< "Test container has empty strings")
     strVec.push_back(std::string());
     strVec.push_back(std::string());
     CPPUNIT_ASSERT_EQUAL(std::string(","), CStringUtils::join(strVec, std::string(",")));
 
-    LOG_DEBUG(<< "Test container has empty strings and delimiter is also empty");
+    LOG_DEBUG(<< "Test container has empty strings and delimiter is also empty")
     CPPUNIT_ASSERT_EQUAL(std::string(""), CStringUtils::join(strVec, std::string("")));
 
     strVec.clear();
 
-    LOG_DEBUG(<< "Test only one item");
+    LOG_DEBUG(<< "Test only one item")
     strVec.push_back(std::string("aaa"));
     CPPUNIT_ASSERT_EQUAL(std::string("aaa"), CStringUtils::join(strVec, std::string(",")));
 
-    LOG_DEBUG(<< "Test three items");
+    LOG_DEBUG(<< "Test three items")
     strVec.push_back(std::string("bbb"));
     strVec.push_back(std::string("ccc"));
 
     CPPUNIT_ASSERT_EQUAL(std::string("aaa,bbb,ccc"),
                          CStringUtils::join(strVec, std::string(",")));
 
-    LOG_DEBUG(<< "Test delimiter has more than one characters");
+    LOG_DEBUG(<< "Test delimiter has more than one characters")
     CPPUNIT_ASSERT_EQUAL(std::string("aaa::bbb::ccc"),
                          CStringUtils::join(strVec, std::string("::")));
 
-    LOG_DEBUG(<< "Test set instead of vector");
+    LOG_DEBUG(<< "Test set instead of vector")
     TStrSet strSet;
     strSet.insert(std::string("aaa"));
     strSet.insert(std::string("bbb"));

@@ -5,48 +5,54 @@
  */
 #include <core/CJsonLogLayout.h>
 
-#include <core/CLogger.h>
 #include <core/CProcess.h>
-#include <core/CProgName.h>
 
-#include <boost/date_time/gregorian/gregorian.hpp>
-#include <boost/date_time/posix_time/posix_time_types.hpp>
 #include <boost/filesystem.hpp>
-#include <boost/log/attributes/current_thread_id.hpp>
-#include <boost/log/attributes/value_extraction.hpp>
-#include <boost/log/expressions/message.hpp>
-#include <boost/log/utility/formatting_ostream.hpp>
+
+#include <log4cxx/helpers/optionconverter.h>
+#include <log4cxx/helpers/stringhelper.h>
+#include <log4cxx/helpers/transcoder.h>
+#include <log4cxx/level.h>
+#include <log4cxx/logstring.h>
+#include <log4cxx/ndc.h>
+#include <log4cxx/spi/location/locationinfo.h>
+#include <log4cxx/spi/loggingevent.h>
 
 #include <rapidjson/stringbuffer.h>
 #include <rapidjson/writer.h>
 
-#include <cstdint>
-#include <sstream>
+#include <string>
 
-namespace ml {
-namespace core {
+#include <stdint.h>
 
 namespace {
-const std::string LOGGER_NAME{"logger"};
-// For consistency with the way we used log4cxx the "logger" is the name of the
-// program
-const std::string LOGGER{CProgName::progName()};
-const std::string TIMESTAMP_NAME{"timestamp"};
-const std::string LEVEL_NAME{"level"};
-const std::string PID_NAME{"pid"};
+const std::string LOGGER_NAME("logger");
+const std::string TIMESTAMP_NAME("timestamp");
+const std::string LEVEL_NAME("level");
+const std::string PID_NAME("pid");
 // Cast this to int64_t as the type varies between int32_t and uint32_t on
 // different platforms and int64_t covers both
-const std::int64_t PID{static_cast<std::int64_t>(ml::core::CProcess::instance().id())};
-const std::string THREAD_NAME{"thread"};
-const std::string MESSAGE_NAME{"message"};
-const std::string CLASS_NAME{"class"};
-const std::string METHOD_NAME{"method"};
-const std::string FILE_NAME{"file"};
-const std::string LINE_NAME{"line"};
-const boost::posix_time::ptime EPOCH{boost::gregorian::date(1970, 1, 1)};
+const int64_t PID(static_cast<int64_t>(ml::core::CProcess::instance().id()));
+const std::string THREAD_NAME("thread");
+const std::string MESSAGE_NAME("message");
+const std::string NDC_NAME("ndc");
+const std::string CLASS_NAME("class");
+const std::string METHOD_NAME("method");
+const std::string FILE_NAME("file");
+const std::string LINE_NAME("line");
+const std::string PROPERTIES_NAME("properties");
 }
 
-CJsonLogLayout::CJsonLogLayout() : m_LocationInfo(true) {
+// NB: log4cxx extensions have to go in the log4cxx namespace, hence cannot
+// stick to the convention of our code being in the ml namespace.  Worse,
+// certain log4cxx macros require using directives rather than nesting the
+// method definitions in the namespaces!
+using namespace log4cxx;
+using namespace log4cxx::helpers;
+
+IMPLEMENT_LOG4CXX_OBJECT(CJsonLogLayout)
+
+CJsonLogLayout::CJsonLogLayout() : m_LocationInfo(true), m_Properties(false) {
 }
 
 void CJsonLogLayout::locationInfo(bool locationInfo) {
@@ -57,98 +63,132 @@ bool CJsonLogLayout::locationInfo() const {
     return m_LocationInfo;
 }
 
-void CJsonLogLayout::operator()(const boost::log::record_view& rec,
-                                boost::log::formatting_ostream& strm) const {
+void CJsonLogLayout::properties(bool properties) {
+    m_Properties = properties;
+}
+
+bool CJsonLogLayout::properties() const {
+    return m_Properties;
+}
+
+void CJsonLogLayout::activateOptions(Pool& /*p*/) {
+    // NO-OP
+}
+
+void CJsonLogLayout::setOption(const LogString& option, const LogString& value) {
+    if (StringHelper::equalsIgnoreCase(option, LOG4CXX_STR("LOCATIONINFO"),
+                                       LOG4CXX_STR("locationinfo"))) {
+        this->locationInfo(OptionConverter::toBoolean(value, false));
+    }
+    if (StringHelper::equalsIgnoreCase(option, LOG4CXX_STR("PROPERTIES"),
+                                       LOG4CXX_STR("properties"))) {
+        this->properties(OptionConverter::toBoolean(value, false));
+    }
+}
+
+void CJsonLogLayout::format(LogString& output, const spi::LoggingEventPtr& event, Pool& /*p*/) const {
     using TStringBufferWriter = rapidjson::Writer<rapidjson::StringBuffer>;
     rapidjson::StringBuffer buffer;
-    TStringBufferWriter writer{buffer};
+    TStringBufferWriter writer(buffer);
 
     writer.StartObject();
 
     writer.String(LOGGER_NAME);
-    writer.String(LOGGER);
+    LOG4CXX_ENCODE_CHAR(logger, event->getLoggerName());
+    writer.String(logger);
 
     writer.String(TIMESTAMP_NAME);
-    const auto& timeStamp = boost::log::extract<boost::posix_time::ptime>(
-                                boost::log::aux::default_attribute_names::timestamp(), rec)
-                                .get();
-    writer.Int64((timeStamp - EPOCH).total_milliseconds());
+    writer.Int64(event->getTimeStamp() / 1000);
 
     writer.String(LEVEL_NAME);
-    auto level = boost::log::extract<CLogger::ELevel>(
-                     boost::log::aux::default_attribute_names::severity(), rec)
-                     .get();
-    writer.String(CLogger::levelToString(level));
+    LOG4CXX_ENCODE_CHAR(level, event->getLevel()->toString());
+    writer.String(level);
 
     writer.String(PID_NAME);
     writer.Int64(PID);
 
     writer.String(THREAD_NAME);
-    auto threadId = boost::log::extract<boost::log::attributes::current_thread_id::value_type>(
-                        boost::log::aux::default_attribute_names::thread_id(), rec)
-                        .get();
-    std::ostringstream oss;
-    oss << threadId;
-    writer.String(oss.str());
+    LOG4CXX_ENCODE_CHAR(thread, event->getThreadName());
+    writer.String(thread);
 
     writer.String(MESSAGE_NAME);
-    writer.String(rec[boost::log::expressions::smessage].get());
+    LOG4CXX_ENCODE_CHAR(message, event->getRenderedMessage());
+    writer.String(message);
+
+    LogString logNdc;
+    if (event->getNDC(logNdc)) {
+        writer.String(NDC_NAME);
+        LOG4CXX_ENCODE_CHAR(ndc, logNdc);
+        writer.String(ndc);
+    }
 
     if (m_LocationInfo) {
-        std::string className;
-        std::string methodName;
-        std::tie(className, methodName) = extractClassAndMethod(
-            boost::log::extract<std::string>(CLogger::instance().functionAttributeName(), rec)
-                .get());
+        const spi::LocationInfo& locInfo = event->getLocationInformation();
 
-        if (className.empty() == false) {
+        const std::string& className = locInfo.getClassName();
+        if (!className.empty()) {
             writer.String(CLASS_NAME);
             writer.String(className);
         }
 
-        writer.String(METHOD_NAME);
-        writer.String(methodName);
+        const std::string& methodName = locInfo.getMethodName();
+        if (!methodName.empty()) {
+            writer.String(METHOD_NAME);
+            writer.String(methodName);
+        }
 
         writer.String(FILE_NAME);
-        const auto& fullFileName = boost::log::extract<std::string>(
-                                       CLogger::instance().fileAttributeName(), rec)
-                                       .get();
-        writer.String(CJsonLogLayout::cropPath(fullFileName));
+        writer.String(CJsonLogLayout::cropPath(locInfo.getFileName()));
 
         writer.String(LINE_NAME);
-        writer.Int(boost::log::extract<int>(CLogger::instance().lineAttributeName(), rec)
-                       .get());
+        writer.Int(locInfo.getLineNumber());
+    }
+
+    if (m_Properties) {
+        const spi::LoggingEvent::KeySet& propertySet = event->getPropertyKeySet();
+        const spi::LoggingEvent::KeySet& keySet = event->getMDCKeySet();
+        if (!(keySet.empty() && propertySet.empty())) {
+            writer.String(PROPERTIES_NAME);
+            writer.StartObject();
+
+            for (spi::LoggingEvent::KeySet::const_iterator i = keySet.begin();
+                 i != keySet.end(); ++i) {
+                const LogString& key = *i;
+                LogString value;
+                if (event->getMDC(key, value)) {
+                    LOG4CXX_ENCODE_CHAR(name, key);
+                    writer.String(name);
+                    LOG4CXX_ENCODE_CHAR(val, value);
+                    writer.String(val);
+                }
+            }
+            for (spi::LoggingEvent::KeySet::const_iterator i = propertySet.begin();
+                 i != propertySet.end(); ++i) {
+                const LogString& key = *i;
+                LogString value;
+                if (event->getProperty(key, value)) {
+                    LOG4CXX_ENCODE_CHAR(name, key);
+                    writer.String(name);
+                    LOG4CXX_ENCODE_CHAR(val, value);
+                    writer.String(val);
+                }
+            }
+
+            writer.EndObject();
+        }
     }
 
     writer.EndObject();
 
-    strm << buffer.GetString();
+    output.append(LOG4CXX_STR(buffer.GetString()));
+    output.append(LOG4CXX_EOL);
+}
+
+bool CJsonLogLayout::ignoresThrowable() const {
+    return false;
 }
 
 std::string CJsonLogLayout::cropPath(const std::string& filename) {
     boost::filesystem::path p(filename);
     return p.filename().string();
-}
-
-CJsonLogLayout::TStrStrPr CJsonLogLayout::extractClassAndMethod(std::string prettyFunctionSig) {
-
-    std::size_t argsStartPos{prettyFunctionSig.find('(')};
-    if (argsStartPos != std::string::npos) {
-        prettyFunctionSig.erase(argsStartPos);
-    }
-    std::size_t returnTypeSeparatorPos{prettyFunctionSig.rfind(' ')};
-    if (returnTypeSeparatorPos != std::string::npos) {
-        prettyFunctionSig.erase(0, returnTypeSeparatorPos + 1);
-    }
-    std::size_t lastScopeOperatorPos{prettyFunctionSig.rfind("::")};
-
-    if (lastScopeOperatorPos == std::string::npos) {
-        // prettyFunctionSig has been cut down by the time we get here
-        return {std::string(), prettyFunctionSig};
-    }
-
-    return {prettyFunctionSig.substr(0, lastScopeOperatorPos),
-            prettyFunctionSig.substr(lastScopeOperatorPos + 2)};
-}
-}
 }

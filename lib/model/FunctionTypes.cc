@@ -1672,7 +1672,7 @@ EFunction function(const TFeatureVec& features) {
     for (/**/; candidates.empty() && i < features.size(); ++i) {
         TFeatureFunctionVecMapCItr functionsItr = FUNCTIONS_BY_FEATURE.find(features[i]);
         if (functionsItr == FUNCTIONS_BY_FEATURE.end()) {
-            LOG_WARN(<< "No functions for feature " << model_t::print(features[i]));
+            LOG_WARN(<< "No functions for feature " << model_t::print(features[i]))
             continue;
         }
         candidates = functionsItr->second;
@@ -1686,7 +1686,7 @@ EFunction function(const TFeatureVec& features) {
     for (/**/; !candidates.empty() && i < features.size(); ++i) {
         TFeatureFunctionVecMapCItr functionsItr = FUNCTIONS_BY_FEATURE.find(features[i]);
         if (functionsItr == FUNCTIONS_BY_FEATURE.end()) {
-            LOG_WARN(<< "No functions for feature " << model_t::print(features[i]));
+            LOG_WARN(<< "No functions for feature " << model_t::print(features[i]))
             continue;
         }
 

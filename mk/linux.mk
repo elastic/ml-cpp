@@ -27,7 +27,7 @@ PLATPICFLAGS=-fPIC
 PLATPIEFLAGS=-fPIE
 CFLAGS=-g $(OPTCFLAGS) -msse4.2 -mfpmath=sse -fstack-protector -fno-math-errno -fno-permissive -Wall -Wcast-align -Wconversion -Wextra -Winit-self -Wparentheses -Wpointer-arith -Wswitch-enum $(COVERAGE)
 CXXFLAGS=$(CFLAGS) -Wno-ctor-dtor-privacy -Wno-deprecated-declarations -Wold-style-cast -fvisibility-inlines-hidden
-CPPFLAGS=-isystem $(CPP_SRC_HOME)/3rd_party/include -isystem /usr/local/gcc73/include -D$(OS) -D_REENTRANT $(OPTCPPFLAGS)
+CPPFLAGS=-isystem $(CPP_SRC_HOME)/3rd_party/include -isystem /usr/local/gcc73/include -D$(OS) -DLINUX=2 -D_REENTRANT $(OPTCPPFLAGS)
 CDEPFLAGS=-MM
 COMP_OUT_FLAG=-o
 LINK_OUT_FLAG=-o
@@ -38,9 +38,7 @@ BOOSTVER=1_71
 BOOSTGCCVER:=$(shell $(CXX) -dumpversion | awk -F. '{ print $$1; }')
 # Use -isystem instead of -I for Boost headers to suppress warnings from Boost
 BOOSTINCLUDES=-isystem /usr/local/gcc73/include/boost-$(BOOSTVER)
-BOOSTCPPFLAGS=-DBOOST_ALL_DYN_LINK -DBOOST_MATH_NO_LONG_DOUBLE_MATH_FUNCTIONS
-BOOSTLOGLIBS=-lboost_log-gcc$(BOOSTGCCVER)-mt-x64-$(BOOSTVER)
-BOOSTLOGSETUPLIBS=-lboost_log_setup-gcc$(BOOSTGCCVER)-mt-x64-$(BOOSTVER)
+BOOSTCPPFLAGS=-DBOOST_MATH_NO_LONG_DOUBLE_MATH_FUNCTIONS
 BOOSTREGEXLIBS=-lboost_regex-gcc$(BOOSTGCCVER)-mt-x64-$(BOOSTVER)
 BOOSTIOSTREAMSLIBS=-lboost_iostreams-gcc$(BOOSTGCCVER)-mt-x64-$(BOOSTVER)
 BOOSTPROGRAMOPTIONSLIBS=-lboost_program_options-gcc$(BOOSTGCCVER)-mt-x64-$(BOOSTVER)
@@ -57,6 +55,7 @@ JAVANATIVEINCLUDES=-I$(JAVA_HOME)/include
 JAVANATIVELDFLAGS=-L$(JAVA_HOME)/jre/lib/server
 JAVANATIVELIBS=-ljvm
 CPPUNITLIBS=-lcppunit
+LOG4CXXLIBS=-llog4cxx
 ZLIBLIBS=-lz
 EXELDFLAGS=-pie $(PLATPIEFLAGS) -L$(CPP_PLATFORM_HOME)/lib $(COVERAGE) -Wl,-z,relro -Wl,-z,now -Wl,-rpath,'$$ORIGIN/../lib'
 UTLDFLAGS=$(EXELDFLAGS) -Wl,-rpath,$(CPP_PLATFORM_HOME)/lib

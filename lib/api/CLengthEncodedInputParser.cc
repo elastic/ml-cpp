@@ -101,7 +101,7 @@ bool CLengthEncodedInputParser::readFieldNames() {
         if (fieldNames.empty()) {
             // If we parsed no field names at all, return true, as
             // completely empty input is technically valid
-            LOG_INFO(<< "Field names are empty");
+            LOG_INFO(<< "Field names are empty")
             m_NoMoreRecords = true;
             return true;
         }

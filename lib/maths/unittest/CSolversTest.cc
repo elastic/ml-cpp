@@ -197,7 +197,7 @@ void CSolversTest::testBisection() {
             if (i != 3) {
                 LOG_DEBUG(<< "convergenceFactor = " << convergenceFactor);
             }
-            LOG_DEBUG(<< "-");
+            LOG_DEBUG(<< "-")
         }
 
         double meanConvergenceFactor = std::pow(lastError / 0.7390851332151607, 1.0 / 20.0);
@@ -212,7 +212,7 @@ void CSolversTest::testBisection() {
     // each set of 4 iterations, but on average converge at a
     // rate of 0.5 per iteration.
     {
-        LOG_DEBUG(<< "-");
+        LOG_DEBUG(<< "-")
         LOG_DEBUG(<< "*** f(x) = {  |x - 2.0/3.0|^0.2  x <= 2.0/3.0 ***");
         LOG_DEBUG(<< "           { -|x - 2.0/3.0|^0.2  otherwise");
         double lastInterval = 20.0;
@@ -249,7 +249,7 @@ void CSolversTest::testBisection() {
                 }
                 convergenceFactor = 1.0;
             }
-            LOG_DEBUG(<< "-");
+            LOG_DEBUG(<< "-")
         }
 
         double meanConvergenceFactor = std::pow(lastError / (2.0 / 3.0), 1.0 / 40.0);
@@ -309,7 +309,7 @@ void CSolversTest::testBrent() {
             CEqualWithTolerance<double> equal(CToleranceTypes::E_AbsoluteTolerance, 0.0);
             CSolvers::brent(a, b, &f3, iterations, equal, bestGuess);
 
-            LOG_DEBUG(<< "-");
+            LOG_DEBUG(<< "-")
             LOG_DEBUG(<< "iterations = " << iterations);
             CPPUNIT_ASSERT_EQUAL(i, iterations);
 
@@ -335,7 +335,7 @@ void CSolversTest::testBrent() {
     // Test convergence on f(x) = {  |x - 2.0/3.0|^0.2  x <= 2.0/3.0
     //                            { -|x - 2.0/3.0|^0.2  otherwise
     {
-        LOG_DEBUG(<< "-");
+        LOG_DEBUG(<< "-")
         LOG_DEBUG(<< "*** f(x) = {  |x - 2.0/3.0|^0.2  x <= 2.0/3.0 ***");
         LOG_DEBUG(<< "           { -|x - 2.0/3.0|^0.2  otherwise");
         double lastError = 2.0 / 3.0;
@@ -346,7 +346,7 @@ void CSolversTest::testBrent() {
             CEqualWithTolerance<double> equal(CToleranceTypes::E_AbsoluteTolerance, 0.0);
             CSolvers::brent(a, b, &f4, iterations, equal, bestGuess);
 
-            LOG_DEBUG(<< "-");
+            LOG_DEBUG(<< "-")
             LOG_DEBUG(<< "iterations = " << iterations);
             CPPUNIT_ASSERT_EQUAL(i, iterations);
 
