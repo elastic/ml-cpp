@@ -82,29 +82,28 @@ void CProgramCountersTest::testUnknownCounter() {
     ml::core::CProgramCounters& counters = ml::core::CProgramCounters::instance();
 
     // Name of the log file to use. It must match the name specified
-    // in testfiles/testLogWarningsLog4cxx.properties in the A2 appender
+    // in testfiles/testLogWarnings.boost.log.ini
     const char* logFile = "test.log";
 
     std::remove(logFile);
-    // start logging at level WARN
+    // start logging to a file at level WARN
     CPPUNIT_ASSERT(ml::core::CLogger::instance().reconfigureFromFile(
-        "testfiles/testLogWarningsLog4cxx.properties"));
+        "testfiles/testLogWarnings.boost.log.ini"));
 
     // Attempt to access a counter at an unknown/invalid index
     ++counters.counter(ml::counter_t::E_LastEnumCounter);
 
-    // Revert to the default properties for the test framework - very similar to the hardcoded default.
-    CPPUNIT_ASSERT(ml::core::CLogger::instance().reconfigureFromFile(
-        "testfiles/testLogDebugLog4cxx.properties"));
+    // Revert to the default logger settings
+    ml::core::CLogger::instance().reset();
 
     std::ifstream log(logFile);
-    CPPUNIT_ASSERT_EQUAL(true, log.is_open());
-    char line[256];
-    while (log.getline(line, 256)) {
+    CPPUNIT_ASSERT(log.is_open());
+    ml::core::CRegex regex;
+    CPPUNIT_ASSERT(regex.init(".*Bad index.*"));
+    std::string line;
+    while (std::getline(log, line)) {
         LOG_INFO(<< "Got '" << line << "'");
-        ml::core::CRegex regex;
-        regex.init(".*Bad index.*");
-        CPPUNIT_ASSERT_EQUAL(true, regex.matches(line));
+        CPPUNIT_ASSERT(regex.matches(line));
     }
     log.close();
     std::remove(logFile);

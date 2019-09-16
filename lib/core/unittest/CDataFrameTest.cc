@@ -66,7 +66,7 @@ makeReader(TFloatVec& components, std::size_t cols, bool& passed) {
                       expectedRow.begin());
             j->copyTo(row.begin());
             if (passed && expectedRow != row) {
-                LOG_DEBUG(<< "mismatch for row " << i / cols)
+                LOG_DEBUG(<< "mismatch for row " << i / cols);
                 LOG_DEBUG(<< "expected = " << core::CContainerPrinter::print(expectedRow));
                 LOG_DEBUG(<< "actual   = " << core::CContainerPrinter::print(row));
                 passed = false;

@@ -1080,7 +1080,7 @@ void CDataFrameAnalyzerTest::testRunBoostedTreeTrainingWithStateRecovery() {
     //        lambda, gamma, eta, maximumNumberTrees, featureBagFraction,
     //        numberRoundsPerHyperparameter, 0, finalIteration);
 
-    LOG_DEBUG(<< "One hyperparameter to search")
+    LOG_DEBUG(<< "One hyperparameter to search");
     lambda = -1.0;
     gamma = 10.0;
     finalIteration = 1 * numberRoundsPerHyperparameter - 1;
@@ -1092,7 +1092,7 @@ void CDataFrameAnalyzerTest::testRunBoostedTreeTrainingWithStateRecovery() {
             numberRoundsPerHyperparameter, intermediateIteration);
     }
 
-    LOG_DEBUG(<< "Two hyperparameters to search")
+    LOG_DEBUG(<< "Two hyperparameters to search");
     lambda = -1.0;
     gamma = -1.0;
     finalIteration = 2 * numberRoundsPerHyperparameter - 1;

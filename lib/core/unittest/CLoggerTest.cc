@@ -45,22 +45,28 @@ CppUnit::Test* CLoggerTest::suite() {
     return suiteOfTests;
 }
 
+void CLoggerTest::tearDown() {
+    // Tests in this file can leave the logger in an unusual state, so reset it
+    // after each test
+    ml::core::CLogger::instance().reset();
+}
+
 void CLoggerTest::testLogging() {
     std::string t("Test message");
 
     LOG_TRACE(<< "Trace");
-    LOG_AT_LEVEL("TRACE", << "Dynamic TRACE " << 1);
+    LOG_AT_LEVEL(ml::core::CLogger::E_Trace, << "Dynamic TRACE " << 1);
     LOG_DEBUG(<< "Debug");
-    LOG_AT_LEVEL("DEBUG", << "Dynamic DEBUG " << 2.0);
+    LOG_AT_LEVEL(ml::core::CLogger::E_Debug, << "Dynamic DEBUG " << 2.0);
     LOG_INFO(<< "Info " << std::boolalpha << true);
-    LOG_AT_LEVEL("INFO", << "Dynamic INFO " << false);
+    LOG_AT_LEVEL(ml::core::CLogger::E_Info, << "Dynamic INFO " << false);
     LOG_WARN(<< "Warn " << t);
-    LOG_AT_LEVEL("WARN", "Dynamic WARN "
-                             << "abc");
+    LOG_AT_LEVEL(ml::core::CLogger::E_Warn, << "Dynamic WARN "
+                                            << "abc");
     LOG_ERROR(<< "Error " << 1000 << ' ' << 0.23124F);
-    LOG_AT_LEVEL("ERROR", << "Dynamic ERROR");
+    LOG_AT_LEVEL(ml::core::CLogger::E_Error, << "Dynamic ERROR");
     LOG_FATAL(<< "Fatal - application to handle exit");
-    LOG_AT_LEVEL("FATAL", << "Dynamic FATAL " << t);
+    LOG_AT_LEVEL(ml::core::CLogger::E_Fatal, << "Dynamic FATAL " << t);
     try {
         LOG_ABORT(<< "Throwing exception " << 1221U << ' ' << 0.23124);
 
@@ -81,9 +87,9 @@ void CLoggerTest::testReconfiguration() {
     CPPUNIT_ASSERT(logger.reconfigureLogJson());
     LOG_INFO(<< "This should be logged as JSON!");
 
-    // The test log4cxx.properties is very similar to the hardcoded default, but
+    // The test boost.log.ini is very similar to the hardcoded default, but
     // with the level set to TRACE rather than DEBUG
-    CPPUNIT_ASSERT(logger.reconfigureFromFile("testfiles/log4cxx.properties"));
+    CPPUNIT_ASSERT(logger.reconfigureFromFile("testfiles/boost.log.ini"));
 
     LOG_TRACE(<< "This should be seen because the reconfigured log level is TRACE");
     CPPUNIT_ASSERT(logger.hasBeenReconfigured());
