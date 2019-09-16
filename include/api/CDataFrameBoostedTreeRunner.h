@@ -7,8 +7,10 @@
 #ifndef INCLUDED_ml_api_CDataFrameBoostedTreeRunner_h
 #define INCLUDED_ml_api_CDataFrameBoostedTreeRunner_h
 
-#include <api/CDataFrameAnalysisRunner.h>
+#include <core/CDataSearcher.h>
 
+#include <api/CDataFrameAnalysisRunner.h>
+#include <api/CDataFrameAnalysisSpecification.h>
 #include <api/ImportExport.h>
 
 #include <rapidjson/fwd.h>
@@ -45,6 +47,7 @@ public:
 private:
     using TBoostedTreeUPtr = std::unique_ptr<maths::CBoostedTree>;
     using TBoostedTreeFactoryUPtr = std::unique_ptr<maths::CBoostedTreeFactory>;
+    using TMemoryEstimator = std::function<void(std::int64_t)>;
 
 private:
     void runImpl(const TStrVec& featureNames, core::CDataFrame& frame) override;
@@ -52,6 +55,10 @@ private:
                                                std::size_t totalNumberRows,
                                                std::size_t partitionNumberRows,
                                                std::size_t numberColumns) const override;
+    TMemoryEstimator memoryEstimator();
+
+    bool restoreBoostedTree(core::CDataFrame& frame,
+                            CDataFrameAnalysisSpecification::TDataSearcherUPtr& restoreSearcher);
 
 private:
     // Note custom config is written directly to the factory object.
