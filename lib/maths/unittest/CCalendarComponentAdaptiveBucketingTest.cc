@@ -267,7 +267,7 @@ void CCalendarComponentAdaptiveBucketingTest::testMinimumBucketLength() {
         LOG_DEBUG(<< "minimumBucketLength2 = " << minimumBucketLength2);
         CPPUNIT_ASSERT(minimumBucketLength2[0] >= 1500.0);
 
-        LOG_DEBUG(<< core::CContainerPrinter::print(endpoints1))
+        LOG_DEBUG(<< core::CContainerPrinter::print(endpoints1));
         LOG_DEBUG(<< core::CContainerPrinter::print(endpoints2));
 
         double totalError{0.0};
