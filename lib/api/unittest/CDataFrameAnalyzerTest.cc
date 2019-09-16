@@ -46,6 +46,7 @@ using TStrVec = std::vector<std::string>;
 using TRowItr = core::CDataFrame::TRowItr;
 using TPoint = maths::CDenseVector<maths::CFloatStorage>;
 using TPointVec = std::vector<TPoint>;
+using TDataFrameUPtr = std::unique_ptr<core::CDataFrame>;
 
 class CTestDataSearcher : public core::CDataSearcher {
 public:
@@ -271,33 +272,22 @@ void addOutlierTestData(TStrVec fieldNames,
     });
 }
 
-void addRegressionTestData(TStrVec fieldNames,
-                           TStrVec fieldValues,
-                           api::CDataFrameAnalyzer& analyzer,
-                           TDoubleVec& expectedPredictions,
-                           std::size_t numberExamples = 100,
-                           double lambda = -1.0,
-                           double gamma = -1.0,
-                           double eta = 0.0,
-                           std::size_t maximumNumberTrees = 0,
-                           double featureBagFraction = 0.0) {
+TDataFrameUPtr passDataToAnalyzer(const TStrVec& fieldNames,
+                                  TStrVec& fieldValues,
+                                  api::CDataFrameAnalyzer& analyzer,
+                                  const TDoubleVec& weights,
+                                  const TDoubleVec& values) {
 
-    auto f = [](const TDoubleVec& weights, const TPoint& regressors) {
+    auto f = [](const TDoubleVec& weights_, const TPoint& regressors) {
         double result{0.0};
-        for (std::size_t i = 0; i < weights.size(); ++i) {
-            result += weights[i] * regressors(i);
+        for (std::size_t i = 0; i < weights_.size(); ++i) {
+            result += weights_[i] * regressors(i);
         }
         return result;
     };
 
-    test::CRandomNumbers rng;
-
-    TDoubleVec weights{0.1, 2.0, 0.4, -0.5};
-
-    TDoubleVec values;
-    rng.generateUniformSamples(-10.0, 10.0, weights.size() * numberExamples, values);
-
     TPointVec rows;
+
     for (std::size_t i = 0; i < values.size(); i += weights.size()) {
         TPoint row{weights.size() + 1};
         for (std::size_t j = 0; j < weights.size(); ++j) {
@@ -317,7 +307,27 @@ void addRegressionTestData(TStrVec fieldNames,
         rows.push_back(std::move(row));
     }
 
-    auto frame = test::CDataFrameTestUtils::toMainMemoryDataFrame(rows);
+    return test::CDataFrameTestUtils::toMainMemoryDataFrame(rows);
+}
+
+void addRegressionTestData(const TStrVec& fieldNames,
+                           TStrVec fieldValues,
+                           api::CDataFrameAnalyzer& analyzer,
+                           TDoubleVec& expectedPredictions,
+                           std::size_t numberExamples = 100,
+                           double lambda = -1.0,
+                           double gamma = -1.0,
+                           double eta = 0.0,
+                           std::size_t maximumNumberTrees = 0,
+                           double featureBagFraction = 0.0) {
+
+    test::CRandomNumbers rng;
+    TDoubleVec weights{0.1, 2.0, 0.4, -0.5};
+
+    TDoubleVec values;
+    rng.generateUniformSamples(-10.0, 10.0, weights.size() * numberExamples, values);
+
+    auto frame = passDataToAnalyzer(fieldNames, fieldValues, analyzer, weights, values);
 
     maths::CBoostedTreeFactory treeFactory{maths::CBoostedTreeFactory::constructFromParameters(
         1, std::make_unique<maths::boosted_tree::CMse>())};
@@ -1110,6 +1120,7 @@ void CDataFrameAnalyzerTest::testRunBoostedTreeTrainingWithStateRecoverySubrouti
 
     std::size_t numberExamples{200};
     TStrVec fieldNames{"c1", "c2", "c3", "c4", "c5", ".", "."};
+    TStrVec fieldValues{"", "", "", "", "", "0", ""};
     TDoubleVec weights{0.1, 2.0, 0.4, -0.5};
     TDoubleVec values;
     test::CRandomNumbers rng;
@@ -1128,7 +1139,7 @@ void CDataFrameAnalyzerTest::testRunBoostedTreeTrainingWithStateRecoverySubrouti
                        maximumNumberTrees, featureBagFraction, persisterSupplier),
         outputWriterFactory};
 
-    auto frame{passDataToAnalyzer(weights, values, analyzer, fieldNames)};
+    auto frame{passDataToAnalyzer(fieldNames, fieldValues, analyzer, weights, values)};
     analyzer.handleRecord(fieldNames, {"", "", "", "", "", "", "$"});
 
     TStrVec persistedStatesString{
@@ -1149,7 +1160,7 @@ void CDataFrameAnalyzerTest::testRunBoostedTreeTrainingWithStateRecoverySubrouti
                        featureBagFraction, persisterSupplier, restoreSearcherSupplier),
         outputWriterFactory};
 
-    passDataToAnalyzer(weights, values, analyzerToRestore, fieldNames);
+    passDataToAnalyzer(fieldNames, fieldValues, analyzerToRestore, weights, values);
     analyzerToRestore.handleRecord(fieldNames, {"", "", "", "", "", "", "$"});
 
     persistedStatesString =
@@ -1199,44 +1210,4 @@ CDataFrameAnalyzerTest::getFinalTree(const TStrVec& persistedStates,
                                         api::getRegressionStateId("testJob"));
     auto stream{decompressor->search(1, 1)};
     return maths::CBoostedTreeFactory::constructFromString(*stream, *frame);
-}
-
-std::unique_ptr<core::CDataFrame>
-CDataFrameAnalyzerTest::passDataToAnalyzer(const TDoubleVec& weights,
-                                           const TDoubleVec& values,
-                                           api::CDataFrameAnalyzer& analyzer,
-                                           const TStrVec& fieldNames) const {
-
-    TStrVec fieldValues{"", "", "", "", "", "0", ""};
-
-    auto f = [](const TDoubleVec& weights_, const TPoint& regressors) {
-        double result{0.0};
-        for (std::size_t i = 0; i < weights_.size(); ++i) {
-            result += weights_[i] * regressors(i);
-        }
-        return result;
-    };
-
-    TPointVec rows;
-
-    for (std::size_t i = 0; i < values.size(); i += weights.size()) {
-        TPoint row{weights.size() + 1};
-        for (std::size_t j = 0; j < weights.size(); ++j) {
-            row(j) = values[i + j];
-        }
-        row(weights.size()) = f(weights, row);
-
-        for (int j = 0; j < row.size(); ++j) {
-            fieldValues[j] = core::CStringUtils::typeToStringPrecise(
-                row(j), core::CIEEE754::E_DoublePrecision);
-            double xj;
-            core::CStringUtils::stringToType(fieldValues[j], xj);
-            row(j) = xj;
-        }
-        analyzer.handleRecord(fieldNames, fieldValues);
-
-        rows.push_back(std::move(row));
-    }
-
-    return test::CDataFrameTestUtils::toMainMemoryDataFrame(rows);
 }

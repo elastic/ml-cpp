@@ -56,12 +56,6 @@ private:
         std::size_t numberRoundsPerHyperparameter,
         std::size_t iterationToRestartFrom) const;
 
-    std::unique_ptr<ml::core::CDataFrame>
-    passDataToAnalyzer(const TDoubleVec& weights,
-                       const TDoubleVec& values,
-                       ml::api::CDataFrameAnalyzer& analyzer,
-                       const TStrVec& fieldNames) const;
-
     ml::maths::CBoostedTreeFactory::TBoostedTreeUPtr
     getFinalTree(const TStrVec& persistedStates, TDataFrameUPtr& frame) const;
 };
