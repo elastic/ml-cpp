@@ -708,7 +708,7 @@ void CXMeansOnline1dTest::testAdaption() {
     TDoubleVec mode2b;
     rng.generateNormalSamples(4000.0, 90000.0, 100u, mode2b);
     TDoubleVec mode3;
-    rng.generateNormalSamples(3000.0, 10000.0, 1000u, mode3);
+    rng.generateNormalSamples(5000.0, 10000.0, 1000u, mode3);
 
     TDoubleVec mode2;
     mode2.reserve(mode2a.size() + mode2b.size());
@@ -763,7 +763,7 @@ void CXMeansOnline1dTest::testAdaption() {
 
     addSamplesToClusterer(mode1.size(), {mode1});
     addSamplesToClusterer(mode1.size() + mode2.size(), {mode2a, mode2b});
-    addSamplesToClusterer(samples.size(), {mode1});
+    addSamplesToClusterer(samples.size(), {mode3});
 }
 
 void CXMeansOnline1dTest::testLargeHistory() {
