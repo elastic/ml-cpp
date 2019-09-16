@@ -335,7 +335,7 @@ void CDataFrameAnalysisSpecificationTest::testRunAnalysis() {
     };
 
     std::string jsonSpec = api::CDataFrameAnalysisSpecificationJsonWriter::jsonString(
-        "testJob", 100, 10, 1000, 1, {}, true, test::CTestTmpDir::tmpDir(), "", "test", "");
+        100, 10, 1000, 1, {}, true, test::CTestTmpDir::tmpDir(), "", "test", "");
 
     for (std::size_t i = 0; i < 10; ++i) {
         api::CDataFrameAnalysisSpecification spec{testFactory(), jsonSpec};
@@ -365,8 +365,7 @@ CDataFrameAnalysisSpecificationTest::createSpecJsonForTempDirDiskUsageTest(bool 
                                                                            bool diskUsageAllowed) {
     std::string tempDir = tempDirPathSet ? test::CTestTmpDir::tmpDir() : "";
     return api::CDataFrameAnalysisSpecificationJsonWriter::jsonString(
-        "testJob", 100, 3, 500000, 1, {}, diskUsageAllowed, tempDir, "",
-        "outlier_detection", "");
+        100, 3, 500000, 1, {}, diskUsageAllowed, tempDir, "", "outlier_detection", "");
 }
 
 void CDataFrameAnalysisSpecificationTest::testTempDirDiskUsage() {

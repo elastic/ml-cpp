@@ -10,7 +10,6 @@
 #include <core/CLogger.h>
 #include <core/CProgramCounters.h>
 #include <core/CRapidJsonConcurrentLineWriter.h>
-#include <core/CStateDecompressor.h>
 #include <core/CStopWatch.h>
 
 #include <maths/CBoostedTree.h>
@@ -19,9 +18,10 @@
 
 #include <api/CDataFrameAnalysisConfigReader.h>
 #include <api/CDataFrameAnalysisSpecification.h>
-#include <api/ElasticsearchStateIndex.h>
 
+#include <core/CJsonStatePersistInserter.h>
 #include <rapidjson/document.h>
+#include <rapidjson/writer.h>
 
 namespace ml {
 namespace api {
@@ -107,7 +107,17 @@ CDataFrameBoostedTreeRunner::CDataFrameBoostedTreeRunner(const CDataFrameAnalysi
     (*m_BoostedTreeFactory)
         .progressCallback(this->progressRecorder())
         .trainingStateCallback(this->statePersister())
-        .memoryUsageCallback(this->memoryEstimator());
+        .memoryUsageCallback([this](std::int64_t delta) {
+            std::int64_t memory{m_Memory.fetch_add(delta)};
+            if (memory >= 0) {
+                core::CProgramCounters::counter(counter_t::E_DFTPMPeakMemoryUsage)
+                    .max(memory);
+            } else {
+                // Something has gone wrong with memory estimation. Trap this case
+                // to avoid underflowing the peak memory usage statistic.
+                LOG_DEBUG(<< "Memory estimate " << memory << " is negative!");
+            }
+        });
 
     if (lambda >= 0.0) {
         m_BoostedTreeFactory->lambda(lambda);
@@ -130,19 +140,6 @@ CDataFrameBoostedTreeRunner::CDataFrameBoostedTreeRunner(const CDataFrameAnalysi
     if (bayesianOptimisationRestarts > 0) {
         m_BoostedTreeFactory->bayesianOptimisationRestarts(bayesianOptimisationRestarts);
     }
-}
-
-CDataFrameBoostedTreeRunner::TMemoryEstimator CDataFrameBoostedTreeRunner::memoryEstimator() {
-    return [this](int64_t delta) {
-        int64_t memory{m_Memory.fetch_add(delta)};
-        if (memory >= 0) {
-            core::CProgramCounters::counter(counter_t::E_DFTPMPeakMemoryUsage).max(memory);
-        } else {
-            // Something has gone wrong with memory estimation. Trap this case
-            // to avoid underflowing the peak memory usage statistic.
-            LOG_DEBUG(<< "Memory estimate " << memory << " is negative!");
-        }
-    };
 }
 
 CDataFrameBoostedTreeRunner::CDataFrameBoostedTreeRunner(const CDataFrameAnalysisSpecification& spec)
@@ -188,54 +185,13 @@ void CDataFrameBoostedTreeRunner::runImpl(const TStrVec& featureNames,
                                   frame.numberColumns() + this->numberExtraColumns());
 
     core::CStopWatch watch{true};
-    auto restoreSearcher{this->spec().restoreSearcher()};
-    bool treeRestored{false};
-    if (restoreSearcher != nullptr) {
-        treeRestored = restoreBoostedTree(frame, restoreSearcher);
-    }
 
-    if (treeRestored == false) {
-
-        m_BoostedTree = m_BoostedTreeFactory->buildFor(
-            frame, dependentVariableColumn - featureNames.begin());
-    }
+    m_BoostedTree = m_BoostedTreeFactory->buildFor(
+        frame, dependentVariableColumn - featureNames.begin());
     m_BoostedTree->train();
     m_BoostedTree->predict();
 
     core::CProgramCounters::counter(counter_t::E_DFTPMTimeToTrain) = watch.stop();
-}
-
-bool CDataFrameBoostedTreeRunner::restoreBoostedTree(
-    core::CDataFrame& frame,
-    CDataFrameAnalysisSpecification::TDataSearcherUPtr& restoreSearcher) { // Restore from Elasticsearch compressed data
-    try {
-        core::CStateDecompressor decompressor(*restoreSearcher);
-        decompressor.setStateRestoreSearch(
-            ML_STATE_INDEX, getRegressionStateId(this->spec().jobId()));
-        core::CDataSearcher::TIStreamP inputStream{decompressor.search(1, 1)}; // search arguments are ignored
-        if (inputStream == nullptr) {
-            LOG_ERROR(<< "Unable to connect to data store");
-            return false;
-        }
-
-        if (inputStream->bad()) {
-            LOG_ERROR(<< "State restoration search returned bad stream");
-            return false;
-        }
-
-        if (inputStream->fail()) {
-            // This is fatal. If the stream exists and has failed then state is missing
-            LOG_ERROR(<< "State restoration search returned failed stream");
-            return false;
-        }
-
-        m_BoostedTree = maths::CBoostedTreeFactory::constructFromString(
-            *inputStream, frame, progressRecorder(), memoryEstimator(), statePersister());
-    } catch (std::exception& e) {
-        LOG_ERROR(<< "Failed to restore state! " << e.what());
-        return false;
-    }
-    return true;
 }
 
 std::size_t CDataFrameBoostedTreeRunner::estimateBookkeepingMemoryUsage(

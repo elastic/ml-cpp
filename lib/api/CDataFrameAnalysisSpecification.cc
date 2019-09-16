@@ -89,22 +89,16 @@ const CDataFrameAnalysisConfigReader ANALYSIS_READER{[] {
 }()};
 }
 
-CDataFrameAnalysisSpecification::CDataFrameAnalysisSpecification(
-    const std::string& jsonSpecification,
-    TPersisterSupplier persisterSupplier,
-    TRestoreSearcherSupplier restoreSearcherSupplier)
+CDataFrameAnalysisSpecification::CDataFrameAnalysisSpecification(const std::string& jsonSpecification,
+                                                                 TPersisterSupplier persisterSupplier)
     : CDataFrameAnalysisSpecification{analysisFactories(), jsonSpecification,
-                                      std::move(persisterSupplier),
-                                      std::move(restoreSearcherSupplier)} {
+                                      std::move(persisterSupplier)} {
 }
 
-CDataFrameAnalysisSpecification::CDataFrameAnalysisSpecification(
-    TRunnerFactoryUPtrVec runnerFactories,
-    const std::string& jsonSpecification,
-    TPersisterSupplier persisterSupplier,
-    TRestoreSearcherSupplier restoreSearcherSupplier)
-    : m_RunnerFactories{std::move(runnerFactories)}, m_PersisterSupplier{std::move(persisterSupplier)},
-      m_RestoreSearcherSupplier{std::move(restoreSearcherSupplier)} {
+CDataFrameAnalysisSpecification::CDataFrameAnalysisSpecification(TRunnerFactoryUPtrVec runnerFactories,
+                                                                 const std::string& jsonSpecification,
+                                                                 TPersisterSupplier persisterSupplier)
+    : m_RunnerFactories{std::move(runnerFactories)}, m_PersisterSupplier{std::move(persisterSupplier)} {
 
     rapidjson::Document specification;
     if (specification.Parse(jsonSpecification.c_str()) == false) {
@@ -232,18 +226,8 @@ CDataFrameAnalysisSpecification::persister() const {
     return m_PersisterSupplier();
 }
 
-CDataFrameAnalysisSpecification::TDataSearcherUPtr
-CDataFrameAnalysisSpecification::restoreSearcher() const {
-    return m_RestoreSearcherSupplier();
-}
-
 CDataFrameAnalysisSpecification::TPersisterSupplier
 CDataFrameAnalysisSpecification::noopPersisterSupplier() {
-    return nullptr;
-}
-
-CDataFrameAnalysisSpecification::TRestoreSearcherSupplier
-CDataFrameAnalysisSpecification::noopRestoreSearcherSupplier() {
     return nullptr;
 }
 
