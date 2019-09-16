@@ -6,16 +6,18 @@
 #ifndef INCLUDED_ml_api_ElasticsearchStateIndex_h
 #define INCLUDED_ml_api_ElasticsearchStateIndex_h
 
+#include <api/ImportExport.h>
+
 #include <string>
 
 namespace ml {
 namespace api {
 //! Elasticsearch index for state
-extern const std::string ML_STATE_INDEX;
-extern const std::string MODEL_STATE_TYPE;
-extern const std::string REGRESSION_TRAIN_STATE_TYPE;
+extern API_EXPORT const std::string ML_STATE_INDEX;
+extern API_EXPORT const std::string MODEL_STATE_TYPE;
+extern API_EXPORT const std::string REGRESSION_TRAIN_STATE_TYPE;
 
-std::string getRegressionStateId(const std::string& jobId);
+API_EXPORT std::string getRegressionStateId(const std::string& jobId);
 }
 }
 
