@@ -111,7 +111,7 @@
     message;                                                                                 \
     ml::core::CLogger::fatal()
 
-// Log at a level specified at runtime as a string, for example
+// Log at a level specified at runtime, for example
 // LOG_AT_LEVEL(ml::core::CLogger::E_Warn, << "Stay away from here " << username)
 
 #ifdef LOG_AT_LEVEL
