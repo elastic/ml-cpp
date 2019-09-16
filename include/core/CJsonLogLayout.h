@@ -11,6 +11,9 @@
 #include <boost/log/core/record_view.hpp>
 #include <boost/log/utility/formatting_ostream_fwd.hpp>
 
+#include <string>
+#include <utility>
+
 class CJsonLogLayoutTest;
 
 namespace ml {
@@ -43,10 +46,40 @@ public:
                     boost::log::formatting_ostream& strm) const;
 
 private:
+    using TStrStrPr = std::pair<std::string, std::string>;
+
+private:
+    //! Keep just the last element of a path.
+    //!
+    //! Example:
+    //!
+    //! /usr/include/unistd.h
+    //!
+    //! gets mapped to:
+    //!
+    //! unistd.h
+    //!
+    static std::string cropPath(const std::string& filename);
+
+    //! Split a __PRETTY_FUNCTION__ or __FUNCSIG__ value into a class name and a
+    //! method name.
+    //!
+    //! Example:
+    //!
+    //! Pretty function = std::string ns1::ns2::clazz::someMethod(int arg1, char arg2)
+    //!
+    //! gets mapped to:
+    //!
+    //! Class = ns1::ns2::clazz
+    //! Method = someMethod
+    //!
+    //! \param prettyFunctionSig A value from __PRETTY_FUNCTION__ or __FUNCSIG__.
+    //! \return A pair of the form {class name, method name}
+    static TStrStrPr extractClassAndMethod(std::string prettyFunctionSig);
+
+private:
     //! Include location info by default
     bool m_LocationInfo;
-
-    static std::string cropPath(const std::string& filename);
 
     // For unit testing
     friend class ::CJsonLogLayoutTest;

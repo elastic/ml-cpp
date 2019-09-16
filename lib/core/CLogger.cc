@@ -56,6 +56,8 @@ const ml::core::CLogger& DO_NOT_USE_THIS_VARIABLE = ml::core::CLogger::instance(
 using TOStreamPtr = boost::shared_ptr<std::ostream>;
 using TTextOStream = boost::log::sinks::text_ostream_backend;
 using TTextOStreamSynchronousSink = boost::log::sinks::synchronous_sink<TTextOStream>;
+using TTextOStreamSynchronousSinkPtr =
+    boost::shared_ptr<boost::log::sinks::synchronous_sink<TTextOStream>>;
 
 class CTimeStampFormatterFactory
     : public boost::log::basic_formatter_factory<char, boost::posix_time::ptime> {
@@ -79,6 +81,15 @@ public:
 };
 
 const std::string CTimeStampFormatterFactory::FORMAT{"format"};
+
+void resetSink(const TTextOStreamSynchronousSinkPtr& newSink) {
+    auto loggingCorePtr = boost::log::core::get();
+    loggingCorePtr->flush();
+    loggingCorePtr->remove_all_sinks();
+    if (newSink != nullptr) {
+        loggingCorePtr->add_sink(newSink);
+    }
+}
 }
 
 namespace ml {
@@ -96,7 +107,7 @@ CLogger::CLogger()
     boost::log::register_simple_filter_factory<ELevel, char>("Severity");
     boost::log::register_formatter_factory(
         "TimeStamp", boost::make_shared<CTimeStampFormatterFactory>());
-    auto loggingCorePtr{boost::log::core::get()};
+    auto loggingCorePtr = boost::log::core::get();
     // By default Boost.Log logs in local time but doesn't remember the timezone.
     // For the case of logging to the ES JVM over a named pipe we want to send
     // the timestamp as milliseconds since the epoch, which requires either a
@@ -118,9 +129,7 @@ CLogger::CLogger()
 }
 
 CLogger::~CLogger() {
-    auto loggingCorePtr{boost::log::core::get()};
-    loggingCorePtr->flush();
-    loggingCorePtr->remove_all_sinks();
+    resetSink(nullptr);
 
     if (m_PipeFile != nullptr) {
         // Revert the stderr file descriptor.
@@ -140,15 +149,13 @@ void CLogger::reset() {
         m_PipeFile.reset();
     }
 
-    auto loggingCorePtr{boost::log::core::get()};
-
     // This must be boost::shared_ptr, not std, as that's what the Boost Log
     // interface uses
-    auto backend{boost::make_shared<TTextOStream>()};
+    auto backend = boost::make_shared<TTextOStream>();
     // Need a shared_ptr to std::cerr that will NOT delete it
     backend->add_stream(TOStreamPtr(&std::cerr, boost::null_deleter()));
 
-    auto sinkPtr{boost::make_shared<TTextOStreamSynchronousSink>(backend)};
+    auto sinkPtr = boost::make_shared<TTextOStreamSynchronousSink>(backend);
 
     // Default format is as close as possible to log4cxx's %d %d{%Z} %-5p [PID] %F@%L %m%n
     sinkPtr->set_formatter(
@@ -162,12 +169,10 @@ void CLogger::reset() {
         << '@' << boost::log::expressions::attr<int>(m_LineAttributeName) << ' '
         << boost::log::expressions::smessage);
 
-    loggingCorePtr->flush();
-    loggingCorePtr->remove_all_sinks();
-    loggingCorePtr->add_sink(sinkPtr);
+    resetSink(sinkPtr);
 
     // Default filter is level debug and higher
-    loggingCorePtr->set_filter(
+    boost::log::core::get()->set_filter(
         boost::log::expressions::attr<ELevel>(
             boost::log::aux::default_attribute_names::severity()) >= E_Debug);
 
@@ -305,8 +310,6 @@ bool CLogger::reconfigureLogToNamedPipe(const std::string& pipeName) {
 
 bool CLogger::reconfigureLogJson() {
 
-    auto loggingCorePtr{boost::log::core::get()};
-
     // This must be boost::shared_ptr, not std, as that's what the Boost Log
     // interface uses
     auto backend{boost::make_shared<TTextOStream>()};
@@ -318,9 +321,7 @@ bool CLogger::reconfigureLogJson() {
     CJsonLogLayout jsonLogLayout;
     sinkPtr->set_formatter(jsonLogLayout);
 
-    loggingCorePtr->flush();
-    loggingCorePtr->remove_all_sinks();
-    loggingCorePtr->add_sink(sinkPtr);
+    resetSink(sinkPtr);
 
     return true;
 }
@@ -351,10 +352,8 @@ bool CLogger::reconfigureFromSettings(std::istream& settingsStrm) {
     // we've lost the old ones.  Configuration files are currently only an
     // internal debugging feature, so it's not worth putting more effort into
     // this problem unless that changes.
-    auto loggingCorePtr{boost::log::core::get()};
-    loggingCorePtr->flush();
-    loggingCorePtr->remove_all_sinks();
-    loggingCorePtr->reset_filter();
+    resetSink(nullptr);
+    boost::log::core::get()->reset_filter();
 
     try {
         boost::log::init_from_stream(settingsStrm);
