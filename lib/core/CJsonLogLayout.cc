@@ -43,7 +43,6 @@ const std::string CLASS_NAME{"class"};
 const std::string METHOD_NAME{"method"};
 const std::string FILE_NAME{"file"};
 const std::string LINE_NAME{"line"};
-const std::string PROPERTIES_NAME{"properties"};
 const boost::posix_time::ptime EPOCH{boost::gregorian::date(1970, 1, 1)};
 }
 
