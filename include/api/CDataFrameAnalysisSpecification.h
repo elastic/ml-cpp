@@ -8,6 +8,7 @@
 #define INCLUDED_ml_api_CDataFrameAnalysisSpecification_h
 
 #include <core/CDataAdder.h>
+#include <core/CDataSearcher.h>
 #include <core/CFastMutex.h>
 #include <core/CJsonOutputStreamWrapper.h>
 
@@ -47,6 +48,8 @@ public:
     using TTemporaryDirectoryPtr = std::shared_ptr<core::CTemporaryDirectory>;
     using TDataAdderUPtr = std::unique_ptr<ml::core::CDataAdder>;
     using TPersisterSupplier = std::function<TDataAdderUPtr()>;
+    using TDataSearcherUPtr = std::unique_ptr<ml::core::CDataSearcher>;
+    using TRestoreSearcherSupplier = std::function<TDataSearcherUPtr()>;
     using TDataFrameUPtrTemporaryDirectoryPtrPr =
         std::pair<TDataFrameUPtr, TTemporaryDirectoryPtr>;
     using TRunnerUPtr = std::unique_ptr<CDataFrameAnalysisRunner>;
@@ -98,16 +101,20 @@ public:
     //! out-of-core if we can't meet the memory constraint for the analysis without
     //! partitioning.
     //! \param persisterSupplier Shared pointer to the CDataAdder instance.
-    CDataFrameAnalysisSpecification(const std::string& jsonSpecification,
-                                    TPersisterSupplier persisterSupplier = noopPersisterSupplier());
+    CDataFrameAnalysisSpecification(
+        const std::string& jsonSpecification,
+        TPersisterSupplier persisterSupplier = noopPersisterSupplier(),
+        TRestoreSearcherSupplier restoreSearcherSupplier = noopRestoreSearcherSupplier());
 
     //! This construtor provides support for custom analysis types and is mainly
     //! intended for testing.
     //!
     //! \param[in] runnerFactories Plugins for the supported analyses.
-    CDataFrameAnalysisSpecification(TRunnerFactoryUPtrVec runnerFactories,
-                                    const std::string& jsonSpecification,
-                                    TPersisterSupplier persisterSupplier = noopPersisterSupplier());
+    CDataFrameAnalysisSpecification(
+        TRunnerFactoryUPtrVec runnerFactories,
+        const std::string& jsonSpecification,
+        TPersisterSupplier persisterSupplier = noopPersisterSupplier(),
+        TRestoreSearcherSupplier restoreSearcherSupplier = noopRestoreSearcherSupplier());
 
     CDataFrameAnalysisSpecification(const CDataFrameAnalysisSpecification&) = delete;
     CDataFrameAnalysisSpecification& operator=(const CDataFrameAnalysisSpecification&) = delete;
@@ -171,10 +178,13 @@ public:
     //! \return shared pointer to the persistence stream.
     TDataAdderUPtr persister() const;
 
+    TDataSearcherUPtr restoreSearcher() const;
+
 private:
     void initializeRunner(const rapidjson::Value& jsonAnalysis);
 
     static TPersisterSupplier noopPersisterSupplier();
+    static TRestoreSearcherSupplier noopRestoreSearcherSupplier();
 
 private:
     std::size_t m_NumberRows = 0;
@@ -191,6 +201,7 @@ private:
     TRunnerFactoryUPtrVec m_RunnerFactories;
     TRunnerUPtr m_Runner;
     TPersisterSupplier m_PersisterSupplier;
+    TRestoreSearcherSupplier m_RestoreSearcherSupplier;
 };
 }
 }
