@@ -35,77 +35,40 @@ fi
 case `uname` in
 
     Darwin)
-        APR_LOCATION=
         BOOST_LOCATION=/usr/local/lib
         BOOST_COMPILER=clang
         BOOST_EXTENSION=mt-x64-1_71.dylib
-        BOOST_LIBRARIES='date_time filesystem iostreams program_options regex system thread'
-        LOG4CXX_LOCATION=/usr/local/lib
-        LOG4CXX_EXTENSION=.10.dylib
+        BOOST_LIBRARIES='atomic chrono date_time filesystem iostreams log log_setup program_options regex system thread'
         XML_LOCATION=
-        EXPAT_LOCATION=
         GCC_RT_LOCATION=
         STL_LOCATION=
-        ATOMIC_LOCATION=
         ZLIB_LOCATION=
         ;;
 
     Linux)
         if [ -z "$CPP_CROSS_COMPILE" ] ; then
-            ldd --version 2>&1 | grep musl > /dev/null
-            if [ $? -ne 0 ] ; then
-                APR_LOCATION=/usr/local/gcc73/lib
-                APR_EXTENSION=1.so.0
-                BOOST_LOCATION=/usr/local/gcc73/lib
-                BOOST_COMPILER=gcc
-                BOOST_EXTENSION=mt-x64-1_71.so.1.71.0
-                BOOST_LIBRARIES='date_time filesystem iostreams program_options regex system thread'
-                LOG4CXX_LOCATION=/usr/local/gcc73/lib
-                LOG4CXX_EXTENSION=.so.10
-                XML_LOCATION=/usr/local/gcc73/lib
-                XML_EXTENSION=.so.2
-                EXPAT_LOCATION=/usr/local/gcc73/lib
-                EXPAT_EXTENSION=.so.1
-                GCC_RT_LOCATION=/usr/local/gcc73/lib64
-                GCC_RT_EXTENSION=.so.1
-                STL_LOCATION=/usr/local/gcc73/lib64
-                STL_PREFIX=libstdc++
-                STL_EXTENSION=.so.6
-                ATOMIC_LOCATION=
-                ZLIB_LOCATION=
-            else
-                APR_LOCATION=/usr/local/lib
-                APR_EXTENSION=1.so.0
-                BOOST_LOCATION=/usr/local/lib
-                BOOST_COMPILER=gcc
-                BOOST_EXTENSION=mt-x64-1_71.so.1.71.0
-                BOOST_LIBRARIES='date_time filesystem iostreams program_options regex system thread'
-                LOG4CXX_LOCATION=/usr/local/lib
-                LOG4CXX_EXTENSION=.so.10
-                XML_LOCATION=/usr/local/lib
-                XML_EXTENSION=.so.2
-                EXPAT_LOCATION=/usr/local/lib
-                EXPAT_EXTENSION=.so.1
-                GCC_RT_LOCATION=
-                STL_LOCATION=
-                ATOMIC_LOCATION=
-                ZLIB_LOCATION=
-            fi
+            BOOST_LOCATION=/usr/local/gcc73/lib
+            BOOST_COMPILER=gcc
+            BOOST_EXTENSION=mt-x64-1_71.so.1.71.0
+            BOOST_LIBRARIES='atomic chrono date_time filesystem iostreams log log_setup program_options regex system thread'
+            XML_LOCATION=/usr/local/gcc73/lib
+            XML_EXTENSION=.so.2
+            GCC_RT_LOCATION=/usr/local/gcc73/lib64
+            GCC_RT_EXTENSION=.so.1
+            STL_LOCATION=/usr/local/gcc73/lib64
+            STL_PREFIX=libstdc++
+            STL_EXTENSION=.so.6
+            ZLIB_LOCATION=
         else
             if [ "$CPP_CROSS_COMPILE" = macosx ] ; then
                 SYSROOT=/usr/local/sysroot-x86_64-apple-macosx10.11
-                APR_LOCATION=
                 BOOST_LOCATION=$SYSROOT/usr/local/lib
                 BOOST_COMPILER=clang
                 BOOST_EXTENSION=mt-x64-1_71.dylib
-                BOOST_LIBRARIES='date_time filesystem iostreams program_options regex system thread'
-                LOG4CXX_LOCATION=$SYSROOT/usr/local/lib
-                LOG4CXX_EXTENSION=.10.dylib
+                BOOST_LIBRARIES='atomic chrono date_time filesystem iostreams log log_setup program_options regex system thread'
                 XML_LOCATION=
-                EXPAT_LOCATION=
                 GCC_RT_LOCATION=
                 STL_LOCATION=
-                ATOMIC_LOCATION=
                 ZLIB_LOCATION=
             else
                 echo "Cannot cross compile to $CPP_CROSS_COMPILE"
@@ -118,19 +81,14 @@ case `uname` in
         if [ -z "$LOCAL_DRIVE" ] ; then
             LOCAL_DRIVE=C
         fi
-        # These directories are correct for the way our Windows 2008r2 build
+        # These directories are correct for the way our Windows 2012r2 build
         # server is currently set up
-        APR_LOCATION=/$LOCAL_DRIVE/usr/local/bin
-        APR_EXTENSION=1.dll
         BOOST_LOCATION=/$LOCAL_DRIVE/usr/local/lib
         BOOST_COMPILER=vc
         BOOST_EXTENSION=mt-x64-1_71.dll
-        BOOST_LIBRARIES='chrono date_time filesystem iostreams program_options regex system thread'
-        LOG4CXX_LOCATION=/$LOCAL_DRIVE/usr/local/bin
-        LOG4CXX_EXTENSION=.dll
+        BOOST_LIBRARIES='chrono date_time filesystem iostreams log log_setup program_options regex system thread'
         XML_LOCATION=/$LOCAL_DRIVE/usr/local/bin
         XML_EXTENSION=.dll
-        EXPAT_LOCATION=
         GCC_RT_LOCATION=
         # Read VCBASE from environment if defined, otherwise default to VS Professional 2017
         DEFAULTVCBASE=`cd /$LOCAL_DRIVE && cygpath -m -s "Program Files (x86)/Microsoft Visual Studio/2017/Professional"`
@@ -139,7 +97,6 @@ case `uname` in
         STL_LOCATION=/$LOCAL_DRIVE/$VCBASE/VC/Redist/MSVC/$VCVER/x64/Microsoft.VC141.CRT
         STL_PREFIX=
         STL_EXTENSION=140.dll
-        ATOMIC_LOCATION=
         ZLIB_LOCATION=/$LOCAL_DRIVE/usr/local/bin
         ZLIB_EXTENSION=1.dll
         ;;
@@ -155,18 +112,6 @@ if [ -n "$INSTALL_DIR" ] ; then
     mkdir -p "$INSTALL_DIR"
 fi
 
-if [ ! -z "$APR_LOCATION" ] ; then
-    if ls $APR_LOCATION/libapr*$APR_EXTENSION >/dev/null ; then
-        if [ -n "$INSTALL_DIR" ] ; then
-            rm -f $INSTALL_DIR/libapr*$APR_EXTENSION
-            cp $APR_LOCATION/libapr*$APR_EXTENSION $INSTALL_DIR
-            chmod u+wx $INSTALL_DIR/libapr*$APR_EXTENSION $INSTALL_DIR
-        fi
-    else
-        echo "Apache Portable Runtime library not found"
-        exit 5
-    fi
-fi
 if [ ! -z "$BOOST_LOCATION" ] ; then
     if ls $BOOST_LOCATION/*boost*$BOOST_COMPILER*$BOOST_EXTENSION >/dev/null ; then
         if [ -n "$INSTALL_DIR" ] ; then
@@ -179,19 +124,7 @@ if [ ! -z "$BOOST_LOCATION" ] ; then
         fi
     else
         echo "Boost libraries not found"
-        exit 6
-    fi
-fi
-if [ ! -z "$LOG4CXX_LOCATION" ] ; then
-    if ls $LOG4CXX_LOCATION/*log4cxx*$LOG4CXX_EXTENSION >/dev/null ; then
-        if [ -n "$INSTALL_DIR" ] ; then
-            rm -f $INSTALL_DIR/*log4cxx*$LOG4CXX_EXTENSION
-            cp $LOG4CXX_LOCATION/*log4cxx*$LOG4CXX_EXTENSION $INSTALL_DIR
-            chmod u+wx $INSTALL_DIR/*log4cxx*$LOG4CXX_EXTENSION
-        fi
-    else
-        echo "log4cxx library not found"
-        exit 7
+        exit 5
     fi
 fi
 if [ ! -z "$XML_LOCATION" ] ; then
@@ -203,19 +136,7 @@ if [ ! -z "$XML_LOCATION" ] ; then
         fi
     else
         echo "libxml2 not found"
-        exit 8
-    fi
-fi
-if [ ! -z "$EXPAT_LOCATION" ] ; then
-    if ls $EXPAT_LOCATION/libexpat*$EXPAT_EXTENSION >/dev/null ; then
-        if [ -n "$INSTALL_DIR" ] ; then
-            rm -f $INSTALL_DIR/libexpat*$EXPAT_EXTENSION
-            cp $EXPAT_LOCATION/libexpat*$EXPAT_EXTENSION $INSTALL_DIR
-            chmod u+wx $INSTALL_DIR/libexpat*$EXPAT_EXTENSION
-        fi
-    else
-        echo "Expat library not found"
-        exit 9
+        exit 6
     fi
 fi
 if [ ! -z "$GCC_RT_LOCATION" ] ; then
@@ -227,7 +148,7 @@ if [ ! -z "$GCC_RT_LOCATION" ] ; then
         fi
     else
         echo "gcc runtime library not found"
-        exit 10
+        exit 7
     fi
 fi
 if [ ! -z "$STL_LOCATION" ] ; then
@@ -239,19 +160,7 @@ if [ ! -z "$STL_LOCATION" ] ; then
         fi
     else
         echo "C++ standard library not found"
-        exit 11
-    fi
-fi
-if [ ! -z "$ATOMIC_LOCATION" ] ; then
-    if ls $ATOMIC_LOCATION/libstatomic*$ATOMIC_EXTENSION >/dev/null ; then
-        if [ -n "$INSTALL_DIR" ] ; then
-            rm -f $INSTALL_DIR/libstatomic*$ATOMIC_EXTENSION
-            cp $ATOMIC_LOCATION/libstatomic*$ATOMIC_EXTENSION $INSTALL_DIR
-            chmod u+wx $INSTALL_DIR/libstatomic*$ATOMIC_EXTENSION
-        fi
-    else
-        echo "Atomic library not found"
-        exit 12
+        exit 8
     fi
 fi
 if [ ! -z "$ZLIB_LOCATION" ] ; then
@@ -263,7 +172,7 @@ if [ ! -z "$ZLIB_LOCATION" ] ; then
         fi
     else
         echo "zlib not found"
-        exit 13
+        exit 9
     fi
 fi
 
@@ -282,28 +191,6 @@ case `uname` in
                 else
                     # Set RPATH for 3rd party libraries that reference other libraries we ship
                     ldd $FILE | grep /usr/local/lib >/dev/null 2>&1 && patchelf --set-rpath '$ORIGIN/.' $FILE
-                    if [ $? -eq 0 ] ; then
-                        echo "Set RPATH in $FILE"
-                    else
-                        echo "Did not set RPATH in $FILE"
-                    fi
-                fi
-            done
-        fi
-        ;;
-
-    SunOS)
-        if [ -n "$INSTALL_DIR" ] ; then
-            cd "$INSTALL_DIR"
-            for FILE in `find . -type f | egrep -v '^core|-debug$|libMl'`
-            do
-                # Replace RPATH for 3rd party libraries that already have one
-                elfedit -r -e 'dyn:runpath' $FILE >/dev/null 2>&1 && chmod u+wx $FILE && elfedit -e 'dyn:runpath $ORIGIN/.' $FILE
-                if [ $? -eq 0 ] ; then
-                    echo "Set RPATH in $FILE"
-                else
-                    # Set RPATH for 3rd party libraries that reference other libraries we ship
-                    ldd $FILE | grep /usr/local/lib >/dev/null 2>&1 && chmod u+wx $FILE && elfedit -e 'dyn:runpath $ORIGIN/.' $FILE
                     if [ $? -eq 0 ] ; then
                         echo "Set RPATH in $FILE"
                     else

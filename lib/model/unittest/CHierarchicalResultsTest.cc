@@ -1634,7 +1634,7 @@ void CHierarchicalResultsTest::testNormalizer() {
                 expectedNormalized.push_back(score);
             }
         }
-        LOG_DEBUG(<< "* leaf *")
+        LOG_DEBUG(<< "* leaf *");
         LOG_DEBUG(<< "expectedNormalized = "
                   << core::CContainerPrinter::print(expectedNormalized));
         LOG_DEBUG(<< "normalized         = " << core::CContainerPrinter::print(normalized));
@@ -1667,7 +1667,7 @@ void CHierarchicalResultsTest::testNormalizer() {
                 expectedNormalized.push_back(score);
             }
         }
-        LOG_DEBUG(<< "* person *")
+        LOG_DEBUG(<< "* person *");
         LOG_DEBUG(<< "expectedNormalized = "
                   << core::CContainerPrinter::print(expectedNormalized));
         LOG_DEBUG(<< "normalized         = " << core::CContainerPrinter::print(normalized));
@@ -1700,7 +1700,7 @@ void CHierarchicalResultsTest::testNormalizer() {
                 expectedNormalized.push_back(score);
             }
         }
-        LOG_DEBUG(<< "* partition *")
+        LOG_DEBUG(<< "* partition *");
         LOG_DEBUG(<< "expectedNormalized = "
                   << core::CContainerPrinter::print(expectedNormalized));
         LOG_DEBUG(<< "normalized         = " << core::CContainerPrinter::print(normalized));

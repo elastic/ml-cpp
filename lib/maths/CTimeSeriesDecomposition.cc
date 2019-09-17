@@ -223,7 +223,7 @@ void CTimeSeriesDecomposition::addPoint(core_t::TTime time,
                                         const TComponentChangeCallback& componentChangeCallback) {
 
     if (CMathsFuncs::isFinite(value) == false) {
-        LOG_ERROR("Discarding invalid value.");
+        LOG_ERROR(<< "Discarding invalid value.");
         return;
     }
 
