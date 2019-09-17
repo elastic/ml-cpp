@@ -1655,7 +1655,7 @@ void CEventRateBucketGatherer::initializeFeatureData() {
         CASE_POPULATION_METRIC:
         CASE_PEERS_METRIC:
             LOG_ERROR(<< "Unexpected feature = "
-                      << model_t::print(m_DataGatherer.feature(i)))
+                      << model_t::print(m_DataGatherer.feature(i)));
             break;
         }
     }

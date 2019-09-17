@@ -526,7 +526,8 @@ void CXMeansOnlineTest::testAdaption() {
         }
     }
 
-    LOG_DEBUG(<< "Clusters Split and Merge") {
+    LOG_DEBUG(<< "Clusters Split and Merge");
+    {
         std::size_t n[][4] = {{200, 0, 0, 0}, {100, 100, 0, 0}, {0, 0, 300, 300}};
 
         TCovariances2 totalCovariances(2);

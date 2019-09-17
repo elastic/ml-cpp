@@ -670,7 +670,7 @@ void CMultimodalPrior::CModeSplitCallback::operator()(std::size_t sourceIndex,
     {
         TDoubleVec samples;
         if (!m_Prior->m_Clusterer->sample(rightSplitIndex, MODE_SPLIT_NUMBER_SAMPLES, samples)) {
-            LOG_ERROR(<< "Couldn't find cluster for " << rightSplitIndex)
+            LOG_ERROR(<< "Couldn't find cluster for " << rightSplitIndex);
         }
         LOG_TRACE(<< "samples = " << core::CContainerPrinter::print(samples));
 
