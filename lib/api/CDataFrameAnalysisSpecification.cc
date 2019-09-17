@@ -237,12 +237,12 @@ CDataFrameAnalysisSpecification::restoreSearcher() const {
     return m_RestoreSearcherSupplier();
 }
 
-CDataFrameAnalysisSpecification::TPersisterSupplier
+CDataFrameAnalysisSpecification::TDataAdderUPtr
 CDataFrameAnalysisSpecification::noopPersisterSupplier() {
     return nullptr;
 }
 
-CDataFrameAnalysisSpecification::TRestoreSearcherSupplier
+CDataFrameAnalysisSpecification::TDataSearcherUPtr
 CDataFrameAnalysisSpecification::noopRestoreSearcherSupplier() {
     return nullptr;
 }

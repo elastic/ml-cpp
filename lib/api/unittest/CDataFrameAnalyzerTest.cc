@@ -145,23 +145,20 @@ auto outlierSpec(std::size_t rows = 110,
     return std::make_unique<api::CDataFrameAnalysisSpecification>(spec);
 }
 
-auto regressionSpec(
-    std::string dependentVariable,
-    std::size_t rows = 100,
-    std::size_t cols = 5,
-    std::size_t memoryLimit = 3000000,
-    std::size_t numberRoundsPerHyperparameter = 0,
-    std::size_t bayesianOptimisationRestarts = 0,
-    const TStrVec& categoricalFieldNames = TStrVec{},
-    double lambda = -1.0,
-    double gamma = -1.0,
-    double eta = -1.0,
-    std::size_t maximumNumberTrees = 0,
-    double featureBagFraction = -1.0,
-    const CDataFrameAnalyzerTest::TPersisterSupplier& persisterSupplier =
-        []() -> CDataFrameAnalyzerTest::TDataAdderUPtr { return nullptr; },
-    const CDataFrameAnalyzerTest::TRestoreSearcherSupplier& restoreSearcherSupplier =
-        []() -> CDataFrameAnalyzerTest::TDataSearcherUPtr { return nullptr; }) {
+auto regressionSpec(std::string dependentVariable,
+                    std::size_t rows = 100,
+                    std::size_t cols = 5,
+                    std::size_t memoryLimit = 3000000,
+                    std::size_t numberRoundsPerHyperparameter = 0,
+                    std::size_t bayesianOptimisationRestarts = 0,
+                    const TStrVec& categoricalFieldNames = TStrVec{},
+                    double lambda = -1.0,
+                    double gamma = -1.0,
+                    double eta = -1.0,
+                    std::size_t maximumNumberTrees = 0,
+                    double featureBagFraction = -1.0,
+                    CDataFrameAnalyzerTest::TPersisterSupplier* persisterSupplier = nullptr,
+                    CDataFrameAnalyzerTest::TRestoreSearcherSupplier* restoreSearcherSupplier = nullptr) {
 
     std::string parameters = "{\n\"dependent_variable\": \"" + dependentVariable + "\"";
     if (lambda >= 0.0) {
@@ -197,8 +194,14 @@ auto regressionSpec(
 
     LOG_TRACE(<< "spec =\n" << spec);
 
-    return std::make_unique<api::CDataFrameAnalysisSpecification>(
-        spec, persisterSupplier, restoreSearcherSupplier);
+    if (restoreSearcherSupplier != nullptr && persisterSupplier != nullptr) {
+        return std::make_unique<api::CDataFrameAnalysisSpecification>(
+            spec, *persisterSupplier, *restoreSearcherSupplier);
+    } else if (restoreSearcherSupplier == nullptr && persisterSupplier != nullptr) {
+        return std::make_unique<api::CDataFrameAnalysisSpecification>(spec, *persisterSupplier);
+    } else {
+        return std::make_unique<api::CDataFrameAnalysisSpecification>(spec);
+    }
 }
 
 void addOutlierTestData(TStrVec fieldNames,
@@ -1127,7 +1130,8 @@ void CDataFrameAnalyzerTest::testRunBoostedTreeTrainingWithStateRecoverySubrouti
     rng.generateUniformSamples(-10.0, 10.0, weights.size() * numberExamples, values);
 
     auto persistenceStream{std::make_shared<std::ostringstream>()};
-    auto persisterSupplier = [&persistenceStream]() -> TDataAdderUPtr {
+    CDataFrameAnalyzerTest::TPersisterSupplier persisterSupplier =
+        [&persistenceStream]() -> TDataAdderUPtr {
         return std::make_unique<api::CSingleStreamDataAdder>(persistenceStream);
     };
 
@@ -1136,7 +1140,7 @@ void CDataFrameAnalyzerTest::testRunBoostedTreeTrainingWithStateRecoverySubrouti
     api::CDataFrameAnalyzer analyzer{
         regressionSpec("c5", numberExamples, 5, 15000000,
                        numberRoundsPerHyperparameter, 12, {}, lambda, gamma, eta,
-                       maximumNumberTrees, featureBagFraction, persisterSupplier),
+                       maximumNumberTrees, featureBagFraction, &persisterSupplier),
         outputWriterFactory};
 
     auto frame{passDataToAnalyzer(fieldNames, fieldValues, analyzer, weights, values)};
@@ -1150,14 +1154,15 @@ void CDataFrameAnalyzerTest::testRunBoostedTreeTrainingWithStateRecoverySubrouti
     persistenceStream->str("");
 
     std::istringstream intermediateStateStream{persistedStatesString[iterationToRestartFrom]};
-    auto restoreSearcherSupplier = [&intermediateStateStream]() -> TDataSearcherUPtr {
+    CDataFrameAnalyzerTest::TRestoreSearcherSupplier restoreSearcherSupplier =
+        [&intermediateStateStream]() -> TDataSearcherUPtr {
         return std::make_unique<CTestDataSearcher>(intermediateStateStream.str());
     };
 
     api::CDataFrameAnalyzer analyzerToRestore{
         regressionSpec("c5", numberExamples, 5, 15000000, numberRoundsPerHyperparameter,
-                       12, {}, lambda, gamma, eta, maximumNumberTrees,
-                       featureBagFraction, persisterSupplier, restoreSearcherSupplier),
+                       12, {}, lambda, gamma, eta, maximumNumberTrees, featureBagFraction,
+                       &persisterSupplier, &restoreSearcherSupplier),
         outputWriterFactory};
 
     passDataToAnalyzer(fieldNames, fieldValues, analyzerToRestore, weights, values);

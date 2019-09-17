@@ -101,20 +101,18 @@ public:
     //! out-of-core if we can't meet the memory constraint for the analysis without
     //! partitioning.
     //! \param persisterSupplier Shared pointer to the CDataAdder instance.
-    CDataFrameAnalysisSpecification(
-        const std::string& jsonSpecification,
-        TPersisterSupplier persisterSupplier = noopPersisterSupplier(),
-        TRestoreSearcherSupplier restoreSearcherSupplier = noopRestoreSearcherSupplier());
+    CDataFrameAnalysisSpecification(const std::string& jsonSpecification,
+                                    TPersisterSupplier persisterSupplier = noopPersisterSupplier,
+                                    TRestoreSearcherSupplier restoreSearcherSupplier = noopRestoreSearcherSupplier);
 
     //! This construtor provides support for custom analysis types and is mainly
     //! intended for testing.
     //!
     //! \param[in] runnerFactories Plugins for the supported analyses.
-    CDataFrameAnalysisSpecification(
-        TRunnerFactoryUPtrVec runnerFactories,
-        const std::string& jsonSpecification,
-        TPersisterSupplier persisterSupplier = noopPersisterSupplier(),
-        TRestoreSearcherSupplier restoreSearcherSupplier = noopRestoreSearcherSupplier());
+    CDataFrameAnalysisSpecification(TRunnerFactoryUPtrVec runnerFactories,
+                                    const std::string& jsonSpecification,
+                                    TPersisterSupplier persisterSupplier = noopPersisterSupplier,
+                                    TRestoreSearcherSupplier restoreSearcherSupplier = noopRestoreSearcherSupplier);
 
     CDataFrameAnalysisSpecification(const CDataFrameAnalysisSpecification&) = delete;
     CDataFrameAnalysisSpecification& operator=(const CDataFrameAnalysisSpecification&) = delete;
@@ -183,8 +181,8 @@ public:
 private:
     void initializeRunner(const rapidjson::Value& jsonAnalysis);
 
-    static TPersisterSupplier noopPersisterSupplier();
-    static TRestoreSearcherSupplier noopRestoreSearcherSupplier();
+    static TDataAdderUPtr noopPersisterSupplier();
+    static TDataSearcherUPtr noopRestoreSearcherSupplier();
 
 private:
     std::size_t m_NumberRows = 0;
