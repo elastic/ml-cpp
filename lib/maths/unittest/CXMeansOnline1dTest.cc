@@ -181,7 +181,7 @@ void CXMeansOnline1dTest::testMixtureOfGaussians() {
 
     // Test 1:
     //   * Cluster 1 = N(7, 1),     100 points
-    //   * Cluster 2 = N(15, 2.25), 200 points
+    //   * Cluster 2 = N(16, 2.25), 200 points
     //   * Cluster 3 = N(35, 2.25), 150 points
     maths::CXMeansOnline1d::TSizeDoublePr2Vec dummy;
     {
@@ -249,7 +249,7 @@ void CXMeansOnline1dTest::testMixtureOfGaussians() {
             const TClusterVec& clusters = clusterer.clusters();
 
             debug(clusters);
-            LOG_DEBUG(<< "expected = " << core::CContainerPrinter::print(expectedClusters))
+            LOG_DEBUG(<< "expected = " << core::CContainerPrinter::print(expectedClusters));
 
             LOG_DEBUG(<< "# clusters = " << clusters.size());
             CPPUNIT_ASSERT_EQUAL(std::size_t(3), clusters.size());
@@ -699,7 +699,71 @@ void CXMeansOnline1dTest::testAdaption() {
     // Specifically, the data set starts with one cluster then
     // a new cluster appears and subsequently disappears.
 
-    // TODO
+    test::CRandomNumbers rng;
+
+    TDoubleVec mode1;
+    rng.generateNormalSamples(3000.0, 10000.0, 100u, mode1);
+    TDoubleVec mode2a;
+    rng.generateNormalSamples(3000.0, 10000.0, 100u, mode2a);
+    TDoubleVec mode2b;
+    rng.generateNormalSamples(4000.0, 90000.0, 100u, mode2b);
+    TDoubleVec mode3;
+    rng.generateNormalSamples(5000.0, 10000.0, 1000u, mode3);
+
+    TDoubleVec mode2;
+    mode2.reserve(mode2a.size() + mode2b.size());
+    std::copy(mode2a.begin(), mode2a.end(), std::back_inserter(mode2));
+    std::copy(mode2b.begin(), mode2b.end(), std::back_inserter(mode2));
+    rng.random_shuffle(mode2.begin(), mode2.end());
+
+    TDoubleVec samples;
+    samples.reserve(mode1.size() + mode2.size() + mode3.size());
+    std::copy(mode1.begin(), mode1.end(), std::back_inserter(samples));
+    std::copy(mode2.begin(), mode2.end(), std::back_inserter(samples));
+    std::copy(mode3.begin(), mode3.end(), std::back_inserter(samples));
+
+    maths::CXMeansOnline1d clusterer(maths_t::E_ContinuousData,
+                                     maths::CAvailableModeDistributions::ALL,
+                                     maths_t::E_ClustersFractionWeight, 0.01);
+
+    maths::CXMeansOnline1d::TSizeDoublePr2Vec dummy;
+
+    using TDoubleVecVec = std::vector<TDoubleVec>;
+    using TMeanVarAccumulatorVec = std::vector<TMeanVarAccumulator>;
+
+    std::size_t i{0};
+    auto addSamplesToClusterer = [&](const std::size_t& limit,
+                                     const TDoubleVecVec& expectedModes) {
+        TMeanVarAccumulatorVec expectedClusters;
+        for (const auto& mode : expectedModes) {
+            expectedClusters.push_back(TMeanVarAccumulator());
+            expectedClusters.back().add(mode);
+        }
+        for (; i < limit; ++i) {
+            clusterer.add(static_cast<double>(samples[i]), dummy);
+            clusterer.propagateForwardsByTime(1.0);
+        }
+
+        const TClusterVec& clusters = clusterer.clusters();
+        debug(clusters);
+        CPPUNIT_ASSERT_EQUAL(expectedClusters.size(), clusters.size());
+
+        for (std::size_t j = 0u; j < clusters.size(); ++j) {
+            CPPUNIT_ASSERT_DOUBLES_EQUAL(
+                maths::CBasicStatistics::mean(expectedClusters[j]), clusters[j].centre(),
+                0.01 * std::max(maths::CBasicStatistics::mean(expectedClusters[j]),
+                                clusters[j].centre()));
+            CPPUNIT_ASSERT_DOUBLES_EQUAL(
+                std::sqrt(maths::CBasicStatistics::variance(expectedClusters[j])),
+                clusters[j].spread(),
+                0.04 * std::max(std::sqrt(maths::CBasicStatistics::variance(expectedClusters[j])),
+                                clusters[j].spread()));
+        }
+    };
+
+    addSamplesToClusterer(mode1.size(), {mode1});
+    addSamplesToClusterer(mode1.size() + mode2.size(), {mode2a, mode2b});
+    addSamplesToClusterer(samples.size(), {mode3});
 }
 
 void CXMeansOnline1dTest::testLargeHistory() {

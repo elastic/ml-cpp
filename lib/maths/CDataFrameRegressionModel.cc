@@ -9,7 +9,32 @@
 namespace ml {
 namespace maths {
 
-void CDataFrameRegressionModel::noop(double) {
+CDataFrameRegressionModel::CDataFrameRegressionModel(core::CDataFrame& frame,
+                                                     TProgressCallback recordProgress,
+                                                     TMemoryUsageCallback recordMemoryUsage,
+                                                     TTrainingStateCallback recordTrainingState)
+    : m_Frame{frame}, m_RecordProgress{std::move(recordProgress)},
+      m_RecordMemoryUsage{std::move(recordMemoryUsage)},
+      m_RecordTrainingState(std::move(recordTrainingState)) {
+}
+
+core::CDataFrame& CDataFrameRegressionModel::frame() const {
+    return m_Frame;
+}
+
+const CDataFrameRegressionModel::TProgressCallback&
+CDataFrameRegressionModel::progressRecorder() const {
+    return m_RecordProgress;
+}
+
+const CDataFrameRegressionModel::TMemoryUsageCallback&
+CDataFrameRegressionModel::memoryUsageRecorder() const {
+    return m_RecordMemoryUsage;
+}
+
+const CDataFrameRegressionModel::TTrainingStateCallback&
+CDataFrameRegressionModel::trainingStateRecorder() const {
+    return m_RecordTrainingState;
 }
 }
 }

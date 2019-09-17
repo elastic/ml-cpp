@@ -11,6 +11,14 @@ CPP_PLATFORM_HOME=$(CPP_DISTRIBUTION_HOME)/platform/darwin-x86_64
 CROSS_TARGET_PLATFORM=x86_64-apple-macosx10.11
 SYSROOT=/usr/local/sysroot-$(CROSS_TARGET_PLATFORM)
 CLANGVER=3.9
+# We use a natively compiled Boost even when cross compiling our own source
+# code, and Apple's clang versions are different to LLVM's clang versions, so
+# the natively built library file names will contain different versions.  Then
+# Boost also truncates the Apple clang version.  Known mappings are:
+# 3.8 -> 70 (Xcode 7.2)
+# 3.9 -> 80 (Xcode 8.2)
+# 6.0 -> 100 (Xcode 10.1)
+BOOSTCLANGVER=80
 CROSS_FLAGS=--sysroot=$(SYSROOT) -B /usr/local/bin -target $(CROSS_TARGET_PLATFORM)
 CC=clang-$(CLANGVER) $(CROSS_FLAGS)
 CXX=clang++-$(CLANGVER) $(CROSS_FLAGS) -std=c++14 -stdlib=libc++
@@ -38,17 +46,18 @@ LINK_OUT_FLAG=-o
 DEP_REFORMAT=sed 's,\($*\)\.o[ :]*,$(OBJS_DIR)\/\1.o $@ : ,g'
 LOCALLIBS=
 NETLIBS=
-BOOSTVER=1_65_1
-BOOSTCLANGVER:=$(shell $(CXX) -dumpversion | awk -F. '{ print $$1$$2; }')
+BOOSTVER=1_71
 # Use -isystem instead of -I for Boost headers to suppress warnings from Boost
 BOOSTINCLUDES=-isystem $(SYSROOT)/usr/local/include/boost-$(BOOSTVER)
-BOOSTCPPFLAGS=-DBOOST_MATH_NO_LONG_DOUBLE_MATH_FUNCTIONS
-BOOSTREGEXLIBS=-lboost_regex-clang-darwin$(BOOSTCLANGVER)-mt-$(BOOSTVER)
-BOOSTIOSTREAMSLIBS=-lboost_iostreams-clang-darwin$(BOOSTCLANGVER)-mt-$(BOOSTVER)
-BOOSTPROGRAMOPTIONSLIBS=-lboost_program_options-clang-darwin$(BOOSTCLANGVER)-mt-$(BOOSTVER)
-BOOSTTHREADLIBS=-lboost_thread-clang-darwin$(BOOSTCLANGVER)-mt-$(BOOSTVER) -lboost_system-clang-darwin$(BOOSTCLANGVER)-mt-$(BOOSTVER)
-BOOSTFILESYSTEMLIBS=-lboost_filesystem-clang-darwin$(BOOSTCLANGVER)-mt-$(BOOSTVER) -lboost_system-clang-darwin$(BOOSTCLANGVER)-mt-$(BOOSTVER)
-BOOSTDATETIMELIBS=-lboost_date_time-clang-darwin$(BOOSTCLANGVER)-mt-$(BOOSTVER)
+BOOSTCPPFLAGS=-DBOOST_ALL_DYN_LINK -DBOOST_MATH_NO_LONG_DOUBLE_MATH_FUNCTIONS
+BOOSTLOGLIBS=-lboost_log-clang-darwin$(BOOSTCLANGVER)-mt-x64-$(BOOSTVER)
+BOOSTLOGSETUPLIBS=-lboost_log_setup-clang-darwin$(BOOSTCLANGVER)-mt-x64-$(BOOSTVER)
+BOOSTREGEXLIBS=-lboost_regex-clang-darwin$(BOOSTCLANGVER)-mt-x64-$(BOOSTVER)
+BOOSTIOSTREAMSLIBS=-lboost_iostreams-clang-darwin$(BOOSTCLANGVER)-mt-x64-$(BOOSTVER)
+BOOSTPROGRAMOPTIONSLIBS=-lboost_program_options-clang-darwin$(BOOSTCLANGVER)-mt-x64-$(BOOSTVER)
+BOOSTTHREADLIBS=-lboost_thread-clang-darwin$(BOOSTCLANGVER)-mt-x64-$(BOOSTVER) -lboost_system-clang-darwin$(BOOSTCLANGVER)-mt-x64-$(BOOSTVER)
+BOOSTFILESYSTEMLIBS=-lboost_filesystem-clang-darwin$(BOOSTCLANGVER)-mt-x64-$(BOOSTVER) -lboost_system-clang-darwin$(BOOSTCLANGVER)-mt-x64-$(BOOSTVER)
+BOOSTDATETIMELIBS=-lboost_date_time-clang-darwin$(BOOSTCLANGVER)-mt-x64-$(BOOSTVER)
 RAPIDJSONINCLUDES=-isystem $(CPP_SRC_HOME)/3rd_party/rapidjson/include
 RAPIDJSONCPPFLAGS=-DRAPIDJSON_HAS_STDSTRING -DRAPIDJSON_SSE42
 EIGENCPPFLAGS=-DEIGEN_MPL2_ONLY
@@ -58,7 +67,6 @@ XMLLIBS=-lxml2
 ML_VERSION_NUM=$(shell cat $(CPP_SRC_HOME)/gradle.properties | grep '^elasticsearchVersion' | awk -F= '{ print $$2 }' | xargs echo | sed 's/-.*//')
 DYNAMICLIBLDFLAGS=-current_version $(ML_VERSION_NUM) -compatibility_version $(ML_VERSION_NUM) -dynamiclib -Wl,-dead_strip_dylibs $(COVERAGE) -Wl,-install_name,@rpath/$(notdir $(TARGET)) -L$(CPP_PLATFORM_HOME)/lib -Wl,-rpath,@loader_path/. -Wl,-headerpad_max_install_names
 CPPUNITLIBS=-lcppunit
-LOG4CXXLIBS=-llog4cxx
 ZLIBLIBS=-lz
 EXELDFLAGS=-bind_at_load -L$(CPP_PLATFORM_HOME)/lib $(COVERAGE) -Wl,-rpath,@loader_path/../lib -Wl,-headerpad_max_install_names
 UTLDFLAGS=$(EXELDFLAGS) -Wl,-rpath,$(CPP_PLATFORM_HOME)/lib

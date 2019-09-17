@@ -38,6 +38,7 @@ const char FINISHED_DATA_CONTROL_MESSAGE_FIELD_VALUE{'$'};
 // Result types
 const std::string ROW_RESULTS{"row_results"};
 const std::string PROGRESS_PERCENT{"progress_percent"};
+const std::string ANALYZER_STATE{"analyzer_state"};
 
 // Row result fields
 const std::string CHECKSUM{"checksum"};
@@ -45,8 +46,10 @@ const std::string RESULTS{"results"};
 }
 
 CDataFrameAnalyzer::CDataFrameAnalyzer(TDataFrameAnalysisSpecificationUPtr analysisSpecification,
-                                       TJsonOutputStreamWrapperUPtrSupplier outStreamSupplier)
-    : m_AnalysisSpecification{std::move(analysisSpecification)}, m_OutStreamSupplier{outStreamSupplier} {
+                                       TJsonOutputStreamWrapperUPtrSupplier resultsStreamSupplier,
+                                       TDataSearcherUPtrSupplier dataSearcher)
+    : m_AnalysisSpecification{std::move(analysisSpecification)},
+      m_ResultsStreamSupplier{std::move(resultsStreamSupplier)}, m_DataSearcher{std::move(dataSearcher)} {
 
     if (m_AnalysisSpecification != nullptr) {
         auto frameAndDirectory = m_AnalysisSpecification->makeDataFrame();
@@ -150,7 +153,7 @@ void CDataFrameAnalyzer::run() {
     // get called and the wrapped stream does its job to close the array.
 
     // TODO Revisit this can probably be core::CRapidJsonLineWriter.
-    auto outStream = m_OutStreamSupplier();
+    auto outStream = m_ResultsStreamSupplier();
     core::CRapidJsonConcurrentLineWriter outputWriter{*outStream};
 
     this->monitorProgress(*analysis, outputWriter);
@@ -311,16 +314,18 @@ void CDataFrameAnalyzer::addRowToDataFrame(const TStrVec& fieldValues) {
             return core::CFloatStorage{static_cast<double>(id)};
         }
 
-        double value;
-        if (core::CStringUtils::stringToTypeSilent(fieldValue, value) == false) {
-            ++m_BadValueCount;
+        // Use NaN to indicate missing or bad values in the data frame. This
+        // needs handling with care from an analysis perspective. If analyses
+        // can deal with missing values they need to treat NaNs as missing
+        // otherwise we must impute or exit with failure.
 
-            // TODO this is a can of worms we can deal with later.
-            // Use NaN to indicate missing in the data frame, but this needs
-            // handling with care from an analysis perspective. If analyses
-            // can deal with missing values they need to treat NaNs as missing
-            // otherwise we must impute or exit with failure.
-            return core::CFloatStorage{std::numeric_limits<float>::quiet_NaN()};
+        double value;
+        if (fieldValue.empty()) {
+            ++m_MissingValueCount;
+            return core::CFloatStorage{core::CDataFrame::valueOfMissing()};
+        } else if (core::CStringUtils::stringToTypeSilent(fieldValue, value) == false) {
+            ++m_BadValueCount;
+            return core::CFloatStorage{core::CDataFrame::valueOfMissing()};
         }
 
         // Tuncation is very unlikely since the values will typically be
@@ -357,6 +362,7 @@ void CDataFrameAnalyzer::monitorProgress(const CDataFrameAnalysisRunner& analysi
             this->writeProgress(progress, writer);
         }
     }
+    this->writeProgress(100, writer);
 }
 
 void CDataFrameAnalyzer::writeProgress(int progress,

@@ -305,7 +305,7 @@ bool CQuantileSketch::quantile(double percentage, double& result) const {
         const_cast<CQuantileSketch*>(this)->reduce();
     }
     if (percentage < 0.0 || percentage > 100.0) {
-        LOG_ERROR(<< "Invalid percentile " << percentage)
+        LOG_ERROR(<< "Invalid percentile " << percentage);
         return false;
     }
 

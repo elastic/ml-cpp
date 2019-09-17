@@ -3,17 +3,13 @@
  * or more contributor license agreements. Licensed under the Elastic License;
  * you may not use this file except in compliance with the Elastic License.
  */
-#include <core/CPOpen.h>
+
+#include <maths/CChecksum.h>
 
 namespace ml {
-namespace core {
-
-FILE* CPOpen::pOpen(const char* command, const char* mode) {
-    return ::popen(command, mode);
-}
-
-int CPOpen::pClose(FILE* stream) {
-    return ::pclose(stream);
+namespace maths {
+namespace checksum_detail {
+const std::hash<std::vector<bool>> CChecksumImpl<ContainerChecksum>::ms_VectorBoolHasher{};
 }
 }
 }

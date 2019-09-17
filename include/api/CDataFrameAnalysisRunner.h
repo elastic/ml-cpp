@@ -8,6 +8,7 @@
 #define INCLUDED_ml_api_CDataFrameAnalysisRunner_h
 
 #include <core/CFastMutex.h>
+#include <core/CStatePersistInserter.h>
 
 #include <api/ImportExport.h>
 
@@ -76,9 +77,9 @@ public:
     //! number of rows per subset.
     void computeAndSaveExecutionStrategy();
 
-    //! Estimates memory usage in two cases: one partition (the whole data frame
-    //! fits in main memory) and maximum tolerable number of partitions (only
-    //! one partition needs to be loaded to main memory).
+    //! Estimates memory usage in two cases:
+    //!   1. disk is not used (the whole data frame fits in main memory)
+    //!   2. disk is used (only one partition needs to be loaded to main memory)
     void estimateMemoryUsage(CMemoryUsageEstimationResultJsonWriter& writer) const;
 
     //! Check if the data frame for this analysis should use in or out of core
@@ -134,11 +135,18 @@ public:
     double progress() const;
 
 protected:
+    using TStatePersister =
+        std::function<void(std::function<void(core::CStatePersistInserter&)>)>;
+
+protected:
     const CDataFrameAnalysisSpecification& spec() const;
     TProgressRecorder progressRecorder();
     std::size_t estimateMemoryUsage(std::size_t totalNumberRows,
                                     std::size_t partitionNumberRows,
                                     std::size_t numberColumns) const;
+
+    //! \return Callback function for writing state using given persist inserter
+    TStatePersister statePersister();
 
 private:
     virtual void runImpl(const TStrVec& featureNames, core::CDataFrame& frame) = 0;

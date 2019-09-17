@@ -17,38 +17,75 @@
 
 #include <cstddef>
 #include <memory>
-#include <thread>
 
 namespace ml {
 namespace maths {
+namespace boosted_tree_detail {
+class MATHS_EXPORT CArgMinLossImpl {
+public:
+    virtual ~CArgMinLossImpl() = default;
+
+    virtual std::unique_ptr<CArgMinLossImpl> clone() const = 0;
+    virtual void add(double prediction, double actual) = 0;
+    virtual void merge(const CArgMinLossImpl& other) = 0;
+    virtual double value() const = 0;
+};
+
+//! \brief Finds the value to add to a set of predictions which minimises the MSE.
+class MATHS_EXPORT CArgMinMseImpl final : public CArgMinLossImpl {
+public:
+    std::unique_ptr<CArgMinLossImpl> clone() const override;
+    void add(double prediction, double actual) override;
+    void merge(const CArgMinLossImpl& other) override;
+    double value() const override;
+
+private:
+    using TMeanAccumulator = CBasicStatistics::SSampleMean<double>::TAccumulator;
+
+private:
+    TMeanAccumulator m_MeanError;
+};
+}
+
 namespace boosted_tree {
+
 //! \brief Computes the leaf value which minimizes the loss function.
 class MATHS_EXPORT CArgMinLoss {
 public:
-    virtual ~CArgMinLoss() = default;
+    CArgMinLoss(const CArgMinLoss& other);
+    CArgMinLoss(CArgMinLoss&& other) = default;
+
+    CArgMinLoss& operator=(const CArgMinLoss& other);
+    CArgMinLoss& operator=(CArgMinLoss&& other) = default;
 
     //! Update with a point prediction and actual value.
     void add(double prediction, double actual);
 
-    //! Returns the value at the node which minimises the loss for the
-    //! at the predictions added.
+    //! Get the minimiser over the predictions and actual values added to both
+    //! this and \p other.
+    void merge(CArgMinLoss& other);
+
+    //! Returns the value to add to the predictions which minimises the loss
+    //! with respect to the actuals.
     //!
     //! Formally, returns \f$x^* = arg\min_x\{\sum_i{L(p_i + x, a_i)}\}\f$
     //! for predictions and actuals \f$p_i\f$ and \f$a_i\f$, respectively.
-    virtual double value() const = 0;
+    double value() const;
 
 private:
-    virtual void addImpl(double prediction, double actual) = 0;
+    using TArgMinLossImplUPtr = std::unique_ptr<boosted_tree_detail::CArgMinLossImpl>;
 
 private:
-    std::mutex m_Mutex;
+    CArgMinLoss(const boosted_tree_detail::CArgMinLossImpl& impl);
+
+private:
+    TArgMinLossImplUPtr m_Impl;
+
+    friend class CLoss;
 };
 
 //! \brief Defines the loss function for the regression problem.
 class MATHS_EXPORT CLoss {
-public:
-    using TArgMinLossUPtr = std::unique_ptr<CArgMinLoss>;
-
 public:
     virtual ~CLoss() = default;
     //! The value of the loss function.
@@ -57,25 +94,15 @@ public:
     virtual double gradient(double prediction, double actual) const = 0;
     //! The curvature of the loss function.
     virtual double curvature(double prediction, double actual) const = 0;
+    //! Returns true if the loss curvature is constant.
+    virtual bool isCurvatureConstant() const = 0;
     //! Get an object which computes the leaf value that minimises loss.
-    virtual TArgMinLossUPtr minimizer() const = 0;
+    virtual CArgMinLoss minimizer() const = 0;
     //! Get the name of the loss function
     virtual const std::string& name() const = 0;
-};
 
-//! \brief Finds the leaf node value which minimises the MSE.
-class MATHS_EXPORT CArgMinMse final : public CArgMinLoss {
-public:
-    double value() const override;
-
-private:
-    using TMeanAccumulator = CBasicStatistics::SSampleMean<double>::TAccumulator;
-
-private:
-    void addImpl(double prediction, double actual) override;
-
-private:
-    TMeanAccumulator m_MeanError;
+protected:
+    CArgMinLoss makeMinimizer(const boosted_tree_detail::CArgMinLossImpl& impl) const;
 };
 
 //! \brief The MSE loss function.
@@ -84,7 +111,8 @@ public:
     double value(double prediction, double actual) const override;
     double gradient(double prediction, double actual) const override;
     double curvature(double prediction, double actual) const override;
-    TArgMinLossUPtr minimizer() const override;
+    bool isCurvatureConstant() const override;
+    CArgMinLoss minimizer() const override;
     const std::string& name() const override;
 
 public:
@@ -99,31 +127,28 @@ class CBoostedTreeImpl;
 //! DESCRIPTION:\n
 //! This is strongly based on xgboost. We deviate in two important respect: we have
 //! hyperparameters which control the chance of selecting a feature in the feature
-//! bag for a tree, we have different handling of categorical fields.
+//! bag for a tree, we have automatic handling of categorical fields, we roll in a
+//! hyperparameter optimisation loop based on Bayesian Optimisation seeded with a
+//! random search and we use an increasing learn rate training a single forest.
 //!
 //! The probability of selecting a feature behave like a feature weight, allowing us
 //! to:
-//!   1. Incorporate some estimate of strength of relationship between a feature and
+//!   1. Incorporate an estimate of strength of relationship between a regressor and
 //!      the target variable upfront,
 //!   2. Use optimisation techniques suited for smooth cost functions to fine tune
-//!      the features used during training.
-//! All in all this gives us improved resilience to nuisance variables and allows
+//!      the regressors the tree will focus on during training.
+//! All in all this gives us improved resilience to nuisance regressors and allows
 //! us to perform feature selection by imposing a hard cutoff on the minimum probability
 //! of a feature we will accept in the final model.
 //!
 //! The original xgboost paper doesn't explicitly deal with categorical data, it assumes
 //! there is a well ordering on each feature and looks for binary splits subject to this
-//! ordering. This leaves two choices for categorical fields a) use some predefined order
-//! knowing that only splits of the form \f$\{\{1,2,...,i\},\{i+1,i+2,...,m\}\}\f$ will
-//! be considered or b) use one-hot-encoding knowing splits of the form \f$\{\{0\},\{1\}\}\f$
-//! will then be considered for each category. The first choice will rule out good splits
-//! because they aren't consistent with the ordering and the second choice will behave
-//! poorly for fields with high cardinality because it will be impossible to accurately
-//! estimate the change in loss corresponding to the splits.
-// TODO
+//! ordering. We use a mixed strategy which considers one-hot, target mean and frequency
+//! encoding. We choose the "best" strategy based on simultaneously maximising measures
+//! of relevancy and redundancy in the feature set as a whole. We use the MICe statistic
+//! proposed by Reshef for this purpose. See CDataFrameCategoryEncoder for more details.
 class MATHS_EXPORT CBoostedTree final : public CDataFrameRegressionModel {
 public:
-    using TProgressCallback = std::function<void(double)>;
     using TRowRef = core::CDataFrame::TRowRef;
     using TLossFunctionUPtr = std::unique_ptr<boosted_tree::CLoss>;
     using TDataFramePtr = core::CDataFrame*;
@@ -132,12 +157,12 @@ public:
     ~CBoostedTree() override;
 
     //! Train on the examples in the data frame supplied to the constructor.
-    void train(TProgressCallback recordProgress = noop) override;
+    void train() override;
 
     //! Write the predictions to the data frame supplied to the constructor.
     //!
     //! \warning This can only be called after train.
-    void predict(TProgressCallback recordProgress = noop) const override;
+    void predict() const override;
 
     //! Write the trained model to \p writer.
     //!
@@ -145,7 +170,10 @@ public:
     void write(core::CRapidJsonConcurrentLineWriter& writer) const override;
 
     //! Get the feature weights the model has chosen.
-    TDoubleVec featureWeights() const override;
+    const TDoubleVec& featureWeights() const override;
+
+    //! Get the column containing the dependent variable.
+    std::size_t columnHoldingDependentVariable() const override;
 
     //! Get the column containing the model's prediction for the dependent variable.
     std::size_t columnHoldingPrediction(std::size_t numberColumns) const override;
@@ -160,7 +188,11 @@ private:
     using TImplUPtr = std::unique_ptr<CBoostedTreeImpl>;
 
 private:
-    CBoostedTree(core::CDataFrame& frame, TImplUPtr&& impl);
+    CBoostedTree(core::CDataFrame& frame,
+                 TProgressCallback recordProgress,
+                 TMemoryUsageCallback recordMemoryUsage,
+                 TTrainingStateCallback recordTrainingState,
+                 TImplUPtr&& impl);
 
 private:
     TImplUPtr m_Impl;

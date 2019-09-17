@@ -334,7 +334,7 @@ int main(int argc, char** argv) {
 
     LOG_INFO(<< "Written state files:");
     for (const auto& stateFile : persistedStateFiles) {
-        LOG_INFO(<< "\t" << stateFile)
+        LOG_INFO(<< "\t" << stateFile);
     }
 
     return EXIT_SUCCESS;

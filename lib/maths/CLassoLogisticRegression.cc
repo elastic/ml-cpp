@@ -375,7 +375,7 @@ bool CLogisticRegressionModel::operator()(const TDoubleVec& x, double& probabili
     std::size_t n = m_Beta.size();
     if (x.size() <= m_Beta[n - 1].first) {
         LOG_ERROR(<< "Invalid feature vector |x| = " << x.size()
-                  << ", D = " << m_Beta[n - 1].first + 1)
+                  << ", D = " << m_Beta[n - 1].first + 1);
     }
     double r = -m_Beta0;
     for (std::size_t i = 0u; i < m_Beta.size(); ++i) {

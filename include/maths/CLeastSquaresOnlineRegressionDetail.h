@@ -100,8 +100,9 @@ bool CLeastSquaresOnlineRegression<N, T>::parameters(std::size_t n,
             return true;
         }
         case N: {
-            Eigen::Matrix<double, N, N> x;
-            Eigen::Matrix<double, N, 1> y;
+            constexpr int N_{static_cast<int>(N)};
+            Eigen::Matrix<double, N_, N_> x;
+            Eigen::Matrix<double, N_, 1> y;
             if (this->parameters(N, x, y, maxCondition, result)) {
                 return true;
             }
@@ -143,7 +144,8 @@ bool CLeastSquaresOnlineRegression<N, T>::covariances(std::size_t n,
             return true;
         }
         case N: {
-            Eigen::Matrix<double, N, N> x;
+            constexpr int N_{static_cast<int>(N)};
+            Eigen::Matrix<double, N_, N_> x;
             if (!this->covariances(N, x, variance, maxCondition, result)) {
                 continue;
             }

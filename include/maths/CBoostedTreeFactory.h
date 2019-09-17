@@ -12,6 +12,8 @@
 #include <maths/CBoostedTree.h>
 #include <maths/ImportExport.h>
 
+#include <boost/optional.hpp>
+
 #include <memory>
 #include <utility>
 #include <vector>
@@ -30,15 +32,23 @@ class CBoostedTreeImpl;
 class MATHS_EXPORT CBoostedTreeFactory final {
 public:
     using TBoostedTreeUPtr = std::unique_ptr<CBoostedTree>;
+    using TProgressCallback = CBoostedTree::TProgressCallback;
+    using TMemoryUsageCallback = CBoostedTree::TMemoryUsageCallback;
+    using TTrainingStateCallback = CBoostedTree::TTrainingStateCallback;
+    using TLossFunctionUPtr = CBoostedTree::TLossFunctionUPtr;
 
 public:
     //! Construct a boosted tree object from parameters.
     static CBoostedTreeFactory constructFromParameters(std::size_t numberThreads,
-                                                       CBoostedTree::TLossFunctionUPtr loss);
+                                                       TLossFunctionUPtr loss);
 
     //! Construct a boosted tree object from its serialized version.
-    static TBoostedTreeUPtr constructFromString(std::stringstream& jsonStringStream,
-                                                core::CDataFrame& frame);
+    static TBoostedTreeUPtr
+    constructFromString(std::istream& jsonStringStream,
+                        core::CDataFrame& frame,
+                        TProgressCallback recordProgress = noopRecordProgress,
+                        TMemoryUsageCallback recordMemoryUsage = noopRecordMemoryUsage,
+                        TTrainingStateCallback recordTrainingState = noopRecordTrainingState);
 
     ~CBoostedTreeFactory();
     CBoostedTreeFactory(CBoostedTreeFactory&) = delete;
@@ -46,6 +56,8 @@ public:
     CBoostedTreeFactory(CBoostedTreeFactory&&);
     CBoostedTreeFactory& operator=(CBoostedTreeFactory&&);
 
+    //! Set the minimum fraction with a category value to one-hot encode.
+    CBoostedTreeFactory& minimumFrequencyToOneHotEncode(double frequency);
     //! Set the number of folds to use for estimating the generalisation error.
     CBoostedTreeFactory& numberFolds(std::size_t numberFolds);
     //! Set the lambda regularisation parameter.
@@ -61,10 +73,16 @@ public:
     //! Set the maximum number of optimisation rounds we'll use for hyperparameter
     //! optimisation per parameter.
     CBoostedTreeFactory& maximumOptimisationRoundsPerHyperparameter(std::size_t rounds);
+    //! Set the number of restarts to use in global probing for Bayesian Optimisation.
+    CBoostedTreeFactory& bayesianOptimisationRestarts(std::size_t restarts);
     //! Set the number of training examples we need per feature we'll include.
     CBoostedTreeFactory& rowsPerFeature(std::size_t rowsPerFeature);
     //! Set the callback function for progress monitoring.
-    CBoostedTreeFactory& progressCallback(CBoostedTree::TProgressCallback callback);
+    CBoostedTreeFactory& progressCallback(TProgressCallback callback);
+    //! Set the callback function for memory monitoring.
+    CBoostedTreeFactory& memoryUsageCallback(TMemoryUsageCallback callback);
+    //! Set the callback function for training state recording.
+    CBoostedTreeFactory& trainingStateCallback(TTrainingStateCallback callback);
 
     //! Estimate the maximum booking memory that training the boosted tree on a data
     //! frame with \p numberRows row and \p numberColumns columns will use.
@@ -75,6 +93,8 @@ public:
     TBoostedTreeUPtr buildFor(core::CDataFrame& frame, std::size_t dependentVariable);
 
 private:
+    using TOptionalDouble = boost::optional<double>;
+    using TOptionalSize = boost::optional<std::size_t>;
     using TPackedBitVectorVec = std::vector<core::CPackedBitVector>;
     using TBoostedTreeImplUPtr = std::unique_ptr<CBoostedTreeImpl>;
 
@@ -83,7 +103,7 @@ private:
     static const std::size_t MAXIMUM_NUMBER_TREES;
 
 private:
-    CBoostedTreeFactory(std::size_t numberThreads, CBoostedTree::TLossFunctionUPtr loss);
+    CBoostedTreeFactory(std::size_t numberThreads, TLossFunctionUPtr loss);
 
     //! Compute the row masks for the missing values for each feature.
     void initializeMissingFeatureMasks(const core::CDataFrame& frame) const;
@@ -91,14 +111,20 @@ private:
     //! Get the (train, test) row masks for performing cross validation.
     std::pair<TPackedBitVectorVec, TPackedBitVectorVec> crossValidationRowMasks() const;
 
+    //! Encode categorical fields and at the same time select the features to use
+    //! as regressors.
+    void selectFeaturesAndEncodeCategories(const core::CDataFrame& frame) const;
+
+    //! Determine the encoded feature types.
+    void determineFeatureDataTypes(const core::CDataFrame& frame) const;
+
     //! Initialize the regressors sample distribution.
-    bool initializeFeatureSampleDistribution(const core::CDataFrame& frame) const;
+    bool initializeFeatureSampleDistribution() const;
 
     //! Read overrides for hyperparameters and if necessary estimate the initial
     //! values for \f$\lambda\f$ and \f$\gamma\f$ which match the gain from an
     //! overfit tree.
-    void initializeHyperparameters(core::CDataFrame& frame,
-                                   CBoostedTree::TProgressCallback recordProgress) const;
+    void initializeHyperparameters(core::CDataFrame& frame) const;
 
     //! Initialize the state for hyperparameter optimisation.
     void initializeHyperparameterOptimisation() const;
@@ -106,9 +132,17 @@ private:
     //! Get the number of hyperparameter tuning rounds to use.
     std::size_t numberHyperparameterTuningRounds() const;
 
+    static void noopRecordProgress(double);
+    static void noopRecordMemoryUsage(std::int64_t);
+    static void noopRecordTrainingState(CDataFrameRegressionModel::TPersistFunc);
+
 private:
+    TOptionalDouble m_MinimumFrequencyToOneHotEncode;
+    TOptionalSize m_BayesianOptimisationRestarts;
     TBoostedTreeImplUPtr m_TreeImpl;
-    CBoostedTree::TProgressCallback m_ProgressCallback;
+    TProgressCallback m_RecordProgress = noopRecordProgress;
+    TMemoryUsageCallback m_RecordMemoryUsage = noopRecordMemoryUsage;
+    TTrainingStateCallback m_RecordTrainingState = noopRecordTrainingState;
 };
 }
 }

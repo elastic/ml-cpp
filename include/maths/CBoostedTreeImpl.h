@@ -10,15 +10,17 @@
 #include <core/CContainerPrinter.h>
 #include <core/CDataFrame.h>
 #include <core/CLogger.h>
+#include <core/CMemory.h>
 #include <core/CPackedBitVector.h>
 #include <core/CStatePersistInserter.h>
 #include <core/CStateRestoreTraverser.h>
 
 #include <maths/CBasicStatistics.h>
-#include <maths/CBayesianOptimisation.h>
 #include <maths/CBoostedTree.h>
+#include <maths/CDataFrameCategoryEncoder.h>
 #include <maths/CDataFrameUtils.h>
 #include <maths/CLinearAlgebraEigen.h>
+#include <maths/CPRNG.h>
 #include <maths/CTools.h>
 #include <maths/ImportExport.h>
 
@@ -34,21 +36,23 @@
 
 namespace ml {
 namespace maths {
+class CBayesianOptimisation;
+
 namespace boosted_tree_detail {
 inline std::size_t predictionColumn(std::size_t numberColumns) {
     return numberColumns - 3;
 }
-
-inline std::size_t numberFeatures(const core::CDataFrame& frame) {
-    return frame.numberColumns() - 3;
-}
 }
 
+//! \brief Implementation of CBoostedTree.
 class MATHS_EXPORT CBoostedTreeImpl final {
 public:
     using TMeanAccumulator = CBasicStatistics::SSampleMean<double>::TAccumulator;
     using TMeanVarAccumulator = CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
     using TBayesinOptimizationUPtr = std::unique_ptr<maths::CBayesianOptimisation>;
+    using TProgressCallback = CBoostedTree::TProgressCallback;
+    using TMemoryUsageCallback = CBoostedTree::TMemoryUsageCallback;
+    using TTrainingStateCallback = CBoostedTree::TTrainingStateCallback;
     using TDoubleVec = std::vector<double>;
 
 public:
@@ -57,23 +61,33 @@ public:
 public:
     CBoostedTreeImpl(std::size_t numberThreads, CBoostedTree::TLossFunctionUPtr loss);
 
+    ~CBoostedTreeImpl();
+
+    CBoostedTreeImpl& operator=(const CBoostedTreeImpl&) = delete;
+    CBoostedTreeImpl& operator=(CBoostedTreeImpl&&);
+
     //! Train the model on the values in \p frame.
-    void train(core::CDataFrame& frame, CBoostedTree::TProgressCallback recordProgress);
+    void train(core::CDataFrame& frame,
+               const TProgressCallback& recordProgress,
+               const TMemoryUsageCallback& recordMemoryUsage,
+               const TTrainingStateCallback& recordTrainStateCallback);
 
     //! Write the predictions of the best trained model to \p frame.
     //!
     //! \note Must be called only if a trained model is available.
-    void predict(core::CDataFrame& frame,
-                 CBoostedTree::TProgressCallback /*recordProgress*/) const;
+    void predict(core::CDataFrame& frame, const TProgressCallback& /*recordProgress*/) const;
 
     //! Write this model to \p writer.
     void write(core::CRapidJsonConcurrentLineWriter& /*writer*/) const;
 
+    //! Get the feature sample probabilities.
+    const TDoubleVec& featureWeights() const;
+
+    //! Get the column containing the dependent variable.
+    std::size_t columnHoldingDependentVariable() const;
+
     //! Get the number of columns training the model will add to the data frame.
     static std::size_t numberExtraColumnsForTrain();
-
-    //! Get the feature sample probabilities.
-    TDoubleVec featureWeights() const;
 
     //! Estimate the maximum booking memory that training the boosted tree on a data
     //! frame with \p numberRows row and \p numberColumns columns will use.
@@ -85,6 +99,9 @@ public:
     //! Populate the object from serialized data.
     bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
 
+    //! Get the memory used by this object.
+    std::size_t memoryUsage() const;
+
 private:
     using TDoubleDoublePrVec = std::vector<std::pair<double, double>>;
     using TOptionalDouble = boost::optional<double>;
@@ -95,8 +112,9 @@ private:
     using TSizeDoublePr = std::pair<std::size_t, double>;
     using TDoubleDoubleDoubleTr = std::tuple<double, double, double>;
     using TRowItr = core::CDataFrame::TRowItr;
-    using TRowRef = core::CDataFrame::TRowRef;
     using TPackedBitVectorVec = std::vector<core::CPackedBitVector>;
+    using TDataFrameCategoryEncoderUPtr = std::unique_ptr<CDataFrameCategoryEncoder>;
+    using TDataTypeVec = CDataFrameUtils::TDataTypeVec;
 
     class CNode;
     using TNodeVec = std::vector<CNode>;
@@ -132,12 +150,16 @@ private:
     //! node bit masks from the node's bit mask.
     class CNode final {
     public:
+        //! See core::CMemory.
+        static bool dynamicSizeAlwaysZero() { return true; }
+
         //! Check if this is a leaf node.
         bool isLeaf() const { return m_LeftChild < 0; }
 
         //! Get the leaf index for \p row.
-        std::size_t
-        leafIndex(const TRowRef& row, const TNodeVec& tree, std::int32_t index = 0) const {
+        std::size_t leafIndex(const CEncodedDataFrameRowRef& row,
+                              const TNodeVec& tree,
+                              std::int32_t index = 0) const {
             if (this->isLeaf()) {
                 return index;
             }
@@ -150,7 +172,7 @@ private:
         }
 
         //! Get the value predicted by \p tree for the feature vector \p row.
-        double value(const TRowRef& row, const TNodeVec& tree) const {
+        double value(const CEncodedDataFrameRowRef& row, const TNodeVec& tree) const {
             return tree[this->leafIndex(row, tree)].m_NodeValue;
         }
 
@@ -177,6 +199,7 @@ private:
         //! Get the row masks of the left and right children of this node.
         auto rowMasks(std::size_t numberThreads,
                       const core::CDataFrame& frame,
+                      const CDataFrameCategoryEncoder& encoder,
                       core::CPackedBitVector rowMask) const {
 
             LOG_TRACE(<< "Splitting feature '" << m_SplitFeature << "' @ " << m_SplitValue);
@@ -186,29 +209,41 @@ private:
             auto result = frame.readRows(
                 numberThreads, 0, frame.numberRows(),
                 core::bindRetrievableState(
-                    [&](core::CPackedBitVector& leftRowMask, TRowItr beginRows, TRowItr endRows) {
+                    [&](auto& state, TRowItr beginRows, TRowItr endRows) {
+                        core::CPackedBitVector& leftRowMask{std::get<0>(state)};
+                        std::size_t& leftCount{std::get<1>(state)};
+                        std::size_t& rightCount{std::get<2>(state)};
                         for (auto row = beginRows; row != endRows; ++row) {
                             std::size_t index{row->index()};
-                            double value{(*row)[m_SplitFeature]};
+                            double value{encoder.encode(*row)[m_SplitFeature]};
                             bool missing{CDataFrameUtils::isMissing(value)};
                             if ((missing && m_AssignMissingToLeft) ||
                                 (missing == false && value < m_SplitValue)) {
                                 leftRowMask.extend(false, index - leftRowMask.size());
                                 leftRowMask.extend(true);
+                                ++leftCount;
+                            } else {
+                                ++rightCount;
                             }
                         }
                     },
-                    core::CPackedBitVector{}),
+                    std::make_tuple(core::CPackedBitVector{}, std::size_t{0}, std::size_t{0})),
                 &rowMask);
+            auto& masks = result.first;
 
-            for (auto& mask : result.first) {
-                mask.s_FunctionState.extend(
-                    false, rowMask.size() - mask.s_FunctionState.size());
+            for (auto& mask_ : masks) {
+                auto& mask = std::get<0>(mask_.s_FunctionState);
+                mask.extend(false, rowMask.size() - mask.size());
             }
 
-            core::CPackedBitVector leftRowMask{std::move(result.first[0].s_FunctionState)};
-            for (std::size_t i = 1; i < result.first.size(); ++i) {
-                leftRowMask |= result.first[i].s_FunctionState;
+            core::CPackedBitVector leftRowMask;
+            std::size_t leftCount;
+            std::size_t rightCount;
+            std::tie(leftRowMask, leftCount, rightCount) = std::move(masks[0].s_FunctionState);
+            for (std::size_t i = 1; i < masks.size(); ++i) {
+                leftRowMask |= std::get<0>(masks[i].s_FunctionState);
+                leftCount += std::get<1>(masks[i].s_FunctionState);
+                rightCount += std::get<2>(masks[i].s_FunctionState);
             }
             LOG_TRACE(<< "# rows in left node = " << leftRowMask.manhattan());
             LOG_TRACE(<< "left row mask = " << leftRowMask);
@@ -218,7 +253,8 @@ private:
             LOG_TRACE(<< "# rows in right node = " << rightRowMask.manhattan());
             LOG_TRACE(<< "left row mask = " << rightRowMask);
 
-            return std::make_pair(std::move(leftRowMask), std::move(rightRowMask));
+            return std::make_tuple(std::move(leftRowMask), std::move(rightRowMask),
+                                   leftCount < rightCount);
         }
 
         //! Get a human readable description of this tree.
@@ -268,6 +304,7 @@ private:
         CLeafNodeStatistics(std::size_t id,
                             std::size_t numberThreads,
                             const core::CDataFrame& frame,
+                            const CDataFrameCategoryEncoder& encoder,
                             double lambda,
                             double gamma,
                             const TDoubleVecVec& candidateSplits,
@@ -280,7 +317,7 @@ private:
             LOG_TRACE(<< "row mask = " << m_RowMask);
             LOG_TRACE(<< "feature bag = " << core::CContainerPrinter::print(m_FeatureBag));
 
-            this->computeAggregateLossDerivatives(numberThreads, frame);
+            this->computeAggregateLossDerivatives(numberThreads, frame, encoder);
         }
 
         //! This should only called by split but is public so it's accessible to make_shared.
@@ -337,17 +374,19 @@ private:
                    std::size_t rightChildId,
                    std::size_t numberThreads,
                    const core::CDataFrame& frame,
+                   const CDataFrameCategoryEncoder& encoder,
                    double lambda,
                    double gamma,
                    const TDoubleVecVec& candidateSplits,
                    TSizeVec featureBag,
                    core::CPackedBitVector leftChildRowMask,
-                   core::CPackedBitVector rightChildRowMask) {
+                   core::CPackedBitVector rightChildRowMask,
+                   bool leftChildHasFewerRows) {
 
-            if (leftChildRowMask.manhattan() < rightChildRowMask.manhattan()) {
+            if (leftChildHasFewerRows) {
                 auto leftChild = std::make_shared<CLeafNodeStatistics>(
-                    leftChildId, numberThreads, frame, lambda, gamma,
-                    candidateSplits, featureBag, std::move(leftChildRowMask));
+                    leftChildId, numberThreads, frame, encoder, lambda, gamma, candidateSplits,
+                    std::move(featureBag), std::move(leftChildRowMask));
                 auto rightChild = std::make_shared<CLeafNodeStatistics>(
                     rightChildId, *this, *leftChild, std::move(rightChildRowMask));
 
@@ -355,8 +394,8 @@ private:
             }
 
             auto rightChild = std::make_shared<CLeafNodeStatistics>(
-                rightChildId, numberThreads, frame, lambda, gamma,
-                candidateSplits, featureBag, std::move(rightChildRowMask));
+                rightChildId, numberThreads, frame, encoder, lambda, gamma,
+                candidateSplits, std::move(featureBag), std::move(rightChildRowMask));
             auto leftChild = std::make_shared<CLeafNodeStatistics>(
                 leftChildId, *this, *rightChild, std::move(leftChildRowMask));
 
@@ -389,17 +428,33 @@ private:
         //! Get the row mask for this leaf node.
         core::CPackedBitVector& rowMask() { return m_RowMask; }
 
+        //! Get the memory used by this object.
+        std::size_t memoryUsage() const {
+            std::size_t mem{core::CMemory::dynamicSize(m_FeatureBag)};
+            mem += core::CMemory::dynamicSize(m_RowMask);
+            mem += core::CMemory::dynamicSize(m_Gradients);
+            mem += core::CMemory::dynamicSize(m_Curvatures);
+            mem += core::CMemory::dynamicSize(m_MissingGradients);
+            mem += core::CMemory::dynamicSize(m_MissingCurvatures);
+            return mem;
+        }
+
         //! Estimate maximum leaf statistics bookkeeping memory for training
         //! boosted trees on data frames with \p numberRows rows, \p numberCols columns
         //! with specified settings for \p featureBagFraction and \p numberSplitsPerFeature
-        static size_t estimateMemoryUsage(std::size_t numberRows,
-                                          std::size_t numberCols,
-                                          double featureBagFraction,
-                                          std::size_t numberSplitsPerFeature) {
+        static std::size_t estimateMemoryUsage(std::size_t numberRows,
+                                               std::size_t numberCols,
+                                               double featureBagFraction,
+                                               std::size_t numberSplitsPerFeature) {
             std::size_t featureBagSize{
-                static_cast<std::size_t>(ceil(featureBagFraction) * (numberCols - 1)) *
+                static_cast<std::size_t>(std::ceil(
+                    featureBagFraction * static_cast<double>(numberCols - 1))) *
                 sizeof(std::size_t)};
-            std::size_t rowMaskSize{numberRows / 32};
+            // We will typically get the close to the best compression for most of the
+            // leaves when the set of splits becomes large, corresponding to the worst
+            // case for memory usage. This is because the rows will be spread over many
+            // rows so the masks will mainly contain 0 bits in this case.
+            std::size_t rowMaskSize{numberRows / PACKED_BIT_VECTOR_MAXIMUM_ROWS_PER_BYTE};
             std::size_t gradientsSize{(numberCols - 1) *
                                       numberSplitsPerFeature * sizeof(double)};
             std::size_t curvatureSize{gradientsSize};
@@ -449,6 +504,23 @@ private:
                 }
             }
 
+            void merge(const SDerivatives& other) {
+                for (std::size_t i = 0; i < s_Gradients.size(); ++i) {
+                    for (std::size_t j = 0; j < s_Gradients[i].size(); ++j) {
+                        s_Gradients[i][j] += other.s_Gradients[i][j];
+                        s_Curvatures[i][j] += other.s_Curvatures[i][j];
+                    }
+                    s_MissingGradients[i] += other.s_MissingGradients[i];
+                    s_MissingCurvatures[i] += other.s_MissingCurvatures[i];
+                }
+            }
+
+            auto move() {
+                return std::make_tuple(std::move(s_Gradients), std::move(s_Curvatures),
+                                       std::move(s_MissingGradients),
+                                       std::move(s_MissingCurvatures));
+            }
+
             TDoubleVecVec s_Gradients;
             TDoubleVecVec s_Curvatures;
             TDoubleVec s_MissingGradients;
@@ -457,38 +529,27 @@ private:
 
     private:
         void computeAggregateLossDerivatives(std::size_t numberThreads,
-                                             const core::CDataFrame& frame) {
+                                             const core::CDataFrame& frame,
+                                             const CDataFrameCategoryEncoder& encoder) {
 
             auto result = frame.readRows(
                 numberThreads, 0, frame.numberRows(),
                 core::bindRetrievableState(
-                    [&](SDerivatives& state, TRowItr beginRows, TRowItr endRows) {
+                    [&](SDerivatives& derivatives, TRowItr beginRows, TRowItr endRows) {
                         for (auto row = beginRows; row != endRows; ++row) {
-                            this->addRowDerivatives(*row, state);
+                            this->addRowDerivatives(encoder.encode(*row), derivatives);
                         }
                     },
                     SDerivatives{m_CandidateSplits}),
                 &m_RowMask);
 
-            auto& results = result.first;
-
-            m_Gradients = std::move(results[0].s_FunctionState.s_Gradients);
-            m_Curvatures = std::move(results[0].s_FunctionState.s_Curvatures);
-            m_MissingGradients = std::move(results[0].s_FunctionState.s_MissingGradients);
-            m_MissingCurvatures = std::move(results[0].s_FunctionState.s_MissingCurvatures);
-
-            for (std::size_t k = 1; k < results.size(); ++k) {
-                const auto& derivatives = results[k].s_FunctionState;
-                for (std::size_t i = 0; i < m_CandidateSplits.size(); ++i) {
-                    std::size_t numberSplits{m_CandidateSplits[i].size() + 1};
-                    for (std::size_t j = 0; j < numberSplits; ++j) {
-                        m_Gradients[i][j] += derivatives.s_Gradients[i][j];
-                        m_Curvatures[i][j] += derivatives.s_Curvatures[i][j];
-                    }
-                    m_MissingGradients[i] += derivatives.s_MissingGradients[i];
-                    m_MissingCurvatures[i] += derivatives.s_MissingCurvatures[i];
-                }
+            SDerivatives derivatives{std::move(result.first[0].s_FunctionState)};
+            for (std::size_t i = 1; i < result.first.size(); ++i) {
+                derivatives.merge(result.first[i].s_FunctionState);
             }
+
+            std::tie(m_Gradients, m_Curvatures, m_MissingGradients,
+                     m_MissingCurvatures) = derivatives.move();
 
             LOG_TRACE(<< "gradients = " << core::CContainerPrinter::print(m_Gradients));
             LOG_TRACE(<< "curvatures = " << core::CContainerPrinter::print(m_Curvatures));
@@ -498,7 +559,8 @@ private:
                       << core::CContainerPrinter::print(m_MissingCurvatures));
         }
 
-        void addRowDerivatives(const TRowRef& row, SDerivatives& derivatives) const;
+        void addRowDerivatives(const CEncodedDataFrameRowRef& row,
+                               SDerivatives& derivatives) const;
 
         const SSplitStatistics& bestSplitStatistics() const {
             if (m_BestSplit == boost::none) {
@@ -524,8 +586,8 @@ private:
                 double hl[]{m_MissingCurvatures[i], 0.0};
 
                 double maximumGain{-INF};
-                std::size_t splitAt{m_FeatureBag.size()};
-                std::size_t assignMissingTo{ASSIGN_MISSING_TO_LEFT};
+                double splitAt{-INF};
+                bool assignMissingToLeft{true};
 
                 for (std::size_t j = 0; j + 1 < m_Gradients[i].size(); ++j) {
                     gl[ASSIGN_MISSING_TO_LEFT] += m_Gradients[i][j];
@@ -544,20 +606,19 @@ private:
 
                     if (gain[ASSIGN_MISSING_TO_LEFT] > maximumGain) {
                         maximumGain = gain[ASSIGN_MISSING_TO_LEFT];
-                        splitAt = j;
-                        assignMissingTo = ASSIGN_MISSING_TO_LEFT;
+                        splitAt = m_CandidateSplits[i][j];
+                        assignMissingToLeft = true;
                     }
                     if (gain[ASSIGN_MISSING_TO_RIGHT] > maximumGain) {
                         maximumGain = gain[ASSIGN_MISSING_TO_RIGHT];
-                        splitAt = j;
-                        assignMissingTo = ASSIGN_MISSING_TO_RIGHT;
+                        splitAt = m_CandidateSplits[i][j];
+                        assignMissingToLeft = false;
                     }
                 }
 
                 double gain{0.5 * (maximumGain - CTools::pow2(g) / (h + m_Lambda)) - m_Gamma};
 
-                SSplitStatistics candidate{gain, i, m_CandidateSplits[i][splitAt],
-                                           assignMissingTo == ASSIGN_MISSING_TO_LEFT};
+                SSplitStatistics candidate{gain, i, splitAt, assignMissingToLeft};
                 LOG_TRACE(<< "candidate split: " << candidate.print());
 
                 if (candidate > result) {
@@ -585,7 +646,12 @@ private:
     };
 
 private:
-    CBoostedTreeImpl() = default;
+    // The maximum number of rows encoded by a single byte in the packed bit
+    // vector assuming best compression.
+    static const std::size_t PACKED_BIT_VECTOR_MAXIMUM_ROWS_PER_BYTE;
+
+private:
+    CBoostedTreeImpl();
 
     //! Check if we can train a model.
     bool canTrain() const;
@@ -602,7 +668,7 @@ private:
 
     //! Train the forest and compute loss moments on each fold.
     TMeanVarAccumulator crossValidateForest(core::CDataFrame& frame,
-                                            CBoostedTree::TProgressCallback recordProgress) const;
+                                            const TMemoryUsageCallback& recordMemoryUsage) const;
 
     //! Initialize the predictions and loss function derivatives for the masked
     //! rows in \p frame.
@@ -612,7 +678,7 @@ private:
     //! Train one forest on the rows of \p frame in the mask \p trainingRowMask.
     TNodeVecVec trainForest(core::CDataFrame& frame,
                             const core::CPackedBitVector& trainingRowMask,
-                            CBoostedTree::TProgressCallback /*recordProgress*/) const;
+                            const TMemoryUsageCallback& recordMemoryUsage) const;
 
     //! Get the candidate splits values for each feature.
     TDoubleVecVec candidateSplits(const core::CDataFrame& frame,
@@ -621,13 +687,18 @@ private:
     //! Train one tree on the rows of \p frame in the mask \p trainingRowMask.
     TNodeVec trainTree(core::CDataFrame& frame,
                        const core::CPackedBitVector& trainingRowMask,
-                       const TDoubleVecVec& candidateSplits) const;
+                       const TDoubleVecVec& candidateSplits,
+                       const std::size_t maximumTreeSize,
+                       const TMemoryUsageCallback& recordMemoryUsage) const;
+
+    //! Get the number of features including category encoding.
+    std::size_t numberFeatures() const;
 
     //! Get the number of features to consider splitting on.
-    std::size_t featureBagSize(const core::CDataFrame& frame) const;
+    std::size_t featureBagSize() const;
 
     //! Sample the features according to their categorical distribution.
-    TSizeVec featureBag(const core::CDataFrame& frame) const;
+    TSizeVec featureBag() const;
 
     //! Refresh the predictions and loss function derivatives for the masked
     //! rows in \p frame with predictions of \p tree.
@@ -642,13 +713,13 @@ private:
                     const TNodeVecVec& forest) const;
 
     //! Get a column mask of the suitable regressor features.
-    TSizeVec candidateFeatures() const;
+    TSizeVec candidateRegressorFeatures() const;
 
     //! Get the root node of \p tree.
     static const CNode& root(const TNodeVec& tree);
 
     //! Get the forest's prediction for \p row.
-    static double predictRow(const TRowRef& row, const TNodeVecVec& forest);
+    static double predictRow(const CEncodedDataFrameRowRef& row, const TNodeVecVec& forest);
 
     //! Select the next hyperparameters for which to train a model.
     bool selectNextHyperparameters(const TMeanVarAccumulator& lossMoments,
@@ -667,7 +738,7 @@ private:
     //!
     //! \note This number will only be used if the regularised loss says its
     //! a good idea.
-    std::size_t maximumTreeSize(const core::CDataFrame& frame) const;
+    std::size_t maximumTreeSize(const core::CPackedBitVector& trainingRowMask) const;
 
     //! Get the maximum number of nodes to use in a tree.
     //!
@@ -678,6 +749,9 @@ private:
     //! Restore \p loss function pointer from the \p traverser.
     static bool restoreLoss(CBoostedTree::TLossFunctionUPtr& loss,
                             core::CStateRestoreTraverser& traverser);
+
+    //! Record the training state using the \p recordTrainState callback function
+    void recordState(const TTrainingStateCallback& recordTrainState) const;
 
 private:
     static const double INF;
@@ -699,11 +773,13 @@ private:
     std::size_t m_NumberFolds = 4;
     std::size_t m_MaximumNumberTrees = 20;
     std::size_t m_MaximumAttemptsToAddTree = 3;
-    std::size_t m_NumberSplitsPerFeature = 40;
+    std::size_t m_NumberSplitsPerFeature = 75;
     std::size_t m_MaximumOptimisationRoundsPerHyperparameter = 5;
     std::size_t m_RowsPerFeature = 50;
     double m_FeatureBagFraction = 0.5;
-    double m_MaximumTreeSizeFraction = 1.0;
+    double m_MaximumTreeSizeMultiplier = 1.0;
+    TDataTypeVec m_FeatureDataTypes;
+    TDataFrameCategoryEncoderUPtr m_Encoder;
     TDoubleVec m_FeatureSampleProbabilities;
     TPackedBitVectorVec m_MissingFeatureRowMasks;
     TPackedBitVectorVec m_TrainingRowMasks;

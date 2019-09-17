@@ -16,6 +16,7 @@
 
 #include <algorithm>
 #include <future>
+#include <limits>
 #include <memory>
 
 namespace ml {
@@ -259,6 +260,10 @@ std::size_t CDataFrame::estimateMemoryUsage(bool inMainMemory,
                                             std::size_t numberRows,
                                             std::size_t numberColumns) {
     return inMainMemory ? numberRows * numberColumns * sizeof(float) : 0;
+}
+
+double CDataFrame::valueOfMissing() {
+    return std::numeric_limits<double>::quiet_NaN();
 }
 
 CDataFrame::TRowFuncVecBoolPr

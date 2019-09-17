@@ -7,7 +7,10 @@
 #ifndef INCLUDED_ml_api_CDataFrameAnalysisSpecification_h
 #define INCLUDED_ml_api_CDataFrameAnalysisSpecification_h
 
+#include <core/CDataAdder.h>
+#include <core/CDataSearcher.h>
 #include <core/CFastMutex.h>
+#include <core/CJsonOutputStreamWrapper.h>
 
 #include <api/CDataFrameAnalysisRunner.h>
 #include <api/ImportExport.h>
@@ -43,6 +46,10 @@ public:
     using TStrVec = std::vector<std::string>;
     using TDataFrameUPtr = std::unique_ptr<core::CDataFrame>;
     using TTemporaryDirectoryPtr = std::shared_ptr<core::CTemporaryDirectory>;
+    using TDataAdderUPtr = std::unique_ptr<ml::core::CDataAdder>;
+    using TPersisterSupplier = std::function<TDataAdderUPtr()>;
+    using TDataSearcherUPtr = std::unique_ptr<ml::core::CDataSearcher>;
+    using TRestoreSearcherSupplier = std::function<TDataSearcherUPtr()>;
     using TDataFrameUPtrTemporaryDirectoryPtrPr =
         std::pair<TDataFrameUPtr, TTemporaryDirectoryPtr>;
     using TRunnerUPtr = std::unique_ptr<CDataFrameAnalysisRunner>;
@@ -50,6 +57,7 @@ public:
     using TRunnerFactoryUPtrVec = std::vector<TRunnerFactoryUPtr>;
 
 public:
+    static const std::string JOB_ID;
     static const std::string ROWS;
     static const std::string COLS;
     static const std::string MEMORY_LIMIT;
@@ -68,6 +76,7 @@ public:
     //! The specification has the following expected form:
     //! <CODE>
     //! {
+    //!   "job_id": <string>,
     //!   "rows": <integer>,
     //!   "cols": <integer>,
     //!   "memory_limit": <integer>,
@@ -91,14 +100,19 @@ public:
     //! \note temp_dir Is a directory which can be used to store the data frame
     //! out-of-core if we can't meet the memory constraint for the analysis without
     //! partitioning.
-    CDataFrameAnalysisSpecification(const std::string& jsonSpecification);
+    //! \param persisterSupplier Shared pointer to the CDataAdder instance.
+    CDataFrameAnalysisSpecification(const std::string& jsonSpecification,
+                                    TPersisterSupplier persisterSupplier = noopPersisterSupplier,
+                                    TRestoreSearcherSupplier restoreSearcherSupplier = noopRestoreSearcherSupplier);
 
     //! This construtor provides support for custom analysis types and is mainly
     //! intended for testing.
     //!
     //! \param[in] runnerFactories Plugins for the supported analyses.
     CDataFrameAnalysisSpecification(TRunnerFactoryUPtrVec runnerFactories,
-                                    const std::string& jsonSpecification);
+                                    const std::string& jsonSpecification,
+                                    TPersisterSupplier persisterSupplier = noopPersisterSupplier,
+                                    TRestoreSearcherSupplier restoreSearcherSupplier = noopRestoreSearcherSupplier);
 
     CDataFrameAnalysisSpecification(const CDataFrameAnalysisSpecification&) = delete;
     CDataFrameAnalysisSpecification& operator=(const CDataFrameAnalysisSpecification&) = delete;
@@ -123,6 +137,9 @@ public:
 
     //! \return The name of the results field.
     const std::string& resultsField() const;
+
+    //! \return The jobId.
+    const std::string& jobId() const;
 
     //! \return The names of the categorical fields.
     const TStrVec& categoricalFieldNames() const;
@@ -151,13 +168,21 @@ public:
     //! calling thread until the runner has finished.
     CDataFrameAnalysisRunner* run(const TStrVec& featureNames, core::CDataFrame& frame) const;
 
-    //! Estimates memory usage in two cases: one partition (the whole data frame
-    //! fits in main memory) and maximum tolerable number of partitions (only
-    //! one partition needs to be loaded to main memory).
+    //! Estimates memory usage in two cases:
+    //!   1. disk is not used (the whole data frame fits in main memory)
+    //!   2. disk is used (only one partition needs to be loaded to main memory)
     void estimateMemoryUsage(CMemoryUsageEstimationResultJsonWriter& writer) const;
+
+    //! \return shared pointer to the persistence stream.
+    TDataAdderUPtr persister() const;
+
+    TDataSearcherUPtr restoreSearcher() const;
 
 private:
     void initializeRunner(const rapidjson::Value& jsonAnalysis);
+
+    static TDataAdderUPtr noopPersisterSupplier();
+    static TDataSearcherUPtr noopRestoreSearcherSupplier();
 
 private:
     std::size_t m_NumberRows = 0;
@@ -166,12 +191,15 @@ private:
     std::size_t m_NumberThreads = 0;
     std::string m_TemporaryDirectory;
     std::string m_ResultsField;
+    std::string m_JobId;
     TStrVec m_CategoricalFieldNames;
     bool m_DiskUsageAllowed;
     // TODO Sparse table support
     // double m_TableLoadFactor = 0.0;
     TRunnerFactoryUPtrVec m_RunnerFactories;
     TRunnerUPtr m_Runner;
+    TPersisterSupplier m_PersisterSupplier;
+    TRestoreSearcherSupplier m_RestoreSearcherSupplier;
 };
 }
 }

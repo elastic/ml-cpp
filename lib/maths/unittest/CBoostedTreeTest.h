@@ -16,15 +16,17 @@ public:
     void testNonLinear();
     void testThreading();
     void testConstantFeatures();
-    void testConstantObjective();
+    void testConstantTarget();
+    void testCategoricalRegressors();
+    void testIntegerRegressor();
+    void testTranslationInvariance();
+    void testEstimateMemoryUsedByTrain();
+    void testProgressMonitoring();
     void testMissingData();
-    void testErrors();
-    // TODO void testCategoricalRegressors();
     // TODO void testFeatureWeights();
     // TODO void testNuisanceFeatures();
-    // TODO void testCheckpointing();
     void testPersistRestore();
-    void testPersistRestoreErrorHandling();
+    void testRestoreErrorHandling();
 
     static CppUnit::Test* suite();
 };

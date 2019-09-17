@@ -37,13 +37,43 @@ using TMeanVarAccumulator = maths::CBasicStatistics::SSampleMeanVar<double>::TAc
 namespace {
 
 template<typename F>
-auto predictionStatistics(test::CRandomNumbers& rng,
-                          std::size_t trainRows,
-                          std::size_t testRows,
-                          std::size_t cols,
-                          std::size_t capacity,
-                          const F& generateFunction,
-                          double noiseVariance) {
+auto computeEvaluationMetrics(const core::CDataFrame& frame,
+                              std::size_t beginTestRows,
+                              std::size_t endTestRows,
+                              std::size_t columnHoldingPrediction,
+                              const F& target,
+                              double noiseVariance) {
+
+    TMeanVarAccumulator functionMoments;
+    TMeanVarAccumulator modelPredictionErrorMoments;
+
+    frame.readRows(1, beginTestRows, endTestRows, [&](TRowItr beginRows, TRowItr endRows) {
+        for (auto row = beginRows; row != endRows; ++row) {
+            functionMoments.add(target(*row));
+            modelPredictionErrorMoments.add(target(*row) - (*row)[columnHoldingPrediction]);
+        }
+    });
+
+    LOG_TRACE(<< "function moments = " << functionMoments);
+    LOG_TRACE(<< "model prediction error moments = " << modelPredictionErrorMoments);
+
+    double functionVariance{maths::CBasicStatistics::variance(functionMoments)};
+    double predictionErrorMean{maths::CBasicStatistics::mean(modelPredictionErrorMoments)};
+    double predictionErrorVariance{maths::CBasicStatistics::variance(modelPredictionErrorMoments)};
+    double rSquared{1.0 - (predictionErrorVariance - noiseVariance) /
+                              (functionVariance - noiseVariance)};
+
+    return std::make_pair(predictionErrorMean, rSquared);
+}
+
+template<typename F>
+auto predictAndComputeEvaluationMetrics(const F& generateFunction,
+                                        test::CRandomNumbers& rng,
+                                        std::size_t trainRows,
+                                        std::size_t testRows,
+                                        std::size_t cols,
+                                        std::size_t capacity,
+                                        double noiseVariance) {
 
     std::size_t rows{trainRows + testRows};
 
@@ -62,7 +92,7 @@ auto predictionStatistics(test::CRandomNumbers& rng,
 
     for (std::size_t test = 0; test < factories.size(); ++test) {
 
-        auto f = generateFunction(rng, cols);
+        auto target = generateFunction(rng, cols);
 
         TDoubleVecVec x(cols - 1);
         for (std::size_t i = 0; i < cols - 1; ++i) {
@@ -87,8 +117,8 @@ auto predictionStatistics(test::CRandomNumbers& rng,
             frame->writeColumns(1, [&](TRowItr beginRows, TRowItr endRows) {
                 for (auto row = beginRows; row != endRows; ++row) {
                     double targetValue{row->index() < trainRows
-                                           ? f(*row) + noise[row->index()]
-                                           : std::numeric_limits<double>::quiet_NaN()};
+                                           ? target(*row) + noise[row->index()]
+                                           : core::CDataFrame::valueOfMissing()};
                     row->writeColumn(cols - 1, targetValue);
                 }
             });
@@ -100,31 +130,14 @@ auto predictionStatistics(test::CRandomNumbers& rng,
             regression->train();
             regression->predict();
 
-            TMeanVarAccumulator functionMoments;
-            TMeanVarAccumulator modelPredictionErrorMoments;
-
-            frame->readRows(1, trainRows, rows, [&](TRowItr beginRows, TRowItr endRows) {
-                for (auto row = beginRows; row != endRows; ++row) {
-                    std::size_t index{
-                        regression->columnHoldingPrediction(row->numberColumns())};
-                    functionMoments.add(f(*row));
-                    modelPredictionErrorMoments.add(f(*row) - (*row)[index]);
-                }
-            });
-
-            LOG_DEBUG(<< "function moments = " << functionMoments);
-            LOG_DEBUG(<< "model prediction error moments = " << modelPredictionErrorMoments);
-
-            double functionVariance{maths::CBasicStatistics::variance(functionMoments)};
-            double predictionErrorMean{maths::CBasicStatistics::mean(modelPredictionErrorMoments)};
-            double predictionErrorVariance{
-                maths::CBasicStatistics::variance(modelPredictionErrorMoments)};
-
-            modelBias[test].push_back(predictionErrorMean);
-            modelRSquared[test].push_back(
-                1.0 -
-                (predictionErrorVariance - noiseVariance / static_cast<double>(rows)) /
-                    (functionVariance - noiseVariance / static_cast<double>(rows)));
+            double bias;
+            double rSquared;
+            std::tie(bias, rSquared) = computeEvaluationMetrics(
+                *frame, trainRows, rows,
+                regression->columnHoldingPrediction(frame->numberColumns()),
+                target, noiseVariance / static_cast<double>(rows));
+            modelBias[test].push_back(bias);
+            modelRSquared[test].push_back(rSquared);
         }
     }
     LOG_DEBUG(<< "bias = " << core::CContainerPrinter::print(modelBias));
@@ -168,8 +181,8 @@ void CBoostedTreeTest::testPiecewiseConstant() {
     std::size_t cols{6};
     std::size_t capacity{250};
 
-    std::tie(modelBias, modelRSquared) = predictionStatistics(
-        rng, trainRows, testRows, cols, capacity, generatePiecewiseConstant, noiseVariance);
+    std::tie(modelBias, modelRSquared) = predictAndComputeEvaluationMetrics(
+        generatePiecewiseConstant, rng, trainRows, testRows, cols, capacity, noiseVariance);
 
     TMeanAccumulator meanModelRSquared;
 
@@ -186,12 +199,12 @@ void CBoostedTreeTest::testPiecewiseConstant() {
             0.0, modelBias[i][0],
             7.0 * std::sqrt(noiseVariance / static_cast<double>(trainRows)));
         // Good R^2...
-        CPPUNIT_ASSERT(modelRSquared[i][0] > 0.9);
+        CPPUNIT_ASSERT(modelRSquared[i][0] > 0.94);
 
         meanModelRSquared.add(modelRSquared[i][0]);
     }
     LOG_DEBUG(<< "mean R^2 = " << maths::CBasicStatistics::mean(meanModelRSquared));
-    CPPUNIT_ASSERT(maths::CBasicStatistics::mean(meanModelRSquared) > 0.92);
+    CPPUNIT_ASSERT(maths::CBasicStatistics::mean(meanModelRSquared) > 0.95);
 }
 
 void CBoostedTreeTest::testLinear() {
@@ -223,8 +236,8 @@ void CBoostedTreeTest::testLinear() {
     std::size_t cols{6};
     std::size_t capacity{500};
 
-    std::tie(modelBias, modelRSquared) = predictionStatistics(
-        rng, trainRows, testRows, cols, capacity, generateLinear, noiseVariance);
+    std::tie(modelBias, modelRSquared) = predictAndComputeEvaluationMetrics(
+        generateLinear, rng, trainRows, testRows, cols, capacity, noiseVariance);
 
     TMeanAccumulator meanModelRSquared;
 
@@ -239,14 +252,14 @@ void CBoostedTreeTest::testLinear() {
         // Unbiased...
         CPPUNIT_ASSERT_DOUBLES_EQUAL(
             0.0, modelBias[i][0],
-            7.0 * std::sqrt(noiseVariance / static_cast<double>(trainRows)));
+            5.0 * std::sqrt(noiseVariance / static_cast<double>(trainRows)));
         // Good R^2...
-        CPPUNIT_ASSERT(modelRSquared[i][0] > 0.95);
+        CPPUNIT_ASSERT(modelRSquared[i][0] > 0.96);
 
         meanModelRSquared.add(modelRSquared[i][0]);
     }
     LOG_DEBUG(<< "mean R^2 = " << maths::CBasicStatistics::mean(meanModelRSquared));
-    CPPUNIT_ASSERT(maths::CBasicStatistics::mean(meanModelRSquared) > 0.97);
+    CPPUNIT_ASSERT(maths::CBasicStatistics::mean(meanModelRSquared) > 0.96);
 }
 
 void CBoostedTreeTest::testNonLinear() {
@@ -290,8 +303,8 @@ void CBoostedTreeTest::testNonLinear() {
     std::size_t cols{6};
     std::size_t capacity{500};
 
-    std::tie(modelBias, modelRSquared) = predictionStatistics(
-        rng, trainRows, testRows, cols, capacity, generateNonLinear, noiseVariance);
+    std::tie(modelBias, modelRSquared) = predictAndComputeEvaluationMetrics(
+        generateNonLinear, rng, trainRows, testRows, cols, capacity, noiseVariance);
 
     TMeanAccumulator meanModelRSquared;
 
@@ -306,23 +319,25 @@ void CBoostedTreeTest::testNonLinear() {
         // Unbiased...
         CPPUNIT_ASSERT_DOUBLES_EQUAL(
             0.0, modelBias[i][0],
-            7.0 * std::sqrt(noiseVariance / static_cast<double>(trainRows)));
+            8.0 * std::sqrt(noiseVariance / static_cast<double>(trainRows)));
         // Good R^2...
         CPPUNIT_ASSERT(modelRSquared[i][0] > 0.92);
 
         meanModelRSquared.add(modelRSquared[i][0]);
     }
     LOG_DEBUG(<< "mean R^2 = " << maths::CBasicStatistics::mean(meanModelRSquared));
-    CPPUNIT_ASSERT(maths::CBasicStatistics::mean(meanModelRSquared) > 0.95);
+    CPPUNIT_ASSERT(maths::CBasicStatistics::mean(meanModelRSquared) > 0.94);
 }
 
 void CBoostedTreeTest::testThreading() {
 
-    // Test we get the same results whether we thread the code or not. Note
-    // because we compute approximate quantiles for each thread and merge we
-    // get slightly different results if threaded vs single threaded. However,
-    // we should get the same results whether executed asynchronously or not
-    // so test with and without starting the thread pool.
+    // Test we get the same results whether we run with multiple threads or not.
+    // Note because we compute approximate quantiles for a partition of the data
+    // (one subset for each thread) and merge we get slightly different results
+    // if running multiple vs single threaded. However, we should get the same
+    // results whether we actually execute in parallel or not provided we perform
+    // the same partitioning. Therefore, we test with two logical threads but
+    // with and without starting the thread pool.
 
     test::CRandomNumbers rng;
 
@@ -359,6 +374,7 @@ void CBoostedTreeTest::testThreading() {
     std::string tests[]{"serial", "parallel"};
 
     for (std::size_t test = 0; test < 2; ++test) {
+
         LOG_DEBUG(<< tests[test]);
 
         auto frame = core::makeMainStorageDataFrame(cols, capacity).first;
@@ -454,10 +470,9 @@ void CBoostedTreeTest::testConstantFeatures() {
         }
     });
 
-    std::unique_ptr<maths::CBoostedTree> regression =
-        maths::CBoostedTreeFactory::constructFromParameters(
-            1, std::make_unique<maths::boosted_tree::CMse>())
-            .buildFor(*frame, cols - 1);
+    auto regression = maths::CBoostedTreeFactory::constructFromParameters(
+                          1, std::make_unique<maths::boosted_tree::CMse>())
+                          .buildFor(*frame, cols - 1);
 
     regression->train();
 
@@ -467,7 +482,7 @@ void CBoostedTreeTest::testConstantFeatures() {
     CPPUNIT_ASSERT(featureWeights[cols - 2] < 1e-4);
 }
 
-void CBoostedTreeTest::testConstantObjective() {
+void CBoostedTreeTest::testConstantTarget() {
 
     // Test we correctly deal with a constant dependent variable.
 
@@ -477,8 +492,8 @@ void CBoostedTreeTest::testConstantObjective() {
     std::size_t cols{6};
     std::size_t capacity{500};
 
-    TDoubleVecVec x(cols - 1, TDoubleVec(rows, 1.0));
-    for (std::size_t i = 0; i < cols - 2; ++i) {
+    TDoubleVecVec x(cols - 1);
+    for (std::size_t i = 0; i < x.size(); ++i) {
         rng.generateUniformSamples(0.0, 10.0, rows, x[i]);
     }
 
@@ -486,7 +501,7 @@ void CBoostedTreeTest::testConstantObjective() {
 
     for (std::size_t i = 0; i < rows; ++i) {
         frame->writeRow([&](core::CDataFrame::TFloatVecItr column, std::int32_t&) {
-            for (std::size_t j = 0; j < cols - 1; ++j, ++column) {
+            for (std::size_t j = 0; j < x.size(); ++j, ++column) {
                 *column = x[j][i];
             }
         });
@@ -498,31 +513,359 @@ void CBoostedTreeTest::testConstantObjective() {
         }
     });
 
-    std::unique_ptr<maths::CBoostedTree> regression =
-        maths::CBoostedTreeFactory::constructFromParameters(
-            1, std::make_unique<maths::boosted_tree::CMse>())
-            .buildFor(*frame, cols - 1);
+    auto regression = maths::CBoostedTreeFactory::constructFromParameters(
+                          1, std::make_unique<maths::boosted_tree::CMse>())
+                          .buildFor(*frame, cols - 1);
 
     regression->train();
 
-    TMeanVarAccumulator modelPredictionErrorMoments;
+    TMeanAccumulator modelPredictionError;
 
     frame->readRows(1, [&](TRowItr beginRows, TRowItr endRows) {
         for (auto row = beginRows; row != endRows; ++row) {
             std::size_t index{regression->columnHoldingPrediction(row->numberColumns())};
-            modelPredictionErrorMoments.add(1.0 - (*row)[index]);
+            modelPredictionError.add(1.0 - (*row)[index]);
         }
     });
 
     LOG_DEBUG(<< "mean prediction error = "
-              << maths::CBasicStatistics::mean(modelPredictionErrorMoments));
-    CPPUNIT_ASSERT_EQUAL(0.0, maths::CBasicStatistics::mean(modelPredictionErrorMoments));
+              << maths::CBasicStatistics::mean(modelPredictionError));
+    CPPUNIT_ASSERT_EQUAL(0.0, maths::CBasicStatistics::mean(modelPredictionError));
+}
+
+void CBoostedTreeTest::testCategoricalRegressors() {
+
+    // Test automatic handling of categorical regressors.
+
+    test::CRandomNumbers rng;
+
+    std::size_t trainRows{1000};
+    std::size_t testRows{200};
+    std::size_t rows{trainRows + testRows};
+    std::size_t cols{6};
+    std::size_t capacity{500};
+
+    TDoubleVecVec offsets{{0.0, 0.0, 12.0, -3.0, 0.0},
+                          {12.0, 1.0, -3.0, 0.0, 0.0, 2.0, 16.0, 0.0, 0.0, -6.0}};
+    TDoubleVec weights{0.7, 0.2, -0.4};
+    auto target = [&](const TRowRef& x) {
+        double result{offsets[0][static_cast<std::size_t>(x[0])] +
+                      offsets[1][static_cast<std::size_t>(x[1])]};
+        for (std::size_t i = 2; i < cols - 1; ++i) {
+            result += weights[i - 2] * x[i];
+        }
+        return result;
+    };
+
+    TDoubleVecVec regressors(cols - 1);
+    rng.generateMultinomialSamples({0.0, 1.0, 2.0, 3.0, 4.0},
+                                   {0.03, 0.17, 0.3, 0.1, 0.4}, rows, regressors[0]);
+    rng.generateMultinomialSamples(
+        {0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0},
+        {0.03, 0.07, 0.08, 0.02, 0.2, 0.15, 0.1, 0.05, 0.26, 0.04}, rows, regressors[1]);
+    for (std::size_t i = 2; i < regressors.size(); ++i) {
+        rng.generateUniformSamples(-10.0, 10.0, rows, regressors[i]);
+    }
+
+    auto frame = core::makeMainStorageDataFrame(cols, capacity).first;
+
+    frame->categoricalColumns({true, true, false, false, false, false});
+    for (std::size_t i = 0; i < rows; ++i) {
+        frame->writeRow([&](core::CDataFrame::TFloatVecItr column, std::int32_t&) {
+            for (std::size_t j = 0; j < cols - 1; ++j, ++column) {
+                *column = regressors[j][i];
+            }
+        });
+    }
+    frame->finishWritingRows();
+    frame->writeColumns(1, [&](TRowItr beginRows, TRowItr endRows) {
+        for (auto row = beginRows; row != endRows; ++row) {
+            double targetValue{row->index() < trainRows
+                                   ? target(*row)
+                                   : core::CDataFrame::valueOfMissing()};
+            row->writeColumn(cols - 1, targetValue);
+        }
+    });
+
+    auto regression = maths::CBoostedTreeFactory::constructFromParameters(
+                          1, std::make_unique<maths::boosted_tree::CMse>())
+                          .buildFor(*frame, cols - 1);
+
+    regression->train();
+    regression->predict();
+
+    double modelBias;
+    double modelRSquared;
+    std::tie(modelBias, modelRSquared) = computeEvaluationMetrics(
+        *frame, trainRows, rows,
+        regression->columnHoldingPrediction(frame->numberColumns()), target, 0.0);
+
+    LOG_DEBUG(<< "bias = " << modelBias);
+    LOG_DEBUG(<< " R^2 = " << modelRSquared);
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(0.0, modelBias, 0.1);
+    CPPUNIT_ASSERT(modelRSquared > 0.9);
+}
+
+void CBoostedTreeTest::testIntegerRegressor() {
+
+    // Test a simple integer regressor.
+
+    test::CRandomNumbers rng;
+
+    std::size_t trainRows{1000};
+    std::size_t testRows{200};
+    std::size_t rows{trainRows + testRows};
+
+    auto frame = core::makeMainStorageDataFrame(2).first;
+
+    frame->categoricalColumns({false, false});
+    for (std::size_t i = 0; i < rows; ++i) {
+        frame->writeRow([&](core::CDataFrame::TFloatVecItr column, std::int32_t&) {
+            TDoubleVec regressor;
+            rng.generateUniformSamples(1.0, 4.0, 1, regressor);
+            *(column++) = std::floor(regressor[0]);
+            *column = i < trainRows ? 10.0 * std::floor(regressor[0])
+                                    : core::CDataFrame::valueOfMissing();
+        });
+    }
+    frame->finishWritingRows();
+
+    auto regression = maths::CBoostedTreeFactory::constructFromParameters(
+                          1, std::make_unique<maths::boosted_tree::CMse>())
+                          .buildFor(*frame, 1);
+
+    regression->train();
+    regression->predict();
+
+    double modelBias;
+    double modelRSquared;
+    std::tie(modelBias, modelRSquared) = computeEvaluationMetrics(
+        *frame, trainRows, rows,
+        regression->columnHoldingPrediction(frame->numberColumns()),
+        [&](const TRowRef& x) { return 10.0 * x[0]; }, 0.0);
+
+    LOG_DEBUG(<< "bias = " << modelBias);
+    LOG_DEBUG(<< " R^2 = " << modelRSquared);
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(0.0, modelBias, 0.05);
+    CPPUNIT_ASSERT(modelRSquared > 0.99);
+}
+
+void CBoostedTreeTest::testTranslationInvariance() {
+
+    // We should get similar performance independent of fixed shifts for the target.
+
+    using TTargetFunc = std::function<double(const TRowRef& row)>;
+
+    test::CRandomNumbers rng;
+
+    std::size_t trainRows{1000};
+    std::size_t rows{1200};
+    std::size_t cols{4};
+    std::size_t capacity{1200};
+
+    TDoubleVecVec x(cols - 1);
+    for (std::size_t i = 0; i < cols - 1; ++i) {
+        rng.generateUniformSamples(0.0, 10.0, rows, x[i]);
+    }
+
+    TTargetFunc target{[&](const TRowRef& row) {
+        double result{0.0};
+        for (std::size_t i = 0; i < cols - 1; ++i) {
+            result += row[i];
+        }
+        return result;
+    }};
+    TTargetFunc shiftedTarget{[&](const TRowRef& row) {
+        double result{10000.0};
+        for (std::size_t i = 0; i < cols - 1; ++i) {
+            result += row[i];
+        }
+        return result;
+    }};
+
+    TDoubleVec rsquared;
+
+    for (const auto& target_ : {target, shiftedTarget}) {
+
+        auto frame = core::makeMainStorageDataFrame(cols, capacity).first;
+        frame->categoricalColumns({false, false, false, false});
+        for (std::size_t i = 0; i < rows; ++i) {
+            frame->writeRow([&](core::CDataFrame::TFloatVecItr column, std::int32_t&) {
+                for (std::size_t j = 0; j < cols - 1; ++j, ++column) {
+                    *column = x[j][i];
+                }
+            });
+        }
+        frame->finishWritingRows();
+        frame->writeColumns(1, [&](TRowItr beginRows, TRowItr endRows) {
+            for (auto row = beginRows; row != endRows; ++row) {
+                double targetValue{row->index() < trainRows
+                                       ? target_(*row)
+                                       : core::CDataFrame::valueOfMissing()};
+                row->writeColumn(cols - 1, targetValue);
+            }
+        });
+
+        auto regression = maths::CBoostedTreeFactory::constructFromParameters(
+                              1, std::make_unique<maths::boosted_tree::CMse>())
+                              .buildFor(*frame, cols - 1);
+
+        regression->train();
+        regression->predict();
+
+        double modelBias;
+        double modelRSquared;
+        std::tie(modelBias, modelRSquared) = computeEvaluationMetrics(
+            *frame, trainRows, rows,
+            regression->columnHoldingPrediction(frame->numberColumns()), target_, 0.0);
+
+        LOG_DEBUG(<< "bias = " << modelBias);
+        LOG_DEBUG(<< " R^2 = " << modelRSquared);
+        rsquared.push_back(modelRSquared);
+    }
+
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(rsquared[0], rsquared[1], 5e-3);
+}
+
+void CBoostedTreeTest::testEstimateMemoryUsedByTrain() {
+
+    // Test estimation of the memory used training a model.
+
+    test::CRandomNumbers rng;
+
+    std::size_t rows{1000};
+    std::size_t cols{6};
+    std::size_t capacity{600};
+
+    for (std::size_t test = 0; test < 3; ++test) {
+        TDoubleVecVec x(cols - 1);
+        for (std::size_t i = 0; i < cols - 1; ++i) {
+            rng.generateUniformSamples(0.0, 10.0, rows, x[i]);
+        }
+
+        auto target = [&](std::size_t i) {
+            double result{0.0};
+            for (std::size_t j = 0; j < cols - 1; ++j) {
+                result += x[j][i];
+            }
+            return result;
+        };
+
+        auto frame = core::makeMainStorageDataFrame(cols, capacity).first;
+        frame->categoricalColumns({true, false, false, false, false, false});
+        for (std::size_t i = 0; i < rows; ++i) {
+            frame->writeRow([&](core::CDataFrame::TFloatVecItr column, std::int32_t&) {
+                *(column++) = std::floor(x[0][i]);
+                for (std::size_t j = 1; j < cols - 1; ++j, ++column) {
+                    *column = x[j][i];
+                }
+                *column = target(i);
+            });
+        }
+        frame->finishWritingRows();
+
+        std::int64_t estimatedMemory(maths::CBoostedTreeFactory::constructFromParameters(
+                                         1, std::make_unique<maths::boosted_tree::CMse>())
+                                         .estimateMemoryUsage(rows, cols));
+
+        std::int64_t memoryUsage{0};
+        std::int64_t maxMemoryUsage{0};
+        auto regression = maths::CBoostedTreeFactory::constructFromParameters(
+                              1, std::make_unique<maths::boosted_tree::CMse>())
+                              .memoryUsageCallback([&](std::int64_t delta) {
+                                  memoryUsage += delta;
+                                  maxMemoryUsage = std::max(maxMemoryUsage, memoryUsage);
+                                  LOG_TRACE(<< "current memory = " << memoryUsage
+                                            << ", high water mark = " << maxMemoryUsage);
+                              })
+                              .buildFor(*frame, cols - 1);
+
+        regression->train();
+
+        LOG_DEBUG(<< "estimated memory usage = " << estimatedMemory);
+        LOG_DEBUG(<< "high water mark = " << maxMemoryUsage);
+
+        CPPUNIT_ASSERT(maxMemoryUsage < estimatedMemory);
+    }
+}
+
+void CBoostedTreeTest::testProgressMonitoring() {
+
+    // Test progress monitoring invariants.
+
+    test::CRandomNumbers rng;
+
+    std::size_t rows{500};
+    std::size_t cols{6};
+    std::size_t capacity{600};
+
+    TDoubleVecVec x(cols);
+    for (std::size_t i = 0; i < cols; ++i) {
+        rng.generateUniformSamples(0.0, 10.0, rows, x[i]);
+    }
+
+    core::stopDefaultAsyncExecutor();
+
+    std::string tests[]{"serial", "parallel"};
+
+    for (std::size_t threads : {1, 2}) {
+
+        LOG_DEBUG(<< tests[threads == 1 ? 0 : 1]);
+
+        auto frame = core::makeMainStorageDataFrame(cols, capacity).first;
+        for (std::size_t i = 0; i < rows; ++i) {
+            frame->writeRow([&](core::CDataFrame::TFloatVecItr column, std::int32_t&) {
+                for (std::size_t j = 0; j < cols; ++j, ++column) {
+                    *column = x[j][i];
+                }
+            });
+        }
+        frame->finishWritingRows();
+
+        std::atomic_int totalFractionalProgress{0};
+
+        auto reportProgress = [&totalFractionalProgress](double fractionalProgress) {
+            totalFractionalProgress.fetch_add(
+                static_cast<int>(65536.0 * fractionalProgress + 0.5));
+        };
+
+        std::atomic_bool finished{false};
+
+        std::thread worker{[&]() {
+            auto regression = maths::CBoostedTreeFactory::constructFromParameters(
+                                  threads, std::make_unique<maths::boosted_tree::CMse>())
+                                  .progressCallback(reportProgress)
+                                  .buildFor(*frame, cols - 1);
+
+            regression->train();
+            finished.store(true);
+        }};
+
+        int lastTotalFractionalProgress{0};
+        int lastProgressReport{0};
+
+        bool monotonic{true};
+        std::size_t percentage{0};
+        while (finished.load() == false) {
+            if (totalFractionalProgress.load() > lastProgressReport) {
+                LOG_DEBUG(<< percentage << "% complete");
+                percentage += 10;
+                lastProgressReport += 6554;
+            }
+            monotonic &= (totalFractionalProgress.load() >= lastTotalFractionalProgress);
+            lastTotalFractionalProgress = totalFractionalProgress.load();
+        }
+        worker.join();
+
+        CPPUNIT_ASSERT(monotonic);
+
+        core::startDefaultAsyncExecutor();
+    }
+
+    core::stopDefaultAsyncExecutor();
 }
 
 void CBoostedTreeTest::testMissingData() {
-}
-
-void CBoostedTreeTest::testErrors() {
 }
 
 void CBoostedTreeTest::testPersistRestore() {
@@ -535,7 +878,7 @@ void CBoostedTreeTest::testPersistRestore() {
     std::stringstream persistOnceSStream;
     std::stringstream persistTwiceSStream;
 
-    // generate completely random data
+    // Generate completely random data.
     TDoubleVecVec x(cols);
     for (std::size_t i = 0; i < cols; ++i) {
         rng.generateUniformSamples(0.0, 10.0, rows, x[i]);
@@ -582,7 +925,7 @@ void CBoostedTreeTest::testPersistRestore() {
     // TODO test persist and restore produces same train result.
 }
 
-void CBoostedTreeTest::testPersistRestoreErrorHandling() {
+void CBoostedTreeTest::testRestoreErrorHandling() {
 
     auto errorHandler = [](std::string error) {
         throw std::runtime_error{error};
@@ -596,7 +939,7 @@ void CBoostedTreeTest::testPersistRestoreErrorHandling() {
 
     std::stringstream errorInBayesianOptimisationState;
     errorInBayesianOptimisationState
-        << "{\"boosted_tree_impl\":{\"bayesian_optimization\":"
+        << "{\"bayesian_optimization\":"
            "{\"min_boundary\":{\"dense_vector\":\"-9.191737e-1:-2.041179:-3.506558:1.025:2e-1\"},"
            "\"max_boundary\":{\"dense_vector\":\"3.685997:2.563991:-1.203973:a:8e-1\"},"
            "\"error_variances\":\"\",\"kernel_parameters\":{\"dense_vector\":\"1:1:1:1:1:1\"},"
@@ -617,7 +960,7 @@ void CBoostedTreeTest::testPersistRestoreErrorHandling() {
            "\"hyperparam_eta\":\"0\",\"hyperparam_eta_growth_rate_per_tree\":\"0\","
            "\"hyperparam_feature_bag_fraction\":\"0\",\"hyperparam_feature_sample_probabilities\":\"\"},"
            "\"eta_override\":\"false;0\",\"feature_bag_fraction_override\":\"false;0\",\"gamma_override\":\"false;0\","
-           "\"lambda_override\":\"false;0\",\"maximum_number_trees_override\":\"true;2\",\"loss\":\"mse\"}}";
+           "\"lambda_override\":\"false;0\",\"maximum_number_trees_override\":\"true;2\",\"loss\":\"mse\"}";
     errorInBayesianOptimisationState.flush();
 
     bool throwsExceptions{false};
@@ -635,7 +978,7 @@ void CBoostedTreeTest::testPersistRestoreErrorHandling() {
 
     std::stringstream errorInBoostedTreeImplState;
     errorInBoostedTreeImplState
-        << "{\"boosted_tree_impl\":{\"bayesian_optimization\":"
+        << "{\"bayesian_optimization\":"
            "{\"min_boundary\":{\"dense_vector\":\"-9.191737e-1:-2.041179:-3.506558:1.025:2e-1\"},"
            "\"max_boundary\":{\"dense_vector\":\"3.685997:2.563991:-1.203973:0.1:8e-1\"},"
            "\"error_variances\":\"\",\"kernel_parameters\":{\"dense_vector\":\"1:1:1:1:1:1\"},"
@@ -656,13 +999,16 @@ void CBoostedTreeTest::testPersistRestoreErrorHandling() {
            "\"hyperparam_eta\":\"0\",\"hyperparam_eta_growth_rate_per_tree\":\"0\","
            "\"hyperparam_feature_bag_fraction\":\"0\",\"hyperparam_feature_sample_probabilities\":\"\"},"
            "\"eta_override\":\"false;0\",\"feature_bag_fraction_override\":\"false;0\",\"gamma_override\":\"false;0\","
-           "\"lambda_override\":\"false;0\",\"maximum_number_trees_override\":\"true;2\",\"loss\":\"mse\"}}";
+           "\"lambda_override\":\"false;0\",\"maximum_number_trees_override\":\"true;2\",\"loss\":\"mse\"}";
     errorInBoostedTreeImplState.flush();
 
     throwsExceptions = false;
     try {
         auto boostedTree = maths::CBoostedTreeFactory::constructFromString(
-            errorInBoostedTreeImplState, *frame);
+            errorInBoostedTreeImplState, *frame,
+            ml::maths::CBoostedTreeFactory::TProgressCallback(),
+            ml::maths::CBoostedTreeFactory::TMemoryUsageCallback(),
+            ml::maths::CBoostedTreeFactory::TTrainingStateCallback());
     } catch (const std::exception& e) {
         LOG_DEBUG(<< "got = " << e.what());
         throwsExceptions = true;
@@ -687,16 +1033,26 @@ CppUnit::Test* CBoostedTreeTest::suite() {
     suiteOfTests->addTest(new CppUnit::TestCaller<CBoostedTreeTest>(
         "CBoostedTreeTest::testConstantFeatures", &CBoostedTreeTest::testConstantFeatures));
     suiteOfTests->addTest(new CppUnit::TestCaller<CBoostedTreeTest>(
-        "CBoostedTreeTest::testConstantObjective", &CBoostedTreeTest::testConstantObjective));
+        "CBoostedTreeTest::testConstantTarget", &CBoostedTreeTest::testConstantTarget));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CBoostedTreeTest>(
+        "CBoostedTreeTest::testCategoricalRegressors",
+        &CBoostedTreeTest::testCategoricalRegressors));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CBoostedTreeTest>(
+        "CBoostedTreeTest::testIntegerRegressor", &CBoostedTreeTest::testIntegerRegressor));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CBoostedTreeTest>(
+        "CBoostedTreeTest::testTranslationInvariance",
+        &CBoostedTreeTest::testTranslationInvariance));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CBoostedTreeTest>(
+        "CBoostedTreeTest::testEstimateMemoryUsedByTrain",
+        &CBoostedTreeTest::testEstimateMemoryUsedByTrain));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CBoostedTreeTest>(
+        "CBoostedTreeTest::testProgressMonitoring", &CBoostedTreeTest::testProgressMonitoring));
     suiteOfTests->addTest(new CppUnit::TestCaller<CBoostedTreeTest>(
         "CBoostedTreeTest::testMissingData", &CBoostedTreeTest::testMissingData));
     suiteOfTests->addTest(new CppUnit::TestCaller<CBoostedTreeTest>(
-        "CBoostedTreeTest::testErrors", &CBoostedTreeTest::testErrors));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CBoostedTreeTest>(
         "CBoostedTreeTest::testPersistRestore", &CBoostedTreeTest::testPersistRestore));
     suiteOfTests->addTest(new CppUnit::TestCaller<CBoostedTreeTest>(
-        "CBoostedTreeTest::testPersistRestoreErrorHandling",
-        &CBoostedTreeTest::testPersistRestoreErrorHandling));
+        "CBoostedTreeTest::testRestoreErrorHandling", &CBoostedTreeTest::testRestoreErrorHandling));
 
     return suiteOfTests;
 }

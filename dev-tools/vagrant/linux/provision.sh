@@ -86,114 +86,17 @@ if [ ! -f libxml2.state ]; then
   touch libxml2.state
 fi
 
-# ----------------- Compile expat -------------------------
-if [ ! -f expat.state ]; then
-  echo "Compiling expat..."
-  echo "  Downloading..."
-  wget --quiet http://github.com/libexpat/libexpat/releases/download/R_2_2_6/expat-2.2.6.tar.bz2
-  mkdir expat
-  tar xfj expat-2.2.6.tar.bz2 -C expat --strip-components=1
-  cd expat
-  echo "  Configuring..."
-
-  ./configure --prefix=/usr/local/gcc73 --without-docbook > configure.log 2>&1
-  echo "  Making..."
-  make -j$NUMCPUS --load-average=$NUMCPUS > make.log 2>&1
-  make install > make_install.log 2>&1
-  cd ..
-  rm expat-2.2.6.tar.bz2
-  touch expat.state
-fi
-
-# ----------------- Compile APR -------------------------
-if [ ! -f apr.state ]; then
-  echo "Compiling APR..."
-  echo "  Downloading..."
-  wget --quiet http://archive.apache.org/dist/apr/apr-1.7.0.tar.gz
-  mkdir apr
-  tar xfz apr-1.7.0.tar.gz -C apr --strip-components=1
-  cd apr
-  echo "  Configuring..."
-
-  sed -i -e "s/for ac_lib in '' crypt ufc; do/for ac_lib in ''; do/" configure
-  sed -i -e 's/#define APR_HAVE_CRYPT_H         @crypth@/#define APR_HAVE_CRYPT_H         0/' include/apr.h.in
-
-  ./configure --prefix=/usr/local/gcc73 > configure.log 2>&1
-  echo "  Making..."
-  make -j$NUMCPUS --load-average=$NUMCPUS > make.log 2>&1
-  make install > make_install.log 2>&1
-  cd ..
-  rm apr-1.7.0.tar.gz
-  touch apr.state
-fi
-
-# ----------------- Compile APR-Utilities -------------------------
-if [ ! -f apr-util.state ]; then
-  echo "Compiling APR-Utilities..."
-  echo "  Downloading..."
-  wget --quiet http://archive.apache.org/dist/apr/apr-util-1.6.1.tar.gz
-  mkdir apr-util
-  tar xfz apr-util-1.6.1.tar.gz -C apr-util --strip-components=1
-  cd apr-util
-  echo "  Configuring..."
-
-  sed -i -e "s/for ac_lib in '' crypt ufc; do/for ac_lib in ''; do/" configure
-  sed -i -e 's/#define CRYPT_MISSING 0/#define CRYPT_MISSING 1/' crypto/apr_passwd.c
-
-  ./configure --prefix=/usr/local/gcc73 --with-apr=/usr/local/gcc73/bin/apr-1-config --with-expat=/usr/local/gcc73 > configure.log 2>&1
-  echo "  Making..."
-  make -j$NUMCPUS --load-average=$NUMCPUS > make.log 2>&1
-  make install > make_install.log 2>&1
-  cd ..
-  rm apr-util-1.6.1.tar.gz
-  touch apr-util.state
-fi
-
-
-# ----------------- Compile log4cxx -------------------------
-if [ ! -f log4cxx.state ]; then
-  echo "Compiling log4cxx..."
-  echo "  Downloading..."
-  wget --quiet http://apache.cs.utah.edu/logging/log4cxx/0.10.0/apache-log4cxx-0.10.0.tar.gz
-  mkdir log4cxx
-  tar xfz apache-log4cxx-0.10.0.tar.gz -C log4cxx --strip-components=1
-
-  cd log4cxx
-  echo "  Configuring..."
-
-  sed -i -e 's/#define _LOG4CXX_OBJECTPTR_INIT(x) { exchange(x);/#define _LOG4CXX_OBJECTPTR_INIT(x) : ObjectPtrBase() { exchange(x); /g' src/main/include/log4cxx/helpers/objectptr.h
-  sed -i -e 's/#define _LOG4CXX_OBJECTPTR_INIT(x) : p(x) {/#define _LOG4CXX_OBJECTPTR_INIT(x) : ObjectPtrBase(), p(x) {/g' src/main/include/log4cxx/helpers/objectptr.h
-  sed -i -e 's%#include <log4cxx/helpers/bytebuffer.h>%#include <log4cxx/helpers/bytebuffer.h>\n#include <string.h>%g' src/main/cpp/inputstreamreader.cpp
-  sed -i -e 's%#include <log4cxx/helpers/bytebuffer.h>%#include <log4cxx/helpers/bytebuffer.h>\n#include <string.h>%g' src/main/cpp/socketoutputstream.cpp
-  sed -i -e 's/#include <locale.h>/#include <locale.h>\n#include <string.h>\n#include <stdio.h>\n#include <wchar.h>/' src/examples/cpp/console.cpp
-
-  sed -i -e '152,163s/0x/(char)0x/g' src/main/cpp/locationinfo.cpp
-  sed -i -e '239,292s/0x/(char)0x/g' src/main/cpp/loggingevent.cpp
-  sed -i -e '39s/0x/(char)0x/g' src/main/cpp/objectoutputstream.cpp
-  sed -i -e '84,92s/0x/(char)0x/g' src/main/cpp/objectoutputstream.cpp
-  sed -i -e '193,214s/0x/(char)0x/g' src/test/cpp/xml/domtestcase.cpp
-
-  ./configure --prefix=/usr/local/gcc73 --with-charset=utf-8 --with-logchar=utf-8 --with-apr=/usr/local/gcc73 --with-apr-util=/usr/local/gcc73
-
-  echo "  Making..."
-  make -j$NUMCPUS --load-average=$NUMCPUS > make.log 2>&1
-  make install > make_install.log 2>&1
-  cd ..
-  rm apache-log4cxx-0.10.0.tar.gz
-  touch log4cxx.state
-fi
-
 # ----------------- Compile Boost -------------------------
 if [ ! -f boost.state ]; then
   echo "Compiling Boost..."
   echo "  Downloading..."
-  wget --quiet -O boost_1_65_1.tar.gz http://downloads.sourceforge.net/project/boost/boost/1.65.1/boost_1_65_1.tar.gz
+  wget --quiet -O boost_1_71_0.tar.gz https://dl.bintray.com/boostorg/release/1.71.0/source/boost_1_71_0.tar.gz
   rm -rf boost; mkdir boost
-  tar xfz boost_1_65_1.tar.gz -C boost --strip-components=1
+  tar xfz boost_1_71_0.tar.gz -C boost --strip-components=1
 
   cd boost
   echo "  Bootstrapping..."
-  ./bootstrap.sh --without-libraries=context --without-libraries=coroutine --without-libraries=graph_parallel --without-libraries=log --without-libraries=mpi --without-libraries=python --without-icu > bootstrap.log 2>&1
+  ./bootstrap.sh --without-libraries=context --without-libraries=coroutine --without-libraries=graph_parallel --without-libraries=mpi --without-libraries=python --without-icu > bootstrap.log 2>&1
 
   echo "  Configuring..."
 
@@ -201,14 +104,13 @@ if [ ! -f boost.state ]; then
   sed -i -e 's%#if ((defined(__linux__) \&\& !defined(__UCLIBC__) \&\& !defined(BOOST_MATH_HAVE_FIXED_GLIBC)) || defined(__QNX__) || defined(__IBMCPP__)) \&\& !defined(BOOST_NO_FENV_H)%#if ((!defined(BOOST_MATH_NO_LONG_DOUBLE_MATH_FUNCTIONS) \&\& defined(__linux__) \&\& !defined(__UCLIBC__) \&\& !defined(BOOST_MATH_HAVE_FIXED_GLIBC)) || defined(__QNX__) || defined(__IBMCPP__)) \&\& !defined(BOOST_NO_FENV_H)%g' boost/math/tools/config.hpp
 
   echo "  Building..."
-  ./b2 -j$NUMCPUS --layout=versioned --disable-icu pch=off optimization=speed inlining=full define=BOOST_MATH_NO_LONG_DOUBLE_MATH_FUNCTIONS define=_FORTIFY_SOURCE=2 cxxflags=-std=gnu++14 cxxflags=-fstack-protector linkflags=-Wl,-z,relro linkflags=-Wl,-z,now > b2_make.log 2>&1
-  ./b2 install --prefix=/usr/local/gcc73 --layout=versioned --disable-icu pch=off optimization=speed inlining=full define=BOOST_MATH_NO_LONG_DOUBLE_MATH_FUNCTIONS define=_FORTIFY_SOURCE=2 cxxflags=-std=gnu++14 cxxflags=-fstack-protector linkflags=-Wl,-z,relro linkflags=-Wl,-z,now > b2_make_install.log 2>&1
+  ./b2 -j$NUMCPUS --layout=versioned --disable-icu pch=off optimization=speed inlining=full define=BOOST_MATH_NO_LONG_DOUBLE_MATH_FUNCTIONS define=BOOST_LOG_WITHOUT_DEBUG_OUTPUT define=BOOST_LOG_WITHOUT_EVENT_LOG define=BOOST_LOG_WITHOUT_SYSLOG define=BOOST_LOG_WITHOUT_IPC define=_FORTIFY_SOURCE=2 cxxflags=-std=gnu++14 cxxflags=-fstack-protector linkflags=-Wl,-z,relro linkflags=-Wl,-z,now > b2_make.log 2>&1
+  ./b2 install --prefix=/usr/local/gcc73 --layout=versioned --disable-icu pch=off optimization=speed inlining=full define=BOOST_MATH_NO_LONG_DOUBLE_MATH_FUNCTIONS define=BOOST_LOG_WITHOUT_DEBUG_OUTPUT define=BOOST_LOG_WITHOUT_EVENT_LOG define=BOOST_LOG_WITHOUT_SYSLOG define=BOOST_LOG_WITHOUT_IPC define=_FORTIFY_SOURCE=2 cxxflags=-std=gnu++14 cxxflags=-fstack-protector linkflags=-Wl,-z,relro linkflags=-Wl,-z,now > b2_make_install.log 2>&1
 
   cd ..
-  rm boost_1_65_1.tar.gz
+  rm boost_1_71_0.tar.gz
   touch boost.state
 fi
-
 
 # ----------------- Compile cppunit -------------------------
 if [ ! -f cppunit.state ]; then

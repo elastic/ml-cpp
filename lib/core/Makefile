@@ -12,6 +12,8 @@ USE_BOOST_REGEX_LIBS=1
 USE_BOOST_DATETIME_LIBS=1
 USE_BOOST_FILESYSTEM_LIBS=1
 USE_BOOST_IOSTREAMS_LIBS=1
+USE_BOOST_LOGSETUP_LIBS=1
+USE_BOOST_THREAD_LIBS=1
 USE_RAPIDJSON=1
 USE_XML=1
 USE_ZLIB=1
@@ -44,7 +46,6 @@ CMonotonicTime.cc \
 CMutex.cc \
 CNamedPipeFactory.cc \
 COsFileFuncs.cc \
-CPOpen.cc \
 CProcess.cc \
 CProcessPriority.cc \
 CProgName.cc \
@@ -68,7 +69,6 @@ CWindowsError.cc \
 SRCS= \
 $(OS_SRCS) \
 CBase64Filter.cc \
-CBufferFlushTimer.cc \
 CCompressedDictionary.cc \
 CCompressOStream.cc \
 CContainerPrinter.cc \
@@ -76,12 +76,9 @@ CDataAdder.cc \
 CDataFrame.cc \
 CDataFrameRowSlice.cc \
 CDataSearcher.cc \
-CDelimiter.cc \
 CDualThreadStreamBuf.cc \
-CFileDeleter.cc \
 CFlatPrefixTree.cc \
 CHashing.cc \
-CHexUtils.cc \
 CJsonLogLayout.cc \
 CJsonOutputStreamWrapper.cc \
 CJsonStatePersistInserter.cc \
