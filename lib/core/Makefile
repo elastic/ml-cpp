@@ -44,7 +44,6 @@ CMonotonicTime.cc \
 CMutex.cc \
 CNamedPipeFactory.cc \
 COsFileFuncs.cc \
-CPOpen.cc \
 CProcess.cc \
 CProcessPriority.cc \
 CProgName.cc \
@@ -68,7 +67,6 @@ CWindowsError.cc \
 SRCS= \
 $(OS_SRCS) \
 CBase64Filter.cc \
-CBufferFlushTimer.cc \
 CCompressedDictionary.cc \
 CCompressOStream.cc \
 CContainerPrinter.cc \
@@ -76,12 +74,9 @@ CDataAdder.cc \
 CDataFrame.cc \
 CDataFrameRowSlice.cc \
 CDataSearcher.cc \
-CDelimiter.cc \
 CDualThreadStreamBuf.cc \
-CFileDeleter.cc \
 CFlatPrefixTree.cc \
 CHashing.cc \
-CHexUtils.cc \
 CJsonLogLayout.cc \
 CJsonOutputStreamWrapper.cc \
 CJsonStatePersistInserter.cc \
