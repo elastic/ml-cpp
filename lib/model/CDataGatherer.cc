@@ -93,7 +93,7 @@ const CDataGatherer::TFeatureVec& sanitize(CDataGatherer::TFeatureVec& features,
 
             switch (features[i]) {
             CASE_INDIVIDUAL_COUNT:
-                LOG_ERROR(<< "Unexpected feature = " << model_t::print(features[i]))
+                LOG_ERROR(<< "Unexpected feature = " << model_t::print(features[i]));
                 break;
 
             CASE_INDIVIDUAL_METRIC:
@@ -102,7 +102,7 @@ const CDataGatherer::TFeatureVec& sanitize(CDataGatherer::TFeatureVec& features,
                 break;
 
             CASE_POPULATION_COUNT:
-                LOG_ERROR(<< "Unexpected feature = " << model_t::print(features[i]))
+                LOG_ERROR(<< "Unexpected feature = " << model_t::print(features[i]));
                 break;
 
             CASE_POPULATION_METRIC:
@@ -111,7 +111,7 @@ const CDataGatherer::TFeatureVec& sanitize(CDataGatherer::TFeatureVec& features,
                 break;
 
             CASE_PEERS_COUNT:
-                LOG_ERROR(<< "Unexpected feature = " << model_t::print(features[i]))
+                LOG_ERROR(<< "Unexpected feature = " << model_t::print(features[i]));
                 break;
 
             CASE_PEERS_METRIC:

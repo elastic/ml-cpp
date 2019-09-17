@@ -23,6 +23,9 @@
 #ifdef TEXT
 #undef TEXT
 #endif
+#ifdef ERROR
+#undef ERROR
+#endif
 
 #ifndef STDCALL
 #define STDCALL __stdcall

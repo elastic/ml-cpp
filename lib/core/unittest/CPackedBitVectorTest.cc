@@ -399,10 +399,10 @@ void CPackedBitVectorTest::testOneBitIterators() {
         }
 
         if (actualIndices != expectedIndices) {
-            LOG_ERROR("expected = " << core::CContainerPrinter::print(expectedIndices));
-            LOG_ERROR("actual   = " << core::CContainerPrinter::print(actualIndices));
+            LOG_ERROR(<< "expected = " << core::CContainerPrinter::print(expectedIndices));
+            LOG_ERROR(<< "actual   = " << core::CContainerPrinter::print(actualIndices));
         } else if (t % 100 == 0) {
-            LOG_DEBUG("indices = " << core::CContainerPrinter::print(expectedIndices));
+            LOG_DEBUG(<< "indices = " << core::CContainerPrinter::print(expectedIndices));
         }
         CPPUNIT_ASSERT(actualIndices == expectedIndices);
     }
