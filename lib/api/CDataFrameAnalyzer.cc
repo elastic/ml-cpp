@@ -401,6 +401,9 @@ void CDataFrameAnalyzer::writeResultsOf(const CDataFrameAnalysisRunner& analysis
         }
     });
 
+    // Write the resulting model for inference
+    analysis.serializeRunner(writer);
+
     writer.flush();
 }
 

@@ -876,6 +876,7 @@ const std::string SPLIT_FEATURE_TAG{"split_feature"};
 const std::string ASSIGN_MISSING_TO_LEFT_TAG{"assign_missing_to_left "};
 const std::string NODE_VALUE_TAG{"node_value"};
 const std::string SPLIT_VALUE_TAG{"split_value"};
+const std::string SPLIT_INDEX_TAG{"split_index"};
 
 const std::string HYPERPARAM_LAMBDA_TAG{"hyperparam_lambda"};
 const std::string HYPERPARAM_GAMMA_TAG{"hyperparam_gamma"};
@@ -937,6 +938,7 @@ void CBoostedTreeImpl::CNode::acceptPersistInserter(core::CStatePersistInserter&
     core::CPersistUtils::persist(ASSIGN_MISSING_TO_LEFT_TAG, m_AssignMissingToLeft, inserter);
     core::CPersistUtils::persist(NODE_VALUE_TAG, m_NodeValue, inserter);
     core::CPersistUtils::persist(SPLIT_VALUE_TAG, m_SplitValue, inserter);
+    core::CPersistUtils::persist(SPLIT_INDEX_TAG, m_SplitIndex, inserter);
 }
 
 void CBoostedTreeImpl::SHyperparameters::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
@@ -989,6 +991,8 @@ bool CBoostedTreeImpl::CNode::acceptRestoreTraverser(core::CStateRestoreTraverse
                 core::CPersistUtils::restore(NODE_VALUE_TAG, m_NodeValue, traverser))
         RESTORE(SPLIT_VALUE_TAG,
                 core::CPersistUtils::restore(SPLIT_VALUE_TAG, m_SplitValue, traverser))
+        RESTORE(SPLIT_INDEX_TAG,
+                core::CPersistUtils::restore(SPLIT_INDEX_TAG, m_SplitIndex, traverser))
     } while (traverser.next());
     return true;
 }

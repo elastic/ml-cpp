@@ -213,6 +213,10 @@ CDataFrameAnalysisRunner::TStatePersister CDataFrameAnalysisRunner::statePersist
     };
 }
 
+void CDataFrameAnalysisRunner::serializeRunner(core::CRapidJsonConcurrentLineWriter &writer) const {
+    // by default do nothing
+}
+
 CDataFrameAnalysisRunnerFactory::TRunnerUPtr
 CDataFrameAnalysisRunnerFactory::make(const CDataFrameAnalysisSpecification& spec) const {
     auto result = this->makeImpl(spec);

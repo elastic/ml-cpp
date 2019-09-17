@@ -150,6 +150,10 @@ private:
     //! node bit masks from the node's bit mask.
     class CNode final {
     public:
+
+        CNode (): m_SplitIndex(0){};
+        CNode (std::int32_t index): m_SplitIndex(index){};
+
         //! See core::CMemory.
         static bool dynamicSizeAlwaysZero() { return true; }
 
@@ -192,7 +196,9 @@ private:
             m_AssignMissingToLeft = assignMissingToLeft;
             m_LeftChild = static_cast<std::int32_t>(tree.size());
             m_RightChild = static_cast<std::int32_t>(tree.size() + 1);
-            tree.resize(tree.size() + 2);
+            // create to leafs with consecutive indices
+            tree.emplace_back(tree.size());
+            tree.emplace_back(tree.size());
             return {m_LeftChild, m_RightChild};
         }
 
@@ -284,6 +290,7 @@ private:
         }
 
     private:
+        std::int32_t m_SplitIndex =-1;
         std::size_t m_SplitFeature = 0;
         double m_SplitValue = 0.0;
         bool m_AssignMissingToLeft = true;

@@ -134,6 +134,8 @@ public:
     //! of the proportion of total work complete for a single run.
     double progress() const;
 
+    virtual void serializeRunner(core::CRapidJsonConcurrentLineWriter& writer) const;
+
 protected:
     using TStatePersister =
         std::function<void(std::function<void(core::CStatePersistInserter&)>)>;

@@ -22,6 +22,7 @@
 #include <api/ElasticsearchStateIndex.h>
 
 #include <rapidjson/document.h>
+#include <core/CJsonStatePersistInserter.h>
 
 namespace ml {
 namespace api {
@@ -244,6 +245,28 @@ std::size_t CDataFrameBoostedTreeRunner::estimateBookkeepingMemoryUsage(
     std::size_t /*partitionNumberRows*/,
     std::size_t numberColumns) const {
     return m_BoostedTreeFactory->estimateMemoryUsage(totalNumberRows, numberColumns);
+}
+
+void CDataFrameBoostedTreeRunner::serializeRunner(core::CRapidJsonConcurrentLineWriter &writer) const {
+    std::stringstream strm;
+    {
+        core::CJsonStatePersistInserter inserter(strm);
+        m_BoostedTree->acceptPersistInserter(inserter);
+        strm.flush();
+    }
+    LOG_DEBUG(<< strm.str())
+    rapidjson::Document doc;
+    if (strm.str().empty() == false) {
+        doc.Parse(strm.str());
+        if (doc.GetParseError()) {
+            HANDLE_FATAL(<< "Input error: analysis parameters " << strm.str()
+                                 << " cannot be parsed as json. Please report this problem.")
+        }
+    }
+    // TODO get a rapidjson doc with the transformed json data
+
+//    writer.write(doc);
+//    CDataFrameAnalysisRunner::serializeRunner(writer);
 }
 
 const std::string& CDataFrameBoostedTreeRunnerFactory::name() const {
