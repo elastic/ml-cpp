@@ -157,16 +157,18 @@ CppUnit::Test *CDataFrameAnalyzerInferenceOutputTest::suite() {
     suiteOfTests->addTest(new CppUnit::TestCaller<CDataFrameAnalyzerInferenceOutputTest>(
             "CDataFrameAnalyzerInferenceOutputTest::testTrainOneHotEncoding",
             &CDataFrameAnalyzerInferenceOutputTest::testTrainOneHotEncoding));
-
+    suiteOfTests->addTest(new CppUnit::TestCaller<CDataFrameAnalyzerInferenceOutputTest>(
+            "CDataFrameAnalyzerInferenceOutputTest::testTrainFrequencyEncoding",
+            &CDataFrameAnalyzerInferenceOutputTest::testTrainFrequencyEncoding));
 
     return suiteOfTests;
 }
 
-void CDataFrameAnalyzerInferenceOutputTest::testTrainOneHotEncoding() {
-    std::size_t numberExamples = 5;
+void CDataFrameAnalyzerInferenceOutputTest::testTrainFrequencyEncoding() {
+    std::size_t numberExamples =100;
     std::size_t cols = 3;
     test::CRandomNumbers rng;
-    TDoubleVec weights{0.1, 2.0};
+    TDoubleVec weights{0.1, 100.0};
 
     std::stringstream output;
     auto outputWriterFactory = [&output]() {
@@ -189,22 +191,12 @@ void CDataFrameAnalyzerInferenceOutputTest::testTrainOneHotEncoding() {
     api::CDataFrameAnalyzer analyzer{regressionSpec("target_col", numberExamples, cols, 30000000, 0, 0, {"categorical_col"}), outputWriterFactory};
 
     TDataFrameUPtr frame = core::makeMainStorageDataFrame(cols+2, numberExamples).first;
-//    frame->categoricalColumns({false, true, false});
     for (std::size_t i = 0; i < numberExamples; ++i) {
-//        frame->writeRow([&values, i, cols](core::CDataFrame::TFloatVecItr column,
-//                                           std::int32_t &) {
-//            for (std::size_t j = 0; j < cols; ++j, ++column) {
-//                *column = values[j][i];
-//
-//            }
-//        });
         for (std::size_t j = 0; j < cols; ++j) {
             fieldValues[j] = core::CStringUtils::typeToStringPrecise(
                     values[j][i], core::CIEEE754::E_DoublePrecision);
         }
         analyzer.handleRecord(fieldNames, fieldValues);
-
-
     }
     analyzer.handleRecord(fieldNames, {"", "", "", "", "$"});
 }
@@ -213,7 +205,40 @@ void CDataFrameAnalyzerInferenceOutputTest::testTrainTargetMeanEncoding() {
 
 }
 
-void CDataFrameAnalyzerInferenceOutputTest::testTrainFrequencyEncoding() {
+void CDataFrameAnalyzerInferenceOutputTest::testTrainOneHotEncoding() {
+    std::size_t numberExamples =1000;
+    std::size_t cols = 3;
+    test::CRandomNumbers rng;
+    TDoubleVec weights{0.1, 100.0};
 
+    std::stringstream output;
+    auto outputWriterFactory = [&output]() {
+        return std::make_unique<core::CJsonOutputStreamWrapper>(output);
+    };
+
+    TStrVec fieldNames{"numeric_col", "categorical_col", "target_col", ".", "."};
+
+    TStrVec fieldValues{"", "", "0", "", ""};
+
+    TDoubleVecVec frequencies;
+    TDoubleVecVec values(cols);
+    rng.generateUniformSamples(-10.0, 10.0, numberExamples, values[0]);
+    values[1] = generateCategoricalData(rng, numberExamples, {100., 5.0, 5.0}).second;
+
+    for (std::size_t i = 0; i < numberExamples; ++i) {
+        values[2].push_back(values[0][i] * weights[0] + values[1][i]*weights[1]);
+    }
+
+    api::CDataFrameAnalyzer analyzer{regressionSpec("target_col", numberExamples, cols, 30000000, 0, 0, {"categorical_col"}), outputWriterFactory};
+
+    TDataFrameUPtr frame = core::makeMainStorageDataFrame(cols+2, numberExamples).first;
+    for (std::size_t i = 0; i < numberExamples; ++i) {
+        for (std::size_t j = 0; j < cols; ++j) {
+            fieldValues[j] = core::CStringUtils::typeToStringPrecise(
+                    values[j][i], core::CIEEE754::E_DoublePrecision);
+        }
+        analyzer.handleRecord(fieldNames, fieldValues);
+    }
+    analyzer.handleRecord(fieldNames, {"", "", "", "", "$"});
 }
 

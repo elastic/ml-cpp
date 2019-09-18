@@ -20,9 +20,11 @@
 #include <api/CDataFrameAnalysisConfigReader.h>
 #include <api/CDataFrameAnalysisSpecification.h>
 #include <api/ElasticsearchStateIndex.h>
+#include <api/InferenceModelDefinition.hpp>
 
 #include <rapidjson/document.h>
 #include <core/CJsonStatePersistInserter.h>
+#include <api/CInferenceModelFormatter.h>
 
 namespace ml {
 namespace api {
@@ -254,7 +256,7 @@ void CDataFrameBoostedTreeRunner::serializeRunner(core::CRapidJsonConcurrentLine
         m_BoostedTree->acceptPersistInserter(inserter);
         strm.flush();
     }
-    LOG_DEBUG(<< strm.str())
+    LOG_DEBUG(<< strm.str());
     rapidjson::Document doc;
     if (strm.str().empty() == false) {
         doc.Parse(strm.str());
@@ -264,6 +266,8 @@ void CDataFrameBoostedTreeRunner::serializeRunner(core::CRapidJsonConcurrentLine
         }
     }
     // TODO get a rapidjson doc with the transformed json data
+    CInferenceModelFormatter formatter{std::move(doc)};
+    LOG_DEBUG(<< "Inference model json: "<< formatter.toString());
 
 //    writer.write(doc);
 //    CDataFrameAnalysisRunner::serializeRunner(writer);

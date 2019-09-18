@@ -39,6 +39,7 @@ CFieldConfig.cc \
 CFieldDataTyper.cc \
 CForecastRunner.cc \
 CHierarchicalResultsWriter.cc \
+CInferenceModelFormatter.cc \
 CInputParser.cc \
 CIoManager.cc \
 CJsonOutputWriter.cc \
