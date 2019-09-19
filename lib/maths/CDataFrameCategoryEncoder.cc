@@ -28,12 +28,12 @@ using TSizeDoublePrVec = std::vector<TSizeDoublePr>;
 using TSizeDoublePrVecVec = std::vector<TSizeDoublePrVec>;
 using TSizeUSet = boost::unordered_set<std::size_t>;
 
-enum EEncoding {
-    E_OneHot = 0,
-    E_Frequency,
-    E_TargetMean,
-    E_CandidateEncodings
-};
+//enum EEncoding {
+//    E_OneHot = 0,
+//    E_Frequency,
+//    E_TargetMean,
+//    E_CandidateEncodings
+//};
 
 const std::size_t CATEGORY_FOR_METRICS{std::numeric_limits<std::size_t>::max()};
 const std::size_t CATEGORY_FOR_FREQUANCY_ENCODING{CATEGORY_FOR_METRICS - 1};
@@ -225,20 +225,28 @@ CFloatStorage CEncodedDataFrameRowRef::operator[](std::size_t i) const {
 
     std::size_t encoding{m_Encoder->encoding(i)};
     std::size_t category{static_cast<std::size_t>(value)};
+    auto encodingMap = this->m_Encoder->getEncodingMap();
 
-    std::size_t numberOneHotEncodedCategories{
-        m_Encoder->numberOneHotEncodedCategories(feature)};
-
-    if (encoding < numberOneHotEncodedCategories) {
-        return m_Encoder->isHot(encoding, feature, category) ? 1.0 : 0.0;
+    if (encodingMap[feature][encoding].second == CDataFrameCategoryEncoder::E_OneHot) {
+        return category == encoding ? 1.0 : 0.0;
+    }
+    else {
+        return encodingMap[feature][encoding].first;
     }
 
-    if (encoding == numberOneHotEncodedCategories &&
-        m_Encoder->usesFrequencyEncoding(feature)) {
-        return m_Encoder->frequency(feature, category);
-    }
-
-    return m_Encoder->targetMeanValue(feature, category);
+//    std::size_t numberOneHotEncodedCategories{
+//        m_Encoder->numberOneHotEncodedCategories(feature)};
+//
+//    if (encoding < numberOneHotEncodedCategories) {
+//        return m_Encoder->isHot(encoding, feature, category) ? 1.0 : 0.0;
+//    }
+//
+//    if (encoding == numberOneHotEncodedCategories &&
+//        m_Encoder->usesFrequencyEncoding(feature)) {
+//        return m_Encoder->frequency(feature, category);
+//    }
+//
+//    return m_Encoder->targetMeanValue(feature, category);
 }
 
 std::size_t CEncodedDataFrameRowRef::index() const {
@@ -297,6 +305,59 @@ CDataFrameCategoryEncoder::CDataFrameCategoryEncoder(const CMakeDataFrameCategor
         this->selectFeatures(parameters.m_NumberThreads, parameters.m_Frame,
                              parameters.m_RowMask, metricColumnMask,
                              categoricalColumnMask, parameters.m_TargetColumn));
+
+    std::size_t maxCategory{*std::max_element(m_FeatureVectorEncodingMap.begin(),
+                                              m_FeatureVectorEncodingMap.end())};
+    std::vector<std::pair<std::size_t, std::size_t >> categories;
+    categories.reserve(maxCategory+1);
+
+    for (auto col : parameters.m_ColumnMask) {
+        if (col == parameters.m_TargetColumn) {
+            continue;
+        }
+        if (this->columnIsCategorical(col) == false) {
+            continue;
+        }
+
+//        std::size_t feature{this->column(col)};
+
+
+        // generate list of categories
+        for (auto it = std::find(m_FeatureVectorColumnMap.begin(),
+                                 m_FeatureVectorColumnMap.end(), col);
+             it != m_FeatureVectorColumnMap.end();
+             it = std::find(it + 1, m_FeatureVectorColumnMap.end(), col)) {
+            auto index = std::distance(m_FeatureVectorColumnMap.begin(), it);
+            categories.push_back({m_FeatureVectorEncodingMap[index], index});
+        }
+
+
+        std::size_t numberOneHotEncodedCategories{this->numberOneHotEncodedCategories(col)};
+        TDoubleEncodingPrVector categoryMap;
+        categoryMap.reserve(categories.size());
+
+
+        for (auto categoryEncoding : categories) {
+            std::size_t category{categoryEncoding.first};
+            std::size_t encoding{categoryEncoding.second};
+            if (encoding < numberOneHotEncodedCategories) {
+                // use one-hot encoding
+                categoryMap.emplace_back(category, E_OneHot);
+            }
+            else if (encoding == numberOneHotEncodedCategories &&
+                     this->usesFrequencyEncoding(col)) {
+                // use frequency encoding
+                categoryMap.emplace_back(this->frequency(col, category), E_Frequency);
+            }
+            else {
+                // use target mean encoding
+                categoryMap.emplace_back(this->targetMeanValue(col, category), E_TargetMean);
+            }
+        }
+
+        this->m_EncodingMap.emplace(col, std::move(categoryMap));
+        categories.clear();
+    }
 }
 
 CDataFrameCategoryEncoder::CDataFrameCategoryEncoder(core::CStateRestoreTraverser& traverser) {
@@ -815,6 +876,10 @@ std::size_t CDataFrameCategoryEncoder::numberAvailableFeatures(const TSizeDouble
                                [](const auto& mic) { return mic.second > 0.0; });
     }
     return count;
+}
+
+const CDataFrameCategoryEncoder::TSizeDoubleEncodingPrVectorMap &CDataFrameCategoryEncoder::getEncodingMap() const {
+    return m_EncodingMap;
 }
 
 CMakeDataFrameCategoryEncoder::CMakeDataFrameCategoryEncoder(std::size_t numberThreads,

@@ -20,6 +20,7 @@
 #include <cstdint>
 #include <utility>
 #include <vector>
+#include <unordered_map>
 
 namespace ml {
 namespace core {
@@ -85,12 +86,21 @@ class CMakeDataFrameCategoryEncoder;
 //! the number of features we use in total based on the quantity of training data.
 class MATHS_EXPORT CDataFrameCategoryEncoder final {
 public:
+    enum EEncoding {
+        E_OneHot = 0,
+        E_Frequency,
+        E_TargetMean,
+        E_CandidateEncodings
+    };
     using TBoolVec = std::vector<bool>;
     using TDoubleVec = std::vector<double>;
     using TDoubleVecVec = std::vector<TDoubleVec>;
     using TSizeVec = std::vector<std::size_t>;
     using TSizeVecVec = std::vector<TSizeVec>;
     using TRowRef = core::CDataFrame::TRowRef;
+    using TDoubleEncodingPr = std::pair<double, EEncoding>;
+    using TDoubleEncodingPrVector = std::vector<TDoubleEncodingPr>;
+    using TSizeDoubleEncodingPrVectorMap = std::unordered_map<std::size_t, TDoubleEncodingPrVector>;
 
 public:
     CDataFrameCategoryEncoder(const CMakeDataFrameCategoryEncoder& parameters);
@@ -201,6 +211,9 @@ private:
     TDoubleVec m_FeatureVectorMics;
     TSizeVec m_FeatureVectorColumnMap;
     TSizeVec m_FeatureVectorEncodingMap;
+    TSizeDoubleEncodingPrVectorMap m_EncodingMap;
+public:
+    const TSizeDoubleEncodingPrVectorMap &getEncodingMap() const;
 };
 
 //! \brief Implements the named parameter idiom for CDataFrameCategoryEncoder.
