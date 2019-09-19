@@ -7,6 +7,7 @@
 OS=MacOSX
 
 CPP_PLATFORM_HOME=$(CPP_DISTRIBUTION_HOME)/platform/darwin-x86_64
+APP_CONTENTS=controller.app/Contents
 
 CC=clang
 CXX=clang++ -std=c++14 -stdlib=libc++
@@ -33,6 +34,14 @@ COMP_OUT_FLAG=-o
 ANALYZE_OUT_FLAG=-o
 LINK_OUT_FLAG=-o
 DEP_REFORMAT=sed 's,\($*\)\.o[ :]*,$(OBJS_DIR)\/\1.o $@ : ,g'
+OBJECT_FILE_EXT=.o
+EXE_DIR=$(APP_CONTENTS)/MacOS
+DYNAMIC_LIB_EXT=.dylib
+DYNAMIC_LIB_DIR=$(APP_CONTENTS)/lib
+STATIC_LIB_EXT=.a
+SHELL_SCRIPT_EXT=.sh
+UT_TMP_DIR=/tmp/$(LOGNAME)
+RESOURCES_DIR=$(APP_CONTENTS)/Resources
 LOCALLIBS=
 NETLIBS=
 BOOSTVER=1_71
@@ -58,19 +67,13 @@ JAVANATIVEINCLUDES=-I`/usr/libexec/java_home`/include
 JAVANATIVELDFLAGS=-L`/usr/libexec/java_home`/jre/lib/server
 JAVANATIVELIBS=-ljvm
 ML_VERSION_NUM:=$(shell cat $(CPP_SRC_HOME)/gradle.properties | grep '^elasticsearchVersion' | awk -F= '{ print $$2 }' | xargs echo | sed 's/-.*//')
-DYNAMICLIBLDFLAGS=-current_version $(ML_VERSION_NUM) -compatibility_version $(ML_VERSION_NUM) -dynamiclib -Wl,-dead_strip_dylibs $(COVERAGE) -Wl,-install_name,@rpath/$(notdir $(TARGET)) -L$(CPP_PLATFORM_HOME)/lib -Wl,-rpath,@loader_path/. -Wl,-headerpad_max_install_names
+DYNAMICLIBLDFLAGS=-current_version $(ML_VERSION_NUM) -compatibility_version $(ML_VERSION_NUM) -dynamiclib -Wl,-dead_strip_dylibs $(COVERAGE) -Wl,-install_name,@rpath/$(notdir $(TARGET)) -L$(CPP_PLATFORM_HOME)/$(DYNAMIC_LIB_DIR) -Wl,-rpath,@loader_path/. -Wl,-headerpad_max_install_names
 CPPUNITLIBS=-lcppunit
 ZLIBLIBS=-lz
-EXELDFLAGS=-bind_at_load -L$(CPP_PLATFORM_HOME)/lib $(COVERAGE) -Wl,-rpath,@loader_path/../lib -Wl,-headerpad_max_install_names
-UTLDFLAGS=$(EXELDFLAGS) -Wl,-rpath,$(CPP_PLATFORM_HOME)/lib
+EXELDFLAGS=-bind_at_load -L$(CPP_PLATFORM_HOME)/$(DYNAMIC_LIB_DIR) $(COVERAGE) -Wl,-rpath,@loader_path/../lib -Wl,-headerpad_max_install_names
+UTLDFLAGS=$(EXELDFLAGS) -Wl,-rpath,$(CPP_PLATFORM_HOME)/$(DYNAMIC_LIB_DIR)
 PLIST_FILE=$(OBJS_DIR)/Info.plist
 PLIST_FILE_LDFLAGS=-Wl,-sectcreate,__TEXT,__info_plist,$(PLIST_FILE)
-OBJECT_FILE_EXT=.o
-DYNAMIC_LIB_EXT=.dylib
-DYNAMIC_LIB_DIR=lib
-STATIC_LIB_EXT=.a
-SHELL_SCRIPT_EXT=.sh
-UT_TMP_DIR=/tmp/$(LOGNAME)
 LIB_ML_API=-lMlApi
 LIB_ML_CORE=-lMlCore
 LIB_ML_VER=-lMlVer

@@ -5,7 +5,26 @@
 # you may not use this file except in compliance with the Elastic License.
 #
 
-# Strips Ml native code binaries to make them smaller before distribution.
+# Strips ML native code binaries to make them smaller before distribution.
+
+case `uname` in
+
+    Darwin)
+        EXE_DIR=controller.app/Contents/MacOS
+        DYNAMIC_LIB_DIR=controller.app/Contents/lib
+        ;;
+
+    Linux)
+        if [ -z "$CPP_CROSS_COMPILE" ] ; then
+            EXE_DIR=bin
+            DYNAMIC_LIB_DIR=lib
+        else
+            EXE_DIR=controller.app/Contents/MacOS
+            DYNAMIC_LIB_DIR=controller.app/Contents/lib
+        fi
+        ;;
+
+esac
 
 # Ensure $CPP_PLATFORM_HOME is set
 if [ -z "$CPP_PLATFORM_HOME" ] ; then
@@ -13,15 +32,15 @@ if [ -z "$CPP_PLATFORM_HOME" ] ; then
     exit 1
 fi
 
-# Ensure the bin folder has been created.
-if [ ! -d "$CPP_PLATFORM_HOME/bin" ] ; then
-    echo '$CPP_PLATFORM_HOME/bin does not exist'
+# Ensure the executable programs folder has been created.
+if [ ! -d "$CPP_PLATFORM_HOME/$EXE_DIR" ] ; then
+    echo "$CPP_PLATFORM_HOME/$EXE_DIR does not exist"
     exit 2
 fi
 
 # Ensure the lib folder has been created.
-if [ ! -d "$CPP_PLATFORM_HOME/lib" ] ; then
-    echo '$CPP_PLATFORM_HOME/lib does not exist'
+if [ ! -d "$CPP_PLATFORM_HOME/$DYNAMIC_LIB_DIR" ] ; then
+    echo "$CPP_PLATFORM_HOME/$DYNAMIC_LIB_DIR does not exist"
     exit 3
 fi
 
@@ -32,13 +51,13 @@ cd "$CPP_PLATFORM_HOME"
 case `uname` in
 
     Darwin)
-        for PROGRAM in `ls -1d bin/* | grep -v '\.dSYM$'`
+        for PROGRAM in `ls -1d "$EXE_DIR"/* | grep -v '\.dSYM$'`
         do
             echo "Stripping $PROGRAM"
             dsymutil $PROGRAM
             strip -u -r $PROGRAM
         done
-        for LIBRARY in `ls -1d lib/* | grep -v '\.dSYM$'`
+        for LIBRARY in `ls -1d "$DYNAMIC_LIB_DIR"/* | grep -v '\.dSYM$'`
         do
             echo "Stripping $LIBRARY"
             case $LIBRARY in
@@ -51,7 +70,7 @@ case `uname` in
 
     Linux)
         if [ -z "$CPP_CROSS_COMPILE" ] ; then
-            for PROGRAM in `ls -1 bin/* | egrep -v 'bin/core|-debug$'`
+            for PROGRAM in `ls -1 "$EXE_DIR"/* | egrep -v "$EXE_DIR"'/core|-debug$'`
             do
                 echo "Stripping $PROGRAM"
                 objcopy --only-keep-debug "$PROGRAM" "$PROGRAM-debug"
@@ -59,7 +78,7 @@ case `uname` in
                 objcopy --add-gnu-debuglink="$PROGRAM-debug" "$PROGRAM"
                 chmod -x "$PROGRAM-debug"
             done
-            for LIBRARY in `ls -1 lib/* | egrep -v 'lib/core|-debug$'`
+            for LIBRARY in `ls -1 "$DYNAMIC_LIB_DIR"/* | egrep -v 'lib/core|-debug$'`
             do
                 echo "Stripping $LIBRARY"
                 objcopy --only-keep-debug "$LIBRARY" "$LIBRARY-debug"
@@ -68,13 +87,13 @@ case `uname` in
             done
         else
             if [ "$CPP_CROSS_COMPILE" = macosx ] ; then
-                for PROGRAM in `ls -1d bin/* | grep -v '\.dSYM$'`
+                for PROGRAM in `ls -1d "$EXE_DIR"/* | grep -v '\.dSYM$'`
                 do
                     echo "Stripping $PROGRAM"
                     llvm-dsymutil-3.9 $PROGRAM
                     /usr/local/bin/x86_64-apple-macosx10.11-strip -u -r $PROGRAM
                 done
-                for LIBRARY in `ls -1d lib/* | grep -v '\.dSYM$'`
+                for LIBRARY in `ls -1d "$DYNAMIC_LIB_DIR"/* | grep -v '\.dSYM$'`
                 do
                     echo "Stripping $LIBRARY"
                     case $LIBRARY in

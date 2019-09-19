@@ -12,6 +12,12 @@
 
 namespace {
 const char* const CPP_SRC_HOME("CPP_SRC_HOME");
+
+#ifdef MacOSX
+const std::string RESOURCE_RELATIVE_DIR{"../Resources"};
+#else
+const std::string RESOURCE_RELATIVE_DIR{"../resources"};
+#endif
 }
 
 namespace ml {
@@ -22,7 +28,7 @@ std::string CResourceLocator::resourceDir() {
     // $ES_HOME/plugin/<plugin name>/resources
     // $ES_HOME/plugin/<plugin name>/platform/<platform name>/bin
 
-    std::string productionDir(CProgName::progDir() + "/../../../resources");
+    std::string productionDir(CProgName::progDir() + RESOURCE_RELATIVE_DIR);
 
     // If the production directory doesn't exist, return the dev directory if
     // that does, but if neither exist return the production directory so the
@@ -37,22 +43,6 @@ std::string CResourceLocator::resourceDir() {
                 return devDir;
             }
         }
-    }
-
-    return productionDir;
-}
-
-std::string CResourceLocator::logDir() {
-    // Look relative to the program that's running, assuming this directory layout:
-    // $ES_HOME/logs
-    // $ES_HOME/plugin/<plugin name>/platform/<platform name>/bin
-
-    std::string productionDir(CProgName::progDir() + "/../../../../../logs");
-
-    COsFileFuncs::TStat buf;
-    if (COsFileFuncs::stat(productionDir.c_str(), &buf) != 0) {
-        // Assume we're running as a unit test
-        return ".";
     }
 
     return productionDir;

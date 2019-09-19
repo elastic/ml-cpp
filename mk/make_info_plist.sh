@@ -22,6 +22,16 @@ cat <<EOF
     <string>$ML_TARGET</string>
     <key>CFBundleVersion</key>
     <string>$ML_VERSION_NUM</string>
+EOF
+
+if [ $# -gt 1 ] ; then
+    cat <<EOF
+    <key>CFBundleExecutable</key>
+    <string>$2</string>
+EOF
+fi
+
+cat <<EOF
 </dict>
 </plist>
 EOF

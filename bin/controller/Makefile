@@ -7,7 +7,7 @@ include $(CPP_SRC_HOME)/mk/defines.mk
 
 TARGET=$(OBJS_DIR)/controller$(EXE_EXT)
 
-INSTALL_DIR=$(CPP_PLATFORM_HOME)/bin
+INSTALL_DIR=$(CPP_PLATFORM_HOME)/$(EXE_DIR)
 
 ML_LIBS=$(LIB_ML_CORE)
 

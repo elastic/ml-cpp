@@ -23,7 +23,7 @@ export CPP_SRC_HOME=`cd "$MY_DIR" && pwd`
 case `uname` in
 
     Darwin)
-        SIMPLE_PLATFORM=macosx
+        SIMPLE_PLATFORM=macos
         BUNDLE_PLATFORM=darwin-x86_64
         ;;
 
@@ -36,7 +36,7 @@ case `uname` in
             if [ -z "$CPP_CROSS_COMPILE" ] ; then
                 BUNDLE_PLATFORM=linux-x86_64
             else
-                if [ "$CPP_CROSS_COMPILE" = macosx ] ; then
+                if [ "$CPP_CROSS_COMPILE" = macos ] ; then
                     BUNDLE_PLATFORM=darwin-x86_64
                 else
                     echo "Cannot cross compile to $CPP_CROSS_COMPILE"
@@ -103,7 +103,7 @@ case $SIMPLE_PLATFORM in
         PATH=/usr/local/bin:/usr/bin:/bin:/usr/local/sbin:/usr/sbin:/sbin
         ;;
 
-    macosx)
+    macos)
         PATH=/usr/local/bin:/usr/bin:/bin:/usr/local/sbin:/usr/sbin:/sbin
         ;;
 
@@ -160,7 +160,7 @@ case $SIMPLE_PLATFORM in
         MAKE=`which make`
         ;;
 
-    macosx|windows)
+    macos|windows)
         MAKE=`which gnumake`
         ;;
 
