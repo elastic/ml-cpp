@@ -623,7 +623,7 @@ CAnomalyDetectorModelConfig::factory(int identifier,
     }
     result->scheduledEvents(m_ScheduledEvents);
 
-    return result;
+    return std::move(result);
 }
 
 void CAnomalyDetectorModelConfig::decayRate(double value) {

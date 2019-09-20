@@ -196,8 +196,8 @@ public:
 
     //! \name Persistence
     //@{
-    //! Persist the state of the residual models only.
-    virtual void persistResidualModelsState(core::CStatePersistInserter& inserter) const = 0;
+    //! Persist the state of the models.
+    virtual void persistModelsState(core::CStatePersistInserter& inserter) const = 0;
 
     //! Persist state by passing information to the supplied inserter.
     virtual void acceptPersistInserter(core::CStatePersistInserter& inserter) const = 0;
@@ -505,7 +505,7 @@ protected:
         void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
 
         //! Persist the state of the residual models only.
-        void persistResidualModelsState(core::CStatePersistInserter& inserter) const;
+        void persistModelsState(core::CStatePersistInserter& inserter) const;
 
         //! Debug the memory used by this model.
         void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const;

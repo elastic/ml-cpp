@@ -127,36 +127,36 @@ public:
 
     //! \name Persistence
     //@{
-    //! Persist the state of the residual models only.
-    virtual void persistResidualModelsState(core::CStatePersistInserter& inserter) const;
+    //! Persist the state of the models only.
+    void persistModelsState(core::CStatePersistInserter& inserter) const override;
 
     //! Persist state by passing information to \p inserter.
-    virtual void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
+    void acceptPersistInserter(core::CStatePersistInserter& inserter) const override;
 
     //! Restore reading state from \p traverser.
-    virtual bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
+    bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) override;
 
     //! Create a clone of this model that will result in the same persisted
     //! state.  The clone may be incomplete in ways that do not affect the
     //! persisted representation, and must not be used for any other
     //! purpose.
     //! \warning The caller owns the object returned.
-    virtual CAnomalyDetectorModel* cloneForPersistence() const;
+    CAnomalyDetectorModel* cloneForPersistence() const override;
     //@}
 
     //! Get the model category.
-    virtual model_t::EModelType category() const;
+    model_t::EModelType category() const override;
 
     //! Returns true.
-    virtual bool isEventRate() const;
+    bool isEventRate() const override;
 
     //! Returns false.
-    virtual bool isMetric() const;
+    bool isMetric() const override;
 
     //! \name Bucket Statistics
     //@{
     //! Returns null.
-    virtual TOptionalDouble baselineBucketCount(std::size_t pid) const;
+    TOptionalDouble baselineBucketCount(std::size_t pid) const override;
 
     //! Get the value of \p feature for the person identified
     //! by \p pid in the bucketing interval containing \p time.
@@ -165,10 +165,10 @@ public:
     //! \param[in] pid The identifier of the person of interest.
     //! \param[in] cid Ignored.
     //! \param[in] time The time of interest.
-    virtual TDouble1Vec currentBucketValue(model_t::EFeature feature,
-                                           std::size_t pid,
-                                           std::size_t cid,
-                                           core_t::TTime time) const;
+    TDouble1Vec currentBucketValue(model_t::EFeature feature,
+                                   std::size_t pid,
+                                   std::size_t cid,
+                                   core_t::TTime time) const override;
 
     //! Get the baseline bucket value of \p feature for the person
     //! identified by \p pid as of the start of the current bucketing
@@ -182,12 +182,12 @@ public:
     //! \param[in] correlated The correlated series' identifiers and
     //! their values if any.
     //! \param[in] time The time of interest.
-    virtual TDouble1Vec baselineBucketMean(model_t::EFeature feature,
-                                           std::size_t pid,
-                                           std::size_t cid,
-                                           model_t::CResultType type,
-                                           const TSizeDoublePr1Vec& correlated,
-                                           core_t::TTime time) const;
+    TDouble1Vec baselineBucketMean(model_t::EFeature feature,
+                                   std::size_t pid,
+                                   std::size_t cid,
+                                   model_t::CResultType type,
+                                   const TSizeDoublePr1Vec& correlated,
+                                   core_t::TTime time) const override;
 
     //@}
 
@@ -195,7 +195,7 @@ public:
     //@{
     //! Get the person unique identifiers which have a feature value
     //! in the bucketing time interval including \p time.
-    virtual void currentBucketPersonIds(core_t::TTime time, TSizeVec& result) const;
+    void currentBucketPersonIds(core_t::TTime time, TSizeVec& result) const override;
     //@}
 
     //! \name Update
@@ -206,9 +206,9 @@ public:
     //!
     //! \param[in] startTime The start of the time interval to sample.
     //! \param[in] endTime The end of the time interval to sample.
-    virtual void sampleBucketStatistics(core_t::TTime startTime,
-                                        core_t::TTime endTime,
-                                        CResourceMonitor& resourceMonitor);
+    void sampleBucketStatistics(core_t::TTime startTime,
+                                core_t::TTime endTime,
+                                CResourceMonitor& resourceMonitor) override;
 
     //! Update the model with features samples from the time interval
     //! [\p startTime, \p endTime].
@@ -216,7 +216,7 @@ public:
     //! \param[in] startTime The start of the time interval to sample.
     //! \param[in] endTime The end of the time interval to sample.
     //! \param[in] resourceMonitor The resourceMonitor.
-    virtual void sample(core_t::TTime startTime, core_t::TTime endTime, CResourceMonitor& resourceMonitor);
+    void sample(core_t::TTime startTime, core_t::TTime endTime, CResourceMonitor& resourceMonitor) override;
     //@}
 
     //! \name Probability
@@ -234,12 +234,12 @@ public:
     //! \param[out] result A structure containing the probability,
     //! the smallest \p numberAttributeProbabilities attribute
     //! probabilities, the influences and any extra descriptive data
-    virtual bool computeProbability(std::size_t pid,
-                                    core_t::TTime startTime,
-                                    core_t::TTime endTime,
-                                    CPartitioningFields& partitioningFields,
-                                    std::size_t numberAttributeProbabilities,
-                                    SAnnotatedProbability& result) const;
+    bool computeProbability(std::size_t pid,
+                            core_t::TTime startTime,
+                            core_t::TTime endTime,
+                            CPartitioningFields& partitioningFields,
+                            std::size_t numberAttributeProbabilities,
+                            SAnnotatedProbability& result) const override;
     //@}
 
     //! Get the checksum of this model.
@@ -248,22 +248,22 @@ public:
     //! the current bucket statistics. (This is designed to handle
     //! serialization, for which we don't serialize the current
     //! bucket statistics.)
-    virtual uint64_t checksum(bool includeCurrentBucketStats = true) const;
+    uint64_t checksum(bool includeCurrentBucketStats = true) const override;
 
     //! Debug the memory used by this model.
-    virtual void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const;
+    void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const override;
 
     //! Get the memory used by this model.
-    virtual std::size_t memoryUsage() const;
+    std::size_t memoryUsage() const override;
 
     //! Get the static size of this object - used for virtual hierarchies.
-    virtual std::size_t staticSize() const;
+    std::size_t staticSize() const override;
 
     //! Get the non-estimated value of the the memory used by this model.
-    virtual std::size_t computeMemoryUsage() const;
+    std::size_t computeMemoryUsage() const override;
 
     //! Get a view of the internals of the model for visualization.
-    virtual CModelDetailsViewPtr details() const;
+    CModelDetailsViewPtr details() const override;
 
     //! Get the value of the \p feature of the person identified
     //! by \p pid for the bucketing interval containing \p time.
@@ -272,25 +272,25 @@ public:
 
 private:
     //! Get the start time of the current bucket.
-    virtual core_t::TTime currentBucketStartTime() const;
+    core_t::TTime currentBucketStartTime() const override;
 
     //! Set the start time of the current bucket.
-    virtual void currentBucketStartTime(core_t::TTime time);
+    void currentBucketStartTime(core_t::TTime time) override;
 
     //! Get the person counts in the current bucket.
-    virtual const TSizeUInt64PrVec& currentBucketPersonCounts() const;
+    const TSizeUInt64PrVec& currentBucketPersonCounts() const override;
 
     //! Get writable person counts in the current bucket.
-    virtual TSizeUInt64PrVec& currentBucketPersonCounts();
+    TSizeUInt64PrVec& currentBucketPersonCounts() override;
 
     //! Get the interim corrections of the current bucket.
     TFeatureSizeSizeTripleDouble1VecUMap& currentBucketInterimCorrections() const;
 
     //! Clear out large state objects for people that are pruned.
-    virtual void clearPrunedResources(const TSizeVec& people, const TSizeVec& attributes);
+    void clearPrunedResources(const TSizeVec& people, const TSizeVec& attributes) override;
 
     //! Get the object which calculates corrections for interim buckets.
-    virtual const CInterimBucketCorrector& interimValueCorrector() const;
+    const CInterimBucketCorrector& interimValueCorrector() const override;
 
     //! Check if there are correlates for \p feature and the person
     //! identified by \p pid.

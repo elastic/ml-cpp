@@ -31,9 +31,9 @@ namespace {
 
 using TDoubleDoublePr = maths_t::TDoubleDoublePr;
 
-const std::string DECOMPOSITION_COMPONENT_TAG{"a"};
-const std::string RNG_TAG{"b"};
-const std::string BUCKETING_TAG{"c"};
+const core::TPersistenceTag DECOMPOSITION_COMPONENT_TAG{"a", "decomposition_component"};
+const core::TPersistenceTag RNG_TAG{"b", "rng"};
+const core::TPersistenceTag BUCKETING_TAG{"c", "bucketing"};
 const std::string EMPTY_STRING;
 }
 

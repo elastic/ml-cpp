@@ -102,7 +102,7 @@ public:
     using TVectorMeanAccumulator = typename CBasicStatistics::SSampleMean<TVector>::TAccumulator;
 
 public:
-    static const std::string STATISTIC_TAG;
+    static const core::TPersistenceTag STATISTIC_TAG;
     static const T MAX_CONDITION;
 
 public:
@@ -423,7 +423,8 @@ private:
 };
 
 template<std::size_t N_, typename T>
-const std::string CLeastSquaresOnlineRegression<N_, T>::STATISTIC_TAG("a");
+const core::TPersistenceTag
+    CLeastSquaresOnlineRegression<N_, T>::STATISTIC_TAG("a", "statistic");
 template<std::size_t N_, typename T>
 const T CLeastSquaresOnlineRegression<N_, T>::MAX_CONDITION{
     least_squares_online_regression_detail::CMaxCondition<T>::VALUE};
