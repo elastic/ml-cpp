@@ -309,40 +309,38 @@ CDataFrameCategoryEncoder::CDataFrameCategoryEncoder(const CMakeDataFrameCategor
                              parameters.m_RowMask, metricColumnMask,
                              categoricalColumnMask, parameters.m_TargetColumn));
 
-    std::map<std::size_t, std::size_t> categories;
+
 
     for (auto col : parameters.m_ColumnMask) {
-        if (col == parameters.m_TargetColumn) {
-            continue;
-        }
-        if (this->columnIsCategorical(col) == false) {
+        if (col == parameters.m_TargetColumn || this->columnIsCategorical(col) == false) {
             continue;
         }
 
         // generate list of categories
+        std::size_t totalNumberOfCategories{m_CategoryTargetMeanValues[col].size()};
+        std::map<std::size_t , std::size_t> oneHotAndFrequencyEncodedCategories;
+
         for (auto it = std::find(m_FeatureVectorColumnMap.begin(),
                                  m_FeatureVectorColumnMap.end(), col);
              it != m_FeatureVectorColumnMap.end();
              it = std::find(it + 1, m_FeatureVectorColumnMap.end(), col)) {
-            auto index = std::distance(m_FeatureVectorColumnMap.begin(), it);
-            categories.emplace(m_FeatureVectorEncodingMap[index], index);
+            auto encodedRowElementIndex = std::distance(m_FeatureVectorColumnMap.begin(), it);
+            auto category = m_FeatureVectorEncodingMap[encodedRowElementIndex];
+            oneHotAndFrequencyEncodedCategories.emplace(category, encodedRowElementIndex);
         }
 
         std::size_t numberOneHotEncodedCategories{this->numberOneHotEncodedCategories(col)};
         TDoubleEncodingPrVector categoryMap;
-        categoryMap.reserve(categories.size());
+        categoryMap.reserve(totalNumberOfCategories);
 
-        for (auto categoryIterator = m_CategoryTargetMeanValues[col].begin();
-             categoryIterator != m_CategoryTargetMeanValues[col].end();
-             categoryIterator++) {
-            auto index{std::distance(m_CategoryTargetMeanValues[col].begin(), categoryIterator)};
-            std::size_t category{static_cast<size_t>(index)};
-            if (categories.find(index) != categories.end()) {
-                std::size_t encoding{categories[index]};
-                if (index < numberOneHotEncodedCategories) {
+        for (auto category = 0; category < totalNumberOfCategories; ++category) {
+            if (oneHotAndFrequencyEncodedCategories.find(category) != oneHotAndFrequencyEncodedCategories.end()) {
+                std::size_t encodedRowElementIndex{oneHotAndFrequencyEncodedCategories[category]};
+                std::size_t encodedCategory(this->encoding(encodedRowElementIndex));
+                if (encodedCategory < numberOneHotEncodedCategories) {
                     // use one-hot encoding
                     categoryMap.emplace_back(category, E_OneHot);
-                } else if (encoding == numberOneHotEncodedCategories &&
+                } else if (encodedCategory == numberOneHotEncodedCategories &&
                            this->usesFrequencyEncoding(col)) {
                     // use frequency encoding
                     categoryMap.emplace_back(this->frequency(col, category), E_Frequency);
@@ -357,7 +355,7 @@ CDataFrameCategoryEncoder::CDataFrameCategoryEncoder(const CMakeDataFrameCategor
         }
 
         this->m_EncodingMap.emplace(col, std::move(categoryMap));
-        categories.clear();
+        oneHotAndFrequencyEncodedCategories.clear();
     }
 }
 
