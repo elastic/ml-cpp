@@ -45,7 +45,7 @@ public:
     CEncodedDataFrameRowRef(TRowRef row, const CDataFrameCategoryEncoder& encoder);
 
     //! Get column \p i value.
-    CFloatStorage operator[](std::size_t i) const;
+    CFloatStorage operator[](std::size_t encodedRowIndex) const;
 
     //! Get the row's index.
     std::size_t index() const;

@@ -213,40 +213,40 @@ CEncodedDataFrameRowRef::CEncodedDataFrameRowRef(TRowRef row, const CDataFrameCa
     : m_Row{std::move(row)}, m_Encoder{&encoder} {
 }
 
-CFloatStorage CEncodedDataFrameRowRef::operator[](std::size_t i) const {
+CFloatStorage CEncodedDataFrameRowRef::operator[](std::size_t encodedRowIndex) const {
 
-    std::size_t feature{m_Encoder->column(i)};
+    std::size_t inputColumnIndex{m_Encoder->column(encodedRowIndex)};
 
-    CFloatStorage value{m_Row[feature]};
+    CFloatStorage inputColumnValue{m_Row[inputColumnIndex]};
 
-    if (m_Encoder->columnIsCategorical(feature) == false) {
-        return value;
+    if (m_Encoder->columnIsCategorical(inputColumnIndex) == false) {
+        return inputColumnValue;
     }
 
-    std::size_t encoding{m_Encoder->encoding(i)};
-    std::size_t category{static_cast<std::size_t>(value)};
+    std::size_t encodedCategory{m_Encoder->encoding(encodedRowIndex)};
+    std::size_t category{static_cast<std::size_t>(inputColumnValue)};
     auto encodingMap = this->m_Encoder->getEncodingMap();
 
-    if (encodingMap[feature][encoding].second == CDataFrameCategoryEncoder::E_OneHot) {
-        return category == encoding ? 1.0 : 0.0;
+    if (encodingMap[inputColumnIndex][category].second == CDataFrameCategoryEncoder::E_OneHot) {
+        return category == encodedCategory ? 1.0 : 0.0;
+    }else if (category == encodedCategory) { // category should not be one-hot encoded
+        return   encodingMap[inputColumnIndex][category].first;
     }
-    else {
-        return encodingMap[feature][encoding].first;
-    }
+    return 0.0;
 
 //    std::size_t numberOneHotEncodedCategories{
-//        m_Encoder->numberOneHotEncodedCategories(feature)};
+//        m_Encoder->numberOneHotEncodedCategories(inputColumnIndex)};
 //
-//    if (encoding < numberOneHotEncodedCategories) {
-//        return m_Encoder->isHot(encoding, feature, category) ? 1.0 : 0.0;
+//    if (encodedCategory < numberOneHotEncodedCategories) {
+//        return m_Encoder->isHot(encodedCategory, inputColumnIndex, category) ? 1.0 : 0.0;
 //    }
 //
-//    if (encoding == numberOneHotEncodedCategories &&
-//        m_Encoder->usesFrequencyEncoding(feature)) {
-//        return m_Encoder->frequency(feature, category);
+//    if (encodedCategory == numberOneHotEncodedCategories &&
+//        m_Encoder->usesFrequencyEncoding(inputColumnIndex)) {
+//        return m_Encoder->frequency(inputColumnIndex, category);
 //    }
 //
-//    return m_Encoder->targetMeanValue(feature, category);
+//    return m_Encoder->targetMeanValue(inputColumnIndex, category);
 }
 
 std::size_t CEncodedDataFrameRowRef::index() const {
