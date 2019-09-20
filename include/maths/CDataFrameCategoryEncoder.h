@@ -18,9 +18,9 @@
 #include <boost/unordered_set.hpp>
 
 #include <cstdint>
+#include <unordered_map>
 #include <utility>
 #include <vector>
-#include <unordered_map>
 
 namespace ml {
 namespace core {
@@ -45,7 +45,7 @@ public:
     CEncodedDataFrameRowRef(TRowRef row, const CDataFrameCategoryEncoder& encoder);
 
     //! Get column \p i value.
-    CFloatStorage operator[](std::size_t encodedRowIndex) const;
+    CFloatStorage operator[](std::size_t encodedRowElementIndex) const;
 
     //! Get the row's index.
     std::size_t index() const;
@@ -100,7 +100,8 @@ public:
     using TRowRef = core::CDataFrame::TRowRef;
     using TDoubleEncodingPr = std::pair<double, EEncoding>;
     using TDoubleEncodingPrVector = std::vector<TDoubleEncodingPr>;
-    using TSizeDoubleEncodingPrVectorMap = std::unordered_map<std::size_t, TDoubleEncodingPrVector>;
+    using TSizeDoubleEncodingPrVectorMap =
+        std::unordered_map<std::size_t, TDoubleEncodingPrVector>;
 
 public:
     CDataFrameCategoryEncoder(const CMakeDataFrameCategoryEncoder& parameters);
@@ -212,8 +213,9 @@ private:
     TSizeVec m_FeatureVectorColumnMap;
     TSizeVec m_FeatureVectorEncodingMap;
     TSizeDoubleEncodingPrVectorMap m_EncodingMap;
+
 public:
-    const TSizeDoubleEncodingPrVectorMap &getEncodingMap() const;
+    const TSizeDoubleEncodingPrVectorMap& getEncodingMap() const;
 };
 
 //! \brief Implements the named parameter idiom for CDataFrameCategoryEncoder.
