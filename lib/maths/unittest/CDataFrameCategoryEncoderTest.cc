@@ -425,7 +425,7 @@ void CDataFrameCategoryEncoderTest::testEncodedDataFrameRowRef() {
     }
 
     TSizeVecVec expectedOneHot{{0, 1, 2}, {}, {}, {0, 1}, {}};
-    TSizeVecVec expectedRare{{4}, {}, {}, {4}, {}};
+//    TSizeVecVec expectedRare{{4}, {}, {}, {4}, {}};
 
     auto expandOneHot = [&](std::size_t feature, std::size_t category) {
         if (std::binary_search(expectedOneHot[feature].begin(),
@@ -483,6 +483,7 @@ void CDataFrameCategoryEncoderTest::testEncodedDataFrameRowRef() {
         }
         if (i < expectedOneHot[0].size() + 1) {
             return expectedFrequencies[0][categories[0]]; // frequency
+            // why not expectedFrequencies[0][encoder.encoding(i)];???
         }
         if (i < expectedOneHot[0].size() + 2) {
             return maths::CBasicStatistics::mean(

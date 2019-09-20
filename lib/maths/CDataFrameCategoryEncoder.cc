@@ -229,11 +229,16 @@ CFloatStorage CEncodedDataFrameRowRef::operator[](std::size_t encodedRowElementI
     auto encodingMap = this->m_Encoder->getEncodingMap();
 
     if (encodingMap[inputColumnIndex][encodedCategory].second ==
-            CDataFrameCategoryEncoder::E_OneHot ||
-        encodingMap[inputColumnIndex][category].second == CDataFrameCategoryEncoder::E_OneHot) {
+            CDataFrameCategoryEncoder::E_OneHot ) {
         return category == encodedCategory ? 1.0 : 0.0;
     } else { // category should not be one-hot encoded
-        return encodingMap[inputColumnIndex][category].first;
+//        if( encodingMap[inputColumnIndex][category].second != CDataFrameCategoryEncoder::E_OneHot) {
+            return encodingMap[inputColumnIndex][encodedCategory].first;
+            // why not return encodingMap[inputColumnIndex][category].first; ???
+//        }
+//        else {
+//            return 0.0;
+//        }
     }
     //    return 0.0;
     //
@@ -339,7 +344,7 @@ CDataFrameCategoryEncoder::CDataFrameCategoryEncoder(const CMakeDataFrameCategor
                 std::size_t encodedCategory(this->encoding(encodedRowElementIndex));
                 if (encodedCategory < numberOneHotEncodedCategories) {
                     // use one-hot encoding
-                    categoryMap.emplace_back(category, E_OneHot);
+                    categoryMap.emplace_back(1.0, E_OneHot);
                 } else if (encodedCategory == numberOneHotEncodedCategories &&
                            this->usesFrequencyEncoding(col)) {
                     // use frequency encoding
