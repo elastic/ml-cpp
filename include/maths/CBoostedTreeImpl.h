@@ -398,38 +398,41 @@ private:
                             const CLeafNodeStatistics& parent,
                             const CLeafNodeStatistics& sibling,
                             core::CPackedBitVector rowMask)
-                                : m_Id{id}, m_Regularization{sibling.m_Regularization},
-      m_CandidateSplits{sibling.m_CandidateSplits}, m_Depth{sibling.m_Depth},
-      m_FeatureBag{sibling.m_FeatureBag}, m_RowMask{std::move(rowMask)} {
+            : m_Id{id}, m_Regularization{sibling.m_Regularization},
+              m_CandidateSplits{sibling.m_CandidateSplits}, m_Depth{sibling.m_Depth},
+              m_FeatureBag{sibling.m_FeatureBag}, m_RowMask{std::move(rowMask)} {
 
-    LOG_TRACE(<< "row mask = " << m_RowMask);
-    LOG_TRACE(<< "feature bag = " << core::CContainerPrinter::print(m_FeatureBag));
+            LOG_TRACE(<< "row mask = " << m_RowMask);
+            LOG_TRACE(<< "feature bag = " << core::CContainerPrinter::print(m_FeatureBag));
 
-    m_Gradients.resize(m_CandidateSplits.size());
-    m_Curvatures.resize(m_CandidateSplits.size());
-    m_MissingGradients.resize(m_CandidateSplits.size(), 0.0);
-    m_MissingCurvatures.resize(m_CandidateSplits.size(), 0.0);
+            m_Gradients.resize(m_CandidateSplits.size());
+            m_Curvatures.resize(m_CandidateSplits.size());
+            m_MissingGradients.resize(m_CandidateSplits.size(), 0.0);
+            m_MissingCurvatures.resize(m_CandidateSplits.size(), 0.0);
 
-    for (std::size_t i = 0; i < m_CandidateSplits.size(); ++i) {
-        std::size_t numberSplits{m_CandidateSplits[i].size() + 1};
-        m_Gradients[i].resize(numberSplits);
-        m_Curvatures[i].resize(numberSplits);
-        for (std::size_t j = 0; j < numberSplits; ++j) {
-            m_Gradients[i][j] = parent.m_Gradients[i][j] - sibling.m_Gradients[i][j];
-            m_Curvatures[i][j] = parent.m_Curvatures[i][j] - sibling.m_Curvatures[i][j];
+            for (std::size_t i = 0; i < m_CandidateSplits.size(); ++i) {
+                std::size_t numberSplits{m_CandidateSplits[i].size() + 1};
+                m_Gradients[i].resize(numberSplits);
+                m_Curvatures[i].resize(numberSplits);
+                for (std::size_t j = 0; j < numberSplits; ++j) {
+                    m_Gradients[i][j] = parent.m_Gradients[i][j] -
+                                        sibling.m_Gradients[i][j];
+                    m_Curvatures[i][j] = parent.m_Curvatures[i][j] -
+                                         sibling.m_Curvatures[i][j];
+                }
+                m_MissingGradients[i] = parent.m_MissingGradients[i] -
+                                        sibling.m_MissingGradients[i];
+                m_MissingCurvatures[i] = parent.m_MissingCurvatures[i] -
+                                         sibling.m_MissingCurvatures[i];
+            }
+
+            LOG_TRACE(<< "gradients = " << core::CContainerPrinter::print(m_Gradients));
+            LOG_TRACE(<< "curvatures = " << core::CContainerPrinter::print(m_Curvatures));
+            LOG_TRACE(<< "missing gradients = "
+                      << core::CContainerPrinter::print(m_MissingGradients));
+            LOG_TRACE(<< "missing curvatures = "
+                      << core::CContainerPrinter::print(m_MissingCurvatures));
         }
-        m_MissingGradients[i] = parent.m_MissingGradients[i] -
-                                sibling.m_MissingGradients[i];
-        m_MissingCurvatures[i] = parent.m_MissingCurvatures[i] -
-                                 sibling.m_MissingCurvatures[i];
-    }
-
-    LOG_TRACE(<< "gradients = " << core::CContainerPrinter::print(m_Gradients));
-    LOG_TRACE(<< "curvatures = " << core::CContainerPrinter::print(m_Curvatures));
-    LOG_TRACE(<< "missing gradients = " << core::CContainerPrinter::print(m_MissingGradients));
-    LOG_TRACE(<< "missing curvatures = "
-              << core::CContainerPrinter::print(m_MissingCurvatures));
-}
 
         CLeafNodeStatistics(const CLeafNodeStatistics&) = delete;
 
