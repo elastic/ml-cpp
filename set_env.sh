@@ -36,7 +36,7 @@ case `uname` in
             if [ -z "$CPP_CROSS_COMPILE" ] ; then
                 BUNDLE_PLATFORM=linux-x86_64
             else
-                if [ "$CPP_CROSS_COMPILE" = macos ] ; then
+                if [ "$CPP_CROSS_COMPILE" = macosx ] ; then
                     BUNDLE_PLATFORM=darwin-x86_64
                 else
                     echo "Cannot cross compile to $CPP_CROSS_COMPILE"
