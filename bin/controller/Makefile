@@ -16,7 +16,7 @@ USE_BOOST_PROGRAMOPTIONS_LIBS=1
 
 LIBS=$(ML_LIBS)
 
-all: build
+all:: build
 
 SRCS= \
     Main.cc \
@@ -24,6 +24,11 @@ SRCS= \
     CCmdLineParser.cc \
     CCommandProcessor.cc \
 
+#ifneq ($(PLIST_FILE),)
+all:: $(CPP_SRC_HOME)/gradle.properties $(CPP_SRC_HOME)/mk/make_info_plist.sh
+	$(MKDIR) $(INSTALL_DIR)
+	$(CPP_SRC_HOME)/mk/make_info_plist.sh $(notdir $(TARGET)) $(notdir $(TARGET)) > $(INSTALL_DIR)/../$(notdir $(PLIST_FILE))
+#endif
 
 include $(CPP_SRC_HOME)/mk/stdapp.mk
 

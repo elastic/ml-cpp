@@ -6,6 +6,8 @@ ML_SHORTENED_TARGET=`echo $ML_TARGET | cut -c1-15`
 ML_URL_TARGET=`echo $ML_TARGET | tr _ - | tr -d -C A-Za-z0-9- | cut -c1-63`
 
 cat <<EOF
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
     <key>CFBundleDevelopmentRegion</key>
