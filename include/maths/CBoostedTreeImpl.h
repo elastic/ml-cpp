@@ -379,11 +379,9 @@ private:
                             const CDataFrameCategoryEncoder& encoder,
                             const TRegularization& regularization,
                             const TDoubleVecVec& candidateSplits,
-                            std::size_t depth,
                             TSizeVec featureBag,
                             core::CPackedBitVector rowMask)
-            : m_Id{id}, m_Regularization{regularization},
-              m_CandidateSplits{candidateSplits}, m_Depth{depth},
+            : m_Id{id}, m_Regularization{regularization}, m_CandidateSplits{candidateSplits},
               m_FeatureBag{std::move(featureBag)}, m_RowMask{std::move(rowMask)} {
 
             std::sort(m_FeatureBag.begin(), m_FeatureBag.end());
@@ -399,7 +397,7 @@ private:
                             const CLeafNodeStatistics& sibling,
                             core::CPackedBitVector rowMask)
             : m_Id{id}, m_Regularization{sibling.m_Regularization},
-              m_CandidateSplits{sibling.m_CandidateSplits}, m_Depth{sibling.m_Depth},
+              m_CandidateSplits{sibling.m_CandidateSplits},
               m_FeatureBag{sibling.m_FeatureBag}, m_RowMask{std::move(rowMask)} {
 
             LOG_TRACE(<< "row mask = " << m_RowMask);
@@ -458,8 +456,7 @@ private:
             if (leftChildHasFewerRows) {
                 auto leftChild = std::make_shared<CLeafNodeStatistics>(
                     leftChildId, numberThreads, frame, encoder, regularization,
-                    candidateSplits, m_Depth + 1, std::move(featureBag),
-                    std::move(leftChildRowMask));
+                    candidateSplits, std::move(featureBag), std::move(leftChildRowMask));
                 auto rightChild = std::make_shared<CLeafNodeStatistics>(
                     rightChildId, *this, *leftChild, std::move(rightChildRowMask));
 
@@ -467,8 +464,8 @@ private:
             }
 
             auto rightChild = std::make_shared<CLeafNodeStatistics>(
-                rightChildId, numberThreads, frame, encoder, regularization, candidateSplits,
-                m_Depth + 1, std::move(featureBag), std::move(rightChildRowMask));
+                rightChildId, numberThreads, frame, encoder, regularization,
+                candidateSplits, std::move(featureBag), std::move(rightChildRowMask));
             auto leftChild = std::make_shared<CLeafNodeStatistics>(
                 leftChildId, *this, *rightChild, std::move(leftChildRowMask));
 
@@ -653,7 +650,6 @@ private:
         std::size_t m_Id;
         const TRegularization& m_Regularization;
         const TDoubleVecVec& m_CandidateSplits;
-        std::size_t m_Depth;
         TSizeVec m_FeatureBag;
         core::CPackedBitVector m_RowMask;
         TDoubleVecVec m_Gradients;
