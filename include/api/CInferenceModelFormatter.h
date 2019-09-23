@@ -20,7 +20,7 @@ public:
     using TRapidjsonUPtr = std::unique_ptr<rapidjson::Document>;
 public:
     explicit CInferenceModelFormatter(const std::string& str);
-    explicit CInferenceModelFormatter(rapidjson::Document&& doc);
+    explicit CInferenceModelFormatter(const rapidjson::Document& doc);
 
     std::string toString();
 

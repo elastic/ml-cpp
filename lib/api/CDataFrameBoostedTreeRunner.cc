@@ -266,7 +266,7 @@ void CDataFrameBoostedTreeRunner::serializeRunner(core::CRapidJsonConcurrentLine
         }
     }
     // TODO get a rapidjson doc with the transformed json data
-    CInferenceModelFormatter formatter{std::move(doc)};
+    CInferenceModelFormatter formatter{doc};
     LOG_DEBUG(<< "Inference model json: "<< formatter.toString());
 
 //    writer.write(doc);
