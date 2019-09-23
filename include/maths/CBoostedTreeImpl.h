@@ -398,41 +398,38 @@ private:
                             const CLeafNodeStatistics& parent,
                             const CLeafNodeStatistics& sibling,
                             core::CPackedBitVector rowMask)
-            : m_Id{id}, m_Regularization{sibling.m_Regularization},
-              m_CandidateSplits{sibling.m_CandidateSplits}, m_Depth{sibling.m_Depth},
-              m_FeatureBag{sibling.m_FeatureBag}, m_RowMask{std::move(rowMask)} {
+                                : m_Id{id}, m_Regularization{sibling.m_Regularization},
+      m_CandidateSplits{sibling.m_CandidateSplits}, m_Depth{sibling.m_Depth},
+      m_FeatureBag{sibling.m_FeatureBag}, m_RowMask{std::move(rowMask)} {
 
-            LOG_TRACE(<< "row mask = " << m_RowMask);
-            LOG_TRACE(<< "feature bag = " << core::CContainerPrinter::print(m_FeatureBag));
+    LOG_TRACE(<< "row mask = " << m_RowMask);
+    LOG_TRACE(<< "feature bag = " << core::CContainerPrinter::print(m_FeatureBag));
 
-            m_Gradients.resize(m_CandidateSplits.size());
-            m_Curvatures.resize(m_CandidateSplits.size());
-            m_MissingGradients.resize(m_CandidateSplits.size(), 0.0);
-            m_MissingCurvatures.resize(m_CandidateSplits.size(), 0.0);
+    m_Gradients.resize(m_CandidateSplits.size());
+    m_Curvatures.resize(m_CandidateSplits.size());
+    m_MissingGradients.resize(m_CandidateSplits.size(), 0.0);
+    m_MissingCurvatures.resize(m_CandidateSplits.size(), 0.0);
 
-            for (std::size_t i = 0; i < m_CandidateSplits.size(); ++i) {
-                std::size_t numberSplits{m_CandidateSplits[i].size() + 1};
-                m_Gradients[i].resize(numberSplits);
-                m_Curvatures[i].resize(numberSplits);
-                for (std::size_t j = 0; j < numberSplits; ++j) {
-                    m_Gradients[i][j] = parent.m_Gradients[i][j] -
-                                        sibling.m_Gradients[i][j];
-                    m_Curvatures[i][j] = parent.m_Curvatures[i][j] -
-                                         sibling.m_Curvatures[i][j];
-                }
-                m_MissingGradients[i] = parent.m_MissingGradients[i] -
-                                        sibling.m_MissingGradients[i];
-                m_MissingCurvatures[i] = parent.m_MissingCurvatures[i] -
-                                         sibling.m_MissingCurvatures[i];
-            }
-
-            LOG_TRACE(<< "gradients = " << core::CContainerPrinter::print(m_Gradients));
-            LOG_TRACE(<< "curvatures = " << core::CContainerPrinter::print(m_Curvatures));
-            LOG_TRACE(<< "missing gradients = "
-                      << core::CContainerPrinter::print(m_MissingGradients));
-            LOG_TRACE(<< "missing curvatures = "
-                      << core::CContainerPrinter::print(m_MissingCurvatures));
+    for (std::size_t i = 0; i < m_CandidateSplits.size(); ++i) {
+        std::size_t numberSplits{m_CandidateSplits[i].size() + 1};
+        m_Gradients[i].resize(numberSplits);
+        m_Curvatures[i].resize(numberSplits);
+        for (std::size_t j = 0; j < numberSplits; ++j) {
+            m_Gradients[i][j] = parent.m_Gradients[i][j] - sibling.m_Gradients[i][j];
+            m_Curvatures[i][j] = parent.m_Curvatures[i][j] - sibling.m_Curvatures[i][j];
         }
+        m_MissingGradients[i] = parent.m_MissingGradients[i] -
+                                sibling.m_MissingGradients[i];
+        m_MissingCurvatures[i] = parent.m_MissingCurvatures[i] -
+                                 sibling.m_MissingCurvatures[i];
+    }
+
+    LOG_TRACE(<< "gradients = " << core::CContainerPrinter::print(m_Gradients));
+    LOG_TRACE(<< "curvatures = " << core::CContainerPrinter::print(m_Curvatures));
+    LOG_TRACE(<< "missing gradients = " << core::CContainerPrinter::print(m_MissingGradients));
+    LOG_TRACE(<< "missing curvatures = "
+              << core::CContainerPrinter::print(m_MissingCurvatures));
+}
 
         CLeafNodeStatistics(const CLeafNodeStatistics&) = delete;
 
@@ -647,73 +644,7 @@ private:
             return *m_BestSplit;
         }
 
-        SSplitStatistics computeBestSplitStatistics() const {
-
-            // We have two possible regularisation terms we'll use:
-            //   1. Tree size: gamma * "node count"
-            //   2. Sum square weights: lambda * sum{"leaf weight" ^ 2)}
-
-            SSplitStatistics result{-INF, 0.0, m_FeatureBag.size(), INF, true};
-
-            for (auto i : m_FeatureBag) {
-                double g{std::accumulate(m_Gradients[i].begin(), m_Gradients[i].end(), 0.0) +
-                         m_MissingGradients[i]};
-                double h{std::accumulate(m_Curvatures[i].begin(),
-                                         m_Curvatures[i].end(), 0.0) +
-                         m_MissingCurvatures[i]};
-                double gl[]{m_MissingGradients[i], 0.0};
-                double hl[]{m_MissingCurvatures[i], 0.0};
-
-                double maximumGain{-INF};
-                double splitAt{-INF};
-                bool assignMissingToLeft{true};
-
-                for (std::size_t j = 0; j + 1 < m_Gradients[i].size(); ++j) {
-                    gl[ASSIGN_MISSING_TO_LEFT] += m_Gradients[i][j];
-                    hl[ASSIGN_MISSING_TO_LEFT] += m_Curvatures[i][j];
-                    gl[ASSIGN_MISSING_TO_RIGHT] += m_Gradients[i][j];
-                    hl[ASSIGN_MISSING_TO_RIGHT] += m_Curvatures[i][j];
-
-                    double gain[]{
-                        CTools::pow2(gl[ASSIGN_MISSING_TO_LEFT]) /
-                                (hl[ASSIGN_MISSING_TO_LEFT] + m_Regularization.lambda()) +
-                            CTools::pow2(g - gl[ASSIGN_MISSING_TO_LEFT]) /
-                                (h - hl[ASSIGN_MISSING_TO_LEFT] +
-                                 m_Regularization.lambda()),
-                        CTools::pow2(gl[ASSIGN_MISSING_TO_RIGHT]) /
-                                (hl[ASSIGN_MISSING_TO_RIGHT] + m_Regularization.lambda()) +
-                            CTools::pow2(g - gl[ASSIGN_MISSING_TO_RIGHT]) /
-                                (h - hl[ASSIGN_MISSING_TO_RIGHT] +
-                                 m_Regularization.lambda())};
-
-                    if (gain[ASSIGN_MISSING_TO_LEFT] > maximumGain) {
-                        maximumGain = gain[ASSIGN_MISSING_TO_LEFT];
-                        splitAt = m_CandidateSplits[i][j];
-                        assignMissingToLeft = true;
-                    }
-                    if (gain[ASSIGN_MISSING_TO_RIGHT] > maximumGain) {
-                        maximumGain = gain[ASSIGN_MISSING_TO_RIGHT];
-                        splitAt = m_CandidateSplits[i][j];
-                        assignMissingToLeft = false;
-                    }
-                }
-
-                double gain{0.5 * (maximumGain -
-                                   CTools::pow2(g) / (h + m_Regularization.lambda())) -
-                            m_Regularization.gamma()};
-
-                SSplitStatistics candidate{gain, h, i, splitAt, assignMissingToLeft};
-                LOG_TRACE(<< "candidate split: " << candidate.print());
-
-                if (candidate > result) {
-                    result = candidate;
-                }
-            }
-
-            LOG_TRACE(<< "best split: " << result.print());
-
-            return result;
-        }
+        SSplitStatistics computeBestSplitStatistics() const;
 
     private:
         std::size_t m_Id;
