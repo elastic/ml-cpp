@@ -56,7 +56,7 @@ ml::api::CInferenceModelFormatter::CInferenceModelFormatter(const rapidjson::Doc
                             }
 
 
-                            LOG_DEBUG(<< treeElementIteartor->name.GetString());
+//                            LOG_DEBUG(<< inference_model::to_js);
                         }
                     }
                 }
