@@ -191,11 +191,10 @@ void CDataFrameBoostedTreeRunner::runImpl(const TStrVec& featureNames,
     auto restoreSearcher{this->spec().restoreSearcher()};
     bool treeRestored{false};
     if (restoreSearcher != nullptr) {
-        treeRestored = restoreBoostedTree(frame, restoreSearcher);
+        treeRestored = this->restoreBoostedTree(frame, restoreSearcher);
     }
 
     if (treeRestored == false) {
-
         m_BoostedTree = m_BoostedTreeFactory->buildFor(
             frame, dependentVariableColumn - featureNames.begin());
     }

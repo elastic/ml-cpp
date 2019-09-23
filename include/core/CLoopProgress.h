@@ -14,6 +14,8 @@
 
 namespace ml {
 namespace core {
+class CStatePersistInserter;
+class CStateRestoreTraverser;
 
 //! \brief Manages recording the progress of a loop.
 //!
@@ -46,13 +48,34 @@ public:
     using TProgressCallback = std::function<void(double)>;
 
 public:
+    CLoopProgress();
     template<typename ITR>
-    CLoopProgress(ITR begin, ITR end, const TProgressCallback& recordProgress, double scale = 1.0)
+    CLoopProgress(ITR begin, ITR end, const TProgressCallback& recordProgress = noop, double scale = 1.0)
         : CLoopProgress(std::distance(begin, end), recordProgress, scale) {}
-    CLoopProgress(std::size_t size, const TProgressCallback& recordProgress, double scale = 1.0);
+    CLoopProgress(std::size_t size,
+                  const TProgressCallback& recordProgress = noop,
+                  double scale = 1.0);
+
+    //! Attach a new progress monitor callback.
+    void attach(const TProgressCallback& recordProgress);
 
     //! Increment the progress by \p i.
     void increment(std::size_t i = 1);
+
+    //! Resume progress monitoring which was restored.
+    void resumeRestored();
+
+    //! Get a checksum for this object.
+    std::uint64_t checksum() const;
+
+    //! Persist by passing information to \p inserter.
+    void acceptPersistInserter(CStatePersistInserter& inserter) const;
+
+    //! Populate the object from serialized data.
+    bool acceptRestoreTraverser(CStateRestoreTraverser& traverser);
+
+private:
+    static void noop(double);
 
 private:
     std::size_t m_Size;

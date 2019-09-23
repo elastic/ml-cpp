@@ -103,14 +103,14 @@ public:
     std::size_t memoryUsage() const;
 
 private:
-    using TDoubleDoublePrVec = std::vector<std::pair<double, double>>;
+    using TSizeDoublePr = std::pair<std::size_t, double>;
+    using TDoubleDoublePr = std::pair<double, double>;
+    using TDoubleDoublePrVec = std::vector<TDoubleDoublePr>;
     using TOptionalDouble = boost::optional<double>;
     using TOptionalSize = boost::optional<std::size_t>;
-    using TVector = CDenseVector<double>;
     using TDoubleVecVec = std::vector<TDoubleVec>;
     using TSizeVec = std::vector<std::size_t>;
-    using TSizeDoublePr = std::pair<std::size_t, double>;
-    using TDoubleDoubleDoubleTr = std::tuple<double, double, double>;
+    using TVector = CDenseVector<double>;
     using TRowItr = core::CDataFrame::TRowItr;
     using TPackedBitVectorVec = std::vector<core::CPackedBitVector>;
     using TDataFrameCategoryEncoderUPtr = std::unique_ptr<CDataFrameCategoryEncoder>;
@@ -120,14 +120,73 @@ private:
     using TNodeVec = std::vector<CNode>;
     using TNodeVecVec = std::vector<TNodeVec>;
 
+    //! \brief Holds the parameters associated with the different types of regulariser
+    //! terms available.
+    template<typename T>
+    class CRegularization final {
+    public:
+        //! Set the multiplier of the tree size regularizer.
+        CRegularization& gamma(double gamma) {
+            m_Gamma = gamma;
+            return *this;
+        }
+
+        //! Set the multiplier of the square leaf weight regularizer.
+        CRegularization& lambda(double lambda) {
+            m_Lambda = lambda;
+            return *this;
+        }
+
+        //! Count the number of parameters which have their default values.
+        std::size_t countNotSet() const {
+            return (m_Gamma == T{} ? 1 : 0) + (m_Lambda == T{} ? 1 : 0);
+        }
+
+        //! Multiplier of the tree size regularizer.
+        T gamma() const { return m_Gamma; }
+
+        //! Multiplier of the square leaf weight regularizer.
+        T lambda() const { return m_Lambda; }
+
+        //! Get description of the regularization parameters.
+        std::string print() const {
+            return "(gamma = " + toString(m_Gamma) +
+                   ", lambda = " + toString(m_Lambda) + ")";
+        }
+
+        //! Persist by passing information to \p inserter.
+        void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
+
+        //! Populate the object from serialized data.
+        bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
+
+    private:
+        static std::string toString(double x) { return std::to_string(x); }
+        static std::string toString(TOptionalDouble x) {
+            return x != boost::none ? toString(*x) : "null";
+        }
+
+    private:
+        T m_Gamma = T{};
+        T m_Lambda = T{};
+    };
+
+    using TRegularization = CRegularization<double>;
+    using TRegularizationOverride = CRegularization<TOptionalDouble>;
+
     //! \brief The algorithm parameters we'll directly optimise to improve test error.
     struct SHyperparameters {
-        double s_Lambda;
-        double s_Gamma;
+        //! The regularisation parameters.
+        TRegularization s_Regularization;
+
+        //! Shrinkage.
         double s_Eta;
+
+        //! Rate of growth of shrinkage in the training loop.
         double s_EtaGrowthRatePerTree;
+
+        //! The fraction of features we use per bag.
         double s_FeatureBagFraction;
-        TDoubleVec s_FeatureSampleProbabilities;
 
         //! Persist by passing information to \p inserter.
         void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
@@ -182,16 +241,26 @@ private:
         //! Set the node value to \p value.
         void value(double value) { m_NodeValue = value; }
 
+        //! Get the gain of the split.
+        double gain() const { return m_Gain; }
+
+        //! Get the total curvature at the rows below this node.
+        double curvature() const { return m_Curvature; }
+
         //! Split this node and add its child nodes to \p tree.
         std::pair<std::size_t, std::size_t> split(std::size_t splitFeature,
                                                   double splitValue,
                                                   bool assignMissingToLeft,
+                                                  double gain,
+                                                  double curvature,
                                                   TNodeVec& tree) {
             m_SplitFeature = splitFeature;
             m_SplitValue = splitValue;
             m_AssignMissingToLeft = assignMissingToLeft;
             m_LeftChild = static_cast<std::int32_t>(tree.size());
             m_RightChild = static_cast<std::int32_t>(tree.size() + 1);
+            m_Gain = gain;
+            m_Curvature = curvature;
             tree.resize(tree.size() + 2);
             return {m_LeftChild, m_RightChild};
         }
@@ -211,8 +280,8 @@ private:
                 core::bindRetrievableState(
                     [&](auto& state, TRowItr beginRows, TRowItr endRows) {
                         core::CPackedBitVector& leftRowMask{std::get<0>(state)};
-                        std::size_t& leftCount{std::get<1>(state)};
-                        std::size_t& rightCount{std::get<2>(state)};
+                        std::size_t& leftChildNumberRows{std::get<1>(state)};
+                        std::size_t& rightChildNumberRows{std::get<2>(state)};
                         for (auto row = beginRows; row != endRows; ++row) {
                             std::size_t index{row->index()};
                             double value{encoder.encode(*row)[m_SplitFeature]};
@@ -221,9 +290,9 @@ private:
                                 (missing == false && value < m_SplitValue)) {
                                 leftRowMask.extend(false, index - leftRowMask.size());
                                 leftRowMask.extend(true);
-                                ++leftCount;
+                                ++leftChildNumberRows;
                             } else {
-                                ++rightCount;
+                                ++rightChildNumberRows;
                             }
                         }
                     },
@@ -237,13 +306,14 @@ private:
             }
 
             core::CPackedBitVector leftRowMask;
-            std::size_t leftCount;
-            std::size_t rightCount;
-            std::tie(leftRowMask, leftCount, rightCount) = std::move(masks[0].s_FunctionState);
+            std::size_t leftChildNumberRows;
+            std::size_t rightChildNumberRows;
+            std::tie(leftRowMask, leftChildNumberRows, rightChildNumberRows) =
+                std::move(masks[0].s_FunctionState);
             for (std::size_t i = 1; i < masks.size(); ++i) {
                 leftRowMask |= std::get<0>(masks[i].s_FunctionState);
-                leftCount += std::get<1>(masks[i].s_FunctionState);
-                rightCount += std::get<2>(masks[i].s_FunctionState);
+                leftChildNumberRows += std::get<1>(masks[i].s_FunctionState);
+                rightChildNumberRows += std::get<2>(masks[i].s_FunctionState);
             }
             LOG_TRACE(<< "# rows in left node = " << leftRowMask.manhattan());
             LOG_TRACE(<< "left row mask = " << leftRowMask);
@@ -254,7 +324,7 @@ private:
             LOG_TRACE(<< "left row mask = " << rightRowMask);
 
             return std::make_tuple(std::move(leftRowMask), std::move(rightRowMask),
-                                   leftCount < rightCount);
+                                   leftChildNumberRows < rightChildNumberRows);
         }
 
         //! Get a human readable description of this tree.
@@ -290,6 +360,8 @@ private:
         std::int32_t m_LeftChild = -1;
         std::int32_t m_RightChild = -1;
         double m_NodeValue = 0.0;
+        double m_Gain = 0.0;
+        double m_Curvature = 0.0;
     };
 
     //! \brief Maintains a collection of statistics about a leaf of the regression
@@ -305,12 +377,13 @@ private:
                             std::size_t numberThreads,
                             const core::CDataFrame& frame,
                             const CDataFrameCategoryEncoder& encoder,
-                            double lambda,
-                            double gamma,
+                            const TRegularization& regularization,
                             const TDoubleVecVec& candidateSplits,
+                            std::size_t depth,
                             TSizeVec featureBag,
                             core::CPackedBitVector rowMask)
-            : m_Id{id}, m_Lambda{lambda}, m_Gamma{gamma}, m_CandidateSplits{candidateSplits},
+            : m_Id{id}, m_Regularization{regularization},
+              m_CandidateSplits{candidateSplits}, m_Depth{depth},
               m_FeatureBag{std::move(featureBag)}, m_RowMask{std::move(rowMask)} {
 
             std::sort(m_FeatureBag.begin(), m_FeatureBag.end());
@@ -320,13 +393,13 @@ private:
             this->computeAggregateLossDerivatives(numberThreads, frame, encoder);
         }
 
-        //! This should only called by split but is public so it's accessible to make_shared.
+        //! This should only called by split but is public so it's accessible to std::make_shared.
         CLeafNodeStatistics(std::size_t id,
                             const CLeafNodeStatistics& parent,
                             const CLeafNodeStatistics& sibling,
                             core::CPackedBitVector rowMask)
-            : m_Id{id}, m_Lambda{sibling.m_Lambda}, m_Gamma{sibling.m_Gamma},
-              m_CandidateSplits{sibling.m_CandidateSplits},
+            : m_Id{id}, m_Regularization{sibling.m_Regularization},
+              m_CandidateSplits{sibling.m_CandidateSplits}, m_Depth{sibling.m_Depth},
               m_FeatureBag{sibling.m_FeatureBag}, m_RowMask{std::move(rowMask)} {
 
             LOG_TRACE(<< "row mask = " << m_RowMask);
@@ -363,9 +436,9 @@ private:
 
         CLeafNodeStatistics(const CLeafNodeStatistics&) = delete;
 
-        CLeafNodeStatistics& operator=(const CLeafNodeStatistics&) = delete;
-
         CLeafNodeStatistics(CLeafNodeStatistics&&) = default;
+
+        CLeafNodeStatistics& operator=(const CLeafNodeStatistics&) = delete;
 
         CLeafNodeStatistics& operator=(CLeafNodeStatistics&&) = default;
 
@@ -375,8 +448,7 @@ private:
                    std::size_t numberThreads,
                    const core::CDataFrame& frame,
                    const CDataFrameCategoryEncoder& encoder,
-                   double lambda,
-                   double gamma,
+                   const TRegularization& regularization,
                    const TDoubleVecVec& candidateSplits,
                    TSizeVec featureBag,
                    core::CPackedBitVector leftChildRowMask,
@@ -385,8 +457,9 @@ private:
 
             if (leftChildHasFewerRows) {
                 auto leftChild = std::make_shared<CLeafNodeStatistics>(
-                    leftChildId, numberThreads, frame, encoder, lambda, gamma, candidateSplits,
-                    std::move(featureBag), std::move(leftChildRowMask));
+                    leftChildId, numberThreads, frame, encoder, regularization,
+                    candidateSplits, m_Depth + 1, std::move(featureBag),
+                    std::move(leftChildRowMask));
                 auto rightChild = std::make_shared<CLeafNodeStatistics>(
                     rightChildId, *this, *leftChild, std::move(rightChildRowMask));
 
@@ -394,8 +467,8 @@ private:
             }
 
             auto rightChild = std::make_shared<CLeafNodeStatistics>(
-                rightChildId, numberThreads, frame, encoder, lambda, gamma,
-                candidateSplits, std::move(featureBag), std::move(rightChildRowMask));
+                rightChildId, numberThreads, frame, encoder, regularization, candidateSplits,
+                m_Depth + 1, std::move(featureBag), std::move(rightChildRowMask));
             auto leftChild = std::make_shared<CLeafNodeStatistics>(
                 leftChildId, *this, *rightChild, std::move(leftChildRowMask));
 
@@ -409,6 +482,10 @@ private:
 
         //! Get the gain in loss of the best split of this leaf.
         double gain() const { return this->bestSplitStatistics().s_Gain; }
+
+        double curvature() const {
+            return this->bestSplitStatistics().s_Curvature;
+        }
 
         //! Get the best (feature, feature value) split.
         TSizeDoublePr bestSplit() const {
@@ -460,20 +537,20 @@ private:
             std::size_t curvatureSize{gradientsSize};
             std::size_t missingGradientsSize{(numberCols - 1) * sizeof(double)};
             std::size_t missingCurvatureSize{missingGradientsSize};
-            return featureBagSize + rowMaskSize + gradientsSize +
+            return sizeof(CLeafNodeStatistics) + featureBagSize + rowMaskSize + gradientsSize +
                    curvatureSize + missingGradientsSize + missingCurvatureSize;
         }
 
     private:
         //! \brief Statistics relating to a split of the node.
         struct SSplitStatistics : private boost::less_than_comparable<SSplitStatistics> {
-            SSplitStatistics(double gain, std::size_t feature, double splitAt, bool assignMissingToLeft)
-                : s_Gain{gain}, s_Feature{feature}, s_SplitAt{splitAt},
+            SSplitStatistics(double gain, double curvature, std::size_t feature, double splitAt, bool assignMissingToLeft)
+                : s_Gain{gain}, s_Curvature{curvature}, s_Feature{feature}, s_SplitAt{splitAt},
                   s_AssignMissingToLeft{assignMissingToLeft} {}
 
             bool operator<(const SSplitStatistics& rhs) const {
                 return COrderings::lexicographical_compare(
-                    s_Gain, s_Feature, rhs.s_Gain, rhs.s_Feature);
+                    s_Gain, s_Curvature, s_Feature, rhs.s_Gain, rhs.s_Curvature, rhs.s_Feature);
             }
 
             std::string print() const {
@@ -484,6 +561,7 @@ private:
             }
 
             double s_Gain;
+            double s_Curvature;
             std::size_t s_Feature;
             double s_SplitAt;
             bool s_AssignMissingToLeft;
@@ -571,10 +649,11 @@ private:
 
         SSplitStatistics computeBestSplitStatistics() const {
 
-            static const std::size_t ASSIGN_MISSING_TO_LEFT{0};
-            static const std::size_t ASSIGN_MISSING_TO_RIGHT{1};
+            // We have two possible regularisation terms we'll use:
+            //   1. Tree size: gamma * "node count"
+            //   2. Sum square weights: lambda * sum{"leaf weight" ^ 2)}
 
-            SSplitStatistics result{-INF, m_FeatureBag.size(), INF, true};
+            SSplitStatistics result{-INF, 0.0, m_FeatureBag.size(), INF, true};
 
             for (auto i : m_FeatureBag) {
                 double g{std::accumulate(m_Gradients[i].begin(), m_Gradients[i].end(), 0.0) +
@@ -595,14 +674,17 @@ private:
                     gl[ASSIGN_MISSING_TO_RIGHT] += m_Gradients[i][j];
                     hl[ASSIGN_MISSING_TO_RIGHT] += m_Curvatures[i][j];
 
-                    double gain[]{CTools::pow2(gl[ASSIGN_MISSING_TO_LEFT]) /
-                                          (hl[ASSIGN_MISSING_TO_LEFT] + m_Lambda) +
-                                      CTools::pow2(g - gl[ASSIGN_MISSING_TO_LEFT]) /
-                                          (h - hl[ASSIGN_MISSING_TO_LEFT] + m_Lambda),
-                                  CTools::pow2(gl[ASSIGN_MISSING_TO_RIGHT]) /
-                                          (hl[ASSIGN_MISSING_TO_RIGHT] + m_Lambda) +
-                                      CTools::pow2(g - gl[ASSIGN_MISSING_TO_RIGHT]) /
-                                          (h - hl[ASSIGN_MISSING_TO_RIGHT] + m_Lambda)};
+                    double gain[]{
+                        CTools::pow2(gl[ASSIGN_MISSING_TO_LEFT]) /
+                                (hl[ASSIGN_MISSING_TO_LEFT] + m_Regularization.lambda()) +
+                            CTools::pow2(g - gl[ASSIGN_MISSING_TO_LEFT]) /
+                                (h - hl[ASSIGN_MISSING_TO_LEFT] +
+                                 m_Regularization.lambda()),
+                        CTools::pow2(gl[ASSIGN_MISSING_TO_RIGHT]) /
+                                (hl[ASSIGN_MISSING_TO_RIGHT] + m_Regularization.lambda()) +
+                            CTools::pow2(g - gl[ASSIGN_MISSING_TO_RIGHT]) /
+                                (h - hl[ASSIGN_MISSING_TO_RIGHT] +
+                                 m_Regularization.lambda())};
 
                     if (gain[ASSIGN_MISSING_TO_LEFT] > maximumGain) {
                         maximumGain = gain[ASSIGN_MISSING_TO_LEFT];
@@ -616,9 +698,11 @@ private:
                     }
                 }
 
-                double gain{0.5 * (maximumGain - CTools::pow2(g) / (h + m_Lambda)) - m_Gamma};
+                double gain{0.5 * (maximumGain -
+                                   CTools::pow2(g) / (h + m_Regularization.lambda())) -
+                            m_Regularization.gamma()};
 
-                SSplitStatistics candidate{gain, i, splitAt, assignMissingToLeft};
+                SSplitStatistics candidate{gain, h, i, splitAt, assignMissingToLeft};
                 LOG_TRACE(<< "candidate split: " << candidate.print());
 
                 if (candidate > result) {
@@ -633,9 +717,9 @@ private:
 
     private:
         std::size_t m_Id;
-        double m_Lambda;
-        double m_Gamma;
+        const TRegularization& m_Regularization;
         const TDoubleVecVec& m_CandidateSplits;
+        std::size_t m_Depth;
         TSizeVec m_FeatureBag;
         core::CPackedBitVector m_RowMask;
         TDoubleVecVec m_Gradients;
@@ -662,9 +746,8 @@ private:
 
     //! Compute the sum loss for the predictions from \p frame and the leaf
     //! count and squared weight sum from \p forest.
-    TDoubleDoubleDoubleTr regularisedLoss(const core::CDataFrame& frame,
-                                          const core::CPackedBitVector& trainingRowMask,
-                                          const TNodeVecVec& forest) const;
+    TDoubleDoublePr gainAndCurvatureAtPercentile(double percentile,
+                                                 const TNodeVecVec& forest) const;
 
     //! Train the forest and compute loss moments on each fold.
     TMeanVarAccumulator crossValidateForest(core::CDataFrame& frame,
@@ -761,20 +844,18 @@ private:
     std::size_t m_NumberThreads;
     std::size_t m_DependentVariable = std::numeric_limits<std::size_t>::max();
     CBoostedTree::TLossFunctionUPtr m_Loss;
-    TOptionalDouble m_LambdaOverride;
-    TOptionalDouble m_GammaOverride;
+    TRegularizationOverride m_RegularizationOverride;
     TOptionalDouble m_EtaOverride;
     TOptionalSize m_MaximumNumberTreesOverride;
     TOptionalDouble m_FeatureBagFractionOverride;
-    double m_Lambda = 0.0;
-    double m_Gamma = 0.0;
+    TRegularization m_Regularization;
     double m_Eta = 0.1;
     double m_EtaGrowthRatePerTree = 1.05;
     std::size_t m_NumberFolds = 4;
     std::size_t m_MaximumNumberTrees = 20;
     std::size_t m_MaximumAttemptsToAddTree = 3;
     std::size_t m_NumberSplitsPerFeature = 75;
-    std::size_t m_MaximumOptimisationRoundsPerHyperparameter = 5;
+    std::size_t m_MaximumOptimisationRoundsPerHyperparameter = 3;
     std::size_t m_RowsPerFeature = 50;
     double m_FeatureBagFraction = 0.5;
     double m_MaximumTreeSizeMultiplier = 1.0;
@@ -790,6 +871,7 @@ private:
     TBayesinOptimizationUPtr m_BayesianOptimization;
     std::size_t m_NumberRounds = 1;
     std::size_t m_CurrentRound = 0;
+    mutable core::CLoopProgress m_TrainingProgress;
 
     friend class CBoostedTreeFactory;
 };
