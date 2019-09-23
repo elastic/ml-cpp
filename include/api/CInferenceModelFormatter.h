@@ -33,7 +33,7 @@ private:
     std::string m_String;
     rapidjson::Document m_JsonDoc;
 
-    ml::api::inference_model::InferenceModelDefinition m_Definition;
+    inference_model::InferenceModelDefinition m_Definition;
 
 };
 
