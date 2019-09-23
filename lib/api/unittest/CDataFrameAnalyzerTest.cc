@@ -653,7 +653,7 @@ void CDataFrameAnalyzerTest::testRunBoostedTreeTraining() {
     LOG_DEBUG(<< "time to train = " << core::CProgramCounters::counter(counter_t::E_DFTPMTimeToTrain)
               << "ms");
     CPPUNIT_ASSERT(core::CProgramCounters::counter(
-                       counter_t::E_DFTPMEstimatedPeakMemoryUsage) < 2300000);
+                       counter_t::E_DFTPMEstimatedPeakMemoryUsage) < 2600000);
     CPPUNIT_ASSERT(core::CProgramCounters::counter(counter_t::E_DFTPMPeakMemoryUsage) < 1050000);
     CPPUNIT_ASSERT(core::CProgramCounters::counter(counter_t::E_DFTPMTimeToTrain) > 0);
     CPPUNIT_ASSERT(core::CProgramCounters::counter(counter_t::E_DFTPMTimeToTrain) <= duration);
@@ -1176,34 +1176,25 @@ void CDataFrameAnalyzerTest::testRunBoostedTreeTrainingWithStateRecoverySubrouti
 
     rapidjson::Document expectedResults{treeToJsonDocument(*expectedTree)};
     const auto& expectedHyperparameters = expectedResults["best_hyperparameters"];
+    const auto& expectedRegularizationHyperparameters =
+        expectedHyperparameters["hyperparam_regularization"];
 
     rapidjson::Document actualResults{treeToJsonDocument(*actualTree)};
     const auto& actualHyperparameters = actualResults["best_hyperparameters"];
+    const auto& actualRegularizationHyperparameters =
+        actualHyperparameters["hyperparam_regularization"];
 
-    auto assertDoublesEqual = [&expectedHyperparameters,
-                               &actualHyperparameters](std::string key) {
+    for (const auto& key : {"hyperparam_eta", "hyperparam_eta_growth_rate_per_tree",
+                            "hyperparam_feature_bag_fraction"}) {
         double expected{std::stod(expectedHyperparameters[key].GetString())};
         double actual{std::stod(actualHyperparameters[key].GetString())};
         CPPUNIT_ASSERT_DOUBLES_EQUAL(expected, actual, 1e-4 * expected);
-    };
-    auto assertDoublesArrayEqual = [&expectedHyperparameters,
-                                    &actualHyperparameters](std::string key) {
-        TDoubleVec expectedVector;
-        core::CPersistUtils::fromString(expectedHyperparameters[key].GetString(), expectedVector);
-        TDoubleVec actualVector;
-        core::CPersistUtils::fromString(actualHyperparameters[key].GetString(), actualVector);
-        CPPUNIT_ASSERT_EQUAL(expectedVector.size(), actualVector.size());
-        for (size_t i = 0; i < expectedVector.size(); i++) {
-            CPPUNIT_ASSERT_DOUBLES_EQUAL(expectedVector[i], actualVector[i],
-                                         1e-4 * expectedVector[i]);
-        }
-    };
-    assertDoublesEqual("hyperparam_lambda");
-    assertDoublesEqual("hyperparam_gamma");
-    assertDoublesEqual("hyperparam_eta");
-    assertDoublesEqual("hyperparam_eta_growth_rate_per_tree");
-    assertDoublesEqual("hyperparam_feature_bag_fraction");
-    assertDoublesArrayEqual("hyperparam_feature_sample_probabilities");
+    }
+    for (const auto& key : {"regularization_gamma", "regularization_lambda"}) {
+        double expected{std::stod(expectedRegularizationHyperparameters[key].GetString())};
+        double actual{std::stod(actualRegularizationHyperparameters[key].GetString())};
+        CPPUNIT_ASSERT_DOUBLES_EQUAL(expected, actual, 1e-4 * expected);
+    }
 }
 
 maths::CBoostedTreeFactory::TBoostedTreeUPtr

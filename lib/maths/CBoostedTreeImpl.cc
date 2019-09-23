@@ -924,10 +924,10 @@ const std::string REGULARIZATION_OVERRIDE_TAG{"regularization_override"};
 const std::string ROWS_PER_FEATURE_TAG{"rows_per_feature"};
 const std::string TESTING_ROW_MASKS_TAG{"testing_row_masks"};
 const std::string TRAINING_ROW_MASKS_TAG{"training_row_masks"};
-const std::string TRAINING_PROGRESS_TAG{"training_row_masks"};
+const std::string TRAINING_PROGRESS_TAG{"training_progress"};
 
-const std::string REGULARIZATION_GAMMA_TAG{"gamma"};
-const std::string REGULARIZATION_LAMBDA_TAG{"lambda"};
+const std::string REGULARIZATION_GAMMA_TAG{"regularization_gamma"};
+const std::string REGULARIZATION_LAMBDA_TAG{"regularization_lambda"};
 
 const std::string HYPERPARAM_ETA_TAG{"hyperparam_eta"};
 const std::string HYPERPARAM_ETA_GROWTH_RATE_PER_TREE_TAG{"hyperparam_eta_growth_rate_per_tree"};
