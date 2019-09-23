@@ -283,13 +283,14 @@ void CBoostedTreeFactory::initializeHyperparameters(core::CDataFrame& frame) {
 void CBoostedTreeFactory::initializeUnsetRegularizationHyperparameters(core::CDataFrame& frame) {
 
     // The strategy here is to:
-    //   1) Get percentile estimates of the gain in and sum curvature of the loss
-    //      function at splits in a single tree,
+    //   1) Get percentile estimates of the gain in the loss function and its sum
+    //      curvature from the splits selected in a single tree with regulizers
+    //      zeroed,
     //   2) Use these to upper bound the size of gamma and lambda, that is find
-    //      values we for which we expect to underfit the data,
-    //   3) Decrease each regularizer and look for turning point in the test loss,
-    //      i.e. the point at which transition to overfit occurs.
-    // We'll search intervals in the vicinity of this values in the hyperparameter
+    //      values for which we expect to underfit the data,
+    //   3) Decrease each regularizer and look for a turning point in the test
+    //      loss, i.e. the point at which transition to overfit occurs.
+    // We'll search intervals in the vicinity of these values in the hyperparameter
     // optimisation loop.
 
     core::CPackedBitVector allTrainingRowsMask{m_TreeImpl->allTrainingRowsMask()};
