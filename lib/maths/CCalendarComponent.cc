@@ -28,8 +28,8 @@ namespace ml {
 namespace maths {
 namespace {
 using TDoubleDoublePr = maths_t::TDoubleDoublePr;
-const std::string DECOMPOSITION_COMPONENT_TAG{"a"};
-const std::string BUCKETING_TAG{"b"};
+const core::TPersistenceTag DECOMPOSITION_COMPONENT_TAG{"a", "decomposition_component"};
+const core::TPersistenceTag BUCKETING_TAG{"b", "bucketing"};
 const std::string EMPTY_STRING;
 }
 

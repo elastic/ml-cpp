@@ -341,8 +341,8 @@ void CAnomalyDetector::legacyModelEnsembleAcceptPersistInserter(core::CStatePers
                                                this, std::placeholders::_1));
 }
 
-void CAnomalyDetector::persistResidualModelsState(core::CStatePersistInserter& inserter) const {
-    m_Model->persistResidualModelsState(inserter);
+void CAnomalyDetector::persistModelsState(core::CStatePersistInserter& inserter) const {
+    m_Model->persistModelsState(inserter);
 }
 
 void CAnomalyDetector::legacyModelsAcceptPersistInserter(core::CStatePersistInserter& inserter) const {

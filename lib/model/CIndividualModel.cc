@@ -326,9 +326,9 @@ const CIndividualModel::TTimeVec& CIndividualModel::lastBucketTimes() const {
     return m_LastBucketTimes;
 }
 
-void CIndividualModel::doPersistResidualModelsState(core::CStatePersistInserter& inserter) const {
+void CIndividualModel::doPersistModelsState(core::CStatePersistInserter& inserter) const {
     for (const auto& feature : m_FeatureModels) {
-        feature.persistResidualModelsState(inserter);
+        feature.persistModelsState(inserter);
     }
 }
 

@@ -125,8 +125,7 @@ int main(int argc, char** argv) {
         ml::api::CSingleStreamDataAdder persister{persistStrm};
 
         // Attempt to persist state in a plain JSON formatted file or stream
-        if (restoredJob.persistResidualModelsState(persister, completeToTime,
-                                                   outputFormat) == false) {
+        if (restoredJob.persistModelsState(persister, completeToTime, outputFormat) == false) {
             LOG_FATAL(<< "Failed to persist state as JSON");
             exit(EXIT_FAILURE);
         }
