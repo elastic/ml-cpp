@@ -25,7 +25,7 @@ namespace ml {
 namespace maths {
 namespace {
 // DO NOT change the existing tags if new sub-classes are added.
-const core::TPersistenceTag DIURNAL_TIME_TAG{"a", "diurnal-time"};
+const core::TPersistenceTag DIURNAL_TIME_TAG{"a", "diurnal_time"};
 const core::TPersistenceTag ARBITRARY_PERIOD_TIME_TAG{"b", "arbitrary_period_time"};
 }
 
