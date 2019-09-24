@@ -7,7 +7,8 @@
 OS=MacOSX
 
 CPP_PLATFORM_HOME=$(CPP_DISTRIBUTION_HOME)/platform/darwin-x86_64
-APP_CONTENTS=controller.app/Contents
+ML_APP_NAME=controller
+APP_CONTENTS=$(ML_APP_NAME).app/Contents
 
 CC=clang
 CXX=clang++ -std=c++14 -stdlib=libc++

@@ -7,20 +7,24 @@
 
 # Strips ML native code binaries to make them smaller before distribution.
 
+ML_APP_NAME=controller
 case `uname` in
 
     Darwin)
-        EXE_DIR=controller.app/Contents/MacOS
-        DYNAMIC_LIB_DIR=controller.app/Contents/lib
+        EXE_DIR="$ML_APP_NAME.app/Contents/MacOS"
+        DYNAMIC_LIB_DIR="$ML_APP_NAME.app/Contents/lib"
         ;;
 
     Linux)
         if [ -z "$CPP_CROSS_COMPILE" ] ; then
             EXE_DIR=bin
             DYNAMIC_LIB_DIR=lib
+        elif [ "$CPP_CROSS_COMPILE" = macosx ] ; then
+            EXE_DIR="$ML_APP_NAME.app/Contents/MacOS"
+            DYNAMIC_LIB_DIR="$ML_APP_NAME.app/Contents/lib"
         else
-            EXE_DIR=controller.app/Contents/MacOS
-            DYNAMIC_LIB_DIR=controller.app/Contents/lib
+            echo "Cannot cross compile to $CPP_CROSS_COMPILE"
+            exit 1
         fi
         ;;
 
@@ -29,19 +33,19 @@ esac
 # Ensure $CPP_PLATFORM_HOME is set
 if [ -z "$CPP_PLATFORM_HOME" ] ; then
     echo '$CPP_PLATFORM_HOME is not set'
-    exit 1
+    exit 2
 fi
 
 # Ensure the executable programs folder has been created.
 if [ ! -d "$CPP_PLATFORM_HOME/$EXE_DIR" ] ; then
     echo "$CPP_PLATFORM_HOME/$EXE_DIR does not exist"
-    exit 2
+    exit 3
 fi
 
 # Ensure the lib folder has been created.
 if [ ! -d "$CPP_PLATFORM_HOME/$DYNAMIC_LIB_DIR" ] ; then
     echo "$CPP_PLATFORM_HOME/$DYNAMIC_LIB_DIR does not exist"
-    exit 3
+    exit 4
 fi
 
 cd "$CPP_PLATFORM_HOME"
@@ -85,27 +89,25 @@ case `uname` in
                 strip --strip-unneeded $LIBRARY
                 objcopy --add-gnu-debuglink="$LIBRARY-debug" "$LIBRARY"
             done
+        elif [ "$CPP_CROSS_COMPILE" = macosx ] ; then
+            for PROGRAM in `ls -1d "$EXE_DIR"/* | grep -v '\.dSYM$'`
+            do
+                echo "Stripping $PROGRAM"
+                llvm-dsymutil-3.9 $PROGRAM
+                /usr/local/bin/x86_64-apple-macosx10.11-strip -u -r $PROGRAM
+            done
+            for LIBRARY in `ls -1d "$DYNAMIC_LIB_DIR"/* | grep -v '\.dSYM$'`
+            do
+                echo "Stripping $LIBRARY"
+                case $LIBRARY in
+                    *Ml*)
+                        llvm-dsymutil-3.9 $LIBRARY
+                esac
+                /usr/local/bin/x86_64-apple-macosx10.11-strip -x $LIBRARY
+            done
         else
-            if [ "$CPP_CROSS_COMPILE" = macosx ] ; then
-                for PROGRAM in `ls -1d "$EXE_DIR"/* | grep -v '\.dSYM$'`
-                do
-                    echo "Stripping $PROGRAM"
-                    llvm-dsymutil-3.9 $PROGRAM
-                    /usr/local/bin/x86_64-apple-macosx10.11-strip -u -r $PROGRAM
-                done
-                for LIBRARY in `ls -1d "$DYNAMIC_LIB_DIR"/* | grep -v '\.dSYM$'`
-                do
-                    echo "Stripping $LIBRARY"
-                    case $LIBRARY in
-                        *Ml*)
-                            llvm-dsymutil-3.9 $LIBRARY
-                    esac
-                    /usr/local/bin/x86_64-apple-macosx10.11-strip -x $LIBRARY
-                done
-            else
-                echo "Cannot cross compile to $CPP_CROSS_COMPILE"
-                exit 4
-            fi
+            echo "Cannot cross compile to $CPP_CROSS_COMPILE"
+            exit 5
         fi
         ;;
 

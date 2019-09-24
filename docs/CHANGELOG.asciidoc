@@ -37,6 +37,13 @@ For large data sets this change was observed to give a 10% to 20% decrease in
 train time. (See {ml-pull}622[#622].)
 * Upgrade Boost libraries to version 1.71. (See {ml-pull}638[#638].)
 
+== {es} version 7.4.1
+
+=== Enhancements
+
+* The {ml} native processes are now arranged in a .app directory structure on
+  macOS, to allow for notarization on macOS Catalina. (See {ml-pull}593[#593].)
+
 == {es} version 7.4.0
 
 === Bug Fixes

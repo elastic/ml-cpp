@@ -28,21 +28,14 @@ case `uname` in
         ;;
 
     Linux)
-        if ldd --version 2>&1 | grep musl > /dev/null ; then
-            SIMPLE_PLATFORM=linux-musl
-            BUNDLE_PLATFORM=linux-musl-x86_64
+        SIMPLE_PLATFORM=linux
+        if [ -z "$CPP_CROSS_COMPILE" ] ; then
+            BUNDLE_PLATFORM=linux-x86_64
+        elif [ "$CPP_CROSS_COMPILE" = macosx ] ; then
+            BUNDLE_PLATFORM=darwin-x86_64
         else
-            SIMPLE_PLATFORM=linux
-            if [ -z "$CPP_CROSS_COMPILE" ] ; then
-                BUNDLE_PLATFORM=linux-x86_64
-            else
-                if [ "$CPP_CROSS_COMPILE" = macosx ] ; then
-                    BUNDLE_PLATFORM=darwin-x86_64
-                else
-                    echo "Cannot cross compile to $CPP_CROSS_COMPILE"
-                    exit 1
-                fi
-            fi
+            echo "Cannot cross compile to $CPP_CROSS_COMPILE"
+            exit 1
         fi
         ;;
 

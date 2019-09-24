@@ -48,7 +48,7 @@ $(OBJS_DIR)/%$(OBJECT_FILE_EXT): %.c
 	$(CC) -c $(COMP_OUT_FLAG)$@ $(CFLAGS) $(PICFLAGS) $(PDB_FLAGS) $(CPPFLAGS) $(if $(MAKE_PREFIX_SRC_PATH), $(shell pwd)/)$<
 
 $(OBJS_DIR)/%.plist: $(CPP_SRC_HOME)/gradle.properties $(CPP_SRC_HOME)/mk/make_info_plist.sh
-	$(CPP_SRC_HOME)/mk/make_info_plist.sh $(notdir $(TARGET)) > $@
+	$(CPP_SRC_HOME)/mk/make_info_plist.sh "$(ML_APP_NAME)" false > $@
 
 $(OBJS_DIR)/%.xml: %.cc
 	$(CXX) $(ANALYZE_OUT_FLAG)$@ $(ANALYZEFLAGS) $(filter-out -DNDEBUG, $(CPPFLAGS)) $(if $(MAKE_PREFIX_SRC_PATH), $(shell pwd)/)$<

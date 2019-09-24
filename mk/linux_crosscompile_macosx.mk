@@ -7,7 +7,8 @@
 OS=MacOSX
 
 CPP_PLATFORM_HOME=$(CPP_DISTRIBUTION_HOME)/platform/darwin-x86_64
-APP_CONTENTS=controller.app/Contents
+ML_APP_NAME=controller
+APP_CONTENTS=$(ML_APP_NAME).app/Contents
 
 CROSS_TARGET_PLATFORM=x86_64-apple-macosx10.11
 SYSROOT=/usr/local/sysroot-$(CROSS_TARGET_PLATFORM)
