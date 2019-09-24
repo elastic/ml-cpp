@@ -880,7 +880,7 @@ CAnomalyScore::CNormalizer::TWord
 CAnomalyScore::CNormalizer::CMaximumScoreScope::key(TOptionalBool isPopulationAnalysis,
                                                     const TDictionary& dictionary) const {
     if (isPopulationAnalysis == boost::none) {
-        LOG_ERROR("Using normalizer without refreshing settings");
+        LOG_ERROR(<< "Using normalizer without refreshing settings");
 
     } else if (*isPopulationAnalysis) {
         return TWord{};

@@ -28,8 +28,8 @@ void CCountMinSketchTest::testCounts() {
     // and that the error subsequently increases approximately linearly with
     // increasing category count.
 
-    LOG_DEBUG(<< "")
-    LOG_DEBUG(<< "Test Uniform")
+    LOG_DEBUG(<< "");
+    LOG_DEBUG(<< "Test Uniform");
 
     for (std::size_t t = 0u, n = 100u; n < 1500; ++t, n += 100) {
         LOG_DEBUG(<< "*** number categories = " << n << " ***");

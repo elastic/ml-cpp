@@ -179,7 +179,8 @@ int main(int argc, char** argv) {
     };
 
     auto analysisSpecification = std::make_unique<ml::api::CDataFrameAnalysisSpecification>(
-        analysisSpecificationJson, std::move(persisterSupplier));
+        analysisSpecificationJson, std::move(persisterSupplier),
+        std::move(restoreSearcherSupplier));
 
     if (memoryUsageEstimationOnly) {
         auto outStream = [&ioMgr]() {
@@ -195,8 +196,7 @@ int main(int argc, char** argv) {
     }
 
     ml::api::CDataFrameAnalyzer dataFrameAnalyzer{
-        std::move(analysisSpecification), std::move(resultsStreamSupplier),
-        std::move(restoreSearcherSupplier)};
+        std::move(analysisSpecification), std::move(resultsStreamSupplier)};
 
     CCleanUpOnExit::add(dataFrameAnalyzer.dataFrameDirectory());
 
