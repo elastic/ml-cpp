@@ -120,18 +120,18 @@ private:
     using TNodeVec = std::vector<CNode>;
     using TNodeVecVec = std::vector<TNodeVec>;
 
-    //! \brief Holds the parameters associated with the different types of regulariser
+    //! \brief Holds the parameters associated with the different types of regularizer
     //! terms available.
     template<typename T>
     class CRegularization final {
     public:
-        //! Set the multiplier of the tree size regularizer.
+        //! Set the multiplier of the tree size penalty.
         CRegularization& gamma(double gamma) {
             m_Gamma = gamma;
             return *this;
         }
 
-        //! Set the multiplier of the square leaf weight regularizer.
+        //! Set the multiplier of the square leaf weight penalty.
         CRegularization& lambda(double lambda) {
             m_Lambda = lambda;
             return *this;
@@ -142,10 +142,10 @@ private:
             return (m_Gamma == T{} ? 1 : 0) + (m_Lambda == T{} ? 1 : 0);
         }
 
-        //! Multiplier of the tree size regularizer.
+        //! Multiplier of the tree size penalty.
         T gamma() const { return m_Gamma; }
 
-        //! Multiplier of the square leaf weight regularizer.
+        //! Multiplier of the square leaf weight penalty.
         T lambda() const { return m_Lambda; }
 
         //! Get description of the regularization parameters.
