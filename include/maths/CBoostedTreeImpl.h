@@ -674,7 +674,7 @@ private:
     //! the dependent variable.
     core::CPackedBitVector allTrainingRowsMask() const;
 
-    //! Compute the \p percentile percentile gain per split and the sum of row 
+    //! Compute the \p percentile percentile gain per split and the sum of row
     //! curvatures per internal node of \p forest.
     TDoubleDoublePr gainAndCurvatureAtPercentile(double percentile,
                                                  const TNodeVecVec& forest) const;
