@@ -76,25 +76,19 @@ void CDataFrameCategoryEncoderTest::testOneHotEncoding() {
 
         maths::CDataFrameCategoryEncoder encoder{{threads, *frame, 3}};
 
-        for (std::size_t i = 0; i < cols; ++i) {
-            CPPUNIT_ASSERT_EQUAL(bool{frame->columnIsCategorical()[i]},
-                                 encoder.columnIsCategorical(i));
-        }
-
-        TSizeVec expectedColumns{0, 0, 0, 0, 1, 2, 3};
-        TSizeVec expectedEncoding{0, 1, 2, 3, 0, 0, 0};
-        CPPUNIT_ASSERT_EQUAL(expectedColumns.size(), encoder.numberFeatures());
-        for (std::size_t i = 0; i < expectedColumns.size(); ++i) {
-            CPPUNIT_ASSERT_EQUAL(expectedColumns[i], encoder.column(i));
-            CPPUNIT_ASSERT_EQUAL(expectedEncoding[i], encoder.encoding(i));
-        }
-
-        TSizeVecVec expectedOneHotEncodedCategories{{0, 1}, {}, {}, {}};
-        for (std::size_t i = 0; i < cols; ++i) {
-            if (encoder.columnIsCategorical(i)) {
-                for (auto j : expectedOneHotEncodedCategories[i]) {
-                    CPPUNIT_ASSERT_EQUAL(true, encoder.isHot(j, i, j));
-                }
+        for (std::size_t i = 0; i < encoder.numberEncodedColumns(); ++i) {
+            switch (i) {
+            case 0:
+                CPPUNIT_ASSERT(maths::E_OneHot == encoder.encoding(i).type());
+                CPPUNIT_ASSERT_EQUAL(1.0, encoder.encoding(i).encode(0.0));
+                break;
+            case 1:
+                CPPUNIT_ASSERT(maths::E_OneHot == encoder.encoding(i).type());
+                CPPUNIT_ASSERT_EQUAL(1.0, encoder.encoding(i).encode(1.0));
+                break;
+            default:
+                CPPUNIT_ASSERT(maths::E_OneHot != encoder.encoding(i).type());
+                break;
             }
         }
 
@@ -148,31 +142,39 @@ void CDataFrameCategoryEncoderTest::testMeanValueEncoding() {
         }
         frame->finishWritingRows();
 
-        maths::CDataFrameCategoryEncoder encoder{{threads, *frame, 3}};
+        maths::CMakeDataFrameCategoryEncoder factory{threads, *frame, 3};
+        maths::CDataFrameCategoryEncoder encoder{factory};
+        factory.makeEncodings();
 
         TMeanAccumulator oneHotTargetMean;
         TMeanAccumulator rareTargetMean;
         for (std::size_t i = 0; i < expectedTargetMeanValues.size(); ++i) {
-            if (encoder.usesOneHotEncoding(0, i)) {
+            if (factory.usesOneHotEncoding(0, i)) {
                 oneHotTargetMean += expectedTargetMeanValues[i];
-            } else if (encoder.isRareCategory(0, i)) {
+            } else if (factory.isRareCategory(0, i)) {
                 rareTargetMean += expectedTargetMeanValues[i];
             }
         }
         for (std::size_t i = 0; i < expectedTargetMeanValues.size(); ++i) {
-            if (encoder.usesOneHotEncoding(0, i)) {
+            if (factory.usesOneHotEncoding(0, i)) {
                 expectedTargetMeanValues[i] = oneHotTargetMean;
-            } else if (encoder.isRareCategory(0, i)) {
+            } else if (factory.isRareCategory(0, i)) {
                 expectedTargetMeanValues[i] = rareTargetMean;
             }
         }
 
-        for (std::size_t i = 0; i < expectedTargetMeanValues.size(); ++i) {
-            CPPUNIT_ASSERT_DOUBLES_EQUAL(
-                maths::CBasicStatistics::mean(expectedTargetMeanValues[i]),
-                encoder.targetMeanValue(0, i),
-                static_cast<double>(std::numeric_limits<float>::epsilon()) *
-                    std::fabs(maths::CBasicStatistics::mean(expectedTargetMeanValues[i])));
+        for (std::size_t i = 0; i < encoder.numberEncodedColumns(); ++i) {
+            if (encoder.encoding(i).type() == maths::E_TargetMean) {
+                for (std::size_t j = 0; j < expectedTargetMeanValues.size(); ++j) {
+                    CPPUNIT_ASSERT_DOUBLES_EQUAL(
+                        maths::CBasicStatistics::mean(expectedTargetMeanValues[j]),
+                        encoder.encoding(i).encode(static_cast<double>(j)),
+                        static_cast<double>(std::numeric_limits<float>::epsilon()) *
+                            std::fabs(maths::CBasicStatistics::mean(
+                                expectedTargetMeanValues[i])));
+                }
+                break;
+            }
         }
 
         core::startDefaultAsyncExecutor();
@@ -217,12 +219,12 @@ void CDataFrameCategoryEncoderTest::testRareCategories() {
     }
     frame->finishWritingRows();
 
-    maths::CDataFrameCategoryEncoder encoder{
-        maths::CMakeDataFrameCategoryEncoder{1, *frame, 3}.minimumFrequencyToOneHotEncode(0.1)};
+    auto factory = maths::CMakeDataFrameCategoryEncoder{1, *frame, 3}.minimumFrequencyToOneHotEncode(
+        0.1);
+    factory.makeEncodings();
 
-    CPPUNIT_ASSERT(encoder.usesFrequencyEncoding(2));
     for (std::size_t i = 0; i < categoryCounts.size(); ++i) {
-        CPPUNIT_ASSERT_EQUAL(categoryCounts[i] < 50, encoder.isRareCategory(2, i));
+        CPPUNIT_ASSERT_EQUAL(categoryCounts[i] < 50, factory.isRareCategory(2, i));
     }
 }
 
@@ -279,9 +281,9 @@ void CDataFrameCategoryEncoderTest::testCorrelatedFeatures() {
         // choose feature 0 or 1 and feature 5.
 
         TSizeVec expectedColumns{1, 5, 6};
-        CPPUNIT_ASSERT_EQUAL(expectedColumns.size(), encoder.numberFeatures());
-        for (std::size_t i = 0; i < encoder.numberFeatures(); ++i) {
-            CPPUNIT_ASSERT_EQUAL(expectedColumns[i], encoder.column(i));
+        CPPUNIT_ASSERT_EQUAL(expectedColumns.size(), encoder.numberEncodedColumns());
+        for (std::size_t i = 0; i < encoder.numberEncodedColumns(); ++i) {
+            CPPUNIT_ASSERT_EQUAL(expectedColumns[i], encoder.encoding(i).inputColumnIndex());
         }
     }
 
@@ -324,9 +326,9 @@ void CDataFrameCategoryEncoderTest::testCorrelatedFeatures() {
         // choose feature 0 or 1 and features 2 and 3.
 
         TSizeVec expectedColumns{0, 0, 2, 3, 4};
-        CPPUNIT_ASSERT_EQUAL(expectedColumns.size(), encoder.numberFeatures());
-        for (std::size_t i = 0; i < encoder.numberFeatures(); ++i) {
-            CPPUNIT_ASSERT_EQUAL(expectedColumns[i], encoder.column(i));
+        CPPUNIT_ASSERT_EQUAL(expectedColumns.size(), encoder.numberEncodedColumns());
+        for (std::size_t i = 0; i < encoder.numberEncodedColumns(); ++i) {
+            CPPUNIT_ASSERT_EQUAL(expectedColumns[i], encoder.encoding(i).inputColumnIndex());
         }
     }
 }
@@ -468,8 +470,10 @@ void CDataFrameCategoryEncoderTest::testEncodedDataFrameRowRef() {
         }
     }
 
-    maths::CDataFrameCategoryEncoder encoder{{1, *frame, 4}};
-    LOG_DEBUG(<< "# features = " << encoder.numberFeatures());
+    maths::CMakeDataFrameCategoryEncoder factory{1, *frame, 4};
+    maths::CDataFrameCategoryEncoder encoder{factory};
+    factory.makeEncodings();
+    LOG_DEBUG(<< "# features = " << encoder.numberEncodedColumns());
 
     auto expectedEncoded = [&](const core::CDataFrame::TRowRef& row, std::size_t i) {
 
@@ -479,7 +483,7 @@ void CDataFrameCategoryEncoderTest::testEncodedDataFrameRowRef() {
         }
 
         if (i < expectedOneHot[0].size()) {
-            return categories[0] == expectedOneHot[0][encoder.encoding(i)] ? 1.0 : 0.0; // one-hot
+            return categories[0] == expectedOneHot[0][factory.encoding(i)] ? 1.0 : 0.0; // one-hot
         }
         if (i < expectedOneHot[0].size() + 1) {
             return expectedFrequencies[0][categories[0]]; // frequency
@@ -489,16 +493,16 @@ void CDataFrameCategoryEncoderTest::testEncodedDataFrameRowRef() {
                 expectedTargetMeanValues[0][categories[0]]); // target mean
         }
         if (i < expectedOneHot[0].size() + 4) {
-            return static_cast<double>(row[encoder.column(i)]); // metrics
+            return static_cast<double>(row[encoder.encoding(i).inputColumnIndex()]); // metrics
         }
         if (i < expectedOneHot[0].size() + 4 + expectedOneHot[3].size()) {
-            return categories[3] == expectedOneHot[3][encoder.encoding(i)] ? 1.0 : 0.0; // one-hot
+            return categories[3] == expectedOneHot[3][factory.encoding(i)] ? 1.0 : 0.0; // one-hot
         }
         if (i < expectedOneHot[0].size() + 4 + expectedOneHot[3].size() + 1) {
             return maths::CBasicStatistics::mean(
                 expectedTargetMeanValues[3][categories[3]]); // target mean
         }
-        return static_cast<double>(row[encoder.column(i)]); // target
+        return static_cast<double>(row[encoder.encoding(i).inputColumnIndex()]); // target
     };
 
     bool passed{true};
@@ -616,10 +620,11 @@ void CDataFrameCategoryEncoderTest::testDiscardNuisanceFeatures() {
     maths::CDataFrameCategoryEncoder encoder{
         maths::CMakeDataFrameCategoryEncoder{1, *frame, 6}.minimumRelativeMicToSelectFeature(0.02)};
 
-    LOG_DEBUG(<< "number selected features = " << encoder.numberFeatures() << " / " << cols);
-    CPPUNIT_ASSERT_EQUAL(cols - 1, encoder.numberFeatures());
-    for (std::size_t i = 0; i < encoder.numberFeatures(); ++i) {
-        CPPUNIT_ASSERT(encoder.column(i) != 5);
+    LOG_DEBUG(<< "number selected features = " << encoder.numberEncodedColumns()
+              << " / " << cols);
+    CPPUNIT_ASSERT_EQUAL(cols - 1, encoder.numberEncodedColumns());
+    for (std::size_t i = 0; i < encoder.numberEncodedColumns(); ++i) {
+        CPPUNIT_ASSERT(encoder.encoding(i).inputColumnIndex() != 5);
     }
 }
 
