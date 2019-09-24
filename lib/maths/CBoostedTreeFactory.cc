@@ -345,11 +345,11 @@ void CBoostedTreeFactory::initializeUnsetRegularizationHyperparameters(core::CDa
         }
     }
 
-    double scale{
-        static_cast<double>(m_TreeImpl->m_NumberFolds - 1) /
-        static_cast<double>(m_TreeImpl->m_NumberFolds) /
-        ((m_TreeImpl->m_RegularizationOverride.gamma() != boost::none ? 0.0 : 1.0) +
-         (m_TreeImpl->m_RegularizationOverride.lambda() != boost::none ? 0.0 : 1.0))};
+    double freeRegularizationParameters{
+        (m_TreeImpl->m_RegularizationOverride.gamma() != boost::none ? 0.0 : 1.0) +
+        (m_TreeImpl->m_RegularizationOverride.lambda() != boost::none ? 0.0 : 1.0)};
+    double scale{static_cast<double>(m_TreeImpl->m_NumberFolds - 1) /
+                 static_cast<double>(m_TreeImpl->m_NumberFolds) / freeRegularizationParameters};
 
     if (m_TreeImpl->m_RegularizationOverride.gamma() == boost::none) {
         m_GammaSearchInterval *= scale;
