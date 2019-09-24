@@ -43,25 +43,38 @@ const double MAIN_TRAINING_LOOP_TREE_SIZE_MULTIPLIER{10.0};
 CBoostedTreeFactory::TBoostedTreeUPtr
 CBoostedTreeFactory::buildFor(core::CDataFrame& frame, std::size_t dependentVariable) {
 
-    m_TreeImpl->m_DependentVariable = dependentVariable;
+    if (m_Restored) {
 
-    this->setupTrainingProgressMonitoring();
+        if (dependentVariable != m_TreeImpl->m_DependentVariable) {
+            HANDLE_FATAL(<< "Internal error: expected dependent variable "
+                         << m_TreeImpl->m_DependentVariable << " got " << dependentVariable);
+        }
 
-    this->initializeMissingFeatureMasks(frame);
-    std::tie(m_TreeImpl->m_TrainingRowMasks, m_TreeImpl->m_TestingRowMasks) =
-        this->crossValidationRowMasks();
+        this->restoreTrainingProgressMonitoring();
 
-    // We store the gradient and curvature of the loss function and the predicted
-    // value for the dependent variable of the regression.
-    frame.resizeColumns(m_TreeImpl->m_NumberThreads,
-                        frame.numberColumns() + this->numberExtraColumnsForTrain());
+        frame.resizeColumns(m_TreeImpl->m_NumberThreads,
+                            frame.numberColumns() + this->numberExtraColumnsForTrain());
 
-    this->selectFeaturesAndEncodeCategories(frame);
-    this->determineFeatureDataTypes(frame);
+    } else {
 
-    if (this->initializeFeatureSampleDistribution()) {
-        this->initializeHyperparameters(frame);
-        this->initializeHyperparameterOptimisation();
+        m_TreeImpl->m_DependentVariable = dependentVariable;
+
+        this->setupTrainingProgressMonitoring();
+
+        this->initializeMissingFeatureMasks(frame);
+        std::tie(m_TreeImpl->m_TrainingRowMasks, m_TreeImpl->m_TestingRowMasks) =
+            this->crossValidationRowMasks();
+
+        frame.resizeColumns(m_TreeImpl->m_NumberThreads,
+                            frame.numberColumns() + this->numberExtraColumnsForTrain());
+
+        this->selectFeaturesAndEncodeCategories(frame);
+        this->determineFeatureDataTypes(frame);
+
+        if (this->initializeFeatureSampleDistribution()) {
+            this->initializeHyperparameters(frame);
+            this->initializeHyperparameterOptimisation();
+        }
     }
 
     // TODO can only use factory to create one object since this is moved. This seems trappy.
@@ -465,37 +478,26 @@ CBoostedTreeFactory::candidateRegularizerSearchInterval(core::CDataFrame& frame,
 
 CBoostedTreeFactory CBoostedTreeFactory::constructFromParameters(std::size_t numberThreads,
                                                                  TLossFunctionUPtr loss) {
-    return {numberThreads, std::move(loss)};
+    return {false, numberThreads, std::move(loss)};
 }
 
-CBoostedTreeFactory::TBoostedTreeUPtr
-CBoostedTreeFactory::constructFromString(std::istream& jsonStringStream,
-                                         core::CDataFrame& frame,
-                                         TProgressCallback recordProgress,
-                                         TMemoryUsageCallback recordMemoryUsage,
-                                         TTrainingStateCallback recordTrainingState) {
+CBoostedTreeFactory CBoostedTreeFactory::constructFromString(std::istream& jsonStringStream) {
+    CBoostedTreeFactory result{true, 1, nullptr};
     try {
-        TBoostedTreeUPtr treePtr{new CBoostedTree{
-            frame, std::move(recordProgress), std::move(recordMemoryUsage),
-            std::move(recordTrainingState), TBoostedTreeImplUPtr{new CBoostedTreeImpl{}}}};
         core::CJsonStateRestoreTraverser traverser(jsonStringStream);
-        if (treePtr->acceptRestoreTraverser(traverser) == false || traverser.haveBadState()) {
+        if (result.m_TreeImpl->acceptRestoreTraverser(traverser) == false ||
+            traverser.haveBadState()) {
             throw std::runtime_error{"failed to restore boosted tree"};
         }
-        treePtr->m_Impl->m_TrainingProgress.attach(recordProgress);
-        treePtr->m_Impl->m_TrainingProgress.resumeRestored();
-        frame.resizeColumns(treePtr->m_Impl->m_NumberThreads,
-                            frame.numberColumns() +
-                                treePtr->m_Impl->numberExtraColumnsForTrain());
-        return treePtr;
     } catch (const std::exception& e) {
-        HANDLE_FATAL(<< "Input error: '" << e.what() << "'. Check logs for more details.");
+        throw std::runtime_error{std::string{"Input error: '"} + e.what() + "'"};
     }
-    return nullptr;
+    return result;
 }
 
-CBoostedTreeFactory::CBoostedTreeFactory(std::size_t numberThreads, TLossFunctionUPtr loss)
-    : m_TreeImpl{std::make_unique<CBoostedTreeImpl>(numberThreads, std::move(loss))},
+CBoostedTreeFactory::CBoostedTreeFactory(bool restored, std::size_t numberThreads, TLossFunctionUPtr loss)
+    : m_Restored{restored}, m_TreeImpl{std::make_unique<CBoostedTreeImpl>(numberThreads,
+                                                                          std::move(loss))},
       m_GammaSearchInterval{0.0}, m_LambdaSearchInterval{0.0} {
 }
 
@@ -658,6 +660,11 @@ void CBoostedTreeFactory::setupTrainingProgressMonitoring() {
     totalNumberSteps += (this->numberHyperparameterTuningRounds() + 1) *
                         m_TreeImpl->m_NumberFolds;
     m_TreeImpl->m_TrainingProgress = core::CLoopProgress{totalNumberSteps, m_RecordProgress};
+}
+
+void CBoostedTreeFactory::restoreTrainingProgressMonitoring() {
+    m_TreeImpl->m_TrainingProgress.attach(m_RecordProgress);
+    m_TreeImpl->m_TrainingProgress.resumeRestored();
 }
 
 void CBoostedTreeFactory::noopRecordTrainingState(std::function<void(core::CStatePersistInserter&)>) {

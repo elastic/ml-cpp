@@ -302,6 +302,8 @@ std::size_t CBoostedTreeImpl::columnHoldingDependentVariable() const {
 }
 
 std::size_t CBoostedTreeImpl::numberExtraColumnsForTrain() {
+    // We store the gradient and curvature of the loss function and the predicted
+    // value for the dependent variable of the regression in the data frame.
     return 3;
 }
 

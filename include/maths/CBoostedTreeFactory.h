@@ -44,12 +44,9 @@ public:
                                                        TLossFunctionUPtr loss);
 
     //! Construct a boosted tree object from its serialized version.
-    static TBoostedTreeUPtr
-    constructFromString(std::istream& jsonStringStream,
-                        core::CDataFrame& frame,
-                        TProgressCallback recordProgress = noopRecordProgress,
-                        TMemoryUsageCallback recordMemoryUsage = noopRecordMemoryUsage,
-                        TTrainingStateCallback recordTrainingState = noopRecordTrainingState);
+    //!
+    //! \warning Throws runtime error on fail to restore.
+    static CBoostedTreeFactory constructFromString(std::istream& jsonStringStream);
 
     ~CBoostedTreeFactory();
     CBoostedTreeFactory(CBoostedTreeFactory&) = delete;
@@ -108,7 +105,7 @@ private:
     static const std::size_t MAXIMUM_NUMBER_TREES;
 
 private:
-    CBoostedTreeFactory(std::size_t numberThreads, TLossFunctionUPtr loss);
+    CBoostedTreeFactory(bool restored, std::size_t numberThreads, TLossFunctionUPtr loss);
 
     //! Compute the row masks for the missing values for each feature.
     void initializeMissingFeatureMasks(const core::CDataFrame& frame) const;
@@ -152,6 +149,9 @@ private:
     //! Setup monitoring for training progress.
     void setupTrainingProgressMonitoring();
 
+    //! Refresh progress monitoring after restoring from saved training state.
+    void restoreTrainingProgressMonitoring();
+
     static void noopRecordProgress(double);
     static void noopRecordMemoryUsage(std::int64_t);
     static void noopRecordTrainingState(CDataFrameRegressionModel::TPersistFunc);
@@ -159,6 +159,7 @@ private:
 private:
     TOptionalDouble m_MinimumFrequencyToOneHotEncode;
     TOptionalSize m_BayesianOptimisationRestarts;
+    bool m_Restored = false;
     TBoostedTreeImplUPtr m_TreeImpl;
     TVector m_GammaSearchInterval;
     TVector m_LambdaSearchInterval;
