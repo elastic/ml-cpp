@@ -103,9 +103,9 @@ private:
 
 const double EPS = static_cast<double>(std::numeric_limits<float>::epsilon());
 const std::size_t MINIMUM_MAX_SIZE = 3u;
-const std::string UNSORTED_TAG("a");
-const std::string KNOTS_TAG("b");
-const std::string COUNT_TAG("c");
+const core::TPersistenceTag UNSORTED_TAG("a", "unsorted");
+const core::TPersistenceTag KNOTS_TAG("b", "knots");
+const core::TPersistenceTag COUNT_TAG("c", "count");
 }
 
 CQuantileSketch::CQuantileSketch(EInterpolation interpolation, std::size_t size)

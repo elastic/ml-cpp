@@ -27,7 +27,7 @@ namespace {
 
 // CStateMachine
 //const std::string MACHINE_TAG("a"); No longer used
-const std::string STATE_TAG("b");
+const core::TPersistenceTag STATE_TAG("b", "state");
 
 // CStateMachine::SMachine
 const std::string ALPHABET_TAG("a");
