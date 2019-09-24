@@ -30,17 +30,17 @@ namespace {
 
 using TDoubleDoublePr = maths_t::TDoubleDoublePr;
 
-const std::string MAX_SIZE_TAG{"a"};
-const std::string RNG_TAG{"b"};
-const std::string BOUNDARY_CONDITION_TAG{"c"};
-const std::string BUCKETING_TAG{"d"};
-const std::string SPLINES_TAG{"e"};
+const core::TPersistenceTag MAX_SIZE_TAG{"a", "max_size"};
+const core::TPersistenceTag RNG_TAG{"b", "rng"};
+const core::TPersistenceTag BOUNDARY_CONDITION_TAG{"c", "boundary_condition"};
+const core::TPersistenceTag BUCKETING_TAG{"d", "bucketing"};
+const core::TPersistenceTag SPLINES_TAG{"e", "splines"};
 
 // Nested tags
-const std::string ESTIMATED_TAG{"a"};
-const std::string KNOTS_TAG{"b"};
-const std::string VALUES_TAG{"c"};
-const std::string VARIANCES_TAG{"d"};
+const core::TPersistenceTag ESTIMATED_TAG{"a", "estimated"};
+const core::TPersistenceTag KNOTS_TAG{"b", "knots"};
+const core::TPersistenceTag VALUES_TAG{"c", "values"};
+const core::TPersistenceTag VARIANCES_TAG{"d", "variances"};
 
 const std::string EMPTY_STRING;
 }

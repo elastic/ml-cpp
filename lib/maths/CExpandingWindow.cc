@@ -23,10 +23,10 @@
 namespace ml {
 namespace maths {
 namespace {
-const std::string BUCKET_LENGTH_INDEX_TAG{"a"};
-const std::string BUCKET_VALUES_TAG{"b"};
-const std::string START_TIME_TAG{"c"};
-const std::string MEAN_OFFSET_TAG{"d"};
+const core::TPersistenceTag BUCKET_LENGTH_INDEX_TAG{"a", "bucket_length_index"};
+const core::TPersistenceTag BUCKET_VALUES_TAG{"b", "bucket_values"};
+const core::TPersistenceTag START_TIME_TAG{"c", "start_time"};
+const core::TPersistenceTag MEAN_OFFSET_TAG{"d", "mean_offset"};
 const std::size_t MAX_BUFFER_SIZE{5};
 }
 

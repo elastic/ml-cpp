@@ -103,8 +103,8 @@ CEventRateModel::CEventRateModel(bool isForPersistence, const CEventRateModel& o
     }
 }
 
-void CEventRateModel::persistResidualModelsState(core::CStatePersistInserter& inserter) const {
-    this->doPersistResidualModelsState(inserter);
+void CEventRateModel::persistModelsState(core::CStatePersistInserter& inserter) const {
+    this->doPersistModelsState(inserter);
 }
 
 void CEventRateModel::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
