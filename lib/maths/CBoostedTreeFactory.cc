@@ -463,23 +463,28 @@ CBoostedTreeFactory::TOptionalVector CBoostedTreeFactory::lineSearchWithQuadrati
     }()};
     double bestRegularizerScale{std::pow(0.5, logBestRegularizerScale)};
 
-    // Find an interval with a high probability of containing the optimal
-    // regularisation parameter if the interval we searched has a minimum.
     TVector interval{{MIN_REGULARIZER_SCALE, 1.0, MAX_REGULARIZER_SCALE}};
     if (curvature > 0.0) {
+        // Find a short interval with a high probability of containing the optimal
+        // regularisation parameter if we found a minimum. In particular, we solve
+        // curvature * (x - best)^2 = 3 sigma where sigma is the standard deviation
+        // of the test loss residuals. We don't extrapolate so don't truncate if a
+        // crossing point lies outside the searched interval.
         TMeanVarAccumulator residualMoments;
         for (std::size_t i = 0; i < INITIAL_REGULARIZER_SEARCH_ITERATIONS; ++i) {
             residualMoments.add(testLosses[i] - leastSquaresQuadraticTestLoss.predict(
                                                     static_cast<double>(i)));
         }
-        double margin{2.0 * std::sqrt(CBasicStatistics::variance(residualMoments)) / curvature};
-        if (logBestRegularizerScale - margin >= leftEndpoint) {
-            interval(MIN_REGULARIZER_INDEX) =
-                std::max(std::pow(0.5, margin), MIN_REGULARIZER_SCALE);
+        double sigma{std::sqrt(CBasicStatistics::variance(residualMoments))};
+        double logScaleAtThreeSigma{std::sqrt(3.0 * sigma / curvature)};
+        if (logBestRegularizerScale - logScaleAtThreeSigma >= leftEndpoint) {
+            // These are scales > bestRegularizerScale hence 1 / multiplier.
+            interval(MAX_REGULARIZER_INDEX) = std::min(
+                std::pow(1.0 / multiplier, logScaleAtThreeSigma), MAX_REGULARIZER_SCALE);
         }
-        if (logBestRegularizerScale + margin <= rightEndpoint) {
-            interval(MAX_REGULARIZER_INDEX) =
-                std::min(std::pow(2.0, margin), MAX_REGULARIZER_SCALE);
+        if (logBestRegularizerScale + logScaleAtThreeSigma <= rightEndpoint) {
+            interval(MIN_REGULARIZER_INDEX) = std::max(
+                std::pow(multiplier, logScaleAtThreeSigma), MIN_REGULARIZER_SCALE);
         }
     }
     interval *= bestRegularizerScale;
