@@ -313,37 +313,36 @@ void CBoostedTreeFactory::initializeUnsetRegularizationHyperparameters(core::CDa
     std::tie(gainPerNode, totalCurvaturePerNode) =
         this->estimateTreeGainAndCurvature(frame, allTrainingRowsMask);
 
-    if (gainPerNode > 0.0 && m_TreeImpl->m_RegularizationOverride.gamma() == boost::none) {
-
-        TVector fallbackInterval{{MIN_REGULARIZER_SCALE, 1.0, MAX_REGULARIZER_SCALE}};
-        fallbackInterval *= m_TreeImpl->m_Eta;
-        auto interval = this->candidateRegularizerSearchInterval(
-            frame, allTrainingRowsMask, [this, gainPerNode](double scale) {
-                m_TreeImpl->m_Regularization.gamma(scale * gainPerNode);
-            });
-        m_GammaSearchInterval = interval.value_or(fallbackInterval) * gainPerNode;
-        LOG_TRACE(<< "gamma search interval = ["
-                  << m_GammaSearchInterval.toDelimited() << "]");
-
-    } else if (m_TreeImpl->m_RegularizationOverride.gamma() == boost::none) {
-        m_TreeImpl->m_RegularizationOverride.gamma(0.0);
+    if (m_TreeImpl->m_RegularizationOverride.gamma() == boost::none) {
+        if (gainPerNode > 0.0) {
+            TVector fallbackInterval{{MIN_REGULARIZER_SCALE, 1.0, MAX_REGULARIZER_SCALE}};
+            fallbackInterval *= m_TreeImpl->m_Eta;
+            auto interval = this->candidateRegularizerSearchInterval(
+                frame, allTrainingRowsMask, [this, gainPerNode](double scale) {
+                    m_TreeImpl->m_Regularization.gamma(scale * gainPerNode);
+                });
+            m_GammaSearchInterval = interval.value_or(fallbackInterval) * gainPerNode;
+            LOG_TRACE(<< "gamma search interval = ["
+                      << m_GammaSearchInterval.toDelimited() << "]");
+        } else {
+            m_TreeImpl->m_RegularizationOverride.gamma(0.0);
+        }
     }
 
-    if (totalCurvaturePerNode > 0.0 &&
-        m_TreeImpl->m_RegularizationOverride.lambda() == boost::none) {
-
-        TVector fallbackInterval{{MIN_REGULARIZER_SCALE, 1.0, MAX_REGULARIZER_SCALE}};
-        m_TreeImpl->m_Regularization.gamma(m_GammaSearchInterval(MIN_REGULARIZER_INDEX));
-        auto interval = this->candidateRegularizerSearchInterval(
-            frame, allTrainingRowsMask, [this, totalCurvaturePerNode](double scale) {
-                m_TreeImpl->m_Regularization.lambda(scale * totalCurvaturePerNode);
-            });
-        m_LambdaSearchInterval = interval.value_or(fallbackInterval) * totalCurvaturePerNode;
-        LOG_TRACE(<< "lambda search interval = ["
-                  << m_LambdaSearchInterval.toDelimited() << "]");
-
-    } else if (m_TreeImpl->m_RegularizationOverride.lambda() == boost::none) {
-        m_TreeImpl->m_RegularizationOverride.lambda(0.0);
+    if (m_TreeImpl->m_RegularizationOverride.lambda() == boost::none) {
+        if (totalCurvaturePerNode > 0.0) {
+            TVector fallbackInterval{{MIN_REGULARIZER_SCALE, 1.0, MAX_REGULARIZER_SCALE}};
+            m_TreeImpl->m_Regularization.gamma(m_GammaSearchInterval(MIN_REGULARIZER_INDEX));
+            auto interval = this->candidateRegularizerSearchInterval(
+                frame, allTrainingRowsMask, [this, totalCurvaturePerNode](double scale) {
+                    m_TreeImpl->m_Regularization.lambda(scale * totalCurvaturePerNode);
+                });
+            m_LambdaSearchInterval = interval.value_or(fallbackInterval) * totalCurvaturePerNode;
+            LOG_TRACE(<< "lambda search interval = ["
+                      << m_LambdaSearchInterval.toDelimited() << "]");
+        } else {
+            m_TreeImpl->m_RegularizationOverride.lambda(0.0);
+        }
     }
 
     double scale{
