@@ -8,15 +8,18 @@
 #include <core/COsFileFuncs.h>
 #include <core/CProgName.h>
 
-#include <stdlib.h>
+#include <cstdlib>
 
 namespace {
-const char* const CPP_SRC_HOME("CPP_SRC_HOME");
+// Important: all file scope in this file must be simple types that don't
+// require construction, as they could be accessed before the static
+// constructors are run.
+const char* const CPP_SRC_HOME{"CPP_SRC_HOME"};
 
 #ifdef MacOSX
-const std::string RESOURCE_RELATIVE_DIR{"../Resources"};
+const char* const RESOURCE_RELATIVE_DIR{"../Resources"};
 #else
-const std::string RESOURCE_RELATIVE_DIR{"../resources"};
+const char* const RESOURCE_RELATIVE_DIR{"../resources"};
 #endif
 }
 
@@ -24,10 +27,9 @@ namespace ml {
 namespace core {
 
 std::string CResourceLocator::resourceDir() {
-    // Look relative to the program that's running, assuming this directory layout:
-    // $ES_HOME/plugin/<plugin name>/resources
-    // $ES_HOME/plugin/<plugin name>/platform/<platform name>/bin
 
+    // Look relative to the program that's running, assuming that the resource
+    // directory is located relative to the directory the current program is in.
     std::string productionDir(CProgName::progDir() + RESOURCE_RELATIVE_DIR);
 
     // If the production directory doesn't exist, return the dev directory if
@@ -35,7 +37,7 @@ std::string CResourceLocator::resourceDir() {
     // error message is nicer for the end user.
     COsFileFuncs::TStat buf;
     if (COsFileFuncs::stat(productionDir.c_str(), &buf) != 0) {
-        const char* cppSrcHome(::getenv(CPP_SRC_HOME));
+        const char* cppSrcHome(std::getenv(CPP_SRC_HOME));
         if (cppSrcHome != nullptr) {
             std::string devDir(cppSrcHome);
             devDir += "/lib/core";
@@ -49,7 +51,7 @@ std::string CResourceLocator::resourceDir() {
 }
 
 std::string CResourceLocator::cppRootDir() {
-    const char* cppSrcHome(::getenv(CPP_SRC_HOME));
+    const char* cppSrcHome(std::getenv(CPP_SRC_HOME));
     if (cppSrcHome == nullptr) {
         // Assume we're in a unittest directory
         return "../../..";
