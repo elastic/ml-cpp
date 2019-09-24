@@ -50,7 +50,7 @@ CBoostedTreeFactory::buildFor(core::CDataFrame& frame, std::size_t dependentVari
                          << m_TreeImpl->m_DependentVariable << " got " << dependentVariable);
         }
 
-        this->restoreTrainingProgressMonitoring();
+        this->resumeRestoredTrainingProgressMonitoring();
 
         frame.resizeColumns(m_TreeImpl->m_NumberThreads,
                             frame.numberColumns() + this->numberExtraColumnsForTrain());
@@ -59,7 +59,7 @@ CBoostedTreeFactory::buildFor(core::CDataFrame& frame, std::size_t dependentVari
 
         m_TreeImpl->m_DependentVariable = dependentVariable;
 
-        this->setupTrainingProgressMonitoring();
+        this->initializeTrainingProgressMonitoring();
 
         this->initializeMissingFeatureMasks(frame);
         std::tie(m_TreeImpl->m_TrainingRowMasks, m_TreeImpl->m_TestingRowMasks) =
@@ -638,7 +638,7 @@ std::size_t CBoostedTreeFactory::numberExtraColumnsForTrain() const {
     return m_TreeImpl->numberExtraColumnsForTrain();
 }
 
-void CBoostedTreeFactory::setupTrainingProgressMonitoring() {
+void CBoostedTreeFactory::initializeTrainingProgressMonitoring() {
 
     // The base unit is the cost of training on one fold.
     //
@@ -662,7 +662,7 @@ void CBoostedTreeFactory::setupTrainingProgressMonitoring() {
     m_TreeImpl->m_TrainingProgress = core::CLoopProgress{totalNumberSteps, m_RecordProgress};
 }
 
-void CBoostedTreeFactory::restoreTrainingProgressMonitoring() {
+void CBoostedTreeFactory::resumeRestoredTrainingProgressMonitoring() {
     m_TreeImpl->m_TrainingProgress.progressCallback(m_RecordProgress);
     m_TreeImpl->m_TrainingProgress.resumeRestored();
 }

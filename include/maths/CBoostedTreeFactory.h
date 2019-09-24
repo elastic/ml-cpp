@@ -147,10 +147,10 @@ private:
     std::size_t numberHyperparameterTuningRounds() const;
 
     //! Setup monitoring for training progress.
-    void setupTrainingProgressMonitoring();
+    void initializeTrainingProgressMonitoring();
 
     //! Refresh progress monitoring after restoring from saved training state.
-    void restoreTrainingProgressMonitoring();
+    void resumeRestoredTrainingProgressMonitoring();
 
     static void noopRecordProgress(double);
     static void noopRecordMemoryUsage(std::int64_t);
