@@ -83,7 +83,6 @@ public:
 private:
     TOStreamP m_Stream;
 };
-}
 
 std::vector<std::string> streamToStringVector(std::stringstream&& tokenStream) {
     std::vector<std::string> results;
@@ -361,6 +360,7 @@ void addRegressionTestData(const TStrVec& fieldNames,
                 (*row)[tree->columnHoldingPrediction(row->numberColumns())]);
         }
     });
+}
 }
 
 void CDataFrameAnalyzerTest::testWithoutControlMessages() {
@@ -1130,8 +1130,7 @@ void CDataFrameAnalyzerTest::testRunBoostedTreeTrainingWithStateRecoverySubrouti
     rng.generateUniformSamples(-10.0, 10.0, weights.size() * numberExamples, values);
 
     auto persistenceStream{std::make_shared<std::ostringstream>()};
-    CDataFrameAnalyzerTest::TPersisterSupplier persisterSupplier =
-        [&persistenceStream]() -> TDataAdderUPtr {
+    TPersisterSupplier persisterSupplier = [&persistenceStream]() -> TDataAdderUPtr {
         return std::make_unique<api::CSingleStreamDataAdder>(persistenceStream);
     };
 
@@ -1142,20 +1141,21 @@ void CDataFrameAnalyzerTest::testRunBoostedTreeTrainingWithStateRecoverySubrouti
                        numberRoundsPerHyperparameter, 12, {}, lambda, gamma, eta,
                        maximumNumberTrees, featureBagFraction, &persisterSupplier),
         outputWriterFactory};
+    std::size_t dependentVariable(
+        std::find(fieldNames.begin(), fieldNames.end(), "c5") - fieldNames.begin());
 
     auto frame{passDataToAnalyzer(fieldNames, fieldValues, analyzer, weights, values)};
     analyzer.handleRecord(fieldNames, {"", "", "", "", "", "", "$"});
 
     TStrVec persistedStatesString{
         streamToStringVector(std::stringstream(persistenceStream->str()))};
-    auto expectedTree{getFinalTree(persistedStatesString, frame)};
+    auto expectedTree{this->getFinalTree(persistedStatesString, frame, dependentVariable)};
 
     // Compute actual tree
     persistenceStream->str("");
 
     std::istringstream intermediateStateStream{persistedStatesString[iterationToRestartFrom]};
-    CDataFrameAnalyzerTest::TRestoreSearcherSupplier restoreSearcherSupplier =
-        [&intermediateStateStream]() -> TDataSearcherUPtr {
+    TRestoreSearcherSupplier restoreSearcherSupplier = [&intermediateStateStream]() -> TDataSearcherUPtr {
         return std::make_unique<CTestDataSearcher>(intermediateStateStream.str());
     };
 
@@ -1170,7 +1170,7 @@ void CDataFrameAnalyzerTest::testRunBoostedTreeTrainingWithStateRecoverySubrouti
 
     persistedStatesString =
         streamToStringVector(std::stringstream(persistenceStream->str()));
-    auto actualTree{getFinalTree(persistedStatesString, frame)};
+    auto actualTree{this->getFinalTree(persistedStatesString, frame, dependentVariable)};
 
     // compare hyperparameter
 
@@ -1199,11 +1199,13 @@ void CDataFrameAnalyzerTest::testRunBoostedTreeTrainingWithStateRecoverySubrouti
 
 maths::CBoostedTreeFactory::TBoostedTreeUPtr
 CDataFrameAnalyzerTest::getFinalTree(const TStrVec& persistedStates,
-                                     std::unique_ptr<core::CDataFrame>& frame) const {
+                                     std::unique_ptr<core::CDataFrame>& frame,
+                                     std::size_t dependentVariable) const {
     CTestDataSearcher dataSearcher(persistedStates.back());
     auto decompressor{std::make_unique<core::CStateDecompressor>(dataSearcher)};
     decompressor->setStateRestoreSearch(api::ML_STATE_INDEX,
                                         api::getRegressionStateId("testJob"));
     auto stream{decompressor->search(1, 1)};
-    return maths::CBoostedTreeFactory::constructFromString(*stream, *frame);
+    return maths::CBoostedTreeFactory::constructFromString(*stream).buildFor(
+        *frame, dependentVariable);
 }
