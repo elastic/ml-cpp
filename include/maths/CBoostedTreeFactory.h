@@ -98,7 +98,7 @@ private:
     using TOptionalVector = boost::optional<TVector>;
     using TPackedBitVectorVec = std::vector<core::CPackedBitVector>;
     using TBoostedTreeImplUPtr = std::unique_ptr<CBoostedTreeImpl>;
-    using TScaleRegularization = std::function<void(double)>;
+    using TScaleRegularization = std::function<void(CBoostedTreeImpl&, double)>;
 
 private:
     static const double MINIMUM_ETA;
@@ -135,10 +135,15 @@ private:
     TDoubleDoublePr estimateTreeGainAndCurvature(core::CDataFrame& frame,
                                                  const core::CPackedBitVector& trainingRowMask) const;
 
-    //! Get the regularizer value at the point the model starts to overfit.
-    TOptionalVector candidateRegularizerSearchInterval(core::CDataFrame& frame,
-                                                       core::CPackedBitVector trainingRowMask,
-                                                       TScaleRegularization scale) const;
+    //! Perform a line search with quadratic approximation for the regularizer
+    //! value at the model starts to overfit.
+    //!
+    //! \note applyScaleToRegularizer Applies a specified scale to the initial
+    //! choosen value for tree implemenation.
+    TOptionalVector
+    lineSearchWithQuadraticApproxToTestError(core::CDataFrame& frame,
+                                             core::CPackedBitVector trainingRowMask,
+                                             const TScaleRegularization& applyScaleToRegularizer) const;
 
     //! Initialize the state for hyperparameter optimisation.
     void initializeHyperparameterOptimisation() const;

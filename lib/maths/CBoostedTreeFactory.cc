@@ -317,11 +317,15 @@ void CBoostedTreeFactory::initializeUnsetRegularizationHyperparameters(core::CDa
         if (gainPerNode > 0.0) {
             TVector fallbackInterval{{MIN_REGULARIZER_SCALE, 1.0, MAX_REGULARIZER_SCALE}};
             fallbackInterval *= m_TreeImpl->m_Eta;
-            auto interval = this->candidateRegularizerSearchInterval(
-                frame, allTrainingRowsMask, [this, gainPerNode](double scale) {
-                    m_TreeImpl->m_Regularization.gamma(scale * gainPerNode);
-                });
-            m_GammaSearchInterval = interval.value_or(fallbackInterval) * gainPerNode;
+
+            double initialGamma{gainPerNode};
+            auto gammaStep = [initialGamma](CBoostedTreeImpl& tree, double scale) {
+                tree.m_Regularization.gamma(scale * initialGamma);
+            };
+            m_GammaSearchInterval = this->lineSearchWithQuadraticApproxToTestError(
+                                            frame, allTrainingRowsMask, gammaStep)
+                                        .value_or(fallbackInterval) *
+                                    gainPerNode;
             LOG_TRACE(<< "gamma search interval = ["
                       << m_GammaSearchInterval.toDelimited() << "]");
         } else {
@@ -333,11 +337,15 @@ void CBoostedTreeFactory::initializeUnsetRegularizationHyperparameters(core::CDa
         if (totalCurvaturePerNode > 0.0) {
             TVector fallbackInterval{{MIN_REGULARIZER_SCALE, 1.0, MAX_REGULARIZER_SCALE}};
             m_TreeImpl->m_Regularization.gamma(m_GammaSearchInterval(MIN_REGULARIZER_INDEX));
-            auto interval = this->candidateRegularizerSearchInterval(
-                frame, allTrainingRowsMask, [this, totalCurvaturePerNode](double scale) {
-                    m_TreeImpl->m_Regularization.lambda(scale * totalCurvaturePerNode);
-                });
-            m_LambdaSearchInterval = interval.value_or(fallbackInterval) * totalCurvaturePerNode;
+
+            double initialLambda{totalCurvaturePerNode};
+            auto lambdaStep = [initialLambda](CBoostedTreeImpl& tree, double scale) {
+                tree.m_Regularization.lambda(scale * initialLambda);
+            };
+            m_LambdaSearchInterval = this->lineSearchWithQuadraticApproxToTestError(
+                                             frame, allTrainingRowsMask, lambdaStep)
+                                         .value_or(fallbackInterval) *
+                                     totalCurvaturePerNode;
             LOG_TRACE(<< "lambda search interval = ["
                       << m_LambdaSearchInterval.toDelimited() << "]");
         } else {
@@ -380,10 +388,10 @@ CBoostedTreeFactory::estimateTreeGainAndCurvature(core::CDataFrame& frame,
     return {gain, curvature};
 }
 
-CBoostedTreeFactory::TOptionalVector
-CBoostedTreeFactory::candidateRegularizerSearchInterval(core::CDataFrame& frame,
-                                                        core::CPackedBitVector trainingRowMask,
-                                                        TScaleRegularization scaleRegularization) const {
+CBoostedTreeFactory::TOptionalVector CBoostedTreeFactory::lineSearchWithQuadraticApproxToTestError(
+    core::CDataFrame& frame,
+    core::CPackedBitVector trainingRowMask,
+    const TScaleRegularization& regularizerStep) const {
 
     // This uses a quadratic approximation to the test loss function w.r.t.
     // the scaled regularization hyperparameter from which it estimates the
@@ -419,7 +427,7 @@ CBoostedTreeFactory::candidateRegularizerSearchInterval(core::CDataFrame& frame,
 
     double scale{1.0};
     for (std::size_t i = 0; i < INITIAL_REGULARIZER_SEARCH_ITERATIONS; ++i) {
-        scaleRegularization(scale);
+        regularizerStep(*m_TreeImpl, scale);
         scale *= multiplier;
         auto forest = m_TreeImpl->trainForest(frame, trainingRowMask, m_RecordMemoryUsage);
         double testLoss{m_TreeImpl->meanLoss(frame, testRowMask, forest)};
@@ -443,12 +451,16 @@ CBoostedTreeFactory::candidateRegularizerSearchInterval(core::CDataFrame& frame,
     double leftEndpoint{0.0};
     double rightEndpoint{static_cast<double>(INITIAL_REGULARIZER_SEARCH_ITERATIONS - 1)};
     double stationaryPoint{-gradient / 2.0 / curvature};
-    double distanceToLeftEndpoint{std::fabs(leftEndpoint - stationaryPoint)};
-    double distanceToRightEndpoint{std::fabs(rightEndpoint - stationaryPoint)};
-    double logBestRegularizerScale{
-        curvature < 0.0
-            ? (distanceToLeftEndpoint > distanceToRightEndpoint ? leftEndpoint : rightEndpoint)
-            : CTools::truncate(stationaryPoint, leftEndpoint, rightEndpoint)};
+    double logBestRegularizerScale{[&] {
+        double distanceToLeftEndpoint{std::fabs(leftEndpoint - stationaryPoint)};
+        double distanceToRightEndpoint{std::fabs(rightEndpoint - stationaryPoint)};
+        if (curvature < 0.0) {
+            // Stationary point is a maximum so use furthest point in interval.
+            return distanceToLeftEndpoint > distanceToRightEndpoint ? leftEndpoint : rightEndpoint;
+        }
+        // Stationary point is a minimum so use nearest point in the interval.
+        return CTools::truncate(stationaryPoint, leftEndpoint, rightEndpoint);
+    }()};
     double bestRegularizerScale{std::pow(0.5, logBestRegularizerScale)};
 
     // Find an interval with a high probability of containing the optimal
