@@ -165,7 +165,7 @@ void CLoopProgressTest::testSerialization() {
     auto restoredRecordProgress = [&restoredProgress](double p) {
         restoredProgress += p;
     };
-    restoredLoopProgress.attach(restoredRecordProgress);
+    restoredLoopProgress.progressCallback(restoredRecordProgress);
     restoredLoopProgress.resumeRestored();
 
     CPPUNIT_ASSERT_EQUAL(loopProgress.checksum(), restoredLoopProgress.checksum());
