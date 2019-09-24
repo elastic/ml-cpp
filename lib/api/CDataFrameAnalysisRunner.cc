@@ -205,7 +205,7 @@ CDataFrameAnalysisRunner::TStatePersister CDataFrameAnalysisRunner::statePersist
                 core::CJsonStatePersistInserter inserter{*persistStream};
                 persistFunction(inserter);
             }
-            if (compressor.streamComplete(persistStream, true) == false ||
+            if ((*persister).streamComplete(persistStream, true) == false ||
                 persistStream->bad()) {
                 LOG_ERROR(<< "Failed to complete last persistence stream");
             }

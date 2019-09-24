@@ -232,7 +232,8 @@ CDataFrameUtils::columnDataTypes(std::size_t numberThreads,
                 }
             }
         },
-        TMinMaxBoolPrVec(encoder != nullptr ? encoder->numberEncodedColumns() : frame.numberColumns(),
+        TMinMaxBoolPrVec(encoder != nullptr ? encoder->numberEncodedColumns()
+                                            : frame.numberColumns(),
                          {TMinMax{}, true}));
 
     auto copyDataTypes = [](TMinMaxBoolPrVec types, TMinMaxBoolPrVec& result) {

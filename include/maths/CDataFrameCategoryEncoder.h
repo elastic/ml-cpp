@@ -112,6 +112,15 @@ public:
         double encode(const TRowRef& row) const;
         double mic() const;
 
+        //! Persist by passing information to \p inserter.
+        virtual void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
+
+        //! Populate the object from serialized data.
+        virtual bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
+
+        //! return encoding type as string
+        virtual std::string typeString() const = 0;
+
     private:
         std::size_t m_InputColumnIndex;
         double m_Mic;
@@ -128,6 +137,7 @@ public:
         double encode(double value) const override;
         bool isBinary() const override;
         std::uint64_t checksum() const override;
+         std::string typeString() const override;
     };
 
     //! \brief One-hot encoding.
@@ -139,6 +149,14 @@ public:
         bool isBinary() const override;
         std::uint64_t checksum() const override;
 
+        //! Persist by passing information to \p inserter.
+        void acceptPersistInserter(core::CStatePersistInserter& inserter) const override;
+
+        //! Populate the object from serialized data.
+        bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) override;
+        std::string typeString() const override;
+
+
     private:
         std::size_t m_HotCategory;
     };
@@ -146,15 +164,23 @@ public:
     //! \brief Looks up the encoding in a map.
     class CMappedEncoding : public CEncoding {
     public:
-        CMappedEncoding(EEncoding encoding,
-                        std::size_t inputColumnIndex,
+        CMappedEncoding(std::size_t inputColumnIndex,
                         double mic,
+                        EEncoding encoding,
                         const TDoubleVec& map,
                         double fallback);
         EEncoding type() const override;
         double encode(double value) const override;
         bool isBinary() const override;
         std::uint64_t checksum() const override;
+
+        //! Persist by passing information to \p inserter.
+        void acceptPersistInserter(core::CStatePersistInserter& inserter) const override;
+
+        //! Populate the object from serialized data.
+        bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) override;
+
+        std::string typeString() const override;
 
     private:
         EEncoding m_Encoding;
@@ -195,6 +221,9 @@ public:
 
 private:
     TEncodingUPtrVec m_Encodings;
+
+private:
+    bool restoreEncodings(core::CStateRestoreTraverser& traverser);
 };
 
 //! \brief Implements the named parameter idiom for CDataFrameCategoryEncoder.
