@@ -57,7 +57,7 @@ public:
                   double scale = 1.0);
 
     //! Attach a new progress monitor callback.
-    void attach(const TProgressCallback& recordProgress);
+    void progressCallback(const TProgressCallback& recordProgress);
 
     //! Increment the progress by \p i.
     void increment(std::size_t i = 1);

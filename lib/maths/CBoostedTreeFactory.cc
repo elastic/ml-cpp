@@ -663,7 +663,7 @@ void CBoostedTreeFactory::setupTrainingProgressMonitoring() {
 }
 
 void CBoostedTreeFactory::restoreTrainingProgressMonitoring() {
-    m_TreeImpl->m_TrainingProgress.attach(m_RecordProgress);
+    m_TreeImpl->m_TrainingProgress.progressCallback(m_RecordProgress);
     m_TreeImpl->m_TrainingProgress.resumeRestored();
 }
 

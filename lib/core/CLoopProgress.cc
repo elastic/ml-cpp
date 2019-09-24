@@ -35,7 +35,7 @@ CLoopProgress::CLoopProgress(std::size_t size, const TProgressCallback& recordPr
       m_StepProgress{scale / static_cast<double>(m_Steps)}, m_RecordProgress{recordProgress} {
 }
 
-void CLoopProgress::attach(const TProgressCallback& recordProgress) {
+void CLoopProgress::progressCallback(const TProgressCallback& recordProgress) {
     m_RecordProgress = recordProgress;
 }
 
@@ -52,6 +52,7 @@ void CLoopProgress::increment(std::size_t i) {
 }
 
 void CLoopProgress::resumeRestored() {
+    // This outputs progress and updates m_LastProgress to the correct value.
     this->increment(0);
 }
 
@@ -70,6 +71,8 @@ void CLoopProgress::acceptPersistInserter(CStatePersistInserter& inserter) const
     inserter.insertValue(CURRENT_STEP_PROGRESS_TAG, m_StepProgress,
                          core::CIEEE754::E_DoublePrecision);
     inserter.insertValue(LOOP_POS_TAG, m_Pos);
+    // m_LastProgress is not persisted because when restoring we will have never
+    // recorded progress.
 }
 
 bool CLoopProgress::acceptRestoreTraverser(CStateRestoreTraverser& traverser) {
