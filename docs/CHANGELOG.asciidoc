@@ -28,7 +28,14 @@
 
 //=== Regressions
 
- == {es} version 6.8.2
+== {es} version 6.8.4
+
+=== Bug Fixes
+
+* A reference to a temporary variable was causing forecast model restoration to fail.
+The bug exhibited itself on MacOS builds with versions of clangd > 10.0.0. (See {ml-pull}688[#688].)
+
+== {es} version 6.8.2
 
 === Bug Fixes
 
@@ -93,7 +100,7 @@ are in the queue. (See {ml-pull}352[352].)
 
 Correct query times for model plot and forecast in the bucket to match the times we assign
 the samples we add to the model for each bucket. For long bucket lengths, this could result
-in apparently shifted model plot with respect to the data and increased errors in forecasts. 
+in apparently shifted model plot with respect to the data and increased errors in forecasts.
 
  == {es} version 6.5.0
 
@@ -139,7 +146,7 @@ Prevent detecting a trend component during a possible change in the time series.
 model was poorly reinitialised in this case which damaged anomaly detection for some time. (See
 {ml-pull}287[#287].)
 
-Fix cause of "MERGE: Sum mode samples = 0, total samples = 4.43521.." log errors ({ml-pull}294[294]) 
+Fix cause of "MERGE: Sum mode samples = 0, total samples = 4.43521.." log errors ({ml-pull}294[294])
 
 //=== Regressions
 
@@ -157,10 +164,10 @@ Fix cause of "MERGE: Sum mode samples = 0, total samples = 4.43521.." log errors
 
 //=== Bug Fixes
 
-* Fixes the cause of `hard_limit` memory errors for jobs with bucket spans greater 
+* Fixes the cause of `hard_limit` memory errors for jobs with bucket spans greater
 than one day ({ml-pull}243[#243])
-* Rules that trigger the `skip_model_update` action should also apply to the 
-anomaly model. This fixes an issue where anomaly scores of results that triggered 
+* Rules that trigger the `skip_model_update` action should also apply to the
+anomaly model. This fixes an issue where anomaly scores of results that triggered
 the rule would decrease if they occurred frequently. {ml-pull}222[#222] (issue:{ml-issue}217[#217])
 
 //=== Regressions
