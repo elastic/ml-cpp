@@ -121,7 +121,7 @@ public:
         //! return encoding type as string
         virtual std::string typeString() const = 0;
 
-    private:
+    protected:
         std::size_t m_InputColumnIndex;
         double m_Mic;
     };

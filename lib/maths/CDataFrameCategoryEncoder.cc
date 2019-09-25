@@ -271,7 +271,7 @@ std::uint64_t CDataFrameCategoryEncoder::checksum(std::uint64_t seed) const {
 }
 
 void CDataFrameCategoryEncoder::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
-    auto foobar = [this](core::CStatePersistInserter& inserter) {
+    auto persistEncodingVector = [this](core::CStatePersistInserter& inserter) {
         for (const auto& encoding : m_Encodings) {
             auto acceptPersistInserter = [&encoding](core::CStatePersistInserter& inserter) {
                 encoding->acceptPersistInserter(inserter);
@@ -279,7 +279,7 @@ void CDataFrameCategoryEncoder::acceptPersistInserter(core::CStatePersistInserte
             inserter.insertLevel(encoding->typeString(), acceptPersistInserter);
         }
     };
-    inserter.insertLevel(ENCODING_VECTOR_TAG, foobar);
+    inserter.insertLevel(ENCODING_VECTOR_TAG, persistEncodingVector);
 }
 
 bool CDataFrameCategoryEncoder::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
@@ -290,9 +290,6 @@ bool CDataFrameCategoryEncoder::acceptRestoreTraverser(core::CStateRestoreTraver
                 traverser.traverseSubLevel(std::bind(&CDataFrameCategoryEncoder::restoreEncodings,
                                                      this, std::placeholders::_1)))
     } while (traverser.next());
-    //    for(auto* encoding: tmpEncodings) {
-    //        m_Encodings.emplace_back(encoding);
-    //    }
     return true;
 }
 
@@ -439,11 +436,13 @@ void CDataFrameCategoryEncoder::COneHotEncoding::acceptPersistInserter(
 }
 
 bool CDataFrameCategoryEncoder::COneHotEncoding::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
-    if (CEncoding::acceptRestoreTraverser(traverser) == false) {
-        return false;
-    }
     do {
         const std::string& name = traverser.name();
+        RESTORE(ENCODING_INPUT_COLUMN_INDEX_TAG,
+                core::CPersistUtils::restore(ENCODING_INPUT_COLUMN_INDEX_TAG,
+                                             m_InputColumnIndex, traverser))
+        RESTORE(ENCODING_MIC_TAG,
+                core::CPersistUtils::restore(ENCODING_MIC_TAG, m_Mic, traverser))
         RESTORE(ONE_HOT_ENCODING_CATEGORY_TAG,
                 core::CPersistUtils::restore(ONE_HOT_ENCODING_CATEGORY_TAG,
                                              m_HotCategory, traverser))
@@ -496,14 +495,13 @@ void CDataFrameCategoryEncoder::CMappedEncoding::acceptPersistInserter(
 }
 
 bool CDataFrameCategoryEncoder::CMappedEncoding::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
-    if (CEncoding::acceptRestoreTraverser(traverser) == false) {
-        return false;
-    }
     do {
         const std::string& name = traverser.name();
-        int encodingType{m_Encoding};
-        RESTORE(MAPPED_ENCODING_TYPE_TAG,
-                core::CPersistUtils::restore(MAPPED_ENCODING_TYPE_TAG, encodingType, traverser))
+        RESTORE(ENCODING_INPUT_COLUMN_INDEX_TAG,
+                core::CPersistUtils::restore(ENCODING_INPUT_COLUMN_INDEX_TAG,
+                                             m_InputColumnIndex, traverser))
+        RESTORE(ENCODING_MIC_TAG,
+                core::CPersistUtils::restore(ENCODING_MIC_TAG, m_Mic, traverser))
         RESTORE(MAPPED_ENCODING_MAP_TAG,
                 core::CPersistUtils::restore(MAPPED_ENCODING_MAP_TAG, m_Map, traverser))
         RESTORE(MAPPED_ENCODING_FALLBACK_TAG,
