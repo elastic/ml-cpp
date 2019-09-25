@@ -28,6 +28,22 @@
 
 //=== Regressions
 
+== {es} version 7.5.0
+
+=== Enhancements
+
+* Improve performance and concurrency training boosted tree regression models.
+For large data sets this change was observed to give a 10% to 20% decrease in
+train time. (See {ml-pull}622[#622].)
+* Upgrade Boost libraries to version 1.71. (See {ml-pull}638[#638].)
+
+== {es} version 7.4.1
+
+=== Bug Fixes
+
+* A reference to a temporary variable was causing forecast model restoration to fail.
+The bug exhibited itself on MacOS builds with versions of clangd > 10.0.0. (See {ml-pull}688[#688].)
+
 == {es} version 7.4.0
 
 === Bug Fixes
@@ -98,6 +114,13 @@ to the model. (See {ml-pull}214[#214].)
 * Ensure statics are persisted in a consistent manner {ml-pull}360[#360]
 
 == {es} version 7.0.0-alpha1
+
+== {es} version 6.8.4
+
+=== Bug Fixes
+
+* A reference to a temporary variable was causing forecast model restoration to fail.
+The bug exhibited itself on MacOS builds with versions of clangd > 10.0.0. (See {ml-pull}688[#688].)
 
 == {es} version 6.8.2
 
