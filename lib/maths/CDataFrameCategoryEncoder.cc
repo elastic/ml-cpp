@@ -301,9 +301,10 @@ bool CDataFrameCategoryEncoder::restoreEncodings(core::CStateRestoreTraverser& t
         const std::string& name = traverser.name();
         if (name == IDENTITY_ENCODING_TAG) {
             m_Encodings.emplace_back(std::make_unique<CIdentityEncoding>(0, 0.0));
-            if (traverser.traverseSubLevel(
-                    std::bind(&CIdentityEncoding::acceptRestoreTraverser,
-                              static_cast<CIdentityEncoding*>(m_Encodings.back().get()), std::placeholders::_1)) == false) {
+            if (traverser.traverseSubLevel(std::bind(
+                    &CIdentityEncoding::acceptRestoreTraverser,
+                    static_cast<CIdentityEncoding*>(m_Encodings.back().get()),
+                    std::placeholders::_1)) == false) {
                 LOG_ERROR(<< "Error restoring encoding " << traverser.name());
                 return false;
             }
@@ -312,9 +313,10 @@ bool CDataFrameCategoryEncoder::restoreEncodings(core::CStateRestoreTraverser& t
         }
         if (name == ONE_HOT_ENCODING_TAG) {
             m_Encodings.emplace_back(std::make_unique<COneHotEncoding>(0, 0.0, 0));
-            if (traverser.traverseSubLevel(
-                    std::bind(&COneHotEncoding::acceptRestoreTraverser,
-                              static_cast<COneHotEncoding*>(m_Encodings.back().get()), std::placeholders::_1)) == false) {
+            if (traverser.traverseSubLevel(std::bind(
+                    &COneHotEncoding::acceptRestoreTraverser,
+                    static_cast<COneHotEncoding*>(m_Encodings.back().get()),
+                    std::placeholders::_1)) == false) {
                 LOG_ERROR(<< "Error restoring encoding " << traverser.name());
                 return false;
             }
@@ -323,9 +325,10 @@ bool CDataFrameCategoryEncoder::restoreEncodings(core::CStateRestoreTraverser& t
         if (name == FREQUENCY_ENCODING_TAG) {
             m_Encodings.emplace_back(std::make_unique<CMappedEncoding>(
                 0, 0.0, E_Frequency, TDoubleVec(), 0.0));
-            if (traverser.traverseSubLevel(
-                    std::bind(&CMappedEncoding::acceptRestoreTraverser,
-                              static_cast<CMappedEncoding*>(m_Encodings.back().get()), std::placeholders::_1)) == false) {
+            if (traverser.traverseSubLevel(std::bind(
+                    &CMappedEncoding::acceptRestoreTraverser,
+                    static_cast<CMappedEncoding*>(m_Encodings.back().get()),
+                    std::placeholders::_1)) == false) {
                 LOG_ERROR(<< "Error restoring encoding " << traverser.name());
                 return false;
             }
@@ -334,9 +337,10 @@ bool CDataFrameCategoryEncoder::restoreEncodings(core::CStateRestoreTraverser& t
         if (name == TARGET_MEAN_ENCODING_TAG) {
             m_Encodings.emplace_back(std::make_unique<CMappedEncoding>(
                 0, 0.0, E_TargetMean, TDoubleVec(), 0.0));
-            if (traverser.traverseSubLevel(
-                    std::bind(&CMappedEncoding::acceptRestoreTraverser,
-                              static_cast<CMappedEncoding*>(m_Encodings.back().get()), std::placeholders::_1)) == false) {
+            if (traverser.traverseSubLevel(std::bind(
+                    &CMappedEncoding::acceptRestoreTraverser,
+                    static_cast<CMappedEncoding*>(m_Encodings.back().get()),
+                    std::placeholders::_1)) == false) {
                 LOG_ERROR(<< "Error restoring encoding " << traverser.name());
                 return false;
             }
