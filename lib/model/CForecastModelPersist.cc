@@ -116,12 +116,16 @@ bool CForecastModelPersist::CRestore::nextModel(TMathsModelPtr& model,
                     return false;
                 }
 
+                auto modelParams =
+                    maths::CModelParams{m_ModelParams.s_BucketLength,
+                                        m_ModelParams.s_LearnRate,
+                                        m_ModelParams.s_DecayRate,
+                                        m_MinimumSeasonalVarianceScale,
+                                        m_ModelParams.s_MinimumTimeToDetectChange,
+                                        m_ModelParams.s_MaximumTimeToTestForChange};
+
                 maths::SModelRestoreParams params{
-                    maths::CModelParams{
-                        m_ModelParams.s_BucketLength, m_ModelParams.s_LearnRate,
-                        m_ModelParams.s_DecayRate, m_MinimumSeasonalVarianceScale,
-                        m_ModelParams.s_MinimumTimeToDetectChange,
-                        m_ModelParams.s_MaximumTimeToTestForChange},
+                    modelParams,
                     maths::STimeSeriesDecompositionRestoreParams{
                         m_ModelParams.s_DecayRate, m_ModelParams.s_BucketLength,
                         m_ModelParams.s_ComponentSize,
