@@ -131,11 +131,16 @@ bool CForecastModelPersist::CRestore::restoreOneModel(core::CStateRestoreTravers
                 return false;
             }
 
-            maths::SModelRestoreParams params{
-                maths::CModelParams(modelParams.s_BucketLength, modelParams.s_LearnRate,
-                                    modelParams.s_DecayRate, minimumSeasonalVarianceScale,
+            auto modelParams_ =
+                maths::CModelParams{modelParams.s_BucketLength,
+                                    modelParams.s_LearnRate,
+                                    modelParams.s_DecayRate,
+                                    minimumSeasonalVarianceScale,
                                     modelParams.s_MinimumTimeToDetectChange,
-                                    modelParams.s_MaximumTimeToTestForChange),
+                                    modelParams.s_MaximumTimeToTestForChange};
+
+            maths::SModelRestoreParams params{
+                modelParams_,
                 maths::STimeSeriesDecompositionRestoreParams{
                     modelParams.s_DecayRate, modelParams.s_BucketLength,
                     modelParams.s_ComponentSize,
