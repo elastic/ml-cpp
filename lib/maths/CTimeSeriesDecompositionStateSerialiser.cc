@@ -27,8 +27,8 @@ namespace {
 // There needs to be one constant here per sub-class
 // of CTimeSeriesDecompositionInterface.
 // DO NOT change the existing tags if new sub-classes are added.
-const std::string TIME_SERIES_DECOMPOSITION_TAG("a");
-const std::string TIME_SERIES_DECOMPOSITION_STUB_TAG("b");
+const core::TPersistenceTag TIME_SERIES_DECOMPOSITION_TAG("a", "time_series_decomposition");
+const core::TPersistenceTag TIME_SERIES_DECOMPOSITION_STUB_TAG("b", "time_series_decomposition_stub");
 const std::string EMPTY_STRING;
 
 //! Implements restore for std::shared_ptr.

@@ -65,17 +65,17 @@ void clearAndShrink(std::vector<T>& vector) {
     empty.swap(vector);
 }
 
-const std::string DECAY_RATE_TAG{"a"};
-const std::string ENDPOINT_TAG{"b"};
-const std::string CENTRES_TAG{"c"};
-const std::string MEAN_DESIRED_DISPLACEMENT_TAG{"d"};
-const std::string MEAN_ABS_DESIRED_DISPLACEMENT_TAG{"e"};
-const std::string LARGE_ERROR_COUNTS_TAG{"f"};
-const std::string TARGET_SIZE_TAG{"g"};
-const std::string LAST_LARGE_ERROR_BUCKET_TAG{"h"};
-const std::string LAST_LARGE_ERROR_PERIOD_TAG{"i"};
-const std::string LARGE_ERROR_COUNT_SIGNIFICANCES_TAG{"j"};
-const std::string MEAN_WEIGHT_TAG{"k"};
+const core::TPersistenceTag DECAY_RATE_TAG{"a", "decay_rate"};
+const core::TPersistenceTag ENDPOINT_TAG{"b", "endpoint"};
+const core::TPersistenceTag CENTRES_TAG{"c", "centres"};
+const core::TPersistenceTag MEAN_DESIRED_DISPLACEMENT_TAG{"d", "mean_desired_displacement"};
+const core::TPersistenceTag MEAN_ABS_DESIRED_DISPLACEMENT_TAG{"e", "mean_abs_desired_displacement"};
+const core::TPersistenceTag LARGE_ERROR_COUNTS_TAG{"f", "large_error_counts"};
+const core::TPersistenceTag TARGET_SIZE_TAG{"g", "target size"};
+const core::TPersistenceTag LAST_LARGE_ERROR_BUCKET_TAG{"h", "last_large_error_bucket"};
+const core::TPersistenceTag LAST_LARGE_ERROR_PERIOD_TAG{"i", "last_large_error_period"};
+const core::TPersistenceTag LARGE_ERROR_COUNT_SIGNIFICANCES_TAG{"j", "large_error_counts_significance"};
+const core::TPersistenceTag MEAN_WEIGHT_TAG{"k", "mean weight"};
 const std::string EMPTY_STRING;
 
 const double SMOOTHING_FUNCTION[]{0.25, 0.5, 0.25};

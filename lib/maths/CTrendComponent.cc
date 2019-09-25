@@ -92,20 +92,21 @@ CNormalMeanPrecConjugate initialMagnitudeOfChangeModel(double decayRate) {
 
 const std::string VERSION_7_1_TAG("7.1");
 
-const std::string TARGET_DECAY_RATE_TAG{"a"};
-const std::string FIRST_UPDATE_TAG{"b"};
-const std::string LAST_UPDATE_TAG{"c"};
-const std::string REGRESSION_ORIGIN_TAG{"d"};
-const std::string MODEL_TAG{"e"};
-const std::string PREDICTION_ERROR_VARIANCE_TAG{"f"};
-const std::string VALUE_MOMENTS_TAG{"g"};
-const std::string TIME_OF_LAST_LEVEL_CHANGE_TAG{"h"};
-const std::string PROBABILITY_OF_LEVEL_CHANGE_MODEL_TAG{"i"};
-const std::string MAGNITUDE_OF_LEVEL_CHANGE_MODEL_TAG{"j"};
+const core::TPersistenceTag TARGET_DECAY_RATE_TAG{"a", "target_decay_rate"};
+const core::TPersistenceTag FIRST_UPDATE_TAG{"b", "first_update"};
+const core::TPersistenceTag LAST_UPDATE_TAG{"c", "last_update"};
+const core::TPersistenceTag REGRESSION_ORIGIN_TAG{"d", "regression_origin"};
+const core::TPersistenceTag MODEL_TAG{"e", "model"};
+const core::TPersistenceTag PREDICTION_ERROR_VARIANCE_TAG{"f", "prediction_error_variance"};
+const core::TPersistenceTag VALUE_MOMENTS_TAG{"g", "value_moments"};
+const core::TPersistenceTag TIME_OF_LAST_LEVEL_CHANGE_TAG{"h", "time_of_last_level_change"};
+const core::TPersistenceTag PROBABILITY_OF_LEVEL_CHANGE_MODEL_TAG{
+    "i", "probability_of_level_change_model"};
+const core::TPersistenceTag MAGNITUDE_OF_LEVEL_CHANGE_MODEL_TAG{"j", "magnitude_of_level_change_model"};
 // Version 7.1
-const std::string WEIGHT_7_1_TAG{"a"};
-const std::string REGRESSION_7_1_TAG{"b"};
-const std::string MSE_7_1_TAG{"c"};
+const core::TPersistenceTag WEIGHT_7_1_TAG{"a", "weight"};
+const core::TPersistenceTag REGRESSION_7_1_TAG{"b", "regression"};
+const core::TPersistenceTag MSE_7_1_TAG{"c", "mse"};
 // Version < 7.1
 const std::string WEIGHT_OLD_TAG{"a"};
 const std::string REGRESSION_OLD_TAG{"b"};

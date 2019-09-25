@@ -167,7 +167,7 @@ const std::string IS_NON_NEGATIVE_6_3_TAG{"b"};
 const std::string IS_FORECASTABLE_6_3_TAG{"c"};
 //const std::string RNG_6_3_TAG{"d"}; Removed in 6.5
 const std::string CONTROLLER_6_3_TAG{"e"};
-const std::string TREND_MODEL_6_3_TAG{"f"};
+const core::TPersistenceTag TREND_MODEL_6_3_TAG{"f", "trend_model"};
 const core::TPersistenceTag RESIDUAL_MODEL_6_3_TAG{"g", "residual_model"};
 const std::string ANOMALY_MODEL_6_3_TAG{"h"};
 
@@ -1426,7 +1426,14 @@ bool CUnivariateTimeSeriesModel::acceptRestoreTraverser(const SModelRestoreParam
     return true;
 }
 
-void CUnivariateTimeSeriesModel::persistResidualModelsState(core::CStatePersistInserter& inserter) const {
+void CUnivariateTimeSeriesModel::persistModelsState(core::CStatePersistInserter& inserter) const {
+    if (m_TrendModel != nullptr) {
+        inserter.insertLevel(
+            TREND_MODEL_6_3_TAG,
+            std::bind<void>(CTimeSeriesDecompositionStateSerialiser{},
+                            std::cref(*m_TrendModel), std::placeholders::_1));
+    }
+
     if (m_ResidualModel != nullptr) {
         inserter.insertLevel(RESIDUAL_MODEL_6_3_TAG,
                              std::bind<void>(CPriorStateSerialiser{}, std::cref(*m_ResidualModel),
@@ -1442,12 +1449,15 @@ void CUnivariateTimeSeriesModel::acceptPersistInserter(core::CStatePersistInsert
     inserter.insertValue(ID_6_3_TAG, m_Id);
     inserter.insertValue(IS_NON_NEGATIVE_6_3_TAG, static_cast<int>(m_IsNonNegative));
     inserter.insertValue(IS_FORECASTABLE_6_3_TAG, static_cast<int>(m_IsForecastable));
-    if (m_Controllers) {
+    if (m_Controllers != nullptr) {
         core::CPersistUtils::persist(CONTROLLER_6_3_TAG, *m_Controllers, inserter);
     }
-    inserter.insertLevel(TREND_MODEL_6_3_TAG,
-                         std::bind<void>(CTimeSeriesDecompositionStateSerialiser{},
-                                         std::cref(*m_TrendModel), std::placeholders::_1));
+    if (m_TrendModel != nullptr) {
+        inserter.insertLevel(
+            TREND_MODEL_6_3_TAG,
+            std::bind<void>(CTimeSeriesDecompositionStateSerialiser{},
+                            std::cref(*m_TrendModel), std::placeholders::_1));
+    }
     if (m_ResidualModel != nullptr) {
         inserter.insertLevel(RESIDUAL_MODEL_6_3_TAG,
                              std::bind<void>(CPriorStateSerialiser{}, std::cref(*m_ResidualModel),
@@ -2891,7 +2901,7 @@ void CMultivariateTimeSeriesModel::acceptPersistInserter(core::CStatePersistInse
     }
 }
 
-void CMultivariateTimeSeriesModel::persistResidualModelsState(core::CStatePersistInserter& /* inserter*/) const {
+void CMultivariateTimeSeriesModel::persistModelsState(core::CStatePersistInserter& /* inserter*/) const {
     // NO-OP
 }
 
