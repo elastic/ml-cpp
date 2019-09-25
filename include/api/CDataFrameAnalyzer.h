@@ -9,7 +9,6 @@
 
 #include <api/ImportExport.h>
 
-#include <core/CDataSearcher.h>
 #include <core/CRapidJsonConcurrentLineWriter.h>
 
 #include <boost/unordered_map.hpp>
@@ -39,8 +38,6 @@ public:
     using TJsonOutputStreamWrapperUPtr = std::unique_ptr<core::CJsonOutputStreamWrapper>;
     using TJsonOutputStreamWrapperUPtrSupplier =
         std::function<TJsonOutputStreamWrapperUPtr()>;
-    using TDataSearcherUPtrSupplier =
-        std::function<std::unique_ptr<ml::core::CDataSearcher>()>;
     using TDataFrameAnalysisSpecificationUPtr = std::unique_ptr<CDataFrameAnalysisSpecification>;
     using TTemporaryDirectoryPtr = std::shared_ptr<core::CTemporaryDirectory>;
 
