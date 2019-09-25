@@ -1,0 +1,155 @@
+/*
+ * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
+ * or more contributor license agreements. Licensed under the Elastic License;
+ * you may not use this file except in compliance with the Elastic License.
+ */
+#ifndef INCLUDED_ml_api_SInferenceModelDefinition_h
+#define INCLUDED_ml_api_SInferenceModelDefinition_h
+
+#include <core/CStateRestoreTraverser.h>
+
+#include <boost/optional.hpp>
+
+namespace ml {
+namespace api {
+
+struct SAggregateOutput {
+
+};
+
+/**
+ * Allows to used (weighted) majority vote for classification.
+ */
+struct SWeightedMode: public SAggregateOutput {
+    std::vector<double> weights;
+};
+
+struct SWeightedSum: public SAggregateOutput  {
+    std::vector<double> weights;
+};
+
+enum  ENumericRelationship  {
+    E_LTE
+};
+
+struct STreeNode {
+    ENumericRelationship m_DecisionType = E_LTE;
+    bool m_DefaultLeft;
+    boost::optional<std::size_t> m_LeftChild;
+    double m_NodeValue;
+    boost::optional<std::size_t> m_RightChild;
+    std::size_t m_SplitFeature;
+    boost::optional<double> m_SplitGain;
+    std::size_t m_SplitIndex;
+    double m_Threshold;
+
+    //! Populate the object from serialized data
+    bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
+
+};
+
+
+/**
+ * Details of the model evaluation step.
+ */
+struct SBasicEvaluator {
+    std::vector<std::string> featureNames;
+
+    //! Populate the object from serialized data
+    virtual bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) = 0;
+};
+
+struct STree: public SBasicEvaluator {
+    std::vector<STreeNode> m_TreeStructure;
+    //! Populate the object from serialized data
+    bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) override;
+};
+
+struct SEnsemble: public SBasicEvaluator {
+    std::vector<STree> m_TrainedModels;
+    bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) override;
+    std::unique_ptr<SAggregateOutput> m_AggregateOutput;
+};
+
+/**
+ * Information related to the input.
+ */
+struct SInput {
+    /**
+     * List of the column names.
+     */
+    std::shared_ptr<std::vector<std::string>> columns;
+};
+
+struct SEncoding {
+    /**
+     * Input field name
+     */
+    std::string field;
+};
+
+/**
+ * Mapping from categorical columns to numerical values related to categorical value
+ * distribution
+ */
+struct SFrequencyEncoding: public SEncoding {
+    /**
+     * Feature name after pre-processing
+     */
+    std::string featureName;
+
+    /**
+     * Map from the category names to the frequency values.
+     */
+    std::map<std::string, double> frequencyMap;
+};
+
+/**
+ * Application of the one-hot encoding function on a single column.
+ */
+struct SOneHotEncoding: public SEncoding {
+    /**
+     * Map from the category names of the original field to the new field names.
+     */
+    std::map<std::string, std::string> hotMap;
+};
+
+/**
+ * Mapping from categorical columns to numerical values related to the target value
+ */
+struct STargetMeanEncoding: public SEncoding {
+    /**
+     * Value for categories that have not been seen before
+     */
+    double defaultValue;
+    /**
+     * Feature name after pre-processing
+     */
+    std::string featureName;
+    /**
+     * Map from the category names to the target values.
+     */
+    std::map<std::string, double> targetMap;
+};
+
+/**
+ * Technical details required for model evaluation.
+ */
+struct SInferenceModelDefinition {
+    /**
+     * Information related to the input.
+     */
+    SInput m_Input;
+    /**
+     * Optional step for pre-processing data, e.g. vector embedding, one-hot-encoding, etc.
+     */
+    boost::optional<std::vector<SEncoding*>> m_Preprocessing;
+    /**
+     * Details of the model evaluation step.
+     */
+    std::unique_ptr<SBasicEvaluator> m_TrainedModel;
+};
+}
+}
+
+#endif //INCLUDED_ml_api_SInferenceModelDefinition_h

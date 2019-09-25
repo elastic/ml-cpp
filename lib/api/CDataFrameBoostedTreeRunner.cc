@@ -20,7 +20,7 @@
 #include <api/CDataFrameAnalysisConfigReader.h>
 #include <api/CDataFrameAnalysisSpecification.h>
 #include <api/ElasticsearchStateIndex.h>
-#include <api/InferenceModelDefinition.hpp>
+#include <api/SInferenceModelDefinition.h>
 
 #include <rapidjson/document.h>
 #include <core/CJsonStatePersistInserter.h>
@@ -256,17 +256,17 @@ void CDataFrameBoostedTreeRunner::serializeRunner(core::CRapidJsonConcurrentLine
         m_BoostedTree->acceptPersistInserter(inserter);
         strm.flush();
     }
-    LOG_DEBUG(<< strm.str());
-    rapidjson::Document doc;
-    if (strm.str().empty() == false) {
-        doc.Parse(strm.str());
-        if (doc.GetParseError()) {
-            HANDLE_FATAL(<< "Input error: analysis parameters " << strm.str()
-                                 << " cannot be parsed as json. Please report this problem.")
-        }
-    }
+    LOG_DEBUG(<< "serializeRunner: " << strm.str());
+//    rapidjson::Document doc;
+//    if (strm.str().empty() == false) {
+//        doc.Parse(strm.str());
+//        if (doc.GetParseError()) {
+//            HANDLE_FATAL(<< "Input error: analysis parameters " << strm.str()
+//                                 << " cannot be parsed as json. Please report this problem.")
+//        }
+//    }
     // TODO get a rapidjson doc with the transformed json data
-    CInferenceModelFormatter formatter{doc};
+    CInferenceModelFormatter formatter{strm.str()};
     LOG_DEBUG(<< "Inference model json: "<< formatter.toString());
 
 //    writer.write(doc);

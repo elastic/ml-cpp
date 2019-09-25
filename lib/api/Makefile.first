@@ -63,6 +63,7 @@ CTokenListReverseSearchCreator.cc \
 CTokenListReverseSearchCreatorIntf.cc \
 CTokenListType.cc \
 ElasticsearchStateIndex.cc \
+SInferenceModelDefinition.cc
 
 include $(CPP_SRC_HOME)/mk/dynamiclib.mk
 

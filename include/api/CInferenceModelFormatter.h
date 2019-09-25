@@ -6,7 +6,7 @@
 #ifndef INCLUDED_ml_api_CInferenceModelFormatter_h
 #define INCLUDED_ml_api_CInferenceModelFormatter_h
 
-#include <api/InferenceModelDefinition.hpp>
+#include <api/SInferenceModelDefinition.h>
 
 #include <rapidjson/document.h>
 
@@ -33,7 +33,7 @@ private:
     std::string m_String;
     rapidjson::Document m_JsonDoc;
 
-    inference_model::InferenceModelDefinition m_Definition;
+    ml::api::SInferenceModelDefinition m_Definition;
 
 };
 
