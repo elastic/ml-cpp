@@ -199,7 +199,7 @@ void CBoostedTreeTest::testPiecewiseConstant() {
             0.0, modelBias[i][0],
             7.0 * std::sqrt(noiseVariance / static_cast<double>(trainRows)));
         // Good R^2...
-        CPPUNIT_ASSERT(modelRSquared[i][0] > 0.94);
+        CPPUNIT_ASSERT(modelRSquared[i][0] > 0.93);
 
         meanModelRSquared.add(modelRSquared[i][0]);
     }
@@ -321,7 +321,7 @@ void CBoostedTreeTest::testNonLinear() {
             0.0, modelBias[i][0],
             8.0 * std::sqrt(noiseVariance / static_cast<double>(trainRows)));
         // Good R^2...
-        CPPUNIT_ASSERT(modelRSquared[i][0] > 0.92);
+        CPPUNIT_ASSERT(modelRSquared[i][0] > 0.91);
 
         meanModelRSquared.add(modelRSquared[i][0]);
     }
@@ -602,8 +602,8 @@ void CBoostedTreeTest::testCategoricalRegressors() {
 
     LOG_DEBUG(<< "bias = " << modelBias);
     LOG_DEBUG(<< " R^2 = " << modelRSquared);
-    CPPUNIT_ASSERT_DOUBLES_EQUAL(0.0, modelBias, 0.13);
-    CPPUNIT_ASSERT(modelRSquared > 0.9);
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(0.0, modelBias, 0.2);
+    CPPUNIT_ASSERT(modelRSquared > 0.92);
 }
 
 void CBoostedTreeTest::testIntegerRegressor() {

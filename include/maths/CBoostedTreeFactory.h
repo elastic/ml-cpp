@@ -98,7 +98,8 @@ private:
     using TOptionalVector = boost::optional<TVector>;
     using TPackedBitVectorVec = std::vector<core::CPackedBitVector>;
     using TBoostedTreeImplUPtr = std::unique_ptr<CBoostedTreeImpl>;
-    using TScaleRegularization = std::function<void(CBoostedTreeImpl&, double)>;
+    using TApplyRegularizerStep =
+        std::function<void(CBoostedTreeImpl&, double, std::size_t)>;
 
 private:
     static const double MINIMUM_ETA;
@@ -135,15 +136,17 @@ private:
     TDoubleDoublePr estimateTreeGainAndCurvature(core::CDataFrame& frame,
                                                  const core::CPackedBitVector& trainingRowMask) const;
 
-    //! Perform a line search with quadratic approximation for the regularizer
-    //! value at the model starts to overfit.
+    //! Perform a line search for the test loss w.r.t. a single regularization
+    //! hyperparameter and apply Newton's method to find the minimum. The plan
+    //! is to find a value near where the model starts to overfit.
     //!
-    //! \note applyScaleToRegularizer Applies a specified scale to the initial
-    //! choosen value for tree implemenation.
-    TOptionalVector
-    lineSearchWithQuadraticApproxToTestError(core::CDataFrame& frame,
+    //! \return The interval to search during the main hyperparameter optimisation
+    //! loop or null if this couldn't be found.
+    TOptionalVector testLossNewtonLineSearch(core::CDataFrame& frame,
                                              core::CPackedBitVector trainingRowMask,
-                                             const TScaleRegularization& applyScaleToRegularizer) const;
+                                             const TApplyRegularizerStep& applyRegularizerStep,
+                                             double returnedIntervalLeftEndOffset,
+                                             double returnedIntervalRightEndOffset) const;
 
     //! Initialize the state for hyperparameter optimisation.
     void initializeHyperparameterOptimisation() const;
@@ -166,8 +169,8 @@ private:
     TOptionalSize m_BayesianOptimisationRestarts;
     bool m_Restored = false;
     TBoostedTreeImplUPtr m_TreeImpl;
-    TVector m_GammaSearchInterval;
-    TVector m_LambdaSearchInterval;
+    TVector m_LogGammaSearchInterval;
+    TVector m_LogLambdaSearchInterval;
     TProgressCallback m_RecordProgress = noopRecordProgress;
     TMemoryUsageCallback m_RecordMemoryUsage = noopRecordMemoryUsage;
     TTrainingStateCallback m_RecordTrainingState = noopRecordTrainingState;
