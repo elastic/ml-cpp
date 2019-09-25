@@ -300,7 +300,7 @@ bool CDataFrameCategoryEncoder::restoreEncodings(core::CStateRestoreTraverser& t
             m_Encodings.emplace_back(std::make_unique<CIdentityEncoding>(0, 0.0));
             if (traverser.traverseSubLevel(std::bind(
                     &CIdentityEncoding::acceptRestoreTraverser,
-                    static_cast<CIdentityEncoding*>(m_Encodings.back().get()),
+                    dynamic_cast<CIdentityEncoding*>(m_Encodings.back().get()),
                     std::placeholders::_1)) == false) {
                 LOG_ERROR(<< "Error restoring encoding " << traverser.name());
                 return false;
@@ -312,7 +312,7 @@ bool CDataFrameCategoryEncoder::restoreEncodings(core::CStateRestoreTraverser& t
             m_Encodings.emplace_back(std::make_unique<COneHotEncoding>(0, 0.0, 0));
             if (traverser.traverseSubLevel(std::bind(
                     &COneHotEncoding::acceptRestoreTraverser,
-                    static_cast<COneHotEncoding*>(m_Encodings.back().get()),
+                    dynamic_cast<COneHotEncoding*>(m_Encodings.back().get()),
                     std::placeholders::_1)) == false) {
                 LOG_ERROR(<< "Error restoring encoding " << traverser.name());
                 return false;
@@ -324,7 +324,7 @@ bool CDataFrameCategoryEncoder::restoreEncodings(core::CStateRestoreTraverser& t
                 0, 0.0, E_Frequency, TDoubleVec(), 0.0));
             if (traverser.traverseSubLevel(std::bind(
                     &CMappedEncoding::acceptRestoreTraverser,
-                    static_cast<CMappedEncoding*>(m_Encodings.back().get()),
+                    dynamic_cast<CMappedEncoding*>(m_Encodings.back().get()),
                     std::placeholders::_1)) == false) {
                 LOG_ERROR(<< "Error restoring encoding " << traverser.name());
                 return false;
@@ -336,7 +336,7 @@ bool CDataFrameCategoryEncoder::restoreEncodings(core::CStateRestoreTraverser& t
                 0, 0.0, E_TargetMean, TDoubleVec(), 0.0));
             if (traverser.traverseSubLevel(std::bind(
                     &CMappedEncoding::acceptRestoreTraverser,
-                    static_cast<CMappedEncoding*>(m_Encodings.back().get()),
+                    dynamic_cast<CMappedEncoding*>(m_Encodings.back().get()),
                     std::placeholders::_1)) == false) {
                 LOG_ERROR(<< "Error restoring encoding " << traverser.name());
                 return false;
@@ -706,13 +706,13 @@ CMakeDataFrameCategoryEncoder::mics(const CDataFrameUtils::CColumnValue& target,
 
     TSizeDoublePrVecVec mics(std::move(categoricalMics[E_OneHot]));
     for (std::size_t i = 0; i < categoricalMics[E_TargetMean].size(); ++i) {
-        if (categoricalMics[E_TargetMean][i].size() > 0) {
+        if (categoricalMics[E_TargetMean][i].empty() == false) {
             mics[i].emplace_back(CATEGORY_FOR_TARGET_MEAN_ENCODING,
                                  categoricalMics[E_TargetMean][i][0].second);
         }
     }
     for (std::size_t i = 0; i < categoricalMics[E_Frequency].size(); ++i) {
-        if (categoricalMics[E_Frequency][i].size() > 0) {
+        if (categoricalMics[E_Frequency][i].empty() == false) {
             mics[i].emplace_back(CATEGORY_FOR_FREQUENCY_ENCODING,
                                  categoricalMics[E_Frequency][i][0].second);
         }
@@ -807,7 +807,7 @@ CMakeDataFrameCategoryEncoder::selectAllFeatures(const TSizeDoublePrVecVec& mics
 
 CMakeDataFrameCategoryEncoder::TSizeSizePrDoubleMap
 CMakeDataFrameCategoryEncoder::selectFeatures(TSizeVec metricColumnMask,
-                                              TSizeVec categoricalColumnMask) {
+                                              const TSizeVec& categoricalColumnMask) {
 
     // We want to choose features which provide independent information about the
     // target variable. Ideally, we'd recompute MICe w.r.t. target - f(x) with x

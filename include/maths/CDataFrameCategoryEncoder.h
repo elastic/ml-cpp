@@ -314,7 +314,8 @@ private:
                              const TSizeVec& categoricalColumnMask) const;
     void setupFrequencyEncoding(const TSizeVec& categoricalColumnMask);
     void setupTargetMeanValueEncoding(const TSizeVec& categoricalColumnMask);
-    TSizeSizePrDoubleMap selectFeatures(TSizeVec metricColumnMask, TSizeVec categoricalColumnMask);
+    TSizeSizePrDoubleMap selectFeatures(TSizeVec metricColumnMask,
+                                        const TSizeVec& categoricalColumnMask);
     TSizeSizePrDoubleMap selectAllFeatures(const TSizeDoublePrVecVec& mics);
     void finishEncoding(TSizeSizePrDoubleMap selectedFeatureMics);
     void discardNuisanceFeatures(TSizeDoublePrVecVec& mics) const;
