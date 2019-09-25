@@ -10,27 +10,27 @@
 
 #include <boost/optional.hpp>
 
+#include <map>
+#include <string>
+#include <vector>
+
 namespace ml {
 namespace api {
 
-struct SAggregateOutput {
-
-};
+struct SAggregateOutput {};
 
 /**
  * Allows to used (weighted) majority vote for classification.
  */
-struct SWeightedMode: public SAggregateOutput {
+struct SWeightedMode : public SAggregateOutput {
     std::vector<double> weights;
 };
 
-struct SWeightedSum: public SAggregateOutput  {
+struct SWeightedSum : public SAggregateOutput {
     std::vector<double> weights;
 };
 
-enum  ENumericRelationship  {
-    E_LTE
-};
+enum ENumericRelationship { E_LTE };
 
 struct STreeNode {
     ENumericRelationship m_DecisionType = E_LTE;
@@ -45,9 +45,7 @@ struct STreeNode {
 
     //! Populate the object from serialized data
     bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
-
 };
-
 
 /**
  * Details of the model evaluation step.
@@ -59,13 +57,13 @@ struct SBasicEvaluator {
     virtual bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) = 0;
 };
 
-struct STree: public SBasicEvaluator {
+struct STree : public SBasicEvaluator {
     std::vector<STreeNode> m_TreeStructure;
     //! Populate the object from serialized data
     bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) override;
 };
 
-struct SEnsemble: public SBasicEvaluator {
+struct SEnsemble : public SBasicEvaluator {
     std::vector<STree> m_TrainedModels;
     bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) override;
     std::unique_ptr<SAggregateOutput> m_AggregateOutput;
@@ -92,7 +90,7 @@ struct SEncoding {
  * Mapping from categorical columns to numerical values related to categorical value
  * distribution
  */
-struct SFrequencyEncoding: public SEncoding {
+struct SFrequencyEncoding : public SEncoding {
     /**
      * Feature name after pre-processing
      */
@@ -107,7 +105,7 @@ struct SFrequencyEncoding: public SEncoding {
 /**
  * Application of the one-hot encoding function on a single column.
  */
-struct SOneHotEncoding: public SEncoding {
+struct SOneHotEncoding : public SEncoding {
     /**
      * Map from the category names of the original field to the new field names.
      */
@@ -117,7 +115,7 @@ struct SOneHotEncoding: public SEncoding {
 /**
  * Mapping from categorical columns to numerical values related to the target value
  */
-struct STargetMeanEncoding: public SEncoding {
+struct STargetMeanEncoding : public SEncoding {
     /**
      * Value for categories that have not been seen before
      */

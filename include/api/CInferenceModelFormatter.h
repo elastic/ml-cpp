@@ -18,6 +18,7 @@ namespace api {
 class CInferenceModelFormatter {
 public:
     using TRapidjsonUPtr = std::unique_ptr<rapidjson::Document>;
+
 public:
     explicit CInferenceModelFormatter(const std::string& str);
     explicit CInferenceModelFormatter(const rapidjson::Document& doc);
@@ -34,9 +35,7 @@ private:
     rapidjson::Document m_JsonDoc;
 
     ml::api::SInferenceModelDefinition m_Definition;
-
 };
-
 }
 }
 

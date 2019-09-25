@@ -150,9 +150,8 @@ private:
     //! node bit masks from the node's bit mask.
     class CNode final {
     public:
-
-        CNode (): m_SplitIndex(0){};
-        CNode (std::int32_t index): m_SplitIndex(index){};
+        CNode() : m_SplitIndex(0){};
+        CNode(std::int32_t index) : m_SplitIndex(index){};
 
         //! See core::CMemory.
         static bool dynamicSizeAlwaysZero() { return true; }
@@ -290,7 +289,7 @@ private:
         }
 
     private:
-        std::int32_t m_SplitIndex =-1;
+        std::int32_t m_SplitIndex = -1;
         std::size_t m_SplitFeature = 0;
         double m_SplitValue = 0.0;
         bool m_AssignMissingToLeft = true;

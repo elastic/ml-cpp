@@ -22,9 +22,9 @@
 #include <api/ElasticsearchStateIndex.h>
 #include <api/SInferenceModelDefinition.h>
 
-#include <rapidjson/document.h>
-#include <core/CJsonStatePersistInserter.h>
 #include <api/CInferenceModelFormatter.h>
+#include <core/CJsonStatePersistInserter.h>
+#include <rapidjson/document.h>
 
 namespace ml {
 namespace api {
@@ -249,7 +249,7 @@ std::size_t CDataFrameBoostedTreeRunner::estimateBookkeepingMemoryUsage(
     return m_BoostedTreeFactory->estimateMemoryUsage(totalNumberRows, numberColumns);
 }
 
-void CDataFrameBoostedTreeRunner::serializeRunner(core::CRapidJsonConcurrentLineWriter &writer) const {
+void CDataFrameBoostedTreeRunner::serializeRunner(core::CRapidJsonConcurrentLineWriter& writer) const {
     std::stringstream strm;
     {
         core::CJsonStatePersistInserter inserter(strm);
@@ -257,20 +257,20 @@ void CDataFrameBoostedTreeRunner::serializeRunner(core::CRapidJsonConcurrentLine
         strm.flush();
     }
     LOG_DEBUG(<< "serializeRunner: " << strm.str());
-//    rapidjson::Document doc;
-//    if (strm.str().empty() == false) {
-//        doc.Parse(strm.str());
-//        if (doc.GetParseError()) {
-//            HANDLE_FATAL(<< "Input error: analysis parameters " << strm.str()
-//                                 << " cannot be parsed as json. Please report this problem.")
-//        }
-//    }
+    //    rapidjson::Document doc;
+    //    if (strm.str().empty() == false) {
+    //        doc.Parse(strm.str());
+    //        if (doc.GetParseError()) {
+    //            HANDLE_FATAL(<< "Input error: analysis parameters " << strm.str()
+    //                                 << " cannot be parsed as json. Please report this problem.")
+    //        }
+    //    }
     // TODO get a rapidjson doc with the transformed json data
     CInferenceModelFormatter formatter{strm.str()};
-    LOG_DEBUG(<< "Inference model json: "<< formatter.toString());
+    LOG_DEBUG(<< "Inference model json: " << formatter.toString());
 
-//    writer.write(doc);
-//    CDataFrameAnalysisRunner::serializeRunner(writer);
+    //    writer.write(doc);
+    //    CDataFrameAnalysisRunner::serializeRunner(writer);
 }
 
 const std::string& CDataFrameBoostedTreeRunnerFactory::name() const {

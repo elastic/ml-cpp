@@ -213,7 +213,7 @@ CDataFrameAnalysisRunner::TStatePersister CDataFrameAnalysisRunner::statePersist
     };
 }
 
-void CDataFrameAnalysisRunner::serializeRunner(core::CRapidJsonConcurrentLineWriter &writer) const {
+void CDataFrameAnalysisRunner::serializeRunner(core::CRapidJsonConcurrentLineWriter& writer) const {
     // by default do nothing
 }
 

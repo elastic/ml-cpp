@@ -4,6 +4,8 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 #include <api/SInferenceModelDefinition.h>
+
+#include <core/CPersistUtils.h>
 #include <core/RestoreMacros.h>
 
 namespace {
@@ -18,7 +20,7 @@ const std::string TREE_TAG{"a"};
 const std::string TREE_NODE_TAG{"a"};
 }
 
-bool ml::api::STreeNode::acceptRestoreTraverser(core::CStateRestoreTraverser &traverser) {
+bool ml::api::STreeNode::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
     try {
         do {
             const std::string& name = traverser.name();
@@ -43,34 +45,40 @@ bool ml::api::STreeNode::acceptRestoreTraverser(core::CStateRestoreTraverser &tr
         return false;
     }
 
-    return true;}
+    return true;
+}
 
-bool ml::api::SEnsemble::acceptRestoreTraverser(ml::core::CStateRestoreTraverser &traverser) {
-    auto restoreTree = [this](ml::core::CStateRestoreTraverser &traverser){
+bool ml::api::SEnsemble::acceptRestoreTraverser(ml::core::CStateRestoreTraverser& traverser) {
+    auto restoreTree = [this](ml::core::CStateRestoreTraverser& traverser) -> bool {
         STree tree;
-        RESTORE(TREE_TAG, std::bind(&STree::acceptRestoreTraverser, &tree, std::placeholders::_1))
-        m_TrainedModels.push_back(tree);
-        return true;
+        if (traverser.traverseSubLevel(std::bind(&STree::acceptRestoreTraverser, &tree,
+                                                 std::placeholders::_1)) == true) {
+            m_TrainedModels.push_back(tree);
+            return true;
+        }
+        return false;
     };
     do {
         const std::string& name = traverser.name();
-        RESTORE(TREE_TAG, restoreTree)
+        RESTORE(TREE_TAG, restoreTree(traverser))
         // TODO restore aggregated output
     } while (traverser.next());
     return true;
 }
 
-bool ml::api::STree::acceptRestoreTraverser(ml::core::CStateRestoreTraverser &traverser) {
-    auto restoreTreeNode = [this](ml::core::CStateRestoreTraverser &traverser){
+bool ml::api::STree::acceptRestoreTraverser(ml::core::CStateRestoreTraverser& traverser) {
+    auto restoreTreeNode = [this](ml::core::CStateRestoreTraverser& traverser) -> bool {
         STreeNode treeNode;
-        RESTORE(TREE_TAG, std::bind(&STreeNode::acceptRestoreTraverser, &treeNode, std::placeholders::_1))
-        m_TreeStructure.push_back(treeNode);
-        return true;
+        if (traverser.traverseSubLevel(std::bind(&STreeNode::acceptRestoreTraverser, &treeNode,
+                                                 std::placeholders::_1)) == true) {
+            m_TreeStructure.push_back(treeNode);
+            return true;
+        }
+        return false;
     };
     do {
         const std::string& name = traverser.name();
-        RESTORE(TREE_NODE_TAG, restoreTreeNode)
-        // TODO restore aggregated output
+        RESTORE(TREE_NODE_TAG, restoreTreeNode(traverser))
     } while (traverser.next());
     return true;
 }
