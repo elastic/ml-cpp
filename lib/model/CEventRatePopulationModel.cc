@@ -466,6 +466,10 @@ void CEventRatePopulationModel::sample(core_t::TTime startTime,
                     .trendWeights(attribute.second.s_Weights)
                     .priorWeights(attribute.second.s_Weights);
                 maths::CModel* model{this->model(feature, cid)};
+                if (model == nullptr) {
+                    LOG_TRACE(<< "Model unexpectedly null");
+                    continue;
+                }
                 if (model->addSamples(params, attribute.second.s_Values) ==
                     maths::CModel::E_Reset) {
                     gatherer.resetSampleCount(cid);
@@ -980,6 +984,10 @@ bool CEventRatePopulationModel::correlates(model_t::EFeature feature,
     }
 
     const maths::CModel* model{this->model(feature, cid)};
+    if (model == nullptr) {
+        LOG_TRACE(<< "Model unexpectedly null");
+        return false;
+    }
     const TSizeSizePrFeatureDataPrVec& data = this->featureData(feature, time);
     TSizeSizePr range = personRange(data, pid);
 
@@ -1003,6 +1011,10 @@ void CEventRatePopulationModel::fill(model_t::EFeature feature,
                                      CProbabilityAndInfluenceCalculator::SParams& params) const {
     auto data = find(this->featureData(feature, bucketTime), pid, cid);
     const maths::CModel* model{this->model(feature, cid)};
+    if (model == nullptr) {
+        LOG_TRACE(<< "Model unexpectedly null");
+        return;
+    }
     core_t::TTime time{model_t::sampleTime(feature, bucketTime, this->bucketLength())};
     maths_t::TDouble2VecWeightsAry weight(maths_t::seasonalVarianceScaleWeight(
         model->seasonalWeight(maths::DEFAULT_SEASONAL_CONFIDENCE_INTERVAL, time)));

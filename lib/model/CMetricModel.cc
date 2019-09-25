@@ -536,6 +536,10 @@ void CMetricModel::fill(model_t::EFeature feature,
 
     std::size_t dimension{model_t::dimension(feature)};
     const TFeatureData* data{this->featureData(feature, pid, bucketTime)};
+    if (data == nullptr) {
+        LOG_TRACE(<< "data unexpectedly null");
+        return;
+    }
     const TOptionalSample& bucket{data->s_BucketValue};
     const maths::CModel* model{this->model(feature, pid)};
     core_t::TTime time{model_t::sampleTime(feature, bucketTime,

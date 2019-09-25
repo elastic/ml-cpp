@@ -464,6 +464,10 @@ void CMetricPopulationModel::sample(core_t::TTime startTime,
                     .priorWeights(attribute.second.s_PriorWeights);
 
                 maths::CModel* model{this->model(feature, cid)};
+                if (model == nullptr) {
+                    LOG_TRACE(<< "Model unexpectedly null");
+                    return;
+                }
                 if (model->addSamples(params, attribute.second.s_Values) ==
                     maths::CModel::E_Reset) {
                     gatherer.resetSampleCount(cid);
@@ -894,6 +898,10 @@ bool CMetricPopulationModel::correlates(model_t::EFeature feature,
     }
 
     const maths::CModel* model{this->model(feature, cid)};
+    if (model == nullptr) {
+        LOG_TRACE(<< "Model unexpectedly null");
+        return false;
+    }
     const TSizeSizePrFeatureDataPrVec& data = this->featureData(feature, time);
     TSizeSizePr range = personRange(data, pid);
 
@@ -919,6 +927,10 @@ void CMetricPopulationModel::fill(model_t::EFeature feature,
     std::size_t dimension{model_t::dimension(feature)};
     auto data = find(this->featureData(feature, bucketTime), pid, cid);
     const maths::CModel* model{this->model(feature, cid)};
+    if (model == nullptr) {
+        LOG_TRACE(<< "Model unexpectedly null");
+        return;
+    }
     const TOptionalSample& bucket{CDataGatherer::extractData(*data).s_BucketValue};
     core_t::TTime time{model_t::sampleTime(feature, bucketTime,
                                            this->bucketLength(), bucket->time())};

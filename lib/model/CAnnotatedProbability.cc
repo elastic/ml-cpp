@@ -94,7 +94,7 @@ bool SAttributeProbability::acceptRestoreTraverser(core::CStateRestoreTraverser&
                 return false;
             }
         } else if (name == FEATURE_TAG) {
-            std::size_t feature;
+            std::size_t feature{0};
             if (!core::CPersistUtils::restore(FEATURE_TAG, feature, traverser)) {
                 LOG_ERROR(<< "Failed to restore " << traverser.name() << " / "
                           << traverser.value());

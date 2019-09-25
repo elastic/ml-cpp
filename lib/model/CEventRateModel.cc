@@ -14,7 +14,6 @@
 #include <core/CoreTypes.h>
 
 #include <maths/CChecksum.h>
-#include <maths/CMultivariatePrior.h>
 #include <maths/COrderings.h>
 #include <maths/CPrior.h>
 #include <maths/CRestoreParams.h>
@@ -32,14 +31,12 @@
 #include <model/CResourceMonitor.h>
 #include <model/FrequencyPredicates.h>
 
-#include <boost/iterator/counting_iterator.hpp>
-
 #include <algorithm>
+#include <boost/iterator/counting_iterator.hpp>
+#include <stdint.h>
 #include <string>
 #include <utility>
 #include <vector>
-
-#include <stdint.h>
 
 namespace ml {
 namespace model {
@@ -584,6 +581,11 @@ void CEventRateModel::fill(model_t::EFeature feature,
                            bool interim,
                            CProbabilityAndInfluenceCalculator::SParams& params) const {
     const TFeatureData* data{this->featureData(feature, pid, bucketTime)};
+    if (data == nullptr) {
+        LOG_ERROR(<< "Feature data unexpectedly null");
+        return;
+    }
+
     const maths::CModel* model{this->model(feature, pid)};
     core_t::TTime time{model_t::sampleTime(feature, bucketTime, this->bucketLength())};
     TOptionalUInt64 count{this->currentBucketCount(pid, bucketTime)};
