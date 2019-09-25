@@ -94,7 +94,6 @@ CPolledDataPenalty::pollingInterval(const CDataCountStatistics& stats) const {
     // value of the larger abscissa.
     double lower = steps[0].first;
     double upper = steps[1].first;
-    double mass = (steps[0].second + steps[1].second) / F.count();
     if (lower > upper) {
         std::swap(lower, upper);
     }
@@ -104,7 +103,7 @@ CPolledDataPenalty::pollingInterval(const CDataCountStatistics& stats) const {
     F.cdf(lower + 0.01 * upper, f[1]);
     F.cdf(upper - 0.01 * upper, f[2]);
     F.cdf(upper + 0.01 * upper, f[3]);
-    mass = f[1] - f[0] + f[3] - f[2];
+    double mass = f[1] - f[0] + f[3] - f[2];
 
     if (mass > this->params().polledDataMinimumMassAtInterval() &&
         lower < this->params().polledDataJitter() * upper) {
