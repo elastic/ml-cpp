@@ -364,11 +364,13 @@ void CBoostedTreeFactory::initializeUnsetRegularizationHyperparameters(core::CDa
         }
     }
 
-    double freeRegularizationParameters{
-        (m_TreeImpl->m_RegularizationOverride.gamma() != boost::none ? 0.0 : 1.0) +
-        (m_TreeImpl->m_RegularizationOverride.lambda() != boost::none ? 0.0 : 1.0)};
-    double scale{static_cast<double>(m_TreeImpl->m_NumberFolds - 1) /
-                 static_cast<double>(m_TreeImpl->m_NumberFolds) / freeRegularizationParameters};
+    // If we aren't supplied a fixed value for a parameter, we find its "best"
+    // value forcing the other regularizers to zero. Therefore, we divide here
+    // by the number of unspecified parameters so the sum of the regularization
+    // terms is about the same in the first loop.
+    double scale{
+        1.0 / ((m_TreeImpl->m_RegularizationOverride.gamma() == boost::none ? 1.0 : 0.0) +
+               (m_TreeImpl->m_RegularizationOverride.lambda() == boost::none ? 1.0 : 0.0))};
 
     if (m_TreeImpl->m_RegularizationOverride.gamma() == boost::none) {
         m_LogGammaSearchInterval += TVector{std::log(scale)};
