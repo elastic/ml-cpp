@@ -137,7 +137,7 @@ public:
         double encode(double value) const override;
         bool isBinary() const override;
         std::uint64_t checksum() const override;
-         std::string typeString() const override;
+        std::string typeString() const override;
     };
 
     //! \brief One-hot encoding.
@@ -150,12 +150,11 @@ public:
         std::uint64_t checksum() const override;
 
         //! Persist by passing information to \p inserter.
-        void acceptPersistInserter(core::CStatePersistInserter& inserter) const override;
+        virtual void acceptPersistInserter(core::CStatePersistInserter& inserter) const override;
 
         //! Populate the object from serialized data.
-        bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) override;
-        std::string typeString() const override;
-
+        virtual bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) override;
+        virtual std::string typeString() const override;
 
     private:
         std::size_t m_HotCategory;
@@ -175,12 +174,12 @@ public:
         std::uint64_t checksum() const override;
 
         //! Persist by passing information to \p inserter.
-        void acceptPersistInserter(core::CStatePersistInserter& inserter) const override;
+        virtual void acceptPersistInserter(core::CStatePersistInserter& inserter) const override;
 
         //! Populate the object from serialized data.
-        bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) override;
+        virtual bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) override;
 
-        std::string typeString() const override;
+        virtual std::string typeString() const override;
 
     private:
         EEncoding m_Encoding;

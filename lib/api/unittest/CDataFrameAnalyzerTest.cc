@@ -1150,8 +1150,6 @@ void CDataFrameAnalyzerTest::testRunBoostedTreeTrainingWithStateRecoverySubrouti
         streamToStringVector(std::stringstream(persistenceStream->str()))};
     auto expectedTree{getFinalTree(persistedStatesString, frame)};
 
-    LOG_DEBUG(<< "First run: " << persistenceStream->str());
-
     // Compute actual tree
     persistenceStream->str("");
 
