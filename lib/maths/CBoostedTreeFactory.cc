@@ -470,10 +470,10 @@ CBoostedTreeFactory::testLossNewtonLineSearch(core::CDataFrame& frame,
     double rightEndpoint{0.0};
     double stationaryPoint{-gradient / 2.0 / curvature};
     double bestRegularizer{[&] {
-        double distanceToLeftEndpoint{std::fabs(rightEndpoint - stationaryPoint)};
-        double distanceToRightEndpoint{std::fabs(leftEndpoint - stationaryPoint)};
         if (curvature < 0.0) {
             // Stationary point is a maximum so use furthest point in interval.
+            double distanceToLeftEndpoint{std::fabs(leftEndpoint - stationaryPoint)};
+            double distanceToRightEndpoint{std::fabs(rightEndpoint - stationaryPoint)};
             return distanceToLeftEndpoint > distanceToRightEndpoint ? leftEndpoint : rightEndpoint;
         }
         // Stationary point is a minimum so use nearest point in the interval.
