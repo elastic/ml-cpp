@@ -6,10 +6,15 @@
 
 #include "CLoopProgressTest.h"
 
+#include <core/CJsonStatePersistInserter.h>
+#include <core/CJsonStateRestoreTraverser.h>
 #include <core/CLogger.h>
 #include <core/CLoopProgress.h>
 
 #include <test/CRandomNumbers.h>
+
+#include <functional>
+#include <sstream>
 
 using namespace ml;
 
@@ -75,7 +80,7 @@ void CLoopProgressTest::testRandom() {
         core::CLoopProgress loopProgress{size[0], recordProgress};
 
         for (std::size_t i = 0; i < size[0]; ++i, loopProgress.increment()) {
-            CPPUNIT_ASSERT_EQUAL(static_cast<double>(16 * i / size[0]) / 16.0, progress);
+            CPPUNIT_ASSERT_EQUAL(static_cast<double>(32 * i / size[0]) / 32.0, progress);
         }
 
         CPPUNIT_ASSERT_EQUAL(1.0, progress);
@@ -86,7 +91,7 @@ void CLoopProgressTest::testRandom() {
     for (std::size_t t = 0; t < 100; ++t) {
 
         TSizeVec size;
-        rng.generateUniformSamples(30, 100, 1, size);
+        rng.generateUniformSamples(33, 100, 1, size);
 
         if (t % 10 == 0) {
             LOG_DEBUG(<< "Loop length = " << size[0]);
@@ -96,7 +101,7 @@ void CLoopProgressTest::testRandom() {
         core::CLoopProgress loopProgress{size[0], recordProgress};
 
         for (std::size_t i = 0; i < size[0]; i += 20, loopProgress.increment(20)) {
-            CPPUNIT_ASSERT_EQUAL(static_cast<double>(16 * i / size[0]) / 16.0, progress);
+            CPPUNIT_ASSERT_EQUAL(static_cast<double>(32 * i / size[0]) / 32.0, progress);
         }
 
         CPPUNIT_ASSERT_EQUAL(1.0, progress);
@@ -134,6 +139,43 @@ void CLoopProgressTest::testScaled() {
     }
 }
 
+void CLoopProgressTest::testSerialization() {
+
+    double progress{0.0};
+    auto recordProgress = [&progress](double p) { progress += p; };
+
+    core::CLoopProgress loopProgress{50, recordProgress};
+    for (std::size_t i = 0; i < 20; ++i) {
+        loopProgress.increment();
+    }
+
+    std::stringstream persistStream;
+    {
+        core::CJsonStatePersistInserter inserter(persistStream);
+        loopProgress.acceptPersistInserter(inserter);
+    }
+
+    LOG_DEBUG(<< "state = " << persistStream.str());
+
+    core::CJsonStateRestoreTraverser traverser(persistStream);
+    core::CLoopProgress restoredLoopProgress;
+    restoredLoopProgress.acceptRestoreTraverser(traverser);
+
+    double restoredProgress{0.0};
+    auto restoredRecordProgress = [&restoredProgress](double p) {
+        restoredProgress += p;
+    };
+    restoredLoopProgress.progressCallback(restoredRecordProgress);
+    restoredLoopProgress.resumeRestored();
+
+    CPPUNIT_ASSERT_EQUAL(loopProgress.checksum(), restoredLoopProgress.checksum());
+    for (std::size_t i = 20; i < 50; ++i) {
+        loopProgress.increment();
+        restoredLoopProgress.increment();
+        CPPUNIT_ASSERT_EQUAL(progress, restoredProgress);
+    }
+}
+
 CppUnit::Test* CLoopProgressTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CLoopProgressTest");
 
@@ -143,6 +185,8 @@ CppUnit::Test* CLoopProgressTest::suite() {
         "CLoopProgressTest::testRandom", &CLoopProgressTest::testRandom));
     suiteOfTests->addTest(new CppUnit::TestCaller<CLoopProgressTest>(
         "CLoopProgressTest::testScaled", &CLoopProgressTest::testScaled));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CLoopProgressTest>(
+        "CLoopProgressTest::testSerialization", &CLoopProgressTest::testSerialization));
 
     return suiteOfTests;
 }

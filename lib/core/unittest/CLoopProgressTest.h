@@ -14,6 +14,7 @@ public:
     void testShort();
     void testRandom();
     void testScaled();
+    void testSerialization();
 
     static CppUnit::Test* suite();
 };
