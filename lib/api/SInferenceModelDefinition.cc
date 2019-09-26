@@ -7,6 +7,7 @@
 
 #include <core/CPersistUtils.h>
 #include <core/RestoreMacros.h>
+#include <core/CRapidJsonLineWriter.h>
 
 namespace {
 const std::string SPLIT_FEATURE_TAG{"split_feature"};
@@ -18,7 +19,25 @@ const std::string LEFT_CHILD_TAG{"left_child"};
 const std::string RIGHT_CHILD_TAG{"right_child"};
 const std::string TREE_TAG{"a"};
 const std::string TREE_NODE_TAG{"a"};
+
+const std::string JSON_FEATURE_NAMES_TAG{"feature_names"};
+const std::string JSON_TRAINED_MODELS_TAG{"trained_models"};
+const std::string JSON_TRAINED_MODEL_TAG{"trained_model"};
+const std::string JSON_TREE_STRUCTURE_TAG{"tree_structure"};
+const std::string JSON_NODE_INDEX_TAG{"node_index"};
+const std::string JSON_SPLIT_FEATURE_TAG{"split_feature"};
+const std::string JSON_SPLIT_GAIN_TAG{"split_gain"};
+const std::string JSON_THRESHOLD_TAG{"threshold"};
+const std::string JSON_LEAF_VALUE_TAG{"leaf_value"};
+const std::string JSON_DEFAULT_LEFT_TAG{"default_left"};
+const std::string JSON_DECISION_TYPE_TAG{"decision_type"};
+const std::string JSON_LEFT_CHILD_TAG{"left_child"};
+const std::string JSON_RIGHT_CHILD_TAG{"right_child"};
+const std::string JSON_LTE{"lte"};
+
+
 }
+
 
 bool ml::api::STreeNode::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
     try {
@@ -29,9 +48,9 @@ bool ml::api::STreeNode::acceptRestoreTraverser(core::CStateRestoreTraverser& tr
             RESTORE(DEFAULT_LEFT_TAG,
                     core::CPersistUtils::restore(DEFAULT_LEFT_TAG, m_DefaultLeft, traverser))
             RESTORE(NODE_VALUE_TAG,
-                    core::CPersistUtils::restore(NODE_VALUE_TAG, m_NodeValue, traverser))
+                    core::CPersistUtils::restore(NODE_VALUE_TAG, m_LeafValue, traverser))
             RESTORE(SPLIT_INDEX_TAG,
-                    core::CPersistUtils::restore(SPLIT_INDEX_TAG, m_SplitIndex, traverser))
+                    core::CPersistUtils::restore(SPLIT_INDEX_TAG, m_NodeIndex, traverser))
             RESTORE(SPLIT_VALUE_TAG,
                     core::CPersistUtils::restore(SPLIT_VALUE_TAG, m_Threshold, traverser))
             RESTORE(LEFT_CHILD_TAG,
@@ -46,6 +65,32 @@ bool ml::api::STreeNode::acceptRestoreTraverser(core::CStateRestoreTraverser& tr
         return false;
     }
     return true;
+}
+
+void ml::api::STreeNode::addToDocument(rapidjson::Value &parentObject, TRapidJsonWriter &writer) {
+    writer.addMember(JSON_NODE_INDEX_TAG, rapidjson::Value(m_NodeIndex).Move(), parentObject);
+    writer.addMember(JSON_SPLIT_FEATURE_TAG, rapidjson::Value(m_SplitFeature).Move(), parentObject);
+    if (m_SplitGain.is_initialized()) {
+    writer.addMember(JSON_SPLIT_GAIN_TAG, rapidjson::Value(m_SplitGain.get()).Move(), parentObject);
+    }
+    writer.addMember(JSON_THRESHOLD_TAG, rapidjson::Value(m_Threshold).Move(), parentObject);
+    writer.addMember(JSON_LEAF_VALUE_TAG, rapidjson::Value(m_LeafValue).Move(), parentObject);
+    writer.addMember(JSON_DEFAULT_LEFT_TAG, rapidjson::Value(m_DefaultLeft).Move(), parentObject);
+    switch(m_DecisionType)
+    {
+        case E_LTE:
+            writer.addMember(JSON_DECISION_TYPE_TAG, JSON_LTE, parentObject);
+            break;
+        default:
+            writer.addMember(JSON_DECISION_TYPE_TAG, JSON_LTE, parentObject);
+            break;
+    }
+    if (m_LeftChild.is_initialized()) {
+        writer.addMember(JSON_LEFT_CHILD_TAG, rapidjson::Value( m_LeftChild.get()).Move(), parentObject);
+    }
+    if (m_RightChild.is_initialized()) {
+        writer.addMember(JSON_RIGHT_CHILD_TAG, rapidjson::Value( m_RightChild.get()).Move(), parentObject);
+    }
 }
 
 bool ml::api::SEnsemble::acceptRestoreTraverser(ml::core::CStateRestoreTraverser& traverser) {
@@ -66,6 +111,18 @@ bool ml::api::SEnsemble::acceptRestoreTraverser(ml::core::CStateRestoreTraverser
     return true;
 }
 
+void ml::api::SEnsemble::addToDocument(rapidjson::Value &parentObject,
+                                       TRapidJsonWriter &writer) {
+        SBasicEvaluator::addToDocument(parentObject, writer);
+    rapidjson::Value trainedModelsArray  = writer.makeArray(m_TrainedModels.size());
+    for (auto trainedModel: m_TrainedModels) {
+        rapidjson::Value trainedModelObject = writer.makeObject();
+        trainedModel.addToDocument(trainedModelObject, writer);
+        trainedModelsArray.PushBack(trainedModelObject, writer.getRawAllocator());
+    }
+    writer.addMember(JSON_TRAINED_MODELS_TAG, trainedModelsArray, parentObject);
+}
+
 bool ml::api::STree::acceptRestoreTraverser(ml::core::CStateRestoreTraverser& traverser) {
     auto restoreTreeNode = [this](ml::core::CStateRestoreTraverser& traverser) -> bool {
         STreeNode treeNode;
@@ -81,4 +138,40 @@ bool ml::api::STree::acceptRestoreTraverser(ml::core::CStateRestoreTraverser& tr
         RESTORE(TREE_NODE_TAG, restoreTreeNode(traverser))
     } while (traverser.next());
     return true;
+}
+
+void ml::api::STree::addToDocument(rapidjson::Value &parentObject, TRapidJsonWriter &writer) {
+    SBasicEvaluator::addToDocument(parentObject, writer);
+    rapidjson::Value treeStructureArray = writer.makeArray(m_TreeStructure.size());
+    for (auto treeNode: m_TreeStructure) {
+        rapidjson::Value treeNodeObject = writer.makeObject();
+        treeNode.addToDocument(treeNodeObject, writer);
+        treeStructureArray.PushBack(treeNodeObject, writer.getRawAllocator());
+    }
+    writer.addMember(JSON_TREE_STRUCTURE_TAG, treeStructureArray, parentObject);
+}
+
+std::string ml::api::SInferenceModelDefinition::jsonString() {
+    rapidjson::StringBuffer stringBuffer;
+    core::CRapidJsonLineWriter<rapidjson::StringBuffer> writer(stringBuffer);
+    rapidjson::Value doc = writer.makeObject();
+    if (m_TrainedModel) {
+        rapidjson::Value trainedModelValue = writer.makeObject();
+        m_TrainedModel->addToDocument(trainedModelValue, writer);
+        writer.addMember(JSON_TRAINED_MODEL_TAG, trainedModelValue, doc);
+    }
+    writer.write(doc);
+    return stringBuffer.GetString();
+}
+
+void ml::api::SBasicEvaluator::addToDocument(TRapidJsonWriter::TValue &parentObject,
+                                             TRapidJsonWriter &writer) {
+    rapidjson::Value featureNamesArray = writer.makeArray(m_FeatureNames.size());
+    for (auto featureName : m_FeatureNames) {
+        rapidjson::Value featureNameValue;
+        featureNameValue.SetString(featureName, writer.getRawAllocator());
+        featureNamesArray.PushBack(featureNameValue, writer.getRawAllocator());
+    }
+
+    writer.addMember(JSON_FEATURE_NAMES_TAG, featureNamesArray, parentObject);
 }

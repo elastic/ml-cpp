@@ -6,7 +6,11 @@
 #ifndef INCLUDED_ml_api_SInferenceModelDefinition_h
 #define INCLUDED_ml_api_SInferenceModelDefinition_h
 
+
 #include <core/CStateRestoreTraverser.h>
+#include <core/CRapidJsonLineWriter.h>
+
+#include <rapidjson/document.h>
 
 #include <boost/optional.hpp>
 
@@ -16,6 +20,15 @@
 
 namespace ml {
 namespace api {
+
+struct SSerializableToJson {
+    using TJsonArray = rapidjson::Document::Array;
+    using TJsonObject = rapidjson::Document::Object;
+    using TJsonAllocator = rapidjson::Document::AllocatorType;
+    using TJsonValue = rapidjson::Document::GenericValue;
+    using TRapidJsonWriter = core::CRapidJsonLineWriter<rapidjson::StringBuffer>;
+    virtual void addToDocument(rapidjson::Value &parentObject, TRapidJsonWriter &writer) = 0;
+};
 
 struct SAggregateOutput {};
 
@@ -32,41 +45,46 @@ struct SWeightedSum : public SAggregateOutput {
 
 enum ENumericRelationship { E_LTE };
 
-struct STreeNode {
+struct STreeNode : public SSerializableToJson{
     ENumericRelationship m_DecisionType = E_LTE;
     bool m_DefaultLeft;
     boost::optional<std::size_t> m_LeftChild;
-    double m_NodeValue;
+    double m_LeafValue;
     boost::optional<std::size_t> m_RightChild;
     std::size_t m_SplitFeature;
     boost::optional<double> m_SplitGain;
-    std::size_t m_SplitIndex;
+    std::size_t m_NodeIndex;
     double m_Threshold;
 
     //! Populate the object from serialized data
     bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
+    void addToDocument(rapidjson::Value &parentObject, TRapidJsonWriter &writer) override;
 };
 
 /**
  * Details of the model evaluation step.
  */
-struct SBasicEvaluator {
-    std::vector<std::string> featureNames;
+struct SBasicEvaluator : public SSerializableToJson{
+    std::vector<std::string> m_FeatureNames;
 
     //! Populate the object from serialized data
     virtual bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) = 0;
+
+    virtual void addToDocument(rapidjson::Value &parentObject, TRapidJsonWriter &writer);
 };
 
 struct STree : public SBasicEvaluator {
     std::vector<STreeNode> m_TreeStructure;
     //! Populate the object from serialized data
     bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) override;
+    void addToDocument(rapidjson::Value &parentObject, TRapidJsonWriter &writer) override;
 };
 
-struct SEnsemble : public SBasicEvaluator {
+struct SEnsemble : public SBasicEvaluator  {
     std::vector<STree> m_TrainedModels;
     bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) override;
     std::unique_ptr<SAggregateOutput> m_AggregateOutput;
+    void addToDocument(rapidjson::Value &parentObject, TRapidJsonWriter &writer) override;
 };
 
 /**
@@ -134,6 +152,9 @@ struct STargetMeanEncoding : public SEncoding {
  * Technical details required for model evaluation.
  */
 struct SInferenceModelDefinition {
+
+    using TJsonDocument = rapidjson::Document;
+
     /**
      * Information related to the input.
      */
@@ -146,6 +167,8 @@ struct SInferenceModelDefinition {
      * Details of the model evaluation step.
      */
     std::unique_ptr<SBasicEvaluator> m_TrainedModel;
+
+    std::string jsonString();
 };
 }
 }
