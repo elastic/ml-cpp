@@ -191,11 +191,11 @@ void CDataFrameBoostedTreeRunner::runImpl(const TStrVec& featureNames,
     auto restoreSearcher{this->spec().restoreSearcher()};
     bool treeRestored{false};
     if (restoreSearcher != nullptr) {
-        treeRestored = restoreBoostedTree(frame, restoreSearcher);
+        treeRestored = this->restoreBoostedTree(
+            frame, dependentVariableColumn - featureNames.begin(), restoreSearcher);
     }
 
     if (treeRestored == false) {
-
         m_BoostedTree = m_BoostedTreeFactory->buildFor(
             frame, dependentVariableColumn - featureNames.begin());
     }
@@ -205,9 +205,10 @@ void CDataFrameBoostedTreeRunner::runImpl(const TStrVec& featureNames,
     core::CProgramCounters::counter(counter_t::E_DFTPMTimeToTrain) = watch.stop();
 }
 
-bool CDataFrameBoostedTreeRunner::restoreBoostedTree(
-    core::CDataFrame& frame,
-    CDataFrameAnalysisSpecification::TDataSearcherUPtr& restoreSearcher) { // Restore from Elasticsearch compressed data
+bool CDataFrameBoostedTreeRunner::restoreBoostedTree(core::CDataFrame& frame,
+                                                     std::size_t dependentVariableColumn,
+                                                     TDataSearcherUPtr& restoreSearcher) {
+    // Restore from Elasticsearch compressed data
     try {
         core::CStateDecompressor decompressor(*restoreSearcher);
         decompressor.setStateRestoreSearch(
@@ -229,8 +230,11 @@ bool CDataFrameBoostedTreeRunner::restoreBoostedTree(
             return false;
         }
 
-        m_BoostedTree = maths::CBoostedTreeFactory::constructFromString(
-            *inputStream, frame, progressRecorder(), memoryEstimator(), statePersister());
+        m_BoostedTree = maths::CBoostedTreeFactory::constructFromString(*inputStream)
+                            .progressCallback(this->progressRecorder())
+                            .trainingStateCallback(this->statePersister())
+                            .memoryUsageCallback(this->memoryEstimator())
+                            .buildFor(frame, dependentVariableColumn);
     } catch (std::exception& e) {
         LOG_ERROR(<< "Failed to restore state! " << e.what());
         return false;

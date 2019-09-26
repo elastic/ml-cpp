@@ -57,7 +57,9 @@ private:
         std::size_t iterationToRestartFrom) const;
 
     ml::maths::CBoostedTreeFactory::TBoostedTreeUPtr
-    getFinalTree(const TStrVec& persistedStates, TDataFrameUPtr& frame) const;
+    getFinalTree(const TStrVec& persistedStates,
+                 TDataFrameUPtr& frame,
+                 std::size_t dependentVariable) const;
 };
 
 #endif // INCLUDED_CDataFrameAnalyzerTest_h

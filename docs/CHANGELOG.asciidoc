@@ -36,6 +36,8 @@
 For large data sets this change was observed to give a 10% to 20% decrease in
 train time. (See {ml-pull}622[#622].)
 * Upgrade Boost libraries to version 1.71. (See {ml-pull}638[#638].)
+* Improve initialisation of boosted tree training. This generally enables us to
+find lower loss models faster. (See {ml-pull}686[#686].)
 
 == {es} version 7.4.1
 
