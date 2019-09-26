@@ -76,7 +76,7 @@ double CMse::value(double prediction, double actual) const {
 }
 
 double CMse::gradient(double prediction, double actual) const {
-    return prediction - actual;
+    return 2.0 * (prediction - actual);
 }
 
 double CMse::curvature(double /*prediction*/, double /*actual*/) const {

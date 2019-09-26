@@ -602,8 +602,8 @@ void CBoostedTreeTest::testCategoricalRegressors() {
 
     LOG_DEBUG(<< "bias = " << modelBias);
     LOG_DEBUG(<< " R^2 = " << modelRSquared);
-    CPPUNIT_ASSERT_DOUBLES_EQUAL(0.0, modelBias, 0.1);
-    CPPUNIT_ASSERT(modelRSquared > 0.9);
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(0.0, modelBias, 0.05);
+    CPPUNIT_ASSERT(modelRSquared > 0.91);
 }
 
 void CBoostedTreeTest::testIntegerRegressor() {
@@ -908,7 +908,7 @@ void CBoostedTreeTest::testPersistRestore() {
     }
     // restore
     auto boostedTree =
-        maths::CBoostedTreeFactory::constructFromString(persistOnceSStream, *frame);
+        maths::CBoostedTreeFactory::constructFromString(persistOnceSStream).buildFor(*frame, cols - 1);
     {
         core::CJsonStatePersistInserter inserter(persistTwiceSStream);
         boostedTree->acceptPersistInserter(inserter);
@@ -965,8 +965,8 @@ void CBoostedTreeTest::testRestoreErrorHandling() {
 
     bool throwsExceptions{false};
     try {
-        auto boostedTree = maths::CBoostedTreeFactory::constructFromString(
-            errorInBayesianOptimisationState, *frame);
+        auto boostedTree = maths::CBoostedTreeFactory::constructFromString(errorInBayesianOptimisationState)
+                               .buildFor(*frame, 2);
     } catch (const std::exception& e) {
         LOG_DEBUG(<< "got = " << e.what());
         throwsExceptions = true;
@@ -1004,11 +1004,8 @@ void CBoostedTreeTest::testRestoreErrorHandling() {
 
     throwsExceptions = false;
     try {
-        auto boostedTree = maths::CBoostedTreeFactory::constructFromString(
-            errorInBoostedTreeImplState, *frame,
-            ml::maths::CBoostedTreeFactory::TProgressCallback(),
-            ml::maths::CBoostedTreeFactory::TMemoryUsageCallback(),
-            ml::maths::CBoostedTreeFactory::TTrainingStateCallback());
+        auto boostedTree = maths::CBoostedTreeFactory::constructFromString(errorInBoostedTreeImplState)
+                               .buildFor(*frame, 2);
     } catch (const std::exception& e) {
         LOG_DEBUG(<< "got = " << e.what());
         throwsExceptions = true;
