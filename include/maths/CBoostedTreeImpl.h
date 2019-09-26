@@ -170,8 +170,10 @@ private:
             bool missing{CDataFrameUtils::isMissing(value)};
             return (missing && m_AssignMissingToLeft) ||
                            (missing == false && value < m_SplitValue)
-                       ? tree[m_LeftChild.get()].leafIndex(row, tree, m_LeftChild.get())
-                       : tree[m_RightChild.get()].leafIndex(row, tree, m_RightChild.get());
+                       ? tree[m_LeftChild.get()].leafIndex(row, tree,
+                                                           m_LeftChild.get())
+                       : tree[m_RightChild.get()].leafIndex(row, tree,
+                                                            m_RightChild.get());
         }
 
         //! Get the value predicted by \p tree for the feature vector \p row.
@@ -193,8 +195,8 @@ private:
             m_SplitFeature = splitFeature;
             m_SplitValue = splitValue;
             m_AssignMissingToLeft = assignMissingToLeft;
-            m_LeftChild = static_cast<std::size_t >(tree.size());
-            m_RightChild = static_cast<std::size_t >(tree.size() + 1);
+            m_LeftChild = static_cast<std::size_t>(tree.size());
+            m_RightChild = static_cast<std::size_t>(tree.size() + 1);
             // create to leafs with consecutive indices
             tree.emplace_back(tree.size());
             tree.emplace_back(tree.size());
