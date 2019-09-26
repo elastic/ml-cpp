@@ -339,6 +339,10 @@ const CBoostedTreeImpl::TDoubleVec& CBoostedTreeImpl::featureWeights() const {
     return m_FeatureSampleProbabilities;
 }
 
+const CBoostedTreeImpl::TNodeVecVec& CBoostedTreeImpl::trainedModel() const {
+    return m_BestForest;
+}
+
 std::size_t CBoostedTreeImpl::columnHoldingDependentVariable() const {
     return m_DependentVariable;
 }
@@ -355,7 +359,8 @@ std::size_t CBoostedTreeImpl::estimateMemoryUsage(std::size_t numberRows,
     // A binary tree with n + 1 leaves has 2n + 1 nodes in total.
     std::size_t maximumNumberNodes{2 * this->maximumTreeSize(numberRows) + 1};
     std::size_t forestMemoryUsage{
-        m_MaximumNumberTrees * (sizeof(TNodeVec) + maximumNumberNodes * sizeof(CNode))};
+        m_MaximumNumberTrees *
+        (sizeof(TNodeVec) + maximumNumberNodes * sizeof(CBoostedTreeNode))};
     std::size_t extraColumnsMemoryUsage{this->numberExtraColumnsForTrain() *
                                         numberRows * sizeof(CFloatStorage)};
     std::size_t hyperparametersMemoryUsage{numberColumns * sizeof(double)};
@@ -664,8 +669,8 @@ CBoostedTreeImpl::trainTree(core::CDataFrame& frame,
         core::CPackedBitVector rightChildRowMask;
         bool leftChildHasFewerRows;
         std::tie(leftChildRowMask, rightChildRowMask, leftChildHasFewerRows) =
-            tree[leaf->id()].rowMasks(m_NumberThreads, frame, *m_Encoder,
-                                      std::move(leaf->rowMask()));
+            tree[leaf->id()].childrenRowMasks(m_NumberThreads, frame, *m_Encoder,
+                                              std::move(leaf->rowMask()));
 
         TLeafNodeStatisticsPtr leftChild;
         TLeafNodeStatisticsPtr rightChild;
@@ -819,7 +824,7 @@ CBoostedTreeImpl::TSizeVec CBoostedTreeImpl::candidateRegressorFeatures() const 
     return result;
 }
 
-const CBoostedTreeImpl::CNode& CBoostedTreeImpl::root(const TNodeVec& tree) {
+const CBoostedTreeNode& CBoostedTreeImpl::root(const TNodeVec& tree) {
     return tree[0];
 }
 
@@ -998,13 +1003,6 @@ const std::string HYPERPARAM_ETA_TAG{"hyperparam_eta"};
 const std::string HYPERPARAM_ETA_GROWTH_RATE_PER_TREE_TAG{"hyperparam_eta_growth_rate_per_tree"};
 const std::string HYPERPARAM_FEATURE_BAG_FRACTION_TAG{"hyperparam_feature_bag_fraction"};
 const std::string HYPERPARAM_REGULARIZATION_TAG{"hyperparam_regularization"};
-
-const std::string LEFT_CHILD_TAG{"left_child"};
-const std::string RIGHT_CHILD_TAG{"right_child"};
-const std::string SPLIT_FEATURE_TAG{"split_feature"};
-const std::string ASSIGN_MISSING_TO_LEFT_TAG{"assign_missing_to_left "};
-const std::string NODE_VALUE_TAG{"node_value"};
-const std::string SPLIT_VALUE_TAG{"split_value"};
 }
 
 template<typename T>
@@ -1024,15 +1022,6 @@ void CBoostedTreeImpl::SHyperparameters::acceptPersistInserter(core::CStatePersi
     core::CPersistUtils::persist(HYPERPARAM_FEATURE_BAG_FRACTION_TAG,
                                  s_FeatureBagFraction, inserter);
     core::CPersistUtils::persist(HYPERPARAM_REGULARIZATION_TAG, s_Regularization, inserter);
-}
-
-void CBoostedTreeImpl::CNode::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
-    core::CPersistUtils::persist(LEFT_CHILD_TAG, m_LeftChild, inserter);
-    core::CPersistUtils::persist(RIGHT_CHILD_TAG, m_RightChild, inserter);
-    core::CPersistUtils::persist(SPLIT_FEATURE_TAG, m_SplitFeature, inserter);
-    core::CPersistUtils::persist(ASSIGN_MISSING_TO_LEFT_TAG, m_AssignMissingToLeft, inserter);
-    core::CPersistUtils::persist(NODE_VALUE_TAG, m_NodeValue, inserter);
-    core::CPersistUtils::persist(SPLIT_VALUE_TAG, m_SplitValue, inserter);
 }
 
 void CBoostedTreeImpl::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
@@ -1114,26 +1103,6 @@ bool CBoostedTreeImpl::SHyperparameters::acceptRestoreTraverser(core::CStateRest
         RESTORE(HYPERPARAM_REGULARIZATION_TAG,
                 core::CPersistUtils::restore(HYPERPARAM_REGULARIZATION_TAG,
                                              s_Regularization, traverser))
-    } while (traverser.next());
-    return true;
-}
-
-bool CBoostedTreeImpl::CNode::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
-    do {
-        const std::string& name = traverser.name();
-        RESTORE(LEFT_CHILD_TAG,
-                core::CPersistUtils::restore(LEFT_CHILD_TAG, m_LeftChild, traverser))
-        RESTORE(RIGHT_CHILD_TAG,
-                core::CPersistUtils::restore(RIGHT_CHILD_TAG, m_RightChild, traverser))
-        RESTORE(SPLIT_FEATURE_TAG,
-                core::CPersistUtils::restore(SPLIT_FEATURE_TAG, m_SplitFeature, traverser))
-        RESTORE(ASSIGN_MISSING_TO_LEFT_TAG,
-                core::CPersistUtils::restore(ASSIGN_MISSING_TO_LEFT_TAG,
-                                             m_AssignMissingToLeft, traverser))
-        RESTORE(NODE_VALUE_TAG,
-                core::CPersistUtils::restore(NODE_VALUE_TAG, m_NodeValue, traverser))
-        RESTORE(SPLIT_VALUE_TAG,
-                core::CPersistUtils::restore(SPLIT_VALUE_TAG, m_SplitValue, traverser))
     } while (traverser.next());
     return true;
 }

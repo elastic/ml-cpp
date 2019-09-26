@@ -134,6 +134,8 @@ void CBoostedTreeFactory::initializeHyperparameterOptimisation() const {
     if (m_TreeImpl->m_FeatureBagFractionOverride == boost::none) {
         boundingBox.emplace_back(MIN_FEATURE_BAG_FRACTION, MAX_FEATURE_BAG_FRACTION);
     }
+    LOG_TRACE(<< "hyperparameter search bounding box = "
+              << core::CContainerPrinter::print(boundingBox));
 
     m_TreeImpl->m_BayesianOptimization = std::make_unique<CBayesianOptimisation>(
         std::move(boundingBox),
@@ -351,7 +353,7 @@ void CBoostedTreeFactory::initializeUnsetRegularizationHyperparameters(core::CDa
                 tree.m_Regularization.alpha(
                     std::exp(logInitialAlpha + static_cast<double>(step) * stepSize));
             };
-            m_LogGammaSearchInterval =
+            m_LogAlphaSearchInterval =
                 TVector{std::log(gainPerNode)} +
                 this->testLossNewtonLineSearch(frame, allTrainingRowsMask, applyAlphaStep,
                                                std::log(MIN_REGULARIZER_SCALE),
@@ -655,20 +657,20 @@ CBoostedTreeFactory& CBoostedTreeFactory::lambda(double lambda) {
 }
 
 CBoostedTreeFactory& CBoostedTreeFactory::maxTreeDepth(double maxTreeDepth) {
-    if (maxTreeDepth < 2.0) {
+    if (maxTreeDepth < MIN_MAX_DEPTH) {
         LOG_WARN(<< "Minimum tree depth must be at least two");
-        maxTreeDepth = 2.0;
+        maxTreeDepth = MIN_MAX_DEPTH;
     }
     m_TreeImpl->m_RegularizationOverride.maxTreeDepth(maxTreeDepth);
     return *this;
 }
 
-CBoostedTreeFactory& CBoostedTreeFactory::maxTreeDepthTolarance(double maxTreeDepthTolarance) {
-    if (maxTreeDepthTolarance < 0.01) {
+CBoostedTreeFactory& CBoostedTreeFactory::maxTreeDepthTolerance(double maxTreeDepthTolerance) {
+    if (maxTreeDepthTolerance < 0.01) {
         LOG_WARN(<< "Minimum tree depth tolerance must be at least 0.01");
-        maxTreeDepthTolarance = 0.01;
+        maxTreeDepthTolerance = 0.01;
     }
-    m_TreeImpl->m_RegularizationOverride.maxTreeDepthTolerance(maxTreeDepthTolarance);
+    m_TreeImpl->m_RegularizationOverride.maxTreeDepthTolerance(maxTreeDepthTolerance);
     return *this;
 }
 
