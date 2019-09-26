@@ -43,6 +43,9 @@ CDataFrameAnalysisRunner::~CDataFrameAnalysisRunner() {
     this->waitToFinish();
 }
 
+void CDataFrameAnalysisRunner::columnsForWhichEmptyIsMissing(TStrVec&) const {
+}
+
 void CDataFrameAnalysisRunner::estimateMemoryUsage(CMemoryUsageEstimationResultJsonWriter& writer) const {
     std::size_t numberRows{m_Spec.numberRows()};
     std::size_t numberColumns{m_Spec.numberColumns() + this->numberExtraColumns()};
@@ -223,8 +226,8 @@ CDataFrameAnalysisRunnerFactory::make(const CDataFrameAnalysisSpecification& spe
 
 CDataFrameAnalysisRunnerFactory::TRunnerUPtr
 CDataFrameAnalysisRunnerFactory::make(const CDataFrameAnalysisSpecification& spec,
-                                      const rapidjson::Value& params) const {
-    auto result = this->makeImpl(spec, params);
+                                      const rapidjson::Value& jsonParameters) const {
+    auto result = this->makeImpl(spec, jsonParameters);
     result->computeAndSaveExecutionStrategy();
     return result;
 }

@@ -9,6 +9,7 @@
 
 #include <core/CDataSearcher.h>
 
+#include <api/CDataFrameAnalysisConfigReader.h>
 #include <api/CDataFrameAnalysisRunner.h>
 #include <api/CDataFrameAnalysisSpecification.h>
 #include <api/ImportExport.h>
@@ -25,11 +26,11 @@ class CBoostedTreeFactory;
 namespace api {
 
 //! \brief Runs boosted tree regression on a core::CDataFrame.
-class API_EXPORT CDataFrameBoostedTreeRunner final : public CDataFrameAnalysisRunner {
+class API_EXPORT CDataFrameBoostedTreeRunner : public CDataFrameAnalysisRunner {
 public:
     //! This is not intended to be called directly: use CDataFrameBoostedTreeRunnerFactory.
     CDataFrameBoostedTreeRunner(const CDataFrameAnalysisSpecification& spec,
-                                const rapidjson::Value& jsonParameters);
+                                const CDataFrameAnalysisConfigReader::CParameters& parameters);
 
     //! This is not intended to be called directly: use CDataFrameBoostedTreeRunnerFactory.
     CDataFrameBoostedTreeRunner(const CDataFrameAnalysisSpecification& spec);
@@ -39,16 +40,21 @@ public:
     //! \return The number of columns this adds to the data frame.
     std::size_t numberExtraColumns() const override;
 
-    //! Write the prediction for \p row to \p writer.
-    void writeOneRow(const TStrVec& featureNames,
-                     TRowRef row,
-                     core::CRapidJsonConcurrentLineWriter& writer) const override;
-
 private:
     using TBoostedTreeUPtr = std::unique_ptr<maths::CBoostedTree>;
     using TBoostedTreeFactoryUPtr = std::unique_ptr<maths::CBoostedTreeFactory>;
     using TDataSearcherUPtr = CDataFrameAnalysisSpecification::TDataSearcherUPtr;
     using TMemoryEstimator = std::function<void(std::int64_t)>;
+
+protected:
+    //! Parameter reader handling parameters that are shared by subclasses.
+    static CDataFrameAnalysisConfigReader getParameterReader();
+    //! Name of dependent variable field.
+    const std::string& dependentVariableFieldName() const;
+    //! Name of prediction field.
+    const std::string& predictionFieldName() const;
+    //! Underlying boosted tree.
+    const TBoostedTreeUPtr& boostedTree() const;
 
 private:
     void runImpl(const TStrVec& featureNames, core::CDataFrame& frame) override;
@@ -70,20 +76,6 @@ private:
     TBoostedTreeFactoryUPtr m_BoostedTreeFactory;
     TBoostedTreeUPtr m_BoostedTree;
     std::atomic<std::int64_t> m_Memory;
-};
-
-//! \brief Makes a core::CDataFrame boosted tree regression runner.
-class API_EXPORT CDataFrameBoostedTreeRunnerFactory final : public CDataFrameAnalysisRunnerFactory {
-public:
-    const std::string& name() const override;
-
-private:
-    static const std::string NAME;
-
-private:
-    TRunnerUPtr makeImpl(const CDataFrameAnalysisSpecification& spec) const override;
-    TRunnerUPtr makeImpl(const CDataFrameAnalysisSpecification& spec,
-                         const rapidjson::Value& params) const override;
 };
 }
 }

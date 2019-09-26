@@ -173,6 +173,9 @@ public:
     //!   2. disk is used (only one partition needs to be loaded to main memory)
     void estimateMemoryUsage(CMemoryUsageEstimationResultJsonWriter& writer) const;
 
+    //! Fills in categorical field names for which empty value should be treated as missing.
+    void columnsForWhichEmptyIsMissing(TStrVec& fieldNames) const;
+
     //! \return shared pointer to the persistence stream.
     TDataAdderUPtr persister() const;
 

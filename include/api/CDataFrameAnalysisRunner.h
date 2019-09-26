@@ -60,6 +60,7 @@ class CMemoryUsageEstimationResultJsonWriter;
 class API_EXPORT CDataFrameAnalysisRunner {
 public:
     using TStrVec = std::vector<std::string>;
+    using TStrVecVec = std::vector<TStrVec>;
     using TRowRef = core::data_frame_detail::CRowRef;
     using TProgressRecorder = std::function<void(double)>;
 
@@ -98,6 +99,9 @@ public:
     //! \return The number of columns this analysis appends.
     virtual std::size_t numberExtraColumns() const = 0;
 
+    //! Fills in categorical field names for which empty value should be treated as missing.
+    virtual void columnsForWhichEmptyIsMissing(TStrVec& fieldNames) const;
+
     //! Write the extra columns of \p row added by the analysis to \p writer.
     //!
     //! This should create a new object of the form:
@@ -114,6 +118,7 @@ public:
     //! \param[in] row The row to write the columns added by this analysis.
     //! \param[in,out] writer The stream to which to write the extra columns.
     virtual void writeOneRow(const TStrVec& featureNames,
+                             const TStrVecVec& categoricalFieldValues,
                              TRowRef row,
                              core::CRapidJsonConcurrentLineWriter& writer) const = 0;
 
@@ -189,12 +194,12 @@ public:
 
     TRunnerUPtr make(const CDataFrameAnalysisSpecification& spec) const;
     TRunnerUPtr make(const CDataFrameAnalysisSpecification& spec,
-                     const rapidjson::Value& params) const;
+                     const rapidjson::Value& jsonParameters) const;
 
 private:
     virtual TRunnerUPtr makeImpl(const CDataFrameAnalysisSpecification& spec) const = 0;
     virtual TRunnerUPtr makeImpl(const CDataFrameAnalysisSpecification& spec,
-                                 const rapidjson::Value& params) const = 0;
+                                 const rapidjson::Value& jsonParameters) const = 0;
 };
 }
 }

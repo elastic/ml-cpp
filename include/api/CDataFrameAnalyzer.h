@@ -104,6 +104,7 @@ private:
     TDataFrameAnalysisSpecificationUPtr m_AnalysisSpecification;
     TStrVec m_CategoricalFieldNames;
     TStrSizeUMapVec m_CategoricalFieldValues;
+    std::set<std::string> m_EmptyAsMissing;
     TDataFrameUPtr m_DataFrame;
     TStrVec m_FieldNames;
     TTemporaryDirectoryPtr m_DataFrameDirectory;
