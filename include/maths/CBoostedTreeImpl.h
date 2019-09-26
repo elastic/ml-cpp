@@ -157,12 +157,12 @@ private:
         static bool dynamicSizeAlwaysZero() { return true; }
 
         //! Check if this is a leaf node.
-        bool isLeaf() const { return m_LeftChild < 0; }
+        bool isLeaf() const { return m_LeftChild.is_initialized() == false; }
 
         //! Get the leaf index for \p row.
         std::size_t leafIndex(const CEncodedDataFrameRowRef& row,
                               const TNodeVec& tree,
-                              std::int32_t index = 0) const {
+                              size_t index = 0) const {
             if (this->isLeaf()) {
                 return index;
             }
@@ -170,8 +170,8 @@ private:
             bool missing{CDataFrameUtils::isMissing(value)};
             return (missing && m_AssignMissingToLeft) ||
                            (missing == false && value < m_SplitValue)
-                       ? tree[m_LeftChild].leafIndex(row, tree, m_LeftChild)
-                       : tree[m_RightChild].leafIndex(row, tree, m_RightChild);
+                       ? tree[m_LeftChild.get()].leafIndex(row, tree, m_LeftChild.get())
+                       : tree[m_RightChild.get()].leafIndex(row, tree, m_RightChild.get());
         }
 
         //! Get the value predicted by \p tree for the feature vector \p row.
@@ -193,12 +193,12 @@ private:
             m_SplitFeature = splitFeature;
             m_SplitValue = splitValue;
             m_AssignMissingToLeft = assignMissingToLeft;
-            m_LeftChild = static_cast<std::int32_t>(tree.size());
-            m_RightChild = static_cast<std::int32_t>(tree.size() + 1);
+            m_LeftChild = static_cast<std::size_t >(tree.size());
+            m_RightChild = static_cast<std::size_t >(tree.size() + 1);
             // create to leafs with consecutive indices
             tree.emplace_back(tree.size());
             tree.emplace_back(tree.size());
-            return {m_LeftChild, m_RightChild};
+            return {m_LeftChild.get(), m_RightChild.get()};
         }
 
         //! Get the row masks of the left and right children of this node.
@@ -275,6 +275,9 @@ private:
         bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
 
     private:
+        using TSizeOpt = boost::optional<std::size_t>;
+
+    private:
         std::ostringstream&
         doPrint(std::string pad, const TNodeVec& tree, std::ostringstream& result) const {
             result << "\n" << pad;
@@ -282,8 +285,8 @@ private:
                 result << m_NodeValue;
             } else {
                 result << "split feature '" << m_SplitFeature << "' @ " << m_SplitValue;
-                tree[m_LeftChild].doPrint(pad + "  ", tree, result);
-                tree[m_RightChild].doPrint(pad + "  ", tree, result);
+                tree[m_LeftChild.get()].doPrint(pad + "  ", tree, result);
+                tree[m_RightChild.get()].doPrint(pad + "  ", tree, result);
             }
             return result;
         }
@@ -293,8 +296,8 @@ private:
         std::size_t m_SplitFeature = 0;
         double m_SplitValue = 0.0;
         bool m_AssignMissingToLeft = true;
-        std::int32_t m_LeftChild = -1;
-        std::int32_t m_RightChild = -1;
+        TSizeOpt m_LeftChild;
+        TSizeOpt m_RightChild;
         double m_NodeValue = 0.0;
     };
 

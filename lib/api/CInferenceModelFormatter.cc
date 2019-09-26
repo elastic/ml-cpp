@@ -23,13 +23,6 @@ ml::api::CInferenceModelFormatter::CInferenceModelFormatter(const std::string& s
     std::unique_ptr<SEnsemble> ensemble = std::make_unique<SEnsemble>();
     do {
         const std::string& name = traverser.name();
-//        if (name == BEST_FOREST_TAG) {
-//            LOG_DEBUG(<< "Found name "<< name);
-//            ensemble->acceptRestoreTraverser(traverser);
-//            continue;
-//        }
-        //        RESTORE_NO_ERROR(BEST_FOREST_TAG,
-        //                core::CPersistUtils::restore(BEST_FOREST_TAG, m_Definition.m_TrainedModel, traverser))
         RESTORE_NO_ERROR(BEST_FOREST_TAG, traverser.traverseSubLevel(std::bind(&SEnsemble::acceptRestoreTraverser,
                 ensemble.get(), std::placeholders::_1)))
     } while (traverser.next());

@@ -25,7 +25,7 @@ bool ml::api::STreeNode::acceptRestoreTraverser(core::CStateRestoreTraverser& tr
         do {
             const std::string& name = traverser.name();
             RESTORE(SPLIT_FEATURE_TAG,
-                    core::CPersistUtils::restore(SPLIT_FEATURE_TAG, m_SplitIndex, traverser))
+                    core::CPersistUtils::restore(SPLIT_FEATURE_TAG, m_SplitFeature, traverser))
             RESTORE(DEFAULT_LEFT_TAG,
                     core::CPersistUtils::restore(DEFAULT_LEFT_TAG, m_DefaultLeft, traverser))
             RESTORE(NODE_VALUE_TAG,
@@ -38,13 +38,13 @@ bool ml::api::STreeNode::acceptRestoreTraverser(core::CStateRestoreTraverser& tr
                     core::CPersistUtils::restore(LEFT_CHILD_TAG, m_LeftChild, traverser))
             RESTORE(RIGHT_CHILD_TAG,
                     core::CPersistUtils::restore(RIGHT_CHILD_TAG, m_RightChild, traverser))
+            // TODO split_gain is missing
 
         } while (traverser.next());
     } catch (std::exception& e) {
         LOG_ERROR(<< "Failed to restore state! " << e.what());
         return false;
     }
-
     return true;
 }
 
