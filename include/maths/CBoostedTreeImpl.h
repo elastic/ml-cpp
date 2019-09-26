@@ -125,6 +125,12 @@ private:
     template<typename T>
     class CRegularization final {
     public:
+        //! Set the multiplier of the tree depth penalty.
+        CRegularization& alpha(double alpha) {
+            m_Alpha = alpha;
+            return *this;
+        }
+
         //! Set the multiplier of the tree size penalty.
         CRegularization& gamma(double gamma) {
             m_Gamma = gamma;
@@ -137,10 +143,27 @@ private:
             return *this;
         }
 
+        //! Set the maximum depth tree depth.
+        CRegularization& maxTreeDepth(double maxTreeDepth) {
+            m_MaxTreeDepth = maxTreeDepth;
+            return *this;
+        }
+
+        //! Set the tolerance in the maximum depth tree depth.
+        CRegularization& maxTreeDepthTolerance(double maxTreeDepthTolerance) {
+            m_MaxTreeDepthTolerance = maxTreeDepthTolerance;
+            return *this;
+        }
+
         //! Count the number of parameters which have their default values.
         std::size_t countNotSet() const {
-            return (m_Gamma == T{} ? 1 : 0) + (m_Lambda == T{} ? 1 : 0);
+            return (m_Alpha == T{} ? 1 : 0) + (m_Gamma == T{} ? 1 : 0) +
+                   (m_Lambda == T{} ? 1 : 0) + (m_MaxTreeDepth == T{} ? 1 : 0) +
+                   (m_MaxTreeDepthTolerance == T{} ? 1 : 0);
         }
+
+        //! Multiplier of the tree depth penalty.
+        T alpha() const { return m_Alpha; }
 
         //! Multiplier of the tree size penalty.
         T gamma() const { return m_Gamma; }
@@ -148,9 +171,24 @@ private:
         //! Multiplier of the square leaf weight penalty.
         T lambda() const { return m_Lambda; }
 
+        //! Maximum depth tree depth.
+        T maxTreeDepth() const { return m_MaxTreeDepth; }
+
+        //! Maximum depth tree depth.
+        T maxTreeDepthTolerance() const { return m_MaxTreeDepthTolerance; }
+
+        //! Get the penalty which applies to a leaf at depth \p depth.
+        T penaltyForDepth(std::size_t depth) const {
+            return std::exp((static_cast<double>(depth) / m_MaxTreeDepth - 1.0) /
+                            m_MaxTreeDepthTolerance);
+        }
+
         //! Get description of the regularization parameters.
         std::string print() const {
-            return "(gamma = " + toString(m_Gamma) +
+            return "(alpha = " + toString(m_Alpha) +
+                   ", max depth = " + toString(m_MaxTreeDepth) +
+                   ", max depth tolerance = " + toString(m_MaxTreeDepthTolerance) +
+                   ", gamma = " + toString(m_Gamma) +
                    ", lambda = " + toString(m_Lambda) + ")";
         }
 
@@ -167,8 +205,11 @@ private:
         }
 
     private:
+        T m_Alpha = T{};
         T m_Gamma = T{};
         T m_Lambda = T{};
+        T m_MaxTreeDepth = T{};
+        T m_MaxTreeDepthTolerance = T{};
     };
 
     using TRegularization = CRegularization<double>;
@@ -379,9 +420,11 @@ private:
                             const CDataFrameCategoryEncoder& encoder,
                             const TRegularization& regularization,
                             const TDoubleVecVec& candidateSplits,
+                            std::size_t depth,
                             TSizeVec featureBag,
                             core::CPackedBitVector rowMask)
-            : m_Id{id}, m_Regularization{regularization}, m_CandidateSplits{candidateSplits},
+            : m_Id{id}, m_Regularization{regularization},
+              m_CandidateSplits{candidateSplits}, m_Depth{depth},
               m_FeatureBag{std::move(featureBag)}, m_RowMask{std::move(rowMask)} {
 
             std::sort(m_FeatureBag.begin(), m_FeatureBag.end());
@@ -395,42 +438,7 @@ private:
         CLeafNodeStatistics(std::size_t id,
                             const CLeafNodeStatistics& parent,
                             const CLeafNodeStatistics& sibling,
-                            core::CPackedBitVector rowMask)
-            : m_Id{id}, m_Regularization{sibling.m_Regularization},
-              m_CandidateSplits{sibling.m_CandidateSplits},
-              m_FeatureBag{sibling.m_FeatureBag}, m_RowMask{std::move(rowMask)} {
-
-            LOG_TRACE(<< "row mask = " << m_RowMask);
-            LOG_TRACE(<< "feature bag = " << core::CContainerPrinter::print(m_FeatureBag));
-
-            m_Gradients.resize(m_CandidateSplits.size());
-            m_Curvatures.resize(m_CandidateSplits.size());
-            m_MissingGradients.resize(m_CandidateSplits.size(), 0.0);
-            m_MissingCurvatures.resize(m_CandidateSplits.size(), 0.0);
-
-            for (std::size_t i = 0; i < m_CandidateSplits.size(); ++i) {
-                std::size_t numberSplits{m_CandidateSplits[i].size() + 1};
-                m_Gradients[i].resize(numberSplits);
-                m_Curvatures[i].resize(numberSplits);
-                for (std::size_t j = 0; j < numberSplits; ++j) {
-                    m_Gradients[i][j] = parent.m_Gradients[i][j] -
-                                        sibling.m_Gradients[i][j];
-                    m_Curvatures[i][j] = parent.m_Curvatures[i][j] -
-                                         sibling.m_Curvatures[i][j];
-                }
-                m_MissingGradients[i] = parent.m_MissingGradients[i] -
-                                        sibling.m_MissingGradients[i];
-                m_MissingCurvatures[i] = parent.m_MissingCurvatures[i] -
-                                         sibling.m_MissingCurvatures[i];
-            }
-
-            LOG_TRACE(<< "gradients = " << core::CContainerPrinter::print(m_Gradients));
-            LOG_TRACE(<< "curvatures = " << core::CContainerPrinter::print(m_Curvatures));
-            LOG_TRACE(<< "missing gradients = "
-                      << core::CContainerPrinter::print(m_MissingGradients));
-            LOG_TRACE(<< "missing curvatures = "
-                      << core::CContainerPrinter::print(m_MissingCurvatures));
-        }
+                            core::CPackedBitVector rowMask);
 
         CLeafNodeStatistics(const CLeafNodeStatistics&) = delete;
 
@@ -456,7 +464,8 @@ private:
             if (leftChildHasFewerRows) {
                 auto leftChild = std::make_shared<CLeafNodeStatistics>(
                     leftChildId, numberThreads, frame, encoder, regularization,
-                    candidateSplits, std::move(featureBag), std::move(leftChildRowMask));
+                    candidateSplits, m_Depth + 1, std::move(featureBag),
+                    std::move(leftChildRowMask));
                 auto rightChild = std::make_shared<CLeafNodeStatistics>(
                     rightChildId, *this, *leftChild, std::move(rightChildRowMask));
 
@@ -464,8 +473,8 @@ private:
             }
 
             auto rightChild = std::make_shared<CLeafNodeStatistics>(
-                rightChildId, numberThreads, frame, encoder, regularization,
-                candidateSplits, std::move(featureBag), std::move(rightChildRowMask));
+                rightChildId, numberThreads, frame, encoder, regularization, candidateSplits,
+                m_Depth + 1, std::move(featureBag), std::move(rightChildRowMask));
             auto leftChild = std::make_shared<CLeafNodeStatistics>(
                 leftChildId, *this, *rightChild, std::move(leftChildRowMask));
 
@@ -650,6 +659,7 @@ private:
         std::size_t m_Id;
         const TRegularization& m_Regularization;
         const TDoubleVecVec& m_CandidateSplits;
+        std::size_t m_Depth;
         TSizeVec m_FeatureBag;
         core::CPackedBitVector m_RowMask;
         TDoubleVecVec m_Gradients;

@@ -89,6 +89,43 @@ const std::size_t ASSIGN_MISSING_TO_LEFT{0};
 const std::size_t ASSIGN_MISSING_TO_RIGHT{1};
 }
 
+CBoostedTreeImpl::CLeafNodeStatistics::CLeafNodeStatistics(std::size_t id,
+                                                           const CLeafNodeStatistics& parent,
+                                                           const CLeafNodeStatistics& sibling,
+                                                           core::CPackedBitVector rowMask)
+    : m_Id{id}, m_Regularization{sibling.m_Regularization},
+      m_CandidateSplits{sibling.m_CandidateSplits}, m_Depth{sibling.m_Depth},
+      m_FeatureBag{sibling.m_FeatureBag}, m_RowMask{std::move(rowMask)} {
+
+    LOG_TRACE(<< "row mask = " << m_RowMask);
+    LOG_TRACE(<< "feature bag = " << core::CContainerPrinter::print(m_FeatureBag));
+
+    m_Gradients.resize(m_CandidateSplits.size());
+    m_Curvatures.resize(m_CandidateSplits.size());
+    m_MissingGradients.resize(m_CandidateSplits.size(), 0.0);
+    m_MissingCurvatures.resize(m_CandidateSplits.size(), 0.0);
+
+    for (std::size_t i = 0; i < m_CandidateSplits.size(); ++i) {
+        std::size_t numberSplits{m_CandidateSplits[i].size() + 1};
+        m_Gradients[i].resize(numberSplits);
+        m_Curvatures[i].resize(numberSplits);
+        for (std::size_t j = 0; j < numberSplits; ++j) {
+            m_Gradients[i][j] = parent.m_Gradients[i][j] - sibling.m_Gradients[i][j];
+            m_Curvatures[i][j] = parent.m_Curvatures[i][j] - sibling.m_Curvatures[i][j];
+        }
+        m_MissingGradients[i] = parent.m_MissingGradients[i] -
+                                sibling.m_MissingGradients[i];
+        m_MissingCurvatures[i] = parent.m_MissingCurvatures[i] -
+                                 sibling.m_MissingCurvatures[i];
+    }
+
+    LOG_TRACE(<< "gradients = " << core::CContainerPrinter::print(m_Gradients));
+    LOG_TRACE(<< "curvatures = " << core::CContainerPrinter::print(m_Curvatures));
+    LOG_TRACE(<< "missing gradients = " << core::CContainerPrinter::print(m_MissingGradients));
+    LOG_TRACE(<< "missing curvatures = "
+              << core::CContainerPrinter::print(m_MissingCurvatures));
+}
+
 void CBoostedTreeImpl::CLeafNodeStatistics::addRowDerivatives(const CEncodedDataFrameRowRef& row,
                                                               SDerivatives& derivatives) const {
 
@@ -115,9 +152,10 @@ void CBoostedTreeImpl::CLeafNodeStatistics::addRowDerivatives(const CEncodedData
 CBoostedTreeImpl::CLeafNodeStatistics::SSplitStatistics
 CBoostedTreeImpl::CLeafNodeStatistics::computeBestSplitStatistics() const {
 
-    // We have two possible regularisation terms we'll use:
+    // We have three possible regularization terms we'll use:
     //   1. Tree size: gamma * "node count"
     //   2. Sum square weights: lambda * sum{"leaf weight" ^ 2)}
+    //   3. Tree depth: alpha * sum{exp(("depth" / "target depth" - 1.0) / "tolerance")}
 
     SSplitStatistics result{-INF, 0.0, m_FeatureBag.size(), INF, true};
 
@@ -161,8 +199,12 @@ CBoostedTreeImpl::CLeafNodeStatistics::computeBestSplitStatistics() const {
             }
         }
 
-        double gain{0.5 * (maximumGain - CTools::pow2(g) / (h + m_Regularization.lambda())) -
-                    m_Regularization.gamma()};
+        double penaltyForDepth{m_Regularization.penaltyForDepth(m_Depth)};
+        double penaltyForDepthPlusOne{m_Regularization.penaltyForDepth(m_Depth + 1)};
+        double gain{
+            0.5 * (maximumGain - CTools::pow2(g) / (h + m_Regularization.lambda())) -
+            m_Regularization.gamma() -
+            m_Regularization.alpha() * (2.0 * penaltyForDepthPlusOne - penaltyForDepth)};
 
         SSplitStatistics candidate{gain, h, i, splitAt, assignMissingToLeft};
         LOG_TRACE(<< "candidate split: " << candidate.print());
@@ -572,7 +614,7 @@ CBoostedTreeImpl::trainTree(core::CDataFrame& frame,
     TLeafNodeStatisticsPtrQueue leaves;
     leaves.push(std::make_shared<CLeafNodeStatistics>(
         0 /*root*/, m_NumberThreads, frame, *m_Encoder, m_Regularization,
-        candidateSplits, this->featureBag(), trainingRowMask));
+        candidateSplits, 0 /*depth*/, this->featureBag(), trainingRowMask));
 
     // We update local variables because the callback can be expensive if it
     // requires accessing atomics.
@@ -797,11 +839,20 @@ bool CBoostedTreeImpl::selectNextHyperparameters(const TMeanVarAccumulator& loss
 
     // Read parameters for last round.
     int i{0};
+    if (m_RegularizationOverride.alpha() == boost::none) {
+        parameters(i++) = std::log(m_Regularization.alpha());
+    }
     if (m_RegularizationOverride.lambda() == boost::none) {
         parameters(i++) = std::log(m_Regularization.lambda());
     }
     if (m_RegularizationOverride.gamma() == boost::none) {
         parameters(i++) = std::log(m_Regularization.gamma());
+    }
+    if (m_RegularizationOverride.maxTreeDepth() == boost::none) {
+        parameters(i++) = m_Regularization.maxTreeDepth();
+    }
+    if (m_RegularizationOverride.maxTreeDepthTolerance() == boost::none) {
+        parameters(i++) = m_Regularization.maxTreeDepthTolerance();
     }
     if (m_EtaOverride == boost::none) {
         parameters(i++) = std::log(m_Eta);
@@ -834,11 +885,20 @@ bool CBoostedTreeImpl::selectNextHyperparameters(const TMeanVarAccumulator& loss
 
     // Write parameters for next round.
     i = 0;
+    if (m_RegularizationOverride.alpha() == boost::none) {
+        m_Regularization.alpha(std::exp(parameters(i++)));
+    }
     if (m_RegularizationOverride.lambda() == boost::none) {
         m_Regularization.lambda(std::exp(parameters(i++)));
     }
     if (m_RegularizationOverride.gamma() == boost::none) {
         m_Regularization.gamma(std::exp(parameters(i++)));
+    }
+    if (m_RegularizationOverride.maxTreeDepth() == boost::none) {
+        m_Regularization.maxTreeDepth(parameters(i++));
+    }
+    if (m_RegularizationOverride.maxTreeDepthTolerance() == boost::none) {
+        m_Regularization.maxTreeDepthTolerance(parameters(i++));
     }
     if (m_EtaOverride == boost::none) {
         m_Eta = std::exp(parameters(i++));
@@ -928,8 +988,11 @@ const std::string TESTING_ROW_MASKS_TAG{"testing_row_masks"};
 const std::string TRAINING_ROW_MASKS_TAG{"training_row_masks"};
 const std::string TRAINING_PROGRESS_TAG{"training_progress"};
 
+const std::string REGULARIZATION_ALPHA_TAG{"regularization_alpha"};
 const std::string REGULARIZATION_GAMMA_TAG{"regularization_gamma"};
 const std::string REGULARIZATION_LAMBDA_TAG{"regularization_lambda"};
+const std::string REGULARIZATION_MAX_TREE_DEPTH_TAG{"regularization_max_tree_depth"};
+const std::string REGULARIZATION_MAX_TREE_DEPTH_TOLERANCE_TAG{"regularization_max_tree_depth_tolerance"};
 
 const std::string HYPERPARAM_ETA_TAG{"hyperparam_eta"};
 const std::string HYPERPARAM_ETA_GROWTH_RATE_PER_TREE_TAG{"hyperparam_eta_growth_rate_per_tree"};
@@ -946,8 +1009,12 @@ const std::string SPLIT_VALUE_TAG{"split_value"};
 
 template<typename T>
 void CBoostedTreeImpl::CRegularization<T>::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
+    core::CPersistUtils::persist(REGULARIZATION_ALPHA_TAG, m_Alpha, inserter);
     core::CPersistUtils::persist(REGULARIZATION_GAMMA_TAG, m_Gamma, inserter);
     core::CPersistUtils::persist(REGULARIZATION_LAMBDA_TAG, m_Lambda, inserter);
+    core::CPersistUtils::persist(REGULARIZATION_MAX_TREE_DEPTH_TAG, m_MaxTreeDepth, inserter);
+    core::CPersistUtils::persist(REGULARIZATION_MAX_TREE_DEPTH_TOLERANCE_TAG,
+                                 m_MaxTreeDepthTolerance, inserter);
 }
 
 void CBoostedTreeImpl::SHyperparameters::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
@@ -1017,10 +1084,18 @@ template<typename T>
 bool CBoostedTreeImpl::CRegularization<T>::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
     do {
         const std::string& name = traverser.name();
+        RESTORE(REGULARIZATION_ALPHA_TAG,
+                core::CPersistUtils::restore(REGULARIZATION_ALPHA_TAG, m_Alpha, traverser))
         RESTORE(REGULARIZATION_GAMMA_TAG,
                 core::CPersistUtils::restore(REGULARIZATION_GAMMA_TAG, m_Gamma, traverser))
         RESTORE(REGULARIZATION_LAMBDA_TAG,
                 core::CPersistUtils::restore(REGULARIZATION_LAMBDA_TAG, m_Lambda, traverser))
+        RESTORE(REGULARIZATION_MAX_TREE_DEPTH_TAG,
+                core::CPersistUtils::restore(REGULARIZATION_MAX_TREE_DEPTH_TAG,
+                                             m_MaxTreeDepth, traverser))
+        RESTORE(REGULARIZATION_MAX_TREE_DEPTH_TOLERANCE_TAG,
+                core::CPersistUtils::restore(REGULARIZATION_MAX_TREE_DEPTH_TOLERANCE_TAG,
+                                             m_MaxTreeDepthTolerance, traverser))
     } while (traverser.next());
     return true;
 }

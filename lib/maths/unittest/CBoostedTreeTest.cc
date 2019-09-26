@@ -727,6 +727,11 @@ void CBoostedTreeTest::testTranslationInvariance() {
     CPPUNIT_ASSERT_DOUBLES_EQUAL(rsquared[0], rsquared[1], 5e-3);
 }
 
+void CBoostedTreeTest::testDepthBasedRegularization() {
+
+    // Test that the trained tree depth is correctly limited based on a target.
+}
+
 void CBoostedTreeTest::testEstimateMemoryUsedByTrain() {
 
     // Test estimation of the memory used training a model.

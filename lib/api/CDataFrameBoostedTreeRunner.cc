@@ -188,17 +188,18 @@ void CDataFrameBoostedTreeRunner::runImpl(const TStrVec& featureNames,
                                   frame.numberColumns() + this->numberExtraColumns());
 
     core::CStopWatch watch{true};
+
     auto restoreSearcher{this->spec().restoreSearcher()};
     bool treeRestored{false};
     if (restoreSearcher != nullptr) {
         treeRestored = this->restoreBoostedTree(
             frame, dependentVariableColumn - featureNames.begin(), restoreSearcher);
     }
-
     if (treeRestored == false) {
         m_BoostedTree = m_BoostedTreeFactory->buildFor(
             frame, dependentVariableColumn - featureNames.begin());
     }
+
     m_BoostedTree->train();
     m_BoostedTree->predict();
 

@@ -58,10 +58,16 @@ public:
     CBoostedTreeFactory& minimumFrequencyToOneHotEncode(double frequency);
     //! Set the number of folds to use for estimating the generalisation error.
     CBoostedTreeFactory& numberFolds(std::size_t numberFolds);
-    //! Set the lambda regularisation parameter.
-    CBoostedTreeFactory& lambda(double lambda);
-    //! Set the gamma regularisation parameter.
+    //! Set the alpha regularisation parameter: sum of tree depth factors.
+    CBoostedTreeFactory& alpha(double alpha);
+    //! Set the gamma regularisation parameter: tree size.
     CBoostedTreeFactory& gamma(double gamma);
+    //! Set the lambda regularisation parameter: sum weights squared.
+    CBoostedTreeFactory& lambda(double lambda);
+    //! Set the target maximum tree depth.
+    CBoostedTreeFactory& maxTreeDepth(double maxTreeDepth);
+    //! Set the fractional relative tolerance in the target maximum tree depth.
+    CBoostedTreeFactory& maxTreeDepthTolarance(double maxTreeDepthTolarance);
     //! Set the amount we'll shrink the weights on each each iteration.
     CBoostedTreeFactory& eta(double eta);
     //! Set the maximum number of trees in the ensemble.
@@ -169,6 +175,7 @@ private:
     TOptionalSize m_BayesianOptimisationRestarts;
     bool m_Restored = false;
     TBoostedTreeImplUPtr m_TreeImpl;
+    TVector m_LogAlphaSearchInterval;
     TVector m_LogGammaSearchInterval;
     TVector m_LogLambdaSearchInterval;
     TProgressCallback m_RecordProgress = noopRecordProgress;
