@@ -464,8 +464,8 @@ CBoostedTreeFactory::testLossNewtonLineSearch(core::CDataFrame& frame,
     LOG_TRACE(<< "[intercept, slope, curvature] = "
               << core::CContainerPrinter::print(params));
 
-    // Find the scale at the minimum of the least squares quadratic fit to
-    // the test loss in the search interval. Note step size is negative.
+    // Find the minimizer of the least squares quadratic fit to the test loss
+    // in the search interval. (Note step size is negative.)
     double leftEndpoint{static_cast<double>(INITIAL_REGULARIZER_SEARCH_ITERATIONS - 1) * stepSize};
     double rightEndpoint{0.0};
     double stationaryPoint{-gradient / 2.0 / curvature};
