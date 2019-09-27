@@ -22,7 +22,6 @@ const std::string LOOP_SIZE_TAG{"loop_size_tag"};
 const std::string PROGRESS_STEPS_TAG{"progress_steps_tag"};
 const std::string CURRENT_STEP_PROGRESS_TAG{"current_step_progress_tag"};
 const std::string LOOP_POS_TAG{"loop_pos_tag"};
-const std::hash<std::string> stringHasher;
 }
 
 CLoopProgress::CLoopProgress()
@@ -59,6 +58,7 @@ void CLoopProgress::resumeRestored() {
 std::uint64_t CLoopProgress::checksum() const {
     std::uint64_t seed{core::CHashing::hashCombine(
         static_cast<std::uint64_t>(m_Size), static_cast<std::uint64_t>(m_Steps))};
+    std::hash<std::string> stringHasher;
     seed = core::CHashing::hashCombine(
         seed, stringHasher(core::CStringUtils::typeToStringPrecise(
                   m_StepProgress, core::CIEEE754::E_DoublePrecision)));
