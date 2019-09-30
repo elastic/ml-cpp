@@ -399,7 +399,7 @@ void CDataFrameUtilsTest::testColumnQuantilesWithEncoding() {
 
     maths::CDataFrameCategoryEncoder encoder{{1, *frame, 0}};
 
-    TSizeVec columnMask(encoder.numberFeatures());
+    TSizeVec columnMask(encoder.numberEncodedColumns());
     std::iota(columnMask.begin(), columnMask.end(), 0);
 
     TQuantileSketchVec expectedQuantiles{columnMask.size(),
