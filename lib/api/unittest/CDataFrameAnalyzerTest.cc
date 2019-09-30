@@ -1149,6 +1149,7 @@ void CDataFrameAnalyzerTest::testRunBoostedTreeTrainingWithStateRecoverySubrouti
 
     TStrVec persistedStatesString{
         streamToStringVector(std::stringstream(persistenceStream->str()))};
+
     auto expectedTree{this->getFinalTree(persistedStatesString, frame, dependentVariable)};
 
     // Compute actual tree
@@ -1174,6 +1175,8 @@ void CDataFrameAnalyzerTest::testRunBoostedTreeTrainingWithStateRecoverySubrouti
 
     // compare hyperparameter
 
+    // TODO avoid implicit dependency on state names
+
     rapidjson::Document expectedResults{treeToJsonDocument(*expectedTree)};
     const auto& expectedHyperparameters = expectedResults["best_hyperparameters"];
     const auto& expectedRegularizationHyperparameters =
@@ -1190,7 +1193,8 @@ void CDataFrameAnalyzerTest::testRunBoostedTreeTrainingWithStateRecoverySubrouti
         double actual{std::stod(actualHyperparameters[key].GetString())};
         CPPUNIT_ASSERT_DOUBLES_EQUAL(expected, actual, 1e-4 * expected);
     }
-    for (const auto& key : {"regularization_gamma", "regularization_lambda"}) {
+    for (const auto& key : {"regularization_tree_size_penalty_multiplier",
+                            "regularization_leaf_weight_penalty_multiplier"}) {
         double expected{std::stod(expectedRegularizationHyperparameters[key].GetString())};
         double actual{std::stod(actualRegularizationHyperparameters[key].GetString())};
         CPPUNIT_ASSERT_DOUBLES_EQUAL(expected, actual, 1e-4 * expected);
