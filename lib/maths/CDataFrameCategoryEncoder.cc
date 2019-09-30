@@ -649,7 +649,7 @@ CMakeDataFrameCategoryEncoder::TEncodingUPtrVec CMakeDataFrameCategoryEncoder::m
             m_MeanCategoryTargetMeanValues[inputColumnIndex]));
     }
 
-    return encoding;
+    return std::move(encoding);
 }
 
 std::size_t CMakeDataFrameCategoryEncoder::encoding(std::size_t encodedColumnIndex) const {
