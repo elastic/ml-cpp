@@ -15,8 +15,6 @@ CppUnit::Test* CResourceLocatorTest::suite() {
     suiteOfTests->addTest(new CppUnit::TestCaller<CResourceLocatorTest>(
         "CResourceLocatorTest::testResourceDir", &CResourceLocatorTest::testResourceDir));
     suiteOfTests->addTest(new CppUnit::TestCaller<CResourceLocatorTest>(
-        "CResourceLocatorTest::testLogDir", &CResourceLocatorTest::testLogDir));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CResourceLocatorTest>(
         "CResourceLocatorTest::testSrcRootDir", &CResourceLocatorTest::testSrcRootDir));
 
     return suiteOfTests;
@@ -30,14 +28,6 @@ void CResourceLocatorTest::testResourceDir() {
     ml::core::COsFileFuncs::TStat buf;
     CPPUNIT_ASSERT_EQUAL(
         0, ml::core::COsFileFuncs::stat((resourceDir + "/ml-en.dict").c_str(), &buf));
-}
-
-void CResourceLocatorTest::testLogDir() {
-    std::string logDir(ml::core::CResourceLocator::logDir());
-    LOG_DEBUG(<< "Log directory is " << logDir);
-
-    // Don't assert on this as it will be non-essential once
-    // we're an Elasticsearch plugin
 }
 
 void CResourceLocatorTest::testSrcRootDir() {

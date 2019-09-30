@@ -21,7 +21,7 @@ USE_STRPTIME=1
 
 CPPFLAGS+= -DDYNAMIC_LIB_EXT=$(DYNAMIC_LIB_EXT)
 
-CONF_INSTALL_DIR=$(CPP_DISTRIBUTION_HOME)/resources
+CONF_INSTALL_DIR=$(CPP_PLATFORM_HOME)/$(RESOURCES_DIR)
 
 # On Windows we need to copy over the Boost date/time config file that lists
 # details of each timezone, whereas on Unix timezone config is part of the
