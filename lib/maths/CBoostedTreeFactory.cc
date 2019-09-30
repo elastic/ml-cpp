@@ -31,9 +31,9 @@ const std::size_t MAX_REGULARIZER_INDEX{2};
 const std::size_t INITIAL_REGULARIZER_SEARCH_ITERATIONS{8};
 const double MIN_REGULARIZER_SCALE{0.1};
 const double MAX_REGULARIZER_SCALE{10.0};
-const double MIN_MAX_DEPTH{2.0};
-const double MIN_MAX_DEPTH_TOLERANCE{0.05};
-const double MAX_MAX_DEPTH_TOLERANCE{0.25};
+const double MIN_SOFT_DEPTH_LIMIT{2.0};
+const double MIN_SOFT_DEPTH_LIMIT_TOLERANCE{0.05};
+const double MAX_SOFT_DEPTH_LIMIT_TOLERANCE{0.25};
 const double MIN_ETA_SCALE{0.3};
 const double MAX_ETA_SCALE{3.0};
 const double MIN_ETA_GROWTH_RATE_SCALE{0.5};
@@ -117,12 +117,12 @@ void CBoostedTreeFactory::initializeHyperparameterOptimisation() const {
                                  m_LogGammaSearchInterval(MAX_REGULARIZER_INDEX));
     }
     if (m_TreeImpl->m_RegularizationOverride.maxTreeDepth() == boost::none) {
-        boundingBox.emplace_back(
-            MIN_MAX_DEPTH, m_TreeImpl->m_Regularization.maxTreeDepth() +
-                               std::log2(MAIN_TRAINING_LOOP_TREE_SIZE_MULTIPLIER) + 1.0);
+        boundingBox.emplace_back(MIN_SOFT_DEPTH_LIMIT,
+                                 m_TreeImpl->m_Regularization.maxTreeDepth() +
+                                     std::log2(MAIN_TRAINING_LOOP_TREE_SIZE_MULTIPLIER) + 1.0);
     }
     if (m_TreeImpl->m_RegularizationOverride.maxTreeDepthTolerance() == boost::none) {
-        boundingBox.emplace_back(MIN_MAX_DEPTH_TOLERANCE, MAX_MAX_DEPTH_TOLERANCE);
+        boundingBox.emplace_back(MIN_SOFT_DEPTH_LIMIT_TOLERANCE, MAX_SOFT_DEPTH_LIMIT_TOLERANCE);
     }
     if (m_TreeImpl->m_EtaOverride == boost::none) {
         double rate{m_TreeImpl->m_EtaGrowthRatePerTree - 1.0};
@@ -332,7 +332,7 @@ void CBoostedTreeFactory::initializeUnsetRegularizationHyperparameters(core::CDa
         m_TreeImpl->m_RegularizationOverride.maxTreeDepth().value_or(log2MaxTreeSize));
     m_TreeImpl->m_Regularization.maxTreeDepthTolerance(
         m_TreeImpl->m_RegularizationOverride.maxTreeDepthTolerance().value_or(
-            0.5 * (MIN_MAX_DEPTH_TOLERANCE + MAX_MAX_DEPTH_TOLERANCE)));
+            0.5 * (MIN_SOFT_DEPTH_LIMIT_TOLERANCE + MAX_SOFT_DEPTH_LIMIT_TOLERANCE)));
     LOG_TRACE(<< "max depth = " << m_TreeImpl->m_Regularization.maxTreeDepth()
               << ", tol = " << m_TreeImpl->m_Regularization.maxTreeDepthTolerance());
 
@@ -657,9 +657,9 @@ CBoostedTreeFactory& CBoostedTreeFactory::lambda(double lambda) {
 }
 
 CBoostedTreeFactory& CBoostedTreeFactory::maxTreeDepth(double maxTreeDepth) {
-    if (maxTreeDepth < MIN_MAX_DEPTH) {
+    if (maxTreeDepth < MIN_SOFT_DEPTH_LIMIT) {
         LOG_WARN(<< "Minimum tree depth must be at least two");
-        maxTreeDepth = MIN_MAX_DEPTH;
+        maxTreeDepth = MIN_SOFT_DEPTH_LIMIT;
     }
     m_TreeImpl->m_RegularizationOverride.maxTreeDepth(maxTreeDepth);
     return *this;
