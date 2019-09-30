@@ -113,10 +113,10 @@ public:
         double mic() const;
 
         //! Persist by passing information to \p inserter.
-        virtual void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
+        void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
 
         //! Populate the object from serialized data.
-        virtual bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
+        bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
 
         //! return encoding type as string
         virtual std::string typeString() const = 0;
@@ -124,6 +124,12 @@ public:
     protected:
         std::size_t m_InputColumnIndex;
         double m_Mic;
+
+    private:
+        virtual void
+        acceptPersistInserterSubroutine(core::CStatePersistInserter& inserter) const = 0;
+        virtual bool
+        acceptRestoreTraverserSubroutine(core::CStateRestoreTraverser& traverser) = 0;
     };
 
     using TEncodingUPtr = std::unique_ptr<CEncoding>;
@@ -138,6 +144,10 @@ public:
         bool isBinary() const override;
         std::uint64_t checksum() const override;
         std::string typeString() const override;
+
+    private:
+        void acceptPersistInserterSubroutine(core::CStatePersistInserter& inserter) const override;
+        bool acceptRestoreTraverserSubroutine(core::CStateRestoreTraverser& traverser) override;
     };
 
     //! \brief One-hot encoding.
@@ -149,12 +159,11 @@ public:
         bool isBinary() const override;
         std::uint64_t checksum() const override;
 
-        //! Persist by passing information to \p inserter.
-        virtual void acceptPersistInserter(core::CStatePersistInserter& inserter) const override;
-
-        //! Populate the object from serialized data.
-        virtual bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) override;
         virtual std::string typeString() const override;
+
+    private:
+        void acceptPersistInserterSubroutine(core::CStatePersistInserter& inserter) const override;
+        bool acceptRestoreTraverserSubroutine(core::CStateRestoreTraverser& traverser) override;
 
     private:
         std::size_t m_HotCategory;
@@ -173,13 +182,11 @@ public:
         bool isBinary() const override;
         std::uint64_t checksum() const override;
 
-        //! Persist by passing information to \p inserter.
-        virtual void acceptPersistInserter(core::CStatePersistInserter& inserter) const override;
+        std::string typeString() const override;
 
-        //! Populate the object from serialized data.
-        virtual bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) override;
-
-        virtual std::string typeString() const override;
+    private:
+        void acceptPersistInserterSubroutine(core::CStatePersistInserter& inserter) const override;
+        bool acceptRestoreTraverserSubroutine(core::CStateRestoreTraverser& traverser) override;
 
     private:
         EEncoding m_Encoding;
@@ -219,10 +226,12 @@ public:
     bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
 
 private:
-    TEncodingUPtrVec m_Encodings;
+    bool restoreEncodings(core::CStateRestoreTraverser& traverser);
+    template<typename T, typename... Args>
+    bool forwardRestoreEncodings(core::CStateRestoreTraverser& traverser, Args&&... args);
 
 private:
-    bool restoreEncodings(core::CStateRestoreTraverser& traverser);
+    TEncodingUPtrVec m_Encodings;
 };
 
 //! \brief Implements the named parameter idiom for CDataFrameCategoryEncoder.

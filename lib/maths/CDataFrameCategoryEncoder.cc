@@ -283,7 +283,6 @@ void CDataFrameCategoryEncoder::acceptPersistInserter(core::CStatePersistInserte
 }
 
 bool CDataFrameCategoryEncoder::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
-    std::vector<CEncoding*> tmpEncodings;
     do {
         const std::string& name{traverser.name()};
         RESTORE(ENCODING_VECTOR_TAG,
@@ -297,54 +296,46 @@ bool CDataFrameCategoryEncoder::restoreEncodings(core::CStateRestoreTraverser& t
     do {
         const std::string& name = traverser.name();
         if (name == IDENTITY_ENCODING_TAG) {
-            m_Encodings.emplace_back(std::make_unique<CIdentityEncoding>(0, 0.0));
-            if (traverser.traverseSubLevel(std::bind(
-                    &CIdentityEncoding::acceptRestoreTraverser,
-                    dynamic_cast<CIdentityEncoding*>(m_Encodings.back().get()),
-                    std::placeholders::_1)) == false) {
-                LOG_ERROR(<< "Error restoring encoding " << traverser.name());
+            if (this->forwardRestoreEncodings<CIdentityEncoding>(traverser, 0, 0.0) == false) {
                 return false;
             }
-
             continue;
         }
         if (name == ONE_HOT_ENCODING_TAG) {
-            m_Encodings.emplace_back(std::make_unique<COneHotEncoding>(0, 0.0, 0));
-            if (traverser.traverseSubLevel(std::bind(
-                    &COneHotEncoding::acceptRestoreTraverser,
-                    dynamic_cast<COneHotEncoding*>(m_Encodings.back().get()),
-                    std::placeholders::_1)) == false) {
-                LOG_ERROR(<< "Error restoring encoding " << traverser.name());
+            if (this->forwardRestoreEncodings<COneHotEncoding>(traverser, 0, 0.0, 0) == false) {
                 return false;
             }
             continue;
         }
         if (name == FREQUENCY_ENCODING_TAG) {
-            m_Encodings.emplace_back(std::make_unique<CMappedEncoding>(
-                0, 0.0, E_Frequency, TDoubleVec(), 0.0));
-            if (traverser.traverseSubLevel(std::bind(
-                    &CMappedEncoding::acceptRestoreTraverser,
-                    dynamic_cast<CMappedEncoding*>(m_Encodings.back().get()),
-                    std::placeholders::_1)) == false) {
-                LOG_ERROR(<< "Error restoring encoding " << traverser.name());
+            if (this->forwardRestoreEncodings<CMappedEncoding>(
+                    traverser, 0, 0.0, E_Frequency, TDoubleVec(), 0.0) == false) {
                 return false;
             }
             continue;
         }
         if (name == TARGET_MEAN_ENCODING_TAG) {
-            m_Encodings.emplace_back(std::make_unique<CMappedEncoding>(
-                0, 0.0, E_TargetMean, TDoubleVec(), 0.0));
-            if (traverser.traverseSubLevel(std::bind(
-                    &CMappedEncoding::acceptRestoreTraverser,
-                    dynamic_cast<CMappedEncoding*>(m_Encodings.back().get()),
-                    std::placeholders::_1)) == false) {
-                LOG_ERROR(<< "Error restoring encoding " << traverser.name());
+            if (this->forwardRestoreEncodings<CMappedEncoding>(
+                    traverser, 0, 0.0, E_TargetMean, TDoubleVec(), 0.0) == false) {
                 return false;
             }
             continue;
         }
 
     } while (traverser.next());
+    return true;
+}
+
+template<typename T, typename... Args>
+bool CDataFrameCategoryEncoder::forwardRestoreEncodings(core::CStateRestoreTraverser& traverser,
+                                                        Args&&... args) {
+    m_Encodings.emplace_back(std::make_unique<T>(std::forward<Args>(args)...));
+    if (traverser.traverseSubLevel(std::bind(&CIdentityEncoding::acceptRestoreTraverser,
+                                             static_cast<T*>(m_Encodings.back().get()),
+                                             std::placeholders::_1)) == false) {
+        LOG_ERROR(<< "Error restoring encoding " << traverser.name());
+        return false;
+    }
     return true;
 }
 
@@ -367,6 +358,7 @@ double CDataFrameCategoryEncoder::CEncoding::mic() const {
 void CDataFrameCategoryEncoder::CEncoding::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
     core::CPersistUtils::persist(ENCODING_INPUT_COLUMN_INDEX_TAG, m_InputColumnIndex, inserter);
     core::CPersistUtils::persist(ENCODING_MIC_TAG, m_Mic, inserter);
+    this->acceptPersistInserterSubroutine(inserter);
 }
 
 bool CDataFrameCategoryEncoder::CEncoding::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
@@ -377,6 +369,10 @@ bool CDataFrameCategoryEncoder::CEncoding::acceptRestoreTraverser(core::CStateRe
                                              m_InputColumnIndex, traverser))
         RESTORE(ENCODING_MIC_TAG,
                 core::CPersistUtils::restore(ENCODING_MIC_TAG, m_Mic, traverser))
+        if (this->acceptRestoreTraverserSubroutine(traverser) == false) {
+            return false;
+        }
+
     } while (traverser.next());
     return true;
 }
@@ -406,6 +402,16 @@ std::string CDataFrameCategoryEncoder::CIdentityEncoding::typeString() const {
     return IDENTITY_ENCODING_TAG;
 }
 
+void CDataFrameCategoryEncoder::CIdentityEncoding::acceptPersistInserterSubroutine(
+    core::CStatePersistInserter& inserter) const {
+    // do nothing
+}
+
+bool CDataFrameCategoryEncoder::CIdentityEncoding::acceptRestoreTraverserSubroutine(
+    core::CStateRestoreTraverser& traverser) {
+    return true;
+}
+
 CDataFrameCategoryEncoder::COneHotEncoding::COneHotEncoding(std::size_t inputColumnIndex,
                                                             double mic,
                                                             std::size_t hotCategory)
@@ -429,24 +435,18 @@ std::uint64_t CDataFrameCategoryEncoder::COneHotEncoding::checksum() const {
     return CChecksum::calculate(seed, m_HotCategory);
 }
 
-void CDataFrameCategoryEncoder::COneHotEncoding::acceptPersistInserter(
+void CDataFrameCategoryEncoder::COneHotEncoding::acceptPersistInserterSubroutine(
     core::CStatePersistInserter& inserter) const {
-    CEncoding::acceptPersistInserter(inserter);
     core::CPersistUtils::persist(ONE_HOT_ENCODING_CATEGORY_TAG, m_HotCategory, inserter);
 }
 
-bool CDataFrameCategoryEncoder::COneHotEncoding::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
-    do {
-        const std::string& name = traverser.name();
-        RESTORE(ENCODING_INPUT_COLUMN_INDEX_TAG,
-                core::CPersistUtils::restore(ENCODING_INPUT_COLUMN_INDEX_TAG,
-                                             m_InputColumnIndex, traverser))
-        RESTORE(ENCODING_MIC_TAG,
-                core::CPersistUtils::restore(ENCODING_MIC_TAG, m_Mic, traverser))
-        RESTORE(ONE_HOT_ENCODING_CATEGORY_TAG,
-                core::CPersistUtils::restore(ONE_HOT_ENCODING_CATEGORY_TAG,
-                                             m_HotCategory, traverser))
-    } while (traverser.next());
+bool CDataFrameCategoryEncoder::COneHotEncoding::acceptRestoreTraverserSubroutine(
+    core::CStateRestoreTraverser& traverser) {
+
+    const std::string& name = traverser.name();
+    RESTORE_NO_LOOP(ONE_HOT_ENCODING_CATEGORY_TAG,
+                    core::CPersistUtils::restore(ONE_HOT_ENCODING_CATEGORY_TAG,
+                                                 m_HotCategory, traverser))
     return true;
 }
 
@@ -485,30 +485,25 @@ std::uint64_t CDataFrameCategoryEncoder::CMappedEncoding::checksum() const {
     return CChecksum::calculate(seed, m_Binary);
 }
 
-void CDataFrameCategoryEncoder::CMappedEncoding::acceptPersistInserter(
+void CDataFrameCategoryEncoder::CMappedEncoding::acceptPersistInserterSubroutine(
     core::CStatePersistInserter& inserter) const {
-    CEncoding::acceptPersistInserter(inserter);
     core::CPersistUtils::persist(MAPPED_ENCODING_TYPE_TAG, m_Encoding, inserter);
     core::CPersistUtils::persist(MAPPED_ENCODING_MAP_TAG, m_Map, inserter);
     core::CPersistUtils::persist(MAPPED_ENCODING_FALLBACK_TAG, m_Fallback, inserter);
     core::CPersistUtils::persist(MAPPED_ENCODING_BINARY_TAG, m_Binary, inserter);
 }
 
-bool CDataFrameCategoryEncoder::CMappedEncoding::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
-    do {
-        const std::string& name = traverser.name();
-        RESTORE(ENCODING_INPUT_COLUMN_INDEX_TAG,
-                core::CPersistUtils::restore(ENCODING_INPUT_COLUMN_INDEX_TAG,
-                                             m_InputColumnIndex, traverser))
-        RESTORE(ENCODING_MIC_TAG,
-                core::CPersistUtils::restore(ENCODING_MIC_TAG, m_Mic, traverser))
-        RESTORE(MAPPED_ENCODING_MAP_TAG,
-                core::CPersistUtils::restore(MAPPED_ENCODING_MAP_TAG, m_Map, traverser))
-        RESTORE(MAPPED_ENCODING_FALLBACK_TAG,
-                core::CPersistUtils::restore(MAPPED_ENCODING_FALLBACK_TAG, m_Fallback, traverser))
-        RESTORE(MAPPED_ENCODING_BINARY_TAG,
-                core::CPersistUtils::restore(MAPPED_ENCODING_BINARY_TAG, m_Binary, traverser))
-    } while (traverser.next());
+bool CDataFrameCategoryEncoder::CMappedEncoding::acceptRestoreTraverserSubroutine(
+    core::CStateRestoreTraverser& traverser) {
+    const std::string& name = traverser.name();
+    RESTORE_NO_LOOP(MAPPED_ENCODING_MAP_TAG,
+                    core::CPersistUtils::restore(MAPPED_ENCODING_MAP_TAG, m_Map, traverser))
+    RESTORE_NO_LOOP(MAPPED_ENCODING_FALLBACK_TAG,
+                    core::CPersistUtils::restore(MAPPED_ENCODING_FALLBACK_TAG,
+                                                 m_Fallback, traverser))
+    RESTORE_NO_LOOP(MAPPED_ENCODING_BINARY_TAG,
+                    core::CPersistUtils::restore(MAPPED_ENCODING_BINARY_TAG, m_Binary, traverser))
+
     return true;
 }
 
@@ -947,7 +942,7 @@ void CMakeDataFrameCategoryEncoder::finishEncoding(TSizeSizePrDoubleMap selected
 
     LOG_TRACE(<< "feature vector MICe = "
               << core::CContainerPrinter::print(m_EncodedColumnMics));
-    LOG_DEBUG(<< "feature vector index to column map = "
+    LOG_TRACE(<< "feature vector index to column map = "
               << core::CContainerPrinter::print(m_EncodedColumnInputColumnMap));
     LOG_TRACE(<< "feature vector index to encoding map = "
               << core::CContainerPrinter::print(m_EncodedColumnEncodingMap));
