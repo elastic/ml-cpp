@@ -127,70 +127,77 @@ private:
     class CRegularization final {
     public:
         //! Set the multiplier of the tree depth penalty.
-        CRegularization& alpha(double alpha) {
-            m_Alpha = alpha;
+        CRegularization& depthPenaltyMultiplier(double depthPenaltyMultiplier) {
+            m_DepthPenaltyMultiplier = depthPenaltyMultiplier;
             return *this;
         }
 
         //! Set the multiplier of the tree size penalty.
-        CRegularization& gamma(double gamma) {
-            m_Gamma = gamma;
+        CRegularization& treeSizePenaltyMultiplier(double treeSizePenaltyMultiplier) {
+            m_TreeSizePenaltyMultiplier = treeSizePenaltyMultiplier;
             return *this;
         }
 
         //! Set the multiplier of the square leaf weight penalty.
-        CRegularization& lambda(double lambda) {
-            m_Lambda = lambda;
+        CRegularization& leafWeightPenaltyMultiplier(double leafWeightPenaltyMultiplier) {
+            m_LeafWeightPenaltyMultiplier = leafWeightPenaltyMultiplier;
             return *this;
         }
 
-        //! Set the maximum depth tree depth.
-        CRegularization& maxTreeDepth(double maxTreeDepth) {
-            m_MaxTreeDepth = maxTreeDepth;
+        //! Set the soft depth tree depth limit.
+        CRegularization& softTreeDepthLimit(double softTreeDepthLimit) {
+            m_SoftTreeDepthLimit = softTreeDepthLimit;
             return *this;
         }
 
-        //! Set the tolerance in the maximum depth tree depth.
-        CRegularization& maxTreeDepthTolerance(double maxTreeDepthTolerance) {
-            m_MaxTreeDepthTolerance = maxTreeDepthTolerance;
+        //! Set the tolerance in the depth tree depth limit.
+        CRegularization& softTreeDepthTolerance(double softTreeDepthTolerance) {
+            m_SoftTreeDepthTolerance = softTreeDepthTolerance;
             return *this;
         }
 
         //! Count the number of parameters which have their default values.
         std::size_t countNotSet() const {
-            return (m_Alpha == T{} ? 1 : 0) + (m_Gamma == T{} ? 1 : 0) +
-                   (m_Lambda == T{} ? 1 : 0) + (m_MaxTreeDepth == T{} ? 1 : 0) +
-                   (m_MaxTreeDepthTolerance == T{} ? 1 : 0);
+            return (m_DepthPenaltyMultiplier == T{} ? 1 : 0) +
+                   (m_TreeSizePenaltyMultiplier == T{} ? 1 : 0) +
+                   (m_LeafWeightPenaltyMultiplier == T{} ? 1 : 0) +
+                   (m_SoftTreeDepthLimit == T{} ? 1 : 0) +
+                   (m_SoftTreeDepthTolerance == T{} ? 1 : 0);
         }
 
         //! Multiplier of the tree depth penalty.
-        T alpha() const { return m_Alpha; }
+        T depthPenaltyMultiplier() const { return m_DepthPenaltyMultiplier; }
 
         //! Multiplier of the tree size penalty.
-        T gamma() const { return m_Gamma; }
+        T treeSizePenaltyMultiplier() const {
+            return m_TreeSizePenaltyMultiplier;
+        }
 
         //! Multiplier of the square leaf weight penalty.
-        T lambda() const { return m_Lambda; }
+        T leafWeightPenaltyMultiplier() const {
+            return m_LeafWeightPenaltyMultiplier;
+        }
 
-        //! Maximum depth tree depth.
-        T maxTreeDepth() const { return m_MaxTreeDepth; }
+        //! Soft depth tree depth limit.
+        T softTreeDepthLimit() const { return m_SoftTreeDepthLimit; }
 
-        //! Maximum depth tree depth.
-        T maxTreeDepthTolerance() const { return m_MaxTreeDepthTolerance; }
+        //! Soft depth tree depth limit tolerance.
+        T softTreeDepthTolerance() const { return m_SoftTreeDepthTolerance; }
 
         //! Get the penalty which applies to a leaf at depth \p depth.
         T penaltyForDepth(std::size_t depth) const {
-            return std::exp((static_cast<double>(depth) / m_MaxTreeDepth - 1.0) /
-                            m_MaxTreeDepthTolerance);
+            return std::exp((static_cast<double>(depth) / m_SoftTreeDepthLimit - 1.0) /
+                            m_SoftTreeDepthTolerance);
         }
 
         //! Get description of the regularization parameters.
         std::string print() const {
-            return "(alpha = " + toString(m_Alpha) +
-                   ", max depth = " + toString(m_MaxTreeDepth) +
-                   ", max depth tolerance = " + toString(m_MaxTreeDepthTolerance) +
-                   ", gamma = " + toString(m_Gamma) +
-                   ", lambda = " + toString(m_Lambda) + ")";
+            return "(depth penalty multiplier = " + toString(m_DepthPenaltyMultiplier) +
+                   ", soft depth limit = " + toString(m_SoftTreeDepthLimit) +
+                   ", soft depth tolerance = " + toString(m_SoftTreeDepthTolerance) +
+                   ", tree size penalty multiplier = " + toString(m_TreeSizePenaltyMultiplier) +
+                   ", leaf weight penalty multiplier = " +
+                   toString(m_LeafWeightPenaltyMultiplier) + ")";
         }
 
         //! Persist by passing information to \p inserter.
@@ -206,11 +213,11 @@ private:
         }
 
     private:
-        T m_Alpha = T{};
-        T m_Gamma = T{};
-        T m_Lambda = T{};
-        T m_MaxTreeDepth = T{};
-        T m_MaxTreeDepthTolerance = T{};
+        T m_DepthPenaltyMultiplier = T{};
+        T m_TreeSizePenaltyMultiplier = T{};
+        T m_LeafWeightPenaltyMultiplier = T{};
+        T m_SoftTreeDepthLimit = T{};
+        T m_SoftTreeDepthTolerance = T{};
     };
 
     using TRegularization = CRegularization<double>;

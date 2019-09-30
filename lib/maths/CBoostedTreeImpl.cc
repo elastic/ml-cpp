@@ -177,15 +177,18 @@ CBoostedTreeImpl::CLeafNodeStatistics::computeBestSplitStatistics() const {
             gl[ASSIGN_MISSING_TO_RIGHT] += m_Gradients[i][j];
             hl[ASSIGN_MISSING_TO_RIGHT] += m_Curvatures[i][j];
 
-            double gain[]{
-                CTools::pow2(gl[ASSIGN_MISSING_TO_LEFT]) /
-                        (hl[ASSIGN_MISSING_TO_LEFT] + m_Regularization.lambda()) +
-                    CTools::pow2(g - gl[ASSIGN_MISSING_TO_LEFT]) /
-                        (h - hl[ASSIGN_MISSING_TO_LEFT] + m_Regularization.lambda()),
-                CTools::pow2(gl[ASSIGN_MISSING_TO_RIGHT]) /
-                        (hl[ASSIGN_MISSING_TO_RIGHT] + m_Regularization.lambda()) +
-                    CTools::pow2(g - gl[ASSIGN_MISSING_TO_RIGHT]) /
-                        (h - hl[ASSIGN_MISSING_TO_RIGHT] + m_Regularization.lambda())};
+            double gain[]{CTools::pow2(gl[ASSIGN_MISSING_TO_LEFT]) /
+                                  (hl[ASSIGN_MISSING_TO_LEFT] +
+                                   m_Regularization.leafWeightPenaltyMultiplier()) +
+                              CTools::pow2(g - gl[ASSIGN_MISSING_TO_LEFT]) /
+                                  (h - hl[ASSIGN_MISSING_TO_LEFT] +
+                                   m_Regularization.leafWeightPenaltyMultiplier()),
+                          CTools::pow2(gl[ASSIGN_MISSING_TO_RIGHT]) /
+                                  (hl[ASSIGN_MISSING_TO_RIGHT] +
+                                   m_Regularization.leafWeightPenaltyMultiplier()) +
+                              CTools::pow2(g - gl[ASSIGN_MISSING_TO_RIGHT]) /
+                                  (h - hl[ASSIGN_MISSING_TO_RIGHT] +
+                                   m_Regularization.leafWeightPenaltyMultiplier())};
 
             if (gain[ASSIGN_MISSING_TO_LEFT] > maximumGain) {
                 maximumGain = gain[ASSIGN_MISSING_TO_LEFT];
@@ -201,10 +204,10 @@ CBoostedTreeImpl::CLeafNodeStatistics::computeBestSplitStatistics() const {
 
         double penaltyForDepth{m_Regularization.penaltyForDepth(m_Depth)};
         double penaltyForDepthPlusOne{m_Regularization.penaltyForDepth(m_Depth + 1)};
-        double gain{
-            0.5 * (maximumGain - CTools::pow2(g) / (h + m_Regularization.lambda())) -
-            m_Regularization.gamma() -
-            m_Regularization.alpha() * (2.0 * penaltyForDepthPlusOne - penaltyForDepth)};
+        double gain{0.5 * (maximumGain - CTools::pow2(g) / (h + m_Regularization.leafWeightPenaltyMultiplier())) -
+                    m_Regularization.treeSizePenaltyMultiplier() -
+                    m_Regularization.depthPenaltyMultiplier() *
+                        (2.0 * penaltyForDepthPlusOne - penaltyForDepth)};
 
         SSplitStatistics candidate{gain, h, i, splitAt, assignMissingToLeft};
         LOG_TRACE(<< "candidate split: " << candidate.print());
@@ -844,20 +847,20 @@ bool CBoostedTreeImpl::selectNextHyperparameters(const TMeanVarAccumulator& loss
 
     // Read parameters for last round.
     int i{0};
-    if (m_RegularizationOverride.alpha() == boost::none) {
-        parameters(i++) = std::log(m_Regularization.alpha());
+    if (m_RegularizationOverride.depthPenaltyMultiplier() == boost::none) {
+        parameters(i++) = std::log(m_Regularization.depthPenaltyMultiplier());
     }
-    if (m_RegularizationOverride.lambda() == boost::none) {
-        parameters(i++) = std::log(m_Regularization.lambda());
+    if (m_RegularizationOverride.leafWeightPenaltyMultiplier() == boost::none) {
+        parameters(i++) = std::log(m_Regularization.leafWeightPenaltyMultiplier());
     }
-    if (m_RegularizationOverride.gamma() == boost::none) {
-        parameters(i++) = std::log(m_Regularization.gamma());
+    if (m_RegularizationOverride.treeSizePenaltyMultiplier() == boost::none) {
+        parameters(i++) = std::log(m_Regularization.treeSizePenaltyMultiplier());
     }
-    if (m_RegularizationOverride.maxTreeDepth() == boost::none) {
-        parameters(i++) = m_Regularization.maxTreeDepth();
+    if (m_RegularizationOverride.softTreeDepthLimit() == boost::none) {
+        parameters(i++) = m_Regularization.softTreeDepthLimit();
     }
-    if (m_RegularizationOverride.maxTreeDepthTolerance() == boost::none) {
-        parameters(i++) = m_Regularization.maxTreeDepthTolerance();
+    if (m_RegularizationOverride.softTreeDepthTolerance() == boost::none) {
+        parameters(i++) = m_Regularization.softTreeDepthTolerance();
     }
     if (m_EtaOverride == boost::none) {
         parameters(i++) = std::log(m_Eta);
@@ -890,20 +893,20 @@ bool CBoostedTreeImpl::selectNextHyperparameters(const TMeanVarAccumulator& loss
 
     // Write parameters for next round.
     i = 0;
-    if (m_RegularizationOverride.alpha() == boost::none) {
-        m_Regularization.alpha(std::exp(parameters(i++)));
+    if (m_RegularizationOverride.depthPenaltyMultiplier() == boost::none) {
+        m_Regularization.depthPenaltyMultiplier(std::exp(parameters(i++)));
     }
-    if (m_RegularizationOverride.lambda() == boost::none) {
-        m_Regularization.lambda(std::exp(parameters(i++)));
+    if (m_RegularizationOverride.leafWeightPenaltyMultiplier() == boost::none) {
+        m_Regularization.leafWeightPenaltyMultiplier(std::exp(parameters(i++)));
     }
-    if (m_RegularizationOverride.gamma() == boost::none) {
-        m_Regularization.gamma(std::exp(parameters(i++)));
+    if (m_RegularizationOverride.treeSizePenaltyMultiplier() == boost::none) {
+        m_Regularization.treeSizePenaltyMultiplier(std::exp(parameters(i++)));
     }
-    if (m_RegularizationOverride.maxTreeDepth() == boost::none) {
-        m_Regularization.maxTreeDepth(parameters(i++));
+    if (m_RegularizationOverride.softTreeDepthLimit() == boost::none) {
+        m_Regularization.softTreeDepthLimit(parameters(i++));
     }
-    if (m_RegularizationOverride.maxTreeDepthTolerance() == boost::none) {
-        m_Regularization.maxTreeDepthTolerance(parameters(i++));
+    if (m_RegularizationOverride.softTreeDepthTolerance() == boost::none) {
+        m_Regularization.softTreeDepthTolerance(parameters(i++));
     }
     if (m_EtaOverride == boost::none) {
         m_Eta = std::exp(parameters(i++));
@@ -971,8 +974,6 @@ const std::string FEATURE_BAG_FRACTION_OVERRIDE_TAG{"feature_bag_fraction_overri
 const std::string FEATURE_BAG_FRACTION_TAG{"feature_bag_fraction"};
 const std::string FEATURE_DATA_TYPES_TAG{"feature_data_types"};
 const std::string FEATURE_SAMPLE_PROBABILITIES_TAG{"feature_sample_probabilities"};
-const std::string GAMMA_OVERRIDE_TAG{"gamma_override"};
-const std::string LAMBDA_OVERRIDE_TAG{"lambda_override"};
 const std::string LOSS_TAG{"loss"};
 const std::string MAXIMUM_ATTEMPTS_TO_ADD_TREE_TAG{"maximum_attempts_to_add_tree"};
 const std::string MAXIMUM_NUMBER_TREES_OVERRIDE_TAG{"maximum_number_trees_override"};
@@ -993,11 +994,14 @@ const std::string TESTING_ROW_MASKS_TAG{"testing_row_masks"};
 const std::string TRAINING_ROW_MASKS_TAG{"training_row_masks"};
 const std::string TRAINING_PROGRESS_TAG{"training_progress"};
 
-const std::string REGULARIZATION_ALPHA_TAG{"regularization_alpha"};
-const std::string REGULARIZATION_GAMMA_TAG{"regularization_gamma"};
-const std::string REGULARIZATION_LAMBDA_TAG{"regularization_lambda"};
-const std::string REGULARIZATION_MAX_TREE_DEPTH_TAG{"regularization_max_tree_depth"};
-const std::string REGULARIZATION_MAX_TREE_DEPTH_TOLERANCE_TAG{"regularization_max_tree_depth_tolerance"};
+const std::string REGULARIZATION_DEPTH_PENALTY_MULTIPLIER_TAG{"regularization_depth_penalty_multiplier"};
+const std::string REGULARIZATION_TREE_SIZE_PENALTY_MULTIPLIER_TAG{
+    "regularization_tree_size_penalty_multiplier"};
+const std::string REGULARIZATION_LEAF_WEIGHT_PENALTY_MULTIPLIER_TAG{
+    "regularization_leaf_weight_penalty_multiplier"};
+const std::string REGULARIZATION_SOFT_TREE_DEPTH_LIMIT_TAG{"regularization_soft_tree_depth_limit"};
+const std::string REGULARIZATION_SOFT_TREE_DEPTH_TOLERANCE_TAG{
+    "regularization_soft_tree_depth_tolerance"};
 
 const std::string HYPERPARAM_ETA_TAG{"hyperparam_eta"};
 const std::string HYPERPARAM_ETA_GROWTH_RATE_PER_TREE_TAG{"hyperparam_eta_growth_rate_per_tree"};
@@ -1007,12 +1011,16 @@ const std::string HYPERPARAM_REGULARIZATION_TAG{"hyperparam_regularization"};
 
 template<typename T>
 void CBoostedTreeImpl::CRegularization<T>::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
-    core::CPersistUtils::persist(REGULARIZATION_ALPHA_TAG, m_Alpha, inserter);
-    core::CPersistUtils::persist(REGULARIZATION_GAMMA_TAG, m_Gamma, inserter);
-    core::CPersistUtils::persist(REGULARIZATION_LAMBDA_TAG, m_Lambda, inserter);
-    core::CPersistUtils::persist(REGULARIZATION_MAX_TREE_DEPTH_TAG, m_MaxTreeDepth, inserter);
-    core::CPersistUtils::persist(REGULARIZATION_MAX_TREE_DEPTH_TOLERANCE_TAG,
-                                 m_MaxTreeDepthTolerance, inserter);
+    core::CPersistUtils::persist(REGULARIZATION_DEPTH_PENALTY_MULTIPLIER_TAG,
+                                 m_DepthPenaltyMultiplier, inserter);
+    core::CPersistUtils::persist(REGULARIZATION_TREE_SIZE_PENALTY_MULTIPLIER_TAG,
+                                 m_TreeSizePenaltyMultiplier, inserter);
+    core::CPersistUtils::persist(REGULARIZATION_LEAF_WEIGHT_PENALTY_MULTIPLIER_TAG,
+                                 m_LeafWeightPenaltyMultiplier, inserter);
+    core::CPersistUtils::persist(REGULARIZATION_SOFT_TREE_DEPTH_LIMIT_TAG,
+                                 m_SoftTreeDepthLimit, inserter);
+    core::CPersistUtils::persist(REGULARIZATION_SOFT_TREE_DEPTH_TOLERANCE_TAG,
+                                 m_SoftTreeDepthTolerance, inserter);
 }
 
 void CBoostedTreeImpl::SHyperparameters::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
@@ -1073,18 +1081,21 @@ template<typename T>
 bool CBoostedTreeImpl::CRegularization<T>::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
     do {
         const std::string& name = traverser.name();
-        RESTORE(REGULARIZATION_ALPHA_TAG,
-                core::CPersistUtils::restore(REGULARIZATION_ALPHA_TAG, m_Alpha, traverser))
-        RESTORE(REGULARIZATION_GAMMA_TAG,
-                core::CPersistUtils::restore(REGULARIZATION_GAMMA_TAG, m_Gamma, traverser))
-        RESTORE(REGULARIZATION_LAMBDA_TAG,
-                core::CPersistUtils::restore(REGULARIZATION_LAMBDA_TAG, m_Lambda, traverser))
-        RESTORE(REGULARIZATION_MAX_TREE_DEPTH_TAG,
-                core::CPersistUtils::restore(REGULARIZATION_MAX_TREE_DEPTH_TAG,
-                                             m_MaxTreeDepth, traverser))
-        RESTORE(REGULARIZATION_MAX_TREE_DEPTH_TOLERANCE_TAG,
-                core::CPersistUtils::restore(REGULARIZATION_MAX_TREE_DEPTH_TOLERANCE_TAG,
-                                             m_MaxTreeDepthTolerance, traverser))
+        RESTORE(REGULARIZATION_DEPTH_PENALTY_MULTIPLIER_TAG,
+                core::CPersistUtils::restore(REGULARIZATION_DEPTH_PENALTY_MULTIPLIER_TAG,
+                                             m_DepthPenaltyMultiplier, traverser))
+        RESTORE(REGULARIZATION_TREE_SIZE_PENALTY_MULTIPLIER_TAG,
+                core::CPersistUtils::restore(REGULARIZATION_TREE_SIZE_PENALTY_MULTIPLIER_TAG,
+                                             m_TreeSizePenaltyMultiplier, traverser))
+        RESTORE(REGULARIZATION_LEAF_WEIGHT_PENALTY_MULTIPLIER_TAG,
+                core::CPersistUtils::restore(REGULARIZATION_LEAF_WEIGHT_PENALTY_MULTIPLIER_TAG,
+                                             m_LeafWeightPenaltyMultiplier, traverser))
+        RESTORE(REGULARIZATION_SOFT_TREE_DEPTH_LIMIT_TAG,
+                core::CPersistUtils::restore(REGULARIZATION_SOFT_TREE_DEPTH_LIMIT_TAG,
+                                             m_SoftTreeDepthLimit, traverser))
+        RESTORE(REGULARIZATION_SOFT_TREE_DEPTH_TOLERANCE_TAG,
+                core::CPersistUtils::restore(REGULARIZATION_SOFT_TREE_DEPTH_TOLERANCE_TAG,
+                                             m_SoftTreeDepthTolerance, traverser))
     } while (traverser.next());
     return true;
 }

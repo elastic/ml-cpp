@@ -334,10 +334,10 @@ void addRegressionTestData(const TStrVec& fieldNames,
     maths::CBoostedTreeFactory treeFactory{maths::CBoostedTreeFactory::constructFromParameters(
         1, std::make_unique<maths::boosted_tree::CMse>())};
     if (lambda >= 0.0) {
-        treeFactory.lambda(lambda);
+        treeFactory.leafWeightPenaltyMultiplier(lambda);
     }
     if (gamma >= 0.0) {
-        treeFactory.gamma(gamma);
+        treeFactory.treeSizePenaltyMultiplier(gamma);
     }
     if (eta > 0.0) {
         treeFactory.eta(eta);

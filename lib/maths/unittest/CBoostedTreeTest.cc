@@ -747,10 +747,10 @@ void CBoostedTreeTest::testDepthBasedRegularization() {
 
         auto regression = maths::CBoostedTreeFactory::constructFromParameters(
                               1, std::make_unique<maths::boosted_tree::CMse>())
-                              .gamma(0.0)
-                              .lambda(0.0)
-                              .maxTreeDepth(targetDepth)
-                              .maxTreeDepthTolerance(0.05)
+                              .treeSizePenaltyMultiplier(0.0)
+                              .leafWeightPenaltyMultiplier(0.0)
+                              .softTreeDepthLimit(targetDepth)
+                              .softTreeDepthTolerance(0.05)
                               .buildFor(*frame, cols - 1);
 
         regression->train();
