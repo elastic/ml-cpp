@@ -294,7 +294,7 @@ private:
 
     //! Fill in the probability calculation parameters for \p feature
     //! and person identified by \p pid.
-    void fill(model_t::EFeature feature,
+    bool fill(model_t::EFeature feature,
               std::size_t pid,
               core_t::TTime bucketTime,
               bool interim,

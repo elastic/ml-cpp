@@ -145,7 +145,7 @@ struct SBucketCountsPersister {
                     core::CStateRestoreTraverser& traverser) {
         do {
             TSizeSizePr key;
-            uint64_t count;
+            uint64_t count{0u};
             if (!traverser.hasSubLevel()) {
                 continue;
             }

@@ -467,6 +467,10 @@ void CEventRatePopulationModel::sample(core_t::TTime startTime,
                     .trendWeights(attribute.second.s_Weights)
                     .priorWeights(attribute.second.s_Weights);
                 maths::CModel* model{this->model(feature, cid)};
+                if (model == nullptr) {
+                    LOG_TRACE(<< "Model unexpectedly null");
+                    continue;
+                }
                 if (model->addSamples(params, attribute.second.s_Values) ==
                     maths::CModel::E_Reset) {
                     gatherer.resetSampleCount(cid);
@@ -617,7 +621,10 @@ bool CEventRatePopulationModel::computeProbability(std::size_t pid,
                 // TODO
             } else {
                 CProbabilityAndInfluenceCalculator::SParams params(partitioningFields);
-                this->fill(feature, pid, cid, startTime, result.isInterim(), params);
+                if (this->fill(feature, pid, cid, startTime, result.isInterim(),
+                               params) == false) {
+                    continue;
+                }
                 model_t::CResultType type;
                 TSize1Vec mostAnomalousCorrelate;
                 if (pConditional.emplace(cid, pConditionalTemplate)
@@ -982,6 +989,10 @@ bool CEventRatePopulationModel::correlates(model_t::EFeature feature,
     }
 
     const maths::CModel* model{this->model(feature, cid)};
+    if (model == nullptr) {
+        LOG_TRACE(<< "Model unexpectedly null");
+        return false;
+    }
     const TSizeSizePrFeatureDataPrVec& data = this->featureData(feature, time);
     TSizeSizePr range = personRange(data, pid);
 
@@ -997,7 +1008,7 @@ bool CEventRatePopulationModel::correlates(model_t::EFeature feature,
     return false;
 }
 
-void CEventRatePopulationModel::fill(model_t::EFeature feature,
+bool CEventRatePopulationModel::fill(model_t::EFeature feature,
                                      std::size_t pid,
                                      std::size_t cid,
                                      core_t::TTime bucketTime,
@@ -1005,6 +1016,10 @@ void CEventRatePopulationModel::fill(model_t::EFeature feature,
                                      CProbabilityAndInfluenceCalculator::SParams& params) const {
     auto data = find(this->featureData(feature, bucketTime), pid, cid);
     const maths::CModel* model{this->model(feature, cid)};
+    if (model == nullptr) {
+        LOG_TRACE(<< "Model unexpectedly null");
+        return false;
+    }
     core_t::TTime time{model_t::sampleTime(feature, bucketTime, this->bucketLength())};
     maths_t::TDouble2VecWeightsAry weight(maths_t::seasonalVarianceScaleWeight(
         model->seasonalWeight(maths::DEFAULT_SEASONAL_CONFIDENCE_INTERVAL, time)));
@@ -1030,6 +1045,8 @@ void CEventRatePopulationModel::fill(model_t::EFeature feature,
         .addBucketEmpty({false})
         .addWeights(weight)
         .skipAnomalyModelUpdate(skipAnomalyModelUpdate);
+
+    return true;
 }
 
 ////////// CEventRatePopulationModel::SBucketStats Implementation //////////
