@@ -7,7 +7,7 @@ include $(CPP_SRC_HOME)/mk/defines.mk
 
 TARGET=analyze_test$(EXE_EXT)
 
-INSTALL_DIR=$(CPP_PLATFORM_HOME)/devbin
+INSTALL_DIR=$(CPP_PLATFORM_HOME)/$(EXE_DIR)
 
 all: build
 
