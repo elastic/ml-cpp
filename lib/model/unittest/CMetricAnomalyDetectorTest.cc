@@ -190,7 +190,7 @@ void importCsvData(core_t::TTime firstTime,
         core::CRegex::TStrVec tokens;
         regex.split(line, tokens);
 
-        core_t::TTime time;
+        core_t::TTime time{0};
         CPPUNIT_ASSERT(core::CStringUtils::stringToType(tokens[0], time));
 
         for (/**/; lastBucketTime + bucketLength <= time; lastBucketTime += bucketLength) {

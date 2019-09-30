@@ -206,8 +206,8 @@ CMultivariateOneOfNPrior::CMultivariateOneOfNPrior(std::size_t dimension,
                                                    core::CStateRestoreTraverser& traverser)
     : CMultivariatePrior(params.s_DataType, params.s_DecayRate),
       m_Dimension(dimension) {
-    double decayRate;
-    double numberSamples;
+    double decayRate{0.0};
+    double numberSamples{0.0};
     if (traverser.traverseSubLevel(std::bind(
             &acceptRestoreTraverser, std::cref(params), std::ref(m_Models),
             std::ref(decayRate), std::ref(numberSamples), std::placeholders::_1)) == false) {
