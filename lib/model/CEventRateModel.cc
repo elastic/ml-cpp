@@ -14,7 +14,6 @@
 #include <core/CoreTypes.h>
 
 #include <maths/CChecksum.h>
-#include <maths/CMultivariatePrior.h>
 #include <maths/COrderings.h>
 #include <maths/CPrior.h>
 #include <maths/CRestoreParams.h>
@@ -32,14 +31,9 @@
 #include <model/CResourceMonitor.h>
 #include <model/FrequencyPredicates.h>
 
-#include <boost/iterator/counting_iterator.hpp>
-
 #include <algorithm>
 #include <string>
 #include <utility>
-#include <vector>
-
-#include <stdint.h>
 
 namespace ml {
 namespace model {
@@ -400,9 +394,10 @@ bool CEventRateModel::computeProbability(std::size_t pid,
                                               pFeatures, resultBuilder);
         } else {
             CProbabilityAndInfluenceCalculator::SParams params(partitioningFields);
-            this->fill(feature, pid, startTime, result.isInterim(), params);
-            this->addProbabilityAndInfluences(pid, params, data->s_InfluenceValues,
-                                              pFeatures, resultBuilder);
+            if (this->fill(feature, pid, startTime, result.isInterim(), params)) {
+                this->addProbabilityAndInfluences(pid, params, data->s_InfluenceValues,
+                                                  pFeatures, resultBuilder);
+            }
         }
     }
 
@@ -578,13 +573,23 @@ bool CEventRateModel::correlates(model_t::EFeature feature, std::size_t pid, cor
     return false;
 }
 
-void CEventRateModel::fill(model_t::EFeature feature,
+bool CEventRateModel::fill(model_t::EFeature feature,
                            std::size_t pid,
                            core_t::TTime bucketTime,
                            bool interim,
                            CProbabilityAndInfluenceCalculator::SParams& params) const {
     const TFeatureData* data{this->featureData(feature, pid, bucketTime)};
+    if (data == nullptr) {
+        LOG_TRACE(<< "Feature data unexpectedly null");
+        return false;
+    }
+
     const maths::CModel* model{this->model(feature, pid)};
+    if (model == nullptr) {
+        LOG_TRACE(<< "Model unexpectedly null");
+        return false;
+    }
+
     core_t::TTime time{model_t::sampleTime(feature, bucketTime, this->bucketLength())};
     TOptionalUInt64 count{this->currentBucketCount(pid, bucketTime)};
     double value{model_t::offsetCountToZero(feature, static_cast<double>(data->s_Count))};
@@ -611,6 +616,8 @@ void CEventRateModel::fill(model_t::EFeature feature,
         .addBucketEmpty({!count || *count == 0})
         .addWeights(weight)
         .skipAnomalyModelUpdate(skipAnomalyModelUpdate);
+
+    return true;
 }
 
 void CEventRateModel::fill(model_t::EFeature feature,

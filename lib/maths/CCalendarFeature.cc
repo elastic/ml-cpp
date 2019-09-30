@@ -119,7 +119,7 @@ void CCalendarFeature::initialize(uint16_t feature, int dayOfWeek, int dayOfMont
 }
 
 bool CCalendarFeature::fromDelimited(const std::string& value) {
-    int state[2];
+    int state[2]{0, 0};
     if (core::CPersistUtils::fromString(value, std::begin(state), std::end(state))) {
         m_Feature = static_cast<uint16_t>(state[0]);
         m_Value = static_cast<uint16_t>(state[1]);

@@ -242,7 +242,6 @@ bool CJsonOutputWriter::acceptResult(const CHierarchicalResultsWriter::TResults&
 
         bucketData.s_HighestProbability =
             doubleFromDocument(detectorDocumentsToWrite.front().first, PROBABILITY);
-        makeHeap = false;
     }
 
     return true;

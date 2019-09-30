@@ -314,7 +314,9 @@ void CHierarchicalResults::addSimpleCountResult(SAnnotatedProbability& annotated
     search.s_PersonFieldValue = CStringStore::names().get(COUNT);
     search.s_UseNull = (model ? model->dataGatherer().useNull() : false);
     search.s_ByFieldName = CStringStore::names().get(COUNT);
-    search.s_ScheduledEventDescriptions = model->scheduledEventDescriptions(bucketStartTime);
+    if (model) {
+        search.s_ScheduledEventDescriptions = model->scheduledEventDescriptions(bucketStartTime);
+    }
 
     // For simple counts we set all the anomaly scores to 0
     // and all the probabilities to 100%.

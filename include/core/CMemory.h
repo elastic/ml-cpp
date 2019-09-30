@@ -294,10 +294,13 @@ public:
     //! Overload for std::shared_ptr.
     template<typename T>
     static std::size_t dynamicSize(const std::shared_ptr<T>& t) {
-        if (t == nullptr) {
+        // The check for nullptr here may seem unnecessary but there are situations
+        // where an unset shared_ptr can have a use_count greater than 0, see
+        // https://stackoverflow.com/questions/48885252/c-sharedptr-use-count-for-nullptr/48885643
+        long uc{t == nullptr ? 0 : t.use_count()};
+        if (uc == 0) {
             return 0;
         }
-        long uc = t.use_count();
         // Note we add on sizeof(long) here to account for the memory
         // used by the shared reference count. Also, round up.
         return (sizeof(long) + staticSize(*t) + dynamicSize(*t) + std::size_t(uc - 1)) / uc;
@@ -697,26 +700,30 @@ public:
     static void dynamicSize(const char* name,
                             const std::shared_ptr<T>& t,
                             CMemoryUsage::TMemoryUsagePtr mem) {
-        if (t != nullptr) {
-            long uc = t.use_count();
-            // If the pointer is shared by multiple users, each one
-            // might count it, so divide by the number of users.
-            // However, if only 1 user has it, do a full debug.
-            if (uc == 1) {
-                // Note we add on sizeof(long) here to account for
-                // the memory used by the shared reference count.
-                mem->addItem("shared_ptr", sizeof(long) + CMemory::staticSize(*t));
-                dynamicSize(name, *t, mem);
-            } else {
-                std::ostringstream ss;
-                ss << "shared_ptr (x" << uc << ')';
-                // Note we add on sizeof(long) here to account for
-                // the memory used by the shared reference count.
-                // Also, round up.
-                mem->addItem(ss.str(), (sizeof(long) + CMemory::staticSize(*t) +
-                                        CMemory::dynamicSize(*t) + std::size_t(uc - 1)) /
-                                           uc);
-            }
+        // The check for nullptr here may seem unnecessary but there are situations
+        // where an unset shared_ptr can have a use_count greater than 0, see
+        // https://stackoverflow.com/questions/48885252/c-sharedptr-use-count-for-nullptr/48885643
+        long uc{t == nullptr ? 0 : t.use_count()};
+        if (uc == 0) {
+            return;
+        }
+        // If the pointer is shared by multiple users, each one
+        // might count it, so divide by the number of users.
+        // However, if only 1 user has it, do a full debug.
+        if (uc == 1) {
+            // Note we add on sizeof(long) here to account for
+            // the memory used by the shared reference count.
+            mem->addItem("shared_ptr", sizeof(long) + CMemory::staticSize(*t));
+            dynamicSize(name, *t, mem);
+        } else {
+            std::ostringstream ss;
+            ss << "shared_ptr (x" << uc << ')';
+            // Note we add on sizeof(long) here to account for
+            // the memory used by the shared reference count.
+            // Also, round up.
+            mem->addItem(ss.str(), (sizeof(long) + CMemory::staticSize(*t) +
+                                    CMemory::dynamicSize(*t) + std::size_t(uc - 1)) /
+                                       uc);
         }
     }
 
