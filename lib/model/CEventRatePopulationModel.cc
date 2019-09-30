@@ -620,7 +620,10 @@ bool CEventRatePopulationModel::computeProbability(std::size_t pid,
                 // TODO
             } else {
                 CProbabilityAndInfluenceCalculator::SParams params(partitioningFields);
-                this->fill(feature, pid, cid, startTime, result.isInterim(), params);
+                if (this->fill(feature, pid, cid, startTime, result.isInterim(),
+                               params) == false) {
+                    continue;
+                }
                 model_t::CResultType type;
                 TSize1Vec mostAnomalousCorrelate;
                 if (pConditional.emplace(cid, pConditionalTemplate)
@@ -1003,7 +1006,7 @@ bool CEventRatePopulationModel::correlates(model_t::EFeature feature,
     return false;
 }
 
-void CEventRatePopulationModel::fill(model_t::EFeature feature,
+bool CEventRatePopulationModel::fill(model_t::EFeature feature,
                                      std::size_t pid,
                                      std::size_t cid,
                                      core_t::TTime bucketTime,
@@ -1013,7 +1016,7 @@ void CEventRatePopulationModel::fill(model_t::EFeature feature,
     const maths::CModel* model{this->model(feature, cid)};
     if (model == nullptr) {
         LOG_TRACE(<< "Model unexpectedly null");
-        return;
+        return false;
     }
     core_t::TTime time{model_t::sampleTime(feature, bucketTime, this->bucketLength())};
     maths_t::TDouble2VecWeightsAry weight(maths_t::seasonalVarianceScaleWeight(
@@ -1040,6 +1043,8 @@ void CEventRatePopulationModel::fill(model_t::EFeature feature,
         .addBucketEmpty({false})
         .addWeights(weight)
         .skipAnomalyModelUpdate(skipAnomalyModelUpdate);
+
+    return true;
 }
 
 ////////// CEventRatePopulationModel::SBucketStats Implementation //////////

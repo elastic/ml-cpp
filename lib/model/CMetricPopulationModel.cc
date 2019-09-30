@@ -591,7 +591,10 @@ bool CMetricPopulationModel::computeProbability(std::size_t pid,
                 // TODO
             } else {
                 CProbabilityAndInfluenceCalculator::SParams params(partitioningFields);
-                this->fill(feature, pid, cid, startTime, result.isInterim(), params);
+                if (this->fill(feature, pid, cid, startTime, result.isInterim(),
+                               params) == false) {
+                    continue;
+                }
                 model_t::CResultType type;
                 TSize1Vec mostAnomalousCorrelate;
                 if (pJoint.addProbability(feature, cid, *params.s_Model, params.s_ElapsedTime,
@@ -917,7 +920,7 @@ bool CMetricPopulationModel::correlates(model_t::EFeature feature,
     return false;
 }
 
-void CMetricPopulationModel::fill(model_t::EFeature feature,
+bool CMetricPopulationModel::fill(model_t::EFeature feature,
                                   std::size_t pid,
                                   std::size_t cid,
                                   core_t::TTime bucketTime,
@@ -929,7 +932,7 @@ void CMetricPopulationModel::fill(model_t::EFeature feature,
     const maths::CModel* model{this->model(feature, cid)};
     if (model == nullptr) {
         LOG_TRACE(<< "Model unexpectedly null");
-        return;
+        return false;
     }
     const TOptionalSample& bucket{CDataGatherer::extractData(*data).s_BucketValue};
     core_t::TTime time{model_t::sampleTime(feature, bucketTime,
@@ -959,6 +962,8 @@ void CMetricPopulationModel::fill(model_t::EFeature feature,
         .addBucketEmpty({false})
         .addWeights(weights)
         .skipAnomalyModelUpdate(skipAnomalyModelUpdate);
+
+    return true;
 }
 
 ////////// CMetricPopulationModel::SBucketStats Implementation //////////

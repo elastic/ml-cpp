@@ -294,10 +294,10 @@ public:
     //! Overload for std::shared_ptr.
     template<typename T>
     static std::size_t dynamicSize(const std::shared_ptr<T>& t) {
-        if (t == nullptr) {
-            return 0;
-        }
-        long uc = t.use_count();
+        // The check for nullptr here may seem unnecessary but there are situations
+        // where an unset shared_ptr can have a use_count greater than 0, see
+        // https://stackoverflow.com/questions/48885252/c-sharedptr-use-count-for-nullptr/48885643
+        long uc{t == nullptr ? 0 : t.use_count()};
         if (uc == 0) {
             return 0;
         }
@@ -700,10 +700,13 @@ public:
     static void dynamicSize(const char* name,
                             const std::shared_ptr<T>& t,
                             CMemoryUsage::TMemoryUsagePtr mem) {
-        if (t == nullptr || t.use_count() == 0) {
+        // The check for nullptr here may seem unnecessary but there are situations
+        // where an unset shared_ptr can have a use_count greater than 0, see
+        // https://stackoverflow.com/questions/48885252/c-sharedptr-use-count-for-nullptr/48885643
+        long uc{t == nullptr ? 0 : t.use_count()};
+        if (uc == 0) {
             return;
         }
-        long uc = t.use_count();
         // If the pointer is shared by multiple users, each one
         // might count it, so divide by the number of users.
         // However, if only 1 user has it, do a full debug.
