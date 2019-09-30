@@ -184,6 +184,8 @@ public:
     //! Populate the object from serialized data.
     bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
 
+    CBoostedTree& operator=(const CBoostedTree&) = delete;
+
 private:
     using TImplUPtr = std::unique_ptr<CBoostedTreeImpl>;
 

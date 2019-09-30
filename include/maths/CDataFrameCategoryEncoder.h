@@ -107,19 +107,18 @@ public:
         virtual double encode(double value) const = 0;
         virtual std::uint64_t checksum() const = 0;
         virtual bool isBinary() const = 0;
+        //! return encoding type as string
+        virtual std::string typeString() const = 0;
 
         std::size_t inputColumnIndex() const;
         double encode(const TRowRef& row) const;
         double mic() const;
-
         //! Persist by passing information to \p inserter.
         void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
-
         //! Populate the object from serialized data.
         bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
 
-        //! return encoding type as string
-        virtual std::string typeString() const = 0;
+        CEncoding(const CEncoding&) = delete;
 
     protected:
         std::size_t m_InputColumnIndex;
@@ -127,9 +126,9 @@ public:
 
     private:
         virtual void
-        acceptPersistInserterSubroutine(core::CStatePersistInserter& inserter) const = 0;
+        acceptPersistInserterForDerivedTypeState(core::CStatePersistInserter& inserter) const = 0;
         virtual bool
-        acceptRestoreTraverserSubroutine(core::CStateRestoreTraverser& traverser) = 0;
+        acceptRestoreTraverserForDerivedTypeState(core::CStateRestoreTraverser& traverser) = 0;
     };
 
     using TEncodingUPtr = std::unique_ptr<CEncoding>;
@@ -146,8 +145,8 @@ public:
         std::string typeString() const override;
 
     private:
-        void acceptPersistInserterSubroutine(core::CStatePersistInserter& inserter) const override;
-        bool acceptRestoreTraverserSubroutine(core::CStateRestoreTraverser& traverser) override;
+        void acceptPersistInserterForDerivedTypeState(core::CStatePersistInserter& inserter) const override;
+        bool acceptRestoreTraverserForDerivedTypeState(core::CStateRestoreTraverser& traverser) override;
     };
 
     //! \brief One-hot encoding.
@@ -158,12 +157,11 @@ public:
         double encode(double value) const override;
         bool isBinary() const override;
         std::uint64_t checksum() const override;
-
-        virtual std::string typeString() const override;
+        std::string typeString() const override;
 
     private:
-        void acceptPersistInserterSubroutine(core::CStatePersistInserter& inserter) const override;
-        bool acceptRestoreTraverserSubroutine(core::CStateRestoreTraverser& traverser) override;
+        void acceptPersistInserterForDerivedTypeState(core::CStatePersistInserter& inserter) const override;
+        bool acceptRestoreTraverserForDerivedTypeState(core::CStateRestoreTraverser& traverser) override;
 
     private:
         std::size_t m_HotCategory;
@@ -181,12 +179,11 @@ public:
         double encode(double value) const override;
         bool isBinary() const override;
         std::uint64_t checksum() const override;
-
         std::string typeString() const override;
 
     private:
-        void acceptPersistInserterSubroutine(core::CStatePersistInserter& inserter) const override;
-        bool acceptRestoreTraverserSubroutine(core::CStateRestoreTraverser& traverser) override;
+        void acceptPersistInserterForDerivedTypeState(core::CStatePersistInserter& inserter) const override;
+        bool acceptRestoreTraverserForDerivedTypeState(core::CStateRestoreTraverser& traverser) override;
 
     private:
         EEncoding m_Encoding;

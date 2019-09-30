@@ -358,7 +358,7 @@ double CDataFrameCategoryEncoder::CEncoding::mic() const {
 void CDataFrameCategoryEncoder::CEncoding::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
     core::CPersistUtils::persist(ENCODING_INPUT_COLUMN_INDEX_TAG, m_InputColumnIndex, inserter);
     core::CPersistUtils::persist(ENCODING_MIC_TAG, m_Mic, inserter);
-    this->acceptPersistInserterSubroutine(inserter);
+    this->acceptPersistInserterForDerivedTypeState(inserter);
 }
 
 bool CDataFrameCategoryEncoder::CEncoding::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
@@ -369,7 +369,7 @@ bool CDataFrameCategoryEncoder::CEncoding::acceptRestoreTraverser(core::CStateRe
                                              m_InputColumnIndex, traverser))
         RESTORE(ENCODING_MIC_TAG,
                 core::CPersistUtils::restore(ENCODING_MIC_TAG, m_Mic, traverser))
-        if (this->acceptRestoreTraverserSubroutine(traverser) == false) {
+        if (this->acceptRestoreTraverserForDerivedTypeState(traverser) == false) {
             return false;
         }
 
@@ -402,13 +402,13 @@ std::string CDataFrameCategoryEncoder::CIdentityEncoding::typeString() const {
     return IDENTITY_ENCODING_TAG;
 }
 
-void CDataFrameCategoryEncoder::CIdentityEncoding::acceptPersistInserterSubroutine(
-    core::CStatePersistInserter& inserter) const {
+void CDataFrameCategoryEncoder::CIdentityEncoding::acceptPersistInserterForDerivedTypeState(
+    core::CStatePersistInserter& /*inserter*/) const {
     // do nothing
 }
 
-bool CDataFrameCategoryEncoder::CIdentityEncoding::acceptRestoreTraverserSubroutine(
-    core::CStateRestoreTraverser& traverser) {
+bool CDataFrameCategoryEncoder::CIdentityEncoding::acceptRestoreTraverserForDerivedTypeState(
+    core::CStateRestoreTraverser& /*traverser*/) {
     return true;
 }
 
@@ -435,12 +435,12 @@ std::uint64_t CDataFrameCategoryEncoder::COneHotEncoding::checksum() const {
     return CChecksum::calculate(seed, m_HotCategory);
 }
 
-void CDataFrameCategoryEncoder::COneHotEncoding::acceptPersistInserterSubroutine(
+void CDataFrameCategoryEncoder::COneHotEncoding::acceptPersistInserterForDerivedTypeState(
     core::CStatePersistInserter& inserter) const {
     core::CPersistUtils::persist(ONE_HOT_ENCODING_CATEGORY_TAG, m_HotCategory, inserter);
 }
 
-bool CDataFrameCategoryEncoder::COneHotEncoding::acceptRestoreTraverserSubroutine(
+bool CDataFrameCategoryEncoder::COneHotEncoding::acceptRestoreTraverserForDerivedTypeState(
     core::CStateRestoreTraverser& traverser) {
 
     const std::string& name = traverser.name();
@@ -485,7 +485,7 @@ std::uint64_t CDataFrameCategoryEncoder::CMappedEncoding::checksum() const {
     return CChecksum::calculate(seed, m_Binary);
 }
 
-void CDataFrameCategoryEncoder::CMappedEncoding::acceptPersistInserterSubroutine(
+void CDataFrameCategoryEncoder::CMappedEncoding::acceptPersistInserterForDerivedTypeState(
     core::CStatePersistInserter& inserter) const {
     core::CPersistUtils::persist(MAPPED_ENCODING_TYPE_TAG, m_Encoding, inserter);
     core::CPersistUtils::persist(MAPPED_ENCODING_MAP_TAG, m_Map, inserter);
@@ -493,7 +493,7 @@ void CDataFrameCategoryEncoder::CMappedEncoding::acceptPersistInserterSubroutine
     core::CPersistUtils::persist(MAPPED_ENCODING_BINARY_TAG, m_Binary, inserter);
 }
 
-bool CDataFrameCategoryEncoder::CMappedEncoding::acceptRestoreTraverserSubroutine(
+bool CDataFrameCategoryEncoder::CMappedEncoding::acceptRestoreTraverserForDerivedTypeState(
     core::CStateRestoreTraverser& traverser) {
     const std::string& name = traverser.name();
     RESTORE_NO_LOOP(MAPPED_ENCODING_MAP_TAG,
@@ -649,7 +649,7 @@ CMakeDataFrameCategoryEncoder::TEncodingUPtrVec CMakeDataFrameCategoryEncoder::m
             m_MeanCategoryTargetMeanValues[inputColumnIndex]));
     }
 
-    return std::move(encoding);
+    return encoding;
 }
 
 std::size_t CMakeDataFrameCategoryEncoder::encoding(std::size_t encodedColumnIndex) const {
