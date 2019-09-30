@@ -118,9 +118,6 @@ public:
         //! Populate the object from serialized data.
         bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
 
-        CEncoding(const CEncoding&) = delete;
-        CEncoding& operator=(const CEncoding&) = delete;
-
     protected:
         std::size_t m_InputColumnIndex;
         double m_Mic;
@@ -198,6 +195,9 @@ public:
 
     //! Initialize from serialized data.
     CDataFrameCategoryEncoder(core::CStateRestoreTraverser& traverser);
+
+    CDataFrameCategoryEncoder(const CDataFrameCategoryEncoder&) = delete;
+    CDataFrameCategoryEncoder& operator=(const CDataFrameCategoryEncoder&) = delete;
 
     //! Get a row reference which encodes the categories in \p row.
     CEncodedDataFrameRowRef encode(TRowRef row) const;
