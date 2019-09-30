@@ -355,9 +355,9 @@ void CBoostedTreeFactory::initializeUnsetRegularizationHyperparameters(core::CDa
             };
             m_LogAlphaSearchInterval =
                 TVector{std::log(gainPerNode)} +
-                this->testLossNewtonLineSearch(frame, allTrainingRowsMask, applyAlphaStep,
-                                               std::log(MIN_REGULARIZER_SCALE),
-                                               std::log(MAX_REGULARIZER_SCALE))
+                this->testLossLineSearch(frame, allTrainingRowsMask, applyAlphaStep,
+                                         std::log(MIN_REGULARIZER_SCALE),
+                                         std::log(MAX_REGULARIZER_SCALE))
                     .value_or(fallbackInterval);
             LOG_TRACE(<< "log alpha search interval = ["
                       << m_LogAlphaSearchInterval.toDelimited() << "]");
@@ -383,9 +383,9 @@ void CBoostedTreeFactory::initializeUnsetRegularizationHyperparameters(core::CDa
             };
             m_LogGammaSearchInterval =
                 TVector{std::log(gainPerNode)} +
-                this->testLossNewtonLineSearch(frame, allTrainingRowsMask, applyGammaStep,
-                                               std::log(MIN_REGULARIZER_SCALE),
-                                               std::log(MAX_REGULARIZER_SCALE))
+                this->testLossLineSearch(frame, allTrainingRowsMask, applyGammaStep,
+                                         std::log(MIN_REGULARIZER_SCALE),
+                                         std::log(MAX_REGULARIZER_SCALE))
                     .value_or(fallbackInterval);
             LOG_TRACE(<< "log gamma search interval = ["
                       << m_LogGammaSearchInterval.toDelimited() << "]");
@@ -410,9 +410,9 @@ void CBoostedTreeFactory::initializeUnsetRegularizationHyperparameters(core::CDa
             };
             m_LogLambdaSearchInterval =
                 TVector{std::log(totalCurvaturePerNode)} +
-                this->testLossNewtonLineSearch(frame, allTrainingRowsMask, applyLambdaStep,
-                                               std::log(MIN_REGULARIZER_SCALE),
-                                               std::log(MAX_REGULARIZER_SCALE))
+                this->testLossLineSearch(frame, allTrainingRowsMask, applyLambdaStep,
+                                         std::log(MIN_REGULARIZER_SCALE),
+                                         std::log(MAX_REGULARIZER_SCALE))
                     .value_or(fallbackInterval);
             LOG_TRACE(<< "log lambda search interval = ["
                       << m_LogLambdaSearchInterval.toDelimited() << "]");
@@ -474,11 +474,11 @@ CBoostedTreeFactory::estimateTreeGainAndCurvature(core::CDataFrame& frame,
 }
 
 CBoostedTreeFactory::TOptionalVector
-CBoostedTreeFactory::testLossNewtonLineSearch(core::CDataFrame& frame,
-                                              core::CPackedBitVector trainingRowMask,
-                                              const TApplyRegularizerStep& applyRegularizerStep,
-                                              double returnedIntervalLeftEndOffset,
-                                              double returnedIntervalRightEndOffset) const {
+CBoostedTreeFactory::testLossLineSearch(core::CDataFrame& frame,
+                                        core::CPackedBitVector trainingRowMask,
+                                        const TApplyRegularizerStep& applyRegularizerStep,
+                                        double returnedIntervalLeftEndOffset,
+                                        double returnedIntervalRightEndOffset) const {
 
     // This uses a quadratic approximation to the test loss function w.r.t.
     // the scaled regularization hyperparameter from which it estimates the

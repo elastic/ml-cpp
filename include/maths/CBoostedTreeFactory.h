@@ -148,11 +148,11 @@ private:
     //!
     //! \return The interval to search during the main hyperparameter optimisation
     //! loop or null if this couldn't be found.
-    TOptionalVector testLossNewtonLineSearch(core::CDataFrame& frame,
-                                             core::CPackedBitVector trainingRowMask,
-                                             const TApplyRegularizerStep& applyRegularizerStep,
-                                             double returnedIntervalLeftEndOffset,
-                                             double returnedIntervalRightEndOffset) const;
+    TOptionalVector testLossLineSearch(core::CDataFrame& frame,
+                                       core::CPackedBitVector trainingRowMask,
+                                       const TApplyRegularizerStep& applyRegularizerStep,
+                                       double returnedIntervalLeftEndOffset,
+                                       double returnedIntervalRightEndOffset) const;
 
     //! Initialize the state for hyperparameter optimisation.
     void initializeHyperparameterOptimisation() const;
