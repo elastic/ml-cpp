@@ -220,8 +220,8 @@ CMultivariateOneOfNPrior::CMultivariateOneOfNPrior(std::size_t dimension,
                                                    core::CStateRestoreTraverser& traverser)
     : CMultivariatePrior(params.s_DataType, params.s_DecayRate),
       m_Dimension(dimension) {
-    double decayRate;
-    double numberSamples;
+    double decayRate{0.0};
+    double numberSamples{0.0};
     if (traverser.traverseSubLevel(boost::bind(
             &acceptRestoreTraverser, boost::cref(params), boost::ref(m_Models),
             boost::ref(decayRate), boost::ref(numberSamples), _1)) == false) {
