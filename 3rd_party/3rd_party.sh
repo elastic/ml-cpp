@@ -59,21 +59,19 @@ case `uname` in
             STL_PREFIX=libstdc++
             STL_EXTENSION=.so.6
             ZLIB_LOCATION=
+        elif [ "$CPP_CROSS_COMPILE" = macosx ] ; then
+            SYSROOT=/usr/local/sysroot-x86_64-apple-macosx10.11
+            BOOST_LOCATION=$SYSROOT/usr/local/lib
+            BOOST_COMPILER=clang
+            BOOST_EXTENSION=mt-x64-1_71.dylib
+            BOOST_LIBRARIES='atomic chrono date_time filesystem iostreams log log_setup program_options regex system thread'
+            XML_LOCATION=
+            GCC_RT_LOCATION=
+            STL_LOCATION=
+            ZLIB_LOCATION=
         else
-            if [ "$CPP_CROSS_COMPILE" = macosx ] ; then
-                SYSROOT=/usr/local/sysroot-x86_64-apple-macosx10.11
-                BOOST_LOCATION=$SYSROOT/usr/local/lib
-                BOOST_COMPILER=clang
-                BOOST_EXTENSION=mt-x64-1_71.dylib
-                BOOST_LIBRARIES='atomic chrono date_time filesystem iostreams log log_setup program_options regex system thread'
-                XML_LOCATION=
-                GCC_RT_LOCATION=
-                STL_LOCATION=
-                ZLIB_LOCATION=
-            else
-                echo "Cannot cross compile to $CPP_CROSS_COMPILE"
-                exit 3
-            fi
+            echo "Cannot cross compile to $CPP_CROSS_COMPILE"
+            exit 3
         fi
         ;;
 
