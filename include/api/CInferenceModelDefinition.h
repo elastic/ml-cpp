@@ -20,31 +20,33 @@
 namespace ml {
 namespace api {
 
-struct SSerializableToJson {
+class CSerializableToJson {
+public:
     using TJsonArray = rapidjson::Document::Array;
     using TJsonObject = rapidjson::Document::Object;
     using TJsonAllocator = rapidjson::Document::AllocatorType;
     using TJsonValue = rapidjson::Document::GenericValue;
     using TRapidJsonWriter = core::CRapidJsonLineWriter<rapidjson::StringBuffer>;
     virtual void addToDocument(rapidjson::Value& parentObject, TRapidJsonWriter& writer) = 0;
+    virtual bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
 };
 
-struct SAggregateOutput {};
+class CAggregateOutput {};
 
 /**
  * Allows to used (weighted) majority vote for classification.
  */
-struct SWeightedMode : public SAggregateOutput {
+class SWeightedMode : public CAggregateOutput {
     std::vector<double> weights;
 };
 
-struct SWeightedSum : public SAggregateOutput {
+class SWeightedSum : public CAggregateOutput {
     std::vector<double> weights;
 };
 
 enum ENumericRelationship { E_LTE };
 
-struct STreeNode : public SSerializableToJson {
+class CTreeNode : public CSerializableToJson {
     ENumericRelationship m_DecisionType = E_LTE;
     bool m_DefaultLeft;
     boost::optional<std::size_t> m_LeftChild;
@@ -63,40 +65,66 @@ struct STreeNode : public SSerializableToJson {
 /**
  * Details of the model evaluation step.
  */
-struct SBasicEvaluator : public SSerializableToJson {
-    std::vector<std::string> m_FeatureNames;
+class CBasicEvaluator : public CSerializableToJson {
+public:
+    using TStringVec = std::vector<std::string>;
 
+public:
     //! Populate the object from serialized data
     virtual bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) = 0;
 
     virtual void addToDocument(rapidjson::Value& parentObject, TRapidJsonWriter& writer);
+
+private:
+    TStringVec m_FeatureNames;
+
+public:
+    const TStringVec& featureNames() const;
+
+    virtual void featureNames(const TStringVec& featureNames);
 };
 
-struct STree : public SBasicEvaluator {
-    std::vector<STreeNode> m_TreeStructure;
+class CTree : public CBasicEvaluator {
+    std::vector<CTreeNode> m_TreeStructure;
     //! Populate the object from serialized data
     bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) override;
     void addToDocument(rapidjson::Value& parentObject, TRapidJsonWriter& writer) override;
 };
 
-struct SEnsemble : public SBasicEvaluator {
-    std::vector<STree> m_TrainedModels;
+class CEnsemble : public CBasicEvaluator {
+public:
+    using TAggregateOutputUPtr = std::unique_ptr<CAggregateOutput>;
+
+public:
     bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) override;
-    std::unique_ptr<SAggregateOutput> m_AggregateOutput;
     void addToDocument(rapidjson::Value& parentObject, TRapidJsonWriter& writer) override;
+    void featureNames(const TStringVec& featureNames) override;
+
+private:
+    std::vector<CTree> m_TrainedModels;
+
+    TAggregateOutputUPtr m_AggregateOutput;
 };
 
 /**
  * Information related to the input.
  */
-struct SInput {
-    /**
-     * List of the column names.
-     */
-    std::shared_ptr<std::vector<std::string>> columns;
+class CInput : public CSerializableToJson {
+public:
+    using TStringVec = std::vector<std::string>;
+    using TStringVecOptional = boost::optional<TStringVec>;
+
+public:
+    const TStringVecOptional& columns() const;
+    void columns(const TStringVec& columns);
+    bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) override;
+    void addToDocument(rapidjson::Value& parentObject, TRapidJsonWriter& writer) override;
+
+private:
+    TStringVecOptional m_Columns;
 };
 
-struct SEncoding {
+class CEncoding {
     /**
      * Input field name
      */
@@ -107,7 +135,7 @@ struct SEncoding {
  * Mapping from categorical columns to numerical values related to categorical value
  * distribution
  */
-struct SFrequencyEncoding : public SEncoding {
+class CFrequencyEncoding : public CEncoding {
     /**
      * Feature name after pre-processing
      */
@@ -122,7 +150,7 @@ struct SFrequencyEncoding : public SEncoding {
 /**
  * Application of the one-hot encoding function on a single column.
  */
-struct SOneHotEncoding : public SEncoding {
+class COneHotEncoding : public CEncoding {
     /**
      * Map from the category names of the original field to the new field names.
      */
@@ -132,7 +160,8 @@ struct SOneHotEncoding : public SEncoding {
 /**
  * Mapping from categorical columns to numerical values related to the target value
  */
-struct STargetMeanEncoding : public SEncoding {
+class CTargetMeanEncoding : public CEncoding {
+private:
     /**
      * Value for categories that have not been seen before
      */
@@ -150,24 +179,30 @@ struct STargetMeanEncoding : public SEncoding {
 /**
  * Technical details required for model evaluation.
  */
-struct SInferenceModelDefinition {
+class CInferenceModelDefinition {
 
+public:
     using TJsonDocument = rapidjson::Document;
+    using TStringVec = std::vector<std::string>;
 
+public:
+    std::string jsonString();
+
+    void fieldNames(const std::vector<std::string>& fieldNames);
+
+private:
     /**
-     * Information related to the input.
-     */
-    SInput m_Input;
+ * Information related to the input.
+ */
+    CInput m_Input;
     /**
      * Optional step for pre-processing data, e.g. vector embedding, one-hot-encoding, etc.
      */
-    boost::optional<std::vector<SEncoding*>> m_Preprocessing;
+    boost::optional<std::vector<CEncoding*>> m_Preprocessing;
     /**
      * Details of the model evaluation step.
      */
-    std::unique_ptr<SBasicEvaluator> m_TrainedModel;
-
-    std::string jsonString();
+    std::unique_ptr<CBasicEvaluator> m_TrainedModel;
 };
 }
 }

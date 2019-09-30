@@ -6,7 +6,7 @@
 #ifndef INCLUDED_ml_api_CInferenceModelFormatter_h
 #define INCLUDED_ml_api_CInferenceModelFormatter_h
 
-#include <api/SInferenceModelDefinition.h>
+#include <api/CInferenceModelDefinition.h>
 
 #include <rapidjson/document.h>
 
@@ -21,7 +21,7 @@ public:
     using TStrVec = std::vector<std::string>;
 
 public:
-    explicit CInferenceModelFormatter(const std::string &str, const TStrVec &fieldNames);
+    explicit CInferenceModelFormatter(const std::string& str, const TStrVec& fieldNames);
     explicit CInferenceModelFormatter(const rapidjson::Document& doc);
 
     std::string toString();
@@ -35,7 +35,8 @@ private:
     std::string m_String;
     rapidjson::Document m_JsonDoc;
 
-    ml::api::SInferenceModelDefinition m_Definition;
+    ml::api::CInferenceModelDefinition m_Definition;
+    std::vector<std::string> m_FieldNames;
 };
 }
 }

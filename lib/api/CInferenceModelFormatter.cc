@@ -3,7 +3,7 @@
 #include <core/CLogger.h>
 #include <core/LogMacros.h>
 
-#include <api/SInferenceModelDefinition.h>
+#include <api/CInferenceModelDefinition.h>
 
 #include <core/CJsonStateRestoreTraverser.h>
 #include <core/CPersistUtils.h>
@@ -15,8 +15,9 @@ namespace {
 const std::string BEST_FOREST_TAG{"best_forest"};
 }
 
-ml::api::CInferenceModelFormatter::CInferenceModelFormatter(const std::string &str, const TStrVec &fieldNames)
-    : m_String{str}, m_Definition() {
+ml::api::CInferenceModelFormatter::CInferenceModelFormatter(const std::string& str,
+                                                            const TStrVec& fieldNames)
+    : m_String{str}, m_Definition(), m_FieldNames{fieldNames} {
     std::stringstream strm;
     strm.str(str);
     core::CJsonStateRestoreTraverser traverser{strm};

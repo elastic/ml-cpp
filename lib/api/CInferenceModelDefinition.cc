@@ -3,11 +3,14 @@
  * or more contributor license agreements. Licensed under the Elastic License;
  * you may not use this file except in compliance with the Elastic License.
  */
-#include <api/SInferenceModelDefinition.h>
+#include <api/CInferenceModelDefinition.h>
 
 #include <core/CPersistUtils.h>
 #include <core/CRapidJsonLineWriter.h>
 #include <core/RestoreMacros.h>
+
+namespace ml {
+namespace api {
 
 namespace {
 const std::string SPLIT_FEATURE_TAG{"split_feature"};
@@ -36,7 +39,7 @@ const std::string JSON_RIGHT_CHILD_TAG{"right_child"};
 const std::string JSON_LTE{"lte"};
 }
 
-bool ml::api::STreeNode::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
+bool CTreeNode::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
     try {
         do {
             const std::string& name = traverser.name();
@@ -64,8 +67,7 @@ bool ml::api::STreeNode::acceptRestoreTraverser(core::CStateRestoreTraverser& tr
     return true;
 }
 
-void ml::api::STreeNode::addToDocument(rapidjson::Value& parentObject,
-                                       TRapidJsonWriter& writer) {
+void CTreeNode::addToDocument(rapidjson::Value& parentObject, TRapidJsonWriter& writer) {
     writer.addMember(JSON_NODE_INDEX_TAG, rapidjson::Value(m_NodeIndex).Move(), parentObject);
     writer.addMember(JSON_SPLIT_FEATURE_TAG,
                      rapidjson::Value(m_SplitFeature).Move(), parentObject);
@@ -95,10 +97,10 @@ void ml::api::STreeNode::addToDocument(rapidjson::Value& parentObject,
     }
 }
 
-bool ml::api::SEnsemble::acceptRestoreTraverser(ml::core::CStateRestoreTraverser& traverser) {
+bool CEnsemble::acceptRestoreTraverser(ml::core::CStateRestoreTraverser& traverser) {
     auto restoreTree = [this](ml::core::CStateRestoreTraverser& traverser) -> bool {
-        STree tree;
-        if (traverser.traverseSubLevel(std::bind(&STree::acceptRestoreTraverser, &tree,
+        CTree tree;
+        if (traverser.traverseSubLevel(std::bind(&CTree::acceptRestoreTraverser, &tree,
                                                  std::placeholders::_1)) == true) {
             m_TrainedModels.push_back(tree);
             return true;
@@ -113,9 +115,8 @@ bool ml::api::SEnsemble::acceptRestoreTraverser(ml::core::CStateRestoreTraverser
     return true;
 }
 
-void ml::api::SEnsemble::addToDocument(rapidjson::Value& parentObject,
-                                       TRapidJsonWriter& writer) {
-    SBasicEvaluator::addToDocument(parentObject, writer);
+void CEnsemble::addToDocument(rapidjson::Value& parentObject, TRapidJsonWriter& writer) {
+    CBasicEvaluator::addToDocument(parentObject, writer);
     rapidjson::Value trainedModelsArray = writer.makeArray(m_TrainedModels.size());
     for (auto trainedModel : m_TrainedModels) {
         rapidjson::Value trainedModelObject = writer.makeObject();
@@ -125,10 +126,16 @@ void ml::api::SEnsemble::addToDocument(rapidjson::Value& parentObject,
     writer.addMember(JSON_TRAINED_MODELS_TAG, trainedModelsArray, parentObject);
 }
 
-bool ml::api::STree::acceptRestoreTraverser(ml::core::CStateRestoreTraverser& traverser) {
+void CEnsemble::featureNames(const CBasicEvaluator::TStringVec& featureNames) {
+    for (auto trainedModel : m_TrainedModels) {
+        trainedModel.featureNames(featureNames);
+    }
+}
+
+bool CTree::acceptRestoreTraverser(ml::core::CStateRestoreTraverser& traverser) {
     auto restoreTreeNode = [this](ml::core::CStateRestoreTraverser& traverser) -> bool {
-        STreeNode treeNode;
-        if (traverser.traverseSubLevel(std::bind(&STreeNode::acceptRestoreTraverser, &treeNode,
+        CTreeNode treeNode;
+        if (traverser.traverseSubLevel(std::bind(&CTreeNode::acceptRestoreTraverser, &treeNode,
                                                  std::placeholders::_1)) == true) {
             m_TreeStructure.push_back(treeNode);
             return true;
@@ -142,8 +149,8 @@ bool ml::api::STree::acceptRestoreTraverser(ml::core::CStateRestoreTraverser& tr
     return true;
 }
 
-void ml::api::STree::addToDocument(rapidjson::Value& parentObject, TRapidJsonWriter& writer) {
-    SBasicEvaluator::addToDocument(parentObject, writer);
+void CTree::addToDocument(rapidjson::Value& parentObject, TRapidJsonWriter& writer) {
+    CBasicEvaluator::addToDocument(parentObject, writer);
     rapidjson::Value treeStructureArray = writer.makeArray(m_TreeStructure.size());
     for (auto treeNode : m_TreeStructure) {
         rapidjson::Value treeNodeObject = writer.makeObject();
@@ -153,7 +160,7 @@ void ml::api::STree::addToDocument(rapidjson::Value& parentObject, TRapidJsonWri
     writer.addMember(JSON_TREE_STRUCTURE_TAG, treeStructureArray, parentObject);
 }
 
-std::string ml::api::SInferenceModelDefinition::jsonString() {
+std::string CInferenceModelDefinition::jsonString() {
     rapidjson::StringBuffer stringBuffer;
     core::CRapidJsonLineWriter<rapidjson::StringBuffer> writer(stringBuffer);
     rapidjson::Value doc = writer.makeObject();
@@ -166,8 +173,8 @@ std::string ml::api::SInferenceModelDefinition::jsonString() {
     return stringBuffer.GetString();
 }
 
-void ml::api::SBasicEvaluator::addToDocument(TRapidJsonWriter::TValue& parentObject,
-                                             TRapidJsonWriter& writer) {
+void CBasicEvaluator::addToDocument(TRapidJsonWriter::TValue& parentObject,
+                                    TRapidJsonWriter& writer) {
     rapidjson::Value featureNamesArray = writer.makeArray(m_FeatureNames.size());
     for (auto featureName : m_FeatureNames) {
         rapidjson::Value featureNameValue;
@@ -176,4 +183,27 @@ void ml::api::SBasicEvaluator::addToDocument(TRapidJsonWriter::TValue& parentObj
     }
 
     writer.addMember(JSON_FEATURE_NAMES_TAG, featureNamesArray, parentObject);
+}
+
+const CBasicEvaluator::TStringVec& CBasicEvaluator::featureNames() const {
+    return m_FeatureNames;
+}
+
+void CBasicEvaluator::featureNames(const CBasicEvaluator::TStringVec& featureNames) {
+    m_FeatureNames = featureNames;
+}
+
+void CInferenceModelDefinition::fieldNames(const std::vector<std::string>& fieldNames) {
+    m_Input.columns(fieldNames);
+    m_TrainedModel.get(fieldNames);
+}
+
+const CInput::TStringVecOptional& CInput::columns() const {
+    return m_Columns;
+}
+
+void CInput::columns(const TStringVec& columns) {
+    m_Columns = columns;
+}
+}
 }

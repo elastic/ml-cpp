@@ -19,8 +19,8 @@
 
 #include <api/CDataFrameAnalysisConfigReader.h>
 #include <api/CDataFrameAnalysisSpecification.h>
+#include <api/CInferenceModelDefinition.h>
 #include <api/ElasticsearchStateIndex.h>
-#include <api/SInferenceModelDefinition.h>
 
 #include <api/CInferenceModelFormatter.h>
 #include <core/CJsonStatePersistInserter.h>
@@ -249,8 +249,8 @@ std::size_t CDataFrameBoostedTreeRunner::estimateBookkeepingMemoryUsage(
     return m_BoostedTreeFactory->estimateMemoryUsage(totalNumberRows, numberColumns);
 }
 
-void CDataFrameBoostedTreeRunner::serializeRunner(const TStrVec &fieldNames,
-                                                  core::CRapidJsonConcurrentLineWriter &writer) const {
+void CDataFrameBoostedTreeRunner::serializeRunner(const TStrVec& fieldNames,
+                                                  core::CRapidJsonConcurrentLineWriter& writer) const {
     std::stringstream strm;
     {
         core::CJsonStatePersistInserter inserter(strm);
@@ -263,8 +263,6 @@ void CDataFrameBoostedTreeRunner::serializeRunner(const TStrVec &fieldNames,
     LOG_DEBUG(<< "Inference model json: " << formatter.toString());
 
     // TODO write to the `writer`.
-
-
 }
 
 const std::string& CDataFrameBoostedTreeRunnerFactory::name() const {
