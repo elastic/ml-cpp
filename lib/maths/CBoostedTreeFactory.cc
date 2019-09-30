@@ -203,7 +203,7 @@ void CBoostedTreeFactory::selectFeaturesAndEncodeCategories(const core::CDataFra
 
 void CBoostedTreeFactory::determineFeatureDataTypes(const core::CDataFrame& frame) const {
 
-    TSizeVec columnMask(m_TreeImpl->m_Encoder->numberFeatures());
+    TSizeVec columnMask(m_TreeImpl->m_Encoder->numberEncodedColumns());
     std::iota(columnMask.begin(), columnMask.end(), 0);
     columnMask.erase(std::remove_if(columnMask.begin(), columnMask.end(),
                                     [this](std::size_t index) {
@@ -220,7 +220,7 @@ bool CBoostedTreeFactory::initializeFeatureSampleDistribution() const {
 
     // Compute feature sample probabilities.
 
-    TDoubleVec mics(m_TreeImpl->m_Encoder->featureMics());
+    TDoubleVec mics(m_TreeImpl->m_Encoder->encodedColumnMics());
     LOG_TRACE(<< "candidate regressors MICe = " << core::CContainerPrinter::print(mics));
 
     if (mics.size() > 0) {
