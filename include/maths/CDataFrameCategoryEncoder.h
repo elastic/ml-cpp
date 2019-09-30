@@ -119,6 +119,7 @@ public:
         bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
 
         CEncoding(const CEncoding&) = delete;
+        CEncoding& operator=(const CEncoding&) = delete;
 
     protected:
         std::size_t m_InputColumnIndex;
