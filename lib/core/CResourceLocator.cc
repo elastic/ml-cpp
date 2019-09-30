@@ -30,7 +30,7 @@ std::string CResourceLocator::resourceDir() {
 
     // Look relative to the program that's running, assuming that the resource
     // directory is located relative to the directory the current program is in.
-    std::string productionDir(CProgName::progDir() + RESOURCE_RELATIVE_DIR);
+    std::string productionDir(CProgName::progDir() + '/' + RESOURCE_RELATIVE_DIR);
 
     // If the production directory doesn't exist, return the dev directory if
     // that does, but if neither exist return the production directory so the
