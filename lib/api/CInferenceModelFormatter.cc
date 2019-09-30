@@ -15,7 +15,7 @@ namespace {
 const std::string BEST_FOREST_TAG{"best_forest"};
 }
 
-ml::api::CInferenceModelFormatter::CInferenceModelFormatter(const std::string& str)
+ml::api::CInferenceModelFormatter::CInferenceModelFormatter(const std::string &str, const TStrVec &fieldNames)
     : m_String{str}, m_Definition() {
     std::stringstream strm;
     strm.str(str);

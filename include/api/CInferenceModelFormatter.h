@@ -18,9 +18,10 @@ namespace api {
 class CInferenceModelFormatter {
 public:
     using TRapidjsonUPtr = std::unique_ptr<rapidjson::Document>;
+    using TStrVec = std::vector<std::string>;
 
 public:
-    explicit CInferenceModelFormatter(const std::string& str);
+    explicit CInferenceModelFormatter(const std::string &str, const TStrVec &fieldNames);
     explicit CInferenceModelFormatter(const rapidjson::Document& doc);
 
     std::string toString();

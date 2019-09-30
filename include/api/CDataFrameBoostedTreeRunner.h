@@ -44,7 +44,7 @@ public:
                      TRowRef row,
                      core::CRapidJsonConcurrentLineWriter& writer) const override;
 
-    void serializeRunner(core::CRapidJsonConcurrentLineWriter& writer) const override;
+    void serializeRunner(const TStrVec &fieldNames, core::CRapidJsonConcurrentLineWriter &writer) const override;
 
 private:
     using TBoostedTreeUPtr = std::unique_ptr<maths::CBoostedTree>;
