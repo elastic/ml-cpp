@@ -21,6 +21,7 @@ public:
     void testIntegerRegressor();
     void testSingleSplit();
     void testTranslationInvariance();
+    void testDepthBasedRegularization();
     void testEstimateMemoryUsedByTrain();
     void testProgressMonitoring();
     void testMissingData();
