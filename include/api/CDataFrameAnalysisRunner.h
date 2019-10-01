@@ -20,8 +20,8 @@
 #include <memory>
 #include <string>
 #include <thread>
-#include <vector>
 #include <unordered_map>
+#include <vector>
 
 namespace ml {
 namespace core {
@@ -138,8 +138,9 @@ public:
     //! of the proportion of total work complete for a single run.
     double progress() const;
 
-    virtual void serializeRunner(const TStrVec &fieldNames, const TStrSizeUMapVec &categoryNameMap,
-                                 core::CRapidJsonConcurrentLineWriter &writer) const;
+    virtual void serializeRunner(const TStrVec& fieldNames,
+                                 const TStrSizeUMapVec& categoryNameMap,
+                                 core::CRapidJsonConcurrentLineWriter& writer) const;
 
 protected:
     using TStatePersister =

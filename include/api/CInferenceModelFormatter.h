@@ -23,8 +23,9 @@ public:
     using TStrSizeUMapVec = std::vector<TStrSizeUMap>;
 
 public:
-    explicit CInferenceModelFormatter(const std::string &str, const TStrVec &fieldNames,
-                                      const TStrSizeUMapVec &categoricalValuesMap);
+    explicit CInferenceModelFormatter(const std::string& str,
+                                      const TStrVec& fieldNames,
+                                      const TStrSizeUMapVec& categoricalValuesMap);
 
     std::string toString();
 

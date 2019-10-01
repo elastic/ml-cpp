@@ -42,8 +42,6 @@ const std::string BAYESIAN_OPTIMISATION_RESTARTS{"bayesian_optimisation_restarts
 
 const std::string RESULT_INFERENCE_MODEL{"inference_model"};
 
-
-
 const CDataFrameAnalysisConfigReader PARAMETER_READER{[] {
     CDataFrameAnalysisConfigReader theReader;
     theReader.addParameter(DEPENDENT_VARIABLE_NAME,
@@ -257,9 +255,9 @@ std::size_t CDataFrameBoostedTreeRunner::estimateBookkeepingMemoryUsage(
     return m_BoostedTreeFactory->estimateMemoryUsage(totalNumberRows, numberColumns);
 }
 
-void
-CDataFrameBoostedTreeRunner::serializeRunner(const TStrVec &fieldNames, const TStrSizeUMapVec &categoryNameMap,
-                                             core::CRapidJsonConcurrentLineWriter &writer) const {
+void CDataFrameBoostedTreeRunner::serializeRunner(const TStrVec& fieldNames,
+                                                  const TStrSizeUMapVec& categoryNameMap,
+                                                  core::CRapidJsonConcurrentLineWriter& writer) const {
     std::stringstream strm;
     {
         core::CJsonStatePersistInserter inserter(strm);

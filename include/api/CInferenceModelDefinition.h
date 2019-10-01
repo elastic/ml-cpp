@@ -17,8 +17,8 @@
 
 #include <map>
 #include <string>
-#include <vector>
 #include <unordered_map>
+#include <vector>
 
 namespace ml {
 namespace api {
@@ -131,9 +131,9 @@ public:
     using TStringVecOptional = boost::optional<TStringVec>;
 
 public:
-    const TStringVec & columns() const;
+    const TStringVec& columns() const;
     void columns(const TStringVec& columns);
-//    bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
+    //    bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
     void addToDocument(rapidjson::Value& parentObject, TRapidJsonWriter& writer) override;
 
 private:
@@ -144,7 +144,7 @@ class CEncoding : public CSerializableToJson {
 public:
     void field(const std::string& field);
 
-    CEncoding(const std::string &field);
+    CEncoding(const std::string& field);
 
     void addToDocument(rapidjson::Value& parentObject, TRapidJsonWriter& writer) override;
     virtual const std::string& typeString() const = 0;
@@ -159,15 +159,16 @@ private:
  */
 class CFrequencyEncoding : public CEncoding {
 public:
-    CFrequencyEncoding(const std::string &field, const std::string &featureName,
-                       const std::map<std::string, double> &frequencyMap);
+    CFrequencyEncoding(const std::string& field,
+                       const std::string& featureName,
+                       const std::map<std::string, double>& frequencyMap);
 
     void featureName(const std::string& featureName);
 
     void frequencyMap(const std::map<std::string, double>& frequencyMap);
     void addToDocument(rapidjson::Value& parentObject, TRapidJsonWriter& writer) override;
 
-    const std::string &typeString() const override;
+    const std::string& typeString() const override;
 
 private:
     /**
@@ -188,12 +189,12 @@ public:
     using TStringStringUMap = std::map<std::string, std::string>;
 
 public:
-    COneHotEncoding(const std::string &field, const TStringStringUMap &hotMap);
+    COneHotEncoding(const std::string& field, const TStringStringUMap& hotMap);
 
-    TStringStringUMap & hotMap();
+    TStringStringUMap& hotMap();
     void addToDocument(rapidjson::Value& parentObject, TRapidJsonWriter& writer) override;
 
-    const std::string &typeString() const override;
+    const std::string& typeString() const override;
 
 private:
     /**
@@ -207,13 +208,15 @@ private:
  */
 class CTargetMeanEncoding : public CEncoding {
 public:
-    CTargetMeanEncoding(const std::string &field, double defaultValue, const std::string &featureName,
-                        const std::map<std::string, double> &targetMap);
+    CTargetMeanEncoding(const std::string& field,
+                        double defaultValue,
+                        const std::string& featureName,
+                        const std::map<std::string, double>& targetMap);
 
     void defaultValue(double defaultValue);
     void featureName(const std::string& featureName);
 
-    const std::string &typeString() const override;
+    const std::string& typeString() const override;
 
     void targetMap(const std::map<std::string, double>& targetMap);
     void addToDocument(rapidjson::Value& parentObject, TRapidJsonWriter& writer) override;
@@ -247,19 +250,19 @@ public:
     using TApiEncodingUPtrVec = std::vector<TApiEncodingUPtr>;
     using TStrSizeUMap = std::unordered_map<std::string, std::size_t>;
     using TStrSizeUMapVec = std::vector<TStrSizeUMap>;
-    using TSizeStrUMap = std::unordered_map<std::size_t,std::string>;
+    using TSizeStrUMap = std::unordered_map<std::size_t, std::string>;
     using TSizeStrUMapVec = std::vector<TSizeStrUMap>;
 
 public:
     std::string jsonString();
-    rapidjson::Value && jsonObject();
+    rapidjson::Value&& jsonObject();
 
     void fieldNames(const TStringVec& fieldNames);
     void encodings(const TEncodingUPtrVec& encodings);
-    void trainedModel(std::unique_ptr<CBasicEvaluator> &&trainedModel);
+    void trainedModel(std::unique_ptr<CBasicEvaluator>&& trainedModel);
 
-    const TStrSizeUMapVec &categoryNameMap() const;
-    void categoryNameMap(const TStrSizeUMapVec &categoryNameMap);
+    const TStrSizeUMapVec& categoryNameMap() const;
+    void categoryNameMap(const TStrSizeUMapVec& categoryNameMap);
 
 private:
     /**
@@ -278,7 +281,6 @@ private:
     TStringVec m_FieldNames;
     TStrSizeUMapVec m_CategoryNameMap;
     TSizeStrUMapVec m_ReverseCategoryNameMap;
-
 };
 }
 }

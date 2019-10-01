@@ -17,8 +17,8 @@
 #include <functional>
 #include <memory>
 #include <string>
-#include <vector>
 #include <unordered_map>
+#include <vector>
 
 namespace ml {
 namespace core {

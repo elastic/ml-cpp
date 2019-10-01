@@ -339,6 +339,10 @@ bool CDataFrameCategoryEncoder::forwardRestoreEncodings(core::CStateRestoreTrave
     return true;
 }
 
+const CDataFrameCategoryEncoder::TEncodingUPtrVec& CDataFrameCategoryEncoder::encodings() const {
+    return m_Encodings;
+}
+
 CDataFrameCategoryEncoder::CEncoding::CEncoding(std::size_t inputColumnIndex, double mic)
     : m_InputColumnIndex{inputColumnIndex}, m_Mic{mic} {
 }

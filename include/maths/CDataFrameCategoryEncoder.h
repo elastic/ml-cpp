@@ -206,6 +206,9 @@ public:
     //! Initialize from serialized data.
     CDataFrameCategoryEncoder(core::CStateRestoreTraverser& traverser);
 
+    //! Get the complete representation of encodings.
+    const TEncodingUPtrVec& encodings() const;
+
     CDataFrameCategoryEncoder(const CDataFrameCategoryEncoder&) = delete;
     CDataFrameCategoryEncoder& operator=(const CDataFrameCategoryEncoder&) = delete;
 

@@ -200,8 +200,7 @@ std::string CInferenceModelDefinition::jsonString() {
         rapidjson::Value trainedModelValue = writer.makeObject();
         m_TrainedModel->addToDocument(trainedModelValue, writer);
         writer.addMember(JSON_TRAINED_MODEL_TAG, trainedModelValue, doc);
-    }
-    else {
+    } else {
         LOG_ERROR(<< "Trained model is not initialized");
     }
     writer.write(doc);
@@ -263,9 +262,6 @@ void CBasicEvaluator::targetType(CBasicEvaluator::ETargetType targetType) {
 void CInferenceModelDefinition::fieldNames(const std::vector<std::string>& fieldNames) {
     m_FieldNames = fieldNames;
     m_Input.columns(fieldNames);
-
-    // TODO this is not correct?
-    m_TrainedModel->featureNames(fieldNames);
 }
 
 void CInferenceModelDefinition::encodings(const CInferenceModelDefinition::TEncodingUPtrVec& encodings) {
@@ -273,7 +269,7 @@ void CInferenceModelDefinition::encodings(const CInferenceModelDefinition::TEnco
         return;
     }
     using TOneHotEncodingUPtr = std::unique_ptr<COneHotEncoding>;
-    using TOneHotEncodingUMap= std::unordered_map<std::string, TOneHotEncodingUPtr >;
+    using TOneHotEncodingUMap = std::unordered_map<std::string, TOneHotEncodingUPtr>;
     TOneHotEncodingUMap oneHotEncodingMaps;
     for (const auto& encoding : encodings) {
         std::size_t inputColumnIndex = encoding->inputColumnIndex();
@@ -286,7 +282,8 @@ void CInferenceModelDefinition::encodings(const CInferenceModelDefinition::TEnco
             std::string category = m_ReverseCategoryNameMap[inputColumnIndex][categoryUInt];
             std::string encodedFieldName = fieldName + "_" + category;
             if (oneHotEncodingMaps.find(fieldName) == oneHotEncodingMaps.end()) {
-               auto  apiEncoding = std::make_unique< api::COneHotEncoding>(fieldName, api::COneHotEncoding::TStringStringUMap());
+                auto apiEncoding = std::make_unique<api::COneHotEncoding>(
+                    fieldName, api::COneHotEncoding::TStringStringUMap());
                 oneHotEncodingMaps.emplace(fieldName, std::move(apiEncoding));
             }
             oneHotEncodingMaps[fieldName]->hotMap().emplace(category, encodedFieldName);
@@ -301,7 +298,8 @@ void CInferenceModelDefinition::encodings(const CInferenceModelDefinition::TEnco
                 std::string category = m_ReverseCategoryNameMap[inputColumnIndex][categoryUInt];
                 map.emplace(category, enc->map()[categoryUInt]);
             }
-            m_Preprocessing.emplace_back(std::make_unique<CTargetMeanEncoding>(fieldName, defaultValue, featureName, map));
+            m_Preprocessing.emplace_back(std::make_unique<CTargetMeanEncoding>(
+                fieldName, defaultValue, featureName, map));
         } else if (encoding->type() == maths::EEncoding::E_Frequency) {
             auto* enc = static_cast<maths::CDataFrameCategoryEncoder::CMappedEncoding*>(
                 encoding.get());
@@ -311,7 +309,8 @@ void CInferenceModelDefinition::encodings(const CInferenceModelDefinition::TEnco
                 std::string category = m_ReverseCategoryNameMap[inputColumnIndex][categoryUInt];
                 map.emplace(category, enc->map()[categoryUInt]);
             }
-            m_Preprocessing.emplace_back(std::make_unique<CFrequencyEncoding>(fieldName, featureName, map));
+            m_Preprocessing.emplace_back(
+                std::make_unique<CFrequencyEncoding>(fieldName, featureName, map));
         }
     }
 
@@ -320,28 +319,29 @@ void CInferenceModelDefinition::encodings(const CInferenceModelDefinition::TEnco
     }
 }
 
-void CInferenceModelDefinition::trainedModel(std::unique_ptr<CBasicEvaluator> &&trainedModel) {
+void CInferenceModelDefinition::trainedModel(std::unique_ptr<CBasicEvaluator>&& trainedModel) {
     m_TrainedModel.swap(trainedModel);
 }
 
-rapidjson::Value && CInferenceModelDefinition::jsonObject() {
+rapidjson::Value&& CInferenceModelDefinition::jsonObject() {
     rapidjson::Document doc;
     doc.Parse(this->jsonString());
     if (doc.GetParseError()) {
         HANDLE_FATAL(<< "Internal error: generated inference model JSON cannot be parsed. "
-        << "Please report this problem.")
+                     << "Please report this problem.")
     }
     return std::move(doc);
 }
 
-const CInferenceModelDefinition::TStrSizeUMapVec &CInferenceModelDefinition::categoryNameMap() const {
+const CInferenceModelDefinition::TStrSizeUMapVec&
+CInferenceModelDefinition::categoryNameMap() const {
     return m_CategoryNameMap;
 }
 
-void CInferenceModelDefinition::categoryNameMap(const CInferenceModelDefinition::TStrSizeUMapVec &categoryNameMap) {
+void CInferenceModelDefinition::categoryNameMap(const CInferenceModelDefinition::TStrSizeUMapVec& categoryNameMap) {
     m_CategoryNameMap = categoryNameMap;
     m_ReverseCategoryNameMap.reserve(categoryNameMap.size());
-    for (const auto& categoryNameMapping: categoryNameMap) {
+    for (const auto& categoryNameMapping : categoryNameMap) {
         if (categoryNameMapping.empty() == false) {
             TSizeStrUMap map;
             for (const auto& categoryMappingPair : categoryNameMapping) {
@@ -354,7 +354,7 @@ void CInferenceModelDefinition::categoryNameMap(const CInferenceModelDefinition:
     }
 }
 
-const CInput::TStringVec & CInput::columns() const {
+const CInput::TStringVec& CInput::columns() const {
     return m_Columns;
 }
 
@@ -364,7 +364,7 @@ void CInput::columns(const TStringVec& columns) {
 
 void CInput::addToDocument(rapidjson::Value& parentObject, TRapidJsonWriter& writer) {
     rapidjson::Value columnsArray = writer.makeArray(m_Columns.size());
-    for (const auto &column : m_Columns) {
+    for (const auto& column : m_Columns) {
         rapidjson::Value columnValue;
         columnValue.SetString(column, writer.getRawAllocator());
         columnsArray.PushBack(columnValue, writer.getRawAllocator());
@@ -384,33 +384,37 @@ void CTargetMeanEncoding::targetMap(const std::map<std::string, double>& targetM
     m_TargetMap = targetMap;
 }
 
-const std::string &CTargetMeanEncoding::typeString() const {
+const std::string& CTargetMeanEncoding::typeString() const {
     return JSON_TARGET_MEAN_ENCODING_TAG;
 }
 
-void CTargetMeanEncoding::addToDocument(rapidjson::Value &parentObject, CSerializableToJson::TRapidJsonWriter &writer) {
+void CTargetMeanEncoding::addToDocument(rapidjson::Value& parentObject,
+                                        CSerializableToJson::TRapidJsonWriter& writer) {
     this->CEncoding::addToDocument(parentObject, writer);
-    writer.addMember(JSON_DEFAULT_VALUE_TAG, rapidjson::Value(m_DefaultValue).Move(), parentObject);
+    writer.addMember(JSON_DEFAULT_VALUE_TAG,
+                     rapidjson::Value(m_DefaultValue).Move(), parentObject);
     writer.addMember(JSON_FEATURE_NAME_TAG, m_FeatureName, parentObject);
 
     rapidjson::Value map = writer.makeObject();
-    for (const auto& mapping: m_TargetMap) {
+    for (const auto& mapping : m_TargetMap) {
         writer.addMember(mapping.first, rapidjson::Value(mapping.second).Move(), map);
     }
     writer.addMember(JSON_TARGET_MAP_TAG, map, parentObject);
 }
 
-CTargetMeanEncoding::CTargetMeanEncoding(const std::string &field, double defaultValue, const std::string &featureName,
-                                         const std::map<std::string, double> &targetMap) : CEncoding(field),
-                                                                                           m_DefaultValue(defaultValue),
-                                                                                           m_FeatureName(featureName),
-                                                                                           m_TargetMap(targetMap) {}
+CTargetMeanEncoding::CTargetMeanEncoding(const std::string& field,
+                                         double defaultValue,
+                                         const std::string& featureName,
+                                         const std::map<std::string, double>& targetMap)
+    : CEncoding(field), m_DefaultValue(defaultValue),
+      m_FeatureName(featureName), m_TargetMap(targetMap) {
+}
 
-CFrequencyEncoding::CFrequencyEncoding(const std::string &field, const std::string &featureName,
-                                       const std::map<std::string, double> &frequencyMap):CEncoding(field),
-                                                                                          m_FeatureName(featureName),
-                                                                                          m_FrequencyMap(
-                                                                                                  frequencyMap) {}
+CFrequencyEncoding::CFrequencyEncoding(const std::string& field,
+                                       const std::string& featureName,
+                                       const std::map<std::string, double>& frequencyMap)
+    : CEncoding(field), m_FeatureName(featureName), m_FrequencyMap(frequencyMap) {
+}
 
 void CEncoding::field(const std::string& field) {
     m_Field = field;
@@ -420,7 +424,8 @@ void CEncoding::addToDocument(rapidjson::Value& parentObject, TRapidJsonWriter& 
     writer.addMember(JSON_FIELD_TAG, m_Field, parentObject);
 }
 
-CEncoding::CEncoding(const std::string &field) : m_Field(field) {}
+CEncoding::CEncoding(const std::string& field) : m_Field(field) {
+}
 
 void CFrequencyEncoding::featureName(const std::string& featureName) {
     m_FeatureName = featureName;
@@ -430,38 +435,42 @@ void CFrequencyEncoding::frequencyMap(const std::map<std::string, double>& frequ
     m_FrequencyMap = frequencyMap;
 }
 
-void CFrequencyEncoding::addToDocument(rapidjson::Value &parentObject, CSerializableToJson::TRapidJsonWriter &writer) {
+void CFrequencyEncoding::addToDocument(rapidjson::Value& parentObject,
+                                       CSerializableToJson::TRapidJsonWriter& writer) {
     this->CEncoding::addToDocument(parentObject, writer);
     writer.addMember(JSON_FEATURE_NAME_TAG, m_FeatureName, parentObject);
     rapidjson::Value frequencyMap = writer.makeObject();
-    for (const auto& mapping: m_FrequencyMap) {
+    for (const auto& mapping : m_FrequencyMap) {
         writer.addMember(mapping.first, rapidjson::Value(mapping.second).Move(), frequencyMap);
     }
     writer.addMember(JSON_FREQUENCY_MAP_TAG, frequencyMap, parentObject);
 }
 
-const std::string &CFrequencyEncoding::typeString() const {
+const std::string& CFrequencyEncoding::typeString() const {
     return JSON_FREQUENCY_ENCODING_TAG;
 }
 
-COneHotEncoding::TStringStringUMap & COneHotEncoding::hotMap() {
+COneHotEncoding::TStringStringUMap& COneHotEncoding::hotMap() {
     return m_HotMap;
 }
 
-const std::string &COneHotEncoding::typeString() const {
+const std::string& COneHotEncoding::typeString() const {
     return JSON_ONE_HOT_ENCODING_TAG;
 }
 
-void COneHotEncoding::addToDocument(rapidjson::Value &parentObject, CSerializableToJson::TRapidJsonWriter &writer) {
+void COneHotEncoding::addToDocument(rapidjson::Value& parentObject,
+                                    CSerializableToJson::TRapidJsonWriter& writer) {
     this->CEncoding::addToDocument(parentObject, writer);
     rapidjson::Value hotMap = writer.makeObject();
-    for (const auto& mapping: m_HotMap) {
+    for (const auto& mapping : m_HotMap) {
         writer.addMember(mapping.first, mapping.second, hotMap);
     }
     writer.addMember(JSON_HOT_MAP_TAG, hotMap, parentObject);
 }
 
-COneHotEncoding::COneHotEncoding(const std::string &field, const COneHotEncoding::TStringStringUMap &hotMap)
-        : CEncoding(field), m_HotMap(hotMap) {}
+COneHotEncoding::COneHotEncoding(const std::string& field,
+                                 const COneHotEncoding::TStringStringUMap& hotMap)
+    : CEncoding(field), m_HotMap(hotMap) {
+}
 }
 }
