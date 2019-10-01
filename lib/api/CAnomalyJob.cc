@@ -999,9 +999,9 @@ bool CAnomalyJob::restoreDetectorState(const model::CSearchKey& key,
     return true;
 }
 
-bool CAnomalyJob::persistResidualModelsState(core::CDataAdder& persister,
-                                             core_t::TTime timestamp,
-                                             const std::string& outputFormat) {
+bool CAnomalyJob::persistModelsState(core::CDataAdder& persister,
+                                     core_t::TTime timestamp,
+                                     const std::string& outputFormat) {
     TKeyCRefAnomalyDetectorPtrPrVec detectors;
     this->sortedDetectors(detectors);
 
@@ -1010,7 +1010,7 @@ bool CAnomalyJob::persistResidualModelsState(core::CDataAdder& persister,
     // also must ensure that foreground persistence has access to an up-to-date cache of counters as well.
     core::CProgramCounters::cacheCounters();
 
-    return this->persistResidualModelsState(detectors, persister, timestamp, outputFormat);
+    return this->persistModelsState(detectors, persister, timestamp, outputFormat);
 }
 
 bool CAnomalyJob::persistState(core::CDataAdder& persister, const std::string& descriptionPrefix) {
@@ -1130,10 +1130,10 @@ bool CAnomalyJob::runBackgroundPersist(TBackgroundPersistArgsPtr args,
         args->s_LastResultsTime, persister);
 }
 
-bool CAnomalyJob::persistResidualModelsState(const TKeyCRefAnomalyDetectorPtrPrVec& detectors,
-                                             core::CDataAdder& persister,
-                                             core_t::TTime timestamp,
-                                             const std::string& outputFormat) {
+bool CAnomalyJob::persistModelsState(const TKeyCRefAnomalyDetectorPtrPrVec& detectors,
+                                     core::CDataAdder& persister,
+                                     core_t::TTime timestamp,
+                                     const std::string& outputFormat) {
     try {
         const std::string snapShotId{core::CStringUtils::typeToString(timestamp)};
         core::CDataAdder::TOStreamP strm = persister.addStreamed(
@@ -1157,7 +1157,7 @@ bool CAnomalyJob::persistResidualModelsState(const TKeyCRefAnomalyDetectorPtrPrV
                         continue;
                     }
 
-                    detector->persistResidualModelsState(*inserter);
+                    detector->persistModelsState(*inserter);
 
                     LOG_DEBUG(<< "Persisted state for '" << detector->description() << "'");
                 }

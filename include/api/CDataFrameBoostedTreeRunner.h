@@ -50,6 +50,7 @@ public:
 private:
     using TBoostedTreeUPtr = std::unique_ptr<maths::CBoostedTree>;
     using TBoostedTreeFactoryUPtr = std::unique_ptr<maths::CBoostedTreeFactory>;
+    using TDataSearcherUPtr = CDataFrameAnalysisSpecification::TDataSearcherUPtr;
     using TMemoryEstimator = std::function<void(std::int64_t)>;
 
 private:
@@ -61,7 +62,8 @@ private:
     TMemoryEstimator memoryEstimator();
 
     bool restoreBoostedTree(core::CDataFrame& frame,
-                            CDataFrameAnalysisSpecification::TDataSearcherUPtr& restoreSearcher);
+                            std::size_t dependentVariableColumn,
+                            TDataSearcherUPtr& restoreSearcher);
 
 private:
     // Note custom config is written directly to the factory object.

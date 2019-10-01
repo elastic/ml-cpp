@@ -46,10 +46,9 @@ const std::string RESULTS{"results"};
 }
 
 CDataFrameAnalyzer::CDataFrameAnalyzer(TDataFrameAnalysisSpecificationUPtr analysisSpecification,
-                                       TJsonOutputStreamWrapperUPtrSupplier resultsStreamSupplier,
-                                       TDataSearcherUPtrSupplier dataSearcher)
+                                       TJsonOutputStreamWrapperUPtrSupplier resultsStreamSupplier)
     : m_AnalysisSpecification{std::move(analysisSpecification)},
-      m_ResultsStreamSupplier{std::move(resultsStreamSupplier)}, m_DataSearcher{std::move(dataSearcher)} {
+      m_ResultsStreamSupplier{std::move(resultsStreamSupplier)} {
 
     if (m_AnalysisSpecification != nullptr) {
         auto frameAndDirectory = m_AnalysisSpecification->makeDataFrame();

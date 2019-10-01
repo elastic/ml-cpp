@@ -23,6 +23,18 @@ namespace core {
         continue;                                                                      \
     }
 
+#define RESTORE_NO_LOOP(tag, restore)                                                  \
+    if (name == tag) {                                                                 \
+        if ((restore) == false) {                                                      \
+            if (traverser.value().empty()) {                                           \
+                LOG_ERROR(<< "Failed to restore " #tag);                               \
+            } else {                                                                   \
+                LOG_ERROR(<< "Failed to restore " #tag ", got " << traverser.value()); \
+            }                                                                          \
+            return false;                                                              \
+        }                                                                              \
+    }
+
 #define RESTORE_BUILT_IN(tag, target)                                                  \
     if (name == tag) {                                                                 \
         if (core::CStringUtils::stringToType(traverser.value(), target) == false) {    \

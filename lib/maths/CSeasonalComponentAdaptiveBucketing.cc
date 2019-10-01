@@ -62,13 +62,13 @@ typename SPromoted<T>::Type promote(const T& vectorStat) {
 
 // Version 6.3
 const std::string VERSION_6_3_TAG("6.3");
-const std::string ADAPTIVE_BUCKETING_6_3_TAG{"a"};
-const std::string TIME_6_3_TAG{"b"};
-const std::string BUCKETS_6_3_TAG{"e"};
-const std::string REGRESSION_6_3_TAG{"e"};
-const std::string VARIANCE_6_3_TAG{"f"};
-const std::string FIRST_UPDATE_6_3_TAG{"g"};
-const std::string LAST_UPDATE_6_3_TAG{"h"};
+const core::TPersistenceTag ADAPTIVE_BUCKETING_6_3_TAG{"a", "adaptive_bucketing"};
+const core::TPersistenceTag TIME_6_3_TAG{"b", "time"};
+const core::TPersistenceTag BUCKETS_6_3_TAG{"e", "buckets"};
+const core::TPersistenceTag REGRESSION_6_3_TAG{"e", "regression"};
+const core::TPersistenceTag VARIANCE_6_3_TAG{"f", "variance"};
+const core::TPersistenceTag FIRST_UPDATE_6_3_TAG{"g", "first_update"};
+const core::TPersistenceTag LAST_UPDATE_6_3_TAG{"h", "last_update"};
 // Version < 6.3
 const std::string ADAPTIVE_BUCKETING_OLD_TAG{"a"};
 const std::string TIME_OLD_TAG{"b"};

@@ -171,8 +171,8 @@ protected:
         std::vector<TStrCRefDouble1VecDouble1VecPrPrVecVec>;
 
 protected:
-    //! Persist the state of the residual models only.
-    void doPersistResidualModelsState(core::CStatePersistInserter& inserter) const;
+    //! Persist the state of the models only.
+    void doPersistModelsState(core::CStatePersistInserter& inserter) const;
 
     //! Persist state by passing information to the supplied inserter.
     void doAcceptPersistInserter(core::CStatePersistInserter& inserter) const;

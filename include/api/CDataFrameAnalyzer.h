@@ -9,7 +9,6 @@
 
 #include <api/ImportExport.h>
 
-#include <core/CDataSearcher.h>
 #include <core/CRapidJsonConcurrentLineWriter.h>
 
 #include <boost/unordered_map.hpp>
@@ -39,8 +38,6 @@ public:
     using TJsonOutputStreamWrapperUPtr = std::unique_ptr<core::CJsonOutputStreamWrapper>;
     using TJsonOutputStreamWrapperUPtrSupplier =
         std::function<TJsonOutputStreamWrapperUPtr()>;
-    using TDataSearcherUPtrSupplier =
-        std::function<std::unique_ptr<ml::core::CDataSearcher>()>;
     using TDataFrameAnalysisSpecificationUPtr = std::unique_ptr<CDataFrameAnalysisSpecification>;
     using TTemporaryDirectoryPtr = std::shared_ptr<core::CTemporaryDirectory>;
 
@@ -51,8 +48,7 @@ public:
 
 public:
     CDataFrameAnalyzer(TDataFrameAnalysisSpecificationUPtr analysisSpecification,
-                       TJsonOutputStreamWrapperUPtrSupplier resultsStreamSupplier,
-                       TDataSearcherUPtrSupplier dataSearcher = nullptr);
+                       TJsonOutputStreamWrapperUPtrSupplier resultsStreamSupplier);
     ~CDataFrameAnalyzer();
 
     //! This is true if the analyzer is receiving control messages.
@@ -112,7 +108,6 @@ private:
     TStrVec m_FieldNames;
     TTemporaryDirectoryPtr m_DataFrameDirectory;
     TJsonOutputStreamWrapperUPtrSupplier m_ResultsStreamSupplier;
-    TDataSearcherUPtrSupplier m_DataSearcher;
 };
 }
 }

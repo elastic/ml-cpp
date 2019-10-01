@@ -33,5 +33,5 @@ install:
 build: $(TARGET)
 
 clean:
-	$(RM) $(OBJS_DIR)/*$(OBJECT_FILE_EXT) $(OBJS_DIR)/*.d* $(OBJS_DIR)/*.plist $(APP_CLEAN) core core.* $(TARGET) $(basename $(TARGET)).pdb
+	$(RM) $(OBJS_DIR)/*$(OBJECT_FILE_EXT) $(OBJS_DIR)/*.d* $(OBJS_DIR)/*.plist $(OBJS_DIR)/*.xml $(APP_CLEAN) core core.* $(TARGET) $(basename $(TARGET)).pdb
 	+$(CLEAN_CMDS)

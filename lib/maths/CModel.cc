@@ -439,7 +439,7 @@ std::size_t CModelStub::memoryUsage() const {
 void CModelStub::acceptPersistInserter(core::CStatePersistInserter& /*inserter*/) const {
 }
 
-void CModelStub::persistResidualModelsState(core::CStatePersistInserter& /*inserter*/) const {
+void CModelStub::persistModelsState(core::CStatePersistInserter& /*inserter*/) const {
 }
 
 maths_t::EDataType CModelStub::dataType() const {

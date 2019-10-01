@@ -275,41 +275,41 @@ const std::string VERSION_6_3_TAG("6.3");
 const std::string VERSION_6_4_TAG("6.4");
 
 // Periodicity Test Tags
-const std::string LINEAR_SCALES_7_2_TAG{"d"};
+const core::TPersistenceTag LINEAR_SCALES_7_2_TAG{"d", "linear_scales"};
 // Version 6.3
-const std::string PERIODICITY_TEST_MACHINE_6_3_TAG{"a"};
-const std::string SHORT_WINDOW_6_3_TAG{"b"};
-const std::string LONG_WINDOW_6_3_TAG{"c"};
+const core::TPersistenceTag PERIODICITY_TEST_MACHINE_6_3_TAG{"a", "periodicity_test_machine"};
+const core::TPersistenceTag SHORT_WINDOW_6_3_TAG{"b", "short_window"};
+const core::TPersistenceTag LONG_WINDOW_6_3_TAG{"c", "long_window"};
 // Old versions can't be restored.
 
 // Calendar Cyclic Test Tags
 // Version 6.3
-const std::string CALENDAR_TEST_MACHINE_6_3_TAG{"a"};
-const std::string LAST_MONTH_6_3_TAG{"b"};
-const std::string CALENDAR_TEST_6_3_TAG{"c"};
+const core::TPersistenceTag CALENDAR_TEST_MACHINE_6_3_TAG{"a", "calendar_test_machine"};
+const core::TPersistenceTag LAST_MONTH_6_3_TAG{"b", "last_month"};
+const core::TPersistenceTag CALENDAR_TEST_6_3_TAG{"c", "calendar_test"};
 // These work for all versions.
 
 // Components Tags
 // Version 6.5
-const std::string TESTING_FOR_CHANGE_6_5_TAG{"m"};
+const core::TPersistenceTag TESTING_FOR_CHANGE_6_5_TAG{"m", "testing_for_change"};
 // Version 6.4
-const std::string COMPONENT_6_4_TAG{"f"};
-const std::string ERRORS_6_4_TAG{"g"};
-const std::string REGRESSION_ORIGIN_6_4_TAG{"a"};
-const std::string MEAN_SUM_AMPLITUDES_6_4_TAG{"b"};
-const std::string MEAN_SUM_AMPLITUDES_TREND_6_4_TAG{"c"};
+const core::TPersistenceTag COMPONENT_6_4_TAG{"f", "component"};
+const core::TPersistenceTag ERRORS_6_4_TAG{"g", "errors"};
+const core::TPersistenceTag REGRESSION_ORIGIN_6_4_TAG{"a", "regression_origin"};
+const core::TPersistenceTag MEAN_SUM_AMPLITUDES_6_4_TAG{"b", "mean_sum_amplitudes"};
+const core::TPersistenceTag MEAN_SUM_AMPLITUDES_TREND_6_4_TAG{"c", "mean_sum_amplitudes_trend"};
 // Version 6.3
-const std::string COMPONENTS_MACHINE_6_3_TAG{"a"};
-const std::string DECAY_RATE_6_3_TAG{"b"};
-const std::string TREND_6_3_TAG{"c"};
-const std::string SEASONAL_6_3_TAG{"d"};
-const std::string CALENDAR_6_3_TAG{"e"};
-const std::string COMPONENT_6_3_TAG{"f"};
-const std::string MEAN_VARIANCE_SCALE_6_3_TAG{"h"};
-const std::string MOMENTS_6_3_TAG{"i"};
-const std::string MOMENTS_MINUS_TREND_6_3_TAG{"j"};
-const std::string USING_TREND_FOR_PREDICTION_6_3_TAG{"k"};
-const std::string GAIN_CONTROLLER_6_3_TAG{"l"};
+const core::TPersistenceTag COMPONENTS_MACHINE_6_3_TAG{"a", "components_machine"};
+const core::TPersistenceTag DECAY_RATE_6_3_TAG{"b", "decay_rate"};
+const core::TPersistenceTag TREND_6_3_TAG{"c", "trend"};
+const core::TPersistenceTag SEASONAL_6_3_TAG{"d", "seasonal"};
+const core::TPersistenceTag CALENDAR_6_3_TAG{"e", "calendar"};
+const core::TPersistenceTag COMPONENT_6_3_TAG{"f", "component"};
+const core::TPersistenceTag MEAN_VARIANCE_SCALE_6_3_TAG{"h", "mean_variance_scale"};
+const core::TPersistenceTag MOMENTS_6_3_TAG{"i", "moments"};
+const core::TPersistenceTag MOMENTS_MINUS_TREND_6_3_TAG{"j", "moments_minus_trend"};
+const core::TPersistenceTag USING_TREND_FOR_PREDICTION_6_3_TAG{"k", "using_trend_for_prediction"};
+const core::TPersistenceTag GAIN_CONTROLLER_6_3_TAG{"l", "gain_controller"};
 // Version < 6.3
 const std::string COMPONENTS_MACHINE_OLD_TAG{"a"};
 const std::string TREND_OLD_TAG{"b"};
@@ -901,7 +901,7 @@ void CTimeSeriesDecompositionDetail::CCalendarTest::acceptPersistInserter(
                          std::bind(&core::CStateMachine::acceptPersistInserter,
                                    &m_Machine, std::placeholders::_1));
     inserter.insertValue(LAST_MONTH_6_3_TAG, m_LastMonth);
-    if (m_Test) {
+    if (m_Test != nullptr) {
         inserter.insertLevel(CALENDAR_TEST_6_3_TAG,
                              std::bind(&CCalendarCyclicTest::acceptPersistInserter,
                                        m_Test.get(), std::placeholders::_1));

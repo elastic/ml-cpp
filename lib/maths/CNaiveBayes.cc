@@ -27,12 +27,13 @@
 namespace ml {
 namespace maths {
 namespace {
-const std::string PRIOR_TAG{"a"};
-const std::string CLASS_LABEL_TAG{"b"};
-const std::string CLASS_MODEL_TAG{"c"};
-const std::string MIN_MAX_LOG_LIKELIHOOD_TO_USE_FEATURE_TAG{"d"};
-const std::string COUNT_TAG{"e"};
-const std::string CONDITIONAL_DENSITY_FROM_PRIOR_TAG{"f"};
+const core::TPersistenceTag PRIOR_TAG{"a", "prior"};
+const core::TPersistenceTag CLASS_LABEL_TAG{"b", "class_label"};
+const core::TPersistenceTag CLASS_MODEL_TAG{"c", "class_model"};
+const core::TPersistenceTag MIN_MAX_LOG_LIKELIHOOD_TO_USE_FEATURE_TAG{
+    "d", "min_max_likelihood_to_use_feature"};
+const core::TPersistenceTag COUNT_TAG{"e", "count"};
+const core::TPersistenceTag CONDITIONAL_DENSITY_FROM_PRIOR_TAG{"f", "conditional_density_from_prior"};
 }
 
 CNaiveBayesFeatureDensityFromPrior::CNaiveBayesFeatureDensityFromPrior(const CPrior& prior)

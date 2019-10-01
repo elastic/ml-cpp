@@ -51,11 +51,11 @@ struct SHashFeature {
 
 const std::string VERSION_6_4_TAG("6.4");
 // Version 6.4
-const std::string ERROR_QUANTILES_6_4_TAG("a");
-const std::string CURRENT_BUCKET_TIME_6_4_TAG("b");
-const std::string CURRENT_BUCKET_INDEX_6_4_TAG("c");
-const std::string CURRENT_BUCKET_ERROR_STATS_6_4_TAG("d");
-const std::string ERRORS_6_4_TAG("e");
+const core::TPersistenceTag ERROR_QUANTILES_6_4_TAG("a", "error_quantiles");
+const core::TPersistenceTag CURRENT_BUCKET_TIME_6_4_TAG("b", "current_bucket_time");
+const core::TPersistenceTag CURRENT_BUCKET_INDEX_6_4_TAG("c", "current_bucket_index");
+const core::TPersistenceTag CURRENT_BUCKET_ERROR_STATS_6_4_TAG("d", "current_bucket_error_stats");
+const core::TPersistenceTag ERRORS_6_4_TAG("e", "errors");
 // Version < 6.4
 const std::string ERROR_QUANTILES_OLD_TAG("a");
 // Everything else gets default initialised.

@@ -372,9 +372,10 @@ bool CMetricModel::computeProbability(const std::size_t pid,
                                               pJoint, resultBuilder);
         } else {
             CProbabilityAndInfluenceCalculator::SParams params(partitioningFields);
-            this->fill(feature, pid, startTime, result.isInterim(), params);
-            this->addProbabilityAndInfluences(pid, params, data->s_InfluenceValues,
-                                              pJoint, resultBuilder);
+            if (this->fill(feature, pid, startTime, result.isInterim(), params)) {
+                this->addProbabilityAndInfluences(pid, params, data->s_InfluenceValues,
+                                                  pJoint, resultBuilder);
+            }
         }
     }
 
@@ -528,7 +529,7 @@ bool CMetricModel::correlates(model_t::EFeature feature, std::size_t pid, core_t
     return false;
 }
 
-void CMetricModel::fill(model_t::EFeature feature,
+bool CMetricModel::fill(model_t::EFeature feature,
                         std::size_t pid,
                         core_t::TTime bucketTime,
                         bool interim,
@@ -536,8 +537,16 @@ void CMetricModel::fill(model_t::EFeature feature,
 
     std::size_t dimension{model_t::dimension(feature)};
     const TFeatureData* data{this->featureData(feature, pid, bucketTime)};
+    if (data == nullptr) {
+        LOG_TRACE(<< "data unexpectedly null");
+        return false;
+    }
     const TOptionalSample& bucket{data->s_BucketValue};
     const maths::CModel* model{this->model(feature, pid)};
+    if (model == nullptr) {
+        LOG_TRACE(<< "model unexpectedly null");
+        return false;
+    }
     core_t::TTime time{model_t::sampleTime(feature, bucketTime,
                                            this->bucketLength(), bucket->time())};
     maths_t::TDouble2VecWeightsAry weights(maths_t::CUnitWeights::unit<TDouble2Vec>(dimension));
@@ -567,6 +576,8 @@ void CMetricModel::fill(model_t::EFeature feature,
         .addBucketEmpty({!count || *count == 0})
         .addWeights(weights)
         .skipAnomalyModelUpdate(skipAnomalyModelUpdate);
+
+    return true;
 }
 
 void CMetricModel::fill(model_t::EFeature feature,

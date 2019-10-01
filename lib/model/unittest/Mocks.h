@@ -28,75 +28,75 @@ public:
                const TDataGathererPtr& dataGatherer,
                const TFeatureInfluenceCalculatorCPtrPrVecVec& influenceCalculators);
 
-    virtual void persistResidualModelsState(core::CStatePersistInserter& inserter) const;
+    void persistModelsState(core::CStatePersistInserter& inserter) const override;
 
-    virtual void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
+    void acceptPersistInserter(core::CStatePersistInserter& inserter) const override;
 
-    virtual bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
+    bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) override;
 
-    virtual CAnomalyDetectorModel* cloneForPersistence() const;
+    CAnomalyDetectorModel* cloneForPersistence() const override;
 
-    virtual model_t::EModelType category() const;
+    model_t::EModelType category() const override;
 
-    virtual bool isPopulation() const;
+    bool isPopulation() const override;
 
-    virtual bool isEventRate() const;
+    bool isEventRate() const override;
 
-    virtual bool isMetric() const;
+    bool isMetric() const override;
 
-    virtual TOptionalUInt64 currentBucketCount(std::size_t pid, core_t::TTime time) const;
+    TOptionalUInt64 currentBucketCount(std::size_t pid, core_t::TTime time) const override;
 
-    virtual TOptionalDouble baselineBucketCount(std::size_t pid) const;
+    TOptionalDouble baselineBucketCount(std::size_t pid) const override;
 
-    virtual TDouble1Vec currentBucketValue(model_t::EFeature feature,
-                                           std::size_t pid,
-                                           std::size_t cid,
-                                           core_t::TTime time) const;
+    TDouble1Vec currentBucketValue(model_t::EFeature feature,
+                                   std::size_t pid,
+                                   std::size_t cid,
+                                   core_t::TTime time) const override;
 
-    virtual TDouble1Vec baselineBucketMean(model_t::EFeature feature,
-                                           std::size_t pid,
-                                           std::size_t cid,
-                                           model_t::CResultType type,
-                                           const TSizeDoublePr1Vec& correlated,
-                                           core_t::TTime time) const;
+    TDouble1Vec baselineBucketMean(model_t::EFeature feature,
+                                   std::size_t pid,
+                                   std::size_t cid,
+                                   model_t::CResultType type,
+                                   const TSizeDoublePr1Vec& correlated,
+                                   core_t::TTime time) const override;
 
-    virtual bool bucketStatsAvailable(core_t::TTime time) const;
+    bool bucketStatsAvailable(core_t::TTime time) const override;
 
-    virtual void currentBucketPersonIds(core_t::TTime time, TSizeVec& result) const;
+    void currentBucketPersonIds(core_t::TTime time, TSizeVec& result) const override;
 
-    virtual void sampleBucketStatistics(core_t::TTime startTime,
-                                        core_t::TTime endTime,
-                                        CResourceMonitor& resourceMonitor);
+    void sampleBucketStatistics(core_t::TTime startTime,
+                                core_t::TTime endTime,
+                                CResourceMonitor& resourceMonitor) override;
 
-    virtual void sample(core_t::TTime startTime, core_t::TTime endTime, CResourceMonitor& resourceMonitor);
+    void sample(core_t::TTime startTime, core_t::TTime endTime, CResourceMonitor& resourceMonitor) override;
 
-    virtual void prune(std::size_t maximumAge);
+    void prune(std::size_t maximumAge) override;
 
-    virtual bool computeProbability(std::size_t pid,
-                                    core_t::TTime startTime,
-                                    core_t::TTime endTime,
-                                    CPartitioningFields& partitioningFields,
-                                    std::size_t numberAttributeProbabilities,
-                                    SAnnotatedProbability& result) const;
+    bool computeProbability(std::size_t pid,
+                            core_t::TTime startTime,
+                            core_t::TTime endTime,
+                            CPartitioningFields& partitioningFields,
+                            std::size_t numberAttributeProbabilities,
+                            SAnnotatedProbability& result) const override;
 
-    virtual bool computeTotalProbability(const std::string& person,
-                                         std::size_t numberAttributeProbabilities,
-                                         TOptionalDouble& probability,
-                                         TAttributeProbability1Vec& attributeProbabilities) const;
+    bool computeTotalProbability(const std::string& person,
+                                 std::size_t numberAttributeProbabilities,
+                                 TOptionalDouble& probability,
+                                 TAttributeProbability1Vec& attributeProbabilities) const override;
 
-    virtual uint64_t checksum(bool includeCurrentBucketStats = true) const;
+    uint64_t checksum(bool includeCurrentBucketStats = true) const override;
 
-    virtual void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const;
+    void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const override;
 
-    virtual std::size_t memoryUsage() const;
+    std::size_t memoryUsage() const override;
 
-    virtual std::size_t computeMemoryUsage() const;
+    std::size_t computeMemoryUsage() const override;
 
-    virtual std::size_t staticSize() const;
+    std::size_t staticSize() const override;
 
-    virtual CModelDetailsViewPtr details() const;
+    CModelDetailsViewPtr details() const override;
 
-    virtual double attributeFrequency(std::size_t cid) const;
+    double attributeFrequency(std::size_t cid) const override;
 
     const maths::CModel* model(std::size_t id) const;
 
@@ -126,14 +126,14 @@ private:
         boost::unordered_map<TFeatureSizeSizeTimeTriplePr, TDouble1Vec>;
 
 private:
-    virtual core_t::TTime currentBucketStartTime() const;
-    virtual void currentBucketStartTime(core_t::TTime time);
-    virtual void createNewModels(std::size_t n, std::size_t m);
-    virtual void updateRecycledModels();
-    virtual void clearPrunedResources(const TSizeVec& people, const TSizeVec& attributes);
-    virtual const model::CInterimBucketCorrector& interimValueCorrector() const;
-    virtual void doSkipSampling(core_t::TTime startTime, core_t::TTime endTime);
-    virtual CMemoryUsageEstimator* memoryUsageEstimator() const;
+    core_t::TTime currentBucketStartTime() const override;
+    void currentBucketStartTime(core_t::TTime time) override;
+    void createNewModels(std::size_t n, std::size_t m) override;
+    void updateRecycledModels() override;
+    void clearPrunedResources(const TSizeVec& people, const TSizeVec& attributes) override;
+    const model::CInterimBucketCorrector& interimValueCorrector() const override;
+    void doSkipSampling(core_t::TTime startTime, core_t::TTime endTime) override;
+    CMemoryUsageEstimator* memoryUsageEstimator() const override;
 
 private:
     bool m_IsPopulation;
@@ -146,15 +146,15 @@ private:
 //! \brief A details view for a mock model.
 class CMockModelDetailsView : public CModelDetailsView {
 public:
-    CMockModelDetailsView(const CMockModel& model);
+    explicit CMockModelDetailsView(const CMockModel& model);
 
 private:
-    virtual const maths::CModel* model(model_t::EFeature feature, std::size_t byFieldId) const;
-    virtual TTimeTimePr dataTimeInterval(std::size_t byFieldId) const;
-    virtual const CAnomalyDetectorModel& base() const;
-    virtual double countVarianceScale(model_t::EFeature feature,
-                                      std::size_t byFieldId,
-                                      core_t::TTime time) const;
+    const maths::CModel* model(model_t::EFeature feature, std::size_t byFieldId) const override;
+    TTimeTimePr dataTimeInterval(std::size_t byFieldId) const override;
+    const CAnomalyDetectorModel& base() const override;
+    double countVarianceScale(model_t::EFeature feature,
+                              std::size_t byFieldId,
+                              core_t::TTime time) const override;
 
 private:
     //! The model.
