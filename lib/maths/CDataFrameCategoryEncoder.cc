@@ -271,8 +271,9 @@ std::uint64_t CDataFrameCategoryEncoder::checksum(std::uint64_t seed) const {
 }
 
 void CDataFrameCategoryEncoder::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
-    inserter.insertLevel(ENCODING_VECTOR_TAG, std::bind(&CDataFrameCategoryEncoder::persistEncodings,
-                                                        this, std::placeholders::_1));
+    inserter.insertLevel(ENCODING_VECTOR_TAG,
+                         std::bind(&CDataFrameCategoryEncoder::persistEncodings,
+                                   this, std::placeholders::_1));
 }
 
 bool CDataFrameCategoryEncoder::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
