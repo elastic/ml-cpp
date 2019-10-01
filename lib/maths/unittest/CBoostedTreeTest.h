@@ -19,6 +19,7 @@ public:
     void testConstantTarget();
     void testCategoricalRegressors();
     void testIntegerRegressor();
+    void testSingleSplit();
     void testTranslationInvariance();
     void testDepthBasedRegularization();
     void testEstimateMemoryUsedByTrain();

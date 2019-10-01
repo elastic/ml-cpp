@@ -629,6 +629,50 @@ void CBoostedTreeTest::testIntegerRegressor() {
     CPPUNIT_ASSERT(modelRSquared > 0.99);
 }
 
+void CBoostedTreeTest::testSingleSplit() {
+
+    // We were getting an out-of-bound read in initialization when running on
+    // data with only two distinct values for the target variable. This test
+    // fails intermittently without the fix.
+
+    test::CRandomNumbers rng;
+
+    std::size_t rows{100};
+    std::size_t cols{2};
+
+    TDoubleVec x;
+    rng.generateUniformSamples(0.0, 1.0, rows, x);
+    for (auto& xi : x) {
+        xi = std::floor(xi + 0.5);
+    }
+
+    auto frame = core::makeMainStorageDataFrame(cols).first;
+    frame->categoricalColumns({false, false});
+    for (std::size_t i = 0; i < rows; ++i) {
+        frame->writeRow([&](core::CDataFrame::TFloatVecItr column, std::int32_t&) {
+            *(column++) = x[i];
+            *column = 10.0 * x[i];
+        });
+    }
+    frame->finishWritingRows();
+
+    auto regression = maths::CBoostedTreeFactory::constructFromParameters(
+                          1, std::make_unique<maths::boosted_tree::CMse>())
+                          .buildFor(*frame, cols - 1);
+
+    regression->train();
+
+    double modelBias;
+    double modelRSquared;
+    std::tie(modelBias, modelRSquared) = computeEvaluationMetrics(
+        *frame, 0, rows, regression->columnHoldingPrediction(frame->numberColumns()),
+        [](const TRowRef& row) { return 10.0 * row[0]; }, 0.0);
+
+    LOG_DEBUG(<< "bias = " << modelBias);
+    LOG_DEBUG(<< " R^2 = " << modelRSquared);
+    CPPUNIT_ASSERT(modelRSquared > 0.99);
+}
+
 void CBoostedTreeTest::testTranslationInvariance() {
 
     // We should get similar performance independent of fixed shifts for the target.
@@ -1070,6 +1114,8 @@ CppUnit::Test* CBoostedTreeTest::suite() {
         &CBoostedTreeTest::testCategoricalRegressors));
     suiteOfTests->addTest(new CppUnit::TestCaller<CBoostedTreeTest>(
         "CBoostedTreeTest::testIntegerRegressor", &CBoostedTreeTest::testIntegerRegressor));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CBoostedTreeTest>(
+        "CBoostedTreeTest::testSingleSplit", &CBoostedTreeTest::testSingleSplit));
     suiteOfTests->addTest(new CppUnit::TestCaller<CBoostedTreeTest>(
         "CBoostedTreeTest::testTranslationInvariance",
         &CBoostedTreeTest::testTranslationInvariance));
