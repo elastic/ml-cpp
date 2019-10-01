@@ -47,13 +47,15 @@ inline std::size_t predictionColumn(std::size_t numberColumns) {
 //! \brief Implementation of CBoostedTree.
 class MATHS_EXPORT CBoostedTreeImpl final {
 public:
+    using TDoubleVec = std::vector<double>;
     using TMeanAccumulator = CBasicStatistics::SSampleMean<double>::TAccumulator;
     using TMeanVarAccumulator = CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
     using TBayesinOptimizationUPtr = std::unique_ptr<maths::CBayesianOptimisation>;
+    using TNodeVec = CBoostedTree::TNodeVec;
+    using TNodeVecVec = CBoostedTree::TNodeVecVec;
     using TProgressCallback = CBoostedTree::TProgressCallback;
     using TMemoryUsageCallback = CBoostedTree::TMemoryUsageCallback;
     using TTrainingStateCallback = CBoostedTree::TTrainingStateCallback;
-    using TDoubleVec = std::vector<double>;
 
 public:
     static const double MINIMUM_RELATIVE_GAIN_PER_SPLIT;
@@ -83,11 +85,17 @@ public:
     //! Get the feature sample probabilities.
     const TDoubleVec& featureWeights() const;
 
+    //! Get the model produced by training if it has been run.
+    const TNodeVecVec& trainedModel() const;
+
     //! Get the column containing the dependent variable.
     std::size_t columnHoldingDependentVariable() const;
 
     //! Get the number of columns training the model will add to the data frame.
     static std::size_t numberExtraColumnsForTrain();
+
+    //! Get the memory used by this object.
+    std::size_t memoryUsage() const;
 
     //! Estimate the maximum booking memory that training the boosted tree on a data
     //! frame with \p numberRows row and \p numberColumns columns will use.
@@ -98,9 +106,6 @@ public:
 
     //! Populate the object from serialized data.
     bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
-
-    //! Get the memory used by this object.
-    std::size_t memoryUsage() const;
 
 private:
     using TSizeDoublePr = std::pair<std::size_t, double>;
@@ -116,42 +121,83 @@ private:
     using TDataFrameCategoryEncoderUPtr = std::unique_ptr<CDataFrameCategoryEncoder>;
     using TDataTypeVec = CDataFrameUtils::TDataTypeVec;
 
-    class CNode;
-    using TNodeVec = std::vector<CNode>;
-    using TNodeVecVec = std::vector<TNodeVec>;
-
     //! \brief Holds the parameters associated with the different types of regularizer
     //! terms available.
     template<typename T>
     class CRegularization final {
     public:
+        //! Set the multiplier of the tree depth penalty.
+        CRegularization& depthPenaltyMultiplier(double depthPenaltyMultiplier) {
+            m_DepthPenaltyMultiplier = depthPenaltyMultiplier;
+            return *this;
+        }
+
         //! Set the multiplier of the tree size penalty.
-        CRegularization& gamma(double gamma) {
-            m_Gamma = gamma;
+        CRegularization& treeSizePenaltyMultiplier(double treeSizePenaltyMultiplier) {
+            m_TreeSizePenaltyMultiplier = treeSizePenaltyMultiplier;
             return *this;
         }
 
         //! Set the multiplier of the square leaf weight penalty.
-        CRegularization& lambda(double lambda) {
-            m_Lambda = lambda;
+        CRegularization& leafWeightPenaltyMultiplier(double leafWeightPenaltyMultiplier) {
+            m_LeafWeightPenaltyMultiplier = leafWeightPenaltyMultiplier;
+            return *this;
+        }
+
+        //! Set the soft depth tree depth limit.
+        CRegularization& softTreeDepthLimit(double softTreeDepthLimit) {
+            m_SoftTreeDepthLimit = softTreeDepthLimit;
+            return *this;
+        }
+
+        //! Set the tolerance in the depth tree depth limit.
+        CRegularization& softTreeDepthTolerance(double softTreeDepthTolerance) {
+            m_SoftTreeDepthTolerance = softTreeDepthTolerance;
             return *this;
         }
 
         //! Count the number of parameters which have their default values.
         std::size_t countNotSet() const {
-            return (m_Gamma == T{} ? 1 : 0) + (m_Lambda == T{} ? 1 : 0);
+            return (m_DepthPenaltyMultiplier == T{} ? 1 : 0) +
+                   (m_TreeSizePenaltyMultiplier == T{} ? 1 : 0) +
+                   (m_LeafWeightPenaltyMultiplier == T{} ? 1 : 0) +
+                   (m_SoftTreeDepthLimit == T{} ? 1 : 0) +
+                   (m_SoftTreeDepthTolerance == T{} ? 1 : 0);
         }
 
+        //! Multiplier of the tree depth penalty.
+        T depthPenaltyMultiplier() const { return m_DepthPenaltyMultiplier; }
+
         //! Multiplier of the tree size penalty.
-        T gamma() const { return m_Gamma; }
+        T treeSizePenaltyMultiplier() const {
+            return m_TreeSizePenaltyMultiplier;
+        }
 
         //! Multiplier of the square leaf weight penalty.
-        T lambda() const { return m_Lambda; }
+        T leafWeightPenaltyMultiplier() const {
+            return m_LeafWeightPenaltyMultiplier;
+        }
+
+        //! Soft depth tree depth limit.
+        T softTreeDepthLimit() const { return m_SoftTreeDepthLimit; }
+
+        //! Soft depth tree depth limit tolerance.
+        T softTreeDepthTolerance() const { return m_SoftTreeDepthTolerance; }
+
+        //! Get the penalty which applies to a leaf at depth \p depth.
+        T penaltyForDepth(std::size_t depth) const {
+            return std::exp((static_cast<double>(depth) / m_SoftTreeDepthLimit - 1.0) /
+                            m_SoftTreeDepthTolerance);
+        }
 
         //! Get description of the regularization parameters.
         std::string print() const {
-            return "(gamma = " + toString(m_Gamma) +
-                   ", lambda = " + toString(m_Lambda) + ")";
+            return "(depth penalty multiplier = " + toString(m_DepthPenaltyMultiplier) +
+                   ", soft depth limit = " + toString(m_SoftTreeDepthLimit) +
+                   ", soft depth tolerance = " + toString(m_SoftTreeDepthTolerance) +
+                   ", tree size penalty multiplier = " + toString(m_TreeSizePenaltyMultiplier) +
+                   ", leaf weight penalty multiplier = " +
+                   toString(m_LeafWeightPenaltyMultiplier) + ")";
         }
 
         //! Persist by passing information to \p inserter.
@@ -167,8 +213,11 @@ private:
         }
 
     private:
-        T m_Gamma = T{};
-        T m_Lambda = T{};
+        T m_DepthPenaltyMultiplier = T{};
+        T m_TreeSizePenaltyMultiplier = T{};
+        T m_LeafWeightPenaltyMultiplier = T{};
+        T m_SoftTreeDepthLimit = T{};
+        T m_SoftTreeDepthTolerance = T{};
     };
 
     using TRegularization = CRegularization<double>;
@@ -195,175 +244,6 @@ private:
         bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
     };
 
-    //! \brief A node of a regression tree.
-    //!
-    //! DESCRIPTION:\n
-    //! This defines a tree structure on a vector of nodes (maintaining the parent
-    //! child relationships as indexes into the vector). It holds the (binary)
-    //! splitting criterion (feature and value) and the tree's prediction at each
-    //! leaf. The intervals are open above so the left node contains feature vectors
-    //! for which the feature value is _strictly_ less than the split value.
-    //!
-    //! During training row masks are maintained for each node (so the data can be
-    //! efficiently traversed). This supports extracting the left and right child
-    //! node bit masks from the node's bit mask.
-    class CNode final {
-    public:
-        //! See core::CMemory.
-        static bool dynamicSizeAlwaysZero() { return true; }
-
-        //! Check if this is a leaf node.
-        bool isLeaf() const { return m_LeftChild < 0; }
-
-        //! Get the leaf index for \p row.
-        std::size_t leafIndex(const CEncodedDataFrameRowRef& row,
-                              const TNodeVec& tree,
-                              std::int32_t index = 0) const {
-            if (this->isLeaf()) {
-                return index;
-            }
-            double value{row[m_SplitFeature]};
-            bool missing{CDataFrameUtils::isMissing(value)};
-            return (missing && m_AssignMissingToLeft) ||
-                           (missing == false && value < m_SplitValue)
-                       ? tree[m_LeftChild].leafIndex(row, tree, m_LeftChild)
-                       : tree[m_RightChild].leafIndex(row, tree, m_RightChild);
-        }
-
-        //! Get the value predicted by \p tree for the feature vector \p row.
-        double value(const CEncodedDataFrameRowRef& row, const TNodeVec& tree) const {
-            return tree[this->leafIndex(row, tree)].m_NodeValue;
-        }
-
-        //! Get the value of this node.
-        double value() const { return m_NodeValue; }
-
-        //! Set the node value to \p value.
-        void value(double value) { m_NodeValue = value; }
-
-        //! Get the gain of the split.
-        double gain() const { return m_Gain; }
-
-        //! Get the total curvature at the rows below this node.
-        double curvature() const { return m_Curvature; }
-
-        //! Split this node and add its child nodes to \p tree.
-        std::pair<std::size_t, std::size_t> split(std::size_t splitFeature,
-                                                  double splitValue,
-                                                  bool assignMissingToLeft,
-                                                  double gain,
-                                                  double curvature,
-                                                  TNodeVec& tree) {
-            m_SplitFeature = splitFeature;
-            m_SplitValue = splitValue;
-            m_AssignMissingToLeft = assignMissingToLeft;
-            m_LeftChild = static_cast<std::int32_t>(tree.size());
-            m_RightChild = static_cast<std::int32_t>(tree.size() + 1);
-            m_Gain = gain;
-            m_Curvature = curvature;
-            tree.resize(tree.size() + 2);
-            return {m_LeftChild, m_RightChild};
-        }
-
-        //! Get the row masks of the left and right children of this node.
-        auto rowMasks(std::size_t numberThreads,
-                      const core::CDataFrame& frame,
-                      const CDataFrameCategoryEncoder& encoder,
-                      core::CPackedBitVector rowMask) const {
-
-            LOG_TRACE(<< "Splitting feature '" << m_SplitFeature << "' @ " << m_SplitValue);
-            LOG_TRACE(<< "# rows in node = " << rowMask.manhattan());
-            LOG_TRACE(<< "row mask = " << rowMask);
-
-            auto result = frame.readRows(
-                numberThreads, 0, frame.numberRows(),
-                core::bindRetrievableState(
-                    [&](auto& state, TRowItr beginRows, TRowItr endRows) {
-                        core::CPackedBitVector& leftRowMask{std::get<0>(state)};
-                        std::size_t& leftChildNumberRows{std::get<1>(state)};
-                        std::size_t& rightChildNumberRows{std::get<2>(state)};
-                        for (auto row = beginRows; row != endRows; ++row) {
-                            std::size_t index{row->index()};
-                            double value{encoder.encode(*row)[m_SplitFeature]};
-                            bool missing{CDataFrameUtils::isMissing(value)};
-                            if ((missing && m_AssignMissingToLeft) ||
-                                (missing == false && value < m_SplitValue)) {
-                                leftRowMask.extend(false, index - leftRowMask.size());
-                                leftRowMask.extend(true);
-                                ++leftChildNumberRows;
-                            } else {
-                                ++rightChildNumberRows;
-                            }
-                        }
-                    },
-                    std::make_tuple(core::CPackedBitVector{}, std::size_t{0}, std::size_t{0})),
-                &rowMask);
-            auto& masks = result.first;
-
-            for (auto& mask_ : masks) {
-                auto& mask = std::get<0>(mask_.s_FunctionState);
-                mask.extend(false, rowMask.size() - mask.size());
-            }
-
-            core::CPackedBitVector leftRowMask;
-            std::size_t leftChildNumberRows;
-            std::size_t rightChildNumberRows;
-            std::tie(leftRowMask, leftChildNumberRows, rightChildNumberRows) =
-                std::move(masks[0].s_FunctionState);
-            for (std::size_t i = 1; i < masks.size(); ++i) {
-                leftRowMask |= std::get<0>(masks[i].s_FunctionState);
-                leftChildNumberRows += std::get<1>(masks[i].s_FunctionState);
-                rightChildNumberRows += std::get<2>(masks[i].s_FunctionState);
-            }
-            LOG_TRACE(<< "# rows in left node = " << leftRowMask.manhattan());
-            LOG_TRACE(<< "left row mask = " << leftRowMask);
-
-            core::CPackedBitVector rightRowMask{std::move(rowMask)};
-            rightRowMask ^= leftRowMask;
-            LOG_TRACE(<< "# rows in right node = " << rightRowMask.manhattan());
-            LOG_TRACE(<< "left row mask = " << rightRowMask);
-
-            return std::make_tuple(std::move(leftRowMask), std::move(rightRowMask),
-                                   leftChildNumberRows < rightChildNumberRows);
-        }
-
-        //! Get a human readable description of this tree.
-        std::string print(const TNodeVec& tree) const {
-            std::ostringstream result;
-            return this->doPrint("", tree, result).str();
-        }
-
-        //! Persist by passing information to \p inserter.
-        void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
-
-        //! Populate the object from serialized data.
-        bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
-
-    private:
-        std::ostringstream&
-        doPrint(std::string pad, const TNodeVec& tree, std::ostringstream& result) const {
-            result << "\n" << pad;
-            if (this->isLeaf()) {
-                result << m_NodeValue;
-            } else {
-                result << "split feature '" << m_SplitFeature << "' @ " << m_SplitValue;
-                tree[m_LeftChild].doPrint(pad + "  ", tree, result);
-                tree[m_RightChild].doPrint(pad + "  ", tree, result);
-            }
-            return result;
-        }
-
-    private:
-        std::size_t m_SplitFeature = 0;
-        double m_SplitValue = 0.0;
-        bool m_AssignMissingToLeft = true;
-        std::int32_t m_LeftChild = -1;
-        std::int32_t m_RightChild = -1;
-        double m_NodeValue = 0.0;
-        double m_Gain = 0.0;
-        double m_Curvature = 0.0;
-    };
-
     //! \brief Maintains a collection of statistics about a leaf of the regression
     //! tree as it is built.
     //!
@@ -379,9 +259,11 @@ private:
                             const CDataFrameCategoryEncoder& encoder,
                             const TRegularization& regularization,
                             const TDoubleVecVec& candidateSplits,
+                            std::size_t depth,
                             TSizeVec featureBag,
                             core::CPackedBitVector rowMask)
-            : m_Id{id}, m_Regularization{regularization}, m_CandidateSplits{candidateSplits},
+            : m_Id{id}, m_Regularization{regularization},
+              m_CandidateSplits{candidateSplits}, m_Depth{depth},
               m_FeatureBag{std::move(featureBag)}, m_RowMask{std::move(rowMask)} {
 
             std::sort(m_FeatureBag.begin(), m_FeatureBag.end());
@@ -395,42 +277,7 @@ private:
         CLeafNodeStatistics(std::size_t id,
                             const CLeafNodeStatistics& parent,
                             const CLeafNodeStatistics& sibling,
-                            core::CPackedBitVector rowMask)
-            : m_Id{id}, m_Regularization{sibling.m_Regularization},
-              m_CandidateSplits{sibling.m_CandidateSplits},
-              m_FeatureBag{sibling.m_FeatureBag}, m_RowMask{std::move(rowMask)} {
-
-            LOG_TRACE(<< "row mask = " << m_RowMask);
-            LOG_TRACE(<< "feature bag = " << core::CContainerPrinter::print(m_FeatureBag));
-
-            m_Gradients.resize(m_CandidateSplits.size());
-            m_Curvatures.resize(m_CandidateSplits.size());
-            m_MissingGradients.resize(m_CandidateSplits.size(), 0.0);
-            m_MissingCurvatures.resize(m_CandidateSplits.size(), 0.0);
-
-            for (std::size_t i = 0; i < m_CandidateSplits.size(); ++i) {
-                std::size_t numberSplits{m_CandidateSplits[i].size() + 1};
-                m_Gradients[i].resize(numberSplits);
-                m_Curvatures[i].resize(numberSplits);
-                for (std::size_t j = 0; j < numberSplits; ++j) {
-                    m_Gradients[i][j] = parent.m_Gradients[i][j] -
-                                        sibling.m_Gradients[i][j];
-                    m_Curvatures[i][j] = parent.m_Curvatures[i][j] -
-                                         sibling.m_Curvatures[i][j];
-                }
-                m_MissingGradients[i] = parent.m_MissingGradients[i] -
-                                        sibling.m_MissingGradients[i];
-                m_MissingCurvatures[i] = parent.m_MissingCurvatures[i] -
-                                         sibling.m_MissingCurvatures[i];
-            }
-
-            LOG_TRACE(<< "gradients = " << core::CContainerPrinter::print(m_Gradients));
-            LOG_TRACE(<< "curvatures = " << core::CContainerPrinter::print(m_Curvatures));
-            LOG_TRACE(<< "missing gradients = "
-                      << core::CContainerPrinter::print(m_MissingGradients));
-            LOG_TRACE(<< "missing curvatures = "
-                      << core::CContainerPrinter::print(m_MissingCurvatures));
-        }
+                            core::CPackedBitVector rowMask);
 
         CLeafNodeStatistics(const CLeafNodeStatistics&) = delete;
 
@@ -456,7 +303,8 @@ private:
             if (leftChildHasFewerRows) {
                 auto leftChild = std::make_shared<CLeafNodeStatistics>(
                     leftChildId, numberThreads, frame, encoder, regularization,
-                    candidateSplits, std::move(featureBag), std::move(leftChildRowMask));
+                    candidateSplits, m_Depth + 1, std::move(featureBag),
+                    std::move(leftChildRowMask));
                 auto rightChild = std::make_shared<CLeafNodeStatistics>(
                     rightChildId, *this, *leftChild, std::move(rightChildRowMask));
 
@@ -464,8 +312,8 @@ private:
             }
 
             auto rightChild = std::make_shared<CLeafNodeStatistics>(
-                rightChildId, numberThreads, frame, encoder, regularization,
-                candidateSplits, std::move(featureBag), std::move(rightChildRowMask));
+                rightChildId, numberThreads, frame, encoder, regularization, candidateSplits,
+                m_Depth + 1, std::move(featureBag), std::move(rightChildRowMask));
             auto leftChild = std::make_shared<CLeafNodeStatistics>(
                 leftChildId, *this, *rightChild, std::move(leftChildRowMask));
 
@@ -650,6 +498,7 @@ private:
         std::size_t m_Id;
         const TRegularization& m_Regularization;
         const TDoubleVecVec& m_CandidateSplits;
+        std::size_t m_Depth;
         TSizeVec m_FeatureBag;
         core::CPackedBitVector m_RowMask;
         TDoubleVecVec m_Gradients;
@@ -729,7 +578,7 @@ private:
     TSizeVec candidateRegressorFeatures() const;
 
     //! Get the root node of \p tree.
-    static const CNode& root(const TNodeVec& tree);
+    static const CBoostedTreeNode& root(const TNodeVec& tree);
 
     //! Get the forest's prediction for \p row.
     static double predictRow(const CEncodedDataFrameRowRef& row, const TNodeVecVec& forest);
