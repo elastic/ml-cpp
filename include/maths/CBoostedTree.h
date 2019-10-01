@@ -13,6 +13,7 @@
 
 #include <maths/CBasicStatistics.h>
 #include <maths/CDataFrameRegressionModel.h>
+#include <maths/CLinearAlgebra.h>
 #include <maths/ImportExport.h>
 
 #include <cstddef>
@@ -29,18 +30,28 @@ class CEncodedDataFrameRowRef;
 namespace boosted_tree_detail {
 class MATHS_EXPORT CArgMinLossImpl {
 public:
+    CArgMinLossImpl(double lambda);
     virtual ~CArgMinLossImpl() = default;
 
     virtual std::unique_ptr<CArgMinLossImpl> clone() const = 0;
+    virtual bool nextPass() = 0;
     virtual void add(double prediction, double actual) = 0;
     virtual void merge(const CArgMinLossImpl& other) = 0;
     virtual double value() const = 0;
+
+protected:
+    double lambda() const;
+
+private:
+    double m_Lambda;
 };
 
 //! \brief Finds the value to add to a set of predictions which minimises the MSE.
 class MATHS_EXPORT CArgMinMseImpl final : public CArgMinLossImpl {
 public:
+    CArgMinMseImpl(double lambda);
     std::unique_ptr<CArgMinLossImpl> clone() const override;
+    bool nextPass() override;
     void add(double prediction, double actual) override;
     void merge(const CArgMinLossImpl& other) override;
     double value() const override;
@@ -50,6 +61,46 @@ private:
 
 private:
     TMeanAccumulator m_MeanError;
+};
+
+//! \brief Finds the value to add to the argument of the logistic function which
+//! minimises the cross entropy loss.
+class MATHS_EXPORT CArgMinLogisticImpl final : public CArgMinLossImpl {
+public:
+    CArgMinLogisticImpl(double lambda);
+    std::unique_ptr<CArgMinLossImpl> clone() const override;
+    bool nextPass() override;
+    void add(double prediction, double actual) override;
+    void merge(const CArgMinLossImpl& other) override;
+    double value() const override;
+
+private:
+    using TMinMaxAccumulator = CBasicStatistics::CMinMax<double>;
+    using TSizeVector = CVectorNx1<std::size_t, 2>;
+    using TSizeVectorVec = std::vector<TSizeVector>;
+
+private:
+    std::size_t bucket(double prediction) const {
+        double bucket{(prediction - m_MinMaxPrediction.min()) / this->bucketWidth()};
+        return std::min(static_cast<std::size_t>(bucket),
+                        m_BucketCategoryCounts.size() - 1);
+    }
+
+    double bucketCentre(std::size_t bucket) const {
+        return m_MinMaxPrediction.min() +
+               (static_cast<double>(bucket) + 0.5) * this->bucketWidth();
+    }
+
+    double bucketWidth() const {
+        return m_MinMaxPrediction.range() /
+               static_cast<double>(m_BucketCategoryCounts.size());
+    }
+
+private:
+    std::size_t m_CurrentPass = 0;
+    TMinMaxAccumulator m_MinMaxPrediction;
+    TSizeVector m_CategoryCounts;
+    TSizeVectorVec m_BucketCategoryCounts;
 };
 }
 
@@ -63,6 +114,9 @@ public:
 
     CArgMinLoss& operator=(const CArgMinLoss& other);
     CArgMinLoss& operator=(CArgMinLoss&& other) = default;
+
+    //! The number of passes over the data this needs.
+    bool nextPass() const;
 
     //! Update with a point prediction and actual value.
     void add(double prediction, double actual);
@@ -94,6 +148,8 @@ private:
 class MATHS_EXPORT CLoss {
 public:
     virtual ~CLoss() = default;
+    //! Clone the loss.
+    virtual std::unique_ptr<CLoss> clone() const = 0;
     //! The value of the loss function.
     virtual double value(double prediction, double actual) const = 0;
     //! The slope of the loss function.
@@ -103,7 +159,7 @@ public:
     //! Returns true if the loss curvature is constant.
     virtual bool isCurvatureConstant() const = 0;
     //! Get an object which computes the leaf value that minimises loss.
-    virtual CArgMinLoss minimizer() const = 0;
+    virtual CArgMinLoss minimizer(double lambda) const = 0;
     //! Get the name of the loss function
     virtual const std::string& name() const = 0;
 
@@ -114,11 +170,36 @@ protected:
 //! \brief The MSE loss function.
 class MATHS_EXPORT CMse final : public CLoss {
 public:
+    std::unique_ptr<CLoss> clone() const override;
     double value(double prediction, double actual) const override;
     double gradient(double prediction, double actual) const override;
     double curvature(double prediction, double actual) const override;
     bool isCurvatureConstant() const override;
-    CArgMinLoss minimizer() const override;
+    CArgMinLoss minimizer(double lambda) const override;
+    const std::string& name() const override;
+
+public:
+    static const std::string NAME;
+};
+
+//! \brief Implements loss for logistic regression for binary classification.
+//!
+//! DESCRIPTION:\n
+//! This targets the cross entropy loss using the logistic function of the sum of
+//! the of the tree predictions to estimate the probability of one of the classes
+//! for a binary classification task
+//! <pre class="fragment">
+//!   \f$\displaystyle l_i(p) = -(1 - a_i) \log(1 - S(p)) - a_i \log(S(p))\f$
+//! </pre>
+//! where \f$a_i\f$ denotes the actual class of the i'th example, \f$p\f$ is the
+//! prediction and \f$S(\cdot)\f$ denotes the logistic function.
+class MATHS_EXPORT CLogistic final : public CLoss {
+    std::unique_ptr<CLoss> clone() const override;
+    double value(double prediction, double actual) const override;
+    double gradient(double prediction, double actual) const override;
+    double curvature(double prediction, double actual) const override;
+    bool isCurvatureConstant() const override;
+    CArgMinLoss minimizer(double lambda) const override;
     const std::string& name() const override;
 
 public:
