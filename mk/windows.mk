@@ -56,6 +56,18 @@ AR_OUT_FLAG=-OUT:
 # do then we'll rebuild everything from scratch
 DEP_FILTER= 2>/dev/null | egrep "^.line .*(\\.h|$<)" | tr -s '\\\\' '/' | awk -F'"' '{ print $$2 }' | egrep -i -v "usr.local|$(LOCAL_DRIVE)..progra" | sed 's~/[a-z]*/\.\./~/~g' | sort -f -u | sort -t. -k2 | tr '\r\n\t' ' ' | sed 's/  / /g' | sed 's/^ //' | sed 's/ $$//'
 DEP_REFORMAT=sed 's,$<,$(basename $@)$(OBJECT_FILE_EXT) $@ : $<,'
+OBJECT_FILE_EXT=.obj
+EXE_EXT=.exe
+EXE_DIR=bin
+DYNAMIC_LIB_EXT=.dll
+DYNAMIC_LIB_DIR=bin
+IMPORT_LIB_DIR=lib
+RESOURCE_FILE=$(OBJS_DIR)/ml.res
+STATIC_LIB_EXT=.lib
+SHELL_SCRIPT_EXT=.bat
+# This temp directory assumes we're running in a Unix-like shell such as Git bash
+UT_TMP_DIR=/tmp
+RESOURCES_DIR=resources
 LOCALLIBS=AdvAPI32.lib shell32.lib Version.lib
 NETLIBS=WS2_32.lib
 BOOSTVER=1_65_1
@@ -83,16 +95,6 @@ ZLIBLIBS=zdll.lib
 STRPTIMELIBS=strptime.lib
 EXELDFLAGS=-nologo -Zi $(CRT_OPT) -link -MAP -OPT:REF -SUBSYSTEM:CONSOLE,6.1 -STACK:0x800000 -INCREMENTAL:NO -LIBPATH:$(CPP_PLATFORM_HOME)/$(IMPORT_LIB_DIR)
 UTLDFLAGS=$(EXELDFLAGS)
-OBJECT_FILE_EXT=.obj
-DYNAMIC_LIB_EXT=.dll
-DYNAMIC_LIB_DIR=bin
-IMPORT_LIB_DIR=lib
-RESOURCE_FILE=$(OBJS_DIR)/ml.res
-STATIC_LIB_EXT=.lib
-SHELL_SCRIPT_EXT=.bat
-# This temp directory assumes we're running in a Unix-like shell such as Git bash
-UT_TMP_DIR=/tmp
-EXE_EXT=.exe
 INSTALL=cp
 CP=cp
 RC=rc -nologo
