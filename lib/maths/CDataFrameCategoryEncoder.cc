@@ -454,6 +454,10 @@ std::string CDataFrameCategoryEncoder::COneHotEncoding::typeString() const {
     return ONE_HOT_ENCODING_TAG;
 }
 
+size_t CDataFrameCategoryEncoder::COneHotEncoding::hotCategory() const {
+    return m_HotCategory;
+}
+
 CDataFrameCategoryEncoder::CMappedEncoding::CMappedEncoding(std::size_t inputColumnIndex,
                                                             double mic,
                                                             EEncoding encoding,
@@ -510,6 +514,14 @@ bool CDataFrameCategoryEncoder::CMappedEncoding::acceptRestoreTraverserForDerive
 std::string CDataFrameCategoryEncoder::CMappedEncoding::typeString() const {
     return (m_Encoding == EEncoding::E_Frequency) ? FREQUENCY_ENCODING_TAG
                                                   : TARGET_MEAN_ENCODING_TAG;
+}
+
+const TDoubleVec& CDataFrameCategoryEncoder::CMappedEncoding::map() const {
+    return m_Map;
+}
+
+double CDataFrameCategoryEncoder::CMappedEncoding::fallback() const {
+    return m_Fallback;
 }
 
 CMakeDataFrameCategoryEncoder::CMakeDataFrameCategoryEncoder(std::size_t numberThreads,

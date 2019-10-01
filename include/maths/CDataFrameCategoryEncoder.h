@@ -163,6 +163,9 @@ public:
 
     private:
         std::size_t m_HotCategory;
+
+    public:
+        size_t hotCategory() const;
     };
 
     //! \brief Looks up the encoding in a map.
@@ -186,6 +189,13 @@ public:
     private:
         EEncoding m_Encoding;
         TDoubleVec m_Map;
+
+    public:
+        const TDoubleVec& map() const;
+
+        double fallback() const;
+
+    private:
         double m_Fallback;
         bool m_Binary;
     };

@@ -9,6 +9,8 @@
 #include <core/CRapidJsonLineWriter.h>
 #include <core/CStateRestoreTraverser.h>
 
+#include <maths/CDataFrameCategoryEncoder.h>
+
 #include <rapidjson/document.h>
 
 #include <boost/optional.hpp>
@@ -125,10 +127,14 @@ private:
 };
 
 class CEncoding {
+public:
+    void field(const std::string& field);
+
+private:
     /**
      * Input field name
      */
-    std::string field;
+    std::string m_Field;
 };
 
 /**
@@ -136,44 +142,60 @@ class CEncoding {
  * distribution
  */
 class CFrequencyEncoding : public CEncoding {
+public:
+    void featureName(const std::string& featureName);
+
+    void frequencyMap(const std::map<std::string, double>& frequencyMap);
+
+private:
     /**
      * Feature name after pre-processing
      */
-    std::string featureName;
-
+    std::string m_FeatureName;
     /**
      * Map from the category names to the frequency values.
      */
-    std::map<std::string, double> frequencyMap;
+    std::map<std::string, double> m_FrequencyMap;
 };
 
 /**
  * Application of the one-hot encoding function on a single column.
  */
 class COneHotEncoding : public CEncoding {
+public:
+    void hotMap(const std::map<std::string, std::string>& hotMap);
+
+private:
     /**
      * Map from the category names of the original field to the new field names.
      */
-    std::map<std::string, std::string> hotMap;
+    std::map<std::string, std::string> m_HotMap;
 };
 
 /**
  * Mapping from categorical columns to numerical values related to the target value
  */
 class CTargetMeanEncoding : public CEncoding {
+public:
+    void defaultValue(double defaultValue);
+
+    void featureName(const std::string& featureName);
+
+    void targetMap(const std::map<std::string, double>& targetMap);
+
 private:
     /**
      * Value for categories that have not been seen before
      */
-    double defaultValue;
+    double m_DefaultValue;
     /**
      * Feature name after pre-processing
      */
-    std::string featureName;
+    std::string m_FeatureName;
     /**
      * Map from the category names to the target values.
      */
-    std::map<std::string, double> targetMap;
+    std::map<std::string, double> m_TargetMap;
 };
 
 /**
@@ -184,11 +206,16 @@ class CInferenceModelDefinition {
 public:
     using TJsonDocument = rapidjson::Document;
     using TStringVec = std::vector<std::string>;
+    using TEncodingUPtr = std::unique_ptr<maths::CDataFrameCategoryEncoder::CEncoding>;
+    using TEncodingUPtrVec = std::vector<TEncodingUPtr>;
+    using TApiEncodingUPtr = std::unique_ptr<api::CEncoding>;
+    using TApiEncodingUPtrVec = std::vector<TApiEncodingUPtr>;
 
 public:
     std::string jsonString();
 
-    void fieldNames(const std::vector<std::string>& fieldNames);
+    void fieldNames(const TStringVec& fieldNames);
+    void encodings(const TEncodingUPtrVec& encodings);
 
 private:
     /**
@@ -198,11 +225,13 @@ private:
     /**
      * Optional step for pre-processing data, e.g. vector embedding, one-hot-encoding, etc.
      */
-    boost::optional<std::vector<CEncoding*>> m_Preprocessing;
+    TApiEncodingUPtrVec m_Preprocessing;
     /**
      * Details of the model evaluation step.
      */
     std::unique_ptr<CBasicEvaluator> m_TrainedModel;
+
+    TStringVec m_FieldNames;
 };
 }
 }

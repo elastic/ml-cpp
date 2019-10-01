@@ -9,6 +9,8 @@
 #include <core/CRapidJsonLineWriter.h>
 #include <core/RestoreMacros.h>
 
+#include <unordered_map>
+
 namespace ml {
 namespace api {
 
@@ -194,8 +196,64 @@ void CBasicEvaluator::featureNames(const CBasicEvaluator::TStringVec& featureNam
 }
 
 void CInferenceModelDefinition::fieldNames(const std::vector<std::string>& fieldNames) {
+    m_FieldNames = fieldNames;
     m_Input.columns(fieldNames);
-    m_TrainedModel.get(fieldNames);
+
+    // TODO this is not correct?
+    m_TrainedModel->featureNames(fieldNames);
+}
+
+void CInferenceModelDefinition::encodings(const CInferenceModelDefinition::TEncodingUPtrVec &encodings) {
+    if (encodings.empty()) {
+        return;
+    }
+    using TSizeStringPr = std::pair<std::size_t, std::string>;
+    using TSizeStringPrVector = std::vector<TSizeStringPr>;
+    using TStringSizeStringPrVectorMap = std::unordered_map<std::string, TSizeStringPrVector >;
+    TStringSizeStringPrVectorMap oneHotEncodingMap;
+    for (const auto& encoding : encodings) {
+        std::size_t inputColumnIndex = encoding->inputColumnIndex();
+        std::string fieldName = m_FieldNames[inputColumnIndex];
+        if  (encoding->type() == maths::EEncoding::E_OneHot) {
+            std::size_t category = static_cast<maths::CDataFrameCategoryEncoder::COneHotEncoding *>
+            (encoding.get())->hotCategory();
+            std::string encodedFieldName = fieldName + "_" + std::to_string(category);
+            if (oneHotEncodingMap.find(fieldName) == oneHotEncodingMap.end()) {
+                oneHotEncodingMap.emplace(fieldName,
+                                          category, encodedFieldName);
+            } else {
+                oneHotEncodingMap[fieldName].emplace_back(category, encodedFieldName);
+            }
+            // TODO an api encoding still needs to be created
+        }
+        else if (encoding->type() == maths::EEncoding::E_TargetMean) {
+            maths::CDataFrameCategoryEncoder::CMappedEncoding *enc =
+                    static_cast<maths::CDataFrameCategoryEncoder::CMappedEncoding *>(encoding.get());
+            api::CTargetMeanEncoding apiEncoding;
+            apiEncoding.field(fieldName);
+            apiEncoding.defaultValue(enc->fallback());
+            apiEncoding.featureName(fieldName + "_targetmean");
+            std::map<std::string, double> map;
+            for (std::size_t i = 0; i < enc->map().size(); ++i) {
+                // TODO this should be real categories
+                map.emplace(std::to_string(i), enc->map()[i]);
+            }
+            apiEncoding.targetMap(map);
+        }
+        else if (encoding->type() == maths::EEncoding::E_Frequency) {
+            maths::CDataFrameCategoryEncoder::CMappedEncoding *enc =
+                    static_cast<maths::CDataFrameCategoryEncoder::CMappedEncoding *>(encoding.get());
+            api::CFrequencyEncoding apiEncoding;
+            apiEncoding.field(fieldName);
+            apiEncoding.featureName(fieldName + "_frequency");
+            std::map<std::string, double> map;
+            for (std::size_t i = 0; i < enc->map().size(); ++i) {
+                // TODO this should be real categories
+                map.emplace(std::to_string(i), enc->map()[i]);
+            }
+            apiEncoding.frequencyMap(map);
+        }
+    }
 }
 
 const CInput::TStringVecOptional& CInput::columns() const {
@@ -204,6 +262,34 @@ const CInput::TStringVecOptional& CInput::columns() const {
 
 void CInput::columns(const TStringVec& columns) {
     m_Columns = columns;
+}
+
+void CTargetMeanEncoding::defaultValue(double defaultValue) {
+    m_DefaultValue = defaultValue;
+}
+
+void CTargetMeanEncoding::featureName(const std::string &featureName) {
+    m_FeatureName = featureName;
+}
+
+void CTargetMeanEncoding::targetMap(const std::map<std::string, double> &targetMap) {
+    m_TargetMap = targetMap;
+}
+
+void CEncoding::field(const std::string &field) {
+    m_Field = field;
+}
+
+void CFrequencyEncoding::featureName(const std::string &featureName) {
+    m_FeatureName = featureName;
+}
+
+void CFrequencyEncoding::frequencyMap(const std::map<std::string, double> &frequencyMap) {
+    m_FrequencyMap = frequencyMap;
+}
+
+void COneHotEncoding::hotMap(const std::map<std::string, std::string> &hotMap) {
+    m_HotMap = hotMap;
 }
 }
 }
