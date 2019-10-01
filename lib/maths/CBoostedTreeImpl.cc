@@ -701,7 +701,7 @@ CBoostedTreeImpl::trainTree(core::CDataFrame& frame,
 }
 
 std::size_t CBoostedTreeImpl::numberFeatures() const {
-    return m_Encoder->numberFeatures();
+    return m_Encoder->numberEncodedColumns();
 }
 
 std::size_t CBoostedTreeImpl::featureBagSize() const {

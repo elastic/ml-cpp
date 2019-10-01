@@ -257,6 +257,9 @@ public:
 public:
     ~CBoostedTree() override;
 
+    CBoostedTree(const CBoostedTree&) = delete;
+    CBoostedTree& operator=(const CBoostedTree&) = delete;
+
     //! Train on the examples in the data frame supplied to the constructor.
     void train() override;
 
@@ -284,6 +287,9 @@ public:
 
     //! Persist by passing information to \p inserter.
     void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
+
+    //! Populate the object from serialized data.
+    bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
 
 private:
     using TImplUPtr = std::unique_ptr<CBoostedTreeImpl>;

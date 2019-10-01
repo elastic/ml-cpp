@@ -12,8 +12,8 @@ LDFLAGS:=$(UTLDFLAGS) $(LDFLAGS) $(LIB_PATH) $(ML_VER_LDFLAGS)
 PICFLAGS=$(PLATPIEFLAGS)
 LIBS:=$(LOCALLIBS) $(LIB_ML_VER) $(LIBS)
 
-$(TARGET): $(OBJS) $(RESOURCE_FILE)
-	$(CXX) $(LINK_OUT_FLAG)$@ $(PDB_FLAGS) $(OBJS) $(RESOURCE_FILE) $(LDFLAGS) $(LIBS)
+$(TARGET): $(OBJS) $(RESOURCE_FILE) $(PLIST_FILE)
+	$(CXX) $(LINK_OUT_FLAG)$@ $(PDB_FLAGS) $(OBJS) $(RESOURCE_FILE) $(LDFLAGS) $(PLIST_FILE_LDFLAGS) $(LIBS)
 
 test:
 	+$(TEST_CMDS)
@@ -38,7 +38,7 @@ build: $(TARGET)
 	$(MAKE) -f $(filter-out %.mk %.d,$(MAKEFILE_LIST)) install
 
 clean:
-	$(RM) $(OBJS_DIR)/*$(OBJECT_FILE_EXT) $(OBJS_DIR)/*.d* $(OBJS_DIR)/*.plist $(OBJS_DIR)/*.res $(APP_CLEAN) core core.* $(TARGET) $(basename $(TARGET)).pdb $(basename $(TARGET)).map $(basename $(TARGET)).exp
+	$(RM) $(OBJS_DIR)/*$(OBJECT_FILE_EXT) $(OBJS_DIR)/*.d* $(OBJS_DIR)/*.plist $(OBJS_DIR)/*.xml $(OBJS_DIR)/*.res $(APP_CLEAN) core core.* $(TARGET) $(basename $(TARGET)).pdb $(basename $(TARGET)).map $(basename $(TARGET)).exp
 	+$(CLEAN_CMDS)
 	$(RMDIR) results
 

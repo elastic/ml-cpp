@@ -46,6 +46,11 @@ Bayesian optimisation based hyperparameter search. (See {ml-pull}698[#698].)
 
 == {es} version 7.4.1
 
+=== Enhancements
+
+* The {ml} native processes are now arranged in a .app directory structure on
+  macOS, to allow for notarization on macOS Catalina. (See {ml-pull}593[#593].)
+
 === Bug Fixes
 
 * A reference to a temporary variable was causing forecast model restoration to fail.
