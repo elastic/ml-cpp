@@ -214,8 +214,8 @@ CDataFrameAnalysisRunner::TStatePersister CDataFrameAnalysisRunner::statePersist
     };
 }
 
-void CDataFrameAnalysisRunner::serializeRunner(const TStrVec& fieldNames,
-                                               core::CRapidJsonConcurrentLineWriter& writer) const {
+void CDataFrameAnalysisRunner::serializeRunner(const TStrVec &/*fieldNames*/, const TStrSizeUMapVec &/*categoryNameMap*/,
+                                               core::CRapidJsonConcurrentLineWriter &/*writer*/) const {
     // by default do nothing
 }
 

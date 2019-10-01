@@ -19,10 +19,12 @@ class CInferenceModelFormatter {
 public:
     using TRapidjsonUPtr = std::unique_ptr<rapidjson::Document>;
     using TStrVec = std::vector<std::string>;
+    using TStrSizeUMap = std::unordered_map<std::string, std::size_t>;
+    using TStrSizeUMapVec = std::vector<TStrSizeUMap>;
 
 public:
-    explicit CInferenceModelFormatter(const std::string& str, const TStrVec& fieldNames);
-    explicit CInferenceModelFormatter(const rapidjson::Document& doc);
+    explicit CInferenceModelFormatter(const std::string &str, const TStrVec &fieldNames,
+                                      const TStrSizeUMapVec &categoricalValuesMap);
 
     std::string toString();
 

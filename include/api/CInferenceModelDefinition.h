@@ -18,6 +18,7 @@
 #include <map>
 #include <string>
 #include <vector>
+#include <unordered_map>
 
 namespace ml {
 namespace api {
@@ -30,7 +31,6 @@ public:
     using TJsonValue = rapidjson::Document::GenericValue;
     using TRapidJsonWriter = core::CRapidJsonLineWriter<rapidjson::StringBuffer>;
     virtual void addToDocument(rapidjson::Value& parentObject, TRapidJsonWriter& writer) = 0;
-    virtual bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
 };
 
 class CAggregateOutput {};
@@ -49,6 +49,12 @@ class SWeightedSum : public CAggregateOutput {
 enum ENumericRelationship { E_LTE };
 
 class CTreeNode : public CSerializableToJson {
+public:
+    //! Populate the object from serialized data
+    bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
+    void addToDocument(rapidjson::Value& parentObject, TRapidJsonWriter& writer) override;
+
+private:
     ENumericRelationship m_DecisionType = E_LTE;
     bool m_DefaultLeft;
     boost::optional<std::size_t> m_LeftChild;
@@ -58,10 +64,6 @@ class CTreeNode : public CSerializableToJson {
     boost::optional<double> m_SplitGain;
     std::size_t m_NodeIndex;
     double m_Threshold;
-
-    //! Populate the object from serialized data
-    bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
-    void addToDocument(rapidjson::Value& parentObject, TRapidJsonWriter& writer) override;
 };
 
 /**
@@ -70,32 +72,45 @@ class CTreeNode : public CSerializableToJson {
 class CBasicEvaluator : public CSerializableToJson {
 public:
     using TStringVec = std::vector<std::string>;
+    using TStringVecOptional = boost::optional<TStringVec>;
 
-public:
-    //! Populate the object from serialized data
-    virtual bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) = 0;
-
-    virtual void addToDocument(rapidjson::Value& parentObject, TRapidJsonWriter& writer);
-
-private:
-    TStringVec m_FeatureNames;
+    enum ETargetType { E_Classification, E_Regression };
 
 public:
     const TStringVec& featureNames() const;
 
     virtual void featureNames(const TStringVec& featureNames);
+    //! Populate the object from serialized data
+    virtual bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) = 0;
+
+    void addToDocument(rapidjson::Value& parentObject, TRapidJsonWriter& writer) override;
+    void classificationLabels(const TStringVec& classificationLabels);
+
+    void targetType(ETargetType targetType);
+
+private:
+    TStringVec m_FeatureNames;
+    TStringVecOptional m_ClassificationLabels;
+    ETargetType m_TargetType;
 };
 
 class CTree : public CBasicEvaluator {
-    std::vector<CTreeNode> m_TreeStructure;
+public:
+    using TTreeNodeVec = std::vector<CTreeNode>;
+
+public:
     //! Populate the object from serialized data
     bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) override;
     void addToDocument(rapidjson::Value& parentObject, TRapidJsonWriter& writer) override;
+
+private:
+    TTreeNodeVec m_TreeStructure;
 };
 
 class CEnsemble : public CBasicEvaluator {
 public:
     using TAggregateOutputUPtr = std::unique_ptr<CAggregateOutput>;
+    using TTreeVec = std::vector<CTree>;
 
 public:
     bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) override;
@@ -103,8 +118,7 @@ public:
     void featureNames(const TStringVec& featureNames) override;
 
 private:
-    std::vector<CTree> m_TrainedModels;
-
+    TTreeVec m_TrainedModels;
     TAggregateOutputUPtr m_AggregateOutput;
 };
 
@@ -117,23 +131,25 @@ public:
     using TStringVecOptional = boost::optional<TStringVec>;
 
 public:
-    const TStringVecOptional& columns() const;
+    const TStringVec & columns() const;
     void columns(const TStringVec& columns);
-    bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) override;
+//    bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
     void addToDocument(rapidjson::Value& parentObject, TRapidJsonWriter& writer) override;
 
 private:
-    TStringVecOptional m_Columns;
+    TStringVec m_Columns;
 };
 
-class CEncoding {
+class CEncoding : public CSerializableToJson {
 public:
     void field(const std::string& field);
 
+    CEncoding(const std::string &field);
+
+    void addToDocument(rapidjson::Value& parentObject, TRapidJsonWriter& writer) override;
+    virtual const std::string& typeString() const = 0;
+
 private:
-    /**
-     * Input field name
-     */
     std::string m_Field;
 };
 
@@ -143,9 +159,15 @@ private:
  */
 class CFrequencyEncoding : public CEncoding {
 public:
+    CFrequencyEncoding(const std::string &field, const std::string &featureName,
+                       const std::map<std::string, double> &frequencyMap);
+
     void featureName(const std::string& featureName);
 
     void frequencyMap(const std::map<std::string, double>& frequencyMap);
+    void addToDocument(rapidjson::Value& parentObject, TRapidJsonWriter& writer) override;
+
+    const std::string &typeString() const override;
 
 private:
     /**
@@ -163,13 +185,21 @@ private:
  */
 class COneHotEncoding : public CEncoding {
 public:
-    void hotMap(const std::map<std::string, std::string>& hotMap);
+    using TStringStringUMap = std::map<std::string, std::string>;
+
+public:
+    COneHotEncoding(const std::string &field, const TStringStringUMap &hotMap);
+
+    TStringStringUMap & hotMap();
+    void addToDocument(rapidjson::Value& parentObject, TRapidJsonWriter& writer) override;
+
+    const std::string &typeString() const override;
 
 private:
     /**
      * Map from the category names of the original field to the new field names.
      */
-    std::map<std::string, std::string> m_HotMap;
+    TStringStringUMap m_HotMap;
 };
 
 /**
@@ -177,11 +207,16 @@ private:
  */
 class CTargetMeanEncoding : public CEncoding {
 public:
-    void defaultValue(double defaultValue);
+    CTargetMeanEncoding(const std::string &field, double defaultValue, const std::string &featureName,
+                        const std::map<std::string, double> &targetMap);
 
+    void defaultValue(double defaultValue);
     void featureName(const std::string& featureName);
 
+    const std::string &typeString() const override;
+
     void targetMap(const std::map<std::string, double>& targetMap);
+    void addToDocument(rapidjson::Value& parentObject, TRapidJsonWriter& writer) override;
 
 private:
     /**
@@ -210,12 +245,21 @@ public:
     using TEncodingUPtrVec = std::vector<TEncodingUPtr>;
     using TApiEncodingUPtr = std::unique_ptr<api::CEncoding>;
     using TApiEncodingUPtrVec = std::vector<TApiEncodingUPtr>;
+    using TStrSizeUMap = std::unordered_map<std::string, std::size_t>;
+    using TStrSizeUMapVec = std::vector<TStrSizeUMap>;
+    using TSizeStrUMap = std::unordered_map<std::size_t,std::string>;
+    using TSizeStrUMapVec = std::vector<TSizeStrUMap>;
 
 public:
     std::string jsonString();
+    rapidjson::Value && jsonObject();
 
     void fieldNames(const TStringVec& fieldNames);
     void encodings(const TEncodingUPtrVec& encodings);
+    void trainedModel(std::unique_ptr<CBasicEvaluator> &&trainedModel);
+
+    const TStrSizeUMapVec &categoryNameMap() const;
+    void categoryNameMap(const TStrSizeUMapVec &categoryNameMap);
 
 private:
     /**
@@ -232,6 +276,9 @@ private:
     std::unique_ptr<CBasicEvaluator> m_TrainedModel;
 
     TStringVec m_FieldNames;
+    TStrSizeUMapVec m_CategoryNameMap;
+    TSizeStrUMapVec m_ReverseCategoryNameMap;
+
 };
 }
 }

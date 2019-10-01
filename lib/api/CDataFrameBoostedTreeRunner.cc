@@ -40,6 +40,10 @@ const std::string FEATURE_BAG_FRACTION{"feature_bag_fraction"};
 const std::string NUMBER_ROUNDS_PER_HYPERPARAMETER{"number_rounds_per_hyperparameter"};
 const std::string BAYESIAN_OPTIMISATION_RESTARTS{"bayesian_optimisation_restarts"};
 
+const std::string RESULT_INFERENCE_MODEL{"inference_model"};
+
+
+
 const CDataFrameAnalysisConfigReader PARAMETER_READER{[] {
     CDataFrameAnalysisConfigReader theReader;
     theReader.addParameter(DEPENDENT_VARIABLE_NAME,
@@ -253,8 +257,9 @@ std::size_t CDataFrameBoostedTreeRunner::estimateBookkeepingMemoryUsage(
     return m_BoostedTreeFactory->estimateMemoryUsage(totalNumberRows, numberColumns);
 }
 
-void CDataFrameBoostedTreeRunner::serializeRunner(const TStrVec& fieldNames,
-                                                  core::CRapidJsonConcurrentLineWriter& writer) const {
+void
+CDataFrameBoostedTreeRunner::serializeRunner(const TStrVec &fieldNames, const TStrSizeUMapVec &categoryNameMap,
+                                             core::CRapidJsonConcurrentLineWriter &writer) const {
     std::stringstream strm;
     {
         core::CJsonStatePersistInserter inserter(strm);
@@ -263,10 +268,15 @@ void CDataFrameBoostedTreeRunner::serializeRunner(const TStrVec& fieldNames,
     }
     LOG_DEBUG(<< "serializeRunner: " << strm.str());
 
-    CInferenceModelFormatter formatter{strm.str(), fieldNames};
+    CInferenceModelFormatter formatter{strm.str(), fieldNames, categoryNameMap};
     LOG_DEBUG(<< "Inference model json: " << formatter.toString());
 
-    // TODO write to the `writer`.
+    rapidjson::Document doc = writer.makeDoc();
+    doc.Parse(formatter.toString());
+    writer.StartObject();
+    writer.Key(RESULT_INFERENCE_MODEL);
+    writer.write(doc);
+    writer.EndObject();
 }
 
 const std::string& CDataFrameBoostedTreeRunnerFactory::name() const {

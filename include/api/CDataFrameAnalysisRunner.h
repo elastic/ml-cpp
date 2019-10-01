@@ -21,6 +21,7 @@
 #include <string>
 #include <thread>
 #include <vector>
+#include <unordered_map>
 
 namespace ml {
 namespace core {
@@ -62,6 +63,9 @@ public:
     using TStrVec = std::vector<std::string>;
     using TRowRef = core::data_frame_detail::CRowRef;
     using TProgressRecorder = std::function<void(double)>;
+
+    using TStrSizeUMap = std::unordered_map<std::string, std::size_t>;
+    using TStrSizeUMapVec = std::vector<TStrSizeUMap>;
 
 public:
     //! The intention is that concrete objects of this hierarchy are constructed
@@ -134,8 +138,8 @@ public:
     //! of the proportion of total work complete for a single run.
     double progress() const;
 
-    virtual void serializeRunner(const TStrVec& fieldNames,
-                                 core::CRapidJsonConcurrentLineWriter& writer) const;
+    virtual void serializeRunner(const TStrVec &fieldNames, const TStrSizeUMapVec &categoryNameMap,
+                                 core::CRapidJsonConcurrentLineWriter &writer) const;
 
 protected:
     using TStatePersister =

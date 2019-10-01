@@ -18,6 +18,7 @@
 #include <memory>
 #include <string>
 #include <vector>
+#include <unordered_map>
 
 namespace ml {
 namespace core {
@@ -71,7 +72,7 @@ public:
 
 private:
     using TDataFrameUPtr = std::unique_ptr<core::CDataFrame>;
-    using TStrSizeUMap = boost::unordered_map<std::string, std::size_t>;
+    using TStrSizeUMap = std::unordered_map<std::string, std::size_t>;
     using TStrSizeUMapVec = std::vector<TStrSizeUMap>;
 
 private:
