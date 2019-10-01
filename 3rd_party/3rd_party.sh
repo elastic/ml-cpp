@@ -52,65 +52,43 @@ case `uname` in
 
     Linux)
         if [ -z "$CPP_CROSS_COMPILE" ] ; then
-            ldd --version 2>&1 | grep musl > /dev/null
-            if [ $? -ne 0 ] ; then
-                APR_LOCATION=/usr/local/gcc73/lib
-                APR_EXTENSION=1.so.0
-                BOOST_LOCATION=/usr/local/gcc73/lib
-                BOOST_COMPILER=gcc
-                BOOST_EXTENSION=mt-1_65_1.so.1.65.1
-                BOOST_LIBRARIES='date_time filesystem iostreams program_options regex system thread'
-                LOG4CXX_LOCATION=/usr/local/gcc73/lib
-                LOG4CXX_EXTENSION=.so.10
-                XML_LOCATION=/usr/local/gcc73/lib
-                XML_EXTENSION=.so.2
-                EXPAT_LOCATION=/usr/local/gcc73/lib
-                EXPAT_EXTENSION=.so.1
-                GCC_RT_LOCATION=/usr/local/gcc73/lib64
-                GCC_RT_EXTENSION=.so.1
-                STL_LOCATION=/usr/local/gcc73/lib64
-                STL_PREFIX=libstdc++
-                STL_EXTENSION=.so.6
-                ATOMIC_LOCATION=
-                ZLIB_LOCATION=
-            else
-                APR_LOCATION=/usr/local/lib
-                APR_EXTENSION=1.so.0
-                BOOST_LOCATION=/usr/local/lib
-                BOOST_COMPILER=gcc
-                BOOST_EXTENSION=mt-1_65_1.so.1.65.1
-                BOOST_LIBRARIES='date_time filesystem iostreams program_options regex system thread'
-                LOG4CXX_LOCATION=/usr/local/lib
-                LOG4CXX_EXTENSION=.so.10
-                XML_LOCATION=/usr/local/lib
-                XML_EXTENSION=.so.2
-                EXPAT_LOCATION=/usr/local/lib
-                EXPAT_EXTENSION=.so.1
-                GCC_RT_LOCATION=
-                STL_LOCATION=
-                ATOMIC_LOCATION=
-                ZLIB_LOCATION=
-            fi
+            APR_LOCATION=/usr/local/gcc73/lib
+            APR_EXTENSION=1.so.0
+            BOOST_LOCATION=/usr/local/gcc73/lib
+            BOOST_COMPILER=gcc
+            BOOST_EXTENSION=mt-1_65_1.so.1.65.1
+            BOOST_LIBRARIES='date_time filesystem iostreams program_options regex system thread'
+            LOG4CXX_LOCATION=/usr/local/gcc73/lib
+            LOG4CXX_EXTENSION=.so.10
+            XML_LOCATION=/usr/local/gcc73/lib
+            XML_EXTENSION=.so.2
+            EXPAT_LOCATION=/usr/local/gcc73/lib
+            EXPAT_EXTENSION=.so.1
+            GCC_RT_LOCATION=/usr/local/gcc73/lib64
+            GCC_RT_EXTENSION=.so.1
+            STL_LOCATION=/usr/local/gcc73/lib64
+            STL_PREFIX=libstdc++
+            STL_EXTENSION=.so.6
+            ATOMIC_LOCATION=
+            ZLIB_LOCATION=
+        elif [ "$CPP_CROSS_COMPILE" = macosx ] ; then
+            SYSROOT=/usr/local/sysroot-x86_64-apple-macosx10.11
+            APR_LOCATION=
+            BOOST_LOCATION=$SYSROOT/usr/local/lib
+            BOOST_COMPILER=clang
+            BOOST_EXTENSION=mt-1_65_1.dylib
+            BOOST_LIBRARIES='date_time filesystem iostreams program_options regex system thread'
+            LOG4CXX_LOCATION=$SYSROOT/usr/local/lib
+            LOG4CXX_EXTENSION=.10.dylib
+            XML_LOCATION=
+            EXPAT_LOCATION=
+            GCC_RT_LOCATION=
+            STL_LOCATION=
+            ATOMIC_LOCATION=
+            ZLIB_LOCATION=
         else
-            if [ "$CPP_CROSS_COMPILE" = macosx ] ; then
-                SYSROOT=/usr/local/sysroot-x86_64-apple-macosx10.11
-                APR_LOCATION=
-                BOOST_LOCATION=$SYSROOT/usr/local/lib
-                BOOST_COMPILER=clang
-                BOOST_EXTENSION=mt-1_65_1.dylib
-                BOOST_LIBRARIES='date_time filesystem iostreams program_options regex system thread'
-                LOG4CXX_LOCATION=$SYSROOT/usr/local/lib
-                LOG4CXX_EXTENSION=.10.dylib
-                XML_LOCATION=
-                EXPAT_LOCATION=
-                GCC_RT_LOCATION=
-                STL_LOCATION=
-                ATOMIC_LOCATION=
-                ZLIB_LOCATION=
-            else
-                echo "Cannot cross compile to $CPP_CROSS_COMPILE"
-                exit 3
-            fi
+            echo "Cannot cross compile to $CPP_CROSS_COMPILE"
+            exit 3
         fi
         ;;
 
@@ -282,28 +260,6 @@ case `uname` in
                 else
                     # Set RPATH for 3rd party libraries that reference other libraries we ship
                     ldd $FILE | grep /usr/local/lib >/dev/null 2>&1 && patchelf --set-rpath '$ORIGIN/.' $FILE
-                    if [ $? -eq 0 ] ; then
-                        echo "Set RPATH in $FILE"
-                    else
-                        echo "Did not set RPATH in $FILE"
-                    fi
-                fi
-            done
-        fi
-        ;;
-
-    SunOS)
-        if [ -n "$INSTALL_DIR" ] ; then
-            cd "$INSTALL_DIR"
-            for FILE in `find . -type f | egrep -v '^core|-debug$|libMl'`
-            do
-                # Replace RPATH for 3rd party libraries that already have one
-                elfedit -r -e 'dyn:runpath' $FILE >/dev/null 2>&1 && chmod u+wx $FILE && elfedit -e 'dyn:runpath $ORIGIN/.' $FILE
-                if [ $? -eq 0 ] ; then
-                    echo "Set RPATH in $FILE"
-                else
-                    # Set RPATH for 3rd party libraries that reference other libraries we ship
-                    ldd $FILE | grep /usr/local/lib >/dev/null 2>&1 && chmod u+wx $FILE && elfedit -e 'dyn:runpath $ORIGIN/.' $FILE
                     if [ $? -eq 0 ] ; then
                         echo "Set RPATH in $FILE"
                     else

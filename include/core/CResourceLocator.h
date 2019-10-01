@@ -36,9 +36,6 @@ public:
     //! details and dictionary words.
     static std::string resourceDir();
 
-    //! Get the directory that stores log files.
-    static std::string logDir();
-
     //! Get the root directory for the C++ section of the source tree.
     //! (Obviously this should only be used in test code!)
     static std::string cppRootDir();

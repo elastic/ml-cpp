@@ -375,15 +375,11 @@ void CLogger::massageProperties(log4cxx::helpers::Properties& props) const {
     std::ostringstream pidStrm;
     pidStrm << CProcess::instance().id();
 
-    // Set up Ml specific mappings
-    // 1) %D with the path to the Ml base log directory
-    // 2) %N with the program name
-    // 3) %P with the program's process ID
+    // Set up ML specific mappings
+    // 1) %N with the program name
+    // 2) %P with the program's process ID
     TLogCharLogStrMap mappings;
     log4cxx::LogString logStr;
-    log4cxx::helpers::Transcoder::decode(CResourceLocator::logDir(), logStr);
-    mappings.insert(TLogCharLogStrMap::value_type(static_cast<log4cxx::logchar>('D'), logStr));
-    logStr.clear();
     log4cxx::helpers::Transcoder::decode(m_ProgramName, logStr);
     mappings.insert(TLogCharLogStrMap::value_type(static_cast<log4cxx::logchar>('N'), logStr));
     logStr.clear();
