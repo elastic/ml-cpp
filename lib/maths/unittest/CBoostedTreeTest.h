@@ -20,6 +20,7 @@ public:
     void testCategoricalRegressors();
     void testIntegerRegressor();
     void testTranslationInvariance();
+    void testDepthBasedRegularization();
     void testEstimateMemoryUsedByTrain();
     void testProgressMonitoring();
     void testMissingData();

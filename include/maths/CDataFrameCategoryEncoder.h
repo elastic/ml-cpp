@@ -107,8 +107,8 @@ public:
         virtual double encode(double value) const = 0;
         virtual std::uint64_t checksum() const = 0;
         virtual bool isBinary() const = 0;
-        //! return encoding type as string
-        virtual std::string typeString() const = 0;
+        //! \return The encoding type as string.
+        virtual const std::string& typeString() const = 0;
 
         std::size_t inputColumnIndex() const;
         double encode(const TRowRef& row) const;
@@ -140,7 +140,7 @@ public:
         double encode(double value) const override;
         bool isBinary() const override;
         std::uint64_t checksum() const override;
-        std::string typeString() const override;
+        const std::string& typeString() const override;
 
     private:
         void acceptPersistInserterForDerivedTypeState(core::CStatePersistInserter& inserter) const override;
@@ -155,7 +155,7 @@ public:
         double encode(double value) const override;
         bool isBinary() const override;
         std::uint64_t checksum() const override;
-        std::string typeString() const override;
+        const std::string& typeString() const override;
 
     private:
         void acceptPersistInserterForDerivedTypeState(core::CStatePersistInserter& inserter) const override;
@@ -177,7 +177,7 @@ public:
         double encode(double value) const override;
         bool isBinary() const override;
         std::uint64_t checksum() const override;
-        std::string typeString() const override;
+        const std::string& typeString() const override;
 
     private:
         void acceptPersistInserterForDerivedTypeState(core::CStatePersistInserter& inserter) const override;
@@ -224,9 +224,10 @@ public:
     bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
 
 private:
+    void persistEncodings(core::CStatePersistInserter& inserter) const;
     bool restoreEncodings(core::CStateRestoreTraverser& traverser);
     template<typename T, typename... Args>
-    bool forwardRestoreEncodings(core::CStateRestoreTraverser& traverser, Args&&... args);
+    bool restore(core::CStateRestoreTraverser& traverser, Args&&... args);
 
 private:
     TEncodingUPtrVec m_Encodings;
