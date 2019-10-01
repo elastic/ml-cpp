@@ -43,6 +43,7 @@ const std::string JSON_LTE{"lte"};
 const std::string JSON_NODE_INDEX_TAG{"node_index"};
 const std::string JSON_ONE_HOT_ENCODING_TAG{"one_hot_encoding"};
 const std::string JSON_PREPROCESSING_TAG{"preprocessing"};
+const std::string JSON_INPUT_TAG{"input"};
 const std::string JSON_RIGHT_CHILD_TAG{"right_child"};
 const std::string JSON_SPLIT_FEATURE_TAG{"split_feature"};
 const std::string JSON_SPLIT_GAIN_TAG{"split_gain"};
@@ -183,6 +184,9 @@ std::string CInferenceModelDefinition::jsonString() {
     rapidjson::Value doc = writer.makeObject();
 
     //input
+    rapidjson::Value inputObject = writer.makeObject();
+    m_Input.addToDocument(inputObject, writer);
+    writer.addMember(JSON_INPUT_TAG, inputObject, doc);
 
     // preprocessing
     rapidjson::Value preprocessingArray = writer.makeArray();

@@ -133,7 +133,6 @@ public:
 public:
     const TStringVec& columns() const;
     void columns(const TStringVec& columns);
-    //    bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
     void addToDocument(rapidjson::Value& parentObject, TRapidJsonWriter& writer) override;
 
 private:
