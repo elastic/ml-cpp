@@ -414,8 +414,9 @@ CBoostedTreeImpl::gainAndCurvatureAtPercentile(double percentile,
         return {0.0, 0.0};
     }
 
-    std::size_t index{static_cast<std::size_t>(
-        percentile * static_cast<double>(gains.size()) / 100.0 + 0.5)};
+    std::size_t index{std::min(
+        static_cast<std::size_t>(percentile * static_cast<double>(gains.size()) / 100.0 + 0.5),
+        gains.size() - 1)};
     std::nth_element(gains.begin(), gains.begin() + index, gains.end());
     std::nth_element(curvatures.begin(), curvatures.begin() + index, curvatures.end());
 
