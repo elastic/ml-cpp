@@ -826,8 +826,8 @@ void CBoostedTreeTest::testDepthBasedRegularization() {
 
 void CBoostedTreeTest::testLogisticMinimizer() {
 
-    // Test that we a good approximation of the minimizing additive weight for
-    // the cross entropy objective of logistic regression.
+    // Test that we a good approximation of the additive term for the log-odds
+    // which minimises the cross entropy objective.
 
     using maths::boosted_tree_detail::CArgMinLogisticImpl;
 
@@ -836,7 +836,7 @@ void CBoostedTreeTest::testLogisticMinimizer() {
     TDoubleVec labels;
     TDoubleVec weights;
 
-    // All predictions equal
+    // All predictions equal and zero.
     {
         CArgMinLogisticImpl argmin{0.0};
         argmin.add(0.0, 0.0);
@@ -846,6 +846,7 @@ void CBoostedTreeTest::testLogisticMinimizer() {
         argmin.nextPass();
         CPPUNIT_ASSERT_EQUAL(0.0, argmin.value());
     }
+    // All predictions are equal.
     {
         rng.generateUniformSamples(0.0, 1.0, 1000, labels);
         for (auto& label : labels) {
@@ -876,6 +877,8 @@ void CBoostedTreeTest::testLogisticMinimizer() {
     for (auto lambda : {0.0, 10.0}) {
 
         LOG_DEBUG(<< "lambda = " << lambda);
+
+        // The true objective.
         auto objective = [&](double weight) {
             double loss{0.0};
             for (std::size_t i = 0; i < labels.size(); ++i) {
@@ -940,6 +943,8 @@ void CBoostedTreeTest::testLogisticMinimizer() {
             LOG_DEBUG(<< "actual = " << actual
                       << " objective at actual = " << objective(actual));
 
+            // We should be within 1% for the value and 0.001% for the objective
+            // at the value.
             CPPUNIT_ASSERT_EQUAL(actual, actualPartition);
             CPPUNIT_ASSERT_DOUBLES_EQUAL(expected, actual, 0.01 * std::fabs(expected));
             CPPUNIT_ASSERT_DOUBLES_EQUAL(objectiveAtExpected, objective(actual),
@@ -1016,15 +1021,18 @@ void CBoostedTreeTest::testLogisticRegression() {
                 }
             }
         });
-
         LOG_DEBUG(<< "actual cross entropy = " << actualCrossEntropy
                   << ", minimum cross entropy = " << minimumCrossEntropy);
+
+        // We should be with 35% of the minimum possible cross entropy.
         CPPUNIT_ASSERT(actualCrossEntropy < 1.35 * minimumCrossEntropy);
         meanExcessCrossEntropy.add(actualCrossEntropy / minimumCrossEntropy);
     }
 
     LOG_DEBUG(<< "mean excess cross entropy = "
               << maths::CBasicStatistics::mean(meanExcessCrossEntropy));
+
+    // We should be within 25% of the minimum possible cross entropy on average.
     CPPUNIT_ASSERT(maths::CBasicStatistics::mean(meanExcessCrossEntropy) < 1.25);
 }
 

@@ -46,7 +46,8 @@ private:
     double m_Lambda;
 };
 
-//! \brief Finds the value to add to a set of predictions which minimises the MSE.
+//! \brief Finds the value to add to a set of predictions which minimises the
+//! regularized MSE w.r.t. the actual values.
 class MATHS_EXPORT CArgMinMseImpl final : public CArgMinLossImpl {
 public:
     CArgMinMseImpl(double lambda);
@@ -63,8 +64,8 @@ private:
     TMeanAccumulator m_MeanError;
 };
 
-//! \brief Finds the value to add to the argument of the logistic function which
-//! minimises the cross entropy loss.
+//! \brief Finds the value to add to a set of predicted log-odds which minimises
+//! regularised the cross entropy loss w.r.t. the actual categories.
 class MATHS_EXPORT CArgMinLogisticImpl final : public CArgMinLossImpl {
 public:
     CArgMinLogisticImpl(double lambda);
@@ -182,12 +183,10 @@ public:
     static const std::string NAME;
 };
 
-//! \brief Implements loss for logistic regression for binary classification.
+//! \brief Implements loss for binomial logistic regression.
 //!
 //! DESCRIPTION:\n
-//! This targets the cross entropy loss using the logistic function of the sum of
-//! the of the tree predictions to estimate the probability of one of the classes
-//! for a binary classification task
+//! This targets the cross entropy loss using the tree to predict class log-odds:
 //! <pre class="fragment">
 //!   \f$\displaystyle l_i(p) = -(1 - a_i) \log(1 - S(p)) - a_i \log(S(p))\f$
 //! </pre>
