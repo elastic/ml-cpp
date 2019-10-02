@@ -1,7 +1,6 @@
-#include <api/CInferenceModelFormatter.h>
+#include <api/CBoostedTreeRegressionInferenceModelFormatter.h>
 
 #include <core/CJsonStateRestoreTraverser.h>
-#include <core/CLogger.h>
 #include <core/LogMacros.h>
 #include <core/RestoreMacros.h>
 
@@ -14,14 +13,14 @@ const std::string BEST_FOREST_TAG{"best_forest"};
 const std::string ENCODER_TAG{"encoder_tag"};
 }
 
-ml::api::CInferenceModelFormatter::CInferenceModelFormatter(const std::string& str,
-                                                            const TStrVec& fieldNames,
-                                                            const TStrSizeUMapVec& categoricalValuesMap)
-    : m_String{str}, m_Definition(), m_FieldNames{fieldNames} {
+ml::api::CBoostedTreeRegressionInferenceModelFormatter::CBoostedTreeRegressionInferenceModelFormatter(
+    const std::string& str,
+    const TStrVec& fieldNames,
+    const TStrSizeUMapVec& categoryNameMap)
+    : m_Definition(fieldNames, categoryNameMap) {
+
     std::stringstream strm;
     strm.str(str);
-    m_Definition.fieldNames(fieldNames);
-    m_Definition.categoryNameMap(categoricalValuesMap);
     core::CJsonStateRestoreTraverser traverser{strm};
     std::unique_ptr<CEnsemble> ensemble = std::make_unique<CEnsemble>();
     std::unique_ptr<maths::CDataFrameCategoryEncoder> encoder;
@@ -34,12 +33,21 @@ ml::api::CInferenceModelFormatter::CInferenceModelFormatter(const std::string& s
             encoder = std::make_unique<maths::CDataFrameCategoryEncoder>(traverser);
         }
     } while (traverser.next());
-    m_Definition.encodings(encoder->encodings());
-    m_Definition.trainedModel(std::move(ensemble));
 
-    LOG_DEBUG(<< "JSON Inference Output: " << m_Definition.jsonString());
+    // set pre-processing
+    m_Definition.encodings(encoder->encodings());
+
+    // set trained model
+    ensemble->aggregateOutput(std::make_unique<CWeightedSum>(ensemble->size(), 1.0));
+    m_Definition.trainedModel(std::move(ensemble));
+    m_Definition.trainedModel()->targetType(CBasicEvaluator::E_Regression);
 }
 
-std::string ml::api::CInferenceModelFormatter::toString() {
+std::string ml::api::CBoostedTreeRegressionInferenceModelFormatter::toString() {
     return m_Definition.jsonString();
+}
+
+const ml::api::CInferenceModelDefinition&
+ml::api::CBoostedTreeRegressionInferenceModelFormatter::definition() const {
+    return m_Definition;
 }

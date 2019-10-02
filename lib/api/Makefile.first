@@ -40,7 +40,7 @@ CFieldDataTyper.cc \
 CForecastRunner.cc \
 CHierarchicalResultsWriter.cc \
 CInferenceModelDefinition.cc \
-CInferenceModelFormatter.cc \
+CBoostedTreeRegressionInferenceModelFormatter.cc \
 CInputParser.cc \
 CIoManager.cc \
 CJsonOutputWriter.cc \

@@ -22,7 +22,7 @@
 #include <api/CInferenceModelDefinition.h>
 #include <api/ElasticsearchStateIndex.h>
 
-#include <api/CInferenceModelFormatter.h>
+#include <api/CBoostedTreeRegressionInferenceModelFormatter.h>
 #include <core/CJsonStatePersistInserter.h>
 #include <rapidjson/document.h>
 
@@ -266,7 +266,8 @@ void CDataFrameBoostedTreeRunner::serializeRunner(const TStrVec& fieldNames,
     }
     LOG_DEBUG(<< "serializeRunner: " << strm.str());
 
-    CInferenceModelFormatter formatter{strm.str(), fieldNames, categoryNameMap};
+    CBoostedTreeRegressionInferenceModelFormatter formatter{strm.str(), fieldNames,
+                                                            categoryNameMap};
     LOG_DEBUG(<< "Inference model json: " << formatter.toString());
 
     rapidjson::Document doc = writer.makeDoc();

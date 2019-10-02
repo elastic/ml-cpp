@@ -15,6 +15,8 @@ namespace ml {
 namespace api {
 
 namespace {
+using TRapidJsonWriter = core::CRapidJsonLineWriter<rapidjson::StringBuffer>;
+
 const std::string SPLIT_FEATURE_TAG{"split_feature"};
 const std::string DEFAULT_LEFT_TAG{"assign_missing_to_left"};
 const std::string NODE_VALUE_TAG{"node_value"};
@@ -25,6 +27,7 @@ const std::string RIGHT_CHILD_TAG{"right_child"};
 const std::string TREE_TAG{"a"};
 const std::string TREE_NODE_TAG{"a"};
 
+const std::string JSON_AGGREGATE_OUTPUT_TAG{"aggregate_output"};
 const std::string JSON_CLASSIFICATION_LABELS_TAG{"classification_labels"};
 const std::string JSON_COLUMNS_TAG{"columns"};
 const std::string JSON_TARGET_MAP_TAG{"target_map"};
@@ -55,6 +58,23 @@ const std::string JSON_THRESHOLD_TAG{"threshold"};
 const std::string JSON_TRAINED_MODEL_TAG{"trained_model"};
 const std::string JSON_TRAINED_MODELS_TAG{"trained_models"};
 const std::string JSON_TREE_STRUCTURE_TAG{"tree_structure"};
+const std::string JSON_WEIGHTED_SUM_TAG{"weighted_sum"};
+const std::string JSON_WEIGHTED_MODE_TAG{"weighted_mode"};
+const std::string JSON_WEIGHTS_TAG{"weights"};
+
+template<typename T>
+void addJsonArray(const std::string& tag,
+                  const std::vector<T>& vector,
+                  rapidjson::Value& parentObject,
+                  TRapidJsonWriter& writer) {
+    rapidjson::Value array = writer.makeArray(vector.size());
+    for (const auto& item : vector) {
+        rapidjson::Value value;
+        value.SetString(core::CStringUtils::typeToString(item), writer.getRawAllocator());
+        array.PushBack(value, writer.getRawAllocator());
+    }
+    writer.addMember(tag, array, parentObject);
+}
 }
 
 bool CTreeNode::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
@@ -128,7 +148,6 @@ bool CEnsemble::acceptRestoreTraverser(ml::core::CStateRestoreTraverser& travers
     do {
         const std::string& name = traverser.name();
         RESTORE(TREE_TAG, restoreTree(traverser))
-        // TODO restore aggregated output
     } while (traverser.next());
     return true;
 }
@@ -142,12 +161,25 @@ void CEnsemble::addToDocument(rapidjson::Value& parentObject, TRapidJsonWriter& 
         trainedModelsArray.PushBack(trainedModelObject, writer.getRawAllocator());
     }
     writer.addMember(JSON_TRAINED_MODELS_TAG, trainedModelsArray, parentObject);
+
+    // aggregate output
+    rapidjson::Value aggregateOutputObject = writer.makeObject();
+    m_AggregateOutput->addToDocument(aggregateOutputObject, writer);
+    writer.addMember(JSON_AGGREGATE_OUTPUT_TAG, aggregateOutputObject, parentObject);
 }
 
 void CEnsemble::featureNames(const CBasicEvaluator::TStringVec& featureNames) {
     for (auto trainedModel : m_TrainedModels) {
         trainedModel.featureNames(featureNames);
     }
+}
+
+void CEnsemble::aggregateOutput(TAggregateOutputUPtr&& aggregateOutput) {
+    m_AggregateOutput.swap(aggregateOutput);
+}
+
+std::size_t CEnsemble::size() const {
+    return m_TrainedModels.size();
 }
 
 bool CTree::acceptRestoreTraverser(ml::core::CStateRestoreTraverser& traverser) {
@@ -213,13 +245,14 @@ std::string CInferenceModelDefinition::jsonString() {
 
 void CBasicEvaluator::addToDocument(TRapidJsonWriter::TValue& parentObject,
                                     TRapidJsonWriter& writer) {
-    rapidjson::Value featureNamesArray = writer.makeArray(m_FeatureNames.size());
-    for (const auto& featureName : m_FeatureNames) {
-        rapidjson::Value featureNameValue;
-        featureNameValue.SetString(featureName, writer.getRawAllocator());
-        featureNamesArray.PushBack(featureNameValue, writer.getRawAllocator());
-    }
-    writer.addMember(JSON_FEATURE_NAMES_TAG, featureNamesArray, parentObject);
+    //    rapidjson::Value featureNamesArray = writer.makeArray(m_FeatureNames.size());
+    //    for (const auto& featureName : m_FeatureNames) {
+    //        rapidjson::Value featureNameValue;
+    //        featureNameValue.SetString(featureName, writer.getRawAllocator());
+    //        featureNamesArray.PushBack(featureNameValue, writer.getRawAllocator());
+    //    }
+    //    writer.addMember(JSON_FEATURE_NAMES_TAG, featureNamesArray, parentObject);
+    addJsonArray(JSON_FEATURE_NAME_TAG, m_FeatureNames, parentObject, writer);
 
     if (m_ClassificationLabels) {
         rapidjson::Value classificationLabelsArray =
@@ -358,6 +391,26 @@ void CInferenceModelDefinition::categoryNameMap(const CInferenceModelDefinition:
     }
 }
 
+std::unique_ptr<CBasicEvaluator>& CInferenceModelDefinition::trainedModel() {
+    return m_TrainedModel;
+}
+
+CInferenceModelDefinition::CInferenceModelDefinition(
+    const CInferenceModelDefinition::TStringVec& fieldNames,
+    const CInferenceModelDefinition::TStrSizeUMapVec& categoryNameMap) {
+    this->fieldNames(fieldNames);
+    this->categoryNameMap(categoryNameMap);
+}
+
+const CInput& CInferenceModelDefinition::input() const {
+    return m_Input;
+}
+
+const CInferenceModelDefinition::TApiEncodingUPtrVec&
+CInferenceModelDefinition::preprocessing() const {
+    return m_Preprocessing;
+}
+
 const CInput::TStringVec& CInput::columns() const {
     return m_Columns;
 }
@@ -367,13 +420,7 @@ void CInput::columns(const TStringVec& columns) {
 }
 
 void CInput::addToDocument(rapidjson::Value& parentObject, TRapidJsonWriter& writer) {
-    rapidjson::Value columnsArray = writer.makeArray(m_Columns.size());
-    for (const auto& column : m_Columns) {
-        rapidjson::Value columnValue;
-        columnValue.SetString(column, writer.getRawAllocator());
-        columnsArray.PushBack(columnValue, writer.getRawAllocator());
-    }
-    writer.addMember(JSON_COLUMNS_TAG, columnsArray, parentObject);
+    addJsonArray(JSON_COLUMNS_TAG, m_Columns, parentObject, writer);
 }
 
 void CTargetMeanEncoding::defaultValue(double defaultValue) {
@@ -412,6 +459,18 @@ CTargetMeanEncoding::CTargetMeanEncoding(const std::string& field,
                                          const std::map<std::string, double>& targetMap)
     : CEncoding(field), m_DefaultValue(defaultValue),
       m_FeatureName(featureName), m_TargetMap(targetMap) {
+}
+
+double CTargetMeanEncoding::defaultValue() const {
+    return m_DefaultValue;
+}
+
+const std::string& CTargetMeanEncoding::featureName() const {
+    return m_FeatureName;
+}
+
+const std::map<std::string, double>& CTargetMeanEncoding::targetMap() const {
+    return m_TargetMap;
 }
 
 CFrequencyEncoding::CFrequencyEncoding(const std::string& field,
@@ -454,6 +513,14 @@ const std::string& CFrequencyEncoding::typeString() const {
     return JSON_FREQUENCY_ENCODING_TAG;
 }
 
+const std::string& CFrequencyEncoding::featureName() const {
+    return m_FeatureName;
+}
+
+const std::map<std::string, double>& CFrequencyEncoding::frequencyMap() const {
+    return m_FrequencyMap;
+}
+
 COneHotEncoding::TStringStringUMap& COneHotEncoding::hotMap() {
     return m_HotMap;
 }
@@ -475,6 +542,39 @@ void COneHotEncoding::addToDocument(rapidjson::Value& parentObject,
 COneHotEncoding::COneHotEncoding(const std::string& field,
                                  const COneHotEncoding::TStringStringUMap& hotMap)
     : CEncoding(field), m_HotMap(hotMap) {
+}
+
+CWeightedSum::CWeightedSum(const std::vector<double>& weights)
+    : m_Weights{weights} {
+}
+CWeightedSum::CWeightedSum(std::size_t size, double weight)
+    : m_Weights(size, weight) {
+}
+
+void CWeightedSum::addToDocument(rapidjson::Value& parentObject,
+                                 CSerializableToJson::TRapidJsonWriter& writer) {
+    addJsonArray(JSON_WEIGHTS_TAG, m_Weights, parentObject, writer);
+}
+
+const std::string& CWeightedSum::stringType() {
+    return JSON_WEIGHTED_SUM_TAG;
+}
+
+CWeightedMode::CWeightedMode(const std::vector<double>& weights)
+    : m_Weights(weights) {
+}
+
+const std::string& CWeightedMode::stringType() {
+    return JSON_WEIGHTED_MODE_TAG;
+}
+
+void CWeightedMode::addToDocument(rapidjson::Value& parentObject,
+                                  CSerializableToJson::TRapidJsonWriter& writer) {
+    addJsonArray(JSON_WEIGHTS_TAG, m_Weights, parentObject, writer);
+}
+
+CWeightedMode::CWeightedMode(std::size_t size, double weight)
+    : m_Weights(size, weight) {
 }
 }
 }

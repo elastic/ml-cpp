@@ -3,8 +3,8 @@
  * or more contributor license agreements. Licensed under the Elastic License;
  * you may not use this file except in compliance with the Elastic License.
  */
-#ifndef INCLUDED_ml_api_SInferenceModelDefinition_h
-#define INCLUDED_ml_api_SInferenceModelDefinition_h
+#ifndef INCLUDED_ml_api_CInferenceModelDefinition_h
+#define INCLUDED_ml_api_CInferenceModelDefinition_h
 
 #include <core/CRapidJsonLineWriter.h>
 #include <core/CStateRestoreTraverser.h>
@@ -20,6 +20,8 @@
 #include <unordered_map>
 #include <vector>
 
+// TODO add documentation
+
 namespace ml {
 namespace api {
 
@@ -33,24 +35,36 @@ public:
     virtual void addToDocument(rapidjson::Value& parentObject, TRapidJsonWriter& writer) = 0;
 };
 
-class CAggregateOutput {};
-
-/**
- * Allows to used (weighted) majority vote for classification.
- */
-class SWeightedMode : public CAggregateOutput {
-    std::vector<double> weights;
+class CAggregateOutput : public CSerializableToJson {
+    virtual const std::string& stringType() = 0;
 };
 
-class SWeightedSum : public CAggregateOutput {
-    std::vector<double> weights;
+class CWeightedMode : public CAggregateOutput {
+public:
+    explicit CWeightedMode(const std::vector<double>& weights);
+    CWeightedMode(std::size_t size, double weight);
+    void addToDocument(rapidjson::Value& parentObject, TRapidJsonWriter& writer) override;
+
+private:
+    const std::string& stringType() override;
+    std::vector<double> m_Weights;
+};
+
+class CWeightedSum : public CAggregateOutput {
+public:
+    explicit CWeightedSum(const std::vector<double>& weights);
+    CWeightedSum(std::size_t size, double weight);
+    void addToDocument(rapidjson::Value& parentObject, TRapidJsonWriter& writer) override;
+
+private:
+    const std::string& stringType() override;
+    std::vector<double> m_Weights;
 };
 
 enum ENumericRelationship { E_LTE };
 
 class CTreeNode : public CSerializableToJson {
 public:
-    //! Populate the object from serialized data
     bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
     void addToDocument(rapidjson::Value& parentObject, TRapidJsonWriter& writer) override;
 
@@ -66,9 +80,6 @@ private:
     double m_Threshold;
 };
 
-/**
- * Details of the model evaluation step.
- */
 class CBasicEvaluator : public CSerializableToJson {
 public:
     using TStringVec = std::vector<std::string>;
@@ -80,7 +91,6 @@ public:
     const TStringVec& featureNames() const;
 
     virtual void featureNames(const TStringVec& featureNames);
-    //! Populate the object from serialized data
     virtual bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) = 0;
 
     void addToDocument(rapidjson::Value& parentObject, TRapidJsonWriter& writer) override;
@@ -99,7 +109,6 @@ public:
     using TTreeNodeVec = std::vector<CTreeNode>;
 
 public:
-    //! Populate the object from serialized data
     bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) override;
     void addToDocument(rapidjson::Value& parentObject, TRapidJsonWriter& writer) override;
 
@@ -117,14 +126,18 @@ public:
     void addToDocument(rapidjson::Value& parentObject, TRapidJsonWriter& writer) override;
     void featureNames(const TStringVec& featureNames) override;
 
+    std::size_t size() const;
+
 private:
     TTreeVec m_TrainedModels;
+
+private:
     TAggregateOutputUPtr m_AggregateOutput;
+
+public:
+    void aggregateOutput(TAggregateOutputUPtr&& aggregateOutput);
 };
 
-/**
- * Information related to the input.
- */
 class CInput : public CSerializableToJson {
 public:
     using TStringVec = std::vector<std::string>;
@@ -152,10 +165,6 @@ private:
     std::string m_Field;
 };
 
-/**
- * Mapping from categorical columns to numerical values related to categorical value
- * distribution
- */
 class CFrequencyEncoding : public CEncoding {
 public:
     CFrequencyEncoding(const std::string& field,
@@ -165,24 +174,20 @@ public:
     void featureName(const std::string& featureName);
 
     void frequencyMap(const std::map<std::string, double>& frequencyMap);
+
+    const std::string& featureName() const;
+
+    const std::map<std::string, double>& frequencyMap() const;
+
     void addToDocument(rapidjson::Value& parentObject, TRapidJsonWriter& writer) override;
 
     const std::string& typeString() const override;
 
 private:
-    /**
-     * Feature name after pre-processing
-     */
     std::string m_FeatureName;
-    /**
-     * Map from the category names to the frequency values.
-     */
     std::map<std::string, double> m_FrequencyMap;
 };
 
-/**
- * Application of the one-hot encoding function on a single column.
- */
 class COneHotEncoding : public CEncoding {
 public:
     using TStringStringUMap = std::map<std::string, std::string>;
@@ -196,15 +201,9 @@ public:
     const std::string& typeString() const override;
 
 private:
-    /**
-     * Map from the category names of the original field to the new field names.
-     */
     TStringStringUMap m_HotMap;
 };
 
-/**
- * Mapping from categorical columns to numerical values related to the target value
- */
 class CTargetMeanEncoding : public CEncoding {
 public:
     CTargetMeanEncoding(const std::string& field,
@@ -213,6 +212,13 @@ public:
                         const std::map<std::string, double>& targetMap);
 
     void defaultValue(double defaultValue);
+
+    double defaultValue() const;
+
+    const std::string& featureName() const;
+
+    const std::map<std::string, double>& targetMap() const;
+
     void featureName(const std::string& featureName);
 
     const std::string& typeString() const override;
@@ -221,23 +227,11 @@ public:
     void addToDocument(rapidjson::Value& parentObject, TRapidJsonWriter& writer) override;
 
 private:
-    /**
-     * Value for categories that have not been seen before
-     */
     double m_DefaultValue;
-    /**
-     * Feature name after pre-processing
-     */
     std::string m_FeatureName;
-    /**
-     * Map from the category names to the target values.
-     */
     std::map<std::string, double> m_TargetMap;
 };
 
-/**
- * Technical details required for model evaluation.
- */
 class CInferenceModelDefinition {
 
 public:
@@ -261,22 +255,21 @@ public:
     void trainedModel(std::unique_ptr<CBasicEvaluator>&& trainedModel);
 
     const TStrSizeUMapVec& categoryNameMap() const;
+
+    const CInput& input() const;
+
+    const TApiEncodingUPtrVec& preprocessing() const;
+
+    CInferenceModelDefinition(const TStringVec& fieldNames,
+                              const TStrSizeUMapVec& categoryNameMap);
+
     void categoryNameMap(const TStrSizeUMapVec& categoryNameMap);
+    std::unique_ptr<CBasicEvaluator>& trainedModel();
 
 private:
-    /**
- * Information related to the input.
- */
     CInput m_Input;
-    /**
-     * Optional step for pre-processing data, e.g. vector embedding, one-hot-encoding, etc.
-     */
     TApiEncodingUPtrVec m_Preprocessing;
-    /**
-     * Details of the model evaluation step.
-     */
     std::unique_ptr<CBasicEvaluator> m_TrainedModel;
-
     TStringVec m_FieldNames;
     TStrSizeUMapVec m_CategoryNameMap;
     TSizeStrUMapVec m_ReverseCategoryNameMap;
@@ -284,4 +277,4 @@ private:
 }
 }
 
-#endif //INCLUDED_ml_api_SInferenceModelDefinition_h
+#endif //INCLUDED_ml_api_CInferenceModelDefinition_h

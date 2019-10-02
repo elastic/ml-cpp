@@ -4,23 +4,28 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
-#include "CDataFrameAnalyzerInferenceOutputTest.h"
+#include "CBoostedTreeRegressionInferenceModelFormatterTest.h"
 
 #include <core/CDataAdder.h>
 #include <core/CDataFrame.h>
 #include <core/CDataSearcher.h>
 #include <core/CFloatStorage.h>
 
-#include <maths/CBoostedTreeFactory.h>
 #include <maths/CLinearAlgebraEigen.h>
 
+#include <api/CBoostedTreeRegressionInferenceModelFormatter.h>
 #include <api/CDataFrameAnalysisSpecification.h>
 #include <api/CDataFrameAnalysisSpecificationJsonWriter.h>
 #include <api/CDataFrameAnalyzer.h>
+#include <api/CInferenceModelDefinition.h>
 
 #include <test/CDataFrameTestUtils.h>
 #include <test/CRandomNumbers.h>
 #include <test/CTestTmpDir.h>
+
+#include <fstream>
+#include <streambuf>
+#include <string>
 
 using namespace ml;
 
@@ -37,6 +42,8 @@ using TDoubleVecVec = std::vector<TDoubleVec>;
 using TPoint = maths::CDenseVector<maths::CFloatStorage>;
 using TPointVec = std::vector<TPoint>;
 using TRowItr = core::CDataFrame::TRowItr;
+using TStrSizeUMap = std::unordered_map<std::string, std::size_t>;
+using TStrSizeUMapVec = std::vector<TStrSizeUMap>;
 
 auto regressionSpec(std::string dependentVariable,
                     std::size_t rows = 100,
@@ -145,99 +152,110 @@ auto generateCategoricalData(test::CRandomNumbers& rng, std::size_t rows, TDoubl
 }
 }
 
-CppUnit::Test* CDataFrameAnalyzerInferenceOutputTest::suite() {
+CppUnit::Test* CBoostedTreeRegressionInferenceModelFormatterTest::suite() {
     CppUnit::TestSuite* suiteOfTests =
-        new CppUnit::TestSuite("CDataFrameAnalyzerInferenceOutputTest");
+        new CppUnit::TestSuite("CBoostedTreeRegressionInferenceModelFormatterTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CDataFrameAnalyzerInferenceOutputTest>(
-        "CDataFrameAnalyzerInferenceOutputTest::testTrainOneHotEncoding",
-        &CDataFrameAnalyzerInferenceOutputTest::testTrainOneHotEncoding));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CDataFrameAnalyzerInferenceOutputTest>(
-        "CDataFrameAnalyzerInferenceOutputTest::testTrainFrequencyEncoding",
-        &CDataFrameAnalyzerInferenceOutputTest::testTrainFrequencyEncoding));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CBoostedTreeRegressionInferenceModelFormatterTest>(
+        "CBoostedTreeRegressionInferenceModelFormatterTest::testIntegration",
+        &CBoostedTreeRegressionInferenceModelFormatterTest::testIntegration));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CBoostedTreeRegressionInferenceModelFormatterTest>(
+        "CBoostedTreeRegressionInferenceModelFormatterTest::testDefinitionGeneration",
+        &CBoostedTreeRegressionInferenceModelFormatterTest::testDefinitionGeneration));
 
     return suiteOfTests;
 }
 
-void CDataFrameAnalyzerInferenceOutputTest::testTrainFrequencyEncoding() {
-    std::size_t numberExamples = 100;
-    std::size_t cols = 3;
-    test::CRandomNumbers rng;
-    TDoubleVec weights{0.1, 100.0};
+void CBoostedTreeRegressionInferenceModelFormatterTest::testDefinitionGeneration() {
+    std::string inputFileName("testfiles/regression_runner_with_categories.json");
+    std::string str;
+    TStrVec fieldNames{"numeric_col", "categorical_col", "target_col"};
+    TStrSizeUMapVec categoryMappingVector{{}, {{"cat1", 0}, {"cat2", 1}, {"cat3", 2}}, {}};
+    {
+        // Open the input and output files
+        std::ifstream inputStrm(inputFileName.c_str());
+        CPPUNIT_ASSERT(inputStrm.is_open());
 
-    std::stringstream output;
-    auto outputWriterFactory = [&output]() {
-        return std::make_unique<core::CJsonOutputStreamWrapper>(output);
-    };
-
-    TStrVec fieldNames{"numeric_col", "categorical_col", "target_col", ".", "."};
-
-    TStrVec fieldValues{"", "", "0", "", ""};
-
-    TDoubleVecVec frequencies;
-    TDoubleVecVec values(cols);
-    rng.generateUniformSamples(-10.0, 10.0, numberExamples, values[0]);
-    values[1] = generateCategoricalData(rng, numberExamples, {10., 10.0, 10.0}).second;
-
-    for (std::size_t i = 0; i < numberExamples; ++i) {
-        values[2].push_back(values[0][i] * weights[0] + values[1][i] * weights[1]);
+        // read file
+        str.assign((std::istreambuf_iterator<char>(inputStrm)),
+                   std::istreambuf_iterator<char>());
     }
+    ml::api::CBoostedTreeRegressionInferenceModelFormatter formatter{
+        str, fieldNames, categoryMappingVector};
+    LOG_DEBUG(<< "Test output " << formatter.toString());
 
-    api::CDataFrameAnalyzer analyzer{regressionSpec("target_col", numberExamples, cols,
-                                                    30000000, 0, 0, {"categorical_col"}),
-                                     outputWriterFactory};
+    // assert input
+    CPPUNIT_ASSERT(fieldNames == formatter.definition().input().columns());
 
-    TDataFrameUPtr frame =
-        core::makeMainStorageDataFrame(cols + 2, numberExamples).first;
-    for (std::size_t i = 0; i < numberExamples; ++i) {
-        for (std::size_t j = 0; j < cols; ++j) {
-            fieldValues[j] = core::CStringUtils::typeToStringPrecise(
-                values[j][i], core::CIEEE754::E_DoublePrecision);
+    // test pre-processing
+    CPPUNIT_ASSERT_EQUAL(3ul, formatter.definition().preprocessing().size());
+    bool frequency = false;
+    bool target = false;
+    bool oneHot = false;
+
+    for (const auto& encoding : formatter.definition().preprocessing()) {
+        if (encoding->typeString() == "frequency_encoding") {
+            auto enc = static_cast<ml::api::CFrequencyEncoding*>(encoding.get());
+            CPPUNIT_ASSERT_EQUAL(3ul, enc->frequencyMap().size());
+            CPPUNIT_ASSERT("categorical_col_frequency" == enc->featureName());
+            frequency = true;
+        } else if (encoding->typeString() == "target_mean_encoding") {
+            auto enc = static_cast<ml::api::CTargetMeanEncoding*>(encoding.get());
+            CPPUNIT_ASSERT_EQUAL(3ul, enc->targetMap().size());
+            CPPUNIT_ASSERT("categorical_col_targetmean" == enc->featureName());
+            CPPUNIT_ASSERT_EQUAL(100.0177, enc->defaultValue());
+            target = true;
+        } else if (encoding->typeString() == "one_hot_encoding") {
+            auto enc = static_cast<ml::api::COneHotEncoding*>(encoding.get());
+            CPPUNIT_ASSERT_EQUAL(1ul, enc->hotMap().size());
+            CPPUNIT_ASSERT("categorical_col_cat1" == enc->hotMap()["cat1"]);
+            oneHot = true;
         }
-        analyzer.handleRecord(fieldNames, fieldValues);
     }
-    analyzer.handleRecord(fieldNames, {"", "", "", "", "$"});
+
+    CPPUNIT_ASSERT(oneHot && target && frequency);
+
+    // assert trained model
+    // TODO add trained model assertion
 }
 
-void CDataFrameAnalyzerInferenceOutputTest::testTrainTargetMeanEncoding() {
-}
-
-void CDataFrameAnalyzerInferenceOutputTest::testTrainOneHotEncoding() {
-    std::size_t numberExamples = 1000;
-    std::size_t cols = 3;
-    test::CRandomNumbers rng;
-    TDoubleVec weights{0.1, 100.0};
-
-    std::stringstream output;
-    auto outputWriterFactory = [&output]() {
-        return std::make_unique<core::CJsonOutputStreamWrapper>(output);
-    };
-
-    TStrVec fieldNames{"numeric_col", "categorical_col", "target_col", ".", "."};
-
-    TStrVec fieldValues{"", "", "0", "", ""};
-
-    TDoubleVecVec frequencies;
-    TDoubleVecVec values(cols);
-    rng.generateUniformSamples(-10.0, 10.0, numberExamples, values[0]);
-    values[1] = generateCategoricalData(rng, numberExamples, {100., 5.0, 5.0}).second;
-
-    for (std::size_t i = 0; i < numberExamples; ++i) {
-        values[2].push_back(values[0][i] * weights[0] + values[1][i] * weights[1]);
-    }
-
-    api::CDataFrameAnalyzer analyzer{regressionSpec("target_col", numberExamples, cols,
-                                                    30000000, 0, 0, {"categorical_col"}),
-                                     outputWriterFactory};
-
-    TDataFrameUPtr frame =
-        core::makeMainStorageDataFrame(cols + 2, numberExamples).first;
-    for (std::size_t i = 0; i < numberExamples; ++i) {
-        for (std::size_t j = 0; j < cols; ++j) {
-            fieldValues[j] = core::CStringUtils::typeToStringPrecise(
-                values[j][i], core::CIEEE754::E_DoublePrecision);
-        }
-        analyzer.handleRecord(fieldNames, fieldValues);
-    }
-    analyzer.handleRecord(fieldNames, {"", "", "", "", "$"});
+void CBoostedTreeRegressionInferenceModelFormatterTest::testIntegration() {
+    // TODO uncomment and implement
+    //    std::size_t numberExamples = 1000;
+    //    std::size_t cols = 3;
+    //    test::CRandomNumbers rng;
+    //    TDoubleVec weights{0.1, 100.0};
+    //
+    //    std::stringstream output;
+    //    auto outputWriterFactory = [&output]() {
+    //        return std::make_unique<core::CJsonOutputStreamWrapper>(output);
+    //    };
+    //
+    //    TStrVec fieldNames{"numeric_col", "categorical_col", "target_col", ".", "."};
+    //
+    //    TStrVec fieldValues{"", "", "0", "", ""};
+    //
+    //    TDoubleVecVec frequencies;
+    //    TDoubleVecVec values(cols);
+    //    rng.generateUniformSamples(-10.0, 10.0, numberExamples, values[0]);
+    //    values[1] = generateCategoricalData(rng, numberExamples, {100., 5.0, 5.0}).second;
+    //
+    //    for (std::size_t i = 0; i < numberExamples; ++i) {
+    //        values[2].push_back(values[0][i] * weights[0] + values[1][i] * weights[1]);
+    //    }
+    //
+    //    api::CDataFrameAnalyzer analyzer{regressionSpec("target_col", numberExamples, cols,
+    //                                                    30000000, 0, 0, {"categorical_col"}),
+    //                                     outputWriterFactory};
+    //
+    //    TDataFrameUPtr frame =
+    //        core::makeMainStorageDataFrame(cols + 2, numberExamples).first;
+    //    for (std::size_t i = 0; i < numberExamples; ++i) {
+    //        for (std::size_t j = 0; j < cols; ++j) {
+    //            fieldValues[j] = core::CStringUtils::typeToStringPrecise(
+    //                values[j][i], core::CIEEE754::E_DoublePrecision);
+    //        }
+    //        analyzer.handleRecord(fieldNames, fieldValues);
+    //    }
+    //    analyzer.handleRecord(fieldNames, {"", "", "", "", "$"});
 }

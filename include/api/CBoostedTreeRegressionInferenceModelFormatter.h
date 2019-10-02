@@ -15,7 +15,7 @@
 namespace ml {
 namespace api {
 
-class CInferenceModelFormatter {
+class CBoostedTreeRegressionInferenceModelFormatter {
 public:
     using TRapidjsonUPtr = std::unique_ptr<rapidjson::Document>;
     using TStrVec = std::vector<std::string>;
@@ -23,23 +23,17 @@ public:
     using TStrSizeUMapVec = std::vector<TStrSizeUMap>;
 
 public:
-    explicit CInferenceModelFormatter(const std::string& str,
-                                      const TStrVec& fieldNames,
-                                      const TStrSizeUMapVec& categoricalValuesMap);
+    explicit CBoostedTreeRegressionInferenceModelFormatter(const std::string& str,
+                                                           const TStrVec& fieldNames,
+                                                           const TStrSizeUMapVec& categoryNameMap);
 
     std::string toString();
 
 private:
-    void initInput();
-    void initPreprocessing();
-    void initEvaluation();
-
-private:
-    std::string m_String;
-    rapidjson::Document m_JsonDoc;
-
     ml::api::CInferenceModelDefinition m_Definition;
-    std::vector<std::string> m_FieldNames;
+
+public:
+    const CInferenceModelDefinition& definition() const;
 };
 }
 }

@@ -505,6 +505,11 @@ void CDataFrameCategoryEncoderTest::testEncodedDataFrameRowRef() {
         return static_cast<double>(row[encoder.encoding(i).inputColumnIndex()]); // target
     };
 
+    std::stringstream strm;
+    core::CJsonStatePersistInserter inserter{strm};
+    encoder.acceptPersistInserter(inserter);
+    LOG_DEBUG(<< "Encoder state : " << strm.str());
+
     bool passed{true};
 
     frame->readRows(1, [&](core::CDataFrame::TRowItr beginRows, core::CDataFrame::TRowItr endRows) {

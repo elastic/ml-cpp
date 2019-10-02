@@ -22,13 +22,13 @@ SRCS=\
 	CAnomalyJobLimitTest.cc \
 	CAnomalyJobTest.cc \
 	CBaseTokenListDataTyperTest.cc \
+	CBoostedTreeRegressionInferenceModelFormatterTest.cc \
 	CCategoryExamplesCollectorTest.cc \
 	CConfigUpdaterTest.cc \
 	CCsvInputParserTest.cc \
 	CCsvOutputWriterTest.cc \
 	CDataFrameAnalysisRunnerTest.cc \
 	CDataFrameAnalysisSpecificationTest.cc \
-	CDataFrameAnalyzerInferenceOutputTest.cc \
 	CDataFrameAnalyzerTest.cc \
 	CDataFrameMockAnalysisRunner.cc \
 	CDetectionRulesJsonParserTest.cc \

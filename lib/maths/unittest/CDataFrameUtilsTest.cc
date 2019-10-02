@@ -35,7 +35,10 @@ using TMeanAccumulatorVec = std::vector<TMeanAccumulator>;
 using TMeanAccumulatorVecVec = std::vector<TMeanAccumulatorVec>;
 using TQuantileSketchVec = std::vector<maths::CQuantileSketch>;
 
-auto generateCategoricalData(test::CRandomNumbers& rng, std::size_t rows, TDoubleVec expectedFrequencies) {
+auto generateCategoricalData(test::CRandomNumbers& rng,
+                             std::size_t rows,
+                             std::size_t cols,
+                             TDoubleVec expectedFrequencies) {
 
     TDoubleVecVec frequencies;
     rng.generateDirichletSamples(expectedFrequencies, cols, frequencies);
@@ -555,7 +558,7 @@ void CDataFrameUtilsTest::testCategoryFrequencies() {
     TDoubleVecVec expectedFrequencies;
     TDoubleVecVec values;
     std::tie(expectedFrequencies, values) = generateCategoricalData(
-        rng, rows, {10.0, 30.0, 1.0, 5.0, 15.0, 9.0, 20.0, 10.0});
+        rng, rows, cols, {10.0, 30.0, 1.0, 5.0, 15.0, 9.0, 20.0, 10.0});
 
     TFactoryFunc makeOnDisk{[=] {
         return core::makeDiskStorageDataFrame(test::CTestTmpDir::tmpDir(), cols, rows, capacity)
@@ -618,7 +621,7 @@ void CDataFrameUtilsTest::testMeanValueOfTargetForCategories() {
     TDoubleVecVec frequencies;
     TDoubleVecVec values;
     std::tie(frequencies, values) = generateCategoricalData(
-        rng, rows, {10.0, 30.0, 1.0, 5.0, 15.0, 9.0, 20.0, 10.0});
+        rng, rows, cols - 1, {10.0, 30.0, 1.0, 5.0, 15.0, 9.0, 20.0, 10.0});
 
     values.resize(cols);
     values[cols - 1].resize(rows, 0.0);
@@ -698,7 +701,7 @@ void CDataFrameUtilsTest::testMeanValueOfTargetForCategoriesWithMissing() {
     TDoubleVecVec frequencies;
     TDoubleVecVec values;
     std::tie(frequencies, values) = generateCategoricalData(
-        rng, rows, {10.0, 30.0, 1.0, 5.0, 15.0, 9.0, 20.0, 10.0});
+        rng, rows, cols - 1, {10.0, 30.0, 1.0, 5.0, 15.0, 9.0, 20.0, 10.0});
 
     TDoubleVec uniform01;
     rng.generateUniformSamples(0.0, 1.0, rows, uniform01);
@@ -757,7 +760,7 @@ void CDataFrameUtilsTest::testCategoryMicWithColumn() {
     TDoubleVecVec frequencies;
     TDoubleVecVec values;
     std::tie(frequencies, values) =
-        generateCategoricalData(rng, rows, {20.0, 60.0, 5.0, 15.0, 1.0});
+        generateCategoricalData(rng, rows, cols - 1, {20.0, 60.0, 5.0, 15.0, 1.0});
 
     values.resize(cols);
     rng.generateNormalSamples(0.0, 1.0, rows, values[cols - 1]);
