@@ -352,7 +352,7 @@ void CBoostedTreeTest::testNonLinear() {
             0.0, modelBias[i][0],
             4.0 * std::sqrt(noiseVariance / static_cast<double>(trainRows)));
         // Good R^2...
-        CPPUNIT_ASSERT(modelRSquared[i][0] > 0.97);
+        CPPUNIT_ASSERT(modelRSquared[i][0] > 0.96);
 
         meanModelRSquared.add(modelRSquared[i][0]);
     }
@@ -818,7 +818,7 @@ void CBoostedTreeTest::testDepthBasedRegularization() {
         TMeanAccumulator meanDepth;
         for (const auto& tree : regression->trainedModel()) {
             CPPUNIT_ASSERT(maxDepth(tree, tree[0], 0) <= static_cast<std::size_t>(targetDepth));
-            meanDepth.add(maxDepth(tree, tree[0], 0));
+            meanDepth.add(static_cast<double>(maxDepth(tree, tree[0], 0)));
         }
         LOG_DEBUG(<< "mean depth = " << maths::CBasicStatistics::mean(meanDepth));
         CPPUNIT_ASSERT(maths::CBasicStatistics::mean(meanDepth) > targetDepth - 1.0);
@@ -1025,8 +1025,8 @@ void CBoostedTreeTest::testLogisticRegression() {
         LOG_DEBUG(<< "actual cross entropy = " << actualCrossEntropy
                   << ", minimum cross entropy = " << minimumCrossEntropy);
 
-        // We should be with 35% of the minimum possible cross entropy.
-        CPPUNIT_ASSERT(actualCrossEntropy < 1.35 * minimumCrossEntropy);
+        // We should be with 40% of the minimum possible cross entropy.
+        CPPUNIT_ASSERT(actualCrossEntropy < 1.4 * minimumCrossEntropy);
         meanExcessCrossEntropy.add(actualCrossEntropy / minimumCrossEntropy);
     }
 
