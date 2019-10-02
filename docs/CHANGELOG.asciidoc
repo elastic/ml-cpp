@@ -43,6 +43,7 @@ boosted tree training. Hard depth based regularization is often the strategy of
 choice to prevent over fitting for XGBoost. By smoothing we can make better tradeoffs.
 Also, the parameters of the penalty function are mode suited to optimising with our
 Bayesian optimisation based hyperparameter search. (See {ml-pull}698[#698].)
+* Binomial logistic regression targeting cross entropy. (See {ml-pull}713[#713].) 
 
 == {es} version 7.4.1
 
