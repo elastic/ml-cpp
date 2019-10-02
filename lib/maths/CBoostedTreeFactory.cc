@@ -80,7 +80,8 @@ CBoostedTreeFactory::buildFor(core::CDataFrame& frame, std::size_t dependentVari
         }
     }
 
-    auto treeImpl = std::make_unique<CBoostedTreeImpl>(m_NumberThreads, m_Loss->clone());
+    auto treeImpl = std::make_unique<CBoostedTreeImpl>(
+        m_NumberThreads, m_Loss != nullptr ? m_Loss->clone() : nullptr);
     std::swap(m_TreeImpl, treeImpl);
     return TBoostedTreeUPtr{new CBoostedTree{frame, m_RecordProgress, m_RecordMemoryUsage,
                                              m_RecordTrainingState, std::move(treeImpl)}};
@@ -616,7 +617,9 @@ CBoostedTreeFactory CBoostedTreeFactory::constructFromString(std::istream& jsonS
 }
 
 CBoostedTreeFactory::CBoostedTreeFactory(bool restored, std::size_t numberThreads, TLossFunctionUPtr loss)
-    : m_Restored{restored}, m_NumberThreads{numberThreads}, m_Loss{loss->clone()},
+    : m_Restored{restored}, m_NumberThreads{numberThreads}, m_Loss{loss != nullptr
+                                                                       ? loss->clone()
+                                                                       : nullptr},
       m_TreeImpl{std::make_unique<CBoostedTreeImpl>(numberThreads, std::move(loss))},
       m_LogDepthPenaltyMultiplierSearchInterval{0.0}, m_LogTreeSizePenaltyMultiplierSearchInterval{0.0},
       m_LogLeafWeightPenaltyMultiplierSearchInterval{0.0} {
