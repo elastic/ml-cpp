@@ -951,7 +951,7 @@ void CBoostedTreeTest::testLogisticMinimizer() {
 void CBoostedTreeTest::testLogisticRegression() {
 
     // Test we approximately minimise the cross entropy if the category labels
-    // are generated from log odds which are a linaer function of the regressors.
+    // are generated from log odds which are a linear function of the regressors.
 
     test::CRandomNumbers rng;
 
@@ -1018,12 +1018,12 @@ void CBoostedTreeTest::testLogisticRegression() {
         });
 
         LOG_DEBUG(<< "actual cross entropy = " << actualCrossEntropy
-                  << " minimum cross entropy = " << minimumCrossEntropy);
+                  << ", minimum cross entropy = " << minimumCrossEntropy);
         CPPUNIT_ASSERT(actualCrossEntropy < 1.35 * minimumCrossEntropy);
         meanExcessCrossEntropy.add(actualCrossEntropy / minimumCrossEntropy);
     }
 
-    LOG_DEBUG(<< "mean excess cross entropy "
+    LOG_DEBUG(<< "mean excess cross entropy = "
               << maths::CBasicStatistics::mean(meanExcessCrossEntropy));
     CPPUNIT_ASSERT(maths::CBasicStatistics::mean(meanExcessCrossEntropy) < 1.25);
 }
