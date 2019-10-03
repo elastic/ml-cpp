@@ -18,6 +18,8 @@
 
 #include <cstddef>
 #include <memory>
+#include <string>
+#include <vector>
 
 namespace ml {
 namespace core {
@@ -328,6 +330,7 @@ private:
 //! proposed by Reshef for this purpose. See CDataFrameCategoryEncoder for more details.
 class MATHS_EXPORT CBoostedTree final : public CDataFrameRegressionModel {
 public:
+    using TStrVec = std::vector<std::string>;
     using TRowRef = core::CDataFrame::TRowRef;
     using TLossFunctionUPtr = std::unique_ptr<boosted_tree::CLoss>;
     using TDataFramePtr = core::CDataFrame*;
@@ -364,6 +367,16 @@ public:
 
     //! Get the model produced by training if it has been run.
     const TNodeVecVec& trainedModel() const;
+
+    //! The name of the object holding the best hyperaparameters in the state document.
+    static const std::string& bestHyperparametersName();
+
+    //! The name of the object holding the best regularisation hyperparameters in the
+    //! state document.
+    static const std::string& bestRegularizationHyperparametersName();
+
+    //! A list of the names of the best individual hyperparameters in the state document.
+    static TStrVec bestHyperparameterNames();
 
     //! Persist by passing information to \p inserter.
     void acceptPersistInserter(core::CStatePersistInserter& inserter) const;

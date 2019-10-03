@@ -47,6 +47,10 @@ using TRowItr = core::CDataFrame::TRowItr;
 using TPoint = maths::CDenseVector<maths::CFloatStorage>;
 using TPointVec = std::vector<TPoint>;
 using TDataFrameUPtr = std::unique_ptr<core::CDataFrame>;
+using TDataAdderUPtr = std::unique_ptr<ml::core::CDataAdder>;
+using TPersisterSupplier = std::function<TDataAdderUPtr()>;
+using TDataSearcherUPtr = std::unique_ptr<ml::core::CDataSearcher>;
+using TRestoreSearcherSupplier = std::function<TDataSearcherUPtr()>;
 
 class CTestDataSearcher : public core::CDataSearcher {
 public:
@@ -56,6 +60,7 @@ public:
     virtual TIStreamP search(size_t /*currentDocNum*/, size_t /*limit*/) {
         std::istringstream* intermediateStateStream{
             static_cast<std::istringstream*>(m_Stream.get())};
+        // Discard first line, which contains the state id.
         intermediateStateStream->ignore(256, '\n');
         std::string intermediateState;
         std::getline(*intermediateStateStream, intermediateState);
@@ -66,26 +71,8 @@ private:
     TIStreamP m_Stream;
 };
 
-class CTestDataAdder : public core::CDataAdder {
-public:
-    CTestDataAdder() : m_Stream(new std::ostringstream) {}
-
-    virtual TOStreamP addStreamed(const std::string& /*index*/, const std::string& /*id*/) {
-        return m_Stream;
-    }
-
-    virtual bool streamComplete(TOStreamP& /*strm*/, bool /*force*/) {
-        return true;
-    }
-
-    TOStreamP getStream() { return m_Stream; }
-
-private:
-    TOStreamP m_Stream;
-};
-
-std::vector<std::string> streamToStringVector(std::stringstream&& tokenStream) {
-    std::vector<std::string> results;
+TStrVec splitOnNull(std::stringstream&& tokenStream) {
+    TStrVec results;
     std::string token;
     while (std::getline(tokenStream, token, '\0')) {
         results.push_back(token);
@@ -104,6 +91,16 @@ rapidjson::Document treeToJsonDocument(const maths::CBoostedTree& tree) {
     rapidjson::ParseResult ok(results.Parse(persistStream.str()));
     CPPUNIT_ASSERT(static_cast<bool>(ok) == true);
     return results;
+}
+
+auto restoreTree(std::string persistedState, TDataFrameUPtr& frame, std::size_t dependentVariable) {
+    CTestDataSearcher dataSearcher(persistedState);
+    auto decompressor = std::make_unique<core::CStateDecompressor>(dataSearcher);
+    decompressor->setStateRestoreSearch(api::ML_STATE_INDEX,
+                                        api::getRegressionStateId("testJob"));
+    auto stream = decompressor->search(1, 1);
+    return maths::CBoostedTreeFactory::constructFromString(*stream).buildFor(
+        *frame, dependentVariable);
 }
 
 auto outlierSpec(std::size_t rows = 110,
@@ -151,20 +148,34 @@ auto regressionSpec(std::string dependentVariable,
                     std::size_t numberRoundsPerHyperparameter = 0,
                     std::size_t bayesianOptimisationRestarts = 0,
                     const TStrVec& categoricalFieldNames = TStrVec{},
+                    double alpha = -1.0,
                     double lambda = -1.0,
                     double gamma = -1.0,
+                    double softTreeDepthLimit = -1.0,
+                    double softTreeDepthTolerance = -1.0,
                     double eta = -1.0,
                     std::size_t maximumNumberTrees = 0,
                     double featureBagFraction = -1.0,
-                    CDataFrameAnalyzerTest::TPersisterSupplier* persisterSupplier = nullptr,
-                    CDataFrameAnalyzerTest::TRestoreSearcherSupplier* restoreSearcherSupplier = nullptr) {
+                    TPersisterSupplier* persisterSupplier = nullptr,
+                    TRestoreSearcherSupplier* restoreSearcherSupplier = nullptr) {
 
     std::string parameters = "{\n\"dependent_variable\": \"" + dependentVariable + "\"";
+    if (alpha >= 0.0) {
+        parameters += ",\n\"alpha\": " + core::CStringUtils::typeToString(alpha);
+    }
     if (lambda >= 0.0) {
         parameters += ",\n\"lambda\": " + core::CStringUtils::typeToString(lambda);
     }
     if (gamma >= 0.0) {
         parameters += ",\n\"gamma\": " + core::CStringUtils::typeToString(gamma);
+    }
+    if (softTreeDepthLimit >= 0.0) {
+        parameters += ",\n\"soft_tree_depth_limit\": " +
+                      core::CStringUtils::typeToString(softTreeDepthLimit);
+    }
+    if (softTreeDepthTolerance >= 0.0) {
+        parameters += ",\n\"soft_tree_depth_tolerance\": " +
+                      core::CStringUtils::typeToString(softTreeDepthTolerance);
     }
     if (eta > 0.0) {
         parameters += ",\n\"eta\": " + core::CStringUtils::typeToString(eta);
@@ -317,8 +328,11 @@ void addRegressionTestData(const TStrVec& fieldNames,
                            api::CDataFrameAnalyzer& analyzer,
                            TDoubleVec& expectedPredictions,
                            std::size_t numberExamples = 100,
+                           double alpha = -1.0,
                            double lambda = -1.0,
                            double gamma = -1.0,
+                           double softTreeDepthLimit = -1.0,
+                           double softTreeDepthTolerance = -1.0,
                            double eta = 0.0,
                            std::size_t maximumNumberTrees = 0,
                            double featureBagFraction = 0.0) {
@@ -333,11 +347,20 @@ void addRegressionTestData(const TStrVec& fieldNames,
 
     maths::CBoostedTreeFactory treeFactory{maths::CBoostedTreeFactory::constructFromParameters(
         1, std::make_unique<maths::boosted_tree::CMse>())};
+    if (alpha >= 0.0) {
+        treeFactory.depthPenaltyMultiplier(alpha);
+    }
     if (lambda >= 0.0) {
         treeFactory.leafWeightPenaltyMultiplier(lambda);
     }
     if (gamma >= 0.0) {
         treeFactory.treeSizePenaltyMultiplier(gamma);
+    }
+    if (softTreeDepthLimit >= 0.0) {
+        treeFactory.softTreeDepthLimit(softTreeDepthLimit);
+    }
+    if (softTreeDepthTolerance >= 0.0) {
+        treeFactory.softTreeDepthTolerance(softTreeDepthTolerance);
     }
     if (eta > 0.0) {
         treeFactory.eta(eta);
@@ -360,6 +383,88 @@ void addRegressionTestData(const TStrVec& fieldNames,
                 (*row)[tree->columnHoldingPrediction(row->numberColumns())]);
         }
     });
+}
+
+template<typename F>
+void testOneRunOfBoostedTreeTrainingWithStateRecovery(F makeSpec, std::size_t iterationToRestartFrom) {
+
+    std::stringstream outputStream;
+    auto outputWriterFactory = [&outputStream]() {
+        return std::make_unique<core::CJsonOutputStreamWrapper>(outputStream);
+    };
+
+    std::size_t numberExamples{200};
+    TStrVec fieldNames{"c1", "c2", "c3", "c4", "c5", ".", "."};
+    TStrVec fieldValues{"", "", "", "", "", "0", ""};
+    TDoubleVec weights{0.1, 2.0, 0.4, -0.5};
+    TDoubleVec values;
+    test::CRandomNumbers rng;
+    rng.generateUniformSamples(-10.0, 10.0, weights.size() * numberExamples, values);
+
+    auto persistenceStream = std::make_shared<std::ostringstream>();
+    TPersisterSupplier persisterSupplier = [&persistenceStream]() -> TDataAdderUPtr {
+        return std::make_unique<api::CSingleStreamDataAdder>(persistenceStream);
+    };
+
+    // Compute expected tree.
+
+    api::CDataFrameAnalyzer analyzer{
+        makeSpec("c5", numberExamples, persisterSupplier), outputWriterFactory};
+    std::size_t dependentVariable(
+        std::find(fieldNames.begin(), fieldNames.end(), "c5") - fieldNames.begin());
+
+    auto frame = passDataToAnalyzer(fieldNames, fieldValues, analyzer, weights, values);
+    analyzer.handleRecord(fieldNames, {"", "", "", "", "", "", "$"});
+
+    TStrVec persistedStates{
+        splitOnNull(std::stringstream{std::move(persistenceStream->str())})};
+    auto expectedTree = restoreTree(std::move(persistedStates.back()), frame, dependentVariable);
+
+    // Compute actual tree.
+
+    persistenceStream->str("");
+
+    std::istringstream intermediateStateStream{persistedStates[iterationToRestartFrom]};
+    TRestoreSearcherSupplier restoreSearcherSupplier = [&intermediateStateStream]() -> TDataSearcherUPtr {
+        return std::make_unique<CTestDataSearcher>(intermediateStateStream.str());
+    };
+
+    api::CDataFrameAnalyzer restoredAnalyzer{
+        makeSpec("c5", numberExamples, persisterSupplier), outputWriterFactory};
+
+    passDataToAnalyzer(fieldNames, fieldValues, restoredAnalyzer, weights, values);
+    restoredAnalyzer.handleRecord(fieldNames, {"", "", "", "", "", "", "$"});
+
+    persistedStates = splitOnNull(std::stringstream{std::move(persistenceStream->str())});
+    auto actualTree = restoreTree(std::move(persistedStates.back()), frame, dependentVariable);
+
+    // Compare hyperparameters.
+
+    rapidjson::Document expectedResults{treeToJsonDocument(*expectedTree)};
+    const auto& expectedHyperparameters =
+        expectedResults[maths::CBoostedTree::bestHyperparametersName()];
+    const auto& expectedRegularizationHyperparameters =
+        expectedHyperparameters[maths::CBoostedTree::bestRegularizationHyperparametersName()];
+
+    rapidjson::Document actualResults{treeToJsonDocument(*actualTree)};
+    const auto& actualHyperparameters =
+        actualResults[maths::CBoostedTree::bestHyperparametersName()];
+    const auto& actualRegularizationHyperparameters =
+        actualHyperparameters[maths::CBoostedTree::bestRegularizationHyperparametersName()];
+
+    for (const auto& key : maths::CBoostedTree::bestHyperparameterNames()) {
+        if (expectedHyperparameters.HasMember(key)) {
+            double expected{std::stod(expectedHyperparameters[key].GetString())};
+            double actual{std::stod(actualHyperparameters[key].GetString())};
+            CPPUNIT_ASSERT_DOUBLES_EQUAL(expected, actual, 1e-4 * expected);
+        } else if (expectedRegularizationHyperparameters.HasMember(key)) {
+            double expected{std::stod(expectedRegularizationHyperparameters[key].GetString())};
+            double actual{std::stod(actualRegularizationHyperparameters[key].GetString())};
+            CPPUNIT_ASSERT_DOUBLES_EQUAL(expected, actual, 1e-4 * expected);
+        } else {
+            CPPUNIT_FAIL("Missing " + key);
+        }
+    }
 }
 }
 
@@ -664,8 +769,11 @@ void CDataFrameAnalyzerTest::testRunBoostedTreeTrainingWithParams() {
     // Test the regression hyperparameter settings are correctly propagated to the
     // analysis runner.
 
+    double alpha{2.0};
     double lambda{1.0};
     double gamma{10.0};
+    double softTreeDepthLimit{3.0};
+    double softTreeDepthTolerance{0.1};
     double eta{0.9};
     std::size_t maximumNumberTrees{1};
     double featureBagFraction{0.3};
@@ -676,7 +784,8 @@ void CDataFrameAnalyzerTest::testRunBoostedTreeTrainingWithParams() {
     };
 
     api::CDataFrameAnalyzer analyzer{
-        regressionSpec("c5", 100, 5, 3000000, 0, 0, {}, lambda, gamma, eta,
+        regressionSpec("c5", 100, 5, 3000000, 0, 0, {}, alpha, lambda, gamma,
+                       softTreeDepthLimit, softTreeDepthTolerance, eta,
                        maximumNumberTrees, featureBagFraction),
         outputWriterFactory};
 
@@ -684,8 +793,9 @@ void CDataFrameAnalyzerTest::testRunBoostedTreeTrainingWithParams() {
 
     TStrVec fieldNames{"c1", "c2", "c3", "c4", "c5", ".", "."};
     TStrVec fieldValues{"", "", "", "", "", "0", ""};
-    addRegressionTestData(fieldNames, fieldValues, analyzer, expectedPredictions, 100,
-                          lambda, gamma, eta, maximumNumberTrees, featureBagFraction);
+    addRegressionTestData(fieldNames, fieldValues, analyzer, expectedPredictions,
+                          100, alpha, lambda, gamma, softTreeDepthLimit, softTreeDepthTolerance,
+                          eta, maximumNumberTrees, featureBagFraction);
     analyzer.handleRecord(fieldNames, {"", "", "", "", "", "", "$"});
 
     rapidjson::Document results;
@@ -771,6 +881,61 @@ void CDataFrameAnalyzerTest::testRunBoostedTreeTrainingWithRowsMissingTargetValu
         }
     }
     CPPUNIT_ASSERT_EQUAL(std::size_t{50}, numberResults);
+}
+
+void CDataFrameAnalyzerTest::testRunBoostedTreeTrainingWithStateRecovery() {
+
+    struct SHyperparameters {
+        SHyperparameters(double alpha = 2.0, double lambda = 1.0, double gamma = 10.0)
+            : s_Alpha{alpha}, s_Lambda{lambda}, s_Gamma{gamma} {}
+
+        std::size_t numberUnset() const {
+            return (s_Alpha < 0.0 ? 1 : 0) + (s_Lambda < 0.0 ? 1 : 0) +
+                   (s_Gamma < 0.0 ? 1 : 0);
+        }
+
+        double s_Alpha;
+        double s_Lambda;
+        double s_Gamma;
+        double s_SoftTreeDepthLimit = 3.0;
+        double s_SoftTreeDepthTolerance = 0.15;
+        double s_Eta = 0.9;
+        std::size_t s_MaximumNumberTrees = 2;
+        double s_FeatureBagFraction = 0.3;
+    };
+
+    std::size_t numberRoundsPerHyperparameter{3};
+
+    TSizeVec intermediateIterations;
+    std::size_t finalIteration{0};
+
+    test::CRandomNumbers rng;
+
+    // TODO re-enable case that all parameters are set.
+    for (const auto& params :
+         {/*SHyperparameters{},*/ SHyperparameters{-1.0},
+          SHyperparameters{-1.0, -1.0}, SHyperparameters{-1.0, -1.0, -1.0}}) {
+
+        LOG_DEBUG(<< "Number parameters to search = " << params.numberUnset());
+
+        auto makeSpec = [&](const std::string& dependentVariable, std::size_t numberExamples,
+                            TPersisterSupplier persisterSupplier) {
+            return regressionSpec(dependentVariable, numberExamples, 5, 15000000,
+                                  numberRoundsPerHyperparameter, 12, {},
+                                  params.s_Alpha, params.s_Lambda, params.s_Gamma,
+                                  params.s_SoftTreeDepthLimit, params.s_SoftTreeDepthTolerance,
+                                  params.s_Eta, params.s_MaximumNumberTrees,
+                                  params.s_FeatureBagFraction, &persisterSupplier);
+        };
+
+        finalIteration = params.numberUnset() * numberRoundsPerHyperparameter - 1;
+        rng.generateUniformSamples(0, finalIteration - 1, 3, intermediateIterations);
+
+        for (auto intermediateIteration : intermediateIterations) {
+            LOG_DEBUG(<< "restart from " << intermediateIteration);
+            testOneRunOfBoostedTreeTrainingWithStateRecovery(makeSpec, intermediateIteration);
+        }
+    }
 }
 
 void CDataFrameAnalyzerTest::testFlushMessage() {
@@ -985,8 +1150,7 @@ void CDataFrameAnalyzerTest::testCategoricalFields() {
         std::size_t rows{api::CDataFrameAnalyzer::MAX_CATEGORICAL_CARDINALITY + 3};
 
         api::CDataFrameAnalyzer analyzer{
-            regressionSpec("x5", rows, 5, 8000000000, 0, 0, {"x1"}, 0, 0, 0, 0, 0),
-            outputWriterFactory};
+            regressionSpec("x5", rows, 5, 8000000000, 0, 0, {"x1"}), outputWriterFactory};
 
         TStrVec fieldNames{"x1", "x2", "x3", "x4", "x5", ".", "."};
         TStrVec fieldValues{"", "", "", "", "", "", ""};
@@ -1060,156 +1224,4 @@ CppUnit::Test* CDataFrameAnalyzerTest::suite() {
         &CDataFrameAnalyzerTest::testCategoricalFields));
 
     return suiteOfTests;
-}
-
-void CDataFrameAnalyzerTest::testRunBoostedTreeTrainingWithStateRecovery() {
-
-    // no hyperparameter search
-    double lambda{1.0};
-    double gamma{10.0};
-    double eta{0.9};
-    std::size_t maximumNumberTrees{2};
-    double featureBagFraction{0.3};
-    std::size_t numberRoundsPerHyperparameter{5};
-
-    TSizeVec intermediateIterations;
-    std::size_t finalIteration{0};
-
-    test::CRandomNumbers rng;
-
-    // TODO reactivate this test case
-    //    LOG_DEBUG(<< "No hyperparameters to search")
-    //    testRunBoostedTreeTrainingWithStateRecoverySubroutine(
-    //        lambda, gamma, eta, maximumNumberTrees, featureBagFraction,
-    //        numberRoundsPerHyperparameter, 0, finalIteration);
-
-    LOG_DEBUG(<< "One hyperparameter to search");
-    lambda = -1.0;
-    gamma = 10.0;
-    finalIteration = 1 * numberRoundsPerHyperparameter - 1;
-    rng.generateUniformSamples(1, finalIteration - 1, 3, intermediateIterations);
-    for (auto intermediateIteration : intermediateIterations) {
-        LOG_DEBUG(<< "restart from " << intermediateIteration);
-        testRunBoostedTreeTrainingWithStateRecoverySubroutine(
-            lambda, gamma, eta, maximumNumberTrees, featureBagFraction,
-            numberRoundsPerHyperparameter, intermediateIteration);
-    }
-
-    LOG_DEBUG(<< "Two hyperparameters to search");
-    lambda = -1.0;
-    gamma = -1.0;
-    finalIteration = 2 * numberRoundsPerHyperparameter - 1;
-    rng.generateUniformSamples(finalIteration / 2, finalIteration - 1, 3, intermediateIterations);
-    for (auto intermediateIteration : intermediateIterations) {
-        LOG_DEBUG(<< "restart from " << intermediateIteration);
-        testRunBoostedTreeTrainingWithStateRecoverySubroutine(
-            lambda, gamma, eta, maximumNumberTrees, featureBagFraction,
-            numberRoundsPerHyperparameter, intermediateIteration);
-    }
-}
-
-void CDataFrameAnalyzerTest::testRunBoostedTreeTrainingWithStateRecoverySubroutine(
-    double lambda,
-    double gamma,
-    double eta,
-    std::size_t maximumNumberTrees,
-    double featureBagFraction,
-    std::size_t numberRoundsPerHyperparameter,
-    std::size_t iterationToRestartFrom) const {
-    std::stringstream outputStream;
-    auto outputWriterFactory = [&outputStream]() {
-        return std::make_unique<core::CJsonOutputStreamWrapper>(outputStream);
-    };
-
-    std::size_t numberExamples{200};
-    TStrVec fieldNames{"c1", "c2", "c3", "c4", "c5", ".", "."};
-    TStrVec fieldValues{"", "", "", "", "", "0", ""};
-    TDoubleVec weights{0.1, 2.0, 0.4, -0.5};
-    TDoubleVec values;
-    test::CRandomNumbers rng;
-    rng.generateUniformSamples(-10.0, 10.0, weights.size() * numberExamples, values);
-
-    auto persistenceStream{std::make_shared<std::ostringstream>()};
-    TPersisterSupplier persisterSupplier = [&persistenceStream]() -> TDataAdderUPtr {
-        return std::make_unique<api::CSingleStreamDataAdder>(persistenceStream);
-    };
-
-    // compute expected tree
-
-    api::CDataFrameAnalyzer analyzer{
-        regressionSpec("c5", numberExamples, 5, 15000000,
-                       numberRoundsPerHyperparameter, 12, {}, lambda, gamma, eta,
-                       maximumNumberTrees, featureBagFraction, &persisterSupplier),
-        outputWriterFactory};
-    std::size_t dependentVariable(
-        std::find(fieldNames.begin(), fieldNames.end(), "c5") - fieldNames.begin());
-
-    auto frame{passDataToAnalyzer(fieldNames, fieldValues, analyzer, weights, values)};
-    analyzer.handleRecord(fieldNames, {"", "", "", "", "", "", "$"});
-
-    TStrVec persistedStatesString{
-        streamToStringVector(std::stringstream(persistenceStream->str()))};
-
-    auto expectedTree{this->getFinalTree(persistedStatesString, frame, dependentVariable)};
-
-    // Compute actual tree
-    persistenceStream->str("");
-
-    std::istringstream intermediateStateStream{persistedStatesString[iterationToRestartFrom]};
-    TRestoreSearcherSupplier restoreSearcherSupplier = [&intermediateStateStream]() -> TDataSearcherUPtr {
-        return std::make_unique<CTestDataSearcher>(intermediateStateStream.str());
-    };
-
-    api::CDataFrameAnalyzer analyzerToRestore{
-        regressionSpec("c5", numberExamples, 5, 15000000, numberRoundsPerHyperparameter,
-                       12, {}, lambda, gamma, eta, maximumNumberTrees, featureBagFraction,
-                       &persisterSupplier, &restoreSearcherSupplier),
-        outputWriterFactory};
-
-    passDataToAnalyzer(fieldNames, fieldValues, analyzerToRestore, weights, values);
-    analyzerToRestore.handleRecord(fieldNames, {"", "", "", "", "", "", "$"});
-
-    persistedStatesString =
-        streamToStringVector(std::stringstream(persistenceStream->str()));
-    auto actualTree{this->getFinalTree(persistedStatesString, frame, dependentVariable)};
-
-    // compare hyperparameter
-
-    // TODO avoid implicit dependency on state names
-
-    rapidjson::Document expectedResults{treeToJsonDocument(*expectedTree)};
-    const auto& expectedHyperparameters = expectedResults["best_hyperparameters"];
-    const auto& expectedRegularizationHyperparameters =
-        expectedHyperparameters["hyperparam_regularization"];
-
-    rapidjson::Document actualResults{treeToJsonDocument(*actualTree)};
-    const auto& actualHyperparameters = actualResults["best_hyperparameters"];
-    const auto& actualRegularizationHyperparameters =
-        actualHyperparameters["hyperparam_regularization"];
-
-    for (const auto& key : {"hyperparam_eta", "hyperparam_eta_growth_rate_per_tree",
-                            "hyperparam_feature_bag_fraction"}) {
-        double expected{std::stod(expectedHyperparameters[key].GetString())};
-        double actual{std::stod(actualHyperparameters[key].GetString())};
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(expected, actual, 1e-4 * expected);
-    }
-    for (const auto& key : {"regularization_tree_size_penalty_multiplier",
-                            "regularization_leaf_weight_penalty_multiplier"}) {
-        double expected{std::stod(expectedRegularizationHyperparameters[key].GetString())};
-        double actual{std::stod(actualRegularizationHyperparameters[key].GetString())};
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(expected, actual, 1e-4 * expected);
-    }
-}
-
-maths::CBoostedTreeFactory::TBoostedTreeUPtr
-CDataFrameAnalyzerTest::getFinalTree(const TStrVec& persistedStates,
-                                     std::unique_ptr<core::CDataFrame>& frame,
-                                     std::size_t dependentVariable) const {
-    CTestDataSearcher dataSearcher(persistedStates.back());
-    auto decompressor{std::make_unique<core::CStateDecompressor>(dataSearcher)};
-    decompressor->setStateRestoreSearch(api::ML_STATE_INDEX,
-                                        api::getRegressionStateId("testJob"));
-    auto stream{decompressor->search(1, 1)};
-    return maths::CBoostedTreeFactory::constructFromString(*stream).buildFor(
-        *frame, dependentVariable);
 }

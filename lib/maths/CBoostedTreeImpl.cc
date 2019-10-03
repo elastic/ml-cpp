@@ -1023,6 +1023,25 @@ const std::string HYPERPARAM_FEATURE_BAG_FRACTION_TAG{"hyperparam_feature_bag_fr
 const std::string HYPERPARAM_REGULARIZATION_TAG{"hyperparam_regularization"};
 }
 
+const std::string& CBoostedTreeImpl::bestHyperparametersName() {
+    return BEST_HYPERPARAMETERS_TAG;
+}
+
+const std::string& CBoostedTreeImpl::bestRegularizationHyperparametersName() {
+    return HYPERPARAM_REGULARIZATION_TAG;
+}
+
+CBoostedTreeImpl::TStrVec CBoostedTreeImpl::bestHyperparameterNames() {
+    return {HYPERPARAM_ETA_TAG,
+            HYPERPARAM_ETA_GROWTH_RATE_PER_TREE_TAG,
+            HYPERPARAM_FEATURE_BAG_FRACTION_TAG,
+            REGULARIZATION_DEPTH_PENALTY_MULTIPLIER_TAG,
+            REGULARIZATION_TREE_SIZE_PENALTY_MULTIPLIER_TAG,
+            REGULARIZATION_LEAF_WEIGHT_PENALTY_MULTIPLIER_TAG,
+            REGULARIZATION_SOFT_TREE_DEPTH_LIMIT_TAG,
+            REGULARIZATION_SOFT_TREE_DEPTH_TOLERANCE_TAG};
+}
+
 template<typename T>
 void CBoostedTreeImpl::CRegularization<T>::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
     core::CPersistUtils::persist(REGULARIZATION_DEPTH_PENALTY_MULTIPLIER_TAG,

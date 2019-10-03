@@ -464,6 +464,22 @@ const CBoostedTree::TNodeVecVec& CBoostedTree::trainedModel() const {
     return m_Impl->trainedModel();
 }
 
+const std::string& CBoostedTree::bestHyperparametersName() {
+    return CBoostedTreeImpl::bestHyperparametersName();
+}
+
+const std::string& CBoostedTree::bestRegularizationHyperparametersName() {
+    return CBoostedTreeImpl::bestRegularizationHyperparametersName();
+}
+
+CBoostedTree::TStrVec CBoostedTree::bestHyperparameterNames() {
+    return CBoostedTreeImpl::bestHyperparameterNames();
+}
+
+bool CBoostedTree::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
+    return m_Impl->acceptRestoreTraverser(traverser);
+}
+
 void CBoostedTree::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
     m_Impl->acceptPersistInserter(inserter);
 }
