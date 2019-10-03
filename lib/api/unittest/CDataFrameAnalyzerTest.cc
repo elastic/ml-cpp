@@ -17,6 +17,7 @@
 #include <maths/CBasicStatistics.h>
 #include <maths/CBoostedTree.h>
 #include <maths/CBoostedTreeFactory.h>
+#include <maths/CDataFrameUtils.h>
 #include <maths/COutliers.h>
 
 #include <api/CDataFrameAnalysisSpecification.h>
@@ -1021,13 +1022,17 @@ void CDataFrameAnalyzerTest::testCategoricalFields() {
     }
 }
 
-void CDataFrameAnalyzerTest::testCategoricalFields_EmptyAsMissing() {
+void CDataFrameAnalyzerTest::testCategoricalFieldsEmptyAsMissing() {
 
     auto eq = [](double expected) {
         return [expected](double actual) { return expected == actual; };
     };
 
-    auto nan = []() { return [](double actual) { return isnan(actual); }; };
+    auto missing = []() {
+        return [](double actual) {
+            return maths::CDataFrameUtils::isMissing(actual);
+        };
+    };
 
     auto assertRow = [&](const std::size_t row_i,
                          const std::vector<std::function<bool(double)>>& matchers,
@@ -1068,16 +1073,16 @@ void CDataFrameAnalyzerTest::testCategoricalFields_EmptyAsMissing() {
         std::vector<TRowRef> rows;
         std::copy(beginRows, endRows, std::back_inserter(rows));
         CPPUNIT_ASSERT_EQUAL(10UL, rows.size());
-        assertRow(0, {eq(0.0), eq(0.0), eq(0.0), eq(0.0), eq(0.0)}, rows[0]);
-        assertRow(1, {eq(1.0), eq(1.0), eq(1.0), eq(1.0), eq(1.0)}, rows[1]);
-        assertRow(2, {eq(2.0), eq(2.0), eq(2.0), eq(2.0), eq(0.0)}, rows[2]);
-        assertRow(3, {eq(3.0), eq(3.0), eq(3.0), eq(3.0), nan()  }, rows[3]);
-        assertRow(4, {eq(4.0), eq(4.0), eq(4.0), eq(4.0), eq(0.0)}, rows[4]);
-        assertRow(5, {eq(0.0), eq(5.0), eq(5.0), eq(5.0), eq(1.0)}, rows[5]);
-        assertRow(6, {eq(1.0), eq(6.0), eq(6.0), eq(6.0), nan()  }, rows[6]);
-        assertRow(7, {eq(5.0), eq(0.0), eq(7.0), eq(7.0), nan()  }, rows[7]);
-        assertRow(8, {eq(3.0), eq(1.0), eq(8.0), eq(8.0), eq(0.0)}, rows[8]);
-        assertRow(9, {eq(2.0), eq(2.0), eq(9.0), eq(9.0), eq(1.0)}, rows[9]);
+        assertRow(0, {eq(0.0), eq(0.0), eq(0.0), eq(0.0), eq(0.0)},   rows[0]);
+        assertRow(1, {eq(1.0), eq(1.0), eq(1.0), eq(1.0), eq(1.0)},   rows[1]);
+        assertRow(2, {eq(2.0), eq(2.0), eq(2.0), eq(2.0), eq(0.0)},   rows[2]);
+        assertRow(3, {eq(3.0), eq(3.0), eq(3.0), eq(3.0), missing()}, rows[3]);
+        assertRow(4, {eq(4.0), eq(4.0), eq(4.0), eq(4.0), eq(0.0)},   rows[4]);
+        assertRow(5, {eq(0.0), eq(5.0), eq(5.0), eq(5.0), eq(1.0)},   rows[5]);
+        assertRow(6, {eq(1.0), eq(6.0), eq(6.0), eq(6.0), missing()}, rows[6]);
+        assertRow(7, {eq(5.0), eq(0.0), eq(7.0), eq(7.0), missing()}, rows[7]);
+        assertRow(8, {eq(3.0), eq(1.0), eq(8.0), eq(8.0), eq(0.0)},   rows[8]);
+        assertRow(9, {eq(2.0), eq(2.0), eq(9.0), eq(9.0), eq(1.0)},   rows[9]);
     });
 }
 
@@ -1122,8 +1127,8 @@ CppUnit::Test* CDataFrameAnalyzerTest::suite() {
         "CDataFrameAnalyzerTest::testCategoricalFields",
         &CDataFrameAnalyzerTest::testCategoricalFields));
     suiteOfTests->addTest(new CppUnit::TestCaller<CDataFrameAnalyzerTest>(
-        "CDataFrameAnalyzerTest::testCategoricalFields_EmptyAsMissing",
-        &CDataFrameAnalyzerTest::testCategoricalFields_EmptyAsMissing));
+        "CDataFrameAnalyzerTest::testCategoricalFieldsEmptyAsMissing",
+        &CDataFrameAnalyzerTest::testCategoricalFieldsEmptyAsMissing));
 
     return suiteOfTests;
 }
