@@ -39,6 +39,7 @@ public:
     void testErrors();
     void testRoundTripDocHashes();
     void testCategoricalFields();
+    void testCategoricalFields_EmptyAsMissing();
 
     static CppUnit::Test* suite();
 

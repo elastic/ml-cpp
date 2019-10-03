@@ -189,6 +189,36 @@ void CDataFrameAnalysisRunnerTest::testEstimateMemoryUsage_1000() {
     testEstimateMemoryUsage(1000, "450kB", "143kB", 0);
 }
 
+void testColumnsForWhichEmptyIsMissing(const std::string& analysis,
+                                       bool expected_dependentVariableEmptyAsMissing) {
+    using TBoolVec = std::vector<bool>;
+    using TStrVec = std::vector<std::string>;
+
+    std::string parameters{"{\"dependent_variable\": \"label\"}"};
+    std::string jsonSpec{api::CDataFrameAnalysisSpecificationJsonWriter::jsonString(
+        "testJob", 10000, 5, 100000000, 1, {}, true,
+        test::CTestTmpDir::tmpDir(), "", analysis, parameters)};
+    api::CDataFrameAnalysisSpecification spec{jsonSpec};
+
+    TStrVec fieldNames{"feature_1", "feature_2", "feature_3", "label"};
+    TBoolVec emptyAsMissing{spec.columnsForWhichEmptyIsMissing(fieldNames)};
+
+    CPPUNIT_ASSERT_EQUAL(fieldNames.size(), emptyAsMissing.size());
+    CPPUNIT_ASSERT_EQUAL(false, bool(emptyAsMissing[0]));
+    CPPUNIT_ASSERT_EQUAL(false, bool(emptyAsMissing[1]));
+    CPPUNIT_ASSERT_EQUAL(false, bool(emptyAsMissing[2]));
+    CPPUNIT_ASSERT_EQUAL(expected_dependentVariableEmptyAsMissing,
+                         bool(emptyAsMissing[3]));
+}
+
+void CDataFrameAnalysisRunnerTest::testColumnsForWhichEmptyIsMissing_Classification() {
+    testColumnsForWhichEmptyIsMissing("classification", true);
+}
+
+void CDataFrameAnalysisRunnerTest::testColumnsForWhichEmptyIsMissing_Regression() {
+    testColumnsForWhichEmptyIsMissing("regression", false);
+}
+
 CppUnit::Test* CDataFrameAnalysisRunnerTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CDataFrameAnalysisRunnerTest");
 
@@ -213,6 +243,12 @@ CppUnit::Test* CDataFrameAnalysisRunnerTest::suite() {
     suiteOfTests->addTest(new CppUnit::TestCaller<CDataFrameAnalysisRunnerTest>(
         "CDataFrameAnalysisRunnerTest::testEstimateMemoryUsage_1000",
         &CDataFrameAnalysisRunnerTest::testEstimateMemoryUsage_1000));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CDataFrameAnalysisRunnerTest>(
+        "CDataFrameAnalysisRunnerTest::testColumnsForWhichEmptyIsMissing_Classification",
+        &CDataFrameAnalysisRunnerTest::testColumnsForWhichEmptyIsMissing_Classification));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CDataFrameAnalysisRunnerTest>(
+        "CDataFrameAnalysisRunnerTest::testColumnsForWhichEmptyIsMissing_Regression",
+        &CDataFrameAnalysisRunnerTest::testColumnsForWhichEmptyIsMissing_Regression));
 
     return suiteOfTests;
 }
