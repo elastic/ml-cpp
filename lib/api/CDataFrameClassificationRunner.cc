@@ -27,6 +27,8 @@
 namespace ml {
 namespace api {
 namespace {
+using TBoolVec = std::vector<bool>;
+
 // Configuration
 const std::string NUM_TOP_CLASSES{"num_top_classes"};
 
@@ -38,8 +40,7 @@ const std::string CLASS_PROBABILITY_FIELD_NAME{"class_probability"};
 }
 
 const CDataFrameAnalysisConfigReader CDataFrameClassificationRunner::getParameterReader() {
-    CDataFrameAnalysisConfigReader theReader =
-        CDataFrameBoostedTreeRunner::getParameterReader();
+    CDataFrameAnalysisConfigReader theReader{CDataFrameBoostedTreeRunner::getParameterReader()};
     theReader.addParameter(NUM_TOP_CLASSES, CDataFrameAnalysisConfigReader::E_OptionalParameter);
     return theReader;
 }
@@ -58,27 +59,35 @@ CDataFrameClassificationRunner::CDataFrameClassificationRunner(const CDataFrameA
 
 // The only field for which empty value should be treated as missing is dependent variable
 // which has empty value for non-training rows.
-void CDataFrameClassificationRunner::columnsForWhichEmptyIsMissing(TStrVec& fieldNames) const {
-    fieldNames.push_back(dependentVariableFieldName());
+TBoolVec CDataFrameClassificationRunner::columnsForWhichEmptyIsMissing(const TStrVec& fieldNames) const {
+    TBoolVec emptyAsMissing(fieldNames.size(), false);
+    auto pos = std::find(fieldNames.begin(), fieldNames.end(),
+                         this->dependentVariableFieldName());
+    if (pos != fieldNames.end()) {
+        emptyAsMissing[pos - fieldNames.begin()] = true;
+    }
+    return emptyAsMissing;
 }
 
 void CDataFrameClassificationRunner::writeOneRow(const TStrVec&,
                                                  const TStrVecVec& categoricalFieldValues,
                                                  TRowRef row,
                                                  core::CRapidJsonConcurrentLineWriter& writer) const {
-    const auto& tree{boostedTree()};
-    std::size_t columnHoldingDependentVariable = tree->columnHoldingDependentVariable();
-    std::size_t columnHoldingPrediction = tree->columnHoldingPrediction(row.numberColumns());
-    const double dependentVariable = row[columnHoldingDependentVariable];
-    const std::uint64_t prediction = std::lround(row[columnHoldingPrediction]);
+    const auto& tree = this->boostedTree();
+    const std::size_t columnHoldingDependentVariable{tree.columnHoldingDependentVariable()};
+    const std::size_t columnHoldingPrediction{
+        tree.columnHoldingPrediction(row.numberColumns())};
+    const double dependentVariable{row[columnHoldingDependentVariable]};
+    const std::uint64_t prediction{
+        static_cast<std::uint64_t>(std::lround(row[columnHoldingPrediction]))};
     if (prediction >= categoricalFieldValues[columnHoldingDependentVariable].size()) {
         HANDLE_FATAL(<< "Index out of bounds: " << prediction);
     }
-    std::string predictedClassName =
-        categoricalFieldValues[columnHoldingDependentVariable][prediction];
+    const std::string& predictedClassName{
+        categoricalFieldValues[columnHoldingDependentVariable][prediction]};
 
     writer.StartObject();
-    writer.Key(predictionFieldName());
+    writer.Key(this->predictionFieldName());
     writer.String(predictedClassName);
     writer.Key(IS_TRAINING_FIELD_NAME);
     writer.Bool(maths::CDataFrameUtils::isMissing(dependentVariable) == false);

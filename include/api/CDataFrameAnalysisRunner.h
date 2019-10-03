@@ -59,6 +59,7 @@ class CMemoryUsageEstimationResultJsonWriter;
 //! early to determine how to implement a good cooperative interrupt scheme.
 class API_EXPORT CDataFrameAnalysisRunner {
 public:
+    using TBoolVec = std::vector<bool>;
     using TStrVec = std::vector<std::string>;
     using TStrVecVec = std::vector<TStrVec>;
     using TRowRef = core::data_frame_detail::CRowRef;
@@ -99,8 +100,8 @@ public:
     //! \return The number of columns this analysis appends.
     virtual std::size_t numberExtraColumns() const = 0;
 
-    //! Fills in categorical field names for which empty value should be treated as missing.
-    virtual void columnsForWhichEmptyIsMissing(TStrVec& fieldNames) const;
+    //! \return Indicator of columns for which empty value should be treated as missing.
+    virtual TBoolVec columnsForWhichEmptyIsMissing(const TStrVec& fieldNames) const;
 
     //! Write the extra columns of \p row added by the analysis to \p writer.
     //!

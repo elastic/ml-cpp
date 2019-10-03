@@ -34,6 +34,7 @@ class CDataFrameAnalysisSpecification;
 //!
 class API_EXPORT CDataFrameAnalyzer {
 public:
+    using TBoolVec = std::vector<bool>;
     using TStrVec = std::vector<std::string>;
     using TJsonOutputStreamWrapperUPtr = std::unique_ptr<core::CJsonOutputStreamWrapper>;
     using TJsonOutputStreamWrapperUPtrSupplier =
@@ -104,7 +105,7 @@ private:
     TDataFrameAnalysisSpecificationUPtr m_AnalysisSpecification;
     TStrVec m_CategoricalFieldNames;
     TStrSizeUMapVec m_CategoricalFieldValues;
-    std::set<std::string> m_EmptyAsMissing;
+    TBoolVec m_EmptyAsMissing;
     TDataFrameUPtr m_DataFrame;
     TStrVec m_FieldNames;
     TTemporaryDirectoryPtr m_DataFrameDirectory;

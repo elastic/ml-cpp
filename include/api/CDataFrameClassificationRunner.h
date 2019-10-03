@@ -34,8 +34,8 @@ public:
     //! This is not intended to be called directly: use CDataFrameClassificationRunnerFactory.
     CDataFrameClassificationRunner(const CDataFrameAnalysisSpecification& spec);
 
-    //! Fills in categorical field names for which empty value should be treated as missing.
-    void columnsForWhichEmptyIsMissing(TStrVec& fieldNames) const override;
+    //! \return Indicator of columns for which empty value should be treated as missing.
+    TBoolVec columnsForWhichEmptyIsMissing(const TStrVec& fieldNames) const override;
 
     //! Write the prediction for \p row to \p writer.
     void writeOneRow(const TStrVec& featureNames,

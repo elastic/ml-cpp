@@ -49,12 +49,13 @@ void CDataFrameRegressionRunner::writeOneRow(const TStrVec&,
                                              const TStrVecVec&,
                                              TRowRef row,
                                              core::CRapidJsonConcurrentLineWriter& writer) const {
-    const auto& tree{boostedTree()};
-    std::size_t columnHoldingDependentVariable = tree->columnHoldingDependentVariable();
-    std::size_t columnHoldingPrediction = tree->columnHoldingPrediction(row.numberColumns());
+    const auto& tree = this->boostedTree();
+    const std::size_t columnHoldingDependentVariable = tree.columnHoldingDependentVariable();
+    const std::size_t columnHoldingPrediction =
+        tree.columnHoldingPrediction(row.numberColumns());
 
     writer.StartObject();
-    writer.Key(predictionFieldName());
+    writer.Key(this->predictionFieldName());
     writer.Double(row[columnHoldingPrediction]);
     writer.Key(IS_TRAINING_FIELD_NAME);
     writer.Bool(maths::CDataFrameUtils::isMissing(row[columnHoldingDependentVariable]) == false);

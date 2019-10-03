@@ -24,6 +24,8 @@
 namespace ml {
 namespace api {
 namespace {
+using TBoolVec = std::vector<bool>;
+
 std::size_t maximumNumberPartitions(const CDataFrameAnalysisSpecification& spec) {
     // We limit the maximum number of partitions to rows^(1/2) because very
     // large numbers of partitions are going to be slow and it is better to tell
@@ -43,7 +45,8 @@ CDataFrameAnalysisRunner::~CDataFrameAnalysisRunner() {
     this->waitToFinish();
 }
 
-void CDataFrameAnalysisRunner::columnsForWhichEmptyIsMissing(TStrVec&) const {
+TBoolVec CDataFrameAnalysisRunner::columnsForWhichEmptyIsMissing(const TStrVec& fieldNames) const {
+    return TBoolVec(fieldNames.size(), false);
 }
 
 void CDataFrameAnalysisRunner::estimateMemoryUsage(CMemoryUsageEstimationResultJsonWriter& writer) const {

@@ -40,11 +40,8 @@ public:
     //! \return The number of columns this adds to the data frame.
     std::size_t numberExtraColumns() const override;
 
-private:
+protected:
     using TBoostedTreeUPtr = std::unique_ptr<maths::CBoostedTree>;
-    using TBoostedTreeFactoryUPtr = std::unique_ptr<maths::CBoostedTreeFactory>;
-    using TDataSearcherUPtr = CDataFrameAnalysisSpecification::TDataSearcherUPtr;
-    using TMemoryEstimator = std::function<void(std::int64_t)>;
 
 protected:
     //! Parameter reader handling parameters that are shared by subclasses.
@@ -54,7 +51,12 @@ protected:
     //! Name of prediction field.
     const std::string& predictionFieldName() const;
     //! Underlying boosted tree.
-    const TBoostedTreeUPtr& boostedTree() const;
+    const maths::CBoostedTree& boostedTree() const;
+
+private:
+    using TBoostedTreeFactoryUPtr = std::unique_ptr<maths::CBoostedTreeFactory>;
+    using TDataSearcherUPtr = CDataFrameAnalysisSpecification::TDataSearcherUPtr;
+    using TMemoryEstimator = std::function<void(std::int64_t)>;
 
 private:
     void runImpl(const TStrVec& featureNames, core::CDataFrame& frame) override;

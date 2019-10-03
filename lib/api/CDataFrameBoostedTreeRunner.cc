@@ -193,12 +193,11 @@ const std::string& CDataFrameBoostedTreeRunner::predictionFieldName() const {
     return m_PredictionFieldName;
 }
 
-const CDataFrameBoostedTreeRunner::TBoostedTreeUPtr&
-CDataFrameBoostedTreeRunner::boostedTree() const {
+const maths::CBoostedTree& CDataFrameBoostedTreeRunner::boostedTree() const {
     if (m_BoostedTree == nullptr) {
         HANDLE_FATAL(<< "Internal error: boosted tree object missing. Please report this error.");
     }
-    return m_BoostedTree;
+    return *m_BoostedTree;
 }
 
 void CDataFrameBoostedTreeRunner::runImpl(const TStrVec& featureNames,

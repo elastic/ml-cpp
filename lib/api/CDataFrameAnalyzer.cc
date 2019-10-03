@@ -33,6 +33,27 @@ core::CFloatStorage truncateToFloatRange(double value) {
     return maths::CTools::truncate(value, -largest, largest);
 }
 
+void mapToVector(const TStrSizeUMap& map, TStrVec& vector) {
+    assert(vector.empty());
+    vector.resize(map.size());
+    for (const auto& entry : map) {
+        std::size_t index = entry.second;
+        if (index >= vector.size()) {
+            HANDLE_FATAL(<< "Index out of bounds: " << index);
+        } else {
+            vector[index] = entry.first;
+        }
+    }
+}
+
+void mapsToVectors(const TStrSizeUMapVec& maps, TStrVecVec& vectors) {
+    assert(vectors.empty());
+    vectors.resize(maps.size());
+    for (std::size_t i = 0; i < maps.size(); ++i) {
+        mapToVector(maps[i], vectors[i]);
+    }
+}
+
 const std::string SPECIAL_COLUMN_FIELD_NAME{"."};
 
 // Control message types:
@@ -57,10 +78,6 @@ CDataFrameAnalyzer::CDataFrameAnalyzer(TDataFrameAnalysisSpecificationUPtr analy
         auto frameAndDirectory = m_AnalysisSpecification->makeDataFrame();
         m_DataFrame = std::move(frameAndDirectory.first);
         m_DataFrameDirectory = frameAndDirectory.second;
-        TStrVec emptyAsMissing;
-        m_AnalysisSpecification->columnsForWhichEmptyIsMissing(emptyAsMissing);
-        m_EmptyAsMissing =
-            std::set<std::string>(emptyAsMissing.begin(), emptyAsMissing.end());
     }
 }
 
@@ -285,6 +302,7 @@ void CDataFrameAnalyzer::captureFieldNames(const TStrVec& fieldNames) {
     if (m_FieldNames.empty()) {
         m_FieldNames.assign(fieldNames.begin() + m_BeginDataFieldValues,
                             fieldNames.begin() + m_EndDataFieldValues);
+        m_EmptyAsMissing = m_AnalysisSpecification->columnsForWhichEmptyIsMissing(m_FieldNames);
     }
 }
 
@@ -348,8 +366,7 @@ void CDataFrameAnalyzer::addRowToDataFrame(const TStrVec& fieldValues) {
         for (std::ptrdiff_t i = m_BeginDataFieldValues;
              i != m_EndDataFieldValues; ++i, ++columns) {
             *columns = fieldToValue(isCategorical[i], m_CategoricalFieldValues[i],
-                                    m_EmptyAsMissing.count(m_FieldNames[i]) > 0,
-                                    fieldValues[i]);
+                                    m_EmptyAsMissing[i], fieldValues[i]);
         }
         docHash = 0;
         if (m_DocHashFieldIndex != FIELD_MISSING &&
@@ -382,26 +399,6 @@ void CDataFrameAnalyzer::writeProgress(int progress,
     writer.Int(progress);
     writer.EndObject();
     writer.flush();
-}
-
-void mapToVector(const TStrSizeUMap& map, TStrVec& vector) {
-    assert(vector.empty());
-    vector.resize(map.size());
-    for (const auto& entry : map) {
-        std::size_t index = entry.second;
-        if (index >= vector.size()) {
-            HANDLE_FATAL(<< "Index out of bounds: " << index);
-        }
-        vector[index] = entry.first;
-    }
-}
-
-void mapsToVectors(const TStrSizeUMapVec& maps, TStrVecVec& vectors) {
-    assert(vectors.empty());
-    vectors.resize(maps.size());
-    for (std::size_t i = 0; i < maps.size(); i++) {
-        mapToVector(maps[i], vectors[i]);
-    }
 }
 
 void CDataFrameAnalyzer::writeResultsOf(const CDataFrameAnalysisRunner& analysis,

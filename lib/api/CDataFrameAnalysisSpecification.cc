@@ -42,6 +42,7 @@ const std::string CDataFrameAnalysisSpecification::NAME("name");
 const std::string CDataFrameAnalysisSpecification::PARAMETERS("parameters");
 
 namespace {
+using TBoolVec = std::vector<bool>;
 using TRunnerFactoryUPtrVec = ml::api::CDataFrameAnalysisSpecification::TRunnerFactoryUPtrVec;
 
 TRunnerFactoryUPtrVec analysisFactories() {
@@ -208,12 +209,12 @@ void CDataFrameAnalysisSpecification::estimateMemoryUsage(CMemoryUsageEstimation
     m_Runner->estimateMemoryUsage(writer);
 }
 
-void CDataFrameAnalysisSpecification::columnsForWhichEmptyIsMissing(TStrVec& fieldNames) const {
+TBoolVec CDataFrameAnalysisSpecification::columnsForWhichEmptyIsMissing(const TStrVec& fieldNames) const {
     if (m_Runner == nullptr) {
         HANDLE_FATAL(<< "Internal error: no runner available. Please report this problem.");
-        return;
+        return TBoolVec(fieldNames.size(), false);
     }
-    m_Runner->columnsForWhichEmptyIsMissing(fieldNames);
+    return m_Runner->columnsForWhichEmptyIsMissing(fieldNames);
 }
 
 void CDataFrameAnalysisSpecification::initializeRunner(const rapidjson::Value& jsonAnalysis) {
