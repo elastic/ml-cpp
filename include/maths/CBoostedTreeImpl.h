@@ -221,7 +221,7 @@ private:
         //! Get the leaf index for \p row.
         std::size_t leafIndex(const CEncodedDataFrameRowRef& row,
                               const TNodeVec& tree,
-                              size_t index = 0) const {
+                              std::size_t index = 0) const {
             if (this->isLeaf()) {
                 return index;
             }
@@ -347,9 +347,6 @@ private:
         bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
 
     private:
-        using TSizeOpt = boost::optional<std::size_t>;
-
-    private:
         std::ostringstream&
         doPrint(std::string pad, const TNodeVec& tree, std::ostringstream& result) const {
             result << "\n" << pad;
@@ -368,8 +365,8 @@ private:
         std::size_t m_SplitFeature = 0;
         double m_SplitValue = 0.0;
         bool m_AssignMissingToLeft = true;
-        TSizeOpt m_LeftChild;
-        TSizeOpt m_RightChild;
+        TOptionalSize m_LeftChild;
+        TOptionalSize m_RightChild;
         double m_NodeValue = 0.0;
         double m_Gain = 0.0;
         double m_Curvature = 0.0;

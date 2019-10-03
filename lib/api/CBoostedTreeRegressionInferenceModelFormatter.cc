@@ -14,13 +14,13 @@ const std::string ENCODER_TAG{"encoder_tag"};
 }
 
 ml::api::CBoostedTreeRegressionInferenceModelFormatter::CBoostedTreeRegressionInferenceModelFormatter(
-    const std::string& str,
+    const std::string& persistenceString,
     const TStrVec& fieldNames,
     const TStrSizeUMapVec& categoryNameMap)
     : m_Definition(fieldNames, categoryNameMap) {
 
     std::stringstream strm;
-    strm.str(str);
+    strm.str(persistenceString);
     core::CJsonStateRestoreTraverser traverser{strm};
     std::unique_ptr<CEnsemble> ensemble = std::make_unique<CEnsemble>();
     std::unique_ptr<maths::CDataFrameCategoryEncoder> encoder;

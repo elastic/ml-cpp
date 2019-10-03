@@ -11,6 +11,8 @@
 
 #include <maths/CDataFrameCategoryEncoder.h>
 
+#include <api/ImportExport.h>
+
 #include <rapidjson/document.h>
 
 #include <boost/optional.hpp>
@@ -27,7 +29,7 @@ namespace api {
 
 //! \brief Abstract class for all elements the the inference definition
 //! that can will be serialized into JSON.
-class CSerializableToJson {
+class API_EXPORT CSerializableToJson {
 public:
     using TRapidJsonWriter = core::CRapidJsonLineWriter<rapidjson::StringBuffer>;
 
@@ -38,21 +40,21 @@ public:
 
 //! \brief Abstract class for all elements that initialize their member variables
 //! from JSON string of the AnalysisRunner.
-class CDeserializableFromJson {
+class API_EXPORT CDeserializableFromJson {
 public:
     //! Initialize member variable using \p traverser.
     virtual bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) = 0;
 };
 
 //! Abstract class for output aggregation.
-class CAggregateOutput : public CSerializableToJson {
+class API_EXPORT CAggregateOutput : public CSerializableToJson {
 public:
     //! Aggregation type as a string.
     virtual const std::string& stringType() = 0;
 };
 
 //! Allows to use (weighted) majority vote for classification.
-class CWeightedMode : public CAggregateOutput {
+class API_EXPORT CWeightedMode : public CAggregateOutput {
 public:
     explicit CWeightedMode(const std::vector<double>& weights);
     CWeightedMode(std::size_t size, double weight);
@@ -64,7 +66,7 @@ private:
 };
 
 //! Allows to use (weighted) sum for regression.
-class CWeightedSum : public CAggregateOutput {
+class API_EXPORT CWeightedSum : public CAggregateOutput {
 public:
     explicit CWeightedSum(const std::vector<double>& weights);
     CWeightedSum(std::size_t size, double weight);
@@ -78,7 +80,7 @@ private:
 //! List of support numeric relationships. It's only "<=" at the moment.
 enum ENumericRelationship { E_LTE };
 
-class CTrainedModel : public CSerializableToJson, public CDeserializableFromJson {
+class API_EXPORT CTrainedModel : public CSerializableToJson, public CDeserializableFromJson {
 public:
     using TStringVec = std::vector<std::string>;
     using TStringVecOptional = boost::optional<TStringVec>;
@@ -100,7 +102,7 @@ private:
 };
 
 //! Classification and regression trees.
-class CTree : public CTrainedModel {
+class API_EXPORT CTree : public CTrainedModel {
 public:
     bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) override;
     void addToDocument(rapidjson::Value& parentObject, TRapidJsonWriter& writer) override;
@@ -137,7 +139,7 @@ private:
 
 //! Ensemble of a collection of trained models
 // TODO this should be a list of basic evaluators, not the list of trees.
-class CEnsemble : public CTrainedModel {
+class API_EXPORT CEnsemble : public CTrainedModel {
 public:
     using TAggregateOutputUPtr = std::unique_ptr<CAggregateOutput>;
     using TTreeVec = std::vector<CTree>;
@@ -160,7 +162,7 @@ private:
 };
 
 //!\brief Information related to the input.
-class CInput : public CSerializableToJson {
+class API_EXPORT CInput : public CSerializableToJson {
 public:
     using TStringVec = std::vector<std::string>;
     using TStringVecOptional = boost::optional<TStringVec>;
@@ -177,7 +179,7 @@ private:
     TStringVec m_Columns;
 };
 
-class CEncoding : public CSerializableToJson {
+class API_EXPORT CEncoding : public CSerializableToJson {
 public:
     explicit CEncoding(const std::string& field);
     void addToDocument(rapidjson::Value& parentObject, TRapidJsonWriter& writer) override;
@@ -192,7 +194,7 @@ private:
 };
 
 //! \brief Mapping from categorical columns to numerical values related to categorical value distribution.
-class CFrequencyEncoding : public CEncoding {
+class API_EXPORT CFrequencyEncoding : public CEncoding {
 public:
     CFrequencyEncoding(const std::string& field,
                        const std::string& featureName,
@@ -211,7 +213,7 @@ private:
 };
 
 //! \brief Application of the one-hot encoding function on a single column.
-class COneHotEncoding : public CEncoding {
+class API_EXPORT COneHotEncoding : public CEncoding {
 public:
     using TStringStringUMap = std::map<std::string, std::string>;
 
@@ -227,7 +229,7 @@ private:
 };
 
 //! \brief Mapping from categorical columns to numerical values related to the target value.
-class CTargetMeanEncoding : public CEncoding {
+class API_EXPORT CTargetMeanEncoding : public CEncoding {
 public:
     CTargetMeanEncoding(const std::string& field,
                         double defaultValue,

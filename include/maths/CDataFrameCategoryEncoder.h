@@ -156,6 +156,7 @@ public:
         bool isBinary() const override;
         std::uint64_t checksum() const override;
         std::string typeString() const override;
+        size_t hotCategory() const;
 
     private:
         void acceptPersistInserterForDerivedTypeState(core::CStatePersistInserter& inserter) const override;
@@ -163,9 +164,6 @@ public:
 
     private:
         std::size_t m_HotCategory;
-
-    public:
-        size_t hotCategory() const;
     };
 
     //! \brief Looks up the encoding in a map.
