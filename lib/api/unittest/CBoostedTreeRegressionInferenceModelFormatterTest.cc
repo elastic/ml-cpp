@@ -216,7 +216,15 @@ void CBoostedTreeRegressionInferenceModelFormatterTest::testDefinitionGeneration
     CPPUNIT_ASSERT(oneHot && target && frequency);
 
     // assert trained model
-    // TODO add trained model assertion
+    auto trainedModel =
+        dynamic_cast<api::CEnsemble*>(formatter.definition().trainedModel().get());
+    CPPUNIT_ASSERT_EQUAL(api::CTrainedModel::E_Regression, trainedModel->targetType());
+    CPPUNIT_ASSERT_EQUAL(3ul, trainedModel->size());
+    CPPUNIT_ASSERT_EQUAL(1ul, trainedModel->trainedModels()[0].size());
+    CPPUNIT_ASSERT_EQUAL(3ul, trainedModel->trainedModels()[1].size());
+    CPPUNIT_ASSERT_EQUAL(3ul, trainedModel->trainedModels()[2].size());
+    CPPUNIT_ASSERT("weighted_sum" == trainedModel->aggregateOutput()->stringType());
+    // TODO feature names test is missing
 }
 
 void CBoostedTreeRegressionInferenceModelFormatterTest::testIntegration() {

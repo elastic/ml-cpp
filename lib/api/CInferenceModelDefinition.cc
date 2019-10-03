@@ -77,7 +77,7 @@ void addJsonArray(const std::string& tag,
 }
 }
 
-bool CTreeNode::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
+bool CTree::CTreeNode::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
     try {
         do {
             const std::string& name = traverser.name();
@@ -105,7 +105,7 @@ bool CTreeNode::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) 
     return true;
 }
 
-void CTreeNode::addToDocument(rapidjson::Value& parentObject, TRapidJsonWriter& writer) {
+void CTree::CTreeNode::addToDocument(rapidjson::Value& parentObject, TRapidJsonWriter& writer) {
     writer.addMember(JSON_NODE_INDEX_TAG, rapidjson::Value(m_NodeIndex).Move(), parentObject);
     writer.addMember(JSON_SPLIT_FEATURE_TAG,
                      rapidjson::Value(m_SplitFeature).Move(), parentObject);
@@ -153,7 +153,7 @@ bool CEnsemble::acceptRestoreTraverser(ml::core::CStateRestoreTraverser& travers
 }
 
 void CEnsemble::addToDocument(rapidjson::Value& parentObject, TRapidJsonWriter& writer) {
-    CBasicEvaluator::addToDocument(parentObject, writer);
+    CTrainedModel::addToDocument(parentObject, writer);
     rapidjson::Value trainedModelsArray = writer.makeArray(m_TrainedModels.size());
     for (auto trainedModel : m_TrainedModels) {
         rapidjson::Value trainedModelObject = writer.makeObject();
@@ -168,7 +168,7 @@ void CEnsemble::addToDocument(rapidjson::Value& parentObject, TRapidJsonWriter& 
     writer.addMember(JSON_AGGREGATE_OUTPUT_TAG, aggregateOutputObject, parentObject);
 }
 
-void CEnsemble::featureNames(const CBasicEvaluator::TStringVec& featureNames) {
+void CEnsemble::featureNames(const CTrainedModel::TStringVec& featureNames) {
     for (auto trainedModel : m_TrainedModels) {
         trainedModel.featureNames(featureNames);
     }
@@ -180,6 +180,14 @@ void CEnsemble::aggregateOutput(TAggregateOutputUPtr&& aggregateOutput) {
 
 std::size_t CEnsemble::size() const {
     return m_TrainedModels.size();
+}
+
+const CEnsemble::TTreeVec& CEnsemble::trainedModels() const {
+    return m_TrainedModels;
+}
+
+const CEnsemble::TAggregateOutputUPtr& CEnsemble::aggregateOutput() const {
+    return m_AggregateOutput;
 }
 
 bool CTree::acceptRestoreTraverser(ml::core::CStateRestoreTraverser& traverser) {
@@ -200,7 +208,7 @@ bool CTree::acceptRestoreTraverser(ml::core::CStateRestoreTraverser& traverser) 
 }
 
 void CTree::addToDocument(rapidjson::Value& parentObject, TRapidJsonWriter& writer) {
-    CBasicEvaluator::addToDocument(parentObject, writer);
+    CTrainedModel::addToDocument(parentObject, writer);
     rapidjson::Value treeStructureArray = writer.makeArray(m_TreeStructure.size());
     for (auto treeNode : m_TreeStructure) {
         rapidjson::Value treeNodeObject = writer.makeObject();
@@ -208,6 +216,10 @@ void CTree::addToDocument(rapidjson::Value& parentObject, TRapidJsonWriter& writ
         treeStructureArray.PushBack(treeNodeObject, writer.getRawAllocator());
     }
     writer.addMember(JSON_TREE_STRUCTURE_TAG, treeStructureArray, parentObject);
+}
+
+std::size_t CTree::size() const {
+    return m_TreeStructure.size();
 }
 
 std::string CInferenceModelDefinition::jsonString() {
@@ -243,8 +255,7 @@ std::string CInferenceModelDefinition::jsonString() {
     return stringBuffer.GetString();
 }
 
-void CBasicEvaluator::addToDocument(TRapidJsonWriter::TValue& parentObject,
-                                    TRapidJsonWriter& writer) {
+void CTrainedModel::addToDocument(rapidjson::Value& parentObject, TRapidJsonWriter& writer) {
     //    rapidjson::Value featureNamesArray = writer.makeArray(m_FeatureNames.size());
     //    for (const auto& featureName : m_FeatureNames) {
     //        rapidjson::Value featureNameValue;
@@ -280,20 +291,20 @@ void CBasicEvaluator::addToDocument(TRapidJsonWriter::TValue& parentObject,
     }
 }
 
-const CBasicEvaluator::TStringVec& CBasicEvaluator::featureNames() const {
+const CTrainedModel::TStringVec& CTrainedModel::featureNames() const {
     return m_FeatureNames;
 }
 
-void CBasicEvaluator::featureNames(const CBasicEvaluator::TStringVec& featureNames) {
+void CTrainedModel::featureNames(const CTrainedModel::TStringVec& featureNames) {
     m_FeatureNames = featureNames;
 }
 
-void CBasicEvaluator::classificationLabels(const CBasicEvaluator::TStringVec& classificationLabels) {
-    m_ClassificationLabels = classificationLabels;
+void CTrainedModel::targetType(CTrainedModel::ETargetType targetType) {
+    m_TargetType = targetType;
 }
 
-void CBasicEvaluator::targetType(CBasicEvaluator::ETargetType targetType) {
-    m_TargetType = targetType;
+CTrainedModel::ETargetType CTrainedModel::targetType() const {
+    return m_TargetType;
 }
 
 void CInferenceModelDefinition::fieldNames(const std::vector<std::string>& fieldNames) {
@@ -356,7 +367,7 @@ void CInferenceModelDefinition::encodings(const CInferenceModelDefinition::TEnco
     }
 }
 
-void CInferenceModelDefinition::trainedModel(std::unique_ptr<CBasicEvaluator>&& trainedModel) {
+void CInferenceModelDefinition::trainedModel(std::unique_ptr<CTrainedModel>&& trainedModel) {
     m_TrainedModel.swap(trainedModel);
 }
 
@@ -391,7 +402,7 @@ void CInferenceModelDefinition::categoryNameMap(const CInferenceModelDefinition:
     }
 }
 
-std::unique_ptr<CBasicEvaluator>& CInferenceModelDefinition::trainedModel() {
+std::unique_ptr<CTrainedModel>& CInferenceModelDefinition::trainedModel() {
     return m_TrainedModel;
 }
 
@@ -411,6 +422,10 @@ CInferenceModelDefinition::preprocessing() const {
     return m_Preprocessing;
 }
 
+const std::unique_ptr<CTrainedModel>& CInferenceModelDefinition::trainedModel() const {
+    return m_TrainedModel;
+}
+
 const CInput::TStringVec& CInput::columns() const {
     return m_Columns;
 }
@@ -421,18 +436,6 @@ void CInput::columns(const TStringVec& columns) {
 
 void CInput::addToDocument(rapidjson::Value& parentObject, TRapidJsonWriter& writer) {
     addJsonArray(JSON_COLUMNS_TAG, m_Columns, parentObject, writer);
-}
-
-void CTargetMeanEncoding::defaultValue(double defaultValue) {
-    m_DefaultValue = defaultValue;
-}
-
-void CTargetMeanEncoding::featureName(const std::string& featureName) {
-    m_FeatureName = featureName;
-}
-
-void CTargetMeanEncoding::targetMap(const std::map<std::string, double>& targetMap) {
-    m_TargetMap = targetMap;
 }
 
 const std::string& CTargetMeanEncoding::typeString() const {
@@ -488,14 +491,6 @@ void CEncoding::addToDocument(rapidjson::Value& parentObject, TRapidJsonWriter& 
 }
 
 CEncoding::CEncoding(const std::string& field) : m_Field(field) {
-}
-
-void CFrequencyEncoding::featureName(const std::string& featureName) {
-    m_FeatureName = featureName;
-}
-
-void CFrequencyEncoding::frequencyMap(const std::map<std::string, double>& frequencyMap) {
-    m_FrequencyMap = frequencyMap;
 }
 
 void CFrequencyEncoding::addToDocument(rapidjson::Value& parentObject,

@@ -40,7 +40,7 @@ ml::api::CBoostedTreeRegressionInferenceModelFormatter::CBoostedTreeRegressionIn
     // set trained model
     ensemble->aggregateOutput(std::make_unique<CWeightedSum>(ensemble->size(), 1.0));
     m_Definition.trainedModel(std::move(ensemble));
-    m_Definition.trainedModel()->targetType(CBasicEvaluator::E_Regression);
+    m_Definition.trainedModel()->targetType(CTrainedModel::E_Regression);
 }
 
 std::string ml::api::CBoostedTreeRegressionInferenceModelFormatter::toString() {
