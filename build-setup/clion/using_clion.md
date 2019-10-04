@@ -44,13 +44,8 @@ CLion Help page](https://www.jetbrains.com/help/clion/compilation-database.html)
 To create the compilation database file `compile_commands.json` in your project, run:
 
 ```
-cd $CPP_SRC_HOME
-dev-tools/compiledb.sh compile_commands.json
-for dir in `find lib bin -name unittest`; do echo $dir; (cd $dir && $CPP_SRC_HOME/dev-tools/compiledb.sh $CPP_SRC_HOME/compile_commands.json); done
+$CPP_SRC_HOME/dev-tools/init_compiledb.sh
 ```
-
-If the command runs suspiciously quickly and the `compile_commands.json` file is empty, this means that your project is
-already built and `make` didn't do anything. Simply run `make clean` before running `compiledb`.
 
 Now, in CLion navigate to **File | Open** on the main menu and choose the `compile_commands.json` file or a directory
 that contains it and click **Open as Project**. All files and symbols processed during the run of `compiledb make` are
