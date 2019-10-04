@@ -852,8 +852,8 @@ std::size_t CEventRatePopulationModel::staticSize() const {
     return sizeof(*this);
 }
 
-CEventRatePopulationModel::CModelDetailsViewPtr CEventRatePopulationModel::details() const {
-    return CModelDetailsViewPtr(new CEventRatePopulationModelDetailsView(*this));
+CEventRatePopulationModel::TModelDetailsViewUPtr CEventRatePopulationModel::details() const {
+    return TModelDetailsViewUPtr(new CEventRatePopulationModelDetailsView(*this));
 }
 
 const CEventRatePopulationModel::TSizeSizePrFeatureDataPrVec&
