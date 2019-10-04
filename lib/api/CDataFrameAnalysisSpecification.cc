@@ -10,8 +10,9 @@
 #include <core/CLogger.h>
 
 #include <api/CDataFrameAnalysisConfigReader.h>
-#include <api/CDataFrameBoostedTreeRunner.h>
+#include <api/CDataFrameClassificationRunner.h>
 #include <api/CDataFrameOutliersRunner.h>
+#include <api/CDataFrameRegressionRunner.h>
 #include <api/CMemoryUsageEstimationResultJsonWriter.h>
 
 #include <rapidjson/document.h>
@@ -41,11 +42,13 @@ const std::string CDataFrameAnalysisSpecification::NAME("name");
 const std::string CDataFrameAnalysisSpecification::PARAMETERS("parameters");
 
 namespace {
+using TBoolVec = std::vector<bool>;
 using TRunnerFactoryUPtrVec = ml::api::CDataFrameAnalysisSpecification::TRunnerFactoryUPtrVec;
 
 TRunnerFactoryUPtrVec analysisFactories() {
     TRunnerFactoryUPtrVec factories;
-    factories.push_back(std::make_unique<ml::api::CDataFrameBoostedTreeRunnerFactory>());
+    factories.push_back(std::make_unique<ml::api::CDataFrameRegressionRunnerFactory>());
+    factories.push_back(std::make_unique<ml::api::CDataFrameClassificationRunnerFactory>());
     factories.push_back(std::make_unique<ml::api::CDataFrameOutliersRunnerFactory>());
     // Add new analysis types here.
     return factories;
@@ -204,6 +207,14 @@ void CDataFrameAnalysisSpecification::estimateMemoryUsage(CMemoryUsageEstimation
         return;
     }
     m_Runner->estimateMemoryUsage(writer);
+}
+
+TBoolVec CDataFrameAnalysisSpecification::columnsForWhichEmptyIsMissing(const TStrVec& fieldNames) const {
+    if (m_Runner == nullptr) {
+        HANDLE_FATAL(<< "Internal error: no runner available. Please report this problem.");
+        return TBoolVec(fieldNames.size(), false);
+    }
+    return m_Runner->columnsForWhichEmptyIsMissing(fieldNames);
 }
 
 void CDataFrameAnalysisSpecification::initializeRunner(const rapidjson::Value& jsonAnalysis) {
