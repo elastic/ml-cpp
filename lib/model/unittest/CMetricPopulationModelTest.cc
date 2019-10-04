@@ -1499,9 +1499,9 @@ void CMetricPopulationModelTest::testIgnoreSamplingGivenDetectionRules() {
     // Checksums will be different because a 3rd model is created for attribute c3
     CPPUNIT_ASSERT(modelWithSkip->checksum() != modelNoSkip->checksum());
 
-    CAnomalyDetectorModel::CModelDetailsViewPtr modelWithSkipView =
+    CAnomalyDetectorModel::TModelDetailsViewUPtr modelWithSkipView =
         modelWithSkip->details();
-    CAnomalyDetectorModel::CModelDetailsViewPtr modelNoSkipView = modelNoSkip->details();
+    CAnomalyDetectorModel::TModelDetailsViewUPtr modelNoSkipView = modelNoSkip->details();
 
     // but the underlying models for people p1 and p2 are the same
     uint64_t withSkipChecksum = modelWithSkipView

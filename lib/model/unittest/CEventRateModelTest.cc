@@ -2895,9 +2895,9 @@ void CEventRateModelTest::testIgnoreSamplingGivenDetectionRules() {
     CPPUNIT_ASSERT(modelWithSkip->checksum() != modelNoSkip->checksum());
 
     // but the underlying models should be the same
-    CAnomalyDetectorModel::CModelDetailsViewPtr modelWithSkipView =
+    CAnomalyDetectorModel::TModelDetailsViewUPtr modelWithSkipView =
         modelWithSkip->details();
-    CAnomalyDetectorModel::CModelDetailsViewPtr modelNoSkipView = modelNoSkip->details();
+    CAnomalyDetectorModel::TModelDetailsViewUPtr modelNoSkipView = modelNoSkip->details();
 
     uint64_t withSkipChecksum =
         static_cast<const maths::CUnivariateTimeSeriesModel*>(
