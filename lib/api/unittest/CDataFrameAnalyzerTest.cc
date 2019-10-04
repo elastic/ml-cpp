@@ -1058,31 +1058,31 @@ void CDataFrameAnalyzerTest::testCategoricalFieldsEmptyAsMissing() {
     TStrVec fieldNames{"x1", "x2", "x3", "x4", "x5", ".", "."};
     analyzer.handleRecord(fieldNames, {"x11", "x21", "0", "0", "x51", "0", ""});
     analyzer.handleRecord(fieldNames, {"x12", "x22", "1", "1", "x52", "1", ""});
-    analyzer.handleRecord(fieldNames, {"",    "x23", "2", "2", "x51", "2", ""});
-    analyzer.handleRecord(fieldNames, {"x14", "x24", "3", "3", "",    "3", ""});
+    analyzer.handleRecord(fieldNames, {"", "x23", "2", "2", "x51", "2", ""});
+    analyzer.handleRecord(fieldNames, {"x14", "x24", "3", "3", "", "3", ""});
     analyzer.handleRecord(fieldNames, {"x15", "x25", "4", "4", "x51", "4", ""});
     analyzer.handleRecord(fieldNames, {"x11", "x26", "5", "5", "x52", "5", ""});
-    analyzer.handleRecord(fieldNames, {"x12", "",    "6", "6", "",    "6", ""});
-    analyzer.handleRecord(fieldNames, {"x13", "x21", "7", "7", "",    "7", ""});
+    analyzer.handleRecord(fieldNames, {"x12", "", "6", "6", "", "6", ""});
+    analyzer.handleRecord(fieldNames, {"x13", "x21", "7", "7", "", "7", ""});
     analyzer.handleRecord(fieldNames, {"x14", "x22", "8", "8", "x51", "8", ""});
-    analyzer.handleRecord(fieldNames, {"",    "x23", "9", "9", "x52", "9", ""});
+    analyzer.handleRecord(fieldNames, {"", "x23", "9", "9", "x52", "9", ""});
     analyzer.receivedAllRows();
 
     const core::CDataFrame& frame{analyzer.dataFrame()};
     frame.readRows(1, [&](TRowItr beginRows, TRowItr endRows) {
         std::vector<TRowRef> rows;
         std::copy(beginRows, endRows, std::back_inserter(rows));
-        CPPUNIT_ASSERT_EQUAL(10UL, rows.size());
-        assertRow(0, {eq(0.0), eq(0.0), eq(0.0), eq(0.0), eq(0.0)},   rows[0]);
-        assertRow(1, {eq(1.0), eq(1.0), eq(1.0), eq(1.0), eq(1.0)},   rows[1]);
-        assertRow(2, {eq(2.0), eq(2.0), eq(2.0), eq(2.0), eq(0.0)},   rows[2]);
+        CPPUNIT_ASSERT_EQUAL(std::size_t{10}, rows.size());
+        assertRow(0, {eq(0.0), eq(0.0), eq(0.0), eq(0.0), eq(0.0)}, rows[0]);
+        assertRow(1, {eq(1.0), eq(1.0), eq(1.0), eq(1.0), eq(1.0)}, rows[1]);
+        assertRow(2, {eq(2.0), eq(2.0), eq(2.0), eq(2.0), eq(0.0)}, rows[2]);
         assertRow(3, {eq(3.0), eq(3.0), eq(3.0), eq(3.0), missing()}, rows[3]);
-        assertRow(4, {eq(4.0), eq(4.0), eq(4.0), eq(4.0), eq(0.0)},   rows[4]);
-        assertRow(5, {eq(0.0), eq(5.0), eq(5.0), eq(5.0), eq(1.0)},   rows[5]);
+        assertRow(4, {eq(4.0), eq(4.0), eq(4.0), eq(4.0), eq(0.0)}, rows[4]);
+        assertRow(5, {eq(0.0), eq(5.0), eq(5.0), eq(5.0), eq(1.0)}, rows[5]);
         assertRow(6, {eq(1.0), eq(6.0), eq(6.0), eq(6.0), missing()}, rows[6]);
         assertRow(7, {eq(5.0), eq(0.0), eq(7.0), eq(7.0), missing()}, rows[7]);
-        assertRow(8, {eq(3.0), eq(1.0), eq(8.0), eq(8.0), eq(0.0)},   rows[8]);
-        assertRow(9, {eq(2.0), eq(2.0), eq(9.0), eq(9.0), eq(1.0)},   rows[9]);
+        assertRow(8, {eq(3.0), eq(1.0), eq(8.0), eq(8.0), eq(0.0)}, rows[8]);
+        assertRow(9, {eq(2.0), eq(2.0), eq(9.0), eq(9.0), eq(1.0)}, rows[9]);
     });
 }
 
