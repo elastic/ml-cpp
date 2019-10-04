@@ -40,8 +40,9 @@ const std::string FEATURE_BAG_FRACTION{"feature_bag_fraction"};
 const std::string NUMBER_FOLDS{"number_folds"};
 const std::string NUMBER_ROUNDS_PER_HYPERPARAMETER{"number_rounds_per_hyperparameter"};
 const std::string BAYESIAN_OPTIMISATION_RESTARTS{"bayesian_optimisation_restarts"};
+}
 
-const CDataFrameAnalysisConfigReader PARAMETER_READER{[] {
+CDataFrameAnalysisConfigReader CDataFrameBoostedTreeRunner::getParameterReader() {
     CDataFrameAnalysisConfigReader theReader;
     theReader.addParameter(DEPENDENT_VARIABLE_NAME,
                            CDataFrameAnalysisConfigReader::E_RequiredParameter);
@@ -65,17 +66,12 @@ const CDataFrameAnalysisConfigReader PARAMETER_READER{[] {
     theReader.addParameter(BAYESIAN_OPTIMISATION_RESTARTS,
                            CDataFrameAnalysisConfigReader::E_OptionalParameter);
     return theReader;
-}()};
-
-// Output
-const std::string IS_TRAINING_FIELD_NAME{"is_training"};
 }
 
-CDataFrameBoostedTreeRunner::CDataFrameBoostedTreeRunner(const CDataFrameAnalysisSpecification& spec,
-                                                         const rapidjson::Value& jsonParameters)
+CDataFrameBoostedTreeRunner::CDataFrameBoostedTreeRunner(
+    const CDataFrameAnalysisSpecification& spec,
+    const CDataFrameAnalysisConfigReader::CParameters& parameters)
     : CDataFrameBoostedTreeRunner{spec} {
-
-    auto parameters = PARAMETER_READER.read(jsonParameters);
 
     m_DependentVariableFieldName = parameters[DEPENDENT_VARIABLE_NAME].as<std::string>();
 
@@ -189,20 +185,19 @@ std::size_t CDataFrameBoostedTreeRunner::numberExtraColumns() const {
     return m_BoostedTreeFactory->numberExtraColumnsForTrain();
 }
 
-void CDataFrameBoostedTreeRunner::writeOneRow(const TStrVec&,
-                                              TRowRef row,
-                                              core::CRapidJsonConcurrentLineWriter& writer) const {
+const std::string& CDataFrameBoostedTreeRunner::dependentVariableFieldName() const {
+    return m_DependentVariableFieldName;
+}
+
+const std::string& CDataFrameBoostedTreeRunner::predictionFieldName() const {
+    return m_PredictionFieldName;
+}
+
+const maths::CBoostedTree& CDataFrameBoostedTreeRunner::boostedTree() const {
     if (m_BoostedTree == nullptr) {
         HANDLE_FATAL(<< "Internal error: boosted tree object missing. Please report this error.");
-    } else {
-        writer.StartObject();
-        writer.Key(m_PredictionFieldName);
-        writer.Double(row[m_BoostedTree->columnHoldingPrediction(row.numberColumns())]);
-        writer.Key(IS_TRAINING_FIELD_NAME);
-        writer.Bool(maths::CDataFrameUtils::isMissing(
-                        row[m_BoostedTree->columnHoldingDependentVariable()]) == false);
-        writer.EndObject();
     }
+    return *m_BoostedTree;
 }
 
 void CDataFrameBoostedTreeRunner::runImpl(const TStrVec& featureNames,
@@ -284,22 +279,5 @@ std::size_t CDataFrameBoostedTreeRunner::estimateBookkeepingMemoryUsage(
     std::size_t numberColumns) const {
     return m_BoostedTreeFactory->estimateMemoryUsage(totalNumberRows, numberColumns);
 }
-
-const std::string& CDataFrameBoostedTreeRunnerFactory::name() const {
-    return NAME;
-}
-
-CDataFrameBoostedTreeRunnerFactory::TRunnerUPtr
-CDataFrameBoostedTreeRunnerFactory::makeImpl(const CDataFrameAnalysisSpecification& spec) const {
-    return std::make_unique<CDataFrameBoostedTreeRunner>(spec);
-}
-
-CDataFrameBoostedTreeRunnerFactory::TRunnerUPtr
-CDataFrameBoostedTreeRunnerFactory::makeImpl(const CDataFrameAnalysisSpecification& spec,
-                                             const rapidjson::Value& params) const {
-    return std::make_unique<CDataFrameBoostedTreeRunner>(spec, params);
-}
-
-const std::string CDataFrameBoostedTreeRunnerFactory::NAME{"regression"};
 }
 }

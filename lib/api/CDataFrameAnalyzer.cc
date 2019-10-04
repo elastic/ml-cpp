@@ -24,10 +24,34 @@ namespace ml {
 namespace api {
 namespace {
 using TStrVec = std::vector<std::string>;
+using TStrVecVec = std::vector<TStrVec>;
+using TStrSizeUMap = boost::unordered_map<std::string, std::size_t>;
+using TStrSizeUMapVec = std::vector<TStrSizeUMap>;
 
 core::CFloatStorage truncateToFloatRange(double value) {
     double largest{static_cast<double>(std::numeric_limits<float>::max())};
     return maths::CTools::truncate(value, -largest, largest);
+}
+
+void mapToVector(const TStrSizeUMap& map, TStrVec& vector) {
+    assert(vector.empty());
+    vector.resize(map.size());
+    for (const auto& entry : map) {
+        std::size_t index = entry.second;
+        if (index >= vector.size()) {
+            HANDLE_FATAL(<< "Index out of bounds: " << index);
+        } else {
+            vector[index] = entry.first;
+        }
+    }
+}
+
+void mapsToVectors(const TStrSizeUMapVec& maps, TStrVecVec& vectors) {
+    assert(vectors.empty());
+    vectors.resize(maps.size());
+    for (std::size_t i = 0; i < maps.size(); ++i) {
+        mapToVector(maps[i], vectors[i]);
+    }
 }
 
 const std::string SPECIAL_COLUMN_FIELD_NAME{"."};
@@ -278,6 +302,7 @@ void CDataFrameAnalyzer::captureFieldNames(const TStrVec& fieldNames) {
     if (m_FieldNames.empty()) {
         m_FieldNames.assign(fieldNames.begin() + m_BeginDataFieldValues,
                             fieldNames.begin() + m_EndDataFieldValues);
+        m_EmptyAsMissing = m_AnalysisSpecification->columnsForWhichEmptyIsMissing(m_FieldNames);
     }
 }
 
@@ -289,8 +314,11 @@ void CDataFrameAnalyzer::addRowToDataFrame(const TStrVec& fieldValues) {
     using TFloatVecItr = core::CDataFrame::TFloatVecItr;
 
     auto fieldToValue = [this](bool isCategorical, TStrSizeUMap& categoricalFields,
-                               const std::string& fieldValue) {
+                               bool emptyAsMissing, const std::string& fieldValue) {
         if (isCategorical) {
+            if (fieldValue.empty() && emptyAsMissing) {
+                return core::CFloatStorage{core::CDataFrame::valueOfMissing()};
+            }
             // This encodes in a format suitable for efficient storage. The
             // actual encoding approach is chosen when the analysis runs.
             std::int64_t id;
@@ -337,8 +365,8 @@ void CDataFrameAnalyzer::addRowToDataFrame(const TStrVec& fieldValues) {
     m_DataFrame->writeRow([&](TFloatVecItr columns, std::int32_t& docHash) {
         for (std::ptrdiff_t i = m_BeginDataFieldValues;
              i != m_EndDataFieldValues; ++i, ++columns) {
-            *columns = fieldToValue(isCategorical[i],
-                                    m_CategoricalFieldValues[i], fieldValues[i]);
+            *columns = fieldToValue(isCategorical[i], m_CategoricalFieldValues[i],
+                                    m_EmptyAsMissing[i], fieldValues[i]);
         }
         docHash = 0;
         if (m_DocHashFieldIndex != FIELD_MISSING &&
@@ -380,6 +408,11 @@ void CDataFrameAnalyzer::writeResultsOf(const CDataFrameAnalysisRunner& analysis
     // can join the extra columns with the original data frame.
     std::size_t numberThreads{1};
 
+    // Change representation of categorical field values from map (category name -> index)
+    // to the vector of category names.
+    TStrVecVec categoricalFieldValues;
+    mapsToVectors(m_CategoricalFieldValues, categoricalFieldValues);
+
     using TRowItr = core::CDataFrame::TRowItr;
     m_DataFrame->readRows(numberThreads, [&](TRowItr beginRows, TRowItr endRows) {
         for (auto row = beginRows; row != endRows; ++row) {
@@ -392,7 +425,7 @@ void CDataFrameAnalyzer::writeResultsOf(const CDataFrameAnalysisRunner& analysis
 
             writer.StartObject();
             writer.Key(m_AnalysisSpecification->resultsField());
-            analysis.writeOneRow(m_FieldNames, *row, writer);
+            analysis.writeOneRow(m_FieldNames, categoricalFieldValues, *row, writer);
             writer.EndObject();
 
             writer.EndObject();
