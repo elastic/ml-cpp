@@ -271,15 +271,9 @@ std::uint64_t CDataFrameCategoryEncoder::checksum(std::uint64_t seed) const {
 }
 
 void CDataFrameCategoryEncoder::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
-    auto persistEncodingVector = [this](core::CStatePersistInserter& inserter) {
-        for (const auto& encoding : m_Encodings) {
-            auto acceptPersistInserter = [&encoding](core::CStatePersistInserter& inserter) {
-                encoding->acceptPersistInserter(inserter);
-            };
-            inserter.insertLevel(encoding->typeString(), acceptPersistInserter);
-        }
-    };
-    inserter.insertLevel(ENCODING_VECTOR_TAG, persistEncodingVector);
+    inserter.insertLevel(ENCODING_VECTOR_TAG,
+                         std::bind(&CDataFrameCategoryEncoder::persistEncodings,
+                                   this, std::placeholders::_1));
 }
 
 bool CDataFrameCategoryEncoder::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
@@ -292,45 +286,37 @@ bool CDataFrameCategoryEncoder::acceptRestoreTraverser(core::CStateRestoreTraver
     return true;
 }
 
+void CDataFrameCategoryEncoder::persistEncodings(core::CStatePersistInserter& inserter) const {
+    for (const auto& encoding : m_Encodings) {
+        auto persistEncoding = [&encoding](core::CStatePersistInserter& inserter_) {
+            encoding->acceptPersistInserter(inserter_);
+        };
+        inserter.insertLevel(encoding->typeString(), persistEncoding);
+    }
+}
+
 bool CDataFrameCategoryEncoder::restoreEncodings(core::CStateRestoreTraverser& traverser) {
     do {
         const std::string& name = traverser.name();
-        if (name == IDENTITY_ENCODING_TAG) {
-            if (this->forwardRestoreEncodings<CIdentityEncoding>(traverser, 0, 0.0) == false) {
-                return false;
-            }
-            continue;
-        }
-        if (name == ONE_HOT_ENCODING_TAG) {
-            if (this->forwardRestoreEncodings<COneHotEncoding>(traverser, 0, 0.0, 0) == false) {
-                return false;
-            }
-            continue;
-        }
-        if (name == FREQUENCY_ENCODING_TAG) {
-            if (this->forwardRestoreEncodings<CMappedEncoding>(
-                    traverser, 0, 0.0, E_Frequency, TDoubleVec(), 0.0) == false) {
-                return false;
-            }
-            continue;
-        }
-        if (name == TARGET_MEAN_ENCODING_TAG) {
-            if (this->forwardRestoreEncodings<CMappedEncoding>(
-                    traverser, 0, 0.0, E_TargetMean, TDoubleVec(), 0.0) == false) {
-                return false;
-            }
-            continue;
-        }
-
+        RESTORE(IDENTITY_ENCODING_TAG, this->restore<CIdentityEncoding>(traverser, 0, 0.0))
+        RESTORE(ONE_HOT_ENCODING_TAG, this->restore<COneHotEncoding>(traverser, 0, 0.0, 0))
+        RESTORE(FREQUENCY_ENCODING_TAG,
+                this->restore<CMappedEncoding>(traverser, 0, 0.0, E_Frequency,
+                                               TDoubleVec{}, 0.0))
+        RESTORE(TARGET_MEAN_ENCODING_TAG,
+                this->restore<CMappedEncoding>(traverser, 0, 0.0, E_TargetMean,
+                                               TDoubleVec{}, 0.0))
+        LOG_ERROR(<< "Unknown encoding type " << name);
+        return false;
     } while (traverser.next());
     return true;
 }
 
 template<typename T, typename... Args>
-bool CDataFrameCategoryEncoder::forwardRestoreEncodings(core::CStateRestoreTraverser& traverser,
-                                                        Args&&... args) {
+bool CDataFrameCategoryEncoder::restore(core::CStateRestoreTraverser& traverser,
+                                        Args&&... args) {
     m_Encodings.emplace_back(std::make_unique<T>(std::forward<Args>(args)...));
-    if (traverser.traverseSubLevel(std::bind(&CIdentityEncoding::acceptRestoreTraverser,
+    if (traverser.traverseSubLevel(std::bind(&T::acceptRestoreTraverser,
                                              static_cast<T*>(m_Encodings.back().get()),
                                              std::placeholders::_1)) == false) {
         LOG_ERROR(<< "Error restoring encoding " << traverser.name());
@@ -402,7 +388,7 @@ std::uint64_t CDataFrameCategoryEncoder::CIdentityEncoding::checksum() const {
     return CChecksum::calculate(this->inputColumnIndex(), this->mic());
 }
 
-std::string CDataFrameCategoryEncoder::CIdentityEncoding::typeString() const {
+const std::string& CDataFrameCategoryEncoder::CIdentityEncoding::typeString() const {
     return IDENTITY_ENCODING_TAG;
 }
 
@@ -454,7 +440,7 @@ bool CDataFrameCategoryEncoder::COneHotEncoding::acceptRestoreTraverserForDerive
     return true;
 }
 
-std::string CDataFrameCategoryEncoder::COneHotEncoding::typeString() const {
+const std::string& CDataFrameCategoryEncoder::COneHotEncoding::typeString() const {
     return ONE_HOT_ENCODING_TAG;
 }
 
@@ -515,7 +501,7 @@ bool CDataFrameCategoryEncoder::CMappedEncoding::acceptRestoreTraverserForDerive
     return true;
 }
 
-std::string CDataFrameCategoryEncoder::CMappedEncoding::typeString() const {
+const std::string& CDataFrameCategoryEncoder::CMappedEncoding::typeString() const {
     return (m_Encoding == EEncoding::E_Frequency) ? FREQUENCY_ENCODING_TAG
                                                   : TARGET_MEAN_ENCODING_TAG;
 }

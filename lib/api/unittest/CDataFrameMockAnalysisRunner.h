@@ -20,6 +20,7 @@ public:
 
     std::size_t numberExtraColumns() const override;
     void writeOneRow(const TStrVec& featureNames,
+                     const TStrVecVec& categoricalFieldValues,
                      TRowRef,
                      ml::core::CRapidJsonConcurrentLineWriter&) const override;
 

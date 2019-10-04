@@ -38,6 +38,11 @@ train time. (See {ml-pull}622[#622].)
 * Upgrade Boost libraries to version 1.71. (See {ml-pull}638[#638].)
 * Improve initialisation of boosted tree training. This generally enables us to
 find lower loss models faster. (See {ml-pull}686[#686].)
+* Include a smooth tree depth based penalty to regularized objective function for
+boosted tree training. Hard depth based regularization is often the strategy of
+choice to prevent over fitting for XGBoost. By smoothing we can make better tradeoffs.
+Also, the parameters of the penalty function are mode suited to optimising with our
+Bayesian optimisation based hyperparameter search. (See {ml-pull}698[#698].)
 
 == {es} version 7.4.1
 

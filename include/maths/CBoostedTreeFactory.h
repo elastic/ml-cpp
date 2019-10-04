@@ -58,10 +58,19 @@ public:
     CBoostedTreeFactory& minimumFrequencyToOneHotEncode(double frequency);
     //! Set the number of folds to use for estimating the generalisation error.
     CBoostedTreeFactory& numberFolds(std::size_t numberFolds);
-    //! Set the lambda regularisation parameter.
-    CBoostedTreeFactory& lambda(double lambda);
-    //! Set the gamma regularisation parameter.
-    CBoostedTreeFactory& gamma(double gamma);
+    //! Set the sum of leaf depth penalties multiplier.
+    CBoostedTreeFactory& depthPenaltyMultiplier(double depthPenaltyMultiplier);
+    //! Set the tree size penalty multiplier.
+    CBoostedTreeFactory& treeSizePenaltyMultiplier(double treeSizePenaltyMultiplier);
+    //! Set the sum of weights squared multiplier.
+    CBoostedTreeFactory& leafWeightPenaltyMultiplier(double leafWeightPenaltyMultiplier);
+    //! Set the soft tree depth limit.
+    CBoostedTreeFactory& softTreeDepthLimit(double softTreeDepthLimit);
+    //! Set the soft tree depth tolerance. This controls how hard we'll try to
+    //! respect the soft tree depth limit.
+    CBoostedTreeFactory& softTreeDepthTolerance(double softTreeDepthTolerance);
+    //! Set the fractional relative tolerance in the target maximum tree depth.
+    CBoostedTreeFactory& maxTreeDepthTolerance(double maxTreeDepthTolerance);
     //! Set the amount we'll shrink the weights on each each iteration.
     CBoostedTreeFactory& eta(double eta);
     //! Set the maximum number of trees in the ensemble.
@@ -142,11 +151,11 @@ private:
     //!
     //! \return The interval to search during the main hyperparameter optimisation
     //! loop or null if this couldn't be found.
-    TOptionalVector testLossNewtonLineSearch(core::CDataFrame& frame,
-                                             core::CPackedBitVector trainingRowMask,
-                                             const TApplyRegularizerStep& applyRegularizerStep,
-                                             double returnedIntervalLeftEndOffset,
-                                             double returnedIntervalRightEndOffset) const;
+    TOptionalVector testLossLineSearch(core::CDataFrame& frame,
+                                       core::CPackedBitVector trainingRowMask,
+                                       const TApplyRegularizerStep& applyRegularizerStep,
+                                       double returnedIntervalLeftEndOffset,
+                                       double returnedIntervalRightEndOffset) const;
 
     //! Initialize the state for hyperparameter optimisation.
     void initializeHyperparameterOptimisation() const;
@@ -169,8 +178,9 @@ private:
     TOptionalSize m_BayesianOptimisationRestarts;
     bool m_Restored = false;
     TBoostedTreeImplUPtr m_TreeImpl;
-    TVector m_LogGammaSearchInterval;
-    TVector m_LogLambdaSearchInterval;
+    TVector m_LogDepthPenaltyMultiplierSearchInterval;
+    TVector m_LogTreeSizePenaltyMultiplierSearchInterval;
+    TVector m_LogLeafWeightPenaltyMultiplierSearchInterval;
     TProgressCallback m_RecordProgress = noopRecordProgress;
     TMemoryUsageCallback m_RecordMemoryUsage = noopRecordMemoryUsage;
     TTrainingStateCallback m_RecordTrainingState = noopRecordTrainingState;
