@@ -761,8 +761,8 @@ std::size_t CMetricPopulationModel::staticSize() const {
     return sizeof(*this);
 }
 
-CMetricPopulationModel::CModelDetailsViewPtr CMetricPopulationModel::details() const {
-    return CModelDetailsViewPtr(new CMetricPopulationModelDetailsView(*this));
+CMetricPopulationModel::TModelDetailsViewUPtr CMetricPopulationModel::details() const {
+    return TModelDetailsViewUPtr(new CMetricPopulationModelDetailsView(*this));
 }
 
 const TSizeSizePrFeatureDataPrVec&

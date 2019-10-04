@@ -212,7 +212,7 @@ public:
     std::size_t staticSize() const override;
 
     //! Returns null.
-    CModelDetailsViewPtr details() const override;
+    TModelDetailsViewUPtr details() const override;
 
     //! Get the descriptions of any occurring scheduled event descriptions for the bucket time
     const TStr1Vec& scheduledEventDescriptions(core_t::TTime time) const override;

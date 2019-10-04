@@ -54,9 +54,9 @@ void CContainerPrinterTest::testAll() {
     CPPUNIT_ASSERT_EQUAL(std::string("[(1, \"null\"), (1.1, 3), (3.3, 5.1)]"),
                          CContainerPrinter::print(map));
 
-    std::auto_ptr<int> pints[] = {std::auto_ptr<int>(new int(2)),
-                                  std::auto_ptr<int>(new int(3)),
-                                  std::auto_ptr<int>(new int(2))};
+    std::unique_ptr<int> pints[] = {std::unique_ptr<int>(new int(2)),
+                                    std::unique_ptr<int>(new int(3)),
+                                    std::unique_ptr<int>(new int(2))};
     LOG_DEBUG(<< "pints = "
               << CContainerPrinter::print(std::begin(pints), std::end(pints)));
     CPPUNIT_ASSERT_EQUAL(std::string("[2, 3, 2]"),

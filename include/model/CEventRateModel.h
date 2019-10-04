@@ -263,7 +263,7 @@ public:
     std::size_t computeMemoryUsage() const override;
 
     //! Get a view of the internals of the model for visualization.
-    CModelDetailsViewPtr details() const override;
+    TModelDetailsViewUPtr details() const override;
 
     //! Get the value of the \p feature of the person identified
     //! by \p pid for the bucketing interval containing \p time.
