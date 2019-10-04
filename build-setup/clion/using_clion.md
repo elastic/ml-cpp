@@ -14,10 +14,9 @@ by simply calling `g++` or `clang++`.
 For testing and evaluation purposes you can use [30-day trial version of CLion](https://www.jetbrains.com/clion) or
 participate on the [CLion early access program](https://www.jetbrains.com/clion/nextversion/).
 
-You need to install the current [CLion](https://www.jetbrains.com/clion/) (version 2018.2 or later) with the following
+You need to install the current [CLion](https://www.jetbrains.com/clion/) (version 2018.2.3 or later) with the following
 plugins:
 
-* Compilation Database (already installed by default in version 2019.2)
 * File Watchers
 * Makefile support
 
