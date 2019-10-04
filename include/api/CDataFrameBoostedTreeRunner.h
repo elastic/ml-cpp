@@ -53,9 +53,9 @@ protected:
     //! Underlying boosted tree.
     const maths::CBoostedTree& boostedTree() const;
 
-    void serializeRunner(const TStrVec& fieldNames,
-                         const TStrSizeUMapVec& categoryNameMap,
-                         core::CRapidJsonConcurrentLineWriter& writer) const override;
+    TInferenceModelDefinitionUPtr
+    inferenceModelDefinition(const TStrVec& fieldNames,
+                             const TStrSizeUMapVec& categoryNameMap) const override;
 
 private:
     using TBoostedTreeFactoryUPtr = std::unique_ptr<maths::CBoostedTreeFactory>;

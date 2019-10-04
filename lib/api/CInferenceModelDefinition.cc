@@ -135,6 +135,19 @@ void CTree::CTreeNode::addToDocument(rapidjson::Value& parentObject, TRapidJsonW
     }
 }
 
+CTree::CTreeNode::CTreeNode(size_t nodeIndex,
+                            double threshold,
+                            bool defaultLeft,
+                            double leafValue,
+                            size_t splitFeature,
+                            const CTree::CTreeNode::TOptionalSize& leftChild,
+                            const CTree::CTreeNode::TOptionalSize& rightChild,
+                            const CTree::CTreeNode::TOptionalDouble& splitGain)
+    : m_NodeIndex(nodeIndex), m_Threshold(threshold), m_DefaultLeft(defaultLeft),
+      m_LeafValue(leafValue), m_SplitFeature(splitFeature),
+      m_LeftChild(leftChild), m_RightChild(rightChild), m_SplitGain(splitGain) {
+}
+
 bool CEnsemble::acceptRestoreTraverser(ml::core::CStateRestoreTraverser& traverser) {
     auto restoreTree = [this](ml::core::CStateRestoreTraverser& traverser) -> bool {
         CTree tree;
@@ -182,7 +195,7 @@ std::size_t CEnsemble::size() const {
     return m_TrainedModels.size();
 }
 
-const CEnsemble::TTreeVec& CEnsemble::trainedModels() const {
+CEnsemble::TTreeVec& CEnsemble::trainedModels() {
     return m_TrainedModels;
 }
 
@@ -191,19 +204,19 @@ const CEnsemble::TAggregateOutputUPtr& CEnsemble::aggregateOutput() const {
 }
 
 bool CTree::acceptRestoreTraverser(ml::core::CStateRestoreTraverser& traverser) {
-    auto restoreTreeNode = [this](ml::core::CStateRestoreTraverser& traverser) -> bool {
-        CTreeNode treeNode;
-        if (traverser.traverseSubLevel(std::bind(&CTreeNode::acceptRestoreTraverser, &treeNode,
-                                                 std::placeholders::_1)) == true) {
-            m_TreeStructure.push_back(treeNode);
-            return true;
-        }
-        return false;
-    };
-    do {
-        const std::string& name = traverser.name();
-        RESTORE(TREE_NODE_TAG, restoreTreeNode(traverser))
-    } while (traverser.next());
+    //    auto restoreTreeNode = [this](ml::core::CStateRestoreTraverser& traverser) -> bool {
+    //        CTreeNode treeNode;
+    //        if (traverser.traverseSubLevel(std::bind(&CTreeNode::acceptRestoreTraverser, &treeNode,
+    //                                                 std::placeholders::_1)) == true) {
+    //            m_TreeStructure.push_back(treeNode);
+    //            return true;
+    //        }
+    //        return false;
+    //    };
+    //    do {
+    //        const std::string& name = traverser.name();
+    //        RESTORE(TREE_NODE_TAG, restoreTreeNode(traverser))
+    //    } while (traverser.next());
     return true;
 }
 
@@ -220,6 +233,10 @@ void CTree::addToDocument(rapidjson::Value& parentObject, TRapidJsonWriter& writ
 
 std::size_t CTree::size() const {
     return m_TreeStructure.size();
+}
+
+CTree::TTreeNodeVec& CTree::treeStructure() {
+    return m_TreeStructure;
 }
 
 std::string CInferenceModelDefinition::jsonString() {
@@ -313,58 +330,58 @@ void CInferenceModelDefinition::fieldNames(const std::vector<std::string>& field
 }
 
 void CInferenceModelDefinition::encodings(const CInferenceModelDefinition::TEncodingUPtrVec& encodings) {
-    if (encodings.empty()) {
-        return;
-    }
-    using TOneHotEncodingUPtr = std::unique_ptr<COneHotEncoding>;
-    using TOneHotEncodingUMap = std::unordered_map<std::string, TOneHotEncodingUPtr>;
-    TOneHotEncodingUMap oneHotEncodingMaps;
-    for (const auto& encoding : encodings) {
-        std::size_t inputColumnIndex = encoding->inputColumnIndex();
-        std::string fieldName = m_FieldNames[inputColumnIndex];
-        if (encoding->type() == maths::EEncoding::E_OneHot) {
-            std::size_t categoryUInt =
-                static_cast<maths::CDataFrameCategoryEncoder::COneHotEncoding*>(
-                    encoding.get())
-                    ->hotCategory();
-            std::string category = m_ReverseCategoryNameMap[inputColumnIndex][categoryUInt];
-            std::string encodedFieldName = fieldName + "_" + category;
-            if (oneHotEncodingMaps.find(fieldName) == oneHotEncodingMaps.end()) {
-                auto apiEncoding = std::make_unique<api::COneHotEncoding>(
-                    fieldName, api::COneHotEncoding::TStringStringUMap());
-                oneHotEncodingMaps.emplace(fieldName, std::move(apiEncoding));
-            }
-            oneHotEncodingMaps[fieldName]->hotMap().emplace(category, encodedFieldName);
-        } else if (encoding->type() == maths::EEncoding::E_TargetMean) {
-            auto* enc = static_cast<maths::CDataFrameCategoryEncoder::CMappedEncoding*>(
-                encoding.get());
-            double defaultValue{enc->fallback()};
-            std::string featureName{fieldName + "_targetmean"};
-
-            std::map<std::string, double> map;
-            for (std::size_t categoryUInt = 0; categoryUInt < enc->map().size(); ++categoryUInt) {
-                std::string category = m_ReverseCategoryNameMap[inputColumnIndex][categoryUInt];
-                map.emplace(category, enc->map()[categoryUInt]);
-            }
-            m_Preprocessing.emplace_back(std::make_unique<CTargetMeanEncoding>(
-                fieldName, defaultValue, featureName, map));
-        } else if (encoding->type() == maths::EEncoding::E_Frequency) {
-            auto* enc = static_cast<maths::CDataFrameCategoryEncoder::CMappedEncoding*>(
-                encoding.get());
-            std::string featureName{fieldName + "_frequency"};
-            std::map<std::string, double> map;
-            for (std::size_t categoryUInt = 0; categoryUInt < enc->map().size(); ++categoryUInt) {
-                std::string category = m_ReverseCategoryNameMap[inputColumnIndex][categoryUInt];
-                map.emplace(category, enc->map()[categoryUInt]);
-            }
-            m_Preprocessing.emplace_back(
-                std::make_unique<CFrequencyEncoding>(fieldName, featureName, map));
-        }
-    }
-
-    for (auto& oneHotEncodingMapping : oneHotEncodingMaps) {
-        m_Preprocessing.emplace_back(std::move(oneHotEncodingMapping.second));
-    }
+    //    if (encodings.empty()) {
+    //        return;
+    //    }
+    //    using TOneHotEncodingUPtr = std::unique_ptr<COneHotEncoding>;
+    //    using TOneHotEncodingUMap = std::unordered_map<std::string, TOneHotEncodingUPtr>;
+    //    TOneHotEncodingUMap oneHotEncodingMaps;
+    //    for (const auto& encoding : encodings) {
+    //        std::size_t inputColumnIndex = encoding->inputColumnIndex();
+    //        std::string fieldName = m_FieldNames[inputColumnIndex];
+    //        if (encoding->type() == maths::EEncoding::E_OneHot) {
+    //            std::size_t categoryUInt =
+    //                static_cast<maths::CDataFrameCategoryEncoder::COneHotEncoding*>(
+    //                    encoding.get())
+    //                    ->hotCategory();
+    //            std::string category = m_ReverseCategoryNameMap[inputColumnIndex][categoryUInt];
+    //            std::string encodedFieldName = fieldName + "_" + category;
+    //            if (oneHotEncodingMaps.find(fieldName) == oneHotEncodingMaps.end()) {
+    //                auto apiEncoding = std::make_unique<api::COneHotEncoding>(
+    //                    fieldName, api::COneHotEncoding::TStringStringUMap());
+    //                oneHotEncodingMaps.emplace(fieldName, std::move(apiEncoding));
+    //            }
+    //            oneHotEncodingMaps[fieldName]->hotMap().emplace(category, encodedFieldName);
+    //        } else if (encoding->type() == maths::EEncoding::E_TargetMean) {
+    //            auto* enc = static_cast<maths::CDataFrameCategoryEncoder::CMappedEncoding*>(
+    //                encoding.get());
+    //            double defaultValue{enc->fallback()};
+    //            std::string featureName{fieldName + "_targetmean"};
+    //
+    //            std::map<std::string, double> map;
+    //            for (std::size_t categoryUInt = 0; categoryUInt < enc->map().size(); ++categoryUInt) {
+    //                std::string category = m_ReverseCategoryNameMap[inputColumnIndex][categoryUInt];
+    //                map.emplace(category, enc->map()[categoryUInt]);
+    //            }
+    //            m_Preprocessing.emplace_back(std::make_unique<CTargetMeanEncoding>(
+    //                fieldName, defaultValue, featureName, map));
+    //        } else if (encoding->type() == maths::EEncoding::E_Frequency) {
+    //            auto* enc = static_cast<maths::CDataFrameCategoryEncoder::CMappedEncoding*>(
+    //                encoding.get());
+    //            std::string featureName{fieldName + "_frequency"};
+    //            std::map<std::string, double> map;
+    //            for (std::size_t categoryUInt = 0; categoryUInt < enc->map().size(); ++categoryUInt) {
+    //                std::string category = m_ReverseCategoryNameMap[inputColumnIndex][categoryUInt];
+    //                map.emplace(category, enc->map()[categoryUInt]);
+    //            }
+    //            m_Preprocessing.emplace_back(
+    //                std::make_unique<CFrequencyEncoding>(fieldName, featureName, map));
+    //        }
+    //    }
+    //
+    //    for (auto& oneHotEncodingMapping : oneHotEncodingMaps) {
+    //        m_Preprocessing.emplace_back(std::move(oneHotEncodingMapping.second));
+    //    }
 }
 
 void CInferenceModelDefinition::trainedModel(std::unique_ptr<CTrainedModel>&& trainedModel) {
@@ -417,13 +434,20 @@ const CInput& CInferenceModelDefinition::input() const {
     return m_Input;
 }
 
-const CInferenceModelDefinition::TApiEncodingUPtrVec&
-CInferenceModelDefinition::preprocessing() const {
+CInferenceModelDefinition::TApiEncodingUPtrVec& CInferenceModelDefinition::preprocessing() {
     return m_Preprocessing;
 }
 
 const std::unique_ptr<CTrainedModel>& CInferenceModelDefinition::trainedModel() const {
     return m_TrainedModel;
+}
+
+const std::string& CInferenceModelDefinition::typeString() const {
+    return m_TypeString;
+}
+
+void CInferenceModelDefinition::typeString(const std::string& typeString) {
+    CInferenceModelDefinition::m_TypeString = typeString;
 }
 
 const CInput::TStringVec& CInput::columns() const {
@@ -459,9 +483,9 @@ void CTargetMeanEncoding::addToDocument(rapidjson::Value& parentObject,
 CTargetMeanEncoding::CTargetMeanEncoding(const std::string& field,
                                          double defaultValue,
                                          const std::string& featureName,
-                                         const std::map<std::string, double>& targetMap)
+                                         std::map<std::string, double>&& targetMap)
     : CEncoding(field), m_DefaultValue(defaultValue),
-      m_FeatureName(featureName), m_TargetMap(targetMap) {
+      m_FeatureName(featureName), m_TargetMap(std::move(targetMap)) {
 }
 
 double CTargetMeanEncoding::defaultValue() const {

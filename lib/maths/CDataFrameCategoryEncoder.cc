@@ -329,6 +329,24 @@ const CDataFrameCategoryEncoder::TEncodingUPtrVec& CDataFrameCategoryEncoder::en
     return m_Encodings;
 }
 
+void CDataFrameCategoryEncoder::accept(CDataFrameCategoryEncoder::Visitor& visitor) {
+    for (const auto& encoding : m_Encodings) {
+        if (encoding->type() == E_OneHot) {
+            auto enc = static_cast<COneHotEncoding*>(encoding.get());
+            visitor.addOneHotEncoding(enc->inputColumnIndex(), enc->mic(),
+                                      enc->hotCategory());
+        } else if (encoding->type() == E_Frequency) {
+            auto enc = static_cast<CMappedEncoding*>(encoding.get());
+            visitor.addFrequencyEncoding(enc->inputColumnIndex(), enc->mic(),
+                                         enc->map(), enc->fallback());
+        } else if (encoding->type() == E_TargetMean) {
+            auto enc = static_cast<CMappedEncoding*>(encoding.get());
+            visitor.addTargetMeanEncoding(enc->inputColumnIndex(), enc->mic(),
+                                          enc->map(), enc->fallback());
+        }
+    }
+}
+
 CDataFrameCategoryEncoder::CEncoding::CEncoding(std::size_t inputColumnIndex, double mic)
     : m_InputColumnIndex{inputColumnIndex}, m_Mic{mic} {
 }

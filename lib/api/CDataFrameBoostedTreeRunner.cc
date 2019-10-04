@@ -43,8 +43,6 @@ const std::string FEATURE_BAG_FRACTION{"feature_bag_fraction"};
 const std::string NUMBER_FOLDS{"number_folds"};
 const std::string NUMBER_ROUNDS_PER_HYPERPARAMETER{"number_rounds_per_hyperparameter"};
 const std::string BAYESIAN_OPTIMISATION_RESTARTS{"bayesian_optimisation_restarts"};
-
-const std::string RESULT_INFERENCE_MODEL{"inference_model"};
 }
 
 CDataFrameAnalysisConfigReader CDataFrameBoostedTreeRunner::getParameterReader() {
@@ -285,9 +283,9 @@ std::size_t CDataFrameBoostedTreeRunner::estimateBookkeepingMemoryUsage(
     return m_BoostedTreeFactory->estimateMemoryUsage(totalNumberRows, numberColumns);
 }
 
-void CDataFrameBoostedTreeRunner::serializeRunner(const TStrVec& fieldNames,
-                                                  const TStrSizeUMapVec& categoryNameMap,
-                                                  core::CRapidJsonConcurrentLineWriter& writer) const {
+CDataFrameAnalysisRunner::TInferenceModelDefinitionUPtr
+CDataFrameBoostedTreeRunner::inferenceModelDefinition(const TStrVec& fieldNames,
+                                                      const TStrSizeUMapVec& categoryNameMap) const {
     std::stringstream strm;
     {
         core::CJsonStatePersistInserter inserter(strm);
@@ -296,16 +294,21 @@ void CDataFrameBoostedTreeRunner::serializeRunner(const TStrVec& fieldNames,
     }
     LOG_DEBUG(<< "serializeRunner: " << strm.str());
 
-    CBoostedTreeRegressionInferenceModelFormatter formatter{strm.str(), fieldNames,
-                                                            categoryNameMap};
-    LOG_DEBUG(<< "Inference model json: " << formatter.toString());
+    CBoostedTreeRegressionInferenceModelBuilder builder(fieldNames, categoryNameMap);
+    m_BoostedTree->accept(builder);
 
-    rapidjson::Document doc = writer.makeDoc();
-    doc.Parse(formatter.toString());
-    writer.StartObject();
-    writer.Key(RESULT_INFERENCE_MODEL);
-    writer.write(doc);
-    writer.EndObject();
+    return std::make_unique<CInferenceModelDefinition>(builder.build());
+
+    //    CBoostedTreeRegressionInferenceModelFormatter formatter{strm.str(), fieldNames,
+    //                                                            categoryNameMap};
+    //    LOG_DEBUG(<< "Inference model json: " << definition.jsonString());
+
+    //    rapidjson::Document doc = writer.makeDoc();
+    //    doc.Parse(definition.jsonString());
+    //    writer.StartObject();
+    //    writer.Key(RESULT_INFERENCE_MODEL);
+    //    writer.write(doc);
+    //    writer.EndObject();
 }
 }
 }

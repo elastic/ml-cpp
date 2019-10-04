@@ -198,6 +198,21 @@ public:
         bool m_Binary;
     };
 
+    class Visitor {
+    public:
+        virtual void addOneHotEncoding(std::size_t inputColumnIndex,
+                                       double mic,
+                                       std::size_t hotCategory) = 0;
+        virtual void addTargetMeanEncoding(std::size_t inputColumnIndex,
+                                           double mic,
+                                           const TDoubleVec& map,
+                                           double fallback) = 0;
+        virtual void addFrequencyEncoding(std::size_t inputColumnIndex,
+                                          double mic,
+                                          const TDoubleVec& map,
+                                          double fallback) = 0;
+    };
+
 public:
     CDataFrameCategoryEncoder(CMakeDataFrameCategoryEncoder parameters);
 
@@ -233,6 +248,8 @@ public:
 
     //! Populate the object from serialized data.
     bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
+
+    void accept(Visitor& visitor);
 
 private:
     void persistEncodings(core::CStatePersistInserter& inserter) const;

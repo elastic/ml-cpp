@@ -104,20 +104,23 @@ private:
 //! Classification and regression trees.
 class API_EXPORT CTree : public CTrainedModel {
 public:
-    bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) override;
-    void addToDocument(rapidjson::Value& parentObject, TRapidJsonWriter& writer) override;
-    //! Total number of tree nodes.
-    std::size_t size() const;
-
-private:
     class CTreeNode : public CSerializableToJson {
     public:
-        bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
-        void addToDocument(rapidjson::Value& parentObject, TRapidJsonWriter& writer) override;
-
-    private:
         using TOptionalSize = boost::optional<std::size_t>;
         using TOptionalDouble = boost::optional<double>;
+
+    public:
+        CTreeNode(size_t nodeIndex,
+                  double threshold,
+                  bool defaultLeft,
+                  double leafValue,
+                  size_t splitFeature,
+                  const TOptionalSize& leftChild,
+                  const TOptionalSize& rightChild,
+                  const TOptionalDouble& splitGain);
+
+        bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
+        void addToDocument(rapidjson::Value& parentObject, TRapidJsonWriter& writer) override;
 
     private:
         std::size_t m_NodeIndex;
@@ -130,8 +133,15 @@ private:
         TOptionalSize m_RightChild;
         TOptionalDouble m_SplitGain;
     };
-
     using TTreeNodeVec = std::vector<CTreeNode>;
+
+public:
+    bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) override;
+    void addToDocument(rapidjson::Value& parentObject, TRapidJsonWriter& writer) override;
+    //! Total number of tree nodes.
+    std::size_t size() const;
+
+    TTreeNodeVec& treeStructure();
 
 private:
     TTreeNodeVec m_TreeStructure;
@@ -152,7 +162,7 @@ public:
     const TAggregateOutputUPtr& aggregateOutput() const;
     void featureNames(const TStringVec& featureNames) override;
     //! List of trained models withing this ensemble.
-    const TTreeVec& trainedModels() const;
+    TTreeVec& trainedModels();
     //! Number of models in the ensemble.
     std::size_t size() const;
 
@@ -234,7 +244,7 @@ public:
     CTargetMeanEncoding(const std::string& field,
                         double defaultValue,
                         const std::string& featureName,
-                        const std::map<std::string, double>& targetMap);
+                        std::map<std::string, double>&& targetMap);
 
     void addToDocument(rapidjson::Value& parentObject, TRapidJsonWriter& writer) override;
     //! Value for categories that have not been seen before.
@@ -278,8 +288,10 @@ public:
     const std::unique_ptr<CTrainedModel>& trainedModel() const;
     const TStrSizeUMapVec& categoryNameMap() const;
     const CInput& input() const;
-    const TApiEncodingUPtrVec& preprocessing() const;
+    TApiEncodingUPtrVec& preprocessing();
     void categoryNameMap(const TStrSizeUMapVec& categoryNameMap);
+    const std::string& typeString() const;
+    void typeString(const std::string& typeString);
 
 private:
     //! Information related to the input.
@@ -291,6 +303,7 @@ private:
     TStringVec m_FieldNames;
     TStrSizeUMapVec m_CategoryNameMap;
     TSizeStrUMapVec m_ReverseCategoryNameMap;
+    std::string m_TypeString;
 };
 }
 }

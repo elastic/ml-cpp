@@ -15,6 +15,7 @@
 #include <maths/CDataFrameRegressionModel.h>
 #include <maths/ImportExport.h>
 
+#include "CDataFrameCategoryEncoder.h"
 #include <cstddef>
 #include <memory>
 
@@ -146,18 +147,33 @@ public:
     using TPackedBitVectorPackedBitVectorBoolTr =
         std::tuple<core::CPackedBitVector, core::CPackedBitVector, bool>;
     using TNodeVec = std::vector<CBoostedTreeNode>;
+    using TOptionalSize = boost::optional<std::size_t>;
+
+    class Visitor {
+    public:
+        virtual void visit(const CBoostedTreeNode* node) = 0;
+        //! Adds to last added tree.
+
+        virtual void addNode(std::size_t splitFeature,
+                             double splitValue,
+                             bool assignMissingToLeft,
+                             double nodeValue,
+                             double gain,
+                             TOptionalSize leftChild,
+                             TOptionalSize rightChild) = 0;
+    };
 
 public:
     //! See core::CMemory.
     static bool dynamicSizeAlwaysZero() { return true; }
 
     //! Check if this is a leaf node.
-    bool isLeaf() const { return m_LeftChild < 0; }
+    bool isLeaf() const { return m_LeftChild.is_initialized() == false; }
 
     //! Get the leaf index for \p row.
     std::size_t leafIndex(const CEncodedDataFrameRowRef& row,
                           const TNodeVec& tree,
-                          std::int32_t index = 0) const;
+                          size_t index = 0) const;
 
     //! Get the value predicted by \p tree for the feature vector \p row.
     double value(const CEncodedDataFrameRowRef& row, const TNodeVec& tree) const {
@@ -177,10 +193,10 @@ public:
     double curvature() const { return m_Curvature; }
 
     //! Get the index of the left child node.
-    std::int32_t leftChildIndex() const { return m_LeftChild; }
+    std::size_t leftChildIndex() const { return m_LeftChild.get(); }
 
     //! Get the index of the right child node.
-    std::int32_t rightChildIndex() const { return m_RightChild; }
+    std::size_t rightChildIndex() const { return m_RightChild.get(); }
 
     //! Split this node and add its child nodes to \p tree.
     TSizeSizePr split(std::size_t splitFeature,
@@ -203,6 +219,8 @@ public:
     //! Populate the object from serialized data.
     bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
 
+    void accept(Visitor& visitor) const;
+
     //! Get a human readable description of this tree.
     std::string print(const TNodeVec& tree) const;
 
@@ -214,8 +232,8 @@ private:
     std::size_t m_SplitFeature = 0;
     double m_SplitValue = 0.0;
     bool m_AssignMissingToLeft = true;
-    std::int32_t m_LeftChild = -1;
-    std::int32_t m_RightChild = -1;
+    TOptionalSize m_LeftChild;
+    TOptionalSize m_RightChild;
     double m_NodeValue = 0.0;
     double m_Gain = 0.0;
     double m_Curvature = 0.0;
@@ -254,6 +272,15 @@ public:
     using TNodeVec = std::vector<CBoostedTreeNode>;
     using TNodeVecVec = std::vector<TNodeVec>;
 
+    class Visitor : public CDataFrameCategoryEncoder::Visitor,
+                    public CBoostedTreeNode::Visitor {
+    public:
+        virtual void visit(const CBoostedTree* tree) = 0;
+        virtual void visit(const CBoostedTreeImpl* impl) = 0;
+
+        virtual void addTree() = 0;
+    };
+
 public:
     ~CBoostedTree() override;
 
@@ -290,6 +317,8 @@ public:
 
     //! Populate the object from serialized data.
     bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
+
+    void accept(Visitor& visitor);
 
 private:
     using TImplUPtr = std::unique_ptr<CBoostedTreeImpl>;

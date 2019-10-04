@@ -25,7 +25,7 @@ namespace api {
 namespace {
 using TStrVec = std::vector<std::string>;
 using TStrVecVec = std::vector<TStrVec>;
-using TStrSizeUMap = boost::unordered_map<std::string, std::size_t>;
+using TStrSizeUMap = std::unordered_map<std::string, std::size_t>;
 using TStrSizeUMapVec = std::vector<TStrSizeUMap>;
 
 core::CFloatStorage truncateToFloatRange(double value) {
@@ -166,9 +166,9 @@ void CDataFrameAnalyzer::run() {
 
     LOG_TRACE(<< "Running analysis...");
 
-    CDataFrameAnalysisRunner* analysis{m_AnalysisSpecification->run(m_FieldNames, *m_DataFrame)};
+    m_AnalysisRunner = m_AnalysisSpecification->run(m_FieldNames, *m_DataFrame);
 
-    if (analysis == nullptr) {
+    if (m_AnalysisRunner.get() == nullptr) {
         return;
     }
 
@@ -179,9 +179,9 @@ void CDataFrameAnalyzer::run() {
     auto outStream = m_ResultsStreamSupplier();
     core::CRapidJsonConcurrentLineWriter outputWriter{*outStream};
 
-    this->monitorProgress(*analysis, outputWriter);
-    analysis->waitToFinish();
-    this->writeResultsOf(*analysis, outputWriter);
+    this->monitorProgress(outputWriter);
+    m_AnalysisRunner->waitToFinish();
+    this->writeResultsOf(outputWriter);
 }
 
 const CDataFrameAnalyzer::TTemporaryDirectoryPtr& CDataFrameAnalyzer::dataFrameDirectory() const {
@@ -377,13 +377,13 @@ void CDataFrameAnalyzer::addRowToDataFrame(const TStrVec& fieldValues) {
     });
 }
 
-void CDataFrameAnalyzer::monitorProgress(const CDataFrameAnalysisRunner& analysis,
-                                         core::CRapidJsonConcurrentLineWriter& writer) const {
+void CDataFrameAnalyzer::monitorProgress(core::CRapidJsonConcurrentLineWriter& writer) const {
     // Progress as percentage
     int progress{0};
-    while (analysis.finished() == false) {
+    while (m_AnalysisRunner->finished() == false) {
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
-        int latestProgress{static_cast<int>(std::floor(100.0 * analysis.progress()))};
+        int latestProgress{
+            static_cast<int>(std::floor(100.0 * m_AnalysisRunner->progress()))};
         if (latestProgress > progress) {
             progress = latestProgress;
             this->writeProgress(progress, writer);
@@ -401,8 +401,7 @@ void CDataFrameAnalyzer::writeProgress(int progress,
     writer.flush();
 }
 
-void CDataFrameAnalyzer::writeResultsOf(const CDataFrameAnalysisRunner& analysis,
-                                        core::CRapidJsonConcurrentLineWriter& writer) const {
+void CDataFrameAnalyzer::writeResultsOf(core::CRapidJsonConcurrentLineWriter& writer) const {
     // We write results single threaded because we need to write the rows to
     // Java in the order they were written to the data_frame_analyzer so it
     // can join the extra columns with the original data frame.
@@ -425,7 +424,7 @@ void CDataFrameAnalyzer::writeResultsOf(const CDataFrameAnalysisRunner& analysis
 
             writer.StartObject();
             writer.Key(m_AnalysisSpecification->resultsField());
-            analysis.writeOneRow(m_FieldNames, categoricalFieldValues, *row, writer);
+            m_AnalysisRunner->writeOneRow(m_FieldNames, categoricalFieldValues, *row, writer);
             writer.EndObject();
 
             writer.EndObject();
@@ -434,12 +433,26 @@ void CDataFrameAnalyzer::writeResultsOf(const CDataFrameAnalysisRunner& analysis
     });
 
     // Write the resulting model for inference
-    analysis.serializeRunner(m_FieldNames, m_CategoricalFieldValues, writer);
+    const auto& modelDefinition = m_AnalysisRunner->inferenceModelDefinition(
+        m_FieldNames, m_CategoricalFieldValues);
+    if (modelDefinition) {
+        rapidjson::Document doc = writer.makeDoc();
+        doc.Parse(modelDefinition->jsonString());
+        writer.StartObject();
+        writer.Key(modelDefinition->typeString());
+        writer.write(doc);
+        writer.EndObject();
+    }
 
     writer.flush();
 }
 
 const std::size_t CDataFrameAnalyzer::MAX_CATEGORICAL_CARDINALITY{
     1 << (std::numeric_limits<float>::digits)};
+
+const CDataFrameAnalyzer::TDataFrameAnalysisRunnerSPtr&
+CDataFrameAnalyzer::analysisRunner() const {
+    return m_AnalysisRunner;
+}
 }
 }

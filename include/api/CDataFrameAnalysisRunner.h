@@ -10,10 +10,12 @@
 #include <core/CFastMutex.h>
 #include <core/CStatePersistInserter.h>
 
+#include <api/CInferenceModelDefinition.h>
 #include <api/ImportExport.h>
 
 #include <rapidjson/fwd.h>
 
+#include "CInferenceModelDefinition.h"
 #include <atomic>
 #include <cstddef>
 #include <functional>
@@ -68,6 +70,7 @@ public:
 
     using TStrSizeUMap = std::unordered_map<std::string, std::size_t>;
     using TStrSizeUMapVec = std::vector<TStrSizeUMap>;
+    using TInferenceModelDefinitionUPtr = std::unique_ptr<CInferenceModelDefinition>;
 
 public:
     //! The intention is that concrete objects of this hierarchy are constructed
@@ -144,9 +147,9 @@ public:
     //! of the proportion of total work complete for a single run.
     double progress() const;
 
-    virtual void serializeRunner(const TStrVec& fieldNames,
-                                 const TStrSizeUMapVec& categoryNameMap,
-                                 core::CRapidJsonConcurrentLineWriter& writer) const;
+    virtual TInferenceModelDefinitionUPtr
+    inferenceModelDefinition(const TStrVec& fieldNames,
+                             const TStrSizeUMapVec& categoryNameMap) const;
 
 protected:
     using TStatePersister =

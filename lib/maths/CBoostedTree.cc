@@ -109,15 +109,15 @@ const std::string CMse::NAME{"mse"};
 
 std::size_t CBoostedTreeNode::leafIndex(const CEncodedDataFrameRowRef& row,
                                         const TNodeVec& tree,
-                                        std::int32_t index) const {
+                                        size_t index) const {
     if (this->isLeaf()) {
         return index;
     }
     double value{row[m_SplitFeature]};
     bool missing{CDataFrameUtils::isMissing(value)};
     return (missing && m_AssignMissingToLeft) || (missing == false && value < m_SplitValue)
-               ? tree[m_LeftChild].leafIndex(row, tree, m_LeftChild)
-               : tree[m_RightChild].leafIndex(row, tree, m_RightChild);
+               ? tree[m_LeftChild.get()].leafIndex(row, tree, m_LeftChild.get())
+               : tree[m_RightChild.get()].leafIndex(row, tree, m_RightChild.get());
 }
 
 CBoostedTreeNode::TSizeSizePr CBoostedTreeNode::split(std::size_t splitFeature,
@@ -129,12 +129,12 @@ CBoostedTreeNode::TSizeSizePr CBoostedTreeNode::split(std::size_t splitFeature,
     m_SplitFeature = splitFeature;
     m_SplitValue = splitValue;
     m_AssignMissingToLeft = assignMissingToLeft;
-    m_LeftChild = static_cast<std::int32_t>(tree.size());
-    m_RightChild = static_cast<std::int32_t>(tree.size() + 1);
+    m_LeftChild = static_cast<std::size_t>(tree.size());
+    m_RightChild = static_cast<std::size_t>(tree.size() + 1);
     m_Gain = gain;
     m_Curvature = curvature;
     tree.resize(tree.size() + 2);
-    return {m_LeftChild, m_RightChild};
+    return {m_LeftChild.get(), m_RightChild.get()};
 }
 
 CBoostedTreeNode::TPackedBitVectorPackedBitVectorBoolTr
@@ -243,10 +243,15 @@ std::ostringstream& CBoostedTreeNode::doPrint(std::string pad,
         result << m_NodeValue;
     } else {
         result << "split feature '" << m_SplitFeature << "' @ " << m_SplitValue;
-        tree[m_LeftChild].doPrint(pad + "  ", tree, result);
-        tree[m_RightChild].doPrint(pad + "  ", tree, result);
+        tree[m_LeftChild.get()].doPrint(pad + "  ", tree, result);
+        tree[m_RightChild.get()].doPrint(pad + "  ", tree, result);
     }
     return result;
+}
+
+void CBoostedTreeNode::accept(Visitor& visitor) const {
+    visitor.addNode(m_SplitFeature, m_SplitValue, m_AssignMissingToLeft,
+                    m_NodeValue, m_Gain, m_LeftChild, m_RightChild);
 }
 
 CBoostedTree::CBoostedTree(core::CDataFrame& frame,
@@ -293,6 +298,10 @@ const CBoostedTree::TNodeVecVec& CBoostedTree::trainedModel() const {
 
 void CBoostedTree::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
     m_Impl->acceptPersistInserter(inserter);
+}
+
+void CBoostedTree::accept(CBoostedTree::Visitor& visitor) {
+    m_Impl->accept(visitor);
 }
 }
 }

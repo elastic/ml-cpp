@@ -53,7 +53,7 @@ public:
     using TRestoreSearcherSupplier = std::function<TDataSearcherUPtr()>;
     using TDataFrameUPtrTemporaryDirectoryPtrPr =
         std::pair<TDataFrameUPtr, TTemporaryDirectoryPtr>;
-    using TRunnerUPtr = std::unique_ptr<CDataFrameAnalysisRunner>;
+    using TRunnerSPtr = std::shared_ptr<CDataFrameAnalysisRunner>;
     using TRunnerFactoryUPtr = std::unique_ptr<CDataFrameAnalysisRunnerFactory>;
     using TRunnerFactoryUPtrVec = std::vector<TRunnerFactoryUPtr>;
 
@@ -167,7 +167,7 @@ public:
     //! \note The commit of the results of the analysis is atomic per partition.
     //! \warning This assumes that there is no access to the data frame in the
     //! calling thread until the runner has finished.
-    CDataFrameAnalysisRunner* run(const TStrVec& featureNames, core::CDataFrame& frame) const;
+    TRunnerSPtr run(const TStrVec& featureNames, core::CDataFrame& frame) const;
 
     //! Estimates memory usage in two cases:
     //!   1. disk is not used (the whole data frame fits in main memory)
@@ -201,7 +201,7 @@ private:
     // TODO Sparse table support
     // double m_TableLoadFactor = 0.0;
     TRunnerFactoryUPtrVec m_RunnerFactories;
-    TRunnerUPtr m_Runner;
+    TRunnerSPtr m_Runner;
     TPersisterSupplier m_PersisterSupplier;
     TRestoreSearcherSupplier m_RestoreSearcherSupplier;
 };
