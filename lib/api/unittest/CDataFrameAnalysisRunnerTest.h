@@ -18,6 +18,8 @@ public:
     void testEstimateMemoryUsage_10();
     void testEstimateMemoryUsage_100();
     void testEstimateMemoryUsage_1000();
+    void testColumnsForWhichEmptyIsMissingClassification();
+    void testColumnsForWhichEmptyIsMissingRegression();
 
     static CppUnit::Test* suite();
 
