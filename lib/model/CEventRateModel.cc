@@ -502,8 +502,8 @@ std::size_t CEventRateModel::computeMemoryUsage() const {
     return mem;
 }
 
-CEventRateModel::CModelDetailsViewPtr CEventRateModel::details() const {
-    return CModelDetailsViewPtr(new CEventRateModelDetailsView(*this));
+CEventRateModel::TModelDetailsViewUPtr CEventRateModel::details() const {
+    return TModelDetailsViewUPtr(new CEventRateModelDetailsView(*this));
 }
 
 const CEventRateModel::TFeatureData*
