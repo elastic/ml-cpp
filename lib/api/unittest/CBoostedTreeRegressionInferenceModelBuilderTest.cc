@@ -141,6 +141,7 @@ void CBoostedTreeRegressionInferenceModelBuilderTest::testIntegration() {
     };
 
     TStrVec fieldNames{"numeric_col", "categorical_col", "target_col", ".", "."};
+    TStrVec expectedFieldNames{"numeric_col", "categorical_col", "target_col"};
 
     TStrVec fieldValues{"", "", "0", "", ""};
 
@@ -171,7 +172,7 @@ void CBoostedTreeRegressionInferenceModelBuilderTest::testIntegration() {
     TStrSizeUMapVec categoryMappingVector{{}, {{"cat1", 0}, {"cat2", 1}, {"cat3", 2}}, {}};
     auto definition = analysisRunner->inferenceModelDefinition(fieldNames, categoryMappingVector);
     // assert input
-    CPPUNIT_ASSERT(fieldNames == definition->input().fieldNames());
+    CPPUNIT_ASSERT(expectedFieldNames == definition->input().fieldNames());
 
     // test pre-processing
     CPPUNIT_ASSERT_EQUAL(3ul, definition->preprocessors().size());
