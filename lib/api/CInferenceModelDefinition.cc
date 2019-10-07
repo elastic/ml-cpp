@@ -203,6 +203,17 @@ const CEnsemble::TAggregateOutputUPtr& CEnsemble::aggregateOutput() const {
     return m_AggregateOutput;
 }
 
+void CEnsemble::targetType(CTrainedModel::ETargetType targetType) {
+    this->CTrainedModel::targetType(targetType);
+    for (auto& trainedModel : m_TrainedModels) {
+        trainedModel.targetType(targetType);
+    }
+}
+
+CTrainedModel::ETargetType CEnsemble::targetType() const {
+    return this->CTrainedModel::targetType();
+}
+
 bool CTree::acceptRestoreTraverser(ml::core::CStateRestoreTraverser& traverser) {
     //    auto restoreTreeNode = [this](ml::core::CStateRestoreTraverser& traverser) -> bool {
     //        CTreeNode treeNode;

@@ -92,8 +92,8 @@ public:
     const TStringVec& featureNames() const;
     //! Names of the features used by the model.
     virtual void featureNames(const TStringVec& featureNames);
-    void targetType(ETargetType targetType);
-    ETargetType targetType() const;
+    virtual void targetType(ETargetType targetType);
+    virtual ETargetType targetType() const;
 
 private:
     TStringVecOptional m_ClassificationLabels;
@@ -165,6 +165,10 @@ public:
     TTreeVec& trainedModels();
     //! Number of models in the ensemble.
     std::size_t size() const;
+
+    void targetType(ETargetType targetType) override;
+
+    ETargetType targetType() const override;
 
 private:
     TTreeVec m_TrainedModels;

@@ -119,6 +119,7 @@ ml::api::CBoostedTreeRegressionInferenceModelBuilder::build() {
     auto ensemble = static_cast<CEnsemble*>(m_Definition.trainedModel().get());
     ensemble->aggregateOutput(std::make_unique<CWeightedSum>(ensemble->size(), 1.0));
 
+    ensemble->targetType(CTrainedModel::E_Regression);
 
     return std::move(m_Definition);
 }

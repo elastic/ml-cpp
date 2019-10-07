@@ -287,12 +287,14 @@ void CBoostedTreeRegressionInferenceModelFormatterTest::testIntegration() {
             auto enc = static_cast<ml::api::CTargetMeanEncoding*>(encoding.get());
             CPPUNIT_ASSERT_EQUAL(3ul, enc->targetMap().size());
             CPPUNIT_ASSERT("categorical_col_targetmean" == enc->featureName());
-            CPPUNIT_ASSERT_EQUAL(100.0177, enc->defaultValue());
+            CPPUNIT_ASSERT_DOUBLES_EQUAL(100.0177288, enc->defaultValue(), 1e-6);
             target = true;
         } else if (encoding->typeString() == "one_hot_encoding") {
             auto enc = static_cast<ml::api::COneHotEncoding*>(encoding.get());
-            CPPUNIT_ASSERT_EQUAL(1ul, enc->hotMap().size());
+            CPPUNIT_ASSERT_EQUAL(3ul, enc->hotMap().size());
             CPPUNIT_ASSERT("categorical_col_cat1" == enc->hotMap()["cat1"]);
+            CPPUNIT_ASSERT("categorical_col_cat2" == enc->hotMap()["cat2"]);
+            CPPUNIT_ASSERT("categorical_col_cat3" == enc->hotMap()["cat3"]);
             oneHot = true;
         }
     }
@@ -302,10 +304,7 @@ void CBoostedTreeRegressionInferenceModelFormatterTest::testIntegration() {
     // assert trained model
     auto trainedModel = dynamic_cast<api::CEnsemble*>(definition->trainedModel().get());
     CPPUNIT_ASSERT_EQUAL(api::CTrainedModel::E_Regression, trainedModel->targetType());
-    CPPUNIT_ASSERT_EQUAL(3ul, trainedModel->size());
-    CPPUNIT_ASSERT_EQUAL(1ul, trainedModel->trainedModels()[0].size());
-    CPPUNIT_ASSERT_EQUAL(3ul, trainedModel->trainedModels()[1].size());
-    CPPUNIT_ASSERT_EQUAL(3ul, trainedModel->trainedModels()[2].size());
+    CPPUNIT_ASSERT_EQUAL(23ul, trainedModel->size());
     CPPUNIT_ASSERT("weighted_sum" == trainedModel->aggregateOutput()->stringType());
     // TODO feature names test is missing
 }
