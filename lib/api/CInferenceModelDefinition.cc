@@ -182,6 +182,8 @@ std::string CInferenceModelDefinition::jsonString() {
     core::CRapidJsonLineWriter<rapidjson::StringBuffer> writer(stringBuffer);
     rapidjson::Value doc = writer.makeObject();
 
+    // TODO add the ability to write directly into the "parent" writer of the Analyzer
+
     //input
     rapidjson::Value inputObject = writer.makeObject();
     m_Input.addToDocument(inputObject, writer);
@@ -368,7 +370,7 @@ const CTargetMeanEncoding::TStringDoubleUMap& CTargetMeanEncoding::targetMap() c
 
 CFrequencyEncoding::CFrequencyEncoding(const std::string& field,
                                        const std::string& featureName,
-                                       const TStringDoubleUMap &frequencyMap)
+                                       const TStringDoubleUMap& frequencyMap)
     : CEncoding(field), m_FeatureName(featureName), m_FrequencyMap(frequencyMap) {
 }
 
@@ -429,7 +431,7 @@ COneHotEncoding::COneHotEncoding(const std::string& field,
     : CEncoding(field), m_HotMap(hotMap) {
 }
 
-CWeightedSum::CWeightedSum(TDoubleVec &&weights)
+CWeightedSum::CWeightedSum(TDoubleVec&& weights)
     : m_Weights{std::move(weights)} {
 }
 CWeightedSum::CWeightedSum(std::size_t size, double weight)
@@ -445,7 +447,7 @@ const std::string& CWeightedSum::stringType() {
     return JSON_WEIGHTED_SUM_TAG;
 }
 
-CWeightedMode::CWeightedMode(TDoubleVec &&weights)
+CWeightedMode::CWeightedMode(TDoubleVec&& weights)
     : m_Weights(std::move(weights)) {
 }
 

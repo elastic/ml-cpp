@@ -1,8 +1,12 @@
+/*
+ * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
+ * or more contributor license agreements. Licensed under the Elastic License;
+ * you may not use this file except in compliance with the Elastic License.
+ */
+
 #include <api/CBoostedTreeRegressionInferenceModelBuilder.h>
 
-#include <core/CJsonStateRestoreTraverser.h>
 #include <core/LogMacros.h>
-#include <core/RestoreMacros.h>
 
 #include <api/CInferenceModelDefinition.h>
 
@@ -45,9 +49,10 @@ void ml::api::CBoostedTreeRegressionInferenceModelBuilder::addOneHotEncoding(std
     m_OneHotEncodingMaps[fieldName]->hotMap().emplace(category, encodedFieldName);
 }
 
-void ml::api::CBoostedTreeRegressionInferenceModelBuilder::addTargetMeanEncoding(std::size_t inputColumnIndex,
-                                                                                 const TDoubleVec &map,
-                                                                                 double fallback) {
+void ml::api::CBoostedTreeRegressionInferenceModelBuilder::addTargetMeanEncoding(
+    std::size_t inputColumnIndex,
+    const TDoubleVec& map,
+    double fallback) {
     std::string fieldName{m_Definition.input().columns()[inputColumnIndex]};
     std::string featureName{fieldName + "_targetmean"};
     auto stringMap = this->encodingMap(inputColumnIndex, map);
@@ -55,8 +60,9 @@ void ml::api::CBoostedTreeRegressionInferenceModelBuilder::addTargetMeanEncoding
         fieldName, fallback, featureName, std::move(stringMap)));
 }
 
-void ml::api::CBoostedTreeRegressionInferenceModelBuilder::addFrequencyEncoding(std::size_t inputColumnIndex,
-                                                                                const TDoubleVec &map) {
+void ml::api::CBoostedTreeRegressionInferenceModelBuilder::addFrequencyEncoding(
+    std::size_t inputColumnIndex,
+    const TDoubleVec& map) {
     std::string fieldName{m_Definition.input().columns()[inputColumnIndex]};
     std::string featureName{fieldName + "_frequency"};
     auto stringMap = this->encodingMap(inputColumnIndex, map);
@@ -106,8 +112,9 @@ ml::api::CBoostedTreeRegressionInferenceModelBuilder::CBoostedTreeRegressionInfe
 }
 
 ml::api::CBoostedTreeRegressionInferenceModelBuilder::TStringDoubleUMap
-ml::api::CBoostedTreeRegressionInferenceModelBuilder::encodingMap(std::size_t inputColumnIndex,
-                                                                  const ml::api::CBoostedTreeRegressionInferenceModelBuilder::TDoubleVec &map_) {
+ml::api::CBoostedTreeRegressionInferenceModelBuilder::encodingMap(
+    std::size_t inputColumnIndex,
+    const ml::api::CBoostedTreeRegressionInferenceModelBuilder::TDoubleVec& map_) {
     TStringDoubleUMap map;
     for (std::size_t categoryUInt = 0; categoryUInt < map_.size(); ++categoryUInt) {
         std::string category{m_ReverseCategoryNameMap[inputColumnIndex][categoryUInt]};
@@ -117,7 +124,7 @@ ml::api::CBoostedTreeRegressionInferenceModelBuilder::encodingMap(std::size_t in
 }
 
 void ml::api::CBoostedTreeRegressionInferenceModelBuilder::categoryNameMap(
-        const ml::api::CInferenceModelDefinition::TStringSizeUMapVec &categoryNameMap) {
+    const ml::api::CInferenceModelDefinition::TStringSizeUMapVec& categoryNameMap) {
     m_CategoryNameMap = categoryNameMap;
     m_ReverseCategoryNameMap.reserve(categoryNameMap.size());
     for (const auto& categoryNameMapping : categoryNameMap) {

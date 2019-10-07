@@ -203,10 +203,10 @@ public:
         virtual void addOneHotEncoding(std::size_t inputColumnIndex,
                                        std::size_t hotCategory) = 0;
         virtual void addTargetMeanEncoding(std::size_t inputColumnIndex,
-                                           const TDoubleVec &map,
+                                           const TDoubleVec& map,
                                            double fallback) = 0;
         virtual void addFrequencyEncoding(std::size_t inputColumnIndex,
-                                          const TDoubleVec &map) = 0;
+                                          const TDoubleVec& map) = 0;
     };
 
 public:

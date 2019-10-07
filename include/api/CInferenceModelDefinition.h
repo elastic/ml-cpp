@@ -46,9 +46,10 @@ public:
 class API_EXPORT CWeightedMode : public CAggregateOutput {
 public:
     using TDoubleVec = std::vector<double>;
+
 public:
     //! Construct with the \param weight vector.
-    explicit CWeightedMode(TDoubleVec &&weights);
+    explicit CWeightedMode(TDoubleVec&& weights);
     //! Construct with a weight vector of \param size with all entries equal to \param weight.
     CWeightedMode(std::size_t size, double weight);
     void addToDocument(rapidjson::Value& parentObject, TRapidJsonWriter& writer) override;
@@ -62,9 +63,10 @@ private:
 class API_EXPORT CWeightedSum : public CAggregateOutput {
 public:
     using TDoubleVec = std::vector<double>;
+
 public:
     //! Construct with the \param weight vector.
-    explicit CWeightedSum(TDoubleVec &&weights);
+    explicit CWeightedSum(TDoubleVec&& weights);
     //! Construct with a weight vector of \param size with all entries equal to \param weight.
     CWeightedSum(std::size_t size, double weight);
     void addToDocument(rapidjson::Value& parentObject, TRapidJsonWriter& writer) override;
@@ -210,7 +212,7 @@ public:
 public:
     CFrequencyEncoding(const std::string& field,
                        const std::string& featureName,
-                       const TStringDoubleUMap &frequencyMap);
+                       const TStringDoubleUMap& frequencyMap);
 
     void addToDocument(rapidjson::Value& parentObject, TRapidJsonWriter& writer) override;
     //! Feature name after pre-processing.
@@ -244,6 +246,7 @@ private:
 class API_EXPORT CTargetMeanEncoding : public CEncoding {
 public:
     using TStringDoubleUMap = std::unordered_map<std::string, double>;
+
 public:
     CTargetMeanEncoding(const std::string& field,
                         double defaultValue,

@@ -47,15 +47,13 @@ public:
                  maths::CBoostedTreeNode::TOptionalSize leftChild,
                  maths::CBoostedTreeNode::TOptionalSize rightChild) override;
 
-    void addOneHotEncoding(std::size_t inputColumnIndex,
-                           std::size_t hotCategory) override;
+    void addOneHotEncoding(std::size_t inputColumnIndex, std::size_t hotCategory) override;
 
     void addTargetMeanEncoding(std::size_t inputColumnIndex,
-                               const TDoubleVec &map,
+                               const TDoubleVec& map,
                                double fallback) override;
 
-    void addFrequencyEncoding(std::size_t inputColumnIndex,
-                              const TDoubleVec &map) override;
+    void addFrequencyEncoding(std::size_t inputColumnIndex, const TDoubleVec& map) override;
 
     CInferenceModelDefinition&& build();
 
@@ -65,8 +63,7 @@ private:
     using TStringDoubleUMap = std::unordered_map<std::string, double>;
 
 private:
-    TStringDoubleUMap encodingMap(std::size_t inputColumnIndex,
-                                              const TDoubleVec& map_);
+    TStringDoubleUMap encodingMap(std::size_t inputColumnIndex, const TDoubleVec& map_);
 
     void categoryNameMap(const CInferenceModelDefinition::TStringSizeUMapVec& categoryNameMap);
 
