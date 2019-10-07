@@ -77,7 +77,6 @@ void addJsonArray(const std::string& tag,
 }
 }
 
-
 void CTree::CTreeNode::addToDocument(rapidjson::Value& parentObject, TRapidJsonWriter& writer) {
     writer.addMember(JSON_NODE_INDEX_TAG, rapidjson::Value(m_NodeIndex).Move(), parentObject);
     writer.addMember(JSON_SPLIT_FEATURE_TAG,
@@ -120,7 +119,6 @@ CTree::CTreeNode::CTreeNode(size_t nodeIndex,
       m_LeafValue(leafValue), m_SplitFeature(splitFeature),
       m_LeftChild(leftChild), m_RightChild(rightChild), m_SplitGain(splitGain) {
 }
-
 
 void CEnsemble::addToDocument(rapidjson::Value& parentObject, TRapidJsonWriter& writer) {
     CTrainedModel::addToDocument(parentObject, writer);

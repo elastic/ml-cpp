@@ -18,7 +18,8 @@
 namespace ml {
 namespace api {
 
-class API_EXPORT CBoostedTreeRegressionInferenceModelBuilder : public maths::CBoostedTree::Visitor {
+class API_EXPORT CBoostedTreeRegressionInferenceModelBuilder
+    : public maths::CBoostedTree::Visitor {
 public:
     using TDoubleVec = std::vector<double>;
     using TStringVec = std::vector<std::string>;
@@ -97,7 +98,6 @@ private:
     TSizeStringUMapVec m_ReverseCategoryNameMap;
     TOneHotEncodingUMap m_OneHotEncodingMaps;
 };
-
 }
 }
 
