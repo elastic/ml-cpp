@@ -72,7 +72,7 @@ private:
 //! List of support numeric relationships. It's only "<=" at the moment.
 enum ENumericRelationship { E_LTE };
 
-class API_EXPORT CTrainedModel : public CSerializableToJson, public CDeserializableFromJson {
+class API_EXPORT CTrainedModel : public CSerializableToJson {
 public:
     using TStringVec = std::vector<std::string>;
     using TStringVecOptional = boost::optional<TStringVec>;
