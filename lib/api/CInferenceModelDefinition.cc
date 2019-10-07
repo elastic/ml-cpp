@@ -31,7 +31,7 @@ const std::string JSON_FREQUENCY_MAP_TAG{"frequency_map"};
 const std::string JSON_HOT_MAP_TAG{"hot_map"};
 const std::string JSON_LEAF_VALUE_TAG{"leaf_value"};
 const std::string JSON_LEFT_CHILD_TAG{"left_child"};
-const std::string JSON_LTE{"lte"};
+const std::string JSON_LT{"lt"};
 const std::string JSON_NODE_INDEX_TAG{"node_index"};
 const std::string JSON_ONE_HOT_ENCODING_TAG{"one_hot_encoding"};
 const std::string JSON_PREPROCESSORS_TAG{"preprocessors"};
@@ -79,11 +79,11 @@ void CTree::CTreeNode::addToDocument(rapidjson::Value& parentObject, TRapidJsonW
     writer.addMember(JSON_DEFAULT_LEFT_TAG,
                      rapidjson::Value(m_DefaultLeft).Move(), parentObject);
     switch (m_DecisionType) {
-    case E_LTE:
-        writer.addMember(JSON_DECISION_TYPE_TAG, JSON_LTE, parentObject);
+    case E_LT:
+        writer.addMember(JSON_DECISION_TYPE_TAG, JSON_LT, parentObject);
         break;
     default:
-        writer.addMember(JSON_DECISION_TYPE_TAG, JSON_LTE, parentObject);
+        writer.addMember(JSON_DECISION_TYPE_TAG, JSON_LT, parentObject);
         break;
     }
     if (m_LeftChild.is_initialized()) {

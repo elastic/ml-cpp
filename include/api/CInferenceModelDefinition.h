@@ -75,8 +75,8 @@ private:
     std::vector<double> m_Weights;
 };
 
-//! List of support numeric relationships. It's only "<=" at the moment.
-enum ENumericRelationship { E_LTE };
+//! List of support numeric relationships. It's only "<" at the moment.
+enum ENumericRelationship { E_LT };
 
 class API_EXPORT CTrainedModel : public CSerializableToJson {
 public:
@@ -124,7 +124,7 @@ public:
     private:
         std::size_t m_NodeIndex;
         double m_Threshold;
-        ENumericRelationship m_DecisionType = E_LTE;
+        ENumericRelationship m_DecisionType = E_LT;
         bool m_DefaultLeft;
         double m_LeafValue;
         std::size_t m_SplitFeature;
