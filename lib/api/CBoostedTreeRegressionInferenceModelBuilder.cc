@@ -12,6 +12,8 @@
 
 #include <rapidjson/writer.h>
 
+#include <algorithm>
+
 namespace {
 const std::string BEST_FOREST_TAG{"best_forest"};
 const std::string ENCODER_TAG{"encoder_tag"};
@@ -82,8 +84,8 @@ void ml::api::CBoostedTreeRegressionInferenceModelBuilder::addNode(
     bool assignMissingToLeft,
     double nodeValue,
     double gain,
-    ml::maths::CBoostedTreeNode::TOptionalSize leftChild,
-    ml::maths::CBoostedTreeNode::TOptionalSize rightChild) {
+    ml::maths::CBoostedTreeNode::TOptionalNodeIndex leftChild,
+    ml::maths::CBoostedTreeNode::TOptionalNodeIndex rightChild) {
     auto ensemble{static_cast<CEnsemble*>(m_Definition.trainedModel().get())};
     CTree& tree{ensemble->trainedModels().back()};
     tree.treeStructure().emplace_back(tree.size(), splitValue, assignMissingToLeft, nodeValue,
@@ -91,10 +93,15 @@ void ml::api::CBoostedTreeRegressionInferenceModelBuilder::addNode(
 }
 
 ml::api::CBoostedTreeRegressionInferenceModelBuilder::CBoostedTreeRegressionInferenceModelBuilder(
-    const TStringVec& fieldNames,
-    const TStringSizeUMapVec& categoryNameMap)
-    : m_Definition(fieldNames, categoryNameMap) {
+    TStringVec fieldNames,
+    const TStringSizeUMapVec& categoryNameMap) {
+    // filter filed names containing only "."
+    fieldNames.erase(std::remove(fieldNames.begin(), fieldNames.end(), "."),
+                     fieldNames.end());
+
     this->categoryNameMap(categoryNameMap);
+    m_Definition.fieldNames(fieldNames);
+    m_Definition.categoryNameMap(categoryNameMap);
     m_Definition.trainedModel(std::make_unique<CEnsemble>());
     m_Definition.typeString(REGRESSION_INFERENCE_MODEL);
 }

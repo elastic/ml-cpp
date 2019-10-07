@@ -106,30 +106,31 @@ class API_EXPORT CTree : public CTrainedModel {
 public:
     class CTreeNode : public CSerializableToJson {
     public:
-        using TOptionalSize = boost::optional<std::size_t>;
+        using TNodeIndex = std::uint32_t;
+        using TOptionalNodeIndex = boost::optional<TNodeIndex>;
         using TOptionalDouble = boost::optional<double>;
 
     public:
-        CTreeNode(size_t nodeIndex,
+        CTreeNode(TNodeIndex nodeIndex,
                   double threshold,
                   bool defaultLeft,
                   double leafValue,
                   size_t splitFeature,
-                  const TOptionalSize& leftChild,
-                  const TOptionalSize& rightChild,
+                  const TOptionalNodeIndex& leftChild,
+                  const TOptionalNodeIndex& rightChild,
                   const TOptionalDouble& splitGain);
 
         void addToDocument(rapidjson::Value& parentObject, TRapidJsonWriter& writer) override;
 
     private:
-        std::size_t m_NodeIndex;
-        double m_Threshold;
-        ENumericRelationship m_DecisionType = E_LT;
         bool m_DefaultLeft;
-        double m_LeafValue;
+        ENumericRelationship m_DecisionType = E_LT;
+        TNodeIndex m_NodeIndex;
+        TOptionalNodeIndex m_LeftChild;
+        TOptionalNodeIndex m_RightChild;
         std::size_t m_SplitFeature;
-        TOptionalSize m_LeftChild;
-        TOptionalSize m_RightChild;
+        double m_Threshold;
+        double m_LeafValue;
         TOptionalDouble m_SplitGain;
     };
     using TTreeNodeVec = std::vector<CTreeNode>;
@@ -268,7 +269,7 @@ private:
 };
 
 //! \brief Technical details required for model evaluation.
-class CInferenceModelDefinition {
+class API_EXPORT CInferenceModelDefinition {
 
 public:
     using TStringVec = std::vector<std::string>;
@@ -280,6 +281,7 @@ public:
     using TSizeStringUMapVec = std::vector<TSizeStringUMap>;
 
 public:
+    CInferenceModelDefinition() = default;
     CInferenceModelDefinition(const TStringVec& fieldNames,
                               const TStringSizeUMapVec& categoryNameMap);
     std::string jsonString();

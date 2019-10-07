@@ -143,11 +143,12 @@ class CBoostedTreeImpl;
 //! node bit masks from the node's bit mask.
 class MATHS_EXPORT CBoostedTreeNode final {
 public:
-    using TSizeSizePr = std::pair<std::size_t, std::size_t>;
+    using TNodeIndex = std::uint32_t;
+    using TSizeSizePr = std::pair<TNodeIndex, TNodeIndex>;
     using TPackedBitVectorPackedBitVectorBoolTr =
         std::tuple<core::CPackedBitVector, core::CPackedBitVector, bool>;
     using TNodeVec = std::vector<CBoostedTreeNode>;
-    using TOptionalSize = boost::optional<std::size_t>;
+    using TOptionalNodeIndex = boost::optional<TNodeIndex>;
 
     class MATHS_EXPORT CVisitor {
     public:
@@ -157,8 +158,8 @@ public:
                              bool assignMissingToLeft,
                              double nodeValue,
                              double gain,
-                             TOptionalSize leftChild,
-                             TOptionalSize rightChild) = 0;
+                             TOptionalNodeIndex leftChild,
+                             TOptionalNodeIndex rightChild) = 0;
     };
 
 public:
@@ -169,9 +170,9 @@ public:
     bool isLeaf() const { return m_LeftChild.is_initialized() == false; }
 
     //! Get the leaf index for \p row.
-    std::size_t leafIndex(const CEncodedDataFrameRowRef& row,
-                          const TNodeVec& tree,
-                          std::size_t index = 0) const;
+    TNodeIndex leafIndex(const CEncodedDataFrameRowRef& row,
+                         const TNodeVec& tree,
+                         TNodeIndex index = 0) const;
 
     //! Get the value predicted by \p tree for the feature vector \p row.
     double value(const CEncodedDataFrameRowRef& row, const TNodeVec& tree) const {
@@ -191,10 +192,10 @@ public:
     double curvature() const { return m_Curvature; }
 
     //! Get the index of the left child node.
-    std::size_t leftChildIndex() const { return m_LeftChild.get(); }
+    TNodeIndex leftChildIndex() const { return m_LeftChild.get(); }
 
     //! Get the index of the right child node.
-    std::size_t rightChildIndex() const { return m_RightChild.get(); }
+    TNodeIndex rightChildIndex() const { return m_RightChild.get(); }
 
     //! Split this node and add its child nodes to \p tree.
     TSizeSizePr split(std::size_t splitFeature,
@@ -227,11 +228,12 @@ private:
     doPrint(std::string pad, const TNodeVec& tree, std::ostringstream& result) const;
 
 private:
+    // TODO check packing to reduce memory footprint
     std::size_t m_SplitFeature = 0;
     double m_SplitValue = 0.0;
     bool m_AssignMissingToLeft = true;
-    TOptionalSize m_LeftChild;
-    TOptionalSize m_RightChild;
+    TOptionalNodeIndex m_LeftChild;
+    TOptionalNodeIndex m_RightChild;
     double m_NodeValue = 0.0;
     double m_Gain = 0.0;
     double m_Curvature = 0.0;

@@ -655,8 +655,9 @@ void CDataFrameAnalyzerTest::testRunBoostedTreeTraining() {
               << core::CProgramCounters::counter(counter_t::E_DFTPMPeakMemoryUsage));
     LOG_DEBUG(<< "time to train = " << core::CProgramCounters::counter(counter_t::E_DFTPMTimeToTrain)
               << "ms");
+
     CPPUNIT_ASSERT(core::CProgramCounters::counter(
-                       counter_t::E_DFTPMEstimatedPeakMemoryUsage) < 2600000);
+                       counter_t::E_DFTPMEstimatedPeakMemoryUsage) < 2700000);
     CPPUNIT_ASSERT(core::CProgramCounters::counter(counter_t::E_DFTPMPeakMemoryUsage) < 1050000);
     CPPUNIT_ASSERT(core::CProgramCounters::counter(counter_t::E_DFTPMTimeToTrain) > 0);
     CPPUNIT_ASSERT(core::CProgramCounters::counter(counter_t::E_DFTPMTimeToTrain) <= duration);
@@ -949,7 +950,7 @@ void CDataFrameAnalyzerTest::testCategoricalFields() {
 
     {
         api::CDataFrameAnalyzer analyzer{
-            analysisSpec("regression", "x5", 1000, 5, 8000000, 0, 0, {"x1", "x2"}),
+            analysisSpec("regression", "x5", 1000, 5, 8500000, 0, 0, {"x1", "x2"}),
             outputWriterFactory};
 
         TStrVec x[]{{"x11", "x12", "x13", "x14", "x15"},
@@ -1052,7 +1053,7 @@ void CDataFrameAnalyzerTest::testCategoricalFieldsEmptyAsMissing() {
     };
 
     api::CDataFrameAnalyzer analyzer{analysisSpec("classification", "x5", 1000, 5,
-                                                  8000000, 0, 0, {"x1", "x2", "x5"}),
+                                                  8500000, 0, 0, {"x1", "x2", "x5"}),
                                      outputWriterFactory};
 
     TStrVec fieldNames{"x1", "x2", "x3", "x4", "x5", ".", "."};

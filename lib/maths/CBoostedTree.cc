@@ -107,9 +107,9 @@ const std::string& CMse::name() const {
 const std::string CMse::NAME{"mse"};
 }
 
-std::size_t CBoostedTreeNode::leafIndex(const CEncodedDataFrameRowRef& row,
-                                        const TNodeVec& tree,
-                                        std::size_t index) const {
+CBoostedTreeNode::TNodeIndex CBoostedTreeNode::leafIndex(const CEncodedDataFrameRowRef& row,
+                                                         const TNodeVec& tree,
+                                                         TNodeIndex index) const {
     if (this->isLeaf()) {
         return index;
     }

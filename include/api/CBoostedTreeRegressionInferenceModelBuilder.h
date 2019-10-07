@@ -29,7 +29,7 @@ public:
     using TSizeStringUMapVec = std::vector<TSizeStringUMap>;
 
 public:
-    CBoostedTreeRegressionInferenceModelBuilder(const TStringVec& fieldNames,
+    CBoostedTreeRegressionInferenceModelBuilder(TStringVec fieldNames,
                                                 const TStringSizeUMapVec& categoryNameMap);
     void addTree() override;
     void addNode(std::size_t splitFeature,
@@ -37,8 +37,8 @@ public:
                  bool assignMissingToLeft,
                  double nodeValue,
                  double gain,
-                 maths::CBoostedTreeNode::TOptionalSize leftChild,
-                 maths::CBoostedTreeNode::TOptionalSize rightChild) override;
+                 maths::CBoostedTreeNode::TOptionalNodeIndex leftChild,
+                 maths::CBoostedTreeNode::TOptionalNodeIndex rightChild) override;
     void addOneHotEncoding(std::size_t inputColumnIndex, std::size_t hotCategory) override;
     void addTargetMeanEncoding(std::size_t inputColumnIndex,
                                const TDoubleVec& map,

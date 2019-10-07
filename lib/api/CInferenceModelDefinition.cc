@@ -96,13 +96,13 @@ void CTree::CTreeNode::addToDocument(rapidjson::Value& parentObject, TRapidJsonW
     }
 }
 
-CTree::CTreeNode::CTreeNode(size_t nodeIndex,
+CTree::CTreeNode::CTreeNode(TNodeIndex nodeIndex,
                             double threshold,
                             bool defaultLeft,
                             double leafValue,
                             size_t splitFeature,
-                            const CTree::CTreeNode::TOptionalSize& leftChild,
-                            const CTree::CTreeNode::TOptionalSize& rightChild,
+                            const CTree::CTreeNode::TOptionalNodeIndex& leftChild,
+                            const CTree::CTreeNode::TOptionalNodeIndex& rightChild,
                             const CTree::CTreeNode::TOptionalDouble& splitGain)
     : m_NodeIndex(nodeIndex), m_Threshold(threshold), m_DefaultLeft(defaultLeft),
       m_LeafValue(leafValue), m_SplitFeature(splitFeature),
@@ -213,7 +213,7 @@ std::string CInferenceModelDefinition::jsonString() {
 }
 
 void CTrainedModel::addToDocument(rapidjson::Value& parentObject, TRapidJsonWriter& writer) {
-    addJsonArray(JSON_FEATURE_NAME_TAG, m_FeatureNames, parentObject, writer);
+    addJsonArray(JSON_FEATURE_NAMES_TAG, m_FeatureNames, parentObject, writer);
 
     if (m_ClassificationLabels) {
         rapidjson::Value classificationLabelsArray =
