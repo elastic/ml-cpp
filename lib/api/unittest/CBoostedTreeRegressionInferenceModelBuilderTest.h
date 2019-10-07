@@ -12,7 +12,6 @@
 class CBoostedTreeRegressionInferenceModelBuilderTest : public CppUnit::TestFixture {
 public:
     void testIntegration();
-    void testDefinitionGeneration();
 
     static CppUnit::Test* suite();
 };

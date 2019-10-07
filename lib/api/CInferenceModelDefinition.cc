@@ -7,7 +7,6 @@
 
 #include <core/CPersistUtils.h>
 #include <core/CRapidJsonLineWriter.h>
-#include <core/RestoreMacros.h>
 
 #include <unordered_map>
 
@@ -17,19 +16,9 @@ namespace api {
 namespace {
 using TRapidJsonWriter = core::CRapidJsonLineWriter<rapidjson::StringBuffer>;
 
-const std::string SPLIT_FEATURE_TAG{"split_feature"};
-const std::string DEFAULT_LEFT_TAG{"assign_missing_to_left"};
-const std::string NODE_VALUE_TAG{"node_value"};
-const std::string SPLIT_INDEX_TAG{"split_index"};
-const std::string SPLIT_VALUE_TAG{"split_value"};
-const std::string LEFT_CHILD_TAG{"left_child"};
-const std::string RIGHT_CHILD_TAG{"right_child"};
-const std::string TREE_TAG{"a"};
-const std::string TREE_NODE_TAG{"a"};
-
 const std::string JSON_AGGREGATE_OUTPUT_TAG{"aggregate_output"};
 const std::string JSON_CLASSIFICATION_LABELS_TAG{"classification_labels"};
-const std::string JSON_COLUMNS_TAG{"columns"};
+const std::string JSON_FIELD_NAMES_TAG{"field_names"};
 const std::string JSON_TARGET_MAP_TAG{"target_map"};
 const std::string JSON_DEFAULT_VALUE_TAG{"default_value"};
 const std::string JSON_DECISION_TYPE_TAG{"decision_type"};
@@ -45,7 +34,7 @@ const std::string JSON_LEFT_CHILD_TAG{"left_child"};
 const std::string JSON_LTE{"lte"};
 const std::string JSON_NODE_INDEX_TAG{"node_index"};
 const std::string JSON_ONE_HOT_ENCODING_TAG{"one_hot_encoding"};
-const std::string JSON_PREPROCESSING_TAG{"preprocessing"};
+const std::string JSON_PREPROCESSORS_TAG{"preprocessors"};
 const std::string JSON_INPUT_TAG{"input"};
 const std::string JSON_RIGHT_CHILD_TAG{"right_child"};
 const std::string JSON_SPLIT_FEATURE_TAG{"split_feature"};
@@ -198,16 +187,16 @@ std::string CInferenceModelDefinition::jsonString() {
     m_Input.addToDocument(inputObject, writer);
     writer.addMember(JSON_INPUT_TAG, inputObject, doc);
 
-    // preprocessing
+    // preprocessors
     rapidjson::Value preprocessingArray = writer.makeArray();
-    for (const auto& encoding : m_Preprocessing) {
+    for (const auto& encoding : m_Preprocessors) {
         rapidjson::Value encodingValue = writer.makeObject();
         encoding->addToDocument(encodingValue, writer);
         rapidjson::Value encodingEnclosingObject = writer.makeObject();
         writer.addMember(encoding->typeString(), encodingValue, encodingEnclosingObject);
         preprocessingArray.PushBack(encodingEnclosingObject, writer.getRawAllocator());
     }
-    writer.addMember(JSON_PREPROCESSING_TAG, preprocessingArray, doc);
+    writer.addMember(JSON_PREPROCESSORS_TAG, preprocessingArray, doc);
 
     //trained_model
     if (m_TrainedModel) {
@@ -222,13 +211,6 @@ std::string CInferenceModelDefinition::jsonString() {
 }
 
 void CTrainedModel::addToDocument(rapidjson::Value& parentObject, TRapidJsonWriter& writer) {
-    //    rapidjson::Value featureNamesArray = writer.makeArray(m_FeatureNames.size());
-    //    for (const auto& featureName : m_FeatureNames) {
-    //        rapidjson::Value featureNameValue;
-    //        featureNameValue.SetString(featureName, writer.getRawAllocator());
-    //        featureNamesArray.PushBack(featureNameValue, writer.getRawAllocator());
-    //    }
-    //    writer.addMember(JSON_FEATURE_NAMES_TAG, featureNamesArray, parentObject);
     addJsonArray(JSON_FEATURE_NAME_TAG, m_FeatureNames, parentObject, writer);
 
     if (m_ClassificationLabels) {
@@ -275,89 +257,24 @@ CTrainedModel::ETargetType CTrainedModel::targetType() const {
 
 void CInferenceModelDefinition::fieldNames(const std::vector<std::string>& fieldNames) {
     m_FieldNames = fieldNames;
-    m_Input.columns(fieldNames);
-}
-
-void CInferenceModelDefinition::encodings(const CInferenceModelDefinition::TEncodingUPtrVec& encodings) {
-    //    if (encodings.empty()) {
-    //        return;
-    //    }
-    //    using TOneHotEncodingUPtr = std::unique_ptr<COneHotEncoding>;
-    //    using TOneHotEncodingUMap = std::unordered_map<std::string, TOneHotEncodingUPtr>;
-    //    TOneHotEncodingUMap oneHotEncodingMaps;
-    //    for (const auto& encoding : encodings) {
-    //        std::size_t inputColumnIndex = encoding->inputColumnIndex();
-    //        std::string fieldName = m_FieldNames[inputColumnIndex];
-    //        if (encoding->type() == maths::EEncoding::E_OneHot) {
-    //            std::size_t categoryUInt =
-    //                static_cast<maths::CDataFrameCategoryEncoder::COneHotEncoding*>(
-    //                    encoding.get())
-    //                    ->hotCategory();
-    //            std::string category = m_ReverseCategoryNameMap[inputColumnIndex][categoryUInt];
-    //            std::string encodedFieldName = fieldName + "_" + category;
-    //            if (oneHotEncodingMaps.find(fieldName) == oneHotEncodingMaps.end()) {
-    //                auto apiEncoding = std::make_unique<api::COneHotEncoding>(
-    //                    fieldName, api::COneHotEncoding::TStringStringUMap());
-    //                oneHotEncodingMaps.emplace(fieldName, std::move(apiEncoding));
-    //            }
-    //            oneHotEncodingMaps[fieldName]->hotMap().emplace(category, encodedFieldName);
-    //        } else if (encoding->type() == maths::EEncoding::E_TargetMean) {
-    //            auto* enc = static_cast<maths::CDataFrameCategoryEncoder::CMappedEncoding*>(
-    //                encoding.get());
-    //            double defaultValue{enc->fallback()};
-    //            std::string featureName{fieldName + "_targetmean"};
-    //
-    //            std::map<std::string, double> map;
-    //            for (std::size_t categoryUInt = 0; categoryUInt < enc->map().size(); ++categoryUInt) {
-    //                std::string category = m_ReverseCategoryNameMap[inputColumnIndex][categoryUInt];
-    //                map.emplace(category, enc->map()[categoryUInt]);
-    //            }
-    //            m_Preprocessing.emplace_back(std::make_unique<CTargetMeanEncoding>(
-    //                fieldName, defaultValue, featureName, map));
-    //        } else if (encoding->type() == maths::EEncoding::E_Frequency) {
-    //            auto* enc = static_cast<maths::CDataFrameCategoryEncoder::CMappedEncoding*>(
-    //                encoding.get());
-    //            std::string featureName{fieldName + "_frequency"};
-    //            std::map<std::string, double> map;
-    //            for (std::size_t categoryUInt = 0; categoryUInt < enc->map().size(); ++categoryUInt) {
-    //                std::string category = m_ReverseCategoryNameMap[inputColumnIndex][categoryUInt];
-    //                map.emplace(category, enc->map()[categoryUInt]);
-    //            }
-    //            m_Preprocessing.emplace_back(
-    //                std::make_unique<CFrequencyEncoding>(fieldName, featureName, map));
-    //        }
-    //    }
-    //
-    //    for (auto& oneHotEncodingMapping : oneHotEncodingMaps) {
-    //        m_Preprocessing.emplace_back(std::move(oneHotEncodingMapping.second));
-    //    }
+    m_Input.fieldNames(fieldNames);
 }
 
 void CInferenceModelDefinition::trainedModel(std::unique_ptr<CTrainedModel>&& trainedModel) {
     m_TrainedModel.swap(trainedModel);
 }
 
-rapidjson::Value&& CInferenceModelDefinition::jsonObject() {
-    rapidjson::Document doc;
-    doc.Parse(this->jsonString());
-    if (doc.GetParseError()) {
-        HANDLE_FATAL(<< "Internal error: generated inference model JSON cannot be parsed. "
-                     << "Please report this problem.")
-    }
-    return std::move(doc);
-}
-
-const CInferenceModelDefinition::TStrSizeUMapVec&
+const CInferenceModelDefinition::TStringSizeUMapVec&
 CInferenceModelDefinition::categoryNameMap() const {
     return m_CategoryNameMap;
 }
 
-void CInferenceModelDefinition::categoryNameMap(const CInferenceModelDefinition::TStrSizeUMapVec& categoryNameMap) {
+void CInferenceModelDefinition::categoryNameMap(const CInferenceModelDefinition::TStringSizeUMapVec& categoryNameMap) {
     m_CategoryNameMap = categoryNameMap;
     m_ReverseCategoryNameMap.reserve(categoryNameMap.size());
     for (const auto& categoryNameMapping : categoryNameMap) {
         if (categoryNameMapping.empty() == false) {
-            TSizeStrUMap map;
+            TSizeStringUMap map;
             for (const auto& categoryMappingPair : categoryNameMapping) {
                 map.emplace(categoryMappingPair.second, categoryMappingPair.first);
             }
@@ -374,7 +291,7 @@ std::unique_ptr<CTrainedModel>& CInferenceModelDefinition::trainedModel() {
 
 CInferenceModelDefinition::CInferenceModelDefinition(
     const CInferenceModelDefinition::TStringVec& fieldNames,
-    const CInferenceModelDefinition::TStrSizeUMapVec& categoryNameMap) {
+    const CInferenceModelDefinition::TStringSizeUMapVec& categoryNameMap) {
     this->fieldNames(fieldNames);
     this->categoryNameMap(categoryNameMap);
 }
@@ -383,8 +300,8 @@ const CInput& CInferenceModelDefinition::input() const {
     return m_Input;
 }
 
-CInferenceModelDefinition::TApiEncodingUPtrVec& CInferenceModelDefinition::preprocessing() {
-    return m_Preprocessing;
+CInferenceModelDefinition::TApiEncodingUPtrVec& CInferenceModelDefinition::preprocessors() {
+    return m_Preprocessors;
 }
 
 const std::unique_ptr<CTrainedModel>& CInferenceModelDefinition::trainedModel() const {
@@ -400,15 +317,15 @@ void CInferenceModelDefinition::typeString(const std::string& typeString) {
 }
 
 const CInput::TStringVec& CInput::columns() const {
-    return m_Columns;
+    return m_FieldNames;
 }
 
-void CInput::columns(const TStringVec& columns) {
-    m_Columns = columns;
+void CInput::fieldNames(const TStringVec& columns) {
+    m_FieldNames = columns;
 }
 
 void CInput::addToDocument(rapidjson::Value& parentObject, TRapidJsonWriter& writer) {
-    addJsonArray(JSON_COLUMNS_TAG, m_Columns, parentObject, writer);
+    addJsonArray(JSON_FIELD_NAMES_TAG, m_FieldNames, parentObject, writer);
 }
 
 const std::string& CTargetMeanEncoding::typeString() const {
@@ -432,7 +349,7 @@ void CTargetMeanEncoding::addToDocument(rapidjson::Value& parentObject,
 CTargetMeanEncoding::CTargetMeanEncoding(const std::string& field,
                                          double defaultValue,
                                          const std::string& featureName,
-                                         std::map<std::string, double>&& targetMap)
+                                         TStringDoubleUMap&& targetMap)
     : CEncoding(field), m_DefaultValue(defaultValue),
       m_FeatureName(featureName), m_TargetMap(std::move(targetMap)) {
 }
@@ -445,13 +362,13 @@ const std::string& CTargetMeanEncoding::featureName() const {
     return m_FeatureName;
 }
 
-const std::map<std::string, double>& CTargetMeanEncoding::targetMap() const {
+const CTargetMeanEncoding::TStringDoubleUMap& CTargetMeanEncoding::targetMap() const {
     return m_TargetMap;
 }
 
 CFrequencyEncoding::CFrequencyEncoding(const std::string& field,
                                        const std::string& featureName,
-                                       const std::map<std::string, double>& frequencyMap)
+                                       const TStringDoubleUMap &frequencyMap)
     : CEncoding(field), m_FeatureName(featureName), m_FrequencyMap(frequencyMap) {
 }
 
@@ -485,7 +402,7 @@ const std::string& CFrequencyEncoding::featureName() const {
     return m_FeatureName;
 }
 
-const std::map<std::string, double>& CFrequencyEncoding::frequencyMap() const {
+const CFrequencyEncoding::TStringDoubleUMap& CFrequencyEncoding::frequencyMap() const {
     return m_FrequencyMap;
 }
 
@@ -512,8 +429,8 @@ COneHotEncoding::COneHotEncoding(const std::string& field,
     : CEncoding(field), m_HotMap(hotMap) {
 }
 
-CWeightedSum::CWeightedSum(const std::vector<double>& weights)
-    : m_Weights{weights} {
+CWeightedSum::CWeightedSum(TDoubleVec &&weights)
+    : m_Weights{std::move(weights)} {
 }
 CWeightedSum::CWeightedSum(std::size_t size, double weight)
     : m_Weights(size, weight) {
@@ -528,8 +445,8 @@ const std::string& CWeightedSum::stringType() {
     return JSON_WEIGHTED_SUM_TAG;
 }
 
-CWeightedMode::CWeightedMode(const std::vector<double>& weights)
-    : m_Weights(weights) {
+CWeightedMode::CWeightedMode(TDoubleVec &&weights)
+    : m_Weights(std::move(weights)) {
 }
 
 const std::string& CWeightedMode::stringType() {

@@ -333,15 +333,15 @@ void CDataFrameCategoryEncoder::accept(CDataFrameCategoryEncoder::Visitor& visit
     for (const auto& encoding : m_Encodings) {
         if (encoding->type() == E_OneHot) {
             auto enc = static_cast<COneHotEncoding*>(encoding.get());
-            visitor.addOneHotEncoding(enc->inputColumnIndex(), enc->mic(),
+            visitor.addOneHotEncoding(enc->inputColumnIndex(),
                                       enc->hotCategory());
         } else if (encoding->type() == E_Frequency) {
             auto enc = static_cast<CMappedEncoding*>(encoding.get());
-            visitor.addFrequencyEncoding(enc->inputColumnIndex(), enc->mic(),
-                                         enc->map(), enc->fallback());
+            visitor.addFrequencyEncoding(enc->inputColumnIndex(),
+                                         enc->map());
         } else if (encoding->type() == E_TargetMean) {
             auto enc = static_cast<CMappedEncoding*>(encoding.get());
-            visitor.addTargetMeanEncoding(enc->inputColumnIndex(), enc->mic(),
+            visitor.addTargetMeanEncoding(enc->inputColumnIndex(),
                                           enc->map(), enc->fallback());
         }
     }

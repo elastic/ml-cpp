@@ -221,8 +221,8 @@ CDataFrameAnalysisRunner::TStatePersister CDataFrameAnalysisRunner::statePersist
 }
 
 CDataFrameAnalysisRunner::TInferenceModelDefinitionUPtr
-CDataFrameAnalysisRunner::inferenceModelDefinition(const TStrVec& fieldNames,
-                                                   const TStrSizeUMapVec& categoryNameMap) const {
+CDataFrameAnalysisRunner::inferenceModelDefinition(const TStrVec& /*fieldNames*/,
+                                                   const TStrSizeUMapVec& /*categoryNameMap*/) const {
     return TInferenceModelDefinitionUPtr();
 }
 

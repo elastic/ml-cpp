@@ -13,7 +13,6 @@
 
 #include <maths/CLinearAlgebraEigen.h>
 
-#include <api/CBoostedTreeRegressionInferenceModelBuilder.h>
 #include <api/CDataFrameAnalysisSpecification.h>
 #include <api/CDataFrameAnalysisSpecificationJsonWriter.h>
 #include <api/CDataFrameAnalyzer.h>
@@ -24,7 +23,6 @@
 #include <test/CTestTmpDir.h>
 
 #include <fstream>
-#include <streambuf>
 #include <string>
 
 using namespace ml;
@@ -159,72 +157,8 @@ CppUnit::Test* CBoostedTreeRegressionInferenceModelBuilderTest::suite() {
     suiteOfTests->addTest(new CppUnit::TestCaller<CBoostedTreeRegressionInferenceModelBuilderTest>(
         "CBoostedTreeRegressionInferenceModelBuilderTest::testIntegration",
         &CBoostedTreeRegressionInferenceModelBuilderTest::testIntegration));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CBoostedTreeRegressionInferenceModelBuilderTest>(
-        "CBoostedTreeRegressionInferenceModelBuilderTest::testDefinitionGeneration",
-        &CBoostedTreeRegressionInferenceModelBuilderTest::testDefinitionGeneration));
 
     return suiteOfTests;
-}
-
-void CBoostedTreeRegressionInferenceModelBuilderTest::testDefinitionGeneration() {
-    //    std::string inputFileName("testfiles/regression_runner_with_categories.json");
-    //    std::string str;
-    //    TStrVec fieldNames{"numeric_col", "categorical_col", "target_col"};
-    //    TStrSizeUMapVec categoryMappingVector{{}, {{"cat1", 0}, {"cat2", 1}, {"cat3", 2}}, {}};
-    //    {
-    //        // Open the input and output files
-    //        std::ifstream inputStrm(inputFileName.c_str());
-    //        CPPUNIT_ASSERT(inputStrm.is_open());
-    //
-    //        // read file
-    //        str.assign((std::istreambuf_iterator<char>(inputStrm)),
-    //                   std::istreambuf_iterator<char>());
-    //    }
-    //    ml::api::CBoostedTreeRegressionInferenceModelFormatter formatter{
-    //        str, fieldNames, categoryMappingVector};
-    //    LOG_DEBUG(<< "Test output " << formatter.toString());
-    //
-    //    // assert input
-    //    CPPUNIT_ASSERT(fieldNames == formatter.definition().input().columns());
-    //
-    //    // test pre-processing
-    //    CPPUNIT_ASSERT_EQUAL(3ul, formatter.definition().preprocessing().size());
-    //    bool frequency = false;
-    //    bool target = false;
-    //    bool oneHot = false;
-    //
-    //    for (const auto& encoding : formatter.definition().preprocessing()) {
-    //        if (encoding->typeString() == "frequency_encoding") {
-    //            auto enc = static_cast<ml::api::CFrequencyEncoding*>(encoding.get());
-    //            CPPUNIT_ASSERT_EQUAL(3ul, enc->frequencyMap().size());
-    //            CPPUNIT_ASSERT("categorical_col_frequency" == enc->featureName());
-    //            frequency = true;
-    //        } else if (encoding->typeString() == "target_mean_encoding") {
-    //            auto enc = static_cast<ml::api::CTargetMeanEncoding*>(encoding.get());
-    //            CPPUNIT_ASSERT_EQUAL(3ul, enc->targetMap().size());
-    //            CPPUNIT_ASSERT("categorical_col_targetmean" == enc->featureName());
-    //            CPPUNIT_ASSERT_EQUAL(100.0177, enc->defaultValue());
-    //            target = true;
-    //        } else if (encoding->typeString() == "one_hot_encoding") {
-    //            auto enc = static_cast<ml::api::COneHotEncoding*>(encoding.get());
-    //            CPPUNIT_ASSERT_EQUAL(1ul, enc->hotMap().size());
-    //            CPPUNIT_ASSERT("categorical_col_cat1" == enc->hotMap()["cat1"]);
-    //            oneHot = true;
-    //        }
-    //    }
-    //
-    //    CPPUNIT_ASSERT(oneHot && target && frequency);
-    //
-    //    // assert trained model
-    //    auto trainedModel =
-    //        dynamic_cast<api::CEnsemble*>(formatter.definition().trainedModel().get());
-    //    CPPUNIT_ASSERT_EQUAL(api::CTrainedModel::E_Regression, trainedModel->targetType());
-    //    CPPUNIT_ASSERT_EQUAL(3ul, trainedModel->size());
-    //    CPPUNIT_ASSERT_EQUAL(1ul, trainedModel->trainedModels()[0].size());
-    //    CPPUNIT_ASSERT_EQUAL(3ul, trainedModel->trainedModels()[1].size());
-    //    CPPUNIT_ASSERT_EQUAL(3ul, trainedModel->trainedModels()[2].size());
-    //    CPPUNIT_ASSERT("weighted_sum" == trainedModel->aggregateOutput()->stringType());
-    //    // TODO feature names test is missing
 }
 
 void CBoostedTreeRegressionInferenceModelBuilderTest::testIntegration() {
@@ -272,12 +206,12 @@ void CBoostedTreeRegressionInferenceModelBuilderTest::testIntegration() {
     CPPUNIT_ASSERT(fieldNames == definition->input().columns());
 
     // test pre-processing
-    CPPUNIT_ASSERT_EQUAL(3ul, definition->preprocessing().size());
+    CPPUNIT_ASSERT_EQUAL(3ul, definition->preprocessors().size());
     bool frequency = false;
     bool target = false;
     bool oneHot = false;
 
-    for (const auto& encoding : definition->preprocessing()) {
+    for (const auto& encoding : definition->preprocessors()) {
         if (encoding->typeString() == "frequency_encoding") {
             auto enc = static_cast<ml::api::CFrequencyEncoding*>(encoding.get());
             CPPUNIT_ASSERT_EQUAL(3ul, enc->frequencyMap().size());

@@ -47,50 +47,28 @@ public:
                  maths::CBoostedTreeNode::TOptionalSize leftChild,
                  maths::CBoostedTreeNode::TOptionalSize rightChild) override;
 
-    void addOneHotEncoding(std::size_t inputColumnIndex, double mic, std::size_t hotCategory) override;
+    void addOneHotEncoding(std::size_t inputColumnIndex,
+                           std::size_t hotCategory) override;
 
     void addTargetMeanEncoding(std::size_t inputColumnIndex,
-                               double mic,
-                               const TDoubleVec& map,
+                               const TDoubleVec &map,
                                double fallback) override;
 
     void addFrequencyEncoding(std::size_t inputColumnIndex,
-                              double mic,
-                              const TDoubleVec& map,
-                              double fallback) override;
+                              const TDoubleVec &map) override;
 
     CInferenceModelDefinition&& build();
 
 private:
     using TOneHotEncodingUPtr = std::unique_ptr<COneHotEncoding>;
     using TOneHotEncodingUMap = std::unordered_map<std::string, TOneHotEncodingUPtr>;
+    using TStringDoubleUMap = std::unordered_map<std::string, double>;
 
 private:
-    std::map<std::string, double> encodingMap(std::size_t inputColumnIndex,
-                                              const TDoubleVec& map_) {
-        std::map<std::string, double> map;
-        for (std::size_t categoryUInt = 0; categoryUInt < map_.size(); ++categoryUInt) {
-            std::string category{m_ReverseCategoryNameMap[inputColumnIndex][categoryUInt]};
-            map.emplace(category, map_[categoryUInt]);
-        }
-        return map;
-    }
+    TStringDoubleUMap encodingMap(std::size_t inputColumnIndex,
+                                              const TDoubleVec& map_);
 
-    void categoryNameMap(const CInferenceModelDefinition::TStrSizeUMapVec& categoryNameMap) {
-        m_CategoryNameMap = categoryNameMap;
-        m_ReverseCategoryNameMap.reserve(categoryNameMap.size());
-        for (const auto& categoryNameMapping : categoryNameMap) {
-            if (categoryNameMapping.empty() == false) {
-                TSizeStringUMap map;
-                for (const auto& categoryMappingPair : categoryNameMapping) {
-                    map.emplace(categoryMappingPair.second, categoryMappingPair.first);
-                }
-                m_ReverseCategoryNameMap.emplace_back(std::move(map));
-            } else {
-                m_ReverseCategoryNameMap.emplace_back();
-            }
-        }
-    }
+    void categoryNameMap(const CInferenceModelDefinition::TStringSizeUMapVec& categoryNameMap);
 
 private:
     CInferenceModelDefinition m_Definition;

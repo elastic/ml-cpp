@@ -298,17 +298,6 @@ CDataFrameBoostedTreeRunner::inferenceModelDefinition(const TStrVec& fieldNames,
     m_BoostedTree->accept(builder);
 
     return std::make_unique<CInferenceModelDefinition>(builder.build());
-
-    //    CBoostedTreeRegressionInferenceModelFormatter formatter{strm.str(), fieldNames,
-    //                                                            categoryNameMap};
-    //    LOG_DEBUG(<< "Inference model json: " << definition.jsonString());
-
-    //    rapidjson::Document doc = writer.makeDoc();
-    //    doc.Parse(definition.jsonString());
-    //    writer.StartObject();
-    //    writer.Key(RESULT_INFERENCE_MODEL);
-    //    writer.write(doc);
-    //    writer.EndObject();
 }
 }
 }

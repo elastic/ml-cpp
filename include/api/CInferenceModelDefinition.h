@@ -17,12 +17,9 @@
 
 #include <boost/optional.hpp>
 
-#include <map>
 #include <string>
 #include <unordered_map>
 #include <vector>
-
-// TODO add documentation
 
 namespace ml {
 namespace api {
@@ -48,7 +45,11 @@ public:
 //! Allows to use (weighted) majority vote for classification.
 class API_EXPORT CWeightedMode : public CAggregateOutput {
 public:
-    explicit CWeightedMode(const std::vector<double>& weights);
+    using TDoubleVec = std::vector<double>;
+public:
+    //! Construct with the \param weight vector.
+    explicit CWeightedMode(TDoubleVec &&weights);
+    //! Construct with a weight vector of \param size with all entries equal to \param weight.
     CWeightedMode(std::size_t size, double weight);
     void addToDocument(rapidjson::Value& parentObject, TRapidJsonWriter& writer) override;
     const std::string& stringType() override;
@@ -60,7 +61,11 @@ private:
 //! Allows to use (weighted) sum for regression.
 class API_EXPORT CWeightedSum : public CAggregateOutput {
 public:
-    explicit CWeightedSum(const std::vector<double>& weights);
+    using TDoubleVec = std::vector<double>;
+public:
+    //! Construct with the \param weight vector.
+    explicit CWeightedSum(TDoubleVec &&weights);
+    //! Construct with a weight vector of \param size with all entries equal to \param weight.
     CWeightedSum(std::size_t size, double weight);
     void addToDocument(rapidjson::Value& parentObject, TRapidJsonWriter& writer) override;
     const std::string& stringType() override;
@@ -84,7 +89,9 @@ public:
     const TStringVec& featureNames() const;
     //! Names of the features used by the model.
     virtual void featureNames(const TStringVec& featureNames);
+    //! Sets target type (regression or classification)
     virtual void targetType(ETargetType targetType);
+    //! Returns target type (regression or classification)
     virtual ETargetType targetType() const;
 
 private:
@@ -168,18 +175,17 @@ private:
 class API_EXPORT CInput : public CSerializableToJson {
 public:
     using TStringVec = std::vector<std::string>;
-    using TStringVecOptional = boost::optional<TStringVec>;
 
 public:
     void addToDocument(rapidjson::Value& parentObject, TRapidJsonWriter& writer) override;
     //! List of the column names.
     const TStringVec& columns() const;
     //! List of the column names.
-    void columns(const TStringVec& columns);
+    void fieldNames(const TStringVec& columns);
 
 private:
     //! List of the column names.
-    TStringVec m_Columns;
+    TStringVec m_FieldNames;
 };
 
 class API_EXPORT CEncoding : public CSerializableToJson {
@@ -199,20 +205,23 @@ private:
 //! \brief Mapping from categorical columns to numerical values related to categorical value distribution.
 class API_EXPORT CFrequencyEncoding : public CEncoding {
 public:
+    using TStringDoubleUMap = const std::unordered_map<std::string, double>;
+
+public:
     CFrequencyEncoding(const std::string& field,
                        const std::string& featureName,
-                       const std::map<std::string, double>& frequencyMap);
+                       const TStringDoubleUMap &frequencyMap);
 
     void addToDocument(rapidjson::Value& parentObject, TRapidJsonWriter& writer) override;
     //! Feature name after pre-processing.
     const std::string& featureName() const;
     //! Map from the category names to the frequency values.
-    const std::map<std::string, double>& frequencyMap() const;
+    const TStringDoubleUMap& frequencyMap() const;
     const std::string& typeString() const override;
 
 private:
     std::string m_FeatureName;
-    std::map<std::string, double> m_FrequencyMap;
+    TStringDoubleUMap m_FrequencyMap;
 };
 
 //! \brief Application of the one-hot encoding function on a single column.
@@ -234,10 +243,12 @@ private:
 //! \brief Mapping from categorical columns to numerical values related to the target value.
 class API_EXPORT CTargetMeanEncoding : public CEncoding {
 public:
+    using TStringDoubleUMap = std::unordered_map<std::string, double>;
+public:
     CTargetMeanEncoding(const std::string& field,
                         double defaultValue,
                         const std::string& featureName,
-                        std::map<std::string, double>&& targetMap);
+                        TStringDoubleUMap&& targetMap);
 
     void addToDocument(rapidjson::Value& parentObject, TRapidJsonWriter& writer) override;
     //! Value for categories that have not been seen before.
@@ -245,44 +256,41 @@ public:
     //! Feature name after pre-processing.
     const std::string& featureName() const;
     //! Map from the category names to the target values.
-    const std::map<std::string, double>& targetMap() const;
+    const TStringDoubleUMap& targetMap() const;
     const std::string& typeString() const override;
 
 private:
     double m_DefaultValue;
     std::string m_FeatureName;
-    std::map<std::string, double> m_TargetMap;
+    TStringDoubleUMap m_TargetMap;
 };
 
 //! \brief Technical details required for model evaluation.
 class CInferenceModelDefinition {
 
 public:
-    using TJsonDocument = rapidjson::Document;
     using TStringVec = std::vector<std::string>;
-    using TEncodingUPtr = std::unique_ptr<maths::CDataFrameCategoryEncoder::CEncoding>;
-    using TEncodingUPtrVec = std::vector<TEncodingUPtr>;
     using TApiEncodingUPtr = std::unique_ptr<api::CEncoding>;
     using TApiEncodingUPtrVec = std::vector<TApiEncodingUPtr>;
-    using TStrSizeUMap = std::unordered_map<std::string, std::size_t>;
-    using TStrSizeUMapVec = std::vector<TStrSizeUMap>;
-    using TSizeStrUMap = std::unordered_map<std::size_t, std::string>;
-    using TSizeStrUMapVec = std::vector<TSizeStrUMap>;
+    using TStringSizeUMap = std::unordered_map<std::string, std::size_t>;
+    using TStringSizeUMapVec = std::vector<TStringSizeUMap>;
+    using TSizeStringUMap = std::unordered_map<std::size_t, std::string>;
+    using TSizeStringUMapVec = std::vector<TSizeStringUMap>;
 
 public:
     CInferenceModelDefinition(const TStringVec& fieldNames,
-                              const TStrSizeUMapVec& categoryNameMap);
+                              const TStringSizeUMapVec& categoryNameMap);
     std::string jsonString();
-    rapidjson::Value&& jsonObject();
+
     void fieldNames(const TStringVec& fieldNames);
-    void encodings(const TEncodingUPtrVec& encodings);
+
     void trainedModel(std::unique_ptr<CTrainedModel>&& trainedModel);
     std::unique_ptr<CTrainedModel>& trainedModel();
     const std::unique_ptr<CTrainedModel>& trainedModel() const;
-    const TStrSizeUMapVec& categoryNameMap() const;
+    const TStringSizeUMapVec& categoryNameMap() const;
     const CInput& input() const;
-    TApiEncodingUPtrVec& preprocessing();
-    void categoryNameMap(const TStrSizeUMapVec& categoryNameMap);
+    TApiEncodingUPtrVec& preprocessors();
+    void categoryNameMap(const TStringSizeUMapVec& categoryNameMap);
     const std::string& typeString() const;
     void typeString(const std::string& typeString);
 
@@ -290,12 +298,12 @@ private:
     //! Information related to the input.
     CInput m_Input;
     //! Optional step for pre-processing data, e.g. vector embedding, one-hot-encoding, etc.
-    TApiEncodingUPtrVec m_Preprocessing;
+    TApiEncodingUPtrVec m_Preprocessors;
     //! Details of the model evaluation step with a trained_model.
     std::unique_ptr<CTrainedModel> m_TrainedModel;
     TStringVec m_FieldNames;
-    TStrSizeUMapVec m_CategoryNameMap;
-    TSizeStrUMapVec m_ReverseCategoryNameMap;
+    TStringSizeUMapVec m_CategoryNameMap;
+    TSizeStringUMapVec m_ReverseCategoryNameMap;
     std::string m_TypeString;
 };
 }
