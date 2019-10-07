@@ -325,20 +325,16 @@ bool CDataFrameCategoryEncoder::restore(core::CStateRestoreTraverser& traverser,
     return true;
 }
 
-const CDataFrameCategoryEncoder::TEncodingUPtrVec& CDataFrameCategoryEncoder::encodings() const {
-    return m_Encodings;
-}
-
-void CDataFrameCategoryEncoder::accept(CDataFrameCategoryEncoder::Visitor& visitor) {
+void CDataFrameCategoryEncoder::accept(CDataFrameCategoryEncoder::CVisitor& visitor) const {
     for (const auto& encoding : m_Encodings) {
         if (encoding->type() == E_OneHot) {
-            auto enc = static_cast<COneHotEncoding*>(encoding.get());
+            auto enc = static_cast<const COneHotEncoding*>(encoding.get());
             visitor.addOneHotEncoding(enc->inputColumnIndex(), enc->hotCategory());
         } else if (encoding->type() == E_Frequency) {
-            auto enc = static_cast<CMappedEncoding*>(encoding.get());
+            auto enc = static_cast<const CMappedEncoding*>(encoding.get());
             visitor.addFrequencyEncoding(enc->inputColumnIndex(), enc->map());
         } else if (encoding->type() == E_TargetMean) {
-            auto enc = static_cast<CMappedEncoding*>(encoding.get());
+            auto enc = static_cast<const CMappedEncoding*>(encoding.get());
             visitor.addTargetMeanEncoding(enc->inputColumnIndex(), enc->map(),
                                           enc->fallback());
         }

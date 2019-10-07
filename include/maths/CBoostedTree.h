@@ -149,11 +149,9 @@ public:
     using TNodeVec = std::vector<CBoostedTreeNode>;
     using TOptionalSize = boost::optional<std::size_t>;
 
-    class Visitor {
+    class MATHS_EXPORT CVisitor {
     public:
-        virtual void visit(const CBoostedTreeNode* node) = 0;
         //! Adds to last added tree.
-
         virtual void addNode(std::size_t splitFeature,
                              double splitValue,
                              bool assignMissingToLeft,
@@ -173,7 +171,7 @@ public:
     //! Get the leaf index for \p row.
     std::size_t leafIndex(const CEncodedDataFrameRowRef& row,
                           const TNodeVec& tree,
-                          size_t index = 0) const;
+                          std::size_t index = 0) const;
 
     //! Get the value predicted by \p tree for the feature vector \p row.
     double value(const CEncodedDataFrameRowRef& row, const TNodeVec& tree) const {
@@ -219,7 +217,7 @@ public:
     //! Populate the object from serialized data.
     bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
 
-    void accept(Visitor& visitor) const;
+    void accept(CVisitor& visitor) const;
 
     //! Get a human readable description of this tree.
     std::string print(const TNodeVec& tree) const;
@@ -272,12 +270,9 @@ public:
     using TNodeVec = std::vector<CBoostedTreeNode>;
     using TNodeVecVec = std::vector<TNodeVec>;
 
-    class Visitor : public CDataFrameCategoryEncoder::Visitor,
-                    public CBoostedTreeNode::Visitor {
+    class MATHS_EXPORT CVisitor : public CDataFrameCategoryEncoder::CVisitor,
+                                  public CBoostedTreeNode::CVisitor {
     public:
-        virtual void visit(const CBoostedTree* tree) = 0;
-        virtual void visit(const CBoostedTreeImpl* impl) = 0;
-
         virtual void addTree() = 0;
     };
 
@@ -318,7 +313,7 @@ public:
     //! Populate the object from serialized data.
     bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
 
-    void accept(Visitor& visitor);
+    void accept(CVisitor& visitor) const;
 
 private:
     using TImplUPtr = std::unique_ptr<CBoostedTreeImpl>;

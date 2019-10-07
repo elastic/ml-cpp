@@ -286,13 +286,6 @@ std::size_t CDataFrameBoostedTreeRunner::estimateBookkeepingMemoryUsage(
 CDataFrameAnalysisRunner::TInferenceModelDefinitionUPtr
 CDataFrameBoostedTreeRunner::inferenceModelDefinition(const TStrVec& fieldNames,
                                                       const TStrSizeUMapVec& categoryNameMap) const {
-    std::stringstream strm;
-    {
-        core::CJsonStatePersistInserter inserter(strm);
-        m_BoostedTree->acceptPersistInserter(inserter);
-        strm.flush();
-    }
-
     CBoostedTreeRegressionInferenceModelBuilder builder(fieldNames, categoryNameMap);
     m_BoostedTree->accept(builder);
 

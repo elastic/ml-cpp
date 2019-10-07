@@ -19,18 +19,6 @@ const std::string ENCODER_TAG{"encoder_tag"};
 const std::string REGRESSION_INFERENCE_MODEL{"regression_inference_model"};
 }
 
-void ml::api::CBoostedTreeRegressionInferenceModelBuilder::visit(const ml::maths::CBoostedTree* /*tree*/) {
-    // do nothing
-}
-
-void ml::api::CBoostedTreeRegressionInferenceModelBuilder::visit(const ml::maths::CBoostedTreeImpl* /*impl*/) {
-    // do nothing
-}
-
-void ml::api::CBoostedTreeRegressionInferenceModelBuilder::visit(const ml::maths::CBoostedTreeNode* /*node*/) {
-    // do nothing
-}
-
 void ml::api::CBoostedTreeRegressionInferenceModelBuilder::addTree() {
     auto ensemble = static_cast<CEnsemble*>(m_Definition.trainedModel().get());
     ensemble->trainedModels().emplace_back();

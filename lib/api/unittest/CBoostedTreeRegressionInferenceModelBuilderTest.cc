@@ -43,6 +43,7 @@ using TRowItr = core::CDataFrame::TRowItr;
 using TStrSizeUMap = std::unordered_map<std::string, std::size_t>;
 using TStrSizeUMapVec = std::vector<TStrSizeUMap>;
 
+// TODO factor out this method to avoid code duplication
 auto regressionSpec(std::string dependentVariable,
                     std::size_t rows = 100,
                     std::size_t cols = 5,

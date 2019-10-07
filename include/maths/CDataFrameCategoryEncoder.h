@@ -179,6 +179,8 @@ public:
         bool isBinary() const override;
         std::uint64_t checksum() const override;
         const std::string& typeString() const override;
+        const TDoubleVec& map() const;
+        double fallback() const;
 
     private:
         void acceptPersistInserterForDerivedTypeState(core::CStatePersistInserter& inserter) const override;
@@ -188,17 +190,12 @@ public:
         EEncoding m_Encoding;
         TDoubleVec m_Map;
 
-    public:
-        const TDoubleVec& map() const;
-
-        double fallback() const;
-
     private:
         double m_Fallback;
         bool m_Binary;
     };
 
-    class Visitor {
+    class MATHS_EXPORT CVisitor {
     public:
         virtual void addOneHotEncoding(std::size_t inputColumnIndex,
                                        std::size_t hotCategory) = 0;
@@ -214,9 +211,6 @@ public:
 
     //! Initialize from serialized data.
     CDataFrameCategoryEncoder(core::CStateRestoreTraverser& traverser);
-
-    //! Get the complete representation of encodings.
-    const TEncodingUPtrVec& encodings() const;
 
     CDataFrameCategoryEncoder(const CDataFrameCategoryEncoder&) = delete;
     CDataFrameCategoryEncoder& operator=(const CDataFrameCategoryEncoder&) = delete;
@@ -245,7 +239,7 @@ public:
     //! Populate the object from serialized data.
     bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
 
-    void accept(Visitor& visitor);
+    void accept(CVisitor& visitor) const;
 
 private:
     void persistEncodings(core::CStatePersistInserter& inserter) const;

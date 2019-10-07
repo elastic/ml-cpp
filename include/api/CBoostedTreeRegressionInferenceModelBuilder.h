@@ -19,7 +19,7 @@ namespace ml {
 namespace api {
 
 class API_EXPORT CBoostedTreeRegressionInferenceModelBuilder
-    : public maths::CBoostedTree::Visitor {
+    : public maths::CBoostedTree::CVisitor {
 public:
     using TDoubleVec = std::vector<double>;
     using TStringVec = std::vector<std::string>;
@@ -31,14 +31,7 @@ public:
 public:
     CBoostedTreeRegressionInferenceModelBuilder(const TStringVec& fieldNames,
                                                 const TStringSizeUMapVec& categoryNameMap);
-    void visit(const maths::CBoostedTree* tree) override;
-
-    void visit(const maths::CBoostedTreeImpl* impl) override;
-
-    void visit(const maths::CBoostedTreeNode* node) override;
-
     void addTree() override;
-
     void addNode(std::size_t splitFeature,
                  double splitValue,
                  bool assignMissingToLeft,
@@ -46,15 +39,11 @@ public:
                  double gain,
                  maths::CBoostedTreeNode::TOptionalSize leftChild,
                  maths::CBoostedTreeNode::TOptionalSize rightChild) override;
-
     void addOneHotEncoding(std::size_t inputColumnIndex, std::size_t hotCategory) override;
-
     void addTargetMeanEncoding(std::size_t inputColumnIndex,
                                const TDoubleVec& map,
                                double fallback) override;
-
     void addFrequencyEncoding(std::size_t inputColumnIndex, const TDoubleVec& map) override;
-
     CInferenceModelDefinition&& build();
 
 private:

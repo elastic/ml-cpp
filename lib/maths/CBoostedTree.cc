@@ -109,7 +109,7 @@ const std::string CMse::NAME{"mse"};
 
 std::size_t CBoostedTreeNode::leafIndex(const CEncodedDataFrameRowRef& row,
                                         const TNodeVec& tree,
-                                        size_t index) const {
+                                        std::size_t index) const {
     if (this->isLeaf()) {
         return index;
     }
@@ -249,7 +249,7 @@ std::ostringstream& CBoostedTreeNode::doPrint(std::string pad,
     return result;
 }
 
-void CBoostedTreeNode::accept(Visitor& visitor) const {
+void CBoostedTreeNode::accept(CVisitor& visitor) const {
     visitor.addNode(m_SplitFeature, m_SplitValue, m_AssignMissingToLeft,
                     m_NodeValue, m_Gain, m_LeftChild, m_RightChild);
 }
@@ -300,7 +300,7 @@ void CBoostedTree::acceptPersistInserter(core::CStatePersistInserter& inserter) 
     m_Impl->acceptPersistInserter(inserter);
 }
 
-void CBoostedTree::accept(CBoostedTree::Visitor& visitor) {
+void CBoostedTree::accept(CBoostedTree::CVisitor& visitor) const {
     m_Impl->accept(visitor);
 }
 }
