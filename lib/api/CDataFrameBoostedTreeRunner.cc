@@ -22,7 +22,7 @@
 #include <api/CInferenceModelDefinition.h>
 #include <api/ElasticsearchStateIndex.h>
 
-#include <api/CBoostedTreeRegressionInferenceModelFormatter.h>
+#include <api/CBoostedTreeRegressionInferenceModelBuilder.h>
 #include <core/CJsonStatePersistInserter.h>
 #include <rapidjson/document.h>
 

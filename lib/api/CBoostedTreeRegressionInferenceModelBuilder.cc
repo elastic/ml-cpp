@@ -1,4 +1,4 @@
-#include <api/CBoostedTreeRegressionInferenceModelFormatter.h>
+#include <api/CBoostedTreeRegressionInferenceModelBuilder.h>
 
 #include <core/CJsonStateRestoreTraverser.h>
 #include <core/LogMacros.h>

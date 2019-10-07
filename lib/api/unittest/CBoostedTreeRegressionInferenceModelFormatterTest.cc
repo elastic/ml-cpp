@@ -13,7 +13,7 @@
 
 #include <maths/CLinearAlgebraEigen.h>
 
-#include <api/CBoostedTreeRegressionInferenceModelFormatter.h>
+#include <api/CBoostedTreeRegressionInferenceModelBuilder.h>
 #include <api/CDataFrameAnalysisSpecification.h>
 #include <api/CDataFrameAnalysisSpecificationJsonWriter.h>
 #include <api/CDataFrameAnalyzer.h>

@@ -3,12 +3,13 @@
  * or more contributor license agreements. Licensed under the Elastic License;
  * you may not use this file except in compliance with the Elastic License.
  */
-#ifndef INCLUDED_ml_api_CInferenceModelFormatter_h
-#define INCLUDED_ml_api_CInferenceModelFormatter_h
+#ifndef INCLUDED_ml_api_CBoostedTreeRegressionInferenceModelBuilder_h
+#define INCLUDED_ml_api_CBoostedTreeRegressionInferenceModelBuilder_h
 
 #include <maths/CBoostedTree.h>
 
 #include <api/CInferenceModelDefinition.h>
+#include <api/ImportExport.h>
 
 #include <rapidjson/document.h>
 
@@ -17,7 +18,7 @@
 namespace ml {
 namespace api {
 
-class CBoostedTreeRegressionInferenceModelBuilder : public maths::CBoostedTree::Visitor {
+class API_EXPORT CBoostedTreeRegressionInferenceModelBuilder : public maths::CBoostedTree::Visitor {
 public:
     using TDoubleVec = std::vector<double>;
     using TStringVec = std::vector<std::string>;
@@ -66,16 +67,7 @@ private:
 private:
     std::map<std::string, double> encodingMap(std::size_t inputColumnIndex,
                                               const TDoubleVec& map_) {
-        //        std::vector<std::pair<std::string, double>> map;
-        //        map.reserve(map_.size());
-        //        for (std::size_t i = 0; i < map_.size(); ++i) {
-        //            map.emplace_back(m_CategoricalFieldValues[field][i], map_[i]);
-        //        }
-        //        std::sort(map.begin(), map.end());
-        //        return map;
-
         std::map<std::string, double> map;
-        //        map.reserve(map_.size());
         for (std::size_t categoryUInt = 0; categoryUInt < map_.size(); ++categoryUInt) {
             std::string category{m_ReverseCategoryNameMap[inputColumnIndex][categoryUInt]};
             map.emplace(category, map_[categoryUInt]);
@@ -109,4 +101,4 @@ private:
 }
 }
 
-#endif // INCLUDED_ml_api_CInferenceModelFormatter_h
+#endif // INCLUDED_ml_api_CBoostedTreeRegressionInferenceModelBuilder_h
