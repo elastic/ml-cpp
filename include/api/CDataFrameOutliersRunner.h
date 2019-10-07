@@ -57,7 +57,7 @@ private:
     std::size_t m_Method;
 
     //! If true then standardise the feature values.
-    bool m_StandardizeColumns = true;
+    bool m_StandardizationEnabled = true;
 
     //! Compute the significance of features responsible for each point being outlying.
     bool m_ComputeFeatureInfluence = true;
