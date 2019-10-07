@@ -192,12 +192,11 @@ CDataFrameAnalysisSpecification::makeDataFrame() {
     return result;
 }
 
-CDataFrameAnalysisSpecification::TRunnerSPtr
-CDataFrameAnalysisSpecification::run(const TStrVec& featureNames,
-                                     core::CDataFrame& frame) const {
-    if (m_Runner) {
+CDataFrameAnalysisRunner* CDataFrameAnalysisSpecification::run(const TStrVec& featureNames,
+                                                               core::CDataFrame& frame) const {
+    if (m_Runner != nullptr) {
         m_Runner->run(featureNames, frame);
-        return m_Runner;
+        return m_Runner.get();
     }
     return nullptr;
 }
@@ -261,6 +260,13 @@ CDataFrameAnalysisSpecification::noopRestoreSearcherSupplier() {
 
 const std::string& CDataFrameAnalysisSpecification::jobId() const {
     return m_JobId;
+}
+
+const CDataFrameAnalysisRunner* CDataFrameAnalysisSpecification::runner() {
+    if (m_Runner) {
+        return m_Runner.get();
+    }
+    return nullptr;
 }
 }
 }

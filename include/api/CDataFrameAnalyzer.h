@@ -39,7 +39,6 @@ public:
     using TJsonOutputStreamWrapperUPtrSupplier =
         std::function<TJsonOutputStreamWrapperUPtr()>;
     using TDataFrameAnalysisSpecificationUPtr = std::unique_ptr<CDataFrameAnalysisSpecification>;
-    using TDataFrameAnalysisRunnerSPtr = std::shared_ptr<CDataFrameAnalysisRunner>;
     using TTemporaryDirectoryPtr = std::shared_ptr<core::CTemporaryDirectory>;
 
 public:
@@ -70,8 +69,8 @@ public:
     //! Get the data frame asserting there is one.
     const core::CDataFrame& dataFrame() const;
 
-    //! Get the analysis runner.
-    const TDataFrameAnalysisRunnerSPtr& analysisRunner() const;
+    //! Get pointer to the analysis runner.
+    const CDataFrameAnalysisRunner* runner() const;
 
 private:
     using TDataFrameUPtr = std::unique_ptr<core::CDataFrame>;
@@ -90,9 +89,11 @@ private:
     bool handleControlMessage(const TStrVec& fieldValues);
     void captureFieldNames(const TStrVec& fieldNames);
     void addRowToDataFrame(const TStrVec& fieldValues);
-    void monitorProgress(core::CRapidJsonConcurrentLineWriter& writer) const;
+    void monitorProgress(const CDataFrameAnalysisRunner& analysis,
+                         core::CRapidJsonConcurrentLineWriter& writer) const;
     void writeProgress(int progress, core::CRapidJsonConcurrentLineWriter& writer) const;
-    void writeResultsOf(core::CRapidJsonConcurrentLineWriter& writer) const;
+    void writeResultsOf(const CDataFrameAnalysisRunner& analysis,
+                        core::CRapidJsonConcurrentLineWriter& writer) const;
 
 private:
     // This has values: -2 (unset), -1 (missing), >= 0 (control field index).
@@ -104,7 +105,6 @@ private:
     std::uint64_t m_BadValueCount = 0;
     std::uint64_t m_BadDocHashCount = 0;
     TDataFrameAnalysisSpecificationUPtr m_AnalysisSpecification;
-    TDataFrameAnalysisRunnerSPtr m_AnalysisRunner;
     TStrVec m_CategoricalFieldNames;
     TStrSizeUMapVec m_CategoricalFieldValues;
     TBoolVec m_EmptyAsMissing;

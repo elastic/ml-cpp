@@ -93,44 +93,6 @@ auto regressionSpec(std::string dependentVariable,
     return std::make_unique<api::CDataFrameAnalysisSpecification>(spec);
 }
 
-TDataFrameUPtr passDataToAnalyzer(const TStrVec& fieldNames,
-                                  TStrVec& fieldValues,
-                                  api::CDataFrameAnalyzer& analyzer,
-                                  const TDoubleVec& weights,
-                                  const TDoubleVec& values) {
-
-    auto f = [](const TDoubleVec& weights_, const TPoint& regressors) {
-        double result{0.0};
-        for (std::size_t i = 0; i < weights_.size(); ++i) {
-            result += weights_[i] * regressors(i);
-        }
-        return result;
-    };
-
-    TPointVec rows;
-
-    for (std::size_t i = 0; i < values.size(); i += weights.size()) {
-        TPoint row{weights.size() + 1};
-        for (std::size_t j = 0; j < weights.size(); ++j) {
-            row(j) = values[i + j];
-        }
-        row(weights.size()) = f(weights, row);
-
-        for (int j = 0; j < row.size(); ++j) {
-            fieldValues[j] = core::CStringUtils::typeToStringPrecise(
-                row(j), core::CIEEE754::E_DoublePrecision);
-            double xj;
-            core::CStringUtils::stringToType(fieldValues[j], xj);
-            row(j) = xj;
-        }
-        analyzer.handleRecord(fieldNames, fieldValues);
-
-        rows.push_back(std::move(row));
-    }
-
-    return test::CDataFrameTestUtils::toMainMemoryDataFrame(rows);
-}
-
 auto generateCategoricalData(test::CRandomNumbers& rng, std::size_t rows, TDoubleVec expectedFrequencies) {
 
     TDoubleVecVec frequencies;
@@ -199,7 +161,7 @@ void CBoostedTreeRegressionInferenceModelBuilderTest::testIntegration() {
         analyzer.handleRecord(fieldNames, fieldValues);
     }
     analyzer.handleRecord(fieldNames, {"", "", "", "", "$"});
-    const auto& analysisRunner = analyzer.analysisRunner();
+    auto analysisRunner = analyzer.runner();
     TStrSizeUMapVec categoryMappingVector{{}, {{"cat1", 0}, {"cat2", 1}, {"cat3", 2}}, {}};
     auto definition = analysisRunner->inferenceModelDefinition(fieldNames, categoryMappingVector);
     // assert input

@@ -166,9 +166,9 @@ void CDataFrameAnalyzer::run() {
 
     LOG_TRACE(<< "Running analysis...");
 
-    m_AnalysisRunner = m_AnalysisSpecification->run(m_FieldNames, *m_DataFrame);
+    CDataFrameAnalysisRunner* analysis{m_AnalysisSpecification->run(m_FieldNames, *m_DataFrame)};
 
-    if (m_AnalysisRunner.get() == nullptr) {
+    if (analysis == nullptr) {
         return;
     }
 
@@ -179,9 +179,9 @@ void CDataFrameAnalyzer::run() {
     auto outStream = m_ResultsStreamSupplier();
     core::CRapidJsonConcurrentLineWriter outputWriter{*outStream};
 
-    this->monitorProgress(outputWriter);
-    m_AnalysisRunner->waitToFinish();
-    this->writeResultsOf(outputWriter);
+    this->monitorProgress(*analysis, outputWriter);
+    analysis->waitToFinish();
+    this->writeResultsOf(*analysis, outputWriter);
 }
 
 const CDataFrameAnalyzer::TTemporaryDirectoryPtr& CDataFrameAnalyzer::dataFrameDirectory() const {
@@ -377,13 +377,13 @@ void CDataFrameAnalyzer::addRowToDataFrame(const TStrVec& fieldValues) {
     });
 }
 
-void CDataFrameAnalyzer::monitorProgress(core::CRapidJsonConcurrentLineWriter& writer) const {
+void CDataFrameAnalyzer::monitorProgress(const CDataFrameAnalysisRunner& analysis,
+                                         core::CRapidJsonConcurrentLineWriter& writer) const {
     // Progress as percentage
     int progress{0};
-    while (m_AnalysisRunner->finished() == false) {
+    while (analysis.finished() == false) {
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
-        int latestProgress{
-            static_cast<int>(std::floor(100.0 * m_AnalysisRunner->progress()))};
+        int latestProgress{static_cast<int>(std::floor(100.0 * analysis.progress()))};
         if (latestProgress > progress) {
             progress = latestProgress;
             this->writeProgress(progress, writer);
@@ -401,7 +401,8 @@ void CDataFrameAnalyzer::writeProgress(int progress,
     writer.flush();
 }
 
-void CDataFrameAnalyzer::writeResultsOf(core::CRapidJsonConcurrentLineWriter& writer) const {
+void CDataFrameAnalyzer::writeResultsOf(const CDataFrameAnalysisRunner& analysis,
+                                        core::CRapidJsonConcurrentLineWriter& writer) const {
     // We write results single threaded because we need to write the rows to
     // Java in the order they were written to the data_frame_analyzer so it
     // can join the extra columns with the original data frame.
@@ -424,7 +425,7 @@ void CDataFrameAnalyzer::writeResultsOf(core::CRapidJsonConcurrentLineWriter& wr
 
             writer.StartObject();
             writer.Key(m_AnalysisSpecification->resultsField());
-            m_AnalysisRunner->writeOneRow(m_FieldNames, categoricalFieldValues, *row, writer);
+            analysis.writeOneRow(m_FieldNames, categoricalFieldValues, *row, writer);
             writer.EndObject();
 
             writer.EndObject();
@@ -433,7 +434,7 @@ void CDataFrameAnalyzer::writeResultsOf(core::CRapidJsonConcurrentLineWriter& wr
     });
 
     // Write the resulting model for inference
-    const auto& modelDefinition = m_AnalysisRunner->inferenceModelDefinition(
+    const auto& modelDefinition = m_AnalysisSpecification->runner()->inferenceModelDefinition(
         m_FieldNames, m_CategoricalFieldValues);
     if (modelDefinition) {
         rapidjson::Document doc = writer.makeDoc();
@@ -450,9 +451,8 @@ void CDataFrameAnalyzer::writeResultsOf(core::CRapidJsonConcurrentLineWriter& wr
 const std::size_t CDataFrameAnalyzer::MAX_CATEGORICAL_CARDINALITY{
     1 << (std::numeric_limits<float>::digits)};
 
-const CDataFrameAnalyzer::TDataFrameAnalysisRunnerSPtr&
-CDataFrameAnalyzer::analysisRunner() const {
-    return m_AnalysisRunner;
+const CDataFrameAnalysisRunner* CDataFrameAnalyzer::runner() const {
+    return m_AnalysisSpecification->runner();
 }
 }
 }
