@@ -12,10 +12,10 @@
 #include <core/CStateRestoreTraverser.h>
 
 #include <maths/CBasicStatistics.h>
+#include <maths/CDataFrameCategoryEncoder.h>
 #include <maths/CDataFrameRegressionModel.h>
 #include <maths/ImportExport.h>
 
-#include "CDataFrameCategoryEncoder.h"
 #include <cstddef>
 #include <memory>
 

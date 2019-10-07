@@ -292,7 +292,6 @@ CDataFrameBoostedTreeRunner::inferenceModelDefinition(const TStrVec& fieldNames,
         m_BoostedTree->acceptPersistInserter(inserter);
         strm.flush();
     }
-    LOG_DEBUG(<< "serializeRunner: " << strm.str());
 
     CBoostedTreeRegressionInferenceModelBuilder builder(fieldNames, categoryNameMap);
     m_BoostedTree->accept(builder);

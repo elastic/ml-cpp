@@ -7,7 +7,6 @@
 #define INCLUDED_ml_api_CInferenceModelDefinition_h
 
 #include <core/CRapidJsonLineWriter.h>
-#include <core/CStateRestoreTraverser.h>
 
 #include <maths/CDataFrameCategoryEncoder.h>
 

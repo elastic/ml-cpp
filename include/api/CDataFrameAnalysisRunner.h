@@ -15,7 +15,6 @@
 
 #include <rapidjson/fwd.h>
 
-#include "CInferenceModelDefinition.h"
 #include <atomic>
 #include <cstddef>
 #include <functional>

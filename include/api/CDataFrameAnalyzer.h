@@ -11,8 +11,6 @@
 
 #include <core/CRapidJsonConcurrentLineWriter.h>
 
-#include <boost/unordered_map.hpp>
-
 #include <cinttypes>
 #include <functional>
 #include <memory>
