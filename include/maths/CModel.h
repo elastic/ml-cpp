@@ -74,12 +74,6 @@ public:
     //! Get the maximum time to test for a change point in the model.
     core_t::TTime maximumTimeToTestForChange() const;
 
-    //! Set the probability that the bucket will be empty for the model.
-    void probabilityBucketEmpty(double probability);
-
-    //! Get the probability that the bucket will be empty for the model.
-    double probabilityBucketEmpty() const;
-
 private:
     //! The data bucketing length.
     core_t::TTime m_BucketLength;
@@ -93,8 +87,6 @@ private:
     core_t::TTime m_MinimumTimeToDetectChange;
     //! The maximum time permitted to test for a change in the model.
     core_t::TTime m_MaximumTimeToTestForChange;
-    //! The probability that a bucket will be empty for the model.
-    double m_ProbabilityBucketEmpty;
 };
 
 //! \brief The extra parameters needed by CModel::addSamples.
@@ -169,13 +161,6 @@ public:
     //! Get the confidence interval to use when detrending.
     double seasonalConfidenceInterval() const;
 
-    //! Add whether a value's bucket is empty.
-    CModelProbabilityParams& addBucketEmpty(const TBool2Vec& empty);
-    //! Set whether or not the values' bucket is empty.
-    CModelProbabilityParams& bucketEmpty(const TBool2Vec1Vec& empty);
-    //! Get whether the values' bucket is empty.
-    const TBool2Vec1Vec& bucketEmpty() const;
-
     //! Add a value's weights.
     CModelProbabilityParams& addWeights(const TDouble2VecWeightsAry& weights);
     //! Set the values' weights.
@@ -215,8 +200,6 @@ private:
     TProbabilityCalculation2Vec m_Calculations;
     //! The confidence interval to use when detrending.
     double m_SeasonalConfidenceInterval;
-    //! True if the bucket is empty and false otherwise.
-    TBool2Vec1Vec m_BucketEmpty;
     //! The sample weights.
     TDouble2VecWeightsAry1Vec m_Weights;
     //! The coordinates for which to compute the probability.
@@ -468,16 +451,6 @@ protected:
     template<typename PRIOR, typename VECTOR>
     static boost::optional<VECTOR>
     predictionError(double propagationInterval, const PRIOR& prior, const VECTOR& sample);
-
-    //! Correct \p probability with \p probabilityEmptyBucket.
-    static double jointProbabilityGivenBucket(bool bucketEmpty,
-                                              double probabilityBucketEmpty,
-                                              double probability);
-
-    //! Correct \p probability with \p probabilityEmptyBucket.
-    static double jointProbabilityGivenBucket(const TBool2Vec& bucketEmpty,
-                                              const TDouble2Vec& probabilityEmptyBucket,
-                                              double probability);
 
 private:
     //! The model parameters.

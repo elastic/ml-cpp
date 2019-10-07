@@ -44,8 +44,7 @@ CModelParams::CModelParams(core_t::TTime bucketLength,
     : m_BucketLength(bucketLength), m_LearnRate(learnRate), m_DecayRate(decayRate),
       m_MinimumSeasonalVarianceScale(minimumSeasonalVarianceScale),
       m_MinimumTimeToDetectChange(std::max(minimumTimeToDetectChange, 6 * bucketLength)),
-      m_MaximumTimeToTestForChange(std::max(maximumTimeToTestForChange, 12 * bucketLength)),
-      m_ProbabilityBucketEmpty(0.0) {
+      m_MaximumTimeToTestForChange(std::max(maximumTimeToTestForChange, 12 * bucketLength)) {
 }
 
 core_t::TTime CModelParams::bucketLength() const {
@@ -78,14 +77,6 @@ core_t::TTime CModelParams::minimumTimeToDetectChange() const {
 
 core_t::TTime CModelParams::maximumTimeToTestForChange() const {
     return m_MaximumTimeToTestForChange;
-}
-
-void CModelParams::probabilityBucketEmpty(double probability) {
-    m_ProbabilityBucketEmpty = probability;
-}
-
-double CModelParams::probabilityBucketEmpty() const {
-    return m_ProbabilityBucketEmpty;
 }
 
 //////// CModelAddSamplesParams ////////
@@ -166,20 +157,6 @@ CModelProbabilityParams& CModelProbabilityParams::seasonalConfidenceInterval(dou
 
 double CModelProbabilityParams::seasonalConfidenceInterval() const {
     return m_SeasonalConfidenceInterval;
-}
-
-CModelProbabilityParams& CModelProbabilityParams::addBucketEmpty(const TBool2Vec& empty) {
-    m_BucketEmpty.push_back(empty);
-    return *this;
-}
-
-CModelProbabilityParams& CModelProbabilityParams::bucketEmpty(const TBool2Vec1Vec& empty) {
-    m_BucketEmpty = empty;
-    return *this;
-}
-
-const CModelProbabilityParams::TBool2Vec1Vec& CModelProbabilityParams::bucketEmpty() const {
-    return m_BucketEmpty;
 }
 
 CModelProbabilityParams&
@@ -286,35 +263,6 @@ const CModelParams& CModel::params() const {
 
 CModelParams& CModel::params() {
     return m_Params;
-}
-
-double CModel::jointProbabilityGivenBucket(bool empty, double probabilityBucketEmpty, double probability) {
-    if (empty == false) {
-        return (1.0 - probabilityBucketEmpty) * probability;
-    }
-    return probabilityBucketEmpty + (1.0 - probabilityBucketEmpty) * probability;
-}
-
-double CModel::jointProbabilityGivenBucket(const TBool2Vec& empty,
-                                           const TDouble2Vec& probabilityEmptyBucket,
-                                           double probability) {
-
-    double p00{probabilityEmptyBucket[0]};
-    double p10{probabilityEmptyBucket[1]};
-
-    if (empty[0] == false && empty[1] == false) {
-        return (1.0 - p00) * (1.0 - p10) * probability;
-    }
-
-    if (empty[0] == false) {
-        return (1.0 - p00) * probability * (p10 + (1.0 - p10) * probability);
-    }
-
-    if (empty[1] == false) {
-        return (p00 + (1.0 - p00) * probability) * (1.0 - p10) * probability;
-    }
-
-    return (p00 + (1.0 - p00) * probability) * (p10 + (1.0 - p10) * probability);
 }
 
 //////// CModelStub ////////

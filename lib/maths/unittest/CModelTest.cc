@@ -32,9 +32,6 @@ void CModelTest::testAll() {
         CPPUNIT_ASSERT_EQUAL(decayRate, params.decayRate());
         CPPUNIT_ASSERT_EQUAL(minimumSeasonalVarianceScale,
                              params.minimumSeasonalVarianceScale());
-        CPPUNIT_ASSERT_EQUAL(0.0, params.probabilityBucketEmpty());
-        params.probabilityBucketEmpty(0.2);
-        CPPUNIT_ASSERT_EQUAL(0.2, params.probabilityBucketEmpty());
         CPPUNIT_ASSERT_EQUAL(6 * core::constants::HOUR, params.minimumTimeToDetectChange());
         CPPUNIT_ASSERT_EQUAL(core::constants::DAY, params.maximumTimeToTestForChange());
     }
