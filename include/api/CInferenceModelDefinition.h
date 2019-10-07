@@ -38,14 +38,6 @@ public:
     virtual void addToDocument(rapidjson::Value& parentObject, TRapidJsonWriter& writer) = 0;
 };
 
-//! \brief Abstract class for all elements that initialize their member variables
-//! from JSON string of the AnalysisRunner.
-class API_EXPORT CDeserializableFromJson {
-public:
-    //! Initialize member variable using \p traverser.
-    virtual bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) = 0;
-};
-
 //! Abstract class for output aggregation.
 class API_EXPORT CAggregateOutput : public CSerializableToJson {
 public:
@@ -119,7 +111,6 @@ public:
                   const TOptionalSize& rightChild,
                   const TOptionalDouble& splitGain);
 
-        bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
         void addToDocument(rapidjson::Value& parentObject, TRapidJsonWriter& writer) override;
 
     private:
@@ -136,7 +127,6 @@ public:
     using TTreeNodeVec = std::vector<CTreeNode>;
 
 public:
-    bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) override;
     void addToDocument(rapidjson::Value& parentObject, TRapidJsonWriter& writer) override;
     //! Total number of tree nodes.
     std::size_t size() const;
@@ -155,7 +145,6 @@ public:
     using TTreeVec = std::vector<CTree>;
 
 public:
-    bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) override;
     void addToDocument(rapidjson::Value& parentObject, TRapidJsonWriter& writer) override;
     //! Aggregation mechanism for the output from individual models.
     void aggregateOutput(TAggregateOutputUPtr&& aggregateOutput);

@@ -77,33 +77,6 @@ void addJsonArray(const std::string& tag,
 }
 }
 
-bool CTree::CTreeNode::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
-    try {
-        do {
-            const std::string& name = traverser.name();
-            RESTORE(SPLIT_FEATURE_TAG,
-                    core::CPersistUtils::restore(SPLIT_FEATURE_TAG, m_SplitFeature, traverser))
-            RESTORE(DEFAULT_LEFT_TAG,
-                    core::CPersistUtils::restore(DEFAULT_LEFT_TAG, m_DefaultLeft, traverser))
-            RESTORE(NODE_VALUE_TAG,
-                    core::CPersistUtils::restore(NODE_VALUE_TAG, m_LeafValue, traverser))
-            RESTORE(SPLIT_INDEX_TAG,
-                    core::CPersistUtils::restore(SPLIT_INDEX_TAG, m_NodeIndex, traverser))
-            RESTORE(SPLIT_VALUE_TAG,
-                    core::CPersistUtils::restore(SPLIT_VALUE_TAG, m_Threshold, traverser))
-            RESTORE(LEFT_CHILD_TAG,
-                    core::CPersistUtils::restore(LEFT_CHILD_TAG, m_LeftChild, traverser))
-            RESTORE(RIGHT_CHILD_TAG,
-                    core::CPersistUtils::restore(RIGHT_CHILD_TAG, m_RightChild, traverser))
-            // TODO split_gain is missing
-
-        } while (traverser.next());
-    } catch (std::exception& e) {
-        LOG_ERROR(<< "Failed to restore state! " << e.what());
-        return false;
-    }
-    return true;
-}
 
 void CTree::CTreeNode::addToDocument(rapidjson::Value& parentObject, TRapidJsonWriter& writer) {
     writer.addMember(JSON_NODE_INDEX_TAG, rapidjson::Value(m_NodeIndex).Move(), parentObject);
@@ -148,22 +121,6 @@ CTree::CTreeNode::CTreeNode(size_t nodeIndex,
       m_LeftChild(leftChild), m_RightChild(rightChild), m_SplitGain(splitGain) {
 }
 
-bool CEnsemble::acceptRestoreTraverser(ml::core::CStateRestoreTraverser& traverser) {
-    auto restoreTree = [this](ml::core::CStateRestoreTraverser& traverser) -> bool {
-        CTree tree;
-        if (traverser.traverseSubLevel(std::bind(&CTree::acceptRestoreTraverser, &tree,
-                                                 std::placeholders::_1)) == true) {
-            m_TrainedModels.push_back(tree);
-            return true;
-        }
-        return false;
-    };
-    do {
-        const std::string& name = traverser.name();
-        RESTORE(TREE_TAG, restoreTree(traverser))
-    } while (traverser.next());
-    return true;
-}
 
 void CEnsemble::addToDocument(rapidjson::Value& parentObject, TRapidJsonWriter& writer) {
     CTrainedModel::addToDocument(parentObject, writer);
@@ -212,23 +169,6 @@ void CEnsemble::targetType(CTrainedModel::ETargetType targetType) {
 
 CTrainedModel::ETargetType CEnsemble::targetType() const {
     return this->CTrainedModel::targetType();
-}
-
-bool CTree::acceptRestoreTraverser(ml::core::CStateRestoreTraverser& traverser) {
-    //    auto restoreTreeNode = [this](ml::core::CStateRestoreTraverser& traverser) -> bool {
-    //        CTreeNode treeNode;
-    //        if (traverser.traverseSubLevel(std::bind(&CTreeNode::acceptRestoreTraverser, &treeNode,
-    //                                                 std::placeholders::_1)) == true) {
-    //            m_TreeStructure.push_back(treeNode);
-    //            return true;
-    //        }
-    //        return false;
-    //    };
-    //    do {
-    //        const std::string& name = traverser.name();
-    //        RESTORE(TREE_NODE_TAG, restoreTreeNode(traverser))
-    //    } while (traverser.next());
-    return true;
 }
 
 void CTree::addToDocument(rapidjson::Value& parentObject, TRapidJsonWriter& writer) {
