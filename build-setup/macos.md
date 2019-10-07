@@ -101,28 +101,3 @@ sudo ./b2 install --layout=versioned --disable-icu cxxflags="-std=c++14 -stdlib=
 
 to install the Boost headers and libraries.
 
-### cppunit
-
-Download the latest version of cppunit from <http://dev-www.libreoffice.org/src/cppunit-1.13.2.tar.gz> (or if that no longer exists by the time you read this, find the relevant link on <http://dev-www.libreoffice.org/src>).
-
-Assuming you get `cppunit-1.13.2.tar.bz2`, extract it using the commands:
-
-```
-bzip2 -cd cppunit-1.13.2.tar.bz2 | tar xvf -
-```
-
-In the resulting `cppunit-1.13.2` directory, run the:
-
-```
-./configure
-```
-
-script. This should build an appropriate Makefile. Assuming it does, type:
-
-```
-make
-sudo make install
-```
-
-to install the cppunit headers, libraries, binaries and documentation.
-

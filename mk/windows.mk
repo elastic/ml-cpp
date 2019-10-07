@@ -45,7 +45,7 @@ CFLAGS=-nologo $(OPTCFLAGS) -W4 $(CRT_OPT) -EHsc -Zi -Gw -FS -Zc:inline -diagnos
 CXXFLAGS=-TP $(CFLAGS) -Zc:rvalueCast -Zc:strictStrings -wd4127 -we4150 -wd4201 -wd4231 -wd4251 -wd4355 -wd4512 -wd4702 -bigobj
 ANALYZEFLAGS=-nologo -analyze:only -analyze:stacksize100000 $(CRT_OPT)
 
-CPPFLAGS=-X -I$(CPP_SRC_HOME)/3rd_party/include -I$(LOCAL_DRIVE):/usr/local/include $(VCINCLUDES) $(WINSDKINCLUDES) -D$(OS) -D_CRT_SECURE_NO_WARNINGS -D_CRT_NONSTDC_NO_DEPRECATE -DWIN32_LEAN_AND_MEAN -DNTDDI_VERSION=0x06010000 -D_WIN32_WINNT=0x0601 -DCPPUNIT_DLL -DBUILDING_$(basename $(notdir $(TARGET))) $(OPTCPPFLAGS)
+CPPFLAGS=-X -I$(CPP_SRC_HOME)/3rd_party/include -I$(LOCAL_DRIVE):/usr/local/include $(VCINCLUDES) $(WINSDKINCLUDES) -D$(OS) -D_CRT_SECURE_NO_WARNINGS -D_CRT_NONSTDC_NO_DEPRECATE -DWIN32_LEAN_AND_MEAN -DNTDDI_VERSION=0x06010000 -D_WIN32_WINNT=0x0601 -DBUILDING_$(basename $(notdir $(TARGET))) $(OPTCPPFLAGS)
 # -MD defines _DLL and _MT - for dependency determination we must define these
 # otherwise the Boost headers will throw errors during preprocessing
 ifeq ($(CRT_OPT),-MD)
@@ -88,6 +88,7 @@ BOOSTPROGRAMOPTIONSLIBS=boost_program_options-vc$(BOOSTVCVER)-mt-x64-$(BOOSTVER)
 BOOSTTHREADLIBS=boost_thread-vc$(BOOSTVCVER)-mt-x64-$(BOOSTVER).lib boost_chrono-vc$(BOOSTVCVER)-mt-x64-$(BOOSTVER).lib boost_system-vc$(BOOSTVCVER)-mt-x64-$(BOOSTVER).lib
 BOOSTFILESYSTEMLIBS=boost_filesystem-vc$(BOOSTVCVER)-mt-x64-$(BOOSTVER).lib boost_system-vc$(BOOSTVCVER)-mt-x64-$(BOOSTVER).lib
 BOOSTDATETIMELIBS=boost_date_time-vc$(BOOSTVCVER)-mt-x64-$(BOOSTVER).lib
+BOOSTTESTLIBS=boost_unit_test_framework-vc$(BOOSTVCVER)-mt-x64-$(BOOSTVER).lib
 RAPIDJSONINCLUDES=-I$(CPP_SRC_HOME)/3rd_party/rapidjson/include
 RAPIDJSONCPPFLAGS=-DRAPIDJSON_HAS_STDSTRING -DRAPIDJSON_SSE42
 # Eigen automatically uses SSE and SSE2 on 64 bit Windows - only the higher
@@ -97,7 +98,6 @@ XMLINCLUDES=-I$(LOCAL_DRIVE):/usr/local/include/libxml2
 XMLLIBLDFLAGS=-LIBPATH:$(LOCAL_DRIVE):/usr/local/lib
 XMLLIBS=libxml2.lib
 DYNAMICLIBLDFLAGS=-nologo -Zi $(CRT_OPT) -LD -link -MAP -OPT:REF -INCREMENTAL:NO -LIBPATH:$(CPP_PLATFORM_HOME)/$(IMPORT_LIB_DIR)
-CPPUNITLIBS=cppunit_dll.lib
 ZLIBLIBS=zdll.lib
 STRPTIMELIBS=strptime.lib
 EXELDFLAGS=-nologo -Zi $(CRT_OPT) -link -MAP -OPT:REF -SUBSYSTEM:CONSOLE,6.1 -STACK:0x800000 -INCREMENTAL:NO -LIBPATH:$(CPP_PLATFORM_HOME)/$(IMPORT_LIB_DIR)

@@ -10,7 +10,7 @@ include $(CPP_SRC_HOME)/mk/stdtest.mk
 # We keep the dependancies in here to a minimum so we can test
 # libraries in isolation. Otherwise All libraries would be needed before
 # we could test any.
-REQUIRED_LIBS=$(LIB_ML_TEST) $(LIB_ML_CORE) $(LIB_ML_VER) $(CPPUNITLIBS)
+REQUIRED_LIBS=$(LIB_ML_TEST) $(LIB_ML_CORE) $(LIB_ML_VER)
 
 LIBS:=$(LOCALLIBS) $(filter-out $(REQUIRED_LIBS), $(LIBS)) $(REQUIRED_LIBS)
 
@@ -24,7 +24,7 @@ $(TARGET): $(OBJS) $(RESOURCE_FILE)
 build: $(TARGET)
 
 clean:
-	$(RM) $(OBJS_DIR)/*$(OBJECT_FILE_EXT) $(OBJS_DIR)/*.d* $(OBJS_DIR)/*.plist $(OBJS_DIR)/*.xml $(OBJS_DIR)/*.res $(APP_CLEAN) core core.* $(TARGET) $(basename $(TARGET)).pdb $(basename $(TARGET)).map $(basename $(TARGET)).exp cppunit_results.xml
+	$(RM) $(OBJS_DIR)/*$(OBJECT_FILE_EXT) $(OBJS_DIR)/*.d* $(OBJS_DIR)/*.plist $(OBJS_DIR)/*.xml $(OBJS_DIR)/*.res $(APP_CLEAN) core core.* $(TARGET) $(basename $(TARGET)).pdb $(basename $(TARGET)).map $(basename $(TARGET)).exp junit_results.xml cppunit_results.xml
 	$(RMDIR) results
 	$(RMDIR) data
 
@@ -36,3 +36,7 @@ objcompile: $(OBJS)
 
 analyze: $(ANALYZEOBJS)
 
+test:$(TARGET)
+	$(PRE_TEST_CMDS)
+	$(TEST_CMDS)
+	$(POST_TEST_CMDS)

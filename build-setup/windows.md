@@ -99,32 +99,6 @@ nmake -f win32/Makefile.msc test
 
 All the build output will end up in the top level `C:\tools\zlib-1.2.11` directory. Once the build is complete, copy `zlib1.dll` and `minigzip.exe` to `C:\usr\local\bin`. Copy `zlib.lib` and `zdll.lib` to `C:\usr\local\lib`. And copy `zlib.h` and `zconf.h` to `C:\usr\local\include`.
 
-### cppunit
-
-Download the latest version of cppunit from <http://dev-www.libreoffice.org/src/cppunit-1.13.2.tar.gz> (or if that no longer exists by the time you read this, find the relevant link on <http://dev-www.libreoffice.org/src>).
-
-The file will be something along the lines of `cppunit-1.13.2.tar.bz2`. Extract it in a Git bash shell using the GNU tar that comes with Git for Windows, e.g.:
-
-```
-cd /c/tools
-tar jxvf /z/cpp_src/cppunit-1.13.2.tar.bz2
-```
-
-Double click `C:\tools\cppunit-1.13.2\src\CppUnitLibraries2010.sln`. Visual Studio 2017 should load. Skip the offer to install ATL and MFC (as we don't care about the test program, which is the only thing that requires them).
-
-Right click on the "Solution 'CppUnitLibraries2010' (3 projects)" on the right hand side of the screen and choose "Retarget solution...".  Accept the defaults in the resulting dialog box and click "OK".
-
-Select "Release" in the "Solution Configurations" dropdown and "x64" in the "Solution Platforms" dropdown. Then press Ctrl + Shift + B to build. The IDE will attempt to build all five projects - some of them will fail to build, but that doesn't matter as the two important ones are the static and dynamic cppunit libraries.
-
-Once the builds have completed, go to `C:\tools\cppunit-1.13.2\src\cppunit\ReleaseDll` in Windows Explorer, and copy `cppunit_dll.dll` and `cppunit_dll.lib` to `C:\usr\local\lib`. Then go to `C:\tools\cppunit-1.13.2\src\cppunit\Release` and copy `cppunit.lib` to `C:\usr\local\lib`.
-
-Finally, the easiest way to copy all the headers whilst excluding other non-headers in the same directories is using a Git bash shell:
-
-```
-cd /c/tools/cppunit-1.13.2/include
-tar cf - `find cppunit -name '*.h'` | (cd /c/usr/local/include && tar xvf -)
-```
-
 ### libxml2
 
 Download `libxml2-2.9.4.tar.bz2` from <ftp://xmlsoft.org/libxml2/> .

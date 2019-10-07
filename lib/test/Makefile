@@ -8,7 +8,7 @@ include $(CPP_SRC_HOME)/mk/defines.mk
 USE_XML=1
 USE_BOOST=1
 USE_BOOST_FILESYSTEM_LIBS=1
-USE_CPPUNIT=1
+USE_BOOST_TEST_LIBS=1
 USE_EIGEN=1
 
 LIBS:=$(LIB_ML_CORE) $(LIB_ML_MATHS)
@@ -19,13 +19,11 @@ PLATFORM_SRCS= \
 
 SRCS= \
     $(OS_SRCS) \
+    CBoostTestJUnitOutput.cc \
     CMultiFileDataAdder.cc \
     CMultiFileSearcher.cc \
     CRandomNumbers.cc \
-    CTestRunner.cc \
-    CTestTimer.cc \
     CTimeSeriesTestData.cc \
-    CTimingXmlOutputterHook.cc \
 
 TARGET=$(OBJS_DIR)/libMlTest$(DYNAMIC_LIB_EXT)
 

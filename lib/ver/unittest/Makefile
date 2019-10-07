@@ -8,6 +8,7 @@ include $(CPP_SRC_HOME)/mk/defines.mk
 TARGET=ml_test$(EXE_EXT)
 
 USE_BOOST=1
+USE_BOOST_TEST_LIBS=1
 
 all: build
 
@@ -15,5 +16,5 @@ SRCS=\
 	Main.cc \
 	CBuildInfoTest.cc \
 
-include $(CPP_SRC_HOME)/mk/stdcppunit.mk
+include $(CPP_SRC_HOME)/mk/stdboosttest.mk
 
