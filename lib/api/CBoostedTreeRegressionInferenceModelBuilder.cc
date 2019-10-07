@@ -28,7 +28,7 @@ void ml::api::CBoostedTreeRegressionInferenceModelBuilder::addTree() {
 
 void ml::api::CBoostedTreeRegressionInferenceModelBuilder::addOneHotEncoding(std::size_t inputColumnIndex,
                                                                              std::size_t hotCategory) {
-    std::string fieldName{m_Definition.input().columns()[inputColumnIndex]};
+    std::string fieldName{m_Definition.input().fieldNames()[inputColumnIndex]};
     std::string category = m_ReverseCategoryNameMap[inputColumnIndex][hotCategory];
     std::string encodedFieldName = fieldName + "_" + category;
     if (m_OneHotEncodingMaps.find(fieldName) == m_OneHotEncodingMaps.end()) {
@@ -43,7 +43,7 @@ void ml::api::CBoostedTreeRegressionInferenceModelBuilder::addTargetMeanEncoding
     std::size_t inputColumnIndex,
     const TDoubleVec& map,
     double fallback) {
-    std::string fieldName{m_Definition.input().columns()[inputColumnIndex]};
+    std::string fieldName{m_Definition.input().fieldNames()[inputColumnIndex]};
     std::string featureName{fieldName + "_targetmean"};
     auto stringMap = this->encodingMap(inputColumnIndex, map);
     m_Definition.preprocessors().push_back(std::make_unique<CTargetMeanEncoding>(
@@ -53,7 +53,7 @@ void ml::api::CBoostedTreeRegressionInferenceModelBuilder::addTargetMeanEncoding
 void ml::api::CBoostedTreeRegressionInferenceModelBuilder::addFrequencyEncoding(
     std::size_t inputColumnIndex,
     const TDoubleVec& map) {
-    std::string fieldName{m_Definition.input().columns()[inputColumnIndex]};
+    std::string fieldName{m_Definition.input().fieldNames()[inputColumnIndex]};
     std::string featureName{fieldName + "_frequency"};
     auto stringMap = this->encodingMap(inputColumnIndex, map);
     m_Definition.preprocessors().push_back(std::make_unique<CFrequencyEncoding>(
@@ -74,6 +74,8 @@ ml::api::CBoostedTreeRegressionInferenceModelBuilder::build() {
     ensemble->aggregateOutput(std::make_unique<CWeightedSum>(ensemble->size(), 1.0));
 
     ensemble->targetType(CTrainedModel::E_Regression);
+    // TODO change to the correct feature names
+    ensemble->featureNames(m_Definition.input().fieldNames());
 
     return std::move(m_Definition);
 }
