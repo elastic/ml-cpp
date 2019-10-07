@@ -4,7 +4,7 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
-#include "CBoostedTreeRegressionInferenceModelFormatterTest.h"
+#include "CBoostedTreeRegressionInferenceModelBuilderTest.h"
 
 #include <core/CDataAdder.h>
 #include <core/CDataFrame.h>
@@ -152,21 +152,21 @@ auto generateCategoricalData(test::CRandomNumbers& rng, std::size_t rows, TDoubl
 }
 }
 
-CppUnit::Test* CBoostedTreeRegressionInferenceModelFormatterTest::suite() {
+CppUnit::Test* CBoostedTreeRegressionInferenceModelBuilderTest::suite() {
     CppUnit::TestSuite* suiteOfTests =
-        new CppUnit::TestSuite("CBoostedTreeRegressionInferenceModelFormatterTest");
+        new CppUnit::TestSuite("CBoostedTreeRegressionInferenceModelBuilderTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CBoostedTreeRegressionInferenceModelFormatterTest>(
-        "CBoostedTreeRegressionInferenceModelFormatterTest::testIntegration",
-        &CBoostedTreeRegressionInferenceModelFormatterTest::testIntegration));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CBoostedTreeRegressionInferenceModelFormatterTest>(
-        "CBoostedTreeRegressionInferenceModelFormatterTest::testDefinitionGeneration",
-        &CBoostedTreeRegressionInferenceModelFormatterTest::testDefinitionGeneration));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CBoostedTreeRegressionInferenceModelBuilderTest>(
+        "CBoostedTreeRegressionInferenceModelBuilderTest::testIntegration",
+        &CBoostedTreeRegressionInferenceModelBuilderTest::testIntegration));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CBoostedTreeRegressionInferenceModelBuilderTest>(
+        "CBoostedTreeRegressionInferenceModelBuilderTest::testDefinitionGeneration",
+        &CBoostedTreeRegressionInferenceModelBuilderTest::testDefinitionGeneration));
 
     return suiteOfTests;
 }
 
-void CBoostedTreeRegressionInferenceModelFormatterTest::testDefinitionGeneration() {
+void CBoostedTreeRegressionInferenceModelBuilderTest::testDefinitionGeneration() {
     //    std::string inputFileName("testfiles/regression_runner_with_categories.json");
     //    std::string str;
     //    TStrVec fieldNames{"numeric_col", "categorical_col", "target_col"};
@@ -227,7 +227,7 @@ void CBoostedTreeRegressionInferenceModelFormatterTest::testDefinitionGeneration
     //    // TODO feature names test is missing
 }
 
-void CBoostedTreeRegressionInferenceModelFormatterTest::testIntegration() {
+void CBoostedTreeRegressionInferenceModelBuilderTest::testIntegration() {
     std::size_t numberExamples = 1000;
     std::size_t cols = 3;
     test::CRandomNumbers rng;

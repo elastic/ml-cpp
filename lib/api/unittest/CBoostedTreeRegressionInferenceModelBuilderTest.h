@@ -4,12 +4,12 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
-#ifndef INCLUDED_CBoostedTreeRegressionInferenceModelFormatterTest_h
-#define INCLUDED_CBoostedTreeRegressionInferenceModelFormatterTest_h
+#ifndef INCLUDED_CBoostedTreeRegressionInferenceModelBuilderTest_h
+#define INCLUDED_CBoostedTreeRegressionInferenceModelBuilderTest_h
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CBoostedTreeRegressionInferenceModelFormatterTest : public CppUnit::TestFixture {
+class CBoostedTreeRegressionInferenceModelBuilderTest : public CppUnit::TestFixture {
 public:
     void testIntegration();
     void testDefinitionGeneration();
@@ -17,4 +17,4 @@ public:
     static CppUnit::Test* suite();
 };
 
-#endif // INCLUDED_CBoostedTreeRegressionInferenceModelFormatterTest_h
+#endif // INCLUDED_CBoostedTreeRegressionInferenceModelBuilderTest_h
