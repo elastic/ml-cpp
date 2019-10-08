@@ -132,8 +132,8 @@ std::size_t CMockModel::staticSize() const {
     return 0;
 }
 
-CMockModel::CModelDetailsViewPtr CMockModel::details() const {
-    CModelDetailsViewPtr result{new CMockModelDetailsView(*this)};
+CMockModel::TModelDetailsViewUPtr CMockModel::details() const {
+    TModelDetailsViewUPtr result{new CMockModelDetailsView(*this)};
     return result;
 }
 

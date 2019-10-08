@@ -302,7 +302,7 @@ public:
     std::size_t computeMemoryUsage() const override;
 
     //! Get a view of the internals of the model for visualization.
-    CModelDetailsViewPtr details() const override;
+    TModelDetailsViewUPtr details() const override;
 
     //! Get the feature data corresponding to \p feature at \p time.
     const TSizeSizePrFeatureDataPrVec& featureData(model_t::EFeature feature,

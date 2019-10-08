@@ -24,6 +24,7 @@ public:
     void testErrors();
     void testRoundTripDocHashes();
     void testCategoricalFields();
+    void testCategoricalFieldsEmptyAsMissing();
 
     static CppUnit::Test* suite();
 };

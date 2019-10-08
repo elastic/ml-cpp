@@ -43,6 +43,7 @@ namespace api {
 //! performance statistics.
 class API_EXPORT CDataFrameAnalysisSpecification {
 public:
+    using TBoolVec = std::vector<bool>;
     using TStrVec = std::vector<std::string>;
     using TDataFrameUPtr = std::unique_ptr<core::CDataFrame>;
     using TTemporaryDirectoryPtr = std::shared_ptr<core::CTemporaryDirectory>;
@@ -172,6 +173,9 @@ public:
     //!   1. disk is not used (the whole data frame fits in main memory)
     //!   2. disk is used (only one partition needs to be loaded to main memory)
     void estimateMemoryUsage(CMemoryUsageEstimationResultJsonWriter& writer) const;
+
+    //! \return Indicator of columns for which empty value should be treated as missing.
+    TBoolVec columnsForWhichEmptyIsMissing(const TStrVec& fieldNames) const;
 
     //! \return shared pointer to the persistence stream.
     TDataAdderUPtr persister() const;

@@ -27,7 +27,7 @@ namespace ml {
 namespace api {
 namespace {
 // Configuration
-const std::string STANDARDIZE_COLUMNS{"standardize_columns"};
+const std::string STANDARDIZATION_ENABLED{"standardization_enabled"};
 const std::string N_NEIGHBORS{"n_neighbors"};
 const std::string METHOD{"method"};
 const std::string COMPUTE_FEATURE_INFLUENCE{"compute_feature_influence"};
@@ -40,7 +40,7 @@ const CDataFrameAnalysisConfigReader PARAMETER_READER{[] {
     const std::string knn{"distance_kth_nn"};
     const std::string tnn{"distance_knn"};
     CDataFrameAnalysisConfigReader theReader;
-    theReader.addParameter(STANDARDIZE_COLUMNS,
+    theReader.addParameter(STANDARDIZATION_ENABLED,
                            CDataFrameAnalysisConfigReader::E_OptionalParameter);
     theReader.addParameter(N_NEIGHBORS, CDataFrameAnalysisConfigReader::E_OptionalParameter);
     theReader.addParameter(METHOD, CDataFrameAnalysisConfigReader::E_OptionalParameter,
@@ -61,12 +61,12 @@ const std::string OUTLIER_SCORE_FIELD_NAME{"outlier_score"};
 const std::string FEATURE_INFLUENCE_FIELD_NAME_PREFIX{"feature_influence."};
 }
 
-CDataFrameOutliersRunner::CDataFrameOutliersRunner(const CDataFrameAnalysisSpecification& spec,
-                                                   const rapidjson::Value& jsonParameters)
+CDataFrameOutliersRunner::CDataFrameOutliersRunner(
+    const CDataFrameAnalysisSpecification& spec,
+    const CDataFrameAnalysisConfigReader::CParameters& parameters)
     : CDataFrameOutliersRunner{spec} {
 
-    auto parameters = PARAMETER_READER.read(jsonParameters);
-    m_StandardizeColumns = parameters[STANDARDIZE_COLUMNS].fallback(true);
+    m_StandardizationEnabled = parameters[STANDARDIZATION_ENABLED].fallback(true);
     m_NumberNeighbours = parameters[N_NEIGHBORS].fallback(std::size_t{0});
     m_Method = parameters[METHOD].fallback(maths::COutliers::E_Ensemble);
     m_ComputeFeatureInfluence = parameters[COMPUTE_FEATURE_INFLUENCE].fallback(true);
@@ -84,6 +84,7 @@ std::size_t CDataFrameOutliersRunner::numberExtraColumns() const {
 }
 
 void CDataFrameOutliersRunner::writeOneRow(const TStrVec& featureNames,
+                                           const TStrVecVec&,
                                            TRowRef row,
                                            core::CRapidJsonConcurrentLineWriter& writer) const {
     std::size_t scoreColumn{row.numberColumns() - this->numberExtraColumns()};
@@ -112,7 +113,7 @@ void CDataFrameOutliersRunner::runImpl(const TStrVec&, core::CDataFrame& frame) 
 
     maths::COutliers::SComputeParameters params{this->spec().numberThreads(),
                                                 this->numberPartitions(),
-                                                m_StandardizeColumns,
+                                                m_StandardizationEnabled,
                                                 static_cast<maths::COutliers::EMethod>(m_Method),
                                                 m_NumberNeighbours,
                                                 m_ComputeFeatureInfluence,
@@ -137,7 +138,7 @@ CDataFrameOutliersRunner::estimateBookkeepingMemoryUsage(std::size_t numberParti
                                                          std::size_t numberColumns) const {
     maths::COutliers::SComputeParameters params{this->spec().numberThreads(),
                                                 numberPartitions,
-                                                m_StandardizeColumns,
+                                                m_StandardizationEnabled,
                                                 static_cast<maths::COutliers::EMethod>(m_Method),
                                                 m_NumberNeighbours,
                                                 m_ComputeFeatureInfluence,
@@ -157,8 +158,9 @@ CDataFrameOutliersRunnerFactory::makeImpl(const CDataFrameAnalysisSpecification&
 
 CDataFrameOutliersRunnerFactory::TRunnerUPtr
 CDataFrameOutliersRunnerFactory::makeImpl(const CDataFrameAnalysisSpecification& spec,
-                                          const rapidjson::Value& params) const {
-    return std::make_unique<CDataFrameOutliersRunner>(spec, params);
+                                          const rapidjson::Value& jsonParameters) const {
+    auto parameters = PARAMETER_READER.read(jsonParameters);
+    return std::make_unique<CDataFrameOutliersRunner>(spec, parameters);
 }
 
 const std::string CDataFrameOutliersRunnerFactory::NAME{"outlier_detection"};

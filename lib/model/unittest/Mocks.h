@@ -94,7 +94,7 @@ public:
 
     std::size_t staticSize() const override;
 
-    CModelDetailsViewPtr details() const override;
+    TModelDetailsViewUPtr details() const override;
 
     double attributeFrequency(std::size_t cid) const override;
 

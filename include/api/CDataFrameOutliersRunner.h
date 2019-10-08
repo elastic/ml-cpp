@@ -7,6 +7,7 @@
 #ifndef INCLUDED_ml_api_CDataFrameOutliersRunner_h
 #define INCLUDED_ml_api_CDataFrameOutliersRunner_h
 
+#include <api/CDataFrameAnalysisConfigReader.h>
 #include <api/CDataFrameAnalysisRunner.h>
 
 #include <api/ImportExport.h>
@@ -21,7 +22,7 @@ class API_EXPORT CDataFrameOutliersRunner final : public CDataFrameAnalysisRunne
 public:
     //! This is not intended to be called directly: use CDataFrameOutliersRunnerFactory.
     CDataFrameOutliersRunner(const CDataFrameAnalysisSpecification& spec,
-                             const rapidjson::Value& jsonParameters);
+                             const CDataFrameAnalysisConfigReader::CParameters& parameters);
 
     //! This is not intended to be called directly: use CDataFrameOutliersRunnerFactory.
     CDataFrameOutliersRunner(const CDataFrameAnalysisSpecification& spec);
@@ -31,6 +32,7 @@ public:
 
     //! Write the extra columns of \p row added by outlier analysis to \p writer.
     void writeOneRow(const TStrVec& featureNames,
+                     const TStrVecVec& categoricalFieldValues,
                      TRowRef row,
                      core::CRapidJsonConcurrentLineWriter& writer) const override;
 
@@ -55,7 +57,7 @@ private:
     std::size_t m_Method;
 
     //! If true then standardise the feature values.
-    bool m_StandardizeColumns = true;
+    bool m_StandardizationEnabled = true;
 
     //! Compute the significance of features responsible for each point being outlying.
     bool m_ComputeFeatureInfluence = true;
@@ -79,7 +81,7 @@ private:
 private:
     TRunnerUPtr makeImpl(const CDataFrameAnalysisSpecification& spec) const override;
     TRunnerUPtr makeImpl(const CDataFrameAnalysisSpecification& spec,
-                         const rapidjson::Value& params) const override;
+                         const rapidjson::Value& jsonParameters) const override;
 };
 }
 }
