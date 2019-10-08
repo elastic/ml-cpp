@@ -30,6 +30,7 @@ public:
     using TRapidJsonWriter = core::CRapidJsonLineWriter<rapidjson::StringBuffer>;
 
 public:
+    virtual ~CSerializableToJson() = default;
     //! Serialize the object as JSON items under the \p parentObject using the specified \p writer.
     virtual void addToDocument(rapidjson::Value& parentObject,
                                TRapidJsonWriter& writer) const = 0;
@@ -40,6 +41,8 @@ class API_EXPORT CAggregateOutput : public CSerializableToJson {
 public:
     //! Aggregation type as a string.
     virtual const std::string& stringType() = 0;
+
+    virtual ~CAggregateOutput() = default;
 };
 
 //! Allows to use (weighted) majority vote for classification.
@@ -87,6 +90,7 @@ public:
     enum ETargetType { E_Classification, E_Regression };
 
 public:
+    virtual ~CTrainedModel() = default;
     void addToDocument(rapidjson::Value& parentObject, TRapidJsonWriter& writer) const override;
     virtual const TStringVec& featureNames() const;
     //! Names of the features used by the model.
@@ -193,6 +197,7 @@ private:
 
 class API_EXPORT CEncoding : public CSerializableToJson {
 public:
+    virtual ~CEncoding() = default;
     explicit CEncoding(const std::string& field);
     void addToDocument(rapidjson::Value& parentObject, TRapidJsonWriter& writer) const override;
     //! Input field name. Must be defined in the input section.

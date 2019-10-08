@@ -175,7 +175,7 @@ void CBoostedTreeRegressionInferenceModelBuilderTest::testIntegration() {
     CPPUNIT_ASSERT(expectedFieldNames == definition->input().fieldNames());
 
     // test pre-processing
-    CPPUNIT_ASSERT_EQUAL(3ul, definition->preprocessors().size());
+    CPPUNIT_ASSERT_EQUAL(std::size_t(3), definition->preprocessors().size());
     bool frequency = false;
     bool target = false;
     bool oneHot = false;
