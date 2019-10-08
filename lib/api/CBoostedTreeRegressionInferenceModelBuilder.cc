@@ -15,9 +15,6 @@
 #include <algorithm>
 
 namespace {
-const std::string BEST_FOREST_TAG{"best_forest"};
-const std::string ENCODER_TAG{"encoder_tag"};
-
 const std::string REGRESSION_INFERENCE_MODEL{"regression_inference_model"};
 }
 
@@ -103,7 +100,6 @@ ml::api::CBoostedTreeRegressionInferenceModelBuilder::CBoostedTreeRegressionInfe
 
     this->categoryNameMap(categoryNameMap);
     m_Definition.fieldNames(fieldNames);
-    m_Definition.categoryNameMap(categoryNameMap);
     m_Definition.trainedModel(std::make_unique<CEnsemble>());
     m_Definition.typeString(REGRESSION_INFERENCE_MODEL);
 }
@@ -122,7 +118,6 @@ ml::api::CBoostedTreeRegressionInferenceModelBuilder::encodingMap(
 
 void ml::api::CBoostedTreeRegressionInferenceModelBuilder::categoryNameMap(
     const ml::api::CInferenceModelDefinition::TStringSizeUMapVec& categoryNameMap) {
-    m_CategoryNameMap = categoryNameMap;
     m_ReverseCategoryNameMap.reserve(categoryNameMap.size());
     for (const auto& categoryNameMapping : categoryNameMap) {
         if (categoryNameMapping.empty() == false) {

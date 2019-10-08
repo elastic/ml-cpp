@@ -110,9 +110,9 @@ CTree::CTreeNode::CTreeNode(TNodeIndex nodeIndex,
                             const CTree::CTreeNode::TOptionalNodeIndex& leftChild,
                             const CTree::CTreeNode::TOptionalNodeIndex& rightChild,
                             const CTree::CTreeNode::TOptionalDouble& splitGain)
-    : m_NodeIndex(nodeIndex), m_Threshold(threshold), m_DefaultLeft(defaultLeft),
-      m_LeafValue(leafValue), m_SplitFeature(splitFeature),
-      m_LeftChild(leftChild), m_RightChild(rightChild), m_SplitGain(splitGain) {
+    : m_DefaultLeft(defaultLeft), m_NodeIndex(nodeIndex), m_LeftChild(leftChild),
+      m_RightChild(rightChild), m_SplitFeature(splitFeature),
+      m_Threshold(threshold), m_LeafValue(leafValue), m_SplitGain(splitGain) {
 }
 
 void CEnsemble::addToDocument(rapidjson::Value& parentObject, TRapidJsonWriter& writer) const {
@@ -171,7 +171,7 @@ void CTree::addToDocument(rapidjson::Value& parentObject, TRapidJsonWriter& writ
     rapidjson::Value object = writer.makeObject();
     this->CTrainedModel::addToDocument(object, writer);
     rapidjson::Value treeStructureArray = writer.makeArray(m_TreeStructure.size());
-    for (auto treeNode : m_TreeStructure) {
+    for (const auto& treeNode : m_TreeStructure) {
         rapidjson::Value treeNodeObject = writer.makeObject();
         treeNode.addToDocument(treeNodeObject, writer);
         treeStructureArray.PushBack(treeNodeObject, writer.getRawAllocator());
@@ -278,36 +278,8 @@ void CInferenceModelDefinition::trainedModel(std::unique_ptr<CTrainedModel>&& tr
     m_TrainedModel.swap(trainedModel);
 }
 
-const CInferenceModelDefinition::TStringSizeUMapVec&
-CInferenceModelDefinition::categoryNameMap() const {
-    return m_CategoryNameMap;
-}
-
-void CInferenceModelDefinition::categoryNameMap(const CInferenceModelDefinition::TStringSizeUMapVec& categoryNameMap) {
-    m_CategoryNameMap = categoryNameMap;
-    m_ReverseCategoryNameMap.reserve(categoryNameMap.size());
-    for (const auto& categoryNameMapping : categoryNameMap) {
-        if (categoryNameMapping.empty() == false) {
-            TSizeStringUMap map;
-            for (const auto& categoryMappingPair : categoryNameMapping) {
-                map.emplace(categoryMappingPair.second, categoryMappingPair.first);
-            }
-            m_ReverseCategoryNameMap.emplace_back(std::move(map));
-        } else {
-            m_ReverseCategoryNameMap.emplace_back();
-        }
-    }
-}
-
 std::unique_ptr<CTrainedModel>& CInferenceModelDefinition::trainedModel() {
     return m_TrainedModel;
-}
-
-CInferenceModelDefinition::CInferenceModelDefinition(
-    const CInferenceModelDefinition::TStringVec& fieldNames,
-    const CInferenceModelDefinition::TStringSizeUMapVec& categoryNameMap) {
-    this->fieldNames(fieldNames);
-    this->categoryNameMap(categoryNameMap);
 }
 
 const CInput& CInferenceModelDefinition::input() const {
@@ -316,10 +288,6 @@ const CInput& CInferenceModelDefinition::input() const {
 
 CInferenceModelDefinition::TApiEncodingUPtrVec& CInferenceModelDefinition::preprocessors() {
     return m_Preprocessors;
-}
-
-const std::unique_ptr<CTrainedModel>& CInferenceModelDefinition::trainedModel() const {
-    return m_TrainedModel;
 }
 
 const std::string& CInferenceModelDefinition::typeString() const {

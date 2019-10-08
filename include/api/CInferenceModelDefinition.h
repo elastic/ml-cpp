@@ -42,7 +42,7 @@ public:
     //! Aggregation type as a string.
     virtual const std::string& stringType() = 0;
 
-    virtual ~CAggregateOutput() = default;
+    ~CAggregateOutput() override = default;
 };
 
 //! Allows to use (weighted) majority vote for classification.
@@ -92,7 +92,7 @@ public:
     enum ETargetType { E_Classification, E_Regression };
 
 public:
-    virtual ~CTrainedModel() = default;
+    ~CTrainedModel() override = default;
     void addToDocument(rapidjson::Value& parentObject, TRapidJsonWriter& writer) const override;
     virtual const TStringVec& featureNames() const;
     //! Names of the features used by the model.
@@ -199,7 +199,7 @@ private:
 
 class API_EXPORT CEncoding : public CSerializableToJson {
 public:
-    virtual ~CEncoding() = default;
+    ~CEncoding() override = default;
     explicit CEncoding(const std::string& field);
     void addToDocument(rapidjson::Value& parentObject, TRapidJsonWriter& writer) const override;
     //! Input field name. Must be defined in the input section.
@@ -292,20 +292,15 @@ public:
     using TSizeStringUMapVec = std::vector<TSizeStringUMap>;
 
 public:
-    CInferenceModelDefinition() = default;
-    CInferenceModelDefinition(const TStringVec& fieldNames,
-                              const TStringSizeUMapVec& categoryNameMap);
     std::string jsonString();
 
     void fieldNames(const TStringVec& fieldNames);
 
     void trainedModel(std::unique_ptr<CTrainedModel>&& trainedModel);
     std::unique_ptr<CTrainedModel>& trainedModel();
-    const std::unique_ptr<CTrainedModel>& trainedModel() const;
-    const TStringSizeUMapVec& categoryNameMap() const;
+
     const CInput& input() const;
     TApiEncodingUPtrVec& preprocessors();
-    void categoryNameMap(const TStringSizeUMapVec& categoryNameMap);
     const std::string& typeString() const;
     void typeString(const std::string& typeString);
 
@@ -317,8 +312,6 @@ private:
     //! Details of the model evaluation step with a trained_model.
     std::unique_ptr<CTrainedModel> m_TrainedModel;
     TStringVec m_FieldNames;
-    TStringSizeUMapVec m_CategoryNameMap;
-    TSizeStringUMapVec m_ReverseCategoryNameMap;
     std::string m_TypeString;
 };
 }

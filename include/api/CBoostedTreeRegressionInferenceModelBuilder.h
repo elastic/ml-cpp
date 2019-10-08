@@ -58,7 +58,6 @@ private:
 
 private:
     CInferenceModelDefinition m_Definition;
-    TStringSizeUMapVec m_CategoryNameMap;
     TSizeStringUMapVec m_ReverseCategoryNameMap;
     TOneHotEncodingUMap m_OneHotEncodingMaps;
 };
