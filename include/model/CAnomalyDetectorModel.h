@@ -162,7 +162,7 @@ public:
     using TFeatureCorrelationsPtrPr = std::pair<model_t::EFeature, TCorrelationsPtr>;
     using TFeatureCorrelationsPtrPrVec = std::vector<TFeatureCorrelationsPtrPr>;
     using TDataGathererPtr = std::shared_ptr<CDataGatherer>;
-    using CModelDetailsViewPtr = std::auto_ptr<CModelDetailsView>;
+    using TModelDetailsViewUPtr = std::unique_ptr<CModelDetailsView>;
     using TModelPtr = std::unique_ptr<CAnomalyDetectorModel>;
 
 public:
@@ -471,7 +471,7 @@ public:
     core_t::TTime bucketLength() const;
 
     //! Get a view of the internals of the model for visualization.
-    virtual CModelDetailsViewPtr details() const = 0;
+    virtual TModelDetailsViewUPtr details() const = 0;
 
     //! Get the frequency of the person identified by \p pid.
     double personFrequency(std::size_t pid) const;

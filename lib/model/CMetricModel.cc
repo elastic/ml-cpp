@@ -466,8 +466,8 @@ std::size_t CMetricModel::staticSize() const {
     return sizeof(*this);
 }
 
-CMetricModel::CModelDetailsViewPtr CMetricModel::details() const {
-    return CModelDetailsViewPtr(new CMetricModelDetailsView(*this));
+CMetricModel::TModelDetailsViewUPtr CMetricModel::details() const {
+    return TModelDetailsViewUPtr(new CMetricModelDetailsView(*this));
 }
 
 const CMetricModel::TFeatureData*

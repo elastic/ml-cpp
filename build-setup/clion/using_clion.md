@@ -14,9 +14,9 @@ by simply calling `g++` or `clang++`.
 For testing and evaluation purposes you can use [30-day trial version of CLion](https://www.jetbrains.com/clion) or
 participate on the [CLion early access program](https://www.jetbrains.com/clion/nextversion/).
 
-You need to install the current [CLion](https://www.jetbrains.com/clion/) (version 2018.2 or later) with the following
+You need to install the current [CLion](https://www.jetbrains.com/clion/) (version 2018.2.3 or later) with the following
 plugins:
-* Compilation Database
+
 * File Watchers
 * Makefile support
 
@@ -27,7 +27,7 @@ You can install the plugins either during the initialization dialog, when you fi
 
 Install Python module [compiledb](https://github.com/nickdiego/compiledb) from PyPi:
 ```
-pip install compiledb
+sudo pip install compiledb
 ```
 
 It is better to install the module on the system level, since it will create an executable `compiledb`, which can be
@@ -41,43 +41,11 @@ projects](https://www.jetbrains.com/help/clion/managing-makefile-projects.html).
 additional instruction and screenshots. For more information on using compilation database in CLion, see [JetBrains
 CLion Help page](https://www.jetbrains.com/help/clion/compilation-database.html)
 
-To create the compilation database file `compile_commands.json` in your project, simply call
-```
-compiledb -n make -j
-```
-from the project root directory. 
+To create the compilation database file `compile_commands.json` in your project, run:
 
-The argument `-n` will avoid the complete build of the targets (which somewhat accelerates the process), while
-all arguments after `make` will simply be passed to the `make` command. 
-
-To add unittests files to the compilation database, you need to go to the directories of the individual unit tests, e.g.
-`lib/core/unittest` and run 
 ```
-compiledb -o ../../../compile_commands.json -n make -j
-``` 
-
-New files are usually **added** to `compile_commands.json` unless you additionally specify `-f` for override.
-
-Note that on macOS `compiledb` may not correctly populate the `compile_commands.json` output file when invoking `make`
-as above. An alternative is to call `make` directly and pipe the output to `compiledb`. For convenience these commands
-can be encapsulated in a shell script `compiledb.sh`
+$CPP_SRC_HOME/dev-tools/init_compiledb.sh
 ```
-#!/usr/bin/env bash
-
-make -Bnwk -j7 | compiledb -o $1
-```
-Set the executable bit on the script
-```
-chmod a+x ./compiledb.sh
-```
-The script can then be used to populate the compilation database as follows
-```
-./compiledb.sh compile_commands.json
-for dir in `find lib -name unittest`; do echo $dir; (cd $dir; $CPP_SRC_HOME/compiledb.sh $CPP_SRC_HOME/compile_commands.json); done
-```
-
-If the command runs suspiciously quickly and the `compile_commands.json` file is empty, this means that your project is
-already built and `make` didn't do anything. Simply run `make clean` before running `compiledb`.
 
 Now, in CLion navigate to **File | Open** on the main menu and choose the `compile_commands.json` file or a directory
 that contains it and click **Open as Project**. All files and symbols processed during the run of `compiledb make` are
@@ -89,20 +57,10 @@ auto-import** checkbox in **Settings / Preferences | Build, Execution, Deploymen
 To follow up the changes in the Makefiles, we can create File Watchers (you should have installed File Watchers plugin).
 Navigate to **Settings / Preferences | Tools | File Watchers** and create a new File Watcher for all files of type **GNU
 Makefile** located in the project root and subdirectories:
- 
-**File type:** GNU Makefile\
-**Scope:** Project Files\
-**Program:** `compiledb`\
-**Arguments:** `-n -o $ProjectFileDir$/compile_commands.json make -j`\
-**Working directory:** `$ProjectFileDir$`
-- [x] Auto-save edited files to trigger the watcher
-- [x] Trigger the watcher on external changes
-
-Alternatively, if using the `compiledb.sh` wrapper script:
 
 **File type:** GNU Makefile\
 **Scope:** Project Files\
-**Program:** `$ProjectFileDir$/compiledb.sh`\
+**Program:** `$ProjectFileDir$/dev-tools/compiledb.sh`\
 **Arguments:** `$ProjectFileDir$/compile_commands.json`\
 **Working directory:** `$FileDir$`
 - [x] Auto-save edited files to trigger the watcher
@@ -121,9 +79,9 @@ Let's create a custom target to build the libraries, which gives you the same be
 project root. Go to **Settings / Preference | Build, Execution, Deployment | Custom Build Targets** and click **+** to
 add a new target. Pick the name, in this tutorial we will use the name *make build*.
 
-In the area **Toolchain** we have to specify custom tools for building and cleaning the project. 
+In the area **Toolchain** we have to specify custom tools for building and cleaning the project.
 
-For **Build:** click on **...** to open **External Tools** window and then on **+** to create a new external tool. 
+For **Build:** click on **...** to open **External Tools** window and then on **+** to create a new external tool.
 
 In the window **Edit Tool** specify:
 
@@ -148,7 +106,7 @@ Similarly, for **Clean:** create a new external tool with the following entries 
 - [x] Synchronize files after execution\
 - [x] Open console for tool output
 
-Once you are done, your **Custom Build Targets** window should look similar to this: 
+Once you are done, your **Custom Build Targets** window should look similar to this:
 
 ![Custom Build Targets Window](./custom_build_targets_window.png)
 
@@ -156,7 +114,7 @@ Once you are done, your **Custom Build Targets** window should look similar to t
 
 Once we created the custom build target, we can use it to build projects and run/debug unit tests withing IDE.
 
-Let's go to menu **Run | Edit Configurations...** and click on **+** to create a new configuration. 
+Let's go to menu **Run | Edit Configurations...** and click on **+** to create a new configuration.
 
 Since we installed **Makefile support** plugin, we can add **Makefile** configuration to build the complete project:
 
@@ -167,7 +125,7 @@ Since we installed **Makefile support** plugin, we can add **Makefile** configur
 - [x] Allow parallel run
 
 I assume that you want to build the project with debug symbols activated, but, obviously, you need to remove the
-argument `ML_DUBUG=1` if you don't. 
+argument `ML_DUBUG=1` if you don't.
 
 It is important that you specify the environment variable `CPP_SRC_HOME`. If you specified it on the system
 level, CLion can pick it up automatically, otherwise you have to specify it explicitly in the **Environment variables**
@@ -179,12 +137,12 @@ You can now build the project manually by selecting the configuration `Libraries
 and clicking the green play button. Moreover, we will create a configuration for running unit tests and use `Libraries`
 as a build dependency so we ensure that the project is up-to-date every time we run those tests.
 
-Let's create another **Run/Debug Configuration** for building the `core` unit tests. Go to menu 
+Let's create another **Run/Debug Configuration** for building the `core` unit tests. Go to menu
 **Run | Edit Configurations...** and click on **+** to create a new configuration.
 
 **Name:** `Build test core`\
 **Makefile:** Makefile\
-**Working Directory:** *Navigate to `lib/core/unittest/*\
+**Working Directory:** *Navigate to `lib/core/unittest/`*\
 **Arguments:** `-j7 ML_DEBUG=1`
 - [x] Allow parallel run
 
@@ -194,7 +152,7 @@ Configurations...** and click on the **+** symbol to create a new **Custom Build
 **Name:** `Run test core`\
 **Target:** *Select the custom build target `make build` that we created before*\
 **Executable:** *Navigate to `lib/core/unittest/` and select the `ml_test` binary*\
-If you cannot find the executable `ml-test`, then you don't have one yet. Simply, build the unittests by executing 
+If you cannot find the executable `ml-test`, then you don't have one yet. Simply, build the unittests by executing
 `make` in the `lib/core/unittest` directory once to create it.\
 **Working directory:** `lib/core/unittest`
 
@@ -209,7 +167,7 @@ arguments**.
 Now, you can run and debug your code by selecting the appropriate configuration and using **play** or **debug** symbols.
 
 Once build configurations for all unit tests have bee created it is possible to create a **Run/Debug Configuration** to
-invoke them all. Go to **Run | Edit Configurations...** and click on the **+** symbol to create a new 
+invoke them all. Go to **Run | Edit Configurations...** and click on the **+** symbol to create a new
 **Compound** configuration named e.g. `Test All`. Click on the **+** symbol repeatedly to add each of the `Build test...`
 configurations.
 
@@ -234,7 +192,7 @@ Alternatively, you may wish to set up a File Watcher to invoke `clang-format` fr
 
 ### Integration with `valgrind`
 
-Clion has full support for running and analyzing code using the `valgrind` suite. 
+Clion has full support for running and analyzing code using the `valgrind` suite.
 Valgrind is readily available on most linux distributions but on macOS an experimental build is required
 ```
 brew install --HEAD https://raw.githubusercontent.com/sowson/valgrind/master/valgrind.rb
