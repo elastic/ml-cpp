@@ -133,6 +133,9 @@ double CArgMinLogisticImpl::value() const {
     double minWeight;
     double maxWeight;
 
+    // This is true if and only if all the predictions were identical. In this
+    // case we only need one pass over the data and can compute the optimal
+    // value from the counts of the two categories.
     if (this->bucketWidth() == 0.0) {
         objective = [this](double weight) {
             double p{CTools::logisticFunction(weight)};
