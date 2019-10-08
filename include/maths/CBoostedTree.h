@@ -67,7 +67,7 @@ private:
 };
 
 //! \brief Finds the value to add to a set of predicted log-odds which minimises
-//! regularised the cross entropy loss w.r.t. the actual categories.
+//! regularised cross entropy loss w.r.t. the actual categories.
 class MATHS_EXPORT CArgMinLogisticImpl final : public CArgMinLossImpl {
 public:
     CArgMinLogisticImpl(double lambda);
