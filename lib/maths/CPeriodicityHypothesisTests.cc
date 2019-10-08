@@ -344,7 +344,7 @@ void reweightOutliers(const std::vector<T>& trend,
         CBasicStatistics::COrderStatisticsHeap<TDoubleSizePr, std::greater<TDoubleSizePr>>;
 
     std::size_t period{trend.size()};
-    std::size_t numberOutliers{static_cast<std::size_t>([&] {
+    std::size_t numberOutliers{static_cast<std::size_t>([&period, &values] {
         std::size_t count(std::count_if(
             values.begin(), values.end(), [](const TFloatMeanAccumulator& value) {
                 return CBasicStatistics::count(value) > 0.0;
@@ -1838,7 +1838,7 @@ bool CPeriodicityHypothesisTests::testPeriodWithScaling(const TTimeTimePr2Vec& w
     }
 
     // Compute the degrees of freedom given the alternative hypothesis.
-    double b{[&] {
+    double b{[&windows, &period_, &values, this] {
         TDoubleVec repeats(calculateRepeats(windows, period_, m_BucketLength, values));
         return static_cast<double>(
             std::count_if(repeats.begin(), repeats.end(),
@@ -2056,7 +2056,7 @@ bool CPeriodicityHypothesisTests::testPartition(const TTimeTimePr2Vec& partition
     //   3) The significance of the variance reduction, and
     //   4) The amount of variance reduction.
 
-    auto calculateMeanRepeats = [&](const TTimeTimePr2Vec& w, core_t::TTime p) {
+    auto calculateMeanRepeats = [&values, this](const TTimeTimePr2Vec& w, core_t::TTime p) {
         TMeanAccumulator result;
         result.add(calculateRepeats(w, p, m_BucketLength, values));
         return CBasicStatistics::mean(result);
@@ -2140,7 +2140,7 @@ bool CPeriodicityHypothesisTests::testVariance(const TTimeTimePr2Vec& window,
     LOG_TRACE(<< "  autocorrelation          = " << R);
     LOG_TRACE(<< "  autocorrelationThreshold = " << stats.s_AutocorrelationThreshold);
 
-    meanRepeats = [&] {
+    meanRepeats = [&window, &period_, &buckets, this] {
         TMeanAccumulator result;
         result.add(calculateRepeats(window, period_, m_BucketLength, buckets));
         return CBasicStatistics::mean(result);
