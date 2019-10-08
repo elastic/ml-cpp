@@ -128,7 +128,7 @@ void computeProbability(core_t::TTime time,
         maths_t::CUnitWeights::unit<TDouble2Vec>(sample.size()));
     maths_t::setSeasonalVarianceScale(model.seasonalWeight(0.0, time), weight);
     maths::CModelProbabilityParams params;
-    params.addCalculation(calculation).addBucketEmpty(TBool2Vec{false}).addWeights(weight);
+    params.addCalculation(calculation).addWeights(weight);
     maths::SModelProbabilityResult result;
     model.probability(params, {{time}}, {sample}, result);
     probability = result.s_Probability;
@@ -240,7 +240,6 @@ void testProbabilityAndGetInfluences(model_t::EFeature feature,
         maths::CModelProbabilityParams params_;
         params_.addCalculation(model_t::probabilityCalculation(feature))
             .seasonalConfidenceInterval(0.0)
-            .addBucketEmpty(TBool2Vec{false})
             .addWeights(weight);
 
         double p = 0.0;
@@ -1456,7 +1455,6 @@ void CProbabilityAndInfluenceCalculatorTest::testProbabilityAndInfluenceCalculat
                 maths::CModelProbabilityParams params_;
                 params_.addCalculation(maths_t::E_TwoSided)
                     .seasonalConfidenceInterval(0.0)
-                    .addBucketEmpty(TBool2Vec{false})
                     .addWeights(weights);
                 double p;
                 TTail2Vec tail;
