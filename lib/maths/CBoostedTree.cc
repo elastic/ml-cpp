@@ -150,9 +150,12 @@ double CArgMinLogisticImpl::value() const {
         // between the logit of the empirical probability and zero.
         std::size_t c0{m_CategoryCounts(0) + 1};
         std::size_t c1{m_CategoryCounts(1) + 1};
-        double p{static_cast<double>(c1) / static_cast<double>(c0 + c1)};
-        minWeight = p < 0.5 ? std::log(p / (1.0 - p)) : 0.0;
-        maxWeight = p < 0.5 ? 0.0 : std::log(p / (1.0 - p));
+        double empiricalProbabilityC1{static_cast<double>(c1) /
+                                      static_cast<double>(c0 + c1)};
+        double empiricalLogOddsC1{
+            std::log(empiricalProbabilityC1 / (1.0 - empiricalProbabilityC1))};
+        minWeight = empiricalProbabilityC1 < 0.5 ? empiricalLogOddsC1 : 0.0;
+        maxWeight = empiricalProbabilityC1 < 0.5 ? 0.0 : empiricalLogOddsC1;
 
     } else {
         objective = [this](double weight) {
