@@ -183,18 +183,18 @@ void CBoostedTreeRegressionInferenceModelBuilderTest::testIntegration() {
     for (const auto& encoding : definition->preprocessors()) {
         if (encoding->typeString() == "frequency_encoding") {
             auto enc = static_cast<ml::api::CFrequencyEncoding*>(encoding.get());
-            CPPUNIT_ASSERT_EQUAL(3ul, enc->frequencyMap().size());
+            CPPUNIT_ASSERT_EQUAL(std::size_t(3), enc->frequencyMap().size());
             CPPUNIT_ASSERT("categorical_col_frequency" == enc->featureName());
             frequency = true;
         } else if (encoding->typeString() == "target_mean_encoding") {
             auto enc = static_cast<ml::api::CTargetMeanEncoding*>(encoding.get());
-            CPPUNIT_ASSERT_EQUAL(3ul, enc->targetMap().size());
+            CPPUNIT_ASSERT_EQUAL(std::size_t(3), enc->targetMap().size());
             CPPUNIT_ASSERT("categorical_col_targetmean" == enc->featureName());
             CPPUNIT_ASSERT_DOUBLES_EQUAL(100.0177288, enc->defaultValue(), 1e-6);
             target = true;
         } else if (encoding->typeString() == "one_hot_encoding") {
             auto enc = static_cast<ml::api::COneHotEncoding*>(encoding.get());
-            CPPUNIT_ASSERT_EQUAL(3ul, enc->hotMap().size());
+            CPPUNIT_ASSERT_EQUAL(std::size_t(3), enc->hotMap().size());
             CPPUNIT_ASSERT("categorical_col_cat1" == enc->hotMap()["cat1"]);
             CPPUNIT_ASSERT("categorical_col_cat2" == enc->hotMap()["cat2"]);
             CPPUNIT_ASSERT("categorical_col_cat3" == enc->hotMap()["cat3"]);
@@ -207,7 +207,7 @@ void CBoostedTreeRegressionInferenceModelBuilderTest::testIntegration() {
     // assert trained model
     auto trainedModel = dynamic_cast<api::CEnsemble*>(definition->trainedModel().get());
     CPPUNIT_ASSERT_EQUAL(api::CTrainedModel::E_Regression, trainedModel->targetType());
-    CPPUNIT_ASSERT_EQUAL(23ul, trainedModel->size());
+    CPPUNIT_ASSERT_EQUAL(std::size_t(23), trainedModel->size());
     CPPUNIT_ASSERT("weighted_sum" == trainedModel->aggregateOutput()->stringType());
     // TODO feature names test is missing
 }
