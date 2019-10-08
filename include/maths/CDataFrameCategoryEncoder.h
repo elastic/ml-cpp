@@ -197,6 +197,7 @@ public:
 
     class MATHS_EXPORT CVisitor {
     public:
+        virtual ~CVisitor() = default;
         virtual void addOneHotEncoding(std::size_t inputColumnIndex,
                                        std::size_t hotCategory) = 0;
         virtual void addTargetMeanEncoding(std::size_t inputColumnIndex,

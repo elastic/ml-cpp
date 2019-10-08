@@ -51,9 +51,10 @@ public:
     using TDoubleVec = std::vector<double>;
 
 public:
-    //! Construct with the \param weight vector.
+    ~CWeightedMode() override = default;
+    //! Construct with the \p weights vector.
     explicit CWeightedMode(TDoubleVec&& weights);
-    //! Construct with a weight vector of \param size with all entries equal to \param weight.
+    //! Construct with a weight vector of \p size with all entries equal to \p weight.
     CWeightedMode(std::size_t size, double weight);
     void addToDocument(rapidjson::Value& parentObject, TRapidJsonWriter& writer) const override;
     const std::string& stringType() override;
@@ -68,9 +69,10 @@ public:
     using TDoubleVec = std::vector<double>;
 
 public:
-    //! Construct with the \param weight vector.
+    ~CWeightedSum() override = default;
+    //! Construct with the \p weights vector.
     explicit CWeightedSum(TDoubleVec&& weights);
-    //! Construct with a weight vector of \param size with all entries equal to \param weight.
+    //! Construct with a weight vector of \p size with all entries equal to \p weight.
     CWeightedSum(std::size_t size, double weight);
     void addToDocument(rapidjson::Value& parentObject, TRapidJsonWriter& writer) const override;
     const std::string& stringType() override;
@@ -216,6 +218,7 @@ public:
     using TStringDoubleUMap = const std::unordered_map<std::string, double>;
 
 public:
+    ~CFrequencyEncoding() override = default;
     CFrequencyEncoding(const std::string& field,
                        const std::string& featureName,
                        const TStringDoubleUMap& frequencyMap);
@@ -238,6 +241,7 @@ public:
     using TStringStringUMap = std::map<std::string, std::string>;
 
 public:
+    ~COneHotEncoding() override = default;
     COneHotEncoding(const std::string& field, const TStringStringUMap& hotMap);
     void addToDocument(rapidjson::Value& parentObject, TRapidJsonWriter& writer) const override;
     //! Map from the category names of the original field to the new field names.
@@ -254,6 +258,7 @@ public:
     using TStringDoubleUMap = std::unordered_map<std::string, double>;
 
 public:
+    ~CTargetMeanEncoding() override = default;
     CTargetMeanEncoding(const std::string& field,
                         double defaultValue,
                         const std::string& featureName,

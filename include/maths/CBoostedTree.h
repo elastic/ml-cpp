@@ -152,6 +152,7 @@ public:
 
     class MATHS_EXPORT CVisitor {
     public:
+        virtual ~CVisitor() = default;
         //! Adds to last added tree.
         virtual void addNode(std::size_t splitFeature,
                              double splitValue,
@@ -275,6 +276,7 @@ public:
     class MATHS_EXPORT CVisitor : public CDataFrameCategoryEncoder::CVisitor,
                                   public CBoostedTreeNode::CVisitor {
     public:
+        virtual ~CVisitor() = default;
         virtual void addTree() = 0;
     };
 

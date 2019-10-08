@@ -59,7 +59,7 @@ void addJsonArray(const std::string& tag,
                   rapidjson::Value& parentObject,
                   TRapidJsonWriter& writer) {
     rapidjson::Value array = writer.makeArray(vector.size());
-    for (const auto item : vector) {
+    for (const auto& item : vector) {
         rapidjson::Value value;
         value.SetString(core::CStringUtils::typeToString(item), writer.getRawAllocator());
         array.PushBack(value, writer.getRawAllocator());
