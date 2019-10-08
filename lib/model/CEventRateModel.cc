@@ -304,9 +304,6 @@ void CEventRateModel::sample(core_t::TTime startTime,
                           << ", empty bucket weight = " << emptyBucketWeight
                           << ", derate = " << derate << ", interval = " << interval);
 
-                model->params().probabilityBucketEmpty(
-                    this->probabilityBucketEmpty(feature, pid));
-
                 TDouble2Vec value{count};
                 values.assign(1, core::make_triple(sampleTime, value, model_t::INDIVIDUAL_ANALYSIS_ATTRIBUTE_ID));
                 weights.resize(1, maths_t::CUnitWeights::unit<TDouble2Vec>(dimension));
@@ -384,7 +381,7 @@ bool CEventRateModel::computeProbability(std::size_t pid,
 
         addPersonProbability = true;
 
-        LOG_TRACE(<< "Compute probability for " << data->print());
+        LOG_TRACE(<< "value(" << this->personName(pid) << ") = " << data->print());
 
         if (this->correlates(feature, pid, startTime)) {
             CProbabilityAndInfluenceCalculator::SCorrelateParams params(partitioningFields);
@@ -591,7 +588,6 @@ bool CEventRateModel::fill(model_t::EFeature feature,
     }
 
     core_t::TTime time{model_t::sampleTime(feature, bucketTime, this->bucketLength())};
-    TOptionalUInt64 count{this->currentBucketCount(pid, bucketTime)};
     double value{model_t::offsetCountToZero(feature, static_cast<double>(data->s_Count))};
     maths_t::TDouble2VecWeightsAry weight(maths_t::seasonalVarianceScaleWeight(
         model->seasonalWeight(maths::DEFAULT_SEASONAL_CONFIDENCE_INTERVAL, time)));
@@ -612,8 +608,7 @@ bool CEventRateModel::fill(model_t::EFeature feature,
     }
     params.s_Count = 1.0;
     params.s_ComputeProbabilityParams
-        .addCalculation(model_t::probabilityCalculation(feature)) // new line
-        .addBucketEmpty({!count || *count == 0})
+        .addCalculation(model_t::probabilityCalculation(feature))
         .addWeights(weight)
         .skipAnomalyModelUpdate(skipAnomalyModelUpdate);
 
@@ -674,12 +669,8 @@ void CEventRateModel::fill(model_t::EFeature feature,
             maths::DEFAULT_SEASONAL_CONFIDENCE_INTERVAL, time)[0];
         scale[variables[1]] = models[1]->seasonalWeight(
             maths::DEFAULT_SEASONAL_CONFIDENCE_INTERVAL, time)[0];
-        TOptionalUInt64 count[2];
-        count[0] = this->currentBucketCount(correlates[i][0], bucketTime);
-        count[1] = this->currentBucketCount(correlates[i][1], bucketTime);
-        params.s_ComputeProbabilityParams
-            .addBucketEmpty({!count[0] || *count[0] == 0, !count[1] || *count[1] == 0}) // new line
-            .addWeights(maths_t::seasonalVarianceScaleWeight(scale));
+        params.s_ComputeProbabilityParams.addWeights(
+            maths_t::seasonalVarianceScaleWeight(scale));
 
         const TFeatureData* data[2];
         data[0] = this->featureData(feature, correlates[i][0], bucketTime);

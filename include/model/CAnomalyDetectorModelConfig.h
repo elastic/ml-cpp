@@ -144,10 +144,6 @@ public:
     //! category from the sketch to cluster.
     static const double DEFAULT_CATEGORY_DELETE_FRACTION;
 
-    //! The default minimum frequency of non-empty buckets at which we model
-    //! all buckets.
-    static const double DEFAULT_CUTOFF_TO_MODEL_EMPTY_BUCKETS;
-
     //! The default size of the seasonal components we will model.
     static const std::size_t DEFAULT_COMPONENT_SIZE;
 

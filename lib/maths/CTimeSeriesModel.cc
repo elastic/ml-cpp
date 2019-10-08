@@ -97,51 +97,6 @@ TCalculation2Vec expand(maths_t::EProbabilityCalculation calculation) {
     return {};
 }
 
-//! Update \p probability to account for empty buckets for sparse data.
-double featureProbabilityGivenBucket(TBool2Vec empty,
-                                     maths_t::EProbabilityCalculation calculation,
-                                     TDouble2Vec value,
-                                     TDouble2Vec probabilityBucketEmpty,
-                                     double probability) {
-
-    // The value is tested against zero because it is assumed that if a feature
-    // is non-null for an empty bucket it's value is defined to be zero. This is
-    // true for all our current features, i.e. counts and sums.
-
-    auto pOneSide = [probability](double pBucketEmpty) {
-        return std::min(2.0 * (pBucketEmpty + (1.0 - pBucketEmpty) * probability / 2.0), 1.0);
-    };
-    auto pTwoSides = [probability](double pBucketEmpty) {
-        return pBucketEmpty + (1.0 - pBucketEmpty) * probability;
-    };
-
-    double result{0.0};
-    for (std::size_t i = 0; i < empty.size(); ++i) {
-        if (empty[i] == false) {
-            switch (calculation) {
-            case maths_t::E_OneSidedBelow:
-                result = std::max(result, value[i] >= 0.0
-                                              ? pOneSide(probabilityBucketEmpty[i])
-                                              : probability);
-                break;
-            case maths_t::E_OneSidedAbove:
-                result = std::max(result, value[i] <= 0.0
-                                              ? pOneSide(probabilityBucketEmpty[i])
-                                              : probability);
-                break;
-            case maths_t::E_TwoSided:
-                result = std::max(result, value[i] == 0.0
-                                              ? pTwoSides(probabilityBucketEmpty[i])
-                                              : probability);
-                break;
-            }
-        } else {
-            result = std::max(result, probability);
-        }
-    }
-    return result;
-}
-
 //! Aggregate one or more feature probabilities.
 double aggregateFeatureProbabilities(const TDouble4Vec& probabilities, double correlation) {
     if (probabilities.size() > 1) {
@@ -958,8 +913,6 @@ CUnivariateTimeSeriesModel::predict(core_t::TTime time,
         }
     }
 
-    double scale{1.0 - this->params().probabilityBucketEmpty()};
-
     double trend{0.0};
     if (m_TrendModel->initialized()) {
         trend = CBasicStatistics::mean(m_TrendModel->value(time));
@@ -975,7 +928,7 @@ CUnivariateTimeSeriesModel::predict(core_t::TTime time,
             : (hint.empty()
                    ? CBasicStatistics::mean(m_ResidualModel->marginalLikelihoodConfidenceInterval(0.0))
                    : m_ResidualModel->nearestMarginalLikelihoodMean(hint[0]))};
-    double result{scale * (trend + median + correlateCorrection)};
+    double result{trend + median + correlateCorrection};
 
     return {m_IsNonNegative ? std::max(result, 0.0) : result};
 }
@@ -988,8 +941,6 @@ CUnivariateTimeSeriesModel::confidenceInterval(core_t::TTime time,
         return TDouble2Vec3Vec();
     }
 
-    double scale{1.0 - this->params().probabilityBucketEmpty()};
-
     double trend{m_TrendModel->initialized()
                      ? CBasicStatistics::mean(m_TrendModel->value(time, confidenceInterval))
                      : 0.0};
@@ -1000,8 +951,7 @@ CUnivariateTimeSeriesModel::confidenceInterval(core_t::TTime time,
     TDoubleDoublePr interval{m_ResidualModel->marginalLikelihoodConfidenceInterval(
         confidenceInterval, weights)};
 
-    double result[]{scale * (trend + interval.first), scale * (trend + median),
-                    scale * (trend + interval.second)};
+    double result[]{trend + interval.first, trend + median, trend + interval.second};
 
     return {{m_IsNonNegative ? std::max(result[0], 0.0) : result[0]},
             {m_IsNonNegative ? std::max(result[1], 0.0) : result[1]},
@@ -1072,8 +1022,6 @@ bool CUnivariateTimeSeriesModel::uncorrelatedProbability(const CModelProbability
 
     maths_t::EProbabilityCalculation calculation{params.calculation(0)};
     maths_t::TDoubleWeightsAry1Vec weights{unpack(params.weights()[0])};
-    bool empty{params.bucketEmpty()[0][0]};
-    double pBucketEmpty{this->params().probabilityBucketEmpty()};
 
     TDouble4Vec probabilities;
     SModelProbabilityResult::TFeatureProbability4Vec featureProbabilities;
@@ -1087,8 +1035,7 @@ bool CUnivariateTimeSeriesModel::uncorrelatedProbability(const CModelProbability
                                                         weights, pl, pu, tail)) {
         LOG_TRACE(<< "P(" << sample << " | weight = " << weights
                   << ", time = " << time << ") = " << (pl + pu) / 2.0);
-        double pSingleBucket{featureProbabilityGivenBucket(
-            {empty}, calculation, {value[0][0]}, {pBucketEmpty}, (pl + pu) / 2.0)};
+        double pSingleBucket{(pl + pu) / 2.0};
         probabilities.push_back(pSingleBucket);
         featureProbabilities.emplace_back(
             SModelProbabilityResult::E_SingleBucketProbability, pSingleBucket);
@@ -1117,23 +1064,19 @@ bool CUnivariateTimeSeriesModel::uncorrelatedProbability(const CModelProbability
                 pMultiBucket = std::min(pMultiBucket, (pl + pu) / 2.0);
             }
             correlation = m_MultibucketFeature->correlationWithBucketValue();
-            pMultiBucket = featureProbabilityGivenBucket(
-                {empty}, calculation, {value[0][0]}, {pBucketEmpty}, pMultiBucket);
         }
         probabilities.push_back(pMultiBucket);
         featureProbabilities.emplace_back(
             SModelProbabilityResult::E_MultiBucketProbability, pMultiBucket);
     }
 
-    double pOverall{jointProbabilityGivenBucket(
-        empty, pBucketEmpty, aggregateFeatureProbabilities(probabilities, correlation))};
+    double pOverall{aggregateFeatureProbabilities(probabilities, correlation)};
 
     if (m_AnomalyModel != nullptr && params.useAnomalyModel()) {
         double residual{
             (sample[0] - m_ResidualModel->nearestMarginalLikelihoodMean(sample[0])) /
             std::max(std::sqrt(this->seasonalWeight(0.0, time)[0]), 1.0)};
-        double pSingleBucket{
-            jointProbabilityGivenBucket(empty, pBucketEmpty, probabilities[0])};
+        double pSingleBucket{probabilities[0]};
 
         m_AnomalyModel->sample(params, time, residual, pSingleBucket, pOverall);
 
@@ -1173,7 +1116,6 @@ bool CUnivariateTimeSeriesModel::correlatedProbability(const CModelProbabilityPa
     TDouble10Vec1Vec sample{TDouble10Vec(2)};
     maths_t::TDouble10VecWeightsAry1Vec weights{
         maths_t::CUnitWeights::unit<TDouble10Vec>(2)};
-    TDouble2Vec pBucketEmpty(2);
     TDouble10Vec2Vec pli, pui;
     TTail10Vec ti;
     core_t::TTime mostAnomalousTime{0};
@@ -1228,17 +1170,9 @@ bool CUnivariateTimeSeriesModel::correlatedProbability(const CModelProbabilityPa
                 continue;
             }
 
-            pBucketEmpty[v0] = this->params().probabilityBucketEmpty();
-            pBucketEmpty[v1] =
-                correlatedTimeSeriesModels[correlateIndex]->params().probabilityBucketEmpty();
-            double pl{featureProbabilityGivenBucket(
-                params.bucketEmpty()[i], calculation, {value[i][v0], value[i][v1]},
-                pBucketEmpty, std::sqrt(pli[0][0] * pli[1][0]))};
-            double pu{featureProbabilityGivenBucket(
-                params.bucketEmpty()[i], calculation, {value[i][v0], value[i][v1]},
-                pBucketEmpty, std::sqrt(pui[0][0] * pui[1][0]))};
-            double pi{jointProbabilityGivenBucket(params.bucketEmpty()[i],
-                                                  pBucketEmpty, (pl + pu) / 2.0)};
+            double pl{std::sqrt(pli[0][0] * pli[1][0])};
+            double pu{std::sqrt(pui[0][0] * pui[1][0])};
+            double pi{(pl + pu) / 2.0};
 
             aggregator.add(pi, neff);
             if (minProbability.add(pi)) {
@@ -2485,7 +2419,6 @@ CMultivariateTimeSeriesModel::predict(core_t::TTime time,
     using TUnivariatePriorPtr = std::shared_ptr<CPrior>;
 
     std::size_t dimension{this->dimension()};
-    double scale{1.0 - this->params().probabilityBucketEmpty()};
 
     if (hint.size() == dimension) {
         for (std::size_t d = 0u; d < dimension; ++d) {
@@ -2513,7 +2446,7 @@ CMultivariateTimeSeriesModel::predict(core_t::TTime time,
                                marginal->marginalLikelihoodConfidenceInterval(0.0))
                          : marginal->nearestMarginalLikelihoodMean(hint[d]);
         }
-        result[d] = scale * (trend + median);
+        result[d] = trend + median;
         if (m_IsNonNegative) {
             result[d] = std::max(result[d], 0.0);
         }
@@ -2534,7 +2467,6 @@ CMultivariateTimeSeriesModel::confidenceInterval(core_t::TTime time,
     using TUnivariatePriorPtr = std::shared_ptr<CPrior>;
 
     std::size_t dimension{this->dimension()};
-    double scale{1.0 - this->params().probabilityBucketEmpty()};
 
     TSize10Vec marginalize(dimension - 1);
     std::iota(marginalize.begin(), marginalize.end(), 1);
@@ -2559,9 +2491,9 @@ CMultivariateTimeSeriesModel::confidenceInterval(core_t::TTime time,
         TDoubleDoublePr interval{marginal->marginalLikelihoodConfidenceInterval(
             confidenceInterval, weights)};
 
-        result[0][d] = scale * (trend + interval.first);
-        result[1][d] = scale * (trend + median);
-        result[2][d] = scale * (trend + interval.second);
+        result[0][d] = trend + interval.first;
+        result[1][d] = trend + median;
+        result[2][d] = trend + interval.second;
         if (m_IsNonNegative) {
             result[0][d] = std::max(result[0][d], 0.0);
             result[1][d] = std::max(result[1][d], 0.0);
@@ -2608,8 +2540,6 @@ bool CMultivariateTimeSeriesModel::probability(const CModelProbabilityParams& pa
             time, value[0][d], params.seasonalConfidenceInterval());
     }
     maths_t::TDouble10VecWeightsAry1Vec weights{unpack(params.weights()[0])};
-    bool empty{params.bucketEmpty()[0][0]};
-    double pBucketEmpty{this->params().probabilityBucketEmpty()};
 
     struct SJointProbability {
         CJointProbabilityOfLessLikelySamples s_MarginalLower;
@@ -2619,18 +2549,13 @@ bool CMultivariateTimeSeriesModel::probability(const CModelProbabilityParams& pa
     };
     using TJointProbability2Vec = core::CSmallVector<SJointProbability, 2>;
 
-    auto updateJointProbabilities = [&](maths_t::EProbabilityCalculation calculation,
-                                        double value_, const TDouble10Vec2Vec& pl,
+    auto updateJointProbabilities = [&](const TDouble10Vec2Vec& pl,
                                         const TDouble10Vec2Vec& pu,
                                         SJointProbability& joint) {
-        joint.s_MarginalLower.add(featureProbabilityGivenBucket(
-            {empty}, calculation, {value_}, {pBucketEmpty}, pl[0][0]));
-        joint.s_MarginalUpper.add(featureProbabilityGivenBucket(
-            {empty}, calculation, {value_}, {pBucketEmpty}, pu[0][0]));
-        joint.s_ConditionalLower.add(featureProbabilityGivenBucket(
-            {empty}, calculation, {value_}, {pBucketEmpty}, pl[1][0]));
-        joint.s_ConditionalUpper.add(featureProbabilityGivenBucket(
-            {empty}, calculation, {value_}, {pBucketEmpty}, pu[1][0]));
+        joint.s_MarginalLower.add(pl[0][0]);
+        joint.s_MarginalUpper.add(pu[0][0]);
+        joint.s_ConditionalLower.add(pl[1][0]);
+        joint.s_ConditionalUpper.add(pu[1][0]);
     };
 
     TJointProbability2Vec jointProbabilities(
@@ -2648,8 +2573,8 @@ bool CMultivariateTimeSeriesModel::probability(const CModelProbabilityParams& pa
             LOG_ERROR(<< "Failed to compute P(" << sample << " | weight = " << weights << ")");
             return false;
         }
-        updateJointProbabilities(calculation, value[0][coordinates[i]], pSingleBucket[0],
-                                 pSingleBucket[1], jointProbabilities[0]);
+        updateJointProbabilities(pSingleBucket[0], pSingleBucket[1],
+                                 jointProbabilities[0]);
         tail[i] = tail_[0];
 
         if (m_MultibucketFeatureModel != nullptr && params.useMultibucketFeatures()) {
@@ -2672,8 +2597,7 @@ bool CMultivariateTimeSeriesModel::probability(const CModelProbabilityParams& pa
                     pMultiBucket[0][1][0] = std::min(pMultiBucket[0][1][0], pl[1][0]);
                     pMultiBucket[1][1][0] = std::min(pMultiBucket[1][1][0], pu[1][0]);
                 }
-                updateJointProbabilities(calculation, value[0][coordinates[i]],
-                                         pMultiBucket[0], pMultiBucket[1],
+                updateJointProbabilities(pMultiBucket[0], pMultiBucket[1],
                                          jointProbabilities[1]);
                 correlation = m_MultibucketFeature->correlationWithBucketValue();
             }
@@ -2705,8 +2629,7 @@ bool CMultivariateTimeSeriesModel::probability(const CModelProbabilityParams& pa
         featureProbabilities.emplace_back(labels[i], probabilities[i]);
     }
 
-    double pOverall{jointProbabilityGivenBucket(
-        empty, pBucketEmpty, aggregateFeatureProbabilities(probabilities, correlation))};
+    double pOverall{aggregateFeatureProbabilities(probabilities, correlation)};
 
     if (m_AnomalyModel != nullptr && params.useAnomalyModel()) {
         double residual{0.0};
@@ -2715,8 +2638,7 @@ bool CMultivariateTimeSeriesModel::probability(const CModelProbabilityParams& pa
         for (std::size_t i = 0; i < dimension; ++i) {
             residual += (sample[0][i] - nearest[i]) / std::max(std::sqrt(scale[i]), 1.0);
         }
-        double pSingleBucket{
-            jointProbabilityGivenBucket(empty, pBucketEmpty, probabilities[0])};
+        double pSingleBucket{probabilities[0]};
 
         m_AnomalyModel->sample(params, time, residual, pSingleBucket, pOverall);
 
