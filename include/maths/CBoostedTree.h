@@ -118,7 +118,9 @@ public:
     CArgMinLoss& operator=(const CArgMinLoss& other);
     CArgMinLoss& operator=(CArgMinLoss&& other) = default;
 
-    //! The number of passes over the data this needs.
+    //! Start another pass over the predictions and actuals.
+    //!
+    //! \return True if we need to perform another pass to compute value().
     bool nextPass() const;
 
     //! Update with a point prediction and actual value.
