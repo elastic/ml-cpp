@@ -226,7 +226,6 @@ void CModelToolsTest::testProbabilityCache() {
             maths::CModelProbabilityParams params;
             params.addCalculation(maths_t::E_TwoSided)
                 .seasonalConfidenceInterval(0.0)
-                .addBucketEmpty({false})
                 .addWeights(weights[0]);
             maths::SModelProbabilityResult expectedResult;
             model.probability(params, time, sample, expectedResult);
@@ -263,7 +262,6 @@ void CModelToolsTest::testProbabilityCache() {
             maths::CModelProbabilityParams params;
             params.addCalculation(maths_t::E_TwoSided)
                 .seasonalConfidenceInterval(0.0)
-                .addBucketEmpty({false})
                 .addWeights(weights[0]);
             maths::SModelProbabilityResult expectedResult;
             model.probability(params, time, sample, expectedResult);

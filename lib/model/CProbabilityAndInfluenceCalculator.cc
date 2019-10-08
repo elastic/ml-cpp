@@ -152,14 +152,11 @@ class CValueDifference {
 public:
     //! Features.
     bool operator()(const TDouble2Vec& v,
-                    double n,
+                    double /*n*/,
                     const TDouble1Vec& vi,
-                    double ni,
+                    double /*ni*/,
                     maths::CModelProbabilityParams& /*params*/,
                     TDouble2Vec& difference) const {
-        if (n < ni) {
-            return false;
-        }
         for (std::size_t i = 0u; i < v.size(); ++i) {
             difference[i] = v[i] - vi[i];
         }
@@ -168,14 +165,11 @@ public:
 
     //! Correlates.
     bool operator()(const TDouble2Vec& v,
-                    const TDouble2Vec& n,
+                    const TDouble2Vec& /*n*/,
                     const TDouble1Vec& vi,
-                    const TDouble1Vec& ni,
+                    const TDouble1Vec& /*ni*/,
                     maths::CModelProbabilityParams& /*params*/,
                     TDouble2Vec& difference) const {
-        if (n < ni) {
-            return false;
-        }
         for (std::size_t d = 0u; d < 2; ++d) {
             difference[d] = v[d] - vi[d];
         }
@@ -190,7 +184,7 @@ public:
     bool operator()(const TDouble2Vec& /*v*/,
                     double /*n*/,
                     const TDouble1Vec& vi,
-                    double ni,
+                    double /*ni*/,
                     maths::CModelProbabilityParams& /*params*/,
                     TDouble2Vec& intersection) const {
         for (std::size_t i = 0u; i < vi.size(); ++i) {
@@ -203,7 +197,7 @@ public:
     bool operator()(const TDouble2Vec& /*v*/,
                     const TDouble2Vec& /*n*/,
                     const TDouble1Vec& vi,
-                    const TDouble1Vec& ni,
+                    const TDouble1Vec& /*ni*/,
                     maths::CModelProbabilityParams& /*params*/,
                     TDouble2Vec& intersection) const {
         for (std::size_t d = 0u; d < 2; ++d) {
@@ -286,7 +280,7 @@ public:
                     double ni,
                     maths::CModelProbabilityParams& params,
                     TDouble2Vec& difference) const {
-        if (n < ni) {
+        if (n <= ni) {
             return false;
         }
 
@@ -309,7 +303,7 @@ public:
                     const TDouble1Vec& ni,
                     maths::CModelProbabilityParams& params,
                     TDouble2Vec& difference) const {
-        if (n < ni) {
+        if (n <= ni) {
             return false;
         }
 

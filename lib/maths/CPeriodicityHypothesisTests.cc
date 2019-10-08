@@ -312,7 +312,8 @@ TDoubleVec calculateRepeats(const TSizeSizePr2Vec& windows,
         std::size_t a{window.first};
         std::size_t b{window.second};
         for (std::size_t i = a; i < b; ++i) {
-            result[(i - a) % period] += CBasicStatistics::count(values[i % n]);
+            double count{CBasicStatistics::count(values[i % n])};
+            result[(i - a) % period] += std::min(count, 1.0);
         }
     }
     return result;
@@ -342,19 +343,20 @@ void reweightOutliers(const std::vector<T>& trend,
     using TMaxAccumulator =
         CBasicStatistics::COrderStatisticsHeap<TDoubleSizePr, std::greater<TDoubleSizePr>>;
 
+    std::size_t period{trend.size()};
     std::size_t numberOutliers{static_cast<std::size_t>([&] {
-        double count{static_cast<double>(std::count_if(
+        std::size_t count(std::count_if(
             values.begin(), values.end(), [](const TFloatMeanAccumulator& value) {
                 return CBasicStatistics::count(value) > 0.0;
-            }))};
-        return SEASONAL_OUTLIER_FRACTION * count;
+            }));
+        return SEASONAL_OUTLIER_FRACTION *
+               static_cast<double>(count - std::min(count, period));
     }())};
     LOG_TRACE(<< "Number outliers = " << numberOutliers);
 
     if (numberOutliers > 0) {
         TSizeSizePr2Vec windows;
         calculateIndexWindows(windows_, bucketLength, windows);
-        std::size_t period{trend.size()};
         std::size_t n{values.size()};
 
         TMaxAccumulator outliers{numberOutliers};
@@ -1204,7 +1206,7 @@ CPeriodicityHypothesisTests::best(const TNestedHypothesesVec& hypotheses) const 
 
     for (const auto& hypothesis : hypotheses) {
         STestStats stats{meanMagnitude};
-        stats.s_TrendSegments = std::max(static_cast<double>(hypothesis.trendSegments()), 1.0);
+        stats.s_TrendSegments = static_cast<double>(hypothesis.trendSegments());
         CPeriodicityHypothesisTestsResult resultForHypothesis{hypothesis.test(stats)};
         if (stats.s_NonEmptyBuckets > stats.s_DF0) {
             if (resultForHypothesis.periodic() == false) {

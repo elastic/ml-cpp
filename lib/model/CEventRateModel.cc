@@ -381,7 +381,7 @@ bool CEventRateModel::computeProbability(std::size_t pid,
 
         addPersonProbability = true;
 
-        LOG_TRACE(<< "Compute probability for " << data->print());
+        LOG_TRACE(<< "value(" << this->personName(pid) << ") = " << data->print());
 
         if (this->correlates(feature, pid, startTime)) {
             CProbabilityAndInfluenceCalculator::SCorrelateParams params(partitioningFields);

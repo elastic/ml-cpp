@@ -120,10 +120,7 @@ maths::CModelAddSamplesParams addSampleParams(const TDouble2VecWeightsAryVec& we
 
 maths::CModelProbabilityParams computeProbabilityParams(const TDouble2VecWeightsAry& weight) {
     maths::CModelProbabilityParams params;
-    params.addCalculation(maths_t::E_TwoSided)
-        .seasonalConfidenceInterval(50.0)
-        .addBucketEmpty({false})
-        .addWeights(weight);
+    params.addCalculation(maths_t::E_TwoSided).seasonalConfidenceInterval(50.0).addWeights(weight);
     return params;
 }
 
@@ -1211,7 +1208,6 @@ void CTimeSeriesModelTest::testProbability() {
         maths_t::EProbabilityCalculation calculations[]{maths_t::E_TwoSided,
                                                         maths_t::E_OneSidedAbove};
         double confidences[]{0.0, 20.0, 50.0};
-        bool empties[]{true, false};
         TDouble2VecWeightsAryVec weights(2, maths_t::CUnitWeights::unit<TDouble2Vec>(1));
         maths_t::setCountVarianceScale(TDouble2Vec{0.9}, weights[0]);
         maths_t::setCountVarianceScale(TDouble2Vec{1.1}, weights[1]);
@@ -1221,47 +1217,41 @@ void CTimeSeriesModelTest::testProbability() {
             LOG_DEBUG(<< "calculation = " << calculation);
             for (auto confidence : confidences) {
                 LOG_DEBUG(<< " confidence = " << confidence);
-                for (auto empty : empties) {
-                    LOG_DEBUG(<< "  empty = " << empty);
-                    for (const auto& weight : weights) {
-                        LOG_DEBUG(<< "   weights = "
-                                  << core::CContainerPrinter::print(weight));
-                        double expectedProbability[2];
-                        maths_t::ETail expectedTail[2];
-                        {
-                            maths_t::TDoubleWeightsAry weight_(maths_t::CUnitWeights::UNIT);
-                            for (std::size_t i = 0u; i < weight.size(); ++i) {
-                                weight_[i] = weight[i][0];
-                            }
-                            double lb[2], ub[2];
-                            model0.residualModel().probabilityOfLessLikelySamples(
-                                calculation, sample, {weight_}, lb[0], ub[0],
-                                expectedTail[0]);
-                            model1.residualModel().probabilityOfLessLikelySamples(
-                                calculation,
-                                {model1.trendModel().detrend(time, sample[0], confidence)},
-                                {weight_}, lb[1], ub[1], expectedTail[1]);
-                            expectedProbability[0] = (lb[0] + ub[0]) / 2.0;
-                            expectedProbability[1] = (lb[1] + ub[1]) / 2.0;
+                for (const auto& weight : weights) {
+                    LOG_DEBUG(<< "   weights = " << core::CContainerPrinter::print(weight));
+                    double expectedProbability[2];
+                    maths_t::ETail expectedTail[2];
+                    {
+                        maths_t::TDoubleWeightsAry weight_(maths_t::CUnitWeights::UNIT);
+                        for (std::size_t i = 0u; i < weight.size(); ++i) {
+                            weight_[i] = weight[i][0];
                         }
-
-                        maths::SModelProbabilityResult results[2];
-                        {
-                            maths::CModelProbabilityParams params;
-                            params.addCalculation(calculation)
-                                .seasonalConfidenceInterval(confidence)
-                                .addBucketEmpty({empty})
-                                .addWeights(weight)
-                                .useMultibucketFeatures(false);
-                            model0.probability(params, time_, {sample}, results[0]);
-                            model1.probability(params, time_, {sample}, results[1]);
-                        }
-
-                        CPPUNIT_ASSERT_EQUAL(expectedProbability[0], results[0].s_Probability);
-                        CPPUNIT_ASSERT_EQUAL(expectedTail[0], results[0].s_Tail[0]);
-                        CPPUNIT_ASSERT_EQUAL(expectedProbability[1], results[1].s_Probability);
-                        CPPUNIT_ASSERT_EQUAL(expectedTail[1], results[1].s_Tail[0]);
+                        double lb[2], ub[2];
+                        model0.residualModel().probabilityOfLessLikelySamples(
+                            calculation, sample, {weight_}, lb[0], ub[0], expectedTail[0]);
+                        model1.residualModel().probabilityOfLessLikelySamples(
+                            calculation,
+                            {model1.trendModel().detrend(time, sample[0], confidence)},
+                            {weight_}, lb[1], ub[1], expectedTail[1]);
+                        expectedProbability[0] = (lb[0] + ub[0]) / 2.0;
+                        expectedProbability[1] = (lb[1] + ub[1]) / 2.0;
                     }
+
+                    maths::SModelProbabilityResult results[2];
+                    {
+                        maths::CModelProbabilityParams params;
+                        params.addCalculation(calculation)
+                            .seasonalConfidenceInterval(confidence)
+                            .addWeights(weight)
+                            .useMultibucketFeatures(false);
+                        model0.probability(params, time_, {sample}, results[0]);
+                        model1.probability(params, time_, {sample}, results[1]);
+                    }
+
+                    CPPUNIT_ASSERT_EQUAL(expectedProbability[0], results[0].s_Probability);
+                    CPPUNIT_ASSERT_EQUAL(expectedTail[0], results[0].s_Tail[0]);
+                    CPPUNIT_ASSERT_EQUAL(expectedProbability[1], results[1].s_Probability);
+                    CPPUNIT_ASSERT_EQUAL(expectedTail[1], results[1].s_Tail[0]);
                 }
             }
         }
@@ -1312,7 +1302,6 @@ void CTimeSeriesModelTest::testProbability() {
         maths_t::EProbabilityCalculation calculations[]{maths_t::E_TwoSided,
                                                         maths_t::E_OneSidedAbove};
         double confidences[]{0.0, 20.0, 50.0};
-        bool empties[]{true, false};
         TDouble2VecWeightsAryVec weights(2, maths_t::CUnitWeights::unit<TDouble2Vec>(3));
         maths_t::setCountVarianceScale(TDouble2Vec{0.9, 0.9, 0.8}, weights[0]);
         maths_t::setCountVarianceScale(TDouble2Vec{1.1, 1.0, 1.2}, weights[1]);
@@ -1322,53 +1311,48 @@ void CTimeSeriesModelTest::testProbability() {
             LOG_DEBUG(<< "calculation = " << calculation);
             for (auto confidence : confidences) {
                 LOG_DEBUG(<< " confidence = " << confidence);
-                for (auto empty : empties) {
-                    LOG_DEBUG(<< "  empty = " << empty);
-                    for (const auto& weight : weights) {
-                        LOG_DEBUG(<< "   weights = "
-                                  << core::CContainerPrinter::print(weight));
-                        double expectedProbability[2];
-                        TTail10Vec expectedTail[2];
-                        {
-                            maths_t::TDouble10VecWeightsAry weight_(
-                                maths_t::CUnitWeights::unit<TDouble10Vec>(3));
-                            for (std::size_t i = 0u; i < weight.size(); ++i) {
-                                weight_[i] = weight[i];
-                            }
-                            double lb[2], ub[2];
-                            model0.residualModel().probabilityOfLessLikelySamples(
-                                calculation, {TDouble10Vec(sample)}, {weight_},
-                                lb[0], ub[0], expectedTail[0]);
-                            TDouble10Vec detrended;
-                            for (std::size_t j = 0u; j < sample.size(); ++j) {
-                                detrended.push_back(model1.trendModel()[j]->detrend(
-                                    time, sample[j], confidence));
-                            }
-                            model1.residualModel().probabilityOfLessLikelySamples(
-                                calculation, {detrended}, {weight_}, lb[1],
-                                ub[1], expectedTail[1]);
-                            expectedProbability[0] = (lb[0] + ub[0]) / 2.0;
-                            expectedProbability[1] = (lb[1] + ub[1]) / 2.0;
+                for (const auto& weight : weights) {
+                    LOG_DEBUG(<< "   weights = " << core::CContainerPrinter::print(weight));
+                    double expectedProbability[2];
+                    TTail10Vec expectedTail[2];
+                    {
+                        maths_t::TDouble10VecWeightsAry weight_(
+                            maths_t::CUnitWeights::unit<TDouble10Vec>(3));
+                        for (std::size_t i = 0u; i < weight.size(); ++i) {
+                            weight_[i] = weight[i];
                         }
+                        double lb[2], ub[2];
+                        model0.residualModel().probabilityOfLessLikelySamples(
+                            calculation, {TDouble10Vec(sample)}, {weight_},
+                            lb[0], ub[0], expectedTail[0]);
+                        TDouble10Vec detrended;
+                        for (std::size_t j = 0u; j < sample.size(); ++j) {
+                            detrended.push_back(model1.trendModel()[j]->detrend(
+                                time, sample[j], confidence));
+                        }
+                        model1.residualModel().probabilityOfLessLikelySamples(
+                            calculation, {detrended}, {weight_}, lb[1], ub[1],
+                            expectedTail[1]);
+                        expectedProbability[0] = (lb[0] + ub[0]) / 2.0;
+                        expectedProbability[1] = (lb[1] + ub[1]) / 2.0;
+                    }
 
-                        maths::SModelProbabilityResult results[2];
-                        {
-                            maths::CModelProbabilityParams params;
-                            params.addCalculation(calculation)
-                                .seasonalConfidenceInterval(confidence)
-                                .addBucketEmpty({empty})
-                                .addWeights(weight)
-                                .useMultibucketFeatures(false);
-                            model0.probability(params, time_, {sample}, results[0]);
-                            model1.probability(params, time_, {sample}, results[1]);
-                        }
+                    maths::SModelProbabilityResult results[2];
+                    {
+                        maths::CModelProbabilityParams params;
+                        params.addCalculation(calculation)
+                            .seasonalConfidenceInterval(confidence)
+                            .addWeights(weight)
+                            .useMultibucketFeatures(false);
+                        model0.probability(params, time_, {sample}, results[0]);
+                        model1.probability(params, time_, {sample}, results[1]);
+                    }
 
-                        CPPUNIT_ASSERT_EQUAL(expectedProbability[0], results[0].s_Probability);
-                        CPPUNIT_ASSERT_EQUAL(expectedProbability[1], results[1].s_Probability);
-                        for (std::size_t j = 0u; j < 3; ++j) {
-                            CPPUNIT_ASSERT_EQUAL(expectedTail[0][j], results[0].s_Tail[j]);
-                            CPPUNIT_ASSERT_EQUAL(expectedTail[1][j], results[1].s_Tail[j]);
-                        }
+                    CPPUNIT_ASSERT_EQUAL(expectedProbability[0], results[0].s_Probability);
+                    CPPUNIT_ASSERT_EQUAL(expectedProbability[1], results[1].s_Probability);
+                    for (std::size_t j = 0u; j < 3; ++j) {
+                        CPPUNIT_ASSERT_EQUAL(expectedTail[0][j], results[0].s_Tail[j]);
+                        CPPUNIT_ASSERT_EQUAL(expectedTail[1][j], results[1].s_Tail[j]);
                     }
                 }
             }
