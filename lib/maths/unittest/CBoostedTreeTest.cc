@@ -890,6 +890,8 @@ void CBoostedTreeTest::testLogisticMinimizer() {
             return loss + lambda * maths::CTools::pow2(weight);
         };
 
+        // This loop is fuzzing the predicted log-odds and testing we get consistently
+        // good estimates of the true minimizer.
         for (std::size_t t = 0; t < 10; ++t) {
 
             double min{std::numeric_limits<double>::max()};
