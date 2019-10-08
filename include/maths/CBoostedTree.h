@@ -84,24 +84,24 @@ private:
 
 private:
     std::size_t bucket(double prediction) const {
-        double bucket{(prediction - m_MinMaxPrediction.min()) / this->bucketWidth()};
+        double bucket{(prediction - m_PredictionMinMax.min()) / this->bucketWidth()};
         return std::min(static_cast<std::size_t>(bucket),
                         m_BucketCategoryCounts.size() - 1);
     }
 
     double bucketCentre(std::size_t bucket) const {
-        return m_MinMaxPrediction.min() +
+        return m_PredictionMinMax.min() +
                (static_cast<double>(bucket) + 0.5) * this->bucketWidth();
     }
 
     double bucketWidth() const {
-        return m_MinMaxPrediction.range() /
+        return m_PredictionMinMax.range() /
                static_cast<double>(m_BucketCategoryCounts.size());
     }
 
 private:
     std::size_t m_CurrentPass = 0;
-    TMinMaxAccumulator m_MinMaxPrediction;
+    TMinMaxAccumulator m_PredictionMinMax;
     TSizeVector m_CategoryCounts;
     TSizeVectorVec m_BucketCategoryCounts;
 };

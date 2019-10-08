@@ -85,7 +85,7 @@ bool CArgMinLogisticImpl::nextPass() {
 void CArgMinLogisticImpl::add(double prediction, double actual) {
     switch (m_CurrentPass) {
     case 0: {
-        m_MinMaxPrediction.add(prediction);
+        m_PredictionMinMax.add(prediction);
         ++m_CategoryCounts(static_cast<std::size_t>(actual));
         break;
     }
@@ -104,7 +104,7 @@ void CArgMinLogisticImpl::merge(const CArgMinLossImpl& other) {
     if (logistic != nullptr) {
         switch (m_CurrentPass) {
         case 0:
-            m_MinMaxPrediction += logistic->m_MinMaxPrediction;
+            m_PredictionMinMax += logistic->m_PredictionMinMax;
             m_CategoryCounts += logistic->m_CategoryCounts;
             break;
         case 1:
@@ -158,8 +158,8 @@ double CArgMinLogisticImpl::value() const {
 
         // Choose a weight interval in which all probabilites vary from close to
         // zero to close to one.
-        minWeight = -m_MinMaxPrediction.max() - 2.0;
-        maxWeight = -m_MinMaxPrediction.min() + 2.0;
+        minWeight = -m_PredictionMinMax.max() - 2.0;
+        maxWeight = -m_PredictionMinMax.min() + 2.0;
     }
 
     if (minWeight == maxWeight) {
