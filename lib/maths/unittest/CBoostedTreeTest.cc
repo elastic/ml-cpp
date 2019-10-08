@@ -961,8 +961,17 @@ void CBoostedTreeTest::testLogisticMinimizer() {
 
 void CBoostedTreeTest::testLogisticRegression() {
 
-    // Test we approximately minimise the cross entropy if the category labels
-    // are generated from log odds which are a linear function of the regressors.
+    // The idea of this test is to create a random linear relationship between
+    // the feature values and the log-odds of each class, i.e.
+    //
+    //   log-odds(class_1) = sum_i{ w * x_i }
+    //
+    // where, w is some fixed weight vector and x_i denoted the i'th feature vector.
+    // We are try to recover this relationship in logistic regression by observing
+    // the actual labels. We want to test that we've roughly correctly estimated the
+    // log-odds. However, we target the cross-entropy so the errors in our estimates
+    // p_i^ should be measured in terms of cross entropy: sum_i{ p_i^ log(p_i) }
+    // where p_i = logistic(sum_i{ w_i * x_i}).
 
     test::CRandomNumbers rng;
 
