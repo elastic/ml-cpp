@@ -908,6 +908,11 @@ void CBoostedTreeTest::testLogisticMinimizer() {
                 max = std::max(max, weight[0]);
             }
 
+            // Choose a weight interval in which all probabilites vary from close to
+            // zero to close which we know will contain the true optimum. The idea is
+            // to minimize the leaf weight on an interval [a, b] where if we add "a"
+            // the log-odds for all rows <= 0, i.e. max prediction + a = 0, and if we
+            // add "b" the log-odds for all rows >= 0, i.e. min prediction + a = 0.
             double expected;
             double objectiveAtExpected;
             std::size_t maxIterations{20};

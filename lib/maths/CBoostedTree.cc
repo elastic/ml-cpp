@@ -169,9 +169,12 @@ double CArgMinLogisticImpl::value() const {
         };
 
         // Choose a weight interval in which all probabilites vary from close to
-        // zero to close to one.
-        minWeight = -m_PredictionMinMax.max() - 2.0;
-        maxWeight = -m_PredictionMinMax.min() + 2.0;
+        // zero to close to one. In particular, the idea is to minimize the leaf
+        // weight on an interval [a, b] where if we add "a" the log-odds for all
+        // rows <= -5, i.e. max prediction + a = -5, and if we add "b" the log-odds
+        // for all rows >= 5, i.e. min prediction + a = 5.
+        minWeight = -m_PredictionMinMax.max() - 5.0;
+        maxWeight = -m_PredictionMinMax.min() + 5.0;
     }
 
     if (minWeight == maxWeight) {
