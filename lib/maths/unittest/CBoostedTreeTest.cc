@@ -984,27 +984,24 @@ void CBoostedTreeTest::testLogisticRegression() {
 
     TMeanAccumulator meanExcessCrossEntropy;
     for (std::size_t test = 0; test < 3; ++test) {
-        auto probability = [&] {
-            TDoubleVec weights;
-            rng.generateUniformSamples(-2.0, 2.0, cols - 1, weights);
-            TDoubleVec noise;
-            rng.generateNormalSamples(0.0, 1.0, rows, noise);
-            return [=](const TRowRef& row) {
-                double x{0.0};
-                for (std::size_t i = 0; i < cols - 1; ++i) {
-                    x += weights[i] * row[i];
-                }
-                return maths::CTools::logisticFunction(x + noise[row.index()]);
-            };
-        }();
+        TDoubleVec weights;
+        rng.generateUniformSamples(-2.0, 2.0, cols - 1, weights);
+        TDoubleVec noise;
+        rng.generateNormalSamples(0.0, 1.0, rows, noise);
+        TDoubleVec uniform01;
+        rng.generateUniformSamples(0.0, 1.0, rows, uniform01);
 
-        auto target = [&] {
-            TDoubleVec uniform01;
-            rng.generateUniformSamples(0.0, 1.0, rows, uniform01);
-            return [=](const TRowRef& row) {
-                return uniform01[row.index()] < probability(row) ? 1.0 : 0.0;
-            };
-        }();
+        auto probability = [&](const TRowRef& row) {
+            double x{0.0};
+            for (std::size_t i = 0; i < cols - 1; ++i) {
+                x += weights[i] * row[i];
+            }
+            return maths::CTools::logisticFunction(x + noise[row.index()]);
+        };
+
+        auto target = [&](const TRowRef& row) {
+            return uniform01[row.index()] < probability(row) ? 1.0 : 0.0;
+        };
 
         TDoubleVecVec x(cols - 1);
         for (std::size_t i = 0; i < cols - 1; ++i) {
