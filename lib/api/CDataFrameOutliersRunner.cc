@@ -83,9 +83,8 @@ std::size_t CDataFrameOutliersRunner::numberExtraColumns() const {
     return m_ComputeFeatureInfluence ? this->spec().numberColumns() + 1 : 1;
 }
 
-void CDataFrameOutliersRunner::writeOneRow(const TStrVec& featureNames,
-                                           const TStrVecVec&,
-                                           TRowRef row,
+void CDataFrameOutliersRunner::writeOneRow(const core::CDataFrame& frame,
+                                           const TRowRef& row,
                                            core::CRapidJsonConcurrentLineWriter& writer) const {
     std::size_t scoreColumn{row.numberColumns() - this->numberExtraColumns()};
     std::size_t beginFeatureScoreColumns{scoreColumn + 1};
@@ -95,14 +94,14 @@ void CDataFrameOutliersRunner::writeOneRow(const TStrVec& featureNames,
     writer.Double(row[scoreColumn]);
     if (row[scoreColumn] > m_FeatureInfluenceThreshold) {
         for (std::size_t i = 0; i < numberFeatureScoreColumns; ++i) {
-            writer.Key(FEATURE_INFLUENCE_FIELD_NAME_PREFIX + featureNames[i]);
+            writer.Key(FEATURE_INFLUENCE_FIELD_NAME_PREFIX + frame.columnNames()[i]);
             writer.Double(row[beginFeatureScoreColumns + i]);
         }
     }
     writer.EndObject();
 }
 
-void CDataFrameOutliersRunner::runImpl(const TStrVec&, core::CDataFrame& frame) {
+void CDataFrameOutliersRunner::runImpl(core::CDataFrame& frame) {
 
     core::CProgramCounters::counter(counter_t::E_DFONumberPartitions) =
         this->numberPartitions();

@@ -60,6 +60,7 @@ class CMemoryUsageEstimationResultJsonWriter;
 class API_EXPORT CDataFrameAnalysisRunner {
 public:
     using TBoolVec = std::vector<bool>;
+    using TSizeVec = std::vector<std::size_t>;
     using TStrVec = std::vector<std::string>;
     using TStrVecVec = std::vector<TStrVec>;
     using TRowRef = core::data_frame_detail::CRowRef;
@@ -115,12 +116,11 @@ public:
     //! </pre>
     //! with one named member for each column added.
     //!
-    //! \param[in] featureNames The names of the analysis features.
+    //! \param[in] frame The data frane for which to write results.
     //! \param[in] row The row to write the columns added by this analysis.
     //! \param[in,out] writer The stream to which to write the extra columns.
-    virtual void writeOneRow(const TStrVec& featureNames,
-                             const TStrVecVec& categoricalFieldValues,
-                             TRowRef row,
+    virtual void writeOneRow(const core::CDataFrame& frame,
+                             const TRowRef& row,
                              core::CRapidJsonConcurrentLineWriter& writer) const = 0;
 
     //! Checks whether the analysis is already running and if not launches it
@@ -128,7 +128,7 @@ public:
     //!
     //! \note The thread calling this is expected to be nearly always idle, i.e.
     //! just progress monitoring, so this doesn't count towards the thread limit.
-    void run(const TStrVec& featureNames, core::CDataFrame& frame);
+    void run(core::CDataFrame& frame);
 
     //! This waits to until the analysis has finished and joins the thread.
     void waitToFinish();
@@ -155,7 +155,7 @@ protected:
     TStatePersister statePersister();
 
 private:
-    virtual void runImpl(const TStrVec& featureNames, core::CDataFrame& frame) = 0;
+    virtual void runImpl(core::CDataFrame& frame) = 0;
     virtual std::size_t estimateBookkeepingMemoryUsage(std::size_t numberPartitions,
                                                        std::size_t totalNumberRows,
                                                        std::size_t partitionNumberRows,

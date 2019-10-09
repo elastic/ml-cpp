@@ -11,8 +11,6 @@
 #include <core/CJsonOutputStreamWrapper.h>
 #include <core/CLogger.h>
 
-#include <maths/CTools.h>
-
 #include <api/CDataFrameAnalysisSpecification.h>
 
 #include <chrono>
@@ -24,35 +22,6 @@ namespace ml {
 namespace api {
 namespace {
 using TStrVec = std::vector<std::string>;
-using TStrVecVec = std::vector<TStrVec>;
-using TStrSizeUMap = boost::unordered_map<std::string, std::size_t>;
-using TStrSizeUMapVec = std::vector<TStrSizeUMap>;
-
-core::CFloatStorage truncateToFloatRange(double value) {
-    double largest{static_cast<double>(std::numeric_limits<float>::max())};
-    return maths::CTools::truncate(value, -largest, largest);
-}
-
-void mapToVector(const TStrSizeUMap& map, TStrVec& vector) {
-    assert(vector.empty());
-    vector.resize(map.size());
-    for (const auto& entry : map) {
-        std::size_t index = entry.second;
-        if (index >= vector.size()) {
-            HANDLE_FATAL(<< "Index out of bounds: " << index);
-        } else {
-            vector[index] = entry.first;
-        }
-    }
-}
-
-void mapsToVectors(const TStrSizeUMapVec& maps, TStrVecVec& vectors) {
-    assert(vectors.empty());
-    vectors.resize(maps.size());
-    for (std::size_t i = 0; i < maps.size(); ++i) {
-        mapToVector(maps[i], vectors[i]);
-    }
-}
 
 const std::string SPECIAL_COLUMN_FIELD_NAME{"."};
 
@@ -127,18 +96,9 @@ bool CDataFrameAnalyzer::handleRecord(const TStrVec& fieldNames, const TStrVec& 
 }
 
 void CDataFrameAnalyzer::receivedAllRows() {
-
     if (m_DataFrame != nullptr) {
         m_DataFrame->finishWritingRows();
         LOG_DEBUG(<< "Received " << m_DataFrame->numberRows() << " rows");
-    }
-
-    for (std::size_t i = 0; i < m_CategoricalFieldValues.size(); ++i) {
-        std::size_t distinct{m_CategoricalFieldValues[i].size()};
-        if (distinct >= MAX_CATEGORICAL_CARDINALITY) {
-            LOG_WARN(<< "Failed to represent all distinct values of "
-                     << m_CategoricalFieldNames[i]);
-        }
     }
 }
 
@@ -166,7 +126,7 @@ void CDataFrameAnalyzer::run() {
 
     LOG_TRACE(<< "Running analysis...");
 
-    CDataFrameAnalysisRunner* analysis{m_AnalysisSpecification->run(m_FieldNames, *m_DataFrame)};
+    CDataFrameAnalysisRunner* analysis{m_AnalysisSpecification->run(*m_DataFrame)};
 
     if (analysis == nullptr) {
         return;
@@ -235,23 +195,6 @@ bool CDataFrameAnalyzer::prepareToReceiveControlMessages(const TStrVec& fieldNam
         m_DocHashFieldIndex = m_ControlFieldIndex - 1;
     }
 
-    m_CategoricalFieldNames.resize(m_EndDataFieldValues);
-    m_CategoricalFieldValues.resize(m_EndDataFieldValues);
-
-    std::vector<bool> isCategorical(m_EndDataFieldValues, false);
-
-    const auto& categoricalFieldNames = m_AnalysisSpecification->categoricalFieldNames();
-    for (std::ptrdiff_t i = 0; i < m_EndDataFieldValues; ++i) {
-        isCategorical[i] = std::find(categoricalFieldNames.begin(),
-                                     categoricalFieldNames.end(),
-                                     fieldNames[i]) != categoricalFieldNames.end();
-        m_CategoricalFieldNames[i] = isCategorical[i] ? fieldNames[i] : "";
-    }
-
-    if (m_DataFrame != nullptr) {
-        m_DataFrame->categoricalColumns(std::move(isCategorical));
-    }
-
     return true;
 }
 
@@ -299,10 +242,16 @@ bool CDataFrameAnalyzer::handleControlMessage(const TStrVec& fieldValues) {
 }
 
 void CDataFrameAnalyzer::captureFieldNames(const TStrVec& fieldNames) {
-    if (m_FieldNames.empty()) {
-        m_FieldNames.assign(fieldNames.begin() + m_BeginDataFieldValues,
-                            fieldNames.begin() + m_EndDataFieldValues);
-        m_EmptyAsMissing = m_AnalysisSpecification->columnsForWhichEmptyIsMissing(m_FieldNames);
+    if (m_DataFrame == nullptr) {
+        return;
+    }
+    if (m_DataFrame != nullptr && m_DataFrame->columnNames().empty()) {
+        TStrVec columnNames{fieldNames.begin() + m_BeginDataFieldValues,
+                            fieldNames.begin() + m_EndDataFieldValues};
+        m_DataFrame->columnNames(columnNames);
+        m_DataFrame->emptyIsMissing(
+            m_AnalysisSpecification->columnsForWhichEmptyIsMissing(columnNames));
+        m_DataFrame->categoricalColumns(m_AnalysisSpecification->categoricalFieldNames());
     }
 }
 
@@ -310,71 +259,11 @@ void CDataFrameAnalyzer::addRowToDataFrame(const TStrVec& fieldValues) {
     if (m_DataFrame == nullptr) {
         return;
     }
-
-    using TFloatVecItr = core::CDataFrame::TFloatVecItr;
-
-    auto fieldToValue = [this](bool isCategorical, TStrSizeUMap& categoricalFields,
-                               bool emptyAsMissing, const std::string& fieldValue) {
-        if (isCategorical) {
-            if (fieldValue.empty() && emptyAsMissing) {
-                return core::CFloatStorage{core::CDataFrame::valueOfMissing()};
-            }
-            // This encodes in a format suitable for efficient storage. The
-            // actual encoding approach is chosen when the analysis runs.
-            std::int64_t id;
-            if (categoricalFields.size() == MAX_CATEGORICAL_CARDINALITY) {
-                auto itr = categoricalFields.find(fieldValue);
-                id = itr != categoricalFields.end()
-                         ? itr->second
-                         : static_cast<std::int64_t>(MAX_CATEGORICAL_CARDINALITY);
-            } else {
-                // We can represent up to float mantissa bits - 1 distinct
-                // categories so can faithfully store categorical fields with
-                // up to around 17M distinct values. For higher cardinalities
-                // one would need to use some form of dimension reduction such
-                // as hashing anyway.
-                id = static_cast<std::int64_t>(
-                    categoricalFields
-                        .emplace(fieldValue, categoricalFields.size())
-                        .first->second);
-            }
-            return core::CFloatStorage{static_cast<double>(id)};
-        }
-
-        // Use NaN to indicate missing or bad values in the data frame. This
-        // needs handling with care from an analysis perspective. If analyses
-        // can deal with missing values they need to treat NaNs as missing
-        // otherwise we must impute or exit with failure.
-
-        double value;
-        if (fieldValue.empty()) {
-            ++m_MissingValueCount;
-            return core::CFloatStorage{core::CDataFrame::valueOfMissing()};
-        } else if (core::CStringUtils::stringToTypeSilent(fieldValue, value) == false) {
-            ++m_BadValueCount;
-            return core::CFloatStorage{core::CDataFrame::valueOfMissing()};
-        }
-
-        // Tuncation is very unlikely since the values will typically be
-        // standardised.
-        return truncateToFloatRange(value);
-    };
-
-    const auto& isCategorical = m_DataFrame->columnIsCategorical();
-
-    m_DataFrame->writeRow([&](TFloatVecItr columns, std::int32_t& docHash) {
-        for (std::ptrdiff_t i = m_BeginDataFieldValues;
-             i != m_EndDataFieldValues; ++i, ++columns) {
-            *columns = fieldToValue(isCategorical[i], m_CategoricalFieldValues[i],
-                                    m_EmptyAsMissing[i], fieldValues[i]);
-        }
-        docHash = 0;
-        if (m_DocHashFieldIndex != FIELD_MISSING &&
-            core::CStringUtils::stringToTypeSilent(fieldValues[m_DocHashFieldIndex],
-                                                   docHash) == false) {
-            ++m_BadDocHashCount;
-        }
-    });
+    auto columnValues = core::make_range(fieldValues, m_BeginDataFieldValues,
+                                         m_EndDataFieldValues);
+    m_DataFrame->parseAndWriteRow(columnValues, m_DocHashFieldIndex != FIELD_MISSING
+                                                    ? &fieldValues[m_DocHashFieldIndex]
+                                                    : nullptr);
 }
 
 void CDataFrameAnalyzer::monitorProgress(const CDataFrameAnalysisRunner& analysis,
@@ -408,11 +297,6 @@ void CDataFrameAnalyzer::writeResultsOf(const CDataFrameAnalysisRunner& analysis
     // can join the extra columns with the original data frame.
     std::size_t numberThreads{1};
 
-    // Change representation of categorical field values from map (category name -> index)
-    // to the vector of category names.
-    TStrVecVec categoricalFieldValues;
-    mapsToVectors(m_CategoricalFieldValues, categoricalFieldValues);
-
     using TRowItr = core::CDataFrame::TRowItr;
     m_DataFrame->readRows(numberThreads, [&](TRowItr beginRows, TRowItr endRows) {
         for (auto row = beginRows; row != endRows; ++row) {
@@ -425,7 +309,7 @@ void CDataFrameAnalyzer::writeResultsOf(const CDataFrameAnalysisRunner& analysis
 
             writer.StartObject();
             writer.Key(m_AnalysisSpecification->resultsField());
-            analysis.writeOneRow(m_FieldNames, categoricalFieldValues, *row, writer);
+            analysis.writeOneRow(*m_DataFrame, *row, writer);
             writer.EndObject();
 
             writer.EndObject();
@@ -435,8 +319,5 @@ void CDataFrameAnalyzer::writeResultsOf(const CDataFrameAnalysisRunner& analysis
 
     writer.flush();
 }
-
-const std::size_t CDataFrameAnalyzer::MAX_CATEGORICAL_CARDINALITY{
-    1 << (std::numeric_limits<float>::digits)};
 }
 }

@@ -45,9 +45,8 @@ CDataFrameRegressionRunner::CDataFrameRegressionRunner(const CDataFrameAnalysisS
     : CDataFrameBoostedTreeRunner{spec} {
 }
 
-void CDataFrameRegressionRunner::writeOneRow(const TStrVec&,
-                                             const TStrVecVec&,
-                                             TRowRef row,
+void CDataFrameRegressionRunner::writeOneRow(const core::CDataFrame&,
+                                             const TRowRef& row,
                                              core::CRapidJsonConcurrentLineWriter& writer) const {
     const auto& tree = this->boostedTree();
     const std::size_t columnHoldingDependentVariable = tree.columnHoldingDependentVariable();
@@ -60,6 +59,11 @@ void CDataFrameRegressionRunner::writeOneRow(const TStrVec&,
     writer.Key(IS_TRAINING_FIELD_NAME);
     writer.Bool(maths::CDataFrameUtils::isMissing(row[columnHoldingDependentVariable]) == false);
     writer.EndObject();
+}
+
+CDataFrameRegressionRunner::TLossFunctionUPtr
+CDataFrameRegressionRunner::chooseLossFunction(const core::CDataFrame&, std::size_t) const {
+    return std::make_unique<maths::boosted_tree::CMse>();
 }
 
 const std::string& CDataFrameRegressionRunnerFactory::name() const {
