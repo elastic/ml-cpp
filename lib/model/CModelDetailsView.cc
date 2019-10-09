@@ -132,7 +132,7 @@ void CModelDetailsView::addCurrentBucketValues(core_t::TTime time,
         }
     };
 
-    if (model_t::countsEmptyBuckets(feature)) {
+    if (model_t::includeEmptyBuckets(feature)) {
         for (std::size_t pid = 0u; pid < gatherer.numberPeople(); ++pid) {
             if (gatherer.isPersonActive(pid)) {
                 if (isPopulation) {

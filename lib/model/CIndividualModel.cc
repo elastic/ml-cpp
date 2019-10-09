@@ -513,28 +513,16 @@ void CIndividualModel::clearPrunedResources(const TSizeVec& people,
 double CIndividualModel::emptyBucketWeight(model_t::EFeature feature,
                                            std::size_t pid,
                                            core_t::TTime time) const {
-    double result = 1.0;
-    if (model_t::countsEmptyBuckets(feature)) {
-        TOptionalUInt64 count = this->currentBucketCount(pid, time);
-        if (!count || *count == 0) {
-            double frequency = this->personFrequency(pid);
-            result = model_t::emptyBucketCountWeight(
-                feature, frequency, this->params().s_CutoffToModelEmptyBuckets);
+    double weight{1.0};
+    if (model_t::includeEmptyBuckets(feature)) {
+        TOptionalUInt64 count{this->currentBucketCount(pid, time)};
+        if (count == boost::none || *count == 0) {
+            // We smoothly transition to modelling non-zero count when the bucket
+            // occupancy is less than 0.5.
+            weight = std::min(2.0 * this->personFrequency(pid), 1.0);
         }
     }
-    return result;
-}
-
-double CIndividualModel::probabilityBucketEmpty(model_t::EFeature feature,
-                                                std::size_t pid) const {
-    double result = 0.0;
-    if (model_t::countsEmptyBuckets(feature)) {
-        double frequency = this->personFrequency(pid);
-        double emptyBucketWeight = model_t::emptyBucketCountWeight(
-            feature, frequency, this->params().s_CutoffToModelEmptyBuckets);
-        result = (1.0 - frequency) * (1.0 - emptyBucketWeight);
-    }
-    return result;
+    return weight;
 }
 
 const maths::CModel* CIndividualModel::model(model_t::EFeature feature, std::size_t pid) const {

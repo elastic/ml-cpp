@@ -32,9 +32,6 @@ void CModelTest::testAll() {
         CPPUNIT_ASSERT_EQUAL(decayRate, params.decayRate());
         CPPUNIT_ASSERT_EQUAL(minimumSeasonalVarianceScale,
                              params.minimumSeasonalVarianceScale());
-        CPPUNIT_ASSERT_EQUAL(0.0, params.probabilityBucketEmpty());
-        params.probabilityBucketEmpty(0.2);
-        CPPUNIT_ASSERT_EQUAL(0.2, params.probabilityBucketEmpty());
         CPPUNIT_ASSERT_EQUAL(6 * core::constants::HOUR, params.minimumTimeToDetectChange());
         CPPUNIT_ASSERT_EQUAL(core::constants::DAY, params.maximumTimeToTestForChange());
     }
@@ -66,8 +63,6 @@ void CModelTest::testAll() {
         params.addCalculation(maths_t::E_OneSidedAbove)
             .addCalculation(maths_t::E_TwoSided)
             .seasonalConfidenceInterval(50.0)
-            .addBucketEmpty({true, true})
-            .addBucketEmpty({false, true})
             .addWeights(weight1)
             .addWeights(weight2)
             .mostAnomalousCorrelate(1)
@@ -77,8 +72,6 @@ void CModelTest::testAll() {
         CPPUNIT_ASSERT_EQUAL(maths_t::E_OneSidedAbove, params.calculation(0));
         CPPUNIT_ASSERT_EQUAL(maths_t::E_TwoSided, params.calculation(1));
         CPPUNIT_ASSERT_EQUAL(50.0, params.seasonalConfidenceInterval());
-        CPPUNIT_ASSERT_EQUAL(std::string("[[true, true], [false, true]]"),
-                             core::CContainerPrinter::print(params.bucketEmpty()));
         CPPUNIT_ASSERT_EQUAL(core::CContainerPrinter::print(weights),
                              core::CContainerPrinter::print(params.weights()));
         CPPUNIT_ASSERT_EQUAL(std::size_t(1), *params.mostAnomalousCorrelate());

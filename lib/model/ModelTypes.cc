@@ -693,7 +693,7 @@ void inverseOffsetCountToZero(EFeature feature, TDouble1Vec& count) {
     }
 }
 
-bool countsEmptyBuckets(EFeature feature) {
+bool includeEmptyBuckets(EFeature feature) {
     switch (feature) {
     case E_IndividualCountByBucketAndPerson:
     case E_IndividualLowCountsByBucketAndPerson:
@@ -749,22 +749,6 @@ bool countsEmptyBuckets(EFeature feature) {
         return false;
     }
     return false;
-}
-
-double emptyBucketCountWeight(EFeature feature, double frequency, double cutoff) {
-    if (countsEmptyBuckets(feature) && cutoff > 0.0) {
-        static const double M = 1.001;
-        static const double C = 0.025;
-        static const double K = std::log((M + 1.0) / (M - 1.0)) / C;
-        double df = frequency - std::min(cutoff + C, 1.0);
-        if (df < -C) {
-            return 0.0;
-        } else if (df < C) {
-            double fa = std::exp(K * df);
-            return 0.5 * (1.0 + M * (fa - 1.0) / (fa + 1.0));
-        }
-    }
-    return 1.0;
 }
 
 double learnRate(EFeature feature, const model::SModelParams& params) {

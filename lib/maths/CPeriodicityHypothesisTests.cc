@@ -303,18 +303,17 @@ void project(const TFloatMeanAccumulatorVec& values,
 
 //! Calculate the number of non-empty buckets at each bucket offset in
 //! the period for the \p values in \p windows.
-TSizeVec calculateRepeats(const TSizeSizePr2Vec& windows,
-                          std::size_t period,
-                          const TFloatMeanAccumulatorVec& values) {
-    TSizeVec result(std::min(period, length(windows[0])), 0);
+TDoubleVec calculateRepeats(const TSizeSizePr2Vec& windows,
+                            std::size_t period,
+                            const TFloatMeanAccumulatorVec& values) {
+    TDoubleVec result(std::min(period, length(windows[0])), 0);
     std::size_t n{values.size()};
     for (const auto& window : windows) {
         std::size_t a{window.first};
         std::size_t b{window.second};
         for (std::size_t i = a; i < b; ++i) {
-            if (CBasicStatistics::count(values[i % n]) > 0.0) {
-                ++result[(i - a) % period];
-            }
+            double count{CBasicStatistics::count(values[i % n])};
+            result[(i - a) % period] += std::min(count, 1.0);
         }
     }
     return result;
@@ -322,10 +321,10 @@ TSizeVec calculateRepeats(const TSizeSizePr2Vec& windows,
 
 //! Calculate the number of non-empty buckets at each bucket offset in
 //! the period for the \p values in \p windows.
-TSizeVec calculateRepeats(const TTimeTimePr2Vec& windows_,
-                          core_t::TTime period,
-                          core_t::TTime bucketLength,
-                          const TFloatMeanAccumulatorVec& values) {
+TDoubleVec calculateRepeats(const TTimeTimePr2Vec& windows_,
+                            core_t::TTime period,
+                            core_t::TTime bucketLength,
+                            const TFloatMeanAccumulatorVec& values) {
     TSizeSizePr2Vec windows;
     calculateIndexWindows(windows_, bucketLength, windows);
     return calculateRepeats(windows, period / bucketLength, values);
@@ -344,53 +343,53 @@ void reweightOutliers(const std::vector<T>& trend,
     using TMaxAccumulator =
         CBasicStatistics::COrderStatisticsHeap<TDoubleSizePr, std::greater<TDoubleSizePr>>;
 
-    if (values.size() > 0) {
+    std::size_t period{trend.size()};
+    std::size_t numberOutliers{static_cast<std::size_t>([&period, &values] {
+        std::size_t count(std::count_if(
+            values.begin(), values.end(), [](const TFloatMeanAccumulator& value) {
+                return CBasicStatistics::count(value) > 0.0;
+            }));
+        return SEASONAL_OUTLIER_FRACTION *
+               static_cast<double>(count - std::min(count, period));
+    }())};
+    LOG_TRACE(<< "Number outliers = " << numberOutliers);
+
+    if (numberOutliers > 0) {
         TSizeSizePr2Vec windows;
         calculateIndexWindows(windows_, bucketLength, windows);
-        std::size_t period{trend.size()};
         std::size_t n{values.size()};
 
-        TSizeVec repeats{calculateRepeats(windows, period, values)};
-        double excess{std::accumulate(
-            repeats.begin(), repeats.end(), 0.0, [](double excess_, std::size_t repeat) {
-                return excess_ + static_cast<double>(repeat > 1 ? repeat - 1 : 0);
-            })};
-        std::size_t numberOutliers{static_cast<std::size_t>(SEASONAL_OUTLIER_FRACTION * excess)};
-        LOG_TRACE(<< "Number outliers = " << numberOutliers);
-
-        if (numberOutliers > 0) {
-            TMaxAccumulator outliers{numberOutliers};
-            TMeanAccumulator meanDifference;
-            for (const auto& window : windows) {
-                std::size_t a{window.first};
-                std::size_t b{window.second};
-                for (std::size_t j = a; j < b; ++j) {
-                    const TFloatMeanAccumulator& value{values[j % n]};
-                    if (CBasicStatistics::count(value) > 0.0) {
-                        std::size_t offset{(j - a) % period};
-                        double difference{std::fabs(CBasicStatistics::mean(value) -
-                                                    CBasicStatistics::mean(trend[offset]))};
-                        outliers.add({difference, j});
-                        meanDifference.add(difference);
-                    }
+        TMaxAccumulator outliers{numberOutliers};
+        TMeanAccumulator meanDifference;
+        for (const auto& window : windows) {
+            std::size_t a{window.first};
+            std::size_t b{window.second};
+            for (std::size_t j = a; j < b; ++j) {
+                const TFloatMeanAccumulator& value{values[j % n]};
+                if (CBasicStatistics::count(value) > 0.0) {
+                    std::size_t offset{(j - a) % period};
+                    double difference{std::fabs(CBasicStatistics::mean(value) -
+                                                CBasicStatistics::mean(trend[offset]))};
+                    outliers.add({difference, j});
+                    meanDifference.add(difference);
                 }
             }
-            TMeanAccumulator meanDifferenceOfOutliers;
-            for (const auto& outlier : outliers) {
-                meanDifferenceOfOutliers.add(outlier.first);
-            }
-            meanDifference -= meanDifferenceOfOutliers;
-            LOG_TRACE(<< "mean difference = " << CBasicStatistics::mean(meanDifference));
-            LOG_TRACE(<< "outliers = " << core::CContainerPrinter::print(outliers));
-
-            for (const auto& outlier : outliers) {
-                if (outlier.first > SEASONAL_OUTLIER_DIFFERENCE_THRESHOLD *
-                                        CBasicStatistics::mean(meanDifference)) {
-                    CBasicStatistics::count(values[outlier.second % n]) *= SEASONAL_OUTLIER_WEIGHT;
-                }
-            }
-            LOG_TRACE(<< "Values - outliers = " << core::CContainerPrinter::print(values));
         }
+        TMeanAccumulator meanDifferenceOfOutliers;
+        for (const auto& outlier : outliers) {
+            meanDifferenceOfOutliers.add(outlier.first);
+        }
+        meanDifference -= meanDifferenceOfOutliers;
+        LOG_TRACE(<< "mean difference = " << CBasicStatistics::mean(meanDifference));
+        LOG_TRACE(<< "outliers = " << core::CContainerPrinter::print(outliers));
+
+        for (const auto& outlier : outliers) {
+            if (outlier.first > SEASONAL_OUTLIER_DIFFERENCE_THRESHOLD *
+                                    CBasicStatistics::mean(meanDifference)) {
+                CBasicStatistics::count(values[outlier.second % n]) *= SEASONAL_OUTLIER_WEIGHT;
+            }
+        }
+        LOG_TRACE(<< "Values - outliers = " << core::CContainerPrinter::print(values));
     }
 }
 
@@ -1839,10 +1838,12 @@ bool CPeriodicityHypothesisTests::testPeriodWithScaling(const TTimeTimePr2Vec& w
     }
 
     // Compute the degrees of freedom given the alternative hypothesis.
-    TSizeVec repeats(calculateRepeats(windows, period_, m_BucketLength, values));
-    double b{static_cast<double>(
-        std::count_if(repeats.begin(), repeats.end(),
-                      [](std::size_t repeat) { return repeat > 0; }))};
+    double b{[&windows, &period_, &values, this] {
+        TDoubleVec repeats(calculateRepeats(windows, period_, m_BucketLength, values));
+        return static_cast<double>(
+            std::count_if(repeats.begin(), repeats.end(),
+                          [](double repeat) { return repeat > 0.0; }));
+    }()};
     double df1{stats.s_NonEmptyBuckets - b - static_cast<double>(segmentation.size() - 2)};
     LOG_TRACE(<< "  populated = " << b);
 
@@ -2055,14 +2056,10 @@ bool CPeriodicityHypothesisTests::testPartition(const TTimeTimePr2Vec& partition
     //   3) The significance of the variance reduction, and
     //   4) The amount of variance reduction.
 
-    auto calculateMeanRepeats = [&](const TTimeTimePr2Vec& w, core_t::TTime p) {
-        TSizeVec repeats{calculateRepeats(w, p, m_BucketLength, values)};
-        return CBasicStatistics::mean(
-            std::accumulate(repeats.begin(), repeats.end(), TMeanAccumulator{},
-                            [](TMeanAccumulator mean, std::size_t r) {
-                                mean.add(static_cast<double>(r));
-                                return mean;
-                            }));
+    auto calculateMeanRepeats = [&values, this](const TTimeTimePr2Vec& w, core_t::TTime p) {
+        TMeanAccumulator result;
+        result.add(calculateRepeats(w, p, m_BucketLength, values));
+        return CBasicStatistics::mean(result);
     };
 
     double p{0.0};
@@ -2143,13 +2140,11 @@ bool CPeriodicityHypothesisTests::testVariance(const TTimeTimePr2Vec& window,
     LOG_TRACE(<< "  autocorrelation          = " << R);
     LOG_TRACE(<< "  autocorrelationThreshold = " << stats.s_AutocorrelationThreshold);
 
-    TSizeVec repeats{calculateRepeats(window, period_, m_BucketLength, buckets)};
-    meanRepeats = CBasicStatistics::mean(
-        std::accumulate(repeats.begin(), repeats.end(), TMeanAccumulator{},
-                        [](TMeanAccumulator mean, std::size_t repeat) {
-                            mean.add(static_cast<double>(repeat));
-                            return mean;
-                        }));
+    meanRepeats = [&window, &period_, &buckets, this] {
+        TMeanAccumulator result;
+        result.add(calculateRepeats(window, period_, m_BucketLength, buckets));
+        return CBasicStatistics::mean(result);
+    }();
     LOG_TRACE(<< "  mean repeats = " << meanRepeats);
 
     // We're trading off:
