@@ -30,7 +30,9 @@ public:
 
 public:
     CBoostedTreeRegressionInferenceModelBuilder(TStringVec fieldNames,
+                                                std::size_t dependentVariableColumnIndex,
                                                 const TStringSizeUMapVec& categoryNameMap);
+    ~CBoostedTreeRegressionInferenceModelBuilder() override = default;
     void addTree() override;
     void addNode(std::size_t splitFeature,
                  double splitValue,
@@ -39,6 +41,7 @@ public:
                  double gain,
                  maths::CBoostedTreeNode::TOptionalNodeIndex leftChild,
                  maths::CBoostedTreeNode::TOptionalNodeIndex rightChild) override;
+    void addIdentityEncoding(std::size_t inputColumnIndex) override;
     void addOneHotEncoding(std::size_t inputColumnIndex, std::size_t hotCategory) override;
     void addTargetMeanEncoding(std::size_t inputColumnIndex,
                                const TDoubleVec& map,
@@ -60,6 +63,8 @@ private:
     CInferenceModelDefinition m_Definition;
     TSizeStringUMapVec m_ReverseCategoryNameMap;
     TOneHotEncodingUMap m_OneHotEncodingMaps;
+    TStringVec m_FieldNames;
+    TStringVec m_FeatureNames;
 };
 }
 }

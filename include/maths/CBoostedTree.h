@@ -229,7 +229,6 @@ private:
     doPrint(std::string pad, const TNodeVec& tree, std::ostringstream& result) const;
 
 private:
-    // TODO check packing to reduce memory footprint
     std::size_t m_SplitFeature = 0;
     double m_SplitValue = 0.0;
     bool m_AssignMissingToLeft = true;

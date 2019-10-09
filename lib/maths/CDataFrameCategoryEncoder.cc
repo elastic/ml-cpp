@@ -327,6 +327,9 @@ bool CDataFrameCategoryEncoder::restore(core::CStateRestoreTraverser& traverser,
 
 void CDataFrameCategoryEncoder::accept(CDataFrameCategoryEncoder::CVisitor& visitor) const {
     for (const auto& encoding : m_Encodings) {
+        if (encoding->type() == E_IdentityEncoding) {
+            visitor.addIdentityEncoding(encoding->inputColumnIndex());
+        }
         if (encoding->type() == E_OneHot) {
             auto enc = static_cast<const COneHotEncoding*>(encoding.get());
             visitor.addOneHotEncoding(enc->inputColumnIndex(), enc->hotCategory());

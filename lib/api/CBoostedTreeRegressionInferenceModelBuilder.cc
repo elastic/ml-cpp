@@ -23,17 +23,25 @@ void ml::api::CBoostedTreeRegressionInferenceModelBuilder::addTree() {
     ensemble->trainedModels().emplace_back();
 }
 
+void ml::api::CBoostedTreeRegressionInferenceModelBuilder::addIdentityEncoding(std::size_t inputColumnIndex) {
+    if (inputColumnIndex < m_FieldNames.size()) {
+        // The target column is excluded from m_FieldNames.
+        m_FeatureNames.push_back(m_FieldNames[inputColumnIndex]);
+    }
+}
+
 void ml::api::CBoostedTreeRegressionInferenceModelBuilder::addOneHotEncoding(std::size_t inputColumnIndex,
                                                                              std::size_t hotCategory) {
     std::string fieldName{m_Definition.input().fieldNames()[inputColumnIndex]};
     std::string category = m_ReverseCategoryNameMap[inputColumnIndex][hotCategory];
-    std::string encodedFieldName = fieldName + "_" + category;
+    std::string featureName = fieldName + "_" + category;
     if (m_OneHotEncodingMaps.find(fieldName) == m_OneHotEncodingMaps.end()) {
         auto apiEncoding = std::make_unique<api::COneHotEncoding>(
             fieldName, api::COneHotEncoding::TStringStringUMap());
         m_OneHotEncodingMaps.emplace(fieldName, std::move(apiEncoding));
     }
-    m_OneHotEncodingMaps[fieldName]->hotMap().emplace(category, encodedFieldName);
+    m_OneHotEncodingMaps[fieldName]->hotMap().emplace(category, featureName);
+    m_FeatureNames.push_back(featureName);
 }
 
 void ml::api::CBoostedTreeRegressionInferenceModelBuilder::addTargetMeanEncoding(
@@ -45,6 +53,7 @@ void ml::api::CBoostedTreeRegressionInferenceModelBuilder::addTargetMeanEncoding
     auto stringMap = this->encodingMap(inputColumnIndex, map);
     m_Definition.preprocessors().push_back(std::make_unique<CTargetMeanEncoding>(
         fieldName, fallback, featureName, std::move(stringMap)));
+    m_FeatureNames.push_back(featureName);
 }
 
 void ml::api::CBoostedTreeRegressionInferenceModelBuilder::addFrequencyEncoding(
@@ -55,6 +64,7 @@ void ml::api::CBoostedTreeRegressionInferenceModelBuilder::addFrequencyEncoding(
     auto stringMap = this->encodingMap(inputColumnIndex, map);
     m_Definition.preprocessors().push_back(std::make_unique<CFrequencyEncoding>(
         fieldName, featureName, std::move(stringMap)));
+    m_FeatureNames.push_back(featureName);
 }
 
 ml::api::CInferenceModelDefinition&&
@@ -71,8 +81,7 @@ ml::api::CBoostedTreeRegressionInferenceModelBuilder::build() {
     ensemble->aggregateOutput(std::make_unique<CWeightedSum>(ensemble->size(), 1.0));
 
     ensemble->targetType(CTrainedModel::E_Regression);
-    // TODO change to the correct feature names
-    ensemble->featureNames(m_Definition.input().fieldNames());
+    ensemble->featureNames(m_FeatureNames);
 
     return std::move(m_Definition);
 }
@@ -93,10 +102,16 @@ void ml::api::CBoostedTreeRegressionInferenceModelBuilder::addNode(
 
 ml::api::CBoostedTreeRegressionInferenceModelBuilder::CBoostedTreeRegressionInferenceModelBuilder(
     TStringVec fieldNames,
+    std::size_t dependentVariableColumnIndex,
     const TStringSizeUMapVec& categoryNameMap) {
     // filter filed names containing only "."
     fieldNames.erase(std::remove(fieldNames.begin(), fieldNames.end(), "."),
                      fieldNames.end());
+    // filter dependent variable field name
+    assert(dependentVariableColumnIndex < fieldNames.size());
+    fieldNames.erase(fieldNames.begin() +
+                     static_cast<std::ptrdiff_t>(dependentVariableColumnIndex));
+    m_FieldNames = fieldNames;
 
     this->categoryNameMap(categoryNameMap);
     m_Definition.fieldNames(fieldNames);
