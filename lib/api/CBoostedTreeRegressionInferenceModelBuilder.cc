@@ -15,7 +15,7 @@
 #include <algorithm>
 
 namespace {
-const std::string REGRESSION_INFERENCE_MODEL{"regression_inference_model"};
+const std::string INFERENCE_MODEL{"inference_model"};
 }
 
 void ml::api::CBoostedTreeRegressionInferenceModelBuilder::addTree() {
@@ -101,7 +101,7 @@ ml::api::CBoostedTreeRegressionInferenceModelBuilder::CBoostedTreeRegressionInfe
     this->categoryNameMap(categoryNameMap);
     m_Definition.fieldNames(fieldNames);
     m_Definition.trainedModel(std::make_unique<CEnsemble>());
-    m_Definition.typeString(REGRESSION_INFERENCE_MODEL);
+    m_Definition.typeString(INFERENCE_MODEL);
 }
 
 ml::api::CBoostedTreeRegressionInferenceModelBuilder::TStringDoubleUMap
