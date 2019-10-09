@@ -30,7 +30,6 @@ SModelParams::SModelParams(core_t::TTime bucketLength)
       s_InitialDecayRateMultiplier(CAnomalyDetectorModelConfig::DEFAULT_INITIAL_DECAY_RATE_MULTIPLIER),
       s_ControlDecayRate(true), s_MinimumModeFraction(0.0),
       s_MinimumModeCount(CAnomalyDetectorModelConfig::DEFAULT_MINIMUM_CLUSTER_SPLIT_COUNT),
-      s_CutoffToModelEmptyBuckets(CAnomalyDetectorModelConfig::DEFAULT_CUTOFF_TO_MODEL_EMPTY_BUCKETS),
       s_ComponentSize(CAnomalyDetectorModelConfig::DEFAULT_COMPONENT_SIZE),
       s_MinimumTimeToDetectChange(CAnomalyDetectorModelConfig::DEFAULT_MINIMUM_TIME_TO_DETECT_CHANGE),
       s_MaximumTimeToTestForChange(CAnomalyDetectorModelConfig::DEFAULT_MAXIMUM_TIME_TO_TEST_FOR_CHANGE),
@@ -90,7 +89,6 @@ uint64_t SModelParams::checksum(uint64_t seed) const {
     seed = maths::CChecksum::calculate(seed, s_InitialDecayRateMultiplier);
     seed = maths::CChecksum::calculate(seed, s_MinimumModeFraction);
     seed = maths::CChecksum::calculate(seed, s_MinimumModeCount);
-    seed = maths::CChecksum::calculate(seed, s_CutoffToModelEmptyBuckets);
     seed = maths::CChecksum::calculate(seed, s_ComponentSize);
     seed = maths::CChecksum::calculate(seed, s_MinimumTimeToDetectChange);
     seed = maths::CChecksum::calculate(seed, s_MaximumTimeToTestForChange);

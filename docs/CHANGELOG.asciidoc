@@ -44,6 +44,9 @@ choice to prevent over fitting for XGBoost. By smoothing we can make better trad
 Also, the parameters of the penalty function are mode suited to optimising with our
 Bayesian optimisation based hyperparameter search. (See {ml-pull}698[#698].)
 * Binomial logistic regression targeting cross entropy. (See {ml-pull}713[#713].) 
+* Improvements to count and sum anomaly detection for sparse data. This primarily
+aims to improve handling of data which are predictably present: detecting when they
+are unexpectedly missing. (See {ml-pull}721[#721].)
 
 == {es} version 7.4.1
 

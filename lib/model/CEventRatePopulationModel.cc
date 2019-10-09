@@ -1040,7 +1040,6 @@ bool CEventRatePopulationModel::fill(model_t::EFeature feature,
     params.s_Count = 1.0;
     params.s_ComputeProbabilityParams
         .addCalculation(model_t::probabilityCalculation(feature))
-        .addBucketEmpty({false})
         .addWeights(weight)
         .skipAnomalyModelUpdate(skipAnomalyModelUpdate);
 
