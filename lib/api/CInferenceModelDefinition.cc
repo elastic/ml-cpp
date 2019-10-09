@@ -124,7 +124,7 @@ void CEnsemble::addToDocument(rapidjson::Value& parentObject, TRapidJsonWriter& 
     rapidjson::Value trainedModelsArray = writer.makeArray(m_TrainedModels.size());
     for (const auto& trainedModel : m_TrainedModels) {
         rapidjson::Value trainedModelObject = writer.makeObject();
-        trainedModel.addToDocument(trainedModelObject, writer);
+        trainedModel->addToDocument(trainedModelObject, writer);
         trainedModelsArray.PushBack(trainedModelObject, writer.getRawAllocator());
     }
     writer.addMember(JSON_TRAINED_MODELS_TAG, trainedModelsArray, ensembleObject);
@@ -139,7 +139,7 @@ void CEnsemble::addToDocument(rapidjson::Value& parentObject, TRapidJsonWriter& 
 void CEnsemble::featureNames(const CTrainedModel::TStringVec& featureNames) {
     this->CTrainedModel::featureNames(featureNames);
     for (auto& trainedModel : m_TrainedModels) {
-        trainedModel.featureNames(featureNames);
+        trainedModel->featureNames(featureNames);
     }
 }
 
@@ -151,7 +151,7 @@ std::size_t CEnsemble::size() const {
     return m_TrainedModels.size();
 }
 
-CEnsemble::TTreeVec& CEnsemble::trainedModels() {
+CEnsemble::TTrainedModelUPtrVec& CEnsemble::trainedModels() {
     return m_TrainedModels;
 }
 
@@ -162,7 +162,7 @@ const CEnsemble::TAggregateOutputUPtr& CEnsemble::aggregateOutput() const {
 void CEnsemble::targetType(CTrainedModel::ETargetType targetType) {
     this->CTrainedModel::targetType(targetType);
     for (auto& trainedModel : m_TrainedModels) {
-        trainedModel.targetType(targetType);
+        trainedModel->targetType(targetType);
     }
 }
 
@@ -330,10 +330,10 @@ void CTargetMeanEncoding::addToDocument(rapidjson::Value& parentObject,
 
 CTargetMeanEncoding::CTargetMeanEncoding(const std::string& field,
                                          double defaultValue,
-                                         const std::string& featureName,
+                                         std::string featureName,
                                          TStringDoubleUMap&& targetMap)
     : CEncoding(field), m_DefaultValue(defaultValue),
-      m_FeatureName(featureName), m_TargetMap(std::move(targetMap)) {
+      m_FeatureName(std::move(featureName)), m_TargetMap(std::move(targetMap)) {
 }
 
 double CTargetMeanEncoding::defaultValue() const {
@@ -349,9 +349,10 @@ const CTargetMeanEncoding::TStringDoubleUMap& CTargetMeanEncoding::targetMap() c
 }
 
 CFrequencyEncoding::CFrequencyEncoding(const std::string& field,
-                                       const std::string& featureName,
-                                       const TStringDoubleUMap& frequencyMap)
-    : CEncoding(field), m_FeatureName(featureName), m_FrequencyMap(frequencyMap) {
+                                       std::string featureName,
+                                       TStringDoubleUMap frequencyMap)
+    : CEncoding(field), m_FeatureName(std::move(featureName)),
+      m_FrequencyMap(std::move(frequencyMap)) {
 }
 
 void CEncoding::field(const std::string& field) {
@@ -362,7 +363,7 @@ void CEncoding::addToDocument(rapidjson::Value& parentObject, TRapidJsonWriter& 
     writer.addMember(JSON_FIELD_TAG, m_Field, parentObject);
 }
 
-CEncoding::CEncoding(const std::string& field) : m_Field(field) {
+CEncoding::CEncoding(std::string field) : m_Field(std::move(field)) {
 }
 
 void CFrequencyEncoding::addToDocument(rapidjson::Value& parentObject,
@@ -406,9 +407,8 @@ void COneHotEncoding::addToDocument(rapidjson::Value& parentObject,
     writer.addMember(JSON_HOT_MAP_TAG, hotMap, parentObject);
 }
 
-COneHotEncoding::COneHotEncoding(const std::string& field,
-                                 const COneHotEncoding::TStringStringUMap& hotMap)
-    : CEncoding(field), m_HotMap(hotMap) {
+COneHotEncoding::COneHotEncoding(const std::string& field, COneHotEncoding::TStringStringUMap hotMap)
+    : CEncoding(field), m_HotMap(std::move(hotMap)) {
 }
 
 CWeightedSum::CWeightedSum(TDoubleVec&& weights)

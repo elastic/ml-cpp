@@ -20,7 +20,7 @@ const std::string INFERENCE_MODEL{"inference_model"};
 
 void ml::api::CBoostedTreeRegressionInferenceModelBuilder::addTree() {
     auto ensemble = static_cast<CEnsemble*>(m_Definition.trainedModel().get());
-    ensemble->trainedModels().emplace_back();
+    ensemble->trainedModels().emplace_back(std::make_unique<CTree>());
 }
 
 void ml::api::CBoostedTreeRegressionInferenceModelBuilder::addIdentityEncoding(std::size_t inputColumnIndex) {
@@ -95,9 +95,10 @@ void ml::api::CBoostedTreeRegressionInferenceModelBuilder::addNode(
     ml::maths::CBoostedTreeNode::TOptionalNodeIndex leftChild,
     ml::maths::CBoostedTreeNode::TOptionalNodeIndex rightChild) {
     auto ensemble{static_cast<CEnsemble*>(m_Definition.trainedModel().get())};
-    CTree& tree{ensemble->trainedModels().back()};
-    tree.treeStructure().emplace_back(tree.size(), splitValue, assignMissingToLeft, nodeValue,
-                                      splitFeature, leftChild, rightChild, gain);
+    // use dynamic cast to prevent using wrong type of trained models
+    auto tree = dynamic_cast<CTree*>(ensemble->trainedModels().back().get());
+    tree->treeStructure().emplace_back(tree->size(), splitValue, assignMissingToLeft, nodeValue,
+                                       splitFeature, leftChild, rightChild, gain);
 }
 
 ml::api::CBoostedTreeRegressionInferenceModelBuilder::CBoostedTreeRegressionInferenceModelBuilder(

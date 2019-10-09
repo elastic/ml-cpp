@@ -158,7 +158,8 @@ private:
 class API_EXPORT CEnsemble : public CTrainedModel {
 public:
     using TAggregateOutputUPtr = std::unique_ptr<CAggregateOutput>;
-    using TTreeVec = std::vector<CTree>;
+    using TTrainedModelUPtr = std::unique_ptr<CTrainedModel>;
+    using TTrainedModelUPtrVec = std::vector<TTrainedModelUPtr>;
 
 public:
     void addToDocument(rapidjson::Value& parentObject, TRapidJsonWriter& writer) const override;
@@ -167,7 +168,7 @@ public:
     const TAggregateOutputUPtr& aggregateOutput() const;
     void featureNames(const TStringVec& featureNames) override;
     //! List of trained models withing this ensemble.
-    TTreeVec& trainedModels();
+    TTrainedModelUPtrVec& trainedModels();
     //! Number of models in the ensemble.
     std::size_t size() const;
 
@@ -176,7 +177,7 @@ public:
     ETargetType targetType() const override;
 
 private:
-    TTreeVec m_TrainedModels;
+    TTrainedModelUPtrVec m_TrainedModels;
     TAggregateOutputUPtr m_AggregateOutput;
 };
 
@@ -200,7 +201,7 @@ private:
 class API_EXPORT CEncoding : public CSerializableToJson {
 public:
     ~CEncoding() override = default;
-    explicit CEncoding(const std::string& field);
+    explicit CEncoding(std::string field);
     void addToDocument(rapidjson::Value& parentObject, TRapidJsonWriter& writer) const override;
     //! Input field name. Must be defined in the input section.
     void field(const std::string& field);
@@ -219,9 +220,7 @@ public:
 
 public:
     ~CFrequencyEncoding() override = default;
-    CFrequencyEncoding(const std::string& field,
-                       const std::string& featureName,
-                       const TStringDoubleUMap& frequencyMap);
+    CFrequencyEncoding(const std::string& field, std::string featureName, TStringDoubleUMap frequencyMap);
 
     void addToDocument(rapidjson::Value& parentObject, TRapidJsonWriter& writer) const override;
     //! Feature name after pre-processing.
@@ -242,7 +241,7 @@ public:
 
 public:
     ~COneHotEncoding() override = default;
-    COneHotEncoding(const std::string& field, const TStringStringUMap& hotMap);
+    COneHotEncoding(const std::string& field, TStringStringUMap hotMap);
     void addToDocument(rapidjson::Value& parentObject, TRapidJsonWriter& writer) const override;
     //! Map from the category names of the original field to the new field names.
     TStringStringUMap& hotMap();
@@ -261,7 +260,7 @@ public:
     ~CTargetMeanEncoding() override = default;
     CTargetMeanEncoding(const std::string& field,
                         double defaultValue,
-                        const std::string& featureName,
+                        std::string featureName,
                         TStringDoubleUMap&& targetMap);
 
     void addToDocument(rapidjson::Value& parentObject, TRapidJsonWriter& writer) const override;
