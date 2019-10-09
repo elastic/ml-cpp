@@ -80,9 +80,11 @@ CBoostedTreeFactory::buildFor(core::CDataFrame& frame, std::size_t dependentVari
         }
     }
 
-    // TODO can only use factory to create one object since this is moved. This seems trappy.
+    auto treeImpl = std::make_unique<CBoostedTreeImpl>(
+        m_NumberThreads, m_Loss != nullptr ? m_Loss->clone() : nullptr);
+    std::swap(m_TreeImpl, treeImpl);
     return TBoostedTreeUPtr{new CBoostedTree{frame, m_RecordProgress, m_RecordMemoryUsage,
-                                             m_RecordTrainingState, std::move(m_TreeImpl)}};
+                                             m_RecordTrainingState, std::move(treeImpl)}};
 }
 
 std::size_t CBoostedTreeFactory::numberHyperparameterTuningRounds() const {
@@ -534,7 +536,6 @@ CBoostedTreeFactory::testLossLineSearch(core::CDataFrame& frame,
         double testLoss{m_TreeImpl->meanLoss(frame, testRowMask, forest)};
         leastSquaresQuadraticTestLoss.add(static_cast<double>(i) * stepSize, testLoss);
         testLosses[i] = testLoss;
-        m_TreeImpl->m_TrainingProgress.increment();
     }
     LOG_TRACE(<< "test losses = " << core::CContainerPrinter::print(testLosses));
 
@@ -616,8 +617,10 @@ CBoostedTreeFactory CBoostedTreeFactory::constructFromString(std::istream& jsonS
 }
 
 CBoostedTreeFactory::CBoostedTreeFactory(bool restored, std::size_t numberThreads, TLossFunctionUPtr loss)
-    : m_Restored{restored}, m_TreeImpl{std::make_unique<CBoostedTreeImpl>(numberThreads,
-                                                                          std::move(loss))},
+    : m_Restored{restored}, m_NumberThreads{numberThreads}, m_Loss{loss != nullptr
+                                                                       ? loss->clone()
+                                                                       : nullptr},
+      m_TreeImpl{std::make_unique<CBoostedTreeImpl>(numberThreads, std::move(loss))},
       m_LogDepthPenaltyMultiplierSearchInterval{0.0}, m_LogTreeSizePenaltyMultiplierSearchInterval{0.0},
       m_LogLeafWeightPenaltyMultiplierSearchInterval{0.0} {
 }
@@ -793,12 +796,16 @@ void CBoostedTreeFactory::initializeTrainingProgressMonitoring() {
     // This comprises:
     //  - The cost of category encoding and feature selection which we count as
     //    one unit,
+    //  - One unit for estimating the expected gain and sum curvature per node,
     //  - INITIAL_REGULARIZER_SEARCH_ITERATIONS units per regularization parameter
     //    which isn't user defined,
     //  - The main optimisation loop which costs number folds units per iteration,
     //  - The cost of the final train which we count as number folds units.
 
-    std::size_t totalNumberSteps{1};
+    std::size_t totalNumberSteps{2};
+    if (m_TreeImpl->m_RegularizationOverride.depthPenaltyMultiplier() == boost::none) {
+        totalNumberSteps += INITIAL_REGULARIZER_SEARCH_ITERATIONS;
+    }
     if (m_TreeImpl->m_RegularizationOverride.treeSizePenaltyMultiplier() == boost::none) {
         totalNumberSteps += INITIAL_REGULARIZER_SEARCH_ITERATIONS;
     }
