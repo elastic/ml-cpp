@@ -67,7 +67,7 @@ double CArgMinMseImpl::value() const {
     //
     //    x^* = argmin_x{ sum_i{(a_i - (p_i + x))^2} + lambda * x^2 }
     //
-    // This is convex so there is one minimum where derivative w.r.t. x is zero
+    // This is convex so there is one minimum where the derivative w.r.t. x is zero
     // and x^* = 1 / (n + lambda) sum_i{ a_i - p_i }. Denoting the mean prediction
     // error m = 1/n sum_i{ a_i - p_i } we have x^* = n / (n + lambda) m.
 
