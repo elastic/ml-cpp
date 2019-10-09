@@ -74,8 +74,10 @@ void CTree::CTreeNode::addToDocument(rapidjson::Value& parentObject,
 
     if (m_LeftChild) {
         // internal node
-        writer.addMember(JSON_SPLIT_FEATURE_TAG,
-                         rapidjson::Value(m_SplitFeature).Move(), parentObject);
+        writer.addMember(
+            JSON_SPLIT_FEATURE_TAG,
+            rapidjson::Value(static_cast<std::uint64_t>(m_SplitFeature)).Move(),
+            parentObject);
         if (m_SplitGain.is_initialized()) {
             writer.addMember(JSON_SPLIT_GAIN_TAG,
                              rapidjson::Value(m_SplitGain.get()).Move(), parentObject);
@@ -87,14 +89,15 @@ void CTree::CTreeNode::addToDocument(rapidjson::Value& parentObject,
         case E_LT:
             writer.addMember(JSON_DECISION_TYPE_TAG, JSON_LT, parentObject);
             break;
-        default:
-            writer.addMember(JSON_DECISION_TYPE_TAG, JSON_LT, parentObject);
-            break;
         }
-        writer.addMember(JSON_LEFT_CHILD_TAG,
-                         rapidjson::Value(m_LeftChild.get()).Move(), parentObject);
-        writer.addMember(JSON_RIGHT_CHILD_TAG,
-                         rapidjson::Value(m_RightChild.get()).Move(), parentObject);
+        writer.addMember(
+            JSON_LEFT_CHILD_TAG,
+            rapidjson::Value(static_cast<std::uint64_t>(m_LeftChild.get())).Move(),
+            parentObject);
+        writer.addMember(
+            JSON_RIGHT_CHILD_TAG,
+            rapidjson::Value(static_cast<std::uint64_t>(m_RightChild.get())).Move(),
+            parentObject);
     } else {
         // leaf node
         writer.addMember(JSON_LEAF_VALUE_TAG,
@@ -245,9 +248,6 @@ void CTrainedModel::addToDocument(rapidjson::Value& parentObject,
         writer.addMember(JSON_TARGET_TYPE_TAG, JSON_TARGET_TYPE_CLASSIFICATION, parentObject);
         break;
     case E_Regression:
-        writer.addMember(JSON_TARGET_TYPE_TAG, JSON_TARGET_TYPE_REGRESSION, parentObject);
-        break;
-    default:
         writer.addMember(JSON_TARGET_TYPE_TAG, JSON_TARGET_TYPE_REGRESSION, parentObject);
         break;
     }
