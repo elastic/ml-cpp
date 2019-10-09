@@ -13,10 +13,13 @@
 
 #include <maths/CBasicStatistics.h>
 #include <maths/CDataFrameRegressionModel.h>
+#include <maths/CLinearAlgebra.h>
 #include <maths/ImportExport.h>
 
 #include <cstddef>
 #include <memory>
+#include <string>
+#include <vector>
 
 namespace ml {
 namespace core {
@@ -29,18 +32,29 @@ class CEncodedDataFrameRowRef;
 namespace boosted_tree_detail {
 class MATHS_EXPORT CArgMinLossImpl {
 public:
+    CArgMinLossImpl(double lambda);
     virtual ~CArgMinLossImpl() = default;
 
     virtual std::unique_ptr<CArgMinLossImpl> clone() const = 0;
+    virtual bool nextPass() = 0;
     virtual void add(double prediction, double actual) = 0;
     virtual void merge(const CArgMinLossImpl& other) = 0;
     virtual double value() const = 0;
+
+protected:
+    double lambda() const;
+
+private:
+    double m_Lambda;
 };
 
-//! \brief Finds the value to add to a set of predictions which minimises the MSE.
+//! \brief Finds the value to add to a set of predictions which minimises the
+//! regularized MSE w.r.t. the actual values.
 class MATHS_EXPORT CArgMinMseImpl final : public CArgMinLossImpl {
 public:
+    CArgMinMseImpl(double lambda);
     std::unique_ptr<CArgMinLossImpl> clone() const override;
+    bool nextPass() override;
     void add(double prediction, double actual) override;
     void merge(const CArgMinLossImpl& other) override;
     double value() const override;
@@ -50,6 +64,46 @@ private:
 
 private:
     TMeanAccumulator m_MeanError;
+};
+
+//! \brief Finds the value to add to a set of predicted log-odds which minimises
+//! regularised cross entropy loss w.r.t. the actual categories.
+class MATHS_EXPORT CArgMinLogisticImpl final : public CArgMinLossImpl {
+public:
+    CArgMinLogisticImpl(double lambda);
+    std::unique_ptr<CArgMinLossImpl> clone() const override;
+    bool nextPass() override;
+    void add(double prediction, double actual) override;
+    void merge(const CArgMinLossImpl& other) override;
+    double value() const override;
+
+private:
+    using TMinMaxAccumulator = CBasicStatistics::CMinMax<double>;
+    using TSizeVector = CVectorNx1<std::size_t, 2>;
+    using TSizeVectorVec = std::vector<TSizeVector>;
+
+private:
+    std::size_t bucket(double prediction) const {
+        double bucket{(prediction - m_PredictionMinMax.min()) / this->bucketWidth()};
+        return std::min(static_cast<std::size_t>(bucket),
+                        m_BucketCategoryCounts.size() - 1);
+    }
+
+    double bucketCentre(std::size_t bucket) const {
+        return m_PredictionMinMax.min() +
+               (static_cast<double>(bucket) + 0.5) * this->bucketWidth();
+    }
+
+    double bucketWidth() const {
+        return m_PredictionMinMax.range() /
+               static_cast<double>(m_BucketCategoryCounts.size());
+    }
+
+private:
+    std::size_t m_CurrentPass = 0;
+    TMinMaxAccumulator m_PredictionMinMax;
+    TSizeVector m_CategoryCounts;
+    TSizeVectorVec m_BucketCategoryCounts;
 };
 }
 
@@ -63,6 +117,11 @@ public:
 
     CArgMinLoss& operator=(const CArgMinLoss& other);
     CArgMinLoss& operator=(CArgMinLoss&& other) = default;
+
+    //! Start another pass over the predictions and actuals.
+    //!
+    //! \return True if we need to perform another pass to compute value().
+    bool nextPass() const;
 
     //! Update with a point prediction and actual value.
     void add(double prediction, double actual);
@@ -94,6 +153,8 @@ private:
 class MATHS_EXPORT CLoss {
 public:
     virtual ~CLoss() = default;
+    //! Clone the loss.
+    virtual std::unique_ptr<CLoss> clone() const = 0;
     //! The value of the loss function.
     virtual double value(double prediction, double actual) const = 0;
     //! The slope of the loss function.
@@ -103,7 +164,7 @@ public:
     //! Returns true if the loss curvature is constant.
     virtual bool isCurvatureConstant() const = 0;
     //! Get an object which computes the leaf value that minimises loss.
-    virtual CArgMinLoss minimizer() const = 0;
+    virtual CArgMinLoss minimizer(double lambda) const = 0;
     //! Get the name of the loss function
     virtual const std::string& name() const = 0;
 
@@ -114,11 +175,34 @@ protected:
 //! \brief The MSE loss function.
 class MATHS_EXPORT CMse final : public CLoss {
 public:
+    std::unique_ptr<CLoss> clone() const override;
     double value(double prediction, double actual) const override;
     double gradient(double prediction, double actual) const override;
     double curvature(double prediction, double actual) const override;
     bool isCurvatureConstant() const override;
-    CArgMinLoss minimizer() const override;
+    CArgMinLoss minimizer(double lambda) const override;
+    const std::string& name() const override;
+
+public:
+    static const std::string NAME;
+};
+
+//! \brief Implements loss for binomial logistic regression.
+//!
+//! DESCRIPTION:\n
+//! This targets the cross entropy loss using the tree to predict class log-odds:
+//! <pre class="fragment">
+//!   \f$\displaystyle l_i(p) = -(1 - a_i) \log(1 - S(p)) - a_i \log(S(p))\f$
+//! </pre>
+//! where \f$a_i\f$ denotes the actual class of the i'th example, \f$p\f$ is the
+//! prediction and \f$S(\cdot)\f$ denotes the logistic function.
+class MATHS_EXPORT CLogistic final : public CLoss {
+    std::unique_ptr<CLoss> clone() const override;
+    double value(double prediction, double actual) const override;
+    double gradient(double prediction, double actual) const override;
+    double curvature(double prediction, double actual) const override;
+    bool isCurvatureConstant() const override;
+    CArgMinLoss minimizer(double lambda) const override;
     const std::string& name() const override;
 
 public:
@@ -248,6 +332,7 @@ private:
 //! proposed by Reshef for this purpose. See CDataFrameCategoryEncoder for more details.
 class MATHS_EXPORT CBoostedTree final : public CDataFrameRegressionModel {
 public:
+    using TStrVec = std::vector<std::string>;
     using TRowRef = core::CDataFrame::TRowRef;
     using TLossFunctionUPtr = std::unique_ptr<boosted_tree::CLoss>;
     using TDataFramePtr = core::CDataFrame*;
@@ -284,6 +369,16 @@ public:
 
     //! Get the model produced by training if it has been run.
     const TNodeVecVec& trainedModel() const;
+
+    //! The name of the object holding the best hyperaparameters in the state document.
+    static const std::string& bestHyperparametersName();
+
+    //! The name of the object holding the best regularisation hyperparameters in the
+    //! state document.
+    static const std::string& bestRegularizationHyperparametersName();
+
+    //! A list of the names of the best individual hyperparameters in the state document.
+    static TStrVec bestHyperparameterNames();
 
     //! Persist by passing information to \p inserter.
     void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
