@@ -110,9 +110,9 @@ CTree::CTreeNode::CTreeNode(TNodeIndex nodeIndex,
                             bool defaultLeft,
                             double leafValue,
                             size_t splitFeature,
-                            const CTree::CTreeNode::TOptionalNodeIndex& leftChild,
-                            const CTree::CTreeNode::TOptionalNodeIndex& rightChild,
-                            const CTree::CTreeNode::TOptionalDouble& splitGain)
+                            const TOptionalNodeIndex& leftChild,
+                            const TOptionalNodeIndex& rightChild,
+                            const TOptionalDouble& splitGain)
     : m_DefaultLeft(defaultLeft), m_NodeIndex(nodeIndex), m_LeftChild(leftChild),
       m_RightChild(rightChild), m_SplitFeature(splitFeature),
       m_Threshold(threshold), m_LeafValue(leafValue), m_SplitGain(splitGain) {
@@ -195,13 +195,16 @@ std::string CInferenceModelDefinition::jsonString() {
     rapidjson::StringBuffer stringBuffer;
     core::CRapidJsonLineWriter<rapidjson::StringBuffer> writer(stringBuffer);
     rapidjson::Value doc = writer.makeObject();
+    this->addToDocument(doc, writer);
+    writer.write(doc);
+    return stringBuffer.GetString();
+}
 
-    // TODO add the ability to write directly into the "parent" writer of the Analyzer
-
-    //input
+void CInferenceModelDefinition::addToDocument(rapidjson::Value& parentObject,
+                                              TRapidJsonWriter& writer) const { //input
     rapidjson::Value inputObject = writer.makeObject();
     m_Input.addToDocument(inputObject, writer);
-    writer.addMember(JSON_INPUT_TAG, inputObject, doc);
+    writer.addMember(JSON_INPUT_TAG, inputObject, parentObject);
 
     // preprocessors
     rapidjson::Value preprocessingArray = writer.makeArray();
@@ -212,18 +215,16 @@ std::string CInferenceModelDefinition::jsonString() {
         writer.addMember(encoding->typeString(), encodingValue, encodingEnclosingObject);
         preprocessingArray.PushBack(encodingEnclosingObject, writer.getRawAllocator());
     }
-    writer.addMember(JSON_PREPROCESSORS_TAG, preprocessingArray, doc);
+    writer.addMember(JSON_PREPROCESSORS_TAG, preprocessingArray, parentObject);
 
     //trained_model
     if (m_TrainedModel) {
         rapidjson::Value trainedModelValue = writer.makeObject();
         m_TrainedModel->addToDocument(trainedModelValue, writer);
-        writer.addMember(JSON_TRAINED_MODEL_TAG, trainedModelValue, doc);
+        writer.addMember(JSON_TRAINED_MODEL_TAG, trainedModelValue, parentObject);
     } else {
         LOG_ERROR(<< "Trained model is not initialized");
     }
-    writer.write(doc);
-    return stringBuffer.GetString();
 }
 
 void CTrainedModel::addToDocument(rapidjson::Value& parentObject,
@@ -257,11 +258,11 @@ const CTrainedModel::TStringVec& CTrainedModel::featureNames() const {
     return m_FeatureNames;
 }
 
-void CTrainedModel::featureNames(const CTrainedModel::TStringVec& featureNames) {
+void CTrainedModel::featureNames(const TStringVec& featureNames) {
     m_FeatureNames = featureNames;
 }
 
-void CTrainedModel::targetType(CTrainedModel::ETargetType targetType) {
+void CTrainedModel::targetType(ETargetType targetType) {
     m_TargetType = targetType;
 }
 
@@ -269,7 +270,7 @@ CTrainedModel::ETargetType CTrainedModel::targetType() const {
     return m_TargetType;
 }
 
-void CInferenceModelDefinition::fieldNames(const std::vector<std::string>& fieldNames) {
+void CInferenceModelDefinition::fieldNames(const TStringVec& fieldNames) {
     m_FieldNames = fieldNames;
     m_Input.fieldNames(fieldNames);
 }
@@ -407,7 +408,7 @@ void COneHotEncoding::addToDocument(rapidjson::Value& parentObject,
     writer.addMember(JSON_HOT_MAP_TAG, hotMap, parentObject);
 }
 
-COneHotEncoding::COneHotEncoding(const std::string& field, COneHotEncoding::TStringStringUMap hotMap)
+COneHotEncoding::COneHotEncoding(const std::string& field, TStringStringUMap hotMap)
     : CEncoding(field), m_HotMap(std::move(hotMap)) {
 }
 

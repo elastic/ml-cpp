@@ -437,11 +437,11 @@ void CDataFrameAnalyzer::writeResultsOf(const CDataFrameAnalysisRunner& analysis
     const auto& modelDefinition = m_AnalysisSpecification->runner()->inferenceModelDefinition(
         m_FieldNames, m_CategoricalFieldValues);
     if (modelDefinition) {
-        rapidjson::Document doc = writer.makeDoc();
-        doc.Parse(modelDefinition->jsonString());
+        rapidjson::Value inferenceModelObject{writer.makeObject()};
+        modelDefinition->addToDocument(inferenceModelObject, writer);
         writer.StartObject();
         writer.Key(modelDefinition->typeString());
-        writer.write(doc);
+        writer.write(inferenceModelObject);
         writer.EndObject();
     }
 

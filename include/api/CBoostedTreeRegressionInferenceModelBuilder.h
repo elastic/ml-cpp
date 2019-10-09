@@ -18,6 +18,7 @@
 namespace ml {
 namespace api {
 
+//! \brief Builds a a serialisable trained model object by visiting a maths::CBoostedTree object.
 class API_EXPORT CBoostedTreeRegressionInferenceModelBuilder
     : public maths::CBoostedTree::CVisitor {
 public:

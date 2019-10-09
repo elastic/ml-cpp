@@ -60,7 +60,7 @@ public:
     const std::string& stringType() override;
 
 private:
-    std::vector<double> m_Weights;
+    TDoubleVec m_Weights;
 };
 
 //! Allows to use (weighted) sum for regression.
@@ -78,7 +78,7 @@ public:
     const std::string& stringType() override;
 
 private:
-    std::vector<double> m_Weights;
+    TDoubleVec m_Weights;
 };
 
 //! List of support numeric relationships. It's only "<" at the moment.
@@ -279,8 +279,7 @@ private:
 };
 
 //! \brief Technical details required for model evaluation.
-class API_EXPORT CInferenceModelDefinition {
-
+class API_EXPORT CInferenceModelDefinition : public CSerializableToJson {
 public:
     using TStringVec = std::vector<std::string>;
     using TApiEncodingUPtr = std::unique_ptr<api::CEncoding>;
@@ -291,15 +290,14 @@ public:
     using TSizeStringUMapVec = std::vector<TSizeStringUMap>;
 
 public:
-    std::string jsonString();
-
-    void fieldNames(const TStringVec& fieldNames);
-
-    void trainedModel(std::unique_ptr<CTrainedModel>&& trainedModel);
-    std::unique_ptr<CTrainedModel>& trainedModel();
-
     const CInput& input() const;
     TApiEncodingUPtrVec& preprocessors();
+    void trainedModel(std::unique_ptr<CTrainedModel>&& trainedModel);
+    std::unique_ptr<CTrainedModel>& trainedModel();
+    void addToDocument(rapidjson::Value& parentObject,
+                       core::CRapidJsonLineWriter<rapidjson::StringBuffer>& writer) const override;
+    std::string jsonString();
+    void fieldNames(const TStringVec& fieldNames);
     const std::string& typeString() const;
     void typeString(const std::string& typeString);
 

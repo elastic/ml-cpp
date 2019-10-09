@@ -263,10 +263,7 @@ const std::string& CDataFrameAnalysisSpecification::jobId() const {
 }
 
 const CDataFrameAnalysisRunner* CDataFrameAnalysisSpecification::runner() {
-    if (m_Runner) {
-        return m_Runner.get();
-    }
-    return nullptr;
+    return m_Runner.get();
 }
 }
 }

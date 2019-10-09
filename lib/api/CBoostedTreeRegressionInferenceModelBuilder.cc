@@ -14,40 +14,42 @@
 
 #include <algorithm>
 
+namespace ml {
+namespace api {
+
 namespace {
 const std::string INFERENCE_MODEL{"inference_model"};
 }
 
-void ml::api::CBoostedTreeRegressionInferenceModelBuilder::addTree() {
+void CBoostedTreeRegressionInferenceModelBuilder::addTree() {
     auto ensemble = static_cast<CEnsemble*>(m_Definition.trainedModel().get());
     ensemble->trainedModels().emplace_back(std::make_unique<CTree>());
 }
 
-void ml::api::CBoostedTreeRegressionInferenceModelBuilder::addIdentityEncoding(std::size_t inputColumnIndex) {
+void CBoostedTreeRegressionInferenceModelBuilder::addIdentityEncoding(std::size_t inputColumnIndex) {
     if (inputColumnIndex < m_FieldNames.size()) {
         // The target column is excluded from m_FieldNames.
         m_FeatureNames.push_back(m_FieldNames[inputColumnIndex]);
     }
 }
 
-void ml::api::CBoostedTreeRegressionInferenceModelBuilder::addOneHotEncoding(std::size_t inputColumnIndex,
-                                                                             std::size_t hotCategory) {
+void CBoostedTreeRegressionInferenceModelBuilder::addOneHotEncoding(std::size_t inputColumnIndex,
+                                                                    std::size_t hotCategory) {
     std::string fieldName{m_Definition.input().fieldNames()[inputColumnIndex]};
     std::string category = m_ReverseCategoryNameMap[inputColumnIndex][hotCategory];
     std::string featureName = fieldName + "_" + category;
     if (m_OneHotEncodingMaps.find(fieldName) == m_OneHotEncodingMaps.end()) {
-        auto apiEncoding = std::make_unique<api::COneHotEncoding>(
-            fieldName, api::COneHotEncoding::TStringStringUMap());
+        auto apiEncoding = std::make_unique<COneHotEncoding>(
+            fieldName, COneHotEncoding::TStringStringUMap());
         m_OneHotEncodingMaps.emplace(fieldName, std::move(apiEncoding));
     }
     m_OneHotEncodingMaps[fieldName]->hotMap().emplace(category, featureName);
     m_FeatureNames.push_back(featureName);
 }
 
-void ml::api::CBoostedTreeRegressionInferenceModelBuilder::addTargetMeanEncoding(
-    std::size_t inputColumnIndex,
-    const TDoubleVec& map,
-    double fallback) {
+void CBoostedTreeRegressionInferenceModelBuilder::addTargetMeanEncoding(std::size_t inputColumnIndex,
+                                                                        const TDoubleVec& map,
+                                                                        double fallback) {
     std::string fieldName{m_Definition.input().fieldNames()[inputColumnIndex]};
     std::string featureName{fieldName + "_targetmean"};
     auto stringMap = this->encodingMap(inputColumnIndex, map);
@@ -56,9 +58,8 @@ void ml::api::CBoostedTreeRegressionInferenceModelBuilder::addTargetMeanEncoding
     m_FeatureNames.push_back(featureName);
 }
 
-void ml::api::CBoostedTreeRegressionInferenceModelBuilder::addFrequencyEncoding(
-    std::size_t inputColumnIndex,
-    const TDoubleVec& map) {
+void CBoostedTreeRegressionInferenceModelBuilder::addFrequencyEncoding(std::size_t inputColumnIndex,
+                                                                       const TDoubleVec& map) {
     std::string fieldName{m_Definition.input().fieldNames()[inputColumnIndex]};
     std::string featureName{fieldName + "_frequency"};
     auto stringMap = this->encodingMap(inputColumnIndex, map);
@@ -67,8 +68,7 @@ void ml::api::CBoostedTreeRegressionInferenceModelBuilder::addFrequencyEncoding(
     m_FeatureNames.push_back(featureName);
 }
 
-ml::api::CInferenceModelDefinition&&
-ml::api::CBoostedTreeRegressionInferenceModelBuilder::build() {
+CInferenceModelDefinition&& CBoostedTreeRegressionInferenceModelBuilder::build() {
 
     // Finalize OneHotEncoding Mappings
     for (auto& oneHotEncodingMapping : m_OneHotEncodingMaps) {
@@ -86,7 +86,7 @@ ml::api::CBoostedTreeRegressionInferenceModelBuilder::build() {
     return std::move(m_Definition);
 }
 
-void ml::api::CBoostedTreeRegressionInferenceModelBuilder::addNode(
+void CBoostedTreeRegressionInferenceModelBuilder::addNode(
     std::size_t splitFeature,
     double splitValue,
     bool assignMissingToLeft,
@@ -97,11 +97,14 @@ void ml::api::CBoostedTreeRegressionInferenceModelBuilder::addNode(
     auto ensemble{static_cast<CEnsemble*>(m_Definition.trainedModel().get())};
     // use dynamic cast to prevent using wrong type of trained models
     auto tree = dynamic_cast<CTree*>(ensemble->trainedModels().back().get());
+    if (tree == nullptr) {
+        HANDLE_FATAL(<< "Internal error. Tree points to a nullptr.")
+    }
     tree->treeStructure().emplace_back(tree->size(), splitValue, assignMissingToLeft, nodeValue,
                                        splitFeature, leftChild, rightChild, gain);
 }
 
-ml::api::CBoostedTreeRegressionInferenceModelBuilder::CBoostedTreeRegressionInferenceModelBuilder(
+CBoostedTreeRegressionInferenceModelBuilder::CBoostedTreeRegressionInferenceModelBuilder(
     TStringVec fieldNames,
     std::size_t dependentVariableColumnIndex,
     const TStringSizeUMapVec& categoryNameMap) {
@@ -120,10 +123,9 @@ ml::api::CBoostedTreeRegressionInferenceModelBuilder::CBoostedTreeRegressionInfe
     m_Definition.typeString(INFERENCE_MODEL);
 }
 
-ml::api::CBoostedTreeRegressionInferenceModelBuilder::TStringDoubleUMap
-ml::api::CBoostedTreeRegressionInferenceModelBuilder::encodingMap(
-    std::size_t inputColumnIndex,
-    const ml::api::CBoostedTreeRegressionInferenceModelBuilder::TDoubleVec& map_) {
+CBoostedTreeRegressionInferenceModelBuilder::TStringDoubleUMap
+CBoostedTreeRegressionInferenceModelBuilder::encodingMap(std::size_t inputColumnIndex,
+                                                         const TDoubleVec& map_) {
     TStringDoubleUMap map;
     for (std::size_t categoryUInt = 0; categoryUInt < map_.size(); ++categoryUInt) {
         std::string category{m_ReverseCategoryNameMap[inputColumnIndex][categoryUInt]};
@@ -132,8 +134,8 @@ ml::api::CBoostedTreeRegressionInferenceModelBuilder::encodingMap(
     return map;
 }
 
-void ml::api::CBoostedTreeRegressionInferenceModelBuilder::categoryNameMap(
-    const ml::api::CInferenceModelDefinition::TStringSizeUMapVec& categoryNameMap) {
+void CBoostedTreeRegressionInferenceModelBuilder::categoryNameMap(
+    const CInferenceModelDefinition::TStringSizeUMapVec& categoryNameMap) {
     m_ReverseCategoryNameMap.reserve(categoryNameMap.size());
     for (const auto& categoryNameMapping : categoryNameMap) {
         if (categoryNameMapping.empty() == false) {
@@ -146,4 +148,6 @@ void ml::api::CBoostedTreeRegressionInferenceModelBuilder::categoryNameMap(
             m_ReverseCategoryNameMap.emplace_back();
         }
     }
+}
+}
 }

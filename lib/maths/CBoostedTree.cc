@@ -129,8 +129,8 @@ CBoostedTreeNode::TSizeSizePr CBoostedTreeNode::split(std::size_t splitFeature,
     m_SplitFeature = splitFeature;
     m_SplitValue = splitValue;
     m_AssignMissingToLeft = assignMissingToLeft;
-    m_LeftChild = static_cast<std::size_t>(tree.size());
-    m_RightChild = static_cast<std::size_t>(tree.size() + 1);
+    m_LeftChild = static_cast<TNodeIndex>(tree.size());
+    m_RightChild = static_cast<TNodeIndex>(tree.size() + 1);
     m_Gain = gain;
     m_Curvature = curvature;
     tree.resize(tree.size() + 2);
