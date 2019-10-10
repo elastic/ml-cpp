@@ -153,9 +153,9 @@ auto predictAndComputeEvaluationMetrics(const F& generateFunction,
 
             fillDataFrame(trainRows, testRows, cols, x, noise, target, *frame);
 
-            auto regression = maths::CBoostedTreeFactory::constructFromParameters(
-                                  1, std::make_unique<maths::boosted_tree::CMse>())
-                                  .buildFor(*frame, cols - 1);
+            auto regression =
+                maths::CBoostedTreeFactory::constructFromParameters(1).buildFor(
+                    *frame, std::make_unique<maths::boosted_tree::CMse>(), cols - 1);
 
             regression->train();
             regression->predict();
@@ -412,9 +412,8 @@ void CBoostedTreeTest::testThreading() {
 
         fillDataFrame(rows, 0, cols, x, noise, target, *frame);
 
-        auto regression = maths::CBoostedTreeFactory::constructFromParameters(
-                              2, std::make_unique<maths::boosted_tree::CMse>())
-                              .buildFor(*frame, cols - 1);
+        auto regression = maths::CBoostedTreeFactory::constructFromParameters(2).buildFor(
+            *frame, std::make_unique<maths::boosted_tree::CMse>(), cols - 1);
 
         regression->train();
         regression->predict();
@@ -477,9 +476,8 @@ void CBoostedTreeTest::testConstantFeatures() {
 
     fillDataFrame(rows, 0, cols, x, noise, target, *frame);
 
-    auto regression = maths::CBoostedTreeFactory::constructFromParameters(
-                          1, std::make_unique<maths::boosted_tree::CMse>())
-                          .buildFor(*frame, cols - 1);
+    auto regression = maths::CBoostedTreeFactory::constructFromParameters(1).buildFor(
+        *frame, std::make_unique<maths::boosted_tree::CMse>(), cols - 1);
 
     regression->train();
 
@@ -508,9 +506,8 @@ void CBoostedTreeTest::testConstantTarget() {
     fillDataFrame(rows, 0, cols, x, TDoubleVec(rows, 0.0),
                   [](const TRowRef&) { return 1.0; }, *frame);
 
-    auto regression = maths::CBoostedTreeFactory::constructFromParameters(
-                          1, std::make_unique<maths::boosted_tree::CMse>())
-                          .buildFor(*frame, cols - 1);
+    auto regression = maths::CBoostedTreeFactory::constructFromParameters(1).buildFor(
+        *frame, std::make_unique<maths::boosted_tree::CMse>(), cols - 1);
 
     regression->train();
 
@@ -582,9 +579,8 @@ void CBoostedTreeTest::testCategoricalRegressors() {
         }
     });
 
-    auto regression = maths::CBoostedTreeFactory::constructFromParameters(
-                          1, std::make_unique<maths::boosted_tree::CMse>())
-                          .buildFor(*frame, cols - 1);
+    auto regression = maths::CBoostedTreeFactory::constructFromParameters(1).buildFor(
+        *frame, std::make_unique<maths::boosted_tree::CMse>(), cols - 1);
 
     regression->train();
     regression->predict();
@@ -625,9 +621,8 @@ void CBoostedTreeTest::testIntegerRegressor() {
     }
     frame->finishWritingRows();
 
-    auto regression = maths::CBoostedTreeFactory::constructFromParameters(
-                          1, std::make_unique<maths::boosted_tree::CMse>())
-                          .buildFor(*frame, 1);
+    auto regression = maths::CBoostedTreeFactory::constructFromParameters(1).buildFor(
+        *frame, std::make_unique<maths::boosted_tree::CMse>(), 1);
 
     regression->train();
     regression->predict();
@@ -672,9 +667,8 @@ void CBoostedTreeTest::testSingleSplit() {
     }
     frame->finishWritingRows();
 
-    auto regression = maths::CBoostedTreeFactory::constructFromParameters(
-                          1, std::make_unique<maths::boosted_tree::CMse>())
-                          .buildFor(*frame, cols - 1);
+    auto regression = maths::CBoostedTreeFactory::constructFromParameters(1).buildFor(
+        *frame, std::make_unique<maths::boosted_tree::CMse>(), cols - 1);
 
     regression->train();
 
@@ -731,9 +725,8 @@ void CBoostedTreeTest::testTranslationInvariance() {
         fillDataFrame(trainRows, rows - trainRows, cols, x,
                       TDoubleVec(rows, 0.0), target_, *frame);
 
-        auto regression = maths::CBoostedTreeFactory::constructFromParameters(
-                              1, std::make_unique<maths::boosted_tree::CMse>())
-                              .buildFor(*frame, cols - 1);
+        auto regression = maths::CBoostedTreeFactory::constructFromParameters(1).buildFor(
+            *frame, std::make_unique<maths::boosted_tree::CMse>(), cols - 1);
 
         regression->train();
         regression->predict();
@@ -805,13 +798,13 @@ void CBoostedTreeTest::testDepthBasedRegularization() {
 
         fillDataFrame(rows, 0, cols, x, noise, target, *frame);
 
-        auto regression = maths::CBoostedTreeFactory::constructFromParameters(
-                              1, std::make_unique<maths::boosted_tree::CMse>())
-                              .treeSizePenaltyMultiplier(0.0)
-                              .leafWeightPenaltyMultiplier(0.0)
-                              .softTreeDepthLimit(targetDepth)
-                              .softTreeDepthTolerance(0.05)
-                              .buildFor(*frame, cols - 1);
+        auto regression =
+            maths::CBoostedTreeFactory::constructFromParameters(1)
+                .treeSizePenaltyMultiplier(0.0)
+                .leafWeightPenaltyMultiplier(0.0)
+                .softTreeDepthLimit(targetDepth)
+                .softTreeDepthTolerance(0.05)
+                .buildFor(*frame, std::make_unique<maths::boosted_tree::CMse>(), cols - 1);
 
         regression->train();
 
@@ -1008,9 +1001,8 @@ void CBoostedTreeTest::testLogisticRegression() {
         fillDataFrame(trainRows, rows - trainRows, cols, {false, false, false, true},
                       x, TDoubleVec(rows, 0.0), target, *frame);
 
-        auto regression = maths::CBoostedTreeFactory::constructFromParameters(
-                              1, std::make_unique<maths::boosted_tree::CLogistic>())
-                              .buildFor(*frame, cols - 1);
+        auto regression = maths::CBoostedTreeFactory::constructFromParameters(1).buildFor(
+            *frame, std::make_unique<maths::boosted_tree::CLogistic>(), cols - 1);
 
         regression->train();
         regression->predict();
@@ -1082,21 +1074,21 @@ void CBoostedTreeTest::testEstimateMemoryUsedByTrain() {
         }
         frame->finishWritingRows();
 
-        std::int64_t estimatedMemory(maths::CBoostedTreeFactory::constructFromParameters(
-                                         1, std::make_unique<maths::boosted_tree::CMse>())
-                                         .estimateMemoryUsage(rows, cols));
+        std::int64_t estimatedMemory(
+            maths::CBoostedTreeFactory::constructFromParameters(1).estimateMemoryUsage(
+                rows, cols));
 
         std::int64_t memoryUsage{0};
         std::int64_t maxMemoryUsage{0};
-        auto regression = maths::CBoostedTreeFactory::constructFromParameters(
-                              1, std::make_unique<maths::boosted_tree::CMse>())
-                              .memoryUsageCallback([&](std::int64_t delta) {
-                                  memoryUsage += delta;
-                                  maxMemoryUsage = std::max(maxMemoryUsage, memoryUsage);
-                                  LOG_TRACE(<< "current memory = " << memoryUsage
-                                            << ", high water mark = " << maxMemoryUsage);
-                              })
-                              .buildFor(*frame, cols - 1);
+        auto regression =
+            maths::CBoostedTreeFactory::constructFromParameters(1)
+                .memoryUsageCallback([&](std::int64_t delta) {
+                    memoryUsage += delta;
+                    maxMemoryUsage = std::max(maxMemoryUsage, memoryUsage);
+                    LOG_TRACE(<< "current memory = " << memoryUsage
+                              << ", high water mark = " << maxMemoryUsage);
+                })
+                .buildFor(*frame, std::make_unique<maths::boosted_tree::CMse>(), cols - 1);
 
         regression->train();
 
@@ -1146,10 +1138,11 @@ void CBoostedTreeTest::testProgressMonitoring() {
         std::atomic_bool finished{false};
 
         std::thread worker{[&]() {
-            auto regression = maths::CBoostedTreeFactory::constructFromParameters(
-                                  threads, std::make_unique<maths::boosted_tree::CMse>())
-                                  .progressCallback(reportProgress)
-                                  .buildFor(*frame, cols - 1);
+            auto regression =
+                maths::CBoostedTreeFactory::constructFromParameters(threads)
+                    .progressCallback(reportProgress)
+                    .buildFor(*frame, std::make_unique<maths::boosted_tree::CMse>(),
+                              cols - 1);
 
             regression->train();
             finished.store(true);
@@ -1210,19 +1203,19 @@ void CBoostedTreeTest::testPersistRestore() {
 
     // persist
     {
-        auto boostedTree = maths::CBoostedTreeFactory::constructFromParameters(
-                               1, std::make_unique<maths::boosted_tree::CMse>())
-                               .numberFolds(2)
-                               .maximumNumberTrees(2)
-                               .maximumOptimisationRoundsPerHyperparameter(3)
-                               .buildFor(*frame, cols - 1);
+        auto boostedTree =
+            maths::CBoostedTreeFactory::constructFromParameters(1)
+                .numberFolds(2)
+                .maximumNumberTrees(2)
+                .maximumOptimisationRoundsPerHyperparameter(3)
+                .buildFor(*frame, std::make_unique<maths::boosted_tree::CMse>(), cols - 1);
         core::CJsonStatePersistInserter inserter(persistOnceSStream);
         boostedTree->acceptPersistInserter(inserter);
         persistOnceSStream.flush();
     }
     // restore
-    auto boostedTree =
-        maths::CBoostedTreeFactory::constructFromString(persistOnceSStream).buildFor(*frame, cols - 1);
+    auto boostedTree = maths::CBoostedTreeFactory::constructFromString(persistOnceSStream)
+                           .buildFor(*frame, nullptr, cols - 1);
     {
         core::CJsonStatePersistInserter inserter(persistTwiceSStream);
         boostedTree->acceptPersistInserter(inserter);
@@ -1280,7 +1273,7 @@ void CBoostedTreeTest::testRestoreErrorHandling() {
     bool throwsExceptions{false};
     try {
         auto boostedTree = maths::CBoostedTreeFactory::constructFromString(errorInBayesianOptimisationState)
-                               .buildFor(*frame, 2);
+                               .buildFor(*frame, nullptr, 2);
     } catch (const std::exception& e) {
         LOG_DEBUG(<< "got = " << e.what());
         throwsExceptions = true;
@@ -1319,7 +1312,7 @@ void CBoostedTreeTest::testRestoreErrorHandling() {
     throwsExceptions = false;
     try {
         auto boostedTree = maths::CBoostedTreeFactory::constructFromString(errorInBoostedTreeImplState)
-                               .buildFor(*frame, 2);
+                               .buildFor(*frame, nullptr, 2);
     } catch (const std::exception& e) {
         LOG_DEBUG(<< "got = " << e.what());
         throwsExceptions = true;

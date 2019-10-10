@@ -68,9 +68,9 @@ private:
 
 //! \brief Finds the value to add to a set of predicted log-odds which minimises
 //! regularised cross entropy loss w.r.t. the actual categories.
-class MATHS_EXPORT CArgMinBinomialLogisticImpl final : public CArgMinLossImpl {
+class MATHS_EXPORT CArgMinLogisticImpl final : public CArgMinLossImpl {
 public:
-    CArgMinBinomialLogisticImpl(double lambda);
+    CArgMinLogisticImpl(double lambda);
     std::unique_ptr<CArgMinLossImpl> clone() const override;
     bool nextPass() override;
     void add(double prediction, double actual) override;
@@ -196,7 +196,7 @@ public:
 //! </pre>
 //! where \f$a_i\f$ denotes the actual class of the i'th example, \f$p\f$ is the
 //! prediction and \f$S(\cdot)\f$ denotes the logistic function.
-class MATHS_EXPORT CBinomialLogistic final : public CLoss {
+class MATHS_EXPORT CLogistic final : public CLoss {
     std::unique_ptr<CLoss> clone() const override;
     double value(double prediction, double actual) const override;
     double gradient(double prediction, double actual) const override;

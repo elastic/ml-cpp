@@ -60,9 +60,7 @@ class CMemoryUsageEstimationResultJsonWriter;
 class API_EXPORT CDataFrameAnalysisRunner {
 public:
     using TBoolVec = std::vector<bool>;
-    using TSizeVec = std::vector<std::size_t>;
     using TStrVec = std::vector<std::string>;
-    using TStrVecVec = std::vector<TStrVec>;
     using TRowRef = core::data_frame_detail::CRowRef;
     using TProgressRecorder = std::function<void(double)>;
 

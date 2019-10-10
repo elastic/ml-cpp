@@ -77,21 +77,21 @@ double CArgMinMseImpl::value() const {
                : count / (count + this->lambda()) * CBasicStatistics::mean(m_MeanError);
 }
 
-CArgMinBinomialLogisticImpl::CArgMinBinomialLogisticImpl(double lambda)
+CArgMinLogisticImpl::CArgMinLogisticImpl(double lambda)
     : CArgMinLossImpl{lambda}, m_CategoryCounts{0},
       m_BucketCategoryCounts(128, TSizeVector{0}) {
 }
 
-std::unique_ptr<CArgMinLossImpl> CArgMinBinomialLogisticImpl::clone() const {
-    return std::make_unique<CArgMinBinomialLogisticImpl>(*this);
+std::unique_ptr<CArgMinLossImpl> CArgMinLogisticImpl::clone() const {
+    return std::make_unique<CArgMinLogisticImpl>(*this);
 }
 
-bool CArgMinBinomialLogisticImpl::nextPass() {
+bool CArgMinLogisticImpl::nextPass() {
     m_CurrentPass += this->bucketWidth() > 0.0 ? 1 : 2;
     return m_CurrentPass < 2;
 }
 
-void CArgMinBinomialLogisticImpl::add(double prediction, double actual) {
+void CArgMinLogisticImpl::add(double prediction, double actual) {
     switch (m_CurrentPass) {
     case 0: {
         m_PredictionMinMax.add(prediction);
@@ -108,8 +108,8 @@ void CArgMinBinomialLogisticImpl::add(double prediction, double actual) {
     }
 }
 
-void CArgMinBinomialLogisticImpl::merge(const CArgMinLossImpl& other) {
-    const auto* logistic = dynamic_cast<const CArgMinBinomialLogisticImpl*>(&other);
+void CArgMinLogisticImpl::merge(const CArgMinLossImpl& other) {
+    const auto* logistic = dynamic_cast<const CArgMinLogisticImpl*>(&other);
     if (logistic != nullptr) {
         switch (m_CurrentPass) {
         case 0:
@@ -127,7 +127,7 @@ void CArgMinBinomialLogisticImpl::merge(const CArgMinLossImpl& other) {
     }
 }
 
-double CArgMinBinomialLogisticImpl::value() const {
+double CArgMinLogisticImpl::value() const {
 
     std::function<double(double)> objective;
     double minWeight;
@@ -262,40 +262,40 @@ const std::string& CMse::name() const {
 
 const std::string CMse::NAME{"mse"};
 
-std::unique_ptr<CLoss> CBinomialLogistic::clone() const {
-    return std::make_unique<CBinomialLogistic>(*this);
+std::unique_ptr<CLoss> CLogistic::clone() const {
+    return std::make_unique<CLogistic>(*this);
 }
 
-double CBinomialLogistic::value(double prediction, double actual) const {
+double CLogistic::value(double prediction, double actual) const {
     // Cross entropy
     prediction = CTools::logisticFunction(prediction);
     return -((1.0 - actual) * CTools::fastLog(1.0 - prediction) +
              actual * CTools::fastLog(prediction));
 }
 
-double CBinomialLogistic::gradient(double prediction, double actual) const {
+double CLogistic::gradient(double prediction, double actual) const {
     prediction = CTools::logisticFunction(prediction);
     return prediction - actual;
 }
 
-double CBinomialLogistic::curvature(double prediction, double /*actual*/) const {
+double CLogistic::curvature(double prediction, double /*actual*/) const {
     prediction = CTools::logisticFunction(prediction);
     return prediction * (1.0 - prediction);
 }
 
-bool CBinomialLogistic::isCurvatureConstant() const {
+bool CLogistic::isCurvatureConstant() const {
     return false;
 }
 
-CArgMinLoss CBinomialLogistic::minimizer(double lambda) const {
-    return this->makeMinimizer(CArgMinBinomialLogisticImpl{lambda});
+CArgMinLoss CLogistic::minimizer(double lambda) const {
+    return this->makeMinimizer(CArgMinLogisticImpl{lambda});
 }
 
-const std::string& CBinomialLogistic::name() const {
+const std::string& CLogistic::name() const {
     return NAME;
 }
 
-const std::string CBinomialLogistic::NAME{"binomial_logistic"};
+const std::string CLogistic::NAME{"binomial_logistic"};
 }
 
 std::size_t CBoostedTreeNode::leafIndex(const CEncodedDataFrameRowRef& row,

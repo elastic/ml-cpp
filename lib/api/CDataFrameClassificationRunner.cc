@@ -127,7 +127,7 @@ CDataFrameClassificationRunner::chooseLossFunction(const core::CDataFrame& frame
     std::size_t categoryCount{
         frame.categoricalColumnValues()[dependentVariableColumn].size()};
     if (categoryCount == 2) {
-        return std::make_unique<maths::boosted_tree::CBinomialLogistic>();
+        return std::make_unique<maths::boosted_tree::CLogistic>();
     }
     HANDLE_FATAL(<< "Input error: only binary classification is supported. "
                  << "Trying to predict '" << categoryCount << "' categories.");
