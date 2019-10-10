@@ -26,6 +26,7 @@
 using namespace ml;
 
 namespace {
+using TBoolVec = std::vector<bool>;
 using TDoubleVec = std::vector<double>;
 using TDoubleVecVec = std::vector<TDoubleVec>;
 using TSizeVec = std::vector<std::size_t>;
