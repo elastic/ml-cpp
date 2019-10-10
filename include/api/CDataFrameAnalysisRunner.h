@@ -114,7 +114,7 @@ public:
     //! </pre>
     //! with one named member for each column added.
     //!
-    //! \param[in] frame The data frane for which to write results.
+    //! \param[in] frame The data frame for which to write results.
     //! \param[in] row The row to write the columns added by this analysis.
     //! \param[in,out] writer The stream to which to write the extra columns.
     virtual void writeOneRow(const core::CDataFrame& frame,
