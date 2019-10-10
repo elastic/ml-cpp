@@ -210,7 +210,7 @@ void CBoostedTreeRegressionInferenceModelBuilderTest::testIntegration() {
     // assert trained model
     auto trainedModel = dynamic_cast<api::CEnsemble*>(definition->trainedModel().get());
     CPPUNIT_ASSERT_EQUAL(api::CTrainedModel::E_Regression, trainedModel->targetType());
-    CPPUNIT_ASSERT_EQUAL(std::size_t(23), trainedModel->size());
+    CPPUNIT_ASSERT_EQUAL(std::size_t(22), trainedModel->size());
     CPPUNIT_ASSERT("weighted_sum" == trainedModel->aggregateOutput()->stringType());
     // TODO feature names test is missing
 }
