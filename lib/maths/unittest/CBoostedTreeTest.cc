@@ -561,7 +561,7 @@ void CBoostedTreeTest::testCategoricalRegressors() {
 
     auto frame = core::makeMainStorageDataFrame(cols, capacity).first;
 
-    frame->categoricalColumns({true, true, false, false, false, false});
+    frame->categoricalColumns(TBoolVec{true, true, false, false, false, false});
     for (std::size_t i = 0; i < rows; ++i) {
         frame->writeRow([&](core::CDataFrame::TFloatVecItr column, std::int32_t&) {
             for (std::size_t j = 0; j < cols - 1; ++j, ++column) {

@@ -62,7 +62,7 @@ void CDataFrameCategoryEncoderTest::testOneHotEncoding() {
 
         auto frame = core::makeMainStorageDataFrame(cols, 2 * rows).first;
 
-        frame->categoricalColumns({true, false, false, false});
+        frame->categoricalColumns(TBoolVec{true, false, false, false});
         for (std::size_t i = 0; i < rows; ++i) {
             frame->writeRow([&](core::CDataFrame::TFloatVecItr column, std::int32_t&) {
                 *(column++) = std::floor(features[0][i]);
@@ -128,7 +128,7 @@ void CDataFrameCategoryEncoderTest::testMeanValueEncoding() {
 
         TMeanAccumulatorVec expectedTargetMeanValues(static_cast<std::size_t>(numberCategories));
 
-        frame->categoricalColumns({true, false, false, false});
+        frame->categoricalColumns(TBoolVec{true, false, false, false});
         for (std::size_t i = 0; i < rows; ++i) {
             frame->writeRow([&](core::CDataFrame::TFloatVecItr column, std::int32_t&) {
                 *(column++) = std::floor(features[0][i]);
@@ -206,7 +206,7 @@ void CDataFrameCategoryEncoderTest::testRareCategories() {
 
     TSizeVec categoryCounts(static_cast<std::size_t>(numberCategories), 0);
 
-    frame->categoricalColumns({false, false, true, false});
+    frame->categoricalColumns(TBoolVec{false, false, true, false});
     for (std::size_t i = 0; i < rows; ++i) {
         frame->writeRow([&](core::CDataFrame::TFloatVecItr column, std::int32_t&) {
             for (std::size_t j = 0; j + 2 < cols; ++j, ++column) {
@@ -263,7 +263,7 @@ void CDataFrameCategoryEncoderTest::testCorrelatedFeatures() {
 
         auto frame = core::makeMainStorageDataFrame(cols, 2 * rows).first;
 
-        frame->categoricalColumns({false, false, false, false, false, false, false});
+        frame->categoricalColumns(TBoolVec{false, false, false, false, false, false, false});
         for (std::size_t i = 0; i < rows; ++i) {
             frame->writeRow([&](core::CDataFrame::TFloatVecItr column, std::int32_t&) {
                 for (std::size_t j = 0; j + 1 < cols; ++j, ++column) {
@@ -308,7 +308,7 @@ void CDataFrameCategoryEncoderTest::testCorrelatedFeatures() {
 
         auto frame = core::makeMainStorageDataFrame(cols, 2 * rows).first;
 
-        frame->categoricalColumns({true, true, true, true, false});
+        frame->categoricalColumns(TBoolVec{true, true, true, true, false});
         for (std::size_t i = 0; i < rows; ++i) {
             frame->writeRow([&](core::CDataFrame::TFloatVecItr column, std::int32_t&) {
                 for (std::size_t j = 0; j + 1 < cols; ++j, ++column) {
@@ -437,7 +437,7 @@ void CDataFrameCategoryEncoderTest::testEncodedDataFrameRowRef() {
         return TSizeVec{category};
     };
 
-    frame->categoricalColumns({true, false, false, true, false});
+    frame->categoricalColumns(TBoolVec{true, false, false, true, false});
     for (std::size_t i = 0; i < rows; ++i) {
         frame->writeRow([&](core::CDataFrame::TFloatVecItr column, std::int32_t&) {
             *(column++) = std::floor(features[0][i]);
@@ -547,7 +547,7 @@ void CDataFrameCategoryEncoderTest::testUnseenCategoryEncoding() {
     rng.generateUniformSamples(0.0, 3.0, rows, features[2]);
 
     auto frame = core::makeMainStorageDataFrame(cols).first;
-    frame->categoricalColumns({true, true, true, false});
+    frame->categoricalColumns(TBoolVec{true, true, true, false});
     for (std::size_t i = 0; i < rows; ++i) {
         auto writeOneRow = [&](core::CDataFrame::TFloatVecItr column, std::int32_t&) {
             for (std::size_t j = 0; j + 1 < cols; ++j, ++column) {
@@ -601,7 +601,7 @@ void CDataFrameCategoryEncoderTest::testDiscardNuisanceFeatures() {
     rng.generateUniformSamples(0.0, 5.0, rows, features[5]);
 
     auto frame = core::makeMainStorageDataFrame(cols).first;
-    frame->categoricalColumns({false, false, false, false, false, false, false});
+    frame->categoricalColumns(TBoolVec{false, false, false, false, false, false, false});
     for (std::size_t i = 0; i < rows; ++i) {
         auto writeOneRow = [&](core::CDataFrame::TFloatVecItr column, std::int32_t&) {
             double target{0.0};
@@ -656,7 +656,7 @@ void CDataFrameCategoryEncoderTest::testPersistRestore() {
 
     auto frame = core::makeMainStorageDataFrame(cols, 2 * rows).first;
 
-    frame->categoricalColumns({true, false, false, true, false});
+    frame->categoricalColumns(TBoolVec{true, false, false, true, false});
     for (std::size_t i = 0; i < rows; ++i) {
         frame->writeRow([&](core::CDataFrame::TFloatVecItr column, std::int32_t&) {
             *(column++) = std::floor(features[0][i]);
