@@ -1341,6 +1341,7 @@ void CBoostedTreeTest::testRestoreErrorHandling() {
                        std::string::npos);
     }
     CPPUNIT_ASSERT(throwsExceptions);
+    ml::core::CLogger::instance().reset();
 }
 
 CppUnit::Test* CBoostedTreeTest::suite() {
