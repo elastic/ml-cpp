@@ -609,7 +609,7 @@ void CBoostedTreeTest::testIntegerRegressor() {
 
     auto frame = core::makeMainStorageDataFrame(2).first;
 
-    frame->categoricalColumns({false, false});
+    frame->categoricalColumns(TBoolVec{false, false});
     for (std::size_t i = 0; i < rows; ++i) {
         frame->writeRow([&](core::CDataFrame::TFloatVecItr column, std::int32_t&) {
             TDoubleVec regressor;
@@ -658,7 +658,7 @@ void CBoostedTreeTest::testSingleSplit() {
     }
 
     auto frame = core::makeMainStorageDataFrame(cols).first;
-    frame->categoricalColumns({false, false});
+    frame->categoricalColumns(TBoolVec{false, false});
     for (std::size_t i = 0; i < rows; ++i) {
         frame->writeRow([&](core::CDataFrame::TFloatVecItr column, std::int32_t&) {
             *(column++) = x[i];
@@ -1062,7 +1062,7 @@ void CBoostedTreeTest::testEstimateMemoryUsedByTrain() {
         };
 
         auto frame = core::makeMainStorageDataFrame(cols, capacity).first;
-        frame->categoricalColumns({true, false, false, false, false, false});
+        frame->categoricalColumns(TBoolVec{true, false, false, false, false, false});
         for (std::size_t i = 0; i < rows; ++i) {
             frame->writeRow([&](core::CDataFrame::TFloatVecItr column, std::int32_t&) {
                 *(column++) = std::floor(x[0][i]);

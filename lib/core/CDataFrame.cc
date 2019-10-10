@@ -349,8 +349,9 @@ void CDataFrame::finishWritingRows() {
             LOG_WARN(<< "Failed to represent all distinct values of " << m_ColumnNames[i]);
         }
         m_CategoricalColumnValues.shrink_to_fit();
-        m_CategoricalColumnValueLookup[i] = TStrSizeUMap{};
     }
+    m_CategoricalColumnValueLookup.clear();
+    m_CategoricalColumnValueLookup.shrink_to_fit();
 }
 
 const CDataFrame::TStrVec& CDataFrame::columnNames() const {

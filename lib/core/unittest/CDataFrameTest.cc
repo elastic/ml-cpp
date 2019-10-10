@@ -423,9 +423,9 @@ void CDataFrameTest::testMemoryUsage() {
     };
 
     // Memory usage should be less than:
-    //   1) 800 bytes for on disk, and
-    //   2) data size + doc ids size + 200 byte overhead in main memory.
-    std::size_t maximumMemory[]{850, rows * (cols + 1) * 4 + 350};
+    //   1) 1050 bytes for on disk, and
+    //   2) data size + doc ids size + 850 byte overhead in main memory.
+    std::size_t maximumMemory[]{1050, rows * (cols + 1) * 4 + 850};
 
     std::string type[]{"on disk", "main memory"};
     std::size_t t{0};
