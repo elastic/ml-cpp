@@ -1279,5 +1279,15 @@ std::size_t CBoostedTreeImpl::memoryUsage() const {
 
 const double CBoostedTreeImpl::MINIMUM_RELATIVE_GAIN_PER_SPLIT{1e-7};
 const double CBoostedTreeImpl::INF{std::numeric_limits<double>::max()};
+
+void CBoostedTreeImpl::accept(CBoostedTree::CVisitor& visitor) {
+    m_Encoder->accept(visitor);
+    for (const auto& tree : m_BestForest) {
+        visitor.addTree();
+        for (std::size_t i = 0; i < tree.size(); ++i) {
+            tree[i].accept(visitor);
+        }
+    }
+}
 }
 }
