@@ -92,8 +92,9 @@ void CDataFrameClassificationRunner::writeOneRow(const core::CDataFrame& frame,
     TDoubleVec probabilityOfCategory{1.0 - probabilityOfCategory1, probabilityOfCategory1};
 
     double actualCategoryId{row[columnHoldingDependentVariable]};
-    std::size_t predictedCategoryId{
-        probabilityOfCategory[0] > probabilityOfCategory[1] ? 0u : 1u};
+    std::size_t predictedCategoryId(std::max_element(probabilityOfCategory.begin(),
+                                                     probabilityOfCategory.end()) -
+                                    probabilityOfCategory.begin());
 
     writer.StartObject();
     writer.Key(this->predictionFieldName());

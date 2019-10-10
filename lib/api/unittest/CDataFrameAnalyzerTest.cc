@@ -26,7 +26,6 @@
 #include <api/CSingleStreamDataAdder.h>
 #include <api/ElasticsearchStateIndex.h>
 
-#include <test/CDataFrameTestUtils.h>
 #include <test/CRandomNumbers.h>
 #include <test/CTestTmpDir.h>
 
@@ -229,9 +228,6 @@ void addOutlierTestData(TStrVec fieldNames,
                         std::size_t numberNeighbours = 0,
                         bool computeFeatureInfluence = false) {
 
-    using TMeanVarAccumulatorVec =
-        std::vector<maths::CBasicStatistics::SSampleMeanVar<double>::TAccumulator>;
-
     test::CRandomNumbers rng;
 
     TDoubleVec mean{1.0, 10.0, 4.0, 8.0, 3.0};
@@ -247,35 +243,32 @@ void addOutlierTestData(TStrVec fieldNames,
     TDoubleVec outliers;
     rng.generateUniformSamples(0.0, 10.0, numberOutliers * 5, outliers);
 
-    TPointVec points(numberInliers + numberOutliers, TPoint(5));
-    TMeanVarAccumulatorVec columnMoments(5);
+    auto frame = core::makeMainStorageDataFrame(5).first;
 
     for (std::size_t i = 0; i < inliers.size(); ++i) {
         for (std::size_t j = 0; j < 5; ++j) {
             fieldValues[j] = core::CStringUtils::typeToStringPrecise(
                 inliers[i][j], core::CIEEE754::E_DoublePrecision);
-            points[i](j) = inliers[i][j];
-            columnMoments[j].add(inliers[i][j]);
         }
         analyzer.handleRecord(fieldNames, fieldValues);
+        frame->parseAndWriteRow(core::CVectorRange<const TStrVec>(fieldValues, 0, 5));
     }
-    for (std::size_t i = 0, j = numberInliers; i < outliers.size(); ++j) {
-        for (std::size_t k = 0; k < 5; ++i, ++k) {
-            fieldValues[k] = core::CStringUtils::typeToStringPrecise(
-                outliers[i], core::CIEEE754::E_DoublePrecision);
-            points[j](k) = outliers[i];
-            columnMoments[k].add(outliers[i]);
+    for (std::size_t i = 0; i < outliers.size(); i += 5) {
+        for (std::size_t j = 0; j < 5; ++j) {
+            fieldValues[j] = core::CStringUtils::typeToStringPrecise(
+                outliers[i + j], core::CIEEE754::E_DoublePrecision);
         }
         analyzer.handleRecord(fieldNames, fieldValues);
+        frame->parseAndWriteRow(core::CVectorRange<const TStrVec>(fieldValues, 0, 5));
     }
 
-    auto frame = test::CDataFrameTestUtils::toMainMemoryDataFrame(points);
+    frame->finishWritingRows();
 
     maths::COutliers::compute(
         {1, 1, true, method, numberNeighbours, computeFeatureInfluence, 0.05}, *frame);
 
-    expectedScores.resize(points.size());
-    expectedFeatureInfluences.resize(points.size(), TDoubleVec(5));
+    expectedScores.resize(numberInliers + numberOutliers);
+    expectedFeatureInfluences.resize(numberInliers + numberOutliers, TDoubleVec(5));
 
     frame->readRows(1, [&](TRowItr beginRows, TRowItr endRows) {
         for (auto row = beginRows; row != endRows; ++row) {
@@ -295,103 +288,93 @@ TDataFrameUPtr setupLinearRegressionData(const TStrVec& fieldNames,
                                          const TDoubleVec& weights,
                                          const TDoubleVec& values) {
 
-    auto target = [](const TDoubleVec& weights_, const TPoint& regressors) {
+    auto target = [&weights](const TDoubleVec& regressors) {
         double result{0.0};
-        for (std::size_t i = 0; i < weights_.size(); ++i) {
-            result += weights_[i] * regressors(i);
+        for (std::size_t i = 0; i < weights.size(); ++i) {
+            result += weights[i] * regressors[i];
         }
-        return result;
+        return core::CStringUtils::typeToStringPrecise(result, core::CIEEE754::E_DoublePrecision);
     };
 
-    TPointVec rows;
+    auto frame = core::makeMainStorageDataFrame(weights.size() + 1).first;
 
     for (std::size_t i = 0; i < values.size(); i += weights.size()) {
-        TPoint row{weights.size() + 1};
+        TDoubleVec row(weights.size());
         for (std::size_t j = 0; j < weights.size(); ++j) {
-            row(j) = values[i + j];
+            row[j] = values[i + j];
         }
-        row(weights.size()) = target(weights, row);
 
-        for (int j = 0; j < row.size(); ++j) {
+        for (std::size_t j = 0; j < row.size(); ++j) {
             fieldValues[j] = core::CStringUtils::typeToStringPrecise(
-                row(j), core::CIEEE754::E_DoublePrecision);
-            double xj;
-            core::CStringUtils::stringToType(fieldValues[j], xj);
-            row(j) = xj;
+                row[j], core::CIEEE754::E_DoublePrecision);
         }
-        analyzer.handleRecord(fieldNames, fieldValues);
+        fieldValues[weights.size()] = target(row);
 
-        rows.push_back(std::move(row));
+        analyzer.handleRecord(fieldNames, fieldValues);
+        frame->parseAndWriteRow(
+            core::CVectorRange<const TStrVec>(fieldValues, 0, weights.size() + 1));
     }
 
-    return test::CDataFrameTestUtils::toMainMemoryDataFrame(rows);
-}
+    frame->finishWritingRows();
 
-const TStrVec BINARY_CLASSIFICATION_CLASSES{"foo", "bar"};
+    return frame;
+}
 
 TDataFrameUPtr setupBinaryClassificationData(const TStrVec& fieldNames,
                                              TStrVec& fieldValues,
                                              api::CDataFrameAnalyzer& analyzer,
                                              const TDoubleVec& weights,
                                              const TDoubleVec& values) {
-
-    auto target = [](const TDoubleVec& weights_, const TPoint& regressors) {
+    TStrVec classes{"foo", "bar"};
+    auto target = [&weights, &classes](const TDoubleVec& regressors) {
         double result{0.0};
-        for (std::size_t i = 0; i < weights_.size(); ++i) {
-            result += weights_[i] * regressors(i);
+        for (std::size_t i = 0; i < weights.size(); ++i) {
+            result += weights[i] * regressors[i];
         }
-        return result;
+        return classes[result < 0.0 ? 0 : 1];
     };
 
-    TPointVec rows;
-
-    double signOfFirstRow{0.0};
-    for (std::size_t i = 0; i < values.size(); i += weights.size()) {
-        TPoint row{weights.size() + 1};
-        for (std::size_t j = 0; j < weights.size(); ++j) {
-            row(j) = values[i + j];
-        }
-
-        // We need to arrange for the first row supplied to the analyzer
-        // to map to the zero class.
-        if (signOfFirstRow == 0.0) {
-            signOfFirstRow = std::copysign(1.0, target(weights, row));
-        }
-        row(weights.size()) = (signOfFirstRow * target(weights, row) >= 0.0 ? 0.0 : 1.0);
-
-        for (int j = 0; j < row.size() - 1; ++j) {
-            fieldValues[j] = core::CStringUtils::typeToStringPrecise(
-                row(j), core::CIEEE754::E_DoublePrecision);
-            double xj;
-            core::CStringUtils::stringToType(fieldValues[j], xj);
-            row(j) = xj;
-        }
-        fieldValues[weights.size()] =
-            BINARY_CLASSIFICATION_CLASSES[static_cast<std::size_t>(row[weights.size()])];
-        analyzer.handleRecord(fieldNames, fieldValues);
-
-        rows.push_back(std::move(row));
-    }
-
-    auto frame = test::CDataFrameTestUtils::toMainMemoryDataFrame(rows);
-
+    auto frame = core::makeMainStorageDataFrame(weights.size() + 1).first;
     TBoolVec categoricalFields(weights.size(), false);
     categoricalFields.push_back(true);
     frame->categoricalColumns(std::move(categoricalFields));
+
+    for (std::size_t i = 0; i < values.size(); i += weights.size()) {
+        TDoubleVec row(weights.size());
+        for (std::size_t j = 0; j < weights.size(); ++j) {
+            row[j] = values[i + j];
+        }
+
+        for (std::size_t j = 0; j < row.size() - 1; ++j) {
+            fieldValues[j] = core::CStringUtils::typeToStringPrecise(
+                row[j], core::CIEEE754::E_DoublePrecision);
+        }
+        fieldValues[weights.size()] = target(row);
+
+        analyzer.handleRecord(fieldNames, fieldValues);
+        frame->parseAndWriteRow(
+            core::CVectorRange<const TStrVec>(fieldValues, 0, weights.size() + 1));
+    }
+
+    frame->finishWritingRows();
 
     return frame;
 }
 
 enum EPredictionType { E_Regression, E_BinaryClassification };
 
-void appendPrediction(double prediction, TDoubleVec& predictions) {
+void appendPrediction(core::CDataFrame&, std::size_t, double prediction, TDoubleVec& predictions) {
     predictions.push_back(prediction);
 }
 
-void appendPrediction(double logOddsClass1, TStrVec& predictions) {
-    predictions.push_back(maths::CTools::logisticFunction(logOddsClass1) < 0.5
-                              ? BINARY_CLASSIFICATION_CLASSES[0]
-                              : BINARY_CLASSIFICATION_CLASSES[1]);
+void appendPrediction(core::CDataFrame& frame,
+                      std::size_t columnHoldingPrediction,
+                      double logOddsClass1,
+                      TStrVec& predictions) {
+    predictions.push_back(
+        maths::CTools::logisticFunction(logOddsClass1) < 0.5
+            ? frame.categoricalColumnValues()[columnHoldingPrediction][0]
+            : frame.categoricalColumnValues()[columnHoldingPrediction][1]);
 }
 
 template<typename T>
@@ -462,7 +445,7 @@ void addPredictionTestData(EPredictionType type,
     frame->readRows(1, [&](TRowItr beginRows, TRowItr endRows) {
         for (auto row = beginRows; row != endRows; ++row) {
             double prediction{(*row)[tree->columnHoldingPrediction(row->numberColumns())]};
-            appendPrediction(prediction, expectedPredictions);
+            appendPrediction(*frame, weights.size(), prediction, expectedPredictions);
         }
     });
 }
