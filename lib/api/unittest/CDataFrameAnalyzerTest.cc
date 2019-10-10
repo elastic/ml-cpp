@@ -101,7 +101,7 @@ auto restoreTree(std::string persistedState, TDataFrameUPtr& frame, std::size_t 
     decompressor->setStateRestoreSearch(api::ML_STATE_INDEX,
                                         api::getRegressionStateId("testJob"));
     auto stream = decompressor->search(1, 1);
-    return maths::CBoostedTreeFactory::constructFromString(*stream).buildFor(
+    return maths::CBoostedTreeFactory::constructFromString(*stream).restoreFor(
         *frame, dependentVariable);
 }
 
@@ -349,8 +349,8 @@ void addRegressionTestData(const TStrVec& fieldNames,
     auto frame = passLinearRegressionDataToAnalyzer(fieldNames, fieldValues,
                                                     analyzer, weights, values);
 
-    maths::CBoostedTreeFactory treeFactory{maths::CBoostedTreeFactory::constructFromParameters(
-        1, std::make_unique<maths::boosted_tree::CMse>())};
+    maths::CBoostedTreeFactory treeFactory{
+        maths::CBoostedTreeFactory::constructFromParameters(1)};
     if (alpha >= 0.0) {
         treeFactory.depthPenaltyMultiplier(alpha);
     }
@@ -376,8 +376,8 @@ void addRegressionTestData(const TStrVec& fieldNames,
         treeFactory.featureBagFraction(featureBagFraction);
     }
 
-    std::unique_ptr<maths::CBoostedTree> tree =
-        treeFactory.buildFor(*frame, weights.size());
+    std::unique_ptr<maths::CBoostedTree> tree = treeFactory.buildFor(
+        *frame, std::make_unique<maths::boosted_tree::CMse>(), weights.size());
 
     tree->train();
 
@@ -1155,7 +1155,7 @@ void CDataFrameAnalyzerTest::testCategoricalFields() {
 
     LOG_DEBUG(<< "Test overflow");
     {
-        std::size_t rows{api::CDataFrameAnalyzer::MAX_CATEGORICAL_CARDINALITY + 3};
+        std::size_t rows{core::CDataFrame::MAX_CATEGORICAL_CARDINALITY + 3};
 
         api::CDataFrameAnalyzer analyzer{
             predictionSpec("regression", "x5", rows, 5, 8000000000, 0, 0, {"x1"}),
@@ -1176,9 +1176,9 @@ void CDataFrameAnalyzerTest::testCategoricalFields() {
         frame.readRows(1, [&](TRowItr beginRows, TRowItr endRows) {
             for (auto row = beginRows; row != endRows; ++row, ++i) {
                 core::CFloatStorage expected{
-                    i < api::CDataFrameAnalyzer::MAX_CATEGORICAL_CARDINALITY
+                    i < core::CDataFrame::MAX_CATEGORICAL_CARDINALITY
                         ? static_cast<double>(i)
-                        : static_cast<double>(api::CDataFrameAnalyzer::MAX_CATEGORICAL_CARDINALITY)};
+                        : static_cast<double>(core::CDataFrame::MAX_CATEGORICAL_CARDINALITY)};
                 bool wasPassed{passed};
                 passed &= (expected == (*row)[0]);
                 if (wasPassed && passed == false) {

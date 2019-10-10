@@ -99,6 +99,9 @@ public:
     TBoostedTreeUPtr buildFor(core::CDataFrame& frame,
                               TLossFunctionUPtr loss,
                               std::size_t dependentVariable);
+    //! Restore a boosted tree object for a given data frame.
+    //! \warning A tree object can only be restored once.
+    TBoostedTreeUPtr restoreFor(core::CDataFrame& frame, std::size_t dependentVariable);
 
 private:
     using TDoubleDoublePr = std::pair<double, double>;
@@ -116,7 +119,7 @@ private:
     static const std::size_t MAXIMUM_NUMBER_TREES;
 
 private:
-    CBoostedTreeFactory(bool restored, std::size_t numberThreads);
+    CBoostedTreeFactory(std::size_t numberThreads);
 
     //! Compute the row masks for the missing values for each feature.
     void initializeMissingFeatureMasks(const core::CDataFrame& frame) const;
@@ -177,7 +180,6 @@ private:
 private:
     TOptionalDouble m_MinimumFrequencyToOneHotEncode;
     TOptionalSize m_BayesianOptimisationRestarts;
-    bool m_Restored = false;
     std::size_t m_NumberThreads;
     TLossFunctionUPtr m_Loss;
     TBoostedTreeImplUPtr m_TreeImpl;

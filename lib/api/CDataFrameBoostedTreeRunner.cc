@@ -266,7 +266,7 @@ bool CDataFrameBoostedTreeRunner::restoreBoostedTree(core::CDataFrame& frame,
                             .progressCallback(this->progressRecorder())
                             .trainingStateCallback(this->statePersister())
                             .memoryUsageCallback(this->memoryEstimator())
-                            .buildFor(frame, nullptr, dependentVariableColumn);
+                            .restoreFor(frame, dependentVariableColumn);
     } catch (std::exception& e) {
         LOG_ERROR(<< "Failed to restore state! " << e.what());
         return false;

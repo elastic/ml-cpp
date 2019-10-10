@@ -1215,7 +1215,7 @@ void CBoostedTreeTest::testPersistRestore() {
     }
     // restore
     auto boostedTree = maths::CBoostedTreeFactory::constructFromString(persistOnceSStream)
-                           .buildFor(*frame, nullptr, cols - 1);
+                           .restoreFor(*frame, cols - 1);
     {
         core::CJsonStatePersistInserter inserter(persistTwiceSStream);
         boostedTree->acceptPersistInserter(inserter);
@@ -1273,7 +1273,7 @@ void CBoostedTreeTest::testRestoreErrorHandling() {
     bool throwsExceptions{false};
     try {
         auto boostedTree = maths::CBoostedTreeFactory::constructFromString(errorInBayesianOptimisationState)
-                               .buildFor(*frame, nullptr, 2);
+                               .restoreFor(*frame, 2);
     } catch (const std::exception& e) {
         LOG_DEBUG(<< "got = " << e.what());
         throwsExceptions = true;
@@ -1312,7 +1312,7 @@ void CBoostedTreeTest::testRestoreErrorHandling() {
     throwsExceptions = false;
     try {
         auto boostedTree = maths::CBoostedTreeFactory::constructFromString(errorInBoostedTreeImplState)
-                               .buildFor(*frame, nullptr, 2);
+                               .restoreFor(*frame, 2);
     } catch (const std::exception& e) {
         LOG_DEBUG(<< "got = " << e.what());
         throwsExceptions = true;
