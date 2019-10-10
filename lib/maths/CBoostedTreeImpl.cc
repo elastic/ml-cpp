@@ -433,7 +433,6 @@ CBoostedTreeImpl::crossValidateForest(core::CDataFrame& frame,
         lossMoments.add(loss);
         LOG_TRACE(<< "fold = " << i << " forest size = " << forest.size()
                   << " test set loss = " << loss);
-        m_TrainingProgress.increment();
     }
     LOG_TRACE(<< "test mean loss = " << CBasicStatistics::mean(lossMoments)
               << ", sigma = " << std::sqrt(CBasicStatistics::mean(lossMoments)));
@@ -520,6 +519,8 @@ CBoostedTreeImpl::trainForest(core::CDataFrame& frame,
     } while (forest.size() < m_MaximumNumberTrees);
 
     LOG_TRACE(<< "Trained one forest");
+
+    m_TrainingProgress.increment();
 
     return forest;
 }
@@ -733,27 +734,39 @@ void CBoostedTreeImpl::refreshPredictionsAndLossDerivatives(core::CDataFrame& fr
 
     using TArgMinLossVec = std::vector<CArgMinLoss>;
 
-    auto result = frame.readRows(
-        m_NumberThreads, 0, frame.numberRows(),
-        core::bindRetrievableState(
-            [&](TArgMinLossVec& leafValues, TRowItr beginRows, TRowItr endRows) {
-                for (auto itr = beginRows; itr != endRows; ++itr) {
-                    const TRowRef& row{*itr};
-                    double prediction{readPrediction(row)};
-                    double actual{readActual(row, m_DependentVariable)};
-                    leafValues[root(tree).leafIndex(m_Encoder->encode(row), tree)]
-                        .add(prediction, actual);
-                }
-            },
-            TArgMinLossVec(tree.size(), m_Loss->minimizer())),
-        &trainingRowMask);
-
-    auto leafValues = std::move(result.first[0].s_FunctionState);
-    for (std::size_t i = 1; i < result.first.size(); ++i) {
-        for (std::size_t j = 0; j < leafValues.size(); ++j) {
-            leafValues[j].merge(result.first[i].s_FunctionState[j]);
+    TArgMinLossVec leafValues(
+        tree.size(), m_Loss->minimizer(m_Regularization.leafWeightPenaltyMultiplier()));
+    auto nextPass = [&] {
+        bool done{true};
+        for (const auto& value : leafValues) {
+            done &= (value.nextPass() == false);
         }
-    }
+        return done == false;
+    };
+
+    do {
+        auto result = frame.readRows(
+            m_NumberThreads, 0, frame.numberRows(),
+            core::bindRetrievableState(
+                [&](TArgMinLossVec& leafValues_, TRowItr beginRows, TRowItr endRows) {
+                    for (auto itr = beginRows; itr != endRows; ++itr) {
+                        const TRowRef& row{*itr};
+                        double prediction{readPrediction(row)};
+                        double actual{readActual(row, m_DependentVariable)};
+                        leafValues_[root(tree).leafIndex(m_Encoder->encode(row), tree)]
+                            .add(prediction, actual);
+                    }
+                },
+                std::move(leafValues)),
+            &trainingRowMask);
+
+        leafValues = std::move(result.first[0].s_FunctionState);
+        for (std::size_t i = 1; i < result.first.size(); ++i) {
+            for (std::size_t j = 0; j < leafValues.size(); ++j) {
+                leafValues[j].merge(result.first[i].s_FunctionState[j]);
+            }
+        }
+    } while (nextPass());
 
     for (std::size_t i = 0; i < tree.size(); ++i) {
         tree[i].value(eta * leafValues[i].value());
@@ -1008,6 +1021,25 @@ const std::string HYPERPARAM_ETA_TAG{"hyperparam_eta"};
 const std::string HYPERPARAM_ETA_GROWTH_RATE_PER_TREE_TAG{"hyperparam_eta_growth_rate_per_tree"};
 const std::string HYPERPARAM_FEATURE_BAG_FRACTION_TAG{"hyperparam_feature_bag_fraction"};
 const std::string HYPERPARAM_REGULARIZATION_TAG{"hyperparam_regularization"};
+}
+
+const std::string& CBoostedTreeImpl::bestHyperparametersName() {
+    return BEST_HYPERPARAMETERS_TAG;
+}
+
+const std::string& CBoostedTreeImpl::bestRegularizationHyperparametersName() {
+    return HYPERPARAM_REGULARIZATION_TAG;
+}
+
+CBoostedTreeImpl::TStrVec CBoostedTreeImpl::bestHyperparameterNames() {
+    return {HYPERPARAM_ETA_TAG,
+            HYPERPARAM_ETA_GROWTH_RATE_PER_TREE_TAG,
+            HYPERPARAM_FEATURE_BAG_FRACTION_TAG,
+            REGULARIZATION_DEPTH_PENALTY_MULTIPLIER_TAG,
+            REGULARIZATION_TREE_SIZE_PENALTY_MULTIPLIER_TAG,
+            REGULARIZATION_LEAF_WEIGHT_PENALTY_MULTIPLIER_TAG,
+            REGULARIZATION_SOFT_TREE_DEPTH_LIMIT_TAG,
+            REGULARIZATION_SOFT_TREE_DEPTH_TOLERANCE_TAG};
 }
 
 template<typename T>

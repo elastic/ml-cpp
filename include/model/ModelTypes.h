@@ -512,15 +512,9 @@ double inverseOffsetCountToZero(EFeature feature, double count);
 MODEL_EXPORT
 void inverseOffsetCountToZero(EFeature feature, TDouble1Vec& count);
 
-//! Check if the feature counts empty buckets.
+//! Check if the feature has a value for empty buckets.
 MODEL_EXPORT
-bool countsEmptyBuckets(EFeature feature);
-
-//! Get the weight to apply to an empty bucket sample based on the
-//! frequency \p feature at which empty buckets are seen for \p feature
-//! and the cutoff for empty buckets directly.
-MODEL_EXPORT
-double emptyBucketCountWeight(EFeature feature, double frequency, double cutoff);
+bool includeEmptyBuckets(EFeature feature);
 
 //! Get the rate at which \p feature learns.
 MODEL_EXPORT

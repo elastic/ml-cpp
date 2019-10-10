@@ -14,6 +14,8 @@
 #include <maths/CBasicStatistics.h>
 #include <maths/CBoostedTree.h>
 #include <maths/CBoostedTreeFactory.h>
+#include <maths/CSolvers.h>
+#include <maths/CTools.h>
 
 #include <test/CRandomNumbers.h>
 #include <test/CTestTmpDir.h>
@@ -71,13 +73,14 @@ template<typename F>
 void fillDataFrame(std::size_t trainRows,
                    std::size_t testRows,
                    std::size_t cols,
+                   const TBoolVec& categoricalColumns,
                    const TDoubleVecVec& regressors,
                    const TDoubleVec& noise,
                    const F& target,
                    core::CDataFrame& frame) {
 
     std::size_t rows{trainRows + testRows};
-    frame.categoricalColumns(TBoolVec(cols, false));
+    frame.categoricalColumns(categoricalColumns);
     for (std::size_t i = 0; i < rows; ++i) {
         frame.writeRow([&](core::CDataFrame::TFloatVecItr column, std::int32_t&) {
             for (std::size_t j = 0; j < cols - 1; ++j, ++column) {
@@ -94,6 +97,18 @@ void fillDataFrame(std::size_t trainRows,
             row->writeColumn(cols - 1, targetValue);
         }
     });
+}
+
+template<typename F>
+void fillDataFrame(std::size_t trainRows,
+                   std::size_t testRows,
+                   std::size_t cols,
+                   const TDoubleVecVec& regressors,
+                   const TDoubleVec& noise,
+                   const F& target,
+                   core::CDataFrame& frame) {
+    fillDataFrame(trainRows, testRows, cols, TBoolVec(cols, false), regressors,
+                  noise, target, frame);
 }
 
 template<typename F>
@@ -212,12 +227,13 @@ void CBoostedTreeTest::testPiecewiseConstant() {
         // Unbiased...
         CPPUNIT_ASSERT_DOUBLES_EQUAL(
             0.0, modelBias[i][0],
-            7.0 * std::sqrt(noiseVariance / static_cast<double>(trainRows)));
+            4.0 * std::sqrt(noiseVariance / static_cast<double>(trainRows)));
         // Good R^2...
-        CPPUNIT_ASSERT(modelRSquared[i][0] > 0.95);
+        CPPUNIT_ASSERT(modelRSquared[i][0] > 0.96);
 
         meanModelRSquared.add(modelRSquared[i][0]);
     }
+
     LOG_DEBUG(<< "mean R^2 = " << maths::CBasicStatistics::mean(meanModelRSquared));
     CPPUNIT_ASSERT(maths::CBasicStatistics::mean(meanModelRSquared) > 0.97);
 }
@@ -267,7 +283,7 @@ void CBoostedTreeTest::testLinear() {
         // Unbiased...
         CPPUNIT_ASSERT_DOUBLES_EQUAL(
             0.0, modelBias[i][0],
-            5.0 * std::sqrt(noiseVariance / static_cast<double>(trainRows)));
+            4.0 * std::sqrt(noiseVariance / static_cast<double>(trainRows)));
         // Good R^2...
         CPPUNIT_ASSERT(modelRSquared[i][0] > 0.97);
 
@@ -334,14 +350,14 @@ void CBoostedTreeTest::testNonLinear() {
         // Unbiased...
         CPPUNIT_ASSERT_DOUBLES_EQUAL(
             0.0, modelBias[i][0],
-            8.0 * std::sqrt(noiseVariance / static_cast<double>(trainRows)));
+            4.0 * std::sqrt(noiseVariance / static_cast<double>(trainRows)));
         // Good R^2...
-        CPPUNIT_ASSERT(modelRSquared[i][0] > 0.95);
+        CPPUNIT_ASSERT(modelRSquared[i][0] > 0.96);
 
         meanModelRSquared.add(modelRSquared[i][0]);
     }
     LOG_DEBUG(<< "mean R^2 = " << maths::CBasicStatistics::mean(meanModelRSquared));
-    CPPUNIT_ASSERT(maths::CBasicStatistics::mean(meanModelRSquared) > 0.96);
+    CPPUNIT_ASSERT(maths::CBasicStatistics::mean(meanModelRSquared) > 0.97);
 }
 
 void CBoostedTreeTest::testThreading() {
@@ -800,11 +816,231 @@ void CBoostedTreeTest::testDepthBasedRegularization() {
         TMeanAccumulator meanDepth;
         for (const auto& tree : regression->trainedModel()) {
             CPPUNIT_ASSERT(maxDepth(tree, tree[0], 0) <= static_cast<std::size_t>(targetDepth));
-            meanDepth.add(maxDepth(tree, tree[0], 0));
+            meanDepth.add(static_cast<double>(maxDepth(tree, tree[0], 0)));
         }
         LOG_DEBUG(<< "mean depth = " << maths::CBasicStatistics::mean(meanDepth));
         CPPUNIT_ASSERT(maths::CBasicStatistics::mean(meanDepth) > targetDepth - 1.0);
     }
+}
+
+void CBoostedTreeTest::testLogisticMinimizer() {
+
+    // Test that we a good approximation of the additive term for the log-odds
+    // which minimises the cross entropy objective.
+
+    using maths::boosted_tree_detail::CArgMinLogisticImpl;
+
+    test::CRandomNumbers rng;
+
+    TDoubleVec labels;
+    TDoubleVec weights;
+
+    // All predictions equal and zero.
+    {
+        CArgMinLogisticImpl argmin{0.0};
+        argmin.add(0.0, 0.0);
+        argmin.add(0.0, 1.0);
+        argmin.add(0.0, 1.0);
+        argmin.add(0.0, 0.0);
+        argmin.nextPass();
+        CPPUNIT_ASSERT_EQUAL(0.0, argmin.value());
+    }
+    // All predictions are equal.
+    {
+        rng.generateUniformSamples(0.0, 1.0, 1000, labels);
+        for (auto& label : labels) {
+            label = std::floor(label + 0.3);
+        }
+        weights.resize(labels.size(), 0.0);
+
+        CArgMinLogisticImpl argmin{0.0};
+        std::size_t numberPasses{0};
+        std::size_t counts[2]{0, 0};
+
+        do {
+            ++numberPasses;
+            for (std::size_t i = 0; i < labels.size(); ++i) {
+                argmin.add(weights[i], labels[i]);
+                ++counts[static_cast<std::size_t>(labels[i])];
+            }
+        } while (argmin.nextPass());
+
+        double p{static_cast<double>(counts[1]) / 1000.0};
+        double expected{std::log(p / (1.0 - p))};
+        double actual{argmin.value()};
+
+        CPPUNIT_ASSERT_EQUAL(std::size_t{1}, numberPasses);
+        CPPUNIT_ASSERT_DOUBLES_EQUAL(expected, actual, 0.01 * std::fabs(expected));
+    }
+
+    for (auto lambda : {0.0, 10.0}) {
+
+        LOG_DEBUG(<< "lambda = " << lambda);
+
+        // The true objective.
+        auto objective = [&](double weight) {
+            double loss{0.0};
+            for (std::size_t i = 0; i < labels.size(); ++i) {
+                double p{maths::CTools::logisticFunction(weights[i] + weight)};
+                loss -= (1.0 - labels[i]) * maths::CTools::fastLog(1.0 - p) +
+                        labels[i] * maths::CTools::fastLog(p);
+            }
+            return loss + lambda * maths::CTools::pow2(weight);
+        };
+
+        // This loop is fuzzing the predicted log-odds and testing we get consistently
+        // good estimates of the true minimizer.
+        for (std::size_t t = 0; t < 10; ++t) {
+
+            double min{std::numeric_limits<double>::max()};
+            double max{-min};
+
+            rng.generateUniformSamples(0.0, 1.0, 1000, labels);
+            for (auto& label : labels) {
+                label = std::floor(label + 0.5);
+            }
+            weights.clear();
+            for (const auto& label : labels) {
+                TDoubleVec weight;
+                rng.generateNormalSamples(label, 2.0, 1, weight);
+                weights.push_back(weight[0]);
+                min = std::min(min, weight[0]);
+                max = std::max(max, weight[0]);
+            }
+
+            double expected;
+            double objectiveAtExpected;
+            std::size_t maxIterations{20};
+            maths::CSolvers::minimize(-max, -min, objective(-max), objective(-min),
+                                      objective, 1e-3, maxIterations, expected,
+                                      objectiveAtExpected);
+            LOG_DEBUG(<< "expected = " << expected
+                      << " objective at expected = " << objectiveAtExpected);
+
+            CArgMinLogisticImpl argmin{lambda};
+            CArgMinLogisticImpl argminPartition[2]{{lambda}, {lambda}};
+            auto nextPass = [&] {
+                bool done{argmin.nextPass() == false};
+                done &= (argminPartition[0].nextPass() == false);
+                done &= (argminPartition[1].nextPass() == false);
+                return done == false;
+            };
+
+            do {
+                for (std::size_t i = 0; i < labels.size() / 2; ++i) {
+                    argmin.add(weights[i], labels[i]);
+                    argminPartition[0].add(weights[i], labels[i]);
+                }
+                for (std::size_t i = labels.size() / 2; i < labels.size(); ++i) {
+                    argmin.add(weights[i], labels[i]);
+                    argminPartition[1].add(weights[i], labels[i]);
+                }
+                argminPartition[0].merge(argminPartition[1]);
+                argminPartition[1] = argminPartition[0];
+            } while (nextPass());
+
+            double actual{argmin.value()};
+            double actualPartition{argminPartition[0].value()};
+            LOG_DEBUG(<< "actual = " << actual
+                      << " objective at actual = " << objective(actual));
+
+            // We should be within 1% for the value and 0.001% for the objective
+            // at the value.
+            CPPUNIT_ASSERT_EQUAL(actual, actualPartition);
+            CPPUNIT_ASSERT_DOUBLES_EQUAL(expected, actual, 0.01 * std::fabs(expected));
+            CPPUNIT_ASSERT_DOUBLES_EQUAL(objectiveAtExpected, objective(actual),
+                                         1e-5 * objectiveAtExpected);
+        }
+    }
+}
+
+void CBoostedTreeTest::testLogisticRegression() {
+
+    // The idea of this test is to create a random linear relationship between
+    // the feature values and the log-odds of each class, i.e.
+    //
+    //   log-odds(class_1) = sum_i{ w * x_i }
+    //
+    // where, w is some fixed weight vector and x_i denoted the i'th feature vector.
+    // We try to recover this relationship in logistic regression by observing
+    // the actual labels. We want to test that we've roughly correctly estimated the
+    // log-odds. However, we target the cross-entropy so the errors in our estimates
+    // p_i^ should be measured in terms of cross entropy: sum_i{ p_i^ log(p_i) }
+    // where p_i = logistic(sum_i{ w_i * x_i}).
+
+    test::CRandomNumbers rng;
+
+    std::size_t trainRows{1000};
+    std::size_t rows{1200};
+    std::size_t cols{4};
+    std::size_t capacity{600};
+
+    TMeanAccumulator meanExcessCrossEntropy;
+    for (std::size_t test = 0; test < 3; ++test) {
+        TDoubleVec weights;
+        rng.generateUniformSamples(-2.0, 2.0, cols - 1, weights);
+        TDoubleVec noise;
+        rng.generateNormalSamples(0.0, 1.0, rows, noise);
+        TDoubleVec uniform01;
+        rng.generateUniformSamples(0.0, 1.0, rows, uniform01);
+
+        auto probability = [&](const TRowRef& row) {
+            double x{0.0};
+            for (std::size_t i = 0; i < cols - 1; ++i) {
+                x += weights[i] * row[i];
+            }
+            return maths::CTools::logisticFunction(x + noise[row.index()]);
+        };
+
+        auto target = [&](const TRowRef& row) {
+            return uniform01[row.index()] < probability(row) ? 1.0 : 0.0;
+        };
+
+        TDoubleVecVec x(cols - 1);
+        for (std::size_t i = 0; i < cols - 1; ++i) {
+            rng.generateUniformSamples(0.0, 4.0, rows, x[i]);
+        }
+
+        auto frame = core::makeMainStorageDataFrame(cols, capacity).first;
+
+        fillDataFrame(trainRows, rows - trainRows, cols, {false, false, false, true},
+                      x, TDoubleVec(rows, 0.0), target, *frame);
+
+        auto regression = maths::CBoostedTreeFactory::constructFromParameters(
+                              1, std::make_unique<maths::boosted_tree::CLogistic>())
+                              .buildFor(*frame, cols - 1);
+
+        regression->train();
+        regression->predict();
+
+        double actualCrossEntropy{0.0};
+        double minimumCrossEntropy{0.0};
+        frame->readRows(1, [&](TRowItr beginRows, TRowItr endRows) {
+            for (auto row = beginRows; row != endRows; ++row) {
+                if (row->index() >= trainRows) {
+                    std::size_t index{
+                        regression->columnHoldingPrediction(row->numberColumns())};
+                    actualCrossEntropy -=
+                        probability(*row) *
+                        std::log(maths::CTools::logisticFunction((*row)[index]));
+                    minimumCrossEntropy -= probability(*row) *
+                                           std::log(probability(*row));
+                }
+            }
+        });
+        LOG_DEBUG(<< "actual cross entropy = " << actualCrossEntropy
+                  << ", minimum cross entropy = " << minimumCrossEntropy);
+
+        // We should be with 40% of the minimum possible cross entropy.
+        CPPUNIT_ASSERT(actualCrossEntropy < 1.4 * minimumCrossEntropy);
+        meanExcessCrossEntropy.add(actualCrossEntropy / minimumCrossEntropy);
+    }
+
+    LOG_DEBUG(<< "mean excess cross entropy = "
+              << maths::CBasicStatistics::mean(meanExcessCrossEntropy));
+
+    // We should be within 25% of the minimum possible cross entropy on average.
+    CPPUNIT_ASSERT(maths::CBasicStatistics::mean(meanExcessCrossEntropy) < 1.25);
 }
 
 void CBoostedTreeTest::testEstimateMemoryUsedByTrain() {
@@ -1120,6 +1356,10 @@ CppUnit::Test* CBoostedTreeTest::suite() {
     suiteOfTests->addTest(new CppUnit::TestCaller<CBoostedTreeTest>(
         "CBoostedTreeTest::testDepthBasedRegularization",
         &CBoostedTreeTest::testDepthBasedRegularization));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CBoostedTreeTest>(
+        "CBoostedTreeTest::testLogisticMinimizer", &CBoostedTreeTest::testLogisticMinimizer));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CBoostedTreeTest>(
+        "CBoostedTreeTest::testLogisticRegression", &CBoostedTreeTest::testLogisticRegression));
     suiteOfTests->addTest(new CppUnit::TestCaller<CBoostedTreeTest>(
         "CBoostedTreeTest::testEstimateMemoryUsedByTrain",
         &CBoostedTreeTest::testEstimateMemoryUsedByTrain));
