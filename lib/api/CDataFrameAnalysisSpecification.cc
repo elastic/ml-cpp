@@ -261,9 +261,5 @@ CDataFrameAnalysisSpecification::noopRestoreSearcherSupplier() {
 const std::string& CDataFrameAnalysisSpecification::jobId() const {
     return m_JobId;
 }
-
-const CDataFrameAnalysisRunner* CDataFrameAnalysisSpecification::runner() {
-    return m_Runner.get();
-}
 }
 }

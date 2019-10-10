@@ -9,8 +9,6 @@
 
 #include <core/CRapidJsonWriterBase.h>
 
-#include <core/ImportExport.h>
-
 namespace ml {
 namespace core {
 
@@ -29,7 +27,7 @@ template<typename OUTPUT_STREAM,
          typename TARGET_ENCODING = rapidjson::UTF8<>,
          typename STACK_ALLOCATOR = rapidjson::CrtAllocator,
          unsigned WRITE_FLAGS = rapidjson::kWriteDefaultFlags>
-class CORE_EXPORT CRapidJsonLineWriter
+class CRapidJsonLineWriter
     : public CRapidJsonWriterBase<OUTPUT_STREAM, SOURCE_ENCODING, TARGET_ENCODING, STACK_ALLOCATOR, WRITE_FLAGS, rapidjson::Writer> {
 public:
     using TRapidJsonWriterBase =

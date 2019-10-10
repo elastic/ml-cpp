@@ -118,8 +118,6 @@ public:
     //! Populate the object from serialized data.
     bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
 
-    void accept(CBoostedTree::CVisitor& visitor);
-
 private:
     using TSizeDoublePr = std::pair<std::size_t, double>;
     using TDoubleDoublePr = std::pair<double, double>;
