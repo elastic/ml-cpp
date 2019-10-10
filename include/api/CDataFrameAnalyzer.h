@@ -32,7 +32,6 @@ class CDataFrameAnalysisSpecification;
 //! \brief Handles input to the data_frame_analyzer command.
 class API_EXPORT CDataFrameAnalyzer {
 public:
-    using TBoolVec = std::vector<bool>;
     using TStrVec = std::vector<std::string>;
     using TJsonOutputStreamWrapperUPtr = std::unique_ptr<core::CJsonOutputStreamWrapper>;
     using TJsonOutputStreamWrapperUPtrSupplier =
