@@ -325,25 +325,6 @@ bool CDataFrameCategoryEncoder::restore(core::CStateRestoreTraverser& traverser,
     return true;
 }
 
-void CDataFrameCategoryEncoder::accept(CDataFrameCategoryEncoder::CVisitor& visitor) const {
-    for (const auto& encoding : m_Encodings) {
-        if (encoding->type() == E_IdentityEncoding) {
-            visitor.addIdentityEncoding(encoding->inputColumnIndex());
-        }
-        if (encoding->type() == E_OneHot) {
-            auto enc = static_cast<const COneHotEncoding*>(encoding.get());
-            visitor.addOneHotEncoding(enc->inputColumnIndex(), enc->hotCategory());
-        } else if (encoding->type() == E_Frequency) {
-            auto enc = static_cast<const CMappedEncoding*>(encoding.get());
-            visitor.addFrequencyEncoding(enc->inputColumnIndex(), enc->map());
-        } else if (encoding->type() == E_TargetMean) {
-            auto enc = static_cast<const CMappedEncoding*>(encoding.get());
-            visitor.addTargetMeanEncoding(enc->inputColumnIndex(), enc->map(),
-                                          enc->fallback());
-        }
-    }
-}
-
 CDataFrameCategoryEncoder::CEncoding::CEncoding(std::size_t inputColumnIndex, double mic)
     : m_InputColumnIndex{inputColumnIndex}, m_Mic{mic} {
 }
@@ -459,10 +440,6 @@ const std::string& CDataFrameCategoryEncoder::COneHotEncoding::typeString() cons
     return ONE_HOT_ENCODING_TAG;
 }
 
-size_t CDataFrameCategoryEncoder::COneHotEncoding::hotCategory() const {
-    return m_HotCategory;
-}
-
 CDataFrameCategoryEncoder::CMappedEncoding::CMappedEncoding(std::size_t inputColumnIndex,
                                                             double mic,
                                                             EEncoding encoding,
@@ -519,14 +496,6 @@ bool CDataFrameCategoryEncoder::CMappedEncoding::acceptRestoreTraverserForDerive
 const std::string& CDataFrameCategoryEncoder::CMappedEncoding::typeString() const {
     return (m_Encoding == EEncoding::E_Frequency) ? FREQUENCY_ENCODING_TAG
                                                   : TARGET_MEAN_ENCODING_TAG;
-}
-
-const TDoubleVec& CDataFrameCategoryEncoder::CMappedEncoding::map() const {
-    return m_Map;
-}
-
-double CDataFrameCategoryEncoder::CMappedEncoding::fallback() const {
-    return m_Fallback;
 }
 
 CMakeDataFrameCategoryEncoder::CMakeDataFrameCategoryEncoder(std::size_t numberThreads,

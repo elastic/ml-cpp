@@ -19,11 +19,8 @@
 
 #include <api/CDataFrameAnalysisConfigReader.h>
 #include <api/CDataFrameAnalysisSpecification.h>
-#include <api/CInferenceModelDefinition.h>
 #include <api/ElasticsearchStateIndex.h>
 
-#include <api/CBoostedTreeRegressionInferenceModelBuilder.h>
-#include <core/CJsonStatePersistInserter.h>
 #include <rapidjson/document.h>
 
 namespace ml {
@@ -281,16 +278,6 @@ std::size_t CDataFrameBoostedTreeRunner::estimateBookkeepingMemoryUsage(
     std::size_t /*partitionNumberRows*/,
     std::size_t numberColumns) const {
     return m_BoostedTreeFactory->estimateMemoryUsage(totalNumberRows, numberColumns);
-}
-
-CDataFrameAnalysisRunner::TInferenceModelDefinitionUPtr
-CDataFrameBoostedTreeRunner::inferenceModelDefinition(const TStrVec& fieldNames,
-                                                      const TStrSizeUMapVec& categoryNameMap) const {
-    CBoostedTreeRegressionInferenceModelBuilder builder(
-        fieldNames, m_BoostedTree->columnHoldingDependentVariable(), categoryNameMap);
-    m_BoostedTree->accept(builder);
-
-    return std::make_unique<CInferenceModelDefinition>(builder.build());
 }
 }
 }

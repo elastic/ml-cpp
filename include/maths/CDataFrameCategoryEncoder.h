@@ -156,7 +156,6 @@ public:
         bool isBinary() const override;
         std::uint64_t checksum() const override;
         const std::string& typeString() const override;
-        size_t hotCategory() const;
 
     private:
         void acceptPersistInserterForDerivedTypeState(core::CStatePersistInserter& inserter) const override;
@@ -179,8 +178,6 @@ public:
         bool isBinary() const override;
         std::uint64_t checksum() const override;
         const std::string& typeString() const override;
-        const TDoubleVec& map() const;
-        double fallback() const;
 
     private:
         void acceptPersistInserterForDerivedTypeState(core::CStatePersistInserter& inserter) const override;
@@ -189,23 +186,8 @@ public:
     private:
         EEncoding m_Encoding;
         TDoubleVec m_Map;
-
-    private:
         double m_Fallback;
         bool m_Binary;
-    };
-
-    class MATHS_EXPORT CVisitor {
-    public:
-        virtual ~CVisitor() = default;
-        virtual void addIdentityEncoding(std::size_t inputColumnIndex) = 0;
-        virtual void addOneHotEncoding(std::size_t inputColumnIndex,
-                                       std::size_t hotCategory) = 0;
-        virtual void addTargetMeanEncoding(std::size_t inputColumnIndex,
-                                           const TDoubleVec& map,
-                                           double fallback) = 0;
-        virtual void addFrequencyEncoding(std::size_t inputColumnIndex,
-                                          const TDoubleVec& map) = 0;
     };
 
 public:
@@ -240,8 +222,6 @@ public:
 
     //! Populate the object from serialized data.
     bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
-
-    void accept(CVisitor& visitor) const;
 
 private:
     void persistEncodings(core::CStatePersistInserter& inserter) const;
