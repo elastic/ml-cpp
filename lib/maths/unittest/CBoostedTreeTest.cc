@@ -184,6 +184,13 @@ void readFileToStream(const std::string& filename, std::stringstream& stream) {
     std::string str((std::istreambuf_iterator<char>(file)),
                     std::istreambuf_iterator<char>());
     stream << str;
+    stream.flush();
+}
+
+void clearFile(const std::string& filename) {
+    std::ofstream file;
+    file.open(filename, std::ofstream::out | std::ofstream::trunc);
+    file.close();
 }
 }
 
@@ -1256,6 +1263,12 @@ void CBoostedTreeTest::testRestoreErrorHandling() {
     };
     core::CLogger::CScopeSetFatalErrorHandler scope{errorHandler};
 
+    const std::string logFile{"test.log"};
+
+    // log at level ERROR only
+    CPPUNIT_ASSERT(ml::core::CLogger::instance().reconfigureFromFile(
+        "testfiles/testLogErrors.boost.log.ini"));
+
     std::size_t cols{3};
     std::size_t capacity{50};
 
@@ -1268,18 +1281,18 @@ void CBoostedTreeTest::testRestoreErrorHandling() {
 
     bool throwsExceptions{false};
     std::stringstream buffer;
-    std::streambuf* old = std::cerr.rdbuf(buffer.rdbuf());
+    clearFile(logFile);
     try {
 
         auto boostedTree = maths::CBoostedTreeFactory::constructFromString(errorInBayesianOptimisationState)
                                .buildFor(*frame, 2);
     } catch (const std::exception& e) {
-        std::cerr.rdbuf(old);
         LOG_DEBUG(<< "got = " << e.what());
         throwsExceptions = true;
         core::CRegex re;
         re.init("Input error:.*");
         CPPUNIT_ASSERT(re.matches(e.what()));
+        readFileToStream(logFile, buffer);
         CPPUNIT_ASSERT(buffer.str().find("Failed to restore MAX_BOUNDARY_TAG") !=
                        std::string::npos);
     }
@@ -1291,17 +1304,17 @@ void CBoostedTreeTest::testRestoreErrorHandling() {
 
     throwsExceptions = false;
     buffer.clear();
-    std::cerr.rdbuf(buffer.rdbuf());
+    clearFile(logFile);
     try {
         auto boostedTree = maths::CBoostedTreeFactory::constructFromString(errorInBoostedTreeImplState)
                                .buildFor(*frame, 2);
     } catch (const std::exception& e) {
-        std::cerr.rdbuf(old);
         LOG_DEBUG(<< "got = " << e.what());
         throwsExceptions = true;
         core::CRegex re;
         re.init("Input error:.*");
         CPPUNIT_ASSERT(re.matches(e.what()));
+        readFileToStream(logFile, buffer);
         CPPUNIT_ASSERT(buffer.str().find("Failed to restore NUMBER_FOLDS_TAG") !=
                        std::string::npos);
     }
@@ -1313,17 +1326,17 @@ void CBoostedTreeTest::testRestoreErrorHandling() {
 
     throwsExceptions = false;
     buffer.clear();
-    std::cerr.rdbuf(buffer.rdbuf());
+    clearFile(logFile);
     try {
         auto boostedTree = maths::CBoostedTreeFactory::constructFromString(errorInBoostedTreeImplState)
                                .buildFor(*frame, 2);
     } catch (const std::exception& e) {
-        std::cerr.rdbuf(old);
         LOG_DEBUG(<< "got = " << e.what());
         throwsExceptions = true;
         core::CRegex re;
         re.init("Input error:.*");
         CPPUNIT_ASSERT(re.matches(e.what()));
+        readFileToStream(logFile, buffer);
         CPPUNIT_ASSERT(buffer.str().find("unsupported state serialization version.") !=
                        std::string::npos);
     }
