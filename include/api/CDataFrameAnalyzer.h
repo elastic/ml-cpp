@@ -11,12 +11,11 @@
 
 #include <core/CRapidJsonConcurrentLineWriter.h>
 
-#include <boost/unordered_map.hpp>
-
 #include <cinttypes>
 #include <functional>
 #include <memory>
 #include <string>
+#include <unordered_map>
 #include <vector>
 
 namespace ml {
@@ -70,9 +69,12 @@ public:
     //! Get the data frame asserting there is one.
     const core::CDataFrame& dataFrame() const;
 
+    //! Get pointer to the analysis runner.
+    const CDataFrameAnalysisRunner* runner() const;
+
 private:
     using TDataFrameUPtr = std::unique_ptr<core::CDataFrame>;
-    using TStrSizeUMap = boost::unordered_map<std::string, std::size_t>;
+    using TStrSizeUMap = std::unordered_map<std::string, std::size_t>;
     using TStrSizeUMapVec = std::vector<TStrSizeUMap>;
 
 private:

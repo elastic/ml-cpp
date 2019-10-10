@@ -25,7 +25,7 @@ namespace api {
 namespace {
 using TStrVec = std::vector<std::string>;
 using TStrVecVec = std::vector<TStrVec>;
-using TStrSizeUMap = boost::unordered_map<std::string, std::size_t>;
+using TStrSizeUMap = std::unordered_map<std::string, std::size_t>;
 using TStrSizeUMapVec = std::vector<TStrSizeUMap>;
 
 core::CFloatStorage truncateToFloatRange(double value) {
@@ -433,10 +433,26 @@ void CDataFrameAnalyzer::writeResultsOf(const CDataFrameAnalysisRunner& analysis
         }
     });
 
+    // Write the resulting model for inference
+    const auto& modelDefinition = m_AnalysisSpecification->runner()->inferenceModelDefinition(
+        m_FieldNames, m_CategoricalFieldValues);
+    if (modelDefinition) {
+        rapidjson::Value inferenceModelObject{writer.makeObject()};
+        modelDefinition->addToDocument(inferenceModelObject, writer);
+        writer.StartObject();
+        writer.Key(modelDefinition->typeString());
+        writer.write(inferenceModelObject);
+        writer.EndObject();
+    }
+
     writer.flush();
 }
 
 const std::size_t CDataFrameAnalyzer::MAX_CATEGORICAL_CARDINALITY{
     1 << (std::numeric_limits<float>::digits)};
+
+const CDataFrameAnalysisRunner* CDataFrameAnalyzer::runner() const {
+    return m_AnalysisSpecification->runner();
+}
 }
 }
