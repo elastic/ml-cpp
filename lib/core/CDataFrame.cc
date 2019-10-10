@@ -228,7 +228,7 @@ void CDataFrame::parseAndWriteRow(const TStrCRng& columnValues, const std::strin
             // This encodes in a format suitable for efficient storage. The
             // actual encoding approach is chosen when the analysis runs.
             std::size_t id;
-            if (categoryLookup.size() == MAX_CATEGORICAL_CARDINALITY) {
+            if (categories.size() == MAX_CATEGORICAL_CARDINALITY) {
                 auto itr = categoryLookup.find(columnValue);
                 id = itr != categoryLookup.end()
                          ? itr->second
@@ -239,9 +239,9 @@ void CDataFrame::parseAndWriteRow(const TStrCRng& columnValues, const std::strin
                 // up to around 17M distinct values. For higher cardinalities
                 // one would need to use some form of dimension reduction such
                 // as hashing anyway.
-                id = categoryLookup.emplace(columnValue, categories.size())
-                         .first->second;
-                if (id == categories.size()) {
+                std::size_t newId{categories.size()};
+                id = categoryLookup.emplace(columnValue, newId).first->second;
+                if (id == newId) {
                     categories.push_back(columnValue);
                 }
             }

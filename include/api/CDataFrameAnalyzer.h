@@ -90,6 +90,7 @@ private:
     std::ptrdiff_t m_BeginDataFieldValues = FIELD_UNSET;
     std::ptrdiff_t m_EndDataFieldValues = FIELD_UNSET;
     std::ptrdiff_t m_DocHashFieldIndex = FIELD_UNSET;
+    bool m_CapturedFieldNames = false;
     TDataFrameAnalysisSpecificationUPtr m_AnalysisSpecification;
     TDataFrameUPtr m_DataFrame;
     TTemporaryDirectoryPtr m_DataFrameDirectory;

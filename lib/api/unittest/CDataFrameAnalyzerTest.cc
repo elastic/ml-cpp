@@ -40,6 +40,7 @@
 using namespace ml;
 
 namespace {
+using TBoolVec = std::vector<bool>;
 using TDoubleVec = std::vector<double>;
 using TDoubleVecVec = std::vector<TDoubleVec>;
 using TSizeVec = std::vector<std::size_t>;
@@ -288,13 +289,13 @@ void addOutlierTestData(TStrVec fieldNames,
     });
 }
 
-TDataFrameUPtr passLinearRegressionDataToAnalyzer(const TStrVec& fieldNames,
-                                                  TStrVec& fieldValues,
-                                                  api::CDataFrameAnalyzer& analyzer,
-                                                  const TDoubleVec& weights,
-                                                  const TDoubleVec& values) {
+TDataFrameUPtr setupLinearRegressionData(const TStrVec& fieldNames,
+                                         TStrVec& fieldValues,
+                                         api::CDataFrameAnalyzer& analyzer,
+                                         const TDoubleVec& weights,
+                                         const TDoubleVec& values) {
 
-    auto f = [](const TDoubleVec& weights_, const TPoint& regressors) {
+    auto target = [](const TDoubleVec& weights_, const TPoint& regressors) {
         double result{0.0};
         for (std::size_t i = 0; i < weights_.size(); ++i) {
             result += weights_[i] * regressors(i);
@@ -309,7 +310,7 @@ TDataFrameUPtr passLinearRegressionDataToAnalyzer(const TStrVec& fieldNames,
         for (std::size_t j = 0; j < weights.size(); ++j) {
             row(j) = values[i + j];
         }
-        row(weights.size()) = f(weights, row);
+        row(weights.size()) = target(weights, row);
 
         for (int j = 0; j < row.size(); ++j) {
             fieldValues[j] = core::CStringUtils::typeToStringPrecise(
@@ -326,10 +327,79 @@ TDataFrameUPtr passLinearRegressionDataToAnalyzer(const TStrVec& fieldNames,
     return test::CDataFrameTestUtils::toMainMemoryDataFrame(rows);
 }
 
-void addRegressionTestData(const TStrVec& fieldNames,
+const TStrVec BINARY_CLASSIFICATION_CLASSES{"foo", "bar"};
+
+TDataFrameUPtr setupBinaryClassificationData(const TStrVec& fieldNames,
+                                             TStrVec& fieldValues,
+                                             api::CDataFrameAnalyzer& analyzer,
+                                             const TDoubleVec& weights,
+                                             const TDoubleVec& values) {
+
+    auto target = [](const TDoubleVec& weights_, const TPoint& regressors) {
+        double result{0.0};
+        for (std::size_t i = 0; i < weights_.size(); ++i) {
+            result += weights_[i] * regressors(i);
+        }
+        return result;
+    };
+
+    TPointVec rows;
+
+    double signOfFirstRow{0.0};
+    for (std::size_t i = 0; i < values.size(); i += weights.size()) {
+        TPoint row{weights.size() + 1};
+        for (std::size_t j = 0; j < weights.size(); ++j) {
+            row(j) = values[i + j];
+        }
+
+        // We need to arrange for the first row supplied to the analyzer
+        // to map to the zero class.
+        if (signOfFirstRow == 0.0) {
+            signOfFirstRow = std::copysign(1.0, target(weights, row));
+        }
+        row(weights.size()) = (signOfFirstRow * target(weights, row) >= 0.0 ? 0.0 : 1.0);
+
+        for (int j = 0; j < row.size() - 1; ++j) {
+            fieldValues[j] = core::CStringUtils::typeToStringPrecise(
+                row(j), core::CIEEE754::E_DoublePrecision);
+            double xj;
+            core::CStringUtils::stringToType(fieldValues[j], xj);
+            row(j) = xj;
+        }
+        fieldValues[weights.size()] =
+            BINARY_CLASSIFICATION_CLASSES[static_cast<std::size_t>(row[weights.size()])];
+        analyzer.handleRecord(fieldNames, fieldValues);
+
+        rows.push_back(std::move(row));
+    }
+
+    auto frame = test::CDataFrameTestUtils::toMainMemoryDataFrame(rows);
+
+    TBoolVec categoricalFields(weights.size(), false);
+    categoricalFields.push_back(true);
+    frame->categoricalColumns(std::move(categoricalFields));
+
+    return frame;
+}
+
+enum EPredictionType { E_Regression, E_BinaryClassification };
+
+void appendPrediction(double prediction, TDoubleVec& predictions) {
+    predictions.push_back(prediction);
+}
+
+void appendPrediction(double logOddsClass1, TStrVec& predictions) {
+    predictions.push_back(maths::CTools::logisticFunction(logOddsClass1) < 0.5
+                              ? BINARY_CLASSIFICATION_CLASSES[0]
+                              : BINARY_CLASSIFICATION_CLASSES[1]);
+}
+
+template<typename T>
+void addPredictionTestData(EPredictionType type,
+                           const TStrVec& fieldNames,
                            TStrVec fieldValues,
                            api::CDataFrameAnalyzer& analyzer,
-                           TDoubleVec& expectedPredictions,
+                           std::vector<T>& expectedPredictions,
                            std::size_t numberExamples = 100,
                            double alpha = -1.0,
                            double lambda = -1.0,
@@ -346,8 +416,11 @@ void addRegressionTestData(const TStrVec& fieldNames,
     TDoubleVec values;
     rng.generateUniformSamples(-10.0, 10.0, weights.size() * numberExamples, values);
 
-    auto frame = passLinearRegressionDataToAnalyzer(fieldNames, fieldValues,
-                                                    analyzer, weights, values);
+    auto frame = type == E_Regression
+                     ? setupLinearRegressionData(fieldNames, fieldValues,
+                                                 analyzer, weights, values)
+                     : setupBinaryClassificationData(fieldNames, fieldValues,
+                                                     analyzer, weights, values);
 
     maths::CBoostedTreeFactory treeFactory{
         maths::CBoostedTreeFactory::constructFromParameters(1)};
@@ -376,15 +449,20 @@ void addRegressionTestData(const TStrVec& fieldNames,
         treeFactory.featureBagFraction(featureBagFraction);
     }
 
-    std::unique_ptr<maths::CBoostedTree> tree = treeFactory.buildFor(
-        *frame, std::make_unique<maths::boosted_tree::CMse>(), weights.size());
+    std::unique_ptr<maths::boosted_tree::CLoss> loss;
+    if (type == E_Regression) {
+        loss = std::make_unique<maths::boosted_tree::CMse>();
+    } else {
+        loss = std::make_unique<maths::boosted_tree::CLogistic>();
+    }
+    auto tree = treeFactory.buildFor(*frame, std::move(loss), weights.size());
 
     tree->train();
 
     frame->readRows(1, [&](TRowItr beginRows, TRowItr endRows) {
         for (auto row = beginRows; row != endRows; ++row) {
-            expectedPredictions.push_back(
-                (*row)[tree->columnHoldingPrediction(row->numberColumns())]);
+            double prediction{(*row)[tree->columnHoldingPrediction(row->numberColumns())]};
+            appendPrediction(prediction, expectedPredictions);
         }
     });
 }
@@ -417,8 +495,7 @@ void testOneRunOfBoostedTreeTrainingWithStateRecovery(F makeSpec, std::size_t it
     std::size_t dependentVariable(
         std::find(fieldNames.begin(), fieldNames.end(), "c5") - fieldNames.begin());
 
-    auto frame = passLinearRegressionDataToAnalyzer(fieldNames, fieldValues,
-                                                    analyzer, weights, values);
+    auto frame = setupLinearRegressionData(fieldNames, fieldValues, analyzer, weights, values);
     analyzer.handleRecord(fieldNames, {"", "", "", "", "", "", "$"});
 
     TStrVec persistedStates{
@@ -437,8 +514,7 @@ void testOneRunOfBoostedTreeTrainingWithStateRecovery(F makeSpec, std::size_t it
     api::CDataFrameAnalyzer restoredAnalyzer{
         makeSpec("c5", numberExamples, persisterSupplier), outputWriterFactory};
 
-    passLinearRegressionDataToAnalyzer(fieldNames, fieldValues,
-                                       restoredAnalyzer, weights, values);
+    setupLinearRegressionData(fieldNames, fieldValues, restoredAnalyzer, weights, values);
     restoredAnalyzer.handleRecord(fieldNames, {"", "", "", "", "", "", "$"});
 
     persistedStates = splitOnNull(std::stringstream{std::move(persistenceStream->str())});
@@ -712,7 +788,7 @@ void CDataFrameAnalyzerTest::testRunOutlierDetectionWithParams() {
     }
 }
 
-void CDataFrameAnalyzerTest::testRunBoostedTreeTraining() {
+void CDataFrameAnalyzerTest::testRunBoostedTreeRegressionTraining() {
 
     // Test the results the analyzer produces match running the regression directly.
 
@@ -726,7 +802,7 @@ void CDataFrameAnalyzerTest::testRunBoostedTreeTraining() {
     TStrVec fieldNames{"c1", "c2", "c3", "c4", "c5", ".", "."};
     TStrVec fieldValues{"", "", "", "", "", "0", ""};
     api::CDataFrameAnalyzer analyzer{predictionSpec("regression", "c5"), outputWriterFactory};
-    addRegressionTestData(fieldNames, fieldValues, analyzer, expectedPredictions);
+    addPredictionTestData(E_Regression, fieldNames, fieldValues, analyzer, expectedPredictions);
 
     core::CStopWatch watch{true};
     analyzer.handleRecord(fieldNames, {"", "", "", "", "", "", "$"});
@@ -770,7 +846,7 @@ void CDataFrameAnalyzerTest::testRunBoostedTreeTraining() {
     CPPUNIT_ASSERT(core::CProgramCounters::counter(counter_t::E_DFTPMTimeToTrain) <= duration);
 }
 
-void CDataFrameAnalyzerTest::testRunBoostedTreeTrainingWithParams() {
+void CDataFrameAnalyzerTest::testRunBoostedTreeRegressionTrainingWithParams() {
 
     // Test the regression hyperparameter settings are correctly propagated to the
     // analysis runner.
@@ -799,9 +875,10 @@ void CDataFrameAnalyzerTest::testRunBoostedTreeTrainingWithParams() {
 
     TStrVec fieldNames{"c1", "c2", "c3", "c4", "c5", ".", "."};
     TStrVec fieldValues{"", "", "", "", "", "0", ""};
-    addRegressionTestData(fieldNames, fieldValues, analyzer, expectedPredictions,
-                          100, alpha, lambda, gamma, softTreeDepthLimit, softTreeDepthTolerance,
-                          eta, maximumNumberTrees, featureBagFraction);
+    addPredictionTestData(E_Regression, fieldNames, fieldValues, analyzer,
+                          expectedPredictions, 100, alpha, lambda, gamma,
+                          softTreeDepthLimit, softTreeDepthTolerance, eta,
+                          maximumNumberTrees, featureBagFraction);
     analyzer.handleRecord(fieldNames, {"", "", "", "", "", "", "$"});
 
     rapidjson::Document results;
@@ -830,7 +907,7 @@ void CDataFrameAnalyzerTest::testRunBoostedTreeTrainingWithParams() {
     CPPUNIT_ASSERT(progressCompleted);
 }
 
-void CDataFrameAnalyzerTest::testRunBoostedTreeTrainingWithRowsMissingTargetValue() {
+void CDataFrameAnalyzerTest::testRunBoostedTreeRegressionTrainingWithRowsMissingTargetValue() {
 
     // Test we are able to predict value rows for which the dependent variable
     // is missing.
@@ -889,7 +966,7 @@ void CDataFrameAnalyzerTest::testRunBoostedTreeTrainingWithRowsMissingTargetValu
     CPPUNIT_ASSERT_EQUAL(std::size_t{50}, numberResults);
 }
 
-void CDataFrameAnalyzerTest::testRunBoostedTreeTrainingWithStateRecovery() {
+void CDataFrameAnalyzerTest::testRunBoostedTreeRegressionTrainingWithStateRecovery() {
 
     struct SHyperparameters {
         SHyperparameters(double alpha = 2.0, double lambda = 1.0, double gamma = 10.0)
@@ -943,6 +1020,66 @@ void CDataFrameAnalyzerTest::testRunBoostedTreeTrainingWithStateRecovery() {
             testOneRunOfBoostedTreeTrainingWithStateRecovery(makeSpec, intermediateIteration);
         }
     }
+}
+
+void CDataFrameAnalyzerTest::testRunBoostedTreeClassifierTraining() {
+
+    // Test the results the analyzer produces match running classification directly.
+
+    std::stringstream output;
+    auto outputWriterFactory = [&output]() {
+        return std::make_unique<core::CJsonOutputStreamWrapper>(output);
+    };
+
+    TStrVec expectedPredictions;
+
+    TStrVec fieldNames{"c1", "c2", "c3", "c4", "c5", ".", "."};
+    TStrVec fieldValues{"", "", "", "", "", "0", ""};
+    api::CDataFrameAnalyzer analyzer{
+        predictionSpec("classification", "c5", 100, 5, 3000000, 0, 0, {"c5"}),
+        outputWriterFactory};
+    addPredictionTestData(E_BinaryClassification, fieldNames, fieldValues,
+                          analyzer, expectedPredictions);
+
+    core::CStopWatch watch{true};
+    analyzer.handleRecord(fieldNames, {"", "", "", "", "", "", "$"});
+    std::uint64_t duration{watch.stop()};
+
+    rapidjson::Document results;
+    rapidjson::ParseResult ok(results.Parse(output.str()));
+    CPPUNIT_ASSERT(static_cast<bool>(ok) == true);
+
+    auto expectedPrediction = expectedPredictions.begin();
+    bool progressCompleted{false};
+    for (const auto& result : results.GetArray()) {
+        if (result.HasMember("row_results")) {
+            CPPUNIT_ASSERT(expectedPrediction != expectedPredictions.end());
+            std::string actualPrediction{
+                result["row_results"]["results"]["ml"]["c5_prediction"].GetString()};
+            CPPUNIT_ASSERT_EQUAL(*expectedPrediction, actualPrediction);
+            ++expectedPrediction;
+            CPPUNIT_ASSERT(result.HasMember("progress_percent") == false);
+        } else if (result.HasMember("progress_percent")) {
+            CPPUNIT_ASSERT(result["progress_percent"].GetInt() >= 0);
+            CPPUNIT_ASSERT(result["progress_percent"].GetInt() <= 100);
+            CPPUNIT_ASSERT(result.HasMember("row_results") == false);
+            progressCompleted = result["progress_percent"].GetInt() == 100;
+        }
+    }
+    CPPUNIT_ASSERT(expectedPrediction == expectedPredictions.end());
+    CPPUNIT_ASSERT(progressCompleted);
+
+    LOG_DEBUG(<< "estimated memory usage = "
+              << core::CProgramCounters::counter(counter_t::E_DFTPMEstimatedPeakMemoryUsage));
+    LOG_DEBUG(<< "peak memory = "
+              << core::CProgramCounters::counter(counter_t::E_DFTPMPeakMemoryUsage));
+    LOG_DEBUG(<< "time to train = " << core::CProgramCounters::counter(counter_t::E_DFTPMTimeToTrain)
+              << "ms");
+    CPPUNIT_ASSERT(core::CProgramCounters::counter(
+                       counter_t::E_DFTPMEstimatedPeakMemoryUsage) < 2600000);
+    CPPUNIT_ASSERT(core::CProgramCounters::counter(counter_t::E_DFTPMPeakMemoryUsage) < 1050000);
+    CPPUNIT_ASSERT(core::CProgramCounters::counter(counter_t::E_DFTPMTimeToTrain) > 0);
+    CPPUNIT_ASSERT(core::CProgramCounters::counter(counter_t::E_DFTPMTimeToTrain) <= duration);
 }
 
 void CDataFrameAnalyzerTest::testFlushMessage() {
@@ -1274,17 +1411,20 @@ CppUnit::Test* CDataFrameAnalyzerTest::suite() {
         "CDataFrameAnalyzerTest::testRunOutlierDetectionWithParams",
         &CDataFrameAnalyzerTest::testRunOutlierDetectionWithParams));
     suiteOfTests->addTest(new CppUnit::TestCaller<CDataFrameAnalyzerTest>(
-        "CDataFrameAnalyzerTest::testRunBoostedTreeTraining",
-        &CDataFrameAnalyzerTest::testRunBoostedTreeTraining));
+        "CDataFrameAnalyzerTest::testRunBoostedTreeRegressionTraining",
+        &CDataFrameAnalyzerTest::testRunBoostedTreeRegressionTraining));
     suiteOfTests->addTest(new CppUnit::TestCaller<CDataFrameAnalyzerTest>(
-        "CDataFrameAnalyzerTest::testRunBoostedTreeTrainingWithStateRecovery",
-        &CDataFrameAnalyzerTest::testRunBoostedTreeTrainingWithStateRecovery));
+        "CDataFrameAnalyzerTest::testRunBoostedTreeRegressionTrainingWithStateRecovery",
+        &CDataFrameAnalyzerTest::testRunBoostedTreeRegressionTrainingWithStateRecovery));
     suiteOfTests->addTest(new CppUnit::TestCaller<CDataFrameAnalyzerTest>(
-        "CDataFrameAnalyzerTest::testRunBoostedTreeTrainingWithParams",
-        &CDataFrameAnalyzerTest::testRunBoostedTreeTrainingWithParams));
+        "CDataFrameAnalyzerTest::testRunBoostedTreeRegressionTrainingWithParams",
+        &CDataFrameAnalyzerTest::testRunBoostedTreeRegressionTrainingWithParams));
     suiteOfTests->addTest(new CppUnit::TestCaller<CDataFrameAnalyzerTest>(
-        "CDataFrameAnalyzerTest::testRunBoostedTreeTrainingWithRowsMissingTargetValue",
-        &CDataFrameAnalyzerTest::testRunBoostedTreeTrainingWithRowsMissingTargetValue));
+        "CDataFrameAnalyzerTest::testRunBoostedTreeRegressionTrainingWithRowsMissingTargetValue",
+        &CDataFrameAnalyzerTest::testRunBoostedTreeRegressionTrainingWithRowsMissingTargetValue));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CDataFrameAnalyzerTest>(
+        "CDataFrameAnalyzerTest::testRunBoostedTreeClassifierTraining",
+        &CDataFrameAnalyzerTest::testRunBoostedTreeClassifierTraining));
     suiteOfTests->addTest(new CppUnit::TestCaller<CDataFrameAnalyzerTest>(
         "CDataFrameAnalyzerTest::testFlushMessage", &CDataFrameAnalyzerTest::testFlushMessage));
     suiteOfTests->addTest(new CppUnit::TestCaller<CDataFrameAnalyzerTest>(

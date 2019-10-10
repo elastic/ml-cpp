@@ -56,7 +56,7 @@ CBoostedTreeFactory::buildFor(core::CDataFrame& frame,
     this->initializeTrainingProgressMonitoring();
 
     m_TreeImpl->m_DependentVariable = dependentVariable;
-    m_Loss = std::move(loss);
+    m_TreeImpl->m_Loss = std::move(loss);
 
     this->initializeMissingFeatureMasks(frame);
     std::tie(m_TreeImpl->m_TrainingRowMasks, m_TreeImpl->m_TestingRowMasks) =
@@ -73,7 +73,8 @@ CBoostedTreeFactory::buildFor(core::CDataFrame& frame,
         this->initializeHyperparameterOptimisation();
     }
 
-    auto treeImpl = std::make_unique<CBoostedTreeImpl>(m_NumberThreads, m_Loss->clone());
+    auto treeImpl = std::make_unique<CBoostedTreeImpl>(m_NumberThreads,
+                                                       m_TreeImpl->m_Loss->clone());
     std::swap(m_TreeImpl, treeImpl);
     return TBoostedTreeUPtr{new CBoostedTree{frame, m_RecordProgress, m_RecordMemoryUsage,
                                              m_RecordTrainingState, std::move(treeImpl)}};

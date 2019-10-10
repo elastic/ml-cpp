@@ -245,13 +245,14 @@ void CDataFrameAnalyzer::captureFieldNames(const TStrVec& fieldNames) {
     if (m_DataFrame == nullptr) {
         return;
     }
-    if (m_DataFrame != nullptr && m_DataFrame->columnNames().empty()) {
+    if (m_DataFrame != nullptr && m_CapturedFieldNames == false) {
         TStrVec columnNames{fieldNames.begin() + m_BeginDataFieldValues,
                             fieldNames.begin() + m_EndDataFieldValues};
         m_DataFrame->columnNames(columnNames);
         m_DataFrame->emptyIsMissing(
             m_AnalysisSpecification->columnsForWhichEmptyIsMissing(columnNames));
         m_DataFrame->categoricalColumns(m_AnalysisSpecification->categoricalFieldNames());
+        m_CapturedFieldNames = true;
     }
 }
 

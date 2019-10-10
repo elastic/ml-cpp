@@ -181,7 +181,6 @@ private:
     TOptionalDouble m_MinimumFrequencyToOneHotEncode;
     TOptionalSize m_BayesianOptimisationRestarts;
     std::size_t m_NumberThreads;
-    TLossFunctionUPtr m_Loss;
     TBoostedTreeImplUPtr m_TreeImpl;
     TVector m_LogDepthPenaltyMultiplierSearchInterval;
     TVector m_LogTreeSizePenaltyMultiplierSearchInterval;
