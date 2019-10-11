@@ -31,13 +31,12 @@ public:
     std::size_t numberExtraColumns() const override;
 
     //! Write the extra columns of \p row added by outlier analysis to \p writer.
-    void writeOneRow(const TStrVec& featureNames,
-                     const TStrVecVec& categoricalFieldValues,
-                     TRowRef row,
+    void writeOneRow(const core::CDataFrame& frame,
+                     const TRowRef& row,
                      core::CRapidJsonConcurrentLineWriter& writer) const override;
 
 private:
-    void runImpl(const TStrVec& featureNames, core::CDataFrame& frame) override;
+    void runImpl(core::CDataFrame& frame) override;
     std::size_t estimateBookkeepingMemoryUsage(std::size_t numberPartitions,
                                                std::size_t totalNumberRows,
                                                std::size_t partitionNumberRows,

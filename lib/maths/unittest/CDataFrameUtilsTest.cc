@@ -26,6 +26,7 @@
 using namespace ml;
 
 namespace {
+using TBoolVec = std::vector<bool>;
 using TDoubleVec = std::vector<double>;
 using TDoubleVecVec = std::vector<TDoubleVec>;
 using TSizeVec = std::vector<std::size_t>;
@@ -381,7 +382,7 @@ void CDataFrameUtilsTest::testColumnQuantilesWithEncoding() {
 
     auto frame = core::makeMainStorageDataFrame(cols, capacity).first;
 
-    frame->categoricalColumns({false, true, false, false, false, true});
+    frame->categoricalColumns(TBoolVec{false, true, false, false, false, true});
     for (std::size_t i = 0; i < rows; ++i) {
         frame->writeRow([&features, target, i, rowFeatures = TDoubleVec{} ](
             core::CDataFrame::TFloatVecItr column, std::int32_t&) mutable {
@@ -575,7 +576,7 @@ void CDataFrameUtilsTest::testCategoryFrequencies() {
 
             auto frame = factory();
 
-            frame->categoricalColumns({true, false, true, false});
+            frame->categoricalColumns(TBoolVec{true, false, true, false});
             for (std::size_t i = 0; i < rows; ++i) {
                 frame->writeRow([&values, i, cols](core::CDataFrame::TFloatVecItr column,
                                                    std::int32_t&) {
@@ -651,7 +652,7 @@ void CDataFrameUtilsTest::testMeanValueOfTargetForCategories() {
 
             auto frame = factory();
 
-            frame->categoricalColumns({true, false, true, false});
+            frame->categoricalColumns(TBoolVec{true, false, true, false});
             for (std::size_t i = 0; i < rows; ++i) {
                 frame->writeRow([&values, i, cols](core::CDataFrame::TFloatVecItr column,
                                                    std::int32_t&) {
@@ -725,7 +726,7 @@ void CDataFrameUtilsTest::testMeanValueOfTargetForCategoriesWithMissing() {
 
     auto frame = core::makeMainStorageDataFrame(cols, capacity).first;
 
-    frame->categoricalColumns({true, false, true, false});
+    frame->categoricalColumns(TBoolVec{true, false, true, false});
     for (std::size_t i = 0; i < rows; ++i) {
         frame->writeRow([&values, i, cols](core::CDataFrame::TFloatVecItr column, std::int32_t&) {
             for (std::size_t j = 0; j < cols; ++j, ++column) {
@@ -783,7 +784,7 @@ void CDataFrameUtilsTest::testCategoryMicWithColumn() {
 
             auto frame = factory();
 
-            frame->categoricalColumns({true, false, true, false});
+            frame->categoricalColumns(TBoolVec{true, false, true, false});
             for (std::size_t i = 0; i < rows; ++i) {
                 frame->writeRow([&values, i, cols](core::CDataFrame::TFloatVecItr column,
                                                    std::int32_t&) {

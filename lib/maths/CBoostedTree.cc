@@ -295,7 +295,7 @@ const std::string& CLogistic::name() const {
     return NAME;
 }
 
-const std::string CLogistic::NAME{"logistic"};
+const std::string CLogistic::NAME{"binomial_logistic"};
 }
 
 std::size_t CBoostedTreeNode::leafIndex(const CEncodedDataFrameRowRef& row,
