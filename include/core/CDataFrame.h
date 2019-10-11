@@ -425,7 +425,7 @@ public:
     void emptyIsMissing(TBoolVec emptyIsMissing);
 
     //! Write which columns contain categorical data.
-    void categoricalColumns(const TStrVec& categoricalColumnNames);
+    void categoricalColumns(TStrVec categoricalColumnNames);
 
     //! Write which columns contain categorical data.
     void categoricalColumns(TBoolVec columnIsCategorical);

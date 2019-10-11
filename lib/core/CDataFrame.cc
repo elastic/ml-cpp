@@ -309,11 +309,14 @@ void CDataFrame::emptyIsMissing(TBoolVec emptyIsMissing) {
     }
 }
 
-void CDataFrame::categoricalColumns(const TStrVec& categoricalColumnNames) {
+void CDataFrame::categoricalColumns(TStrVec categoricalColumnNames) {
+    std::sort(categoricalColumnNames.begin(), categoricalColumnNames.end());
     for (std::size_t i = 0; i < m_ColumnNames.size(); ++i) {
-        m_ColumnIsCategorical[i] =
-            std::find(categoricalColumnNames.begin(), categoricalColumnNames.end(),
-                      m_ColumnNames[i]) != categoricalColumnNames.end();
+        auto categorical = std::lower_bound(categoricalColumnNames.begin(),
+                                            categoricalColumnNames.end(),
+                                            m_ColumnNames[i]);
+        m_ColumnIsCategorical[i] = categorical != categoricalColumnNames.end() &&
+                                   *categorical == m_ColumnNames[i];
     }
 }
 
