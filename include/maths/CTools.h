@@ -678,7 +678,8 @@ public:
     //! \param[in] width The step width.
     //! \param[in] x0 The centre of the step.
     //! \param[in] sign Determines whether it's a step up or down.
-    static double logisticFunction(double x, double width, double x0 = 0.0, double sign = 1.0) {
+    static double
+    logisticFunction(double x, double width = 1.0, double x0 = 0.0, double sign = 1.0) {
         return sigmoid(std::exp(std::copysign(1.0, sign) * (x - x0) / width));
     }
 
