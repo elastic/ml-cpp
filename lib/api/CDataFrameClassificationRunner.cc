@@ -32,6 +32,8 @@ namespace ml {
 namespace api {
 namespace {
 using TBoolVec = std::vector<bool>;
+using TDoubleVec = std::vector<double>;
+using TSizeVec = std::vector<std::size_t>;
 
 // Configuration
 const std::string NUM_TOP_CLASSES{"num_top_classes"};
@@ -61,9 +63,9 @@ CDataFrameClassificationRunner::CDataFrameClassificationRunner(const CDataFrameA
     : CDataFrameBoostedTreeRunner{spec} {
 }
 
-// The only field for which empty value should be treated as missing is dependent variable
-// which has empty value for non-training rows.
 TBoolVec CDataFrameClassificationRunner::columnsForWhichEmptyIsMissing(const TStrVec& fieldNames) const {
+    // The only field for which empty value should be treated as missing is dependent
+    // variable which has empty value for non-training rows.
     TBoolVec emptyAsMissing(fieldNames.size(), false);
     auto pos = std::find(fieldNames.begin(), fieldNames.end(),
                          this->dependentVariableFieldName());
@@ -83,9 +85,6 @@ void CDataFrameClassificationRunner::writeOneRow(const core::CDataFrame& frame,
     const TStrVec& categoryValues{frame.categoricalColumnValues()[columnHoldingDependentVariable]};
 
     // TODO generalise when supporting multiple categories.
-
-    using TDoubleVec = std::vector<double>;
-    using TSizeVec = std::vector<std::size_t>;
 
     double predictedLogOddsOfCategory1{row[columnHoldingPrediction]};
     double probabilityOfCategory1{maths::CTools::logisticFunction(predictedLogOddsOfCategory1)};
