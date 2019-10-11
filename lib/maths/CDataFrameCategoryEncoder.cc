@@ -38,6 +38,8 @@ const std::size_t CATEGORY_FOR_FREQUENCY_ENCODING{CATEGORY_FOR_METRICS - 1};
 const std::size_t CATEGORY_FOR_TARGET_MEAN_ENCODING{CATEGORY_FOR_FREQUENCY_ENCODING - 1};
 const std::size_t CATEGORY_FOR_DEPENDENT_VARIABLE{CATEGORY_FOR_TARGET_MEAN_ENCODING - 1};
 
+const std::string VERSION_7_5_TAG{"7.5"};
+
 const std::string ENCODING_VECTOR_TAG{"encoding_vector"};
 const std::string ENCODING_INPUT_COLUMN_INDEX_TAG{"encoding_input_column_index"};
 const std::string ENCODING_MIC_TAG{"encoding_mic"};
@@ -271,19 +273,25 @@ std::uint64_t CDataFrameCategoryEncoder::checksum(std::uint64_t seed) const {
 }
 
 void CDataFrameCategoryEncoder::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
+    core::CPersistUtils::persist(VERSION_7_5_TAG, "", inserter);
     inserter.insertLevel(ENCODING_VECTOR_TAG,
                          std::bind(&CDataFrameCategoryEncoder::persistEncodings,
                                    this, std::placeholders::_1));
 }
 
 bool CDataFrameCategoryEncoder::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
-    do {
-        const std::string& name{traverser.name()};
-        RESTORE(ENCODING_VECTOR_TAG,
-                traverser.traverseSubLevel(std::bind(&CDataFrameCategoryEncoder::restoreEncodings,
-                                                     this, std::placeholders::_1)))
-    } while (traverser.next());
-    return true;
+    if (traverser.name() == VERSION_7_5_TAG) {
+        do {
+            const std::string& name{traverser.name()};
+            RESTORE(ENCODING_VECTOR_TAG, traverser.traverseSubLevel(std::bind(
+                                             &CDataFrameCategoryEncoder::restoreEncodings,
+                                             this, std::placeholders::_1)))
+        } while (traverser.next());
+        return true;
+    }
+    LOG_ERROR(<< "Input error: unsupported state serialization version. Currently supported version: "
+              << VERSION_7_5_TAG);
+    return false;
 }
 
 void CDataFrameCategoryEncoder::persistEncodings(core::CStatePersistInserter& inserter) const {

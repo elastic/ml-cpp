@@ -40,8 +40,7 @@ public:
 
 public:
     //! Construct a boosted tree object from parameters.
-    static CBoostedTreeFactory constructFromParameters(std::size_t numberThreads,
-                                                       TLossFunctionUPtr loss);
+    static CBoostedTreeFactory constructFromParameters(std::size_t numberThreads);
 
     //! Construct a boosted tree object from its serialized version.
     //!
@@ -97,7 +96,12 @@ public:
     //! Get the number of columns training the model will add to the data frame.
     std::size_t numberExtraColumnsForTrain() const;
     //! Build a boosted tree object for a given data frame.
-    TBoostedTreeUPtr buildFor(core::CDataFrame& frame, std::size_t dependentVariable);
+    TBoostedTreeUPtr buildFor(core::CDataFrame& frame,
+                              TLossFunctionUPtr loss,
+                              std::size_t dependentVariable);
+    //! Restore a boosted tree object for a given data frame.
+    //! \warning A tree object can only be restored once.
+    TBoostedTreeUPtr restoreFor(core::CDataFrame& frame, std::size_t dependentVariable);
 
 private:
     using TDoubleDoublePr = std::pair<double, double>;
@@ -115,7 +119,7 @@ private:
     static const std::size_t MAXIMUM_NUMBER_TREES;
 
 private:
-    CBoostedTreeFactory(bool restored, std::size_t numberThreads, TLossFunctionUPtr loss);
+    CBoostedTreeFactory(std::size_t numberThreads);
 
     //! Compute the row masks for the missing values for each feature.
     void initializeMissingFeatureMasks(const core::CDataFrame& frame) const;
@@ -176,9 +180,7 @@ private:
 private:
     TOptionalDouble m_MinimumFrequencyToOneHotEncode;
     TOptionalSize m_BayesianOptimisationRestarts;
-    bool m_Restored = false;
     std::size_t m_NumberThreads;
-    TLossFunctionUPtr m_Loss;
     TBoostedTreeImplUPtr m_TreeImpl;
     TVector m_LogDepthPenaltyMultiplierSearchInterval;
     TVector m_LogTreeSizePenaltyMultiplierSearchInterval;

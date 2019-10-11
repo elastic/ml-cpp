@@ -20,8 +20,10 @@
 #include <test/CRandomNumbers.h>
 #include <test/CTestTmpDir.h>
 
+#include <fstream>
 #include <functional>
 #include <memory>
+#include <streambuf>
 #include <utility>
 
 using namespace ml;
@@ -153,9 +155,9 @@ auto predictAndComputeEvaluationMetrics(const F& generateFunction,
 
             fillDataFrame(trainRows, testRows, cols, x, noise, target, *frame);
 
-            auto regression = maths::CBoostedTreeFactory::constructFromParameters(
-                                  1, std::make_unique<maths::boosted_tree::CMse>())
-                                  .buildFor(*frame, cols - 1);
+            auto regression =
+                maths::CBoostedTreeFactory::constructFromParameters(1).buildFor(
+                    *frame, std::make_unique<maths::boosted_tree::CMse>(), cols - 1);
 
             regression->train();
             regression->predict();
@@ -174,6 +176,21 @@ auto predictAndComputeEvaluationMetrics(const F& generateFunction,
     LOG_DEBUG(<< " R^2 = " << core::CContainerPrinter::print(modelRSquared));
 
     return std::make_pair(std::move(modelBias), std::move(modelRSquared));
+}
+
+void readFileToStream(const std::string& filename, std::stringstream& stream) {
+    std::ifstream file(filename);
+    CPPUNIT_ASSERT(file.is_open());
+    std::string str((std::istreambuf_iterator<char>(file)),
+                    std::istreambuf_iterator<char>());
+    stream << str;
+    stream.flush();
+}
+
+void clearFile(const std::string& filename) {
+    std::ofstream file;
+    file.open(filename, std::ofstream::out | std::ofstream::trunc);
+    file.close();
 }
 }
 
@@ -412,9 +429,8 @@ void CBoostedTreeTest::testThreading() {
 
         fillDataFrame(rows, 0, cols, x, noise, target, *frame);
 
-        auto regression = maths::CBoostedTreeFactory::constructFromParameters(
-                              2, std::make_unique<maths::boosted_tree::CMse>())
-                              .buildFor(*frame, cols - 1);
+        auto regression = maths::CBoostedTreeFactory::constructFromParameters(2).buildFor(
+            *frame, std::make_unique<maths::boosted_tree::CMse>(), cols - 1);
 
         regression->train();
         regression->predict();
@@ -477,9 +493,8 @@ void CBoostedTreeTest::testConstantFeatures() {
 
     fillDataFrame(rows, 0, cols, x, noise, target, *frame);
 
-    auto regression = maths::CBoostedTreeFactory::constructFromParameters(
-                          1, std::make_unique<maths::boosted_tree::CMse>())
-                          .buildFor(*frame, cols - 1);
+    auto regression = maths::CBoostedTreeFactory::constructFromParameters(1).buildFor(
+        *frame, std::make_unique<maths::boosted_tree::CMse>(), cols - 1);
 
     regression->train();
 
@@ -508,9 +523,8 @@ void CBoostedTreeTest::testConstantTarget() {
     fillDataFrame(rows, 0, cols, x, TDoubleVec(rows, 0.0),
                   [](const TRowRef&) { return 1.0; }, *frame);
 
-    auto regression = maths::CBoostedTreeFactory::constructFromParameters(
-                          1, std::make_unique<maths::boosted_tree::CMse>())
-                          .buildFor(*frame, cols - 1);
+    auto regression = maths::CBoostedTreeFactory::constructFromParameters(1).buildFor(
+        *frame, std::make_unique<maths::boosted_tree::CMse>(), cols - 1);
 
     regression->train();
 
@@ -564,7 +578,7 @@ void CBoostedTreeTest::testCategoricalRegressors() {
 
     auto frame = core::makeMainStorageDataFrame(cols, capacity).first;
 
-    frame->categoricalColumns({true, true, false, false, false, false});
+    frame->categoricalColumns(TBoolVec{true, true, false, false, false, false});
     for (std::size_t i = 0; i < rows; ++i) {
         frame->writeRow([&](core::CDataFrame::TFloatVecItr column, std::int32_t&) {
             for (std::size_t j = 0; j < cols - 1; ++j, ++column) {
@@ -582,9 +596,8 @@ void CBoostedTreeTest::testCategoricalRegressors() {
         }
     });
 
-    auto regression = maths::CBoostedTreeFactory::constructFromParameters(
-                          1, std::make_unique<maths::boosted_tree::CMse>())
-                          .buildFor(*frame, cols - 1);
+    auto regression = maths::CBoostedTreeFactory::constructFromParameters(1).buildFor(
+        *frame, std::make_unique<maths::boosted_tree::CMse>(), cols - 1);
 
     regression->train();
     regression->predict();
@@ -613,7 +626,7 @@ void CBoostedTreeTest::testIntegerRegressor() {
 
     auto frame = core::makeMainStorageDataFrame(2).first;
 
-    frame->categoricalColumns({false, false});
+    frame->categoricalColumns(TBoolVec{false, false});
     for (std::size_t i = 0; i < rows; ++i) {
         frame->writeRow([&](core::CDataFrame::TFloatVecItr column, std::int32_t&) {
             TDoubleVec regressor;
@@ -625,9 +638,8 @@ void CBoostedTreeTest::testIntegerRegressor() {
     }
     frame->finishWritingRows();
 
-    auto regression = maths::CBoostedTreeFactory::constructFromParameters(
-                          1, std::make_unique<maths::boosted_tree::CMse>())
-                          .buildFor(*frame, 1);
+    auto regression = maths::CBoostedTreeFactory::constructFromParameters(1).buildFor(
+        *frame, std::make_unique<maths::boosted_tree::CMse>(), 1);
 
     regression->train();
     regression->predict();
@@ -663,7 +675,7 @@ void CBoostedTreeTest::testSingleSplit() {
     }
 
     auto frame = core::makeMainStorageDataFrame(cols).first;
-    frame->categoricalColumns({false, false});
+    frame->categoricalColumns(TBoolVec{false, false});
     for (std::size_t i = 0; i < rows; ++i) {
         frame->writeRow([&](core::CDataFrame::TFloatVecItr column, std::int32_t&) {
             *(column++) = x[i];
@@ -672,9 +684,8 @@ void CBoostedTreeTest::testSingleSplit() {
     }
     frame->finishWritingRows();
 
-    auto regression = maths::CBoostedTreeFactory::constructFromParameters(
-                          1, std::make_unique<maths::boosted_tree::CMse>())
-                          .buildFor(*frame, cols - 1);
+    auto regression = maths::CBoostedTreeFactory::constructFromParameters(1).buildFor(
+        *frame, std::make_unique<maths::boosted_tree::CMse>(), cols - 1);
 
     regression->train();
 
@@ -731,9 +742,8 @@ void CBoostedTreeTest::testTranslationInvariance() {
         fillDataFrame(trainRows, rows - trainRows, cols, x,
                       TDoubleVec(rows, 0.0), target_, *frame);
 
-        auto regression = maths::CBoostedTreeFactory::constructFromParameters(
-                              1, std::make_unique<maths::boosted_tree::CMse>())
-                              .buildFor(*frame, cols - 1);
+        auto regression = maths::CBoostedTreeFactory::constructFromParameters(1).buildFor(
+            *frame, std::make_unique<maths::boosted_tree::CMse>(), cols - 1);
 
         regression->train();
         regression->predict();
@@ -805,13 +815,13 @@ void CBoostedTreeTest::testDepthBasedRegularization() {
 
         fillDataFrame(rows, 0, cols, x, noise, target, *frame);
 
-        auto regression = maths::CBoostedTreeFactory::constructFromParameters(
-                              1, std::make_unique<maths::boosted_tree::CMse>())
-                              .treeSizePenaltyMultiplier(0.0)
-                              .leafWeightPenaltyMultiplier(0.0)
-                              .softTreeDepthLimit(targetDepth)
-                              .softTreeDepthTolerance(0.05)
-                              .buildFor(*frame, cols - 1);
+        auto regression =
+            maths::CBoostedTreeFactory::constructFromParameters(1)
+                .treeSizePenaltyMultiplier(0.0)
+                .leafWeightPenaltyMultiplier(0.0)
+                .softTreeDepthLimit(targetDepth)
+                .softTreeDepthTolerance(0.05)
+                .buildFor(*frame, std::make_unique<maths::boosted_tree::CMse>(), cols - 1);
 
         regression->train();
 
@@ -959,15 +969,15 @@ void CBoostedTreeTest::testLogisticMinimizer() {
 void CBoostedTreeTest::testLogisticRegression() {
 
     // The idea of this test is to create a random linear relationship between
-    // the feature values and the log-odds of each class, i.e.
+    // the feature values and the log-odds of class 1, i.e.
     //
     //   log-odds(class_1) = sum_i{ w * x_i }
     //
     // where, w is some fixed weight vector and x_i denoted the i'th feature vector.
     // We try to recover this relationship in logistic regression by observing
     // the actual labels. We want to test that we've roughly correctly estimated the
-    // log-odds. However, we target the cross-entropy so the errors in our estimates
-    // p_i^ should be measured in terms of cross entropy: sum_i{ p_i^ log(p_i) }
+    // log-odds function. However, we target the cross-entropy so the error in our
+    // estimates p_i^ should be measured in terms of cross entropy: sum_i{ p_i log(p_i^) }
     // where p_i = logistic(sum_i{ w_i * x_i}).
 
     test::CRandomNumbers rng;
@@ -1008,9 +1018,8 @@ void CBoostedTreeTest::testLogisticRegression() {
         fillDataFrame(trainRows, rows - trainRows, cols, {false, false, false, true},
                       x, TDoubleVec(rows, 0.0), target, *frame);
 
-        auto regression = maths::CBoostedTreeFactory::constructFromParameters(
-                              1, std::make_unique<maths::boosted_tree::CLogistic>())
-                              .buildFor(*frame, cols - 1);
+        auto regression = maths::CBoostedTreeFactory::constructFromParameters(1).buildFor(
+            *frame, std::make_unique<maths::boosted_tree::CLogistic>(), cols - 1);
 
         regression->train();
         regression->predict();
@@ -1070,7 +1079,7 @@ void CBoostedTreeTest::testEstimateMemoryUsedByTrain() {
         };
 
         auto frame = core::makeMainStorageDataFrame(cols, capacity).first;
-        frame->categoricalColumns({true, false, false, false, false, false});
+        frame->categoricalColumns(TBoolVec{true, false, false, false, false, false});
         for (std::size_t i = 0; i < rows; ++i) {
             frame->writeRow([&](core::CDataFrame::TFloatVecItr column, std::int32_t&) {
                 *(column++) = std::floor(x[0][i]);
@@ -1082,21 +1091,21 @@ void CBoostedTreeTest::testEstimateMemoryUsedByTrain() {
         }
         frame->finishWritingRows();
 
-        std::int64_t estimatedMemory(maths::CBoostedTreeFactory::constructFromParameters(
-                                         1, std::make_unique<maths::boosted_tree::CMse>())
-                                         .estimateMemoryUsage(rows, cols));
+        std::int64_t estimatedMemory(
+            maths::CBoostedTreeFactory::constructFromParameters(1).estimateMemoryUsage(
+                rows, cols));
 
         std::int64_t memoryUsage{0};
         std::int64_t maxMemoryUsage{0};
-        auto regression = maths::CBoostedTreeFactory::constructFromParameters(
-                              1, std::make_unique<maths::boosted_tree::CMse>())
-                              .memoryUsageCallback([&](std::int64_t delta) {
-                                  memoryUsage += delta;
-                                  maxMemoryUsage = std::max(maxMemoryUsage, memoryUsage);
-                                  LOG_TRACE(<< "current memory = " << memoryUsage
-                                            << ", high water mark = " << maxMemoryUsage);
-                              })
-                              .buildFor(*frame, cols - 1);
+        auto regression =
+            maths::CBoostedTreeFactory::constructFromParameters(1)
+                .memoryUsageCallback([&](std::int64_t delta) {
+                    memoryUsage += delta;
+                    maxMemoryUsage = std::max(maxMemoryUsage, memoryUsage);
+                    LOG_TRACE(<< "current memory = " << memoryUsage
+                              << ", high water mark = " << maxMemoryUsage);
+                })
+                .buildFor(*frame, std::make_unique<maths::boosted_tree::CMse>(), cols - 1);
 
         regression->train();
 
@@ -1146,10 +1155,11 @@ void CBoostedTreeTest::testProgressMonitoring() {
         std::atomic_bool finished{false};
 
         std::thread worker{[&]() {
-            auto regression = maths::CBoostedTreeFactory::constructFromParameters(
-                                  threads, std::make_unique<maths::boosted_tree::CMse>())
-                                  .progressCallback(reportProgress)
-                                  .buildFor(*frame, cols - 1);
+            auto regression =
+                maths::CBoostedTreeFactory::constructFromParameters(threads)
+                    .progressCallback(reportProgress)
+                    .buildFor(*frame, std::make_unique<maths::boosted_tree::CMse>(),
+                              cols - 1);
 
             regression->train();
             finished.store(true);
@@ -1210,19 +1220,19 @@ void CBoostedTreeTest::testPersistRestore() {
 
     // persist
     {
-        auto boostedTree = maths::CBoostedTreeFactory::constructFromParameters(
-                               1, std::make_unique<maths::boosted_tree::CMse>())
-                               .numberFolds(2)
-                               .maximumNumberTrees(2)
-                               .maximumOptimisationRoundsPerHyperparameter(3)
-                               .buildFor(*frame, cols - 1);
+        auto boostedTree =
+            maths::CBoostedTreeFactory::constructFromParameters(1)
+                .numberFolds(2)
+                .maximumNumberTrees(2)
+                .maximumOptimisationRoundsPerHyperparameter(3)
+                .buildFor(*frame, std::make_unique<maths::boosted_tree::CMse>(), cols - 1);
         core::CJsonStatePersistInserter inserter(persistOnceSStream);
         boostedTree->acceptPersistInserter(inserter);
         persistOnceSStream.flush();
     }
     // restore
-    auto boostedTree =
-        maths::CBoostedTreeFactory::constructFromString(persistOnceSStream).buildFor(*frame, cols - 1);
+    auto boostedTree = maths::CBoostedTreeFactory::constructFromString(persistOnceSStream)
+                           .restoreFor(*frame, cols - 1);
     {
         core::CJsonStatePersistInserter inserter(persistTwiceSStream);
         boostedTree->acceptPersistInserter(inserter);
@@ -1246,88 +1256,85 @@ void CBoostedTreeTest::testRestoreErrorHandling() {
     };
     core::CLogger::CScopeSetFatalErrorHandler scope{errorHandler};
 
+    const std::string logFile{"test.log"};
+
+    // log at level ERROR only
+    CPPUNIT_ASSERT(ml::core::CLogger::instance().reconfigureFromFile(
+        "testfiles/testLogErrors.boost.log.ini"));
+
     std::size_t cols{3};
     std::size_t capacity{50};
 
     auto frame = core::makeMainStorageDataFrame(cols, capacity).first;
 
     std::stringstream errorInBayesianOptimisationState;
-    errorInBayesianOptimisationState
-        << "{\"bayesian_optimization\":"
-           "{\"min_boundary\":{\"dense_vector\":\"-9.191737e-1:-2.041179:-3.506558:1.025:2e-1\"},"
-           "\"max_boundary\":{\"dense_vector\":\"3.685997:2.563991:-1.203973:a:8e-1\"},"
-           "\"error_variances\":\"\",\"kernel_parameters\":{\"dense_vector\":\"1:1:1:1:1:1\"},"
-           "\"min_kernel_coordinate_distance_scales\":{\"dense_vector\":\"1e-3:1e-3:1e-3:1e-3:1e-3\"},"
-           "\"function_mean_values\":{\"d\":\"0\"}},\"best_forest_test_loss\":\"1.797693e308\","
-           "\"current_round\":\"0\",\"dependent_variable\":\"2\",\"eta_growth_rate_per_tree\":\"1.05\","
-           "\"eta\":\"1e-1\",\"feature_bag_fraction\":\"5e-1\",\"feature_sample_probabilities\":\"1:0:0\","
-           "\"gamma\":\"1.298755\",\"lambda\":\"3.988485\",\"maximum_attempts_to_add_tree\":\"3\","
-           "\"maximum_optimisation_rounds_per_hyperparameter\":\"3\",\"maximum_tree_size_fraction\":\"10\","
-           "\"missing_feature_row_masks\":{\"d\":\"3\",\"a\":\"50:0:1:50\",\"a\":\"50:0:1:50\",\"a\":\"50:0:1:50\"},"
-           "\"number_folds\":\"2\",\"number_rounds\":\"15\",\"number_splits_per_feature\":\"40\","
-           "\"number_threads\":\"1\",\"rows_per_feature\":\"50\","
-           "\"testing_row_masks\":{\"d\":\"2\",\"a\":\"50:1:1:5:1:1:5:3:3:3:1:1:1:1:4:1:4:3:6:1:1:2:1:2\","
-           "\"a\":\"50:0:1:5:1:1:5:3:3:3:1:1:1:1:4:1:4:3:6:1:1:2:1:2\"},\"maximum_number_trees\":\"2\","
-           "\"training_row_masks\":{\"d\":\"2\",\"a\":\"50:0:1:5:1:1:5:3:3:3:1:1:1:1:4:1:4:3:6:1:1:2:1:2\","
-           "\"a\":\"50:1:1:5:1:1:5:3:3:3:1:1:1:1:4:1:4:3:6:1:1:2:1:2\"},\"best_forest\":{\"d\":\"0\"},"
-           "\"best_hyperparameters\":{\"hyperparam_lambda\":\"0\",\"hyperparam_gamma\":\"0\","
-           "\"hyperparam_eta\":\"0\",\"hyperparam_eta_growth_rate_per_tree\":\"0\","
-           "\"hyperparam_feature_bag_fraction\":\"0\",\"hyperparam_feature_sample_probabilities\":\"\"},"
-           "\"eta_override\":\"false;0\",\"feature_bag_fraction_override\":\"false;0\",\"gamma_override\":\"false;0\","
-           "\"lambda_override\":\"false;0\",\"maximum_number_trees_override\":\"true;2\",\"loss\":\"mse\"}";
+    readFileToStream("testfiles/error_bayesian_optimisation_state.json",
+                     errorInBayesianOptimisationState);
     errorInBayesianOptimisationState.flush();
 
     bool throwsExceptions{false};
+    std::stringstream buffer;
+    clearFile(logFile);
     try {
+
         auto boostedTree = maths::CBoostedTreeFactory::constructFromString(errorInBayesianOptimisationState)
-                               .buildFor(*frame, 2);
+                               .restoreFor(*frame, 2);
     } catch (const std::exception& e) {
         LOG_DEBUG(<< "got = " << e.what());
         throwsExceptions = true;
         core::CRegex re;
         re.init("Input error:.*");
         CPPUNIT_ASSERT(re.matches(e.what()));
+        readFileToStream(logFile, buffer);
+        CPPUNIT_ASSERT(buffer.str().find("Failed to restore MAX_BOUNDARY_TAG") !=
+                       std::string::npos);
     }
     CPPUNIT_ASSERT(throwsExceptions);
 
     std::stringstream errorInBoostedTreeImplState;
-    errorInBoostedTreeImplState
-        << "{\"bayesian_optimization\":"
-           "{\"min_boundary\":{\"dense_vector\":\"-9.191737e-1:-2.041179:-3.506558:1.025:2e-1\"},"
-           "\"max_boundary\":{\"dense_vector\":\"3.685997:2.563991:-1.203973:0.1:8e-1\"},"
-           "\"error_variances\":\"\",\"kernel_parameters\":{\"dense_vector\":\"1:1:1:1:1:1\"},"
-           "\"min_kernel_coordinate_distance_scales\":{\"dense_vector\":\"1e-3:1e-3:1e-3:1e-3:1e-3\"},"
-           "\"function_mean_values\":{\"d\":\"0\"}},\"best_forest_test_loss\":\"1.797693e308\","
-           "\"current_round\":\"0\",\"dependent_variable\":\"2\",\"eta_growth_rate_per_tree\":\"1.05\","
-           "\"eta\":\"1e-1\",\"feature_bag_fraction\":\"5e-1\",\"feature_sample_probabilities\":\"1:0:0\","
-           "\"gamma\":\"1.298755\",\"lambda\":\"3.988485\",\"maximum_attempts_to_add_tree\":\"3\","
-           "\"maximum_optimisation_rounds_per_hyperparameter\":\"3\",\"maximum_tree_size_fraction\":\"10\","
-           "\"missing_feature_row_masks\":{\"d\":\"3\",\"a\":\"50:0:1:50\",\"a\":\"50:0:1:50\",\"a\":\"50:0:1:50\"},"
-           "\"number_folds\":\"\",\"number_rounds\":\"15\",\"number_splits_per_feature\":\"40\","
-           "\"number_threads\":\"1\",\"rows_per_feature\":\"50\","
-           "\"testing_row_masks\":{\"d\":\"2\",\"a\":\"50:1:1:5:1:1:5:3:3:3:1:1:1:1:4:1:4:3:6:1:1:2:1:2\","
-           "\"a\":\"50:0:1:5:1:1:5:3:3:3:1:1:1:1:4:1:4:3:6:1:1:2:1:2\"},\"maximum_number_trees\":\"2\","
-           "\"training_row_masks\":{\"d\":\"2\",\"a\":\"50:0:1:5:1:1:5:3:3:3:1:1:1:1:4:1:4:3:6:1:1:2:1:2\","
-           "\"a\":\"50:1:1:5:1:1:5:3:3:3:1:1:1:1:4:1:4:3:6:1:1:2:1:2\"},\"best_forest\":{\"d\":\"0\"},"
-           "\"best_hyperparameters\":{\"hyperparam_lambda\":\"0\",\"hyperparam_gamma\":\"0\","
-           "\"hyperparam_eta\":\"0\",\"hyperparam_eta_growth_rate_per_tree\":\"0\","
-           "\"hyperparam_feature_bag_fraction\":\"0\",\"hyperparam_feature_sample_probabilities\":\"\"},"
-           "\"eta_override\":\"false;0\",\"feature_bag_fraction_override\":\"false;0\",\"gamma_override\":\"false;0\","
-           "\"lambda_override\":\"false;0\",\"maximum_number_trees_override\":\"true;2\",\"loss\":\"mse\"}";
+    readFileToStream("testfiles/error_boosted_tree_impl_state.json", errorInBoostedTreeImplState);
     errorInBoostedTreeImplState.flush();
 
     throwsExceptions = false;
+    buffer.clear();
+    clearFile(logFile);
     try {
         auto boostedTree = maths::CBoostedTreeFactory::constructFromString(errorInBoostedTreeImplState)
-                               .buildFor(*frame, 2);
+                               .restoreFor(*frame, 2);
     } catch (const std::exception& e) {
         LOG_DEBUG(<< "got = " << e.what());
         throwsExceptions = true;
         core::CRegex re;
         re.init("Input error:.*");
         CPPUNIT_ASSERT(re.matches(e.what()));
+        readFileToStream(logFile, buffer);
+        CPPUNIT_ASSERT(buffer.str().find("Failed to restore NUMBER_FOLDS_TAG") !=
+                       std::string::npos);
     }
     CPPUNIT_ASSERT(throwsExceptions);
+
+    std::stringstream errorInStateVersion;
+    readFileToStream("testfiles/error_no_version_state.json", errorInStateVersion);
+    errorInStateVersion.flush();
+
+    throwsExceptions = false;
+    buffer.clear();
+    clearFile(logFile);
+    try {
+        auto boostedTree = maths::CBoostedTreeFactory::constructFromString(errorInBoostedTreeImplState)
+                               .restoreFor(*frame, 2);
+    } catch (const std::exception& e) {
+        LOG_DEBUG(<< "got = " << e.what());
+        throwsExceptions = true;
+        core::CRegex re;
+        re.init("Input error:.*");
+        CPPUNIT_ASSERT(re.matches(e.what()));
+        readFileToStream(logFile, buffer);
+        CPPUNIT_ASSERT(buffer.str().find("unsupported state serialization version.") !=
+                       std::string::npos);
+    }
+    CPPUNIT_ASSERT(throwsExceptions);
+    ml::core::CLogger::instance().reset();
 }
 
 CppUnit::Test* CBoostedTreeTest::suite() {

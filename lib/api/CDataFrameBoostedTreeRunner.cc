@@ -119,8 +119,7 @@ CDataFrameBoostedTreeRunner::CDataFrameBoostedTreeRunner(
     }
 
     m_BoostedTreeFactory = std::make_unique<maths::CBoostedTreeFactory>(
-        maths::CBoostedTreeFactory::constructFromParameters(
-            this->spec().numberThreads(), std::make_unique<maths::boosted_tree::CMse>()));
+        maths::CBoostedTreeFactory::constructFromParameters(this->spec().numberThreads()));
 
     (*m_BoostedTreeFactory)
         .progressCallback(this->progressRecorder())
@@ -200,14 +199,14 @@ const maths::CBoostedTree& CDataFrameBoostedTreeRunner::boostedTree() const {
     return *m_BoostedTree;
 }
 
-void CDataFrameBoostedTreeRunner::runImpl(const TStrVec& featureNames,
-                                          core::CDataFrame& frame) {
-    auto dependentVariableColumn = std::find(
-        featureNames.begin(), featureNames.end(), m_DependentVariableFieldName);
-    if (dependentVariableColumn == featureNames.end()) {
+void CDataFrameBoostedTreeRunner::runImpl(core::CDataFrame& frame) {
+    auto dependentVariablePos = std::find(frame.columnNames().begin(),
+                                          frame.columnNames().end(),
+                                          m_DependentVariableFieldName);
+    if (dependentVariablePos == frame.columnNames().end()) {
         HANDLE_FATAL(<< "Input error: supplied variable to predict '"
                      << m_DependentVariableFieldName << "' is missing from training"
-                     << " data " << core::CContainerPrinter::print(featureNames));
+                     << " data " << core::CContainerPrinter::print(frame.columnNames()));
         return;
     }
 
@@ -218,15 +217,18 @@ void CDataFrameBoostedTreeRunner::runImpl(const TStrVec& featureNames,
 
     core::CStopWatch watch{true};
 
+    std::size_t dependentVariableColumn(dependentVariablePos -
+                                        frame.columnNames().begin());
+
     auto restoreSearcher{this->spec().restoreSearcher()};
     bool treeRestored{false};
     if (restoreSearcher != nullptr) {
-        treeRestored = this->restoreBoostedTree(
-            frame, dependentVariableColumn - featureNames.begin(), restoreSearcher);
+        treeRestored = this->restoreBoostedTree(frame, dependentVariableColumn, restoreSearcher);
     }
     if (treeRestored == false) {
-        m_BoostedTree = m_BoostedTreeFactory->buildFor(
-            frame, dependentVariableColumn - featureNames.begin());
+        auto loss = this->chooseLossFunction(frame, dependentVariableColumn);
+        m_BoostedTree = m_BoostedTreeFactory->buildFor(frame, std::move(loss),
+                                                       dependentVariableColumn);
     }
 
     m_BoostedTree->train();
@@ -264,7 +266,7 @@ bool CDataFrameBoostedTreeRunner::restoreBoostedTree(core::CDataFrame& frame,
                             .progressCallback(this->progressRecorder())
                             .trainingStateCallback(this->statePersister())
                             .memoryUsageCallback(this->memoryEstimator())
-                            .buildFor(frame, dependentVariableColumn);
+                            .restoreFor(frame, dependentVariableColumn);
     } catch (std::exception& e) {
         LOG_ERROR(<< "Failed to restore state! " << e.what());
         return false;

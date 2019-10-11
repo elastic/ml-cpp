@@ -141,14 +141,14 @@ std::size_t CDataFrameAnalysisRunner::maximumNumberRowsPerPartition() const {
     return m_MaximumNumberRowsPerPartition;
 }
 
-void CDataFrameAnalysisRunner::run(const TStrVec& featureNames, core::CDataFrame& frame) {
+void CDataFrameAnalysisRunner::run(core::CDataFrame& frame) {
     if (m_Runner.joinable()) {
         LOG_INFO(<< "Already running analysis");
     } else {
         m_FractionalProgress.store(0.0);
         m_Finished.store(false);
-        m_Runner = std::thread([&featureNames, &frame, this]() {
-            this->runImpl(featureNames, frame);
+        m_Runner = std::thread([&frame, this]() {
+            this->runImpl(frame);
             this->setToFinished();
         });
     }
