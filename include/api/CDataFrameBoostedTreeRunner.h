@@ -20,6 +20,9 @@
 
 namespace ml {
 namespace maths {
+namespace boosted_tree {
+class CLoss;
+}
 class CBoostedTree;
 class CBoostedTreeFactory;
 }
@@ -42,6 +45,7 @@ public:
 
 protected:
     using TBoostedTreeUPtr = std::unique_ptr<maths::CBoostedTree>;
+    using TLossFunctionUPtr = std::unique_ptr<maths::boosted_tree::CLoss>;
 
 protected:
     //! Parameter reader handling parameters that are shared by subclasses.
@@ -59,16 +63,18 @@ private:
     using TMemoryEstimator = std::function<void(std::int64_t)>;
 
 private:
-    void runImpl(const TStrVec& featureNames, core::CDataFrame& frame) override;
+    void runImpl(core::CDataFrame& frame) override;
+    bool restoreBoostedTree(core::CDataFrame& frame,
+                            std::size_t dependentVariableColumn,
+                            TDataSearcherUPtr& restoreSearcher);
     std::size_t estimateBookkeepingMemoryUsage(std::size_t numberPartitions,
                                                std::size_t totalNumberRows,
                                                std::size_t partitionNumberRows,
                                                std::size_t numberColumns) const override;
     TMemoryEstimator memoryEstimator();
 
-    bool restoreBoostedTree(core::CDataFrame& frame,
-                            std::size_t dependentVariableColumn,
-                            TDataSearcherUPtr& restoreSearcher);
+    virtual TLossFunctionUPtr chooseLossFunction(const core::CDataFrame& frame,
+                                                 std::size_t dependentVariableColumn) const = 0;
 
 private:
     // Note custom config is written directly to the factory object.

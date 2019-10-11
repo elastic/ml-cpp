@@ -38,10 +38,13 @@ public:
     TBoolVec columnsForWhichEmptyIsMissing(const TStrVec& fieldNames) const override;
 
     //! Write the prediction for \p row to \p writer.
-    void writeOneRow(const TStrVec& featureNames,
-                     const TStrVecVec& categoricalFieldValues,
-                     TRowRef row,
+    void writeOneRow(const core::CDataFrame& frame,
+                     const TRowRef& row,
                      core::CRapidJsonConcurrentLineWriter& writer) const override;
+
+private:
+    TLossFunctionUPtr chooseLossFunction(const core::CDataFrame& frame,
+                                         std::size_t dependentVariableColumn) const override;
 
 private:
     std::size_t m_NumTopClasses;

@@ -44,47 +44,58 @@ const double MAIN_TRAINING_LOOP_TREE_SIZE_MULTIPLIER{10.0};
 }
 
 CBoostedTreeFactory::TBoostedTreeUPtr
-CBoostedTreeFactory::buildFor(core::CDataFrame& frame, std::size_t dependentVariable) {
+CBoostedTreeFactory::buildFor(core::CDataFrame& frame,
+                              TLossFunctionUPtr loss,
+                              std::size_t dependentVariable) {
 
-    if (m_Restored) {
-
-        if (dependentVariable != m_TreeImpl->m_DependentVariable) {
-            HANDLE_FATAL(<< "Internal error: expected dependent variable "
-                         << m_TreeImpl->m_DependentVariable << " got " << dependentVariable);
-        }
-
-        this->resumeRestoredTrainingProgressMonitoring();
-
-        frame.resizeColumns(m_TreeImpl->m_NumberThreads,
-                            frame.numberColumns() + this->numberExtraColumnsForTrain());
-
-    } else {
-
-        m_TreeImpl->m_DependentVariable = dependentVariable;
-
-        this->initializeTrainingProgressMonitoring();
-
-        this->initializeMissingFeatureMasks(frame);
-        std::tie(m_TreeImpl->m_TrainingRowMasks, m_TreeImpl->m_TestingRowMasks) =
-            this->crossValidationRowMasks();
-
-        frame.resizeColumns(m_TreeImpl->m_NumberThreads,
-                            frame.numberColumns() + this->numberExtraColumnsForTrain());
-
-        this->selectFeaturesAndEncodeCategories(frame);
-        this->determineFeatureDataTypes(frame);
-
-        if (this->initializeFeatureSampleDistribution()) {
-            this->initializeHyperparameters(frame);
-            this->initializeHyperparameterOptimisation();
-        }
+    if (loss == nullptr) {
+        HANDLE_FATAL(<< "Internal error: must supply a loss function");
+        return nullptr;
     }
 
-    auto treeImpl = std::make_unique<CBoostedTreeImpl>(
-        m_NumberThreads, m_Loss != nullptr ? m_Loss->clone() : nullptr);
+    this->initializeTrainingProgressMonitoring();
+
+    m_TreeImpl->m_DependentVariable = dependentVariable;
+    m_TreeImpl->m_Loss = std::move(loss);
+
+    this->initializeMissingFeatureMasks(frame);
+    std::tie(m_TreeImpl->m_TrainingRowMasks, m_TreeImpl->m_TestingRowMasks) =
+        this->crossValidationRowMasks();
+
+    frame.resizeColumns(m_TreeImpl->m_NumberThreads,
+                        frame.numberColumns() + this->numberExtraColumnsForTrain());
+
+    this->selectFeaturesAndEncodeCategories(frame);
+    this->determineFeatureDataTypes(frame);
+
+    if (this->initializeFeatureSampleDistribution()) {
+        this->initializeHyperparameters(frame);
+        this->initializeHyperparameterOptimisation();
+    }
+
+    auto treeImpl = std::make_unique<CBoostedTreeImpl>(m_NumberThreads,
+                                                       m_TreeImpl->m_Loss->clone());
     std::swap(m_TreeImpl, treeImpl);
     return TBoostedTreeUPtr{new CBoostedTree{frame, m_RecordProgress, m_RecordMemoryUsage,
                                              m_RecordTrainingState, std::move(treeImpl)}};
+}
+
+CBoostedTreeFactory::TBoostedTreeUPtr
+CBoostedTreeFactory::restoreFor(core::CDataFrame& frame, std::size_t dependentVariable) {
+
+    if (dependentVariable != m_TreeImpl->m_DependentVariable) {
+        HANDLE_FATAL(<< "Internal error: expected dependent variable "
+                     << m_TreeImpl->m_DependentVariable << " got " << dependentVariable);
+        return nullptr;
+    }
+
+    this->resumeRestoredTrainingProgressMonitoring();
+
+    frame.resizeColumns(m_TreeImpl->m_NumberThreads,
+                        frame.numberColumns() + this->numberExtraColumnsForTrain());
+
+    return TBoostedTreeUPtr{new CBoostedTree{frame, m_RecordProgress, m_RecordMemoryUsage,
+                                             m_RecordTrainingState, std::move(m_TreeImpl)}};
 }
 
 std::size_t CBoostedTreeFactory::numberHyperparameterTuningRounds() const {
@@ -597,13 +608,12 @@ CBoostedTreeFactory::testLossLineSearch(core::CDataFrame& frame,
     return TOptionalVector{interval};
 }
 
-CBoostedTreeFactory CBoostedTreeFactory::constructFromParameters(std::size_t numberThreads,
-                                                                 TLossFunctionUPtr loss) {
-    return {false, numberThreads, std::move(loss)};
+CBoostedTreeFactory CBoostedTreeFactory::constructFromParameters(std::size_t numberThreads) {
+    return {numberThreads};
 }
 
 CBoostedTreeFactory CBoostedTreeFactory::constructFromString(std::istream& jsonStringStream) {
-    CBoostedTreeFactory result{true, 1, nullptr};
+    CBoostedTreeFactory result{1};
     try {
         core::CJsonStateRestoreTraverser traverser(jsonStringStream);
         if (result.m_TreeImpl->acceptRestoreTraverser(traverser) == false ||
@@ -616,11 +626,9 @@ CBoostedTreeFactory CBoostedTreeFactory::constructFromString(std::istream& jsonS
     return result;
 }
 
-CBoostedTreeFactory::CBoostedTreeFactory(bool restored, std::size_t numberThreads, TLossFunctionUPtr loss)
-    : m_Restored{restored}, m_NumberThreads{numberThreads}, m_Loss{loss != nullptr
-                                                                       ? loss->clone()
-                                                                       : nullptr},
-      m_TreeImpl{std::make_unique<CBoostedTreeImpl>(numberThreads, std::move(loss))},
+CBoostedTreeFactory::CBoostedTreeFactory(std::size_t numberThreads)
+    : m_NumberThreads{numberThreads},
+      m_TreeImpl{std::make_unique<CBoostedTreeImpl>(numberThreads, nullptr)},
       m_LogDepthPenaltyMultiplierSearchInterval{0.0}, m_LogTreeSizePenaltyMultiplierSearchInterval{0.0},
       m_LogLeafWeightPenaltyMultiplierSearchInterval{0.0} {
 }

@@ -19,13 +19,12 @@ public:
     CDataFrameMockAnalysisRunner(const ml::api::CDataFrameAnalysisSpecification& spec);
 
     std::size_t numberExtraColumns() const override;
-    void writeOneRow(const TStrVec& featureNames,
-                     const TStrVecVec& categoricalFieldValues,
-                     TRowRef,
+    void writeOneRow(const ml::core::CDataFrame&,
+                     const TRowRef&,
                      ml::core::CRapidJsonConcurrentLineWriter&) const override;
 
 private:
-    void runImpl(const TStrVec&, ml::core::CDataFrame&) override;
+    void runImpl(ml::core::CDataFrame&) override;
     std::size_t estimateBookkeepingMemoryUsage(std::size_t,
                                                std::size_t,
                                                std::size_t,
