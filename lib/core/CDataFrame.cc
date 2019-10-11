@@ -126,7 +126,6 @@ CDataFrame::CDataFrame(bool inMainMemory,
       m_RowCapacity{numberColumns}, m_SliceCapacityInRows{sliceCapacityInRows},
       m_ReadAndWriteToStoreSyncStrategy{readAndWriteToStoreSyncStrategy}, m_WriteSliceToStore{writeSliceToStore},
       m_ColumnNames(numberColumns), m_CategoricalColumnValues(numberColumns),
-      m_CategoricalColumnValueLookup(numberColumns),
       m_EmptyIsMissing(numberColumns, false),
       m_ColumnIsCategorical(numberColumns, false) {
 }
@@ -169,7 +168,6 @@ void CDataFrame::resizeColumns(std::size_t numberThreads, std::size_t numberColu
     this->reserve(numberThreads, numberColumns);
     m_ColumnNames.resize(numberColumns);
     m_CategoricalColumnValues.resize(numberColumns);
-    m_CategoricalColumnValueLookup.resize(numberColumns);
     m_EmptyIsMissing.resize(numberColumns, false);
     m_ColumnIsCategorical.resize(numberColumns, false);
     m_NumberColumns = numberColumns;
@@ -266,6 +264,11 @@ void CDataFrame::parseAndWriteRow(const TStrCRng& columnValues, const std::strin
         // standardised.
         return truncateToFloatRange(value);
     };
+
+    // This is only used when writing rows so is resized lazily.
+    if (m_CategoricalColumnValueLookup.size() != m_NumberColumns) {
+        m_CategoricalColumnValueLookup.resize(m_NumberColumns);
+    }
 
     this->writeRow([&](TFloatVecItr columns, std::int32_t& docHash) {
         for (std::size_t i = 0; i < columnValues.size(); ++i, ++columns) {
