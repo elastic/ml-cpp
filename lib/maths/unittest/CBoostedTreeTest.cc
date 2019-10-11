@@ -1300,7 +1300,7 @@ void CBoostedTreeTest::testRestoreErrorHandling() {
     clearFile(logFile);
     try {
         auto boostedTree = maths::CBoostedTreeFactory::constructFromString(errorInBoostedTreeImplState)
-                               .buildFor(*frame, 2);
+                               .restoreFor(*frame, 2);
     } catch (const std::exception& e) {
         LOG_DEBUG(<< "got = " << e.what());
         throwsExceptions = true;
