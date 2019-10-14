@@ -94,6 +94,7 @@ public:
 public:
     ~CTrainedModel() override = default;
     void addToDocument(rapidjson::Value& parentObject, TRapidJsonWriter& writer) const override;
+    //! Names of the features used by the model.
     virtual const TStringVec& featureNames() const;
     //! Names of the features used by the model.
     virtual void featureNames(const TStringVec& featureNames);
@@ -166,6 +167,7 @@ public:
     //! Aggregation mechanism for the output from individual models.
     void aggregateOutput(TAggregateOutputUPtr&& aggregateOutput);
     const TAggregateOutputUPtr& aggregateOutput() const;
+    const TStringVec& featureNames() const override;
     void featureNames(const TStringVec& featureNames) override;
     //! List of trained models withing this ensemble.
     TTrainedModelUPtrVec& trainedModels();

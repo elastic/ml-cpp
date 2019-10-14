@@ -170,6 +170,10 @@ CTrainedModel::ETargetType CEnsemble::targetType() const {
     return this->CTrainedModel::targetType();
 }
 
+const CTrainedModel::TStringVec& CEnsemble::featureNames() const {
+    return CTrainedModel::featureNames();
+}
+
 void CTree::addToDocument(rapidjson::Value& parentObject, TRapidJsonWriter& writer) const {
     rapidjson::Value object = writer.makeObject();
     this->CTrainedModel::addToDocument(object, writer);
