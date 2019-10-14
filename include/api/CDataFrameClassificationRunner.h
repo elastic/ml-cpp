@@ -25,6 +25,10 @@ namespace api {
 //! \brief Runs boosted tree classification on a core::CDataFrame.
 class API_EXPORT CDataFrameClassificationRunner final : public CDataFrameBoostedTreeRunner {
 public:
+    TInferenceModelDefinitionUPtr
+    inferenceModelDefinition(const TStrVec& fieldNames,
+                             const TStrSizeUMapVec& categoryNameMap) const override;
+
     static const CDataFrameAnalysisConfigReader getParameterReader();
 
     //! This is not intended to be called directly: use CDataFrameClassificationRunnerFactory.

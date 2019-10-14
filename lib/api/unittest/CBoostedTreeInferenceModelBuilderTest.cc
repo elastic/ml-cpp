@@ -115,21 +115,21 @@ auto generateCategoricalData(test::CRandomNumbers& rng, std::size_t rows, TDoubl
 }
 }
 
-CppUnit::Test* CBoostedTreeRegressionInferenceModelBuilderTest::suite() {
+CppUnit::Test* CBoostedTreeInferenceModelBuilderTest::suite() {
     CppUnit::TestSuite* suiteOfTests =
-        new CppUnit::TestSuite("CBoostedTreeRegressionInferenceModelBuilderTest");
+        new CppUnit::TestSuite("CBoostedTreeInferenceModelBuilderTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CBoostedTreeRegressionInferenceModelBuilderTest>(
-        "CBoostedTreeRegressionInferenceModelBuilderTest::testIntegration",
-        &CBoostedTreeRegressionInferenceModelBuilderTest::testIntegration));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CBoostedTreeRegressionInferenceModelBuilderTest>(
-        "CBoostedTreeRegressionInferenceModelBuilderTest::testJsonSchema",
-        &CBoostedTreeRegressionInferenceModelBuilderTest::testJsonSchema));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CBoostedTreeInferenceModelBuilderTest>(
+        "CBoostedTreeInferenceModelBuilderTest::testIntegration",
+        &CBoostedTreeInferenceModelBuilderTest::testIntegration));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CBoostedTreeInferenceModelBuilderTest>(
+        "CBoostedTreeInferenceModelBuilderTest::testJsonSchema",
+        &CBoostedTreeInferenceModelBuilderTest::testJsonSchema));
 
     return suiteOfTests;
 }
 
-void CBoostedTreeRegressionInferenceModelBuilderTest::testIntegration() {
+void CBoostedTreeInferenceModelBuilderTest::testIntegration() {
     std::size_t numberExamples = 1000;
     std::size_t cols = 3;
     test::CRandomNumbers rng;
@@ -215,7 +215,7 @@ void CBoostedTreeRegressionInferenceModelBuilderTest::testIntegration() {
     // TODO feature names test is missing
 }
 
-void CBoostedTreeRegressionInferenceModelBuilderTest::testJsonSchema() {
+void CBoostedTreeInferenceModelBuilderTest::testJsonSchema() {
     std::size_t numberExamples = 1000;
     std::size_t cols = 3;
     test::CRandomNumbers rng;

@@ -19,8 +19,7 @@ namespace ml {
 namespace api {
 
 //! \brief Builds a a serialisable trained model object by visiting a maths::CBoostedTree object.
-class API_EXPORT CBoostedTreeRegressionInferenceModelBuilder
-    : public maths::CBoostedTree::CVisitor {
+class API_EXPORT CBoostedTreeInferenceModelBuilder : public maths::CBoostedTree::CVisitor {
 public:
     using TDoubleVec = std::vector<double>;
     using TStringVec = std::vector<std::string>;
@@ -30,10 +29,10 @@ public:
     using TSizeStringUMapVec = std::vector<TSizeStringUMap>;
 
 public:
-    CBoostedTreeRegressionInferenceModelBuilder(TStringVec fieldNames,
-                                                std::size_t dependentVariableColumnIndex,
-                                                const TStringSizeUMapVec& categoryNameMap);
-    ~CBoostedTreeRegressionInferenceModelBuilder() override = default;
+    CBoostedTreeInferenceModelBuilder(TStringVec fieldNames,
+                                      std::size_t dependentVariableColumnIndex,
+                                      const TStringSizeUMapVec& categoryNameMap);
+    ~CBoostedTreeInferenceModelBuilder() override = default;
     void addTree() override;
     void addNode(std::size_t splitFeature,
                  double splitValue,
@@ -49,6 +48,10 @@ public:
                                double fallback) override;
     void addFrequencyEncoding(std::size_t inputColumnIndex, const TDoubleVec& map) override;
     CInferenceModelDefinition&& build();
+
+protected:
+    virtual void setTargetType() = 0;
+    CInferenceModelDefinition& definition();
 
 private:
     using TOneHotEncodingUPtr = std::unique_ptr<COneHotEncoding>;
@@ -66,6 +69,27 @@ private:
     TOneHotEncodingUMap m_OneHotEncodingMaps;
     TStringVec m_FieldNames;
     TStringVec m_FeatureNames;
+};
+
+class API_EXPORT CRegressionInferenceModelBuilder : public CBoostedTreeInferenceModelBuilder {
+protected:
+public:
+    CRegressionInferenceModelBuilder(const TStringVec& fieldNames,
+                                     size_t dependentVariableColumnIndex,
+                                     const TStringSizeUMapVec& categoryNameMap);
+
+protected:
+    void setTargetType() override;
+};
+
+class API_EXPORT CClassificationInferenceModelBuilder : public CBoostedTreeInferenceModelBuilder {
+public:
+    CClassificationInferenceModelBuilder(const TStringVec& fieldNames,
+                                         size_t dependentVariableColumnIndex,
+                                         const TStringSizeUMapVec& categoryNameMap);
+
+protected:
+    void setTargetType() override;
 };
 }
 }
