@@ -22,7 +22,9 @@ public:
     void testSingleSplit();
     void testTranslationInvariance();
     void testDepthBasedRegularization();
-    void testLogisticMinimizer();
+    void testLogisticMinimizerEdgeCases();
+    void testLogisticMinimizerRandom();
+    void testLogisticLossForUnderflow();
     void testLogisticRegression();
     void testEstimateMemoryUsedByTrain();
     void testProgressMonitoring();

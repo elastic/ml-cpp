@@ -16,6 +16,8 @@
 #include <maths/CSampling.h>
 #include <maths/CSetTools.h>
 
+#include <limits>
+
 namespace ml {
 namespace maths {
 using namespace boosted_tree;
@@ -87,6 +89,7 @@ double readActual(const TRowRef& row, std::size_t dependentVariable) {
 
 const std::size_t ASSIGN_MISSING_TO_LEFT{0};
 const std::size_t ASSIGN_MISSING_TO_RIGHT{1};
+const double SMALLEST_RELATIVE_CURVATURE{1e-20};
 }
 
 CBoostedTreeImpl::CLeafNodeStatistics::CLeafNodeStatistics(std::size_t id,
@@ -110,16 +113,24 @@ CBoostedTreeImpl::CLeafNodeStatistics::CLeafNodeStatistics(std::size_t id,
         m_Gradients[i].resize(numberSplits);
         m_Curvatures[i].resize(numberSplits);
         for (std::size_t j = 0; j < numberSplits; ++j) {
-            // Numeric errors mean that it's possible the sum curvature for a candidate split is identically zero while
-            // the gradient is epsilon. This can cause the node gain to appear infinite (when there is no weight
-            // regularisation) which in turns causes problems initialising the region we search for optimal
-            // hyperparameter values. Since none of our loss functions should have curvature identically equal to zero,
-            // we can safely force the gradient to be zero if detect that the curvature is zero.
+            // Numeric errors mean that it's possible the sum curvature for a candidate
+            // split is identically zero while the gradient is epsilon. This can cause
+            // the node gain to appear infinite (when there is no weight regularisation)
+            // which in turns causes problems initialising the region we search for optimal
+            // hyperparameter values. Since none of our loss functions should have curvature
+            // identically equal to zero, we can safely force the gradient to be zero if
+            // detect that the curvature is zero. Also, none of our loss functions have
+            // negative curvatures therefore we shouldn't allow the cumulative curvature
+            // to be negative either. In this case we force it to be a v.small multiple
+            // of the magnitude of the gradient since this is the closest feasible estimate.
             m_Curvatures[i][j] = parent.m_Curvatures[i][j] - sibling.m_Curvatures[i][j];
             m_Gradients[i][j] = m_Curvatures[i][j] == 0.0
                                     ? 0.0
                                     : parent.m_Gradients[i][j] -
                                           sibling.m_Gradients[i][j];
+            m_Curvatures[i][j] =
+                std::max(m_Curvatures[i][j], SMALLEST_RELATIVE_CURVATURE *
+                                                 std::fabs(m_Gradients[i][j]));
         }
         m_MissingCurvatures[i] = parent.m_MissingCurvatures[i] -
                                  sibling.m_MissingCurvatures[i];
@@ -127,6 +138,9 @@ CBoostedTreeImpl::CLeafNodeStatistics::CLeafNodeStatistics(std::size_t id,
                                     ? 0.0
                                     : parent.m_MissingGradients[i] -
                                           sibling.m_MissingGradients[i];
+        m_MissingCurvatures[i] = std::max(m_MissingCurvatures[i],
+                                          SMALLEST_RELATIVE_CURVATURE *
+                                              std::fabs(m_MissingGradients[i]));
     }
 
     LOG_TRACE(<< "gradients = " << core::CContainerPrinter::print(m_Gradients));
