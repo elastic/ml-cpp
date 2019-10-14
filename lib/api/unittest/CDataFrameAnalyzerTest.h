@@ -16,10 +16,11 @@ public:
     void testRunOutlierDetectionPartitioned();
     void testRunOutlierFeatureInfluences();
     void testRunOutlierDetectionWithParams();
-    void testRunBoostedTreeTraining();
-    void testRunBoostedTreeTrainingWithStateRecovery();
-    void testRunBoostedTreeTrainingWithParams();
-    void testRunBoostedTreeTrainingWithRowsMissingTargetValue();
+    void testRunBoostedTreeRegressionTraining();
+    void testRunBoostedTreeRegressionTrainingWithParams();
+    void testRunBoostedTreeRegressionTrainingWithRowsMissingTargetValue();
+    void testRunBoostedTreeRegressionTrainingWithStateRecovery();
+    void testRunBoostedTreeClassifierTraining();
     void testFlushMessage();
     void testErrors();
     void testRoundTripDocHashes();
