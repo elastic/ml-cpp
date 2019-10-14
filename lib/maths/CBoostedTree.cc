@@ -31,7 +31,7 @@ const std::string SPLIT_VALUE_TAG{"split_value"};
 double LOG_EPSILON{std::log(100.0 * std::numeric_limits<double>::epsilon())};
 
 double logOneMinusLogistic(double logOdds) {
-    // For large x logistic(x) = e^(-x) + O(e^(-2x))
+    // For large x logistic(x) = 1 - e^(-x) + O(e^(-2x))
     if (logOdds > -LOG_EPSILON) {
         return -logOdds;
     }
