@@ -14,8 +14,7 @@
 #include <maths/CSolvers.h>
 #include <maths/CTools.h>
 
-#include <maths/CMathsFuncs.h>
-
+#include <limits>
 #include <sstream>
 #include <utility>
 
@@ -28,6 +27,24 @@ const std::string SPLIT_FEATURE_TAG{"split_feature"};
 const std::string ASSIGN_MISSING_TO_LEFT_TAG{"assign_missing_to_left "};
 const std::string NODE_VALUE_TAG{"node_value"};
 const std::string SPLIT_VALUE_TAG{"split_value"};
+
+double LOG_EPSILON{std::log(100.0 * std::numeric_limits<double>::epsilon())};
+
+double logOneMinusLogistic(double logOdds) {
+    // For large x logistic(x) = 1 - e^(-x) + O(e^(-2x))
+    if (logOdds > -LOG_EPSILON) {
+        return -logOdds;
+    }
+    return CTools::fastLog(1.0 - CTools::logisticFunction(logOdds));
+}
+
+double logLogistic(double logOdds) {
+    // For small x logistic(x) = e^(x) + O(e^(2x))
+    if (logOdds < LOG_EPSILON) {
+        return logOdds;
+    }
+    return CTools::fastLog(CTools::logisticFunction(logOdds));
+}
 }
 
 namespace boosted_tree_detail {
@@ -138,16 +155,15 @@ double CArgMinLogisticImpl::value() const {
     // value from the counts of the two categories.
     if (this->bucketWidth() == 0.0) {
         objective = [this](double weight) {
-            double p{CTools::logisticFunction(weight)};
             std::size_t c0{m_CategoryCounts(0)};
             std::size_t c1{m_CategoryCounts(1)};
             return this->lambda() * CTools::pow2(weight) -
-                   static_cast<double>(c0) * CTools::fastLog(1.0 - p) -
-                   static_cast<double>(c1) * CTools::fastLog(p);
+                   static_cast<double>(c0) * logOneMinusLogistic(weight) -
+                   static_cast<double>(c1) * logLogistic(weight);
         };
 
-        // Weight shrinkage means the optimal weight will be somewhere
-        // between the logit of the empirical probability and zero.
+        // Weight shrinkage means the optimal weight will be somewhere between
+        // the logit of the empirical probability and zero.
         std::size_t c0{m_CategoryCounts(0) + 1};
         std::size_t c1{m_CategoryCounts(1) + 1};
         double empiricalProbabilityC1{static_cast<double>(c1) /
@@ -161,12 +177,11 @@ double CArgMinLogisticImpl::value() const {
         objective = [this](double weight) {
             double loss{0.0};
             for (std::size_t i = 0; i < m_BucketCategoryCounts.size(); ++i) {
-                double bucketPrediction{this->bucketCentre(i)};
-                double p{CTools::logisticFunction(bucketPrediction + weight)};
+                double logOdds{this->bucketCentre(i) + weight};
                 std::size_t c0{m_BucketCategoryCounts[i](0)};
                 std::size_t c1{m_BucketCategoryCounts[i](1)};
-                loss -= static_cast<double>(c0) * CTools::fastLog(1.0 - p) +
-                        static_cast<double>(c1) * CTools::fastLog(p);
+                loss -= static_cast<double>(c0) * logOneMinusLogistic(logOdds) +
+                        static_cast<double>(c1) * logLogistic(logOdds);
             }
             return loss + this->lambda() * CTools::pow2(weight);
         };
@@ -268,17 +283,22 @@ std::unique_ptr<CLoss> CLogistic::clone() const {
 
 double CLogistic::value(double prediction, double actual) const {
     // Cross entropy
-    prediction = CTools::logisticFunction(prediction);
-    return -((1.0 - actual) * CTools::fastLog(1.0 - prediction) +
-             actual * CTools::fastLog(prediction));
+    return -((1.0 - actual) * logOneMinusLogistic(prediction) +
+             actual * logLogistic(prediction));
 }
 
 double CLogistic::gradient(double prediction, double actual) const {
+    if (prediction > -LOG_EPSILON && actual == 1.0) {
+        return -std::exp(-prediction);
+    }
     prediction = CTools::logisticFunction(prediction);
     return prediction - actual;
 }
 
 double CLogistic::curvature(double prediction, double /*actual*/) const {
+    if (prediction > -LOG_EPSILON) {
+        return std::exp(-prediction);
+    }
     prediction = CTools::logisticFunction(prediction);
     return prediction * (1.0 - prediction);
 }

@@ -197,6 +197,7 @@ public:
 //! where \f$a_i\f$ denotes the actual class of the i'th example, \f$p\f$ is the
 //! prediction and \f$S(\cdot)\f$ denotes the logistic function.
 class MATHS_EXPORT CLogistic final : public CLoss {
+public:
     std::unique_ptr<CLoss> clone() const override;
     double value(double prediction, double actual) const override;
     double gradient(double prediction, double actual) const override;

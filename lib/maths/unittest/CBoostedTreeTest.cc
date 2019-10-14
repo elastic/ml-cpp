@@ -835,17 +835,9 @@ void CBoostedTreeTest::testDepthBasedRegularization() {
     }
 }
 
-void CBoostedTreeTest::testLogisticMinimizer() {
-
-    // Test that we a good approximation of the additive term for the log-odds
-    // which minimises the cross entropy objective.
+void CBoostedTreeTest::testLogisticMinimizerEdgeCases() {
 
     using maths::boosted_tree_detail::CArgMinLogisticImpl;
-
-    test::CRandomNumbers rng;
-
-    TDoubleVec labels;
-    TDoubleVec weights;
 
     // All predictions equal and zero.
     {
@@ -857,8 +849,13 @@ void CBoostedTreeTest::testLogisticMinimizer() {
         argmin.nextPass();
         CPPUNIT_ASSERT_EQUAL(0.0, argmin.value());
     }
+
     // All predictions are equal.
     {
+        test::CRandomNumbers rng;
+
+        TDoubleVec labels;
+        TDoubleVec weights;
         rng.generateUniformSamples(0.0, 1.0, 1000, labels);
         for (auto& label : labels) {
             label = std::floor(label + 0.3);
@@ -884,6 +881,47 @@ void CBoostedTreeTest::testLogisticMinimizer() {
         CPPUNIT_ASSERT_EQUAL(std::size_t{1}, numberPasses);
         CPPUNIT_ASSERT_DOUBLES_EQUAL(expected, actual, 0.01 * std::fabs(expected));
     }
+
+    // Test underflow of probabilities.
+    {
+        CArgMinLogisticImpl argmin{0.0};
+
+        TDoubleVec predictions{-500.0, -30.0, -15.0, -400.0};
+        TDoubleVec actuals{1.0, 1.0, 0.0, 1.0};
+        do {
+            for (std::size_t i = 0; i < predictions.size(); ++i) {
+                argmin.add(predictions[i], actuals[i]);
+            }
+        } while (argmin.nextPass());
+
+        double minimizer{argmin.value()};
+
+        // Check we're at the minimum.
+        maths::boosted_tree::CLogistic loss;
+        TDoubleVec losses;
+        for (double eps : {-10.0, 0.0, 10.0}) {
+            double lossAtEps{0.0};
+            for (std::size_t i = 0; i < predictions.size(); ++i) {
+                lossAtEps += loss.value(predictions[i] + minimizer + eps, actuals[i]);
+            }
+            losses.push_back(lossAtEps);
+        }
+        CPPUNIT_ASSERT(losses[0] >= losses[1]);
+        CPPUNIT_ASSERT(losses[2] >= losses[1]);
+    }
+}
+
+void CBoostedTreeTest::testLogisticMinimizerRandom() {
+
+    // Test that we a good approximation of the additive term for the log-odds
+    // which minimises the cross entropy objective.
+
+    using maths::boosted_tree_detail::CArgMinLogisticImpl;
+
+    test::CRandomNumbers rng;
+
+    TDoubleVec labels;
+    TDoubleVec weights;
 
     for (auto lambda : {0.0, 10.0}) {
 
@@ -962,6 +1000,55 @@ void CBoostedTreeTest::testLogisticMinimizer() {
             CPPUNIT_ASSERT_DOUBLES_EQUAL(expected, actual, 0.01 * std::fabs(expected));
             CPPUNIT_ASSERT_DOUBLES_EQUAL(objectiveAtExpected, objective(actual),
                                          1e-5 * objectiveAtExpected);
+        }
+    }
+}
+
+void CBoostedTreeTest::testLogisticLossForUnderflow() {
+
+    // Test the behaviour of value, gradient and curvature of the logistic loss in
+    // the vicinity the point at which we switch to using Taylor expansion of the
+    // logistic function is as expected.
+
+    double eps{100.0 * std::numeric_limits<double>::epsilon()};
+
+    maths::boosted_tree::CLogistic loss;
+
+    // Losses should be very nearly linear function of log-odds when they're large.
+    {
+        TDoubleVec lastLoss{loss.value(1.0 - std::log(eps), 0.0),
+                            loss.value(1.0 + std::log(eps), 1.0)};
+        for (double scale : {0.75, 0.5, 0.25, 0.0, -0.25, -0.5, -0.75, -1.0}) {
+            TDoubleVec currentLoss{loss.value(scale - std::log(eps), 0.0),
+                                   loss.value(scale + std::log(eps), 1.0)};
+            CPPUNIT_ASSERT_DOUBLES_EQUAL(0.25, lastLoss[0] - currentLoss[0], 5e-3);
+            CPPUNIT_ASSERT_DOUBLES_EQUAL(-0.25, lastLoss[1] - currentLoss[1], 5e-3);
+            lastLoss = currentLoss;
+        }
+    }
+
+    // The gradient and curvature should be proportional to the exponential of the
+    // log-odds when they're small.
+    {
+        TDoubleVec lastGradient{loss.gradient(1.0 + std::log(eps), 0.0),
+                                loss.gradient(1.0 - std::log(eps), 1.0)};
+        TDoubleVec lastCurvature{loss.curvature(1.0 + std::log(eps), 0.0),
+                                 loss.curvature(1.0 - std::log(eps), 1.0)};
+        for (double scale : {0.75, 0.5, 0.25, 0.0, -0.25, -0.5, -0.75, -1.0}) {
+            TDoubleVec currentGradient{loss.gradient(scale + std::log(eps), 0.0),
+                                       loss.gradient(scale - std::log(eps), 1.0)};
+            TDoubleVec currentCurvature{loss.curvature(scale + std::log(eps), 0.0),
+                                        loss.curvature(scale - std::log(eps), 1.0)};
+            CPPUNIT_ASSERT_DOUBLES_EQUAL(std::exp(0.25),
+                                         lastGradient[0] / currentGradient[0], 5e-3);
+            CPPUNIT_ASSERT_DOUBLES_EQUAL(std::exp(-0.25),
+                                         lastGradient[1] / currentGradient[1], 5e-3);
+            CPPUNIT_ASSERT_DOUBLES_EQUAL(
+                std::exp(0.25), lastCurvature[0] / currentCurvature[0], 5e-3);
+            CPPUNIT_ASSERT_DOUBLES_EQUAL(
+                std::exp(-0.25), lastCurvature[1] / currentCurvature[1], 5e-3);
+            lastGradient = currentGradient;
+            lastCurvature = currentCurvature;
         }
     }
 }
@@ -1366,7 +1453,14 @@ CppUnit::Test* CBoostedTreeTest::suite() {
         "CBoostedTreeTest::testDepthBasedRegularization",
         &CBoostedTreeTest::testDepthBasedRegularization));
     suiteOfTests->addTest(new CppUnit::TestCaller<CBoostedTreeTest>(
-        "CBoostedTreeTest::testLogisticMinimizer", &CBoostedTreeTest::testLogisticMinimizer));
+        "CBoostedTreeTest::testLogisticMinimizerEdgeCases",
+        &CBoostedTreeTest::testLogisticMinimizerEdgeCases));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CBoostedTreeTest>(
+        "CBoostedTreeTest::testLogisticMinimizerRandom",
+        &CBoostedTreeTest::testLogisticMinimizerRandom));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CBoostedTreeTest>(
+        "CBoostedTreeTest::testLogisticLossForUnderflow",
+        &CBoostedTreeTest::testLogisticLossForUnderflow));
     suiteOfTests->addTest(new CppUnit::TestCaller<CBoostedTreeTest>(
         "CBoostedTreeTest::testLogisticRegression", &CBoostedTreeTest::testLogisticRegression));
     suiteOfTests->addTest(new CppUnit::TestCaller<CBoostedTreeTest>(
