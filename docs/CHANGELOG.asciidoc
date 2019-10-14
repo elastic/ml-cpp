@@ -47,6 +47,8 @@ Bayesian optimisation based hyperparameter search. (See {ml-pull}698[#698].)
 * Improvements to count and sum anomaly detection for sparse data. This primarily
 aims to improve handling of data which are predictably present: detecting when they
 are unexpectedly missing. (See {ml-pull}721[#721].)
+* Trap numeric errors causing bad hyperparameter search initialisation and repeated
+errors to be logged during boosted tree training. (See {ml-pull}732[#732].)
 
 == {es} version 7.4.1
 
