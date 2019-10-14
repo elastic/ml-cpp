@@ -4,7 +4,7 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
-#include "CBoostedTreeRegressionInferenceModelBuilderTest.h"
+#include "CBoostedTreeInferenceModelBuilderTest.h"
 
 #include <core/CDataAdder.h>
 #include <core/CDataFrame.h>
@@ -47,6 +47,7 @@ using TStrSizeUMapVec = std::vector<TStrSizeUMap>;
 
 // TODO factor out this method to avoid code duplication
 auto regressionSpec(std::string dependentVariable,
+                    std::string analysis,
                     std::size_t rows = 100,
                     std::size_t cols = 5,
                     std::size_t memoryLimit = 3000000,
@@ -89,7 +90,7 @@ auto regressionSpec(std::string dependentVariable,
 
     std::string spec{api::CDataFrameAnalysisSpecificationJsonWriter::jsonString(
         "testJob", rows, cols, memoryLimit, 1, categoricalFieldNames, true,
-        test::CTestTmpDir::tmpDir(), "ml", "regression", parameters)};
+        test::CTestTmpDir::tmpDir(), "ml", analysis, parameters)};
 
     LOG_TRACE(<< "spec =\n" << spec);
 
@@ -115,21 +116,7 @@ auto generateCategoricalData(test::CRandomNumbers& rng, std::size_t rows, TDoubl
 }
 }
 
-CppUnit::Test* CBoostedTreeRegressionInferenceModelBuilderTest::suite() {
-    CppUnit::TestSuite* suiteOfTests =
-        new CppUnit::TestSuite("CBoostedTreeRegressionInferenceModelBuilderTest");
-
-    suiteOfTests->addTest(new CppUnit::TestCaller<CBoostedTreeRegressionInferenceModelBuilderTest>(
-        "CBoostedTreeRegressionInferenceModelBuilderTest::testIntegration",
-        &CBoostedTreeRegressionInferenceModelBuilderTest::testIntegration));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CBoostedTreeRegressionInferenceModelBuilderTest>(
-        "CBoostedTreeRegressionInferenceModelBuilderTest::testJsonSchema",
-        &CBoostedTreeRegressionInferenceModelBuilderTest::testJsonSchema));
-
-    return suiteOfTests;
-}
-
-void CBoostedTreeRegressionInferenceModelBuilderTest::testIntegration() {
+void CBoostedTreeInferenceModelBuilderTest::testIntegrationRegression() {
     std::size_t numberExamples = 1000;
     std::size_t cols = 3;
     test::CRandomNumbers rng;
@@ -154,8 +141,9 @@ void CBoostedTreeRegressionInferenceModelBuilderTest::testIntegration() {
         values[2].push_back(values[0][i] * weights[0] + values[1][i] * weights[1]);
     }
 
-    api::CDataFrameAnalyzer analyzer{regressionSpec("target_col", numberExamples, cols,
-                                                    30000000, 0, 0, {"categorical_col"}),
+    api::CDataFrameAnalyzer analyzer{regressionSpec("target_col", "regression",
+                                                    numberExamples, cols, 30000000,
+                                                    0, 0, {"categorical_col"}),
                                      outputWriterFactory};
 
     TDataFrameUPtr frame =
@@ -212,10 +200,63 @@ void CBoostedTreeRegressionInferenceModelBuilderTest::testIntegration() {
     CPPUNIT_ASSERT_EQUAL(api::CTrainedModel::E_Regression, trainedModel->targetType());
     CPPUNIT_ASSERT_EQUAL(std::size_t(22), trainedModel->size());
     CPPUNIT_ASSERT("weighted_sum" == trainedModel->aggregateOutput()->stringType());
-    // TODO feature names test is missing
+    CPPUNIT_ASSERT(trainedModel->featureNames() ==
+                   std::vector<std::string>({"numeric_col", "categorical_col_cat1", "categorical_col_cat2",
+                                             "categorical_col_cat3", "categorical_col_frequency",
+                                             "categorical_col_targetmean"}));
 }
 
-void CBoostedTreeRegressionInferenceModelBuilderTest::testJsonSchema() {
+void CBoostedTreeInferenceModelBuilderTest::testIntegrationClassification() {
+    std::size_t numberExamples = 1000;
+    std::size_t cols = 3;
+    test::CRandomNumbers rng;
+    TDoubleVec weights{0.1, 100.0};
+
+    std::stringstream output;
+    auto outputWriterFactory = [&output]() {
+        return std::make_unique<core::CJsonOutputStreamWrapper>(output);
+    };
+
+    TStrVec fieldNames{"numeric_col", "categorical_col", "target_col", ".", "."};
+    TStrVec expectedFieldNames{"numeric_col", "categorical_col"};
+
+    TStrVec fieldValues{"", "", "0", "", ""};
+
+    TDoubleVecVec frequencies;
+    TDoubleVecVec values(cols);
+    rng.generateUniformSamples(-10.0, 10.0, numberExamples, values[0]);
+    values[1] = generateCategoricalData(rng, numberExamples, {100., 5.0, 5.0}).second;
+    values[2] = generateCategoricalData(rng, numberExamples, {5.0, 5.0}).second;
+
+    api::CDataFrameAnalyzer analyzer{
+        regressionSpec("target_col", "classification", numberExamples, cols,
+                       30000000, 0, 0, {"categorical_col", "target_col"}),
+        outputWriterFactory};
+
+    TDataFrameUPtr frame =
+        core::makeMainStorageDataFrame(cols + 2, numberExamples).first;
+    for (std::size_t i = 0; i < numberExamples; ++i) {
+        for (std::size_t j = 0; j < cols; ++j) {
+            fieldValues[j] = core::CStringUtils::typeToStringPrecise(
+                values[j][i], core::CIEEE754::E_DoublePrecision);
+        }
+        analyzer.handleRecord(fieldNames, fieldValues);
+    }
+    analyzer.handleRecord(fieldNames, {"", "", "", "", "$"});
+    auto analysisRunner = analyzer.runner();
+    TStrSizeUMapVec categoryMappingVector{{}, {{"cat1", 0}, {"cat2", 1}, {"cat3", 2}}, {}};
+    auto definition = analysisRunner->inferenceModelDefinition(fieldNames, categoryMappingVector);
+
+    LOG_DEBUG(<< "Inference model definition: " << definition->jsonString());
+
+    // assert trained model
+    auto trainedModel = dynamic_cast<api::CEnsemble*>(definition->trainedModel().get());
+    CPPUNIT_ASSERT_EQUAL(api::CTrainedModel::E_Classification, trainedModel->targetType());
+    CPPUNIT_ASSERT_EQUAL(std::size_t(5), trainedModel->size());
+    CPPUNIT_ASSERT("logistic_regression" == trainedModel->aggregateOutput()->stringType());
+}
+
+void CBoostedTreeInferenceModelBuilderTest::testJsonSchema() {
     std::size_t numberExamples = 1000;
     std::size_t cols = 3;
     test::CRandomNumbers rng;
@@ -239,8 +280,9 @@ void CBoostedTreeRegressionInferenceModelBuilderTest::testJsonSchema() {
         values[2].push_back(values[0][i] * weights[0] + values[1][i] * weights[1]);
     }
 
-    api::CDataFrameAnalyzer analyzer{regressionSpec("target_col", numberExamples, cols,
-                                                    30000000, 0, 0, {"categorical_col"}),
+    api::CDataFrameAnalyzer analyzer{regressionSpec("target_col", "regression",
+                                                    numberExamples, cols, 30000000,
+                                                    0, 0, {"categorical_col"}),
                                      outputWriterFactory};
 
     TDataFrameUPtr frame =
@@ -257,7 +299,7 @@ void CBoostedTreeRegressionInferenceModelBuilderTest::testJsonSchema() {
     TStrSizeUMapVec categoryMappingVector{{}, {{"cat1", 0}, {"cat2", 1}, {"cat3", 2}}, {}};
     auto definition = analysisRunner->inferenceModelDefinition(fieldNames, categoryMappingVector);
 
-    std::ifstream schemaFileStream("testfiles/inference_json_schema/definition.schema.combined.json");
+    std::ifstream schemaFileStream("testfiles/inference_json_schema/definition.schema.json");
     CPPUNIT_ASSERT_MESSAGE("Cannot open test file!", schemaFileStream);
     std::string schemaJson((std::istreambuf_iterator<char>(schemaFileStream)),
                            std::istreambuf_iterator<char>());
@@ -282,4 +324,21 @@ void CBoostedTreeRegressionInferenceModelBuilderTest::testJsonSchema() {
         LOG_DEBUG(<< "Document: " << definition->jsonString());
         CPPUNIT_ASSERT_MESSAGE("Schema validation failed", false);
     }
+}
+
+CppUnit::Test* CBoostedTreeInferenceModelBuilderTest::suite() {
+    CppUnit::TestSuite* suiteOfTests =
+        new CppUnit::TestSuite("CBoostedTreeInferenceModelBuilderTest");
+
+    suiteOfTests->addTest(new CppUnit::TestCaller<CBoostedTreeInferenceModelBuilderTest>(
+        "CBoostedTreeInferenceModelBuilderTest::testIntegrationRegression",
+        &CBoostedTreeInferenceModelBuilderTest::testIntegrationRegression));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CBoostedTreeInferenceModelBuilderTest>(
+        "CBoostedTreeInferenceModelBuilderTest::testIntegrationClassification",
+        &CBoostedTreeInferenceModelBuilderTest::testIntegrationClassification));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CBoostedTreeInferenceModelBuilderTest>(
+        "CBoostedTreeInferenceModelBuilderTest::testJsonSchema",
+        &CBoostedTreeInferenceModelBuilderTest::testJsonSchema));
+
+    return suiteOfTests;
 }
