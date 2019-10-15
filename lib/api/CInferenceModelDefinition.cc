@@ -435,7 +435,7 @@ void CWeightedSum::addToDocument(rapidjson::Value& parentObject,
     writer.addMember(this->stringType(), object, parentObject);
 }
 
-constexpr const std::string& CWeightedSum::stringType() const {
+const std::string& CWeightedSum::stringType() const {
     return JSON_WEIGHTED_SUM_TAG;
 }
 
@@ -443,7 +443,7 @@ CWeightedMode::CWeightedMode(TDoubleVec&& weights)
     : m_Weights(std::move(weights)) {
 }
 
-constexpr const std::string& CWeightedMode::stringType() const {
+const std::string& CWeightedMode::stringType() const {
     return JSON_WEIGHTED_MODE_TAG;
 }
 
@@ -481,7 +481,7 @@ void CLogisticRegression::addToDocument(rapidjson::Value& parentObject,
     writer.addMember(this->stringType(), object, parentObject);
 }
 
-constexpr const std::string& CLogisticRegression::stringType() const {
+const std::string& CLogisticRegression::stringType() const {
     return JSON_LOGISTIC_REGRESSION_TAG;
 }
 }

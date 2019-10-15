@@ -56,7 +56,7 @@ public:
     //! Construct with a weight vector of \p size with all entries equal to \p weight.
     CWeightedMode(std::size_t size, double weight);
     void addToDocument(rapidjson::Value& parentObject, TRapidJsonWriter& writer) const override;
-    constexpr const std::string& stringType() const final;
+    const std::string& stringType() const final;
 
 private:
     TDoubleVec m_Weights;
@@ -74,7 +74,7 @@ public:
     //! Construct with a weight vector of \p size with all entries equal to \p weight.
     CWeightedSum(std::size_t size, double weight);
     void addToDocument(rapidjson::Value& parentObject, TRapidJsonWriter& writer) const override;
-    constexpr const std::string& stringType() const final;
+    const std::string& stringType() const final;
 
 private:
     TDoubleVec m_Weights;
@@ -95,7 +95,7 @@ public:
     //! Construct with a weight vector of \p size with all entries equal to \p weight.
     CLogisticRegression(std::size_t size, double weight);
     void addToDocument(rapidjson::Value& parentObject, TRapidJsonWriter& writer) const override;
-    constexpr const std::string& stringType() const final;
+    const std::string& stringType() const final;
 
 private:
     TDoubleVec m_Weights;
