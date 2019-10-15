@@ -3,8 +3,8 @@
  * or more contributor license agreements. Licensed under the Elastic License;
  * you may not use this file except in compliance with the Elastic License.
  */
-#ifndef INCLUDED_ml_api_CBoostedTreeRegressionInferenceModelBuilder_h
-#define INCLUDED_ml_api_CBoostedTreeRegressionInferenceModelBuilder_h
+#ifndef INCLUDED_ml_api_CBoostedTreeInferenceModelBuilder_h
+#define INCLUDED_ml_api_CBoostedTreeInferenceModelBuilder_h
 
 #include <maths/CBoostedTree.h>
 
@@ -97,4 +97,4 @@ protected:
 }
 }
 
-#endif // INCLUDED_ml_api_CBoostedTreeRegressionInferenceModelBuilder_h
+#endif // INCLUDED_ml_api_CBoostedTreeInferenceModelBuilder_h
