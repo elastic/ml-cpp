@@ -995,7 +995,8 @@ void CDataFrameAnalyzerTest::testRunBoostedTreeRegressionTrainingWithStateRecove
         };
 
         finalIteration = params.numberUnset() * numberRoundsPerHyperparameter;
-        finalIteration = std::max(params.numberUnset() * numberRoundsPerHyperparameter - 1, std::size_t{0});
+        finalIteration = std::max(
+            params.numberUnset() * numberRoundsPerHyperparameter - 1, std::size_t{0});
         if (finalIteration > 1) {
             rng.generateUniformSamples(0, finalIteration - 1, 3, intermediateIterations);
         }
