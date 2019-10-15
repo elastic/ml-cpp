@@ -1020,7 +1020,7 @@ void CDataFrameAnalyzerTest::testRunBoostedTreeClassifierTraining() {
     TStrVec fieldNames{"c1", "c2", "c3", "c4", "c5", ".", "."};
     TStrVec fieldValues{"", "", "", "", "", "0", ""};
     api::CDataFrameAnalyzer analyzer{
-        predictionSpec("classification", "c5", 100, 5, 3000000, 0, 0, {"c5"}),
+        predictionSpec("classification", "c5", 100, 5, 5000000, 0, 0, {"c5"}),
         outputWriterFactory};
     addPredictionTestData(E_BinaryClassification, fieldNames, fieldValues,
                           analyzer, expectedPredictions);
