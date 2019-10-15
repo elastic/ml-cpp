@@ -253,7 +253,7 @@ void CBoostedTreeInferenceModelBuilderTest::testIntegrationClassification() {
     auto trainedModel = dynamic_cast<api::CEnsemble*>(definition->trainedModel().get());
     CPPUNIT_ASSERT_EQUAL(api::CTrainedModel::E_Classification, trainedModel->targetType());
     CPPUNIT_ASSERT_EQUAL(std::size_t(5), trainedModel->size());
-    CPPUNIT_ASSERT("weighted_sum" == trainedModel->aggregateOutput()->stringType());
+    CPPUNIT_ASSERT("logistic_regression" == trainedModel->aggregateOutput()->stringType());
 }
 
 void CBoostedTreeInferenceModelBuilderTest::testJsonSchema() {
@@ -299,7 +299,7 @@ void CBoostedTreeInferenceModelBuilderTest::testJsonSchema() {
     TStrSizeUMapVec categoryMappingVector{{}, {{"cat1", 0}, {"cat2", 1}, {"cat3", 2}}, {}};
     auto definition = analysisRunner->inferenceModelDefinition(fieldNames, categoryMappingVector);
 
-    std::ifstream schemaFileStream("testfiles/inference_json_schema/definition.schema.combined.json");
+    std::ifstream schemaFileStream("testfiles/inference_json_schema/definition.schema.json");
     CPPUNIT_ASSERT_MESSAGE("Cannot open test file!", schemaFileStream);
     std::string schemaJson((std::istreambuf_iterator<char>(schemaFileStream)),
                            std::istreambuf_iterator<char>());

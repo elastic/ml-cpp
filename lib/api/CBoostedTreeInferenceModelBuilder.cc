@@ -84,7 +84,7 @@ CInferenceModelDefinition&& CBoostedTreeInferenceModelBuilder::build() {
 
     // Add aggregated output after the number of trees is known
     auto ensemble{static_cast<CEnsemble*>(m_Definition.trainedModel().get())};
-    ensemble->aggregateOutput(std::make_unique<CWeightedSum>(ensemble->size(), 1.0));
+    this->setAggregateOutput(ensemble);
 
     this->setTargetType();
     ensemble->featureNames(m_FeatureNames);
@@ -171,6 +171,10 @@ CRegressionInferenceModelBuilder::CRegressionInferenceModelBuilder(
     : CBoostedTreeInferenceModelBuilder(fieldNames, dependentVariableColumnIndex, categoryNameMap) {
 }
 
+void CRegressionInferenceModelBuilder::setAggregateOutput(CEnsemble* ensemble) const {
+    ensemble->aggregateOutput(std::make_unique<CWeightedSum>(ensemble->size(), 1.0));
+}
+
 void CClassificationInferenceModelBuilder::setTargetType() {
     this->definition().trainedModel()->targetType(CTrainedModel::ETargetType::E_Classification);
 }
@@ -180,6 +184,10 @@ CClassificationInferenceModelBuilder::CClassificationInferenceModelBuilder(
     size_t dependentVariableColumnIndex,
     const CBoostedTreeInferenceModelBuilder::TStringSizeUMapVec& categoryNameMap)
     : CBoostedTreeInferenceModelBuilder(fieldNames, dependentVariableColumnIndex, categoryNameMap) {
+}
+
+void CClassificationInferenceModelBuilder::setAggregateOutput(CEnsemble* ensemble) const {
+    ensemble->aggregateOutput(std::make_unique<CLogisticRegression>(ensemble->size(), 1.0));
 }
 }
 }

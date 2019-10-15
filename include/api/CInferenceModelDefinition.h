@@ -40,8 +40,7 @@ public:
 class API_EXPORT CAggregateOutput : public CSerializableToJson {
 public:
     //! Aggregation type as a string.
-    virtual const std::string& stringType() = 0;
-
+    virtual const std::string& stringType() const = 0;
     ~CAggregateOutput() override = default;
 };
 
@@ -57,7 +56,7 @@ public:
     //! Construct with a weight vector of \p size with all entries equal to \p weight.
     CWeightedMode(std::size_t size, double weight);
     void addToDocument(rapidjson::Value& parentObject, TRapidJsonWriter& writer) const override;
-    const std::string& stringType() override;
+    constexpr const std::string& stringType() const final;
 
 private:
     TDoubleVec m_Weights;
@@ -75,7 +74,28 @@ public:
     //! Construct with a weight vector of \p size with all entries equal to \p weight.
     CWeightedSum(std::size_t size, double weight);
     void addToDocument(rapidjson::Value& parentObject, TRapidJsonWriter& writer) const override;
-    const std::string& stringType() override;
+    constexpr const std::string& stringType() const final;
+
+private:
+    TDoubleVec m_Weights;
+};
+
+//! Allows to use logistic regression aggregation.
+//!
+//! Given a weights vector $\vec{w}$ as a parameter and an output vector from the ensemble $\vec{x}$,
+//! it computes the logistic regression function \f$1/(1 + \exp(-\vec{w}^T \vec{x}))\f$.
+class API_EXPORT CLogisticRegression : public CAggregateOutput {
+public:
+    using TDoubleVec = std::vector<double>;
+
+public:
+    ~CLogisticRegression() override = default;
+    //! Construct with the \p weights vector.
+    explicit CLogisticRegression(TDoubleVec&& weights);
+    //! Construct with a weight vector of \p size with all entries equal to \p weight.
+    CLogisticRegression(std::size_t size, double weight);
+    void addToDocument(rapidjson::Value& parentObject, TRapidJsonWriter& writer) const override;
+    constexpr const std::string& stringType() const final;
 
 private:
     TDoubleVec m_Weights;

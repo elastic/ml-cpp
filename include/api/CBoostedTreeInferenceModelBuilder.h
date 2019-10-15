@@ -52,6 +52,7 @@ public:
 protected:
     virtual void setTargetType() = 0;
     CInferenceModelDefinition& definition();
+    virtual void setAggregateOutput(CEnsemble* ensemble) const = 0;
 
 private:
     using TOneHotEncodingUPtr = std::unique_ptr<COneHotEncoding>;
@@ -80,6 +81,7 @@ public:
 
 protected:
     void setTargetType() override;
+    void setAggregateOutput(CEnsemble* ensemble) const override;
 };
 
 class API_EXPORT CClassificationInferenceModelBuilder : public CBoostedTreeInferenceModelBuilder {
@@ -90,6 +92,7 @@ public:
 
 protected:
     void setTargetType() override;
+    void setAggregateOutput(CEnsemble* ensemble) const override;
 };
 }
 }
