@@ -287,9 +287,9 @@ std::size_t CDataFrameBoostedTreeRunner::estimateBookkeepingMemoryUsage(
 
 CDataFrameAnalysisRunner::TInferenceModelDefinitionUPtr
 CDataFrameBoostedTreeRunner::inferenceModelDefinition(const TStrVec& fieldNames,
-                                                      const TStrSizeUMapVec& categoryNameMap) const {
+                                                      const TStrVecVec& categoryNames) const {
     CBoostedTreeRegressionInferenceModelBuilder builder(
-        fieldNames, m_BoostedTree->columnHoldingDependentVariable(), categoryNameMap);
+        fieldNames, m_BoostedTree->columnHoldingDependentVariable(), categoryNames);
     m_BoostedTree->accept(builder);
 
     return std::make_unique<CInferenceModelDefinition>(builder.build());

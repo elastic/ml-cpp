@@ -318,6 +318,18 @@ void CDataFrameAnalyzer::writeResultsOf(const CDataFrameAnalysisRunner& analysis
         }
     });
 
+    // Write the resulting model for inference
+    const auto& modelDefinition = m_AnalysisSpecification->runner()->inferenceModelDefinition(
+        m_DataFrame->columnNames(), m_DataFrame->categoricalColumnValues());
+    if (modelDefinition) {
+        rapidjson::Value inferenceModelObject{writer.makeObject()};
+        modelDefinition->addToDocument(inferenceModelObject, writer);
+        writer.StartObject();
+        writer.Key(modelDefinition->typeString());
+        writer.write(inferenceModelObject);
+        writer.EndObject();
+    }
+
     writer.flush();
 }
 

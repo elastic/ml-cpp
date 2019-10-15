@@ -42,8 +42,7 @@ using TDoubleVecVec = std::vector<TDoubleVec>;
 using TPoint = maths::CDenseVector<maths::CFloatStorage>;
 using TPointVec = std::vector<TPoint>;
 using TRowItr = core::CDataFrame::TRowItr;
-using TStrSizeUMap = std::unordered_map<std::string, std::size_t>;
-using TStrSizeUMapVec = std::vector<TStrSizeUMap>;
+using TStrVecVec = std::vector<TStrVec>;
 
 // TODO factor out this method to avoid code duplication
 auto regressionSpec(std::string dependentVariable,
@@ -169,7 +168,7 @@ void CBoostedTreeRegressionInferenceModelBuilderTest::testIntegration() {
     }
     analyzer.handleRecord(fieldNames, {"", "", "", "", "$"});
     auto analysisRunner = analyzer.runner();
-    TStrSizeUMapVec categoryMappingVector{{}, {{"cat1", 0}, {"cat2", 1}, {"cat3", 2}}, {}};
+    TStrVecVec categoryMappingVector{{}, {"cat1", "cat2", "cat3"}, {}};
     auto definition = analysisRunner->inferenceModelDefinition(fieldNames, categoryMappingVector);
 
     LOG_DEBUG(<< "Inference model definition: " << definition->jsonString());
@@ -254,7 +253,7 @@ void CBoostedTreeRegressionInferenceModelBuilderTest::testJsonSchema() {
     }
     analyzer.handleRecord(fieldNames, {"", "", "", "", "$"});
     auto analysisRunner = analyzer.runner();
-    TStrSizeUMapVec categoryMappingVector{{}, {{"cat1", 0}, {"cat2", 1}, {"cat3", 2}}, {}};
+    TStrVecVec categoryMappingVector{{}, {"cat1", "cat2", "cat3"}, {}};
     auto definition = analysisRunner->inferenceModelDefinition(fieldNames, categoryMappingVector);
 
     std::ifstream schemaFileStream("testfiles/inference_json_schema/definition.schema.combined.json");
