@@ -36,7 +36,7 @@ void CBoostedTreeRegressionInferenceModelBuilder::addIdentityEncoding(std::size_
 void CBoostedTreeRegressionInferenceModelBuilder::addOneHotEncoding(std::size_t inputColumnIndex,
                                                                     std::size_t hotCategory) {
     std::string fieldName{m_Definition.input().fieldNames()[inputColumnIndex]};
-    std::string category = m_ReverseCategoryNameMap[inputColumnIndex][hotCategory];
+    std::string category = m_CategoryNames[inputColumnIndex][hotCategory];
     std::string featureName = fieldName + "_" + category;
     if (m_OneHotEncodingMaps.find(fieldName) == m_OneHotEncodingMaps.end()) {
         auto apiEncoding = std::make_unique<COneHotEncoding>(
@@ -105,9 +105,9 @@ void CBoostedTreeRegressionInferenceModelBuilder::addNode(
 }
 
 CBoostedTreeRegressionInferenceModelBuilder::CBoostedTreeRegressionInferenceModelBuilder(
-    TStringVec fieldNames,
+    TStrVec fieldNames,
     std::size_t dependentVariableColumnIndex,
-    const TStringSizeUMapVec& categoryNameMap) {
+    const TStrVecVec& categoryNames) {
     // filter filed names containing only "."
     fieldNames.erase(std::remove(fieldNames.begin(), fieldNames.end(), "."),
                      fieldNames.end());
@@ -117,7 +117,7 @@ CBoostedTreeRegressionInferenceModelBuilder::CBoostedTreeRegressionInferenceMode
                      static_cast<std::ptrdiff_t>(dependentVariableColumnIndex));
     m_FieldNames = fieldNames;
 
-    this->categoryNameMap(categoryNameMap);
+    this->categoryNames(categoryNames);
     m_Definition.fieldNames(fieldNames);
     m_Definition.trainedModel(std::make_unique<CEnsemble>());
     m_Definition.typeString(INFERENCE_MODEL);
@@ -128,26 +128,14 @@ CBoostedTreeRegressionInferenceModelBuilder::encodingMap(std::size_t inputColumn
                                                          const TDoubleVec& map_) {
     TStringDoubleUMap map;
     for (std::size_t categoryUInt = 0; categoryUInt < map_.size(); ++categoryUInt) {
-        std::string category{m_ReverseCategoryNameMap[inputColumnIndex][categoryUInt]};
+        std::string category{m_CategoryNames[inputColumnIndex][categoryUInt]};
         map.emplace(category, map_[categoryUInt]);
     }
     return map;
 }
 
-void CBoostedTreeRegressionInferenceModelBuilder::categoryNameMap(
-    const CInferenceModelDefinition::TStringSizeUMapVec& categoryNameMap) {
-    m_ReverseCategoryNameMap.reserve(categoryNameMap.size());
-    for (const auto& categoryNameMapping : categoryNameMap) {
-        if (categoryNameMapping.empty() == false) {
-            TSizeStringUMap map;
-            for (const auto& categoryMappingPair : categoryNameMapping) {
-                map.emplace(categoryMappingPair.second, categoryMappingPair.first);
-            }
-            m_ReverseCategoryNameMap.emplace_back(std::move(map));
-        } else {
-            m_ReverseCategoryNameMap.emplace_back();
-        }
-    }
+void CBoostedTreeRegressionInferenceModelBuilder::categoryNames(const TStrVecVec& categoryNames) {
+    m_CategoryNames = categoryNames;
 }
 }
 }
