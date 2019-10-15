@@ -183,6 +183,8 @@ public:
 
     TDataSearcherUPtr restoreSearcher() const;
 
+    const CDataFrameAnalysisRunner* runner();
+
 private:
     void initializeRunner(const rapidjson::Value& jsonAnalysis);
 

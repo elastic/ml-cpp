@@ -62,6 +62,9 @@ public:
     //! Get the data frame asserting there is one.
     const core::CDataFrame& dataFrame() const;
 
+    //! Get pointer to the analysis runner.
+    const CDataFrameAnalysisRunner* runner() const;
+
 private:
     using TDataFrameUPtr = std::unique_ptr<core::CDataFrame>;
 

@@ -320,5 +320,9 @@ void CDataFrameAnalyzer::writeResultsOf(const CDataFrameAnalysisRunner& analysis
 
     writer.flush();
 }
+
+const CDataFrameAnalysisRunner* CDataFrameAnalyzer::runner() const {
+    return m_AnalysisSpecification->runner();
+}
 }
 }

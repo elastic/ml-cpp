@@ -12,6 +12,7 @@
 #include <core/CStateRestoreTraverser.h>
 
 #include <maths/CBasicStatistics.h>
+#include <maths/CDataFrameCategoryEncoder.h>
 #include <maths/CDataFrameRegressionModel.h>
 #include <maths/CLinearAlgebra.h>
 #include <maths/ImportExport.h>
@@ -227,22 +228,37 @@ class CBoostedTreeImpl;
 //! node bit masks from the node's bit mask.
 class MATHS_EXPORT CBoostedTreeNode final {
 public:
-    using TSizeSizePr = std::pair<std::size_t, std::size_t>;
+    using TNodeIndex = std::uint32_t;
+    using TSizeSizePr = std::pair<TNodeIndex, TNodeIndex>;
     using TPackedBitVectorPackedBitVectorBoolTr =
         std::tuple<core::CPackedBitVector, core::CPackedBitVector, bool>;
     using TNodeVec = std::vector<CBoostedTreeNode>;
+    using TOptionalNodeIndex = boost::optional<TNodeIndex>;
+
+    class MATHS_EXPORT CVisitor {
+    public:
+        virtual ~CVisitor() = default;
+        //! Adds to last added tree.
+        virtual void addNode(std::size_t splitFeature,
+                             double splitValue,
+                             bool assignMissingToLeft,
+                             double nodeValue,
+                             double gain,
+                             TOptionalNodeIndex leftChild,
+                             TOptionalNodeIndex rightChild) = 0;
+    };
 
 public:
     //! See core::CMemory.
     static bool dynamicSizeAlwaysZero() { return true; }
 
     //! Check if this is a leaf node.
-    bool isLeaf() const { return m_LeftChild < 0; }
+    bool isLeaf() const { return m_LeftChild.is_initialized() == false; }
 
     //! Get the leaf index for \p row.
-    std::size_t leafIndex(const CEncodedDataFrameRowRef& row,
-                          const TNodeVec& tree,
-                          std::int32_t index = 0) const;
+    TNodeIndex leafIndex(const CEncodedDataFrameRowRef& row,
+                         const TNodeVec& tree,
+                         TNodeIndex index = 0) const;
 
     //! Get the value predicted by \p tree for the feature vector \p row.
     double value(const CEncodedDataFrameRowRef& row, const TNodeVec& tree) const {
@@ -262,10 +278,10 @@ public:
     double curvature() const { return m_Curvature; }
 
     //! Get the index of the left child node.
-    std::int32_t leftChildIndex() const { return m_LeftChild; }
+    TNodeIndex leftChildIndex() const { return m_LeftChild.get(); }
 
     //! Get the index of the right child node.
-    std::int32_t rightChildIndex() const { return m_RightChild; }
+    TNodeIndex rightChildIndex() const { return m_RightChild.get(); }
 
     //! Split this node and add its child nodes to \p tree.
     TSizeSizePr split(std::size_t splitFeature,
@@ -288,6 +304,8 @@ public:
     //! Populate the object from serialized data.
     bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
 
+    void accept(CVisitor& visitor) const;
+
     //! Get a human readable description of this tree.
     std::string print(const TNodeVec& tree) const;
 
@@ -299,8 +317,8 @@ private:
     std::size_t m_SplitFeature = 0;
     double m_SplitValue = 0.0;
     bool m_AssignMissingToLeft = true;
-    std::int32_t m_LeftChild = -1;
-    std::int32_t m_RightChild = -1;
+    TOptionalNodeIndex m_LeftChild;
+    TOptionalNodeIndex m_RightChild;
     double m_NodeValue = 0.0;
     double m_Gain = 0.0;
     double m_Curvature = 0.0;
@@ -339,6 +357,13 @@ public:
     using TDataFramePtr = core::CDataFrame*;
     using TNodeVec = std::vector<CBoostedTreeNode>;
     using TNodeVecVec = std::vector<TNodeVec>;
+
+    class MATHS_EXPORT CVisitor : public CDataFrameCategoryEncoder::CVisitor,
+                                  public CBoostedTreeNode::CVisitor {
+    public:
+        virtual ~CVisitor() = default;
+        virtual void addTree() = 0;
+    };
 
 public:
     ~CBoostedTree() override;
@@ -386,6 +411,8 @@ public:
 
     //! Populate the object from serialized data.
     bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
+
+    void accept(CVisitor& visitor) const;
 
 private:
     using TImplUPtr = std::unique_ptr<CBoostedTreeImpl>;
