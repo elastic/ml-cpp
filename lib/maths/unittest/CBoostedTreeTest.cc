@@ -766,10 +766,8 @@ std::size_t maxDepth(const std::vector<maths::CBoostedTreeNode>& tree,
                      const maths::CBoostedTreeNode& node,
                      std::size_t depth) {
     std::size_t result{depth};
-    if (node.leftChildIndex() >= 0) {
+    if (node.isLeaf() == false) {
         result = std::max(result, maxDepth(tree, tree[node.leftChildIndex()], depth + 1));
-    }
-    if (node.rightChildIndex() >= 0) {
         result = std::max(result, maxDepth(tree, tree[node.rightChildIndex()], depth + 1));
     }
     return result;
