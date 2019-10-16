@@ -285,14 +285,5 @@ std::size_t CDataFrameBoostedTreeRunner::estimateBookkeepingMemoryUsage(
     return m_BoostedTreeFactory->estimateMemoryUsage(totalNumberRows, numberColumns);
 }
 
-//CDataFrameAnalysisRunner::TInferenceModelDefinitionUPtr
-//CDataFrameBoostedTreeRunner::inferenceModelDefinition(const TStrVec& fieldNames,
-//                                                      const TStrSizeUMapVec& categoryNameMap) const {
-//    CBoostedTreeInferenceModelBuilder builder(
-//        fieldNames, m_BoostedTree->columnHoldingDependentVariable(), categoryNameMap);
-//    m_BoostedTree->accept(builder);
-//
-//    return std::make_unique<CInferenceModelDefinition>(builder.build());
-//}
 }
 }

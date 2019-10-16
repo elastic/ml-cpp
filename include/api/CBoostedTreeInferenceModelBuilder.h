@@ -50,8 +50,8 @@ public:
     CInferenceModelDefinition&& build();
 
 protected:
-    virtual void setTargetType() = 0;
     CInferenceModelDefinition& definition();
+    virtual void setTargetType() = 0;
     virtual void setAggregateOutput(CEnsemble* ensemble) const = 0;
 
 private:
