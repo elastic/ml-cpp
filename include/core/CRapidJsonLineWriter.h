@@ -68,7 +68,6 @@ private:
 };
 
 extern template class CORE_EXPORT CRapidJsonLineWriter<rapidjson::StringBuffer>;
-    
 }
 }
 
