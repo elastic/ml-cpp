@@ -19,6 +19,7 @@
 
 namespace ml {
 namespace test {
+//! \brief Collection of helping methods to create data frame analysis specifications for tests.
 class CDataFrameAnalysisSpecificationFactory {
 public:
     using TStrVec = std::vector<std::string>;
@@ -32,13 +33,13 @@ public:
     static TSpecificationUPtr outlierSpec(std::size_t rows = 110,
                                           std::size_t cols = 5,
                                           std::size_t memoryLimit = 100000,
-                                          std::string method = "",
+                                          const std::string& method = "",
                                           std::size_t numberNeighbours = 0,
                                           bool computeFeatureInfluence = false);
 
     static TSpecificationUPtr
-    predictionSpec(std::string analysis,
-                   std::string dependentVariable,
+    predictionSpec(const std::string& analysis,
+                   const std::string& dependentVariable,
                    std::size_t rows = 100,
                    std::size_t cols = 5,
                    std::size_t memoryLimit = 3000000,

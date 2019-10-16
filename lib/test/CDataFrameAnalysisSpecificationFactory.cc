@@ -21,7 +21,7 @@ test::CDataFrameAnalysisSpecificationFactory::TSpecificationUPtr
 test::CDataFrameAnalysisSpecificationFactory::outlierSpec(std::size_t rows,
                                                           std::size_t cols,
                                                           std::size_t memoryLimit,
-                                                          std::string method,
+                                                          const std::string& method,
                                                           std::size_t numberNeighbours,
                                                           bool computeFeatureInfluence) {
     std::string parameters = "{\n";
@@ -58,8 +58,8 @@ test::CDataFrameAnalysisSpecificationFactory::outlierSpec(std::size_t rows,
 
 test::CDataFrameAnalysisSpecificationFactory::TSpecificationUPtr
 test::CDataFrameAnalysisSpecificationFactory::predictionSpec(
-    std::string analysis,
-    std::string dependentVariable,
+    const std::string& analysis,
+    const std::string& dependentVariable,
     std::size_t rows,
     std::size_t cols,
     std::size_t memoryLimit,

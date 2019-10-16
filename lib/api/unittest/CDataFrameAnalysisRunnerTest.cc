@@ -34,15 +34,10 @@ void CDataFrameAnalysisRunnerTest::testComputeExecutionStrategyForOutliers() {
         for (auto numberCols : numbersCols) {
             LOG_DEBUG(<< "# rows = " << numberRows << ", # cols = " << numberCols);
 
-            // Give the process approximately 100MB.
-            std::string jsonSpec{api::CDataFrameAnalysisSpecificationJsonWriter::jsonString(
-                "testJob", numberRows, numberCols, 100000000, 1, {}, true,
-                test::CTestTmpDir::tmpDir(), "", "outlier_detection", "")};
-
-            api::CDataFrameAnalysisSpecification spec{jsonSpec};
-
+            auto spec{test::CDataFrameAnalysisSpecificationFactory::outlierSpec(
+                numberRows, numberCols, 100000000, "", 0, true)};
             api::CDataFrameOutliersRunnerFactory factory;
-            auto runner = factory.make(spec);
+            auto runner = factory.make(*spec);
 
             LOG_DEBUG(<< "  Use main memory = " << runner->storeDataFrameInMainMemory());
             LOG_DEBUG(<< "  # partitions = " << runner->numberPartitions());
