@@ -117,13 +117,16 @@ CBoostedTreeInferenceModelBuilder::CBoostedTreeInferenceModelBuilder(TStrVec fie
     fieldNames.erase(std::remove(fieldNames.begin(), fieldNames.end(), "."),
                      fieldNames.end());
     // filter dependent variable field name
-    assert(dependentVariableColumnIndex < fieldNames.size());
+    if (dependentVariableColumnIndex >= fieldNames.size()) {
+        HANDLE_FATAL(<< "Input error: Dependent variable is not among the field names. Please report this error.");
+    }
+
     fieldNames.erase(fieldNames.begin() +
                      static_cast<std::ptrdiff_t>(dependentVariableColumnIndex));
-    m_FieldNames = fieldNames;
+    m_FieldNames = std::move(fieldNames);
 
     this->categoryNames(categoryNames);
-    m_Definition.fieldNames(fieldNames);
+    m_Definition.fieldNames(m_FieldNames);
     m_Definition.trainedModel(std::make_unique<CEnsemble>());
     m_Definition.typeString(INFERENCE_MODEL);
 }
