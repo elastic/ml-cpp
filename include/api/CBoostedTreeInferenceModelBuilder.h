@@ -83,7 +83,7 @@ protected:
     void setAggregateOutput(CEnsemble* ensemble) const override;
 };
 
-class API_EXPORT CClassificationInferenceModelBuilder : public CBoostedTreeInferenceModelBuilder {
+class API_EXPORT CClassificationInferenceModelBuilder final : public CBoostedTreeInferenceModelBuilder {
 public:
     CClassificationInferenceModelBuilder(TStrVec fieldNames,
                                          std::size_t dependentVariableColumnIndex,
