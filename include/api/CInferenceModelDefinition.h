@@ -45,7 +45,7 @@ public:
 };
 
 //! Allows to use (weighted) majority vote for classification.
-class API_EXPORT CWeightedMode : public CAggregateOutput {
+class API_EXPORT CWeightedMode final : public CAggregateOutput {
 public:
     using TDoubleVec = std::vector<double>;
 
@@ -56,14 +56,14 @@ public:
     //! Construct with a weight vector of \p size with all entries equal to \p weight.
     CWeightedMode(std::size_t size, double weight);
     void addToDocument(rapidjson::Value& parentObject, TRapidJsonWriter& writer) const override;
-    const std::string& stringType() const final;
+    const std::string& stringType() const override;
 
 private:
     TDoubleVec m_Weights;
 };
 
 //! Allows to use (weighted) sum for regression.
-class API_EXPORT CWeightedSum : public CAggregateOutput {
+class API_EXPORT CWeightedSum final : public CAggregateOutput {
 public:
     using TDoubleVec = std::vector<double>;
 
@@ -74,7 +74,7 @@ public:
     //! Construct with a weight vector of \p size with all entries equal to \p weight.
     CWeightedSum(std::size_t size, double weight);
     void addToDocument(rapidjson::Value& parentObject, TRapidJsonWriter& writer) const override;
-    const std::string& stringType() const final;
+    const std::string& stringType() const override;
 
 private:
     TDoubleVec m_Weights;
@@ -84,7 +84,7 @@ private:
 //!
 //! Given a weights vector $\vec{w}$ as a parameter and an output vector from the ensemble $\vec{x}$,
 //! it computes the logistic regression function \f$1/(1 + \exp(-\vec{w}^T \vec{x}))\f$.
-class API_EXPORT CLogisticRegression : public CAggregateOutput {
+class API_EXPORT CLogisticRegression final : public CAggregateOutput {
 public:
     using TDoubleVec = std::vector<double>;
 
@@ -95,7 +95,7 @@ public:
     //! Construct with a weight vector of \p size with all entries equal to \p weight.
     CLogisticRegression(std::size_t size, double weight);
     void addToDocument(rapidjson::Value& parentObject, TRapidJsonWriter& writer) const override;
-    const std::string& stringType() const final;
+    const std::string& stringType() const override;
 
 private:
     TDoubleVec m_Weights;
@@ -130,7 +130,7 @@ private:
 };
 
 //! Classification and regression trees.
-class API_EXPORT CTree : public CTrainedModel {
+class API_EXPORT CTree final : public CTrainedModel {
 public:
     class CTreeNode : public CSerializableToJson {
     public:
@@ -167,7 +167,6 @@ public:
     void addToDocument(rapidjson::Value& parentObject, TRapidJsonWriter& writer) const override;
     //! Total number of tree nodes.
     std::size_t size() const;
-
     TTreeNodeVec& treeStructure();
 
 private:
@@ -175,8 +174,7 @@ private:
 };
 
 //! Ensemble of a collection of trained models
-// TODO this should be a list of basic evaluators, not the list of trees.
-class API_EXPORT CEnsemble : public CTrainedModel {
+class API_EXPORT CEnsemble final : public CTrainedModel {
 public:
     using TAggregateOutputUPtr = std::unique_ptr<CAggregateOutput>;
     using TTrainedModelUPtr = std::unique_ptr<CTrainedModel>;
@@ -204,7 +202,7 @@ private:
 };
 
 //!\brief Information related to the input.
-class API_EXPORT CInput : public CSerializableToJson {
+class API_EXPORT CInput final : public CSerializableToJson {
 public:
     using TStringVec = std::vector<std::string>;
 
@@ -236,7 +234,7 @@ private:
 };
 
 //! \brief Mapping from categorical columns to numerical values related to categorical value distribution.
-class API_EXPORT CFrequencyEncoding : public CEncoding {
+class API_EXPORT CFrequencyEncoding final : public CEncoding {
 public:
     using TStringDoubleUMap = const std::unordered_map<std::string, double>;
 
@@ -257,7 +255,7 @@ private:
 };
 
 //! \brief Application of the one-hot encoding function on a single column.
-class API_EXPORT COneHotEncoding : public CEncoding {
+class API_EXPORT COneHotEncoding final : public CEncoding {
 public:
     using TStringStringUMap = std::map<std::string, std::string>;
 
@@ -274,7 +272,7 @@ private:
 };
 
 //! \brief Mapping from categorical columns to numerical values related to the target value.
-class API_EXPORT CTargetMeanEncoding : public CEncoding {
+class API_EXPORT CTargetMeanEncoding final : public CEncoding {
 public:
     using TStringDoubleUMap = std::unordered_map<std::string, double>;
 
