@@ -831,6 +831,7 @@ CMakeDataFrameCategoryEncoder::selectFeatures(TSizeVec metricColumnMask,
     if (maximumNumberFeatures >= numberAvailableFeatures) {
 
         selectedFeatureMics = this->selectAllFeatures(mics);
+
     } else {
 
         CMinRedundancyMaxRelevancyGreedySearch search{m_RedundancyWeight, mics};

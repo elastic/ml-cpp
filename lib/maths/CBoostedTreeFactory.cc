@@ -59,8 +59,7 @@ CBoostedTreeFactory::buildFor(core::CDataFrame& frame,
     m_TreeImpl->m_Loss = std::move(loss);
 
     this->initializeMissingFeatureMasks(frame);
-    std::tie(m_TreeImpl->m_TrainingRowMasks, m_TreeImpl->m_TestingRowMasks) =
-        this->crossValidationRowMasks();
+    this->initializeCrossValidationRowMasks(frame);
 
     frame.resizeColumns(m_TreeImpl->m_NumberThreads,
                         frame.numberColumns() + this->numberExtraColumnsForTrain());
@@ -185,35 +184,23 @@ void CBoostedTreeFactory::initializeMissingFeatureMasks(const core::CDataFrame& 
     }
 }
 
-std::pair<CBoostedTreeImpl::TPackedBitVectorVec, CBoostedTreeImpl::TPackedBitVectorVec>
-CBoostedTreeFactory::crossValidationRowMasks() const {
+void CBoostedTreeFactory::initializeCrossValidationRowMasks(const core::CDataFrame& frame) const {
 
     core::CPackedBitVector allTrainingRowsMask{m_TreeImpl->allTrainingRowsMask()};
 
-    TPackedBitVectorVec trainingRowMasks(m_TreeImpl->m_NumberFolds);
-
-    for (auto row = allTrainingRowsMask.beginOneBits();
-         row != allTrainingRowsMask.endOneBits(); ++row) {
-        std::size_t fold{CSampling::uniformSample(m_TreeImpl->m_Rng, 0,
-                                                  m_TreeImpl->m_NumberFolds)};
-        trainingRowMasks[fold].extend(true, *row - trainingRowMasks[fold].size());
-        trainingRowMasks[fold].extend(false);
+    TDoubleVec frequencies(frame.numberRows());
+    if (frame.columnIsCategorical()[m_TreeImpl->m_DependentVariable]) {
+        std::tie(m_TreeImpl->m_TrainingRowMasks, m_TreeImpl->m_TestingRowMasks, frequencies) =
+            CDataFrameUtils::stratifiedCrossValidationRowMasks(
+                m_TreeImpl->m_NumberThreads, frame,
+                m_TreeImpl->m_DependentVariable, m_TreeImpl->m_Rng,
+                m_TreeImpl->m_NumberFolds, std::move(allTrainingRowsMask));
+    } else {
+        std::tie(m_TreeImpl->m_TrainingRowMasks, m_TreeImpl->m_TestingRowMasks) =
+            CDataFrameUtils::crossValidationRowMasks(m_TreeImpl->m_Rng,
+                                                     m_TreeImpl->m_NumberFolds,
+                                                     std::move(allTrainingRowsMask));
     }
-
-    for (auto& fold : trainingRowMasks) {
-        fold.extend(true, allTrainingRowsMask.size() - fold.size());
-        fold &= allTrainingRowsMask;
-        LOG_TRACE(<< "# training = " << fold.manhattan());
-    }
-
-    TPackedBitVectorVec testingRowMasks(m_TreeImpl->m_NumberFolds,
-                                        std::move(allTrainingRowsMask));
-    for (std::size_t i = 0; i < m_TreeImpl->m_NumberFolds; ++i) {
-        testingRowMasks[i] ^= trainingRowMasks[i];
-        LOG_TRACE(<< "# testing = " << testingRowMasks[i].manhattan());
-    }
-
-    return {trainingRowMasks, testingRowMasks};
 }
 
 void CBoostedTreeFactory::selectFeaturesAndEncodeCategories(const core::CDataFrame& frame) const {

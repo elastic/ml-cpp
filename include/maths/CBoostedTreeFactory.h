@@ -90,8 +90,8 @@ public:
     //! Set the callback function for training state recording.
     CBoostedTreeFactory& trainingStateCallback(TTrainingStateCallback callback);
 
-    //! Estimate the maximum booking memory that training the boosted tree on a data
-    //! frame with \p numberRows row and \p numberColumns columns will use.
+    //! Estimate the maximum booking memory that training the boosted tree on a
+    //! data frame with \p numberRows row and \p numberColumns columns will use.
     std::size_t estimateMemoryUsage(std::size_t numberRows, std::size_t numberColumns) const;
     //! Get the number of columns training the model will add to the data frame.
     std::size_t numberExtraColumnsForTrain() const;
@@ -124,8 +124,11 @@ private:
     //! Compute the row masks for the missing values for each feature.
     void initializeMissingFeatureMasks(const core::CDataFrame& frame) const;
 
-    //! Get the (train, test) row masks for performing cross validation.
-    std::pair<TPackedBitVectorVec, TPackedBitVectorVec> crossValidationRowMasks() const;
+    //! Compute the (train, test) row masks for performing cross validation.
+    void initializeCrossValidationRowMasks(const core::CDataFrame& frame) const;
+
+    //! Set the example weights.
+    void initializeExampleWeights(const TPackedBitVectorVec& trainRowMasks) const;
 
     //! Encode categorical fields and at the same time select the features to use
     //! as regressors.
