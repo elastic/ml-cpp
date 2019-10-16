@@ -29,9 +29,12 @@ public:
     using TSpecificationUPtr = std::unique_ptr<api::CDataFrameAnalysisSpecification>;
 
 public:
-    static TSpecificationUPtr
-    outlierSpec(std::size_t rows = 110, std::size_t cols = 5, std::size_t memoryLimit = 100000, std::string method = "",
-                std::size_t numberNeighbours = 0, bool computeFeatureInfluence = false);
+    static TSpecificationUPtr outlierSpec(std::size_t rows = 110,
+                                          std::size_t cols = 5,
+                                          std::size_t memoryLimit = 100000,
+                                          std::string method = "",
+                                          std::size_t numberNeighbours = 0,
+                                          bool computeFeatureInfluence = false);
 
     static TSpecificationUPtr
     predictionSpec(std::string analysis,
@@ -53,7 +56,8 @@ public:
                    TPersisterSupplier* persisterSupplier = nullptr,
                    TRestoreSearcherSupplier* restoreSearcherSupplier = nullptr);
 
-    static TSpecificationUPtr diskUsageTestSpec(std::size_t rows, std::size_t cols, bool diskUsageAllowed);
+    static TSpecificationUPtr
+    diskUsageTestSpec(std::size_t rows, std::size_t cols, bool diskUsageAllowed);
 };
 }
 }

@@ -18,10 +18,12 @@
 using namespace ml;
 
 test::CDataFrameAnalysisSpecificationFactory::TSpecificationUPtr
-test::CDataFrameAnalysisSpecificationFactory::outlierSpec(std::size_t rows, std::size_t cols,
-                                                              std::size_t memoryLimit, std::string method,
-                                                              std::size_t numberNeighbours,
-                                                              bool computeFeatureInfluence) {
+test::CDataFrameAnalysisSpecificationFactory::outlierSpec(std::size_t rows,
+                                                          std::size_t cols,
+                                                          std::size_t memoryLimit,
+                                                          std::string method,
+                                                          std::size_t numberNeighbours,
+                                                          bool computeFeatureInfluence) {
     std::string parameters = "{\n";
     bool hasTrailingParameter{false};
     if (method != "") {
@@ -49,7 +51,7 @@ test::CDataFrameAnalysisSpecificationFactory::outlierSpec(std::size_t rows, std:
         "testJob", rows, cols, memoryLimit, 1, {}, true,
         test::CTestTmpDir::tmpDir(), "ml", "outlier_detection", parameters)};
 
-    LOG_TRACE(<< "spec =\n" << spec);
+    LOG_DEBUG(<< "spec =\n" << spec);
 
     return std::make_unique<api::CDataFrameAnalysisSpecification>(spec);
 }
@@ -130,10 +132,11 @@ test::CDataFrameAnalysisSpecificationFactory::predictionSpec(
 }
 
 test::CDataFrameAnalysisSpecificationFactory::TSpecificationUPtr
-test::CDataFrameAnalysisSpecificationFactory::diskUsageTestSpec(std::size_t rows, std::size_t cols,
+test::CDataFrameAnalysisSpecificationFactory::diskUsageTestSpec(std::size_t rows,
+                                                                std::size_t cols,
                                                                 bool diskUsageAllowed) {
     std::string spec{api::CDataFrameAnalysisSpecificationJsonWriter::jsonString(
-            "testJob", rows, cols, 500000, 1, {}, diskUsageAllowed,
-            test::CTestTmpDir::tmpDir(), "", "outlier_detection", "")};
+        "testJob", rows, cols, 500000, 1, {}, diskUsageAllowed,
+        test::CTestTmpDir::tmpDir(), "", "outlier_detection", "")};
     return std::make_unique<api::CDataFrameAnalysisSpecification>(spec);
 }

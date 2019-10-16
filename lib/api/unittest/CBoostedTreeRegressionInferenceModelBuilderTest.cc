@@ -18,13 +18,13 @@
 #include <api/CDataFrameAnalyzer.h>
 #include <api/CInferenceModelDefinition.h>
 
+#include <test/CDataFrameAnalysisSpecificationFactory.h>
 #include <test/CDataFrameTestUtils.h>
 #include <test/CRandomNumbers.h>
-#include <test/CDataFrameAnalysisSpecificationFactory.h>
 #include <test/CTestTmpDir.h>
 
-#include <rapidjson/schema.h>
 #include <fstream>
+#include <rapidjson/schema.h>
 #include <string>
 
 using namespace ml;
@@ -102,8 +102,9 @@ void CBoostedTreeRegressionInferenceModelBuilderTest::testIntegration() {
         values[2].push_back(values[0][i] * weights[0] + values[1][i] * weights[1]);
     }
 
-    api::CDataFrameAnalyzer analyzer{test::CDataFrameAnalysisSpecificationFactory::predictionSpec("regression", "target_col", numberExamples, cols,
-                                                    30000000, 0, 0, {"categorical_col"}),
+    api::CDataFrameAnalyzer analyzer{test::CDataFrameAnalysisSpecificationFactory::predictionSpec(
+                                         "regression", "target_col", numberExamples,
+                                         cols, 30000000, 0, 0, {"categorical_col"}),
                                      outputWriterFactory};
 
     TDataFrameUPtr frame =
@@ -187,8 +188,9 @@ void CBoostedTreeRegressionInferenceModelBuilderTest::testJsonSchema() {
         values[2].push_back(values[0][i] * weights[0] + values[1][i] * weights[1]);
     }
 
-    api::CDataFrameAnalyzer analyzer{test::CDataFrameAnalysisSpecificationFactory::predictionSpec("regression", "target_col", numberExamples, cols,
-                                                    30000000, 0, 0, {"categorical_col"}),
+    api::CDataFrameAnalyzer analyzer{test::CDataFrameAnalysisSpecificationFactory::predictionSpec(
+                                         "regression", "target_col", numberExamples,
+                                         cols, 30000000, 0, 0, {"categorical_col"}),
                                      outputWriterFactory};
 
     TDataFrameUPtr frame =

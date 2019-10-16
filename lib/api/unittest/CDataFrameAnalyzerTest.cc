@@ -432,7 +432,7 @@ void CDataFrameAnalyzerTest::testWithoutControlMessages() {
     std::stringstream persistStream;
 
     api::CDataFrameAnalyzer analyzer{
-            test::CDataFrameAnalysisSpecificationFactory::outlierSpec(), outputWriterFactory};
+        test::CDataFrameAnalysisSpecificationFactory::outlierSpec(), outputWriterFactory};
 
     TDoubleVec expectedScores;
     TDoubleVecVec expectedFeatureInfluences;
@@ -479,7 +479,7 @@ void CDataFrameAnalyzerTest::testRunOutlierDetection() {
     };
 
     api::CDataFrameAnalyzer analyzer{
-            test::CDataFrameAnalysisSpecificationFactory::outlierSpec(), outputWriterFactory};
+        test::CDataFrameAnalysisSpecificationFactory::outlierSpec(), outputWriterFactory};
 
     TDoubleVec expectedScores;
     TDoubleVecVec expectedFeatureInfluences;
@@ -534,7 +534,7 @@ void CDataFrameAnalyzerTest::testRunOutlierDetectionPartitioned() {
     };
 
     api::CDataFrameAnalyzer analyzer{
-            test::CDataFrameAnalysisSpecificationFactory::outlierSpec(1000), outputWriterFactory};
+        test::CDataFrameAnalysisSpecificationFactory::outlierSpec(1000), outputWriterFactory};
 
     TDoubleVec expectedScores;
     TDoubleVecVec expectedFeatureInfluences;
@@ -579,9 +579,9 @@ void CDataFrameAnalyzerTest::testRunOutlierFeatureInfluences() {
         return std::make_unique<core::CJsonOutputStreamWrapper>(output);
     };
 
-    api::CDataFrameAnalyzer analyzer{
-            test::CDataFrameAnalysisSpecificationFactory::outlierSpec(110, 5, 100000, "", 0, true),
-        outputWriterFactory};
+    api::CDataFrameAnalyzer analyzer{test::CDataFrameAnalysisSpecificationFactory::outlierSpec(
+                                         110, 5, 100000, "", 0, true),
+                                     outputWriterFactory};
 
     TDoubleVec expectedScores;
     TDoubleVecVec expectedFeatureInfluences;
@@ -634,8 +634,8 @@ void CDataFrameAnalyzerTest::testRunOutlierDetectionWithParams() {
             };
 
             api::CDataFrameAnalyzer analyzer{
-                    test::CDataFrameAnalysisSpecificationFactory::outlierSpec(
-                            110, 5, 1000000, methods[method], k, false),
+                test::CDataFrameAnalysisSpecificationFactory::outlierSpec(
+                    110, 5, 1000000, methods[method], k, false),
                 outputWriterFactory};
 
             TDoubleVec expectedScores;
@@ -975,7 +975,7 @@ void CDataFrameAnalyzerTest::testFlushMessage() {
     };
 
     api::CDataFrameAnalyzer analyzer{
-            test::CDataFrameAnalysisSpecificationFactory::outlierSpec(), outputWriterFactory};
+        test::CDataFrameAnalysisSpecificationFactory::outlierSpec(), outputWriterFactory};
     CPPUNIT_ASSERT_EQUAL(
         true, analyzer.handleRecord({"c1", "c2", "c3", "c4", "c5", ".", "."},
                                     {"", "", "", "", "", "", "           "}));
@@ -1014,7 +1014,7 @@ void CDataFrameAnalyzerTest::testErrors() {
     {
         errors.clear();
         api::CDataFrameAnalyzer analyzer{
-                test::CDataFrameAnalysisSpecificationFactory::outlierSpec(), outputWriterFactory};
+            test::CDataFrameAnalysisSpecificationFactory::outlierSpec(), outputWriterFactory};
         CPPUNIT_ASSERT_EQUAL(
             false, analyzer.handleRecord({"c1", "c2", "c3", ".", "c4", "c5", "."},
                                          {"10", "10", "10", "", "10", "10", ""}));
@@ -1025,7 +1025,7 @@ void CDataFrameAnalyzerTest::testErrors() {
     // Test missing special field
     {
         api::CDataFrameAnalyzer analyzer{
-                test::CDataFrameAnalysisSpecificationFactory::outlierSpec(), outputWriterFactory};
+            test::CDataFrameAnalysisSpecificationFactory::outlierSpec(), outputWriterFactory};
         errors.clear();
         CPPUNIT_ASSERT_EQUAL(
             false, analyzer.handleRecord({"c1", "c2", "c3", "c4", "c5", "."},
@@ -1037,7 +1037,7 @@ void CDataFrameAnalyzerTest::testErrors() {
     // Test bad control message
     {
         api::CDataFrameAnalyzer analyzer{
-                test::CDataFrameAnalysisSpecificationFactory::outlierSpec(), outputWriterFactory};
+            test::CDataFrameAnalysisSpecificationFactory::outlierSpec(), outputWriterFactory};
         errors.clear();
         CPPUNIT_ASSERT_EQUAL(
             false, analyzer.handleRecord({"c1", "c2", "c3", "c4", "c5", ".", "."},
@@ -1049,7 +1049,7 @@ void CDataFrameAnalyzerTest::testErrors() {
     // Test bad input
     {
         api::CDataFrameAnalyzer analyzer{
-                test::CDataFrameAnalysisSpecificationFactory::outlierSpec(), outputWriterFactory};
+            test::CDataFrameAnalysisSpecificationFactory::outlierSpec(), outputWriterFactory};
         errors.clear();
         CPPUNIT_ASSERT_EQUAL(
             false, analyzer.handleRecord({"c1", "c2", "c3", "c4", "c5", ".", "."},
@@ -1062,7 +1062,7 @@ void CDataFrameAnalyzerTest::testErrors() {
     {
         // Fewer rows than expected is ignored.
         api::CDataFrameAnalyzer analyzer{
-                test::CDataFrameAnalysisSpecificationFactory::outlierSpec(2), outputWriterFactory};
+            test::CDataFrameAnalysisSpecificationFactory::outlierSpec(2), outputWriterFactory};
         errors.clear();
         CPPUNIT_ASSERT_EQUAL(
             true, analyzer.handleRecord({"c1", "c2", "c3", "c4", "c5", ".", "."},
@@ -1075,7 +1075,7 @@ void CDataFrameAnalyzerTest::testErrors() {
     }
     {
         api::CDataFrameAnalyzer analyzer{
-                test::CDataFrameAnalysisSpecificationFactory::outlierSpec(2), outputWriterFactory};
+            test::CDataFrameAnalysisSpecificationFactory::outlierSpec(2), outputWriterFactory};
         errors.clear();
         CPPUNIT_ASSERT_EQUAL(
             true, analyzer.handleRecord({"c1", "c2", "c3", "c4", "c5", ".", "."},
@@ -1096,7 +1096,7 @@ void CDataFrameAnalyzerTest::testErrors() {
     // No data.
     {
         api::CDataFrameAnalyzer analyzer{
-                test::CDataFrameAnalysisSpecificationFactory::outlierSpec(2), outputWriterFactory};
+            test::CDataFrameAnalysisSpecificationFactory::outlierSpec(2), outputWriterFactory};
         errors.clear();
         CPPUNIT_ASSERT_EQUAL(
             true, analyzer.handleRecord({"c1", "c2", "c3", "c4", "c5", ".", "."},
@@ -1115,7 +1115,7 @@ void CDataFrameAnalyzerTest::testRoundTripDocHashes() {
     };
 
     api::CDataFrameAnalyzer analyzer{
-            test::CDataFrameAnalysisSpecificationFactory::outlierSpec(9), outputWriterFactory};
+        test::CDataFrameAnalysisSpecificationFactory::outlierSpec(9), outputWriterFactory};
     for (auto i : {"1", "2", "3", "4", "5", "6", "7", "8", "9"}) {
         analyzer.handleRecord({"c1", "c2", "c3", "c4", "c5", ".", "."},
                               {i, i, i, i, i, i, ""});

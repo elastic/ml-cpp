@@ -22,7 +22,6 @@ public:
     void testColumnsForWhichEmptyIsMissingRegression();
 
     static CppUnit::Test* suite();
-
 };
 
 #endif // INCLUDED_CDataFrameAnalysisRunnerTest_h

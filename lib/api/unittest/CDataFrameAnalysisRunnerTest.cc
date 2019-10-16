@@ -19,8 +19,8 @@
 
 #include <mutex>
 #include <string>
-#include <vector>
 #include <test/CDataFrameAnalysisSpecificationFactory.h>
+#include <vector>
 
 using namespace ml;
 
@@ -82,7 +82,8 @@ void CDataFrameAnalysisRunnerTest::testComputeAndSaveExecutionStrategyDiskUsageF
     // Test large memory requirement without disk usage
     {
         errors.clear();
-        auto spec{test::CDataFrameAnalysisSpecificationFactory::diskUsageTestSpec(1000, 100, false)};
+        auto spec{test::CDataFrameAnalysisSpecificationFactory::diskUsageTestSpec(
+            1000, 100, false)};
 
         // single error is registered that the memory limit is to low
         LOG_DEBUG(<< "errors = " << core::CContainerPrinter::print(errors));
@@ -95,8 +96,8 @@ void CDataFrameAnalysisRunnerTest::testComputeAndSaveExecutionStrategyDiskUsageF
     // Test large memory requirement with disk usage
     {
         errors.clear();
-        auto spec{test::CDataFrameAnalysisSpecificationFactory::diskUsageTestSpec(1000, 100, true)};
-
+        auto spec{test::CDataFrameAnalysisSpecificationFactory::diskUsageTestSpec(
+            1000, 100, true)};
 
         // no error should be registered
         CPPUNIT_ASSERT_EQUAL(0, static_cast<int>(errors.size()));
@@ -105,8 +106,8 @@ void CDataFrameAnalysisRunnerTest::testComputeAndSaveExecutionStrategyDiskUsageF
     // Test low memory requirement without disk usage
     {
         errors.clear();
-        auto spec{test::CDataFrameAnalysisSpecificationFactory::diskUsageTestSpec(10, 10, false)};
-
+        auto spec{test::CDataFrameAnalysisSpecificationFactory::diskUsageTestSpec(
+            10, 10, false)};
 
         // no error should be registered
         CPPUNIT_ASSERT_EQUAL(0, static_cast<int>(errors.size()));
@@ -130,15 +131,13 @@ void testEstimateMemoryUsage(int64_t numberRows,
 
     // The output writer won't close the JSON structures until is is destroyed
     {
-        std::string jsonSpec{api::CDataFrameAnalysisSpecificationJsonWriter::jsonString(
-            "testJob", numberRows, 5, 100000000, 1, {}, true,
-            test::CTestTmpDir::tmpDir(), "", "outlier_detection", "")};
-        api::CDataFrameAnalysisSpecification spec{jsonSpec};
+        auto spec{test::CDataFrameAnalysisSpecificationFactory::outlierSpec(
+            numberRows, 5, 100000000, "", 0, true)};
 
         core::CJsonOutputStreamWrapper wrappedOutStream(sstream);
         api::CMemoryUsageEstimationResultJsonWriter writer(wrappedOutStream);
 
-        spec.estimateMemoryUsage(writer);
+        spec->estimateMemoryUsage(writer);
     }
 
     rapidjson::Document arrayDoc;
