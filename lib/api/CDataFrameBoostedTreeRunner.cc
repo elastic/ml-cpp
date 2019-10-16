@@ -284,6 +284,5 @@ std::size_t CDataFrameBoostedTreeRunner::estimateBookkeepingMemoryUsage(
     std::size_t numberColumns) const {
     return m_BoostedTreeFactory->estimateMemoryUsage(totalNumberRows, numberColumns);
 }
-
 }
 }

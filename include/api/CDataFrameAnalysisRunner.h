@@ -21,7 +21,6 @@
 #include <memory>
 #include <string>
 #include <thread>
-#include <unordered_map>
 #include <vector>
 
 namespace ml {
@@ -65,9 +64,7 @@ public:
     using TStrVec = std::vector<std::string>;
     using TRowRef = core::data_frame_detail::CRowRef;
     using TProgressRecorder = std::function<void(double)>;
-
-    using TStrSizeUMap = std::unordered_map<std::string, std::size_t>;
-    using TStrSizeUMapVec = std::vector<TStrSizeUMap>;
+    using TStrVecVec = std::vector<TStrVec>;
     using TInferenceModelDefinitionUPtr = std::unique_ptr<CInferenceModelDefinition>;
 
 public:
@@ -145,8 +142,7 @@ public:
     double progress() const;
 
     virtual TInferenceModelDefinitionUPtr
-    inferenceModelDefinition(const TStrVec& fieldNames,
-                             const TStrSizeUMapVec& categoryNameMap) const;
+    inferenceModelDefinition(const TStrVec& fieldNames, const TStrVecVec& categoryNames) const;
 
 protected:
     using TStatePersister =

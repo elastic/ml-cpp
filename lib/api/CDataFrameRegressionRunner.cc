@@ -69,9 +69,9 @@ CDataFrameRegressionRunner::chooseLossFunction(const core::CDataFrame&, std::siz
 
 CDataFrameAnalysisRunner::TInferenceModelDefinitionUPtr CDataFrameRegressionRunner::inferenceModelDefinition(
     const CDataFrameAnalysisRunner::TStrVec& fieldNames,
-    const CDataFrameAnalysisRunner::TStrSizeUMapVec& categoryNameMap) const {
+    const CDataFrameAnalysisRunner::TStrVecVec& categoryNames) const {
     CRegressionInferenceModelBuilder builder(
-        fieldNames, this->boostedTree().columnHoldingDependentVariable(), categoryNameMap);
+        fieldNames, this->boostedTree().columnHoldingDependentVariable(), categoryNames);
     this->boostedTree().accept(builder);
 
     return std::make_unique<CInferenceModelDefinition>(builder.build());

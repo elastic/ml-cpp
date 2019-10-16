@@ -26,7 +26,7 @@ class API_EXPORT CDataFrameRegressionRunner final : public CDataFrameBoostedTree
 public:
     TInferenceModelDefinitionUPtr
     inferenceModelDefinition(const TStrVec& fieldNames,
-                             const TStrSizeUMapVec& categoryNameMap) const override;
+                             const TStrVecVec& categoryNameMap) const override;
 
     static const CDataFrameAnalysisConfigReader getParameterReader();
 
