@@ -23,8 +23,6 @@ public:
 
     static CppUnit::Test* suite();
 
-private:
-    std::string createSpecJsonForDiskUsageTest(std::size_t rows, std::size_t cols, bool diskUsageAllowed);
 };
 
 #endif // INCLUDED_CDataFrameAnalysisRunnerTest_h

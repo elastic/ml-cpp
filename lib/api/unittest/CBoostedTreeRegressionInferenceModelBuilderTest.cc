@@ -20,10 +20,10 @@
 
 #include <test/CDataFrameTestUtils.h>
 #include <test/CRandomNumbers.h>
+#include <test/CDataFrameAnalysisSpecificationFactory.h>
 #include <test/CTestTmpDir.h>
 
 #include <rapidjson/schema.h>
-
 #include <fstream>
 #include <string>
 
@@ -43,57 +43,6 @@ using TPoint = maths::CDenseVector<maths::CFloatStorage>;
 using TPointVec = std::vector<TPoint>;
 using TRowItr = core::CDataFrame::TRowItr;
 using TStrVecVec = std::vector<TStrVec>;
-
-// TODO factor out this method to avoid code duplication
-auto regressionSpec(std::string dependentVariable,
-                    std::size_t rows = 100,
-                    std::size_t cols = 5,
-                    std::size_t memoryLimit = 3000000,
-                    std::size_t numberRoundsPerHyperparameter = 0,
-                    std::size_t bayesianOptimisationRestarts = 0,
-                    const TStrVec& categoricalFieldNames = TStrVec{},
-                    double lambda = -1.0,
-                    double gamma = -1.0,
-                    double eta = -1.0,
-                    std::size_t maximumNumberTrees = 0,
-                    double featureBagFraction = -1.0) {
-
-    std::string parameters = "{\n\"dependent_variable\": \"" + dependentVariable + "\"";
-    if (lambda >= 0.0) {
-        parameters += ",\n\"lambda\": " + core::CStringUtils::typeToString(lambda);
-    }
-    if (gamma >= 0.0) {
-        parameters += ",\n\"gamma\": " + core::CStringUtils::typeToString(gamma);
-    }
-    if (eta > 0.0) {
-        parameters += ",\n\"eta\": " + core::CStringUtils::typeToString(eta);
-    }
-    if (maximumNumberTrees > 0) {
-        parameters += ",\n\"maximum_number_trees\": " +
-                      core::CStringUtils::typeToString(maximumNumberTrees);
-    }
-    if (featureBagFraction > 0.0) {
-        parameters += ",\n\"feature_bag_fraction\": " +
-                      core::CStringUtils::typeToString(featureBagFraction);
-    }
-    if (numberRoundsPerHyperparameter > 0) {
-        parameters += ",\n\"number_rounds_per_hyperparameter\": " +
-                      core::CStringUtils::typeToString(numberRoundsPerHyperparameter);
-    }
-    if (bayesianOptimisationRestarts > 0) {
-        parameters += ",\n\"bayesian_optimisation_restarts\": " +
-                      core::CStringUtils::typeToString(bayesianOptimisationRestarts);
-    }
-    parameters += "\n}";
-
-    std::string spec{api::CDataFrameAnalysisSpecificationJsonWriter::jsonString(
-        "testJob", rows, cols, memoryLimit, 1, categoricalFieldNames, true,
-        test::CTestTmpDir::tmpDir(), "ml", "regression", parameters)};
-
-    LOG_TRACE(<< "spec =\n" << spec);
-
-    return std::make_unique<api::CDataFrameAnalysisSpecification>(spec);
-}
 
 auto generateCategoricalData(test::CRandomNumbers& rng, std::size_t rows, TDoubleVec expectedFrequencies) {
 
@@ -153,7 +102,7 @@ void CBoostedTreeRegressionInferenceModelBuilderTest::testIntegration() {
         values[2].push_back(values[0][i] * weights[0] + values[1][i] * weights[1]);
     }
 
-    api::CDataFrameAnalyzer analyzer{regressionSpec("target_col", numberExamples, cols,
+    api::CDataFrameAnalyzer analyzer{test::CDataFrameAnalysisSpecificationFactory::predictionSpec("regression", "target_col", numberExamples, cols,
                                                     30000000, 0, 0, {"categorical_col"}),
                                      outputWriterFactory};
 
@@ -238,7 +187,7 @@ void CBoostedTreeRegressionInferenceModelBuilderTest::testJsonSchema() {
         values[2].push_back(values[0][i] * weights[0] + values[1][i] * weights[1]);
     }
 
-    api::CDataFrameAnalyzer analyzer{regressionSpec("target_col", numberExamples, cols,
+    api::CDataFrameAnalyzer analyzer{test::CDataFrameAnalysisSpecificationFactory::predictionSpec("regression", "target_col", numberExamples, cols,
                                                     30000000, 0, 0, {"categorical_col"}),
                                      outputWriterFactory};
 

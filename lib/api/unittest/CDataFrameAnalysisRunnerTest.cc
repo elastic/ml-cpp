@@ -20,6 +20,7 @@
 #include <mutex>
 #include <string>
 #include <vector>
+#include <test/CDataFrameAnalysisSpecificationFactory.h>
 
 using namespace ml;
 
@@ -66,15 +67,6 @@ void CDataFrameAnalysisRunnerTest::testComputeExecutionStrategyForOutliers() {
     // TODO test running memory is in acceptable range.
 }
 
-std::string
-CDataFrameAnalysisRunnerTest::createSpecJsonForDiskUsageTest(std::size_t numberRows,
-                                                             std::size_t numberCols,
-                                                             bool diskUsageAllowed) {
-    return api::CDataFrameAnalysisSpecificationJsonWriter::jsonString(
-        "testJob", numberRows, numberCols, 500000, 1, {}, diskUsageAllowed,
-        test::CTestTmpDir::tmpDir(), "", "outlier_detection", "");
-}
-
 void CDataFrameAnalysisRunnerTest::testComputeAndSaveExecutionStrategyDiskUsageFlag() {
 
     std::vector<std::string> errors;
@@ -90,8 +82,7 @@ void CDataFrameAnalysisRunnerTest::testComputeAndSaveExecutionStrategyDiskUsageF
     // Test large memory requirement without disk usage
     {
         errors.clear();
-        std::string jsonSpec{createSpecJsonForDiskUsageTest(1000, 100, false)};
-        api::CDataFrameAnalysisSpecification spec{jsonSpec};
+        auto spec{test::CDataFrameAnalysisSpecificationFactory::diskUsageTestSpec(1000, 100, false)};
 
         // single error is registered that the memory limit is to low
         LOG_DEBUG(<< "errors = " << core::CContainerPrinter::print(errors));
@@ -104,8 +95,8 @@ void CDataFrameAnalysisRunnerTest::testComputeAndSaveExecutionStrategyDiskUsageF
     // Test large memory requirement with disk usage
     {
         errors.clear();
-        std::string jsonSpec{createSpecJsonForDiskUsageTest(1000, 100, true)};
-        api::CDataFrameAnalysisSpecification spec{jsonSpec};
+        auto spec{test::CDataFrameAnalysisSpecificationFactory::diskUsageTestSpec(1000, 100, true)};
+
 
         // no error should be registered
         CPPUNIT_ASSERT_EQUAL(0, static_cast<int>(errors.size()));
@@ -114,8 +105,8 @@ void CDataFrameAnalysisRunnerTest::testComputeAndSaveExecutionStrategyDiskUsageF
     // Test low memory requirement without disk usage
     {
         errors.clear();
-        std::string jsonSpec{createSpecJsonForDiskUsageTest(10, 10, false)};
-        api::CDataFrameAnalysisSpecification spec{jsonSpec};
+        auto spec{test::CDataFrameAnalysisSpecificationFactory::diskUsageTestSpec(10, 10, false)};
+
 
         // no error should be registered
         CPPUNIT_ASSERT_EQUAL(0, static_cast<int>(errors.size()));
