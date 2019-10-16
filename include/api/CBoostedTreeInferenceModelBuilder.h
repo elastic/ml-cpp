@@ -71,7 +71,7 @@ private:
     TStrVec m_FeatureNames;
 };
 
-class API_EXPORT CRegressionInferenceModelBuilder : public CBoostedTreeInferenceModelBuilder {
+class API_EXPORT CRegressionInferenceModelBuilder final : public CBoostedTreeInferenceModelBuilder {
 protected:
 public:
     CRegressionInferenceModelBuilder(TStrVec fieldNames,
