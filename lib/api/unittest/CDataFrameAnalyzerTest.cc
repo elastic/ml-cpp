@@ -872,14 +872,13 @@ void CDataFrameAnalyzerTest::testRunBoostedTreeRegressionTrainingWithStateRecove
 
     std::size_t numberRoundsPerHyperparameter{3};
 
-    TSizeVec intermediateIterations;
+    TSizeVec intermediateIterations{0, 0, 0};
     std::size_t finalIteration{0};
 
     test::CRandomNumbers rng;
 
-    // TODO re-enable case that all parameters are set.
     for (const auto& params :
-         {/*SHyperparameters{},*/ SHyperparameters{-1.0},
+         {SHyperparameters{}, SHyperparameters{-1.0},
           SHyperparameters{-1.0, -1.0}, SHyperparameters{-1.0, -1.0, -1.0}}) {
 
         LOG_DEBUG(<< "Number parameters to search = " << params.numberUnset());
@@ -894,8 +893,10 @@ void CDataFrameAnalyzerTest::testRunBoostedTreeRegressionTrainingWithStateRecove
                 params.s_FeatureBagFraction, &persisterSupplier);
         };
 
-        finalIteration = params.numberUnset() * numberRoundsPerHyperparameter - 1;
-        rng.generateUniformSamples(0, finalIteration - 1, 3, intermediateIterations);
+        finalIteration = params.numberUnset() * numberRoundsPerHyperparameter;
+        if (finalIteration > 2) {
+            rng.generateUniformSamples(0, finalIteration - 2, 3, intermediateIterations);
+        }
 
         for (auto intermediateIteration : intermediateIterations) {
             LOG_DEBUG(<< "restart from " << intermediateIteration);

@@ -17,6 +17,7 @@
 #include <maths/CBoostedTreeFactory.h>
 #include <maths/CDataFrameUtils.h>
 
+#include <api/CBoostedTreeInferenceModelBuilder.h>
 #include <api/CDataFrameAnalysisConfigReader.h>
 #include <api/CDataFrameAnalysisSpecification.h>
 #include <api/CDataFrameBoostedTreeRunner.h>
@@ -64,6 +65,16 @@ void CDataFrameRegressionRunner::writeOneRow(const core::CDataFrame&,
 CDataFrameRegressionRunner::TLossFunctionUPtr
 CDataFrameRegressionRunner::chooseLossFunction(const core::CDataFrame&, std::size_t) const {
     return std::make_unique<maths::boosted_tree::CMse>();
+}
+
+CDataFrameAnalysisRunner::TInferenceModelDefinitionUPtr CDataFrameRegressionRunner::inferenceModelDefinition(
+    const CDataFrameAnalysisRunner::TStrVec& fieldNames,
+    const CDataFrameAnalysisRunner::TStrVecVec& categoryNames) const {
+    CRegressionInferenceModelBuilder builder(
+        fieldNames, this->boostedTree().columnHoldingDependentVariable(), categoryNames);
+    this->boostedTree().accept(builder);
+
+    return std::make_unique<CInferenceModelDefinition>(builder.build());
 }
 
 const std::string& CDataFrameRegressionRunnerFactory::name() const {

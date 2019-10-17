@@ -9,9 +9,10 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CBoostedTreeRegressionInferenceModelBuilderTest : public CppUnit::TestFixture {
+class CBoostedTreeInferenceModelBuilderTest : public CppUnit::TestFixture {
 public:
-    void testIntegration();
+    void testIntegrationRegression();
+    void testIntegrationClassification();
     void testJsonSchema();
 
     static CppUnit::Test* suite();

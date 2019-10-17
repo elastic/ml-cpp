@@ -57,10 +57,6 @@ protected:
     //! Underlying boosted tree.
     const maths::CBoostedTree& boostedTree() const;
 
-    TInferenceModelDefinitionUPtr
-    inferenceModelDefinition(const TStrVec& fieldNames,
-                             const TStrVecVec& categoryNames) const override;
-
 private:
     using TBoostedTreeFactoryUPtr = std::unique_ptr<maths::CBoostedTreeFactory>;
     using TDataSearcherUPtr = CDataFrameAnalysisSpecification::TDataSearcherUPtr;
