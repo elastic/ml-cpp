@@ -113,9 +113,13 @@ CBoostedTreeRegressionInferenceModelBuilder::CBoostedTreeRegressionInferenceMode
     // filter filed names containing empty string
     fieldNames.erase(std::remove(fieldNames.begin(), fieldNames.end(), ""),
                      fieldNames.end());
+    fieldNames.erase(std::remove(fieldNames.begin(), fieldNames.end(), "."),
+                     fieldNames.end());
     m_FieldNames = fieldNames;
 
     this->categoryNames(categoryNames);
+    fieldNames.erase(fieldNames.begin() +
+                     static_cast<std::ptrdiff_t>(dependentVariableColumnIndex));
     m_Definition.fieldNames(fieldNames);
     m_Definition.trainedModel(std::make_unique<CEnsemble>());
     m_Definition.typeString(INFERENCE_MODEL);
