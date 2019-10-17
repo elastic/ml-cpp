@@ -195,13 +195,20 @@ CTree::TTreeNodeVec& CTree::treeStructure() {
 }
 
 std::string CInferenceModelDefinition::jsonString() {
+
     std::ostringstream stream;
-    core::CJsonOutputStreamWrapper wrapper{stream};
-    CSerializableToJson::TRapidJsonWriter writer{wrapper};
-    rapidjson::Value doc = writer.makeObject();
-    this->addToDocument(doc, writer);
-    writer.write(doc);
-    return stream.str();
+    {
+        core::CJsonOutputStreamWrapper wrapper{stream};
+        CSerializableToJson::TRapidJsonWriter writer{wrapper};
+        rapidjson::Value doc = writer.makeObject();
+        this->addToDocument(doc, writer);
+        writer.write(doc);
+        stream.flush();
+    }
+    // string writer puts the json object in an array, so we strip the external brackets
+    std::string jsonStr{stream.str()};
+    std::string resultString(jsonStr, 1, jsonStr.size() - 2);
+    return resultString;
 }
 
 void CInferenceModelDefinition::addToDocument(rapidjson::Value& parentObject,
