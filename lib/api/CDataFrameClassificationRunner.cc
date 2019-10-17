@@ -19,6 +19,7 @@
 #include <maths/COrderings.h>
 #include <maths/CTools.h>
 
+#include <api/CBoostedTreeInferenceModelBuilder.h>
 #include <api/CDataFrameAnalysisConfigReader.h>
 #include <api/CDataFrameAnalysisSpecification.h>
 #include <api/CDataFrameBoostedTreeRunner.h>
@@ -132,6 +133,17 @@ CDataFrameClassificationRunner::chooseLossFunction(const core::CDataFrame& frame
     HANDLE_FATAL(<< "Input error: only binary classification is supported. "
                  << "Trying to predict '" << categoryCount << "' categories.");
     return nullptr;
+}
+
+CDataFrameAnalysisRunner::TInferenceModelDefinitionUPtr
+CDataFrameClassificationRunner::inferenceModelDefinition(
+    const CDataFrameAnalysisRunner::TStrVec& fieldNames,
+    const CDataFrameAnalysisRunner::TStrVecVec& categoryNames) const {
+    CClassificationInferenceModelBuilder builder(
+        fieldNames, this->boostedTree().columnHoldingDependentVariable(), categoryNames);
+    this->boostedTree().accept(builder);
+
+    return std::make_unique<CInferenceModelDefinition>(builder.build());
 }
 
 const std::string& CDataFrameClassificationRunnerFactory::name() const {
