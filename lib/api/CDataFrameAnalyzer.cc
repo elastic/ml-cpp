@@ -321,7 +321,6 @@ void CDataFrameAnalyzer::writeResultsOf(const CDataFrameAnalysisRunner& analysis
     // Write the resulting model for inference
     const auto& modelDefinition = m_AnalysisSpecification->runner()->inferenceModelDefinition(
         m_DataFrame->columnNames(), m_DataFrame->categoricalColumnValues());
-    LOG_DEBUG(<< "*************Inference definition " << modelDefinition->jsonString());
     if (modelDefinition) {
         rapidjson::Value inferenceModelObject{writer.makeObject()};
         modelDefinition->addToDocument(inferenceModelObject, writer);
