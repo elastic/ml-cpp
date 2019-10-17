@@ -82,6 +82,7 @@ CInferenceModelDefinition&& CBoostedTreeRegressionInferenceModelBuilder::build()
 
     ensemble->targetType(CTrainedModel::E_Regression);
     ensemble->featureNames(m_FeatureNames);
+    ensemble->adjustFeatureNames();
 
     return std::move(m_Definition);
 }
@@ -107,14 +108,11 @@ void CBoostedTreeRegressionInferenceModelBuilder::addNode(
 CBoostedTreeRegressionInferenceModelBuilder::CBoostedTreeRegressionInferenceModelBuilder(
     TStrVec fieldNames,
     std::size_t dependentVariableColumnIndex,
-    const TStrVecVec& categoryNames) {
-    // filter filed names containing only "."
-    fieldNames.erase(std::remove(fieldNames.begin(), fieldNames.end(), "."),
+    TStrVecVec categoryNames)
+    : m_DependentVariableColumnIndex(dependentVariableColumnIndex) {
+    // filter filed names containing empty string
+    fieldNames.erase(std::remove(fieldNames.begin(), fieldNames.end(), ""),
                      fieldNames.end());
-    // filter dependent variable field name
-    assert(dependentVariableColumnIndex < fieldNames.size());
-    fieldNames.erase(fieldNames.begin() +
-                     static_cast<std::ptrdiff_t>(dependentVariableColumnIndex));
     m_FieldNames = fieldNames;
 
     this->categoryNames(categoryNames);

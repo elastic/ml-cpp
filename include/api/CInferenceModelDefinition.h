@@ -97,10 +97,12 @@ public:
     virtual const TStringVec& featureNames() const;
     //! Names of the features used by the model.
     virtual void featureNames(const TStringVec& featureNames);
-    //! Sets target type (regression or classification)
+    //! Sets target type (regression or classification).
     virtual void targetType(ETargetType targetType);
-    //! Returns target type (regression or classification)
+    //! Returns target type (regression or classification).
     virtual ETargetType targetType() const;
+    //! Adjust the feature names, e.g. to exclude not used feature names like the target column.
+    virtual CTrainedModel::TStringVec adjustFeatureNames() = 0;
 
 private:
     TStringVecOptional m_ClassificationLabels;
@@ -128,6 +130,9 @@ public:
                   const TOptionalDouble& splitGain);
 
         void addToDocument(rapidjson::Value& parentObject, TRapidJsonWriter& writer) const override;
+        size_t splitFeature() const;
+        void splitFeature(size_t splitFeature);
+        bool leaf() const;
 
     private:
         bool m_DefaultLeft;
@@ -146,7 +151,7 @@ public:
     void addToDocument(rapidjson::Value& parentObject, TRapidJsonWriter& writer) const override;
     //! Total number of tree nodes.
     std::size_t size() const;
-
+    CTrainedModel::TStringVec adjustFeatureNames() override;
     TTreeNodeVec& treeStructure();
 
 private:
@@ -167,11 +172,12 @@ public:
     void aggregateOutput(TAggregateOutputUPtr&& aggregateOutput);
     const TAggregateOutputUPtr& aggregateOutput() const;
     void featureNames(const TStringVec& featureNames) override;
+    const TStringVec& featureNames() const override;
     //! List of trained models withing this ensemble.
     TTrainedModelUPtrVec& trainedModels();
     //! Number of models in the ensemble.
     std::size_t size() const;
-
+    CTrainedModel::TStringVec adjustFeatureNames() override;
     void targetType(ETargetType targetType) override;
 
     ETargetType targetType() const override;

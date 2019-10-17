@@ -31,7 +31,7 @@ public:
 public:
     CBoostedTreeRegressionInferenceModelBuilder(TStrVec fieldNames,
                                                 std::size_t dependentVariableColumnIndex,
-                                                const TStrVecVec& categoryNames);
+                                                TStrVecVec categoryNames);
     ~CBoostedTreeRegressionInferenceModelBuilder() override = default;
     void addTree() override;
     void addNode(std::size_t splitFeature,
@@ -65,6 +65,7 @@ private:
     TOneHotEncodingUMap m_OneHotEncodingMaps;
     TStrVec m_FieldNames;
     TStrVec m_FeatureNames;
+    std::size_t m_DependentVariableColumnIndex;
 };
 }
 }
