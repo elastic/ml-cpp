@@ -22,7 +22,7 @@
 #include <api/CInferenceModelDefinition.h>
 #include <api/ElasticsearchStateIndex.h>
 
-#include <api/CBoostedTreeRegressionInferenceModelBuilder.h>
+#include <api/CBoostedTreeInferenceModelBuilder.h>
 #include <core/CJsonStatePersistInserter.h>
 #include <rapidjson/document.h>
 
@@ -283,16 +283,6 @@ std::size_t CDataFrameBoostedTreeRunner::estimateBookkeepingMemoryUsage(
     std::size_t /*partitionNumberRows*/,
     std::size_t numberColumns) const {
     return m_BoostedTreeFactory->estimateMemoryUsage(totalNumberRows, numberColumns);
-}
-
-CDataFrameAnalysisRunner::TInferenceModelDefinitionUPtr
-CDataFrameBoostedTreeRunner::inferenceModelDefinition(const TStrVec& fieldNames,
-                                                      const TStrVecVec& categoryNames) const {
-    CBoostedTreeRegressionInferenceModelBuilder builder(
-        fieldNames, m_BoostedTree->columnHoldingDependentVariable(), categoryNames);
-    m_BoostedTree->accept(builder);
-
-    return std::make_unique<CInferenceModelDefinition>(builder.build());
 }
 }
 }

@@ -276,6 +276,7 @@ void CBoostedTreeImpl::train(core::CDataFrame& frame,
     recordMemoryUsage(lastMemoryUsage);
 
     if (this->canTrain() == false) {
+
         // Fallback to using the constant predictor which minimises the loss.
 
         core::CPackedBitVector trainingRowMask{this->allTrainingRowsMask()};
@@ -283,7 +284,8 @@ void CBoostedTreeImpl::train(core::CDataFrame& frame,
         m_BestForestTestLoss = this->meanLoss(frame, trainingRowMask, m_BestForest);
         LOG_TRACE(<< "Test loss = " << m_BestForestTestLoss);
 
-    } else {
+    } else if (m_CurrentRound < m_NumberRounds || m_BestForest.empty()) {
+
         // Hyperparameter optimisation loop.
 
         while (m_CurrentRound < m_NumberRounds) {
@@ -302,6 +304,7 @@ void CBoostedTreeImpl::train(core::CDataFrame& frame,
                 break;
             }
             if (this->selectNextHyperparameters(lossMoments, *m_BayesianOptimization) == false) {
+                LOG_WARN(<< "Hyperparameter selection failed: exiting loop early");
                 break;
             }
 
@@ -321,6 +324,7 @@ void CBoostedTreeImpl::train(core::CDataFrame& frame,
         this->restoreBestHyperparameters();
 
         m_BestForest = this->trainForest(frame, this->allTrainingRowsMask(), recordMemoryUsage);
+        this->recordState(recordTrainStateCallback);
     }
 
     // Force to at least one here because we can have early exit from loop or take
