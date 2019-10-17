@@ -66,8 +66,6 @@ public:
 private:
     size_t m_ObjectCount = 0;
 };
-
-extern template class CORE_EXPORT CRapidJsonLineWriter<rapidjson::StringBuffer>;
 }
 }
 

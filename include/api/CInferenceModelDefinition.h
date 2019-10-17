@@ -6,7 +6,7 @@
 #ifndef INCLUDED_ml_api_CInferenceModelDefinition_h
 #define INCLUDED_ml_api_CInferenceModelDefinition_h
 
-#include <core/CRapidJsonLineWriter.h>
+#include <core/CRapidJsonConcurrentLineWriter.h>
 
 #include <maths/CDataFrameCategoryEncoder.h>
 
@@ -27,7 +27,7 @@ namespace api {
 //! that can will be serialized into JSON.
 class API_EXPORT CSerializableToJson {
 public:
-    using TRapidJsonWriter = core::CRapidJsonLineWriter<rapidjson::StringBuffer>;
+    using TRapidJsonWriter = core::CRapidJsonConcurrentLineWriter;
 
 public:
     virtual ~CSerializableToJson() = default;
@@ -314,8 +314,7 @@ public:
     TApiEncodingUPtrVec& preprocessors();
     void trainedModel(std::unique_ptr<CTrainedModel>&& trainedModel);
     std::unique_ptr<CTrainedModel>& trainedModel();
-    void addToDocument(rapidjson::Value& parentObject,
-                       core::CRapidJsonLineWriter<rapidjson::StringBuffer>& writer) const override;
+    void addToDocument(rapidjson::Value& parentObject, TRapidJsonWriter& writer) const override;
     std::string jsonString();
     void fieldNames(const TStringVec& fieldNames);
     const std::string& typeString() const;

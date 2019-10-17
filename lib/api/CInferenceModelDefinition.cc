@@ -6,7 +6,6 @@
 #include <api/CInferenceModelDefinition.h>
 
 #include <core/CPersistUtils.h>
-#include <core/CRapidJsonLineWriter.h>
 
 #include <unordered_map>
 
@@ -14,7 +13,6 @@ namespace ml {
 namespace api {
 
 namespace {
-using TRapidJsonWriter = core::CRapidJsonLineWriter<rapidjson::StringBuffer>;
 
 const std::string JSON_AGGREGATE_OUTPUT_TAG{"aggregate_output"};
 const std::string JSON_CLASSIFICATION_LABELS_TAG{"classification_labels"};
@@ -58,7 +56,7 @@ template<typename T>
 void addJsonArray(const std::string& tag,
                   const std::vector<T>& vector,
                   rapidjson::Value& parentObject,
-                  TRapidJsonWriter& writer) {
+                  CSerializableToJson::TRapidJsonWriter& writer) {
     rapidjson::Value array = writer.makeArray(vector.size());
     for (const auto& item : vector) {
         rapidjson::Value value;
@@ -197,12 +195,13 @@ CTree::TTreeNodeVec& CTree::treeStructure() {
 }
 
 std::string CInferenceModelDefinition::jsonString() {
-    rapidjson::StringBuffer stringBuffer;
-    core::CRapidJsonLineWriter<rapidjson::StringBuffer> writer(stringBuffer);
+    std::ostringstream stream;
+    core::CJsonOutputStreamWrapper wrapper{stream};
+    CSerializableToJson::TRapidJsonWriter writer{wrapper};
     rapidjson::Value doc = writer.makeObject();
     this->addToDocument(doc, writer);
     writer.write(doc);
-    return stringBuffer.GetString();
+    return stream.str();
 }
 
 void CInferenceModelDefinition::addToDocument(rapidjson::Value& parentObject,
@@ -321,7 +320,7 @@ const std::string& CTargetMeanEncoding::typeString() const {
 }
 
 void CTargetMeanEncoding::addToDocument(rapidjson::Value& parentObject,
-                                        CSerializableToJson::TRapidJsonWriter& writer) const {
+                                        TRapidJsonWriter& writer) const {
     this->CEncoding::addToDocument(parentObject, writer);
     writer.addMember(JSON_DEFAULT_VALUE_TAG,
                      rapidjson::Value(m_DefaultValue).Move(), parentObject);
