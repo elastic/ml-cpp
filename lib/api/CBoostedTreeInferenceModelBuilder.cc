@@ -111,11 +111,9 @@ void CBoostedTreeInferenceModelBuilder::addNode(
                                        splitFeature, leftChild, rightChild, gain);
 }
 
-CBoostedTreeInferenceModelBuilder::CBoostedTreeInferenceModelBuilder(
-    TStrVec fieldNames,
-    std::size_t dependentVariableColumnIndex,
-    TStrVecVec categoryNames)
-    : m_DependentVariableColumnIndex(dependentVariableColumnIndex) {
+CBoostedTreeInferenceModelBuilder::CBoostedTreeInferenceModelBuilder(TStrVec fieldNames,
+                                                                     std::size_t dependentVariableColumnIndex,
+                                                                     TStrVecVec categoryNames) {
     // filter filed names containing empty string
     fieldNames.erase(std::remove(fieldNames.begin(), fieldNames.end(), ""),
                      fieldNames.end());

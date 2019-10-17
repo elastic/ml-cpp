@@ -193,7 +193,6 @@ public:
     const TAggregateOutputUPtr& aggregateOutput() const;
     const TStringVec& featureNames() const override;
     void featureNames(const TStringVec& featureNames) override;
-    const TStringVec& featureNames() const override;
     //! List of trained models withing this ensemble.
     TTrainedModelUPtrVec& trainedModels();
     //! Number of models in the ensemble.

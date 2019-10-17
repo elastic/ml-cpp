@@ -29,8 +29,8 @@ public:
 
 public:
     CBoostedTreeInferenceModelBuilder(TStrVec fieldNames,
-                                                std::size_t dependentVariableColumnIndex,
-                                                TStrVecVec categoryNames);
+                                      std::size_t dependentVariableColumnIndex,
+                                      TStrVecVec categoryNames);
     ~CBoostedTreeInferenceModelBuilder() override = default;
     void addTree() override;
     void addNode(std::size_t splitFeature,
@@ -69,7 +69,6 @@ private:
     TOneHotEncodingUMap m_OneHotEncodingMaps;
     TStrVec m_FieldNames;
     TStrVec m_FeatureNames;
-    std::size_t m_DependentVariableColumnIndex;
 };
 
 class API_EXPORT CRegressionInferenceModelBuilder final : public CBoostedTreeInferenceModelBuilder {
