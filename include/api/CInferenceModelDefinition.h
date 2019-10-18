@@ -116,12 +116,16 @@ public:
     void addToDocument(rapidjson::Value& parentObject, TRapidJsonWriter& writer) const override;
     //! Names of the features used by the model.
     virtual const TStringVec& featureNames() const;
+    virtual TStringVec& featureNames();
     //! Names of the features used by the model.
     virtual void featureNames(const TStringVec& featureNames);
-    //! Sets target type (regression or classification)
+    virtual void featureNames(TStringVec&& featureNames);
+    //! Sets target type (regression or classification).
     virtual void targetType(ETargetType targetType);
-    //! Returns target type (regression or classification)
+    //! Returns target type (regression or classification).
     virtual ETargetType targetType() const;
+    //! Adjust the feature names, e.g. to exclude not used feature names like the target column.
+    virtual TStringVec removeUnusedFeatures() = 0;
 
 private:
     TStringVecOptional m_ClassificationLabels;
@@ -149,6 +153,9 @@ public:
                   const TOptionalDouble& splitGain);
 
         void addToDocument(rapidjson::Value& parentObject, TRapidJsonWriter& writer) const override;
+        size_t splitFeature() const;
+        void splitFeature(size_t splitFeature);
+        bool leaf() const;
 
     private:
         bool m_DefaultLeft;
@@ -167,6 +174,7 @@ public:
     void addToDocument(rapidjson::Value& parentObject, TRapidJsonWriter& writer) const override;
     //! Total number of tree nodes.
     std::size_t size() const;
+    TStringVec removeUnusedFeatures() override;
     TTreeNodeVec& treeStructure();
 
 private:
@@ -191,7 +199,7 @@ public:
     TTrainedModelUPtrVec& trainedModels();
     //! Number of models in the ensemble.
     std::size_t size() const;
-
+    TStringVec removeUnusedFeatures() override;
     void targetType(ETargetType targetType) override;
 
     ETargetType targetType() const override;

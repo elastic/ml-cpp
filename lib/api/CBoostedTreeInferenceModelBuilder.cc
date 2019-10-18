@@ -88,6 +88,7 @@ CInferenceModelDefinition&& CBoostedTreeInferenceModelBuilder::build() {
 
     this->setTargetType();
     ensemble->featureNames(m_FeatureNames);
+    ensemble->removeUnusedFeatures();
 
     return std::move(m_Definition);
 }
@@ -112,21 +113,18 @@ void CBoostedTreeInferenceModelBuilder::addNode(
 
 CBoostedTreeInferenceModelBuilder::CBoostedTreeInferenceModelBuilder(TStrVec fieldNames,
                                                                      std::size_t dependentVariableColumnIndex,
-                                                                     const TStrVecVec& categoryNames) {
-    // filter filed names containing only "."
+                                                                     TStrVecVec categoryNames) {
+    // filter filed names containing empty string
+    fieldNames.erase(std::remove(fieldNames.begin(), fieldNames.end(), ""),
+                     fieldNames.end());
     fieldNames.erase(std::remove(fieldNames.begin(), fieldNames.end(), "."),
                      fieldNames.end());
-    // filter dependent variable field name
-    if (dependentVariableColumnIndex >= fieldNames.size()) {
-        HANDLE_FATAL(<< "Input error: Dependent variable is not among the field names. Please report this error.");
-    }
-
-    fieldNames.erase(fieldNames.begin() +
-                     static_cast<std::ptrdiff_t>(dependentVariableColumnIndex));
-    m_FieldNames = std::move(fieldNames);
+    m_FieldNames = fieldNames;
 
     this->categoryNames(categoryNames);
-    m_Definition.fieldNames(m_FieldNames);
+    fieldNames.erase(fieldNames.begin() +
+                     static_cast<std::ptrdiff_t>(dependentVariableColumnIndex));
+    m_Definition.fieldNames(fieldNames);
     m_Definition.trainedModel(std::make_unique<CEnsemble>());
     m_Definition.typeString(INFERENCE_MODEL);
 }
