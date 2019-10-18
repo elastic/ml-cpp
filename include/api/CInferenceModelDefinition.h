@@ -123,7 +123,7 @@ public:
     //! Returns target type (regression or classification).
     virtual ETargetType targetType() const;
     //! Adjust the feature names, e.g. to exclude not used feature names like the target column.
-    virtual CTrainedModel::TStringVec adjustFeatureNames() = 0;
+    virtual TStringVec adjustFeatureNames() = 0;
 
 private:
     TStringVecOptional m_ClassificationLabels;
