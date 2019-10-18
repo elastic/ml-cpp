@@ -4,8 +4,6 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
-#include "CEntropySketchTest.h"
-
 #include <core/CLogger.h>
 
 #include <maths/CBasicStatistics.h>
@@ -13,15 +11,18 @@
 
 #include <test/CRandomNumbers.h>
 
+#include <boost/test/unit_test.hpp>
 #include <boost/unordered_map.hpp>
 
 #include <cmath>
 #include <numeric>
 #include <vector>
 
+BOOST_AUTO_TEST_SUITE(CEntropySketchTest)
+
 using namespace ml;
 
-void CEntropySketchTest::testAll() {
+BOOST_AUTO_TEST_CASE(testAll) {
     using TSizeVec = std::vector<std::size_t>;
     using TSizeDoubleUMap = boost::unordered_map<std::size_t, double>;
     using TSizeDoubleUMapCItr = TSizeDoubleUMap::const_iterator;
@@ -81,21 +82,15 @@ void CEntropySketchTest::testAll() {
         LOG_DEBUG(<< "mean error = " << maths::CBasicStatistics::mean(meanError[i]));
         LOG_DEBUG(<< "large deviations = "
                   << core::CContainerPrinter::print(epsDeviations[i]));
-        CPPUNIT_ASSERT(maxError[i][0] < maxMaxErrors[i]);
-        CPPUNIT_ASSERT(maths::CBasicStatistics::mean(meanError[i]) < maxMeanErrors[i]);
+        BOOST_TEST(maxError[i][0] < maxMaxErrors[i]);
+        BOOST_TEST(maths::CBasicStatistics::mean(meanError[i]) < maxMeanErrors[i]);
         // Test additive approximation bounds.
         for (std::size_t j = 0u; j < 3; ++j) {
-            CPPUNIT_ASSERT(epsDeviations[i][j] / 1000.0 <
+            BOOST_TEST(epsDeviations[i][j] / 1000.0 <
                            2.0 * std::exp(-K[i] * eps[j] * eps[j] / 6.0));
         }
     }
 }
 
-CppUnit::Test* CEntropySketchTest::suite() {
-    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CEntropySketchTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CEntropySketchTest>(
-        "CEntropySketchTest::testAll", &CEntropySketchTest::testAll));
-
-    return suiteOfTests;
-}
+BOOST_AUTO_TEST_SUITE_END()

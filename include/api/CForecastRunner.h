@@ -35,7 +35,9 @@
 
 #include <stdint.h>
 
-class CForecastRunnerTest;
+namespace CForecastRunnerTest {
+struct testFoo;
+}
 
 namespace ml {
 namespace api {
@@ -275,7 +277,7 @@ private:
     //! Condition variable for notifications on done requests
     std::condition_variable m_WorkCompleteCondition;
 
-    friend class ::CForecastRunnerTest;
+    friend struct CForecastRunnerTest::testFoo;
 };
 }
 }

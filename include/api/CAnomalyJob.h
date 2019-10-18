@@ -36,8 +36,12 @@
 
 #include <stdint.h>
 
-class CPersistenceManagerTest;
-class CAnomalyJobTest;
+namespace CPersistenceManagerTest {
+struct testFoo;
+}
+namespace CAnomalyJobTest {
+struct testFoo;
+}
 
 namespace ml {
 namespace core {
@@ -475,8 +479,8 @@ private:
     //! Flag indicating whether or not time has been advanced.
     bool m_TimeAdvanced{false};
 
-    friend class ::CPersistenceManagerTest;
-    friend class ::CAnomalyJobTest;
+    friend struct CPersistenceManagerTest::testFoo;
+    friend struct CAnomalyJobTest::testFoo;
 };
 }
 }

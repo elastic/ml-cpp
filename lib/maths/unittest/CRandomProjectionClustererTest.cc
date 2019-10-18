@@ -4,13 +4,16 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
-#include "CRandomProjectionClustererTest.h"
-
 #include <maths/CLinearAlgebraTools.h>
 #include <maths/CRandomProjectionClusterer.h>
 #include <maths/CSetTools.h>
 
 #include <test/CRandomNumbers.h>
+#include <test/BoostTestCloseAbsolute.h>
+
+#include <boost/test/unit_test.hpp>
+
+BOOST_AUTO_TEST_SUITE(CRandomProjectionClustererTest)
 
 using namespace ml;
 
@@ -82,7 +85,7 @@ public:
 };
 }
 
-void CRandomProjectionClustererTest::testGenerateProjections() {
+BOOST_AUTO_TEST_CASE(testGenerateProjections) {
     using TVectorArrayVec = CRandomProjectionClustererForTest<5>::TVectorArrayVec;
     using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
     using TMeanVarAccumulator = maths::CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
@@ -93,12 +96,12 @@ void CRandomProjectionClustererTest::testGenerateProjections() {
     {
 
         CRandomProjectionClustererForTest<5> clusterer;
-        CPPUNIT_ASSERT(clusterer.initialise(5, 3));
+        BOOST_TEST(clusterer.initialise(5, 3));
 
         const TVectorArrayVec& projections = clusterer.projections();
         LOG_DEBUG(<< "projections = " << core::CContainerPrinter::print(projections));
 
-        CPPUNIT_ASSERT_EQUAL(std::string("[[[1 0 0], [0 1 0], [0 0 1], [0 0 0], [0 0 0]]]"),
+        BOOST_CHECK_EQUAL(std::string("[[[1 0 0], [0 1 0], [0 0 1], [0 0 0], [0 0 0]]]"),
                              core::CContainerPrinter::print(projections));
     }
 
@@ -112,18 +115,18 @@ void CRandomProjectionClustererTest::testGenerateProjections() {
 
         CRandomProjectionClustererForTest<5> clusterer;
 
-        CPPUNIT_ASSERT(clusterer.initialise(6, t));
+        BOOST_TEST(clusterer.initialise(6, t));
 
         const TVectorArrayVec& projections = clusterer.projections();
-        CPPUNIT_ASSERT_EQUAL(std::size_t(6), projections.size());
+        BOOST_CHECK_EQUAL(std::size_t(6), projections.size());
 
         for (std::size_t i = 0u; i < projections.size(); ++i) {
             for (std::size_t j = 0u; j < 5; ++j) {
-                CPPUNIT_ASSERT_DOUBLES_EQUAL(
+                BOOST_CHECK_CLOSE_ABSOLUTE(
                     1.0, projections[i][j].inner(projections[i][j]), 1e-10);
 
                 for (std::size_t k = j + 1; k < 5; ++k) {
-                    CPPUNIT_ASSERT_DOUBLES_EQUAL(
+                    BOOST_CHECK_CLOSE_ABSOLUTE(
                         0.0, projections[i][j].inner(projections[i][k]), 1e-10);
                 }
             }
@@ -144,10 +147,10 @@ void CRandomProjectionClustererTest::testGenerateProjections() {
         LOG_DEBUG(<< "Expected variance = " << 1.0 / static_cast<double>(t));
         LOG_DEBUG(<< "Actual variance   = " << maths::CBasicStatistics::variance(moments));
 
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(0.0, maths::CBasicStatistics::mean(moments),
+        BOOST_CHECK_CLOSE_ABSOLUTE(0.0, maths::CBasicStatistics::mean(moments),
                                      1.0 / static_cast<double>(t));
 
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(1.0 / static_cast<double>(t),
+        BOOST_CHECK_CLOSE_ABSOLUTE(1.0 / static_cast<double>(t),
                                      maths::CBasicStatistics::variance(moments),
                                      0.2 / static_cast<double>(t));
 
@@ -157,10 +160,10 @@ void CRandomProjectionClustererTest::testGenerateProjections() {
     }
 
     LOG_DEBUG(<< "Relative error = " << 100.0 * maths::CBasicStatistics::mean(error) << "%");
-    CPPUNIT_ASSERT(maths::CBasicStatistics::mean(error) < 0.06);
+    BOOST_TEST(maths::CBasicStatistics::mean(error) < 0.06);
 }
 
-void CRandomProjectionClustererTest::testClusterProjections() {
+BOOST_AUTO_TEST_CASE(testClusterProjections) {
     // Test that we get the cluster weights, means and covariance
     // matrices, and the sampled points we expect. Note that we
     // create a trivial to cluster data set since we don't want
@@ -237,10 +240,10 @@ void CRandomProjectionClustererTest::testClusterProjections() {
         maths::forRandomProjectionClusterer(maths::CKMeans<TVector5>(), 2, 5),
         weights_, means, covariances, samples);
 
-    CPPUNIT_ASSERT_EQUAL(std::size_t(4), weights_.size());
-    CPPUNIT_ASSERT_EQUAL(std::size_t(4), means.size());
-    CPPUNIT_ASSERT_EQUAL(std::size_t(4), covariances.size());
-    CPPUNIT_ASSERT(samples.size() >= std::size_t(8));
+    BOOST_CHECK_EQUAL(std::size_t(4), weights_.size());
+    BOOST_CHECK_EQUAL(std::size_t(4), means.size());
+    BOOST_CHECK_EQUAL(std::size_t(4), covariances.size());
+    BOOST_TEST(samples.size() >= std::size_t(8));
 
     TDoubleVec weights(2, 0.0);
     for (std::size_t i = 0u; i < 4; ++i) {
@@ -252,13 +255,13 @@ void CRandomProjectionClustererTest::testClusterProjections() {
     LOG_DEBUG(<< "weights = " << core::CContainerPrinter::print(weights));
     LOG_DEBUG(<< "means   = " << core::CContainerPrinter::print(means));
 
-    CPPUNIT_ASSERT_EQUAL(core::CContainerPrinter::print(expectedWeights),
+    BOOST_CHECK_EQUAL(core::CContainerPrinter::print(expectedWeights),
                          core::CContainerPrinter::print(weights));
-    CPPUNIT_ASSERT_EQUAL(core::CContainerPrinter::print(expectedMeans),
+    BOOST_CHECK_EQUAL(core::CContainerPrinter::print(expectedMeans),
                          core::CContainerPrinter::print(means));
 }
 
-void CRandomProjectionClustererTest::testNeighbourhoods() {
+BOOST_AUTO_TEST_CASE(testNeighbourhoods) {
     // Test that the neighbourhoods for each point agree reasonably
     // accurately with the points nearest neighbours. The agreement
     // isn't perfect because we don't store the full points so are
@@ -341,14 +344,14 @@ void CRandomProjectionClustererTest::testNeighbourhoods() {
             expectedNeighbourhoods[i].begin(), expectedNeighbourhoods[i].end());
         LOG_DEBUG(<< "jaccard = " << jaccard);
         meanJaccard.add(jaccard, static_cast<double>(expectedNeighbourhoods[i].size()));
-        CPPUNIT_ASSERT(jaccard > 0.1);
+        BOOST_TEST(jaccard > 0.1);
     }
 
     LOG_DEBUG(<< "mean jaccard = " << maths::CBasicStatistics::mean(meanJaccard));
-    CPPUNIT_ASSERT(maths::CBasicStatistics::mean(meanJaccard) > 0.35);
+    BOOST_TEST(maths::CBasicStatistics::mean(meanJaccard) > 0.35);
 }
 
-void CRandomProjectionClustererTest::testSimilarities() {
+BOOST_AUTO_TEST_CASE(testSimilarities) {
     // Test that thresholding similarities has a very high chance of
     // grouping points in the same cluster and separating points in
     // different clusters.
@@ -439,7 +442,7 @@ void CRandomProjectionClustererTest::testSimilarities() {
                 case 1: ++FP; break;
                 case 2: ++FN; break;
                 case 3: ++TP; break;
-                default: CPPUNIT_ASSERT(false); // Never happens.
+                default: BOOST_TEST(false); // Never happens.
                 }
                 // clang-format on
             }
@@ -449,13 +452,13 @@ void CRandomProjectionClustererTest::testSimilarities() {
     LOG_DEBUG(<< "TP = " << TP << ", TN = " << TN << ", FP = " << FP << ", FN = " << FN);
 
     // Proportion of points correctly separated.
-    CPPUNIT_ASSERT(static_cast<double>(TN) / static_cast<double>(TN + FP) > 0.99);
+    BOOST_TEST(static_cast<double>(TN) / static_cast<double>(TN + FP) > 0.99);
 
     // Proportion of points correctly clustered.
-    CPPUNIT_ASSERT(static_cast<double>(TP) / static_cast<double>(TP + FN) > 0.99);
+    BOOST_TEST(static_cast<double>(TP) / static_cast<double>(TP + FN) > 0.99);
 }
 
-void CRandomProjectionClustererTest::testClusterNeighbourhoods() {
+BOOST_AUTO_TEST_CASE(testClusterNeighbourhoods) {
     // Test we recover the true clusters.
 
     test::CRandomNumbers rng;
@@ -529,35 +532,13 @@ void CRandomProjectionClustererTest::testClusterNeighbourhoods() {
     }
 
     for (std::size_t i = 0u; i < expectedClustering.size(); ++i) {
-        CPPUNIT_ASSERT_EQUAL(core::CContainerPrinter::print(expectedClustering[i]),
+        BOOST_CHECK_EQUAL(core::CContainerPrinter::print(expectedClustering[i]),
                              core::CContainerPrinter::print(clustering[i]));
     }
 }
 
-void CRandomProjectionClustererTest::testAccuracy() {
+BOOST_AUTO_TEST_CASE(testAccuracy) {
 }
 
-CppUnit::Test* CRandomProjectionClustererTest::suite() {
-    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CRandomProjectionClustererTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CRandomProjectionClustererTest>(
-        "CRandomProjectionClustererTest::testGenerateProjections",
-        &CRandomProjectionClustererTest::testGenerateProjections));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CRandomProjectionClustererTest>(
-        "CRandomProjectionClustererTest::testClusterProjections",
-        &CRandomProjectionClustererTest::testClusterProjections));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CRandomProjectionClustererTest>(
-        "CRandomProjectionClustererTest::testNeighbourhoods",
-        &CRandomProjectionClustererTest::testNeighbourhoods));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CRandomProjectionClustererTest>(
-        "CRandomProjectionClustererTest::testSimilarities",
-        &CRandomProjectionClustererTest::testSimilarities));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CRandomProjectionClustererTest>(
-        "CRandomProjectionClustererTest::testClusterNeighbourhoods",
-        &CRandomProjectionClustererTest::testClusterNeighbourhoods));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CRandomProjectionClustererTest>(
-        "CRandomProjectionClustererTest::testAccuracy",
-        &CRandomProjectionClustererTest::testAccuracy));
-
-    return suiteOfTests;
-}
+BOOST_AUTO_TEST_SUITE_END()

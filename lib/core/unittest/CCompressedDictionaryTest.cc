@@ -4,21 +4,22 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
-#include "CCompressedDictionaryTest.h"
-
 #include <core/CCompressedDictionary.h>
 #include <core/CLogger.h>
 
 #include <test/CRandomNumbers.h>
 
+#include <boost/test/unit_test.hpp>
 #include <boost/unordered_map.hpp>
 #include <boost/unordered_set.hpp>
+
+BOOST_AUTO_TEST_SUITE(CCompressedDictionaryTest)
 
 using namespace ml;
 using namespace core;
 using namespace test;
 
-void CCompressedDictionaryTest::testAll() {
+BOOST_AUTO_TEST_CASE(testAll) {
     using TStrVec = std::vector<std::string>;
     using TDictionary = CCompressedDictionary<2>;
     using TWordUSet = TDictionary::TWordUSet;
@@ -45,15 +46,15 @@ void CCompressedDictionaryTest::testAll() {
 
         TWordUSet uniqueWords;
         for (std::size_t j = 0u; j < words.size(); ++j) {
-            CPPUNIT_ASSERT(uniqueWords.insert(dictionary.word(words[j])).second);
-            CPPUNIT_ASSERT(uniqueWords.insert(dictionary.word(words[j], word2)).second);
-            CPPUNIT_ASSERT(
+            BOOST_TEST(uniqueWords.insert(dictionary.word(words[j])).second);
+            BOOST_TEST(uniqueWords.insert(dictionary.word(words[j], word2)).second);
+            BOOST_TEST(
                 uniqueWords.insert(dictionary.word(words[j], word2, word3)).second);
         }
     }
 }
 
-void CCompressedDictionaryTest::testPersist() {
+BOOST_AUTO_TEST_CASE(testPersist) {
     using TDictionary1 = CCompressedDictionary<1>;
     using TDictionary2 = CCompressedDictionary<2>;
     using TDictionary3 = CCompressedDictionary<3>;
@@ -64,45 +65,38 @@ void CCompressedDictionaryTest::testPersist() {
         TDictionary1::CWord word = dictionary.word("hello");
         const std::string representation = word.toDelimited();
         word = dictionary.word("blank");
-        CPPUNIT_ASSERT(dictionary.word("special") != word);
-        CPPUNIT_ASSERT(word.fromDelimited(representation));
-        CPPUNIT_ASSERT(dictionary.word("hello") == word);
+        BOOST_TEST(dictionary.word("special") != word);
+        BOOST_TEST(word.fromDelimited(representation));
+        BOOST_TEST(dictionary.word("hello") == word);
     }
     {
         TDictionary2 dictionary;
         TDictionary2::CWord word = dictionary.word("world");
         const std::string representation = word.toDelimited();
         word = dictionary.word("blank");
-        CPPUNIT_ASSERT(dictionary.word("special") != word);
-        CPPUNIT_ASSERT(word.fromDelimited(representation));
-        CPPUNIT_ASSERT(dictionary.word("world") == word);
+        BOOST_TEST(dictionary.word("special") != word);
+        BOOST_TEST(word.fromDelimited(representation));
+        BOOST_TEST(dictionary.word("world") == word);
     }
     {
         TDictionary3 dictionary;
         TDictionary3::CWord word = dictionary.word("special");
         const std::string representation = word.toDelimited();
         word = dictionary.word("blank");
-        CPPUNIT_ASSERT(dictionary.word("special") != word);
-        CPPUNIT_ASSERT(word.fromDelimited(representation));
-        CPPUNIT_ASSERT(dictionary.word("special") == word);
+        BOOST_TEST(dictionary.word("special") != word);
+        BOOST_TEST(word.fromDelimited(representation));
+        BOOST_TEST(dictionary.word("special") == word);
     }
     {
         TDictionary4 dictionary;
         TDictionary4::CWord word = dictionary.word("TEST");
         const std::string representation = word.toDelimited();
         word = dictionary.word("blank");
-        CPPUNIT_ASSERT(dictionary.word("special") != word);
-        CPPUNIT_ASSERT(word.fromDelimited(representation));
-        CPPUNIT_ASSERT(dictionary.word("TEST") == word);
+        BOOST_TEST(dictionary.word("special") != word);
+        BOOST_TEST(word.fromDelimited(representation));
+        BOOST_TEST(dictionary.word("TEST") == word);
     }
 }
 
-CppUnit::Test* CCompressedDictionaryTest::suite() {
-    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CCompressedDictionaryTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CCompressedDictionaryTest>(
-        "CCompressedDictionaryTest::testAll", &CCompressedDictionaryTest::testAll));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CCompressedDictionaryTest>(
-        "CCompressedDictionaryTest::testPersist", &CCompressedDictionaryTest::testPersist));
-    return suiteOfTests;
-}
+BOOST_AUTO_TEST_SUITE_END()

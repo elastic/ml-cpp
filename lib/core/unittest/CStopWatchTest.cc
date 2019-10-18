@@ -3,7 +3,6 @@
  * or more contributor license agreements. Licensed under the Elastic License;
  * you may not use this file except in compliance with the Elastic License.
  */
-#include "CStopWatchTest.h"
 
 #include <core/CLogger.h>
 #include <core/CSleep.h>
@@ -11,16 +10,12 @@
 
 #include <stdint.h>
 
-CppUnit::Test* CStopWatchTest::suite() {
-    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CStopWatchTest");
+#include <boost/test/unit_test.hpp>
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CStopWatchTest>(
-        "CStopWatchTest::testStopWatch", &CStopWatchTest::testStopWatch));
+BOOST_AUTO_TEST_SUITE(CStopWatchTest)
 
-    return suiteOfTests;
-}
 
-void CStopWatchTest::testStopWatch() {
+BOOST_AUTO_TEST_CASE(testStopWatch) {
     ml::core::CStopWatch stopWatch;
 
     LOG_DEBUG(<< "About to start stop watch test");
@@ -34,8 +29,8 @@ void CStopWatchTest::testStopWatch() {
     LOG_DEBUG(<< "After a 5.5 second wait, the stop watch reads " << elapsed << " milliseconds");
 
     // Elapsed time should be between 5.4 and 5.6 seconds
-    CPPUNIT_ASSERT(elapsed >= 5400);
-    CPPUNIT_ASSERT(elapsed <= 5600);
+    BOOST_TEST(elapsed >= 5400);
+    BOOST_TEST(elapsed <= 5600);
 
     ml::core::CSleep::sleep(3500);
 
@@ -45,8 +40,8 @@ void CStopWatchTest::testStopWatch() {
               << elapsed << " milliseconds");
 
     // Elapsed time should be between 8.9 and 9.1 seconds
-    CPPUNIT_ASSERT(elapsed >= 8900);
-    CPPUNIT_ASSERT(elapsed <= 9100);
+    BOOST_TEST(elapsed >= 8900);
+    BOOST_TEST(elapsed <= 9100);
 
     // The stop watch should not count this time, as it's stopped
     ml::core::CSleep::sleep(2000);
@@ -63,6 +58,8 @@ void CStopWatchTest::testStopWatch() {
               << elapsed << " milliseconds");
 
     // Elapsed time should be between 9.4 and 9.6 seconds
-    CPPUNIT_ASSERT(elapsed >= 9400);
-    CPPUNIT_ASSERT(elapsed <= 9600);
+    BOOST_TEST(elapsed >= 9400);
+    BOOST_TEST(elapsed <= 9600);
 }
+
+BOOST_AUTO_TEST_SUITE_END()

@@ -4,8 +4,6 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
-#include "CStateMachineTest.h"
-
 #include <core/CLogger.h>
 #include <core/CRapidXmlParser.h>
 #include <core/CRapidXmlStatePersistInserter.h>
@@ -18,7 +16,10 @@
 #include <algorithm>
 #include <vector>
 
+#include <boost/test/unit_test.hpp>
 #include <boost/range.hpp>
+
+BOOST_AUTO_TEST_SUITE(CStateMachineTest)
 
 using namespace ml;
 
@@ -119,7 +120,7 @@ void randomMachines(std::size_t n, TMachineVec& result) {
 }
 }
 
-void CStateMachineTest::testBasics() {
+BOOST_AUTO_TEST_CASE(testBasics) {
     // Test errors on create.
 
     // Test transitions.
@@ -142,7 +143,7 @@ void CStateMachineTest::testBasics() {
                 const std::string& newState = machines[m].s_States[sm.state()];
 
                 LOG_DEBUG(<< "  " << oldState << " -> " << newState);
-                CPPUNIT_ASSERT_EQUAL(
+                BOOST_CHECK_EQUAL(
                     machines[m].s_States[machines[m].s_TransitionFunction[i][j]],
                     sm.printState(sm.state()));
             }
@@ -150,7 +151,7 @@ void CStateMachineTest::testBasics() {
     }
 }
 
-void CStateMachineTest::testPersist() {
+BOOST_AUTO_TEST_CASE(testPersist) {
     // Check persist maintains the checksum and is idempotent.
 
     TMachineVec machine;
@@ -169,7 +170,7 @@ void CStateMachineTest::testPersist() {
     LOG_DEBUG(<< "State machine XML representation:\n" << origXml);
 
     core::CRapidXmlParser parser;
-    CPPUNIT_ASSERT(parser.parseStringIgnoreCdata(origXml));
+    BOOST_TEST(parser.parseStringIgnoreCdata(origXml));
     core::CRapidXmlStateRestoreTraverser traverser(parser);
 
     core::CStateMachine restored = core::CStateMachine::create(
@@ -179,17 +180,17 @@ void CStateMachineTest::testPersist() {
         return restored.acceptRestoreTraverser(traverser_);
     });
 
-    CPPUNIT_ASSERT_EQUAL(original.checksum(), restored.checksum());
+    BOOST_CHECK_EQUAL(original.checksum(), restored.checksum());
     std::string newXml;
     {
         ml::core::CRapidXmlStatePersistInserter inserter("root");
         restored.acceptPersistInserter(inserter);
         inserter.toXml(newXml);
     }
-    CPPUNIT_ASSERT_EQUAL(origXml, newXml);
+    BOOST_CHECK_EQUAL(origXml, newXml);
 }
 
-void CStateMachineTest::testMultithreaded() {
+BOOST_AUTO_TEST_CASE(testMultithreaded) {
     // Check that we create each machine once and we don't get any
     // errors updating due to stale reads.
 
@@ -210,32 +211,22 @@ void CStateMachineTest::testMultithreaded() {
         threads.push_back(TThreadPtr(new CTestThread(machines)));
     }
     for (std::size_t i = 0u; i < threads.size(); ++i) {
-        CPPUNIT_ASSERT(threads[i]->start());
+        BOOST_TEST(threads[i]->start());
     }
     for (std::size_t i = 0u; i < threads.size(); ++i) {
-        CPPUNIT_ASSERT(threads[i]->waitForFinish());
+        BOOST_TEST(threads[i]->waitForFinish());
     }
     for (std::size_t i = 0u; i < threads.size(); ++i) {
         // No failed reads.
-        CPPUNIT_ASSERT_EQUAL(std::size_t(0), threads[i]->failures());
+        BOOST_CHECK_EQUAL(std::size_t(0), threads[i]->failures());
     }
     for (std::size_t i = 1u; i < threads.size(); ++i) {
         // No wrong reads.
-        CPPUNIT_ASSERT(threads[i]->states() == threads[i - 1]->states());
+        BOOST_TEST(threads[i]->states() == threads[i - 1]->states());
     }
     // No duplicates.
-    CPPUNIT_ASSERT_EQUAL(machines.size(), core::CStateMachine::numberMachines());
+    BOOST_CHECK_EQUAL(machines.size(), core::CStateMachine::numberMachines());
 }
 
-CppUnit::Test* CStateMachineTest::suite() {
-    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CStateMachineTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CStateMachineTest>(
-        "CStateMachineTest::testBasics", &CStateMachineTest::testBasics));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CStateMachineTest>(
-        "CStateMachineTest::testPersist", &CStateMachineTest::testPersist));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CStateMachineTest>(
-        "CStateMachineTest::testMultithreaded", &CStateMachineTest::testMultithreaded));
-
-    return suiteOfTests;
-}
+BOOST_AUTO_TEST_SUITE_END()

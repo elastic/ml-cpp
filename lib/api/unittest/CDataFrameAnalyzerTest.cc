@@ -4,8 +4,6 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
-#include "CDataFrameAnalyzerTest.h"
-
 #include <core/CContainerPrinter.h>
 #include <core/CJsonOutputStreamWrapper.h>
 #include <core/CJsonStatePersistInserter.h>
@@ -28,13 +26,18 @@
 
 #include <test/CRandomNumbers.h>
 #include <test/CTestTmpDir.h>
+#include <test/BoostTestCloseAbsolute.h>
 
 #include <rapidjson/error/en.h>
+
+#include <boost/test/unit_test.hpp>
 
 #include <iostream>
 #include <memory>
 #include <string>
 #include <vector>
+
+BOOST_AUTO_TEST_SUITE(CDataFrameAnalyzerTest)
 
 using namespace ml;
 
@@ -91,7 +94,7 @@ rapidjson::Document treeToJsonDocument(const maths::CBoostedTree& tree) {
     }
     rapidjson::Document results;
     rapidjson::ParseResult ok(results.Parse(persistStream.str()));
-    CPPUNIT_ASSERT(static_cast<bool>(ok) == true);
+    BOOST_TEST(static_cast<bool>(ok) == true);
     return results;
 }
 
@@ -521,19 +524,19 @@ void testOneRunOfBoostedTreeTrainingWithStateRecovery(F makeSpec, std::size_t it
         if (expectedHyperparameters.HasMember(key)) {
             double expected{std::stod(expectedHyperparameters[key].GetString())};
             double actual{std::stod(actualHyperparameters[key].GetString())};
-            CPPUNIT_ASSERT_DOUBLES_EQUAL(expected, actual, 1e-4 * expected);
+            BOOST_CHECK_CLOSE_ABSOLUTE(expected, actual, 1e-4 * expected);
         } else if (expectedRegularizationHyperparameters.HasMember(key)) {
             double expected{std::stod(expectedRegularizationHyperparameters[key].GetString())};
             double actual{std::stod(actualRegularizationHyperparameters[key].GetString())};
-            CPPUNIT_ASSERT_DOUBLES_EQUAL(expected, actual, 1e-4 * expected);
+            BOOST_CHECK_CLOSE_ABSOLUTE(expected, actual, 1e-4 * expected);
         } else {
-            CPPUNIT_FAIL("Missing " + key);
+            BOOST_FAIL("Missing " + key);
         }
     }
 }
 }
 
-void CDataFrameAnalyzerTest::testWithoutControlMessages() {
+BOOST_AUTO_TEST_CASE(testWithoutControlMessages) {
 
     std::stringstream output;
     auto outputWriterFactory = [&output]() {
@@ -557,28 +560,28 @@ void CDataFrameAnalyzerTest::testWithoutControlMessages() {
 
     rapidjson::Document results;
     rapidjson::ParseResult ok(results.Parse(output.str()));
-    CPPUNIT_ASSERT(static_cast<bool>(ok) == true);
+    BOOST_TEST(static_cast<bool>(ok) == true);
 
     auto expectedScore = expectedScores.begin();
     for (const auto& result : results.GetArray()) {
         if (result.HasMember("row_results")) {
-            CPPUNIT_ASSERT(expectedScore != expectedScores.end());
-            CPPUNIT_ASSERT_DOUBLES_EQUAL(
+            BOOST_TEST(expectedScore != expectedScores.end());
+            BOOST_CHECK_CLOSE_ABSOLUTE(
                 *expectedScore,
                 result["row_results"]["results"]["ml"]["outlier_score"].GetDouble(),
                 1e-4 * *expectedScore);
-            CPPUNIT_ASSERT(result.HasMember("progress_percent") == false);
+            BOOST_TEST(result.HasMember("progress_percent") == false);
             ++expectedScore;
         } else if (result.HasMember("progress_percent")) {
-            CPPUNIT_ASSERT(result["progress_percent"].GetInt() >= 0);
-            CPPUNIT_ASSERT(result["progress_percent"].GetInt() <= 100);
-            CPPUNIT_ASSERT(result.HasMember("row_results") == false);
+            BOOST_TEST(result["progress_percent"].GetInt() >= 0);
+            BOOST_TEST(result["progress_percent"].GetInt() <= 100);
+            BOOST_TEST(result.HasMember("row_results") == false);
         }
     }
-    CPPUNIT_ASSERT(expectedScore == expectedScores.end());
+    BOOST_TEST(expectedScore == expectedScores.end());
 }
 
-void CDataFrameAnalyzerTest::testRunOutlierDetection() {
+BOOST_AUTO_TEST_CASE(testRunOutlierDetection) {
 
     // Test the results the analyzer produces match running outlier detection
     // directly.
@@ -601,38 +604,38 @@ void CDataFrameAnalyzerTest::testRunOutlierDetection() {
 
     rapidjson::Document results;
     rapidjson::ParseResult ok(results.Parse(output.str()));
-    CPPUNIT_ASSERT(static_cast<bool>(ok) == true);
+    BOOST_TEST(static_cast<bool>(ok) == true);
 
     auto expectedScore = expectedScores.begin();
     bool progressCompleted{false};
     for (const auto& result : results.GetArray()) {
         if (result.HasMember("row_results")) {
-            CPPUNIT_ASSERT(expectedScore != expectedScores.end());
-            CPPUNIT_ASSERT_DOUBLES_EQUAL(
+            BOOST_TEST(expectedScore != expectedScores.end());
+            BOOST_CHECK_CLOSE_ABSOLUTE(
                 *expectedScore,
                 result["row_results"]["results"]["ml"]["outlier_score"].GetDouble(),
                 1e-4 * *expectedScore);
             ++expectedScore;
-            CPPUNIT_ASSERT(result.HasMember("progress_percent") == false);
+            BOOST_TEST(result.HasMember("progress_percent") == false);
         } else if (result.HasMember("progress_percent")) {
-            CPPUNIT_ASSERT(result["progress_percent"].GetInt() >= 0);
-            CPPUNIT_ASSERT(result["progress_percent"].GetInt() <= 100);
-            CPPUNIT_ASSERT(result.HasMember("row_results") == false);
+            BOOST_TEST(result["progress_percent"].GetInt() >= 0);
+            BOOST_TEST(result["progress_percent"].GetInt() <= 100);
+            BOOST_TEST(result.HasMember("row_results") == false);
             progressCompleted = result["progress_percent"].GetInt() == 100;
         }
     }
-    CPPUNIT_ASSERT(expectedScore == expectedScores.end());
-    CPPUNIT_ASSERT(progressCompleted);
+    BOOST_TEST(expectedScore == expectedScores.end());
+    BOOST_TEST(progressCompleted);
 
     LOG_DEBUG(<< "number partitions = "
               << core::CProgramCounters::counter(counter_t::E_DFONumberPartitions));
     LOG_DEBUG(<< "peak memory = "
               << core::CProgramCounters::counter(counter_t::E_DFOPeakMemoryUsage));
-    CPPUNIT_ASSERT(core::CProgramCounters::counter(counter_t::E_DFONumberPartitions) == 1);
-    CPPUNIT_ASSERT(core::CProgramCounters::counter(counter_t::E_DFOPeakMemoryUsage) < 100000);
+    BOOST_TEST(core::CProgramCounters::counter(counter_t::E_DFONumberPartitions) == 1);
+    BOOST_TEST(core::CProgramCounters::counter(counter_t::E_DFOPeakMemoryUsage) < 100000);
 }
 
-void CDataFrameAnalyzerTest::testRunOutlierDetectionPartitioned() {
+BOOST_AUTO_TEST_CASE(testRunOutlierDetectionPartitioned) {
 
     // Test the case we have to overflow to disk to compute outliers subject
     // to the memory constraints.
@@ -655,30 +658,30 @@ void CDataFrameAnalyzerTest::testRunOutlierDetectionPartitioned() {
 
     rapidjson::Document results;
     rapidjson::ParseResult ok(results.Parse(output.str()));
-    CPPUNIT_ASSERT(static_cast<bool>(ok) == true);
+    BOOST_TEST(static_cast<bool>(ok) == true);
 
     auto expectedScore = expectedScores.begin();
     for (const auto& result : results.GetArray()) {
         if (result.HasMember("row_results")) {
-            CPPUNIT_ASSERT(expectedScore != expectedScores.end());
-            CPPUNIT_ASSERT_DOUBLES_EQUAL(
+            BOOST_TEST(expectedScore != expectedScores.end());
+            BOOST_CHECK_CLOSE_ABSOLUTE(
                 *expectedScore,
                 result["row_results"]["results"]["ml"]["outlier_score"].GetDouble(),
                 1e-4 * *expectedScore);
             ++expectedScore;
         }
     }
-    CPPUNIT_ASSERT(expectedScore == expectedScores.end());
+    BOOST_TEST(expectedScore == expectedScores.end());
 
     LOG_DEBUG(<< "number partitions = "
               << core::CProgramCounters::counter(counter_t::E_DFONumberPartitions));
     LOG_DEBUG(<< "peak memory = "
               << core::CProgramCounters::counter(counter_t::E_DFOPeakMemoryUsage));
-    CPPUNIT_ASSERT(core::CProgramCounters::counter(counter_t::E_DFONumberPartitions) > 1);
-    CPPUNIT_ASSERT(core::CProgramCounters::counter(counter_t::E_DFOPeakMemoryUsage) < 116000); // + 16%
+    BOOST_TEST(core::CProgramCounters::counter(counter_t::E_DFONumberPartitions) > 1);
+    BOOST_TEST(core::CProgramCounters::counter(counter_t::E_DFOPeakMemoryUsage) < 116000); // + 16%
 }
 
-void CDataFrameAnalyzerTest::testRunOutlierFeatureInfluences() {
+BOOST_AUTO_TEST_CASE(testRunOutlierFeatureInfluences) {
 
     // Test we compute and write out the feature influences when requested.
 
@@ -702,14 +705,14 @@ void CDataFrameAnalyzerTest::testRunOutlierFeatureInfluences() {
 
     rapidjson::Document results;
     rapidjson::ParseResult ok(results.Parse(output.str()));
-    CPPUNIT_ASSERT(static_cast<bool>(ok) == true);
+    BOOST_TEST(static_cast<bool>(ok) == true);
 
     auto expectedFeatureInfluence = expectedFeatureInfluences.begin();
     for (const auto& result : results.GetArray()) {
         if (result.HasMember("row_results")) {
-            CPPUNIT_ASSERT(expectedFeatureInfluence != expectedFeatureInfluences.end());
+            BOOST_TEST(expectedFeatureInfluence != expectedFeatureInfluences.end());
             for (std::size_t i = 0; i < 5; ++i) {
-                CPPUNIT_ASSERT_DOUBLES_EQUAL(
+                BOOST_CHECK_CLOSE_ABSOLUTE(
                     (*expectedFeatureInfluence)[i],
                     result["row_results"]["results"]["ml"][expectedNames[i]].GetDouble(),
                     1e-4 * (*expectedFeatureInfluence)[i]);
@@ -717,10 +720,10 @@ void CDataFrameAnalyzerTest::testRunOutlierFeatureInfluences() {
             ++expectedFeatureInfluence;
         }
     }
-    CPPUNIT_ASSERT(expectedFeatureInfluence == expectedFeatureInfluences.end());
+    BOOST_TEST(expectedFeatureInfluence == expectedFeatureInfluences.end());
 }
 
-void CDataFrameAnalyzerTest::testRunOutlierDetectionWithParams() {
+BOOST_AUTO_TEST_CASE(testRunOutlierDetectionWithParams) {
 
     // Test the method and number of neighbours parameters are correctly
     // propagated to the analysis runner.
@@ -753,25 +756,25 @@ void CDataFrameAnalyzerTest::testRunOutlierDetectionWithParams() {
 
             rapidjson::Document results;
             rapidjson::ParseResult ok(results.Parse(output.str()));
-            CPPUNIT_ASSERT(static_cast<bool>(ok) == true);
+            BOOST_TEST(static_cast<bool>(ok) == true);
 
             auto expectedScore = expectedScores.begin();
             for (const auto& result : results.GetArray()) {
                 if (result.HasMember("row_results")) {
-                    CPPUNIT_ASSERT(expectedScore != expectedScores.end());
-                    CPPUNIT_ASSERT_DOUBLES_EQUAL(
+                    BOOST_TEST(expectedScore != expectedScores.end());
+                    BOOST_CHECK_CLOSE_ABSOLUTE(
                         *expectedScore,
                         result["row_results"]["results"]["ml"]["outlier_score"].GetDouble(),
                         1e-6 * *expectedScore);
                     ++expectedScore;
                 }
             }
-            CPPUNIT_ASSERT(expectedScore == expectedScores.end());
+            BOOST_TEST(expectedScore == expectedScores.end());
         }
     }
 }
 
-void CDataFrameAnalyzerTest::testRunBoostedTreeRegressionTraining() {
+BOOST_AUTO_TEST_CASE(testRunBoostedTreeRegressionTraining) {
 
     // Test the results the analyzer produces match running the regression directly.
 
@@ -793,28 +796,28 @@ void CDataFrameAnalyzerTest::testRunBoostedTreeRegressionTraining() {
 
     rapidjson::Document results;
     rapidjson::ParseResult ok(results.Parse(output.str()));
-    CPPUNIT_ASSERT(static_cast<bool>(ok) == true);
+    BOOST_TEST(static_cast<bool>(ok) == true);
 
     auto expectedPrediction = expectedPredictions.begin();
     bool progressCompleted{false};
     for (const auto& result : results.GetArray()) {
         if (result.HasMember("row_results")) {
-            CPPUNIT_ASSERT(expectedPrediction != expectedPredictions.end());
-            CPPUNIT_ASSERT_DOUBLES_EQUAL(
+            BOOST_TEST(expectedPrediction != expectedPredictions.end());
+            BOOST_CHECK_CLOSE_ABSOLUTE(
                 *expectedPrediction,
                 result["row_results"]["results"]["ml"]["c5_prediction"].GetDouble(),
                 1e-4 * std::fabs(*expectedPrediction));
             ++expectedPrediction;
-            CPPUNIT_ASSERT(result.HasMember("progress_percent") == false);
+            BOOST_TEST(result.HasMember("progress_percent") == false);
         } else if (result.HasMember("progress_percent")) {
-            CPPUNIT_ASSERT(result["progress_percent"].GetInt() >= 0);
-            CPPUNIT_ASSERT(result["progress_percent"].GetInt() <= 100);
-            CPPUNIT_ASSERT(result.HasMember("row_results") == false);
+            BOOST_TEST(result["progress_percent"].GetInt() >= 0);
+            BOOST_TEST(result["progress_percent"].GetInt() <= 100);
+            BOOST_TEST(result.HasMember("row_results") == false);
             progressCompleted = result["progress_percent"].GetInt() == 100;
         }
     }
-    CPPUNIT_ASSERT(expectedPrediction == expectedPredictions.end());
-    CPPUNIT_ASSERT(progressCompleted);
+    BOOST_TEST(expectedPrediction == expectedPredictions.end());
+    BOOST_TEST(progressCompleted);
 
     LOG_DEBUG(<< "estimated memory usage = "
               << core::CProgramCounters::counter(counter_t::E_DFTPMEstimatedPeakMemoryUsage));
@@ -823,14 +826,14 @@ void CDataFrameAnalyzerTest::testRunBoostedTreeRegressionTraining() {
     LOG_DEBUG(<< "time to train = " << core::CProgramCounters::counter(counter_t::E_DFTPMTimeToTrain)
               << "ms");
 
-    CPPUNIT_ASSERT(core::CProgramCounters::counter(
+    BOOST_TEST(core::CProgramCounters::counter(
                        counter_t::E_DFTPMEstimatedPeakMemoryUsage) < 2700000);
-    CPPUNIT_ASSERT(core::CProgramCounters::counter(counter_t::E_DFTPMPeakMemoryUsage) < 1050000);
-    CPPUNIT_ASSERT(core::CProgramCounters::counter(counter_t::E_DFTPMTimeToTrain) > 0);
-    CPPUNIT_ASSERT(core::CProgramCounters::counter(counter_t::E_DFTPMTimeToTrain) <= duration);
+    BOOST_TEST(core::CProgramCounters::counter(counter_t::E_DFTPMPeakMemoryUsage) < 1050000);
+    BOOST_TEST(core::CProgramCounters::counter(counter_t::E_DFTPMTimeToTrain) > 0);
+    BOOST_TEST(core::CProgramCounters::counter(counter_t::E_DFTPMTimeToTrain) <= duration);
 }
 
-void CDataFrameAnalyzerTest::testRunBoostedTreeRegressionTrainingWithParams() {
+BOOST_AUTO_TEST_CASE(testRunBoostedTreeRegressionTrainingWithParams) {
 
     // Test the regression hyperparameter settings are correctly propagated to the
     // analysis runner.
@@ -867,31 +870,31 @@ void CDataFrameAnalyzerTest::testRunBoostedTreeRegressionTrainingWithParams() {
 
     rapidjson::Document results;
     rapidjson::ParseResult ok(results.Parse(output.str()));
-    CPPUNIT_ASSERT(static_cast<bool>(ok) == true);
+    BOOST_TEST(static_cast<bool>(ok) == true);
 
     auto expectedPrediction = expectedPredictions.begin();
     bool progressCompleted{false};
     for (const auto& result : results.GetArray()) {
         if (result.HasMember("row_results")) {
-            CPPUNIT_ASSERT(expectedPrediction != expectedPredictions.end());
-            CPPUNIT_ASSERT_DOUBLES_EQUAL(
+            BOOST_TEST(expectedPrediction != expectedPredictions.end());
+            BOOST_CHECK_CLOSE_ABSOLUTE(
                 *expectedPrediction,
                 result["row_results"]["results"]["ml"]["c5_prediction"].GetDouble(),
                 1e-4 * std::fabs(*expectedPrediction));
             ++expectedPrediction;
-            CPPUNIT_ASSERT(result.HasMember("progress_percent") == false);
+            BOOST_TEST(result.HasMember("progress_percent") == false);
         } else if (result.HasMember("progress_percent")) {
-            CPPUNIT_ASSERT(result["progress_percent"].GetInt() >= 0);
-            CPPUNIT_ASSERT(result["progress_percent"].GetInt() <= 100);
-            CPPUNIT_ASSERT(result.HasMember("row_results") == false);
+            BOOST_TEST(result["progress_percent"].GetInt() >= 0);
+            BOOST_TEST(result["progress_percent"].GetInt() <= 100);
+            BOOST_TEST(result.HasMember("row_results") == false);
             progressCompleted = result["progress_percent"].GetInt() == 100;
         }
     }
-    CPPUNIT_ASSERT(expectedPrediction == expectedPredictions.end());
-    CPPUNIT_ASSERT(progressCompleted);
+    BOOST_TEST(expectedPrediction == expectedPredictions.end());
+    BOOST_TEST(progressCompleted);
 }
 
-void CDataFrameAnalyzerTest::testRunBoostedTreeRegressionTrainingWithRowsMissingTargetValue() {
+BOOST_AUTO_TEST_CASE(testRunBoostedTreeRegressionTrainingWithRowsMissingTargetValue) {
 
     // Test we are able to predict value rows for which the dependent variable
     // is missing.
@@ -930,27 +933,27 @@ void CDataFrameAnalyzerTest::testRunBoostedTreeRegressionTrainingWithRowsMissing
 
     rapidjson::Document results;
     rapidjson::ParseResult ok(results.Parse(output.str()));
-    CPPUNIT_ASSERT(static_cast<bool>(ok) == true);
+    BOOST_TEST(static_cast<bool>(ok) == true);
 
     std::size_t numberResults{0};
     for (const auto& result : results.GetArray()) {
         if (result.HasMember("row_results")) {
             std::size_t index(result["row_results"]["checksum"].GetUint64());
             double expected{target(feature[index])};
-            CPPUNIT_ASSERT_DOUBLES_EQUAL(
+            BOOST_CHECK_CLOSE_ABSOLUTE(
                 expected,
                 result["row_results"]["results"]["ml"]["target_prediction"].GetDouble(),
                 0.15 * expected);
-            CPPUNIT_ASSERT_EQUAL(
+            BOOST_CHECK_EQUAL(
                 index < 40,
                 result["row_results"]["results"]["ml"]["is_training"].GetBool());
             ++numberResults;
         }
     }
-    CPPUNIT_ASSERT_EQUAL(std::size_t{50}, numberResults);
+    BOOST_CHECK_EQUAL(std::size_t{50}, numberResults);
 }
 
-void CDataFrameAnalyzerTest::testRunBoostedTreeRegressionTrainingWithStateRecovery() {
+BOOST_AUTO_TEST_CASE(testRunBoostedTreeRegressionTrainingWithStateRecovery) {
 
     struct SHyperparameters {
         SHyperparameters(double alpha = 2.0, double lambda = 1.0, double gamma = 10.0)
@@ -1007,7 +1010,7 @@ void CDataFrameAnalyzerTest::testRunBoostedTreeRegressionTrainingWithStateRecove
     }
 }
 
-void CDataFrameAnalyzerTest::testRunBoostedTreeClassifierTraining() {
+BOOST_AUTO_TEST_CASE(testRunBoostedTreeClassifierTraining) {
 
     // Test the results the analyzer produces match running classification directly.
 
@@ -1032,27 +1035,27 @@ void CDataFrameAnalyzerTest::testRunBoostedTreeClassifierTraining() {
 
     rapidjson::Document results;
     rapidjson::ParseResult ok(results.Parse(output.str()));
-    CPPUNIT_ASSERT(static_cast<bool>(ok) == true);
+    BOOST_TEST(static_cast<bool>(ok) == true);
 
     auto expectedPrediction = expectedPredictions.begin();
     bool progressCompleted{false};
     for (const auto& result : results.GetArray()) {
         if (result.HasMember("row_results")) {
-            CPPUNIT_ASSERT(expectedPrediction != expectedPredictions.end());
+            BOOST_TEST(expectedPrediction != expectedPredictions.end());
             std::string actualPrediction{
                 result["row_results"]["results"]["ml"]["c5_prediction"].GetString()};
-            CPPUNIT_ASSERT_EQUAL(*expectedPrediction, actualPrediction);
+            BOOST_CHECK_EQUAL(*expectedPrediction, actualPrediction);
             ++expectedPrediction;
-            CPPUNIT_ASSERT(result.HasMember("progress_percent") == false);
+            BOOST_TEST(result.HasMember("progress_percent") == false);
         } else if (result.HasMember("progress_percent")) {
-            CPPUNIT_ASSERT(result["progress_percent"].GetInt() >= 0);
-            CPPUNIT_ASSERT(result["progress_percent"].GetInt() <= 100);
-            CPPUNIT_ASSERT(result.HasMember("row_results") == false);
+            BOOST_TEST(result["progress_percent"].GetInt() >= 0);
+            BOOST_TEST(result["progress_percent"].GetInt() <= 100);
+            BOOST_TEST(result.HasMember("row_results") == false);
             progressCompleted = result["progress_percent"].GetInt() == 100;
         }
     }
-    CPPUNIT_ASSERT(expectedPrediction == expectedPredictions.end());
-    CPPUNIT_ASSERT(progressCompleted);
+    BOOST_TEST(expectedPrediction == expectedPredictions.end());
+    BOOST_TEST(progressCompleted);
 
     LOG_DEBUG(<< "estimated memory usage = "
               << core::CProgramCounters::counter(counter_t::E_DFTPMEstimatedPeakMemoryUsage));
@@ -1060,14 +1063,14 @@ void CDataFrameAnalyzerTest::testRunBoostedTreeClassifierTraining() {
               << core::CProgramCounters::counter(counter_t::E_DFTPMPeakMemoryUsage));
     LOG_DEBUG(<< "time to train = " << core::CProgramCounters::counter(counter_t::E_DFTPMTimeToTrain)
               << "ms");
-    CPPUNIT_ASSERT(core::CProgramCounters::counter(
+    BOOST_TEST(core::CProgramCounters::counter(
                        counter_t::E_DFTPMEstimatedPeakMemoryUsage) < 2650000);
-    CPPUNIT_ASSERT(core::CProgramCounters::counter(counter_t::E_DFTPMPeakMemoryUsage) < 1050000);
-    CPPUNIT_ASSERT(core::CProgramCounters::counter(counter_t::E_DFTPMTimeToTrain) > 0);
-    CPPUNIT_ASSERT(core::CProgramCounters::counter(counter_t::E_DFTPMTimeToTrain) <= duration);
+    BOOST_TEST(core::CProgramCounters::counter(counter_t::E_DFTPMPeakMemoryUsage) < 1050000);
+    BOOST_TEST(core::CProgramCounters::counter(counter_t::E_DFTPMTimeToTrain) > 0);
+    BOOST_TEST(core::CProgramCounters::counter(counter_t::E_DFTPMTimeToTrain) <= duration);
 }
 
-void CDataFrameAnalyzerTest::testFlushMessage() {
+BOOST_AUTO_TEST_CASE(testFlushMessage) {
 
     // Test that white space is just ignored.
 
@@ -1077,12 +1080,12 @@ void CDataFrameAnalyzerTest::testFlushMessage() {
     };
 
     api::CDataFrameAnalyzer analyzer{outlierSpec(), outputWriterFactory};
-    CPPUNIT_ASSERT_EQUAL(
+    BOOST_CHECK_EQUAL(
         true, analyzer.handleRecord({"c1", "c2", "c3", "c4", "c5", ".", "."},
                                     {"", "", "", "", "", "", "           "}));
 }
 
-void CDataFrameAnalyzerTest::testErrors() {
+BOOST_AUTO_TEST_CASE(testErrors) {
 
     std::vector<std::string> errors;
     std::mutex errorsMutex;
@@ -1105,8 +1108,8 @@ void CDataFrameAnalyzerTest::testErrors() {
             std::make_unique<api::CDataFrameAnalysisSpecification>(std::string{"junk"}),
             outputWriterFactory};
         LOG_DEBUG(<< core::CContainerPrinter::print(errors));
-        CPPUNIT_ASSERT(errors.size() > 0);
-        CPPUNIT_ASSERT_EQUAL(false,
+        BOOST_TEST(errors.size() > 0);
+        BOOST_CHECK_EQUAL(false,
                              analyzer.handleRecord({"c1", "c2", "c3", "c4", "c5"},
                                                    {"10", "10", "10", "10", "10"}));
     }
@@ -1115,44 +1118,44 @@ void CDataFrameAnalyzerTest::testErrors() {
     {
         errors.clear();
         api::CDataFrameAnalyzer analyzer{outlierSpec(), outputWriterFactory};
-        CPPUNIT_ASSERT_EQUAL(
+        BOOST_CHECK_EQUAL(
             false, analyzer.handleRecord({"c1", "c2", "c3", ".", "c4", "c5", "."},
                                          {"10", "10", "10", "", "10", "10", ""}));
         LOG_DEBUG(<< core::CContainerPrinter::print(errors));
-        CPPUNIT_ASSERT(errors.size() > 0);
+        BOOST_TEST(errors.size() > 0);
     }
 
     // Test missing special field
     {
         api::CDataFrameAnalyzer analyzer{outlierSpec(), outputWriterFactory};
         errors.clear();
-        CPPUNIT_ASSERT_EQUAL(
+        BOOST_CHECK_EQUAL(
             false, analyzer.handleRecord({"c1", "c2", "c3", "c4", "c5", "."},
                                          {"10", "10", "10", "10", "10", ""}));
         LOG_DEBUG(<< core::CContainerPrinter::print(errors));
-        CPPUNIT_ASSERT(errors.size() > 0);
+        BOOST_TEST(errors.size() > 0);
     }
 
     // Test bad control message
     {
         api::CDataFrameAnalyzer analyzer{outlierSpec(), outputWriterFactory};
         errors.clear();
-        CPPUNIT_ASSERT_EQUAL(
+        BOOST_CHECK_EQUAL(
             false, analyzer.handleRecord({"c1", "c2", "c3", "c4", "c5", ".", "."},
                                          {"10", "10", "10", "10", "10", "", "foo"}));
         LOG_DEBUG(<< core::CContainerPrinter::print(errors));
-        CPPUNIT_ASSERT(errors.size() > 0);
+        BOOST_TEST(errors.size() > 0);
     }
 
     // Test bad input
     {
         api::CDataFrameAnalyzer analyzer{outlierSpec(), outputWriterFactory};
         errors.clear();
-        CPPUNIT_ASSERT_EQUAL(
+        BOOST_CHECK_EQUAL(
             false, analyzer.handleRecord({"c1", "c2", "c3", "c4", "c5", ".", "."},
                                          {"10", "10", "10", "10", "10"}));
         LOG_DEBUG(<< core::CContainerPrinter::print(errors));
-        CPPUNIT_ASSERT(errors.size() > 0);
+        BOOST_TEST(errors.size() > 0);
     }
 
     // Test inconsistent number of rows
@@ -1160,48 +1163,48 @@ void CDataFrameAnalyzerTest::testErrors() {
         // Fewer rows than expected is ignored.
         api::CDataFrameAnalyzer analyzer{outlierSpec(2), outputWriterFactory};
         errors.clear();
-        CPPUNIT_ASSERT_EQUAL(
+        BOOST_CHECK_EQUAL(
             true, analyzer.handleRecord({"c1", "c2", "c3", "c4", "c5", ".", "."},
                                         {"10", "10", "10", "10", "10", "0", ""}));
-        CPPUNIT_ASSERT_EQUAL(
+        BOOST_CHECK_EQUAL(
             true, analyzer.handleRecord({"c1", "c2", "c3", "c4", "c5", ".", "."},
                                         {"", "", "", "", "", "", "$"}));
         LOG_DEBUG(<< core::CContainerPrinter::print(errors));
-        CPPUNIT_ASSERT(errors.empty());
+        BOOST_TEST(errors.empty());
     }
     {
         api::CDataFrameAnalyzer analyzer{outlierSpec(2), outputWriterFactory};
         errors.clear();
-        CPPUNIT_ASSERT_EQUAL(
+        BOOST_CHECK_EQUAL(
             true, analyzer.handleRecord({"c1", "c2", "c3", "c4", "c5", ".", "."},
                                         {"10", "10", "10", "10", "10", "0", ""}));
-        CPPUNIT_ASSERT_EQUAL(
+        BOOST_CHECK_EQUAL(
             true, analyzer.handleRecord({"c1", "c2", "c3", "c4", "c5", ".", "."},
                                         {"10", "10", "10", "10", "10", "0", ""}));
-        CPPUNIT_ASSERT_EQUAL(
+        BOOST_CHECK_EQUAL(
             true, analyzer.handleRecord({"c1", "c2", "c3", "c4", "c5", ".", "."},
                                         {"10", "10", "10", "10", "10", "0", ""}));
-        CPPUNIT_ASSERT_EQUAL(
+        BOOST_CHECK_EQUAL(
             true, analyzer.handleRecord({"c1", "c2", "c3", "c4", "c5", ".", "."},
                                         {"", "", "", "", "", "", "$"}));
         LOG_DEBUG(<< core::CContainerPrinter::print(errors));
-        CPPUNIT_ASSERT(errors.size() > 0);
+        BOOST_TEST(errors.size() > 0);
     }
 
     // No data.
     {
         api::CDataFrameAnalyzer analyzer{outlierSpec(2), outputWriterFactory};
         errors.clear();
-        CPPUNIT_ASSERT_EQUAL(
+        BOOST_CHECK_EQUAL(
             true, analyzer.handleRecord({"c1", "c2", "c3", "c4", "c5", ".", "."},
                                         {"", "", "", "", "", "", "$"}));
         LOG_DEBUG(<< core::CContainerPrinter::print(errors));
-        CPPUNIT_ASSERT(errors.size() > 0);
-        CPPUNIT_ASSERT_EQUAL(std::string{"Input error: no data sent."}, errors[0]);
+        BOOST_TEST(errors.size() > 0);
+        BOOST_CHECK_EQUAL(std::string{"Input error: no data sent."}, errors[0]);
     }
 }
 
-void CDataFrameAnalyzerTest::testRoundTripDocHashes() {
+BOOST_AUTO_TEST_CASE(testRoundTripDocHashes) {
 
     std::stringstream output;
     auto outputWriterFactory = [&output]() {
@@ -1219,19 +1222,19 @@ void CDataFrameAnalyzerTest::testRoundTripDocHashes() {
 
     rapidjson::Document results;
     rapidjson::ParseResult ok(results.Parse(output.str()));
-    CPPUNIT_ASSERT(static_cast<bool>(ok) == true);
+    BOOST_TEST(static_cast<bool>(ok) == true);
 
     int expectedHash{0};
     for (const auto& result : results.GetArray()) {
         if (result.HasMember("row_results")) {
             LOG_DEBUG(<< "checksum = " << result["row_results"]["checksum"].GetInt());
-            CPPUNIT_ASSERT_EQUAL(++expectedHash,
+            BOOST_CHECK_EQUAL(++expectedHash,
                                  result["row_results"]["checksum"].GetInt());
         }
     }
 }
 
-void CDataFrameAnalyzerTest::testCategoricalFields() {
+BOOST_AUTO_TEST_CASE(testCategoricalFields) {
 
     std::stringstream output;
     auto outputWriterFactory = [&output]() {
@@ -1272,7 +1275,7 @@ void CDataFrameAnalyzerTest::testCategoricalFields() {
             }
         });
 
-        CPPUNIT_ASSERT(passed);
+        BOOST_TEST(passed);
     }
 
     LOG_DEBUG(<< "Test overflow");
@@ -1309,11 +1312,11 @@ void CDataFrameAnalyzerTest::testCategoricalFields() {
             }
         });
 
-        CPPUNIT_ASSERT(passed);
+        BOOST_TEST(passed);
     }
 }
 
-void CDataFrameAnalyzerTest::testCategoricalFieldsEmptyAsMissing() {
+BOOST_AUTO_TEST_CASE(testCategoricalFieldsEmptyAsMissing) {
 
     auto eq = [](double expected) {
         return [expected](double actual) { return expected == actual; };
@@ -1363,7 +1366,7 @@ void CDataFrameAnalyzerTest::testCategoricalFieldsEmptyAsMissing() {
     frame.readRows(1, [&](TRowItr beginRows, TRowItr endRows) {
         std::vector<TRowRef> rows;
         std::copy(beginRows, endRows, std::back_inserter(rows));
-        CPPUNIT_ASSERT_EQUAL(std::size_t{10}, rows.size());
+        BOOST_CHECK_EQUAL(std::size_t{10}, rows.size());
         assertRow(0, {eq(0.0), eq(0.0), eq(0.0), eq(0.0), eq(0.0)}, rows[0]);
         assertRow(1, {eq(1.0), eq(1.0), eq(1.0), eq(1.0), eq(1.0)}, rows[1]);
         assertRow(2, {eq(2.0), eq(2.0), eq(2.0), eq(2.0), eq(0.0)}, rows[2]);
@@ -1377,52 +1380,5 @@ void CDataFrameAnalyzerTest::testCategoricalFieldsEmptyAsMissing() {
     });
 }
 
-CppUnit::Test* CDataFrameAnalyzerTest::suite() {
-    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CDataFrameAnalyzerTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CDataFrameAnalyzerTest>(
-        "CDataFrameAnalyzerTest::testWithoutControlMessages",
-        &CDataFrameAnalyzerTest::testWithoutControlMessages));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CDataFrameAnalyzerTest>(
-        "CDataFrameAnalyzerTest::testRunOutlierDetection",
-        &CDataFrameAnalyzerTest::testRunOutlierDetection));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CDataFrameAnalyzerTest>(
-        "CDataFrameAnalyzerTest::testRunOutlierDetectionPartitioned",
-        &CDataFrameAnalyzerTest::testRunOutlierDetectionPartitioned));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CDataFrameAnalyzerTest>(
-        "CDataFrameAnalyzerTest::testRunOutlierFeatureInfluences",
-        &CDataFrameAnalyzerTest::testRunOutlierFeatureInfluences));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CDataFrameAnalyzerTest>(
-        "CDataFrameAnalyzerTest::testRunOutlierDetectionWithParams",
-        &CDataFrameAnalyzerTest::testRunOutlierDetectionWithParams));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CDataFrameAnalyzerTest>(
-        "CDataFrameAnalyzerTest::testRunBoostedTreeRegressionTraining",
-        &CDataFrameAnalyzerTest::testRunBoostedTreeRegressionTraining));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CDataFrameAnalyzerTest>(
-        "CDataFrameAnalyzerTest::testRunBoostedTreeRegressionTrainingWithStateRecovery",
-        &CDataFrameAnalyzerTest::testRunBoostedTreeRegressionTrainingWithStateRecovery));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CDataFrameAnalyzerTest>(
-        "CDataFrameAnalyzerTest::testRunBoostedTreeRegressionTrainingWithParams",
-        &CDataFrameAnalyzerTest::testRunBoostedTreeRegressionTrainingWithParams));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CDataFrameAnalyzerTest>(
-        "CDataFrameAnalyzerTest::testRunBoostedTreeRegressionTrainingWithRowsMissingTargetValue",
-        &CDataFrameAnalyzerTest::testRunBoostedTreeRegressionTrainingWithRowsMissingTargetValue));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CDataFrameAnalyzerTest>(
-        "CDataFrameAnalyzerTest::testRunBoostedTreeClassifierTraining",
-        &CDataFrameAnalyzerTest::testRunBoostedTreeClassifierTraining));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CDataFrameAnalyzerTest>(
-        "CDataFrameAnalyzerTest::testFlushMessage", &CDataFrameAnalyzerTest::testFlushMessage));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CDataFrameAnalyzerTest>(
-        "CDataFrameAnalyzerTest::testErrors", &CDataFrameAnalyzerTest::testErrors));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CDataFrameAnalyzerTest>(
-        "CDataFrameAnalyzerTest::testRoundTripDocHashes",
-        &CDataFrameAnalyzerTest::testRoundTripDocHashes));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CDataFrameAnalyzerTest>(
-        "CDataFrameAnalyzerTest::testCategoricalFields",
-        &CDataFrameAnalyzerTest::testCategoricalFields));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CDataFrameAnalyzerTest>(
-        "CDataFrameAnalyzerTest::testCategoricalFieldsEmptyAsMissing",
-        &CDataFrameAnalyzerTest::testCategoricalFieldsEmptyAsMissing));
-
-    return suiteOfTests;
-}
+BOOST_AUTO_TEST_SUITE_END()

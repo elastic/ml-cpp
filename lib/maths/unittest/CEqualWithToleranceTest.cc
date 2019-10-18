@@ -4,16 +4,18 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
-#include "CEqualWithToleranceTest.h"
-
 #include <core/CLogger.h>
 
 #include <maths/CEqualWithTolerance.h>
 #include <maths/CLinearAlgebra.h>
 
+#include <boost/test/unit_test.hpp>
+
+BOOST_AUTO_TEST_SUITE(CEqualWithToleranceTest)
+
 using namespace ml;
 
-void CEqualWithToleranceTest::testScalar() {
+BOOST_AUTO_TEST_CASE(testScalar) {
     {
         maths::CEqualWithTolerance<double> abs(
             maths::CToleranceTypes::E_AbsoluteTolerance, 0.31);
@@ -30,28 +32,28 @@ void CEqualWithToleranceTest::testScalar() {
             double b = 1.4;
             double c = 200.6;
             double d = 202.61;
-            CPPUNIT_ASSERT_EQUAL(true, abs(a, b));
-            CPPUNIT_ASSERT_EQUAL(false, abs(c, d));
-            CPPUNIT_ASSERT_EQUAL(false, rel(a, b));
-            CPPUNIT_ASSERT_EQUAL(true, rel(c, d));
-            CPPUNIT_ASSERT_EQUAL(false, absAndRel(a, b));
-            CPPUNIT_ASSERT_EQUAL(false, absAndRel(c, d));
-            CPPUNIT_ASSERT_EQUAL(true, absOrRel(a, b));
-            CPPUNIT_ASSERT_EQUAL(true, absOrRel(c, d));
+            BOOST_CHECK_EQUAL(true, abs(a, b));
+            BOOST_CHECK_EQUAL(false, abs(c, d));
+            BOOST_CHECK_EQUAL(false, rel(a, b));
+            BOOST_CHECK_EQUAL(true, rel(c, d));
+            BOOST_CHECK_EQUAL(false, absAndRel(a, b));
+            BOOST_CHECK_EQUAL(false, absAndRel(c, d));
+            BOOST_CHECK_EQUAL(true, absOrRel(a, b));
+            BOOST_CHECK_EQUAL(true, absOrRel(c, d));
         }
         {
             double a = -1.1;
             double b = -1.4;
             double c = -200.6;
             double d = -202.61;
-            CPPUNIT_ASSERT_EQUAL(true, abs(a, b));
-            CPPUNIT_ASSERT_EQUAL(false, abs(c, d));
-            CPPUNIT_ASSERT_EQUAL(false, rel(a, b));
-            CPPUNIT_ASSERT_EQUAL(true, rel(c, d));
-            CPPUNIT_ASSERT_EQUAL(false, absAndRel(a, b));
-            CPPUNIT_ASSERT_EQUAL(false, absAndRel(c, d));
-            CPPUNIT_ASSERT_EQUAL(true, absOrRel(a, b));
-            CPPUNIT_ASSERT_EQUAL(true, absOrRel(c, d));
+            BOOST_CHECK_EQUAL(true, abs(a, b));
+            BOOST_CHECK_EQUAL(false, abs(c, d));
+            BOOST_CHECK_EQUAL(false, rel(a, b));
+            BOOST_CHECK_EQUAL(true, rel(c, d));
+            BOOST_CHECK_EQUAL(false, absAndRel(a, b));
+            BOOST_CHECK_EQUAL(false, absAndRel(c, d));
+            BOOST_CHECK_EQUAL(true, absOrRel(a, b));
+            BOOST_CHECK_EQUAL(true, absOrRel(c, d));
         }
     }
     {
@@ -68,18 +70,18 @@ void CEqualWithToleranceTest::testScalar() {
         float b = 1.4f;
         float c = 200.6f;
         float d = 202.61f;
-        CPPUNIT_ASSERT_EQUAL(true, abs(a, b));
-        CPPUNIT_ASSERT_EQUAL(false, abs(c, d));
-        CPPUNIT_ASSERT_EQUAL(false, rel(a, b));
-        CPPUNIT_ASSERT_EQUAL(true, rel(c, d));
-        CPPUNIT_ASSERT_EQUAL(false, absAndRel(a, b));
-        CPPUNIT_ASSERT_EQUAL(false, absAndRel(c, d));
-        CPPUNIT_ASSERT_EQUAL(true, absOrRel(a, b));
-        CPPUNIT_ASSERT_EQUAL(true, absOrRel(c, d));
+        BOOST_CHECK_EQUAL(true, abs(a, b));
+        BOOST_CHECK_EQUAL(false, abs(c, d));
+        BOOST_CHECK_EQUAL(false, rel(a, b));
+        BOOST_CHECK_EQUAL(true, rel(c, d));
+        BOOST_CHECK_EQUAL(false, absAndRel(a, b));
+        BOOST_CHECK_EQUAL(false, absAndRel(c, d));
+        BOOST_CHECK_EQUAL(true, absOrRel(a, b));
+        BOOST_CHECK_EQUAL(true, absOrRel(c, d));
     }
 }
 
-void CEqualWithToleranceTest::testVector() {
+BOOST_AUTO_TEST_CASE(testVector) {
     float a_[] = {1.1f, 1.2f};
     float b_[] = {1.2f, 1.3f};
     float c_[] = {201.1f, 202.2f};
@@ -104,46 +106,46 @@ void CEqualWithToleranceTest::testVector() {
         maths::CVector<double> b(b_, b_ + 2);
         maths::CVector<double> c(c_, c_ + 2);
         maths::CVector<double> d(d_, d_ + 2);
-        CPPUNIT_ASSERT_EQUAL(true, abs(a, b));
-        CPPUNIT_ASSERT_EQUAL(false, abs(c, d));
-        CPPUNIT_ASSERT_EQUAL(false, rel(a, b));
-        CPPUNIT_ASSERT_EQUAL(true, rel(c, d));
-        CPPUNIT_ASSERT_EQUAL(false, absAndRel(a, b));
-        CPPUNIT_ASSERT_EQUAL(false, absAndRel(c, d));
-        CPPUNIT_ASSERT_EQUAL(true, absOrRel(a, b));
-        CPPUNIT_ASSERT_EQUAL(true, absOrRel(c, d));
+        BOOST_CHECK_EQUAL(true, abs(a, b));
+        BOOST_CHECK_EQUAL(false, abs(c, d));
+        BOOST_CHECK_EQUAL(false, rel(a, b));
+        BOOST_CHECK_EQUAL(true, rel(c, d));
+        BOOST_CHECK_EQUAL(false, absAndRel(a, b));
+        BOOST_CHECK_EQUAL(false, absAndRel(c, d));
+        BOOST_CHECK_EQUAL(true, absOrRel(a, b));
+        BOOST_CHECK_EQUAL(true, absOrRel(c, d));
     }
     {
         maths::CVector<double> a(a_, a_ + 2);
         maths::CVector<double> b(b_, b_ + 2);
         maths::CVector<double> c(c_, c_ + 2);
         maths::CVector<double> d(d_, d_ + 2);
-        CPPUNIT_ASSERT_EQUAL(true, abs(-a, -b));
-        CPPUNIT_ASSERT_EQUAL(false, abs(-c, -d));
-        CPPUNIT_ASSERT_EQUAL(false, rel(-a, -b));
-        CPPUNIT_ASSERT_EQUAL(true, rel(-c, -d));
-        CPPUNIT_ASSERT_EQUAL(false, absAndRel(-a, -b));
-        CPPUNIT_ASSERT_EQUAL(false, absAndRel(-c, -d));
-        CPPUNIT_ASSERT_EQUAL(true, absOrRel(-a, -b));
-        CPPUNIT_ASSERT_EQUAL(true, absOrRel(-c, -d));
+        BOOST_CHECK_EQUAL(true, abs(-a, -b));
+        BOOST_CHECK_EQUAL(false, abs(-c, -d));
+        BOOST_CHECK_EQUAL(false, rel(-a, -b));
+        BOOST_CHECK_EQUAL(true, rel(-c, -d));
+        BOOST_CHECK_EQUAL(false, absAndRel(-a, -b));
+        BOOST_CHECK_EQUAL(false, absAndRel(-c, -d));
+        BOOST_CHECK_EQUAL(true, absOrRel(-a, -b));
+        BOOST_CHECK_EQUAL(true, absOrRel(-c, -d));
     }
     {
         maths::CVector<float> a(a_, a_ + 2);
         maths::CVector<float> b(b_, b_ + 2);
         maths::CVector<float> c(c_, c_ + 2);
         maths::CVector<float> d(d_, d_ + 2);
-        CPPUNIT_ASSERT_EQUAL(true, abs(a, b));
-        CPPUNIT_ASSERT_EQUAL(false, abs(c, d));
-        CPPUNIT_ASSERT_EQUAL(false, rel(a, b));
-        CPPUNIT_ASSERT_EQUAL(true, rel(c, d));
-        CPPUNIT_ASSERT_EQUAL(false, absAndRel(a, b));
-        CPPUNIT_ASSERT_EQUAL(false, absAndRel(c, d));
-        CPPUNIT_ASSERT_EQUAL(true, absOrRel(a, b));
-        CPPUNIT_ASSERT_EQUAL(true, absOrRel(c, d));
+        BOOST_CHECK_EQUAL(true, abs(a, b));
+        BOOST_CHECK_EQUAL(false, abs(c, d));
+        BOOST_CHECK_EQUAL(false, rel(a, b));
+        BOOST_CHECK_EQUAL(true, rel(c, d));
+        BOOST_CHECK_EQUAL(false, absAndRel(a, b));
+        BOOST_CHECK_EQUAL(false, absAndRel(c, d));
+        BOOST_CHECK_EQUAL(true, absOrRel(a, b));
+        BOOST_CHECK_EQUAL(true, absOrRel(c, d));
     }
 }
 
-void CEqualWithToleranceTest::testMatrix() {
+BOOST_AUTO_TEST_CASE(testMatrix) {
     float a_[] = {1.1f, 1.2f, 1.3f};
     float b_[] = {1.2f, 1.3f, 1.4f};
     float c_[] = {201.1f, 202.2f, 203.4f};
@@ -168,54 +170,44 @@ void CEqualWithToleranceTest::testMatrix() {
         maths::CSymmetricMatrix<double> b(b_, b_ + 3);
         maths::CSymmetricMatrix<double> c(c_, c_ + 3);
         maths::CSymmetricMatrix<double> d(d_, d_ + 3);
-        CPPUNIT_ASSERT_EQUAL(true, abs(a, b));
-        CPPUNIT_ASSERT_EQUAL(false, abs(c, d));
-        CPPUNIT_ASSERT_EQUAL(false, rel(a, b));
-        CPPUNIT_ASSERT_EQUAL(true, rel(c, d));
-        CPPUNIT_ASSERT_EQUAL(false, absAndRel(a, b));
-        CPPUNIT_ASSERT_EQUAL(false, absAndRel(c, d));
-        CPPUNIT_ASSERT_EQUAL(true, absOrRel(a, b));
-        CPPUNIT_ASSERT_EQUAL(true, absOrRel(c, d));
+        BOOST_CHECK_EQUAL(true, abs(a, b));
+        BOOST_CHECK_EQUAL(false, abs(c, d));
+        BOOST_CHECK_EQUAL(false, rel(a, b));
+        BOOST_CHECK_EQUAL(true, rel(c, d));
+        BOOST_CHECK_EQUAL(false, absAndRel(a, b));
+        BOOST_CHECK_EQUAL(false, absAndRel(c, d));
+        BOOST_CHECK_EQUAL(true, absOrRel(a, b));
+        BOOST_CHECK_EQUAL(true, absOrRel(c, d));
     }
     {
         maths::CSymmetricMatrix<double> a(a_, a_ + 3);
         maths::CSymmetricMatrix<double> b(b_, b_ + 3);
         maths::CSymmetricMatrix<double> c(c_, c_ + 3);
         maths::CSymmetricMatrix<double> d(d_, d_ + 3);
-        CPPUNIT_ASSERT_EQUAL(true, abs(-a, -b));
-        CPPUNIT_ASSERT_EQUAL(false, abs(-c, -d));
-        CPPUNIT_ASSERT_EQUAL(false, rel(-a, -b));
-        CPPUNIT_ASSERT_EQUAL(true, rel(-c, -d));
-        CPPUNIT_ASSERT_EQUAL(false, absAndRel(-a, -b));
-        CPPUNIT_ASSERT_EQUAL(false, absAndRel(-c, -d));
-        CPPUNIT_ASSERT_EQUAL(true, absOrRel(a, b));
-        CPPUNIT_ASSERT_EQUAL(true, absOrRel(c, d));
+        BOOST_CHECK_EQUAL(true, abs(-a, -b));
+        BOOST_CHECK_EQUAL(false, abs(-c, -d));
+        BOOST_CHECK_EQUAL(false, rel(-a, -b));
+        BOOST_CHECK_EQUAL(true, rel(-c, -d));
+        BOOST_CHECK_EQUAL(false, absAndRel(-a, -b));
+        BOOST_CHECK_EQUAL(false, absAndRel(-c, -d));
+        BOOST_CHECK_EQUAL(true, absOrRel(a, b));
+        BOOST_CHECK_EQUAL(true, absOrRel(c, d));
     }
     {
         maths::CSymmetricMatrix<float> a(a_, a_ + 3);
         maths::CSymmetricMatrix<float> b(b_, b_ + 3);
         maths::CSymmetricMatrix<float> c(c_, c_ + 3);
         maths::CSymmetricMatrix<float> d(d_, d_ + 3);
-        CPPUNIT_ASSERT_EQUAL(true, abs(a, b));
-        CPPUNIT_ASSERT_EQUAL(false, abs(c, d));
-        CPPUNIT_ASSERT_EQUAL(false, rel(a, b));
-        CPPUNIT_ASSERT_EQUAL(true, rel(c, d));
-        CPPUNIT_ASSERT_EQUAL(false, absAndRel(a, b));
-        CPPUNIT_ASSERT_EQUAL(false, absAndRel(c, d));
-        CPPUNIT_ASSERT_EQUAL(true, absOrRel(a, b));
-        CPPUNIT_ASSERT_EQUAL(true, absOrRel(c, d));
+        BOOST_CHECK_EQUAL(true, abs(a, b));
+        BOOST_CHECK_EQUAL(false, abs(c, d));
+        BOOST_CHECK_EQUAL(false, rel(a, b));
+        BOOST_CHECK_EQUAL(true, rel(c, d));
+        BOOST_CHECK_EQUAL(false, absAndRel(a, b));
+        BOOST_CHECK_EQUAL(false, absAndRel(c, d));
+        BOOST_CHECK_EQUAL(true, absOrRel(a, b));
+        BOOST_CHECK_EQUAL(true, absOrRel(c, d));
     }
 }
 
-CppUnit::Test* CEqualWithToleranceTest::suite() {
-    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CEqualWithToleranceTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CEqualWithToleranceTest>(
-        "CEqualWithToleranceTest::testScalar", &CEqualWithToleranceTest::testScalar));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CEqualWithToleranceTest>(
-        "CEqualWithToleranceTest::testVector", &CEqualWithToleranceTest::testVector));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CEqualWithToleranceTest>(
-        "CEqualWithToleranceTest::testMatrix", &CEqualWithToleranceTest::testMatrix));
-
-    return suiteOfTests;
-}
+BOOST_AUTO_TEST_SUITE_END()

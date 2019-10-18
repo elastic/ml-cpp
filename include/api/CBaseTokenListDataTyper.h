@@ -21,7 +21,9 @@
 #include <utility>
 #include <vector>
 
-class CBaseTokenListDataTyperTest;
+namespace CBaseTokenListDataTyperTest {
+struct testFoo;
+}
 
 namespace ml {
 namespace core {
@@ -292,7 +294,7 @@ private:
     CCsvInputParser::CCsvLineParser m_CsvLineParser;
 
     // For unit testing
-    friend class ::CBaseTokenListDataTyperTest;
+    friend struct CBaseTokenListDataTyperTest::testFoo;
 
     // For ostream output
     friend API_EXPORT std::ostream& operator<<(std::ostream&, const SIdTranslater&);

@@ -3,23 +3,18 @@
  * or more contributor license agreements. Licensed under the Elastic License;
  * you may not use this file except in compliance with the Elastic License.
  */
-#include "CSleepTest.h"
 
 #include <core/CLogger.h>
 #include <core/CSleep.h>
 #include <core/CTimeUtils.h>
 #include <core/CoreTypes.h>
 
-CppUnit::Test* CSleepTest::suite() {
-    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CSleepTest");
+#include <boost/test/unit_test.hpp>
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CSleepTest>(
-        "CSleepTest::testSleep", &CSleepTest::testSleep));
+BOOST_AUTO_TEST_SUITE(CSleepTest)
 
-    return suiteOfTests;
-}
 
-void CSleepTest::testSleep() {
+BOOST_AUTO_TEST_CASE(testSleep) {
     ml::core_t::TTime start(ml::core::CTimeUtils::now());
 
     ml::core::CSleep::sleep(7500);
@@ -30,6 +25,8 @@ void CSleepTest::testSleep() {
     LOG_DEBUG(<< "During 7.5 second wait, the clock advanced by " << diff << " seconds");
 
     // Clock time should be 7 or 8 seconds further ahead
-    CPPUNIT_ASSERT(diff >= 7);
-    CPPUNIT_ASSERT(diff <= 8);
+    BOOST_TEST(diff >= 7);
+    BOOST_TEST(diff <= 8);
 }
+
+BOOST_AUTO_TEST_SUITE_END()

@@ -15,7 +15,9 @@
 
 #include <memory>
 
-class CCountingModelTest;
+namespace CCountingModelTest {
+struct testFoo;
+}
 
 namespace ml {
 namespace model {
@@ -291,7 +293,7 @@ private:
     //! Calculates corrections for interim buckets.
     TInterimBucketCorrectorPtr m_InterimBucketCorrector;
 
-    friend class ::CCountingModelTest;
+    friend struct CCountingModelTest::testFoo;
 };
 }
 }

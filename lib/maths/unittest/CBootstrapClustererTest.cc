@@ -4,8 +4,6 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
-#include "CBootstrapClustererTest.h"
-
 #include <core/CLogger.h>
 
 #include <maths/CBootstrapClusterer.h>
@@ -13,10 +11,14 @@
 #include <maths/CLinearAlgebraTools.h>
 
 #include <test/CRandomNumbers.h>
+#include <test/BoostTestCloseAbsolute.h>
 
+#include <boost/test/unit_test.hpp>
 #include <boost/range.hpp>
 
 #include <vector>
+
+BOOST_AUTO_TEST_SUITE(CBootstrapClustererTest)
 
 using namespace ml;
 
@@ -97,14 +99,14 @@ void clique(std::size_t a, std::size_t b, TGraph& graph) {
 }
 
 void connect(const TSizeVec& U, const TSizeVec& V, TGraph& graph) {
-    CPPUNIT_ASSERT_EQUAL(U.size(), V.size());
+    BOOST_CHECK_EQUAL(U.size(), V.size());
     for (std::size_t i = 0u; i < U.size(); ++i) {
         boost::put(boost::edge_weight, graph, boost::add_edge(U[i], V[i], graph).first, 1.0);
     }
 }
 }
 
-void CBootstrapClustererTest::testFacade() {
+BOOST_AUTO_TEST_CASE(testFacade) {
     // Check that clustering by facade produces the sample result.
 
     std::size_t improveParamsKmeansIterations = 4;
@@ -165,16 +167,16 @@ void CBootstrapClustererTest::testFacade() {
                 std::sort(expected[i].begin(), expected[i].end());
             }
 
-            CPPUNIT_ASSERT_EQUAL(expected.size(), actual.size());
+            BOOST_CHECK_EQUAL(expected.size(), actual.size());
             for (std::size_t i = 0u; i < expected.size(); ++i) {
-                CPPUNIT_ASSERT_EQUAL(core::CContainerPrinter::print(expected[i]),
+                BOOST_CHECK_EQUAL(core::CContainerPrinter::print(expected[i]),
                                      core::CContainerPrinter::print(actual[i]));
             }
         }
     }
 }
 
-void CBootstrapClustererTest::testBuildClusterGraph() {
+BOOST_AUTO_TEST_CASE(testBuildClusterGraph) {
     // Test we get the graph edges we expect for different overlap
     // thresholds.
 
@@ -273,11 +275,11 @@ void CBootstrapClustererTest::testBuildClusterGraph() {
         }
 
         LOG_DEBUG(<< "Overlap graph " << rep);
-        CPPUNIT_ASSERT_EQUAL(expected[i], rep);
+        BOOST_CHECK_EQUAL(expected[i], rep);
     }
 }
 
-void CBootstrapClustererTest::testCutSearch() {
+BOOST_AUTO_TEST_CASE(testCutSearch) {
     // Test we generally find the sparsest cut in a graph with two cliques.
 
     std::size_t trials = 50;
@@ -325,10 +327,10 @@ void CBootstrapClustererTest::testCutSearch() {
     }
 
     LOG_DEBUG(<< "quality = " << 1.0 - maths::CBasicStatistics::mean(quality));
-    CPPUNIT_ASSERT(1.0 - maths::CBasicStatistics::mean(quality) > 0.98);
+    BOOST_TEST(1.0 - maths::CBasicStatistics::mean(quality) > 0.98);
 }
 
-void CBootstrapClustererTest::testSeparate() {
+BOOST_AUTO_TEST_CASE(testSeparate) {
     // Test we separate a graph with three cliques when we can.
 
     test::CRandomNumbers rng;
@@ -406,11 +408,11 @@ void CBootstrapClustererTest::testSeparate() {
 
     LOG_DEBUG(<< "errors = " << errors);
     LOG_DEBUG(<< "quality = " << 1.0 - maths::CBasicStatistics::mean(quality));
-    CPPUNIT_ASSERT(errors < 4);
-    CPPUNIT_ASSERT(1.0 - maths::CBasicStatistics::mean(quality) > 0.99);
+    BOOST_TEST(errors < 4);
+    BOOST_TEST(1.0 - maths::CBasicStatistics::mean(quality) > 0.99);
 }
 
-void CBootstrapClustererTest::testThickets() {
+BOOST_AUTO_TEST_CASE(testThickets) {
     // Test we find the correct thickets in a graph with two
     // components and three cliques.
 
@@ -479,7 +481,7 @@ void CBootstrapClustererTest::testThickets() {
                 double jaccard = maths::CSetTools::jaccard(
                     expectedClusters[i].begin(), expectedClusters[i].end(),
                     clusters[i].begin(), clusters[i].end());
-                CPPUNIT_ASSERT(jaccard > 0.8);
+                BOOST_TEST(jaccard > 0.8);
                 meanJaccard.add(jaccard);
             }
         }
@@ -487,11 +489,11 @@ void CBootstrapClustererTest::testThickets() {
 
     LOG_DEBUG(<< "error = " << error);
     LOG_DEBUG(<< "mean Jaccard = " << maths::CBasicStatistics::mean(meanJaccard));
-    CPPUNIT_ASSERT(error < 2);
-    CPPUNIT_ASSERT(maths::CBasicStatistics::mean(meanJaccard) > 0.99);
+    BOOST_TEST(error < 2);
+    BOOST_TEST(maths::CBasicStatistics::mean(meanJaccard) > 0.99);
 }
 
-void CBootstrapClustererTest::testNonConvexClustering() {
+BOOST_AUTO_TEST_CASE(testNonConvexClustering) {
     // Check the improvement in clustering when the underlying
     // assumptions of x-means (specifically cluster convexness
     // and Gaussian noise) are violated.
@@ -588,7 +590,7 @@ void CBootstrapClustererTest::testNonConvexClustering() {
             bootstrap[i].clear();
             for (std::size_t j = 0u; j < bootstrapClusters[i].size(); ++j) {
                 auto k = lookup.find(bootstrapClusters[i][j]);
-                CPPUNIT_ASSERT(k != lookup.end());
+                BOOST_TEST(k != lookup.end());
                 bootstrap[i].push_back(k->second);
             }
             std::sort(bootstrap[i].begin(), bootstrap[i].end());
@@ -618,7 +620,7 @@ void CBootstrapClustererTest::testNonConvexClustering() {
             vanilla[i].clear();
             for (std::size_t j = 0u; j < xmeans.clusters()[i].points().size(); ++j) {
                 auto k = lookup.find(xmeans.clusters()[i].points()[j]);
-                CPPUNIT_ASSERT(k != lookup.end());
+                BOOST_TEST(k != lookup.end());
                 vanilla[i].push_back(k->second);
             }
             std::sort(vanilla[i].begin(), vanilla[i].end());
@@ -648,15 +650,15 @@ void CBootstrapClustererTest::testNonConvexClustering() {
     LOG_DEBUG(<< "# clusters vanilla   = "
               << maths::CBasicStatistics::mean(numberClustersVanilla));
 
-    CPPUNIT_ASSERT_DOUBLES_EQUAL(
+    BOOST_CHECK_CLOSE_ABSOLUTE(
         1.0, maths::CBasicStatistics::mean(jaccardBootstrapToPerfect), 0.1);
-    CPPUNIT_ASSERT_DOUBLES_EQUAL(
+    BOOST_CHECK_CLOSE_ABSOLUTE(
         3.0, maths::CBasicStatistics::mean(numberClustersBootstrap), 0.6);
-    CPPUNIT_ASSERT(maths::CBasicStatistics::mean(jaccardBootstrapToPerfect) >
+    BOOST_TEST(maths::CBasicStatistics::mean(jaccardBootstrapToPerfect) >
                    maths::CBasicStatistics::mean(jaccardVanillaToPerfect));
 }
 
-void CBootstrapClustererTest::testClusteringStability() {
+BOOST_AUTO_TEST_CASE(testClusteringStability) {
     // Test that when we think there is sufficient certainty
     // to create clusters the assignment of points to clusters
     // is stable over multiple samplings of the data.
@@ -726,7 +728,7 @@ void CBootstrapClustererTest::testClusteringStability() {
                 bootstrap[i].clear();
                 for (std::size_t j = 0u; j < bootstrapClusters[i].size(); ++j) {
                     auto k = lookup.find(bootstrapClusters[i][j]);
-                    CPPUNIT_ASSERT(k != lookup.end());
+                    BOOST_TEST(k != lookup.end());
                     bootstrap[i].push_back(k->second);
                 }
                 std::sort(bootstrap[i].begin(), bootstrap[i].end());
@@ -764,29 +766,8 @@ void CBootstrapClustererTest::testClusteringStability() {
     TMeanAccumulator meanConsistency;
     meanConsistency.add(consistency);
     LOG_DEBUG(<< "mean = " << maths::CBasicStatistics::mean(meanConsistency));
-    CPPUNIT_ASSERT(maths::CBasicStatistics::mean(meanConsistency) > 0.95);
+    BOOST_TEST(maths::CBasicStatistics::mean(meanConsistency) > 0.95);
 }
 
-CppUnit::Test* CBootstrapClustererTest::suite() {
-    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CBootstrapClustererTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CBootstrapClustererTest>(
-        "CBootstrapClustererTest::testFacade", &CBootstrapClustererTest::testFacade));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CBootstrapClustererTest>(
-        "CBootstrapClustererTest::testBuildClusterGraph",
-        &CBootstrapClustererTest::testBuildClusterGraph));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CBootstrapClustererTest>(
-        "CBootstrapClustererTest::testCutSearch", &CBootstrapClustererTest::testCutSearch));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CBootstrapClustererTest>(
-        "CBootstrapClustererTest::testSeparate", &CBootstrapClustererTest::testSeparate));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CBootstrapClustererTest>(
-        "CBootstrapClustererTest::testThickets", &CBootstrapClustererTest::testThickets));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CBootstrapClustererTest>(
-        "CBootstrapClustererTest::testNonConvexClustering",
-        &CBootstrapClustererTest::testNonConvexClustering));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CBootstrapClustererTest>(
-        "CBootstrapClustererTest::testClusteringStability",
-        &CBootstrapClustererTest::testClusteringStability));
-
-    return suiteOfTests;
-}
+BOOST_AUTO_TEST_SUITE_END()

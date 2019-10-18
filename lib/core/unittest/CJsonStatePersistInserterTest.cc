@@ -3,23 +3,17 @@
  * or more contributor license agreements. Licensed under the Elastic License;
  * you may not use this file except in compliance with the Elastic License.
  */
-#include "CJsonStatePersistInserterTest.h"
 
 #include <core/CJsonStatePersistInserter.h>
 #include <core/CLogger.h>
 #include <core/CStringUtils.h>
 
+#include <boost/test/unit_test.hpp>
+
 #include <sstream>
 
-CppUnit::Test* CJsonStatePersistInserterTest::suite() {
-    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CJsonStatePersistInserterTest");
+BOOST_AUTO_TEST_SUITE(CJsonStatePersistInserterTest)
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CJsonStatePersistInserterTest>(
-        "CJsonStatePersistInserterTest::testPersist",
-        &CJsonStatePersistInserterTest::testPersist));
-
-    return suiteOfTests;
-}
 
 namespace {
 //! Persist state as JSON with meaningful tag names.
@@ -43,7 +37,7 @@ void insert2ndLevel(ml::core::CStatePersistInserter& inserter) {
 }
 }
 
-void CJsonStatePersistInserterTest::testPersist() {
+BOOST_AUTO_TEST_CASE(testPersist) {
     {
         std::ostringstream strm;
 
@@ -60,7 +54,7 @@ void CJsonStatePersistInserterTest::testPersist() {
 
         LOG_DEBUG(<< "JSON is: " << json);
 
-        CPPUNIT_ASSERT_EQUAL(std::string("{\"a\":\"a\",\"b\":\"25\",\"c\":{\"a\":\"3.14\",\"b\":\"z\"}}"),
+        BOOST_CHECK_EQUAL(std::string("{\"a\":\"a\",\"b\":\"25\",\"c\":{\"a\":\"3.14\",\"b\":\"z\"}}"),
                              json);
     }
 
@@ -81,7 +75,9 @@ void CJsonStatePersistInserterTest::testPersist() {
 
         LOG_DEBUG(<< "JSON is: " << json);
 
-        CPPUNIT_ASSERT_EQUAL(std::string("{\"level1A\":\"a\",\"level1B\":\"25\",\"level1C\":{\"level2A\":\"3.14\",\"level2B\":\"z\"}}"),
+        BOOST_CHECK_EQUAL(std::string("{\"level1A\":\"a\",\"level1B\":\"25\",\"level1C\":{\"level2A\":\"3.14\",\"level2B\":\"z\"}}"),
                              json);
     }
 }
+
+BOOST_AUTO_TEST_SUITE_END()

@@ -3,7 +3,6 @@
  * or more contributor license agreements. Licensed under the Elastic License;
  * you may not use this file except in compliance with the Elastic License.
  */
-#include "CCalendarFeatureTest.h"
 
 #include <core/CContainerPrinter.h>
 #include <core/CLogger.h>
@@ -15,7 +14,11 @@
 
 #include <test/CRandomNumbers.h>
 
+#include <boost/test/unit_test.hpp>
+
 #include <vector>
+
+BOOST_AUTO_TEST_SUITE(CCalendarFeatureTest)
 
 using namespace ml;
 
@@ -40,7 +43,7 @@ private:
 };
 }
 
-void CCalendarFeatureTest::testInitialize() {
+BOOST_AUTO_TEST_CASE(testInitialize) {
     // Check we get the expected features.
 
     test::CRandomNumbers rng;
@@ -64,11 +67,11 @@ void CCalendarFeatureTest::testInitialize() {
         maths::CCalendarFeature::TCalendarFeature4Ary actual =
             maths::CCalendarFeature::features(time);
 
-        CPPUNIT_ASSERT(expected == actual);
+        BOOST_TEST(expected == actual);
     }
 }
 
-void CCalendarFeatureTest::testComparison() {
+BOOST_AUTO_TEST_CASE(testComparison) {
     // Check some comparison invariants.
 
     test::CRandomNumbers rng;
@@ -93,16 +96,16 @@ void CCalendarFeatureTest::testComparison() {
     features.erase(std::unique(features.begin(), features.end()), features.end());
 
     for (std::size_t i = 0u; i < features.size(); ++i) {
-        CPPUNIT_ASSERT(features[i] == features[i]);
-        CPPUNIT_ASSERT(!(features[i] < features[i] || features[i] > features[i]));
+        BOOST_TEST(features[i] == features[i]);
+        BOOST_TEST(!(features[i] < features[i] || features[i] > features[i]));
         for (std::size_t j = i + 1; j < features.size(); ++j) {
-            CPPUNIT_ASSERT(features[i] != features[j]);
-            CPPUNIT_ASSERT(features[i] < features[j] || features[i] > features[j]);
+            BOOST_TEST(features[i] != features[j]);
+            BOOST_TEST(features[i] < features[j] || features[i] > features[j]);
         }
     }
 }
 
-void CCalendarFeatureTest::testOffset() {
+BOOST_AUTO_TEST_CASE(testOffset) {
     // Check some properties of offset. Specifically,
     //    - offset(time + delta) = offset(time) + delta provided
     //      times are in same month except when the delta crosses
@@ -139,7 +142,7 @@ void CCalendarFeatureTest::testOffset() {
 
             if (month == offsetMonth) {
                 for (const auto& feature : features) {
-                    CPPUNIT_ASSERT(
+                    BOOST_TEST(
                         feature.offset(time) + offset == feature.offset(offsetTime) ||
                         feature.offset(time) + offset == feature.offset(offsetTime) - 3600 ||
                         feature.offset(time) + offset == feature.offset(offsetTime) + 3600);
@@ -152,7 +155,7 @@ void CCalendarFeatureTest::testOffset() {
     CScopeGMT gmt;
 
     LOG_DEBUG(<< "# tests = " << tests);
-    CPPUNIT_ASSERT(tests > 30000);
+    BOOST_TEST(tests > 30000);
 
     core_t::TTime feb1st = 31 * DAY;
     core_t::TTime march1st = feb1st + 28 * DAY;
@@ -164,16 +167,16 @@ void CCalendarFeatureTest::testOffset() {
         maths::CCalendarFeature feature(
             maths::CCalendarFeature::DAYS_SINCE_START_OF_MONTH, feb1st);
         for (core_t::TTime time = march1st; time < april1st; time += DAY) {
-            CPPUNIT_ASSERT_EQUAL(time - march1st, feature.offset(time));
-            CPPUNIT_ASSERT_EQUAL(time - march1st + 4800, feature.offset(time + 4800));
+            BOOST_CHECK_EQUAL(time - march1st, feature.offset(time));
+            BOOST_CHECK_EQUAL(time - march1st + 4800, feature.offset(time + 4800));
         }
     }
     {
         maths::CCalendarFeature feature(
             maths::CCalendarFeature::DAYS_SINCE_START_OF_MONTH, feb1st + 12 * DAY);
         for (core_t::TTime time = march1st; time < april1st; time += DAY) {
-            CPPUNIT_ASSERT_EQUAL(time - march1st - 12 * DAY, feature.offset(time));
-            CPPUNIT_ASSERT_EQUAL(time - march1st - 12 * DAY + 43400,
+            BOOST_CHECK_EQUAL(time - march1st - 12 * DAY, feature.offset(time));
+            BOOST_CHECK_EQUAL(time - march1st - 12 * DAY + 43400,
                                  feature.offset(time + 43400));
         }
     }
@@ -183,8 +186,8 @@ void CCalendarFeatureTest::testOffset() {
         maths::CCalendarFeature feature(
             maths::CCalendarFeature::DAYS_BEFORE_END_OF_MONTH, feb1st);
         for (core_t::TTime time = march1st; time < april1st; time += DAY) {
-            CPPUNIT_ASSERT_EQUAL(time - march1st - 3 * DAY, feature.offset(time));
-            CPPUNIT_ASSERT_EQUAL(time - march1st - 3 * DAY + 7200,
+            BOOST_CHECK_EQUAL(time - march1st - 3 * DAY, feature.offset(time));
+            BOOST_CHECK_EQUAL(time - march1st - 3 * DAY + 7200,
                                  feature.offset(time + 7200));
         }
     }
@@ -192,8 +195,8 @@ void CCalendarFeatureTest::testOffset() {
         maths::CCalendarFeature feature(
             maths::CCalendarFeature::DAYS_BEFORE_END_OF_MONTH, feb1st + 10 * DAY);
         for (core_t::TTime time = march1st; time < april1st; time += DAY) {
-            CPPUNIT_ASSERT_EQUAL(time - march1st - 13 * DAY, feature.offset(time));
-            CPPUNIT_ASSERT_EQUAL(time - march1st - 13 * DAY + 86399,
+            BOOST_CHECK_EQUAL(time - march1st - 13 * DAY, feature.offset(time));
+            BOOST_CHECK_EQUAL(time - march1st - 13 * DAY + 86399,
                                  feature.offset(time + 86399));
         }
     }
@@ -204,8 +207,8 @@ void CCalendarFeatureTest::testOffset() {
         maths::CCalendarFeature feature(
             maths::CCalendarFeature::DAY_OF_WEEK_AND_WEEKS_SINCE_START_OF_MONTH, feb1st);
         for (core_t::TTime time = april1st; time < may1st; time += DAY) {
-            CPPUNIT_ASSERT_EQUAL(time - april1st - 4 * DAY, feature.offset(time));
-            CPPUNIT_ASSERT_EQUAL(time - april1st - 4 * DAY + 7200,
+            BOOST_CHECK_EQUAL(time - april1st - 4 * DAY, feature.offset(time));
+            BOOST_CHECK_EQUAL(time - april1st - 4 * DAY + 7200,
                                  feature.offset(time + 7200));
         }
     }
@@ -214,8 +217,8 @@ void CCalendarFeatureTest::testOffset() {
         maths::CCalendarFeature feature(maths::CCalendarFeature::DAY_OF_WEEK_AND_WEEKS_SINCE_START_OF_MONTH,
                                         feb1st + 12 * DAY);
         for (core_t::TTime time = april1st; time < may1st; time += DAY) {
-            CPPUNIT_ASSERT_EQUAL(time - april1st - 9 * DAY, feature.offset(time));
-            CPPUNIT_ASSERT_EQUAL(time - april1st - 9 * DAY + 73000,
+            BOOST_CHECK_EQUAL(time - april1st - 9 * DAY, feature.offset(time));
+            BOOST_CHECK_EQUAL(time - april1st - 9 * DAY + 73000,
                                  feature.offset(time + 73000));
         }
     }
@@ -226,8 +229,8 @@ void CCalendarFeatureTest::testOffset() {
         maths::CCalendarFeature feature(
             maths::CCalendarFeature::DAY_OF_WEEK_AND_WEEKS_BEFORE_END_OF_MONTH, feb1st);
         for (core_t::TTime time = april1st; time < may1st; time += DAY) {
-            CPPUNIT_ASSERT_EQUAL(time - april1st - 4 * DAY, feature.offset(time));
-            CPPUNIT_ASSERT_EQUAL(time - april1st - 4 * DAY + 7200,
+            BOOST_CHECK_EQUAL(time - april1st - 4 * DAY, feature.offset(time));
+            BOOST_CHECK_EQUAL(time - april1st - 4 * DAY + 7200,
                                  feature.offset(time + 7200));
         }
     }
@@ -236,14 +239,14 @@ void CCalendarFeatureTest::testOffset() {
         maths::CCalendarFeature feature(maths::CCalendarFeature::DAY_OF_WEEK_AND_WEEKS_SINCE_START_OF_MONTH,
                                         feb1st + 12 * DAY);
         for (core_t::TTime time = april1st; time < may1st; time += DAY) {
-            CPPUNIT_ASSERT_EQUAL(time - april1st - 9 * DAY, feature.offset(time));
-            CPPUNIT_ASSERT_EQUAL(time - april1st - 9 * DAY + 73000,
+            BOOST_CHECK_EQUAL(time - april1st - 9 * DAY, feature.offset(time));
+            BOOST_CHECK_EQUAL(time - april1st - 9 * DAY + 73000,
                                  feature.offset(time + 73000));
         }
     }
 }
 
-void CCalendarFeatureTest::testPersist() {
+BOOST_AUTO_TEST_CASE(testPersist) {
     maths::CCalendarFeature::TCalendarFeature4Ary features =
         maths::CCalendarFeature::features(core::CTimeUtils::now());
 
@@ -254,22 +257,10 @@ void CCalendarFeatureTest::testPersist() {
         maths::CCalendarFeature restored;
         restored.fromDelimited(state);
 
-        CPPUNIT_ASSERT_EQUAL(features[i].checksum(), restored.checksum());
-        CPPUNIT_ASSERT_EQUAL(state, restored.toDelimited());
+        BOOST_CHECK_EQUAL(features[i].checksum(), restored.checksum());
+        BOOST_CHECK_EQUAL(state, restored.toDelimited());
     }
 }
 
-CppUnit::Test* CCalendarFeatureTest::suite() {
-    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CCalendarFeatureTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CCalendarFeatureTest>(
-        "CCalendarFeatureTest::testInitialize", &CCalendarFeatureTest::testInitialize));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CCalendarFeatureTest>(
-        "CCalendarFeatureTest::testComparison", &CCalendarFeatureTest::testComparison));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CCalendarFeatureTest>(
-        "CCalendarFeatureTest::testOffset", &CCalendarFeatureTest::testOffset));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CCalendarFeatureTest>(
-        "CCalendarFeatureTest::testPersist", &CCalendarFeatureTest::testPersist));
-
-    return suiteOfTests;
-}
+BOOST_AUTO_TEST_SUITE_END()

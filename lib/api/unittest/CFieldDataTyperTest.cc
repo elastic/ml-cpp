@@ -4,8 +4,6 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
-#include "CFieldDataTyperTest.h"
-
 #include <core/CDataAdder.h>
 #include <core/CDataSearcher.h>
 #include <core/CJsonOutputStreamWrapper.h>
@@ -21,7 +19,11 @@
 
 #include "CMockDataProcessor.h"
 
+#include <boost/test/unit_test.hpp>
+
 #include <sstream>
+
+BOOST_AUTO_TEST_SUITE(CFieldDataTyperTest)
 
 using namespace ml;
 using namespace api;
@@ -104,10 +106,10 @@ private:
 };
 }
 
-void CFieldDataTyperTest::testAll() {
+BOOST_AUTO_TEST_CASE(testAll) {
     model::CLimits limits;
     CFieldConfig config;
-    CPPUNIT_ASSERT(config.initFromFile("testfiles/new_persist_categorization.conf"));
+    BOOST_TEST(config.initFromFile("testfiles/new_persist_categorization.conf"));
     CTestOutputHandler handler;
 
     std::ostringstream outputStrm;
@@ -115,39 +117,39 @@ void CFieldDataTyperTest::testAll() {
     CJsonOutputWriter writer("job", wrappedOutputStream);
 
     CFieldDataTyper typer("job", config, limits, handler, writer);
-    CPPUNIT_ASSERT_EQUAL(false, handler.isNewStream());
+    BOOST_CHECK_EQUAL(false, handler.isNewStream());
     typer.newOutputStream();
-    CPPUNIT_ASSERT_EQUAL(true, handler.isNewStream());
+    BOOST_CHECK_EQUAL(true, handler.isNewStream());
 
-    CPPUNIT_ASSERT_EQUAL(false, handler.hasFinalised());
-    CPPUNIT_ASSERT_EQUAL(uint64_t(0), typer.numRecordsHandled());
+    BOOST_CHECK_EQUAL(false, handler.hasFinalised());
+    BOOST_CHECK_EQUAL(uint64_t(0), typer.numRecordsHandled());
 
     CFieldDataTyper::TStrStrUMap dataRowFields;
     dataRowFields["message"] = "thing";
     dataRowFields["two"] = "other";
 
-    CPPUNIT_ASSERT(typer.handleRecord(dataRowFields));
+    BOOST_TEST(typer.handleRecord(dataRowFields));
 
-    CPPUNIT_ASSERT_EQUAL(uint64_t(1), typer.numRecordsHandled());
-    CPPUNIT_ASSERT_EQUAL(typer.numRecordsHandled(), handler.getNumRows());
+    BOOST_CHECK_EQUAL(uint64_t(1), typer.numRecordsHandled());
+    BOOST_CHECK_EQUAL(typer.numRecordsHandled(), handler.getNumRows());
 
     // try a couple of erroneous cases
     dataRowFields.clear();
-    CPPUNIT_ASSERT(typer.handleRecord(dataRowFields));
+    BOOST_TEST(typer.handleRecord(dataRowFields));
 
     dataRowFields["thing"] = "bling";
     dataRowFields["thang"] = "wing";
-    CPPUNIT_ASSERT(typer.handleRecord(dataRowFields));
+    BOOST_TEST(typer.handleRecord(dataRowFields));
 
     dataRowFields["message"] = "";
     dataRowFields["thang"] = "wing";
-    CPPUNIT_ASSERT(typer.handleRecord(dataRowFields));
+    BOOST_TEST(typer.handleRecord(dataRowFields));
 
-    CPPUNIT_ASSERT_EQUAL(uint64_t(4), typer.numRecordsHandled());
-    CPPUNIT_ASSERT_EQUAL(typer.numRecordsHandled(), handler.getNumRows());
+    BOOST_CHECK_EQUAL(uint64_t(4), typer.numRecordsHandled());
+    BOOST_CHECK_EQUAL(typer.numRecordsHandled(), handler.getNumRows());
 
     typer.finalise();
-    CPPUNIT_ASSERT(handler.hasFinalised());
+    BOOST_TEST(handler.hasFinalised());
 
     // do a persist / restore
     std::string origJson;
@@ -178,13 +180,13 @@ void CFieldDataTyperTest::testAll() {
         std::ostringstream& ss = dynamic_cast<std::ostringstream&>(*adder.getStream());
         newJson = ss.str();
     }
-    CPPUNIT_ASSERT_EQUAL(origJson, newJson);
+    BOOST_CHECK_EQUAL(origJson, newJson);
 }
 
-void CFieldDataTyperTest::testNodeReverseSearch() {
+BOOST_AUTO_TEST_CASE(testNodeReverseSearch) {
     model::CLimits limits;
     CFieldConfig config;
-    CPPUNIT_ASSERT(config.initFromFile("testfiles/new_persist_categorization.conf"));
+    BOOST_TEST(config.initFromFile("testfiles/new_persist_categorization.conf"));
 
     std::ostringstream outputStrm;
     {
@@ -197,11 +199,11 @@ void CFieldDataTyperTest::testNodeReverseSearch() {
         CFieldDataTyper::TStrStrUMap dataRowFields;
         dataRowFields["message"] = "Node 1 started";
 
-        CPPUNIT_ASSERT(typer.handleRecord(dataRowFields));
+        BOOST_TEST(typer.handleRecord(dataRowFields));
 
         dataRowFields["message"] = "Node 2 started";
 
-        CPPUNIT_ASSERT(typer.handleRecord(dataRowFields));
+        BOOST_TEST(typer.handleRecord(dataRowFields));
 
         typer.finalise();
     }
@@ -214,16 +216,16 @@ void CFieldDataTyperTest::testNodeReverseSearch() {
     // reverse search creation are tested more thoroughly in the unit tests for
     // their respective classes, but this test helps to confirm that they work
     // together)
-    CPPUNIT_ASSERT(output.find("\"terms\":\"Node started\"") != std::string::npos);
-    CPPUNIT_ASSERT(output.find("\"regex\":\".*?Node.+?started.*\"") != std::string::npos);
+    BOOST_TEST(output.find("\"terms\":\"Node started\"") != std::string::npos);
+    BOOST_TEST(output.find("\"regex\":\".*?Node.+?started.*\"") != std::string::npos);
     // The input data should NOT be in the output
-    CPPUNIT_ASSERT(output.find("\"message\"") == std::string::npos);
+    BOOST_TEST(output.find("\"message\"") == std::string::npos);
 }
 
-void CFieldDataTyperTest::testPassOnControlMessages() {
+BOOST_AUTO_TEST_CASE(testPassOnControlMessages) {
     model::CLimits limits;
     CFieldConfig config;
-    CPPUNIT_ASSERT(config.initFromFile("testfiles/new_persist_categorization.conf"));
+    BOOST_TEST(config.initFromFile("testfiles/new_persist_categorization.conf"));
 
     std::ostringstream outputStrm;
     {
@@ -238,20 +240,20 @@ void CFieldDataTyperTest::testPassOnControlMessages() {
         CFieldDataTyper::TStrStrUMap dataRowFields;
         dataRowFields["."] = "f7";
 
-        CPPUNIT_ASSERT(typer.handleRecord(dataRowFields));
+        BOOST_TEST(typer.handleRecord(dataRowFields));
 
         typer.finalise();
     }
 
     const std::string& output = outputStrm.str();
     LOG_DEBUG(<< "Output is: " << output);
-    CPPUNIT_ASSERT_EQUAL(std::string("[]"), output);
+    BOOST_CHECK_EQUAL(std::string("[]"), output);
 }
 
-void CFieldDataTyperTest::testHandleControlMessages() {
+BOOST_AUTO_TEST_CASE(testHandleControlMessages) {
     model::CLimits limits;
     CFieldConfig config;
-    CPPUNIT_ASSERT(config.initFromFile("testfiles/new_persist_categorization.conf"));
+    BOOST_TEST(config.initFromFile("testfiles/new_persist_categorization.conf"));
 
     std::ostringstream outputStrm;
     {
@@ -264,21 +266,21 @@ void CFieldDataTyperTest::testHandleControlMessages() {
         CFieldDataTyper::TStrStrUMap dataRowFields;
         dataRowFields["."] = "f7";
 
-        CPPUNIT_ASSERT(typer.handleRecord(dataRowFields));
+        BOOST_TEST(typer.handleRecord(dataRowFields));
 
         typer.finalise();
     }
 
     const std::string& output = outputStrm.str();
     LOG_DEBUG(<< "Output is: " << output);
-    CPPUNIT_ASSERT_EQUAL(std::string::size_type(0),
+    BOOST_CHECK_EQUAL(std::string::size_type(0),
                          output.find("[{\"flush\":{\"id\":\"7\",\"last_finalized_bucket_end\":0}}"));
 }
 
-void CFieldDataTyperTest::testRestoreStateFailsWithEmptyState() {
+BOOST_AUTO_TEST_CASE(testRestoreStateFailsWithEmptyState) {
     model::CLimits limits;
     CFieldConfig config;
-    CPPUNIT_ASSERT(config.initFromFile("testfiles/new_persist_categorization.conf"));
+    BOOST_TEST(config.initFromFile("testfiles/new_persist_categorization.conf"));
 
     std::ostringstream outputStrm;
     CNullOutput nullOutput;
@@ -288,24 +290,8 @@ void CFieldDataTyperTest::testRestoreStateFailsWithEmptyState() {
 
     core_t::TTime completeToTime(0);
     CEmptySearcher restoreSearcher;
-    CPPUNIT_ASSERT(typer.restoreState(restoreSearcher, completeToTime) == false);
+    BOOST_TEST(typer.restoreState(restoreSearcher, completeToTime) == false);
 }
 
-CppUnit::Test* CFieldDataTyperTest::suite() {
-    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CFieldDataTyperTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CFieldDataTyperTest>(
-        "CFieldDataTyperTest::testAll", &CFieldDataTyperTest::testAll));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CFieldDataTyperTest>(
-        "CFieldDataTyperTest::testNodeReverseSearch", &CFieldDataTyperTest::testNodeReverseSearch));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CFieldDataTyperTest>(
-        "CFieldDataTyperTest::testPassOnControlMessages",
-        &CFieldDataTyperTest::testPassOnControlMessages));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CFieldDataTyperTest>(
-        "CFieldDataTyperTest::testHandleControlMessages",
-        &CFieldDataTyperTest::testHandleControlMessages));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CFieldDataTyperTest>(
-        "CFieldDataTyperTest::testRestoreStateFailsWithEmptyState",
-        &CFieldDataTyperTest::testRestoreStateFailsWithEmptyState));
-    return suiteOfTests;
-}
+BOOST_AUTO_TEST_SUITE_END()

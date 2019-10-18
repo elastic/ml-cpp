@@ -19,8 +19,12 @@
 #include <functional>
 #include <string>
 
-class CResourceMonitorTest;
-class CStringStoreTest;
+namespace CResourceMonitorTest {
+struct testFoo;
+}
+namespace CStringStoreTest {
+struct testFoo;
+}
 
 namespace ml {
 
@@ -132,8 +136,8 @@ private:
     //! Locking primitive
     mutable core::CFastMutex m_Mutex;
 
-    friend class ::CResourceMonitorTest;
-    friend class ::CStringStoreTest;
+    friend struct CResourceMonitorTest::testFoo;
+    friend struct CStringStoreTest::testFoo;
 };
 
 } // model

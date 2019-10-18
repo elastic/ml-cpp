@@ -3,7 +3,6 @@
  * or more contributor license agreements. Licensed under the Elastic License;
  * you may not use this file except in compliance with the Elastic License.
  */
-#include "CSystemCallFilterTest.h"
 
 #include <core/CLogger.h>
 #include <core/COsFileFuncs.h>
@@ -18,11 +17,14 @@
 
 #include <test/CTestTmpDir.h>
 
+#include <boost/test/unit_test.hpp>
 #include <boost/filesystem.hpp>
 #include <boost/system/error_code.hpp>
 
 #include <cstdlib>
 #include <string>
+
+BOOST_AUTO_TEST_SUITE(CSystemCallFilterTest)
 
 namespace {
 
@@ -80,7 +82,7 @@ protected:
         // thread to create it
         size_t attempt(1);
         do {
-            CPPUNIT_ASSERT(attempt++ <= MAX_ATTEMPTS);
+            BOOST_TEST(attempt++ <= MAX_ATTEMPTS);
             ml::core::CSleep::sleep(SLEEP_TIME_MS);
             strm.open(m_FileName.c_str());
         } while (!strm.is_open());
@@ -89,7 +91,7 @@ protected:
         char buffer[BUF_SIZE];
         while (strm.good()) {
             strm.read(buffer, BUF_SIZE);
-            CPPUNIT_ASSERT(!strm.bad());
+            BOOST_TEST(!strm.bad());
             if (strm.gcount() > 0) {
                 // This code deals with the test character we write to
                 // detect the short-lived connection problem on Windows
@@ -130,23 +132,14 @@ bool versionIsBefore3_5(std::int64_t major, std::int64_t minor) {
 #endif
 }
 
-CppUnit::Test* CSystemCallFilterTest::suite() {
-    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CSystemCallFilterTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CSystemCallFilterTest>(
-        "CSystemCallFilterTest::testSystemCallFilter",
-        &CSystemCallFilterTest::testSystemCallFilter));
-
-    return suiteOfTests;
-}
-
-void CSystemCallFilterTest::testSystemCallFilter() {
+BOOST_AUTO_TEST_CASE(testSystemCallFilter) {
 #ifdef Linux
     std::string release{ml::core::CUname::release()};
     ml::core::CRegex semVersion;
-    CPPUNIT_ASSERT(semVersion.init("(\\d)\\.(\\d{1,2})\\.(\\d{1,2}).*"));
+    BOOST_TEST(semVersion.init("(\\d)\\.(\\d{1,2})\\.(\\d{1,2}).*"));
     ml::core::CRegex::TStrVec tokens;
-    CPPUNIT_ASSERT(semVersion.tokenise(release, tokens));
+    BOOST_TEST(semVersion.tokenise(release, tokens));
     // Seccomp is available in kernels since 3.5
 
     std::int64_t major = std::stoi(tokens[0]);
@@ -159,13 +152,13 @@ void CSystemCallFilterTest::testSystemCallFilter() {
 
     // Ensure actions are not prohibited before the
     // system call filters are applied
-    CPPUNIT_ASSERT(systemCall());
+    BOOST_TEST(systemCall());
 
     // Install the filter
     ml::seccomp::CSystemCallFilter::installSystemCallFilter();
 
     CPPUNIT_ASSERT_ASSERTION_FAIL_MESSAGE("Calling std::system should fail",
-                                          CPPUNIT_ASSERT(systemCall()));
+                                          BOOST_TEST(systemCall()));
 
     // Operations that must function after seccomp is initialised
     openPipeAndRead(TEST_READ_PIPE_NAME);
@@ -177,11 +170,11 @@ void CSystemCallFilterTest::testSystemCallFilter() {
 void CSystemCallFilterTest::openPipeAndRead(const std::string& filename) {
 
     CNamedPipeWriter threadWriter(filename, TEST_SIZE);
-    CPPUNIT_ASSERT(threadWriter.start());
+    BOOST_TEST(threadWriter.start());
 
     ml::core::CNamedPipeFactory::TIStreamP strm =
         ml::core::CNamedPipeFactory::openPipeStreamRead(filename);
-    CPPUNIT_ASSERT(strm);
+    BOOST_TEST(strm);
 
     static const std::streamsize BUF_SIZE = 512;
     std::string readData;
@@ -189,27 +182,27 @@ void CSystemCallFilterTest::openPipeAndRead(const std::string& filename) {
     char buffer[BUF_SIZE];
     do {
         strm->read(buffer, BUF_SIZE);
-        CPPUNIT_ASSERT(!strm->bad());
+        BOOST_TEST(!strm->bad());
         if (strm->gcount() > 0) {
             readData.append(buffer, static_cast<size_t>(strm->gcount()));
         }
     } while (!strm->eof());
 
-    CPPUNIT_ASSERT_EQUAL(TEST_SIZE, readData.length());
-    CPPUNIT_ASSERT_EQUAL(std::string(TEST_SIZE, TEST_CHAR), readData);
+    BOOST_CHECK_EQUAL(TEST_SIZE, readData.length());
+    BOOST_CHECK_EQUAL(std::string(TEST_SIZE, TEST_CHAR), readData);
 
-    CPPUNIT_ASSERT(threadWriter.stop());
+    BOOST_TEST(threadWriter.stop());
 
     strm.reset();
 }
 
 void CSystemCallFilterTest::openPipeAndWrite(const std::string& filename) {
     CNamedPipeReader threadReader(filename);
-    CPPUNIT_ASSERT(threadReader.start());
+    BOOST_TEST(threadReader.start());
 
     ml::core::CNamedPipeFactory::TOStreamP strm =
         ml::core::CNamedPipeFactory::openPipeStreamWrite(filename);
-    CPPUNIT_ASSERT(strm);
+    BOOST_TEST(strm);
 
     size_t charsLeft(TEST_SIZE);
     size_t blockSize(7);
@@ -218,16 +211,16 @@ void CSystemCallFilterTest::openPipeAndWrite(const std::string& filename) {
             blockSize = charsLeft;
         }
         (*strm) << std::string(blockSize, TEST_CHAR);
-        CPPUNIT_ASSERT(!strm->bad());
+        BOOST_TEST(!strm->bad());
         charsLeft -= blockSize;
     }
 
     strm.reset();
 
-    CPPUNIT_ASSERT(threadReader.stop());
+    BOOST_TEST(threadReader.stop());
 
-    CPPUNIT_ASSERT_EQUAL(TEST_SIZE, threadReader.data().length());
-    CPPUNIT_ASSERT_EQUAL(std::string(TEST_SIZE, TEST_CHAR), threadReader.data());
+    BOOST_CHECK_EQUAL(TEST_SIZE, threadReader.data().length());
+    BOOST_CHECK_EQUAL(std::string(TEST_SIZE, TEST_CHAR), threadReader.data());
 }
 
 void CSystemCallFilterTest::makeAndRemoveDirectory(const std::string& dirname) {
@@ -237,7 +230,9 @@ void CSystemCallFilterTest::makeAndRemoveDirectory(const std::string& dirname) {
 
     boost::system::error_code errorCode;
     boost::filesystem::create_directories(temporaryFolder, errorCode);
-    CPPUNIT_ASSERT_EQUAL(boost::system::error_code(), errorCode);
+    BOOST_CHECK_EQUAL(boost::system::error_code(), errorCode);
     boost::filesystem::remove_all(temporaryFolder, errorCode);
-    CPPUNIT_ASSERT_EQUAL(boost::system::error_code(), errorCode);
+    BOOST_CHECK_EQUAL(boost::system::error_code(), errorCode);
 }
+
+BOOST_AUTO_TEST_SUITE_END()

@@ -3,7 +3,6 @@
  * or more contributor license agreements. Licensed under the Elastic License;
  * you may not use this file except in compliance with the Elastic License.
  */
-#include "CInterimBucketCorrectorTest.h"
 
 #include <test/CRandomNumbers.h>
 
@@ -15,6 +14,12 @@
 
 #include <model/CInterimBucketCorrector.h>
 
+#include <test/BoostTestCloseAbsolute.h>
+
+#include <boost/test/unit_test.hpp>
+
+BOOST_AUTO_TEST_SUITE(CInterimBucketCorrectorTest)
+
 using namespace ml;
 using namespace model;
 
@@ -24,25 +29,8 @@ using TDouble10Vec = core::CSmallVector<double, 10>;
 const double EPSILON = 1e-10;
 }
 
-CppUnit::Test* CInterimBucketCorrectorTest::suite() {
-    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CInterimBucketCorrectorTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CInterimBucketCorrectorTest>(
-        "CInterimBucketCorrectorTest::testCorrectionsGivenSingleValue",
-        &CInterimBucketCorrectorTest::testCorrectionsGivenSingleValue));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CInterimBucketCorrectorTest>(
-        "CInterimBucketCorrectorTest::testCorrectionsGivenSingleValueAndNoBaseline",
-        &CInterimBucketCorrectorTest::testCorrectionsGivenSingleValueAndNoBaseline));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CInterimBucketCorrectorTest>(
-        "CInterimBucketCorrectorTest::testCorrectionsGivenMultiValueAndMultiMode",
-        &CInterimBucketCorrectorTest::testCorrectionsGivenMultiValueAndMultiMode));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CInterimBucketCorrectorTest>(
-        "CInterimBucketCorrectorTest::testPersist", &CInterimBucketCorrectorTest::testPersist));
-
-    return suiteOfTests;
-}
-
-void CInterimBucketCorrectorTest::testCorrectionsGivenSingleValue() {
+BOOST_AUTO_TEST_CASE(testCorrectionsGivenSingleValue) {
     core_t::TTime bucketLength(3600);
     CInterimBucketCorrector corrector(bucketLength);
 
@@ -59,7 +47,7 @@ void CInterimBucketCorrectorTest::testCorrectionsGivenSingleValue() {
         double value = 1100.0;
         corrector.currentBucketCount(now, 50);
         double correction = corrector.corrections(1000, value);
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(0.0, correction, EPSILON);
+        BOOST_CHECK_CLOSE_ABSOLUTE(0.0, correction, EPSILON);
     }
     {
         // Value = 100, Completeness = 50%, Expected another 500.
@@ -67,7 +55,7 @@ void CInterimBucketCorrectorTest::testCorrectionsGivenSingleValue() {
         double value = 100.0;
         corrector.currentBucketCount(now, 50);
         double correction = corrector.corrections(1000, value);
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(500.0, correction, EPSILON);
+        BOOST_CHECK_CLOSE_ABSOLUTE(500.0, correction, EPSILON);
     }
     {
         // Value = 200, Completeness = 10%, Expected another 4500.
@@ -75,7 +63,7 @@ void CInterimBucketCorrectorTest::testCorrectionsGivenSingleValue() {
         double value = 200.0;
         corrector.currentBucketCount(now, 10);
         double correction = corrector.corrections(5000, value);
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(4500.0, correction, EPSILON);
+        BOOST_CHECK_CLOSE_ABSOLUTE(4500.0, correction, EPSILON);
     }
     {
         // Value = 0, Completeness = 10%, Expected another 900.
@@ -83,7 +71,7 @@ void CInterimBucketCorrectorTest::testCorrectionsGivenSingleValue() {
         double value = 0.0;
         corrector.currentBucketCount(now, 10);
         double correction = corrector.corrections(1000, value);
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(900.0, correction, EPSILON);
+        BOOST_CHECK_CLOSE_ABSOLUTE(900.0, correction, EPSILON);
     }
     {
         // Value = 800, Completeness = 50%, Expected another 500.
@@ -91,7 +79,7 @@ void CInterimBucketCorrectorTest::testCorrectionsGivenSingleValue() {
         double value = 800.0;
         corrector.currentBucketCount(now, 50);
         double correction = corrector.corrections(1000, value);
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(200.0, correction, EPSILON);
+        BOOST_CHECK_CLOSE_ABSOLUTE(200.0, correction, EPSILON);
     }
     {
         // Value = 0, Completeness = 0%, Expected another 1000.
@@ -99,7 +87,7 @@ void CInterimBucketCorrectorTest::testCorrectionsGivenSingleValue() {
         double value = 0.0;
         corrector.currentBucketCount(now, 0);
         double correction = corrector.corrections(1000, value);
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(1000.0, correction, EPSILON);
+        BOOST_CHECK_CLOSE_ABSOLUTE(1000.0, correction, EPSILON);
     }
     {
         // Value = -800, Completeness = 40%, Expected another -400.
@@ -107,7 +95,7 @@ void CInterimBucketCorrectorTest::testCorrectionsGivenSingleValue() {
         double value = -800.0;
         corrector.currentBucketCount(now, 40);
         double correction = corrector.corrections(-1000, value);
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(-200.0, correction, EPSILON);
+        BOOST_CHECK_CLOSE_ABSOLUTE(-200.0, correction, EPSILON);
     }
     {
         // Value = -100, Completeness = 40%, Expected another -600.
@@ -115,11 +103,11 @@ void CInterimBucketCorrectorTest::testCorrectionsGivenSingleValue() {
         double value = -100.0;
         corrector.currentBucketCount(now, 40);
         double correction = corrector.corrections(-1000, value);
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(-600.0, correction, EPSILON);
+        BOOST_CHECK_CLOSE_ABSOLUTE(-600.0, correction, EPSILON);
     }
 }
 
-void CInterimBucketCorrectorTest::testCorrectionsGivenSingleValueAndNoBaseline() {
+BOOST_AUTO_TEST_CASE(testCorrectionsGivenSingleValueAndNoBaseline) {
     core_t::TTime bucketLength(3600);
     CInterimBucketCorrector corrector(bucketLength);
 
@@ -127,10 +115,10 @@ void CInterimBucketCorrectorTest::testCorrectionsGivenSingleValueAndNoBaseline()
     corrector.currentBucketCount(3600, 10);
     double correction = corrector.corrections(1000, value);
 
-    CPPUNIT_ASSERT_DOUBLES_EQUAL(0.0, correction, EPSILON);
+    BOOST_CHECK_CLOSE_ABSOLUTE(0.0, correction, EPSILON);
 }
 
-void CInterimBucketCorrectorTest::testCorrectionsGivenMultiValueAndMultiMode() {
+BOOST_AUTO_TEST_CASE(testCorrectionsGivenMultiValueAndMultiMode) {
     core_t::TTime bucketLength(3600);
     CInterimBucketCorrector corrector(bucketLength);
 
@@ -167,20 +155,20 @@ void CInterimBucketCorrectorTest::testCorrectionsGivenMultiValueAndMultiMode() {
 
     corrector.currentBucketCount(now, 50);
     TDouble10Vec correction = corrector.corrections(mode, value);
-    CPPUNIT_ASSERT_EQUAL(std::size_t(10), correction.size());
-    CPPUNIT_ASSERT_DOUBLES_EQUAL(500.0, correction[0], EPSILON);
-    CPPUNIT_ASSERT_DOUBLES_EQUAL(0.0, correction[1], EPSILON);
-    CPPUNIT_ASSERT_DOUBLES_EQUAL(0.0, correction[2], EPSILON);
-    CPPUNIT_ASSERT_DOUBLES_EQUAL(0.0, correction[3], EPSILON);
-    CPPUNIT_ASSERT_DOUBLES_EQUAL(0.0, correction[4], EPSILON);
-    CPPUNIT_ASSERT_DOUBLES_EQUAL(0.0, correction[5], EPSILON);
-    CPPUNIT_ASSERT_DOUBLES_EQUAL(100.0, correction[6], EPSILON);
-    CPPUNIT_ASSERT_DOUBLES_EQUAL(200.0, correction[7], EPSILON);
-    CPPUNIT_ASSERT_DOUBLES_EQUAL(300.0, correction[8], EPSILON);
-    CPPUNIT_ASSERT_DOUBLES_EQUAL(0.0, correction[9], EPSILON);
+    BOOST_CHECK_EQUAL(std::size_t(10), correction.size());
+    BOOST_CHECK_CLOSE_ABSOLUTE(500.0, correction[0], EPSILON);
+    BOOST_CHECK_CLOSE_ABSOLUTE(0.0, correction[1], EPSILON);
+    BOOST_CHECK_CLOSE_ABSOLUTE(0.0, correction[2], EPSILON);
+    BOOST_CHECK_CLOSE_ABSOLUTE(0.0, correction[3], EPSILON);
+    BOOST_CHECK_CLOSE_ABSOLUTE(0.0, correction[4], EPSILON);
+    BOOST_CHECK_CLOSE_ABSOLUTE(0.0, correction[5], EPSILON);
+    BOOST_CHECK_CLOSE_ABSOLUTE(100.0, correction[6], EPSILON);
+    BOOST_CHECK_CLOSE_ABSOLUTE(200.0, correction[7], EPSILON);
+    BOOST_CHECK_CLOSE_ABSOLUTE(300.0, correction[8], EPSILON);
+    BOOST_CHECK_CLOSE_ABSOLUTE(0.0, correction[9], EPSILON);
 }
 
-void CInterimBucketCorrectorTest::testPersist() {
+BOOST_AUTO_TEST_CASE(testPersist) {
     core_t::TTime bucketLength(300);
     CInterimBucketCorrector corrector(bucketLength);
 
@@ -194,7 +182,7 @@ void CInterimBucketCorrectorTest::testPersist() {
     double value = 100.0;
     corrector.currentBucketCount(now, 50);
     double correction = corrector.corrections(1000, value);
-    CPPUNIT_ASSERT_DOUBLES_EQUAL(500.0, correction, EPSILON);
+    BOOST_CHECK_CLOSE_ABSOLUTE(500.0, correction, EPSILON);
 
     std::string origXml;
     {
@@ -205,7 +193,7 @@ void CInterimBucketCorrectorTest::testPersist() {
     LOG_TRACE(<< "XML:\n" << origXml);
 
     core::CRapidXmlParser parser;
-    CPPUNIT_ASSERT(parser.parseStringIgnoreCdata(origXml));
+    BOOST_TEST(parser.parseStringIgnoreCdata(origXml));
     core::CRapidXmlStateRestoreTraverser traverser(parser);
     CInterimBucketCorrector restoredCorrector(bucketLength);
     traverser.traverseSubLevel(std::bind(&CInterimBucketCorrector::acceptRestoreTraverser,
@@ -213,5 +201,7 @@ void CInterimBucketCorrectorTest::testPersist() {
 
     corrector.currentBucketCount(now, 50);
     correction = restoredCorrector.corrections(1000, value);
-    CPPUNIT_ASSERT_DOUBLES_EQUAL(500.0, correction, EPSILON);
+    BOOST_CHECK_CLOSE_ABSOLUTE(500.0, correction, EPSILON);
 }
+
+BOOST_AUTO_TEST_SUITE_END()

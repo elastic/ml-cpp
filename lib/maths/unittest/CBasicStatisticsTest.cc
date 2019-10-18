@@ -4,8 +4,6 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
-#include "CBasicStatisticsTest.h"
-
 #include <core/CLogger.h>
 #include <core/CPersistUtils.h>
 #include <core/CRapidXmlParser.h>
@@ -21,10 +19,14 @@
 #include <maths/CSampling.h>
 
 #include <test/CRandomNumbers.h>
+#include <test/BoostTestCloseAbsolute.h>
 
+#include <boost/test/unit_test.hpp>
 #include <boost/range.hpp>
 
 #include <stdlib.h>
+
+BOOST_AUTO_TEST_SUITE(CBasicStatisticsTest)
 
 using namespace ml;
 
@@ -58,34 +60,8 @@ struct SRestore {
 };
 }
 
-CppUnit::Test* CBasicStatisticsTest::suite() {
-    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CBasicStatisticsTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CBasicStatisticsTest>(
-        "CBasicStatisticsTest::testMean", &CBasicStatisticsTest::testMean));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CBasicStatisticsTest>(
-        "CBasicStatisticsTest::testCentralMoments", &CBasicStatisticsTest::testCentralMoments));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CBasicStatisticsTest>(
-        "CBasicStatisticsTest::testVectorCentralMoments",
-        &CBasicStatisticsTest::testVectorCentralMoments));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CBasicStatisticsTest>(
-        "CBasicStatisticsTest::testCovariances", &CBasicStatisticsTest::testCovariances));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CBasicStatisticsTest>(
-        "CBasicStatisticsTest::testCovariancesLedoitWolf",
-        &CBasicStatisticsTest::testCovariancesLedoitWolf));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CBasicStatisticsTest>(
-        "CBasicStatisticsTest::testMedian", &CBasicStatisticsTest::testMedian));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CBasicStatisticsTest>(
-        "CBasicStatisticsTest::testMad", &CBasicStatisticsTest::testMad));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CBasicStatisticsTest>(
-        "CBasicStatisticsTest::testOrderStatistics", &CBasicStatisticsTest::testOrderStatistics));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CBasicStatisticsTest>(
-        "CBasicStatisticsTest::testMinMax", &CBasicStatisticsTest::testMinMax));
-
-    return suiteOfTests;
-}
-
-void CBasicStatisticsTest::testMean() {
+BOOST_AUTO_TEST_CASE(testMean) {
     double sample[] = {0.9, 10.0, 5.6, 1.23, -12.3, 445.2, 0.0, 1.2};
 
     maths::CBasicStatistics::TDoubleVec sampleVec(
@@ -94,10 +70,10 @@ void CBasicStatisticsTest::testMean() {
     double mean = maths::CBasicStatistics::mean(sampleVec);
 
     // Compare with hand calculated value
-    CPPUNIT_ASSERT_EQUAL(56.47875, mean);
+    BOOST_CHECK_EQUAL(56.47875, mean);
 }
 
-void CBasicStatisticsTest::testCentralMoments() {
+BOOST_AUTO_TEST_CASE(testCentralMoments) {
     LOG_DEBUG(<< "Test mean double");
     {
         double samples[] = {0.9, 10.0, 5.6, 1.23, -12.3, 7.2, 0.0, 1.2};
@@ -106,15 +82,15 @@ void CBasicStatisticsTest::testCentralMoments() {
         size_t count = sizeof(samples) / sizeof(samples[0]);
         acc = std::for_each(samples, samples + count, acc);
 
-        CPPUNIT_ASSERT_EQUAL(
+        BOOST_CHECK_EQUAL(
             count, static_cast<size_t>(maths::CBasicStatistics::count(acc)));
 
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(1.72875, maths::CBasicStatistics::mean(acc), 0.000005);
+        BOOST_CHECK_CLOSE_ABSOLUTE(1.72875, maths::CBasicStatistics::mean(acc), 0.000005);
 
         double n0 = maths::CBasicStatistics::count(acc);
         maths::CBasicStatistics::scale(0.5, acc);
         double n1 = maths::CBasicStatistics::count(acc);
-        CPPUNIT_ASSERT_EQUAL(n1, 0.5 * n0);
+        BOOST_CHECK_EQUAL(n1, 0.5 * n0);
     }
 
     LOG_DEBUG(<< "Test mean float");
@@ -128,10 +104,10 @@ void CBasicStatisticsTest::testCentralMoments() {
         size_t count = sizeof(samples) / sizeof(samples[0]);
         acc = std::for_each(samples, samples + count, acc);
 
-        CPPUNIT_ASSERT_EQUAL(
+        BOOST_CHECK_EQUAL(
             count, static_cast<size_t>(maths::CBasicStatistics::count(acc)));
 
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(1.72875, maths::CBasicStatistics::mean(acc), 0.000005);
+        BOOST_CHECK_CLOSE_ABSOLUTE(1.72875, maths::CBasicStatistics::mean(acc), 0.000005);
     }
 
     LOG_DEBUG(<< "Test mean and variance");
@@ -143,17 +119,17 @@ void CBasicStatisticsTest::testCentralMoments() {
         size_t count = sizeof(samples) / sizeof(samples[0]);
         acc = std::for_each(samples, samples + count, acc);
 
-        CPPUNIT_ASSERT_EQUAL(
+        BOOST_CHECK_EQUAL(
             count, static_cast<size_t>(maths::CBasicStatistics::count(acc)));
 
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(1.72875, maths::CBasicStatistics::mean(acc), 0.000005);
+        BOOST_CHECK_CLOSE_ABSOLUTE(1.72875, maths::CBasicStatistics::mean(acc), 0.000005);
 
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(44.90633, maths::CBasicStatistics::variance(acc), 0.000005);
+        BOOST_CHECK_CLOSE_ABSOLUTE(44.90633, maths::CBasicStatistics::variance(acc), 0.000005);
 
         double n0 = maths::CBasicStatistics::count(acc);
         maths::CBasicStatistics::scale(0.5, acc);
         double n1 = maths::CBasicStatistics::count(acc);
-        CPPUNIT_ASSERT_EQUAL(n1, 0.5 * n0);
+        BOOST_CHECK_EQUAL(n1, 0.5 * n0);
     }
 
     LOG_DEBUG(<< "Test mean, variance and skew");
@@ -165,19 +141,19 @@ void CBasicStatisticsTest::testCentralMoments() {
         size_t count = sizeof(samples) / sizeof(samples[0]);
         acc = std::for_each(samples, samples + count, acc);
 
-        CPPUNIT_ASSERT_EQUAL(
+        BOOST_CHECK_EQUAL(
             count, static_cast<size_t>(maths::CBasicStatistics::count(acc)));
 
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(1.72875, maths::CBasicStatistics::mean(acc), 0.000005);
+        BOOST_CHECK_CLOSE_ABSOLUTE(1.72875, maths::CBasicStatistics::mean(acc), 0.000005);
 
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(44.90633, maths::CBasicStatistics::variance(acc), 0.000005);
+        BOOST_CHECK_CLOSE_ABSOLUTE(44.90633, maths::CBasicStatistics::variance(acc), 0.000005);
 
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(-0.82216, maths::CBasicStatistics::skewness(acc), 0.000005);
+        BOOST_CHECK_CLOSE_ABSOLUTE(-0.82216, maths::CBasicStatistics::skewness(acc), 0.000005);
 
         double n0 = maths::CBasicStatistics::count(acc);
         maths::CBasicStatistics::scale(0.5, acc);
         double n1 = maths::CBasicStatistics::count(acc);
-        CPPUNIT_ASSERT_EQUAL(n1, 0.5 * n0);
+        BOOST_CHECK_EQUAL(n1, 0.5 * n0);
     }
 
     LOG_DEBUG(<< "Test weighted update");
@@ -196,7 +172,7 @@ void CBasicStatisticsTest::testCentralMoments() {
                 }
             }
 
-            CPPUNIT_ASSERT_DOUBLES_EQUAL(maths::CBasicStatistics::mean(acc1),
+            BOOST_CHECK_CLOSE_ABSOLUTE(maths::CBasicStatistics::mean(acc1),
                                          maths::CBasicStatistics::mean(acc2), 1e-10);
         }
 
@@ -211,9 +187,9 @@ void CBasicStatisticsTest::testCentralMoments() {
                 }
             }
 
-            CPPUNIT_ASSERT_DOUBLES_EQUAL(maths::CBasicStatistics::mean(acc1),
+            BOOST_CHECK_CLOSE_ABSOLUTE(maths::CBasicStatistics::mean(acc1),
                                          maths::CBasicStatistics::mean(acc2), 1e-10);
-            CPPUNIT_ASSERT_DOUBLES_EQUAL(maths::CBasicStatistics::variance(acc1),
+            BOOST_CHECK_CLOSE_ABSOLUTE(maths::CBasicStatistics::variance(acc1),
                                          maths::CBasicStatistics::variance(acc2), 1e-10);
         }
 
@@ -228,11 +204,11 @@ void CBasicStatisticsTest::testCentralMoments() {
                 }
             }
 
-            CPPUNIT_ASSERT_DOUBLES_EQUAL(maths::CBasicStatistics::mean(acc1),
+            BOOST_CHECK_CLOSE_ABSOLUTE(maths::CBasicStatistics::mean(acc1),
                                          maths::CBasicStatistics::mean(acc2), 1e-10);
-            CPPUNIT_ASSERT_DOUBLES_EQUAL(maths::CBasicStatistics::variance(acc1),
+            BOOST_CHECK_CLOSE_ABSOLUTE(maths::CBasicStatistics::variance(acc1),
                                          maths::CBasicStatistics::variance(acc2), 1e-10);
-            CPPUNIT_ASSERT_DOUBLES_EQUAL(maths::CBasicStatistics::skewness(acc1),
+            BOOST_CHECK_CLOSE_ABSOLUTE(maths::CBasicStatistics::skewness(acc1),
                                          maths::CBasicStatistics::skewness(acc2), 1e-10);
         }
     }
@@ -253,11 +229,11 @@ void CBasicStatisticsTest::testCentralMoments() {
             acc1 = std::for_each(samples1, samples1 + count1, acc1);
             acc2 = std::for_each(samples2, samples2 + count2, acc2);
 
-            CPPUNIT_ASSERT_EQUAL(
+            BOOST_CHECK_EQUAL(
                 count1 + count2,
                 static_cast<size_t>(maths::CBasicStatistics::count(acc1 + acc2)));
 
-            CPPUNIT_ASSERT_DOUBLES_EQUAL(
+            BOOST_CHECK_CLOSE_ABSOLUTE(
                 1.72875, maths::CBasicStatistics::mean(acc1 + acc2), 0.000005);
         }
 
@@ -268,14 +244,14 @@ void CBasicStatisticsTest::testCentralMoments() {
             acc1 = std::for_each(samples1, samples1 + count1, acc1);
             acc2 = std::for_each(samples2, samples2 + count2, acc2);
 
-            CPPUNIT_ASSERT_EQUAL(
+            BOOST_CHECK_EQUAL(
                 count1 + count2,
                 static_cast<size_t>(maths::CBasicStatistics::count(acc1 + acc2)));
 
-            CPPUNIT_ASSERT_DOUBLES_EQUAL(
+            BOOST_CHECK_CLOSE_ABSOLUTE(
                 1.72875, maths::CBasicStatistics::mean(acc1 + acc2), 0.000005);
 
-            CPPUNIT_ASSERT_DOUBLES_EQUAL(
+            BOOST_CHECK_CLOSE_ABSOLUTE(
                 44.90633, maths::CBasicStatistics::variance(acc1 + acc2), 0.000005);
         }
 
@@ -286,17 +262,17 @@ void CBasicStatisticsTest::testCentralMoments() {
             acc1 = std::for_each(samples1, samples1 + count1, acc1);
             acc2 = std::for_each(samples2, samples2 + count2, acc2);
 
-            CPPUNIT_ASSERT_EQUAL(
+            BOOST_CHECK_EQUAL(
                 count1 + count2,
                 static_cast<size_t>(maths::CBasicStatistics::count(acc1 + acc2)));
 
-            CPPUNIT_ASSERT_DOUBLES_EQUAL(
+            BOOST_CHECK_CLOSE_ABSOLUTE(
                 1.72875, maths::CBasicStatistics::mean(acc1 + acc2), 0.000005);
 
-            CPPUNIT_ASSERT_DOUBLES_EQUAL(
+            BOOST_CHECK_CLOSE_ABSOLUTE(
                 44.90633, maths::CBasicStatistics::variance(acc1 + acc2), 0.000005);
 
-            CPPUNIT_ASSERT_DOUBLES_EQUAL(
+            BOOST_CHECK_CLOSE_ABSOLUTE(
                 -0.82216, maths::CBasicStatistics::skewness(acc1 + acc2), 0.000005);
         }
     }
@@ -325,14 +301,14 @@ void CBasicStatisticsTest::testCentralMoments() {
 
                 TMeanAccumulator sum = acc1 + acc2;
 
-                CPPUNIT_ASSERT_EQUAL(maths::CBasicStatistics::count(acc1),
+                BOOST_CHECK_EQUAL(maths::CBasicStatistics::count(acc1),
                                      maths::CBasicStatistics::count(sum - acc2));
-                CPPUNIT_ASSERT_DOUBLES_EQUAL(maths::CBasicStatistics::mean(acc1),
+                BOOST_CHECK_CLOSE_ABSOLUTE(maths::CBasicStatistics::mean(acc1),
                                              maths::CBasicStatistics::mean(sum - acc2),
                                              1e-10);
-                CPPUNIT_ASSERT_EQUAL(maths::CBasicStatistics::count(acc2),
+                BOOST_CHECK_EQUAL(maths::CBasicStatistics::count(acc2),
                                      maths::CBasicStatistics::count(sum - acc1));
-                CPPUNIT_ASSERT_DOUBLES_EQUAL(maths::CBasicStatistics::mean(acc2),
+                BOOST_CHECK_CLOSE_ABSOLUTE(maths::CBasicStatistics::mean(acc2),
                                              maths::CBasicStatistics::mean(sum - acc1),
                                              1e-10);
             }
@@ -357,20 +333,20 @@ void CBasicStatisticsTest::testCentralMoments() {
 
                 TMeanVarAccumulator sum = acc1 + acc2;
 
-                CPPUNIT_ASSERT_EQUAL(maths::CBasicStatistics::count(acc1),
+                BOOST_CHECK_EQUAL(maths::CBasicStatistics::count(acc1),
                                      maths::CBasicStatistics::count(sum - acc2));
-                CPPUNIT_ASSERT_DOUBLES_EQUAL(maths::CBasicStatistics::mean(acc1),
+                BOOST_CHECK_CLOSE_ABSOLUTE(maths::CBasicStatistics::mean(acc1),
                                              maths::CBasicStatistics::mean(sum - acc2),
                                              1e-10);
-                CPPUNIT_ASSERT_DOUBLES_EQUAL(
+                BOOST_CHECK_CLOSE_ABSOLUTE(
                     maths::CBasicStatistics::variance(acc1),
                     maths::CBasicStatistics::variance(sum - acc2), 1e-10);
-                CPPUNIT_ASSERT_EQUAL(maths::CBasicStatistics::count(acc2),
+                BOOST_CHECK_EQUAL(maths::CBasicStatistics::count(acc2),
                                      maths::CBasicStatistics::count(sum - acc1));
-                CPPUNIT_ASSERT_DOUBLES_EQUAL(maths::CBasicStatistics::mean(acc2),
+                BOOST_CHECK_CLOSE_ABSOLUTE(maths::CBasicStatistics::mean(acc2),
                                              maths::CBasicStatistics::mean(sum - acc1),
                                              1e-10);
-                CPPUNIT_ASSERT_DOUBLES_EQUAL(
+                BOOST_CHECK_CLOSE_ABSOLUTE(
                     maths::CBasicStatistics::variance(acc2),
                     maths::CBasicStatistics::variance(sum - acc1), 1e-10);
             }
@@ -395,26 +371,26 @@ void CBasicStatisticsTest::testCentralMoments() {
 
                 TMeanVarSkewAccumulator sum = acc1 + acc2;
 
-                CPPUNIT_ASSERT_EQUAL(maths::CBasicStatistics::count(acc1),
+                BOOST_CHECK_EQUAL(maths::CBasicStatistics::count(acc1),
                                      maths::CBasicStatistics::count(sum - acc2));
-                CPPUNIT_ASSERT_DOUBLES_EQUAL(maths::CBasicStatistics::mean(acc1),
+                BOOST_CHECK_CLOSE_ABSOLUTE(maths::CBasicStatistics::mean(acc1),
                                              maths::CBasicStatistics::mean(sum - acc2),
                                              1e-10);
-                CPPUNIT_ASSERT_DOUBLES_EQUAL(
+                BOOST_CHECK_CLOSE_ABSOLUTE(
                     maths::CBasicStatistics::variance(acc1),
                     maths::CBasicStatistics::variance(sum - acc2), 1e-10);
-                CPPUNIT_ASSERT_DOUBLES_EQUAL(
+                BOOST_CHECK_CLOSE_ABSOLUTE(
                     maths::CBasicStatistics::skewness(acc1),
                     maths::CBasicStatistics::skewness(sum - acc2), 1e-10);
-                CPPUNIT_ASSERT_EQUAL(maths::CBasicStatistics::count(acc2),
+                BOOST_CHECK_EQUAL(maths::CBasicStatistics::count(acc2),
                                      maths::CBasicStatistics::count(sum - acc1));
-                CPPUNIT_ASSERT_DOUBLES_EQUAL(maths::CBasicStatistics::mean(acc2),
+                BOOST_CHECK_CLOSE_ABSOLUTE(maths::CBasicStatistics::mean(acc2),
                                              maths::CBasicStatistics::mean(sum - acc1),
                                              1e-10);
-                CPPUNIT_ASSERT_DOUBLES_EQUAL(
+                BOOST_CHECK_CLOSE_ABSOLUTE(
                     maths::CBasicStatistics::variance(acc2),
                     maths::CBasicStatistics::variance(sum - acc1), 1e-10);
-                CPPUNIT_ASSERT_DOUBLES_EQUAL(
+                BOOST_CHECK_CLOSE_ABSOLUTE(
                     maths::CBasicStatistics::skewness(acc2),
                     maths::CBasicStatistics::skewness(sum - acc1), 1e-10);
             }
@@ -450,10 +426,10 @@ void CBasicStatisticsTest::testCentralMoments() {
                 LOG_DEBUG(<< "v = " << v);
                 vectorMean.add(v);
 
-                CPPUNIT_ASSERT_EQUAL(maths::CBasicStatistics::count(means[0]),
+                BOOST_CHECK_EQUAL(maths::CBasicStatistics::count(means[0]),
                                      maths::CBasicStatistics::count(vectorMean));
                 for (std::size_t j = 0u; j < 4; ++j) {
-                    CPPUNIT_ASSERT_EQUAL(maths::CBasicStatistics::mean(means[j]),
+                    BOOST_CHECK_EQUAL(maths::CBasicStatistics::mean(means[j]),
                                          (maths::CBasicStatistics::mean(vectorMean))(j));
                 }
             }
@@ -476,14 +452,14 @@ void CBasicStatisticsTest::testCentralMoments() {
                 LOG_DEBUG(<< "v = " << v);
                 vectorMeanAndVariances.add(v);
 
-                CPPUNIT_ASSERT_EQUAL(
+                BOOST_CHECK_EQUAL(
                     maths::CBasicStatistics::count(meansAndVariances[0]),
                     maths::CBasicStatistics::count(vectorMeanAndVariances));
                 for (std::size_t j = 0u; j < 4; ++j) {
-                    CPPUNIT_ASSERT_EQUAL(
+                    BOOST_CHECK_EQUAL(
                         maths::CBasicStatistics::mean(meansAndVariances[j]),
                         (maths::CBasicStatistics::mean(vectorMeanAndVariances))(j));
-                    CPPUNIT_ASSERT_EQUAL(
+                    BOOST_CHECK_EQUAL(
                         maths::CBasicStatistics::variance(meansAndVariances[j]),
                         (maths::CBasicStatistics::variance(vectorMeanAndVariances))(j));
                 }
@@ -507,17 +483,17 @@ void CBasicStatisticsTest::testCentralMoments() {
                 LOG_DEBUG(<< "v = " << v);
                 vectorMeanVarianceAndSkew.add(v);
 
-                CPPUNIT_ASSERT_EQUAL(
+                BOOST_CHECK_EQUAL(
                     maths::CBasicStatistics::count(meansVariancesAndSkews[0]),
                     maths::CBasicStatistics::count(vectorMeanVarianceAndSkew));
                 for (std::size_t j = 0u; j < 4; ++j) {
-                    CPPUNIT_ASSERT_EQUAL(
+                    BOOST_CHECK_EQUAL(
                         maths::CBasicStatistics::mean(meansVariancesAndSkews[j]),
                         (maths::CBasicStatistics::mean(vectorMeanVarianceAndSkew))(j));
-                    CPPUNIT_ASSERT_EQUAL(
+                    BOOST_CHECK_EQUAL(
                         maths::CBasicStatistics::variance(meansVariancesAndSkews[j]),
                         (maths::CBasicStatistics::variance(vectorMeanVarianceAndSkew))(j));
-                    CPPUNIT_ASSERT_EQUAL(
+                    BOOST_CHECK_EQUAL(
                         maths::CBasicStatistics::skewness(meansVariancesAndSkews[j]),
                         (maths::CBasicStatistics::skewness(vectorMeanVarianceAndSkew))(j));
                 }
@@ -541,15 +517,15 @@ void CBasicStatisticsTest::testCentralMoments() {
                 LOG_DEBUG(<< "Moments XML representation:\n" << xml);
 
                 core::CRapidXmlParser parser;
-                CPPUNIT_ASSERT(parser.parseStringIgnoreCdata(xml));
+                BOOST_TEST(parser.parseStringIgnoreCdata(xml));
                 core::CRapidXmlStateRestoreTraverser traverser(parser);
                 TMeanAccumulatorVec restored;
-                CPPUNIT_ASSERT(traverser.traverseSubLevel(std::bind(
+                BOOST_TEST(traverser.traverseSubLevel(std::bind(
                     SRestore(), std::ref(restored), std::placeholders::_1)));
                 LOG_DEBUG(<< "restored = " << core::CContainerPrinter::print(restored));
-                CPPUNIT_ASSERT_EQUAL(moments.size(), restored.size());
+                BOOST_CHECK_EQUAL(moments.size(), restored.size());
                 for (std::size_t i = 0u; i < restored.size(); ++i) {
-                    CPPUNIT_ASSERT_EQUAL(moments[i].checksum(), restored[i].checksum());
+                    BOOST_CHECK_EQUAL(moments[i].checksum(), restored[i].checksum());
                 }
             }
 
@@ -569,15 +545,15 @@ void CBasicStatisticsTest::testCentralMoments() {
                 LOG_DEBUG(<< "Moments XML representation:\n" << xml);
 
                 core::CRapidXmlParser parser;
-                CPPUNIT_ASSERT(parser.parseStringIgnoreCdata(xml));
+                BOOST_TEST(parser.parseStringIgnoreCdata(xml));
                 core::CRapidXmlStateRestoreTraverser traverser(parser);
                 TMeanAccumulatorVec restored;
-                CPPUNIT_ASSERT(traverser.traverseSubLevel(std::bind(
+                BOOST_TEST(traverser.traverseSubLevel(std::bind(
                     SRestore(), std::ref(restored), std::placeholders::_1)));
                 LOG_DEBUG(<< "restored = " << core::CContainerPrinter::print(restored));
-                CPPUNIT_ASSERT_EQUAL(moments.size(), restored.size());
+                BOOST_CHECK_EQUAL(moments.size(), restored.size());
                 for (std::size_t i = 0u; i < restored.size(); ++i) {
-                    CPPUNIT_ASSERT_EQUAL(moments[i].checksum(), restored[i].checksum());
+                    BOOST_CHECK_EQUAL(moments[i].checksum(), restored[i].checksum());
                 }
             }
         }
@@ -595,15 +571,15 @@ void CBasicStatisticsTest::testCentralMoments() {
                 LOG_DEBUG(<< "Moments XML representation:\n" << xml);
 
                 core::CRapidXmlParser parser;
-                CPPUNIT_ASSERT(parser.parseStringIgnoreCdata(xml));
+                BOOST_TEST(parser.parseStringIgnoreCdata(xml));
                 core::CRapidXmlStateRestoreTraverser traverser(parser);
                 TMeanVarAccumulatorVec restored;
-                CPPUNIT_ASSERT(traverser.traverseSubLevel(std::bind(
+                BOOST_TEST(traverser.traverseSubLevel(std::bind(
                     SRestore(), std::ref(restored), std::placeholders::_1)));
                 LOG_DEBUG(<< "restored = " << core::CContainerPrinter::print(restored));
-                CPPUNIT_ASSERT_EQUAL(moments.size(), restored.size());
+                BOOST_CHECK_EQUAL(moments.size(), restored.size());
                 for (std::size_t i = 0u; i < restored.size(); ++i) {
-                    CPPUNIT_ASSERT_EQUAL(moments[i].checksum(), restored[i].checksum());
+                    BOOST_CHECK_EQUAL(moments[i].checksum(), restored[i].checksum());
                 }
             }
 
@@ -624,15 +600,15 @@ void CBasicStatisticsTest::testCentralMoments() {
                 LOG_DEBUG(<< "Moments XML representation:\n" << xml);
 
                 core::CRapidXmlParser parser;
-                CPPUNIT_ASSERT(parser.parseStringIgnoreCdata(xml));
+                BOOST_TEST(parser.parseStringIgnoreCdata(xml));
                 core::CRapidXmlStateRestoreTraverser traverser(parser);
                 TMeanVarAccumulatorVec restored;
-                CPPUNIT_ASSERT(traverser.traverseSubLevel(std::bind(
+                BOOST_TEST(traverser.traverseSubLevel(std::bind(
                     SRestore(), std::ref(restored), std::placeholders::_1)));
                 LOG_DEBUG(<< "restored = " << core::CContainerPrinter::print(restored));
-                CPPUNIT_ASSERT_EQUAL(moments.size(), restored.size());
+                BOOST_CHECK_EQUAL(moments.size(), restored.size());
                 for (std::size_t i = 0u; i < restored.size(); ++i) {
-                    CPPUNIT_ASSERT_EQUAL(moments[i].checksum(), restored[i].checksum());
+                    BOOST_CHECK_EQUAL(moments[i].checksum(), restored[i].checksum());
                 }
             }
         }
@@ -650,15 +626,15 @@ void CBasicStatisticsTest::testCentralMoments() {
                 LOG_DEBUG(<< "Moments XML representation:\n" << xml);
 
                 core::CRapidXmlParser parser;
-                CPPUNIT_ASSERT(parser.parseStringIgnoreCdata(xml));
+                BOOST_TEST(parser.parseStringIgnoreCdata(xml));
                 core::CRapidXmlStateRestoreTraverser traverser(parser);
                 TMeanVarSkewAccumulatorVec restored;
-                CPPUNIT_ASSERT(traverser.traverseSubLevel(std::bind(
+                BOOST_TEST(traverser.traverseSubLevel(std::bind(
                     SRestore(), std::ref(restored), std::placeholders::_1)));
                 LOG_DEBUG(<< "restored = " << core::CContainerPrinter::print(restored));
-                CPPUNIT_ASSERT_EQUAL(moments.size(), restored.size());
+                BOOST_CHECK_EQUAL(moments.size(), restored.size());
                 for (std::size_t i = 0u; i < restored.size(); ++i) {
-                    CPPUNIT_ASSERT_EQUAL(moments[i].checksum(), restored[i].checksum());
+                    BOOST_CHECK_EQUAL(moments[i].checksum(), restored[i].checksum());
                 }
             }
 
@@ -679,29 +655,29 @@ void CBasicStatisticsTest::testCentralMoments() {
                 LOG_DEBUG(<< "Moments XML representation:\n" << xml);
 
                 core::CRapidXmlParser parser;
-                CPPUNIT_ASSERT(parser.parseStringIgnoreCdata(xml));
+                BOOST_TEST(parser.parseStringIgnoreCdata(xml));
                 core::CRapidXmlStateRestoreTraverser traverser(parser);
                 TMeanVarSkewAccumulatorVec restored;
-                CPPUNIT_ASSERT(traverser.traverseSubLevel(std::bind(
+                BOOST_TEST(traverser.traverseSubLevel(std::bind(
                     SRestore(), std::ref(restored), std::placeholders::_1)));
                 LOG_DEBUG(<< "restored = " << core::CContainerPrinter::print(restored));
-                CPPUNIT_ASSERT_EQUAL(moments.size(), restored.size());
+                BOOST_CHECK_EQUAL(moments.size(), restored.size());
                 for (std::size_t i = 0u; i < restored.size(); ++i) {
-                    CPPUNIT_ASSERT_EQUAL(moments[i].checksum(), restored[i].checksum());
+                    BOOST_CHECK_EQUAL(moments[i].checksum(), restored[i].checksum());
                 }
             }
         }
     }
 
-    CPPUNIT_ASSERT_EQUAL(
+    BOOST_CHECK_EQUAL(
         true, core::memory_detail::SDynamicSizeAlwaysZero<TMeanAccumulator>::value());
-    CPPUNIT_ASSERT_EQUAL(
+    BOOST_CHECK_EQUAL(
         true, core::memory_detail::SDynamicSizeAlwaysZero<TMeanVarAccumulator>::value());
-    CPPUNIT_ASSERT_EQUAL(
+    BOOST_CHECK_EQUAL(
         true, core::memory_detail::SDynamicSizeAlwaysZero<TMeanVarSkewAccumulator>::value());
 }
 
-void CBasicStatisticsTest::testVectorCentralMoments() {
+BOOST_AUTO_TEST_CASE(testVectorCentralMoments) {
     using TDouble2Vec = core::CSmallVector<double, 2>;
 
     {
@@ -721,11 +697,11 @@ void CBasicStatisticsTest::testVectorCentralMoments() {
         TDouble2Vec means1 = maths::CBasicStatistics::mean(moments1);
         TDoubleVec counts2 = maths::CBasicStatistics::count(moments2);
         TDoubleVec means2 = maths::CBasicStatistics::mean(moments2);
-        CPPUNIT_ASSERT_EQUAL(std::string("[3, 2]"), core::CContainerPrinter::print(counts1));
-        CPPUNIT_ASSERT_EQUAL(std::string("[3.3, 3.5]"),
+        BOOST_CHECK_EQUAL(std::string("[3, 2]"), core::CContainerPrinter::print(counts1));
+        BOOST_CHECK_EQUAL(std::string("[3.3, 3.5]"),
                              core::CContainerPrinter::print(means1));
-        CPPUNIT_ASSERT_EQUAL(std::string("[3, 2]"), core::CContainerPrinter::print(counts2));
-        CPPUNIT_ASSERT_EQUAL(std::string("[3.3, 3.5]"),
+        BOOST_CHECK_EQUAL(std::string("[3, 2]"), core::CContainerPrinter::print(counts2));
+        BOOST_CHECK_EQUAL(std::string("[3.3, 3.5]"),
                              core::CContainerPrinter::print(means2));
     }
     {
@@ -749,15 +725,15 @@ void CBasicStatisticsTest::testVectorCentralMoments() {
         TDoubleVec means2 = maths::CBasicStatistics::mean(moments2);
         TDoubleVec vars2 = maths::CBasicStatistics::variance(moments2);
         TDouble2Vec mlvars2 = maths::CBasicStatistics::maximumLikelihoodVariance(moments2);
-        CPPUNIT_ASSERT_EQUAL(std::string("[2, 3]"), core::CContainerPrinter::print(counts1));
-        CPPUNIT_ASSERT_EQUAL(std::string("[3, 4]"), core::CContainerPrinter::print(means1));
-        CPPUNIT_ASSERT_EQUAL(std::string("[2, 1]"), core::CContainerPrinter::print(vars1));
-        CPPUNIT_ASSERT_EQUAL(std::string("[1, 0.6666667]"),
+        BOOST_CHECK_EQUAL(std::string("[2, 3]"), core::CContainerPrinter::print(counts1));
+        BOOST_CHECK_EQUAL(std::string("[3, 4]"), core::CContainerPrinter::print(means1));
+        BOOST_CHECK_EQUAL(std::string("[2, 1]"), core::CContainerPrinter::print(vars1));
+        BOOST_CHECK_EQUAL(std::string("[1, 0.6666667]"),
                              core::CContainerPrinter::print(mlvars1));
-        CPPUNIT_ASSERT_EQUAL(std::string("[2, 3]"), core::CContainerPrinter::print(counts2));
-        CPPUNIT_ASSERT_EQUAL(std::string("[3, 4]"), core::CContainerPrinter::print(means2));
-        CPPUNIT_ASSERT_EQUAL(std::string("[2, 1]"), core::CContainerPrinter::print(vars2));
-        CPPUNIT_ASSERT_EQUAL(std::string("[1, 0.6666667]"),
+        BOOST_CHECK_EQUAL(std::string("[2, 3]"), core::CContainerPrinter::print(counts2));
+        BOOST_CHECK_EQUAL(std::string("[3, 4]"), core::CContainerPrinter::print(means2));
+        BOOST_CHECK_EQUAL(std::string("[2, 1]"), core::CContainerPrinter::print(vars2));
+        BOOST_CHECK_EQUAL(std::string("[1, 0.6666667]"),
                              core::CContainerPrinter::print(mlvars2));
     }
     {
@@ -783,22 +759,22 @@ void CBasicStatisticsTest::testVectorCentralMoments() {
         TDoubleVec vars2 = maths::CBasicStatistics::variance(moments2);
         TDouble2Vec mlvars2 = maths::CBasicStatistics::maximumLikelihoodVariance(moments2);
         TDouble2Vec skews2 = maths::CBasicStatistics::skewness(moments2);
-        CPPUNIT_ASSERT_EQUAL(std::string("[2, 3]"), core::CContainerPrinter::print(counts1));
-        CPPUNIT_ASSERT_EQUAL(std::string("[3, 4]"), core::CContainerPrinter::print(means1));
-        CPPUNIT_ASSERT_EQUAL(std::string("[2, 3]"), core::CContainerPrinter::print(vars1));
-        CPPUNIT_ASSERT_EQUAL(std::string("[1, 2]"), core::CContainerPrinter::print(mlvars1));
-        CPPUNIT_ASSERT_EQUAL(std::string("[0, -0.3849002]"),
+        BOOST_CHECK_EQUAL(std::string("[2, 3]"), core::CContainerPrinter::print(counts1));
+        BOOST_CHECK_EQUAL(std::string("[3, 4]"), core::CContainerPrinter::print(means1));
+        BOOST_CHECK_EQUAL(std::string("[2, 3]"), core::CContainerPrinter::print(vars1));
+        BOOST_CHECK_EQUAL(std::string("[1, 2]"), core::CContainerPrinter::print(mlvars1));
+        BOOST_CHECK_EQUAL(std::string("[0, -0.3849002]"),
                              core::CContainerPrinter::print(skews1));
-        CPPUNIT_ASSERT_EQUAL(std::string("[2, 3]"), core::CContainerPrinter::print(counts2));
-        CPPUNIT_ASSERT_EQUAL(std::string("[3, 4]"), core::CContainerPrinter::print(means2));
-        CPPUNIT_ASSERT_EQUAL(std::string("[2, 3]"), core::CContainerPrinter::print(vars2));
-        CPPUNIT_ASSERT_EQUAL(std::string("[1, 2]"), core::CContainerPrinter::print(mlvars2));
-        CPPUNIT_ASSERT_EQUAL(std::string("[0, -0.3849002]"),
+        BOOST_CHECK_EQUAL(std::string("[2, 3]"), core::CContainerPrinter::print(counts2));
+        BOOST_CHECK_EQUAL(std::string("[3, 4]"), core::CContainerPrinter::print(means2));
+        BOOST_CHECK_EQUAL(std::string("[2, 3]"), core::CContainerPrinter::print(vars2));
+        BOOST_CHECK_EQUAL(std::string("[1, 2]"), core::CContainerPrinter::print(mlvars2));
+        BOOST_CHECK_EQUAL(std::string("[0, -0.3849002]"),
                              core::CContainerPrinter::print(skews2));
     }
 }
 
-void CBasicStatisticsTest::testCovariances() {
+BOOST_AUTO_TEST_CASE(testCovariances) {
     LOG_DEBUG(<< "N(3,I)");
     {
         const double raw[][3] = {
@@ -847,28 +823,28 @@ void CBasicStatisticsTest::testCovariances() {
         LOG_DEBUG(<< "covariances3 =\n"
                   << maths::CBasicStatistics::covariances(covariances3));
 
-        CPPUNIT_ASSERT_EQUAL(static_cast<double>(boost::size(raw)),
+        BOOST_CHECK_EQUAL(static_cast<double>(boost::size(raw)),
                              maths::CBasicStatistics::count(covariances1));
-        CPPUNIT_ASSERT_EQUAL(static_cast<double>(boost::size(raw)),
+        BOOST_CHECK_EQUAL(static_cast<double>(boost::size(raw)),
                              maths::CBasicStatistics::count(covariances2));
-        CPPUNIT_ASSERT_EQUAL(static_cast<double>(boost::size(raw)),
+        BOOST_CHECK_EQUAL(static_cast<double>(boost::size(raw)),
                              maths::CBasicStatistics::count(covariances3));
 
         for (std::size_t i = 0u; i < 3; ++i) {
-            CPPUNIT_ASSERT_DOUBLES_EQUAL(
+            BOOST_CHECK_CLOSE_ABSOLUTE(
                 expectedMean[i], (maths::CBasicStatistics::mean(covariances1))(i), 2e-6);
-            CPPUNIT_ASSERT_DOUBLES_EQUAL(
+            BOOST_CHECK_CLOSE_ABSOLUTE(
                 expectedMean[i], (maths::CBasicStatistics::mean(covariances2))(i), 2e-6);
-            CPPUNIT_ASSERT_DOUBLES_EQUAL(
+            BOOST_CHECK_CLOSE_ABSOLUTE(
                 expectedMean[i], (maths::CBasicStatistics::mean(covariances3))(i), 2e-6);
             for (std::size_t j = 0u; j < 3; ++j) {
-                CPPUNIT_ASSERT_DOUBLES_EQUAL(
+                BOOST_CHECK_CLOSE_ABSOLUTE(
                     expectedCovariances[i][j],
                     (maths::CBasicStatistics::covariances(covariances1))(i, j), 2e-6);
-                CPPUNIT_ASSERT_DOUBLES_EQUAL(
+                BOOST_CHECK_CLOSE_ABSOLUTE(
                     expectedCovariances[i][j],
                     (maths::CBasicStatistics::covariances(covariances2))(i, j), 2e-6);
-                CPPUNIT_ASSERT_DOUBLES_EQUAL(
+                BOOST_CHECK_CLOSE_ABSOLUTE(
                     expectedCovariances[i][j],
                     (maths::CBasicStatistics::covariances(covariances3))(i, j), 2e-6);
             }
@@ -876,7 +852,7 @@ void CBasicStatisticsTest::testCovariances() {
 
         bool dynamicSizeAlwaysZero = core::memory_detail::SDynamicSizeAlwaysZero<
             maths::CBasicStatistics::SSampleCovariances<maths::CVectorNx1<double, 3>>>::value();
-        CPPUNIT_ASSERT_EQUAL(true, dynamicSizeAlwaysZero);
+        BOOST_CHECK_EQUAL(true, dynamicSizeAlwaysZero);
     }
 
     {
@@ -921,10 +897,10 @@ void CBasicStatisticsTest::testCovariances() {
                   << maths::CBasicStatistics::covariances(sampleCovariance));
 
         for (std::size_t i = 0u; i < 4; ++i) {
-            CPPUNIT_ASSERT_DOUBLES_EQUAL(
+            BOOST_CHECK_CLOSE_ABSOLUTE(
                 mean(i), (maths::CBasicStatistics::mean(sampleCovariance))(i), 0.05);
             for (std::size_t j = 0u; j < 4; ++j) {
-                CPPUNIT_ASSERT_DOUBLES_EQUAL(
+                BOOST_CHECK_CLOSE_ABSOLUTE(
                     covariance(i, j),
                     (maths::CBasicStatistics::covariances(sampleCovariance))(i, j), 0.16);
             }
@@ -954,17 +930,17 @@ void CBasicStatisticsTest::testCovariances() {
         LOG_DEBUG(<< "delimited = " << expectedDelimited);
 
         maths::CBasicStatistics::SSampleCovariances<maths::CVectorNx1<double, 4>> sampleCovariances(4);
-        CPPUNIT_ASSERT(sampleCovariances.fromDelimited(expectedDelimited));
+        BOOST_TEST(sampleCovariances.fromDelimited(expectedDelimited));
 
-        CPPUNIT_ASSERT_EQUAL(expectedSampleCovariances.checksum(),
+        BOOST_CHECK_EQUAL(expectedSampleCovariances.checksum(),
                              sampleCovariances.checksum());
 
         std::string delimited = sampleCovariances.toDelimited();
-        CPPUNIT_ASSERT_EQUAL(expectedDelimited, delimited);
+        BOOST_CHECK_EQUAL(expectedDelimited, delimited);
     }
 }
 
-void CBasicStatisticsTest::testCovariancesLedoitWolf() {
+BOOST_AUTO_TEST_CASE(testCovariancesLedoitWolf) {
     using TDoubleVecVec = std::vector<TDoubleVec>;
     using TVector2 = maths::CVectorNx1<double, 2>;
     using TVector2Vec = std::vector<TVector2>;
@@ -1032,7 +1008,7 @@ void CBasicStatisticsTest::testCovariancesLedoitWolf() {
 
             for (std::size_t r = 0u; r < 2; ++r) {
                 for (std::size_t c = 0u; c < 2; ++c) {
-                    CPPUNIT_ASSERT_DOUBLES_EQUAL(covLWML(r, c), covLWML2(r, c), 1e-10);
+                    BOOST_CHECK_CLOSE_ABSOLUTE(covLWML(r, c), covLWML2(r, c), 1e-10);
                 }
             }
 
@@ -1044,7 +1020,7 @@ void CBasicStatisticsTest::testCovariancesLedoitWolf() {
                 LOG_DEBUG(<< "cov LWML = " << covLWML);
                 LOG_DEBUG(<< "error ML = " << errorML << ", error LWML = " << errorLWML);
             }
-            CPPUNIT_ASSERT(errorLWML < 6.0 * errorML);
+            BOOST_TEST(errorLWML < 6.0 * errorML);
             error.add(errorML / covExpected.frobenius());
             errorLW.add(errorLWML / covExpected.frobenius());
         }
@@ -1052,17 +1028,17 @@ void CBasicStatisticsTest::testCovariancesLedoitWolf() {
 
     LOG_DEBUG(<< "error    = " << error);
     LOG_DEBUG(<< "error LW = " << errorLW);
-    CPPUNIT_ASSERT(maths::CBasicStatistics::mean(errorLW) <
+    BOOST_TEST(maths::CBasicStatistics::mean(errorLW) <
                    0.9 * maths::CBasicStatistics::mean(error));
 }
 
-void CBasicStatisticsTest::testMedian() {
+BOOST_AUTO_TEST_CASE(testMedian) {
     {
         maths::CBasicStatistics::TDoubleVec sampleVec;
 
         double median = maths::CBasicStatistics::median(sampleVec);
 
-        CPPUNIT_ASSERT_EQUAL(0.0, median);
+        BOOST_CHECK_EQUAL(0.0, median);
     }
     {
         double sample[] = {1.0};
@@ -1072,7 +1048,7 @@ void CBasicStatisticsTest::testMedian() {
 
         double median = maths::CBasicStatistics::median(sampleVec);
 
-        CPPUNIT_ASSERT_EQUAL(1.0, median);
+        BOOST_CHECK_EQUAL(1.0, median);
     }
     {
         double sample[] = {2.0, 1.0};
@@ -1082,7 +1058,7 @@ void CBasicStatisticsTest::testMedian() {
 
         double median = maths::CBasicStatistics::median(sampleVec);
 
-        CPPUNIT_ASSERT_EQUAL(1.5, median);
+        BOOST_CHECK_EQUAL(1.5, median);
     }
     {
         double sample[] = {3.0, 1.0, 2.0};
@@ -1092,7 +1068,7 @@ void CBasicStatisticsTest::testMedian() {
 
         double median = maths::CBasicStatistics::median(sampleVec);
 
-        CPPUNIT_ASSERT_EQUAL(2.0, median);
+        BOOST_CHECK_EQUAL(2.0, median);
     }
     {
         double sample[] = {3.0, 5.0, 9.0, 1.0, 2.0, 6.0, 7.0, 4.0, 8.0};
@@ -1102,7 +1078,7 @@ void CBasicStatisticsTest::testMedian() {
 
         double median = maths::CBasicStatistics::median(sampleVec);
 
-        CPPUNIT_ASSERT_EQUAL(5.0, median);
+        BOOST_CHECK_EQUAL(5.0, median);
     }
     {
         double sample[] = {3.0, 5.0, 10.0, 2.0, 6.0, 7.0, 1.0, 9.0, 4.0, 8.0};
@@ -1112,29 +1088,29 @@ void CBasicStatisticsTest::testMedian() {
 
         double median = maths::CBasicStatistics::median(sampleVec);
 
-        CPPUNIT_ASSERT_EQUAL(5.5, median);
+        BOOST_CHECK_EQUAL(5.5, median);
     }
 }
 
-void CBasicStatisticsTest::testMad() {
+BOOST_AUTO_TEST_CASE(testMad) {
     using TSizeVec = std::vector<std::size_t>;
 
     // Edge cases 0, 1, 2 elements and > half values equal.
     TDoubleVec samples;
     samples.assign({5.0});
-    CPPUNIT_ASSERT_EQUAL(0.0, maths::CBasicStatistics::mad(samples));
+    BOOST_CHECK_EQUAL(0.0, maths::CBasicStatistics::mad(samples));
     samples.assign({5.0, 6.0});
-    CPPUNIT_ASSERT_EQUAL(0.5, maths::CBasicStatistics::mad(samples));
+    BOOST_CHECK_EQUAL(0.5, maths::CBasicStatistics::mad(samples));
     samples.assign({6.0, 6.0, 6.0, 2.0, -100.0});
-    CPPUNIT_ASSERT_EQUAL(0.0, maths::CBasicStatistics::mad(samples));
+    BOOST_CHECK_EQUAL(0.0, maths::CBasicStatistics::mad(samples));
     samples.assign({6.0, 6.0, 6.0, 6.0, -100.0, 1.0});
-    CPPUNIT_ASSERT_EQUAL(0.0, maths::CBasicStatistics::mad(samples));
+    BOOST_CHECK_EQUAL(0.0, maths::CBasicStatistics::mad(samples));
 
     // Odd/even number of samples.
     samples.assign({12.2, 11.8, 1.0, 30.2, 5.9, 209.0, -390.3, 37.0});
-    CPPUNIT_ASSERT_DOUBLES_EQUAL(14.6, maths::CBasicStatistics::mad(samples), 1e-15);
+    BOOST_CHECK_CLOSE_ABSOLUTE(14.6, maths::CBasicStatistics::mad(samples), 1e-15);
     samples.assign({12.2, 11.8, 1.0, 30.2, 5.9, 209.0, -390.3, 37.0, 51.2});
-    CPPUNIT_ASSERT_DOUBLES_EQUAL(18.0, maths::CBasicStatistics::mad(samples), 1e-15);
+    BOOST_CHECK_CLOSE_ABSOLUTE(18.0, maths::CBasicStatistics::mad(samples), 1e-15);
 
     // Random.
     test::CRandomNumbers rng;
@@ -1147,11 +1123,11 @@ void CBasicStatisticsTest::testMad() {
         for (auto& sample : samples) {
             sample = std::fabs(sample - median);
         }
-        CPPUNIT_ASSERT_EQUAL(maths::CBasicStatistics::median(samples), mad);
+        BOOST_CHECK_EQUAL(maths::CBasicStatistics::median(samples), mad);
     }
 }
 
-void CBasicStatisticsTest::testOrderStatistics() {
+BOOST_AUTO_TEST_CASE(testOrderStatistics) {
     // Test that the order statistics accumulators work for finding min and max
     // elements of a collection.
 
@@ -1181,20 +1157,20 @@ void CBasicStatisticsTest::testOrderStatistics() {
         std::sort(std::begin(data), std::end(data));
         minValues.sort();
         LOG_DEBUG(<< "x_1 = " << minValues[0] << ", x_2 = " << minValues[1]);
-        CPPUNIT_ASSERT(std::equal(minValues.begin(), minValues.end(), data));
+        BOOST_TEST(std::equal(minValues.begin(), minValues.end(), data));
 
         std::sort(std::begin(data), std::end(data), std::greater<double>());
         maxValues.sort();
         LOG_DEBUG(<< "x_n = " << maxValues[0] << ", x_(n-1) = " << maxValues[1]
                   << ", x_(n-2) = " << maxValues[2]);
-        CPPUNIT_ASSERT(std::equal(maxValues.begin(), maxValues.end(), data));
+        BOOST_TEST(std::equal(maxValues.begin(), maxValues.end(), data));
 
-        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(2), minValues.count());
-        CPPUNIT_ASSERT_EQUAL(static_cast<size_t>(3), maxValues.count());
+        BOOST_CHECK_EQUAL(static_cast<size_t>(2), minValues.count());
+        BOOST_CHECK_EQUAL(static_cast<size_t>(3), maxValues.count());
 
         TMinStatsStack minFirstPlusSecondHalf = (minFirstHalf + minSecondHalf);
         minFirstPlusSecondHalf.sort();
-        CPPUNIT_ASSERT(std::equal(minValues.begin(), minValues.end(),
+        BOOST_TEST(std::equal(minValues.begin(), minValues.end(),
                                   minFirstPlusSecondHalf.begin()));
 
         // Test persist is idempotent.
@@ -1212,9 +1188,9 @@ void CBasicStatisticsTest::testOrderStatistics() {
         TMinStatsStack restoredMinValues;
         {
             core::CRapidXmlParser parser;
-            CPPUNIT_ASSERT(parser.parseStringIgnoreCdata(origXml));
+            BOOST_TEST(parser.parseStringIgnoreCdata(origXml));
             core::CRapidXmlStateRestoreTraverser traverser(parser);
-            CPPUNIT_ASSERT(traverser.traverseSubLevel(std::bind(
+            BOOST_TEST(traverser.traverseSubLevel(std::bind(
                 SRestore(), std::ref(restoredMinValues), std::placeholders::_1)));
         }
 
@@ -1225,7 +1201,7 @@ void CBasicStatisticsTest::testOrderStatistics() {
             inserter.insertValue(TAG, restoredMinValues.toDelimited());
             inserter.toXml(newXml);
         }
-        CPPUNIT_ASSERT_EQUAL(origXml, newXml);
+        BOOST_CHECK_EQUAL(origXml, newXml);
     }
 
     {
@@ -1246,17 +1222,17 @@ void CBasicStatisticsTest::testOrderStatistics() {
         std::sort(std::begin(data), std::end(data));
         min2Values.sort();
         LOG_DEBUG(<< "x_1 = " << min2Values[0] << ", x_2 = " << min2Values[1]);
-        CPPUNIT_ASSERT(std::equal(min2Values.begin(), min2Values.end(), data));
+        BOOST_TEST(std::equal(min2Values.begin(), min2Values.end(), data));
 
         std::sort(std::begin(data), std::end(data), std::greater<double>());
         max3Values.sort();
         LOG_DEBUG(<< "x_n = " << max3Values[0] << ", x_(n-1) = " << max3Values[1]
                   << ", x_(n-2) = " << max3Values[2]);
-        CPPUNIT_ASSERT(std::equal(max3Values.begin(), max3Values.end(), data));
+        BOOST_TEST(std::equal(max3Values.begin(), max3Values.end(), data));
 
         max20Values.sort();
-        CPPUNIT_ASSERT_EQUAL(boost::size(data), max20Values.count());
-        CPPUNIT_ASSERT(std::equal(max20Values.begin(), max20Values.end(), data));
+        BOOST_CHECK_EQUAL(boost::size(data), max20Values.count());
+        BOOST_TEST(std::equal(max20Values.begin(), max20Values.end(), data));
 
         // Test persist is idempotent.
 
@@ -1273,9 +1249,9 @@ void CBasicStatisticsTest::testOrderStatistics() {
         TMinStatsHeap restoredMaxValues(20);
         {
             core::CRapidXmlParser parser;
-            CPPUNIT_ASSERT(parser.parseStringIgnoreCdata(origXml));
+            BOOST_TEST(parser.parseStringIgnoreCdata(origXml));
             core::CRapidXmlStateRestoreTraverser traverser(parser);
-            CPPUNIT_ASSERT(traverser.traverseSubLevel(std::bind(
+            BOOST_TEST(traverser.traverseSubLevel(std::bind(
                 SRestore(), std::ref(restoredMaxValues), std::placeholders::_1)));
         }
 
@@ -1286,21 +1262,21 @@ void CBasicStatisticsTest::testOrderStatistics() {
             inserter.insertValue(TAG, restoredMaxValues.toDelimited());
             inserter.toXml(newXml);
         }
-        CPPUNIT_ASSERT_EQUAL(origXml, newXml);
+        BOOST_CHECK_EQUAL(origXml, newXml);
     }
     {
         // Test we correctly age the minimum value accumulator.
         TMinStatsStack test;
         test.add(15.0);
         test.age(0.5);
-        CPPUNIT_ASSERT_EQUAL(30.0, test[0]);
+        BOOST_CHECK_EQUAL(30.0, test[0]);
     }
     {
         // Test we correctly age the maximum value accumulator.
         TMaxStatsStack test;
         test.add(15.0);
         test.age(0.5);
-        CPPUNIT_ASSERT_EQUAL(7.5, test[0]);
+        BOOST_CHECK_EQUAL(7.5, test[0]);
     }
     {
         // Test biggest.
@@ -1308,34 +1284,34 @@ void CBasicStatisticsTest::testOrderStatistics() {
         TMaxStatsHeap max(5);
         min.add(1.0);
         max.add(1.0);
-        CPPUNIT_ASSERT_EQUAL(1.0, min.biggest());
-        CPPUNIT_ASSERT_EQUAL(1.0, max.biggest());
+        BOOST_CHECK_EQUAL(1.0, min.biggest());
+        BOOST_CHECK_EQUAL(1.0, max.biggest());
         std::size_t i{0};
         for (auto value : {3.6, -6.1, 1.0, 3.4}) {
             min.add(value);
             max.add(value);
             if (i++ == 0) {
-                CPPUNIT_ASSERT_EQUAL(3.6, min.biggest());
-                CPPUNIT_ASSERT_EQUAL(1.0, max.biggest());
+                BOOST_CHECK_EQUAL(3.6, min.biggest());
+                BOOST_CHECK_EQUAL(1.0, max.biggest());
             } else {
-                CPPUNIT_ASSERT_EQUAL(3.6, min.biggest());
-                CPPUNIT_ASSERT_EQUAL(-6.1, max.biggest());
+                BOOST_CHECK_EQUAL(3.6, min.biggest());
+                BOOST_CHECK_EQUAL(-6.1, max.biggest());
             }
         }
         min.add(0.9);
         max.add(0.9);
-        CPPUNIT_ASSERT_EQUAL(3.4, min.biggest());
-        CPPUNIT_ASSERT_EQUAL(0.9, max.biggest());
+        BOOST_CHECK_EQUAL(3.4, min.biggest());
+        BOOST_CHECK_EQUAL(0.9, max.biggest());
     }
     {
         // Test memory.
-        CPPUNIT_ASSERT_EQUAL(
+        BOOST_CHECK_EQUAL(
             true, core::memory_detail::SDynamicSizeAlwaysZero<TMinStatsStack>::value());
-        CPPUNIT_ASSERT_EQUAL(
+        BOOST_CHECK_EQUAL(
             true, core::memory_detail::SDynamicSizeAlwaysZero<TMaxStatsStack>::value());
-        CPPUNIT_ASSERT_EQUAL(
+        BOOST_CHECK_EQUAL(
             false, core::memory_detail::SDynamicSizeAlwaysZero<TMinStatsHeap>::value());
-        CPPUNIT_ASSERT_EQUAL(
+        BOOST_CHECK_EQUAL(
             false, core::memory_detail::SDynamicSizeAlwaysZero<TMaxStatsHeap>::value());
     }
     {
@@ -1368,45 +1344,45 @@ void CBasicStatisticsTest::testOrderStatistics() {
                                                         result.second);
         });
 
-        CPPUNIT_ASSERT_EQUAL(delimited, restored.toDelimited(toDelimited));
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(orig[0].first, restored[0].first, 1e-15);
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(orig[0].second, restored[0].second, 1e-15);
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(orig[1].first, restored[1].first, 1e-15);
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(orig[1].second, restored[1].second, 1e-15);
+        BOOST_CHECK_EQUAL(delimited, restored.toDelimited(toDelimited));
+        BOOST_CHECK_CLOSE_ABSOLUTE(orig[0].first, restored[0].first, 1e-15);
+        BOOST_CHECK_CLOSE_ABSOLUTE(orig[0].second, restored[0].second, 1e-15);
+        BOOST_CHECK_CLOSE_ABSOLUTE(orig[1].first, restored[1].first, 1e-15);
+        BOOST_CHECK_CLOSE_ABSOLUTE(orig[1].second, restored[1].second, 1e-15);
     }
 }
 
-void CBasicStatisticsTest::testMinMax() {
+BOOST_AUTO_TEST_CASE(testMinMax) {
     TDoubleVec positive{1.0, 2.7, 4.0, 0.3, 11.7};
     TDoubleVec negative{-3.7, -0.8, -18.2, -0.8};
     TDoubleVec mixed{1.3, -8.0, 2.1};
 
     {
         maths::CBasicStatistics::CMinMax<double> minmax;
-        CPPUNIT_ASSERT(!minmax.initialized());
+        BOOST_TEST(!minmax.initialized());
         minmax.add(positive);
-        CPPUNIT_ASSERT(minmax.initialized());
-        CPPUNIT_ASSERT_EQUAL(0.3, minmax.min());
-        CPPUNIT_ASSERT_EQUAL(11.7, minmax.max());
-        CPPUNIT_ASSERT_EQUAL(0.3, minmax.signMargin());
+        BOOST_TEST(minmax.initialized());
+        BOOST_CHECK_EQUAL(0.3, minmax.min());
+        BOOST_CHECK_EQUAL(11.7, minmax.max());
+        BOOST_CHECK_EQUAL(0.3, minmax.signMargin());
     }
     {
         maths::CBasicStatistics::CMinMax<double> minmax;
-        CPPUNIT_ASSERT(!minmax.initialized());
+        BOOST_TEST(!minmax.initialized());
         minmax.add(negative);
-        CPPUNIT_ASSERT(minmax.initialized());
-        CPPUNIT_ASSERT_EQUAL(-18.2, minmax.min());
-        CPPUNIT_ASSERT_EQUAL(-0.8, minmax.max());
-        CPPUNIT_ASSERT_EQUAL(-0.8, minmax.signMargin());
+        BOOST_TEST(minmax.initialized());
+        BOOST_CHECK_EQUAL(-18.2, minmax.min());
+        BOOST_CHECK_EQUAL(-0.8, minmax.max());
+        BOOST_CHECK_EQUAL(-0.8, minmax.signMargin());
     }
     {
         maths::CBasicStatistics::CMinMax<double> minmax;
-        CPPUNIT_ASSERT(!minmax.initialized());
+        BOOST_TEST(!minmax.initialized());
         minmax.add(mixed);
-        CPPUNIT_ASSERT(minmax.initialized());
-        CPPUNIT_ASSERT_EQUAL(-8.0, minmax.min());
-        CPPUNIT_ASSERT_EQUAL(2.1, minmax.max());
-        CPPUNIT_ASSERT_EQUAL(0.0, minmax.signMargin());
+        BOOST_TEST(minmax.initialized());
+        BOOST_CHECK_EQUAL(-8.0, minmax.min());
+        BOOST_CHECK_EQUAL(2.1, minmax.max());
+        BOOST_CHECK_EQUAL(0.0, minmax.signMargin());
     }
     {
         maths::CBasicStatistics::CMinMax<double> minmax1;
@@ -1416,6 +1392,8 @@ void CBasicStatisticsTest::testMinMax() {
         minmax2.add(negative);
         minmax12.add(positive);
         minmax12.add(negative);
-        CPPUNIT_ASSERT_EQUAL((minmax1 + minmax2).checksum(), minmax12.checksum());
+        BOOST_CHECK_EQUAL((minmax1 + minmax2).checksum(), minmax12.checksum());
     }
 }
+
+BOOST_AUTO_TEST_SUITE_END()

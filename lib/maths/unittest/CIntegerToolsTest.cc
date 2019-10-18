@@ -4,19 +4,21 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
-#include "CIntegerToolsTest.h"
-
 #include <core/CContainerPrinter.h>
 #include <core/CLogger.h>
 
 #include <maths/CIntegerTools.h>
 
 #include <test/CRandomNumbers.h>
+#include <test/BoostTestCloseAbsolute.h>
 
+#include <boost/test/unit_test.hpp>
 #include <boost/numeric/conversion/bounds.hpp>
 #include <boost/range.hpp>
 
 #include <cmath>
+
+BOOST_AUTO_TEST_SUITE(CIntegerToolsTest)
 
 using namespace ml;
 
@@ -35,8 +37,8 @@ std::string printBits(uint64_t x) {
 }
 }
 
-void CIntegerToolsTest::testNextPow2() {
-    CPPUNIT_ASSERT_EQUAL(std::size_t(0), maths::CIntegerTools::nextPow2(0));
+BOOST_AUTO_TEST_CASE(testNextPow2) {
+    BOOST_CHECK_EQUAL(std::size_t(0), maths::CIntegerTools::nextPow2(0));
 
     test::CRandomNumbers rng;
 
@@ -45,18 +47,18 @@ void CIntegerToolsTest::testNextPow2() {
         LOG_DEBUG(<< "Testing shift = " << shift);
 
         // Edge cases.
-        CPPUNIT_ASSERT_EQUAL(shift, maths::CIntegerTools::nextPow2(test));
-        CPPUNIT_ASSERT_EQUAL(shift, maths::CIntegerTools::nextPow2((test << 1) - 1));
+        BOOST_CHECK_EQUAL(shift, maths::CIntegerTools::nextPow2(test));
+        BOOST_CHECK_EQUAL(shift, maths::CIntegerTools::nextPow2((test << 1) - 1));
 
         TSizeVec offsets;
         rng.generateUniformSamples(0, test, 100, offsets);
         for (std::size_t i = 0u; i < offsets.size(); ++i) {
-            CPPUNIT_ASSERT_EQUAL(shift, maths::CIntegerTools::nextPow2(test + offsets[i]));
+            BOOST_CHECK_EQUAL(shift, maths::CIntegerTools::nextPow2(test + offsets[i]));
         }
     }
 }
 
-void CIntegerToolsTest::testReverseBits() {
+BOOST_AUTO_TEST_CASE(testReverseBits) {
     test::CRandomNumbers rng;
 
     TSizeVec values;
@@ -74,23 +76,23 @@ void CIntegerToolsTest::testReverseBits() {
             LOG_DEBUG(<< "expected = " << expected);
             LOG_DEBUG(<< "actual   = " << actual);
         }
-        CPPUNIT_ASSERT_EQUAL(expected, actual);
+        BOOST_CHECK_EQUAL(expected, actual);
     }
 }
 
-void CIntegerToolsTest::testGcd() {
+BOOST_AUTO_TEST_CASE(testGcd) {
     // Construct a set of integers out of prime factors so we know
     // what the g.c.d. should be.
 
     std::size_t n1 = 3 * 17 * 29;
     std::size_t n2 = 5 * 17;
     LOG_DEBUG(<< "gcd = " << maths::CIntegerTools::gcd(n2, n1));
-    CPPUNIT_ASSERT_EQUAL(std::size_t(17), maths::CIntegerTools::gcd(n2, n1));
+    BOOST_CHECK_EQUAL(std::size_t(17), maths::CIntegerTools::gcd(n2, n1));
 
     n1 = 19 * 97;
     n2 = 5 * 7 * 97;
     LOG_DEBUG(<< "gcd = " << maths::CIntegerTools::gcd(n1, n2));
-    CPPUNIT_ASSERT_EQUAL(std::size_t(97), maths::CIntegerTools::gcd(n2, n1));
+    BOOST_CHECK_EQUAL(std::size_t(97), maths::CIntegerTools::gcd(n2, n1));
 
     test::CRandomNumbers rng;
 
@@ -126,7 +128,7 @@ void CIntegerToolsTest::testGcd() {
         }
         LOG_DEBUG(<< "big1 = " << big1 << ", big2 = " << big2 << " - expected gcd = " << bigGcd
                   << ", gcd = " << maths::CIntegerTools::gcd(big1, big2));
-        CPPUNIT_ASSERT_EQUAL(bigGcd, maths::CIntegerTools::gcd(big1, big2));
+        BOOST_CHECK_EQUAL(bigGcd, maths::CIntegerTools::gcd(big1, big2));
     }
 
     LOG_DEBUG(<< "--- gcd(a, b, c) ---");
@@ -171,10 +173,10 @@ void CIntegerToolsTest::testGcd() {
     n[3] = 17 * 19 * 29 * 83;
     LOG_DEBUG(<< "n = " << core::CContainerPrinter::print(n) << " - expected gcd = 19"
               << ", gcd = " << maths::CIntegerTools::gcd(n));
-    CPPUNIT_ASSERT_EQUAL(std::size_t(19), maths::CIntegerTools::gcd(n));
+    BOOST_CHECK_EQUAL(std::size_t(19), maths::CIntegerTools::gcd(n));
 }
 
-void CIntegerToolsTest::testBinomial() {
+BOOST_AUTO_TEST_CASE(testBinomial) {
     unsigned int n[] = {1u, 2u, 5u, 7u, 10u};
 
     for (std::size_t i = 0u; i < boost::size(n); ++i) {
@@ -185,23 +187,11 @@ void CIntegerToolsTest::testBinomial() {
             double expected = std::exp(std::lgamma(static_cast<double>(n[i] + 1)) -
                                        std::lgamma(static_cast<double>(n[i] - j + 1)) -
                                        std::lgamma(static_cast<double>(j + 1)));
-            CPPUNIT_ASSERT_DOUBLES_EQUAL(
+            BOOST_CHECK_CLOSE_ABSOLUTE(
                 expected, maths::CIntegerTools::binomial(n[i], j), 1e-10);
         }
     }
 }
 
-CppUnit::Test* CIntegerToolsTest::suite() {
-    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CIntegerToolsTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CIntegerToolsTest>(
-        "CIntegerToolsTest::testNextPow2", &CIntegerToolsTest::testNextPow2));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CIntegerToolsTest>(
-        "CIntegerToolsTest::testReverseBits", &CIntegerToolsTest::testReverseBits));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CIntegerToolsTest>(
-        "CIntegerToolsTest::testGcd", &CIntegerToolsTest::testGcd));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CIntegerToolsTest>(
-        "CIntegerToolsTest::testBinomial", &CIntegerToolsTest::testBinomial));
-
-    return suiteOfTests;
-}
+BOOST_AUTO_TEST_SUITE_END()

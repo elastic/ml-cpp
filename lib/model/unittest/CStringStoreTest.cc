@@ -4,8 +4,6 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
-#include "CStringStoreTest.h"
-
 #include <core/CContainerPrinter.h>
 #include <core/CLogger.h>
 #include <core/CThread.h>
@@ -14,7 +12,11 @@
 
 #include <cppunit/Exception.h>
 
+#include <boost/test/unit_test.hpp>
+
 #include <memory>
+
+BOOST_AUTO_TEST_SUITE(CStringStoreTest)
 
 using namespace ml;
 using namespace model;
@@ -56,12 +58,12 @@ private:
                 m_Ptrs.push_back(core::CStoredStringPtr());
                 m_Ptrs.back() = CStringStore::names().get(m_Strings[i % n]);
                 m_UniquePtrs.insert(m_Ptrs.back().get());
-                CPPUNIT_ASSERT_EQUAL(m_Strings[i % n], *m_Ptrs.back());
+                BOOST_CHECK_EQUAL(m_Strings[i % n], *m_Ptrs.back());
             }
             for (std::size_t i = m_I; i < 1000000; ++i) {
                 core::CStoredStringPtr p = CStringStore::names().get(m_Strings[i % n]);
                 m_UniquePtrs.insert(p.get());
-                CPPUNIT_ASSERT_EQUAL(m_Strings[i % n], *p);
+                BOOST_CHECK_EQUAL(m_Strings[i % n], *p);
             }
         }
         // CppUnit won't automatically catch the exceptions thrown by
@@ -89,7 +91,7 @@ void CStringStoreTest::setUp() {
     CStringStore::influencers().clearEverythingTestOnly();
 }
 
-void CStringStoreTest::testStringStore() {
+BOOST_AUTO_TEST_CASE(testStringStore) {
     TStrVec strings;
     strings.emplace_back("Milano");
     strings.emplace_back("Monza");
@@ -112,20 +114,20 @@ void CStringStoreTest::testStringStore() {
     {
         LOG_DEBUG(<< "Testing basic insert");
         core::CStoredStringPtr pG = CStringStore::names().get("Gragnano");
-        CPPUNIT_ASSERT(pG);
-        CPPUNIT_ASSERT_EQUAL(std::string("Gragnano"), *pG);
+        BOOST_TEST(pG);
+        BOOST_CHECK_EQUAL(std::string("Gragnano"), *pG);
 
         core::CStoredStringPtr pG2 = CStringStore::names().get("Gragnano");
-        CPPUNIT_ASSERT(pG2);
-        CPPUNIT_ASSERT_EQUAL(std::string("Gragnano"), *pG2);
-        CPPUNIT_ASSERT_EQUAL(pG.get(), pG2.get());
-        CPPUNIT_ASSERT_EQUAL(*pG, *pG2);
+        BOOST_TEST(pG2);
+        BOOST_CHECK_EQUAL(std::string("Gragnano"), *pG2);
+        BOOST_CHECK_EQUAL(pG.get(), pG2.get());
+        BOOST_CHECK_EQUAL(*pG, *pG2);
 
-        CPPUNIT_ASSERT_EQUAL(std::size_t(1), CStringStore::names().m_Strings.size());
+        BOOST_CHECK_EQUAL(std::size_t(1), CStringStore::names().m_Strings.size());
     }
-    CPPUNIT_ASSERT_EQUAL(std::size_t(1), CStringStore::names().m_Strings.size());
+    BOOST_CHECK_EQUAL(std::size_t(1), CStringStore::names().m_Strings.size());
     CStringStore::names().pruneNotThreadSafe();
-    CPPUNIT_ASSERT_EQUAL(std::size_t(0), CStringStore::names().m_Strings.size());
+    BOOST_CHECK_EQUAL(std::size_t(0), CStringStore::names().m_Strings.size());
 
     {
         LOG_DEBUG(<< "Testing multi-threaded");
@@ -137,16 +139,16 @@ void CStringStoreTest::testStringStore() {
             threads.emplace_back(new CStringThread(i, strings));
         }
         for (std::size_t i = 0; i < threads.size(); ++i) {
-            CPPUNIT_ASSERT(threads[i]->start());
+            BOOST_TEST(threads[i]->start());
         }
         for (std::size_t i = 0; i < threads.size(); ++i) {
-            CPPUNIT_ASSERT(threads[i]->waitForFinish());
+            BOOST_TEST(threads[i]->waitForFinish());
         }
 
-        CPPUNIT_ASSERT_EQUAL(strings.size(), CStringStore::names().m_Strings.size());
+        BOOST_CHECK_EQUAL(strings.size(), CStringStore::names().m_Strings.size());
         CStringStore::names().pruneNotThreadSafe();
-        CPPUNIT_ASSERT_EQUAL(strings.size(), CStringStore::names().m_Strings.size());
-        CPPUNIT_ASSERT_EQUAL(std::size_t(0),
+        BOOST_CHECK_EQUAL(strings.size(), CStringStore::names().m_Strings.size());
+        BOOST_CHECK_EQUAL(std::size_t(0),
                              CStringStore::influencers().m_Strings.size());
 
         for (std::size_t i = 0; i < threads.size(); ++i) {
@@ -158,11 +160,11 @@ void CStringStoreTest::testStringStore() {
             threads[i]->clearPtrs();
         }
 
-        CPPUNIT_ASSERT_EQUAL(strings.size(), CStringStore::names().m_Strings.size());
+        BOOST_CHECK_EQUAL(strings.size(), CStringStore::names().m_Strings.size());
         CStringStore::names().pruneNotThreadSafe();
-        CPPUNIT_ASSERT_EQUAL(std::size_t(0), CStringStore::names().m_Strings.size());
+        BOOST_CHECK_EQUAL(std::size_t(0), CStringStore::names().m_Strings.size());
         threads.clear();
-        CPPUNIT_ASSERT_EQUAL(std::size_t(0), CStringStore::names().m_Strings.size());
+        BOOST_CHECK_EQUAL(std::size_t(0), CStringStore::names().m_Strings.size());
     }
     {
         LOG_DEBUG(<< "Testing multi-threaded string duplication rate");
@@ -179,10 +181,10 @@ void CStringStoreTest::testStringStore() {
             threads.emplace_back(new CStringThread(i * 50, lotsOfStrings));
         }
         for (std::size_t i = 0; i < threads.size(); ++i) {
-            CPPUNIT_ASSERT(threads[i]->start());
+            BOOST_TEST(threads[i]->start());
         }
         for (std::size_t i = 0; i < threads.size(); ++i) {
-            CPPUNIT_ASSERT(threads[i]->waitForFinish());
+            BOOST_TEST(threads[i]->waitForFinish());
         }
 
         for (std::size_t i = 0; i < threads.size(); ++i) {
@@ -196,7 +198,7 @@ void CStringStoreTest::testStringStore() {
             threads[i]->uniques(uniques);
         }
         LOG_DEBUG(<< "unique counts = " << uniques.size());
-        CPPUNIT_ASSERT(uniques.size() < 20000);
+        BOOST_TEST(uniques.size() < 20000);
 
         // Tidy up
         for (std::size_t i = 0; i < threads.size(); ++i) {
@@ -206,13 +208,13 @@ void CStringStoreTest::testStringStore() {
     }
 }
 
-void CStringStoreTest::testMemUsage() {
+BOOST_AUTO_TEST_CASE(testMemUsage) {
     std::string shortStr("short");
     std::string longStr("much much longer than the short string");
 
     std::size_t origMemUse = CStringStore::names().memoryUsage();
     LOG_DEBUG(<< "Original memory usage: " << origMemUse);
-    CPPUNIT_ASSERT(origMemUse > 0);
+    BOOST_TEST(origMemUse > 0);
 
     std::size_t inUseMemUse{0};
     {
@@ -221,35 +223,27 @@ void CStringStoreTest::testMemUsage() {
 
         inUseMemUse = CStringStore::names().memoryUsage();
         LOG_DEBUG(<< "Memory usage with in-use pointers: " << inUseMemUse);
-        CPPUNIT_ASSERT(inUseMemUse > origMemUse + shortStr.length() + longStr.length());
+        BOOST_TEST(inUseMemUse > origMemUse + shortStr.length() + longStr.length());
 
         // This pruning should have no effect, as there are external pointers to
         // the contents
         CStringStore::names().pruneNotThreadSafe();
-        CPPUNIT_ASSERT_EQUAL(inUseMemUse, CStringStore::names().memoryUsage());
+        BOOST_CHECK_EQUAL(inUseMemUse, CStringStore::names().memoryUsage());
     }
 
     // Previously obtained pointers being destroyed should not on its own reduce
     // the memory usage of the string store
-    CPPUNIT_ASSERT_EQUAL(inUseMemUse, CStringStore::names().memoryUsage());
+    BOOST_CHECK_EQUAL(inUseMemUse, CStringStore::names().memoryUsage());
 
     // There are no external references, so this should remove values
     CStringStore::names().pruneNotThreadSafe();
     std::size_t prunedMemUse = CStringStore::names().memoryUsage();
     LOG_DEBUG(<< "Pruned memory usage: " << prunedMemUse);
-    CPPUNIT_ASSERT(prunedMemUse < inUseMemUse - shortStr.length() - longStr.length());
+    BOOST_TEST(prunedMemUse < inUseMemUse - shortStr.length() - longStr.length());
 
     CStringStore::names().clearEverythingTestOnly();
-    CPPUNIT_ASSERT_EQUAL(origMemUse, CStringStore::names().memoryUsage());
+    BOOST_CHECK_EQUAL(origMemUse, CStringStore::names().memoryUsage());
 }
 
-CppUnit::Test* CStringStoreTest::suite() {
-    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CStringStoreTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CStringStoreTest>(
-        "CStringStoreTest::testStringStore", &CStringStoreTest::testStringStore));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CStringStoreTest>(
-        "CStringStoreTest::testMemUsage", &CStringStoreTest::testMemUsage));
-
-    return suiteOfTests;
-}
+BOOST_AUTO_TEST_SUITE_END()

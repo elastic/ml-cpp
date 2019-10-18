@@ -17,7 +17,9 @@
 #include <string>
 #include <vector>
 
-class CProgramCountersTest;
+namespace CProgramCountersTest {
+struct testFoo;
+}
 
 namespace ml {
 namespace counter_t {
@@ -217,7 +219,7 @@ private:
         std::atomic_uint_fast64_t m_Counter;
 
         //! Befriend the test suite
-        friend class ::CProgramCountersTest;
+        friend struct CProgramCountersTest::testFoo;
     };
 
 private:
@@ -331,7 +333,7 @@ private:
                                                 const CProgramCounters& counters);
 
     //! Befriend the test suite
-    friend class ::CProgramCountersTest;
+    friend struct CProgramCountersTest::testFoo;
 };
 
 } // core

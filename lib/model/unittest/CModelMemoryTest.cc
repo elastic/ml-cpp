@@ -4,8 +4,6 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
-#include "CModelMemoryTest.h"
-
 #include <core/CMemory.h>
 
 #include <maths/CBasicStatistics.h>
@@ -21,7 +19,11 @@
 
 #include <test/CRandomNumbers.h>
 
+#include <boost/test/unit_test.hpp>
+
 #include <memory>
+
+BOOST_AUTO_TEST_SUITE(CModelMemoryTest)
 
 using namespace ml;
 using namespace model;
@@ -64,7 +66,7 @@ void addArrival(CDataGatherer& gatherer, core_t::TTime time, const std::string& 
 const std::string EMPTY_STRING;
 }
 
-void CModelMemoryTest::testOnlineEventRateModel() {
+BOOST_AUTO_TEST_CASE(testOnlineEventRateModel) {
 
     // Tests to check that the memory usage of the model goes up
     // as data is fed in and that memoryUsage and debugMemory are
@@ -81,10 +83,10 @@ void CModelMemoryTest::testOnlineEventRateModel() {
     features.push_back(model_t::E_IndividualTotalBucketCountByPerson);
     factory.features(features);
     CModelFactory::TDataGathererPtr gatherer(factory.makeDataGatherer(startTime));
-    CPPUNIT_ASSERT_EQUAL(std::size_t(0), addPerson("p", gatherer));
+    BOOST_CHECK_EQUAL(std::size_t(0), addPerson("p", gatherer));
     CModelFactory::TModelPtr modelPtr(factory.makeModel(gatherer));
-    CPPUNIT_ASSERT(modelPtr);
-    CPPUNIT_ASSERT_EQUAL(model_t::E_EventRateOnline, modelPtr->category());
+    BOOST_TEST(modelPtr);
+    BOOST_CHECK_EQUAL(model_t::E_EventRateOnline, modelPtr->category());
     CEventRateModel& model = static_cast<CEventRateModel&>(*modelPtr.get());
     std::size_t startMemoryUsage = model.memoryUsage();
     CResourceMonitor resourceMonitor;
@@ -101,15 +103,15 @@ void CModelMemoryTest::testOnlineEventRateModel() {
         time += bucketLength;
     }
     LOG_INFO(<< "Sizeof model now: " << model.memoryUsage());
-    CPPUNIT_ASSERT(model.memoryUsage() > startMemoryUsage);
+    BOOST_TEST(model.memoryUsage() > startMemoryUsage);
 
     core::CMemoryUsage memoryUsage;
     model.debugMemoryUsage(&memoryUsage);
     LOG_DEBUG(<< "Debug sizeof model: " << memoryUsage.usage());
-    CPPUNIT_ASSERT_EQUAL(model.computeMemoryUsage(), memoryUsage.usage());
+    BOOST_CHECK_EQUAL(model.computeMemoryUsage(), memoryUsage.usage());
 }
 
-void CModelMemoryTest::testOnlineMetricModel() {
+BOOST_AUTO_TEST_CASE(testOnlineMetricModel) {
 
     // Tests to check that the memory usage of the model goes up
     // as data is fed in and that memoryUsage and debugMemory are
@@ -132,10 +134,10 @@ void CModelMemoryTest::testOnlineMetricModel() {
     features.push_back(model_t::E_IndividualMaxByPerson);
     factory.features(features);
     CModelFactory::TDataGathererPtr gatherer(factory.makeDataGatherer(startTime));
-    CPPUNIT_ASSERT_EQUAL(std::size_t(0), addPerson("p", gatherer));
+    BOOST_CHECK_EQUAL(std::size_t(0), addPerson("p", gatherer));
     CModelFactory::TModelPtr modelPtr(factory.makeModel(gatherer));
-    CPPUNIT_ASSERT(modelPtr);
-    CPPUNIT_ASSERT_EQUAL(model_t::E_MetricOnline, modelPtr->category());
+    BOOST_TEST(modelPtr);
+    BOOST_CHECK_EQUAL(model_t::E_MetricOnline, modelPtr->category());
     CMetricModel& model = static_cast<CMetricModel&>(*modelPtr.get());
     std::size_t startMemoryUsage = model.memoryUsage();
     CResourceMonitor resourceMonitor;
@@ -161,21 +163,13 @@ void CModelMemoryTest::testOnlineMetricModel() {
         time += bucketLength;
     }
     LOG_INFO(<< "Sizeof model now: " << model.memoryUsage());
-    CPPUNIT_ASSERT(model.memoryUsage() > startMemoryUsage);
+    BOOST_TEST(model.memoryUsage() > startMemoryUsage);
 
     core::CMemoryUsage memoryUsage;
     model.debugMemoryUsage(&memoryUsage);
     LOG_DEBUG(<< "Debug sizeof model: " << memoryUsage.usage());
-    CPPUNIT_ASSERT_EQUAL(model.computeMemoryUsage(), memoryUsage.usage());
+    BOOST_CHECK_EQUAL(model.computeMemoryUsage(), memoryUsage.usage());
 }
 
-CppUnit::Test* CModelMemoryTest::suite() {
-    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CModelMemoryTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CModelMemoryTest>(
-        "CModelMemoryTest::testOnlineEventRateModel", &CModelMemoryTest::testOnlineEventRateModel));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CModelMemoryTest>(
-        "CModelMemoryTest::testOnlineMetricModel", &CModelMemoryTest::testOnlineMetricModel));
-
-    return suiteOfTests;
-}
+BOOST_AUTO_TEST_SUITE_END()

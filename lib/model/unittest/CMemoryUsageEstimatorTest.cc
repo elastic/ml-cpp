@@ -4,14 +4,16 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
-#include "CMemoryUsageEstimatorTest.h"
-
 #include <core/CLogger.h>
 #include <core/CRapidXmlParser.h>
 #include <core/CRapidXmlStatePersistInserter.h>
 #include <core/CRapidXmlStateRestoreTraverser.h>
 
 #include <model/CMemoryUsageEstimator.h>
+
+#include <boost/test/unit_test.hpp>
+
+BOOST_AUTO_TEST_SUITE(CMemoryUsageEstimatorTest)
 
 using namespace ml;
 using namespace model;
@@ -42,7 +44,7 @@ CMemoryUsageEstimator::TOptionalSize estimate(CMemoryUsageEstimator& estimator,
 }
 }
 
-void CMemoryUsageEstimatorTest::testEstimateLinear() {
+BOOST_AUTO_TEST_CASE(testEstimateLinear) {
     CMemoryUsageEstimator estimator;
 
     // Pscale = 54
@@ -50,51 +52,51 @@ void CMemoryUsageEstimatorTest::testEstimateLinear() {
 
     // Test that several values have to be added before estimation starts
     CMemoryUsageEstimator::TOptionalSize mem = estimate(estimator, 1, 1);
-    CPPUNIT_ASSERT(!mem);
+    BOOST_TEST(!mem);
 
     addValue(estimator, 610, 1, 1);
     mem = estimate(estimator, 2, 1);
-    CPPUNIT_ASSERT(!mem);
+    BOOST_TEST(!mem);
 
     addValue(estimator, 664, 2, 1);
     mem = estimate(estimator, 3, 1);
-    CPPUNIT_ASSERT(!mem);
+    BOOST_TEST(!mem);
 
     addValue(estimator, 718, 3, 1);
     mem = estimate(estimator, 4, 1);
-    CPPUNIT_ASSERT(mem);
-    CPPUNIT_ASSERT_EQUAL(std::size_t(772), mem.get());
+    BOOST_TEST(mem);
+    BOOST_CHECK_EQUAL(std::size_t(772), mem.get());
 
     addValue(estimator, 826, 5, 1);
     addValue(estimator, 880, 6, 1);
     addValue(estimator, 934, 7, 1);
     addValue(estimator, 988, 8, 1);
     mem = estimate(estimator, 9, 1);
-    CPPUNIT_ASSERT(mem);
-    CPPUNIT_ASSERT_EQUAL(std::size_t(1042), mem.get());
+    BOOST_TEST(mem);
+    BOOST_CHECK_EQUAL(std::size_t(1042), mem.get());
 
     // Test that after 10 estimates we need to add some more real values
     for (std::size_t i = 0; i < 10; i++) {
         mem = estimate(estimator, 4, 1);
     }
-    CPPUNIT_ASSERT(!mem);
+    BOOST_TEST(!mem);
 
     // Test that adding values for Attributes scales independently of People
     addValue(estimator, 1274, 3, 2);
     addValue(estimator, 2386, 3, 4);
     mem = estimate(estimator, 4, 4);
-    CPPUNIT_ASSERT_EQUAL(std::size_t(2440), mem.get());
+    BOOST_CHECK_EQUAL(std::size_t(2440), mem.get());
     mem = estimate(estimator, 5, 4);
-    CPPUNIT_ASSERT_EQUAL(std::size_t(2494), mem.get());
+    BOOST_CHECK_EQUAL(std::size_t(2494), mem.get());
     mem = estimate(estimator, 6, 5);
-    CPPUNIT_ASSERT_EQUAL(std::size_t(3104), mem.get());
+    BOOST_CHECK_EQUAL(std::size_t(3104), mem.get());
 
     // This is outside the variance range of the supplied values
     mem = estimate(estimator, 60, 30);
-    CPPUNIT_ASSERT(!mem);
+    BOOST_TEST(!mem);
 }
 
-void CMemoryUsageEstimatorTest::testEstimateNonlinear() {
+BOOST_AUTO_TEST_CASE(testEstimateNonlinear) {
     {
         // intercept = 356
         // Pscale = 54
@@ -111,11 +113,11 @@ void CMemoryUsageEstimatorTest::testEstimateNonlinear() {
         addValue(estimator, 1020, 8, 1);
 
         CMemoryUsageEstimator::TOptionalSize mem = estimate(estimator, 9, 1);
-        CPPUNIT_ASSERT_EQUAL(std::size_t(1080), mem.get());
+        BOOST_CHECK_EQUAL(std::size_t(1080), mem.get());
 
         addValue(estimator, 1188, 8, 2);
         mem = estimate(estimator, 9, 3);
-        CPPUNIT_ASSERT_EQUAL(std::size_t(1443), mem.get());
+        BOOST_CHECK_EQUAL(std::size_t(1443), mem.get());
     }
 
     {
@@ -144,12 +146,12 @@ void CMemoryUsageEstimatorTest::testEstimateNonlinear() {
         CMemoryUsageEstimator::TOptionalSize mem = estimate(estimator, 25, 35, 45);
         std::size_t actual = pScale * 25 * 25 + aScale * 35 * 35 + cScale * 45 * 45;
         LOG_DEBUG(<< "actual = " << actual << ", estimated = " << mem.get());
-        CPPUNIT_ASSERT(
+        BOOST_TEST(
             static_cast<double>(actual - mem.get()) / static_cast<double>(actual) < 0.15);
     }
 }
 
-void CMemoryUsageEstimatorTest::testPersist() {
+BOOST_AUTO_TEST_CASE(testPersist) {
     CMemoryUsageEstimator origEstimator;
     {
         std::string origXml;
@@ -162,11 +164,11 @@ void CMemoryUsageEstimatorTest::testPersist() {
 
         // Restore the XML into a new data gatherer
         core::CRapidXmlParser parser;
-        CPPUNIT_ASSERT(parser.parseStringIgnoreCdata(origXml));
+        BOOST_TEST(parser.parseStringIgnoreCdata(origXml));
         core::CRapidXmlStateRestoreTraverser traverser(parser);
 
         CMemoryUsageEstimator restoredEstimator;
-        CPPUNIT_ASSERT(traverser.traverseSubLevel(
+        BOOST_TEST(traverser.traverseSubLevel(
             std::bind(&CMemoryUsageEstimator::acceptRestoreTraverser,
                       &restoredEstimator, std::placeholders::_1)));
 
@@ -178,7 +180,7 @@ void CMemoryUsageEstimatorTest::testPersist() {
             restoredEstimator.acceptPersistInserter(inserter);
             inserter.toXml(newXml);
         }
-        CPPUNIT_ASSERT_EQUAL(origXml, newXml);
+        BOOST_CHECK_EQUAL(origXml, newXml);
     }
     {
         int pScale = 10000;
@@ -201,11 +203,11 @@ void CMemoryUsageEstimatorTest::testPersist() {
 
         // Restore the XML into a new data gatherer
         core::CRapidXmlParser parser;
-        CPPUNIT_ASSERT(parser.parseStringIgnoreCdata(origXml));
+        BOOST_TEST(parser.parseStringIgnoreCdata(origXml));
         core::CRapidXmlStateRestoreTraverser traverser(parser);
 
         CMemoryUsageEstimator restoredEstimator;
-        CPPUNIT_ASSERT(traverser.traverseSubLevel(
+        BOOST_TEST(traverser.traverseSubLevel(
             std::bind(&CMemoryUsageEstimator::acceptRestoreTraverser,
                       &restoredEstimator, std::placeholders::_1)));
 
@@ -217,21 +219,9 @@ void CMemoryUsageEstimatorTest::testPersist() {
             restoredEstimator.acceptPersistInserter(inserter);
             inserter.toXml(newXml);
         }
-        CPPUNIT_ASSERT_EQUAL(origXml, newXml);
+        BOOST_CHECK_EQUAL(origXml, newXml);
     }
 }
 
-CppUnit::Test* CMemoryUsageEstimatorTest::suite() {
-    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CMemoryUsageEstimatorTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CMemoryUsageEstimatorTest>(
-        "CMemoryUsageEstimatorTest::testEstimateLinear",
-        &CMemoryUsageEstimatorTest::testEstimateLinear));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CMemoryUsageEstimatorTest>(
-        "CMemoryUsageEstimatorTest::testEstimateNonlinear",
-        &CMemoryUsageEstimatorTest::testEstimateNonlinear));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CMemoryUsageEstimatorTest>(
-        "CMemoryUsageEstimatorTest::testPersist", &CMemoryUsageEstimatorTest::testPersist));
-
-    return suiteOfTests;
-}
+BOOST_AUTO_TEST_SUITE_END()

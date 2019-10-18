@@ -3,7 +3,6 @@
  * or more contributor license agreements. Licensed under the Elastic License;
  * you may not use this file except in compliance with the Elastic License.
  */
-#include "CConfigUpdaterTest.h"
 
 #include <model/CAnomalyDetectorModelConfig.h>
 #include <model/CDetectionRule.h>
@@ -11,56 +10,35 @@
 #include <api/CConfigUpdater.h>
 #include <api/CFieldConfig.h>
 
+#include <boost/test/unit_test.hpp>
 #include <boost/property_tree/ptree.hpp>
 
 #include <sstream>
 #include <string>
 
+BOOST_AUTO_TEST_SUITE(CConfigUpdaterTest)
+
 using namespace ml;
 using namespace api;
 
-CppUnit::Test* CConfigUpdaterTest::suite() {
-    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CConfigUpdaterTest");
-    suiteOfTests->addTest(new CppUnit::TestCaller<CConfigUpdaterTest>(
-        "CConfigUpdaterTest::testUpdateGivenUpdateCannotBeParsed",
-        &CConfigUpdaterTest::testUpdateGivenUpdateCannotBeParsed));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CConfigUpdaterTest>(
-        "CConfigUpdaterTest::testUpdateGivenUnknownStanzas",
-        &CConfigUpdaterTest::testUpdateGivenUnknownStanzas));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CConfigUpdaterTest>(
-        "CConfigUpdaterTest::testUpdateGivenModelPlotConfig",
-        &CConfigUpdaterTest::testUpdateGivenModelPlotConfig));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CConfigUpdaterTest>(
-        "CConfigUpdaterTest::testUpdateGivenDetectorRules",
-        &CConfigUpdaterTest::testUpdateGivenDetectorRules));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CConfigUpdaterTest>(
-        "CConfigUpdaterTest::testUpdateGivenRulesWithInvalidDetectorIndex",
-        &CConfigUpdaterTest::testUpdateGivenRulesWithInvalidDetectorIndex));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CConfigUpdaterTest>(
-        "CConfigUpdaterTest::testUpdateGivenFilters", &CConfigUpdaterTest::testUpdateGivenFilters));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CConfigUpdaterTest>(
-        "CConfigUpdaterTest::testUpdateGivenScheduledEvents",
-        &CConfigUpdaterTest::testUpdateGivenScheduledEvents));
-    return suiteOfTests;
-}
 
-void CConfigUpdaterTest::testUpdateGivenUpdateCannotBeParsed() {
+BOOST_AUTO_TEST_CASE(testUpdateGivenUpdateCannotBeParsed) {
     CFieldConfig fieldConfig;
     model::CAnomalyDetectorModelConfig modelConfig =
         model::CAnomalyDetectorModelConfig::defaultConfig();
     CConfigUpdater configUpdater(fieldConfig, modelConfig);
-    CPPUNIT_ASSERT(configUpdater.update("this is invalid") == false);
+    BOOST_TEST(configUpdater.update("this is invalid") == false);
 }
 
-void CConfigUpdaterTest::testUpdateGivenUnknownStanzas() {
+BOOST_AUTO_TEST_CASE(testUpdateGivenUnknownStanzas) {
     CFieldConfig fieldConfig;
     model::CAnomalyDetectorModelConfig modelConfig =
         model::CAnomalyDetectorModelConfig::defaultConfig();
     CConfigUpdater configUpdater(fieldConfig, modelConfig);
-    CPPUNIT_ASSERT(configUpdater.update("[unknown1]\na = 1\n[unknown2]\nb = 2\n") == false);
+    BOOST_TEST(configUpdater.update("[unknown1]\na = 1\n[unknown2]\nb = 2\n") == false);
 }
 
-void CConfigUpdaterTest::testUpdateGivenModelPlotConfig() {
+BOOST_AUTO_TEST_CASE(testUpdateGivenModelPlotConfig) {
     using TStrSet = model::CAnomalyDetectorModelConfig::TStrSet;
 
     CFieldConfig fieldConfig;
@@ -76,16 +54,16 @@ void CConfigUpdaterTest::testUpdateGivenModelPlotConfig() {
 
     CConfigUpdater configUpdater(fieldConfig, modelConfig);
 
-    CPPUNIT_ASSERT(configUpdater.update(configUpdate));
-    CPPUNIT_ASSERT_EQUAL(83.5, modelConfig.modelPlotBoundsPercentile());
+    BOOST_TEST(configUpdater.update(configUpdate));
+    BOOST_CHECK_EQUAL(83.5, modelConfig.modelPlotBoundsPercentile());
 
     terms = modelConfig.modelPlotTerms();
-    CPPUNIT_ASSERT_EQUAL(std::size_t(2), terms.size());
-    CPPUNIT_ASSERT(terms.find(std::string("c")) != terms.end());
-    CPPUNIT_ASSERT(terms.find(std::string("d")) != terms.end());
+    BOOST_CHECK_EQUAL(std::size_t(2), terms.size());
+    BOOST_TEST(terms.find(std::string("c")) != terms.end());
+    BOOST_TEST(terms.find(std::string("d")) != terms.end());
 }
 
-void CConfigUpdaterTest::testUpdateGivenDetectorRules() {
+BOOST_AUTO_TEST_CASE(testUpdateGivenDetectorRules) {
     CFieldConfig fieldConfig;
     std::string originalRules0("[{\"actions\":[\"skip_result\"],");
     originalRules0 += "\"conditions\":[{\"applies_to\":\"actual\",\"operator\":\"lt\",\"value\": 5.0}]}]";
@@ -104,19 +82,19 @@ void CConfigUpdaterTest::testUpdateGivenDetectorRules() {
 
     CConfigUpdater configUpdater(fieldConfig, modelConfig);
 
-    CPPUNIT_ASSERT(configUpdater.update(configUpdate0));
-    CPPUNIT_ASSERT(configUpdater.update(configUpdate1));
+    BOOST_TEST(configUpdater.update(configUpdate0));
+    BOOST_TEST(configUpdater.update(configUpdate1));
 
     CFieldConfig::TIntDetectionRuleVecUMap::const_iterator itr =
         fieldConfig.detectionRules().find(0);
-    CPPUNIT_ASSERT(itr->second.empty());
+    BOOST_TEST(itr->second.empty());
     itr = fieldConfig.detectionRules().find(1);
-    CPPUNIT_ASSERT_EQUAL(std::size_t(1), itr->second.size());
-    CPPUNIT_ASSERT_EQUAL(std::string("SKIP_RESULT IF TYPICAL < 15.000000"),
+    BOOST_CHECK_EQUAL(std::size_t(1), itr->second.size());
+    BOOST_CHECK_EQUAL(std::string("SKIP_RESULT IF TYPICAL < 15.000000"),
                          itr->second[0].print());
 }
 
-void CConfigUpdaterTest::testUpdateGivenRulesWithInvalidDetectorIndex() {
+BOOST_AUTO_TEST_CASE(testUpdateGivenRulesWithInvalidDetectorIndex) {
     CFieldConfig fieldConfig;
     std::string originalRules("[{\"actions\":[\"skip_result\"],");
     originalRules += "\"conditions\":[{\"applies_to\":\"actual\",\"operator\":\"lt\",\"value\": 5.0}]}]";
@@ -129,10 +107,10 @@ void CConfigUpdaterTest::testUpdateGivenRulesWithInvalidDetectorIndex() {
 
     CConfigUpdater configUpdater(fieldConfig, modelConfig);
 
-    CPPUNIT_ASSERT(configUpdater.update(configUpdate) == false);
+    BOOST_TEST(configUpdater.update(configUpdate) == false);
 }
 
-void CConfigUpdaterTest::testUpdateGivenFilters() {
+BOOST_AUTO_TEST_CASE(testUpdateGivenFilters) {
     CFieldConfig fieldConfig;
     fieldConfig.processFilter("filter.filter_1", "[\"aaa\",\"bbb\"]");
     fieldConfig.processFilter("filter.filter_2", "[\"ccc\",\"ddd\"]");
@@ -141,48 +119,48 @@ void CConfigUpdaterTest::testUpdateGivenFilters() {
         model::CAnomalyDetectorModelConfig::defaultConfig();
 
     auto ruleFilters = fieldConfig.ruleFilters();
-    CPPUNIT_ASSERT_EQUAL(std::size_t(2), ruleFilters.size());
+    BOOST_CHECK_EQUAL(std::size_t(2), ruleFilters.size());
 
-    CPPUNIT_ASSERT(ruleFilters["filter_1"].contains("aaa"));
-    CPPUNIT_ASSERT(ruleFilters["filter_1"].contains("bbb"));
-    CPPUNIT_ASSERT(ruleFilters["filter_1"].contains("ccc") == false);
-    CPPUNIT_ASSERT(ruleFilters["filter_1"].contains("ddd") == false);
+    BOOST_TEST(ruleFilters["filter_1"].contains("aaa"));
+    BOOST_TEST(ruleFilters["filter_1"].contains("bbb"));
+    BOOST_TEST(ruleFilters["filter_1"].contains("ccc") == false);
+    BOOST_TEST(ruleFilters["filter_1"].contains("ddd") == false);
 
-    CPPUNIT_ASSERT(ruleFilters["filter_2"].contains("aaa") == false);
-    CPPUNIT_ASSERT(ruleFilters["filter_2"].contains("bbb") == false);
-    CPPUNIT_ASSERT(ruleFilters["filter_2"].contains("ccc"));
-    CPPUNIT_ASSERT(ruleFilters["filter_2"].contains("ddd"));
+    BOOST_TEST(ruleFilters["filter_2"].contains("aaa") == false);
+    BOOST_TEST(ruleFilters["filter_2"].contains("bbb") == false);
+    BOOST_TEST(ruleFilters["filter_2"].contains("ccc"));
+    BOOST_TEST(ruleFilters["filter_2"].contains("ddd"));
 
     // Update existing ones
     std::string configUpdate("[filters]\nfilter.filter_1=[\"ccc\",\"ddd\"]\nfilter.filter_2=[\"aaa\",\"bbb\"]\n");
 
     CConfigUpdater configUpdater(fieldConfig, modelConfig);
 
-    CPPUNIT_ASSERT(configUpdater.update(configUpdate));
+    BOOST_TEST(configUpdater.update(configUpdate));
 
     ruleFilters = fieldConfig.ruleFilters();
-    CPPUNIT_ASSERT_EQUAL(std::size_t(2), ruleFilters.size());
+    BOOST_CHECK_EQUAL(std::size_t(2), ruleFilters.size());
 
-    CPPUNIT_ASSERT(ruleFilters["filter_1"].contains("aaa") == false);
-    CPPUNIT_ASSERT(ruleFilters["filter_1"].contains("bbb") == false);
-    CPPUNIT_ASSERT(ruleFilters["filter_1"].contains("ccc"));
-    CPPUNIT_ASSERT(ruleFilters["filter_1"].contains("ddd"));
+    BOOST_TEST(ruleFilters["filter_1"].contains("aaa") == false);
+    BOOST_TEST(ruleFilters["filter_1"].contains("bbb") == false);
+    BOOST_TEST(ruleFilters["filter_1"].contains("ccc"));
+    BOOST_TEST(ruleFilters["filter_1"].contains("ddd"));
 
-    CPPUNIT_ASSERT(ruleFilters["filter_2"].contains("aaa"));
-    CPPUNIT_ASSERT(ruleFilters["filter_2"].contains("bbb"));
-    CPPUNIT_ASSERT(ruleFilters["filter_2"].contains("ccc") == false);
-    CPPUNIT_ASSERT(ruleFilters["filter_2"].contains("ddd") == false);
+    BOOST_TEST(ruleFilters["filter_2"].contains("aaa"));
+    BOOST_TEST(ruleFilters["filter_2"].contains("bbb"));
+    BOOST_TEST(ruleFilters["filter_2"].contains("ccc") == false);
+    BOOST_TEST(ruleFilters["filter_2"].contains("ddd") == false);
 
     // Now update by adding a new filter
     configUpdate = "[filters]\nfilter.filter_3=[\"new\"]\n";
-    CPPUNIT_ASSERT(configUpdater.update(configUpdate));
+    BOOST_TEST(configUpdater.update(configUpdate));
 
     ruleFilters = fieldConfig.ruleFilters();
-    CPPUNIT_ASSERT_EQUAL(std::size_t(3), ruleFilters.size());
-    CPPUNIT_ASSERT(ruleFilters["filter_3"].contains("new"));
+    BOOST_CHECK_EQUAL(std::size_t(3), ruleFilters.size());
+    BOOST_TEST(ruleFilters["filter_3"].contains("new"));
 }
 
-void CConfigUpdaterTest::testUpdateGivenScheduledEvents() {
+BOOST_AUTO_TEST_CASE(testUpdateGivenScheduledEvents) {
     std::string validRule1 =
         "[{\"actions\":[\"skip_result\",\"skip_model_update\"],"
         "\"conditions\":[{\"applies_to\":\"time\",\"operator\":\"gte\",\"value\": 1.0},"
@@ -208,12 +186,12 @@ void CConfigUpdaterTest::testUpdateGivenScheduledEvents() {
         fieldConfig.updateScheduledEvents(propTree);
 
         const auto& events = fieldConfig.scheduledEvents();
-        CPPUNIT_ASSERT_EQUAL(std::size_t(2), events.size());
-        CPPUNIT_ASSERT_EQUAL(std::string("old_event_1"), events[0].first);
-        CPPUNIT_ASSERT_EQUAL(std::string("SKIP_RESULT AND SKIP_MODEL_UPDATE IF TIME >= 1.000000 AND TIME < 2.000000"),
+        BOOST_CHECK_EQUAL(std::size_t(2), events.size());
+        BOOST_CHECK_EQUAL(std::string("old_event_1"), events[0].first);
+        BOOST_CHECK_EQUAL(std::string("SKIP_RESULT AND SKIP_MODEL_UPDATE IF TIME >= 1.000000 AND TIME < 2.000000"),
                              events[0].second.print());
-        CPPUNIT_ASSERT_EQUAL(std::string("old_event_2"), events[1].first);
-        CPPUNIT_ASSERT_EQUAL(std::string("SKIP_RESULT AND SKIP_MODEL_UPDATE IF TIME >= 3.000000 AND TIME < 4.000000"),
+        BOOST_CHECK_EQUAL(std::string("old_event_2"), events[1].first);
+        BOOST_CHECK_EQUAL(std::string("SKIP_RESULT AND SKIP_MODEL_UPDATE IF TIME >= 3.000000 AND TIME < 4.000000"),
                              events[1].second.print());
     }
 
@@ -233,15 +211,15 @@ void CConfigUpdaterTest::testUpdateGivenScheduledEvents() {
                      << "\n";
         configUpdate << "scheduledevent.1.rules = " << validRule1 << "\n";
 
-        CPPUNIT_ASSERT(configUpdater.update(configUpdate.str()));
+        BOOST_TEST(configUpdater.update(configUpdate.str()));
 
         const auto& events = fieldConfig.scheduledEvents();
-        CPPUNIT_ASSERT_EQUAL(std::size_t(2), events.size());
-        CPPUNIT_ASSERT_EQUAL(std::string("new_event_1"), events[0].first);
-        CPPUNIT_ASSERT_EQUAL(std::string("SKIP_RESULT AND SKIP_MODEL_UPDATE IF TIME >= 3.000000 AND TIME < 4.000000"),
+        BOOST_CHECK_EQUAL(std::size_t(2), events.size());
+        BOOST_CHECK_EQUAL(std::string("new_event_1"), events[0].first);
+        BOOST_CHECK_EQUAL(std::string("SKIP_RESULT AND SKIP_MODEL_UPDATE IF TIME >= 3.000000 AND TIME < 4.000000"),
                              events[0].second.print());
-        CPPUNIT_ASSERT_EQUAL(std::string("new_event_2"), events[1].first);
-        CPPUNIT_ASSERT_EQUAL(std::string("SKIP_RESULT AND SKIP_MODEL_UPDATE IF TIME >= 1.000000 AND TIME < 2.000000"),
+        BOOST_CHECK_EQUAL(std::string("new_event_2"), events[1].first);
+        BOOST_CHECK_EQUAL(std::string("SKIP_RESULT AND SKIP_MODEL_UPDATE IF TIME >= 1.000000 AND TIME < 2.000000"),
                              events[1].second.print());
     }
 
@@ -253,9 +231,11 @@ void CConfigUpdaterTest::testUpdateGivenScheduledEvents() {
         configUpdate << "clear = true"
                      << "\n";
 
-        CPPUNIT_ASSERT(configUpdater.update(configUpdate.str()));
+        BOOST_TEST(configUpdater.update(configUpdate.str()));
 
         const auto& events = fieldConfig.scheduledEvents();
-        CPPUNIT_ASSERT(events.empty());
+        BOOST_TEST(events.empty());
     }
 }
+
+BOOST_AUTO_TEST_SUITE_END()

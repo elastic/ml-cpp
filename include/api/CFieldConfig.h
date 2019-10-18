@@ -24,7 +24,9 @@
 #include <utility>
 #include <vector>
 
-class CFieldConfigTest;
+namespace CFieldConfigTest {
+struct testFoo;
+}
 
 namespace ml {
 namespace api {
@@ -589,7 +591,7 @@ private:
     TStrDetectionRulePrVec m_ScheduledEvents;
 
     // For unit testing
-    friend class ::CFieldConfigTest;
+    friend struct CFieldConfigTest::testFoo;
 };
 
 //! Efficient swap for field options

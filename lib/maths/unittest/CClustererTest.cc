@@ -4,20 +4,22 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
-#include "CClustererTest.h"
-
 #include <core/CContainerPrinter.h>
 #include <core/CLogger.h>
 #include <maths/CClusterer.h>
 
 #include <test/CRandomNumbers.h>
 
+#include <boost/test/unit_test.hpp>
+
 #include <set>
 #include <vector>
 
+BOOST_AUTO_TEST_SUITE(CClustererTest)
+
 using namespace ml;
 
-void CClustererTest::testIndexGenerator() {
+BOOST_AUTO_TEST_CASE(testIndexGenerator) {
     // We test the invariants that:
     //   1) It never produces duplicate index.
     //   2) The highest index in the set is less than the
@@ -51,12 +53,12 @@ void CClustererTest::testIndexGenerator() {
             LOG_DEBUG(<< "indices = " << core::CContainerPrinter::print(indices));
         }
         if (nexts[i] == 1) {
-            CPPUNIT_ASSERT(indices.insert(generator.next()).second);
+            BOOST_TEST(indices.insert(generator.next()).second);
             maxSetSize = std::max(maxSetSize, indices.size());
             if (*indices.begin() >= maxSetSize) {
                 LOG_DEBUG(<< "index = " << *indices.begin() << ", maxSetSize = " << maxSetSize);
             }
-            CPPUNIT_ASSERT(*indices.begin() < maxSetSize);
+            BOOST_TEST(*indices.begin() < maxSetSize);
         } else if (!indices.empty()) {
             TDoubleVec indexToErase;
             double max = static_cast<double>(indices.size()) - 1e-3;
@@ -70,11 +72,5 @@ void CClustererTest::testIndexGenerator() {
     }
 }
 
-CppUnit::Test* CClustererTest::suite() {
-    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CClustererTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CClustererTest>(
-        "CClustererTest::testIndexGenerator", &CClustererTest::testIndexGenerator));
-
-    return suiteOfTests;
-}
+BOOST_AUTO_TEST_SUITE_END()

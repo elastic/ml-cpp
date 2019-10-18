@@ -4,8 +4,6 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
-#include "COneOfNPriorTest.h"
-
 #include <core/CContainerPrinter.h>
 #include <core/CLogger.h>
 #include <core/CRapidXmlParser.h>
@@ -26,7 +24,9 @@
 #include "TestUtils.h"
 
 #include <test/CRandomNumbers.h>
+#include <test/BoostTestCloseAbsolute.h>
 
+#include <boost/test/unit_test.hpp>
 #include <boost/math/constants/constants.hpp>
 #include <boost/math/distributions/lognormal.hpp>
 #include <boost/math/distributions/normal.hpp>
@@ -37,6 +37,8 @@
 #include <algorithm>
 #include <memory>
 #include <numeric>
+
+BOOST_AUTO_TEST_SUITE(COneOfNPriorTest)
 
 using namespace ml;
 using namespace handy_typedefs;
@@ -86,7 +88,7 @@ using maths_t::E_ContinuousData;
 using maths_t::E_IntegerData;
 }
 
-void COneOfNPriorTest::testFilter() {
+BOOST_AUTO_TEST_CASE(testFilter) {
     TPriorPtrVec models;
     models.push_back(TPriorPtr(
         maths::CGammaRateConjugate::nonInformativePrior(E_ContinuousData).clone()));
@@ -113,20 +115,20 @@ void COneOfNPriorTest::testFilter() {
 
     filter.removeModels(maths::CPrior::CModelFilter().remove(maths::CPrior::E_Constant));
 
-    CPPUNIT_ASSERT_EQUAL(std::size_t(4), filter.models().size());
+    BOOST_CHECK_EQUAL(std::size_t(4), filter.models().size());
 
     filter.removeModels(
         maths::CPrior::CModelFilter().remove(maths::CPrior::E_Poisson).remove(maths::CPrior::E_Gamma));
 
-    CPPUNIT_ASSERT_EQUAL(std::size_t(2), filter.models().size());
-    CPPUNIT_ASSERT_EQUAL(maths::CPrior::E_LogNormal, filter.models()[0]->type());
-    CPPUNIT_ASSERT_EQUAL(maths::CPrior::E_Normal, filter.models()[1]->type());
+    BOOST_CHECK_EQUAL(std::size_t(2), filter.models().size());
+    BOOST_CHECK_EQUAL(maths::CPrior::E_LogNormal, filter.models()[0]->type());
+    BOOST_CHECK_EQUAL(maths::CPrior::E_Normal, filter.models()[1]->type());
     TDoubleVec weights = filter.weights();
-    CPPUNIT_ASSERT_DOUBLES_EQUAL(
+    BOOST_CHECK_CLOSE_ABSOLUTE(
         1.0, std::accumulate(weights.begin(), weights.end(), 0.0), 1e-6);
 }
 
-void COneOfNPriorTest::testMultipleUpdate() {
+BOOST_AUTO_TEST_CASE(testMultipleUpdate) {
     // Test that we get the same result updating once with a vector of 100
     // samples of an R.V. versus updating individually 100 times.
 
@@ -175,26 +177,26 @@ void COneOfNPriorTest::testMultipleUpdate() {
     TDoubleVec weights2 = filter2.weights();
     LOG_DEBUG(<< "weight1 = " << core::CContainerPrinter::print(weights1));
     LOG_DEBUG(<< "weight2 = " << core::CContainerPrinter::print(weights2));
-    CPPUNIT_ASSERT(weights1.size() == weights2.size());
-    CPPUNIT_ASSERT(std::equal(weights1.begin(), weights1.end(), weights2.begin(), equal));
+    BOOST_TEST(weights1.size() == weights2.size());
+    BOOST_TEST(std::equal(weights1.begin(), weights1.end(), weights2.begin(), equal));
 
     COneOfNPrior::TPriorCPtrVec models1 = filter1.models();
     COneOfNPrior::TPriorCPtrVec models2 = filter2.models();
-    CPPUNIT_ASSERT(models1.size() == models2.size());
+    BOOST_TEST(models1.size() == models2.size());
 
     const maths::CPoissonMeanConjugate* poisson1 =
         dynamic_cast<const maths::CPoissonMeanConjugate*>(models1[0]);
     const maths::CPoissonMeanConjugate* poisson2 =
         dynamic_cast<const maths::CPoissonMeanConjugate*>(models2[0]);
-    CPPUNIT_ASSERT(poisson1 && poisson2);
-    CPPUNIT_ASSERT(poisson1->equalTolerance(*poisson2, equal));
+    BOOST_TEST(poisson1 && poisson2);
+    BOOST_TEST(poisson1->equalTolerance(*poisson2, equal));
 
     const maths::CNormalMeanPrecConjugate* normal1 =
         dynamic_cast<const maths::CNormalMeanPrecConjugate*>(models1[1]);
     const maths::CNormalMeanPrecConjugate* normal2 =
         dynamic_cast<const maths::CNormalMeanPrecConjugate*>(models2[1]);
-    CPPUNIT_ASSERT(normal1 && normal2);
-    CPPUNIT_ASSERT(normal1->equalTolerance(*normal2, equal));
+    BOOST_TEST(normal1 && normal2);
+    BOOST_TEST(normal1->equalTolerance(*normal2, equal));
 
     // Test the count weight is equivalent to adding repeated samples.
 
@@ -206,10 +208,10 @@ void COneOfNPriorTest::testMultipleUpdate() {
     }
     filter2.addSamples({x}, {maths_t::countWeight(static_cast<double>(count))});
 
-    CPPUNIT_ASSERT_EQUAL(filter1.checksum(), filter2.checksum());
+    BOOST_CHECK_EQUAL(filter1.checksum(), filter2.checksum());
 }
 
-void COneOfNPriorTest::testWeights() {
+BOOST_AUTO_TEST_CASE(testWeights) {
     test::CRandomNumbers rng;
 
     {
@@ -238,9 +240,9 @@ void COneOfNPriorTest::testWeights() {
 
             for (std::size_t i = 0u; i < samples.size(); ++i) {
                 filter.addSamples(TDouble1Vec(1, samples[i]));
-                CPPUNIT_ASSERT(equal(sum(filter.weights()), 1.0));
+                BOOST_TEST(equal(sum(filter.weights()), 1.0));
                 filter.propagateForwardsByTime(1.0);
-                CPPUNIT_ASSERT(equal(sum(filter.weights()), 1.0));
+                BOOST_TEST(equal(sum(filter.weights()), 1.0));
             }
         }
     }
@@ -278,14 +280,14 @@ void COneOfNPriorTest::testWeights() {
 
             // Should be approximately 0.2: we reduce the filter memory
             // by a factor of 5 each iteration.
-            CPPUNIT_ASSERT((logWeights[1] - logWeights[0]) / previousLogWeightRatio > 0.15);
-            CPPUNIT_ASSERT((logWeights[1] - logWeights[0]) / previousLogWeightRatio < 0.35);
+            BOOST_TEST((logWeights[1] - logWeights[0]) / previousLogWeightRatio > 0.15);
+            BOOST_TEST((logWeights[1] - logWeights[0]) / previousLogWeightRatio < 0.35);
             previousLogWeightRatio = logWeights[1] - logWeights[0];
         }
     }
 }
 
-void COneOfNPriorTest::testModels() {
+BOOST_AUTO_TEST_CASE(testModels) {
     // Test the models posterior mean values.
 
     // Since the component model's posterior distributions are tested
@@ -320,7 +322,7 @@ void COneOfNPriorTest::testModels() {
             dynamic_cast<const maths::CPoissonMeanConjugate*>(posteriorModels[0]);
         const maths::CNormalMeanPrecConjugate* normalModel =
             dynamic_cast<const maths::CNormalMeanPrecConjugate*>(posteriorModels[1]);
-        CPPUNIT_ASSERT(poissonModel && normalModel);
+        BOOST_TEST(poissonModel && normalModel);
 
         LOG_DEBUG(<< "Poisson mean = " << poissonModel->priorMean()
                   << ", expectedMean = " << rate);
@@ -328,9 +330,9 @@ void COneOfNPriorTest::testModels() {
                   << ", precision = " << normalModel->precision()
                   << ", expectedPrecision " << (1.0 / variance));
 
-        CPPUNIT_ASSERT(std::fabs(poissonModel->priorMean() - rate) / rate < 0.01);
-        CPPUNIT_ASSERT(std::fabs(normalModel->mean() - mean) / mean < 0.01);
-        CPPUNIT_ASSERT(std::fabs(normalModel->precision() - 1.0 / variance) * variance < 0.06);
+        BOOST_TEST(std::fabs(poissonModel->priorMean() - rate) / rate < 0.01);
+        BOOST_TEST(std::fabs(normalModel->mean() - mean) / mean < 0.01);
+        BOOST_TEST(std::fabs(normalModel->precision() - 1.0 / variance) * variance < 0.06);
     }
 
     {
@@ -359,7 +361,7 @@ void COneOfNPriorTest::testModels() {
             dynamic_cast<const maths::CPoissonMeanConjugate*>(posteriorModels[0]);
         const maths::CNormalMeanPrecConjugate* normalModel =
             dynamic_cast<const maths::CNormalMeanPrecConjugate*>(posteriorModels[1]);
-        CPPUNIT_ASSERT(poissonModel && normalModel);
+        BOOST_TEST(poissonModel && normalModel);
 
         LOG_DEBUG(<< "Poisson mean = " << poissonModel->priorMean()
                   << ", expectedMean = " << rate);
@@ -367,13 +369,13 @@ void COneOfNPriorTest::testModels() {
                   << ", precision = " << normalModel->precision()
                   << ", expectedPrecision " << (1.0 / variance));
 
-        CPPUNIT_ASSERT(std::fabs(poissonModel->priorMean() - rate) / rate < 0.01);
-        CPPUNIT_ASSERT(std::fabs(normalModel->mean() - mean) / mean < 0.01);
-        CPPUNIT_ASSERT(std::fabs(normalModel->precision() - 1.0 / variance) * variance < 0.15);
+        BOOST_TEST(std::fabs(poissonModel->priorMean() - rate) / rate < 0.01);
+        BOOST_TEST(std::fabs(normalModel->mean() - mean) / mean < 0.01);
+        BOOST_TEST(std::fabs(normalModel->precision() - 1.0 / variance) * variance < 0.15);
     }
 }
 
-void COneOfNPriorTest::testModelSelection() {
+BOOST_AUTO_TEST_CASE(testModelSelection) {
     test::CRandomNumbers rng;
 
     {
@@ -420,8 +422,8 @@ void COneOfNPriorTest::testModelSelection() {
         LOG_DEBUG(<< "expectedLogWeightRatio = " << expectedLogWeightRatio
                   << ", logWeightRatio = " << logWeightRatio);
 
-        CPPUNIT_ASSERT(logWeightRatio > expectedLogWeightRatio);
-        CPPUNIT_ASSERT(logWeightRatio < 0.95 * expectedLogWeightRatio);
+        BOOST_TEST(logWeightRatio > expectedLogWeightRatio);
+        BOOST_TEST(logWeightRatio < 0.95 * expectedLogWeightRatio);
     }
 
     {
@@ -469,8 +471,8 @@ void COneOfNPriorTest::testModelSelection() {
         LOG_DEBUG(<< "expectedLogWeightRatio = " << expectedLogWeightRatio
                   << ", logWeightRatio = " << logWeightRatio);
 
-        CPPUNIT_ASSERT(logWeightRatio > expectedLogWeightRatio);
-        CPPUNIT_ASSERT(logWeightRatio < 0.75 * expectedLogWeightRatio);
+        BOOST_TEST(logWeightRatio > expectedLogWeightRatio);
+        BOOST_TEST(logWeightRatio < 0.75 * expectedLogWeightRatio);
     }
     {
         // Check we correctly select the multimodal model when the data have
@@ -507,11 +509,11 @@ void COneOfNPriorTest::testModelSelection() {
         double logWeightRatio = logWeights[0] - logWeights[1];
 
         LOG_DEBUG(<< "logWeightRatio = " << logWeightRatio);
-        CPPUNIT_ASSERT(std::exp(logWeightRatio) < 1e-6);
+        BOOST_TEST(std::exp(logWeightRatio) < 1e-6);
     }
 }
 
-void COneOfNPriorTest::testMarginalLikelihood() {
+BOOST_AUTO_TEST_CASE(testMarginalLikelihood) {
     // Check that the c.d.f. <= 1 at extreme.
     maths_t::EDataType dataTypes[] = {E_ContinuousData, E_IntegerData};
 
@@ -544,8 +546,8 @@ void COneOfNPriorTest::testMarginalLikelihood() {
                 double lb, ub;
                 filter.minusLogJointCdf({10000.0}, {weightsFuncs[i](weights[j])}, lb, ub);
                 LOG_DEBUG(<< "-log(c.d.f) = " << (lb + ub) / 2.0);
-                CPPUNIT_ASSERT(lb >= 0.0);
-                CPPUNIT_ASSERT(ub >= 0.0);
+                BOOST_TEST(lb >= 0.0);
+                BOOST_TEST(ub >= 0.0);
             }
         }
     }
@@ -581,36 +583,36 @@ void COneOfNPriorTest::testMarginalLikelihood() {
         double dx = (interval.second - interval.first) / 20.0;
         for (std::size_t j = 0u; j < 20; ++j, x += dx) {
             double fx;
-            CPPUNIT_ASSERT(filter.jointLogMarginalLikelihood(TDouble1Vec(1, x), fx) ==
+            BOOST_TEST(filter.jointLogMarginalLikelihood(TDouble1Vec(1, x), fx) ==
                            maths_t::E_FpNoErrors);
             fx = std::exp(fx);
 
             double lb;
             double ub;
-            CPPUNIT_ASSERT(filter.minusLogJointCdf(TDouble1Vec(1, x + EPS), lb, ub));
+            BOOST_TEST(filter.minusLogJointCdf(TDouble1Vec(1, x + EPS), lb, ub));
             double FxPlusEps = std::exp(-(lb + ub) / 2.0);
 
-            CPPUNIT_ASSERT(filter.minusLogJointCdf(TDouble1Vec(1, x - EPS), lb, ub));
+            BOOST_TEST(filter.minusLogJointCdf(TDouble1Vec(1, x - EPS), lb, ub));
             double FxMinusEps = std::exp(-(lb + ub) / 2.0);
 
             double dFdx = (FxPlusEps - FxMinusEps) / (2.0 * EPS);
 
             LOG_DEBUG(<< "x = " << x << ", f(x) = " << fx << ", dF(x)/dx = " << dFdx);
-            CPPUNIT_ASSERT_DOUBLES_EQUAL(fx, dFdx, std::max(1e-5, 1e-3 * FxPlusEps));
+            BOOST_CHECK_CLOSE_ABSOLUTE(fx, dFdx, std::max(1e-5, 1e-3 * FxPlusEps));
 
-            CPPUNIT_ASSERT(filter.minusLogJointCdf(TDouble1Vec(1, x), lb, ub));
+            BOOST_TEST(filter.minusLogJointCdf(TDouble1Vec(1, x), lb, ub));
             double Fx = std::exp(-(lb + ub) / 2.0);
 
-            CPPUNIT_ASSERT(filter.minusLogJointCdfComplement(TDouble1Vec(1, x), lb, ub));
+            BOOST_TEST(filter.minusLogJointCdfComplement(TDouble1Vec(1, x), lb, ub));
             double FxComplement = std::exp(-(lb + ub) / 2.0);
             LOG_DEBUG(<< "F(x) = " << Fx << " 1 - F(x) = " << FxComplement);
 
-            CPPUNIT_ASSERT_DOUBLES_EQUAL(1.0, Fx + FxComplement, 1e-3);
+            BOOST_CHECK_CLOSE_ABSOLUTE(1.0, Fx + FxComplement, 1e-3);
         }
     }
 }
 
-void COneOfNPriorTest::testMarginalLikelihoodMean() {
+BOOST_AUTO_TEST_CASE(testMarginalLikelihoodMean) {
     // Test that the expectation of the marginal likelihood matches
     // the expected mean of the marginal likelihood.
 
@@ -646,7 +648,7 @@ void COneOfNPriorTest::testMarginalLikelihoodMean() {
                     filter.addSamples(TDouble1Vec(1, samples[k]));
 
                     double expectedMean;
-                    CPPUNIT_ASSERT(filter.marginalLikelihoodMeanForTest(expectedMean));
+                    BOOST_TEST(filter.marginalLikelihoodMeanForTest(expectedMean));
 
                     if (k % 10 == 0) {
                         LOG_DEBUG(<< "marginalLikelihoodMean = " << filter.marginalLikelihoodMean()
@@ -654,7 +656,7 @@ void COneOfNPriorTest::testMarginalLikelihoodMean() {
                     }
 
                     // The error is at the precision of the numerical integration.
-                    CPPUNIT_ASSERT_DOUBLES_EQUAL(expectedMean,
+                    BOOST_CHECK_CLOSE_ABSOLUTE(expectedMean,
                                                  filter.marginalLikelihoodMean(),
                                                  0.01 * expectedMean);
                 }
@@ -694,14 +696,14 @@ void COneOfNPriorTest::testMarginalLikelihoodMean() {
                     filter.addSamples(TDouble1Vec(1, samples[k]));
 
                     double expectedMean;
-                    CPPUNIT_ASSERT(filter.marginalLikelihoodMeanForTest(expectedMean));
+                    BOOST_TEST(filter.marginalLikelihoodMeanForTest(expectedMean));
 
                     if (k % 10 == 0) {
                         LOG_DEBUG(<< "marginalLikelihoodMean = " << filter.marginalLikelihoodMean()
                                   << ", expectedMean = " << expectedMean);
                     }
 
-                    CPPUNIT_ASSERT_DOUBLES_EQUAL(expectedMean,
+                    BOOST_CHECK_CLOSE_ABSOLUTE(expectedMean,
                                                  filter.marginalLikelihoodMean(),
                                                  0.2 * expectedMean);
 
@@ -711,13 +713,13 @@ void COneOfNPriorTest::testMarginalLikelihoodMean() {
 
                 LOG_DEBUG(<< "relativeError = "
                           << maths::CBasicStatistics::mean(relativeError));
-                CPPUNIT_ASSERT(maths::CBasicStatistics::mean(relativeError) < 0.02);
+                BOOST_TEST(maths::CBasicStatistics::mean(relativeError) < 0.02);
             }
         }
     }
 }
 
-void COneOfNPriorTest::testMarginalLikelihoodMode() {
+BOOST_AUTO_TEST_CASE(testMarginalLikelihoodMode) {
     // Test that the marginal likelihood mode is near the maximum
     // of the marginal likelihood.
 
@@ -762,7 +764,7 @@ void COneOfNPriorTest::testMarginalLikelihoodMode() {
                 LOG_DEBUG(<< "marginalLikelihoodMode = " << filter.marginalLikelihoodMode()
                           << ", expectedMode = " << mode);
 
-                CPPUNIT_ASSERT_DOUBLES_EQUAL(mode, filter.marginalLikelihoodMode(),
+                BOOST_CHECK_CLOSE_ABSOLUTE(mode, filter.marginalLikelihoodMode(),
                                              0.01 * mode);
             }
         }
@@ -810,14 +812,14 @@ void COneOfNPriorTest::testMarginalLikelihoodMode() {
                 LOG_DEBUG(<< "marginalLikelihoodMode = " << filter.marginalLikelihoodMode()
                           << ", expectedMode = " << mode);
 
-                CPPUNIT_ASSERT_DOUBLES_EQUAL(mode, filter.marginalLikelihoodMode(),
+                BOOST_CHECK_CLOSE_ABSOLUTE(mode, filter.marginalLikelihoodMode(),
                                              0.05 * mode);
             }
         }
     }
 }
 
-void COneOfNPriorTest::testMarginalLikelihoodVariance() {
+BOOST_AUTO_TEST_CASE(testMarginalLikelihoodVariance) {
     // Test that the expectation of the residual from the mean for
     // the marginal likelihood matches the expected variance of the
     // marginal likelihood.
@@ -854,7 +856,7 @@ void COneOfNPriorTest::testMarginalLikelihoodVariance() {
                 for (std::size_t k = 0u; k < samples.size(); ++k) {
                     filter.addSamples(TDouble1Vec(1, samples[k]));
                     double expectedVariance;
-                    CPPUNIT_ASSERT(filter.marginalLikelihoodVarianceForTest(expectedVariance));
+                    BOOST_TEST(filter.marginalLikelihoodVarianceForTest(expectedVariance));
                     if (k % 10 == 0) {
                         LOG_DEBUG(<< "marginalLikelihoodVariance = "
                                   << filter.marginalLikelihoodVariance()
@@ -862,7 +864,7 @@ void COneOfNPriorTest::testMarginalLikelihoodVariance() {
                     }
 
                     // The error is at the precision of the numerical integration.
-                    CPPUNIT_ASSERT_DOUBLES_EQUAL(expectedVariance,
+                    BOOST_CHECK_CLOSE_ABSOLUTE(expectedVariance,
                                                  filter.marginalLikelihoodVariance(),
                                                  0.02 * expectedVariance);
 
@@ -873,7 +875,7 @@ void COneOfNPriorTest::testMarginalLikelihoodVariance() {
 
                 LOG_DEBUG(<< "relativeError = "
                           << maths::CBasicStatistics::mean(relativeError));
-                CPPUNIT_ASSERT(maths::CBasicStatistics::mean(relativeError) < 2e-3);
+                BOOST_TEST(maths::CBasicStatistics::mean(relativeError) < 2e-3);
             }
         }
     }
@@ -910,7 +912,7 @@ void COneOfNPriorTest::testMarginalLikelihoodVariance() {
                     filter.addSamples(TDouble1Vec(1, samples[k]));
 
                     double expectedVariance;
-                    CPPUNIT_ASSERT(filter.marginalLikelihoodVarianceForTest(expectedVariance));
+                    BOOST_TEST(filter.marginalLikelihoodVarianceForTest(expectedVariance));
 
                     if (k % 10 == 0) {
                         LOG_DEBUG(<< "marginalLikelihoodVariance = "
@@ -920,7 +922,7 @@ void COneOfNPriorTest::testMarginalLikelihoodVariance() {
 
                     // The error is mainly due to the truncation in the
                     // integration range used to compute the expected mean.
-                    CPPUNIT_ASSERT_DOUBLES_EQUAL(expectedVariance,
+                    BOOST_CHECK_CLOSE_ABSOLUTE(expectedVariance,
                                                  filter.marginalLikelihoodVariance(),
                                                  0.01 * expectedVariance);
 
@@ -931,13 +933,13 @@ void COneOfNPriorTest::testMarginalLikelihoodVariance() {
 
                 LOG_DEBUG(<< "relativeError = "
                           << maths::CBasicStatistics::mean(relativeError));
-                CPPUNIT_ASSERT(maths::CBasicStatistics::mean(relativeError) < 3e-3);
+                BOOST_TEST(maths::CBasicStatistics::mean(relativeError) < 3e-3);
             }
         }
     }
 }
 
-void COneOfNPriorTest::testSampleMarginalLikelihood() {
+BOOST_AUTO_TEST_CASE(testSampleMarginalLikelihood) {
     // Test we sample the constitute priors in proportion to their weights.
 
     const double mean = 5.0;
@@ -980,7 +982,7 @@ void COneOfNPriorTest::testSampleMarginalLikelihood() {
     LOG_DEBUG(<< "expected samples = " << core::CContainerPrinter::print(expectedSampled)
               << ", samples = " << core::CContainerPrinter::print(sampled));
 
-    CPPUNIT_ASSERT_EQUAL(core::CContainerPrinter::print(expectedSampled),
+    BOOST_CHECK_EQUAL(core::CContainerPrinter::print(expectedSampled),
                          core::CContainerPrinter::print(sampled));
 
     rng.generateNormalSamples(mean, variance, 80, samples);
@@ -1006,11 +1008,11 @@ void COneOfNPriorTest::testSampleMarginalLikelihood() {
     LOG_DEBUG(<< "expected samples = " << core::CContainerPrinter::print(expectedSampled)
               << ", samples = " << core::CContainerPrinter::print(sampled));
 
-    CPPUNIT_ASSERT_EQUAL(core::CContainerPrinter::print(expectedSampled),
+    BOOST_CHECK_EQUAL(core::CContainerPrinter::print(expectedSampled),
                          core::CContainerPrinter::print(sampled));
 }
 
-void COneOfNPriorTest::testCdf() {
+BOOST_AUTO_TEST_CASE(testCdf) {
     // Test error cases and the invariant "cdf" + "cdf complement" = 1
 
     const double mean = 20.0;
@@ -1037,25 +1039,25 @@ void COneOfNPriorTest::testCdf() {
         }
 
         double lb, ub;
-        CPPUNIT_ASSERT(!filter.minusLogJointCdf(TDouble1Vec(), lb, ub));
-        CPPUNIT_ASSERT(!filter.minusLogJointCdfComplement(TDouble1Vec(), lb, ub));
+        BOOST_TEST(!filter.minusLogJointCdf(TDouble1Vec(), lb, ub));
+        BOOST_TEST(!filter.minusLogJointCdfComplement(TDouble1Vec(), lb, ub));
 
         for (std::size_t j = 1u; j < 500; ++j) {
             double x = static_cast<double>(j) / 2.0;
 
-            CPPUNIT_ASSERT(filter.minusLogJointCdf(TDouble1Vec(1, x), lb, ub));
+            BOOST_TEST(filter.minusLogJointCdf(TDouble1Vec(1, x), lb, ub));
             double f = (lb + ub) / 2.0;
-            CPPUNIT_ASSERT(filter.minusLogJointCdfComplement(TDouble1Vec(1, x), lb, ub));
+            BOOST_TEST(filter.minusLogJointCdfComplement(TDouble1Vec(1, x), lb, ub));
             double fComplement = (lb + ub) / 2.0;
 
             LOG_DEBUG(<< "log(F(x)) = " << (f == 0.0 ? f : -f) << ", log(1 - F(x)) = "
                       << (fComplement == 0.0 ? fComplement : -fComplement));
-            CPPUNIT_ASSERT_DOUBLES_EQUAL(1.0, std::exp(-f) + std::exp(-fComplement), 1e-10);
+            BOOST_CHECK_CLOSE_ABSOLUTE(1.0, std::exp(-f) + std::exp(-fComplement), 1e-10);
         }
     }
 }
 
-void COneOfNPriorTest::testProbabilityOfLessLikelySamples() {
+BOOST_AUTO_TEST_CASE(testProbabilityOfLessLikelySamples) {
     // We simply test that the calculation yields the weighted sum
     // of component model calculations (which is its definition).
 
@@ -1083,10 +1085,10 @@ void COneOfNPriorTest::testProbabilityOfLessLikelySamples() {
         double lb, ub;
         maths_t::ETail tail;
 
-        CPPUNIT_ASSERT(filter.probabilityOfLessLikelySamples(maths_t::E_TwoSided,
+        BOOST_TEST(filter.probabilityOfLessLikelySamples(maths_t::E_TwoSided,
                                                              sample, lb, ub));
 
-        CPPUNIT_ASSERT_EQUAL(lb, ub);
+        BOOST_CHECK_EQUAL(lb, ub);
         double probability = (lb + ub) / 2.0;
 
         double expectedProbability = 0.0;
@@ -1095,10 +1097,10 @@ void COneOfNPriorTest::testProbabilityOfLessLikelySamples() {
         COneOfNPrior::TPriorCPtrVec models(filter.models());
         for (std::size_t j = 0u; j < weights.size(); ++j) {
             double weight = weights[j];
-            CPPUNIT_ASSERT(models[j]->probabilityOfLessLikelySamples(
+            BOOST_TEST(models[j]->probabilityOfLessLikelySamples(
                 maths_t::E_TwoSided, {sample[0]},
                 maths_t::CUnitWeights::SINGLE_UNIT, lb, ub, tail));
-            CPPUNIT_ASSERT_EQUAL(lb, ub);
+            BOOST_CHECK_EQUAL(lb, ub);
             double modelProbability = (lb + ub) / 2.0;
             expectedProbability += weight * modelProbability;
         }
@@ -1106,7 +1108,7 @@ void COneOfNPriorTest::testProbabilityOfLessLikelySamples() {
         LOG_DEBUG(<< "weights = " << core::CContainerPrinter::print(weights)
                   << ", expectedProbability = " << expectedProbability
                   << ", probability = " << probability);
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(expectedProbability, probability,
+        BOOST_CHECK_CLOSE_ABSOLUTE(expectedProbability, probability,
                                      1e-3 * std::max(expectedProbability, probability));
 
         for (std::size_t k = 0u; ((i + 1) % 11 == 0) && k < boost::size(vs); ++k) {
@@ -1120,57 +1122,57 @@ void COneOfNPriorTest::testProbabilityOfLessLikelySamples() {
                 filter.probabilityOfLessLikelySamples(
                     maths_t::E_TwoSided, {ss[0]},
                     {maths_t::countVarianceScaleWeight(vs[k])}, lb, ub, tail);
-                CPPUNIT_ASSERT_EQUAL(maths_t::E_LeftTail, tail);
+                BOOST_CHECK_EQUAL(maths_t::E_LeftTail, tail);
                 if (mode > 0.0) {
                     filter.probabilityOfLessLikelySamples(
                         maths_t::E_TwoSided, TDouble1Vec(ss, ss + 2),
                         maths_t::TDoubleWeightsAry1Vec(
                             2, maths_t::countVarianceScaleWeight(vs[k])),
                         lb, ub, tail);
-                    CPPUNIT_ASSERT_EQUAL(maths_t::E_MixedOrNeitherTail, tail);
+                    BOOST_CHECK_EQUAL(maths_t::E_MixedOrNeitherTail, tail);
                     filter.probabilityOfLessLikelySamples(
                         maths_t::E_OneSidedBelow, TDouble1Vec(ss, ss + 2),
                         maths_t::TDoubleWeightsAry1Vec(
                             2, maths_t::countVarianceScaleWeight(vs[k])),
                         lb, ub, tail);
-                    CPPUNIT_ASSERT_EQUAL(maths_t::E_LeftTail, tail);
+                    BOOST_CHECK_EQUAL(maths_t::E_LeftTail, tail);
                     filter.probabilityOfLessLikelySamples(
                         maths_t::E_OneSidedAbove, TDouble1Vec(ss, ss + 2),
                         maths_t::TDoubleWeightsAry1Vec(
                             2, maths_t::countVarianceScaleWeight(vs[k])),
                         lb, ub, tail);
-                    CPPUNIT_ASSERT_EQUAL(maths_t::E_RightTail, tail);
+                    BOOST_CHECK_EQUAL(maths_t::E_RightTail, tail);
                 }
             }
             if (mode > 0.0) {
                 filter.probabilityOfLessLikelySamples(
                     maths_t::E_TwoSided, {ss[1]},
                     {maths_t::countVarianceScaleWeight(vs[k])}, lb, ub, tail);
-                CPPUNIT_ASSERT_EQUAL(maths_t::E_RightTail, tail);
+                BOOST_CHECK_EQUAL(maths_t::E_RightTail, tail);
                 filter.probabilityOfLessLikelySamples(
                     maths_t::E_TwoSided, TDouble1Vec(ss, ss + 2),
                     maths_t::TDoubleWeightsAry1Vec(
                         2, maths_t::countVarianceScaleWeight(vs[k])),
                     lb, ub, tail);
-                CPPUNIT_ASSERT_EQUAL(maths_t::E_MixedOrNeitherTail, tail);
+                BOOST_CHECK_EQUAL(maths_t::E_MixedOrNeitherTail, tail);
                 filter.probabilityOfLessLikelySamples(
                     maths_t::E_OneSidedBelow, TDouble1Vec(ss, ss + 2),
                     maths_t::TDoubleWeightsAry1Vec(
                         2, maths_t::countVarianceScaleWeight(vs[k])),
                     lb, ub, tail);
-                CPPUNIT_ASSERT_EQUAL(maths_t::E_LeftTail, tail);
+                BOOST_CHECK_EQUAL(maths_t::E_LeftTail, tail);
                 filter.probabilityOfLessLikelySamples(
                     maths_t::E_OneSidedAbove, TDouble1Vec(ss, ss + 2),
                     maths_t::TDoubleWeightsAry1Vec(
                         2, maths_t::countVarianceScaleWeight(vs[k])),
                     lb, ub, tail);
-                CPPUNIT_ASSERT_EQUAL(maths_t::E_RightTail, tail);
+                BOOST_CHECK_EQUAL(maths_t::E_RightTail, tail);
             }
         }
     }
 }
 
-void COneOfNPriorTest::testPersist() {
+BOOST_AUTO_TEST_CASE(testPersist) {
     // Check that persist/restore is idempotent.
 
     TPriorPtrVec models;
@@ -1207,7 +1209,7 @@ void COneOfNPriorTest::testPersist() {
 
     // Restore the XML into a new filter
     core::CRapidXmlParser parser;
-    CPPUNIT_ASSERT(parser.parseStringIgnoreCdata(origXml));
+    BOOST_TEST(parser.parseStringIgnoreCdata(origXml));
     core::CRapidXmlStateRestoreTraverser traverser(parser);
 
     maths::SDistributionRestoreParams params(
@@ -1217,7 +1219,7 @@ void COneOfNPriorTest::testPersist() {
 
     LOG_DEBUG(<< "orig checksum = " << checksum
               << " restored checksum = " << restoredFilter.checksum());
-    CPPUNIT_ASSERT_EQUAL(checksum, restoredFilter.checksum());
+    BOOST_CHECK_EQUAL(checksum, restoredFilter.checksum());
 
     // The XML representation of the new filter should be the same as the original
     std::string newXml;
@@ -1226,43 +1228,8 @@ void COneOfNPriorTest::testPersist() {
         restoredFilter.acceptPersistInserter(inserter);
         inserter.toXml(newXml);
     }
-    CPPUNIT_ASSERT_EQUAL(origXml, newXml);
+    BOOST_CHECK_EQUAL(origXml, newXml);
 }
 
-CppUnit::Test* COneOfNPriorTest::suite() {
-    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("COneOfNPriorTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<COneOfNPriorTest>(
-        "COneOfNPriorTest::testFilter", &COneOfNPriorTest::testFilter));
-    suiteOfTests->addTest(new CppUnit::TestCaller<COneOfNPriorTest>(
-        "COneOfNPriorTest::testMultipleUpdate", &COneOfNPriorTest::testMultipleUpdate));
-    suiteOfTests->addTest(new CppUnit::TestCaller<COneOfNPriorTest>(
-        "COneOfNPriorTest::testWeights", &COneOfNPriorTest::testWeights));
-    suiteOfTests->addTest(new CppUnit::TestCaller<COneOfNPriorTest>(
-        "COneOfNPriorTest::testModels", &COneOfNPriorTest::testModels));
-    suiteOfTests->addTest(new CppUnit::TestCaller<COneOfNPriorTest>(
-        "COneOfNPriorTest::testModelSelection", &COneOfNPriorTest::testModelSelection));
-    suiteOfTests->addTest(new CppUnit::TestCaller<COneOfNPriorTest>(
-        "COneOfNPriorTest::testMarginalLikelihood", &COneOfNPriorTest::testMarginalLikelihood));
-    suiteOfTests->addTest(new CppUnit::TestCaller<COneOfNPriorTest>(
-        "COneOfNPriorTest::testSampleMarginalLikelihood",
-        &COneOfNPriorTest::testSampleMarginalLikelihood));
-    suiteOfTests->addTest(new CppUnit::TestCaller<COneOfNPriorTest>(
-        "COneOfNPriorTest::testMarginalLikelihoodMean",
-        &COneOfNPriorTest::testMarginalLikelihoodMean));
-    suiteOfTests->addTest(new CppUnit::TestCaller<COneOfNPriorTest>(
-        "COneOfNPriorTest::testMarginalLikelihoodMode",
-        &COneOfNPriorTest::testMarginalLikelihoodMode));
-    suiteOfTests->addTest(new CppUnit::TestCaller<COneOfNPriorTest>(
-        "COneOfNPriorTest::testMarginalLikelihoodVariance",
-        &COneOfNPriorTest::testMarginalLikelihoodVariance));
-    suiteOfTests->addTest(new CppUnit::TestCaller<COneOfNPriorTest>(
-        "COneOfNPriorTest::testCdf", &COneOfNPriorTest::testCdf));
-    suiteOfTests->addTest(new CppUnit::TestCaller<COneOfNPriorTest>(
-        "COneOfNPriorTest::testProbabilityOfLessLikelySamples",
-        &COneOfNPriorTest::testProbabilityOfLessLikelySamples));
-    suiteOfTests->addTest(new CppUnit::TestCaller<COneOfNPriorTest>(
-        "COneOfNPriorTest::testPersist", &COneOfNPriorTest::testPersist));
-
-    return suiteOfTests;
-}
+BOOST_AUTO_TEST_SUITE_END()

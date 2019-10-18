@@ -21,7 +21,9 @@
 #include <utility>
 #include <vector>
 
-class CXMeansOnline1dTest;
+namespace CXMeansOnline1dTest {
+struct testFoo;
+}
 
 namespace ml {
 namespace core {
@@ -463,7 +465,7 @@ private:
     //! The clusters.
     TClusterVec m_Clusters;
 
-    friend ::CXMeansOnline1dTest;
+    friend struct CXMeansOnline1dTest::testFoo;
 };
 }
 }

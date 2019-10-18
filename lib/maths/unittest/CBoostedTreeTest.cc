@@ -4,8 +4,6 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
-#include "CBoostedTreeTest.h"
-
 #include <core/CDataFrame.h>
 #include <core/CJsonStatePersistInserter.h>
 #include <core/CLogger.h>
@@ -19,12 +17,17 @@
 
 #include <test/CRandomNumbers.h>
 #include <test/CTestTmpDir.h>
+#include <test/BoostTestCloseAbsolute.h>
+
+#include <boost/test/unit_test.hpp>
 
 #include <fstream>
 #include <functional>
 #include <memory>
 #include <streambuf>
 #include <utility>
+
+BOOST_AUTO_TEST_SUITE(CBoostedTreeTest)
 
 using namespace ml;
 
@@ -180,7 +183,7 @@ auto predictAndComputeEvaluationMetrics(const F& generateFunction,
 
 void readFileToStream(const std::string& filename, std::stringstream& stream) {
     std::ifstream file(filename);
-    CPPUNIT_ASSERT(file.is_open());
+    BOOST_TEST(file.is_open());
     std::string str((std::istreambuf_iterator<char>(file)),
                     std::istreambuf_iterator<char>());
     stream << str;
@@ -194,7 +197,7 @@ void clearFile(const std::string& filename) {
 }
 }
 
-void CBoostedTreeTest::testPiecewiseConstant() {
+BOOST_AUTO_TEST_CASE(testPiecewiseConstant) {
 
     // Test regression quality on piecewise constant function.
 
@@ -237,25 +240,25 @@ void CBoostedTreeTest::testPiecewiseConstant() {
 
         // In and out-of-core agree.
         for (std::size_t j = 1; j < modelBias[i].size(); ++j) {
-            CPPUNIT_ASSERT_EQUAL(modelBias[i][0], modelBias[i][j]);
-            CPPUNIT_ASSERT_EQUAL(modelRSquared[i][0], modelRSquared[i][j]);
+            BOOST_CHECK_EQUAL(modelBias[i][0], modelBias[i][j]);
+            BOOST_CHECK_EQUAL(modelRSquared[i][0], modelRSquared[i][j]);
         }
 
         // Unbiased...
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(
+        BOOST_CHECK_CLOSE_ABSOLUTE(
             0.0, modelBias[i][0],
             4.0 * std::sqrt(noiseVariance / static_cast<double>(trainRows)));
         // Good R^2...
-        CPPUNIT_ASSERT(modelRSquared[i][0] > 0.96);
+        BOOST_TEST(modelRSquared[i][0] > 0.96);
 
         meanModelRSquared.add(modelRSquared[i][0]);
     }
 
     LOG_DEBUG(<< "mean R^2 = " << maths::CBasicStatistics::mean(meanModelRSquared));
-    CPPUNIT_ASSERT(maths::CBasicStatistics::mean(meanModelRSquared) > 0.97);
+    BOOST_TEST(maths::CBasicStatistics::mean(meanModelRSquared) > 0.97);
 }
 
-void CBoostedTreeTest::testLinear() {
+BOOST_AUTO_TEST_CASE(testLinear) {
 
     // Test regression quality on linear function.
 
@@ -293,24 +296,24 @@ void CBoostedTreeTest::testLinear() {
 
         // In and out-of-core agree.
         for (std::size_t j = 1; j < modelBias[i].size(); ++j) {
-            CPPUNIT_ASSERT_EQUAL(modelBias[i][0], modelBias[i][j]);
-            CPPUNIT_ASSERT_EQUAL(modelRSquared[i][0], modelRSquared[i][j]);
+            BOOST_CHECK_EQUAL(modelBias[i][0], modelBias[i][j]);
+            BOOST_CHECK_EQUAL(modelRSquared[i][0], modelRSquared[i][j]);
         }
 
         // Unbiased...
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(
+        BOOST_CHECK_CLOSE_ABSOLUTE(
             0.0, modelBias[i][0],
             4.0 * std::sqrt(noiseVariance / static_cast<double>(trainRows)));
         // Good R^2...
-        CPPUNIT_ASSERT(modelRSquared[i][0] > 0.97);
+        BOOST_TEST(modelRSquared[i][0] > 0.97);
 
         meanModelRSquared.add(modelRSquared[i][0]);
     }
     LOG_DEBUG(<< "mean R^2 = " << maths::CBasicStatistics::mean(meanModelRSquared));
-    CPPUNIT_ASSERT(maths::CBasicStatistics::mean(meanModelRSquared) > 0.97);
+    BOOST_TEST(maths::CBasicStatistics::mean(meanModelRSquared) > 0.97);
 }
 
-void CBoostedTreeTest::testNonLinear() {
+BOOST_AUTO_TEST_CASE(testNonLinear) {
 
     // Test regression quality on non-linear function.
 
@@ -360,24 +363,24 @@ void CBoostedTreeTest::testNonLinear() {
 
         // In and out-of-core agree.
         for (std::size_t j = 1; j < modelBias[i].size(); ++j) {
-            CPPUNIT_ASSERT_EQUAL(modelBias[i][0], modelBias[i][j]);
-            CPPUNIT_ASSERT_EQUAL(modelRSquared[i][0], modelRSquared[i][j]);
+            BOOST_CHECK_EQUAL(modelBias[i][0], modelBias[i][j]);
+            BOOST_CHECK_EQUAL(modelRSquared[i][0], modelRSquared[i][j]);
         }
 
         // Unbiased...
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(
+        BOOST_CHECK_CLOSE_ABSOLUTE(
             0.0, modelBias[i][0],
             4.0 * std::sqrt(noiseVariance / static_cast<double>(trainRows)));
         // Good R^2...
-        CPPUNIT_ASSERT(modelRSquared[i][0] > 0.96);
+        BOOST_TEST(modelRSquared[i][0] > 0.96);
 
         meanModelRSquared.add(modelRSquared[i][0]);
     }
     LOG_DEBUG(<< "mean R^2 = " << maths::CBasicStatistics::mean(meanModelRSquared));
-    CPPUNIT_ASSERT(maths::CBasicStatistics::mean(meanModelRSquared) > 0.97);
+    BOOST_TEST(maths::CBasicStatistics::mean(meanModelRSquared) > 0.97);
 }
 
-void CBoostedTreeTest::testThreading() {
+BOOST_AUTO_TEST_CASE(testThreading) {
 
     // Test we get the same results whether we run with multiple threads or not.
     // Note because we compute approximate quantiles for a partition of the data
@@ -452,13 +455,13 @@ void CBoostedTreeTest::testThreading() {
         core::startDefaultAsyncExecutor();
     }
 
-    CPPUNIT_ASSERT_EQUAL(modelBias[0], modelBias[1]);
-    CPPUNIT_ASSERT_EQUAL(modelMse[0], modelMse[1]);
+    BOOST_CHECK_EQUAL(modelBias[0], modelBias[1]);
+    BOOST_CHECK_EQUAL(modelMse[0], modelMse[1]);
 
     core::stopDefaultAsyncExecutor();
 }
 
-void CBoostedTreeTest::testConstantFeatures() {
+BOOST_AUTO_TEST_CASE(testConstantFeatures) {
 
     // Test constant features are excluded from the model.
 
@@ -501,10 +504,10 @@ void CBoostedTreeTest::testConstantFeatures() {
     TDoubleVec featureWeights(regression->featureWeights());
 
     LOG_DEBUG(<< "feature weights = " << core::CContainerPrinter::print(featureWeights));
-    CPPUNIT_ASSERT(featureWeights[cols - 2] < 1e-4);
+    BOOST_TEST(featureWeights[cols - 2] < 1e-4);
 }
 
-void CBoostedTreeTest::testConstantTarget() {
+BOOST_AUTO_TEST_CASE(testConstantTarget) {
 
     // Test we correctly deal with a constant dependent variable.
 
@@ -539,10 +542,10 @@ void CBoostedTreeTest::testConstantTarget() {
 
     LOG_DEBUG(<< "mean prediction error = "
               << maths::CBasicStatistics::mean(modelPredictionError));
-    CPPUNIT_ASSERT_EQUAL(0.0, maths::CBasicStatistics::mean(modelPredictionError));
+    BOOST_CHECK_EQUAL(0.0, maths::CBasicStatistics::mean(modelPredictionError));
 }
 
-void CBoostedTreeTest::testCategoricalRegressors() {
+BOOST_AUTO_TEST_CASE(testCategoricalRegressors) {
 
     // Test automatic handling of categorical regressors.
 
@@ -610,11 +613,11 @@ void CBoostedTreeTest::testCategoricalRegressors() {
 
     LOG_DEBUG(<< "bias = " << modelBias);
     LOG_DEBUG(<< " R^2 = " << modelRSquared);
-    CPPUNIT_ASSERT_DOUBLES_EQUAL(0.0, modelBias, 0.1);
-    CPPUNIT_ASSERT(modelRSquared > 0.91);
+    BOOST_CHECK_CLOSE_ABSOLUTE(0.0, modelBias, 0.1);
+    BOOST_TEST(modelRSquared > 0.91);
 }
 
-void CBoostedTreeTest::testIntegerRegressor() {
+BOOST_AUTO_TEST_CASE(testIntegerRegressor) {
 
     // Test a simple integer regressor.
 
@@ -653,11 +656,11 @@ void CBoostedTreeTest::testIntegerRegressor() {
 
     LOG_DEBUG(<< "bias = " << modelBias);
     LOG_DEBUG(<< " R^2 = " << modelRSquared);
-    CPPUNIT_ASSERT_DOUBLES_EQUAL(0.0, modelBias, 0.05);
-    CPPUNIT_ASSERT(modelRSquared > 0.99);
+    BOOST_CHECK_CLOSE_ABSOLUTE(0.0, modelBias, 0.05);
+    BOOST_TEST(modelRSquared > 0.99);
 }
 
-void CBoostedTreeTest::testSingleSplit() {
+BOOST_AUTO_TEST_CASE(testSingleSplit) {
 
     // We were getting an out-of-bound read in initialization when running on
     // data with only two distinct values for the target variable. This test
@@ -697,10 +700,10 @@ void CBoostedTreeTest::testSingleSplit() {
 
     LOG_DEBUG(<< "bias = " << modelBias);
     LOG_DEBUG(<< " R^2 = " << modelRSquared);
-    CPPUNIT_ASSERT(modelRSquared > 0.99);
+    BOOST_TEST(modelRSquared > 0.99);
 }
 
-void CBoostedTreeTest::testTranslationInvariance() {
+BOOST_AUTO_TEST_CASE(testTranslationInvariance) {
 
     // We should get similar performance independent of fixed shifts for the target.
 
@@ -759,7 +762,7 @@ void CBoostedTreeTest::testTranslationInvariance() {
         rsquared.push_back(modelRSquared);
     }
 
-    CPPUNIT_ASSERT_DOUBLES_EQUAL(rsquared[0], rsquared[1], 5e-3);
+    BOOST_CHECK_CLOSE_ABSOLUTE(rsquared[0], rsquared[1], 5e-3);
 }
 
 std::size_t maxDepth(const std::vector<maths::CBoostedTreeNode>& tree,
@@ -773,7 +776,7 @@ std::size_t maxDepth(const std::vector<maths::CBoostedTreeNode>& tree,
     return result;
 }
 
-void CBoostedTreeTest::testDepthBasedRegularization() {
+BOOST_AUTO_TEST_CASE(testDepthBasedRegularization) {
 
     // Test that the trained tree depth is correctly limited based on a target.
 
@@ -825,15 +828,15 @@ void CBoostedTreeTest::testDepthBasedRegularization() {
 
         TMeanAccumulator meanDepth;
         for (const auto& tree : regression->trainedModel()) {
-            CPPUNIT_ASSERT(maxDepth(tree, tree[0], 0) <= static_cast<std::size_t>(targetDepth));
+            BOOST_TEST(maxDepth(tree, tree[0], 0) <= static_cast<std::size_t>(targetDepth));
             meanDepth.add(static_cast<double>(maxDepth(tree, tree[0], 0)));
         }
         LOG_DEBUG(<< "mean depth = " << maths::CBasicStatistics::mean(meanDepth));
-        CPPUNIT_ASSERT(maths::CBasicStatistics::mean(meanDepth) > targetDepth - 1.0);
+        BOOST_TEST(maths::CBasicStatistics::mean(meanDepth) > targetDepth - 1.0);
     }
 }
 
-void CBoostedTreeTest::testLogisticMinimizerEdgeCases() {
+BOOST_AUTO_TEST_CASE(testLogisticMinimizerEdgeCases) {
 
     using maths::boosted_tree_detail::CArgMinLogisticImpl;
 
@@ -845,7 +848,7 @@ void CBoostedTreeTest::testLogisticMinimizerEdgeCases() {
         argmin.add(0.0, 1.0);
         argmin.add(0.0, 0.0);
         argmin.nextPass();
-        CPPUNIT_ASSERT_EQUAL(0.0, argmin.value());
+        BOOST_CHECK_EQUAL(0.0, argmin.value());
     }
 
     // All predictions are equal.
@@ -876,8 +879,8 @@ void CBoostedTreeTest::testLogisticMinimizerEdgeCases() {
         double expected{std::log(p / (1.0 - p))};
         double actual{argmin.value()};
 
-        CPPUNIT_ASSERT_EQUAL(std::size_t{1}, numberPasses);
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(expected, actual, 0.01 * std::fabs(expected));
+        BOOST_CHECK_EQUAL(std::size_t{1}, numberPasses);
+        BOOST_CHECK_CLOSE_ABSOLUTE(expected, actual, 0.01 * std::fabs(expected));
     }
 
     // Test underflow of probabilities.
@@ -904,12 +907,12 @@ void CBoostedTreeTest::testLogisticMinimizerEdgeCases() {
             }
             losses.push_back(lossAtEps);
         }
-        CPPUNIT_ASSERT(losses[0] >= losses[1]);
-        CPPUNIT_ASSERT(losses[2] >= losses[1]);
+        BOOST_TEST(losses[0] >= losses[1]);
+        BOOST_TEST(losses[2] >= losses[1]);
     }
 }
 
-void CBoostedTreeTest::testLogisticMinimizerRandom() {
+BOOST_AUTO_TEST_CASE(testLogisticMinimizerRandom) {
 
     // Test that we a good approximation of the additive term for the log-odds
     // which minimises the cross entropy objective.
@@ -994,15 +997,15 @@ void CBoostedTreeTest::testLogisticMinimizerRandom() {
 
             // We should be within 1% for the value and 0.001% for the objective
             // at the value.
-            CPPUNIT_ASSERT_EQUAL(actual, actualPartition);
-            CPPUNIT_ASSERT_DOUBLES_EQUAL(expected, actual, 0.01 * std::fabs(expected));
-            CPPUNIT_ASSERT_DOUBLES_EQUAL(objectiveAtExpected, objective(actual),
+            BOOST_CHECK_EQUAL(actual, actualPartition);
+            BOOST_CHECK_CLOSE_ABSOLUTE(expected, actual, 0.01 * std::fabs(expected));
+            BOOST_CHECK_CLOSE_ABSOLUTE(objectiveAtExpected, objective(actual),
                                          1e-5 * objectiveAtExpected);
         }
     }
 }
 
-void CBoostedTreeTest::testLogisticLossForUnderflow() {
+BOOST_AUTO_TEST_CASE(testLogisticLossForUnderflow) {
 
     // Test the behaviour of value, gradient and curvature of the logistic loss in
     // the vicinity the point at which we switch to using Taylor expansion of the
@@ -1019,8 +1022,8 @@ void CBoostedTreeTest::testLogisticLossForUnderflow() {
         for (double scale : {0.75, 0.5, 0.25, 0.0, -0.25, -0.5, -0.75, -1.0}) {
             TDoubleVec currentLoss{loss.value(scale - std::log(eps), 0.0),
                                    loss.value(scale + std::log(eps), 1.0)};
-            CPPUNIT_ASSERT_DOUBLES_EQUAL(0.25, lastLoss[0] - currentLoss[0], 5e-3);
-            CPPUNIT_ASSERT_DOUBLES_EQUAL(-0.25, lastLoss[1] - currentLoss[1], 5e-3);
+            BOOST_CHECK_CLOSE_ABSOLUTE(0.25, lastLoss[0] - currentLoss[0], 5e-3);
+            BOOST_CHECK_CLOSE_ABSOLUTE(-0.25, lastLoss[1] - currentLoss[1], 5e-3);
             lastLoss = currentLoss;
         }
     }
@@ -1037,13 +1040,13 @@ void CBoostedTreeTest::testLogisticLossForUnderflow() {
                                        loss.gradient(scale - std::log(eps), 1.0)};
             TDoubleVec currentCurvature{loss.curvature(scale + std::log(eps), 0.0),
                                         loss.curvature(scale - std::log(eps), 1.0)};
-            CPPUNIT_ASSERT_DOUBLES_EQUAL(std::exp(0.25),
+            BOOST_CHECK_CLOSE_ABSOLUTE(std::exp(0.25),
                                          lastGradient[0] / currentGradient[0], 5e-3);
-            CPPUNIT_ASSERT_DOUBLES_EQUAL(std::exp(-0.25),
+            BOOST_CHECK_CLOSE_ABSOLUTE(std::exp(-0.25),
                                          lastGradient[1] / currentGradient[1], 5e-3);
-            CPPUNIT_ASSERT_DOUBLES_EQUAL(
+            BOOST_CHECK_CLOSE_ABSOLUTE(
                 std::exp(0.25), lastCurvature[0] / currentCurvature[0], 5e-3);
-            CPPUNIT_ASSERT_DOUBLES_EQUAL(
+            BOOST_CHECK_CLOSE_ABSOLUTE(
                 std::exp(-0.25), lastCurvature[1] / currentCurvature[1], 5e-3);
             lastGradient = currentGradient;
             lastCurvature = currentCurvature;
@@ -1051,7 +1054,7 @@ void CBoostedTreeTest::testLogisticLossForUnderflow() {
     }
 }
 
-void CBoostedTreeTest::testLogisticRegression() {
+BOOST_AUTO_TEST_CASE(testLogisticRegression) {
 
     // The idea of this test is to create a random linear relationship between
     // the feature values and the log-odds of class 1, i.e.
@@ -1128,7 +1131,7 @@ void CBoostedTreeTest::testLogisticRegression() {
                   << ", minimum cross entropy = " << minimumCrossEntropy);
 
         // We should be with 40% of the minimum possible cross entropy.
-        CPPUNIT_ASSERT(actualCrossEntropy < 1.4 * minimumCrossEntropy);
+        BOOST_TEST(actualCrossEntropy < 1.4 * minimumCrossEntropy);
         meanExcessCrossEntropy.add(actualCrossEntropy / minimumCrossEntropy);
     }
 
@@ -1136,10 +1139,10 @@ void CBoostedTreeTest::testLogisticRegression() {
               << maths::CBasicStatistics::mean(meanExcessCrossEntropy));
 
     // We should be within 25% of the minimum possible cross entropy on average.
-    CPPUNIT_ASSERT(maths::CBasicStatistics::mean(meanExcessCrossEntropy) < 1.25);
+    BOOST_TEST(maths::CBasicStatistics::mean(meanExcessCrossEntropy) < 1.25);
 }
 
-void CBoostedTreeTest::testEstimateMemoryUsedByTrain() {
+BOOST_AUTO_TEST_CASE(testEstimateMemoryUsedByTrain) {
 
     // Test estimation of the memory used training a model.
 
@@ -1197,11 +1200,11 @@ void CBoostedTreeTest::testEstimateMemoryUsedByTrain() {
         LOG_DEBUG(<< "estimated memory usage = " << estimatedMemory);
         LOG_DEBUG(<< "high water mark = " << maxMemoryUsage);
 
-        CPPUNIT_ASSERT(maxMemoryUsage < estimatedMemory);
+        BOOST_TEST(maxMemoryUsage < estimatedMemory);
     }
 }
 
-void CBoostedTreeTest::testProgressMonitoring() {
+BOOST_AUTO_TEST_CASE(testProgressMonitoring) {
 
     // Test progress monitoring invariants.
 
@@ -1266,7 +1269,7 @@ void CBoostedTreeTest::testProgressMonitoring() {
         }
         worker.join();
 
-        CPPUNIT_ASSERT(monotonic);
+        BOOST_TEST(monotonic);
 
         core::startDefaultAsyncExecutor();
     }
@@ -1274,10 +1277,10 @@ void CBoostedTreeTest::testProgressMonitoring() {
     core::stopDefaultAsyncExecutor();
 }
 
-void CBoostedTreeTest::testMissingData() {
+BOOST_AUTO_TEST_CASE(testMissingData) {
 }
 
-void CBoostedTreeTest::testPersistRestore() {
+BOOST_AUTO_TEST_CASE(testPersistRestore) {
 
     std::size_t rows{50};
     std::size_t cols{3};
@@ -1323,7 +1326,7 @@ void CBoostedTreeTest::testPersistRestore() {
         boostedTree->acceptPersistInserter(inserter);
         persistTwiceSStream.flush();
     }
-    CPPUNIT_ASSERT_EQUAL(persistOnceSStream.str(), persistTwiceSStream.str());
+    BOOST_CHECK_EQUAL(persistOnceSStream.str(), persistTwiceSStream.str());
     LOG_DEBUG(<< "First string " << persistOnceSStream.str());
     LOG_DEBUG(<< "Second string " << persistTwiceSStream.str());
 
@@ -1334,7 +1337,7 @@ void CBoostedTreeTest::testPersistRestore() {
     // TODO test persist and restore produces same train result.
 }
 
-void CBoostedTreeTest::testRestoreErrorHandling() {
+BOOST_AUTO_TEST_CASE(testRestoreErrorHandling) {
 
     auto errorHandler = [](std::string error) {
         throw std::runtime_error{error};
@@ -1344,7 +1347,7 @@ void CBoostedTreeTest::testRestoreErrorHandling() {
     const std::string logFile{"test.log"};
 
     // log at level ERROR only
-    CPPUNIT_ASSERT(ml::core::CLogger::instance().reconfigureFromFile(
+    BOOST_TEST(ml::core::CLogger::instance().reconfigureFromFile(
         "testfiles/testLogErrors.boost.log.ini"));
 
     std::size_t cols{3};
@@ -1369,12 +1372,12 @@ void CBoostedTreeTest::testRestoreErrorHandling() {
         throwsExceptions = true;
         core::CRegex re;
         re.init("Input error:.*");
-        CPPUNIT_ASSERT(re.matches(e.what()));
+        BOOST_TEST(re.matches(e.what()));
         readFileToStream(logFile, buffer);
-        CPPUNIT_ASSERT(buffer.str().find("Failed to restore MAX_BOUNDARY_TAG") !=
+        BOOST_TEST(buffer.str().find("Failed to restore MAX_BOUNDARY_TAG") !=
                        std::string::npos);
     }
-    CPPUNIT_ASSERT(throwsExceptions);
+    BOOST_TEST(throwsExceptions);
 
     std::stringstream errorInBoostedTreeImplState;
     readFileToStream("testfiles/error_boosted_tree_impl_state.json", errorInBoostedTreeImplState);
@@ -1391,12 +1394,12 @@ void CBoostedTreeTest::testRestoreErrorHandling() {
         throwsExceptions = true;
         core::CRegex re;
         re.init("Input error:.*");
-        CPPUNIT_ASSERT(re.matches(e.what()));
+        BOOST_TEST(re.matches(e.what()));
         readFileToStream(logFile, buffer);
-        CPPUNIT_ASSERT(buffer.str().find("Failed to restore NUMBER_FOLDS_TAG") !=
+        BOOST_TEST(buffer.str().find("Failed to restore NUMBER_FOLDS_TAG") !=
                        std::string::npos);
     }
-    CPPUNIT_ASSERT(throwsExceptions);
+    BOOST_TEST(throwsExceptions);
 
     std::stringstream errorInStateVersion;
     readFileToStream("testfiles/error_no_version_state.json", errorInStateVersion);
@@ -1413,65 +1416,14 @@ void CBoostedTreeTest::testRestoreErrorHandling() {
         throwsExceptions = true;
         core::CRegex re;
         re.init("Input error:.*");
-        CPPUNIT_ASSERT(re.matches(e.what()));
+        BOOST_TEST(re.matches(e.what()));
         readFileToStream(logFile, buffer);
-        CPPUNIT_ASSERT(buffer.str().find("unsupported state serialization version.") !=
+        BOOST_TEST(buffer.str().find("unsupported state serialization version.") !=
                        std::string::npos);
     }
-    CPPUNIT_ASSERT(throwsExceptions);
+    BOOST_TEST(throwsExceptions);
     ml::core::CLogger::instance().reset();
 }
 
-CppUnit::Test* CBoostedTreeTest::suite() {
-    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CBoostedTreeTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CBoostedTreeTest>(
-        "CBoostedTreeTest::testPiecewiseConstant", &CBoostedTreeTest::testPiecewiseConstant));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CBoostedTreeTest>(
-        "CBoostedTreeTest::testLinear", &CBoostedTreeTest::testLinear));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CBoostedTreeTest>(
-        "CBoostedTreeTest::testNonLinear", &CBoostedTreeTest::testNonLinear));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CBoostedTreeTest>(
-        "CBoostedTreeTest::testThreading", &CBoostedTreeTest::testThreading));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CBoostedTreeTest>(
-        "CBoostedTreeTest::testConstantFeatures", &CBoostedTreeTest::testConstantFeatures));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CBoostedTreeTest>(
-        "CBoostedTreeTest::testConstantTarget", &CBoostedTreeTest::testConstantTarget));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CBoostedTreeTest>(
-        "CBoostedTreeTest::testCategoricalRegressors",
-        &CBoostedTreeTest::testCategoricalRegressors));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CBoostedTreeTest>(
-        "CBoostedTreeTest::testIntegerRegressor", &CBoostedTreeTest::testIntegerRegressor));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CBoostedTreeTest>(
-        "CBoostedTreeTest::testSingleSplit", &CBoostedTreeTest::testSingleSplit));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CBoostedTreeTest>(
-        "CBoostedTreeTest::testTranslationInvariance",
-        &CBoostedTreeTest::testTranslationInvariance));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CBoostedTreeTest>(
-        "CBoostedTreeTest::testDepthBasedRegularization",
-        &CBoostedTreeTest::testDepthBasedRegularization));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CBoostedTreeTest>(
-        "CBoostedTreeTest::testLogisticMinimizerEdgeCases",
-        &CBoostedTreeTest::testLogisticMinimizerEdgeCases));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CBoostedTreeTest>(
-        "CBoostedTreeTest::testLogisticMinimizerRandom",
-        &CBoostedTreeTest::testLogisticMinimizerRandom));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CBoostedTreeTest>(
-        "CBoostedTreeTest::testLogisticLossForUnderflow",
-        &CBoostedTreeTest::testLogisticLossForUnderflow));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CBoostedTreeTest>(
-        "CBoostedTreeTest::testLogisticRegression", &CBoostedTreeTest::testLogisticRegression));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CBoostedTreeTest>(
-        "CBoostedTreeTest::testEstimateMemoryUsedByTrain",
-        &CBoostedTreeTest::testEstimateMemoryUsedByTrain));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CBoostedTreeTest>(
-        "CBoostedTreeTest::testProgressMonitoring", &CBoostedTreeTest::testProgressMonitoring));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CBoostedTreeTest>(
-        "CBoostedTreeTest::testMissingData", &CBoostedTreeTest::testMissingData));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CBoostedTreeTest>(
-        "CBoostedTreeTest::testPersistRestore", &CBoostedTreeTest::testPersistRestore));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CBoostedTreeTest>(
-        "CBoostedTreeTest::testRestoreErrorHandling", &CBoostedTreeTest::testRestoreErrorHandling));
-
-    return suiteOfTests;
-}
+BOOST_AUTO_TEST_SUITE_END()

@@ -3,40 +3,35 @@
  * or more contributor license agreements. Licensed under the Elastic License;
  * you may not use this file except in compliance with the Elastic License.
  */
-#include "CProgNameTest.h"
 
 #include <core/CLogger.h>
 #include <core/CProgName.h>
 #include <core/CRegex.h>
 
-CppUnit::Test* CProgNameTest::suite() {
-    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CProgNameTest");
+#include <boost/test/unit_test.hpp>
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CProgNameTest>(
-        "CProgNameTest::testProgName", &CProgNameTest::testProgName));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CProgNameTest>(
-        "CProgNameTest::testProgDir", &CProgNameTest::testProgDir));
+BOOST_AUTO_TEST_SUITE(CProgNameTest)
 
-    return suiteOfTests;
-}
 
-void CProgNameTest::testProgName() {
+BOOST_AUTO_TEST_CASE(testProgName) {
     std::string progName(ml::core::CProgName::progName());
 
     LOG_DEBUG(<< "Current program name is " << progName);
 
-    CPPUNIT_ASSERT_EQUAL(std::string("ml_test"), progName);
+    BOOST_CHECK_EQUAL(std::string("ml_test"), progName);
 }
 
-void CProgNameTest::testProgDir() {
+BOOST_AUTO_TEST_CASE(testProgDir) {
     std::string progDir(ml::core::CProgName::progDir());
 
     LOG_DEBUG(<< "Current program directory is " << progDir);
 
     ml::core::CRegex expectedPathRegex;
-    CPPUNIT_ASSERT(expectedPathRegex.init(".+[\\\\/]lib[\\\\/]core[\\\\/]unittest$"));
-    CPPUNIT_ASSERT(expectedPathRegex.matches(progDir));
+    BOOST_TEST(expectedPathRegex.init(".+[\\\\/]lib[\\\\/]core[\\\\/]unittest$"));
+    BOOST_TEST(expectedPathRegex.matches(progDir));
 
     // Confirm we've stripped any extended length indicator on Windows
-    CPPUNIT_ASSERT(progDir.compare(0, 4, "\\\\?\\") != 0);
+    BOOST_TEST(progDir.compare(0, 4, "\\\\?\\") != 0);
 }
+
+BOOST_AUTO_TEST_SUITE_END()

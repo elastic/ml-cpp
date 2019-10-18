@@ -4,8 +4,6 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
-#include "CSolversTest.h"
-
 #include <core/CContainerPrinter.h>
 #include <core/CLogger.h>
 #include <core/CStringUtils.h>
@@ -13,8 +11,14 @@
 #include <maths/CEqualWithTolerance.h>
 #include <maths/CSolvers.h>
 
+#include <test/BoostTestCloseAbsolute.h>
+
+#include <boost/test/unit_test.hpp>
+
 #include <cmath>
 #include <utility>
+
+BOOST_AUTO_TEST_SUITE(CSolversTest)
 
 using namespace ml;
 using namespace maths;
@@ -73,18 +77,18 @@ public:
 };
 }
 
-void CSolversTest::testBracket() {
+BOOST_AUTO_TEST_CASE(testBracket) {
     {
         CCompositeFunctions::CMinusConstant<CLog> f(CLog(), 0.0);
         std::size_t maxIterations = 10u;
         double a = 0.5, b = 0.5;
         double fa = f(a), fb = f(b);
-        CPPUNIT_ASSERT(CSolvers::rightBracket(a, b, fa, fb, f, maxIterations));
+        BOOST_TEST(CSolvers::rightBracket(a, b, fa, fb, f, maxIterations));
         LOG_DEBUG(<< "a = " << a << ", b = " << b << ", f(a) = " << fa
                   << ", f(b) = " << fb << ", maxIterations = " << maxIterations);
-        CPPUNIT_ASSERT_EQUAL(f(a), fa);
-        CPPUNIT_ASSERT_EQUAL(f(b), fb);
-        CPPUNIT_ASSERT(fa * fb <= 0.0);
+        BOOST_CHECK_EQUAL(f(a), fa);
+        BOOST_CHECK_EQUAL(f(b), fb);
+        BOOST_TEST(fa * fb <= 0.0);
     }
 
     {
@@ -92,12 +96,12 @@ void CSolversTest::testBracket() {
         std::size_t maxIterations = 10u;
         double a = 0.5, b = 0.6;
         double fa = f(a), fb = f(b);
-        CPPUNIT_ASSERT(CSolvers::rightBracket(a, b, fa, fb, f, maxIterations));
+        BOOST_TEST(CSolvers::rightBracket(a, b, fa, fb, f, maxIterations));
         LOG_DEBUG(<< "a = " << a << ", b = " << b << ", f(a) = " << fa
                   << ", f(b) = " << fb << ", maxIterations = " << maxIterations);
-        CPPUNIT_ASSERT_EQUAL(f(a), fa);
-        CPPUNIT_ASSERT_EQUAL(f(b), fb);
-        CPPUNIT_ASSERT(fa * fb <= 0.0);
+        BOOST_CHECK_EQUAL(f(a), fa);
+        BOOST_CHECK_EQUAL(f(b), fb);
+        BOOST_TEST(fa * fb <= 0.0);
     }
 
     {
@@ -105,12 +109,12 @@ void CSolversTest::testBracket() {
         std::size_t maxIterations = 10u;
         double a = 0.5, b = 5.0;
         double fa = f(a), fb = f(b);
-        CPPUNIT_ASSERT(CSolvers::rightBracket(a, b, fa, fb, f, maxIterations));
+        BOOST_TEST(CSolvers::rightBracket(a, b, fa, fb, f, maxIterations));
         LOG_DEBUG(<< "a = " << a << ", b = " << b << ", f(a) = " << fa
                   << ", f(b) = " << fb << ", maxIterations = " << maxIterations);
-        CPPUNIT_ASSERT_EQUAL(f(a), fa);
-        CPPUNIT_ASSERT_EQUAL(f(b), fb);
-        CPPUNIT_ASSERT(fa * fb <= 0.0);
+        BOOST_CHECK_EQUAL(f(a), fa);
+        BOOST_CHECK_EQUAL(f(b), fb);
+        BOOST_TEST(fa * fb <= 0.0);
     }
 
     {
@@ -118,17 +122,17 @@ void CSolversTest::testBracket() {
         std::size_t maxIterations = 10u;
         double a = 100.0, b = 100.0;
         double fa = f(a), fb = f(b);
-        CPPUNIT_ASSERT(CSolvers::leftBracket(a, b, fa, fb, f, maxIterations,
+        BOOST_TEST(CSolvers::leftBracket(a, b, fa, fb, f, maxIterations,
                                              std::numeric_limits<double>::min()));
         LOG_DEBUG(<< "a = " << a << ", b = " << b << ", f(a) = " << fa
                   << ", f(b) = " << fb << ", maxIterations = " << maxIterations);
-        CPPUNIT_ASSERT_EQUAL(f(a), fa);
-        CPPUNIT_ASSERT_EQUAL(f(b), fb);
-        CPPUNIT_ASSERT(fa * fb <= 0.0);
+        BOOST_CHECK_EQUAL(f(a), fa);
+        BOOST_CHECK_EQUAL(f(b), fb);
+        BOOST_TEST(fa * fb <= 0.0);
     }
 }
 
-void CSolversTest::testBisection() {
+BOOST_AUTO_TEST_CASE(testBisection) {
     double a, b;
     double bestGuess;
     std::size_t iterations;
@@ -139,7 +143,7 @@ void CSolversTest::testBisection() {
         b = 10.0;
         iterations = 5u;
         CEqualWithTolerance<double> equal(CToleranceTypes::E_AbsoluteTolerance, 0.1);
-        CPPUNIT_ASSERT(!CSolvers::bisection(a, b, &f1, iterations, equal, bestGuess));
+        BOOST_TEST(!CSolvers::bisection(a, b, &f1, iterations, equal, bestGuess));
     }
 
     // Test that the method terminates if hits the root.
@@ -148,11 +152,11 @@ void CSolversTest::testBisection() {
         b = 10.0;
         iterations = 10;
         CEqualWithTolerance<double> equal(CToleranceTypes::E_AbsoluteTolerance, 0.1);
-        CPPUNIT_ASSERT(CSolvers::bisection(a, b, -5.0, 5.0, &f1, iterations, equal, bestGuess));
-        CPPUNIT_ASSERT_EQUAL(static_cast<std::size_t>(1), iterations);
-        CPPUNIT_ASSERT_EQUAL(5.0, bestGuess);
-        CPPUNIT_ASSERT_EQUAL(5.0, a);
-        CPPUNIT_ASSERT_EQUAL(5.0, b);
+        BOOST_TEST(CSolvers::bisection(a, b, -5.0, 5.0, &f1, iterations, equal, bestGuess));
+        BOOST_CHECK_EQUAL(static_cast<std::size_t>(1), iterations);
+        BOOST_CHECK_EQUAL(5.0, bestGuess);
+        BOOST_CHECK_EQUAL(5.0, a);
+        BOOST_CHECK_EQUAL(5.0, b);
     }
 
     // Test that the best guess correctly linearly interpolates
@@ -162,11 +166,11 @@ void CSolversTest::testBisection() {
         b = 7.0;
         iterations = 10;
         CEqualWithTolerance<double> equal(CToleranceTypes::E_AbsoluteTolerance, 0.1);
-        CPPUNIT_ASSERT(CSolvers::bisection(a, b, -5.0, 5.0, &f1, iterations, equal, bestGuess));
+        BOOST_TEST(CSolvers::bisection(a, b, -5.0, 5.0, &f1, iterations, equal, bestGuess));
         LOG_DEBUG(<< "a = " << a << ", b = " << b << ", f(a) = " << f1(a)
                   << ", f(b) = " << f1(b) << ", iterations = " << iterations
                   << ", bestGuess = " << bestGuess);
-        CPPUNIT_ASSERT_EQUAL(5.0, bestGuess);
+        BOOST_CHECK_EQUAL(5.0, bestGuess);
     }
 
     // Test convergence on f(x) = cos(x) - x.
@@ -182,16 +186,16 @@ void CSolversTest::testBisection() {
             CSolvers::bisection(a, b, &f3, iterations, equal, bestGuess);
 
             LOG_DEBUG(<< "iterations = " << iterations);
-            CPPUNIT_ASSERT_EQUAL(i, iterations);
+            BOOST_CHECK_EQUAL(i, iterations);
 
             LOG_DEBUG(<< "a = " << a << ", b = " << b << ", f(a) = " << f3(a)
                       << ", f(b) = " << f3(b));
-            CPPUNIT_ASSERT(f3(a) * f3(b) <= 0.0);
+            BOOST_TEST(f3(a) * f3(b) <= 0.0);
 
             double error = std::fabs(bestGuess - 0.7390851332151607);
             LOG_DEBUG(<< "bestGuess = " << bestGuess
                       << ", f(bestGuess) = " << f3(bestGuess) << ", error = " << error);
-            CPPUNIT_ASSERT(error < std::fabs((a + b) / 2.0 - 0.7390851332151607));
+            BOOST_TEST(error < std::fabs((a + b) / 2.0 - 0.7390851332151607));
             double convergenceFactor = error / lastError;
             lastError = error;
             if (i != 3) {
@@ -202,7 +206,7 @@ void CSolversTest::testBisection() {
 
         double meanConvergenceFactor = std::pow(lastError / 0.7390851332151607, 1.0 / 20.0);
         LOG_DEBUG(<< "mean convergence factor = " << meanConvergenceFactor);
-        CPPUNIT_ASSERT(meanConvergenceFactor < 0.4);
+        BOOST_TEST(meanConvergenceFactor < 0.4);
     }
 
     // Test convergence of f(x) = {  |x - 2.0/3.0|^0.2  x <= 2.0/3.0
@@ -226,18 +230,18 @@ void CSolversTest::testBisection() {
             CSolvers::bisection(a, b, &f4, iterations, equal, bestGuess);
 
             LOG_DEBUG(<< "iterations = " << iterations);
-            CPPUNIT_ASSERT_EQUAL(i, iterations);
+            BOOST_CHECK_EQUAL(i, iterations);
 
             LOG_DEBUG(<< "a = " << a << ", b = " << b << ", f(a) = " << f4(a)
                       << ", f(b) = " << f4(b));
-            CPPUNIT_ASSERT(f4(a) * f4(b) <= 0.0);
-            CPPUNIT_ASSERT_DOUBLES_EQUAL(0.5 * lastInterval, b - a, 1e-5);
+            BOOST_TEST(f4(a) * f4(b) <= 0.0);
+            BOOST_CHECK_CLOSE_ABSOLUTE(0.5 * lastInterval, b - a, 1e-5);
             lastInterval = b - a;
 
             double error = std::fabs(bestGuess - 2.0 / 3.0);
             LOG_DEBUG(<< "bestGuess = " << bestGuess
                       << ", f(bestGuess) = " << f4(bestGuess) << ", error = " << error);
-            CPPUNIT_ASSERT(error < std::fabs((a + b) / 2.0 - 2.0 / 3.0));
+            BOOST_TEST(error < std::fabs((a + b) / 2.0 - 2.0 / 3.0));
             convergenceFactor *= (error / lastError);
             lastError = error;
 
@@ -245,7 +249,7 @@ void CSolversTest::testBisection() {
                 convergenceFactor = std::pow(convergenceFactor, 0.25);
                 LOG_DEBUG(<< "convergence factor = " << convergenceFactor);
                 if (i - 2 != 4) {
-                    CPPUNIT_ASSERT_DOUBLES_EQUAL(0.5, convergenceFactor, 1e-5);
+                    BOOST_CHECK_CLOSE_ABSOLUTE(0.5, convergenceFactor, 1e-5);
                 }
                 convergenceFactor = 1.0;
             }
@@ -254,11 +258,11 @@ void CSolversTest::testBisection() {
 
         double meanConvergenceFactor = std::pow(lastError / (2.0 / 3.0), 1.0 / 40.0);
         LOG_DEBUG(<< "mean convergence factor = " << meanConvergenceFactor);
-        CPPUNIT_ASSERT(meanConvergenceFactor < 0.56);
+        BOOST_TEST(meanConvergenceFactor < 0.56);
     }
 }
 
-void CSolversTest::testBrent() {
+BOOST_AUTO_TEST_CASE(testBrent) {
     double a, b;
     double bestGuess;
     std::size_t iterations;
@@ -269,7 +273,7 @@ void CSolversTest::testBrent() {
         b = 10.0;
         iterations = 5u;
         CEqualWithTolerance<double> equal(CToleranceTypes::E_AbsoluteTolerance, 0.1);
-        CPPUNIT_ASSERT(!CSolvers::brent(a, b, &f1, iterations, equal, bestGuess));
+        BOOST_TEST(!CSolvers::brent(a, b, &f1, iterations, equal, bestGuess));
     }
 
     // Test that the method terminates if hits the root.
@@ -278,11 +282,11 @@ void CSolversTest::testBrent() {
         b = 16.0;
         iterations = 10;
         CEqualWithTolerance<double> equal(CToleranceTypes::E_AbsoluteTolerance, 0.1);
-        CPPUNIT_ASSERT(CSolvers::brent(a, b, -5.0, 11.0, &f1, iterations, equal, bestGuess));
-        CPPUNIT_ASSERT_EQUAL(static_cast<std::size_t>(1), iterations);
-        CPPUNIT_ASSERT_EQUAL(5.0, bestGuess);
-        CPPUNIT_ASSERT_EQUAL(5.0, a);
-        CPPUNIT_ASSERT_EQUAL(5.0, b);
+        BOOST_TEST(CSolvers::brent(a, b, -5.0, 11.0, &f1, iterations, equal, bestGuess));
+        BOOST_CHECK_EQUAL(static_cast<std::size_t>(1), iterations);
+        BOOST_CHECK_EQUAL(5.0, bestGuess);
+        BOOST_CHECK_EQUAL(5.0, a);
+        BOOST_CHECK_EQUAL(5.0, b);
     }
 
     // Test the quadratic interpolation will solve for quadratic exactly.
@@ -291,11 +295,11 @@ void CSolversTest::testBrent() {
         b = 5.0;
         iterations = 10;
         CEqualWithTolerance<double> equal(CToleranceTypes::E_AbsoluteTolerance, 0.1);
-        CPPUNIT_ASSERT(CSolvers::brent(a, b, &f2, iterations, equal, bestGuess));
-        CPPUNIT_ASSERT_EQUAL(static_cast<std::size_t>(6), iterations);
-        CPPUNIT_ASSERT_EQUAL(2.0, bestGuess);
-        CPPUNIT_ASSERT_EQUAL(2.0, a);
-        CPPUNIT_ASSERT_EQUAL(2.0, b);
+        BOOST_TEST(CSolvers::brent(a, b, &f2, iterations, equal, bestGuess));
+        BOOST_CHECK_EQUAL(static_cast<std::size_t>(6), iterations);
+        BOOST_CHECK_EQUAL(2.0, bestGuess);
+        BOOST_CHECK_EQUAL(2.0, a);
+        BOOST_CHECK_EQUAL(2.0, b);
     }
 
     // Test convergence on f(x) = cos(x) - x.
@@ -311,25 +315,25 @@ void CSolversTest::testBrent() {
 
             LOG_DEBUG(<< "-");
             LOG_DEBUG(<< "iterations = " << iterations);
-            CPPUNIT_ASSERT_EQUAL(i, iterations);
+            BOOST_CHECK_EQUAL(i, iterations);
 
             LOG_DEBUG(<< "a = " << a << ", b = " << b << ", f(a) = " << f3(a)
                       << ", f(b) = " << f3(b));
-            CPPUNIT_ASSERT(f3(a) * f3(b) <= 0.0);
+            BOOST_TEST(f3(a) * f3(b) <= 0.0);
 
             double error = std::fabs(bestGuess - 0.7390851332151607);
             LOG_DEBUG(<< "bestGuess = " << bestGuess
                       << ", f(bestGuess) = " << f3(bestGuess) << ", error = " << error);
-            CPPUNIT_ASSERT(error < std::fabs((a + b) / 2.0 - 0.7390851332151607));
+            BOOST_TEST(error < std::fabs((a + b) / 2.0 - 0.7390851332151607));
             double convergenceFactor = error / lastError;
             lastError = error;
             if (i != 3) {
                 LOG_DEBUG(<< "convergenceFactor = " << convergenceFactor);
-                CPPUNIT_ASSERT(convergenceFactor < 0.75);
+                BOOST_TEST(convergenceFactor < 0.75);
             }
         }
 
-        CPPUNIT_ASSERT(lastError < 5e-16);
+        BOOST_TEST(lastError < 5e-16);
     }
 
     // Test convergence on f(x) = {  |x - 2.0/3.0|^0.2  x <= 2.0/3.0
@@ -348,16 +352,16 @@ void CSolversTest::testBrent() {
 
             LOG_DEBUG(<< "-");
             LOG_DEBUG(<< "iterations = " << iterations);
-            CPPUNIT_ASSERT_EQUAL(i, iterations);
+            BOOST_CHECK_EQUAL(i, iterations);
 
             LOG_DEBUG(<< "a = " << a << ", b = " << b << ", f(a) = " << f4(a)
                       << ", f(b) = " << f4(b));
-            CPPUNIT_ASSERT(f4(a) * f4(b) <= 0.0);
+            BOOST_TEST(f4(a) * f4(b) <= 0.0);
 
             double error = std::fabs(bestGuess - 2.0 / 3.0);
             LOG_DEBUG(<< "bestGuess = " << bestGuess
                       << ", f(bestGuess) = " << f4(bestGuess) << ", error = " << error);
-            CPPUNIT_ASSERT(error < std::fabs((a + b) / 2.0 - 2.0 / 3.0));
+            BOOST_TEST(error < std::fabs((a + b) / 2.0 - 2.0 / 3.0));
             double convergenceFactor = error / lastError;
             lastError = error;
             LOG_DEBUG(<< "convergence factor = " << convergenceFactor);
@@ -365,11 +369,11 @@ void CSolversTest::testBrent() {
 
         double meanConvergenceFactor = std::pow(lastError / (2.0 / 3.0), 1.0 / 40.0);
         LOG_DEBUG(<< "mean convergence factor = " << meanConvergenceFactor);
-        CPPUNIT_ASSERT(meanConvergenceFactor < 0.505);
+        BOOST_TEST(meanConvergenceFactor < 0.505);
     }
 }
 
-void CSolversTest::testSublevelSet() {
+BOOST_AUTO_TEST_CASE(testSublevelSet) {
     using TDoubleDoublePr = std::pair<double, double>;
 
     // Should converge immediately to minimum of quadratic.
@@ -384,10 +388,10 @@ void CSolversTest::testSublevelSet() {
         LOG_DEBUG(<< "fmax = " << fmax);
 
         if (CSolvers::sublevelSet(4.0, 10.0, f5(4.0), f5(10.0), &f5, fmax, 10, sublevelSet)) {
-            CPPUNIT_ASSERT_DOUBLES_EQUAL(fmax, f5(sublevelSet.first), 1e-5);
-            CPPUNIT_ASSERT_DOUBLES_EQUAL(fmax, f5(sublevelSet.second), 1e-5);
+            BOOST_CHECK_CLOSE_ABSOLUTE(fmax, f5(sublevelSet.first), 1e-5);
+            BOOST_CHECK_CLOSE_ABSOLUTE(fmax, f5(sublevelSet.second), 1e-5);
         } else {
-            CPPUNIT_ASSERT(sublevelSet.second - sublevelSet.first < 1e-4);
+            BOOST_TEST(sublevelSet.second - sublevelSet.first < 1e-4);
         }
         LOG_DEBUG(<< "sublevelSet = " << core::CContainerPrinter::print(sublevelSet));
         LOG_DEBUG(<< "f(a) = " << f5(sublevelSet.first)
@@ -408,25 +412,13 @@ void CSolversTest::testSublevelSet() {
                   << ", f(b) = " << f6(sublevelSet.second));
 
         if (found) {
-            CPPUNIT_ASSERT_DOUBLES_EQUAL(fmax, f6(sublevelSet.first), 1e-4);
-            CPPUNIT_ASSERT_DOUBLES_EQUAL(fmax, f6(sublevelSet.second), 1e-4);
+            BOOST_CHECK_CLOSE_ABSOLUTE(fmax, f6(sublevelSet.first), 1e-4);
+            BOOST_CHECK_CLOSE_ABSOLUTE(fmax, f6(sublevelSet.second), 1e-4);
         } else {
-            CPPUNIT_ASSERT(sublevelSet.second - sublevelSet.first < 1e-4);
+            BOOST_TEST(sublevelSet.second - sublevelSet.first < 1e-4);
         }
     }
 }
 
-CppUnit::Test* CSolversTest::suite() {
-    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CSolversTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CSolversTest>(
-        "CSolversTest::testBracket", &CSolversTest::testBracket));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CSolversTest>(
-        "CSolversTest::testBisection", &CSolversTest::testBisection));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CSolversTest>(
-        "CSolversTest::testBrent", &CSolversTest::testBrent));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CSolversTest>(
-        "CSolversTest::testSublevelSet", &CSolversTest::testSublevelSet));
-
-    return suiteOfTests;
-}
+BOOST_AUTO_TEST_SUITE_END()

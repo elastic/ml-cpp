@@ -4,16 +4,18 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
-#include "CSamplingTest.h"
-
 #include <core/CContainerPrinter.h>
 #include <core/CLogger.h>
 
 #include <maths/CBasicStatistics.h>
 #include <maths/CSampling.h>
 
+#include <boost/test/unit_test.hpp>
+
 #include <cmath>
 #include <numeric>
+
+BOOST_AUTO_TEST_SUITE(CSamplingTest)
 
 using TDoubleVec = std::vector<double>;
 using TSizeVec = std::vector<std::size_t>;
@@ -111,7 +113,7 @@ double frobenius(const TDoubleVecVec& m) {
 }
 }
 
-void CSamplingTest::testMultinomialSample() {
+BOOST_AUTO_TEST_CASE(testMultinomialSample) {
     using TSizeVecDoubleMap = std::map<TSizeVec, double>;
     using TSizeVecDoubleMapCItr = TSizeVecDoubleMap::const_iterator;
 
@@ -136,22 +138,22 @@ void CSamplingTest::testMultinomialSample() {
     for (TSizeVecDoubleMapCItr pItr = empiricalProbabilities.begin();
          pItr != empiricalProbabilities.end(); ++pItr) {
         LOG_DEBUG(<< "counts = " << core::CContainerPrinter::print(pItr->first));
-        CPPUNIT_ASSERT_EQUAL(size_t(20), std::accumulate(pItr->first.begin(),
+        BOOST_CHECK_EQUAL(size_t(20), std::accumulate(pItr->first.begin(),
                                                          pItr->first.end(), size_t(0)));
 
         double p = multinomialProbability(probabilities, pItr->first);
         double pe = pItr->second;
         LOG_DEBUG(<< "p  = " << p << ", pe = " << pe);
-        CPPUNIT_ASSERT(std::fabs(pe - p) < std::max(0.27 * p, 3e-5));
+        BOOST_TEST(std::fabs(pe - p) < std::max(0.27 * p, 3e-5));
         error += std::fabs(pe - p);
         pTotal += p;
     }
 
     LOG_DEBUG(<< "pTotal = " << pTotal << ", error = " << error);
-    CPPUNIT_ASSERT(error < 0.02 * pTotal);
+    BOOST_TEST(error < 0.02 * pTotal);
 }
 
-void CSamplingTest::testMultivariateNormalSample() {
+BOOST_AUTO_TEST_CASE(testMultivariateNormalSample) {
     using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
 
     maths::CSampling::seed();
@@ -185,7 +187,7 @@ void CSamplingTest::testMultivariateNormalSample() {
             TDoubleVec error = test_detail::minus(mean_, m_);
             LOG_DEBUG(<< "||error|| = " << test_detail::euclidean(error));
             LOG_DEBUG(<< "||m|| = " << test_detail::euclidean(m_));
-            CPPUNIT_ASSERT(test_detail::euclidean(error) <
+            BOOST_TEST(test_detail::euclidean(error) <
                            0.02 * test_detail::euclidean(m_));
         }
 
@@ -206,19 +208,10 @@ void CSamplingTest::testMultivariateNormalSample() {
             TDoubleVecVec error = test_detail::minus(covariance, C_);
             LOG_DEBUG(<< "||error|| = " << test_detail::frobenius(error));
             LOG_DEBUG(<< "||C|| = " << test_detail::frobenius(C_));
-            CPPUNIT_ASSERT(test_detail::frobenius(error) < 0.1 * test_detail::frobenius(C_));
+            BOOST_TEST(test_detail::frobenius(error) < 0.1 * test_detail::frobenius(C_));
         }
     }
 }
 
-CppUnit::Test* CSamplingTest::suite() {
-    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CSamplingTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CSamplingTest>(
-        "CSamplingTest::testMultinomialSample", &CSamplingTest::testMultinomialSample));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CSamplingTest>(
-        "CSamplingTest::testMultivariateNormalSample",
-        &CSamplingTest::testMultivariateNormalSample));
-
-    return suiteOfTests;
-}
+BOOST_AUTO_TEST_SUITE_END()

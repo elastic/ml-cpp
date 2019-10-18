@@ -4,8 +4,6 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
-#include "CTimeSeriesModelTest.h"
-
 #include <core/CLogger.h>
 #include <core/CRapidXmlParser.h>
 #include <core/CRapidXmlStatePersistInserter.h>
@@ -28,11 +26,16 @@
 
 #include <test/CRandomNumbers.h>
 #include <test/CTimeSeriesTestData.h>
+#include <test/BoostTestCloseAbsolute.h>
 
 #include "TestUtils.h"
 
+#include <boost/test/unit_test.hpp>
+
 #include <cmath>
 #include <memory>
+
+BOOST_AUTO_TEST_SUITE(CTimeSeriesModelTest)
 
 using namespace ml;
 
@@ -313,7 +316,7 @@ private:
 };
 }
 
-void CTimeSeriesModelTest::testClone() {
+BOOST_AUTO_TEST_CASE(testClone) {
     // Test all the state is cloned.
 
     core_t::TTime bucketLength{600};
@@ -341,9 +344,9 @@ void CTimeSeriesModelTest::testClone() {
         uint64_t checksum1 = model.checksum();
         std::unique_ptr<maths::CUnivariateTimeSeriesModel> clone1{model.clone(1)};
         uint64_t checksum2 = clone1->checksum();
-        CPPUNIT_ASSERT_EQUAL(checksum1, checksum2);
+        BOOST_CHECK_EQUAL(checksum1, checksum2);
         std::unique_ptr<maths::CUnivariateTimeSeriesModel> clone2{model.clone(2)};
-        CPPUNIT_ASSERT_EQUAL(std::size_t(2), clone2->identifier());
+        BOOST_CHECK_EQUAL(std::size_t(2), clone2->identifier());
     }
     {
         maths::CTimeSeriesDecomposition trend{DECAY_RATE, bucketLength};
@@ -367,15 +370,15 @@ void CTimeSeriesModelTest::testClone() {
         uint64_t checksum1 = model.checksum();
         std::unique_ptr<maths::CMultivariateTimeSeriesModel> clone1{model.clone(1)};
         uint64_t checksum2 = clone1->checksum();
-        CPPUNIT_ASSERT_EQUAL(checksum1, checksum2);
+        BOOST_CHECK_EQUAL(checksum1, checksum2);
         std::unique_ptr<maths::CMultivariateTimeSeriesModel> clone2{model.clone(2)};
         uint64_t checksum3 = clone2->checksum();
-        CPPUNIT_ASSERT_EQUAL(checksum1, checksum3);
-        CPPUNIT_ASSERT_EQUAL(std::size_t(0), clone2->identifier());
+        BOOST_CHECK_EQUAL(checksum1, checksum3);
+        BOOST_CHECK_EQUAL(std::size_t(0), clone2->identifier());
     }
 }
 
-void CTimeSeriesModelTest::testMode() {
+BOOST_AUTO_TEST_CASE(testMode) {
     // Test that we get the modes we expect based versus updating the trend(s)
     // and prior directly.
 
@@ -414,8 +417,8 @@ void CTimeSeriesModelTest::testMode() {
 
         LOG_DEBUG(<< "expected mode = " << expectedMode);
         LOG_DEBUG(<< "mode          = " << mode[0]);
-        CPPUNIT_ASSERT_EQUAL(std::size_t(1), mode.size());
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(expectedMode, mode[0], 1e-3 * expectedMode);
+        BOOST_CHECK_EQUAL(std::size_t(1), mode.size());
+        BOOST_CHECK_CLOSE_ABSOLUTE(expectedMode, mode[0], 1e-3 * expectedMode);
     }
 
     LOG_DEBUG(<< "Univariate trend");
@@ -457,8 +460,8 @@ void CTimeSeriesModelTest::testMode() {
 
         LOG_DEBUG(<< "expected mode = " << expectedMode);
         LOG_DEBUG(<< "mode          = " << mode[0]);
-        CPPUNIT_ASSERT_EQUAL(std::size_t(1), mode.size());
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(expectedMode, mode[0], 1e-3 * expectedMode);
+        BOOST_CHECK_EQUAL(std::size_t(1), mode.size());
+        BOOST_CHECK_CLOSE_ABSOLUTE(expectedMode, mode[0], 1e-3 * expectedMode);
     }
 
     LOG_DEBUG(<< "Multivariate no trend");
@@ -504,10 +507,10 @@ void CTimeSeriesModelTest::testMode() {
 
         LOG_DEBUG(<< "expected mode = " << expectedMode);
         LOG_DEBUG(<< "mode          = " << mode);
-        CPPUNIT_ASSERT_EQUAL(std::size_t(3), mode.size());
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(expectedMode[0], mode[0], 0.02 * expectedMode[0]);
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(expectedMode[1], mode[1], 0.02 * expectedMode[0]);
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(expectedMode[2], mode[2], 0.02 * expectedMode[0]);
+        BOOST_CHECK_EQUAL(std::size_t(3), mode.size());
+        BOOST_CHECK_CLOSE_ABSOLUTE(expectedMode[0], mode[0], 0.02 * expectedMode[0]);
+        BOOST_CHECK_CLOSE_ABSOLUTE(expectedMode[1], mode[1], 0.02 * expectedMode[0]);
+        BOOST_CHECK_CLOSE_ABSOLUTE(expectedMode[2], mode[2], 0.02 * expectedMode[0]);
     }
 
     LOG_DEBUG(<< "Multivariate trend");
@@ -572,14 +575,14 @@ void CTimeSeriesModelTest::testMode() {
 
         LOG_DEBUG(<< "expected mode = " << expectedMode);
         LOG_DEBUG(<< "mode          = " << mode);
-        CPPUNIT_ASSERT_EQUAL(std::size_t(3), mode.size());
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(expectedMode[0], mode[0], 1e-3 * expectedMode[0]);
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(expectedMode[1], mode[1], 1e-3 * expectedMode[1]);
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(expectedMode[2], mode[2], 1e-3 * expectedMode[2]);
+        BOOST_CHECK_EQUAL(std::size_t(3), mode.size());
+        BOOST_CHECK_CLOSE_ABSOLUTE(expectedMode[0], mode[0], 1e-3 * expectedMode[0]);
+        BOOST_CHECK_CLOSE_ABSOLUTE(expectedMode[1], mode[1], 1e-3 * expectedMode[1]);
+        BOOST_CHECK_CLOSE_ABSOLUTE(expectedMode[2], mode[2], 1e-3 * expectedMode[2]);
     }
 }
 
-void CTimeSeriesModelTest::testAddBucketValue() {
+BOOST_AUTO_TEST_CASE(testAddBucketValue) {
     // Test that the prior support is correctly updated to account
     // for negative bucket values.
 
@@ -609,10 +612,10 @@ void CTimeSeriesModelTest::testAddBucketValue() {
     model.addSamples(addSampleParams(modelWeights), samples);
     model.addBucketValue({core::make_triple(core_t::TTime{20}, TDouble2Vec{-1.0}, TAG)});
 
-    CPPUNIT_ASSERT_EQUAL(prior.checksum(), model.residualModel().checksum());
+    BOOST_CHECK_EQUAL(prior.checksum(), model.residualModel().checksum());
 }
 
-void CTimeSeriesModelTest::testAddSamples() {
+BOOST_AUTO_TEST_CASE(testAddSamples) {
     // Test: 1) Test multiple samples
     //       2) Test propagation interval
     //       3) Test decay rate control
@@ -654,11 +657,11 @@ void CTimeSeriesModelTest::testAddSamples() {
         uint64_t checksum1{trend.checksum()};
         uint64_t checksum2{model.trendModel().checksum()};
         LOG_DEBUG(<< "checksum1 = " << checksum1 << " checksum2 = " << checksum2);
-        CPPUNIT_ASSERT_EQUAL(checksum1, checksum2);
+        BOOST_CHECK_EQUAL(checksum1, checksum2);
         checksum1 = prior.checksum();
         checksum2 = model.residualModel().checksum();
         LOG_DEBUG(<< "checksum1 = " << checksum1 << " checksum2 = " << checksum2);
-        CPPUNIT_ASSERT_EQUAL(checksum1, checksum2);
+        BOOST_CHECK_EQUAL(checksum1, checksum2);
     }
 
     LOG_DEBUG(<< "Multiple samples multivariate");
@@ -704,12 +707,12 @@ void CTimeSeriesModelTest::testAddSamples() {
             uint64_t checksum1{trends[i]->checksum()};
             uint64_t checksum2{model.trendModel()[i]->checksum()};
             LOG_DEBUG(<< "checksum1 = " << checksum1 << " checksum2 = " << checksum2);
-            CPPUNIT_ASSERT_EQUAL(checksum1, checksum2);
+            BOOST_CHECK_EQUAL(checksum1, checksum2);
         }
         uint64_t checksum1{prior.checksum()};
         uint64_t checksum2{model.residualModel().checksum()};
         LOG_DEBUG(<< "checksum1 = " << checksum1 << " checksum2 = " << checksum2);
-        CPPUNIT_ASSERT_EQUAL(checksum1, checksum2);
+        BOOST_CHECK_EQUAL(checksum1, checksum2);
     }
 
     LOG_DEBUG(<< "Propagation interval univariate");
@@ -740,7 +743,7 @@ void CTimeSeriesModelTest::testAddSamples() {
             uint64_t checksum1{prior.checksum()};
             uint64_t checksum2{model.residualModel().checksum()};
             LOG_DEBUG(<< "checksum1 = " << checksum1 << " checksum2 = " << checksum2);
-            CPPUNIT_ASSERT_EQUAL(checksum1, checksum2);
+            BOOST_CHECK_EQUAL(checksum1, checksum2);
 
             time += bucketLength;
         }
@@ -778,7 +781,7 @@ void CTimeSeriesModelTest::testAddSamples() {
             uint64_t checksum1{prior.checksum()};
             uint64_t checksum2{model.residualModel().checksum()};
             LOG_DEBUG(<< "checksum1 = " << checksum1 << " checksum2 = " << checksum2);
-            CPPUNIT_ASSERT_EQUAL(checksum1, checksum2);
+            BOOST_CHECK_EQUAL(checksum1, checksum2);
 
             time += bucketLength;
         }
@@ -831,10 +834,10 @@ void CTimeSeriesModelTest::testAddSamples() {
 
             uint64_t checksum1{trend.checksum()};
             uint64_t checksum2{model.trendModel().checksum()};
-            CPPUNIT_ASSERT_EQUAL(checksum1, checksum2);
+            BOOST_CHECK_EQUAL(checksum1, checksum2);
             checksum1 = prior.checksum();
             checksum2 = model.residualModel().checksum();
-            CPPUNIT_ASSERT_EQUAL(checksum1, checksum2);
+            BOOST_CHECK_EQUAL(checksum1, checksum2);
 
             time += bucketLength;
         }
@@ -920,18 +923,18 @@ void CTimeSeriesModelTest::testAddSamples() {
             for (std::size_t i = 0u; i < trends.size(); ++i) {
                 uint64_t checksum1{trends[i]->checksum()};
                 uint64_t checksum2{model.trendModel()[i]->checksum()};
-                CPPUNIT_ASSERT_EQUAL(checksum1, checksum2);
+                BOOST_CHECK_EQUAL(checksum1, checksum2);
             }
             uint64_t checksum1{prior.checksum()};
             uint64_t checksum2{model.residualModel().checksum()};
-            CPPUNIT_ASSERT_EQUAL(checksum1, checksum2);
+            BOOST_CHECK_EQUAL(checksum1, checksum2);
 
             time += bucketLength;
         }
     }
 }
 
-void CTimeSeriesModelTest::testPredict() {
+BOOST_AUTO_TEST_CASE(testPredict) {
     // Test prediction with a trend and with multimodal data.
 
     core_t::TTime bucketLength{600};
@@ -977,13 +980,13 @@ void CTimeSeriesModelTest::testPredict() {
             double predicted{model.predict(time_)[0]};
             LOG_DEBUG(<< "expected = " << expected << " predicted = " << predicted
                       << " (trend = " << trend_ << ")");
-            CPPUNIT_ASSERT_DOUBLES_EQUAL(expected, predicted, 1e-3 * expected);
-            CPPUNIT_ASSERT(std::fabs(trend_ - predicted) / trend_ < 0.2);
+            BOOST_CHECK_CLOSE_ABSOLUTE(expected, predicted, 1e-3 * expected);
+            BOOST_TEST(std::fabs(trend_ - predicted) / trend_ < 0.2);
             meanError.add(std::fabs(trend_ - predicted) / trend_);
         }
 
         LOG_DEBUG(<< "mean error = " << maths::CBasicStatistics::mean(meanError));
-        CPPUNIT_ASSERT(maths::CBasicStatistics::mean(meanError) < 0.05);
+        BOOST_TEST(maths::CBasicStatistics::mean(meanError) < 0.05);
     }
 
     LOG_DEBUG(<< "Univariate nearest mode");
@@ -1017,10 +1020,10 @@ void CTimeSeriesModelTest::testPredict() {
                   << " actual(0) = " << predicted[0]);
         LOG_DEBUG(<< "expected(1) = " << maths::CBasicStatistics::mean(modes[1])
                   << " actual(1) = " << predicted[1]);
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(maths::CBasicStatistics::mean(modes[0]),
+        BOOST_CHECK_CLOSE_ABSOLUTE(maths::CBasicStatistics::mean(modes[0]),
                                      predicted[0],
                                      0.1 * maths::CBasicStatistics::mean(modes[0]));
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(maths::CBasicStatistics::mean(modes[1]),
+        BOOST_CHECK_CLOSE_ABSOLUTE(maths::CBasicStatistics::mean(modes[1]),
                                      predicted[1],
                                      0.01 * maths::CBasicStatistics::mean(modes[1]));
     }
@@ -1088,8 +1091,8 @@ void CTimeSeriesModelTest::testPredict() {
                 --marginalize[std::min(i, marginalize.size() - 1)];
                 LOG_DEBUG(<< "expected = " << expected << " predicted = " << predicted
                           << " (trend = " << trend_ << ")");
-                CPPUNIT_ASSERT_DOUBLES_EQUAL(expected, predicted, 1e-3 * expected);
-                CPPUNIT_ASSERT(std::fabs(trend_ - predicted) / trend_ < 0.25);
+                BOOST_CHECK_CLOSE_ABSOLUTE(expected, predicted, 1e-3 * expected);
+                BOOST_TEST(std::fabs(trend_ - predicted) / trend_ < 0.25);
             }
         }
     }
@@ -1144,15 +1147,15 @@ void CTimeSeriesModelTest::testPredict() {
                       << " actual(0) = " << predicted[0][i]);
             LOG_DEBUG(<< "expected(1) = " << expected[1][i]
                       << " actual(1) = " << predicted[1][i]);
-            CPPUNIT_ASSERT_DOUBLES_EQUAL(expected[0][i], predicted[0][i],
+            BOOST_CHECK_CLOSE_ABSOLUTE(expected[0][i], predicted[0][i],
                                          std::fabs(0.2 * expected[0][i]));
-            CPPUNIT_ASSERT_DOUBLES_EQUAL(expected[1][i], predicted[1][i],
+            BOOST_CHECK_CLOSE_ABSOLUTE(expected[1][i], predicted[1][i],
                                          std::fabs(0.01 * expected[1][i]));
         }
     }
 }
 
-void CTimeSeriesModelTest::testProbability() {
+BOOST_AUTO_TEST_CASE(testProbability) {
     // Test: 1) The different the calculation matches the expected values
     //          given the trend and decomposition for different calculations,
     //          seasonal confidence intervals, weights and so on.
@@ -1248,10 +1251,10 @@ void CTimeSeriesModelTest::testProbability() {
                         model1.probability(params, time_, {sample}, results[1]);
                     }
 
-                    CPPUNIT_ASSERT_EQUAL(expectedProbability[0], results[0].s_Probability);
-                    CPPUNIT_ASSERT_EQUAL(expectedTail[0], results[0].s_Tail[0]);
-                    CPPUNIT_ASSERT_EQUAL(expectedProbability[1], results[1].s_Probability);
-                    CPPUNIT_ASSERT_EQUAL(expectedTail[1], results[1].s_Tail[0]);
+                    BOOST_CHECK_EQUAL(expectedProbability[0], results[0].s_Probability);
+                    BOOST_CHECK_EQUAL(expectedTail[0], results[0].s_Tail[0]);
+                    BOOST_CHECK_EQUAL(expectedProbability[1], results[1].s_Probability);
+                    BOOST_CHECK_EQUAL(expectedTail[1], results[1].s_Tail[0]);
                 }
             }
         }
@@ -1348,11 +1351,11 @@ void CTimeSeriesModelTest::testProbability() {
                         model1.probability(params, time_, {sample}, results[1]);
                     }
 
-                    CPPUNIT_ASSERT_EQUAL(expectedProbability[0], results[0].s_Probability);
-                    CPPUNIT_ASSERT_EQUAL(expectedProbability[1], results[1].s_Probability);
+                    BOOST_CHECK_EQUAL(expectedProbability[0], results[0].s_Probability);
+                    BOOST_CHECK_EQUAL(expectedProbability[1], results[1].s_Probability);
                     for (std::size_t j = 0u; j < 3; ++j) {
-                        CPPUNIT_ASSERT_EQUAL(expectedTail[0][j], results[0].s_Tail[j]);
-                        CPPUNIT_ASSERT_EQUAL(expectedTail[1][j], results[1].s_Tail[j]);
+                        BOOST_CHECK_EQUAL(expectedTail[0][j], results[0].s_Tail[j]);
+                        BOOST_CHECK_EQUAL(expectedTail[1][j], results[1].s_Tail[j]);
                     }
                 }
             }
@@ -1396,12 +1399,12 @@ void CTimeSeriesModelTest::testProbability() {
 
         LOG_DEBUG(<< "expected anomalies = " << core::CContainerPrinter::print(anomalies));
         LOG_DEBUG(<< "actual anomalies   = " << core::CContainerPrinter::print(anomalies_));
-        CPPUNIT_ASSERT_EQUAL(core::CContainerPrinter::print(anomalies),
+        BOOST_CHECK_EQUAL(core::CContainerPrinter::print(anomalies),
                              core::CContainerPrinter::print(anomalies_));
     }
 }
 
-void CTimeSeriesModelTest::testWeights() {
+BOOST_AUTO_TEST_CASE(testWeights) {
     // Check that the seasonal weight matches the value we expect given
     //   1) the trend and residual model
     //   2) the variation in the input data
@@ -1448,12 +1451,12 @@ void CTimeSeriesModelTest::testWeights() {
 
             LOG_DEBUG(<< "expected weight = " << expectedScale << ", weight = " << scale
                       << " (data weight = " << dataScale << ")");
-            CPPUNIT_ASSERT_EQUAL(std::max(expectedScale, MINIMUM_SEASONAL_SCALE), scale);
+            BOOST_CHECK_EQUAL(std::max(expectedScale, MINIMUM_SEASONAL_SCALE), scale);
 
             error.add(std::fabs(scale - dataScale) / dataScale);
         }
         LOG_DEBUG(<< "error = " << maths::CBasicStatistics::mean(error));
-        CPPUNIT_ASSERT(maths::CBasicStatistics::mean(error) < 0.18);
+        BOOST_TEST(maths::CBasicStatistics::mean(error) < 0.18);
 
         LOG_DEBUG(<< "Winsorisation");
         TDouble2Vec prediction(model.predict(time));
@@ -1461,7 +1464,7 @@ void CTimeSeriesModelTest::testWeights() {
         for (std::size_t i = 0u; i < 10; ++i) {
             double weight_{model.winsorisationWeight(0.0, time, prediction)[0]};
             LOG_DEBUG(<< "weight = " << weight_);
-            CPPUNIT_ASSERT(weight_ <= lastWeight);
+            BOOST_TEST(weight_ <= lastWeight);
             lastWeight = weight_;
             prediction[0] *= 1.1;
         }
@@ -1507,12 +1510,12 @@ void CTimeSeriesModelTest::testWeights() {
                 double scale{model.seasonalWeight(0.0, time_)[i]};
                 LOG_DEBUG(<< "expected weight = " << expectedScale << ", weight = " << scale
                           << " (data weight = " << dataScale << ")");
-                CPPUNIT_ASSERT_EQUAL(std::max(expectedScale, MINIMUM_SEASONAL_SCALE), scale);
+                BOOST_CHECK_EQUAL(std::max(expectedScale, MINIMUM_SEASONAL_SCALE), scale);
                 error.add(std::fabs(scale - dataScale) / dataScale);
             }
         }
         LOG_DEBUG(<< "error = " << maths::CBasicStatistics::mean(error));
-        CPPUNIT_ASSERT(maths::CBasicStatistics::mean(error) < 0.26);
+        BOOST_TEST(maths::CBasicStatistics::mean(error) < 0.26);
 
         LOG_DEBUG(<< "Winsorisation");
         TDouble2Vec prediction(model.predict(time));
@@ -1520,14 +1523,14 @@ void CTimeSeriesModelTest::testWeights() {
         for (std::size_t i = 0u; i < 10; ++i) {
             double weight_{model.winsorisationWeight(0.0, time, prediction)[0]};
             LOG_DEBUG(<< "weight = " << weight_);
-            CPPUNIT_ASSERT(weight_ <= lastWeight);
+            BOOST_TEST(weight_ <= lastWeight);
             lastWeight = weight_;
             prediction[0] *= 1.1;
         }
     }
 }
 
-void CTimeSeriesModelTest::testMemoryUsage() {
+BOOST_AUTO_TEST_CASE(testMemoryUsage) {
     // Test we account for the appropriate memory.
 
     core_t::TTime bucketLength{600};
@@ -1561,7 +1564,7 @@ void CTimeSeriesModelTest::testMemoryUsage() {
             2 * controllers[0].memoryUsage() + 16 * 12 /*Recent samples*/};
         std::size_t size = model->memoryUsage();
         LOG_DEBUG(<< "size " << size << " expected " << expectedSize);
-        CPPUNIT_ASSERT(size < 1.1 * expectedSize);
+        BOOST_TEST(size < 1.1 * expectedSize);
     }
 
     LOG_DEBUG(<< "Multivariate");
@@ -1597,13 +1600,13 @@ void CTimeSeriesModelTest::testMemoryUsage() {
             2 * controllers[0].memoryUsage() + 32 * 12 /*Recent samples*/};
         std::size_t size = model->memoryUsage();
         LOG_DEBUG(<< "size " << size << " expected " << expectedSize);
-        CPPUNIT_ASSERT(size < 1.1 * expectedSize);
+        BOOST_TEST(size < 1.1 * expectedSize);
     }
 
     // TODO LOG_DEBUG(<< "Correlates");
 }
 
-void CTimeSeriesModelTest::testPersist() {
+BOOST_AUTO_TEST_CASE(testPersist) {
     // Test the restored model checksum matches the persisted model.
 
     core_t::TTime bucketLength{600};
@@ -1640,7 +1643,7 @@ void CTimeSeriesModelTest::testPersist() {
 
         // Restore the XML into a new time series model.
         core::CRapidXmlParser parser;
-        CPPUNIT_ASSERT(parser.parseStringIgnoreCdata(origXml));
+        BOOST_TEST(parser.parseStringIgnoreCdata(origXml));
         core::CRapidXmlStateRestoreTraverser traverser(parser);
 
         maths::SDistributionRestoreParams distributionParams{maths_t::E_ContinuousData,
@@ -1650,7 +1653,7 @@ void CTimeSeriesModelTest::testPersist() {
         maths::SModelRestoreParams restoreParams{params, decompositionParams, distributionParams};
         maths::CUnivariateTimeSeriesModel restoredModel{restoreParams, traverser};
 
-        CPPUNIT_ASSERT_EQUAL(origModel.checksum(), restoredModel.checksum());
+        BOOST_CHECK_EQUAL(origModel.checksum(), restoredModel.checksum());
     }
 
     LOG_DEBUG(<< "Multivariate");
@@ -1686,7 +1689,7 @@ void CTimeSeriesModelTest::testPersist() {
 
         // Restore the XML into a new time series model.
         core::CRapidXmlParser parser;
-        CPPUNIT_ASSERT(parser.parseStringIgnoreCdata(origXml));
+        BOOST_TEST(parser.parseStringIgnoreCdata(origXml));
         core::CRapidXmlStateRestoreTraverser traverser(parser);
 
         maths::SDistributionRestoreParams distributionParams{maths_t::E_ContinuousData,
@@ -1696,13 +1699,13 @@ void CTimeSeriesModelTest::testPersist() {
         maths::SModelRestoreParams restoreParams{params, decompositionParams, distributionParams};
         maths::CMultivariateTimeSeriesModel restoredModel{restoreParams, traverser};
 
-        CPPUNIT_ASSERT_EQUAL(origModel.checksum(), restoredModel.checksum());
+        BOOST_CHECK_EQUAL(origModel.checksum(), restoredModel.checksum());
     }
 
     // TODO LOG_DEBUG(<< "Correlates");
 }
 
-void CTimeSeriesModelTest::testUpgrade() {
+BOOST_AUTO_TEST_CASE(testUpgrade) {
     // Test upgrade is minimally disruptive. We test the upgraded model
     // predicted confidence intervals verses the values we obtain from
     // the previous model. Note the confidence interval depends on both
@@ -1736,7 +1739,7 @@ void CTimeSeriesModelTest::testUpgrade() {
         core::CStringUtils::tokenise(";", intervals, expectedIntervals, empty);
 
         core::CRapidXmlParser parser;
-        CPPUNIT_ASSERT(parser.parseStringIgnoreCdata(xml));
+        BOOST_TEST(parser.parseStringIgnoreCdata(xml));
         core::CRapidXmlStateRestoreTraverser traverser(parser);
 
         maths::SDistributionRestoreParams distributionParams{maths_t::E_ContinuousData,
@@ -1763,9 +1766,9 @@ void CTimeSeriesModelTest::testUpgrade() {
             interval_ += ",";
             core::CStringUtils::tokenise(",", interval_, interval, empty);
 
-            CPPUNIT_ASSERT_EQUAL(expectedInterval.size(), interval.size());
+            BOOST_CHECK_EQUAL(expectedInterval.size(), interval.size());
             for (std::size_t j = 0u; j < expectedInterval.size(); ++j) {
-                CPPUNIT_ASSERT_DOUBLES_EQUAL(
+                BOOST_CHECK_CLOSE_ABSOLUTE(
                     boost::lexical_cast<double>(expectedInterval[j]),
                     boost::lexical_cast<double>(interval[j]), 0.0001);
             }
@@ -1785,7 +1788,7 @@ void CTimeSeriesModelTest::testUpgrade() {
         core::CStringUtils::tokenise(";", intervals, expectedIntervals, empty);
 
         core::CRapidXmlParser parser;
-        CPPUNIT_ASSERT(parser.parseStringIgnoreCdata(xml));
+        BOOST_TEST(parser.parseStringIgnoreCdata(xml));
         core::CRapidXmlStateRestoreTraverser traverser(parser);
 
         maths::SDistributionRestoreParams distributionParams{maths_t::E_ContinuousData,
@@ -1812,9 +1815,9 @@ void CTimeSeriesModelTest::testUpgrade() {
             interval_ += ",";
             core::CStringUtils::tokenise(",", interval_, interval, empty);
 
-            CPPUNIT_ASSERT_EQUAL(expectedInterval.size(), interval.size());
+            BOOST_CHECK_EQUAL(expectedInterval.size(), interval.size());
             for (std::size_t j = 0u; j < expectedInterval.size(); ++j) {
-                CPPUNIT_ASSERT_DOUBLES_EQUAL(
+                BOOST_CHECK_CLOSE_ABSOLUTE(
                     boost::lexical_cast<double>(expectedInterval[j]),
                     boost::lexical_cast<double>(interval[j]), 0.0001);
             }
@@ -1822,7 +1825,7 @@ void CTimeSeriesModelTest::testUpgrade() {
     }
 }
 
-void CTimeSeriesModelTest::testAddSamplesWithCorrelations() {
+BOOST_AUTO_TEST_CASE(testAddSamplesWithCorrelations) {
     LOG_DEBUG(<< "Correlations no trend");
 
     core_t::TTime bucketLength{600};
@@ -1862,10 +1865,10 @@ void CTimeSeriesModelTest::testAddSamplesWithCorrelations() {
     // TODO LOG_DEBUG(<< "Correlations with tags (for population)");
 }
 
-void CTimeSeriesModelTest::testProbabilityWithCorrelations() {
+BOOST_AUTO_TEST_CASE(testProbabilityWithCorrelations) {
 }
 
-void CTimeSeriesModelTest::testAnomalyModel() {
+BOOST_AUTO_TEST_CASE(testAnomalyModel) {
     // We test we can find the "odd anomaly out".
 
     using TDoubleSizePr = std::pair<double, std::size_t>;
@@ -1924,11 +1927,11 @@ void CTimeSeriesModelTest::testAnomalyModel() {
         LOG_DEBUG(<< "anomalies = " << core::CContainerPrinter::print(anomalyBuckets));
         LOG_DEBUG(<< "probabilities = "
                   << core::CContainerPrinter::print(anomalyProbabilities));
-        CPPUNIT_ASSERT(std::find(anomalyBuckets.begin(), anomalyBuckets.end(),
+        BOOST_TEST(std::find(anomalyBuckets.begin(), anomalyBuckets.end(),
                                  1905) != anomalyBuckets.end());
-        CPPUNIT_ASSERT(std::find(anomalyBuckets.begin(), anomalyBuckets.end(),
+        BOOST_TEST(std::find(anomalyBuckets.begin(), anomalyBuckets.end(),
                                  1906) != anomalyBuckets.end());
-        CPPUNIT_ASSERT(std::find(anomalyBuckets.begin(), anomalyBuckets.end(),
+        BOOST_TEST(std::find(anomalyBuckets.begin(), anomalyBuckets.end(),
                                  1907) != anomalyBuckets.end());
 
         //file << "v = " << core::CContainerPrinter::print(samples) << ";\n";
@@ -1994,11 +1997,11 @@ void CTimeSeriesModelTest::testAnomalyModel() {
         LOG_DEBUG(<< "anomalies = " << core::CContainerPrinter::print(anomalyBuckets));
         LOG_DEBUG(<< "probabilities = "
                   << core::CContainerPrinter::print(anomalyProbabilities));
-        CPPUNIT_ASSERT(std::find(anomalyBuckets.begin(), anomalyBuckets.end(),
+        BOOST_TEST(std::find(anomalyBuckets.begin(), anomalyBuckets.end(),
                                  1906) != anomalyBuckets.end());
-        CPPUNIT_ASSERT(std::find(anomalyBuckets.begin(), anomalyBuckets.end(),
+        BOOST_TEST(std::find(anomalyBuckets.begin(), anomalyBuckets.end(),
                                  1907) != anomalyBuckets.end());
-        CPPUNIT_ASSERT(std::find(anomalyBuckets.begin(), anomalyBuckets.end(),
+        BOOST_TEST(std::find(anomalyBuckets.begin(), anomalyBuckets.end(),
                                  1908) != anomalyBuckets.end());
 
         //file << "v = [";
@@ -2020,7 +2023,7 @@ void CTimeSeriesModelTest::testAnomalyModel() {
     }
 }
 
-void CTimeSeriesModelTest::testStepChangeDiscontinuities() {
+BOOST_AUTO_TEST_CASE(testStepChangeDiscontinuities) {
     // Test reinitialization of the residual model after detecting a
     // step change.
     //
@@ -2065,8 +2068,8 @@ void CTimeSeriesModelTest::testStepChangeDiscontinuities() {
         auto confidenceInterval = model.confidenceInterval(
             time, 50.0, maths_t::CUnitWeights::unit<TDouble2Vec>(1));
         LOG_DEBUG(<< "confidence interval = " << confidenceInterval);
-        CPPUNIT_ASSERT(std::fabs(confidenceInterval[1][0] - 40.0) < 1.0);
-        CPPUNIT_ASSERT(confidenceInterval[2][0] - confidenceInterval[0][0] < 4.0);
+        BOOST_TEST(std::fabs(confidenceInterval[1][0] - 40.0) < 1.0);
+        BOOST_TEST(confidenceInterval[2][0] - confidenceInterval[0][0] < 4.0);
     }
     LOG_DEBUG(<< "Univariate: Piecewise Constant");
     {
@@ -2129,14 +2132,14 @@ void CTimeSeriesModelTest::testStepChangeDiscontinuities() {
 
         double outOfBounds{0.0};
         for (std::size_t i = 0u; i < forecast.size(); ++i) {
-            CPPUNIT_ASSERT_DOUBLES_EQUAL(expected[i], forecast[i][1], 0.1 * expected[i]);
+            BOOST_CHECK_CLOSE_ABSOLUTE(expected[i], forecast[i][1], 0.1 * expected[i]);
             outOfBounds += static_cast<double>(expected[i] < forecast[i][0] ||
                                                expected[i] > forecast[i][2]);
         }
         double percentageOutOfBounds{100.0 * outOfBounds /
                                      static_cast<double>(forecast.size())};
         LOG_DEBUG(<< "% out-of-bounds = " << percentageOutOfBounds);
-        CPPUNIT_ASSERT(percentageOutOfBounds < 2.0);
+        BOOST_TEST(percentageOutOfBounds < 2.0);
     }
 
     LOG_DEBUG(<< "Univariate: Saw Tooth");
@@ -2208,11 +2211,11 @@ void CTimeSeriesModelTest::testStepChangeDiscontinuities() {
         double percentageOutOfBounds{100.0 * outOfBounds /
                                      static_cast<double>(forecast.size())};
         LOG_DEBUG(<< "% out-of-bounds = " << percentageOutOfBounds);
-        CPPUNIT_ASSERT(percentageOutOfBounds < 5.0);
+        BOOST_TEST(percentageOutOfBounds < 5.0);
     }
 }
 
-void CTimeSeriesModelTest::testLinearScaling() {
+BOOST_AUTO_TEST_CASE(testLinearScaling) {
     // We test that the predictions are good and the bounds do not
     // blow up after we:
     //   1) linearly scale down a periodic pattern,
@@ -2264,8 +2267,8 @@ void CTimeSeriesModelTest::testLinearScaling() {
         debug.addValueAndPrediction(time, sample, model);
         auto x = model.confidenceInterval(
             time, 90.0, maths_t::CUnitWeights::unit<TDouble2Vec>(1));
-        CPPUNIT_ASSERT(std::fabs(sample - x[1][0]) < 1.3 * std::sqrt(noiseVariance));
-        CPPUNIT_ASSERT(std::fabs(x[2][0] - x[0][0]) < 3.3 * std::sqrt(noiseVariance));
+        BOOST_TEST(std::fabs(sample - x[1][0]) < 1.3 * std::sqrt(noiseVariance));
+        BOOST_TEST(std::fabs(x[2][0] - x[0][0]) < 3.3 * std::sqrt(noiseVariance));
         time += bucketLength;
     }
 
@@ -2285,13 +2288,13 @@ void CTimeSeriesModelTest::testLinearScaling() {
         debug.addValueAndPrediction(time, sample, model);
         auto x = model.confidenceInterval(
             time, 90.0, maths_t::CUnitWeights::unit<TDouble2Vec>(1));
-        CPPUNIT_ASSERT(std::fabs(sample - x[1][0]) < 3.3 * std::sqrt(noiseVariance));
-        CPPUNIT_ASSERT(std::fabs(x[2][0] - x[0][0]) < 3.3 * std::sqrt(noiseVariance));
+        BOOST_TEST(std::fabs(sample - x[1][0]) < 3.3 * std::sqrt(noiseVariance));
+        BOOST_TEST(std::fabs(x[2][0] - x[0][0]) < 3.3 * std::sqrt(noiseVariance));
         time += bucketLength;
     }
 }
 
-void CTimeSeriesModelTest::testDaylightSaving() {
+BOOST_AUTO_TEST_CASE(testDaylightSaving) {
     TDouble2VecWeightsAryVec weight{maths_t::CUnitWeights::unit<TDouble2Vec>(1)};
     auto updateModel = [&](core_t::TTime time, double value,
                            maths::CUnivariateTimeSeriesModel& model) {
@@ -2337,11 +2340,11 @@ void CTimeSeriesModelTest::testDaylightSaving() {
         sample += 12.0 + 10.0 * smoothDaily(time + hour);
         updateModel(time, sample, model);
         debug.addValueAndPrediction(time, sample, model);
-        CPPUNIT_ASSERT_EQUAL(hour, model.trendModel().timeShift());
+        BOOST_CHECK_EQUAL(hour, model.trendModel().timeShift());
         auto x = model.confidenceInterval(
             time, 90.0, maths_t::CUnitWeights::unit<TDouble2Vec>(1));
-        CPPUNIT_ASSERT(std::fabs(sample - x[1][0]) < 3.6 * std::sqrt(noiseVariance));
-        CPPUNIT_ASSERT(std::fabs(x[2][0] - x[0][0]) < 3.7 * std::sqrt(noiseVariance));
+        BOOST_TEST(std::fabs(sample - x[1][0]) < 3.6 * std::sqrt(noiseVariance));
+        BOOST_TEST(std::fabs(x[2][0] - x[0][0]) < 3.7 * std::sqrt(noiseVariance));
         time += bucketLength;
     }
 
@@ -2359,16 +2362,16 @@ void CTimeSeriesModelTest::testDaylightSaving() {
         sample += 12.0 + 10.0 * smoothDaily(time);
         updateModel(time, sample, model);
         debug.addValueAndPrediction(time, sample, model);
-        CPPUNIT_ASSERT_EQUAL(core_t::TTime(0), model.trendModel().timeShift());
+        BOOST_CHECK_EQUAL(core_t::TTime(0), model.trendModel().timeShift());
         auto x = model.confidenceInterval(
             time, 90.0, maths_t::CUnitWeights::unit<TDouble2Vec>(1));
-        CPPUNIT_ASSERT(std::fabs(sample - x[1][0]) < 4.1 * std::sqrt(noiseVariance));
-        CPPUNIT_ASSERT(std::fabs(x[2][0] - x[0][0]) < 3.9 * std::sqrt(noiseVariance));
+        BOOST_TEST(std::fabs(sample - x[1][0]) < 4.1 * std::sqrt(noiseVariance));
+        BOOST_TEST(std::fabs(x[2][0] - x[0][0]) < 3.9 * std::sqrt(noiseVariance));
         time += bucketLength;
     }
 }
 
-void CTimeSeriesModelTest::testSkipAnomalyModelUpdate() {
+BOOST_AUTO_TEST_CASE(testSkipAnomalyModelUpdate) {
     // We test that when parameters dictate to skip updating the anomaly model
     // probabilities become smaller despite seeing many anomalies.
 
@@ -2414,8 +2417,8 @@ void CTimeSeriesModelTest::testSkipAnomalyModelUpdate() {
         LOG_DEBUG(<< "probabilities = " << core::CContainerPrinter::print(probabilities));
 
         // Assert probs are decreasing
-        CPPUNIT_ASSERT(probabilities[0] < 0.00001);
-        CPPUNIT_ASSERT(std::is_sorted(probabilities.rbegin(), probabilities.rend()));
+        BOOST_TEST(probabilities[0] < 0.00001);
+        BOOST_TEST(std::is_sorted(probabilities.rbegin(), probabilities.rend()));
     }
 
     LOG_DEBUG(<< "Multivariate");
@@ -2458,52 +2461,10 @@ void CTimeSeriesModelTest::testSkipAnomalyModelUpdate() {
         LOG_DEBUG(<< "probabilities = " << core::CContainerPrinter::print(probabilities));
 
         // Assert probs are decreasing
-        CPPUNIT_ASSERT(probabilities[0] < 0.00001);
-        CPPUNIT_ASSERT(std::is_sorted(probabilities.rbegin(), probabilities.rend()));
+        BOOST_TEST(probabilities[0] < 0.00001);
+        BOOST_TEST(std::is_sorted(probabilities.rbegin(), probabilities.rend()));
     }
 }
 
-CppUnit::Test* CTimeSeriesModelTest::suite() {
-    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CTimeSeriesModelTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CTimeSeriesModelTest>(
-        "CTimeSeriesModelTest::testClone", &CTimeSeriesModelTest::testClone));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CTimeSeriesModelTest>(
-        "CTimeSeriesModelTest::testMode", &CTimeSeriesModelTest::testMode));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CTimeSeriesModelTest>(
-        "CTimeSeriesModelTest::testAddBucketValue", &CTimeSeriesModelTest::testAddBucketValue));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CTimeSeriesModelTest>(
-        "CTimeSeriesModelTest::testAddSamples", &CTimeSeriesModelTest::testAddSamples));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CTimeSeriesModelTest>(
-        "CTimeSeriesModelTest::testPredict", &CTimeSeriesModelTest::testPredict));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CTimeSeriesModelTest>(
-        "CTimeSeriesModelTest::testProbability", &CTimeSeriesModelTest::testProbability));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CTimeSeriesModelTest>(
-        "CTimeSeriesModelTest::testWeights", &CTimeSeriesModelTest::testWeights));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CTimeSeriesModelTest>(
-        "CTimeSeriesModelTest::testMemoryUsage", &CTimeSeriesModelTest::testMemoryUsage));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CTimeSeriesModelTest>(
-        "CTimeSeriesModelTest::testPersist", &CTimeSeriesModelTest::testPersist));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CTimeSeriesModelTest>(
-        "CTimeSeriesModelTest::testUpgrade", &CTimeSeriesModelTest::testUpgrade));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CTimeSeriesModelTest>(
-        "CTimeSeriesModelTest::testAddSamplesWithCorrelations",
-        &CTimeSeriesModelTest::testAddSamplesWithCorrelations));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CTimeSeriesModelTest>(
-        "CTimeSeriesModelTest::testProbabilityWithCorrelations",
-        &CTimeSeriesModelTest::testProbabilityWithCorrelations));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CTimeSeriesModelTest>(
-        "CTimeSeriesModelTest::testAnomalyModel", &CTimeSeriesModelTest::testAnomalyModel));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CTimeSeriesModelTest>(
-        "CTimeSeriesModelTest::testStepChangeDiscontinuities",
-        &CTimeSeriesModelTest::testStepChangeDiscontinuities));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CTimeSeriesModelTest>(
-        "CTimeSeriesModelTest::testLinearScaling", &CTimeSeriesModelTest::testLinearScaling));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CTimeSeriesModelTest>(
-        "CTimeSeriesModelTest::testDaylightSaving", &CTimeSeriesModelTest::testDaylightSaving));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CTimeSeriesModelTest>(
-        "CTimeSeriesModelTest::testSkipAnomalyModelUpdate",
-        &CTimeSeriesModelTest::testSkipAnomalyModelUpdate));
-
-    return suiteOfTests;
-}
+BOOST_AUTO_TEST_SUITE_END()

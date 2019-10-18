@@ -4,8 +4,6 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
-#include "COrthogonaliserTest.h"
-
 #include <core/CContainerPrinter.h>
 #include <core/CLogger.h>
 
@@ -14,10 +12,14 @@
 #include <maths/COrthogonaliser.h>
 
 #include <test/CRandomNumbers.h>
+#include <test/BoostTestCloseAbsolute.h>
 
+#include <boost/test/unit_test.hpp>
 #include <boost/range.hpp>
 
 #include <vector>
+
+BOOST_AUTO_TEST_SUITE(COrthogonaliserTest)
 
 using namespace ml;
 
@@ -56,7 +58,7 @@ void debug(const TVector4Vec& x) {
 }
 
 double inner(const TDoubleVec& x, const TDoubleVec& y) {
-    CPPUNIT_ASSERT_EQUAL(x.size(), y.size());
+    BOOST_CHECK_EQUAL(x.size(), y.size());
     double result = 0.0;
     for (std::size_t i = 0u; i < x.size(); ++i) {
         result += x[i] * y[i];
@@ -73,7 +75,7 @@ TDoubleVec multiply(const TDoubleVec& x, double s) {
 }
 
 const TDoubleVec& add(TDoubleVec& x, const TDoubleVec& y) {
-    CPPUNIT_ASSERT_EQUAL(x.size(), y.size());
+    BOOST_CHECK_EQUAL(x.size(), y.size());
     for (std::size_t i = 0u; i < x.size(); ++i) {
         x[i] += y[i];
     }
@@ -81,7 +83,7 @@ const TDoubleVec& add(TDoubleVec& x, const TDoubleVec& y) {
 }
 
 const TDoubleVec& subtract(TDoubleVec& x, const TDoubleVec& y) {
-    CPPUNIT_ASSERT_EQUAL(x.size(), y.size());
+    BOOST_CHECK_EQUAL(x.size(), y.size());
     for (std::size_t i = 0u; i < x.size(); ++i) {
         x[i] -= y[i];
     }
@@ -89,7 +91,7 @@ const TDoubleVec& subtract(TDoubleVec& x, const TDoubleVec& y) {
 }
 }
 
-void COrthogonaliserTest::testOrthogonality() {
+BOOST_AUTO_TEST_CASE(testOrthogonality) {
     test::CRandomNumbers rng;
 
     {
@@ -113,7 +115,7 @@ void COrthogonaliserTest::testOrthogonality() {
                     if (t % 10 == 0) {
                         LOG_DEBUG(<< "x(i)' x(j) = " << xiDotxj);
                     }
-                    CPPUNIT_ASSERT_DOUBLES_EQUAL(0.0, xiDotxj, 1e-10);
+                    BOOST_CHECK_CLOSE_ABSOLUTE(0.0, xiDotxj, 1e-10);
                 }
             }
         }
@@ -135,14 +137,14 @@ void COrthogonaliserTest::testOrthogonality() {
                     if (t % 10 == 0) {
                         LOG_DEBUG(<< "x(i)' x(j) = " << xiDotxj);
                     }
-                    CPPUNIT_ASSERT_DOUBLES_EQUAL(0.0, xiDotxj, 1e-10);
+                    BOOST_CHECK_CLOSE_ABSOLUTE(0.0, xiDotxj, 1e-10);
                 }
             }
         }
     }
 }
 
-void COrthogonaliserTest::testNormalisation() {
+BOOST_AUTO_TEST_CASE(testNormalisation) {
     test::CRandomNumbers rng;
 
     {
@@ -165,7 +167,7 @@ void COrthogonaliserTest::testNormalisation() {
                 if (t % 10 == 0) {
                     LOG_DEBUG(<< "|| x(i) || = " << normxi);
                 }
-                CPPUNIT_ASSERT_DOUBLES_EQUAL(1.0, normxi, 1e-15);
+                BOOST_CHECK_CLOSE_ABSOLUTE(1.0, normxi, 1e-15);
             }
         }
     }
@@ -186,14 +188,14 @@ void COrthogonaliserTest::testNormalisation() {
                     if (t % 10 == 0) {
                         LOG_DEBUG(<< "|| x(i) || = " << normxi);
                     }
-                    CPPUNIT_ASSERT_DOUBLES_EQUAL(1.0, normxi, 1e-15);
+                    BOOST_CHECK_CLOSE_ABSOLUTE(1.0, normxi, 1e-15);
                 }
             }
         }
     }
 }
 
-void COrthogonaliserTest::testSpan() {
+BOOST_AUTO_TEST_CASE(testSpan) {
     test::CRandomNumbers rng;
 
     {
@@ -231,7 +233,7 @@ void COrthogonaliserTest::testSpan() {
                     LOG_DEBUG(<< "|| r || = " << normr);
                 }
 
-                CPPUNIT_ASSERT_DOUBLES_EQUAL(0.0, normr, 1e-12);
+                BOOST_CHECK_CLOSE_ABSOLUTE(0.0, normr, 1e-12);
             }
         }
     }
@@ -266,13 +268,13 @@ void COrthogonaliserTest::testSpan() {
                     LOG_DEBUG(<< "|| r || = " << normr);
                 }
 
-                CPPUNIT_ASSERT_DOUBLES_EQUAL(0.0, normr, 1e-12);
+                BOOST_CHECK_CLOSE_ABSOLUTE(0.0, normr, 1e-12);
             }
         }
     }
 }
 
-void COrthogonaliserTest::testEdgeCases() {
+BOOST_AUTO_TEST_CASE(testEdgeCases) {
     {
         LOG_DEBUG(<< "*** Test zero vector ***");
 
@@ -287,7 +289,7 @@ void COrthogonaliserTest::testEdgeCases() {
             maths::COrthogonaliser::orthonormalBasis(x);
             //debug(x);
 
-            CPPUNIT_ASSERT_EQUAL(std::size_t(2), x.size());
+            BOOST_CHECK_EQUAL(std::size_t(2), x.size());
         } while (std::next_permutation(p, p + boost::size(p)));
     }
     {
@@ -310,22 +312,10 @@ void COrthogonaliserTest::testEdgeCases() {
             maths::COrthogonaliser::orthonormalBasis(x);
             //debug(x);
 
-            CPPUNIT_ASSERT_EQUAL(std::size_t(3), x.size());
+            BOOST_CHECK_EQUAL(std::size_t(3), x.size());
         } while (std::next_permutation(p, p + boost::size(p)));
     }
 }
 
-CppUnit::Test* COrthogonaliserTest::suite() {
-    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("COrthogonaliserTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<COrthogonaliserTest>(
-        "COrthogonaliserTest::testOrthogonality", &COrthogonaliserTest::testOrthogonality));
-    suiteOfTests->addTest(new CppUnit::TestCaller<COrthogonaliserTest>(
-        "COrthogonaliserTest::testNormalisation", &COrthogonaliserTest::testNormalisation));
-    suiteOfTests->addTest(new CppUnit::TestCaller<COrthogonaliserTest>(
-        "COrthogonaliserTest::testSpan", &COrthogonaliserTest::testSpan));
-    suiteOfTests->addTest(new CppUnit::TestCaller<COrthogonaliserTest>(
-        "COrthogonaliserTest::testEdgeCases", &COrthogonaliserTest::testEdgeCases));
-
-    return suiteOfTests;
-}
+BOOST_AUTO_TEST_SUITE_END()

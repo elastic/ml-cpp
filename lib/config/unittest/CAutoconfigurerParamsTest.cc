@@ -4,15 +4,17 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
-#include "CAutoconfigurerParamsTest.h"
-
 #include <core/CLogger.h>
 
 #include <config/CAutoconfigurerParams.h>
 
+#include <boost/test/unit_test.hpp>
+
+BOOST_AUTO_TEST_SUITE(CAutoconfigurerParamsTest)
+
 using namespace ml;
 
-void CAutoconfigurerParamsTest::testDefaults() {
+BOOST_AUTO_TEST_CASE(testDefaults) {
     config::CAutoconfigurerParams params("time", "", false, false);
     std::string actual = params.print();
     std::string expected =
@@ -60,10 +62,10 @@ void CAutoconfigurerParamsTest::testDefaults() {
         "  LowDistinctCountForInfoContent = 500000.000000\n"
         "  MinimumDistinctCountForInfoContent = 5000.000000\n";
     LOG_DEBUG(<< "parameters =\n" << actual);
-    CPPUNIT_ASSERT_EQUAL(expected, actual);
+    BOOST_CHECK_EQUAL(expected, actual);
 }
 
-void CAutoconfigurerParamsTest::testInit() {
+BOOST_AUTO_TEST_CASE(testInit) {
     config::CAutoconfigurerParams params("time", "", false, false);
 
     params.init("testfiles/parameters.conf");
@@ -113,21 +115,13 @@ void CAutoconfigurerParamsTest::testInit() {
         "  LowDistinctCountForInfoContent = 500000.000000\n"
         "  MinimumDistinctCountForInfoContent = 5000.000000\n";
     LOG_DEBUG(<< "parameters =\n" << actual);
-    CPPUNIT_ASSERT_EQUAL(expected, actual);
+    BOOST_CHECK_EQUAL(expected, actual);
 
     params.init("testfiles/badparameters.conf");
     actual = params.print();
     LOG_DEBUG(<< "parameters =\n" << actual);
-    CPPUNIT_ASSERT_EQUAL(expected, actual);
+    BOOST_CHECK_EQUAL(expected, actual);
 }
 
-CppUnit::Test* CAutoconfigurerParamsTest::suite() {
-    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CAutoconfigurerParamsTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CAutoconfigurerParamsTest>(
-        "CAutoconfigurerParamsTest::testDefaults", &CAutoconfigurerParamsTest::testDefaults));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CAutoconfigurerParamsTest>(
-        "CAutoconfigurerParamsTest::testInit", &CAutoconfigurerParamsTest::testInit));
-
-    return suiteOfTests;
-}
+BOOST_AUTO_TEST_SUITE_END()

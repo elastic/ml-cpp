@@ -4,8 +4,6 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
-#include "CIntegrationTest.h"
-
 #include <core/CLogger.h>
 
 #include <maths/CCompositeFunctions.h>
@@ -14,7 +12,9 @@
 #include <maths/CLinearAlgebraTools.h>
 
 #include <test/CRandomNumbers.h>
+#include <test/BoostTestCloseAbsolute.h>
 
+#include <boost/test/unit_test.hpp>
 #include <boost/math/distributions/normal.hpp>
 #include <boost/range.hpp>
 
@@ -22,6 +22,8 @@
 #include <cmath>
 #include <functional>
 #include <numeric>
+
+BOOST_AUTO_TEST_SUITE(CIntegrationTest)
 
 using namespace ml;
 using namespace maths;
@@ -244,7 +246,7 @@ private:
 };
 }
 
-void CIntegrationTest::testAllSingleVariate() {
+BOOST_AUTO_TEST_CASE(testAllSingleVariate) {
     // Test that "low" order polynomials are integrated exactly
     // (as they should be for a higher order quadrature).
 
@@ -277,45 +279,45 @@ void CIntegrationTest::testAllSingleVariate() {
 
                 double actual;
 
-                CPPUNIT_ASSERT(CIntegration::gaussLegendre<CIntegration::OrderOne>(
+                BOOST_TEST(CIntegration::gaussLegendre<CIntegration::OrderOne>(
                     f, ranges[i][0], ranges[i][1], actual));
-                CPPUNIT_ASSERT_DOUBLES_EQUAL(expected, actual, EPS);
+                BOOST_CHECK_CLOSE_ABSOLUTE(expected, actual, EPS);
 
-                CPPUNIT_ASSERT(CIntegration::gaussLegendre<CIntegration::OrderTwo>(
+                BOOST_TEST(CIntegration::gaussLegendre<CIntegration::OrderTwo>(
                     f, ranges[i][0], ranges[i][1], actual));
-                CPPUNIT_ASSERT_DOUBLES_EQUAL(expected, actual, EPS);
+                BOOST_CHECK_CLOSE_ABSOLUTE(expected, actual, EPS);
 
-                CPPUNIT_ASSERT(CIntegration::gaussLegendre<CIntegration::OrderThree>(
+                BOOST_TEST(CIntegration::gaussLegendre<CIntegration::OrderThree>(
                     f, ranges[i][0], ranges[i][1], actual));
-                CPPUNIT_ASSERT_DOUBLES_EQUAL(expected, actual, EPS);
+                BOOST_CHECK_CLOSE_ABSOLUTE(expected, actual, EPS);
 
-                CPPUNIT_ASSERT(CIntegration::gaussLegendre<CIntegration::OrderFour>(
+                BOOST_TEST(CIntegration::gaussLegendre<CIntegration::OrderFour>(
                     f, ranges[i][0], ranges[i][1], actual));
-                CPPUNIT_ASSERT_DOUBLES_EQUAL(expected, actual, EPS);
+                BOOST_CHECK_CLOSE_ABSOLUTE(expected, actual, EPS);
 
-                CPPUNIT_ASSERT(CIntegration::gaussLegendre<CIntegration::OrderFive>(
+                BOOST_TEST(CIntegration::gaussLegendre<CIntegration::OrderFive>(
                     f, ranges[i][0], ranges[i][1], actual));
-                CPPUNIT_ASSERT_DOUBLES_EQUAL(expected, actual, EPS);
+                BOOST_CHECK_CLOSE_ABSOLUTE(expected, actual, EPS);
 
-                CPPUNIT_ASSERT(CIntegration::gaussLegendre<CIntegration::OrderSix>(
+                BOOST_TEST(CIntegration::gaussLegendre<CIntegration::OrderSix>(
                     f, ranges[i][0], ranges[i][1], actual));
-                CPPUNIT_ASSERT_DOUBLES_EQUAL(expected, actual, EPS);
+                BOOST_CHECK_CLOSE_ABSOLUTE(expected, actual, EPS);
 
-                CPPUNIT_ASSERT(CIntegration::gaussLegendre<CIntegration::OrderSeven>(
+                BOOST_TEST(CIntegration::gaussLegendre<CIntegration::OrderSeven>(
                     f, ranges[i][0], ranges[i][1], actual));
-                CPPUNIT_ASSERT_DOUBLES_EQUAL(expected, actual, EPS);
+                BOOST_CHECK_CLOSE_ABSOLUTE(expected, actual, EPS);
 
-                CPPUNIT_ASSERT(CIntegration::gaussLegendre<CIntegration::OrderEight>(
+                BOOST_TEST(CIntegration::gaussLegendre<CIntegration::OrderEight>(
                     f, ranges[i][0], ranges[i][1], actual));
-                CPPUNIT_ASSERT_DOUBLES_EQUAL(expected, actual, EPS);
+                BOOST_CHECK_CLOSE_ABSOLUTE(expected, actual, EPS);
 
-                CPPUNIT_ASSERT(CIntegration::gaussLegendre<CIntegration::OrderNine>(
+                BOOST_TEST(CIntegration::gaussLegendre<CIntegration::OrderNine>(
                     f, ranges[i][0], ranges[i][1], actual));
-                CPPUNIT_ASSERT_DOUBLES_EQUAL(expected, actual, EPS);
+                BOOST_CHECK_CLOSE_ABSOLUTE(expected, actual, EPS);
 
-                CPPUNIT_ASSERT(CIntegration::gaussLegendre<CIntegration::OrderTen>(
+                BOOST_TEST(CIntegration::gaussLegendre<CIntegration::OrderTen>(
                     f, ranges[i][0], ranges[i][1], actual));
-                CPPUNIT_ASSERT_DOUBLES_EQUAL(expected, actual, EPS);
+                BOOST_CHECK_CLOSE_ABSOLUTE(expected, actual, EPS);
             }
         }
     }
@@ -334,45 +336,45 @@ void CIntegrationTest::testAllSingleVariate() {
 
                 double actual;
 
-                CPPUNIT_ASSERT(CIntegration::gaussLegendre<CIntegration::OrderOne>(
+                BOOST_TEST(CIntegration::gaussLegendre<CIntegration::OrderOne>(
                     f, ranges[i][0], ranges[i][1], actual));
-                CPPUNIT_ASSERT_DOUBLES_EQUAL(expected, actual, EPS);
+                BOOST_CHECK_CLOSE_ABSOLUTE(expected, actual, EPS);
 
-                CPPUNIT_ASSERT(CIntegration::gaussLegendre<CIntegration::OrderTwo>(
+                BOOST_TEST(CIntegration::gaussLegendre<CIntegration::OrderTwo>(
                     f, ranges[i][0], ranges[i][1], actual));
-                CPPUNIT_ASSERT_DOUBLES_EQUAL(expected, actual, EPS);
+                BOOST_CHECK_CLOSE_ABSOLUTE(expected, actual, EPS);
 
-                CPPUNIT_ASSERT(CIntegration::gaussLegendre<CIntegration::OrderThree>(
+                BOOST_TEST(CIntegration::gaussLegendre<CIntegration::OrderThree>(
                     f, ranges[i][0], ranges[i][1], actual));
-                CPPUNIT_ASSERT_DOUBLES_EQUAL(expected, actual, EPS);
+                BOOST_CHECK_CLOSE_ABSOLUTE(expected, actual, EPS);
 
-                CPPUNIT_ASSERT(CIntegration::gaussLegendre<CIntegration::OrderFour>(
+                BOOST_TEST(CIntegration::gaussLegendre<CIntegration::OrderFour>(
                     f, ranges[i][0], ranges[i][1], actual));
-                CPPUNIT_ASSERT_DOUBLES_EQUAL(expected, actual, EPS);
+                BOOST_CHECK_CLOSE_ABSOLUTE(expected, actual, EPS);
 
-                CPPUNIT_ASSERT(CIntegration::gaussLegendre<CIntegration::OrderFive>(
+                BOOST_TEST(CIntegration::gaussLegendre<CIntegration::OrderFive>(
                     f, ranges[i][0], ranges[i][1], actual));
-                CPPUNIT_ASSERT_DOUBLES_EQUAL(expected, actual, EPS);
+                BOOST_CHECK_CLOSE_ABSOLUTE(expected, actual, EPS);
 
-                CPPUNIT_ASSERT(CIntegration::gaussLegendre<CIntegration::OrderSix>(
+                BOOST_TEST(CIntegration::gaussLegendre<CIntegration::OrderSix>(
                     f, ranges[i][0], ranges[i][1], actual));
-                CPPUNIT_ASSERT_DOUBLES_EQUAL(expected, actual, EPS);
+                BOOST_CHECK_CLOSE_ABSOLUTE(expected, actual, EPS);
 
-                CPPUNIT_ASSERT(CIntegration::gaussLegendre<CIntegration::OrderSeven>(
+                BOOST_TEST(CIntegration::gaussLegendre<CIntegration::OrderSeven>(
                     f, ranges[i][0], ranges[i][1], actual));
-                CPPUNIT_ASSERT_DOUBLES_EQUAL(expected, actual, EPS);
+                BOOST_CHECK_CLOSE_ABSOLUTE(expected, actual, EPS);
 
-                CPPUNIT_ASSERT(CIntegration::gaussLegendre<CIntegration::OrderEight>(
+                BOOST_TEST(CIntegration::gaussLegendre<CIntegration::OrderEight>(
                     f, ranges[i][0], ranges[i][1], actual));
-                CPPUNIT_ASSERT_DOUBLES_EQUAL(expected, actual, EPS);
+                BOOST_CHECK_CLOSE_ABSOLUTE(expected, actual, EPS);
 
-                CPPUNIT_ASSERT(CIntegration::gaussLegendre<CIntegration::OrderNine>(
+                BOOST_TEST(CIntegration::gaussLegendre<CIntegration::OrderNine>(
                     f, ranges[i][0], ranges[i][1], actual));
-                CPPUNIT_ASSERT_DOUBLES_EQUAL(expected, actual, EPS);
+                BOOST_CHECK_CLOSE_ABSOLUTE(expected, actual, EPS);
 
-                CPPUNIT_ASSERT(CIntegration::gaussLegendre<CIntegration::OrderTen>(
+                BOOST_TEST(CIntegration::gaussLegendre<CIntegration::OrderTen>(
                     f, ranges[i][0], ranges[i][1], actual));
-                CPPUNIT_ASSERT_DOUBLES_EQUAL(expected, actual, EPS);
+                BOOST_CHECK_CLOSE_ABSOLUTE(expected, actual, EPS);
             }
         }
     }
@@ -394,41 +396,41 @@ void CIntegrationTest::testAllSingleVariate() {
 
                 double actual;
 
-                CPPUNIT_ASSERT(CIntegration::gaussLegendre<CIntegration::OrderTwo>(
+                BOOST_TEST(CIntegration::gaussLegendre<CIntegration::OrderTwo>(
                     f, ranges[i][0], ranges[i][1], actual));
-                CPPUNIT_ASSERT_DOUBLES_EQUAL(expected, actual, EPS);
+                BOOST_CHECK_CLOSE_ABSOLUTE(expected, actual, EPS);
 
-                CPPUNIT_ASSERT(CIntegration::gaussLegendre<CIntegration::OrderThree>(
+                BOOST_TEST(CIntegration::gaussLegendre<CIntegration::OrderThree>(
                     f, ranges[i][0], ranges[i][1], actual));
-                CPPUNIT_ASSERT_DOUBLES_EQUAL(expected, actual, EPS);
+                BOOST_CHECK_CLOSE_ABSOLUTE(expected, actual, EPS);
 
-                CPPUNIT_ASSERT(CIntegration::gaussLegendre<CIntegration::OrderFour>(
+                BOOST_TEST(CIntegration::gaussLegendre<CIntegration::OrderFour>(
                     f, ranges[i][0], ranges[i][1], actual));
-                CPPUNIT_ASSERT_DOUBLES_EQUAL(expected, actual, EPS);
+                BOOST_CHECK_CLOSE_ABSOLUTE(expected, actual, EPS);
 
-                CPPUNIT_ASSERT(CIntegration::gaussLegendre<CIntegration::OrderFive>(
+                BOOST_TEST(CIntegration::gaussLegendre<CIntegration::OrderFive>(
                     f, ranges[i][0], ranges[i][1], actual));
-                CPPUNIT_ASSERT_DOUBLES_EQUAL(expected, actual, EPS);
+                BOOST_CHECK_CLOSE_ABSOLUTE(expected, actual, EPS);
 
-                CPPUNIT_ASSERT(CIntegration::gaussLegendre<CIntegration::OrderSix>(
+                BOOST_TEST(CIntegration::gaussLegendre<CIntegration::OrderSix>(
                     f, ranges[i][0], ranges[i][1], actual));
-                CPPUNIT_ASSERT_DOUBLES_EQUAL(expected, actual, EPS);
+                BOOST_CHECK_CLOSE_ABSOLUTE(expected, actual, EPS);
 
-                CPPUNIT_ASSERT(CIntegration::gaussLegendre<CIntegration::OrderSeven>(
+                BOOST_TEST(CIntegration::gaussLegendre<CIntegration::OrderSeven>(
                     f, ranges[i][0], ranges[i][1], actual));
-                CPPUNIT_ASSERT_DOUBLES_EQUAL(expected, actual, EPS);
+                BOOST_CHECK_CLOSE_ABSOLUTE(expected, actual, EPS);
 
-                CPPUNIT_ASSERT(CIntegration::gaussLegendre<CIntegration::OrderEight>(
+                BOOST_TEST(CIntegration::gaussLegendre<CIntegration::OrderEight>(
                     f, ranges[i][0], ranges[i][1], actual));
-                CPPUNIT_ASSERT_DOUBLES_EQUAL(expected, actual, EPS);
+                BOOST_CHECK_CLOSE_ABSOLUTE(expected, actual, EPS);
 
-                CPPUNIT_ASSERT(CIntegration::gaussLegendre<CIntegration::OrderNine>(
+                BOOST_TEST(CIntegration::gaussLegendre<CIntegration::OrderNine>(
                     f, ranges[i][0], ranges[i][1], actual));
-                CPPUNIT_ASSERT_DOUBLES_EQUAL(expected, actual, EPS);
+                BOOST_CHECK_CLOSE_ABSOLUTE(expected, actual, EPS);
 
-                CPPUNIT_ASSERT(CIntegration::gaussLegendre<CIntegration::OrderTen>(
+                BOOST_TEST(CIntegration::gaussLegendre<CIntegration::OrderTen>(
                     f, ranges[i][0], ranges[i][1], actual));
-                CPPUNIT_ASSERT_DOUBLES_EQUAL(expected, actual, EPS);
+                BOOST_CHECK_CLOSE_ABSOLUTE(expected, actual, EPS);
             }
         }
     }
@@ -450,37 +452,37 @@ void CIntegrationTest::testAllSingleVariate() {
 
                 double actual;
 
-                CPPUNIT_ASSERT(CIntegration::gaussLegendre<CIntegration::OrderThree>(
+                BOOST_TEST(CIntegration::gaussLegendre<CIntegration::OrderThree>(
                     f, ranges[i][0], ranges[i][1], actual));
-                CPPUNIT_ASSERT_DOUBLES_EQUAL(expected, actual, EPS);
+                BOOST_CHECK_CLOSE_ABSOLUTE(expected, actual, EPS);
 
-                CPPUNIT_ASSERT(CIntegration::gaussLegendre<CIntegration::OrderFour>(
+                BOOST_TEST(CIntegration::gaussLegendre<CIntegration::OrderFour>(
                     f, ranges[i][0], ranges[i][1], actual));
-                CPPUNIT_ASSERT_DOUBLES_EQUAL(expected, actual, EPS);
+                BOOST_CHECK_CLOSE_ABSOLUTE(expected, actual, EPS);
 
-                CPPUNIT_ASSERT(CIntegration::gaussLegendre<CIntegration::OrderFive>(
+                BOOST_TEST(CIntegration::gaussLegendre<CIntegration::OrderFive>(
                     f, ranges[i][0], ranges[i][1], actual));
-                CPPUNIT_ASSERT_DOUBLES_EQUAL(expected, actual, EPS);
+                BOOST_CHECK_CLOSE_ABSOLUTE(expected, actual, EPS);
 
-                CPPUNIT_ASSERT(CIntegration::gaussLegendre<CIntegration::OrderSix>(
+                BOOST_TEST(CIntegration::gaussLegendre<CIntegration::OrderSix>(
                     f, ranges[i][0], ranges[i][1], actual));
-                CPPUNIT_ASSERT_DOUBLES_EQUAL(expected, actual, EPS);
+                BOOST_CHECK_CLOSE_ABSOLUTE(expected, actual, EPS);
 
-                CPPUNIT_ASSERT(CIntegration::gaussLegendre<CIntegration::OrderSeven>(
+                BOOST_TEST(CIntegration::gaussLegendre<CIntegration::OrderSeven>(
                     f, ranges[i][0], ranges[i][1], actual));
-                CPPUNIT_ASSERT_DOUBLES_EQUAL(expected, actual, EPS);
+                BOOST_CHECK_CLOSE_ABSOLUTE(expected, actual, EPS);
 
-                CPPUNIT_ASSERT(CIntegration::gaussLegendre<CIntegration::OrderEight>(
+                BOOST_TEST(CIntegration::gaussLegendre<CIntegration::OrderEight>(
                     f, ranges[i][0], ranges[i][1], actual));
-                CPPUNIT_ASSERT_DOUBLES_EQUAL(expected, actual, EPS);
+                BOOST_CHECK_CLOSE_ABSOLUTE(expected, actual, EPS);
 
-                CPPUNIT_ASSERT(CIntegration::gaussLegendre<CIntegration::OrderNine>(
+                BOOST_TEST(CIntegration::gaussLegendre<CIntegration::OrderNine>(
                     f, ranges[i][0], ranges[i][1], actual));
-                CPPUNIT_ASSERT_DOUBLES_EQUAL(expected, actual, EPS);
+                BOOST_CHECK_CLOSE_ABSOLUTE(expected, actual, EPS);
 
-                CPPUNIT_ASSERT(CIntegration::gaussLegendre<CIntegration::OrderTen>(
+                BOOST_TEST(CIntegration::gaussLegendre<CIntegration::OrderTen>(
                     f, ranges[i][0], ranges[i][1], actual));
-                CPPUNIT_ASSERT_DOUBLES_EQUAL(expected, actual, EPS);
+                BOOST_CHECK_CLOSE_ABSOLUTE(expected, actual, EPS);
             }
         }
     }
@@ -502,33 +504,33 @@ void CIntegrationTest::testAllSingleVariate() {
 
                 double actual;
 
-                CPPUNIT_ASSERT(CIntegration::gaussLegendre<CIntegration::OrderFour>(
+                BOOST_TEST(CIntegration::gaussLegendre<CIntegration::OrderFour>(
                     f, ranges[i][0], ranges[i][1], actual));
-                CPPUNIT_ASSERT_DOUBLES_EQUAL(expected, actual, EPS);
+                BOOST_CHECK_CLOSE_ABSOLUTE(expected, actual, EPS);
 
-                CPPUNIT_ASSERT(CIntegration::gaussLegendre<CIntegration::OrderFive>(
+                BOOST_TEST(CIntegration::gaussLegendre<CIntegration::OrderFive>(
                     f, ranges[i][0], ranges[i][1], actual));
-                CPPUNIT_ASSERT_DOUBLES_EQUAL(expected, actual, EPS);
+                BOOST_CHECK_CLOSE_ABSOLUTE(expected, actual, EPS);
 
-                CPPUNIT_ASSERT(CIntegration::gaussLegendre<CIntegration::OrderSix>(
+                BOOST_TEST(CIntegration::gaussLegendre<CIntegration::OrderSix>(
                     f, ranges[i][0], ranges[i][1], actual));
-                CPPUNIT_ASSERT_DOUBLES_EQUAL(expected, actual, EPS);
+                BOOST_CHECK_CLOSE_ABSOLUTE(expected, actual, EPS);
 
-                CPPUNIT_ASSERT(CIntegration::gaussLegendre<CIntegration::OrderSeven>(
+                BOOST_TEST(CIntegration::gaussLegendre<CIntegration::OrderSeven>(
                     f, ranges[i][0], ranges[i][1], actual));
-                CPPUNIT_ASSERT_DOUBLES_EQUAL(expected, actual, EPS);
+                BOOST_CHECK_CLOSE_ABSOLUTE(expected, actual, EPS);
 
-                CPPUNIT_ASSERT(CIntegration::gaussLegendre<CIntegration::OrderEight>(
+                BOOST_TEST(CIntegration::gaussLegendre<CIntegration::OrderEight>(
                     f, ranges[i][0], ranges[i][1], actual));
-                CPPUNIT_ASSERT_DOUBLES_EQUAL(expected, actual, EPS);
+                BOOST_CHECK_CLOSE_ABSOLUTE(expected, actual, EPS);
 
-                CPPUNIT_ASSERT(CIntegration::gaussLegendre<CIntegration::OrderNine>(
+                BOOST_TEST(CIntegration::gaussLegendre<CIntegration::OrderNine>(
                     f, ranges[i][0], ranges[i][1], actual));
-                CPPUNIT_ASSERT_DOUBLES_EQUAL(expected, actual, EPS);
+                BOOST_CHECK_CLOSE_ABSOLUTE(expected, actual, EPS);
 
-                CPPUNIT_ASSERT(CIntegration::gaussLegendre<CIntegration::OrderTen>(
+                BOOST_TEST(CIntegration::gaussLegendre<CIntegration::OrderTen>(
                     f, ranges[i][0], ranges[i][1], actual));
-                CPPUNIT_ASSERT_DOUBLES_EQUAL(expected, actual, EPS);
+                BOOST_CHECK_CLOSE_ABSOLUTE(expected, actual, EPS);
             }
         }
     }
@@ -550,29 +552,29 @@ void CIntegrationTest::testAllSingleVariate() {
 
                 double actual;
 
-                CPPUNIT_ASSERT(CIntegration::gaussLegendre<CIntegration::OrderFive>(
+                BOOST_TEST(CIntegration::gaussLegendre<CIntegration::OrderFive>(
                     f, ranges[i][0], ranges[i][1], actual));
-                CPPUNIT_ASSERT_DOUBLES_EQUAL(expected, actual, EPS);
+                BOOST_CHECK_CLOSE_ABSOLUTE(expected, actual, EPS);
 
-                CPPUNIT_ASSERT(CIntegration::gaussLegendre<CIntegration::OrderSix>(
+                BOOST_TEST(CIntegration::gaussLegendre<CIntegration::OrderSix>(
                     f, ranges[i][0], ranges[i][1], actual));
-                CPPUNIT_ASSERT_DOUBLES_EQUAL(expected, actual, EPS);
+                BOOST_CHECK_CLOSE_ABSOLUTE(expected, actual, EPS);
 
-                CPPUNIT_ASSERT(CIntegration::gaussLegendre<CIntegration::OrderSeven>(
+                BOOST_TEST(CIntegration::gaussLegendre<CIntegration::OrderSeven>(
                     f, ranges[i][0], ranges[i][1], actual));
-                CPPUNIT_ASSERT_DOUBLES_EQUAL(expected, actual, EPS);
+                BOOST_CHECK_CLOSE_ABSOLUTE(expected, actual, EPS);
 
-                CPPUNIT_ASSERT(CIntegration::gaussLegendre<CIntegration::OrderEight>(
+                BOOST_TEST(CIntegration::gaussLegendre<CIntegration::OrderEight>(
                     f, ranges[i][0], ranges[i][1], actual));
-                CPPUNIT_ASSERT_DOUBLES_EQUAL(expected, actual, EPS);
+                BOOST_CHECK_CLOSE_ABSOLUTE(expected, actual, EPS);
 
-                CPPUNIT_ASSERT(CIntegration::gaussLegendre<CIntegration::OrderNine>(
+                BOOST_TEST(CIntegration::gaussLegendre<CIntegration::OrderNine>(
                     f, ranges[i][0], ranges[i][1], actual));
-                CPPUNIT_ASSERT_DOUBLES_EQUAL(expected, actual, EPS);
+                BOOST_CHECK_CLOSE_ABSOLUTE(expected, actual, EPS);
 
-                CPPUNIT_ASSERT(CIntegration::gaussLegendre<CIntegration::OrderTen>(
+                BOOST_TEST(CIntegration::gaussLegendre<CIntegration::OrderTen>(
                     f, ranges[i][0], ranges[i][1], actual));
-                CPPUNIT_ASSERT_DOUBLES_EQUAL(expected, actual, EPS);
+                BOOST_CHECK_CLOSE_ABSOLUTE(expected, actual, EPS);
             }
         }
     }
@@ -594,25 +596,25 @@ void CIntegrationTest::testAllSingleVariate() {
 
                 double actual;
 
-                CPPUNIT_ASSERT(CIntegration::gaussLegendre<CIntegration::OrderSix>(
+                BOOST_TEST(CIntegration::gaussLegendre<CIntegration::OrderSix>(
                     f, ranges[i][0], ranges[i][1], actual));
-                CPPUNIT_ASSERT_DOUBLES_EQUAL(expected, actual, EPS);
+                BOOST_CHECK_CLOSE_ABSOLUTE(expected, actual, EPS);
 
-                CPPUNIT_ASSERT(CIntegration::gaussLegendre<CIntegration::OrderSeven>(
+                BOOST_TEST(CIntegration::gaussLegendre<CIntegration::OrderSeven>(
                     f, ranges[i][0], ranges[i][1], actual));
-                CPPUNIT_ASSERT_DOUBLES_EQUAL(expected, actual, EPS);
+                BOOST_CHECK_CLOSE_ABSOLUTE(expected, actual, EPS);
 
-                CPPUNIT_ASSERT(CIntegration::gaussLegendre<CIntegration::OrderEight>(
+                BOOST_TEST(CIntegration::gaussLegendre<CIntegration::OrderEight>(
                     f, ranges[i][0], ranges[i][1], actual));
-                CPPUNIT_ASSERT_DOUBLES_EQUAL(expected, actual, EPS);
+                BOOST_CHECK_CLOSE_ABSOLUTE(expected, actual, EPS);
 
-                CPPUNIT_ASSERT(CIntegration::gaussLegendre<CIntegration::OrderNine>(
+                BOOST_TEST(CIntegration::gaussLegendre<CIntegration::OrderNine>(
                     f, ranges[i][0], ranges[i][1], actual));
-                CPPUNIT_ASSERT_DOUBLES_EQUAL(expected, actual, EPS);
+                BOOST_CHECK_CLOSE_ABSOLUTE(expected, actual, EPS);
 
-                CPPUNIT_ASSERT(CIntegration::gaussLegendre<CIntegration::OrderTen>(
+                BOOST_TEST(CIntegration::gaussLegendre<CIntegration::OrderTen>(
                     f, ranges[i][0], ranges[i][1], actual));
-                CPPUNIT_ASSERT_DOUBLES_EQUAL(expected, actual, EPS);
+                BOOST_CHECK_CLOSE_ABSOLUTE(expected, actual, EPS);
             }
         }
     }
@@ -634,21 +636,21 @@ void CIntegrationTest::testAllSingleVariate() {
 
                 double actual;
 
-                CPPUNIT_ASSERT(CIntegration::gaussLegendre<CIntegration::OrderSeven>(
+                BOOST_TEST(CIntegration::gaussLegendre<CIntegration::OrderSeven>(
                     f, ranges[i][0], ranges[i][1], actual));
-                CPPUNIT_ASSERT_DOUBLES_EQUAL(expected, actual, EPS);
+                BOOST_CHECK_CLOSE_ABSOLUTE(expected, actual, EPS);
 
-                CPPUNIT_ASSERT(CIntegration::gaussLegendre<CIntegration::OrderEight>(
+                BOOST_TEST(CIntegration::gaussLegendre<CIntegration::OrderEight>(
                     f, ranges[i][0], ranges[i][1], actual));
-                CPPUNIT_ASSERT_DOUBLES_EQUAL(expected, actual, EPS);
+                BOOST_CHECK_CLOSE_ABSOLUTE(expected, actual, EPS);
 
-                CPPUNIT_ASSERT(CIntegration::gaussLegendre<CIntegration::OrderNine>(
+                BOOST_TEST(CIntegration::gaussLegendre<CIntegration::OrderNine>(
                     f, ranges[i][0], ranges[i][1], actual));
-                CPPUNIT_ASSERT_DOUBLES_EQUAL(expected, actual, EPS);
+                BOOST_CHECK_CLOSE_ABSOLUTE(expected, actual, EPS);
 
-                CPPUNIT_ASSERT(CIntegration::gaussLegendre<CIntegration::OrderTen>(
+                BOOST_TEST(CIntegration::gaussLegendre<CIntegration::OrderTen>(
                     f, ranges[i][0], ranges[i][1], actual));
-                CPPUNIT_ASSERT_DOUBLES_EQUAL(expected, actual, EPS);
+                BOOST_CHECK_CLOSE_ABSOLUTE(expected, actual, EPS);
             }
         }
     }
@@ -670,17 +672,17 @@ void CIntegrationTest::testAllSingleVariate() {
 
                 double actual;
 
-                CPPUNIT_ASSERT(CIntegration::gaussLegendre<CIntegration::OrderEight>(
+                BOOST_TEST(CIntegration::gaussLegendre<CIntegration::OrderEight>(
                     f, ranges[i][0], ranges[i][1], actual));
-                CPPUNIT_ASSERT_DOUBLES_EQUAL(expected, actual, EPS);
+                BOOST_CHECK_CLOSE_ABSOLUTE(expected, actual, EPS);
 
-                CPPUNIT_ASSERT(CIntegration::gaussLegendre<CIntegration::OrderNine>(
+                BOOST_TEST(CIntegration::gaussLegendre<CIntegration::OrderNine>(
                     f, ranges[i][0], ranges[i][1], actual));
-                CPPUNIT_ASSERT_DOUBLES_EQUAL(expected, actual, EPS);
+                BOOST_CHECK_CLOSE_ABSOLUTE(expected, actual, EPS);
 
-                CPPUNIT_ASSERT(CIntegration::gaussLegendre<CIntegration::OrderTen>(
+                BOOST_TEST(CIntegration::gaussLegendre<CIntegration::OrderTen>(
                     f, ranges[i][0], ranges[i][1], actual));
-                CPPUNIT_ASSERT_DOUBLES_EQUAL(expected, actual, EPS);
+                BOOST_CHECK_CLOSE_ABSOLUTE(expected, actual, EPS);
             }
         }
     }
@@ -703,13 +705,13 @@ void CIntegrationTest::testAllSingleVariate() {
 
                 double actual;
 
-                CPPUNIT_ASSERT(CIntegration::gaussLegendre<CIntegration::OrderNine>(
+                BOOST_TEST(CIntegration::gaussLegendre<CIntegration::OrderNine>(
                     f, ranges[i][0], ranges[i][1], actual));
-                CPPUNIT_ASSERT_DOUBLES_EQUAL(expected, actual, EPS);
+                BOOST_CHECK_CLOSE_ABSOLUTE(expected, actual, EPS);
 
-                CPPUNIT_ASSERT(CIntegration::gaussLegendre<CIntegration::OrderTen>(
+                BOOST_TEST(CIntegration::gaussLegendre<CIntegration::OrderTen>(
                     f, ranges[i][0], ranges[i][1], actual));
-                CPPUNIT_ASSERT_DOUBLES_EQUAL(expected, actual, EPS);
+                BOOST_CHECK_CLOSE_ABSOLUTE(expected, actual, EPS);
             }
         }
     }
@@ -732,15 +734,15 @@ void CIntegrationTest::testAllSingleVariate() {
 
                 double actual;
 
-                CPPUNIT_ASSERT(CIntegration::gaussLegendre<CIntegration::OrderTen>(
+                BOOST_TEST(CIntegration::gaussLegendre<CIntegration::OrderTen>(
                     f, ranges[i][0], ranges[i][1], actual));
-                CPPUNIT_ASSERT_DOUBLES_EQUAL(expected, actual, EPS);
+                BOOST_CHECK_CLOSE_ABSOLUTE(expected, actual, EPS);
             }
         }
     }
 }
 
-void CIntegrationTest::testAdaptive() {
+BOOST_AUTO_TEST_CASE(testAdaptive) {
     using TDoubleDoublePr = std::pair<double, double>;
     using TDoubleDoublePrVec = std::vector<TDoubleDoublePr>;
 
@@ -764,7 +766,7 @@ void CIntegrationTest::testAdaptive() {
             heavySide, intervals, fIntervals, 3, 5, 0.01, result);
         LOG_DEBUG(<< "expectedResult = 20.0");
         LOG_DEBUG(<< "result = " << result);
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(20.0, result, 0.01 * 20.0);
+        BOOST_CHECK_CLOSE_ABSOLUTE(20.0, result, 0.01 * 20.0);
     }
 
     {
@@ -794,7 +796,7 @@ void CIntegrationTest::testAdaptive() {
             normal, intervals, fIntervals, 3, 5, 0.0001, result);
         LOG_DEBUG(<< "expectedResult = " << expectedResult);
         LOG_DEBUG(<< "result = " << result);
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(expectedResult, result, 0.0001 * expectedResult);
+        BOOST_CHECK_CLOSE_ABSOLUTE(expectedResult, result, 0.0001 * expectedResult);
     }
 
     {
@@ -826,11 +828,11 @@ void CIntegrationTest::testAdaptive() {
             f, intervals, fIntervals, 3, 5, 0.0001, result);
         LOG_DEBUG(<< "expectedResult = " << expectedResult);
         LOG_DEBUG(<< "result = " << result);
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(expectedResult, result, 0.0001 * expectedResult);
+        BOOST_CHECK_CLOSE_ABSOLUTE(expectedResult, result, 0.0001 * expectedResult);
     }
 }
 
-void CIntegrationTest::testSparseGrid() {
+BOOST_AUTO_TEST_CASE(testSparseGrid) {
     // Compare against known grid characteristics. These are available
     // at http://www.sparse-grids.de/#Nodes.
 
@@ -839,7 +841,7 @@ void CIntegrationTest::testSparseGrid() {
 
         TDoubleVec expectedWeights;
         TDoubleVecVec expectedPoints;
-        CPPUNIT_ASSERT(readGrid("testfiles/sparse_guass_quadrature_test_d2_l1",
+        BOOST_TEST(readGrid("testfiles/sparse_guass_quadrature_test_d2_l1",
                                 expectedWeights, expectedPoints));
 
         using TSparse2do1 =
@@ -848,17 +850,17 @@ void CIntegrationTest::testSparseGrid() {
         const TSparse2do1& sparse = TSparse2do1::instance();
 
         LOG_DEBUG(<< "# points = " << sparse.weights().size());
-        CPPUNIT_ASSERT_EQUAL(expectedWeights.size(), sparse.weights().size());
-        CPPUNIT_ASSERT_EQUAL(expectedPoints.size(), sparse.points().size());
+        BOOST_CHECK_EQUAL(expectedWeights.size(), sparse.weights().size());
+        BOOST_CHECK_EQUAL(expectedPoints.size(), sparse.points().size());
 
         for (std::size_t i = 0u; i < expectedWeights.size(); ++i) {
             LOG_DEBUG(<< "weight = " << (sparse.weights())[i]);
-            CPPUNIT_ASSERT_DOUBLES_EQUAL(expectedWeights[i],
+            BOOST_CHECK_CLOSE_ABSOLUTE(expectedWeights[i],
                                          (sparse.weights())[i] / 4.0, 1e-6);
 
             LOG_DEBUG(<< "point = " << (sparse.points())[i]);
             for (std::size_t j = 0u; j < expectedPoints[i].size(); ++j) {
-                CPPUNIT_ASSERT_DOUBLES_EQUAL(expectedPoints[i][j],
+                BOOST_CHECK_CLOSE_ABSOLUTE(expectedPoints[i][j],
                                              0.5 + (sparse.points())[i](j) / 2.0, 1e-6);
             }
         }
@@ -869,7 +871,7 @@ void CIntegrationTest::testSparseGrid() {
 
         TDoubleVec expectedWeights;
         TDoubleVecVec expectedPoints;
-        CPPUNIT_ASSERT(readGrid("testfiles/sparse_guass_quadrature_test_d2_l2",
+        BOOST_TEST(readGrid("testfiles/sparse_guass_quadrature_test_d2_l2",
                                 expectedWeights, expectedPoints));
 
         using TSparse2do2 =
@@ -878,17 +880,17 @@ void CIntegrationTest::testSparseGrid() {
         const TSparse2do2& sparse = TSparse2do2::instance();
 
         LOG_DEBUG(<< "# points = " << sparse.weights().size());
-        CPPUNIT_ASSERT_EQUAL(expectedWeights.size(), sparse.weights().size());
-        CPPUNIT_ASSERT_EQUAL(expectedPoints.size(), sparse.points().size());
+        BOOST_CHECK_EQUAL(expectedWeights.size(), sparse.weights().size());
+        BOOST_CHECK_EQUAL(expectedPoints.size(), sparse.points().size());
 
         for (std::size_t i = 0u; i < expectedWeights.size(); ++i) {
             LOG_DEBUG(<< "weight = " << (sparse.weights())[i]);
-            CPPUNIT_ASSERT_DOUBLES_EQUAL(expectedWeights[i],
+            BOOST_CHECK_CLOSE_ABSOLUTE(expectedWeights[i],
                                          (sparse.weights())[i] / 4.0, 1e-6);
 
             LOG_DEBUG(<< "point = " << (sparse.points())[i]);
             for (std::size_t j = 0u; j < expectedPoints[i].size(); ++j) {
-                CPPUNIT_ASSERT_DOUBLES_EQUAL(expectedPoints[i][j],
+                BOOST_CHECK_CLOSE_ABSOLUTE(expectedPoints[i][j],
                                              0.5 + (sparse.points())[i](j) / 2.0, 1e-6);
             }
         }
@@ -899,7 +901,7 @@ void CIntegrationTest::testSparseGrid() {
 
         TDoubleVec expectedWeights;
         TDoubleVecVec expectedPoints;
-        CPPUNIT_ASSERT(readGrid("testfiles/sparse_guass_quadrature_test_d2_l4",
+        BOOST_TEST(readGrid("testfiles/sparse_guass_quadrature_test_d2_l4",
                                 expectedWeights, expectedPoints));
 
         using TSparse2do4 =
@@ -908,17 +910,17 @@ void CIntegrationTest::testSparseGrid() {
         const TSparse2do4& sparse = TSparse2do4::instance();
 
         LOG_DEBUG(<< "# points = " << sparse.weights().size());
-        CPPUNIT_ASSERT_EQUAL(expectedWeights.size(), sparse.weights().size());
-        CPPUNIT_ASSERT_EQUAL(expectedPoints.size(), sparse.points().size());
+        BOOST_CHECK_EQUAL(expectedWeights.size(), sparse.weights().size());
+        BOOST_CHECK_EQUAL(expectedPoints.size(), sparse.points().size());
 
         for (std::size_t i = 0u; i < expectedWeights.size(); ++i) {
             LOG_DEBUG(<< "weight = " << (sparse.weights())[i]);
-            CPPUNIT_ASSERT_DOUBLES_EQUAL(expectedWeights[i],
+            BOOST_CHECK_CLOSE_ABSOLUTE(expectedWeights[i],
                                          (sparse.weights())[i] / 4.0, 1e-6);
 
             LOG_DEBUG(<< "point = " << (sparse.points())[i]);
             for (std::size_t j = 0u; j < expectedPoints[i].size(); ++j) {
-                CPPUNIT_ASSERT_DOUBLES_EQUAL(expectedPoints[i][j],
+                BOOST_CHECK_CLOSE_ABSOLUTE(expectedPoints[i][j],
                                              0.5 + (sparse.points())[i](j) / 2.0, 1e-6);
             }
         }
@@ -929,7 +931,7 @@ void CIntegrationTest::testSparseGrid() {
 
         TDoubleVec expectedWeights;
         TDoubleVecVec expectedPoints;
-        CPPUNIT_ASSERT(readGrid("testfiles/sparse_guass_quadrature_test_d7_l3",
+        BOOST_TEST(readGrid("testfiles/sparse_guass_quadrature_test_d7_l3",
                                 expectedWeights, expectedPoints));
 
         using TSparse7do3 =
@@ -938,17 +940,17 @@ void CIntegrationTest::testSparseGrid() {
         const TSparse7do3& sparse = TSparse7do3::instance();
 
         LOG_DEBUG(<< "# points = " << sparse.weights().size());
-        CPPUNIT_ASSERT_EQUAL(expectedWeights.size(), sparse.weights().size());
-        CPPUNIT_ASSERT_EQUAL(expectedPoints.size(), sparse.points().size());
+        BOOST_CHECK_EQUAL(expectedWeights.size(), sparse.weights().size());
+        BOOST_CHECK_EQUAL(expectedPoints.size(), sparse.points().size());
 
         for (std::size_t i = 0u; i < expectedWeights.size(); ++i) {
             LOG_DEBUG(<< "weight = " << (sparse.weights())[i]);
-            CPPUNIT_ASSERT_DOUBLES_EQUAL(
+            BOOST_CHECK_CLOSE_ABSOLUTE(
                 expectedWeights[i], (sparse.weights())[i] / std::pow(2.0, 7.0), 1e-6);
 
             LOG_DEBUG(<< "point = " << (sparse.points())[i]);
             for (std::size_t j = 0u; j < expectedPoints[i].size(); ++j) {
-                CPPUNIT_ASSERT_DOUBLES_EQUAL(expectedPoints[i][j],
+                BOOST_CHECK_CLOSE_ABSOLUTE(expectedPoints[i][j],
                                              0.5 + (sparse.points())[i](j) / 2.0, 1e-6);
             }
         }
@@ -959,7 +961,7 @@ void CIntegrationTest::testSparseGrid() {
 
         TDoubleVec expectedWeights;
         TDoubleVecVec expectedPoints;
-        CPPUNIT_ASSERT(readGrid("testfiles/sparse_guass_quadrature_test_d7_l5",
+        BOOST_TEST(readGrid("testfiles/sparse_guass_quadrature_test_d7_l5",
                                 expectedWeights, expectedPoints));
 
         using TSparse7do5 =
@@ -968,21 +970,21 @@ void CIntegrationTest::testSparseGrid() {
         const TSparse7do5& sparse = TSparse7do5::instance();
 
         LOG_DEBUG(<< "# points = " << sparse.weights().size());
-        CPPUNIT_ASSERT_EQUAL(expectedWeights.size(), sparse.weights().size());
-        CPPUNIT_ASSERT_EQUAL(expectedPoints.size(), sparse.points().size());
+        BOOST_CHECK_EQUAL(expectedWeights.size(), sparse.weights().size());
+        BOOST_CHECK_EQUAL(expectedPoints.size(), sparse.points().size());
 
         for (std::size_t i = 0u; i < expectedWeights.size(); ++i) {
             if (i % 10 == 0) {
                 LOG_DEBUG(<< "weight = " << (sparse.weights())[i]);
             }
-            CPPUNIT_ASSERT_DOUBLES_EQUAL(
+            BOOST_CHECK_CLOSE_ABSOLUTE(
                 expectedWeights[i], (sparse.weights())[i] / std::pow(2.0, 7.0), 1e-6);
 
             if (i % 10 == 0) {
                 LOG_DEBUG(<< "point = " << (sparse.points())[i]);
             }
             for (std::size_t j = 0u; j < expectedPoints[i].size(); ++j) {
-                CPPUNIT_ASSERT_DOUBLES_EQUAL(expectedPoints[i][j],
+                BOOST_CHECK_CLOSE_ABSOLUTE(expectedPoints[i][j],
                                              0.5 + (sparse.points())[i](j) / 2.0, 1e-6);
             }
         }
@@ -1075,12 +1077,12 @@ void CIntegrationTest::testSparseGrid() {
 
             LOG_DEBUG(<< "number points: actual = " << numberPoints
                       << ", expected = " << expectedNumberPoints[i][j]);
-            CPPUNIT_ASSERT_EQUAL(expectedNumberPoints[i][j], numberPoints);
+            BOOST_CHECK_EQUAL(expectedNumberPoints[i][j], numberPoints);
         }
     }
 }
 
-void CIntegrationTest::testMultivariateSmooth() {
+BOOST_AUTO_TEST_CASE(testMultivariateSmooth) {
     // Test that "low" order polynomials are integrated exactly.
     // A sparse grid of order l will integrate a polynomial exactly
     // if its order is no more than 2l - 1. A polynomial order is
@@ -1161,8 +1163,8 @@ void CIntegrationTest::testMultivariateSmooth() {
 
                 LOG_DEBUG(<< "expected = " << expected);
                 LOG_DEBUG(<< "actual   = " << actual);
-                CPPUNIT_ASSERT(successful);
-                CPPUNIT_ASSERT_DOUBLES_EQUAL(expected, actual, 1e-6);
+                BOOST_TEST(successful);
+                BOOST_CHECK_CLOSE_ABSOLUTE(expected, actual, 1e-6);
             }
         }
     }
@@ -1241,24 +1243,12 @@ void CIntegrationTest::testMultivariateSmooth() {
 
                 LOG_DEBUG(<< "expected = " << expected);
                 LOG_DEBUG(<< "actual   = " << actual);
-                CPPUNIT_ASSERT(successful);
-                CPPUNIT_ASSERT_DOUBLES_EQUAL(expected, actual, 1e-2);
+                BOOST_TEST(successful);
+                BOOST_CHECK_CLOSE_ABSOLUTE(expected, actual, 1e-2);
             }
         }
     }
 }
 
-CppUnit::Test* CIntegrationTest::suite() {
-    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CIntegrationTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CIntegrationTest>(
-        "CIntegrationTest::testAllSingleVariate", &CIntegrationTest::testAllSingleVariate));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CIntegrationTest>(
-        "CIntegrationTest::testAdaptive", &CIntegrationTest::testAdaptive));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CIntegrationTest>(
-        "CIntegrationTest::testSparseGrid", &CIntegrationTest::testSparseGrid));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CIntegrationTest>(
-        "CIntegrationTest::testMultivariateSmooth", &CIntegrationTest::testMultivariateSmooth));
-
-    return suiteOfTests;
-}
+BOOST_AUTO_TEST_SUITE_END()

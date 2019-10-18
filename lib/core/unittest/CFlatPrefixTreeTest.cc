@@ -3,13 +3,13 @@
  * or more contributor license agreements. Licensed under the Elastic License;
  * you may not use this file except in compliance with the Elastic License.
  */
-#include "CFlatPrefixTreeTest.h"
 
 #include <core/CFlatPrefixTree.h>
 #include <core/CLogger.h>
 
 #include <test/CRandomNumbers.h>
 
+#include <boost/test/unit_test.hpp>
 #include <boost/unordered_set.hpp>
 
 #include <algorithm>
@@ -18,67 +18,43 @@
 
 #include <stdint.h>
 
+BOOST_AUTO_TEST_SUITE(CFlatPrefixTreeTest)
+
 using namespace ml;
 using namespace core;
 
-CppUnit::Test* CFlatPrefixTreeTest::suite() {
-    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CFlatPrefixTreeTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CFlatPrefixTreeTest>(
-        "CFlatPrefixTreeTest::testBuildGivenUnsortedInput",
-        &CFlatPrefixTreeTest::testBuildGivenUnsortedInput));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CFlatPrefixTreeTest>(
-        "CFlatPrefixTreeTest::testBuildGivenSortedInputWithDuplicates",
-        &CFlatPrefixTreeTest::testBuildGivenSortedInputWithDuplicates));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CFlatPrefixTreeTest>(
-        "CFlatPrefixTreeTest::testEmptyString", &CFlatPrefixTreeTest::testEmptyString));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CFlatPrefixTreeTest>(
-        "CFlatPrefixTreeTest::testSimple", &CFlatPrefixTreeTest::testSimple));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CFlatPrefixTreeTest>(
-        "CFlatPrefixTreeTest::testLeafAndBranch", &CFlatPrefixTreeTest::testLeafAndBranch));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CFlatPrefixTreeTest>(
-        "CFlatPrefixTreeTest::testMatchesStartGivenStringThatMatchesMoreThanAGivenPrefix",
-        &CFlatPrefixTreeTest::testMatchesStartGivenStringThatMatchesMoreThanAGivenPrefix));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CFlatPrefixTreeTest>(
-        "CFlatPrefixTreeTest::testMatchesFullyGivenStringThatIsSubstringOfPrefix",
-        &CFlatPrefixTreeTest::testMatchesFullyGivenStringThatIsSubstringOfPrefix));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CFlatPrefixTreeTest>(
-        "CFlatPrefixTreeTest::testRandom", &CFlatPrefixTreeTest::testRandom));
-
-    return suiteOfTests;
-}
-
-void CFlatPrefixTreeTest::testBuildGivenUnsortedInput() {
+BOOST_AUTO_TEST_CASE(testBuildGivenUnsortedInput) {
     CFlatPrefixTree::TStrVec prefixes;
     prefixes.push_back("b");
     prefixes.push_back("a");
 
     CFlatPrefixTree prefixTree;
-    CPPUNIT_ASSERT(prefixTree.build(prefixes) == false);
+    BOOST_TEST(prefixTree.build(prefixes) == false);
 }
 
-void CFlatPrefixTreeTest::testBuildGivenSortedInputWithDuplicates() {
+BOOST_AUTO_TEST_CASE(testBuildGivenSortedInputWithDuplicates) {
     CFlatPrefixTree::TStrVec prefixes;
     prefixes.push_back("a");
     prefixes.push_back("bb");
     prefixes.push_back("bb");
 
     CFlatPrefixTree prefixTree;
-    CPPUNIT_ASSERT(prefixTree.build(prefixes) == false);
+    BOOST_TEST(prefixTree.build(prefixes) == false);
 }
 
-void CFlatPrefixTreeTest::testEmptyString() {
+BOOST_AUTO_TEST_CASE(testEmptyString) {
     CFlatPrefixTree::TStrVec prefixes;
     prefixes.push_back("");
 
     CFlatPrefixTree prefixTree;
-    CPPUNIT_ASSERT(prefixTree.build(prefixes));
+    BOOST_TEST(prefixTree.build(prefixes));
 
-    CPPUNIT_ASSERT(prefixTree.matchesFully("") == false);
-    CPPUNIT_ASSERT(prefixTree.matchesStart("") == false);
+    BOOST_TEST(prefixTree.matchesFully("") == false);
+    BOOST_TEST(prefixTree.matchesStart("") == false);
 }
 
-void CFlatPrefixTreeTest::testSimple() {
+BOOST_AUTO_TEST_CASE(testSimple) {
     CFlatPrefixTree::TStrVec prefixes;
     prefixes.push_back("abc");
     prefixes.push_back("acd");
@@ -87,70 +63,70 @@ void CFlatPrefixTreeTest::testSimple() {
     prefixes.push_back("bdf");
 
     CFlatPrefixTree prefixTree;
-    CPPUNIT_ASSERT(prefixTree.build(prefixes));
+    BOOST_TEST(prefixTree.build(prefixes));
 
     LOG_TRACE(<< "Tree: " << prefixTree.print());
 
     for (std::size_t i = 0; i < prefixes.size(); ++i) {
-        CPPUNIT_ASSERT(prefixTree.matchesStart(prefixes[i]));
-        CPPUNIT_ASSERT(prefixTree.matchesFully(prefixes[i]));
+        BOOST_TEST(prefixTree.matchesStart(prefixes[i]));
+        BOOST_TEST(prefixTree.matchesFully(prefixes[i]));
     }
 
-    CPPUNIT_ASSERT(prefixTree.matchesStart("abcz"));
-    CPPUNIT_ASSERT(prefixTree.matchesStart("acdz"));
-    CPPUNIT_ASSERT(prefixTree.matchesStart("aqrsz"));
-    CPPUNIT_ASSERT(prefixTree.matchesStart("aqrtz"));
-    CPPUNIT_ASSERT(prefixTree.matchesStart("bdfz"));
-    CPPUNIT_ASSERT(prefixTree.matchesFully("abcd") == false);
-    CPPUNIT_ASSERT(prefixTree.matchesStart("ab") == false);
-    CPPUNIT_ASSERT(prefixTree.matchesStart("c") == false);
-    CPPUNIT_ASSERT(prefixTree.matchesStart("") == false);
-    CPPUNIT_ASSERT(prefixTree.matchesFully("") == false);
+    BOOST_TEST(prefixTree.matchesStart("abcz"));
+    BOOST_TEST(prefixTree.matchesStart("acdz"));
+    BOOST_TEST(prefixTree.matchesStart("aqrsz"));
+    BOOST_TEST(prefixTree.matchesStart("aqrtz"));
+    BOOST_TEST(prefixTree.matchesStart("bdfz"));
+    BOOST_TEST(prefixTree.matchesFully("abcd") == false);
+    BOOST_TEST(prefixTree.matchesStart("ab") == false);
+    BOOST_TEST(prefixTree.matchesStart("c") == false);
+    BOOST_TEST(prefixTree.matchesStart("") == false);
+    BOOST_TEST(prefixTree.matchesFully("") == false);
 }
 
-void CFlatPrefixTreeTest::testLeafAndBranch() {
+BOOST_AUTO_TEST_CASE(testLeafAndBranch) {
     CFlatPrefixTree::TStrVec prefixes;
     prefixes.push_back(" oqt4g");
     prefixes.push_back(" oqt4glz-");
 
     CFlatPrefixTree prefixTree;
-    CPPUNIT_ASSERT(prefixTree.build(prefixes));
+    BOOST_TEST(prefixTree.build(prefixes));
 
     LOG_TRACE(<< "Tree: " << prefixTree.print());
 
     for (std::size_t i = 0; i < prefixes.size(); ++i) {
-        CPPUNIT_ASSERT(prefixTree.matchesStart(prefixes[i]));
-        CPPUNIT_ASSERT(prefixTree.matchesFully(prefixes[i]));
+        BOOST_TEST(prefixTree.matchesStart(prefixes[i]));
+        BOOST_TEST(prefixTree.matchesFully(prefixes[i]));
     }
 }
 
-void CFlatPrefixTreeTest::testMatchesStartGivenStringThatMatchesMoreThanAGivenPrefix() {
+BOOST_AUTO_TEST_CASE(testMatchesStartGivenStringThatMatchesMoreThanAGivenPrefix) {
     CFlatPrefixTree::TStrVec prefixes;
     prefixes.push_back("h2 vh5");
     prefixes.push_back("h2 vh55dm");
 
     CFlatPrefixTree prefixTree;
-    CPPUNIT_ASSERT(prefixTree.build(prefixes));
+    BOOST_TEST(prefixTree.build(prefixes));
 
     LOG_TRACE(<< "Tree: " << prefixTree.print());
 
-    CPPUNIT_ASSERT(prefixTree.matchesStart("h2 vh5"));
-    CPPUNIT_ASSERT(prefixTree.matchesStart("h2 vh55daetrqt4"));
+    BOOST_TEST(prefixTree.matchesStart("h2 vh5"));
+    BOOST_TEST(prefixTree.matchesStart("h2 vh55daetrqt4"));
 }
 
-void CFlatPrefixTreeTest::testMatchesFullyGivenStringThatIsSubstringOfPrefix() {
+BOOST_AUTO_TEST_CASE(testMatchesFullyGivenStringThatIsSubstringOfPrefix) {
     CFlatPrefixTree::TStrVec prefixes;
     prefixes.push_back("foo");
 
     CFlatPrefixTree prefixTree;
-    CPPUNIT_ASSERT(prefixTree.build(prefixes));
+    BOOST_TEST(prefixTree.build(prefixes));
 
     LOG_TRACE(<< "Tree: " << prefixTree.print());
 
-    CPPUNIT_ASSERT(prefixTree.matchesFully("fo") == false);
+    BOOST_TEST(prefixTree.matchesFully("fo") == false);
 }
 
-void CFlatPrefixTreeTest::testRandom() {
+BOOST_AUTO_TEST_CASE(testRandom) {
     test::CRandomNumbers rng;
     test::CRandomNumbers::CUniform0nGenerator uniformGen = rng.uniformGenerator();
     CFlatPrefixTree::TStrVec grams;
@@ -170,7 +146,7 @@ void CFlatPrefixTreeTest::testRandom() {
     prefixes.erase(std::unique(prefixes.begin(), prefixes.end()), prefixes.end());
 
     CFlatPrefixTree prefixTree;
-    CPPUNIT_ASSERT(prefixTree.build(prefixes));
+    BOOST_TEST(prefixTree.build(prefixes));
 
     // Assert full lookups
     {
@@ -181,7 +157,7 @@ void CFlatPrefixTreeTest::testRandom() {
         lookups.insert(lookups.end(), prefixes.begin(), prefixes.end());
 
         for (std::size_t i = 0; i < lookups.size(); ++i) {
-            CPPUNIT_ASSERT(prefixTree.matchesFully(lookups[i]) ==
+            BOOST_TEST(prefixTree.matchesFully(lookups[i]) ==
                            (set.count(lookups[i]) > 0));
         }
     }
@@ -193,7 +169,9 @@ void CFlatPrefixTreeTest::testRandom() {
         for (std::size_t i = 0; i < 100000; i++) {
             std::string key = prefixes[uniformGen(prefixes.size())] +
                               suffixes[uniformGen(suffixes.size())];
-            CPPUNIT_ASSERT(prefixTree.matchesStart(key));
+            BOOST_TEST(prefixTree.matchesStart(key));
         }
     }
 }
+
+BOOST_AUTO_TEST_SUITE_END()

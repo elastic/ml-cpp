@@ -18,7 +18,9 @@
 
 #include <stdio.h> // fileno() is not C++ so need the C header
 
-class CLoggerTest;
+namespace CLoggerTest {
+struct testFoo;
+}
 
 namespace ml {
 namespace core {
@@ -185,7 +187,7 @@ private:
     TFatalErrorHandler m_FatalErrorHandler;
 
     //! friend class for testing
-    friend class ::CLoggerTest;
+    friend struct CLoggerTest::testFoo;
 };
 
 CORE_EXPORT std::ostream& operator<<(std::ostream& strm, CLogger::ELevel level);

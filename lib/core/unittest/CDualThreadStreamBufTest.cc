@@ -3,7 +3,6 @@
  * or more contributor license agreements. Licensed under the Elastic License;
  * you may not use this file except in compliance with the Elastic License.
  */
-#include "CDualThreadStreamBufTest.h"
 
 #include <core/CDualThreadStreamBuf.h>
 #include <core/CLogger.h>
@@ -12,6 +11,8 @@
 #include <core/CTimeUtils.h>
 #include <core/CoreTypes.h>
 
+#include <boost/test/unit_test.hpp>
+
 #include <algorithm>
 #include <istream>
 #include <string>
@@ -19,20 +20,8 @@
 #include <stdint.h>
 #include <string.h>
 
-CppUnit::Test* CDualThreadStreamBufTest::suite() {
-    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CDualThreadStreamBufTest");
+BOOST_AUTO_TEST_SUITE(CDualThreadStreamBufTest)
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CDualThreadStreamBufTest>(
-        "CDualThreadStreamBufTest::testThroughput", &CDualThreadStreamBufTest::testThroughput));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CDualThreadStreamBufTest>(
-        "CDualThreadStreamBufTest::testSlowConsumer", &CDualThreadStreamBufTest::testSlowConsumer));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CDualThreadStreamBufTest>(
-        "CDualThreadStreamBufTest::testPutback", &CDualThreadStreamBufTest::testPutback));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CDualThreadStreamBufTest>(
-        "CDualThreadStreamBufTest::testFatal", &CDualThreadStreamBufTest::testFatal));
-
-    return suiteOfTests;
-}
 
 namespace {
 
@@ -53,7 +42,7 @@ protected:
             ++count;
             m_TotalData += line.length();
             ++m_TotalData; // For the delimiter
-            CPPUNIT_ASSERT_EQUAL(static_cast<std::streampos>(m_TotalData), strm.tellg());
+            BOOST_CHECK_EQUAL(static_cast<std::streampos>(m_TotalData), strm.tellg());
             ml::core::CSleep::sleep(m_Delay);
             if (count == m_FatalAfter) {
                 m_Buffer.signalFatalError();
@@ -86,7 +75,7 @@ const char*
          "change between components that causes failure in complex IT systems.\n");
 }
 
-void CDualThreadStreamBufTest::testThroughput() {
+BOOST_AUTO_TEST_CASE(testThroughput) {
     static const size_t TEST_SIZE(1000000);
     size_t dataSize(::strlen(DATA));
     size_t totalDataSize(TEST_SIZE * dataSize);
@@ -104,13 +93,13 @@ void CDualThreadStreamBufTest::testThroughput() {
         const char* ptr(DATA);
         while (toWrite > 0) {
             std::streamsize written(buf.sputn(ptr, toWrite));
-            CPPUNIT_ASSERT(written > 0);
+            BOOST_TEST(written > 0);
             toWrite -= written;
             ptr += written;
         }
     }
 
-    CPPUNIT_ASSERT_EQUAL(static_cast<std::streampos>(totalDataSize),
+    BOOST_CHECK_EQUAL(static_cast<std::streampos>(totalDataSize),
                          buf.pubseekoff(0, std::ios_base::cur, std::ios_base::out));
 
     buf.signalEndOfFile();
@@ -121,13 +110,13 @@ void CDualThreadStreamBufTest::testThroughput() {
     LOG_INFO(<< "Finished REST buffer throughput test at "
              << ml::core::CTimeUtils::toTimeString(end));
 
-    CPPUNIT_ASSERT_EQUAL(totalDataSize, inputThread.totalData());
+    BOOST_CHECK_EQUAL(totalDataSize, inputThread.totalData());
 
     LOG_INFO(<< "REST buffer throughput test with test size " << TEST_SIZE << " (total data transferred "
              << totalDataSize << " bytes) took " << (end - start) << " seconds");
 }
 
-void CDualThreadStreamBufTest::testSlowConsumer() {
+BOOST_AUTO_TEST_CASE(testSlowConsumer) {
     static const size_t TEST_SIZE(25);
     static const uint32_t DELAY(200);
     size_t dataSize(::strlen(DATA));
@@ -147,7 +136,7 @@ void CDualThreadStreamBufTest::testSlowConsumer() {
         const char* ptr(DATA);
         while (toWrite > 0) {
             std::streamsize written(buf.sputn(ptr, toWrite));
-            CPPUNIT_ASSERT(written > 0);
+            BOOST_TEST(written > 0);
             toWrite -= written;
             ptr += written;
         }
@@ -161,7 +150,7 @@ void CDualThreadStreamBufTest::testSlowConsumer() {
     LOG_INFO(<< "Finished REST buffer slow consumer test at "
              << ml::core::CTimeUtils::toTimeString(end));
 
-    CPPUNIT_ASSERT_EQUAL(totalDataSize, inputThread.totalData());
+    BOOST_CHECK_EQUAL(totalDataSize, inputThread.totalData());
 
     ml::core_t::TTime duration(end - start);
     LOG_INFO(<< "REST buffer slow consumer test with test size " << TEST_SIZE
@@ -170,12 +159,12 @@ void CDualThreadStreamBufTest::testSlowConsumer() {
 
     ml::core_t::TTime delaySecs(
         static_cast<ml::core_t::TTime>((DELAY * numNewLines * TEST_SIZE) / 1000));
-    CPPUNIT_ASSERT(duration >= delaySecs);
+    BOOST_TEST(duration >= delaySecs);
     static const ml::core_t::TTime TOLERANCE(3);
-    CPPUNIT_ASSERT(duration <= delaySecs + TOLERANCE);
+    BOOST_TEST(duration <= delaySecs + TOLERANCE);
 }
 
-void CDualThreadStreamBufTest::testPutback() {
+BOOST_AUTO_TEST_CASE(testPutback) {
     size_t dataSize(::strlen(DATA));
 
     ml::core::CDualThreadStreamBuf buf;
@@ -184,7 +173,7 @@ void CDualThreadStreamBufTest::testPutback() {
     const char* ptr(DATA);
     while (toWrite > 0) {
         std::streamsize written(buf.sputn(ptr, toWrite));
-        CPPUNIT_ASSERT(written > 0);
+        BOOST_TEST(written > 0);
         toWrite -= written;
         ptr += written;
     }
@@ -194,18 +183,18 @@ void CDualThreadStreamBufTest::testPutback() {
     static const char* const PUTBACK_CHARS("put this back");
     std::istream strm(&buf);
     char c('\0');
-    CPPUNIT_ASSERT(strm.get(c).good());
-    CPPUNIT_ASSERT_EQUAL(*DATA, c);
-    CPPUNIT_ASSERT(strm.putback(c).good());
+    BOOST_TEST(strm.get(c).good());
+    BOOST_CHECK_EQUAL(*DATA, c);
+    BOOST_TEST(strm.putback(c).good());
     for (const char* putbackChar = PUTBACK_CHARS; *putbackChar != '\0'; ++putbackChar) {
-        CPPUNIT_ASSERT(strm.putback(*putbackChar).good());
+        BOOST_TEST(strm.putback(*putbackChar).good());
     }
     std::string actual;
     for (const char* putbackChar = PUTBACK_CHARS; *putbackChar != '\0'; ++putbackChar) {
-        CPPUNIT_ASSERT(strm.get(c).good());
+        BOOST_TEST(strm.get(c).good());
         actual.insert(actual.begin(), c);
     }
-    CPPUNIT_ASSERT_EQUAL(std::string(PUTBACK_CHARS), actual);
+    BOOST_CHECK_EQUAL(std::string(PUTBACK_CHARS), actual);
 
     std::string remainder;
     std::string line;
@@ -213,17 +202,17 @@ void CDualThreadStreamBufTest::testPutback() {
         remainder += line;
         remainder += '\n';
     }
-    CPPUNIT_ASSERT_EQUAL(std::string(DATA), remainder);
+    BOOST_CHECK_EQUAL(std::string(DATA), remainder);
 }
 
-void CDualThreadStreamBufTest::testFatal() {
+BOOST_AUTO_TEST_CASE(testFatal) {
     static const size_t TEST_SIZE(10000);
     static const size_t BUFFER_CAPACITY(16384);
     size_t dataSize(::strlen(DATA));
 
     // These conditions need to be true for the test to work properly
-    CPPUNIT_ASSERT(dataSize < BUFFER_CAPACITY);
-    CPPUNIT_ASSERT(BUFFER_CAPACITY * 3 < TEST_SIZE * dataSize);
+    BOOST_TEST(dataSize < BUFFER_CAPACITY);
+    BOOST_TEST(BUFFER_CAPACITY * 3 < TEST_SIZE * dataSize);
 
     ml::core::CDualThreadStreamBuf buf(BUFFER_CAPACITY);
     CInputThread inputThread(buf, 1000, 1);
@@ -252,6 +241,8 @@ void CDualThreadStreamBufTest::testFatal() {
               << " is " << totalDataWritten << " bytes");
 
     // The fatal error should have stopped the writer thread from writing all the data
-    CPPUNIT_ASSERT(totalDataWritten >= BUFFER_CAPACITY);
-    CPPUNIT_ASSERT(totalDataWritten <= 3 * BUFFER_CAPACITY);
+    BOOST_TEST(totalDataWritten >= BUFFER_CAPACITY);
+    BOOST_TEST(totalDataWritten <= 3 * BUFFER_CAPACITY);
 }
+
+BOOST_AUTO_TEST_SUITE_END()

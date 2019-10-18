@@ -4,19 +4,21 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
-#include "CSearchKeyTest.h"
-
 #include <model/CSearchKey.h>
 
 #include <test/CRandomNumbers.h>
 
+#include <boost/test/unit_test.hpp>
+
 #include <string>
 #include <vector>
+
+BOOST_AUTO_TEST_SUITE(CSearchKeyTest)
 
 using namespace ml;
 using namespace model;
 
-void CSearchKeyTest::testSimpleCountComesFirst() {
+BOOST_AUTO_TEST_CASE(testSimpleCountComesFirst) {
     using TStrVec = std::vector<std::string>;
     using TExcludeFrequentVec = std::vector<model_t::EExcludeFrequent>;
     using TFunctionVec = std::vector<function_t::EFunction>;
@@ -40,15 +42,9 @@ void CSearchKeyTest::testSimpleCountComesFirst() {
                        fields[0],
                        fields[1],
                        fields[2]};
-        CPPUNIT_ASSERT(CSearchKey::simpleCountKey() < key);
+        BOOST_TEST(CSearchKey::simpleCountKey() < key);
     }
 }
 
-CppUnit::Test* CSearchKeyTest::suite() {
-    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CSearchKeyTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CSearchKeyTest>(
-        "CSearchKeyTest::testSimpleCountComesFirst", &CSearchKeyTest::testSimpleCountComesFirst));
-
-    return suiteOfTests;
-}
+BOOST_AUTO_TEST_SUITE_END()

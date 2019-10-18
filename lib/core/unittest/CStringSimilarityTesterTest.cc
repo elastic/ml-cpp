@@ -3,11 +3,12 @@
  * or more contributor license agreements. Licensed under the Elastic License;
  * you may not use this file except in compliance with the Elastic License.
  */
-#include "CStringSimilarityTesterTest.h"
 
 #include <core/CLogger.h>
 #include <core/CStringSimilarityTester.h>
 #include <core/CTimeUtils.h>
+
+#include <boost/test/unit_test.hpp>
 
 #include <string>
 #include <utility>
@@ -16,35 +17,10 @@
 #include <ctype.h>
 #include <stdlib.h>
 
-CppUnit::Test* CStringSimilarityTesterTest::suite() {
-    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CStringSimilarityTesterTest");
+BOOST_AUTO_TEST_SUITE(CStringSimilarityTesterTest)
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CStringSimilarityTesterTest>(
-        "CStringSimilarityTesterTest::testStringSimilarity",
-        &CStringSimilarityTesterTest::testStringSimilarity));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CStringSimilarityTesterTest>(
-        "CStringSimilarityTesterTest::testLevensteinDistance",
-        &CStringSimilarityTesterTest::testLevensteinDistance));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CStringSimilarityTesterTest>(
-        "CStringSimilarityTesterTest::testLevensteinDistance2",
-        &CStringSimilarityTesterTest::testLevensteinDistance2));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CStringSimilarityTesterTest>(
-        "CStringSimilarityTesterTest::testLevensteinDistanceThroughputDifferent",
-        &CStringSimilarityTesterTest::testLevensteinDistanceThroughputDifferent));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CStringSimilarityTesterTest>(
-        "CStringSimilarityTesterTest::testLevensteinDistanceThroughputSimilar",
-        &CStringSimilarityTesterTest::testLevensteinDistanceThroughputSimilar));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CStringSimilarityTesterTest>(
-        "CStringSimilarityTesterTest::testLevensteinDistanceAlgorithmEquivalence",
-        &CStringSimilarityTesterTest::testLevensteinDistanceAlgorithmEquivalence));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CStringSimilarityTesterTest>(
-        "CStringSimilarityTesterTest::testWeightedEditDistance",
-        &CStringSimilarityTesterTest::testWeightedEditDistance));
 
-    return suiteOfTests;
-}
-
-void CStringSimilarityTesterTest::testStringSimilarity() {
+BOOST_AUTO_TEST_CASE(testStringSimilarity) {
     std::string str1("This is identical");
     std::string str2("This is identical");
 
@@ -62,77 +38,77 @@ void CStringSimilarityTesterTest::testStringSimilarity() {
     ml::core::CStringSimilarityTester sst;
 
     double similarity1(0.0);
-    CPPUNIT_ASSERT(sst.similarity(str1, str2, similarity1));
+    BOOST_TEST(sst.similarity(str1, str2, similarity1));
     LOG_DEBUG(<< "similarity1 = " << similarity1);
 
     double similarity2(0.0);
-    CPPUNIT_ASSERT(sst.similarity(str3, str4, similarity2));
+    BOOST_TEST(sst.similarity(str3, str4, similarity2));
     LOG_DEBUG(<< "similarity2 = " << similarity2);
 
     double similarity3(0.0);
-    CPPUNIT_ASSERT(sst.similarity(str5, str6, similarity3));
+    BOOST_TEST(sst.similarity(str5, str6, similarity3));
     LOG_DEBUG(<< "similarity3 = " << similarity3);
 
     // If the method is going to be of any use, these conditions
     // must hold
-    CPPUNIT_ASSERT(similarity1 > similarity2);
-    CPPUNIT_ASSERT(similarity2 > similarity3);
+    BOOST_TEST(similarity1 > similarity2);
+    BOOST_TEST(similarity2 > similarity3);
 
     double similarity4(0.0);
-    CPPUNIT_ASSERT(sst.similarity(str7, str8, similarity4));
+    BOOST_TEST(sst.similarity(str7, str8, similarity4));
     LOG_DEBUG(<< "similarity4 = " << similarity4);
 
     // This is a boundary case that could cause division by 0
-    CPPUNIT_ASSERT_EQUAL(1.0, similarity4);
+    BOOST_CHECK_EQUAL(1.0, similarity4);
 
     double similarity5(0.0);
-    CPPUNIT_ASSERT(sst.similarityEx(str3, str4, &::isdigit, similarity5));
+    BOOST_TEST(sst.similarityEx(str3, str4, &::isdigit, similarity5));
     LOG_DEBUG(<< "similarity5 = " << similarity5);
 
     std::string str3Stripped(sst.strippedString(str3, &::isdigit));
     std::string str4Stripped(sst.strippedString(str4, &::isdigit));
 
     double similarity6(0.0);
-    CPPUNIT_ASSERT(sst.similarity(str3Stripped, str4Stripped, similarity6));
+    BOOST_TEST(sst.similarity(str3Stripped, str4Stripped, similarity6));
     LOG_DEBUG(<< "similarity6 = " << similarity6);
 
     // Stripping the strings within the similarityEx method or separately should
     // give the same results
-    CPPUNIT_ASSERT_EQUAL(similarity5, similarity6);
+    BOOST_CHECK_EQUAL(similarity5, similarity6);
 
     size_t str5CompLen(0);
     size_t str6CompLen(0);
 
-    CPPUNIT_ASSERT(sst.compressedLengthOf(str5, str5CompLen));
-    CPPUNIT_ASSERT(sst.compressedLengthOf(str6, str6CompLen));
+    BOOST_TEST(sst.compressedLengthOf(str5, str5CompLen));
+    BOOST_TEST(sst.compressedLengthOf(str6, str6CompLen));
 
     double similarity7(0.0);
-    CPPUNIT_ASSERT(sst.similarity(str5, str5CompLen, str6, str6CompLen, similarity7));
+    BOOST_TEST(sst.similarity(str5, str5CompLen, str6, str6CompLen, similarity7));
     LOG_DEBUG(<< "similarity7 = " << similarity7);
 
     // Passing in pre-calculated compressed lengths of the individual string
     // should give the same results as letting the similarity method calculate
     // them
-    CPPUNIT_ASSERT_EQUAL(similarity3, similarity7);
+    BOOST_CHECK_EQUAL(similarity3, similarity7);
 
     double similarity8(0.0);
-    CPPUNIT_ASSERT(sst.similarity(str6, str6CompLen, str5, str5CompLen, similarity8));
+    BOOST_TEST(sst.similarity(str6, str6CompLen, str5, str5CompLen, similarity8));
     LOG_DEBUG(<< "similarity8 = " << similarity8);
 
     // Results should be symmetrical when passing in pre-calculated compressed
     // lengths
-    CPPUNIT_ASSERT_EQUAL(similarity7, similarity8);
+    BOOST_CHECK_EQUAL(similarity7, similarity8);
 
     double similarity9(0.0);
-    CPPUNIT_ASSERT(sst.similarity(str6, str5, similarity9));
+    BOOST_TEST(sst.similarity(str6, str5, similarity9));
     LOG_DEBUG(<< "similarity9 = " << similarity9);
 
     // Results should be symmetrical when letting the similarity method calculate
     // everything
-    CPPUNIT_ASSERT_EQUAL(similarity3, similarity9);
+    BOOST_CHECK_EQUAL(similarity3, similarity9);
 }
 
-void CStringSimilarityTesterTest::testLevensteinDistance() {
+BOOST_AUTO_TEST_CASE(testLevensteinDistance) {
     ml::core::CStringSimilarityTester sst;
 
     std::string cat("cat");
@@ -140,43 +116,43 @@ void CStringSimilarityTesterTest::testLevensteinDistance() {
     std::string mouse("mouse");
     std::string nothing;
 
-    CPPUNIT_ASSERT_EQUAL(size_t(0), sst.levenshteinDistance(cat, cat));
-    CPPUNIT_ASSERT_EQUAL(size_t(3), sst.levenshteinDistance(cat, dog));
-    CPPUNIT_ASSERT_EQUAL(size_t(5), sst.levenshteinDistance(cat, mouse));
-    CPPUNIT_ASSERT_EQUAL(size_t(3), sst.levenshteinDistance(cat, nothing));
+    BOOST_CHECK_EQUAL(size_t(0), sst.levenshteinDistance(cat, cat));
+    BOOST_CHECK_EQUAL(size_t(3), sst.levenshteinDistance(cat, dog));
+    BOOST_CHECK_EQUAL(size_t(5), sst.levenshteinDistance(cat, mouse));
+    BOOST_CHECK_EQUAL(size_t(3), sst.levenshteinDistance(cat, nothing));
 
-    CPPUNIT_ASSERT_EQUAL(size_t(3), sst.levenshteinDistance(dog, cat));
-    CPPUNIT_ASSERT_EQUAL(size_t(0), sst.levenshteinDistance(dog, dog));
-    CPPUNIT_ASSERT_EQUAL(size_t(4), sst.levenshteinDistance(dog, mouse));
-    CPPUNIT_ASSERT_EQUAL(size_t(3), sst.levenshteinDistance(dog, nothing));
+    BOOST_CHECK_EQUAL(size_t(3), sst.levenshteinDistance(dog, cat));
+    BOOST_CHECK_EQUAL(size_t(0), sst.levenshteinDistance(dog, dog));
+    BOOST_CHECK_EQUAL(size_t(4), sst.levenshteinDistance(dog, mouse));
+    BOOST_CHECK_EQUAL(size_t(3), sst.levenshteinDistance(dog, nothing));
 
-    CPPUNIT_ASSERT_EQUAL(size_t(5), sst.levenshteinDistance(mouse, cat));
-    CPPUNIT_ASSERT_EQUAL(size_t(4), sst.levenshteinDistance(mouse, dog));
-    CPPUNIT_ASSERT_EQUAL(size_t(0), sst.levenshteinDistance(mouse, mouse));
-    CPPUNIT_ASSERT_EQUAL(size_t(5), sst.levenshteinDistance(mouse, nothing));
+    BOOST_CHECK_EQUAL(size_t(5), sst.levenshteinDistance(mouse, cat));
+    BOOST_CHECK_EQUAL(size_t(4), sst.levenshteinDistance(mouse, dog));
+    BOOST_CHECK_EQUAL(size_t(0), sst.levenshteinDistance(mouse, mouse));
+    BOOST_CHECK_EQUAL(size_t(5), sst.levenshteinDistance(mouse, nothing));
 
-    CPPUNIT_ASSERT_EQUAL(size_t(3), sst.levenshteinDistance(nothing, cat));
-    CPPUNIT_ASSERT_EQUAL(size_t(3), sst.levenshteinDistance(nothing, dog));
-    CPPUNIT_ASSERT_EQUAL(size_t(5), sst.levenshteinDistance(nothing, mouse));
-    CPPUNIT_ASSERT_EQUAL(size_t(0), sst.levenshteinDistance(nothing, nothing));
+    BOOST_CHECK_EQUAL(size_t(3), sst.levenshteinDistance(nothing, cat));
+    BOOST_CHECK_EQUAL(size_t(3), sst.levenshteinDistance(nothing, dog));
+    BOOST_CHECK_EQUAL(size_t(5), sst.levenshteinDistance(nothing, mouse));
+    BOOST_CHECK_EQUAL(size_t(0), sst.levenshteinDistance(nothing, nothing));
 
     std::string str1("Monday 12345");
     std::string str2("Monday 67890");
     std::string str3("Sunday 12345");
     std::string str4;
 
-    CPPUNIT_ASSERT_EQUAL(size_t(0), sst.levenshteinDistance(str1, str1));
-    CPPUNIT_ASSERT_EQUAL(size_t(5), sst.levenshteinDistance(str1, str2));
-    CPPUNIT_ASSERT_EQUAL(size_t(2), sst.levenshteinDistance(str1, str3));
-    CPPUNIT_ASSERT_EQUAL(size_t(12), sst.levenshteinDistance(str1, str4));
+    BOOST_CHECK_EQUAL(size_t(0), sst.levenshteinDistance(str1, str1));
+    BOOST_CHECK_EQUAL(size_t(5), sst.levenshteinDistance(str1, str2));
+    BOOST_CHECK_EQUAL(size_t(2), sst.levenshteinDistance(str1, str3));
+    BOOST_CHECK_EQUAL(size_t(12), sst.levenshteinDistance(str1, str4));
 
-    CPPUNIT_ASSERT_EQUAL(size_t(0), sst.levenshteinDistanceEx(str1, str1, &::isdigit));
-    CPPUNIT_ASSERT_EQUAL(size_t(0), sst.levenshteinDistanceEx(str1, str2, &::isdigit));
-    CPPUNIT_ASSERT_EQUAL(size_t(2), sst.levenshteinDistanceEx(str1, str3, &::isdigit));
-    CPPUNIT_ASSERT_EQUAL(size_t(7), sst.levenshteinDistanceEx(str1, str4, &::isdigit));
+    BOOST_CHECK_EQUAL(size_t(0), sst.levenshteinDistanceEx(str1, str1, &::isdigit));
+    BOOST_CHECK_EQUAL(size_t(0), sst.levenshteinDistanceEx(str1, str2, &::isdigit));
+    BOOST_CHECK_EQUAL(size_t(2), sst.levenshteinDistanceEx(str1, str3, &::isdigit));
+    BOOST_CHECK_EQUAL(size_t(7), sst.levenshteinDistanceEx(str1, str4, &::isdigit));
 }
 
-void CStringSimilarityTesterTest::testLevensteinDistance2() {
+BOOST_AUTO_TEST_CASE(testLevensteinDistance2) {
     ml::core::CStringSimilarityTester sst;
 
     using TStrVec = std::vector<std::string>;
@@ -233,26 +209,26 @@ void CStringSimilarityTesterTest::testLevensteinDistance2() {
 
     TStrVec empty;
 
-    CPPUNIT_ASSERT_EQUAL(size_t(2), sst.levenshteinDistance(sourceShutDown1, sourceShutDown2));
-    CPPUNIT_ASSERT_EQUAL(size_t(2), sst.levenshteinDistance(sourceShutDown2, sourceShutDown1));
+    BOOST_CHECK_EQUAL(size_t(2), sst.levenshteinDistance(sourceShutDown1, sourceShutDown2));
+    BOOST_CHECK_EQUAL(size_t(2), sst.levenshteinDistance(sourceShutDown2, sourceShutDown1));
 
-    CPPUNIT_ASSERT_EQUAL(size_t(7), sst.levenshteinDistance(sourceShutDown1, serviceStart));
-    CPPUNIT_ASSERT_EQUAL(size_t(7), sst.levenshteinDistance(serviceStart, sourceShutDown1));
+    BOOST_CHECK_EQUAL(size_t(7), sst.levenshteinDistance(sourceShutDown1, serviceStart));
+    BOOST_CHECK_EQUAL(size_t(7), sst.levenshteinDistance(serviceStart, sourceShutDown1));
 
-    CPPUNIT_ASSERT_EQUAL(size_t(6), sst.levenshteinDistance(sourceShutDown2, serviceStart));
-    CPPUNIT_ASSERT_EQUAL(size_t(6), sst.levenshteinDistance(serviceStart, sourceShutDown2));
+    BOOST_CHECK_EQUAL(size_t(6), sst.levenshteinDistance(sourceShutDown2, serviceStart));
+    BOOST_CHECK_EQUAL(size_t(6), sst.levenshteinDistance(serviceStart, sourceShutDown2));
 
-    CPPUNIT_ASSERT_EQUAL(size_t(13), sst.levenshteinDistance(noImageData, serviceStart));
-    CPPUNIT_ASSERT_EQUAL(size_t(13), sst.levenshteinDistance(serviceStart, noImageData));
+    BOOST_CHECK_EQUAL(size_t(13), sst.levenshteinDistance(noImageData, serviceStart));
+    BOOST_CHECK_EQUAL(size_t(13), sst.levenshteinDistance(serviceStart, noImageData));
 
-    CPPUNIT_ASSERT_EQUAL(size_t(14), sst.levenshteinDistance(noImageData, sourceShutDown1));
-    CPPUNIT_ASSERT_EQUAL(size_t(14), sst.levenshteinDistance(sourceShutDown1, noImageData));
+    BOOST_CHECK_EQUAL(size_t(14), sst.levenshteinDistance(noImageData, sourceShutDown1));
+    BOOST_CHECK_EQUAL(size_t(14), sst.levenshteinDistance(sourceShutDown1, noImageData));
 
-    CPPUNIT_ASSERT_EQUAL(size_t(9), sst.levenshteinDistance(serviceStart, empty));
-    CPPUNIT_ASSERT_EQUAL(size_t(9), sst.levenshteinDistance(empty, serviceStart));
+    BOOST_CHECK_EQUAL(size_t(9), sst.levenshteinDistance(serviceStart, empty));
+    BOOST_CHECK_EQUAL(size_t(9), sst.levenshteinDistance(empty, serviceStart));
 }
 
-void CStringSimilarityTesterTest::testLevensteinDistanceThroughputDifferent() {
+BOOST_AUTO_TEST_CASE(testLevensteinDistanceThroughputDifferent) {
     ml::core::CStringSimilarityTester sst;
 
     using TStrVec = std::vector<std::string>;
@@ -278,7 +254,7 @@ void CStringSimilarityTesterTest::testLevensteinDistanceThroughputDifferent() {
         for (size_t j = 0; j < TEST_SIZE; ++j) {
             size_t result(sst.levenshteinDistance(input[i], input[j]));
             if (i == j) {
-                CPPUNIT_ASSERT_EQUAL(size_t(0), result);
+                BOOST_CHECK_EQUAL(size_t(0), result);
             }
         }
     }
@@ -292,7 +268,7 @@ void CStringSimilarityTesterTest::testLevensteinDistanceThroughputDifferent() {
              << " took " << (end - start) << " seconds");
 }
 
-void CStringSimilarityTesterTest::testLevensteinDistanceThroughputSimilar() {
+BOOST_AUTO_TEST_CASE(testLevensteinDistanceThroughputSimilar) {
     ml::core::CStringSimilarityTester sst;
 
     using TStrVec = std::vector<std::string>;
@@ -323,7 +299,7 @@ void CStringSimilarityTesterTest::testLevensteinDistanceThroughputSimilar() {
         for (size_t j = 0; j < TEST_SIZE; ++j) {
             size_t result(sst.levenshteinDistance(input[i], input[j]));
             if (i == j) {
-                CPPUNIT_ASSERT_EQUAL(size_t(0), result);
+                BOOST_CHECK_EQUAL(size_t(0), result);
             }
         }
     }
@@ -337,7 +313,7 @@ void CStringSimilarityTesterTest::testLevensteinDistanceThroughputSimilar() {
              << (end - start) << " seconds");
 }
 
-void CStringSimilarityTesterTest::testLevensteinDistanceAlgorithmEquivalence() {
+BOOST_AUTO_TEST_CASE(testLevensteinDistanceAlgorithmEquivalence) {
     // The intention here is to ensure that the Berghel-Roach algorithm delivers
     // the same results as the simple algorithm.  We take advantage of
     // friendship to call the private implementation methods directly.
@@ -352,19 +328,19 @@ void CStringSimilarityTesterTest::testLevensteinDistanceAlgorithmEquivalence() {
     // Remember we're calling private implementation methods here that require:
     // 1) Neither input sequence is empty
     // 2) The first input sequence is no longer than the second input sequence
-    CPPUNIT_ASSERT_EQUAL(sst.levenshteinDistanceSimple(cat, cat),
+    BOOST_CHECK_EQUAL(sst.levenshteinDistanceSimple(cat, cat),
                          sst.berghelRoachEditDistance(cat, cat));
-    CPPUNIT_ASSERT_EQUAL(sst.levenshteinDistanceSimple(cat, dog),
+    BOOST_CHECK_EQUAL(sst.levenshteinDistanceSimple(cat, dog),
                          sst.berghelRoachEditDistance(cat, dog));
-    CPPUNIT_ASSERT_EQUAL(sst.levenshteinDistanceSimple(cat, mouse),
+    BOOST_CHECK_EQUAL(sst.levenshteinDistanceSimple(cat, mouse),
                          sst.berghelRoachEditDistance(cat, mouse));
-    CPPUNIT_ASSERT_EQUAL(sst.levenshteinDistanceSimple(cat, elephant),
+    BOOST_CHECK_EQUAL(sst.levenshteinDistanceSimple(cat, elephant),
                          sst.berghelRoachEditDistance(cat, elephant));
-    CPPUNIT_ASSERT_EQUAL(sst.levenshteinDistanceSimple(mouse, elephant),
+    BOOST_CHECK_EQUAL(sst.levenshteinDistanceSimple(mouse, elephant),
                          sst.berghelRoachEditDistance(mouse, elephant));
 }
 
-void CStringSimilarityTesterTest::testWeightedEditDistance() {
+BOOST_AUTO_TEST_CASE(testWeightedEditDistance) {
     ml::core::CStringSimilarityTester sst;
 
     using TStrSizePr = std::pair<std::string, size_t>;
@@ -424,21 +400,23 @@ void CStringSimilarityTesterTest::testWeightedEditDistance() {
 
     TStrSizePrVec empty;
 
-    CPPUNIT_ASSERT_EQUAL(size_t(2), sst.weightedEditDistance(sourceShutDown1, sourceShutDown2));
-    CPPUNIT_ASSERT_EQUAL(size_t(2), sst.weightedEditDistance(sourceShutDown2, sourceShutDown1));
+    BOOST_CHECK_EQUAL(size_t(2), sst.weightedEditDistance(sourceShutDown1, sourceShutDown2));
+    BOOST_CHECK_EQUAL(size_t(2), sst.weightedEditDistance(sourceShutDown2, sourceShutDown1));
 
-    CPPUNIT_ASSERT_EQUAL(size_t(17), sst.weightedEditDistance(sourceShutDown1, serviceStart));
-    CPPUNIT_ASSERT_EQUAL(size_t(17), sst.weightedEditDistance(serviceStart, sourceShutDown1));
+    BOOST_CHECK_EQUAL(size_t(17), sst.weightedEditDistance(sourceShutDown1, serviceStart));
+    BOOST_CHECK_EQUAL(size_t(17), sst.weightedEditDistance(serviceStart, sourceShutDown1));
 
-    CPPUNIT_ASSERT_EQUAL(size_t(16), sst.weightedEditDistance(sourceShutDown2, serviceStart));
-    CPPUNIT_ASSERT_EQUAL(size_t(16), sst.weightedEditDistance(serviceStart, sourceShutDown2));
+    BOOST_CHECK_EQUAL(size_t(16), sst.weightedEditDistance(sourceShutDown2, serviceStart));
+    BOOST_CHECK_EQUAL(size_t(16), sst.weightedEditDistance(serviceStart, sourceShutDown2));
 
-    CPPUNIT_ASSERT_EQUAL(size_t(36), sst.weightedEditDistance(noImageData, serviceStart));
-    CPPUNIT_ASSERT_EQUAL(size_t(36), sst.weightedEditDistance(serviceStart, noImageData));
+    BOOST_CHECK_EQUAL(size_t(36), sst.weightedEditDistance(noImageData, serviceStart));
+    BOOST_CHECK_EQUAL(size_t(36), sst.weightedEditDistance(serviceStart, noImageData));
 
-    CPPUNIT_ASSERT_EQUAL(size_t(36), sst.weightedEditDistance(noImageData, sourceShutDown1));
-    CPPUNIT_ASSERT_EQUAL(size_t(36), sst.weightedEditDistance(sourceShutDown1, noImageData));
+    BOOST_CHECK_EQUAL(size_t(36), sst.weightedEditDistance(noImageData, sourceShutDown1));
+    BOOST_CHECK_EQUAL(size_t(36), sst.weightedEditDistance(sourceShutDown1, noImageData));
 
-    CPPUNIT_ASSERT_EQUAL(size_t(21), sst.weightedEditDistance(serviceStart, empty));
-    CPPUNIT_ASSERT_EQUAL(size_t(21), sst.weightedEditDistance(empty, serviceStart));
+    BOOST_CHECK_EQUAL(size_t(21), sst.weightedEditDistance(serviceStart, empty));
+    BOOST_CHECK_EQUAL(size_t(21), sst.weightedEditDistance(empty, serviceStart));
 }
+
+BOOST_AUTO_TEST_SUITE_END()

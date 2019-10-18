@@ -3,7 +3,6 @@
  * or more contributor license agreements. Licensed under the Elastic License;
  * you may not use this file except in compliance with the Elastic License.
  */
-#include "CLoggerTest.h"
 
 #include <core/CLogger.h>
 #include <core/CNamedPipeFactory.h>
@@ -11,6 +10,8 @@
 #include <core/CSleep.h>
 
 #include <rapidjson/document.h>
+
+#include <boost/test/unit_test.hpp>
 
 #include <algorithm>
 #include <ios>
@@ -20,6 +21,8 @@
 #include <thread>
 #include <vector>
 
+BOOST_AUTO_TEST_SUITE(CLoggerTest)
+
 namespace {
 #ifdef Windows
 const char* const TEST_PIPE_NAME = "\\\\.\\pipe\\testpipe";
@@ -28,22 +31,6 @@ const char* const TEST_PIPE_NAME = "testfiles/testpipe";
 #endif
 }
 
-CppUnit::Test* CLoggerTest::suite() {
-    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CLoggerTest");
-
-    suiteOfTests->addTest(new CppUnit::TestCaller<CLoggerTest>(
-        "CLoggerTest::testLogging", &CLoggerTest::testLogging));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CLoggerTest>(
-        "CLoggerTest::testReconfiguration", &CLoggerTest::testReconfiguration));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CLoggerTest>(
-        "CLoggerTest::testSetLevel", &CLoggerTest::testSetLevel));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CLoggerTest>(
-        "CLoggerTest::testLogEnvironment", &CLoggerTest::testLogEnvironment));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CLoggerTest>(
-        "CLoggerTest::testNonAsciiJsonLogging", &CLoggerTest::testNonAsciiJsonLogging));
-
-    return suiteOfTests;
-}
 
 void CLoggerTest::tearDown() {
     // Tests in this file can leave the logger in an unusual state, so reset it
@@ -51,7 +38,7 @@ void CLoggerTest::tearDown() {
     ml::core::CLogger::instance().reset();
 }
 
-void CLoggerTest::testLogging() {
+BOOST_AUTO_TEST_CASE(testLogging) {
     std::string t("Test message");
 
     LOG_TRACE(<< "Trace");
@@ -70,37 +57,37 @@ void CLoggerTest::testLogging() {
     try {
         LOG_ABORT(<< "Throwing exception " << 1221U << ' ' << 0.23124);
 
-        CPPUNIT_ASSERT(false);
-    } catch (std::runtime_error&) { CPPUNIT_ASSERT(true); }
+        BOOST_TEST(false);
+    } catch (std::runtime_error&) { BOOST_TEST(true); }
 }
 
-void CLoggerTest::testReconfiguration() {
+BOOST_AUTO_TEST_CASE(testReconfiguration) {
     ml::core::CLogger& logger = ml::core::CLogger::instance();
 
     LOG_DEBUG(<< "Starting logger reconfiguration test");
 
     LOG_TRACE(<< "This shouldn't be seen because the hardcoded default log level is DEBUG");
-    CPPUNIT_ASSERT(!logger.hasBeenReconfigured());
+    BOOST_TEST(!logger.hasBeenReconfigured());
 
-    CPPUNIT_ASSERT(!logger.reconfigureFromFile("nonexistantfile"));
+    BOOST_TEST(!logger.reconfigureFromFile("nonexistantfile"));
 
-    CPPUNIT_ASSERT(logger.reconfigureLogJson());
+    BOOST_TEST(logger.reconfigureLogJson());
     LOG_INFO(<< "This should be logged as JSON!");
 
     // The test boost.log.ini is very similar to the hardcoded default, but
     // with the level set to TRACE rather than DEBUG
-    CPPUNIT_ASSERT(logger.reconfigureFromFile("testfiles/boost.log.ini"));
+    BOOST_TEST(logger.reconfigureFromFile("testfiles/boost.log.ini"));
 
     LOG_TRACE(<< "This should be seen because the reconfigured log level is TRACE");
-    CPPUNIT_ASSERT(logger.hasBeenReconfigured());
+    BOOST_TEST(logger.hasBeenReconfigured());
 }
 
-void CLoggerTest::testSetLevel() {
+BOOST_AUTO_TEST_CASE(testSetLevel) {
     ml::core::CLogger& logger = ml::core::CLogger::instance();
 
     LOG_DEBUG(<< "Starting logger level test");
 
-    CPPUNIT_ASSERT(logger.setLoggingLevel(ml::core::CLogger::E_Error));
+    BOOST_TEST(logger.setLoggingLevel(ml::core::CLogger::E_Error));
 
     LOG_TRACE(<< "SHOULD NOT BE SEEN");
     LOG_DEBUG(<< "SHOULD NOT BE SEEN");
@@ -109,7 +96,7 @@ void CLoggerTest::testSetLevel() {
     LOG_ERROR(<< "Should be seen");
     LOG_FATAL(<< "Should be seen");
 
-    CPPUNIT_ASSERT(logger.setLoggingLevel(ml::core::CLogger::E_Info));
+    BOOST_TEST(logger.setLoggingLevel(ml::core::CLogger::E_Info));
 
     LOG_TRACE(<< "SHOULD NOT BE SEEN");
     LOG_DEBUG(<< "SHOULD NOT BE SEEN");
@@ -118,7 +105,7 @@ void CLoggerTest::testSetLevel() {
     LOG_ERROR(<< "Should be seen");
     LOG_FATAL(<< "Should be seen");
 
-    CPPUNIT_ASSERT(logger.setLoggingLevel(ml::core::CLogger::E_Trace));
+    BOOST_TEST(logger.setLoggingLevel(ml::core::CLogger::E_Trace));
 
     LOG_TRACE(<< "Should be seen");
     LOG_DEBUG(<< "Should be seen");
@@ -127,7 +114,7 @@ void CLoggerTest::testSetLevel() {
     LOG_ERROR(<< "Should be seen");
     LOG_FATAL(<< "Should be seen");
 
-    CPPUNIT_ASSERT(logger.setLoggingLevel(ml::core::CLogger::E_Warn));
+    BOOST_TEST(logger.setLoggingLevel(ml::core::CLogger::E_Warn));
 
     LOG_TRACE(<< "SHOULD NOT BE SEEN");
     LOG_DEBUG(<< "SHOULD NOT BE SEEN");
@@ -136,7 +123,7 @@ void CLoggerTest::testSetLevel() {
     LOG_ERROR(<< "Should be seen");
     LOG_FATAL(<< "Should be seen");
 
-    CPPUNIT_ASSERT(logger.setLoggingLevel(ml::core::CLogger::E_Fatal));
+    BOOST_TEST(logger.setLoggingLevel(ml::core::CLogger::E_Fatal));
 
     LOG_TRACE(<< "SHOULD NOT BE SEEN");
     LOG_DEBUG(<< "SHOULD NOT BE SEEN");
@@ -145,12 +132,12 @@ void CLoggerTest::testSetLevel() {
     LOG_ERROR(<< "SHOULD NOT BE SEEN");
     LOG_FATAL(<< "Should be seen");
 
-    CPPUNIT_ASSERT(logger.setLoggingLevel(ml::core::CLogger::E_Debug));
+    BOOST_TEST(logger.setLoggingLevel(ml::core::CLogger::E_Debug));
 
     LOG_DEBUG(<< "Finished logger level test");
 }
 
-void CLoggerTest::testNonAsciiJsonLogging() {
+BOOST_AUTO_TEST_CASE(testNonAsciiJsonLogging) {
     std::vector<std::string> messages{"Non-iso8859-15: 编码", "Non-ascii: üaöä",
                                       "Non-iso8859-15: 编码 test", "surrogate pair: 𐐷 test"};
 
@@ -167,7 +154,7 @@ void CLoggerTest::testNonAsciiJsonLogging() {
                 return;
             }
         }
-        CPPUNIT_FAIL("Failed to connect to logging pipe within a reasonable time");
+        BOOST_FAIL("Failed to connect to logging pipe within a reasonable time");
     });
 
     ml::core::CLogger& logger = ml::core::CLogger::instance();
@@ -194,8 +181,8 @@ void CLoggerTest::testNonAsciiJsonLogging() {
         }
         rapidjson::Document doc;
         doc.Parse<rapidjson::kParseDefaultFlags>(line);
-        CPPUNIT_ASSERT(!doc.HasParseError());
-        CPPUNIT_ASSERT(doc.HasMember("message"));
+        BOOST_TEST(!doc.HasParseError());
+        BOOST_TEST(doc.HasMember("message"));
         const rapidjson::Value& messageValue = doc["message"];
         std::string messageString(messageValue.GetString(), messageValue.GetStringLength());
 
@@ -203,12 +190,14 @@ void CLoggerTest::testNonAsciiJsonLogging() {
         if (messageString.find(messages[foundMessages]) != std::string::npos) {
             ++foundMessages;
         } else if (foundMessages > 0) {
-            CPPUNIT_FAIL(messageString + " did not contain " + messages[foundMessages]);
+            BOOST_FAIL(messageString + " did not contain " + messages[foundMessages]);
         }
     }
-    CPPUNIT_ASSERT_EQUAL(messages.size(), foundMessages);
+    BOOST_CHECK_EQUAL(messages.size(), foundMessages);
 }
 
-void CLoggerTest::testLogEnvironment() {
+BOOST_AUTO_TEST_CASE(testLogEnvironment) {
     ml::core::CLogger::instance().logEnvironment();
 }
+
+BOOST_AUTO_TEST_SUITE_END()

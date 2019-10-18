@@ -4,8 +4,6 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
-#include "CCalendarCyclicTestTest.h"
-
 #include <core/CLogger.h>
 #include <core/CRapidXmlParser.h>
 #include <core/CRapidXmlStatePersistInserter.h>
@@ -22,10 +20,13 @@
 
 #include "TestUtils.h"
 
+#include <boost/test/unit_test.hpp>
 #include <boost/optional.hpp>
 #include <boost/range.hpp>
 
 #include <vector>
+
+BOOST_AUTO_TEST_SUITE(CCalendarCyclicTestTest)
 
 using namespace ml;
 
@@ -39,7 +40,7 @@ const core_t::TTime MONTH{4 * core::constants::WEEK};
 const core_t::TTime YEAR{core::constants::YEAR};
 }
 
-void CCalendarCyclicTestTest::testTruePositives() {
+BOOST_AUTO_TEST_CASE(testTruePositives) {
     // Test the true positive rate for a variety of different features.
 
     test::CRandomNumbers rng;
@@ -93,7 +94,7 @@ void CCalendarCyclicTestTest::testTruePositives() {
                          : falsePositive) += 1.0;
                 }
             }
-            CPPUNIT_ASSERT(core::CMemory::dynamicSize(&cyclic) < 700);
+            BOOST_TEST(core::CMemory::dynamicSize(&cyclic) < 700);
         }
     }
     LOG_DEBUG(<< "true positive = " << truePositive);
@@ -139,7 +140,7 @@ void CCalendarCyclicTestTest::testTruePositives() {
                          : falsePositive) += 1.0;
                 }
             }
-            CPPUNIT_ASSERT(core::CMemory::dynamicSize(&cyclic) < 700);
+            BOOST_TEST(core::CMemory::dynamicSize(&cyclic) < 700);
         }
     }
     LOG_DEBUG(<< "true positive = " << truePositive);
@@ -183,7 +184,7 @@ void CCalendarCyclicTestTest::testTruePositives() {
                          : falsePositive) += 1.0;
                 }
             }
-            CPPUNIT_ASSERT(core::CMemory::dynamicSize(&cyclic) < 700);
+            BOOST_TEST(core::CMemory::dynamicSize(&cyclic) < 700);
         }
     }
     LOG_DEBUG(<< "true positive = " << truePositive);
@@ -227,7 +228,7 @@ void CCalendarCyclicTestTest::testTruePositives() {
                          : falsePositive) += 1.0;
                 }
             }
-            CPPUNIT_ASSERT(core::CMemory::dynamicSize(&cyclic) < 700);
+            BOOST_TEST(core::CMemory::dynamicSize(&cyclic) < 700);
         }
     }
     LOG_DEBUG(<< "true positive = " << truePositive);
@@ -236,10 +237,10 @@ void CCalendarCyclicTestTest::testTruePositives() {
 
     double accuracy{(truePositive / (truePositive + falseNegative + falsePositive))};
     LOG_DEBUG(<< "accuracy = " << accuracy);
-    CPPUNIT_ASSERT(accuracy > 0.9);
+    BOOST_TEST(accuracy > 0.9);
 }
 
-void CCalendarCyclicTestTest::testFalsePositives() {
+BOOST_AUTO_TEST_CASE(testFalsePositives) {
     // Test a false positive rates under a variety of noise characteristics.
 
     test::CRandomNumbers rng;
@@ -264,7 +265,7 @@ void CCalendarCyclicTestTest::testFalsePositives() {
                 if (feature != boost::none) {
                     LOG_DEBUG(<< "Detected = " << feature->print());
                 }
-                CPPUNIT_ASSERT(core::CMemory::dynamicSize(&cyclic) < 820);
+                BOOST_TEST(core::CMemory::dynamicSize(&cyclic) < 820);
             }
         }
     }
@@ -288,7 +289,7 @@ void CCalendarCyclicTestTest::testFalsePositives() {
                 if (feature != boost::none) {
                     LOG_DEBUG(<< "Detected = " << feature->print());
                 }
-                CPPUNIT_ASSERT(core::CMemory::dynamicSize(&cyclic) < 830);
+                BOOST_TEST(core::CMemory::dynamicSize(&cyclic) < 830);
             }
         }
     }
@@ -314,7 +315,7 @@ void CCalendarCyclicTestTest::testFalsePositives() {
                 if (feature != boost::none) {
                     LOG_DEBUG(<< "Detected = " << feature->print());
                 }
-                CPPUNIT_ASSERT(core::CMemory::dynamicSize(&cyclic) < 830);
+                BOOST_TEST(core::CMemory::dynamicSize(&cyclic) < 830);
             }
         }
     }
@@ -323,10 +324,10 @@ void CCalendarCyclicTestTest::testFalsePositives() {
 
     double accuracy{trueNegatives / (falsePositives + trueNegatives)};
     LOG_DEBUG(<< "accuracy = " << accuracy);
-    CPPUNIT_ASSERT(accuracy > 0.99);
+    BOOST_TEST(accuracy > 0.99);
 }
 
-void CCalendarCyclicTestTest::testPersist() {
+BOOST_AUTO_TEST_CASE(testPersist) {
     // Check that persistence is idempotent.
 
     test::CRandomNumbers rng;
@@ -352,13 +353,13 @@ void CCalendarCyclicTestTest::testPersist() {
     maths::CCalendarCyclicTest restored(HALF_HOUR);
     {
         core::CRapidXmlParser parser;
-        CPPUNIT_ASSERT(parser.parseStringIgnoreCdata(origXml));
+        BOOST_TEST(parser.parseStringIgnoreCdata(origXml));
         core::CRapidXmlStateRestoreTraverser traverser(parser);
-        CPPUNIT_ASSERT(traverser.traverseSubLevel(
+        BOOST_TEST(traverser.traverseSubLevel(
             std::bind(&maths::CCalendarCyclicTest::acceptRestoreTraverser,
                       &restored, std::placeholders::_1)));
     }
-    CPPUNIT_ASSERT_EQUAL(orig.checksum(), restored.checksum());
+    BOOST_CHECK_EQUAL(orig.checksum(), restored.checksum());
 
     std::string newXml;
     {
@@ -366,19 +367,8 @@ void CCalendarCyclicTestTest::testPersist() {
         restored.acceptPersistInserter(inserter);
         inserter.toXml(newXml);
     }
-    CPPUNIT_ASSERT_EQUAL(origXml, newXml);
+    BOOST_CHECK_EQUAL(origXml, newXml);
 }
 
-CppUnit::Test* CCalendarCyclicTestTest::suite() {
-    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CCalendarCyclicTestTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CCalendarCyclicTestTest>(
-        "CCalendarCyclicTestTest::testTruePositives", &CCalendarCyclicTestTest::testTruePositives));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CCalendarCyclicTestTest>(
-        "CCalendarCyclicTestTest::testFalsePositives",
-        &CCalendarCyclicTestTest::testFalsePositives));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CCalendarCyclicTestTest>(
-        "CCalendarCyclicTestTest::testPersist", &CCalendarCyclicTestTest::testPersist));
-
-    return suiteOfTests;
-}
+BOOST_AUTO_TEST_SUITE_END()

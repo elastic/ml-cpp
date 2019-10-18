@@ -4,8 +4,6 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
-#include "CDataFrameAnalysisRunnerTest.h"
-
 #include <core/CContainerPrinter.h>
 #include <core/CLogger.h>
 #include <core/CRegex.h>
@@ -17,13 +15,17 @@
 
 #include <test/CTestTmpDir.h>
 
+#include <boost/test/unit_test.hpp>
+
 #include <mutex>
 #include <string>
 #include <vector>
 
+BOOST_AUTO_TEST_SUITE(CDataFrameAnalysisRunnerTest)
+
 using namespace ml;
 
-void CDataFrameAnalysisRunnerTest::testComputeExecutionStrategyForOutliers() {
+BOOST_AUTO_TEST_CASE(testComputeExecutionStrategyForOutliers) {
     using TSizeVec = std::vector<std::size_t>;
 
     TSizeVec numbersRows{100, 100000, 1000000};
@@ -57,9 +59,9 @@ void CDataFrameAnalysisRunnerTest::testComputeExecutionStrategyForOutliers() {
             std::size_t numberPartitions{runner->numberPartitions()};
             std::size_t maxRowsPerPartition{runner->maximumNumberRowsPerPartition()};
 
-            CPPUNIT_ASSERT_EQUAL(numberPartitions == 1, inMainMemory);
-            CPPUNIT_ASSERT(numberPartitions * maxRowsPerPartition >= numberRows);
-            CPPUNIT_ASSERT((numberPartitions - 1) * maxRowsPerPartition <= numberRows);
+            BOOST_CHECK_EQUAL(numberPartitions == 1, inMainMemory);
+            BOOST_TEST(numberPartitions * maxRowsPerPartition >= numberRows);
+            BOOST_TEST((numberPartitions - 1) * maxRowsPerPartition <= numberRows);
         }
     }
 
@@ -75,7 +77,7 @@ CDataFrameAnalysisRunnerTest::createSpecJsonForDiskUsageTest(std::size_t numberR
         test::CTestTmpDir::tmpDir(), "", "outlier_detection", "");
 }
 
-void CDataFrameAnalysisRunnerTest::testComputeAndSaveExecutionStrategyDiskUsageFlag() {
+BOOST_AUTO_TEST_CASE(testComputeAndSaveExecutionStrategyDiskUsageFlag) {
 
     std::vector<std::string> errors;
     std::mutex errorsMutex;
@@ -97,8 +99,8 @@ void CDataFrameAnalysisRunnerTest::testComputeAndSaveExecutionStrategyDiskUsageF
         LOG_DEBUG(<< "errors = " << core::CContainerPrinter::print(errors));
         core::CRegex re;
         re.init("Input error: memory limit.*");
-        CPPUNIT_ASSERT_EQUAL(1, static_cast<int>(errors.size()));
-        CPPUNIT_ASSERT(re.matches(errors[0]));
+        BOOST_CHECK_EQUAL(1, static_cast<int>(errors.size()));
+        BOOST_TEST(re.matches(errors[0]));
     }
 
     // Test large memory requirement with disk usage
@@ -108,7 +110,7 @@ void CDataFrameAnalysisRunnerTest::testComputeAndSaveExecutionStrategyDiskUsageF
         api::CDataFrameAnalysisSpecification spec{jsonSpec};
 
         // no error should be registered
-        CPPUNIT_ASSERT_EQUAL(0, static_cast<int>(errors.size()));
+        BOOST_CHECK_EQUAL(0, static_cast<int>(errors.size()));
     }
 
     // Test low memory requirement without disk usage
@@ -118,7 +120,7 @@ void CDataFrameAnalysisRunnerTest::testComputeAndSaveExecutionStrategyDiskUsageF
         api::CDataFrameAnalysisSpecification spec{jsonSpec};
 
         // no error should be registered
-        CPPUNIT_ASSERT_EQUAL(0, static_cast<int>(errors.size()));
+        BOOST_CHECK_EQUAL(0, static_cast<int>(errors.size()));
     }
 }
 
@@ -153,39 +155,39 @@ void testEstimateMemoryUsage(int64_t numberRows,
     rapidjson::Document arrayDoc;
     arrayDoc.Parse<rapidjson::kParseDefaultFlags>(sstream.str().c_str());
 
-    CPPUNIT_ASSERT(arrayDoc.IsArray());
-    CPPUNIT_ASSERT_EQUAL(rapidjson::SizeType(1), arrayDoc.Size());
+    BOOST_TEST(arrayDoc.IsArray());
+    BOOST_CHECK_EQUAL(rapidjson::SizeType(1), arrayDoc.Size());
 
     const rapidjson::Value& result = arrayDoc[rapidjson::SizeType(0)];
-    CPPUNIT_ASSERT(result.IsObject());
+    BOOST_TEST(result.IsObject());
 
-    CPPUNIT_ASSERT(result.HasMember("expected_memory_without_disk"));
-    CPPUNIT_ASSERT_EQUAL(expected_expected_memory_without_disk,
+    BOOST_TEST(result.HasMember("expected_memory_without_disk"));
+    BOOST_CHECK_EQUAL(expected_expected_memory_without_disk,
                          std::string(result["expected_memory_without_disk"].GetString()));
-    CPPUNIT_ASSERT(result.HasMember("expected_memory_with_disk"));
-    CPPUNIT_ASSERT_EQUAL(expected_expected_memory_with_disk,
+    BOOST_TEST(result.HasMember("expected_memory_with_disk"));
+    BOOST_CHECK_EQUAL(expected_expected_memory_with_disk,
                          std::string(result["expected_memory_with_disk"].GetString()));
 
-    CPPUNIT_ASSERT_EQUAL(expected_number_errors, static_cast<int>(errors.size()));
+    BOOST_CHECK_EQUAL(expected_number_errors, static_cast<int>(errors.size()));
 }
 
-void CDataFrameAnalysisRunnerTest::testEstimateMemoryUsage_0() {
+BOOST_AUTO_TEST_CASE(testEstimateMemoryUsage_0) {
     testEstimateMemoryUsage(0, "0", "0", 1);
 }
 
-void CDataFrameAnalysisRunnerTest::testEstimateMemoryUsage_1() {
+BOOST_AUTO_TEST_CASE(testEstimateMemoryUsage_1) {
     testEstimateMemoryUsage(1, "6kB", "6kB", 0);
 }
 
-void CDataFrameAnalysisRunnerTest::testEstimateMemoryUsage_10() {
+BOOST_AUTO_TEST_CASE(testEstimateMemoryUsage_10) {
     testEstimateMemoryUsage(10, "15kB", "13kB", 0);
 }
 
-void CDataFrameAnalysisRunnerTest::testEstimateMemoryUsage_100() {
+BOOST_AUTO_TEST_CASE(testEstimateMemoryUsage_100) {
     testEstimateMemoryUsage(100, "62kB", "35kB", 0);
 }
 
-void CDataFrameAnalysisRunnerTest::testEstimateMemoryUsage_1000() {
+BOOST_AUTO_TEST_CASE(testEstimateMemoryUsage_1000) {
     testEstimateMemoryUsage(1000, "450kB", "143kB", 0);
 }
 
@@ -203,52 +205,21 @@ void testColumnsForWhichEmptyIsMissing(const std::string& analysis,
     TStrVec fieldNames{"feature_1", "feature_2", "feature_3", "label"};
     TBoolVec emptyAsMissing{spec.columnsForWhichEmptyIsMissing(fieldNames)};
 
-    CPPUNIT_ASSERT_EQUAL(fieldNames.size(), emptyAsMissing.size());
-    CPPUNIT_ASSERT_EQUAL(false, bool(emptyAsMissing[0]));
-    CPPUNIT_ASSERT_EQUAL(false, bool(emptyAsMissing[1]));
-    CPPUNIT_ASSERT_EQUAL(false, bool(emptyAsMissing[2]));
-    CPPUNIT_ASSERT_EQUAL(expected_dependentVariableEmptyAsMissing,
+    BOOST_CHECK_EQUAL(fieldNames.size(), emptyAsMissing.size());
+    BOOST_CHECK_EQUAL(false, bool(emptyAsMissing[0]));
+    BOOST_CHECK_EQUAL(false, bool(emptyAsMissing[1]));
+    BOOST_CHECK_EQUAL(false, bool(emptyAsMissing[2]));
+    BOOST_CHECK_EQUAL(expected_dependentVariableEmptyAsMissing,
                          bool(emptyAsMissing[3]));
 }
 
-void CDataFrameAnalysisRunnerTest::testColumnsForWhichEmptyIsMissingClassification() {
+BOOST_AUTO_TEST_CASE(testColumnsForWhichEmptyIsMissingClassification) {
     testColumnsForWhichEmptyIsMissing("classification", true);
 }
 
-void CDataFrameAnalysisRunnerTest::testColumnsForWhichEmptyIsMissingRegression() {
+BOOST_AUTO_TEST_CASE(testColumnsForWhichEmptyIsMissingRegression) {
     testColumnsForWhichEmptyIsMissing("regression", false);
 }
 
-CppUnit::Test* CDataFrameAnalysisRunnerTest::suite() {
-    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CDataFrameAnalysisRunnerTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CDataFrameAnalysisRunnerTest>(
-        "CDataFrameAnalysisRunnerTest::testComputeExecutionStrategyForOutliers",
-        &CDataFrameAnalysisRunnerTest::testComputeExecutionStrategyForOutliers));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CDataFrameAnalysisRunnerTest>(
-        "CDataFrameAnalysisRunnerTest::testComputeAndSaveExecutionStrategyDiskUsageFlag",
-        &CDataFrameAnalysisRunnerTest::testComputeAndSaveExecutionStrategyDiskUsageFlag));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CDataFrameAnalysisRunnerTest>(
-        "CDataFrameAnalysisRunnerTest::testEstimateMemoryUsage_0",
-        &CDataFrameAnalysisRunnerTest::testEstimateMemoryUsage_0));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CDataFrameAnalysisRunnerTest>(
-        "CDataFrameAnalysisRunnerTest::testEstimateMemoryUsage_1",
-        &CDataFrameAnalysisRunnerTest::testEstimateMemoryUsage_1));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CDataFrameAnalysisRunnerTest>(
-        "CDataFrameAnalysisRunnerTest::testEstimateMemoryUsage_10",
-        &CDataFrameAnalysisRunnerTest::testEstimateMemoryUsage_10));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CDataFrameAnalysisRunnerTest>(
-        "CDataFrameAnalysisRunnerTest::testEstimateMemoryUsage_100",
-        &CDataFrameAnalysisRunnerTest::testEstimateMemoryUsage_100));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CDataFrameAnalysisRunnerTest>(
-        "CDataFrameAnalysisRunnerTest::testEstimateMemoryUsage_1000",
-        &CDataFrameAnalysisRunnerTest::testEstimateMemoryUsage_1000));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CDataFrameAnalysisRunnerTest>(
-        "CDataFrameAnalysisRunnerTest::testColumnsForWhichEmptyIsMissingClassification",
-        &CDataFrameAnalysisRunnerTest::testColumnsForWhichEmptyIsMissingClassification));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CDataFrameAnalysisRunnerTest>(
-        "CDataFrameAnalysisRunnerTest::testColumnsForWhichEmptyIsMissingRegression",
-        &CDataFrameAnalysisRunnerTest::testColumnsForWhichEmptyIsMissingRegression));
-
-    return suiteOfTests;
-}
+BOOST_AUTO_TEST_SUITE_END()

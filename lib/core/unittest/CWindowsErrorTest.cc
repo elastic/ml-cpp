@@ -3,21 +3,16 @@
  * or more contributor license agreements. Licensed under the Elastic License;
  * you may not use this file except in compliance with the Elastic License.
  */
-#include "CWindowsErrorTest.h"
 
 #include <core/CLogger.h>
 #include <core/CWindowsError.h>
 
-CppUnit::Test* CWindowsErrorTest::suite() {
-    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CWindowsErrorTest");
+#include <boost/test/unit_test.hpp>
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CWindowsErrorTest>(
-        "CWindowsErrorTest::testErrors", &CWindowsErrorTest::testErrors));
+BOOST_AUTO_TEST_SUITE(CWindowsErrorTest)
 
-    return suiteOfTests;
-}
 
-void CWindowsErrorTest::testErrors() {
+BOOST_AUTO_TEST_CASE(testErrors) {
     LOG_INFO(<< "Windows error 1 is : " << ml::core::CWindowsError(1));
     LOG_INFO(<< "Windows error 2 is : " << ml::core::CWindowsError(2));
     LOG_INFO(<< "Windows error 3 is : " << ml::core::CWindowsError(3));
@@ -25,3 +20,5 @@ void CWindowsErrorTest::testErrors() {
     LOG_INFO(<< "Windows error 5 is : " << ml::core::CWindowsError(5));
     LOG_INFO(<< "Windows error 6 is : " << ml::core::CWindowsError(6));
 }
+
+BOOST_AUTO_TEST_SUITE_END()

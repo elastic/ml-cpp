@@ -15,7 +15,9 @@
 #include <array>
 #include <vector>
 
-class CMicTest;
+namespace CMicTest {
+struct testFoo;
+}
 
 namespace ml {
 namespace maths {
@@ -69,7 +71,7 @@ private:
     TVector2dVec m_Samples;
     TSizeVec2Ary m_Order;
 
-    friend class ::CMicTest;
+    friend struct CMicTest::testFoo;
 };
 }
 }

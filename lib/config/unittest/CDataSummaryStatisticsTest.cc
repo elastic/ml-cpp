@@ -4,8 +4,6 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
-#include "CDataSummaryStatisticsTest.h"
-
 #include <core/CLogger.h>
 #include <core/CStringUtils.h>
 
@@ -15,7 +13,9 @@
 #include <config/CDataSummaryStatistics.h>
 
 #include <test/CRandomNumbers.h>
+#include <test/BoostTestCloseAbsolute.h>
 
+#include <boost/test/unit_test.hpp>
 #include <boost/math/distributions/gamma.hpp>
 #include <boost/math/distributions/lognormal.hpp>
 #include <boost/math/distributions/normal.hpp>
@@ -24,6 +24,8 @@
 #include <algorithm>
 #include <cstdio>
 
+BOOST_AUTO_TEST_SUITE(CDataSummaryStatisticsTest)
+
 using namespace ml;
 
 using TDoubleVec = std::vector<double>;
@@ -31,7 +33,7 @@ using TSizeVec = std::vector<std::size_t>;
 using TStrVec = std::vector<std::string>;
 using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
 
-void CDataSummaryStatisticsTest::testRate() {
+BOOST_AUTO_TEST_CASE(testRate) {
     // Test we correctly estimate a range of rates.
 
     double rate[] = {10.0, 100.0, 500.0};
@@ -51,12 +53,12 @@ void CDataSummaryStatisticsTest::testRate() {
         LOG_DEBUG(<< "earliest = " << summary.earliest()
                   << ", latest = " << summary.latest());
         LOG_DEBUG(<< "rate = " << summary.meanRate());
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(rate[i], summary.meanRate(),
+        BOOST_CHECK_CLOSE_ABSOLUTE(rate[i], summary.meanRate(),
                                      2.0 * rate[i] * rate[i] / n);
     }
 }
 
-void CDataSummaryStatisticsTest::testCategoricalDistinctCount() {
+BOOST_AUTO_TEST_CASE(testCategoricalDistinctCount) {
     // Test we correctly compute the distinct count with and
     // without sketching.
 
@@ -89,12 +91,12 @@ void CDataSummaryStatisticsTest::testCategoricalDistinctCount() {
         }
 
         LOG_DEBUG(<< "# categories = 1000000, distinct count = " << summary.distinctCount());
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(
+        BOOST_CHECK_CLOSE_ABSOLUTE(
             1000000.0, static_cast<double>(summary.distinctCount()), 0.005 * 1000000.0);
     }
 }
 
-void CDataSummaryStatisticsTest::testCategoricalTopN() {
+BOOST_AUTO_TEST_CASE(testCategoricalTopN) {
     // Test we are able to accurately estimate the counts of some
     // heavy hitting categories.
 
@@ -147,16 +149,16 @@ void CDataSummaryStatisticsTest::testCategoricalTopN() {
         double approx = static_cast<double>(topn[i].second);
         double error = std::fabs(exact - approx) / exact;
 
-        CPPUNIT_ASSERT_EQUAL(categories[freq[i]], topn[i].first);
-        CPPUNIT_ASSERT(error < 0.05);
+        BOOST_CHECK_EQUAL(categories[freq[i]], topn[i].first);
+        BOOST_TEST(error < 0.05);
         meanError.add(error);
     }
 
     LOG_DEBUG(<< "mean error = " << maths::CBasicStatistics::mean(meanError));
-    CPPUNIT_ASSERT(maths::CBasicStatistics::mean(meanError) < 0.005);
+    BOOST_TEST(maths::CBasicStatistics::mean(meanError) < 0.005);
 }
 
-void CDataSummaryStatisticsTest::testNumericBasicStatistics() {
+BOOST_AUTO_TEST_CASE(testNumericBasicStatistics) {
     // Test the minimum, median and maximum of a variety of data sets.
 
     {
@@ -168,9 +170,9 @@ void CDataSummaryStatisticsTest::testNumericBasicStatistics() {
             summary.add(static_cast<std::size_t>(i), core::CStringUtils::typeToString(i));
         }
 
-        CPPUNIT_ASSERT_EQUAL(0.0, summary.minimum());
-        CPPUNIT_ASSERT_EQUAL(250.0, summary.median());
-        CPPUNIT_ASSERT_EQUAL(500.0, summary.maximum());
+        BOOST_CHECK_EQUAL(0.0, summary.minimum());
+        BOOST_CHECK_EQUAL(250.0, summary.median());
+        BOOST_CHECK_EQUAL(500.0, summary.maximum());
     }
 
     test::CRandomNumbers rng;
@@ -191,9 +193,9 @@ void CDataSummaryStatisticsTest::testNumericBasicStatistics() {
             LOG_DEBUG(<< "minimum = " << summary.minimum());
             LOG_DEBUG(<< "median  = " << summary.median());
             LOG_DEBUG(<< "maximum = " << summary.maximum());
-            CPPUNIT_ASSERT_DOUBLES_EQUAL(-10.0, summary.minimum(), 0.15);
-            CPPUNIT_ASSERT_DOUBLES_EQUAL(20.0, summary.median(), 1.0);
-            CPPUNIT_ASSERT_DOUBLES_EQUAL(50.0, summary.maximum(), 0.15);
+            BOOST_CHECK_CLOSE_ABSOLUTE(-10.0, summary.minimum(), 0.15);
+            BOOST_CHECK_CLOSE_ABSOLUTE(20.0, summary.median(), 1.0);
+            BOOST_CHECK_CLOSE_ABSOLUTE(50.0, summary.maximum(), 0.15);
         }
     }
 
@@ -218,18 +220,18 @@ void CDataSummaryStatisticsTest::testNumericBasicStatistics() {
             }
 
             LOG_DEBUG(<< "median  = " << summary.median());
-            CPPUNIT_ASSERT(std::fabs(summary.median() - boost::math::median(lognormal)) < 0.25);
+            BOOST_TEST(std::fabs(summary.median() - boost::math::median(lognormal)) < 0.25);
 
             meanError.add(std::fabs(summary.median() - boost::math::median(lognormal)) /
                           boost::math::median(lognormal));
         }
 
         LOG_DEBUG(<< "mean error = " << maths::CBasicStatistics::mean(meanError));
-        CPPUNIT_ASSERT(maths::CBasicStatistics::mean(meanError) < 0.05);
+        BOOST_TEST(maths::CBasicStatistics::mean(meanError) < 0.05);
     }
 }
 
-void CDataSummaryStatisticsTest::testNumericDistribution() {
+BOOST_AUTO_TEST_CASE(testNumericDistribution) {
     test::CRandomNumbers rng;
 
     TDoubleVec samples;
@@ -267,7 +269,7 @@ void CDataSummaryStatisticsTest::testNumericDistribution() {
 
         LOG_DEBUG(<< "meanAbsError = " << maths::CBasicStatistics::mean(meanAbsError));
         LOG_DEBUG(<< "mean = " << maths::CBasicStatistics::mean(mean));
-        CPPUNIT_ASSERT(maths::CBasicStatistics::mean(meanAbsError) /
+        BOOST_TEST(maths::CBasicStatistics::mean(meanAbsError) /
                            maths::CBasicStatistics::mean(mean) <
                        0.3);
     }
@@ -321,28 +323,10 @@ void CDataSummaryStatisticsTest::testNumericDistribution() {
 
         LOG_DEBUG(<< "meanAbsError = " << maths::CBasicStatistics::mean(meanAbsError));
         LOG_DEBUG(<< "meanRelError = " << maths::CBasicStatistics::mean(meanRelError));
-        CPPUNIT_ASSERT(maths::CBasicStatistics::mean(meanAbsError) < 0.005);
-        CPPUNIT_ASSERT(maths::CBasicStatistics::mean(meanRelError) < 0.05);
+        BOOST_TEST(maths::CBasicStatistics::mean(meanAbsError) < 0.005);
+        BOOST_TEST(maths::CBasicStatistics::mean(meanRelError) < 0.05);
     }
 }
 
-CppUnit::Test* CDataSummaryStatisticsTest::suite() {
-    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CDataSummaryStatisticsTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CDataSummaryStatisticsTest>(
-        "CDataSummaryStatisticsTest::testRate", &CDataSummaryStatisticsTest::testRate));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CDataSummaryStatisticsTest>(
-        "CDataSummaryStatisticsTest::testCategoricalDistinctCount",
-        &CDataSummaryStatisticsTest::testCategoricalDistinctCount));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CDataSummaryStatisticsTest>(
-        "CDataSummaryStatisticsTest::testCategoricalTopN",
-        &CDataSummaryStatisticsTest::testCategoricalTopN));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CDataSummaryStatisticsTest>(
-        "CDataSummaryStatisticsTest::testNumericBasicStatistics",
-        &CDataSummaryStatisticsTest::testNumericBasicStatistics));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CDataSummaryStatisticsTest>(
-        "CDataSummaryStatisticsTest::testNumericDistribution",
-        &CDataSummaryStatisticsTest::testNumericDistribution));
-
-    return suiteOfTests;
-}
+BOOST_AUTO_TEST_SUITE_END()

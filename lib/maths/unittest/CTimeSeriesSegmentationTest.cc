@@ -4,8 +4,6 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
-#include "CTimeSeriesSegmentationTest.h"
-
 #include <core/CStringUtils.h>
 #include <core/Constants.h>
 #include <core/CoreTypes.h>
@@ -13,10 +11,15 @@
 #include <maths/CTimeSeriesSegmentation.h>
 
 #include <test/CRandomNumbers.h>
+#include <test/BoostTestCloseAbsolute.h>
 
 #include "TestUtils.h"
 
+#include <boost/test/unit_test.hpp>
+
 #include <vector>
+
+BOOST_AUTO_TEST_SUITE(CTimeSeriesSegmentationTest)
 
 using namespace ml;
 
@@ -78,7 +81,7 @@ std::size_t distance(const TSizeVec& lhs, const TSizeVec& rhs) {
 }
 }
 
-void CTimeSeriesSegmentationTest::testPiecewiseLinear() {
+BOOST_AUTO_TEST_CASE(testPiecewiseLinear) {
 
     core_t::TTime halfHour{core::constants::HOUR / 2};
     core_t::TTime week{core::constants::WEEK};
@@ -129,19 +132,19 @@ void CTimeSeriesSegmentationTest::testPiecewiseLinear() {
         LOG_DEBUG(<< "residual moments = " << residualMoments);
 
         // No false positives.
-        CPPUNIT_ASSERT_EQUAL(trueSegmentation.size(), segmentation.size());
+        BOOST_CHECK_EQUAL(trueSegmentation.size(), segmentation.size());
 
         // Distance in index space is small.
-        CPPUNIT_ASSERT(distance(trueSegmentation, segmentation) < 35);
+        BOOST_TEST(distance(trueSegmentation, segmentation) < 35);
 
         // Not biased.
-        CPPUNIT_ASSERT(std::fabs(maths::CBasicStatistics::mean(residualMoments) -
+        BOOST_TEST(std::fabs(maths::CBasicStatistics::mean(residualMoments) -
                                  maths::CBasicStatistics::mean(noiseMoments)) <
                        2.0 * std::sqrt(maths::CBasicStatistics::variance(noiseMoments) /
                                        maths::CBasicStatistics::count(noiseMoments)));
 
         // We've explained nearly all the variance.
-        CPPUNIT_ASSERT(maths::CBasicStatistics::variance(residualMoments) <
+        BOOST_TEST(maths::CBasicStatistics::variance(residualMoments) <
                        1.4 * maths::CBasicStatistics::variance(noiseMoments));
     }
 
@@ -194,23 +197,23 @@ void CTimeSeriesSegmentationTest::testPiecewiseLinear() {
     LOG_DEBUG(<< "residual moments = " << residualMoments);
 
     // No false positives
-    CPPUNIT_ASSERT_EQUAL(trueSegmentation.size(), segmentation.size());
+    BOOST_CHECK_EQUAL(trueSegmentation.size(), segmentation.size());
 
     // Distance in index space is small.
-    CPPUNIT_ASSERT(distance(trueSegmentation, segmentation) < 35);
+    BOOST_TEST(distance(trueSegmentation, segmentation) < 35);
 
     // Not biased.
-    CPPUNIT_ASSERT(std::fabs(maths::CBasicStatistics::mean(residualMoments) -
+    BOOST_TEST(std::fabs(maths::CBasicStatistics::mean(residualMoments) -
                              maths::CBasicStatistics::mean(noiseMoments)) <
                    3.0 * std::sqrt(maths::CBasicStatistics::variance(noiseMoments) /
                                    maths::CBasicStatistics::count(noiseMoments)));
 
     // We've explained nearly all the variance.
-    CPPUNIT_ASSERT(maths::CBasicStatistics::variance(residualMoments) <
+    BOOST_TEST(maths::CBasicStatistics::variance(residualMoments) <
                    1.4 * maths::CBasicStatistics::variance(noiseMoments));
 }
 
-void CTimeSeriesSegmentationTest::testPiecewiseLinearScaledPeriodic() {
+BOOST_AUTO_TEST_CASE(testPiecewiseLinearScaledPeriodic) {
 
     core_t::TTime halfHour{core::constants::HOUR / 2};
     core_t::TTime week{core::constants::WEEK};
@@ -268,20 +271,20 @@ void CTimeSeriesSegmentationTest::testPiecewiseLinearScaledPeriodic() {
             LOG_DEBUG(<< "residual moments = " << residualMoments);
 
             // No false positives.
-            CPPUNIT_ASSERT_EQUAL(trueSegmentation.size(), segmentation.size());
+            BOOST_CHECK_EQUAL(trueSegmentation.size(), segmentation.size());
 
             // Distance in index space is small.
-            CPPUNIT_ASSERT(distance(trueSegmentation, segmentation) < 5);
+            BOOST_TEST(distance(trueSegmentation, segmentation) < 5);
 
             // Not biased.
-            CPPUNIT_ASSERT(
+            BOOST_TEST(
                 std::fabs(maths::CBasicStatistics::mean(residualMoments) -
                           maths::CBasicStatistics::mean(noiseMoments)) <
                 3.0 * std::sqrt(maths::CBasicStatistics::variance(noiseMoments) /
                                 maths::CBasicStatistics::count(noiseMoments)));
 
             // We've explained nearly all the variance.
-            CPPUNIT_ASSERT(maths::CBasicStatistics::variance(residualMoments) <
+            BOOST_TEST(maths::CBasicStatistics::variance(residualMoments) <
                            1.4 * maths::CBasicStatistics::variance(noiseMoments));
         }
     }
@@ -339,24 +342,24 @@ void CTimeSeriesSegmentationTest::testPiecewiseLinearScaledPeriodic() {
         LOG_DEBUG(<< "residual moments = " << residualMoments);
 
         // No false positives
-        CPPUNIT_ASSERT_EQUAL(trueSegmentation.size(), segmentation.size());
+        BOOST_CHECK_EQUAL(trueSegmentation.size(), segmentation.size());
 
         // Distance in index space is small.
-        CPPUNIT_ASSERT(distance(trueSegmentation, segmentation) < 20);
+        BOOST_TEST(distance(trueSegmentation, segmentation) < 20);
 
         // Not biased.
-        CPPUNIT_ASSERT(std::fabs(maths::CBasicStatistics::mean(residualMoments) -
+        BOOST_TEST(std::fabs(maths::CBasicStatistics::mean(residualMoments) -
                                  maths::CBasicStatistics::mean(noiseMoments)) <
                        3.0 * std::sqrt(maths::CBasicStatistics::variance(noiseMoments) /
                                        maths::CBasicStatistics::count(noiseMoments)));
 
         // We've explained nearly all the variance.
-        CPPUNIT_ASSERT(maths::CBasicStatistics::variance(residualMoments) <
+        BOOST_TEST(maths::CBasicStatistics::variance(residualMoments) <
                        1.4 * maths::CBasicStatistics::variance(noiseMoments));
     }
 }
 
-void CTimeSeriesSegmentationTest::testRemovePiecewiseLinearDiscontinuities() {
+BOOST_AUTO_TEST_CASE(testRemovePiecewiseLinearDiscontinuities) {
 
     std::size_t length{300};
 
@@ -378,7 +381,7 @@ void CTimeSeriesSegmentationTest::testRemovePiecewiseLinearDiscontinuities() {
     values = TSegmentation::removePiecewiseLinearDiscontinuities(values, segmentation);
 
     for (const auto& value : values) {
-        CPPUNIT_ASSERT_EQUAL(3.0, static_cast<double>(maths::CBasicStatistics::mean(value)));
+        BOOST_CHECK_EQUAL(3.0, static_cast<double>(maths::CBasicStatistics::mean(value)));
     }
 
     values.assign(length, TFloatMeanAccumulator{});
@@ -403,42 +406,29 @@ void CTimeSeriesSegmentationTest::testRemovePiecewiseLinearDiscontinuities() {
     //   3) The values are unchanged in the range [200, 300).
 
     for (std::size_t i = 1; i < values.size(); ++i) {
-        CPPUNIT_ASSERT(std::fabs(maths::CBasicStatistics::mean(values[i]) -
+        BOOST_TEST(std::fabs(maths::CBasicStatistics::mean(values[i]) -
                                  maths::CBasicStatistics::mean(values[i - 1])) < 0.25);
     }
     for (std::size_t i = 1; i < length; ++i) {
         if (i < 50) {
-            CPPUNIT_ASSERT_DOUBLES_EQUAL(
+            BOOST_CHECK_CLOSE_ABSOLUTE(
                 0.1,
                 static_cast<double>(maths::CBasicStatistics::mean(values[i]) -
                                     maths::CBasicStatistics::mean(values[i - 1])),
                 1e-4);
         } else if (i > 50 && i < 200) {
-            CPPUNIT_ASSERT_DOUBLES_EQUAL(
+            BOOST_CHECK_CLOSE_ABSOLUTE(
                 -0.1,
                 static_cast<double>(maths::CBasicStatistics::mean(values[i]) -
                                     maths::CBasicStatistics::mean(values[i - 1])),
                 1e-4);
         } else if (i > 200) {
-            CPPUNIT_ASSERT_DOUBLES_EQUAL(
+            BOOST_CHECK_CLOSE_ABSOLUTE(
                 0.2 * static_cast<double>(i) - 2.0,
                 static_cast<double>(maths::CBasicStatistics::mean(values[i])), 1e-4);
         }
     }
 }
 
-CppUnit::Test* CTimeSeriesSegmentationTest::suite() {
-    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CTimeSeriesSegmentationTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CTimeSeriesSegmentationTest>(
-        "CTimeSeriesSegmentationTest::testPiecewiseLinear",
-        &CTimeSeriesSegmentationTest::testPiecewiseLinear));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CTimeSeriesSegmentationTest>(
-        "CTimeSeriesSegmentationTest::testPiecewiseLinearScaledPeriodic",
-        &CTimeSeriesSegmentationTest::testPiecewiseLinearScaledPeriodic));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CTimeSeriesSegmentationTest>(
-        "CTimeSeriesSegmentationTest::testRemovePiecewiseLinearDiscontinuities",
-        &CTimeSeriesSegmentationTest::testRemovePiecewiseLinearDiscontinuities));
-
-    return suiteOfTests;
-}
+BOOST_AUTO_TEST_SUITE_END()

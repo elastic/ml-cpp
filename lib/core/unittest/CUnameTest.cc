@@ -3,21 +3,16 @@
  * or more contributor license agreements. Licensed under the Elastic License;
  * you may not use this file except in compliance with the Elastic License.
  */
-#include "CUnameTest.h"
 
 #include <core/CLogger.h>
 #include <core/CUname.h>
 
-CppUnit::Test* CUnameTest::suite() {
-    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CUnameTest");
+#include <boost/test/unit_test.hpp>
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CUnameTest>(
-        "CUnameTest::testUname", &CUnameTest::testUname));
+BOOST_AUTO_TEST_SUITE(CUnameTest)
 
-    return suiteOfTests;
-}
 
-void CUnameTest::testUname() {
+BOOST_AUTO_TEST_CASE(testUname) {
     LOG_DEBUG(<< ml::core::CUname::sysName());
     LOG_DEBUG(<< ml::core::CUname::nodeName());
     LOG_DEBUG(<< ml::core::CUname::release());
@@ -27,3 +22,5 @@ void CUnameTest::testUname() {
     LOG_DEBUG(<< ml::core::CUname::mlPlatform());
     LOG_DEBUG(<< ml::core::CUname::mlOsVer());
 }
+
+BOOST_AUTO_TEST_SUITE_END()

@@ -4,8 +4,6 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
-#include "CCountMinSketchTest.h"
-
 #include <core/CLogger.h>
 #include <core/CRapidXmlStatePersistInserter.h>
 #include <core/CRapidXmlStateRestoreTraverser.h>
@@ -15,11 +13,15 @@
 
 #include <test/CRandomNumbers.h>
 
+#include <boost/test/unit_test.hpp>
+
+BOOST_AUTO_TEST_SUITE(CCountMinSketchTest)
+
 using namespace ml;
 
 using TDoubleVec = std::vector<double>;
 
-void CCountMinSketchTest::testCounts() {
+BOOST_AUTO_TEST_CASE(testCounts) {
     using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
 
     test::CRandomNumbers rng;
@@ -63,12 +65,12 @@ void CCountMinSketchTest::testCounts() {
         LOG_DEBUG(<< "mean error = " << maths::CBasicStatistics::mean(meanError));
         LOG_DEBUG(<< "error count = " << errorCount);
         if (sketch.oneMinusDeltaError() == 0.0) {
-            CPPUNIT_ASSERT_EQUAL(0.0, maths::CBasicStatistics::mean(meanError));
+            BOOST_CHECK_EQUAL(0.0, maths::CBasicStatistics::mean(meanError));
         } else {
-            //CPPUNIT_ASSERT(maths::CBasicStatistics::mean(meanError)
+            //BOOST_TEST(maths::CBasicStatistics::mean(meanError)
             //                   < 0.1 * static_cast<double>(n));
         }
-        //CPPUNIT_ASSERT_EQUAL(0.0, errorCount);
+        //BOOST_CHECK_EQUAL(0.0, errorCount);
     }
 
     // Test the case that a small fraction of categories generate a large
@@ -103,18 +105,18 @@ void CCountMinSketchTest::testCounts() {
                       << ", estimated count = " << estimated);
 
             double relativeError = std::fabs(estimated - count) / count;
-            CPPUNIT_ASSERT(relativeError < 0.01);
+            BOOST_TEST(relativeError < 0.01);
 
             meanRelativeError.add(relativeError);
         }
 
         LOG_DEBUG(<< "mean relative error "
                   << maths::CBasicStatistics::mean(meanRelativeError));
-        CPPUNIT_ASSERT(maths::CBasicStatistics::mean(meanRelativeError) < 0.005);
+        BOOST_TEST(maths::CBasicStatistics::mean(meanRelativeError) < 0.005);
     }
 }
 
-void CCountMinSketchTest::testSwap() {
+BOOST_AUTO_TEST_CASE(testSwap) {
     test::CRandomNumbers rng;
 
     TDoubleVec counts1;
@@ -153,27 +155,27 @@ void CCountMinSketchTest::testSwap() {
     LOG_DEBUG(<< "checksum4 = " << checksum4);
 
     sketch1.swap(sketch2);
-    CPPUNIT_ASSERT_EQUAL(checksum2, sketch1.checksum());
-    CPPUNIT_ASSERT_EQUAL(checksum1, sketch2.checksum());
+    BOOST_CHECK_EQUAL(checksum2, sketch1.checksum());
+    BOOST_CHECK_EQUAL(checksum1, sketch2.checksum());
     sketch1.swap(sketch2);
 
     sketch2.swap(sketch3);
-    CPPUNIT_ASSERT_EQUAL(checksum3, sketch2.checksum());
-    CPPUNIT_ASSERT_EQUAL(checksum2, sketch3.checksum());
+    BOOST_CHECK_EQUAL(checksum3, sketch2.checksum());
+    BOOST_CHECK_EQUAL(checksum2, sketch3.checksum());
     sketch2.swap(sketch3);
 
     sketch1.swap(sketch4);
-    CPPUNIT_ASSERT_EQUAL(checksum1, sketch4.checksum());
-    CPPUNIT_ASSERT_EQUAL(checksum4, sketch1.checksum());
+    BOOST_CHECK_EQUAL(checksum1, sketch4.checksum());
+    BOOST_CHECK_EQUAL(checksum4, sketch1.checksum());
     sketch1.swap(sketch4);
 
     sketch3.swap(sketch4);
-    CPPUNIT_ASSERT_EQUAL(checksum3, sketch4.checksum());
-    CPPUNIT_ASSERT_EQUAL(checksum4, sketch3.checksum());
+    BOOST_CHECK_EQUAL(checksum3, sketch4.checksum());
+    BOOST_CHECK_EQUAL(checksum4, sketch3.checksum());
     sketch3.swap(sketch4);
 }
 
-void CCountMinSketchTest::testPersist() {
+BOOST_AUTO_TEST_CASE(testPersist) {
     test::CRandomNumbers rng;
 
     TDoubleVec counts;
@@ -195,20 +197,20 @@ void CCountMinSketchTest::testPersist() {
     // Restore the XML into a new sketch.
     {
         core::CRapidXmlParser parser;
-        CPPUNIT_ASSERT(parser.parseStringIgnoreCdata(origXml));
+        BOOST_TEST(parser.parseStringIgnoreCdata(origXml));
         core::CRapidXmlStateRestoreTraverser traverser(parser);
         maths::CCountMinSketch restoredSketch(traverser);
 
         LOG_DEBUG(<< "orig checksum = " << origSketch.checksum()
                   << ", new checksum = " << restoredSketch.checksum());
-        CPPUNIT_ASSERT_EQUAL(origSketch.checksum(), restoredSketch.checksum());
+        BOOST_CHECK_EQUAL(origSketch.checksum(), restoredSketch.checksum());
 
         std::string newXml;
         core::CRapidXmlStatePersistInserter inserter("root");
         restoredSketch.acceptPersistInserter(inserter);
         inserter.toXml(newXml);
 
-        CPPUNIT_ASSERT_EQUAL(origXml, newXml);
+        BOOST_CHECK_EQUAL(origXml, newXml);
     }
 
     // Sketch.
@@ -229,32 +231,22 @@ void CCountMinSketchTest::testPersist() {
     // Restore the XML into a new sketch.
     {
         core::CRapidXmlParser parser;
-        CPPUNIT_ASSERT(parser.parseStringIgnoreCdata(origXml));
+        BOOST_TEST(parser.parseStringIgnoreCdata(origXml));
         core::CRapidXmlStateRestoreTraverser traverser(parser);
         maths::CCountMinSketch restoredSketch(traverser);
 
         LOG_DEBUG(<< "orig checksum = " << origSketch.checksum()
                   << ", new checksum = " << restoredSketch.checksum());
-        CPPUNIT_ASSERT_EQUAL(origSketch.checksum(), restoredSketch.checksum());
+        BOOST_CHECK_EQUAL(origSketch.checksum(), restoredSketch.checksum());
 
         std::string newXml;
         core::CRapidXmlStatePersistInserter inserter("root");
         restoredSketch.acceptPersistInserter(inserter);
         inserter.toXml(newXml);
 
-        CPPUNIT_ASSERT_EQUAL(origXml, newXml);
+        BOOST_CHECK_EQUAL(origXml, newXml);
     }
 }
 
-CppUnit::Test* CCountMinSketchTest::suite() {
-    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CCountMinSketchTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CCountMinSketchTest>(
-        "CCountMinSketchTest::testCounts", &CCountMinSketchTest::testCounts));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CCountMinSketchTest>(
-        "CCountMinSketchTest::testSwap", &CCountMinSketchTest::testSwap));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CCountMinSketchTest>(
-        "CCountMinSketchTest::testPersist", &CCountMinSketchTest::testPersist));
-
-    return suiteOfTests;
-}
+BOOST_AUTO_TEST_SUITE_END()

@@ -3,7 +3,6 @@
  * or more contributor license agreements. Licensed under the Elastic License;
  * you may not use this file except in compliance with the Elastic License.
  */
-#include "CPersistenceManagerTest.h"
 
 #include <core/CJsonOutputStreamWrapper.h>
 #include <core/COsFileFuncs.h>
@@ -26,10 +25,14 @@
 #include <api/CPersistenceManager.h>
 #include <api/CSingleStreamDataAdder.h>
 
+#include <boost/test/unit_test.hpp>
+
 #include <algorithm>
 #include <fstream>
 #include <sstream>
 #include <string>
+
+BOOST_AUTO_TEST_SUITE(CPersistenceManagerTest)
 
 namespace {
 
@@ -42,45 +45,25 @@ void reportPersistComplete(ml::api::CModelSnapshotJsonWriter::SModelSnapshotRepo
 }
 }
 
-CppUnit::Test* CPersistenceManagerTest::suite() {
-    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CPersistenceManagerTest");
-    suiteOfTests->addTest(new CppUnit::TestCaller<CPersistenceManagerTest>(
-        "CPersistenceManagerTest::testDetectorPersistBy",
-        &CPersistenceManagerTest::testDetectorPersistBy));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CPersistenceManagerTest>(
-        "CPersistenceManagerTest::testDetectorPersistOver",
-        &CPersistenceManagerTest::testDetectorPersistOver));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CPersistenceManagerTest>(
-        "CPersistenceManagerTest::testDetectorPersistPartition",
-        &CPersistenceManagerTest::testDetectorPersistPartition));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CPersistenceManagerTest>(
-        "CPersistenceManagerTest::testCategorizationOnlyPersist",
-        &CPersistenceManagerTest::testCategorizationOnlyPersist));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CPersistenceManagerTest>(
-        "CPersistenceManagerTest::testDetectorBackgroundPersistStaticsConsistency",
-        &CPersistenceManagerTest::testDetectorBackgroundPersistStaticsConsistency));
 
-    return suiteOfTests;
-}
-
-void CPersistenceManagerTest::testDetectorPersistBy() {
+BOOST_AUTO_TEST_CASE(testDetectorPersistBy) {
     this->foregroundBackgroundCompCategorizationAndAnomalyDetection("testfiles/new_mlfields.conf");
 }
 
-void CPersistenceManagerTest::testDetectorPersistOver() {
+BOOST_AUTO_TEST_CASE(testDetectorPersistOver) {
     this->foregroundBackgroundCompCategorizationAndAnomalyDetection("testfiles/new_mlfields_over.conf");
 }
 
-void CPersistenceManagerTest::testDetectorPersistPartition() {
+BOOST_AUTO_TEST_CASE(testDetectorPersistPartition) {
     this->foregroundBackgroundCompCategorizationAndAnomalyDetection(
         "testfiles/new_mlfields_partition.conf");
 }
 
-void CPersistenceManagerTest::testDetectorBackgroundPersistStaticsConsistency() {
+BOOST_AUTO_TEST_CASE(testDetectorBackgroundPersistStaticsConsistency) {
     this->foregroundBackgroundCompAnomalyDetectionAfterStaticsUpdate("testfiles/new_mlfields_over.conf");
 }
 
-void CPersistenceManagerTest::testCategorizationOnlyPersist() {
+BOOST_AUTO_TEST_CASE(testCategorizationOnlyPersist) {
     // Start by creating a categorizer with non-trivial state
 
     static const std::string JOB_ID("job");
@@ -89,10 +72,10 @@ void CPersistenceManagerTest::testCategorizationOnlyPersist() {
 
     // Open the input and output files
     std::ifstream inputStrm(inputFilename);
-    CPPUNIT_ASSERT(inputStrm.is_open());
+    BOOST_TEST(inputStrm.is_open());
 
     std::ofstream outputStrm(ml::core::COsFileFuncs::NULL_FILENAME);
-    CPPUNIT_ASSERT(outputStrm.is_open());
+    BOOST_TEST(outputStrm.is_open());
 
     ml::model::CLimits limits;
     ml::api::CFieldConfig fieldConfig("agent");
@@ -126,19 +109,19 @@ void CPersistenceManagerTest::testCategorizationOnlyPersist() {
 
         ml::api::CNdJsonInputParser parser(inputStrm);
 
-        CPPUNIT_ASSERT(parser.readStreamIntoMaps(std::bind(
+        BOOST_TEST(parser.readStreamIntoMaps(std::bind(
             &ml::api::CDataProcessor::handleRecord, &typer, std::placeholders::_1)));
 
         // Persist the processors' state in the background
-        CPPUNIT_ASSERT(typer.periodicPersistStateInBackground());
-        CPPUNIT_ASSERT(persistenceManager.startPersistInBackground());
+        BOOST_TEST(typer.periodicPersistStateInBackground());
+        BOOST_TEST(persistenceManager.startPersistInBackground());
 
         LOG_DEBUG(<< "Before waiting for the background persister to be idle");
-        CPPUNIT_ASSERT(persistenceManager.waitForIdle());
+        BOOST_TEST(persistenceManager.waitForIdle());
         LOG_DEBUG(<< "After waiting for the background persister to be idle");
 
         // Now persist the processors' state in the foreground
-        CPPUNIT_ASSERT(typer.periodicPersistStateInForeground());
+        BOOST_TEST(typer.periodicPersistStateInForeground());
         persistenceManager.startPersist();
     }
 
@@ -150,7 +133,7 @@ void CPersistenceManagerTest::testCategorizationOnlyPersist() {
     std::replace(backgroundState.begin(), backgroundState.end(), '\0', ',');
     std::replace(foregroundState.begin(), foregroundState.end(), '\0', ',');
 
-    CPPUNIT_ASSERT_EQUAL(backgroundState, foregroundState);
+    BOOST_CHECK_EQUAL(backgroundState, foregroundState);
 }
 
 void CPersistenceManagerTest::foregroundBackgroundCompCategorizationAndAnomalyDetection(
@@ -164,14 +147,14 @@ void CPersistenceManagerTest::foregroundBackgroundCompCategorizationAndAnomalyDe
 
     // Open the input and output files
     std::ifstream inputStrm(inputFilename.c_str());
-    CPPUNIT_ASSERT(inputStrm.is_open());
+    BOOST_TEST(inputStrm.is_open());
 
     std::ofstream outputStrm(ml::core::COsFileFuncs::NULL_FILENAME);
-    CPPUNIT_ASSERT(outputStrm.is_open());
+    BOOST_TEST(outputStrm.is_open());
 
     ml::model::CLimits limits;
     ml::api::CFieldConfig fieldConfig;
-    CPPUNIT_ASSERT(fieldConfig.initFromFile(configFileName));
+    BOOST_TEST(fieldConfig.initFromFile(configFileName));
 
     ml::model::CAnomalyDetectorModelConfig modelConfig =
         ml::model::CAnomalyDetectorModelConfig::defaultConfig(BUCKET_SIZE);
@@ -227,27 +210,27 @@ void CPersistenceManagerTest::foregroundBackgroundCompCategorizationAndAnomalyDe
 
         ml::api::CNdJsonInputParser parser(inputStrm);
 
-        CPPUNIT_ASSERT(parser.readStreamIntoMaps(std::bind(
+        BOOST_TEST(parser.readStreamIntoMaps(std::bind(
             &ml::api::CDataProcessor::handleRecord, firstProcessor, std::placeholders::_1)));
 
         // Persist the processors' state in the background
-        CPPUNIT_ASSERT(firstProcessor->periodicPersistStateInBackground());
-        CPPUNIT_ASSERT(persistenceManager.startPersistInBackground());
+        BOOST_TEST(firstProcessor->periodicPersistStateInBackground());
+        BOOST_TEST(persistenceManager.startPersistInBackground());
 
         LOG_DEBUG(<< "Before waiting for the background persister to be idle");
-        CPPUNIT_ASSERT(persistenceManager.waitForIdle());
+        BOOST_TEST(persistenceManager.waitForIdle());
         LOG_DEBUG(<< "After waiting for the background persister to be idle");
         backgroundSnapshotId = snapshotId;
 
         // Now persist the processors' state in the foreground
 
-        CPPUNIT_ASSERT(firstProcessor->periodicPersistStateInForeground());
+        BOOST_TEST(firstProcessor->periodicPersistStateInForeground());
         persistenceManager.startPersist();
         foregroundSnapshotId = snapshotId;
 
         // ... persist in foreground again by directly calling persistState
         ml::api::CSingleStreamDataAdder foregroundDataAdder2(foregroundStreamPtr2);
-        CPPUNIT_ASSERT(firstProcessor->persistState(
+        BOOST_TEST(firstProcessor->persistState(
             foregroundDataAdder2, "Periodic foreground persistence at "));
         foregroundSnapshotId2 = snapshotId;
     }
@@ -258,11 +241,11 @@ void CPersistenceManagerTest::foregroundBackgroundCompCategorizationAndAnomalyDe
 
     // The snapshot ID can be different between the two persists, so replace the
     // first occurrence of it (which is in the bulk metadata)
-    CPPUNIT_ASSERT_EQUAL(size_t(1), ml::core::CStringUtils::replaceFirst(
+    BOOST_CHECK_EQUAL(size_t(1), ml::core::CStringUtils::replaceFirst(
                                         backgroundSnapshotId, "snap", backgroundState));
-    CPPUNIT_ASSERT_EQUAL(size_t(1), ml::core::CStringUtils::replaceFirst(
+    BOOST_CHECK_EQUAL(size_t(1), ml::core::CStringUtils::replaceFirst(
                                         foregroundSnapshotId, "snap", foregroundState));
-    CPPUNIT_ASSERT_EQUAL(size_t(1), ml::core::CStringUtils::replaceFirst(
+    BOOST_CHECK_EQUAL(size_t(1), ml::core::CStringUtils::replaceFirst(
                                         foregroundSnapshotId2, "snap", foregroundState2));
 
     // Replace the zero byte separators so the expected/actual strings don't get
@@ -271,9 +254,9 @@ void CPersistenceManagerTest::foregroundBackgroundCompCategorizationAndAnomalyDe
     std::replace(foregroundState.begin(), foregroundState.end(), '\0', ',');
     std::replace(foregroundState2.begin(), foregroundState2.end(), '\0', ',');
 
-    CPPUNIT_ASSERT_EQUAL(foregroundState, foregroundState2);
-    CPPUNIT_ASSERT_EQUAL(backgroundState, foregroundState2);
-    CPPUNIT_ASSERT_EQUAL(backgroundState, foregroundState);
+    BOOST_CHECK_EQUAL(foregroundState, foregroundState2);
+    BOOST_CHECK_EQUAL(backgroundState, foregroundState2);
+    BOOST_CHECK_EQUAL(backgroundState, foregroundState);
 }
 
 void CPersistenceManagerTest::foregroundBackgroundCompAnomalyDetectionAfterStaticsUpdate(
@@ -287,14 +270,14 @@ void CPersistenceManagerTest::foregroundBackgroundCompAnomalyDetectionAfterStati
 
     // Open the input and output files
     std::ifstream inputStrm(inputFilename.c_str());
-    CPPUNIT_ASSERT(inputStrm.is_open());
+    BOOST_TEST(inputStrm.is_open());
 
     std::ofstream outputStrm(ml::core::COsFileFuncs::NULL_FILENAME);
-    CPPUNIT_ASSERT(outputStrm.is_open());
+    BOOST_TEST(outputStrm.is_open());
 
     ml::model::CLimits limits;
     ml::api::CFieldConfig fieldConfig;
-    CPPUNIT_ASSERT(fieldConfig.initFromFile(configFileName));
+    BOOST_TEST(fieldConfig.initFromFile(configFileName));
 
     ml::model::CAnomalyDetectorModelConfig modelConfig =
         ml::model::CAnomalyDetectorModelConfig::defaultConfig(BUCKET_SIZE);
@@ -336,26 +319,26 @@ void CPersistenceManagerTest::foregroundBackgroundCompAnomalyDetectionAfterStati
 
         ml::api::CNdJsonInputParser parser(inputStrm);
 
-        CPPUNIT_ASSERT(parser.readStreamIntoMaps(std::bind(
+        BOOST_TEST(parser.readStreamIntoMaps(std::bind(
             &ml::api::CDataProcessor::handleRecord, firstProcessor, std::placeholders::_1)));
 
         // Ensure the model size stats are up to date
         job.finalise();
 
-        CPPUNIT_ASSERT(firstProcessor->periodicPersistStateInForeground());
+        BOOST_TEST(firstProcessor->periodicPersistStateInForeground());
         persistenceManager.startPersist();
 
         foregroundSnapshotId = snapshotId;
 
         // Now persist the processors' state in the background
-        CPPUNIT_ASSERT(firstProcessor->periodicPersistStateInBackground());
-        CPPUNIT_ASSERT(persistenceManager.startPersistInBackground());
+        BOOST_TEST(firstProcessor->periodicPersistStateInBackground());
+        BOOST_TEST(persistenceManager.startPersistInBackground());
 
         //Increment one of the counter values
         ++ml::core::CProgramCounters::counter(ml::counter_t::E_TSADMemoryUsage);
 
         LOG_DEBUG(<< "Before waiting for the background persister to be idle");
-        CPPUNIT_ASSERT(persistenceManager.waitForIdle());
+        BOOST_TEST(persistenceManager.waitForIdle());
         LOG_DEBUG(<< "After waiting for the background persister to be idle");
         backgroundSnapshotId = snapshotId;
     }
@@ -365,9 +348,9 @@ void CPersistenceManagerTest::foregroundBackgroundCompAnomalyDetectionAfterStati
 
     // The snapshot ID can be different between the two persists, so replace the
     // first occurrence of it (which is in the bulk metadata)
-    CPPUNIT_ASSERT_EQUAL(size_t(1), ml::core::CStringUtils::replaceFirst(
+    BOOST_CHECK_EQUAL(size_t(1), ml::core::CStringUtils::replaceFirst(
                                         backgroundSnapshotId, "snap", backgroundState));
-    CPPUNIT_ASSERT_EQUAL(size_t(1), ml::core::CStringUtils::replaceFirst(
+    BOOST_CHECK_EQUAL(size_t(1), ml::core::CStringUtils::replaceFirst(
                                         foregroundSnapshotId, "snap", foregroundState));
 
     // Replace the zero byte separators so the expected/actual strings don't get
@@ -375,5 +358,7 @@ void CPersistenceManagerTest::foregroundBackgroundCompAnomalyDetectionAfterStati
     std::replace(backgroundState.begin(), backgroundState.end(), '\0', ',');
     std::replace(foregroundState.begin(), foregroundState.end(), '\0', ',');
 
-    CPPUNIT_ASSERT_EQUAL(backgroundState, foregroundState);
+    BOOST_CHECK_EQUAL(backgroundState, foregroundState);
 }
+
+BOOST_AUTO_TEST_SUITE_END()

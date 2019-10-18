@@ -4,8 +4,6 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
-#include "CInformationCriteriaTest.h"
-
 #include <maths/CInformationCriteria.h>
 #include <maths/CKMeans.h>
 #include <maths/CLinearAlgebra.h>
@@ -13,6 +11,11 @@
 #include <maths/CSampling.h>
 
 #include <test/CRandomNumbers.h>
+#include <test/BoostTestCloseAbsolute.h>
+
+#include <boost/test/unit_test.hpp>
+
+BOOST_AUTO_TEST_SUITE(CInformationCriteriaTest)
 
 using namespace ml;
 
@@ -49,7 +52,7 @@ double logfGaussian(const POINT& mean, const MATRIX& covariance, const POINT& x)
 }
 }
 
-void CInformationCriteriaTest::testSphericalGaussian() {
+BOOST_AUTO_TEST_CASE(testSphericalGaussian) {
     // Check that the information criterion values are the expected
     // values for the generating distribution.
 
@@ -83,13 +86,13 @@ void CInformationCriteriaTest::testSphericalGaussian() {
         bic.add(samples);
         LOG_DEBUG(<< "expected BIC  = " << expectedBIC);
         LOG_DEBUG(<< "BIC           = " << bic.calculate());
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(expectedBIC, bic.calculate(), 2e-3 * expectedBIC);
+        BOOST_CHECK_CLOSE_ABSOLUTE(expectedBIC, bic.calculate(), 2e-3 * expectedBIC);
 
         maths::CSphericalGaussianInfoCriterion<TVector2, maths::E_AICc> aic;
         aic.add(samples);
         LOG_DEBUG(<< "expected AICc = " << expectedAICc);
         LOG_DEBUG(<< "AICc          = " << aic.calculate());
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(expectedAICc, aic.calculate(), 2e-3 * expectedAICc);
+        BOOST_CHECK_CLOSE_ABSOLUTE(expectedAICc, aic.calculate(), 2e-3 * expectedAICc);
     }
     {
         double variance = 8.0;
@@ -120,13 +123,13 @@ void CInformationCriteriaTest::testSphericalGaussian() {
         bic.add(samples);
         LOG_DEBUG(<< "expected BIC = " << expectedBIC);
         LOG_DEBUG(<< "BIC          = " << bic.calculate());
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(expectedBIC, bic.calculate(), 2e-3 * expectedBIC);
+        BOOST_CHECK_CLOSE_ABSOLUTE(expectedBIC, bic.calculate(), 2e-3 * expectedBIC);
 
         maths::CSphericalGaussianInfoCriterion<TVector4, maths::E_AICc> aic;
         aic.add(samples);
         LOG_DEBUG(<< "expected AICc = " << expectedAICc);
         LOG_DEBUG(<< "AICc          = " << aic.calculate());
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(expectedAICc, aic.calculate(), 2e-3 * expectedAICc);
+        BOOST_CHECK_CLOSE_ABSOLUTE(expectedAICc, aic.calculate(), 2e-3 * expectedAICc);
     }
 
     // Check that they correctly distinguish the best fit model.
@@ -167,11 +170,11 @@ void CInformationCriteriaTest::testSphericalGaussian() {
 
             LOG_DEBUG(<< "1 cluster BIC = " << bic1.calculate());
             LOG_DEBUG(<< "2 cluster BIC = " << bic2.calculate());
-            CPPUNIT_ASSERT(bic1.calculate() < bic2.calculate());
+            BOOST_TEST(bic1.calculate() < bic2.calculate());
 
             LOG_DEBUG(<< "1 cluster AIC = " << aic1.calculate());
             LOG_DEBUG(<< "2 cluster AIC = " << aic2.calculate());
-            CPPUNIT_ASSERT(aic1.calculate() < aic2.calculate());
+            BOOST_TEST(aic1.calculate() < aic2.calculate());
         }
 
         TVector2Vec centres;
@@ -192,16 +195,16 @@ void CInformationCriteriaTest::testSphericalGaussian() {
 
             LOG_DEBUG(<< "1 cluster BIC = " << bic1.calculate());
             LOG_DEBUG(<< "2 cluster BIC = " << bic2.calculate());
-            CPPUNIT_ASSERT(bic1.calculate() < bic2.calculate());
+            BOOST_TEST(bic1.calculate() < bic2.calculate());
 
             LOG_DEBUG(<< "1 cluster AIC = " << aic1.calculate());
             LOG_DEBUG(<< "2 cluster AIC = " << aic2.calculate());
-            CPPUNIT_ASSERT(aic1.calculate() < aic2.calculate());
+            BOOST_TEST(aic1.calculate() < aic2.calculate());
         }
     }
 }
 
-void CInformationCriteriaTest::testSphericalGaussianWithSphericalCluster() {
+BOOST_AUTO_TEST_CASE(testSphericalGaussianWithSphericalCluster) {
     // The idea of this test is simply to check that we get the
     // same result working with clusters of points or their
     // spherical cluster representation.
@@ -248,7 +251,7 @@ void CInformationCriteriaTest::testSphericalGaussianWithSphericalCluster() {
         LOG_DEBUG(<< "BIC points  = " << bicPoints.calculate());
         LOG_DEBUG(<< "BIC clusters  = " << bicClusters.calculate());
 
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(bicPoints.calculate(), bicClusters.calculate(),
+        BOOST_CHECK_CLOSE_ABSOLUTE(bicPoints.calculate(), bicClusters.calculate(),
                                      1e-10 * bicPoints.calculate());
 
         maths::CSphericalGaussianInfoCriterion<TVector2, maths::E_AICc> aicPoints;
@@ -257,12 +260,12 @@ void CInformationCriteriaTest::testSphericalGaussianWithSphericalCluster() {
         aicClusters.add(clusters);
         LOG_DEBUG(<< "AICc points   = " << aicPoints.calculate());
         LOG_DEBUG(<< "AICc clusters = " << aicClusters.calculate());
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(aicPoints.calculate(), aicClusters.calculate(),
+        BOOST_CHECK_CLOSE_ABSOLUTE(aicPoints.calculate(), aicClusters.calculate(),
                                      1e-10 * aicPoints.calculate());
     }
 }
 
-void CInformationCriteriaTest::testGaussian() {
+BOOST_AUTO_TEST_CASE(testGaussian) {
     maths::CSampling::seed();
 
     {
@@ -292,13 +295,13 @@ void CInformationCriteriaTest::testGaussian() {
         bic.add(samples);
         LOG_DEBUG(<< "expected BIC  = " << expectedBIC);
         LOG_DEBUG(<< "BIC           = " << bic.calculate());
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(expectedBIC, bic.calculate(), 2e-3 * expectedBIC);
+        BOOST_CHECK_CLOSE_ABSOLUTE(expectedBIC, bic.calculate(), 2e-3 * expectedBIC);
 
         maths::CGaussianInfoCriterion<TVector2, maths::E_AICc> aic;
         aic.add(samples);
         LOG_DEBUG(<< "expected AICc = " << expectedAICc);
         LOG_DEBUG(<< "AICc          = " << aic.calculate());
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(expectedAICc, aic.calculate(), 2e-3 * expectedAICc);
+        BOOST_CHECK_CLOSE_ABSOLUTE(expectedAICc, aic.calculate(), 2e-3 * expectedAICc);
     }
     {
         double mean_[] = {-5.0, 30.0, 2.0, 7.9};
@@ -328,13 +331,13 @@ void CInformationCriteriaTest::testGaussian() {
         bic.add(samples);
         LOG_DEBUG(<< "expected BIC = " << expectedBIC);
         LOG_DEBUG(<< "BIC          = " << bic.calculate());
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(expectedBIC, bic.calculate(), 2e-3 * expectedBIC);
+        BOOST_CHECK_CLOSE_ABSOLUTE(expectedBIC, bic.calculate(), 2e-3 * expectedBIC);
 
         maths::CGaussianInfoCriterion<TVector4, maths::E_AICc> aic;
         aic.add(samples);
         LOG_DEBUG(<< "expected AICc = " << expectedAICc);
         LOG_DEBUG(<< "AICc          = " << aic.calculate());
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(expectedAICc, aic.calculate(), 2e-3 * expectedAICc);
+        BOOST_CHECK_CLOSE_ABSOLUTE(expectedAICc, aic.calculate(), 2e-3 * expectedAICc);
     }
 
     // Check that they correctly distinguish the best fit model.
@@ -374,11 +377,11 @@ void CInformationCriteriaTest::testGaussian() {
 
             LOG_DEBUG(<< "1 cluster BIC = " << bic1.calculate());
             LOG_DEBUG(<< "2 cluster BIC = " << bic2.calculate());
-            CPPUNIT_ASSERT(bic1.calculate() < bic2.calculate());
+            BOOST_TEST(bic1.calculate() < bic2.calculate());
 
             LOG_DEBUG(<< "1 cluster AIC = " << aic1.calculate());
             LOG_DEBUG(<< "2 cluster AIC = " << aic2.calculate());
-            CPPUNIT_ASSERT(aic1.calculate() < aic2.calculate());
+            BOOST_TEST(aic1.calculate() < aic2.calculate());
         }
 
         TVector2Vec centres;
@@ -399,16 +402,16 @@ void CInformationCriteriaTest::testGaussian() {
 
             LOG_DEBUG(<< "1 cluster BIC = " << bic1.calculate());
             LOG_DEBUG(<< "2 cluster BIC = " << bic2.calculate());
-            CPPUNIT_ASSERT(bic1.calculate() < bic2.calculate());
+            BOOST_TEST(bic1.calculate() < bic2.calculate());
 
             LOG_DEBUG(<< "1 cluster AIC = " << aic1.calculate());
             LOG_DEBUG(<< "2 cluster AIC = " << aic2.calculate());
-            CPPUNIT_ASSERT(aic1.calculate() < aic2.calculate());
+            BOOST_TEST(aic1.calculate() < aic2.calculate());
         }
     }
 }
 
-void CInformationCriteriaTest::testGaussianWithSphericalCluster() {
+BOOST_AUTO_TEST_CASE(testGaussianWithSphericalCluster) {
     using TSphericalCluster2 = maths::CSphericalCluster<TVector2>::Type;
     using TSphericalCluster2Vec = std::vector<TSphericalCluster2>;
     using TSphericalCluster2VecVec = std::vector<TSphericalCluster2Vec>;
@@ -451,7 +454,7 @@ void CInformationCriteriaTest::testGaussianWithSphericalCluster() {
         LOG_DEBUG(<< "BIC points  = " << bicPoints.calculate());
         LOG_DEBUG(<< "BIC clusters  = " << bicClusters.calculate());
 
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(bicPoints.calculate(), bicClusters.calculate(),
+        BOOST_CHECK_CLOSE_ABSOLUTE(bicPoints.calculate(), bicClusters.calculate(),
                                      2e-3 * bicPoints.calculate());
 
         maths::CGaussianInfoCriterion<TVector2, maths::E_AICc> aicPoints;
@@ -460,25 +463,10 @@ void CInformationCriteriaTest::testGaussianWithSphericalCluster() {
         aicClusters.add(clusters);
         LOG_DEBUG(<< "AICc points   = " << aicPoints.calculate());
         LOG_DEBUG(<< "AICc clusters = " << aicClusters.calculate());
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(aicPoints.calculate(), aicClusters.calculate(),
+        BOOST_CHECK_CLOSE_ABSOLUTE(aicPoints.calculate(), aicClusters.calculate(),
                                      2e-3 * aicPoints.calculate());
     }
 }
 
-CppUnit::Test* CInformationCriteriaTest::suite() {
-    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CInformationCriteriaTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CInformationCriteriaTest>(
-        "CInformationCriteriaTest::testSphericalGaussian",
-        &CInformationCriteriaTest::testSphericalGaussian));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CInformationCriteriaTest>(
-        "CInformationCriteriaTest::testSphericalGaussianWithSphericalCluster",
-        &CInformationCriteriaTest::testSphericalGaussianWithSphericalCluster));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CInformationCriteriaTest>(
-        "CInformationCriteriaTest::testGaussian", &CInformationCriteriaTest::testGaussian));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CInformationCriteriaTest>(
-        "CInformationCriteriaTest::testGaussianWithSphericalCluster",
-        &CInformationCriteriaTest::testGaussianWithSphericalCluster));
-
-    return suiteOfTests;
-}
+BOOST_AUTO_TEST_SUITE_END()

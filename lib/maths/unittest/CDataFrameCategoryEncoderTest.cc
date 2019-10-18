@@ -4,8 +4,6 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
-#include "CDataFrameCategoryEncoderTest.h"
-
 #include <core/CDataFrame.h>
 #include <core/CJsonStatePersistInserter.h>
 #include <core/CJsonStateRestoreTraverser.h>
@@ -15,10 +13,15 @@
 #include <maths/CDataFrameCategoryEncoder.h>
 
 #include <test/CRandomNumbers.h>
+#include <test/BoostTestCloseAbsolute.h>
+
+#include <boost/test/unit_test.hpp>
 
 #include <numeric>
 #include <sstream>
 #include <vector>
+
+BOOST_AUTO_TEST_SUITE(CDataFrameCategoryEncoderTest)
 
 using namespace ml;
 
@@ -34,7 +37,7 @@ using TMeanAccumulatorVec = std::vector<TMeanAccumulator>;
 using TMeanAccumulatorVecVec = std::vector<TMeanAccumulatorVec>;
 }
 
-void CDataFrameCategoryEncoderTest::testOneHotEncoding() {
+BOOST_AUTO_TEST_CASE(testOneHotEncoding) {
 
     // Test one-hot encoding of two categories carrying a lot of information
     // about the target.
@@ -80,15 +83,15 @@ void CDataFrameCategoryEncoderTest::testOneHotEncoding() {
         for (std::size_t i = 0; i < encoder.numberEncodedColumns(); ++i) {
             switch (i) {
             case 0:
-                CPPUNIT_ASSERT(maths::E_OneHot == encoder.encoding(i).type());
-                CPPUNIT_ASSERT_EQUAL(1.0, encoder.encoding(i).encode(0.0));
+                BOOST_TEST(maths::E_OneHot == encoder.encoding(i).type());
+                BOOST_CHECK_EQUAL(1.0, encoder.encoding(i).encode(0.0));
                 break;
             case 1:
-                CPPUNIT_ASSERT(maths::E_OneHot == encoder.encoding(i).type());
-                CPPUNIT_ASSERT_EQUAL(1.0, encoder.encoding(i).encode(1.0));
+                BOOST_TEST(maths::E_OneHot == encoder.encoding(i).type());
+                BOOST_CHECK_EQUAL(1.0, encoder.encoding(i).encode(1.0));
                 break;
             default:
-                CPPUNIT_ASSERT(maths::E_OneHot != encoder.encoding(i).type());
+                BOOST_TEST(maths::E_OneHot != encoder.encoding(i).type());
                 break;
             }
         }
@@ -99,7 +102,7 @@ void CDataFrameCategoryEncoderTest::testOneHotEncoding() {
     core::stopDefaultAsyncExecutor();
 }
 
-void CDataFrameCategoryEncoderTest::testMeanValueEncoding() {
+BOOST_AUTO_TEST_CASE(testMeanValueEncoding) {
 
     // Test common features are mean value encoded and that we get the right
     // mean target values.
@@ -167,7 +170,7 @@ void CDataFrameCategoryEncoderTest::testMeanValueEncoding() {
         for (std::size_t i = 0; i < encoder.numberEncodedColumns(); ++i) {
             if (encoder.encoding(i).type() == maths::E_TargetMean) {
                 for (std::size_t j = 0; j < expectedTargetMeanValues.size(); ++j) {
-                    CPPUNIT_ASSERT_DOUBLES_EQUAL(
+                    BOOST_CHECK_CLOSE_ABSOLUTE(
                         maths::CBasicStatistics::mean(expectedTargetMeanValues[j]),
                         encoder.encoding(i).encode(static_cast<double>(j)),
                         static_cast<double>(std::numeric_limits<float>::epsilon()) *
@@ -184,7 +187,7 @@ void CDataFrameCategoryEncoderTest::testMeanValueEncoding() {
     core::stopDefaultAsyncExecutor();
 }
 
-void CDataFrameCategoryEncoderTest::testRareCategories() {
+BOOST_AUTO_TEST_CASE(testRareCategories) {
 
     // Test we get the rare features we expect given the frequency threshold.
 
@@ -225,11 +228,11 @@ void CDataFrameCategoryEncoderTest::testRareCategories() {
     factory.makeEncodings();
 
     for (std::size_t i = 0; i < categoryCounts.size(); ++i) {
-        CPPUNIT_ASSERT_EQUAL(categoryCounts[i] < 50, factory.isRareCategory(2, i));
+        BOOST_CHECK_EQUAL(categoryCounts[i] < 50, factory.isRareCategory(2, i));
     }
 }
 
-void CDataFrameCategoryEncoderTest::testCorrelatedFeatures() {
+BOOST_AUTO_TEST_CASE(testCorrelatedFeatures) {
 
     // Test the case that if two fields are strongly correlated we will
     // tend to just select one or the other.
@@ -282,9 +285,9 @@ void CDataFrameCategoryEncoderTest::testCorrelatedFeatures() {
         // choose feature 0 or 1 and feature 5.
 
         TSizeVec expectedColumns{1, 5, 6};
-        CPPUNIT_ASSERT_EQUAL(expectedColumns.size(), encoder.numberEncodedColumns());
+        BOOST_CHECK_EQUAL(expectedColumns.size(), encoder.numberEncodedColumns());
         for (std::size_t i = 0; i < encoder.numberEncodedColumns(); ++i) {
-            CPPUNIT_ASSERT_EQUAL(expectedColumns[i], encoder.encoding(i).inputColumnIndex());
+            BOOST_CHECK_EQUAL(expectedColumns[i], encoder.encoding(i).inputColumnIndex());
         }
     }
 
@@ -327,14 +330,14 @@ void CDataFrameCategoryEncoderTest::testCorrelatedFeatures() {
         // choose feature 0 or 1 and features 2 and 3.
 
         TSizeVec expectedColumns{0, 0, 2, 3, 4};
-        CPPUNIT_ASSERT_EQUAL(expectedColumns.size(), encoder.numberEncodedColumns());
+        BOOST_CHECK_EQUAL(expectedColumns.size(), encoder.numberEncodedColumns());
         for (std::size_t i = 0; i < encoder.numberEncodedColumns(); ++i) {
-            CPPUNIT_ASSERT_EQUAL(expectedColumns[i], encoder.encoding(i).inputColumnIndex());
+            BOOST_CHECK_EQUAL(expectedColumns[i], encoder.encoding(i).inputColumnIndex());
         }
     }
 }
 
-void CDataFrameCategoryEncoderTest::testWithRowMask() {
+BOOST_AUTO_TEST_CASE(testWithRowMask) {
 
     // Test the invariant that the encoding for the row mask equals the
     // encoding on a reduced frame containing only the masked rows.
@@ -383,10 +386,10 @@ void CDataFrameCategoryEncoderTest::testWithRowMask() {
         maths::CMakeDataFrameCategoryEncoder{1, *frame, 3}.rowMask(rowMask)};
     maths::CDataFrameCategoryEncoder maskedEncoder{{1, *maskedFrame, 3}};
 
-    CPPUNIT_ASSERT_EQUAL(encoder.checksum(), maskedEncoder.checksum());
+    BOOST_CHECK_EQUAL(encoder.checksum(), maskedEncoder.checksum());
 }
 
-void CDataFrameCategoryEncoderTest::testEncodedDataFrameRowRef() {
+BOOST_AUTO_TEST_CASE(testEncodedDataFrameRowRef) {
 
     // Test we get the feature vectors we expect after encoding.
 
@@ -526,10 +529,10 @@ void CDataFrameCategoryEncoderTest::testEncodedDataFrameRowRef() {
         }
     });
 
-    CPPUNIT_ASSERT(passed);
+    BOOST_TEST(passed);
 }
 
-void CDataFrameCategoryEncoderTest::testUnseenCategoryEncoding() {
+BOOST_AUTO_TEST_CASE(testUnseenCategoryEncoding) {
 
     // Test categories we didn't supply when computing the encoding.
 
@@ -573,18 +576,18 @@ void CDataFrameCategoryEncoderTest::testUnseenCategoryEncoding() {
     std::ostringstream rep;
     for (std::size_t i = 0; i < encodedRow.numberColumns() - 1; ++i) {
         if (encoder.isBinary(i)) {
-            CPPUNIT_ASSERT_EQUAL(maths::CFloatStorage{0.0}, encodedRow[i]);
+            BOOST_CHECK_EQUAL(maths::CFloatStorage{0.0}, encodedRow[i]);
         } else {
-            CPPUNIT_ASSERT(encodedRow[i] > 0.0);
+            BOOST_TEST(encodedRow[i] > 0.0);
         }
         rep << " " << encodedRow[i];
     }
-    CPPUNIT_ASSERT_EQUAL(maths::CFloatStorage{1.5},
+    BOOST_CHECK_EQUAL(maths::CFloatStorage{1.5},
                          encodedRow[encodedRow.numberColumns() - 1]);
     LOG_DEBUG(<< "encoded = [" << rep.str() << "]");
 }
 
-void CDataFrameCategoryEncoderTest::testDiscardNuisanceFeatures() {
+BOOST_AUTO_TEST_CASE(testDiscardNuisanceFeatures) {
 
     // Test we discard features altogether which don't carry any information.
 
@@ -623,13 +626,13 @@ void CDataFrameCategoryEncoderTest::testDiscardNuisanceFeatures() {
 
     LOG_DEBUG(<< "number selected features = " << encoder.numberEncodedColumns()
               << " / " << cols);
-    CPPUNIT_ASSERT_EQUAL(cols - 1, encoder.numberEncodedColumns());
+    BOOST_CHECK_EQUAL(cols - 1, encoder.numberEncodedColumns());
     for (std::size_t i = 0; i < encoder.numberEncodedColumns(); ++i) {
-        CPPUNIT_ASSERT(encoder.encoding(i).inputColumnIndex() != 5);
+        BOOST_TEST(encoder.encoding(i).inputColumnIndex() != 5);
     }
 }
 
-void CDataFrameCategoryEncoderTest::testPersistRestore() {
+BOOST_AUTO_TEST_CASE(testPersistRestore) {
 
     // Test checksum of restored encoder matches persisted one.
 
@@ -684,41 +687,10 @@ void CDataFrameCategoryEncoderTest::testPersistRestore() {
     try {
         core::CJsonStateRestoreTraverser traverser{persistTo};
         maths::CDataFrameCategoryEncoder restoredEncoder{traverser};
-        CPPUNIT_ASSERT_EQUAL(encoder.checksum(), restoredEncoder.checksum());
+        BOOST_CHECK_EQUAL(encoder.checksum(), restoredEncoder.checksum());
 
-    } catch (const std::exception& e) { CPPUNIT_FAIL(e.what()); }
+    } catch (const std::exception& e) { BOOST_FAIL(e.what()); }
 }
 
-CppUnit::Test* CDataFrameCategoryEncoderTest::suite() {
-    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CDataFrameCategoryEncoderTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CDataFrameCategoryEncoderTest>(
-        "CDataFrameCategoryEncoderTest::testOneHotEncoding",
-        &CDataFrameCategoryEncoderTest::testOneHotEncoding));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CDataFrameCategoryEncoderTest>(
-        "CDataFrameCategoryEncoderTest::testMeanValueEncoding",
-        &CDataFrameCategoryEncoderTest::testMeanValueEncoding));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CDataFrameCategoryEncoderTest>(
-        "CDataFrameCategoryEncoderTest::testRareCategories",
-        &CDataFrameCategoryEncoderTest::testRareCategories));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CDataFrameCategoryEncoderTest>(
-        "CDataFrameCategoryEncoderTest::testCorrelatedFeatures",
-        &CDataFrameCategoryEncoderTest::testCorrelatedFeatures));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CDataFrameCategoryEncoderTest>(
-        "CDataFrameCategoryEncoderTest::testWithRowMask",
-        &CDataFrameCategoryEncoderTest::testWithRowMask));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CDataFrameCategoryEncoderTest>(
-        "CDataFrameCategoryEncoderTest::testEncodedDataFrameRowRef",
-        &CDataFrameCategoryEncoderTest::testEncodedDataFrameRowRef));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CDataFrameCategoryEncoderTest>(
-        "CDataFrameCategoryEncoderTest::testUnseenCategoryEncoding",
-        &CDataFrameCategoryEncoderTest::testUnseenCategoryEncoding));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CDataFrameCategoryEncoderTest>(
-        "CDataFrameCategoryEncoderTest::testDiscardNuisanceFeatures",
-        &CDataFrameCategoryEncoderTest::testDiscardNuisanceFeatures));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CDataFrameCategoryEncoderTest>(
-        "CDataFrameCategoryEncoderTest::testPersistRestore",
-        &CDataFrameCategoryEncoderTest::testPersistRestore));
-
-    return suiteOfTests;
-}
+BOOST_AUTO_TEST_SUITE_END()

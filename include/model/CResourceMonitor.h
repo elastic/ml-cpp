@@ -15,9 +15,15 @@
 
 #include <functional>
 
-class CResourceMonitorTest;
-class CResourceLimitTest;
-class CAnomalyJobLimitTest;
+namespace CResourceMonitorTest {
+struct testFoo;
+}
+namespace CResourceLimitTest {
+struct testFoo;
+}
+namespace CAnomalyJobLimitTest {
+struct testFoo;
+}
 
 namespace ml {
 namespace model {
@@ -241,9 +247,9 @@ private:
     bool m_PersistenceInForeground;
 
     //! Test friends
-    friend class ::CResourceMonitorTest;
-    friend class ::CResourceLimitTest;
-    friend class ::CAnomalyJobLimitTest;
+    friend struct CResourceMonitorTest::testFoo;
+    friend struct CResourceLimitTest::testFoo;
+    friend struct CAnomalyJobLimitTest::testFoo;
 };
 
 } // model

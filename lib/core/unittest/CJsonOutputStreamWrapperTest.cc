@@ -3,7 +3,6 @@
  * or more contributor license agreements. Licensed under the Elastic License;
  * you may not use this file except in compliance with the Elastic License.
  */
-#include "CJsonOutputStreamWrapperTest.h"
 
 #include <core/CJsonOutputStreamWrapper.h>
 #include <core/CRapidJsonConcurrentLineWriter.h>
@@ -12,6 +11,8 @@
 #include <rapidjson/document.h>
 #include <rapidjson/stringbuffer.h>
 
+#include <boost/test/unit_test.hpp>
+
 #include <algorithm>
 #include <chrono>
 #include <functional>
@@ -19,17 +20,8 @@
 #include <string>
 #include <thread>
 
-CppUnit::Test* CJsonOutputStreamWrapperTest::suite() {
-    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CJsonOutputStreamWrapperTest");
+BOOST_AUTO_TEST_SUITE(CJsonOutputStreamWrapperTest)
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CJsonOutputStreamWrapperTest>(
-        "CJsonOutputStreamWrapperTest::testConcurrentWrites",
-        &CJsonOutputStreamWrapperTest::testConcurrentWrites));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CJsonOutputStreamWrapperTest>(
-        "CJsonOutputStreamWrapperTest::testShrink", &CJsonOutputStreamWrapperTest::testShrink));
-
-    return suiteOfTests;
-}
 
 namespace {
 
@@ -50,7 +42,7 @@ void task(ml::core::CJsonOutputStreamWrapper& wrapper, int id, int documents) {
 }
 }
 
-void CJsonOutputStreamWrapperTest::testConcurrentWrites() {
+BOOST_AUTO_TEST_CASE(testConcurrentWrites) {
     std::ostringstream stringStream;
 
     static const int WRITERS(1500);
@@ -68,15 +60,15 @@ void CJsonOutputStreamWrapperTest::testConcurrentWrites() {
     doc.Parse<rapidjson::kParseDefaultFlags>(stringStream.str());
 
     // check that the document isn't malformed (like wrongly interleaved buffers)
-    CPPUNIT_ASSERT(!doc.HasParseError());
+    BOOST_TEST(!doc.HasParseError());
     const rapidjson::Value& allRecords = doc.GetArray();
 
     // check number of documents
-    CPPUNIT_ASSERT_EQUAL(rapidjson::SizeType(WRITERS * DOCUMENTS_PER_WRITER),
+    BOOST_CHECK_EQUAL(rapidjson::SizeType(WRITERS * DOCUMENTS_PER_WRITER),
                          allRecords.Size());
 }
 
-void CJsonOutputStreamWrapperTest::testShrink() {
+BOOST_AUTO_TEST_CASE(testShrink) {
     std::ostringstream stringStream;
     ml::core::CJsonOutputStreamWrapper wrapper(stringStream);
 
@@ -87,10 +79,10 @@ void CJsonOutputStreamWrapperTest::testShrink() {
     wrapper.acquireBuffer(writer, stringBuffer);
 
     // this should not change anything regarding memory usage
-    CPPUNIT_ASSERT_EQUAL(memoryUsageBase, wrapper.memoryUsage());
+    BOOST_CHECK_EQUAL(memoryUsageBase, wrapper.memoryUsage());
 
     size_t stringBufferSizeBase = stringBuffer->stack_.GetCapacity();
-    CPPUNIT_ASSERT(memoryUsageBase > stringBufferSizeBase);
+    BOOST_TEST(memoryUsageBase > stringBufferSizeBase);
 
     // fill the buffer, expand it
     for (size_t i = 0; i < 100000; ++i) {
@@ -99,18 +91,20 @@ void CJsonOutputStreamWrapperTest::testShrink() {
         stringBuffer->Put(',');
     }
 
-    CPPUNIT_ASSERT(stringBufferSizeBase < stringBuffer->stack_.GetCapacity());
-    CPPUNIT_ASSERT(wrapper.memoryUsage() > memoryUsageBase);
-    CPPUNIT_ASSERT(wrapper.memoryUsage() > stringBuffer->stack_.GetCapacity());
+    BOOST_TEST(stringBufferSizeBase < stringBuffer->stack_.GetCapacity());
+    BOOST_TEST(wrapper.memoryUsage() > memoryUsageBase);
+    BOOST_TEST(wrapper.memoryUsage() > stringBuffer->stack_.GetCapacity());
 
     // save the original pointer as flushBuffer returns a new buffer
     rapidjson::StringBuffer* stringBufferOriginal = stringBuffer;
     wrapper.flushBuffer(writer, stringBuffer);
     wrapper.syncFlush();
 
-    CPPUNIT_ASSERT(stringBuffer != stringBufferOriginal);
-    CPPUNIT_ASSERT_EQUAL(stringBufferSizeBase, stringBuffer->stack_.GetCapacity());
-    CPPUNIT_ASSERT_EQUAL(stringBufferSizeBase, stringBufferOriginal->stack_.GetCapacity());
+    BOOST_TEST(stringBuffer != stringBufferOriginal);
+    BOOST_CHECK_EQUAL(stringBufferSizeBase, stringBuffer->stack_.GetCapacity());
+    BOOST_CHECK_EQUAL(stringBufferSizeBase, stringBufferOriginal->stack_.GetCapacity());
 
-    CPPUNIT_ASSERT_EQUAL(memoryUsageBase, wrapper.memoryUsage());
+    BOOST_CHECK_EQUAL(memoryUsageBase, wrapper.memoryUsage());
 }
+
+BOOST_AUTO_TEST_SUITE_END()

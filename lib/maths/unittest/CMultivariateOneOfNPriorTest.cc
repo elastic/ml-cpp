@@ -4,8 +4,6 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
-#include "CMultivariateOneOfNPriorTest.h"
-
 #include <core/CLogger.h>
 #include <core/CRapidXmlParser.h>
 #include <core/CRapidXmlStatePersistInserter.h>
@@ -21,11 +19,16 @@
 
 #include <test/CRandomNumbers.h>
 #include <test/CRandomNumbersDetail.h>
+#include <test/BoostTestCloseAbsolute.h>
 
 #include "TestUtils.h"
 
+#include <boost/test/unit_test.hpp>
+
 #include <cmath>
 #include <vector>
+
+BOOST_AUTO_TEST_SUITE(CMultivariateOneOfNPriorTest)
 
 using namespace ml;
 using namespace handy_typedefs;
@@ -119,7 +122,7 @@ std::string print(maths_t::EDataType dataType) {
 }
 }
 
-void CMultivariateOneOfNPriorTest::testMultipleUpdate() {
+BOOST_AUTO_TEST_CASE(testMultipleUpdate) {
     // Test that we get the same result updating once with a vector of 100
     // samples of an R.V. versus updating individually 100 times.
 
@@ -175,7 +178,7 @@ void CMultivariateOneOfNPriorTest::testMultipleUpdate() {
 
         LOG_DEBUG(<< "checksum 1 " << filter1.checksum());
         LOG_DEBUG(<< "checksum 2 " << filter2.checksum());
-        CPPUNIT_ASSERT_EQUAL(filter1.checksum(), filter2.checksum());
+        BOOST_CHECK_EQUAL(filter1.checksum(), filter2.checksum());
     }
 
     LOG_DEBUG(<< "****** Test with variance scale ******");
@@ -200,11 +203,11 @@ void CMultivariateOneOfNPriorTest::testMultipleUpdate() {
 
         LOG_DEBUG(<< "checksum 1 " << filter1.checksum());
         LOG_DEBUG(<< "checksum 2 " << filter2.checksum());
-        CPPUNIT_ASSERT_EQUAL(filter1.checksum(), filter2.checksum());
+        BOOST_CHECK_EQUAL(filter1.checksum(), filter2.checksum());
     }
 }
 
-void CMultivariateOneOfNPriorTest::testPropagation() {
+BOOST_AUTO_TEST_CASE(testPropagation) {
     // Test that propagation doesn't affect the marginal likelihood
     // mean and the marginal likelihood variance increases (due to
     // influence of the prior uncertainty) after propagation.
@@ -255,8 +258,8 @@ void CMultivariateOneOfNPriorTest::testPropagation() {
     LOG_DEBUG(<< "logWeightRatio           = " << logWeightRatio);
     LOG_DEBUG(<< "propagatedLogWeightRatio = " << propagatedLogWeightRatio);
 
-    CPPUNIT_ASSERT(propagatedNumberSamples < numberSamples);
-    CPPUNIT_ASSERT((TVector2(propagatedMean) - TVector2(mean)).euclidean() <
+    BOOST_TEST(propagatedNumberSamples < numberSamples);
+    BOOST_TEST((TVector2(propagatedMean) - TVector2(mean)).euclidean() <
                    eps * TVector2(mean).euclidean());
     Eigen::MatrixXd c(2, 2);
     Eigen::MatrixXd cp(2, 2);
@@ -271,12 +274,12 @@ void CMultivariateOneOfNPriorTest::testPropagation() {
     LOG_DEBUG(<< "singular values            = " << sv.transpose());
     LOG_DEBUG(<< "propagated singular values = " << svp.transpose());
     for (std::size_t i = 0u; i < 2; ++i) {
-        CPPUNIT_ASSERT(svp(i) > sv(i));
+        BOOST_TEST(svp(i) > sv(i));
     }
-    CPPUNIT_ASSERT(propagatedLogWeightRatio < logWeightRatio);
+    BOOST_TEST(propagatedLogWeightRatio < logWeightRatio);
 }
 
-void CMultivariateOneOfNPriorTest::testWeightUpdate() {
+BOOST_AUTO_TEST_CASE(testWeightUpdate) {
     // Test that the weights stay normalized over update.
 
     maths::CSampling::seed();
@@ -301,9 +304,9 @@ void CMultivariateOneOfNPriorTest::testWeightUpdate() {
             for (std::size_t j = 0u; j < samples.size(); ++j) {
                 filter.addSamples({samples[j]},
                                   maths_t::CUnitWeights::singleUnit<TDouble10Vec>(2));
-                CPPUNIT_ASSERT_DOUBLES_EQUAL(1.0, sum(filter.weights()), 1e-6);
+                BOOST_CHECK_CLOSE_ABSOLUTE(1.0, sum(filter.weights()), 1e-6);
                 filter.propagateForwardsByTime(1.0);
-                CPPUNIT_ASSERT(equal(sum(filter.weights()), 1.0));
+                BOOST_TEST(equal(sum(filter.weights()), 1.0));
             }
         }
     }
@@ -338,14 +341,14 @@ void CMultivariateOneOfNPriorTest::testWeightUpdate() {
 
             // Should be approximately 0.2: we reduce the filter memory
             // by a factor of 5 each iteration.
-            CPPUNIT_ASSERT((logWeights[0] - logWeights[1]) / previousLogWeightRatio > 0.15);
-            CPPUNIT_ASSERT((logWeights[0] - logWeights[1]) / previousLogWeightRatio < 0.3);
+            BOOST_TEST((logWeights[0] - logWeights[1]) / previousLogWeightRatio > 0.15);
+            BOOST_TEST((logWeights[0] - logWeights[1]) / previousLogWeightRatio < 0.3);
             previousLogWeightRatio = logWeights[0] - logWeights[1];
         }
     }
 }
 
-void CMultivariateOneOfNPriorTest::testModelUpdate() {
+BOOST_AUTO_TEST_CASE(testModelUpdate) {
     maths::CSampling::CScopeMockRandomNumberGenerator scopeMockRng;
 
     const TSizeVec n{400, 600};
@@ -373,16 +376,16 @@ void CMultivariateOneOfNPriorTest::testModelUpdate() {
         multimodal.addSamples(samples, weights);
         oneOfN.addSamples(samples, weights);
 
-        CPPUNIT_ASSERT_EQUAL(normal.checksum(), oneOfN.models()[0]->checksum());
-        CPPUNIT_ASSERT_EQUAL(multimodal.checksum(), oneOfN.models()[1]->checksum());
+        BOOST_CHECK_EQUAL(normal.checksum(), oneOfN.models()[0]->checksum());
+        BOOST_CHECK_EQUAL(multimodal.checksum(), oneOfN.models()[1]->checksum());
     }
 }
 
-void CMultivariateOneOfNPriorTest::testModelSelection() {
+BOOST_AUTO_TEST_CASE(testModelSelection) {
     // TODO When copula models are available.
 }
 
-void CMultivariateOneOfNPriorTest::testMarginalLikelihood() {
+BOOST_AUTO_TEST_CASE(testMarginalLikelihood) {
     // Test that:
     //   1) The likelihood is normalized.
     //   2) E[X] w.r.t. the likelihood is equal to the predictive distribution mean.
@@ -485,8 +488,8 @@ void CMultivariateOneOfNPriorTest::testMarginalLikelihood() {
 
                     TVector2 meanError = actualMean - expectedMean;
                     TMatrix2 covarianceError = actualCovariance - expectedCovariance;
-                    CPPUNIT_ASSERT(meanError.euclidean() < expectedMean.euclidean());
-                    CPPUNIT_ASSERT(covarianceError.frobenius() <
+                    BOOST_TEST(meanError.euclidean() < expectedMean.euclidean());
+                    BOOST_TEST(covarianceError.frobenius() <
                                    expectedCovariance.frobenius());
 
                     meanMeanError.add(meanError.euclidean() / expectedMean.euclidean());
@@ -498,8 +501,8 @@ void CMultivariateOneOfNPriorTest::testMarginalLikelihood() {
             LOG_DEBUG(<< "Mean mean error = " << maths::CBasicStatistics::mean(meanMeanError));
             LOG_DEBUG(<< "Mean covariance error = "
                       << maths::CBasicStatistics::mean(meanCovarianceError));
-            CPPUNIT_ASSERT(maths::CBasicStatistics::mean(meanMeanError) < 0.16);
-            CPPUNIT_ASSERT(maths::CBasicStatistics::mean(meanCovarianceError) < 0.09);
+            BOOST_TEST(maths::CBasicStatistics::mean(meanMeanError) < 0.16);
+            BOOST_TEST(maths::CBasicStatistics::mean(meanCovarianceError) < 0.09);
         }
     }
     {
@@ -607,9 +610,9 @@ void CMultivariateOneOfNPriorTest::testMarginalLikelihood() {
 
             TVector2 meanError = actualMean - expectedMean;
             TMatrix2 covarianceError = actualCovariance - expectedCovariance;
-            CPPUNIT_ASSERT_DOUBLES_EQUAL(1.0, z, 0.7);
-            CPPUNIT_ASSERT(meanError.euclidean() < 0.3 * expectedMean.euclidean());
-            CPPUNIT_ASSERT(covarianceError.frobenius() <
+            BOOST_CHECK_CLOSE_ABSOLUTE(1.0, z, 0.7);
+            BOOST_TEST(meanError.euclidean() < 0.3 * expectedMean.euclidean());
+            BOOST_TEST(covarianceError.frobenius() <
                            0.25 * expectedCovariance.frobenius());
 
             meanZ.add(z);
@@ -622,13 +625,13 @@ void CMultivariateOneOfNPriorTest::testMarginalLikelihood() {
         LOG_DEBUG(<< "Mean mean error = " << maths::CBasicStatistics::mean(meanMeanError));
         LOG_DEBUG(<< "Mean covariance error = "
                   << maths::CBasicStatistics::mean(meanCovarianceError));
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(1.0, maths::CBasicStatistics::mean(meanZ), 0.3);
-        CPPUNIT_ASSERT(maths::CBasicStatistics::mean(meanMeanError) < 0.1);
-        CPPUNIT_ASSERT(maths::CBasicStatistics::mean(meanCovarianceError) < 0.16);
+        BOOST_CHECK_CLOSE_ABSOLUTE(1.0, maths::CBasicStatistics::mean(meanZ), 0.3);
+        BOOST_TEST(maths::CBasicStatistics::mean(meanMeanError) < 0.1);
+        BOOST_TEST(maths::CBasicStatistics::mean(meanCovarianceError) < 0.16);
     }
 }
 
-void CMultivariateOneOfNPriorTest::testMarginalLikelihoodMean() {
+BOOST_AUTO_TEST_CASE(testMarginalLikelihoodMean) {
     // Test that the marginal likelihood mean is close to the sample
     // mean for a variety of models.
 
@@ -684,16 +687,16 @@ void CMultivariateOneOfNPriorTest::testMarginalLikelihoodMean() {
                                    .euclidean() /
                                maths::CBasicStatistics::mean(expectedMean).euclidean();
                 meanError.add(error);
-                CPPUNIT_ASSERT(error < 0.2);
+                BOOST_TEST(error < 0.2);
             }
         }
 
         LOG_DEBUG(<< "mean error = " << maths::CBasicStatistics::mean(meanError));
-        CPPUNIT_ASSERT(maths::CBasicStatistics::mean(meanError) < expectedMeanErrors[i]);
+        BOOST_TEST(maths::CBasicStatistics::mean(meanError) < expectedMeanErrors[i]);
     }
 }
 
-void CMultivariateOneOfNPriorTest::testMarginalLikelihoodMode() {
+BOOST_AUTO_TEST_CASE(testMarginalLikelihoodMode) {
     // Test that the marginal likelihood mode is near the maximum
     // of the marginal likelihood.
 
@@ -750,7 +753,7 @@ void CMultivariateOneOfNPriorTest::testMarginalLikelihoodMode() {
                           << ", expectedMode = " << expectedMode);
 
                 for (std::size_t k = 0u; k < 2; ++k) {
-                    CPPUNIT_ASSERT_DOUBLES_EQUAL(expectedMode(k), mode[k],
+                    BOOST_CHECK_CLOSE_ABSOLUTE(expectedMode(k), mode[k],
                                                  0.01 * expectedMode(k));
                 }
             }
@@ -796,12 +799,12 @@ void CMultivariateOneOfNPriorTest::testMarginalLikelihoodMode() {
                   << ", expectedMode = " << expectedMode);
 
         for (std::size_t i = 0u; i < 2; ++i) {
-            CPPUNIT_ASSERT_DOUBLES_EQUAL(expectedMode(i), mode[i], 0.2 * expectedMode(i));
+            BOOST_CHECK_CLOSE_ABSOLUTE(expectedMode(i), mode[i], 0.2 * expectedMode(i));
         }
     }
 }
 
-void CMultivariateOneOfNPriorTest::testSampleMarginalLikelihood() {
+BOOST_AUTO_TEST_CASE(testSampleMarginalLikelihood) {
     // Test we sample the constitute priors in proportion to their weights.
 
     maths::CSampling::seed();
@@ -855,13 +858,13 @@ void CMultivariateOneOfNPriorTest::testSampleMarginalLikelihood() {
             LOG_DEBUG(<< "expected samples = "
                       << core::CContainerPrinter::print(expectedSampled));
             LOG_DEBUG(<< "samples          = " << core::CContainerPrinter::print(sampled));
-            CPPUNIT_ASSERT_EQUAL(core::CContainerPrinter::print(expectedSampled),
+            BOOST_CHECK_EQUAL(core::CContainerPrinter::print(expectedSampled),
                                  core::CContainerPrinter::print(sampled));
         }
     }
 }
 
-void CMultivariateOneOfNPriorTest::testProbabilityOfLessLikelySamples() {
+BOOST_AUTO_TEST_CASE(testProbabilityOfLessLikelySamples) {
     // We simply test that the calculation is close to the weighted
     // sum of component model calculations.
 
@@ -893,11 +896,11 @@ void CMultivariateOneOfNPriorTest::testProbabilityOfLessLikelySamples() {
 
         double lowerBound, upperBound;
         maths::CMultivariatePrior::TTail10Vec tail;
-        CPPUNIT_ASSERT(filter.probabilityOfLessLikelySamples(
+        BOOST_TEST(filter.probabilityOfLessLikelySamples(
             maths_t::E_TwoSided, sample, maths_t::CUnitWeights::singleUnit<TDouble10Vec>(2),
             lowerBound, upperBound, tail));
 
-        CPPUNIT_ASSERT_EQUAL(lowerBound, upperBound);
+        BOOST_CHECK_EQUAL(lowerBound, upperBound);
         double probability = (lowerBound + upperBound) / 2.0;
 
         double expectedProbability = 0.0;
@@ -907,11 +910,11 @@ void CMultivariateOneOfNPriorTest::testProbabilityOfLessLikelySamples() {
         for (std::size_t j = 0u; j < weights.size(); ++j) {
             double modelLowerBound, modelUpperBound;
             double weight = weights[j];
-            CPPUNIT_ASSERT(models[j]->probabilityOfLessLikelySamples(
+            BOOST_TEST(models[j]->probabilityOfLessLikelySamples(
                 maths_t::E_TwoSided, sample,
                 maths_t::CUnitWeights::singleUnit<TDouble10Vec>(2),
                 modelLowerBound, modelUpperBound, tail));
-            CPPUNIT_ASSERT_EQUAL(modelLowerBound, modelUpperBound);
+            BOOST_CHECK_EQUAL(modelLowerBound, modelUpperBound);
             double modelProbability = (modelLowerBound + modelUpperBound) / 2.0;
             expectedProbability += weight * modelProbability;
         }
@@ -919,16 +922,16 @@ void CMultivariateOneOfNPriorTest::testProbabilityOfLessLikelySamples() {
         LOG_DEBUG(<< "weights = " << core::CContainerPrinter::print(weights)
                   << ", expectedProbability = " << expectedProbability
                   << ", probability = " << probability);
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(expectedProbability, probability,
+        BOOST_CHECK_CLOSE_ABSOLUTE(expectedProbability, probability,
                                      0.3 * std::max(expectedProbability, probability));
         error.add(std::fabs(probability - expectedProbability));
     }
 
     LOG_DEBUG(<< "error = " << maths::CBasicStatistics::mean(error));
-    CPPUNIT_ASSERT(maths::CBasicStatistics::mean(error) < 0.01);
+    BOOST_TEST(maths::CBasicStatistics::mean(error) < 0.01);
 }
 
-void CMultivariateOneOfNPriorTest::testPersist() {
+BOOST_AUTO_TEST_CASE(testPersist) {
     // Check that persist/restore is idempotent.
 
     const TSizeVec n{100};
@@ -962,7 +965,7 @@ void CMultivariateOneOfNPriorTest::testPersist() {
 
     // Restore the XML into a new filter
     core::CRapidXmlParser parser;
-    CPPUNIT_ASSERT(parser.parseStringIgnoreCdata(origXml));
+    BOOST_TEST(parser.parseStringIgnoreCdata(origXml));
     core::CRapidXmlStateRestoreTraverser traverser(parser);
 
     maths::SDistributionRestoreParams params(
@@ -972,7 +975,7 @@ void CMultivariateOneOfNPriorTest::testPersist() {
 
     LOG_DEBUG(<< "orig checksum = " << checksum
               << " restored checksum = " << restoredFilter.checksum());
-    CPPUNIT_ASSERT_EQUAL(checksum, restoredFilter.checksum());
+    BOOST_CHECK_EQUAL(checksum, restoredFilter.checksum());
 
     // The XML representation of the new filter should be the same as the original
     std::string newXml;
@@ -981,44 +984,8 @@ void CMultivariateOneOfNPriorTest::testPersist() {
         restoredFilter.acceptPersistInserter(inserter);
         inserter.toXml(newXml);
     }
-    CPPUNIT_ASSERT_EQUAL(origXml, newXml);
+    BOOST_CHECK_EQUAL(origXml, newXml);
 }
 
-CppUnit::Test* CMultivariateOneOfNPriorTest::suite() {
-    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CMultivariateOneOfNPriorTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CMultivariateOneOfNPriorTest>(
-        "CMultivariateOneOfNPriorTest::testMultipleUpdate",
-        &CMultivariateOneOfNPriorTest::testMultipleUpdate));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CMultivariateOneOfNPriorTest>(
-        "CMultivariateOneOfNPriorTest::testPropagation",
-        &CMultivariateOneOfNPriorTest::testPropagation));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CMultivariateOneOfNPriorTest>(
-        "CMultivariateOneOfNPriorTest::testWeightUpdate",
-        &CMultivariateOneOfNPriorTest::testWeightUpdate));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CMultivariateOneOfNPriorTest>(
-        "CMultivariateOneOfNPriorTest::testModelUpdate",
-        &CMultivariateOneOfNPriorTest::testModelUpdate));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CMultivariateOneOfNPriorTest>(
-        "CMultivariateOneOfNPriorTest::testModelSelection",
-        &CMultivariateOneOfNPriorTest::testModelSelection));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CMultivariateOneOfNPriorTest>(
-        "CMultivariateOneOfNPriorTest::testMarginalLikelihood",
-        &CMultivariateOneOfNPriorTest::testMarginalLikelihood));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CMultivariateOneOfNPriorTest>(
-        "CMultivariateOneOfNPriorTest::testMarginalLikelihoodMean",
-        &CMultivariateOneOfNPriorTest::testMarginalLikelihoodMean));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CMultivariateOneOfNPriorTest>(
-        "CMultivariateOneOfNPriorTest::testMarginalLikelihoodMode",
-        &CMultivariateOneOfNPriorTest::testMarginalLikelihoodMode));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CMultivariateOneOfNPriorTest>(
-        "CMultivariateOneOfNPriorTest::testSampleMarginalLikelihood",
-        &CMultivariateOneOfNPriorTest::testSampleMarginalLikelihood));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CMultivariateOneOfNPriorTest>(
-        "CMultivariateOneOfNPriorTest::testProbabilityOfLessLikelySamples",
-        &CMultivariateOneOfNPriorTest::testProbabilityOfLessLikelySamples));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CMultivariateOneOfNPriorTest>(
-        "CMultivariateOneOfNPriorTest::testPersist", &CMultivariateOneOfNPriorTest::testPersist));
-
-    return suiteOfTests;
-}
+BOOST_AUTO_TEST_SUITE_END()

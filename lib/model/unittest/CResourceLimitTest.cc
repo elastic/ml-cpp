@@ -3,7 +3,6 @@
  * or more contributor license agreements. Licensed under the Elastic License;
  * you may not use this file except in compliance with the Elastic License.
  */
-#include "CResourceLimitTest.h"
 
 #include <core/CRegex.h>
 
@@ -26,10 +25,13 @@
 #include <model/CMetricModelFactory.h>
 #include <model/CResourceMonitor.h>
 
+#include <boost/test/unit_test.hpp>
 #include <boost/tuple/tuple.hpp>
 #include <boost/tuple/tuple_io.hpp>
 
 #include <vector>
+
+BOOST_AUTO_TEST_SUITE(CResourceLimitTest)
 
 using namespace ml;
 using namespace model;
@@ -105,19 +107,8 @@ private:
     TResultsVec m_Results;
 };
 
-CppUnit::Test* CResourceLimitTest::suite() {
-    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CResourceLimitTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CResourceLimitTest>(
-        "CResourceLimitTest::testLimitBy", &CResourceLimitTest::testLimitBy));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CResourceLimitTest>(
-        "CResourceLimitTest::testLimitByOver", &CResourceLimitTest::testLimitByOver));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CResourceLimitTest>(
-        "CResourceLimitTest::testLargeAllocations", &CResourceLimitTest::testLargeAllocations));
-    return suiteOfTests;
-}
-
-void CResourceLimitTest::testLimitBy() {
+BOOST_AUTO_TEST_CASE(testLimitBy) {
     // Check that we can get some results from a test data set, then
     // turn on resource limiting and still get the same results
 
@@ -147,10 +138,10 @@ void CResourceLimitTest::testLimitBy() {
         results = writer.results();
 
         // expect there to be 2 anomalies
-        CPPUNIT_ASSERT_EQUAL(std::size_t(2), results.size());
-        CPPUNIT_ASSERT_EQUAL(core_t::TTime(1407571200), results[0].get<0>());
-        CPPUNIT_ASSERT_EQUAL(core_t::TTime(1407715200), results[1].get<0>());
-        CPPUNIT_ASSERT_EQUAL(std::size_t(8), detector.numberActivePeople());
+        BOOST_CHECK_EQUAL(std::size_t(2), results.size());
+        BOOST_CHECK_EQUAL(core_t::TTime(1407571200), results[0].get<0>());
+        BOOST_CHECK_EQUAL(core_t::TTime(1407715200), results[1].get<0>());
+        BOOST_CHECK_EQUAL(std::size_t(8), detector.numberActivePeople());
     }
     {
         // This time, repeat the test but set a resource limit to prevent
@@ -172,11 +163,11 @@ void CResourceLimitTest::testLimitBy() {
 
         const ::CResultWriter::TResultsVec& secondResults = writer.results();
 
-        CPPUNIT_ASSERT_EQUAL(std::size_t(0), secondResults.size());
+        BOOST_CHECK_EQUAL(std::size_t(0), secondResults.size());
     }
 }
 
-void CResourceLimitTest::testLimitByOver() {
+BOOST_AUTO_TEST_CASE(testLimitByOver) {
     // Check that we can get some results from a test data set, then
     // turn on resource limiting and still get the results from
     // non-limited data, but not results from limited data
@@ -206,9 +197,9 @@ void CResourceLimitTest::testLimitByOver() {
         results = writer.results();
 
         // check we have the expected 4 anomalies
-        CPPUNIT_ASSERT_EQUAL(std::size_t(4), results.size());
-        CPPUNIT_ASSERT_EQUAL(std::size_t(2), detector.numberActivePeople());
-        CPPUNIT_ASSERT_EQUAL(std::size_t(3), detector.numberActiveAttributes());
+        BOOST_CHECK_EQUAL(std::size_t(4), results.size());
+        BOOST_CHECK_EQUAL(std::size_t(2), detector.numberActivePeople());
+        BOOST_CHECK_EQUAL(std::size_t(3), detector.numberActiveAttributes());
     }
 
     // Now limit after 1 sample, so only expect no results
@@ -230,7 +221,7 @@ void CResourceLimitTest::testLimitByOver() {
     const ::CResultWriter::TResultsVec& secondResults = writer.results();
 
     // should only have red flowers as results now
-    CPPUNIT_ASSERT_EQUAL(std::size_t(0), secondResults.size());
+    BOOST_CHECK_EQUAL(std::size_t(0), secondResults.size());
 }
 
 namespace {
@@ -423,8 +414,8 @@ TAddPersonDataFunc createModel(model_t::EModelType modelType,
             CAnomalyDetectorModel::TFeatureInfluenceCalculatorCPtrPrVecVec(),
             resourceMonitor);
 
-        CPPUNIT_ASSERT_EQUAL(model_t::E_EventRateOnline, model_->category());
-        CPPUNIT_ASSERT(model_->isPopulation() == false);
+        BOOST_CHECK_EQUAL(model_t::E_EventRateOnline, model_->category());
+        BOOST_TEST(model_->isPopulation() == false);
 
         model = model_;
 
@@ -453,8 +444,8 @@ TAddPersonDataFunc createModel(model_t::EModelType modelType,
             CAnomalyDetectorModel::TFeatureInfluenceCalculatorCPtrPrVecVec(),
             resourceMonitor);
 
-        CPPUNIT_ASSERT_EQUAL(model_t::E_MetricOnline, model_->category());
-        CPPUNIT_ASSERT(model_->isPopulation() == false);
+        BOOST_CHECK_EQUAL(model_t::E_MetricOnline, model_->category());
+        BOOST_TEST(model_->isPopulation() == false);
 
         model = model_;
         return addPersonMetricData;
@@ -494,20 +485,20 @@ void doTestLargeAllocations(SLargeAllocationTestParams& param) {
 
     core_t::TTime time = FIRST_TIME;
 
-    CPPUNIT_ASSERT(resourceMonitor.areAllocationsAllowed());
+    BOOST_TEST(resourceMonitor.areAllocationsAllowed());
 
     // Add some people & attributes to the gatherer
     // Run a sample
     // Check that the models can create the right number of people/attributes
     personAdder(0, 400, time, *gatherer, resourceMonitor);
 
-    CPPUNIT_ASSERT_EQUAL(std::size_t(400), gatherer->numberActivePeople());
+    BOOST_CHECK_EQUAL(std::size_t(400), gatherer->numberActivePeople());
 
     LOG_DEBUG(<< "Testing for 1st time");
     model->test(time);
-    CPPUNIT_ASSERT_EQUAL(std::size_t(400), gatherer->numberActivePeople());
-    CPPUNIT_ASSERT_EQUAL(std::size_t(400), model->getNewPeople());
-    CPPUNIT_ASSERT_EQUAL(std::size_t(0), model->getNewAttributes());
+    BOOST_CHECK_EQUAL(std::size_t(400), gatherer->numberActivePeople());
+    BOOST_CHECK_EQUAL(std::size_t(400), model->getNewPeople());
+    BOOST_CHECK_EQUAL(std::size_t(0), model->getNewAttributes());
     time += BUCKET_LENGTH;
 
     personAdder(400, 1000, time, *gatherer, resourceMonitor);
@@ -519,10 +510,10 @@ void doTestLargeAllocations(SLargeAllocationTestParams& param) {
     LOG_DEBUG(<< "Testing for 2nd time");
     model->test(time);
     LOG_DEBUG(<< "# new people = " << model->getNewPeople());
-    CPPUNIT_ASSERT(model->getNewPeople() > param.m_NewPeopleLowerBound &&
+    BOOST_TEST(model->getNewPeople() > param.m_NewPeopleLowerBound &&
                    model->getNewPeople() < param.m_NewPeopleUpperBound);
-    CPPUNIT_ASSERT_EQUAL(std::size_t(0), model->getNewAttributes());
-    CPPUNIT_ASSERT_EQUAL(model->getNewPeople(), gatherer->numberActivePeople());
+    BOOST_CHECK_EQUAL(std::size_t(0), model->getNewAttributes());
+    BOOST_CHECK_EQUAL(model->getNewPeople(), gatherer->numberActivePeople());
 
     // Adding a small number of new people should be fine though,
     // as they're allowed in
@@ -533,13 +524,13 @@ void doTestLargeAllocations(SLargeAllocationTestParams& param) {
 
     LOG_DEBUG(<< "Testing for 3rd time");
     model->test(time);
-    CPPUNIT_ASSERT_EQUAL(oldNumberPeople + 10, model->getNewPeople());
-    CPPUNIT_ASSERT_EQUAL(std::size_t(0), model->getNewAttributes());
-    CPPUNIT_ASSERT_EQUAL(model->getNewPeople(), gatherer->numberActivePeople());
+    BOOST_CHECK_EQUAL(oldNumberPeople + 10, model->getNewPeople());
+    BOOST_CHECK_EQUAL(std::size_t(0), model->getNewAttributes());
+    BOOST_CHECK_EQUAL(model->getNewPeople(), gatherer->numberActivePeople());
 }
 }
 
-void CResourceLimitTest::testLargeAllocations() {
+BOOST_AUTO_TEST_CASE(testLargeAllocations) {
 
     SLargeAllocationTestParams params[] = {
         {false, 70, 3000, 2700, 2900, model_t::E_EventRateOnline},
@@ -562,14 +553,14 @@ void CResourceLimitTest::importCsvDataWithLimiter(core_t::TTime firstTime,
 
     using TifstreamPtr = std::shared_ptr<std::ifstream>;
     TifstreamPtr ifs(new std::ifstream(fileName.c_str()));
-    CPPUNIT_ASSERT(ifs->is_open());
+    BOOST_TEST(ifs->is_open());
 
     core::CRegex regex;
-    CPPUNIT_ASSERT(regex.init(","));
+    BOOST_TEST(regex.init(","));
 
     std::string line;
     // read the header
-    CPPUNIT_ASSERT(std::getline(*ifs, line));
+    BOOST_TEST(std::getline(*ifs, line));
 
     core_t::TTime lastBucketTime = firstTime;
 
@@ -586,7 +577,7 @@ void CResourceLimitTest::importCsvDataWithLimiter(core_t::TTime firstTime,
         regex.split(line, tokens);
 
         core_t::TTime time;
-        CPPUNIT_ASSERT(core::CStringUtils::stringToType(tokens[0], time));
+        BOOST_TEST(core::CStringUtils::stringToType(tokens[0], time));
 
         for (/**/; lastBucketTime + bucketLength <= time; lastBucketTime += bucketLength) {
             outputResults(detector, lastBucketTime, lastBucketTime + bucketLength);
@@ -605,3 +596,5 @@ void CResourceLimitTest::importCsvDataWithLimiter(core_t::TTime firstTime,
 
     ifs.reset();
 }
+
+BOOST_AUTO_TEST_SUITE_END()

@@ -4,8 +4,6 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
-#include "CTimeSeriesChangeDetectorTest.h"
-
 #include <core/CLogger.h>
 #include <core/CRapidXmlStatePersistInserter.h>
 #include <core/CRapidXmlStateRestoreTraverser.h>
@@ -24,12 +22,17 @@
 #include <maths/CXMeansOnline1d.h>
 
 #include <test/CRandomNumbers.h>
+#include <test/BoostTestCloseAbsolute.h>
 
 #include "TestUtils.h"
+
+#include <boost/test/unit_test.hpp>
 
 #include <cmath>
 #include <memory>
 #include <vector>
+
+BOOST_AUTO_TEST_SUITE(CTimeSeriesChangeDetectorTest)
 
 using namespace ml;
 
@@ -80,7 +83,7 @@ TPriorPtr makeResidualModel() {
 }
 }
 
-void CTimeSeriesChangeDetectorTest::testNoChange() {
+BOOST_AUTO_TEST_CASE(testNoChange) {
     test::CRandomNumbers rng;
 
     TDoubleVec variances{1.0, 10.0, 20.0, 30.0, 100.0, 1000.0};
@@ -133,14 +136,14 @@ void CTimeSeriesChangeDetectorTest::testNoChange() {
                 break;
             }
 
-            CPPUNIT_ASSERT(!detector.change());
+            BOOST_TEST(!detector.change());
 
             time += BUCKET_LENGTH;
         }
     }
 }
 
-void CTimeSeriesChangeDetectorTest::testLevelShift() {
+BOOST_AUTO_TEST_CASE(testLevelShift) {
     TGeneratorVec trends{constant, ramp, smoothDaily, weekends, spikeyDaily};
     this->testChange(
         trends, maths::SChangeDescription::E_LevelShift,
@@ -148,7 +151,7 @@ void CTimeSeriesChangeDetectorTest::testLevelShift() {
         7.0, 0.0, 16.0);
 }
 
-void CTimeSeriesChangeDetectorTest::testLinearScale() {
+BOOST_AUTO_TEST_CASE(testLinearScale) {
     TGeneratorVec trends{smoothDaily, spikeyDaily};
     this->testChange(
         trends, maths::SChangeDescription::E_LinearScale,
@@ -156,7 +159,7 @@ void CTimeSeriesChangeDetectorTest::testLinearScale() {
         3.0, 0.0, 15.0);
 }
 
-void CTimeSeriesChangeDetectorTest::testTimeShift() {
+BOOST_AUTO_TEST_CASE(testTimeShift) {
     TGeneratorVec trends{smoothDaily, spikeyDaily};
     this->testChange(trends, maths::SChangeDescription::E_TimeShift,
                      [](TGenerator trend, core_t::TTime time) {
@@ -170,7 +173,7 @@ void CTimeSeriesChangeDetectorTest::testTimeShift() {
                      +static_cast<double>(core::constants::HOUR), 0.04, 23.0);
 }
 
-void CTimeSeriesChangeDetectorTest::testPersist() {
+BOOST_AUTO_TEST_CASE(testPersist) {
     test::CRandomNumbers rng;
 
     TDoubleVec samples;
@@ -216,7 +219,7 @@ void CTimeSeriesChangeDetectorTest::testPersist() {
             trendModel, residualModel, 6 * core::constants::HOUR,
             24 * core::constants::HOUR, 12.0};
         core::CRapidXmlParser parser;
-        CPPUNIT_ASSERT(parser.parseStringIgnoreCdata(origXml));
+        BOOST_TEST(parser.parseStringIgnoreCdata(origXml));
         core::CRapidXmlStateRestoreTraverser traverser(parser);
         traverser.traverseSubLevel(std::bind(
             &maths::CUnivariateTimeSeriesChangeDetector::acceptRestoreTraverser,
@@ -224,33 +227,12 @@ void CTimeSeriesChangeDetectorTest::testPersist() {
 
         LOG_DEBUG(<< "expected " << origDetector.checksum() << " got "
                   << restoredDetector.checksum());
-        CPPUNIT_ASSERT_EQUAL(origDetector.checksum(), restoredDetector.checksum());
+        BOOST_CHECK_EQUAL(origDetector.checksum(), restoredDetector.checksum());
     }
 }
 
-CppUnit::Test* CTimeSeriesChangeDetectorTest::suite() {
-    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CTimeSeriesChangeDetectorTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CTimeSeriesChangeDetectorTest>(
-        "CTimeSeriesChangeDetectorTest::testNoChange",
-        &CTimeSeriesChangeDetectorTest::testNoChange));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CTimeSeriesChangeDetectorTest>(
-        "CTimeSeriesChangeDetectorTest::testLevelShift",
-        &CTimeSeriesChangeDetectorTest::testLevelShift));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CTimeSeriesChangeDetectorTest>(
-        "CTimeSeriesChangeDetectorTest::testLinearScale",
-        &CTimeSeriesChangeDetectorTest::testLinearScale));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CTimeSeriesChangeDetectorTest>(
-        "CTimeSeriesChangeDetectorTest::testTimeShift",
-        &CTimeSeriesChangeDetectorTest::testTimeShift));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CTimeSeriesChangeDetectorTest>(
-        "CTimeSeriesChangeDetectorTest::testPersist",
-        &CTimeSeriesChangeDetectorTest::testPersist));
-
-    return suiteOfTests;
-}
-
-void CTimeSeriesChangeDetectorTest::testChange(const TGeneratorVec& trends,
+BOOST_AUTO_TEST_CASE(testChangeconst TGeneratorVec& trends,
                                                maths::SChangeDescription::EDescription description,
                                                TChange applyChange,
                                                double expectedChange,
@@ -307,8 +289,8 @@ void CTimeSeriesChangeDetectorTest::testChange(const TGeneratorVec& trends,
                 if (!bucketsToDetect) {
                     bucketsToDetect.reset(i - 949);
                 }
-                CPPUNIT_ASSERT_EQUAL(change->s_Description, description);
-                CPPUNIT_ASSERT_DOUBLES_EQUAL(expectedChange, change->s_Value[0],
+                BOOST_CHECK_EQUAL(change->s_Description, description);
+                BOOST_CHECK_CLOSE_ABSOLUTE(expectedChange, change->s_Value[0],
                                              0.5 * std::fabs(expectedChange));
                 break;
             }
@@ -327,7 +309,9 @@ void CTimeSeriesChangeDetectorTest::testChange(const TGeneratorVec& trends,
 
     LOG_DEBUG(<< "false negatives = " << falseNegatives);
     LOG_DEBUG(<< "buckets to detect = " << maths::CBasicStatistics::mean(meanBucketsToDetect));
-    CPPUNIT_ASSERT(falseNegatives <= maximumFalseNegatives);
-    CPPUNIT_ASSERT(maths::CBasicStatistics::mean(meanBucketsToDetect) <
+    BOOST_TEST(falseNegatives <= maximumFalseNegatives);
+    BOOST_TEST(maths::CBasicStatistics::mean(meanBucketsToDetect) <
                    maximumMeanBucketsToDetectChange);
 }
+
+BOOST_AUTO_TEST_SUITE_END()

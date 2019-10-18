@@ -18,7 +18,9 @@
 #include <functional>
 #include <list>
 
-class CPersistenceManagerTest;
+namespace CPersistenceManagerTest {
+struct testFoo;
+}
 
 namespace ml {
 namespace api {
@@ -213,7 +215,7 @@ private:
     friend class CBackgroundThread;
 
     // For testing
-    friend class ::CPersistenceManagerTest;
+    friend struct CPersistenceManagerTest::testFoo;
 };
 }
 }

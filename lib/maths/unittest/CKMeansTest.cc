@@ -4,8 +4,6 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
-#include "CKMeansTest.h"
-
 #include <core/CLogger.h>
 
 #include <maths/CKMeans.h>
@@ -16,6 +14,11 @@
 
 #include <test/CRandomNumbers.h>
 #include <test/CRandomNumbersDetail.h>
+#include <test/BoostTestCloseAbsolute.h>
+
+#include <boost/test/unit_test.hpp>
+
+BOOST_AUTO_TEST_SUITE(CKMeansTest)
 
 using namespace ml;
 
@@ -70,8 +73,8 @@ struct SKdTreeDataInvariantsChecker {
             centroid += *node.s_RightChild->centroid();
         }
 
-        CPPUNIT_ASSERT_EQUAL(bb.print(), node.boundingBox().print());
-        CPPUNIT_ASSERT_EQUAL(maths::CBasicStatistics::print(centroid),
+        BOOST_CHECK_EQUAL(bb.print(), node.boundingBox().print());
+        BOOST_CHECK_EQUAL(maths::CBasicStatistics::print(centroid),
                              maths::CBasicStatistics::print(*node.centroid()));
     }
 };
@@ -103,7 +106,7 @@ public:
             filtered.end()) {
             LOG_DEBUG(<< "filtered = " << core::CContainerPrinter::print(filtered));
             LOG_DEBUG(<< "closest  = " << closest.print());
-            CPPUNIT_ASSERT(false);
+            BOOST_TEST(false);
         }
         if (filtered.size() > 1) {
             m_NumberAdmitted += filtered.size();
@@ -179,7 +182,7 @@ double sumSquareResiduals(const TVector2VecVec& points) {
 }
 }
 
-void CKMeansTest::testDataPropagation() {
+BOOST_AUTO_TEST_CASE(testDataPropagation) {
     test::CRandomNumbers rng;
 
     for (std::size_t i = 1u; i <= 100; ++i) {
@@ -209,7 +212,7 @@ void CKMeansTest::testDataPropagation() {
     }
 }
 
-void CKMeansTest::testFilter() {
+BOOST_AUTO_TEST_CASE(testFilter) {
     // Test that the closest centre to each point is never removed
     // by the centre filter and that we get good speed up in terms
     // of the number of centre point comparisons avoided.
@@ -246,7 +249,7 @@ void CKMeansTest::testFilter() {
                              static_cast<double>(centres.size()) /
                              static_cast<double>(numberAdmitted);
             LOG_DEBUG(<< "  speedup = " << speedup);
-            CPPUNIT_ASSERT(speedup > 30.0);
+            BOOST_TEST(speedup > 30.0);
         }
 
         {
@@ -272,12 +275,12 @@ void CKMeansTest::testFilter() {
                              static_cast<double>(centres.size()) /
                              static_cast<double>(numberAdmitted);
             LOG_DEBUG(<< "  speedup = " << speedup);
-            CPPUNIT_ASSERT(speedup > 5.5);
+            BOOST_TEST(speedup > 5.5);
         }
     }
 }
 
-void CKMeansTest::testCentroids() {
+BOOST_AUTO_TEST_CASE(testCentroids) {
     // Check that the centroids computed are the centroids for
     // each cluster, i.e. the centroid of the points closest to
     // each cluster centre.
@@ -318,7 +321,7 @@ void CKMeansTest::testCentroids() {
                       << core::CContainerPrinter::print(expectedCentroids));
             LOG_DEBUG(<< "  centroids          = "
                       << core::CContainerPrinter::print(centroids));
-            CPPUNIT_ASSERT_EQUAL(core::CContainerPrinter::print(expectedCentroids),
+            BOOST_CHECK_EQUAL(core::CContainerPrinter::print(expectedCentroids),
                                  core::CContainerPrinter::print(centroids));
         }
         {
@@ -348,13 +351,13 @@ void CKMeansTest::testCentroids() {
                       << core::CContainerPrinter::print(expectedCentroids));
             LOG_DEBUG(<< "  centroids          = "
                       << core::CContainerPrinter::print(centroids));
-            CPPUNIT_ASSERT_EQUAL(core::CContainerPrinter::print(expectedCentroids),
+            BOOST_CHECK_EQUAL(core::CContainerPrinter::print(expectedCentroids),
                                  core::CContainerPrinter::print(centroids));
         }
     }
 }
 
-void CKMeansTest::testClosestPoints() {
+BOOST_AUTO_TEST_CASE(testClosestPoints) {
     // Check the obvious invariant that the closest point to each
     // centre is closer to that centre than any other.
 
@@ -390,7 +393,7 @@ void CKMeansTest::testClosestPoints() {
 
             for (std::size_t j = 0u; j < closestPoints.size(); ++j) {
                 for (std::size_t k = 0u; k < closestPoints[j].size(); ++k) {
-                    CPPUNIT_ASSERT_EQUAL(closest(centres, closestPoints[j][k]).first, j);
+                    BOOST_CHECK_EQUAL(closest(centres, closestPoints[j][k]).first, j);
                 }
             }
         }
@@ -415,14 +418,14 @@ void CKMeansTest::testClosestPoints() {
 
             for (std::size_t j = 0u; j < closestPoints.size(); ++j) {
                 for (std::size_t k = 0u; k < closestPoints[j].size(); ++k) {
-                    CPPUNIT_ASSERT_EQUAL(closest(centres, closestPoints[j][k]).first, j);
+                    BOOST_CHECK_EQUAL(closest(centres, closestPoints[j][k]).first, j);
                 }
             }
         }
     }
 }
 
-void CKMeansTest::testRun() {
+BOOST_AUTO_TEST_CASE(testRun) {
     // Test k-means correctly identifies two separated uniform
     // random clusters in the data.
 
@@ -460,14 +463,14 @@ void CKMeansTest::testRun() {
             LOG_DEBUG(<< "centres      = " << core::CContainerPrinter::print(centres));
             LOG_DEBUG(<< "fast centres = "
                       << core::CContainerPrinter::print(kmeansFast.centres()));
-            CPPUNIT_ASSERT_EQUAL(converged, fastConverged);
-            CPPUNIT_ASSERT_EQUAL(core::CContainerPrinter::print(centres),
+            BOOST_CHECK_EQUAL(converged, fastConverged);
+            BOOST_CHECK_EQUAL(core::CContainerPrinter::print(centres),
                                  core::CContainerPrinter::print(kmeansFast.centres()));
         }
     }
 }
 
-void CKMeansTest::testRunWithSphericalClusters() {
+BOOST_AUTO_TEST_CASE(testRunWithSphericalClusters) {
     // The idea of this test is simply to check that we get the
     // same result working with clusters of points or their
     // spherical cluster representation.
@@ -537,12 +540,12 @@ void CKMeansTest::testRunWithSphericalClusters() {
                   << core::CContainerPrinter::print(kmeansPointsCentres));
         LOG_DEBUG(<< "k-means clusters = "
                   << core::CContainerPrinter::print(kmeansClustersCentres));
-        CPPUNIT_ASSERT_EQUAL(core::CContainerPrinter::print(kmeansPointsCentres),
+        BOOST_CHECK_EQUAL(core::CContainerPrinter::print(kmeansPointsCentres),
                              core::CContainerPrinter::print(kmeansClustersCentres));
     }
 }
 
-void CKMeansTest::testPlusPlus() {
+BOOST_AUTO_TEST_CASE(testPlusPlus) {
     // Test the k-means++ sampling scheme always samples all the
     // clusters present in the data and generally results in lower
     // square residuals of the points from the cluster centres.
@@ -611,7 +614,7 @@ void CKMeansTest::testPlusPlus() {
         sampledClusters.erase(
             std::unique(sampledClusters.begin(), sampledClusters.end()),
             sampledClusters.end());
-        CPPUNIT_ASSERT(sampledClusters.size() >= 2);
+        BOOST_TEST(sampledClusters.size() >= 2);
         numberClustersSampled.add(static_cast<double>(sampledClusters.size()));
 
         maths::CKMeans<TVector2> kmeans;
@@ -649,30 +652,12 @@ void CKMeansTest::testPlusPlus() {
     LOG_DEBUG(<< "mean ratio = " << maths::CBasicStatistics::mean(meanSSRRatio));
     LOG_DEBUG(<< "max ratio  = " << maxSSRRatio);
 
-    CPPUNIT_ASSERT(minSSRRatio < 0.14);
-    CPPUNIT_ASSERT(maths::CBasicStatistics::mean(meanSSRRatio) < 0.9);
-    CPPUNIT_ASSERT(maxSSRRatio < 9.0);
-    CPPUNIT_ASSERT_DOUBLES_EQUAL(
+    BOOST_TEST(minSSRRatio < 0.14);
+    BOOST_TEST(maths::CBasicStatistics::mean(meanSSRRatio) < 0.9);
+    BOOST_TEST(maxSSRRatio < 9.0);
+    BOOST_CHECK_CLOSE_ABSOLUTE(
         4.0, maths::CBasicStatistics::mean(numberClustersSampled), 0.3);
 }
 
-CppUnit::Test* CKMeansTest::suite() {
-    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CKMeansTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CKMeansTest>(
-        "CKMeansTest::testDataPropagation", &CKMeansTest::testDataPropagation));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CKMeansTest>(
-        "CKMeansTest::testFilter", &CKMeansTest::testFilter));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CKMeansTest>(
-        "CKMeansTest::testCentroids", &CKMeansTest::testCentroids));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CKMeansTest>(
-        "CKMeansTest::testClosestPoints", &CKMeansTest::testClosestPoints));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CKMeansTest>(
-        "CKMeansTest::testRun", &CKMeansTest::testRun));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CKMeansTest>(
-        "CKMeansTest::testRunWithSphericalClusters", &CKMeansTest::testRunWithSphericalClusters));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CKMeansTest>(
-        "CKMeansTest::testPlusPlus", &CKMeansTest::testPlusPlus));
-
-    return suiteOfTests;
-}
+BOOST_AUTO_TEST_SUITE_END()

@@ -3,7 +3,6 @@
  * or more contributor license agreements. Licensed under the Elastic License;
  * you may not use this file except in compliance with the Elastic License.
  */
-#include "CCsvOutputWriterTest.h"
 
 #include <core/CLogger.h>
 #include <core/COsFileFuncs.h>
@@ -12,27 +11,15 @@
 
 #include <api/CCsvOutputWriter.h>
 
+#include <boost/test/unit_test.hpp>
+
 #include <fstream>
 #include <sstream>
 
-CppUnit::Test* CCsvOutputWriterTest::suite() {
-    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CCsvOutputWriterTest");
+BOOST_AUTO_TEST_SUITE(CCsvOutputWriterTest)
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CCsvOutputWriterTest>(
-        "CCsvOutputWriterTest::testAdd", &CCsvOutputWriterTest::testAdd));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CCsvOutputWriterTest>(
-        "CCsvOutputWriterTest::testOverwrite", &CCsvOutputWriterTest::testOverwrite));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CCsvOutputWriterTest>(
-        "CCsvOutputWriterTest::testThroughput", &CCsvOutputWriterTest::testThroughput));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CCsvOutputWriterTest>(
-        "CCsvOutputWriterTest::testExcelQuoting", &CCsvOutputWriterTest::testExcelQuoting));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CCsvOutputWriterTest>(
-        "CCsvOutputWriterTest::testNonExcelQuoting", &CCsvOutputWriterTest::testNonExcelQuoting));
 
-    return suiteOfTests;
-}
-
-void CCsvOutputWriterTest::testAdd() {
+BOOST_AUTO_TEST_CASE(testAdd) {
     // In this test, the output is the input plus an extra field - no input
     // fields are changed
 
@@ -69,7 +56,7 @@ void CCsvOutputWriterTest::testAdd() {
     ml::api::CCsvOutputWriter::TStrVec mlFieldNames;
     mlFieldNames.push_back("ml_type");
 
-    CPPUNIT_ASSERT(writer.fieldNames(fieldNames, mlFieldNames));
+    BOOST_TEST(writer.fieldNames(fieldNames, mlFieldNames));
 
     ml::api::CCsvOutputWriter::TStrStrUMap originalFields;
     originalFields["_cd"] = "0:3933689";
@@ -102,7 +89,7 @@ void CCsvOutputWriterTest::testAdd() {
     ml::api::CCsvOutputWriter::TStrStrUMap mlFields;
     mlFields["ml_type"] = "75";
 
-    CPPUNIT_ASSERT(writer.writeRow(originalFields, mlFields));
+    BOOST_TEST(writer.writeRow(originalFields, mlFields));
 
     std::string output(writer.internalString());
 
@@ -111,29 +98,29 @@ void CCsvOutputWriterTest::testAdd() {
     for (ml::api::CCsvOutputWriter::TStrVecCItr iter = fieldNames.begin();
          iter != fieldNames.end(); ++iter) {
         LOG_DEBUG(<< "Checking output contains '" << *iter << "'");
-        CPPUNIT_ASSERT(output.find(*iter) != std::string::npos);
+        BOOST_TEST(output.find(*iter) != std::string::npos);
     }
 
     for (ml::api::CCsvOutputWriter::TStrVecCItr iter = mlFieldNames.begin();
          iter != mlFieldNames.end(); ++iter) {
         LOG_DEBUG(<< "Checking output contains '" << *iter << "'");
-        CPPUNIT_ASSERT(output.find(*iter) != std::string::npos);
+        BOOST_TEST(output.find(*iter) != std::string::npos);
     }
 
     for (ml::api::CCsvOutputWriter::TStrStrUMapCItr iter = originalFields.begin();
          iter != originalFields.end(); ++iter) {
         LOG_DEBUG(<< "Checking output contains '" << iter->second << "'");
-        CPPUNIT_ASSERT(output.find(iter->second) != std::string::npos);
+        BOOST_TEST(output.find(iter->second) != std::string::npos);
     }
 
     for (ml::api::CCsvOutputWriter::TStrStrUMapCItr iter = mlFields.begin();
          iter != mlFields.end(); ++iter) {
         LOG_DEBUG(<< "Checking output contains '" << iter->second << "'");
-        CPPUNIT_ASSERT(output.find(iter->second) != std::string::npos);
+        BOOST_TEST(output.find(iter->second) != std::string::npos);
     }
 }
 
-void CCsvOutputWriterTest::testOverwrite() {
+BOOST_AUTO_TEST_CASE(testOverwrite) {
     // In this test, some fields from the input are changed in the output
 
     ml::api::CCsvOutputWriter writer;
@@ -170,7 +157,7 @@ void CCsvOutputWriterTest::testOverwrite() {
     mlFieldNames.push_back("eventtype");
     mlFieldNames.push_back("ml_type");
 
-    CPPUNIT_ASSERT(writer.fieldNames(fieldNames, mlFieldNames));
+    BOOST_TEST(writer.fieldNames(fieldNames, mlFieldNames));
 
     ml::api::CCsvOutputWriter::TStrStrUMap originalFields;
     originalFields["_cd"] = "0:3933689";
@@ -205,7 +192,7 @@ void CCsvOutputWriterTest::testOverwrite() {
     mlFields["date_zone"] = "GMT";
     mlFields["ml_type"] = "42";
 
-    CPPUNIT_ASSERT(writer.writeRow(originalFields, mlFields));
+    BOOST_TEST(writer.writeRow(originalFields, mlFields));
 
     std::string output(writer.internalString());
 
@@ -214,13 +201,13 @@ void CCsvOutputWriterTest::testOverwrite() {
     for (ml::api::CCsvOutputWriter::TStrVecCItr iter = fieldNames.begin();
          iter != fieldNames.end(); ++iter) {
         LOG_DEBUG(<< "Checking output contains '" << *iter << "'");
-        CPPUNIT_ASSERT(output.find(*iter) != std::string::npos);
+        BOOST_TEST(output.find(*iter) != std::string::npos);
     }
 
     for (ml::api::CCsvOutputWriter::TStrVecCItr iter = mlFieldNames.begin();
          iter != mlFieldNames.end(); ++iter) {
         LOG_DEBUG(<< "Checking output contains '" << *iter << "'");
-        CPPUNIT_ASSERT(output.find(*iter) != std::string::npos);
+        BOOST_TEST(output.find(*iter) != std::string::npos);
     }
 
     for (ml::api::CCsvOutputWriter::TStrStrUMapCItr iter = originalFields.begin();
@@ -228,26 +215,26 @@ void CCsvOutputWriterTest::testOverwrite() {
         // The Ml fields should override the originals
         if (mlFields.find(iter->first) == mlFields.end()) {
             LOG_DEBUG(<< "Checking output contains '" << iter->second << "'");
-            CPPUNIT_ASSERT(output.find(iter->second) != std::string::npos);
+            BOOST_TEST(output.find(iter->second) != std::string::npos);
         } else {
             LOG_DEBUG(<< "Checking output does not contain '" << iter->second << "'");
-            CPPUNIT_ASSERT(output.find(iter->second) == std::string::npos);
+            BOOST_TEST(output.find(iter->second) == std::string::npos);
         }
     }
 
     for (ml::api::CCsvOutputWriter::TStrStrUMapCItr iter = mlFields.begin();
          iter != mlFields.end(); ++iter) {
         LOG_DEBUG(<< "Checking output contains '" << iter->second << "'");
-        CPPUNIT_ASSERT(output.find(iter->second) != std::string::npos);
+        BOOST_TEST(output.find(iter->second) != std::string::npos);
     }
 }
 
-void CCsvOutputWriterTest::testThroughput() {
+BOOST_AUTO_TEST_CASE(testThroughput) {
     // In this test, some fields from the input are changed in the output
 
     // Write to /dev/null (Unix) or nul (Windows)
     std::ofstream ofs(ml::core::COsFileFuncs::NULL_FILENAME);
-    CPPUNIT_ASSERT(ofs.is_open());
+    BOOST_TEST(ofs.is_open());
 
     ml::api::CCsvOutputWriter writer(ofs);
 
@@ -322,10 +309,10 @@ void CCsvOutputWriterTest::testThroughput() {
     ml::core_t::TTime start(ml::core::CTimeUtils::now());
     LOG_INFO(<< "Starting throughput test at " << ml::core::CTimeUtils::toTimeString(start));
 
-    CPPUNIT_ASSERT(writer.fieldNames(fieldNames, mlFieldNames));
+    BOOST_TEST(writer.fieldNames(fieldNames, mlFieldNames));
 
     for (size_t count = 0; count < TEST_SIZE; ++count) {
-        CPPUNIT_ASSERT(writer.writeRow(originalFields, mlFields));
+        BOOST_TEST(writer.writeRow(originalFields, mlFields));
     }
 
     ml::core_t::TTime end(ml::core::CTimeUtils::now());
@@ -334,7 +321,7 @@ void CCsvOutputWriterTest::testThroughput() {
     LOG_INFO(<< "Writing " << TEST_SIZE << " records took " << (end - start) << " seconds");
 }
 
-void CCsvOutputWriterTest::testExcelQuoting() {
+BOOST_AUTO_TEST_CASE(testExcelQuoting) {
     ml::api::CCsvOutputWriter writer;
 
     ml::api::CCsvOutputWriter::TStrVec fieldNames;
@@ -346,7 +333,7 @@ void CCsvOutputWriterTest::testExcelQuoting() {
     fieldNames.push_back("contains_newline");
     fieldNames.push_back("contains_quote_newline");
 
-    CPPUNIT_ASSERT(writer.fieldNames(fieldNames));
+    BOOST_TEST(writer.fieldNames(fieldNames));
 
     ml::api::CCsvOutputWriter::TStrStrUMap fieldValues;
     fieldValues["no_special"] = "a";
@@ -357,13 +344,13 @@ void CCsvOutputWriterTest::testExcelQuoting() {
     fieldValues["contains_newline"] = "\n";
     fieldValues["contains_quote_newline"] = "\"\n";
 
-    CPPUNIT_ASSERT(writer.writeRow(fieldValues));
+    BOOST_TEST(writer.writeRow(fieldValues));
 
     std::string output(writer.internalString());
 
     LOG_DEBUG(<< "Output is:\n" << output);
 
-    CPPUNIT_ASSERT_EQUAL(std::string("no_special,"
+    BOOST_CHECK_EQUAL(std::string("no_special,"
                                      "contains_quote,"
                                      "contains_quote_quote,"
                                      "contains_separator,"
@@ -380,7 +367,7 @@ void CCsvOutputWriterTest::testExcelQuoting() {
                          output);
 }
 
-void CCsvOutputWriterTest::testNonExcelQuoting() {
+BOOST_AUTO_TEST_CASE(testNonExcelQuoting) {
     ml::api::CCsvOutputWriter writer(false, true, '\\');
 
     ml::api::CCsvOutputWriter::TStrVec fieldNames;
@@ -393,7 +380,7 @@ void CCsvOutputWriterTest::testNonExcelQuoting() {
     fieldNames.push_back("contains_newline");
     fieldNames.push_back("contains_escape_newline");
 
-    CPPUNIT_ASSERT(writer.fieldNames(fieldNames));
+    BOOST_TEST(writer.fieldNames(fieldNames));
 
     ml::api::CCsvOutputWriter::TStrStrUMap fieldValues;
     fieldValues["no_special"] = "a";
@@ -405,13 +392,13 @@ void CCsvOutputWriterTest::testNonExcelQuoting() {
     fieldValues["contains_newline"] = "\n";
     fieldValues["contains_escape_newline"] = "\\\n";
 
-    CPPUNIT_ASSERT(writer.writeRow(fieldValues));
+    BOOST_TEST(writer.writeRow(fieldValues));
 
     std::string output(writer.internalString());
 
     LOG_DEBUG(<< "Output is:\n" << output);
 
-    CPPUNIT_ASSERT_EQUAL(std::string("no_special,"
+    BOOST_CHECK_EQUAL(std::string("no_special,"
                                      "contains_quote,"
                                      "contains_escape,"
                                      "contains_escape_quote,"
@@ -429,3 +416,5 @@ void CCsvOutputWriterTest::testNonExcelQuoting() {
                                      "\"\\\\\n\"\n"),
                          output);
 }
+
+BOOST_AUTO_TEST_SUITE_END()

@@ -4,8 +4,6 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
-#include "CNaturalBreaksClassifierTest.h"
-
 #include <core/CContainerPrinter.h>
 #include <core/CLogger.h>
 #include <core/CRapidXmlParser.h>
@@ -16,9 +14,14 @@
 #include <maths/CRestoreParams.h>
 
 #include <test/CRandomNumbers.h>
+#include <test/BoostTestCloseAbsolute.h>
+
+#include <boost/test/unit_test.hpp>
 
 #include <algorithm>
 #include <vector>
+
+BOOST_AUTO_TEST_SUITE(CNaturalBreaksClassifierTest)
 
 using namespace ml;
 using namespace maths;
@@ -148,7 +151,7 @@ bool naturalBreaksBranchAndBound(const TTupleVec& categories,
 }
 }
 
-void CNaturalBreaksClassifierTest::testCategories() {
+BOOST_AUTO_TEST_CASE(testCategories) {
     // Check that we correctly find the optimum solution.
     {
         test::CRandomNumbers rng;
@@ -180,7 +183,7 @@ void CNaturalBreaksClassifierTest::testCategories() {
                         LOG_DEBUG(<< "actual =   " << core::CContainerPrinter::print(split));
                     }
 
-                    CPPUNIT_ASSERT_EQUAL(core::CContainerPrinter::print(expectedSplit),
+                    BOOST_CHECK_EQUAL(core::CContainerPrinter::print(expectedSplit),
                                          core::CContainerPrinter::print(split));
                 }
             }
@@ -218,7 +221,7 @@ void CNaturalBreaksClassifierTest::testCategories() {
                         TTupleVec expectedSplit;
                         bool expectSplit = naturalBreaksBranchAndBound(all, j, k, expectedSplit);
 
-                        CPPUNIT_ASSERT_EQUAL(expectSplit, haveSplit);
+                        BOOST_CHECK_EQUAL(expectSplit, haveSplit);
 
                         if (expectSplit && haveSplit) {
                             if (i % 20 == 0) {
@@ -227,7 +230,7 @@ void CNaturalBreaksClassifierTest::testCategories() {
                                 LOG_DEBUG(<< "actual =   "
                                           << core::CContainerPrinter::print(split));
                             }
-                            CPPUNIT_ASSERT_EQUAL(core::CContainerPrinter::print(expectedSplit),
+                            BOOST_CHECK_EQUAL(core::CContainerPrinter::print(expectedSplit),
                                                  core::CContainerPrinter::print(split));
                         }
                     } while (k < i / j);
@@ -265,13 +268,13 @@ void CNaturalBreaksClassifierTest::testCategories() {
         double c1 = CBasicStatistics::count(twoSplit[0]);
         double c2 = CBasicStatistics::count(twoSplit[1]);
         LOG_DEBUG(<< "count ratio = " << c1 / c2);
-        CPPUNIT_ASSERT(std::fabs(c1 / c2 - 1.0) < 0.8);
+        BOOST_TEST(std::fabs(c1 / c2 - 1.0) < 0.8);
         double separation = std::fabs(CBasicStatistics::mean(twoSplit[0]) -
                                       CBasicStatistics::mean(twoSplit[1])) /
                             (std::sqrt(CBasicStatistics::variance(twoSplit[0])) +
                              std::sqrt(CBasicStatistics::variance(twoSplit[1])));
         LOG_DEBUG(<< "separation = " << separation);
-        CPPUNIT_ASSERT(std::fabs(separation - 1.0) < 0.4);
+        BOOST_TEST(std::fabs(separation - 1.0) < 0.4);
     }
     {
         const double mean1 = 10.0;
@@ -306,15 +309,15 @@ void CNaturalBreaksClassifierTest::testCategories() {
                           << ", (mean1,var1) = (" << mean1 << "," << var1 << ")"
                           << ", (mean2,var2) = (" << mean2 << "," << var2 << ")");
 
-                CPPUNIT_ASSERT(std::fabs(CBasicStatistics::mean(twoSplit[0]) - mean1) < 0.5);
-                CPPUNIT_ASSERT(std::fabs(CBasicStatistics::variance(twoSplit[0]) - var1) < 0.6);
-                CPPUNIT_ASSERT(std::fabs(CBasicStatistics::count(twoSplit[0]) -
+                BOOST_TEST(std::fabs(CBasicStatistics::mean(twoSplit[0]) - mean1) < 0.5);
+                BOOST_TEST(std::fabs(CBasicStatistics::variance(twoSplit[0]) - var1) < 0.6);
+                BOOST_TEST(std::fabs(CBasicStatistics::count(twoSplit[0]) -
                                          static_cast<double>(n1)) /
                                    static_cast<double>(n1) <
                                0.33);
-                CPPUNIT_ASSERT(std::fabs(CBasicStatistics::mean(twoSplit[1]) - mean2) < 0.4);
-                CPPUNIT_ASSERT(std::fabs(CBasicStatistics::variance(twoSplit[1]) - var2) < 0.63);
-                CPPUNIT_ASSERT(std::fabs(CBasicStatistics::count(twoSplit[1]) -
+                BOOST_TEST(std::fabs(CBasicStatistics::mean(twoSplit[1]) - mean2) < 0.4);
+                BOOST_TEST(std::fabs(CBasicStatistics::variance(twoSplit[1]) - var2) < 0.63);
+                BOOST_TEST(std::fabs(CBasicStatistics::count(twoSplit[1]) -
                                          static_cast<double>(n2)) /
                                    static_cast<double>(n2) <
                                0.11);
@@ -346,15 +349,15 @@ void CNaturalBreaksClassifierTest::testCategories() {
                           << ", split 2 = " << CBasicStatistics::print(twoSplit[1]));
             }
 
-            CPPUNIT_ASSERT(std::fabs(CBasicStatistics::mean(twoSplit[0]) - mean1) < 0.7);
-            CPPUNIT_ASSERT(std::fabs(CBasicStatistics::variance(twoSplit[0]) - var1) < 0.4);
-            CPPUNIT_ASSERT(std::fabs(CBasicStatistics::count(twoSplit[0]) -
+            BOOST_TEST(std::fabs(CBasicStatistics::mean(twoSplit[0]) - mean1) < 0.7);
+            BOOST_TEST(std::fabs(CBasicStatistics::variance(twoSplit[0]) - var1) < 0.4);
+            BOOST_TEST(std::fabs(CBasicStatistics::count(twoSplit[0]) -
                                      static_cast<double>(n1)) /
                                static_cast<double>(n1) <
                            0.7);
-            CPPUNIT_ASSERT(std::fabs(CBasicStatistics::mean(twoSplit[1]) - mean2) < 0.6);
-            CPPUNIT_ASSERT(std::fabs(CBasicStatistics::variance(twoSplit[1]) - var2) < 1.0);
-            CPPUNIT_ASSERT(std::fabs(CBasicStatistics::count(twoSplit[1]) -
+            BOOST_TEST(std::fabs(CBasicStatistics::mean(twoSplit[1]) - mean2) < 0.6);
+            BOOST_TEST(std::fabs(CBasicStatistics::variance(twoSplit[1]) - var2) < 1.0);
+            BOOST_TEST(std::fabs(CBasicStatistics::count(twoSplit[1]) -
                                      static_cast<double>(n2)) /
                                static_cast<double>(n2) <
                            0.3);
@@ -381,16 +384,16 @@ void CNaturalBreaksClassifierTest::testCategories() {
         LOG_DEBUG(<< "mean mean error 1 = " << totalMeanError1
                   << ", mean variance error 1 = " << totalVarError1
                   << ", mean count error 1 = " << totalCountError1);
-        CPPUNIT_ASSERT(totalMeanError1 < 0.21);
-        CPPUNIT_ASSERT(totalVarError1 < 0.2);
-        CPPUNIT_ASSERT(totalCountError1 < 0.3);
+        BOOST_TEST(totalMeanError1 < 0.21);
+        BOOST_TEST(totalVarError1 < 0.2);
+        BOOST_TEST(totalCountError1 < 0.3);
 
         LOG_DEBUG(<< "mean mean error 2 = " << totalMeanError2
                   << ", mean variance error 2 = " << totalVarError2
                   << ", mean count error 2 = " << totalCountError2);
-        CPPUNIT_ASSERT(totalMeanError2 < 0.3);
-        CPPUNIT_ASSERT(totalVarError2 < 0.56);
-        CPPUNIT_ASSERT(totalCountError2 < 0.1);
+        BOOST_TEST(totalMeanError2 < 0.3);
+        BOOST_TEST(totalVarError2 < 0.56);
+        BOOST_TEST(totalCountError2 < 0.1);
     }
 
     // Test Gaussian clusters plus noise.
@@ -448,15 +451,15 @@ void CNaturalBreaksClassifierTest::testCategories() {
                           << ", split 3 = " << CBasicStatistics::print(twoSplit[2]));
             }
 
-            CPPUNIT_ASSERT(std::fabs(CBasicStatistics::mean(twoSplit[0]) - mean1) < 0.15);
-            CPPUNIT_ASSERT(std::fabs(CBasicStatistics::variance(twoSplit[0]) - var1) < 0.4);
-            CPPUNIT_ASSERT(std::fabs(CBasicStatistics::count(twoSplit[0]) -
+            BOOST_TEST(std::fabs(CBasicStatistics::mean(twoSplit[0]) - mean1) < 0.15);
+            BOOST_TEST(std::fabs(CBasicStatistics::variance(twoSplit[0]) - var1) < 0.4);
+            BOOST_TEST(std::fabs(CBasicStatistics::count(twoSplit[0]) -
                                      static_cast<double>(n1)) /
                                static_cast<double>(n1) <
                            0.05);
-            CPPUNIT_ASSERT(std::fabs(CBasicStatistics::mean(twoSplit[1]) - mean2) < 0.5);
-            CPPUNIT_ASSERT(std::fabs(CBasicStatistics::variance(twoSplit[1]) - var2) < 2.5);
-            CPPUNIT_ASSERT(std::fabs(CBasicStatistics::count(twoSplit[1]) -
+            BOOST_TEST(std::fabs(CBasicStatistics::mean(twoSplit[1]) - mean2) < 0.5);
+            BOOST_TEST(std::fabs(CBasicStatistics::variance(twoSplit[1]) - var2) < 2.5);
+            BOOST_TEST(std::fabs(CBasicStatistics::count(twoSplit[1]) -
                                      static_cast<double>(n2)) /
                                static_cast<double>(n2) <
                            0.15);
@@ -483,20 +486,20 @@ void CNaturalBreaksClassifierTest::testCategories() {
         LOG_DEBUG(<< "mean mean error 1 = " << totalMeanError1
                   << ", mean variance error 1 = " << totalVarError1
                   << ", mean count error 1 = " << totalCountError1);
-        CPPUNIT_ASSERT(totalMeanError1 < 0.05);
-        CPPUNIT_ASSERT(totalVarError1 < 0.1);
-        CPPUNIT_ASSERT(totalCountError1 < 0.01);
+        BOOST_TEST(totalMeanError1 < 0.05);
+        BOOST_TEST(totalVarError1 < 0.1);
+        BOOST_TEST(totalCountError1 < 0.01);
 
         LOG_DEBUG(<< "mean mean error 2 = " << totalMeanError2
                   << ", mean variance error 2 = " << totalVarError2
                   << ", mean count error 2 = " << totalCountError2);
-        CPPUNIT_ASSERT(totalMeanError2 < 0.15);
-        CPPUNIT_ASSERT(totalVarError2 < 1.0);
-        CPPUNIT_ASSERT(totalCountError2 < 0.1);
+        BOOST_TEST(totalMeanError2 < 0.15);
+        BOOST_TEST(totalVarError2 < 1.0);
+        BOOST_TEST(totalCountError2 < 0.1);
     }
 }
 
-void CNaturalBreaksClassifierTest::testPropagateForwardsByTime() {
+BOOST_AUTO_TEST_CASE(testPropagateForwardsByTime) {
     // Check pruning of dead categories.
 
     test::CRandomNumbers rng;
@@ -519,7 +522,7 @@ void CNaturalBreaksClassifierTest::testPropagateForwardsByTime() {
 
     TTupleVec categories;
     classifier.categories(4u, 0, categories);
-    CPPUNIT_ASSERT_EQUAL(std::size_t(4), categories.size());
+    BOOST_CHECK_EQUAL(std::size_t(4), categories.size());
 
     LOG_DEBUG(<< "categories = " << core::CContainerPrinter::print(categories));
 
@@ -529,13 +532,13 @@ void CNaturalBreaksClassifierTest::testPropagateForwardsByTime() {
     LOG_DEBUG(<< "categories = " << core::CContainerPrinter::print(categories));
 
     // We expect the category with count of 1 to have been pruned out.
-    CPPUNIT_ASSERT_EQUAL(std::size_t(3), categories.size());
+    BOOST_CHECK_EQUAL(std::size_t(3), categories.size());
     for (std::size_t i = 0u; i < categories.size(); ++i) {
-        CPPUNIT_ASSERT(maths::CBasicStatistics::mean(categories[i]) != 100.0);
+        BOOST_TEST(maths::CBasicStatistics::mean(categories[i]) != 100.0);
     }
 }
 
-void CNaturalBreaksClassifierTest::testSample() {
+BOOST_AUTO_TEST_CASE(testSample) {
     // We test that for a small number of samples we get back exactly
     // the points we have added and for a large number of samples we
     // sample the modes of the mixture correctly.
@@ -583,7 +586,7 @@ void CNaturalBreaksClassifierTest::testSample() {
         error += std::fabs(expectedSampled[i] - sampled[i]);
     }
 
-    CPPUNIT_ASSERT_DOUBLES_EQUAL(0.0, error, 2e-6);
+    BOOST_CHECK_CLOSE_ABSOLUTE(0.0, error, 2e-6);
 
     for (std::size_t i = 5u; i < samples.size(); ++i) {
         classifier.add(samples[i]);
@@ -607,17 +610,17 @@ void CNaturalBreaksClassifierTest::testSample() {
     LOG_DEBUG(<< "mean, variance 1          = " << meanVar1);
     LOG_DEBUG(<< "expected mean, variance 2 = " << expectedMeanVar2);
     LOG_DEBUG(<< "mean, variance 2          = " << meanVar2);
-    CPPUNIT_ASSERT_DOUBLES_EQUAL(CBasicStatistics::mean(expectedMeanVar1),
+    BOOST_CHECK_CLOSE_ABSOLUTE(CBasicStatistics::mean(expectedMeanVar1),
                                  CBasicStatistics::mean(meanVar1), 0.01);
-    CPPUNIT_ASSERT_DOUBLES_EQUAL(CBasicStatistics::variance(expectedMeanVar1),
+    BOOST_CHECK_CLOSE_ABSOLUTE(CBasicStatistics::variance(expectedMeanVar1),
                                  CBasicStatistics::variance(meanVar1), 0.1);
-    CPPUNIT_ASSERT_DOUBLES_EQUAL(CBasicStatistics::mean(expectedMeanVar2),
+    BOOST_CHECK_CLOSE_ABSOLUTE(CBasicStatistics::mean(expectedMeanVar2),
                                  CBasicStatistics::mean(meanVar2), 0.01);
-    CPPUNIT_ASSERT_DOUBLES_EQUAL(CBasicStatistics::variance(expectedMeanVar2),
+    BOOST_CHECK_CLOSE_ABSOLUTE(CBasicStatistics::variance(expectedMeanVar2),
                                  CBasicStatistics::variance(meanVar2), 0.1);
 }
 
-void CNaturalBreaksClassifierTest::testPersist() {
+BOOST_AUTO_TEST_CASE(testPersist) {
     test::CRandomNumbers rng;
 
     TDoubleVec samples1;
@@ -648,7 +651,7 @@ void CNaturalBreaksClassifierTest::testPersist() {
     LOG_DEBUG(<< "Classifier XML representation:\n" << origXml);
 
     core::CRapidXmlParser parser;
-    CPPUNIT_ASSERT(parser.parseStringIgnoreCdata(origXml));
+    BOOST_TEST(parser.parseStringIgnoreCdata(origXml));
     core::CRapidXmlStateRestoreTraverser traverser(parser);
 
     // Restore the XML into a new classifier.
@@ -656,13 +659,13 @@ void CNaturalBreaksClassifierTest::testPersist() {
     maths::SDistributionRestoreParams params(
         maths_t::E_ContinuousData, 0.2, maths::MINIMUM_CLUSTER_SPLIT_FRACTION,
         maths::MINIMUM_CLUSTER_SPLIT_COUNT, maths::MINIMUM_CATEGORY_COUNT);
-    CPPUNIT_ASSERT(traverser.traverseSubLevel(
+    BOOST_TEST(traverser.traverseSubLevel(
         std::bind(&CNaturalBreaksClassifier::acceptRestoreTraverser,
                   &restoredClassifier, std::cref(params), std::placeholders::_1)));
 
     LOG_DEBUG(<< "orig checksum = " << checksum
               << " restored checksum = " << restoredClassifier.checksum());
-    CPPUNIT_ASSERT_EQUAL(checksum, restoredClassifier.checksum());
+    BOOST_CHECK_EQUAL(checksum, restoredClassifier.checksum());
 
     // The XML representation of the new filter should be the same
     // as the original.
@@ -672,22 +675,8 @@ void CNaturalBreaksClassifierTest::testPersist() {
         restoredClassifier.acceptPersistInserter(inserter);
         inserter.toXml(newXml);
     }
-    CPPUNIT_ASSERT_EQUAL(origXml, newXml);
+    BOOST_CHECK_EQUAL(origXml, newXml);
 }
 
-CppUnit::Test* CNaturalBreaksClassifierTest::suite() {
-    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CNaturalBreaksClassifierTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CNaturalBreaksClassifierTest>(
-        "CNaturalBreaksClassifierTest::testCategories",
-        &CNaturalBreaksClassifierTest::testCategories));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CNaturalBreaksClassifierTest>(
-        "CNaturalBreaksClassifierTest::testPropagateForwardsByTime",
-        &CNaturalBreaksClassifierTest::testPropagateForwardsByTime));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CNaturalBreaksClassifierTest>(
-        "CNaturalBreaksClassifierTest::testSample", &CNaturalBreaksClassifierTest::testSample));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CNaturalBreaksClassifierTest>(
-        "CNaturalBreaksClassifierTest::testPersist", &CNaturalBreaksClassifierTest::testPersist));
-
-    return suiteOfTests;
-}
+BOOST_AUTO_TEST_SUITE_END()

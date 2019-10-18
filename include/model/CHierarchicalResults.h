@@ -25,7 +25,9 @@
 #include <string>
 #include <vector>
 
-class CHierarchicalResultsTest;
+namespace CHierarchicalResultsTest {
+struct testFoo;
+}
 
 namespace ml {
 namespace model {
@@ -440,7 +442,7 @@ protected:
                                   const TNode& node,
                                   bool pivot);
 
-    friend class ::CHierarchicalResultsTest;
+    friend struct CHierarchicalResultsTest::testFoo;
 };
 }
 }

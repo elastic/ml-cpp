@@ -26,7 +26,9 @@
 
 #include <stdint.h>
 
-class CAnomalyScoreTest;
+namespace CAnomalyScoreTest {
+struct testFoo;
+}
 namespace ml {
 namespace core {
 class CStatePersistInserter;
@@ -293,7 +295,7 @@ public:
         double m_TimeToQuantileDecay;
 
     private:
-        friend class ::CAnomalyScoreTest;
+        friend struct CAnomalyScoreTest::testFoo;
     };
 
     using TNormalizerP = std::shared_ptr<CNormalizer>;

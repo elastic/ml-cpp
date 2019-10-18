@@ -3,7 +3,6 @@
  * or more contributor license agreements. Licensed under the Elastic License;
  * you may not use this file except in compliance with the Elastic License.
  */
-#include "CRuleConditionTest.h"
 
 #include <core/CLogger.h>
 
@@ -17,8 +16,12 @@
 
 #include "Mocks.h"
 
+#include <boost/test/unit_test.hpp>
+
 #include <string>
 #include <vector>
+
+BOOST_AUTO_TEST_SUITE(CRuleConditionTest)
 
 using namespace ml;
 using namespace model;
@@ -30,16 +33,8 @@ using TStrVec = std::vector<std::string>;
 const std::string EMPTY_STRING;
 }
 
-CppUnit::Test* CRuleConditionTest::suite() {
-    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CRuleConditionTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CRuleConditionTest>(
-        "CRuleConditionTest::testTimeContition", &CRuleConditionTest::testTimeContition));
-
-    return suiteOfTests;
-}
-
-void CRuleConditionTest::testTimeContition() {
+BOOST_AUTO_TEST_CASE(testTimeContition) {
     core_t::TTime bucketLength = 100;
     core_t::TTime startTime = 100;
     CSearchKey key;
@@ -61,10 +56,10 @@ void CRuleConditionTest::testTimeContition() {
         condition.value(500);
 
         model_t::CResultType resultType(model_t::CResultType::E_Final);
-        CPPUNIT_ASSERT(condition.test(model, model_t::E_IndividualCountByBucketAndPerson,
+        BOOST_TEST(condition.test(model, model_t::E_IndividualCountByBucketAndPerson,
                                       resultType, std::size_t(0), std::size_t(1),
                                       core_t::TTime(450)) == false);
-        CPPUNIT_ASSERT(condition.test(model, model_t::E_IndividualCountByBucketAndPerson,
+        BOOST_TEST(condition.test(model, model_t::E_IndividualCountByBucketAndPerson,
                                       resultType, std::size_t(0),
                                       std::size_t(1), core_t::TTime(550)));
     }
@@ -76,11 +71,13 @@ void CRuleConditionTest::testTimeContition() {
         condition.value(600);
 
         model_t::CResultType resultType(model_t::CResultType::E_Final);
-        CPPUNIT_ASSERT(condition.test(model, model_t::E_IndividualCountByBucketAndPerson,
+        BOOST_TEST(condition.test(model, model_t::E_IndividualCountByBucketAndPerson,
                                       resultType, std::size_t(0), std::size_t(1),
                                       core_t::TTime(600)) == false);
-        CPPUNIT_ASSERT(condition.test(model, model_t::E_IndividualCountByBucketAndPerson,
+        BOOST_TEST(condition.test(model, model_t::E_IndividualCountByBucketAndPerson,
                                       resultType, std::size_t(0),
                                       std::size_t(1), core_t::TTime(599)));
     }
 }
+
+BOOST_AUTO_TEST_SUITE_END()

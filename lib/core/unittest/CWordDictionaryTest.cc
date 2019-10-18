@@ -3,106 +3,95 @@
  * or more contributor license agreements. Licensed under the Elastic License;
  * you may not use this file except in compliance with the Elastic License.
  */
-#include "CWordDictionaryTest.h"
 
 #include <core/CLogger.h>
 #include <core/CTimeUtils.h>
 #include <core/CWordDictionary.h>
 
-CppUnit::Test* CWordDictionaryTest::suite() {
-    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CWordDictionaryTest");
+#include <boost/test/unit_test.hpp>
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CWordDictionaryTest>(
-        "CWordDictionaryTest::testLookups", &CWordDictionaryTest::testLookups));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CWordDictionaryTest>(
-        "CWordDictionaryTest::testPartOfSpeech", &CWordDictionaryTest::testPartOfSpeech));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CWordDictionaryTest>(
-        "CWordDictionaryTest::testWeightingFunctors", &CWordDictionaryTest::testWeightingFunctors));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CWordDictionaryTest>(
-        "CWordDictionaryTest::testPerformance", &CWordDictionaryTest::testPerformance));
+BOOST_AUTO_TEST_SUITE(CWordDictionaryTest)
 
-    return suiteOfTests;
-}
 
-void CWordDictionaryTest::testLookups() {
+BOOST_AUTO_TEST_CASE(testLookups) {
     const ml::core::CWordDictionary& dict = ml::core::CWordDictionary::instance();
 
-    CPPUNIT_ASSERT(dict.isInDictionary("hello"));
-    CPPUNIT_ASSERT(dict.isInDictionary("Hello"));
-    CPPUNIT_ASSERT(dict.isInDictionary("HELLO"));
-    CPPUNIT_ASSERT(dict.isInDictionary("service"));
-    CPPUNIT_ASSERT(dict.isInDictionary("has"));
-    CPPUNIT_ASSERT(dict.isInDictionary("started"));
+    BOOST_TEST(dict.isInDictionary("hello"));
+    BOOST_TEST(dict.isInDictionary("Hello"));
+    BOOST_TEST(dict.isInDictionary("HELLO"));
+    BOOST_TEST(dict.isInDictionary("service"));
+    BOOST_TEST(dict.isInDictionary("has"));
+    BOOST_TEST(dict.isInDictionary("started"));
 
-    CPPUNIT_ASSERT(!dict.isInDictionary(""));
-    CPPUNIT_ASSERT(!dict.isInDictionary("r"));
-    CPPUNIT_ASSERT(!dict.isInDictionary("hkjsdfg"));
-    CPPUNIT_ASSERT(!dict.isInDictionary("hello2"));
-    CPPUNIT_ASSERT(!dict.isInDictionary("HELLO2"));
+    BOOST_TEST(!dict.isInDictionary(""));
+    BOOST_TEST(!dict.isInDictionary("r"));
+    BOOST_TEST(!dict.isInDictionary("hkjsdfg"));
+    BOOST_TEST(!dict.isInDictionary("hello2"));
+    BOOST_TEST(!dict.isInDictionary("HELLO2"));
 }
 
-void CWordDictionaryTest::testPartOfSpeech() {
+BOOST_AUTO_TEST_CASE(testPartOfSpeech) {
     const ml::core::CWordDictionary& dict = ml::core::CWordDictionary::instance();
 
-    CPPUNIT_ASSERT_EQUAL(ml::core::CWordDictionary::E_NotInDictionary,
+    BOOST_CHECK_EQUAL(ml::core::CWordDictionary::E_NotInDictionary,
                          dict.partOfSpeech("ajksdf"));
-    CPPUNIT_ASSERT_EQUAL(ml::core::CWordDictionary::E_UnknownPart,
+    BOOST_CHECK_EQUAL(ml::core::CWordDictionary::E_UnknownPart,
                          dict.partOfSpeech("callback"));
-    CPPUNIT_ASSERT_EQUAL(ml::core::CWordDictionary::E_Noun, dict.partOfSpeech("House"));
-    CPPUNIT_ASSERT_EQUAL(ml::core::CWordDictionary::E_Plural, dict.partOfSpeech("Houses"));
-    CPPUNIT_ASSERT_EQUAL(ml::core::CWordDictionary::E_Verb, dict.partOfSpeech("COMPLETED"));
-    CPPUNIT_ASSERT_EQUAL(ml::core::CWordDictionary::E_Adjective, dict.partOfSpeech("heavy"));
-    CPPUNIT_ASSERT_EQUAL(ml::core::CWordDictionary::E_Adverb, dict.partOfSpeech("slowly"));
-    CPPUNIT_ASSERT_EQUAL(ml::core::CWordDictionary::E_Conjunction, dict.partOfSpeech("AND"));
-    CPPUNIT_ASSERT_EQUAL(ml::core::CWordDictionary::E_Preposition,
+    BOOST_CHECK_EQUAL(ml::core::CWordDictionary::E_Noun, dict.partOfSpeech("House"));
+    BOOST_CHECK_EQUAL(ml::core::CWordDictionary::E_Plural, dict.partOfSpeech("Houses"));
+    BOOST_CHECK_EQUAL(ml::core::CWordDictionary::E_Verb, dict.partOfSpeech("COMPLETED"));
+    BOOST_CHECK_EQUAL(ml::core::CWordDictionary::E_Adjective, dict.partOfSpeech("heavy"));
+    BOOST_CHECK_EQUAL(ml::core::CWordDictionary::E_Adverb, dict.partOfSpeech("slowly"));
+    BOOST_CHECK_EQUAL(ml::core::CWordDictionary::E_Conjunction, dict.partOfSpeech("AND"));
+    BOOST_CHECK_EQUAL(ml::core::CWordDictionary::E_Preposition,
                          dict.partOfSpeech("without"));
-    CPPUNIT_ASSERT_EQUAL(ml::core::CWordDictionary::E_Interjection,
+    BOOST_CHECK_EQUAL(ml::core::CWordDictionary::E_Interjection,
                          dict.partOfSpeech("gosh"));
-    CPPUNIT_ASSERT_EQUAL(ml::core::CWordDictionary::E_Pronoun, dict.partOfSpeech("hers"));
-    CPPUNIT_ASSERT_EQUAL(ml::core::CWordDictionary::E_DefiniteArticle,
+    BOOST_CHECK_EQUAL(ml::core::CWordDictionary::E_Pronoun, dict.partOfSpeech("hers"));
+    BOOST_CHECK_EQUAL(ml::core::CWordDictionary::E_DefiniteArticle,
                          dict.partOfSpeech("the"));
-    CPPUNIT_ASSERT_EQUAL(ml::core::CWordDictionary::E_IndefiniteArticle,
+    BOOST_CHECK_EQUAL(ml::core::CWordDictionary::E_IndefiniteArticle,
                          dict.partOfSpeech("a"));
 }
 
-void CWordDictionaryTest::testWeightingFunctors() {
+BOOST_AUTO_TEST_CASE(testWeightingFunctors) {
     {
         ml::core::CWordDictionary::TWeightAll2 weighter;
 
-        CPPUNIT_ASSERT_EQUAL(size_t(0), weighter(ml::core::CWordDictionary::E_NotInDictionary));
-        CPPUNIT_ASSERT_EQUAL(size_t(2), weighter(ml::core::CWordDictionary::E_UnknownPart));
-        CPPUNIT_ASSERT_EQUAL(size_t(2), weighter(ml::core::CWordDictionary::E_Noun));
-        CPPUNIT_ASSERT_EQUAL(size_t(2), weighter(ml::core::CWordDictionary::E_Plural));
-        CPPUNIT_ASSERT_EQUAL(size_t(2), weighter(ml::core::CWordDictionary::E_Verb));
-        CPPUNIT_ASSERT_EQUAL(size_t(2), weighter(ml::core::CWordDictionary::E_Adjective));
-        CPPUNIT_ASSERT_EQUAL(size_t(2), weighter(ml::core::CWordDictionary::E_Adverb));
-        CPPUNIT_ASSERT_EQUAL(size_t(2), weighter(ml::core::CWordDictionary::E_Conjunction));
-        CPPUNIT_ASSERT_EQUAL(size_t(2), weighter(ml::core::CWordDictionary::E_Preposition));
-        CPPUNIT_ASSERT_EQUAL(size_t(2), weighter(ml::core::CWordDictionary::E_Interjection));
-        CPPUNIT_ASSERT_EQUAL(size_t(2), weighter(ml::core::CWordDictionary::E_Pronoun));
-        CPPUNIT_ASSERT_EQUAL(size_t(2), weighter(ml::core::CWordDictionary::E_DefiniteArticle));
-        CPPUNIT_ASSERT_EQUAL(size_t(2), weighter(ml::core::CWordDictionary::E_IndefiniteArticle));
+        BOOST_CHECK_EQUAL(size_t(0), weighter(ml::core::CWordDictionary::E_NotInDictionary));
+        BOOST_CHECK_EQUAL(size_t(2), weighter(ml::core::CWordDictionary::E_UnknownPart));
+        BOOST_CHECK_EQUAL(size_t(2), weighter(ml::core::CWordDictionary::E_Noun));
+        BOOST_CHECK_EQUAL(size_t(2), weighter(ml::core::CWordDictionary::E_Plural));
+        BOOST_CHECK_EQUAL(size_t(2), weighter(ml::core::CWordDictionary::E_Verb));
+        BOOST_CHECK_EQUAL(size_t(2), weighter(ml::core::CWordDictionary::E_Adjective));
+        BOOST_CHECK_EQUAL(size_t(2), weighter(ml::core::CWordDictionary::E_Adverb));
+        BOOST_CHECK_EQUAL(size_t(2), weighter(ml::core::CWordDictionary::E_Conjunction));
+        BOOST_CHECK_EQUAL(size_t(2), weighter(ml::core::CWordDictionary::E_Preposition));
+        BOOST_CHECK_EQUAL(size_t(2), weighter(ml::core::CWordDictionary::E_Interjection));
+        BOOST_CHECK_EQUAL(size_t(2), weighter(ml::core::CWordDictionary::E_Pronoun));
+        BOOST_CHECK_EQUAL(size_t(2), weighter(ml::core::CWordDictionary::E_DefiniteArticle));
+        BOOST_CHECK_EQUAL(size_t(2), weighter(ml::core::CWordDictionary::E_IndefiniteArticle));
     }
     {
         ml::core::CWordDictionary::TWeightVerbs5Other2 weighter;
 
-        CPPUNIT_ASSERT_EQUAL(size_t(0), weighter(ml::core::CWordDictionary::E_NotInDictionary));
-        CPPUNIT_ASSERT_EQUAL(size_t(2), weighter(ml::core::CWordDictionary::E_UnknownPart));
-        CPPUNIT_ASSERT_EQUAL(size_t(2), weighter(ml::core::CWordDictionary::E_Noun));
-        CPPUNIT_ASSERT_EQUAL(size_t(2), weighter(ml::core::CWordDictionary::E_Plural));
-        CPPUNIT_ASSERT_EQUAL(size_t(5), weighter(ml::core::CWordDictionary::E_Verb));
-        CPPUNIT_ASSERT_EQUAL(size_t(2), weighter(ml::core::CWordDictionary::E_Adjective));
-        CPPUNIT_ASSERT_EQUAL(size_t(2), weighter(ml::core::CWordDictionary::E_Adverb));
-        CPPUNIT_ASSERT_EQUAL(size_t(2), weighter(ml::core::CWordDictionary::E_Conjunction));
-        CPPUNIT_ASSERT_EQUAL(size_t(2), weighter(ml::core::CWordDictionary::E_Preposition));
-        CPPUNIT_ASSERT_EQUAL(size_t(2), weighter(ml::core::CWordDictionary::E_Interjection));
-        CPPUNIT_ASSERT_EQUAL(size_t(2), weighter(ml::core::CWordDictionary::E_Pronoun));
-        CPPUNIT_ASSERT_EQUAL(size_t(2), weighter(ml::core::CWordDictionary::E_DefiniteArticle));
-        CPPUNIT_ASSERT_EQUAL(size_t(2), weighter(ml::core::CWordDictionary::E_IndefiniteArticle));
+        BOOST_CHECK_EQUAL(size_t(0), weighter(ml::core::CWordDictionary::E_NotInDictionary));
+        BOOST_CHECK_EQUAL(size_t(2), weighter(ml::core::CWordDictionary::E_UnknownPart));
+        BOOST_CHECK_EQUAL(size_t(2), weighter(ml::core::CWordDictionary::E_Noun));
+        BOOST_CHECK_EQUAL(size_t(2), weighter(ml::core::CWordDictionary::E_Plural));
+        BOOST_CHECK_EQUAL(size_t(5), weighter(ml::core::CWordDictionary::E_Verb));
+        BOOST_CHECK_EQUAL(size_t(2), weighter(ml::core::CWordDictionary::E_Adjective));
+        BOOST_CHECK_EQUAL(size_t(2), weighter(ml::core::CWordDictionary::E_Adverb));
+        BOOST_CHECK_EQUAL(size_t(2), weighter(ml::core::CWordDictionary::E_Conjunction));
+        BOOST_CHECK_EQUAL(size_t(2), weighter(ml::core::CWordDictionary::E_Preposition));
+        BOOST_CHECK_EQUAL(size_t(2), weighter(ml::core::CWordDictionary::E_Interjection));
+        BOOST_CHECK_EQUAL(size_t(2), weighter(ml::core::CWordDictionary::E_Pronoun));
+        BOOST_CHECK_EQUAL(size_t(2), weighter(ml::core::CWordDictionary::E_DefiniteArticle));
+        BOOST_CHECK_EQUAL(size_t(2), weighter(ml::core::CWordDictionary::E_IndefiniteArticle));
     }
 }
 
-void CWordDictionaryTest::testPerformance() {
+BOOST_AUTO_TEST_CASE(testPerformance) {
     const ml::core::CWordDictionary& dict = ml::core::CWordDictionary::instance();
 
     ml::core_t::TTime start(ml::core::CTimeUtils::now());
@@ -131,3 +120,5 @@ void CWordDictionaryTest::testPerformance() {
 
     LOG_INFO(<< "Word dictionary throughput test took " << (end - start) << " seconds");
 }
+
+BOOST_AUTO_TEST_SUITE_END()

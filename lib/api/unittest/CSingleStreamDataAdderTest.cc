@@ -3,7 +3,6 @@
  * or more contributor license agreements. Licensed under the Elastic License;
  * you may not use this file except in compliance with the Elastic License.
  */
-#include "CSingleStreamDataAdderTest.h"
 
 #include <core/CJsonOutputStreamWrapper.h>
 #include <core/COsFileFuncs.h>
@@ -26,12 +25,15 @@
 #include <api/CSingleStreamSearcher.h>
 #include <api/CStateRestoreStreamFilter.h>
 
+#include <boost/test/unit_test.hpp>
 #include <boost/iostreams/filtering_stream.hpp>
 
 #include <fstream>
 #include <memory>
 #include <sstream>
 #include <string>
+
+BOOST_AUTO_TEST_SUITE(CSingleStreamDataAdderTest)
 
 namespace {
 
@@ -44,55 +46,33 @@ void reportPersistComplete(ml::api::CModelSnapshotJsonWriter::SModelSnapshotRepo
 }
 }
 
-CppUnit::Test* CSingleStreamDataAdderTest::suite() {
-    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CSingleStreamDataAdderTest");
-    suiteOfTests->addTest(new CppUnit::TestCaller<CSingleStreamDataAdderTest>(
-        "CSingleStreamDataAdderTest::testDetectorPersistBy",
-        &CSingleStreamDataAdderTest::testDetectorPersistBy));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CSingleStreamDataAdderTest>(
-        "CSingleStreamDataAdderTest::testDetectorPersistOver",
-        &CSingleStreamDataAdderTest::testDetectorPersistOver));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CSingleStreamDataAdderTest>(
-        "CSingleStreamDataAdderTest::testDetectorPersistPartition",
-        &CSingleStreamDataAdderTest::testDetectorPersistPartition));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CSingleStreamDataAdderTest>(
-        "CSingleStreamDataAdderTest::testDetectorPersistDc",
-        &CSingleStreamDataAdderTest::testDetectorPersistDc));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CSingleStreamDataAdderTest>(
-        "CSingleStreamDataAdderTest::testDetectorPersistCount",
-        &CSingleStreamDataAdderTest::testDetectorPersistCount));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CSingleStreamDataAdderTest>(
-        "CSingleStreamDataAdderTest::testDetectorPersistCategorization",
-        &CSingleStreamDataAdderTest::testDetectorPersistCategorization));
-    return suiteOfTests;
-}
 
-void CSingleStreamDataAdderTest::testDetectorPersistBy() {
+BOOST_AUTO_TEST_CASE(testDetectorPersistBy) {
     this->detectorPersistHelper("testfiles/new_mlfields.conf",
                                 "testfiles/big_ascending.txt", 0, "%d/%b/%Y:%T %z");
 }
 
-void CSingleStreamDataAdderTest::testDetectorPersistOver() {
+BOOST_AUTO_TEST_CASE(testDetectorPersistOver) {
     this->detectorPersistHelper("testfiles/new_mlfields_over.conf",
                                 "testfiles/big_ascending.txt", 0, "%d/%b/%Y:%T %z");
 }
 
-void CSingleStreamDataAdderTest::testDetectorPersistPartition() {
+BOOST_AUTO_TEST_CASE(testDetectorPersistPartition) {
     this->detectorPersistHelper("testfiles/new_mlfields_partition.conf",
                                 "testfiles/big_ascending.txt", 0, "%d/%b/%Y:%T %z");
 }
 
-void CSingleStreamDataAdderTest::testDetectorPersistDc() {
+BOOST_AUTO_TEST_CASE(testDetectorPersistDc) {
     this->detectorPersistHelper("testfiles/new_persist_dc.conf",
                                 "testfiles/files_users_programs.csv", 5);
 }
 
-void CSingleStreamDataAdderTest::testDetectorPersistCount() {
+BOOST_AUTO_TEST_CASE(testDetectorPersistCount) {
     this->detectorPersistHelper("testfiles/new_persist_count.conf",
                                 "testfiles/files_users_programs.csv", 5);
 }
 
-void CSingleStreamDataAdderTest::testDetectorPersistCategorization() {
+BOOST_AUTO_TEST_CASE(testDetectorPersistCategorization) {
     this->detectorPersistHelper("testfiles/new_persist_categorization.conf",
                                 "testfiles/time_messages.csv", 0);
 }
@@ -107,14 +87,14 @@ void CSingleStreamDataAdderTest::detectorPersistHelper(const std::string& config
 
     // Open the input and output files
     std::ifstream inputStrm(inputFilename.c_str());
-    CPPUNIT_ASSERT(inputStrm.is_open());
+    BOOST_TEST(inputStrm.is_open());
 
     std::ofstream outputStrm(ml::core::COsFileFuncs::NULL_FILENAME);
-    CPPUNIT_ASSERT(outputStrm.is_open());
+    BOOST_TEST(outputStrm.is_open());
 
     ml::model::CLimits limits;
     ml::api::CFieldConfig fieldConfig;
-    CPPUNIT_ASSERT(fieldConfig.initFromFile(configFileName));
+    BOOST_TEST(fieldConfig.initFromFile(configFileName));
 
     ml::model::CAnomalyDetectorModelConfig modelConfig =
         ml::model::CAnomalyDetectorModelConfig::defaultConfig(
@@ -152,7 +132,7 @@ void CSingleStreamDataAdderTest::detectorPersistHelper(const std::string& config
         return std::make_unique<ml::api::CNdJsonInputParser>(inputStrm);
     }()};
 
-    CPPUNIT_ASSERT(parser->readStreamIntoMaps(std::bind(
+    BOOST_TEST(parser->readStreamIntoMaps(std::bind(
         &ml::api::CDataProcessor::handleRecord, firstProcessor, std::placeholders::_1)));
 
     // Persist the detector state to a stringstream
@@ -162,7 +142,7 @@ void CSingleStreamDataAdderTest::detectorPersistHelper(const std::string& config
         std::ostringstream* strm(nullptr);
         ml::api::CSingleStreamDataAdder::TOStreamP ptr(strm = new std::ostringstream());
         ml::api::CSingleStreamDataAdder persister(ptr);
-        CPPUNIT_ASSERT(firstProcessor->persistState(persister, ""));
+        BOOST_TEST(firstProcessor->persistState(persister, ""));
         origPersistedState = strm->str();
     }
 
@@ -202,9 +182,9 @@ void CSingleStreamDataAdderTest::detectorPersistHelper(const std::string& config
 
         ml::api::CSingleStreamSearcher retriever(strm);
 
-        CPPUNIT_ASSERT(restoredFirstProcessor->restoreState(retriever, completeToTime));
-        CPPUNIT_ASSERT(completeToTime > 0);
-        CPPUNIT_ASSERT_EQUAL(
+        BOOST_TEST(restoredFirstProcessor->restoreState(retriever, completeToTime));
+        BOOST_TEST(completeToTime > 0);
+        BOOST_CHECK_EQUAL(
             numOrigDocs + numCategorizerDocs,
             strm->component<ml::api::CStateRestoreStreamFilter>(0)->getDocCount());
     }
@@ -215,18 +195,20 @@ void CSingleStreamDataAdderTest::detectorPersistHelper(const std::string& config
         std::ostringstream* strm(nullptr);
         ml::api::CSingleStreamDataAdder::TOStreamP ptr(strm = new std::ostringstream());
         ml::api::CSingleStreamDataAdder persister(ptr);
-        CPPUNIT_ASSERT(restoredFirstProcessor->persistState(persister, ""));
+        BOOST_TEST(restoredFirstProcessor->persistState(persister, ""));
         newPersistedState = strm->str();
     }
 
-    CPPUNIT_ASSERT_EQUAL(numOrigDocs, numRestoredDocs);
+    BOOST_CHECK_EQUAL(numOrigDocs, numRestoredDocs);
 
     // The snapshot ID can be different between the two persists, so replace the
     // first occurrence of it (which is in the bulk metadata)
-    CPPUNIT_ASSERT_EQUAL(size_t(1), ml::core::CStringUtils::replaceFirst(
+    BOOST_CHECK_EQUAL(size_t(1), ml::core::CStringUtils::replaceFirst(
                                         origSnapshotId, "snap", origPersistedState));
-    CPPUNIT_ASSERT_EQUAL(size_t(1), ml::core::CStringUtils::replaceFirst(
+    BOOST_CHECK_EQUAL(size_t(1), ml::core::CStringUtils::replaceFirst(
                                         restoredSnapshotId, "snap", newPersistedState));
 
-    CPPUNIT_ASSERT_EQUAL(origPersistedState, newPersistedState);
+    BOOST_CHECK_EQUAL(origPersistedState, newPersistedState);
 }
+
+BOOST_AUTO_TEST_SUITE_END()

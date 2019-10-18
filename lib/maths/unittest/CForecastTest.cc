@@ -4,8 +4,6 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
-#include "CForecastTest.h"
-
 #include <core/CContainerPrinter.h>
 #include <core/CLogger.h>
 #include <core/Constants.h>
@@ -25,9 +23,12 @@
 
 #include "TestUtils.h"
 
+#include <boost/test/unit_test.hpp>
 #include <boost/numeric/conversion/bounds.hpp>
 
 #include <memory>
+
+BOOST_AUTO_TEST_SUITE(CForecastTest)
 
 using namespace ml;
 using namespace handy_typedefs;
@@ -135,7 +136,7 @@ void mockSink(maths::SErrorBar errorBar, TErrorBarVec& prediction) {
     prediction.push_back(errorBar);
 }
 
-void CForecastTest::testDailyNoLongTermTrend() {
+BOOST_AUTO_TEST_CASE(testDailyNoLongTermTrend) {
     core_t::TTime bucketLength{600};
     TDoubleVec y{0.0,   2.0,   2.0,   4.0,   8.0,  10.0,  15.0,  20.0,
                  120.0, 120.0, 110.0, 100.0, 90.0, 100.0, 130.0, 80.0,
@@ -153,7 +154,7 @@ void CForecastTest::testDailyNoLongTermTrend() {
     this->test(trend, bucketLength, 63, 64.0, 4.5, 0.15);
 }
 
-void CForecastTest::testDailyConstantLongTermTrend() {
+BOOST_AUTO_TEST_CASE(testDailyConstantLongTermTrend) {
     core_t::TTime bucketLength{3600};
     TDoubleVec y{0.0,  2.0,   2.0,   4.0,   8.0,   10.0,  15.0, 20.0,
                  80.0, 100.0, 110.0, 120.0, 110.0, 100.0, 90.0, 80.0,
@@ -168,7 +169,7 @@ void CForecastTest::testDailyConstantLongTermTrend() {
     this->test(trend, bucketLength, 63, 64.0, 10.0, 0.016);
 }
 
-void CForecastTest::testDailyVaryingLongTermTrend() {
+BOOST_AUTO_TEST_CASE(testDailyVaryingLongTermTrend) {
     core_t::TTime bucketLength{3600};
     double day{static_cast<double>(core::constants::DAY)};
     TDoubleVec times{0.0,         5.0 * day,   10.0 * day,  15.0 * day,
@@ -193,7 +194,7 @@ void CForecastTest::testDailyVaryingLongTermTrend() {
     this->test(trend, bucketLength, 98, 9.0, 7.0, 0.043);
 }
 
-void CForecastTest::testComplexNoLongTermTrend() {
+BOOST_AUTO_TEST_CASE(testComplexNoLongTermTrend) {
     core_t::TTime bucketLength{3600};
     TDoubleVec y{0.0,  10.0,  20.0,  20.0,  30.0,  40.0,  50.0, 60.0,
                  80.0, 100.0, 110.0, 120.0, 110.0, 100.0, 90.0, 80.0,
@@ -209,7 +210,7 @@ void CForecastTest::testComplexNoLongTermTrend() {
     this->test(trend, bucketLength, 63, 24.0, 5.0, 0.14);
 }
 
-void CForecastTest::testComplexConstantLongTermTrend() {
+BOOST_AUTO_TEST_CASE(testComplexConstantLongTermTrend) {
     core_t::TTime bucketLength{3600};
     TDoubleVec y{0.0,  10.0,  20.0,  20.0,  30.0,  40.0,  50.0, 60.0,
                  80.0, 100.0, 110.0, 120.0, 110.0, 100.0, 90.0, 80.0,
@@ -226,7 +227,7 @@ void CForecastTest::testComplexConstantLongTermTrend() {
     this->test(trend, bucketLength, 63, 24.0, 5.0, 0.01);
 }
 
-void CForecastTest::testComplexVaryingLongTermTrend() {
+BOOST_AUTO_TEST_CASE(testComplexVaryingLongTermTrend) {
     core_t::TTime bucketLength{1800};
     double day{static_cast<double>(core::constants::DAY)};
     TDoubleVec times{0.0,         5.0 * day,   10.0 * day,  15.0 * day,
@@ -256,7 +257,7 @@ void CForecastTest::testComplexVaryingLongTermTrend() {
     this->test(trend, bucketLength, 63, 4.0, 19.0, 0.04);
 }
 
-void CForecastTest::testNonNegative() {
+BOOST_AUTO_TEST_CASE(testNonNegative) {
     core_t::TTime bucketLength{1800};
 
     test::CRandomNumbers rng;
@@ -311,9 +312,9 @@ void CForecastTest::testNonNegative() {
         rng.generateNormalSamples(2.0, 3.0, 48, noise);
         for (auto value = noise.begin(); i < prediction.size() && value != noise.end();
              ++i, ++value, time += bucketLength) {
-            CPPUNIT_ASSERT(prediction[i].s_LowerBound >= 0);
-            CPPUNIT_ASSERT(prediction[i].s_Predicted >= 0);
-            CPPUNIT_ASSERT(prediction[i].s_UpperBound >= 0);
+            BOOST_TEST(prediction[i].s_LowerBound >= 0);
+            BOOST_TEST(prediction[i].s_Predicted >= 0);
+            BOOST_TEST(prediction[i].s_UpperBound >= 0);
 
             double y{std::max(*value, 0.0)};
             outOfBounds +=
@@ -328,19 +329,19 @@ void CForecastTest::testNonNegative() {
                                  static_cast<double>(count)};
     LOG_DEBUG(<< "% out of bounds = " << percentageOutOfBounds);
 
-    CPPUNIT_ASSERT(percentageOutOfBounds < 4.0);
+    BOOST_TEST(percentageOutOfBounds < 4.0);
 }
 
-void CForecastTest::testFinancialIndex() {
+BOOST_AUTO_TEST_CASE(testFinancialIndex) {
     core_t::TTime bucketLength{1800};
 
     TTimeDoublePrVec timeseries;
     core_t::TTime startTime;
     core_t::TTime endTime;
-    CPPUNIT_ASSERT(test::CTimeSeriesTestData::parse("testfiles/financial_index.csv",
+    BOOST_TEST(test::CTimeSeriesTestData::parse("testfiles/financial_index.csv",
                                                     timeseries, startTime, endTime,
                                                     "^([0-9]+),([0-9\\.]+)"));
-    CPPUNIT_ASSERT(!timeseries.empty());
+    BOOST_TEST(!timeseries.empty());
 
     LOG_DEBUG(<< "timeseries = "
               << core::CContainerPrinter::print(timeseries.begin(), timeseries.begin() + 10)
@@ -403,11 +404,11 @@ void CForecastTest::testFinancialIndex() {
     LOG_DEBUG(<< "% out of bounds = " << percentageOutOfBounds);
     LOG_DEBUG(<< "error = " << maths::CBasicStatistics::mean(error));
 
-    CPPUNIT_ASSERT(percentageOutOfBounds < 40.0);
-    CPPUNIT_ASSERT(maths::CBasicStatistics::mean(error) < 0.1);
+    BOOST_TEST(percentageOutOfBounds < 40.0);
+    BOOST_TEST(maths::CBasicStatistics::mean(error) < 0.1);
 }
 
-void CForecastTest::testTruncation() {
+BOOST_AUTO_TEST_CASE(testTruncation) {
 
     core_t::TTime bucketLength{1800};
     TDouble2VecWeightsAryVec weights{maths_t::CUnitWeights::unit<TDouble2Vec>(1)};
@@ -438,9 +439,9 @@ void CForecastTest::testTruncation() {
             90.0, MINIMUM_VALUE, MAXIMUM_VALUE,
             std::bind(&mockSink, std::placeholders::_1, std::ref(prediction)), m1);
         LOG_DEBUG(<< "response = '" << m1 << "'");
-        CPPUNIT_ASSERT((m1.size() > 0) == (dataEndTime < 2 * core::constants::DAY));
-        CPPUNIT_ASSERT(prediction.size() > 0);
-        CPPUNIT_ASSERT(prediction.back().s_Time < 2 * dataEndTime);
+        BOOST_TEST((m1.size() > 0) == (dataEndTime < 2 * core::constants::DAY));
+        BOOST_TEST(prediction.size() > 0);
+        BOOST_TEST(prediction.back().s_Time < 2 * dataEndTime);
 
         // Check forecast range out-of-bounds
 
@@ -451,42 +452,14 @@ void CForecastTest::testTruncation() {
             dataEndTime + 40 * core::constants::DAY, 90.0, MINIMUM_VALUE, MAXIMUM_VALUE,
             std::bind(&mockSink, std::placeholders::_1, std::ref(prediction)), m2);
         LOG_DEBUG(<< "response = '" << m2 << "'");
-        CPPUNIT_ASSERT(m2.empty() == false);
-        CPPUNIT_ASSERT(m1 != m2);
-        CPPUNIT_ASSERT(prediction.empty());
+        BOOST_TEST(m2.empty() == false);
+        BOOST_TEST(m1 != m2);
+        BOOST_TEST(prediction.empty());
     }
 }
 
-CppUnit::Test* CForecastTest::suite() {
-    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CForecastTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CForecastTest>(
-        "CForecastTest::testDailyNoLongTermTrend", &CForecastTest::testDailyNoLongTermTrend));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CForecastTest>(
-        "CForecastTest::testDailyConstantLongTermTrend",
-        &CForecastTest::testDailyConstantLongTermTrend));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CForecastTest>(
-        "CForecastTest::testDailyVaryingLongTermTrend",
-        &CForecastTest::testDailyVaryingLongTermTrend));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CForecastTest>(
-        "CForecastTest::testComplexNoLongTermTrend", &CForecastTest::testComplexNoLongTermTrend));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CForecastTest>(
-        "CForecastTest::testComplexConstantLongTermTrend",
-        &CForecastTest::testComplexConstantLongTermTrend));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CForecastTest>(
-        "CForecastTest::testComplexVaryingLongTermTrend",
-        &CForecastTest::testComplexVaryingLongTermTrend));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CForecastTest>(
-        "CForecastTest::testNonNegative", &CForecastTest::testNonNegative));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CForecastTest>(
-        "CForecastTest::testFinancialIndex", &CForecastTest::testFinancialIndex));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CForecastTest>(
-        "CForecastTest::testTruncation", &CForecastTest::testTruncation));
-
-    return suiteOfTests;
-}
-
-void CForecastTest::test(TTrend trend,
+BOOST_AUTO_TEST_CASE(testTTrend trend,
                          core_t::TTime bucketLength,
                          std::size_t daysToLearn,
                          double noiseVariance,
@@ -559,6 +532,8 @@ void CForecastTest::test(TTrend trend,
     LOG_DEBUG(<< "% out of bounds = " << percentageOutOfBounds);
     LOG_DEBUG(<< "error = " << maths::CBasicStatistics::mean(error));
 
-    CPPUNIT_ASSERT(percentageOutOfBounds < maximumPercentageOutOfBounds);
-    CPPUNIT_ASSERT(maths::CBasicStatistics::mean(error) < maximumError);
+    BOOST_TEST(percentageOutOfBounds < maximumPercentageOutOfBounds);
+    BOOST_TEST(maths::CBasicStatistics::mean(error) < maximumError);
 }
+
+BOOST_AUTO_TEST_SUITE_END()

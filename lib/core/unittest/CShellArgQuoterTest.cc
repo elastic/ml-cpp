@@ -3,21 +3,16 @@
  * or more contributor license agreements. Licensed under the Elastic License;
  * you may not use this file except in compliance with the Elastic License.
  */
-#include "CShellArgQuoterTest.h"
 
 #include <core/CLogger.h>
 #include <core/CShellArgQuoter.h>
 
-CppUnit::Test* CShellArgQuoterTest::suite() {
-    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CShellArgQuoterTest");
+#include <boost/test/unit_test.hpp>
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CShellArgQuoterTest>(
-        "CShellArgQuoterTest::testQuote", &CShellArgQuoterTest::testQuote));
+BOOST_AUTO_TEST_SUITE(CShellArgQuoterTest)
 
-    return suiteOfTests;
-}
 
-void CShellArgQuoterTest::testQuote() {
+BOOST_AUTO_TEST_CASE(testQuote) {
     LOG_DEBUG(<< "\n"
                  "echo "
               << ml::core::CShellArgQuoter::quote("")
@@ -61,3 +56,5 @@ void CShellArgQuoterTest::testQuote() {
     // Paste the output of the above into a command prompt and check what
     // happens...
 }
+
+BOOST_AUTO_TEST_SUITE_END()

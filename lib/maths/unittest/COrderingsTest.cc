@@ -4,8 +4,6 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
-#include "COrderingsTest.h"
-
 #include <core/CContainerPrinter.h>
 #include <core/CFunctional.h>
 #include <core/CLogger.h>
@@ -15,11 +13,14 @@
 
 #include <test/CRandomNumbers.h>
 
+#include <boost/test/unit_test.hpp>
 #include <boost/optional.hpp>
 #include <boost/tuple/tuple.hpp>
 
 #include <utility>
 #include <vector>
+
+BOOST_AUTO_TEST_SUITE(COrderingsTest)
 
 using namespace ml;
 
@@ -58,7 +59,7 @@ void swap(CDictionary& lhs, CDictionary& rhs) {
 }
 }
 
-void COrderingsTest::testOptionalOrdering() {
+BOOST_AUTO_TEST_CASE(testOptionalOrdering) {
     TOptionalDouble null;
     TOptionalDouble one(1.0);
     TOptionalDouble two(2.0);
@@ -66,34 +67,34 @@ void COrderingsTest::testOptionalOrdering() {
 
     maths::COrderings::SOptionalLess less;
 
-    CPPUNIT_ASSERT(less(big, null));
-    CPPUNIT_ASSERT(!less(null, big));
-    CPPUNIT_ASSERT(!less(null, null));
-    CPPUNIT_ASSERT(less(100.0, null));
-    CPPUNIT_ASSERT(!less(null, 100.0));
-    CPPUNIT_ASSERT(less(one, two));
-    CPPUNIT_ASSERT(less(one, 2.0));
-    CPPUNIT_ASSERT(!less(two, one));
-    CPPUNIT_ASSERT(!less(2.0, one));
-    CPPUNIT_ASSERT(!less(one, one));
-    CPPUNIT_ASSERT(less(one, big));
+    BOOST_TEST(less(big, null));
+    BOOST_TEST(!less(null, big));
+    BOOST_TEST(!less(null, null));
+    BOOST_TEST(less(100.0, null));
+    BOOST_TEST(!less(null, 100.0));
+    BOOST_TEST(less(one, two));
+    BOOST_TEST(less(one, 2.0));
+    BOOST_TEST(!less(two, one));
+    BOOST_TEST(!less(2.0, one));
+    BOOST_TEST(!less(one, one));
+    BOOST_TEST(less(one, big));
 
     maths::COrderings::SOptionalGreater greater;
 
-    CPPUNIT_ASSERT(!greater(big, null));
-    CPPUNIT_ASSERT(greater(null, big));
-    CPPUNIT_ASSERT(!greater(null, null));
-    CPPUNIT_ASSERT(!greater(100.0, null));
-    CPPUNIT_ASSERT(greater(null, 100.0));
-    CPPUNIT_ASSERT(!greater(one, two));
-    CPPUNIT_ASSERT(!greater(one, 2.0));
-    CPPUNIT_ASSERT(greater(two, one));
-    CPPUNIT_ASSERT(greater(2.0, one));
-    CPPUNIT_ASSERT(!greater(one, one));
-    CPPUNIT_ASSERT(!greater(one, big));
+    BOOST_TEST(!greater(big, null));
+    BOOST_TEST(greater(null, big));
+    BOOST_TEST(!greater(null, null));
+    BOOST_TEST(!greater(100.0, null));
+    BOOST_TEST(greater(null, 100.0));
+    BOOST_TEST(!greater(one, two));
+    BOOST_TEST(!greater(one, 2.0));
+    BOOST_TEST(greater(two, one));
+    BOOST_TEST(greater(2.0, one));
+    BOOST_TEST(!greater(one, one));
+    BOOST_TEST(!greater(one, big));
 }
 
-void COrderingsTest::testPtrOrdering() {
+BOOST_AUTO_TEST_CASE(testPtrOrdering) {
     const double* null = nullptr;
     double one_(1.0);
     double two_(2.0);
@@ -106,30 +107,30 @@ void COrderingsTest::testPtrOrdering() {
 
     maths::COrderings::SPtrLess less;
 
-    CPPUNIT_ASSERT(less(big, null));
-    CPPUNIT_ASSERT(!less(null, big));
-    CPPUNIT_ASSERT(!less(null, null));
-    CPPUNIT_ASSERT(less(hundred, null));
-    CPPUNIT_ASSERT(!less(null, hundred));
-    CPPUNIT_ASSERT(less(one, two));
-    CPPUNIT_ASSERT(!less(two, one));
-    CPPUNIT_ASSERT(!less(one, one));
-    CPPUNIT_ASSERT(less(one, big));
+    BOOST_TEST(less(big, null));
+    BOOST_TEST(!less(null, big));
+    BOOST_TEST(!less(null, null));
+    BOOST_TEST(less(hundred, null));
+    BOOST_TEST(!less(null, hundred));
+    BOOST_TEST(less(one, two));
+    BOOST_TEST(!less(two, one));
+    BOOST_TEST(!less(one, one));
+    BOOST_TEST(less(one, big));
 
     maths::COrderings::SPtrGreater greater;
 
-    CPPUNIT_ASSERT(!greater(big, null));
-    CPPUNIT_ASSERT(greater(null, big));
-    CPPUNIT_ASSERT(!greater(null, null));
-    CPPUNIT_ASSERT(!greater(hundred, null));
-    CPPUNIT_ASSERT(greater(null, hundred));
-    CPPUNIT_ASSERT(!greater(one, two));
-    CPPUNIT_ASSERT(greater(two, one));
-    CPPUNIT_ASSERT(!greater(one, one));
-    CPPUNIT_ASSERT(!greater(one, big));
+    BOOST_TEST(!greater(big, null));
+    BOOST_TEST(greater(null, big));
+    BOOST_TEST(!greater(null, null));
+    BOOST_TEST(!greater(hundred, null));
+    BOOST_TEST(greater(null, hundred));
+    BOOST_TEST(!greater(one, two));
+    BOOST_TEST(greater(two, one));
+    BOOST_TEST(!greater(one, one));
+    BOOST_TEST(!greater(one, big));
 }
 
-void COrderingsTest::testLess() {
+BOOST_AUTO_TEST_CASE(testLess) {
     maths::COrderings::SLess less;
 
     {
@@ -138,13 +139,13 @@ void COrderingsTest::testLess() {
         TOptionalDouble two(2.0);
         TOptionalDouble big(std::numeric_limits<double>::max());
 
-        CPPUNIT_ASSERT(less(big, null));
-        CPPUNIT_ASSERT(!less(null, big));
-        CPPUNIT_ASSERT(!less(null, null));
-        CPPUNIT_ASSERT(less(one, two));
-        CPPUNIT_ASSERT(!less(two, one));
-        CPPUNIT_ASSERT(!less(one, one));
-        CPPUNIT_ASSERT(less(one, big));
+        BOOST_TEST(less(big, null));
+        BOOST_TEST(!less(null, big));
+        BOOST_TEST(!less(null, null));
+        BOOST_TEST(less(one, two));
+        BOOST_TEST(!less(two, one));
+        BOOST_TEST(!less(one, one));
+        BOOST_TEST(less(one, big));
     }
     {
         const double* null = nullptr;
@@ -157,15 +158,15 @@ void COrderingsTest::testLess() {
         const double* hundred(&hundred_);
         const double* big(&big_);
 
-        CPPUNIT_ASSERT(less(big, null));
-        CPPUNIT_ASSERT(!less(null, big));
-        CPPUNIT_ASSERT(!less(null, null));
-        CPPUNIT_ASSERT(less(hundred, null));
-        CPPUNIT_ASSERT(!less(null, hundred));
-        CPPUNIT_ASSERT(less(one, two));
-        CPPUNIT_ASSERT(!less(two, one));
-        CPPUNIT_ASSERT(!less(one, one));
-        CPPUNIT_ASSERT(less(one, big));
+        BOOST_TEST(less(big, null));
+        BOOST_TEST(!less(null, big));
+        BOOST_TEST(!less(null, null));
+        BOOST_TEST(less(hundred, null));
+        BOOST_TEST(!less(null, hundred));
+        BOOST_TEST(less(one, two));
+        BOOST_TEST(!less(two, one));
+        BOOST_TEST(!less(one, one));
+        BOOST_TEST(less(one, big));
     }
 
     double one(1.0);
@@ -173,188 +174,188 @@ void COrderingsTest::testLess() {
     double three(3.0);
 
     {
-        CPPUNIT_ASSERT(less(std::make_pair(std::make_pair(one, three), three),
+        BOOST_TEST(less(std::make_pair(std::make_pair(one, three), three),
                             std::make_pair(std::make_pair(two, two), two)));
-        CPPUNIT_ASSERT(less(std::make_pair(std::make_pair(one, two), three),
+        BOOST_TEST(less(std::make_pair(std::make_pair(one, two), three),
                             std::make_pair(std::make_pair(one, three), two)));
-        CPPUNIT_ASSERT(less(std::make_pair(std::make_pair(one, two), two),
+        BOOST_TEST(less(std::make_pair(std::make_pair(one, two), two),
                             std::make_pair(std::make_pair(one, two), three)));
-        CPPUNIT_ASSERT(!less(std::make_pair(std::make_pair(one, two), three),
+        BOOST_TEST(!less(std::make_pair(std::make_pair(one, two), three),
                              std::make_pair(std::make_pair(one, two), three)));
-        CPPUNIT_ASSERT(!less(std::make_pair(std::make_pair(two, two), two),
+        BOOST_TEST(!less(std::make_pair(std::make_pair(two, two), two),
                              std::make_pair(std::make_pair(one, three), three)));
-        CPPUNIT_ASSERT(!less(std::make_pair(std::make_pair(one, three), two),
+        BOOST_TEST(!less(std::make_pair(std::make_pair(one, three), two),
                              std::make_pair(std::make_pair(one, two), three)));
-        CPPUNIT_ASSERT(!less(std::make_pair(std::make_pair(one, two), three),
+        BOOST_TEST(!less(std::make_pair(std::make_pair(one, two), three),
                              std::make_pair(std::make_pair(one, two), two)));
     }
     {
-        CPPUNIT_ASSERT(less(std::make_pair(std::make_pair(&one, three), three),
+        BOOST_TEST(less(std::make_pair(std::make_pair(&one, three), three),
                             std::make_pair(std::make_pair(&two, two), two)));
-        CPPUNIT_ASSERT(less(std::make_pair(std::make_pair(&one, two), three),
+        BOOST_TEST(less(std::make_pair(std::make_pair(&one, two), three),
                             std::make_pair(std::make_pair(&one, three), two)));
-        CPPUNIT_ASSERT(less(std::make_pair(std::make_pair(one, &two), two),
+        BOOST_TEST(less(std::make_pair(std::make_pair(one, &two), two),
                             std::make_pair(std::make_pair(one, &two), three)));
-        CPPUNIT_ASSERT(!less(std::make_pair(std::make_pair(one, &two), three),
+        BOOST_TEST(!less(std::make_pair(std::make_pair(one, &two), three),
                              std::make_pair(std::make_pair(one, &two), three)));
-        CPPUNIT_ASSERT(!less(std::make_pair(std::make_pair(two, two), &two),
+        BOOST_TEST(!less(std::make_pair(std::make_pair(two, two), &two),
                              std::make_pair(std::make_pair(one, three), &three)));
-        CPPUNIT_ASSERT(!less(std::make_pair(std::make_pair(&one, &three), &two),
+        BOOST_TEST(!less(std::make_pair(std::make_pair(&one, &three), &two),
                              std::make_pair(std::make_pair(&one, &two), &three)));
-        CPPUNIT_ASSERT(!less(std::make_pair(std::make_pair(one, two), three),
+        BOOST_TEST(!less(std::make_pair(std::make_pair(one, two), three),
                              std::make_pair(std::make_pair(one, two), two)));
     }
 }
 
-void COrderingsTest::testFirstLess() {
+BOOST_AUTO_TEST_CASE(testFirstLess) {
     maths::COrderings::SFirstLess less;
 
-    CPPUNIT_ASSERT(less(std::make_pair(1.0, 1.0), std::make_pair(2.0, 1.0)));
-    CPPUNIT_ASSERT(less(1.0, std::make_pair(2.0, 1.0)));
-    CPPUNIT_ASSERT(less(std::make_pair(1.0, 2.0), 2.0));
-    CPPUNIT_ASSERT(!less(std::make_pair(1.0, 1.0), std::make_pair(1.0, 2.0)));
-    CPPUNIT_ASSERT(!less(1.0, std::make_pair(1.0, 2.0)));
-    CPPUNIT_ASSERT(!less(std::make_pair(1.0, 1.0), 1.0));
-    CPPUNIT_ASSERT(!less(std::make_pair(2.0, 2.0), std::make_pair(1.0, 3.0)));
-    CPPUNIT_ASSERT(!less(2.0, std::make_pair(1.0, 1.0)));
-    CPPUNIT_ASSERT(!less(std::make_pair(2.0, 2.0), 1.0));
+    BOOST_TEST(less(std::make_pair(1.0, 1.0), std::make_pair(2.0, 1.0)));
+    BOOST_TEST(less(1.0, std::make_pair(2.0, 1.0)));
+    BOOST_TEST(less(std::make_pair(1.0, 2.0), 2.0));
+    BOOST_TEST(!less(std::make_pair(1.0, 1.0), std::make_pair(1.0, 2.0)));
+    BOOST_TEST(!less(1.0, std::make_pair(1.0, 2.0)));
+    BOOST_TEST(!less(std::make_pair(1.0, 1.0), 1.0));
+    BOOST_TEST(!less(std::make_pair(2.0, 2.0), std::make_pair(1.0, 3.0)));
+    BOOST_TEST(!less(2.0, std::make_pair(1.0, 1.0)));
+    BOOST_TEST(!less(std::make_pair(2.0, 2.0), 1.0));
 
-    CPPUNIT_ASSERT(less(std::make_pair(std::make_pair(1.0, 1.0), 1.0),
+    BOOST_TEST(less(std::make_pair(std::make_pair(1.0, 1.0), 1.0),
                         std::make_pair(std::make_pair(1.0, 2.0), 1.0)));
-    CPPUNIT_ASSERT(!less(std::make_pair(std::make_pair(1.0, 1.0), 1.0),
+    BOOST_TEST(!less(std::make_pair(std::make_pair(1.0, 1.0), 1.0),
                          std::make_pair(std::make_pair(1.0, 1.0), 1.0)));
-    CPPUNIT_ASSERT(!less(std::make_pair(std::make_pair(1.0, 2.0), 1.0),
+    BOOST_TEST(!less(std::make_pair(std::make_pair(1.0, 2.0), 1.0),
                          std::make_pair(std::make_pair(1.0, 1.0), 1.0)));
 
     double one(1.0);
     double two(2.0);
     double three(3.0);
 
-    CPPUNIT_ASSERT(less(std::make_pair(&one, &one), std::make_pair(&two, &one)));
-    CPPUNIT_ASSERT(less(&one, std::make_pair(&two, &one)));
-    CPPUNIT_ASSERT(less(std::make_pair(&one, &two), &two));
-    CPPUNIT_ASSERT(!less(std::make_pair(&one, &one), std::make_pair(&one, &two)));
-    CPPUNIT_ASSERT(!less(&one, std::make_pair(&one, &two)));
-    CPPUNIT_ASSERT(!less(std::make_pair(&one, &one), &one));
-    CPPUNIT_ASSERT(!less(std::make_pair(&two, &two), std::make_pair(&one, &three)));
-    CPPUNIT_ASSERT(!less(&two, std::make_pair(&one, &one)));
-    CPPUNIT_ASSERT(!less(std::make_pair(&two, &two), &one));
+    BOOST_TEST(less(std::make_pair(&one, &one), std::make_pair(&two, &one)));
+    BOOST_TEST(less(&one, std::make_pair(&two, &one)));
+    BOOST_TEST(less(std::make_pair(&one, &two), &two));
+    BOOST_TEST(!less(std::make_pair(&one, &one), std::make_pair(&one, &two)));
+    BOOST_TEST(!less(&one, std::make_pair(&one, &two)));
+    BOOST_TEST(!less(std::make_pair(&one, &one), &one));
+    BOOST_TEST(!less(std::make_pair(&two, &two), std::make_pair(&one, &three)));
+    BOOST_TEST(!less(&two, std::make_pair(&one, &one)));
+    BOOST_TEST(!less(std::make_pair(&two, &two), &one));
 }
 
-void COrderingsTest::testFirstGreater() {
+BOOST_AUTO_TEST_CASE(testFirstGreater) {
     maths::COrderings::SFirstGreater greater;
 
-    CPPUNIT_ASSERT(!greater(std::make_pair(1.0, 2.0), std::make_pair(2.0, 1.0)));
-    CPPUNIT_ASSERT(!greater(2.0, std::make_pair(3.0, 1.0)));
-    CPPUNIT_ASSERT(!greater(std::make_pair(1.0, 3.0), 2.0));
-    CPPUNIT_ASSERT(!greater(std::make_pair(1.0, 2.0), std::make_pair(1.0, 1.0)));
-    CPPUNIT_ASSERT(!greater(2.0, std::make_pair(2.0, 1.0)));
-    CPPUNIT_ASSERT(!greater(std::make_pair(1.0, 2.0), 1.0));
-    CPPUNIT_ASSERT(greater(std::make_pair(2.0, 2.0), std::make_pair(1.0, 3.0)));
-    CPPUNIT_ASSERT(greater(2.0, std::make_pair(1.0, 1.0)));
-    CPPUNIT_ASSERT(greater(std::make_pair(2.0, 2.0), 1.0));
+    BOOST_TEST(!greater(std::make_pair(1.0, 2.0), std::make_pair(2.0, 1.0)));
+    BOOST_TEST(!greater(2.0, std::make_pair(3.0, 1.0)));
+    BOOST_TEST(!greater(std::make_pair(1.0, 3.0), 2.0));
+    BOOST_TEST(!greater(std::make_pair(1.0, 2.0), std::make_pair(1.0, 1.0)));
+    BOOST_TEST(!greater(2.0, std::make_pair(2.0, 1.0)));
+    BOOST_TEST(!greater(std::make_pair(1.0, 2.0), 1.0));
+    BOOST_TEST(greater(std::make_pair(2.0, 2.0), std::make_pair(1.0, 3.0)));
+    BOOST_TEST(greater(2.0, std::make_pair(1.0, 1.0)));
+    BOOST_TEST(greater(std::make_pair(2.0, 2.0), 1.0));
 
-    CPPUNIT_ASSERT(!greater(std::make_pair(std::make_pair(1.0, 1.0), 1.0),
+    BOOST_TEST(!greater(std::make_pair(std::make_pair(1.0, 1.0), 1.0),
                             std::make_pair(std::make_pair(1.0, 2.0), 1.0)));
-    CPPUNIT_ASSERT(!greater(std::make_pair(std::make_pair(1.0, 1.0), 1.0),
+    BOOST_TEST(!greater(std::make_pair(std::make_pair(1.0, 1.0), 1.0),
                             std::make_pair(std::make_pair(1.0, 1.0), 1.0)));
-    CPPUNIT_ASSERT(greater(std::make_pair(std::make_pair(1.0, 2.0), 1.0),
+    BOOST_TEST(greater(std::make_pair(std::make_pair(1.0, 2.0), 1.0),
                            std::make_pair(std::make_pair(1.0, 1.0), 1.0)));
 
     double one(1.0);
     double two(2.0);
     double three(3.0);
 
-    CPPUNIT_ASSERT(!greater(std::make_pair(&one, &two), std::make_pair(&two, &one)));
-    CPPUNIT_ASSERT(!greater(&two, std::make_pair(&three, &one)));
-    CPPUNIT_ASSERT(!greater(std::make_pair(&one, &three), &two));
-    CPPUNIT_ASSERT(!greater(std::make_pair(&one, &two), std::make_pair(&one, &one)));
-    CPPUNIT_ASSERT(!greater(&two, std::make_pair(&two, &one)));
-    CPPUNIT_ASSERT(!greater(std::make_pair(&one, &two), &one));
-    CPPUNIT_ASSERT(greater(std::make_pair(&two, &two), std::make_pair(&one, &three)));
-    CPPUNIT_ASSERT(greater(&two, std::make_pair(&one, &two)));
-    CPPUNIT_ASSERT(greater(std::make_pair(&two, &one), &one));
+    BOOST_TEST(!greater(std::make_pair(&one, &two), std::make_pair(&two, &one)));
+    BOOST_TEST(!greater(&two, std::make_pair(&three, &one)));
+    BOOST_TEST(!greater(std::make_pair(&one, &three), &two));
+    BOOST_TEST(!greater(std::make_pair(&one, &two), std::make_pair(&one, &one)));
+    BOOST_TEST(!greater(&two, std::make_pair(&two, &one)));
+    BOOST_TEST(!greater(std::make_pair(&one, &two), &one));
+    BOOST_TEST(greater(std::make_pair(&two, &two), std::make_pair(&one, &three)));
+    BOOST_TEST(greater(&two, std::make_pair(&one, &two)));
+    BOOST_TEST(greater(std::make_pair(&two, &one), &one));
 }
 
-void COrderingsTest::testSecondLess() {
+BOOST_AUTO_TEST_CASE(testSecondLess) {
     maths::COrderings::SSecondLess less;
 
-    CPPUNIT_ASSERT(!less(std::make_pair(1.0, 2.0), std::make_pair(2.0, 1.0)));
-    CPPUNIT_ASSERT(!less(2.0, std::make_pair(3.0, 1.0)));
-    CPPUNIT_ASSERT(!less(std::make_pair(1.0, 3.0), 2.0));
-    CPPUNIT_ASSERT(!less(std::make_pair(1.0, 1.0), std::make_pair(2.0, 1.0)));
-    CPPUNIT_ASSERT(!less(1.0, std::make_pair(2.0, 1.0)));
-    CPPUNIT_ASSERT(!less(std::make_pair(1.0, 2.0), 2.0));
-    CPPUNIT_ASSERT(less(std::make_pair(2.0, 2.0), std::make_pair(1.0, 3.0)));
-    CPPUNIT_ASSERT(less(2.0, std::make_pair(1.0, 3.0)));
-    CPPUNIT_ASSERT(less(std::make_pair(2.0, 1.0), 2.0));
+    BOOST_TEST(!less(std::make_pair(1.0, 2.0), std::make_pair(2.0, 1.0)));
+    BOOST_TEST(!less(2.0, std::make_pair(3.0, 1.0)));
+    BOOST_TEST(!less(std::make_pair(1.0, 3.0), 2.0));
+    BOOST_TEST(!less(std::make_pair(1.0, 1.0), std::make_pair(2.0, 1.0)));
+    BOOST_TEST(!less(1.0, std::make_pair(2.0, 1.0)));
+    BOOST_TEST(!less(std::make_pair(1.0, 2.0), 2.0));
+    BOOST_TEST(less(std::make_pair(2.0, 2.0), std::make_pair(1.0, 3.0)));
+    BOOST_TEST(less(2.0, std::make_pair(1.0, 3.0)));
+    BOOST_TEST(less(std::make_pair(2.0, 1.0), 2.0));
 
-    CPPUNIT_ASSERT(less(std::make_pair(1.0, std::make_pair(1.0, 2.0)),
+    BOOST_TEST(less(std::make_pair(1.0, std::make_pair(1.0, 2.0)),
                         std::make_pair(2.0, std::make_pair(2.0, 1.0))));
-    CPPUNIT_ASSERT(!less(std::make_pair(1.0, std::make_pair(1.0, 2.0)),
+    BOOST_TEST(!less(std::make_pair(1.0, std::make_pair(1.0, 2.0)),
                          std::make_pair(2.0, std::make_pair(1.0, 2.0))));
-    CPPUNIT_ASSERT(!less(std::make_pair(1.0, std::make_pair(2.0, 2.0)),
+    BOOST_TEST(!less(std::make_pair(1.0, std::make_pair(2.0, 2.0)),
                          std::make_pair(2.0, std::make_pair(2.0, 1.0))));
-    CPPUNIT_ASSERT(less(std::make_pair(1.0, 1.0),
+    BOOST_TEST(less(std::make_pair(1.0, 1.0),
                         std::make_pair(3.0, std::make_pair(1.0, 2.0))));
-    CPPUNIT_ASSERT(less(std::make_pair(1.0, std::make_pair(3.0, 1.0)),
+    BOOST_TEST(less(std::make_pair(1.0, std::make_pair(3.0, 1.0)),
                         std::make_pair(3.0, 2.0)));
 
     double one(1.0);
     double two(2.0);
     double three(3.0);
 
-    CPPUNIT_ASSERT(!less(std::make_pair(&one, &two), std::make_pair(&two, &one)));
-    CPPUNIT_ASSERT(!less(&two, std::make_pair(&three, &one)));
-    CPPUNIT_ASSERT(!less(std::make_pair(&one, &three), &two));
-    CPPUNIT_ASSERT(!less(std::make_pair(&one, &one), std::make_pair(&two, &one)));
-    CPPUNIT_ASSERT(!less(&one, std::make_pair(&two, &one)));
-    CPPUNIT_ASSERT(!less(std::make_pair(&one, &two), &two));
-    CPPUNIT_ASSERT(less(std::make_pair(&two, &two), std::make_pair(&one, &three)));
-    CPPUNIT_ASSERT(less(&two, std::make_pair(&one, &three)));
-    CPPUNIT_ASSERT(less(std::make_pair(&two, &one), &two));
+    BOOST_TEST(!less(std::make_pair(&one, &two), std::make_pair(&two, &one)));
+    BOOST_TEST(!less(&two, std::make_pair(&three, &one)));
+    BOOST_TEST(!less(std::make_pair(&one, &three), &two));
+    BOOST_TEST(!less(std::make_pair(&one, &one), std::make_pair(&two, &one)));
+    BOOST_TEST(!less(&one, std::make_pair(&two, &one)));
+    BOOST_TEST(!less(std::make_pair(&one, &two), &two));
+    BOOST_TEST(less(std::make_pair(&two, &two), std::make_pair(&one, &three)));
+    BOOST_TEST(less(&two, std::make_pair(&one, &three)));
+    BOOST_TEST(less(std::make_pair(&two, &one), &two));
 }
 
-void COrderingsTest::testSecondGreater() {
+BOOST_AUTO_TEST_CASE(testSecondGreater) {
     maths::COrderings::SSecondGreater greater;
 
-    CPPUNIT_ASSERT(greater(std::make_pair(1.0, 2.0), std::make_pair(2.0, 1.0)));
-    CPPUNIT_ASSERT(greater(2.0, std::make_pair(3.0, 1.0)));
-    CPPUNIT_ASSERT(greater(std::make_pair(1.0, 3.0), 2.0));
-    CPPUNIT_ASSERT(!greater(std::make_pair(1.0, 1.0), std::make_pair(2.0, 1.0)));
-    CPPUNIT_ASSERT(!greater(1.0, std::make_pair(2.0, 1.0)));
-    CPPUNIT_ASSERT(!greater(std::make_pair(1.0, 2.0), 2.0));
-    CPPUNIT_ASSERT(!greater(std::make_pair(2.0, 2.0), std::make_pair(1.0, 3.0)));
-    CPPUNIT_ASSERT(!greater(2.0, std::make_pair(1.0, 3.0)));
-    CPPUNIT_ASSERT(!greater(std::make_pair(2.0, 1.0), 2.0));
+    BOOST_TEST(greater(std::make_pair(1.0, 2.0), std::make_pair(2.0, 1.0)));
+    BOOST_TEST(greater(2.0, std::make_pair(3.0, 1.0)));
+    BOOST_TEST(greater(std::make_pair(1.0, 3.0), 2.0));
+    BOOST_TEST(!greater(std::make_pair(1.0, 1.0), std::make_pair(2.0, 1.0)));
+    BOOST_TEST(!greater(1.0, std::make_pair(2.0, 1.0)));
+    BOOST_TEST(!greater(std::make_pair(1.0, 2.0), 2.0));
+    BOOST_TEST(!greater(std::make_pair(2.0, 2.0), std::make_pair(1.0, 3.0)));
+    BOOST_TEST(!greater(2.0, std::make_pair(1.0, 3.0)));
+    BOOST_TEST(!greater(std::make_pair(2.0, 1.0), 2.0));
 
-    CPPUNIT_ASSERT(greater(std::make_pair(1.0, std::make_pair(2.0, 2.0)),
+    BOOST_TEST(greater(std::make_pair(1.0, std::make_pair(2.0, 2.0)),
                            std::make_pair(2.0, std::make_pair(2.0, 1.0))));
-    CPPUNIT_ASSERT(!greater(std::make_pair(1.0, std::make_pair(2.0, 2.0)),
+    BOOST_TEST(!greater(std::make_pair(1.0, std::make_pair(2.0, 2.0)),
                             std::make_pair(2.0, std::make_pair(2.0, 2.0))));
-    CPPUNIT_ASSERT(!greater(std::make_pair(1.0, std::make_pair(2.0, 2.0)),
+    BOOST_TEST(!greater(std::make_pair(1.0, std::make_pair(2.0, 2.0)),
                             std::make_pair(2.0, std::make_pair(2.0, 3.0))));
-    CPPUNIT_ASSERT(greater(std::make_pair(2.0, 2.0),
+    BOOST_TEST(greater(std::make_pair(2.0, 2.0),
                            std::make_pair(3.0, std::make_pair(1.0, 2.0))));
-    CPPUNIT_ASSERT(greater(std::make_pair(1.0, std::make_pair(3.0, 3.0)),
+    BOOST_TEST(greater(std::make_pair(1.0, std::make_pair(3.0, 3.0)),
                            std::make_pair(3.0, 2.0)));
 
     double one(1.0);
     double two(2.0);
     double three(3.0);
 
-    CPPUNIT_ASSERT(greater(std::make_pair(&one, &two), std::make_pair(&two, &one)));
-    CPPUNIT_ASSERT(greater(&two, std::make_pair(&three, &one)));
-    CPPUNIT_ASSERT(greater(std::make_pair(&one, &three), &two));
-    CPPUNIT_ASSERT(!greater(std::make_pair(&one, &one), std::make_pair(&two, &one)));
-    CPPUNIT_ASSERT(!greater(&one, std::make_pair(&two, &one)));
-    CPPUNIT_ASSERT(!greater(std::make_pair(&one, &two), &two));
-    CPPUNIT_ASSERT(!greater(std::make_pair(&two, &two), std::make_pair(&one, &three)));
-    CPPUNIT_ASSERT(!greater(&two, std::make_pair(&one, &three)));
-    CPPUNIT_ASSERT(!greater(std::make_pair(&two, &two), &two));
+    BOOST_TEST(greater(std::make_pair(&one, &two), std::make_pair(&two, &one)));
+    BOOST_TEST(greater(&two, std::make_pair(&three, &one)));
+    BOOST_TEST(greater(std::make_pair(&one, &three), &two));
+    BOOST_TEST(!greater(std::make_pair(&one, &one), std::make_pair(&two, &one)));
+    BOOST_TEST(!greater(&one, std::make_pair(&two, &one)));
+    BOOST_TEST(!greater(std::make_pair(&one, &two), &two));
+    BOOST_TEST(!greater(std::make_pair(&two, &two), std::make_pair(&one, &three)));
+    BOOST_TEST(!greater(&two, std::make_pair(&one, &three)));
+    BOOST_TEST(!greater(std::make_pair(&two, &two), &two));
 }
 
-void COrderingsTest::testDereference() {
+BOOST_AUTO_TEST_CASE(testDereference) {
     using TDoubleVec = std::vector<double>;
     using TDoubleVecCItr = std::vector<double>::const_iterator;
     using TDoubleVecCItrVec = std::vector<TDoubleVecCItr>;
@@ -371,11 +372,11 @@ void COrderingsTest::testDereference() {
     std::sort(std::begin(values_), std::end(values_));
     for (std::size_t i = 0; i < values.size(); ++i) {
         LOG_DEBUG(<< "expected " << values_[i] << ", got " << *iterators[i]);
-        CPPUNIT_ASSERT_EQUAL(values_[i], *iterators[i]);
+        BOOST_CHECK_EQUAL(values_[i], *iterators[i]);
     }
 }
 
-void COrderingsTest::testLexicographicalCompare() {
+BOOST_AUTO_TEST_CASE(testLexicographicalCompare) {
     using TDoubleVec = std::vector<double>;
     using TDoubleDoublePr = std::pair<double, double>;
 
@@ -399,129 +400,129 @@ void COrderingsTest::testLexicographicalCompare() {
     std::string s1("a");
     std::string s2("b");
 
-    CPPUNIT_ASSERT(i1 < i2);
-    CPPUNIT_ASSERT(d1 < d2);
-    CPPUNIT_ASSERT(p1 < p2);
-    CPPUNIT_ASSERT(v1 < v2);
-    CPPUNIT_ASSERT(s1 < s2);
+    BOOST_TEST(i1 < i2);
+    BOOST_TEST(d1 < d2);
+    BOOST_TEST(p1 < p2);
+    BOOST_TEST(v1 < v2);
+    BOOST_TEST(s1 < s2);
 
-    CPPUNIT_ASSERT(maths::COrderings::lexicographical_compare(i1, i2));
-    CPPUNIT_ASSERT(!maths::COrderings::lexicographical_compare(i1, i1));
-    CPPUNIT_ASSERT(!maths::COrderings::lexicographical_compare(i2, i1));
-    CPPUNIT_ASSERT(!maths::COrderings::lexicographical_compare(i1, i2, greater));
-    CPPUNIT_ASSERT(!maths::COrderings::lexicographical_compare(i1, i1, greater));
-    CPPUNIT_ASSERT(maths::COrderings::lexicographical_compare(i2, i1, greater));
+    BOOST_TEST(maths::COrderings::lexicographical_compare(i1, i2));
+    BOOST_TEST(!maths::COrderings::lexicographical_compare(i1, i1));
+    BOOST_TEST(!maths::COrderings::lexicographical_compare(i2, i1));
+    BOOST_TEST(!maths::COrderings::lexicographical_compare(i1, i2, greater));
+    BOOST_TEST(!maths::COrderings::lexicographical_compare(i1, i1, greater));
+    BOOST_TEST(maths::COrderings::lexicographical_compare(i2, i1, greater));
 
-    CPPUNIT_ASSERT(maths::COrderings::lexicographical_compare(i1, p1, i2, p1));
-    CPPUNIT_ASSERT(maths::COrderings::lexicographical_compare(i1, p1, i1, p2));
-    CPPUNIT_ASSERT(!maths::COrderings::lexicographical_compare(i1, p1, i1, p1));
-    CPPUNIT_ASSERT(!maths::COrderings::lexicographical_compare(i2, p1, i1, p1));
-    CPPUNIT_ASSERT(!maths::COrderings::lexicographical_compare(i1, p2, i1, p1));
-    CPPUNIT_ASSERT(!maths::COrderings::lexicographical_compare(i1, p1, i2, p1, greater));
-    CPPUNIT_ASSERT(!maths::COrderings::lexicographical_compare(i1, p1, i1, p2, greater));
-    CPPUNIT_ASSERT(!maths::COrderings::lexicographical_compare(i1, p1, i1, p1, greater));
-    CPPUNIT_ASSERT(maths::COrderings::lexicographical_compare(i2, p1, i1, p1, greater));
-    CPPUNIT_ASSERT(maths::COrderings::lexicographical_compare(i1, p2, i1, p1, greater));
+    BOOST_TEST(maths::COrderings::lexicographical_compare(i1, p1, i2, p1));
+    BOOST_TEST(maths::COrderings::lexicographical_compare(i1, p1, i1, p2));
+    BOOST_TEST(!maths::COrderings::lexicographical_compare(i1, p1, i1, p1));
+    BOOST_TEST(!maths::COrderings::lexicographical_compare(i2, p1, i1, p1));
+    BOOST_TEST(!maths::COrderings::lexicographical_compare(i1, p2, i1, p1));
+    BOOST_TEST(!maths::COrderings::lexicographical_compare(i1, p1, i2, p1, greater));
+    BOOST_TEST(!maths::COrderings::lexicographical_compare(i1, p1, i1, p2, greater));
+    BOOST_TEST(!maths::COrderings::lexicographical_compare(i1, p1, i1, p1, greater));
+    BOOST_TEST(maths::COrderings::lexicographical_compare(i2, p1, i1, p1, greater));
+    BOOST_TEST(maths::COrderings::lexicographical_compare(i1, p2, i1, p1, greater));
 
-    CPPUNIT_ASSERT(maths::COrderings::lexicographical_compare(i1, p1, d1, i2, p1, d1));
-    CPPUNIT_ASSERT(maths::COrderings::lexicographical_compare(i1, p1, d1, i1, p2, d1));
-    CPPUNIT_ASSERT(maths::COrderings::lexicographical_compare(i1, p1, d1, i1, p1, d2));
-    CPPUNIT_ASSERT(!maths::COrderings::lexicographical_compare(i1, p1, d1, i1, p1, d1));
-    CPPUNIT_ASSERT(!maths::COrderings::lexicographical_compare(i2, p1, d1, i1, p1, d1));
-    CPPUNIT_ASSERT(!maths::COrderings::lexicographical_compare(i1, p2, d1, i1, p1, d1));
-    CPPUNIT_ASSERT(!maths::COrderings::lexicographical_compare(i1, p1, d2, i1, p1, d1));
-    CPPUNIT_ASSERT(!maths::COrderings::lexicographical_compare(i1, p1, d1, i2, p1, d1, greater));
-    CPPUNIT_ASSERT(!maths::COrderings::lexicographical_compare(i1, p1, d1, i1, p2, d1, greater));
-    CPPUNIT_ASSERT(!maths::COrderings::lexicographical_compare(i1, p1, d1, i1, p1, d2, greater));
-    CPPUNIT_ASSERT(!maths::COrderings::lexicographical_compare(i1, p1, d1, i1, p1, d1, greater));
-    CPPUNIT_ASSERT(maths::COrderings::lexicographical_compare(i2, p1, d1, i1, p1, d1, greater));
-    CPPUNIT_ASSERT(maths::COrderings::lexicographical_compare(i1, p2, d1, i1, p1, d1, greater));
-    CPPUNIT_ASSERT(maths::COrderings::lexicographical_compare(i1, p1, d2, i1, p1, d1, greater));
+    BOOST_TEST(maths::COrderings::lexicographical_compare(i1, p1, d1, i2, p1, d1));
+    BOOST_TEST(maths::COrderings::lexicographical_compare(i1, p1, d1, i1, p2, d1));
+    BOOST_TEST(maths::COrderings::lexicographical_compare(i1, p1, d1, i1, p1, d2));
+    BOOST_TEST(!maths::COrderings::lexicographical_compare(i1, p1, d1, i1, p1, d1));
+    BOOST_TEST(!maths::COrderings::lexicographical_compare(i2, p1, d1, i1, p1, d1));
+    BOOST_TEST(!maths::COrderings::lexicographical_compare(i1, p2, d1, i1, p1, d1));
+    BOOST_TEST(!maths::COrderings::lexicographical_compare(i1, p1, d2, i1, p1, d1));
+    BOOST_TEST(!maths::COrderings::lexicographical_compare(i1, p1, d1, i2, p1, d1, greater));
+    BOOST_TEST(!maths::COrderings::lexicographical_compare(i1, p1, d1, i1, p2, d1, greater));
+    BOOST_TEST(!maths::COrderings::lexicographical_compare(i1, p1, d1, i1, p1, d2, greater));
+    BOOST_TEST(!maths::COrderings::lexicographical_compare(i1, p1, d1, i1, p1, d1, greater));
+    BOOST_TEST(maths::COrderings::lexicographical_compare(i2, p1, d1, i1, p1, d1, greater));
+    BOOST_TEST(maths::COrderings::lexicographical_compare(i1, p2, d1, i1, p1, d1, greater));
+    BOOST_TEST(maths::COrderings::lexicographical_compare(i1, p1, d2, i1, p1, d1, greater));
 
-    CPPUNIT_ASSERT(maths::COrderings::lexicographical_compare(i1, p1, d1, v1,
+    BOOST_TEST(maths::COrderings::lexicographical_compare(i1, p1, d1, v1,
                                                               i2, p1, d1, v1));
-    CPPUNIT_ASSERT(maths::COrderings::lexicographical_compare(i1, p1, d1, v1,
+    BOOST_TEST(maths::COrderings::lexicographical_compare(i1, p1, d1, v1,
                                                               i1, p2, d1, v1));
-    CPPUNIT_ASSERT(maths::COrderings::lexicographical_compare(i1, p1, d1, v1,
+    BOOST_TEST(maths::COrderings::lexicographical_compare(i1, p1, d1, v1,
                                                               i1, p1, d2, v1));
-    CPPUNIT_ASSERT(maths::COrderings::lexicographical_compare(i1, p1, d1, v1,
+    BOOST_TEST(maths::COrderings::lexicographical_compare(i1, p1, d1, v1,
                                                               i1, p1, d1, v2));
-    CPPUNIT_ASSERT(!maths::COrderings::lexicographical_compare(i1, p1, d1, v1,
+    BOOST_TEST(!maths::COrderings::lexicographical_compare(i1, p1, d1, v1,
                                                                i1, p1, d1, v1));
-    CPPUNIT_ASSERT(!maths::COrderings::lexicographical_compare(i2, p1, d1, v1,
+    BOOST_TEST(!maths::COrderings::lexicographical_compare(i2, p1, d1, v1,
                                                                i1, p1, d1, v1));
-    CPPUNIT_ASSERT(!maths::COrderings::lexicographical_compare(i1, p2, d1, v1,
+    BOOST_TEST(!maths::COrderings::lexicographical_compare(i1, p2, d1, v1,
                                                                i1, p1, d1, v1));
-    CPPUNIT_ASSERT(!maths::COrderings::lexicographical_compare(i1, p1, d2, v1,
+    BOOST_TEST(!maths::COrderings::lexicographical_compare(i1, p1, d2, v1,
                                                                i1, p1, d1, v1));
-    CPPUNIT_ASSERT(!maths::COrderings::lexicographical_compare(i1, p1, d1, v2,
+    BOOST_TEST(!maths::COrderings::lexicographical_compare(i1, p1, d1, v2,
                                                                i1, p1, d1, v1));
-    CPPUNIT_ASSERT(!maths::COrderings::lexicographical_compare(
+    BOOST_TEST(!maths::COrderings::lexicographical_compare(
         i1, p1, d1, v1, i2, p1, d1, v1, greater));
-    CPPUNIT_ASSERT(!maths::COrderings::lexicographical_compare(
+    BOOST_TEST(!maths::COrderings::lexicographical_compare(
         i1, p1, d1, v1, i1, p2, d1, v1, greater));
-    CPPUNIT_ASSERT(!maths::COrderings::lexicographical_compare(
+    BOOST_TEST(!maths::COrderings::lexicographical_compare(
         i1, p1, d1, v1, i1, p1, d2, v1, greater));
-    CPPUNIT_ASSERT(!maths::COrderings::lexicographical_compare(
+    BOOST_TEST(!maths::COrderings::lexicographical_compare(
         i1, p1, d1, v1, i1, p1, d1, v2, greater));
-    CPPUNIT_ASSERT(!maths::COrderings::lexicographical_compare(
+    BOOST_TEST(!maths::COrderings::lexicographical_compare(
         i1, p1, d1, v1, i1, p1, d1, v1, greater));
-    CPPUNIT_ASSERT(maths::COrderings::lexicographical_compare(i2, p1, d1, v1, i1, p1,
+    BOOST_TEST(maths::COrderings::lexicographical_compare(i2, p1, d1, v1, i1, p1,
                                                               d1, v1, greater));
-    CPPUNIT_ASSERT(maths::COrderings::lexicographical_compare(i1, p2, d1, v1, i1, p1,
+    BOOST_TEST(maths::COrderings::lexicographical_compare(i1, p2, d1, v1, i1, p1,
                                                               d1, v1, greater));
-    CPPUNIT_ASSERT(maths::COrderings::lexicographical_compare(i1, p1, d2, v1, i1, p1,
+    BOOST_TEST(maths::COrderings::lexicographical_compare(i1, p1, d2, v1, i1, p1,
                                                               d1, v1, greater));
-    CPPUNIT_ASSERT(maths::COrderings::lexicographical_compare(i1, p1, d1, v2, i1, p1,
+    BOOST_TEST(maths::COrderings::lexicographical_compare(i1, p1, d1, v2, i1, p1,
                                                               d1, v1, greater));
 
-    CPPUNIT_ASSERT(maths::COrderings::lexicographical_compare(i1, p1, d1, v1, s1,
+    BOOST_TEST(maths::COrderings::lexicographical_compare(i1, p1, d1, v1, s1,
                                                               i2, p1, d1, v1, s1));
-    CPPUNIT_ASSERT(maths::COrderings::lexicographical_compare(i1, p1, d1, v1, s1,
+    BOOST_TEST(maths::COrderings::lexicographical_compare(i1, p1, d1, v1, s1,
                                                               i1, p2, d1, v1, s1));
-    CPPUNIT_ASSERT(maths::COrderings::lexicographical_compare(i1, p1, d1, v1, s1,
+    BOOST_TEST(maths::COrderings::lexicographical_compare(i1, p1, d1, v1, s1,
                                                               i1, p1, d2, v1, s1));
-    CPPUNIT_ASSERT(maths::COrderings::lexicographical_compare(i1, p1, d1, v1, s1,
+    BOOST_TEST(maths::COrderings::lexicographical_compare(i1, p1, d1, v1, s1,
                                                               i1, p1, d1, v2, s1));
-    CPPUNIT_ASSERT(maths::COrderings::lexicographical_compare(i1, p1, d1, v1, s1,
+    BOOST_TEST(maths::COrderings::lexicographical_compare(i1, p1, d1, v1, s1,
                                                               i1, p1, d1, v1, s2));
-    CPPUNIT_ASSERT(!maths::COrderings::lexicographical_compare(i1, p1, d1, v1, s1,
+    BOOST_TEST(!maths::COrderings::lexicographical_compare(i1, p1, d1, v1, s1,
                                                                i1, p1, d1, v1, s1));
-    CPPUNIT_ASSERT(!maths::COrderings::lexicographical_compare(i2, p1, d1, v1, s1,
+    BOOST_TEST(!maths::COrderings::lexicographical_compare(i2, p1, d1, v1, s1,
                                                                i1, p1, d1, v1, s1));
-    CPPUNIT_ASSERT(!maths::COrderings::lexicographical_compare(i1, p2, d1, v1, s1,
+    BOOST_TEST(!maths::COrderings::lexicographical_compare(i1, p2, d1, v1, s1,
                                                                i1, p1, d1, v1, s1));
-    CPPUNIT_ASSERT(!maths::COrderings::lexicographical_compare(i1, p1, d2, v1, s1,
+    BOOST_TEST(!maths::COrderings::lexicographical_compare(i1, p1, d2, v1, s1,
                                                                i1, p1, d1, v1, s1));
-    CPPUNIT_ASSERT(!maths::COrderings::lexicographical_compare(i1, p1, d1, v2, s1,
+    BOOST_TEST(!maths::COrderings::lexicographical_compare(i1, p1, d1, v2, s1,
                                                                i1, p1, d1, v1, s1));
-    CPPUNIT_ASSERT(!maths::COrderings::lexicographical_compare(i1, p1, d1, v1, s2,
+    BOOST_TEST(!maths::COrderings::lexicographical_compare(i1, p1, d1, v1, s2,
                                                                i1, p1, d1, v1, s1));
-    CPPUNIT_ASSERT(!maths::COrderings::lexicographical_compare(
+    BOOST_TEST(!maths::COrderings::lexicographical_compare(
         i1, p1, d1, v1, s1, i2, p1, d1, v1, s1, greater));
-    CPPUNIT_ASSERT(!maths::COrderings::lexicographical_compare(
+    BOOST_TEST(!maths::COrderings::lexicographical_compare(
         i1, p1, d1, v1, s1, i1, p2, d1, v1, s1, greater));
-    CPPUNIT_ASSERT(!maths::COrderings::lexicographical_compare(
+    BOOST_TEST(!maths::COrderings::lexicographical_compare(
         i1, p1, d1, v1, s1, i1, p1, d2, v1, s1, greater));
-    CPPUNIT_ASSERT(!maths::COrderings::lexicographical_compare(
+    BOOST_TEST(!maths::COrderings::lexicographical_compare(
         i1, p1, d1, v1, s1, i1, p1, d1, v2, s1, greater));
-    CPPUNIT_ASSERT(!maths::COrderings::lexicographical_compare(
+    BOOST_TEST(!maths::COrderings::lexicographical_compare(
         i1, p1, d1, v1, s1, i1, p1, d1, v1, s2, greater));
-    CPPUNIT_ASSERT(!maths::COrderings::lexicographical_compare(
+    BOOST_TEST(!maths::COrderings::lexicographical_compare(
         i1, p1, d1, v1, s1, i1, p1, d1, v1, s1, greater));
-    CPPUNIT_ASSERT(maths::COrderings::lexicographical_compare(
+    BOOST_TEST(maths::COrderings::lexicographical_compare(
         i2, p1, d1, v1, s1, i1, p1, d1, v1, s1, greater));
-    CPPUNIT_ASSERT(maths::COrderings::lexicographical_compare(
+    BOOST_TEST(maths::COrderings::lexicographical_compare(
         i1, p2, d1, v1, s1, i1, p1, d1, v1, s1, greater));
-    CPPUNIT_ASSERT(maths::COrderings::lexicographical_compare(
+    BOOST_TEST(maths::COrderings::lexicographical_compare(
         i1, p1, d2, v1, s1, i1, p1, d1, v1, s1, greater));
-    CPPUNIT_ASSERT(maths::COrderings::lexicographical_compare(
+    BOOST_TEST(maths::COrderings::lexicographical_compare(
         i1, p1, d1, v2, s1, i1, p1, d1, v1, s1, greater));
-    CPPUNIT_ASSERT(maths::COrderings::lexicographical_compare(
+    BOOST_TEST(maths::COrderings::lexicographical_compare(
         i1, p1, d1, v1, s2, i1, p1, d1, v1, s1, greater));
 }
 
-void COrderingsTest::testSimultaneousSort() {
+BOOST_AUTO_TEST_CASE(testSimultaneousSort) {
     using TDoubleVec = std::vector<double>;
     using TDouble1Vec = core::CSmallVector<double, 1>;
     using TDoubleDoublePr = std::pair<double, double>;
@@ -544,12 +545,12 @@ void COrderingsTest::testSimultaneousSort() {
         maths::COrderings::simultaneousSort(keys, values);
         LOG_DEBUG(<< "keys = " << core::CContainerPrinter::print(keys));
         LOG_DEBUG(<< "values = " << core::CContainerPrinter::print(values));
-        CPPUNIT_ASSERT_EQUAL(expectedKeys, core::CContainerPrinter::print(keys));
-        CPPUNIT_ASSERT_EQUAL(expectedValues, core::CContainerPrinter::print(values));
+        BOOST_CHECK_EQUAL(expectedKeys, core::CContainerPrinter::print(keys));
+        BOOST_CHECK_EQUAL(expectedValues, core::CContainerPrinter::print(values));
 
         maths::COrderings::simultaneousSort(keys, values);
-        CPPUNIT_ASSERT_EQUAL(expectedKeys, core::CContainerPrinter::print(keys));
-        CPPUNIT_ASSERT_EQUAL(expectedValues, core::CContainerPrinter::print(values));
+        BOOST_CHECK_EQUAL(expectedKeys, core::CContainerPrinter::print(keys));
+        BOOST_CHECK_EQUAL(expectedValues, core::CContainerPrinter::print(values));
     }
     {
         TDouble1Vec keys{7.0, 1.0, 0.2, 1.1, 0.7, 5.0};
@@ -567,9 +568,9 @@ void COrderingsTest::testSimultaneousSort() {
         LOG_DEBUG(<< "keys = " << core::CContainerPrinter::print(keys));
         LOG_DEBUG(<< "values1 = " << core::CContainerPrinter::print(values1));
         LOG_DEBUG(<< "values2 = " << core::CContainerPrinter::print(values2));
-        CPPUNIT_ASSERT_EQUAL(expectedKeys, core::CContainerPrinter::print(keys));
-        CPPUNIT_ASSERT_EQUAL(expectedValues1, core::CContainerPrinter::print(values1));
-        CPPUNIT_ASSERT_EQUAL(expectedValues2, core::CContainerPrinter::print(values2));
+        BOOST_CHECK_EQUAL(expectedKeys, core::CContainerPrinter::print(keys));
+        BOOST_CHECK_EQUAL(expectedValues1, core::CContainerPrinter::print(values1));
+        BOOST_CHECK_EQUAL(expectedValues2, core::CContainerPrinter::print(values2));
     }
     test::CRandomNumbers rng;
     {
@@ -598,11 +599,11 @@ void COrderingsTest::testSimultaneousSort() {
         LOG_DEBUG(<< "values1 = " << core::CContainerPrinter::print(values1));
         LOG_DEBUG(<< "values2 = " << core::CContainerPrinter::print(values2));
         LOG_DEBUG(<< "# copies = " << values3.front().ms_Copies);
-        CPPUNIT_ASSERT_EQUAL(expectedKeys, core::CContainerPrinter::print(keys));
-        CPPUNIT_ASSERT_EQUAL(expectedValues1, core::CContainerPrinter::print(values1));
-        CPPUNIT_ASSERT_EQUAL(expectedValues2, core::CContainerPrinter::print(values2));
+        BOOST_CHECK_EQUAL(expectedKeys, core::CContainerPrinter::print(keys));
+        BOOST_CHECK_EQUAL(expectedValues1, core::CContainerPrinter::print(values1));
+        BOOST_CHECK_EQUAL(expectedValues2, core::CContainerPrinter::print(values2));
         for (const auto& value : values3) {
-            CPPUNIT_ASSERT_EQUAL(std::size_t(0), value.ms_Copies);
+            BOOST_CHECK_EQUAL(std::size_t(0), value.ms_Copies);
         }
 
         maths::COrderings::simultaneousSort(keys, values1, values2, values3);
@@ -610,11 +611,11 @@ void COrderingsTest::testSimultaneousSort() {
         LOG_DEBUG(<< "values1 = " << core::CContainerPrinter::print(values1));
         LOG_DEBUG(<< "values2 = " << core::CContainerPrinter::print(values2));
         LOG_DEBUG(<< "# copies = " << values3.front().ms_Copies);
-        CPPUNIT_ASSERT_EQUAL(expectedKeys, core::CContainerPrinter::print(keys));
-        CPPUNIT_ASSERT_EQUAL(expectedValues1, core::CContainerPrinter::print(values1));
-        CPPUNIT_ASSERT_EQUAL(expectedValues2, core::CContainerPrinter::print(values2));
+        BOOST_CHECK_EQUAL(expectedKeys, core::CContainerPrinter::print(keys));
+        BOOST_CHECK_EQUAL(expectedValues1, core::CContainerPrinter::print(values1));
+        BOOST_CHECK_EQUAL(expectedValues2, core::CContainerPrinter::print(values2));
         for (const auto& value : values3) {
-            CPPUNIT_ASSERT_EQUAL(std::size_t(0), value.ms_Copies);
+            BOOST_CHECK_EQUAL(std::size_t(0), value.ms_Copies);
         }
     }
     {
@@ -631,9 +632,9 @@ void COrderingsTest::testSimultaneousSort() {
 
         LOG_DEBUG(<< "values1 = " << core::CContainerPrinter::print(values1));
         LOG_DEBUG(<< "values2 = " << core::CContainerPrinter::print(values2));
-        CPPUNIT_ASSERT_EQUAL(std::string("[5, 2, 3, 4, 1]"),
+        BOOST_CHECK_EQUAL(std::string("[5, 2, 3, 4, 1]"),
                              core::CContainerPrinter::print(values1));
-        CPPUNIT_ASSERT_EQUAL(std::string("[1, 5, 2, 3, 4]"),
+        BOOST_CHECK_EQUAL(std::string("[1, 5, 2, 3, 4]"),
                              core::CContainerPrinter::print(values2));
 
         maths::COrderings::simultaneousSort(range2, range1, range3);
@@ -641,11 +642,11 @@ void COrderingsTest::testSimultaneousSort() {
         LOG_DEBUG(<< "values1 = " << core::CContainerPrinter::print(values1));
         LOG_DEBUG(<< "values2 = " << core::CContainerPrinter::print(values2));
         LOG_DEBUG(<< "values3 = " << core::CContainerPrinter::print(values3));
-        CPPUNIT_ASSERT_EQUAL(std::string("[5, 3, 4, 2, 1]"),
+        BOOST_CHECK_EQUAL(std::string("[5, 3, 4, 2, 1]"),
                              core::CContainerPrinter::print(values1));
-        CPPUNIT_ASSERT_EQUAL(std::string("[1, 2, 3, 5, 4]"),
+        BOOST_CHECK_EQUAL(std::string("[1, 2, 3, 5, 4]"),
                              core::CContainerPrinter::print(values2));
-        CPPUNIT_ASSERT_EQUAL(std::string("[4, 3, 3, 2, 5]"),
+        BOOST_CHECK_EQUAL(std::string("[4, 3, 3, 2, 5]"),
                              core::CContainerPrinter::print(values3));
 
         maths::COrderings::simultaneousSort(range4, range1, range2, range3);
@@ -654,13 +655,13 @@ void COrderingsTest::testSimultaneousSort() {
         LOG_DEBUG(<< "values2 = " << core::CContainerPrinter::print(values2));
         LOG_DEBUG(<< "values3 = " << core::CContainerPrinter::print(values3));
         LOG_DEBUG(<< "values4 = " << core::CContainerPrinter::print(values4));
-        CPPUNIT_ASSERT_EQUAL(std::string("[5, 3, 2, 4, 1]"),
+        BOOST_CHECK_EQUAL(std::string("[5, 3, 2, 4, 1]"),
                              core::CContainerPrinter::print(values1));
-        CPPUNIT_ASSERT_EQUAL(std::string("[1, 2, 5, 3, 4]"),
+        BOOST_CHECK_EQUAL(std::string("[1, 2, 5, 3, 4]"),
                              core::CContainerPrinter::print(values2));
-        CPPUNIT_ASSERT_EQUAL(std::string("[4, 3, 2, 3, 5]"),
+        BOOST_CHECK_EQUAL(std::string("[4, 3, 2, 3, 5]"),
                              core::CContainerPrinter::print(values3));
-        CPPUNIT_ASSERT_EQUAL(std::string("[2, 1, 4, 5, 1]"),
+        BOOST_CHECK_EQUAL(std::string("[2, 1, 4, 5, 1]"),
                              core::CContainerPrinter::print(values4));
     }
     {
@@ -685,39 +686,15 @@ void COrderingsTest::testSimultaneousSort() {
 
             auto itr = expected.begin();
             for (std::size_t j = 0u; j < keys.size(); ++j, ++itr) {
-                CPPUNIT_ASSERT_EQUAL(itr->first, keys[j]);
-                CPPUNIT_ASSERT_EQUAL(itr->second.get<0>(), values1[j]);
-                CPPUNIT_ASSERT_EQUAL(itr->second.get<1>(), values2[j]);
-                CPPUNIT_ASSERT_EQUAL(itr->second.get<2>(), values3[j]);
-                CPPUNIT_ASSERT_EQUAL(itr->second.get<3>(), values4[j]);
+                BOOST_CHECK_EQUAL(itr->first, keys[j]);
+                BOOST_CHECK_EQUAL(itr->second.get<0>(), values1[j]);
+                BOOST_CHECK_EQUAL(itr->second.get<1>(), values2[j]);
+                BOOST_CHECK_EQUAL(itr->second.get<2>(), values3[j]);
+                BOOST_CHECK_EQUAL(itr->second.get<3>(), values4[j]);
             }
         }
     }
 }
 
-CppUnit::Test* COrderingsTest::suite() {
-    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("COrderingsTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<COrderingsTest>(
-        "COrderingsTest::testOptionalOrdering", &COrderingsTest::testOptionalOrdering));
-    suiteOfTests->addTest(new CppUnit::TestCaller<COrderingsTest>(
-        "COrderingsTest::testPtrOrdering", &COrderingsTest::testPtrOrdering));
-    suiteOfTests->addTest(new CppUnit::TestCaller<COrderingsTest>(
-        "COrderingsTest::testLess", &COrderingsTest::testLess));
-    suiteOfTests->addTest(new CppUnit::TestCaller<COrderingsTest>(
-        "COrderingsTest::testFirstLess", &COrderingsTest::testFirstLess));
-    suiteOfTests->addTest(new CppUnit::TestCaller<COrderingsTest>(
-        "COrderingsTest::testFirstGreater", &COrderingsTest::testFirstGreater));
-    suiteOfTests->addTest(new CppUnit::TestCaller<COrderingsTest>(
-        "COrderingsTest::testSecondLess", &COrderingsTest::testSecondLess));
-    suiteOfTests->addTest(new CppUnit::TestCaller<COrderingsTest>(
-        "COrderingsTest::testSecondGreater", &COrderingsTest::testSecondGreater));
-    suiteOfTests->addTest(new CppUnit::TestCaller<COrderingsTest>(
-        "COrderingsTest::testDereference", &COrderingsTest::testDereference));
-    suiteOfTests->addTest(new CppUnit::TestCaller<COrderingsTest>(
-        "COrderingsTest::testLexicographicalCompare", &COrderingsTest::testLexicographicalCompare));
-    suiteOfTests->addTest(new CppUnit::TestCaller<COrderingsTest>(
-        "COrderingsTest::testSimultaneousSort", &COrderingsTest::testSimultaneousSort));
-
-    return suiteOfTests;
-}
+BOOST_AUTO_TEST_SUITE_END()

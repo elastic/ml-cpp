@@ -3,30 +3,20 @@
  * or more contributor license agreements. Licensed under the Elastic License;
  * you may not use this file except in compliance with the Elastic License.
  */
-#include "CStateRestoreStreamFilterTest.h"
 
 #include <api/CStateRestoreStreamFilter.h>
 
+#include <boost/test/unit_test.hpp>
 #include <boost/iostreams/filtering_stream.hpp>
 
 #include <algorithm>
 #include <sstream>
 #include <string>
 
-CppUnit::Test* CStateRestoreStreamFilterTest::suite() {
-    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CRestoreStreamFilterTest");
+BOOST_AUTO_TEST_SUITE(CStateRestoreStreamFilterTest)
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CStateRestoreStreamFilterTest>(
-        "CRestoreStreamFilterTest::testBulkIndexHeaderRemoval",
-        &CStateRestoreStreamFilterTest::testBulkIndexHeaderRemoval));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CStateRestoreStreamFilterTest>(
-        "CRestoreStreamFilterTest::testBulkIndexHeaderRemovalZerobyte",
-        &CStateRestoreStreamFilterTest::testBulkIndexHeaderRemovalZerobyte));
 
-    return suiteOfTests;
-}
-
-void CStateRestoreStreamFilterTest::testBulkIndexHeaderRemoval() {
+BOOST_AUTO_TEST_CASE(testBulkIndexHeaderRemoval) {
     std::istringstream input("{\"index\":{\"_id\":\"some_id\"}}\n"
                              "{\"compressed\" : [ \"a\",\"b\"]}");
 
@@ -45,10 +35,10 @@ void CStateRestoreStreamFilterTest::testBulkIndexHeaderRemoval() {
     std::replace(output.begin(), output.end(), '\0', ',');
     std::replace(expected.begin(), expected.end(), '\0', ',');
 
-    CPPUNIT_ASSERT_EQUAL(expected, output);
+    BOOST_CHECK_EQUAL(expected, output);
 }
 
-void CStateRestoreStreamFilterTest::testBulkIndexHeaderRemovalZerobyte() {
+BOOST_AUTO_TEST_CASE(testBulkIndexHeaderRemovalZerobyte) {
     std::stringstream input;
 
     input << "{\"index\":{\"_id\":\"some_id\"}}\n";
@@ -76,5 +66,7 @@ void CStateRestoreStreamFilterTest::testBulkIndexHeaderRemovalZerobyte() {
     std::replace(output.begin(), output.end(), '\0', ',');
     std::replace(expected.begin(), expected.end(), '\0', ',');
 
-    CPPUNIT_ASSERT_EQUAL(expected, output);
+    BOOST_CHECK_EQUAL(expected, output);
 }
+
+BOOST_AUTO_TEST_SUITE_END()
