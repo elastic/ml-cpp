@@ -172,7 +172,7 @@ public:
     void addToDocument(rapidjson::Value& parentObject, TRapidJsonWriter& writer) const override;
     //! Total number of tree nodes.
     std::size_t size() const;
-    CTrainedModel::TStringVec adjustFeatureNames() override;
+    TStringVec adjustFeatureNames() override;
     TTreeNodeVec& treeStructure();
 
 private:
