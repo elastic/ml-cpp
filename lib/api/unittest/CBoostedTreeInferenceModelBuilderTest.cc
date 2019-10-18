@@ -199,10 +199,6 @@ void CBoostedTreeInferenceModelBuilderTest::testIntegrationRegression() {
     CPPUNIT_ASSERT_EQUAL(api::CTrainedModel::E_Regression, trainedModel->targetType());
     CPPUNIT_ASSERT_EQUAL(std::size_t(22), trainedModel->size());
     CPPUNIT_ASSERT("weighted_sum" == trainedModel->aggregateOutput()->stringType());
-    CPPUNIT_ASSERT(trainedModel->featureNames() ==
-                   std::vector<std::string>({"numeric_col", "categorical_col_cat1", "categorical_col_cat2",
-                                             "categorical_col_cat3", "categorical_col_frequency",
-                                             "categorical_col_targetmean"}));
 }
 
 void CBoostedTreeInferenceModelBuilderTest::testIntegrationClassification() {
