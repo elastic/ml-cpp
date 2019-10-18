@@ -32,6 +32,7 @@ class CBoostTestJUnitOutput {
 public:
     CBoostTestJUnitOutput() = delete;
     CBoostTestJUnitOutput(const CBoostTestJUnitOutput&) = delete;
+    CBoostTestJUnitOutput& operator=(const CBoostTestJUnitOutput&) = delete;
 
     static bool init();
 
