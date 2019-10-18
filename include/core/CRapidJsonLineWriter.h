@@ -9,8 +9,6 @@
 
 #include <core/CRapidJsonWriterBase.h>
 
-#include <core/ImportExport.h>
-
 namespace ml {
 namespace core {
 
