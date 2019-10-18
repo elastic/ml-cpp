@@ -240,7 +240,7 @@ CTrainedModel::TStringVec CTree::removeUnusedFeatures() {
         selectedFeatureNames[i->second] = std::move(featureNames[i->first]);
     }
     this->featureNames(std::move(selectedFeatureNames));
-    return selectedFeatureNames;
+    return this->featureNames();
 }
 
 std::string CInferenceModelDefinition::jsonString() {
