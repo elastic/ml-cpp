@@ -183,19 +183,19 @@ CTrainedModel::ETargetType CEnsemble::targetType() const {
     return this->CTrainedModel::targetType();
 }
 
-CTrainedModel::TStringVec CEnsemble::adjustFeatureNames() {
-    TStringVec adjustedFeatureNames;
-    adjustedFeatureNames.reserve(this->featureNames().size());
+CTrainedModel::TStringVec CEnsemble::removeUnusedFeatures() {
+    TStringVec selectedFeatureNames;
+    selectedFeatureNames.reserve(this->featureNames().size());
     std::unordered_set<std::string> set;
     for (auto& trainedModel : this->trainedModels()) {
-        TStringVec vec(std::move(trainedModel->adjustFeatureNames()));
+        TStringVec vec(std::move(trainedModel->removeUnusedFeatures()));
         set.insert(vec.begin(), vec.end());
     }
-    std::copy(set.begin(), set.end(), std::back_inserter(adjustedFeatureNames));
-    adjustedFeatureNames.shrink_to_fit();
-    std::sort(adjustedFeatureNames.begin(), adjustedFeatureNames.end());
-    this->CTrainedModel::featureNames(adjustedFeatureNames);
-    return adjustedFeatureNames;
+    std::copy(set.begin(), set.end(), std::back_inserter(selectedFeatureNames));
+    selectedFeatureNames.shrink_to_fit();
+    std::sort(selectedFeatureNames.begin(), selectedFeatureNames.end());
+    this->CTrainedModel::featureNames(selectedFeatureNames);
+    return selectedFeatureNames;
 }
 
 const CTrainedModel::TStringVec& CEnsemble::featureNames() const {
@@ -223,25 +223,24 @@ CTree::TTreeNodeVec& CTree::treeStructure() {
     return m_TreeStructure;
 }
 
-CTrainedModel::TStringVec CTree::adjustFeatureNames() {
-    TStringVec adjustedFeatureNames;
-    adjustedFeatureNames.reserve(this->featureNames().size());
+CTrainedModel::TStringVec CTree::removeUnusedFeatures() {
+    boost::unordered_map<std::size_t, std::size_t> selectedFeatureIndices;
     for (auto& treeNode : m_TreeStructure) {
         if (treeNode.leaf() == false) {
-            std::size_t featureIndex{treeNode.splitFeature()};
-            const std::string& featureName{this->featureNames()[featureIndex]};
-            const auto foundPosition{std::find(adjustedFeatureNames.begin(),
-                                               adjustedFeatureNames.end(), featureName)};
-            auto adjustedFeatureIndex{std::distance(adjustedFeatureNames.begin(), foundPosition)};
-            treeNode.splitFeature(adjustedFeatureIndex);
-            if (foundPosition == adjustedFeatureNames.end()) {
-                adjustedFeatureNames.push_back(featureName);
-            }
+            std::size_t adjustedIndex{selectedFeatureIndices
+                                          .emplace(treeNode.splitFeature(),
+                                                   selectedFeatureIndices.size())
+                                          .first->second};
+            treeNode.splitFeature(adjustedIndex);
         }
     }
-    adjustedFeatureNames.shrink_to_fit();
-    this->featureNames(adjustedFeatureNames);
-    return adjustedFeatureNames;
+    TStringVec selectedFeatureNames(selectedFeatureIndices.size());
+    auto& featureNames = this->featureNames();
+    for (auto i = selectedFeatureIndices.begin(); i != selectedFeatureIndices.end(); ++i) {
+        selectedFeatureNames[i->second] = std::move(featureNames[i->first]);
+    }
+    this->featureNames(std::move(selectedFeatureNames));
+    return selectedFeatureNames;
 }
 
 std::string CInferenceModelDefinition::jsonString() {
@@ -321,6 +320,14 @@ void CTrainedModel::targetType(ETargetType targetType) {
 
 CTrainedModel::ETargetType CTrainedModel::targetType() const {
     return m_TargetType;
+}
+
+CTrainedModel::TStringVec& CTrainedModel::featureNames() {
+    return m_FeatureNames;
+}
+
+void CTrainedModel::featureNames(CTrainedModel::TStringVec&& featureNames) {
+    m_FeatureNames = featureNames;
 }
 
 void CInferenceModelDefinition::fieldNames(const TStringVec& fieldNames) {

@@ -88,7 +88,7 @@ CInferenceModelDefinition&& CBoostedTreeInferenceModelBuilder::build() {
 
     this->setTargetType();
     ensemble->featureNames(m_FeatureNames);
-    ensemble->adjustFeatureNames();
+    ensemble->removeUnusedFeatures();
 
     return std::move(m_Definition);
 }
