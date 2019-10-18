@@ -177,14 +177,10 @@ void CBoostedTreeInferenceModelBuilderTest::testIntegrationClassification() {
     values[2] = generateCategoricalData(rng, numberExamples, {5.0, 5.0}).second;
 
     api::CDataFrameAnalyzer analyzer{
-        regressionSpec("target_col", "classification", numberExamples, cols,
-                       30000000, 0, 0, {"categorical_col", "target_col"}),
+        test::CDataFrameAnalysisSpecificationFactory::predictionSpec(
+            "classification", "target_col", numberExamples, cols, 30000000, 0,
+            0, {"categorical_col", "target_col"}),
         outputWriterFactory};
-
-    api::CDataFrameAnalyzer analyzer{test::CDataFrameAnalysisSpecificationFactory::predictionSpec(
-                                         "classification", "target_col", numberExamples,
-                                         cols, 30000000, 0, 0, {"categorical_col"}),
-                                     outputWriterFactory};
 
     TDataFrameUPtr frame =
         core::makeMainStorageDataFrame(cols + 2, numberExamples).first;
@@ -197,7 +193,7 @@ void CBoostedTreeInferenceModelBuilderTest::testIntegrationClassification() {
     }
     analyzer.handleRecord(fieldNames, {"", "", "", "", "$"});
     auto analysisRunner = analyzer.runner();
-    TStrVecVec categoryMappingVector{{}, {"cat1", "cat2", "cat3"}, {}};
+    TStrVecVec categoryMappingVector{{}, {"cat1", "cat2", "cat3"}, {"true", "false"}};
     auto definition = analysisRunner->inferenceModelDefinition(fieldNames, categoryMappingVector);
 
     LOG_DEBUG(<< "Inference model definition: " << definition->jsonString());
@@ -233,11 +229,10 @@ void CBoostedTreeInferenceModelBuilderTest::testJsonSchema() {
         values[2].push_back(values[0][i] * weights[0] + values[1][i] * weights[1]);
     }
 
-    api::CDataFrameAnalyzer analyzer{
-        test::CDataFrameAnalysisSpecificationFactory::predictionSpec(
-            "regression", "target_col", "regression", numberExamples, cols,
-            30000000, 0, 0, {"categorical_col"}),
-        outputWriterFactory};
+    api::CDataFrameAnalyzer analyzer{test::CDataFrameAnalysisSpecificationFactory::predictionSpec(
+                                         "regression", "target_col", numberExamples,
+                                         cols, 30000000, 0, 0, {"categorical_col"}),
+                                     outputWriterFactory};
 
     TDataFrameUPtr frame =
         core::makeMainStorageDataFrame(cols + 2, numberExamples).first;
