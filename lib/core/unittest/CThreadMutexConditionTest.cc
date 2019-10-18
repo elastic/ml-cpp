@@ -14,7 +14,6 @@
 
 BOOST_AUTO_TEST_SUITE(CThreadMutexConditionTest)
 
-
 BOOST_AUTO_TEST_CASE(testThread) {
     class CThread : public ml::core::CThread {
     public:

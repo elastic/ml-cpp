@@ -100,14 +100,13 @@ BOOST_AUTO_TEST_CASE(testPersist) {
         core::CRapidXmlStateRestoreTraverser traverser(parser);
         maths::CDecayRateController restoredController;
         BOOST_CHECK_EQUAL(true, traverser.traverseSubLevel(std::bind(
-                                       &maths::CDecayRateController::acceptRestoreTraverser,
-                                       &restoredController, std::placeholders::_1)));
+                                    &maths::CDecayRateController::acceptRestoreTraverser,
+                                    &restoredController, std::placeholders::_1)));
 
         LOG_DEBUG(<< "orig checksum = " << origController.checksum()
                   << ", new checksum = " << restoredController.checksum());
         BOOST_CHECK_EQUAL(origController.checksum(), restoredController.checksum());
     }
 }
-
 
 BOOST_AUTO_TEST_SUITE_END()

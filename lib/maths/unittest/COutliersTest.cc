@@ -13,13 +13,13 @@
 #include <maths/COutliers.h>
 #include <maths/CSetTools.h>
 
+#include <test/BoostTestCloseAbsolute.h>
 #include <test/CDataFrameTestUtils.h>
 #include <test/CRandomNumbers.h>
 #include <test/CTestTmpDir.h>
-#include <test/BoostTestCloseAbsolute.h>
 
-#include <boost/test/unit_test.hpp>
 #include <boost/filesystem.hpp>
+#include <boost/test/unit_test.hpp>
 
 #include <atomic>
 #include <numeric>
@@ -582,7 +582,7 @@ BOOST_AUTO_TEST_CASE(testEstimateMemoryUsedByCompute) {
         LOG_DEBUG(<< "estimated peak memory = " << estimatedMemoryUsage);
         LOG_DEBUG(<< "high water mark = " << maxMemoryUsage);
         BOOST_TEST(std::abs(maxMemoryUsage - estimatedMemoryUsage) <
-                       std::max(maxMemoryUsage.load(), estimatedMemoryUsage) / 10);
+                   std::max(maxMemoryUsage.load(), estimatedMemoryUsage) / 10);
     }
 }
 
@@ -760,6 +760,5 @@ BOOST_AUTO_TEST_CASE(testFewPoints) {
         BOOST_TEST(passed);
     }
 }
-
 
 BOOST_AUTO_TEST_SUITE_END()

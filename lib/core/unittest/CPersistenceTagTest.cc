@@ -14,7 +14,6 @@
 
 BOOST_AUTO_TEST_SUITE(CPersistenceTagTest)
 
-
 namespace {
 constexpr bool useShortTag{false};
 constexpr bool useLongTag{true};

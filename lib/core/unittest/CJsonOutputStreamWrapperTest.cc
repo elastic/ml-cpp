@@ -22,7 +22,6 @@
 
 BOOST_AUTO_TEST_SUITE(CJsonOutputStreamWrapperTest)
 
-
 namespace {
 
 void task(ml::core::CJsonOutputStreamWrapper& wrapper, int id, int documents) {
@@ -65,7 +64,7 @@ BOOST_AUTO_TEST_CASE(testConcurrentWrites) {
 
     // check number of documents
     BOOST_CHECK_EQUAL(rapidjson::SizeType(WRITERS * DOCUMENTS_PER_WRITER),
-                         allRecords.Size());
+                      allRecords.Size());
 }
 
 BOOST_AUTO_TEST_CASE(testShrink) {

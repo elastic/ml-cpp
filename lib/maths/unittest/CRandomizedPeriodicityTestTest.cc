@@ -18,9 +18,9 @@
 
 #include "TestUtils.h"
 
-#include <boost/test/unit_test.hpp>
 #include <boost/optional.hpp>
 #include <boost/range.hpp>
+#include <boost/test/unit_test.hpp>
 
 #include <string>
 #include <vector>
@@ -115,10 +115,9 @@ BOOST_AUTO_TEST_CASE(testAccuracy) {
         for (std::size_t i = 0u; i < boost::size(timeToDetectionMoments); ++i) {
             LOG_DEBUG(<< "time to detect moments = " << timeToDetectionMoments[i]);
             LOG_DEBUG(<< "maximum time to detect = " << timeToDetectionMax[i][0]);
-            BOOST_TEST(maths::CBasicStatistics::mean(timeToDetectionMoments[i]) <
-                           1.5 * DAY);
+            BOOST_TEST(maths::CBasicStatistics::mean(timeToDetectionMoments[i]) < 1.5 * DAY);
             BOOST_TEST(std::sqrt(maths::CBasicStatistics::variance(
-                               timeToDetectionMoments[i])) < 5 * DAY);
+                           timeToDetectionMoments[i])) < 5 * DAY);
             BOOST_TEST(timeToDetectionMax[i][0] <= 27 * WEEK);
         }
     }
@@ -192,6 +191,5 @@ BOOST_AUTO_TEST_CASE(testPersist) {
     uint64_t newNextRandom = test2.ms_Rng();
     BOOST_CHECK_EQUAL(origNextRandom, newNextRandom);
 }
-
 
 BOOST_AUTO_TEST_SUITE_END()

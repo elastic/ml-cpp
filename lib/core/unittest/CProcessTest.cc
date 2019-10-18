@@ -11,7 +11,6 @@
 
 BOOST_AUTO_TEST_SUITE(CProcessTest)
 
-
 BOOST_AUTO_TEST_CASE(testPids) {
     ml::core::CProcess& process = ml::core::CProcess::instance();
     ml::core::CProcess::TPid pid = process.id();

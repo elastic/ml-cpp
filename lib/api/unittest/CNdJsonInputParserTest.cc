@@ -19,7 +19,6 @@
 
 BOOST_AUTO_TEST_SUITE(CNdJsonInputParserTest)
 
-
 namespace {
 
 class CSetupVisitor {

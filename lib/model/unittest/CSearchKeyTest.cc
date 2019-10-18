@@ -46,5 +46,4 @@ BOOST_AUTO_TEST_CASE(testSimpleCountComesFirst) {
     }
 }
 
-
 BOOST_AUTO_TEST_SUITE_END()

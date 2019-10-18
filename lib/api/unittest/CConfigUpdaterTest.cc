@@ -10,8 +10,8 @@
 #include <api/CConfigUpdater.h>
 #include <api/CFieldConfig.h>
 
-#include <boost/test/unit_test.hpp>
 #include <boost/property_tree/ptree.hpp>
+#include <boost/test/unit_test.hpp>
 
 #include <sstream>
 #include <string>
@@ -20,7 +20,6 @@ BOOST_AUTO_TEST_SUITE(CConfigUpdaterTest)
 
 using namespace ml;
 using namespace api;
-
 
 BOOST_AUTO_TEST_CASE(testUpdateGivenUpdateCannotBeParsed) {
     CFieldConfig fieldConfig;
@@ -91,7 +90,7 @@ BOOST_AUTO_TEST_CASE(testUpdateGivenDetectorRules) {
     itr = fieldConfig.detectionRules().find(1);
     BOOST_CHECK_EQUAL(std::size_t(1), itr->second.size());
     BOOST_CHECK_EQUAL(std::string("SKIP_RESULT IF TYPICAL < 15.000000"),
-                         itr->second[0].print());
+                      itr->second[0].print());
 }
 
 BOOST_AUTO_TEST_CASE(testUpdateGivenRulesWithInvalidDetectorIndex) {
@@ -189,10 +188,10 @@ BOOST_AUTO_TEST_CASE(testUpdateGivenScheduledEvents) {
         BOOST_CHECK_EQUAL(std::size_t(2), events.size());
         BOOST_CHECK_EQUAL(std::string("old_event_1"), events[0].first);
         BOOST_CHECK_EQUAL(std::string("SKIP_RESULT AND SKIP_MODEL_UPDATE IF TIME >= 1.000000 AND TIME < 2.000000"),
-                             events[0].second.print());
+                          events[0].second.print());
         BOOST_CHECK_EQUAL(std::string("old_event_2"), events[1].first);
         BOOST_CHECK_EQUAL(std::string("SKIP_RESULT AND SKIP_MODEL_UPDATE IF TIME >= 3.000000 AND TIME < 4.000000"),
-                             events[1].second.print());
+                          events[1].second.print());
     }
 
     model::CAnomalyDetectorModelConfig modelConfig =
@@ -217,10 +216,10 @@ BOOST_AUTO_TEST_CASE(testUpdateGivenScheduledEvents) {
         BOOST_CHECK_EQUAL(std::size_t(2), events.size());
         BOOST_CHECK_EQUAL(std::string("new_event_1"), events[0].first);
         BOOST_CHECK_EQUAL(std::string("SKIP_RESULT AND SKIP_MODEL_UPDATE IF TIME >= 3.000000 AND TIME < 4.000000"),
-                             events[0].second.print());
+                          events[0].second.print());
         BOOST_CHECK_EQUAL(std::string("new_event_2"), events[1].first);
         BOOST_CHECK_EQUAL(std::string("SKIP_RESULT AND SKIP_MODEL_UPDATE IF TIME >= 1.000000 AND TIME < 2.000000"),
-                             events[1].second.print());
+                          events[1].second.print());
     }
 
     // Now test an update that clears the events

@@ -45,7 +45,6 @@ void reportPersistComplete(ml::api::CModelSnapshotJsonWriter::SModelSnapshotRepo
 }
 }
 
-
 BOOST_AUTO_TEST_CASE(testDetectorPersistBy) {
     this->foregroundBackgroundCompCategorizationAndAnomalyDetection("testfiles/new_mlfields.conf");
 }
@@ -242,11 +241,11 @@ void CPersistenceManagerTest::foregroundBackgroundCompCategorizationAndAnomalyDe
     // The snapshot ID can be different between the two persists, so replace the
     // first occurrence of it (which is in the bulk metadata)
     BOOST_CHECK_EQUAL(size_t(1), ml::core::CStringUtils::replaceFirst(
-                                        backgroundSnapshotId, "snap", backgroundState));
+                                     backgroundSnapshotId, "snap", backgroundState));
     BOOST_CHECK_EQUAL(size_t(1), ml::core::CStringUtils::replaceFirst(
-                                        foregroundSnapshotId, "snap", foregroundState));
+                                     foregroundSnapshotId, "snap", foregroundState));
     BOOST_CHECK_EQUAL(size_t(1), ml::core::CStringUtils::replaceFirst(
-                                        foregroundSnapshotId2, "snap", foregroundState2));
+                                     foregroundSnapshotId2, "snap", foregroundState2));
 
     // Replace the zero byte separators so the expected/actual strings don't get
     // truncated by CppUnit if the test fails
@@ -349,9 +348,9 @@ void CPersistenceManagerTest::foregroundBackgroundCompAnomalyDetectionAfterStati
     // The snapshot ID can be different between the two persists, so replace the
     // first occurrence of it (which is in the bulk metadata)
     BOOST_CHECK_EQUAL(size_t(1), ml::core::CStringUtils::replaceFirst(
-                                        backgroundSnapshotId, "snap", backgroundState));
+                                     backgroundSnapshotId, "snap", backgroundState));
     BOOST_CHECK_EQUAL(size_t(1), ml::core::CStringUtils::replaceFirst(
-                                        foregroundSnapshotId, "snap", foregroundState));
+                                     foregroundSnapshotId, "snap", foregroundState));
 
     // Replace the zero byte separators so the expected/actual strings don't get
     // truncated by CppUnit if the test fails

@@ -10,8 +10,8 @@
 
 #include "../CCommandProcessor.h"
 
-#include <boost/test/unit_test.hpp>
 #include <boost/range.hpp>
+#include <boost/test/unit_test.hpp>
 
 #include <fstream>
 #include <sstream>
@@ -43,7 +43,6 @@ const std::string PROCESS_ARGS2[] = {"-c", "rm " + INPUT_FILE2};
 const std::string SLOGAN1("Elastic is great!");
 const std::string SLOGAN2("You know, for search!");
 }
-
 
 BOOST_AUTO_TEST_CASE(testStartPermitted) {
     // Remove any output file left behind by a previous failed test, but don't

@@ -127,7 +127,6 @@ private:
 };
 }
 
-
 BOOST_AUTO_TEST_CASE(testServerIsCppReader) {
     CThreadDataWriter threadWriter(TEST_PIPE_NAME, TEST_SIZE);
     BOOST_TEST(threadWriter.start());

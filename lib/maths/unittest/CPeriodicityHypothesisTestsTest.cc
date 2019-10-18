@@ -16,8 +16,8 @@
 
 #include "TestUtils.h"
 
-#include <boost/test/unit_test.hpp>
 #include <boost/math/constants/constants.hpp>
+#include <boost/test/unit_test.hpp>
 
 #include <cmath>
 #include <vector>
@@ -249,7 +249,7 @@ BOOST_AUTO_TEST_CASE(testDiurnal) {
                 maths::CPeriodicityHypothesisTestsResult result{hypotheses.test()};
                 LOG_DEBUG(<< "result = " << result.print());
                 BOOST_TEST((result.print() == "{ 'weekend daily' 'weekday daily' 'weekend weekly' }" ||
-                               result.print() == "{ 'weekend daily' 'weekday daily' 'weekend weekly' 'weekday weekly' }"));
+                            result.print() == "{ 'weekend daily' 'weekday daily' 'weekend weekly' 'weekday weekly' }"));
                 hypotheses = maths::CPeriodicityHypothesisTests();
                 hypotheses.initialize(0 /*startTime*/, HOUR, window, DAY);
                 lastTest += window;
@@ -323,7 +323,7 @@ BOOST_AUTO_TEST_CASE(testDiurnal) {
                 maths::CPeriodicityHypothesisTestsResult result{hypotheses.test()};
                 LOG_DEBUG(<< "result = " << result.print());
                 BOOST_TEST(result.print() == "{ 'weekend daily' 'weekday daily' 'weekend weekly' }" ||
-                               result.print() == "{ 'weekend daily' 'weekday daily' 'weekend weekly' 'weekday weekly' }");
+                           result.print() == "{ 'weekend daily' 'weekday daily' 'weekend weekly' 'weekday weekly' }");
                 hypotheses = maths::CPeriodicityHypothesisTests();
                 hypotheses.initialize(0 /*startTime*/, HOUR, window, DAY);
                 lastTest += window;
@@ -662,7 +662,7 @@ BOOST_AUTO_TEST_CASE(testWithOutliers) {
                 maths::testForPeriods(config, startTime, bucketLength, values)};
             LOG_DEBUG(<< "result = " << result.print());
             BOOST_TEST(result.print() ==
-                           std::string("{ 'weekend daily' 'weekday daily' 'weekend weekly' }"));
+                       std::string("{ 'weekend daily' 'weekday daily' 'weekend weekly' }"));
         }
     }
 }
@@ -856,7 +856,7 @@ BOOST_AUTO_TEST_CASE(testWithLinearScaling) {
             maths::testForPeriods(config, startTime, bucketLength, values)};
         LOG_DEBUG(<< "result = " << result.print());
         BOOST_CHECK_EQUAL(std::string("{ 'weekend daily' 'weekday daily' }"),
-                             result.print());
+                          result.print());
     }
 }
 
@@ -944,6 +944,5 @@ BOOST_AUTO_TEST_CASE(testWithPiecewiseLinearTrend) {
     LOG_DEBUG(<< "Recall = " << TP / (TP + FN));
     BOOST_TEST(TP / (TP + FN) > 0.8);
 }
-
 
 BOOST_AUTO_TEST_SUITE_END()

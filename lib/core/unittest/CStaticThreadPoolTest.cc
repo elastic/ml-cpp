@@ -198,5 +198,4 @@ BOOST_AUTO_TEST_CASE(testWithExceptions) {
     BOOST_CHECK_EQUAL(200u, counter.load());
 }
 
-
 BOOST_AUTO_TEST_SUITE_END()

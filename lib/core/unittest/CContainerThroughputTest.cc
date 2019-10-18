@@ -8,8 +8,8 @@
 #include <core/CLogger.h>
 #include <core/CTimeUtils.h>
 
-#include <boost/test/unit_test.hpp>
 #include <boost/circular_buffer.hpp>
+#include <boost/test/unit_test.hpp>
 
 #include <deque>
 #include <list>
@@ -22,7 +22,8 @@ const std::size_t FILL_SIZE(2);
 const std::size_t TEST_SIZE(10000000);
 
 struct SContent {
-    SContent(std::size_t count) : s_Size(count), s_Ptr(this), s_Double(static_cast<double>(count)) {}
+    SContent(std::size_t count)
+        : s_Size(count), s_Ptr(this), s_Double(static_cast<double>(count)) {}
 
     std::size_t s_Size;
     void* s_Ptr;

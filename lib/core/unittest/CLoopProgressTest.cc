@@ -9,8 +9,8 @@
 #include <core/CLogger.h>
 #include <core/CLoopProgress.h>
 
-#include <test/CRandomNumbers.h>
 #include <test/BoostTestCloseAbsolute.h>
+#include <test/CRandomNumbers.h>
 
 #include <boost/test/unit_test.hpp>
 
@@ -178,6 +178,5 @@ BOOST_AUTO_TEST_CASE(testSerialization) {
         BOOST_CHECK_EQUAL(progress, restoredProgress);
     }
 }
-
 
 BOOST_AUTO_TEST_SUITE_END()

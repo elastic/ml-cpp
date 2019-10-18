@@ -163,10 +163,10 @@ void testEstimateMemoryUsage(int64_t numberRows,
 
     BOOST_TEST(result.HasMember("expected_memory_without_disk"));
     BOOST_CHECK_EQUAL(expected_expected_memory_without_disk,
-                         std::string(result["expected_memory_without_disk"].GetString()));
+                      std::string(result["expected_memory_without_disk"].GetString()));
     BOOST_TEST(result.HasMember("expected_memory_with_disk"));
     BOOST_CHECK_EQUAL(expected_expected_memory_with_disk,
-                         std::string(result["expected_memory_with_disk"].GetString()));
+                      std::string(result["expected_memory_with_disk"].GetString()));
 
     BOOST_CHECK_EQUAL(expected_number_errors, static_cast<int>(errors.size()));
 }
@@ -209,8 +209,7 @@ void testColumnsForWhichEmptyIsMissing(const std::string& analysis,
     BOOST_CHECK_EQUAL(false, bool(emptyAsMissing[0]));
     BOOST_CHECK_EQUAL(false, bool(emptyAsMissing[1]));
     BOOST_CHECK_EQUAL(false, bool(emptyAsMissing[2]));
-    BOOST_CHECK_EQUAL(expected_dependentVariableEmptyAsMissing,
-                         bool(emptyAsMissing[3]));
+    BOOST_CHECK_EQUAL(expected_dependentVariableEmptyAsMissing, bool(emptyAsMissing[3]));
 }
 
 BOOST_AUTO_TEST_CASE(testColumnsForWhichEmptyIsMissingClassification) {
@@ -220,6 +219,5 @@ BOOST_AUTO_TEST_CASE(testColumnsForWhichEmptyIsMissingClassification) {
 BOOST_AUTO_TEST_CASE(testColumnsForWhichEmptyIsMissingRegression) {
     testColumnsForWhichEmptyIsMissing("regression", false);
 }
-
 
 BOOST_AUTO_TEST_SUITE_END()

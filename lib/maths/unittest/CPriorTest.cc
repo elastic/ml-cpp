@@ -15,13 +15,13 @@
 #include <maths/CPriorDetail.h>
 #include <maths/CTools.h>
 
-#include <test/CRandomNumbers.h>
 #include <test/BoostTestCloseAbsolute.h>
+#include <test/CRandomNumbers.h>
 
 #include "TestUtils.h"
 
-#include <boost/test/unit_test.hpp>
 #include <boost/math/distributions/normal.hpp>
+#include <boost/test/unit_test.hpp>
 
 BOOST_AUTO_TEST_SUITE(CPriorTest)
 
@@ -126,6 +126,5 @@ BOOST_AUTO_TEST_CASE(testExpectation) {
         BOOST_CHECK_CLOSE_ABSOLUTE(trueEntropy, entropy, entropyErrors[n - 1]);
     }
 }
-
 
 BOOST_AUTO_TEST_SUITE_END()

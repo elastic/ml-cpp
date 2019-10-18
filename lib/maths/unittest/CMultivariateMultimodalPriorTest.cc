@@ -16,10 +16,10 @@
 #include <maths/CMultivariateNormalConjugateFactory.h>
 #include <maths/CXMeansOnline.h>
 
+#include <test/BoostTestCloseAbsolute.h>
 #include <test/CRandomNumbers.h>
 #include <test/CRandomNumbersDetail.h>
 #include <test/CTimeSeriesTestData.h>
-#include <test/BoostTestCloseAbsolute.h>
 
 #include "TestUtils.h"
 
@@ -260,7 +260,7 @@ BOOST_AUTO_TEST_CASE(testPropagation) {
 
     BOOST_TEST(propagatedNumberSamples < numberSamples);
     BOOST_TEST((TVector2(propagatedMean) - TVector2(mean)).euclidean() <
-                   eps * TVector2(mean).euclidean());
+               eps * TVector2(mean).euclidean());
     Eigen::MatrixXd c(2, 2);
     Eigen::MatrixXd cp(2, 2);
     for (std::size_t i = 0u; i < 2; ++i) {
@@ -807,10 +807,9 @@ BOOST_AUTO_TEST_CASE(testSampleMarginalLikelihood) {
     LOG_DEBUG(<< "expected covariance = " << expectedCovariance);
     LOG_DEBUG(<< "sampled mean = " << sampledMean);
     LOG_DEBUG(<< "sampled covariance = " << sampledCovariance);
-    BOOST_TEST((sampledMean - expectedMean).euclidean() <
-                   1e-3 * expectedMean.euclidean());
+    BOOST_TEST((sampledMean - expectedMean).euclidean() < 1e-3 * expectedMean.euclidean());
     BOOST_TEST((sampledCovariance - expectedCovariance).frobenius() <
-                   5e-3 * expectedCovariance.frobenius());
+               5e-3 * expectedCovariance.frobenius());
 
     TCovariances2 modeSampledCovariances[2]{TCovariances2(2), TCovariances2(2)};
     for (std::size_t i = 0u; i < sampled.size(); ++i) {
@@ -829,10 +828,9 @@ BOOST_AUTO_TEST_CASE(testSampleMarginalLikelihood) {
         LOG_DEBUG(<< "sample covariance = " << covariances[i]);
         LOG_DEBUG(<< "sampled mean = " << modeSampledMean);
         LOG_DEBUG(<< "sampled covariance = " << modeSampledCovariance);
-        BOOST_TEST((modeSampledMean - means[i]).euclidean() <
-                       0.03 * means[i].euclidean());
+        BOOST_TEST((modeSampledMean - means[i]).euclidean() < 0.03 * means[i].euclidean());
         BOOST_TEST((modeSampledCovariance - covariances[i]).frobenius() <
-                       0.2 * covariances[i].frobenius());
+                   0.2 * covariances[i].frobenius());
     }
     BOOST_CHECK_CLOSE_ABSOLUTE(
         static_cast<double>(n[0]) / static_cast<double>(n[1]),
@@ -1052,6 +1050,5 @@ BOOST_AUTO_TEST_CASE(testPersist) {
     }
     BOOST_CHECK_EQUAL(origXml, newXml);
 }
-
 
 BOOST_AUTO_TEST_SUITE_END()

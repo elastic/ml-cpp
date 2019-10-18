@@ -18,7 +18,6 @@
 
 BOOST_AUTO_TEST_SUITE(CCsvOutputWriterTest)
 
-
 BOOST_AUTO_TEST_CASE(testAdd) {
     // In this test, the output is the input plus an extra field - no input
     // fields are changed
@@ -351,20 +350,20 @@ BOOST_AUTO_TEST_CASE(testExcelQuoting) {
     LOG_DEBUG(<< "Output is:\n" << output);
 
     BOOST_CHECK_EQUAL(std::string("no_special,"
-                                     "contains_quote,"
-                                     "contains_quote_quote,"
-                                     "contains_separator,"
-                                     "contains_quote_separator,"
-                                     "contains_newline,"
-                                     "contains_quote_newline\n"
-                                     "a,"
-                                     "\"\"\"\","
-                                     "\"\"\"\"\"\","
-                                     "\",\","
-                                     "\"\"\",\","
-                                     "\"\n\","
-                                     "\"\"\"\n\"\n"),
-                         output);
+                                  "contains_quote,"
+                                  "contains_quote_quote,"
+                                  "contains_separator,"
+                                  "contains_quote_separator,"
+                                  "contains_newline,"
+                                  "contains_quote_newline\n"
+                                  "a,"
+                                  "\"\"\"\","
+                                  "\"\"\"\"\"\","
+                                  "\",\","
+                                  "\"\"\",\","
+                                  "\"\n\","
+                                  "\"\"\"\n\"\n"),
+                      output);
 }
 
 BOOST_AUTO_TEST_CASE(testNonExcelQuoting) {
@@ -399,22 +398,22 @@ BOOST_AUTO_TEST_CASE(testNonExcelQuoting) {
     LOG_DEBUG(<< "Output is:\n" << output);
 
     BOOST_CHECK_EQUAL(std::string("no_special,"
-                                     "contains_quote,"
-                                     "contains_escape,"
-                                     "contains_escape_quote,"
-                                     "contains_separator,"
-                                     "contains_escape_separator,"
-                                     "contains_newline,"
-                                     "contains_escape_newline\n"
-                                     "a,"
-                                     "\"\\\"\","
-                                     "\"\\\\\","
-                                     "\"\\\\\\\"\","
-                                     "\",\","
-                                     "\"\\\\,\","
-                                     "\"\n\","
-                                     "\"\\\\\n\"\n"),
-                         output);
+                                  "contains_quote,"
+                                  "contains_escape,"
+                                  "contains_escape_quote,"
+                                  "contains_separator,"
+                                  "contains_escape_separator,"
+                                  "contains_newline,"
+                                  "contains_escape_newline\n"
+                                  "a,"
+                                  "\"\\\"\","
+                                  "\"\\\\\","
+                                  "\"\\\\\\\"\","
+                                  "\",\","
+                                  "\"\\\\,\","
+                                  "\"\n\","
+                                  "\"\\\\\n\"\n"),
+                      output);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

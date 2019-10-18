@@ -15,8 +15,8 @@
 
 #include "TestUtils.h"
 
-#include <boost/test/unit_test.hpp>
 #include <boost/range.hpp>
+#include <boost/test/unit_test.hpp>
 
 #include <vector>
 
@@ -100,7 +100,7 @@ BOOST_AUTO_TEST_CASE(testCalibration) {
                       << ", maxCalibratedError = " << maxCalibratedError);
             BOOST_TEST((rawError - calibratedError) / rawError > improvements[i]);
             BOOST_TEST((maxRawError - maxCalibratedError) / maxRawError >
-                           maxImprovements[i]);
+                       maxImprovements[i]);
         }
     }
 
@@ -174,10 +174,9 @@ BOOST_AUTO_TEST_CASE(testCalibration) {
                       << ", maxCalibratedError = " << maxCalibratedError);
             BOOST_TEST((rawError - calibratedError) / rawError >= improvements[i]);
             BOOST_TEST((maxRawError - maxCalibratedError) / maxRawError >=
-                           maxImprovements[i]);
+                       maxImprovements[i]);
         }
     }
 }
-
 
 BOOST_AUTO_TEST_SUITE_END()

@@ -17,9 +17,9 @@
 #include <maths/CRestoreParams.h>
 #include <maths/CXMeansOnline.h>
 
+#include <test/BoostTestCloseAbsolute.h>
 #include <test/CRandomNumbers.h>
 #include <test/CRandomNumbersDetail.h>
-#include <test/BoostTestCloseAbsolute.h>
 
 #include "TestUtils.h"
 
@@ -260,7 +260,7 @@ BOOST_AUTO_TEST_CASE(testPropagation) {
 
     BOOST_TEST(propagatedNumberSamples < numberSamples);
     BOOST_TEST((TVector2(propagatedMean) - TVector2(mean)).euclidean() <
-                   eps * TVector2(mean).euclidean());
+               eps * TVector2(mean).euclidean());
     Eigen::MatrixXd c(2, 2);
     Eigen::MatrixXd cp(2, 2);
     for (std::size_t i = 0u; i < 2; ++i) {
@@ -489,8 +489,7 @@ BOOST_AUTO_TEST_CASE(testMarginalLikelihood) {
                     TVector2 meanError = actualMean - expectedMean;
                     TMatrix2 covarianceError = actualCovariance - expectedCovariance;
                     BOOST_TEST(meanError.euclidean() < expectedMean.euclidean());
-                    BOOST_TEST(covarianceError.frobenius() <
-                                   expectedCovariance.frobenius());
+                    BOOST_TEST(covarianceError.frobenius() < expectedCovariance.frobenius());
 
                     meanMeanError.add(meanError.euclidean() / expectedMean.euclidean());
                     meanCovarianceError.add(covarianceError.frobenius() /
@@ -612,8 +611,7 @@ BOOST_AUTO_TEST_CASE(testMarginalLikelihood) {
             TMatrix2 covarianceError = actualCovariance - expectedCovariance;
             BOOST_CHECK_CLOSE_ABSOLUTE(1.0, z, 0.7);
             BOOST_TEST(meanError.euclidean() < 0.3 * expectedMean.euclidean());
-            BOOST_TEST(covarianceError.frobenius() <
-                           0.25 * expectedCovariance.frobenius());
+            BOOST_TEST(covarianceError.frobenius() < 0.25 * expectedCovariance.frobenius());
 
             meanZ.add(z);
             meanMeanError.add(meanError.euclidean() / expectedMean.euclidean());
@@ -754,7 +752,7 @@ BOOST_AUTO_TEST_CASE(testMarginalLikelihoodMode) {
 
                 for (std::size_t k = 0u; k < 2; ++k) {
                     BOOST_CHECK_CLOSE_ABSOLUTE(expectedMode(k), mode[k],
-                                                 0.01 * expectedMode(k));
+                                               0.01 * expectedMode(k));
                 }
             }
         }
@@ -859,7 +857,7 @@ BOOST_AUTO_TEST_CASE(testSampleMarginalLikelihood) {
                       << core::CContainerPrinter::print(expectedSampled));
             LOG_DEBUG(<< "samples          = " << core::CContainerPrinter::print(sampled));
             BOOST_CHECK_EQUAL(core::CContainerPrinter::print(expectedSampled),
-                                 core::CContainerPrinter::print(sampled));
+                              core::CContainerPrinter::print(sampled));
         }
     }
 }
@@ -923,7 +921,7 @@ BOOST_AUTO_TEST_CASE(testProbabilityOfLessLikelySamples) {
                   << ", expectedProbability = " << expectedProbability
                   << ", probability = " << probability);
         BOOST_CHECK_CLOSE_ABSOLUTE(expectedProbability, probability,
-                                     0.3 * std::max(expectedProbability, probability));
+                                   0.3 * std::max(expectedProbability, probability));
         error.add(std::fabs(probability - expectedProbability));
     }
 
@@ -986,6 +984,5 @@ BOOST_AUTO_TEST_CASE(testPersist) {
     }
     BOOST_CHECK_EQUAL(origXml, newXml);
 }
-
 
 BOOST_AUTO_TEST_SUITE_END()

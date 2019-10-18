@@ -13,12 +13,12 @@
 #include <string>
 
 using TStringSizeShortTriple = ml::core::CTriple<std::string, std::size_t, short>;
-using TStringSizeShortTripleSizeMap = boost::unordered_map<TStringSizeShortTriple, std::size_t>;
+using TStringSizeShortTripleSizeMap =
+    boost::unordered_map<TStringSizeShortTriple, std::size_t>;
 
 BOOST_TEST_DONT_PRINT_LOG_VALUE(TStringSizeShortTripleSizeMap::iterator);
 
 BOOST_AUTO_TEST_SUITE(CTripleTest)
-
 
 BOOST_AUTO_TEST_CASE(testOperators) {
     {
@@ -70,7 +70,7 @@ BOOST_AUTO_TEST_CASE(testBoostHashReady) {
         std::size_t(2),
         map[ml::core::make_triple(std::string("bar"), std::size_t(20), short(4))]);
     BOOST_TEST(map.find(ml::core::make_triple(std::string("bar"), std::size_t(20),
-                                                  short(8))) == map.end());
+                                              short(8))) == map.end());
 }
 
 BOOST_AUTO_TEST_SUITE_END()

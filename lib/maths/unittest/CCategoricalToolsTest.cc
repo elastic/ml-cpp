@@ -9,12 +9,12 @@
 #include <maths/CBasicStatistics.h>
 #include <maths/CCategoricalTools.h>
 
-#include <test/CRandomNumbers.h>
 #include <test/BoostTestCloseAbsolute.h>
+#include <test/CRandomNumbers.h>
 
-#include <boost/test/unit_test.hpp>
 #include <boost/math/distributions/binomial.hpp>
 #include <boost/range.hpp>
+#include <boost/test/unit_test.hpp>
 
 #include <vector>
 
@@ -389,9 +389,9 @@ BOOST_AUTO_TEST_CASE(testLogBinomialProbability) {
                 double pdf = boost::math::pdf(binomial, m);
                 double logpdf;
                 BOOST_CHECK_EQUAL(maths_t::E_FpNoErrors,
-                                     maths::CCategoricalTools::logBinomialProbability(
-                                         static_cast<std::size_t>(n[i]), p[j],
-                                         static_cast<std::size_t>(m), logpdf));
+                                  maths::CCategoricalTools::logBinomialProbability(
+                                      static_cast<std::size_t>(n[i]), p[j],
+                                      static_cast<std::size_t>(m), logpdf));
                 LOG_DEBUG(<< "f(" << m << "), expected = " << pdf
                           << ", actual = " << std::exp(logpdf));
                 BOOST_CHECK_CLOSE_ABSOLUTE(pdf, std::exp(logpdf), 1e-6 * pdf);
@@ -402,9 +402,9 @@ BOOST_AUTO_TEST_CASE(testLogBinomialProbability) {
                 double pdf = boost::math::pdf(binomial, m);
                 double logpdf;
                 BOOST_CHECK_EQUAL(maths_t::E_FpNoErrors,
-                                     maths::CCategoricalTools::logBinomialProbability(
-                                         static_cast<std::size_t>(n[i]), p[j],
-                                         static_cast<std::size_t>(m), logpdf));
+                                  maths::CCategoricalTools::logBinomialProbability(
+                                      static_cast<std::size_t>(n[i]), p[j],
+                                      static_cast<std::size_t>(m), logpdf));
                 LOG_DEBUG(<< "f(" << m << "), expected = " << pdf
                           << ", actual = " << std::exp(logpdf));
                 BOOST_CHECK_CLOSE_ABSOLUTE(pdf, std::exp(logpdf), 1e-6 * pdf);
@@ -442,8 +442,8 @@ BOOST_AUTO_TEST_CASE(testLogMultinomialProbability) {
                     ni.push_back(static_cast<std::size_t>(m));
                     ni.push_back(static_cast<std::size_t>(n[i] - m));
                     BOOST_CHECK_EQUAL(maths_t::E_FpNoErrors,
-                                         maths::CCategoricalTools::logMultinomialProbability(
-                                             pi, ni, logpdf));
+                                      maths::CCategoricalTools::logMultinomialProbability(
+                                          pi, ni, logpdf));
                     LOG_DEBUG(<< "f(" << m << "), expected = " << pdf
                               << ", actual = " << std::exp(logpdf));
                     BOOST_CHECK_CLOSE_ABSOLUTE(pdf, std::exp(logpdf), 1e-6 * pdf);
@@ -460,8 +460,8 @@ BOOST_AUTO_TEST_CASE(testLogMultinomialProbability) {
                     ni.push_back(static_cast<std::size_t>(m));
                     ni.push_back(static_cast<std::size_t>(n[i] - m));
                     BOOST_CHECK_EQUAL(maths_t::E_FpNoErrors,
-                                         maths::CCategoricalTools::logMultinomialProbability(
-                                             pi, ni, logpdf));
+                                      maths::CCategoricalTools::logMultinomialProbability(
+                                          pi, ni, logpdf));
                     LOG_DEBUG(<< "f(" << m << "), expected = " << pdf
                               << ", actual = " << std::exp(logpdf));
                     BOOST_CHECK_CLOSE_ABSOLUTE(pdf, std::exp(logpdf), 1e-6 * pdf);
@@ -487,9 +487,8 @@ BOOST_AUTO_TEST_CASE(testLogMultinomialProbability) {
                 ni.push_back(m);
                 ni.push_back(i);
                 ni.push_back(n - m - i);
-                BOOST_CHECK_EQUAL(
-                    maths_t::E_FpNoErrors,
-                    maths::CCategoricalTools::logMultinomialProbability(pi, ni, logpdf));
+                BOOST_CHECK_EQUAL(maths_t::E_FpNoErrors, maths::CCategoricalTools::logMultinomialProbability(
+                                                             pi, ni, logpdf));
                 marginal += std::exp(logpdf);
             }
 
@@ -500,6 +499,5 @@ BOOST_AUTO_TEST_CASE(testLogMultinomialProbability) {
         }
     }
 }
-
 
 BOOST_AUTO_TEST_SUITE_END()

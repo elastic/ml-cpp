@@ -248,5 +248,4 @@ BOOST_AUTO_TEST_CASE(testPersist) {
     }
 }
 
-
 BOOST_AUTO_TEST_SUITE_END()

@@ -13,11 +13,9 @@ BOOST_AUTO_TEST_SUITE(CTokenListReverseSearchCreatorTest)
 using namespace ml;
 using namespace api;
 
-
 BOOST_AUTO_TEST_CASE(testCostOfToken) {
     CTokenListReverseSearchCreator reverseSearchCreator("foo");
-    BOOST_CHECK_EQUAL(std::size_t(110),
-                         reverseSearchCreator.costOfToken("someToken", 5));
+    BOOST_CHECK_EQUAL(std::size_t(110), reverseSearchCreator.costOfToken("someToken", 5));
 }
 
 BOOST_AUTO_TEST_CASE(testCreateNullSearch) {
@@ -87,8 +85,7 @@ BOOST_AUTO_TEST_CASE(testAddInOrderCommonToken) {
                                                reverseSearchPart2);
 
     BOOST_CHECK_EQUAL(std::string("user logged b=0.15+a logged"), reverseSearchPart1);
-    BOOST_CHECK_EQUAL(std::string(".*?user.+?logged.+?b=0\\.15\\+a.+?logged"),
-                         reverseSearchPart2);
+    BOOST_CHECK_EQUAL(std::string(".*?user.+?logged.+?b=0\\.15\\+a.+?logged"), reverseSearchPart2);
 }
 
 BOOST_AUTO_TEST_CASE(testCloseStandardSearch) {

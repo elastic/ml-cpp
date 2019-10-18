@@ -81,5 +81,4 @@ BOOST_AUTO_TEST_CASE(testRound) {
     }
 }
 
-
 BOOST_AUTO_TEST_SUITE_END()

@@ -11,11 +11,11 @@
 #include <maths/CLinearAlgebraTools.h>
 #include <maths/COrthogonaliser.h>
 
-#include <test/CRandomNumbers.h>
 #include <test/BoostTestCloseAbsolute.h>
+#include <test/CRandomNumbers.h>
 
-#include <boost/test/unit_test.hpp>
 #include <boost/range.hpp>
+#include <boost/test/unit_test.hpp>
 
 #include <vector>
 
@@ -316,6 +316,5 @@ BOOST_AUTO_TEST_CASE(testEdgeCases) {
         } while (std::next_permutation(p, p + boost::size(p)));
     }
 }
-
 
 BOOST_AUTO_TEST_SUITE_END()

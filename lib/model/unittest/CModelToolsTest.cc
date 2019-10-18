@@ -16,13 +16,13 @@
 
 #include <model/CModelTools.h>
 
+#include <test/BoostTestCloseAbsolute.h>
 #include <test/CRandomNumbers.h>
 #include <test/CRandomNumbersDetail.h>
-#include <test/BoostTestCloseAbsolute.h>
 
-#include <boost/test/unit_test.hpp>
 #include <boost/math/distributions/lognormal.hpp>
 #include <boost/math/distributions/normal.hpp>
+#include <boost/test/unit_test.hpp>
 
 BOOST_AUTO_TEST_SUITE(CModelToolsTest)
 
@@ -112,7 +112,7 @@ BOOST_AUTO_TEST_CASE(testFuzzyDeduplicate) {
             }
         }
         BOOST_CHECK_EQUAL(std::string("[1, 4, 1, 3, 1.2, 25]"),
-                             core::CContainerPrinter::print(uniques));
+                          core::CContainerPrinter::print(uniques));
     }
 
     TDoubleVec values;
@@ -237,9 +237,8 @@ BOOST_AUTO_TEST_CASE(testProbabilityCache) {
                 ++hits;
                 error.add(std::fabs(result.s_Probability - expectedResult.s_Probability) /
                           expectedResult.s_Probability);
-                BOOST_CHECK_CLOSE_ABSOLUTE(expectedResult.s_Probability,
-                                             result.s_Probability,
-                                             0.05 * expectedResult.s_Probability);
+                BOOST_CHECK_CLOSE_ABSOLUTE(expectedResult.s_Probability, result.s_Probability,
+                                           0.05 * expectedResult.s_Probability);
                 BOOST_CHECK_EQUAL(expectedResult.s_Tail[0], result.s_Tail[0]);
                 BOOST_CHECK_EQUAL(false, result.s_Conditional);
                 BOOST_TEST(result.s_MostAnomalousCorrelate.empty());
@@ -281,6 +280,5 @@ BOOST_AUTO_TEST_CASE(testProbabilityCache) {
         }
     }
 }
-
 
 BOOST_AUTO_TEST_SUITE_END()

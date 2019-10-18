@@ -18,8 +18,8 @@
 #include <api/CHierarchicalResultsWriter.h>
 #include <api/CJsonOutputWriter.h>
 
-#include <test/CRandomNumbers.h>
 #include <test/BoostTestCloseAbsolute.h>
+#include <test/CRandomNumbers.h>
 
 #include "CMockDataProcessor.h"
 
@@ -84,7 +84,6 @@ std::set<std::string> getUniqueValues(const std::string& key, const std::string&
 
     return values;
 }
-
 
 BOOST_AUTO_TEST_CASE(testAccuracy) {
     // Check that the amount of memory used when we go over the
@@ -450,7 +449,7 @@ BOOST_AUTO_TEST_CASE(testModelledEntityCountForFixedMemoryLimit) {
             BOOST_TEST(used.s_PartitionFields > testParam.s_ExpectedPartitionFields);
             BOOST_TEST(used.s_PartitionFields < 450);
             BOOST_TEST(static_cast<double>(used.s_ByFields) >
-                           0.96 * static_cast<double>(used.s_PartitionFields));
+                       0.96 * static_cast<double>(used.s_PartitionFields));
             BOOST_CHECK_CLOSE_ABSOLUTE(
                 memoryLimit * 1024 * 1024 / 2, used.s_Usage,
                 memoryLimit * 1024 * 1024 / testParam.s_ExpectedPartitionUsageRelativeErrorDivisor);

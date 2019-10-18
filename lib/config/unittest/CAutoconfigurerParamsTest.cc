@@ -123,5 +123,4 @@ BOOST_AUTO_TEST_CASE(testInit) {
     BOOST_CHECK_EQUAL(expected, actual);
 }
 
-
 BOOST_AUTO_TEST_SUITE_END()

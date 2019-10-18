@@ -19,7 +19,6 @@
 
 BOOST_AUTO_TEST_SUITE(CStringSimilarityTesterTest)
 
-
 BOOST_AUTO_TEST_CASE(testStringSimilarity) {
     std::string str1("This is identical");
     std::string str2("This is identical");
@@ -329,15 +328,15 @@ BOOST_AUTO_TEST_CASE(testLevensteinDistanceAlgorithmEquivalence) {
     // 1) Neither input sequence is empty
     // 2) The first input sequence is no longer than the second input sequence
     BOOST_CHECK_EQUAL(sst.levenshteinDistanceSimple(cat, cat),
-                         sst.berghelRoachEditDistance(cat, cat));
+                      sst.berghelRoachEditDistance(cat, cat));
     BOOST_CHECK_EQUAL(sst.levenshteinDistanceSimple(cat, dog),
-                         sst.berghelRoachEditDistance(cat, dog));
+                      sst.berghelRoachEditDistance(cat, dog));
     BOOST_CHECK_EQUAL(sst.levenshteinDistanceSimple(cat, mouse),
-                         sst.berghelRoachEditDistance(cat, mouse));
+                      sst.berghelRoachEditDistance(cat, mouse));
     BOOST_CHECK_EQUAL(sst.levenshteinDistanceSimple(cat, elephant),
-                         sst.berghelRoachEditDistance(cat, elephant));
+                      sst.berghelRoachEditDistance(cat, elephant));
     BOOST_CHECK_EQUAL(sst.levenshteinDistanceSimple(mouse, elephant),
-                         sst.berghelRoachEditDistance(mouse, elephant));
+                      sst.berghelRoachEditDistance(mouse, elephant));
 }
 
 BOOST_AUTO_TEST_CASE(testWeightedEditDistance) {

@@ -6,8 +6,8 @@
 
 #include <core/CBase64Filter.h>
 
-#include <boost/test/unit_test.hpp>
 #include <boost/iostreams/filtering_stream.hpp>
+#include <boost/test/unit_test.hpp>
 
 #include <boost/generator_iterator.hpp>
 #include <boost/random.hpp>
@@ -207,6 +207,5 @@ BOOST_AUTO_TEST_CASE(testBoth) {
         testEncodeDecode(ss.str());
     }
 }
-
 
 BOOST_AUTO_TEST_SUITE_END()

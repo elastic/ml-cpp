@@ -14,11 +14,11 @@
 #include <maths/CRestoreParams.h>
 #include <maths/CTools.h>
 
-#include <test/CRandomNumbers.h>
 #include <test/BoostTestCloseAbsolute.h>
+#include <test/CRandomNumbers.h>
 
-#include <boost/test/unit_test.hpp>
 #include <boost/math/distributions/normal.hpp>
+#include <boost/test/unit_test.hpp>
 
 #include <cmath>
 #include <memory>
@@ -296,7 +296,7 @@ BOOST_AUTO_TEST_CASE(testMemoryUsage) {
 
     LOG_DEBUG(<< "Memory = " << core::CMemory::dynamicSize(nb));
     BOOST_CHECK_EQUAL(memoryUsage + sizeof(maths::CNaiveBayes),
-                         core::CMemory::dynamicSize(nb));
+                      core::CMemory::dynamicSize(nb));
 }
 
 BOOST_AUTO_TEST_CASE(testPersist) {
@@ -348,6 +348,5 @@ BOOST_AUTO_TEST_CASE(testPersist) {
     }
     BOOST_CHECK_EQUAL(origXml, restoredXml);
 }
-
 
 BOOST_AUTO_TEST_SUITE_END()

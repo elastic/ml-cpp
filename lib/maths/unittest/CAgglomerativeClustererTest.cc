@@ -12,8 +12,8 @@
 
 #include <test/CRandomNumbers.h>
 
-#include <boost/test/unit_test.hpp>
 #include <boost/range.hpp>
+#include <boost/test/unit_test.hpp>
 
 #include <algorithm>
 #include <cmath>
@@ -217,7 +217,7 @@ BOOST_AUTO_TEST_CASE(testNode) {
     root.points(points);
     std::sort(points.begin(), points.end());
     BOOST_CHECK_EQUAL(std::string("[0, 1, 2, 3, 4]"),
-                         core::CContainerPrinter::print(points));
+                      core::CContainerPrinter::print(points));
 
     points.clear();
     nodes[7].points(points);
@@ -229,7 +229,7 @@ BOOST_AUTO_TEST_CASE(testNode) {
         root.clusters(clusters);
         std::sort(clusters.begin(), clusters.end(), maths::COrderings::SFirstLess());
         BOOST_CHECK_EQUAL(std::string("[(1, [0, 1]), (1.5, [2, 3]), (1.9, [4, 2, 3]), (4, [0, 1, 4, 2, 3])]"),
-                             core::CContainerPrinter::print(clusters));
+                          core::CContainerPrinter::print(clusters));
     }
 
     std::string expected[] = {std::string("[[0, 1], [2], [3], [4]]"),
@@ -361,8 +361,8 @@ BOOST_AUTO_TEST_CASE(testDegenerate) {
             }
 
             BOOST_TEST((expected[o][0] == core::CContainerPrinter::print(clusters) ||
-                           expected[o][1] == core::CContainerPrinter::print(clusters) ||
-                           expected[o][2] == core::CContainerPrinter::print(clusters)));
+                        expected[o][1] == core::CContainerPrinter::print(clusters) ||
+                        expected[o][2] == core::CContainerPrinter::print(clusters)));
             ++count;
         } while (std::next_permutation(std::begin(p), std::end(p)));
     }
@@ -433,10 +433,9 @@ BOOST_AUTO_TEST_CASE(testRandom) {
             LOG_DEBUG(<< "clusters          = " << core::CContainerPrinter::print(clusters));
 
             BOOST_CHECK_EQUAL(core::CContainerPrinter::print(expectedClusters),
-                                 core::CContainerPrinter::print(clusters));
+                              core::CContainerPrinter::print(clusters));
         }
     }
 }
-
 
 BOOST_AUTO_TEST_SUITE_END()

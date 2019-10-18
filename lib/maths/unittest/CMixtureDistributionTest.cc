@@ -9,11 +9,11 @@
 
 #include <maths/CMixtureDistribution.h>
 
-#include <test/CRandomNumbers.h>
 #include <test/BoostTestCloseAbsolute.h>
+#include <test/CRandomNumbers.h>
 
-#include <boost/test/unit_test.hpp>
 #include <boost/range.hpp>
+#include <boost/test/unit_test.hpp>
 
 BOOST_AUTO_TEST_SUITE(CMixtureDistributionTest)
 
@@ -38,7 +38,7 @@ BOOST_AUTO_TEST_CASE(testSupport) {
         modes.push_back(n2);
         CMixtureDistribution<boost::math::normal_distribution<>> mixture(weights, modes);
         BOOST_CHECK_EQUAL(core::CContainerPrinter::print(boost::math::support(n1)),
-                             core::CContainerPrinter::print(support(mixture)));
+                          core::CContainerPrinter::print(support(mixture)));
     }
     {
         boost::math::lognormal_distribution<> l1(1.0, 0.5);
@@ -51,7 +51,7 @@ BOOST_AUTO_TEST_CASE(testSupport) {
         modes.push_back(l2);
         CMixtureDistribution<boost::math::lognormal_distribution<>> mixture(weights, modes);
         BOOST_CHECK_EQUAL(core::CContainerPrinter::print(boost::math::support(l1)),
-                             core::CContainerPrinter::print(support(mixture)));
+                          core::CContainerPrinter::print(support(mixture)));
     }
 }
 
@@ -306,6 +306,5 @@ BOOST_AUTO_TEST_CASE(testQuantile) {
         }
     }
 }
-
 
 BOOST_AUTO_TEST_SUITE_END()

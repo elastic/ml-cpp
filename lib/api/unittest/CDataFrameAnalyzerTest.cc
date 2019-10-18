@@ -24,9 +24,9 @@
 #include <api/CSingleStreamDataAdder.h>
 #include <api/ElasticsearchStateIndex.h>
 
+#include <test/BoostTestCloseAbsolute.h>
 #include <test/CRandomNumbers.h>
 #include <test/CTestTmpDir.h>
-#include <test/BoostTestCloseAbsolute.h>
 
 #include <rapidjson/error/en.h>
 
@@ -826,8 +826,7 @@ BOOST_AUTO_TEST_CASE(testRunBoostedTreeRegressionTraining) {
     LOG_DEBUG(<< "time to train = " << core::CProgramCounters::counter(counter_t::E_DFTPMTimeToTrain)
               << "ms");
 
-    BOOST_TEST(core::CProgramCounters::counter(
-                       counter_t::E_DFTPMEstimatedPeakMemoryUsage) < 2700000);
+    BOOST_TEST(core::CProgramCounters::counter(counter_t::E_DFTPMEstimatedPeakMemoryUsage) < 2700000);
     BOOST_TEST(core::CProgramCounters::counter(counter_t::E_DFTPMPeakMemoryUsage) < 1050000);
     BOOST_TEST(core::CProgramCounters::counter(counter_t::E_DFTPMTimeToTrain) > 0);
     BOOST_TEST(core::CProgramCounters::counter(counter_t::E_DFTPMTimeToTrain) <= duration);
@@ -1063,8 +1062,7 @@ BOOST_AUTO_TEST_CASE(testRunBoostedTreeClassifierTraining) {
               << core::CProgramCounters::counter(counter_t::E_DFTPMPeakMemoryUsage));
     LOG_DEBUG(<< "time to train = " << core::CProgramCounters::counter(counter_t::E_DFTPMTimeToTrain)
               << "ms");
-    BOOST_TEST(core::CProgramCounters::counter(
-                       counter_t::E_DFTPMEstimatedPeakMemoryUsage) < 2650000);
+    BOOST_TEST(core::CProgramCounters::counter(counter_t::E_DFTPMEstimatedPeakMemoryUsage) < 2650000);
     BOOST_TEST(core::CProgramCounters::counter(counter_t::E_DFTPMPeakMemoryUsage) < 1050000);
     BOOST_TEST(core::CProgramCounters::counter(counter_t::E_DFTPMTimeToTrain) > 0);
     BOOST_TEST(core::CProgramCounters::counter(counter_t::E_DFTPMTimeToTrain) <= duration);
@@ -1109,9 +1107,8 @@ BOOST_AUTO_TEST_CASE(testErrors) {
             outputWriterFactory};
         LOG_DEBUG(<< core::CContainerPrinter::print(errors));
         BOOST_TEST(errors.size() > 0);
-        BOOST_CHECK_EQUAL(false,
-                             analyzer.handleRecord({"c1", "c2", "c3", "c4", "c5"},
-                                                   {"10", "10", "10", "10", "10"}));
+        BOOST_CHECK_EQUAL(false, analyzer.handleRecord({"c1", "c2", "c3", "c4", "c5"},
+                                                       {"10", "10", "10", "10", "10"}));
     }
 
     // Test special field in the wrong position
@@ -1228,8 +1225,7 @@ BOOST_AUTO_TEST_CASE(testRoundTripDocHashes) {
     for (const auto& result : results.GetArray()) {
         if (result.HasMember("row_results")) {
             LOG_DEBUG(<< "checksum = " << result["row_results"]["checksum"].GetInt());
-            BOOST_CHECK_EQUAL(++expectedHash,
-                                 result["row_results"]["checksum"].GetInt());
+            BOOST_CHECK_EQUAL(++expectedHash, result["row_results"]["checksum"].GetInt());
         }
     }
 }
@@ -1379,6 +1375,5 @@ BOOST_AUTO_TEST_CASE(testCategoricalFieldsEmptyAsMissing) {
         assertRow(9, {eq(2.0), eq(2.0), eq(9.0), eq(9.0), eq(1.0)}, rows[9]);
     });
 }
-
 
 BOOST_AUTO_TEST_SUITE_END()

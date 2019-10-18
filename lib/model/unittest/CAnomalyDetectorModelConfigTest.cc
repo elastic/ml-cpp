@@ -71,21 +71,21 @@ BOOST_AUTO_TEST_CASE(testNormal) {
         BOOST_CHECK_EQUAL(0.01, config.factory(1, POPULATION_COUNT)->minimumModeFraction());
         BOOST_CHECK_EQUAL(0.01, config.factory(1, POPULATION_METRIC)->minimumModeFraction());
         BOOST_CHECK_EQUAL(std::size_t(10),
-                             config.factory(1, INDIVIDUAL_COUNT)->componentSize());
+                          config.factory(1, INDIVIDUAL_COUNT)->componentSize());
         BOOST_CHECK_EQUAL(std::size_t(10),
-                             config.factory(1, INDIVIDUAL_METRIC)->componentSize());
+                          config.factory(1, INDIVIDUAL_METRIC)->componentSize());
         BOOST_CHECK_EQUAL(std::size_t(10),
-                             config.factory(1, POPULATION_COUNT)->componentSize());
+                          config.factory(1, POPULATION_COUNT)->componentSize());
         BOOST_CHECK_EQUAL(std::size_t(10),
-                             config.factory(1, POPULATION_METRIC)->componentSize());
+                          config.factory(1, POPULATION_METRIC)->componentSize());
         BOOST_CHECK_EQUAL(std::size_t(20),
-                             config.factory(1, INDIVIDUAL_COUNT)->modelParams().s_SampleCountFactor);
+                          config.factory(1, INDIVIDUAL_COUNT)->modelParams().s_SampleCountFactor);
         BOOST_CHECK_EQUAL(std::size_t(20),
-                             config.factory(1, INDIVIDUAL_METRIC)->modelParams().s_SampleCountFactor);
+                          config.factory(1, INDIVIDUAL_METRIC)->modelParams().s_SampleCountFactor);
         BOOST_CHECK_EQUAL(std::size_t(20),
-                             config.factory(1, POPULATION_COUNT)->modelParams().s_SampleCountFactor);
+                          config.factory(1, POPULATION_COUNT)->modelParams().s_SampleCountFactor);
         BOOST_CHECK_EQUAL(std::size_t(20),
-                             config.factory(1, POPULATION_METRIC)->modelParams().s_SampleCountFactor);
+                          config.factory(1, POPULATION_METRIC)->modelParams().s_SampleCountFactor);
         TDoubleVec params;
         for (std::size_t i = 0u; i < model_t::NUMBER_AGGREGATION_STYLES; ++i) {
             for (std::size_t j = 0u; j < model_t::NUMBER_AGGREGATION_PARAMS; ++j) {
@@ -95,7 +95,7 @@ BOOST_AUTO_TEST_CASE(testNormal) {
             }
         }
         BOOST_CHECK_EQUAL(std::string("[0.9, 0.1, 2, 4, 0.3, 0.7, 3, 8, 0.6, 0.4, 2, 10]"),
-                             core::CContainerPrinter::print(params));
+                          core::CContainerPrinter::print(params));
         BOOST_CHECK_EQUAL(0.01, config.maximumAnomalousProbability());
         BOOST_CHECK_EQUAL(60.0, config.noisePercentile());
         BOOST_CHECK_EQUAL(1.2, config.noiseMultiplier());
@@ -153,123 +153,96 @@ BOOST_AUTO_TEST_CASE(testErrors) {
             CAnomalyDetectorModelConfig::defaultConfig(1800);
 
         BOOST_CHECK_EQUAL(config2.factory(1, INDIVIDUAL_COUNT)->modelParams().s_LearnRate,
-                             config1.factory(1, INDIVIDUAL_COUNT)->modelParams().s_LearnRate);
-        BOOST_CHECK_EQUAL(
-            config2.factory(1, INDIVIDUAL_METRIC)->modelParams().s_LearnRate,
-            config1.factory(1, INDIVIDUAL_METRIC)->modelParams().s_LearnRate);
+                          config1.factory(1, INDIVIDUAL_COUNT)->modelParams().s_LearnRate);
+        BOOST_CHECK_EQUAL(config2.factory(1, INDIVIDUAL_METRIC)->modelParams().s_LearnRate,
+                          config1.factory(1, INDIVIDUAL_METRIC)->modelParams().s_LearnRate);
         BOOST_CHECK_EQUAL(config2.factory(1, POPULATION_COUNT)->modelParams().s_LearnRate,
-                             config1.factory(1, POPULATION_COUNT)->modelParams().s_LearnRate);
-        BOOST_CHECK_EQUAL(
-            config2.factory(1, POPULATION_METRIC)->modelParams().s_LearnRate,
-            config1.factory(1, POPULATION_METRIC)->modelParams().s_LearnRate);
+                          config1.factory(1, POPULATION_COUNT)->modelParams().s_LearnRate);
+        BOOST_CHECK_EQUAL(config2.factory(1, POPULATION_METRIC)->modelParams().s_LearnRate,
+                          config1.factory(1, POPULATION_METRIC)->modelParams().s_LearnRate);
         BOOST_CHECK_EQUAL(config2.decayRate(), config1.decayRate());
         BOOST_CHECK_EQUAL(config2.factory(1, INDIVIDUAL_COUNT)->modelParams().s_DecayRate,
-                             config1.factory(1, INDIVIDUAL_COUNT)->modelParams().s_DecayRate);
-        BOOST_CHECK_EQUAL(
-            config2.factory(1, INDIVIDUAL_METRIC)->modelParams().s_DecayRate,
-            config1.factory(1, INDIVIDUAL_METRIC)->modelParams().s_DecayRate);
+                          config1.factory(1, INDIVIDUAL_COUNT)->modelParams().s_DecayRate);
+        BOOST_CHECK_EQUAL(config2.factory(1, INDIVIDUAL_METRIC)->modelParams().s_DecayRate,
+                          config1.factory(1, INDIVIDUAL_METRIC)->modelParams().s_DecayRate);
         BOOST_CHECK_EQUAL(config2.factory(1, POPULATION_COUNT)->modelParams().s_DecayRate,
-                             config1.factory(1, POPULATION_COUNT)->modelParams().s_DecayRate);
-        BOOST_CHECK_EQUAL(
-            config2.factory(1, POPULATION_METRIC)->modelParams().s_DecayRate,
-            config1.factory(1, POPULATION_METRIC)->modelParams().s_DecayRate);
-        BOOST_CHECK_EQUAL(
-            config2.factory(1, INDIVIDUAL_COUNT)->modelParams().s_InitialDecayRateMultiplier,
-            config1.factory(1, INDIVIDUAL_COUNT)->modelParams().s_InitialDecayRateMultiplier);
-        BOOST_CHECK_EQUAL(
-            config2.factory(1, INDIVIDUAL_METRIC)->modelParams().s_InitialDecayRateMultiplier,
-            config1.factory(1, INDIVIDUAL_METRIC)->modelParams().s_InitialDecayRateMultiplier);
-        BOOST_CHECK_EQUAL(
-            config2.factory(1, POPULATION_COUNT)->modelParams().s_InitialDecayRateMultiplier,
-            config1.factory(1, POPULATION_COUNT)->modelParams().s_InitialDecayRateMultiplier);
-        BOOST_CHECK_EQUAL(
-            config2.factory(1, POPULATION_METRIC)->modelParams().s_InitialDecayRateMultiplier,
-            config1.factory(1, POPULATION_METRIC)->modelParams().s_InitialDecayRateMultiplier);
-        BOOST_CHECK_EQUAL(
-            config2.factory(1, INDIVIDUAL_COUNT)->modelParams().s_MaximumUpdatesPerBucket,
-            config1.factory(1, INDIVIDUAL_COUNT)->modelParams().s_MaximumUpdatesPerBucket);
-        BOOST_CHECK_EQUAL(
-            config2.factory(1, INDIVIDUAL_METRIC)->modelParams().s_MaximumUpdatesPerBucket,
-            config1.factory(1, INDIVIDUAL_METRIC)->modelParams().s_MaximumUpdatesPerBucket);
-        BOOST_CHECK_EQUAL(
-            config2.factory(1, POPULATION_COUNT)->modelParams().s_MaximumUpdatesPerBucket,
-            config1.factory(1, POPULATION_COUNT)->modelParams().s_MaximumUpdatesPerBucket);
-        BOOST_CHECK_EQUAL(
-            config2.factory(1, POPULATION_METRIC)->modelParams().s_MaximumUpdatesPerBucket,
-            config1.factory(1, POPULATION_METRIC)->modelParams().s_MaximumUpdatesPerBucket);
+                          config1.factory(1, POPULATION_COUNT)->modelParams().s_DecayRate);
+        BOOST_CHECK_EQUAL(config2.factory(1, POPULATION_METRIC)->modelParams().s_DecayRate,
+                          config1.factory(1, POPULATION_METRIC)->modelParams().s_DecayRate);
+        BOOST_CHECK_EQUAL(config2.factory(1, INDIVIDUAL_COUNT)->modelParams().s_InitialDecayRateMultiplier,
+                          config1.factory(1, INDIVIDUAL_COUNT)->modelParams().s_InitialDecayRateMultiplier);
+        BOOST_CHECK_EQUAL(config2.factory(1, INDIVIDUAL_METRIC)->modelParams().s_InitialDecayRateMultiplier,
+                          config1.factory(1, INDIVIDUAL_METRIC)->modelParams().s_InitialDecayRateMultiplier);
+        BOOST_CHECK_EQUAL(config2.factory(1, POPULATION_COUNT)->modelParams().s_InitialDecayRateMultiplier,
+                          config1.factory(1, POPULATION_COUNT)->modelParams().s_InitialDecayRateMultiplier);
+        BOOST_CHECK_EQUAL(config2.factory(1, POPULATION_METRIC)->modelParams().s_InitialDecayRateMultiplier,
+                          config1.factory(1, POPULATION_METRIC)->modelParams().s_InitialDecayRateMultiplier);
+        BOOST_CHECK_EQUAL(config2.factory(1, INDIVIDUAL_COUNT)->modelParams().s_MaximumUpdatesPerBucket,
+                          config1.factory(1, INDIVIDUAL_COUNT)->modelParams().s_MaximumUpdatesPerBucket);
+        BOOST_CHECK_EQUAL(config2.factory(1, INDIVIDUAL_METRIC)->modelParams().s_MaximumUpdatesPerBucket,
+                          config1.factory(1, INDIVIDUAL_METRIC)->modelParams().s_MaximumUpdatesPerBucket);
+        BOOST_CHECK_EQUAL(config2.factory(1, POPULATION_COUNT)->modelParams().s_MaximumUpdatesPerBucket,
+                          config1.factory(1, POPULATION_COUNT)->modelParams().s_MaximumUpdatesPerBucket);
+        BOOST_CHECK_EQUAL(config2.factory(1, POPULATION_METRIC)->modelParams().s_MaximumUpdatesPerBucket,
+                          config1.factory(1, POPULATION_METRIC)->modelParams().s_MaximumUpdatesPerBucket);
         BOOST_CHECK_EQUAL(config2.factory(1, INDIVIDUAL_COUNT)->minimumModeFraction(),
-                             config1.factory(1, INDIVIDUAL_COUNT)->minimumModeFraction());
-        BOOST_CHECK_EQUAL(
-            config2.factory(1, INDIVIDUAL_METRIC)->minimumModeFraction(),
-            config1.factory(1, INDIVIDUAL_METRIC)->minimumModeFraction());
+                          config1.factory(1, INDIVIDUAL_COUNT)->minimumModeFraction());
+        BOOST_CHECK_EQUAL(config2.factory(1, INDIVIDUAL_METRIC)->minimumModeFraction(),
+                          config1.factory(1, INDIVIDUAL_METRIC)->minimumModeFraction());
         BOOST_CHECK_EQUAL(config2.factory(1, POPULATION_COUNT)->minimumModeFraction(),
-                             config1.factory(1, POPULATION_COUNT)->minimumModeFraction());
-        BOOST_CHECK_EQUAL(
-            config2.factory(1, POPULATION_METRIC)->minimumModeFraction(),
-            config1.factory(1, POPULATION_METRIC)->minimumModeFraction());
+                          config1.factory(1, POPULATION_COUNT)->minimumModeFraction());
+        BOOST_CHECK_EQUAL(config2.factory(1, POPULATION_METRIC)->minimumModeFraction(),
+                          config1.factory(1, POPULATION_METRIC)->minimumModeFraction());
         BOOST_CHECK_EQUAL(config2.factory(1, INDIVIDUAL_COUNT)->componentSize(),
-                             config1.factory(1, INDIVIDUAL_COUNT)->componentSize());
+                          config1.factory(1, INDIVIDUAL_COUNT)->componentSize());
         BOOST_CHECK_EQUAL(config2.factory(1, INDIVIDUAL_METRIC)->componentSize(),
-                             config1.factory(1, INDIVIDUAL_METRIC)->componentSize());
+                          config1.factory(1, INDIVIDUAL_METRIC)->componentSize());
         BOOST_CHECK_EQUAL(config2.factory(1, POPULATION_COUNT)->componentSize(),
-                             config1.factory(1, POPULATION_COUNT)->componentSize());
+                          config1.factory(1, POPULATION_COUNT)->componentSize());
         BOOST_CHECK_EQUAL(config2.factory(1, POPULATION_METRIC)->componentSize(),
-                             config1.factory(1, POPULATION_METRIC)->componentSize());
-        BOOST_CHECK_EQUAL(
-            config2.factory(1, INDIVIDUAL_COUNT)->modelParams().s_SampleCountFactor,
-            config1.factory(1, INDIVIDUAL_COUNT)->modelParams().s_SampleCountFactor);
-        BOOST_CHECK_EQUAL(
-            config2.factory(1, INDIVIDUAL_METRIC)->modelParams().s_SampleCountFactor,
-            config1.factory(1, INDIVIDUAL_METRIC)->modelParams().s_SampleCountFactor);
-        BOOST_CHECK_EQUAL(
-            config2.factory(1, POPULATION_COUNT)->modelParams().s_SampleCountFactor,
-            config1.factory(1, POPULATION_COUNT)->modelParams().s_SampleCountFactor);
-        BOOST_CHECK_EQUAL(
-            config2.factory(1, POPULATION_METRIC)->modelParams().s_SampleCountFactor,
-            config1.factory(1, POPULATION_METRIC)->modelParams().s_SampleCountFactor);
+                          config1.factory(1, POPULATION_METRIC)->componentSize());
+        BOOST_CHECK_EQUAL(config2.factory(1, INDIVIDUAL_COUNT)->modelParams().s_SampleCountFactor,
+                          config1.factory(1, INDIVIDUAL_COUNT)->modelParams().s_SampleCountFactor);
+        BOOST_CHECK_EQUAL(config2.factory(1, INDIVIDUAL_METRIC)->modelParams().s_SampleCountFactor,
+                          config1.factory(1, INDIVIDUAL_METRIC)->modelParams().s_SampleCountFactor);
+        BOOST_CHECK_EQUAL(config2.factory(1, POPULATION_COUNT)->modelParams().s_SampleCountFactor,
+                          config1.factory(1, POPULATION_COUNT)->modelParams().s_SampleCountFactor);
+        BOOST_CHECK_EQUAL(config2.factory(1, POPULATION_METRIC)->modelParams().s_SampleCountFactor,
+                          config1.factory(1, POPULATION_METRIC)->modelParams().s_SampleCountFactor);
         for (std::size_t i = 0u; i < model_t::NUMBER_AGGREGATION_STYLES; ++i) {
             for (std::size_t j = 0u; j < model_t::NUMBER_AGGREGATION_PARAMS; ++j) {
                 BOOST_CHECK_EQUAL(config2.aggregationStyleParam(
-                                         static_cast<model_t::EAggregationStyle>(i),
-                                         static_cast<model_t::EAggregationParam>(j)),
-                                     config1.aggregationStyleParam(
-                                         static_cast<model_t::EAggregationStyle>(i),
-                                         static_cast<model_t::EAggregationParam>(j)));
+                                      static_cast<model_t::EAggregationStyle>(i),
+                                      static_cast<model_t::EAggregationParam>(j)),
+                                  config1.aggregationStyleParam(
+                                      static_cast<model_t::EAggregationStyle>(i),
+                                      static_cast<model_t::EAggregationParam>(j)));
             }
         }
         BOOST_CHECK_EQUAL(config2.maximumAnomalousProbability(),
-                             config1.maximumAnomalousProbability());
+                          config1.maximumAnomalousProbability());
         BOOST_CHECK_EQUAL(config2.noisePercentile(), config1.noisePercentile());
         BOOST_CHECK_EQUAL(config2.noiseMultiplier(), config1.noiseMultiplier());
-        BOOST_CHECK_EQUAL(
-            config2.factory(1, INDIVIDUAL_COUNT)->modelParams().s_PruneWindowScaleMaximum,
-            config1.factory(1, INDIVIDUAL_COUNT)->modelParams().s_PruneWindowScaleMaximum);
-        BOOST_CHECK_EQUAL(
-            config2.factory(1, INDIVIDUAL_COUNT)->modelParams().s_PruneWindowScaleMinimum,
-            config1.factory(1, INDIVIDUAL_COUNT)->modelParams().s_PruneWindowScaleMinimum);
-        BOOST_CHECK_EQUAL(
-            config2.factory(1, INDIVIDUAL_METRIC)->modelParams().s_PruneWindowScaleMaximum,
-            config1.factory(1, INDIVIDUAL_METRIC)->modelParams().s_PruneWindowScaleMaximum);
-        BOOST_CHECK_EQUAL(
-            config2.factory(1, INDIVIDUAL_METRIC)->modelParams().s_PruneWindowScaleMinimum,
-            config1.factory(1, INDIVIDUAL_METRIC)->modelParams().s_PruneWindowScaleMinimum);
-        BOOST_CHECK_EQUAL(
-            config2.factory(1, POPULATION_COUNT)->modelParams().s_PruneWindowScaleMaximum,
-            config1.factory(1, POPULATION_COUNT)->modelParams().s_PruneWindowScaleMaximum);
-        BOOST_CHECK_EQUAL(
-            config2.factory(1, POPULATION_COUNT)->modelParams().s_PruneWindowScaleMinimum,
-            config1.factory(1, POPULATION_COUNT)->modelParams().s_PruneWindowScaleMinimum);
-        BOOST_CHECK_EQUAL(
-            config2.factory(1, POPULATION_METRIC)->modelParams().s_PruneWindowScaleMaximum,
-            config1.factory(1, POPULATION_METRIC)->modelParams().s_PruneWindowScaleMaximum);
-        BOOST_CHECK_EQUAL(
-            config2.factory(1, POPULATION_METRIC)->modelParams().s_PruneWindowScaleMinimum,
-            config1.factory(1, POPULATION_METRIC)->modelParams().s_PruneWindowScaleMinimum);
+        BOOST_CHECK_EQUAL(config2.factory(1, INDIVIDUAL_COUNT)->modelParams().s_PruneWindowScaleMaximum,
+                          config1.factory(1, INDIVIDUAL_COUNT)->modelParams().s_PruneWindowScaleMaximum);
+        BOOST_CHECK_EQUAL(config2.factory(1, INDIVIDUAL_COUNT)->modelParams().s_PruneWindowScaleMinimum,
+                          config1.factory(1, INDIVIDUAL_COUNT)->modelParams().s_PruneWindowScaleMinimum);
+        BOOST_CHECK_EQUAL(config2.factory(1, INDIVIDUAL_METRIC)->modelParams().s_PruneWindowScaleMaximum,
+                          config1.factory(1, INDIVIDUAL_METRIC)->modelParams().s_PruneWindowScaleMaximum);
+        BOOST_CHECK_EQUAL(config2.factory(1, INDIVIDUAL_METRIC)->modelParams().s_PruneWindowScaleMinimum,
+                          config1.factory(1, INDIVIDUAL_METRIC)->modelParams().s_PruneWindowScaleMinimum);
+        BOOST_CHECK_EQUAL(config2.factory(1, POPULATION_COUNT)->modelParams().s_PruneWindowScaleMaximum,
+                          config1.factory(1, POPULATION_COUNT)->modelParams().s_PruneWindowScaleMaximum);
+        BOOST_CHECK_EQUAL(config2.factory(1, POPULATION_COUNT)->modelParams().s_PruneWindowScaleMinimum,
+                          config1.factory(1, POPULATION_COUNT)->modelParams().s_PruneWindowScaleMinimum);
+        BOOST_CHECK_EQUAL(config2.factory(1, POPULATION_METRIC)->modelParams().s_PruneWindowScaleMaximum,
+                          config1.factory(1, POPULATION_METRIC)->modelParams().s_PruneWindowScaleMaximum);
+        BOOST_CHECK_EQUAL(config2.factory(1, POPULATION_METRIC)->modelParams().s_PruneWindowScaleMinimum,
+                          config1.factory(1, POPULATION_METRIC)->modelParams().s_PruneWindowScaleMinimum);
         BOOST_CHECK_EQUAL(
             core::CContainerPrinter::print(config2.normalizedScoreKnotPoints()),
             core::CContainerPrinter::print(config1.normalizedScoreKnotPoints()));
     }
 }
-
 
 BOOST_AUTO_TEST_SUITE_END()

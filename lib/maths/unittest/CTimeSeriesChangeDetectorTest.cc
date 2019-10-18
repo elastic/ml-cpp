@@ -21,8 +21,8 @@
 #include <maths/CTimeSeriesDecomposition.h>
 #include <maths/CXMeansOnline1d.h>
 
-#include <test/CRandomNumbers.h>
 #include <test/BoostTestCloseAbsolute.h>
+#include <test/CRandomNumbers.h>
 
 #include "TestUtils.h"
 
@@ -231,13 +231,12 @@ BOOST_AUTO_TEST_CASE(testPersist) {
     }
 }
 
-
 BOOST_AUTO_TEST_CASE(testChangeconst TGeneratorVec& trends,
-                                               maths::SChangeDescription::EDescription description,
-                                               TChange applyChange,
-                                               double expectedChange,
-                                               double maximumFalseNegatives,
-                                               double maximumMeanBucketsToDetectChange) {
+                     maths::SChangeDescription::EDescription description,
+                     TChange applyChange,
+                     double expectedChange,
+                     double maximumFalseNegatives,
+                     double maximumMeanBucketsToDetectChange) {
     using TOptionalSize = boost::optional<std::size_t>;
     using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
 
@@ -291,7 +290,7 @@ BOOST_AUTO_TEST_CASE(testChangeconst TGeneratorVec& trends,
                 }
                 BOOST_CHECK_EQUAL(change->s_Description, description);
                 BOOST_CHECK_CLOSE_ABSOLUTE(expectedChange, change->s_Value[0],
-                                             0.5 * std::fabs(expectedChange));
+                                           0.5 * std::fabs(expectedChange));
                 break;
             }
             if (detector.stopTesting()) {
@@ -310,8 +309,7 @@ BOOST_AUTO_TEST_CASE(testChangeconst TGeneratorVec& trends,
     LOG_DEBUG(<< "false negatives = " << falseNegatives);
     LOG_DEBUG(<< "buckets to detect = " << maths::CBasicStatistics::mean(meanBucketsToDetect));
     BOOST_TEST(falseNegatives <= maximumFalseNegatives);
-    BOOST_TEST(maths::CBasicStatistics::mean(meanBucketsToDetect) <
-                   maximumMeanBucketsToDetectChange);
+    BOOST_TEST(maths::CBasicStatistics::mean(meanBucketsToDetect) < maximumMeanBucketsToDetectChange);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

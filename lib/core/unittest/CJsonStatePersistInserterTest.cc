@@ -14,7 +14,6 @@
 
 BOOST_AUTO_TEST_SUITE(CJsonStatePersistInserterTest)
 
-
 namespace {
 //! Persist state as JSON with meaningful tag names.
 class CReadableJsonStatePersistInserter : public ml::core::CJsonStatePersistInserter {
@@ -55,7 +54,7 @@ BOOST_AUTO_TEST_CASE(testPersist) {
         LOG_DEBUG(<< "JSON is: " << json);
 
         BOOST_CHECK_EQUAL(std::string("{\"a\":\"a\",\"b\":\"25\",\"c\":{\"a\":\"3.14\",\"b\":\"z\"}}"),
-                             json);
+                          json);
     }
 
     {
@@ -76,7 +75,7 @@ BOOST_AUTO_TEST_CASE(testPersist) {
         LOG_DEBUG(<< "JSON is: " << json);
 
         BOOST_CHECK_EQUAL(std::string("{\"level1A\":\"a\",\"level1B\":\"25\",\"level1C\":{\"level2A\":\"3.14\",\"level2B\":\"z\"}}"),
-                             json);
+                          json);
     }
 }
 

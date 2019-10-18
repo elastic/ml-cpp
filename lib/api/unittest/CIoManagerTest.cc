@@ -131,7 +131,6 @@ private:
 };
 }
 
-
 BOOST_AUTO_TEST_CASE(testStdinStdout) {
     ml::api::CIoManager ioMgr("", false, "", false);
     BOOST_TEST(ioMgr.initIo());
@@ -183,10 +182,10 @@ BOOST_AUTO_TEST_CASE(testNamedPipeIoBad) {
 }
 
 BOOST_AUTO_TEST_CASE(testCommonconst std::string& inputFileName,
-                                bool isInputFileNamedPipe,
-                                const std::string& outputFileName,
-                                bool isOutputFileNamedPipe,
-                                bool isGood) {
+                     bool isInputFileNamedPipe,
+                     const std::string& outputFileName,
+                     bool isOutputFileNamedPipe,
+                     bool isGood) {
     // Test reader reads from the IO manager's output stream.
     CThreadDataReader threadReader(outputFileName);
     BOOST_TEST(threadReader.start());

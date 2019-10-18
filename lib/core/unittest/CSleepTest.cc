@@ -13,7 +13,6 @@
 
 BOOST_AUTO_TEST_SUITE(CSleepTest)
 
-
 BOOST_AUTO_TEST_CASE(testSleep) {
     ml::core_t::TTime start(ml::core::CTimeUtils::now());
 

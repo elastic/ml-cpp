@@ -251,7 +251,7 @@ BOOST_AUTO_TEST_CASE(testNearestNeighbours) {
                               << (tests[j] - neighbours[k]).euclidean());
                 }
                 BOOST_CHECK_EQUAL(print(expectedNeighbours[k].second),
-                                     print(neighbours[k]));
+                                  print(neighbours[k]));
             }
         }
     }
@@ -282,6 +282,5 @@ BOOST_AUTO_TEST_CASE(testRequestingEveryPoint) {
     BOOST_CHECK_EQUAL(kdTree.size(), neighbours.size());
     BOOST_CHECK_EQUAL(expected, core::CContainerPrinter::print(neighbours));
 }
-
 
 BOOST_AUTO_TEST_SUITE_END()

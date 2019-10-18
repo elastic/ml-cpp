@@ -16,8 +16,8 @@
 #include <algorithm>
 #include <vector>
 
-#include <boost/test/unit_test.hpp>
 #include <boost/range.hpp>
+#include <boost/test/unit_test.hpp>
 
 BOOST_AUTO_TEST_SUITE(CStateMachineTest)
 
@@ -224,6 +224,5 @@ BOOST_AUTO_TEST_CASE(testMultithreaded) {
     // No duplicates.
     BOOST_CHECK_EQUAL(machines.size(), core::CStateMachine::numberMachines());
 }
-
 
 BOOST_AUTO_TEST_SUITE_END()

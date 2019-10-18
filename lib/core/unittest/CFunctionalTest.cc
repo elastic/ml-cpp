@@ -6,9 +6,9 @@
 
 #include <core/CFunctional.h>
 
-#include <boost/test/unit_test.hpp>
 #include <boost/optional.hpp>
 #include <boost/range.hpp>
+#include <boost/test/unit_test.hpp>
 
 #include <memory>
 
@@ -58,10 +58,9 @@ BOOST_AUTO_TEST_CASE(testDereference) {
     for (std::size_t i = 0u; i < boost::size(values); ++i) {
         for (std::size_t j = 0u; j < boost::size(values); ++j) {
             BOOST_CHECK_EQUAL(less(*values[i], *values[j]),
-                                 derefLess(values[i], values[j]));
+                              derefLess(values[i], values[j]));
         }
     }
 }
-
 
 BOOST_AUTO_TEST_SUITE_END()

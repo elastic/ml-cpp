@@ -72,5 +72,4 @@ BOOST_AUTO_TEST_CASE(testIndexGenerator) {
     }
 }
 
-
 BOOST_AUTO_TEST_SUITE_END()

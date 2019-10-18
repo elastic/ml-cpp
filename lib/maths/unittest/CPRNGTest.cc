@@ -10,11 +10,11 @@
 #include <maths/CPRNG.h>
 #include <maths/CStatisticalTests.h>
 
-#include <boost/test/unit_test.hpp>
 #include <boost/math/distributions/normal.hpp>
 #include <boost/random/mersenne_twister.hpp>
 #include <boost/random/normal_distribution.hpp>
 #include <boost/random/uniform_01.hpp>
+#include <boost/test/unit_test.hpp>
 
 BOOST_AUTO_TEST_SUITE(CPRNGTest)
 
@@ -35,12 +35,11 @@ BOOST_AUTO_TEST_CASE(testSplitMix64) {
         max.add(x);
     }
     LOG_DEBUG(<< "min = " << min[0] << ", max = " << max[0]);
-    BOOST_TEST(
-        min[0] < (maths::CPRNG::CSplitMix64::max() - maths::CPRNG::CSplitMix64::min()) / 2000);
-    BOOST_TEST(max[0] > maths::CPRNG::CSplitMix64::max() -
-                                (maths::CPRNG::CSplitMix64::max() -
-                                 maths::CPRNG::CSplitMix64::min()) /
-                                    2000);
+    BOOST_TEST(min[0] <
+               (maths::CPRNG::CSplitMix64::max() - maths::CPRNG::CSplitMix64::min()) / 2000);
+    BOOST_TEST(max[0] >
+               maths::CPRNG::CSplitMix64::max() -
+                   (maths::CPRNG::CSplitMix64::max() - maths::CPRNG::CSplitMix64::min()) / 2000);
 
     // Test generate.
     maths::CPRNG::CSplitMix64 rng2 = rng1;
@@ -76,7 +75,7 @@ BOOST_AUTO_TEST_CASE(testSplitMix64) {
         LOG_DEBUG(<< "m1 = " << maths::CBasicStatistics::mean(m1));
         LOG_DEBUG(<< "m2 = " << maths::CBasicStatistics::mean(m2));
         BOOST_TEST(maths::CBasicStatistics::mean(m1) >
-                       0.95 * maths::CBasicStatistics::mean(m2));
+                   0.95 * maths::CBasicStatistics::mean(m2));
     }
     {
         boost::random::mt11213b mt;
@@ -102,7 +101,7 @@ BOOST_AUTO_TEST_CASE(testSplitMix64) {
         LOG_DEBUG(<< "m1 = " << maths::CBasicStatistics::mean(m1));
         LOG_DEBUG(<< "m2 = " << maths::CBasicStatistics::mean(m2));
         BOOST_TEST(maths::CBasicStatistics::mean(m1) >
-                       0.95 * maths::CBasicStatistics::mean(m2));
+                   0.95 * maths::CBasicStatistics::mean(m2));
     }
 
     // Test discard.
@@ -141,12 +140,12 @@ BOOST_AUTO_TEST_CASE(testXorOShiro128Plus) {
     }
     LOG_DEBUG(<< "min = " << min[0] << ", max = " << max[0]);
     BOOST_TEST(min[0] < (maths::CPRNG::CXorOShiro128Plus::max() -
+                         maths::CPRNG::CXorOShiro128Plus::min()) /
+                            2000);
+    BOOST_TEST(max[0] > maths::CPRNG::CXorOShiro128Plus::max() -
+                            (maths::CPRNG::CXorOShiro128Plus::max() -
                              maths::CPRNG::CXorOShiro128Plus::min()) /
                                 2000);
-    BOOST_TEST(max[0] > maths::CPRNG::CXorOShiro128Plus::max() -
-                                (maths::CPRNG::CXorOShiro128Plus::max() -
-                                 maths::CPRNG::CXorOShiro128Plus::min()) /
-                                    2000);
 
     // Test generate.
     maths::CPRNG::CXorOShiro128Plus rng2 = rng1;
@@ -182,7 +181,7 @@ BOOST_AUTO_TEST_CASE(testXorOShiro128Plus) {
         LOG_DEBUG(<< "m1 = " << maths::CBasicStatistics::mean(m1));
         LOG_DEBUG(<< "m2 = " << maths::CBasicStatistics::mean(m2));
         BOOST_TEST(maths::CBasicStatistics::mean(m1) >
-                       0.95 * maths::CBasicStatistics::mean(m2));
+                   0.95 * maths::CBasicStatistics::mean(m2));
     }
     {
         boost::random::mt19937_64 mt;
@@ -208,7 +207,7 @@ BOOST_AUTO_TEST_CASE(testXorOShiro128Plus) {
         LOG_DEBUG(<< "m1 = " << maths::CBasicStatistics::mean(m1));
         LOG_DEBUG(<< "m2 = " << maths::CBasicStatistics::mean(m2));
         BOOST_TEST(maths::CBasicStatistics::mean(m1) >
-                       0.95 * maths::CBasicStatistics::mean(m2));
+                   0.95 * maths::CBasicStatistics::mean(m2));
     }
 
     // Test discard.
@@ -263,12 +262,12 @@ BOOST_AUTO_TEST_CASE(testXorShift1024Mult) {
     }
     LOG_DEBUG(<< "min = " << min[0] << ", max = " << max[0]);
     BOOST_TEST(min[0] < (maths::CPRNG::CXorShift1024Mult::max() -
+                         maths::CPRNG::CXorShift1024Mult::min()) /
+                            2000);
+    BOOST_TEST(max[0] > maths::CPRNG::CXorShift1024Mult::max() -
+                            (maths::CPRNG::CXorShift1024Mult::max() -
                              maths::CPRNG::CXorShift1024Mult::min()) /
                                 2000);
-    BOOST_TEST(max[0] > maths::CPRNG::CXorShift1024Mult::max() -
-                                (maths::CPRNG::CXorShift1024Mult::max() -
-                                 maths::CPRNG::CXorShift1024Mult::min()) /
-                                    2000);
 
     // Test generate.
     maths::CPRNG::CXorShift1024Mult rng2 = rng1;
@@ -304,7 +303,7 @@ BOOST_AUTO_TEST_CASE(testXorShift1024Mult) {
         LOG_DEBUG(<< "m1 = " << maths::CBasicStatistics::mean(m1));
         LOG_DEBUG(<< "m2 = " << maths::CBasicStatistics::mean(m2));
         BOOST_TEST(maths::CBasicStatistics::mean(m1) >
-                       0.95 * maths::CBasicStatistics::mean(m2));
+                   0.95 * maths::CBasicStatistics::mean(m2));
     }
     {
         boost::random::mt11213b mt;
@@ -330,7 +329,7 @@ BOOST_AUTO_TEST_CASE(testXorShift1024Mult) {
         LOG_DEBUG(<< "m1 = " << maths::CBasicStatistics::mean(m1));
         LOG_DEBUG(<< "m2 = " << maths::CBasicStatistics::mean(m2));
         BOOST_TEST(maths::CBasicStatistics::mean(m1) >
-                       0.95 * maths::CBasicStatistics::mean(m2));
+                   0.95 * maths::CBasicStatistics::mean(m2));
     }
 
     // Test discard.
@@ -369,6 +368,5 @@ BOOST_AUTO_TEST_CASE(testXorShift1024Mult) {
         BOOST_CHECK_EQUAL(rng1(), rng4());
     }
 }
-
 
 BOOST_AUTO_TEST_SUITE_END()

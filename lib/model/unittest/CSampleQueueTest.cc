@@ -20,8 +20,8 @@
 
 #include <test/BoostTestCloseAbsolute.h>
 
-#include <boost/test/unit_test.hpp>
 #include <boost/math/constants/constants.hpp>
+#include <boost/test/unit_test.hpp>
 
 #include <test/CRandomNumbers.h>
 
@@ -1164,6 +1164,5 @@ BOOST_AUTO_TEST_CASE(testQualityOfSamplesGivenHighLatencyAndDataInReverseOrder) 
     BOOST_TEST(varianceMin[0] > 0.96);
     BOOST_TEST(varianceMax[0] <= 1.0);
 }
-
 
 BOOST_AUTO_TEST_SUITE_END()

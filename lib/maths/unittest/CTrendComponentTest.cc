@@ -440,5 +440,4 @@ BOOST_AUTO_TEST_CASE(testUpgradeTo7p1) {
     BOOST_TEST(errorAt95 < 0.001);
 }
 
-
 BOOST_AUTO_TEST_SUITE_END()

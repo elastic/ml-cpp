@@ -20,9 +20,9 @@
 
 #include "TestUtils.h"
 
-#include <boost/test/unit_test.hpp>
 #include <boost/optional.hpp>
 #include <boost/range.hpp>
+#include <boost/test/unit_test.hpp>
 
 #include <vector>
 
@@ -369,6 +369,5 @@ BOOST_AUTO_TEST_CASE(testPersist) {
     }
     BOOST_CHECK_EQUAL(origXml, newXml);
 }
-
 
 BOOST_AUTO_TEST_SUITE_END()

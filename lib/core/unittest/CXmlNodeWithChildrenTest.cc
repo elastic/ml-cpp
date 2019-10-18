@@ -14,7 +14,6 @@
 
 BOOST_AUTO_TEST_SUITE(CXmlNodeWithChildrenTest)
 
-
 BOOST_AUTO_TEST_CASE(testNodeHierarchyToXml) {
     ml::core::CXmlParser parser;
 

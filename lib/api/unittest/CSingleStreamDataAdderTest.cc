@@ -25,8 +25,8 @@
 #include <api/CSingleStreamSearcher.h>
 #include <api/CStateRestoreStreamFilter.h>
 
-#include <boost/test/unit_test.hpp>
 #include <boost/iostreams/filtering_stream.hpp>
+#include <boost/test/unit_test.hpp>
 
 #include <fstream>
 #include <memory>
@@ -45,7 +45,6 @@ void reportPersistComplete(ml::api::CModelSnapshotJsonWriter::SModelSnapshotRepo
     numDocsOut = modelSnapshotReport.s_NumDocs;
 }
 }
-
 
 BOOST_AUTO_TEST_CASE(testDetectorPersistBy) {
     this->detectorPersistHelper("testfiles/new_mlfields.conf",
@@ -204,9 +203,9 @@ void CSingleStreamDataAdderTest::detectorPersistHelper(const std::string& config
     // The snapshot ID can be different between the two persists, so replace the
     // first occurrence of it (which is in the bulk metadata)
     BOOST_CHECK_EQUAL(size_t(1), ml::core::CStringUtils::replaceFirst(
-                                        origSnapshotId, "snap", origPersistedState));
+                                     origSnapshotId, "snap", origPersistedState));
     BOOST_CHECK_EQUAL(size_t(1), ml::core::CStringUtils::replaceFirst(
-                                        restoredSnapshotId, "snap", newPersistedState));
+                                     restoredSnapshotId, "snap", newPersistedState));
 
     BOOST_CHECK_EQUAL(origPersistedState, newPersistedState);
 }

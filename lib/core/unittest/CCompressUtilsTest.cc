@@ -13,7 +13,6 @@
 
 BOOST_AUTO_TEST_SUITE(CCompressUtilsTest)
 
-
 BOOST_AUTO_TEST_CASE(testEmptyAdd) {
     ml::core::CDeflator compressor(false);
 
@@ -179,7 +178,7 @@ BOOST_AUTO_TEST_CASE(testTriviallyCopyableTypeVector) {
     BOOST_TEST(decompressor.data(true, uncompressed));
 
     BOOST_TEST(std::equal(uncompressed.begin(), uncompressed.end(),
-                              reinterpret_cast<Bytef*>(input.data())));
+                          reinterpret_cast<Bytef*>(input.data())));
 }
 
 BOOST_AUTO_TEST_SUITE_END()

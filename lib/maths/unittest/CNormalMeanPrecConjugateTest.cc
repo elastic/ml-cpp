@@ -15,15 +15,15 @@
 #include <maths/CRestoreParams.h>
 #include <maths/CTools.h>
 
-#include <test/CRandomNumbers.h>
 #include <test/BoostTestCloseAbsolute.h>
+#include <test/CRandomNumbers.h>
 
 #include "TestUtils.h"
 
-#include <boost/test/unit_test.hpp>
 #include <boost/math/constants/constants.hpp>
 #include <boost/math/distributions/normal.hpp>
 #include <boost/range.hpp>
+#include <boost/test/unit_test.hpp>
 
 #include <algorithm>
 #include <cmath>
@@ -345,7 +345,7 @@ BOOST_AUTO_TEST_CASE(testMarginalLikelihood) {
 
                 double logLikelihood = 0.0;
                 BOOST_CHECK_EQUAL(maths_t::E_FpNoErrors,
-                                     filter.jointLogMarginalLikelihood(sample, logLikelihood));
+                                  filter.jointLogMarginalLikelihood(sample, logLikelihood));
                 double pdf = std::exp(logLikelihood);
 
                 double lowerBound = 0.0, upperBound = 0.0;
@@ -396,7 +396,7 @@ BOOST_AUTO_TEST_CASE(testMarginalLikelihood) {
             filter.addSamples(sample);
             double logLikelihood = 0.0;
             BOOST_CHECK_EQUAL(maths_t::E_FpNoErrors,
-                                 filter.jointLogMarginalLikelihood(sample, logLikelihood));
+                              filter.jointLogMarginalLikelihood(sample, logLikelihood));
             differentialEntropy -= logLikelihood;
         }
 
@@ -513,7 +513,7 @@ BOOST_AUTO_TEST_CASE(testMarginalLikelihoodMean) {
 
                 // The error is at the precision of the numerical integration.
                 BOOST_CHECK_CLOSE_ABSOLUTE(expectedMean,
-                                             filter.marginalLikelihoodMean(), 0.01);
+                                           filter.marginalLikelihoodMean(), 0.01);
 
                 relativeError.add(
                     std::fabs(expectedMean - filter.marginalLikelihoodMean()) / expectedMean);
@@ -559,8 +559,8 @@ BOOST_AUTO_TEST_CASE(testMarginalLikelihoodMode) {
                 LOG_DEBUG(<< "marginalLikelihoodMode = " << filter.marginalLikelihoodMode(weight)
                           << ", expectedMode = " << expectedMode);
                 BOOST_CHECK_CLOSE_ABSOLUTE(expectedMode,
-                                             filter.marginalLikelihoodMode(weight),
-                                             0.12 * std::sqrt(variances[j]));
+                                           filter.marginalLikelihoodMode(weight),
+                                           0.12 * std::sqrt(variances[j]));
             }
         }
     }
@@ -602,8 +602,8 @@ BOOST_AUTO_TEST_CASE(testMarginalLikelihoodVariance) {
                 }
 
                 // The error is at the precision of the numerical integration.
-                BOOST_CHECK_CLOSE_ABSOLUTE(
-                    expectedVariance, filter.marginalLikelihoodVariance(), 0.2);
+                BOOST_CHECK_CLOSE_ABSOLUTE(expectedVariance,
+                                           filter.marginalLikelihoodVariance(), 0.2);
 
                 relativeError.add(std::fabs(expectedVariance -
                                             filter.marginalLikelihoodVariance()) /
@@ -669,10 +669,10 @@ BOOST_AUTO_TEST_CASE(testSampleMarginalLikelihood) {
                   << maths::CBasicStatistics::variance(sampledMoments));
 
         BOOST_CHECK_CLOSE_ABSOLUTE(filter.marginalLikelihoodMean(),
-                                     maths::CBasicStatistics::mean(sampledMoments), 1e-8);
+                                   maths::CBasicStatistics::mean(sampledMoments), 1e-8);
         BOOST_CHECK_CLOSE_ABSOLUTE(filter.marginalLikelihoodVariance(),
-                                     maths::CBasicStatistics::variance(sampledMoments),
-                                     0.2 * filter.marginalLikelihoodVariance());
+                                   maths::CBasicStatistics::variance(sampledMoments),
+                                   0.2 * filter.marginalLikelihoodVariance());
         meanVarError.add(std::fabs(filter.marginalLikelihoodVariance() -
                                    maths::CBasicStatistics::variance(sampledMoments)) /
                          filter.marginalLikelihoodVariance());
@@ -726,8 +726,8 @@ BOOST_AUTO_TEST_CASE(testCdf) {
 
             BOOST_TEST(filter.minusLogJointCdf(TDouble1Vec(1, x), lowerBound, upperBound));
             double f = (lowerBound + upperBound) / 2.0;
-            BOOST_TEST(filter.minusLogJointCdfComplement(
-                TDouble1Vec(1, x), lowerBound, upperBound));
+            BOOST_TEST(filter.minusLogJointCdfComplement(TDouble1Vec(1, x),
+                                                         lowerBound, upperBound));
             double fComplement = (lowerBound + upperBound) / 2.0;
 
             LOG_DEBUG(<< "log(F(x)) = " << (f == 0.0 ? f : -f) << ", log(1 - F(x)) = "
@@ -1050,9 +1050,8 @@ BOOST_AUTO_TEST_CASE(testIntegerData) {
                   << ", meanLogLikelihood2 = "
                   << maths::CBasicStatistics::mean(meanLogLikelihood2));
 
-        BOOST_CHECK_CLOSE_ABSOLUTE(
-            maths::CBasicStatistics::mean(meanLogLikelihood1),
-            maths::CBasicStatistics::mean(meanLogLikelihood2), 0.02);
+        BOOST_CHECK_CLOSE_ABSOLUTE(maths::CBasicStatistics::mean(meanLogLikelihood1),
+                                   maths::CBasicStatistics::mean(meanLogLikelihood2), 0.02);
     }
 
     {
@@ -1073,16 +1072,16 @@ BOOST_AUTO_TEST_CASE(testIntegerData) {
             TDouble1Vec sample(1, x);
 
             double l1, u1;
-            BOOST_TEST(filter1.probabilityOfLessLikelySamples(
-                maths_t::E_TwoSided, sample, l1, u1));
+            BOOST_TEST(filter1.probabilityOfLessLikelySamples(maths_t::E_TwoSided,
+                                                              sample, l1, u1));
             BOOST_CHECK_EQUAL(l1, u1);
             double p1 = (l1 + u1) / 2.0;
             meanProbability1.add(p1);
 
             sample[0] += uniform[i];
             double l2, u2;
-            BOOST_TEST(filter2.probabilityOfLessLikelySamples(
-                maths_t::E_TwoSided, sample, l2, u2));
+            BOOST_TEST(filter2.probabilityOfLessLikelySamples(maths_t::E_TwoSided,
+                                                              sample, l2, u2));
             BOOST_CHECK_EQUAL(l2, u2);
             double p2 = (l2 + u2) / 2.0;
             meanProbability2.add(p2);
@@ -1119,8 +1118,8 @@ BOOST_AUTO_TEST_CASE(testLowVariationData) {
         double sigma = (interval.second - interval.first) / 2.0;
         LOG_DEBUG(<< "68% confidence interval " << core::CContainerPrinter::print(interval)
                   << ", approximate s.t.d. = " << sigma);
-        BOOST_CHECK_CLOSE_ABSOLUTE(
-            1.0 / maths::MINIMUM_COEFFICIENT_OF_VARIATION / 430.5, 1.0 / sigma, 7.0);
+        BOOST_CHECK_CLOSE_ABSOLUTE(1.0 / maths::MINIMUM_COEFFICIENT_OF_VARIATION / 430.5,
+                                   1.0 / sigma, 7.0);
     }
 }
 
@@ -1233,9 +1232,8 @@ BOOST_AUTO_TEST_CASE(testSeasonalVarianceScale) {
                     filter.expectation(CVarianceKernel(filter.marginalLikelihoodMean()),
                                        100, expectationVariance, weight);
                     LOG_DEBUG(<< "expectationVariance = " << expectationVariance);
-                    BOOST_CHECK_CLOSE_ABSOLUTE(
-                        vs * unscaledExpectationVariance, expectationVariance,
-                        0.01 * vs * unscaledExpectationVariance);
+                    BOOST_CHECK_CLOSE_ABSOLUTE(vs * unscaledExpectationVariance, expectationVariance,
+                                               0.01 * vs * unscaledExpectationVariance);
                     BOOST_CHECK_CLOSE_ABSOLUTE(
                         filter.marginalLikelihoodVariance(weight), expectationVariance,
                         0.01 * filter.marginalLikelihoodVariance(weight));
@@ -1306,9 +1304,9 @@ BOOST_AUTO_TEST_CASE(testSeasonalVarianceScale) {
                                 0.1 * std::fabs(std::log(expectedUpperBound)));
                         } else {
                             BOOST_CHECK_CLOSE_ABSOLUTE(expectedLowerBound, lowerBound,
-                                                         0.01 * expectedLowerBound);
+                                                       0.01 * expectedLowerBound);
                             BOOST_CHECK_CLOSE_ABSOLUTE(expectedUpperBound, upperBound,
-                                                         0.01 * expectedUpperBound);
+                                                       0.01 * expectedUpperBound);
                         }
                         BOOST_CHECK_EQUAL(expectedTail, tail);
                     }
@@ -1489,11 +1487,11 @@ BOOST_AUTO_TEST_CASE(testCountVarianceScale) {
         rng.generateNormalSamples(mean, varianceScales[i] * variance, 10000, scaledSamples);
         for (std::size_t j = 0u; j < scaledSamples.size(); ++j) {
             double logLikelihood = 0.0;
-            BOOST_CHECK_EQUAL(
-                maths_t::E_FpNoErrors,
-                filter.jointLogMarginalLikelihood(
-                    {scaledSamples[j]},
-                    {maths_t::countVarianceScaleWeight(varianceScales[i])}, logLikelihood));
+            BOOST_CHECK_EQUAL(maths_t::E_FpNoErrors,
+                              filter.jointLogMarginalLikelihood(
+                                  {scaledSamples[j]},
+                                  {maths_t::countVarianceScaleWeight(varianceScales[i])},
+                                  logLikelihood));
             differentialEntropy -= logLikelihood;
         }
 
@@ -1548,6 +1546,5 @@ BOOST_AUTO_TEST_CASE(testCountVarianceScale) {
         BOOST_CHECK_CLOSE_ABSOLUTE(interval, (100.0 - testIntervals[i]), 4.0);
     }
 }
-
 
 BOOST_AUTO_TEST_SUITE_END()

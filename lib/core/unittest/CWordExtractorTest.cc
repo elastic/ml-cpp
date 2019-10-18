@@ -11,7 +11,6 @@
 
 BOOST_AUTO_TEST_SUITE(CWordExtractorTest)
 
-
 BOOST_AUTO_TEST_CASE(testWordExtract) {
     {
         std::string message("2017-01-25 02:10:03,551 ERROR [co.elastic.tradefeedtracker.MessageLoggerService] Failed to Rollback");
@@ -47,7 +46,7 @@ BOOST_AUTO_TEST_CASE(testWordExtract) {
         LOG_DEBUG(<< "Words: " << words);
 
         BOOST_CHECK_EQUAL(std::string("which is more than the configured time of seconds Stack trace"),
-                             words);
+                          words);
     }
 }
 
@@ -91,7 +90,7 @@ BOOST_AUTO_TEST_CASE(testMinConsecutive) {
         LOG_DEBUG(<< "Words: " << words);
 
         BOOST_CHECK_EQUAL(std::string("which is more than the configured time seconds Stack trace"),
-                             words);
+                          words);
 
         ml::core::CWordExtractor::extractWordsFromMessage(3, message, words);
 
@@ -100,7 +99,7 @@ BOOST_AUTO_TEST_CASE(testMinConsecutive) {
         LOG_DEBUG(<< "Words: " << words);
 
         BOOST_CHECK_EQUAL(std::string("which is more than the configured time seconds Stack trace"),
-                             words);
+                          words);
 
         ml::core::CWordExtractor::extractWordsFromMessage(4, message, words);
 
@@ -122,7 +121,7 @@ BOOST_AUTO_TEST_CASE(testMinConsecutive) {
         LOG_DEBUG(<< "Words: " << words);
 
         BOOST_CHECK_EQUAL(std::string("Output threshold breached for at position using application on channel"),
-                             words);
+                          words);
 
         ml::core::CWordExtractor::extractWordsFromMessage(3, message, words);
 

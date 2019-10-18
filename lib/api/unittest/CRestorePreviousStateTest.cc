@@ -55,7 +55,6 @@ const std::vector<SRestoreTestConfig> BWC_VERSIONS{
     SRestoreTestConfig{"6.1.0", false, true}};
 }
 
-
 BOOST_AUTO_TEST_CASE(testRestoreDetectorBy) {
     for (const auto& version : BWC_VERSIONS) {
         LOG_INFO(<< "Test restoring state from version " << version.s_Version);
@@ -161,7 +160,7 @@ void CRestorePreviousStateTest::categorizerRestoreHelper(const std::string& stat
             newPersistedState = strm->str();
         }
         BOOST_CHECK_EQUAL(this->stripDocIds(origPersistedState),
-                             this->stripDocIds(newPersistedState));
+                          this->stripDocIds(newPersistedState));
     }
 }
 
@@ -233,7 +232,7 @@ void CRestorePreviousStateTest::anomalyDetectorRestoreHelper(const std::string& 
 
         BOOST_CHECK_EQUAL(numRestoredDocs, numDocsInStateFile);
         BOOST_CHECK_EQUAL(this->stripDocIds(origPersistedState),
-                             this->stripDocIds(newPersistedState));
+                          this->stripDocIds(newPersistedState));
     }
 }
 

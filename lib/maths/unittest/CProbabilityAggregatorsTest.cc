@@ -11,13 +11,13 @@
 #include <maths/CTools.h>
 #include <maths/ProbabilityAggregators.h>
 
-#include <test/CRandomNumbers.h>
 #include <test/BoostTestCloseAbsolute.h>
+#include <test/CRandomNumbers.h>
 
-#include <boost/test/unit_test.hpp>
 #include <boost/math/distributions/normal.hpp>
 #include <boost/optional.hpp>
 #include <boost/range.hpp>
+#include <boost/test/unit_test.hpp>
 
 #include <cmath>
 
@@ -392,7 +392,7 @@ BOOST_AUTO_TEST_CASE(testLogJointProbabilityOfLessLikelySamples) {
                     BOOST_TEST(logP > lowerBound);
 
                     BOOST_CHECK_CLOSE_ABSOLUTE(upperBound, lowerBound,
-                                                 std::fabs(8e-4 * upperBound));
+                                               std::fabs(8e-4 * upperBound));
 
                     error += (upperBound - lowerBound) / std::fabs(upperBound);
                 } else if (jointProbability.numberSamples() > 1.0) {
@@ -828,6 +828,5 @@ BOOST_AUTO_TEST_CASE(testProbabilityOfMFromNExtremeSamples) {
         BOOST_CHECK_CLOSE_ABSOLUTE(p1, p2, 1e-3);
     }
 }
-
 
 BOOST_AUTO_TEST_SUITE_END()

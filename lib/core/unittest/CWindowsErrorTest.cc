@@ -11,7 +11,6 @@
 
 BOOST_AUTO_TEST_SUITE(CWindowsErrorTest)
 
-
 BOOST_AUTO_TEST_CASE(testErrors) {
     LOG_INFO(<< "Windows error 1 is : " << ml::core::CWindowsError(1));
     LOG_INFO(<< "Windows error 2 is : " << ml::core::CWindowsError(2));

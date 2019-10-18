@@ -18,7 +18,6 @@
 
 BOOST_AUTO_TEST_SUITE(CRapidJsonWriterBaseTest)
 
-
 namespace {
 const std::string STR_NAME("str");
 const std::string EMPTY1_NAME("empty1");

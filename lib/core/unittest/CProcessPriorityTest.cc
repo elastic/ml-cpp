@@ -10,7 +10,6 @@
 
 BOOST_AUTO_TEST_SUITE(CProcessPriorityTest)
 
-
 BOOST_AUTO_TEST_CASE(testReducePriority) {
     ml::core::CProcessPriority::reducePriority();
 }

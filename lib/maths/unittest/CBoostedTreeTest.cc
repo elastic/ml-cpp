@@ -15,9 +15,9 @@
 #include <maths/CSolvers.h>
 #include <maths/CTools.h>
 
+#include <test/BoostTestCloseAbsolute.h>
 #include <test/CRandomNumbers.h>
 #include <test/CTestTmpDir.h>
-#include <test/BoostTestCloseAbsolute.h>
 
 #include <boost/test/unit_test.hpp>
 
@@ -1000,7 +1000,7 @@ BOOST_AUTO_TEST_CASE(testLogisticMinimizerRandom) {
             BOOST_CHECK_EQUAL(actual, actualPartition);
             BOOST_CHECK_CLOSE_ABSOLUTE(expected, actual, 0.01 * std::fabs(expected));
             BOOST_CHECK_CLOSE_ABSOLUTE(objectiveAtExpected, objective(actual),
-                                         1e-5 * objectiveAtExpected);
+                                       1e-5 * objectiveAtExpected);
         }
     }
 }
@@ -1041,13 +1041,13 @@ BOOST_AUTO_TEST_CASE(testLogisticLossForUnderflow) {
             TDoubleVec currentCurvature{loss.curvature(scale + std::log(eps), 0.0),
                                         loss.curvature(scale - std::log(eps), 1.0)};
             BOOST_CHECK_CLOSE_ABSOLUTE(std::exp(0.25),
-                                         lastGradient[0] / currentGradient[0], 5e-3);
+                                       lastGradient[0] / currentGradient[0], 5e-3);
             BOOST_CHECK_CLOSE_ABSOLUTE(std::exp(-0.25),
-                                         lastGradient[1] / currentGradient[1], 5e-3);
-            BOOST_CHECK_CLOSE_ABSOLUTE(
-                std::exp(0.25), lastCurvature[0] / currentCurvature[0], 5e-3);
-            BOOST_CHECK_CLOSE_ABSOLUTE(
-                std::exp(-0.25), lastCurvature[1] / currentCurvature[1], 5e-3);
+                                       lastGradient[1] / currentGradient[1], 5e-3);
+            BOOST_CHECK_CLOSE_ABSOLUTE(std::exp(0.25),
+                                       lastCurvature[0] / currentCurvature[0], 5e-3);
+            BOOST_CHECK_CLOSE_ABSOLUTE(std::exp(-0.25),
+                                       lastCurvature[1] / currentCurvature[1], 5e-3);
             lastGradient = currentGradient;
             lastCurvature = currentCurvature;
         }
@@ -1375,7 +1375,7 @@ BOOST_AUTO_TEST_CASE(testRestoreErrorHandling) {
         BOOST_TEST(re.matches(e.what()));
         readFileToStream(logFile, buffer);
         BOOST_TEST(buffer.str().find("Failed to restore MAX_BOUNDARY_TAG") !=
-                       std::string::npos);
+                   std::string::npos);
     }
     BOOST_TEST(throwsExceptions);
 
@@ -1397,7 +1397,7 @@ BOOST_AUTO_TEST_CASE(testRestoreErrorHandling) {
         BOOST_TEST(re.matches(e.what()));
         readFileToStream(logFile, buffer);
         BOOST_TEST(buffer.str().find("Failed to restore NUMBER_FOLDS_TAG") !=
-                       std::string::npos);
+                   std::string::npos);
     }
     BOOST_TEST(throwsExceptions);
 
@@ -1419,11 +1419,10 @@ BOOST_AUTO_TEST_CASE(testRestoreErrorHandling) {
         BOOST_TEST(re.matches(e.what()));
         readFileToStream(logFile, buffer);
         BOOST_TEST(buffer.str().find("unsupported state serialization version.") !=
-                       std::string::npos);
+                   std::string::npos);
     }
     BOOST_TEST(throwsExceptions);
     ml::core::CLogger::instance().reset();
 }
-
 
 BOOST_AUTO_TEST_SUITE_END()

@@ -7,8 +7,8 @@
 #include <core/CContainerPrinter.h>
 #include <core/CLogger.h>
 
-#include <boost/test/unit_test.hpp>
 #include <boost/optional.hpp>
+#include <boost/test/unit_test.hpp>
 
 #include <list>
 #include <map>
@@ -36,7 +36,7 @@ BOOST_AUTO_TEST_CASE(testAll) {
     list.push_back(std::make_pair(3, 2));
     LOG_DEBUG(<< "list = " << CContainerPrinter::print(list));
     BOOST_CHECK_EQUAL(std::string("[(1, 2), (2, 2), (3, 2)]"),
-                         CContainerPrinter::print(list));
+                      CContainerPrinter::print(list));
 
     std::list<std::shared_ptr<double>> plist;
     plist.push_back(std::shared_ptr<double>());
@@ -53,7 +53,7 @@ BOOST_AUTO_TEST_CASE(testAll) {
     map.insert(std::make_pair(1.0, static_cast<double*>(nullptr)));
     LOG_DEBUG(<< "map = " << CContainerPrinter::print(map));
     BOOST_CHECK_EQUAL(std::string("[(1, \"null\"), (1.1, 3), (3.3, 5.1)]"),
-                         CContainerPrinter::print(map));
+                      CContainerPrinter::print(map));
 
     std::unique_ptr<int> pints[] = {std::unique_ptr<int>(new int(2)),
                                     std::unique_ptr<int>(new int(3)),
@@ -61,12 +61,11 @@ BOOST_AUTO_TEST_CASE(testAll) {
     LOG_DEBUG(<< "pints = "
               << CContainerPrinter::print(std::begin(pints), std::end(pints)));
     BOOST_CHECK_EQUAL(std::string("[2, 3, 2]"),
-                         CContainerPrinter::print(std::begin(pints), std::end(pints)));
+                      CContainerPrinter::print(std::begin(pints), std::end(pints)));
 
     std::vector<boost::optional<double>> ovec(2, boost::optional<double>());
     LOG_DEBUG(<< "ovec = " << CContainerPrinter::print(ovec));
-    BOOST_CHECK_EQUAL(std::string("[\"null\", \"null\"]"),
-                         CContainerPrinter::print(ovec));
+    BOOST_CHECK_EQUAL(std::string("[\"null\", \"null\"]"), CContainerPrinter::print(ovec));
 
     std::vector<std::pair<std::list<std::pair<int, int>>, double>> aggregate;
     aggregate.push_back(std::make_pair(list, 1.3));
@@ -74,8 +73,7 @@ BOOST_AUTO_TEST_CASE(testAll) {
     aggregate.push_back(std::make_pair(list, 5.1));
     LOG_DEBUG(<< "aggregate = " << CContainerPrinter::print(aggregate));
     BOOST_CHECK_EQUAL(std::string("[([(1, 2), (2, 2), (3, 2)], 1.3), ([], 0), ([(1, 2), (2, 2), (3, 2)], 5.1)]"),
-                         CContainerPrinter::print(aggregate));
+                      CContainerPrinter::print(aggregate));
 }
-
 
 BOOST_AUTO_TEST_SUITE_END()

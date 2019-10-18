@@ -148,8 +148,7 @@ BOOST_AUTO_TEST_CASE(testStringStore) {
         BOOST_CHECK_EQUAL(strings.size(), CStringStore::names().m_Strings.size());
         CStringStore::names().pruneNotThreadSafe();
         BOOST_CHECK_EQUAL(strings.size(), CStringStore::names().m_Strings.size());
-        BOOST_CHECK_EQUAL(std::size_t(0),
-                             CStringStore::influencers().m_Strings.size());
+        BOOST_CHECK_EQUAL(std::size_t(0), CStringStore::influencers().m_Strings.size());
 
         for (std::size_t i = 0; i < threads.size(); ++i) {
             // CppUnit won't automatically catch the exceptions thrown by
@@ -244,6 +243,5 @@ BOOST_AUTO_TEST_CASE(testMemUsage) {
     CStringStore::names().clearEverythingTestOnly();
     BOOST_CHECK_EQUAL(origMemUse, CStringStore::names().memoryUsage());
 }
-
 
 BOOST_AUTO_TEST_SUITE_END()

@@ -24,7 +24,6 @@
 
 BOOST_AUTO_TEST_SUITE(COutputChainerTest)
 
-
 BOOST_AUTO_TEST_CASE(testChaining) {
     static const ml::core_t::TTime BUCKET_SIZE(3600);
 

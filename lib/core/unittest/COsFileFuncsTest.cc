@@ -19,7 +19,6 @@
 BOOST_AUTO_TEST_SUITE(COsFileFuncsTest)
 #endif
 
-
 BOOST_AUTO_TEST_CASE(testInode) {
     // Windows doesn't have inodes as such, but on NTFS we can simulate a number
     // that fulfils the purpose of determining when a file has been renamed and
@@ -38,8 +37,7 @@ BOOST_AUTO_TEST_CASE(testInode) {
 
     ::memset(&statBuf, 0, sizeof(statBuf));
     ml::core::COsFileFuncs::TIno headerOpen(0);
-    int headerFd(ml::core::COsFileFuncs::open(mainFile.c_str(),
-                                              ml::core::COsFileFuncs::RDONLY));
+    int headerFd(ml::core::COsFileFuncs::open(mainFile.c_str(), ml::core::COsFileFuncs::RDONLY));
     BOOST_TEST(headerFd != -1);
     BOOST_CHECK_EQUAL(0, ml::core::COsFileFuncs::fstat(headerFd, &statBuf));
     BOOST_CHECK_EQUAL(0, ml::core::COsFileFuncs::close(headerFd));
@@ -82,7 +80,7 @@ BOOST_AUTO_TEST_CASE(testLStat) {
 #else
 #ifdef Windows
     BOOST_TEST(CreateSymbolicLink(symLink.c_str(), file.c_str(),
-                                      SYMBOLIC_LINK_FLAG_ALLOW_UNPRIVILEGED_CREATE) != FALSE);
+                                  SYMBOLIC_LINK_FLAG_ALLOW_UNPRIVILEGED_CREATE) != FALSE);
 #else
     BOOST_CHECK_EQUAL(0, ::symlink(file.c_str(), symLink.c_str()));
 #endif

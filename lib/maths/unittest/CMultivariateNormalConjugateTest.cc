@@ -13,8 +13,8 @@
 #include <maths/CMultivariateNormalConjugate.h>
 #include <maths/CRestoreParams.h>
 
-#include <test/CRandomNumbers.h>
 #include <test/BoostTestCloseAbsolute.h>
+#include <test/CRandomNumbers.h>
 
 #include "TestUtils.h"
 
@@ -612,9 +612,8 @@ BOOST_AUTO_TEST_CASE(testSampleMarginalLikelihood) {
             BOOST_TEST(resamples.empty());
         } else {
             BOOST_TEST(resamples.size() == 1);
-            BOOST_CHECK_EQUAL(
-                core::CContainerPrinter::print(filter.marginalLikelihoodMean()),
-                core::CContainerPrinter::print(resamples[0]));
+            BOOST_CHECK_EQUAL(core::CContainerPrinter::print(filter.marginalLikelihoodMean()),
+                              core::CContainerPrinter::print(resamples[0]));
         }
 
         filter.addSamples({samples[i]},
@@ -648,8 +647,7 @@ BOOST_AUTO_TEST_CASE(testSampleMarginalLikelihood) {
         LOG_DEBUG(<< "likelihood cov  = " << likelihoodCov);
         LOG_DEBUG(<< "sample cov      = " << sampleCov);
 
-        BOOST_TEST(
-            (sampleMean - likelihoodMean).euclidean() / likelihoodMean.euclidean() < 1e-6);
+        BOOST_TEST((sampleMean - likelihoodMean).euclidean() / likelihoodMean.euclidean() < 1e-6);
         BOOST_TEST((sampleCov - likelihoodCov).frobenius() / likelihoodCov.frobenius() < 0.01);
 
         TDoubleVec sampleProbabilities;
@@ -856,8 +854,7 @@ BOOST_AUTO_TEST_CASE(testLowVariationData) {
 
         TDouble10Vec10Vec covariances = filter.marginalLikelihoodCovariance();
         LOG_DEBUG(<< "covariance matrix " << core::CContainerPrinter::print(covariances));
-        BOOST_CHECK_CLOSE_ABSOLUTE(
-            12.0, 2.0 / (covariances[0][0] + covariances[1][1]), 0.3);
+        BOOST_CHECK_CLOSE_ABSOLUTE(12.0, 2.0 / (covariances[0][0] + covariances[1][1]), 0.3);
     }
     {
         maths::CMultivariateNormalConjugate<2> filter(
@@ -1066,6 +1063,5 @@ void CMultivariateNormalConjugateTest::dataGenerator() {
     }
     f.close();
 }
-
 
 BOOST_AUTO_TEST_SUITE_END()

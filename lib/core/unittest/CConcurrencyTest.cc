@@ -348,5 +348,4 @@ BOOST_AUTO_TEST_CASE(testProgressMonitoring) {
     core::stopDefaultAsyncExecutor();
 }
 
-
 BOOST_AUTO_TEST_SUITE_END()

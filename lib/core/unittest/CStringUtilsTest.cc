@@ -11,8 +11,8 @@
 
 #include <test/BoostTestCloseAbsolute.h>
 
-#include <boost/test/unit_test.hpp>
 #include <boost/lexical_cast.hpp>
+#include <boost/test/unit_test.hpp>
 
 #include <set>
 #include <vector>
@@ -106,8 +106,7 @@ BOOST_AUTO_TEST_CASE(testReplaceFirst) {
         std::string in("%d%M%Y%f%D%t");
         const std::string out(" %d%M%Y%f%D%t");
 
-        BOOST_CHECK_EQUAL(size_t(1),
-                             ml::core::CStringUtils::replaceFirst("%", " %", in));
+        BOOST_CHECK_EQUAL(size_t(1), ml::core::CStringUtils::replaceFirst("%", " %", in));
 
         BOOST_CHECK_EQUAL(out, in);
     }
@@ -553,11 +552,11 @@ BOOST_AUTO_TEST_CASE(testJoin) {
     strVec.push_back(std::string("ccc"));
 
     BOOST_CHECK_EQUAL(std::string("aaa,bbb,ccc"),
-                         CStringUtils::join(strVec, std::string(",")));
+                      CStringUtils::join(strVec, std::string(",")));
 
     LOG_DEBUG(<< "Test delimiter has more than one characters");
     BOOST_CHECK_EQUAL(std::string("aaa::bbb::ccc"),
-                         CStringUtils::join(strVec, std::string("::")));
+                      CStringUtils::join(strVec, std::string("::")));
 
     LOG_DEBUG(<< "Test set instead of vector");
     TStrSet strSet;
@@ -565,7 +564,7 @@ BOOST_AUTO_TEST_CASE(testJoin) {
     strSet.insert(std::string("bbb"));
     strSet.insert(std::string("ccc"));
     BOOST_CHECK_EQUAL(std::string("aaa,bbb,ccc"),
-                         CStringUtils::join(strSet, std::string(",")));
+                      CStringUtils::join(strSet, std::string(",")));
 }
 
 BOOST_AUTO_TEST_CASE(testLower) {
@@ -573,11 +572,9 @@ BOOST_AUTO_TEST_CASE(testLower) {
     BOOST_CHECK_EQUAL(std::string("hello"), ml::core::CStringUtils::toLower("Hello"));
     BOOST_CHECK_EQUAL(std::string("hello"), ml::core::CStringUtils::toLower("HELLO"));
 
-    BOOST_CHECK_EQUAL(std::string("123hello"),
-                         ml::core::CStringUtils::toLower("123hello"));
+    BOOST_CHECK_EQUAL(std::string("123hello"), ml::core::CStringUtils::toLower("123hello"));
     BOOST_CHECK_EQUAL(std::string("hello  "), ml::core::CStringUtils::toLower("Hello  "));
-    BOOST_CHECK_EQUAL(std::string("_-+hello"),
-                         ml::core::CStringUtils::toLower("_-+HELLO"));
+    BOOST_CHECK_EQUAL(std::string("_-+hello"), ml::core::CStringUtils::toLower("_-+HELLO"));
 }
 
 BOOST_AUTO_TEST_CASE(testUpper) {
@@ -585,11 +582,9 @@ BOOST_AUTO_TEST_CASE(testUpper) {
     BOOST_CHECK_EQUAL(std::string("HELLO"), ml::core::CStringUtils::toUpper("Hello"));
     BOOST_CHECK_EQUAL(std::string("HELLO"), ml::core::CStringUtils::toUpper("HELLO"));
 
-    BOOST_CHECK_EQUAL(std::string("123HELLO"),
-                         ml::core::CStringUtils::toUpper("123hello"));
+    BOOST_CHECK_EQUAL(std::string("123HELLO"), ml::core::CStringUtils::toUpper("123hello"));
     BOOST_CHECK_EQUAL(std::string("HELLO  "), ml::core::CStringUtils::toUpper("Hello  "));
-    BOOST_CHECK_EQUAL(std::string("_-+HELLO"),
-                         ml::core::CStringUtils::toUpper("_-+HELLO"));
+    BOOST_CHECK_EQUAL(std::string("_-+HELLO"), ml::core::CStringUtils::toUpper("_-+HELLO"));
 }
 
 BOOST_AUTO_TEST_CASE(testNarrowWiden) {
@@ -597,9 +592,9 @@ BOOST_AUTO_TEST_CASE(testNarrowWiden) {
     std::wstring hello2(L"Hello");
 
     BOOST_CHECK_EQUAL(hello1.length(),
-                         ml::core::CStringUtils::narrowToWide(hello1).length());
+                      ml::core::CStringUtils::narrowToWide(hello1).length());
     BOOST_CHECK_EQUAL(hello2.length(),
-                         ml::core::CStringUtils::wideToNarrow(hello2).length());
+                      ml::core::CStringUtils::wideToNarrow(hello2).length());
 
     BOOST_TEST(ml::core::CStringUtils::narrowToWide(hello1) == hello2);
     BOOST_TEST(ml::core::CStringUtils::wideToNarrow(hello2) == hello1);

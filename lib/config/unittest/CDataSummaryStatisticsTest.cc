@@ -12,14 +12,14 @@
 
 #include <config/CDataSummaryStatistics.h>
 
-#include <test/CRandomNumbers.h>
 #include <test/BoostTestCloseAbsolute.h>
+#include <test/CRandomNumbers.h>
 
-#include <boost/test/unit_test.hpp>
 #include <boost/math/distributions/gamma.hpp>
 #include <boost/math/distributions/lognormal.hpp>
 #include <boost/math/distributions/normal.hpp>
 #include <boost/range.hpp>
+#include <boost/test/unit_test.hpp>
 
 #include <algorithm>
 #include <cstdio>
@@ -54,7 +54,7 @@ BOOST_AUTO_TEST_CASE(testRate) {
                   << ", latest = " << summary.latest());
         LOG_DEBUG(<< "rate = " << summary.meanRate());
         BOOST_CHECK_CLOSE_ABSOLUTE(rate[i], summary.meanRate(),
-                                     2.0 * rate[i] * rate[i] / n);
+                                   2.0 * rate[i] * rate[i] / n);
     }
 }
 
@@ -270,8 +270,8 @@ BOOST_AUTO_TEST_CASE(testNumericDistribution) {
         LOG_DEBUG(<< "meanAbsError = " << maths::CBasicStatistics::mean(meanAbsError));
         LOG_DEBUG(<< "mean = " << maths::CBasicStatistics::mean(mean));
         BOOST_TEST(maths::CBasicStatistics::mean(meanAbsError) /
-                           maths::CBasicStatistics::mean(mean) <
-                       0.3);
+                       maths::CBasicStatistics::mean(mean) <
+                   0.3);
     }
 
     {
@@ -327,6 +327,5 @@ BOOST_AUTO_TEST_CASE(testNumericDistribution) {
         BOOST_TEST(maths::CBasicStatistics::mean(meanRelError) < 0.05);
     }
 }
-
 
 BOOST_AUTO_TEST_SUITE_END()

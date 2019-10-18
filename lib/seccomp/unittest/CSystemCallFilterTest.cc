@@ -17,9 +17,9 @@
 
 #include <test/CTestTmpDir.h>
 
-#include <boost/test/unit_test.hpp>
 #include <boost/filesystem.hpp>
 #include <boost/system/error_code.hpp>
+#include <boost/test/unit_test.hpp>
 
 #include <cstdlib>
 #include <string>
@@ -131,7 +131,6 @@ bool versionIsBefore3_5(std::int64_t major, std::int64_t minor) {
 }
 #endif
 }
-
 
 BOOST_AUTO_TEST_CASE(testSystemCallFilter) {
 #ifdef Linux

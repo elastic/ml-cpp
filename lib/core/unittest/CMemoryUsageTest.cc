@@ -12,12 +12,12 @@
 
 #include <test/CRandomNumbers.h>
 
-#include <boost/test/unit_test.hpp>
 #include <boost/circular_buffer.hpp>
 #include <boost/container/flat_map.hpp>
 #include <boost/container/flat_set.hpp>
 #include <boost/optional.hpp>
 #include <boost/range.hpp>
+#include <boost/test/unit_test.hpp>
 #include <boost/unordered_map.hpp>
 
 #include <cstdlib>
@@ -308,7 +308,7 @@ BOOST_AUTO_TEST_CASE(testUsage) {
         LOG_DEBUG(<< "dynamicSize(foosWithMemory) = "
                   << core::CMemory::dynamicSize(foosWithMemory));
         BOOST_CHECK_EQUAL(core::CMemory::dynamicSize(foos),
-                             core::CMemory::dynamicSize(foosWithMemory));
+                          core::CMemory::dynamicSize(foosWithMemory));
     }
     {
         TFooList foos(10);
@@ -319,7 +319,7 @@ BOOST_AUTO_TEST_CASE(testUsage) {
         LOG_DEBUG(<< "dynamicSize(foosWithMemory) = "
                   << core::CMemory::dynamicSize(foosWithMemory));
         BOOST_CHECK_EQUAL(core::CMemory::dynamicSize(foos),
-                             core::CMemory::dynamicSize(foosWithMemory));
+                          core::CMemory::dynamicSize(foosWithMemory));
     }
     {
         TFooDeque foos(10);
@@ -330,7 +330,7 @@ BOOST_AUTO_TEST_CASE(testUsage) {
         LOG_DEBUG(<< "dynamicSize(foosWithMemory) = "
                   << core::CMemory::dynamicSize(foosWithMemory));
         BOOST_CHECK_EQUAL(core::CMemory::dynamicSize(foos),
-                             core::CMemory::dynamicSize(foosWithMemory));
+                          core::CMemory::dynamicSize(foosWithMemory));
     }
     {
         TFooCircBuf foos(10);
@@ -343,7 +343,7 @@ BOOST_AUTO_TEST_CASE(testUsage) {
         LOG_DEBUG(<< "dynamicSize(foosWithMemory) = "
                   << core::CMemory::dynamicSize(foosWithMemory));
         BOOST_CHECK_EQUAL(core::CMemory::dynamicSize(foos),
-                             core::CMemory::dynamicSize(foosWithMemory));
+                          core::CMemory::dynamicSize(foosWithMemory));
     }
     {
         TFooFooMap foos;
@@ -360,7 +360,7 @@ BOOST_AUTO_TEST_CASE(testUsage) {
         LOG_DEBUG(<< "dynamicSize(foosWithMemory) = "
                   << core::CMemory::dynamicSize(foosWithMemory));
         BOOST_CHECK_EQUAL(core::CMemory::dynamicSize(foos),
-                             core::CMemory::dynamicSize(foosWithMemory));
+                          core::CMemory::dynamicSize(foosWithMemory));
     }
     {
         TFooFooUMap foos;
@@ -377,7 +377,7 @@ BOOST_AUTO_TEST_CASE(testUsage) {
         LOG_DEBUG(<< "dynamicSize(foosWithMemory) = "
                   << core::CMemory::dynamicSize(foosWithMemory));
         BOOST_CHECK_EQUAL(core::CMemory::dynamicSize(foos),
-                             core::CMemory::dynamicSize(foosWithMemory));
+                          core::CMemory::dynamicSize(foosWithMemory));
     }
     {
         TFooFSet foos;
@@ -389,8 +389,7 @@ BOOST_AUTO_TEST_CASE(testUsage) {
 
         LOG_DEBUG(<< "*** TFooFSet ***");
         LOG_DEBUG(<< "dynamicSize(foos)           = " << core::CMemory::dynamicSize(foos));
-        BOOST_CHECK_EQUAL(core::CMemory::dynamicSize(foos),
-                             foos.capacity() * sizeof(SFoo));
+        BOOST_CHECK_EQUAL(core::CMemory::dynamicSize(foos), foos.capacity() * sizeof(SFoo));
     }
 
     {
@@ -425,9 +424,9 @@ BOOST_AUTO_TEST_CASE(testUsage) {
                   << core::CMemory::dynamicSize(bars2) + core::CMemory::dynamicSize(state21) +
                          core::CMemory::dynamicSize(state22));
         BOOST_CHECK_EQUAL(core::CMemory::dynamicSize(bars1),
-                             core::CMemory::dynamicSize(bars2) +
-                                 core::CMemory::dynamicSize(state21) +
-                                 core::CMemory::dynamicSize(state22));
+                          core::CMemory::dynamicSize(bars2) +
+                              core::CMemory::dynamicSize(state21) +
+                              core::CMemory::dynamicSize(state22));
     }
     {
         SBar key;
@@ -447,9 +446,9 @@ BOOST_AUTO_TEST_CASE(testUsage) {
                   << core::CMemory::dynamicSize(bars2) + core::CMemory::dynamicSize(key) +
                          core::CMemory::dynamicSize(value));
         BOOST_CHECK_EQUAL(core::CMemory::dynamicSize(bars1),
-                             core::CMemory::dynamicSize(bars2) +
-                                 core::CMemory::dynamicSize(key) +
-                                 core::CMemory::dynamicSize(value));
+                          core::CMemory::dynamicSize(bars2) +
+                              core::CMemory::dynamicSize(key) +
+                              core::CMemory::dynamicSize(value));
     }
     {
         SBar key;
@@ -469,9 +468,9 @@ BOOST_AUTO_TEST_CASE(testUsage) {
                   << core::CMemory::dynamicSize(bars2) + core::CMemory::dynamicSize(key) +
                          core::CMemory::dynamicSize(value));
         BOOST_CHECK_EQUAL(core::CMemory::dynamicSize(bars1),
-                             core::CMemory::dynamicSize(bars2) +
-                                 core::CMemory::dynamicSize(key) +
-                                 core::CMemory::dynamicSize(value));
+                          core::CMemory::dynamicSize(bars2) +
+                              core::CMemory::dynamicSize(key) +
+                              core::CMemory::dynamicSize(value));
     }
     {
         SBar key;
@@ -495,9 +494,9 @@ BOOST_AUTO_TEST_CASE(testUsage) {
                   << core::CMemory::dynamicSize(bars2) + core::CMemory::dynamicSize(key) +
                          core::CMemory::dynamicSize(value));
         BOOST_CHECK_EQUAL(core::CMemory::dynamicSize(bars1),
-                             core::CMemory::dynamicSize(bars2) +
-                                 core::CMemory::dynamicSize(key) +
-                                 core::CMemory::dynamicSize(value));
+                          core::CMemory::dynamicSize(bars2) +
+                              core::CMemory::dynamicSize(key) +
+                              core::CMemory::dynamicSize(value));
     }
     {
         SBar value;
@@ -510,8 +509,8 @@ BOOST_AUTO_TEST_CASE(testUsage) {
         LOG_DEBUG(<< "expected dynamic size = "
                   << sizeof(SBar) + sizeof(SFoo) * value.s_State.capacity());
         BOOST_CHECK_EQUAL(core::CMemory::dynamicSize(pointer),
-                             sizeof(long) + sizeof(SBar) +
-                                 sizeof(SFoo) * value.s_State.capacity());
+                          sizeof(long) + sizeof(SBar) +
+                              sizeof(SFoo) * value.s_State.capacity());
     }
 
     {
@@ -529,7 +528,7 @@ BOOST_AUTO_TEST_CASE(testUsage) {
 
         LOG_DEBUG(<< "wrong dynamic size = " << core::CMemory::dynamicSize(variables));
         BOOST_CHECK_EQUAL(variables.capacity() * sizeof(std::size_t),
-                             core::CMemory::dynamicSize(variables));
+                          core::CMemory::dynamicSize(variables));
 
         core::CMemory::CAnyVisitor& visitor = core::CMemory::anyVisitor();
         visitor.registerCallback<TDoubleVec>();
@@ -541,9 +540,9 @@ BOOST_AUTO_TEST_CASE(testUsage) {
                          core::CMemory::dynamicSize(a) + sizeof(b) +
                          core::CMemory::dynamicSize(b));
         BOOST_CHECK_EQUAL(variables.capacity() * sizeof(std::size_t) +
-                                 sizeof(a) + core::CMemory::dynamicSize(a) +
-                                 sizeof(b) + core::CMemory::dynamicSize(b),
-                             core::CMemory::dynamicSize(variables));
+                              sizeof(a) + core::CMemory::dynamicSize(a) +
+                              sizeof(b) + core::CMemory::dynamicSize(b),
+                          core::CMemory::dynamicSize(variables));
 
         core::CMemoryDebug::CAnyVisitor& debugVisitor = core::CMemoryDebug::anyVisitor();
         debugVisitor.registerCallback<TDoubleVec>();
@@ -575,8 +574,7 @@ BOOST_AUTO_TEST_CASE(testUsage) {
             mem.print(ss);
             LOG_TRACE(<< ss.str());
         }
-        BOOST_TEST(core::CMemory::dynamicSize(*base) <
-                       core::CMemory::dynamicSize(*derived));
+        BOOST_TEST(core::CMemory::dynamicSize(*base) < core::CMemory::dynamicSize(*derived));
 
         TBasePtr sharedBase(new CBase(10));
         TBasePtr sharedDerived(new CDerived(10));
@@ -614,22 +612,22 @@ BOOST_AUTO_TEST_CASE(testUsage) {
 
         CBase* basePtr = new CBase(5);
         BOOST_CHECK_EQUAL(basePtr->memoryUsage() + sizeof(*basePtr),
-                             core::CMemory::dynamicSize(basePtr));
+                          core::CMemory::dynamicSize(basePtr));
 
         CDerived derived(6);
         BOOST_CHECK_EQUAL(derived.memoryUsage(), core::CMemory::dynamicSize(derived));
 
         CDerived* derivedPtr = new CDerived(5);
         BOOST_CHECK_EQUAL(derivedPtr->memoryUsage() + sizeof(*derivedPtr),
-                             core::CMemory::dynamicSize(derivedPtr));
+                          core::CMemory::dynamicSize(derivedPtr));
 
         CBase* basederivedPtr = new CDerived(5);
         BOOST_CHECK_EQUAL(basederivedPtr->memoryUsage() + sizeof(CDerived),
-                             core::CMemory::dynamicSize(basederivedPtr));
+                          core::CMemory::dynamicSize(basederivedPtr));
 
         TBasePtr sPtr(new CDerived(6));
         BOOST_CHECK_EQUAL(sPtr->memoryUsage() + sizeof(long) + sizeof(CDerived),
-                             core::CMemory::dynamicSize(sPtr));
+                          core::CMemory::dynamicSize(sPtr));
     }
     {
         TDerivedVec vec;
@@ -1105,7 +1103,7 @@ BOOST_AUTO_TEST_CASE(testSharedPointer) {
               << (core::CMemory::dynamicSize(vec1) + core::CMemory::dynamicSize(vec2)));
 
     BOOST_CHECK_EQUAL(expectedSize, core::CMemory::dynamicSize(vec1) +
-                                           core::CMemory::dynamicSize(vec2));
+                                        core::CMemory::dynamicSize(vec2));
 
     TStrPtrVec svec1;
     svec1.push_back(TStrPtr(new std::string("This is a string")));
@@ -1128,8 +1126,7 @@ BOOST_AUTO_TEST_CASE(testSharedPointer) {
     long stringSizeAfter = core::CMemory::dynamicSize(svec1) +
                            core::CMemory::dynamicSize(svec2);
 
-    BOOST_CHECK_EQUAL(core::CMemory::dynamicSize(svec1),
-                         core::CMemory::dynamicSize(svec2));
+    BOOST_CHECK_EQUAL(core::CMemory::dynamicSize(svec1), core::CMemory::dynamicSize(svec2));
     // Allow for integer rounding off by 1 for each string
     BOOST_TEST(std::abs(stringSizeBefore - stringSizeAfter) < 4);
 }
@@ -1203,6 +1200,5 @@ BOOST_AUTO_TEST_CASE(testSmallVector) {
     // fixes it then this means boost::small_vector has been improved.
     BOOST_TEST(extraMem > 0);
 }
-
 
 BOOST_AUTO_TEST_SUITE_END()

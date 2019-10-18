@@ -13,11 +13,11 @@
 #include <maths/CBasicStatistics.h>
 #include <maths/CQuantileSketch.h>
 
-#include <test/CRandomNumbers.h>
 #include <test/BoostTestCloseAbsolute.h>
+#include <test/CRandomNumbers.h>
 
-#include <boost/test/unit_test.hpp>
 #include <boost/range.hpp>
+#include <boost/test/unit_test.hpp>
 
 #include <algorithm>
 
@@ -92,7 +92,7 @@ BOOST_AUTO_TEST_CASE(testAdd) {
     LOG_DEBUG(<< "sketch = " << core::CContainerPrinter::print(sketch.knots()));
     BOOST_CHECK_EQUAL(6.0, sketch.count());
     BOOST_CHECK_EQUAL(std::string("[(1.2, 1), (0.9, 3), (1.8, 1), (2.1, 1)]"),
-                         core::CContainerPrinter::print(sketch.knots()));
+                      core::CContainerPrinter::print(sketch.knots()));
 }
 
 BOOST_AUTO_TEST_CASE(testReduce) {
@@ -111,7 +111,7 @@ BOOST_AUTO_TEST_CASE(testReduce) {
 
         LOG_DEBUG(<< "sketch = " << core::CContainerPrinter::print(sketch.knots()));
         BOOST_CHECK_EQUAL(std::string("[(0.4, 3), (1, 1), (1.2, 3.5), (5, 2)]"),
-                             core::CContainerPrinter::print(sketch.knots()));
+                          core::CContainerPrinter::print(sketch.knots()));
 
         // Regular compress (merging two point).
 
@@ -120,7 +120,7 @@ BOOST_AUTO_TEST_CASE(testReduce) {
         sketch.add(0.0);
         LOG_DEBUG(<< "sketch = " << core::CContainerPrinter::print(sketch.knots()));
         BOOST_CHECK_EQUAL(std::string("[(0, 1), (0.15, 2), (0.4, 3), (1, 1), (1.2, 3.5), (5, 2)]"),
-                             core::CContainerPrinter::print(sketch.knots()));
+                          core::CContainerPrinter::print(sketch.knots()));
     }
     {
         // Multiple points compressed at once.
@@ -133,12 +133,12 @@ BOOST_AUTO_TEST_CASE(testReduce) {
         }
         LOG_DEBUG(<< "sketch = " << core::CContainerPrinter::print(sketch.knots()));
         BOOST_CHECK_EQUAL(std::string("[(0, 1), (1, 1), (2, 1), (3, 1), (4, 1),"
-                                         " (5.5, 2), (7, 1), (8, 1), (9, 1), (10, 1),"
-                                         " (11, 1), (12, 1), (13.5, 2), (15, 1), (16, 1),"
-                                         " (17, 1), (18, 1), (19, 1), (20, 1), (21, 1),"
-                                         " (22.5, 2), (24, 1), (25, 1), (26, 1), (27, 1),"
-                                         " (28, 1), (29, 1), (30, 1)]"),
-                             core::CContainerPrinter::print(sketch.knots()));
+                                      " (5.5, 2), (7, 1), (8, 1), (9, 1), (10, 1),"
+                                      " (11, 1), (12, 1), (13.5, 2), (15, 1), (16, 1),"
+                                      " (17, 1), (18, 1), (19, 1), (20, 1), (21, 1),"
+                                      " (22.5, 2), (24, 1), (25, 1), (26, 1), (27, 1),"
+                                      " (28, 1), (29, 1), (30, 1)]"),
+                          core::CContainerPrinter::print(sketch.knots()));
     }
     {
         // Test the quantiles are reasonable at a compression ratio of 2:1.
@@ -188,7 +188,7 @@ BOOST_AUTO_TEST_CASE(testReduce) {
 
         LOG_DEBUG(<< "sketch = " << core::CContainerPrinter::print(sketch.knots()));
         BOOST_CHECK_EQUAL(std::string("[(0.4, 3), (1, 1), (1.2, 3.5), (5, 2)]"),
-                             core::CContainerPrinter::print(sketch.knots()));
+                          core::CContainerPrinter::print(sketch.knots()));
 
         // Regular compress (merging two point).
 
@@ -197,7 +197,7 @@ BOOST_AUTO_TEST_CASE(testReduce) {
         sketch.add(0.0);
         LOG_DEBUG(<< "sketch = " << core::CContainerPrinter::print(sketch.knots()));
         BOOST_CHECK_EQUAL(std::string("[(0, 1), (0.2, 2), (0.4, 3), (1, 1), (1.2, 3.5), (5, 2)]"),
-                             core::CContainerPrinter::print(sketch.knots()));
+                          core::CContainerPrinter::print(sketch.knots()));
     }
     {
         // Multiple points compressed at once.
@@ -210,12 +210,12 @@ BOOST_AUTO_TEST_CASE(testReduce) {
         }
         LOG_DEBUG(<< "sketch = " << core::CContainerPrinter::print(sketch.knots()));
         BOOST_CHECK_EQUAL(std::string("[(0, 1), (1, 1), (2, 1), (3, 1), (4, 1),"
-                                         " (6, 2), (7, 1), (8, 1), (9, 1), (10, 1),"
-                                         " (11, 1), (12, 1), (13, 1), (14, 1), (15, 1),"
-                                         " (16, 1), (17, 1), (18, 1), (19, 1), (20, 1),"
-                                         " (21, 1), (23, 3), (25, 1), (26, 1), (27, 1),"
-                                         " (28, 1), (29, 1), (30, 1)]"),
-                             core::CContainerPrinter::print(sketch.knots()));
+                                      " (6, 2), (7, 1), (8, 1), (9, 1), (10, 1),"
+                                      " (11, 1), (12, 1), (13, 1), (14, 1), (15, 1),"
+                                      " (16, 1), (17, 1), (18, 1), (19, 1), (20, 1),"
+                                      " (21, 1), (23, 3), (25, 1), (26, 1), (27, 1),"
+                                      " (28, 1), (29, 1), (30, 1)]"),
+                          core::CContainerPrinter::print(sketch.knots()));
     }
     {
         // Test the quantiles are reasonable at a compression ratio of 2:1.
@@ -272,7 +272,7 @@ BOOST_AUTO_TEST_CASE(testMerge) {
         LOG_DEBUG(<< "merged sketch = "
                   << core::CContainerPrinter::print(sketch1.knots()));
         BOOST_CHECK_EQUAL(std::string("[(1, 3.6), (1.1, 1), (2, 1), (3, 1), (3.1, 2), (5.1, 2)]"),
-                             core::CContainerPrinter::print(sketch1.knots()));
+                          core::CContainerPrinter::print(sketch1.knots()));
     }
 
     {
@@ -659,6 +659,5 @@ BOOST_AUTO_TEST_CASE(testPersist) {
     }
     BOOST_CHECK_EQUAL(origXml, newXml);
 }
-
 
 BOOST_AUTO_TEST_SUITE_END()

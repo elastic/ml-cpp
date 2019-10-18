@@ -11,7 +11,6 @@
 
 BOOST_AUTO_TEST_SUITE(CRapidXmlStateRestoreTraverserTest)
 
-
 namespace {
 
 bool traverse2ndLevel(ml::core::CStateRestoreTraverser& traverser) {

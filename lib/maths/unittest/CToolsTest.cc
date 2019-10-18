@@ -15,16 +15,16 @@
 #include <maths/CTools.h>
 #include <maths/CToolsDetail.h>
 
-#include <test/CRandomNumbers.h>
 #include <test/BoostTestCloseAbsolute.h>
+#include <test/CRandomNumbers.h>
 
-#include <boost/test/unit_test.hpp>
 #include <boost/math/concepts/real_concept.hpp>
 #include <boost/math/distributions/beta.hpp>
 #include <boost/math/distributions/negative_binomial.hpp>
 #include <boost/math/distributions/students_t.hpp>
 #include <boost/optional.hpp>
 #include <boost/range.hpp>
+#include <boost/test/unit_test.hpp>
 
 #include <array>
 
@@ -460,10 +460,9 @@ BOOST_AUTO_TEST_CASE(testProbabilityOfLessLikelySample) {
                     LOG_DEBUG(<< "x = " << x << ", p1 = " << p1 << ", p2 = " << p2
                               << ", log(p1) = " << std::log(p1)
                               << ", log(p2) = " << std::log(p2));
-                    BOOST_TEST(
-                        std::fabs(p1 - p2) <= 0.02 * std::max(p1, p2) ||
-                        std::fabs(std::log(p1) - std::log(p2)) <=
-                            0.02 * std::fabs(std::min(std::log(p1), std::log(p2))));
+                    BOOST_TEST(std::fabs(p1 - p2) <= 0.02 * std::max(p1, p2) ||
+                               std::fabs(std::log(p1) - std::log(p2)) <=
+                                   0.02 * std::fabs(std::min(std::log(p1), std::log(p2))));
                     if (offset > 0.0)
                         BOOST_CHECK_EQUAL(maths_t::E_LeftTail, tail);
                     if (offset == 0.0)
@@ -492,10 +491,9 @@ BOOST_AUTO_TEST_CASE(testProbabilityOfLessLikelySample) {
                     LOG_DEBUG(<< "x = " << x << ", p1 = " << p1 << ", p2 = " << p2
                               << ", log(p1) = " << std::log(p1)
                               << ", log(p2) = " << std::log(p2));
-                    BOOST_TEST(
-                        std::fabs(p1 - p2) <= 0.01 * std::max(p1, p2) ||
-                        std::fabs(std::log(p1) - std::log(p2)) <=
-                            0.05 * std::fabs(std::min(std::log(p1), std::log(p2))));
+                    BOOST_TEST(std::fabs(p1 - p2) <= 0.01 * std::max(p1, p2) ||
+                               std::fabs(std::log(p1) - std::log(p2)) <=
+                                   0.05 * std::fabs(std::min(std::log(p1), std::log(p2))));
                     if (x != m1)
                         BOOST_CHECK_EQUAL(maths_t::E_LeftTail, tail);
                     if (x == m1)
@@ -508,10 +506,9 @@ BOOST_AUTO_TEST_CASE(testProbabilityOfLessLikelySample) {
                     LOG_DEBUG(<< "x = " << x << ", p1 = " << p1 << ", p2 = " << p2
                               << ", log(p1) = " << std::log(p1)
                               << ", log(p2) = " << std::log(p2));
-                    BOOST_TEST(
-                        std::fabs(p1 - p2) <= 0.01 * std::max(p1, p2) ||
-                        std::fabs(std::log(p1) - std::log(p2)) <=
-                            0.05 * std::fabs(std::min(std::log(p1), std::log(p2))));
+                    BOOST_TEST(std::fabs(p1 - p2) <= 0.01 * std::max(p1, p2) ||
+                               std::fabs(std::log(p1) - std::log(p2)) <=
+                                   0.05 * std::fabs(std::min(std::log(p1), std::log(p2))));
                     if (x != m1)
                         BOOST_CHECK_EQUAL(maths_t::E_RightTail, tail);
                     if (x == m1)
@@ -613,10 +610,9 @@ BOOST_AUTO_TEST_CASE(testProbabilityOfLessLikelySample) {
                         LOG_DEBUG(<< "x = " << x << ", p1 = " << p1 << ", p2 = " << p2
                                   << ", log(p1) = " << std::log(p1)
                                   << ", log(p2) = " << std::log(p2));
-                        BOOST_TEST(
-                            std::fabs(p1 - p2) <= 0.01 * std::max(p1, p2) ||
-                            std::fabs(std::log(p1) - std::log(p2)) <=
-                                0.05 * std::fabs(std::min(std::log(p1), std::log(p2))));
+                        BOOST_TEST(std::fabs(p1 - p2) <= 0.01 * std::max(p1, p2) ||
+                                   std::fabs(std::log(p1) - std::log(p2)) <=
+                                       0.05 * std::fabs(std::min(std::log(p1), std::log(p2))));
                         BOOST_CHECK_EQUAL(maths_t::E_LeftTail, tail);
 
                         x = m1 * factor;
@@ -627,10 +623,9 @@ BOOST_AUTO_TEST_CASE(testProbabilityOfLessLikelySample) {
                                   << ", log(p1) = " << std::log(p1)
                                   << ", log(p2) = " << std::log(p2));
 
-                        BOOST_TEST(
-                            std::fabs(p1 - p2) <= 0.01 * std::max(p1, p2) ||
-                            std::fabs(std::log(p1) - std::log(p2)) <=
-                                0.05 * std::fabs(std::min(std::log(p1), std::log(p2))));
+                        BOOST_TEST(std::fabs(p1 - p2) <= 0.01 * std::max(p1, p2) ||
+                                   std::fabs(std::log(p1) - std::log(p2)) <=
+                                       0.05 * std::fabs(std::min(std::log(p1), std::log(p2))));
                         BOOST_CHECK_EQUAL(maths_t::E_RightTail, tail);
                     }
                 }
@@ -679,10 +674,9 @@ BOOST_AUTO_TEST_CASE(testProbabilityOfLessLikelySample) {
                     LOG_DEBUG(<< "x = " << x << ", p1 = " << p1 << ", p2 = " << p2
                               << ", log(p1) = " << std::log(p1)
                               << ", log(p2) = " << std::log(p2));
-                    BOOST_TEST(
-                        std::fabs(p1 - p2) <= 0.06 * std::max(p1, p2) ||
-                        std::fabs(std::log(p1) - std::log(p2)) <=
-                            0.01 * std::fabs(std::min(std::log(p1), std::log(p2))));
+                    BOOST_TEST(std::fabs(p1 - p2) <= 0.06 * std::max(p1, p2) ||
+                               std::fabs(std::log(p1) - std::log(p2)) <=
+                                   0.01 * std::fabs(std::min(std::log(p1), std::log(p2))));
                     BOOST_CHECK_EQUAL(maths_t::E_LeftTail, tail);
 
                     double y = (1.0 + offset) * m1;
@@ -692,10 +686,9 @@ BOOST_AUTO_TEST_CASE(testProbabilityOfLessLikelySample) {
                     LOG_DEBUG(<< "y = " << y << ", p1 = " << p1 << ", p2 = " << p2
                               << ", log(p1) = " << std::log(p1)
                               << ", log(p2) = " << std::log(p2));
-                    BOOST_TEST(
-                        std::fabs(p1 - p2) <= 0.06 * std::max(p1, p2) ||
-                        std::fabs(std::log(p1) - std::log(p2)) <=
-                            0.01 * std::fabs(std::min(std::log(p1), std::log(p2))));
+                    BOOST_TEST(std::fabs(p1 - p2) <= 0.06 * std::max(p1, p2) ||
+                               std::fabs(std::log(p1) - std::log(p2)) <=
+                                   0.01 * std::fabs(std::min(std::log(p1), std::log(p2))));
                     BOOST_CHECK_EQUAL(maths_t::E_RightTail, tail);
                 }
 
@@ -710,10 +703,9 @@ BOOST_AUTO_TEST_CASE(testProbabilityOfLessLikelySample) {
                     LOG_DEBUG(<< "x = " << x << ", p1 = " << p1 << ", p2 = " << p2
                               << ", log(p1) = " << std::log(p1)
                               << ", log(p2) = " << std::log(p2));
-                    BOOST_TEST(
-                        std::fabs(p1 - p2) <= 0.1 * std::max(p1, p2) ||
-                        std::fabs(std::log(p1) - std::log(p2)) <=
-                            0.01 * std::fabs(std::min(std::log(p1), std::log(p2))));
+                    BOOST_TEST(std::fabs(p1 - p2) <= 0.1 * std::max(p1, p2) ||
+                               std::fabs(std::log(p1) - std::log(p2)) <=
+                                   0.01 * std::fabs(std::min(std::log(p1), std::log(p2))));
                     BOOST_CHECK_EQUAL(maths_t::E_LeftTail, tail);
 
                     double y = factor * m1;
@@ -723,10 +715,9 @@ BOOST_AUTO_TEST_CASE(testProbabilityOfLessLikelySample) {
                     LOG_DEBUG(<< "y = " << y << ", p1 = " << p1 << ", p2 = " << p2
                               << ", log(p1) = " << std::log(p1)
                               << ", log(p2) = " << std::log(p2));
-                    BOOST_TEST(
-                        std::fabs(p1 - p2) <= 0.1 * std::max(p1, p2) ||
-                        std::fabs(std::log(p1) - std::log(p2)) <=
-                            0.01 * std::fabs(std::min(std::log(p1), std::log(p2))));
+                    BOOST_TEST(std::fabs(p1 - p2) <= 0.1 * std::max(p1, p2) ||
+                               std::fabs(std::log(p1) - std::log(p2)) <=
+                                   0.01 * std::fabs(std::min(std::log(p1), std::log(p2))));
                     BOOST_CHECK_EQUAL(maths_t::E_RightTail, tail);
                 }
             }
@@ -798,10 +789,9 @@ BOOST_AUTO_TEST_CASE(testProbabilityOfLessLikelySample) {
                         LOG_DEBUG(<< "x- = " << xMinus << ", p1 = " << p1
                                   << ", p2 = " << p2 << ", log(p1) = " << log(p1)
                                   << ", log(p2) = " << std::log(p2));
-                        BOOST_TEST(
-                            std::fabs(p1 - p2) <= 0.05 * std::max(p1, p2) ||
-                            std::fabs(std::log(p1) - std::log(p2)) <
-                                0.25 * std::fabs(std::min(std::log(p1), std::log(p2))));
+                        BOOST_TEST(std::fabs(p1 - p2) <= 0.05 * std::max(p1, p2) ||
+                                   std::fabs(std::log(p1) - std::log(p2)) <
+                                       0.25 * std::fabs(std::min(std::log(p1), std::log(p2))));
                         if (maximum)
                             BOOST_CHECK_EQUAL(maths_t::E_LeftTail, tail);
                         if (!maximum)
@@ -1020,10 +1010,10 @@ BOOST_AUTO_TEST_CASE(testMixtureProbabilityOfLessLikelySample) {
                     BOOST_CHECK_CLOSE_ABSOLUTE(pExpected, p, 0.12);
                 } else if (pExpected > 1e-10) {
                     BOOST_CHECK_CLOSE_ABSOLUTE(std::log(pExpected), std::log(p),
-                                                 0.15 * std::fabs(std::log(pExpected)));
+                                               0.15 * std::fabs(std::log(pExpected)));
                 } else {
                     BOOST_CHECK_CLOSE_ABSOLUTE(std::log(pExpected), std::log(p),
-                                                 0.015 * std::fabs(std::log(pExpected)));
+                                               0.015 * std::fabs(std::log(pExpected)));
                 }
                 meanError.add(std::fabs(p - pExpected));
                 meanLogError.add(std::fabs(std::log(p) - std::log(pExpected)) /
@@ -1129,8 +1119,7 @@ BOOST_AUTO_TEST_CASE(testFastLog) {
                 LOG_DEBUG(<< "x = " << x[i] << ", log(x) = " << std::log(x[i])
                           << ", fast log(x) = " << maths::CTools::fastLog(x[i]));
             }
-            BOOST_CHECK_CLOSE_ABSOLUTE(std::log(x[i]),
-                                         maths::CTools::fastLog(x[i]), 5e-5);
+            BOOST_CHECK_CLOSE_ABSOLUTE(std::log(x[i]), maths::CTools::fastLog(x[i]), 5e-5);
         }
     }
     // Large
@@ -1204,14 +1193,12 @@ BOOST_AUTO_TEST_CASE(testLgamma) {
     BOOST_TEST((maths::CTools::lgamma(-1, result, true) == false));
     BOOST_CHECK_EQUAL(result, std::numeric_limits<double>::infinity());
 
-    BOOST_TEST((maths::CTools::lgamma(std::numeric_limits<double>::max() - 1,
-                                          result, false)));
+    BOOST_TEST((maths::CTools::lgamma(std::numeric_limits<double>::max() - 1, result, false)));
     BOOST_CHECK_EQUAL(result, std::numeric_limits<double>::infinity());
 
     BOOST_TEST((maths::CTools::lgamma(std::numeric_limits<double>::max() - 1,
-                                          result, true) == false));
+                                      result, true) == false));
     BOOST_CHECK_EQUAL(result, std::numeric_limits<double>::infinity());
 }
-
 
 BOOST_AUTO_TEST_SUITE_END()

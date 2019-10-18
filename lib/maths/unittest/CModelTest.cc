@@ -33,7 +33,7 @@ BOOST_AUTO_TEST_CASE(testAll) {
         BOOST_CHECK_EQUAL(learnRate, params.learnRate());
         BOOST_CHECK_EQUAL(decayRate, params.decayRate());
         BOOST_CHECK_EQUAL(minimumSeasonalVarianceScale,
-                             params.minimumSeasonalVarianceScale());
+                          params.minimumSeasonalVarianceScale());
         BOOST_CHECK_EQUAL(6 * core::constants::HOUR, params.minimumTimeToDetectChange());
         BOOST_CHECK_EQUAL(core::constants::DAY, params.maximumTimeToTestForChange());
     }
@@ -49,9 +49,9 @@ BOOST_AUTO_TEST_CASE(testAll) {
         BOOST_CHECK_EQUAL(maths_t::E_IntegerData, params.type());
         BOOST_CHECK_EQUAL(1.5, params.propagationInterval());
         BOOST_CHECK_EQUAL(core::CContainerPrinter::print(trendWeights),
-                             core::CContainerPrinter::print(params.trendWeights()));
+                          core::CContainerPrinter::print(params.trendWeights()));
         BOOST_CHECK_EQUAL(core::CContainerPrinter::print(priorWeights),
-                             core::CContainerPrinter::print(params.priorWeights()));
+                          core::CContainerPrinter::print(params.priorWeights()));
     }
     {
         maths_t::TDouble2VecWeightsAry weight1(maths_t::CUnitWeights::unit<TDouble2Vec>(2));
@@ -75,12 +75,11 @@ BOOST_AUTO_TEST_CASE(testAll) {
         BOOST_CHECK_EQUAL(maths_t::E_TwoSided, params.calculation(1));
         BOOST_CHECK_EQUAL(50.0, params.seasonalConfidenceInterval());
         BOOST_CHECK_EQUAL(core::CContainerPrinter::print(weights),
-                             core::CContainerPrinter::print(params.weights()));
+                          core::CContainerPrinter::print(params.weights()));
         BOOST_CHECK_EQUAL(std::size_t(1), *params.mostAnomalousCorrelate());
         BOOST_CHECK_EQUAL(std::string("[1, 0]"),
-                             core::CContainerPrinter::print(params.coordinates()));
+                          core::CContainerPrinter::print(params.coordinates()));
     }
 }
-
 
 BOOST_AUTO_TEST_SUITE_END()

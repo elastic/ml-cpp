@@ -13,9 +13,9 @@
 #include <test/BoostTestCloseAbsolute.h>
 #include <test/CRandomNumbers.h>
 
-#include <boost/test/unit_test.hpp>
 #include <boost/math/constants/constants.hpp>
 #include <boost/range.hpp>
+#include <boost/test/unit_test.hpp>
 
 BOOST_AUTO_TEST_SUITE(CSplineTest)
 
@@ -277,7 +277,7 @@ BOOST_AUTO_TEST_CASE(testMean) {
             LOG_DEBUG(<< "expectedMean = " << expectedMean
                       << ", mean = " << spline.mean());
             BOOST_CHECK_CLOSE_ABSOLUTE(expectedMean, spline.mean(),
-                                         std::numeric_limits<double>::epsilon() * expectedMean);
+                                       std::numeric_limits<double>::epsilon() * expectedMean);
         }
     }
 
@@ -373,7 +373,7 @@ BOOST_AUTO_TEST_CASE(testIllposed) {
             LOG_DEBUG(<< "expected = " << 0.2 * static_cast<double>(i)
                       << ", actual = " << spline.value(static_cast<double>(i)));
             BOOST_CHECK_CLOSE_ABSOLUTE(0.2 * static_cast<double>(i),
-                                         spline.value(static_cast<double>(i)), 5e-7);
+                                       spline.value(static_cast<double>(i)), 5e-7);
         }
     }
 }
@@ -450,7 +450,7 @@ BOOST_AUTO_TEST_CASE(testSlope) {
                                   << ", numerical slope = " << numericalSlope);
                     }
                     BOOST_CHECK_CLOSE_ABSOLUTE(numericalSlope, slope,
-                                                 1e-3 * std::fabs(numericalSlope));
+                                               1e-3 * std::fabs(numericalSlope));
                 }
             }
         }
@@ -514,11 +514,11 @@ BOOST_AUTO_TEST_CASE(testSplineReference) {
     splineRef.interpolate(x, y, maths::CSplineTypes::E_Natural);
 
     BOOST_CHECK_EQUAL(core::CContainerPrinter::print(spline.knots()),
-                         core::CContainerPrinter::print(splineRef.knots()));
+                      core::CContainerPrinter::print(splineRef.knots()));
     BOOST_CHECK_EQUAL(core::CContainerPrinter::print(spline.values()),
-                         core::CContainerPrinter::print(splineRef.values()));
+                      core::CContainerPrinter::print(splineRef.values()));
     BOOST_CHECK_EQUAL(core::CContainerPrinter::print(spline.curvatures()),
-                         core::CContainerPrinter::print(splineRef.curvatures()));
+                      core::CContainerPrinter::print(splineRef.curvatures()));
 
     for (std::size_t i = 0u; i < 21; ++i) {
         double xx = boost::math::double_constants::two_pi * static_cast<double>(i) / 20.0;
@@ -543,6 +543,5 @@ BOOST_AUTO_TEST_CASE(testSplineReference) {
     LOG_DEBUG(<< "splineRef.memoryUsage = " << splineRef.memoryUsage());
     BOOST_CHECK_EQUAL(std::size_t(0), splineRef.memoryUsage());
 }
-
 
 BOOST_AUTO_TEST_SUITE_END()

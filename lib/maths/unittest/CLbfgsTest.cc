@@ -9,8 +9,8 @@
 #include <maths/CLbfgs.h>
 #include <maths/CLinearAlgebraEigen.h>
 
-#include <test/CRandomNumbers.h>
 #include <test/BoostTestCloseAbsolute.h>
+#include <test/CRandomNumbers.h>
 
 #include <boost/test/unit_test.hpp>
 
@@ -226,6 +226,5 @@ BOOST_AUTO_TEST_CASE(testConstrainedMinimize) {
 
     BOOST_CHECK_CLOSE_ABSOLUTE(0.0, ferror, 1e-5);
 }
-
 
 BOOST_AUTO_TEST_SUITE_END()

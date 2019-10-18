@@ -16,12 +16,12 @@
 #include <model/CAnomalyDetectorModelConfig.h>
 #include <model/CAnomalyScore.h>
 
-#include <test/CRandomNumbers.h>
 #include <test/BoostTestCloseAbsolute.h>
+#include <test/CRandomNumbers.h>
 
-#include <boost/test/unit_test.hpp>
 #include <boost/optional.hpp>
 #include <boost/range.hpp>
+#include <boost/test/unit_test.hpp>
 
 #include <rapidjson/document.h>
 #include <rapidjson/stringbuffer.h>
@@ -399,7 +399,7 @@ BOOST_AUTO_TEST_CASE(testNormalizeScoresNoisy) {
     LOG_DEBUG(<< "times = " << core::CContainerPrinter::print(times));
 
     BOOST_CHECK_EQUAL(core::CContainerPrinter::print(largeAnomalyTimes),
-                         core::CContainerPrinter::print(times));
+                      core::CContainerPrinter::print(times));
 }
 
 BOOST_AUTO_TEST_CASE(testNormalizeScoresPerPartitionMaxScore) {
@@ -586,7 +586,7 @@ BOOST_AUTO_TEST_CASE(testNormalizeScoresOrdering) {
         TDoubleVec normalizedScores(scores);
         for (std::size_t j = 0u; j < i; ++j) {
             BOOST_TEST(normalizer.normalize({"", "", "bucket_time", ""},
-                                                normalizedScores[j]));
+                                            normalizedScores[j]));
         }
 
         maths::COrderings::simultaneousSort(scores, normalizedScores);
@@ -747,7 +747,7 @@ BOOST_AUTO_TEST_CASE(testJsonConversion) {
                                                partitionMaxScoreStr.end(), '\n'),
                                    partitionMaxScoreStr.end());
         BOOST_CHECK_EQUAL("\"" + core::CStringUtils::typeToStringPretty(maxScore) + "\"",
-                             partitionMaxScoreStr);
+                          partitionMaxScoreStr);
     }
 
     rapidjson::StringBuffer buffer;
@@ -801,6 +801,5 @@ BOOST_AUTO_TEST_CASE(testPersistEmpty) {
 
     BOOST_CHECK_EQUAL(origJson, newJson);
 }
-
 
 BOOST_AUTO_TEST_SUITE_END()

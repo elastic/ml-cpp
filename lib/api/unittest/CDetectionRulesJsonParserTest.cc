@@ -22,7 +22,6 @@ using TStrPatternSetUMap = CDetectionRulesJsonParser::TStrPatternSetUMap;
 TStrPatternSetUMap EMPTY_VALUE_FILTER_MAP;
 }
 
-
 BOOST_AUTO_TEST_CASE(testParseRulesGivenEmptyString) {
     CDetectionRulesJsonParser parser(EMPTY_VALUE_FILTER_MAP);
     CDetectionRulesJsonParser::TDetectionRuleVec rules;
@@ -190,7 +189,7 @@ BOOST_AUTO_TEST_CASE(testParseRulesGivenConditionOnActual) {
 
     BOOST_CHECK_EQUAL(std::size_t(1), rules.size());
     BOOST_CHECK_EQUAL(std::string("SKIP_RESULT IF ACTUAL < 5.000000 AND ACTUAL <= 2.300000"),
-                         rules[0].print());
+                      rules[0].print());
 }
 
 BOOST_AUTO_TEST_CASE(testParseRulesGivenConditionsOnTypicalAndDiffFromTypical) {
@@ -210,7 +209,7 @@ BOOST_AUTO_TEST_CASE(testParseRulesGivenConditionsOnTypicalAndDiffFromTypical) {
 
     BOOST_CHECK_EQUAL(std::size_t(1), rules.size());
     BOOST_CHECK_EQUAL(std::string("SKIP_RESULT IF TYPICAL > 5.000000 AND DIFF_FROM_TYPICAL >= 2.300000"),
-                         rules[0].print());
+                      rules[0].print());
 }
 
 BOOST_AUTO_TEST_CASE(testParseRulesGivenMultipleRules) {
@@ -234,10 +233,9 @@ BOOST_AUTO_TEST_CASE(testParseRulesGivenMultipleRules) {
     BOOST_TEST(parser.parseRules(rulesJson, rules));
 
     BOOST_CHECK_EQUAL(std::size_t(2), rules.size());
-    BOOST_CHECK_EQUAL(std::string("SKIP_RESULT IF ACTUAL < 1.000000"),
-                         rules[0].print());
+    BOOST_CHECK_EQUAL(std::string("SKIP_RESULT IF ACTUAL < 1.000000"), rules[0].print());
     BOOST_CHECK_EQUAL(std::string("SKIP_MODEL_UPDATE IF TYPICAL < 2.000000"),
-                         rules[1].print());
+                      rules[1].print());
 }
 
 BOOST_AUTO_TEST_CASE(testParseRulesGivenScopeIsEmpty) {
@@ -298,7 +296,7 @@ BOOST_AUTO_TEST_CASE(testParseRulesGivenExcludeScope) {
 
     BOOST_CHECK_EQUAL(std::size_t(1), rules.size());
     BOOST_CHECK_EQUAL(std::string("SKIP_RESULT IF 'foo' NOT IN FILTER"),
-                         rules[0].print());
+                      rules[0].print());
 }
 
 BOOST_AUTO_TEST_CASE(testParseRulesGivenMultipleScopedFields) {
@@ -326,7 +324,7 @@ BOOST_AUTO_TEST_CASE(testParseRulesGivenMultipleScopedFields) {
 
     BOOST_CHECK_EQUAL(std::size_t(1), rules.size());
     BOOST_CHECK_EQUAL(std::string("SKIP_RESULT IF 'foo' IN FILTER AND 'bar' NOT IN FILTER"),
-                         rules[0].print());
+                      rules[0].print());
 }
 
 BOOST_AUTO_TEST_CASE(testParseRulesGivenScopeAndConditions) {
@@ -353,7 +351,7 @@ BOOST_AUTO_TEST_CASE(testParseRulesGivenScopeAndConditions) {
 
     BOOST_CHECK_EQUAL(std::size_t(1), rules.size());
     BOOST_CHECK_EQUAL(std::string("SKIP_RESULT IF 'foo' IN FILTER AND ACTUAL < 2.000000"),
-                         rules[0].print());
+                      rules[0].print());
 }
 
 BOOST_AUTO_TEST_CASE(testParseRulesGivenTimeRule) {
@@ -372,7 +370,7 @@ BOOST_AUTO_TEST_CASE(testParseRulesGivenTimeRule) {
     BOOST_TEST(parser.parseRules(rulesJson, rules));
     BOOST_CHECK_EQUAL(std::size_t(1), rules.size());
     BOOST_CHECK_EQUAL(std::string("SKIP_RESULT IF TIME >= 5000.000000 AND TIME < 10000.000000"),
-                         rules[0].print());
+                      rules[0].print());
 }
 
 BOOST_AUTO_TEST_CASE(testParseRulesGivenDifferentActions) {
@@ -392,7 +390,7 @@ BOOST_AUTO_TEST_CASE(testParseRulesGivenDifferentActions) {
 
         BOOST_CHECK_EQUAL(std::size_t(1), rules.size());
         BOOST_CHECK_EQUAL(std::string("SKIP_RESULT IF ACTUAL < 5.000000"),
-                             rules[0].print());
+                          rules[0].print());
     }
 
     {
@@ -411,7 +409,7 @@ BOOST_AUTO_TEST_CASE(testParseRulesGivenDifferentActions) {
 
         BOOST_CHECK_EQUAL(std::size_t(1), rules.size());
         BOOST_CHECK_EQUAL(std::string("SKIP_MODEL_UPDATE IF ACTUAL < 5.000000"),
-                             rules[0].print());
+                          rules[0].print());
     }
 
     {
@@ -430,7 +428,7 @@ BOOST_AUTO_TEST_CASE(testParseRulesGivenDifferentActions) {
 
         BOOST_CHECK_EQUAL(std::size_t(1), rules.size());
         BOOST_CHECK_EQUAL(std::string("SKIP_RESULT AND SKIP_MODEL_UPDATE IF ACTUAL < 5.000000"),
-                             rules[0].print());
+                          rules[0].print());
     }
 }
 

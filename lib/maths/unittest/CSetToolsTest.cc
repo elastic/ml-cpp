@@ -11,9 +11,9 @@
 
 #include <test/CRandomNumbers.h>
 
-#include <boost/test/unit_test.hpp>
 #include <boost/iterator/transform_iterator.hpp>
 #include <boost/range.hpp>
+#include <boost/test/unit_test.hpp>
 
 #include <algorithm>
 #include <vector>
@@ -47,7 +47,7 @@ BOOST_AUTO_TEST_CASE(testInplaceSetDifference) {
                       << ", B = " << core::CContainerPrinter::print(left)
                       << ", A - B = " << core::CContainerPrinter::print(test));
             BOOST_CHECK_EQUAL(core::CContainerPrinter::print(expected),
-                                 core::CContainerPrinter::print(test));
+                              core::CContainerPrinter::print(test));
 
             TDoubleVec right;
             for (std::size_t j = i; j < boost::size(a); ++j) {
@@ -62,7 +62,7 @@ BOOST_AUTO_TEST_CASE(testInplaceSetDifference) {
                       << ", B = " << core::CContainerPrinter::print(right)
                       << ", A - B = " << core::CContainerPrinter::print(test));
             BOOST_CHECK_EQUAL(core::CContainerPrinter::print(expected),
-                                 core::CContainerPrinter::print(test));
+                              core::CContainerPrinter::print(test));
         }
     }
 
@@ -100,7 +100,7 @@ BOOST_AUTO_TEST_CASE(testInplaceSetDifference) {
         }
 
         BOOST_CHECK_EQUAL(core::CContainerPrinter::print(expected),
-                             core::CContainerPrinter::print(A));
+                          core::CContainerPrinter::print(A));
     }
 }
 
@@ -299,6 +299,5 @@ BOOST_AUTO_TEST_CASE(testOverlap) {
         BOOST_CHECK_EQUAL(expected, actual);
     }
 }
-
 
 BOOST_AUTO_TEST_SUITE_END()

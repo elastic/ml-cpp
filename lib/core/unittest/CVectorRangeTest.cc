@@ -29,19 +29,19 @@ BOOST_AUTO_TEST_CASE(testCreation) {
         TDoubleRng range13{values1, 1, 3};
         range13 = core::make_range(values1, 0, 3);
         BOOST_CHECK_EQUAL(std::string("[1, 1, 0.1, 0.7, 9.8]"),
-                             core::CContainerPrinter::print(values1));
+                          core::CContainerPrinter::print(values1));
 
         range13 = core::make_range(values2, 1, 4);
         BOOST_CHECK_EQUAL(std::string("[1, 1.4, 5.7, 1.2, 9.8]"),
-                             core::CContainerPrinter::print(values1));
+                          core::CContainerPrinter::print(values1));
 
         range13.assign(2, 2.0);
         BOOST_CHECK_EQUAL(std::string("[1, 2, 2, 9.8]"),
-                             core::CContainerPrinter::print(values1));
+                          core::CContainerPrinter::print(values1));
 
         range13.assign(values2.begin(), values2.end());
         BOOST_CHECK_EQUAL(std::string("[1, 3.1, 1.4, 5.7, 1.2, 9.8]"),
-                             core::CContainerPrinter::print(values1));
+                          core::CContainerPrinter::print(values1));
     }
     {
         TDoubleVec values1{1.0, 0.1, 0.7, 9.8};
@@ -50,9 +50,9 @@ BOOST_AUTO_TEST_CASE(testCreation) {
         TDoubleCRng range1{values1, 1, 3};
         range1 = TDoubleCRng(values2, 0, 3);
         BOOST_CHECK_EQUAL(std::string("[1, 0.1, 0.7, 9.8]"),
-                             core::CContainerPrinter::print(values1));
+                          core::CContainerPrinter::print(values1));
         BOOST_CHECK_EQUAL(std::string("[3.1, 1.4, 5.7]"),
-                             core::CContainerPrinter::print(range1));
+                          core::CContainerPrinter::print(range1));
     }
 }
 
@@ -145,56 +145,53 @@ BOOST_AUTO_TEST_CASE(testModifiers) {
     range111.clear();
     BOOST_TEST(range111.empty());
     BOOST_CHECK_EQUAL(std::string("[1, 0.1, 0.7, 9.8, 8]"),
-                         core::CContainerPrinter::print(values1));
+                      core::CContainerPrinter::print(values1));
 
     TDoubleRng range125{values1, 2, 5};
     range125.insert(range125.begin(), values2.begin(), values2.end());
     BOOST_CHECK_EQUAL(std::string("[1, 0.1, 2, 3.5, 8.1, 1.8, 0.7, 9.8, 8]"),
-                         core::CContainerPrinter::print(values1));
+                      core::CContainerPrinter::print(values1));
     BOOST_CHECK_EQUAL(std::string("[2, 3.5, 8.1, 1.8, 0.7, 9.8, 8]"),
-                         core::CContainerPrinter::print(range125));
+                      core::CContainerPrinter::print(range125));
     BOOST_CHECK_EQUAL(std::size_t(7), range125.size());
     range125.erase(range125.begin(), range125.begin() + 4);
     BOOST_CHECK_EQUAL(std::string("[1, 0.1, 0.7, 9.8, 8]"),
-                         core::CContainerPrinter::print(values1));
-    BOOST_CHECK_EQUAL(std::string("[0.7, 9.8, 8]"),
-                         core::CContainerPrinter::print(range125));
+                      core::CContainerPrinter::print(values1));
+    BOOST_CHECK_EQUAL(std::string("[0.7, 9.8, 8]"), core::CContainerPrinter::print(range125));
 
     TDoubleRng range203{values2, 0, 3};
     range203.push_back(5.0);
     BOOST_CHECK_EQUAL(std::string("[2, 3.5, 8.1, 5, 1.8]"),
-                         core::CContainerPrinter::print(values2));
+                      core::CContainerPrinter::print(values2));
     BOOST_CHECK_EQUAL(std::string("[2, 3.5, 8.1, 5]"),
-                         core::CContainerPrinter::print(range203));
+                      core::CContainerPrinter::print(range203));
     BOOST_CHECK_EQUAL(std::size_t(4), range203.size());
     range203.push_back(3.2);
     BOOST_CHECK_EQUAL(std::string("[2, 3.5, 8.1, 5, 3.2, 1.8]"),
-                         core::CContainerPrinter::print(values2));
+                      core::CContainerPrinter::print(values2));
     BOOST_CHECK_EQUAL(std::string("[2, 3.5, 8.1, 5, 3.2]"),
-                         core::CContainerPrinter::print(range203));
+                      core::CContainerPrinter::print(range203));
     BOOST_CHECK_EQUAL(std::size_t(5), range203.size());
     range203.pop_back();
     BOOST_CHECK_EQUAL(std::string("[2, 3.5, 8.1, 5, 1.8]"),
-                         core::CContainerPrinter::print(values2));
+                      core::CContainerPrinter::print(values2));
     BOOST_CHECK_EQUAL(std::string("[2, 3.5, 8.1, 5]"),
-                         core::CContainerPrinter::print(range203));
+                      core::CContainerPrinter::print(range203));
     BOOST_CHECK_EQUAL(std::size_t(4), range203.size());
     range203.pop_back();
     BOOST_CHECK_EQUAL(std::string("[2, 3.5, 8.1, 1.8]"),
-                         core::CContainerPrinter::print(values2));
-    BOOST_CHECK_EQUAL(std::string("[2, 3.5, 8.1]"),
-                         core::CContainerPrinter::print(range203));
+                      core::CContainerPrinter::print(values2));
+    BOOST_CHECK_EQUAL(std::string("[2, 3.5, 8.1]"), core::CContainerPrinter::print(range203));
     BOOST_CHECK_EQUAL(std::size_t(3), range203.size());
 
     TDoubleRng range102{values1, 0, 2};
     range102.resize(3, 5.0);
     BOOST_CHECK_EQUAL(std::string("[1, 0.1, 5, 0.7, 9.8, 8]"),
-                         core::CContainerPrinter::print(values1));
-    BOOST_CHECK_EQUAL(std::string("[1, 0.1, 5]"),
-                         core::CContainerPrinter::print(range102));
+                      core::CContainerPrinter::print(values1));
+    BOOST_CHECK_EQUAL(std::string("[1, 0.1, 5]"), core::CContainerPrinter::print(range102));
     range102.resize(1);
     BOOST_CHECK_EQUAL(std::string("[1, 0.7, 9.8, 8]"),
-                         core::CContainerPrinter::print(values1));
+                      core::CContainerPrinter::print(values1));
     BOOST_CHECK_EQUAL(std::string("[1]"), core::CContainerPrinter::print(range102));
 
     TDoubleRng range113{values1, 1, 3};
@@ -243,6 +240,5 @@ BOOST_AUTO_TEST_CASE(testComparisons) {
     BOOST_TEST(!(range202 < range103));
     BOOST_TEST(!(range103 >= range202));
 }
-
 
 BOOST_AUTO_TEST_SUITE_END()

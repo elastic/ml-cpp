@@ -14,7 +14,6 @@
 
 BOOST_AUTO_TEST_SUITE(CFieldConfigTest)
 
-
 BOOST_AUTO_TEST_CASE(testTrivial) {
     ml::api::CFieldConfig config("count", "mlcategory");
 
@@ -141,7 +140,7 @@ BOOST_AUTO_TEST_CASE(testValidClauses) {
         BOOST_TEST(config.summaryCountFieldName().empty());
         BOOST_CHECK_EQUAL(size_t(1), config.influencerFieldNames().size());
         BOOST_CHECK_EQUAL(std::string("nationality"),
-                             config.influencerFieldNames().front());
+                          config.influencerFieldNames().front());
 
         LOG_DEBUG(<< config.debug());
 
@@ -172,9 +171,9 @@ BOOST_AUTO_TEST_CASE(testValidClauses) {
         BOOST_TEST(config.summaryCountFieldName().empty());
         BOOST_CHECK_EQUAL(size_t(2), config.influencerFieldNames().size());
         BOOST_CHECK_EQUAL(std::string("MarketCap"),
-                             config.influencerFieldNames().front());
+                          config.influencerFieldNames().front());
         BOOST_CHECK_EQUAL(std::string("nationality"),
-                             config.influencerFieldNames().back());
+                          config.influencerFieldNames().back());
 
         LOG_DEBUG(<< config.debug());
 
@@ -429,8 +428,7 @@ BOOST_AUTO_TEST_CASE(testValidClauses) {
         BOOST_TEST(iter->overFieldName().empty());
         BOOST_TEST(iter->partitionFieldName().empty());
         BOOST_CHECK_EQUAL(false, iter->useNull());
-        BOOST_CHECK_EQUAL(ml::model::function_t::E_IndividualMetricMedian,
-                             iter->function());
+        BOOST_CHECK_EQUAL(ml::model::function_t::E_IndividualMetricMedian, iter->function());
         BOOST_CHECK_EQUAL(true, ml::model::function_t::isMetric(iter->function()));
         BOOST_CHECK_EQUAL(false, ml::model::function_t::isPopulation(iter->function()));
         BOOST_CHECK_EQUAL(std::string("median"), iter->terseFunctionName());
@@ -590,8 +588,8 @@ BOOST_AUTO_TEST_CASE(testFieldOptions) {
     {
         ml::model::function_t::EFunction function;
         std::string fieldName;
-        BOOST_TEST(ml::api::CFieldConfig::parseFieldString(
-            false, true, true, "c", function, fieldName));
+        BOOST_TEST(ml::api::CFieldConfig::parseFieldString(false, true, true, "c",
+                                                           function, fieldName));
 
         ml::api::CFieldConfig::CFieldOptions opt(function, fieldName, 1, "byField",
                                                  "overField", "partitionField",
@@ -652,8 +650,7 @@ BOOST_AUTO_TEST_CASE(testFieldOptions) {
         ml::api::CFieldConfig::CFieldOptions opt(
             function, fieldName, 5, "", "overField", "", false, false, false);
 
-        BOOST_CHECK_EQUAL(ml::model::function_t::E_PopulationDistinctCount,
-                             opt.function());
+        BOOST_CHECK_EQUAL(ml::model::function_t::E_PopulationDistinctCount, opt.function());
         BOOST_TEST(opt.byFieldName().empty());
         BOOST_CHECK_EQUAL(5, opt.configKey());
         BOOST_CHECK_EQUAL(std::string("category"), opt.fieldName());
@@ -696,7 +693,7 @@ BOOST_AUTO_TEST_CASE(testFieldOptions) {
                                                  "datacenter", false, false, false);
 
         BOOST_CHECK_EQUAL(ml::model::function_t::E_PopulationHighInfoContent,
-                             opt.function());
+                          opt.function());
         BOOST_TEST(opt.byFieldName().empty());
         BOOST_CHECK_EQUAL(1, opt.configKey());
         BOOST_CHECK_EQUAL(std::string("mlsub"), opt.fieldName());
@@ -711,8 +708,8 @@ BOOST_AUTO_TEST_CASE(testFieldOptions) {
     {
         ml::model::function_t::EFunction function;
         std::string fieldName;
-        BOOST_TEST(ml::api::CFieldConfig::parseFieldString(
-            false, true, true, "rare()", function, fieldName));
+        BOOST_TEST(ml::api::CFieldConfig::parseFieldString(false, true, true, "rare()",
+                                                           function, fieldName));
 
         ml::api::CFieldConfig::CFieldOptions opt(function, fieldName, 1, "byField",
                                                  "overField", "", false, false, false);
@@ -833,8 +830,7 @@ BOOST_AUTO_TEST_CASE(testValidPopulationClauses) {
         BOOST_CHECK_EQUAL(false, ml::model::function_t::isMetric(iter->function()));
         BOOST_CHECK_EQUAL(true, ml::model::function_t::isPopulation(iter->function()));
         BOOST_CHECK_EQUAL(std::string("high_dc"), iter->terseFunctionName());
-        BOOST_CHECK_EQUAL(std::string("high_distinct_count"),
-                             iter->verboseFunctionName());
+        BOOST_CHECK_EQUAL(std::string("high_distinct_count"), iter->verboseFunctionName());
     }
     {
         ml::api::CFieldConfig config;
@@ -1591,7 +1587,7 @@ BOOST_AUTO_TEST_CASE(testInvalidFileTInitFromFileFunc initFunc, const std::strin
 }
 
 BOOST_AUTO_TEST_CASE(testValidSummaryCountFieldNameFileTInitFromFileFunc initFunc,
-                                                          const std::string& fileName) {
+                     const std::string& fileName) {
     ml::api::CFieldConfig config;
 
     BOOST_TEST(initFunc(&config, fileName));
@@ -1600,7 +1596,7 @@ BOOST_AUTO_TEST_CASE(testValidSummaryCountFieldNameFileTInitFromFileFunc initFun
 }
 
 BOOST_AUTO_TEST_CASE(testValidPopulationFileTInitFromFileFunc initFunc,
-                                               const std::string& fileName) {
+                     const std::string& fileName) {
     {
         ml::api::CFieldConfig config;
         BOOST_TEST(initFunc(&config, fileName));
@@ -1633,7 +1629,7 @@ BOOST_AUTO_TEST_CASE(testValidPopulationFileTInitFromFileFunc initFunc,
 }
 
 BOOST_AUTO_TEST_CASE(testDefaultCategorizationFieldFileTInitFromFileFunc initFunc,
-                                                          const std::string& fileName) {
+                     const std::string& fileName) {
     ml::api::CFieldConfig config;
 
     BOOST_TEST(initFunc(&config, fileName));
@@ -1660,7 +1656,7 @@ BOOST_AUTO_TEST_CASE(testDefaultCategorizationFieldFileTInitFromFileFunc initFun
 }
 
 BOOST_AUTO_TEST_CASE(testExcludeFrequentFileTInitFromFileFunc initFunc,
-                                               const std::string& fileName) {
+                     const std::string& fileName) {
     ml::api::CFieldConfig config;
 
     BOOST_TEST(initFunc(&config, fileName));
@@ -1769,7 +1765,7 @@ BOOST_AUTO_TEST_CASE(testSlashesFileTInitFromFileFunc initFunc, const std::strin
 }
 
 BOOST_AUTO_TEST_CASE(testBracketPercentFileTInitFromFileFunc initFunc,
-                                              const std::string& fileName) {
+                     const std::string& fileName) {
     ml::api::CFieldConfig config;
 
     BOOST_TEST(initFunc(&config, fileName));
@@ -1787,7 +1783,7 @@ BOOST_AUTO_TEST_CASE(testBracketPercentFileTInitFromFileFunc initFunc,
     BOOST_CHECK_EQUAL(std::string("%10"), iter->overFieldName());
     BOOST_CHECK_EQUAL(std::string("Percentage (%)"), iter->partitionFieldName());
     BOOST_CHECK_EQUAL(std::string("This string should have quotes removed"),
-                         config.categorizationFieldName());
+                      config.categorizationFieldName());
 }
 
 BOOST_AUTO_TEST_CASE(testScheduledEvents) {
@@ -1799,10 +1795,10 @@ BOOST_AUTO_TEST_CASE(testScheduledEvents) {
     BOOST_CHECK_EQUAL(std::size_t{2}, events.size());
     BOOST_CHECK_EQUAL(std::string("May Bank Holiday"), events[0].first);
     BOOST_CHECK_EQUAL(std::string("SKIP_RESULT AND SKIP_MODEL_UPDATE IF TIME >= 1525132800.000000 AND TIME < 1525219200.000000"),
-                         events[0].second.print());
+                      events[0].second.print());
     BOOST_CHECK_EQUAL(std::string("New Years Day"), events[1].first);
     BOOST_CHECK_EQUAL(std::string("SKIP_RESULT AND SKIP_MODEL_UPDATE IF TIME >= 1514764800.000000 AND TIME < 1514851200.000000"),
-                         events[1].second.print());
+                      events[1].second.print());
 }
 
 BOOST_AUTO_TEST_SUITE_END()

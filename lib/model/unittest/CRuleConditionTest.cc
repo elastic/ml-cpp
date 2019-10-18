@@ -33,7 +33,6 @@ using TStrVec = std::vector<std::string>;
 const std::string EMPTY_STRING;
 }
 
-
 BOOST_AUTO_TEST_CASE(testTimeContition) {
     core_t::TTime bucketLength = 100;
     core_t::TTime startTime = 100;
@@ -57,11 +56,10 @@ BOOST_AUTO_TEST_CASE(testTimeContition) {
 
         model_t::CResultType resultType(model_t::CResultType::E_Final);
         BOOST_TEST(condition.test(model, model_t::E_IndividualCountByBucketAndPerson,
-                                      resultType, std::size_t(0), std::size_t(1),
-                                      core_t::TTime(450)) == false);
-        BOOST_TEST(condition.test(model, model_t::E_IndividualCountByBucketAndPerson,
-                                      resultType, std::size_t(0),
-                                      std::size_t(1), core_t::TTime(550)));
+                                  resultType, std::size_t(0), std::size_t(1),
+                                  core_t::TTime(450)) == false);
+        BOOST_TEST(condition.test(model, model_t::E_IndividualCountByBucketAndPerson, resultType,
+                                  std::size_t(0), std::size_t(1), core_t::TTime(550)));
     }
 
     {
@@ -72,11 +70,10 @@ BOOST_AUTO_TEST_CASE(testTimeContition) {
 
         model_t::CResultType resultType(model_t::CResultType::E_Final);
         BOOST_TEST(condition.test(model, model_t::E_IndividualCountByBucketAndPerson,
-                                      resultType, std::size_t(0), std::size_t(1),
-                                      core_t::TTime(600)) == false);
-        BOOST_TEST(condition.test(model, model_t::E_IndividualCountByBucketAndPerson,
-                                      resultType, std::size_t(0),
-                                      std::size_t(1), core_t::TTime(599)));
+                                  resultType, std::size_t(0), std::size_t(1),
+                                  core_t::TTime(600)) == false);
+        BOOST_TEST(condition.test(model, model_t::E_IndividualCountByBucketAndPerson, resultType,
+                                  std::size_t(0), std::size_t(1), core_t::TTime(599)));
     }
 }
 

@@ -13,8 +13,8 @@
 #include <test/CRandomNumbers.h>
 #include <test/CTestTmpDir.h>
 
-#include <boost/test/unit_test.hpp>
 #include <boost/filesystem.hpp>
+#include <boost/test/unit_test.hpp>
 #include <boost/unordered_map.hpp>
 
 #include <functional>
@@ -105,13 +105,9 @@ private:
 
 class CTestFixture {
 public:
-    CTestFixture() {
-        core::startDefaultAsyncExecutor();
-    }
+    CTestFixture() { core::startDefaultAsyncExecutor(); }
 
-    ~CTestFixture() {
-        core::stopDefaultAsyncExecutor();
-    }
+    ~CTestFixture() { core::stopDefaultAsyncExecutor(); }
 };
 
 BOOST_FIXTURE_TEST_CASE(testInMainMemoryBasicReadWrite, CTestFixture) {
@@ -183,8 +179,8 @@ BOOST_FIXTURE_TEST_CASE(testInMainMemoryParallelRead, CTestFixture) {
             BOOST_TEST(reader.rowsRead().size() <= 2000);
             for (const auto& row : reader.rowsRead()) {
                 BOOST_TEST(std::equal(components.begin() + row.first * cols,
-                                          components.begin() + (row.first + 1) * cols,
-                                          row.second.begin()));
+                                      components.begin() + (row.first + 1) * cols,
+                                      row.second.begin()));
                 rowRead[row.first] = true;
             }
         }
@@ -253,8 +249,8 @@ BOOST_FIXTURE_TEST_CASE(testOnDiskParallelRead, CTestFixture) {
         BOOST_TEST(reader.rowsRead().size() <= 2000);
         for (const auto& row : reader.rowsRead()) {
             BOOST_TEST(std::equal(components.begin() + row.first * cols,
-                                      components.begin() + (row.first + 1) * cols,
-                                      row.second.begin()));
+                                  components.begin() + (row.first + 1) * cols,
+                                  row.second.begin()));
             rowRead[row.first] = true;
         }
     }
@@ -783,9 +779,8 @@ BOOST_FIXTURE_TEST_CASE(testRowMask, CTestFixture) {
                 }
                 std::sort(readRowsIndices.begin(), readRowsIndices.end());
 
-                BOOST_CHECK_EQUAL(
-                    core::CContainerPrinter::print(rangeRowMaskIndices[i]),
-                    core::CContainerPrinter::print(readRowsIndices));
+                BOOST_CHECK_EQUAL(core::CContainerPrinter::print(rangeRowMaskIndices[i]),
+                                  core::CContainerPrinter::print(readRowsIndices));
             }
 
             TSizeVec strides;
@@ -830,11 +825,10 @@ BOOST_FIXTURE_TEST_CASE(testRowMask, CTestFixture) {
                 std::sort(readRowsIndices.begin(), readRowsIndices.end());
 
                 BOOST_CHECK_EQUAL(core::CContainerPrinter::print(rowMaskIndices),
-                                     core::CContainerPrinter::print(readRowsIndices));
+                                  core::CContainerPrinter::print(readRowsIndices));
             }
         }
     }
 }
-
 
 BOOST_AUTO_TEST_SUITE_END()

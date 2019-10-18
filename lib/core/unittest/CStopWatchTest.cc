@@ -14,7 +14,6 @@
 
 BOOST_AUTO_TEST_SUITE(CStopWatchTest)
 
-
 BOOST_AUTO_TEST_CASE(testStopWatch) {
     ml::core::CStopWatch stopWatch;
 

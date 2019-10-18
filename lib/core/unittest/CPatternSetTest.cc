@@ -14,7 +14,6 @@ BOOST_AUTO_TEST_SUITE(CPatternSetTest)
 using namespace ml;
 using namespace core;
 
-
 BOOST_AUTO_TEST_CASE(testInitFromJson_GivenInvalidJson) {
     std::string json("[\"foo\"");
     CPatternSet set;

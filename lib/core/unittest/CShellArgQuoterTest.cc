@@ -11,7 +11,6 @@
 
 BOOST_AUTO_TEST_SUITE(CShellArgQuoterTest)
 
-
 BOOST_AUTO_TEST_CASE(testQuote) {
     LOG_DEBUG(<< "\n"
                  "echo "

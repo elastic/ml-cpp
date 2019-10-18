@@ -6,15 +6,14 @@
 
 #include <api/CStateRestoreStreamFilter.h>
 
-#include <boost/test/unit_test.hpp>
 #include <boost/iostreams/filtering_stream.hpp>
+#include <boost/test/unit_test.hpp>
 
 #include <algorithm>
 #include <sstream>
 #include <string>
 
 BOOST_AUTO_TEST_SUITE(CStateRestoreStreamFilterTest)
-
 
 BOOST_AUTO_TEST_CASE(testBulkIndexHeaderRemoval) {
     std::istringstream input("{\"index\":{\"_id\":\"some_id\"}}\n"

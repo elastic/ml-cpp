@@ -24,9 +24,9 @@
 #include <maths/CXMeansOnline1d.h>
 #include <maths/Constants.h>
 
+#include <test/BoostTestCloseAbsolute.h>
 #include <test/CRandomNumbers.h>
 #include <test/CTimeSeriesTestData.h>
-#include <test/BoostTestCloseAbsolute.h>
 
 #include "TestUtils.h"
 
@@ -1020,12 +1020,10 @@ BOOST_AUTO_TEST_CASE(testPredict) {
                   << " actual(0) = " << predicted[0]);
         LOG_DEBUG(<< "expected(1) = " << maths::CBasicStatistics::mean(modes[1])
                   << " actual(1) = " << predicted[1]);
-        BOOST_CHECK_CLOSE_ABSOLUTE(maths::CBasicStatistics::mean(modes[0]),
-                                     predicted[0],
-                                     0.1 * maths::CBasicStatistics::mean(modes[0]));
-        BOOST_CHECK_CLOSE_ABSOLUTE(maths::CBasicStatistics::mean(modes[1]),
-                                     predicted[1],
-                                     0.01 * maths::CBasicStatistics::mean(modes[1]));
+        BOOST_CHECK_CLOSE_ABSOLUTE(maths::CBasicStatistics::mean(modes[0]), predicted[0],
+                                   0.1 * maths::CBasicStatistics::mean(modes[0]));
+        BOOST_CHECK_CLOSE_ABSOLUTE(maths::CBasicStatistics::mean(modes[1]), predicted[1],
+                                   0.01 * maths::CBasicStatistics::mean(modes[1]));
     }
 
     LOG_DEBUG(<< "Multivariate Seasonal");
@@ -1148,9 +1146,9 @@ BOOST_AUTO_TEST_CASE(testPredict) {
             LOG_DEBUG(<< "expected(1) = " << expected[1][i]
                       << " actual(1) = " << predicted[1][i]);
             BOOST_CHECK_CLOSE_ABSOLUTE(expected[0][i], predicted[0][i],
-                                         std::fabs(0.2 * expected[0][i]));
+                                       std::fabs(0.2 * expected[0][i]));
             BOOST_CHECK_CLOSE_ABSOLUTE(expected[1][i], predicted[1][i],
-                                         std::fabs(0.01 * expected[1][i]));
+                                       std::fabs(0.01 * expected[1][i]));
         }
     }
 }
@@ -1400,7 +1398,7 @@ BOOST_AUTO_TEST_CASE(testProbability) {
         LOG_DEBUG(<< "expected anomalies = " << core::CContainerPrinter::print(anomalies));
         LOG_DEBUG(<< "actual anomalies   = " << core::CContainerPrinter::print(anomalies_));
         BOOST_CHECK_EQUAL(core::CContainerPrinter::print(anomalies),
-                             core::CContainerPrinter::print(anomalies_));
+                          core::CContainerPrinter::print(anomalies_));
     }
 }
 
@@ -1927,12 +1925,12 @@ BOOST_AUTO_TEST_CASE(testAnomalyModel) {
         LOG_DEBUG(<< "anomalies = " << core::CContainerPrinter::print(anomalyBuckets));
         LOG_DEBUG(<< "probabilities = "
                   << core::CContainerPrinter::print(anomalyProbabilities));
-        BOOST_TEST(std::find(anomalyBuckets.begin(), anomalyBuckets.end(),
-                                 1905) != anomalyBuckets.end());
-        BOOST_TEST(std::find(anomalyBuckets.begin(), anomalyBuckets.end(),
-                                 1906) != anomalyBuckets.end());
-        BOOST_TEST(std::find(anomalyBuckets.begin(), anomalyBuckets.end(),
-                                 1907) != anomalyBuckets.end());
+        BOOST_TEST(std::find(anomalyBuckets.begin(), anomalyBuckets.end(), 1905) !=
+                   anomalyBuckets.end());
+        BOOST_TEST(std::find(anomalyBuckets.begin(), anomalyBuckets.end(), 1906) !=
+                   anomalyBuckets.end());
+        BOOST_TEST(std::find(anomalyBuckets.begin(), anomalyBuckets.end(), 1907) !=
+                   anomalyBuckets.end());
 
         //file << "v = " << core::CContainerPrinter::print(samples) << ";\n";
         //file << "s = " << core::CContainerPrinter::print(scores) << ";\n";
@@ -1997,12 +1995,12 @@ BOOST_AUTO_TEST_CASE(testAnomalyModel) {
         LOG_DEBUG(<< "anomalies = " << core::CContainerPrinter::print(anomalyBuckets));
         LOG_DEBUG(<< "probabilities = "
                   << core::CContainerPrinter::print(anomalyProbabilities));
-        BOOST_TEST(std::find(anomalyBuckets.begin(), anomalyBuckets.end(),
-                                 1906) != anomalyBuckets.end());
-        BOOST_TEST(std::find(anomalyBuckets.begin(), anomalyBuckets.end(),
-                                 1907) != anomalyBuckets.end());
-        BOOST_TEST(std::find(anomalyBuckets.begin(), anomalyBuckets.end(),
-                                 1908) != anomalyBuckets.end());
+        BOOST_TEST(std::find(anomalyBuckets.begin(), anomalyBuckets.end(), 1906) !=
+                   anomalyBuckets.end());
+        BOOST_TEST(std::find(anomalyBuckets.begin(), anomalyBuckets.end(), 1907) !=
+                   anomalyBuckets.end());
+        BOOST_TEST(std::find(anomalyBuckets.begin(), anomalyBuckets.end(), 1908) !=
+                   anomalyBuckets.end());
 
         //file << "v = [";
         //for (const auto &sample : samples)
@@ -2465,6 +2463,5 @@ BOOST_AUTO_TEST_CASE(testSkipAnomalyModelUpdate) {
         BOOST_TEST(std::is_sorted(probabilities.rbegin(), probabilities.rend()));
     }
 }
-
 
 BOOST_AUTO_TEST_SUITE_END()

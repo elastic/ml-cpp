@@ -107,7 +107,6 @@ private:
     TResultsVec m_Results;
 };
 
-
 BOOST_AUTO_TEST_CASE(testLimitBy) {
     // Check that we can get some results from a test data set, then
     // turn on resource limiting and still get the same results

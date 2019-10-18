@@ -123,7 +123,7 @@ BOOST_AUTO_TEST_CASE(testBracket) {
         double a = 100.0, b = 100.0;
         double fa = f(a), fb = f(b);
         BOOST_TEST(CSolvers::leftBracket(a, b, fa, fb, f, maxIterations,
-                                             std::numeric_limits<double>::min()));
+                                         std::numeric_limits<double>::min()));
         LOG_DEBUG(<< "a = " << a << ", b = " << b << ", f(a) = " << fa
                   << ", f(b) = " << fb << ", maxIterations = " << maxIterations);
         BOOST_CHECK_EQUAL(f(a), fa);
@@ -419,6 +419,5 @@ BOOST_AUTO_TEST_CASE(testSublevelSet) {
         }
     }
 }
-
 
 BOOST_AUTO_TEST_SUITE_END()

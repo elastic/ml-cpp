@@ -7,26 +7,22 @@
 #include <core/CJsonLogLayout.h>
 #include <core/CLogger.h>
 
-#include <boost/test/unit_test.hpp>
 #include <boost/current_function.hpp>
+#include <boost/test/unit_test.hpp>
 
 BOOST_AUTO_TEST_SUITE(CJsonLogLayoutTest)
-
 
 BOOST_AUTO_TEST_CASE(testPathCropping) {
 #ifdef Windows
     BOOST_CHECK_EQUAL(std::string{"source.h"},
-                         ml::core::CJsonLogLayout::cropPath(
-                             "c:\\\\home\\hendrik\\src\\include/source.h"));
+                      ml::core::CJsonLogLayout::cropPath("c:\\\\home\\hendrik\\src\\include/source.h"));
     BOOST_CHECK_EQUAL(std::string{"source.h"},
-                         ml::core::CJsonLogLayout::cropPath(
-                             "c:\\\\home\\hendrik\\src\\include\\source.h"));
+                      ml::core::CJsonLogLayout::cropPath("c:\\\\home\\hendrik\\src\\include\\source.h"));
 #else
     BOOST_CHECK_EQUAL(std::string{"source.h"},
-                         ml::core::CJsonLogLayout::cropPath("/home/hendrik/src/include/source.h"));
+                      ml::core::CJsonLogLayout::cropPath("/home/hendrik/src/include/source.h"));
     BOOST_CHECK_EQUAL(std::string{"source.h"},
-                         ml::core::CJsonLogLayout::cropPath(
-                             "/home/hendrik/work/../src/include/source.h"));
+                      ml::core::CJsonLogLayout::cropPath("/home/hendrik/work/../src/include/source.h"));
 #endif
 }
 

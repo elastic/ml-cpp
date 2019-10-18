@@ -22,7 +22,6 @@ BOOST_AUTO_TEST_SUITE(CDynamicStringIdRegistryTest)
 using namespace ml;
 using namespace model;
 
-
 BOOST_AUTO_TEST_CASE(testAddName) {
     CResourceMonitor resourceMonitor;
     CDynamicStringIdRegistry registry("person", counter_t::E_TSADNumberNewPeople,
@@ -33,22 +32,22 @@ BOOST_AUTO_TEST_CASE(testAddName) {
     std::string person1("foo");
     std::string person2("bar");
     BOOST_CHECK_EQUAL(std::size_t(0),
-                         registry.addName(person1, 100, resourceMonitor, personAdded));
+                      registry.addName(person1, 100, resourceMonitor, personAdded));
     BOOST_TEST(personAdded);
 
     personAdded = false;
     BOOST_CHECK_EQUAL(std::size_t(1),
-                         registry.addName(person2, 200, resourceMonitor, personAdded));
+                      registry.addName(person2, 200, resourceMonitor, personAdded));
     BOOST_TEST(personAdded);
     personAdded = false;
 
     BOOST_CHECK_EQUAL(std::size_t(0),
-                         registry.addName(person1, 300, resourceMonitor, personAdded));
+                      registry.addName(person1, 300, resourceMonitor, personAdded));
     BOOST_TEST(personAdded == false);
 
     std::string person3("noot");
     BOOST_CHECK_EQUAL(std::size_t(2),
-                         registry.addName(person3, 400, resourceMonitor, personAdded));
+                      registry.addName(person3, 400, resourceMonitor, personAdded));
     BOOST_TEST(personAdded);
     personAdded = false;
 
@@ -68,7 +67,7 @@ BOOST_AUTO_TEST_CASE(testAddName) {
 
     std::string person4("recycled");
     BOOST_CHECK_EQUAL(std::size_t(1),
-                         registry.addName(person4, 500, resourceMonitor, personAdded));
+                      registry.addName(person4, 500, resourceMonitor, personAdded));
     BOOST_CHECK_EQUAL(std::size_t(3), registry.numberNames());
     BOOST_CHECK_EQUAL(std::size_t(3), registry.numberActiveNames());
     BOOST_TEST(registry.isIdActive(0));

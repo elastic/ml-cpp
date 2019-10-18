@@ -158,5 +158,4 @@ BOOST_AUTO_TEST_CASE(testCloserTo) {
     }
 }
 
-
 BOOST_AUTO_TEST_SUITE_END()

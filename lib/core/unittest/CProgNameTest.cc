@@ -12,7 +12,6 @@
 
 BOOST_AUTO_TEST_SUITE(CProgNameTest)
 
-
 BOOST_AUTO_TEST_CASE(testProgName) {
     std::string progName(ml::core::CProgName::progName());
 

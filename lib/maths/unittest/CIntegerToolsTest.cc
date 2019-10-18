@@ -9,12 +9,12 @@
 
 #include <maths/CIntegerTools.h>
 
-#include <test/CRandomNumbers.h>
 #include <test/BoostTestCloseAbsolute.h>
+#include <test/CRandomNumbers.h>
 
-#include <boost/test/unit_test.hpp>
 #include <boost/numeric/conversion/bounds.hpp>
 #include <boost/range.hpp>
+#include <boost/test/unit_test.hpp>
 
 #include <cmath>
 
@@ -192,6 +192,5 @@ BOOST_AUTO_TEST_CASE(testBinomial) {
         }
     }
 }
-
 
 BOOST_AUTO_TEST_SUITE_END()

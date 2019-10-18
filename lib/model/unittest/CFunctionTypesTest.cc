@@ -25,7 +25,7 @@ BOOST_AUTO_TEST_CASE(testFeaturesToFunction) {
         LOG_DEBUG(<< "function = '"
                   << function_t::name(function_t::function(features)) << "'");
         BOOST_CHECK_EQUAL(std::string("count"),
-                             function_t::name(function_t::function(features)));
+                          function_t::name(function_t::function(features)));
     }
     {
         // (Rare) Count.
@@ -35,7 +35,7 @@ BOOST_AUTO_TEST_CASE(testFeaturesToFunction) {
         LOG_DEBUG(<< "function = '"
                   << function_t::name(function_t::function(features)) << "'");
         BOOST_CHECK_EQUAL(std::string("count"),
-                             function_t::name(function_t::function(features)));
+                          function_t::name(function_t::function(features)));
     }
     {
         // Non-Zero Count.
@@ -44,7 +44,7 @@ BOOST_AUTO_TEST_CASE(testFeaturesToFunction) {
         LOG_DEBUG(<< "function = '"
                   << function_t::name(function_t::function(features)) << "'");
         BOOST_CHECK_EQUAL(std::string("non_zero_count"),
-                             function_t::name(function_t::function(features)));
+                          function_t::name(function_t::function(features)));
     }
     {
         // Non-Zero Rare Count.
@@ -54,7 +54,7 @@ BOOST_AUTO_TEST_CASE(testFeaturesToFunction) {
         LOG_DEBUG(<< "function = '"
                   << function_t::name(function_t::function(features)) << "'");
         BOOST_CHECK_EQUAL(std::string("rare_non_zero_count"),
-                             function_t::name(function_t::function(features)));
+                          function_t::name(function_t::function(features)));
     }
     {
         // Low Count.
@@ -63,7 +63,7 @@ BOOST_AUTO_TEST_CASE(testFeaturesToFunction) {
         LOG_DEBUG(<< "function = '"
                   << function_t::name(function_t::function(features)) << "'");
         BOOST_CHECK_EQUAL(std::string("low_count"),
-                             function_t::name(function_t::function(features)));
+                          function_t::name(function_t::function(features)));
     }
     {
         // High Count.
@@ -72,7 +72,7 @@ BOOST_AUTO_TEST_CASE(testFeaturesToFunction) {
         LOG_DEBUG(<< "function = '"
                   << function_t::name(function_t::function(features)) << "'");
         BOOST_CHECK_EQUAL(std::string("high_count"),
-                             function_t::name(function_t::function(features)));
+                          function_t::name(function_t::function(features)));
     }
     {
         // Rare Count.
@@ -82,7 +82,7 @@ BOOST_AUTO_TEST_CASE(testFeaturesToFunction) {
         LOG_DEBUG(<< "function = '"
                   << function_t::name(function_t::function(features)) << "'");
         BOOST_CHECK_EQUAL(std::string("rare"),
-                             function_t::name(function_t::function(features)));
+                          function_t::name(function_t::function(features)));
     }
     {
         // Min.
@@ -91,7 +91,7 @@ BOOST_AUTO_TEST_CASE(testFeaturesToFunction) {
         LOG_DEBUG(<< "function = '"
                   << function_t::name(function_t::function(features)) << "'");
         BOOST_CHECK_EQUAL(std::string("min"),
-                             function_t::name(function_t::function(features)));
+                          function_t::name(function_t::function(features)));
     }
     {
         // Mean.
@@ -100,19 +100,19 @@ BOOST_AUTO_TEST_CASE(testFeaturesToFunction) {
         LOG_DEBUG(<< "function = '"
                   << function_t::name(function_t::function(features)) << "'");
         BOOST_CHECK_EQUAL(std::string("mean"),
-                             function_t::name(function_t::function(features)));
+                          function_t::name(function_t::function(features)));
         features.clear();
         features.push_back(model_t::E_IndividualLowMeanByPerson);
         LOG_DEBUG(<< "function = '"
                   << function_t::name(function_t::function(features)) << "'");
         BOOST_CHECK_EQUAL(std::string("low_mean"),
-                             function_t::name(function_t::function(features)));
+                          function_t::name(function_t::function(features)));
         features.clear();
         features.push_back(model_t::E_IndividualHighMeanByPerson);
         LOG_DEBUG(<< "function = '"
                   << function_t::name(function_t::function(features)) << "'");
         BOOST_CHECK_EQUAL(std::string("high_mean"),
-                             function_t::name(function_t::function(features)));
+                          function_t::name(function_t::function(features)));
     }
     {
         // Median.
@@ -121,7 +121,7 @@ BOOST_AUTO_TEST_CASE(testFeaturesToFunction) {
         LOG_DEBUG(<< "function = '"
                   << function_t::name(function_t::function(features)) << "'");
         BOOST_CHECK_EQUAL(std::string("median"),
-                             function_t::name(function_t::function(features)));
+                          function_t::name(function_t::function(features)));
         features.clear();
     }
     {
@@ -131,7 +131,7 @@ BOOST_AUTO_TEST_CASE(testFeaturesToFunction) {
         LOG_DEBUG(<< "function = '"
                   << function_t::name(function_t::function(features)) << "'");
         BOOST_CHECK_EQUAL(std::string("max"),
-                             function_t::name(function_t::function(features)));
+                          function_t::name(function_t::function(features)));
     }
     {
         // Sum.
@@ -140,19 +140,19 @@ BOOST_AUTO_TEST_CASE(testFeaturesToFunction) {
         LOG_DEBUG(<< "function = '"
                   << function_t::name(function_t::function(features)) << "'");
         BOOST_CHECK_EQUAL(std::string("sum"),
-                             function_t::name(function_t::function(features)));
+                          function_t::name(function_t::function(features)));
         features.clear();
         features.push_back(model_t::E_IndividualLowSumByBucketAndPerson);
         LOG_DEBUG(<< "function = '"
                   << function_t::name(function_t::function(features)) << "'");
         BOOST_CHECK_EQUAL(std::string("low_sum"),
-                             function_t::name(function_t::function(features)));
+                          function_t::name(function_t::function(features)));
         features.clear();
         features.push_back(model_t::E_IndividualHighSumByBucketAndPerson);
         LOG_DEBUG(<< "function = '"
                   << function_t::name(function_t::function(features)) << "'");
         BOOST_CHECK_EQUAL(std::string("high_sum"),
-                             function_t::name(function_t::function(features)));
+                          function_t::name(function_t::function(features)));
     }
     {
         // Non-Zero Sum.
@@ -161,7 +161,7 @@ BOOST_AUTO_TEST_CASE(testFeaturesToFunction) {
         LOG_DEBUG(<< "function = '"
                   << function_t::name(function_t::function(features)) << "'");
         BOOST_CHECK_EQUAL(std::string("non_null_sum"),
-                             function_t::name(function_t::function(features)));
+                          function_t::name(function_t::function(features)));
     }
     {
         // Metric.
@@ -171,7 +171,7 @@ BOOST_AUTO_TEST_CASE(testFeaturesToFunction) {
         LOG_DEBUG(<< "function = '"
                   << function_t::name(function_t::function(features)) << "'");
         BOOST_CHECK_EQUAL(std::string("metric"),
-                             function_t::name(function_t::function(features)));
+                          function_t::name(function_t::function(features)));
     }
     {
         // Metric.
@@ -182,7 +182,7 @@ BOOST_AUTO_TEST_CASE(testFeaturesToFunction) {
         LOG_DEBUG(<< "function = '"
                   << function_t::name(function_t::function(features)) << "'");
         BOOST_CHECK_EQUAL(std::string("metric"),
-                             function_t::name(function_t::function(features)));
+                          function_t::name(function_t::function(features)));
     }
     {
         // Lat-long.
@@ -191,7 +191,7 @@ BOOST_AUTO_TEST_CASE(testFeaturesToFunction) {
         LOG_DEBUG(<< "function = '"
                   << function_t::name(function_t::function(features)) << "'");
         BOOST_CHECK_EQUAL(std::string("lat_long"),
-                             function_t::name(function_t::function(features)));
+                          function_t::name(function_t::function(features)));
     }
     {
         // Count.
@@ -201,7 +201,7 @@ BOOST_AUTO_TEST_CASE(testFeaturesToFunction) {
         LOG_DEBUG(<< "function = '"
                   << function_t::name(function_t::function(features)) << "'");
         BOOST_CHECK_EQUAL(std::string("rare_count"),
-                             function_t::name(function_t::function(features)));
+                          function_t::name(function_t::function(features)));
     }
     {
         // Low Count.
@@ -210,7 +210,7 @@ BOOST_AUTO_TEST_CASE(testFeaturesToFunction) {
         LOG_DEBUG(<< "function = '"
                   << function_t::name(function_t::function(features)) << "'");
         BOOST_CHECK_EQUAL(std::string("low_count"),
-                             function_t::name(function_t::function(features)));
+                          function_t::name(function_t::function(features)));
     }
     {
         // High Count.
@@ -219,7 +219,7 @@ BOOST_AUTO_TEST_CASE(testFeaturesToFunction) {
         LOG_DEBUG(<< "function = '"
                   << function_t::name(function_t::function(features)) << "'");
         BOOST_CHECK_EQUAL(std::string("high_count"),
-                             function_t::name(function_t::function(features)));
+                          function_t::name(function_t::function(features)));
     }
     {
         // Distinct count.
@@ -228,7 +228,7 @@ BOOST_AUTO_TEST_CASE(testFeaturesToFunction) {
         LOG_DEBUG(<< "function = '"
                   << function_t::name(function_t::function(features)) << "'");
         BOOST_CHECK_EQUAL(std::string("distinct_count"),
-                             function_t::name(function_t::function(features)));
+                          function_t::name(function_t::function(features)));
     }
     {
         // Min.
@@ -237,7 +237,7 @@ BOOST_AUTO_TEST_CASE(testFeaturesToFunction) {
         LOG_DEBUG(<< "function = '"
                   << function_t::name(function_t::function(features)) << "'");
         BOOST_CHECK_EQUAL(std::string("min"),
-                             function_t::name(function_t::function(features)));
+                          function_t::name(function_t::function(features)));
     }
     {
         // Mean.
@@ -246,7 +246,7 @@ BOOST_AUTO_TEST_CASE(testFeaturesToFunction) {
         LOG_DEBUG(<< "function = '"
                   << function_t::name(function_t::function(features)) << "'");
         BOOST_CHECK_EQUAL(std::string("mean"),
-                             function_t::name(function_t::function(features)));
+                          function_t::name(function_t::function(features)));
     }
     {
         // Median.
@@ -255,7 +255,7 @@ BOOST_AUTO_TEST_CASE(testFeaturesToFunction) {
         LOG_DEBUG(<< "function = '"
                   << function_t::name(function_t::function(features)) << "'");
         BOOST_CHECK_EQUAL(std::string("median"),
-                             function_t::name(function_t::function(features)));
+                          function_t::name(function_t::function(features)));
     }
     {
         // Max.
@@ -264,7 +264,7 @@ BOOST_AUTO_TEST_CASE(testFeaturesToFunction) {
         LOG_DEBUG(<< "function = '"
                   << function_t::name(function_t::function(features)) << "'");
         BOOST_CHECK_EQUAL(std::string("max"),
-                             function_t::name(function_t::function(features)));
+                          function_t::name(function_t::function(features)));
     }
     {
         // Sum.
@@ -273,7 +273,7 @@ BOOST_AUTO_TEST_CASE(testFeaturesToFunction) {
         LOG_DEBUG(<< "function = '"
                   << function_t::name(function_t::function(features)) << "'");
         BOOST_CHECK_EQUAL(std::string("sum"),
-                             function_t::name(function_t::function(features)));
+                          function_t::name(function_t::function(features)));
     }
     {
         // Metric.
@@ -283,7 +283,7 @@ BOOST_AUTO_TEST_CASE(testFeaturesToFunction) {
         LOG_DEBUG(<< "function = '"
                   << function_t::name(function_t::function(features)) << "'");
         BOOST_CHECK_EQUAL(std::string("metric"),
-                             function_t::name(function_t::function(features)));
+                          function_t::name(function_t::function(features)));
     }
     {
         // Metric.
@@ -294,9 +294,8 @@ BOOST_AUTO_TEST_CASE(testFeaturesToFunction) {
         LOG_DEBUG(<< "function = '"
                   << function_t::name(function_t::function(features)) << "'");
         BOOST_CHECK_EQUAL(std::string("metric"),
-                             function_t::name(function_t::function(features)));
+                          function_t::name(function_t::function(features)));
     }
 }
-
 
 BOOST_AUTO_TEST_SUITE_END()

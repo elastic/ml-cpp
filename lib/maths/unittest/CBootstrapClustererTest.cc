@@ -10,11 +10,11 @@
 #include <maths/CLinearAlgebra.h>
 #include <maths/CLinearAlgebraTools.h>
 
-#include <test/CRandomNumbers.h>
 #include <test/BoostTestCloseAbsolute.h>
+#include <test/CRandomNumbers.h>
 
-#include <boost/test/unit_test.hpp>
 #include <boost/range.hpp>
+#include <boost/test/unit_test.hpp>
 
 #include <vector>
 
@@ -170,7 +170,7 @@ BOOST_AUTO_TEST_CASE(testFacade) {
             BOOST_CHECK_EQUAL(expected.size(), actual.size());
             for (std::size_t i = 0u; i < expected.size(); ++i) {
                 BOOST_CHECK_EQUAL(core::CContainerPrinter::print(expected[i]),
-                                     core::CContainerPrinter::print(actual[i]));
+                                  core::CContainerPrinter::print(actual[i]));
             }
         }
     }
@@ -655,7 +655,7 @@ BOOST_AUTO_TEST_CASE(testNonConvexClustering) {
     BOOST_CHECK_CLOSE_ABSOLUTE(
         3.0, maths::CBasicStatistics::mean(numberClustersBootstrap), 0.6);
     BOOST_TEST(maths::CBasicStatistics::mean(jaccardBootstrapToPerfect) >
-                   maths::CBasicStatistics::mean(jaccardVanillaToPerfect));
+               maths::CBasicStatistics::mean(jaccardVanillaToPerfect));
 }
 
 BOOST_AUTO_TEST_CASE(testClusteringStability) {
@@ -768,6 +768,5 @@ BOOST_AUTO_TEST_CASE(testClusteringStability) {
     LOG_DEBUG(<< "mean = " << maths::CBasicStatistics::mean(meanConsistency));
     BOOST_TEST(maths::CBasicStatistics::mean(meanConsistency) > 0.95);
 }
-
 
 BOOST_AUTO_TEST_SUITE_END()

@@ -12,7 +12,6 @@
 
 BOOST_AUTO_TEST_SUITE(CJsonStateRestoreTraverserTest)
 
-
 namespace {
 
 bool traverse2ndLevel(ml::core::CStateRestoreTraverser& traverser) {

@@ -171,5 +171,4 @@ BOOST_AUTO_TEST_CASE(testOnlineMetricModel) {
     BOOST_CHECK_EQUAL(model.computeMemoryUsage(), memoryUsage.usage());
 }
 
-
 BOOST_AUTO_TEST_SUITE_END()

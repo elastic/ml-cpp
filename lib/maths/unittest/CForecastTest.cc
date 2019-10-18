@@ -23,8 +23,8 @@
 
 #include "TestUtils.h"
 
-#include <boost/test/unit_test.hpp>
 #include <boost/numeric/conversion/bounds.hpp>
+#include <boost/test/unit_test.hpp>
 
 #include <memory>
 
@@ -339,8 +339,8 @@ BOOST_AUTO_TEST_CASE(testFinancialIndex) {
     core_t::TTime startTime;
     core_t::TTime endTime;
     BOOST_TEST(test::CTimeSeriesTestData::parse("testfiles/financial_index.csv",
-                                                    timeseries, startTime, endTime,
-                                                    "^([0-9]+),([0-9\\.]+)"));
+                                                timeseries, startTime, endTime,
+                                                "^([0-9]+),([0-9\\.]+)"));
     BOOST_TEST(!timeseries.empty());
 
     LOG_DEBUG(<< "timeseries = "
@@ -458,13 +458,12 @@ BOOST_AUTO_TEST_CASE(testTruncation) {
     }
 }
 
-
 BOOST_AUTO_TEST_CASE(testTTrend trend,
-                         core_t::TTime bucketLength,
-                         std::size_t daysToLearn,
-                         double noiseVariance,
-                         double maximumPercentageOutOfBounds,
-                         double maximumError) {
+                     core_t::TTime bucketLength,
+                     std::size_t daysToLearn,
+                     double noiseVariance,
+                     double maximumPercentageOutOfBounds,
+                     double maximumError) {
     LOG_DEBUG(<< "*** learn ***");
 
     test::CRandomNumbers rng;

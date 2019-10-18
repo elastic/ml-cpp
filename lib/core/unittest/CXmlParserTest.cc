@@ -48,8 +48,8 @@ void testParseHelper(const ml::core::CXmlParser& parser) {
         "/ItemSearchResponse/OperationRequest/HTTPHeaders/Header/@Value", node));
     BOOST_CHECK_EQUAL(std::string("Value"), node.name());
     BOOST_CHECK_EQUAL(std::string("Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1; Avant Browser; Avant Browser; .NET CLR 1.0.3705; "
-                                     ".NET CLR 2.0.50727; .NET CLR 1.1.4322; Media Center PC 4.0; InfoPath.2)"),
-                         node.value());
+                                  ".NET CLR 2.0.50727; .NET CLR 1.1.4322; Media Center PC 4.0; InfoPath.2)"),
+                      node.value());
     BOOST_TEST(node.attributes().empty());
 
     BOOST_TEST(parser.evalXPathExpression(
@@ -72,7 +72,7 @@ void testParseHelper(const ml::core::CXmlParser& parser) {
     BOOST_CHECK_EQUAL(std::string("\n\
             Invalid Date of Birth. <br /><i>This is a test validation message from the server </i>\n\
              "),
-                         node.value());
+                      node.value());
     BOOST_TEST(node.attributes().empty());
 
     BOOST_CHECK_EQUAL(std::string("ItemSearchResponse"), parser.rootElementName());
@@ -164,7 +164,7 @@ BOOST_AUTO_TEST_CASE(testParse2) {
 
     BOOST_CHECK_EQUAL(std::string("regex"), nodes[1].name());
     BOOST_CHECK_EQUAL(std::string("(template[[:space:]]*<[^;:{]+>[[:space:]]*)?"),
-                         nodes[1].value());
+                      nodes[1].value());
     BOOST_TEST(nodes[1].attributes().empty());
 }
 
@@ -252,7 +252,7 @@ BOOST_AUTO_TEST_CASE(testParseXInclude) {
 
     BOOST_CHECK_EQUAL(std::string("regex"), nodes[1].name());
     BOOST_CHECK_EQUAL(std::string("(template[[:space:]]*<[^;:{]+>[[:space:]]*)?"),
-                         nodes[1].value());
+                      nodes[1].value());
     BOOST_TEST(nodes[1].attributes().empty());
 }
 
@@ -305,8 +305,7 @@ BOOST_AUTO_TEST_CASE(testParse4) {
     BOOST_TEST(parser.evalXPathExpression("/ItemSearchResponse/Items/TotalPages", valid));
     BOOST_TEST(valid);
 
-    BOOST_TEST(parser.evalXPathExpression(
-        "/ItemSearchResponse/Items/Request/IsNotValid", valid));
+    BOOST_TEST(parser.evalXPathExpression("/ItemSearchResponse/Items/Request/IsNotValid", valid));
     BOOST_TEST(!valid);
 
     BOOST_TEST(parser.evalXPathExpression(
@@ -584,12 +583,10 @@ BOOST_AUTO_TEST_CASE(testMakeValidName) {
     BOOST_CHECK_EQUAL(std::string("name"), ml::core::CXmlParser::makeValidName("name"));
     BOOST_CHECK_EQUAL(std::string("name1"), ml::core::CXmlParser::makeValidName("name1"));
     BOOST_CHECK_EQUAL(std::string("_name"), ml::core::CXmlParser::makeValidName("1name"));
-    BOOST_CHECK_EQUAL(std::string("name_2"),
-                         ml::core::CXmlParser::makeValidName("name/2"));
-    BOOST_CHECK_EQUAL(std::string("_name_"),
-                         ml::core::CXmlParser::makeValidName("_name_"));
+    BOOST_CHECK_EQUAL(std::string("name_2"), ml::core::CXmlParser::makeValidName("name/2"));
+    BOOST_CHECK_EQUAL(std::string("_name_"), ml::core::CXmlParser::makeValidName("_name_"));
     BOOST_CHECK_EQUAL(std::string("__cencl01b_System_System_Calls_sec"),
-                         ml::core::CXmlParser::makeValidName("\\\\cencl01b\\System\\System Calls/sec"));
+                      ml::core::CXmlParser::makeValidName("\\\\cencl01b\\System\\System Calls/sec"));
 }
 
 BOOST_AUTO_TEST_CASE(testChangeChild) {
@@ -726,7 +723,7 @@ BOOST_AUTO_TEST_CASE(testComplexXPath) {
     // This convoluted query is for XML schemas that
     // have a default namespace but don't give it a name!
     BOOST_TEST(parser.evalXPathExpression("//*[local-name()='title' and .='ml']/..//*[local-name()='key' and @name='disabled']",
-                                              disabled));
+                                          disabled));
     BOOST_CHECK_EQUAL(true, disabled);
 }
 

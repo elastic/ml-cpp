@@ -10,8 +10,8 @@
 #include <maths/CLinearAlgebraTools.h>
 #include <maths/CSampling.h>
 
-#include <test/CRandomNumbers.h>
 #include <test/BoostTestCloseAbsolute.h>
+#include <test/CRandomNumbers.h>
 
 #include <boost/test/unit_test.hpp>
 
@@ -252,7 +252,7 @@ BOOST_AUTO_TEST_CASE(testSphericalGaussianWithSphericalCluster) {
         LOG_DEBUG(<< "BIC clusters  = " << bicClusters.calculate());
 
         BOOST_CHECK_CLOSE_ABSOLUTE(bicPoints.calculate(), bicClusters.calculate(),
-                                     1e-10 * bicPoints.calculate());
+                                   1e-10 * bicPoints.calculate());
 
         maths::CSphericalGaussianInfoCriterion<TVector2, maths::E_AICc> aicPoints;
         aicPoints.add(points);
@@ -261,7 +261,7 @@ BOOST_AUTO_TEST_CASE(testSphericalGaussianWithSphericalCluster) {
         LOG_DEBUG(<< "AICc points   = " << aicPoints.calculate());
         LOG_DEBUG(<< "AICc clusters = " << aicClusters.calculate());
         BOOST_CHECK_CLOSE_ABSOLUTE(aicPoints.calculate(), aicClusters.calculate(),
-                                     1e-10 * aicPoints.calculate());
+                                   1e-10 * aicPoints.calculate());
     }
 }
 
@@ -455,7 +455,7 @@ BOOST_AUTO_TEST_CASE(testGaussianWithSphericalCluster) {
         LOG_DEBUG(<< "BIC clusters  = " << bicClusters.calculate());
 
         BOOST_CHECK_CLOSE_ABSOLUTE(bicPoints.calculate(), bicClusters.calculate(),
-                                     2e-3 * bicPoints.calculate());
+                                   2e-3 * bicPoints.calculate());
 
         maths::CGaussianInfoCriterion<TVector2, maths::E_AICc> aicPoints;
         aicPoints.add(points);
@@ -464,9 +464,8 @@ BOOST_AUTO_TEST_CASE(testGaussianWithSphericalCluster) {
         LOG_DEBUG(<< "AICc points   = " << aicPoints.calculate());
         LOG_DEBUG(<< "AICc clusters = " << aicClusters.calculate());
         BOOST_CHECK_CLOSE_ABSOLUTE(aicPoints.calculate(), aicClusters.calculate(),
-                                     2e-3 * aicPoints.calculate());
+                                   2e-3 * aicPoints.calculate());
     }
 }
-
 
 BOOST_AUTO_TEST_SUITE_END()

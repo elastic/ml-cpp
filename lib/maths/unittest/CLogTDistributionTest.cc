@@ -8,11 +8,11 @@
 
 #include <maths/CLogTDistribution.h>
 
-#include <test/CRandomNumbers.h>
 #include <test/BoostTestCloseAbsolute.h>
+#include <test/CRandomNumbers.h>
 
-#include <boost/test/unit_test.hpp>
 #include <boost/range.hpp>
+#include <boost/test/unit_test.hpp>
 
 #include <cmath>
 
@@ -166,6 +166,5 @@ BOOST_AUTO_TEST_CASE(testQuantile) {
         }
     }
 }
-
 
 BOOST_AUTO_TEST_SUITE_END()

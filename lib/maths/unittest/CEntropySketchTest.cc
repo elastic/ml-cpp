@@ -87,10 +87,9 @@ BOOST_AUTO_TEST_CASE(testAll) {
         // Test additive approximation bounds.
         for (std::size_t j = 0u; j < 3; ++j) {
             BOOST_TEST(epsDeviations[i][j] / 1000.0 <
-                           2.0 * std::exp(-K[i] * eps[j] * eps[j] / 6.0));
+                       2.0 * std::exp(-K[i] * eps[j] * eps[j] / 6.0));
         }
     }
 }
-
 
 BOOST_AUTO_TEST_SUITE_END()

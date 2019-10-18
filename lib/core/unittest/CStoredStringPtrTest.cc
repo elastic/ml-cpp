@@ -91,8 +91,7 @@ BOOST_AUTO_TEST_CASE(testMemoryUsage) {
         ml::core::CStoredStringPtr ptr1 = ml::core::CStoredStringPtr::makeStoredString(str1);
 
         BOOST_CHECK_EQUAL(std::size_t(0), ml::core::CMemory::dynamicSize(ptr1));
-        BOOST_CHECK_EQUAL(ml::core::CMemory::dynamicSize(&str1),
-                             ptr1.actualMemoryUsage());
+        BOOST_CHECK_EQUAL(ml::core::CMemory::dynamicSize(&str1), ptr1.actualMemoryUsage());
     }
     {
         std::string str2("much longer - YUGE in fact!");
@@ -100,8 +99,7 @@ BOOST_AUTO_TEST_CASE(testMemoryUsage) {
         ml::core::CStoredStringPtr ptr2 = ml::core::CStoredStringPtr::makeStoredString(str2);
 
         BOOST_CHECK_EQUAL(std::size_t(0), ml::core::CMemory::dynamicSize(ptr2));
-        BOOST_CHECK_EQUAL(ml::core::CMemory::dynamicSize(&str2),
-                             ptr2.actualMemoryUsage());
+        BOOST_CHECK_EQUAL(ml::core::CMemory::dynamicSize(&str2), ptr2.actualMemoryUsage());
     }
 }
 

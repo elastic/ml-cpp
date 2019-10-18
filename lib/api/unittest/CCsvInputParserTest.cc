@@ -22,7 +22,6 @@
 
 BOOST_AUTO_TEST_SUITE(CCsvInputParserTest)
 
-
 namespace {
 
 class CVisitor {
@@ -83,7 +82,7 @@ public:
 
         // Check the field names
         BOOST_CHECK_EQUAL(ml::core::CContainerPrinter::print(m_ExpectedFieldNames),
-                             ml::core::CContainerPrinter::print(fieldNames));
+                          ml::core::CContainerPrinter::print(fieldNames));
 
         BOOST_CHECK_EQUAL(m_ExpectedFieldNames.size(), fieldValues.size());
 
@@ -137,8 +136,7 @@ public:
         if (m_TimeFormat.empty()) {
             BOOST_TEST(ml::core::CStringUtils::stringToType(fieldIter->second, timeVal));
         } else {
-            BOOST_TEST(ml::core::CTimeUtils::strptime(
-                m_TimeFormat, fieldIter->second, timeVal));
+            BOOST_TEST(ml::core::CTimeUtils::strptime(m_TimeFormat, fieldIter->second, timeVal));
             LOG_DEBUG(<< "Converted " << fieldIter->second << " to " << timeVal
                       << " using format " << m_TimeFormat);
         }

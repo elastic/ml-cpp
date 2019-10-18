@@ -23,7 +23,6 @@ BOOST_AUTO_TEST_SUITE(CFlatPrefixTreeTest)
 using namespace ml;
 using namespace core;
 
-
 BOOST_AUTO_TEST_CASE(testBuildGivenUnsortedInput) {
     CFlatPrefixTree::TStrVec prefixes;
     prefixes.push_back("b");
@@ -157,8 +156,7 @@ BOOST_AUTO_TEST_CASE(testRandom) {
         lookups.insert(lookups.end(), prefixes.begin(), prefixes.end());
 
         for (std::size_t i = 0; i < lookups.size(); ++i) {
-            BOOST_TEST(prefixTree.matchesFully(lookups[i]) ==
-                           (set.count(lookups[i]) > 0));
+            BOOST_TEST(prefixTree.matchesFully(lookups[i]) == (set.count(lookups[i]) > 0));
         }
     }
 

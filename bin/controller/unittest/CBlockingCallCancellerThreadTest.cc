@@ -37,7 +37,6 @@ private:
 };
 }
 
-
 BOOST_AUTO_TEST_CASE(testCancelBlock) {
     ml::core::CDualThreadStreamBuf buf;
     std::istream monStrm(&buf);

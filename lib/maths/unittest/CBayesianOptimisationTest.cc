@@ -11,8 +11,8 @@
 #include <maths/CBayesianOptimisation.h>
 #include <maths/CLinearAlgebraEigen.h>
 
-#include <test/CRandomNumbers.h>
 #include <test/BoostTestCloseAbsolute.h>
+#include <test/CRandomNumbers.h>
 
 #include <boost/test/unit_test.hpp>
 
@@ -81,7 +81,7 @@ BOOST_AUTO_TEST_CASE(testLikelihoodGradient) {
             TVector gradient{g(a)};
 
             BOOST_TEST((expectedGradient - gradient).norm() <
-                           1e-3 * expectedGradient.norm());
+                       1e-3 * expectedGradient.norm());
         }
     }
 }
@@ -179,7 +179,7 @@ BOOST_AUTO_TEST_CASE(testExpectedImprovementGradient) {
             TVector gradient{eig(x)};
 
             BOOST_TEST((expectedGradient - gradient).norm() <
-                           1e-2 * expectedGradient.norm());
+                       1e-2 * expectedGradient.norm());
         }
     }
 }
@@ -310,10 +310,10 @@ BOOST_AUTO_TEST_CASE(testPersistRestore) {
     }
 }
 
-BOOST_AUTO_TEST_CASE(testPersistRestoreIsIdempotent
-    const TDoubleVec& minBoundary,
-    const TDoubleVec& maxBoundary,
-    const std::vector<TDoubleVec>& parameterFunctionValues) const {
+BOOST_AUTO_TEST_CASE(testPersistRestoreIsIdempotent const TDoubleVec& minBoundary,
+                     const TDoubleVec& maxBoundary,
+                     const std::vector<TDoubleVec>& parameterFunctionValues)
+const {
     std::stringstream persistOnceSStream;
     std::stringstream persistTwiceSStream;
     std::size_t dimensions = minBoundary.size();
@@ -359,6 +359,5 @@ BOOST_AUTO_TEST_CASE(testPersistRestoreIsIdempotent
     LOG_DEBUG(<< "Second string " << persistTwiceSStream.str());
     BOOST_CHECK_EQUAL(persistOnceSStream.str(), persistTwiceSStream.str());
 }
-
 
 BOOST_AUTO_TEST_SUITE_END()

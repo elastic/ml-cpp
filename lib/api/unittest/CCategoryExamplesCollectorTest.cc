@@ -113,44 +113,42 @@ BOOST_AUTO_TEST_CASE(testTruncation) {
         std::string example = baseExample + "bbbbbb";
         examplesCollector.add(1, example);
         BOOST_CHECK_EQUAL(baseExample + "bb" + ellipsis,
-                             *examplesCollector.examples(1).begin());
+                          *examplesCollector.examples(1).begin());
     }
     {
         // Two byte character crosses truncation boundary
         std::string example = baseExample + "bébbb";
         examplesCollector.add(2, example);
         BOOST_CHECK_EQUAL(baseExample + "b" + ellipsis,
-                             *examplesCollector.examples(2).begin());
+                          *examplesCollector.examples(2).begin());
     }
     {
         // Two byte characters either side of truncation boundary
         std::string example = baseExample + "éébbb";
         examplesCollector.add(3, example);
         BOOST_CHECK_EQUAL(baseExample + "é" + ellipsis,
-                             *examplesCollector.examples(3).begin());
+                          *examplesCollector.examples(3).begin());
     }
     {
         // Two byte character before truncation boundary, single byte immediately after
         std::string example = baseExample + "ébbbb";
         examplesCollector.add(4, example);
         BOOST_CHECK_EQUAL(baseExample + "é" + ellipsis,
-                             *examplesCollector.examples(4).begin());
+                          *examplesCollector.examples(4).begin());
     }
     {
         // Three byte character crosses truncation boundary with start character before
         std::string example = baseExample + "b中bbb";
         examplesCollector.add(5, example);
         BOOST_CHECK_EQUAL(baseExample + "b" + ellipsis,
-                             *examplesCollector.examples(5).begin());
+                          *examplesCollector.examples(5).begin());
     }
     {
         // Three byte character crosses truncation boundary with continuation character before
         std::string example = baseExample + "中bbb";
         examplesCollector.add(6, example);
-        BOOST_CHECK_EQUAL(baseExample + ellipsis,
-                             *examplesCollector.examples(6).begin());
+        BOOST_CHECK_EQUAL(baseExample + ellipsis, *examplesCollector.examples(6).begin());
     }
 }
-
 
 BOOST_AUTO_TEST_SUITE_END()

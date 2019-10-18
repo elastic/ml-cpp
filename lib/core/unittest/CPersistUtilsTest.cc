@@ -10,8 +10,8 @@
 #include <core/CLogger.h>
 #include <core/CPersistUtils.h>
 
-#include <boost/test/unit_test.hpp>
 #include <boost/circular_buffer.hpp>
+#include <boost/test/unit_test.hpp>
 #include <boost/unordered_map.hpp>
 #include <boost/unordered_set.hpp>
 
@@ -579,6 +579,5 @@ BOOST_AUTO_TEST_CASE(testAppend) {
         BOOST_TEST(equal(collection, restored));
     }
 }
-
 
 BOOST_AUTO_TEST_SUITE_END()

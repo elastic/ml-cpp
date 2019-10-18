@@ -13,10 +13,10 @@
 #include <maths/CXMeans.h>
 #include <maths/CXMeansOnline.h>
 
+#include <test/BoostTestCloseAbsolute.h>
 #include <test/CRandomNumbers.h>
 #include <test/CRandomNumbersDetail.h>
 #include <test/CTimeSeriesTestData.h>
-#include <test/BoostTestCloseAbsolute.h>
 
 #include <boost/test/unit_test.hpp>
 
@@ -500,7 +500,7 @@ BOOST_AUTO_TEST_CASE(testManyClusters) {
         }
         LOG_DEBUG(<< "loss = " << maths::CBasicStatistics::mean(loss));
         BOOST_TEST(maths::CBasicStatistics::mean(loss) <
-                       0.02 * maths::CBasicStatistics::mean(differentialEntropy));
+                   0.02 * maths::CBasicStatistics::mean(differentialEntropy));
     }
 }
 
@@ -715,7 +715,7 @@ BOOST_AUTO_TEST_CASE(testLatLongData) {
     LOG_DEBUG(<< "gaussian log(L)  = " << maths::CBasicStatistics::mean(LLR));
     LOG_DEBUG(<< "clustered log(L) = " << maths::CBasicStatistics::mean(LLC));
     BOOST_TEST(maths::CBasicStatistics::mean(LLC) <
-                   0.6 * maths::CBasicStatistics::mean(LLR));
+               0.6 * maths::CBasicStatistics::mean(LLR));
 }
 
 BOOST_AUTO_TEST_CASE(testPersist) {
@@ -773,6 +773,5 @@ BOOST_AUTO_TEST_CASE(testPersist) {
     }
     BOOST_CHECK_EQUAL(origXml, newXml);
 }
-
 
 BOOST_AUTO_TEST_SUITE_END()

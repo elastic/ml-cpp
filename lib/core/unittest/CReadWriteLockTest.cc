@@ -24,7 +24,6 @@
 
 BOOST_AUTO_TEST_SUITE(CReadWriteLockTest)
 
-
 namespace {
 
 class CUnprotectedAdder : public ml::core::CThread {
@@ -335,8 +334,7 @@ BOOST_AUTO_TEST_CASE(testPerformanceVersusMutex) {
 
         LOG_INFO(<< "Atomic variable incremented to " << testVariable.load());
 
-        BOOST_CHECK_EQUAL(uint_fast32_t(TEST_SIZE * (1 + 5 + 9)),
-                             testVariable.load());
+        BOOST_CHECK_EQUAL(uint_fast32_t(TEST_SIZE * (1 + 5 + 9)), testVariable.load());
     }
     {
         uint32_t testVariable(0);

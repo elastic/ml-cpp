@@ -10,7 +10,6 @@
 
 BOOST_AUTO_TEST_SUITE(CMutexTest)
 
-
 BOOST_AUTO_TEST_CASE(testRecursive) {
     ml::core::CMutex mutex;
 

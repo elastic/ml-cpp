@@ -212,5 +212,4 @@ BOOST_AUTO_TEST_CASE(testAll) {
     }
 }
 
-
 BOOST_AUTO_TEST_SUITE_END()

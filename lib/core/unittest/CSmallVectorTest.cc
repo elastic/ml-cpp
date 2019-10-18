@@ -24,11 +24,11 @@ BOOST_AUTO_TEST_CASE(testNonStandard) {
         TDoubleVec vec{0.1, 1.4, 7.4};
         TDouble5Vec svec(vec);
         BOOST_CHECK_EQUAL(core::CContainerPrinter::print(vec),
-                             core::CContainerPrinter::print(svec));
+                          core::CContainerPrinter::print(svec));
 
         TDoubleVec cvec(svec);
         BOOST_CHECK_EQUAL(core::CContainerPrinter::print(vec),
-                             core::CContainerPrinter::print(cvec));
+                          core::CContainerPrinter::print(cvec));
     }
 
     // Test addition and subtraction.
@@ -38,14 +38,13 @@ BOOST_AUTO_TEST_CASE(testNonStandard) {
 
         vec1 -= vec2;
         BOOST_CHECK_EQUAL(std::string("[-0.3, 1.6, -0.8, 5.7]"),
-                             core::CContainerPrinter::print(vec1));
+                          core::CContainerPrinter::print(vec1));
 
         vec1 += vec2;
         vec1 += vec2;
         BOOST_CHECK_EQUAL(std::string("[2.3, 4.8, 3.6, 8.9]"),
-                             core::CContainerPrinter::print(vec1));
+                          core::CContainerPrinter::print(vec1));
     }
 }
-
 
 BOOST_AUTO_TEST_SUITE_END()

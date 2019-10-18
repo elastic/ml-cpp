@@ -146,8 +146,7 @@ BOOST_AUTO_TEST_CASE(testEstimateNonlinear) {
         CMemoryUsageEstimator::TOptionalSize mem = estimate(estimator, 25, 35, 45);
         std::size_t actual = pScale * 25 * 25 + aScale * 35 * 35 + cScale * 45 * 45;
         LOG_DEBUG(<< "actual = " << actual << ", estimated = " << mem.get());
-        BOOST_TEST(
-            static_cast<double>(actual - mem.get()) / static_cast<double>(actual) < 0.15);
+        BOOST_TEST(static_cast<double>(actual - mem.get()) / static_cast<double>(actual) < 0.15);
     }
 }
 
@@ -222,6 +221,5 @@ BOOST_AUTO_TEST_CASE(testPersist) {
         BOOST_CHECK_EQUAL(origXml, newXml);
     }
 }
-
 
 BOOST_AUTO_TEST_SUITE_END()

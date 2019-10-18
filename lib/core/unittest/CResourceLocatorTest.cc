@@ -12,7 +12,6 @@
 
 BOOST_AUTO_TEST_SUITE(CResourceLocatorTest)
 
-
 BOOST_AUTO_TEST_CASE(testResourceDir) {
     std::string resourceDir(ml::core::CResourceLocator::resourceDir());
     LOG_DEBUG(<< "Resource directory is " << resourceDir);

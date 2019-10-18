@@ -12,8 +12,8 @@
 #include <maths/CBasicStatistics.h>
 #include <maths/CDataFrameCategoryEncoder.h>
 
-#include <test/CRandomNumbers.h>
 #include <test/BoostTestCloseAbsolute.h>
+#include <test/CRandomNumbers.h>
 
 #include <boost/test/unit_test.hpp>
 
@@ -583,7 +583,7 @@ BOOST_AUTO_TEST_CASE(testUnseenCategoryEncoding) {
         rep << " " << encodedRow[i];
     }
     BOOST_CHECK_EQUAL(maths::CFloatStorage{1.5},
-                         encodedRow[encodedRow.numberColumns() - 1]);
+                      encodedRow[encodedRow.numberColumns() - 1]);
     LOG_DEBUG(<< "encoded = [" << rep.str() << "]");
 }
 
@@ -691,6 +691,5 @@ BOOST_AUTO_TEST_CASE(testPersistRestore) {
 
     } catch (const std::exception& e) { BOOST_FAIL(e.what()); }
 }
-
 
 BOOST_AUTO_TEST_SUITE_END()

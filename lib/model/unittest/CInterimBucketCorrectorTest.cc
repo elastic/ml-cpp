@@ -29,7 +29,6 @@ using TDouble10Vec = core::CSmallVector<double, 10>;
 const double EPSILON = 1e-10;
 }
 
-
 BOOST_AUTO_TEST_CASE(testCorrectionsGivenSingleValue) {
     core_t::TTime bucketLength(3600);
     CInterimBucketCorrector corrector(bucketLength);

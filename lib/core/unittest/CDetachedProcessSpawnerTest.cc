@@ -9,8 +9,8 @@
 #include <core/CSleep.h>
 #include <core/CStringUtils.h>
 
-#include <boost/test/unit_test.hpp>
 #include <boost/range.hpp>
+#include <boost/test/unit_test.hpp>
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -42,7 +42,6 @@ const std::string PROCESS_PATH2("/bin/sleep");
 const std::string PROCESS_ARGS2[] = {"10"};
 #endif
 }
-
 
 BOOST_AUTO_TEST_CASE(testSpawn) {
     // The intention of this test is to copy a file by spawning an external
@@ -115,7 +114,7 @@ BOOST_AUTO_TEST_CASE(testNonExistent) {
 
     // Should fail as even though it's a permitted process as the file doesn't exist
     BOOST_TEST(!spawner.spawn("./does_not_exist",
-                                  ml::core::CDetachedProcessSpawner::TStrVec()));
+                              ml::core::CDetachedProcessSpawner::TStrVec()));
 }
 
 BOOST_AUTO_TEST_SUITE_END()

@@ -274,7 +274,7 @@ BOOST_AUTO_TEST_CASE(testHandleControlMessages) {
     const std::string& output = outputStrm.str();
     LOG_DEBUG(<< "Output is: " << output);
     BOOST_CHECK_EQUAL(std::string::size_type(0),
-                         output.find("[{\"flush\":{\"id\":\"7\",\"last_finalized_bucket_end\":0}}"));
+                      output.find("[{\"flush\":{\"id\":\"7\",\"last_finalized_bucket_end\":0}}"));
 }
 
 BOOST_AUTO_TEST_CASE(testRestoreStateFailsWithEmptyState) {
@@ -292,6 +292,5 @@ BOOST_AUTO_TEST_CASE(testRestoreStateFailsWithEmptyState) {
     CEmptySearcher restoreSearcher;
     BOOST_TEST(typer.restoreState(restoreSearcher, completeToTime) == false);
 }
-
 
 BOOST_AUTO_TEST_SUITE_END()

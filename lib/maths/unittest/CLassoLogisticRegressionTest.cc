@@ -11,9 +11,9 @@
 
 #include <test/CRandomNumbers.h>
 
-#include <boost/test/unit_test.hpp>
 #include <boost/math/constants/constants.hpp>
 #include <boost/range.hpp>
+#include <boost/test/unit_test.hpp>
 
 #include <cmath>
 #include <vector>
@@ -119,7 +119,7 @@ BOOST_AUTO_TEST_CASE(testCyclicCoordinateDescent) {
                   << ", numberIterations = " << numberIterations);
 
         BOOST_CHECK_EQUAL(core::CContainerPrinter::print(beta1),
-                             core::CContainerPrinter::print(beta2));
+                          core::CContainerPrinter::print(beta2));
 
         initializeMatrix(x_, x);
         double ll = logLikelihood(x, y, lambda, beta1);
@@ -229,6 +229,5 @@ BOOST_AUTO_TEST_CASE(testNormBasedLambda) {
 BOOST_AUTO_TEST_CASE(testCrossValidatedLambda) {
     // TODO
 }
-
 
 BOOST_AUTO_TEST_SUITE_END()

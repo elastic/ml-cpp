@@ -10,10 +10,10 @@
 #include <core/CStateCompressor.h>
 #include <core/CStateDecompressor.h>
 
-#include <boost/test/unit_test.hpp>
 #include <boost/generator_iterator.hpp>
 #include <boost/random.hpp>
 #include <boost/random/uniform_int.hpp>
+#include <boost/test/unit_test.hpp>
 
 #include <iostream>
 
@@ -299,6 +299,5 @@ BOOST_AUTO_TEST_CASE(testChunking) {
         BOOST_CHECK_EQUAL(ss.str(), decompressed);
     }
 }
-
 
 BOOST_AUTO_TEST_SUITE_END()

@@ -26,8 +26,8 @@
 
 #include <rapidjson/document.h>
 
-#include <boost/test/unit_test.hpp>
 #include <boost/filesystem.hpp>
+#include <boost/test/unit_test.hpp>
 
 #include <fstream>
 #include <ios>
@@ -50,7 +50,6 @@ void reportPersistComplete(ml::api::CModelSnapshotJsonWriter::SModelSnapshotRepo
     numDocsOut = modelSnapshotReport.s_NumDocs;
 }
 }
-
 
 BOOST_AUTO_TEST_CASE(testSimpleWrite) {
     static const std::string EVENT("Hello Event");

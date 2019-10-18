@@ -45,7 +45,7 @@ BOOST_AUTO_TEST_CASE(testBasic) {
         });
     }
     BOOST_CHECK_EQUAL(std::string("Hello 1 world 1\nHello 2 world 2\n"),
-                         stringStream.str());
+                      stringStream.str());
 }
 
 namespace {
@@ -194,6 +194,5 @@ BOOST_AUTO_TEST_CASE(testMemoryDebug) {
     wrappedStringStream.debugMemoryUsage(mem.addChild());
     BOOST_CHECK_EQUAL(wrappedStringStream.memoryUsage(), mem.usage());
 }
-
 
 BOOST_AUTO_TEST_SUITE_END()

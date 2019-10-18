@@ -11,7 +11,6 @@
 
 BOOST_AUTO_TEST_SUITE(CRegexFilterTest)
 
-
 BOOST_AUTO_TEST_CASE(testConfigure_GivenInvalidRegex) {
     std::vector<std::string> regexVector;
     regexVector.push_back(std::string(".*"));

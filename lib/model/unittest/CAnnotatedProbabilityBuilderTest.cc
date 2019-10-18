@@ -82,7 +82,7 @@ BOOST_AUTO_TEST_CASE(testAddAttributeProbabilityGivenIndividualCount) {
     BOOST_CHECK_EQUAL(EMPTY_STRING, *result.s_AttributeProbabilities[0].s_Attribute);
     BOOST_CHECK_EQUAL(0.68, result.s_AttributeProbabilities[0].s_Probability);
     BOOST_CHECK_EQUAL(model_t::E_IndividualCountByBucketAndPerson,
-                         result.s_AttributeProbabilities[0].s_Feature);
+                      result.s_AttributeProbabilities[0].s_Feature);
     BOOST_TEST(result.s_AttributeProbabilities[0].s_DescriptiveData.empty());
 }
 
@@ -110,13 +110,13 @@ BOOST_AUTO_TEST_CASE(testAddAttributeProbabilityGivenPopulationCount) {
     BOOST_CHECK_EQUAL(C2, *result.s_AttributeProbabilities[0].s_Attribute);
     BOOST_CHECK_EQUAL(0.04, result.s_AttributeProbabilities[0].s_Probability);
     BOOST_CHECK_EQUAL(model_t::E_PopulationCountByBucketPersonAndAttribute,
-                         result.s_AttributeProbabilities[0].s_Feature);
+                      result.s_AttributeProbabilities[0].s_Feature);
     BOOST_TEST(result.s_AttributeProbabilities[0].s_DescriptiveData.empty());
 
     BOOST_CHECK_EQUAL(C1, *result.s_AttributeProbabilities[1].s_Attribute);
     BOOST_CHECK_EQUAL(0.05, result.s_AttributeProbabilities[1].s_Probability);
     BOOST_CHECK_EQUAL(model_t::E_PopulationCountByBucketPersonAndAttribute,
-                         result.s_AttributeProbabilities[1].s_Feature);
+                      result.s_AttributeProbabilities[1].s_Feature);
     BOOST_TEST(result.s_AttributeProbabilities[1].s_DescriptiveData.empty());
 }
 
@@ -174,42 +174,42 @@ BOOST_AUTO_TEST_CASE(testAddAttributeProbabilityGivenPopulationRare) {
 
     BOOST_CHECK_EQUAL(std::size_t(3), result.s_DescriptiveData.size());
     BOOST_CHECK_EQUAL(annotated_probability::E_PERSON_COUNT,
-                         result.s_DescriptiveData[0].first);
+                      result.s_DescriptiveData[0].first);
     BOOST_CHECK_EQUAL(42.0, result.s_DescriptiveData[0].second);
     BOOST_CHECK_EQUAL(annotated_probability::E_DISTINCT_RARE_ATTRIBUTES_COUNT,
-                         result.s_DescriptiveData[1].first);
+                      result.s_DescriptiveData[1].first);
     BOOST_CHECK_EQUAL(1.0, result.s_DescriptiveData[1].second);
     BOOST_CHECK_EQUAL(annotated_probability::E_DISTINCT_TOTAL_ATTRIBUTES_COUNT,
-                         result.s_DescriptiveData[2].first);
+                      result.s_DescriptiveData[2].first);
     BOOST_CHECK_EQUAL(4.0, result.s_DescriptiveData[2].second);
 
     BOOST_CHECK_EQUAL(C3, *result.s_AttributeProbabilities[0].s_Attribute);
     BOOST_CHECK_EQUAL(0.01, result.s_AttributeProbabilities[0].s_Probability);
     BOOST_CHECK_EQUAL(model_t::E_IndividualIndicatorOfBucketPerson,
-                         result.s_AttributeProbabilities[0].s_Feature);
+                      result.s_AttributeProbabilities[0].s_Feature);
     BOOST_CHECK_EQUAL(std::size_t(2),
-                         result.s_AttributeProbabilities[0].s_DescriptiveData.size());
+                      result.s_AttributeProbabilities[0].s_DescriptiveData.size());
     BOOST_CHECK_EQUAL(annotated_probability::E_ATTRIBUTE_CONCENTRATION,
-                         result.s_AttributeProbabilities[0].s_DescriptiveData[0].first);
+                      result.s_AttributeProbabilities[0].s_DescriptiveData[0].first);
     BOOST_CHECK_EQUAL(
         3.0, result.s_AttributeProbabilities[0].s_DescriptiveData[0].second);
     BOOST_CHECK_EQUAL(annotated_probability::E_ACTIVITY_CONCENTRATION,
-                         result.s_AttributeProbabilities[0].s_DescriptiveData[1].first);
+                      result.s_AttributeProbabilities[0].s_DescriptiveData[1].first);
     BOOST_CHECK_EQUAL(
         6.0, result.s_AttributeProbabilities[0].s_DescriptiveData[1].second);
 
     BOOST_CHECK_EQUAL(C1, *result.s_AttributeProbabilities[1].s_Attribute);
     BOOST_CHECK_EQUAL(0.02, result.s_AttributeProbabilities[1].s_Probability);
     BOOST_CHECK_EQUAL(model_t::E_IndividualIndicatorOfBucketPerson,
-                         result.s_AttributeProbabilities[1].s_Feature);
+                      result.s_AttributeProbabilities[1].s_Feature);
     BOOST_CHECK_EQUAL(std::size_t(2),
-                         result.s_AttributeProbabilities[1].s_DescriptiveData.size());
+                      result.s_AttributeProbabilities[1].s_DescriptiveData.size());
     BOOST_CHECK_EQUAL(annotated_probability::E_ATTRIBUTE_CONCENTRATION,
-                         result.s_AttributeProbabilities[1].s_DescriptiveData[0].first);
+                      result.s_AttributeProbabilities[1].s_DescriptiveData[0].first);
     BOOST_CHECK_EQUAL(
         1.0, result.s_AttributeProbabilities[1].s_DescriptiveData[0].second);
     BOOST_CHECK_EQUAL(annotated_probability::E_ACTIVITY_CONCENTRATION,
-                         result.s_AttributeProbabilities[1].s_DescriptiveData[1].first);
+                      result.s_AttributeProbabilities[1].s_DescriptiveData[1].first);
     BOOST_CHECK_EQUAL(
         2.0, result.s_AttributeProbabilities[1].s_DescriptiveData[1].second);
 }
@@ -255,42 +255,42 @@ BOOST_AUTO_TEST_CASE(testAddAttributeProbabilityGivenPopulationFreqRare) {
 
     BOOST_CHECK_EQUAL(std::size_t(3), result.s_DescriptiveData.size());
     BOOST_CHECK_EQUAL(annotated_probability::E_PERSON_COUNT,
-                         result.s_DescriptiveData[0].first);
+                      result.s_DescriptiveData[0].first);
     BOOST_CHECK_EQUAL(70.0, result.s_DescriptiveData[0].second);
     BOOST_CHECK_EQUAL(annotated_probability::E_RARE_ATTRIBUTES_COUNT,
-                         result.s_DescriptiveData[1].first);
+                      result.s_DescriptiveData[1].first);
     BOOST_CHECK_EQUAL(8.0, result.s_DescriptiveData[1].second);
     BOOST_CHECK_EQUAL(annotated_probability::E_TOTAL_ATTRIBUTES_COUNT,
-                         result.s_DescriptiveData[2].first);
+                      result.s_DescriptiveData[2].first);
     BOOST_CHECK_EQUAL(20.0, result.s_DescriptiveData[2].second);
 
     BOOST_CHECK_EQUAL(C3, *result.s_AttributeProbabilities[0].s_Attribute);
     BOOST_CHECK_EQUAL(0.01, result.s_AttributeProbabilities[0].s_Probability);
     BOOST_CHECK_EQUAL(model_t::E_IndividualIndicatorOfBucketPerson,
-                         result.s_AttributeProbabilities[0].s_Feature);
+                      result.s_AttributeProbabilities[0].s_Feature);
     BOOST_CHECK_EQUAL(std::size_t(2),
-                         result.s_AttributeProbabilities[0].s_DescriptiveData.size());
+                      result.s_AttributeProbabilities[0].s_DescriptiveData.size());
     BOOST_CHECK_EQUAL(annotated_probability::E_ATTRIBUTE_CONCENTRATION,
-                         result.s_AttributeProbabilities[0].s_DescriptiveData[0].first);
+                      result.s_AttributeProbabilities[0].s_DescriptiveData[0].first);
     BOOST_CHECK_EQUAL(
         3.0, result.s_AttributeProbabilities[0].s_DescriptiveData[0].second);
     BOOST_CHECK_EQUAL(annotated_probability::E_ACTIVITY_CONCENTRATION,
-                         result.s_AttributeProbabilities[0].s_DescriptiveData[1].first);
+                      result.s_AttributeProbabilities[0].s_DescriptiveData[1].first);
     BOOST_CHECK_EQUAL(
         6.0, result.s_AttributeProbabilities[0].s_DescriptiveData[1].second);
 
     BOOST_CHECK_EQUAL(C1, *result.s_AttributeProbabilities[1].s_Attribute);
     BOOST_CHECK_EQUAL(0.02, result.s_AttributeProbabilities[1].s_Probability);
     BOOST_CHECK_EQUAL(model_t::E_IndividualIndicatorOfBucketPerson,
-                         result.s_AttributeProbabilities[1].s_Feature);
+                      result.s_AttributeProbabilities[1].s_Feature);
     BOOST_CHECK_EQUAL(std::size_t(2),
-                         result.s_AttributeProbabilities[1].s_DescriptiveData.size());
+                      result.s_AttributeProbabilities[1].s_DescriptiveData.size());
     BOOST_CHECK_EQUAL(annotated_probability::E_ATTRIBUTE_CONCENTRATION,
-                         result.s_AttributeProbabilities[1].s_DescriptiveData[0].first);
+                      result.s_AttributeProbabilities[1].s_DescriptiveData[0].first);
     BOOST_CHECK_EQUAL(
         1.0, result.s_AttributeProbabilities[1].s_DescriptiveData[0].second);
     BOOST_CHECK_EQUAL(annotated_probability::E_ACTIVITY_CONCENTRATION,
-                         result.s_AttributeProbabilities[1].s_DescriptiveData[1].first);
+                      result.s_AttributeProbabilities[1].s_DescriptiveData[1].first);
     BOOST_CHECK_EQUAL(
         2.0, result.s_AttributeProbabilities[1].s_DescriptiveData[1].second);
 }
@@ -314,7 +314,7 @@ BOOST_AUTO_TEST_CASE(testPersonFrequencyGivenIndividualRare) {
 
         BOOST_CHECK_EQUAL(std::size_t(1), result.s_DescriptiveData.size());
         BOOST_CHECK_EQUAL(annotated_probability::E_PERSON_NEVER_SEEN_BEFORE,
-                             result.s_DescriptiveData[0].first);
+                          result.s_DescriptiveData[0].first);
         BOOST_CHECK_EQUAL(1.0, result.s_DescriptiveData[0].second);
     }
     {
@@ -326,7 +326,7 @@ BOOST_AUTO_TEST_CASE(testPersonFrequencyGivenIndividualRare) {
 
         BOOST_CHECK_EQUAL(std::size_t(1), result.s_DescriptiveData.size());
         BOOST_CHECK_EQUAL(annotated_probability::E_PERSON_PERIOD,
-                             result.s_DescriptiveData[0].first);
+                          result.s_DescriptiveData[0].first);
         BOOST_CHECK_EQUAL(5.0, result.s_DescriptiveData[0].second);
     }
 }
@@ -339,6 +339,5 @@ BOOST_AUTO_TEST_CASE(testPersonFrequencyGivenPopulationRare) {
 
     BOOST_TEST(result.s_DescriptiveData.empty());
 }
-
 
 BOOST_AUTO_TEST_SUITE_END()

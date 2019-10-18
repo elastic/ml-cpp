@@ -12,9 +12,9 @@
 #include <maths/CLinearAlgebraTools.h>
 #include <maths/CSphericalCluster.h>
 
+#include <test/BoostTestCloseAbsolute.h>
 #include <test/CRandomNumbers.h>
 #include <test/CRandomNumbersDetail.h>
-#include <test/BoostTestCloseAbsolute.h>
 
 #include <boost/test/unit_test.hpp>
 
@@ -75,7 +75,7 @@ struct SKdTreeDataInvariantsChecker {
 
         BOOST_CHECK_EQUAL(bb.print(), node.boundingBox().print());
         BOOST_CHECK_EQUAL(maths::CBasicStatistics::print(centroid),
-                             maths::CBasicStatistics::print(*node.centroid()));
+                          maths::CBasicStatistics::print(*node.centroid()));
     }
 };
 
@@ -322,7 +322,7 @@ BOOST_AUTO_TEST_CASE(testCentroids) {
             LOG_DEBUG(<< "  centroids          = "
                       << core::CContainerPrinter::print(centroids));
             BOOST_CHECK_EQUAL(core::CContainerPrinter::print(expectedCentroids),
-                                 core::CContainerPrinter::print(centroids));
+                              core::CContainerPrinter::print(centroids));
         }
         {
             LOG_DEBUG(<< "Vector4");
@@ -352,7 +352,7 @@ BOOST_AUTO_TEST_CASE(testCentroids) {
             LOG_DEBUG(<< "  centroids          = "
                       << core::CContainerPrinter::print(centroids));
             BOOST_CHECK_EQUAL(core::CContainerPrinter::print(expectedCentroids),
-                                 core::CContainerPrinter::print(centroids));
+                              core::CContainerPrinter::print(centroids));
         }
     }
 }
@@ -465,7 +465,7 @@ BOOST_AUTO_TEST_CASE(testRun) {
                       << core::CContainerPrinter::print(kmeansFast.centres()));
             BOOST_CHECK_EQUAL(converged, fastConverged);
             BOOST_CHECK_EQUAL(core::CContainerPrinter::print(centres),
-                                 core::CContainerPrinter::print(kmeansFast.centres()));
+                              core::CContainerPrinter::print(kmeansFast.centres()));
         }
     }
 }
@@ -541,7 +541,7 @@ BOOST_AUTO_TEST_CASE(testRunWithSphericalClusters) {
         LOG_DEBUG(<< "k-means clusters = "
                   << core::CContainerPrinter::print(kmeansClustersCentres));
         BOOST_CHECK_EQUAL(core::CContainerPrinter::print(kmeansPointsCentres),
-                             core::CContainerPrinter::print(kmeansClustersCentres));
+                          core::CContainerPrinter::print(kmeansClustersCentres));
     }
 }
 
@@ -655,9 +655,7 @@ BOOST_AUTO_TEST_CASE(testPlusPlus) {
     BOOST_TEST(minSSRRatio < 0.14);
     BOOST_TEST(maths::CBasicStatistics::mean(meanSSRRatio) < 0.9);
     BOOST_TEST(maxSSRRatio < 9.0);
-    BOOST_CHECK_CLOSE_ABSOLUTE(
-        4.0, maths::CBasicStatistics::mean(numberClustersSampled), 0.3);
+    BOOST_CHECK_CLOSE_ABSOLUTE(4.0, maths::CBasicStatistics::mean(numberClustersSampled), 0.3);
 }
-
 
 BOOST_AUTO_TEST_SUITE_END()

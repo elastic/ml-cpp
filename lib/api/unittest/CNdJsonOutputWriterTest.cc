@@ -14,7 +14,6 @@
 
 BOOST_AUTO_TEST_SUITE(CNdJsonOutputWriterTest)
 
-
 BOOST_AUTO_TEST_CASE(testStringOutput) {
     ml::api::CNdJsonOutputWriter::TStrStrUMap dataRowFields;
     dataRowFields["probability"] = "0.01";
@@ -43,8 +42,7 @@ BOOST_AUTO_TEST_CASE(testNumericOutput) {
 
     const std::string& output = writer.internalString();
 
-    BOOST_CHECK_EQUAL(
-        std::string("{\"probability\":0.01,\"normalized_score\":3.3}\n"), output);
+    BOOST_CHECK_EQUAL(std::string("{\"probability\":0.01,\"normalized_score\":3.3}\n"), output);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

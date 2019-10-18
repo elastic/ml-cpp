@@ -8,8 +8,8 @@
 #include <maths/CMic.h>
 #include <maths/CTools.h>
 
-#include <test/CRandomNumbers.h>
 #include <test/BoostTestCloseAbsolute.h>
+#include <test/CRandomNumbers.h>
 
 #include <boost/test/unit_test.hpp>
 
@@ -518,6 +518,5 @@ BOOST_AUTO_TEST_CASE(testEdgeCases) {
     LOG_DEBUG(<< "MICe = " << mic_);
     BOOST_CHECK_EQUAL(0.0, mic_);
 }
-
 
 BOOST_AUTO_TEST_SUITE_END()

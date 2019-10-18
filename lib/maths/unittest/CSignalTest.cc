@@ -11,8 +11,8 @@
 
 #include <test/CRandomNumbers.h>
 
-#include <boost/test/unit_test.hpp>
 #include <boost/math/constants/constants.hpp>
+#include <boost/test/unit_test.hpp>
 
 BOOST_AUTO_TEST_SUITE(CSignalTest)
 
@@ -352,9 +352,8 @@ BOOST_AUTO_TEST_CASE(testAutocorrelations) {
             LOG_DEBUG(<< "actual   = " << core::CContainerPrinter::print(actual));
         }
         BOOST_CHECK_EQUAL(core::CContainerPrinter::print(expected),
-                             core::CContainerPrinter::print(actual));
+                          core::CContainerPrinter::print(actual));
     }
 }
-
 
 BOOST_AUTO_TEST_SUITE_END()

@@ -12,7 +12,6 @@
 
 BOOST_AUTO_TEST_SUITE(CMonotonicTimeTest)
 
-
 BOOST_AUTO_TEST_CASE(testMilliseconds) {
     ml::core::CMonotonicTime monoTime;
 

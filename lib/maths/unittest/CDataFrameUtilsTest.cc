@@ -13,9 +13,9 @@
 #include <maths/COrderings.h>
 #include <maths/CQuantileSketch.h>
 
+#include <test/BoostTestCloseAbsolute.h>
 #include <test/CRandomNumbers.h>
 #include <test/CTestTmpDir.h>
-#include <test/BoostTestCloseAbsolute.h>
 
 #include <boost/test/unit_test.hpp>
 
@@ -139,22 +139,20 @@ BOOST_AUTO_TEST_CASE(testColumnDataTypes) {
             BOOST_CHECK_EQUAL(expectedTypes.size(), actualTypes.size());
             for (std::size_t i = 0; i < expectedTypes.size(); ++i) {
                 double eps{100.0 * std::numeric_limits<double>::epsilon()};
-                BOOST_CHECK_EQUAL(expectedTypes[i].s_IsInteger,
-                                     actualTypes[i].s_IsInteger);
+                BOOST_CHECK_EQUAL(expectedTypes[i].s_IsInteger, actualTypes[i].s_IsInteger);
                 BOOST_CHECK_CLOSE_ABSOLUTE(expectedTypes[i].s_Min,
-                                             actualTypes[i].s_Min,
-                                             eps * expectedTypes[i].s_Min);
+                                           actualTypes[i].s_Min,
+                                           eps * expectedTypes[i].s_Min);
                 BOOST_CHECK_CLOSE_ABSOLUTE(expectedTypes[i].s_Max,
-                                             actualTypes[i].s_Max,
-                                             eps * expectedTypes[i].s_Max);
-                BOOST_CHECK_EQUAL(expectedTypes[i].s_IsInteger,
-                                     restoredTypes[i].s_IsInteger);
+                                           actualTypes[i].s_Max,
+                                           eps * expectedTypes[i].s_Max);
+                BOOST_CHECK_EQUAL(expectedTypes[i].s_IsInteger, restoredTypes[i].s_IsInteger);
                 BOOST_CHECK_CLOSE_ABSOLUTE(expectedTypes[i].s_Min,
-                                             restoredTypes[i].s_Min,
-                                             eps * expectedTypes[i].s_Min);
+                                           restoredTypes[i].s_Min,
+                                           eps * expectedTypes[i].s_Min);
                 BOOST_CHECK_CLOSE_ABSOLUTE(expectedTypes[i].s_Max,
-                                             restoredTypes[i].s_Max,
-                                             eps * expectedTypes[i].s_Max);
+                                           restoredTypes[i].s_Max,
+                                           eps * expectedTypes[i].s_Max);
             }
         }
 
@@ -331,8 +329,7 @@ BOOST_AUTO_TEST_CASE(testColumnQuantiles) {
                     double qa, qe;
                     BOOST_TEST(expectedQuantiles[feature].quantile(x, qe));
                     BOOST_TEST(actualQuantiles[feature].quantile(x, qa));
-                    BOOST_CHECK_CLOSE_ABSOLUTE(
-                        qe, qa, 0.02 * std::max(std::fabs(qa), 1.5));
+                    BOOST_CHECK_CLOSE_ABSOLUTE(qe, qa, 0.02 * std::max(std::fabs(qa), 1.5));
                     columnsMae[feature].add(std::fabs(qa - qe));
                 }
             }
@@ -491,7 +488,7 @@ BOOST_AUTO_TEST_CASE(testMicWithColumn) {
         LOG_DEBUG(<< "expected = " << core::CContainerPrinter::print(expected));
         LOG_DEBUG(<< "actual   = " << core::CContainerPrinter::print(actual));
         BOOST_CHECK_EQUAL(core::CContainerPrinter::print(expected),
-                             core::CContainerPrinter::print(actual));
+                          core::CContainerPrinter::print(actual));
     }
 
     // Test missing values.
@@ -547,7 +544,7 @@ BOOST_AUTO_TEST_CASE(testMicWithColumn) {
         LOG_DEBUG(<< "expected = " << core::CContainerPrinter::print(expected));
         LOG_DEBUG(<< "actual   = " << core::CContainerPrinter::print(actual));
         BOOST_CHECK_EQUAL(core::CContainerPrinter::print(expected),
-                             core::CContainerPrinter::print(actual));
+                          core::CContainerPrinter::print(actual));
     }
 }
 
@@ -595,12 +592,11 @@ BOOST_AUTO_TEST_CASE(testCategoryFrequencies) {
 
             BOOST_CHECK_EQUAL(std::size_t{4}, actualFrequencies.size());
             for (std::size_t i : {0, 2}) {
-                BOOST_CHECK_EQUAL(actualFrequencies.size(),
-                                     expectedFrequencies.size());
+                BOOST_CHECK_EQUAL(actualFrequencies.size(), expectedFrequencies.size());
                 for (std::size_t j = 0; j < actualFrequencies[i].size(); ++j) {
                     BOOST_CHECK_CLOSE_ABSOLUTE(expectedFrequencies[i][j],
-                                                 actualFrequencies[i][j],
-                                                 1.0 / static_cast<double>(rows));
+                                               actualFrequencies[i][j],
+                                               1.0 / static_cast<double>(rows));
                 }
             }
             for (std::size_t i : {1, 3}) {
@@ -748,7 +744,7 @@ BOOST_AUTO_TEST_CASE(testMeanValueOfTargetForCategoriesWithMissing) {
         BOOST_CHECK_EQUAL(actualMeans.size(), expectedMeans.size());
         for (std::size_t j = 0; j < actualMeans[i].size(); ++j) {
             BOOST_CHECK_EQUAL(maths::CBasicStatistics::mean(expectedMeans[i][j]),
-                                 actualMeans[i][j]);
+                              actualMeans[i][j]);
         }
     }
 }
@@ -833,7 +829,7 @@ BOOST_AUTO_TEST_CASE(testCategoryMicWithColumn) {
                 categoryOrder.push_back(category.first);
             }
             BOOST_CHECK_EQUAL(std::string{"[1, 3, 0, 4, 2]"},
-                                 core::CContainerPrinter::print(categoryOrder));
+                              core::CContainerPrinter::print(categoryOrder));
         }
 
         core::startDefaultAsyncExecutor();
@@ -841,6 +837,5 @@ BOOST_AUTO_TEST_CASE(testCategoryMicWithColumn) {
 
     core::stopDefaultAsyncExecutor();
 }
-
 
 BOOST_AUTO_TEST_SUITE_END()

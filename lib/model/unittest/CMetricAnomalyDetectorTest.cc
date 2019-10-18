@@ -21,8 +21,8 @@
 #include <model/CSearchKey.h>
 #include <model/FunctionTypes.h>
 
-#include <test/CTimeSeriesTestData.h>
 #include <test/BoostTestCloseAbsolute.h>
+#include <test/CTimeSeriesTestData.h>
 
 #include <boost/test/unit_test.hpp>
 
@@ -293,7 +293,7 @@ BOOST_AUTO_TEST_CASE(testAnomalies) {
             LOG_DEBUG(<< "Testing " << core::CContainerPrinter::print(highAnomalyTimes[j])
                       << ' ' << highAnomalyFactors[j]);
             BOOST_TEST((doIntersect(highAnomalyTimes[j], ANOMALOUS_INTERVALS[0]) ||
-                           doIntersect(highAnomalyTimes[j], ANOMALOUS_INTERVALS[1])));
+                        doIntersect(highAnomalyTimes[j], ANOMALOUS_INTERVALS[1])));
         }
 
         if (!anomalyFactors.empty()) {
@@ -447,6 +447,5 @@ BOOST_AUTO_TEST_CASE(testExcludeFrequent) {
         BOOST_CHECK_CLOSE_ABSOLUTE(12.0, highAnomalyFactors[0], 2.0);
     }
 }
-
 
 BOOST_AUTO_TEST_SUITE_END()

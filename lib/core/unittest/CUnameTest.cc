@@ -11,7 +11,6 @@
 
 BOOST_AUTO_TEST_SUITE(CUnameTest)
 
-
 BOOST_AUTO_TEST_CASE(testUname) {
     LOG_DEBUG(<< ml::core::CUname::sysName());
     LOG_DEBUG(<< ml::core::CUname::nodeName());

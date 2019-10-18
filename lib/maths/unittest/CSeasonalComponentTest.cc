@@ -16,8 +16,8 @@
 #include <maths/CSeasonalTime.h>
 #include <maths/CTools.h>
 
-#include <test/CRandomNumbers.h>
 #include <test/BoostTestCloseAbsolute.h>
+#include <test/CRandomNumbers.h>
 
 #include <boost/test/unit_test.hpp>
 
@@ -758,6 +758,5 @@ BOOST_AUTO_TEST_CASE(testPersist) {
         BOOST_CHECK_CLOSE_ABSOLUTE(vo.second, vn.second, 1e-3);
     }
 }
-
 
 BOOST_AUTO_TEST_SUITE_END()

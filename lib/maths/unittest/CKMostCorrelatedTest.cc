@@ -14,11 +14,11 @@
 #include <maths/CLinearAlgebra.h>
 #include <maths/CSampling.h>
 
-#include <test/CRandomNumbers.h>
 #include <test/BoostTestCloseAbsolute.h>
+#include <test/CRandomNumbers.h>
 
-#include <boost/test/unit_test.hpp>
 #include <boost/range.hpp>
+#include <boost/test/unit_test.hpp>
 
 #include <cstdlib>
 #include <vector>
@@ -331,7 +331,7 @@ BOOST_AUTO_TEST_CASE(testNextProjection) {
 
     for (std::size_t i = 0u; i < moments1.size(); ++i) {
         BOOST_TEST(maths::CBasicStatistics::count(moments1[i]) >
-                       maths::CBasicStatistics::count(moments2[i]));
+                   maths::CBasicStatistics::count(moments2[i]));
     }
     for (std::size_t i = 0u; i < correlations2.size(); ++i) {
         BOOST_TEST(maths::CBasicStatistics::count(correlations2[i].s_Correlation) > 0.0);
@@ -391,7 +391,7 @@ BOOST_AUTO_TEST_CASE(testMostCorrelated) {
     mostCorrelated.mostCorrelated(actual);
 
     BOOST_CHECK_EQUAL(core::CContainerPrinter::print(expected),
-                         core::CContainerPrinter::print(actual));
+                      core::CContainerPrinter::print(actual));
 }
 
 BOOST_AUTO_TEST_CASE(testRemoveVariables) {
@@ -439,9 +439,9 @@ BOOST_AUTO_TEST_CASE(testRemoveVariables) {
 
     for (std::size_t i = 0u; i < correlatedPairs.size(); ++i) {
         BOOST_TEST(std::find(remove.begin(), remove.end(),
-                                 correlatedPairs[i].first) == remove.end());
+                             correlatedPairs[i].first) == remove.end());
         BOOST_TEST(std::find(remove.begin(), remove.end(),
-                                 correlatedPairs[i].second) == remove.end());
+                             correlatedPairs[i].second) == remove.end());
     }
 }
 
@@ -548,8 +548,8 @@ BOOST_AUTO_TEST_CASE(testStability) {
             std::sort(correlatedPairs.begin(), correlatedPairs.begin() + 5);
             std::sort(correlatedPairs.begin() + 5, correlatedPairs.begin() + 10);
             BOOST_CHECK_EQUAL(std::string("[(0, 1), (2, 3), (4, 5), (6, 7), (8, 9), "
-                                             "(10, 11), (12, 13), (14, 15), (16, 17), (18, 19)]"),
-                                 core::CContainerPrinter::print(correlatedPairs));
+                                          "(10, 11), (12, 13), (14, 15), (16, 17), (18, 19)]"),
+                              core::CContainerPrinter::print(correlatedPairs));
         }
     }
 }
@@ -598,7 +598,7 @@ BOOST_AUTO_TEST_CASE(testChangingCorrelation) {
         if (mostCorrelated.correlations()[i].s_X == 8 &&
             mostCorrelated.correlations()[i].s_Y == 9) {
             BOOST_TEST(maths::CBasicStatistics::mean(
-                               mostCorrelated.correlations()[i].s_Correlation) > 0.7);
+                           mostCorrelated.correlations()[i].s_Correlation) > 0.7);
             present = true;
         }
     }
@@ -658,10 +658,9 @@ BOOST_AUTO_TEST_CASE(testMissingData) {
                                                         correlations.begin() + 5));
             std::sort(correlatedPairs.begin(), correlatedPairs.begin() + 3);
             std::sort(correlatedPairs.begin() + 3, correlatedPairs.begin() + 5);
-            BOOST_CHECK_EQUAL(
-                std::string("[(0, 1), (2, 3), (8, 9), (4, 5), (6, 7)]"),
-                core::CContainerPrinter::print(correlatedPairs.begin(),
-                                               correlatedPairs.begin() + 5));
+            BOOST_CHECK_EQUAL(std::string("[(0, 1), (2, 3), (8, 9), (4, 5), (6, 7)]"),
+                              core::CContainerPrinter::print(
+                                  correlatedPairs.begin(), correlatedPairs.begin() + 5));
         }
     }
 }
@@ -821,6 +820,5 @@ BOOST_AUTO_TEST_CASE(testPersistence) {
 
     BOOST_CHECK_EQUAL(origXml, newXml);
 }
-
 
 BOOST_AUTO_TEST_SUITE_END()
