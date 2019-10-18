@@ -197,7 +197,7 @@ public:
     TTrainedModelUPtrVec& trainedModels();
     //! Number of models in the ensemble.
     std::size_t size() const;
-    CTrainedModel::TStringVec adjustFeatureNames() override;
+    TStringVec adjustFeatureNames() override;
     void targetType(ETargetType targetType) override;
 
     ETargetType targetType() const override;
