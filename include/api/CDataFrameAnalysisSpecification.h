@@ -186,11 +186,11 @@ public:
     //! Get pointer to the analysis runner.
     const CDataFrameAnalysisRunner* runner();
 
-private:
-    void initializeRunner(const rapidjson::Value& jsonAnalysis);
-
     static TDataAdderUPtr noopPersisterSupplier();
     static TDataSearcherUPtr noopRestoreSearcherSupplier();
+
+private:
+    void initializeRunner(const rapidjson::Value& jsonAnalysis);
 
 private:
     std::size_t m_NumberRows = 0;
