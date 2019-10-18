@@ -185,8 +185,8 @@ BOOST_AUTO_TEST_CASE(testConvert) {
     BOOST_TEST(converted.find("</child>") != std::string::npos);
     BOOST_TEST(converted.find("<child ") != std::string::npos);
     BOOST_TEST(converted.find("&amp; ") != std::string::npos);
-    BOOST_TEST(converted.find("<empty/>") != std::string::npos ||
-                   converted.find("<empty></empty>") != std::string::npos);
+    BOOST_TEST((converted.find("<empty/>") != std::string::npos ||
+                   converted.find("<empty></empty>") != std::string::npos));
     BOOST_TEST(converted.find("<dual ") != std::string::npos);
     BOOST_TEST(converted.find("first") != std::string::npos);
     BOOST_TEST(converted.find("second") != std::string::npos);

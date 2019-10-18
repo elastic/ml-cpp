@@ -670,7 +670,8 @@ BOOST_AUTO_TEST_CASE(testVariance) {
                   << ", relative error = " << std::fabs(v - v_) / v_);
 
         BOOST_CHECK_CLOSE_ABSOLUTE(v_, v, 0.4 * v_);
-        BOOST_TEST(v_ > vv.first && v_ < vv.second);
+        BOOST_TEST(v_ > vv.first);
+        BOOST_TEST(v_ < vv.second);
         error.add(std::fabs(v - v_) / v_);
     }
 

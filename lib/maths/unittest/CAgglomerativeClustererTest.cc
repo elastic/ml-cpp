@@ -360,9 +360,9 @@ BOOST_AUTO_TEST_CASE(testDegenerate) {
                           << core::CContainerPrinter::print(clusters));
             }
 
-            BOOST_TEST(expected[o][0] == core::CContainerPrinter::print(clusters) ||
+            BOOST_TEST((expected[o][0] == core::CContainerPrinter::print(clusters) ||
                            expected[o][1] == core::CContainerPrinter::print(clusters) ||
-                           expected[o][2] == core::CContainerPrinter::print(clusters));
+                           expected[o][2] == core::CContainerPrinter::print(clusters)));
             ++count;
         } while (std::next_permutation(std::begin(p), std::end(p)));
     }

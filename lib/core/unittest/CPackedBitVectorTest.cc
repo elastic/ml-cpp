@@ -229,7 +229,7 @@ BOOST_AUTO_TEST_CASE(testComparisonAndLess) {
 
     for (std::size_t i = 0; i < test.size(); ++i) {
         for (std::size_t j = i; j < test.size(); ++j) {
-            BOOST_TEST(test[i] < test[j] || test[i] > test[j] || test[i] == test[j]);
+            BOOST_TEST((test[i] < test[j] || test[i] > test[j] || test[i] == test[j]));
         }
     }
 }

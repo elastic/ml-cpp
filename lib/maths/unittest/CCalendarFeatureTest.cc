@@ -100,7 +100,7 @@ BOOST_AUTO_TEST_CASE(testComparison) {
         BOOST_TEST(!(features[i] < features[i] || features[i] > features[i]));
         for (std::size_t j = i + 1; j < features.size(); ++j) {
             BOOST_TEST(features[i] != features[j]);
-            BOOST_TEST(features[i] < features[j] || features[i] > features[j]);
+            BOOST_TEST((features[i] < features[j] || features[i] > features[j]));
         }
     }
 }

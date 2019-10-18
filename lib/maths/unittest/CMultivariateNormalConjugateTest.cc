@@ -574,7 +574,8 @@ BOOST_AUTO_TEST_CASE(testMarginalLikelihoodMode) {
         double gradient = std::fabs(std::exp(llp) - std::exp(llm)) / norm;
         LOG_DEBUG(<< "gradient = " << gradient);
         BOOST_TEST(gradient < 1e-6);
-        BOOST_TEST(ll > llm && ll > llp);
+        BOOST_TEST(ll > llm);
+        BOOST_TEST(ll > llp);
     }
 }
 

@@ -188,14 +188,16 @@ BOOST_AUTO_TEST_CASE(testMultipleUpdate) {
         dynamic_cast<const maths::CPoissonMeanConjugate*>(models1[0]);
     const maths::CPoissonMeanConjugate* poisson2 =
         dynamic_cast<const maths::CPoissonMeanConjugate*>(models2[0]);
-    BOOST_TEST(poisson1 && poisson2);
+    BOOST_TEST(poisson1);
+    BOOST_TEST(poisson2);
     BOOST_TEST(poisson1->equalTolerance(*poisson2, equal));
 
     const maths::CNormalMeanPrecConjugate* normal1 =
         dynamic_cast<const maths::CNormalMeanPrecConjugate*>(models1[1]);
     const maths::CNormalMeanPrecConjugate* normal2 =
         dynamic_cast<const maths::CNormalMeanPrecConjugate*>(models2[1]);
-    BOOST_TEST(normal1 && normal2);
+    BOOST_TEST(normal1);
+    BOOST_TEST(normal2);
     BOOST_TEST(normal1->equalTolerance(*normal2, equal));
 
     // Test the count weight is equivalent to adding repeated samples.
@@ -322,7 +324,8 @@ BOOST_AUTO_TEST_CASE(testModels) {
             dynamic_cast<const maths::CPoissonMeanConjugate*>(posteriorModels[0]);
         const maths::CNormalMeanPrecConjugate* normalModel =
             dynamic_cast<const maths::CNormalMeanPrecConjugate*>(posteriorModels[1]);
-        BOOST_TEST(poissonModel && normalModel);
+        BOOST_TEST(poissonModel);
+        BOOST_TEST(normalModel);
 
         LOG_DEBUG(<< "Poisson mean = " << poissonModel->priorMean()
                   << ", expectedMean = " << rate);
@@ -361,7 +364,8 @@ BOOST_AUTO_TEST_CASE(testModels) {
             dynamic_cast<const maths::CPoissonMeanConjugate*>(posteriorModels[0]);
         const maths::CNormalMeanPrecConjugate* normalModel =
             dynamic_cast<const maths::CNormalMeanPrecConjugate*>(posteriorModels[1]);
-        BOOST_TEST(poissonModel && normalModel);
+        BOOST_TEST(poissonModel);
+        BOOST_TEST(normalModel);
 
         LOG_DEBUG(<< "Poisson mean = " << poissonModel->priorMean()
                   << ", expectedMean = " << rate);

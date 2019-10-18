@@ -248,8 +248,8 @@ BOOST_AUTO_TEST_CASE(testDiurnal) {
             if (time > lastTest + window) {
                 maths::CPeriodicityHypothesisTestsResult result{hypotheses.test()};
                 LOG_DEBUG(<< "result = " << result.print());
-                BOOST_TEST(result.print() == "{ 'weekend daily' 'weekday daily' 'weekend weekly' }" ||
-                               result.print() == "{ 'weekend daily' 'weekday daily' 'weekend weekly' 'weekday weekly' }");
+                BOOST_TEST((result.print() == "{ 'weekend daily' 'weekday daily' 'weekend weekly' }" ||
+                               result.print() == "{ 'weekend daily' 'weekday daily' 'weekend weekly' 'weekday weekly' }"));
                 hypotheses = maths::CPeriodicityHypothesisTests();
                 hypotheses.initialize(0 /*startTime*/, HOUR, window, DAY);
                 lastTest += window;

@@ -510,8 +510,8 @@ void doTestLargeAllocations(SLargeAllocationTestParams& param) {
     LOG_DEBUG(<< "Testing for 2nd time");
     model->test(time);
     LOG_DEBUG(<< "# new people = " << model->getNewPeople());
-    BOOST_TEST(model->getNewPeople() > param.m_NewPeopleLowerBound &&
-                   model->getNewPeople() < param.m_NewPeopleUpperBound);
+    BOOST_TEST(model->getNewPeople() > param.m_NewPeopleLowerBound);
+    BOOST_TEST(model->getNewPeople() < param.m_NewPeopleUpperBound);
     BOOST_CHECK_EQUAL(std::size_t(0), model->getNewAttributes());
     BOOST_CHECK_EQUAL(model->getNewPeople(), gatherer->numberActivePeople());
 

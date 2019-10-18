@@ -1164,12 +1164,18 @@ BOOST_AUTO_TEST_CASE(testSmallVector) {
         TSizeVec memory{core::CMemory::dynamicSize(vec1), core::CMemory::dynamicSize(vec2),
                         core::CMemory::dynamicSize(vec3)};
         // These assertions hold because the vectors never shrink
-        BOOST_TEST(size > 2 || memory[0] == 0);
-        BOOST_TEST(memory[0] == 0 || memory[0] == vec1.capacity() * sizeof(double));
-        BOOST_TEST(size > 6 || memory[1] == 0);
-        BOOST_TEST(memory[1] == 0 || memory[1] == vec2.capacity() * sizeof(double));
-        BOOST_TEST(size > 8 || memory[2] == 0);
-        BOOST_TEST(memory[2] == 0 || memory[2] == vec3.capacity() * sizeof(double));
+        if (size <= 2) {
+            BOOST_TEST(memory[0] == 0);
+        }
+        BOOST_TEST((memory[0] == 0 || memory[0] == vec1.capacity() * sizeof(double)));
+        if (size <= 6) {
+            BOOST_TEST(memory[1] == 0);
+        }
+        BOOST_TEST((memory[1] == 0 || memory[1] == vec2.capacity() * sizeof(double)));
+        if (size <= 8) {
+            BOOST_TEST(memory[2] == 0);
+        }
+        BOOST_TEST((memory[2] == 0 || memory[2] == vec3.capacity() * sizeof(double)));
     }
 
     // Test growing and shrinking

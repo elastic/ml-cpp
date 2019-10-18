@@ -1,3 +1,4 @@
+
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
  * or more contributor license agreements. Licensed under the Elastic License;
@@ -396,8 +397,8 @@ BOOST_AUTO_TEST_CASE(testModelledEntityCountForFixedMemoryLimit) {
             LOG_DEBUG(<< "Memory status = " << used.s_MemoryStatus);
             LOG_DEBUG(<< "Memory usage bytes = " << used.s_Usage);
             LOG_DEBUG(<< "Memory limit bytes = " << memoryLimit * 1024 * 1024);
-            BOOST_TEST(used.s_ByFields > testParam.s_ExpectedByFields &&
-                           used.s_ByFields < 800);
+            BOOST_TEST(used.s_ByFields > testParam.s_ExpectedByFields);
+            BOOST_TEST(used.s_ByFields < 800);
             BOOST_CHECK_EQUAL(std::size_t(2), used.s_PartitionFields);
             BOOST_CHECK_CLOSE_ABSOLUTE(
                 memoryLimit * 1024 * 1024 / 2, used.s_Usage,
@@ -446,8 +447,8 @@ BOOST_AUTO_TEST_CASE(testModelledEntityCountForFixedMemoryLimit) {
             LOG_DEBUG(<< "# partition = " << used.s_PartitionFields);
             LOG_DEBUG(<< "Memory status = " << used.s_MemoryStatus);
             LOG_DEBUG(<< "Memory usage = " << used.s_Usage);
-            BOOST_TEST(used.s_PartitionFields > testParam.s_ExpectedPartitionFields &&
-                           used.s_PartitionFields < 450);
+            BOOST_TEST(used.s_PartitionFields > testParam.s_ExpectedPartitionFields);
+            BOOST_TEST(used.s_PartitionFields < 450);
             BOOST_TEST(static_cast<double>(used.s_ByFields) >
                            0.96 * static_cast<double>(used.s_PartitionFields));
             BOOST_CHECK_CLOSE_ABSOLUTE(
@@ -495,8 +496,8 @@ BOOST_AUTO_TEST_CASE(testModelledEntityCountForFixedMemoryLimit) {
             LOG_DEBUG(<< "# over = " << used.s_OverFields);
             LOG_DEBUG(<< "Memory status = " << used.s_MemoryStatus);
             LOG_DEBUG(<< "Memory usage = " << used.s_Usage);
-            BOOST_TEST(used.s_OverFields > testParam.s_ExpectedOverFields &&
-                           used.s_OverFields < 7000);
+            BOOST_TEST(used.s_OverFields > testParam.s_ExpectedOverFields);
+            BOOST_TEST(used.s_OverFields < 7000);
             BOOST_CHECK_CLOSE_ABSOLUTE(
                 memoryLimit * 1024 * 1024 / 2, used.s_Usage,
                 memoryLimit * 1024 * 1024 / testParam.s_ExpectedOverUsageRelativeErrorDivisor);

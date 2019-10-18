@@ -176,7 +176,8 @@ BOOST_AUTO_TEST_CASE(testCdf) {
 
         double fx = static_cast<double>(summary[i].second) / 100.0;
 
-        BOOST_TEST(fx >= lowerBound && fx <= upperBound);
+        BOOST_TEST(fx >= lowerBound);
+        BOOST_TEST(fx <= upperBound);
     }
 
     for (/**/; s < samples.size(); ++s) {
@@ -201,8 +202,10 @@ BOOST_AUTO_TEST_CASE(testCdf) {
         LOG_DEBUG(<< "x = " << summary[i].first << ", F(x) = " << ft
                   << ", F(x) >= " << lowerBound << ", F(x) <= " << upperBound);
 
-        BOOST_TEST(fx >= lowerBound && fx <= upperBound);
-        BOOST_TEST(ft >= lowerBound - 0.01 && ft <= upperBound + 0.01);
+        BOOST_TEST(fx >= lowerBound);
+        BOOST_TEST(fx <= upperBound);
+        BOOST_TEST(ft >= lowerBound - 0.01);
+        BOOST_TEST(ft <= upperBound + 0.01);
     }
 }
 

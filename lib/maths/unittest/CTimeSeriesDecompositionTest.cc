@@ -1934,7 +1934,8 @@ BOOST_AUTO_TEST_CASE(testCalendar) {
     CDebugGenerator debug;
 
     TDoubleVec noise;
-    for (core_t::TTime time = 0, count = 0; time < end; time += HALF_HOUR) {
+    std::size_t count{0};
+    for (core_t::TTime time = 0; time < end; time += HALF_HOUR) {
         rng.generateNormalSamples(0.0, 4.0, 1, noise);
 
         decomposition.addPoint(time, trend(time) + noise[0]);
@@ -1961,8 +1962,12 @@ BOOST_AUTO_TEST_CASE(testCalendar) {
             }
 
             LOG_DEBUG(<< "large error count = " << largeErrorCount);
-            BOOST_TEST(++count > 4 || largeErrorCount > 15);
-            BOOST_TEST(count < 5 || largeErrorCount <= 1);
+            if (++count <= 4) {
+                BOOST_TEST(largeErrorCount > 15);
+            }
+            if (count >= 5) {
+                BOOST_TEST(largeErrorCount <= 1);
+            }
         }
     }
 }
