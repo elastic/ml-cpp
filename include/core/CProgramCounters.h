@@ -18,7 +18,13 @@
 #include <vector>
 
 namespace CProgramCountersTest {
-struct testFoo;
+class CTestFixture;
+class CProgramCountersTestRunner;
+struct testCounters;
+struct testUnknownCounter;
+struct testMissingCounter;
+struct testCacheCounters;
+struct testPersist;
 }
 
 namespace ml {
@@ -219,7 +225,8 @@ private:
         std::atomic_uint_fast64_t m_Counter;
 
         //! Befriend the test suite
-        friend struct CProgramCountersTest::testFoo;
+        friend class CProgramCountersTest::CProgramCountersTestRunner;
+        friend struct CProgramCountersTest::testCounters;
     };
 
 private:
@@ -333,7 +340,13 @@ private:
                                                 const CProgramCounters& counters);
 
     //! Befriend the test suite
-    friend struct CProgramCountersTest::testFoo;
+    friend class CProgramCountersTest::CTestFixture;
+    friend class CProgramCountersTest::CProgramCountersTestRunner;
+    friend struct CProgramCountersTest::testCounters;
+    friend struct CProgramCountersTest::testUnknownCounter;
+    friend struct CProgramCountersTest::testMissingCounter;
+    friend struct CProgramCountersTest::testCacheCounters;
+    friend struct CProgramCountersTest::testPersist;
 };
 
 } // core

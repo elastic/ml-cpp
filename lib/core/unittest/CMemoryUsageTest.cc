@@ -1018,7 +1018,7 @@ BOOST_AUTO_TEST_CASE(testStringBehaviour) {
 }
 
 BOOST_AUTO_TEST_CASE(testStringMemory) {
-    using TAllocator = ::CTrackingAllocator<char>;
+    using TAllocator = CTrackingAllocator<char>;
     using TString = std::basic_string<char, std::char_traits<char>, TAllocator>;
 
     for (std::size_t i = 0; i < 1500; ++i) {
@@ -1036,7 +1036,7 @@ BOOST_AUTO_TEST_CASE(testStringMemory) {
 }
 
 BOOST_AUTO_TEST_CASE(testStringClear) {
-    using TAllocator = ::CTrackingAllocator<char>;
+    using TAllocator = CTrackingAllocator<char>;
     using TString = std::basic_string<char, std::char_traits<char>, TAllocator>;
 
     TString empty;

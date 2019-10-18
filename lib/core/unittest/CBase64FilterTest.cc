@@ -185,15 +185,15 @@ BOOST_AUTO_TEST_CASE(testDecode) {
 
 BOOST_AUTO_TEST_CASE(testBoth) {
     {
-        ::testEncodeDecode("a");
-        ::testEncodeDecode("aa");
-        ::testEncodeDecode("aaa");
-        ::testEncodeDecode("aaaa");
-        ::testEncodeDecode("aaaaa");
-        ::testEncodeDecode("aaaaaa");
-        ::testEncodeDecode("aaaaaaa");
-        ::testEncodeDecode("aaaaaaaa");
-        ::testEncodeDecode("OneTwoThreeFourFiveSixSevenEightNineTen");
+        testEncodeDecode("a");
+        testEncodeDecode("aa");
+        testEncodeDecode("aaa");
+        testEncodeDecode("aaaa");
+        testEncodeDecode("aaaaa");
+        testEncodeDecode("aaaaaa");
+        testEncodeDecode("aaaaaaa");
+        testEncodeDecode("aaaaaaaa");
+        testEncodeDecode("OneTwoThreeFourFiveSixSevenEightNineTen");
     }
     {
         TRandom rng(3632638936UL);
@@ -204,7 +204,7 @@ BOOST_AUTO_TEST_CASE(testBoth) {
         for (std::size_t i = 0; i < 5000000; i++) {
             ss << char(*randItr++);
         }
-        ::testEncodeDecode(ss.str());
+        testEncodeDecode(ss.str());
     }
 }
 

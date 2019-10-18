@@ -18,11 +18,18 @@
 
 BOOST_AUTO_TEST_SUITE(CContainerThroughputTest)
 
-const size_t CContainerThroughputTest::FILL_SIZE(2);
-const size_t CContainerThroughputTest::TEST_SIZE(10000000);
+const std::size_t FILL_SIZE(2);
+const std::size_t TEST_SIZE(10000000);
 
+struct SContent {
+    SContent(std::size_t count) : s_Size(count), s_Ptr(this), s_Double(static_cast<double>(count)) {}
 
-void CContainerThroughputTest::setUp() {
+    std::size_t s_Size;
+    void* s_Ptr;
+    double s_Double;
+};
+
+BOOST_AUTO_TEST_CASE(testConstants) {
     BOOST_TEST(FILL_SIZE > 0);
     BOOST_TEST(TEST_SIZE > FILL_SIZE);
 }
@@ -36,7 +43,7 @@ BOOST_AUTO_TEST_CASE(testVector) {
     LOG_INFO(<< "Starting vector throughput test at "
              << ml::core::CTimeUtils::toTimeString(start));
 
-    size_t count(0);
+    std::size_t count(0);
     while (count < FILL_SIZE) {
         ++count;
         testVec.push_back(SContent(count));
@@ -66,7 +73,7 @@ BOOST_AUTO_TEST_CASE(testList) {
     LOG_INFO(<< "Starting list throughput test at "
              << ml::core::CTimeUtils::toTimeString(start));
 
-    size_t count(0);
+    std::size_t count(0);
     while (count < FILL_SIZE) {
         ++count;
         testList.push_back(SContent(count));
@@ -96,7 +103,7 @@ BOOST_AUTO_TEST_CASE(testDeque) {
     LOG_INFO(<< "Starting deque throughput test at "
              << ml::core::CTimeUtils::toTimeString(start));
 
-    size_t count(0);
+    std::size_t count(0);
     while (count < FILL_SIZE) {
         ++count;
         testDeque.push_back(SContent(count));
@@ -119,14 +126,14 @@ BOOST_AUTO_TEST_CASE(testDeque) {
 }
 
 BOOST_AUTO_TEST_CASE(testMap) {
-    using TSizeContentMap = std::map<size_t, SContent>;
+    using TSizeContentMap = std::map<std::size_t, SContent>;
     TSizeContentMap testMap;
 
     ml::core_t::TTime start(ml::core::CTimeUtils::now());
     LOG_INFO(<< "Starting map throughput test at "
              << ml::core::CTimeUtils::toTimeString(start));
 
-    size_t count(0);
+    std::size_t count(0);
     while (count < FILL_SIZE) {
         ++count;
         testMap.insert(TSizeContentMap::value_type(count, SContent(count)));
@@ -156,7 +163,7 @@ BOOST_AUTO_TEST_CASE(testCircBuf) {
     LOG_INFO(<< "Starting circular buffer throughput test at "
              << ml::core::CTimeUtils::toTimeString(start));
 
-    size_t count(0);
+    std::size_t count(0);
     while (count < FILL_SIZE) {
         ++count;
         testCircBuf.push_back(SContent(count));
@@ -180,14 +187,14 @@ BOOST_AUTO_TEST_CASE(testCircBuf) {
 
 BOOST_AUTO_TEST_CASE(testMultiIndex) {
     using TContentMIndex = boost::multi_index::multi_index_container<
-        SContent, boost::multi_index::indexed_by<boost::multi_index::hashed_unique<BOOST_MULTI_INDEX_MEMBER(SContent, size_t, s_Size)>>>;
+        SContent, boost::multi_index::indexed_by<boost::multi_index::hashed_unique<BOOST_MULTI_INDEX_MEMBER(SContent, std::size_t, s_Size)>>>;
     TContentMIndex testMultiIndex;
 
     ml::core_t::TTime start(ml::core::CTimeUtils::now());
     LOG_INFO(<< "Starting multi-index throughput test at "
              << ml::core::CTimeUtils::toTimeString(start));
 
-    size_t count(0);
+    std::size_t count(0);
     while (count < FILL_SIZE) {
         ++count;
         testMultiIndex.insert(SContent(count));
@@ -207,10 +214,6 @@ BOOST_AUTO_TEST_CASE(testMultiIndex) {
 
     LOG_INFO(<< "Multi-index throughput test with fill size " << FILL_SIZE << " and test size "
              << TEST_SIZE << " took " << (end - start) << " seconds");
-}
-
-CContainerThroughputTest::SContent::SContent(size_t count)
-    : s_Size(count), s_Ptr(this), s_Double(double(count)) {
 }
 
 BOOST_AUTO_TEST_SUITE_END()

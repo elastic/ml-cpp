@@ -124,7 +124,7 @@ BOOST_AUTO_TEST_CASE(testForApiNoKey) {
     // and one compress/decompress stream
 
     std::ostringstream referenceStream;
-    ::CMockDataAdder mockKvAdder(3000);
+    CMockDataAdder mockKvAdder(3000);
     {
         ml::core::CStateCompressor compressor(mockKvAdder);
 
@@ -164,7 +164,7 @@ BOOST_AUTO_TEST_CASE(testStreaming) {
     // read in stream chunks, not all at once. CMockDataSearcher has a
     // method to return how much of the stored content has been accessed.
 
-    ::CMockDataAdder mockKvAdder(3000);
+    CMockDataAdder mockKvAdder(3000);
     {
         // Add lots of data to the mock datastore (compressed on the way)
         ml::core::CStateCompressor compressor(mockKvAdder);
@@ -182,7 +182,7 @@ BOOST_AUTO_TEST_CASE(testStreaming) {
         // Read the datastore via a JSON traverser, and show that the
         // data is streamed, not read all at once
         std::size_t lastAskedFor = 0;
-        ::CMockDataSearcher mockKvSearcher(mockKvAdder);
+        CMockDataSearcher mockKvSearcher(mockKvAdder);
         LOG_TRACE(<< "After compression, there are " << mockKvSearcher.totalDocs()
                   << " docs, asked for " << mockKvSearcher.askedFor());
         ml::core::CStateDecompressor decompressor(mockKvSearcher);

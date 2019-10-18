@@ -47,8 +47,8 @@ BOOST_AUTO_TEST_CASE(testExtractClassAndMethod) {
 
     std::tie(className, methodName) =
         ml::core::CJsonLogLayout::extractClassAndMethod(BOOST_CURRENT_FUNCTION);
-    BOOST_CHECK_EQUAL(std::string{"CJsonLogLayoutTest"}, className);
-    BOOST_CHECK_EQUAL(std::string{"testExtractClassAndMethod"}, methodName);
+    BOOST_CHECK_EQUAL(std::string{"CJsonLogLayoutTest::testExtractClassAndMethod"}, className);
+    BOOST_CHECK_EQUAL(std::string{"test_method"}, methodName);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

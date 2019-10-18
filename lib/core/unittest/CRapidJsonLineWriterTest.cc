@@ -90,7 +90,7 @@ BOOST_AUTO_TEST_CASE(testDoublePrecissionDtoa) {
     BOOST_CHECK_EQUAL(std::string("1e-300"), std::string(buffer, ret));
 }
 
-void CRapidJsonLineWriterTest::microBenchmark() {
+BOOST_AUTO_TEST_CASE(testMicroBenchmark, *boost::unit_test::disabled()) {
     char buffer[100];
     ml::core::CStopWatch stopWatch;
 
@@ -119,6 +119,5 @@ void CRapidJsonLineWriterTest::microBenchmark() {
     elapsed = stopWatch.stop();
     LOG_INFO(<< "snprintf " << runs << " runs took " << elapsed);
 }
-
 
 BOOST_AUTO_TEST_SUITE_END()

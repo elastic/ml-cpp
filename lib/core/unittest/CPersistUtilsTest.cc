@@ -20,11 +20,13 @@
 #include <set>
 #include <vector>
 
+using TDoubleVec = std::vector<double>;
+BOOST_TEST_DONT_PRINT_LOG_VALUE(TDoubleVec::iterator)
+
 BOOST_AUTO_TEST_SUITE(CPersistUtilsTest)
 
 using namespace ml;
 
-using TDoubleVec = std::vector<double>;
 using TSizeDoublePr = std::pair<std::size_t, double>;
 using TSizeDoubleMap = std::map<std::size_t, double>;
 using TIntSet = std::set<int>;
@@ -187,7 +189,7 @@ BOOST_AUTO_TEST_CASE(testPersistContainers) {
         TDoubleVec collection;
         testPersistRestore(collection);
         TDoubleVec other;
-        LOG_DEBUG(<< "The same: " << ::compare(collection, other));
+        LOG_DEBUG(<< "The same: " << compare(collection, other));
     }
     {
         TSizeDoubleMap collection;

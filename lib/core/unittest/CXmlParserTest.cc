@@ -12,16 +12,87 @@
 
 #include <test/CTestTmpDir.h>
 
-#include "CRapidXmlParserTest.h"
-
 #include <boost/test/unit_test.hpp>
 
 #include <fstream>
 
 #include <stdio.h>
 
+BOOST_TEST_DONT_PRINT_LOG_VALUE(ml::core::CXmlParser::TStrStrMap::iterator)
+BOOST_TEST_DONT_PRINT_LOG_VALUE(ml::core::CXmlParser::TStrStrMapCItr)
+
 BOOST_AUTO_TEST_SUITE(CXmlParserTest)
 
+std::string fileToString(const std::string& fileName) {
+    std::string ret;
+
+    std::ifstream ifs(fileName.c_str());
+    BOOST_CHECK_MESSAGE(ifs.is_open(), fileName + " is not open");
+
+    std::string line;
+    while (std::getline(ifs, line)) {
+        ret += line;
+        ret += '\n';
+    }
+
+    return ret;
+}
+
+void testParseHelper(const ml::core::CXmlParser& parser) {
+    ml::core::CXmlNode node;
+    std::string value;
+
+    BOOST_TEST(!parser.evalXPathExpression("//badpath", node));
+
+    BOOST_TEST(parser.evalXPathExpression(
+        "/ItemSearchResponse/OperationRequest/HTTPHeaders/Header/@Value", node));
+    BOOST_CHECK_EQUAL(std::string("Value"), node.name());
+    BOOST_CHECK_EQUAL(std::string("Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1; Avant Browser; Avant Browser; .NET CLR 1.0.3705; "
+                                     ".NET CLR 2.0.50727; .NET CLR 1.1.4322; Media Center PC 4.0; InfoPath.2)"),
+                         node.value());
+    BOOST_TEST(node.attributes().empty());
+
+    BOOST_TEST(parser.evalXPathExpression(
+        "/ItemSearchResponse/OperationRequest/RequestId", node));
+    BOOST_TEST(parser.evalXPathExpression(
+        "/ItemSearchResponse/OperationRequest/RequestId", value));
+    BOOST_CHECK_EQUAL(std::string("RequestId"), node.name());
+    BOOST_CHECK_EQUAL(std::string("18CZWZFXKSV8F601AGMF"), node.value());
+    BOOST_CHECK_EQUAL(std::string("18CZWZFXKSV8F601AGMF"), value);
+    BOOST_TEST(node.attributes().empty());
+
+    BOOST_TEST(parser.evalXPathExpression(
+        "/ItemSearchResponse/OperationRequest/RequestProcessingTime", node));
+    BOOST_CHECK_EQUAL(std::string("RequestProcessingTime"), node.name());
+    BOOST_CHECK_EQUAL(std::string("1.05041599273682"), node.value());
+    BOOST_TEST(node.attributes().empty());
+
+    BOOST_TEST(parser.evalXPathExpression("//msg", node));
+    BOOST_CHECK_EQUAL(std::string("msg"), node.name());
+    BOOST_CHECK_EQUAL(std::string("\n\
+            Invalid Date of Birth. <br /><i>This is a test validation message from the server </i>\n\
+             "),
+                         node.value());
+    BOOST_TEST(node.attributes().empty());
+
+    BOOST_CHECK_EQUAL(std::string("ItemSearchResponse"), parser.rootElementName());
+}
+
+bool testAttribute(const ml::core::CXmlNode& node,
+                   const std::string& key,
+                   const std::string& expected) {
+    std::string actual;
+    if (node.attribute(key, actual) == false) {
+        return false;
+    }
+
+    if (actual != expected) {
+        LOG_ERROR(<< actual << ' ' << expected);
+        return false;
+    }
+
+    return true;
+}
 
 BOOST_AUTO_TEST_CASE(testParse1File) {
     std::string badFileName = "./testfiles/CXmlParser_bad.xml";
@@ -32,17 +103,17 @@ BOOST_AUTO_TEST_CASE(testParse1File) {
     BOOST_TEST(!parser.parseFile(badFileName));
     BOOST_TEST(parser.parseFile(goodFileName));
 
-    this->testParse1(parser);
+    testParseHelper(parser);
 }
 
 BOOST_AUTO_TEST_CASE(testParse1String) {
-    std::string goodString = CXmlParserTest::fileToString("./testfiles/CXmlParser1.xml");
+    std::string goodString = fileToString("./testfiles/CXmlParser1.xml");
 
     ml::core::CXmlParser parser;
 
     BOOST_TEST(parser.parseString(goodString));
 
-    this->testParse1(parser);
+    testParseHelper(parser);
 }
 
 BOOST_AUTO_TEST_CASE(testParse2) {
@@ -88,8 +159,8 @@ BOOST_AUTO_TEST_CASE(testParse2) {
     BOOST_CHECK_EQUAL(std::string("regex"), nodes[0].name());
     BOOST_CHECK_EQUAL(std::string("^[[:space:]]*"), nodes[0].value());
     BOOST_CHECK_EQUAL(size_t(2), nodes[0].attributes().size());
-    BOOST_TEST(this->testAttribute(nodes[0], "function", "default"));
-    BOOST_TEST(this->testAttribute(nodes[0], "local", "BZ"));
+    BOOST_TEST(testAttribute(nodes[0], "function", "default"));
+    BOOST_TEST(testAttribute(nodes[0], "local", "BZ"));
 
     BOOST_CHECK_EQUAL(std::string("regex"), nodes[1].name());
     BOOST_CHECK_EQUAL(std::string("(template[[:space:]]*<[^;:{]+>[[:space:]]*)?"),
@@ -176,8 +247,8 @@ BOOST_AUTO_TEST_CASE(testParseXInclude) {
     BOOST_CHECK_EQUAL(std::string("regex"), nodes[0].name());
     BOOST_CHECK_EQUAL(std::string("^[[:space:]]*"), nodes[0].value());
     BOOST_CHECK_EQUAL(size_t(2), nodes[0].attributes().size());
-    BOOST_TEST(this->testAttribute(nodes[0], "function", "default"));
-    BOOST_TEST(this->testAttribute(nodes[0], "local", "BZ"));
+    BOOST_TEST(testAttribute(nodes[0], "function", "default"));
+    BOOST_TEST(testAttribute(nodes[0], "local", "BZ"));
 
     BOOST_CHECK_EQUAL(std::string("regex"), nodes[1].name());
     BOOST_CHECK_EQUAL(std::string("(template[[:space:]]*<[^;:{]+>[[:space:]]*)?"),
@@ -201,21 +272,21 @@ BOOST_AUTO_TEST_CASE(testParse3) {
     for (ml::core::CXmlParser::TXmlNodeVecItr itr = arguments.begin();
          itr != arguments.end(); ++itr) {
         if (itr->value() == "Service") {
-            BOOST_TEST(this->testAttribute(*itr, "Value", "AWSECommerceService"));
+            BOOST_TEST(testAttribute(*itr, "Value", "AWSECommerceService"));
         } else if (itr->value() == "AssociateTag") {
-            BOOST_TEST(!this->testAttribute(*itr, "Value", ""));
+            BOOST_TEST(!testAttribute(*itr, "Value", ""));
         } else if (itr->value() == "SearchIndex") {
-            BOOST_TEST(this->testAttribute(*itr, "Value", "Books"));
+            BOOST_TEST(testAttribute(*itr, "Value", "Books"));
         } else if (itr->value() == "Author") {
-            BOOST_TEST(!this->testAttribute(*itr, "Value", ""));
+            BOOST_TEST(!testAttribute(*itr, "Value", ""));
         } else if (itr->value() == "Hacasdasdcv") {
-            BOOST_TEST(this->testAttribute(*itr, "Value", "1A7XKHR5BYD0WPJVQEG2"));
+            BOOST_TEST(testAttribute(*itr, "Value", "1A7XKHR5BYD0WPJVQEG2"));
         } else if (itr->value() == "Version") {
-            BOOST_TEST(this->testAttribute(*itr, "Value", "2006-06-28"));
+            BOOST_TEST(testAttribute(*itr, "Value", "2006-06-28"));
         } else if (itr->value() == "Operation") {
-            BOOST_TEST(!this->testAttribute(*itr, "Value", ""));
+            BOOST_TEST(!testAttribute(*itr, "Value", ""));
         } else {
-            CPPUNIT_ASSERT_MESSAGE(itr->dump(), false);
+            BOOST_FAIL(itr->dump());
         }
     }
 }
@@ -439,40 +510,6 @@ BOOST_AUTO_TEST_CASE(testConvert3) {
     BOOST_CHECK_EQUAL(std::string("1"), node.value());
 }
 
-BOOST_AUTO_TEST_CASE(testConvert4) {
-    // Use a standard node hierarchy to allow for comparison with the
-    // standards-compliant XML parser
-    ml::core::CXmlNodeWithChildren::TXmlNodeWithChildrenP root(
-        CRapidXmlParserTest::makeTestNodeHierarchy());
-
-    std::string converted;
-    ml::core::CXmlParser::convert(*root, converted);
-
-    LOG_DEBUG(<< "Converted node hierarchy is:\n" << converted);
-
-    BOOST_TEST(converted.find("<root>") != std::string::npos);
-    BOOST_TEST(converted.find("</root>") != std::string::npos);
-    BOOST_TEST(converted.find("<id>") != std::string::npos);
-    BOOST_TEST(converted.find("123") != std::string::npos);
-    BOOST_TEST(converted.find("</id>") != std::string::npos);
-    BOOST_TEST(converted.find("<parent>") != std::string::npos);
-    BOOST_TEST(converted.find("</parent>") != std::string::npos);
-    BOOST_TEST(converted.find("<child>") != std::string::npos);
-    BOOST_TEST(converted.find("boo!") != std::string::npos);
-    BOOST_TEST(converted.find("2nd") != std::string::npos);
-    BOOST_TEST(converted.find("</child>") != std::string::npos);
-    BOOST_TEST(converted.find("<child ") != std::string::npos);
-    BOOST_TEST(converted.find("&amp; ") != std::string::npos);
-    BOOST_TEST((converted.find("<empty/>") != std::string::npos ||
-                   converted.find("<empty></empty>") != std::string::npos));
-    BOOST_TEST(converted.find("<dual ") != std::string::npos);
-    BOOST_TEST(converted.find("first") != std::string::npos);
-    BOOST_TEST(converted.find("second") != std::string::npos);
-    BOOST_TEST(converted.find("attribute") != std::string::npos);
-    BOOST_TEST(converted.find("got") != std::string::npos);
-    BOOST_TEST(converted.find("</dual>") != std::string::npos);
-}
-
 BOOST_AUTO_TEST_CASE(testAddNewChildNode) {
     ml::core::CXmlParser parser;
 
@@ -534,84 +571,13 @@ BOOST_AUTO_TEST_CASE(testDump) {
 
     ml::core::CXmlParser parser1;
     BOOST_TEST(parser1.parseFile(fileName));
-    this->testParse1(parser1);
+    testParseHelper(parser1);
 
     std::string expected = parser1.dumpToString();
 
     ml::core::CXmlParser parser2;
     BOOST_TEST(parser2.parseString(expected));
-    this->testParse1(parser2);
-}
-
-std::string CXmlParserTest::fileToString(const std::string& fileName) {
-    std::string ret;
-
-    std::ifstream ifs(fileName.c_str());
-    CPPUNIT_ASSERT_MESSAGE(fileName, ifs.is_open());
-
-    std::string line;
-    while (std::getline(ifs, line)) {
-        ret += line;
-        ret += '\n';
-    }
-
-    return ret;
-}
-
-BOOST_AUTO_TEST_CASE(testParse1const ml::core::CXmlParser& parser) {
-    ml::core::CXmlNode node;
-    std::string value;
-
-    BOOST_TEST(!parser.evalXPathExpression("//badpath", node));
-
-    BOOST_TEST(parser.evalXPathExpression(
-        "/ItemSearchResponse/OperationRequest/HTTPHeaders/Header/@Value", node));
-    BOOST_CHECK_EQUAL(std::string("Value"), node.name());
-    BOOST_CHECK_EQUAL(std::string("Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1; Avant Browser; Avant Browser; .NET CLR 1.0.3705; "
-                                     ".NET CLR 2.0.50727; .NET CLR 1.1.4322; Media Center PC 4.0; InfoPath.2)"),
-                         node.value());
-    BOOST_TEST(node.attributes().empty());
-
-    BOOST_TEST(parser.evalXPathExpression(
-        "/ItemSearchResponse/OperationRequest/RequestId", node));
-    BOOST_TEST(parser.evalXPathExpression(
-        "/ItemSearchResponse/OperationRequest/RequestId", value));
-    BOOST_CHECK_EQUAL(std::string("RequestId"), node.name());
-    BOOST_CHECK_EQUAL(std::string("18CZWZFXKSV8F601AGMF"), node.value());
-    BOOST_CHECK_EQUAL(std::string("18CZWZFXKSV8F601AGMF"), value);
-    BOOST_TEST(node.attributes().empty());
-
-    BOOST_TEST(parser.evalXPathExpression(
-        "/ItemSearchResponse/OperationRequest/RequestProcessingTime", node));
-    BOOST_CHECK_EQUAL(std::string("RequestProcessingTime"), node.name());
-    BOOST_CHECK_EQUAL(std::string("1.05041599273682"), node.value());
-    BOOST_TEST(node.attributes().empty());
-
-    BOOST_TEST(parser.evalXPathExpression("//msg", node));
-    BOOST_CHECK_EQUAL(std::string("msg"), node.name());
-    BOOST_CHECK_EQUAL(std::string("\n\
-            Invalid Date of Birth. <br /><i>This is a test validation message from the server </i>\n\
-             "),
-                         node.value());
-    BOOST_TEST(node.attributes().empty());
-
-    BOOST_CHECK_EQUAL(std::string("ItemSearchResponse"), parser.rootElementName());
-}
-
-bool CXmlParserTest::testAttribute(const ml::core::CXmlNode& node,
-                                   const std::string& key,
-                                   const std::string& expected) {
-    std::string actual;
-    if (node.attribute(key, actual) == false) {
-        return false;
-    }
-
-    if (actual != expected) {
-        LOG_ERROR(<< actual << ' ' << expected);
-        return false;
-    }
-
-    return true;
+    testParseHelper(parser2);
 }
 
 BOOST_AUTO_TEST_CASE(testMakeValidName) {
@@ -688,7 +654,7 @@ BOOST_AUTO_TEST_CASE(testHugeDoc) {
     // First, create an enormous XML document
     std::string fileName(ml::test::CTestTmpDir::tmpDir() + "/huge.xml");
     std::ofstream ofs(fileName.c_str());
-    CPPUNIT_ASSERT_MESSAGE(fileName, ofs.is_open());
+    BOOST_CHECK_MESSAGE(ofs.is_open(), fileName + " is not open");
 
     ofs << "<nodes>" << std::endl;
 
@@ -725,7 +691,7 @@ BOOST_AUTO_TEST_CASE(testHugeDoc) {
 BOOST_AUTO_TEST_CASE(testParseSpeed) {
     static const size_t TEST_SIZE(25000);
 
-    std::string testString(CXmlParserTest::fileToString("./testfiles/CXmlParser2.xml"));
+    std::string testString(fileToString("./testfiles/CXmlParser2.xml"));
 
     ml::core_t::TTime start(ml::core::CTimeUtils::now());
     LOG_INFO(<< "Starting parse speed test at "
@@ -749,30 +715,6 @@ BOOST_AUTO_TEST_CASE(testParseSpeed) {
     LOG_INFO(<< "Finished parse speed test at " << ml::core::CTimeUtils::toTimeString(end));
 
     LOG_INFO(<< "Parsing " << TEST_SIZE << " documents took " << (end - start) << " seconds");
-}
-
-BOOST_AUTO_TEST_CASE(testConvertSpeed) {
-    static const size_t TEST_SIZE(100000);
-
-    // Use a standard node hierarchy to allow for comparison with the
-    // standards-compliant XML parser
-    ml::core::CXmlNodeWithChildren::TXmlNodeWithChildrenP root(
-        CRapidXmlParserTest::makeTestNodeHierarchy());
-
-    ml::core_t::TTime start(ml::core::CTimeUtils::now());
-    LOG_INFO(<< "Starting convert speed test at "
-             << ml::core::CTimeUtils::toTimeString(start));
-
-    for (size_t count = 0; count < TEST_SIZE; ++count) {
-        std::string converted;
-        ml::core::CXmlParser::convert(*root, converted);
-    }
-
-    ml::core_t::TTime end(ml::core::CTimeUtils::now());
-    LOG_INFO(<< "Finished convert speed test at "
-             << ml::core::CTimeUtils::toTimeString(end));
-
-    LOG_INFO(<< "Converting " << TEST_SIZE << " documents took " << (end - start) << " seconds");
 }
 
 BOOST_AUTO_TEST_CASE(testComplexXPath) {

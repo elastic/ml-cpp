@@ -13,16 +13,25 @@
 #include <boost/unordered_map.hpp>
 #include <boost/unordered_set.hpp>
 
-BOOST_AUTO_TEST_SUITE(CCompressedDictionaryTest)
-
 using namespace ml;
 using namespace core;
 using namespace test;
 
+using TDictionary1 = CCompressedDictionary<1>;
+using TDictionary2 = CCompressedDictionary<2>;
+using TDictionary3 = CCompressedDictionary<3>;
+using TDictionary4 = CCompressedDictionary<4>;
+
+BOOST_TEST_DONT_PRINT_LOG_VALUE(TDictionary1::CWord)
+BOOST_TEST_DONT_PRINT_LOG_VALUE(TDictionary2::CWord)
+BOOST_TEST_DONT_PRINT_LOG_VALUE(TDictionary3::CWord)
+BOOST_TEST_DONT_PRINT_LOG_VALUE(TDictionary4::CWord)
+
+BOOST_AUTO_TEST_SUITE(CCompressedDictionaryTest)
+
 BOOST_AUTO_TEST_CASE(testAll) {
     using TStrVec = std::vector<std::string>;
-    using TDictionary = CCompressedDictionary<2>;
-    using TWordUSet = TDictionary::TWordUSet;
+    using TWordUSet = TDictionary2::TWordUSet;
 
     // Don't set this too high as it slows down every build - it can be
     // temporarily set high in uncommitted code for a thorough soak test
@@ -42,7 +51,7 @@ BOOST_AUTO_TEST_CASE(testAll) {
 
         rng.generateWords(wordLength, numberWords, words);
 
-        TDictionary dictionary;
+        TDictionary2 dictionary;
 
         TWordUSet uniqueWords;
         for (std::size_t j = 0u; j < words.size(); ++j) {
@@ -55,11 +64,6 @@ BOOST_AUTO_TEST_CASE(testAll) {
 }
 
 BOOST_AUTO_TEST_CASE(testPersist) {
-    using TDictionary1 = CCompressedDictionary<1>;
-    using TDictionary2 = CCompressedDictionary<2>;
-    using TDictionary3 = CCompressedDictionary<3>;
-    using TDictionary4 = CCompressedDictionary<4>;
-
     {
         TDictionary1 dictionary;
         TDictionary1::CWord word = dictionary.word("hello");

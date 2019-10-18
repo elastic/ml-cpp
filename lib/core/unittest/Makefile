@@ -50,7 +50,6 @@ CLoopProgressTest.cc \
 CMemoryUsageJsonWriterTest.cc \
 CMemoryUsageTest.cc \
 CMonotonicTimeTest.cc \
-CMapPopulationTest.cc \
 CMutexTest.cc \
 CNamedPipeFactoryTest.cc \
 COsFileFuncsTest.cc \

@@ -21,8 +21,57 @@
 #include <stdlib.h>
 #include <string.h>
 
+BOOST_TEST_DONT_PRINT_LOG_VALUE(std::wstring)
+
 BOOST_AUTO_TEST_SUITE(CStringUtilsTest)
 
+void testTokeniserHelper(const std::string& delim, const std::string& str) {
+    // Tokenise using ml
+    ml::core::CStringUtils::TStrVec tokens;
+    std::string remainder;
+
+    ml::core::CStringUtils::tokenise(delim, str, tokens, remainder);
+
+    LOG_DEBUG(<< str << " DELIM = '" << delim << "' REMAINDER = '" << remainder << "'");
+
+    for (ml::core::CStringUtils::TStrVecItr itr = tokens.begin();
+         itr != tokens.end(); ++itr) {
+        LOG_DEBUG(<< "'" << *itr << "'");
+    }
+
+    // Tokenise using strtok
+    char* test = ::strdup(str.c_str());
+    BOOST_TEST(test);
+
+    ml::core::CStringUtils::TStrVec strtokVec;
+
+    // Note: strtok, uses ANY ONE character in the delimiter string to split on,
+    // so the delimiters for this test have to be one character
+    char* brk = nullptr;
+    for (char* line = ml::core::CStrTokR::strTokR(test, delim.c_str(), &brk); line != nullptr;
+         line = ml::core::CStrTokR::strTokR(nullptr, delim.c_str(), &brk)) {
+        strtokVec.push_back(line);
+        LOG_DEBUG(<< "'" << line << "'");
+    }
+
+    free(test);
+    test = nullptr;
+
+    if (remainder.empty() == false) {
+        tokens.push_back(remainder);
+    }
+
+    std::string::size_type pos = str.rfind(delim);
+    if (pos != std::string::npos) {
+        std::string remainderExpected = str.substr(pos + delim.size());
+
+        BOOST_CHECK_EQUAL(remainderExpected, remainder);
+    }
+
+    // Compare ml to strtok
+    BOOST_CHECK_EQUAL(strtokVec.size(), tokens.size());
+    BOOST_TEST(strtokVec == tokens);
+}
 
 BOOST_AUTO_TEST_CASE(testNumMatches) {
     {
@@ -437,57 +486,9 @@ BOOST_AUTO_TEST_CASE(testTokeniser) {
     // Note: the test is done with strtok, which uses ANY ONE character in the
     // delimiter string to split on, so the delimiters for this test have to be
     // one character
-    this->testTokeniser(">", str);
-    this->testTokeniser("\n", str);
-    this->testTokeniser("f", str);
-}
-
-BOOST_AUTO_TEST_CASE(testTokeniserconst std::string& delim, const std::string& str) {
-    // Tokenise using ml
-    ml::core::CStringUtils::TStrVec tokens;
-    std::string remainder;
-
-    ml::core::CStringUtils::tokenise(delim, str, tokens, remainder);
-
-    LOG_DEBUG(<< str << " DELIM = '" << delim << "' REMAINDER = '" << remainder << "'");
-
-    for (ml::core::CStringUtils::TStrVecItr itr = tokens.begin();
-         itr != tokens.end(); ++itr) {
-        LOG_DEBUG(<< "'" << *itr << "'");
-    }
-
-    // Tokenise using strtok
-    char* test = ::strdup(str.c_str());
-    BOOST_TEST(test);
-
-    ml::core::CStringUtils::TStrVec strtokVec;
-
-    // Note: strtok, uses ANY ONE character in the delimiter string to split on,
-    // so the delimiters for this test have to be one character
-    char* brk = nullptr;
-    for (char* line = ml::core::CStrTokR::strTokR(test, delim.c_str(), &brk); line != nullptr;
-         line = ml::core::CStrTokR::strTokR(nullptr, delim.c_str(), &brk)) {
-        strtokVec.push_back(line);
-        LOG_DEBUG(<< "'" << line << "'");
-    }
-
-    free(test);
-    test = nullptr;
-
-    if (remainder.empty() == false) {
-        tokens.push_back(remainder);
-    }
-
-    std::string::size_type pos = str.rfind(delim);
-    if (pos != std::string::npos) {
-        std::string remainderExpected = str.substr(pos + delim.size());
-
-        BOOST_CHECK_EQUAL(remainderExpected, remainder);
-    }
-
-    // Compare ml to strtok
-    BOOST_CHECK_EQUAL(strtokVec.size(), tokens.size());
-    BOOST_TEST(strtokVec == tokens);
+    testTokeniserHelper(">", str);
+    testTokeniserHelper("\n", str);
+    testTokeniserHelper("f", str);
 }
 
 BOOST_AUTO_TEST_CASE(testTrim) {

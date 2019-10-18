@@ -13,8 +13,9 @@
 #include <string>
 #include <utility>
 
-BOOST_AUTO_TEST_SUITE(CStoredStringPtrTest)
+BOOST_TEST_DONT_PRINT_LOG_VALUE(ml::core::CStoredStringPtr)
 
+BOOST_AUTO_TEST_SUITE(CStoredStringPtrTest)
 
 BOOST_AUTO_TEST_CASE(testPointerSemantics) {
     {

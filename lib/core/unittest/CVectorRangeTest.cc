@@ -65,13 +65,11 @@ BOOST_AUTO_TEST_CASE(testAccessors) {
     BOOST_CHECK_EQUAL(0.1, range14.at(0));
     BOOST_CHECK_EQUAL(0.7, range14.at(1));
     BOOST_CHECK_EQUAL(9.8, range14.at(2));
-    CPPUNIT_ASSERT_THROW_MESSAGE(std::string("out of range: 3 >= 3"),
-                                 range14.at(3), std::out_of_range);
+    BOOST_CHECK_THROW(range14.at(3), std::out_of_range);
     BOOST_CHECK_EQUAL(0.1, crange14.at(0));
     BOOST_CHECK_EQUAL(0.7, crange14.at(1));
     BOOST_CHECK_EQUAL(9.8, crange14.at(2));
-    CPPUNIT_ASSERT_THROW_MESSAGE(std::string("out of range: 4 >= 3"),
-                                 crange14.at(4), std::out_of_range);
+    BOOST_CHECK_THROW(crange14.at(4), std::out_of_range);
 
     BOOST_CHECK_EQUAL(0.1, range14[0]);
     BOOST_CHECK_EQUAL(0.7, range14[1]);

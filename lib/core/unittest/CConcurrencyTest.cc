@@ -86,7 +86,7 @@ BOOST_AUTO_TEST_CASE(testAsyncWithExecutorsAndExceptions) {
 
         auto result = core::async(core::defaultAsyncExecutor(),
                                   static_cast<double (*)()>(throws));
-        CPPUNIT_ASSERT_THROW_MESSAGE("don't run me", result.get(), std::runtime_error);
+        BOOST_CHECK_THROW(result.get(), std::runtime_error);
 
         core::startDefaultAsyncExecutor();
     }

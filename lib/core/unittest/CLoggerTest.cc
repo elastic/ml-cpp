@@ -14,6 +14,7 @@
 #include <boost/test/unit_test.hpp>
 
 #include <algorithm>
+#include <fstream>
 #include <ios>
 #include <iterator>
 #include <stdexcept>
@@ -31,14 +32,16 @@ const char* const TEST_PIPE_NAME = "testfiles/testpipe";
 #endif
 }
 
+class CTestFixture {
+public:
+    ~CTestFixture() {
+        // Tests in this file can leave the logger in an unusual state, so reset it
+        // after each test
+        ml::core::CLogger::instance().reset();
+    }
+};
 
-void CLoggerTest::tearDown() {
-    // Tests in this file can leave the logger in an unusual state, so reset it
-    // after each test
-    ml::core::CLogger::instance().reset();
-}
-
-BOOST_AUTO_TEST_CASE(testLogging) {
+BOOST_FIXTURE_TEST_CASE(testLogging, CTestFixture) {
     std::string t("Test message");
 
     LOG_TRACE(<< "Trace");
@@ -61,7 +64,7 @@ BOOST_AUTO_TEST_CASE(testLogging) {
     } catch (std::runtime_error&) { BOOST_TEST(true); }
 }
 
-BOOST_AUTO_TEST_CASE(testReconfiguration) {
+BOOST_FIXTURE_TEST_CASE(testReconfiguration, CTestFixture) {
     ml::core::CLogger& logger = ml::core::CLogger::instance();
 
     LOG_DEBUG(<< "Starting logger reconfiguration test");
@@ -82,7 +85,7 @@ BOOST_AUTO_TEST_CASE(testReconfiguration) {
     BOOST_TEST(logger.hasBeenReconfigured());
 }
 
-BOOST_AUTO_TEST_CASE(testSetLevel) {
+BOOST_FIXTURE_TEST_CASE(testSetLevel, CTestFixture) {
     ml::core::CLogger& logger = ml::core::CLogger::instance();
 
     LOG_DEBUG(<< "Starting logger level test");
@@ -137,7 +140,7 @@ BOOST_AUTO_TEST_CASE(testSetLevel) {
     LOG_DEBUG(<< "Finished logger level test");
 }
 
-BOOST_AUTO_TEST_CASE(testNonAsciiJsonLogging) {
+BOOST_FIXTURE_TEST_CASE(testNonAsciiJsonLogging, CTestFixture) {
     std::vector<std::string> messages{"Non-iso8859-15: 编码", "Non-ascii: üaöä",
                                       "Non-iso8859-15: 编码 test", "surrogate pair: 𐐷 test"};
 
@@ -196,7 +199,7 @@ BOOST_AUTO_TEST_CASE(testNonAsciiJsonLogging) {
     BOOST_CHECK_EQUAL(messages.size(), foundMessages);
 }
 
-BOOST_AUTO_TEST_CASE(testLogEnvironment) {
+BOOST_FIXTURE_TEST_CASE(testLogEnvironment, CTestFixture) {
     ml::core::CLogger::instance().logEnvironment();
 }
 

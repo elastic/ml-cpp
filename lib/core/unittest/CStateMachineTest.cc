@@ -56,9 +56,6 @@ using TMachineVec = std::vector<SMachine>;
 
 class CTestThread : public core::CThread {
 public:
-    using TCppUnitExceptionP = std::shared_ptr<CppUnit::Exception>;
-
-public:
     CTestThread(const TMachineVec& machines)
         : m_Machines(machines), m_Failures(0) {}
 

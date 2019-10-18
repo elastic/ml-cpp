@@ -27,39 +27,39 @@ BOOST_AUTO_TEST_CASE(testInode) {
 
     ml::core::COsFileFuncs::TStat statBuf;
 
-    std::string headerFile("COsFileFuncsTest.h");
-    std::string implFile("COsFileFuncsTest.cc");
+    std::string mainFile("Main.cc");
+    std::string testFile("COsFileFuncsTest.cc");
 
     ::memset(&statBuf, 0, sizeof(statBuf));
     ml::core::COsFileFuncs::TIno headerDirect(0);
-    BOOST_CHECK_EQUAL(0, ml::core::COsFileFuncs::stat(headerFile.c_str(), &statBuf));
+    BOOST_CHECK_EQUAL(0, ml::core::COsFileFuncs::stat(mainFile.c_str(), &statBuf));
     headerDirect = statBuf.st_ino;
-    LOG_DEBUG(<< "Inode for " << headerFile << " from directory is " << headerDirect);
+    LOG_DEBUG(<< "Inode for " << mainFile << " from directory is " << headerDirect);
 
     ::memset(&statBuf, 0, sizeof(statBuf));
     ml::core::COsFileFuncs::TIno headerOpen(0);
-    int headerFd(ml::core::COsFileFuncs::open(headerFile.c_str(),
+    int headerFd(ml::core::COsFileFuncs::open(mainFile.c_str(),
                                               ml::core::COsFileFuncs::RDONLY));
     BOOST_TEST(headerFd != -1);
     BOOST_CHECK_EQUAL(0, ml::core::COsFileFuncs::fstat(headerFd, &statBuf));
     BOOST_CHECK_EQUAL(0, ml::core::COsFileFuncs::close(headerFd));
     headerOpen = statBuf.st_ino;
-    LOG_DEBUG(<< "Inode for " << headerFile << " from open file is " << headerOpen);
+    LOG_DEBUG(<< "Inode for " << mainFile << " from open file is " << headerOpen);
 
     ::memset(&statBuf, 0, sizeof(statBuf));
     ml::core::COsFileFuncs::TIno implDirect(0);
-    BOOST_CHECK_EQUAL(0, ml::core::COsFileFuncs::stat(implFile.c_str(), &statBuf));
+    BOOST_CHECK_EQUAL(0, ml::core::COsFileFuncs::stat(testFile.c_str(), &statBuf));
     implDirect = statBuf.st_ino;
-    LOG_DEBUG(<< "Inode for " << implFile << " from directory is " << implDirect);
+    LOG_DEBUG(<< "Inode for " << testFile << " from directory is " << implDirect);
 
     ::memset(&statBuf, 0, sizeof(statBuf));
     ml::core::COsFileFuncs::TIno implOpen(0);
-    int implFd(ml::core::COsFileFuncs::open(implFile.c_str(), ml::core::COsFileFuncs::RDONLY));
+    int implFd(ml::core::COsFileFuncs::open(testFile.c_str(), ml::core::COsFileFuncs::RDONLY));
     BOOST_TEST(implFd != -1);
     BOOST_CHECK_EQUAL(0, ml::core::COsFileFuncs::fstat(implFd, &statBuf));
     BOOST_CHECK_EQUAL(0, ml::core::COsFileFuncs::close(implFd));
     implOpen = statBuf.st_ino;
-    LOG_DEBUG(<< "Inode for " << implFile << " from open file is " << implOpen);
+    LOG_DEBUG(<< "Inode for " << testFile << " from open file is " << implOpen);
 
     BOOST_CHECK_EQUAL(headerDirect, headerOpen);
     BOOST_CHECK_EQUAL(implDirect, implOpen);

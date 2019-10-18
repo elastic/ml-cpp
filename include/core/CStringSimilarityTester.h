@@ -21,7 +21,7 @@
 #include <stdlib.h>
 
 namespace CStringSimilarityTesterTest {
-struct testFoo;
+struct testLevensteinDistanceAlgorithmEquivalence;
 }
 
 namespace ml {
@@ -445,7 +445,7 @@ private:
     mutable CDeflator m_Compressor;
 
     // For unit testing
-    friend struct CStringSimilarityTesterTest::testFoo;
+    friend struct CStringSimilarityTesterTest::testLevensteinDistanceAlgorithmEquivalence;
 };
 }
 }

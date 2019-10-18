@@ -103,15 +103,18 @@ private:
 };
 }
 
-void CDataFrameTest::setUp() {
-    core::startDefaultAsyncExecutor();
-}
+class CTestFixture {
+public:
+    CTestFixture() {
+        core::startDefaultAsyncExecutor();
+    }
 
-void CDataFrameTest::tearDown() {
-    core::stopDefaultAsyncExecutor();
-}
+    ~CTestFixture() {
+        core::stopDefaultAsyncExecutor();
+    }
+};
 
-BOOST_AUTO_TEST_CASE(testInMainMemoryBasicReadWrite) {
+BOOST_FIXTURE_TEST_CASE(testInMainMemoryBasicReadWrite, CTestFixture) {
 
     // Check we get the rows we write to the data frame in the order we write them.
 
@@ -148,7 +151,7 @@ BOOST_AUTO_TEST_CASE(testInMainMemoryBasicReadWrite) {
     }
 }
 
-BOOST_AUTO_TEST_CASE(testInMainMemoryParallelRead) {
+BOOST_FIXTURE_TEST_CASE(testInMainMemoryParallelRead, CTestFixture) {
 
     // Check we get the rows we write to the data frame and that we get balanced
     // reads per thread.
@@ -191,7 +194,7 @@ BOOST_AUTO_TEST_CASE(testInMainMemoryParallelRead) {
     }
 }
 
-BOOST_AUTO_TEST_CASE(testOnDiskBasicReadWrite) {
+BOOST_FIXTURE_TEST_CASE(testOnDiskBasicReadWrite, CTestFixture) {
 
     // Check we get the rows we write to the data frame in the order we write them.
 
@@ -219,7 +222,7 @@ BOOST_AUTO_TEST_CASE(testOnDiskBasicReadWrite) {
     BOOST_TEST(passed);
 }
 
-BOOST_AUTO_TEST_CASE(testOnDiskParallelRead) {
+BOOST_FIXTURE_TEST_CASE(testOnDiskParallelRead, CTestFixture) {
 
     // Check we get the rows we write to the data frame and that we get balanced
     // reads per thread.
@@ -260,7 +263,7 @@ BOOST_AUTO_TEST_CASE(testOnDiskParallelRead) {
     BOOST_CHECK_EQUAL(rows, rowsRead);
 }
 
-BOOST_AUTO_TEST_CASE(testReadRange) {
+BOOST_FIXTURE_TEST_CASE(testReadRange, CTestFixture) {
 
     // Check we get the only the rows rows we request.
 
@@ -327,7 +330,7 @@ BOOST_AUTO_TEST_CASE(testReadRange) {
     }
 }
 
-BOOST_AUTO_TEST_CASE(testWriteRange) {
+BOOST_FIXTURE_TEST_CASE(testWriteRange, CTestFixture) {
 
     // Check we get the only write the rows we specify.
 
@@ -400,7 +403,7 @@ BOOST_AUTO_TEST_CASE(testWriteRange) {
     }
 }
 
-BOOST_AUTO_TEST_CASE(testMemoryUsage) {
+BOOST_FIXTURE_TEST_CASE(testMemoryUsage, CTestFixture) {
 
     // This asserts on the memory used by the different types of data frames. This
     // is meant to catch large regressions in memory usage and as such the thresholds
@@ -447,7 +450,7 @@ BOOST_AUTO_TEST_CASE(testMemoryUsage) {
     }
 }
 
-BOOST_AUTO_TEST_CASE(testReserve) {
+BOOST_FIXTURE_TEST_CASE(testReserve, CTestFixture) {
 
     // Check that we preserve the visible rows after reserving.
 
@@ -519,7 +522,7 @@ BOOST_AUTO_TEST_CASE(testReserve) {
     }
 }
 
-BOOST_AUTO_TEST_CASE(testResizeColumns) {
+BOOST_FIXTURE_TEST_CASE(testResizeColumns, CTestFixture) {
 
     // Test all rows are correctly resized and the extra elements are zero
     // initialized.
@@ -578,7 +581,7 @@ BOOST_AUTO_TEST_CASE(testResizeColumns) {
     }
 }
 
-BOOST_AUTO_TEST_CASE(testWriteColumns) {
+BOOST_FIXTURE_TEST_CASE(testWriteColumns, CTestFixture) {
 
     // Test writing of extra column values.
 
@@ -633,7 +636,7 @@ BOOST_AUTO_TEST_CASE(testWriteColumns) {
     }
 }
 
-BOOST_AUTO_TEST_CASE(testDocHashes) {
+BOOST_FIXTURE_TEST_CASE(testDocHashes, CTestFixture) {
 
     // Test we preserve the document hashes we write originally.
 
@@ -696,7 +699,7 @@ BOOST_AUTO_TEST_CASE(testDocHashes) {
     }
 }
 
-BOOST_AUTO_TEST_CASE(testRowMask) {
+BOOST_FIXTURE_TEST_CASE(testRowMask, CTestFixture) {
 
     // Test we read only the rows in a mask.
 
