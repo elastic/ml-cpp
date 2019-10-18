@@ -119,6 +119,74 @@ bool systemCall() {
     return std::system("hostname") == 0;
 }
 
+void openPipeAndRead(const std::string& filename) {
+
+    CNamedPipeWriter threadWriter(filename, TEST_SIZE);
+    BOOST_TEST(threadWriter.start());
+
+    ml::core::CNamedPipeFactory::TIStreamP strm =
+        ml::core::CNamedPipeFactory::openPipeStreamRead(filename);
+    BOOST_TEST(strm);
+
+    static const std::streamsize BUF_SIZE = 512;
+    std::string readData;
+    readData.reserve(TEST_SIZE);
+    char buffer[BUF_SIZE];
+    do {
+        strm->read(buffer, BUF_SIZE);
+        BOOST_TEST(!strm->bad());
+        if (strm->gcount() > 0) {
+            readData.append(buffer, static_cast<size_t>(strm->gcount()));
+        }
+    } while (!strm->eof());
+
+    BOOST_CHECK_EQUAL(TEST_SIZE, readData.length());
+    BOOST_CHECK_EQUAL(std::string(TEST_SIZE, TEST_CHAR), readData);
+
+    BOOST_TEST(threadWriter.stop());
+
+    strm.reset();
+}
+
+void openPipeAndWrite(const std::string& filename) {
+    CNamedPipeReader threadReader(filename);
+    BOOST_TEST(threadReader.start());
+
+    ml::core::CNamedPipeFactory::TOStreamP strm =
+        ml::core::CNamedPipeFactory::openPipeStreamWrite(filename);
+    BOOST_TEST(strm);
+
+    size_t charsLeft(TEST_SIZE);
+    size_t blockSize(7);
+    while (charsLeft > 0) {
+        if (blockSize > charsLeft) {
+            blockSize = charsLeft;
+        }
+        (*strm) << std::string(blockSize, TEST_CHAR);
+        BOOST_TEST(!strm->bad());
+        charsLeft -= blockSize;
+    }
+
+    strm.reset();
+
+    BOOST_TEST(threadReader.stop());
+
+    BOOST_CHECK_EQUAL(TEST_SIZE, threadReader.data().length());
+    BOOST_CHECK_EQUAL(std::string(TEST_SIZE, TEST_CHAR), threadReader.data());
+}
+
+void makeAndRemoveDirectory(const std::string& dirname) {
+
+    boost::filesystem::path temporaryFolder(dirname);
+    temporaryFolder /= "test-directory";
+
+    boost::system::error_code errorCode;
+    boost::filesystem::create_directories(temporaryFolder, errorCode);
+    BOOST_CHECK_EQUAL(boost::system::error_code(), errorCode);
+    boost::filesystem::remove_all(temporaryFolder, errorCode);
+    BOOST_CHECK_EQUAL(boost::system::error_code(), errorCode);
+}
+
 #ifdef Linux
 bool versionIsBefore3_5(std::int64_t major, std::int64_t minor) {
     if (major < 3) {
@@ -156,82 +224,13 @@ BOOST_AUTO_TEST_CASE(testSystemCallFilter) {
     // Install the filter
     ml::seccomp::CSystemCallFilter::installSystemCallFilter();
 
-    CPPUNIT_ASSERT_ASSERTION_FAIL_MESSAGE("Calling std::system should fail",
-                                          BOOST_TEST(systemCall()));
+    BOOST_CHECK_MESSAGE(systemCall() == false, "Calling std::system should fail");
 
     // Operations that must function after seccomp is initialised
     openPipeAndRead(TEST_READ_PIPE_NAME);
     openPipeAndWrite(TEST_WRITE_PIPE_NAME);
 
     makeAndRemoveDirectory(TMP_DIR);
-}
-
-void CSystemCallFilterTest::openPipeAndRead(const std::string& filename) {
-
-    CNamedPipeWriter threadWriter(filename, TEST_SIZE);
-    BOOST_TEST(threadWriter.start());
-
-    ml::core::CNamedPipeFactory::TIStreamP strm =
-        ml::core::CNamedPipeFactory::openPipeStreamRead(filename);
-    BOOST_TEST(strm);
-
-    static const std::streamsize BUF_SIZE = 512;
-    std::string readData;
-    readData.reserve(TEST_SIZE);
-    char buffer[BUF_SIZE];
-    do {
-        strm->read(buffer, BUF_SIZE);
-        BOOST_TEST(!strm->bad());
-        if (strm->gcount() > 0) {
-            readData.append(buffer, static_cast<size_t>(strm->gcount()));
-        }
-    } while (!strm->eof());
-
-    BOOST_CHECK_EQUAL(TEST_SIZE, readData.length());
-    BOOST_CHECK_EQUAL(std::string(TEST_SIZE, TEST_CHAR), readData);
-
-    BOOST_TEST(threadWriter.stop());
-
-    strm.reset();
-}
-
-void CSystemCallFilterTest::openPipeAndWrite(const std::string& filename) {
-    CNamedPipeReader threadReader(filename);
-    BOOST_TEST(threadReader.start());
-
-    ml::core::CNamedPipeFactory::TOStreamP strm =
-        ml::core::CNamedPipeFactory::openPipeStreamWrite(filename);
-    BOOST_TEST(strm);
-
-    size_t charsLeft(TEST_SIZE);
-    size_t blockSize(7);
-    while (charsLeft > 0) {
-        if (blockSize > charsLeft) {
-            blockSize = charsLeft;
-        }
-        (*strm) << std::string(blockSize, TEST_CHAR);
-        BOOST_TEST(!strm->bad());
-        charsLeft -= blockSize;
-    }
-
-    strm.reset();
-
-    BOOST_TEST(threadReader.stop());
-
-    BOOST_CHECK_EQUAL(TEST_SIZE, threadReader.data().length());
-    BOOST_CHECK_EQUAL(std::string(TEST_SIZE, TEST_CHAR), threadReader.data());
-}
-
-void CSystemCallFilterTest::makeAndRemoveDirectory(const std::string& dirname) {
-
-    boost::filesystem::path temporaryFolder(dirname);
-    temporaryFolder /= "test-directory";
-
-    boost::system::error_code errorCode;
-    boost::filesystem::create_directories(temporaryFolder, errorCode);
-    BOOST_CHECK_EQUAL(boost::system::error_code(), errorCode);
-    boost::filesystem::remove_all(temporaryFolder, errorCode);
-    BOOST_CHECK_EQUAL(boost::system::error_code(), errorCode);
 }
 
 BOOST_AUTO_TEST_SUITE_END()
