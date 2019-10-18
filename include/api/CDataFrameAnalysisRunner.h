@@ -10,6 +10,7 @@
 #include <core/CFastMutex.h>
 #include <core/CStatePersistInserter.h>
 
+#include <api/CInferenceModelDefinition.h>
 #include <api/ImportExport.h>
 
 #include <rapidjson/fwd.h>
@@ -61,9 +62,10 @@ class API_EXPORT CDataFrameAnalysisRunner {
 public:
     using TBoolVec = std::vector<bool>;
     using TStrVec = std::vector<std::string>;
-    using TStrVecVec = std::vector<TStrVec>;
     using TRowRef = core::data_frame_detail::CRowRef;
     using TProgressRecorder = std::function<void(double)>;
+    using TStrVecVec = std::vector<TStrVec>;
+    using TInferenceModelDefinitionUPtr = std::unique_ptr<CInferenceModelDefinition>;
 
 public:
     //! The intention is that concrete objects of this hierarchy are constructed
@@ -115,12 +117,11 @@ public:
     //! </pre>
     //! with one named member for each column added.
     //!
-    //! \param[in] featureNames The names of the analysis features.
+    //! \param[in] frame The data frame for which to write results.
     //! \param[in] row The row to write the columns added by this analysis.
     //! \param[in,out] writer The stream to which to write the extra columns.
-    virtual void writeOneRow(const TStrVec& featureNames,
-                             const TStrVecVec& categoricalFieldValues,
-                             TRowRef row,
+    virtual void writeOneRow(const core::CDataFrame& frame,
+                             const TRowRef& row,
                              core::CRapidJsonConcurrentLineWriter& writer) const = 0;
 
     //! Checks whether the analysis is already running and if not launches it
@@ -128,7 +129,7 @@ public:
     //!
     //! \note The thread calling this is expected to be nearly always idle, i.e.
     //! just progress monitoring, so this doesn't count towards the thread limit.
-    void run(const TStrVec& featureNames, core::CDataFrame& frame);
+    void run(core::CDataFrame& frame);
 
     //! This waits to until the analysis has finished and joins the thread.
     void waitToFinish();
@@ -139,6 +140,9 @@ public:
     //! \return The progress of the analysis in the range [0,1] being an estimate
     //! of the proportion of total work complete for a single run.
     double progress() const;
+
+    virtual TInferenceModelDefinitionUPtr
+    inferenceModelDefinition(const TStrVec& fieldNames, const TStrVecVec& categoryNames) const;
 
 protected:
     using TStatePersister =
@@ -155,7 +159,7 @@ protected:
     TStatePersister statePersister();
 
 private:
-    virtual void runImpl(const TStrVec& featureNames, core::CDataFrame& frame) = 0;
+    virtual void runImpl(core::CDataFrame& frame) = 0;
     virtual std::size_t estimateBookkeepingMemoryUsage(std::size_t numberPartitions,
                                                        std::size_t totalNumberRows,
                                                        std::size_t partitionNumberRows,

@@ -48,6 +48,7 @@ inline std::size_t predictionColumn(std::size_t numberColumns) {
 class MATHS_EXPORT CBoostedTreeImpl final {
 public:
     using TDoubleVec = std::vector<double>;
+    using TStrVec = std::vector<std::string>;
     using TMeanAccumulator = CBasicStatistics::SSampleMean<double>::TAccumulator;
     using TMeanVarAccumulator = CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
     using TBayesinOptimizationUPtr = std::unique_ptr<maths::CBayesianOptimisation>;
@@ -101,11 +102,23 @@ public:
     //! frame with \p numberRows row and \p numberColumns columns will use.
     std::size_t estimateMemoryUsage(std::size_t numberRows, std::size_t numberColumns) const;
 
+    //! The name of the object holding the best hyperaparameters in the state document.
+    static const std::string& bestHyperparametersName();
+
+    //! The name of the object holding the best regularisation hyperparameters in the
+    //! state document.
+    static const std::string& bestRegularizationHyperparametersName();
+
+    //! A list of the names of the best individual hyperparameters in the state document.
+    static TStrVec bestHyperparameterNames();
+
     //! Persist by passing information to \p inserter.
     void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
 
     //! Populate the object from serialized data.
     bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
+
+    void accept(CBoostedTree::CVisitor& visitor);
 
 private:
     using TSizeDoublePr = std::pair<std::size_t, double>;

@@ -23,6 +23,7 @@ SRCS=\
 	CAnomalyJobLimitTest.cc \
 	CAnomalyJobTest.cc \
 	CBaseTokenListDataTyperTest.cc \
+	CBoostedTreeInferenceModelBuilderTest.cc \
 	CCategoryExamplesCollectorTest.cc \
 	CConfigUpdaterTest.cc \
 	CCsvInputParserTest.cc \

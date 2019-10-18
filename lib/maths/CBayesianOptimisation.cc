@@ -27,6 +27,8 @@ namespace ml {
 namespace maths {
 
 namespace {
+const std::string VERSION_7_5_TAG{"7.5"};
+
 const std::string MIN_BOUNDARY_TAG{"min_boundary"};
 const std::string MAX_BOUNDARY_TAG{"max_boundary"};
 const std::string ERROR_VARIANCES_TAG{"error_variances"};
@@ -443,6 +445,7 @@ double CBayesianOptimisation::kernel(const TVector& a, const TVector& x, const T
 
 void CBayesianOptimisation::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
     try {
+        core::CPersistUtils::persist(VERSION_7_5_TAG, "", inserter);
         inserter.insertValue(RNG_TAG, m_Rng.toString());
         core::CPersistUtils::persist(MIN_BOUNDARY_TAG, m_MinBoundary, inserter);
         core::CPersistUtils::persist(MAX_BOUNDARY_TAG, m_MaxBoundary, inserter);
@@ -460,39 +463,45 @@ void CBayesianOptimisation::acceptPersistInserter(core::CStatePersistInserter& i
 }
 
 bool CBayesianOptimisation::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
-    try {
-        do {
-            const std::string& name = traverser.name();
-            RESTORE(RNG_TAG, m_Rng.fromString(traverser.value()))
-            RESTORE(MIN_BOUNDARY_TAG,
-                    core::CPersistUtils::restore(MIN_BOUNDARY_TAG, m_MinBoundary, traverser))
-            RESTORE(MAX_BOUNDARY_TAG,
-                    core::CPersistUtils::restore(MAX_BOUNDARY_TAG, m_MaxBoundary, traverser))
-            RESTORE(ERROR_VARIANCES_TAG,
-                    core::CPersistUtils::restore(ERROR_VARIANCES_TAG, m_ErrorVariances, traverser))
-            RESTORE(RANGE_SHIFT_TAG,
-                    core::CPersistUtils::restore(RANGE_SHIFT_TAG, m_RangeShift, traverser))
-            RESTORE(RANGE_SCALE_TAG,
-                    core::CPersistUtils::restore(RANGE_SCALE_TAG, m_RangeScale, traverser))
-            RESTORE(RESTARTS_TAG,
-                    core::CPersistUtils::restore(RESTARTS_TAG, m_Restarts, traverser))
-            RESTORE(KERNEL_PARAMETERS_TAG,
-                    core::CPersistUtils::restore(KERNEL_PARAMETERS_TAG,
-                                                 m_KernelParameters, traverser))
-            RESTORE(MIN_KERNEL_COORDINATE_DISTANCE_SCALES_TAG,
-                    core::CPersistUtils::restore(
-                        MIN_KERNEL_COORDINATE_DISTANCE_SCALES_TAG,
-                        m_MinimumKernelCoordinateDistanceScale, traverser))
-            RESTORE(FUNCTION_MEAN_VALUES_TAG,
-                    core::CPersistUtils::restore(FUNCTION_MEAN_VALUES_TAG,
-                                                 m_FunctionMeanValues, traverser))
-        } while (traverser.next());
-    } catch (std::exception& e) {
-        LOG_ERROR(<< "Failed to restore state! " << e.what());
-        return false;
-    }
+    if (traverser.name() == VERSION_7_5_TAG) {
+        try {
+            do {
+                const std::string& name = traverser.name();
+                RESTORE(RNG_TAG, m_Rng.fromString(traverser.value()))
+                RESTORE(MIN_BOUNDARY_TAG,
+                        core::CPersistUtils::restore(MIN_BOUNDARY_TAG, m_MinBoundary, traverser))
+                RESTORE(MAX_BOUNDARY_TAG,
+                        core::CPersistUtils::restore(MAX_BOUNDARY_TAG, m_MaxBoundary, traverser))
+                RESTORE(ERROR_VARIANCES_TAG,
+                        core::CPersistUtils::restore(ERROR_VARIANCES_TAG,
+                                                     m_ErrorVariances, traverser))
+                RESTORE(RANGE_SHIFT_TAG,
+                        core::CPersistUtils::restore(RANGE_SHIFT_TAG, m_RangeShift, traverser))
+                RESTORE(RANGE_SCALE_TAG,
+                        core::CPersistUtils::restore(RANGE_SCALE_TAG, m_RangeScale, traverser))
+                RESTORE(RESTARTS_TAG,
+                        core::CPersistUtils::restore(RESTARTS_TAG, m_Restarts, traverser))
+                RESTORE(KERNEL_PARAMETERS_TAG,
+                        core::CPersistUtils::restore(KERNEL_PARAMETERS_TAG,
+                                                     m_KernelParameters, traverser))
+                RESTORE(MIN_KERNEL_COORDINATE_DISTANCE_SCALES_TAG,
+                        core::CPersistUtils::restore(
+                            MIN_KERNEL_COORDINATE_DISTANCE_SCALES_TAG,
+                            m_MinimumKernelCoordinateDistanceScale, traverser))
+                RESTORE(FUNCTION_MEAN_VALUES_TAG,
+                        core::CPersistUtils::restore(FUNCTION_MEAN_VALUES_TAG,
+                                                     m_FunctionMeanValues, traverser))
+            } while (traverser.next());
+        } catch (std::exception& e) {
+            LOG_ERROR(<< "Failed to restore state! " << e.what());
+            return false;
+        }
 
-    return true;
+        return true;
+    }
+    LOG_ERROR(<< "Input error: unsupported state serialization version. Currently supported version: "
+              << VERSION_7_5_TAG);
+    return false;
 }
 
 std::size_t CBayesianOptimisation::memoryUsage() const {

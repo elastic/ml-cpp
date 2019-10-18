@@ -16,6 +16,8 @@
 #include <maths/CSampling.h>
 #include <maths/CSetTools.h>
 
+#include <limits>
+
 namespace ml {
 namespace maths {
 using namespace boosted_tree;
@@ -87,6 +89,7 @@ double readActual(const TRowRef& row, std::size_t dependentVariable) {
 
 const std::size_t ASSIGN_MISSING_TO_LEFT{0};
 const std::size_t ASSIGN_MISSING_TO_RIGHT{1};
+const double SMALLEST_RELATIVE_CURVATURE{1e-20};
 }
 
 CBoostedTreeImpl::CLeafNodeStatistics::CLeafNodeStatistics(std::size_t id,
@@ -110,13 +113,34 @@ CBoostedTreeImpl::CLeafNodeStatistics::CLeafNodeStatistics(std::size_t id,
         m_Gradients[i].resize(numberSplits);
         m_Curvatures[i].resize(numberSplits);
         for (std::size_t j = 0; j < numberSplits; ++j) {
-            m_Gradients[i][j] = parent.m_Gradients[i][j] - sibling.m_Gradients[i][j];
+            // Numeric errors mean that it's possible the sum curvature for a candidate
+            // split is identically zero while the gradient is epsilon. This can cause
+            // the node gain to appear infinite (when there is no weight regularisation)
+            // which in turns causes problems initialising the region we search for optimal
+            // hyperparameter values. Since none of our loss functions should have curvature
+            // identically equal to zero, we can safely force the gradient to be zero if
+            // detect that the curvature is zero. Also, none of our loss functions have
+            // negative curvatures therefore we shouldn't allow the cumulative curvature
+            // to be negative either. In this case we force it to be a v.small multiple
+            // of the magnitude of the gradient since this is the closest feasible estimate.
             m_Curvatures[i][j] = parent.m_Curvatures[i][j] - sibling.m_Curvatures[i][j];
+            m_Gradients[i][j] = m_Curvatures[i][j] == 0.0
+                                    ? 0.0
+                                    : parent.m_Gradients[i][j] -
+                                          sibling.m_Gradients[i][j];
+            m_Curvatures[i][j] =
+                std::max(m_Curvatures[i][j], SMALLEST_RELATIVE_CURVATURE *
+                                                 std::fabs(m_Gradients[i][j]));
         }
-        m_MissingGradients[i] = parent.m_MissingGradients[i] -
-                                sibling.m_MissingGradients[i];
         m_MissingCurvatures[i] = parent.m_MissingCurvatures[i] -
                                  sibling.m_MissingCurvatures[i];
+        m_MissingGradients[i] = m_MissingCurvatures[i] == 0.0
+                                    ? 0.0
+                                    : parent.m_MissingGradients[i] -
+                                          sibling.m_MissingGradients[i];
+        m_MissingCurvatures[i] = std::max(m_MissingCurvatures[i],
+                                          SMALLEST_RELATIVE_CURVATURE *
+                                              std::fabs(m_MissingGradients[i]));
     }
 
     LOG_TRACE(<< "gradients = " << core::CContainerPrinter::print(m_Gradients));
@@ -252,6 +276,7 @@ void CBoostedTreeImpl::train(core::CDataFrame& frame,
     recordMemoryUsage(lastMemoryUsage);
 
     if (this->canTrain() == false) {
+
         // Fallback to using the constant predictor which minimises the loss.
 
         core::CPackedBitVector trainingRowMask{this->allTrainingRowsMask()};
@@ -259,7 +284,8 @@ void CBoostedTreeImpl::train(core::CDataFrame& frame,
         m_BestForestTestLoss = this->meanLoss(frame, trainingRowMask, m_BestForest);
         LOG_TRACE(<< "Test loss = " << m_BestForestTestLoss);
 
-    } else {
+    } else if (m_CurrentRound < m_NumberRounds || m_BestForest.empty()) {
+
         // Hyperparameter optimisation loop.
 
         while (m_CurrentRound < m_NumberRounds) {
@@ -278,6 +304,7 @@ void CBoostedTreeImpl::train(core::CDataFrame& frame,
                 break;
             }
             if (this->selectNextHyperparameters(lossMoments, *m_BayesianOptimization) == false) {
+                LOG_WARN(<< "Hyperparameter selection failed: exiting loop early");
                 break;
             }
 
@@ -297,6 +324,7 @@ void CBoostedTreeImpl::train(core::CDataFrame& frame,
         this->restoreBestHyperparameters();
 
         m_BestForest = this->trainForest(frame, this->allTrainingRowsMask(), recordMemoryUsage);
+        this->recordState(recordTrainStateCallback);
     }
 
     // Force to at least one here because we can have early exit from loop or take
@@ -433,7 +461,6 @@ CBoostedTreeImpl::crossValidateForest(core::CDataFrame& frame,
         lossMoments.add(loss);
         LOG_TRACE(<< "fold = " << i << " forest size = " << forest.size()
                   << " test set loss = " << loss);
-        m_TrainingProgress.increment();
     }
     LOG_TRACE(<< "test mean loss = " << CBasicStatistics::mean(lossMoments)
               << ", sigma = " << std::sqrt(CBasicStatistics::mean(lossMoments)));
@@ -520,6 +547,8 @@ CBoostedTreeImpl::trainForest(core::CDataFrame& frame,
     } while (forest.size() < m_MaximumNumberTrees);
 
     LOG_TRACE(<< "Trained one forest");
+
+    m_TrainingProgress.increment();
 
     return forest;
 }
@@ -733,27 +762,39 @@ void CBoostedTreeImpl::refreshPredictionsAndLossDerivatives(core::CDataFrame& fr
 
     using TArgMinLossVec = std::vector<CArgMinLoss>;
 
-    auto result = frame.readRows(
-        m_NumberThreads, 0, frame.numberRows(),
-        core::bindRetrievableState(
-            [&](TArgMinLossVec& leafValues, TRowItr beginRows, TRowItr endRows) {
-                for (auto itr = beginRows; itr != endRows; ++itr) {
-                    const TRowRef& row{*itr};
-                    double prediction{readPrediction(row)};
-                    double actual{readActual(row, m_DependentVariable)};
-                    leafValues[root(tree).leafIndex(m_Encoder->encode(row), tree)]
-                        .add(prediction, actual);
-                }
-            },
-            TArgMinLossVec(tree.size(), m_Loss->minimizer())),
-        &trainingRowMask);
-
-    auto leafValues = std::move(result.first[0].s_FunctionState);
-    for (std::size_t i = 1; i < result.first.size(); ++i) {
-        for (std::size_t j = 0; j < leafValues.size(); ++j) {
-            leafValues[j].merge(result.first[i].s_FunctionState[j]);
+    TArgMinLossVec leafValues(
+        tree.size(), m_Loss->minimizer(m_Regularization.leafWeightPenaltyMultiplier()));
+    auto nextPass = [&] {
+        bool done{true};
+        for (const auto& value : leafValues) {
+            done &= (value.nextPass() == false);
         }
-    }
+        return done == false;
+    };
+
+    do {
+        auto result = frame.readRows(
+            m_NumberThreads, 0, frame.numberRows(),
+            core::bindRetrievableState(
+                [&](TArgMinLossVec& leafValues_, TRowItr beginRows, TRowItr endRows) {
+                    for (auto itr = beginRows; itr != endRows; ++itr) {
+                        const TRowRef& row{*itr};
+                        double prediction{readPrediction(row)};
+                        double actual{readActual(row, m_DependentVariable)};
+                        leafValues_[root(tree).leafIndex(m_Encoder->encode(row), tree)]
+                            .add(prediction, actual);
+                    }
+                },
+                std::move(leafValues)),
+            &trainingRowMask);
+
+        leafValues = std::move(result.first[0].s_FunctionState);
+        for (std::size_t i = 1; i < result.first.size(); ++i) {
+            for (std::size_t j = 0; j < leafValues.size(); ++j) {
+                leafValues[j].merge(result.first[i].s_FunctionState[j]);
+            }
+        }
+    } while (nextPass());
 
     for (std::size_t i = 0; i < tree.size(); ++i) {
         tree[i].value(eta * leafValues[i].value());
@@ -961,13 +1002,15 @@ std::size_t CBoostedTreeImpl::maximumTreeSize(std::size_t numberRows) const {
 const std::size_t CBoostedTreeImpl::PACKED_BIT_VECTOR_MAXIMUM_ROWS_PER_BYTE{256};
 
 namespace {
+const std::string VERSION_7_5_TAG{"7.5"};
+
 const std::string BAYESIAN_OPTIMIZATION_TAG{"bayesian_optimization"};
 const std::string BEST_FOREST_TAG{"best_forest"};
 const std::string BEST_FOREST_TEST_LOSS_TAG{"best_forest_test_loss"};
 const std::string BEST_HYPERPARAMETERS_TAG{"best_hyperparameters"};
 const std::string CURRENT_ROUND_TAG{"current_round"};
 const std::string DEPENDENT_VARIABLE_TAG{"dependent_variable"};
-const std::string ENCODER_TAG{"encoder_tag"};
+const std::string ENCODER_TAG{"encoder"};
 const std::string ETA_GROWTH_RATE_PER_TREE_TAG{"eta_growth_rate_per_tree"};
 const std::string ETA_OVERRIDE_TAG{"eta_override"};
 const std::string ETA_TAG{"eta"};
@@ -1010,6 +1053,25 @@ const std::string HYPERPARAM_FEATURE_BAG_FRACTION_TAG{"hyperparam_feature_bag_fr
 const std::string HYPERPARAM_REGULARIZATION_TAG{"hyperparam_regularization"};
 }
 
+const std::string& CBoostedTreeImpl::bestHyperparametersName() {
+    return BEST_HYPERPARAMETERS_TAG;
+}
+
+const std::string& CBoostedTreeImpl::bestRegularizationHyperparametersName() {
+    return HYPERPARAM_REGULARIZATION_TAG;
+}
+
+CBoostedTreeImpl::TStrVec CBoostedTreeImpl::bestHyperparameterNames() {
+    return {HYPERPARAM_ETA_TAG,
+            HYPERPARAM_ETA_GROWTH_RATE_PER_TREE_TAG,
+            HYPERPARAM_FEATURE_BAG_FRACTION_TAG,
+            REGULARIZATION_DEPTH_PENALTY_MULTIPLIER_TAG,
+            REGULARIZATION_TREE_SIZE_PENALTY_MULTIPLIER_TAG,
+            REGULARIZATION_LEAF_WEIGHT_PENALTY_MULTIPLIER_TAG,
+            REGULARIZATION_SOFT_TREE_DEPTH_LIMIT_TAG,
+            REGULARIZATION_SOFT_TREE_DEPTH_TOLERANCE_TAG};
+}
+
 template<typename T>
 void CBoostedTreeImpl::CRegularization<T>::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
     core::CPersistUtils::persist(REGULARIZATION_DEPTH_PENALTY_MULTIPLIER_TAG,
@@ -1034,6 +1096,7 @@ void CBoostedTreeImpl::SHyperparameters::acceptPersistInserter(core::CStatePersi
 }
 
 void CBoostedTreeImpl::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
+    core::CPersistUtils::persist(VERSION_7_5_TAG, "", inserter);
     core::CPersistUtils::persist(BAYESIAN_OPTIMIZATION_TAG, *m_BayesianOptimization, inserter);
     core::CPersistUtils::persist(BEST_FOREST_TEST_LOSS_TAG, m_BestForestTestLoss, inserter);
     core::CPersistUtils::persist(CURRENT_ROUND_TAG, m_CurrentRound, inserter);
@@ -1120,89 +1183,97 @@ bool CBoostedTreeImpl::SHyperparameters::acceptRestoreTraverser(core::CStateRest
 }
 
 bool CBoostedTreeImpl::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
-    do {
-        const std::string& name = traverser.name();
-        RESTORE_NO_ERROR(BAYESIAN_OPTIMIZATION_TAG,
-                         m_BayesianOptimization =
-                             std::make_unique<CBayesianOptimisation>(traverser))
-        RESTORE(BEST_FOREST_TEST_LOSS_TAG,
-                core::CPersistUtils::restore(BEST_FOREST_TEST_LOSS_TAG,
-                                             m_BestForestTestLoss, traverser))
-        RESTORE(CURRENT_ROUND_TAG,
-                core::CPersistUtils::restore(CURRENT_ROUND_TAG, m_CurrentRound, traverser))
-        RESTORE(DEPENDENT_VARIABLE_TAG,
-                core::CPersistUtils::restore(DEPENDENT_VARIABLE_TAG,
-                                             m_DependentVariable, traverser))
-        RESTORE_NO_ERROR(ENCODER_TAG,
-                         m_Encoder = std::make_unique<CDataFrameCategoryEncoder>(traverser))
-        RESTORE(ETA_GROWTH_RATE_PER_TREE_TAG,
-                core::CPersistUtils::restore(ETA_GROWTH_RATE_PER_TREE_TAG,
-                                             m_EtaGrowthRatePerTree, traverser))
-        RESTORE(ETA_TAG, core::CPersistUtils::restore(ETA_TAG, m_Eta, traverser))
-        RESTORE(FEATURE_BAG_FRACTION_TAG,
-                core::CPersistUtils::restore(FEATURE_BAG_FRACTION_TAG,
-                                             m_FeatureBagFraction, traverser))
-        RESTORE(FEATURE_DATA_TYPES_TAG,
-                core::CPersistUtils::restore(FEATURE_DATA_TYPES_TAG,
-                                             m_FeatureDataTypes, traverser));
-        RESTORE(FEATURE_SAMPLE_PROBABILITIES_TAG,
-                core::CPersistUtils::restore(FEATURE_SAMPLE_PROBABILITIES_TAG,
-                                             m_FeatureSampleProbabilities, traverser))
-        RESTORE(MAXIMUM_ATTEMPTS_TO_ADD_TREE_TAG,
-                core::CPersistUtils::restore(MAXIMUM_ATTEMPTS_TO_ADD_TREE_TAG,
-                                             m_MaximumAttemptsToAddTree, traverser))
-        RESTORE(MAXIMUM_OPTIMISATION_ROUNDS_PER_HYPERPARAMETER_TAG,
-                core::CPersistUtils::restore(
-                    MAXIMUM_OPTIMISATION_ROUNDS_PER_HYPERPARAMETER_TAG,
-                    m_MaximumOptimisationRoundsPerHyperparameter, traverser))
-        RESTORE(MAXIMUM_TREE_SIZE_MULTIPLIER_TAG,
-                core::CPersistUtils::restore(MAXIMUM_TREE_SIZE_MULTIPLIER_TAG,
-                                             m_MaximumTreeSizeMultiplier, traverser))
-        RESTORE(MISSING_FEATURE_ROW_MASKS_TAG,
-                core::CPersistUtils::restore(MISSING_FEATURE_ROW_MASKS_TAG,
-                                             m_MissingFeatureRowMasks, traverser))
-        RESTORE(NUMBER_FOLDS_TAG,
-                core::CPersistUtils::restore(NUMBER_FOLDS_TAG, m_NumberFolds, traverser))
-        RESTORE(NUMBER_ROUNDS_TAG,
-                core::CPersistUtils::restore(NUMBER_ROUNDS_TAG, m_NumberRounds, traverser))
-        RESTORE(NUMBER_SPLITS_PER_FEATURE_TAG,
-                core::CPersistUtils::restore(NUMBER_SPLITS_PER_FEATURE_TAG,
-                                             m_NumberSplitsPerFeature, traverser))
-        RESTORE(NUMBER_THREADS_TAG,
-                core::CPersistUtils::restore(NUMBER_THREADS_TAG, m_NumberThreads, traverser))
-        RESTORE(RANDOM_NUMBER_GENERATOR_TAG, m_Rng.fromString(traverser.value()))
-        RESTORE(REGULARIZATION_TAG,
-                core::CPersistUtils::restore(REGULARIZATION_TAG, m_Regularization, traverser))
-        RESTORE(REGULARIZATION_OVERRIDE_TAG,
-                core::CPersistUtils::restore(REGULARIZATION_OVERRIDE_TAG,
-                                             m_RegularizationOverride, traverser))
-        RESTORE(ROWS_PER_FEATURE_TAG,
-                core::CPersistUtils::restore(ROWS_PER_FEATURE_TAG, m_RowsPerFeature, traverser))
-        RESTORE(TESTING_ROW_MASKS_TAG,
-                core::CPersistUtils::restore(TESTING_ROW_MASKS_TAG, m_TestingRowMasks, traverser))
-        RESTORE(MAXIMUM_NUMBER_TREES_TAG,
-                core::CPersistUtils::restore(MAXIMUM_NUMBER_TREES_TAG,
-                                             m_MaximumNumberTrees, traverser))
-        RESTORE(TRAINING_ROW_MASKS_TAG,
-                core::CPersistUtils::restore(TRAINING_ROW_MASKS_TAG, m_TrainingRowMasks, traverser))
-        RESTORE(TRAINING_PROGRESS_TAG,
-                core::CPersistUtils::restore(TRAINING_PROGRESS_TAG, m_TrainingProgress, traverser))
-        RESTORE(BEST_FOREST_TAG,
-                core::CPersistUtils::restore(BEST_FOREST_TAG, m_BestForest, traverser))
-        RESTORE(BEST_HYPERPARAMETERS_TAG,
-                core::CPersistUtils::restore(BEST_HYPERPARAMETERS_TAG,
-                                             m_BestHyperparameters, traverser))
-        RESTORE(ETA_OVERRIDE_TAG,
-                core::CPersistUtils::restore(ETA_OVERRIDE_TAG, m_EtaOverride, traverser))
-        RESTORE(FEATURE_BAG_FRACTION_OVERRIDE_TAG,
-                core::CPersistUtils::restore(FEATURE_BAG_FRACTION_OVERRIDE_TAG,
-                                             m_FeatureBagFractionOverride, traverser))
-        RESTORE(MAXIMUM_NUMBER_TREES_OVERRIDE_TAG,
-                core::CPersistUtils::restore(MAXIMUM_NUMBER_TREES_OVERRIDE_TAG,
-                                             m_MaximumNumberTreesOverride, traverser))
-        RESTORE(LOSS_TAG, restoreLoss(m_Loss, traverser))
-    } while (traverser.next());
-    return true;
+    if (traverser.name() == VERSION_7_5_TAG) {
+        do {
+            const std::string& name = traverser.name();
+            RESTORE_NO_ERROR(BAYESIAN_OPTIMIZATION_TAG,
+                             m_BayesianOptimization =
+                                 std::make_unique<CBayesianOptimisation>(traverser))
+            RESTORE(BEST_FOREST_TEST_LOSS_TAG,
+                    core::CPersistUtils::restore(BEST_FOREST_TEST_LOSS_TAG,
+                                                 m_BestForestTestLoss, traverser))
+            RESTORE(CURRENT_ROUND_TAG,
+                    core::CPersistUtils::restore(CURRENT_ROUND_TAG, m_CurrentRound, traverser))
+            RESTORE(DEPENDENT_VARIABLE_TAG,
+                    core::CPersistUtils::restore(DEPENDENT_VARIABLE_TAG,
+                                                 m_DependentVariable, traverser))
+            RESTORE_NO_ERROR(ENCODER_TAG,
+                             m_Encoder = std::make_unique<CDataFrameCategoryEncoder>(traverser))
+            RESTORE(ETA_GROWTH_RATE_PER_TREE_TAG,
+                    core::CPersistUtils::restore(ETA_GROWTH_RATE_PER_TREE_TAG,
+                                                 m_EtaGrowthRatePerTree, traverser))
+            RESTORE(ETA_TAG, core::CPersistUtils::restore(ETA_TAG, m_Eta, traverser))
+            RESTORE(FEATURE_BAG_FRACTION_TAG,
+                    core::CPersistUtils::restore(FEATURE_BAG_FRACTION_TAG,
+                                                 m_FeatureBagFraction, traverser))
+            RESTORE(FEATURE_DATA_TYPES_TAG,
+                    core::CPersistUtils::restore(FEATURE_DATA_TYPES_TAG,
+                                                 m_FeatureDataTypes, traverser));
+            RESTORE(FEATURE_SAMPLE_PROBABILITIES_TAG,
+                    core::CPersistUtils::restore(FEATURE_SAMPLE_PROBABILITIES_TAG,
+                                                 m_FeatureSampleProbabilities, traverser))
+            RESTORE(MAXIMUM_ATTEMPTS_TO_ADD_TREE_TAG,
+                    core::CPersistUtils::restore(MAXIMUM_ATTEMPTS_TO_ADD_TREE_TAG,
+                                                 m_MaximumAttemptsToAddTree, traverser))
+            RESTORE(MAXIMUM_OPTIMISATION_ROUNDS_PER_HYPERPARAMETER_TAG,
+                    core::CPersistUtils::restore(
+                        MAXIMUM_OPTIMISATION_ROUNDS_PER_HYPERPARAMETER_TAG,
+                        m_MaximumOptimisationRoundsPerHyperparameter, traverser))
+            RESTORE(MAXIMUM_TREE_SIZE_MULTIPLIER_TAG,
+                    core::CPersistUtils::restore(MAXIMUM_TREE_SIZE_MULTIPLIER_TAG,
+                                                 m_MaximumTreeSizeMultiplier, traverser))
+            RESTORE(MISSING_FEATURE_ROW_MASKS_TAG,
+                    core::CPersistUtils::restore(MISSING_FEATURE_ROW_MASKS_TAG,
+                                                 m_MissingFeatureRowMasks, traverser))
+            RESTORE(NUMBER_FOLDS_TAG,
+                    core::CPersistUtils::restore(NUMBER_FOLDS_TAG, m_NumberFolds, traverser))
+            RESTORE(NUMBER_ROUNDS_TAG,
+                    core::CPersistUtils::restore(NUMBER_ROUNDS_TAG, m_NumberRounds, traverser))
+            RESTORE(NUMBER_SPLITS_PER_FEATURE_TAG,
+                    core::CPersistUtils::restore(NUMBER_SPLITS_PER_FEATURE_TAG,
+                                                 m_NumberSplitsPerFeature, traverser))
+            RESTORE(NUMBER_THREADS_TAG,
+                    core::CPersistUtils::restore(NUMBER_THREADS_TAG, m_NumberThreads, traverser))
+            RESTORE(RANDOM_NUMBER_GENERATOR_TAG, m_Rng.fromString(traverser.value()))
+            RESTORE(REGULARIZATION_TAG,
+                    core::CPersistUtils::restore(REGULARIZATION_TAG, m_Regularization, traverser))
+            RESTORE(REGULARIZATION_OVERRIDE_TAG,
+                    core::CPersistUtils::restore(REGULARIZATION_OVERRIDE_TAG,
+                                                 m_RegularizationOverride, traverser))
+            RESTORE(ROWS_PER_FEATURE_TAG,
+                    core::CPersistUtils::restore(ROWS_PER_FEATURE_TAG, m_RowsPerFeature, traverser))
+            RESTORE(TESTING_ROW_MASKS_TAG,
+                    core::CPersistUtils::restore(TESTING_ROW_MASKS_TAG,
+                                                 m_TestingRowMasks, traverser))
+            RESTORE(MAXIMUM_NUMBER_TREES_TAG,
+                    core::CPersistUtils::restore(MAXIMUM_NUMBER_TREES_TAG,
+                                                 m_MaximumNumberTrees, traverser))
+            RESTORE(TRAINING_ROW_MASKS_TAG,
+                    core::CPersistUtils::restore(TRAINING_ROW_MASKS_TAG,
+                                                 m_TrainingRowMasks, traverser))
+            RESTORE(TRAINING_PROGRESS_TAG,
+                    core::CPersistUtils::restore(TRAINING_PROGRESS_TAG,
+                                                 m_TrainingProgress, traverser))
+            RESTORE(BEST_FOREST_TAG,
+                    core::CPersistUtils::restore(BEST_FOREST_TAG, m_BestForest, traverser))
+            RESTORE(BEST_HYPERPARAMETERS_TAG,
+                    core::CPersistUtils::restore(BEST_HYPERPARAMETERS_TAG,
+                                                 m_BestHyperparameters, traverser))
+            RESTORE(ETA_OVERRIDE_TAG,
+                    core::CPersistUtils::restore(ETA_OVERRIDE_TAG, m_EtaOverride, traverser))
+            RESTORE(FEATURE_BAG_FRACTION_OVERRIDE_TAG,
+                    core::CPersistUtils::restore(FEATURE_BAG_FRACTION_OVERRIDE_TAG,
+                                                 m_FeatureBagFractionOverride, traverser))
+            RESTORE(MAXIMUM_NUMBER_TREES_OVERRIDE_TAG,
+                    core::CPersistUtils::restore(MAXIMUM_NUMBER_TREES_OVERRIDE_TAG,
+                                                 m_MaximumNumberTreesOverride, traverser))
+            RESTORE(LOSS_TAG, restoreLoss(m_Loss, traverser))
+        } while (traverser.next());
+        return true;
+    }
+    LOG_ERROR(<< "Input error: unsupported state serialization version. Currently supported version: "
+              << VERSION_7_5_TAG);
+    return false;
 }
 
 bool CBoostedTreeImpl::restoreLoss(CBoostedTree::TLossFunctionUPtr& loss,
@@ -1231,5 +1302,15 @@ std::size_t CBoostedTreeImpl::memoryUsage() const {
 
 const double CBoostedTreeImpl::MINIMUM_RELATIVE_GAIN_PER_SPLIT{1e-7};
 const double CBoostedTreeImpl::INF{std::numeric_limits<double>::max()};
+
+void CBoostedTreeImpl::accept(CBoostedTree::CVisitor& visitor) {
+    m_Encoder->accept(visitor);
+    for (const auto& tree : m_BestForest) {
+        visitor.addTree();
+        for (std::size_t i = 0; i < tree.size(); ++i) {
+            tree[i].accept(visitor);
+        }
+    }
+}
 }
 }

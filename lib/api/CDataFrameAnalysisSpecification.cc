@@ -192,10 +192,9 @@ CDataFrameAnalysisSpecification::makeDataFrame() {
     return result;
 }
 
-CDataFrameAnalysisRunner* CDataFrameAnalysisSpecification::run(const TStrVec& featureNames,
-                                                               core::CDataFrame& frame) const {
+CDataFrameAnalysisRunner* CDataFrameAnalysisSpecification::run(core::CDataFrame& frame) const {
     if (m_Runner != nullptr) {
-        m_Runner->run(featureNames, frame);
+        m_Runner->run(frame);
         return m_Runner.get();
     }
     return nullptr;
@@ -203,7 +202,8 @@ CDataFrameAnalysisRunner* CDataFrameAnalysisSpecification::run(const TStrVec& fe
 
 void CDataFrameAnalysisSpecification::estimateMemoryUsage(CMemoryUsageEstimationResultJsonWriter& writer) const {
     if (m_Runner == nullptr) {
-        HANDLE_FATAL(<< "Internal error: no runner available so can't estimate memory. Please report this problem.");
+        HANDLE_FATAL(<< "Internal error: no runner available so can't estimate memory."
+                     << " Please report this problem.");
         return;
     }
     m_Runner->estimateMemoryUsage(writer);
@@ -260,6 +260,10 @@ CDataFrameAnalysisSpecification::noopRestoreSearcherSupplier() {
 
 const std::string& CDataFrameAnalysisSpecification::jobId() const {
     return m_JobId;
+}
+
+const CDataFrameAnalysisRunner* CDataFrameAnalysisSpecification::runner() {
+    return m_Runner.get();
 }
 }
 }

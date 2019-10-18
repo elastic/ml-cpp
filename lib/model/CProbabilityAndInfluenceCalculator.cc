@@ -146,43 +146,33 @@ double ratio(double numerator, double denominator, double zeroDividedByZero) {
 }
 
 // Functions to compute influence based on different criteria
+
 //! \brief Computes the value of summed statistics on the set difference.
 class CValueDifference {
 public:
     //! Features.
     bool operator()(const TDouble2Vec& v,
-                    double n,
+                    double /*n*/,
                     const TDouble1Vec& vi,
-                    double ni,
-                    maths::CModelProbabilityParams& params,
+                    double /*ni*/,
+                    maths::CModelProbabilityParams& /*params*/,
                     TDouble2Vec& difference) const {
-        if (n < ni) {
-            return false;
-        }
-
         for (std::size_t i = 0u; i < v.size(); ++i) {
             difference[i] = v[i] - vi[i];
         }
-        params.bucketEmpty({{n == ni}});
         return true;
     }
 
     //! Correlates.
     bool operator()(const TDouble2Vec& v,
-                    const TDouble2Vec& n,
+                    const TDouble2Vec& /*n*/,
                     const TDouble1Vec& vi,
-                    const TDouble1Vec& ni,
-                    maths::CModelProbabilityParams& params,
+                    const TDouble1Vec& /*ni*/,
+                    maths::CModelProbabilityParams& /*params*/,
                     TDouble2Vec& difference) const {
-        if (n < ni) {
-            return false;
-        }
-        TBool2Vec bucketEmpty(2);
         for (std::size_t d = 0u; d < 2; ++d) {
-            bucketEmpty[d] = (n[d] == ni[d]);
             difference[d] = v[d] - vi[d];
         }
-        params.bucketEmpty({bucketEmpty});
         return true;
     }
 };
@@ -194,13 +184,12 @@ public:
     bool operator()(const TDouble2Vec& /*v*/,
                     double /*n*/,
                     const TDouble1Vec& vi,
-                    double ni,
-                    maths::CModelProbabilityParams& params,
+                    double /*ni*/,
+                    maths::CModelProbabilityParams& /*params*/,
                     TDouble2Vec& intersection) const {
         for (std::size_t i = 0u; i < vi.size(); ++i) {
             intersection[i] = vi[i];
         }
-        params.bucketEmpty({{ni == 0}});
         return true;
     }
 
@@ -208,16 +197,12 @@ public:
     bool operator()(const TDouble2Vec& /*v*/,
                     const TDouble2Vec& /*n*/,
                     const TDouble1Vec& vi,
-                    const TDouble1Vec& ni,
-                    maths::CModelProbabilityParams& params,
+                    const TDouble1Vec& /*ni*/,
+                    maths::CModelProbabilityParams& /*params*/,
                     TDouble2Vec& intersection) const {
-
-        TBool2Vec bucketEmpty(2);
         for (std::size_t d = 0u; d < 2; ++d) {
-            bucketEmpty[d] = (ni[d] == 0);
             intersection[d] = vi[d];
         }
-        params.bucketEmpty({bucketEmpty});
         return true;
     }
 };
@@ -251,7 +236,6 @@ public:
         }
         TDouble2Vec scale(dimension, n / (n - ni));
         maths_t::multiplyCountVarianceScale(scale, params.weights()[0]);
-        params.bucketEmpty({{n == ni}});
 
         return true;
     }
@@ -267,16 +251,13 @@ public:
             return false;
         }
 
-        TBool2Vec bucketEmpty(2);
         for (std::size_t d = 0u; d < 2; ++d) {
-            bucketEmpty[d] = (n[d] == ni[d]);
             difference[d] = maths::CBasicStatistics::mean(
                 maths::CBasicStatistics::momentsAccumulator(n[d], v[d]) -
                 maths::CBasicStatistics::momentsAccumulator(ni[d], vi[d]));
         }
         TDouble2Vec scale{n[0] / (n[0] - ni[0]), n[1] / (n[1] - ni[1])};
         maths_t::multiplyCountVarianceScale(scale, params.weights()[0]);
-        params.bucketEmpty({bucketEmpty});
 
         return true;
     }
@@ -299,7 +280,7 @@ public:
                     double ni,
                     maths::CModelProbabilityParams& params,
                     TDouble2Vec& difference) const {
-        if (n < ni) {
+        if (n <= ni) {
             return false;
         }
 
@@ -311,7 +292,6 @@ public:
         }
         TDouble2Vec scale(dimension, n / (n - ni));
         maths_t::multiplyCountVarianceScale(scale, params.weights()[0]);
-        params.bucketEmpty({{n == ni}});
 
         return true;
     }
@@ -323,18 +303,15 @@ public:
                     const TDouble1Vec& ni,
                     maths::CModelProbabilityParams& params,
                     TDouble2Vec& difference) const {
-        if (n < ni) {
+        if (n <= ni) {
             return false;
         }
 
-        TBool2Vec bucketEmpty(2);
         for (std::size_t d = 0u; d < 2; ++d) {
-            bucketEmpty[d] = (n[d] == ni[d]);
             difference[d] = maths::CBasicStatistics::maximumLikelihoodVariance(
                 maths::CBasicStatistics::momentsAccumulator(n[d], v[2 + d], v[d]) -
                 maths::CBasicStatistics::momentsAccumulator(ni[d], vi[2 + d], vi[d]));
         }
-        params.bucketEmpty({bucketEmpty});
         TDouble2Vec scale{n[0] / (n[0] - ni[0]), n[1] / (n[1] - ni[1])};
         maths_t::multiplyCountVarianceScale(scale, params.weights()[0]);
 
@@ -411,10 +388,7 @@ void doComputeInfluences(model_t::EFeature feature,
     };
 
     maths_t::TDouble2VecWeightsAry1Vec weights(computeProbabilityParams.weights());
-    computeProbabilityParams.weights(weights)
-        .useMultibucketFeatures(false)
-        .useAnomalyModel(false)
-        .bucketEmpty({{count == 0.0}});
+    computeProbabilityParams.weights(weights).useMultibucketFeatures(false).useAnomalyModel(false);
     maths::SModelProbabilityResult overallResult;
     model.probability(computeProbabilityParams, time,
                       model_t::stripExtraStatistics(feature, {value}), overallResult);
@@ -517,10 +491,7 @@ void doComputeCorrelateInfluences(model_t::EFeature feature,
     }
 
     maths_t::TDouble2VecWeightsAry1Vec weights(computeProbabilityParams.weights());
-    computeProbabilityParams.weights(weights)
-        .useMultibucketFeatures(false)
-        .useAnomalyModel(false)
-        .bucketEmpty({{count[0] == 0.0, count[1] == 0.0}});
+    computeProbabilityParams.weights(weights).useMultibucketFeatures(false).useAnomalyModel(false);
     maths::SModelProbabilityResult overallResult;
     model.probability(computeProbabilityParams, {time},
                       model_t::stripExtraStatistics(feature, {value}), overallResult);

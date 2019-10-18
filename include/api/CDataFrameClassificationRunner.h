@@ -25,6 +25,10 @@ namespace api {
 //! \brief Runs boosted tree classification on a core::CDataFrame.
 class API_EXPORT CDataFrameClassificationRunner final : public CDataFrameBoostedTreeRunner {
 public:
+    TInferenceModelDefinitionUPtr
+    inferenceModelDefinition(const TStrVec& fieldNames,
+                             const TStrVecVec& categoryNames) const override;
+
     static const CDataFrameAnalysisConfigReader getParameterReader();
 
     //! This is not intended to be called directly: use CDataFrameClassificationRunnerFactory.
@@ -38,10 +42,13 @@ public:
     TBoolVec columnsForWhichEmptyIsMissing(const TStrVec& fieldNames) const override;
 
     //! Write the prediction for \p row to \p writer.
-    void writeOneRow(const TStrVec& featureNames,
-                     const TStrVecVec& categoricalFieldValues,
-                     TRowRef row,
+    void writeOneRow(const core::CDataFrame& frame,
+                     const TRowRef& row,
                      core::CRapidJsonConcurrentLineWriter& writer) const override;
+
+private:
+    TLossFunctionUPtr chooseLossFunction(const core::CDataFrame& frame,
+                                         std::size_t dependentVariableColumn) const override;
 
 private:
     std::size_t m_NumTopClasses;

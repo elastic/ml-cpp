@@ -660,9 +660,8 @@ void CPeriodicityHypothesisTestsTest::testWithOutliers() {
             maths::CPeriodicityHypothesisTestsResult result{
                 maths::testForPeriods(config, startTime, bucketLength, values)};
             LOG_DEBUG(<< "result = " << result.print());
-            CPPUNIT_ASSERT(
-                result.print() == std::string("{ 'weekend daily' 'weekday daily' }") ||
-                result.print() == std::string("{ 'weekend daily' 'weekday daily' 'weekend weekly' }"));
+            CPPUNIT_ASSERT(result.print() ==
+                           std::string("{ 'weekend daily' 'weekday daily' 'weekend weekly' }"));
         }
     }
 }

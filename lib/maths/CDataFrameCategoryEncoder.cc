@@ -38,6 +38,8 @@ const std::size_t CATEGORY_FOR_FREQUENCY_ENCODING{CATEGORY_FOR_METRICS - 1};
 const std::size_t CATEGORY_FOR_TARGET_MEAN_ENCODING{CATEGORY_FOR_FREQUENCY_ENCODING - 1};
 const std::size_t CATEGORY_FOR_DEPENDENT_VARIABLE{CATEGORY_FOR_TARGET_MEAN_ENCODING - 1};
 
+const std::string VERSION_7_5_TAG{"7.5"};
+
 const std::string ENCODING_VECTOR_TAG{"encoding_vector"};
 const std::string ENCODING_INPUT_COLUMN_INDEX_TAG{"encoding_input_column_index"};
 const std::string ENCODING_MIC_TAG{"encoding_mic"};
@@ -271,19 +273,25 @@ std::uint64_t CDataFrameCategoryEncoder::checksum(std::uint64_t seed) const {
 }
 
 void CDataFrameCategoryEncoder::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
+    core::CPersistUtils::persist(VERSION_7_5_TAG, "", inserter);
     inserter.insertLevel(ENCODING_VECTOR_TAG,
                          std::bind(&CDataFrameCategoryEncoder::persistEncodings,
                                    this, std::placeholders::_1));
 }
 
 bool CDataFrameCategoryEncoder::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
-    do {
-        const std::string& name{traverser.name()};
-        RESTORE(ENCODING_VECTOR_TAG,
-                traverser.traverseSubLevel(std::bind(&CDataFrameCategoryEncoder::restoreEncodings,
-                                                     this, std::placeholders::_1)))
-    } while (traverser.next());
-    return true;
+    if (traverser.name() == VERSION_7_5_TAG) {
+        do {
+            const std::string& name{traverser.name()};
+            RESTORE(ENCODING_VECTOR_TAG, traverser.traverseSubLevel(std::bind(
+                                             &CDataFrameCategoryEncoder::restoreEncodings,
+                                             this, std::placeholders::_1)))
+        } while (traverser.next());
+        return true;
+    }
+    LOG_ERROR(<< "Input error: unsupported state serialization version. Currently supported version: "
+              << VERSION_7_5_TAG);
+    return false;
 }
 
 void CDataFrameCategoryEncoder::persistEncodings(core::CStatePersistInserter& inserter) const {
@@ -323,6 +331,25 @@ bool CDataFrameCategoryEncoder::restore(core::CStateRestoreTraverser& traverser,
         return false;
     }
     return true;
+}
+
+void CDataFrameCategoryEncoder::accept(CDataFrameCategoryEncoder::CVisitor& visitor) const {
+    for (const auto& encoding : m_Encodings) {
+        if (encoding->type() == E_IdentityEncoding) {
+            visitor.addIdentityEncoding(encoding->inputColumnIndex());
+        }
+        if (encoding->type() == E_OneHot) {
+            auto enc = static_cast<const COneHotEncoding*>(encoding.get());
+            visitor.addOneHotEncoding(enc->inputColumnIndex(), enc->hotCategory());
+        } else if (encoding->type() == E_Frequency) {
+            auto enc = static_cast<const CMappedEncoding*>(encoding.get());
+            visitor.addFrequencyEncoding(enc->inputColumnIndex(), enc->map());
+        } else if (encoding->type() == E_TargetMean) {
+            auto enc = static_cast<const CMappedEncoding*>(encoding.get());
+            visitor.addTargetMeanEncoding(enc->inputColumnIndex(), enc->map(),
+                                          enc->fallback());
+        }
+    }
 }
 
 CDataFrameCategoryEncoder::CEncoding::CEncoding(std::size_t inputColumnIndex, double mic)
@@ -440,6 +467,10 @@ const std::string& CDataFrameCategoryEncoder::COneHotEncoding::typeString() cons
     return ONE_HOT_ENCODING_TAG;
 }
 
+size_t CDataFrameCategoryEncoder::COneHotEncoding::hotCategory() const {
+    return m_HotCategory;
+}
+
 CDataFrameCategoryEncoder::CMappedEncoding::CMappedEncoding(std::size_t inputColumnIndex,
                                                             double mic,
                                                             EEncoding encoding,
@@ -496,6 +527,14 @@ bool CDataFrameCategoryEncoder::CMappedEncoding::acceptRestoreTraverserForDerive
 const std::string& CDataFrameCategoryEncoder::CMappedEncoding::typeString() const {
     return (m_Encoding == EEncoding::E_Frequency) ? FREQUENCY_ENCODING_TAG
                                                   : TARGET_MEAN_ENCODING_TAG;
+}
+
+const TDoubleVec& CDataFrameCategoryEncoder::CMappedEncoding::map() const {
+    return m_Map;
+}
+
+double CDataFrameCategoryEncoder::CMappedEncoding::fallback() const {
+    return m_Fallback;
 }
 
 CMakeDataFrameCategoryEncoder::CMakeDataFrameCategoryEncoder(std::size_t numberThreads,

@@ -44,6 +44,7 @@ namespace api {
 class API_EXPORT CDataFrameAnalysisSpecification {
 public:
     using TBoolVec = std::vector<bool>;
+    using TSizeVec = std::vector<std::size_t>;
     using TStrVec = std::vector<std::string>;
     using TDataFrameUPtr = std::unique_ptr<core::CDataFrame>;
     using TTemporaryDirectoryPtr = std::shared_ptr<core::CTemporaryDirectory>;
@@ -163,11 +164,11 @@ public:
     //! thread. It is expected that the caller will mainly sleep and wake up
     //! periodically to report progess, errors and see if it has finished.
     //!
-    //! \return frame The data frame to analyse.
+    //! \return A handle to the analysis runner.
     //! \note The commit of the results of the analysis is atomic per partition.
     //! \warning This assumes that there is no access to the data frame in the
     //! calling thread until the runner has finished.
-    CDataFrameAnalysisRunner* run(const TStrVec& featureNames, core::CDataFrame& frame) const;
+    CDataFrameAnalysisRunner* run(core::CDataFrame& frame) const;
 
     //! Estimates memory usage in two cases:
     //!   1. disk is not used (the whole data frame fits in main memory)
@@ -181,6 +182,9 @@ public:
     TDataAdderUPtr persister() const;
 
     TDataSearcherUPtr restoreSearcher() const;
+
+    //! Get pointer to the analysis runner.
+    const CDataFrameAnalysisRunner* runner();
 
 private:
     void initializeRunner(const rapidjson::Value& jsonAnalysis);
