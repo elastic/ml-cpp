@@ -63,14 +63,6 @@ private:
     std::int64_t m_MemoryUsage;
 };
 
-std::size_t lossGradientColumn(std::size_t numberColumns) {
-    return numberColumns - 2;
-}
-
-std::size_t lossCurvatureColumn(std::size_t numberColumns) {
-    return numberColumns - 1;
-}
-
 double readPrediction(const TRowRef& row) {
     return row[predictionColumn(row.numberColumns())];
 }
@@ -81,6 +73,10 @@ double readLossGradient(const TRowRef& row) {
 
 double readLossCurvature(const TRowRef& row) {
     return row[lossCurvatureColumn(row.numberColumns())];
+}
+
+double readExampleWeight(const TRowRef& row) {
+    return row[exampleWeightColumn(row.numberColumns())];
 }
 
 double readActual(const TRowRef& row, std::size_t dependentVariable) {
@@ -372,12 +368,6 @@ const CBoostedTreeImpl::TNodeVecVec& CBoostedTreeImpl::trainedModel() const {
 
 std::size_t CBoostedTreeImpl::columnHoldingDependentVariable() const {
     return m_DependentVariable;
-}
-
-std::size_t CBoostedTreeImpl::numberExtraColumnsForTrain() {
-    // We store the gradient and curvature of the loss function and the predicted
-    // value for the dependent variable of the regression in the data frame.
-    return 3;
 }
 
 std::size_t CBoostedTreeImpl::estimateMemoryUsage(std::size_t numberRows,
@@ -773,12 +763,12 @@ void CBoostedTreeImpl::refreshPredictionsAndLossDerivatives(core::CDataFrame& fr
             m_NumberThreads, 0, frame.numberRows(),
             core::bindRetrievableState(
                 [&](TArgMinLossVec& leafValues_, TRowItr beginRows, TRowItr endRows) {
-                    for (auto itr = beginRows; itr != endRows; ++itr) {
-                        const TRowRef& row{*itr};
-                        double prediction{readPrediction(row)};
-                        double actual{readActual(row, m_DependentVariable)};
-                        leafValues_[root(tree).leafIndex(m_Encoder->encode(row), tree)]
-                            .add(prediction, actual);
+                    for (auto row = beginRows; row != endRows; ++row) {
+                        double prediction{readPrediction(*row)};
+                        double actual{readActual(*row, m_DependentVariable)};
+                        double weight{readExampleWeight(*row)};
+                        leafValues_[root(tree).leafIndex(m_Encoder->encode(*row), tree)]
+                            .add(prediction, actual, weight);
                     }
                 },
                 std::move(leafValues)),
@@ -806,15 +796,16 @@ void CBoostedTreeImpl::refreshPredictionsAndLossDerivatives(core::CDataFrame& fr
                     double prediction{readPrediction(*row) +
                                       root(tree).value(m_Encoder->encode(*row), tree)};
                     double actual{readActual(*row, m_DependentVariable)};
+                    double weight{readExampleWeight(*row)};
 
                     std::size_t numberColumns{row->numberColumns()};
                     row->writeColumn(predictionColumn(numberColumns), prediction);
                     row->writeColumn(lossGradientColumn(numberColumns),
-                                     m_Loss->gradient(prediction, actual));
+                                     m_Loss->gradient(prediction, actual, weight));
                     row->writeColumn(lossCurvatureColumn(numberColumns),
-                                     m_Loss->curvature(prediction, actual));
+                                     m_Loss->curvature(prediction, actual, weight));
 
-                    loss += m_Loss->value(prediction, actual);
+                    loss += m_Loss->value(prediction, actual, weight);
                 }
             },
             0.0 /*total loss*/),

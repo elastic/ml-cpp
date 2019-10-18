@@ -59,11 +59,11 @@ CBoostedTreeFactory::buildFor(core::CDataFrame& frame,
     m_TreeImpl->m_Loss = std::move(loss);
 
     this->initializeMissingFeatureMasks(frame);
-    this->initializeCrossValidationRowMasks(frame);
 
     frame.resizeColumns(m_TreeImpl->m_NumberThreads,
                         frame.numberColumns() + this->numberExtraColumnsForTrain());
 
+    this->initializeCrossValidation(frame);
     this->selectFeaturesAndEncodeCategories(frame);
     this->determineFeatureDataTypes(frame);
 
@@ -184,23 +184,45 @@ void CBoostedTreeFactory::initializeMissingFeatureMasks(const core::CDataFrame& 
     }
 }
 
-void CBoostedTreeFactory::initializeCrossValidationRowMasks(const core::CDataFrame& frame) const {
+void CBoostedTreeFactory::initializeCrossValidation(core::CDataFrame& frame) const {
 
     core::CPackedBitVector allTrainingRowsMask{m_TreeImpl->allTrainingRowsMask()};
 
-    TDoubleVec frequencies(frame.numberRows());
+    TDoubleVec frequencies;
+    core::CDataFrame::TRowFunc writeRowWeight;
+
     if (frame.columnIsCategorical()[m_TreeImpl->m_DependentVariable]) {
         std::tie(m_TreeImpl->m_TrainingRowMasks, m_TreeImpl->m_TestingRowMasks, frequencies) =
             CDataFrameUtils::stratifiedCrossValidationRowMasks(
-                m_TreeImpl->m_NumberThreads, frame,
-                m_TreeImpl->m_DependentVariable, m_TreeImpl->m_Rng,
-                m_TreeImpl->m_NumberFolds, std::move(allTrainingRowsMask));
+                m_TreeImpl->m_NumberThreads, frame, m_TreeImpl->m_DependentVariable,
+                m_TreeImpl->m_Rng, m_TreeImpl->m_NumberFolds, allTrainingRowsMask);
+
+        // Weight by inverse category frequency.
+        writeRowWeight = [&](TRowItr beginRows, TRowItr endRows) {
+            for (auto row = beginRows; row != endRows; ++row) {
+                if (m_BalanceWithinClassAccuracy) {
+                    std::size_t category{static_cast<std::size_t>(
+                        (*row)[m_TreeImpl->m_DependentVariable])};
+                    row->writeColumn(exampleWeightColumn(row->numberColumns()),
+                                     1.0 / frequencies[category]);
+                } else {
+                    row->writeColumn(exampleWeightColumn(row->numberColumns()), 1.0);
+                }
+            }
+        };
     } else {
         std::tie(m_TreeImpl->m_TrainingRowMasks, m_TreeImpl->m_TestingRowMasks) =
-            CDataFrameUtils::crossValidationRowMasks(m_TreeImpl->m_Rng,
-                                                     m_TreeImpl->m_NumberFolds,
-                                                     std::move(allTrainingRowsMask));
+            CDataFrameUtils::crossValidationRowMasks(
+                m_TreeImpl->m_Rng, m_TreeImpl->m_NumberFolds, allTrainingRowsMask);
+        writeRowWeight = [&](TRowItr beginRows, TRowItr endRows) {
+            for (auto row = beginRows; row != endRows; ++row) {
+                row->writeColumn(exampleWeightColumn(row->numberColumns()), 1.0);
+            }
+        };
     }
+
+    frame.writeColumns(m_NumberThreads, 0, frame.numberRows(), writeRowWeight,
+                       &allTrainingRowsMask);
 }
 
 void CBoostedTreeFactory::selectFeaturesAndEncodeCategories(const core::CDataFrame& frame) const {
@@ -347,6 +369,8 @@ void CBoostedTreeFactory::initializeUnsetRegularizationHyperparameters(core::CDa
     double totalCurvaturePerNode;
     std::tie(gainPerNode, totalCurvaturePerNode) =
         this->estimateTreeGainAndCurvature(frame, allTrainingRowsMask);
+    LOG_TRACE(<< "gain per node = " << gainPerNode
+              << " total curvature per node = " << totalCurvaturePerNode);
 
     if (m_TreeImpl->m_RegularizationOverride.depthPenaltyMultiplier() == boost::none) {
         if (gainPerNode > 0.0) {
@@ -747,6 +771,11 @@ CBoostedTreeFactory& CBoostedTreeFactory::rowsPerFeature(std::size_t rowsPerFeat
     return *this;
 }
 
+CBoostedTreeFactory& CBoostedTreeFactory::balanceWithinClassAccuracy(bool balance) {
+    m_BalanceWithinClassAccuracy = balance;
+    return *this;
+}
+
 CBoostedTreeFactory& CBoostedTreeFactory::progressCallback(TProgressCallback callback) {
     m_RecordProgress = std::move(callback);
     return *this;
@@ -781,7 +810,7 @@ std::size_t CBoostedTreeFactory::estimateMemoryUsage(std::size_t numberRows,
 }
 
 std::size_t CBoostedTreeFactory::numberExtraColumnsForTrain() const {
-    return m_TreeImpl->numberExtraColumnsForTrain();
+    return CBoostedTreeImpl::numberExtraColumnsForTrain();
 }
 
 void CBoostedTreeFactory::initializeTrainingProgressMonitoring() {

@@ -338,7 +338,7 @@ CDataFrameUtils::stratifiedCrossValidationRowMasks(std::size_t numberThreads,
     using TRowSamplerVec = std::vector<TRowSampler>;
 
     TDoubleVec frequencies{categoryFrequencies(
-        numberThreads, frame, allTrainingRowsMask, {targetColumn})[0]};
+        numberThreads, frame, allTrainingRowsMask, {targetColumn})[targetColumn]};
 
     TSizeVec categoryCounts;
     categoryCounts.reserve(frequencies.size());
@@ -769,6 +769,7 @@ CDataFrameUtils::metricMicWithColumnDataFrameInMemory(const CColumnValue& target
 
     TFloatVecVec samples;
     samples.reserve(numberSamples);
+    double numberMaskedRows{rowMask.manhattan()};
 
     for (auto i : columnMask) {
 
@@ -792,7 +793,7 @@ CDataFrameUtils::metricMicWithColumnDataFrameInMemory(const CColumnValue& target
         LOG_TRACE(<< "# samples = " << samples.size());
 
         double fractionMissing{static_cast<double>(missingCount.first[0].s_FunctionState) /
-                               static_cast<double>(frame.numberRows())};
+                               numberMaskedRows};
         LOG_TRACE(<< "feature = " << i << " fraction missing = " << fractionMissing);
 
         // Compute MICe
@@ -821,6 +822,7 @@ CDataFrameUtils::metricMicWithColumnDataFrameOnDisk(const CColumnValue& target,
 
     TFloatVecVec samples;
     samples.reserve(numberSamples);
+    double numberMaskedRows{rowMask.manhattan()};
 
     // Do sampling
 
@@ -845,8 +847,8 @@ CDataFrameUtils::metricMicWithColumnDataFrameOnDisk(const CColumnValue& target,
     TDoubleVec fractionMissing(frame.numberColumns());
     for (std::size_t i = 0; i < fractionMissing.size(); ++i) {
         for (const auto& missingCount : missingCounts.first) {
-            fractionMissing[i] += static_cast<double>(missingCount.s_FunctionState[i]) /
-                                  static_cast<double>(frame.numberRows());
+            fractionMissing[i] +=
+                static_cast<double>(missingCount.s_FunctionState[i]) / numberMaskedRows;
         }
     }
     LOG_TRACE(<< "Fraction missing = " << core::CContainerPrinter::print(fractionMissing));

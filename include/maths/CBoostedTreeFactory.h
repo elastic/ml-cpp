@@ -83,6 +83,10 @@ public:
     CBoostedTreeFactory& bayesianOptimisationRestarts(std::size_t restarts);
     //! Set the number of training examples we need per feature we'll include.
     CBoostedTreeFactory& rowsPerFeature(std::size_t rowsPerFeature);
+    //! Set whether to try and balance within class accuracy. For classification
+    //! this reweights examples so approximately the same total loss is assigned
+    //! to every class.
+    CBoostedTreeFactory& balanceWithinClassAccuracy(bool balance);
     //! Set the callback function for progress monitoring.
     CBoostedTreeFactory& progressCallback(TProgressCallback callback);
     //! Set the callback function for memory monitoring.
@@ -124,11 +128,8 @@ private:
     //! Compute the row masks for the missing values for each feature.
     void initializeMissingFeatureMasks(const core::CDataFrame& frame) const;
 
-    //! Compute the (train, test) row masks for performing cross validation.
-    void initializeCrossValidationRowMasks(const core::CDataFrame& frame) const;
-
-    //! Set the example weights.
-    void initializeExampleWeights(const TPackedBitVectorVec& trainRowMasks) const;
+    //! Set up cross validation.
+    void initializeCrossValidation(core::CDataFrame& frame) const;
 
     //! Encode categorical fields and at the same time select the features to use
     //! as regressors.
@@ -183,6 +184,7 @@ private:
 private:
     TOptionalDouble m_MinimumFrequencyToOneHotEncode;
     TOptionalSize m_BayesianOptimisationRestarts;
+    bool m_BalanceWithinClassAccuracy = true;
     std::size_t m_NumberThreads;
     TBoostedTreeImplUPtr m_TreeImpl;
     TVector m_LogDepthPenaltyMultiplierSearchInterval;
