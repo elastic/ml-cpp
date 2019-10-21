@@ -246,7 +246,7 @@ void CBoostedTreeTest::testPiecewiseConstant() {
             0.0, modelBias[i][0],
             4.0 * std::sqrt(noiseVariance / static_cast<double>(trainRows)));
         // Good R^2...
-        CPPUNIT_ASSERT(modelRSquared[i][0] > 0.96);
+        CPPUNIT_ASSERT(modelRSquared[i][0] > 0.95);
 
         meanModelRSquared.add(modelRSquared[i][0]);
     }
@@ -369,7 +369,7 @@ void CBoostedTreeTest::testNonLinear() {
             0.0, modelBias[i][0],
             4.0 * std::sqrt(noiseVariance / static_cast<double>(trainRows)));
         // Good R^2...
-        CPPUNIT_ASSERT(modelRSquared[i][0] > 0.96);
+        CPPUNIT_ASSERT(modelRSquared[i][0] > 0.95);
 
         meanModelRSquared.add(modelRSquared[i][0]);
     }
@@ -759,7 +759,7 @@ void CBoostedTreeTest::testTranslationInvariance() {
         rsquared.push_back(modelRSquared);
     }
 
-    CPPUNIT_ASSERT_DOUBLES_EQUAL(rsquared[0], rsquared[1], 5e-3);
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(rsquared[0], rsquared[1], 0.01);
 }
 
 std::size_t maxDepth(const std::vector<maths::CBoostedTreeNode>& tree,
@@ -1130,7 +1130,7 @@ void CBoostedTreeTest::testLogisticRegression() {
         LOG_DEBUG(<< "log relative error = "
                   << maths::CBasicStatistics::mean(logRelativeError));
 
-        CPPUNIT_ASSERT(maths::CBasicStatistics::mean(logRelativeError) < 0.65);
+        CPPUNIT_ASSERT(maths::CBasicStatistics::mean(logRelativeError) < 0.7);
     }
 }
 
