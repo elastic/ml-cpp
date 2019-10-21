@@ -8,6 +8,7 @@
 
 #include <core/CLoopProgress.h>
 #include <core/CPersistUtils.h>
+#include <core/CProgramCounters.h>
 
 #include <maths/CBasicStatisticsPersist.h>
 #include <maths/CBayesianOptimisation.h>
@@ -321,6 +322,9 @@ void CBoostedTreeImpl::train(core::CDataFrame& frame,
 
         m_BestForest = this->trainForest(frame, this->allTrainingRowsMask(), recordMemoryUsage);
         this->recordState(recordTrainStateCallback);
+
+        core::CProgramCounters::counter(counter_t::E_DFTPMTrainedForestNumberTrees) =
+            m_BestForest.size();
     }
 
     // Force to at least one here because we can have early exit from loop or take

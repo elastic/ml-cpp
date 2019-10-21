@@ -10,6 +10,7 @@
 #include <core/CDataFrame.h>
 #include <core/CDataSearcher.h>
 #include <core/CFloatStorage.h>
+#include <core/CProgramCounters.h>
 
 #include <maths/CLinearAlgebraEigen.h>
 
@@ -195,9 +196,12 @@ void CBoostedTreeInferenceModelBuilderTest::testIntegrationRegression() {
     CPPUNIT_ASSERT(oneHot && target && frequency);
 
     // assert trained model
-    auto trainedModel = dynamic_cast<api::CEnsemble*>(definition->trainedModel().get());
+    auto* trainedModel =
+        dynamic_cast<api::CEnsemble*>(definition->trainedModel().get());
     CPPUNIT_ASSERT_EQUAL(api::CTrainedModel::E_Regression, trainedModel->targetType());
-    CPPUNIT_ASSERT_EQUAL(std::size_t(22), trainedModel->size());
+    std::size_t expectedSize{core::CProgramCounters::counter(
+        ml::counter_t::E_DFTPMTrainedForestNumberTrees)};
+    CPPUNIT_ASSERT_EQUAL(expectedSize, trainedModel->size());
     CPPUNIT_ASSERT("weighted_sum" == trainedModel->aggregateOutput()->stringType());
 }
 
@@ -247,7 +251,9 @@ void CBoostedTreeInferenceModelBuilderTest::testIntegrationClassification() {
     // assert trained model
     auto trainedModel = dynamic_cast<api::CEnsemble*>(definition->trainedModel().get());
     CPPUNIT_ASSERT_EQUAL(api::CTrainedModel::E_Classification, trainedModel->targetType());
-    CPPUNIT_ASSERT_EQUAL(std::size_t(5), trainedModel->size());
+    std::size_t expectedSize{core::CProgramCounters::counter(
+        ml::counter_t::E_DFTPMTrainedForestNumberTrees)};
+    CPPUNIT_ASSERT_EQUAL(expectedSize, trainedModel->size());
     CPPUNIT_ASSERT("logistic_regression" == trainedModel->aggregateOutput()->stringType());
 }
 
