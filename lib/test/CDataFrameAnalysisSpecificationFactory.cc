@@ -117,7 +117,7 @@ test::CDataFrameAnalysisSpecificationFactory::predictionSpec(
 
     std::string spec{api::CDataFrameAnalysisSpecificationJsonWriter::jsonString(
         "testJob", rows, cols, memoryLimit, 1, categoricalFieldNames, true,
-        test::CTestTmpDir::tmpDir(), "ml", analysis, parameters)};
+        CTestTmpDir::tmpDir(), "ml", analysis, parameters)};
 
     LOG_TRACE(<< "spec =\n" << spec);
 
