@@ -219,7 +219,7 @@ public:
     //! List of the field names.
     const TStringVec& fieldNames() const;
     //! List of the field names.
-    void fieldNames(const TStringVec& columns);
+    void fieldNames(TStringVec&& fieldNames);
 
 private:
     //! List of the column names.
@@ -233,6 +233,7 @@ public:
     void addToDocument(rapidjson::Value& parentObject, TRapidJsonWriter& writer) const override;
     //! Input field name. Must be defined in the input section.
     void field(const std::string& field);
+    const std::string& field() const;
     //! Encoding type as string.
     virtual const std::string& typeString() const = 0;
 
@@ -324,9 +325,12 @@ public:
     std::unique_ptr<CTrainedModel>& trainedModel();
     void addToDocument(rapidjson::Value& parentObject, TRapidJsonWriter& writer) const override;
     std::string jsonString();
-    void fieldNames(const TStringVec& fieldNames);
+    void fieldNames(TStringVec&& fieldNames, std::size_t dependentVariableColumnIndex);
+    const TStringVec& fieldNames() const;
     const std::string& typeString() const;
     void typeString(const std::string& typeString);
+    size_t dependentVariableColumnIndex() const;
+    void dependentVariableColumnIndex(size_t dependentVariableColumnIndex);
 
 private:
     //! Information related to the input.
@@ -337,6 +341,7 @@ private:
     std::unique_ptr<CTrainedModel> m_TrainedModel;
     TStringVec m_FieldNames;
     std::string m_TypeString;
+    std::size_t m_DependentVariableColumnIndex;
 };
 }
 }
