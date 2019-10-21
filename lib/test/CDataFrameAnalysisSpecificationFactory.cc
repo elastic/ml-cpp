@@ -49,7 +49,7 @@ test::CDataFrameAnalysisSpecificationFactory::outlierSpec(std::size_t rows,
 
     std::string spec{api::CDataFrameAnalysisSpecificationJsonWriter::jsonString(
         "testJob", rows, cols, memoryLimit, 1, {}, true,
-        test::CTestTmpDir::tmpDir(), "ml", "outlier_detection", parameters)};
+        CTestTmpDir::tmpDir(), "ml", "outlier_detection", parameters)};
 
     LOG_DEBUG(<< "spec =\n" << spec);
 
