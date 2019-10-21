@@ -12,6 +12,8 @@
 
 #include <api/CDataFrameAnalysisSpecification.h>
 
+#include <test/ImportExport.h>
+
 #include <cstddef>
 #include <memory>
 #include <string>
@@ -23,9 +25,9 @@ namespace test {
 class TEST_EXPORT CDataFrameAnalysisSpecificationFactory {
 public:
     using TStrVec = std::vector<std::string>;
-    using TDataAdderUPtr = std::unique_ptr<ml::core::CDataAdder>;
+    using TDataAdderUPtr = std::unique_ptr<core::CDataAdder>;
     using TPersisterSupplier = std::function<TDataAdderUPtr()>;
-    using TDataSearcherUPtr = std::unique_ptr<ml::core::CDataSearcher>;
+    using TDataSearcherUPtr = std::unique_ptr<core::CDataSearcher>;
     using TRestoreSearcherSupplier = std::function<TDataSearcherUPtr()>;
     using TSpecificationUPtr = std::unique_ptr<api::CDataFrameAnalysisSpecification>;
 

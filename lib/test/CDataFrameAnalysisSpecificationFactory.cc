@@ -48,8 +48,8 @@ test::CDataFrameAnalysisSpecificationFactory::outlierSpec(std::size_t rows,
     parameters += "}\n";
 
     std::string spec{api::CDataFrameAnalysisSpecificationJsonWriter::jsonString(
-        "testJob", rows, cols, memoryLimit, 1, {}, true,
-        CTestTmpDir::tmpDir(), "ml", "outlier_detection", parameters)};
+        "testJob", rows, cols, memoryLimit, 1, {}, true, CTestTmpDir::tmpDir(),
+        "ml", "outlier_detection", parameters)};
 
     LOG_DEBUG(<< "spec =\n" << spec);
 
@@ -137,6 +137,6 @@ test::CDataFrameAnalysisSpecificationFactory::diskUsageTestSpec(std::size_t rows
                                                                 bool diskUsageAllowed) {
     std::string spec{api::CDataFrameAnalysisSpecificationJsonWriter::jsonString(
         "testJob", rows, cols, 500000, 1, {}, diskUsageAllowed,
-        test::CTestTmpDir::tmpDir(), "", "outlier_detection", "")};
+        CTestTmpDir::tmpDir(), "", "outlier_detection", "")};
     return std::make_unique<api::CDataFrameAnalysisSpecification>(spec);
 }
