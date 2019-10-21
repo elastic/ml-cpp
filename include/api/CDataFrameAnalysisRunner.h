@@ -10,6 +10,7 @@
 #include <core/CFastMutex.h>
 #include <core/CStatePersistInserter.h>
 
+#include <api/CInferenceModelDefinition.h>
 #include <api/ImportExport.h>
 
 #include <rapidjson/fwd.h>
@@ -63,6 +64,8 @@ public:
     using TStrVec = std::vector<std::string>;
     using TRowRef = core::data_frame_detail::CRowRef;
     using TProgressRecorder = std::function<void(double)>;
+    using TStrVecVec = std::vector<TStrVec>;
+    using TInferenceModelDefinitionUPtr = std::unique_ptr<CInferenceModelDefinition>;
 
 public:
     //! The intention is that concrete objects of this hierarchy are constructed
@@ -137,6 +140,9 @@ public:
     //! \return The progress of the analysis in the range [0,1] being an estimate
     //! of the proportion of total work complete for a single run.
     double progress() const;
+
+    virtual TInferenceModelDefinitionUPtr
+    inferenceModelDefinition(const TStrVec& fieldNames, const TStrVecVec& categoryNames) const;
 
 protected:
     using TStatePersister =

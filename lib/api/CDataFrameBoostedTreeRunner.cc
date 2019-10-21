@@ -19,8 +19,11 @@
 
 #include <api/CDataFrameAnalysisConfigReader.h>
 #include <api/CDataFrameAnalysisSpecification.h>
+#include <api/CInferenceModelDefinition.h>
 #include <api/ElasticsearchStateIndex.h>
 
+#include <api/CBoostedTreeInferenceModelBuilder.h>
+#include <core/CJsonStatePersistInserter.h>
 #include <rapidjson/document.h>
 
 namespace ml {
