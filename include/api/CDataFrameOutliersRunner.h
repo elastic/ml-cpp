@@ -22,7 +22,7 @@ class API_EXPORT CDataFrameOutliersRunner final : public CDataFrameAnalysisRunne
 public:
     //! This is not intended to be called directly: use CDataFrameOutliersRunnerFactory.
     CDataFrameOutliersRunner(const CDataFrameAnalysisSpecification& spec,
-                             const CDataFrameAnalysisConfigReader::CParameters& parameters);
+                             const CDataFrameAnalysisParameters& parameters);
 
     //! This is not intended to be called directly: use CDataFrameOutliersRunnerFactory.
     CDataFrameOutliersRunner(const CDataFrameAnalysisSpecification& spec);

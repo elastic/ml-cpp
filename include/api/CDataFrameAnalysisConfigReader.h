@@ -20,6 +20,7 @@
 
 namespace ml {
 namespace api {
+class CDataFrameAnalysisParameters;
 
 //! \brief Reads and validates parameters for a data frame analysis.
 //!
@@ -139,21 +140,6 @@ public:
         bool m_ArrayElement = false;
     };
 
-    //! \brief A collection of all parameters which have been read.
-    class API_EXPORT CParameters {
-    public:
-        //! Add \p parameter.
-        void add(const CParameter& parameter) {
-            m_ParameterValues.push_back(parameter);
-        }
-
-        //! Get the parameter called \p name.
-        CParameter operator[](const std::string& name) const;
-
-    private:
-        std::vector<CParameter> m_ParameterValues;
-    };
-
 public:
     //! Register a parameter.
     //!
@@ -165,7 +151,7 @@ public:
                       TStrIntMap permittedValues = TStrIntMap{});
 
     //! Extract the parameters from a JSON object.
-    CParameters read(const rapidjson::Value& json) const;
+    CDataFrameAnalysisParameters read(const rapidjson::Value& json) const;
 
 private:
     //! Reads a parameter from the JSON configuration object.
@@ -187,6 +173,30 @@ private:
 
 private:
     std::vector<CParameterReader> m_ParameterReaders;
+};
+
+//! \brief A collection of all the data frame analysis parameters which have been read.
+class API_EXPORT CDataFrameAnalysisParameters {
+public:
+    using TParameter = CDataFrameAnalysisConfigReader::CParameter;
+
+    //! Add \p parameter.
+    void add(const CDataFrameAnalysisConfigReader::CParameter& parameter) {
+        m_ParameterValues.push_back(parameter);
+    }
+
+    //! Get the parameter called \p name.
+    TParameter operator[](const std::string& name) const {
+        for (const auto& value : m_ParameterValues) {
+            if (name == value.name()) {
+                return value;
+            }
+        }
+        return TParameter{name};
+    }
+
+private:
+    std::vector<TParameter> m_ParameterValues;
 };
 }
 }

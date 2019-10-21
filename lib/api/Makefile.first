@@ -30,10 +30,10 @@ CDataFrameAnalysisRunner.cc \
 CDataFrameAnalysisSpecification.cc \
 CDataFrameAnalysisSpecificationJsonWriter.cc \
 CDataFrameAnalyzer.cc \
-CDataFrameBoostedTreeRunner.cc \
-CDataFrameClassificationRunner.cc \
 CDataFrameOutliersRunner.cc \
-CDataFrameRegressionRunner.cc \
+CDataFrameTrainBoostedTreeRunner.cc \
+CDataFrameTrainBoostedTreeClassifierRunner.cc \
+CDataFrameTrainBoostedTreeRegressionRunner.cc \
 CDataProcessor.cc \
 CDataTyper.cc \
 CDetectionRulesJsonParser.cc \

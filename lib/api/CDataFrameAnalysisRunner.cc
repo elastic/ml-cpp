@@ -38,7 +38,7 @@ const std::size_t MAXIMUM_FRACTIONAL_PROGRESS{std::size_t{1}
 }
 
 CDataFrameAnalysisRunner::CDataFrameAnalysisRunner(const CDataFrameAnalysisSpecification& spec)
-    : m_Spec{spec}, m_Finished{false}, m_FractionalProgress{0} {
+    : m_Spec{spec}, m_Finished{false}, m_FractionalProgress{0}, m_Memory{0} {
 }
 
 CDataFrameAnalysisRunner::~CDataFrameAnalysisRunner() {
@@ -179,6 +179,20 @@ const CDataFrameAnalysisSpecification& CDataFrameAnalysisRunner::spec() const {
 CDataFrameAnalysisRunner::TProgressRecorder CDataFrameAnalysisRunner::progressRecorder() {
     return [this](double fractionalProgress) {
         this->recordProgress(fractionalProgress);
+    };
+}
+
+CDataFrameAnalysisRunner::TMemoryMonitor
+CDataFrameAnalysisRunner::memoryMonitor(counter_t::ECounterTypes counter) {
+    return [counter, this](std::int64_t delta) {
+        std::int64_t memory{m_Memory.fetch_add(delta)};
+        if (memory >= 0) {
+            core::CProgramCounters::counter(counter).max(memory);
+        } else {
+            // Something has gone wrong with memory estimation. Trap this case
+            // to avoid underflowing the peak memory usage statistic.
+            LOG_DEBUG(<< "Memory estimate " << memory << " is negative!");
+        }
     };
 }
 

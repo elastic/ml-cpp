@@ -10,9 +10,9 @@
 #include <core/CLogger.h>
 
 #include <api/CDataFrameAnalysisConfigReader.h>
-#include <api/CDataFrameClassificationRunner.h>
 #include <api/CDataFrameOutliersRunner.h>
-#include <api/CDataFrameRegressionRunner.h>
+#include <api/CDataFrameTrainBoostedTreeClassifierRunner.h>
+#include <api/CDataFrameTrainBoostedTreeRegressionRunner.h>
 #include <api/CMemoryUsageEstimationResultJsonWriter.h>
 
 #include <rapidjson/document.h>
@@ -47,8 +47,10 @@ using TRunnerFactoryUPtrVec = ml::api::CDataFrameAnalysisSpecification::TRunnerF
 
 TRunnerFactoryUPtrVec analysisFactories() {
     TRunnerFactoryUPtrVec factories;
-    factories.push_back(std::make_unique<ml::api::CDataFrameRegressionRunnerFactory>());
-    factories.push_back(std::make_unique<ml::api::CDataFrameClassificationRunnerFactory>());
+    factories.push_back(
+        std::make_unique<ml::api::CDataFrameTrainBoostedTreeRegressionRunnerFactory>());
+    factories.push_back(
+        std::make_unique<ml::api::CDataFrameTrainBoostedTreeClassifierRunnerFactory>());
     factories.push_back(std::make_unique<ml::api::CDataFrameOutliersRunnerFactory>());
     // Add new analysis types here.
     return factories;

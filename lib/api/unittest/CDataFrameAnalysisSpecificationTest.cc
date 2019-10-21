@@ -13,9 +13,9 @@
 #include <api/CDataFrameAnalysisRunner.h>
 #include <api/CDataFrameAnalysisSpecification.h>
 #include <api/CDataFrameAnalysisSpecificationJsonWriter.h>
-#include <api/CDataFrameClassificationRunner.h>
 #include <api/CDataFrameOutliersRunner.h>
-#include <api/CDataFrameRegressionRunner.h>
+#include <api/CDataFrameTrainBoostedTreeClassifierRunner.h>
+#include <api/CDataFrameTrainBoostedTreeRegressionRunner.h>
 
 #include <test/CTestTmpDir.h>
 
@@ -48,9 +48,9 @@ void CDataFrameAnalysisSpecificationTest::testCreate() {
     auto runnerFactories = []() {
         TRunnerFactoryUPtr outliers{std::make_unique<api::CDataFrameOutliersRunnerFactory>()};
         TRunnerFactoryUPtr regression{
-            std::make_unique<api::CDataFrameRegressionRunnerFactory>()};
+            std::make_unique<api::CDataFrameTrainBoostedTreeRegressionRunnerFactory>()};
         TRunnerFactoryUPtr classification{
-            std::make_unique<api::CDataFrameClassificationRunnerFactory>()};
+            std::make_unique<api::CDataFrameTrainBoostedTreeClassifierRunnerFactory>()};
         TRunnerFactoryUPtrVec factories;
         factories.push_back(std::move(outliers));
         factories.push_back(std::move(regression));
