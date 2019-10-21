@@ -20,7 +20,7 @@
 namespace ml {
 namespace test {
 //! \brief Collection of helping methods to create data frame analysis specifications for tests.
-class CDataFrameAnalysisSpecificationFactory {
+class TEST_EXPORT CDataFrameAnalysisSpecificationFactory {
 public:
     using TStrVec = std::vector<std::string>;
     using TDataAdderUPtr = std::unique_ptr<ml::core::CDataAdder>;
