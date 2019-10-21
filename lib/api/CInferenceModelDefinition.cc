@@ -8,7 +8,7 @@
 #include <core/CPersistUtils.h>
 #include <core/CRapidJsonLineWriter.h>
 
-#include <unordered_map>
+#include <unordered_set>
 
 namespace ml {
 namespace api {
@@ -119,6 +119,18 @@ CTree::CTreeNode::CTreeNode(TNodeIndex nodeIndex,
       m_Threshold(threshold), m_LeafValue(leafValue), m_SplitGain(splitGain) {
 }
 
+size_t CTree::CTreeNode::splitFeature() const {
+    return m_SplitFeature;
+}
+
+void CTree::CTreeNode::splitFeature(size_t splitFeature) {
+    m_SplitFeature = splitFeature;
+}
+
+bool CTree::CTreeNode::leaf() const {
+    return m_LeftChild.is_initialized() == false;
+}
+
 void CEnsemble::addToDocument(rapidjson::Value& parentObject, TRapidJsonWriter& writer) const {
     rapidjson::Value ensembleObject = writer.makeObject();
     this->CTrainedModel::addToDocument(ensembleObject, writer);
@@ -171,6 +183,21 @@ CTrainedModel::ETargetType CEnsemble::targetType() const {
     return this->CTrainedModel::targetType();
 }
 
+CTrainedModel::TStringVec CEnsemble::removeUnusedFeatures() {
+    TStringVec selectedFeatureNames;
+    selectedFeatureNames.reserve(this->featureNames().size());
+    std::unordered_set<std::string> set;
+    for (auto& trainedModel : this->trainedModels()) {
+        TStringVec vec(std::move(trainedModel->removeUnusedFeatures()));
+        set.insert(vec.begin(), vec.end());
+    }
+    std::copy(set.begin(), set.end(), std::back_inserter(selectedFeatureNames));
+    selectedFeatureNames.shrink_to_fit();
+    std::sort(selectedFeatureNames.begin(), selectedFeatureNames.end());
+    this->CTrainedModel::featureNames(selectedFeatureNames);
+    return selectedFeatureNames;
+}
+
 const CTrainedModel::TStringVec& CEnsemble::featureNames() const {
     return this->CTrainedModel::featureNames();
 }
@@ -194,6 +221,26 @@ std::size_t CTree::size() const {
 
 CTree::TTreeNodeVec& CTree::treeStructure() {
     return m_TreeStructure;
+}
+
+CTrainedModel::TStringVec CTree::removeUnusedFeatures() {
+    boost::unordered_map<std::size_t, std::size_t> selectedFeatureIndices;
+    for (auto& treeNode : m_TreeStructure) {
+        if (treeNode.leaf() == false) {
+            std::size_t adjustedIndex{selectedFeatureIndices
+                                          .emplace(treeNode.splitFeature(),
+                                                   selectedFeatureIndices.size())
+                                          .first->second};
+            treeNode.splitFeature(adjustedIndex);
+        }
+    }
+    TStringVec selectedFeatureNames(selectedFeatureIndices.size());
+    auto& featureNames = this->featureNames();
+    for (auto i = selectedFeatureIndices.begin(); i != selectedFeatureIndices.end(); ++i) {
+        selectedFeatureNames[i->second] = std::move(featureNames[i->first]);
+    }
+    this->featureNames(std::move(selectedFeatureNames));
+    return this->featureNames();
 }
 
 std::string CInferenceModelDefinition::jsonString() {
@@ -273,6 +320,14 @@ void CTrainedModel::targetType(ETargetType targetType) {
 
 CTrainedModel::ETargetType CTrainedModel::targetType() const {
     return m_TargetType;
+}
+
+CTrainedModel::TStringVec& CTrainedModel::featureNames() {
+    return m_FeatureNames;
+}
+
+void CTrainedModel::featureNames(CTrainedModel::TStringVec&& featureNames) {
+    m_FeatureNames = featureNames;
 }
 
 void CInferenceModelDefinition::fieldNames(const TStringVec& fieldNames) {

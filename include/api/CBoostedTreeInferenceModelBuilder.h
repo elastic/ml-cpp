@@ -30,7 +30,7 @@ public:
 public:
     CBoostedTreeInferenceModelBuilder(TStrVec fieldNames,
                                       std::size_t dependentVariableColumnIndex,
-                                      const TStrVecVec& categoryNames);
+                                      TStrVecVec categoryNames);
     ~CBoostedTreeInferenceModelBuilder() override = default;
     void addTree() override;
     void addNode(std::size_t splitFeature,
