@@ -23,16 +23,15 @@ class API_EXPORT CBoostedTreeRegressionInferenceModelBuilder
     : public maths::CBoostedTree::CVisitor {
 public:
     using TDoubleVec = std::vector<double>;
-    using TStringVec = std::vector<std::string>;
-    using TStringSizeUMap = std::unordered_map<std::string, std::size_t>;
-    using TStringSizeUMapVec = std::vector<TStringSizeUMap>;
+    using TStrVec = std::vector<std::string>;
+    using TStrVecVec = std::vector<TStrVec>;
     using TSizeStringUMap = std::unordered_map<std::size_t, std::string>;
     using TSizeStringUMapVec = std::vector<TSizeStringUMap>;
 
 public:
-    CBoostedTreeRegressionInferenceModelBuilder(TStringVec fieldNames,
+    CBoostedTreeRegressionInferenceModelBuilder(TStrVec fieldNames,
                                                 std::size_t dependentVariableColumnIndex,
-                                                const TStringSizeUMapVec& categoryNameMap);
+                                                const TStrVecVec& categoryNames);
     ~CBoostedTreeRegressionInferenceModelBuilder() override = default;
     void addTree() override;
     void addNode(std::size_t splitFeature,
@@ -58,14 +57,14 @@ private:
 private:
     TStringDoubleUMap encodingMap(std::size_t inputColumnIndex, const TDoubleVec& map_);
 
-    void categoryNameMap(const CInferenceModelDefinition::TStringSizeUMapVec& categoryNameMap);
+    void categoryNames(const TStrVecVec& categoryNames);
 
 private:
     CInferenceModelDefinition m_Definition;
-    TSizeStringUMapVec m_ReverseCategoryNameMap;
+    TStrVecVec m_CategoryNames;
     TOneHotEncodingUMap m_OneHotEncodingMaps;
-    TStringVec m_FieldNames;
-    TStringVec m_FeatureNames;
+    TStrVec m_FieldNames;
+    TStrVec m_FeatureNames;
 };
 }
 }

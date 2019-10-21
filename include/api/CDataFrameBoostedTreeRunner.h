@@ -59,7 +59,7 @@ protected:
 
     TInferenceModelDefinitionUPtr
     inferenceModelDefinition(const TStrVec& fieldNames,
-                             const TStrSizeUMapVec& categoryNameMap) const override;
+                             const TStrVecVec& categoryNames) const override;
 
 private:
     using TBoostedTreeFactoryUPtr = std::unique_ptr<maths::CBoostedTreeFactory>;
