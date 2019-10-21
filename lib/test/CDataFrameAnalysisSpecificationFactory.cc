@@ -65,7 +65,7 @@ test::CDataFrameAnalysisSpecificationFactory::predictionSpec(
     std::size_t memoryLimit,
     std::size_t numberRoundsPerHyperparameter,
     std::size_t bayesianOptimisationRestarts,
-    const ml::test::CDataFrameAnalysisSpecificationFactory::TStrVec& categoricalFieldNames,
+    const TStrVec& categoricalFieldNames,
     double alpha,
     double lambda,
     double gamma,
