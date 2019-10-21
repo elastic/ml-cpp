@@ -67,8 +67,8 @@ bool CArgMinMseImpl::nextPass() {
     return false;
 }
 
-void CArgMinMseImpl::add(double prediction, double actual) {
-    m_MeanError.add(actual - prediction);
+void CArgMinMseImpl::add(double prediction, double actual, double weight) {
+    m_MeanError.add(actual - prediction, weight);
 }
 
 void CArgMinMseImpl::merge(const CArgMinLossImpl& other) {
@@ -96,7 +96,7 @@ double CArgMinMseImpl::value() const {
 
 CArgMinLogisticImpl::CArgMinLogisticImpl(double lambda)
     : CArgMinLossImpl{lambda}, m_CategoryCounts{0},
-      m_BucketCategoryCounts(128, TSizeVector{0}) {
+      m_BucketCategoryCounts(128, TVector{0.0}) {
 }
 
 std::unique_ptr<CArgMinLossImpl> CArgMinLogisticImpl::clone() const {
@@ -108,16 +108,16 @@ bool CArgMinLogisticImpl::nextPass() {
     return m_CurrentPass < 2;
 }
 
-void CArgMinLogisticImpl::add(double prediction, double actual) {
+void CArgMinLogisticImpl::add(double prediction, double actual, double weight) {
     switch (m_CurrentPass) {
     case 0: {
         m_PredictionMinMax.add(prediction);
-        ++m_CategoryCounts(static_cast<std::size_t>(actual));
+        m_CategoryCounts(static_cast<std::size_t>(actual)) += weight;
         break;
     }
     case 1: {
         auto& count = m_BucketCategoryCounts[this->bucket(prediction)];
-        ++count(static_cast<std::size_t>(actual));
+        count(static_cast<std::size_t>(actual)) += weight;
         break;
     }
     default:
@@ -155,19 +155,17 @@ double CArgMinLogisticImpl::value() const {
     // value from the counts of the two categories.
     if (this->bucketWidth() == 0.0) {
         objective = [this](double weight) {
-            std::size_t c0{m_CategoryCounts(0)};
-            std::size_t c1{m_CategoryCounts(1)};
+            double c0{m_CategoryCounts(0)};
+            double c1{m_CategoryCounts(1)};
             return this->lambda() * CTools::pow2(weight) -
-                   static_cast<double>(c0) * logOneMinusLogistic(weight) -
-                   static_cast<double>(c1) * logLogistic(weight);
+                   c0 * logOneMinusLogistic(weight) - c1 * logLogistic(weight);
         };
 
         // Weight shrinkage means the optimal weight will be somewhere between
         // the logit of the empirical probability and zero.
-        std::size_t c0{m_CategoryCounts(0) + 1};
-        std::size_t c1{m_CategoryCounts(1) + 1};
-        double empiricalProbabilityC1{static_cast<double>(c1) /
-                                      static_cast<double>(c0 + c1)};
+        double c0{m_CategoryCounts(0) + 1.0};
+        double c1{m_CategoryCounts(1) + 1.0};
+        double empiricalProbabilityC1{c1 / (c0 + c1)};
         double empiricalLogOddsC1{
             std::log(empiricalProbabilityC1 / (1.0 - empiricalProbabilityC1))};
         minWeight = empiricalProbabilityC1 < 0.5 ? empiricalLogOddsC1 : 0.0;
@@ -178,10 +176,9 @@ double CArgMinLogisticImpl::value() const {
             double loss{0.0};
             for (std::size_t i = 0; i < m_BucketCategoryCounts.size(); ++i) {
                 double logOdds{this->bucketCentre(i) + weight};
-                std::size_t c0{m_BucketCategoryCounts[i](0)};
-                std::size_t c1{m_BucketCategoryCounts[i](1)};
-                loss -= static_cast<double>(c0) * logOneMinusLogistic(logOdds) +
-                        static_cast<double>(c1) * logLogistic(logOdds);
+                double c0{m_BucketCategoryCounts[i](0)};
+                double c1{m_BucketCategoryCounts[i](1)};
+                loss -= c0 * logOneMinusLogistic(logOdds) + c1 * logLogistic(logOdds);
             }
             return loss + this->lambda() * CTools::pow2(weight);
         };
@@ -228,8 +225,8 @@ bool CArgMinLoss::nextPass() const {
     return m_Impl->nextPass();
 }
 
-void CArgMinLoss::add(double prediction, double actual) {
-    return m_Impl->add(prediction, actual);
+void CArgMinLoss::add(double prediction, double actual, double weight) {
+    return m_Impl->add(prediction, actual, weight);
 }
 
 void CArgMinLoss::merge(CArgMinLoss& other) {
@@ -251,16 +248,16 @@ std::unique_ptr<CLoss> CMse::clone() const {
     return std::make_unique<CMse>(*this);
 }
 
-double CMse::value(double prediction, double actual) const {
-    return CTools::pow2(prediction - actual);
+double CMse::value(double prediction, double actual, double weight) const {
+    return weight * CTools::pow2(prediction - actual);
 }
 
-double CMse::gradient(double prediction, double actual) const {
-    return 2.0 * (prediction - actual);
+double CMse::gradient(double prediction, double actual, double weight) const {
+    return 2.0 * weight * (prediction - actual);
 }
 
-double CMse::curvature(double /*prediction*/, double /*actual*/) const {
-    return 2.0;
+double CMse::curvature(double /*prediction*/, double /*actual*/, double weight) const {
+    return 2.0 * weight;
 }
 
 bool CMse::isCurvatureConstant() const {
@@ -281,26 +278,26 @@ std::unique_ptr<CLoss> CLogistic::clone() const {
     return std::make_unique<CLogistic>(*this);
 }
 
-double CLogistic::value(double prediction, double actual) const {
+double CLogistic::value(double prediction, double actual, double weight) const {
     // Cross entropy
-    return -((1.0 - actual) * logOneMinusLogistic(prediction) +
-             actual * logLogistic(prediction));
+    return -weight * ((1.0 - actual) * logOneMinusLogistic(prediction) +
+                      actual * logLogistic(prediction));
 }
 
-double CLogistic::gradient(double prediction, double actual) const {
+double CLogistic::gradient(double prediction, double actual, double weight) const {
     if (prediction > -LOG_EPSILON && actual == 1.0) {
-        return -std::exp(-prediction);
+        return -weight * std::exp(-prediction);
     }
     prediction = CTools::logisticFunction(prediction);
-    return prediction - actual;
+    return weight * (prediction - actual);
 }
 
-double CLogistic::curvature(double prediction, double /*actual*/) const {
+double CLogistic::curvature(double prediction, double /*actual*/, double weight) const {
     if (prediction > -LOG_EPSILON) {
-        return std::exp(-prediction);
+        return weight * std::exp(-prediction);
     }
     prediction = CTools::logisticFunction(prediction);
-    return prediction * (1.0 - prediction);
+    return weight * prediction * (1.0 - prediction);
 }
 
 bool CLogistic::isCurvatureConstant() const {

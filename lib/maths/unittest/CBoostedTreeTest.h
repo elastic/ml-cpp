@@ -26,6 +26,7 @@ public:
     void testLogisticMinimizerRandom();
     void testLogisticLossForUnderflow();
     void testLogisticRegression();
+    void testUnbalancedClasses();
     void testEstimateMemoryUsedByTrain();
     void testProgressMonitoring();
     void testMissingData();
