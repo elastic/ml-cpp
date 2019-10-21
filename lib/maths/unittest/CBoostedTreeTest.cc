@@ -1106,7 +1106,7 @@ void CBoostedTreeTest::testLogisticRegression() {
 
         auto regression =
             maths::CBoostedTreeFactory::constructFromParameters(1)
-                .balanceWithinClassAccuracy(false)
+                .balanceClassTrainingLoss(false)
                 .buildFor(*frame, std::make_unique<maths::boosted_tree::CLogistic>(),
                           cols - 1);
 
@@ -1161,7 +1161,7 @@ void CBoostedTreeTest::testUnbalancedClasses() {
     TDoubleVecVec precisions;
     TDoubleVecVec recalls;
 
-    for (bool balanceWithinClassAccuracy : {false, true}) {
+    for (bool balanceClassTrainingLoss : {false, true}) {
         auto frame = core::makeMainStorageDataFrame(cols).first;
         frame->categoricalColumns(TBoolVec{false, false, true});
         for (std::size_t i = 0, index = 0; i < 4; ++i) {
@@ -1179,7 +1179,7 @@ void CBoostedTreeTest::testUnbalancedClasses() {
 
         auto regression =
             maths::CBoostedTreeFactory::constructFromParameters(1)
-                .balanceWithinClassAccuracy(balanceWithinClassAccuracy)
+                .balanceClassTrainingLoss(balanceClassTrainingLoss)
                 .buildFor(*frame, std::make_unique<maths::boosted_tree::CLogistic>(),
                           cols - 1);
 
@@ -1219,7 +1219,7 @@ void CBoostedTreeTest::testUnbalancedClasses() {
     LOG_DEBUG(<< "precisions = " << core::CContainerPrinter::print(precisions));
     LOG_DEBUG(<< "recalls    = " << core::CContainerPrinter::print(recalls));
 
-    // Because our test set is balanced we expect low
+    // We expect more similar precision and recall when balancing training loss.
     CPPUNIT_ASSERT(std::fabs(precisions[1][0] - precisions[1][1]) <
                    0.4 * std::fabs(precisions[0][0] - precisions[0][1]));
     CPPUNIT_ASSERT(std::fabs(recalls[1][0] - recalls[1][1]) <

@@ -37,6 +37,7 @@ using TSizeVec = std::vector<std::size_t>;
 
 // Configuration
 const std::string NUM_TOP_CLASSES{"num_top_classes"};
+const std::string BALANCED_CLASS_LOSS{"balanced_class_loss"};
 
 // Output
 const std::string IS_TRAINING_FIELD_NAME{"is_training"};
@@ -48,6 +49,8 @@ const std::string CLASS_PROBABILITY_FIELD_NAME{"class_probability"};
 const CDataFrameAnalysisConfigReader CDataFrameClassificationRunner::getParameterReader() {
     CDataFrameAnalysisConfigReader theReader{CDataFrameBoostedTreeRunner::getParameterReader()};
     theReader.addParameter(NUM_TOP_CLASSES, CDataFrameAnalysisConfigReader::E_OptionalParameter);
+    theReader.addParameter(BALANCED_CLASS_LOSS,
+                           CDataFrameAnalysisConfigReader::E_OptionalParameter);
     return theReader;
 }
 
@@ -57,6 +60,8 @@ CDataFrameClassificationRunner::CDataFrameClassificationRunner(
     : CDataFrameBoostedTreeRunner{spec, parameters} {
 
     m_NumTopClasses = parameters[NUM_TOP_CLASSES].fallback(std::size_t{0});
+    this->boostedTreeFactory().balanceClassTrainingLoss(
+        parameters[BALANCED_CLASS_LOSS].fallback(true));
 }
 
 CDataFrameClassificationRunner::CDataFrameClassificationRunner(const CDataFrameAnalysisSpecification& spec)

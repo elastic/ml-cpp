@@ -200,7 +200,7 @@ void CBoostedTreeFactory::initializeCrossValidation(core::CDataFrame& frame) con
         // Weight by inverse category frequency.
         writeRowWeight = [&](TRowItr beginRows, TRowItr endRows) {
             for (auto row = beginRows; row != endRows; ++row) {
-                if (m_BalanceWithinClassAccuracy) {
+                if (m_BalanceClassTrainingLoss) {
                     std::size_t category{static_cast<std::size_t>(
                         (*row)[m_TreeImpl->m_DependentVariable])};
                     row->writeColumn(exampleWeightColumn(row->numberColumns()),
@@ -771,8 +771,8 @@ CBoostedTreeFactory& CBoostedTreeFactory::rowsPerFeature(std::size_t rowsPerFeat
     return *this;
 }
 
-CBoostedTreeFactory& CBoostedTreeFactory::balanceWithinClassAccuracy(bool balance) {
-    m_BalanceWithinClassAccuracy = balance;
+CBoostedTreeFactory& CBoostedTreeFactory::balanceClassTrainingLoss(bool balance) {
+    m_BalanceClassTrainingLoss = balance;
     return *this;
 }
 

@@ -86,7 +86,7 @@ public:
     //! Set whether to try and balance within class accuracy. For classification
     //! this reweights examples so approximately the same total loss is assigned
     //! to every class.
-    CBoostedTreeFactory& balanceWithinClassAccuracy(bool balance);
+    CBoostedTreeFactory& balanceClassTrainingLoss(bool balance);
     //! Set the callback function for progress monitoring.
     CBoostedTreeFactory& progressCallback(TProgressCallback callback);
     //! Set the callback function for memory monitoring.
@@ -184,7 +184,7 @@ private:
 private:
     TOptionalDouble m_MinimumFrequencyToOneHotEncode;
     TOptionalSize m_BayesianOptimisationRestarts;
-    bool m_BalanceWithinClassAccuracy = true;
+    bool m_BalanceClassTrainingLoss = true;
     std::size_t m_NumberThreads;
     TBoostedTreeImplUPtr m_TreeImpl;
     TVector m_LogDepthPenaltyMultiplierSearchInterval;
