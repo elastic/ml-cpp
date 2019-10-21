@@ -204,7 +204,7 @@ const maths::CBoostedTree& CDataFrameBoostedTreeRunner::boostedTree() const {
 
 maths::CBoostedTreeFactory& CDataFrameBoostedTreeRunner::boostedTreeFactory() {
     if (m_BoostedTreeFactory == nullptr) {
-        HANDLE_FATAL(<< "Internal error: boosted factory tree missing. Please report this error.");
+        HANDLE_FATAL(<< "Internal error: boosted tree factory missing. Please report this error.");
     }
     return *m_BoostedTreeFactory;
 }
