@@ -3,8 +3,8 @@
  * or more contributor license agreements. Licensed under the Elastic License;
  * you may not use this file except in compliance with the Elastic License.
  */
-#ifndef INCLUDED_ml_api_CBoostedTreeRegressionInferenceModelBuilder_h
-#define INCLUDED_ml_api_CBoostedTreeRegressionInferenceModelBuilder_h
+#ifndef INCLUDED_ml_api_CBoostedTreeInferenceModelBuilder_h
+#define INCLUDED_ml_api_CBoostedTreeInferenceModelBuilder_h
 
 #include <maths/CBoostedTree.h>
 
@@ -19,8 +19,7 @@ namespace ml {
 namespace api {
 
 //! \brief Builds a a serialisable trained model object by visiting a maths::CBoostedTree object.
-class API_EXPORT CBoostedTreeRegressionInferenceModelBuilder
-    : public maths::CBoostedTree::CVisitor {
+class API_EXPORT CBoostedTreeInferenceModelBuilder : public maths::CBoostedTree::CVisitor {
 public:
     using TDoubleVec = std::vector<double>;
     using TStrVec = std::vector<std::string>;
@@ -29,10 +28,10 @@ public:
     using TSizeStringUMapVec = std::vector<TSizeStringUMap>;
 
 public:
-    CBoostedTreeRegressionInferenceModelBuilder(TStrVec fieldNames,
-                                                std::size_t dependentVariableColumnIndex,
-                                                const TStrVecVec& categoryNames);
-    ~CBoostedTreeRegressionInferenceModelBuilder() override = default;
+    CBoostedTreeInferenceModelBuilder(TStrVec fieldNames,
+                                      std::size_t dependentVariableColumnIndex,
+                                      const TStrVecVec& categoryNames);
+    ~CBoostedTreeInferenceModelBuilder() override = default;
     void addTree() override;
     void addNode(std::size_t splitFeature,
                  double splitValue,
@@ -48,6 +47,11 @@ public:
                                double fallback) override;
     void addFrequencyEncoding(std::size_t inputColumnIndex, const TDoubleVec& map) override;
     CInferenceModelDefinition&& build();
+
+protected:
+    CInferenceModelDefinition& definition();
+    virtual void setTargetType() = 0;
+    virtual void setAggregateOutput(CEnsemble* ensemble) const = 0;
 
 private:
     using TOneHotEncodingUPtr = std::unique_ptr<COneHotEncoding>;
@@ -66,7 +70,31 @@ private:
     TStrVec m_FieldNames;
     TStrVec m_FeatureNames;
 };
+
+class API_EXPORT CRegressionInferenceModelBuilder final : public CBoostedTreeInferenceModelBuilder {
+protected:
+public:
+    CRegressionInferenceModelBuilder(TStrVec fieldNames,
+                                     std::size_t dependentVariableColumnIndex,
+                                     const TStrVecVec& categoryNames);
+
+protected:
+    void setTargetType() override;
+    void setAggregateOutput(CEnsemble* ensemble) const override;
+};
+
+class API_EXPORT CClassificationInferenceModelBuilder final
+    : public CBoostedTreeInferenceModelBuilder {
+public:
+    CClassificationInferenceModelBuilder(TStrVec fieldNames,
+                                         std::size_t dependentVariableColumnIndex,
+                                         const TStrVecVec& categoryNames);
+
+protected:
+    void setTargetType() override;
+    void setAggregateOutput(CEnsemble* ensemble) const override;
+};
 }
 }
 
-#endif // INCLUDED_ml_api_CBoostedTreeRegressionInferenceModelBuilder_h
+#endif // INCLUDED_ml_api_CBoostedTreeInferenceModelBuilder_h
