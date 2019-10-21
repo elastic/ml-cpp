@@ -593,6 +593,12 @@ CMakeDataFrameCategoryEncoder::TEncodingUPtrVec CMakeDataFrameCategoryEncoder::m
     this->setupTargetMeanValueEncoding(categoricalColumnMask);
     this->finishEncoding(this->selectFeatures(metricColumnMask, categoricalColumnMask));
 
+    return this->readEncodings();
+}
+
+CMakeDataFrameCategoryEncoder::TEncodingUPtrVec
+CMakeDataFrameCategoryEncoder::readEncodings() const {
+
     // In the encoded row the layout of the encoding dimensions, for each categorical
     // feature, is as follows:
     //   (...| one-hot | mean target | frequency |...)
@@ -608,7 +614,7 @@ CMakeDataFrameCategoryEncoder::TEncodingUPtrVec CMakeDataFrameCategoryEncoder::m
     // relative to the start of the encoding dimensions for the feature, is equal
     // to the position of the one for the category.
 
-    TEncodingUPtrVec encoding;
+    TEncodingUPtrVec encodings;
 
     for (std::size_t encodedColumnIndex = 0;
          encodedColumnIndex < m_EncodedColumnInputColumnMap.size(); ++encodedColumnIndex) {
@@ -617,7 +623,7 @@ CMakeDataFrameCategoryEncoder::TEncodingUPtrVec CMakeDataFrameCategoryEncoder::m
         double mic{m_EncodedColumnMics[encodedColumnIndex]};
 
         if (m_Frame->columnIsCategorical()[inputColumnIndex] == false) {
-            encoding.push_back(std::make_unique<CIdentityEncoding>(inputColumnIndex, mic));
+            encodings.push_back(std::make_unique<CIdentityEncoding>(inputColumnIndex, mic));
             continue;
         }
 
@@ -627,23 +633,23 @@ CMakeDataFrameCategoryEncoder::TEncodingUPtrVec CMakeDataFrameCategoryEncoder::m
 
         if (categoryEncoding < numberOneHotCategories) {
             std::size_t hotCategory{m_OneHotEncodedCategories[inputColumnIndex][categoryEncoding]};
-            encoding.push_back(std::make_unique<COneHotEncoding>(inputColumnIndex,
-                                                                 mic, hotCategory));
+            encodings.push_back(std::make_unique<COneHotEncoding>(
+                inputColumnIndex, mic, hotCategory));
             continue;
         }
         if (categoryEncoding == numberOneHotCategories &&
             m_InputColumnUsesFrequencyEncoding[inputColumnIndex]) {
-            encoding.push_back(std::make_unique<CMappedEncoding>(
+            encodings.push_back(std::make_unique<CMappedEncoding>(
                 inputColumnIndex, mic, E_Frequency, m_CategoryFrequencies[inputColumnIndex],
                 m_MeanCategoryFrequencies[inputColumnIndex]));
             continue;
         }
-        encoding.push_back(std::make_unique<CMappedEncoding>(
+        encodings.push_back(std::make_unique<CMappedEncoding>(
             inputColumnIndex, mic, E_TargetMean, m_CategoryTargetMeanValues[inputColumnIndex],
             m_MeanCategoryTargetMeanValues[inputColumnIndex]));
     }
 
-    return encoding;
+    return encodings;
 }
 
 std::size_t CMakeDataFrameCategoryEncoder::encoding(std::size_t encodedColumnIndex) const {
@@ -831,6 +837,7 @@ CMakeDataFrameCategoryEncoder::selectFeatures(TSizeVec metricColumnMask,
     if (maximumNumberFeatures >= numberAvailableFeatures) {
 
         selectedFeatureMics = this->selectAllFeatures(mics);
+
     } else {
 
         CMinRedundancyMaxRelevancyGreedySearch search{m_RedundancyWeight, mics};

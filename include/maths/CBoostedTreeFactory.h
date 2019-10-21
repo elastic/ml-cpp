@@ -83,6 +83,10 @@ public:
     CBoostedTreeFactory& bayesianOptimisationRestarts(std::size_t restarts);
     //! Set the number of training examples we need per feature we'll include.
     CBoostedTreeFactory& rowsPerFeature(std::size_t rowsPerFeature);
+    //! Set whether to try and balance within class accuracy. For classification
+    //! this reweights examples so approximately the same total loss is assigned
+    //! to every class.
+    CBoostedTreeFactory& balanceClassTrainingLoss(bool balance);
     //! Set the callback function for progress monitoring.
     CBoostedTreeFactory& progressCallback(TProgressCallback callback);
     //! Set the callback function for memory monitoring.
@@ -90,8 +94,8 @@ public:
     //! Set the callback function for training state recording.
     CBoostedTreeFactory& trainingStateCallback(TTrainingStateCallback callback);
 
-    //! Estimate the maximum booking memory that training the boosted tree on a data
-    //! frame with \p numberRows row and \p numberColumns columns will use.
+    //! Estimate the maximum booking memory that training the boosted tree on a
+    //! data frame with \p numberRows row and \p numberColumns columns will use.
     std::size_t estimateMemoryUsage(std::size_t numberRows, std::size_t numberColumns) const;
     //! Get the number of columns training the model will add to the data frame.
     std::size_t numberExtraColumnsForTrain() const;
@@ -124,8 +128,8 @@ private:
     //! Compute the row masks for the missing values for each feature.
     void initializeMissingFeatureMasks(const core::CDataFrame& frame) const;
 
-    //! Get the (train, test) row masks for performing cross validation.
-    std::pair<TPackedBitVectorVec, TPackedBitVectorVec> crossValidationRowMasks() const;
+    //! Set up cross validation.
+    void initializeCrossValidation(core::CDataFrame& frame) const;
 
     //! Encode categorical fields and at the same time select the features to use
     //! as regressors.
@@ -180,6 +184,7 @@ private:
 private:
     TOptionalDouble m_MinimumFrequencyToOneHotEncode;
     TOptionalSize m_BayesianOptimisationRestarts;
+    bool m_BalanceClassTrainingLoss = true;
     std::size_t m_NumberThreads;
     TBoostedTreeImplUPtr m_TreeImpl;
     TVector m_LogDepthPenaltyMultiplierSearchInterval;
