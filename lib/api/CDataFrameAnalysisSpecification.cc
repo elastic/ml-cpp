@@ -43,15 +43,15 @@ const std::string CDataFrameAnalysisSpecification::PARAMETERS("parameters");
 
 namespace {
 using TBoolVec = std::vector<bool>;
-using TRunnerFactoryUPtrVec = ml::api::CDataFrameAnalysisSpecification::TRunnerFactoryUPtrVec;
+using TRunnerFactoryUPtrVec = CDataFrameAnalysisSpecification::TRunnerFactoryUPtrVec;
 
 TRunnerFactoryUPtrVec analysisFactories() {
     TRunnerFactoryUPtrVec factories;
+    factories.push_back(std::make_unique<CDataFrameOutliersRunnerFactory>());
     factories.push_back(
-        std::make_unique<ml::api::CDataFrameTrainBoostedTreeRegressionRunnerFactory>());
+        std::make_unique<CDataFrameTrainBoostedTreeRegressionRunnerFactory>());
     factories.push_back(
-        std::make_unique<ml::api::CDataFrameTrainBoostedTreeClassifierRunnerFactory>());
-    factories.push_back(std::make_unique<ml::api::CDataFrameOutliersRunnerFactory>());
+        std::make_unique<CDataFrameTrainBoostedTreeClassifierRunnerFactory>());
     // Add new analysis types here.
     return factories;
 }

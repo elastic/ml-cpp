@@ -180,6 +180,7 @@ class API_EXPORT CDataFrameAnalysisParameters {
 public:
     using TParameter = CDataFrameAnalysisConfigReader::CParameter;
 
+public:
     //! Add \p parameter.
     void add(const CDataFrameAnalysisConfigReader::CParameter& parameter) {
         m_ParameterValues.push_back(parameter);
