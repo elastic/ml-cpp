@@ -75,7 +75,7 @@ test::CDataFrameAnalysisSpecificationFactory::predictionSpec(
     std::size_t maximumNumberTrees,
     double featureBagFraction,
     TPersisterSupplier* persisterSupplier,
-    ml::test::CDataFrameAnalysisSpecificationFactory::TRestoreSearcherSupplier* restoreSearcherSupplier) {
+    TRestoreSearcherSupplier* restoreSearcherSupplier) {
     std::string parameters = "{\n\"dependent_variable\": \"" + dependentVariable + "\"";
     if (alpha >= 0.0) {
         parameters += ",\n\"alpha\": " + core::CStringUtils::typeToString(alpha);
