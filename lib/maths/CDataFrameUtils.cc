@@ -27,6 +27,7 @@
 namespace ml {
 namespace maths {
 namespace {
+using TDoubleVec = std::vector<double>;
 using TFloatVec = std::vector<CFloatStorage>;
 using TFloatVecVec = std::vector<TFloatVec>;
 using TRowItr = core::CDataFrame::TRowItr;
@@ -34,6 +35,7 @@ using TRowRef = core::CDataFrame::TRowRef;
 using TRowSampler = CSampling::CRandomStreamSampler<TRowRef>;
 using TSizeEncoderPtrUMap =
     boost::unordered_map<std::size_t, std::unique_ptr<CDataFrameUtils::CColumnValue>>;
+using TPackedBitVectorVec = CDataFrameUtils::TPackedBitVectorVec;
 
 //! Reduce the results of a call to core::CDataFrame::readRows using \p reduceFirst
 //! for the first and \p reduce for the rest and writing the result \p reduction.
@@ -53,6 +55,16 @@ bool doReduce(std::pair<std::vector<READER>, bool> readResults,
         reduce(std::move(readResults.first[i].s_FunctionState), reduction);
     }
     return true;
+}
+
+//! Get the test row masks corresponding to \p foldRowMasks.
+TPackedBitVectorVec complementRowMasks(const TPackedBitVectorVec& foldRowMasks,
+                                       core::CPackedBitVector allRowsMask) {
+    TPackedBitVectorVec complementFoldRowMasks(foldRowMasks.size(), std::move(allRowsMask));
+    for (std::size_t fold = 0; fold < foldRowMasks.size(); ++fold) {
+        complementFoldRowMasks[fold] ^= foldRowMasks[fold];
+    }
+    return complementFoldRowMasks;
 }
 
 //! Get a row feature sampler.
@@ -308,6 +320,122 @@ bool CDataFrameUtils::columnQuantiles(std::size_t numberThreads,
     return true;
 }
 
+std::tuple<TPackedBitVectorVec, TPackedBitVectorVec, TDoubleVec>
+CDataFrameUtils::stratifiedCrossValidationRowMasks(std::size_t numberThreads,
+                                                   const core::CDataFrame& frame,
+                                                   std::size_t targetColumn,
+                                                   CPRNG::CXorOShiro128Plus rng,
+                                                   std::size_t numberFolds,
+                                                   core::CPackedBitVector allTrainingRowsMask) {
+
+    if (frame.columnIsCategorical()[targetColumn] == false) {
+        HANDLE_FATAL(<< "Internal error: stratified cross validation is only supported"
+                     << " for classification");
+        return std::tuple<TPackedBitVectorVec, TPackedBitVectorVec, TDoubleVec>{};
+    }
+
+    using TSizeVecVec = std::vector<TSizeVec>;
+    using TRowSamplerVec = std::vector<TRowSampler>;
+
+    TDoubleVec frequencies{categoryFrequencies(
+        numberThreads, frame, allTrainingRowsMask, {targetColumn})[targetColumn]};
+
+    TSizeVec categoryCounts;
+    categoryCounts.reserve(frequencies.size());
+    double Z{allTrainingRowsMask.manhattan()};
+    for (auto& frequency : frequencies) {
+        std::size_t desiredCount{static_cast<std::size_t>(
+            Z * frequency / static_cast<double>(numberFolds) + 0.5)};
+        categoryCounts.push_back(std::max(desiredCount, std::size_t{1}));
+    }
+    LOG_TRACE(<< "desired category counts per test fold = "
+              << core::CContainerPrinter::print(categoryCounts));
+
+    TSizeVecVec sampledRowIndices(categoryCounts.size());
+    TRowSamplerVec samplers;
+    samplers.reserve(categoryCounts.size());
+
+    for (std::size_t i = 0; i < categoryCounts.size(); ++i) {
+        TSizeVec& categorySampledRowIndices{sampledRowIndices[i]};
+        categorySampledRowIndices.reserve(categoryCounts[i]);
+        auto sampler = [&](std::size_t slot, const TRowRef& row) {
+            if (slot >= categorySampledRowIndices.size()) {
+                categorySampledRowIndices.resize(slot + 1);
+            }
+            categorySampledRowIndices[slot] = row.index();
+        };
+        samplers.emplace_back(categoryCounts[i], sampler, rng);
+    }
+
+    TPackedBitVectorVec testingRowMasks(numberFolds);
+
+    TSizeVec rowIndices;
+    core::CPackedBitVector candidateTestingRowsMask{allTrainingRowsMask};
+    for (std::size_t fold = 0; fold < numberFolds - 1; ++fold) {
+        frame.readRows(1, 0, frame.numberRows(),
+                       [&](TRowItr beginRows, TRowItr endRows) {
+                           for (auto row = beginRows; row != endRows; ++row) {
+                               std::size_t category{
+                                   static_cast<std::size_t>((*row)[targetColumn])};
+                               samplers[category].sample(*row);
+                           }
+                       },
+                       &candidateTestingRowsMask);
+
+        rowIndices.clear();
+        for (std::size_t i = 0; i < sampledRowIndices.size(); ++i) {
+            std::size_t sampleSize{samplers[i].sampleSize()};
+            std::size_t desiredCount{std::min(categoryCounts[i], sampleSize)};
+            CSampling::random_shuffle(rng, sampledRowIndices[i].begin(),
+                                      sampledRowIndices[i].begin() + sampleSize);
+            rowIndices.insert(rowIndices.end(), sampledRowIndices[i].begin(),
+                              sampledRowIndices[i].begin() + desiredCount);
+            sampledRowIndices[i].clear();
+            samplers[i].reset();
+        }
+        std::sort(rowIndices.begin(), rowIndices.end());
+        LOG_TRACE(<< "# row indices = " << rowIndices.size());
+
+        for (auto row : rowIndices) {
+            testingRowMasks[fold].extend(false, row - testingRowMasks[fold].size());
+            testingRowMasks[fold].extend(true);
+        }
+        testingRowMasks[fold].extend(false, allTrainingRowsMask.size() -
+                                                testingRowMasks[fold].size());
+        candidateTestingRowsMask ^= testingRowMasks[fold];
+    }
+    testingRowMasks.back() = std::move(candidateTestingRowsMask);
+
+    TPackedBitVectorVec trainingRowMasks{complementRowMasks(testingRowMasks, allTrainingRowsMask)};
+
+    return {std::move(trainingRowMasks), std::move(testingRowMasks), std::move(frequencies)};
+}
+
+std::pair<TPackedBitVectorVec, TPackedBitVectorVec>
+CDataFrameUtils::crossValidationRowMasks(CPRNG::CXorOShiro128Plus rng,
+                                         std::size_t numberFolds,
+                                         core::CPackedBitVector allTrainingRowsMask) {
+
+    TPackedBitVectorVec trainingRowMasks(numberFolds);
+
+    for (auto row = allTrainingRowsMask.beginOneBits();
+         row != allTrainingRowsMask.endOneBits(); ++row) {
+        std::size_t fold{CSampling::uniformSample(rng, 0, numberFolds)};
+        trainingRowMasks[fold].extend(true, *row - trainingRowMasks[fold].size());
+        trainingRowMasks[fold].extend(false);
+    }
+
+    for (auto& fold : trainingRowMasks) {
+        fold.extend(true, allTrainingRowsMask.size() - fold.size());
+        fold &= allTrainingRowsMask;
+        LOG_TRACE(<< "# training = " << fold.manhattan());
+    }
+
+    TPackedBitVectorVec testingRowMasks{complementRowMasks(trainingRowMasks, allTrainingRowsMask)};
+
+    return {std::move(trainingRowMasks), std::move(testingRowMasks)};
+}
+
 CDataFrameUtils::TDoubleVecVec
 CDataFrameUtils::categoryFrequencies(std::size_t numberThreads,
                                      const core::CDataFrame& frame,
@@ -356,9 +484,11 @@ CDataFrameUtils::categoryFrequencies(std::size_t numberThreads,
         HANDLE_FATAL(<< "Internal error: '" << e.what() << "' exception calculating"
                      << " category frequencies. Please report this problem.");
     }
+
+    double Z{rowMask.manhattan()};
     for (std::size_t i = 0; i < result.size(); ++i) {
         for (std::size_t j = 0; j < result[i].size(); ++j) {
-            result[i][j] /= static_cast<double>(frame.numberRows());
+            result[i][j] /= Z;
         }
     }
 
@@ -639,6 +769,7 @@ CDataFrameUtils::metricMicWithColumnDataFrameInMemory(const CColumnValue& target
 
     TFloatVecVec samples;
     samples.reserve(numberSamples);
+    double numberMaskedRows{rowMask.manhattan()};
 
     for (auto i : columnMask) {
 
@@ -662,7 +793,7 @@ CDataFrameUtils::metricMicWithColumnDataFrameInMemory(const CColumnValue& target
         LOG_TRACE(<< "# samples = " << samples.size());
 
         double fractionMissing{static_cast<double>(missingCount.first[0].s_FunctionState) /
-                               static_cast<double>(frame.numberRows())};
+                               numberMaskedRows};
         LOG_TRACE(<< "feature = " << i << " fraction missing = " << fractionMissing);
 
         // Compute MICe
@@ -691,6 +822,7 @@ CDataFrameUtils::metricMicWithColumnDataFrameOnDisk(const CColumnValue& target,
 
     TFloatVecVec samples;
     samples.reserve(numberSamples);
+    double numberMaskedRows{rowMask.manhattan()};
 
     // Do sampling
 
@@ -715,8 +847,8 @@ CDataFrameUtils::metricMicWithColumnDataFrameOnDisk(const CColumnValue& target,
     TDoubleVec fractionMissing(frame.numberColumns());
     for (std::size_t i = 0; i < fractionMissing.size(); ++i) {
         for (const auto& missingCount : missingCounts.first) {
-            fractionMissing[i] += static_cast<double>(missingCount.s_FunctionState[i]) /
-                                  static_cast<double>(frame.numberRows());
+            fractionMissing[i] +=
+                static_cast<double>(missingCount.s_FunctionState[i]) / numberMaskedRows;
         }
     }
     LOG_TRACE(<< "Fraction missing = " << core::CContainerPrinter::print(fractionMissing));

@@ -85,7 +85,8 @@ int main(int argc, char** argv) {
         ml::counter_t::E_DFONumberPartitions,
         ml::counter_t::E_DFTPMEstimatedPeakMemoryUsage,
         ml::counter_t::E_DFTPMPeakMemoryUsage,
-        ml::counter_t::E_DFTPMTimeToTrain};
+        ml::counter_t::E_DFTPMTimeToTrain,
+        ml::counter_t::E_DFTPMTrainedForestNumberTrees};
     ml::core::CProgramCounters::registerProgramCounterTypes(counters);
 
     // Read command line options

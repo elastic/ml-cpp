@@ -337,6 +337,7 @@ private:
     using TSizeUSetVec = std::vector<TSizeUSet>;
 
 private:
+    TEncodingUPtrVec readEncodings() const;
     TSizeDoublePrVecVec mics(const CDataFrameUtils::CColumnValue& target,
                              const TSizeVec& metricColumnMask,
                              const TSizeVec& categoricalColumnMask) const;

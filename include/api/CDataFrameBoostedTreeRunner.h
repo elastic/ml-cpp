@@ -31,13 +31,6 @@ namespace api {
 //! \brief Runs boosted tree regression on a core::CDataFrame.
 class API_EXPORT CDataFrameBoostedTreeRunner : public CDataFrameAnalysisRunner {
 public:
-    //! This is not intended to be called directly: use CDataFrameBoostedTreeRunnerFactory.
-    CDataFrameBoostedTreeRunner(const CDataFrameAnalysisSpecification& spec,
-                                const CDataFrameAnalysisConfigReader::CParameters& parameters);
-
-    //! This is not intended to be called directly: use CDataFrameBoostedTreeRunnerFactory.
-    CDataFrameBoostedTreeRunner(const CDataFrameAnalysisSpecification& spec);
-
     ~CDataFrameBoostedTreeRunner() override;
 
     //! \return The number of columns this adds to the data frame.
@@ -48,14 +41,21 @@ protected:
     using TLossFunctionUPtr = std::unique_ptr<maths::boosted_tree::CLoss>;
 
 protected:
+    CDataFrameBoostedTreeRunner(const CDataFrameAnalysisSpecification& spec,
+                                const CDataFrameAnalysisConfigReader::CParameters& parameters);
+    CDataFrameBoostedTreeRunner(const CDataFrameAnalysisSpecification& spec);
+
     //! Parameter reader handling parameters that are shared by subclasses.
     static CDataFrameAnalysisConfigReader getParameterReader();
     //! Name of dependent variable field.
     const std::string& dependentVariableFieldName() const;
     //! Name of prediction field.
     const std::string& predictionFieldName() const;
-    //! Underlying boosted tree.
+    //! The boosted tree.
     const maths::CBoostedTree& boostedTree() const;
+
+    //! The boosted tree factory.
+    maths::CBoostedTreeFactory& boostedTreeFactory();
 
 private:
     using TBoostedTreeFactoryUPtr = std::unique_ptr<maths::CBoostedTreeFactory>;
