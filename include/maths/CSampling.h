@@ -66,7 +66,7 @@ public:
     //! wanted it is easy to provide a callback to achieve this as follows:
     //! \code{.cpp}
     //! std::vector<double> sample;
-    //! CRandomStreamSampler sampler{[&sample](std::size_t i, const double& x) {
+    //! CRandomStreamSampler<double> sampler{[&sample](std::size_t i, const double& x) {
     //!     if (i >= sample.size()) {
     //!         sample.resize(i + 1);
     //!     }
@@ -92,6 +92,9 @@ public:
             : m_Rng{rng}, m_TargetSampleSize{std::max(targetSampleSize, MINIMUM_TARGET_SAMPLE_SIZE)},
               m_OnSample{onSample} {}
 
+        //! Reset in preparation for resampling.
+        void reset() { m_StreamSize = m_SampleSize = 0; }
+
         //! Get the sampler's random number generator.
         CPRNG::CXorOShiro128Plus& rng() { return m_Rng; }
 
@@ -109,7 +112,6 @@ public:
             if (m_SampleSize < m_TargetSampleSize) {
                 m_OnSample(m_SampleSize, x);
                 ++m_SampleSize;
-
             } else {
                 double p{uniformSample(m_Rng, 0.0, 1.0)};
                 if (p * static_cast<double>(m_StreamSize) < static_cast<double>(m_SampleSize)) {

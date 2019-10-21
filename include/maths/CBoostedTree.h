@@ -38,7 +38,7 @@ public:
 
     virtual std::unique_ptr<CArgMinLossImpl> clone() const = 0;
     virtual bool nextPass() = 0;
-    virtual void add(double prediction, double actual) = 0;
+    virtual void add(double prediction, double actual, double weight = 1.0) = 0;
     virtual void merge(const CArgMinLossImpl& other) = 0;
     virtual double value() const = 0;
 
@@ -56,7 +56,7 @@ public:
     CArgMinMseImpl(double lambda);
     std::unique_ptr<CArgMinLossImpl> clone() const override;
     bool nextPass() override;
-    void add(double prediction, double actual) override;
+    void add(double prediction, double actual, double weight = 1.0) override;
     void merge(const CArgMinLossImpl& other) override;
     double value() const override;
 
@@ -74,14 +74,14 @@ public:
     CArgMinLogisticImpl(double lambda);
     std::unique_ptr<CArgMinLossImpl> clone() const override;
     bool nextPass() override;
-    void add(double prediction, double actual) override;
+    void add(double prediction, double actual, double weight = 1.0) override;
     void merge(const CArgMinLossImpl& other) override;
     double value() const override;
 
 private:
     using TMinMaxAccumulator = CBasicStatistics::CMinMax<double>;
-    using TSizeVector = CVectorNx1<std::size_t, 2>;
-    using TSizeVectorVec = std::vector<TSizeVector>;
+    using TVector = CVectorNx1<double, 2>;
+    using TVectorVec = std::vector<TVector>;
 
 private:
     std::size_t bucket(double prediction) const {
@@ -103,8 +103,8 @@ private:
 private:
     std::size_t m_CurrentPass = 0;
     TMinMaxAccumulator m_PredictionMinMax;
-    TSizeVector m_CategoryCounts;
-    TSizeVectorVec m_BucketCategoryCounts;
+    TVector m_CategoryCounts;
+    TVectorVec m_BucketCategoryCounts;
 };
 }
 
@@ -125,7 +125,7 @@ public:
     bool nextPass() const;
 
     //! Update with a point prediction and actual value.
-    void add(double prediction, double actual);
+    void add(double prediction, double actual, double weight = 1.0);
 
     //! Get the minimiser over the predictions and actual values added to both
     //! this and \p other.
@@ -157,11 +157,11 @@ public:
     //! Clone the loss.
     virtual std::unique_ptr<CLoss> clone() const = 0;
     //! The value of the loss function.
-    virtual double value(double prediction, double actual) const = 0;
+    virtual double value(double prediction, double actual, double weight = 1.0) const = 0;
     //! The slope of the loss function.
-    virtual double gradient(double prediction, double actual) const = 0;
+    virtual double gradient(double prediction, double actual, double weight = 1.0) const = 0;
     //! The curvature of the loss function.
-    virtual double curvature(double prediction, double actual) const = 0;
+    virtual double curvature(double prediction, double actual, double weight = 1.0) const = 0;
     //! Returns true if the loss curvature is constant.
     virtual bool isCurvatureConstant() const = 0;
     //! Get an object which computes the leaf value that minimises loss.
@@ -177,9 +177,9 @@ protected:
 class MATHS_EXPORT CMse final : public CLoss {
 public:
     std::unique_ptr<CLoss> clone() const override;
-    double value(double prediction, double actual) const override;
-    double gradient(double prediction, double actual) const override;
-    double curvature(double prediction, double actual) const override;
+    double value(double prediction, double actual, double weight = 1.0) const override;
+    double gradient(double prediction, double actual, double weight = 1.0) const override;
+    double curvature(double prediction, double actual, double weight = 1.0) const override;
     bool isCurvatureConstant() const override;
     CArgMinLoss minimizer(double lambda) const override;
     const std::string& name() const override;
@@ -200,9 +200,9 @@ public:
 class MATHS_EXPORT CLogistic final : public CLoss {
 public:
     std::unique_ptr<CLoss> clone() const override;
-    double value(double prediction, double actual) const override;
-    double gradient(double prediction, double actual) const override;
-    double curvature(double prediction, double actual) const override;
+    double value(double prediction, double actual, double weight = 1.0) const override;
+    double gradient(double prediction, double actual, double weight = 1.0) const override;
+    double curvature(double prediction, double actual, double weight = 1.0) const override;
     bool isCurvatureConstant() const override;
     CArgMinLoss minimizer(double lambda) const override;
     const std::string& name() const override;
