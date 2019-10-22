@@ -34,6 +34,12 @@ CDataFrameTrainBoostedTreeRegressionRunner::CDataFrameTrainBoostedTreeRegression
     const CDataFrameAnalysisSpecification& spec,
     const CDataFrameAnalysisParameters& parameters)
     : CDataFrameTrainBoostedTreeRunner{spec, parameters} {
+
+    const TStrVec& categoricalFieldNames{spec.categoricalFieldNames()};
+    if (std::find(categoricalFieldNames.begin(), categoricalFieldNames.end(),
+                  this->dependentVariableFieldName()) != categoricalFieldNames.end()) {
+        HANDLE_FATAL(<< "Input error: trying to perform regression with categorical target.");
+    }
 }
 
 CDataFrameTrainBoostedTreeRegressionRunner::CDataFrameTrainBoostedTreeRegressionRunner(
