@@ -4,7 +4,7 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
-#include "CDataFrameAnalyzerTest.h"
+#include "CDataFrameAnalyzerOutlierTest.h"
 
 #include <core/CContainerPrinter.h>
 #include <core/CJsonOutputStreamWrapper.h>
@@ -99,7 +99,7 @@ void addOutlierTestData(TStrVec fieldNames,
 }
 }
 
-void CDataFrameAnalyzerTest::testWithoutControlMessages() {
+void CDataFrameAnalyzerOutlierTest::testWithoutControlMessages() {
 
     std::stringstream output;
     auto outputWriterFactory = [&output]() {
@@ -145,7 +145,7 @@ void CDataFrameAnalyzerTest::testWithoutControlMessages() {
     CPPUNIT_ASSERT(expectedScore == expectedScores.end());
 }
 
-void CDataFrameAnalyzerTest::testRunOutlierDetection() {
+void CDataFrameAnalyzerOutlierTest::testRunOutlierDetection() {
 
     // Test the results the analyzer produces match running outlier detection
     // directly.
@@ -200,7 +200,7 @@ void CDataFrameAnalyzerTest::testRunOutlierDetection() {
     CPPUNIT_ASSERT(core::CProgramCounters::counter(counter_t::E_DFOPeakMemoryUsage) < 100000);
 }
 
-void CDataFrameAnalyzerTest::testRunOutlierDetectionPartitioned() {
+void CDataFrameAnalyzerOutlierTest::testRunOutlierDetectionPartitioned() {
 
     // Test the case we have to overflow to disk to compute outliers subject
     // to the memory constraints.
@@ -247,7 +247,7 @@ void CDataFrameAnalyzerTest::testRunOutlierDetectionPartitioned() {
     CPPUNIT_ASSERT(core::CProgramCounters::counter(counter_t::E_DFOPeakMemoryUsage) < 116000); // + 16%
 }
 
-void CDataFrameAnalyzerTest::testRunOutlierFeatureInfluences() {
+void CDataFrameAnalyzerOutlierTest::testRunOutlierFeatureInfluences() {
 
     // Test we compute and write out the feature influences when requested.
 
@@ -291,7 +291,7 @@ void CDataFrameAnalyzerTest::testRunOutlierFeatureInfluences() {
     CPPUNIT_ASSERT(expectedFeatureInfluence == expectedFeatureInfluences.end());
 }
 
-void CDataFrameAnalyzerTest::testRunOutlierDetectionWithParams() {
+void CDataFrameAnalyzerOutlierTest::testRunOutlierDetectionWithParams() {
 
     // Test the method and number of neighbours parameters are correctly
     // propagated to the analysis runner.
@@ -344,7 +344,7 @@ void CDataFrameAnalyzerTest::testRunOutlierDetectionWithParams() {
     }
 }
 
-void CDataFrameAnalyzerTest::testFlushMessage() {
+void CDataFrameAnalyzerOutlierTest::testFlushMessage() {
 
     // Test that white space is just ignored.
 
@@ -360,7 +360,7 @@ void CDataFrameAnalyzerTest::testFlushMessage() {
                                     {"", "", "", "", "", "", "           "}));
 }
 
-void CDataFrameAnalyzerTest::testErrors() {
+void CDataFrameAnalyzerOutlierTest::testErrors() {
 
     std::vector<std::string> errors;
     std::mutex errorsMutex;
@@ -486,7 +486,7 @@ void CDataFrameAnalyzerTest::testErrors() {
     }
 }
 
-void CDataFrameAnalyzerTest::testRoundTripDocHashes() {
+void CDataFrameAnalyzerOutlierTest::testRoundTripDocHashes() {
 
     std::stringstream output;
     auto outputWriterFactory = [&output]() {
@@ -517,7 +517,7 @@ void CDataFrameAnalyzerTest::testRoundTripDocHashes() {
     }
 }
 
-void CDataFrameAnalyzerTest::testCategoricalFields() {
+void CDataFrameAnalyzerOutlierTest::testCategoricalFields() {
 
     std::stringstream output;
     auto outputWriterFactory = [&output]() {
@@ -601,7 +601,7 @@ void CDataFrameAnalyzerTest::testCategoricalFields() {
     }
 }
 
-void CDataFrameAnalyzerTest::testCategoricalFieldsEmptyAsMissing() {
+void CDataFrameAnalyzerOutlierTest::testCategoricalFieldsEmptyAsMissing() {
 
     auto eq = [](double expected) {
         return [expected](double actual) { return expected == actual; };
@@ -666,37 +666,38 @@ void CDataFrameAnalyzerTest::testCategoricalFieldsEmptyAsMissing() {
     });
 }
 
-CppUnit::Test* CDataFrameAnalyzerTest::suite() {
-    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CDataFrameAnalyzerTest");
+CppUnit::Test* CDataFrameAnalyzerOutlierTest::suite() {
+    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CDataFrameAnalyzerOutlierTest");
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CDataFrameAnalyzerTest>(
-        "CDataFrameAnalyzerTest::testWithoutControlMessages",
-        &CDataFrameAnalyzerTest::testWithoutControlMessages));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CDataFrameAnalyzerTest>(
-        "CDataFrameAnalyzerTest::testRunOutlierDetection",
-        &CDataFrameAnalyzerTest::testRunOutlierDetection));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CDataFrameAnalyzerTest>(
-        "CDataFrameAnalyzerTest::testRunOutlierDetectionPartitioned",
-        &CDataFrameAnalyzerTest::testRunOutlierDetectionPartitioned));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CDataFrameAnalyzerTest>(
-        "CDataFrameAnalyzerTest::testRunOutlierFeatureInfluences",
-        &CDataFrameAnalyzerTest::testRunOutlierFeatureInfluences));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CDataFrameAnalyzerTest>(
-        "CDataFrameAnalyzerTest::testRunOutlierDetectionWithParams",
-        &CDataFrameAnalyzerTest::testRunOutlierDetectionWithParams));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CDataFrameAnalyzerTest>(
-        "CDataFrameAnalyzerTest::testFlushMessage", &CDataFrameAnalyzerTest::testFlushMessage));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CDataFrameAnalyzerTest>(
-        "CDataFrameAnalyzerTest::testErrors", &CDataFrameAnalyzerTest::testErrors));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CDataFrameAnalyzerTest>(
-        "CDataFrameAnalyzerTest::testRoundTripDocHashes",
-        &CDataFrameAnalyzerTest::testRoundTripDocHashes));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CDataFrameAnalyzerTest>(
-        "CDataFrameAnalyzerTest::testCategoricalFields",
-        &CDataFrameAnalyzerTest::testCategoricalFields));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CDataFrameAnalyzerTest>(
-        "CDataFrameAnalyzerTest::testCategoricalFieldsEmptyAsMissing",
-        &CDataFrameAnalyzerTest::testCategoricalFieldsEmptyAsMissing));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CDataFrameAnalyzerOutlierTest>(
+        "CDataFrameAnalyzerOutlierTest::testWithoutControlMessages",
+        &CDataFrameAnalyzerOutlierTest::testWithoutControlMessages));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CDataFrameAnalyzerOutlierTest>(
+        "CDataFrameAnalyzerOutlierTest::testRunOutlierDetection",
+        &CDataFrameAnalyzerOutlierTest::testRunOutlierDetection));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CDataFrameAnalyzerOutlierTest>(
+        "CDataFrameAnalyzerOutlierTest::testRunOutlierDetectionPartitioned",
+        &CDataFrameAnalyzerOutlierTest::testRunOutlierDetectionPartitioned));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CDataFrameAnalyzerOutlierTest>(
+        "CDataFrameAnalyzerOutlierTest::testRunOutlierFeatureInfluences",
+        &CDataFrameAnalyzerOutlierTest::testRunOutlierFeatureInfluences));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CDataFrameAnalyzerOutlierTest>(
+        "CDataFrameAnalyzerOutlierTest::testRunOutlierDetectionWithParams",
+        &CDataFrameAnalyzerOutlierTest::testRunOutlierDetectionWithParams));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CDataFrameAnalyzerOutlierTest>(
+        "CDataFrameAnalyzerOutlierTest::testFlushMessage",
+        &CDataFrameAnalyzerOutlierTest::testFlushMessage));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CDataFrameAnalyzerOutlierTest>(
+        "CDataFrameAnalyzerOutlierTest::testErrors", &CDataFrameAnalyzerOutlierTest::testErrors));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CDataFrameAnalyzerOutlierTest>(
+        "CDataFrameAnalyzerOutlierTest::testRoundTripDocHashes",
+        &CDataFrameAnalyzerOutlierTest::testRoundTripDocHashes));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CDataFrameAnalyzerOutlierTest>(
+        "CDataFrameAnalyzerOutlierTest::testCategoricalFields",
+        &CDataFrameAnalyzerOutlierTest::testCategoricalFields));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CDataFrameAnalyzerOutlierTest>(
+        "CDataFrameAnalyzerOutlierTest::testCategoricalFieldsEmptyAsMissing",
+        &CDataFrameAnalyzerOutlierTest::testCategoricalFieldsEmptyAsMissing));
 
     return suiteOfTests;
 }

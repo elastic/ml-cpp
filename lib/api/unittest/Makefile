@@ -29,7 +29,7 @@ SRCS=\
 	CCsvOutputWriterTest.cc \
 	CDataFrameAnalysisRunnerTest.cc \
 	CDataFrameAnalysisSpecificationTest.cc \
-	CDataFrameAnalyzerTest.cc \
+	CDataFrameAnalyzerOutlierTest.cc \
 	CDataFrameAnalyzerTrainingTest.cc \
 	CDataFrameMockAnalysisRunner.cc \
 	CDetectionRulesJsonParserTest.cc \

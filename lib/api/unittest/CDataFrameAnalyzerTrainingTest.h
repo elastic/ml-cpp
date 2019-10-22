@@ -3,8 +3,8 @@
  * or more contributor license agreements. Licensed under the Elastic License;
  * you may not use this file except in compliance with the Elastic License.
  */
-#ifndef INCLUDED_ml_test_CDataFrameAnalyzerTrainingTest_h
-#define INCLUDED_ml_test_CDataFrameAnalyzerTrainingTest_h
+#ifndef INCLUDED_CDataFrameAnalyzerTrainingTest_h
+#define INCLUDED_CDataFrameAnalyzerTrainingTest_h
 
 #include <cppunit/extensions/HelperMacros.h>
 
@@ -18,4 +18,4 @@ public:
 
     static CppUnit::Test* suite();
 };
-#endif // INCLUDED_ml_test_CDataFrameAnalyzerTrainingTest_h
+#endif // INCLUDED_CDataFrameAnalyzerTrainingTest_h

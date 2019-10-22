@@ -15,7 +15,7 @@
 #include "CCsvOutputWriterTest.h"
 #include "CDataFrameAnalysisRunnerTest.h"
 #include "CDataFrameAnalysisSpecificationTest.h"
-#include "CDataFrameAnalyzerTest.h"
+#include "CDataFrameAnalyzerOutlierTest.h"
 #include "CDataFrameAnalyzerTrainingTest.h"
 #include "CDetectionRulesJsonParserTest.h"
 #include "CFieldConfigTest.h"
@@ -53,7 +53,7 @@ int main(int argc, const char** argv) {
     runner.addTest(CDataFrameAnalysisRunnerTest::suite());
     runner.addTest(CDataFrameAnalysisSpecificationTest::suite());
     runner.addTest(CBoostedTreeInferenceModelBuilderTest::suite());
-    runner.addTest(CDataFrameAnalyzerTest::suite());
+    runner.addTest(CDataFrameAnalyzerOutlierTest::suite());
     runner.addTest(CDataFrameAnalyzerTrainingTest::suite());
     runner.addTest(CDetectionRulesJsonParserTest::suite());
     runner.addTest(CFieldConfigTest::suite());

@@ -4,12 +4,12 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
-#ifndef INCLUDED_CDataFrameAnalyzerTest_h
-#define INCLUDED_CDataFrameAnalyzerTest_h
+#ifndef INCLUDED_CDataFrameAnalyzerOutlierTest_h
+#define INCLUDED_CDataFrameAnalyzerOutlierTest_h
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CDataFrameAnalyzerTest : public CppUnit::TestFixture {
+class CDataFrameAnalyzerOutlierTest : public CppUnit::TestFixture {
 public:
     void testWithoutControlMessages();
     void testRunOutlierDetection();
@@ -25,4 +25,4 @@ public:
     static CppUnit::Test* suite();
 };
 
-#endif // INCLUDED_CDataFrameAnalyzerTest_h
+#endif // INCLUDED_CDataFrameAnalyzerOutlierTest_h
