@@ -27,7 +27,7 @@ void CBoostedTreeInferenceModelBuilder::addTree() {
 }
 
 void CBoostedTreeInferenceModelBuilder::addIdentityEncoding(std::size_t inputColumnIndex) {
-    if (inputColumnIndex < m_FieldNames.size()) {
+    if (inputColumnIndex != m_Definition.dependentVariableColumnIndex()) {
         // The target column is excluded from m_FieldNames.
         m_FeatureNames.push_back(m_FieldNames[inputColumnIndex]);
     }
@@ -35,8 +35,8 @@ void CBoostedTreeInferenceModelBuilder::addIdentityEncoding(std::size_t inputCol
 
 void CBoostedTreeInferenceModelBuilder::addOneHotEncoding(std::size_t inputColumnIndex,
                                                           std::size_t hotCategory) {
-    if (inputColumnIndex < m_Definition.input().fieldNames().size()) {
-        std::string fieldName{m_Definition.input().fieldNames()[inputColumnIndex]};
+    if (inputColumnIndex != m_Definition.dependentVariableColumnIndex()) {
+        std::string fieldName{m_Definition.fieldNames()[inputColumnIndex]};
         std::string category = m_CategoryNames[inputColumnIndex][hotCategory];
         std::string featureName = fieldName + "_" + category;
         if (m_OneHotEncodingMaps.find(fieldName) == m_OneHotEncodingMaps.end()) {
@@ -52,8 +52,8 @@ void CBoostedTreeInferenceModelBuilder::addOneHotEncoding(std::size_t inputColum
 void CBoostedTreeInferenceModelBuilder::addTargetMeanEncoding(std::size_t inputColumnIndex,
                                                               const TDoubleVec& map,
                                                               double fallback) {
-    if (inputColumnIndex < m_Definition.input().fieldNames().size()) {
-        std::string fieldName{m_Definition.input().fieldNames()[inputColumnIndex]};
+    if (inputColumnIndex != m_Definition.dependentVariableColumnIndex()) {
+        const std::string& fieldName{m_Definition.fieldNames()[inputColumnIndex]};
         std::string featureName{fieldName + "_targetmean"};
         auto stringMap = this->encodingMap(inputColumnIndex, map);
         m_Definition.preprocessors().push_back(std::make_unique<CTargetMeanEncoding>(
@@ -64,8 +64,8 @@ void CBoostedTreeInferenceModelBuilder::addTargetMeanEncoding(std::size_t inputC
 
 void CBoostedTreeInferenceModelBuilder::addFrequencyEncoding(std::size_t inputColumnIndex,
                                                              const TDoubleVec& map) {
-    if (inputColumnIndex < m_Definition.input().fieldNames().size()) {
-        std::string fieldName{m_Definition.input().fieldNames()[inputColumnIndex]};
+    if (inputColumnIndex != m_Definition.dependentVariableColumnIndex()) {
+        const std::string& fieldName{m_Definition.fieldNames()[inputColumnIndex]};
         std::string featureName{fieldName + "_frequency"};
         auto stringMap = this->encodingMap(inputColumnIndex, map);
         m_Definition.preprocessors().push_back(std::make_unique<CFrequencyEncoding>(
@@ -88,6 +88,7 @@ CInferenceModelDefinition&& CBoostedTreeInferenceModelBuilder::build() {
 
     this->setTargetType();
     ensemble->featureNames(m_FeatureNames);
+    ensemble->removeUnusedFeatures();
 
     return std::move(m_Definition);
 }
@@ -112,21 +113,17 @@ void CBoostedTreeInferenceModelBuilder::addNode(
 
 CBoostedTreeInferenceModelBuilder::CBoostedTreeInferenceModelBuilder(TStrVec fieldNames,
                                                                      std::size_t dependentVariableColumnIndex,
-                                                                     const TStrVecVec& categoryNames) {
-    // filter filed names containing only "."
+                                                                     TStrVecVec categoryNames) {
+    // filter filed names containing empty string
+    fieldNames.erase(std::remove(fieldNames.begin(), fieldNames.end(), ""),
+                     fieldNames.end());
     fieldNames.erase(std::remove(fieldNames.begin(), fieldNames.end(), "."),
                      fieldNames.end());
-    // filter dependent variable field name
-    if (dependentVariableColumnIndex >= fieldNames.size()) {
-        HANDLE_FATAL(<< "Input error: Dependent variable is not among the field names. Please report this error.");
-    }
-
-    fieldNames.erase(fieldNames.begin() +
-                     static_cast<std::ptrdiff_t>(dependentVariableColumnIndex));
-    m_FieldNames = std::move(fieldNames);
+    m_FieldNames = fieldNames;
 
     this->categoryNames(categoryNames);
-    m_Definition.fieldNames(m_FieldNames);
+    m_Definition.dependentVariableColumnIndex(dependentVariableColumnIndex);
+    m_Definition.fieldNames(std::move(fieldNames), dependentVariableColumnIndex);
     m_Definition.trainedModel(std::make_unique<CEnsemble>());
     m_Definition.typeString(INFERENCE_MODEL);
 }

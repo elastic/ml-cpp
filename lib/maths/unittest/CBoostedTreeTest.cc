@@ -246,7 +246,7 @@ void CBoostedTreeTest::testPiecewiseConstant() {
             0.0, modelBias[i][0],
             4.0 * std::sqrt(noiseVariance / static_cast<double>(trainRows)));
         // Good R^2...
-        CPPUNIT_ASSERT(modelRSquared[i][0] > 0.96);
+        CPPUNIT_ASSERT(modelRSquared[i][0] > 0.95);
 
         meanModelRSquared.add(modelRSquared[i][0]);
     }
@@ -367,9 +367,9 @@ void CBoostedTreeTest::testNonLinear() {
         // Unbiased...
         CPPUNIT_ASSERT_DOUBLES_EQUAL(
             0.0, modelBias[i][0],
-            4.0 * std::sqrt(noiseVariance / static_cast<double>(trainRows)));
+            5.0 * std::sqrt(noiseVariance / static_cast<double>(trainRows)));
         // Good R^2...
-        CPPUNIT_ASSERT(modelRSquared[i][0] > 0.96);
+        CPPUNIT_ASSERT(modelRSquared[i][0] > 0.95);
 
         meanModelRSquared.add(modelRSquared[i][0]);
     }
@@ -759,7 +759,7 @@ void CBoostedTreeTest::testTranslationInvariance() {
         rsquared.push_back(modelRSquared);
     }
 
-    CPPUNIT_ASSERT_DOUBLES_EQUAL(rsquared[0], rsquared[1], 5e-3);
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(rsquared[0], rsquared[1], 0.01);
 }
 
 std::size_t maxDepth(const std::vector<maths::CBoostedTreeNode>& tree,
@@ -1072,7 +1072,6 @@ void CBoostedTreeTest::testLogisticRegression() {
     std::size_t cols{4};
     std::size_t capacity{600};
 
-    TMeanAccumulator meanExcessCrossEntropy;
     for (std::size_t test = 0; test < 3; ++test) {
         TDoubleVec weights;
         rng.generateUniformSamples(-2.0, 2.0, cols - 1, weights);
@@ -1103,40 +1102,126 @@ void CBoostedTreeTest::testLogisticRegression() {
         fillDataFrame(trainRows, rows - trainRows, cols, {false, false, false, true},
                       x, TDoubleVec(rows, 0.0), target, *frame);
 
-        auto regression = maths::CBoostedTreeFactory::constructFromParameters(1).buildFor(
-            *frame, std::make_unique<maths::boosted_tree::CLogistic>(), cols - 1);
+        auto regression =
+            maths::CBoostedTreeFactory::constructFromParameters(1)
+                .balanceClassTrainingLoss(false)
+                .buildFor(*frame, std::make_unique<maths::boosted_tree::CLogistic>(),
+                          cols - 1);
 
         regression->train();
         regression->predict();
 
-        double actualCrossEntropy{0.0};
-        double minimumCrossEntropy{0.0};
+        TMeanAccumulator logRelativeError;
         frame->readRows(1, [&](TRowItr beginRows, TRowItr endRows) {
             for (auto row = beginRows; row != endRows; ++row) {
                 if (row->index() >= trainRows) {
                     std::size_t index{
                         regression->columnHoldingPrediction(row->numberColumns())};
-                    actualCrossEntropy -=
-                        probability(*row) *
-                        std::log(maths::CTools::logisticFunction((*row)[index]));
-                    minimumCrossEntropy -= probability(*row) *
-                                           std::log(probability(*row));
+                    double expectedProbability{probability(*row)};
+                    double actualProbability{maths::CTools::logisticFunction((*row)[index])};
+                    logRelativeError.add(
+                        std::log(std::max(actualProbability, expectedProbability) /
+                                 std::min(actualProbability, expectedProbability)));
                 }
             }
         });
-        LOG_DEBUG(<< "actual cross entropy = " << actualCrossEntropy
-                  << ", minimum cross entropy = " << minimumCrossEntropy);
+        LOG_DEBUG(<< "log relative error = "
+                  << maths::CBasicStatistics::mean(logRelativeError));
 
-        // We should be with 40% of the minimum possible cross entropy.
-        CPPUNIT_ASSERT(actualCrossEntropy < 1.4 * minimumCrossEntropy);
-        meanExcessCrossEntropy.add(actualCrossEntropy / minimumCrossEntropy);
+        CPPUNIT_ASSERT(maths::CBasicStatistics::mean(logRelativeError) < 0.7);
+    }
+}
+
+void CBoostedTreeTest::testUnbalancedClasses() {
+
+    // Test we get similar per class precision and recall with unbalanced training
+    // data targeting balanced within class accuracy.
+
+    test::CRandomNumbers rng;
+
+    std::size_t trainRows{1000};
+    std::size_t classes[]{1, 0, 1, 0};
+    std::size_t classesRowCounts[]{800, 200, 100, 100};
+    std::size_t cols{3};
+
+    TDoubleVecVec x;
+    TDoubleVec means{0.0, 3.0};
+    TDoubleVec variances{6.0, 6.0};
+    for (std::size_t i = 0; i < 4; ++i) {
+        TDoubleVecVec xi;
+        double mean{means[classes[i]]};
+        double variance{variances[classes[i]]};
+        rng.generateMultivariateNormalSamples(
+            {mean, mean}, {{variance, 0.0}, {0.0, variance}}, classesRowCounts[i], xi);
+        x.insert(x.end(), xi.begin(), xi.end());
     }
 
-    LOG_DEBUG(<< "mean excess cross entropy = "
-              << maths::CBasicStatistics::mean(meanExcessCrossEntropy));
+    TDoubleVecVec precisions;
+    TDoubleVecVec recalls;
 
-    // We should be within 25% of the minimum possible cross entropy on average.
-    CPPUNIT_ASSERT(maths::CBasicStatistics::mean(meanExcessCrossEntropy) < 1.25);
+    for (bool balanceClassTrainingLoss : {false, true}) {
+        auto frame = core::makeMainStorageDataFrame(cols).first;
+        frame->categoricalColumns(TBoolVec{false, false, true});
+        for (std::size_t i = 0, index = 0; i < 4; ++i) {
+            for (std::size_t j = 0; j < classesRowCounts[i]; ++j, ++index) {
+                frame->writeRow([&](core::CDataFrame::TFloatVecItr column, std::int32_t&) {
+                    for (std::size_t k = 0; k < cols - 1; ++k, ++column) {
+                        *column = x[index][k];
+                    }
+                    *column = index < trainRows ? static_cast<double>(i)
+                                                : core::CDataFrame::valueOfMissing();
+                });
+            }
+        }
+        frame->finishWritingRows();
+
+        auto regression =
+            maths::CBoostedTreeFactory::constructFromParameters(1)
+                .balanceClassTrainingLoss(balanceClassTrainingLoss)
+                .buildFor(*frame, std::make_unique<maths::boosted_tree::CLogistic>(),
+                          cols - 1);
+
+        regression->train();
+        regression->predict();
+
+        TDoubleVec truePositives(2, 0.0);
+        TDoubleVec trueNegatives(2, 0.0);
+        TDoubleVec falsePositives(2, 0.0);
+        TDoubleVec falseNegatives(2, 0.0);
+        frame->readRows(1, [&](TRowItr beginRows, TRowItr endRows) {
+            for (auto row = beginRows; row != endRows; ++row) {
+                double logOddsClassOne{
+                    (*row)[regression->columnHoldingPrediction(row->numberColumns())]};
+                double prediction{
+                    maths::CTools::logisticFunction(logOddsClassOne) < 0.5 ? 0.0 : 1.0};
+                if (row->index() >= trainRows &&
+                    row->index() < trainRows + classesRowCounts[2]) {
+                    // Actual is zero.
+                    (prediction == 0.0 ? truePositives[0] : falseNegatives[0]) += 1.0;
+                    (prediction == 0.0 ? trueNegatives[1] : falsePositives[1]) += 1.0;
+                } else if (row->index() >= trainRows + classesRowCounts[2]) {
+                    // Actual is one.
+                    (prediction == 1.0 ? truePositives[1] : falseNegatives[1]) += 1.0;
+                    (prediction == 1.0 ? trueNegatives[0] : falsePositives[0]) += 1.0;
+                }
+            }
+        });
+
+        precisions.push_back(
+            {truePositives[0] / (truePositives[0] + falsePositives[0]),
+             truePositives[1] / (truePositives[1] + falsePositives[1])});
+        recalls.push_back({truePositives[0] / (truePositives[0] + falseNegatives[0]),
+                           truePositives[1] / (truePositives[1] + falseNegatives[1])});
+    }
+
+    LOG_DEBUG(<< "precisions = " << core::CContainerPrinter::print(precisions));
+    LOG_DEBUG(<< "recalls    = " << core::CContainerPrinter::print(recalls));
+
+    // We expect more similar precision and recall when balancing training loss.
+    CPPUNIT_ASSERT(std::fabs(precisions[1][0] - precisions[1][1]) <
+                   0.4 * std::fabs(precisions[0][0] - precisions[0][1]));
+    CPPUNIT_ASSERT(std::fabs(recalls[1][0] - recalls[1][1]) <
+                   0.4 * std::fabs(recalls[0][0] - recalls[0][1]));
 }
 
 void CBoostedTreeTest::testEstimateMemoryUsedByTrain() {
@@ -1461,6 +1546,8 @@ CppUnit::Test* CBoostedTreeTest::suite() {
         &CBoostedTreeTest::testLogisticLossForUnderflow));
     suiteOfTests->addTest(new CppUnit::TestCaller<CBoostedTreeTest>(
         "CBoostedTreeTest::testLogisticRegression", &CBoostedTreeTest::testLogisticRegression));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CBoostedTreeTest>(
+        "CBoostedTreeTest::testUnbalancedClasses", &CBoostedTreeTest::testUnbalancedClasses));
     suiteOfTests->addTest(new CppUnit::TestCaller<CBoostedTreeTest>(
         "CBoostedTreeTest::testEstimateMemoryUsedByTrain",
         &CBoostedTreeTest::testEstimateMemoryUsedByTrain));
