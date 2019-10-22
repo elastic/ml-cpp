@@ -14,6 +14,7 @@ public:
     void testIntegrationRegression();
     void testIntegrationClassification();
     void testJsonSchema();
+    void testEncoders();
 
     static CppUnit::Test* suite();
 };
