@@ -14,6 +14,7 @@
 
 #include <maths/CLinearAlgebraEigen.h>
 
+#include <api/CBoostedTreeInferenceModelBuilder.h>
 #include <api/CDataFrameAnalysisSpecification.h>
 #include <api/CDataFrameAnalysisSpecificationJsonWriter.h>
 #include <api/CDataFrameAnalyzer.h>
@@ -327,6 +328,60 @@ void CBoostedTreeInferenceModelBuilderTest::testJsonSchema() {
     }
 }
 
+void CBoostedTreeInferenceModelBuilderTest::testEncoders() {
+    {
+        TStrVec fieldNames{"col1", "target", "col2", "col3"};
+        std::size_t dependentVariableColumnIndex{1};
+        TStrVecVec categoryNames{{},
+                                 {"targetcat1", "targetcat2"},
+                                 {"col2cat1", "col2cat2", "col2cat3"},
+                                 {"col3cat1", "col3cat2"}};
+        api::CClassificationInferenceModelBuilder builder(
+            fieldNames, dependentVariableColumnIndex, categoryNames);
+        builder.addIdentityEncoding(0);
+        builder.addOneHotEncoding(2, 0);
+        builder.addOneHotEncoding(2, 1);
+        builder.addFrequencyEncoding(2, {1.0, 1.0, 1.0});
+        builder.addOneHotEncoding(3, 0);
+        builder.addFrequencyEncoding(3, {1.0, 1.0});
+        auto definition{builder.build()};
+        const auto& preprocessors{definition.preprocessors()};
+        CPPUNIT_ASSERT_EQUAL(std::size_t(4), preprocessors.size());
+        for (const auto& encoding : preprocessors) {
+            if (encoding->typeString() == "frequency_encoding") {
+                const auto& frequencyEncoding{
+                    static_cast<api::CFrequencyEncoding*>(encoding.get())};
+                const auto& map{frequencyEncoding->frequencyMap()};
+                if (frequencyEncoding->featureName() == "col2_frequency") {
+                    CPPUNIT_ASSERT_EQUAL(std::size_t(3), map.size());
+                    CPPUNIT_ASSERT(map.find("col2cat1") != map.end());
+                    CPPUNIT_ASSERT(map.find("col2cat2") != map.end());
+                    CPPUNIT_ASSERT(map.find("col2cat3") != map.end());
+                } else if (frequencyEncoding->featureName() == "col3_frequency") {
+                    CPPUNIT_ASSERT_EQUAL(std::size_t(2), map.size());
+                    CPPUNIT_ASSERT(map.find("col3cat1") != map.end());
+                    CPPUNIT_ASSERT(map.find("col3cat2") != map.end());
+                }
+            } else if (encoding->typeString() == "one_hot_encoding") {
+                const auto& oneHotEncoding{
+                    static_cast<api::COneHotEncoding*>(encoding.get())};
+                const auto& map{oneHotEncoding->hotMap()};
+
+                if (oneHotEncoding->field() == "col2") {
+                    CPPUNIT_ASSERT_EQUAL(std::size_t(2), map.size());
+                    CPPUNIT_ASSERT(map.find("col2cat1") != map.end());
+                    CPPUNIT_ASSERT(map.find("col2cat2") != map.end());
+                } else if (oneHotEncoding->field() == "col3") {
+                    CPPUNIT_ASSERT_EQUAL(std::size_t(1), map.size());
+                    CPPUNIT_ASSERT(map.find("col3cat1") != map.end());
+                }
+            } else {
+                CPPUNIT_FAIL("Unexpected encoding type");
+            }
+        }
+    }
+}
+
 CppUnit::Test* CBoostedTreeInferenceModelBuilderTest::suite() {
     CppUnit::TestSuite* suiteOfTests =
         new CppUnit::TestSuite("CBoostedTreeInferenceModelBuilderTest");
@@ -340,6 +395,9 @@ CppUnit::Test* CBoostedTreeInferenceModelBuilderTest::suite() {
     suiteOfTests->addTest(new CppUnit::TestCaller<CBoostedTreeInferenceModelBuilderTest>(
         "CBoostedTreeInferenceModelBuilderTest::testJsonSchema",
         &CBoostedTreeInferenceModelBuilderTest::testJsonSchema));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CBoostedTreeInferenceModelBuilderTest>(
+        "CBoostedTreeInferenceModelBuilderTest::testEncoders",
+        &CBoostedTreeInferenceModelBuilderTest::testEncoders));
 
     return suiteOfTests;
 }
