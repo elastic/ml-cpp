@@ -188,7 +188,6 @@ public:
 
 private:
     void initializeRunner(const rapidjson::Value& jsonAnalysis);
-
     static TDataAdderUPtr noopPersisterSupplier();
     static TDataSearcherUPtr noopRestoreSearcherSupplier();
 

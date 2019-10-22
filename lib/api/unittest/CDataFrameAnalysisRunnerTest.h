@@ -13,18 +13,15 @@ class CDataFrameAnalysisRunnerTest : public CppUnit::TestFixture {
 public:
     void testComputeExecutionStrategyForOutliers();
     void testComputeAndSaveExecutionStrategyDiskUsageFlag();
-    void testEstimateMemoryUsage_0();
-    void testEstimateMemoryUsage_1();
-    void testEstimateMemoryUsage_10();
-    void testEstimateMemoryUsage_100();
-    void testEstimateMemoryUsage_1000();
+    void testEstimateMemoryUsageFor0Rows();
+    void testEstimateMemoryUsageFor1Row();
+    void testEstimateMemoryUsageFor10Rows();
+    void testEstimateMemoryUsageFor100Rows();
+    void testEstimateMemoryUsageFor1000Rows();
     void testColumnsForWhichEmptyIsMissingClassification();
     void testColumnsForWhichEmptyIsMissingRegression();
 
     static CppUnit::Test* suite();
-
-private:
-    std::string createSpecJsonForDiskUsageTest(std::size_t rows, std::size_t cols, bool diskUsageAllowed);
 };
 
 #endif // INCLUDED_CDataFrameAnalysisRunnerTest_h

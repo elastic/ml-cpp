@@ -61,6 +61,12 @@ CDataFrameTrainBoostedTreeClassifierRunner::CDataFrameTrainBoostedTreeClassifier
     m_NumTopClasses = parameters[NUM_TOP_CLASSES].fallback(std::size_t{0});
     this->boostedTreeFactory().balanceClassTrainingLoss(
         parameters[BALANCED_CLASS_LOSS].fallback(true));
+
+    const TStrVec& categoricalFieldNames{spec.categoricalFieldNames()};
+    if (std::find(categoricalFieldNames.begin(), categoricalFieldNames.end(),
+                  this->dependentVariableFieldName()) == categoricalFieldNames.end()) {
+        HANDLE_FATAL(<< "Input error: trying to perform classification with numeric target.");
+    }
 }
 
 CDataFrameTrainBoostedTreeClassifierRunner::CDataFrameTrainBoostedTreeClassifierRunner(
@@ -137,7 +143,9 @@ CDataFrameTrainBoostedTreeClassifierRunner::chooseLossFunction(const core::CData
         return std::make_unique<maths::boosted_tree::CLogistic>();
     }
     HANDLE_FATAL(<< "Input error: only binary classification is supported. "
-                 << "Trying to predict '" << categoryCount << "' categories.");
+                 << "Trying to predict '" << frame.columnNames()[dependentVariableColumn]
+                 << "' which has '" << categoryCount << "' categories. "
+                 << "The number of rows read is '" << frame.numberRows() << "'.");
     return nullptr;
 }
 
