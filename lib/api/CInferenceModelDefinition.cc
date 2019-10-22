@@ -336,9 +336,12 @@ void CTrainedModel::featureNames(CTrainedModel::TStringVec&& featureNames) {
     m_FeatureNames = featureNames;
 }
 
-void CInferenceModelDefinition::fieldNames(const TStringVec& fieldNames) {
+void CInferenceModelDefinition::fieldNames(TStringVec&& fieldNames,
+                                           std::size_t dependentVariableColumnIndex) {
     m_FieldNames = fieldNames;
-    m_Input.fieldNames(fieldNames);
+    fieldNames.erase(fieldNames.begin() +
+                     static_cast<std::ptrdiff_t>(dependentVariableColumnIndex));
+    m_Input.fieldNames(std::move(fieldNames));
 }
 
 void CInferenceModelDefinition::trainedModel(std::unique_ptr<CTrainedModel>&& trainedModel) {
@@ -365,12 +368,24 @@ void CInferenceModelDefinition::typeString(const std::string& typeString) {
     CInferenceModelDefinition::m_TypeString = typeString;
 }
 
+const CInferenceModelDefinition::TStringVec& CInferenceModelDefinition::fieldNames() const {
+    return m_FieldNames;
+}
+
+size_t CInferenceModelDefinition::dependentVariableColumnIndex() const {
+    return m_DependentVariableColumnIndex;
+}
+
+void CInferenceModelDefinition::dependentVariableColumnIndex(size_t dependentVariableColumnIndex) {
+    m_DependentVariableColumnIndex = dependentVariableColumnIndex;
+}
+
 const CInput::TStringVec& CInput::fieldNames() const {
     return m_FieldNames;
 }
 
-void CInput::fieldNames(const TStringVec& columns) {
-    m_FieldNames = columns;
+void CInput::fieldNames(TStringVec&& fieldNames) {
+    m_FieldNames = fieldNames;
 }
 
 void CInput::addToDocument(rapidjson::Value& parentObject, TRapidJsonWriter& writer) const {
@@ -431,6 +446,10 @@ void CEncoding::addToDocument(rapidjson::Value& parentObject, TRapidJsonWriter& 
 }
 
 CEncoding::CEncoding(std::string field) : m_Field(std::move(field)) {
+}
+
+const std::string& CEncoding::field() const {
+    return m_Field;
 }
 
 void CFrequencyEncoding::addToDocument(rapidjson::Value& parentObject,

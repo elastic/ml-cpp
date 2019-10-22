@@ -15,6 +15,8 @@ public:
     void testStandardizeColumns();
     void testColumnQuantiles();
     void testColumnQuantilesWithEncoding();
+    void testStratifiedCrossValidationRowMasks();
+    void testCrossValidationRowMasks();
     void testMicWithColumn();
     void testCategoryFrequencies();
     void testMeanValueOfTargetForCategories();
