@@ -7,6 +7,7 @@
 
 #include <core/CPersistUtils.h>
 
+#include <unordered_map>
 #include <unordered_set>
 
 namespace ml {
@@ -222,7 +223,7 @@ CTree::TTreeNodeVec& CTree::treeStructure() {
 }
 
 CTrainedModel::TStringVec CTree::removeUnusedFeatures() {
-    boost::unordered_map<std::size_t, std::size_t> selectedFeatureIndices;
+    std::unordered_map<std::size_t, std::size_t> selectedFeatureIndices;
     for (auto& treeNode : m_TreeStructure) {
         if (treeNode.leaf() == false) {
             std::size_t adjustedIndex{selectedFeatureIndices
