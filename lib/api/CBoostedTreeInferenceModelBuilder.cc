@@ -53,7 +53,7 @@ void CBoostedTreeInferenceModelBuilder::addTargetMeanEncoding(std::size_t inputC
                                                               const TDoubleVec& map,
                                                               double fallback) {
     if (inputColumnIndex != m_Definition.dependentVariableColumnIndex()) {
-        std::string fieldName{m_Definition.fieldNames()[inputColumnIndex]};
+        const std::string& fieldName{m_Definition.fieldNames()[inputColumnIndex]};
         std::string featureName{fieldName + "_targetmean"};
         auto stringMap = this->encodingMap(inputColumnIndex, map);
         m_Definition.preprocessors().push_back(std::make_unique<CTargetMeanEncoding>(
@@ -65,7 +65,7 @@ void CBoostedTreeInferenceModelBuilder::addTargetMeanEncoding(std::size_t inputC
 void CBoostedTreeInferenceModelBuilder::addFrequencyEncoding(std::size_t inputColumnIndex,
                                                              const TDoubleVec& map) {
     if (inputColumnIndex != m_Definition.dependentVariableColumnIndex()) {
-        std::string fieldName{m_Definition.fieldNames()[inputColumnIndex]};
+        const std::string& fieldName{m_Definition.fieldNames()[inputColumnIndex]};
         std::string featureName{fieldName + "_frequency"};
         auto stringMap = this->encodingMap(inputColumnIndex, map);
         m_Definition.preprocessors().push_back(std::make_unique<CFrequencyEncoding>(

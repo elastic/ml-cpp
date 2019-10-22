@@ -329,7 +329,7 @@ public:
     const TStringVec& fieldNames() const;
     const std::string& typeString() const;
     void typeString(const std::string& typeString);
-    size_t dependentVariableColumnIndex() const;
+    std::size_t dependentVariableColumnIndex() const;
     void dependentVariableColumnIndex(size_t dependentVariableColumnIndex);
 
 private:
