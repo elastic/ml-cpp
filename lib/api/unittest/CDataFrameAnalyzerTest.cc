@@ -27,20 +27,11 @@
 using namespace ml;
 
 namespace {
-using TBoolVec = std::vector<bool>;
 using TDoubleVec = std::vector<double>;
 using TDoubleVecVec = std::vector<TDoubleVec>;
-using TSizeVec = std::vector<std::size_t>;
 using TStrVec = std::vector<std::string>;
 using TRowItr = core::CDataFrame::TRowItr;
 using TRowRef = core::CDataFrame::TRowRef;
-using TPoint = maths::CDenseVector<maths::CFloatStorage>;
-using TPointVec = std::vector<TPoint>;
-using TDataFrameUPtr = std::unique_ptr<core::CDataFrame>;
-using TDataAdderUPtr = std::unique_ptr<core::CDataAdder>;
-using TPersisterSupplier = std::function<TDataAdderUPtr()>;
-using TDataSearcherUPtr = std::unique_ptr<core::CDataSearcher>;
-using TRestoreSearcherSupplier = std::function<TDataSearcherUPtr()>;
 
 void addOutlierTestData(TStrVec fieldNames,
                         TStrVec fieldValues,
