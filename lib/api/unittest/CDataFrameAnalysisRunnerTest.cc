@@ -23,6 +23,7 @@
 
 using namespace ml;
 
+using TBoolVec = std::vector<bool>;
 using TStrVec = std::vector<std::string>;
 
 void CDataFrameAnalysisRunnerTest::testComputeExecutionStrategyForOutliers() {
@@ -192,29 +193,30 @@ void CDataFrameAnalysisRunnerTest::testEstimateMemoryUsageFor1000Rows() {
 }
 
 void testColumnsForWhichEmptyIsMissing(const std::string& analysis,
+                                       const std::string& dependentVariableName,
                                        const TStrVec& fieldNames,
                                        const TStrVec& categoricalFields,
-                                       const std::string& expectedEmptyIsMissing) {
-    std::string parameters{"{\"dependent_variable\": \"label\"}"};
+                                       const TBoolVec& expectedEmptyIsMissing) {
+    std::string parameters{"{\"dependent_variable\": \"" + dependentVariableName + "\"}"};
     std::string jsonSpec{api::CDataFrameAnalysisSpecificationJsonWriter::jsonString(
         "testJob", 10000, 5, 100000000, 1, categoricalFields, true,
         test::CTestTmpDir::tmpDir(), "", analysis, parameters)};
     api::CDataFrameAnalysisSpecification spec{jsonSpec};
     auto emptyIsMissing = spec.columnsForWhichEmptyIsMissing(fieldNames);
-    CPPUNIT_ASSERT_EQUAL(expectedEmptyIsMissing,
+    CPPUNIT_ASSERT_EQUAL(core::CContainerPrinter::print(expectedEmptyIsMissing),
                          core::CContainerPrinter::print(emptyIsMissing));
 }
 
 void CDataFrameAnalysisRunnerTest::testColumnsForWhichEmptyIsMissingClassification() {
-    testColumnsForWhichEmptyIsMissing("classification",
-                                      {"feature_1", "feature_2", "feature_3", "label"},
-                                      {"label"}, "[0, 0, 0, 1]");
+    testColumnsForWhichEmptyIsMissing("classification", "class",
+                                      {"feature_1", "feature_2", "feature_3", "class"},
+                                      {"class"}, {false, false, false, true});
 }
 
 void CDataFrameAnalysisRunnerTest::testColumnsForWhichEmptyIsMissingRegression() {
-    testColumnsForWhichEmptyIsMissing("regression",
+    testColumnsForWhichEmptyIsMissing("regression", "value",
                                       {"feature_1", "feature_2", "feature_3", "value"},
-                                      {"value"}, "[0, 0, 0, 0]");
+                                      {}, {false, false, false, false});
 }
 
 CppUnit::Test* CDataFrameAnalysisRunnerTest::suite() {
