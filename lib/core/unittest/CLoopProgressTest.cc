@@ -38,11 +38,11 @@ BOOST_AUTO_TEST_CASE(testShort) {
         core::CLoopProgress loopProgress{n, recordProgress};
 
         for (std::size_t i = 0; i < n; ++i, loopProgress.increment()) {
-            BOOST_CHECK_CLOSE_ABSOLUTE(
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(
                 static_cast<double>(i) / static_cast<double>(n), progress, 1e-15);
         }
 
-        BOOST_CHECK_CLOSE_ABSOLUTE(1.0, progress, 1e-15);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(1.0, progress, 1e-15);
     }
 
     LOG_DEBUG(<< "Test with stride > 1");
@@ -55,7 +55,7 @@ BOOST_AUTO_TEST_CASE(testShort) {
         core::CLoopProgress loopProgress{n, recordProgress};
 
         for (std::size_t i = 0; i < n; i += 2, loopProgress.increment(2)) {
-            BOOST_CHECK_CLOSE_ABSOLUTE(
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(
                 static_cast<double>(i) / static_cast<double>(n), progress, 1e-15);
         }
     }
@@ -83,10 +83,10 @@ BOOST_AUTO_TEST_CASE(testRandom) {
         core::CLoopProgress loopProgress{size[0], recordProgress};
 
         for (std::size_t i = 0; i < size[0]; ++i, loopProgress.increment()) {
-            BOOST_CHECK_EQUAL(static_cast<double>(32 * i / size[0]) / 32.0, progress);
+            BOOST_REQUIRE_EQUAL(static_cast<double>(32 * i / size[0]) / 32.0, progress);
         }
 
-        BOOST_CHECK_EQUAL(1.0, progress);
+        BOOST_REQUIRE_EQUAL(1.0, progress);
     }
 
     LOG_DEBUG(<< "Test with stride > 1");
@@ -104,10 +104,10 @@ BOOST_AUTO_TEST_CASE(testRandom) {
         core::CLoopProgress loopProgress{size[0], recordProgress};
 
         for (std::size_t i = 0; i < size[0]; i += 20, loopProgress.increment(20)) {
-            BOOST_CHECK_EQUAL(static_cast<double>(32 * i / size[0]) / 32.0, progress);
+            BOOST_REQUIRE_EQUAL(static_cast<double>(32 * i / size[0]) / 32.0, progress);
         }
 
-        BOOST_CHECK_EQUAL(1.0, progress);
+        BOOST_REQUIRE_EQUAL(1.0, progress);
     }
 }
 
@@ -138,7 +138,7 @@ BOOST_AUTO_TEST_CASE(testScaled) {
             // We're only interested in checking the progress at the end.
         }
 
-        BOOST_CHECK_CLOSE_ABSOLUTE(1.0 / static_cast<double>(step[0]), progress, 1e-15);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(1.0 / static_cast<double>(step[0]), progress, 1e-15);
     }
 }
 
@@ -171,11 +171,11 @@ BOOST_AUTO_TEST_CASE(testSerialization) {
     restoredLoopProgress.progressCallback(restoredRecordProgress);
     restoredLoopProgress.resumeRestored();
 
-    BOOST_CHECK_EQUAL(loopProgress.checksum(), restoredLoopProgress.checksum());
+    BOOST_REQUIRE_EQUAL(loopProgress.checksum(), restoredLoopProgress.checksum());
     for (std::size_t i = 20; i < 50; ++i) {
         loopProgress.increment();
         restoredLoopProgress.increment();
-        BOOST_CHECK_EQUAL(progress, restoredProgress);
+        BOOST_REQUIRE_EQUAL(progress, restoredProgress);
     }
 }
 

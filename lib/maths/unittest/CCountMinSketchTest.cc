@@ -70,7 +70,7 @@ BOOST_AUTO_TEST_CASE(testCounts) {
             //BOOST_TEST(maths::CBasicStatistics::mean(meanError)
             //                   < 0.1 * static_cast<double>(n));
         }
-        //BOOST_CHECK_EQUAL(0.0, errorCount);
+        //BOOST_REQUIRE_EQUAL(0.0, errorCount);
     }
 
     // Test the case that a small fraction of categories generate a large

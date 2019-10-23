@@ -100,7 +100,7 @@ void testEncodeDecode(const std::string& input) {
 
         std::istreambuf_iterator<char> eos;
         std::string s(std::istreambuf_iterator<char>(filter), eos);
-        BOOST_CHECK_EQUAL(input, s);
+        BOOST_REQUIRE_EQUAL(input, s);
     }
 }
 }
@@ -126,7 +126,7 @@ BOOST_AUTO_TEST_CASE(testEncode) {
             "dGhlIG1pbmQsIHRoYXQgYnkgYSBwZXJzZXZlcmFuY2Ugb2YgZGVsaWdodCBpbiB0aGUgY29udGlu"
             "dWVkIGFuZCBpbmRlZmF0aWdhYmxlIGdlbmVyYXRpb24gb2Yga25vd2xlZGdlLCBleGNlZWRzIHRo"
             "ZSBzaG9ydCB2ZWhlbWVuY2Ugb2YgYW55IGNhcm5hbCBwbGVhc3VyZS4=";
-        BOOST_CHECK_EQUAL(expected, sink.getData());
+        BOOST_REQUIRE_EQUAL(expected, sink.getData());
     }
     {
         // Test a much longer string
@@ -143,7 +143,7 @@ BOOST_AUTO_TEST_CASE(testEncode) {
         for (std::size_t i = 0; i < 50000; i++) {
             result << "T25lVHdvVGhyZWVGb3VyRml2ZVNpeFNldmVuRWlnaHROaW5lVGVu";
         }
-        BOOST_CHECK_EQUAL(result.str(), sink.getData());
+        BOOST_REQUIRE_EQUAL(result.str(), sink.getData());
     }
 }
 
@@ -167,7 +167,7 @@ BOOST_AUTO_TEST_CASE(testDecode) {
         filter.push(boost::ref(source));
         std::istreambuf_iterator<char> eos;
         std::string s(std::istreambuf_iterator<char>(filter), eos);
-        BOOST_CHECK_EQUAL(expected, s);
+        BOOST_REQUIRE_EQUAL(expected, s);
     }
     {
         // Test decoding
@@ -179,7 +179,7 @@ BOOST_AUTO_TEST_CASE(testDecode) {
         filter.push(boost::ref(source));
         std::istreambuf_iterator<char> eos;
         std::string s(std::istreambuf_iterator<char>(filter), eos);
-        BOOST_CHECK_EQUAL(expected, s);
+        BOOST_REQUIRE_EQUAL(expected, s);
     }
 }
 

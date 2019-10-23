@@ -18,7 +18,7 @@ BOOST_AUTO_TEST_CASE(testResourceDir) {
 
     // It should contain the file ml-en.dict
     ml::core::COsFileFuncs::TStat buf;
-    BOOST_CHECK_EQUAL(
+    BOOST_REQUIRE_EQUAL(
         0, ml::core::COsFileFuncs::stat((resourceDir + "/ml-en.dict").c_str(), &buf));
 }
 
@@ -28,7 +28,7 @@ BOOST_AUTO_TEST_CASE(testSrcRootDir) {
 
     // It should contain the file set_env.sh
     ml::core::COsFileFuncs::TStat buf;
-    BOOST_CHECK_EQUAL(
+    BOOST_REQUIRE_EQUAL(
         0, ml::core::COsFileFuncs::stat((cppRootDir + "/set_env.sh").c_str(), &buf));
 }
 

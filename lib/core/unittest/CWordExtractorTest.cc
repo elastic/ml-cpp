@@ -21,7 +21,7 @@ BOOST_AUTO_TEST_CASE(testWordExtract) {
         LOG_DEBUG(<< "Message: " << message);
         LOG_DEBUG(<< "Words: " << words);
 
-        BOOST_CHECK_EQUAL(std::string("Failed to Rollback"), words);
+        BOOST_REQUIRE_EQUAL(std::string("Failed to Rollback"), words);
     }
     {
         std::string message(
@@ -34,7 +34,7 @@ BOOST_AUTO_TEST_CASE(testWordExtract) {
         LOG_DEBUG(<< "Message: " << message);
         LOG_DEBUG(<< "Words: " << words);
 
-        BOOST_CHECK_EQUAL(std::string("Found corresponding"), words);
+        BOOST_REQUIRE_EQUAL(std::string("Found corresponding"), words);
     }
     {
         std::string message("]\", which is more than the configured time (StuckThreadMaxTime) of \"600\" seconds. Stack trace:");
@@ -45,8 +45,8 @@ BOOST_AUTO_TEST_CASE(testWordExtract) {
         LOG_DEBUG(<< "Message: " << message);
         LOG_DEBUG(<< "Words: " << words);
 
-        BOOST_CHECK_EQUAL(std::string("which is more than the configured time of seconds Stack trace"),
-                          words);
+        BOOST_REQUIRE_EQUAL(std::string("which is more than the configured time of seconds Stack trace"),
+                            words);
     }
 }
 
@@ -61,7 +61,7 @@ BOOST_AUTO_TEST_CASE(testMinConsecutive) {
         LOG_DEBUG(<< "Message: " << message);
         LOG_DEBUG(<< "Words: " << words);
 
-        BOOST_CHECK_EQUAL(std::string("Failed to Rollback"), words);
+        BOOST_REQUIRE_EQUAL(std::string("Failed to Rollback"), words);
 
         ml::core::CWordExtractor::extractWordsFromMessage(3, message, words);
 
@@ -69,7 +69,7 @@ BOOST_AUTO_TEST_CASE(testMinConsecutive) {
         LOG_DEBUG(<< "Message: " << message);
         LOG_DEBUG(<< "Words: " << words);
 
-        BOOST_CHECK_EQUAL(std::string("Failed to Rollback"), words);
+        BOOST_REQUIRE_EQUAL(std::string("Failed to Rollback"), words);
 
         ml::core::CWordExtractor::extractWordsFromMessage(4, message, words);
 
@@ -77,7 +77,7 @@ BOOST_AUTO_TEST_CASE(testMinConsecutive) {
         LOG_DEBUG(<< "Message: " << message);
         LOG_DEBUG(<< "Words: " << words);
 
-        BOOST_CHECK_EQUAL(std::string(""), words);
+        BOOST_REQUIRE_EQUAL(std::string(""), words);
     }
     {
         std::string message("]\", which is more than the configured time (StuckThreadMaxTime) of \"600\" seconds. Stack trace:");
@@ -89,8 +89,8 @@ BOOST_AUTO_TEST_CASE(testMinConsecutive) {
         LOG_DEBUG(<< "Message: " << message);
         LOG_DEBUG(<< "Words: " << words);
 
-        BOOST_CHECK_EQUAL(std::string("which is more than the configured time seconds Stack trace"),
-                          words);
+        BOOST_REQUIRE_EQUAL(std::string("which is more than the configured time seconds Stack trace"),
+                            words);
 
         ml::core::CWordExtractor::extractWordsFromMessage(3, message, words);
 
@@ -98,8 +98,8 @@ BOOST_AUTO_TEST_CASE(testMinConsecutive) {
         LOG_DEBUG(<< "Message: " << message);
         LOG_DEBUG(<< "Words: " << words);
 
-        BOOST_CHECK_EQUAL(std::string("which is more than the configured time seconds Stack trace"),
-                          words);
+        BOOST_REQUIRE_EQUAL(std::string("which is more than the configured time seconds Stack trace"),
+                            words);
 
         ml::core::CWordExtractor::extractWordsFromMessage(4, message, words);
 
@@ -107,7 +107,7 @@ BOOST_AUTO_TEST_CASE(testMinConsecutive) {
         LOG_DEBUG(<< "Message: " << message);
         LOG_DEBUG(<< "Words: " << words);
 
-        BOOST_CHECK_EQUAL(std::string("which is more than the configured time"), words);
+        BOOST_REQUIRE_EQUAL(std::string("which is more than the configured time"), words);
     }
     {
         std::string message("<ml00-4253.1.p2ps: Warning: > Output threshold breached for: dave at position 192.168.156.136/net using "
@@ -120,8 +120,8 @@ BOOST_AUTO_TEST_CASE(testMinConsecutive) {
         LOG_DEBUG(<< "Message: " << message);
         LOG_DEBUG(<< "Words: " << words);
 
-        BOOST_CHECK_EQUAL(std::string("Output threshold breached for at position using application on channel"),
-                          words);
+        BOOST_REQUIRE_EQUAL(std::string("Output threshold breached for at position using application on channel"),
+                            words);
 
         ml::core::CWordExtractor::extractWordsFromMessage(3, message, words);
 
@@ -129,7 +129,7 @@ BOOST_AUTO_TEST_CASE(testMinConsecutive) {
         LOG_DEBUG(<< "Message: " << message);
         LOG_DEBUG(<< "Words: " << words);
 
-        BOOST_CHECK_EQUAL(std::string("Output threshold breached for"), words);
+        BOOST_REQUIRE_EQUAL(std::string("Output threshold breached for"), words);
 
         ml::core::CWordExtractor::extractWordsFromMessage(4, message, words);
 
@@ -137,7 +137,7 @@ BOOST_AUTO_TEST_CASE(testMinConsecutive) {
         LOG_DEBUG(<< "Message: " << message);
         LOG_DEBUG(<< "Words: " << words);
 
-        BOOST_CHECK_EQUAL(std::string("Output threshold breached for"), words);
+        BOOST_REQUIRE_EQUAL(std::string("Output threshold breached for"), words);
     }
 }
 

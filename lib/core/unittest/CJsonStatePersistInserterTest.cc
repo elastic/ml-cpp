@@ -53,8 +53,8 @@ BOOST_AUTO_TEST_CASE(testPersist) {
 
         LOG_DEBUG(<< "JSON is: " << json);
 
-        BOOST_CHECK_EQUAL(std::string("{\"a\":\"a\",\"b\":\"25\",\"c\":{\"a\":\"3.14\",\"b\":\"z\"}}"),
-                          json);
+        BOOST_REQUIRE_EQUAL(std::string("{\"a\":\"a\",\"b\":\"25\",\"c\":{\"a\":\"3.14\",\"b\":\"z\"}}"),
+                            json);
     }
 
     {
@@ -74,8 +74,8 @@ BOOST_AUTO_TEST_CASE(testPersist) {
 
         LOG_DEBUG(<< "JSON is: " << json);
 
-        BOOST_CHECK_EQUAL(std::string("{\"level1A\":\"a\",\"level1B\":\"25\",\"level1C\":{\"level2A\":\"3.14\",\"level2B\":\"z\"}}"),
-                          json);
+        BOOST_REQUIRE_EQUAL(std::string("{\"level1A\":\"a\",\"level1B\":\"25\",\"level1C\":{\"level2A\":\"3.14\",\"level2B\":\"z\"}}"),
+                            json);
     }
 }
 

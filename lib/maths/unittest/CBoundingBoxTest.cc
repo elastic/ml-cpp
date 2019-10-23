@@ -55,45 +55,45 @@ BOOST_AUTO_TEST_CASE(testAdd) {
     double points[][2] = {{-1.0, 5.0}, {2.0, 20.0}, {10.0, 4.0}, {-10.0, -3.0}, {200.0, 50.0}};
 
     TBoundingBox2 bb(TVector2(&points[0][0], &points[0][0] + 2));
-    BOOST_CHECK_EQUAL(-1.0, bb.blc()(0));
-    BOOST_CHECK_EQUAL(5.0, bb.blc()(1));
-    BOOST_CHECK_EQUAL(-1.0, bb.trc()(0));
-    BOOST_CHECK_EQUAL(5.0, bb.trc()(1));
-    BOOST_CHECK_EQUAL((-1.0 + -1.0) / 2.0, bb.centre()(0));
-    BOOST_CHECK_EQUAL((5.0 + 5.0) / 2.0, bb.centre()(1));
+    BOOST_REQUIRE_EQUAL(-1.0, bb.blc()(0));
+    BOOST_REQUIRE_EQUAL(5.0, bb.blc()(1));
+    BOOST_REQUIRE_EQUAL(-1.0, bb.trc()(0));
+    BOOST_REQUIRE_EQUAL(5.0, bb.trc()(1));
+    BOOST_REQUIRE_EQUAL((-1.0 + -1.0) / 2.0, bb.centre()(0));
+    BOOST_REQUIRE_EQUAL((5.0 + 5.0) / 2.0, bb.centre()(1));
 
     bb.add(TVector2(&points[1][0], &points[1][0] + 2));
 
-    BOOST_CHECK_EQUAL(-1.0, bb.blc()(0));
-    BOOST_CHECK_EQUAL(5.0, bb.blc()(1));
-    BOOST_CHECK_EQUAL(2.0, bb.trc()(0));
-    BOOST_CHECK_EQUAL(20.0, bb.trc()(1));
-    BOOST_CHECK_EQUAL((-1.0 + 2.0) / 2.0, bb.centre()(0));
-    BOOST_CHECK_EQUAL((5.0 + 20.0) / 2.0, bb.centre()(1));
+    BOOST_REQUIRE_EQUAL(-1.0, bb.blc()(0));
+    BOOST_REQUIRE_EQUAL(5.0, bb.blc()(1));
+    BOOST_REQUIRE_EQUAL(2.0, bb.trc()(0));
+    BOOST_REQUIRE_EQUAL(20.0, bb.trc()(1));
+    BOOST_REQUIRE_EQUAL((-1.0 + 2.0) / 2.0, bb.centre()(0));
+    BOOST_REQUIRE_EQUAL((5.0 + 20.0) / 2.0, bb.centre()(1));
 
     bb.add(TVector2(&points[2][0], &points[2][0] + 2));
-    BOOST_CHECK_EQUAL(-1.0, bb.blc()(0));
-    BOOST_CHECK_EQUAL(4.0, bb.blc()(1));
-    BOOST_CHECK_EQUAL(10.0, bb.trc()(0));
-    BOOST_CHECK_EQUAL(20.0, bb.trc()(1));
-    BOOST_CHECK_EQUAL((-1.0 + 10.0) / 2.0, bb.centre()(0));
-    BOOST_CHECK_EQUAL((4.0 + 20.0) / 2.0, bb.centre()(1));
+    BOOST_REQUIRE_EQUAL(-1.0, bb.blc()(0));
+    BOOST_REQUIRE_EQUAL(4.0, bb.blc()(1));
+    BOOST_REQUIRE_EQUAL(10.0, bb.trc()(0));
+    BOOST_REQUIRE_EQUAL(20.0, bb.trc()(1));
+    BOOST_REQUIRE_EQUAL((-1.0 + 10.0) / 2.0, bb.centre()(0));
+    BOOST_REQUIRE_EQUAL((4.0 + 20.0) / 2.0, bb.centre()(1));
 
     bb.add(TVector2(&points[3][0], &points[3][0] + 2));
-    BOOST_CHECK_EQUAL(-10.0, bb.blc()(0));
-    BOOST_CHECK_EQUAL(-3.0, bb.blc()(1));
-    BOOST_CHECK_EQUAL(10.0, bb.trc()(0));
-    BOOST_CHECK_EQUAL(20.0, bb.trc()(1));
-    BOOST_CHECK_EQUAL((-10.0 + 10.0) / 2.0, bb.centre()(0));
-    BOOST_CHECK_EQUAL((-3.0 + 20.0) / 2.0, bb.centre()(1));
+    BOOST_REQUIRE_EQUAL(-10.0, bb.blc()(0));
+    BOOST_REQUIRE_EQUAL(-3.0, bb.blc()(1));
+    BOOST_REQUIRE_EQUAL(10.0, bb.trc()(0));
+    BOOST_REQUIRE_EQUAL(20.0, bb.trc()(1));
+    BOOST_REQUIRE_EQUAL((-10.0 + 10.0) / 2.0, bb.centre()(0));
+    BOOST_REQUIRE_EQUAL((-3.0 + 20.0) / 2.0, bb.centre()(1));
 
     bb.add(TVector2(&points[4][0], &points[4][0] + 2));
-    BOOST_CHECK_EQUAL(-10.0, bb.blc()(0));
-    BOOST_CHECK_EQUAL(-3.0, bb.blc()(1));
-    BOOST_CHECK_EQUAL(200.0, bb.trc()(0));
-    BOOST_CHECK_EQUAL(50.0, bb.trc()(1));
-    BOOST_CHECK_EQUAL((-10.0 + 200.0) / 2.0, bb.centre()(0));
-    BOOST_CHECK_EQUAL((-3.0 + 50.0) / 2.0, bb.centre()(1));
+    BOOST_REQUIRE_EQUAL(-10.0, bb.blc()(0));
+    BOOST_REQUIRE_EQUAL(-3.0, bb.blc()(1));
+    BOOST_REQUIRE_EQUAL(200.0, bb.trc()(0));
+    BOOST_REQUIRE_EQUAL(50.0, bb.trc()(1));
+    BOOST_REQUIRE_EQUAL((-10.0 + 200.0) / 2.0, bb.centre()(0));
+    BOOST_REQUIRE_EQUAL((-3.0 + 50.0) / 2.0, bb.centre()(1));
 }
 
 BOOST_AUTO_TEST_CASE(testCloserTo) {
@@ -122,13 +122,13 @@ BOOST_AUTO_TEST_CASE(testCloserTo) {
                 LOG_DEBUG(<< "bb = " << bb.print() << " is closer to " << y1
                           << " than " << y2);
             }
-            BOOST_CHECK_EQUAL(closer, bb.closerToX(y1, y2));
+            BOOST_REQUIRE_EQUAL(closer, bb.closerToX(y1, y2));
             closer = closerToX(bb, y2, y1);
             if (closer) {
                 LOG_DEBUG(<< "bb = " << bb.print() << " is closer to " << y2
                           << " than " << y1);
             }
-            BOOST_CHECK_EQUAL(closer, bb.closerToX(y2, y1));
+            BOOST_REQUIRE_EQUAL(closer, bb.closerToX(y2, y1));
         }
     }
 
@@ -147,13 +147,13 @@ BOOST_AUTO_TEST_CASE(testCloserTo) {
                 LOG_DEBUG(<< "bb = " << bb.print() << " is closer to " << y1
                           << " than " << y2);
             }
-            BOOST_CHECK_EQUAL(closer, bb.closerToX(y1, y2));
+            BOOST_REQUIRE_EQUAL(closer, bb.closerToX(y1, y2));
             closer = closerToX(bb, y2, y1);
             if (closer) {
                 LOG_DEBUG(<< "bb = " << bb.print() << " is closer to " << y2
                           << " than " << y1);
             }
-            BOOST_CHECK_EQUAL(closer, bb.closerToX(y2, y1));
+            BOOST_REQUIRE_EQUAL(closer, bb.closerToX(y2, y1));
         }
     }
 }

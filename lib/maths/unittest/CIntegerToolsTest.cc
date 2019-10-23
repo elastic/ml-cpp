@@ -38,7 +38,7 @@ std::string printBits(uint64_t x) {
 }
 
 BOOST_AUTO_TEST_CASE(testNextPow2) {
-    BOOST_CHECK_EQUAL(std::size_t(0), maths::CIntegerTools::nextPow2(0));
+    BOOST_REQUIRE_EQUAL(std::size_t(0), maths::CIntegerTools::nextPow2(0));
 
     test::CRandomNumbers rng;
 
@@ -47,13 +47,13 @@ BOOST_AUTO_TEST_CASE(testNextPow2) {
         LOG_DEBUG(<< "Testing shift = " << shift);
 
         // Edge cases.
-        BOOST_CHECK_EQUAL(shift, maths::CIntegerTools::nextPow2(test));
-        BOOST_CHECK_EQUAL(shift, maths::CIntegerTools::nextPow2((test << 1) - 1));
+        BOOST_REQUIRE_EQUAL(shift, maths::CIntegerTools::nextPow2(test));
+        BOOST_REQUIRE_EQUAL(shift, maths::CIntegerTools::nextPow2((test << 1) - 1));
 
         TSizeVec offsets;
         rng.generateUniformSamples(0, test, 100, offsets);
         for (std::size_t i = 0u; i < offsets.size(); ++i) {
-            BOOST_CHECK_EQUAL(shift, maths::CIntegerTools::nextPow2(test + offsets[i]));
+            BOOST_REQUIRE_EQUAL(shift, maths::CIntegerTools::nextPow2(test + offsets[i]));
         }
     }
 }
@@ -76,7 +76,7 @@ BOOST_AUTO_TEST_CASE(testReverseBits) {
             LOG_DEBUG(<< "expected = " << expected);
             LOG_DEBUG(<< "actual   = " << actual);
         }
-        BOOST_CHECK_EQUAL(expected, actual);
+        BOOST_REQUIRE_EQUAL(expected, actual);
     }
 }
 
@@ -87,12 +87,12 @@ BOOST_AUTO_TEST_CASE(testGcd) {
     std::size_t n1 = 3 * 17 * 29;
     std::size_t n2 = 5 * 17;
     LOG_DEBUG(<< "gcd = " << maths::CIntegerTools::gcd(n2, n1));
-    BOOST_CHECK_EQUAL(std::size_t(17), maths::CIntegerTools::gcd(n2, n1));
+    BOOST_REQUIRE_EQUAL(std::size_t(17), maths::CIntegerTools::gcd(n2, n1));
 
     n1 = 19 * 97;
     n2 = 5 * 7 * 97;
     LOG_DEBUG(<< "gcd = " << maths::CIntegerTools::gcd(n1, n2));
-    BOOST_CHECK_EQUAL(std::size_t(97), maths::CIntegerTools::gcd(n2, n1));
+    BOOST_REQUIRE_EQUAL(std::size_t(97), maths::CIntegerTools::gcd(n2, n1));
 
     test::CRandomNumbers rng;
 
@@ -128,7 +128,7 @@ BOOST_AUTO_TEST_CASE(testGcd) {
         }
         LOG_DEBUG(<< "big1 = " << big1 << ", big2 = " << big2 << " - expected gcd = " << bigGcd
                   << ", gcd = " << maths::CIntegerTools::gcd(big1, big2));
-        BOOST_CHECK_EQUAL(bigGcd, maths::CIntegerTools::gcd(big1, big2));
+        BOOST_REQUIRE_EQUAL(bigGcd, maths::CIntegerTools::gcd(big1, big2));
     }
 
     LOG_DEBUG(<< "--- gcd(a, b, c) ---");
@@ -173,7 +173,7 @@ BOOST_AUTO_TEST_CASE(testGcd) {
     n[3] = 17 * 19 * 29 * 83;
     LOG_DEBUG(<< "n = " << core::CContainerPrinter::print(n) << " - expected gcd = 19"
               << ", gcd = " << maths::CIntegerTools::gcd(n));
-    BOOST_CHECK_EQUAL(std::size_t(19), maths::CIntegerTools::gcd(n));
+    BOOST_REQUIRE_EQUAL(std::size_t(19), maths::CIntegerTools::gcd(n));
 }
 
 BOOST_AUTO_TEST_CASE(testBinomial) {
@@ -187,7 +187,7 @@ BOOST_AUTO_TEST_CASE(testBinomial) {
             double expected = std::exp(std::lgamma(static_cast<double>(n[i] + 1)) -
                                        std::lgamma(static_cast<double>(n[i] - j + 1)) -
                                        std::lgamma(static_cast<double>(j + 1)));
-            BOOST_CHECK_CLOSE_ABSOLUTE(
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(
                 expected, maths::CIntegerTools::binomial(n[i], j), 1e-10);
         }
     }

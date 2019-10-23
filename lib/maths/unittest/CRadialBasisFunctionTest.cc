@@ -82,7 +82,7 @@ BOOST_AUTO_TEST_CASE(testDerivative) {
 
                 // Centred difference nuemrical derivative should
                 // be accurate to o(eps^2).
-                BOOST_CHECK_CLOSE_ABSOLUTE(d, e, eps * eps);
+                BOOST_REQUIRE_CLOSE_ABSOLUTE(d, e, eps * eps);
             }
         }
     }
@@ -103,7 +103,7 @@ BOOST_AUTO_TEST_CASE(testDerivative) {
 
                 // Centred difference nuemrical derivative should
                 // be accurate to o(eps^2).
-                BOOST_CHECK_CLOSE_ABSOLUTE(d, e, eps * eps);
+                BOOST_REQUIRE_CLOSE_ABSOLUTE(d, e, eps * eps);
             }
         }
     }
@@ -138,7 +138,7 @@ BOOST_AUTO_TEST_CASE(testMean) {
 
             double mean = gaussian.mean(a, b, centres[i], scales[j]);
             LOG_DEBUG(<< "expectedMean = " << expectedMean << ", mean = " << mean);
-            BOOST_CHECK_CLOSE_ABSOLUTE(expectedMean, mean, eps * mean);
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(expectedMean, mean, eps * mean);
         }
     }
 
@@ -163,7 +163,7 @@ BOOST_AUTO_TEST_CASE(testMean) {
 
             double mean = inverseQuadratic.mean(a, b, centres[i], scales[j]);
             LOG_DEBUG(<< "expectedMean = " << expectedMean << ", mean = " << mean);
-            BOOST_CHECK_CLOSE_ABSOLUTE(expectedMean, mean, eps * mean);
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(expectedMean, mean, eps * mean);
         }
     }
 }
@@ -197,7 +197,7 @@ BOOST_AUTO_TEST_CASE(testMeanSquareDerivative) {
 
             double mean = gaussian.meanSquareDerivative(a, b, centres[i], scales[j]);
             LOG_DEBUG(<< "expectedMean = " << expectedMean << ", mean = " << mean);
-            BOOST_CHECK_CLOSE_ABSOLUTE(expectedMean, mean, eps * mean);
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(expectedMean, mean, eps * mean);
         }
     }
 
@@ -223,7 +223,7 @@ BOOST_AUTO_TEST_CASE(testMeanSquareDerivative) {
             double mean = inverseQuadratic.meanSquareDerivative(a, b, centres[i],
                                                                 scales[j]);
             LOG_DEBUG(<< "expectedMean = " << expectedMean << ", mean = " << mean);
-            BOOST_CHECK_CLOSE_ABSOLUTE(expectedMean, mean, eps * mean);
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(expectedMean, mean, eps * mean);
         }
     }
 }
@@ -266,7 +266,7 @@ BOOST_AUTO_TEST_CASE(testProduct) {
                                                       scales[k], scales[l]);
                     LOG_DEBUG(<< "expectedMean = " << expectedProduct
                               << ", mean = " << product);
-                    BOOST_CHECK_CLOSE_ABSOLUTE(expectedProduct, product, eps * product);
+                    BOOST_REQUIRE_CLOSE_ABSOLUTE(expectedProduct, product, eps * product);
                 }
             }
         }
@@ -302,7 +302,7 @@ BOOST_AUTO_TEST_CASE(testProduct) {
                         a, b, centres[i], centres[j], scales[k], scales[l]);
                     LOG_DEBUG(<< "expectedProduct = " << expectedProduct
                               << ", product = " << product);
-                    BOOST_CHECK_CLOSE_ABSOLUTE(expectedProduct, product, eps * product);
+                    BOOST_REQUIRE_CLOSE_ABSOLUTE(expectedProduct, product, eps * product);
                 }
             }
         }

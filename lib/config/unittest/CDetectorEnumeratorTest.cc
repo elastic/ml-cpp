@@ -44,7 +44,7 @@ BOOST_AUTO_TEST_CASE(testAll) {
         enumerator.generate(spec);
         LOG_DEBUG(<< "1) detectors =\n" << print(spec, " "));
         std::string expected = "[low_|high_][non_zero_]count\n";
-        BOOST_CHECK_EQUAL(expected, print(spec));
+        BOOST_REQUIRE_EQUAL(expected, print(spec));
     }
 
     {
@@ -55,7 +55,7 @@ BOOST_AUTO_TEST_CASE(testAll) {
         std::string expected = "[low_|high_][non_zero_]count\n"
                                "[low_|high_]distinct_count(port)\n"
                                "[low_|high_]mean(bytes)\n";
-        BOOST_CHECK_EQUAL(expected, print(spec));
+        BOOST_REQUIRE_EQUAL(expected, print(spec));
     }
 
     {
@@ -72,7 +72,7 @@ BOOST_AUTO_TEST_CASE(testAll) {
                                "[low_|high_]distinct_count(port) by 'parent_process'\n"
                                "[low_|high_]mean(bytes) by 'process'\n"
                                "[low_|high_]mean(bytes) by 'parent_process'\n";
-        BOOST_CHECK_EQUAL(expected, print(spec));
+        BOOST_REQUIRE_EQUAL(expected, print(spec));
     }
 
     {
@@ -108,7 +108,7 @@ BOOST_AUTO_TEST_CASE(testAll) {
             "[low_|high_]mean(bytes) by 'process' over 'person'\n"
             "[low_|high_]mean(bytes) by 'parent_process' over 'machine'\n"
             "[low_|high_]mean(bytes) by 'parent_process' over 'person'\n";
-        BOOST_CHECK_EQUAL(expected, print(spec));
+        BOOST_REQUIRE_EQUAL(expected, print(spec));
     }
 
     {
@@ -208,7 +208,7 @@ BOOST_AUTO_TEST_CASE(testAll) {
             "[low_|high_]mean(bytes) by 'parent_process' over 'person' partition 'machine'\n"
             "[low_|high_]mean(bytes) by 'parent_process' over 'person' partition 'data_centre'\n";
         LOG_DEBUG(<< "5) detectors =\n" << print(spec, " "));
-        BOOST_CHECK_EQUAL(expected, print(spec));
+        BOOST_REQUIRE_EQUAL(expected, print(spec));
     }
 }
 

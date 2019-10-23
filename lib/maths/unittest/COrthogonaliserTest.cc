@@ -58,7 +58,7 @@ void debug(const TVector4Vec& x) {
 }
 
 double inner(const TDoubleVec& x, const TDoubleVec& y) {
-    BOOST_CHECK_EQUAL(x.size(), y.size());
+    BOOST_REQUIRE_EQUAL(x.size(), y.size());
     double result = 0.0;
     for (std::size_t i = 0u; i < x.size(); ++i) {
         result += x[i] * y[i];
@@ -75,7 +75,7 @@ TDoubleVec multiply(const TDoubleVec& x, double s) {
 }
 
 const TDoubleVec& add(TDoubleVec& x, const TDoubleVec& y) {
-    BOOST_CHECK_EQUAL(x.size(), y.size());
+    BOOST_REQUIRE_EQUAL(x.size(), y.size());
     for (std::size_t i = 0u; i < x.size(); ++i) {
         x[i] += y[i];
     }
@@ -83,7 +83,7 @@ const TDoubleVec& add(TDoubleVec& x, const TDoubleVec& y) {
 }
 
 const TDoubleVec& subtract(TDoubleVec& x, const TDoubleVec& y) {
-    BOOST_CHECK_EQUAL(x.size(), y.size());
+    BOOST_REQUIRE_EQUAL(x.size(), y.size());
     for (std::size_t i = 0u; i < x.size(); ++i) {
         x[i] -= y[i];
     }
@@ -115,7 +115,7 @@ BOOST_AUTO_TEST_CASE(testOrthogonality) {
                     if (t % 10 == 0) {
                         LOG_DEBUG(<< "x(i)' x(j) = " << xiDotxj);
                     }
-                    BOOST_CHECK_CLOSE_ABSOLUTE(0.0, xiDotxj, 1e-10);
+                    BOOST_REQUIRE_CLOSE_ABSOLUTE(0.0, xiDotxj, 1e-10);
                 }
             }
         }
@@ -137,7 +137,7 @@ BOOST_AUTO_TEST_CASE(testOrthogonality) {
                     if (t % 10 == 0) {
                         LOG_DEBUG(<< "x(i)' x(j) = " << xiDotxj);
                     }
-                    BOOST_CHECK_CLOSE_ABSOLUTE(0.0, xiDotxj, 1e-10);
+                    BOOST_REQUIRE_CLOSE_ABSOLUTE(0.0, xiDotxj, 1e-10);
                 }
             }
         }
@@ -167,7 +167,7 @@ BOOST_AUTO_TEST_CASE(testNormalisation) {
                 if (t % 10 == 0) {
                     LOG_DEBUG(<< "|| x(i) || = " << normxi);
                 }
-                BOOST_CHECK_CLOSE_ABSOLUTE(1.0, normxi, 1e-15);
+                BOOST_REQUIRE_CLOSE_ABSOLUTE(1.0, normxi, 1e-15);
             }
         }
     }
@@ -188,7 +188,7 @@ BOOST_AUTO_TEST_CASE(testNormalisation) {
                     if (t % 10 == 0) {
                         LOG_DEBUG(<< "|| x(i) || = " << normxi);
                     }
-                    BOOST_CHECK_CLOSE_ABSOLUTE(1.0, normxi, 1e-15);
+                    BOOST_REQUIRE_CLOSE_ABSOLUTE(1.0, normxi, 1e-15);
                 }
             }
         }
@@ -233,7 +233,7 @@ BOOST_AUTO_TEST_CASE(testSpan) {
                     LOG_DEBUG(<< "|| r || = " << normr);
                 }
 
-                BOOST_CHECK_CLOSE_ABSOLUTE(0.0, normr, 1e-12);
+                BOOST_REQUIRE_CLOSE_ABSOLUTE(0.0, normr, 1e-12);
             }
         }
     }
@@ -268,7 +268,7 @@ BOOST_AUTO_TEST_CASE(testSpan) {
                     LOG_DEBUG(<< "|| r || = " << normr);
                 }
 
-                BOOST_CHECK_CLOSE_ABSOLUTE(0.0, normr, 1e-12);
+                BOOST_REQUIRE_CLOSE_ABSOLUTE(0.0, normr, 1e-12);
             }
         }
     }
@@ -289,7 +289,7 @@ BOOST_AUTO_TEST_CASE(testEdgeCases) {
             maths::COrthogonaliser::orthonormalBasis(x);
             //debug(x);
 
-            BOOST_CHECK_EQUAL(std::size_t(2), x.size());
+            BOOST_REQUIRE_EQUAL(std::size_t(2), x.size());
         } while (std::next_permutation(p, p + boost::size(p)));
     }
     {
@@ -312,7 +312,7 @@ BOOST_AUTO_TEST_CASE(testEdgeCases) {
             maths::COrthogonaliser::orthonormalBasis(x);
             //debug(x);
 
-            BOOST_CHECK_EQUAL(std::size_t(3), x.size());
+            BOOST_REQUIRE_EQUAL(std::size_t(3), x.size());
         } while (std::next_permutation(p, p + boost::size(p)));
     }
 }

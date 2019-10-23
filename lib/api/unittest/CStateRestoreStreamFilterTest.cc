@@ -34,7 +34,7 @@ BOOST_AUTO_TEST_CASE(testBulkIndexHeaderRemoval) {
     std::replace(output.begin(), output.end(), '\0', ',');
     std::replace(expected.begin(), expected.end(), '\0', ',');
 
-    BOOST_CHECK_EQUAL(expected, output);
+    BOOST_REQUIRE_EQUAL(expected, output);
 }
 
 BOOST_AUTO_TEST_CASE(testBulkIndexHeaderRemovalZerobyte) {
@@ -65,7 +65,7 @@ BOOST_AUTO_TEST_CASE(testBulkIndexHeaderRemovalZerobyte) {
     std::replace(output.begin(), output.end(), '\0', ',');
     std::replace(expected.begin(), expected.end(), '\0', ',');
 
-    BOOST_CHECK_EQUAL(expected, output);
+    BOOST_REQUIRE_EQUAL(expected, output);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

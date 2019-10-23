@@ -44,8 +44,8 @@ BOOST_AUTO_TEST_CASE(testBasic) {
             o << " world 2\n";
         });
     }
-    BOOST_CHECK_EQUAL(std::string("Hello 1 world 1\nHello 2 world 2\n"),
-                      stringStream.str());
+    BOOST_REQUIRE_EQUAL(std::string("Hello 1 world 1\nHello 2 world 2\n"),
+                        stringStream.str());
 }
 
 namespace {
@@ -94,11 +94,11 @@ BOOST_AUTO_TEST_CASE(testThreads) {
     std::string output = stringStream.str();
     size_t numberOfLines = std::count(output.begin(), output.end(), '\n');
 
-    BOOST_CHECK_EQUAL(MESSAGES, numberOfLines);
-    BOOST_CHECK_EQUAL(11 * MESSAGES, output.size());
+    BOOST_REQUIRE_EQUAL(MESSAGES, numberOfLines);
+    BOOST_REQUIRE_EQUAL(11 * MESSAGES, output.size());
 
     for (size_t i = 0; i < MESSAGES; ++i) {
-        BOOST_CHECK_EQUAL(std::string("task"), output.substr(11 * i, 4));
+        BOOST_REQUIRE_EQUAL(std::string("task"), output.substr(11 * i, 4));
     }
 }
 
@@ -121,11 +121,11 @@ BOOST_AUTO_TEST_CASE(testThreadsSlow) {
     std::string output = stringStream.str();
     size_t numberOfLines = std::count(output.begin(), output.end(), '\n');
 
-    BOOST_CHECK_EQUAL(MESSAGES, numberOfLines);
-    BOOST_CHECK_EQUAL(11 * MESSAGES, output.size());
+    BOOST_REQUIRE_EQUAL(MESSAGES, numberOfLines);
+    BOOST_REQUIRE_EQUAL(11 * MESSAGES, output.size());
 
     for (size_t i = 0; i < MESSAGES; ++i) {
-        BOOST_CHECK_EQUAL(std::string("task"), output.substr(11 * i, 4));
+        BOOST_REQUIRE_EQUAL(std::string("task"), output.substr(11 * i, 4));
     }
 }
 
@@ -149,11 +149,11 @@ BOOST_AUTO_TEST_CASE(testThreadsSlowLowCapacity) {
     std::string output = stringStream.str();
     size_t numberOfLines = std::count(output.begin(), output.end(), '\n');
 
-    BOOST_CHECK_EQUAL(MESSAGES, numberOfLines);
-    BOOST_CHECK_EQUAL(11 * MESSAGES, output.size());
+    BOOST_REQUIRE_EQUAL(MESSAGES, numberOfLines);
+    BOOST_REQUIRE_EQUAL(11 * MESSAGES, output.size());
 
     for (size_t i = 0; i < MESSAGES; ++i) {
-        BOOST_CHECK_EQUAL(std::string("task"), output.substr(11 * i, 4));
+        BOOST_REQUIRE_EQUAL(std::string("task"), output.substr(11 * i, 4));
     }
 }
 
@@ -177,11 +177,11 @@ BOOST_AUTO_TEST_CASE(testThreadsLowCapacity) {
     std::string output = stringStream.str();
     size_t numberOfLines = std::count(output.begin(), output.end(), '\n');
 
-    BOOST_CHECK_EQUAL(MESSAGES, numberOfLines);
-    BOOST_CHECK_EQUAL(11 * MESSAGES, output.size());
+    BOOST_REQUIRE_EQUAL(MESSAGES, numberOfLines);
+    BOOST_REQUIRE_EQUAL(11 * MESSAGES, output.size());
 
     for (size_t i = 0; i < MESSAGES; ++i) {
-        BOOST_CHECK_EQUAL(std::string("task"), output.substr(11 * i, 4));
+        BOOST_REQUIRE_EQUAL(std::string("task"), output.substr(11 * i, 4));
     }
 }
 
@@ -192,7 +192,7 @@ BOOST_AUTO_TEST_CASE(testMemoryDebug) {
     TOStringStreamConcurrentWrapper wrappedStringStream(stringStream);
 
     wrappedStringStream.debugMemoryUsage(mem.addChild());
-    BOOST_CHECK_EQUAL(wrappedStringStream.memoryUsage(), mem.usage());
+    BOOST_REQUIRE_EQUAL(wrappedStringStream.memoryUsage(), mem.usage());
 }
 
 BOOST_AUTO_TEST_SUITE_END()

@@ -52,10 +52,10 @@ BOOST_AUTO_TEST_CASE(testPersist) {
         LOG_DEBUG(<< "XML is: " << xml);
 
         inserter.toXml(false, xml);
-        BOOST_CHECK_EQUAL(std::string("<root attr1=\"attrVal1\" "
-                                      "attr2=\"attrVal2\"><a>a</a><b>25</b><c><a>3.14</"
-                                      "a><b>z</b></c></root>"),
-                          xml);
+        BOOST_REQUIRE_EQUAL(std::string("<root attr1=\"attrVal1\" "
+                                        "attr2=\"attrVal2\"><a>a</a><b>25</b><c><a>3.14</"
+                                        "a><b>z</b></c></root>"),
+                            xml);
     }
 
     {
@@ -74,10 +74,10 @@ BOOST_AUTO_TEST_CASE(testPersist) {
 
         inserter.toXml(false, xml);
 
-        BOOST_CHECK_EQUAL(std::string("<root attr1=\"attrVal1\" "
-                                      "attr2=\"attrVal2\"><level1A>a</level1A><level1B>25</level1B><level1C><level2A>3.14</"
-                                      "level2A><level2B>z</level2B></level1C></root>"),
-                          xml);
+        BOOST_REQUIRE_EQUAL(std::string("<root attr1=\"attrVal1\" "
+                                        "attr2=\"attrVal2\"><level1A>a</level1A><level1B>25</level1B><level1C><level2A>3.14</"
+                                        "level2A><level2B>z</level2B></level1C></root>"),
+                            xml);
     }
 }
 

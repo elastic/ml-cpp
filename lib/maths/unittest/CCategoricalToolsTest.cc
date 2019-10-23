@@ -69,7 +69,7 @@ BOOST_AUTO_TEST_CASE(testExpectedDistinctCategories) {
                 static_cast<double>(boost::size(probabilities)), distinctCategories);
             LOG_DEBUG(<< "distinctCategories = " << distinctCategories);
 
-            BOOST_CHECK_CLOSE_ABSOLUTE(
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(
                 maths::CBasicStatistics::mean(expectedDistinctCategories), distinctCategories,
                 2.0 * std::sqrt(maths::CBasicStatistics::variance(expectedDistinctCategories) /
                                 static_cast<double>(nTrials)));
@@ -103,7 +103,7 @@ BOOST_AUTO_TEST_CASE(testExpectedDistinctCategories) {
                 static_cast<double>(boost::size(probabilities)), distinctCategories);
             LOG_DEBUG(<< "distinctCategories = " << distinctCategories);
 
-            BOOST_CHECK_CLOSE_ABSOLUTE(
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(
                 maths::CBasicStatistics::mean(expectedDistinctCategories), distinctCategories,
                 2.0 * std::sqrt(maths::CBasicStatistics::variance(expectedDistinctCategories) /
                                 static_cast<double>(nTrials)));
@@ -136,7 +136,7 @@ BOOST_AUTO_TEST_CASE(testExpectedDistinctCategories) {
                 static_cast<double>(boost::size(probabilities)), distinctCategories);
             LOG_DEBUG(<< "distinctCategories = " << distinctCategories);
 
-            BOOST_CHECK_CLOSE_ABSOLUTE(
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(
                 maths::CBasicStatistics::mean(expectedDistinctCategories), distinctCategories,
                 2.0 * std::sqrt(maths::CBasicStatistics::variance(expectedDistinctCategories) /
                                 static_cast<double>(nTrials)));
@@ -175,7 +175,7 @@ BOOST_AUTO_TEST_CASE(testExpectedDistinctCategories) {
                 static_cast<double>(boost::size(probabilities)), distinctCategories);
             LOG_DEBUG(<< "distinctCategories = " << distinctCategories);
 
-            BOOST_CHECK_CLOSE_ABSOLUTE(
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(
                 maths::CBasicStatistics::mean(expectedDistinctCategories), distinctCategories,
                 2.0 * std::sqrt(maths::CBasicStatistics::variance(expectedDistinctCategories) /
                                 static_cast<double>(nTrials)));
@@ -210,7 +210,7 @@ BOOST_AUTO_TEST_CASE(testExpectedDistinctCategories) {
                 static_cast<double>(boost::size(probabilities)), distinctCategories);
             LOG_DEBUG(<< "distinctCategories = " << distinctCategories);
 
-            BOOST_CHECK_CLOSE_ABSOLUTE(
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(
                 maths::CBasicStatistics::mean(expectedDistinctCategories), distinctCategories,
                 2.0 * std::sqrt(maths::CBasicStatistics::variance(expectedDistinctCategories) /
                                 static_cast<double>(nTrials)));
@@ -244,7 +244,7 @@ BOOST_AUTO_TEST_CASE(testExpectedDistinctCategories) {
                 static_cast<double>(boost::size(probabilities)), distinctCategories);
             LOG_DEBUG(<< "distinctCategories = " << distinctCategories);
 
-            BOOST_CHECK_CLOSE_ABSOLUTE(
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(
                 maths::CBasicStatistics::mean(expectedDistinctCategories), distinctCategories,
                 2.0 * std::sqrt(maths::CBasicStatistics::variance(expectedDistinctCategories) /
                                 static_cast<double>(nTrials)));
@@ -284,7 +284,7 @@ BOOST_AUTO_TEST_CASE(testExpectedDistinctCategories) {
                     probabilities[i], static_cast<double>(categories.size()), distinctCategories);
                 LOG_DEBUG(<< "distinctCategories = " << distinctCategories);
 
-                BOOST_CHECK_CLOSE_ABSOLUTE(
+                BOOST_REQUIRE_CLOSE_ABSOLUTE(
                     maths::CBasicStatistics::mean(expectedDistinctCategories), distinctCategories,
                     3.0 * std::sqrt(maths::CBasicStatistics::variance(expectedDistinctCategories) /
                                     static_cast<double>(nTrials)));
@@ -321,7 +321,7 @@ BOOST_AUTO_TEST_CASE(testExpectedDistinctCategories) {
                     probabilities[i], static_cast<double>(categories.size()), distinctCategories);
                 LOG_DEBUG(<< "distinctCategories = " << distinctCategories);
 
-                BOOST_CHECK_CLOSE_ABSOLUTE(
+                BOOST_REQUIRE_CLOSE_ABSOLUTE(
                     maths::CBasicStatistics::mean(expectedDistinctCategories), distinctCategories,
                     3.0 * std::sqrt(maths::CBasicStatistics::variance(expectedDistinctCategories) /
                                     static_cast<double>(nTrials)));
@@ -362,7 +362,7 @@ BOOST_AUTO_TEST_CASE(testExpectedDistinctCategories) {
                     probabilities[i], static_cast<double>(categories.size()), distinctCategories);
                 LOG_DEBUG(<< "distinctCategories = " << distinctCategories);
 
-                BOOST_CHECK_CLOSE_ABSOLUTE(
+                BOOST_REQUIRE_CLOSE_ABSOLUTE(
                     maths::CBasicStatistics::mean(expectedDistinctCategories), distinctCategories,
                     2.5 * std::sqrt(maths::CBasicStatistics::variance(expectedDistinctCategories) /
                                     static_cast<double>(nTrials)));
@@ -388,26 +388,26 @@ BOOST_AUTO_TEST_CASE(testLogBinomialProbability) {
                 double m = std::floor(f_ * median);
                 double pdf = boost::math::pdf(binomial, m);
                 double logpdf;
-                BOOST_CHECK_EQUAL(maths_t::E_FpNoErrors,
-                                  maths::CCategoricalTools::logBinomialProbability(
-                                      static_cast<std::size_t>(n[i]), p[j],
-                                      static_cast<std::size_t>(m), logpdf));
+                BOOST_REQUIRE_EQUAL(maths_t::E_FpNoErrors,
+                                    maths::CCategoricalTools::logBinomialProbability(
+                                        static_cast<std::size_t>(n[i]), p[j],
+                                        static_cast<std::size_t>(m), logpdf));
                 LOG_DEBUG(<< "f(" << m << "), expected = " << pdf
                           << ", actual = " << std::exp(logpdf));
-                BOOST_CHECK_CLOSE_ABSOLUTE(pdf, std::exp(logpdf), 1e-6 * pdf);
+                BOOST_REQUIRE_CLOSE_ABSOLUTE(pdf, std::exp(logpdf), 1e-6 * pdf);
             }
             for (std::size_t f = 1u; f < 10; ++f) {
                 double f_ = static_cast<double>(f) / 10.0;
                 double m = median + std::floor(f_ * (n[i] - median));
                 double pdf = boost::math::pdf(binomial, m);
                 double logpdf;
-                BOOST_CHECK_EQUAL(maths_t::E_FpNoErrors,
-                                  maths::CCategoricalTools::logBinomialProbability(
-                                      static_cast<std::size_t>(n[i]), p[j],
-                                      static_cast<std::size_t>(m), logpdf));
+                BOOST_REQUIRE_EQUAL(maths_t::E_FpNoErrors,
+                                    maths::CCategoricalTools::logBinomialProbability(
+                                        static_cast<std::size_t>(n[i]), p[j],
+                                        static_cast<std::size_t>(m), logpdf));
                 LOG_DEBUG(<< "f(" << m << "), expected = " << pdf
                           << ", actual = " << std::exp(logpdf));
-                BOOST_CHECK_CLOSE_ABSOLUTE(pdf, std::exp(logpdf), 1e-6 * pdf);
+                BOOST_REQUIRE_CLOSE_ABSOLUTE(pdf, std::exp(logpdf), 1e-6 * pdf);
             }
         }
     }
@@ -441,12 +441,12 @@ BOOST_AUTO_TEST_CASE(testLogMultinomialProbability) {
                     TSizeVec ni;
                     ni.push_back(static_cast<std::size_t>(m));
                     ni.push_back(static_cast<std::size_t>(n[i] - m));
-                    BOOST_CHECK_EQUAL(maths_t::E_FpNoErrors,
-                                      maths::CCategoricalTools::logMultinomialProbability(
-                                          pi, ni, logpdf));
+                    BOOST_REQUIRE_EQUAL(maths_t::E_FpNoErrors,
+                                        maths::CCategoricalTools::logMultinomialProbability(
+                                            pi, ni, logpdf));
                     LOG_DEBUG(<< "f(" << m << "), expected = " << pdf
                               << ", actual = " << std::exp(logpdf));
-                    BOOST_CHECK_CLOSE_ABSOLUTE(pdf, std::exp(logpdf), 1e-6 * pdf);
+                    BOOST_REQUIRE_CLOSE_ABSOLUTE(pdf, std::exp(logpdf), 1e-6 * pdf);
                 }
                 for (std::size_t f = 1u; f < 10; ++f) {
                     double f_ = static_cast<double>(f) / 10.0;
@@ -459,12 +459,12 @@ BOOST_AUTO_TEST_CASE(testLogMultinomialProbability) {
                     TSizeVec ni;
                     ni.push_back(static_cast<std::size_t>(m));
                     ni.push_back(static_cast<std::size_t>(n[i] - m));
-                    BOOST_CHECK_EQUAL(maths_t::E_FpNoErrors,
-                                      maths::CCategoricalTools::logMultinomialProbability(
-                                          pi, ni, logpdf));
+                    BOOST_REQUIRE_EQUAL(maths_t::E_FpNoErrors,
+                                        maths::CCategoricalTools::logMultinomialProbability(
+                                            pi, ni, logpdf));
                     LOG_DEBUG(<< "f(" << m << "), expected = " << pdf
                               << ", actual = " << std::exp(logpdf));
-                    BOOST_CHECK_CLOSE_ABSOLUTE(pdf, std::exp(logpdf), 1e-6 * pdf);
+                    BOOST_REQUIRE_CLOSE_ABSOLUTE(pdf, std::exp(logpdf), 1e-6 * pdf);
                 }
             }
         }
@@ -487,15 +487,16 @@ BOOST_AUTO_TEST_CASE(testLogMultinomialProbability) {
                 ni.push_back(m);
                 ni.push_back(i);
                 ni.push_back(n - m - i);
-                BOOST_CHECK_EQUAL(maths_t::E_FpNoErrors, maths::CCategoricalTools::logMultinomialProbability(
-                                                             pi, ni, logpdf));
+                BOOST_REQUIRE_EQUAL(
+                    maths_t::E_FpNoErrors,
+                    maths::CCategoricalTools::logMultinomialProbability(pi, ni, logpdf));
                 marginal += std::exp(logpdf);
             }
 
             boost::math::binomial_distribution<> binomial(static_cast<double>(n), pi[0]);
             double pdf = boost::math::pdf(binomial, static_cast<double>(m));
             LOG_DEBUG(<< "f = " << pdf << ", marginal = " << marginal);
-            BOOST_CHECK_CLOSE_ABSOLUTE(pdf, marginal, 1e-6 * pdf);
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(pdf, marginal, 1e-6 * pdf);
         }
     }
 }

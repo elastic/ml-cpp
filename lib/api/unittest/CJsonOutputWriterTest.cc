@@ -1023,7 +1023,7 @@ BOOST_AUTO_TEST_CASE(testLimitedRecordsWriteHelperbool isInterim) {
         BOOST_TEST_REQUIRE(records.IsArray());
 
         for (rapidjson::SizeType i = 0; i < records.Size(); i++) {
-            //BOOST_CHECK_EQUAL(0.1, records1[rapidjson::SizeType(0)]["probability"].GetDouble());
+            //BOOST_REQUIRE_EQUAL(0.1, records1[rapidjson::SizeType(0)]["probability"].GetDouble());
             BOOST_TEST_REQUIRE(records[i].HasMember("detector_index"));
             BOOST_TEST_REQUIRE(records[i].HasMember("initial_record_score"));
             BOOST_TEST_REQUIRE(records[i].HasMember("record_score"));
@@ -1061,7 +1061,7 @@ BOOST_AUTO_TEST_CASE(testLimitedRecordsWriteHelperbool isInterim) {
 
         for (rapidjson::SizeType i = 0; i < records.Size(); i++) {
             BOOST_TEST_REQUIRE(records[i].HasMember("detector_index"));
-            //BOOST_CHECK_EQUAL(0.1, records1[rapidjson::SizeType(0)]["probability"].GetDouble());
+            //BOOST_REQUIRE_EQUAL(0.1, records1[rapidjson::SizeType(0)]["probability"].GetDouble());
             BOOST_TEST_REQUIRE(records[i].HasMember("initial_record_score"));
             BOOST_TEST_REQUIRE(records[i].HasMember("record_score"));
             if (isInterim) {

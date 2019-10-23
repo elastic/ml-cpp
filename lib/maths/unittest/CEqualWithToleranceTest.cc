@@ -32,28 +32,28 @@ BOOST_AUTO_TEST_CASE(testScalar) {
             double b = 1.4;
             double c = 200.6;
             double d = 202.61;
-            BOOST_CHECK_EQUAL(true, abs(a, b));
-            BOOST_CHECK_EQUAL(false, abs(c, d));
-            BOOST_CHECK_EQUAL(false, rel(a, b));
-            BOOST_CHECK_EQUAL(true, rel(c, d));
-            BOOST_CHECK_EQUAL(false, absAndRel(a, b));
-            BOOST_CHECK_EQUAL(false, absAndRel(c, d));
-            BOOST_CHECK_EQUAL(true, absOrRel(a, b));
-            BOOST_CHECK_EQUAL(true, absOrRel(c, d));
+            BOOST_REQUIRE_EQUAL(true, abs(a, b));
+            BOOST_REQUIRE_EQUAL(false, abs(c, d));
+            BOOST_REQUIRE_EQUAL(false, rel(a, b));
+            BOOST_REQUIRE_EQUAL(true, rel(c, d));
+            BOOST_REQUIRE_EQUAL(false, absAndRel(a, b));
+            BOOST_REQUIRE_EQUAL(false, absAndRel(c, d));
+            BOOST_REQUIRE_EQUAL(true, absOrRel(a, b));
+            BOOST_REQUIRE_EQUAL(true, absOrRel(c, d));
         }
         {
             double a = -1.1;
             double b = -1.4;
             double c = -200.6;
             double d = -202.61;
-            BOOST_CHECK_EQUAL(true, abs(a, b));
-            BOOST_CHECK_EQUAL(false, abs(c, d));
-            BOOST_CHECK_EQUAL(false, rel(a, b));
-            BOOST_CHECK_EQUAL(true, rel(c, d));
-            BOOST_CHECK_EQUAL(false, absAndRel(a, b));
-            BOOST_CHECK_EQUAL(false, absAndRel(c, d));
-            BOOST_CHECK_EQUAL(true, absOrRel(a, b));
-            BOOST_CHECK_EQUAL(true, absOrRel(c, d));
+            BOOST_REQUIRE_EQUAL(true, abs(a, b));
+            BOOST_REQUIRE_EQUAL(false, abs(c, d));
+            BOOST_REQUIRE_EQUAL(false, rel(a, b));
+            BOOST_REQUIRE_EQUAL(true, rel(c, d));
+            BOOST_REQUIRE_EQUAL(false, absAndRel(a, b));
+            BOOST_REQUIRE_EQUAL(false, absAndRel(c, d));
+            BOOST_REQUIRE_EQUAL(true, absOrRel(a, b));
+            BOOST_REQUIRE_EQUAL(true, absOrRel(c, d));
         }
     }
     {
@@ -70,14 +70,14 @@ BOOST_AUTO_TEST_CASE(testScalar) {
         float b = 1.4f;
         float c = 200.6f;
         float d = 202.61f;
-        BOOST_CHECK_EQUAL(true, abs(a, b));
-        BOOST_CHECK_EQUAL(false, abs(c, d));
-        BOOST_CHECK_EQUAL(false, rel(a, b));
-        BOOST_CHECK_EQUAL(true, rel(c, d));
-        BOOST_CHECK_EQUAL(false, absAndRel(a, b));
-        BOOST_CHECK_EQUAL(false, absAndRel(c, d));
-        BOOST_CHECK_EQUAL(true, absOrRel(a, b));
-        BOOST_CHECK_EQUAL(true, absOrRel(c, d));
+        BOOST_REQUIRE_EQUAL(true, abs(a, b));
+        BOOST_REQUIRE_EQUAL(false, abs(c, d));
+        BOOST_REQUIRE_EQUAL(false, rel(a, b));
+        BOOST_REQUIRE_EQUAL(true, rel(c, d));
+        BOOST_REQUIRE_EQUAL(false, absAndRel(a, b));
+        BOOST_REQUIRE_EQUAL(false, absAndRel(c, d));
+        BOOST_REQUIRE_EQUAL(true, absOrRel(a, b));
+        BOOST_REQUIRE_EQUAL(true, absOrRel(c, d));
     }
 }
 
@@ -106,42 +106,42 @@ BOOST_AUTO_TEST_CASE(testVector) {
         maths::CVector<double> b(b_, b_ + 2);
         maths::CVector<double> c(c_, c_ + 2);
         maths::CVector<double> d(d_, d_ + 2);
-        BOOST_CHECK_EQUAL(true, abs(a, b));
-        BOOST_CHECK_EQUAL(false, abs(c, d));
-        BOOST_CHECK_EQUAL(false, rel(a, b));
-        BOOST_CHECK_EQUAL(true, rel(c, d));
-        BOOST_CHECK_EQUAL(false, absAndRel(a, b));
-        BOOST_CHECK_EQUAL(false, absAndRel(c, d));
-        BOOST_CHECK_EQUAL(true, absOrRel(a, b));
-        BOOST_CHECK_EQUAL(true, absOrRel(c, d));
+        BOOST_REQUIRE_EQUAL(true, abs(a, b));
+        BOOST_REQUIRE_EQUAL(false, abs(c, d));
+        BOOST_REQUIRE_EQUAL(false, rel(a, b));
+        BOOST_REQUIRE_EQUAL(true, rel(c, d));
+        BOOST_REQUIRE_EQUAL(false, absAndRel(a, b));
+        BOOST_REQUIRE_EQUAL(false, absAndRel(c, d));
+        BOOST_REQUIRE_EQUAL(true, absOrRel(a, b));
+        BOOST_REQUIRE_EQUAL(true, absOrRel(c, d));
     }
     {
         maths::CVector<double> a(a_, a_ + 2);
         maths::CVector<double> b(b_, b_ + 2);
         maths::CVector<double> c(c_, c_ + 2);
         maths::CVector<double> d(d_, d_ + 2);
-        BOOST_CHECK_EQUAL(true, abs(-a, -b));
-        BOOST_CHECK_EQUAL(false, abs(-c, -d));
-        BOOST_CHECK_EQUAL(false, rel(-a, -b));
-        BOOST_CHECK_EQUAL(true, rel(-c, -d));
-        BOOST_CHECK_EQUAL(false, absAndRel(-a, -b));
-        BOOST_CHECK_EQUAL(false, absAndRel(-c, -d));
-        BOOST_CHECK_EQUAL(true, absOrRel(-a, -b));
-        BOOST_CHECK_EQUAL(true, absOrRel(-c, -d));
+        BOOST_REQUIRE_EQUAL(true, abs(-a, -b));
+        BOOST_REQUIRE_EQUAL(false, abs(-c, -d));
+        BOOST_REQUIRE_EQUAL(false, rel(-a, -b));
+        BOOST_REQUIRE_EQUAL(true, rel(-c, -d));
+        BOOST_REQUIRE_EQUAL(false, absAndRel(-a, -b));
+        BOOST_REQUIRE_EQUAL(false, absAndRel(-c, -d));
+        BOOST_REQUIRE_EQUAL(true, absOrRel(-a, -b));
+        BOOST_REQUIRE_EQUAL(true, absOrRel(-c, -d));
     }
     {
         maths::CVector<float> a(a_, a_ + 2);
         maths::CVector<float> b(b_, b_ + 2);
         maths::CVector<float> c(c_, c_ + 2);
         maths::CVector<float> d(d_, d_ + 2);
-        BOOST_CHECK_EQUAL(true, abs(a, b));
-        BOOST_CHECK_EQUAL(false, abs(c, d));
-        BOOST_CHECK_EQUAL(false, rel(a, b));
-        BOOST_CHECK_EQUAL(true, rel(c, d));
-        BOOST_CHECK_EQUAL(false, absAndRel(a, b));
-        BOOST_CHECK_EQUAL(false, absAndRel(c, d));
-        BOOST_CHECK_EQUAL(true, absOrRel(a, b));
-        BOOST_CHECK_EQUAL(true, absOrRel(c, d));
+        BOOST_REQUIRE_EQUAL(true, abs(a, b));
+        BOOST_REQUIRE_EQUAL(false, abs(c, d));
+        BOOST_REQUIRE_EQUAL(false, rel(a, b));
+        BOOST_REQUIRE_EQUAL(true, rel(c, d));
+        BOOST_REQUIRE_EQUAL(false, absAndRel(a, b));
+        BOOST_REQUIRE_EQUAL(false, absAndRel(c, d));
+        BOOST_REQUIRE_EQUAL(true, absOrRel(a, b));
+        BOOST_REQUIRE_EQUAL(true, absOrRel(c, d));
     }
 }
 
@@ -170,42 +170,42 @@ BOOST_AUTO_TEST_CASE(testMatrix) {
         maths::CSymmetricMatrix<double> b(b_, b_ + 3);
         maths::CSymmetricMatrix<double> c(c_, c_ + 3);
         maths::CSymmetricMatrix<double> d(d_, d_ + 3);
-        BOOST_CHECK_EQUAL(true, abs(a, b));
-        BOOST_CHECK_EQUAL(false, abs(c, d));
-        BOOST_CHECK_EQUAL(false, rel(a, b));
-        BOOST_CHECK_EQUAL(true, rel(c, d));
-        BOOST_CHECK_EQUAL(false, absAndRel(a, b));
-        BOOST_CHECK_EQUAL(false, absAndRel(c, d));
-        BOOST_CHECK_EQUAL(true, absOrRel(a, b));
-        BOOST_CHECK_EQUAL(true, absOrRel(c, d));
+        BOOST_REQUIRE_EQUAL(true, abs(a, b));
+        BOOST_REQUIRE_EQUAL(false, abs(c, d));
+        BOOST_REQUIRE_EQUAL(false, rel(a, b));
+        BOOST_REQUIRE_EQUAL(true, rel(c, d));
+        BOOST_REQUIRE_EQUAL(false, absAndRel(a, b));
+        BOOST_REQUIRE_EQUAL(false, absAndRel(c, d));
+        BOOST_REQUIRE_EQUAL(true, absOrRel(a, b));
+        BOOST_REQUIRE_EQUAL(true, absOrRel(c, d));
     }
     {
         maths::CSymmetricMatrix<double> a(a_, a_ + 3);
         maths::CSymmetricMatrix<double> b(b_, b_ + 3);
         maths::CSymmetricMatrix<double> c(c_, c_ + 3);
         maths::CSymmetricMatrix<double> d(d_, d_ + 3);
-        BOOST_CHECK_EQUAL(true, abs(-a, -b));
-        BOOST_CHECK_EQUAL(false, abs(-c, -d));
-        BOOST_CHECK_EQUAL(false, rel(-a, -b));
-        BOOST_CHECK_EQUAL(true, rel(-c, -d));
-        BOOST_CHECK_EQUAL(false, absAndRel(-a, -b));
-        BOOST_CHECK_EQUAL(false, absAndRel(-c, -d));
-        BOOST_CHECK_EQUAL(true, absOrRel(a, b));
-        BOOST_CHECK_EQUAL(true, absOrRel(c, d));
+        BOOST_REQUIRE_EQUAL(true, abs(-a, -b));
+        BOOST_REQUIRE_EQUAL(false, abs(-c, -d));
+        BOOST_REQUIRE_EQUAL(false, rel(-a, -b));
+        BOOST_REQUIRE_EQUAL(true, rel(-c, -d));
+        BOOST_REQUIRE_EQUAL(false, absAndRel(-a, -b));
+        BOOST_REQUIRE_EQUAL(false, absAndRel(-c, -d));
+        BOOST_REQUIRE_EQUAL(true, absOrRel(a, b));
+        BOOST_REQUIRE_EQUAL(true, absOrRel(c, d));
     }
     {
         maths::CSymmetricMatrix<float> a(a_, a_ + 3);
         maths::CSymmetricMatrix<float> b(b_, b_ + 3);
         maths::CSymmetricMatrix<float> c(c_, c_ + 3);
         maths::CSymmetricMatrix<float> d(d_, d_ + 3);
-        BOOST_CHECK_EQUAL(true, abs(a, b));
-        BOOST_CHECK_EQUAL(false, abs(c, d));
-        BOOST_CHECK_EQUAL(false, rel(a, b));
-        BOOST_CHECK_EQUAL(true, rel(c, d));
-        BOOST_CHECK_EQUAL(false, absAndRel(a, b));
-        BOOST_CHECK_EQUAL(false, absAndRel(c, d));
-        BOOST_CHECK_EQUAL(true, absOrRel(a, b));
-        BOOST_CHECK_EQUAL(true, absOrRel(c, d));
+        BOOST_REQUIRE_EQUAL(true, abs(a, b));
+        BOOST_REQUIRE_EQUAL(false, abs(c, d));
+        BOOST_REQUIRE_EQUAL(false, rel(a, b));
+        BOOST_REQUIRE_EQUAL(true, rel(c, d));
+        BOOST_REQUIRE_EQUAL(false, absAndRel(a, b));
+        BOOST_REQUIRE_EQUAL(false, absAndRel(c, d));
+        BOOST_REQUIRE_EQUAL(true, absOrRel(a, b));
+        BOOST_REQUIRE_EQUAL(true, absOrRel(c, d));
     }
 }
 

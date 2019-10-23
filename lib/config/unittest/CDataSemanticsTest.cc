@@ -35,12 +35,12 @@ BOOST_AUTO_TEST_CASE(testBinary) {
 
     for (std::size_t i = 0u; i < boost::size(categories); ++i) {
         config::CDataSemantics semantics;
-        BOOST_CHECK_EQUAL(config_t::E_UndeterminedType, semantics.type());
+        BOOST_REQUIRE_EQUAL(config_t::E_UndeterminedType, semantics.type());
         for (std::size_t j = 0u; j < v.size(); ++j) {
             semantics.add(categories[i][v[j]]);
         }
         semantics.computeType();
-        BOOST_CHECK_EQUAL(config_t::E_Binary, semantics.type());
+        BOOST_REQUIRE_EQUAL(config_t::E_Binary, semantics.type());
     }
 }
 
@@ -62,7 +62,7 @@ BOOST_AUTO_TEST_CASE(testNonNumericCategorical) {
         semantics.add(categories[samples[i]]);
         if (i > 10) {
             semantics.computeType();
-            BOOST_CHECK_EQUAL(config_t::E_Categorical, semantics.type());
+            BOOST_REQUIRE_EQUAL(config_t::E_Categorical, semantics.type());
         }
     }
 }
@@ -91,7 +91,7 @@ BOOST_AUTO_TEST_CASE(testNumericCategorical) {
     }
     semantics.computeType();
     LOG_DEBUG(<< "type = " << semantics.type());
-    BOOST_CHECK_EQUAL(config_t::E_Categorical, semantics.type());
+    BOOST_REQUIRE_EQUAL(config_t::E_Categorical, semantics.type());
 }
 
 BOOST_AUTO_TEST_CASE(testInteger) {
@@ -115,12 +115,12 @@ BOOST_AUTO_TEST_CASE(testInteger) {
             //{
             //    semantics.computeType();
             //    LOG_DEBUG(<< "  type = " << semantics.type());
-            //    BOOST_CHECK_EQUAL(config_t::E_PositiveInteger, semantics.type());
+            //    BOOST_REQUIRE_EQUAL(config_t::E_PositiveInteger, semantics.type());
             //}
         }
         semantics.computeType();
         LOG_DEBUG(<< "  type = " << semantics.type());
-        BOOST_CHECK_EQUAL(config_t::E_PositiveInteger, semantics.type());
+        BOOST_REQUIRE_EQUAL(config_t::E_PositiveInteger, semantics.type());
     }
     {
         LOG_DEBUG(<< "*** normal ***");
@@ -136,7 +136,7 @@ BOOST_AUTO_TEST_CASE(testInteger) {
             if ((i + 1) % 100 == 0) {
                 semantics.computeType();
                 LOG_DEBUG(<< "  type = " << semantics.type());
-                BOOST_CHECK_EQUAL(config_t::E_Integer, semantics.type());
+                BOOST_REQUIRE_EQUAL(config_t::E_Integer, semantics.type());
             }
         }
     }
@@ -154,7 +154,7 @@ BOOST_AUTO_TEST_CASE(testInteger) {
             if ((i + 1) % 100 == 0) {
                 semantics.computeType();
                 LOG_DEBUG(<< "  type = " << semantics.type());
-                BOOST_CHECK_EQUAL(config_t::E_PositiveInteger, semantics.type());
+                BOOST_REQUIRE_EQUAL(config_t::E_PositiveInteger, semantics.type());
             }
         }
     }
@@ -180,7 +180,7 @@ BOOST_AUTO_TEST_CASE(testInteger) {
                 semantics.computeType();
                 LOG_DEBUG(<< "  type = " << semantics.type());
                 if (i > 30) {
-                    BOOST_CHECK_EQUAL(config_t::E_Integer, semantics.type());
+                    BOOST_REQUIRE_EQUAL(config_t::E_Integer, semantics.type());
                 }
             }
         }
@@ -207,7 +207,7 @@ BOOST_AUTO_TEST_CASE(testReal) {
             if ((i + 1) % 50 == 0) {
                 semantics.computeType();
                 LOG_DEBUG(<< "  type = " << semantics.type());
-                BOOST_CHECK_EQUAL(config_t::E_PositiveReal, semantics.type());
+                BOOST_REQUIRE_EQUAL(config_t::E_PositiveReal, semantics.type());
             }
         }
     }
@@ -225,7 +225,7 @@ BOOST_AUTO_TEST_CASE(testReal) {
             if ((i + 1) % 50 == 0) {
                 semantics.computeType();
                 LOG_DEBUG(<< "  type = " << semantics.type());
-                BOOST_CHECK_EQUAL(config_t::E_Real, semantics.type());
+                BOOST_REQUIRE_EQUAL(config_t::E_Real, semantics.type());
             }
         }
     }
@@ -243,7 +243,7 @@ BOOST_AUTO_TEST_CASE(testReal) {
             if ((i + 1) % 50 == 0) {
                 semantics.computeType();
                 LOG_DEBUG(<< "  type = " << semantics.type());
-                BOOST_CHECK_EQUAL(config_t::E_PositiveReal, semantics.type());
+                BOOST_REQUIRE_EQUAL(config_t::E_PositiveReal, semantics.type());
             }
         }
     }
@@ -267,7 +267,7 @@ BOOST_AUTO_TEST_CASE(testReal) {
                 semantics.computeType();
                 LOG_DEBUG(<< "  type = " << semantics.type());
                 if (i > 25) {
-                    BOOST_CHECK_EQUAL(config_t::E_Real, semantics.type());
+                    BOOST_REQUIRE_EQUAL(config_t::E_Real, semantics.type());
                 }
             }
         }

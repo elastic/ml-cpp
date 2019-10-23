@@ -114,8 +114,8 @@ BOOST_AUTO_TEST_CASE(testElements) {
         levelSet.elements(*partition, false,
                           CConcreteHierarchicalResultsLevelSet::CFactory(), result);
         LOG_DEBUG(<< "partition level = " << ml::core::CContainerPrinter::print(result));
-        BOOST_CHECK_EQUAL(std::string{"[\"PA pa1  \"]"},
-                          ml::core::CContainerPrinter::print(result));
+        BOOST_REQUIRE_EQUAL(std::string{"[\"PA pa1  \"]"},
+                            ml::core::CContainerPrinter::print(result));
     }
 
     // We should get the same level set corresponding to ("pa1", "pb1")
@@ -125,8 +125,8 @@ BOOST_AUTO_TEST_CASE(testElements) {
         levelSet.elements(*leaf, false,
                           CConcreteHierarchicalResultsLevelSet::CFactory(), result);
         LOG_DEBUG(<< "leaf level = " << ml::core::CContainerPrinter::print(result));
-        BOOST_CHECK_EQUAL(std::string{"[\"PA pa1 PB pb1\"]"},
-                          ml::core::CContainerPrinter::print(result));
+        BOOST_REQUIRE_EQUAL(std::string{"[\"PA pa1 PB pb1\"]"},
+                            ml::core::CContainerPrinter::print(result));
     }
 }
 

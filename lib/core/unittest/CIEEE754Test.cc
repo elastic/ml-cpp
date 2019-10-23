@@ -27,7 +27,7 @@ BOOST_AUTO_TEST_CASE(testRound) {
         std::ostringstream o2;
         o2 << std::setprecision(10) << CIEEE754::round(test1, CIEEE754::E_SinglePrecision);
         LOG_DEBUG(<< "test1 " << o1.str() << " " << o2.str());
-        BOOST_CHECK_EQUAL(o1.str(), o2.str());
+        BOOST_REQUIRE_EQUAL(o1.str(), o2.str());
     }
     {
         // Check it matches float precision.
@@ -37,7 +37,7 @@ BOOST_AUTO_TEST_CASE(testRound) {
         std::ostringstream o2;
         o2 << std::setprecision(10) << CIEEE754::round(test2, CIEEE754::E_SinglePrecision);
         LOG_DEBUG(<< "test2 " << o1.str() << " " << o2.str());
-        BOOST_CHECK_EQUAL(o1.str(), o2.str());
+        BOOST_REQUIRE_EQUAL(o1.str(), o2.str());
     }
     {
         // Check rounding away from zero.
@@ -47,7 +47,7 @@ BOOST_AUTO_TEST_CASE(testRound) {
         std::ostringstream o2;
         o2 << std::setprecision(10) << CIEEE754::round(test3, CIEEE754::E_SinglePrecision);
         LOG_DEBUG(<< "test3 " << o1.str() << " " << o2.str());
-        BOOST_CHECK_EQUAL(o1.str(), o2.str());
+        BOOST_REQUIRE_EQUAL(o1.str(), o2.str());
     }
     {
         // Check rounding away from zero.
@@ -57,7 +57,7 @@ BOOST_AUTO_TEST_CASE(testRound) {
         std::ostringstream o2;
         o2 << std::setprecision(10) << CIEEE754::round(test4, CIEEE754::E_SinglePrecision);
         LOG_DEBUG(<< "test4 " << o1.str() << " " << o2.str());
-        BOOST_CHECK_EQUAL(o1.str(), o2.str());
+        BOOST_REQUIRE_EQUAL(o1.str(), o2.str());
     }
     {
         // Check rounding for very large numbers.
@@ -67,7 +67,7 @@ BOOST_AUTO_TEST_CASE(testRound) {
         std::ostringstream o2;
         o2 << std::setprecision(10) << CIEEE754::round(test5, CIEEE754::E_SinglePrecision);
         LOG_DEBUG(<< "test5 " << o1.str() << " " << o2.str());
-        BOOST_CHECK_EQUAL(o1.str(), o2.str());
+        BOOST_REQUIRE_EQUAL(o1.str(), o2.str());
     }
     {
         // Check rounding for very large numbers.
@@ -77,7 +77,7 @@ BOOST_AUTO_TEST_CASE(testRound) {
         std::ostringstream o2;
         o2 << std::setprecision(10) << CIEEE754::round(test6, CIEEE754::E_SinglePrecision);
         LOG_DEBUG(<< "test6 " << o1.str() << " " << o2.str());
-        BOOST_CHECK_EQUAL(o1.str(), o2.str());
+        BOOST_REQUIRE_EQUAL(o1.str(), o2.str());
     }
 }
 

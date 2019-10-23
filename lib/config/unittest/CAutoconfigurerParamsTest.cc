@@ -62,7 +62,7 @@ BOOST_AUTO_TEST_CASE(testDefaults) {
         "  LowDistinctCountForInfoContent = 500000.000000\n"
         "  MinimumDistinctCountForInfoContent = 5000.000000\n";
     LOG_DEBUG(<< "parameters =\n" << actual);
-    BOOST_CHECK_EQUAL(expected, actual);
+    BOOST_REQUIRE_EQUAL(expected, actual);
 }
 
 BOOST_AUTO_TEST_CASE(testInit) {
@@ -115,12 +115,12 @@ BOOST_AUTO_TEST_CASE(testInit) {
         "  LowDistinctCountForInfoContent = 500000.000000\n"
         "  MinimumDistinctCountForInfoContent = 5000.000000\n";
     LOG_DEBUG(<< "parameters =\n" << actual);
-    BOOST_CHECK_EQUAL(expected, actual);
+    BOOST_REQUIRE_EQUAL(expected, actual);
 
     params.init("testfiles/badparameters.conf");
     actual = params.print();
     LOG_DEBUG(<< "parameters =\n" << actual);
-    BOOST_CHECK_EQUAL(expected, actual);
+    BOOST_REQUIRE_EQUAL(expected, actual);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

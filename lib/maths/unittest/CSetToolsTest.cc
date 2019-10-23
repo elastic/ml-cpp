@@ -46,8 +46,8 @@ BOOST_AUTO_TEST_CASE(testInplaceSetDifference) {
             LOG_DEBUG(<< "A = " << core::CContainerPrinter::print(A)
                       << ", B = " << core::CContainerPrinter::print(left)
                       << ", A - B = " << core::CContainerPrinter::print(test));
-            BOOST_CHECK_EQUAL(core::CContainerPrinter::print(expected),
-                              core::CContainerPrinter::print(test));
+            BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(expected),
+                                core::CContainerPrinter::print(test));
 
             TDoubleVec right;
             for (std::size_t j = i; j < boost::size(a); ++j) {
@@ -61,8 +61,8 @@ BOOST_AUTO_TEST_CASE(testInplaceSetDifference) {
             LOG_DEBUG(<< "A = " << core::CContainerPrinter::print(A)
                       << ", B = " << core::CContainerPrinter::print(right)
                       << ", A - B = " << core::CContainerPrinter::print(test));
-            BOOST_CHECK_EQUAL(core::CContainerPrinter::print(expected),
-                              core::CContainerPrinter::print(test));
+            BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(expected),
+                                core::CContainerPrinter::print(test));
         }
     }
 
@@ -99,8 +99,8 @@ BOOST_AUTO_TEST_CASE(testInplaceSetDifference) {
             LOG_DEBUG(<< "A - B = " << core::CContainerPrinter::print(A));
         }
 
-        BOOST_CHECK_EQUAL(core::CContainerPrinter::print(expected),
-                          core::CContainerPrinter::print(A));
+        BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(expected),
+                            core::CContainerPrinter::print(A));
     }
 }
 
@@ -124,7 +124,7 @@ BOOST_AUTO_TEST_CASE(testSetSizes) {
             LOG_DEBUG(<< "A = " << core::CContainerPrinter::print(A)
                       << ", B = " << core::CContainerPrinter::print(left)
                       << ", |A ^ B| = " << test);
-            BOOST_CHECK_EQUAL(expected.size(), test);
+            BOOST_REQUIRE_EQUAL(expected.size(), test);
 
             TDoubleVec right;
             for (std::size_t j = i; j < boost::size(a); ++j) {
@@ -138,7 +138,7 @@ BOOST_AUTO_TEST_CASE(testSetSizes) {
             LOG_DEBUG(<< "A = " << core::CContainerPrinter::print(A)
                       << ", B = " << core::CContainerPrinter::print(right)
                       << ", |A ^ B| = " << test);
-            BOOST_CHECK_EQUAL(expected.size(), test);
+            BOOST_REQUIRE_EQUAL(expected.size(), test);
 
             expected.clear();
             std::set_union(left.begin(), left.end(), right.begin(), right.end(),
@@ -148,7 +148,7 @@ BOOST_AUTO_TEST_CASE(testSetSizes) {
             LOG_DEBUG(<< "A = " << core::CContainerPrinter::print(left)
                       << ", B = " << core::CContainerPrinter::print(right)
                       << ", |A U B| = " << test);
-            BOOST_CHECK_EQUAL(expected.size(), test);
+            BOOST_REQUIRE_EQUAL(expected.size(), test);
         }
     }
 
@@ -186,7 +186,7 @@ BOOST_AUTO_TEST_CASE(testSetSizes) {
             LOG_DEBUG(<< "|A ^ B| = " << test);
         }
 
-        BOOST_CHECK_EQUAL(expected.size(), test);
+        BOOST_REQUIRE_EQUAL(expected.size(), test);
 
         expected.clear();
         std::set_union(A.begin(), A.end(), B.begin(), B.end(), std::back_inserter(expected));
@@ -197,7 +197,7 @@ BOOST_AUTO_TEST_CASE(testSetSizes) {
             LOG_DEBUG(<< "|A U B| = " << test);
         }
 
-        BOOST_CHECK_EQUAL(expected.size(), test);
+        BOOST_REQUIRE_EQUAL(expected.size(), test);
     }
 }
 
@@ -208,10 +208,10 @@ BOOST_AUTO_TEST_CASE(testJaccard) {
         double A[] = {0.0, 1.2, 3.2};
         double B[] = {0.0, 1.2, 3.2, 5.1};
 
-        BOOST_CHECK_EQUAL(0.0, maths::CSetTools::jaccard(A, A, B, B));
-        BOOST_CHECK_EQUAL(1.0, maths::CSetTools::jaccard(A, A + 3, B, B + 3));
-        BOOST_CHECK_EQUAL(0.75, maths::CSetTools::jaccard(A, A + 3, B, B + 4));
-        BOOST_CHECK_EQUAL(0.0, maths::CSetTools::jaccard(A, A + 3, B + 3, B + 4));
+        BOOST_REQUIRE_EQUAL(0.0, maths::CSetTools::jaccard(A, A, B, B));
+        BOOST_REQUIRE_EQUAL(1.0, maths::CSetTools::jaccard(A, A + 3, B, B + 3));
+        BOOST_REQUIRE_EQUAL(0.75, maths::CSetTools::jaccard(A, A + 3, B, B + 4));
+        BOOST_REQUIRE_EQUAL(0.0, maths::CSetTools::jaccard(A, A + 3, B + 3, B + 4));
     }
 
     LOG_DEBUG(<< "Random");
@@ -247,7 +247,7 @@ BOOST_AUTO_TEST_CASE(testJaccard) {
             LOG_DEBUG(<< "Jaccard expected = " << expected);
             LOG_DEBUG(<< "Jaccard actual   = " << actual);
         }
-        BOOST_CHECK_EQUAL(expected, actual);
+        BOOST_REQUIRE_EQUAL(expected, actual);
     }
 }
 
@@ -258,10 +258,10 @@ BOOST_AUTO_TEST_CASE(testOverlap) {
         double A[] = {0.0, 1.2, 3.2};
         double B[] = {0.0, 1.2, 3.2, 5.1};
 
-        BOOST_CHECK_EQUAL(0.0, maths::CSetTools::overlap(A, A, B, B));
-        BOOST_CHECK_EQUAL(1.0, maths::CSetTools::overlap(A, A + 3, B, B + 3));
-        BOOST_CHECK_EQUAL(1.0, maths::CSetTools::overlap(A, A + 3, B, B + 4));
-        BOOST_CHECK_EQUAL(0.0, maths::CSetTools::overlap(A, A + 3, B + 3, B + 4));
+        BOOST_REQUIRE_EQUAL(0.0, maths::CSetTools::overlap(A, A, B, B));
+        BOOST_REQUIRE_EQUAL(1.0, maths::CSetTools::overlap(A, A + 3, B, B + 3));
+        BOOST_REQUIRE_EQUAL(1.0, maths::CSetTools::overlap(A, A + 3, B, B + 4));
+        BOOST_REQUIRE_EQUAL(0.0, maths::CSetTools::overlap(A, A + 3, B + 3, B + 4));
     }
 
     LOG_DEBUG(<< "Random");
@@ -296,7 +296,7 @@ BOOST_AUTO_TEST_CASE(testOverlap) {
             LOG_DEBUG(<< "Overlap expected = " << expected);
             LOG_DEBUG(<< "Overlap actual   = " << actual);
         }
-        BOOST_CHECK_EQUAL(expected, actual);
+        BOOST_REQUIRE_EQUAL(expected, actual);
     }
 }
 
