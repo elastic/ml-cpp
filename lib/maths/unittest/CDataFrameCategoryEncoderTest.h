@@ -16,6 +16,7 @@ public:
     void testRareCategories();
     void testCorrelatedFeatures();
     void testWithRowMask();
+    void testEncodingOfCategoricalTarget();
     void testEncodedDataFrameRowRef();
     void testUnseenCategoryEncoding();
     void testDiscardNuisanceFeatures();

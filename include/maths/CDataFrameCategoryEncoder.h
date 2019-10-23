@@ -84,14 +84,17 @@ enum EEncoding {
 //! \brief Performs encoding of the categorical columns in a data frame.
 //!
 //! DESCRIPTION:\n
-//! We select appropriate encodings for categorical values based on their cardinality,
-//! the information they carry about the regression target variable and so on. We use
-//! a mixture of one-hot encoding for the categories which carry the most information
-//! (because this is lossless), mean target encoding for categories where we have a
-//! reasonable sample set and a catch all indicator feature for all rare categories.
+//! We consider:
+//!   -# One-hot encoding for the categories which carry the most information (because
+//!      this is lossless)
+//!   -# Mean target encoding for categories where we have a reasonable sample in the
+//!      training data and
+//!   -# Frequency encoding
 //!
-//! This also selects the independent metric features to use at the same time controlling
-//! the number of features we use in total based on the quantity of training data.
+//! We simultaneously select the categorical fields to encode, the encoding scheme and
+//! metric features to use by minimising a MICe based measure of their relevency for
+//! prediction and redundancy. The total number of features we select is based on the
+//! quantity of training data.
 class MATHS_EXPORT CDataFrameCategoryEncoder final {
 public:
     using TDoubleVec = std::vector<double>;
@@ -118,22 +121,22 @@ public:
         //! Populate the object from serialized data.
         bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
 
-    protected:
-        std::size_t m_InputColumnIndex;
-        double m_Mic;
-
     private:
         virtual void
         acceptPersistInserterForDerivedTypeState(core::CStatePersistInserter& inserter) const = 0;
         virtual bool
         acceptRestoreTraverserForDerivedTypeState(core::CStateRestoreTraverser& traverser) = 0;
+
+    private:
+        std::size_t m_InputColumnIndex;
+        double m_Mic;
     };
 
     using TEncodingUPtr = std::unique_ptr<CEncoding>;
     using TEncodingUPtrVec = std::vector<TEncodingUPtr>;
 
     //! \brief Returns the supplied value.
-    class MATHS_EXPORT CIdentityEncoding : public CEncoding {
+    class MATHS_EXPORT CIdentityEncoding final : public CEncoding {
     public:
         CIdentityEncoding(std::size_t inputColumnIndex, double mic);
         EEncoding type() const override;
@@ -148,7 +151,7 @@ public:
     };
 
     //! \brief One-hot encoding.
-    class MATHS_EXPORT COneHotEncoding : public CEncoding {
+    class MATHS_EXPORT COneHotEncoding final : public CEncoding {
     public:
         COneHotEncoding(std::size_t inputColumnIndex, double mic, std::size_t hotCategory);
         EEncoding type() const override;
@@ -167,7 +170,7 @@ public:
     };
 
     //! \brief Looks up the encoding in a map.
-    class MATHS_EXPORT CMappedEncoding : public CEncoding {
+    class MATHS_EXPORT CMappedEncoding final : public CEncoding {
     public:
         CMappedEncoding(std::size_t inputColumnIndex,
                         double mic,
@@ -189,12 +192,11 @@ public:
     private:
         EEncoding m_Encoding;
         TDoubleVec m_Map;
-
-    private:
         double m_Fallback;
         bool m_Binary;
     };
 
+    //! \brief Visits each encoding type.
     class MATHS_EXPORT CVisitor {
     public:
         virtual ~CVisitor() = default;
@@ -241,6 +243,7 @@ public:
     //! Populate the object from serialized data.
     bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
 
+    //! Visit the encodings.
     void accept(CVisitor& visitor) const;
 
 private:
@@ -263,19 +266,19 @@ public:
 
 public:
     //! The minimum number of training rows needed per feature used.
-    static constexpr std::size_t MINIMUM_ROWS_PER_FEATURE{50};
+    constexpr static std::size_t MINIMUM_ROWS_PER_FEATURE{50};
 
     //! This ensures we don't try and one-hot encode too many categories and thus
     //! overfit. This represents a reasonable default, but this is likely better
     //! estimated from the data characteristics.
-    static constexpr double MINIMUM_FREQUENCY_TO_ONE_HOT_ENCODE{0.05};
+    constexpr static double MINIMUM_FREQUENCY_TO_ONE_HOT_ENCODE{0.05};
 
     //! The minimum relative MIC of a feature to select it for training.
-    static constexpr double MINIMUM_RELATIVE_MIC_TO_SELECT_FEATURE{1e-3};
+    constexpr static double MINIMUM_RELATIVE_MIC_TO_SELECT_FEATURE{1e-3};
 
     //! By default assign roughly twice the importance to maximising relevance vs
     //! minimising redundancy when choosing the encoding and selecting features.
-    static constexpr double REDUNDANCY_WEIGHT{0.5};
+    constexpr static double REDUNDANCY_WEIGHT{0.5};
 
 public:
     //! \param[in] numberThreads The number of threads available.
