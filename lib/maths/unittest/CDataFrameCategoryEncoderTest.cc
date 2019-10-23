@@ -386,6 +386,44 @@ void CDataFrameCategoryEncoderTest::testWithRowMask() {
     CPPUNIT_ASSERT_EQUAL(encoder.checksum(), maskedEncoder.checksum());
 }
 
+void CDataFrameCategoryEncoderTest::testEncodingOfCategoricalTarget() {
+
+    // Test the target uses identity encoding.
+
+    test::CRandomNumbers rng;
+
+    auto target = [&](const TDoubleVecVec& features, std::size_t row) {
+        return std::floor(features[0][row] + features[1][row] + features[2][row]);
+    };
+
+    std::size_t rows{500};
+    std::size_t cols{4};
+
+    TDoubleVecVec features(cols - 1);
+    rng.generateUniformSamples(0.0, 2.0, rows, features[0]);
+    rng.generateUniformSamples(0.0, 2.0, rows, features[1]);
+    rng.generateUniformSamples(0.0, 2.0, rows, features[2]);
+
+    auto frame = core::makeMainStorageDataFrame(cols).first;
+    frame->categoricalColumns(TBoolVec{false, false, false, true});
+    for (std::size_t i = 0; i < rows; ++i) {
+        auto writeOneRow = [&](core::CDataFrame::TFloatVecItr column, std::int32_t&) {
+            for (std::size_t j = 0; j + 1 < cols; ++j, ++column) {
+                *column = features[j][i];
+            }
+            *column = target(features, i);
+        };
+        frame->writeRow(writeOneRow);
+    }
+    frame->finishWritingRows();
+
+    maths::CDataFrameCategoryEncoder encoder{{1, *frame, 3}};
+
+    for (std::size_t i = 0; i < encoder.numberEncodedColumns(); ++i) {
+        CPPUNIT_ASSERT_EQUAL(maths::E_IdentityEncoding, encoder.encoding(i).type());
+    }
+}
+
 void CDataFrameCategoryEncoderTest::testEncodedDataFrameRowRef() {
 
     // Test we get the feature vectors we expect after encoding.
@@ -707,6 +745,9 @@ CppUnit::Test* CDataFrameCategoryEncoderTest::suite() {
     suiteOfTests->addTest(new CppUnit::TestCaller<CDataFrameCategoryEncoderTest>(
         "CDataFrameCategoryEncoderTest::testWithRowMask",
         &CDataFrameCategoryEncoderTest::testWithRowMask));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CDataFrameCategoryEncoderTest>(
+        "CDataFrameCategoryEncoderTest::testEncodingOfCategoricalTarget",
+        &CDataFrameCategoryEncoderTest::testEncodingOfCategoricalTarget));
     suiteOfTests->addTest(new CppUnit::TestCaller<CDataFrameCategoryEncoderTest>(
         "CDataFrameCategoryEncoderTest::testEncodedDataFrameRowRef",
         &CDataFrameCategoryEncoderTest::testEncodedDataFrameRowRef));
