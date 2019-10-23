@@ -20,10 +20,12 @@
 #include <string>
 
 namespace CResourceMonitorTest {
-struct testFoo;
+class CTestFixture;
 }
 namespace CStringStoreTest {
-struct testFoo;
+class CTestFixture;
+struct testStringStore;
+struct testMemUsage;
 }
 
 namespace ml {
@@ -136,8 +138,10 @@ private:
     //! Locking primitive
     mutable core::CFastMutex m_Mutex;
 
-    friend struct CResourceMonitorTest::testFoo;
-    friend struct CStringStoreTest::testFoo;
+    friend class CResourceMonitorTest::CTestFixture;
+    friend class CStringStoreTest::CTestFixture;
+    friend struct CStringStoreTest::testStringStore;
+    friend struct CStringStoreTest::testMemUsage;
 };
 
 } // model

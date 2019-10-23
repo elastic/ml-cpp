@@ -22,7 +22,7 @@
 
 #include <stdint.h>
 
-namespace {
+namespace CResourceLimitTest {
 class CMockMetricModel;
 }
 namespace ml {
@@ -322,7 +322,7 @@ private:
     TInterimBucketCorrectorCPtr m_InterimBucketCorrector;
 
     friend class CMetricModelDetailsView;
-    friend class ::CMockMetricModel;
+    friend class CResourceLimitTest::CMockMetricModel;
 };
 }
 }

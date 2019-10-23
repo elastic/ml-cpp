@@ -16,7 +16,7 @@
 #include <memory>
 
 namespace CCountingModelTest {
-struct testFoo;
+struct testCheckScheduledEvents;
 }
 
 namespace ml {
@@ -293,7 +293,7 @@ private:
     //! Calculates corrections for interim buckets.
     TInterimBucketCorrectorPtr m_InterimBucketCorrector;
 
-    friend struct CCountingModelTest::testFoo;
+    friend struct CCountingModelTest::testCheckScheduledEvents;
 };
 }
 }

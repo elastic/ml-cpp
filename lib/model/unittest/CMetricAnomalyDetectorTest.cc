@@ -184,7 +184,7 @@ void importCsvData(core_t::TTime firstTime,
 
     std::string line;
     // read the header
-    BOOST_TEST_REQUIRE(std::getline(*ifs, line));
+    BOOST_TEST_REQUIRE(std::getline(*ifs, line).good());
 
     core_t::TTime lastBucketTime = firstTime;
 

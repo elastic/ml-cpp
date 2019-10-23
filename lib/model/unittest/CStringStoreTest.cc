@@ -10,11 +10,12 @@
 
 #include <model/CStringStore.h>
 
-#include <cppunit/Exception.h>
-
 #include <boost/test/unit_test.hpp>
 
+#include <exception>
 #include <memory>
+
+BOOST_TEST_DONT_PRINT_LOG_VALUE(ml::core::CStoredStringPtr)
 
 BOOST_AUTO_TEST_SUITE(CStringStoreTest)
 
@@ -29,9 +30,6 @@ using TStrCPtrUSet = boost::unordered_set<const std::string*>;
 
 class CStringThread : public core::CThread {
 public:
-    using TCppUnitExceptionP = std::shared_ptr<CppUnit::Exception>;
-
-public:
     CStringThread(std::size_t i, const TStrVec& strings)
         : m_I(i), m_Strings(strings) {}
 
@@ -41,7 +39,7 @@ public:
 
     void propagateLastThreadAssert() {
         if (m_LastException) {
-            throw *m_LastException;
+            std::rethrow_exception(m_LastException);
         }
     }
 
@@ -66,10 +64,9 @@ private:
                 BOOST_REQUIRE_EQUAL(m_Strings[i % n], *p);
             }
         }
-        // CppUnit won't automatically catch the exceptions thrown by
-        // assertions in newly created threads, so propagate manually
-        catch (CppUnit::Exception& e) {
-            m_LastException.reset(new CppUnit::Exception(e));
+        // Propagate exceptions to main testing thread
+        catch (...) {
+            m_LastException = std::current_exception();
         }
     }
 
@@ -80,18 +77,21 @@ private:
     TStrVec m_Strings;
     TStoredStringPtrVec m_Ptrs;
     TStrCPtrUSet m_UniquePtrs;
-    TCppUnitExceptionP m_LastException;
+    std::exception_ptr m_LastException;
 };
 }
 
-void CStringStoreTest::setUp() {
-    // Other test suites also use the string store, and it will mess up the
-    // tests in this suite if the string store is not empty when they start
-    CStringStore::names().clearEverythingTestOnly();
-    CStringStore::influencers().clearEverythingTestOnly();
-}
+class CTestFixture {
+public:
+    CTestFixture() {
+        // Other test suites also use the string store, and it will mess up the
+        // tests in this suite if the string store is not empty when they start
+        CStringStore::names().clearEverythingTestOnly();
+        CStringStore::influencers().clearEverythingTestOnly();
+    }
+};
 
-BOOST_AUTO_TEST_CASE(testStringStore) {
+BOOST_FIXTURE_TEST_CASE(testStringStore, CTestFixture) {
     TStrVec strings;
     strings.emplace_back("Milano");
     strings.emplace_back("Monza");
@@ -152,8 +152,7 @@ BOOST_AUTO_TEST_CASE(testStringStore) {
                             CStringStore::influencers().m_Strings.size());
 
         for (std::size_t i = 0; i < threads.size(); ++i) {
-            // CppUnit won't automatically catch the exceptions thrown by
-            // assertions in newly created threads, so propagate manually
+            // Propagate exceptions to main testing thread
             threads[i]->propagateLastThreadAssert();
         }
         for (std::size_t i = 0; i < threads.size(); ++i) {
@@ -188,8 +187,7 @@ BOOST_AUTO_TEST_CASE(testStringStore) {
         }
 
         for (std::size_t i = 0; i < threads.size(); ++i) {
-            // CppUnit won't automatically catch the exceptions thrown by
-            // assertions in newly created threads, so propagate manually
+            // Propagate exceptions to main testing thread
             threads[i]->propagateLastThreadAssert();
         }
 
@@ -208,7 +206,7 @@ BOOST_AUTO_TEST_CASE(testStringStore) {
     }
 }
 
-BOOST_AUTO_TEST_CASE(testMemUsage) {
+BOOST_FIXTURE_TEST_CASE(testMemUsage, CTestFixture) {
     std::string shortStr("short");
     std::string longStr("much much longer than the short string");
 

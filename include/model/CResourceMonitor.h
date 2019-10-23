@@ -16,10 +16,11 @@
 #include <functional>
 
 namespace CResourceMonitorTest {
-struct testFoo;
+struct testMonitor;
+struct testPruning;
 }
 namespace CResourceLimitTest {
-struct testFoo;
+class CTestFixture;
 }
 namespace CAnomalyJobLimitTest {
 struct testFoo;
@@ -247,8 +248,9 @@ private:
     bool m_PersistenceInForeground;
 
     //! Test friends
-    friend struct CResourceMonitorTest::testFoo;
-    friend struct CResourceLimitTest::testFoo;
+    friend struct CResourceMonitorTest::testMonitor;
+    friend struct CResourceMonitorTest::testPruning;
+    friend class CResourceLimitTest::CTestFixture;
     friend struct CAnomalyJobLimitTest::testFoo;
 };
 

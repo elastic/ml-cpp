@@ -29,6 +29,7 @@
 #include <boost/tuple/tuple.hpp>
 #include <boost/tuple/tuple_io.hpp>
 
+#include <fstream>
 #include <vector>
 
 BOOST_AUTO_TEST_SUITE(CResourceLimitTest)
@@ -106,124 +107,6 @@ private:
     const CLimits& m_Limits;
     TResultsVec m_Results;
 };
-
-BOOST_AUTO_TEST_CASE(testLimitBy) {
-    // Check that we can get some results from a test data set, then
-    // turn on resource limiting and still get the same results
-
-    static const core_t::TTime BUCKET_LENGTH(3600);
-    static const core_t::TTime FIRST_TIME(
-        maths::CIntegerTools::ceil(core_t::TTime(1407428000), BUCKET_LENGTH));
-    ::CResultWriter::TResultsVec results;
-
-    {
-        CAnomalyDetectorModelConfig modelConfig =
-            CAnomalyDetectorModelConfig::defaultConfig(BUCKET_LENGTH);
-        modelConfig.useMultibucketFeatures(false);
-        CLimits limits;
-        CSearchKey key(1, // identifier
-                       function_t::E_IndividualMetric, false,
-                       model_t::E_XF_None, "value", "colour");
-        CAnomalyDetector detector(1, // identifier
-                                  limits, modelConfig, "", FIRST_TIME,
-                                  modelConfig.factory(key));
-        ::CResultWriter writer(modelConfig, limits);
-
-        importCsvDataWithLimiter(FIRST_TIME, BUCKET_LENGTH, writer,
-                                 "testfiles/resource_limits_8_series.csv",
-                                 detector, std::numeric_limits<std::size_t>::max(),
-                                 limits.resourceMonitor());
-
-        results = writer.results();
-
-        // expect there to be 2 anomalies
-        BOOST_REQUIRE_EQUAL(std::size_t(2), results.size());
-        BOOST_REQUIRE_EQUAL(core_t::TTime(1407571200), results[0].get<0>());
-        BOOST_REQUIRE_EQUAL(core_t::TTime(1407715200), results[1].get<0>());
-        BOOST_REQUIRE_EQUAL(std::size_t(8), detector.numberActivePeople());
-    }
-    {
-        // This time, repeat the test but set a resource limit to prevent
-        // any models from being created.
-        CAnomalyDetectorModelConfig modelConfig =
-            CAnomalyDetectorModelConfig::defaultConfig(BUCKET_LENGTH);
-        CLimits limits;
-        CSearchKey key(1, // identifier
-                       function_t::E_IndividualMetric, false,
-                       model_t::E_XF_None, "value", "colour");
-        CAnomalyDetector detector(1, // identifier
-                                  limits, modelConfig, "", FIRST_TIME,
-                                  modelConfig.factory(key));
-        ::CResultWriter writer(modelConfig, limits);
-
-        importCsvDataWithLimiter(FIRST_TIME, BUCKET_LENGTH, writer,
-                                 "testfiles/resource_limits_8_series.csv",
-                                 detector, 1, limits.resourceMonitor());
-
-        const ::CResultWriter::TResultsVec& secondResults = writer.results();
-
-        BOOST_REQUIRE_EQUAL(std::size_t(0), secondResults.size());
-    }
-}
-
-BOOST_AUTO_TEST_CASE(testLimitByOver) {
-    // Check that we can get some results from a test data set, then
-    // turn on resource limiting and still get the results from
-    // non-limited data, but not results from limited data
-
-    static const core_t::TTime BUCKET_LENGTH(3600);
-    static const core_t::TTime FIRST_TIME(
-        maths::CIntegerTools::ceil(core_t::TTime(1407441600), BUCKET_LENGTH));
-    ::CResultWriter::TResultsVec results;
-
-    {
-        CAnomalyDetectorModelConfig modelConfig =
-            CAnomalyDetectorModelConfig::defaultConfig(BUCKET_LENGTH);
-        CLimits limits;
-        CSearchKey key(1, // identifier
-                       function_t::E_PopulationMetric, false,
-                       model_t::E_XF_None, "value", "colour", "species");
-        CAnomalyDetector detector(1, // identifier
-                                  limits, modelConfig, "", FIRST_TIME,
-                                  modelConfig.factory(key));
-        ::CResultWriter writer(modelConfig, limits);
-
-        importCsvDataWithLimiter(FIRST_TIME, BUCKET_LENGTH, writer,
-                                 "testfiles/resource_limits_8_2over.csv", detector,
-                                 std::numeric_limits<std::size_t>::max(),
-                                 limits.resourceMonitor());
-
-        results = writer.results();
-
-        // check we have the expected 4 anomalies
-        BOOST_REQUIRE_EQUAL(std::size_t(4), results.size());
-        BOOST_REQUIRE_EQUAL(std::size_t(2), detector.numberActivePeople());
-        BOOST_REQUIRE_EQUAL(std::size_t(3), detector.numberActiveAttributes());
-    }
-
-    // Now limit after 1 sample, so only expect no results
-    CAnomalyDetectorModelConfig modelConfig =
-        CAnomalyDetectorModelConfig::defaultConfig(BUCKET_LENGTH);
-    CLimits limits;
-    CSearchKey key(1, // identifier
-                   function_t::E_PopulationMetric, false, model_t::E_XF_None,
-                   "value", "colour", "species");
-    CAnomalyDetector detector(1, // identifier
-                              limits, modelConfig, "", FIRST_TIME,
-                              modelConfig.factory(key));
-    ::CResultWriter writer(modelConfig, limits);
-
-    importCsvDataWithLimiter(FIRST_TIME, BUCKET_LENGTH, writer,
-                             "testfiles/resource_limits_8_2over.csv", detector,
-                             1, limits.resourceMonitor());
-
-    const ::CResultWriter::TResultsVec& secondResults = writer.results();
-
-    // should only have red flowers as results now
-    BOOST_REQUIRE_EQUAL(std::size_t(0), secondResults.size());
-}
-
-namespace {
 
 class CMockModelInterface {
 public:
@@ -407,7 +290,7 @@ TAddPersonDataFunc createModel(model_t::EModelType modelType,
         gatherer.reset(factory->makeDataGatherer(firstTime));
 
         const maths::CMultinomialConjugate conjugate;
-        std::shared_ptr<::CMockEventRateModel> model_ = std::make_shared<::CMockEventRateModel>(
+        std::shared_ptr<CMockEventRateModel> model_ = std::make_shared<CMockEventRateModel>(
             factory->modelParams(), gatherer,
             factory->defaultFeatureModels(features, bucketLength, 0.4, true), conjugate,
             CAnomalyDetectorModel::TFeatureInfluenceCalculatorCPtrPrVecVec(),
@@ -437,7 +320,7 @@ TAddPersonDataFunc createModel(model_t::EModelType modelType,
 
         gatherer.reset(factory->makeDataGatherer(firstTime));
 
-        std::shared_ptr<::CMockMetricModel> model_ = std::make_shared<::CMockMetricModel>(
+        std::shared_ptr<CMockMetricModel> model_ = std::make_shared<CMockMetricModel>(
             factory->modelParams(), gatherer,
             factory->defaultFeatureModels(features, bucketLength, 0.4, true),
             CAnomalyDetectorModel::TFeatureInfluenceCalculatorCPtrPrVecVec(),
@@ -527,9 +410,180 @@ void doTestLargeAllocations(SLargeAllocationTestParams& param) {
     BOOST_REQUIRE_EQUAL(std::size_t(0), model->getNewAttributes());
     BOOST_REQUIRE_EQUAL(model->getNewPeople(), gatherer->numberActivePeople());
 }
+
+class CTestFixture {
+protected:
+    void importCsvDataWithLimiter(core_t::TTime firstTime,
+                                  core_t::TTime bucketLength,
+                                  CResultWriter& outputResults,
+                                  const std::string& fileName,
+                                  CAnomalyDetector& detector,
+                                  std::size_t limitCutoff,
+                                  CResourceMonitor& resourceMonitor) {
+
+        using TifstreamPtr = std::shared_ptr<std::ifstream>;
+        TifstreamPtr ifs(new std::ifstream(fileName.c_str()));
+        BOOST_TEST_REQUIRE(ifs->is_open());
+
+        core::CRegex regex;
+        BOOST_TEST_REQUIRE(regex.init(","));
+
+        std::string line;
+        // read the header
+        BOOST_TEST_REQUIRE(std::getline(*ifs, line).good());
+
+        core_t::TTime lastBucketTime = firstTime;
+
+        std::size_t i = 0;
+        while (std::getline(*ifs, line)) {
+            if (i == limitCutoff) {
+                LOG_INFO(<< "Setting Limit cutoff now");
+                resourceMonitor.m_ByteLimitHigh = 0;
+                resourceMonitor.m_ByteLimitLow = 0;
+            }
+
+            LOG_TRACE(<< "Got string: " << line);
+            core::CRegex::TStrVec tokens;
+            regex.split(line, tokens);
+
+            core_t::TTime time;
+            BOOST_TEST_REQUIRE(core::CStringUtils::stringToType(tokens[0], time));
+
+            for (/**/; lastBucketTime + bucketLength <= time; lastBucketTime += bucketLength) {
+                outputResults(detector, lastBucketTime, lastBucketTime + bucketLength);
+            }
+
+            CAnomalyDetector::TStrCPtrVec fieldValues;
+            for (std::size_t t = tokens.size() - 1; t > 0; t--) {
+                fieldValues.push_back(&tokens[t]);
+            }
+
+            detector.addRecord(time, fieldValues);
+            ++i;
+        }
+
+        outputResults(detector, lastBucketTime, lastBucketTime + bucketLength);
+
+        ifs.reset();
+    }
+};
+
+BOOST_FIXTURE_TEST_CASE(testLimitBy, CTestFixture) {
+    // Check that we can get some results from a test data set, then
+    // turn on resource limiting and still get the same results
+
+    static const core_t::TTime BUCKET_LENGTH(3600);
+    static const core_t::TTime FIRST_TIME(
+        maths::CIntegerTools::ceil(core_t::TTime(1407428000), BUCKET_LENGTH));
+    CResultWriter::TResultsVec results;
+
+    {
+        CAnomalyDetectorModelConfig modelConfig =
+            CAnomalyDetectorModelConfig::defaultConfig(BUCKET_LENGTH);
+        modelConfig.useMultibucketFeatures(false);
+        CLimits limits;
+        CSearchKey key(1, // identifier
+                       function_t::E_IndividualMetric, false,
+                       model_t::E_XF_None, "value", "colour");
+        CAnomalyDetector detector(1, // identifier
+                                  limits, modelConfig, "", FIRST_TIME,
+                                  modelConfig.factory(key));
+        CResultWriter writer(modelConfig, limits);
+
+        importCsvDataWithLimiter(FIRST_TIME, BUCKET_LENGTH, writer,
+                                 "testfiles/resource_limits_8_series.csv",
+                                 detector, std::numeric_limits<std::size_t>::max(),
+                                 limits.resourceMonitor());
+
+        results = writer.results();
+
+        // expect there to be 2 anomalies
+        BOOST_REQUIRE_EQUAL(std::size_t(2), results.size());
+        BOOST_REQUIRE_EQUAL(core_t::TTime(1407571200), results[0].get<0>());
+        BOOST_REQUIRE_EQUAL(core_t::TTime(1407715200), results[1].get<0>());
+        BOOST_REQUIRE_EQUAL(std::size_t(8), detector.numberActivePeople());
+    }
+    {
+        // This time, repeat the test but set a resource limit to prevent
+        // any models from being created.
+        CAnomalyDetectorModelConfig modelConfig =
+            CAnomalyDetectorModelConfig::defaultConfig(BUCKET_LENGTH);
+        CLimits limits;
+        CSearchKey key(1, // identifier
+                       function_t::E_IndividualMetric, false,
+                       model_t::E_XF_None, "value", "colour");
+        CAnomalyDetector detector(1, // identifier
+                                  limits, modelConfig, "", FIRST_TIME,
+                                  modelConfig.factory(key));
+        CResultWriter writer(modelConfig, limits);
+
+        importCsvDataWithLimiter(FIRST_TIME, BUCKET_LENGTH, writer,
+                                 "testfiles/resource_limits_8_series.csv",
+                                 detector, 1, limits.resourceMonitor());
+
+        const CResultWriter::TResultsVec& secondResults = writer.results();
+
+        BOOST_REQUIRE_EQUAL(std::size_t(0), secondResults.size());
+    }
 }
 
-BOOST_AUTO_TEST_CASE(testLargeAllocations) {
+BOOST_FIXTURE_TEST_CASE(testLimitByOver, CTestFixture) {
+    // Check that we can get some results from a test data set, then
+    // turn on resource limiting and still get the results from
+    // non-limited data, but not results from limited data
+
+    static const core_t::TTime BUCKET_LENGTH(3600);
+    static const core_t::TTime FIRST_TIME(
+        maths::CIntegerTools::ceil(core_t::TTime(1407441600), BUCKET_LENGTH));
+    CResultWriter::TResultsVec results;
+
+    {
+        CAnomalyDetectorModelConfig modelConfig =
+            CAnomalyDetectorModelConfig::defaultConfig(BUCKET_LENGTH);
+        CLimits limits;
+        CSearchKey key(1, // identifier
+                       function_t::E_PopulationMetric, false,
+                       model_t::E_XF_None, "value", "colour", "species");
+        CAnomalyDetector detector(1, // identifier
+                                  limits, modelConfig, "", FIRST_TIME,
+                                  modelConfig.factory(key));
+        CResultWriter writer(modelConfig, limits);
+
+        importCsvDataWithLimiter(FIRST_TIME, BUCKET_LENGTH, writer,
+                                 "testfiles/resource_limits_8_2over.csv", detector,
+                                 std::numeric_limits<std::size_t>::max(),
+                                 limits.resourceMonitor());
+
+        results = writer.results();
+
+        // check we have the expected 4 anomalies
+        BOOST_REQUIRE_EQUAL(std::size_t(4), results.size());
+        BOOST_REQUIRE_EQUAL(std::size_t(2), detector.numberActivePeople());
+        BOOST_REQUIRE_EQUAL(std::size_t(3), detector.numberActiveAttributes());
+    }
+
+    // Now limit after 1 sample, so only expect no results
+    CAnomalyDetectorModelConfig modelConfig =
+        CAnomalyDetectorModelConfig::defaultConfig(BUCKET_LENGTH);
+    CLimits limits;
+    CSearchKey key(1, // identifier
+                   function_t::E_PopulationMetric, false, model_t::E_XF_None,
+                   "value", "colour", "species");
+    CAnomalyDetector detector(1, // identifier
+                              limits, modelConfig, "", FIRST_TIME,
+                              modelConfig.factory(key));
+    CResultWriter writer(modelConfig, limits);
+
+    importCsvDataWithLimiter(FIRST_TIME, BUCKET_LENGTH, writer,
+                             "testfiles/resource_limits_8_2over.csv", detector,
+                             1, limits.resourceMonitor());
+
+    const CResultWriter::TResultsVec& secondResults = writer.results();
+
+    // should only have red flowers as results now
+    BOOST_REQUIRE_EQUAL(std::size_t(0), secondResults.size());
+}
+BOOST_FIXTURE_TEST_CASE(testLargeAllocations, CTestFixture) {
 
     SLargeAllocationTestParams params[] = {
         {false, 70, 3000, 2700, 2900, model_t::E_EventRateOnline},
@@ -540,60 +594,6 @@ BOOST_AUTO_TEST_CASE(testLargeAllocations) {
     for (auto& param : params) {
         doTestLargeAllocations(param);
     }
-}
-
-void CResourceLimitTest::importCsvDataWithLimiter(core_t::TTime firstTime,
-                                                  core_t::TTime bucketLength,
-                                                  CResultWriter& outputResults,
-                                                  const std::string& fileName,
-                                                  CAnomalyDetector& detector,
-                                                  std::size_t limitCutoff,
-                                                  CResourceMonitor& resourceMonitor) {
-
-    using TifstreamPtr = std::shared_ptr<std::ifstream>;
-    TifstreamPtr ifs(new std::ifstream(fileName.c_str()));
-    BOOST_TEST_REQUIRE(ifs->is_open());
-
-    core::CRegex regex;
-    BOOST_TEST_REQUIRE(regex.init(","));
-
-    std::string line;
-    // read the header
-    BOOST_TEST_REQUIRE(std::getline(*ifs, line));
-
-    core_t::TTime lastBucketTime = firstTime;
-
-    std::size_t i = 0;
-    while (std::getline(*ifs, line)) {
-        if (i == limitCutoff) {
-            LOG_INFO(<< "Setting Limit cuttoff now");
-            resourceMonitor.m_ByteLimitHigh = 0;
-            resourceMonitor.m_ByteLimitLow = 0;
-        }
-
-        LOG_TRACE(<< "Got string: " << line);
-        core::CRegex::TStrVec tokens;
-        regex.split(line, tokens);
-
-        core_t::TTime time;
-        BOOST_TEST_REQUIRE(core::CStringUtils::stringToType(tokens[0], time));
-
-        for (/**/; lastBucketTime + bucketLength <= time; lastBucketTime += bucketLength) {
-            outputResults(detector, lastBucketTime, lastBucketTime + bucketLength);
-        }
-
-        CAnomalyDetector::TStrCPtrVec fieldValues;
-        for (std::size_t t = tokens.size() - 1; t > 0; t--) {
-            fieldValues.push_back(&tokens[t]);
-        }
-
-        detector.addRecord(time, fieldValues);
-        ++i;
-    }
-
-    outputResults(detector, lastBucketTime, lastBucketTime + bucketLength);
-
-    ifs.reset();
 }
 
 BOOST_AUTO_TEST_SUITE_END()

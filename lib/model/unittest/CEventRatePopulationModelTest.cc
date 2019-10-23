@@ -4,8 +4,6 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
-#include "CEventRatePopulationModelTest.h"
-
 #include <core/CContainerPrinter.h>
 #include <core/CLogger.h>
 #include <core/CPatternSet.h>
@@ -31,10 +29,13 @@
 #include <model/CPartitioningFields.h>
 #include <model/CResourceMonitor.h>
 
+#include <test/BoostTestCloseAbsolute.h>
 #include <test/CRandomNumbers.h>
 
 #include <boost/lexical_cast.hpp>
+#include <boost/optional/optional_io.hpp>
 #include <boost/range.hpp>
+#include <boost/test/unit_test.hpp>
 #include <boost/tuple/tuple.hpp>
 #include <boost/tuple/tuple_comparison.hpp>
 
@@ -45,6 +46,8 @@
 #include <string>
 #include <utility>
 #include <vector>
+
+BOOST_AUTO_TEST_SUITE(CEventRatePopulationModelTest)
 
 using namespace ml;
 using namespace model;
@@ -209,7 +212,12 @@ void addArrival(const SMessage& message,
 const TSizeDoublePr1Vec NO_CORRELATES;
 }
 
-void CEventRatePopulationModelTest::testBasicAccessors() {
+class CTestFixture {
+protected:
+    CResourceMonitor m_ResourceMonitor;
+};
+
+BOOST_FIXTURE_TEST_CASE(testBasicAccessors, CTestFixture) {
     // Check that the correct data is read retrieved by the
     // basic model accessors.
 
@@ -233,7 +241,7 @@ void CEventRatePopulationModelTest::testBasicAccessors() {
     CModelFactory::SModelInitializationData modelInitData(gatherer);
     CAnomalyDetectorModel::TModelPtr model(factory.makeModel(modelInitData));
 
-    CPPUNIT_ASSERT_EQUAL(model_t::E_EventRateOnline, model->category());
+    BOOST_REQUIRE_EQUAL(model_t::E_EventRateOnline, model->category());
 
     TSizeUInt64Map expectedBucketPersonCounts;
     TSizeSizePrUInt64Map expectedBucketPersonAttributeCounts;
@@ -249,14 +257,14 @@ void CEventRatePopulationModelTest::testBasicAccessors() {
             for (std::size_t j = 0u; j < gatherer->numberActivePeople(); ++j) {
                 const std::string& name = model->personName(j);
                 std::size_t pid;
-                CPPUNIT_ASSERT(gatherer->personId(name, pid));
-                CPPUNIT_ASSERT_EQUAL(j, pid);
+                BOOST_TEST_REQUIRE(gatherer->personId(name, pid));
+                BOOST_REQUIRE_EQUAL(j, pid);
             }
             for (std::size_t j = 0u; j < gatherer->numberActiveAttributes(); ++j) {
                 const std::string& name = model->attributeName(j);
                 std::size_t cid;
-                CPPUNIT_ASSERT(gatherer->attributeId(name, cid));
-                CPPUNIT_ASSERT_EQUAL(j, cid);
+                BOOST_TEST_REQUIRE(gatherer->attributeId(name, cid));
+                BOOST_REQUIRE_EQUAL(j, cid);
             }
 
             TSizeVec expectedCurrentBucketPersonIds;
@@ -266,8 +274,8 @@ void CEventRatePopulationModelTest::testBasicAccessors() {
                 std::size_t pid = expectedCount.first;
                 expectedCurrentBucketPersonIds.push_back(pid);
                 auto count = model->currentBucketCount(pid, startTime);
-                CPPUNIT_ASSERT(count);
-                CPPUNIT_ASSERT_EQUAL(expectedCount.second, *count);
+                BOOST_TEST_REQUIRE(count);
+                BOOST_REQUIRE_EQUAL(expectedCount.second, *count);
             }
 
             // Test the person attribute counts.
@@ -276,8 +284,8 @@ void CEventRatePopulationModelTest::testBasicAccessors() {
                 std::size_t cid = expectedCount.first.second;
                 TDouble1Vec count = model->currentBucketValue(
                     model_t::E_PopulationCountByBucketPersonAndAttribute, pid, cid, startTime);
-                CPPUNIT_ASSERT(!count.empty());
-                CPPUNIT_ASSERT_EQUAL(static_cast<double>(expectedCount.second), count[0]);
+                BOOST_TEST_REQUIRE(!count.empty());
+                BOOST_REQUIRE_EQUAL(static_cast<double>(expectedCount.second), count[0]);
             }
 
             // Test the current bucket people.
@@ -285,8 +293,8 @@ void CEventRatePopulationModelTest::testBasicAccessors() {
                       expectedCurrentBucketPersonIds.end());
             TSizeVec bucketPersonIds;
             model->currentBucketPersonIds(startTime, bucketPersonIds);
-            CPPUNIT_ASSERT_EQUAL(core::CContainerPrinter::print(expectedCurrentBucketPersonIds),
-                                 core::CContainerPrinter::print(bucketPersonIds));
+            BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(expectedCurrentBucketPersonIds),
+                                core::CContainerPrinter::print(bucketPersonIds));
 
             expectedBucketPersonCounts.clear();
             expectedBucketPersonAttributeCounts.clear();
@@ -296,14 +304,14 @@ void CEventRatePopulationModelTest::testBasicAccessors() {
         addArrival(message, gatherer, m_ResourceMonitor);
 
         std::size_t pid, cid;
-        CPPUNIT_ASSERT(gatherer->personId(message.s_Person, pid));
-        CPPUNIT_ASSERT(gatherer->attributeId(message.s_Attribute, cid));
+        BOOST_TEST_REQUIRE(gatherer->personId(message.s_Person, pid));
+        BOOST_TEST_REQUIRE(gatherer->attributeId(message.s_Attribute, cid));
         ++expectedBucketPersonCounts[pid];
         expectedBucketPersonAttributeCounts[{pid, cid}] += 1.0;
     }
 }
 
-void CEventRatePopulationModelTest::testFeatures() {
+BOOST_FIXTURE_TEST_CASE(testFeatures, CTestFixture) {
     // We check that the correct data is read from the gatherer
     // into the model on sample.
 
@@ -369,9 +377,9 @@ void CEventRatePopulationModelTest::testFeatures() {
 
     model::CModelFactory::TFeatureMathsModelPtrPrVec models{
         factory.defaultFeatureModels(features, bucketLength, 1.0, false)};
-    CPPUNIT_ASSERT_EQUAL(std::size_t(1), models.size());
-    CPPUNIT_ASSERT_EQUAL(model_t::E_PopulationCountByBucketPersonAndAttribute,
-                         models[0].first);
+    BOOST_REQUIRE_EQUAL(std::size_t(1), models.size());
+    BOOST_REQUIRE_EQUAL(model_t::E_PopulationCountByBucketPersonAndAttribute,
+                        models[0].first);
 
     std::size_t numberAttributes = 0u;
     std::size_t numberPeople = 0u;
@@ -444,21 +452,21 @@ void CEventRatePopulationModelTest::testFeatures() {
             // Check the number of people per attribute.
             const TSizeSizePrFeatureDataPrVec& peoplePerAttribute = model->featureData(
                 model_t::E_PopulationUniquePersonCountByAttribute, startTime);
-            CPPUNIT_ASSERT_EQUAL(core::CContainerPrinter::print(expectedPeoplePerAttribute),
-                                 core::CContainerPrinter::print(peoplePerAttribute));
+            BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(expectedPeoplePerAttribute),
+                                core::CContainerPrinter::print(peoplePerAttribute));
 
             // Check the non-zero (person, attribute) counts.
             const TSizeSizePrFeatureDataPrVec& nonZeroCounts = model->featureData(
                 model_t::E_PopulationCountByBucketPersonAndAttribute, startTime);
-            CPPUNIT_ASSERT_EQUAL(core::CContainerPrinter::print(expectedCounts),
-                                 core::CContainerPrinter::print(nonZeroCounts));
+            BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(expectedCounts),
+                                core::CContainerPrinter::print(nonZeroCounts));
 
             for (std::size_t cid = 0u; cid < numberAttributes; ++cid) {
                 const maths::CModel* populationModel = model->details()->model(
                     model_t::E_PopulationCountByBucketPersonAndAttribute, cid);
-                CPPUNIT_ASSERT(populationModel);
-                CPPUNIT_ASSERT_EQUAL(expectedPopulationModels[cid]->checksum(),
-                                     populationModel->checksum());
+                BOOST_TEST_REQUIRE(populationModel);
+                BOOST_REQUIRE_EQUAL(expectedPopulationModels[cid]->checksum(),
+                                    populationModel->checksum());
             }
 
             startTime += bucketLength;
@@ -468,13 +476,13 @@ void CEventRatePopulationModelTest::testFeatures() {
         addArrival(message, gatherer, m_ResourceMonitor);
 
         std::size_t pid, cid;
-        CPPUNIT_ASSERT(gatherer->personId(message.s_Person, pid));
-        CPPUNIT_ASSERT(gatherer->attributeId(message.s_Attribute, cid));
+        BOOST_TEST_REQUIRE(gatherer->personId(message.s_Person, pid));
+        BOOST_TEST_REQUIRE(gatherer->attributeId(message.s_Attribute, cid));
         ++expectedCounts[{pid, cid}];
     }
 }
 
-void CEventRatePopulationModelTest::testComputeProbability() {
+BOOST_FIXTURE_TEST_CASE(testComputeProbability, CTestFixture) {
     // Check that we get the probabilities we expect.
 
     using TAnomalyVec = std::vector<SAnomaly>;
@@ -552,13 +560,13 @@ void CEventRatePopulationModelTest::testComputeProbability() {
         std::string("[30, p4, c2]"),  std::string("[35, p5, c2]"),
         std::string("[50, p11, c0]"), std::string("[75, p5, c2]")};
 
-    CPPUNIT_ASSERT_EQUAL(boost::size(expectedAnomalies), orderedAnomalies.size());
+    BOOST_REQUIRE_EQUAL(boost::size(expectedAnomalies), orderedAnomalies.size());
     for (std::size_t i = 0u; i < orderedAnomalies.size(); ++i) {
-        CPPUNIT_ASSERT_EQUAL(expectedAnomalies[i], orderedAnomalies[i].print());
+        BOOST_REQUIRE_EQUAL(expectedAnomalies[i], orderedAnomalies[i].print());
     }
 }
 
-void CEventRatePopulationModelTest::testPrune() {
+BOOST_FIXTURE_TEST_CASE(testPrune, CTestFixture) {
     // This test has four people and five attributes. We expect
     // person 2 and attributes 1, 2 and 5 to be deleted.
 
@@ -636,11 +644,11 @@ void CEventRatePopulationModelTest::testPrune() {
     CModelFactory::TDataGathererPtr gatherer(factory.makeDataGatherer(gathererInitData));
     CModelFactory::SModelInitializationData modelInitData(gatherer);
     CAnomalyDetectorModel::TModelPtr model(factory.makeModel(modelInitData));
-    CPPUNIT_ASSERT(model);
+    BOOST_TEST_REQUIRE(model);
     CModelFactory::TDataGathererPtr expectedGatherer(factory.makeDataGatherer(gathererInitData));
     CModelFactory::SModelInitializationData expectedModelInitData(expectedGatherer);
     CAnomalyDetectorModel::TModelPtr expectedModel(factory.makeModel(expectedModelInitData));
-    CPPUNIT_ASSERT(expectedModel);
+    BOOST_TEST_REQUIRE(expectedModel);
 
     TMessageVec messages;
     for (std::size_t i = 0u; i < boost::size(people); ++i) {
@@ -686,7 +694,7 @@ void CEventRatePopulationModelTest::testPrune() {
     size_t maxDimensionBeforePrune(model->dataGatherer().maxDimension());
     model->prune();
     size_t maxDimensionAfterPrune(model->dataGatherer().maxDimension());
-    CPPUNIT_ASSERT_EQUAL(maxDimensionBeforePrune, maxDimensionAfterPrune);
+    BOOST_REQUIRE_EQUAL(maxDimensionBeforePrune, maxDimensionAfterPrune);
 
     bucketStart = startTime;
     for (std::size_t i = 0u; i < expectedMessages.size(); ++i) {
@@ -700,7 +708,7 @@ void CEventRatePopulationModelTest::testPrune() {
 
     LOG_DEBUG(<< "checksum          = " << model->checksum());
     LOG_DEBUG(<< "expected checksum = " << expectedModel->checksum());
-    CPPUNIT_ASSERT_EQUAL(expectedModel->checksum(), model->checksum());
+    BOOST_REQUIRE_EQUAL(expectedModel->checksum(), model->checksum());
 
     // Now check that we recycle the person and attribute slots.
 
@@ -719,19 +727,19 @@ void CEventRatePopulationModelTest::testPrune() {
 
     LOG_DEBUG(<< "checksum          = " << model->checksum());
     LOG_DEBUG(<< "expected checksum = " << expectedModel->checksum());
-    CPPUNIT_ASSERT_EQUAL(expectedModel->checksum(), model->checksum());
+    BOOST_REQUIRE_EQUAL(expectedModel->checksum(), model->checksum());
 
     // Test that calling prune on a cloned model which has seen no new data does nothing
     CAnomalyDetectorModel::TModelPtr clonedModelHolder(model->cloneForPersistence());
     std::size_t numberOfPeopleBeforePrune(
         clonedModelHolder->dataGatherer().numberActivePeople());
-    CPPUNIT_ASSERT(numberOfPeopleBeforePrune > 0);
+    BOOST_TEST_REQUIRE(numberOfPeopleBeforePrune > 0);
     clonedModelHolder->prune(clonedModelHolder->defaultPruneWindow());
-    CPPUNIT_ASSERT_EQUAL(numberOfPeopleBeforePrune,
-                         clonedModelHolder->dataGatherer().numberActivePeople());
+    BOOST_REQUIRE_EQUAL(numberOfPeopleBeforePrune,
+                        clonedModelHolder->dataGatherer().numberActivePeople());
 }
 
-void CEventRatePopulationModelTest::testKey() {
+BOOST_FIXTURE_TEST_CASE(testKey, CTestFixture) {
     function_t::EFunction countFunctions[] = {function_t::E_PopulationCount,
                                               function_t::E_PopulationDistinctCount,
                                               function_t::E_PopulationRare,
@@ -761,7 +769,7 @@ void CEventRatePopulationModelTest::testKey() {
 
                         LOG_DEBUG(<< "expected key = " << key);
                         LOG_DEBUG(<< "actual key   = " << factory->searchKey());
-                        CPPUNIT_ASSERT(key == factory->searchKey());
+                        BOOST_TEST_REQUIRE(key == factory->searchKey());
                     }
                 }
             }
@@ -769,7 +777,7 @@ void CEventRatePopulationModelTest::testKey() {
     }
 }
 
-void CEventRatePopulationModelTest::testFrequency() {
+BOOST_FIXTURE_TEST_CASE(testFrequency, CTestFixture) {
     using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
 
     // Test we correctly compute frequencies for people and attributes.
@@ -816,7 +824,7 @@ void CEventRatePopulationModelTest::testFrequency() {
 
     CEventRatePopulationModel* populationModel =
         dynamic_cast<CEventRatePopulationModel*>(model.get());
-    CPPUNIT_ASSERT(populationModel);
+    BOOST_TEST_REQUIRE(populationModel);
 
     core_t::TTime time = startTime;
     for (const auto& message : messages) {
@@ -832,32 +840,32 @@ void CEventRatePopulationModelTest::testFrequency() {
         for (std::size_t i = 0u; i < boost::size(people); ++i) {
             LOG_DEBUG(<< "*** person = " << people[i] << " ***");
             std::size_t pid;
-            CPPUNIT_ASSERT(gatherer->personId(people[i], pid));
+            BOOST_TEST_REQUIRE(gatherer->personId(people[i], pid));
             LOG_DEBUG(<< "frequency = " << populationModel->personFrequency(pid));
             LOG_DEBUG(<< "expected frequency = " << 1.0 / static_cast<double>(period[i]));
-            CPPUNIT_ASSERT_DOUBLES_EQUAL(1.0 / static_cast<double>(period[i]),
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(1.0 / static_cast<double>(period[i]),
                                          populationModel->personFrequency(pid),
                                          0.1 / static_cast<double>(period[i]));
             meanError.add(std::fabs(populationModel->personFrequency(pid) -
                                     1.0 / static_cast<double>(period[i])));
         }
         LOG_DEBUG(<< "error = " << maths::CBasicStatistics::mean(meanError));
-        CPPUNIT_ASSERT(maths::CBasicStatistics::mean(meanError) < 0.002);
+        BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(meanError) < 0.002);
     }
     {
         for (std::size_t i = 0u; i < boost::size(attributes); ++i) {
             LOG_DEBUG(<< "*** attribute = " << attributes[i] << " ***");
             std::size_t cid;
-            CPPUNIT_ASSERT(populationGatherer.attributeId(attributes[i], cid));
+            BOOST_TEST_REQUIRE(populationGatherer.attributeId(attributes[i], cid));
             LOG_DEBUG(<< "frequency = " << populationModel->attributeFrequency(cid));
             LOG_DEBUG(<< "expected frequency = " << (10.0 - static_cast<double>(i)) / 10.0);
-            CPPUNIT_ASSERT_EQUAL((10.0 - static_cast<double>(i)) / 10.0,
-                                 populationModel->attributeFrequency(cid));
+            BOOST_REQUIRE_EQUAL((10.0 - static_cast<double>(i)) / 10.0,
+                                populationModel->attributeFrequency(cid));
         }
     }
 }
 
-void CEventRatePopulationModelTest::testSampleRateWeight() {
+BOOST_FIXTURE_TEST_CASE(testSampleRateWeight, CTestFixture) {
     // Test that we correctly compensate for heavy hitters.
 
     // There are 10 attributes.
@@ -924,7 +932,7 @@ void CEventRatePopulationModelTest::testSampleRateWeight() {
     CAnomalyDetectorModel::TModelPtr model(factory.makeModel(modelInitData));
     CEventRatePopulationModel* populationModel =
         dynamic_cast<CEventRatePopulationModel*>(model.get());
-    CPPUNIT_ASSERT(populationModel);
+    BOOST_TEST_REQUIRE(populationModel);
 
     core_t::TTime time = startTime;
     for (const auto& message : messages) {
@@ -951,12 +959,12 @@ void CEventRatePopulationModelTest::testSampleRateWeight() {
     for (std::size_t i = 0u; i < boost::size(heavyHitters); ++i) {
         LOG_DEBUG(<< "*** person = " << people[heavyHitters[i]] << " ***");
         std::size_t pid;
-        CPPUNIT_ASSERT(gatherer->personId(people[heavyHitters[i]], pid));
+        BOOST_TEST_REQUIRE(gatherer->personId(people[heavyHitters[i]], pid));
         for (std::size_t cid = 0u; cid < boost::size(attributes); ++cid) {
             double sampleRateWeight = populationModel->sampleRateWeight(pid, cid);
             LOG_DEBUG(<< "attribute = " << populationModel->attributeName(cid)
                       << ", sampleRateWeight = " << sampleRateWeight);
-            CPPUNIT_ASSERT_DOUBLES_EQUAL(expectedRateWeight, sampleRateWeight,
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(expectedRateWeight, sampleRateWeight,
                                          0.15 * expectedRateWeight);
         }
     }
@@ -964,17 +972,17 @@ void CEventRatePopulationModelTest::testSampleRateWeight() {
     for (std::size_t i = 0u; i < boost::size(normal); ++i) {
         LOG_DEBUG(<< "*** person = " << people[normal[i]] << " ***");
         std::size_t pid;
-        CPPUNIT_ASSERT(gatherer->personId(people[normal[i]], pid));
+        BOOST_TEST_REQUIRE(gatherer->personId(people[normal[i]], pid));
         for (std::size_t cid = 0u; cid < boost::size(attributes); ++cid) {
             double sampleRateWeight = populationModel->sampleRateWeight(pid, cid);
             LOG_DEBUG(<< "attribute = " << populationModel->attributeName(cid)
                       << ", sampleRateWeight = " << sampleRateWeight);
-            CPPUNIT_ASSERT_EQUAL(1.0, sampleRateWeight);
+            BOOST_REQUIRE_EQUAL(1.0, sampleRateWeight);
         }
     }
 }
 
-void CEventRatePopulationModelTest::testPeriodicity() {
+BOOST_FIXTURE_TEST_CASE(testPeriodicity, CTestFixture) {
     // Create a daily periodic population and check that the
     // periodicity is learned and compensated (approximately).
 
@@ -1029,7 +1037,7 @@ void CEventRatePopulationModelTest::testPeriodicity() {
     CAnomalyDetectorModel::TModelPtr model(factory.makeModel(modelInitData));
     CEventRatePopulationModel* populationModel =
         dynamic_cast<CEventRatePopulationModel*>(model.get());
-    CPPUNIT_ASSERT(populationModel);
+    BOOST_TEST_REQUIRE(populationModel);
 
     TStrDoubleMap personProbabilitiesWithoutPeriodicity;
     TStrDoubleMap personProbabilitiesWithPeriodicity;
@@ -1090,10 +1098,10 @@ void CEventRatePopulationModelTest::testPeriodicity() {
 
     LOG_DEBUG(<< "total minimum probability with periodicity    = " << totalw);
     LOG_DEBUG(<< "total minimum probability without periodicity = " << totalwo);
-    CPPUNIT_ASSERT(totalw > 3.0 * totalwo);
+    BOOST_TEST_REQUIRE(totalw > 3.0 * totalwo);
 }
 
-void CEventRatePopulationModelTest::testSkipSampling() {
+BOOST_FIXTURE_TEST_CASE(testSkipSampling, CTestFixture) {
     core_t::TTime startTime(100);
     std::size_t bucketLength(100);
     std::size_t maxAgeBuckets(5);
@@ -1138,8 +1146,8 @@ void CEventRatePopulationModelTest::testSkipSampling() {
 
     // Check prune does not remove people because last seen times are updated by adding gap duration
     modelWithGap->prune(maxAgeBuckets);
-    CPPUNIT_ASSERT_EQUAL(std::size_t(2), gathererWithGap->numberActivePeople());
-    CPPUNIT_ASSERT_EQUAL(std::size_t(2), gathererWithGap->numberActiveAttributes());
+    BOOST_REQUIRE_EQUAL(std::size_t(2), gathererWithGap->numberActivePeople());
+    BOOST_REQUIRE_EQUAL(std::size_t(2), gathererWithGap->numberActiveAttributes());
 
     addArrival(SMessage(1000, "p1", "a1"), gathererWithGap, m_ResourceMonitor);
     modelWithGap->sample(1000, 1100, m_ResourceMonitor);
@@ -1147,7 +1155,7 @@ void CEventRatePopulationModelTest::testSkipSampling() {
     modelWithGap->sample(1100, 1200, m_ResourceMonitor);
 
     // Check priors are the same
-    CPPUNIT_ASSERT_EQUAL(
+    BOOST_REQUIRE_EQUAL(
         static_cast<const maths::CUnivariateTimeSeriesModel*>(
             modelWithGap->details()->model(model_t::E_PopulationCountByBucketPersonAndAttribute, 0))
             ->residualModel()
@@ -1156,7 +1164,7 @@ void CEventRatePopulationModelTest::testSkipSampling() {
             modelNoGap->details()->model(model_t::E_PopulationCountByBucketPersonAndAttribute, 0))
             ->residualModel()
             .checksum());
-    CPPUNIT_ASSERT_EQUAL(
+    BOOST_REQUIRE_EQUAL(
         static_cast<const maths::CUnivariateTimeSeriesModel*>(
             modelWithGap->details()->model(model_t::E_PopulationCountByBucketPersonAndAttribute, 1))
             ->residualModel()
@@ -1170,15 +1178,15 @@ void CEventRatePopulationModelTest::testSkipSampling() {
     modelWithGap->sample(1200, 1500, m_ResourceMonitor);
     modelWithGap->prune(maxAgeBuckets);
     // Age at this point will be 500 and since it's equal to maxAge it should still be here
-    CPPUNIT_ASSERT_EQUAL(std::size_t(2), gathererWithGap->numberActiveAttributes());
+    BOOST_REQUIRE_EQUAL(std::size_t(2), gathererWithGap->numberActiveAttributes());
     modelWithGap->sample(1500, 1600, m_ResourceMonitor);
     modelWithGap->prune(maxAgeBuckets);
     // Age at this point will be 600 so it should get pruned
-    CPPUNIT_ASSERT_EQUAL(std::size_t(1), gathererWithGap->numberActivePeople());
-    CPPUNIT_ASSERT_EQUAL(std::size_t(1), gathererWithGap->numberActiveAttributes());
+    BOOST_REQUIRE_EQUAL(std::size_t(1), gathererWithGap->numberActivePeople());
+    BOOST_REQUIRE_EQUAL(std::size_t(1), gathererWithGap->numberActiveAttributes());
 }
 
-void CEventRatePopulationModelTest::testInterimCorrections() {
+BOOST_FIXTURE_TEST_CASE(testInterimCorrections, CTestFixture) {
     core_t::TTime startTime(3600);
     std::size_t bucketLength(3600);
 
@@ -1226,16 +1234,16 @@ void CEventRatePopulationModelTest::testInterimCorrections() {
     CPartitioningFields partitioningFields(EMPTY_STRING, EMPTY_STRING);
     SAnnotatedProbability annotatedProbability1;
     annotatedProbability1.s_ResultType.set(model_t::CResultType::E_Interim);
-    CPPUNIT_ASSERT(model->computeProbability(0 /*pid*/, now, now + bucketLength, partitioningFields,
-                                             1, annotatedProbability1));
+    BOOST_TEST_REQUIRE(model->computeProbability(
+        0 /*pid*/, now, now + bucketLength, partitioningFields, 1, annotatedProbability1));
     SAnnotatedProbability annotatedProbability2;
     annotatedProbability2.s_ResultType.set(model_t::CResultType::E_Interim);
-    CPPUNIT_ASSERT(model->computeProbability(1 /*pid*/, now, now + bucketLength, partitioningFields,
-                                             1, annotatedProbability2));
+    BOOST_TEST_REQUIRE(model->computeProbability(
+        1 /*pid*/, now, now + bucketLength, partitioningFields, 1, annotatedProbability2));
     SAnnotatedProbability annotatedProbability3;
     annotatedProbability3.s_ResultType.set(model_t::CResultType::E_Interim);
-    CPPUNIT_ASSERT(model->computeProbability(2 /*pid*/, now, now + bucketLength, partitioningFields,
-                                             1, annotatedProbability3));
+    BOOST_TEST_REQUIRE(model->computeProbability(
+        2 /*pid*/, now, now + bucketLength, partitioningFields, 1, annotatedProbability3));
 
     model_t::CResultType type(model_t::CResultType::E_Unconditional |
                               model_t::CResultType::E_Interim);
@@ -1253,15 +1261,18 @@ void CEventRatePopulationModelTest::testInterimCorrections() {
     LOG_DEBUG(<< "p2a1 baseline = " << p2a1Baseline[0]);
     LOG_DEBUG(<< "p3a2 baseline = " << p3a2Baseline[0]);
 
-    CPPUNIT_ASSERT(annotatedProbability1.s_Probability > 0.05);
-    CPPUNIT_ASSERT(annotatedProbability2.s_Probability < 0.05);
-    CPPUNIT_ASSERT(annotatedProbability3.s_Probability < 0.05);
-    CPPUNIT_ASSERT(p1a1Baseline[0] > 45.0 && p1a1Baseline[0] < 46.0);
-    CPPUNIT_ASSERT(p2a1Baseline[0] > 45.0 && p2a1Baseline[0] < 46.0);
-    CPPUNIT_ASSERT(p3a2Baseline[0] > 59.0 && p3a2Baseline[0] < 61.0);
+    BOOST_TEST_REQUIRE(annotatedProbability1.s_Probability > 0.05);
+    BOOST_TEST_REQUIRE(annotatedProbability2.s_Probability < 0.05);
+    BOOST_TEST_REQUIRE(annotatedProbability3.s_Probability < 0.05);
+    BOOST_TEST_REQUIRE(p1a1Baseline[0] > 45.0);
+    BOOST_TEST_REQUIRE(p1a1Baseline[0] < 46.0);
+    BOOST_TEST_REQUIRE(p2a1Baseline[0] > 45.0);
+    BOOST_TEST_REQUIRE(p2a1Baseline[0] < 46.0);
+    BOOST_TEST_REQUIRE(p3a2Baseline[0] > 59.0);
+    BOOST_TEST_REQUIRE(p3a2Baseline[0] < 61.0);
 }
 
-void CEventRatePopulationModelTest::testPersistence() {
+BOOST_FIXTURE_TEST_CASE(testPersistence, CTestFixture) {
     core_t::TTime startTime = 1367280000;
     const core_t::TTime bucketLength = 3600;
 
@@ -1282,7 +1293,7 @@ void CEventRatePopulationModelTest::testPersistence() {
 
     CEventRatePopulationModel* populationModel =
         dynamic_cast<CEventRatePopulationModel*>(origModel.get());
-    CPPUNIT_ASSERT(populationModel);
+    BOOST_TEST_REQUIRE(populationModel);
 
     for (const auto& message : messages) {
         if (message.s_Time >= startTime + bucketLength) {
@@ -1304,13 +1315,13 @@ void CEventRatePopulationModelTest::testPersistence() {
 
     // Restore the XML into a new data gatherer
     core::CRapidXmlParser parser;
-    CPPUNIT_ASSERT(parser.parseStringIgnoreCdata(origXml));
+    BOOST_TEST_REQUIRE(parser.parseStringIgnoreCdata(origXml));
     core::CRapidXmlStateRestoreTraverser traverser(parser);
 
     CAnomalyDetectorModel::TModelPtr restoredModel(factory.makeModel(modelInitData, traverser));
 
     populationModel = dynamic_cast<CEventRatePopulationModel*>(restoredModel.get());
-    CPPUNIT_ASSERT(populationModel);
+    BOOST_TEST_REQUIRE(populationModel);
 
     // The XML representation of the new data gatherer should be the same as the
     // original
@@ -1323,11 +1334,11 @@ void CEventRatePopulationModelTest::testPersistence() {
 
     LOG_DEBUG(<< "original checksum = " << origModel->checksum(false));
     LOG_DEBUG(<< "restored checksum = " << restoredModel->checksum(false));
-    CPPUNIT_ASSERT_EQUAL(origModel->checksum(false), restoredModel->checksum(false));
-    CPPUNIT_ASSERT_EQUAL(origXml, newXml);
+    BOOST_REQUIRE_EQUAL(origModel->checksum(false), restoredModel->checksum(false));
+    BOOST_REQUIRE_EQUAL(origXml, newXml);
 }
 
-void CEventRatePopulationModelTest::testIgnoreSamplingGivenDetectionRules() {
+BOOST_FIXTURE_TEST_CASE(testIgnoreSamplingGivenDetectionRules, CTestFixture) {
     // Create 2 models, one of which has a skip sampling rule.
     // Feed the same data into both models then add extra data
     // into the first model we know will be filtered out.
@@ -1384,7 +1395,7 @@ void CEventRatePopulationModelTest::testIgnoreSamplingGivenDetectionRules() {
     modelNoSkip->sample(100, 200, m_ResourceMonitor);
     modelWithSkip->sample(100, 200, m_ResourceMonitor);
 
-    CPPUNIT_ASSERT_EQUAL(modelWithSkip->checksum(), modelNoSkip->checksum());
+    BOOST_REQUIRE_EQUAL(modelWithSkip->checksum(), modelNoSkip->checksum());
 
     addArrival(SMessage(200, "p1", "a1"), gathererNoSkip, m_ResourceMonitor);
     addArrival(SMessage(200, "p1", "a1"), gathererWithSkip, m_ResourceMonitor);
@@ -1407,7 +1418,7 @@ void CEventRatePopulationModelTest::testIgnoreSamplingGivenDetectionRules() {
     modelWithSkip->sample(200, 300, m_ResourceMonitor);
 
     // Checksums will be different because a model is created for attribute a3
-    CPPUNIT_ASSERT(modelWithSkip->checksum() != modelNoSkip->checksum());
+    BOOST_TEST_REQUIRE(modelWithSkip->checksum() != modelNoSkip->checksum());
 
     auto modelWithSkipView = modelWithSkip->details();
     auto modelNoSkipView = modelNoSkip->details();
@@ -1421,7 +1432,7 @@ void CEventRatePopulationModelTest::testIgnoreSamplingGivenDetectionRules() {
         modelNoSkipView
             ->model(model_t::E_PopulationCountByBucketPersonAndAttribute, 0)
             ->checksum();
-    CPPUNIT_ASSERT_EQUAL(withSkipChecksum, noSkipChecksum);
+    BOOST_REQUIRE_EQUAL(withSkipChecksum, noSkipChecksum);
 
     withSkipChecksum = modelWithSkipView
                            ->model(model_t::E_PopulationCountByBucketPersonAndAttribute, 1)
@@ -1429,7 +1440,7 @@ void CEventRatePopulationModelTest::testIgnoreSamplingGivenDetectionRules() {
     noSkipChecksum = modelNoSkipView
                          ->model(model_t::E_PopulationCountByBucketPersonAndAttribute, 1)
                          ->checksum();
-    CPPUNIT_ASSERT_EQUAL(withSkipChecksum, noSkipChecksum);
+    BOOST_REQUIRE_EQUAL(withSkipChecksum, noSkipChecksum);
 
     // The no skip model didn't see the a3 attribute only a1, a2 and a4.
     // The a4 models should be the same.
@@ -1439,78 +1450,39 @@ void CEventRatePopulationModelTest::testIgnoreSamplingGivenDetectionRules() {
     noSkipChecksum = modelNoSkipView
                          ->model(model_t::E_PopulationCountByBucketPersonAndAttribute, 2)
                          ->checksum();
-    CPPUNIT_ASSERT_EQUAL(withSkipChecksum, noSkipChecksum);
+    BOOST_REQUIRE_EQUAL(withSkipChecksum, noSkipChecksum);
 
     // Check the last value times of all the underlying models are the same
     const maths::CUnivariateTimeSeriesModel* timeSeriesModel =
         dynamic_cast<const maths::CUnivariateTimeSeriesModel*>(modelNoSkipView->model(
             model_t::E_PopulationCountByBucketPersonAndAttribute, 0));
-    CPPUNIT_ASSERT(timeSeriesModel);
+    BOOST_TEST_REQUIRE(timeSeriesModel);
 
     core_t::TTime time = timeSeriesModel->trendModel().lastValueTime();
-    CPPUNIT_ASSERT_EQUAL(model_t::sampleTime(model_t::E_PopulationCountByBucketPersonAndAttribute,
-                                             200, bucketLength),
-                         time);
+    BOOST_REQUIRE_EQUAL(model_t::sampleTime(model_t::E_PopulationCountByBucketPersonAndAttribute,
+                                            200, bucketLength),
+                        time);
 
     // The last times of the underlying time series models should all be the same
     timeSeriesModel = dynamic_cast<const maths::CUnivariateTimeSeriesModel*>(
         modelNoSkipView->model(model_t::E_PopulationCountByBucketPersonAndAttribute, 1));
-    CPPUNIT_ASSERT_EQUAL(time, timeSeriesModel->trendModel().lastValueTime());
+    BOOST_REQUIRE_EQUAL(time, timeSeriesModel->trendModel().lastValueTime());
     timeSeriesModel = dynamic_cast<const maths::CUnivariateTimeSeriesModel*>(
         modelNoSkipView->model(model_t::E_PopulationCountByBucketPersonAndAttribute, 2));
-    CPPUNIT_ASSERT_EQUAL(time, timeSeriesModel->trendModel().lastValueTime());
+    BOOST_REQUIRE_EQUAL(time, timeSeriesModel->trendModel().lastValueTime());
 
     timeSeriesModel = dynamic_cast<const maths::CUnivariateTimeSeriesModel*>(
         modelWithSkipView->model(model_t::E_PopulationCountByBucketPersonAndAttribute, 0));
-    CPPUNIT_ASSERT_EQUAL(time, timeSeriesModel->trendModel().lastValueTime());
+    BOOST_REQUIRE_EQUAL(time, timeSeriesModel->trendModel().lastValueTime());
     timeSeriesModel = dynamic_cast<const maths::CUnivariateTimeSeriesModel*>(
         modelWithSkipView->model(model_t::E_PopulationCountByBucketPersonAndAttribute, 1));
-    CPPUNIT_ASSERT_EQUAL(time, timeSeriesModel->trendModel().lastValueTime());
+    BOOST_REQUIRE_EQUAL(time, timeSeriesModel->trendModel().lastValueTime());
     timeSeriesModel = dynamic_cast<const maths::CUnivariateTimeSeriesModel*>(
         modelWithSkipView->model(model_t::E_PopulationCountByBucketPersonAndAttribute, 2));
-    CPPUNIT_ASSERT_EQUAL(time, timeSeriesModel->trendModel().lastValueTime());
+    BOOST_REQUIRE_EQUAL(time, timeSeriesModel->trendModel().lastValueTime());
     timeSeriesModel = dynamic_cast<const maths::CUnivariateTimeSeriesModel*>(
         modelWithSkipView->model(model_t::E_PopulationCountByBucketPersonAndAttribute, 3));
-    CPPUNIT_ASSERT_EQUAL(time, timeSeriesModel->trendModel().lastValueTime());
+    BOOST_REQUIRE_EQUAL(time, timeSeriesModel->trendModel().lastValueTime());
 }
 
-CppUnit::Test* CEventRatePopulationModelTest::suite() {
-    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CEventRatePopulationModelTest");
-
-    suiteOfTests->addTest(new CppUnit::TestCaller<CEventRatePopulationModelTest>(
-        "CEventRatePopulationModelTest::testBasicAccessors",
-        &CEventRatePopulationModelTest::testBasicAccessors));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CEventRatePopulationModelTest>(
-        "CEventRatePopulationModelTest::testFeatures",
-        &CEventRatePopulationModelTest::testFeatures));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CEventRatePopulationModelTest>(
-        "CEventRatePopulationModelTest::testComputeProbability",
-        &CEventRatePopulationModelTest::testComputeProbability));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CEventRatePopulationModelTest>(
-        "CEventRatePopulationModelTest::testPrune", &CEventRatePopulationModelTest::testPrune));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CEventRatePopulationModelTest>(
-        "CEventRatePopulationModelTest::testKey", &CEventRatePopulationModelTest::testKey));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CEventRatePopulationModelTest>(
-        "CEventRatePopulationModelTest::testFrequency",
-        &CEventRatePopulationModelTest::testFrequency));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CEventRatePopulationModelTest>(
-        "CEventRatePopulationModelTest::testSampleRateWeight",
-        &CEventRatePopulationModelTest::testSampleRateWeight));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CEventRatePopulationModelTest>(
-        "CEventRatePopulationModelTest::testSkipSampling",
-        &CEventRatePopulationModelTest::testSkipSampling));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CEventRatePopulationModelTest>(
-        "CEventRatePopulationModelTest::testInterimCorrections",
-        &CEventRatePopulationModelTest::testInterimCorrections));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CEventRatePopulationModelTest>(
-        "CEventRatePopulationModelTest::testPeriodicity",
-        &CEventRatePopulationModelTest::testPeriodicity));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CEventRatePopulationModelTest>(
-        "CEventRatePopulationModelTest::testPersistence",
-        &CEventRatePopulationModelTest::testPersistence));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CEventRatePopulationModelTest>(
-        "CEventRatePopulationModelTest::testIgnoreSamplingGivenDetectionRules",
-        &CEventRatePopulationModelTest::testIgnoreSamplingGivenDetectionRules));
-
-    return suiteOfTests;
-}
+BOOST_AUTO_TEST_SUITE_END()

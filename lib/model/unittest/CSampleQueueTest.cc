@@ -16,14 +16,14 @@
 #include <maths/CBasicStatisticsPersist.h>
 #include <maths/CIntegerTools.h>
 
+#include <model/CSampleQueue.h>
 #include <model/ModelTypes.h>
 
 #include <test/BoostTestCloseAbsolute.h>
+#include <test/CRandomNumbers.h>
 
 #include <boost/math/constants/constants.hpp>
 #include <boost/test/unit_test.hpp>
-
-#include <test/CRandomNumbers.h>
 
 BOOST_AUTO_TEST_SUITE(CSampleQueueTest)
 

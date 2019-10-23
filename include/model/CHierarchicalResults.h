@@ -26,7 +26,7 @@
 #include <vector>
 
 namespace CHierarchicalResultsTest {
-struct testFoo;
+struct testShouldWritePartition;
 }
 
 namespace ml {
@@ -442,7 +442,7 @@ protected:
                                   const TNode& node,
                                   bool pivot);
 
-    friend struct CHierarchicalResultsTest::testFoo;
+    friend struct CHierarchicalResultsTest::testShouldWritePartition;
 };
 }
 }

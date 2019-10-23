@@ -27,7 +27,7 @@
 #include <stdint.h>
 
 namespace CAnomalyScoreTest {
-struct testFoo;
+struct testNormalizerGetMaxScore;
 }
 namespace ml {
 namespace core {
@@ -295,7 +295,7 @@ public:
         double m_TimeToQuantileDecay;
 
     private:
-        friend struct CAnomalyScoreTest::testFoo;
+        friend struct CAnomalyScoreTest::testNormalizerGetMaxScore;
     };
 
     using TNormalizerP = std::shared_ptr<CNormalizer>;

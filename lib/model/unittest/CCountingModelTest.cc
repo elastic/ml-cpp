@@ -4,8 +4,6 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
-#include "CCountingModelTest.h"
-
 #include <core/CContainerPrinter.h>
 #include <core/CLogger.h>
 #include <core/CoreTypes.h>
@@ -20,8 +18,12 @@
 
 #include <test/CRandomNumbers.h>
 
+#include <boost/test/unit_test.hpp>
+
 #include <string>
 #include <vector>
+
+BOOST_AUTO_TEST_SUITE(CCountingModelTest)
 
 using namespace ml;
 using namespace model;
@@ -72,7 +74,12 @@ makeScheduledEvent(const std::string& description, double start, double end) {
 const std::string EMPTY_STRING;
 }
 
-void CCountingModelTest::testSkipSampling() {
+class CTestFixture {
+protected:
+    CResourceMonitor m_ResourceMonitor;
+};
+
+BOOST_FIXTURE_TEST_CASE(testSkipSampling, CTestFixture) {
     core_t::TTime startTime(100);
     core_t::TTime bucketLength(100);
     std::size_t maxAgeBuckets(1);
@@ -89,7 +96,7 @@ void CCountingModelTest::testSkipSampling() {
         CModelFactory::SGathererInitializationData gathererNoGapInitData(startTime);
         CModelFactory::TDataGathererPtr gathererNoGap(
             factory.makeDataGatherer(gathererNoGapInitData));
-        CPPUNIT_ASSERT_EQUAL(std::size_t(0), addPerson("p", gathererNoGap, m_ResourceMonitor));
+        BOOST_REQUIRE_EQUAL(std::size_t(0), addPerson("p", gathererNoGap, m_ResourceMonitor));
         CModelFactory::SModelInitializationData modelNoGapInitData(gathererNoGap);
         CAnomalyDetectorModel::TModelPtr modelHolderNoGap(factory.makeModel(modelNoGapInitData));
         CCountingModel* modelNoGap =
@@ -105,7 +112,7 @@ void CCountingModelTest::testSkipSampling() {
         addArrival(*gathererNoGap, m_ResourceMonitor, 500, "p");
         modelNoGap->sample(500, 600, m_ResourceMonitor);
 
-        CPPUNIT_ASSERT_EQUAL(1.0, *modelNoGap->baselineBucketCount(0));
+        BOOST_REQUIRE_EQUAL(1.0, *modelNoGap->baselineBucketCount(0));
     }
 
     // Model where gap is skipped
@@ -113,8 +120,8 @@ void CCountingModelTest::testSkipSampling() {
         CModelFactory::SGathererInitializationData gathererWithGapInitData(startTime);
         CModelFactory::TDataGathererPtr gathererWithGap(
             factory.makeDataGatherer(gathererWithGapInitData));
-        CPPUNIT_ASSERT_EQUAL(std::size_t(0),
-                             addPerson("p", gathererWithGap, m_ResourceMonitor));
+        BOOST_REQUIRE_EQUAL(std::size_t(0),
+                            addPerson("p", gathererWithGap, m_ResourceMonitor));
         CModelFactory::SModelInitializationData modelWithGapInitData(gathererWithGap);
         CAnomalyDetectorModel::TModelPtr modelHolderWithGap(
             factory.makeModel(modelWithGapInitData));
@@ -130,15 +137,15 @@ void CCountingModelTest::testSkipSampling() {
         addArrival(*gathererWithGap, m_ResourceMonitor, 280, "p");
         modelWithGap->skipSampling(500);
         modelWithGap->prune(maxAgeBuckets);
-        CPPUNIT_ASSERT_EQUAL(std::size_t(1), gathererWithGap->numberActivePeople());
+        BOOST_REQUIRE_EQUAL(std::size_t(1), gathererWithGap->numberActivePeople());
         addArrival(*gathererWithGap, m_ResourceMonitor, 500, "p");
         modelWithGap->sample(500, 600, m_ResourceMonitor);
 
-        CPPUNIT_ASSERT_EQUAL(1.5, *modelWithGap->baselineBucketCount(0));
+        BOOST_REQUIRE_EQUAL(1.5, *modelWithGap->baselineBucketCount(0));
     }
 }
 
-void CCountingModelTest::testCheckScheduledEvents() {
+BOOST_FIXTURE_TEST_CASE(testCheckScheduledEvents, CTestFixture) {
     core_t::TTime startTime(100);
     core_t::TTime bucketLength(100);
 
@@ -167,40 +174,40 @@ void CCountingModelTest::testCheckScheduledEvents() {
 
         SModelParams::TStrDetectionRulePrVec matchedEvents =
             modelNoGap->checkScheduledEvents(50);
-        CPPUNIT_ASSERT_EQUAL(std::size_t{0}, matchedEvents.size());
+        BOOST_REQUIRE_EQUAL(std::size_t{0}, matchedEvents.size());
 
         matchedEvents = modelNoGap->checkScheduledEvents(200);
-        CPPUNIT_ASSERT_EQUAL(std::size_t{1}, matchedEvents.size());
-        CPPUNIT_ASSERT_EQUAL(std::string("first event"), matchedEvents[0].first);
+        BOOST_REQUIRE_EQUAL(std::size_t{1}, matchedEvents.size());
+        BOOST_REQUIRE_EQUAL(std::string("first event"), matchedEvents[0].first);
 
         matchedEvents = modelNoGap->checkScheduledEvents(700);
-        CPPUNIT_ASSERT_EQUAL(std::size_t{2}, matchedEvents.size());
-        CPPUNIT_ASSERT_EQUAL(std::string("long event"), matchedEvents[0].first);
-        CPPUNIT_ASSERT_EQUAL(std::string("masked event"), matchedEvents[1].first);
+        BOOST_REQUIRE_EQUAL(std::size_t{2}, matchedEvents.size());
+        BOOST_REQUIRE_EQUAL(std::string("long event"), matchedEvents[0].first);
+        BOOST_REQUIRE_EQUAL(std::string("masked event"), matchedEvents[1].first);
 
         matchedEvents = modelNoGap->checkScheduledEvents(1000);
-        CPPUNIT_ASSERT_EQUAL(std::size_t{1}, matchedEvents.size());
-        CPPUNIT_ASSERT_EQUAL(std::string("overlapping event"), matchedEvents[0].first);
+        BOOST_REQUIRE_EQUAL(std::size_t{1}, matchedEvents.size());
+        BOOST_REQUIRE_EQUAL(std::string("overlapping event"), matchedEvents[0].first);
 
         matchedEvents = modelNoGap->checkScheduledEvents(1100);
-        CPPUNIT_ASSERT_EQUAL(std::size_t{0}, matchedEvents.size());
+        BOOST_REQUIRE_EQUAL(std::size_t{0}, matchedEvents.size());
 
         // Test event descriptions are set
         modelNoGap->sample(200, 800, m_ResourceMonitor);
         std::vector<std::string> eventDescriptions =
             modelNoGap->scheduledEventDescriptions(200);
-        CPPUNIT_ASSERT_EQUAL(std::size_t{1}, eventDescriptions.size());
-        CPPUNIT_ASSERT_EQUAL(std::string("first event"), eventDescriptions[0]);
+        BOOST_REQUIRE_EQUAL(std::size_t{1}, eventDescriptions.size());
+        BOOST_REQUIRE_EQUAL(std::string("first event"), eventDescriptions[0]);
 
         eventDescriptions = modelNoGap->scheduledEventDescriptions(700);
-        CPPUNIT_ASSERT_EQUAL(std::size_t{2}, eventDescriptions.size());
-        CPPUNIT_ASSERT_EQUAL(std::string("long event"), eventDescriptions[0]);
-        CPPUNIT_ASSERT_EQUAL(std::string("masked event"), eventDescriptions[1]);
+        BOOST_REQUIRE_EQUAL(std::size_t{2}, eventDescriptions.size());
+        BOOST_REQUIRE_EQUAL(std::string("long event"), eventDescriptions[0]);
+        BOOST_REQUIRE_EQUAL(std::string("masked event"), eventDescriptions[1]);
 
         // There are no events at this time
         modelNoGap->sample(1500, 1600, m_ResourceMonitor);
         eventDescriptions = modelNoGap->scheduledEventDescriptions(1500);
-        CPPUNIT_ASSERT(eventDescriptions.empty());
+        BOOST_TEST_REQUIRE(eventDescriptions.empty());
     }
 
     // Test sampleBucketStatistics
@@ -218,26 +225,26 @@ void CCountingModelTest::testCheckScheduledEvents() {
         modelNoGap->sampleBucketStatistics(0, 100, m_ResourceMonitor);
         std::vector<std::string> eventDescriptions =
             modelNoGap->scheduledEventDescriptions(0);
-        CPPUNIT_ASSERT(eventDescriptions.empty());
+        BOOST_TEST_REQUIRE(eventDescriptions.empty());
 
         // Test event descriptions are set
         modelNoGap->sampleBucketStatistics(200, 800, m_ResourceMonitor);
         eventDescriptions = modelNoGap->scheduledEventDescriptions(200);
-        CPPUNIT_ASSERT_EQUAL(std::size_t{1}, eventDescriptions.size());
-        CPPUNIT_ASSERT_EQUAL(std::string("first event"), eventDescriptions[0]);
+        BOOST_REQUIRE_EQUAL(std::size_t{1}, eventDescriptions.size());
+        BOOST_REQUIRE_EQUAL(std::string("first event"), eventDescriptions[0]);
 
         eventDescriptions = modelNoGap->scheduledEventDescriptions(700);
-        CPPUNIT_ASSERT_EQUAL(std::size_t{2}, eventDescriptions.size());
-        CPPUNIT_ASSERT_EQUAL(std::string("long event"), eventDescriptions[0]);
-        CPPUNIT_ASSERT_EQUAL(std::string("masked event"), eventDescriptions[1]);
+        BOOST_REQUIRE_EQUAL(std::size_t{2}, eventDescriptions.size());
+        BOOST_REQUIRE_EQUAL(std::string("long event"), eventDescriptions[0]);
+        BOOST_REQUIRE_EQUAL(std::string("masked event"), eventDescriptions[1]);
 
         modelNoGap->sampleBucketStatistics(1500, 1600, m_ResourceMonitor);
         eventDescriptions = modelNoGap->scheduledEventDescriptions(1500);
-        CPPUNIT_ASSERT(eventDescriptions.empty());
+        BOOST_TEST_REQUIRE(eventDescriptions.empty());
     }
 }
 
-void CCountingModelTest::testInterimBucketCorrector() {
+BOOST_FIXTURE_TEST_CASE(testInterimBucketCorrector, CTestFixture) {
     // Check that we correctly update estimate bucket completeness.
 
     using TSizeVec = std::vector<std::size_t>;
@@ -255,8 +262,8 @@ void CCountingModelTest::testInterimBucketCorrector() {
 
     CModelFactory::SGathererInitializationData gathererInitData(time);
     CModelFactory::TDataGathererPtr gatherer(factory.makeDataGatherer(gathererInitData));
-    CPPUNIT_ASSERT_EQUAL(std::size_t(0), addPerson("p1", gatherer, m_ResourceMonitor));
-    CPPUNIT_ASSERT_EQUAL(std::size_t(1), addPerson("p2", gatherer, m_ResourceMonitor));
+    BOOST_REQUIRE_EQUAL(std::size_t(0), addPerson("p1", gatherer, m_ResourceMonitor));
+    BOOST_REQUIRE_EQUAL(std::size_t(1), addPerson("p2", gatherer, m_ResourceMonitor));
     CModelFactory::SModelInitializationData modelInitData(gatherer);
     CAnomalyDetectorModel::TModelPtr modelHolder(factory.makeModel(modelInitData));
     CCountingModel* model{dynamic_cast<CCountingModel*>(modelHolder.get())};
@@ -287,21 +294,9 @@ void CCountingModelTest::testInterimBucketCorrector() {
                    time + static_cast<core_t::TTime>(offsets[i]),
                    uniform01[0] < 0.5 ? "p1" : "p2");
         model->sampleBucketStatistics(time, time + bucketLength, m_ResourceMonitor);
-        CPPUNIT_ASSERT_EQUAL(static_cast<double>(i + 1) / 10.0,
-                             interimBucketCorrector->completeness());
+        BOOST_REQUIRE_EQUAL(static_cast<double>(i + 1) / 10.0,
+                            interimBucketCorrector->completeness());
     }
 }
 
-CppUnit::Test* CCountingModelTest::suite() {
-    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CCountingModelTest");
-
-    suiteOfTests->addTest(new CppUnit::TestCaller<CCountingModelTest>(
-        "CCountingModelTest::testSkipSampling", &CCountingModelTest::testSkipSampling));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CCountingModelTest>(
-        "CCountingModelTest::testCheckScheduledEvents",
-        &CCountingModelTest::testCheckScheduledEvents));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CCountingModelTest>(
-        "CCountingModelTest::testInterimBucketCorrector",
-        &CCountingModelTest::testInterimBucketCorrector));
-    return suiteOfTests;
-}
+BOOST_AUTO_TEST_SUITE_END()

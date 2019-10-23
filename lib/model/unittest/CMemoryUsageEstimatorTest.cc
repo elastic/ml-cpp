@@ -11,6 +11,7 @@
 
 #include <model/CMemoryUsageEstimator.h>
 
+#include <boost/optional/optional_io.hpp>
 #include <boost/test/unit_test.hpp>
 
 BOOST_AUTO_TEST_SUITE(CMemoryUsageEstimatorTest)
