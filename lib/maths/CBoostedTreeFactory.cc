@@ -190,17 +190,16 @@ void CBoostedTreeFactory::initializeCrossValidation(core::CDataFrame& frame) con
 
     TDoubleVec frequencies;
     core::CDataFrame::TRowFunc writeRowWeight;
+    std::tie(m_TreeImpl->m_TrainingRowMasks, m_TreeImpl->m_TestingRowMasks, frequencies) =
+        CDataFrameUtils::stratifiedCrossValidationRowMasks(
+            m_TreeImpl->m_NumberThreads, frame, m_TreeImpl->m_DependentVariable,
+            m_TreeImpl->m_Rng, m_TreeImpl->m_NumberFolds, allTrainingRowsMask);
 
     if (frame.columnIsCategorical()[m_TreeImpl->m_DependentVariable]) {
-        std::tie(m_TreeImpl->m_TrainingRowMasks, m_TreeImpl->m_TestingRowMasks, frequencies) =
-            CDataFrameUtils::stratifiedCrossValidationRowMasks(
-                m_TreeImpl->m_NumberThreads, frame, m_TreeImpl->m_DependentVariable,
-                m_TreeImpl->m_Rng, m_TreeImpl->m_NumberFolds, allTrainingRowsMask);
-
-        // Weight by inverse category frequency.
         writeRowWeight = [&](TRowItr beginRows, TRowItr endRows) {
             for (auto row = beginRows; row != endRows; ++row) {
                 if (m_BalanceClassTrainingLoss) {
+                    // Weight by inverse category frequency.
                     std::size_t category{static_cast<std::size_t>(
                         (*row)[m_TreeImpl->m_DependentVariable])};
                     row->writeColumn(exampleWeightColumn(row->numberColumns()),
@@ -211,9 +210,6 @@ void CBoostedTreeFactory::initializeCrossValidation(core::CDataFrame& frame) con
             }
         };
     } else {
-        std::tie(m_TreeImpl->m_TrainingRowMasks, m_TreeImpl->m_TestingRowMasks) =
-            CDataFrameUtils::crossValidationRowMasks(
-                m_TreeImpl->m_Rng, m_TreeImpl->m_NumberFolds, allTrainingRowsMask);
         writeRowWeight = [&](TRowItr beginRows, TRowItr endRows) {
             for (auto row = beginRows; row != endRows; ++row) {
                 row->writeColumn(exampleWeightColumn(row->numberColumns()), 1.0);

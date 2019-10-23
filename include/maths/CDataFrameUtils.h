@@ -256,18 +256,7 @@ public:
                                       std::size_t targetColumn,
                                       CPRNG::CXorOShiro128Plus rng,
                                       std::size_t numberFolds,
-                                      core::CPackedBitVector allTrainingRowsMask);
-
-    //! \brief Compute disjoint random train/test row masks suitable for cross
-    //! validation.
-    //!
-    //! \param[in] rng The random number generator to use.
-    //! \param[in] numberFolds The number of folds to use.
-    //! \param[in] allTrainingRowsMask A mask of the candidate training rows.
-    static std::pair<TPackedBitVectorVec, TPackedBitVectorVec>
-    crossValidationRowMasks(CPRNG::CXorOShiro128Plus rng,
-                            std::size_t numberFolds,
-                            core::CPackedBitVector allTrainingRowsMask);
+                                      const core::CPackedBitVector& allTrainingRowsMask);
 
     //! Get the relative frequency of each category in \p frame.
     //!

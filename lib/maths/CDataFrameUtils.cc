@@ -28,11 +28,14 @@ namespace ml {
 namespace maths {
 namespace {
 using TDoubleVec = std::vector<double>;
+using TSizeVec = std::vector<std::size_t>;
+using TSizeVecVec = std::vector<TSizeVec>;
 using TFloatVec = std::vector<CFloatStorage>;
 using TFloatVecVec = std::vector<TFloatVec>;
 using TRowItr = core::CDataFrame::TRowItr;
 using TRowRef = core::CDataFrame::TRowRef;
 using TRowSampler = CSampling::CRandomStreamSampler<TRowRef>;
+using TRowSamplerVec = std::vector<TRowSampler>;
 using TSizeEncoderPtrUMap =
     boost::unordered_map<std::size_t, std::unique_ptr<CDataFrameUtils::CColumnValue>>;
 using TPackedBitVectorVec = CDataFrameUtils::TPackedBitVectorVec;
@@ -55,6 +58,160 @@ bool doReduce(std::pair<std::vector<READER>, bool> readResults,
         reduce(std::move(readResults.first[i].s_FunctionState), reduction);
     }
     return true;
+}
+
+//! \brief Manages stratified sampling.
+class CStratifiedSampler {
+public:
+    using TSamplerSelector = std::function<std::size_t(const TRowRef&)>;
+
+public:
+    CStratifiedSampler(std::size_t size) : m_SampledRowIndices(size) {
+        m_DesiredCounts.reserve(size);
+        m_Samplers.reserve(size);
+    }
+
+    void sample(const TRowRef& row) { m_Samplers[m_Selector(row)].sample(row); }
+
+    //! Add one of the strata samplers.
+    void addSampler(std::size_t count, CPRNG::CXorOShiro128Plus rng) {
+        TSizeVec& samples{m_SampledRowIndices[m_Samplers.size()]};
+        samples.reserve(count);
+        auto sampler = [&](std::size_t slot, const TRowRef& row) {
+            if (slot >= samples.size()) {
+                samples.resize(slot + 1);
+            }
+            samples[slot] = row.index();
+        };
+        m_DesiredCounts.push_back(count);
+        m_Samplers.emplace_back(count, sampler, rng);
+    }
+
+    //! Define the callback to select the sampler.
+    void samplerSelector(TSamplerSelector selector) {
+        m_Selector = std::move(selector);
+    }
+
+    //! This selects the final samples, writing to \p result, and resets the sampling
+    //! state so this is ready to sample again.
+    void finishSampling(CPRNG::CXorOShiro128Plus& rng, TSizeVec& result) {
+        result.clear();
+        for (std::size_t i = 0; i < m_SampledRowIndices.size(); ++i) {
+            std::size_t sampleSize{m_Samplers[i].sampleSize()};
+            std::size_t desiredCount{std::min(m_DesiredCounts[i], sampleSize)};
+            CSampling::random_shuffle(rng, m_SampledRowIndices[i].begin(),
+                                      m_SampledRowIndices[i].begin() + sampleSize);
+            result.insert(result.end(), m_SampledRowIndices[i].begin(),
+                          m_SampledRowIndices[i].begin() + desiredCount);
+            m_SampledRowIndices[i].clear();
+            m_Samplers[i].reset();
+        }
+    }
+
+private:
+    TSizeVec m_DesiredCounts;
+    TSizeVecVec m_SampledRowIndices;
+    TRowSamplerVec m_Samplers;
+    TSamplerSelector m_Selector;
+};
+
+//! Get a classifier stratified row sampler for cross fold validation.
+std::pair<std::unique_ptr<CStratifiedSampler>, TDoubleVec>
+classifierStratifiedCrossValidationRowSampler(std::size_t numberThreads,
+                                              const core::CDataFrame& frame,
+                                              std::size_t targetColumn,
+                                              CPRNG::CXorOShiro128Plus rng,
+                                              std::size_t numberFolds,
+                                              const core::CPackedBitVector& allTrainingRowsMask) {
+
+    TDoubleVec frequencies{CDataFrameUtils::categoryFrequencies(
+        numberThreads, frame, allTrainingRowsMask, {targetColumn})[targetColumn]};
+
+    TSizeVec categoryCounts;
+    categoryCounts.reserve(frequencies.size());
+    double numberTrainingRows{allTrainingRowsMask.manhattan()};
+    for (auto& frequency : frequencies) {
+        std::size_t desiredCount{static_cast<std::size_t>(
+            numberTrainingRows * frequency / static_cast<double>(numberFolds) + 0.5)};
+        categoryCounts.push_back(std::max(desiredCount, std::size_t{1}));
+    }
+    LOG_TRACE(<< "desired category counts per test fold = "
+              << core::CContainerPrinter::print(categoryCounts));
+
+    auto sampler = std::make_unique<CStratifiedSampler>(categoryCounts.size());
+    for (std::size_t i = 0; i < categoryCounts.size(); ++i) {
+        sampler->addSampler(categoryCounts[i], rng);
+    }
+    sampler->samplerSelector([targetColumn](const TRowRef& row) mutable {
+        return static_cast<std::size_t>(row[targetColumn]);
+    });
+
+    return {std::move(sampler), std::move(frequencies)};
+}
+
+//! Get a regression stratified row sampler for cross fold validation.
+std::unique_ptr<CStratifiedSampler>
+regressionStratifiedCrossValiationRowSampler(std::size_t numberThreads,
+                                             const core::CDataFrame& frame,
+                                             std::size_t targetColumn,
+                                             CPRNG::CXorOShiro128Plus rng,
+                                             std::size_t numberFolds,
+                                             const core::CPackedBitVector& allTrainingRowsMask) {
+
+    CDataFrameUtils::TQuantileSketchVec quantiles;
+    CDataFrameUtils::columnQuantiles(
+        numberThreads, frame, allTrainingRowsMask, {targetColumn},
+        CQuantileSketch{CQuantileSketch::E_Linear, 50}, quantiles);
+
+    TDoubleVec buckets;
+    for (std::size_t percentile = 20; percentile < 100; percentile += 20) {
+        double xq;
+        quantiles[0].quantile(static_cast<double>(percentile), xq);
+        buckets.push_back(xq);
+    }
+    buckets.erase(std::unique(buckets.begin(), buckets.end()), buckets.end());
+    buckets.push_back(std::numeric_limits<double>::max());
+    LOG_TRACE(<< "buckets = " << core::CContainerPrinter::print(buckets));
+
+    auto bucketSelector = [buckets, targetColumn](const TRowRef& row) mutable {
+        return static_cast<std::size_t>(
+            std::upper_bound(buckets.begin(), buckets.end(), row[targetColumn]) -
+            buckets.begin());
+    };
+
+    auto countBucketRows = core::bindRetrievableState(
+        [&](TSizeVec& bucketCounts, TRowItr beginRows, TRowItr endRows) {
+            for (auto row = beginRows; row != endRows; ++row) {
+                ++bucketCounts[bucketSelector(*row)];
+            }
+        },
+        TSizeVec(buckets.size(), 0));
+    auto copyBucketRowCounts = [](TSizeVec counts_, TSizeVec& counts) {
+        counts = std::move(counts_);
+    };
+    auto reduceBucketRowCounts = [](TSizeVec counts_, TSizeVec& counts) {
+        for (std::size_t i = 0; i < counts.size(); ++i) {
+            counts[i] += counts_[i];
+        }
+    };
+
+    TSizeVec bucketCounts;
+    doReduce(frame.readRows(numberThreads, 0, frame.numberRows(),
+                            countBucketRows, &allTrainingRowsMask),
+             copyBucketRowCounts, reduceBucketRowCounts, bucketCounts);
+    for (auto& count : bucketCounts) {
+        count /= numberFolds;
+    }
+    LOG_DEBUG(<< "desired bucket counts per fold = "
+              << core::CContainerPrinter::print(bucketCounts));
+
+    auto sampler = std::make_unique<CStratifiedSampler>(buckets.size());
+    for (std::size_t i = 0; i < buckets.size(); ++i) {
+        sampler->addSampler(bucketCounts[i], rng);
+    }
+    sampler->samplerSelector(bucketSelector);
+
+    return sampler;
 }
 
 //! Get the test row masks corresponding to \p foldRowMasks.
@@ -326,46 +483,20 @@ CDataFrameUtils::stratifiedCrossValidationRowMasks(std::size_t numberThreads,
                                                    std::size_t targetColumn,
                                                    CPRNG::CXorOShiro128Plus rng,
                                                    std::size_t numberFolds,
-                                                   core::CPackedBitVector allTrainingRowsMask) {
+                                                   const core::CPackedBitVector& allTrainingRowsMask) {
 
-    if (frame.columnIsCategorical()[targetColumn] == false) {
-        HANDLE_FATAL(<< "Internal error: stratified cross validation is only supported"
-                     << " for classification");
-        return std::tuple<TPackedBitVectorVec, TPackedBitVectorVec, TDoubleVec>{};
+    TDoubleVec frequencies;
+    std::unique_ptr<CStratifiedSampler> sampler;
+
+    if (frame.columnIsCategorical()[targetColumn]) {
+        std::tie(sampler, frequencies) = classifierStratifiedCrossValidationRowSampler(
+            numberThreads, frame, targetColumn, rng, numberFolds, allTrainingRowsMask);
+    } else {
+        sampler = regressionStratifiedCrossValiationRowSampler(
+            numberThreads, frame, targetColumn, rng, numberFolds, allTrainingRowsMask);
     }
 
-    using TSizeVecVec = std::vector<TSizeVec>;
-    using TRowSamplerVec = std::vector<TRowSampler>;
-
-    TDoubleVec frequencies{categoryFrequencies(
-        numberThreads, frame, allTrainingRowsMask, {targetColumn})[targetColumn]};
-
-    TSizeVec categoryCounts;
-    categoryCounts.reserve(frequencies.size());
-    double Z{allTrainingRowsMask.manhattan()};
-    for (auto& frequency : frequencies) {
-        std::size_t desiredCount{static_cast<std::size_t>(
-            Z * frequency / static_cast<double>(numberFolds) + 0.5)};
-        categoryCounts.push_back(std::max(desiredCount, std::size_t{1}));
-    }
-    LOG_TRACE(<< "desired category counts per test fold = "
-              << core::CContainerPrinter::print(categoryCounts));
-
-    TSizeVecVec sampledRowIndices(categoryCounts.size());
-    TRowSamplerVec samplers;
-    samplers.reserve(categoryCounts.size());
-
-    for (std::size_t i = 0; i < categoryCounts.size(); ++i) {
-        TSizeVec& categorySampledRowIndices{sampledRowIndices[i]};
-        categorySampledRowIndices.reserve(categoryCounts[i]);
-        auto sampler = [&](std::size_t slot, const TRowRef& row) {
-            if (slot >= categorySampledRowIndices.size()) {
-                categorySampledRowIndices.resize(slot + 1);
-            }
-            categorySampledRowIndices[slot] = row.index();
-        };
-        samplers.emplace_back(categoryCounts[i], sampler, rng);
-    }
+    LOG_TRACE(<< "number training rows = " << allTrainingRowsMask.manhattan());
 
     TPackedBitVectorVec testingRowMasks(numberFolds);
 
@@ -375,24 +506,12 @@ CDataFrameUtils::stratifiedCrossValidationRowMasks(std::size_t numberThreads,
         frame.readRows(1, 0, frame.numberRows(),
                        [&](TRowItr beginRows, TRowItr endRows) {
                            for (auto row = beginRows; row != endRows; ++row) {
-                               std::size_t category{
-                                   static_cast<std::size_t>((*row)[targetColumn])};
-                               samplers[category].sample(*row);
+                               sampler->sample(*row);
                            }
                        },
                        &candidateTestingRowsMask);
 
-        rowIndices.clear();
-        for (std::size_t i = 0; i < sampledRowIndices.size(); ++i) {
-            std::size_t sampleSize{samplers[i].sampleSize()};
-            std::size_t desiredCount{std::min(categoryCounts[i], sampleSize)};
-            CSampling::random_shuffle(rng, sampledRowIndices[i].begin(),
-                                      sampledRowIndices[i].begin() + sampleSize);
-            rowIndices.insert(rowIndices.end(), sampledRowIndices[i].begin(),
-                              sampledRowIndices[i].begin() + desiredCount);
-            sampledRowIndices[i].clear();
-            samplers[i].reset();
-        }
+        sampler->finishSampling(rng, rowIndices);
         std::sort(rowIndices.begin(), rowIndices.end());
         LOG_TRACE(<< "# row indices = " << rowIndices.size());
 
@@ -409,31 +528,6 @@ CDataFrameUtils::stratifiedCrossValidationRowMasks(std::size_t numberThreads,
     TPackedBitVectorVec trainingRowMasks{complementRowMasks(testingRowMasks, allTrainingRowsMask)};
 
     return {std::move(trainingRowMasks), std::move(testingRowMasks), std::move(frequencies)};
-}
-
-std::pair<TPackedBitVectorVec, TPackedBitVectorVec>
-CDataFrameUtils::crossValidationRowMasks(CPRNG::CXorOShiro128Plus rng,
-                                         std::size_t numberFolds,
-                                         core::CPackedBitVector allTrainingRowsMask) {
-
-    TPackedBitVectorVec trainingRowMasks(numberFolds);
-
-    for (auto row = allTrainingRowsMask.beginOneBits();
-         row != allTrainingRowsMask.endOneBits(); ++row) {
-        std::size_t fold{CSampling::uniformSample(rng, 0, numberFolds)};
-        trainingRowMasks[fold].extend(true, *row - trainingRowMasks[fold].size());
-        trainingRowMasks[fold].extend(false);
-    }
-
-    for (auto& fold : trainingRowMasks) {
-        fold.extend(true, allTrainingRowsMask.size() - fold.size());
-        fold &= allTrainingRowsMask;
-        LOG_TRACE(<< "# training = " << fold.manhattan());
-    }
-
-    TPackedBitVectorVec testingRowMasks{complementRowMasks(trainingRowMasks, allTrainingRowsMask)};
-
-    return {std::move(trainingRowMasks), std::move(testingRowMasks)};
 }
 
 CDataFrameUtils::TDoubleVecVec

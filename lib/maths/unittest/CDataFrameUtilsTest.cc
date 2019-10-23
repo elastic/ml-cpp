@@ -36,6 +36,8 @@ using TFactoryFunc = std::function<std::unique_ptr<core::CDataFrame>()>;
 using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
 using TMeanAccumulatorVec = std::vector<TMeanAccumulator>;
 using TMeanAccumulatorVecVec = std::vector<TMeanAccumulatorVec>;
+using TMeanVarAccumulator = maths::CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
+using TMeanVarAccumulatorVec = std::vector<TMeanVarAccumulator>;
 using TQuantileSketchVec = std::vector<maths::CQuantileSketch>;
 
 auto generateCategoricalData(test::CRandomNumbers& rng,
@@ -183,9 +185,6 @@ void CDataFrameUtilsTest::testColumnDataTypes() {
 }
 
 void CDataFrameUtilsTest::testStandardizeColumns() {
-
-    using TMeanVarAccumulatorVec =
-        std::vector<maths::CBasicStatistics::SSampleMeanVar<double>::TAccumulator>;
 
     test::CRandomNumbers rng;
 
@@ -533,51 +532,66 @@ void CDataFrameUtilsTest::testStratifiedCrossValidationRowMasks() {
             }
         }
     }
-}
-
-void CDataFrameUtilsTest::testCrossValidationRowMasks() {
-
-    // Check some invariants of the test and train masks:
-    //   1) The folds are approximately the same size,
-    //   2) The test masks are disjoint for each fold,
-    //   3) The train and test masks are disjoint for a given fold,
-    //   4) They're all subsets of the initial mask supplied.
-
-    test::CRandomNumbers testRng;
-    maths::CPRNG::CXorOShiro128Plus rng;
-
-    std::size_t numberRows{2000};
 
     for (std::size_t trial = 0; trial < 10; ++trial) {
 
-        core::CPackedBitVector allTrainingRowsMask{generateRandomRowMask(testRng, numberRows)};
+        TDoubleVec value;
+        testRng.generateNormalSamples(0.0, 3.0, numberRows, value);
         TSizeVec numberFolds;
         testRng.generateUniformSamples(2, 6, 1, numberFolds);
 
-        maths::CDataFrameUtils::TPackedBitVectorVec trainingRowMasks;
-        maths::CDataFrameUtils::TPackedBitVectorVec testingRowMasks;
-        std::tie(trainingRowMasks, testingRowMasks) =
-            maths::CDataFrameUtils::crossValidationRowMasks(rng, numberFolds[0],
-                                                            allTrainingRowsMask);
+        auto frame = core::makeMainStorageDataFrame(numberCols).first;
+        frame->categoricalColumns(TBoolVec{false});
+        for (std::size_t i = 0; i < numberRows; ++i) {
+            frame->writeRow([&](core::CDataFrame::TFloatVecItr column,
+                                std::int32_t&) { *column = value[i]; });
+        }
+        frame->finishWritingRows();
 
-        CPPUNIT_ASSERT_EQUAL(numberFolds[0], trainingRowMasks.size());
-        CPPUNIT_ASSERT_EQUAL(numberFolds[0], testingRowMasks.size());
+        core::CPackedBitVector allTrainingRowsMask{generateRandomRowMask(testRng, numberRows)};
+
+        maths::CDataFrameUtils::TPackedBitVectorVec testingRowMasks;
+        std::tie(std::ignore, testingRowMasks, std::ignore) =
+            maths::CDataFrameUtils::stratifiedCrossValidationRowMasks(
+                1, *frame, 0, rng, numberFolds[0], allTrainingRowsMask);
+
+        TDoubleVecVec targetPercentiles;
 
         core::CPackedBitVector allTestingRowsMask{numberRows, false};
         for (std::size_t fold = 0; fold < numberFolds[0]; ++fold) {
-            // Expect count ~ binomial(n, 1 / "number folds").
+            // Count should be very nearly the expected value.
             double expectedTestRowCount{allTrainingRowsMask.manhattan() /
                                         static_cast<double>(numberFolds[0])};
             CPPUNIT_ASSERT_DOUBLES_EQUAL(expectedTestRowCount,
-                                         testingRowMasks[fold].manhattan(),
-                                         3.0 * std::sqrt(expectedTestRowCount));
+                                         testingRowMasks[fold].manhattan(), 10.0);
             CPPUNIT_ASSERT_EQUAL(0.0, testingRowMasks[fold].inner(allTestingRowsMask));
-            CPPUNIT_ASSERT_EQUAL(0.0, trainingRowMasks[fold].inner(testingRowMasks[fold]));
-            CPPUNIT_ASSERT_EQUAL(trainingRowMasks[fold].manhattan(),
-                                 trainingRowMasks[fold].inner(allTrainingRowsMask));
             CPPUNIT_ASSERT_EQUAL(testingRowMasks[fold].manhattan(),
                                  testingRowMasks[fold].inner(allTrainingRowsMask));
             allTestingRowsMask |= testingRowMasks[fold];
+
+            TDoubleVec values;
+            frame->readRows(1, 0, frame->numberRows(),
+                            [&](core::CDataFrame::TRowItr beginRows,
+                                core::CDataFrame::TRowItr endRows) {
+                                for (auto row = beginRows; row != endRows; ++row) {
+                                    values.push_back((*row)[0]);
+                                }
+                            },
+                            &testingRowMasks[fold]);
+            std::sort(values.begin(), values.end());
+            targetPercentiles.push_back(
+                {values[(2 * values.size()) / 10], values[(4 * values.size()) / 10],
+                 values[(6 * values.size()) / 10], values[(8 * values.size()) / 10]});
+        }
+
+        for (std::size_t i = 0; i < 4; ++i) {
+            TMeanVarAccumulator testTargetPercentileMoments;
+            for (std::size_t fold = 0; fold < numberFolds[0]; ++fold) {
+                testTargetPercentileMoments.add(targetPercentiles[fold][i]);
+            }
+            LOG_DEBUG(<< "variance in test set target percentile = "
+                      << maths::CBasicStatistics::variance(testTargetPercentileMoments));
+            CPPUNIT_ASSERT(maths::CBasicStatistics::variance(testTargetPercentileMoments) < 2e-3);
         }
     }
 }
@@ -1007,9 +1021,6 @@ CppUnit::Test* CDataFrameUtilsTest::suite() {
     suiteOfTests->addTest(new CppUnit::TestCaller<CDataFrameUtilsTest>(
         "CDataFrameUtilsTest::testStratifiedCrossValidationRowMasks",
         &CDataFrameUtilsTest::testStratifiedCrossValidationRowMasks));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CDataFrameUtilsTest>(
-        "CDataFrameUtilsTest::testCrossValidationRowMasks",
-        &CDataFrameUtilsTest::testCrossValidationRowMasks));
     suiteOfTests->addTest(new CppUnit::TestCaller<CDataFrameUtilsTest>(
         "CDataFrameUtilsTest::testMicWithColumn", &CDataFrameUtilsTest::testMicWithColumn));
     suiteOfTests->addTest(new CppUnit::TestCaller<CDataFrameUtilsTest>(
