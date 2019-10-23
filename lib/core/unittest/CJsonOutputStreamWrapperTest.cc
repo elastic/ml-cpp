@@ -59,11 +59,11 @@ BOOST_AUTO_TEST_CASE(testConcurrentWrites) {
     doc.Parse<rapidjson::kParseDefaultFlags>(stringStream.str());
 
     // check that the document isn't malformed (like wrongly interleaved buffers)
-    BOOST_TEST(!doc.HasParseError());
+    BOOST_TEST_REQUIRE(!doc.HasParseError());
     const rapidjson::Value& allRecords = doc.GetArray();
 
     // check number of documents
-    BOOST_CHECK_EQUAL(rapidjson::SizeType(WRITERS * DOCUMENTS_PER_WRITER),
+    BOOST_REQUIRE_EQUAL(rapidjson::SizeType(WRITERS * DOCUMENTS_PER_WRITER),
                       allRecords.Size());
 }
 
@@ -78,10 +78,10 @@ BOOST_AUTO_TEST_CASE(testShrink) {
     wrapper.acquireBuffer(writer, stringBuffer);
 
     // this should not change anything regarding memory usage
-    BOOST_CHECK_EQUAL(memoryUsageBase, wrapper.memoryUsage());
+    BOOST_REQUIRE_EQUAL(memoryUsageBase, wrapper.memoryUsage());
 
     size_t stringBufferSizeBase = stringBuffer->stack_.GetCapacity();
-    BOOST_TEST(memoryUsageBase > stringBufferSizeBase);
+    BOOST_TEST_REQUIRE(memoryUsageBase > stringBufferSizeBase);
 
     // fill the buffer, expand it
     for (size_t i = 0; i < 100000; ++i) {
@@ -90,20 +90,20 @@ BOOST_AUTO_TEST_CASE(testShrink) {
         stringBuffer->Put(',');
     }
 
-    BOOST_TEST(stringBufferSizeBase < stringBuffer->stack_.GetCapacity());
-    BOOST_TEST(wrapper.memoryUsage() > memoryUsageBase);
-    BOOST_TEST(wrapper.memoryUsage() > stringBuffer->stack_.GetCapacity());
+    BOOST_TEST_REQUIRE(stringBufferSizeBase < stringBuffer->stack_.GetCapacity());
+    BOOST_TEST_REQUIRE(wrapper.memoryUsage() > memoryUsageBase);
+    BOOST_TEST_REQUIRE(wrapper.memoryUsage() > stringBuffer->stack_.GetCapacity());
 
     // save the original pointer as flushBuffer returns a new buffer
     rapidjson::StringBuffer* stringBufferOriginal = stringBuffer;
     wrapper.flushBuffer(writer, stringBuffer);
     wrapper.syncFlush();
 
-    BOOST_TEST(stringBuffer != stringBufferOriginal);
-    BOOST_CHECK_EQUAL(stringBufferSizeBase, stringBuffer->stack_.GetCapacity());
-    BOOST_CHECK_EQUAL(stringBufferSizeBase, stringBufferOriginal->stack_.GetCapacity());
+    BOOST_TEST_REQUIRE(stringBuffer != stringBufferOriginal);
+    BOOST_REQUIRE_EQUAL(stringBufferSizeBase, stringBuffer->stack_.GetCapacity());
+    BOOST_REQUIRE_EQUAL(stringBufferSizeBase, stringBufferOriginal->stack_.GetCapacity());
 
-    BOOST_CHECK_EQUAL(memoryUsageBase, wrapper.memoryUsage());
+    BOOST_REQUIRE_EQUAL(memoryUsageBase, wrapper.memoryUsage());
 }
 
 BOOST_AUTO_TEST_SUITE_END()

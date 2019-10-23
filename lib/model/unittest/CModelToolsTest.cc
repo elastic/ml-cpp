@@ -90,7 +90,7 @@ BOOST_AUTO_TEST_CASE(testFuzzyDeduplicate) {
         for (auto value : values) {
             std::size_t duplicate{duplicates.duplicate(300, {value})};
             if (duplicate < uniques.size()) {
-                BOOST_CHECK_CLOSE_ABSOLUTE(uniques[duplicate], value, tolerance);
+                BOOST_REQUIRE_CLOSE_ABSOLUTE(uniques[duplicate], value, tolerance);
             } else {
                 uniques.push_back(value);
             }
@@ -108,10 +108,10 @@ BOOST_AUTO_TEST_CASE(testFuzzyDeduplicate) {
             if (duplicate == uniques.size()) {
                 uniques.push_back(values[i]);
             } else {
-                BOOST_CHECK_EQUAL(values[i], uniques[duplicate]);
+                BOOST_REQUIRE_EQUAL(values[i], uniques[duplicate]);
             }
         }
-        BOOST_CHECK_EQUAL(std::string("[1, 4, 1, 3, 1.2, 25]"),
+        BOOST_REQUIRE_EQUAL(std::string("[1, 4, 1, 3, 1.2, 25]"),
                           core::CContainerPrinter::print(uniques));
     }
 
@@ -127,7 +127,7 @@ BOOST_AUTO_TEST_CASE(testFuzzyDeduplicate) {
         double q80{(boost::math::quantile(normal, 0.9) - boost::math::quantile(normal, 0.1))};
         fuzzyUniqueValues(values, q80, uniques);
         LOG_DEBUG(<< "Got " << uniques.size() << "/" << values.size());
-        BOOST_TEST(uniques.size() < 25000);
+        BOOST_TEST_REQUIRE(uniques.size() < 25000);
     }
 
     LOG_DEBUG(<< "Uniform");
@@ -136,7 +136,7 @@ BOOST_AUTO_TEST_CASE(testFuzzyDeduplicate) {
         double q80{0.8 * range};
         fuzzyUniqueValues(values, q80, uniques);
         LOG_DEBUG(<< "Got " << uniques.size() << "/" << values.size());
-        BOOST_TEST(uniques.size() < 15000);
+        BOOST_TEST_REQUIRE(uniques.size() < 15000);
     }
 
     LOG_DEBUG(<< "Sorted Uniform");
@@ -146,7 +146,7 @@ BOOST_AUTO_TEST_CASE(testFuzzyDeduplicate) {
         double q80{80.0};
         fuzzyUniqueValues(values, q80, uniques);
         LOG_DEBUG(<< "Got " << uniques.size() << "/" << values.size());
-        BOOST_TEST(uniques.size() < 15000);
+        BOOST_TEST_REQUIRE(uniques.size() < 15000);
     }
 
     LOG_DEBUG(<< "Log-Normal");
@@ -157,7 +157,7 @@ BOOST_AUTO_TEST_CASE(testFuzzyDeduplicate) {
                    boost::math::quantile(lognormal, 0.1)};
         fuzzyUniqueValues(values, q80, uniques);
         LOG_DEBUG(<< "Got " << uniques.size() << "/" << values.size());
-        BOOST_TEST(uniques.size() < 30000);
+        BOOST_TEST_REQUIRE(uniques.size() < 30000);
     }
 }
 
@@ -237,11 +237,11 @@ BOOST_AUTO_TEST_CASE(testProbabilityCache) {
                 ++hits;
                 error.add(std::fabs(result.s_Probability - expectedResult.s_Probability) /
                           expectedResult.s_Probability);
-                BOOST_CHECK_CLOSE_ABSOLUTE(expectedResult.s_Probability, result.s_Probability,
+                BOOST_REQUIRE_CLOSE_ABSOLUTE(expectedResult.s_Probability, result.s_Probability,
                                            0.05 * expectedResult.s_Probability);
-                BOOST_CHECK_EQUAL(expectedResult.s_Tail[0], result.s_Tail[0]);
-                BOOST_CHECK_EQUAL(false, result.s_Conditional);
-                BOOST_TEST(result.s_MostAnomalousCorrelate.empty());
+                BOOST_REQUIRE_EQUAL(expectedResult.s_Tail[0], result.s_Tail[0]);
+                BOOST_REQUIRE_EQUAL(false, result.s_Conditional);
+                BOOST_TEST_REQUIRE(result.s_MostAnomalousCorrelate.empty());
             } else {
                 cache.addModes(feature, id, model);
                 cache.addProbability(feature, id, sample, expectedResult);
@@ -250,8 +250,8 @@ BOOST_AUTO_TEST_CASE(testProbabilityCache) {
 
         LOG_DEBUG(<< "hits = " << hits);
         LOG_DEBUG(<< "mean error = " << maths::CBasicStatistics::mean(error));
-        BOOST_TEST(hits > 19000);
-        BOOST_TEST(maths::CBasicStatistics::mean(error) < 0.001);
+        BOOST_TEST_REQUIRE(hits > 19000);
+        BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(error) < 0.001);
     }
 
     LOG_DEBUG(<< "Test Adversary");
@@ -272,7 +272,7 @@ BOOST_AUTO_TEST_CASE(testProbabilityCache) {
             maths::SModelProbabilityResult result;
             if (cache.lookup(feature, id, sample, result)) {
                 // Shouldn't have any cache hits.
-                BOOST_TEST(false);
+                BOOST_TEST_REQUIRE(false);
             } else {
                 cache.addModes(feature, id, model);
                 cache.addProbability(feature, id, sample, expectedResult);

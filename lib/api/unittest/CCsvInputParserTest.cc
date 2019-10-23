@@ -48,23 +48,23 @@ public:
         for (const auto& entry : dataRowFields) {
             auto iter = std::find(m_ExpectedFieldNames.begin(),
                                   m_ExpectedFieldNames.end(), entry.first);
-            BOOST_TEST(iter != m_ExpectedFieldNames.end());
+            BOOST_TEST_REQUIRE(iter != m_ExpectedFieldNames.end());
         }
 
-        BOOST_CHECK_EQUAL(m_ExpectedFieldNames.size(), dataRowFields.size());
+        BOOST_REQUIRE_EQUAL(m_ExpectedFieldNames.size(), dataRowFields.size());
 
         // Check the line count is consistent with the _raw field
         ml::api::CCsvInputParser::TStrStrUMapCItr rawIter = dataRowFields.find("_raw");
-        BOOST_TEST(rawIter != dataRowFields.end());
+        BOOST_TEST_REQUIRE(rawIter != dataRowFields.end());
         ml::api::CCsvInputParser::TStrStrUMapCItr lineCountIter =
             dataRowFields.find("linecount");
-        BOOST_TEST(lineCountIter != dataRowFields.end());
+        BOOST_TEST_REQUIRE(lineCountIter != dataRowFields.end());
 
         size_t expectedLineCount(1 + std::count(rawIter->second.begin(),
                                                 rawIter->second.end(), '\n'));
         size_t lineCount(0);
-        BOOST_TEST(ml::core::CStringUtils::stringToType(lineCountIter->second, lineCount));
-        BOOST_CHECK_EQUAL(expectedLineCount, lineCount);
+        BOOST_TEST_REQUIRE(ml::core::CStringUtils::stringToType(lineCountIter->second, lineCount));
+        BOOST_REQUIRE_EQUAL(expectedLineCount, lineCount);
 
         return true;
     }
@@ -81,23 +81,23 @@ public:
         }
 
         // Check the field names
-        BOOST_CHECK_EQUAL(ml::core::CContainerPrinter::print(m_ExpectedFieldNames),
+        BOOST_REQUIRE_EQUAL(ml::core::CContainerPrinter::print(m_ExpectedFieldNames),
                           ml::core::CContainerPrinter::print(fieldNames));
 
-        BOOST_CHECK_EQUAL(m_ExpectedFieldNames.size(), fieldValues.size());
+        BOOST_REQUIRE_EQUAL(m_ExpectedFieldNames.size(), fieldValues.size());
 
         // Check the line count is consistent with the _raw field
         auto rawIter = std::find(fieldNames.begin(), fieldNames.end(), "_raw");
-        BOOST_TEST(rawIter != fieldNames.end());
+        BOOST_TEST_REQUIRE(rawIter != fieldNames.end());
         auto lineCountIter = std::find(fieldNames.begin(), fieldNames.end(), "linecount");
-        BOOST_TEST(lineCountIter != fieldNames.end());
+        BOOST_TEST_REQUIRE(lineCountIter != fieldNames.end());
 
         const std::string& rawStr = fieldValues[rawIter - fieldNames.begin()];
         std::size_t expectedLineCount(1 + std::count(rawStr.begin(), rawStr.end(), '\n'));
         std::size_t lineCount(0);
         const std::string& lineCountStr = fieldValues[lineCountIter - fieldNames.begin()];
-        BOOST_TEST(ml::core::CStringUtils::stringToType(lineCountStr, lineCount));
-        BOOST_CHECK_EQUAL(expectedLineCount, lineCount);
+        BOOST_TEST_REQUIRE(ml::core::CStringUtils::stringToType(lineCountStr, lineCount));
+        BOOST_REQUIRE_EQUAL(expectedLineCount, lineCount);
 
         return true;
     }
@@ -124,23 +124,23 @@ public:
     //! Handle a record
     bool operator()(const ml::api::CCsvInputParser::TStrStrUMap& dataRowFields) {
         // Check the time field exists
-        BOOST_TEST(m_RecordCount < m_ExpectedTimes.size());
+        BOOST_TEST_REQUIRE(m_RecordCount < m_ExpectedTimes.size());
 
         auto iter = dataRowFields.find(m_TimeField);
-        BOOST_TEST(iter != dataRowFields.end());
+        BOOST_TEST_REQUIRE(iter != dataRowFields.end());
 
         // Now check the actual time
         ml::api::CCsvInputParser::TStrStrUMapCItr fieldIter = dataRowFields.find(m_TimeField);
-        BOOST_TEST(fieldIter != dataRowFields.end());
+        BOOST_TEST_REQUIRE(fieldIter != dataRowFields.end());
         ml::core_t::TTime timeVal(0);
         if (m_TimeFormat.empty()) {
-            BOOST_TEST(ml::core::CStringUtils::stringToType(fieldIter->second, timeVal));
+            BOOST_TEST_REQUIRE(ml::core::CStringUtils::stringToType(fieldIter->second, timeVal));
         } else {
-            BOOST_TEST(ml::core::CTimeUtils::strptime(m_TimeFormat, fieldIter->second, timeVal));
+            BOOST_TEST_REQUIRE(ml::core::CTimeUtils::strptime(m_TimeFormat, fieldIter->second, timeVal));
             LOG_DEBUG(<< "Converted " << fieldIter->second << " to " << timeVal
                       << " using format " << m_TimeFormat);
         }
-        BOOST_CHECK_EQUAL(m_ExpectedTimes[m_RecordCount], timeVal);
+        BOOST_REQUIRE_EQUAL(m_ExpectedTimes[m_RecordCount], timeVal);
 
         ++m_RecordCount;
 
@@ -164,20 +164,20 @@ public:
     bool operator()(const ml::api::CCsvInputParser::TStrStrUMap& dataRowFields) {
         // Now check quoted fields
         ml::api::CCsvInputParser::TStrStrUMapCItr fieldIter = dataRowFields.find("q1");
-        BOOST_TEST(fieldIter != dataRowFields.end());
-        BOOST_CHECK_EQUAL(std::string(""), fieldIter->second);
+        BOOST_TEST_REQUIRE(fieldIter != dataRowFields.end());
+        BOOST_REQUIRE_EQUAL(std::string(""), fieldIter->second);
 
         fieldIter = dataRowFields.find("q2");
-        BOOST_TEST(fieldIter != dataRowFields.end());
-        BOOST_CHECK_EQUAL(std::string(""), fieldIter->second);
+        BOOST_TEST_REQUIRE(fieldIter != dataRowFields.end());
+        BOOST_REQUIRE_EQUAL(std::string(""), fieldIter->second);
 
         fieldIter = dataRowFields.find("q3");
-        BOOST_TEST(fieldIter != dataRowFields.end());
-        BOOST_CHECK_EQUAL(std::string("\""), fieldIter->second);
+        BOOST_TEST_REQUIRE(fieldIter != dataRowFields.end());
+        BOOST_REQUIRE_EQUAL(std::string("\""), fieldIter->second);
 
         fieldIter = dataRowFields.find("q4");
-        BOOST_TEST(fieldIter != dataRowFields.end());
-        BOOST_CHECK_EQUAL(std::string("\"\""), fieldIter->second);
+        BOOST_TEST_REQUIRE(fieldIter != dataRowFields.end());
+        BOOST_REQUIRE_EQUAL(std::string("\"\""), fieldIter->second);
 
         ++m_RecordCount;
 
@@ -193,7 +193,7 @@ private:
 
 BOOST_AUTO_TEST_CASE(testSimpleDelims) {
     std::ifstream simpleStrm("testfiles/simple.txt");
-    BOOST_TEST(simpleStrm.is_open());
+    BOOST_TEST_REQUIRE(simpleStrm.is_open());
 
     ml::api::CCsvInputParser::TStrVec expectedFieldNames;
     expectedFieldNames.emplace_back("_cd");
@@ -227,8 +227,8 @@ BOOST_AUTO_TEST_CASE(testSimpleDelims) {
 
     // First read to a map
     ml::api::CCsvInputParser parser1(simpleStrm);
-    BOOST_TEST(parser1.readStreamIntoMaps(std::ref(visitor)));
-    BOOST_CHECK_EQUAL(size_t(15), visitor.recordCount());
+    BOOST_TEST_REQUIRE(parser1.readStreamIntoMaps(std::ref(visitor)));
+    BOOST_REQUIRE_EQUAL(size_t(15), visitor.recordCount());
 
     // Now re-read to vectors
     simpleStrm.clear();
@@ -236,13 +236,13 @@ BOOST_AUTO_TEST_CASE(testSimpleDelims) {
     visitor.reset();
 
     ml::api::CCsvInputParser parser2(simpleStrm);
-    BOOST_TEST(parser2.readStreamIntoVecs(std::ref(visitor)));
-    BOOST_CHECK_EQUAL(size_t(15), visitor.recordCount());
+    BOOST_TEST_REQUIRE(parser2.readStreamIntoVecs(std::ref(visitor)));
+    BOOST_REQUIRE_EQUAL(size_t(15), visitor.recordCount());
 }
 
 BOOST_AUTO_TEST_CASE(testComplexDelims) {
     std::ifstream complexStrm("testfiles/complex.txt");
-    BOOST_TEST(complexStrm.is_open());
+    BOOST_TEST_REQUIRE(complexStrm.is_open());
 
     ml::api::CCsvInputParser::TStrVec expectedFieldNames;
     expectedFieldNames.emplace_back("_cd");
@@ -276,7 +276,7 @@ BOOST_AUTO_TEST_CASE(testComplexDelims) {
 
     // First read to a map
     ml::api::CCsvInputParser parser1(complexStrm);
-    BOOST_TEST(parser1.readStreamIntoMaps(std::ref(visitor)));
+    BOOST_TEST_REQUIRE(parser1.readStreamIntoMaps(std::ref(visitor)));
 
     // Now re-read to vectors
     complexStrm.clear();
@@ -284,12 +284,12 @@ BOOST_AUTO_TEST_CASE(testComplexDelims) {
     visitor.reset();
 
     ml::api::CCsvInputParser parser2(complexStrm);
-    BOOST_TEST(parser2.readStreamIntoVecs(std::ref(visitor)));
+    BOOST_TEST_REQUIRE(parser2.readStreamIntoVecs(std::ref(visitor)));
 }
 
 BOOST_AUTO_TEST_CASE(testThroughput) {
     std::ifstream ifs("testfiles/simple.txt");
-    BOOST_TEST(ifs.is_open());
+    BOOST_TEST_REQUIRE(ifs.is_open());
 
     std::string line;
 
@@ -311,7 +311,7 @@ BOOST_AUTO_TEST_CASE(testThroughput) {
     }
 
     // Assume there are two lines per record in the input file
-    BOOST_TEST((nonHeaderLines % 2) == 0);
+    BOOST_TEST_REQUIRE((nonHeaderLines % 2) == 0);
     size_t recordsPerBlock(nonHeaderLines / 2);
 
     // Construct a large test input
@@ -329,12 +329,12 @@ BOOST_AUTO_TEST_CASE(testThroughput) {
     ml::core_t::TTime start(ml::core::CTimeUtils::now());
     LOG_INFO(<< "Starting throughput test at " << ml::core::CTimeUtils::toTimeString(start));
 
-    BOOST_TEST(parser.readStreamIntoMaps(std::ref(visitor)));
+    BOOST_TEST_REQUIRE(parser.readStreamIntoMaps(std::ref(visitor)));
 
     ml::core_t::TTime end(ml::core::CTimeUtils::now());
     LOG_INFO(<< "Finished throughput test at " << ml::core::CTimeUtils::toTimeString(end));
 
-    BOOST_CHECK_EQUAL(recordsPerBlock * TEST_SIZE, visitor.recordCount());
+    BOOST_REQUIRE_EQUAL(recordsPerBlock * TEST_SIZE, visitor.recordCount());
 
     LOG_INFO(<< "Parsing " << visitor.recordCount() << " records took "
              << (end - start) << " seconds");
@@ -352,66 +352,66 @@ BOOST_AUTO_TEST_CASE(testDateParse) {
                                                  std::end(EXPECTED_TIMES));
 
     // Ensure we are in UK timewise
-    BOOST_TEST(ml::core::CTimezone::setTimezone("Europe/London"));
+    BOOST_TEST_REQUIRE(ml::core::CTimezone::setTimezone("Europe/London"));
 
     {
         std::ifstream csvStrm("testfiles/s.csv");
-        BOOST_TEST(csvStrm.is_open());
+        BOOST_TEST_REQUIRE(csvStrm.is_open());
 
         CTimeCheckingVisitor visitor("time", "", expectedTimes);
 
         ml::api::CCsvInputParser parser(csvStrm);
 
-        BOOST_TEST(parser.readStreamIntoMaps(std::ref(visitor)));
+        BOOST_TEST_REQUIRE(parser.readStreamIntoMaps(std::ref(visitor)));
     }
     {
         std::ifstream csvStrm("testfiles/bdYIMSp.csv");
-        BOOST_TEST(csvStrm.is_open());
+        BOOST_TEST_REQUIRE(csvStrm.is_open());
 
         CTimeCheckingVisitor visitor("date", "%b %d %Y %I:%M:%S %p", expectedTimes);
 
         ml::api::CCsvInputParser parser(csvStrm);
 
-        BOOST_TEST(parser.readStreamIntoMaps(std::ref(visitor)));
+        BOOST_TEST_REQUIRE(parser.readStreamIntoMaps(std::ref(visitor)));
     }
     {
         std::ifstream csvStrm("testfiles/YmdHMS.csv");
-        BOOST_TEST(csvStrm.is_open());
+        BOOST_TEST_REQUIRE(csvStrm.is_open());
 
         CTimeCheckingVisitor visitor("time", "%Y-%m-%d %H:%M:%S", expectedTimes);
 
         ml::api::CCsvInputParser parser(csvStrm);
 
-        BOOST_TEST(parser.readStreamIntoMaps(std::ref(visitor)));
+        BOOST_TEST_REQUIRE(parser.readStreamIntoMaps(std::ref(visitor)));
     }
     {
         std::ifstream csvStrm("testfiles/YmdHMSZ_GMT.csv");
-        BOOST_TEST(csvStrm.is_open());
+        BOOST_TEST_REQUIRE(csvStrm.is_open());
 
         CTimeCheckingVisitor visitor("mytime", "%Y-%m-%d %H:%M:%S %Z", expectedTimes);
 
         ml::api::CCsvInputParser parser(csvStrm);
 
-        BOOST_TEST(parser.readStreamIntoMaps(std::ref(visitor)));
+        BOOST_TEST_REQUIRE(parser.readStreamIntoMaps(std::ref(visitor)));
     }
 
     // Switch to US Eastern time for this test
-    BOOST_TEST(ml::core::CTimezone::setTimezone("America/New_York"));
+    BOOST_TEST_REQUIRE(ml::core::CTimezone::setTimezone("America/New_York"));
 
     {
         std::ifstream csvStrm("testfiles/YmdHMSZ_EST.csv");
-        BOOST_TEST(csvStrm.is_open());
+        BOOST_TEST_REQUIRE(csvStrm.is_open());
 
         CTimeCheckingVisitor visitor("datetime", "%Y-%m-%d %H:%M:%S %Z", expectedTimes);
 
         ml::api::CCsvInputParser parser(csvStrm);
 
-        BOOST_TEST(parser.readStreamIntoMaps(std::ref(visitor)));
+        BOOST_TEST_REQUIRE(parser.readStreamIntoMaps(std::ref(visitor)));
     }
 
     // Set the timezone back to nothing, i.e. let the operating system decide
     // what to use
-    BOOST_TEST(ml::core::CTimezone::setTimezone(""));
+    BOOST_TEST_REQUIRE(ml::core::CTimezone::setTimezone(""));
 }
 
 BOOST_AUTO_TEST_CASE(testQuoteParsing) {
@@ -427,9 +427,9 @@ BOOST_AUTO_TEST_CASE(testQuoteParsing) {
 
     CQuoteCheckingVisitor visitor;
 
-    BOOST_TEST(parser.readStreamIntoMaps(std::ref(visitor)));
+    BOOST_TEST_REQUIRE(parser.readStreamIntoMaps(std::ref(visitor)));
 
-    BOOST_CHECK_EQUAL(size_t(1), visitor.recordCount());
+    BOOST_REQUIRE_EQUAL(size_t(1), visitor.recordCount());
 }
 
 BOOST_AUTO_TEST_CASE(testLineParser) {
@@ -440,62 +440,62 @@ BOOST_AUTO_TEST_CASE(testLineParser) {
         std::string simple{"a,b,c"};
         lineParser.reset(simple);
 
-        BOOST_TEST(!lineParser.atEnd());
-        BOOST_TEST(lineParser.parseNext(token));
-        BOOST_CHECK_EQUAL(std::string("a"), token);
+        BOOST_TEST_REQUIRE(!lineParser.atEnd());
+        BOOST_TEST_REQUIRE(lineParser.parseNext(token));
+        BOOST_REQUIRE_EQUAL(std::string("a"), token);
 
-        BOOST_TEST(!lineParser.atEnd());
-        BOOST_TEST(lineParser.parseNext(token));
-        BOOST_CHECK_EQUAL(std::string("b"), token);
+        BOOST_TEST_REQUIRE(!lineParser.atEnd());
+        BOOST_TEST_REQUIRE(lineParser.parseNext(token));
+        BOOST_REQUIRE_EQUAL(std::string("b"), token);
 
-        BOOST_TEST(!lineParser.atEnd());
-        BOOST_TEST(lineParser.parseNext(token));
-        BOOST_CHECK_EQUAL(std::string("c"), token);
+        BOOST_TEST_REQUIRE(!lineParser.atEnd());
+        BOOST_TEST_REQUIRE(lineParser.parseNext(token));
+        BOOST_REQUIRE_EQUAL(std::string("c"), token);
 
-        BOOST_TEST(lineParser.atEnd());
-        BOOST_TEST(!lineParser.parseNext(token));
+        BOOST_TEST_REQUIRE(lineParser.atEnd());
+        BOOST_TEST_REQUIRE(!lineParser.parseNext(token));
     }
     {
         std::string quoted{"\"a,b,c\",b and some spaces,\"c quoted unecessarily\",\"d with a literal \"\"\""};
         lineParser.reset(quoted);
 
-        BOOST_TEST(!lineParser.atEnd());
-        BOOST_TEST(lineParser.parseNext(token));
-        BOOST_CHECK_EQUAL(std::string("a,b,c"), token);
+        BOOST_TEST_REQUIRE(!lineParser.atEnd());
+        BOOST_TEST_REQUIRE(lineParser.parseNext(token));
+        BOOST_REQUIRE_EQUAL(std::string("a,b,c"), token);
 
-        BOOST_TEST(!lineParser.atEnd());
-        BOOST_TEST(lineParser.parseNext(token));
-        BOOST_CHECK_EQUAL(std::string("b and some spaces"), token);
+        BOOST_TEST_REQUIRE(!lineParser.atEnd());
+        BOOST_TEST_REQUIRE(lineParser.parseNext(token));
+        BOOST_REQUIRE_EQUAL(std::string("b and some spaces"), token);
 
-        BOOST_TEST(!lineParser.atEnd());
-        BOOST_TEST(lineParser.parseNext(token));
-        BOOST_CHECK_EQUAL(std::string("c quoted unecessarily"), token);
+        BOOST_TEST_REQUIRE(!lineParser.atEnd());
+        BOOST_TEST_REQUIRE(lineParser.parseNext(token));
+        BOOST_REQUIRE_EQUAL(std::string("c quoted unecessarily"), token);
 
-        BOOST_TEST(!lineParser.atEnd());
-        BOOST_TEST(lineParser.parseNext(token));
-        BOOST_CHECK_EQUAL(std::string("d with a literal \""), token);
+        BOOST_TEST_REQUIRE(!lineParser.atEnd());
+        BOOST_TEST_REQUIRE(lineParser.parseNext(token));
+        BOOST_REQUIRE_EQUAL(std::string("d with a literal \""), token);
 
-        BOOST_TEST(lineParser.atEnd());
-        BOOST_TEST(!lineParser.parseNext(token));
+        BOOST_TEST_REQUIRE(lineParser.atEnd());
+        BOOST_TEST_REQUIRE(!lineParser.parseNext(token));
     }
     {
         std::string cjk{"编码,コーディング,코딩"};
         lineParser.reset(cjk);
 
-        BOOST_TEST(!lineParser.atEnd());
-        BOOST_TEST(lineParser.parseNext(token));
-        BOOST_CHECK_EQUAL(std::string("编码"), token);
+        BOOST_TEST_REQUIRE(!lineParser.atEnd());
+        BOOST_TEST_REQUIRE(lineParser.parseNext(token));
+        BOOST_REQUIRE_EQUAL(std::string("编码"), token);
 
-        BOOST_TEST(!lineParser.atEnd());
-        BOOST_TEST(lineParser.parseNext(token));
-        BOOST_CHECK_EQUAL(std::string("コーディング"), token);
+        BOOST_TEST_REQUIRE(!lineParser.atEnd());
+        BOOST_TEST_REQUIRE(lineParser.parseNext(token));
+        BOOST_REQUIRE_EQUAL(std::string("コーディング"), token);
 
-        BOOST_TEST(!lineParser.atEnd());
-        BOOST_TEST(lineParser.parseNext(token));
-        BOOST_CHECK_EQUAL(std::string("코딩"), token);
+        BOOST_TEST_REQUIRE(!lineParser.atEnd());
+        BOOST_TEST_REQUIRE(lineParser.parseNext(token));
+        BOOST_REQUIRE_EQUAL(std::string("코딩"), token);
 
-        BOOST_TEST(lineParser.atEnd());
-        BOOST_TEST(!lineParser.parseNext(token));
+        BOOST_TEST_REQUIRE(lineParser.atEnd());
+        BOOST_TEST_REQUIRE(!lineParser.parseNext(token));
     }
 }
 

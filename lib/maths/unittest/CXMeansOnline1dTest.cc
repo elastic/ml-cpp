@@ -83,22 +83,22 @@ BOOST_AUTO_TEST_CASE(testCluster) {
     LOG_DEBUG(<< "expected count  = " << expectedCount);
     LOG_DEBUG(<< "expected centre = " << expectedCentre);
     LOG_DEBUG(<< "expected spread = " << expectedSpread);
-    BOOST_CHECK_EQUAL(expectedCount, cluster.count());
-    BOOST_CHECK_CLOSE_ABSOLUTE(expectedCentre, cluster.centre(), 5e-7);
-    BOOST_CHECK_CLOSE_ABSOLUTE(expectedSpread, cluster.spread(), 0.05 * expectedSpread);
-    BOOST_CHECK_EQUAL(1.0, cluster.weight(maths_t::E_ClustersEqualWeight));
-    BOOST_CHECK_EQUAL(expectedCount, cluster.weight(maths_t::E_ClustersFractionWeight));
+    BOOST_REQUIRE_EQUAL(expectedCount, cluster.count());
+    BOOST_REQUIRE_CLOSE_ABSOLUTE(expectedCentre, cluster.centre(), 5e-7);
+    BOOST_REQUIRE_CLOSE_ABSOLUTE(expectedSpread, cluster.spread(), 0.05 * expectedSpread);
+    BOOST_REQUIRE_EQUAL(1.0, cluster.weight(maths_t::E_ClustersEqualWeight));
+    BOOST_REQUIRE_EQUAL(expectedCount, cluster.weight(maths_t::E_ClustersFractionWeight));
 
     cluster.propagateForwardsByTime(5.0);
     LOG_DEBUG(<< "centre = " << cluster.centre());
     LOG_DEBUG(<< "spread = " << cluster.spread());
     LOG_DEBUG(<< "count  = " << cluster.count());
     LOG_DEBUG(<< "weight = " << cluster.weight(maths_t::E_ClustersFractionWeight));
-    BOOST_TEST(cluster.count() < expectedCount);
-    BOOST_CHECK_CLOSE_ABSOLUTE(expectedCentre, cluster.centre(), 5e-7);
-    BOOST_TEST(cluster.spread() > expectedSpread);
-    BOOST_CHECK_EQUAL(1.0, cluster.weight(maths_t::E_ClustersEqualWeight));
-    BOOST_TEST(cluster.weight(maths_t::E_ClustersFractionWeight) < expectedCount);
+    BOOST_TEST_REQUIRE(cluster.count() < expectedCount);
+    BOOST_REQUIRE_CLOSE_ABSOLUTE(expectedCentre, cluster.centre(), 5e-7);
+    BOOST_TEST_REQUIRE(cluster.spread() > expectedSpread);
+    BOOST_REQUIRE_EQUAL(1.0, cluster.weight(maths_t::E_ClustersEqualWeight));
+    BOOST_TEST_REQUIRE(cluster.weight(maths_t::E_ClustersFractionWeight) < expectedCount);
 
     maths::CBasicStatistics::SSampleMeanVar<double>::TAccumulator percentileError;
     std::sort(values.begin(), values.end());
@@ -109,11 +109,11 @@ BOOST_AUTO_TEST_CASE(testCluster) {
         LOG_DEBUG(<< p << " percentile = " << cluster.percentile(p));
         LOG_DEBUG(<< p << " expected percentile = " << expectedPercentile);
         double error = std::fabs(cluster.percentile(p) - expectedPercentile);
-        BOOST_TEST(error < 0.5);
+        BOOST_TEST_REQUIRE(error < 0.5);
         percentileError.add(error / expectedPercentile);
     }
     LOG_DEBUG(<< "mean error = " << maths::CBasicStatistics::mean(percentileError));
-    BOOST_TEST(maths::CBasicStatistics::mean(percentileError) < 0.1);
+    BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(percentileError) < 0.1);
 
     TDoubleVec samples;
     cluster.sample(10, 0.0, 5.0, samples);
@@ -127,10 +127,10 @@ BOOST_AUTO_TEST_CASE(testCluster) {
     double sampleSpread = std::sqrt(maths::CBasicStatistics::variance(sampleMoments));
     LOG_DEBUG(<< "sample centre = " << sampleCentre);
     LOG_DEBUG(<< "sample spread = " << sampleSpread);
-    BOOST_CHECK_CLOSE_ABSOLUTE(cluster.centre(), sampleCentre, 0.02);
-    BOOST_CHECK_CLOSE_ABSOLUTE(cluster.spread(), sampleSpread, 0.2);
+    BOOST_REQUIRE_CLOSE_ABSOLUTE(cluster.centre(), sampleCentre, 0.02);
+    BOOST_REQUIRE_CLOSE_ABSOLUTE(cluster.spread(), sampleSpread, 0.2);
 
-    BOOST_CHECK_CLOSE_ABSOLUTE(
+    BOOST_REQUIRE_CLOSE_ABSOLUTE(
         std::log(cluster.count()),
         -cluster.logLikelihoodFromCluster(maths_t::E_ClustersEqualWeight, 1.5) +
             cluster.logLikelihoodFromCluster(maths_t::E_ClustersFractionWeight, 1.5),
@@ -148,7 +148,7 @@ BOOST_AUTO_TEST_CASE(testCluster) {
 
     // Restore the XML into a new filter
     core::CRapidXmlParser parser;
-    BOOST_TEST(parser.parseStringIgnoreCdata(origXml));
+    BOOST_TEST_REQUIRE(parser.parseStringIgnoreCdata(origXml));
     core::CRapidXmlStateRestoreTraverser traverser(parser);
 
     maths::CXMeansOnline1d::CCluster restoredCluster(clusterer);
@@ -157,7 +157,7 @@ BOOST_AUTO_TEST_CASE(testCluster) {
         maths::MINIMUM_CLUSTER_SPLIT_COUNT, maths::MINIMUM_CATEGORY_COUNT);
     restore(params, traverser, restoredCluster);
     uint64_t restoredChecksum = restoredCluster.checksum(0);
-    BOOST_CHECK_EQUAL(origChecksum, restoredChecksum);
+    BOOST_REQUIRE_EQUAL(origChecksum, restoredChecksum);
 
     double x2[] = {10.3, 10.6, 10.7, 9.8, 11.2, 11.0};
     double c2[] = {2.0, 1.0, 1.0, 2.0, 2.0, 1.0};
@@ -167,15 +167,15 @@ BOOST_AUTO_TEST_CASE(testCluster) {
     maths::CXMeansOnline1d::TOptionalClusterClusterPr split =
         cluster.split(maths::CAvailableModeDistributions::ALL, 5.0, 0.0,
                       std::make_pair(0.0, 15.0), clusterer.indexGenerator());
-    BOOST_TEST(split);
+    BOOST_TEST_REQUIRE(split);
     LOG_DEBUG(<< "left centre  = " << split->first.centre());
     LOG_DEBUG(<< "left spread  = " << split->first.spread());
     LOG_DEBUG(<< "right centre = " << split->second.centre());
     LOG_DEBUG(<< "right spread = " << split->second.spread());
-    BOOST_CHECK_CLOSE_ABSOLUTE(2.4, split->first.centre(), 0.05);
-    BOOST_CHECK_CLOSE_ABSOLUTE(1.1, split->first.spread(), 0.1);
-    BOOST_CHECK_CLOSE_ABSOLUTE(10.5, split->second.centre(), 0.05);
-    BOOST_CHECK_CLOSE_ABSOLUTE(0.6, split->second.spread(), 0.1);
+    BOOST_REQUIRE_CLOSE_ABSOLUTE(2.4, split->first.centre(), 0.05);
+    BOOST_REQUIRE_CLOSE_ABSOLUTE(1.1, split->first.spread(), 0.1);
+    BOOST_REQUIRE_CLOSE_ABSOLUTE(10.5, split->second.centre(), 0.05);
+    BOOST_REQUIRE_CLOSE_ABSOLUTE(0.6, split->second.spread(), 0.1);
 }
 
 BOOST_AUTO_TEST_CASE(testMixtureOfGaussians) {
@@ -254,12 +254,12 @@ BOOST_AUTO_TEST_CASE(testMixtureOfGaussians) {
             LOG_DEBUG(<< "expected = " << core::CContainerPrinter::print(expectedClusters));
 
             LOG_DEBUG(<< "# clusters = " << clusters.size());
-            BOOST_CHECK_EQUAL(std::size_t(3), clusters.size());
+            BOOST_REQUIRE_EQUAL(std::size_t(3), clusters.size());
 
             for (std::size_t j = 0u; j < clusters.size(); ++j) {
-                BOOST_CHECK_CLOSE_ABSOLUTE(maths::CBasicStatistics::mean(expectedClusters[j]),
+                BOOST_REQUIRE_CLOSE_ABSOLUTE(maths::CBasicStatistics::mean(expectedClusters[j]),
                                            clusters[j].centre(), 0.1);
-                BOOST_CHECK_CLOSE_ABSOLUTE(
+                BOOST_REQUIRE_CLOSE_ABSOLUTE(
                     std::sqrt(maths::CBasicStatistics::variance(expectedClusters[j])),
                     clusters[j].spread(), 0.4);
                 meanError += std::fabs(clusters[j].centre() -
@@ -274,8 +274,8 @@ BOOST_AUTO_TEST_CASE(testMixtureOfGaussians) {
         spreadError /= 150.0;
 
         LOG_DEBUG(<< "meanError = " << meanError << ", spreadError = " << spreadError);
-        BOOST_TEST(meanError < 0.012);
-        BOOST_TEST(meanError < 0.013);
+        BOOST_TEST_REQUIRE(meanError < 0.012);
+        BOOST_TEST_REQUIRE(meanError < 0.013);
     }
 
     // Test 2:
@@ -318,10 +318,10 @@ BOOST_AUTO_TEST_CASE(testMixtureOfGaussians) {
         debug(clusters);
         LOG_DEBUG(<< "expected = " << expectedClusters);
 
-        BOOST_CHECK_EQUAL(std::size_t(1), clusters.size());
-        BOOST_CHECK_CLOSE_ABSOLUTE(maths::CBasicStatistics::mean(expectedClusters),
+        BOOST_REQUIRE_EQUAL(std::size_t(1), clusters.size());
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(maths::CBasicStatistics::mean(expectedClusters),
                                    clusters[0].centre(), 0.05);
-        BOOST_CHECK_CLOSE_ABSOLUTE(std::sqrt(maths::CBasicStatistics::variance(expectedClusters)),
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(std::sqrt(maths::CBasicStatistics::variance(expectedClusters)),
                                    clusters[0].spread(), 0.3);
     }
 
@@ -372,11 +372,11 @@ BOOST_AUTO_TEST_CASE(testMixtureOfGaussians) {
 
             debug(clusters);
 
-            BOOST_CHECK_EQUAL(std::size_t(2), clusters.size());
+            BOOST_REQUIRE_EQUAL(std::size_t(2), clusters.size());
             for (std::size_t j = 0u; j < clusters.size(); ++j) {
-                BOOST_CHECK_CLOSE_ABSOLUTE(maths::CBasicStatistics::mean(expectedClusters[j]),
+                BOOST_REQUIRE_CLOSE_ABSOLUTE(maths::CBasicStatistics::mean(expectedClusters[j]),
                                            clusters[j].centre(), 0.4);
-                BOOST_CHECK_CLOSE_ABSOLUTE(
+                BOOST_REQUIRE_CLOSE_ABSOLUTE(
                     std::sqrt(maths::CBasicStatistics::variance(expectedClusters[j])),
                     clusters[j].spread(), 0.3);
                 meanError += std::fabs(clusters[j].centre() -
@@ -391,8 +391,8 @@ BOOST_AUTO_TEST_CASE(testMixtureOfGaussians) {
         spreadError /= 100.0;
 
         LOG_DEBUG(<< "meanError = " << meanError << ", spreadError = " << spreadError);
-        BOOST_TEST(meanError < 0.14);
-        BOOST_TEST(spreadError < 0.11);
+        BOOST_TEST_REQUIRE(meanError < 0.14);
+        BOOST_TEST_REQUIRE(spreadError < 0.11);
     }
 }
 
@@ -442,12 +442,12 @@ BOOST_AUTO_TEST_CASE(testMixtureOfUniforms) {
         debug(clusters);
         LOG_DEBUG(<< "expected = " << core::CContainerPrinter::print(expectedClusters));
         LOG_DEBUG(<< "# clusters = " << clusters.size());
-        BOOST_CHECK_EQUAL(std::size_t(2), clusters.size());
+        BOOST_REQUIRE_EQUAL(std::size_t(2), clusters.size());
 
         for (std::size_t j = 0u; j < clusters.size(); ++j) {
-            BOOST_CHECK_CLOSE_ABSOLUTE(maths::CBasicStatistics::mean(expectedClusters[j]),
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(maths::CBasicStatistics::mean(expectedClusters[j]),
                                        clusters[j].centre(), 0.01);
-            BOOST_CHECK_CLOSE_ABSOLUTE(
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(
                 std::sqrt(maths::CBasicStatistics::variance(expectedClusters[j])),
                 clusters[j].spread(), 0.02);
             meanError += std::fabs(clusters[j].centre() -
@@ -462,8 +462,8 @@ BOOST_AUTO_TEST_CASE(testMixtureOfUniforms) {
     spreadError /= 100.0;
 
     LOG_DEBUG(<< "meanError = " << meanError << ", spreadError = " << spreadError);
-    BOOST_TEST(meanError < 1e-5);
-    BOOST_TEST(spreadError < 0.01);
+    BOOST_TEST_REQUIRE(meanError < 1e-5);
+    BOOST_TEST_REQUIRE(spreadError < 0.01);
 }
 
 BOOST_AUTO_TEST_CASE(testMixtureOfLogNormals) {
@@ -530,14 +530,14 @@ BOOST_AUTO_TEST_CASE(testMixtureOfLogNormals) {
         debug(clusters);
         LOG_DEBUG(<< "expected = " << core::CContainerPrinter::print(expectedClusters));
         LOG_DEBUG(<< "# clusters = " << clusters.size());
-        BOOST_CHECK_EQUAL(std::size_t(2), clusters.size());
+        BOOST_REQUIRE_EQUAL(std::size_t(2), clusters.size());
 
         for (std::size_t j = 0u; j < clusters.size(); ++j) {
-            BOOST_CHECK_CLOSE_ABSOLUTE(
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(
                 maths::CBasicStatistics::mean(expectedClusters[j]), clusters[j].centre(),
                 0.03 * std::max(maths::CBasicStatistics::mean(expectedClusters[j]),
                                 clusters[j].centre()));
-            BOOST_CHECK_CLOSE_ABSOLUTE(
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(
                 std::sqrt(maths::CBasicStatistics::variance(expectedClusters[j])),
                 clusters[j].spread(),
                 0.5 * std::max(std::sqrt(maths::CBasicStatistics::variance(expectedClusters[j])),
@@ -554,8 +554,8 @@ BOOST_AUTO_TEST_CASE(testMixtureOfLogNormals) {
     spreadError /= 100.0;
 
     LOG_DEBUG(<< "meanError = " << meanError << ", spreadError = " << spreadError);
-    BOOST_TEST(meanError < 0.1);
-    BOOST_TEST(spreadError < 0.14);
+    BOOST_TEST_REQUIRE(meanError < 0.1);
+    BOOST_TEST_REQUIRE(spreadError < 0.14);
 }
 
 BOOST_AUTO_TEST_CASE(testOutliers) {
@@ -612,14 +612,14 @@ BOOST_AUTO_TEST_CASE(testOutliers) {
             continue;
 
         n += 1.0;
-        BOOST_CHECK_EQUAL(std::size_t(2), clusters.size());
+        BOOST_REQUIRE_EQUAL(std::size_t(2), clusters.size());
 
         for (std::size_t j = 0u; j < clusters.size(); ++j) {
-            BOOST_CHECK_CLOSE_ABSOLUTE(
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(
                 maths::CBasicStatistics::mean(expectedClusters[j]), clusters[j].centre(),
                 0.01 * std::max(maths::CBasicStatistics::mean(expectedClusters[j]),
                                 clusters[j].centre()));
-            BOOST_CHECK_CLOSE_ABSOLUTE(
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(
                 std::sqrt(maths::CBasicStatistics::variance(expectedClusters[j])),
                 clusters[j].spread(),
                 0.03 * std::max(std::sqrt(maths::CBasicStatistics::variance(expectedClusters[j])),
@@ -638,8 +638,8 @@ BOOST_AUTO_TEST_CASE(testOutliers) {
     LOG_DEBUG(<< "meanError = " << meanError
               << ", spreadError = " << spreadError << ", n = " << n);
 
-    BOOST_TEST(meanError < 0.15);
-    BOOST_TEST(spreadError < 1.0);
+    BOOST_TEST_REQUIRE(meanError < 0.15);
+    BOOST_TEST_REQUIRE(spreadError < 1.0);
 }
 
 BOOST_AUTO_TEST_CASE(testManyClusters) {
@@ -649,10 +649,10 @@ BOOST_AUTO_TEST_CASE(testManyClusters) {
     TTimeDoublePrVec timeseries;
     core_t::TTime startTime;
     core_t::TTime endTime;
-    BOOST_TEST(test::CTimeSeriesTestData::parse(
+    BOOST_TEST_REQUIRE(test::CTimeSeriesTestData::parse(
         "testfiles/times.csv", timeseries, startTime, endTime,
         test::CTimeSeriesTestData::CSV_UNIX_REGEX));
-    BOOST_TEST(!timeseries.empty());
+    BOOST_TEST_REQUIRE(!timeseries.empty());
 
     LOG_DEBUG(<< "timeseries = "
               << core::CContainerPrinter::print(timeseries.begin(), timeseries.begin() + 10)
@@ -675,7 +675,7 @@ BOOST_AUTO_TEST_CASE(testManyClusters) {
 
     const TClusterVec& clusters = clusterer.clusters();
     debug(clusters);
-    BOOST_CHECK_EQUAL(std::size_t(10), clusters.size());
+    BOOST_REQUIRE_EQUAL(std::size_t(10), clusters.size());
 }
 
 BOOST_AUTO_TEST_CASE(testLowVariation) {
@@ -690,7 +690,7 @@ BOOST_AUTO_TEST_CASE(testLowVariation) {
 
     const TClusterVec& clusters = clusterer.clusters();
     debug(clusters);
-    BOOST_CHECK_EQUAL(std::size_t(2), clusters.size());
+    BOOST_REQUIRE_EQUAL(std::size_t(2), clusters.size());
 }
 
 BOOST_AUTO_TEST_CASE(testAdaption) {
@@ -745,14 +745,14 @@ BOOST_AUTO_TEST_CASE(testAdaption) {
 
         const TClusterVec& clusters = clusterer.clusters();
         debug(clusters);
-        BOOST_CHECK_EQUAL(expectedClusters.size(), clusters.size());
+        BOOST_REQUIRE_EQUAL(expectedClusters.size(), clusters.size());
 
         for (std::size_t j = 0u; j < clusters.size(); ++j) {
-            BOOST_CHECK_CLOSE_ABSOLUTE(
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(
                 maths::CBasicStatistics::mean(expectedClusters[j]), clusters[j].centre(),
                 0.01 * std::max(maths::CBasicStatistics::mean(expectedClusters[j]),
                                 clusters[j].centre()));
-            BOOST_CHECK_CLOSE_ABSOLUTE(
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(
                 std::sqrt(maths::CBasicStatistics::variance(expectedClusters[j])),
                 clusters[j].spread(),
                 0.04 * std::max(std::sqrt(maths::CBasicStatistics::variance(expectedClusters[j])),
@@ -802,8 +802,8 @@ BOOST_AUTO_TEST_CASE(testLargeHistory) {
         clusterer.propagateForwardsByTime(1.0);
     }
 
-    BOOST_CHECK_EQUAL(std::size_t(1), reference.clusters().size());
-    BOOST_CHECK_EQUAL(std::size_t(2), clusterer.clusters().size());
+    BOOST_REQUIRE_EQUAL(std::size_t(1), reference.clusters().size());
+    BOOST_REQUIRE_EQUAL(std::size_t(2), clusterer.clusters().size());
 }
 
 BOOST_AUTO_TEST_CASE(testPersist) {
@@ -848,7 +848,7 @@ BOOST_AUTO_TEST_CASE(testPersist) {
         maths_t::E_ContinuousData, 0.15, maths::MINIMUM_CLUSTER_SPLIT_FRACTION,
         maths::MINIMUM_CLUSTER_SPLIT_COUNT, maths::MINIMUM_CATEGORY_COUNT);
     core::CRapidXmlParser parser;
-    BOOST_TEST(parser.parseStringIgnoreCdata(origXml));
+    BOOST_TEST_REQUIRE(parser.parseStringIgnoreCdata(origXml));
     core::CRapidXmlStateRestoreTraverser traverser(parser);
     maths::CXMeansOnline1d restoredClusterer(params, traverser);
 
@@ -860,7 +860,7 @@ BOOST_AUTO_TEST_CASE(testPersist) {
         restoredClusterer.acceptPersistInserter(inserter);
         inserter.toXml(newXml);
     }
-    BOOST_CHECK_EQUAL(origXml, newXml);
+    BOOST_REQUIRE_EQUAL(origXml, newXml);
 }
 
 BOOST_AUTO_TEST_CASE(testPruneEmptyCluster) {
@@ -891,9 +891,9 @@ BOOST_AUTO_TEST_CASE(testPruneEmptyCluster) {
     maths::CXMeansOnline1d::CCluster cluster_empty(clusterer);
     clusterer.m_Clusters.push_back(cluster_empty);
 
-    BOOST_CHECK_EQUAL(std::size_t(4), clusterer.clusters().size());
+    BOOST_REQUIRE_EQUAL(std::size_t(4), clusterer.clusters().size());
     clusterer.prune();
-    BOOST_CHECK_EQUAL(std::size_t(2), clusterer.clusters().size());
+    BOOST_REQUIRE_EQUAL(std::size_t(2), clusterer.clusters().size());
 }
 
 BOOST_AUTO_TEST_SUITE_END()

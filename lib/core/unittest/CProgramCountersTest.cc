@@ -84,9 +84,9 @@ std::string persist(bool shouldCacheCounters = true) {
 
 void restore(const std::string& staticsXml) {
     ml::core::CRapidXmlParser parser;
-    BOOST_TEST(parser.parseStringIgnoreCdata(staticsXml));
+    BOOST_TEST_REQUIRE(parser.parseStringIgnoreCdata(staticsXml));
     ml::core::CRapidXmlStateRestoreTraverser traverser(parser);
-    BOOST_TEST(traverser.traverseSubLevel(&ml::core::CProgramCounters::staticsAcceptRestoreTraverser));
+    BOOST_TEST_REQUIRE(traverser.traverseSubLevel(&ml::core::CProgramCounters::staticsAcceptRestoreTraverser));
 }
 
 BOOST_FIXTURE_TEST_CASE(testCounters, CTestFixture) {
@@ -95,17 +95,17 @@ BOOST_FIXTURE_TEST_CASE(testCounters, CTestFixture) {
     using TCounter = ml::core::CProgramCounters::TCounter;
 
     for (int i = 0; i < CProgramCountersTestRunner::N; ++i) {
-        BOOST_CHECK_EQUAL(TCounter(0), counters.counter(TEST_COUNTER + i));
+        BOOST_REQUIRE_EQUAL(TCounter(0), counters.counter(TEST_COUNTER + i));
     }
 
     ++counters.counter(TEST_COUNTER);
-    BOOST_CHECK_EQUAL(TCounter(1), counters.counter(TEST_COUNTER));
+    BOOST_REQUIRE_EQUAL(TCounter(1), counters.counter(TEST_COUNTER));
     ++counters.counter(TEST_COUNTER);
-    BOOST_CHECK_EQUAL(TCounter(2), counters.counter(TEST_COUNTER));
+    BOOST_REQUIRE_EQUAL(TCounter(2), counters.counter(TEST_COUNTER));
     --counters.counter(TEST_COUNTER);
-    BOOST_CHECK_EQUAL(TCounter(1), counters.counter(TEST_COUNTER));
+    BOOST_REQUIRE_EQUAL(TCounter(1), counters.counter(TEST_COUNTER));
     --counters.counter(TEST_COUNTER);
-    BOOST_CHECK_EQUAL(TCounter(0), counters.counter(TEST_COUNTER));
+    BOOST_REQUIRE_EQUAL(TCounter(0), counters.counter(TEST_COUNTER));
 
     CProgramCountersTestRunner runners[CProgramCountersTestRunner::N * 2];
     for (int i = 0; i < CProgramCountersTestRunner::N * 2; ++i) {
@@ -121,13 +121,13 @@ BOOST_FIXTURE_TEST_CASE(testCounters, CTestFixture) {
     }
 
     for (int i = 0; i < CProgramCountersTestRunner::N; i++) {
-        BOOST_CHECK_EQUAL(TCounter(0), counters.counter(TEST_COUNTER + i));
+        BOOST_REQUIRE_EQUAL(TCounter(0), counters.counter(TEST_COUNTER + i));
     }
 
     for (int i = 0; i < 0x1000000; ++i) {
         ++counters.counter(TEST_COUNTER);
     }
-    BOOST_CHECK_EQUAL(TCounter(0x1000000), counters.counter(TEST_COUNTER));
+    BOOST_REQUIRE_EQUAL(TCounter(0x1000000), counters.counter(TEST_COUNTER));
 }
 
 BOOST_FIXTURE_TEST_CASE(testPersist, CTestFixture) {
@@ -138,12 +138,12 @@ BOOST_FIXTURE_TEST_CASE(testPersist, CTestFixture) {
     ml::core::CProgramCounters& counters = ml::core::CProgramCounters::instance();
 
     // confirm that initially the cache is empty
-    BOOST_CHECK_EQUAL(true, counters.m_Cache.empty());
+    BOOST_REQUIRE_EQUAL(true, counters.m_Cache.empty());
 
     // Set some non-zero values
     for (size_t i = 0; i < ml::counter_t::NUM_COUNTERS; ++i) {
         counters.counter(i) = (567 + (i * 3));
-        BOOST_CHECK_EQUAL(TCounter(567 + (i * 3)), counters.counter(i));
+        BOOST_REQUIRE_EQUAL(TCounter(567 + (i * 3)), counters.counter(i));
     }
 
     // Save this state, without first caching the live values
@@ -155,17 +155,17 @@ BOOST_FIXTURE_TEST_CASE(testPersist, CTestFixture) {
     // we expect the persisted counters without first caching to be the
     // same as those from when we do cache the live values,
     // as persistence uses live values if the cache is not available
-    BOOST_CHECK_EQUAL(newStaticsXml, newStaticsXmlNoCaching);
+    BOOST_REQUIRE_EQUAL(newStaticsXml, newStaticsXmlNoCaching);
 
     // Restore the non-zero state
     restore(newStaticsXml);
 
     for (size_t i = 0; i < ml::counter_t::NUM_COUNTERS; ++i) {
-        BOOST_CHECK_EQUAL(TCounter(567 + (i * 3)), counters.counter(i));
+        BOOST_REQUIRE_EQUAL(TCounter(567 + (i * 3)), counters.counter(i));
     }
 
     // Check that the cache is automatically cleaned up
-    BOOST_TEST(counters.m_Cache.empty());
+    BOOST_TEST_REQUIRE(counters.m_Cache.empty());
 
     // check that the format of the output stream operator is as expected
     std::ostringstream ss;
@@ -182,10 +182,10 @@ BOOST_FIXTURE_TEST_CASE(testPersist, CTestFixture) {
     ml::core::CRegex regex;
     // Look for "name":"E.*"value": 0}
     regex.init(".*\"name\":\"E.*\"value\":.*");
-    BOOST_TEST(tokens.size() > ml::counter_t::NUM_COUNTERS);
+    BOOST_TEST_REQUIRE(tokens.size() > ml::counter_t::NUM_COUNTERS);
     for (size_t i = 0; i < ml::counter_t::NUM_COUNTERS; ++i) {
         LOG_INFO(<< "checking line " << i);
-        BOOST_TEST(regex.matches(tokens[i]));
+        BOOST_TEST_REQUIRE(regex.matches(tokens[i]));
     }
 
     LOG_DEBUG(<< output);
@@ -193,7 +193,7 @@ BOOST_FIXTURE_TEST_CASE(testPersist, CTestFixture) {
     // reset counters to zero values
     for (size_t i = 0; i < ml::counter_t::NUM_COUNTERS; ++i) {
         counters.counter(i) = 0;
-        BOOST_CHECK_EQUAL(TCounter(0), counters.counter(i));
+        BOOST_REQUIRE_EQUAL(TCounter(0), counters.counter(i));
     }
     // Test persistence/restoration of a subset  of counters
     auto testCounterSubset = [&](const ml::counter_t::TCounterTypeSet& counterSet) {
@@ -205,7 +205,7 @@ BOOST_FIXTURE_TEST_CASE(testPersist, CTestFixture) {
         for (const auto& counterType : counterSet) {
             size_t value = static_cast<size_t>(counterType);
             counters.counter(counterType) = (567 + (value * 3));
-            BOOST_CHECK_EQUAL(TCounter(567 + (value * 3)), counters.counter(counterType));
+            BOOST_REQUIRE_EQUAL(TCounter(567 + (value * 3)), counters.counter(counterType));
         }
 
         // Save the state after updating the cache
@@ -214,7 +214,7 @@ BOOST_FIXTURE_TEST_CASE(testPersist, CTestFixture) {
         // reset to zero values
         for (size_t i = 0; i < ml::counter_t::NUM_COUNTERS; ++i) {
             counters.counter(i) = 0;
-            BOOST_CHECK_EQUAL(TCounter(0), counters.counter(i));
+            BOOST_REQUIRE_EQUAL(TCounter(0), counters.counter(i));
         }
 
         // Restore the non-zero state
@@ -225,9 +225,9 @@ BOOST_FIXTURE_TEST_CASE(testPersist, CTestFixture) {
             const auto& itr =
                 counterSet.find(static_cast<ml::counter_t::ECounterTypes>(i));
             if (itr != counterSet.end()) {
-                BOOST_CHECK_EQUAL(TCounter(567 + (i * 3)), counters.counter(i));
+                BOOST_REQUIRE_EQUAL(TCounter(567 + (i * 3)), counters.counter(i));
             } else {
-                BOOST_CHECK_EQUAL(TCounter(0), counters.counter(i));
+                BOOST_REQUIRE_EQUAL(TCounter(0), counters.counter(i));
             }
         }
 
@@ -275,7 +275,7 @@ BOOST_FIXTURE_TEST_CASE(testPersist, CTestFixture) {
     const std::string outputOrder2 = testCounterSubset(counterSetOrder2);
 
     // check that the order in which the counters are given doesn't affect the order in which they are printed
-    BOOST_CHECK_EQUAL(outputOrder1, outputOrder2);
+    BOOST_REQUIRE_EQUAL(outputOrder1, outputOrder2);
 }
 
 BOOST_FIXTURE_TEST_CASE(testUnknownCounter, CTestFixture) {
@@ -287,7 +287,7 @@ BOOST_FIXTURE_TEST_CASE(testUnknownCounter, CTestFixture) {
 
     std::remove(logFile);
     // start logging to a file at level WARN
-    BOOST_TEST(ml::core::CLogger::instance().reconfigureFromFile(
+    BOOST_TEST_REQUIRE(ml::core::CLogger::instance().reconfigureFromFile(
         "testfiles/testLogWarnings.boost.log.ini"));
 
     // Attempt to access a counter at an unknown/invalid index
@@ -297,13 +297,13 @@ BOOST_FIXTURE_TEST_CASE(testUnknownCounter, CTestFixture) {
     ml::core::CLogger::instance().reset();
 
     std::ifstream log(logFile);
-    BOOST_TEST(log.is_open());
+    BOOST_TEST_REQUIRE(log.is_open());
     ml::core::CRegex regex;
-    BOOST_TEST(regex.init(".*Bad index.*"));
+    BOOST_TEST_REQUIRE(regex.init(".*Bad index.*"));
     std::string line;
     while (std::getline(log, line)) {
         LOG_INFO(<< "Got '" << line << "'");
-        BOOST_TEST(regex.matches(line));
+        BOOST_TEST_REQUIRE(regex.matches(line));
     }
     log.close();
     std::remove(logFile);
@@ -339,11 +339,11 @@ BOOST_FIXTURE_TEST_CASE(testMissingCounter, CTestFixture) {
     // We expect to see the restored counters having expected values and all other should have value 0
     for (size_t i = 0; i < ml::counter_t::NUM_COUNTERS; ++i) {
         if (i == 0) {
-            BOOST_CHECK_EQUAL(TCounter(618), counters.counter(0));
+            BOOST_REQUIRE_EQUAL(TCounter(618), counters.counter(0));
         } else if (i == 18) {
-            BOOST_CHECK_EQUAL(TCounter(621), counters.counter(18));
+            BOOST_REQUIRE_EQUAL(TCounter(621), counters.counter(18));
         } else {
-            BOOST_CHECK_EQUAL(TCounter(0), counters.counter(i));
+            BOOST_REQUIRE_EQUAL(TCounter(0), counters.counter(i));
         }
     }
 }
@@ -352,7 +352,7 @@ BOOST_FIXTURE_TEST_CASE(testCacheCounters, CTestFixture) {
     ml::core::CProgramCounters& counters = ml::core::CProgramCounters::instance();
 
     // confirm that initially the cache is empty
-    BOOST_CHECK_EQUAL(true, counters.m_Cache.empty());
+    BOOST_REQUIRE_EQUAL(true, counters.m_Cache.empty());
 
     // populate non-zero live counters
     for (size_t i = 0; i < ml::counter_t::NUM_COUNTERS; ++i) {
@@ -362,13 +362,13 @@ BOOST_FIXTURE_TEST_CASE(testCacheCounters, CTestFixture) {
     // copy the live values to the cache
     counters.cacheCounters();
 
-    BOOST_CHECK_EQUAL(false, counters.m_Cache.empty());
+    BOOST_REQUIRE_EQUAL(false, counters.m_Cache.empty());
 
     // check that the cached and live counters match and that the values are as expected
     for (size_t i = 0; i < ml::counter_t::NUM_COUNTERS; ++i) {
-        BOOST_CHECK_EQUAL(static_cast<std::uint64_t>(counters.counter(i)),
+        BOOST_REQUIRE_EQUAL(static_cast<std::uint64_t>(counters.counter(i)),
                           counters.m_Cache[i]);
-        BOOST_CHECK_EQUAL(std::uint64_t(i + 1), counters.m_Cache[i]);
+        BOOST_REQUIRE_EQUAL(std::uint64_t(i + 1), counters.m_Cache[i]);
     }
 
     // Take a local copy of the cached counters
@@ -381,8 +381,8 @@ BOOST_FIXTURE_TEST_CASE(testCacheCounters, CTestFixture) {
 
     // compare with the cached values, they should have not changed
     for (size_t i = 0; i < ml::counter_t::NUM_COUNTERS; ++i) {
-        BOOST_CHECK_EQUAL(std::uint64_t(1), counters.counter(i) - counters.m_Cache[i]);
-        BOOST_CHECK_EQUAL(origCache[i], counters.m_Cache[i]);
+        BOOST_REQUIRE_EQUAL(std::uint64_t(1), counters.counter(i) - counters.m_Cache[i]);
+        BOOST_REQUIRE_EQUAL(origCache[i], counters.m_Cache[i]);
     }
 }
 
@@ -414,7 +414,7 @@ BOOST_FIXTURE_TEST_CASE(testMax, CTestFixture) {
     std::size_t expected{std::max(m1, m2)};
     std::size_t actual{ml::core::CProgramCounters::counter(
         ml::counter_t::E_DFOEstimatedPeakMemoryUsage)};
-    BOOST_CHECK_EQUAL(expected, actual);
+    BOOST_REQUIRE_EQUAL(expected, actual);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

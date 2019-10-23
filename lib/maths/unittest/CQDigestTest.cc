@@ -46,9 +46,9 @@ BOOST_AUTO_TEST_CASE(testAdd) {
 
         LOG_DEBUG(<< qDigest.print());
 
-        BOOST_TEST(qDigest.checkInvariants());
+        BOOST_TEST_REQUIRE(qDigest.checkInvariants());
 
-        BOOST_CHECK_EQUAL(std::string("50 | 10 | { \"[5,5],50,50\" \"[0,7],0,50\" }"),
+        BOOST_REQUIRE_EQUAL(std::string("50 | 10 | { \"[5,5],50,50\" \"[0,7],0,50\" }"),
                           qDigest.print());
     }
 
@@ -69,9 +69,9 @@ BOOST_AUTO_TEST_CASE(testAdd) {
 
             LOG_DEBUG(<< qDigest.print());
 
-            BOOST_TEST(qDigest.checkInvariants());
+            BOOST_TEST_REQUIRE(qDigest.checkInvariants());
 
-            BOOST_CHECK_EQUAL(expectedDigests[i], qDigest.print());
+            BOOST_REQUIRE_EQUAL(expectedDigests[i], qDigest.print());
         }
     }
 
@@ -98,7 +98,7 @@ BOOST_AUTO_TEST_CASE(testAdd) {
             qDigest.add(sample);
             orderedSamples.insert(sample);
 
-            BOOST_TEST(qDigest.checkInvariants());
+            BOOST_TEST_REQUIRE(qDigest.checkInvariants());
 
             double n = static_cast<double>(i + 1u);
 
@@ -120,7 +120,7 @@ BOOST_AUTO_TEST_CASE(testAdd) {
                                   << ", error " << error);
                     }
 
-                    BOOST_TEST(std::fabs(error) < 0.06);
+                    BOOST_TEST_REQUIRE(std::fabs(error) < 0.06);
 
                     totalErrors[j - 1u] += error;
                 }
@@ -134,7 +134,7 @@ BOOST_AUTO_TEST_CASE(testAdd) {
         LOG_DEBUG(<< "total errors = " << core::CContainerPrinter::print(totalErrors));
 
         for (size_t i = 0; i < boost::size(totalErrors); ++i) {
-            BOOST_TEST(totalErrors[i] < expectedMaxErrors[i]);
+            BOOST_TEST_REQUIRE(totalErrors[i] < expectedMaxErrors[i]);
         }
     }
 }
@@ -176,8 +176,8 @@ BOOST_AUTO_TEST_CASE(testCdf) {
 
         double fx = static_cast<double>(summary[i].second) / 100.0;
 
-        BOOST_TEST(fx >= lowerBound);
-        BOOST_TEST(fx <= upperBound);
+        BOOST_TEST_REQUIRE(fx >= lowerBound);
+        BOOST_TEST_REQUIRE(fx <= upperBound);
     }
 
     for (/**/; s < samples.size(); ++s) {
@@ -202,10 +202,10 @@ BOOST_AUTO_TEST_CASE(testCdf) {
         LOG_DEBUG(<< "x = " << summary[i].first << ", F(x) = " << ft
                   << ", F(x) >= " << lowerBound << ", F(x) <= " << upperBound);
 
-        BOOST_TEST(fx >= lowerBound);
-        BOOST_TEST(fx <= upperBound);
-        BOOST_TEST(ft >= lowerBound - 0.01);
-        BOOST_TEST(ft <= upperBound + 0.01);
+        BOOST_TEST_REQUIRE(fx >= lowerBound);
+        BOOST_TEST_REQUIRE(fx <= upperBound);
+        BOOST_TEST_REQUIRE(ft >= lowerBound - 0.01);
+        BOOST_TEST_REQUIRE(ft <= upperBound + 0.01);
     }
 }
 
@@ -223,7 +223,7 @@ BOOST_AUTO_TEST_CASE(testSummary) {
             qDigest.add(sample);
         }
 
-        BOOST_TEST(qDigest.checkInvariants());
+        BOOST_TEST_REQUIRE(qDigest.checkInvariants());
 
         TUInt32UInt64PrVec summary;
         qDigest.summary(summary);
@@ -238,7 +238,7 @@ BOOST_AUTO_TEST_CASE(testSummary) {
             LOG_DEBUG(<< "q = " << q << ", x(q) = " << summary[i].first
                       << ", expected x(q) = " << xq);
 
-            BOOST_CHECK_EQUAL(xq, summary[i].first);
+            BOOST_REQUIRE_EQUAL(xq, summary[i].first);
         }
     }
 
@@ -251,7 +251,7 @@ BOOST_AUTO_TEST_CASE(testSummary) {
         TUInt32UInt64PrVec summary;
         qDigest.summary(summary);
 
-        BOOST_CHECK_EQUAL(std::string("[(3, 1)]"), core::CContainerPrinter::print(summary));
+        BOOST_REQUIRE_EQUAL(std::string("[(3, 1)]"), core::CContainerPrinter::print(summary));
     }
 
     // Edge case: non-zero count at the root.
@@ -266,7 +266,7 @@ BOOST_AUTO_TEST_CASE(testSummary) {
         TUInt32UInt64PrVec summary;
         qDigest.summary(summary);
 
-        BOOST_CHECK_EQUAL(std::string("[(0, 3), (7, 4)]"),
+        BOOST_REQUIRE_EQUAL(std::string("[(0, 3), (7, 4)]"),
                           core::CContainerPrinter::print(summary));
     }
 }
@@ -295,9 +295,9 @@ BOOST_AUTO_TEST_CASE(testPropagateForwardByTime) {
         LOG_DEBUG(<< "Before propagation " << qDigest.print());
         qDigest.propagateForwardsByTime(-std::log(0.9));
         LOG_DEBUG(<< "After propagation " << qDigest.print());
-        BOOST_TEST(qDigest.checkInvariants());
+        BOOST_TEST_REQUIRE(qDigest.checkInvariants());
 
-        BOOST_CHECK_EQUAL(std::string("90 | 10 | { \"[0,0],18,18\" \"[1,1],18,18\" \"[2,2],9,9\""
+        BOOST_REQUIRE_EQUAL(std::string("90 | 10 | { \"[0,0],18,18\" \"[1,1],18,18\" \"[2,2],9,9\""
                                       " \"[3,3],9,9\" \"[5,5],9,9\" \"[7,7],9,9\" \"[8,8],9,9\""
                                       " \"[15,15],9,9\" \"[0,15],0,90\" }"),
                           qDigest.print());
@@ -331,7 +331,7 @@ BOOST_AUTO_TEST_CASE(testPropagateForwardByTime) {
         boost::math::normal_distribution<> normal(mean, std);
         for (double x = mean - 5.0 * std; x <= mean + 5 * std; x += 5.0) {
             double lb, ub;
-            BOOST_TEST(qDigest.cdf(static_cast<uint32_t>(x), 0.0, lb, ub));
+            BOOST_TEST_REQUIRE(qDigest.cdf(static_cast<uint32_t>(x), 0.0, lb, ub));
             cdfLower.push_back(lb);
             double f = boost::math::cdf(normal, x);
             cdfUpper.push_back(ub);
@@ -341,33 +341,33 @@ BOOST_AUTO_TEST_CASE(testPropagateForwardByTime) {
         intrinsicError = CBasicStatistics::mean(error);
 
         qDigest.propagateForwardsByTime(1.0);
-        BOOST_TEST(qDigest.checkInvariants());
+        BOOST_TEST_REQUIRE(qDigest.checkInvariants());
 
         uint64_t nAged = qDigest.n();
         LOG_DEBUG(<< "nAged = " << nAged);
 
-        BOOST_CHECK_CLOSE_ABSOLUTE(0.001, double(n - nAged) / double(n), 5e-4);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(0.001, double(n - nAged) / double(n), 5e-4);
 
         TDoubleVec cdfLowerAged;
         TDoubleVec cdfUpperAged;
         for (double x = mean - 5.0 * std; x <= mean + 5 * std; x += 5.0) {
             double lb, ub;
-            BOOST_TEST(qDigest.cdf(static_cast<uint32_t>(x), 0.0, lb, ub));
+            BOOST_TEST_REQUIRE(qDigest.cdf(static_cast<uint32_t>(x), 0.0, lb, ub));
             cdfLowerAged.push_back(lb);
             cdfUpperAged.push_back(ub);
         }
 
         TMeanAccumlator diff;
         for (std::size_t i = 0; i < cdfLower.size(); ++i) {
-            BOOST_CHECK_CLOSE_ABSOLUTE(cdfLower[i], cdfLowerAged[i],
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(cdfLower[i], cdfLowerAged[i],
                                        std::min(5e-5, 2e-3 * cdfLower[i]));
-            BOOST_CHECK_CLOSE_ABSOLUTE(cdfUpper[i], cdfUpperAged[i],
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(cdfUpper[i], cdfUpperAged[i],
                                        std::min(5e-5, 2e-3 * cdfUpper[i]));
             diff.add(std::fabs(cdfLower[i] - cdfLowerAged[i]));
             diff.add(std::fabs(cdfUpper[i] - cdfUpperAged[i]));
         }
         LOG_DEBUG(<< "diff = " << CBasicStatistics::mean(diff));
-        BOOST_TEST(CBasicStatistics::mean(diff) < 1e-5);
+        BOOST_TEST_REQUIRE(CBasicStatistics::mean(diff) < 1e-5);
     }
 
     {
@@ -398,16 +398,16 @@ BOOST_AUTO_TEST_CASE(testPropagateForwardByTime) {
         boost::math::normal_distribution<> normal(mean, std);
         for (double x = mean - 5.0 * std; x <= mean + 5 * std; x += 5.0) {
             double lb, ub;
-            BOOST_TEST(qDigest.cdf(static_cast<uint32_t>(x), 0.0, lb, ub));
+            BOOST_TEST_REQUIRE(qDigest.cdf(static_cast<uint32_t>(x), 0.0, lb, ub));
             double f = boost::math::cdf(normal, x);
-            BOOST_TEST(lb <= f);
-            BOOST_TEST(ub >= f);
-            BOOST_CHECK_CLOSE_ABSOLUTE(f, (lb + ub) / 2.0, 0.015);
+            BOOST_TEST_REQUIRE(lb <= f);
+            BOOST_TEST_REQUIRE(ub >= f);
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(f, (lb + ub) / 2.0, 0.015);
             error.add(std::fabs(f - (lb + ub) / 2.0));
         }
         LOG_DEBUG(<< "error = " << CBasicStatistics::mean(error));
-        BOOST_TEST(CBasicStatistics::mean(error) < 0.006);
-        BOOST_TEST(CBasicStatistics::mean(error) < 1.5 * intrinsicError);
+        BOOST_TEST_REQUIRE(CBasicStatistics::mean(error) < 0.006);
+        BOOST_TEST_REQUIRE(CBasicStatistics::mean(error) < 1.5 * intrinsicError);
     }
 }
 
@@ -431,9 +431,9 @@ BOOST_AUTO_TEST_CASE(testScale) {
         LOG_DEBUG(<< "Before scaling " << qDigest.print());
         qDigest.scale(3.0);
         LOG_DEBUG(<< "After scaling " << qDigest.print());
-        BOOST_TEST(qDigest.checkInvariants());
+        BOOST_TEST_REQUIRE(qDigest.checkInvariants());
 
-        BOOST_CHECK_EQUAL(std::string("100 | 10 | { \"[0,0],20,20\" \"[3,3],20,20\" \"[6,6],10,10\""
+        BOOST_REQUIRE_EQUAL(std::string("100 | 10 | { \"[0,0],20,20\" \"[3,3],20,20\" \"[6,6],10,10\""
                                       " \"[9,9],10,10\" \"[15,15],10,10\" \"[21,21],10,10\" \"[24,24],10,10\""
                                       " \"[45,45],10,10\" \"[0,63],0,100\" }"),
                           qDigest.print());
@@ -453,13 +453,13 @@ BOOST_AUTO_TEST_CASE(testScale) {
         }
 
         LOG_DEBUG(<< "After adding more values " << qDigest.print());
-        BOOST_TEST(qDigest.checkInvariants());
+        BOOST_TEST_REQUIRE(qDigest.checkInvariants());
 
         // Add a new value that will expand the root
         qDigest.add(65);
 
         LOG_DEBUG(<< "After expanding root " << qDigest.print());
-        BOOST_TEST(qDigest.checkInvariants());
+        BOOST_TEST_REQUIRE(qDigest.checkInvariants());
     }
 
     {
@@ -485,7 +485,7 @@ BOOST_AUTO_TEST_CASE(testScale) {
             }
 
             qDigest.scale(scales[i]);
-            BOOST_CHECK_EQUAL(qDigestScaled.n(), qDigest.n());
+            BOOST_REQUIRE_EQUAL(qDigestScaled.n(), qDigest.n());
 
             double maxType1 = 0.0;
             double totalType1 = 0.0;
@@ -517,10 +517,10 @@ BOOST_AUTO_TEST_CASE(testScale) {
             LOG_DEBUG(<< "totalType1 = " << totalType1);
             LOG_DEBUG(<< "maxType2 = " << maxType2);
             LOG_DEBUG(<< "totalType2 = " << totalType2);
-            BOOST_TEST(maxType1 < maxMaxType1[i]);
-            BOOST_TEST(totalType1 < maxTotalType1[i]);
-            BOOST_TEST(maxType2 < maxMaxType2[i]);
-            BOOST_TEST(totalType2 < maxTotalType2[i]);
+            BOOST_TEST_REQUIRE(maxType1 < maxMaxType1[i]);
+            BOOST_TEST_REQUIRE(totalType1 < maxTotalType1[i]);
+            BOOST_TEST_REQUIRE(maxType2 < maxMaxType2[i]);
+            BOOST_TEST_REQUIRE(totalType2 < maxTotalType2[i]);
         }
     }
 }
@@ -553,14 +553,14 @@ BOOST_AUTO_TEST_CASE(testPersist) {
     CQDigest restoredQDigest(100u);
     {
         core::CRapidXmlParser parser;
-        BOOST_TEST(parser.parseStringIgnoreCdata(origXml));
+        BOOST_TEST_REQUIRE(parser.parseStringIgnoreCdata(origXml));
         core::CRapidXmlStateRestoreTraverser traverser(parser);
-        BOOST_TEST(traverser.traverseSubLevel(std::bind(
+        BOOST_TEST_REQUIRE(traverser.traverseSubLevel(std::bind(
             &CQDigest::acceptRestoreTraverser, &restoredQDigest, std::placeholders::_1)));
     }
 
-    BOOST_TEST(restoredQDigest.checkInvariants());
-    BOOST_CHECK_EQUAL(origQDigest.print(), restoredQDigest.print());
+    BOOST_TEST_REQUIRE(restoredQDigest.checkInvariants());
+    BOOST_REQUIRE_EQUAL(origQDigest.print(), restoredQDigest.print());
 
     // The XML representation of the new filter should be the same as the original
     std::string newXml;
@@ -569,7 +569,7 @@ BOOST_AUTO_TEST_CASE(testPersist) {
         restoredQDigest.acceptPersistInserter(inserter);
         inserter.toXml(newXml);
     }
-    BOOST_CHECK_EQUAL(origXml, newXml);
+    BOOST_REQUIRE_EQUAL(origXml, newXml);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

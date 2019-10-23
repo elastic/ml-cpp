@@ -96,12 +96,12 @@ BOOST_AUTO_TEST_CASE(testGenerateProjections) {
     {
 
         CRandomProjectionClustererForTest<5> clusterer;
-        BOOST_TEST(clusterer.initialise(5, 3));
+        BOOST_TEST_REQUIRE(clusterer.initialise(5, 3));
 
         const TVectorArrayVec& projections = clusterer.projections();
         LOG_DEBUG(<< "projections = " << core::CContainerPrinter::print(projections));
 
-        BOOST_CHECK_EQUAL(std::string("[[[1 0 0], [0 1 0], [0 0 1], [0 0 0], [0 0 0]]]"),
+        BOOST_REQUIRE_EQUAL(std::string("[[[1 0 0], [0 1 0], [0 0 1], [0 0 0], [0 0 0]]]"),
                           core::CContainerPrinter::print(projections));
     }
 
@@ -115,18 +115,18 @@ BOOST_AUTO_TEST_CASE(testGenerateProjections) {
 
         CRandomProjectionClustererForTest<5> clusterer;
 
-        BOOST_TEST(clusterer.initialise(6, t));
+        BOOST_TEST_REQUIRE(clusterer.initialise(6, t));
 
         const TVectorArrayVec& projections = clusterer.projections();
-        BOOST_CHECK_EQUAL(std::size_t(6), projections.size());
+        BOOST_REQUIRE_EQUAL(std::size_t(6), projections.size());
 
         for (std::size_t i = 0u; i < projections.size(); ++i) {
             for (std::size_t j = 0u; j < 5; ++j) {
-                BOOST_CHECK_CLOSE_ABSOLUTE(
+                BOOST_REQUIRE_CLOSE_ABSOLUTE(
                     1.0, projections[i][j].inner(projections[i][j]), 1e-10);
 
                 for (std::size_t k = j + 1; k < 5; ++k) {
-                    BOOST_CHECK_CLOSE_ABSOLUTE(
+                    BOOST_REQUIRE_CLOSE_ABSOLUTE(
                         0.0, projections[i][j].inner(projections[i][k]), 1e-10);
                 }
             }
@@ -147,10 +147,10 @@ BOOST_AUTO_TEST_CASE(testGenerateProjections) {
         LOG_DEBUG(<< "Expected variance = " << 1.0 / static_cast<double>(t));
         LOG_DEBUG(<< "Actual variance   = " << maths::CBasicStatistics::variance(moments));
 
-        BOOST_CHECK_CLOSE_ABSOLUTE(0.0, maths::CBasicStatistics::mean(moments),
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(0.0, maths::CBasicStatistics::mean(moments),
                                    1.0 / static_cast<double>(t));
 
-        BOOST_CHECK_CLOSE_ABSOLUTE(1.0 / static_cast<double>(t),
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(1.0 / static_cast<double>(t),
                                    maths::CBasicStatistics::variance(moments),
                                    0.2 / static_cast<double>(t));
 
@@ -160,7 +160,7 @@ BOOST_AUTO_TEST_CASE(testGenerateProjections) {
     }
 
     LOG_DEBUG(<< "Relative error = " << 100.0 * maths::CBasicStatistics::mean(error) << "%");
-    BOOST_TEST(maths::CBasicStatistics::mean(error) < 0.06);
+    BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(error) < 0.06);
 }
 
 BOOST_AUTO_TEST_CASE(testClusterProjections) {
@@ -240,10 +240,10 @@ BOOST_AUTO_TEST_CASE(testClusterProjections) {
         maths::forRandomProjectionClusterer(maths::CKMeans<TVector5>(), 2, 5),
         weights_, means, covariances, samples);
 
-    BOOST_CHECK_EQUAL(std::size_t(4), weights_.size());
-    BOOST_CHECK_EQUAL(std::size_t(4), means.size());
-    BOOST_CHECK_EQUAL(std::size_t(4), covariances.size());
-    BOOST_TEST(samples.size() >= std::size_t(8));
+    BOOST_REQUIRE_EQUAL(std::size_t(4), weights_.size());
+    BOOST_REQUIRE_EQUAL(std::size_t(4), means.size());
+    BOOST_REQUIRE_EQUAL(std::size_t(4), covariances.size());
+    BOOST_TEST_REQUIRE(samples.size() >= std::size_t(8));
 
     TDoubleVec weights(2, 0.0);
     for (std::size_t i = 0u; i < 4; ++i) {
@@ -255,9 +255,9 @@ BOOST_AUTO_TEST_CASE(testClusterProjections) {
     LOG_DEBUG(<< "weights = " << core::CContainerPrinter::print(weights));
     LOG_DEBUG(<< "means   = " << core::CContainerPrinter::print(means));
 
-    BOOST_CHECK_EQUAL(core::CContainerPrinter::print(expectedWeights),
+    BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(expectedWeights),
                       core::CContainerPrinter::print(weights));
-    BOOST_CHECK_EQUAL(core::CContainerPrinter::print(expectedMeans),
+    BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(expectedMeans),
                       core::CContainerPrinter::print(means));
 }
 
@@ -344,11 +344,11 @@ BOOST_AUTO_TEST_CASE(testNeighbourhoods) {
             expectedNeighbourhoods[i].begin(), expectedNeighbourhoods[i].end());
         LOG_DEBUG(<< "jaccard = " << jaccard);
         meanJaccard.add(jaccard, static_cast<double>(expectedNeighbourhoods[i].size()));
-        BOOST_TEST(jaccard > 0.1);
+        BOOST_TEST_REQUIRE(jaccard > 0.1);
     }
 
     LOG_DEBUG(<< "mean jaccard = " << maths::CBasicStatistics::mean(meanJaccard));
-    BOOST_TEST(maths::CBasicStatistics::mean(meanJaccard) > 0.35);
+    BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(meanJaccard) > 0.35);
 }
 
 BOOST_AUTO_TEST_CASE(testSimilarities) {
@@ -442,7 +442,7 @@ BOOST_AUTO_TEST_CASE(testSimilarities) {
                 case 1: ++FP; break;
                 case 2: ++FN; break;
                 case 3: ++TP; break;
-                default: BOOST_TEST(false); // Never happens.
+                default: BOOST_TEST_REQUIRE(false); // Never happens.
                 }
                 // clang-format on
             }
@@ -452,10 +452,10 @@ BOOST_AUTO_TEST_CASE(testSimilarities) {
     LOG_DEBUG(<< "TP = " << TP << ", TN = " << TN << ", FP = " << FP << ", FN = " << FN);
 
     // Proportion of points correctly separated.
-    BOOST_TEST(static_cast<double>(TN) / static_cast<double>(TN + FP) > 0.99);
+    BOOST_TEST_REQUIRE(static_cast<double>(TN) / static_cast<double>(TN + FP) > 0.99);
 
     // Proportion of points correctly clustered.
-    BOOST_TEST(static_cast<double>(TP) / static_cast<double>(TP + FN) > 0.99);
+    BOOST_TEST_REQUIRE(static_cast<double>(TP) / static_cast<double>(TP + FN) > 0.99);
 }
 
 BOOST_AUTO_TEST_CASE(testClusterNeighbourhoods) {
@@ -532,7 +532,7 @@ BOOST_AUTO_TEST_CASE(testClusterNeighbourhoods) {
     }
 
     for (std::size_t i = 0u; i < expectedClustering.size(); ++i) {
-        BOOST_CHECK_EQUAL(core::CContainerPrinter::print(expectedClustering[i]),
+        BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(expectedClustering[i]),
                           core::CContainerPrinter::print(clustering[i]));
     }
 }

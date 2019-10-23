@@ -140,7 +140,7 @@ BOOST_AUTO_TEST_CASE(testBasics) {
                 const std::string& newState = machines[m].s_States[sm.state()];
 
                 LOG_DEBUG(<< "  " << oldState << " -> " << newState);
-                BOOST_CHECK_EQUAL(
+                BOOST_REQUIRE_EQUAL(
                     machines[m].s_States[machines[m].s_TransitionFunction[i][j]],
                     sm.printState(sm.state()));
             }
@@ -167,7 +167,7 @@ BOOST_AUTO_TEST_CASE(testPersist) {
     LOG_DEBUG(<< "State machine XML representation:\n" << origXml);
 
     core::CRapidXmlParser parser;
-    BOOST_TEST(parser.parseStringIgnoreCdata(origXml));
+    BOOST_TEST_REQUIRE(parser.parseStringIgnoreCdata(origXml));
     core::CRapidXmlStateRestoreTraverser traverser(parser);
 
     core::CStateMachine restored = core::CStateMachine::create(
@@ -177,14 +177,14 @@ BOOST_AUTO_TEST_CASE(testPersist) {
         return restored.acceptRestoreTraverser(traverser_);
     });
 
-    BOOST_CHECK_EQUAL(original.checksum(), restored.checksum());
+    BOOST_REQUIRE_EQUAL(original.checksum(), restored.checksum());
     std::string newXml;
     {
         ml::core::CRapidXmlStatePersistInserter inserter("root");
         restored.acceptPersistInserter(inserter);
         inserter.toXml(newXml);
     }
-    BOOST_CHECK_EQUAL(origXml, newXml);
+    BOOST_REQUIRE_EQUAL(origXml, newXml);
 }
 
 BOOST_AUTO_TEST_CASE(testMultithreaded) {
@@ -208,21 +208,21 @@ BOOST_AUTO_TEST_CASE(testMultithreaded) {
         threads.push_back(TThreadPtr(new CTestThread(machines)));
     }
     for (std::size_t i = 0u; i < threads.size(); ++i) {
-        BOOST_TEST(threads[i]->start());
+        BOOST_TEST_REQUIRE(threads[i]->start());
     }
     for (std::size_t i = 0u; i < threads.size(); ++i) {
-        BOOST_TEST(threads[i]->waitForFinish());
+        BOOST_TEST_REQUIRE(threads[i]->waitForFinish());
     }
     for (std::size_t i = 0u; i < threads.size(); ++i) {
         // No failed reads.
-        BOOST_CHECK_EQUAL(std::size_t(0), threads[i]->failures());
+        BOOST_REQUIRE_EQUAL(std::size_t(0), threads[i]->failures());
     }
     for (std::size_t i = 1u; i < threads.size(); ++i) {
         // No wrong reads.
-        BOOST_TEST(threads[i]->states() == threads[i - 1]->states());
+        BOOST_TEST_REQUIRE(threads[i]->states() == threads[i - 1]->states());
     }
     // No duplicates.
-    BOOST_CHECK_EQUAL(machines.size(), core::CStateMachine::numberMachines());
+    BOOST_REQUIRE_EQUAL(machines.size(), core::CStateMachine::numberMachines());
 }
 
 BOOST_AUTO_TEST_SUITE_END()

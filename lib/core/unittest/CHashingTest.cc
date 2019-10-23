@@ -80,13 +80,13 @@ BOOST_AUTO_TEST_CASE(testUniversalHash) {
 
                 // Note that the definition of universality doesn't require
                 // the P(collision) <= 1/m for every hash function.
-                BOOST_TEST(pc < tolerances[i] * (1.0 / static_cast<double>(m[i])));
+                BOOST_TEST_REQUIRE(pc < tolerances[i] * (1.0 / static_cast<double>(m[i])));
             }
         }
 
         double pcRandom = collisionsRandom / hashedRandom;
         LOG_DEBUG(<< "random P(collision) = " << pcRandom);
-        BOOST_TEST(pcRandom < 1.0 / static_cast<double>(m[i]));
+        BOOST_TEST_REQUIRE(pcRandom < 1.0 / static_cast<double>(m[i]));
     }
 
     // We test a large u and m non exhaustively by choosing sufficient
@@ -146,14 +146,14 @@ BOOST_AUTO_TEST_CASE(testUniversalHash) {
 
             // Note that the definition of universality doesn't require
             // the P(collision) <= 1/m for every hash function.
-            BOOST_TEST(pc < 1.5 / 10000.0);
+            BOOST_TEST_REQUIRE(pc < 1.5 / 10000.0);
         }
 
         double pcRandom = collisionsRandom / hashedRandom;
 
         LOG_DEBUG(<< "random P(collision) = " << pcRandom);
 
-        BOOST_TEST(pcRandom < 1.008 / 10000.0);
+        BOOST_TEST_REQUIRE(pcRandom < 1.008 / 10000.0);
     }
 
     // To test 2-independence we keep counts of unique hash value pairs.
@@ -193,11 +193,11 @@ BOOST_AUTO_TEST_CASE(testUniversalHash) {
                 LOG_DEBUG(<< core::CContainerPrinter::print(*i) << ", p = " << p);
                 error += p - 1 / 10000.0;
             }
-            BOOST_TEST(p < 1.6 / 10000.0);
+            BOOST_TEST_REQUIRE(p < 1.6 / 10000.0);
         }
 
         LOG_DEBUG(<< "error = " << error);
-        BOOST_TEST(error < 0.03);
+        BOOST_TEST_REQUIRE(error < 0.03);
     }
 }
 
@@ -207,21 +207,21 @@ BOOST_AUTO_TEST_CASE(testMurmurHash) {
         uint32_t seed = 0xdead4321;
         uint32_t result =
             CHashing::murmurHash32(key.c_str(), static_cast<int>(key.size()), seed);
-        BOOST_CHECK_EQUAL(uint32_t(0xEE593473), result);
+        BOOST_REQUIRE_EQUAL(uint32_t(0xEE593473), result);
     }
     {
         std::string key("We know that you can hear us, Earthmen!");
         uint32_t seed = 0xffeeeeff;
         uint32_t result = CHashing::safeMurmurHash32(
             key.c_str(), static_cast<int>(key.size()), seed);
-        BOOST_CHECK_EQUAL(uint32_t(0x54837c96), result);
+        BOOST_REQUIRE_EQUAL(uint32_t(0x54837c96), result);
     }
     {
         std::string key("Your message has been analysed and it has been decided to allow one member of Spectrum to meet our representative.");
         uint64_t seed = 0xaabbccddffeeeeffULL;
         uint64_t result =
             CHashing::murmurHash64(key.c_str(), static_cast<int>(key.size()), seed);
-        BOOST_CHECK_EQUAL(uint64_t(14826751455157300659ull), result);
+        BOOST_REQUIRE_EQUAL(uint64_t(14826751455157300659ull), result);
     }
     {
         std::string key("Earthmen, we are peaceful beings and you have tried to destroy us, but you cannot succeed. You and your people "
@@ -229,7 +229,7 @@ BOOST_AUTO_TEST_CASE(testMurmurHash) {
         uint64_t seed = 0x1324fedc9876abdeULL;
         uint64_t result = CHashing::safeMurmurHash64(
             key.c_str(), static_cast<int>(key.size()), seed);
-        BOOST_CHECK_EQUAL(uint64_t(7291323361835448266ull), result);
+        BOOST_REQUIRE_EQUAL(uint64_t(7291323361835448266ull), result);
     }
 
     using TStrVec = std::vector<std::string>;
@@ -267,7 +267,7 @@ BOOST_AUTO_TEST_CASE(testMurmurHash) {
                 }
             }
             defaultLookupTime += stopWatch.stop();
-            BOOST_CHECK_EQUAL(testStrings.size() * 5, total);
+            BOOST_REQUIRE_EQUAL(testStrings.size() * 5, total);
         }
         LOG_DEBUG(<< "Finished throughput of boost::unordered_set with default hash");
 
@@ -287,7 +287,7 @@ BOOST_AUTO_TEST_CASE(testMurmurHash) {
                 }
             }
             murmurLookupTime += stopWatch.stop();
-            BOOST_CHECK_EQUAL(testStrings.size() * 5, total);
+            BOOST_REQUIRE_EQUAL(testStrings.size() * 5, total);
         }
         LOG_DEBUG(<< "Finished throughput of boost::unordered_set with murmur hash");
     }
@@ -307,7 +307,7 @@ BOOST_AUTO_TEST_CASE(testMurmurHash) {
     // Most of the times the murmur lookup time will be faster. But it is not
     // always the case. In order to avoid having failing builds but keep guarding
     // the performance, we give some slack (3%) to the comparison.
-    BOOST_TEST(murmurLookupTime < (defaultLookupTime * 103) / 100);
+    BOOST_TEST_REQUIRE(murmurLookupTime < (defaultLookupTime * 103) / 100);
 
     // Check the number of collisions.
     TSizeSizeMap uniqueHashes;
@@ -326,8 +326,8 @@ BOOST_AUTO_TEST_CASE(testMurmurHash) {
 
     // The number of unique hashes varies for 32 bit and 64 bit versions of
     // this code, so this will need changing if we ever build 32 bit again.
-    BOOST_CHECK_EQUAL(std::size_t(460438) /* for 64 bit code */, uniqueHashes.size());
-    BOOST_TEST(maxCollisions < 7);
+    BOOST_REQUIRE_EQUAL(std::size_t(460438) /* for 64 bit code */, uniqueHashes.size());
+    BOOST_TEST_REQUIRE(maxCollisions < 7);
 }
 
 BOOST_AUTO_TEST_CASE(testHashCombine) {
@@ -366,7 +366,7 @@ BOOST_AUTO_TEST_CASE(testHashCombine) {
         LOG_DEBUG(<< "# unique hashes          = " << uniqueHashes.size());
         LOG_DEBUG(<< "# unique combined hashes = " << uniqueHashCombines.size());
 
-        BOOST_TEST(uniqueHashCombines.size() >
+        BOOST_TEST_REQUIRE(uniqueHashCombines.size() >
                    static_cast<std::size_t>(
                        0.999 * static_cast<double>(uniqueHashes.size())));
     }
@@ -375,19 +375,19 @@ BOOST_AUTO_TEST_CASE(testHashCombine) {
 BOOST_AUTO_TEST_CASE(testConstructors) {
     {
         CHashing::CUniversalHash::CUInt32Hash hash(1, 2, 3);
-        BOOST_CHECK_EQUAL(uint32_t(1), hash.m());
-        BOOST_CHECK_EQUAL(uint32_t(2), hash.a());
-        BOOST_CHECK_EQUAL(uint32_t(3), hash.b());
+        BOOST_REQUIRE_EQUAL(uint32_t(1), hash.m());
+        BOOST_REQUIRE_EQUAL(uint32_t(2), hash.a());
+        BOOST_REQUIRE_EQUAL(uint32_t(3), hash.b());
     }
     {
         CHashing::CUniversalHash::CUInt32UnrestrictedHash hash;
-        BOOST_CHECK_EQUAL(uint32_t(1), hash.a());
-        BOOST_CHECK_EQUAL(uint32_t(0), hash.b());
+        BOOST_REQUIRE_EQUAL(uint32_t(1), hash.a());
+        BOOST_REQUIRE_EQUAL(uint32_t(0), hash.b());
     }
     {
         CHashing::CUniversalHash::CUInt32UnrestrictedHash hash(3, 4);
-        BOOST_CHECK_EQUAL(uint32_t(3), hash.a());
-        BOOST_CHECK_EQUAL(uint32_t(4), hash.b());
+        BOOST_REQUIRE_EQUAL(uint32_t(3), hash.a());
+        BOOST_REQUIRE_EQUAL(uint32_t(4), hash.b());
         LOG_DEBUG(<< hash.print());
     }
     {
@@ -396,48 +396,48 @@ BOOST_AUTO_TEST_CASE(testConstructors) {
         a.push_back(20);
         a.push_back(30);
         CHashing::CUniversalHash::CUInt32VecHash hash(5, a, 6);
-        BOOST_CHECK_EQUAL(CContainerPrinter::print(a),
+        BOOST_REQUIRE_EQUAL(CContainerPrinter::print(a),
                           CContainerPrinter::print(hash.a()));
-        BOOST_CHECK_EQUAL(uint32_t(5), hash.m());
-        BOOST_CHECK_EQUAL(uint32_t(6), hash.b());
+        BOOST_REQUIRE_EQUAL(uint32_t(5), hash.m());
+        BOOST_REQUIRE_EQUAL(uint32_t(6), hash.b());
         LOG_DEBUG(<< hash.print());
     }
     {
         CHashing::CUniversalHash::CToString c(':');
         {
             CHashing::CUniversalHash::CUInt32UnrestrictedHash hash(55, 66);
-            BOOST_CHECK_EQUAL(std::string("55:66"), c(hash));
+            BOOST_REQUIRE_EQUAL(std::string("55:66"), c(hash));
         }
         {
             CHashing::CUniversalHash::CUInt32Hash hash(1111, 2222, 3333);
-            BOOST_CHECK_EQUAL(std::string("1111:2222:3333"), c(hash));
+            BOOST_REQUIRE_EQUAL(std::string("1111:2222:3333"), c(hash));
         }
     }
     {
         CHashing::CUniversalHash::CFromString c(',');
         {
             CHashing::CUniversalHash::CUInt32UnrestrictedHash hash;
-            BOOST_TEST(c("2134,5432", hash));
-            BOOST_CHECK_EQUAL(uint32_t(2134), hash.a());
-            BOOST_CHECK_EQUAL(uint32_t(5432), hash.b());
+            BOOST_TEST_REQUIRE(c("2134,5432", hash));
+            BOOST_REQUIRE_EQUAL(uint32_t(2134), hash.a());
+            BOOST_REQUIRE_EQUAL(uint32_t(5432), hash.b());
         }
         {
             CHashing::CUniversalHash::CUInt32Hash hash;
-            BOOST_TEST(c("92134,54329,00000002", hash));
-            BOOST_CHECK_EQUAL(uint32_t(92134), hash.m());
-            BOOST_CHECK_EQUAL(uint32_t(54329), hash.a());
-            BOOST_CHECK_EQUAL(uint32_t(2), hash.b());
+            BOOST_TEST_REQUIRE(c("92134,54329,00000002", hash));
+            BOOST_REQUIRE_EQUAL(uint32_t(92134), hash.m());
+            BOOST_REQUIRE_EQUAL(uint32_t(54329), hash.a());
+            BOOST_REQUIRE_EQUAL(uint32_t(2), hash.b());
         }
     }
     {
         CHashing::CUniversalHash::TUInt32UnrestrictedHashVec hashVec;
         CHashing::CUniversalHash::generateHashes(5, hashVec);
-        BOOST_CHECK_EQUAL(std::size_t(5), hashVec.size());
+        BOOST_REQUIRE_EQUAL(std::size_t(5), hashVec.size());
     }
     {
         CHashing::CUniversalHash::TUInt32VecHashVec hashVec;
         CHashing::CUniversalHash::generateHashes(50, 6666, 7777, hashVec);
-        BOOST_CHECK_EQUAL(std::size_t(50), hashVec.size());
+        BOOST_REQUIRE_EQUAL(std::size_t(50), hashVec.size());
     }
 }
 

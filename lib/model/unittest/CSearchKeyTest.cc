@@ -42,7 +42,7 @@ BOOST_AUTO_TEST_CASE(testSimpleCountComesFirst) {
                        fields[0],
                        fields[1],
                        fields[2]};
-        BOOST_TEST(CSearchKey::simpleCountKey() < key);
+        BOOST_TEST_REQUIRE(CSearchKey::simpleCountKey() < key);
     }
 }
 

@@ -86,14 +86,14 @@ void CSingleStreamDataAdderTest::detectorPersistHelper(const std::string& config
 
     // Open the input and output files
     std::ifstream inputStrm(inputFilename.c_str());
-    BOOST_TEST(inputStrm.is_open());
+    BOOST_TEST_REQUIRE(inputStrm.is_open());
 
     std::ofstream outputStrm(ml::core::COsFileFuncs::NULL_FILENAME);
-    BOOST_TEST(outputStrm.is_open());
+    BOOST_TEST_REQUIRE(outputStrm.is_open());
 
     ml::model::CLimits limits;
     ml::api::CFieldConfig fieldConfig;
-    BOOST_TEST(fieldConfig.initFromFile(configFileName));
+    BOOST_TEST_REQUIRE(fieldConfig.initFromFile(configFileName));
 
     ml::model::CAnomalyDetectorModelConfig modelConfig =
         ml::model::CAnomalyDetectorModelConfig::defaultConfig(
@@ -131,7 +131,7 @@ void CSingleStreamDataAdderTest::detectorPersistHelper(const std::string& config
         return std::make_unique<ml::api::CNdJsonInputParser>(inputStrm);
     }()};
 
-    BOOST_TEST(parser->readStreamIntoMaps(std::bind(
+    BOOST_TEST_REQUIRE(parser->readStreamIntoMaps(std::bind(
         &ml::api::CDataProcessor::handleRecord, firstProcessor, std::placeholders::_1)));
 
     // Persist the detector state to a stringstream
@@ -141,7 +141,7 @@ void CSingleStreamDataAdderTest::detectorPersistHelper(const std::string& config
         std::ostringstream* strm(nullptr);
         ml::api::CSingleStreamDataAdder::TOStreamP ptr(strm = new std::ostringstream());
         ml::api::CSingleStreamDataAdder persister(ptr);
-        BOOST_TEST(firstProcessor->persistState(persister, ""));
+        BOOST_TEST_REQUIRE(firstProcessor->persistState(persister, ""));
         origPersistedState = strm->str();
     }
 
@@ -181,9 +181,9 @@ void CSingleStreamDataAdderTest::detectorPersistHelper(const std::string& config
 
         ml::api::CSingleStreamSearcher retriever(strm);
 
-        BOOST_TEST(restoredFirstProcessor->restoreState(retriever, completeToTime));
-        BOOST_TEST(completeToTime > 0);
-        BOOST_CHECK_EQUAL(
+        BOOST_TEST_REQUIRE(restoredFirstProcessor->restoreState(retriever, completeToTime));
+        BOOST_TEST_REQUIRE(completeToTime > 0);
+        BOOST_REQUIRE_EQUAL(
             numOrigDocs + numCategorizerDocs,
             strm->component<ml::api::CStateRestoreStreamFilter>(0)->getDocCount());
     }
@@ -194,20 +194,20 @@ void CSingleStreamDataAdderTest::detectorPersistHelper(const std::string& config
         std::ostringstream* strm(nullptr);
         ml::api::CSingleStreamDataAdder::TOStreamP ptr(strm = new std::ostringstream());
         ml::api::CSingleStreamDataAdder persister(ptr);
-        BOOST_TEST(restoredFirstProcessor->persistState(persister, ""));
+        BOOST_TEST_REQUIRE(restoredFirstProcessor->persistState(persister, ""));
         newPersistedState = strm->str();
     }
 
-    BOOST_CHECK_EQUAL(numOrigDocs, numRestoredDocs);
+    BOOST_REQUIRE_EQUAL(numOrigDocs, numRestoredDocs);
 
     // The snapshot ID can be different between the two persists, so replace the
     // first occurrence of it (which is in the bulk metadata)
-    BOOST_CHECK_EQUAL(size_t(1), ml::core::CStringUtils::replaceFirst(
+    BOOST_REQUIRE_EQUAL(size_t(1), ml::core::CStringUtils::replaceFirst(
                                      origSnapshotId, "snap", origPersistedState));
-    BOOST_CHECK_EQUAL(size_t(1), ml::core::CStringUtils::replaceFirst(
+    BOOST_REQUIRE_EQUAL(size_t(1), ml::core::CStringUtils::replaceFirst(
                                      restoredSnapshotId, "snap", newPersistedState));
 
-    BOOST_CHECK_EQUAL(origPersistedState, newPersistedState);
+    BOOST_REQUIRE_EQUAL(origPersistedState, newPersistedState);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

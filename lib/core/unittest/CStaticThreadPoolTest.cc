@@ -67,7 +67,7 @@ BOOST_AUTO_TEST_CASE(testScheduleDelayMinimisation) {
         LOG_DEBUG(<< "Time to schedule " << timeToSchedule);
         //BOOST_TEST(timeToSchedule <= 1);
     }
-    BOOST_CHECK_EQUAL(200u, counter.load());
+    BOOST_REQUIRE_EQUAL(200u, counter.load());
 }
 
 BOOST_AUTO_TEST_CASE(testThroughputStability) {
@@ -107,7 +107,7 @@ BOOST_AUTO_TEST_CASE(testThroughputStability) {
         //BOOST_TEST(timeToSchedule <= 350);
     }
 
-    BOOST_CHECK_EQUAL(2000u, counter.load());
+    BOOST_REQUIRE_EQUAL(2000u, counter.load());
 
     // The best we can achieve is 2000ms ignoring all overheads.
     std::uint64_t totalTime{totalTimeWatch.stop()};
@@ -143,7 +143,7 @@ BOOST_AUTO_TEST_CASE(testManyTasksThroughput) {
         }
     }
 
-    BOOST_CHECK_EQUAL(10000u, counter.load());
+    BOOST_REQUIRE_EQUAL(10000u, counter.load());
 
     // We have 1400ms of delays so the best we can achieve here is 700ms elapsed.
     std::uint64_t totalTime{watch.stop()};
@@ -195,7 +195,7 @@ BOOST_AUTO_TEST_CASE(testWithExceptions) {
     }
 
     // We didn't lose any real tasks.
-    BOOST_CHECK_EQUAL(200u, counter.load());
+    BOOST_REQUIRE_EQUAL(200u, counter.load());
 }
 
 BOOST_AUTO_TEST_SUITE_END()

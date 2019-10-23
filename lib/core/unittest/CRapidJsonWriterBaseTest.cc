@@ -90,7 +90,7 @@ BOOST_AUTO_TEST_CASE(testAddFields) {
                             "\"TTime[]\":[1421421421000,1421421421000]"
                             "}");
 
-    BOOST_CHECK_EQUAL(expectedDoc, printedDoc);
+    BOOST_REQUIRE_EQUAL(expectedDoc, printedDoc);
 }
 
 BOOST_AUTO_TEST_CASE(testRemoveMemberIfPresent) {
@@ -107,13 +107,13 @@ BOOST_AUTO_TEST_CASE(testRemoveMemberIfPresent) {
     std::string foo("foo");
 
     writer.addStringFieldCopyToObj(foo, "42", doc);
-    BOOST_TEST(doc.HasMember(foo));
+    BOOST_TEST_REQUIRE(doc.HasMember(foo));
 
     writer.removeMemberIfPresent(foo, doc);
-    BOOST_TEST(doc.HasMember(foo) == false);
+    BOOST_TEST_REQUIRE(doc.HasMember(foo) == false);
 
     writer.removeMemberIfPresent(foo, doc);
-    BOOST_TEST(doc.HasMember(foo) == false);
+    BOOST_TEST_REQUIRE(doc.HasMember(foo) == false);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

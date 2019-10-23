@@ -23,20 +23,20 @@ BOOST_AUTO_TEST_CASE(testIsNull) {
         double five = 5.0;
         double* null = nullptr;
         const double* notNull = &five;
-        BOOST_TEST(isNull(null));
-        BOOST_TEST(!isNull(notNull));
+        BOOST_TEST_REQUIRE(isNull(null));
+        BOOST_TEST_REQUIRE(!isNull(notNull));
     }
     {
         boost::optional<double> null;
         boost::optional<double> notNull(5.0);
-        BOOST_TEST(isNull(null));
-        BOOST_TEST(!isNull(notNull));
+        BOOST_TEST_REQUIRE(isNull(null));
+        BOOST_TEST_REQUIRE(!isNull(notNull));
     }
     {
         std::shared_ptr<double> null;
         std::shared_ptr<double> notNull(new double(5.0));
-        BOOST_TEST(isNull(null));
-        BOOST_TEST(!isNull(notNull));
+        BOOST_TEST_REQUIRE(isNull(null));
+        BOOST_TEST_REQUIRE(!isNull(notNull));
     }
 }
 
@@ -49,15 +49,15 @@ BOOST_AUTO_TEST_CASE(testDereference) {
     core::CFunctional::SDereference<core::CFunctional::SIsNull> derefIsNull;
     boost::optional<const double*> null(null_);
     boost::optional<const double*> notNull(&one);
-    BOOST_TEST(derefIsNull(null));
-    BOOST_TEST(!derefIsNull(notNull));
+    BOOST_TEST_REQUIRE(derefIsNull(null));
+    BOOST_TEST_REQUIRE(!derefIsNull(notNull));
 
     std::less<double> less;
     core::CFunctional::SDereference<std::less<double>> derefLess;
     const double* values[] = {&one, &two, &three};
     for (std::size_t i = 0u; i < boost::size(values); ++i) {
         for (std::size_t j = 0u; j < boost::size(values); ++j) {
-            BOOST_CHECK_EQUAL(less(*values[i], *values[j]),
+            BOOST_REQUIRE_EQUAL(less(*values[i], *values[j]),
                               derefLess(values[i], values[j]));
         }
     }

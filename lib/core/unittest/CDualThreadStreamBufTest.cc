@@ -41,7 +41,7 @@ protected:
             ++count;
             m_TotalData += line.length();
             ++m_TotalData; // For the delimiter
-            BOOST_CHECK_EQUAL(static_cast<std::streampos>(m_TotalData), strm.tellg());
+            BOOST_REQUIRE_EQUAL(static_cast<std::streampos>(m_TotalData), strm.tellg());
             ml::core::CSleep::sleep(m_Delay);
             if (count == m_FatalAfter) {
                 m_Buffer.signalFatalError();
@@ -92,13 +92,13 @@ BOOST_AUTO_TEST_CASE(testThroughput) {
         const char* ptr(DATA);
         while (toWrite > 0) {
             std::streamsize written(buf.sputn(ptr, toWrite));
-            BOOST_TEST(written > 0);
+            BOOST_TEST_REQUIRE(written > 0);
             toWrite -= written;
             ptr += written;
         }
     }
 
-    BOOST_CHECK_EQUAL(static_cast<std::streampos>(totalDataSize),
+    BOOST_REQUIRE_EQUAL(static_cast<std::streampos>(totalDataSize),
                       buf.pubseekoff(0, std::ios_base::cur, std::ios_base::out));
 
     buf.signalEndOfFile();
@@ -109,7 +109,7 @@ BOOST_AUTO_TEST_CASE(testThroughput) {
     LOG_INFO(<< "Finished REST buffer throughput test at "
              << ml::core::CTimeUtils::toTimeString(end));
 
-    BOOST_CHECK_EQUAL(totalDataSize, inputThread.totalData());
+    BOOST_REQUIRE_EQUAL(totalDataSize, inputThread.totalData());
 
     LOG_INFO(<< "REST buffer throughput test with test size " << TEST_SIZE << " (total data transferred "
              << totalDataSize << " bytes) took " << (end - start) << " seconds");
@@ -135,7 +135,7 @@ BOOST_AUTO_TEST_CASE(testSlowConsumer) {
         const char* ptr(DATA);
         while (toWrite > 0) {
             std::streamsize written(buf.sputn(ptr, toWrite));
-            BOOST_TEST(written > 0);
+            BOOST_TEST_REQUIRE(written > 0);
             toWrite -= written;
             ptr += written;
         }
@@ -149,7 +149,7 @@ BOOST_AUTO_TEST_CASE(testSlowConsumer) {
     LOG_INFO(<< "Finished REST buffer slow consumer test at "
              << ml::core::CTimeUtils::toTimeString(end));
 
-    BOOST_CHECK_EQUAL(totalDataSize, inputThread.totalData());
+    BOOST_REQUIRE_EQUAL(totalDataSize, inputThread.totalData());
 
     ml::core_t::TTime duration(end - start);
     LOG_INFO(<< "REST buffer slow consumer test with test size " << TEST_SIZE
@@ -158,9 +158,9 @@ BOOST_AUTO_TEST_CASE(testSlowConsumer) {
 
     ml::core_t::TTime delaySecs(
         static_cast<ml::core_t::TTime>((DELAY * numNewLines * TEST_SIZE) / 1000));
-    BOOST_TEST(duration >= delaySecs);
+    BOOST_TEST_REQUIRE(duration >= delaySecs);
     static const ml::core_t::TTime TOLERANCE(3);
-    BOOST_TEST(duration <= delaySecs + TOLERANCE);
+    BOOST_TEST_REQUIRE(duration <= delaySecs + TOLERANCE);
 }
 
 BOOST_AUTO_TEST_CASE(testPutback) {
@@ -172,7 +172,7 @@ BOOST_AUTO_TEST_CASE(testPutback) {
     const char* ptr(DATA);
     while (toWrite > 0) {
         std::streamsize written(buf.sputn(ptr, toWrite));
-        BOOST_TEST(written > 0);
+        BOOST_TEST_REQUIRE(written > 0);
         toWrite -= written;
         ptr += written;
     }
@@ -182,18 +182,18 @@ BOOST_AUTO_TEST_CASE(testPutback) {
     static const char* const PUTBACK_CHARS("put this back");
     std::istream strm(&buf);
     char c('\0');
-    BOOST_TEST(strm.get(c).good());
-    BOOST_CHECK_EQUAL(*DATA, c);
-    BOOST_TEST(strm.putback(c).good());
+    BOOST_TEST_REQUIRE(strm.get(c).good());
+    BOOST_REQUIRE_EQUAL(*DATA, c);
+    BOOST_TEST_REQUIRE(strm.putback(c).good());
     for (const char* putbackChar = PUTBACK_CHARS; *putbackChar != '\0'; ++putbackChar) {
-        BOOST_TEST(strm.putback(*putbackChar).good());
+        BOOST_TEST_REQUIRE(strm.putback(*putbackChar).good());
     }
     std::string actual;
     for (const char* putbackChar = PUTBACK_CHARS; *putbackChar != '\0'; ++putbackChar) {
-        BOOST_TEST(strm.get(c).good());
+        BOOST_TEST_REQUIRE(strm.get(c).good());
         actual.insert(actual.begin(), c);
     }
-    BOOST_CHECK_EQUAL(std::string(PUTBACK_CHARS), actual);
+    BOOST_REQUIRE_EQUAL(std::string(PUTBACK_CHARS), actual);
 
     std::string remainder;
     std::string line;
@@ -201,7 +201,7 @@ BOOST_AUTO_TEST_CASE(testPutback) {
         remainder += line;
         remainder += '\n';
     }
-    BOOST_CHECK_EQUAL(std::string(DATA), remainder);
+    BOOST_REQUIRE_EQUAL(std::string(DATA), remainder);
 }
 
 BOOST_AUTO_TEST_CASE(testFatal) {
@@ -210,8 +210,8 @@ BOOST_AUTO_TEST_CASE(testFatal) {
     size_t dataSize(::strlen(DATA));
 
     // These conditions need to be true for the test to work properly
-    BOOST_TEST(dataSize < BUFFER_CAPACITY);
-    BOOST_TEST(BUFFER_CAPACITY * 3 < TEST_SIZE * dataSize);
+    BOOST_TEST_REQUIRE(dataSize < BUFFER_CAPACITY);
+    BOOST_TEST_REQUIRE(BUFFER_CAPACITY * 3 < TEST_SIZE * dataSize);
 
     ml::core::CDualThreadStreamBuf buf(BUFFER_CAPACITY);
     CInputThread inputThread(buf, 1000, 1);
@@ -240,8 +240,8 @@ BOOST_AUTO_TEST_CASE(testFatal) {
               << " is " << totalDataWritten << " bytes");
 
     // The fatal error should have stopped the writer thread from writing all the data
-    BOOST_TEST(totalDataWritten >= BUFFER_CAPACITY);
-    BOOST_TEST(totalDataWritten <= 3 * BUFFER_CAPACITY);
+    BOOST_TEST_REQUIRE(totalDataWritten >= BUFFER_CAPACITY);
+    BOOST_TEST_REQUIRE(totalDataWritten <= 3 * BUFFER_CAPACITY);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

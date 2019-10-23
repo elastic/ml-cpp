@@ -24,8 +24,8 @@ BOOST_AUTO_TEST_CASE(testSleep) {
     LOG_DEBUG(<< "During 7.5 second wait, the clock advanced by " << diff << " seconds");
 
     // Clock time should be 7 or 8 seconds further ahead
-    BOOST_TEST(diff >= 7);
-    BOOST_TEST(diff <= 8);
+    BOOST_TEST_REQUIRE(diff >= 7);
+    BOOST_TEST_REQUIRE(diff <= 8);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

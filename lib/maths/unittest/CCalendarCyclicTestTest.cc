@@ -94,7 +94,7 @@ BOOST_AUTO_TEST_CASE(testTruePositives) {
                          : falsePositive) += 1.0;
                 }
             }
-            BOOST_TEST(core::CMemory::dynamicSize(&cyclic) < 700);
+            BOOST_TEST_REQUIRE(core::CMemory::dynamicSize(&cyclic) < 700);
         }
     }
     LOG_DEBUG(<< "true positive = " << truePositive);
@@ -140,7 +140,7 @@ BOOST_AUTO_TEST_CASE(testTruePositives) {
                          : falsePositive) += 1.0;
                 }
             }
-            BOOST_TEST(core::CMemory::dynamicSize(&cyclic) < 700);
+            BOOST_TEST_REQUIRE(core::CMemory::dynamicSize(&cyclic) < 700);
         }
     }
     LOG_DEBUG(<< "true positive = " << truePositive);
@@ -184,7 +184,7 @@ BOOST_AUTO_TEST_CASE(testTruePositives) {
                          : falsePositive) += 1.0;
                 }
             }
-            BOOST_TEST(core::CMemory::dynamicSize(&cyclic) < 700);
+            BOOST_TEST_REQUIRE(core::CMemory::dynamicSize(&cyclic) < 700);
         }
     }
     LOG_DEBUG(<< "true positive = " << truePositive);
@@ -228,7 +228,7 @@ BOOST_AUTO_TEST_CASE(testTruePositives) {
                          : falsePositive) += 1.0;
                 }
             }
-            BOOST_TEST(core::CMemory::dynamicSize(&cyclic) < 700);
+            BOOST_TEST_REQUIRE(core::CMemory::dynamicSize(&cyclic) < 700);
         }
     }
     LOG_DEBUG(<< "true positive = " << truePositive);
@@ -237,7 +237,7 @@ BOOST_AUTO_TEST_CASE(testTruePositives) {
 
     double accuracy{(truePositive / (truePositive + falseNegative + falsePositive))};
     LOG_DEBUG(<< "accuracy = " << accuracy);
-    BOOST_TEST(accuracy > 0.9);
+    BOOST_TEST_REQUIRE(accuracy > 0.9);
 }
 
 BOOST_AUTO_TEST_CASE(testFalsePositives) {
@@ -265,7 +265,7 @@ BOOST_AUTO_TEST_CASE(testFalsePositives) {
                 if (feature != boost::none) {
                     LOG_DEBUG(<< "Detected = " << feature->print());
                 }
-                BOOST_TEST(core::CMemory::dynamicSize(&cyclic) < 820);
+                BOOST_TEST_REQUIRE(core::CMemory::dynamicSize(&cyclic) < 820);
             }
         }
     }
@@ -289,7 +289,7 @@ BOOST_AUTO_TEST_CASE(testFalsePositives) {
                 if (feature != boost::none) {
                     LOG_DEBUG(<< "Detected = " << feature->print());
                 }
-                BOOST_TEST(core::CMemory::dynamicSize(&cyclic) < 830);
+                BOOST_TEST_REQUIRE(core::CMemory::dynamicSize(&cyclic) < 830);
             }
         }
     }
@@ -315,7 +315,7 @@ BOOST_AUTO_TEST_CASE(testFalsePositives) {
                 if (feature != boost::none) {
                     LOG_DEBUG(<< "Detected = " << feature->print());
                 }
-                BOOST_TEST(core::CMemory::dynamicSize(&cyclic) < 830);
+                BOOST_TEST_REQUIRE(core::CMemory::dynamicSize(&cyclic) < 830);
             }
         }
     }
@@ -324,7 +324,7 @@ BOOST_AUTO_TEST_CASE(testFalsePositives) {
 
     double accuracy{trueNegatives / (falsePositives + trueNegatives)};
     LOG_DEBUG(<< "accuracy = " << accuracy);
-    BOOST_TEST(accuracy > 0.99);
+    BOOST_TEST_REQUIRE(accuracy > 0.99);
 }
 
 BOOST_AUTO_TEST_CASE(testPersist) {
@@ -353,13 +353,13 @@ BOOST_AUTO_TEST_CASE(testPersist) {
     maths::CCalendarCyclicTest restored(HALF_HOUR);
     {
         core::CRapidXmlParser parser;
-        BOOST_TEST(parser.parseStringIgnoreCdata(origXml));
+        BOOST_TEST_REQUIRE(parser.parseStringIgnoreCdata(origXml));
         core::CRapidXmlStateRestoreTraverser traverser(parser);
-        BOOST_TEST(traverser.traverseSubLevel(
+        BOOST_TEST_REQUIRE(traverser.traverseSubLevel(
             std::bind(&maths::CCalendarCyclicTest::acceptRestoreTraverser,
                       &restored, std::placeholders::_1)));
     }
-    BOOST_CHECK_EQUAL(orig.checksum(), restored.checksum());
+    BOOST_REQUIRE_EQUAL(orig.checksum(), restored.checksum());
 
     std::string newXml;
     {
@@ -367,7 +367,7 @@ BOOST_AUTO_TEST_CASE(testPersist) {
         restored.acceptPersistInserter(inserter);
         inserter.toXml(newXml);
     }
-    BOOST_CHECK_EQUAL(origXml, newXml);
+    BOOST_REQUIRE_EQUAL(origXml, newXml);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

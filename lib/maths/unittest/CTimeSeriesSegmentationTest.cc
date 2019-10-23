@@ -132,19 +132,19 @@ BOOST_AUTO_TEST_CASE(testPiecewiseLinear) {
         LOG_DEBUG(<< "residual moments = " << residualMoments);
 
         // No false positives.
-        BOOST_CHECK_EQUAL(trueSegmentation.size(), segmentation.size());
+        BOOST_REQUIRE_EQUAL(trueSegmentation.size(), segmentation.size());
 
         // Distance in index space is small.
-        BOOST_TEST(distance(trueSegmentation, segmentation) < 35);
+        BOOST_TEST_REQUIRE(distance(trueSegmentation, segmentation) < 35);
 
         // Not biased.
-        BOOST_TEST(std::fabs(maths::CBasicStatistics::mean(residualMoments) -
+        BOOST_TEST_REQUIRE(std::fabs(maths::CBasicStatistics::mean(residualMoments) -
                              maths::CBasicStatistics::mean(noiseMoments)) <
                    2.0 * std::sqrt(maths::CBasicStatistics::variance(noiseMoments) /
                                    maths::CBasicStatistics::count(noiseMoments)));
 
         // We've explained nearly all the variance.
-        BOOST_TEST(maths::CBasicStatistics::variance(residualMoments) <
+        BOOST_TEST_REQUIRE(maths::CBasicStatistics::variance(residualMoments) <
                    1.4 * maths::CBasicStatistics::variance(noiseMoments));
     }
 
@@ -197,19 +197,19 @@ BOOST_AUTO_TEST_CASE(testPiecewiseLinear) {
     LOG_DEBUG(<< "residual moments = " << residualMoments);
 
     // No false positives
-    BOOST_CHECK_EQUAL(trueSegmentation.size(), segmentation.size());
+    BOOST_REQUIRE_EQUAL(trueSegmentation.size(), segmentation.size());
 
     // Distance in index space is small.
-    BOOST_TEST(distance(trueSegmentation, segmentation) < 35);
+    BOOST_TEST_REQUIRE(distance(trueSegmentation, segmentation) < 35);
 
     // Not biased.
-    BOOST_TEST(std::fabs(maths::CBasicStatistics::mean(residualMoments) -
+    BOOST_TEST_REQUIRE(std::fabs(maths::CBasicStatistics::mean(residualMoments) -
                          maths::CBasicStatistics::mean(noiseMoments)) <
                3.0 * std::sqrt(maths::CBasicStatistics::variance(noiseMoments) /
                                maths::CBasicStatistics::count(noiseMoments)));
 
     // We've explained nearly all the variance.
-    BOOST_TEST(maths::CBasicStatistics::variance(residualMoments) <
+    BOOST_TEST_REQUIRE(maths::CBasicStatistics::variance(residualMoments) <
                1.4 * maths::CBasicStatistics::variance(noiseMoments));
 }
 
@@ -271,19 +271,19 @@ BOOST_AUTO_TEST_CASE(testPiecewiseLinearScaledPeriodic) {
             LOG_DEBUG(<< "residual moments = " << residualMoments);
 
             // No false positives.
-            BOOST_CHECK_EQUAL(trueSegmentation.size(), segmentation.size());
+            BOOST_REQUIRE_EQUAL(trueSegmentation.size(), segmentation.size());
 
             // Distance in index space is small.
-            BOOST_TEST(distance(trueSegmentation, segmentation) < 5);
+            BOOST_TEST_REQUIRE(distance(trueSegmentation, segmentation) < 5);
 
             // Not biased.
-            BOOST_TEST(std::fabs(maths::CBasicStatistics::mean(residualMoments) -
+            BOOST_TEST_REQUIRE(std::fabs(maths::CBasicStatistics::mean(residualMoments) -
                                  maths::CBasicStatistics::mean(noiseMoments)) <
                        3.0 * std::sqrt(maths::CBasicStatistics::variance(noiseMoments) /
                                        maths::CBasicStatistics::count(noiseMoments)));
 
             // We've explained nearly all the variance.
-            BOOST_TEST(maths::CBasicStatistics::variance(residualMoments) <
+            BOOST_TEST_REQUIRE(maths::CBasicStatistics::variance(residualMoments) <
                        1.4 * maths::CBasicStatistics::variance(noiseMoments));
         }
     }
@@ -341,19 +341,19 @@ BOOST_AUTO_TEST_CASE(testPiecewiseLinearScaledPeriodic) {
         LOG_DEBUG(<< "residual moments = " << residualMoments);
 
         // No false positives
-        BOOST_CHECK_EQUAL(trueSegmentation.size(), segmentation.size());
+        BOOST_REQUIRE_EQUAL(trueSegmentation.size(), segmentation.size());
 
         // Distance in index space is small.
-        BOOST_TEST(distance(trueSegmentation, segmentation) < 20);
+        BOOST_TEST_REQUIRE(distance(trueSegmentation, segmentation) < 20);
 
         // Not biased.
-        BOOST_TEST(std::fabs(maths::CBasicStatistics::mean(residualMoments) -
+        BOOST_TEST_REQUIRE(std::fabs(maths::CBasicStatistics::mean(residualMoments) -
                              maths::CBasicStatistics::mean(noiseMoments)) <
                    3.0 * std::sqrt(maths::CBasicStatistics::variance(noiseMoments) /
                                    maths::CBasicStatistics::count(noiseMoments)));
 
         // We've explained nearly all the variance.
-        BOOST_TEST(maths::CBasicStatistics::variance(residualMoments) <
+        BOOST_TEST_REQUIRE(maths::CBasicStatistics::variance(residualMoments) <
                    1.4 * maths::CBasicStatistics::variance(noiseMoments));
     }
 }
@@ -380,7 +380,7 @@ BOOST_AUTO_TEST_CASE(testRemovePiecewiseLinearDiscontinuities) {
     values = TSegmentation::removePiecewiseLinearDiscontinuities(values, segmentation);
 
     for (const auto& value : values) {
-        BOOST_CHECK_EQUAL(3.0, static_cast<double>(maths::CBasicStatistics::mean(value)));
+        BOOST_REQUIRE_EQUAL(3.0, static_cast<double>(maths::CBasicStatistics::mean(value)));
     }
 
     values.assign(length, TFloatMeanAccumulator{});
@@ -405,24 +405,24 @@ BOOST_AUTO_TEST_CASE(testRemovePiecewiseLinearDiscontinuities) {
     //   3) The values are unchanged in the range [200, 300).
 
     for (std::size_t i = 1; i < values.size(); ++i) {
-        BOOST_TEST(std::fabs(maths::CBasicStatistics::mean(values[i]) -
+        BOOST_TEST_REQUIRE(std::fabs(maths::CBasicStatistics::mean(values[i]) -
                              maths::CBasicStatistics::mean(values[i - 1])) < 0.25);
     }
     for (std::size_t i = 1; i < length; ++i) {
         if (i < 50) {
-            BOOST_CHECK_CLOSE_ABSOLUTE(
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(
                 0.1,
                 static_cast<double>(maths::CBasicStatistics::mean(values[i]) -
                                     maths::CBasicStatistics::mean(values[i - 1])),
                 1e-4);
         } else if (i > 50 && i < 200) {
-            BOOST_CHECK_CLOSE_ABSOLUTE(
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(
                 -0.1,
                 static_cast<double>(maths::CBasicStatistics::mean(values[i]) -
                                     maths::CBasicStatistics::mean(values[i - 1])),
                 1e-4);
         } else if (i > 200) {
-            BOOST_CHECK_CLOSE_ABSOLUTE(
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(
                 0.2 * static_cast<double>(i) - 2.0,
                 static_cast<double>(maths::CBasicStatistics::mean(values[i])), 1e-4);
         }

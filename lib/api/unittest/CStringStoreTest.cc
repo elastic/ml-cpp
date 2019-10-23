@@ -33,8 +33,8 @@ size_t countBuckets(const std::string& key, const std::string& output) {
     size_t count = 0;
     rapidjson::Document doc;
     doc.Parse<rapidjson::kParseDefaultFlags>(output);
-    BOOST_TEST(!doc.HasParseError());
-    BOOST_TEST(doc.IsArray());
+    BOOST_TEST_REQUIRE(!doc.HasParseError());
+    BOOST_TEST_REQUIRE(doc.IsArray());
 
     const rapidjson::Value& allRecords = doc.GetArray();
     for (auto& r : allRecords.GetArray()) {
@@ -84,7 +84,7 @@ core_t::TTime playData(core_t::TTime start,
 
     api::CCsvInputParser parser(ss);
 
-    BOOST_TEST(parser.readStreamIntoMaps(
+    BOOST_TEST_REQUIRE(parser.readStreamIntoMaps(
         std::bind(&api::CAnomalyJob::handleRecord, &job, std::placeholders::_1)));
 
     return t;
@@ -127,7 +127,7 @@ BOOST_AUTO_TEST_CASE(testPersonStringPruning) {
     clause.push_back("composer");
     clause.push_back("partitionfield=instrument");
 
-    BOOST_TEST(fieldConfig.initFromClause(clause));
+    BOOST_TEST_REQUIRE(fieldConfig.initFromClause(clause));
 
     model::CAnomalyDetectorModelConfig modelConfig =
         model::CAnomalyDetectorModelConfig::defaultConfig(BUCKET_SPAN);
@@ -144,9 +144,9 @@ BOOST_AUTO_TEST_CASE(testPersonStringPruning) {
         model::CStringStore::influencers().clearEverythingTestOnly();
         model::CStringStore::names().clearEverythingTestOnly();
 
-        BOOST_CHECK_EQUAL(std::size_t(0),
+        BOOST_REQUIRE_EQUAL(std::size_t(0),
                           model::CStringStore::influencers().m_Strings.size());
-        BOOST_CHECK_EQUAL(std::size_t(0), model::CStringStore::names().m_Strings.size());
+        BOOST_REQUIRE_EQUAL(std::size_t(0), model::CStringStore::names().m_Strings.size());
 
         LOG_TRACE(<< "Setting up job");
 
@@ -158,31 +158,31 @@ BOOST_AUTO_TEST_CASE(testPersonStringPruning) {
         time = playData(time, BUCKET_SPAN, 100, 3, 2, 99, job);
         wrappedOutputStream.syncFlush();
 
-        BOOST_CHECK_EQUAL(std::size_t(0), countBuckets("records", outputStrm.str() + "]"));
+        BOOST_REQUIRE_EQUAL(std::size_t(0), countBuckets("records", outputStrm.str() + "]"));
 
         // No influencers in this configuration
-        BOOST_CHECK_EQUAL(std::size_t(0),
+        BOOST_REQUIRE_EQUAL(std::size_t(0),
                           model::CStringStore::influencers().m_Strings.size());
 
         // "", "count", "max", "notes", "composer", "instrument", "Elgar", "Holst", "Delius", "flute", "tuba"
-        BOOST_TEST(this->nameExists("count"));
-        BOOST_TEST(this->nameExists("max"));
-        BOOST_TEST(this->nameExists("notes"));
-        BOOST_TEST(this->nameExists("composer"));
-        BOOST_TEST(this->nameExists("instrument"));
-        BOOST_TEST(this->nameExists("Elgar"));
-        BOOST_TEST(this->nameExists("Holst"));
-        BOOST_TEST(this->nameExists("Delius"));
-        BOOST_TEST(this->nameExists("flute"));
-        BOOST_TEST(this->nameExists("tuba"));
+        BOOST_TEST_REQUIRE(this->nameExists("count"));
+        BOOST_TEST_REQUIRE(this->nameExists("max"));
+        BOOST_TEST_REQUIRE(this->nameExists("notes"));
+        BOOST_TEST_REQUIRE(this->nameExists("composer"));
+        BOOST_TEST_REQUIRE(this->nameExists("instrument"));
+        BOOST_TEST_REQUIRE(this->nameExists("Elgar"));
+        BOOST_TEST_REQUIRE(this->nameExists("Holst"));
+        BOOST_TEST_REQUIRE(this->nameExists("Delius"));
+        BOOST_TEST_REQUIRE(this->nameExists("flute"));
+        BOOST_TEST_REQUIRE(this->nameExists("tuba"));
 
         time += BUCKET_SPAN * 100;
         time = playData(time, BUCKET_SPAN, 100, 3, 2, 99, job);
 
-        BOOST_TEST(job.persistState(adder, ""));
+        BOOST_TEST_REQUIRE(job.persistState(adder, ""));
         wrappedOutputStream.syncFlush();
 
-        BOOST_CHECK_EQUAL(std::size_t(1), countBuckets("records", outputStrm.str() + "]"));
+        BOOST_REQUIRE_EQUAL(std::size_t(1), countBuckets("records", outputStrm.str() + "]"));
     }
 
     LOG_DEBUG(<< "Restoring job");
@@ -190,9 +190,9 @@ BOOST_AUTO_TEST_CASE(testPersonStringPruning) {
         model::CStringStore::influencers().clearEverythingTestOnly();
         model::CStringStore::names().clearEverythingTestOnly();
 
-        BOOST_CHECK_EQUAL(std::size_t(0),
+        BOOST_REQUIRE_EQUAL(std::size_t(0),
                           model::CStringStore::influencers().m_Strings.size());
-        BOOST_CHECK_EQUAL(std::size_t(0), model::CStringStore::names().m_Strings.size());
+        BOOST_REQUIRE_EQUAL(std::size_t(0), model::CStringStore::names().m_Strings.size());
 
         std::ostringstream outputStrm;
         ml::core::CJsonOutputStreamWrapper wrappedOutputStream(outputStrm);
@@ -200,39 +200,39 @@ BOOST_AUTO_TEST_CASE(testPersonStringPruning) {
                              api::CAnomalyJob::TPersistCompleteFunc());
 
         core_t::TTime completeToTime(0);
-        BOOST_TEST(job.restoreState(searcher, completeToTime));
+        BOOST_TEST_REQUIRE(job.restoreState(searcher, completeToTime));
         adder.clear();
 
         // No influencers in this configuration
-        BOOST_CHECK_EQUAL(std::size_t(0),
+        BOOST_REQUIRE_EQUAL(std::size_t(0),
                           model::CStringStore::influencers().m_Strings.size());
 
         // "", "count", "notes", "composer", "instrument", "Elgar", "Holst", "Delius", "flute", "tuba"
-        BOOST_TEST(this->nameExists("count"));
-        BOOST_TEST(this->nameExists("notes"));
-        BOOST_TEST(this->nameExists("composer"));
-        BOOST_TEST(this->nameExists("instrument"));
-        BOOST_TEST(this->nameExists("Elgar"));
-        BOOST_TEST(this->nameExists("Holst"));
-        BOOST_TEST(this->nameExists("Delius"));
-        BOOST_TEST(this->nameExists("flute"));
-        BOOST_TEST(this->nameExists("tuba"));
+        BOOST_TEST_REQUIRE(this->nameExists("count"));
+        BOOST_TEST_REQUIRE(this->nameExists("notes"));
+        BOOST_TEST_REQUIRE(this->nameExists("composer"));
+        BOOST_TEST_REQUIRE(this->nameExists("instrument"));
+        BOOST_TEST_REQUIRE(this->nameExists("Elgar"));
+        BOOST_TEST_REQUIRE(this->nameExists("Holst"));
+        BOOST_TEST_REQUIRE(this->nameExists("Delius"));
+        BOOST_TEST_REQUIRE(this->nameExists("flute"));
+        BOOST_TEST_REQUIRE(this->nameExists("tuba"));
 
         // play some data in a lot later, to bring about pruning
         time += BUCKET_SPAN * 5000;
         time = playData(time, BUCKET_SPAN, 100, 3, 1, 101, job);
 
         job.finalise();
-        BOOST_TEST(job.persistState(adder, ""));
+        BOOST_TEST_REQUIRE(job.persistState(adder, ""));
     }
     LOG_DEBUG(<< "Restoring job again");
     {
         model::CStringStore::influencers().clearEverythingTestOnly();
         model::CStringStore::names().clearEverythingTestOnly();
 
-        BOOST_CHECK_EQUAL(std::size_t(0),
+        BOOST_REQUIRE_EQUAL(std::size_t(0),
                           model::CStringStore::influencers().m_Strings.size());
-        BOOST_CHECK_EQUAL(std::size_t(0), model::CStringStore::names().m_Strings.size());
+        BOOST_REQUIRE_EQUAL(std::size_t(0), model::CStringStore::names().m_Strings.size());
 
         std::ostringstream outputStrm;
         ml::core::CJsonOutputStreamWrapper wrappedOutputStream(outputStrm);
@@ -240,40 +240,40 @@ BOOST_AUTO_TEST_CASE(testPersonStringPruning) {
                              api::CAnomalyJob::TPersistCompleteFunc());
 
         core_t::TTime completeToTime(0);
-        BOOST_TEST(job.restoreState(searcher, completeToTime));
+        BOOST_TEST_REQUIRE(job.restoreState(searcher, completeToTime));
         adder.clear();
 
         // No influencers in this configuration
-        BOOST_CHECK_EQUAL(std::size_t(0),
+        BOOST_REQUIRE_EQUAL(std::size_t(0),
                           model::CStringStore::influencers().m_Strings.size());
 
         // While the 3 composers from the second partition should have been culled in the prune,
         // their names still exist in the first partition, so will still be in the string store
-        BOOST_TEST(this->nameExists("count"));
-        BOOST_TEST(this->nameExists("notes"));
-        BOOST_TEST(this->nameExists("composer"));
-        BOOST_TEST(this->nameExists("instrument"));
-        BOOST_TEST(this->nameExists("Elgar"));
-        BOOST_TEST(this->nameExists("Holst"));
-        BOOST_TEST(this->nameExists("Delius"));
-        BOOST_TEST(this->nameExists("flute"));
-        BOOST_TEST(this->nameExists("tuba"));
+        BOOST_TEST_REQUIRE(this->nameExists("count"));
+        BOOST_TEST_REQUIRE(this->nameExists("notes"));
+        BOOST_TEST_REQUIRE(this->nameExists("composer"));
+        BOOST_TEST_REQUIRE(this->nameExists("instrument"));
+        BOOST_TEST_REQUIRE(this->nameExists("Elgar"));
+        BOOST_TEST_REQUIRE(this->nameExists("Holst"));
+        BOOST_TEST_REQUIRE(this->nameExists("Delius"));
+        BOOST_TEST_REQUIRE(this->nameExists("flute"));
+        BOOST_TEST_REQUIRE(this->nameExists("tuba"));
 
         // Play some more data to cull out the third person
         time += BUCKET_SPAN * 5000;
         time = playData(time, BUCKET_SPAN, 100, 2, 2, 101, job);
 
         job.finalise();
-        BOOST_TEST(job.persistState(adder, ""));
+        BOOST_TEST_REQUIRE(job.persistState(adder, ""));
     }
     LOG_DEBUG(<< "Restoring yet again");
     {
         model::CStringStore::influencers().clearEverythingTestOnly();
         model::CStringStore::names().clearEverythingTestOnly();
 
-        BOOST_CHECK_EQUAL(std::size_t(0),
+        BOOST_REQUIRE_EQUAL(std::size_t(0),
                           model::CStringStore::influencers().m_Strings.size());
-        BOOST_CHECK_EQUAL(std::size_t(0), model::CStringStore::names().m_Strings.size());
+        BOOST_REQUIRE_EQUAL(std::size_t(0), model::CStringStore::names().m_Strings.size());
 
         std::ostringstream outputStrm;
         ml::core::CJsonOutputStreamWrapper wrappedOutputStream(outputStrm);
@@ -281,23 +281,23 @@ BOOST_AUTO_TEST_CASE(testPersonStringPruning) {
                              api::CAnomalyJob::TPersistCompleteFunc());
 
         core_t::TTime completeToTime(0);
-        BOOST_TEST(job.restoreState(searcher, completeToTime));
+        BOOST_TEST_REQUIRE(job.restoreState(searcher, completeToTime));
         adder.clear();
 
         // No influencers in this configuration
-        BOOST_CHECK_EQUAL(std::size_t(0),
+        BOOST_REQUIRE_EQUAL(std::size_t(0),
                           model::CStringStore::influencers().m_Strings.size());
 
         // One composer should have been culled!
-        BOOST_TEST(this->nameExists("count"));
-        BOOST_TEST(this->nameExists("notes"));
-        BOOST_TEST(this->nameExists("composer"));
-        BOOST_TEST(this->nameExists("instrument"));
-        BOOST_TEST(this->nameExists("Elgar"));
-        BOOST_TEST(this->nameExists("Holst"));
-        BOOST_TEST(this->nameExists("flute"));
-        BOOST_TEST(this->nameExists("tuba"));
-        BOOST_TEST(!this->nameExists("Delius"));
+        BOOST_TEST_REQUIRE(this->nameExists("count"));
+        BOOST_TEST_REQUIRE(this->nameExists("notes"));
+        BOOST_TEST_REQUIRE(this->nameExists("composer"));
+        BOOST_TEST_REQUIRE(this->nameExists("instrument"));
+        BOOST_TEST_REQUIRE(this->nameExists("Elgar"));
+        BOOST_TEST_REQUIRE(this->nameExists("Holst"));
+        BOOST_TEST_REQUIRE(this->nameExists("flute"));
+        BOOST_TEST_REQUIRE(this->nameExists("tuba"));
+        BOOST_TEST_REQUIRE(!this->nameExists("Delius"));
     }
 }
 
@@ -312,7 +312,7 @@ BOOST_AUTO_TEST_CASE(testAttributeStringPruning) {
     clause.push_back("composer");
     clause.push_back("partitionfield=instrument");
 
-    BOOST_TEST(fieldConfig.initFromClause(clause));
+    BOOST_TEST_REQUIRE(fieldConfig.initFromClause(clause));
 
     model::CAnomalyDetectorModelConfig modelConfig =
         model::CAnomalyDetectorModelConfig::defaultConfig(BUCKET_SPAN);
@@ -329,9 +329,9 @@ BOOST_AUTO_TEST_CASE(testAttributeStringPruning) {
         model::CStringStore::influencers().clearEverythingTestOnly();
         model::CStringStore::names().clearEverythingTestOnly();
 
-        BOOST_CHECK_EQUAL(std::size_t(0),
+        BOOST_REQUIRE_EQUAL(std::size_t(0),
                           model::CStringStore::influencers().m_Strings.size());
-        BOOST_CHECK_EQUAL(std::size_t(0), model::CStringStore::names().m_Strings.size());
+        BOOST_REQUIRE_EQUAL(std::size_t(0), model::CStringStore::names().m_Strings.size());
 
         LOG_TRACE(<< "Setting up job");
         std::ostringstream outputStrm;
@@ -341,40 +341,40 @@ BOOST_AUTO_TEST_CASE(testAttributeStringPruning) {
 
         time = playData(time, BUCKET_SPAN, 100, 3, 2, 99, job);
         wrappedOutputStream.syncFlush();
-        BOOST_CHECK_EQUAL(std::size_t(0), countBuckets("records", outputStrm.str() + "]"));
+        BOOST_REQUIRE_EQUAL(std::size_t(0), countBuckets("records", outputStrm.str() + "]"));
 
         // No influencers in this configuration
-        BOOST_CHECK_EQUAL(std::size_t(0),
+        BOOST_REQUIRE_EQUAL(std::size_t(0),
                           model::CStringStore::influencers().m_Strings.size());
 
         // "", "count", "distinct_count", "notes", "composer", "instrument", "Elgar", "Holst", "Delius", "flute", "tuba"
         LOG_DEBUG(<< core::CContainerPrinter::print(model::CStringStore::names().m_Strings));
-        BOOST_TEST(this->nameExists("count"));
-        BOOST_TEST(this->nameExists("distinct_count"));
-        BOOST_TEST(this->nameExists("notes"));
-        BOOST_TEST(this->nameExists("composer"));
-        BOOST_TEST(this->nameExists("instrument"));
-        BOOST_TEST(this->nameExists("Elgar"));
-        BOOST_TEST(this->nameExists("Holst"));
-        BOOST_TEST(this->nameExists("Delius"));
-        BOOST_TEST(this->nameExists("flute"));
-        BOOST_TEST(this->nameExists("tuba"));
+        BOOST_TEST_REQUIRE(this->nameExists("count"));
+        BOOST_TEST_REQUIRE(this->nameExists("distinct_count"));
+        BOOST_TEST_REQUIRE(this->nameExists("notes"));
+        BOOST_TEST_REQUIRE(this->nameExists("composer"));
+        BOOST_TEST_REQUIRE(this->nameExists("instrument"));
+        BOOST_TEST_REQUIRE(this->nameExists("Elgar"));
+        BOOST_TEST_REQUIRE(this->nameExists("Holst"));
+        BOOST_TEST_REQUIRE(this->nameExists("Delius"));
+        BOOST_TEST_REQUIRE(this->nameExists("flute"));
+        BOOST_TEST_REQUIRE(this->nameExists("tuba"));
 
         time += BUCKET_SPAN * 100;
         time = playData(time, BUCKET_SPAN, 100, 3, 2, 99, job);
 
-        BOOST_TEST(job.persistState(adder, ""));
+        BOOST_TEST_REQUIRE(job.persistState(adder, ""));
         wrappedOutputStream.syncFlush();
-        BOOST_CHECK_EQUAL(std::size_t(1), countBuckets("records", outputStrm.str() + "]"));
+        BOOST_REQUIRE_EQUAL(std::size_t(1), countBuckets("records", outputStrm.str() + "]"));
     }
     LOG_DEBUG(<< "Restoring job");
     {
         model::CStringStore::influencers().clearEverythingTestOnly();
         model::CStringStore::names().clearEverythingTestOnly();
 
-        BOOST_CHECK_EQUAL(std::size_t(0),
+        BOOST_REQUIRE_EQUAL(std::size_t(0),
                           model::CStringStore::influencers().m_Strings.size());
-        BOOST_CHECK_EQUAL(std::size_t(0), model::CStringStore::names().m_Strings.size());
+        BOOST_REQUIRE_EQUAL(std::size_t(0), model::CStringStore::names().m_Strings.size());
 
         std::ostringstream outputStrm;
         ml::core::CJsonOutputStreamWrapper wrappedOutputStream(outputStrm);
@@ -383,39 +383,39 @@ BOOST_AUTO_TEST_CASE(testAttributeStringPruning) {
                              api::CAnomalyJob::TPersistCompleteFunc());
 
         core_t::TTime completeToTime(0);
-        BOOST_TEST(job.restoreState(searcher, completeToTime));
+        BOOST_TEST_REQUIRE(job.restoreState(searcher, completeToTime));
         adder.clear();
 
         // No influencers in this configuration
-        BOOST_CHECK_EQUAL(std::size_t(0),
+        BOOST_REQUIRE_EQUAL(std::size_t(0),
                           model::CStringStore::influencers().m_Strings.size());
 
         // "", "count", "distinct_count", "notes", "composer", "instrument", "Elgar", "Holst", "Delius", "flute", "tuba"
-        BOOST_TEST(this->nameExists("count"));
-        BOOST_TEST(this->nameExists("notes"));
-        BOOST_TEST(this->nameExists("composer"));
-        BOOST_TEST(this->nameExists("instrument"));
-        BOOST_TEST(this->nameExists("Elgar"));
-        BOOST_TEST(this->nameExists("Holst"));
-        BOOST_TEST(this->nameExists("Delius"));
-        BOOST_TEST(this->nameExists("flute"));
-        BOOST_TEST(this->nameExists("tuba"));
+        BOOST_TEST_REQUIRE(this->nameExists("count"));
+        BOOST_TEST_REQUIRE(this->nameExists("notes"));
+        BOOST_TEST_REQUIRE(this->nameExists("composer"));
+        BOOST_TEST_REQUIRE(this->nameExists("instrument"));
+        BOOST_TEST_REQUIRE(this->nameExists("Elgar"));
+        BOOST_TEST_REQUIRE(this->nameExists("Holst"));
+        BOOST_TEST_REQUIRE(this->nameExists("Delius"));
+        BOOST_TEST_REQUIRE(this->nameExists("flute"));
+        BOOST_TEST_REQUIRE(this->nameExists("tuba"));
 
         // play some data in a lot later, to bring about pruning
         time += BUCKET_SPAN * 5000;
         time = playData(time, BUCKET_SPAN, 100, 3, 1, 101, job);
 
         job.finalise();
-        BOOST_TEST(job.persistState(adder, ""));
+        BOOST_TEST_REQUIRE(job.persistState(adder, ""));
     }
     LOG_DEBUG(<< "Restoring job again");
     {
         model::CStringStore::influencers().clearEverythingTestOnly();
         model::CStringStore::names().clearEverythingTestOnly();
 
-        BOOST_CHECK_EQUAL(std::size_t(0),
+        BOOST_REQUIRE_EQUAL(std::size_t(0),
                           model::CStringStore::influencers().m_Strings.size());
-        BOOST_CHECK_EQUAL(std::size_t(0), model::CStringStore::names().m_Strings.size());
+        BOOST_REQUIRE_EQUAL(std::size_t(0), model::CStringStore::names().m_Strings.size());
 
         std::ostringstream outputStrm;
         ml::core::CJsonOutputStreamWrapper wrappedOutputStream(outputStrm);
@@ -424,40 +424,40 @@ BOOST_AUTO_TEST_CASE(testAttributeStringPruning) {
                              api::CAnomalyJob::TPersistCompleteFunc());
 
         core_t::TTime completeToTime(0);
-        BOOST_TEST(job.restoreState(searcher, completeToTime));
+        BOOST_TEST_REQUIRE(job.restoreState(searcher, completeToTime));
         adder.clear();
 
         // No influencers in this configuration
-        BOOST_CHECK_EQUAL(std::size_t(0),
+        BOOST_REQUIRE_EQUAL(std::size_t(0),
                           model::CStringStore::influencers().m_Strings.size());
 
         // While the 3 composers from the second partition should have been culled in the prune,
         // their names still exist in the first partition, so will still be in the string store
-        BOOST_TEST(this->nameExists("count"));
-        BOOST_TEST(this->nameExists("notes"));
-        BOOST_TEST(this->nameExists("composer"));
-        BOOST_TEST(this->nameExists("instrument"));
-        BOOST_TEST(this->nameExists("Elgar"));
-        BOOST_TEST(this->nameExists("Holst"));
-        BOOST_TEST(this->nameExists("Delius"));
-        BOOST_TEST(this->nameExists("flute"));
-        BOOST_TEST(this->nameExists("tuba"));
+        BOOST_TEST_REQUIRE(this->nameExists("count"));
+        BOOST_TEST_REQUIRE(this->nameExists("notes"));
+        BOOST_TEST_REQUIRE(this->nameExists("composer"));
+        BOOST_TEST_REQUIRE(this->nameExists("instrument"));
+        BOOST_TEST_REQUIRE(this->nameExists("Elgar"));
+        BOOST_TEST_REQUIRE(this->nameExists("Holst"));
+        BOOST_TEST_REQUIRE(this->nameExists("Delius"));
+        BOOST_TEST_REQUIRE(this->nameExists("flute"));
+        BOOST_TEST_REQUIRE(this->nameExists("tuba"));
 
         // Play some more data to cull out the third person
         time += BUCKET_SPAN * 5000;
         time = playData(time, BUCKET_SPAN, 100, 2, 2, 101, job);
 
         job.finalise();
-        BOOST_TEST(job.persistState(adder, ""));
+        BOOST_TEST_REQUIRE(job.persistState(adder, ""));
     }
     LOG_DEBUG(<< "Restoring yet again");
     {
         model::CStringStore::influencers().clearEverythingTestOnly();
         model::CStringStore::names().clearEverythingTestOnly();
 
-        BOOST_CHECK_EQUAL(std::size_t(0),
+        BOOST_REQUIRE_EQUAL(std::size_t(0),
                           model::CStringStore::influencers().m_Strings.size());
-        BOOST_CHECK_EQUAL(std::size_t(0), model::CStringStore::names().m_Strings.size());
+        BOOST_REQUIRE_EQUAL(std::size_t(0), model::CStringStore::names().m_Strings.size());
 
         std::ostringstream outputStrm;
         ml::core::CJsonOutputStreamWrapper wrappedOutputStream(outputStrm);
@@ -466,23 +466,23 @@ BOOST_AUTO_TEST_CASE(testAttributeStringPruning) {
                              api::CAnomalyJob::TPersistCompleteFunc());
 
         core_t::TTime completeToTime(0);
-        BOOST_TEST(job.restoreState(searcher, completeToTime));
+        BOOST_TEST_REQUIRE(job.restoreState(searcher, completeToTime));
         adder.clear();
 
         // No influencers in this configuration
-        BOOST_CHECK_EQUAL(std::size_t(0),
+        BOOST_REQUIRE_EQUAL(std::size_t(0),
                           model::CStringStore::influencers().m_Strings.size());
 
         // One composer should have been culled!
-        BOOST_TEST(this->nameExists("count"));
-        BOOST_TEST(this->nameExists("notes"));
-        BOOST_TEST(this->nameExists("composer"));
-        BOOST_TEST(this->nameExists("instrument"));
-        BOOST_TEST(this->nameExists("Elgar"));
-        BOOST_TEST(this->nameExists("Holst"));
-        BOOST_TEST(this->nameExists("flute"));
-        BOOST_TEST(this->nameExists("tuba"));
-        BOOST_TEST(!this->nameExists("Delius"));
+        BOOST_TEST_REQUIRE(this->nameExists("count"));
+        BOOST_TEST_REQUIRE(this->nameExists("notes"));
+        BOOST_TEST_REQUIRE(this->nameExists("composer"));
+        BOOST_TEST_REQUIRE(this->nameExists("instrument"));
+        BOOST_TEST_REQUIRE(this->nameExists("Elgar"));
+        BOOST_TEST_REQUIRE(this->nameExists("Holst"));
+        BOOST_TEST_REQUIRE(this->nameExists("flute"));
+        BOOST_TEST_REQUIRE(this->nameExists("tuba"));
+        BOOST_TEST_REQUIRE(!this->nameExists("Delius"));
     }
 }
 
@@ -496,7 +496,7 @@ BOOST_AUTO_TEST_CASE(testInfluencerStringPruning) {
     clause.push_back("influencerfield=instrument");
     clause.push_back("influencerfield=composer");
 
-    BOOST_TEST(fieldConfig.initFromClause(clause));
+    BOOST_TEST_REQUIRE(fieldConfig.initFromClause(clause));
 
     model::CAnomalyDetectorModelConfig modelConfig =
         model::CAnomalyDetectorModelConfig::defaultConfig(BUCKET_SPAN);
@@ -512,9 +512,9 @@ BOOST_AUTO_TEST_CASE(testInfluencerStringPruning) {
         model::CStringStore::influencers().clearEverythingTestOnly();
         model::CStringStore::names().clearEverythingTestOnly();
 
-        BOOST_CHECK_EQUAL(std::size_t(0),
+        BOOST_REQUIRE_EQUAL(std::size_t(0),
                           model::CStringStore::influencers().m_Strings.size());
-        BOOST_CHECK_EQUAL(std::size_t(0), model::CStringStore::names().m_Strings.size());
+        BOOST_REQUIRE_EQUAL(std::size_t(0), model::CStringStore::names().m_Strings.size());
 
         LOG_TRACE(<< "Setting up job");
         std::ostringstream outputStrm;
@@ -531,82 +531,82 @@ BOOST_AUTO_TEST_CASE(testInfluencerStringPruning) {
         LOG_TRACE(<< core::CContainerPrinter::print(
                       model::CStringStore::influencers().m_Strings));
 
-        BOOST_TEST(this->influencerExists("Delius"));
-        BOOST_TEST(this->influencerExists("Walton"));
-        BOOST_TEST(this->influencerExists("Holst"));
-        BOOST_TEST(this->influencerExists("Vaughan Williams"));
-        BOOST_TEST(this->influencerExists("Warlock"));
-        BOOST_TEST(this->influencerExists("Bliss"));
-        BOOST_TEST(this->influencerExists("Elgar"));
-        BOOST_TEST(this->influencerExists("flute"));
-        BOOST_TEST(this->influencerExists("tuba"));
-        BOOST_TEST(this->influencerExists("violin"));
-        BOOST_TEST(this->influencerExists("triangle"));
-        BOOST_TEST(this->influencerExists("jew's harp"));
+        BOOST_TEST_REQUIRE(this->influencerExists("Delius"));
+        BOOST_TEST_REQUIRE(this->influencerExists("Walton"));
+        BOOST_TEST_REQUIRE(this->influencerExists("Holst"));
+        BOOST_TEST_REQUIRE(this->influencerExists("Vaughan Williams"));
+        BOOST_TEST_REQUIRE(this->influencerExists("Warlock"));
+        BOOST_TEST_REQUIRE(this->influencerExists("Bliss"));
+        BOOST_TEST_REQUIRE(this->influencerExists("Elgar"));
+        BOOST_TEST_REQUIRE(this->influencerExists("flute"));
+        BOOST_TEST_REQUIRE(this->influencerExists("tuba"));
+        BOOST_TEST_REQUIRE(this->influencerExists("violin"));
+        BOOST_TEST_REQUIRE(this->influencerExists("triangle"));
+        BOOST_TEST_REQUIRE(this->influencerExists("jew's harp"));
 
-        BOOST_TEST(!this->nameExists("Delius"));
-        BOOST_TEST(!this->nameExists("Walton"));
-        BOOST_TEST(!this->nameExists("Holst"));
-        BOOST_TEST(!this->nameExists("Vaughan Williams"));
-        BOOST_TEST(!this->nameExists("Warlock"));
-        BOOST_TEST(!this->nameExists("Bliss"));
-        BOOST_TEST(!this->nameExists("Elgar"));
-        BOOST_TEST(!this->nameExists("flute"));
-        BOOST_TEST(!this->nameExists("tuba"));
-        BOOST_TEST(!this->nameExists("violin"));
-        BOOST_TEST(!this->nameExists("triangle"));
-        BOOST_TEST(!this->nameExists("jew's harp"));
-        BOOST_TEST(this->nameExists("count"));
-        BOOST_TEST(this->nameExists("max"));
-        BOOST_TEST(this->nameExists("notes"));
+        BOOST_TEST_REQUIRE(!this->nameExists("Delius"));
+        BOOST_TEST_REQUIRE(!this->nameExists("Walton"));
+        BOOST_TEST_REQUIRE(!this->nameExists("Holst"));
+        BOOST_TEST_REQUIRE(!this->nameExists("Vaughan Williams"));
+        BOOST_TEST_REQUIRE(!this->nameExists("Warlock"));
+        BOOST_TEST_REQUIRE(!this->nameExists("Bliss"));
+        BOOST_TEST_REQUIRE(!this->nameExists("Elgar"));
+        BOOST_TEST_REQUIRE(!this->nameExists("flute"));
+        BOOST_TEST_REQUIRE(!this->nameExists("tuba"));
+        BOOST_TEST_REQUIRE(!this->nameExists("violin"));
+        BOOST_TEST_REQUIRE(!this->nameExists("triangle"));
+        BOOST_TEST_REQUIRE(!this->nameExists("jew's harp"));
+        BOOST_TEST_REQUIRE(this->nameExists("count"));
+        BOOST_TEST_REQUIRE(this->nameExists("max"));
+        BOOST_TEST_REQUIRE(this->nameExists("notes"));
 
         LOG_DEBUG(<< "Running 3 buckets");
         time = playData(time, BUCKET_SPAN, 3, 3, 2, 99, job);
 
-        BOOST_TEST(this->influencerExists("Delius"));
-        BOOST_TEST(this->influencerExists("Walton"));
-        BOOST_TEST(this->influencerExists("Holst"));
-        BOOST_TEST(this->influencerExists("Vaughan Williams"));
-        BOOST_TEST(this->influencerExists("Warlock"));
-        BOOST_TEST(this->influencerExists("Bliss"));
-        BOOST_TEST(this->influencerExists("Elgar"));
-        BOOST_TEST(this->influencerExists("flute"));
-        BOOST_TEST(this->influencerExists("tuba"));
-        BOOST_TEST(this->influencerExists("violin"));
-        BOOST_TEST(this->influencerExists("triangle"));
-        BOOST_TEST(this->influencerExists("jew's harp"));
+        BOOST_TEST_REQUIRE(this->influencerExists("Delius"));
+        BOOST_TEST_REQUIRE(this->influencerExists("Walton"));
+        BOOST_TEST_REQUIRE(this->influencerExists("Holst"));
+        BOOST_TEST_REQUIRE(this->influencerExists("Vaughan Williams"));
+        BOOST_TEST_REQUIRE(this->influencerExists("Warlock"));
+        BOOST_TEST_REQUIRE(this->influencerExists("Bliss"));
+        BOOST_TEST_REQUIRE(this->influencerExists("Elgar"));
+        BOOST_TEST_REQUIRE(this->influencerExists("flute"));
+        BOOST_TEST_REQUIRE(this->influencerExists("tuba"));
+        BOOST_TEST_REQUIRE(this->influencerExists("violin"));
+        BOOST_TEST_REQUIRE(this->influencerExists("triangle"));
+        BOOST_TEST_REQUIRE(this->influencerExists("jew's harp"));
 
         // They should be purged after 3 buckets
         LOG_DEBUG(<< "Running 2 buckets");
         time = playData(time, BUCKET_SPAN, 2, 3, 2, 99, job);
-        BOOST_TEST(this->influencerExists("Delius"));
-        BOOST_TEST(!this->influencerExists("Walton"));
-        BOOST_TEST(this->influencerExists("Holst"));
-        BOOST_TEST(!this->influencerExists("Vaughan Williams"));
-        BOOST_TEST(!this->influencerExists("Warlock"));
-        BOOST_TEST(!this->influencerExists("Bliss"));
-        BOOST_TEST(this->influencerExists("Elgar"));
-        BOOST_TEST(this->influencerExists("flute"));
-        BOOST_TEST(this->influencerExists("tuba"));
-        BOOST_TEST(!this->influencerExists("violin"));
-        BOOST_TEST(!this->influencerExists("triangle"));
-        BOOST_TEST(!this->influencerExists("jew's harp"));
+        BOOST_TEST_REQUIRE(this->influencerExists("Delius"));
+        BOOST_TEST_REQUIRE(!this->influencerExists("Walton"));
+        BOOST_TEST_REQUIRE(this->influencerExists("Holst"));
+        BOOST_TEST_REQUIRE(!this->influencerExists("Vaughan Williams"));
+        BOOST_TEST_REQUIRE(!this->influencerExists("Warlock"));
+        BOOST_TEST_REQUIRE(!this->influencerExists("Bliss"));
+        BOOST_TEST_REQUIRE(this->influencerExists("Elgar"));
+        BOOST_TEST_REQUIRE(this->influencerExists("flute"));
+        BOOST_TEST_REQUIRE(this->influencerExists("tuba"));
+        BOOST_TEST_REQUIRE(!this->influencerExists("violin"));
+        BOOST_TEST_REQUIRE(!this->influencerExists("triangle"));
+        BOOST_TEST_REQUIRE(!this->influencerExists("jew's harp"));
 
         // Most should reappear
         LOG_DEBUG(<< "Running 1 bucket");
         time = playData(time, BUCKET_SPAN, 1, 6, 3, 99, job);
-        BOOST_TEST(this->influencerExists("Delius"));
-        BOOST_TEST(!this->influencerExists("Walton"));
-        BOOST_TEST(this->influencerExists("Holst"));
-        BOOST_TEST(this->influencerExists("Vaughan Williams"));
-        BOOST_TEST(this->influencerExists("Warlock"));
-        BOOST_TEST(this->influencerExists("Bliss"));
-        BOOST_TEST(this->influencerExists("Elgar"));
-        BOOST_TEST(this->influencerExists("flute"));
-        BOOST_TEST(this->influencerExists("tuba"));
-        BOOST_TEST(this->influencerExists("violin"));
-        BOOST_TEST(!this->influencerExists("triangle"));
-        BOOST_TEST(!this->influencerExists("jew's harp"));
+        BOOST_TEST_REQUIRE(this->influencerExists("Delius"));
+        BOOST_TEST_REQUIRE(!this->influencerExists("Walton"));
+        BOOST_TEST_REQUIRE(this->influencerExists("Holst"));
+        BOOST_TEST_REQUIRE(this->influencerExists("Vaughan Williams"));
+        BOOST_TEST_REQUIRE(this->influencerExists("Warlock"));
+        BOOST_TEST_REQUIRE(this->influencerExists("Bliss"));
+        BOOST_TEST_REQUIRE(this->influencerExists("Elgar"));
+        BOOST_TEST_REQUIRE(this->influencerExists("flute"));
+        BOOST_TEST_REQUIRE(this->influencerExists("tuba"));
+        BOOST_TEST_REQUIRE(this->influencerExists("violin"));
+        BOOST_TEST_REQUIRE(!this->influencerExists("triangle"));
+        BOOST_TEST_REQUIRE(!this->influencerExists("jew's harp"));
     }
 }
 

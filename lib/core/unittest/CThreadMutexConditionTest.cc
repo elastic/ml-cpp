@@ -59,19 +59,19 @@ BOOST_AUTO_TEST_CASE(testThread) {
 
     CThread thread;
 
-    BOOST_TEST(thread.isRunning() == false);
+    BOOST_TEST_REQUIRE(thread.isRunning() == false);
 
     // Start thread
-    BOOST_TEST(thread.start());
+    BOOST_TEST_REQUIRE(thread.start());
 
     // Wait for thread to initialise
     ml::core::CSleep::sleep(1000);
 
-    BOOST_TEST(thread.isRunning() == true);
+    BOOST_TEST_REQUIRE(thread.isRunning() == true);
 
     thread.stop();
 
-    BOOST_TEST(thread.isRunning() == false);
+    BOOST_TEST_REQUIRE(thread.isRunning() == false);
 }
 
 BOOST_AUTO_TEST_CASE(testThreadCondition) {
@@ -127,11 +127,11 @@ BOOST_AUTO_TEST_CASE(testThreadCondition) {
     CThread thread;
 
     thread.lock();
-    BOOST_TEST(thread.start());
+    BOOST_TEST_REQUIRE(thread.start());
     thread.wait();
     thread.unlock();
 
-    BOOST_TEST(thread.stop());
+    BOOST_TEST_REQUIRE(thread.stop());
 }
 
 BOOST_AUTO_TEST_SUITE_END()

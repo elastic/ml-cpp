@@ -237,12 +237,12 @@ BOOST_AUTO_TEST_CASE(testReadLock) {
 
     // Allow the test to run slightly over 1 second, as there is processing
     // other than the sleeping.
-    BOOST_TEST(duration <= 2);
-    BOOST_TEST(duration >= 1);
+    BOOST_TEST_REQUIRE(duration <= 2);
+    BOOST_TEST_REQUIRE(duration >= 1);
 
-    BOOST_CHECK_EQUAL(testVariable, reader1.lastRead());
-    BOOST_CHECK_EQUAL(testVariable, reader2.lastRead());
-    BOOST_CHECK_EQUAL(testVariable, reader3.lastRead());
+    BOOST_REQUIRE_EQUAL(testVariable, reader1.lastRead());
+    BOOST_REQUIRE_EQUAL(testVariable, reader2.lastRead());
+    BOOST_REQUIRE_EQUAL(testVariable, reader3.lastRead());
 }
 
 BOOST_AUTO_TEST_CASE(testWriteLock) {
@@ -265,7 +265,7 @@ BOOST_AUTO_TEST_CASE(testWriteLock) {
 
     LOG_INFO(<< "Write lock protected variable incremented to " << testVariable);
 
-    BOOST_CHECK_EQUAL(TEST_SIZE * (1 + 5 + 9), testVariable);
+    BOOST_REQUIRE_EQUAL(TEST_SIZE * (1 + 5 + 9), testVariable);
 }
 
 BOOST_AUTO_TEST_CASE(testPerformanceVersusMutex) {
@@ -334,7 +334,7 @@ BOOST_AUTO_TEST_CASE(testPerformanceVersusMutex) {
 
         LOG_INFO(<< "Atomic variable incremented to " << testVariable.load());
 
-        BOOST_CHECK_EQUAL(uint_fast32_t(TEST_SIZE * (1 + 5 + 9)), testVariable.load());
+        BOOST_REQUIRE_EQUAL(uint_fast32_t(TEST_SIZE * (1 + 5 + 9)), testVariable.load());
     }
     {
         uint32_t testVariable(0);
@@ -365,7 +365,7 @@ BOOST_AUTO_TEST_CASE(testPerformanceVersusMutex) {
 
         LOG_INFO(<< "Fast mutex lock protected variable incremented to " << testVariable);
 
-        BOOST_CHECK_EQUAL(TEST_SIZE * (1 + 5 + 9), testVariable);
+        BOOST_REQUIRE_EQUAL(TEST_SIZE * (1 + 5 + 9), testVariable);
     }
     {
         uint32_t testVariable(0);
@@ -396,7 +396,7 @@ BOOST_AUTO_TEST_CASE(testPerformanceVersusMutex) {
 
         LOG_INFO(<< "Mutex lock protected variable incremented to " << testVariable);
 
-        BOOST_CHECK_EQUAL(TEST_SIZE * (1 + 5 + 9), testVariable);
+        BOOST_REQUIRE_EQUAL(TEST_SIZE * (1 + 5 + 9), testVariable);
     }
     {
         uint32_t testVariable(0);
@@ -427,7 +427,7 @@ BOOST_AUTO_TEST_CASE(testPerformanceVersusMutex) {
 
         LOG_INFO(<< "Write lock protected variable incremented to " << testVariable);
 
-        BOOST_CHECK_EQUAL(TEST_SIZE * (1 + 5 + 9), testVariable);
+        BOOST_REQUIRE_EQUAL(TEST_SIZE * (1 + 5 + 9), testVariable);
     }
 }
 

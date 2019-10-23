@@ -47,53 +47,53 @@ std::string toBitString(const T& v) {
 BOOST_AUTO_TEST_CASE(testCreation) {
     core::CPackedBitVector test1(3, true);
     LOG_DEBUG(<< "test1 = " << test1);
-    BOOST_CHECK_EQUAL(std::size_t(3), test1.dimension());
-    BOOST_CHECK_EQUAL(core::CContainerPrinter::print(TBoolVec(3, true)),
+    BOOST_REQUIRE_EQUAL(std::size_t(3), test1.dimension());
+    BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(TBoolVec(3, true)),
                       core::CContainerPrinter::print(test1.toBitVector()));
 
     core::CPackedBitVector test2(5, false);
     LOG_DEBUG(<< "test2 = " << test2);
-    BOOST_CHECK_EQUAL(std::size_t(5), test2.dimension());
-    BOOST_CHECK_EQUAL(core::CContainerPrinter::print(TBoolVec(5, false)),
+    BOOST_REQUIRE_EQUAL(std::size_t(5), test2.dimension());
+    BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(TBoolVec(5, false)),
                       core::CContainerPrinter::print(test2.toBitVector()));
 
     core::CPackedBitVector test3(255, true);
     LOG_DEBUG(<< "test3 = " << test3);
-    BOOST_CHECK_EQUAL(std::size_t(255), test3.dimension());
-    BOOST_CHECK_EQUAL(core::CContainerPrinter::print(TBoolVec(255, true)),
+    BOOST_REQUIRE_EQUAL(std::size_t(255), test3.dimension());
+    BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(TBoolVec(255, true)),
                       core::CContainerPrinter::print(test3.toBitVector()));
 
     core::CPackedBitVector test4(279, true);
     LOG_DEBUG(<< "test4 = " << test4);
-    BOOST_CHECK_EQUAL(std::size_t(279), test4.dimension());
-    BOOST_CHECK_EQUAL(core::CContainerPrinter::print(TBoolVec(279, true)),
+    BOOST_REQUIRE_EQUAL(std::size_t(279), test4.dimension());
+    BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(TBoolVec(279, true)),
                       core::CContainerPrinter::print(test4.toBitVector()));
 
     core::CPackedBitVector test5(512, false);
     LOG_DEBUG(<< "test5 = " << test5);
-    BOOST_CHECK_EQUAL(std::size_t(512), test5.dimension());
-    BOOST_CHECK_EQUAL(core::CContainerPrinter::print(TBoolVec(512, false)),
+    BOOST_REQUIRE_EQUAL(std::size_t(512), test5.dimension());
+    BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(TBoolVec(512, false)),
                       core::CContainerPrinter::print(test5.toBitVector()));
 
     core::CPackedBitVector test6((TBoolVec()));
     LOG_DEBUG(<< "test6 = " << test6);
-    BOOST_CHECK_EQUAL(std::size_t(0), test6.dimension());
-    BOOST_CHECK_EQUAL(core::CContainerPrinter::print((TBoolVec())),
+    BOOST_REQUIRE_EQUAL(std::size_t(0), test6.dimension());
+    BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print((TBoolVec())),
                       core::CContainerPrinter::print(test6.toBitVector()));
 
     TBoolVec bits1{true, true};
     core::CPackedBitVector test7(bits1);
     LOG_DEBUG(<< "test7 = " << test7);
-    BOOST_CHECK_EQUAL(bits1.size(), test7.dimension());
-    BOOST_CHECK_EQUAL(core::CContainerPrinter::print(bits1),
+    BOOST_REQUIRE_EQUAL(bits1.size(), test7.dimension());
+    BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(bits1),
                       core::CContainerPrinter::print(test7.toBitVector()));
 
     TBoolVec bits2{true,  false, false, true, true, false, false,
                    false, false, true,  true, true, true,  false};
     core::CPackedBitVector test8(bits2);
     LOG_DEBUG(<< "test8 = " << test8);
-    BOOST_CHECK_EQUAL(bits2.size(), test8.dimension());
-    BOOST_CHECK_EQUAL(core::CContainerPrinter::print(bits2),
+    BOOST_REQUIRE_EQUAL(bits2.size(), test8.dimension());
+    BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(bits2),
                       core::CContainerPrinter::print(test8.toBitVector()));
 
     test::CRandomNumbers rng;
@@ -106,8 +106,8 @@ BOOST_AUTO_TEST_CASE(testCreation) {
         if ((t + 1) % 10 == 0) {
             LOG_DEBUG(<< "test9 = " << test9);
         }
-        BOOST_CHECK_EQUAL(bits3.size(), test9.dimension());
-        BOOST_CHECK_EQUAL(core::CContainerPrinter::print(bits3),
+        BOOST_REQUIRE_EQUAL(bits3.size(), test9.dimension());
+        BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(bits3),
                           core::CContainerPrinter::print(test9.toBitVector()));
     }
 }
@@ -116,48 +116,48 @@ BOOST_AUTO_TEST_CASE(testExtend) {
     core::CPackedBitVector test1;
     test1.extend(true);
     LOG_DEBUG(<< "test1 = " << test1);
-    BOOST_CHECK_EQUAL(std::size_t(1), test1.dimension());
-    BOOST_CHECK_EQUAL(std::string("[1]"), print(test1));
+    BOOST_REQUIRE_EQUAL(std::size_t(1), test1.dimension());
+    BOOST_REQUIRE_EQUAL(std::string("[1]"), print(test1));
 
     test1.extend(true);
     LOG_DEBUG(<< "test1 = " << test1);
-    BOOST_CHECK_EQUAL(std::size_t(2), test1.dimension());
-    BOOST_CHECK_EQUAL(std::string("[1 1]"), print(test1));
+    BOOST_REQUIRE_EQUAL(std::size_t(2), test1.dimension());
+    BOOST_REQUIRE_EQUAL(std::string("[1 1]"), print(test1));
 
     test1.extend(false);
     LOG_DEBUG(<< "test1 = " << test1);
-    BOOST_CHECK_EQUAL(std::size_t(3), test1.dimension());
-    BOOST_CHECK_EQUAL(std::string("[1 1 0]"), print(test1));
+    BOOST_REQUIRE_EQUAL(std::size_t(3), test1.dimension());
+    BOOST_REQUIRE_EQUAL(std::string("[1 1 0]"), print(test1));
 
     test1.extend(false);
     LOG_DEBUG(<< "test1 = " << test1);
-    BOOST_CHECK_EQUAL(std::size_t(4), test1.dimension());
-    BOOST_CHECK_EQUAL(std::string("[1 1 0 0]"), print(test1));
+    BOOST_REQUIRE_EQUAL(std::size_t(4), test1.dimension());
+    BOOST_REQUIRE_EQUAL(std::string("[1 1 0 0]"), print(test1));
 
     test1.extend(true);
     LOG_DEBUG(<< "test1 = " << test1);
-    BOOST_CHECK_EQUAL(std::size_t(5), test1.dimension());
-    BOOST_CHECK_EQUAL(std::string("[1 1 0 0 1]"), print(test1));
+    BOOST_REQUIRE_EQUAL(std::size_t(5), test1.dimension());
+    BOOST_REQUIRE_EQUAL(std::string("[1 1 0 0 1]"), print(test1));
 
     core::CPackedBitVector test2(254, true);
     test2.extend(true);
     LOG_DEBUG(<< "test2 = " << test2);
-    BOOST_CHECK_EQUAL(std::size_t(255), test2.dimension());
+    BOOST_REQUIRE_EQUAL(std::size_t(255), test2.dimension());
     TBoolVec bits1(255, true);
-    BOOST_CHECK_EQUAL(core::CContainerPrinter::print(bits1),
+    BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(bits1),
                       core::CContainerPrinter::print(test2.toBitVector()));
     test2.extend(false);
     bits1.push_back(false);
     LOG_DEBUG(<< "test2 = " << test2);
-    BOOST_CHECK_EQUAL(std::size_t(256), test2.dimension());
-    BOOST_CHECK_EQUAL(core::CContainerPrinter::print(bits1),
+    BOOST_REQUIRE_EQUAL(std::size_t(256), test2.dimension());
+    BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(bits1),
                       core::CContainerPrinter::print(test2.toBitVector()));
 
     core::CPackedBitVector test3(255, true);
     test3.extend(false);
     LOG_DEBUG(<< "test3 = " << test2);
-    BOOST_CHECK_EQUAL(std::size_t(256), test3.dimension());
-    BOOST_CHECK_EQUAL(core::CContainerPrinter::print(bits1),
+    BOOST_REQUIRE_EQUAL(std::size_t(256), test3.dimension());
+    BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(bits1),
                       core::CContainerPrinter::print(test3.toBitVector()));
 
     test::CRandomNumbers rng;
@@ -171,7 +171,7 @@ BOOST_AUTO_TEST_CASE(testExtend) {
     for (std::size_t i = 0; i < components.size(); ++i) {
         bits2.push_back(components[i] > 0);
         test4.extend(components[i] > 0);
-        BOOST_CHECK_EQUAL(core::CContainerPrinter::print(bits2),
+        BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(bits2),
                           core::CContainerPrinter::print(test4.toBitVector()));
     }
 }
@@ -185,7 +185,7 @@ BOOST_AUTO_TEST_CASE(testContract) {
     std::string expected[] = {"[1 1 0 1]", "[1 0 1]", "[0 1]", "[1]"};
     for (const std::string* e = expected; test1.dimension() > 0; ++e) {
         LOG_DEBUG(<< "test1 = " << test1);
-        BOOST_CHECK_EQUAL(*e, print(test1));
+        BOOST_REQUIRE_EQUAL(*e, print(test1));
         test1.contract();
     }
 
@@ -198,7 +198,7 @@ BOOST_AUTO_TEST_CASE(testContract) {
         bits1.erase(bits1.begin());
         test2.contract();
         LOG_DEBUG(<< "test2 = " << test2);
-        BOOST_CHECK_EQUAL(core::CContainerPrinter::print(bits1),
+        BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(bits1),
                           core::CContainerPrinter::print(test2.toBitVector()));
     }
 
@@ -210,7 +210,7 @@ BOOST_AUTO_TEST_CASE(testContract) {
         bits2.erase(bits2.begin());
         test3.contract();
         LOG_DEBUG(<< "test3 = " << test3);
-        BOOST_CHECK_EQUAL(core::CContainerPrinter::print(bits2),
+        BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(bits2),
                           core::CContainerPrinter::print(test3.toBitVector()));
     }
 }
@@ -229,7 +229,7 @@ BOOST_AUTO_TEST_CASE(testComparisonAndLess) {
 
     for (std::size_t i = 0; i < test.size(); ++i) {
         for (std::size_t j = i; j < test.size(); ++j) {
-            BOOST_TEST((test[i] < test[j] || test[i] > test[j] || test[i] == test[j]));
+            BOOST_TEST_REQUIRE((test[i] < test[j] || test[i] > test[j] || test[i] == test[j]));
         }
     }
 }
@@ -245,7 +245,7 @@ BOOST_AUTO_TEST_CASE(testBitwiseComplement) {
         TBoolVec expectedComplement(bits.size());
         std::transform(bits.begin(), bits.end(), expectedComplement.begin(),
                        std::logical_not<bool>());
-        BOOST_CHECK_EQUAL(toBitString(expectedComplement), toBitString(actualComplement));
+        BOOST_REQUIRE_EQUAL(toBitString(expectedComplement), toBitString(actualComplement));
     }
 }
 
@@ -262,13 +262,13 @@ BOOST_AUTO_TEST_CASE(testBitwise) {
         b.extend(false, 2 * run);
 
         TBoolVec expectedBitwiseAnd(3 * run, false);
-        BOOST_CHECK_EQUAL(toBitString(expectedBitwiseAnd), toBitString(a & b));
+        BOOST_REQUIRE_EQUAL(toBitString(expectedBitwiseAnd), toBitString(a & b));
 
         TBoolVec expectedBitwiseOr(3 * run, true);
-        BOOST_CHECK_EQUAL(toBitString(expectedBitwiseOr), toBitString(a | b));
+        BOOST_REQUIRE_EQUAL(toBitString(expectedBitwiseOr), toBitString(a | b));
 
         TBoolVec expectedBitwiseXor(3 * run, true);
-        BOOST_CHECK_EQUAL(toBitString(expectedBitwiseXor), toBitString(a ^ b));
+        BOOST_REQUIRE_EQUAL(toBitString(expectedBitwiseXor), toBitString(a ^ b));
     }
     {
         core::CPackedBitVector a;
@@ -280,14 +280,14 @@ BOOST_AUTO_TEST_CASE(testBitwise) {
 
         TBoolVec expectedBitwiseAnd(run, false);
         expectedBitwiseAnd.resize(3 * run, true);
-        BOOST_CHECK_EQUAL(toBitString(expectedBitwiseAnd), toBitString(a & b));
+        BOOST_REQUIRE_EQUAL(toBitString(expectedBitwiseAnd), toBitString(a & b));
 
         TBoolVec expectedBitwiseOr(run, false);
         expectedBitwiseOr.resize(3 * run, true);
-        BOOST_CHECK_EQUAL(toBitString(expectedBitwiseOr), toBitString(a | b));
+        BOOST_REQUIRE_EQUAL(toBitString(expectedBitwiseOr), toBitString(a | b));
 
         TBoolVec expectedBitwiseXor(3 * run, false);
-        BOOST_CHECK_EQUAL(toBitString(expectedBitwiseXor), toBitString(a ^ b));
+        BOOST_REQUIRE_EQUAL(toBitString(expectedBitwiseXor), toBitString(a ^ b));
     }
 
     test::CRandomNumbers rng;
@@ -313,9 +313,9 @@ BOOST_AUTO_TEST_CASE(testBitwise) {
             if (j % 500 == 0) {
                 LOG_DEBUG(<< "and = " << toBitString(expectedBitwiseAnd));
             }
-            BOOST_CHECK_EQUAL(toBitString(expectedBitwiseAnd), toBitString(actualBitwiseAnd));
+            BOOST_REQUIRE_EQUAL(toBitString(expectedBitwiseAnd), toBitString(actualBitwiseAnd));
             // Also check hidden state...
-            BOOST_CHECK_EQUAL(core::CPackedBitVector{expectedBitwiseAnd}.checksum(),
+            BOOST_REQUIRE_EQUAL(core::CPackedBitVector{expectedBitwiseAnd}.checksum(),
                               actualBitwiseAnd.checksum());
 
             core::CPackedBitVector actualBitwiseOr{test[i] | test[j]};
@@ -326,9 +326,9 @@ BOOST_AUTO_TEST_CASE(testBitwise) {
             if (j % 100 == 0) {
                 LOG_DEBUG(<< "or = " << toBitString(expectedBitwiseOr));
             }
-            BOOST_CHECK_EQUAL(toBitString(expectedBitwiseOr), toBitString(actualBitwiseOr));
+            BOOST_REQUIRE_EQUAL(toBitString(expectedBitwiseOr), toBitString(actualBitwiseOr));
             // Also check hidden state...
-            BOOST_CHECK_EQUAL(core::CPackedBitVector{expectedBitwiseOr}.checksum(),
+            BOOST_REQUIRE_EQUAL(core::CPackedBitVector{expectedBitwiseOr}.checksum(),
                               actualBitwiseOr.checksum());
 
             core::CPackedBitVector actualBitwiseXor{test[i] ^ test[j]};
@@ -339,9 +339,9 @@ BOOST_AUTO_TEST_CASE(testBitwise) {
             if (j % 100 == 0) {
                 LOG_DEBUG(<< "xor = " << toBitString(expectedBitwiseXor));
             }
-            BOOST_CHECK_EQUAL(toBitString(expectedBitwiseXor), toBitString(actualBitwiseXor));
+            BOOST_REQUIRE_EQUAL(toBitString(expectedBitwiseXor), toBitString(actualBitwiseXor));
             // Also check hidden state...
-            BOOST_CHECK_EQUAL(core::CPackedBitVector{expectedBitwiseXor}.checksum(),
+            BOOST_REQUIRE_EQUAL(core::CPackedBitVector{expectedBitwiseXor}.checksum(),
                               actualBitwiseXor.checksum());
         }
     }
@@ -354,13 +354,13 @@ BOOST_AUTO_TEST_CASE(testOneBitIterators) {
         TSizeVec actualIndices{test.beginOneBits(), test.endOneBits()};
         TSizeVec expectedIndices(2000);
         std::iota(expectedIndices.begin(), expectedIndices.end(), 0);
-        BOOST_TEST(actualIndices == expectedIndices);
+        BOOST_TEST_REQUIRE(actualIndices == expectedIndices);
     }
     {
         // All zeros.
         core::CPackedBitVector test(1000, false);
         TSizeVec actualIndices{test.beginOneBits(), test.endOneBits()};
-        BOOST_TEST(actualIndices.empty());
+        BOOST_TEST_REQUIRE(actualIndices.empty());
     }
     {
         // Test end edge cases.
@@ -376,7 +376,7 @@ BOOST_AUTO_TEST_CASE(testOneBitIterators) {
         for (std::size_t i = run; i < 3 * run; ++i) {
             expectedIndices.push_back(i);
         }
-        BOOST_TEST(actualIndices == expectedIndices);
+        BOOST_TEST_REQUIRE(actualIndices == expectedIndices);
     }
 
     test::CRandomNumbers rng;
@@ -404,7 +404,7 @@ BOOST_AUTO_TEST_CASE(testOneBitIterators) {
         } else if (t % 100 == 0) {
             LOG_DEBUG(<< "indices = " << core::CContainerPrinter::print(expectedIndices));
         }
-        BOOST_TEST(actualIndices == expectedIndices);
+        BOOST_TEST_REQUIRE(actualIndices == expectedIndices);
     }
 }
 
@@ -418,16 +418,16 @@ BOOST_AUTO_TEST_CASE(testInnerProductBitwiseAnd) {
                    false, false, false, false, false};
     core::CPackedBitVector test4(bits2);
 
-    BOOST_CHECK_EQUAL(10.0, test1.inner(test1));
-    BOOST_CHECK_EQUAL(0.0, test1.inner(test2));
-    BOOST_CHECK_EQUAL(5.0, test1.inner(test3));
-    BOOST_CHECK_EQUAL(2.0, test1.inner(test4));
-    BOOST_CHECK_EQUAL(0.0, test2.inner(test2));
-    BOOST_CHECK_EQUAL(0.0, test2.inner(test3));
-    BOOST_CHECK_EQUAL(0.0, test2.inner(test4));
-    BOOST_CHECK_EQUAL(5.0, test3.inner(test3));
-    BOOST_CHECK_EQUAL(1.0, test3.inner(test4));
-    BOOST_CHECK_EQUAL(2.0, test4.inner(test4));
+    BOOST_REQUIRE_EQUAL(10.0, test1.inner(test1));
+    BOOST_REQUIRE_EQUAL(0.0, test1.inner(test2));
+    BOOST_REQUIRE_EQUAL(5.0, test1.inner(test3));
+    BOOST_REQUIRE_EQUAL(2.0, test1.inner(test4));
+    BOOST_REQUIRE_EQUAL(0.0, test2.inner(test2));
+    BOOST_REQUIRE_EQUAL(0.0, test2.inner(test3));
+    BOOST_REQUIRE_EQUAL(0.0, test2.inner(test4));
+    BOOST_REQUIRE_EQUAL(5.0, test3.inner(test3));
+    BOOST_REQUIRE_EQUAL(1.0, test3.inner(test4));
+    BOOST_REQUIRE_EQUAL(2.0, test4.inner(test4));
 
     core::CPackedBitVector test5(570, true);
     test5.extend(false);
@@ -443,7 +443,7 @@ BOOST_AUTO_TEST_CASE(testInnerProductBitwiseAnd) {
     test6.extend(false);
     test6.extend(true);
 
-    BOOST_CHECK_EQUAL(566.0, test5.inner(test6));
+    BOOST_REQUIRE_EQUAL(566.0, test5.inner(test6));
 
     test::CRandomNumbers rng;
 
@@ -467,7 +467,7 @@ BOOST_AUTO_TEST_CASE(testInnerProductBitwiseAnd) {
             for (std::size_t k = 0; k < 50; ++k) {
                 expected += (reference7[i][k] && reference7[j][k] ? 1.0 : 0.0);
             }
-            BOOST_CHECK_EQUAL(expected, test7[i].inner(test7[j]));
+            BOOST_REQUIRE_EQUAL(expected, test7[i].inner(test7[j]));
         }
     }
 }
@@ -497,7 +497,7 @@ BOOST_AUTO_TEST_CASE(testInnerProductBitwiseOr) {
                 if (j % 100 == 0) {
                     LOG_DEBUG(<< "or  = " << expected);
                 }
-                BOOST_CHECK_EQUAL(
+                BOOST_REQUIRE_EQUAL(
                     expected, test[i].inner(test[j], core::CPackedBitVector::E_OR));
             }
             {
@@ -508,7 +508,7 @@ BOOST_AUTO_TEST_CASE(testInnerProductBitwiseOr) {
                 if (j % 100 == 0) {
                     LOG_DEBUG(<< "xor = " << expected);
                 }
-                BOOST_CHECK_EQUAL(
+                BOOST_REQUIRE_EQUAL(
                     expected, test[i].inner(test[j], core::CPackedBitVector::E_XOR));
             }
         }
@@ -573,8 +573,8 @@ BOOST_AUTO_TEST_CASE(testLineScanProblemCase) {
     core::CPackedBitVector lhs{lhs_};
     core::CPackedBitVector rhs{rhs_};
 
-    BOOST_CHECK_EQUAL(rhs.manhattan(), (lhs & rhs).manhattan());
-    BOOST_CHECK_EQUAL(lhs.manhattan() - rhs.manhattan(), (lhs ^ rhs).manhattan());
+    BOOST_REQUIRE_EQUAL(rhs.manhattan(), (lhs & rhs).manhattan());
+    BOOST_REQUIRE_EQUAL(lhs.manhattan() - rhs.manhattan(), (lhs ^ rhs).manhattan());
 }
 
 BOOST_AUTO_TEST_CASE(testZeroLengthRunProblemCase) {
@@ -612,10 +612,10 @@ BOOST_AUTO_TEST_CASE(testZeroLengthRunProblemCase) {
             }
         }
         core::CPackedBitVector actual{(test[0] | test[1]) & test[2]};
-        BOOST_CHECK_EQUAL(toBitString(expected), toBitString(actual));
+        BOOST_REQUIRE_EQUAL(toBitString(expected), toBitString(actual));
 
         TSizeVec actualIndices(actual.beginOneBits(), actual.endOneBits());
-        BOOST_CHECK_EQUAL(core::CContainerPrinter::print(expectedIndices),
+        BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(expectedIndices),
                           core::CContainerPrinter::print(actualIndices));
     }
 }
@@ -633,7 +633,7 @@ BOOST_AUTO_TEST_CASE(testPersist) {
         core::CPackedBitVector restoredVector;
         restoredVector.fromDelimited(origXml);
 
-        BOOST_CHECK_EQUAL(origVector.checksum(), restoredVector.checksum());
+        BOOST_REQUIRE_EQUAL(origVector.checksum(), restoredVector.checksum());
     }
 }
 

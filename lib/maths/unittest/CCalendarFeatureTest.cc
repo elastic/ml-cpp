@@ -67,7 +67,7 @@ BOOST_AUTO_TEST_CASE(testInitialize) {
         maths::CCalendarFeature::TCalendarFeature4Ary actual =
             maths::CCalendarFeature::features(time);
 
-        BOOST_TEST(expected == actual);
+        BOOST_TEST_REQUIRE(expected == actual);
     }
 }
 
@@ -96,11 +96,11 @@ BOOST_AUTO_TEST_CASE(testComparison) {
     features.erase(std::unique(features.begin(), features.end()), features.end());
 
     for (std::size_t i = 0u; i < features.size(); ++i) {
-        BOOST_TEST(features[i] == features[i]);
-        BOOST_TEST(!(features[i] < features[i] || features[i] > features[i]));
+        BOOST_TEST_REQUIRE(features[i] == features[i]);
+        BOOST_TEST_REQUIRE(!(features[i] < features[i] || features[i] > features[i]));
         for (std::size_t j = i + 1; j < features.size(); ++j) {
-            BOOST_TEST(features[i] != features[j]);
-            BOOST_TEST((features[i] < features[j] || features[i] > features[j]));
+            BOOST_TEST_REQUIRE(features[i] != features[j]);
+            BOOST_TEST_REQUIRE((features[i] < features[j] || features[i] > features[j]));
         }
     }
 }
@@ -142,7 +142,7 @@ BOOST_AUTO_TEST_CASE(testOffset) {
 
             if (month == offsetMonth) {
                 for (const auto& feature : features) {
-                    BOOST_TEST(feature.offset(time) + offset == feature.offset(offsetTime) ||
+                    BOOST_TEST_REQUIRE(feature.offset(time) + offset == feature.offset(offsetTime) ||
                                feature.offset(time) + offset ==
                                    feature.offset(offsetTime) - 3600 ||
                                feature.offset(time) + offset ==
@@ -156,7 +156,7 @@ BOOST_AUTO_TEST_CASE(testOffset) {
     CScopeGMT gmt;
 
     LOG_DEBUG(<< "# tests = " << tests);
-    BOOST_TEST(tests > 30000);
+    BOOST_TEST_REQUIRE(tests > 30000);
 
     core_t::TTime feb1st = 31 * DAY;
     core_t::TTime march1st = feb1st + 28 * DAY;
@@ -168,16 +168,16 @@ BOOST_AUTO_TEST_CASE(testOffset) {
         maths::CCalendarFeature feature(
             maths::CCalendarFeature::DAYS_SINCE_START_OF_MONTH, feb1st);
         for (core_t::TTime time = march1st; time < april1st; time += DAY) {
-            BOOST_CHECK_EQUAL(time - march1st, feature.offset(time));
-            BOOST_CHECK_EQUAL(time - march1st + 4800, feature.offset(time + 4800));
+            BOOST_REQUIRE_EQUAL(time - march1st, feature.offset(time));
+            BOOST_REQUIRE_EQUAL(time - march1st + 4800, feature.offset(time + 4800));
         }
     }
     {
         maths::CCalendarFeature feature(
             maths::CCalendarFeature::DAYS_SINCE_START_OF_MONTH, feb1st + 12 * DAY);
         for (core_t::TTime time = march1st; time < april1st; time += DAY) {
-            BOOST_CHECK_EQUAL(time - march1st - 12 * DAY, feature.offset(time));
-            BOOST_CHECK_EQUAL(time - march1st - 12 * DAY + 43400,
+            BOOST_REQUIRE_EQUAL(time - march1st - 12 * DAY, feature.offset(time));
+            BOOST_REQUIRE_EQUAL(time - march1st - 12 * DAY + 43400,
                               feature.offset(time + 43400));
         }
     }
@@ -187,16 +187,16 @@ BOOST_AUTO_TEST_CASE(testOffset) {
         maths::CCalendarFeature feature(
             maths::CCalendarFeature::DAYS_BEFORE_END_OF_MONTH, feb1st);
         for (core_t::TTime time = march1st; time < april1st; time += DAY) {
-            BOOST_CHECK_EQUAL(time - march1st - 3 * DAY, feature.offset(time));
-            BOOST_CHECK_EQUAL(time - march1st - 3 * DAY + 7200, feature.offset(time + 7200));
+            BOOST_REQUIRE_EQUAL(time - march1st - 3 * DAY, feature.offset(time));
+            BOOST_REQUIRE_EQUAL(time - march1st - 3 * DAY + 7200, feature.offset(time + 7200));
         }
     }
     {
         maths::CCalendarFeature feature(
             maths::CCalendarFeature::DAYS_BEFORE_END_OF_MONTH, feb1st + 10 * DAY);
         for (core_t::TTime time = march1st; time < april1st; time += DAY) {
-            BOOST_CHECK_EQUAL(time - march1st - 13 * DAY, feature.offset(time));
-            BOOST_CHECK_EQUAL(time - march1st - 13 * DAY + 86399,
+            BOOST_REQUIRE_EQUAL(time - march1st - 13 * DAY, feature.offset(time));
+            BOOST_REQUIRE_EQUAL(time - march1st - 13 * DAY + 86399,
                               feature.offset(time + 86399));
         }
     }
@@ -207,8 +207,8 @@ BOOST_AUTO_TEST_CASE(testOffset) {
         maths::CCalendarFeature feature(
             maths::CCalendarFeature::DAY_OF_WEEK_AND_WEEKS_SINCE_START_OF_MONTH, feb1st);
         for (core_t::TTime time = april1st; time < may1st; time += DAY) {
-            BOOST_CHECK_EQUAL(time - april1st - 4 * DAY, feature.offset(time));
-            BOOST_CHECK_EQUAL(time - april1st - 4 * DAY + 7200, feature.offset(time + 7200));
+            BOOST_REQUIRE_EQUAL(time - april1st - 4 * DAY, feature.offset(time));
+            BOOST_REQUIRE_EQUAL(time - april1st - 4 * DAY + 7200, feature.offset(time + 7200));
         }
     }
     {
@@ -216,8 +216,8 @@ BOOST_AUTO_TEST_CASE(testOffset) {
         maths::CCalendarFeature feature(maths::CCalendarFeature::DAY_OF_WEEK_AND_WEEKS_SINCE_START_OF_MONTH,
                                         feb1st + 12 * DAY);
         for (core_t::TTime time = april1st; time < may1st; time += DAY) {
-            BOOST_CHECK_EQUAL(time - april1st - 9 * DAY, feature.offset(time));
-            BOOST_CHECK_EQUAL(time - april1st - 9 * DAY + 73000,
+            BOOST_REQUIRE_EQUAL(time - april1st - 9 * DAY, feature.offset(time));
+            BOOST_REQUIRE_EQUAL(time - april1st - 9 * DAY + 73000,
                               feature.offset(time + 73000));
         }
     }
@@ -228,8 +228,8 @@ BOOST_AUTO_TEST_CASE(testOffset) {
         maths::CCalendarFeature feature(
             maths::CCalendarFeature::DAY_OF_WEEK_AND_WEEKS_BEFORE_END_OF_MONTH, feb1st);
         for (core_t::TTime time = april1st; time < may1st; time += DAY) {
-            BOOST_CHECK_EQUAL(time - april1st - 4 * DAY, feature.offset(time));
-            BOOST_CHECK_EQUAL(time - april1st - 4 * DAY + 7200, feature.offset(time + 7200));
+            BOOST_REQUIRE_EQUAL(time - april1st - 4 * DAY, feature.offset(time));
+            BOOST_REQUIRE_EQUAL(time - april1st - 4 * DAY + 7200, feature.offset(time + 7200));
         }
     }
     {
@@ -237,8 +237,8 @@ BOOST_AUTO_TEST_CASE(testOffset) {
         maths::CCalendarFeature feature(maths::CCalendarFeature::DAY_OF_WEEK_AND_WEEKS_SINCE_START_OF_MONTH,
                                         feb1st + 12 * DAY);
         for (core_t::TTime time = april1st; time < may1st; time += DAY) {
-            BOOST_CHECK_EQUAL(time - april1st - 9 * DAY, feature.offset(time));
-            BOOST_CHECK_EQUAL(time - april1st - 9 * DAY + 73000,
+            BOOST_REQUIRE_EQUAL(time - april1st - 9 * DAY, feature.offset(time));
+            BOOST_REQUIRE_EQUAL(time - april1st - 9 * DAY + 73000,
                               feature.offset(time + 73000));
         }
     }
@@ -255,8 +255,8 @@ BOOST_AUTO_TEST_CASE(testPersist) {
         maths::CCalendarFeature restored;
         restored.fromDelimited(state);
 
-        BOOST_CHECK_EQUAL(features[i].checksum(), restored.checksum());
-        BOOST_CHECK_EQUAL(state, restored.toDelimited());
+        BOOST_REQUIRE_EQUAL(features[i].checksum(), restored.checksum());
+        BOOST_REQUIRE_EQUAL(state, restored.toDelimited());
     }
 }
 

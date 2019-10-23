@@ -74,12 +74,12 @@ BOOST_AUTO_TEST_CASE(testCorrect) {
                 maths::CStatisticalTests::twoSampleKS(raw[i], raw[j]);
             similarityIncrease.add(std::log(increase));
             LOG_DEBUG(<< "similarity increase = " << increase);
-            BOOST_TEST(increase > 3.0);
+            BOOST_TEST_REQUIRE(increase > 3.0);
         }
     }
     LOG_DEBUG(<< "mean similarity increase = "
               << std::exp(maths::CBasicStatistics::mean(similarityIncrease)));
-    BOOST_TEST(std::exp(maths::CBasicStatistics::mean(similarityIncrease)) > 40.0);
+    BOOST_TEST_REQUIRE(std::exp(maths::CBasicStatistics::mean(similarityIncrease)) > 40.0);
 }
 
 BOOST_AUTO_TEST_CASE(testAge) {
@@ -117,12 +117,12 @@ BOOST_AUTO_TEST_CASE(testAge) {
             double error = std::fabs((std::log(pca) - std::log(pc)) / std::log(pc));
             meanError.add(error);
             meanBias.add((std::log(pca) - std::log(pc)) / std::log(pc));
-            BOOST_TEST(error < 0.18);
+            BOOST_TEST_REQUIRE(error < 0.18);
         }
         LOG_DEBUG(<< "mean bias  = " << maths::CBasicStatistics::mean(meanBias));
         LOG_DEBUG(<< "mean error = " << maths::CBasicStatistics::mean(meanError));
-        BOOST_TEST(std::fabs(maths::CBasicStatistics::mean(meanBias)) < 0.053);
-        BOOST_TEST(maths::CBasicStatistics::mean(meanError) < 0.053);
+        BOOST_TEST_REQUIRE(std::fabs(maths::CBasicStatistics::mean(meanBias)) < 0.053);
+        BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(meanError) < 0.053);
     }
 }
 
@@ -159,15 +159,15 @@ BOOST_AUTO_TEST_CASE(testPersist) {
     model::CDetectorEqualizer restoredEqualizer;
     {
         core::CRapidXmlParser parser;
-        BOOST_TEST(parser.parseStringIgnoreCdata(origXml));
+        BOOST_TEST_REQUIRE(parser.parseStringIgnoreCdata(origXml));
         core::CRapidXmlStateRestoreTraverser traverser(parser);
-        BOOST_TEST(traverser.traverseSubLevel(
+        BOOST_TEST_REQUIRE(traverser.traverseSubLevel(
             std::bind(&model::CDetectorEqualizer::acceptRestoreTraverser,
                       &restoredEqualizer, std::placeholders::_1)));
     }
 
     // Checksums should agree.
-    BOOST_CHECK_EQUAL(origEqualizer.checksum(), restoredEqualizer.checksum());
+    BOOST_REQUIRE_EQUAL(origEqualizer.checksum(), restoredEqualizer.checksum());
 
     // The persist and restore should be idempotent.
     std::string newXml;
@@ -176,7 +176,7 @@ BOOST_AUTO_TEST_CASE(testPersist) {
         restoredEqualizer.acceptPersistInserter(inserter);
         inserter.toXml(newXml);
     }
-    BOOST_CHECK_EQUAL(origXml, newXml);
+    BOOST_REQUIRE_EQUAL(origXml, newXml);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

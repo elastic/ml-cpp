@@ -97,7 +97,7 @@ BOOST_AUTO_TEST_CASE(testVariance) {
         LOG_DEBUG(<< "expected = "
                   << maths::CBasicStatistics::maximumLikelihoodVariance(expected));
 
-        BOOST_CHECK_CLOSE_ABSOLUTE(
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(
             maths::CBasicStatistics::maximumLikelihoodVariance(expected),
             CKMeansOnlineTestForTest<TVector5>::variance(actual),
             1e-10 * maths::CBasicStatistics::maximumLikelihoodVariance(expected));
@@ -141,9 +141,9 @@ BOOST_AUTO_TEST_CASE(testAdd) {
             << maths::CBasicStatistics::maximumLikelihoodVariance(expected).inner(ones) /
                    static_cast<double>(ones.dimension()));
 
-        BOOST_CHECK_EQUAL(print(maths::CBasicStatistics::mean(expected)),
+        BOOST_REQUIRE_EQUAL(print(maths::CBasicStatistics::mean(expected)),
                           print(maths::CBasicStatistics::mean(actual.first)));
-        BOOST_CHECK_CLOSE_ABSOLUTE(
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(
             maths::CBasicStatistics::maximumLikelihoodVariance(expected).inner(ones) /
                 static_cast<double>(ones.dimension()),
             actual.second,
@@ -189,7 +189,7 @@ BOOST_AUTO_TEST_CASE(testReduce) {
             if ((i + 1) % 7 == 0) {
                 CKMeansOnlineTestForTest<TVector2>::TSphericalClusterVec clusters;
                 kmeans.clusters(clusters);
-                BOOST_TEST(clusters.size() <= 10);
+                BOOST_TEST_REQUIRE(clusters.size() <= 10);
 
                 TMeanVar2Accumulator actual;
                 for (std::size_t j = 0u; j < clusters.size(); ++j) {
@@ -198,11 +198,11 @@ BOOST_AUTO_TEST_CASE(testReduce) {
 
                 LOG_DEBUG(<< "expected = " << expected);
                 LOG_DEBUG(<< "actual   = " << actual);
-                BOOST_CHECK_CLOSE_ABSOLUTE(maths::CBasicStatistics::count(expected),
+                BOOST_REQUIRE_CLOSE_ABSOLUTE(maths::CBasicStatistics::count(expected),
                                            maths::CBasicStatistics::count(actual), 1e-10);
-                BOOST_CHECK_EQUAL(print(maths::CBasicStatistics::mean(expected)),
+                BOOST_REQUIRE_EQUAL(print(maths::CBasicStatistics::mean(expected)),
                                   print(maths::CBasicStatistics::mean(actual)));
-                BOOST_CHECK_CLOSE_ABSOLUTE(
+                BOOST_REQUIRE_CLOSE_ABSOLUTE(
                     maths::CBasicStatistics::maximumLikelihoodVariance(expected).inner(ones),
                     maths::CBasicStatistics::maximumLikelihoodVariance(actual).inner(ones),
                     1e-10 * maths::CBasicStatistics::maximumLikelihoodVariance(expected)
@@ -278,9 +278,9 @@ BOOST_AUTO_TEST_CASE(testClustering) {
         LOG_DEBUG(<< "cost        = " << cost);
         LOG_DEBUG(<< "cost online = " << costOnline);
 
-        BOOST_CHECK_CLOSE_ABSOLUTE(maths::CBasicStatistics::mean(costOnline),
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(maths::CBasicStatistics::mean(costOnline),
                                    maths::CBasicStatistics::mean(cost), 1e-10);
-        BOOST_CHECK_CLOSE_ABSOLUTE(
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(
             std::sqrt(maths::CBasicStatistics::variance(costOnline)),
             std::sqrt(maths::CBasicStatistics::variance(cost)), 1e-10);
     }
@@ -342,9 +342,9 @@ BOOST_AUTO_TEST_CASE(testClustering) {
         LOG_DEBUG(<< "cost        = " << cost);
         LOG_DEBUG(<< "cost online = " << costOnline);
 
-        BOOST_TEST(maths::CBasicStatistics::mean(costOnline) <=
+        BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(costOnline) <=
                    1.01 * maths::CBasicStatistics::mean(cost));
-        BOOST_TEST(std::sqrt(maths::CBasicStatistics::variance(costOnline)) <=
+        BOOST_TEST_REQUIRE(std::sqrt(maths::CBasicStatistics::variance(costOnline)) <=
                    26.0 * std::sqrt(maths::CBasicStatistics::variance(cost)));
     }
 }
@@ -373,7 +373,7 @@ BOOST_AUTO_TEST_CASE(testSplit) {
     for (std::size_t i = 0u; i < points.size(); ++i) {
         kmeansOnline.add(points[i]);
     }
-    BOOST_TEST(!kmeansOnline.buffering());
+    BOOST_TEST_REQUIRE(!kmeansOnline.buffering());
 
     std::size_t one[]{0, 2, 7, 18, 19, 22};
     std::size_t two[]{3, 4, 5, 6, 10, 11, 23, 24};
@@ -392,12 +392,12 @@ BOOST_AUTO_TEST_CASE(testSplit) {
     TKMeansOnline2Vec clusterers;
     kmeansOnline.split(split, clusterers);
 
-    BOOST_CHECK_EQUAL(split.size(), clusterers.size());
+    BOOST_REQUIRE_EQUAL(split.size(), clusterers.size());
     for (std::size_t i = 0u; i < split.size(); ++i) {
         maths::CKMeansOnline<TVector2>::TSphericalClusterVec actual;
         clusterers[i].clusters(actual);
-        BOOST_TEST(!clusterers[i].buffering());
-        BOOST_CHECK_EQUAL(split[i].size(), actual.size());
+        BOOST_TEST_REQUIRE(!clusterers[i].buffering());
+        BOOST_REQUIRE_EQUAL(split[i].size(), actual.size());
 
         maths::CKMeansOnline<TVector2>::TSphericalClusterVec expected;
         for (std::size_t j = 0u; j < split[i].size(); ++j) {
@@ -406,7 +406,7 @@ BOOST_AUTO_TEST_CASE(testSplit) {
         LOG_DEBUG(<< "expected clusters = " << core::CContainerPrinter::print(expected));
         LOG_DEBUG(<< "actual clusters   = " << core::CContainerPrinter::print(actual));
 
-        BOOST_CHECK_EQUAL(core::CContainerPrinter::print(expected),
+        BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(expected),
                           core::CContainerPrinter::print(actual));
     }
 }
@@ -463,11 +463,11 @@ BOOST_AUTO_TEST_CASE(testMerge) {
 
     LOG_DEBUG(<< "expected = " << expected);
     LOG_DEBUG(<< "actual   = " << actual);
-    BOOST_CHECK_EQUAL(maths::CBasicStatistics::count(expected),
+    BOOST_REQUIRE_EQUAL(maths::CBasicStatistics::count(expected),
                       maths::CBasicStatistics::count(actual));
-    BOOST_CHECK_EQUAL(print(maths::CBasicStatistics::mean(expected)),
+    BOOST_REQUIRE_EQUAL(print(maths::CBasicStatistics::mean(expected)),
                       print(maths::CBasicStatistics::mean(actual)));
-    BOOST_CHECK_CLOSE_ABSOLUTE(
+    BOOST_REQUIRE_CLOSE_ABSOLUTE(
         maths::CBasicStatistics::maximumLikelihoodVariance(expected).inner(ones),
         maths::CBasicStatistics::maximumLikelihoodVariance(actual).inner(ones),
         1e-10 * maths::CBasicStatistics::maximumLikelihoodVariance(expected).inner(ones));
@@ -507,9 +507,9 @@ BOOST_AUTO_TEST_CASE(testPropagateForwardsByTime) {
     kmeans.clusters(clusters);
     LOG_DEBUG(<< "clusters after  = " << core::CContainerPrinter::print(clusters));
 
-    BOOST_CHECK_EQUAL(std::size_t(4), clusters.size());
+    BOOST_REQUIRE_EQUAL(std::size_t(4), clusters.size());
     for (std::size_t i = 0u; i < clusters.size(); ++i) {
-        BOOST_TEST(clusters[i] != outlier);
+        BOOST_TEST_REQUIRE(clusters[i] != outlier);
     }
 }
 
@@ -556,7 +556,7 @@ BOOST_AUTO_TEST_CASE(testSample) {
         kmeans.sample(i + 1, sampled);
         std::sort(sampled.begin(), sampled.end());
 
-        BOOST_CHECK_EQUAL(core::CContainerPrinter::print(expectedSampled),
+        BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(expectedSampled),
                           core::CContainerPrinter::print(sampled));
     }
 
@@ -599,15 +599,15 @@ BOOST_AUTO_TEST_CASE(testSample) {
     double covarianceError0 = (covariance0 - expectedCovariance0).frobenius() /
                               expectedCovariance0.frobenius();
     LOG_DEBUG(<< "mean error 0 = " << meanError0 << ", covariance error 0 = " << covarianceError0);
-    BOOST_CHECK_CLOSE_ABSOLUTE(0.0, meanError0, 0.01);
-    BOOST_CHECK_CLOSE_ABSOLUTE(0.0, covarianceError0, 0.27);
+    BOOST_REQUIRE_CLOSE_ABSOLUTE(0.0, meanError0, 0.01);
+    BOOST_REQUIRE_CLOSE_ABSOLUTE(0.0, covarianceError0, 0.27);
 
     double meanError1 = (mean1 - expectedMean1).euclidean() / expectedMean0.euclidean();
     double covarianceError1 = (covariance1 - expectedCovariance1).frobenius() /
                               expectedCovariance1.frobenius();
     LOG_DEBUG(<< "mean error 1 = " << meanError1 << ", covariance error 1 = " << covarianceError1);
-    BOOST_CHECK_CLOSE_ABSOLUTE(0.0, meanError1, 0.01);
-    BOOST_CHECK_CLOSE_ABSOLUTE(0.0, covarianceError1, 0.24);
+    BOOST_REQUIRE_CLOSE_ABSOLUTE(0.0, meanError1, 0.01);
+    BOOST_REQUIRE_CLOSE_ABSOLUTE(0.0, covarianceError1, 0.24);
 }
 
 BOOST_AUTO_TEST_CASE(testPersist) {
@@ -638,26 +638,26 @@ BOOST_AUTO_TEST_CASE(testPersist) {
     // Restore the XML into a new sketch.
     {
         core::CRapidXmlParser parser;
-        BOOST_TEST(parser.parseStringIgnoreCdata(origXml));
+        BOOST_TEST_REQUIRE(parser.parseStringIgnoreCdata(origXml));
         core::CRapidXmlStateRestoreTraverser traverser(parser);
         maths::CKMeansOnline<TVector2> restoredKmeans(0);
         maths::SDistributionRestoreParams params(
             maths_t::E_ContinuousData, 0.1, maths::MINIMUM_CLUSTER_SPLIT_FRACTION,
             maths::MINIMUM_CLUSTER_SPLIT_COUNT, maths::MINIMUM_CATEGORY_COUNT);
-        BOOST_TEST(traverser.traverseSubLevel(
+        BOOST_TEST_REQUIRE(traverser.traverseSubLevel(
             std::bind(&maths::CKMeansOnline<TVector2>::acceptRestoreTraverser,
                       &restoredKmeans, std::cref(params), std::placeholders::_1)));
 
         LOG_DEBUG(<< "orig checksum = " << origKmeans.checksum()
                   << ", new checksum = " << restoredKmeans.checksum());
-        BOOST_CHECK_EQUAL(origKmeans.checksum(), restoredKmeans.checksum());
+        BOOST_REQUIRE_EQUAL(origKmeans.checksum(), restoredKmeans.checksum());
 
         std::string newXml;
         core::CRapidXmlStatePersistInserter inserter("root");
         restoredKmeans.acceptPersistInserter(inserter);
         inserter.toXml(newXml);
 
-        BOOST_CHECK_EQUAL(origXml, newXml);
+        BOOST_REQUIRE_EQUAL(origXml, newXml);
     }
 }
 

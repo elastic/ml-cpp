@@ -178,7 +178,7 @@ BOOST_AUTO_TEST_CASE(testMultipleUpdate) {
 
         LOG_DEBUG(<< "checksum 1 " << filter1.checksum());
         LOG_DEBUG(<< "checksum 2 " << filter2.checksum());
-        BOOST_CHECK_EQUAL(filter1.checksum(), filter2.checksum());
+        BOOST_REQUIRE_EQUAL(filter1.checksum(), filter2.checksum());
     }
 
     LOG_DEBUG(<< "****** Test with variance scale ******");
@@ -203,7 +203,7 @@ BOOST_AUTO_TEST_CASE(testMultipleUpdate) {
 
         LOG_DEBUG(<< "checksum 1 " << filter1.checksum());
         LOG_DEBUG(<< "checksum 2 " << filter2.checksum());
-        BOOST_CHECK_EQUAL(filter1.checksum(), filter2.checksum());
+        BOOST_REQUIRE_EQUAL(filter1.checksum(), filter2.checksum());
     }
 }
 
@@ -258,8 +258,8 @@ BOOST_AUTO_TEST_CASE(testPropagation) {
     LOG_DEBUG(<< "logWeightRatio           = " << logWeightRatio);
     LOG_DEBUG(<< "propagatedLogWeightRatio = " << propagatedLogWeightRatio);
 
-    BOOST_TEST(propagatedNumberSamples < numberSamples);
-    BOOST_TEST((TVector2(propagatedMean) - TVector2(mean)).euclidean() <
+    BOOST_TEST_REQUIRE(propagatedNumberSamples < numberSamples);
+    BOOST_TEST_REQUIRE((TVector2(propagatedMean) - TVector2(mean)).euclidean() <
                eps * TVector2(mean).euclidean());
     Eigen::MatrixXd c(2, 2);
     Eigen::MatrixXd cp(2, 2);
@@ -274,9 +274,9 @@ BOOST_AUTO_TEST_CASE(testPropagation) {
     LOG_DEBUG(<< "singular values            = " << sv.transpose());
     LOG_DEBUG(<< "propagated singular values = " << svp.transpose());
     for (std::size_t i = 0u; i < 2; ++i) {
-        BOOST_TEST(svp(i) > sv(i));
+        BOOST_TEST_REQUIRE(svp(i) > sv(i));
     }
-    BOOST_TEST(propagatedLogWeightRatio < logWeightRatio);
+    BOOST_TEST_REQUIRE(propagatedLogWeightRatio < logWeightRatio);
 }
 
 BOOST_AUTO_TEST_CASE(testWeightUpdate) {
@@ -304,9 +304,9 @@ BOOST_AUTO_TEST_CASE(testWeightUpdate) {
             for (std::size_t j = 0u; j < samples.size(); ++j) {
                 filter.addSamples({samples[j]},
                                   maths_t::CUnitWeights::singleUnit<TDouble10Vec>(2));
-                BOOST_CHECK_CLOSE_ABSOLUTE(1.0, sum(filter.weights()), 1e-6);
+                BOOST_REQUIRE_CLOSE_ABSOLUTE(1.0, sum(filter.weights()), 1e-6);
                 filter.propagateForwardsByTime(1.0);
-                BOOST_TEST(equal(sum(filter.weights()), 1.0));
+                BOOST_TEST_REQUIRE(equal(sum(filter.weights()), 1.0));
             }
         }
     }
@@ -341,8 +341,8 @@ BOOST_AUTO_TEST_CASE(testWeightUpdate) {
 
             // Should be approximately 0.2: we reduce the filter memory
             // by a factor of 5 each iteration.
-            BOOST_TEST((logWeights[0] - logWeights[1]) / previousLogWeightRatio > 0.15);
-            BOOST_TEST((logWeights[0] - logWeights[1]) / previousLogWeightRatio < 0.3);
+            BOOST_TEST_REQUIRE((logWeights[0] - logWeights[1]) / previousLogWeightRatio > 0.15);
+            BOOST_TEST_REQUIRE((logWeights[0] - logWeights[1]) / previousLogWeightRatio < 0.3);
             previousLogWeightRatio = logWeights[0] - logWeights[1];
         }
     }
@@ -376,8 +376,8 @@ BOOST_AUTO_TEST_CASE(testModelUpdate) {
         multimodal.addSamples(samples, weights);
         oneOfN.addSamples(samples, weights);
 
-        BOOST_CHECK_EQUAL(normal.checksum(), oneOfN.models()[0]->checksum());
-        BOOST_CHECK_EQUAL(multimodal.checksum(), oneOfN.models()[1]->checksum());
+        BOOST_REQUIRE_EQUAL(normal.checksum(), oneOfN.models()[0]->checksum());
+        BOOST_REQUIRE_EQUAL(multimodal.checksum(), oneOfN.models()[1]->checksum());
     }
 }
 
@@ -488,8 +488,8 @@ BOOST_AUTO_TEST_CASE(testMarginalLikelihood) {
 
                     TVector2 meanError = actualMean - expectedMean;
                     TMatrix2 covarianceError = actualCovariance - expectedCovariance;
-                    BOOST_TEST(meanError.euclidean() < expectedMean.euclidean());
-                    BOOST_TEST(covarianceError.frobenius() < expectedCovariance.frobenius());
+                    BOOST_TEST_REQUIRE(meanError.euclidean() < expectedMean.euclidean());
+                    BOOST_TEST_REQUIRE(covarianceError.frobenius() < expectedCovariance.frobenius());
 
                     meanMeanError.add(meanError.euclidean() / expectedMean.euclidean());
                     meanCovarianceError.add(covarianceError.frobenius() /
@@ -500,8 +500,8 @@ BOOST_AUTO_TEST_CASE(testMarginalLikelihood) {
             LOG_DEBUG(<< "Mean mean error = " << maths::CBasicStatistics::mean(meanMeanError));
             LOG_DEBUG(<< "Mean covariance error = "
                       << maths::CBasicStatistics::mean(meanCovarianceError));
-            BOOST_TEST(maths::CBasicStatistics::mean(meanMeanError) < 0.16);
-            BOOST_TEST(maths::CBasicStatistics::mean(meanCovarianceError) < 0.09);
+            BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(meanMeanError) < 0.16);
+            BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(meanCovarianceError) < 0.09);
         }
     }
     {
@@ -609,9 +609,9 @@ BOOST_AUTO_TEST_CASE(testMarginalLikelihood) {
 
             TVector2 meanError = actualMean - expectedMean;
             TMatrix2 covarianceError = actualCovariance - expectedCovariance;
-            BOOST_CHECK_CLOSE_ABSOLUTE(1.0, z, 0.7);
-            BOOST_TEST(meanError.euclidean() < 0.3 * expectedMean.euclidean());
-            BOOST_TEST(covarianceError.frobenius() < 0.25 * expectedCovariance.frobenius());
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(1.0, z, 0.7);
+            BOOST_TEST_REQUIRE(meanError.euclidean() < 0.3 * expectedMean.euclidean());
+            BOOST_TEST_REQUIRE(covarianceError.frobenius() < 0.25 * expectedCovariance.frobenius());
 
             meanZ.add(z);
             meanMeanError.add(meanError.euclidean() / expectedMean.euclidean());
@@ -623,9 +623,9 @@ BOOST_AUTO_TEST_CASE(testMarginalLikelihood) {
         LOG_DEBUG(<< "Mean mean error = " << maths::CBasicStatistics::mean(meanMeanError));
         LOG_DEBUG(<< "Mean covariance error = "
                   << maths::CBasicStatistics::mean(meanCovarianceError));
-        BOOST_CHECK_CLOSE_ABSOLUTE(1.0, maths::CBasicStatistics::mean(meanZ), 0.3);
-        BOOST_TEST(maths::CBasicStatistics::mean(meanMeanError) < 0.1);
-        BOOST_TEST(maths::CBasicStatistics::mean(meanCovarianceError) < 0.16);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(1.0, maths::CBasicStatistics::mean(meanZ), 0.3);
+        BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(meanMeanError) < 0.1);
+        BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(meanCovarianceError) < 0.16);
     }
 }
 
@@ -685,12 +685,12 @@ BOOST_AUTO_TEST_CASE(testMarginalLikelihoodMean) {
                                    .euclidean() /
                                maths::CBasicStatistics::mean(expectedMean).euclidean();
                 meanError.add(error);
-                BOOST_TEST(error < 0.2);
+                BOOST_TEST_REQUIRE(error < 0.2);
             }
         }
 
         LOG_DEBUG(<< "mean error = " << maths::CBasicStatistics::mean(meanError));
-        BOOST_TEST(maths::CBasicStatistics::mean(meanError) < expectedMeanErrors[i]);
+        BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(meanError) < expectedMeanErrors[i]);
     }
 }
 
@@ -751,7 +751,7 @@ BOOST_AUTO_TEST_CASE(testMarginalLikelihoodMode) {
                           << ", expectedMode = " << expectedMode);
 
                 for (std::size_t k = 0u; k < 2; ++k) {
-                    BOOST_CHECK_CLOSE_ABSOLUTE(expectedMode(k), mode[k],
+                    BOOST_REQUIRE_CLOSE_ABSOLUTE(expectedMode(k), mode[k],
                                                0.01 * expectedMode(k));
                 }
             }
@@ -797,7 +797,7 @@ BOOST_AUTO_TEST_CASE(testMarginalLikelihoodMode) {
                   << ", expectedMode = " << expectedMode);
 
         for (std::size_t i = 0u; i < 2; ++i) {
-            BOOST_CHECK_CLOSE_ABSOLUTE(expectedMode(i), mode[i], 0.2 * expectedMode(i));
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(expectedMode(i), mode[i], 0.2 * expectedMode(i));
         }
     }
 }
@@ -856,7 +856,7 @@ BOOST_AUTO_TEST_CASE(testSampleMarginalLikelihood) {
             LOG_DEBUG(<< "expected samples = "
                       << core::CContainerPrinter::print(expectedSampled));
             LOG_DEBUG(<< "samples          = " << core::CContainerPrinter::print(sampled));
-            BOOST_CHECK_EQUAL(core::CContainerPrinter::print(expectedSampled),
+            BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(expectedSampled),
                               core::CContainerPrinter::print(sampled));
         }
     }
@@ -894,11 +894,11 @@ BOOST_AUTO_TEST_CASE(testProbabilityOfLessLikelySamples) {
 
         double lowerBound, upperBound;
         maths::CMultivariatePrior::TTail10Vec tail;
-        BOOST_TEST(filter.probabilityOfLessLikelySamples(
+        BOOST_TEST_REQUIRE(filter.probabilityOfLessLikelySamples(
             maths_t::E_TwoSided, sample, maths_t::CUnitWeights::singleUnit<TDouble10Vec>(2),
             lowerBound, upperBound, tail));
 
-        BOOST_CHECK_EQUAL(lowerBound, upperBound);
+        BOOST_REQUIRE_EQUAL(lowerBound, upperBound);
         double probability = (lowerBound + upperBound) / 2.0;
 
         double expectedProbability = 0.0;
@@ -908,11 +908,11 @@ BOOST_AUTO_TEST_CASE(testProbabilityOfLessLikelySamples) {
         for (std::size_t j = 0u; j < weights.size(); ++j) {
             double modelLowerBound, modelUpperBound;
             double weight = weights[j];
-            BOOST_TEST(models[j]->probabilityOfLessLikelySamples(
+            BOOST_TEST_REQUIRE(models[j]->probabilityOfLessLikelySamples(
                 maths_t::E_TwoSided, sample,
                 maths_t::CUnitWeights::singleUnit<TDouble10Vec>(2),
                 modelLowerBound, modelUpperBound, tail));
-            BOOST_CHECK_EQUAL(modelLowerBound, modelUpperBound);
+            BOOST_REQUIRE_EQUAL(modelLowerBound, modelUpperBound);
             double modelProbability = (modelLowerBound + modelUpperBound) / 2.0;
             expectedProbability += weight * modelProbability;
         }
@@ -920,13 +920,13 @@ BOOST_AUTO_TEST_CASE(testProbabilityOfLessLikelySamples) {
         LOG_DEBUG(<< "weights = " << core::CContainerPrinter::print(weights)
                   << ", expectedProbability = " << expectedProbability
                   << ", probability = " << probability);
-        BOOST_CHECK_CLOSE_ABSOLUTE(expectedProbability, probability,
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(expectedProbability, probability,
                                    0.3 * std::max(expectedProbability, probability));
         error.add(std::fabs(probability - expectedProbability));
     }
 
     LOG_DEBUG(<< "error = " << maths::CBasicStatistics::mean(error));
-    BOOST_TEST(maths::CBasicStatistics::mean(error) < 0.01);
+    BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(error) < 0.01);
 }
 
 BOOST_AUTO_TEST_CASE(testPersist) {
@@ -963,7 +963,7 @@ BOOST_AUTO_TEST_CASE(testPersist) {
 
     // Restore the XML into a new filter
     core::CRapidXmlParser parser;
-    BOOST_TEST(parser.parseStringIgnoreCdata(origXml));
+    BOOST_TEST_REQUIRE(parser.parseStringIgnoreCdata(origXml));
     core::CRapidXmlStateRestoreTraverser traverser(parser);
 
     maths::SDistributionRestoreParams params(
@@ -973,7 +973,7 @@ BOOST_AUTO_TEST_CASE(testPersist) {
 
     LOG_DEBUG(<< "orig checksum = " << checksum
               << " restored checksum = " << restoredFilter.checksum());
-    BOOST_CHECK_EQUAL(checksum, restoredFilter.checksum());
+    BOOST_REQUIRE_EQUAL(checksum, restoredFilter.checksum());
 
     // The XML representation of the new filter should be the same as the original
     std::string newXml;
@@ -982,7 +982,7 @@ BOOST_AUTO_TEST_CASE(testPersist) {
         restoredFilter.acceptPersistInserter(inserter);
         inserter.toXml(newXml);
     }
-    BOOST_CHECK_EQUAL(origXml, newXml);
+    BOOST_REQUIRE_EQUAL(origXml, newXml);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

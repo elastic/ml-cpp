@@ -98,8 +98,8 @@ BOOST_AUTO_TEST_CASE(testCalibration) {
                       << ", maxRawError =        " << maxRawError);
             LOG_DEBUG(<< "totalCalibratedError = " << calibratedError
                       << ", maxCalibratedError = " << maxCalibratedError);
-            BOOST_TEST((rawError - calibratedError) / rawError > improvements[i]);
-            BOOST_TEST((maxRawError - maxCalibratedError) / maxRawError >
+            BOOST_TEST_REQUIRE((rawError - calibratedError) / rawError > improvements[i]);
+            BOOST_TEST_REQUIRE((maxRawError - maxCalibratedError) / maxRawError >
                        maxImprovements[i]);
         }
     }
@@ -172,8 +172,8 @@ BOOST_AUTO_TEST_CASE(testCalibration) {
                       << ", maxRawError =        " << maxRawError);
             LOG_DEBUG(<< "totalCalibratedError = " << calibratedError
                       << ", maxCalibratedError = " << maxCalibratedError);
-            BOOST_TEST((rawError - calibratedError) / rawError >= improvements[i]);
-            BOOST_TEST((maxRawError - maxCalibratedError) / maxRawError >=
+            BOOST_TEST_REQUIRE((rawError - calibratedError) / rawError >= improvements[i]);
+            BOOST_TEST_REQUIRE((maxRawError - maxCalibratedError) / maxRawError >=
                        maxImprovements[i]);
         }
     }

@@ -37,14 +37,14 @@ BOOST_AUTO_TEST_CASE(testSumGathererIsRedundant) {
     sumGatherer.add(400, TDouble1Vec{1.0}, 1, 0, EMPTY_STR_PTR_VEC);
     sumGatherer.startNewBucket(400);
 
-    BOOST_TEST(sumGatherer.isRedundant(400) == false);
+    BOOST_TEST_REQUIRE(sumGatherer.isRedundant(400) == false);
 
     sumGatherer.startNewBucket(500);
-    BOOST_TEST(sumGatherer.isRedundant(500) == false);
+    BOOST_TEST_REQUIRE(sumGatherer.isRedundant(500) == false);
     sumGatherer.startNewBucket(600);
-    BOOST_TEST(sumGatherer.isRedundant(600) == false);
+    BOOST_TEST_REQUIRE(sumGatherer.isRedundant(600) == false);
     sumGatherer.startNewBucket(700);
-    BOOST_TEST(sumGatherer.isRedundant(700));
+    BOOST_TEST_REQUIRE(sumGatherer.isRedundant(700));
 }
 
 BOOST_AUTO_TEST_SUITE_END()

@@ -92,7 +92,7 @@ BOOST_AUTO_TEST_CASE(testInvariants) {
         }
 
         TDoubleArray3 params;
-        BOOST_TEST(ls.parameters(params));
+        BOOST_TEST_REQUIRE(ls.parameters(params));
 
         double residual = squareResidual(params, xs, ys);
 
@@ -115,7 +115,7 @@ BOOST_AUTO_TEST_CASE(testInvariants) {
                 LOG_DEBUG(<< "  delta residual " << residualj);
             }
 
-            BOOST_TEST(residualj > residual);
+            BOOST_TEST_REQUIRE(residualj > residual);
         }
     }
 }
@@ -148,22 +148,22 @@ BOOST_AUTO_TEST_CASE(testFit) {
             }
 
             TDoubleArray2 params;
-            BOOST_TEST(ls.parameters(params));
+            BOOST_TEST_REQUIRE(ls.parameters(params));
 
             if (t % 10 == 0) {
                 LOG_DEBUG(<< "params = " << core::CContainerPrinter::print(params));
             }
 
-            BOOST_CHECK_CLOSE_ABSOLUTE(intercept, params[0], 1.3);
-            BOOST_CHECK_CLOSE_ABSOLUTE(slope, params[1], 0.015);
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(intercept, params[0], 1.3);
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(slope, params[1], 0.015);
             interceptError.add(std::fabs(params[0] - intercept));
             slopeError.add(std::fabs(params[1] - slope));
         }
 
         LOG_DEBUG(<< "intercept error = " << interceptError);
         LOG_DEBUG(<< "slope error = " << slopeError);
-        BOOST_TEST(maths::CBasicStatistics::mean(interceptError) < 0.35);
-        BOOST_TEST(maths::CBasicStatistics::mean(slopeError) < 0.04);
+        BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(interceptError) < 0.35);
+        BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(slopeError) < 0.04);
     }
 
     // Test a variety of the randomly generated polynomial fits.
@@ -191,7 +191,7 @@ BOOST_AUTO_TEST_CASE(testFit) {
             LOG_DEBUG(<< "curve  = " << core::CContainerPrinter::print(curve));
             LOG_DEBUG(<< "params = " << core::CContainerPrinter::print(params));
             for (std::size_t i = 0u; i < curve.size(); ++i) {
-                BOOST_CHECK_CLOSE_ABSOLUTE(curve[i], params[i], 0.03 * curve[i]);
+                BOOST_REQUIRE_CLOSE_ABSOLUTE(curve[i], params[i], 0.03 * curve[i]);
             }
         }
     }
@@ -225,13 +225,13 @@ BOOST_AUTO_TEST_CASE(testShiftAbscissa) {
         lss.parameters(paramss);
 
         LOG_DEBUG(<< "params 1 = " << core::CContainerPrinter::print(params1));
-        BOOST_CHECK_CLOSE_ABSOLUTE(intercept, params1[0], 1e-3 * intercept);
-        BOOST_CHECK_CLOSE_ABSOLUTE(slope, params1[1], 1e-3 * slope);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(intercept, params1[0], 1e-3 * intercept);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(slope, params1[1], 1e-3 * slope);
 
         LOG_DEBUG(<< "params 2 = " << core::CContainerPrinter::print(params2));
         LOG_DEBUG(<< "params s = " << core::CContainerPrinter::print(paramss));
-        BOOST_CHECK_CLOSE_ABSOLUTE(paramss[0], params2[0], 1e-3 * paramss[0]);
-        BOOST_CHECK_CLOSE_ABSOLUTE(paramss[1], params2[1], 1e-3 * paramss[1]);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(paramss[0], params2[0], 1e-3 * paramss[0]);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(paramss[1], params2[1], 1e-3 * paramss[1]);
     }
 
     {
@@ -259,17 +259,17 @@ BOOST_AUTO_TEST_CASE(testShiftAbscissa) {
         lss.parameters(paramss);
 
         LOG_DEBUG(<< core::CContainerPrinter::print(params1));
-        BOOST_CHECK_CLOSE_ABSOLUTE(intercept, params1[0], 2e-3 * intercept);
-        BOOST_CHECK_CLOSE_ABSOLUTE(slope, params1[1], 2e-3 * slope);
-        BOOST_CHECK_CLOSE_ABSOLUTE(curvature, params1[2], 2e-3 * curvature);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(intercept, params1[0], 2e-3 * intercept);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(slope, params1[1], 2e-3 * slope);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(curvature, params1[2], 2e-3 * curvature);
 
         LOG_DEBUG(<< core::CContainerPrinter::print(params2));
         LOG_DEBUG(<< core::CContainerPrinter::print(paramss));
         LOG_DEBUG(<< "params 2 = " << core::CContainerPrinter::print(params2));
         LOG_DEBUG(<< "params s = " << core::CContainerPrinter::print(paramss));
-        BOOST_CHECK_CLOSE_ABSOLUTE(paramss[0], params2[0], 1e-3 * paramss[0]);
-        BOOST_CHECK_CLOSE_ABSOLUTE(paramss[1], params2[1], 1e-3 * paramss[1]);
-        BOOST_CHECK_CLOSE_ABSOLUTE(paramss[2], params2[2], 1e-3 * paramss[2]);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(paramss[0], params2[0], 1e-3 * paramss[0]);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(paramss[1], params2[1], 1e-3 * paramss[1]);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(paramss[2], params2[2], 1e-3 * paramss[2]);
     }
 }
 
@@ -294,11 +294,11 @@ BOOST_AUTO_TEST_CASE(testShiftOrdinate) {
     LOG_DEBUG(<< "parameters 1 = " << core::CContainerPrinter::print(params1));
     LOG_DEBUG(<< "parameters 2 = " << core::CContainerPrinter::print(params2));
 
-    BOOST_CHECK_CLOSE_ABSOLUTE(1000.0 + params1[0], params2[0],
+    BOOST_REQUIRE_CLOSE_ABSOLUTE(1000.0 + params1[0], params2[0],
                                1e-6 * std::fabs(params1[0]));
-    BOOST_CHECK_CLOSE_ABSOLUTE(params1[1], params2[1], 1e-6 * std::fabs(params1[1]));
-    BOOST_CHECK_CLOSE_ABSOLUTE(params1[2], params2[2], 1e-6 * std::fabs(params1[2]));
-    BOOST_CHECK_CLOSE_ABSOLUTE(params1[3], params2[3], 1e-6 * std::fabs(params1[3]));
+    BOOST_REQUIRE_CLOSE_ABSOLUTE(params1[1], params2[1], 1e-6 * std::fabs(params1[1]));
+    BOOST_REQUIRE_CLOSE_ABSOLUTE(params1[2], params2[2], 1e-6 * std::fabs(params1[2]));
+    BOOST_REQUIRE_CLOSE_ABSOLUTE(params1[3], params2[3], 1e-6 * std::fabs(params1[3]));
 }
 
 BOOST_AUTO_TEST_CASE(testShiftGradient) {
@@ -322,11 +322,11 @@ BOOST_AUTO_TEST_CASE(testShiftGradient) {
     LOG_DEBUG(<< "parameters 1 = " << core::CContainerPrinter::print(params1));
     LOG_DEBUG(<< "parameters 2 = " << core::CContainerPrinter::print(params2));
 
-    BOOST_CHECK_CLOSE_ABSOLUTE(params1[0], params2[0], 1e-6 * std::fabs(params1[0]));
-    BOOST_CHECK_CLOSE_ABSOLUTE(10.0 + params1[1], params2[1],
+    BOOST_REQUIRE_CLOSE_ABSOLUTE(params1[0], params2[0], 1e-6 * std::fabs(params1[0]));
+    BOOST_REQUIRE_CLOSE_ABSOLUTE(10.0 + params1[1], params2[1],
                                1e-6 * std::fabs(params1[1]));
-    BOOST_CHECK_CLOSE_ABSOLUTE(params1[2], params2[2], 1e-6 * std::fabs(params1[2]));
-    BOOST_CHECK_CLOSE_ABSOLUTE(params1[3], params2[3], 1e-6 * std::fabs(params1[3]));
+    BOOST_REQUIRE_CLOSE_ABSOLUTE(params1[2], params2[2], 1e-6 * std::fabs(params1[2]));
+    BOOST_REQUIRE_CLOSE_ABSOLUTE(params1[3], params2[3], 1e-6 * std::fabs(params1[3]));
 }
 
 BOOST_AUTO_TEST_CASE(testLinearScale) {
@@ -350,7 +350,7 @@ BOOST_AUTO_TEST_CASE(testLinearScale) {
     LOG_DEBUG(<< "parameters 2 = " << core::CContainerPrinter::print(params2));
 
     for (std::size_t i = 0u; i < 4; ++i) {
-        BOOST_CHECK_CLOSE_ABSOLUTE(0.1 * params1[i], params2[i], 1e-6);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(0.1 * params1[i], params2[i], 1e-6);
     }
 
     regression.linearScale(100.0);
@@ -361,7 +361,7 @@ BOOST_AUTO_TEST_CASE(testLinearScale) {
     LOG_DEBUG(<< "parameters 2 = " << core::CContainerPrinter::print(params2));
 
     for (std::size_t i = 0u; i < 4; ++i) {
-        BOOST_CHECK_CLOSE_ABSOLUTE(10.0 * params1[i], params2[i], 1e-6);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(10.0 * params1[i], params2[i], 1e-6);
     }
 }
 
@@ -390,37 +390,37 @@ BOOST_AUTO_TEST_CASE(testAge) {
         ls.age(exp(-0.01), true);
         ls.parameters(params);
         LOG_DEBUG(<< "params(0.01) = " << core::CContainerPrinter::print(params));
-        BOOST_TEST(params[0] > lastParams[0]);
-        BOOST_TEST(params[0] < 105.0);
-        BOOST_TEST(params[1] < lastParams[0]);
-        BOOST_TEST(params[1] > 0.0);
+        BOOST_TEST_REQUIRE(params[0] > lastParams[0]);
+        BOOST_TEST_REQUIRE(params[0] < 105.0);
+        BOOST_TEST_REQUIRE(params[1] < lastParams[0]);
+        BOOST_TEST_REQUIRE(params[1] > 0.0);
 
         lastParams = params;
         ls.age(exp(-0.49), true);
         ls.parameters(params);
         LOG_DEBUG(<< "params(0.5) = " << core::CContainerPrinter::print(params));
-        BOOST_TEST(params[0] > lastParams[0]);
-        BOOST_TEST(params[0] < 105.0);
-        BOOST_TEST(params[1] < lastParams[0]);
-        BOOST_TEST(params[1] > 0.0);
+        BOOST_TEST_REQUIRE(params[0] > lastParams[0]);
+        BOOST_TEST_REQUIRE(params[0] < 105.0);
+        BOOST_TEST_REQUIRE(params[1] < lastParams[0]);
+        BOOST_TEST_REQUIRE(params[1] > 0.0);
 
         lastParams = params;
         ls.age(exp(-0.5), true);
         ls.parameters(params);
         LOG_DEBUG(<< "params(1.0) = " << core::CContainerPrinter::print(params));
-        BOOST_TEST(params[0] > lastParams[0]);
-        BOOST_TEST(params[0] < 105.0);
-        BOOST_TEST(params[1] < lastParams[0]);
-        BOOST_TEST(params[1] > 0.0);
+        BOOST_TEST_REQUIRE(params[0] > lastParams[0]);
+        BOOST_TEST_REQUIRE(params[0] < 105.0);
+        BOOST_TEST_REQUIRE(params[1] < lastParams[0]);
+        BOOST_TEST_REQUIRE(params[1] > 0.0);
 
         lastParams = params;
         ls.age(exp(-4.0), true);
         ls.parameters(params, ls.MAX_CONDITION);
         LOG_DEBUG(<< "params(5.0) = " << core::CContainerPrinter::print(params));
-        BOOST_TEST(params[0] > lastParams[0]);
-        BOOST_TEST(params[0] < 105.0);
-        BOOST_TEST(params[1] < lastParams[0]);
-        BOOST_TEST(params[1] > 0.0);
+        BOOST_TEST_REQUIRE(params[0] > lastParams[0]);
+        BOOST_TEST_REQUIRE(params[0] < 105.0);
+        BOOST_TEST_REQUIRE(params[1] < lastParams[0]);
+        BOOST_TEST_REQUIRE(params[1] > 0.0);
     }
 
     {
@@ -441,45 +441,45 @@ BOOST_AUTO_TEST_CASE(testAge) {
         ls.age(exp(-0.01), true);
         ls.parameters(params);
         LOG_DEBUG(<< "params(0.01) = " << core::CContainerPrinter::print(params));
-        BOOST_TEST(params[0] > lastParams[0]);
-        BOOST_TEST(params[0] < 775.0);
-        BOOST_TEST(params[1] < lastParams[0]);
-        BOOST_TEST(params[1] > 0.0);
-        BOOST_TEST(params[2] < lastParams[0]);
-        BOOST_TEST(params[2] > 0.0);
+        BOOST_TEST_REQUIRE(params[0] > lastParams[0]);
+        BOOST_TEST_REQUIRE(params[0] < 775.0);
+        BOOST_TEST_REQUIRE(params[1] < lastParams[0]);
+        BOOST_TEST_REQUIRE(params[1] > 0.0);
+        BOOST_TEST_REQUIRE(params[2] < lastParams[0]);
+        BOOST_TEST_REQUIRE(params[2] > 0.0);
 
         lastParams = params;
         ls.age(exp(-0.49), true);
         ls.parameters(params);
         LOG_DEBUG(<< "params(0.5) = " << core::CContainerPrinter::print(params));
-        BOOST_TEST(params[0] > lastParams[0]);
-        BOOST_TEST(params[0] < 775.0);
-        BOOST_TEST(params[1] < lastParams[0]);
-        BOOST_TEST(params[1] > 0.0);
-        BOOST_TEST(params[2] < lastParams[0]);
-        BOOST_TEST(params[2] > 0.0);
+        BOOST_TEST_REQUIRE(params[0] > lastParams[0]);
+        BOOST_TEST_REQUIRE(params[0] < 775.0);
+        BOOST_TEST_REQUIRE(params[1] < lastParams[0]);
+        BOOST_TEST_REQUIRE(params[1] > 0.0);
+        BOOST_TEST_REQUIRE(params[2] < lastParams[0]);
+        BOOST_TEST_REQUIRE(params[2] > 0.0);
 
         lastParams = params;
         ls.age(exp(-0.5), true);
         ls.parameters(params);
         LOG_DEBUG(<< "params(1.0) = " << core::CContainerPrinter::print(params));
-        BOOST_TEST(params[0] > lastParams[0]);
-        BOOST_TEST(params[0] < 775.0);
-        BOOST_TEST(params[1] < lastParams[0]);
-        BOOST_TEST(params[1] > 0.0);
-        BOOST_TEST(params[2] < lastParams[0]);
-        BOOST_TEST(params[2] > 0.0);
+        BOOST_TEST_REQUIRE(params[0] > lastParams[0]);
+        BOOST_TEST_REQUIRE(params[0] < 775.0);
+        BOOST_TEST_REQUIRE(params[1] < lastParams[0]);
+        BOOST_TEST_REQUIRE(params[1] > 0.0);
+        BOOST_TEST_REQUIRE(params[2] < lastParams[0]);
+        BOOST_TEST_REQUIRE(params[2] > 0.0);
 
         lastParams = params;
         ls.age(exp(-4.0), true);
         ls.parameters(params);
         LOG_DEBUG(<< "params(5.0) = " << core::CContainerPrinter::print(params));
-        BOOST_TEST(params[0] > lastParams[0]);
-        BOOST_TEST(params[0] < 775.0);
-        BOOST_TEST(params[1] < lastParams[0]);
-        BOOST_TEST(params[1] > 0.0);
-        BOOST_TEST(params[2] < lastParams[0]);
-        BOOST_TEST(params[2] > 0.0);
+        BOOST_TEST_REQUIRE(params[0] > lastParams[0]);
+        BOOST_TEST_REQUIRE(params[0] < 775.0);
+        BOOST_TEST_REQUIRE(params[1] < lastParams[0]);
+        BOOST_TEST_REQUIRE(params[1] > 0.0);
+        BOOST_TEST_REQUIRE(params[2] < lastParams[0]);
+        BOOST_TEST_REQUIRE(params[2] > 0.0);
     }
 }
 
@@ -554,9 +554,9 @@ BOOST_AUTO_TEST_CASE(testPrediction) {
               << ", e2 = " << maths::CBasicStatistics::mean(e2)
               << ", e3 = " << maths::CBasicStatistics::mean(e3)
               << ", e4 = " << maths::CBasicStatistics::mean(e4));
-    BOOST_TEST(maths::CBasicStatistics::mean(e2) < 0.27 * maths::CBasicStatistics::mean(em));
-    BOOST_TEST(maths::CBasicStatistics::mean(e3) < 0.08 * maths::CBasicStatistics::mean(em));
-    BOOST_TEST(maths::CBasicStatistics::mean(e4) <
+    BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(e2) < 0.27 * maths::CBasicStatistics::mean(em));
+    BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(e3) < 0.08 * maths::CBasicStatistics::mean(em));
+    BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(e4) <
                0.025 * maths::CBasicStatistics::mean(em));
 }
 
@@ -610,7 +610,7 @@ BOOST_AUTO_TEST_CASE(testCombination) {
     LOG_DEBUG(<< "params A + B = " << core::CContainerPrinter::print(paramsAPlusB));
 
     for (std::size_t i = 0u; i < params.size(); ++i) {
-        BOOST_CHECK_CLOSE_ABSOLUTE(params[i], paramsAPlusB[i],
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(params[i], paramsAPlusB[i],
                                    5e-3 * std::fabs(params[i]));
     }
 }
@@ -628,26 +628,26 @@ BOOST_AUTO_TEST_CASE(testSingular) {
         TDoubleArray3 params;
         regression.parameters(params);
         LOG_DEBUG(<< "params = " << core::CContainerPrinter::print(params));
-        BOOST_CHECK_CLOSE_ABSOLUTE(params[0], 1.0, 1e-6);
-        BOOST_CHECK_EQUAL(params[1], 0.0);
-        BOOST_CHECK_EQUAL(params[2], 0.0);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(params[0], 1.0, 1e-6);
+        BOOST_REQUIRE_EQUAL(params[1], 0.0);
+        BOOST_REQUIRE_EQUAL(params[2], 0.0);
 
         regression.add(1.0, 2.0);
 
         regression.parameters(params);
         LOG_DEBUG(<< "params = " << core::CContainerPrinter::print(params));
-        BOOST_CHECK_CLOSE_ABSOLUTE(params[0], 1.0, 1e-6);
-        BOOST_CHECK_CLOSE_ABSOLUTE(params[1], 1.0, 1e-6);
-        BOOST_CHECK_EQUAL(params[2], 0.0);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(params[0], 1.0, 1e-6);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(params[1], 1.0, 1e-6);
+        BOOST_REQUIRE_EQUAL(params[2], 0.0);
 
         regression.add(2.0, 3.0);
 
         LOG_DEBUG(<< regression.print());
         regression.parameters(params);
         LOG_DEBUG(<< "params = " << core::CContainerPrinter::print(params));
-        BOOST_CHECK_CLOSE_ABSOLUTE(params[0], 1.0, 5e-6);
-        BOOST_CHECK_CLOSE_ABSOLUTE(params[1], 1.0, 5e-6);
-        BOOST_CHECK_CLOSE_ABSOLUTE(params[2], 0.0, 5e-6);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(params[0], 1.0, 5e-6);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(params[1], 1.0, 5e-6);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(params[2], 0.0, 5e-6);
     }
     {
         maths::CLeastSquaresOnlineRegression<2> regression;
@@ -656,26 +656,26 @@ BOOST_AUTO_TEST_CASE(testSingular) {
         TDoubleArray3 params;
         regression.parameters(params);
         LOG_DEBUG(<< "params = " << core::CContainerPrinter::print(params));
-        BOOST_CHECK_CLOSE_ABSOLUTE(params[0], 1.0, 1e-6);
-        BOOST_CHECK_EQUAL(params[1], 0.0);
-        BOOST_CHECK_EQUAL(params[2], 0.0);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(params[0], 1.0, 1e-6);
+        BOOST_REQUIRE_EQUAL(params[1], 0.0);
+        BOOST_REQUIRE_EQUAL(params[2], 0.0);
 
         regression.add(1.0, 2.0);
 
         regression.parameters(params);
         LOG_DEBUG(<< "params = " << core::CContainerPrinter::print(params));
-        BOOST_CHECK_CLOSE_ABSOLUTE(params[0], 1.0, 1e-6);
-        BOOST_CHECK_CLOSE_ABSOLUTE(params[1], 1.0, 1e-6);
-        BOOST_CHECK_EQUAL(params[2], 0.0);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(params[0], 1.0, 1e-6);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(params[1], 1.0, 1e-6);
+        BOOST_REQUIRE_EQUAL(params[2], 0.0);
 
         regression.add(2.0, 5.0);
 
         LOG_DEBUG(<< regression.print());
         regression.parameters(params);
         LOG_DEBUG(<< "params = " << core::CContainerPrinter::print(params));
-        BOOST_CHECK_CLOSE_ABSOLUTE(params[0], 1.0, 5e-6);
-        BOOST_CHECK_CLOSE_ABSOLUTE(params[1], 0.0, 5e-6);
-        BOOST_CHECK_CLOSE_ABSOLUTE(params[2], 1.0, 5e-6);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(params[0], 1.0, 5e-6);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(params[1], 0.0, 5e-6);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(params[2], 1.0, 5e-6);
     }
     {
         maths::CLeastSquaresOnlineRegression<1, double> regression1;
@@ -689,10 +689,10 @@ BOOST_AUTO_TEST_CASE(testSingular) {
         TDoubleArray4 params3;
         regression3.parameters(params3);
         LOG_DEBUG(<< "params3 = " << core::CContainerPrinter::print(params3));
-        BOOST_CHECK_CLOSE_ABSOLUTE(params3[0], 1.5, 5e-6);
-        BOOST_CHECK_EQUAL(params3[1], 0.0);
-        BOOST_CHECK_EQUAL(params3[2], 0.0);
-        BOOST_CHECK_EQUAL(params3[3], 0.0);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(params3[0], 1.5, 5e-6);
+        BOOST_REQUIRE_EQUAL(params3[1], 0.0);
+        BOOST_REQUIRE_EQUAL(params3[2], 0.0);
+        BOOST_REQUIRE_EQUAL(params3[3], 0.0);
 
         regression1.add(0.5, 1.5 + 2.0 * 0.5 + 1.1 * 0.5 * 0.5 + 3.3 * 0.5 * 0.5 * 0.5);
         regression2.add(0.5, 1.5 + 2.0 * 0.5 + 1.1 * 0.5 * 0.5 + 3.3 * 0.5 * 0.5 * 0.5);
@@ -703,10 +703,10 @@ BOOST_AUTO_TEST_CASE(testSingular) {
         LOG_DEBUG(<< "params1 = " << core::CContainerPrinter::print(params3));
         regression3.parameters(params3);
         LOG_DEBUG(<< "params3 = " << core::CContainerPrinter::print(params3));
-        BOOST_CHECK_CLOSE_ABSOLUTE(params3[0], 1.5, 5e-6);
-        BOOST_CHECK_CLOSE_ABSOLUTE(params3[1], params1[1], 1e-6);
-        BOOST_CHECK_EQUAL(params3[2], 0.0);
-        BOOST_CHECK_EQUAL(params3[3], 0.0);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(params3[0], 1.5, 5e-6);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(params3[1], params1[1], 1e-6);
+        BOOST_REQUIRE_EQUAL(params3[2], 0.0);
+        BOOST_REQUIRE_EQUAL(params3[3], 0.0);
 
         regression2.add(1.0, 1.5 + 2.0 * 1.0 + 1.1 * 1.0 * 1.0 + 3.3 * 1.0 * 1.0 * 1.0);
         regression3.add(1.0, 1.5 + 2.0 * 1.0 + 1.1 * 1.0 * 1.0 + 3.3 * 1.0 * 1.0 * 1.0);
@@ -716,20 +716,20 @@ BOOST_AUTO_TEST_CASE(testSingular) {
         LOG_DEBUG(<< "params2 = " << core::CContainerPrinter::print(params2));
         regression3.parameters(params3);
         LOG_DEBUG(<< "params3 = " << core::CContainerPrinter::print(params3));
-        BOOST_CHECK_CLOSE_ABSOLUTE(params3[0], 1.5, 5e-6);
-        BOOST_CHECK_CLOSE_ABSOLUTE(params3[1], params2[1], 1e-6);
-        BOOST_CHECK_CLOSE_ABSOLUTE(params3[2], params2[2], 1e-6);
-        BOOST_CHECK_EQUAL(params3[3], 0.0);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(params3[0], 1.5, 5e-6);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(params3[1], params2[1], 1e-6);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(params3[2], params2[2], 1e-6);
+        BOOST_REQUIRE_EQUAL(params3[3], 0.0);
 
         regression3.add(1.5, 1.5 + 2.0 * 1.5 + 1.1 * 1.5 * 1.5 + 3.3 * 1.5 * 1.5 * 1.5);
 
         LOG_DEBUG(<< regression3.print());
         regression3.parameters(params3);
         LOG_DEBUG(<< "params3 = " << core::CContainerPrinter::print(params3));
-        BOOST_CHECK_CLOSE_ABSOLUTE(params3[0], 1.5, 5e-5);
-        BOOST_CHECK_CLOSE_ABSOLUTE(params3[1], 2.0, 5e-5);
-        BOOST_CHECK_CLOSE_ABSOLUTE(params3[2], 1.1, 5e-5);
-        BOOST_CHECK_CLOSE_ABSOLUTE(params3[3], 3.3, 5e-5);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(params3[0], 1.5, 5e-5);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(params3[1], 2.0, 5e-5);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(params3[2], 1.1, 5e-5);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(params3[3], 3.3, 5e-5);
     }
 }
 
@@ -746,23 +746,23 @@ BOOST_AUTO_TEST_CASE(testScale) {
     LOG_DEBUG(<< "statistic = " << regression.statistic());
     TDoubleArray2 params1;
     regression.parameters(params1);
-    BOOST_CHECK_EQUAL(maths::CBasicStatistics::count(regression.statistic()), 20.0);
+    BOOST_REQUIRE_EQUAL(maths::CBasicStatistics::count(regression.statistic()), 20.0);
 
     maths::CLeastSquaresOnlineRegression<1, double> regression2 = regression.scaled(0.5);
     LOG_DEBUG(<< "statistic = " << regression2.statistic());
     TDoubleArray2 params2;
     regression2.parameters(params2);
-    BOOST_CHECK_EQUAL(core::CContainerPrinter::print(params1),
+    BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(params1),
                       core::CContainerPrinter::print(params2));
-    BOOST_CHECK_EQUAL(maths::CBasicStatistics::count(regression2.statistic()), 10.0);
+    BOOST_REQUIRE_EQUAL(maths::CBasicStatistics::count(regression2.statistic()), 10.0);
 
     maths::CLeastSquaresOnlineRegression<1, double> regression3 = regression2.scaled(0.5);
     LOG_DEBUG(<< "statistic = " << regression3.statistic());
     TDoubleArray2 params3;
     regression3.parameters(params3);
-    BOOST_CHECK_EQUAL(core::CContainerPrinter::print(params1),
+    BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(params1),
                       core::CContainerPrinter::print(params3));
-    BOOST_CHECK_EQUAL(maths::CBasicStatistics::count(regression3.statistic()), 5.0);
+    BOOST_REQUIRE_EQUAL(maths::CBasicStatistics::count(regression3.statistic()), 5.0);
 }
 
 template<std::size_t N>
@@ -804,7 +804,7 @@ BOOST_AUTO_TEST_CASE(testMean) {
         double actual = regression.mean(10.0, 15.0);
         LOG_DEBUG(<< "expected = " << expected);
         LOG_DEBUG(<< "actual   = " << actual);
-        BOOST_CHECK_CLOSE_ABSOLUTE(expected, actual, 1e-6);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(expected, actual, 1e-6);
 
         // Test interval spanning 0.0.
         maths::CIntegration::gaussLegendre<maths::CIntegration::OrderThree>(
@@ -813,7 +813,7 @@ BOOST_AUTO_TEST_CASE(testMean) {
         actual = regression.mean(-3.0, 0.0);
         LOG_DEBUG(<< "expected = " << expected);
         LOG_DEBUG(<< "actual   = " << actual);
-        BOOST_CHECK_CLOSE_ABSOLUTE(expected, actual, 1e-6);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(expected, actual, 1e-6);
 
         // Test zero length interval.
         maths::CIntegration::gaussLegendre<maths::CIntegration::OrderThree>(
@@ -822,7 +822,7 @@ BOOST_AUTO_TEST_CASE(testMean) {
         actual = regression.mean(-3.0, -3.0);
         LOG_DEBUG(<< "expected = " << expected);
         LOG_DEBUG(<< "actual   = " << actual);
-        BOOST_CHECK_CLOSE_ABSOLUTE(expected, actual, 1e-6);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(expected, actual, 1e-6);
     }
 }
 
@@ -866,7 +866,7 @@ BOOST_AUTO_TEST_CASE(testCovariances) {
 
         LOG_DEBUG(<< "expected = " << expected);
         LOG_DEBUG(<< "actual   = " << actual);
-        BOOST_TEST((actual - expected).frobenius() / expected.frobenius() < 0.05);
+        BOOST_TEST_REQUIRE((actual - expected).frobenius() / expected.frobenius() < 0.05);
     }
 
     LOG_DEBUG(<< "quadratic");
@@ -898,7 +898,7 @@ BOOST_AUTO_TEST_CASE(testCovariances) {
 
         LOG_DEBUG(<< "expected = " << expected);
         LOG_DEBUG(<< "actual   = " << actual);
-        BOOST_TEST((actual - expected).frobenius() / expected.frobenius() < 0.095);
+        BOOST_TEST_REQUIRE((actual - expected).frobenius() / expected.frobenius() < 0.095);
     }
 }
 
@@ -920,7 +920,7 @@ BOOST_AUTO_TEST_CASE(testParameters) {
 
         LOG_DEBUG(<< "params 1 = " << core::CContainerPrinter::print(params1));
         LOG_DEBUG(<< "params 2 = " << core::CContainerPrinter::print(params2));
-        BOOST_CHECK_EQUAL(core::CContainerPrinter::print(params2),
+        BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(params2),
                           core::CContainerPrinter::print(params1));
     }
 }
@@ -946,15 +946,15 @@ BOOST_AUTO_TEST_CASE(testPersist) {
 
     // Restore the XML into a new regression.
     core::CRapidXmlParser parser;
-    BOOST_TEST(parser.parseStringIgnoreCdata(origXml));
+    BOOST_TEST_REQUIRE(parser.parseStringIgnoreCdata(origXml));
     core::CRapidXmlStateRestoreTraverser traverser(parser);
 
     maths::CLeastSquaresOnlineRegression<2, double> restoredRegression;
-    BOOST_TEST(traverser.traverseSubLevel(std::bind(
+    BOOST_TEST_REQUIRE(traverser.traverseSubLevel(std::bind(
         &maths::CLeastSquaresOnlineRegression<2, double>::acceptRestoreTraverser,
         &restoredRegression, std::placeholders::_1)));
 
-    BOOST_CHECK_EQUAL(origRegression.checksum(), restoredRegression.checksum());
+    BOOST_REQUIRE_EQUAL(origRegression.checksum(), restoredRegression.checksum());
 
     std::string restoredXml;
     {
@@ -962,7 +962,7 @@ BOOST_AUTO_TEST_CASE(testPersist) {
         restoredRegression.acceptPersistInserter(inserter);
         inserter.toXml(restoredXml);
     }
-    BOOST_CHECK_EQUAL(origXml, restoredXml);
+    BOOST_REQUIRE_EQUAL(origXml, restoredXml);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

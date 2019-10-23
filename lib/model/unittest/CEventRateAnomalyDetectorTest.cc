@@ -124,7 +124,7 @@ void importData(ml::core_t::TTime firstTime,
     TifstreamPtrVec ifss;
     for (std::size_t i = 0u; i < fileNames.size(); ++i) {
         TifstreamPtr ifs(new std::ifstream(fileNames[i].c_str()));
-        BOOST_TEST(ifs->is_open());
+        BOOST_TEST_REQUIRE(ifs->is_open());
         ifss.push_back(ifs);
     }
 
@@ -134,7 +134,7 @@ void importData(ml::core_t::TTime firstTime,
     for (std::size_t i = 0u; i < ifss.size(); ++i) {
         std::string line;
         std::getline(*ifss[i], line);
-        BOOST_TEST(ml::core::CStringUtils::stringToType(line, times[i]));
+        BOOST_TEST_REQUIRE(ml::core::CStringUtils::stringToType(line, times[i]));
     }
 
     ml::core_t::TTime time(0);
@@ -161,7 +161,7 @@ void importData(ml::core_t::TTime firstTime,
             times[file] = std::numeric_limits<ml::core_t::TTime>::max();
             ifss[file].reset();
         } else {
-            BOOST_TEST(ml::core::CStringUtils::stringToType(line, times[file]));
+            BOOST_TEST_REQUIRE(ml::core::CStringUtils::stringToType(line, times[file]));
         }
     }
 
@@ -208,7 +208,7 @@ BOOST_AUTO_TEST_CASE(testAnomalies) {
         }
     }
 
-    BOOST_CHECK_EQUAL(EXPECTED_ANOMALOUS_HOURS, peaks.size());
+    BOOST_REQUIRE_EQUAL(EXPECTED_ANOMALOUS_HOURS, peaks.size());
 
     std::size_t detected503 = 0u;
     std::size_t detectedMySQL = 0u;
@@ -223,8 +223,8 @@ BOOST_AUTO_TEST_CASE(testAnomalies) {
         }
     }
     LOG_DEBUG(<< "# 503 = " << detected503 << ", # My SQL = " << detectedMySQL);
-    BOOST_CHECK_EQUAL(std::size_t(11), detected503);
-    BOOST_CHECK_EQUAL(std::size_t(11), detectedMySQL);
+    BOOST_REQUIRE_EQUAL(std::size_t(11), detected503);
+    BOOST_REQUIRE_EQUAL(std::size_t(11), detectedMySQL);
 }
 
 BOOST_AUTO_TEST_CASE(testPersist) {
@@ -264,9 +264,9 @@ BOOST_AUTO_TEST_CASE(testPersist) {
                                                  modelConfig.factory(key));
     {
         ml::core::CRapidXmlParser parser;
-        BOOST_TEST(parser.parseStringIgnoreCdata(origXml));
+        BOOST_TEST_REQUIRE(parser.parseStringIgnoreCdata(origXml));
         ml::core::CRapidXmlStateRestoreTraverser traverser(parser);
-        BOOST_TEST(traverser.traverseSubLevel(
+        BOOST_TEST_REQUIRE(traverser.traverseSubLevel(
             std::bind(&ml::model::CAnomalyDetector::acceptRestoreTraverser,
                       &restoredDetector, EMPTY_STRING, std::placeholders::_1)));
     }
@@ -278,7 +278,7 @@ BOOST_AUTO_TEST_CASE(testPersist) {
         restoredDetector.acceptPersistInserter(inserter);
         inserter.toXml(newXml);
     }
-    BOOST_CHECK_EQUAL(origXml, newXml);
+    BOOST_REQUIRE_EQUAL(origXml, newXml);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

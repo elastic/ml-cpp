@@ -68,23 +68,23 @@ BOOST_AUTO_TEST_CASE(testNatural) {
         for (std::size_t i = 0u; i < x.size(); ++i) {
             double yy = spline.value(x[i]);
             LOG_DEBUG(<< "f(x[" << i << "]) = " << yy);
-            BOOST_CHECK_EQUAL(y[i], yy);
+            BOOST_REQUIRE_EQUAL(y[i], yy);
 
             double ym = spline.value(x[i] - 1e-3);
-            BOOST_TEST(std::fabs(yy - ym) < 1e-2);
+            BOOST_TEST_REQUIRE(std::fabs(yy - ym) < 1e-2);
             LOG_DEBUG(<< "f(x[" << i << " - eps]) = " << ym);
 
             double yp = spline.value(x[i] + 1e-3);
             LOG_DEBUG(<< "f(x[" << i << " + eps]) = " << yp);
-            BOOST_TEST(std::fabs(yp - yy) < 1e-2);
+            BOOST_TEST_REQUIRE(std::fabs(yp - yy) < 1e-2);
         }
 
         const TDoubleVec& curvatures = spline.curvatures();
         std::size_t n = curvatures.size();
         LOG_DEBUG(<< "curvatures[0] = " << curvatures[0]
                   << ", curvatures[n] = " << curvatures[n - 1]);
-        BOOST_CHECK_CLOSE_ABSOLUTE(0.0, curvatures[0], 1e-10);
-        BOOST_CHECK_CLOSE_ABSOLUTE(0.0, curvatures[n - 1], 1e-10);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(0.0, curvatures[0], 1e-10);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(0.0, curvatures[n - 1], 1e-10);
     }
 
     {
@@ -107,15 +107,15 @@ BOOST_AUTO_TEST_CASE(testNatural) {
             double yy = spline.value(xx);
             LOG_DEBUG(<< "spline(" << xx << ") = " << yy << ", f(" << xx
                       << ") = " << std::sin(xx));
-            BOOST_TEST(std::fabs(std::sin(xx) - yy) < 0.02);
+            BOOST_TEST_REQUIRE(std::fabs(std::sin(xx) - yy) < 0.02);
         }
 
         const TDoubleVec& curvatures = spline.curvatures();
         std::size_t n = curvatures.size();
         LOG_DEBUG(<< "curvatures[0] = " << curvatures[0]
                   << ", curvatures[n] = " << curvatures[n - 1]);
-        BOOST_CHECK_CLOSE_ABSOLUTE(0.0, curvatures[0], 1e-10);
-        BOOST_CHECK_CLOSE_ABSOLUTE(0.0, curvatures[n - 1], 1e-10);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(0.0, curvatures[0], 1e-10);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(0.0, curvatures[n - 1], 1e-10);
     }
 }
 
@@ -133,25 +133,25 @@ BOOST_AUTO_TEST_CASE(testParabolicRunout) {
         for (std::size_t i = 0u; i < x.size(); ++i) {
             double yy = spline.value(x[i]);
             LOG_DEBUG(<< "f(x[" << i << "]) = " << yy);
-            BOOST_CHECK_EQUAL(y[i], yy);
+            BOOST_REQUIRE_EQUAL(y[i], yy);
 
             double ym = spline.value(x[i] - 1e-3);
-            BOOST_TEST(std::fabs(yy - ym) < 1e-2);
+            BOOST_TEST_REQUIRE(std::fabs(yy - ym) < 1e-2);
             LOG_DEBUG(<< "f(x[" << i << " - eps]) = " << ym);
 
             double yp = spline.value(x[i] + 1e-3);
             LOG_DEBUG(<< "f(x[" << i << " + eps]) = " << yp);
-            BOOST_TEST(std::fabs(yp - yy) < 1e-2);
+            BOOST_TEST_REQUIRE(std::fabs(yp - yy) < 1e-2);
         }
 
         const TDoubleVec& curvatures = spline.curvatures();
         std::size_t n = curvatures.size();
         LOG_DEBUG(<< "curvatures[0] = " << curvatures[0]
                   << ", curvatures[1] = " << curvatures[1]);
-        BOOST_CHECK_CLOSE_ABSOLUTE(curvatures[0], curvatures[1], 1e-10);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(curvatures[0], curvatures[1], 1e-10);
         LOG_DEBUG(<< "curvatures[n-1] = " << curvatures[n - 2]
                   << ", curvatures[n] = " << curvatures[n - 1]);
-        BOOST_CHECK_CLOSE_ABSOLUTE(curvatures[n - 2], curvatures[n - 1], 1e-10);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(curvatures[n - 2], curvatures[n - 1], 1e-10);
     }
 
     {
@@ -174,17 +174,17 @@ BOOST_AUTO_TEST_CASE(testParabolicRunout) {
             double yy = spline.value(xx);
             LOG_DEBUG(<< "spline(" << xx << ") = " << yy << ", f(" << xx
                       << ") = " << std::sin(xx));
-            BOOST_TEST(std::fabs(std::sin(xx) - yy) < 0.04);
+            BOOST_TEST_REQUIRE(std::fabs(std::sin(xx) - yy) < 0.04);
         }
 
         const TDoubleVec& curvatures = spline.curvatures();
         std::size_t n = curvatures.size();
         LOG_DEBUG(<< "curvatures[0] = " << curvatures[0]
                   << ", curvatures[1] = " << curvatures[1]);
-        BOOST_CHECK_CLOSE_ABSOLUTE(curvatures[0], curvatures[1], 1e-10);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(curvatures[0], curvatures[1], 1e-10);
         LOG_DEBUG(<< "curvatures[n-1] = " << curvatures[n - 2]
                   << ", curvatures[n] = " << curvatures[n - 1]);
-        BOOST_CHECK_CLOSE_ABSOLUTE(curvatures[n - 2], curvatures[n - 1], 1e-10);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(curvatures[n - 2], curvatures[n - 1], 1e-10);
     }
 }
 
@@ -209,7 +209,7 @@ BOOST_AUTO_TEST_CASE(testPeriodic) {
             double yy = spline.value(xx);
             LOG_DEBUG(<< "spline(" << xx << ") = " << yy << ", f(" << xx
                       << ") = " << std::cos(xx));
-            BOOST_TEST(std::fabs(std::cos(xx) - yy) < 0.02);
+            BOOST_TEST_REQUIRE(std::fabs(std::cos(xx) - yy) < 0.02);
         }
     }
 
@@ -235,7 +235,7 @@ BOOST_AUTO_TEST_CASE(testPeriodic) {
             double yy = spline.value(static_cast<double>(i));
             if (i % 5 == 0) {
                 LOG_DEBUG(<< "t = " << xx << ", y = " << y[i / 5] << ", ySpline= " << yy);
-                BOOST_CHECK_CLOSE_ABSOLUTE(y[i / 5], yy, 1e-6);
+                BOOST_REQUIRE_CLOSE_ABSOLUTE(y[i / 5], yy, 1e-6);
             }
         }
     }
@@ -276,7 +276,7 @@ BOOST_AUTO_TEST_CASE(testMean) {
 
             LOG_DEBUG(<< "expectedMean = " << expectedMean
                       << ", mean = " << spline.mean());
-            BOOST_CHECK_CLOSE_ABSOLUTE(expectedMean, spline.mean(),
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(expectedMean, spline.mean(),
                                        std::numeric_limits<double>::epsilon() * expectedMean);
         }
     }
@@ -316,7 +316,7 @@ BOOST_AUTO_TEST_CASE(testMean) {
                 LOG_DEBUG(<< "expectedMean = " << expectedMean
                           << ", mean = " << spline.mean());
 
-                BOOST_CHECK_CLOSE_ABSOLUTE(expectedMean, spline.mean(), 1e-4);
+                BOOST_REQUIRE_CLOSE_ABSOLUTE(expectedMean, spline.mean(), 1e-4);
             }
         }
     }
@@ -337,7 +337,7 @@ BOOST_AUTO_TEST_CASE(testMean) {
             spline.interpolate(x, y, maths::CSplineTypes::E_Periodic);
 
             LOG_DEBUG(<< "mean = " << spline.mean());
-            BOOST_CHECK_CLOSE_ABSOLUTE(0.0, spline.mean(), 1e-10);
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(0.0, spline.mean(), 1e-10);
         }
     }
 }
@@ -366,13 +366,13 @@ BOOST_AUTO_TEST_CASE(testIllposed) {
         TDoubleVec curvatures = spline.curvatures();
         LOG_DEBUG(<< "curvatures = " << core::CContainerPrinter::print(curvatures));
         for (std::size_t i = 0u; i < curvatures.size(); ++i) {
-            BOOST_TEST(std::fabs(curvatures[i]) < 2e-7);
+            BOOST_TEST_REQUIRE(std::fabs(curvatures[i]) < 2e-7);
         }
 
         for (std::size_t i = 0u; i <= 30; ++i) {
             LOG_DEBUG(<< "expected = " << 0.2 * static_cast<double>(i)
                       << ", actual = " << spline.value(static_cast<double>(i)));
-            BOOST_CHECK_CLOSE_ABSOLUTE(0.2 * static_cast<double>(i),
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(0.2 * static_cast<double>(i),
                                        spline.value(static_cast<double>(i)), 5e-7);
         }
     }
@@ -410,7 +410,7 @@ BOOST_AUTO_TEST_CASE(testSlope) {
                     (spline.value(xiPlusEps) - spline.value(xiMinusEps)) / (2 * eps);
                 LOG_DEBUG(<< "x = " << xi << ", slope = " << slope
                           << ", numerical slope = " << numericalSlope);
-                BOOST_CHECK_CLOSE_ABSOLUTE(numericalSlope, slope, 6.0 * eps * eps);
+                BOOST_REQUIRE_CLOSE_ABSOLUTE(numericalSlope, slope, 6.0 * eps * eps);
             }
         }
     }
@@ -449,7 +449,7 @@ BOOST_AUTO_TEST_CASE(testSlope) {
                         LOG_DEBUG(<< "x = " << xj << ", slope = " << slope
                                   << ", numerical slope = " << numericalSlope);
                     }
-                    BOOST_CHECK_CLOSE_ABSOLUTE(numericalSlope, slope,
+                    BOOST_REQUIRE_CLOSE_ABSOLUTE(numericalSlope, slope,
                                                1e-3 * std::fabs(numericalSlope));
                 }
             }
@@ -481,7 +481,7 @@ BOOST_AUTO_TEST_CASE(testSlope) {
                     (spline.value(xiPlusEps) - spline.value(xiMinusEps)) / (2 * eps);
                 LOG_DEBUG(<< "x = " << xi << ", slope = " << slope
                           << ", numerical slope = " << numericalSlope);
-                BOOST_CHECK_CLOSE_ABSOLUTE(numericalSlope, slope, eps * eps);
+                BOOST_REQUIRE_CLOSE_ABSOLUTE(numericalSlope, slope, eps * eps);
             }
         }
     }
@@ -513,11 +513,11 @@ BOOST_AUTO_TEST_CASE(testSplineReference) {
                          std::ref(valuesStorage), std::ref(curvaturesStorage));
     splineRef.interpolate(x, y, maths::CSplineTypes::E_Natural);
 
-    BOOST_CHECK_EQUAL(core::CContainerPrinter::print(spline.knots()),
+    BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(spline.knots()),
                       core::CContainerPrinter::print(splineRef.knots()));
-    BOOST_CHECK_EQUAL(core::CContainerPrinter::print(spline.values()),
+    BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(spline.values()),
                       core::CContainerPrinter::print(splineRef.values()));
-    BOOST_CHECK_EQUAL(core::CContainerPrinter::print(spline.curvatures()),
+    BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(spline.curvatures()),
                       core::CContainerPrinter::print(splineRef.curvatures()));
 
     for (std::size_t i = 0u; i < 21; ++i) {
@@ -525,23 +525,23 @@ BOOST_AUTO_TEST_CASE(testSplineReference) {
 
         LOG_DEBUG(<< "spline.value(" << xx << ") = " << spline.value(xx)
                   << ", splineRef.value(" << xx << ") = " << splineRef.value(xx));
-        BOOST_CHECK_EQUAL(spline.value(xx), splineRef.value(xx));
+        BOOST_REQUIRE_EQUAL(spline.value(xx), splineRef.value(xx));
 
         LOG_DEBUG(<< "spline.slope(" << xx << ") = " << spline.slope(xx)
                   << ", splineRef.slope(" << xx << ") = " << splineRef.slope(xx));
-        BOOST_CHECK_EQUAL(spline.slope(xx), splineRef.slope(xx));
+        BOOST_REQUIRE_EQUAL(spline.slope(xx), splineRef.slope(xx));
     }
 
     LOG_DEBUG(<< "spline.mean() = " << spline.mean()
               << ", splineRef.mean() = " << splineRef.mean());
-    BOOST_CHECK_EQUAL(spline.mean(), splineRef.mean());
+    BOOST_REQUIRE_EQUAL(spline.mean(), splineRef.mean());
 
     LOG_DEBUG(<< "spline.absSlope() = " << spline.absSlope()
               << ", splineRef.absSlope() = " << splineRef.absSlope());
-    BOOST_CHECK_EQUAL(spline.absSlope(), splineRef.absSlope());
+    BOOST_REQUIRE_EQUAL(spline.absSlope(), splineRef.absSlope());
 
     LOG_DEBUG(<< "splineRef.memoryUsage = " << splineRef.memoryUsage());
-    BOOST_CHECK_EQUAL(std::size_t(0), splineRef.memoryUsage());
+    BOOST_REQUIRE_EQUAL(std::size_t(0), splineRef.memoryUsage());
 }
 
 BOOST_AUTO_TEST_SUITE_END()

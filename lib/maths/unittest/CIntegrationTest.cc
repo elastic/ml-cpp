@@ -279,45 +279,45 @@ BOOST_AUTO_TEST_CASE(testAllSingleVariate) {
 
                 double actual;
 
-                BOOST_TEST(CIntegration::gaussLegendre<CIntegration::OrderOne>(
+                BOOST_TEST_REQUIRE(CIntegration::gaussLegendre<CIntegration::OrderOne>(
                     f, ranges[i][0], ranges[i][1], actual));
-                BOOST_CHECK_CLOSE_ABSOLUTE(expected, actual, EPS);
+                BOOST_REQUIRE_CLOSE_ABSOLUTE(expected, actual, EPS);
 
-                BOOST_TEST(CIntegration::gaussLegendre<CIntegration::OrderTwo>(
+                BOOST_TEST_REQUIRE(CIntegration::gaussLegendre<CIntegration::OrderTwo>(
                     f, ranges[i][0], ranges[i][1], actual));
-                BOOST_CHECK_CLOSE_ABSOLUTE(expected, actual, EPS);
+                BOOST_REQUIRE_CLOSE_ABSOLUTE(expected, actual, EPS);
 
-                BOOST_TEST(CIntegration::gaussLegendre<CIntegration::OrderThree>(
+                BOOST_TEST_REQUIRE(CIntegration::gaussLegendre<CIntegration::OrderThree>(
                     f, ranges[i][0], ranges[i][1], actual));
-                BOOST_CHECK_CLOSE_ABSOLUTE(expected, actual, EPS);
+                BOOST_REQUIRE_CLOSE_ABSOLUTE(expected, actual, EPS);
 
-                BOOST_TEST(CIntegration::gaussLegendre<CIntegration::OrderFour>(
+                BOOST_TEST_REQUIRE(CIntegration::gaussLegendre<CIntegration::OrderFour>(
                     f, ranges[i][0], ranges[i][1], actual));
-                BOOST_CHECK_CLOSE_ABSOLUTE(expected, actual, EPS);
+                BOOST_REQUIRE_CLOSE_ABSOLUTE(expected, actual, EPS);
 
-                BOOST_TEST(CIntegration::gaussLegendre<CIntegration::OrderFive>(
+                BOOST_TEST_REQUIRE(CIntegration::gaussLegendre<CIntegration::OrderFive>(
                     f, ranges[i][0], ranges[i][1], actual));
-                BOOST_CHECK_CLOSE_ABSOLUTE(expected, actual, EPS);
+                BOOST_REQUIRE_CLOSE_ABSOLUTE(expected, actual, EPS);
 
-                BOOST_TEST(CIntegration::gaussLegendre<CIntegration::OrderSix>(
+                BOOST_TEST_REQUIRE(CIntegration::gaussLegendre<CIntegration::OrderSix>(
                     f, ranges[i][0], ranges[i][1], actual));
-                BOOST_CHECK_CLOSE_ABSOLUTE(expected, actual, EPS);
+                BOOST_REQUIRE_CLOSE_ABSOLUTE(expected, actual, EPS);
 
-                BOOST_TEST(CIntegration::gaussLegendre<CIntegration::OrderSeven>(
+                BOOST_TEST_REQUIRE(CIntegration::gaussLegendre<CIntegration::OrderSeven>(
                     f, ranges[i][0], ranges[i][1], actual));
-                BOOST_CHECK_CLOSE_ABSOLUTE(expected, actual, EPS);
+                BOOST_REQUIRE_CLOSE_ABSOLUTE(expected, actual, EPS);
 
-                BOOST_TEST(CIntegration::gaussLegendre<CIntegration::OrderEight>(
+                BOOST_TEST_REQUIRE(CIntegration::gaussLegendre<CIntegration::OrderEight>(
                     f, ranges[i][0], ranges[i][1], actual));
-                BOOST_CHECK_CLOSE_ABSOLUTE(expected, actual, EPS);
+                BOOST_REQUIRE_CLOSE_ABSOLUTE(expected, actual, EPS);
 
-                BOOST_TEST(CIntegration::gaussLegendre<CIntegration::OrderNine>(
+                BOOST_TEST_REQUIRE(CIntegration::gaussLegendre<CIntegration::OrderNine>(
                     f, ranges[i][0], ranges[i][1], actual));
-                BOOST_CHECK_CLOSE_ABSOLUTE(expected, actual, EPS);
+                BOOST_REQUIRE_CLOSE_ABSOLUTE(expected, actual, EPS);
 
-                BOOST_TEST(CIntegration::gaussLegendre<CIntegration::OrderTen>(
+                BOOST_TEST_REQUIRE(CIntegration::gaussLegendre<CIntegration::OrderTen>(
                     f, ranges[i][0], ranges[i][1], actual));
-                BOOST_CHECK_CLOSE_ABSOLUTE(expected, actual, EPS);
+                BOOST_REQUIRE_CLOSE_ABSOLUTE(expected, actual, EPS);
             }
         }
     }
@@ -336,45 +336,45 @@ BOOST_AUTO_TEST_CASE(testAllSingleVariate) {
 
                 double actual;
 
-                BOOST_TEST(CIntegration::gaussLegendre<CIntegration::OrderOne>(
+                BOOST_TEST_REQUIRE(CIntegration::gaussLegendre<CIntegration::OrderOne>(
                     f, ranges[i][0], ranges[i][1], actual));
-                BOOST_CHECK_CLOSE_ABSOLUTE(expected, actual, EPS);
+                BOOST_REQUIRE_CLOSE_ABSOLUTE(expected, actual, EPS);
 
-                BOOST_TEST(CIntegration::gaussLegendre<CIntegration::OrderTwo>(
+                BOOST_TEST_REQUIRE(CIntegration::gaussLegendre<CIntegration::OrderTwo>(
                     f, ranges[i][0], ranges[i][1], actual));
-                BOOST_CHECK_CLOSE_ABSOLUTE(expected, actual, EPS);
+                BOOST_REQUIRE_CLOSE_ABSOLUTE(expected, actual, EPS);
 
-                BOOST_TEST(CIntegration::gaussLegendre<CIntegration::OrderThree>(
+                BOOST_TEST_REQUIRE(CIntegration::gaussLegendre<CIntegration::OrderThree>(
                     f, ranges[i][0], ranges[i][1], actual));
-                BOOST_CHECK_CLOSE_ABSOLUTE(expected, actual, EPS);
+                BOOST_REQUIRE_CLOSE_ABSOLUTE(expected, actual, EPS);
 
-                BOOST_TEST(CIntegration::gaussLegendre<CIntegration::OrderFour>(
+                BOOST_TEST_REQUIRE(CIntegration::gaussLegendre<CIntegration::OrderFour>(
                     f, ranges[i][0], ranges[i][1], actual));
-                BOOST_CHECK_CLOSE_ABSOLUTE(expected, actual, EPS);
+                BOOST_REQUIRE_CLOSE_ABSOLUTE(expected, actual, EPS);
 
-                BOOST_TEST(CIntegration::gaussLegendre<CIntegration::OrderFive>(
+                BOOST_TEST_REQUIRE(CIntegration::gaussLegendre<CIntegration::OrderFive>(
                     f, ranges[i][0], ranges[i][1], actual));
-                BOOST_CHECK_CLOSE_ABSOLUTE(expected, actual, EPS);
+                BOOST_REQUIRE_CLOSE_ABSOLUTE(expected, actual, EPS);
 
-                BOOST_TEST(CIntegration::gaussLegendre<CIntegration::OrderSix>(
+                BOOST_TEST_REQUIRE(CIntegration::gaussLegendre<CIntegration::OrderSix>(
                     f, ranges[i][0], ranges[i][1], actual));
-                BOOST_CHECK_CLOSE_ABSOLUTE(expected, actual, EPS);
+                BOOST_REQUIRE_CLOSE_ABSOLUTE(expected, actual, EPS);
 
-                BOOST_TEST(CIntegration::gaussLegendre<CIntegration::OrderSeven>(
+                BOOST_TEST_REQUIRE(CIntegration::gaussLegendre<CIntegration::OrderSeven>(
                     f, ranges[i][0], ranges[i][1], actual));
-                BOOST_CHECK_CLOSE_ABSOLUTE(expected, actual, EPS);
+                BOOST_REQUIRE_CLOSE_ABSOLUTE(expected, actual, EPS);
 
-                BOOST_TEST(CIntegration::gaussLegendre<CIntegration::OrderEight>(
+                BOOST_TEST_REQUIRE(CIntegration::gaussLegendre<CIntegration::OrderEight>(
                     f, ranges[i][0], ranges[i][1], actual));
-                BOOST_CHECK_CLOSE_ABSOLUTE(expected, actual, EPS);
+                BOOST_REQUIRE_CLOSE_ABSOLUTE(expected, actual, EPS);
 
-                BOOST_TEST(CIntegration::gaussLegendre<CIntegration::OrderNine>(
+                BOOST_TEST_REQUIRE(CIntegration::gaussLegendre<CIntegration::OrderNine>(
                     f, ranges[i][0], ranges[i][1], actual));
-                BOOST_CHECK_CLOSE_ABSOLUTE(expected, actual, EPS);
+                BOOST_REQUIRE_CLOSE_ABSOLUTE(expected, actual, EPS);
 
-                BOOST_TEST(CIntegration::gaussLegendre<CIntegration::OrderTen>(
+                BOOST_TEST_REQUIRE(CIntegration::gaussLegendre<CIntegration::OrderTen>(
                     f, ranges[i][0], ranges[i][1], actual));
-                BOOST_CHECK_CLOSE_ABSOLUTE(expected, actual, EPS);
+                BOOST_REQUIRE_CLOSE_ABSOLUTE(expected, actual, EPS);
             }
         }
     }
@@ -396,41 +396,41 @@ BOOST_AUTO_TEST_CASE(testAllSingleVariate) {
 
                 double actual;
 
-                BOOST_TEST(CIntegration::gaussLegendre<CIntegration::OrderTwo>(
+                BOOST_TEST_REQUIRE(CIntegration::gaussLegendre<CIntegration::OrderTwo>(
                     f, ranges[i][0], ranges[i][1], actual));
-                BOOST_CHECK_CLOSE_ABSOLUTE(expected, actual, EPS);
+                BOOST_REQUIRE_CLOSE_ABSOLUTE(expected, actual, EPS);
 
-                BOOST_TEST(CIntegration::gaussLegendre<CIntegration::OrderThree>(
+                BOOST_TEST_REQUIRE(CIntegration::gaussLegendre<CIntegration::OrderThree>(
                     f, ranges[i][0], ranges[i][1], actual));
-                BOOST_CHECK_CLOSE_ABSOLUTE(expected, actual, EPS);
+                BOOST_REQUIRE_CLOSE_ABSOLUTE(expected, actual, EPS);
 
-                BOOST_TEST(CIntegration::gaussLegendre<CIntegration::OrderFour>(
+                BOOST_TEST_REQUIRE(CIntegration::gaussLegendre<CIntegration::OrderFour>(
                     f, ranges[i][0], ranges[i][1], actual));
-                BOOST_CHECK_CLOSE_ABSOLUTE(expected, actual, EPS);
+                BOOST_REQUIRE_CLOSE_ABSOLUTE(expected, actual, EPS);
 
-                BOOST_TEST(CIntegration::gaussLegendre<CIntegration::OrderFive>(
+                BOOST_TEST_REQUIRE(CIntegration::gaussLegendre<CIntegration::OrderFive>(
                     f, ranges[i][0], ranges[i][1], actual));
-                BOOST_CHECK_CLOSE_ABSOLUTE(expected, actual, EPS);
+                BOOST_REQUIRE_CLOSE_ABSOLUTE(expected, actual, EPS);
 
-                BOOST_TEST(CIntegration::gaussLegendre<CIntegration::OrderSix>(
+                BOOST_TEST_REQUIRE(CIntegration::gaussLegendre<CIntegration::OrderSix>(
                     f, ranges[i][0], ranges[i][1], actual));
-                BOOST_CHECK_CLOSE_ABSOLUTE(expected, actual, EPS);
+                BOOST_REQUIRE_CLOSE_ABSOLUTE(expected, actual, EPS);
 
-                BOOST_TEST(CIntegration::gaussLegendre<CIntegration::OrderSeven>(
+                BOOST_TEST_REQUIRE(CIntegration::gaussLegendre<CIntegration::OrderSeven>(
                     f, ranges[i][0], ranges[i][1], actual));
-                BOOST_CHECK_CLOSE_ABSOLUTE(expected, actual, EPS);
+                BOOST_REQUIRE_CLOSE_ABSOLUTE(expected, actual, EPS);
 
-                BOOST_TEST(CIntegration::gaussLegendre<CIntegration::OrderEight>(
+                BOOST_TEST_REQUIRE(CIntegration::gaussLegendre<CIntegration::OrderEight>(
                     f, ranges[i][0], ranges[i][1], actual));
-                BOOST_CHECK_CLOSE_ABSOLUTE(expected, actual, EPS);
+                BOOST_REQUIRE_CLOSE_ABSOLUTE(expected, actual, EPS);
 
-                BOOST_TEST(CIntegration::gaussLegendre<CIntegration::OrderNine>(
+                BOOST_TEST_REQUIRE(CIntegration::gaussLegendre<CIntegration::OrderNine>(
                     f, ranges[i][0], ranges[i][1], actual));
-                BOOST_CHECK_CLOSE_ABSOLUTE(expected, actual, EPS);
+                BOOST_REQUIRE_CLOSE_ABSOLUTE(expected, actual, EPS);
 
-                BOOST_TEST(CIntegration::gaussLegendre<CIntegration::OrderTen>(
+                BOOST_TEST_REQUIRE(CIntegration::gaussLegendre<CIntegration::OrderTen>(
                     f, ranges[i][0], ranges[i][1], actual));
-                BOOST_CHECK_CLOSE_ABSOLUTE(expected, actual, EPS);
+                BOOST_REQUIRE_CLOSE_ABSOLUTE(expected, actual, EPS);
             }
         }
     }
@@ -452,37 +452,37 @@ BOOST_AUTO_TEST_CASE(testAllSingleVariate) {
 
                 double actual;
 
-                BOOST_TEST(CIntegration::gaussLegendre<CIntegration::OrderThree>(
+                BOOST_TEST_REQUIRE(CIntegration::gaussLegendre<CIntegration::OrderThree>(
                     f, ranges[i][0], ranges[i][1], actual));
-                BOOST_CHECK_CLOSE_ABSOLUTE(expected, actual, EPS);
+                BOOST_REQUIRE_CLOSE_ABSOLUTE(expected, actual, EPS);
 
-                BOOST_TEST(CIntegration::gaussLegendre<CIntegration::OrderFour>(
+                BOOST_TEST_REQUIRE(CIntegration::gaussLegendre<CIntegration::OrderFour>(
                     f, ranges[i][0], ranges[i][1], actual));
-                BOOST_CHECK_CLOSE_ABSOLUTE(expected, actual, EPS);
+                BOOST_REQUIRE_CLOSE_ABSOLUTE(expected, actual, EPS);
 
-                BOOST_TEST(CIntegration::gaussLegendre<CIntegration::OrderFive>(
+                BOOST_TEST_REQUIRE(CIntegration::gaussLegendre<CIntegration::OrderFive>(
                     f, ranges[i][0], ranges[i][1], actual));
-                BOOST_CHECK_CLOSE_ABSOLUTE(expected, actual, EPS);
+                BOOST_REQUIRE_CLOSE_ABSOLUTE(expected, actual, EPS);
 
-                BOOST_TEST(CIntegration::gaussLegendre<CIntegration::OrderSix>(
+                BOOST_TEST_REQUIRE(CIntegration::gaussLegendre<CIntegration::OrderSix>(
                     f, ranges[i][0], ranges[i][1], actual));
-                BOOST_CHECK_CLOSE_ABSOLUTE(expected, actual, EPS);
+                BOOST_REQUIRE_CLOSE_ABSOLUTE(expected, actual, EPS);
 
-                BOOST_TEST(CIntegration::gaussLegendre<CIntegration::OrderSeven>(
+                BOOST_TEST_REQUIRE(CIntegration::gaussLegendre<CIntegration::OrderSeven>(
                     f, ranges[i][0], ranges[i][1], actual));
-                BOOST_CHECK_CLOSE_ABSOLUTE(expected, actual, EPS);
+                BOOST_REQUIRE_CLOSE_ABSOLUTE(expected, actual, EPS);
 
-                BOOST_TEST(CIntegration::gaussLegendre<CIntegration::OrderEight>(
+                BOOST_TEST_REQUIRE(CIntegration::gaussLegendre<CIntegration::OrderEight>(
                     f, ranges[i][0], ranges[i][1], actual));
-                BOOST_CHECK_CLOSE_ABSOLUTE(expected, actual, EPS);
+                BOOST_REQUIRE_CLOSE_ABSOLUTE(expected, actual, EPS);
 
-                BOOST_TEST(CIntegration::gaussLegendre<CIntegration::OrderNine>(
+                BOOST_TEST_REQUIRE(CIntegration::gaussLegendre<CIntegration::OrderNine>(
                     f, ranges[i][0], ranges[i][1], actual));
-                BOOST_CHECK_CLOSE_ABSOLUTE(expected, actual, EPS);
+                BOOST_REQUIRE_CLOSE_ABSOLUTE(expected, actual, EPS);
 
-                BOOST_TEST(CIntegration::gaussLegendre<CIntegration::OrderTen>(
+                BOOST_TEST_REQUIRE(CIntegration::gaussLegendre<CIntegration::OrderTen>(
                     f, ranges[i][0], ranges[i][1], actual));
-                BOOST_CHECK_CLOSE_ABSOLUTE(expected, actual, EPS);
+                BOOST_REQUIRE_CLOSE_ABSOLUTE(expected, actual, EPS);
             }
         }
     }
@@ -504,33 +504,33 @@ BOOST_AUTO_TEST_CASE(testAllSingleVariate) {
 
                 double actual;
 
-                BOOST_TEST(CIntegration::gaussLegendre<CIntegration::OrderFour>(
+                BOOST_TEST_REQUIRE(CIntegration::gaussLegendre<CIntegration::OrderFour>(
                     f, ranges[i][0], ranges[i][1], actual));
-                BOOST_CHECK_CLOSE_ABSOLUTE(expected, actual, EPS);
+                BOOST_REQUIRE_CLOSE_ABSOLUTE(expected, actual, EPS);
 
-                BOOST_TEST(CIntegration::gaussLegendre<CIntegration::OrderFive>(
+                BOOST_TEST_REQUIRE(CIntegration::gaussLegendre<CIntegration::OrderFive>(
                     f, ranges[i][0], ranges[i][1], actual));
-                BOOST_CHECK_CLOSE_ABSOLUTE(expected, actual, EPS);
+                BOOST_REQUIRE_CLOSE_ABSOLUTE(expected, actual, EPS);
 
-                BOOST_TEST(CIntegration::gaussLegendre<CIntegration::OrderSix>(
+                BOOST_TEST_REQUIRE(CIntegration::gaussLegendre<CIntegration::OrderSix>(
                     f, ranges[i][0], ranges[i][1], actual));
-                BOOST_CHECK_CLOSE_ABSOLUTE(expected, actual, EPS);
+                BOOST_REQUIRE_CLOSE_ABSOLUTE(expected, actual, EPS);
 
-                BOOST_TEST(CIntegration::gaussLegendre<CIntegration::OrderSeven>(
+                BOOST_TEST_REQUIRE(CIntegration::gaussLegendre<CIntegration::OrderSeven>(
                     f, ranges[i][0], ranges[i][1], actual));
-                BOOST_CHECK_CLOSE_ABSOLUTE(expected, actual, EPS);
+                BOOST_REQUIRE_CLOSE_ABSOLUTE(expected, actual, EPS);
 
-                BOOST_TEST(CIntegration::gaussLegendre<CIntegration::OrderEight>(
+                BOOST_TEST_REQUIRE(CIntegration::gaussLegendre<CIntegration::OrderEight>(
                     f, ranges[i][0], ranges[i][1], actual));
-                BOOST_CHECK_CLOSE_ABSOLUTE(expected, actual, EPS);
+                BOOST_REQUIRE_CLOSE_ABSOLUTE(expected, actual, EPS);
 
-                BOOST_TEST(CIntegration::gaussLegendre<CIntegration::OrderNine>(
+                BOOST_TEST_REQUIRE(CIntegration::gaussLegendre<CIntegration::OrderNine>(
                     f, ranges[i][0], ranges[i][1], actual));
-                BOOST_CHECK_CLOSE_ABSOLUTE(expected, actual, EPS);
+                BOOST_REQUIRE_CLOSE_ABSOLUTE(expected, actual, EPS);
 
-                BOOST_TEST(CIntegration::gaussLegendre<CIntegration::OrderTen>(
+                BOOST_TEST_REQUIRE(CIntegration::gaussLegendre<CIntegration::OrderTen>(
                     f, ranges[i][0], ranges[i][1], actual));
-                BOOST_CHECK_CLOSE_ABSOLUTE(expected, actual, EPS);
+                BOOST_REQUIRE_CLOSE_ABSOLUTE(expected, actual, EPS);
             }
         }
     }
@@ -552,29 +552,29 @@ BOOST_AUTO_TEST_CASE(testAllSingleVariate) {
 
                 double actual;
 
-                BOOST_TEST(CIntegration::gaussLegendre<CIntegration::OrderFive>(
+                BOOST_TEST_REQUIRE(CIntegration::gaussLegendre<CIntegration::OrderFive>(
                     f, ranges[i][0], ranges[i][1], actual));
-                BOOST_CHECK_CLOSE_ABSOLUTE(expected, actual, EPS);
+                BOOST_REQUIRE_CLOSE_ABSOLUTE(expected, actual, EPS);
 
-                BOOST_TEST(CIntegration::gaussLegendre<CIntegration::OrderSix>(
+                BOOST_TEST_REQUIRE(CIntegration::gaussLegendre<CIntegration::OrderSix>(
                     f, ranges[i][0], ranges[i][1], actual));
-                BOOST_CHECK_CLOSE_ABSOLUTE(expected, actual, EPS);
+                BOOST_REQUIRE_CLOSE_ABSOLUTE(expected, actual, EPS);
 
-                BOOST_TEST(CIntegration::gaussLegendre<CIntegration::OrderSeven>(
+                BOOST_TEST_REQUIRE(CIntegration::gaussLegendre<CIntegration::OrderSeven>(
                     f, ranges[i][0], ranges[i][1], actual));
-                BOOST_CHECK_CLOSE_ABSOLUTE(expected, actual, EPS);
+                BOOST_REQUIRE_CLOSE_ABSOLUTE(expected, actual, EPS);
 
-                BOOST_TEST(CIntegration::gaussLegendre<CIntegration::OrderEight>(
+                BOOST_TEST_REQUIRE(CIntegration::gaussLegendre<CIntegration::OrderEight>(
                     f, ranges[i][0], ranges[i][1], actual));
-                BOOST_CHECK_CLOSE_ABSOLUTE(expected, actual, EPS);
+                BOOST_REQUIRE_CLOSE_ABSOLUTE(expected, actual, EPS);
 
-                BOOST_TEST(CIntegration::gaussLegendre<CIntegration::OrderNine>(
+                BOOST_TEST_REQUIRE(CIntegration::gaussLegendre<CIntegration::OrderNine>(
                     f, ranges[i][0], ranges[i][1], actual));
-                BOOST_CHECK_CLOSE_ABSOLUTE(expected, actual, EPS);
+                BOOST_REQUIRE_CLOSE_ABSOLUTE(expected, actual, EPS);
 
-                BOOST_TEST(CIntegration::gaussLegendre<CIntegration::OrderTen>(
+                BOOST_TEST_REQUIRE(CIntegration::gaussLegendre<CIntegration::OrderTen>(
                     f, ranges[i][0], ranges[i][1], actual));
-                BOOST_CHECK_CLOSE_ABSOLUTE(expected, actual, EPS);
+                BOOST_REQUIRE_CLOSE_ABSOLUTE(expected, actual, EPS);
             }
         }
     }
@@ -596,25 +596,25 @@ BOOST_AUTO_TEST_CASE(testAllSingleVariate) {
 
                 double actual;
 
-                BOOST_TEST(CIntegration::gaussLegendre<CIntegration::OrderSix>(
+                BOOST_TEST_REQUIRE(CIntegration::gaussLegendre<CIntegration::OrderSix>(
                     f, ranges[i][0], ranges[i][1], actual));
-                BOOST_CHECK_CLOSE_ABSOLUTE(expected, actual, EPS);
+                BOOST_REQUIRE_CLOSE_ABSOLUTE(expected, actual, EPS);
 
-                BOOST_TEST(CIntegration::gaussLegendre<CIntegration::OrderSeven>(
+                BOOST_TEST_REQUIRE(CIntegration::gaussLegendre<CIntegration::OrderSeven>(
                     f, ranges[i][0], ranges[i][1], actual));
-                BOOST_CHECK_CLOSE_ABSOLUTE(expected, actual, EPS);
+                BOOST_REQUIRE_CLOSE_ABSOLUTE(expected, actual, EPS);
 
-                BOOST_TEST(CIntegration::gaussLegendre<CIntegration::OrderEight>(
+                BOOST_TEST_REQUIRE(CIntegration::gaussLegendre<CIntegration::OrderEight>(
                     f, ranges[i][0], ranges[i][1], actual));
-                BOOST_CHECK_CLOSE_ABSOLUTE(expected, actual, EPS);
+                BOOST_REQUIRE_CLOSE_ABSOLUTE(expected, actual, EPS);
 
-                BOOST_TEST(CIntegration::gaussLegendre<CIntegration::OrderNine>(
+                BOOST_TEST_REQUIRE(CIntegration::gaussLegendre<CIntegration::OrderNine>(
                     f, ranges[i][0], ranges[i][1], actual));
-                BOOST_CHECK_CLOSE_ABSOLUTE(expected, actual, EPS);
+                BOOST_REQUIRE_CLOSE_ABSOLUTE(expected, actual, EPS);
 
-                BOOST_TEST(CIntegration::gaussLegendre<CIntegration::OrderTen>(
+                BOOST_TEST_REQUIRE(CIntegration::gaussLegendre<CIntegration::OrderTen>(
                     f, ranges[i][0], ranges[i][1], actual));
-                BOOST_CHECK_CLOSE_ABSOLUTE(expected, actual, EPS);
+                BOOST_REQUIRE_CLOSE_ABSOLUTE(expected, actual, EPS);
             }
         }
     }
@@ -636,21 +636,21 @@ BOOST_AUTO_TEST_CASE(testAllSingleVariate) {
 
                 double actual;
 
-                BOOST_TEST(CIntegration::gaussLegendre<CIntegration::OrderSeven>(
+                BOOST_TEST_REQUIRE(CIntegration::gaussLegendre<CIntegration::OrderSeven>(
                     f, ranges[i][0], ranges[i][1], actual));
-                BOOST_CHECK_CLOSE_ABSOLUTE(expected, actual, EPS);
+                BOOST_REQUIRE_CLOSE_ABSOLUTE(expected, actual, EPS);
 
-                BOOST_TEST(CIntegration::gaussLegendre<CIntegration::OrderEight>(
+                BOOST_TEST_REQUIRE(CIntegration::gaussLegendre<CIntegration::OrderEight>(
                     f, ranges[i][0], ranges[i][1], actual));
-                BOOST_CHECK_CLOSE_ABSOLUTE(expected, actual, EPS);
+                BOOST_REQUIRE_CLOSE_ABSOLUTE(expected, actual, EPS);
 
-                BOOST_TEST(CIntegration::gaussLegendre<CIntegration::OrderNine>(
+                BOOST_TEST_REQUIRE(CIntegration::gaussLegendre<CIntegration::OrderNine>(
                     f, ranges[i][0], ranges[i][1], actual));
-                BOOST_CHECK_CLOSE_ABSOLUTE(expected, actual, EPS);
+                BOOST_REQUIRE_CLOSE_ABSOLUTE(expected, actual, EPS);
 
-                BOOST_TEST(CIntegration::gaussLegendre<CIntegration::OrderTen>(
+                BOOST_TEST_REQUIRE(CIntegration::gaussLegendre<CIntegration::OrderTen>(
                     f, ranges[i][0], ranges[i][1], actual));
-                BOOST_CHECK_CLOSE_ABSOLUTE(expected, actual, EPS);
+                BOOST_REQUIRE_CLOSE_ABSOLUTE(expected, actual, EPS);
             }
         }
     }
@@ -672,17 +672,17 @@ BOOST_AUTO_TEST_CASE(testAllSingleVariate) {
 
                 double actual;
 
-                BOOST_TEST(CIntegration::gaussLegendre<CIntegration::OrderEight>(
+                BOOST_TEST_REQUIRE(CIntegration::gaussLegendre<CIntegration::OrderEight>(
                     f, ranges[i][0], ranges[i][1], actual));
-                BOOST_CHECK_CLOSE_ABSOLUTE(expected, actual, EPS);
+                BOOST_REQUIRE_CLOSE_ABSOLUTE(expected, actual, EPS);
 
-                BOOST_TEST(CIntegration::gaussLegendre<CIntegration::OrderNine>(
+                BOOST_TEST_REQUIRE(CIntegration::gaussLegendre<CIntegration::OrderNine>(
                     f, ranges[i][0], ranges[i][1], actual));
-                BOOST_CHECK_CLOSE_ABSOLUTE(expected, actual, EPS);
+                BOOST_REQUIRE_CLOSE_ABSOLUTE(expected, actual, EPS);
 
-                BOOST_TEST(CIntegration::gaussLegendre<CIntegration::OrderTen>(
+                BOOST_TEST_REQUIRE(CIntegration::gaussLegendre<CIntegration::OrderTen>(
                     f, ranges[i][0], ranges[i][1], actual));
-                BOOST_CHECK_CLOSE_ABSOLUTE(expected, actual, EPS);
+                BOOST_REQUIRE_CLOSE_ABSOLUTE(expected, actual, EPS);
             }
         }
     }
@@ -705,13 +705,13 @@ BOOST_AUTO_TEST_CASE(testAllSingleVariate) {
 
                 double actual;
 
-                BOOST_TEST(CIntegration::gaussLegendre<CIntegration::OrderNine>(
+                BOOST_TEST_REQUIRE(CIntegration::gaussLegendre<CIntegration::OrderNine>(
                     f, ranges[i][0], ranges[i][1], actual));
-                BOOST_CHECK_CLOSE_ABSOLUTE(expected, actual, EPS);
+                BOOST_REQUIRE_CLOSE_ABSOLUTE(expected, actual, EPS);
 
-                BOOST_TEST(CIntegration::gaussLegendre<CIntegration::OrderTen>(
+                BOOST_TEST_REQUIRE(CIntegration::gaussLegendre<CIntegration::OrderTen>(
                     f, ranges[i][0], ranges[i][1], actual));
-                BOOST_CHECK_CLOSE_ABSOLUTE(expected, actual, EPS);
+                BOOST_REQUIRE_CLOSE_ABSOLUTE(expected, actual, EPS);
             }
         }
     }
@@ -734,9 +734,9 @@ BOOST_AUTO_TEST_CASE(testAllSingleVariate) {
 
                 double actual;
 
-                BOOST_TEST(CIntegration::gaussLegendre<CIntegration::OrderTen>(
+                BOOST_TEST_REQUIRE(CIntegration::gaussLegendre<CIntegration::OrderTen>(
                     f, ranges[i][0], ranges[i][1], actual));
-                BOOST_CHECK_CLOSE_ABSOLUTE(expected, actual, EPS);
+                BOOST_REQUIRE_CLOSE_ABSOLUTE(expected, actual, EPS);
             }
         }
     }
@@ -766,7 +766,7 @@ BOOST_AUTO_TEST_CASE(testAdaptive) {
             heavySide, intervals, fIntervals, 3, 5, 0.01, result);
         LOG_DEBUG(<< "expectedResult = 20.0");
         LOG_DEBUG(<< "result = " << result);
-        BOOST_CHECK_CLOSE_ABSOLUTE(20.0, result, 0.01 * 20.0);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(20.0, result, 0.01 * 20.0);
     }
 
     {
@@ -796,7 +796,7 @@ BOOST_AUTO_TEST_CASE(testAdaptive) {
             normal, intervals, fIntervals, 3, 5, 0.0001, result);
         LOG_DEBUG(<< "expectedResult = " << expectedResult);
         LOG_DEBUG(<< "result = " << result);
-        BOOST_CHECK_CLOSE_ABSOLUTE(expectedResult, result, 0.0001 * expectedResult);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(expectedResult, result, 0.0001 * expectedResult);
     }
 
     {
@@ -828,7 +828,7 @@ BOOST_AUTO_TEST_CASE(testAdaptive) {
             f, intervals, fIntervals, 3, 5, 0.0001, result);
         LOG_DEBUG(<< "expectedResult = " << expectedResult);
         LOG_DEBUG(<< "result = " << result);
-        BOOST_CHECK_CLOSE_ABSOLUTE(expectedResult, result, 0.0001 * expectedResult);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(expectedResult, result, 0.0001 * expectedResult);
     }
 }
 
@@ -841,7 +841,7 @@ BOOST_AUTO_TEST_CASE(testSparseGrid) {
 
         TDoubleVec expectedWeights;
         TDoubleVecVec expectedPoints;
-        BOOST_TEST(readGrid("testfiles/sparse_guass_quadrature_test_d2_l1",
+        BOOST_TEST_REQUIRE(readGrid("testfiles/sparse_guass_quadrature_test_d2_l1",
                             expectedWeights, expectedPoints));
 
         using TSparse2do1 =
@@ -850,16 +850,16 @@ BOOST_AUTO_TEST_CASE(testSparseGrid) {
         const TSparse2do1& sparse = TSparse2do1::instance();
 
         LOG_DEBUG(<< "# points = " << sparse.weights().size());
-        BOOST_CHECK_EQUAL(expectedWeights.size(), sparse.weights().size());
-        BOOST_CHECK_EQUAL(expectedPoints.size(), sparse.points().size());
+        BOOST_REQUIRE_EQUAL(expectedWeights.size(), sparse.weights().size());
+        BOOST_REQUIRE_EQUAL(expectedPoints.size(), sparse.points().size());
 
         for (std::size_t i = 0u; i < expectedWeights.size(); ++i) {
             LOG_DEBUG(<< "weight = " << (sparse.weights())[i]);
-            BOOST_CHECK_CLOSE_ABSOLUTE(expectedWeights[i], (sparse.weights())[i] / 4.0, 1e-6);
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(expectedWeights[i], (sparse.weights())[i] / 4.0, 1e-6);
 
             LOG_DEBUG(<< "point = " << (sparse.points())[i]);
             for (std::size_t j = 0u; j < expectedPoints[i].size(); ++j) {
-                BOOST_CHECK_CLOSE_ABSOLUTE(expectedPoints[i][j],
+                BOOST_REQUIRE_CLOSE_ABSOLUTE(expectedPoints[i][j],
                                            0.5 + (sparse.points())[i](j) / 2.0, 1e-6);
             }
         }
@@ -870,7 +870,7 @@ BOOST_AUTO_TEST_CASE(testSparseGrid) {
 
         TDoubleVec expectedWeights;
         TDoubleVecVec expectedPoints;
-        BOOST_TEST(readGrid("testfiles/sparse_guass_quadrature_test_d2_l2",
+        BOOST_TEST_REQUIRE(readGrid("testfiles/sparse_guass_quadrature_test_d2_l2",
                             expectedWeights, expectedPoints));
 
         using TSparse2do2 =
@@ -879,16 +879,16 @@ BOOST_AUTO_TEST_CASE(testSparseGrid) {
         const TSparse2do2& sparse = TSparse2do2::instance();
 
         LOG_DEBUG(<< "# points = " << sparse.weights().size());
-        BOOST_CHECK_EQUAL(expectedWeights.size(), sparse.weights().size());
-        BOOST_CHECK_EQUAL(expectedPoints.size(), sparse.points().size());
+        BOOST_REQUIRE_EQUAL(expectedWeights.size(), sparse.weights().size());
+        BOOST_REQUIRE_EQUAL(expectedPoints.size(), sparse.points().size());
 
         for (std::size_t i = 0u; i < expectedWeights.size(); ++i) {
             LOG_DEBUG(<< "weight = " << (sparse.weights())[i]);
-            BOOST_CHECK_CLOSE_ABSOLUTE(expectedWeights[i], (sparse.weights())[i] / 4.0, 1e-6);
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(expectedWeights[i], (sparse.weights())[i] / 4.0, 1e-6);
 
             LOG_DEBUG(<< "point = " << (sparse.points())[i]);
             for (std::size_t j = 0u; j < expectedPoints[i].size(); ++j) {
-                BOOST_CHECK_CLOSE_ABSOLUTE(expectedPoints[i][j],
+                BOOST_REQUIRE_CLOSE_ABSOLUTE(expectedPoints[i][j],
                                            0.5 + (sparse.points())[i](j) / 2.0, 1e-6);
             }
         }
@@ -899,7 +899,7 @@ BOOST_AUTO_TEST_CASE(testSparseGrid) {
 
         TDoubleVec expectedWeights;
         TDoubleVecVec expectedPoints;
-        BOOST_TEST(readGrid("testfiles/sparse_guass_quadrature_test_d2_l4",
+        BOOST_TEST_REQUIRE(readGrid("testfiles/sparse_guass_quadrature_test_d2_l4",
                             expectedWeights, expectedPoints));
 
         using TSparse2do4 =
@@ -908,16 +908,16 @@ BOOST_AUTO_TEST_CASE(testSparseGrid) {
         const TSparse2do4& sparse = TSparse2do4::instance();
 
         LOG_DEBUG(<< "# points = " << sparse.weights().size());
-        BOOST_CHECK_EQUAL(expectedWeights.size(), sparse.weights().size());
-        BOOST_CHECK_EQUAL(expectedPoints.size(), sparse.points().size());
+        BOOST_REQUIRE_EQUAL(expectedWeights.size(), sparse.weights().size());
+        BOOST_REQUIRE_EQUAL(expectedPoints.size(), sparse.points().size());
 
         for (std::size_t i = 0u; i < expectedWeights.size(); ++i) {
             LOG_DEBUG(<< "weight = " << (sparse.weights())[i]);
-            BOOST_CHECK_CLOSE_ABSOLUTE(expectedWeights[i], (sparse.weights())[i] / 4.0, 1e-6);
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(expectedWeights[i], (sparse.weights())[i] / 4.0, 1e-6);
 
             LOG_DEBUG(<< "point = " << (sparse.points())[i]);
             for (std::size_t j = 0u; j < expectedPoints[i].size(); ++j) {
-                BOOST_CHECK_CLOSE_ABSOLUTE(expectedPoints[i][j],
+                BOOST_REQUIRE_CLOSE_ABSOLUTE(expectedPoints[i][j],
                                            0.5 + (sparse.points())[i](j) / 2.0, 1e-6);
             }
         }
@@ -928,7 +928,7 @@ BOOST_AUTO_TEST_CASE(testSparseGrid) {
 
         TDoubleVec expectedWeights;
         TDoubleVecVec expectedPoints;
-        BOOST_TEST(readGrid("testfiles/sparse_guass_quadrature_test_d7_l3",
+        BOOST_TEST_REQUIRE(readGrid("testfiles/sparse_guass_quadrature_test_d7_l3",
                             expectedWeights, expectedPoints));
 
         using TSparse7do3 =
@@ -937,17 +937,17 @@ BOOST_AUTO_TEST_CASE(testSparseGrid) {
         const TSparse7do3& sparse = TSparse7do3::instance();
 
         LOG_DEBUG(<< "# points = " << sparse.weights().size());
-        BOOST_CHECK_EQUAL(expectedWeights.size(), sparse.weights().size());
-        BOOST_CHECK_EQUAL(expectedPoints.size(), sparse.points().size());
+        BOOST_REQUIRE_EQUAL(expectedWeights.size(), sparse.weights().size());
+        BOOST_REQUIRE_EQUAL(expectedPoints.size(), sparse.points().size());
 
         for (std::size_t i = 0u; i < expectedWeights.size(); ++i) {
             LOG_DEBUG(<< "weight = " << (sparse.weights())[i]);
-            BOOST_CHECK_CLOSE_ABSOLUTE(expectedWeights[i],
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(expectedWeights[i],
                                        (sparse.weights())[i] / std::pow(2.0, 7.0), 1e-6);
 
             LOG_DEBUG(<< "point = " << (sparse.points())[i]);
             for (std::size_t j = 0u; j < expectedPoints[i].size(); ++j) {
-                BOOST_CHECK_CLOSE_ABSOLUTE(expectedPoints[i][j],
+                BOOST_REQUIRE_CLOSE_ABSOLUTE(expectedPoints[i][j],
                                            0.5 + (sparse.points())[i](j) / 2.0, 1e-6);
             }
         }
@@ -958,7 +958,7 @@ BOOST_AUTO_TEST_CASE(testSparseGrid) {
 
         TDoubleVec expectedWeights;
         TDoubleVecVec expectedPoints;
-        BOOST_TEST(readGrid("testfiles/sparse_guass_quadrature_test_d7_l5",
+        BOOST_TEST_REQUIRE(readGrid("testfiles/sparse_guass_quadrature_test_d7_l5",
                             expectedWeights, expectedPoints));
 
         using TSparse7do5 =
@@ -967,21 +967,21 @@ BOOST_AUTO_TEST_CASE(testSparseGrid) {
         const TSparse7do5& sparse = TSparse7do5::instance();
 
         LOG_DEBUG(<< "# points = " << sparse.weights().size());
-        BOOST_CHECK_EQUAL(expectedWeights.size(), sparse.weights().size());
-        BOOST_CHECK_EQUAL(expectedPoints.size(), sparse.points().size());
+        BOOST_REQUIRE_EQUAL(expectedWeights.size(), sparse.weights().size());
+        BOOST_REQUIRE_EQUAL(expectedPoints.size(), sparse.points().size());
 
         for (std::size_t i = 0u; i < expectedWeights.size(); ++i) {
             if (i % 10 == 0) {
                 LOG_DEBUG(<< "weight = " << (sparse.weights())[i]);
             }
-            BOOST_CHECK_CLOSE_ABSOLUTE(expectedWeights[i],
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(expectedWeights[i],
                                        (sparse.weights())[i] / std::pow(2.0, 7.0), 1e-6);
 
             if (i % 10 == 0) {
                 LOG_DEBUG(<< "point = " << (sparse.points())[i]);
             }
             for (std::size_t j = 0u; j < expectedPoints[i].size(); ++j) {
-                BOOST_CHECK_CLOSE_ABSOLUTE(expectedPoints[i][j],
+                BOOST_REQUIRE_CLOSE_ABSOLUTE(expectedPoints[i][j],
                                            0.5 + (sparse.points())[i](j) / 2.0, 1e-6);
             }
         }
@@ -1074,7 +1074,7 @@ BOOST_AUTO_TEST_CASE(testSparseGrid) {
 
             LOG_DEBUG(<< "number points: actual = " << numberPoints
                       << ", expected = " << expectedNumberPoints[i][j]);
-            BOOST_CHECK_EQUAL(expectedNumberPoints[i][j], numberPoints);
+            BOOST_REQUIRE_EQUAL(expectedNumberPoints[i][j], numberPoints);
         }
     }
 }
@@ -1160,8 +1160,8 @@ BOOST_AUTO_TEST_CASE(testMultivariateSmooth) {
 
                 LOG_DEBUG(<< "expected = " << expected);
                 LOG_DEBUG(<< "actual   = " << actual);
-                BOOST_TEST(successful);
-                BOOST_CHECK_CLOSE_ABSOLUTE(expected, actual, 1e-6);
+                BOOST_TEST_REQUIRE(successful);
+                BOOST_REQUIRE_CLOSE_ABSOLUTE(expected, actual, 1e-6);
             }
         }
     }
@@ -1240,8 +1240,8 @@ BOOST_AUTO_TEST_CASE(testMultivariateSmooth) {
 
                 LOG_DEBUG(<< "expected = " << expected);
                 LOG_DEBUG(<< "actual   = " << actual);
-                BOOST_TEST(successful);
-                BOOST_CHECK_CLOSE_ABSOLUTE(expected, actual, 1e-2);
+                BOOST_TEST_REQUIRE(successful);
+                BOOST_REQUIRE_CLOSE_ABSOLUTE(expected, actual, 1e-2);
             }
         }
     }

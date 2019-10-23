@@ -83,15 +83,15 @@ BOOST_AUTO_TEST_CASE(testOneHotEncoding) {
         for (std::size_t i = 0; i < encoder.numberEncodedColumns(); ++i) {
             switch (i) {
             case 0:
-                BOOST_TEST(maths::E_OneHot == encoder.encoding(i).type());
-                BOOST_CHECK_EQUAL(1.0, encoder.encoding(i).encode(0.0));
+                BOOST_TEST_REQUIRE(maths::E_OneHot == encoder.encoding(i).type());
+                BOOST_REQUIRE_EQUAL(1.0, encoder.encoding(i).encode(0.0));
                 break;
             case 1:
-                BOOST_TEST(maths::E_OneHot == encoder.encoding(i).type());
-                BOOST_CHECK_EQUAL(1.0, encoder.encoding(i).encode(1.0));
+                BOOST_TEST_REQUIRE(maths::E_OneHot == encoder.encoding(i).type());
+                BOOST_REQUIRE_EQUAL(1.0, encoder.encoding(i).encode(1.0));
                 break;
             default:
-                BOOST_TEST(maths::E_OneHot != encoder.encoding(i).type());
+                BOOST_TEST_REQUIRE(maths::E_OneHot != encoder.encoding(i).type());
                 break;
             }
         }
@@ -170,7 +170,7 @@ BOOST_AUTO_TEST_CASE(testMeanValueEncoding) {
         for (std::size_t i = 0; i < encoder.numberEncodedColumns(); ++i) {
             if (encoder.encoding(i).type() == maths::E_TargetMean) {
                 for (std::size_t j = 0; j < expectedTargetMeanValues.size(); ++j) {
-                    BOOST_CHECK_CLOSE_ABSOLUTE(
+                    BOOST_REQUIRE_CLOSE_ABSOLUTE(
                         maths::CBasicStatistics::mean(expectedTargetMeanValues[j]),
                         encoder.encoding(i).encode(static_cast<double>(j)),
                         static_cast<double>(std::numeric_limits<float>::epsilon()) *
@@ -228,7 +228,7 @@ BOOST_AUTO_TEST_CASE(testRareCategories) {
     factory.makeEncodings();
 
     for (std::size_t i = 0; i < categoryCounts.size(); ++i) {
-        BOOST_CHECK_EQUAL(categoryCounts[i] < 50, factory.isRareCategory(2, i));
+        BOOST_REQUIRE_EQUAL(categoryCounts[i] < 50, factory.isRareCategory(2, i));
     }
 }
 
@@ -285,9 +285,9 @@ BOOST_AUTO_TEST_CASE(testCorrelatedFeatures) {
         // choose feature 0 or 1 and feature 5.
 
         TSizeVec expectedColumns{1, 5, 6};
-        BOOST_CHECK_EQUAL(expectedColumns.size(), encoder.numberEncodedColumns());
+        BOOST_REQUIRE_EQUAL(expectedColumns.size(), encoder.numberEncodedColumns());
         for (std::size_t i = 0; i < encoder.numberEncodedColumns(); ++i) {
-            BOOST_CHECK_EQUAL(expectedColumns[i], encoder.encoding(i).inputColumnIndex());
+            BOOST_REQUIRE_EQUAL(expectedColumns[i], encoder.encoding(i).inputColumnIndex());
         }
     }
 
@@ -330,9 +330,9 @@ BOOST_AUTO_TEST_CASE(testCorrelatedFeatures) {
         // choose feature 0 or 1 and features 2 and 3.
 
         TSizeVec expectedColumns{0, 0, 2, 3, 4};
-        BOOST_CHECK_EQUAL(expectedColumns.size(), encoder.numberEncodedColumns());
+        BOOST_REQUIRE_EQUAL(expectedColumns.size(), encoder.numberEncodedColumns());
         for (std::size_t i = 0; i < encoder.numberEncodedColumns(); ++i) {
-            BOOST_CHECK_EQUAL(expectedColumns[i], encoder.encoding(i).inputColumnIndex());
+            BOOST_REQUIRE_EQUAL(expectedColumns[i], encoder.encoding(i).inputColumnIndex());
         }
     }
 }
@@ -386,7 +386,7 @@ BOOST_AUTO_TEST_CASE(testWithRowMask) {
         maths::CMakeDataFrameCategoryEncoder{1, *frame, 3}.rowMask(rowMask)};
     maths::CDataFrameCategoryEncoder maskedEncoder{{1, *maskedFrame, 3}};
 
-    BOOST_CHECK_EQUAL(encoder.checksum(), maskedEncoder.checksum());
+    BOOST_REQUIRE_EQUAL(encoder.checksum(), maskedEncoder.checksum());
 }
 
 BOOST_AUTO_TEST_CASE(testEncodedDataFrameRowRef) {
@@ -529,7 +529,7 @@ BOOST_AUTO_TEST_CASE(testEncodedDataFrameRowRef) {
         }
     });
 
-    BOOST_TEST(passed);
+    BOOST_TEST_REQUIRE(passed);
 }
 
 BOOST_AUTO_TEST_CASE(testUnseenCategoryEncoding) {
@@ -576,13 +576,13 @@ BOOST_AUTO_TEST_CASE(testUnseenCategoryEncoding) {
     std::ostringstream rep;
     for (std::size_t i = 0; i < encodedRow.numberColumns() - 1; ++i) {
         if (encoder.isBinary(i)) {
-            BOOST_CHECK_EQUAL(maths::CFloatStorage{0.0}, encodedRow[i]);
+            BOOST_REQUIRE_EQUAL(maths::CFloatStorage{0.0}, encodedRow[i]);
         } else {
-            BOOST_TEST(encodedRow[i] > 0.0);
+            BOOST_TEST_REQUIRE(encodedRow[i] > 0.0);
         }
         rep << " " << encodedRow[i];
     }
-    BOOST_CHECK_EQUAL(maths::CFloatStorage{1.5},
+    BOOST_REQUIRE_EQUAL(maths::CFloatStorage{1.5},
                       encodedRow[encodedRow.numberColumns() - 1]);
     LOG_DEBUG(<< "encoded = [" << rep.str() << "]");
 }
@@ -626,9 +626,9 @@ BOOST_AUTO_TEST_CASE(testDiscardNuisanceFeatures) {
 
     LOG_DEBUG(<< "number selected features = " << encoder.numberEncodedColumns()
               << " / " << cols);
-    BOOST_CHECK_EQUAL(cols - 1, encoder.numberEncodedColumns());
+    BOOST_REQUIRE_EQUAL(cols - 1, encoder.numberEncodedColumns());
     for (std::size_t i = 0; i < encoder.numberEncodedColumns(); ++i) {
-        BOOST_TEST(encoder.encoding(i).inputColumnIndex() != 5);
+        BOOST_TEST_REQUIRE(encoder.encoding(i).inputColumnIndex() != 5);
     }
 }
 
@@ -687,7 +687,7 @@ BOOST_AUTO_TEST_CASE(testPersistRestore) {
     try {
         core::CJsonStateRestoreTraverser traverser{persistTo};
         maths::CDataFrameCategoryEncoder restoredEncoder{traverser};
-        BOOST_CHECK_EQUAL(encoder.checksum(), restoredEncoder.checksum());
+        BOOST_REQUIRE_EQUAL(encoder.checksum(), restoredEncoder.checksum());
 
     } catch (const std::exception& e) { BOOST_FAIL(e.what()); }
 }

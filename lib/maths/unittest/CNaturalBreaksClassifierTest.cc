@@ -183,7 +183,7 @@ BOOST_AUTO_TEST_CASE(testCategories) {
                         LOG_DEBUG(<< "actual =   " << core::CContainerPrinter::print(split));
                     }
 
-                    BOOST_CHECK_EQUAL(core::CContainerPrinter::print(expectedSplit),
+                    BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(expectedSplit),
                                       core::CContainerPrinter::print(split));
                 }
             }
@@ -221,7 +221,7 @@ BOOST_AUTO_TEST_CASE(testCategories) {
                         TTupleVec expectedSplit;
                         bool expectSplit = naturalBreaksBranchAndBound(all, j, k, expectedSplit);
 
-                        BOOST_CHECK_EQUAL(expectSplit, haveSplit);
+                        BOOST_REQUIRE_EQUAL(expectSplit, haveSplit);
 
                         if (expectSplit && haveSplit) {
                             if (i % 20 == 0) {
@@ -230,7 +230,7 @@ BOOST_AUTO_TEST_CASE(testCategories) {
                                 LOG_DEBUG(<< "actual =   "
                                           << core::CContainerPrinter::print(split));
                             }
-                            BOOST_CHECK_EQUAL(core::CContainerPrinter::print(expectedSplit),
+                            BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(expectedSplit),
                                               core::CContainerPrinter::print(split));
                         }
                     } while (k < i / j);
@@ -268,13 +268,13 @@ BOOST_AUTO_TEST_CASE(testCategories) {
         double c1 = CBasicStatistics::count(twoSplit[0]);
         double c2 = CBasicStatistics::count(twoSplit[1]);
         LOG_DEBUG(<< "count ratio = " << c1 / c2);
-        BOOST_TEST(std::fabs(c1 / c2 - 1.0) < 0.8);
+        BOOST_TEST_REQUIRE(std::fabs(c1 / c2 - 1.0) < 0.8);
         double separation = std::fabs(CBasicStatistics::mean(twoSplit[0]) -
                                       CBasicStatistics::mean(twoSplit[1])) /
                             (std::sqrt(CBasicStatistics::variance(twoSplit[0])) +
                              std::sqrt(CBasicStatistics::variance(twoSplit[1])));
         LOG_DEBUG(<< "separation = " << separation);
-        BOOST_TEST(std::fabs(separation - 1.0) < 0.4);
+        BOOST_TEST_REQUIRE(std::fabs(separation - 1.0) < 0.4);
     }
     {
         const double mean1 = 10.0;
@@ -309,15 +309,15 @@ BOOST_AUTO_TEST_CASE(testCategories) {
                           << ", (mean1,var1) = (" << mean1 << "," << var1 << ")"
                           << ", (mean2,var2) = (" << mean2 << "," << var2 << ")");
 
-                BOOST_TEST(std::fabs(CBasicStatistics::mean(twoSplit[0]) - mean1) < 0.5);
-                BOOST_TEST(std::fabs(CBasicStatistics::variance(twoSplit[0]) - var1) < 0.6);
-                BOOST_TEST(std::fabs(CBasicStatistics::count(twoSplit[0]) -
+                BOOST_TEST_REQUIRE(std::fabs(CBasicStatistics::mean(twoSplit[0]) - mean1) < 0.5);
+                BOOST_TEST_REQUIRE(std::fabs(CBasicStatistics::variance(twoSplit[0]) - var1) < 0.6);
+                BOOST_TEST_REQUIRE(std::fabs(CBasicStatistics::count(twoSplit[0]) -
                                      static_cast<double>(n1)) /
                                static_cast<double>(n1) <
                            0.33);
-                BOOST_TEST(std::fabs(CBasicStatistics::mean(twoSplit[1]) - mean2) < 0.4);
-                BOOST_TEST(std::fabs(CBasicStatistics::variance(twoSplit[1]) - var2) < 0.63);
-                BOOST_TEST(std::fabs(CBasicStatistics::count(twoSplit[1]) -
+                BOOST_TEST_REQUIRE(std::fabs(CBasicStatistics::mean(twoSplit[1]) - mean2) < 0.4);
+                BOOST_TEST_REQUIRE(std::fabs(CBasicStatistics::variance(twoSplit[1]) - var2) < 0.63);
+                BOOST_TEST_REQUIRE(std::fabs(CBasicStatistics::count(twoSplit[1]) -
                                      static_cast<double>(n2)) /
                                static_cast<double>(n2) <
                            0.11);
@@ -349,15 +349,15 @@ BOOST_AUTO_TEST_CASE(testCategories) {
                           << ", split 2 = " << CBasicStatistics::print(twoSplit[1]));
             }
 
-            BOOST_TEST(std::fabs(CBasicStatistics::mean(twoSplit[0]) - mean1) < 0.7);
-            BOOST_TEST(std::fabs(CBasicStatistics::variance(twoSplit[0]) - var1) < 0.4);
-            BOOST_TEST(std::fabs(CBasicStatistics::count(twoSplit[0]) -
+            BOOST_TEST_REQUIRE(std::fabs(CBasicStatistics::mean(twoSplit[0]) - mean1) < 0.7);
+            BOOST_TEST_REQUIRE(std::fabs(CBasicStatistics::variance(twoSplit[0]) - var1) < 0.4);
+            BOOST_TEST_REQUIRE(std::fabs(CBasicStatistics::count(twoSplit[0]) -
                                  static_cast<double>(n1)) /
                            static_cast<double>(n1) <
                        0.7);
-            BOOST_TEST(std::fabs(CBasicStatistics::mean(twoSplit[1]) - mean2) < 0.6);
-            BOOST_TEST(std::fabs(CBasicStatistics::variance(twoSplit[1]) - var2) < 1.0);
-            BOOST_TEST(std::fabs(CBasicStatistics::count(twoSplit[1]) -
+            BOOST_TEST_REQUIRE(std::fabs(CBasicStatistics::mean(twoSplit[1]) - mean2) < 0.6);
+            BOOST_TEST_REQUIRE(std::fabs(CBasicStatistics::variance(twoSplit[1]) - var2) < 1.0);
+            BOOST_TEST_REQUIRE(std::fabs(CBasicStatistics::count(twoSplit[1]) -
                                  static_cast<double>(n2)) /
                            static_cast<double>(n2) <
                        0.3);
@@ -384,16 +384,16 @@ BOOST_AUTO_TEST_CASE(testCategories) {
         LOG_DEBUG(<< "mean mean error 1 = " << totalMeanError1
                   << ", mean variance error 1 = " << totalVarError1
                   << ", mean count error 1 = " << totalCountError1);
-        BOOST_TEST(totalMeanError1 < 0.21);
-        BOOST_TEST(totalVarError1 < 0.2);
-        BOOST_TEST(totalCountError1 < 0.3);
+        BOOST_TEST_REQUIRE(totalMeanError1 < 0.21);
+        BOOST_TEST_REQUIRE(totalVarError1 < 0.2);
+        BOOST_TEST_REQUIRE(totalCountError1 < 0.3);
 
         LOG_DEBUG(<< "mean mean error 2 = " << totalMeanError2
                   << ", mean variance error 2 = " << totalVarError2
                   << ", mean count error 2 = " << totalCountError2);
-        BOOST_TEST(totalMeanError2 < 0.3);
-        BOOST_TEST(totalVarError2 < 0.56);
-        BOOST_TEST(totalCountError2 < 0.1);
+        BOOST_TEST_REQUIRE(totalMeanError2 < 0.3);
+        BOOST_TEST_REQUIRE(totalVarError2 < 0.56);
+        BOOST_TEST_REQUIRE(totalCountError2 < 0.1);
     }
 
     // Test Gaussian clusters plus noise.
@@ -451,15 +451,15 @@ BOOST_AUTO_TEST_CASE(testCategories) {
                           << ", split 3 = " << CBasicStatistics::print(twoSplit[2]));
             }
 
-            BOOST_TEST(std::fabs(CBasicStatistics::mean(twoSplit[0]) - mean1) < 0.15);
-            BOOST_TEST(std::fabs(CBasicStatistics::variance(twoSplit[0]) - var1) < 0.4);
-            BOOST_TEST(std::fabs(CBasicStatistics::count(twoSplit[0]) -
+            BOOST_TEST_REQUIRE(std::fabs(CBasicStatistics::mean(twoSplit[0]) - mean1) < 0.15);
+            BOOST_TEST_REQUIRE(std::fabs(CBasicStatistics::variance(twoSplit[0]) - var1) < 0.4);
+            BOOST_TEST_REQUIRE(std::fabs(CBasicStatistics::count(twoSplit[0]) -
                                  static_cast<double>(n1)) /
                            static_cast<double>(n1) <
                        0.05);
-            BOOST_TEST(std::fabs(CBasicStatistics::mean(twoSplit[1]) - mean2) < 0.5);
-            BOOST_TEST(std::fabs(CBasicStatistics::variance(twoSplit[1]) - var2) < 2.5);
-            BOOST_TEST(std::fabs(CBasicStatistics::count(twoSplit[1]) -
+            BOOST_TEST_REQUIRE(std::fabs(CBasicStatistics::mean(twoSplit[1]) - mean2) < 0.5);
+            BOOST_TEST_REQUIRE(std::fabs(CBasicStatistics::variance(twoSplit[1]) - var2) < 2.5);
+            BOOST_TEST_REQUIRE(std::fabs(CBasicStatistics::count(twoSplit[1]) -
                                  static_cast<double>(n2)) /
                            static_cast<double>(n2) <
                        0.15);
@@ -486,16 +486,16 @@ BOOST_AUTO_TEST_CASE(testCategories) {
         LOG_DEBUG(<< "mean mean error 1 = " << totalMeanError1
                   << ", mean variance error 1 = " << totalVarError1
                   << ", mean count error 1 = " << totalCountError1);
-        BOOST_TEST(totalMeanError1 < 0.05);
-        BOOST_TEST(totalVarError1 < 0.1);
-        BOOST_TEST(totalCountError1 < 0.01);
+        BOOST_TEST_REQUIRE(totalMeanError1 < 0.05);
+        BOOST_TEST_REQUIRE(totalVarError1 < 0.1);
+        BOOST_TEST_REQUIRE(totalCountError1 < 0.01);
 
         LOG_DEBUG(<< "mean mean error 2 = " << totalMeanError2
                   << ", mean variance error 2 = " << totalVarError2
                   << ", mean count error 2 = " << totalCountError2);
-        BOOST_TEST(totalMeanError2 < 0.15);
-        BOOST_TEST(totalVarError2 < 1.0);
-        BOOST_TEST(totalCountError2 < 0.1);
+        BOOST_TEST_REQUIRE(totalMeanError2 < 0.15);
+        BOOST_TEST_REQUIRE(totalVarError2 < 1.0);
+        BOOST_TEST_REQUIRE(totalCountError2 < 0.1);
     }
 }
 
@@ -522,7 +522,7 @@ BOOST_AUTO_TEST_CASE(testPropagateForwardsByTime) {
 
     TTupleVec categories;
     classifier.categories(4u, 0, categories);
-    BOOST_CHECK_EQUAL(std::size_t(4), categories.size());
+    BOOST_REQUIRE_EQUAL(std::size_t(4), categories.size());
 
     LOG_DEBUG(<< "categories = " << core::CContainerPrinter::print(categories));
 
@@ -532,9 +532,9 @@ BOOST_AUTO_TEST_CASE(testPropagateForwardsByTime) {
     LOG_DEBUG(<< "categories = " << core::CContainerPrinter::print(categories));
 
     // We expect the category with count of 1 to have been pruned out.
-    BOOST_CHECK_EQUAL(std::size_t(3), categories.size());
+    BOOST_REQUIRE_EQUAL(std::size_t(3), categories.size());
     for (std::size_t i = 0u; i < categories.size(); ++i) {
-        BOOST_TEST(maths::CBasicStatistics::mean(categories[i]) != 100.0);
+        BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(categories[i]) != 100.0);
     }
 }
 
@@ -586,7 +586,7 @@ BOOST_AUTO_TEST_CASE(testSample) {
         error += std::fabs(expectedSampled[i] - sampled[i]);
     }
 
-    BOOST_CHECK_CLOSE_ABSOLUTE(0.0, error, 2e-6);
+    BOOST_REQUIRE_CLOSE_ABSOLUTE(0.0, error, 2e-6);
 
     for (std::size_t i = 5u; i < samples.size(); ++i) {
         classifier.add(samples[i]);
@@ -610,13 +610,13 @@ BOOST_AUTO_TEST_CASE(testSample) {
     LOG_DEBUG(<< "mean, variance 1          = " << meanVar1);
     LOG_DEBUG(<< "expected mean, variance 2 = " << expectedMeanVar2);
     LOG_DEBUG(<< "mean, variance 2          = " << meanVar2);
-    BOOST_CHECK_CLOSE_ABSOLUTE(CBasicStatistics::mean(expectedMeanVar1),
+    BOOST_REQUIRE_CLOSE_ABSOLUTE(CBasicStatistics::mean(expectedMeanVar1),
                                CBasicStatistics::mean(meanVar1), 0.01);
-    BOOST_CHECK_CLOSE_ABSOLUTE(CBasicStatistics::variance(expectedMeanVar1),
+    BOOST_REQUIRE_CLOSE_ABSOLUTE(CBasicStatistics::variance(expectedMeanVar1),
                                CBasicStatistics::variance(meanVar1), 0.1);
-    BOOST_CHECK_CLOSE_ABSOLUTE(CBasicStatistics::mean(expectedMeanVar2),
+    BOOST_REQUIRE_CLOSE_ABSOLUTE(CBasicStatistics::mean(expectedMeanVar2),
                                CBasicStatistics::mean(meanVar2), 0.01);
-    BOOST_CHECK_CLOSE_ABSOLUTE(CBasicStatistics::variance(expectedMeanVar2),
+    BOOST_REQUIRE_CLOSE_ABSOLUTE(CBasicStatistics::variance(expectedMeanVar2),
                                CBasicStatistics::variance(meanVar2), 0.1);
 }
 
@@ -651,7 +651,7 @@ BOOST_AUTO_TEST_CASE(testPersist) {
     LOG_DEBUG(<< "Classifier XML representation:\n" << origXml);
 
     core::CRapidXmlParser parser;
-    BOOST_TEST(parser.parseStringIgnoreCdata(origXml));
+    BOOST_TEST_REQUIRE(parser.parseStringIgnoreCdata(origXml));
     core::CRapidXmlStateRestoreTraverser traverser(parser);
 
     // Restore the XML into a new classifier.
@@ -659,13 +659,13 @@ BOOST_AUTO_TEST_CASE(testPersist) {
     maths::SDistributionRestoreParams params(
         maths_t::E_ContinuousData, 0.2, maths::MINIMUM_CLUSTER_SPLIT_FRACTION,
         maths::MINIMUM_CLUSTER_SPLIT_COUNT, maths::MINIMUM_CATEGORY_COUNT);
-    BOOST_TEST(traverser.traverseSubLevel(
+    BOOST_TEST_REQUIRE(traverser.traverseSubLevel(
         std::bind(&CNaturalBreaksClassifier::acceptRestoreTraverser,
                   &restoredClassifier, std::cref(params), std::placeholders::_1)));
 
     LOG_DEBUG(<< "orig checksum = " << checksum
               << " restored checksum = " << restoredClassifier.checksum());
-    BOOST_CHECK_EQUAL(checksum, restoredClassifier.checksum());
+    BOOST_REQUIRE_EQUAL(checksum, restoredClassifier.checksum());
 
     // The XML representation of the new filter should be the same
     // as the original.
@@ -675,7 +675,7 @@ BOOST_AUTO_TEST_CASE(testPersist) {
         restoredClassifier.acceptPersistInserter(inserter);
         inserter.toXml(newXml);
     }
-    BOOST_CHECK_EQUAL(origXml, newXml);
+    BOOST_REQUIRE_EQUAL(origXml, newXml);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

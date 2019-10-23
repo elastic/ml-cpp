@@ -29,13 +29,13 @@ BOOST_AUTO_TEST_CASE(testAll) {
         double minimumSeasonalVarianceScale{0.3};
         maths::CModelParams params(bucketLength, learnRate, decayRate, minimumSeasonalVarianceScale,
                                    6 * core::constants::HOUR, core::constants::DAY);
-        BOOST_CHECK_EQUAL(bucketLength, params.bucketLength());
-        BOOST_CHECK_EQUAL(learnRate, params.learnRate());
-        BOOST_CHECK_EQUAL(decayRate, params.decayRate());
-        BOOST_CHECK_EQUAL(minimumSeasonalVarianceScale,
+        BOOST_REQUIRE_EQUAL(bucketLength, params.bucketLength());
+        BOOST_REQUIRE_EQUAL(learnRate, params.learnRate());
+        BOOST_REQUIRE_EQUAL(decayRate, params.decayRate());
+        BOOST_REQUIRE_EQUAL(minimumSeasonalVarianceScale,
                           params.minimumSeasonalVarianceScale());
-        BOOST_CHECK_EQUAL(6 * core::constants::HOUR, params.minimumTimeToDetectChange());
-        BOOST_CHECK_EQUAL(core::constants::DAY, params.maximumTimeToTestForChange());
+        BOOST_REQUIRE_EQUAL(6 * core::constants::HOUR, params.minimumTimeToDetectChange());
+        BOOST_REQUIRE_EQUAL(core::constants::DAY, params.maximumTimeToTestForChange());
     }
     {
         maths_t::TDouble2VecWeightsAry weight1(maths_t::CUnitWeights::unit<TDouble2Vec>(2));
@@ -46,11 +46,11 @@ BOOST_AUTO_TEST_CASE(testAll) {
         TDouble2VecWeightsAryVec priorWeights{weight2};
         maths::CModelAddSamplesParams params;
         params.integer(true).propagationInterval(1.5).trendWeights(trendWeights).priorWeights(priorWeights);
-        BOOST_CHECK_EQUAL(maths_t::E_IntegerData, params.type());
-        BOOST_CHECK_EQUAL(1.5, params.propagationInterval());
-        BOOST_CHECK_EQUAL(core::CContainerPrinter::print(trendWeights),
+        BOOST_REQUIRE_EQUAL(maths_t::E_IntegerData, params.type());
+        BOOST_REQUIRE_EQUAL(1.5, params.propagationInterval());
+        BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(trendWeights),
                           core::CContainerPrinter::print(params.trendWeights()));
-        BOOST_CHECK_EQUAL(core::CContainerPrinter::print(priorWeights),
+        BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(priorWeights),
                           core::CContainerPrinter::print(params.priorWeights()));
     }
     {
@@ -60,8 +60,8 @@ BOOST_AUTO_TEST_CASE(testAll) {
         maths_t::setCountVarianceScale(TDouble2Vec(2, 0.7), weight2);
         TDouble2VecWeightsAryVec weights{weight1, weight2};
         maths::CModelProbabilityParams params;
-        BOOST_TEST(!params.mostAnomalousCorrelate());
-        BOOST_TEST(params.coordinates().empty());
+        BOOST_TEST_REQUIRE(!params.mostAnomalousCorrelate());
+        BOOST_TEST_REQUIRE(params.coordinates().empty());
         params.addCalculation(maths_t::E_OneSidedAbove)
             .addCalculation(maths_t::E_TwoSided)
             .seasonalConfidenceInterval(50.0)
@@ -70,14 +70,14 @@ BOOST_AUTO_TEST_CASE(testAll) {
             .mostAnomalousCorrelate(1)
             .addCoordinate(1)
             .addCoordinate(0);
-        BOOST_CHECK_EQUAL(std::size_t(2), params.calculations());
-        BOOST_CHECK_EQUAL(maths_t::E_OneSidedAbove, params.calculation(0));
-        BOOST_CHECK_EQUAL(maths_t::E_TwoSided, params.calculation(1));
-        BOOST_CHECK_EQUAL(50.0, params.seasonalConfidenceInterval());
-        BOOST_CHECK_EQUAL(core::CContainerPrinter::print(weights),
+        BOOST_REQUIRE_EQUAL(std::size_t(2), params.calculations());
+        BOOST_REQUIRE_EQUAL(maths_t::E_OneSidedAbove, params.calculation(0));
+        BOOST_REQUIRE_EQUAL(maths_t::E_TwoSided, params.calculation(1));
+        BOOST_REQUIRE_EQUAL(50.0, params.seasonalConfidenceInterval());
+        BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(weights),
                           core::CContainerPrinter::print(params.weights()));
-        BOOST_CHECK_EQUAL(std::size_t(1), *params.mostAnomalousCorrelate());
-        BOOST_CHECK_EQUAL(std::string("[1, 0]"),
+        BOOST_REQUIRE_EQUAL(std::size_t(1), *params.mostAnomalousCorrelate());
+        BOOST_REQUIRE_EQUAL(std::string("[1, 0]"),
                           core::CContainerPrinter::print(params.coordinates()));
     }
 }

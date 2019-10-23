@@ -13,36 +13,36 @@ BOOST_AUTO_TEST_SUITE(CLimitsTest)
 BOOST_AUTO_TEST_CASE(testTrivial) {
     ml::model::CLimits config;
 
-    BOOST_CHECK_EQUAL(ml::model::CLimits::DEFAULT_AUTOCONFIG_EVENTS,
+    BOOST_REQUIRE_EQUAL(ml::model::CLimits::DEFAULT_AUTOCONFIG_EVENTS,
                       config.autoConfigEvents());
-    BOOST_CHECK_EQUAL(ml::model::CLimits::DEFAULT_ANOMALY_MAX_TIME_BUCKETS,
+    BOOST_REQUIRE_EQUAL(ml::model::CLimits::DEFAULT_ANOMALY_MAX_TIME_BUCKETS,
                       config.anomalyMaxTimeBuckets());
-    BOOST_CHECK_EQUAL(ml::model::CLimits::DEFAULT_RESULTS_MAX_EXAMPLES,
+    BOOST_REQUIRE_EQUAL(ml::model::CLimits::DEFAULT_RESULTS_MAX_EXAMPLES,
                       config.maxExamples());
-    BOOST_CHECK_EQUAL(ml::model::CLimits::DEFAULT_RESULTS_UNUSUAL_PROBABILITY_THRESHOLD / 100.0,
+    BOOST_REQUIRE_EQUAL(ml::model::CLimits::DEFAULT_RESULTS_UNUSUAL_PROBABILITY_THRESHOLD / 100.0,
                       config.unusualProbabilityThreshold());
-    BOOST_CHECK_EQUAL(ml::model::CResourceMonitor::DEFAULT_MEMORY_LIMIT_MB,
+    BOOST_REQUIRE_EQUAL(ml::model::CResourceMonitor::DEFAULT_MEMORY_LIMIT_MB,
                       config.memoryLimitMB());
 }
 
 BOOST_AUTO_TEST_CASE(testValid) {
     ml::model::CLimits config;
-    BOOST_TEST(config.init("testfiles/mllimits.conf"));
+    BOOST_TEST_REQUIRE(config.init("testfiles/mllimits.conf"));
 
     // This one isn't present in the config file so should be defaulted
-    BOOST_CHECK_EQUAL(ml::model::CLimits::DEFAULT_ANOMALY_MAX_TIME_BUCKETS,
+    BOOST_REQUIRE_EQUAL(ml::model::CLimits::DEFAULT_ANOMALY_MAX_TIME_BUCKETS,
                       config.anomalyMaxTimeBuckets());
 
-    BOOST_CHECK_EQUAL(size_t(8), config.maxExamples());
+    BOOST_REQUIRE_EQUAL(size_t(8), config.maxExamples());
 
-    BOOST_CHECK_EQUAL(0.005, config.unusualProbabilityThreshold());
+    BOOST_REQUIRE_EQUAL(0.005, config.unusualProbabilityThreshold());
 
-    BOOST_CHECK_EQUAL(size_t(4567), config.memoryLimitMB());
+    BOOST_REQUIRE_EQUAL(size_t(4567), config.memoryLimitMB());
 }
 
 BOOST_AUTO_TEST_CASE(testInvalid) {
     ml::model::CLimits config;
-    BOOST_TEST(!config.init("testfiles/invalidmllimits.conf"));
+    BOOST_TEST_REQUIRE(!config.init("testfiles/invalidmllimits.conf"));
 }
 
 BOOST_AUTO_TEST_SUITE_END()

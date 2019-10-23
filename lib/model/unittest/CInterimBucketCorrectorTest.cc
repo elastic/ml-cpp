@@ -46,7 +46,7 @@ BOOST_AUTO_TEST_CASE(testCorrectionsGivenSingleValue) {
         double value = 1100.0;
         corrector.currentBucketCount(now, 50);
         double correction = corrector.corrections(1000, value);
-        BOOST_CHECK_CLOSE_ABSOLUTE(0.0, correction, EPSILON);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(0.0, correction, EPSILON);
     }
     {
         // Value = 100, Completeness = 50%, Expected another 500.
@@ -54,7 +54,7 @@ BOOST_AUTO_TEST_CASE(testCorrectionsGivenSingleValue) {
         double value = 100.0;
         corrector.currentBucketCount(now, 50);
         double correction = corrector.corrections(1000, value);
-        BOOST_CHECK_CLOSE_ABSOLUTE(500.0, correction, EPSILON);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(500.0, correction, EPSILON);
     }
     {
         // Value = 200, Completeness = 10%, Expected another 4500.
@@ -62,7 +62,7 @@ BOOST_AUTO_TEST_CASE(testCorrectionsGivenSingleValue) {
         double value = 200.0;
         corrector.currentBucketCount(now, 10);
         double correction = corrector.corrections(5000, value);
-        BOOST_CHECK_CLOSE_ABSOLUTE(4500.0, correction, EPSILON);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(4500.0, correction, EPSILON);
     }
     {
         // Value = 0, Completeness = 10%, Expected another 900.
@@ -70,7 +70,7 @@ BOOST_AUTO_TEST_CASE(testCorrectionsGivenSingleValue) {
         double value = 0.0;
         corrector.currentBucketCount(now, 10);
         double correction = corrector.corrections(1000, value);
-        BOOST_CHECK_CLOSE_ABSOLUTE(900.0, correction, EPSILON);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(900.0, correction, EPSILON);
     }
     {
         // Value = 800, Completeness = 50%, Expected another 500.
@@ -78,7 +78,7 @@ BOOST_AUTO_TEST_CASE(testCorrectionsGivenSingleValue) {
         double value = 800.0;
         corrector.currentBucketCount(now, 50);
         double correction = corrector.corrections(1000, value);
-        BOOST_CHECK_CLOSE_ABSOLUTE(200.0, correction, EPSILON);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(200.0, correction, EPSILON);
     }
     {
         // Value = 0, Completeness = 0%, Expected another 1000.
@@ -86,7 +86,7 @@ BOOST_AUTO_TEST_CASE(testCorrectionsGivenSingleValue) {
         double value = 0.0;
         corrector.currentBucketCount(now, 0);
         double correction = corrector.corrections(1000, value);
-        BOOST_CHECK_CLOSE_ABSOLUTE(1000.0, correction, EPSILON);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(1000.0, correction, EPSILON);
     }
     {
         // Value = -800, Completeness = 40%, Expected another -400.
@@ -94,7 +94,7 @@ BOOST_AUTO_TEST_CASE(testCorrectionsGivenSingleValue) {
         double value = -800.0;
         corrector.currentBucketCount(now, 40);
         double correction = corrector.corrections(-1000, value);
-        BOOST_CHECK_CLOSE_ABSOLUTE(-200.0, correction, EPSILON);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(-200.0, correction, EPSILON);
     }
     {
         // Value = -100, Completeness = 40%, Expected another -600.
@@ -102,7 +102,7 @@ BOOST_AUTO_TEST_CASE(testCorrectionsGivenSingleValue) {
         double value = -100.0;
         corrector.currentBucketCount(now, 40);
         double correction = corrector.corrections(-1000, value);
-        BOOST_CHECK_CLOSE_ABSOLUTE(-600.0, correction, EPSILON);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(-600.0, correction, EPSILON);
     }
 }
 
@@ -114,7 +114,7 @@ BOOST_AUTO_TEST_CASE(testCorrectionsGivenSingleValueAndNoBaseline) {
     corrector.currentBucketCount(3600, 10);
     double correction = corrector.corrections(1000, value);
 
-    BOOST_CHECK_CLOSE_ABSOLUTE(0.0, correction, EPSILON);
+    BOOST_REQUIRE_CLOSE_ABSOLUTE(0.0, correction, EPSILON);
 }
 
 BOOST_AUTO_TEST_CASE(testCorrectionsGivenMultiValueAndMultiMode) {
@@ -154,17 +154,17 @@ BOOST_AUTO_TEST_CASE(testCorrectionsGivenMultiValueAndMultiMode) {
 
     corrector.currentBucketCount(now, 50);
     TDouble10Vec correction = corrector.corrections(mode, value);
-    BOOST_CHECK_EQUAL(std::size_t(10), correction.size());
-    BOOST_CHECK_CLOSE_ABSOLUTE(500.0, correction[0], EPSILON);
-    BOOST_CHECK_CLOSE_ABSOLUTE(0.0, correction[1], EPSILON);
-    BOOST_CHECK_CLOSE_ABSOLUTE(0.0, correction[2], EPSILON);
-    BOOST_CHECK_CLOSE_ABSOLUTE(0.0, correction[3], EPSILON);
-    BOOST_CHECK_CLOSE_ABSOLUTE(0.0, correction[4], EPSILON);
-    BOOST_CHECK_CLOSE_ABSOLUTE(0.0, correction[5], EPSILON);
-    BOOST_CHECK_CLOSE_ABSOLUTE(100.0, correction[6], EPSILON);
-    BOOST_CHECK_CLOSE_ABSOLUTE(200.0, correction[7], EPSILON);
-    BOOST_CHECK_CLOSE_ABSOLUTE(300.0, correction[8], EPSILON);
-    BOOST_CHECK_CLOSE_ABSOLUTE(0.0, correction[9], EPSILON);
+    BOOST_REQUIRE_EQUAL(std::size_t(10), correction.size());
+    BOOST_REQUIRE_CLOSE_ABSOLUTE(500.0, correction[0], EPSILON);
+    BOOST_REQUIRE_CLOSE_ABSOLUTE(0.0, correction[1], EPSILON);
+    BOOST_REQUIRE_CLOSE_ABSOLUTE(0.0, correction[2], EPSILON);
+    BOOST_REQUIRE_CLOSE_ABSOLUTE(0.0, correction[3], EPSILON);
+    BOOST_REQUIRE_CLOSE_ABSOLUTE(0.0, correction[4], EPSILON);
+    BOOST_REQUIRE_CLOSE_ABSOLUTE(0.0, correction[5], EPSILON);
+    BOOST_REQUIRE_CLOSE_ABSOLUTE(100.0, correction[6], EPSILON);
+    BOOST_REQUIRE_CLOSE_ABSOLUTE(200.0, correction[7], EPSILON);
+    BOOST_REQUIRE_CLOSE_ABSOLUTE(300.0, correction[8], EPSILON);
+    BOOST_REQUIRE_CLOSE_ABSOLUTE(0.0, correction[9], EPSILON);
 }
 
 BOOST_AUTO_TEST_CASE(testPersist) {
@@ -181,7 +181,7 @@ BOOST_AUTO_TEST_CASE(testPersist) {
     double value = 100.0;
     corrector.currentBucketCount(now, 50);
     double correction = corrector.corrections(1000, value);
-    BOOST_CHECK_CLOSE_ABSOLUTE(500.0, correction, EPSILON);
+    BOOST_REQUIRE_CLOSE_ABSOLUTE(500.0, correction, EPSILON);
 
     std::string origXml;
     {
@@ -192,7 +192,7 @@ BOOST_AUTO_TEST_CASE(testPersist) {
     LOG_TRACE(<< "XML:\n" << origXml);
 
     core::CRapidXmlParser parser;
-    BOOST_TEST(parser.parseStringIgnoreCdata(origXml));
+    BOOST_TEST_REQUIRE(parser.parseStringIgnoreCdata(origXml));
     core::CRapidXmlStateRestoreTraverser traverser(parser);
     CInterimBucketCorrector restoredCorrector(bucketLength);
     traverser.traverseSubLevel(std::bind(&CInterimBucketCorrector::acceptRestoreTraverser,
@@ -200,7 +200,7 @@ BOOST_AUTO_TEST_CASE(testPersist) {
 
     corrector.currentBucketCount(now, 50);
     correction = restoredCorrector.corrections(1000, value);
-    BOOST_CHECK_CLOSE_ABSOLUTE(500.0, correction, EPSILON);
+    BOOST_REQUIRE_CLOSE_ABSOLUTE(500.0, correction, EPSILON);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

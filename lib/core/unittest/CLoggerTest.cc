@@ -60,8 +60,8 @@ BOOST_FIXTURE_TEST_CASE(testLogging, CTestFixture) {
     try {
         LOG_ABORT(<< "Throwing exception " << 1221U << ' ' << 0.23124);
 
-        BOOST_TEST(false);
-    } catch (std::runtime_error&) { BOOST_TEST(true); }
+        BOOST_TEST_REQUIRE(false);
+    } catch (std::runtime_error&) { BOOST_TEST_REQUIRE(true); }
 }
 
 BOOST_FIXTURE_TEST_CASE(testReconfiguration, CTestFixture) {
@@ -70,19 +70,19 @@ BOOST_FIXTURE_TEST_CASE(testReconfiguration, CTestFixture) {
     LOG_DEBUG(<< "Starting logger reconfiguration test");
 
     LOG_TRACE(<< "This shouldn't be seen because the hardcoded default log level is DEBUG");
-    BOOST_TEST(!logger.hasBeenReconfigured());
+    BOOST_TEST_REQUIRE(!logger.hasBeenReconfigured());
 
-    BOOST_TEST(!logger.reconfigureFromFile("nonexistantfile"));
+    BOOST_TEST_REQUIRE(!logger.reconfigureFromFile("nonexistantfile"));
 
-    BOOST_TEST(logger.reconfigureLogJson());
+    BOOST_TEST_REQUIRE(logger.reconfigureLogJson());
     LOG_INFO(<< "This should be logged as JSON!");
 
     // The test boost.log.ini is very similar to the hardcoded default, but
     // with the level set to TRACE rather than DEBUG
-    BOOST_TEST(logger.reconfigureFromFile("testfiles/boost.log.ini"));
+    BOOST_TEST_REQUIRE(logger.reconfigureFromFile("testfiles/boost.log.ini"));
 
     LOG_TRACE(<< "This should be seen because the reconfigured log level is TRACE");
-    BOOST_TEST(logger.hasBeenReconfigured());
+    BOOST_TEST_REQUIRE(logger.hasBeenReconfigured());
 }
 
 BOOST_FIXTURE_TEST_CASE(testSetLevel, CTestFixture) {
@@ -90,7 +90,7 @@ BOOST_FIXTURE_TEST_CASE(testSetLevel, CTestFixture) {
 
     LOG_DEBUG(<< "Starting logger level test");
 
-    BOOST_TEST(logger.setLoggingLevel(ml::core::CLogger::E_Error));
+    BOOST_TEST_REQUIRE(logger.setLoggingLevel(ml::core::CLogger::E_Error));
 
     LOG_TRACE(<< "SHOULD NOT BE SEEN");
     LOG_DEBUG(<< "SHOULD NOT BE SEEN");
@@ -99,7 +99,7 @@ BOOST_FIXTURE_TEST_CASE(testSetLevel, CTestFixture) {
     LOG_ERROR(<< "Should be seen");
     LOG_FATAL(<< "Should be seen");
 
-    BOOST_TEST(logger.setLoggingLevel(ml::core::CLogger::E_Info));
+    BOOST_TEST_REQUIRE(logger.setLoggingLevel(ml::core::CLogger::E_Info));
 
     LOG_TRACE(<< "SHOULD NOT BE SEEN");
     LOG_DEBUG(<< "SHOULD NOT BE SEEN");
@@ -108,7 +108,7 @@ BOOST_FIXTURE_TEST_CASE(testSetLevel, CTestFixture) {
     LOG_ERROR(<< "Should be seen");
     LOG_FATAL(<< "Should be seen");
 
-    BOOST_TEST(logger.setLoggingLevel(ml::core::CLogger::E_Trace));
+    BOOST_TEST_REQUIRE(logger.setLoggingLevel(ml::core::CLogger::E_Trace));
 
     LOG_TRACE(<< "Should be seen");
     LOG_DEBUG(<< "Should be seen");
@@ -117,7 +117,7 @@ BOOST_FIXTURE_TEST_CASE(testSetLevel, CTestFixture) {
     LOG_ERROR(<< "Should be seen");
     LOG_FATAL(<< "Should be seen");
 
-    BOOST_TEST(logger.setLoggingLevel(ml::core::CLogger::E_Warn));
+    BOOST_TEST_REQUIRE(logger.setLoggingLevel(ml::core::CLogger::E_Warn));
 
     LOG_TRACE(<< "SHOULD NOT BE SEEN");
     LOG_DEBUG(<< "SHOULD NOT BE SEEN");
@@ -126,7 +126,7 @@ BOOST_FIXTURE_TEST_CASE(testSetLevel, CTestFixture) {
     LOG_ERROR(<< "Should be seen");
     LOG_FATAL(<< "Should be seen");
 
-    BOOST_TEST(logger.setLoggingLevel(ml::core::CLogger::E_Fatal));
+    BOOST_TEST_REQUIRE(logger.setLoggingLevel(ml::core::CLogger::E_Fatal));
 
     LOG_TRACE(<< "SHOULD NOT BE SEEN");
     LOG_DEBUG(<< "SHOULD NOT BE SEEN");
@@ -135,7 +135,7 @@ BOOST_FIXTURE_TEST_CASE(testSetLevel, CTestFixture) {
     LOG_ERROR(<< "SHOULD NOT BE SEEN");
     LOG_FATAL(<< "Should be seen");
 
-    BOOST_TEST(logger.setLoggingLevel(ml::core::CLogger::E_Debug));
+    BOOST_TEST_REQUIRE(logger.setLoggingLevel(ml::core::CLogger::E_Debug));
 
     LOG_DEBUG(<< "Finished logger level test");
 }
@@ -184,8 +184,8 @@ BOOST_FIXTURE_TEST_CASE(testNonAsciiJsonLogging, CTestFixture) {
         }
         rapidjson::Document doc;
         doc.Parse<rapidjson::kParseDefaultFlags>(line);
-        BOOST_TEST(!doc.HasParseError());
-        BOOST_TEST(doc.HasMember("message"));
+        BOOST_TEST_REQUIRE(!doc.HasParseError());
+        BOOST_TEST_REQUIRE(doc.HasMember("message"));
         const rapidjson::Value& messageValue = doc["message"];
         std::string messageString(messageValue.GetString(), messageValue.GetStringLength());
 
@@ -196,7 +196,7 @@ BOOST_FIXTURE_TEST_CASE(testNonAsciiJsonLogging, CTestFixture) {
             BOOST_FAIL(messageString + " did not contain " + messages[foundMessages]);
         }
     }
-    BOOST_CHECK_EQUAL(messages.size(), foundMessages);
+    BOOST_REQUIRE_EQUAL(messages.size(), foundMessages);
 }
 
 BOOST_FIXTURE_TEST_CASE(testLogEnvironment, CTestFixture) {

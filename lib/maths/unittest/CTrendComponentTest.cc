@@ -252,8 +252,8 @@ BOOST_AUTO_TEST_CASE(testValueAndVariance) {
     }
 
     LOG_DEBUG(<< "normalised error moments = " << normalisedResiduals);
-    BOOST_TEST(std::fabs(maths::CBasicStatistics::mean(normalisedResiduals)) < 0.5);
-    BOOST_TEST(std::fabs(maths::CBasicStatistics::variance(normalisedResiduals) - 1.0) < 0.2);
+    BOOST_TEST_REQUIRE(std::fabs(maths::CBasicStatistics::mean(normalisedResiduals)) < 0.5);
+    BOOST_TEST_REQUIRE(std::fabs(maths::CBasicStatistics::variance(normalisedResiduals) - 1.0) < 0.2);
 }
 
 BOOST_AUTO_TEST_CASE(testDecayRate) {
@@ -315,8 +315,8 @@ BOOST_AUTO_TEST_CASE(testForecast) {
         trainModel(values.begin(), values.begin() + 3000000 / BUCKET_LENGTH);
     std::tie(error, errorAt95) = forecastErrors(values.begin() + 3000000 / BUCKET_LENGTH,
                                                 values.end(), startForecast, component);
-    BOOST_TEST(error < 0.17);
-    BOOST_TEST(errorAt95 < 0.001);
+    BOOST_TEST_REQUIRE(error < 0.17);
+    BOOST_TEST_REQUIRE(errorAt95 < 0.001);
 
     LOG_DEBUG(<< "Piecewise Linear");
     values = piecewiseLinear(rng, 0, 3200000 + 1000 * BUCKET_LENGTH);
@@ -324,8 +324,8 @@ BOOST_AUTO_TEST_CASE(testForecast) {
         trainModel(values.begin(), values.begin() + 3200000 / BUCKET_LENGTH);
     std::tie(error, errorAt95) = forecastErrors(values.begin() + 3200000 / BUCKET_LENGTH,
                                                 values.end(), startForecast, component);
-    BOOST_TEST(error < 0.03);
-    BOOST_TEST(errorAt95 < 0.001);
+    BOOST_TEST_REQUIRE(error < 0.03);
+    BOOST_TEST_REQUIRE(errorAt95 < 0.001);
 
     LOG_DEBUG(<< "Staircase");
     values = staircase(rng, 0, 2000000 + 1000 * BUCKET_LENGTH);
@@ -333,8 +333,8 @@ BOOST_AUTO_TEST_CASE(testForecast) {
         trainModel(values.begin(), values.begin() + 2000000 / BUCKET_LENGTH);
     std::tie(error, errorAt95) = forecastErrors(values.begin() + 2000000 / BUCKET_LENGTH,
                                                 values.end(), startForecast, component);
-    BOOST_TEST(error < 0.15);
-    BOOST_TEST(errorAt95 < 0.08);
+    BOOST_TEST_REQUIRE(error < 0.15);
+    BOOST_TEST_REQUIRE(errorAt95 < 0.08);
 
     LOG_DEBUG(<< "Switching");
     values = switching(rng, 0, 3000000 + 1000 * BUCKET_LENGTH);
@@ -342,8 +342,8 @@ BOOST_AUTO_TEST_CASE(testForecast) {
         trainModel(values.begin(), values.begin() + 3000000 / BUCKET_LENGTH);
     std::tie(error, errorAt95) = forecastErrors(values.begin() + 3000000 / BUCKET_LENGTH,
                                                 values.end(), startForecast, component);
-    BOOST_TEST(error < 0.14);
-    BOOST_TEST(errorAt95 < 0.001);
+    BOOST_TEST_REQUIRE(error < 0.14);
+    BOOST_TEST_REQUIRE(errorAt95 < 0.001);
 }
 
 BOOST_AUTO_TEST_CASE(testPersist) {
@@ -374,7 +374,7 @@ BOOST_AUTO_TEST_CASE(testPersist) {
     LOG_DEBUG(<< "decomposition XML representation:\n" << origXml);
 
     core::CRapidXmlParser parser;
-    BOOST_TEST(parser.parseStringIgnoreCdata(origXml));
+    BOOST_TEST_REQUIRE(parser.parseStringIgnoreCdata(origXml));
     core::CRapidXmlStateRestoreTraverser traverser(parser);
     maths::SDistributionRestoreParams params{maths_t::E_ContinuousData, 0.1};
 
@@ -383,7 +383,7 @@ BOOST_AUTO_TEST_CASE(testPersist) {
         std::bind(&maths::CTrendComponent::acceptRestoreTraverser,
                   &restoredComponent, std::cref(params), std::placeholders::_1));
 
-    BOOST_CHECK_EQUAL(origComponent.checksum(), restoredComponent.checksum());
+    BOOST_REQUIRE_EQUAL(origComponent.checksum(), restoredComponent.checksum());
 
     std::string newXml;
     {
@@ -391,7 +391,7 @@ BOOST_AUTO_TEST_CASE(testPersist) {
         restoredComponent.acceptPersistInserter(inserter);
         inserter.toXml(newXml);
     }
-    BOOST_CHECK_EQUAL(origXml, newXml);
+    BOOST_REQUIRE_EQUAL(origXml, newXml);
 }
 
 BOOST_AUTO_TEST_CASE(testUpgradeTo7p1) {
@@ -416,7 +416,7 @@ BOOST_AUTO_TEST_CASE(testUpgradeTo7p1) {
     core::CStringUtils::tokenise(",", expectedValues, tokens, empty);
     for (const auto& token : tokens) {
         double value;
-        BOOST_TEST(core::CStringUtils::stringToType(token, value));
+        BOOST_TEST_REQUIRE(core::CStringUtils::stringToType(token, value));
         values.push_back(value);
     }
 
@@ -424,7 +424,7 @@ BOOST_AUTO_TEST_CASE(testUpgradeTo7p1) {
     maths::CTrendComponent component{0.012};
 
     core::CRapidXmlParser parser;
-    BOOST_TEST(parser.parseStringIgnoreCdata(xml));
+    BOOST_TEST_REQUIRE(parser.parseStringIgnoreCdata(xml));
     core::CRapidXmlStateRestoreTraverser traverser(parser);
     traverser.traverseSubLevel(
         std::bind(&maths::CTrendComponent::acceptRestoreTraverser, &component,
@@ -436,8 +436,8 @@ BOOST_AUTO_TEST_CASE(testUpgradeTo7p1) {
     double errorAt95;
     std::tie(error, errorAt95) =
         forecastErrors(values.begin(), values.end(), 3000000, component);
-    BOOST_TEST(error < 0.17);
-    BOOST_TEST(errorAt95 < 0.001);
+    BOOST_TEST_REQUIRE(error < 0.17);
+    BOOST_TEST_REQUIRE(errorAt95 < 0.001);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

@@ -72,11 +72,11 @@ BOOST_AUTO_TEST_CASE(testMemberChecksum) {
     // Test that member functions are invoked.
     SFoo foo(100);
     LOG_DEBUG(<< "checksum foo = " << maths::CChecksum::calculate(seed, foo));
-    BOOST_CHECK_EQUAL(maths::CChecksum::calculate(seed, foo),
+    BOOST_REQUIRE_EQUAL(maths::CChecksum::calculate(seed, foo),
                       core::CHashing::hashCombine(seed, foo.checksum()));
     SBar bar(200);
     LOG_DEBUG(<< "checksum bar = " << maths::CChecksum::calculate(seed, bar));
-    BOOST_CHECK_EQUAL(maths::CChecksum::calculate(seed, bar), bar.checksum(seed));
+    BOOST_REQUIRE_EQUAL(maths::CChecksum::calculate(seed, bar), bar.checksum(seed));
 }
 
 BOOST_AUTO_TEST_CASE(testContainers) {
@@ -95,24 +95,24 @@ BOOST_AUTO_TEST_CASE(testContainers) {
         TIntVec b(std::begin(values), std::end(values));
         LOG_DEBUG(<< "checksum a = " << maths::CChecksum::calculate(seed, a));
         LOG_DEBUG(<< "checksum b = " << maths::CChecksum::calculate(seed, b));
-        BOOST_CHECK_EQUAL(maths::CChecksum::calculate(seed, a),
+        BOOST_REQUIRE_EQUAL(maths::CChecksum::calculate(seed, a),
                           maths::CChecksum::calculate(seed, b));
         b[2] = 3;
         LOG_DEBUG(<< "checksum a = " << maths::CChecksum::calculate(seed, a));
         LOG_DEBUG(<< "checksum b = " << maths::CChecksum::calculate(seed, b));
-        BOOST_TEST(maths::CChecksum::calculate(seed, a) !=
+        BOOST_TEST_REQUIRE(maths::CChecksum::calculate(seed, a) !=
                    maths::CChecksum::calculate(seed, b));
         b.assign(std::begin(values), std::end(values));
         rng.random_shuffle(b.begin(), b.end());
         LOG_DEBUG(<< "checksum a = " << maths::CChecksum::calculate(seed, a));
         LOG_DEBUG(<< "checksum b = " << maths::CChecksum::calculate(seed, b));
-        BOOST_TEST(maths::CChecksum::calculate(seed, a) !=
+        BOOST_TEST_REQUIRE(maths::CChecksum::calculate(seed, a) !=
                    maths::CChecksum::calculate(seed, b));
         b.assign(std::begin(values), std::end(values));
         b[b.size() - 1] = 3;
         LOG_DEBUG(<< "checksum a = " << maths::CChecksum::calculate(seed, a));
         LOG_DEBUG(<< "checksum b = " << maths::CChecksum::calculate(seed, b));
-        BOOST_TEST(maths::CChecksum::calculate(seed, a) !=
+        BOOST_TEST_REQUIRE(maths::CChecksum::calculate(seed, a) !=
                    maths::CChecksum::calculate(seed, b));
     }
     {
@@ -126,12 +126,12 @@ BOOST_AUTO_TEST_CASE(testContainers) {
         TSizeAnEnumMap b(std::begin(values), std::end(values));
         LOG_DEBUG(<< "checksum a = " << maths::CChecksum::calculate(seed, a));
         LOG_DEBUG(<< "checksum b = " << maths::CChecksum::calculate(seed, b));
-        BOOST_CHECK_EQUAL(maths::CChecksum::calculate(seed, a),
+        BOOST_REQUIRE_EQUAL(maths::CChecksum::calculate(seed, a),
                           maths::CChecksum::calculate(seed, b));
         b[2] = E_1;
         LOG_DEBUG(<< "checksum a = " << maths::CChecksum::calculate(seed, a));
         LOG_DEBUG(<< "checksum b = " << maths::CChecksum::calculate(seed, b));
-        BOOST_TEST(maths::CChecksum::calculate(seed, a) !=
+        BOOST_TEST_REQUIRE(maths::CChecksum::calculate(seed, a) !=
                    maths::CChecksum::calculate(seed, b));
         b.clear();
         std::copy(std::begin(values), std::end(values), std::inserter(b, b.end()));
@@ -139,7 +139,7 @@ BOOST_AUTO_TEST_CASE(testContainers) {
         b[4] = E_2;
         LOG_DEBUG(<< "checksum a = " << maths::CChecksum::calculate(seed, a));
         LOG_DEBUG(<< "checksum b = " << maths::CChecksum::calculate(seed, b));
-        BOOST_TEST(maths::CChecksum::calculate(seed, a) !=
+        BOOST_TEST_REQUIRE(maths::CChecksum::calculate(seed, a) !=
                    maths::CChecksum::calculate(seed, b));
     }
     {
@@ -153,7 +153,7 @@ BOOST_AUTO_TEST_CASE(testContainers) {
         }
         LOG_DEBUG(<< "checksum expected = " << expected);
         LOG_DEBUG(<< "checksum actual   = " << maths::CChecksum::calculate(seed, a));
-        BOOST_CHECK_EQUAL(expected, maths::CChecksum::calculate(seed, a));
+        BOOST_REQUIRE_EQUAL(expected, maths::CChecksum::calculate(seed, a));
     }
 
     // Test that unordered containers are sorted.
@@ -169,7 +169,7 @@ BOOST_AUTO_TEST_CASE(testContainers) {
 
         LOG_DEBUG(<< "checksum a = " << maths::CChecksum::calculate(seed, a));
         LOG_DEBUG(<< "checksum b = " << maths::CChecksum::calculate(seed, b));
-        BOOST_CHECK_EQUAL(maths::CChecksum::calculate(seed, a),
+        BOOST_REQUIRE_EQUAL(maths::CChecksum::calculate(seed, a),
                           maths::CChecksum::calculate(seed, b));
     }
     {
@@ -182,7 +182,7 @@ BOOST_AUTO_TEST_CASE(testContainers) {
 
         LOG_DEBUG(<< "checksum a = " << maths::CChecksum::calculate(seed, a));
         LOG_DEBUG(<< "checksum b = " << maths::CChecksum::calculate(seed, b));
-        BOOST_CHECK_EQUAL(maths::CChecksum::calculate(seed, a),
+        BOOST_REQUIRE_EQUAL(maths::CChecksum::calculate(seed, a),
                           maths::CChecksum::calculate(seed, b));
     }
 }
@@ -203,7 +203,7 @@ BOOST_AUTO_TEST_CASE(testNullable) {
         TOptionalDouble optional(value);
         LOG_DEBUG(<< "checksum expected = " << maths::CChecksum::calculate(seed, value));
         LOG_DEBUG(<< "checksum actual   = " << maths::CChecksum::calculate(seed, optional));
-        BOOST_CHECK_EQUAL(maths::CChecksum::calculate(seed, value),
+        BOOST_REQUIRE_EQUAL(maths::CChecksum::calculate(seed, value),
                           maths::CChecksum::calculate(seed, optional));
     }
     {
@@ -215,7 +215,7 @@ BOOST_AUTO_TEST_CASE(testNullable) {
         TMeanVarAccumulatorPtr pointer(new TMeanVarAccumulator(value));
         LOG_DEBUG(<< "checksum expected = " << maths::CChecksum::calculate(seed, value));
         LOG_DEBUG(<< "checksum actual   = " << maths::CChecksum::calculate(seed, pointer));
-        BOOST_CHECK_EQUAL(maths::CChecksum::calculate(seed, value),
+        BOOST_REQUIRE_EQUAL(maths::CChecksum::calculate(seed, value),
                           maths::CChecksum::calculate(seed, pointer));
     }
 }
@@ -232,7 +232,7 @@ BOOST_AUTO_TEST_CASE(testAccumulators) {
         LOG_DEBUG(<< "checksum expected = "
                   << core::CHashing::hashCombine(seed, value.checksum()));
         LOG_DEBUG(<< "checksum actual   = " << maths::CChecksum::calculate(seed, value));
-        BOOST_CHECK_EQUAL(core::CHashing::hashCombine(seed, value.checksum()),
+        BOOST_REQUIRE_EQUAL(core::CHashing::hashCombine(seed, value.checksum()),
                           maths::CChecksum::calculate(seed, value));
     }
 }
@@ -252,13 +252,13 @@ BOOST_AUTO_TEST_CASE(testPair) {
         b.first = 4790.0;
         LOG_DEBUG(<< "checksum a = " << maths::CChecksum::calculate(seed, a));
         LOG_DEBUG(<< "checksum b = " << maths::CChecksum::calculate(seed, b));
-        BOOST_TEST(maths::CChecksum::calculate(seed, a) !=
+        BOOST_TEST_REQUIRE(maths::CChecksum::calculate(seed, a) !=
                    maths::CChecksum::calculate(seed, b));
         b = a;
         b.second.add(678629.0);
         LOG_DEBUG(<< "checksum a = " << maths::CChecksum::calculate(seed, a));
         LOG_DEBUG(<< "checksum b = " << maths::CChecksum::calculate(seed, b));
-        BOOST_TEST(maths::CChecksum::calculate(seed, a) !=
+        BOOST_TEST_REQUIRE(maths::CChecksum::calculate(seed, a) !=
                    maths::CChecksum::calculate(seed, b));
 
         TDoubleMeanVarAccumulatorPrList collection;
@@ -268,7 +268,7 @@ BOOST_AUTO_TEST_CASE(testPair) {
         expected = maths::CChecksum::calculate(expected, b);
         LOG_DEBUG(<< "expected checksum = " << expected);
         LOG_DEBUG(<< "actual checksum   = " << maths::CChecksum::calculate(seed, collection));
-        BOOST_CHECK_EQUAL(expected, maths::CChecksum::calculate(seed, collection));
+        BOOST_REQUIRE_EQUAL(expected, maths::CChecksum::calculate(seed, collection));
     }
 }
 
@@ -280,13 +280,13 @@ BOOST_AUTO_TEST_CASE(testArray) {
 
     LOG_DEBUG(<< "checksum a = " << maths::CChecksum::calculate(seed, a));
     LOG_DEBUG(<< "checksum b = " << maths::CChecksum::calculate(seed, b));
-    BOOST_TEST(maths::CChecksum::calculate(seed, a) ==
+    BOOST_TEST_REQUIRE(maths::CChecksum::calculate(seed, a) ==
                maths::CChecksum::calculate(seed, b));
 
     b[1] = 23.79;
     LOG_DEBUG(<< "checksum a = " << maths::CChecksum::calculate(seed, a));
     LOG_DEBUG(<< "checksum b = " << maths::CChecksum::calculate(seed, b));
-    BOOST_TEST(maths::CChecksum::calculate(seed, a) !=
+    BOOST_TEST_REQUIRE(maths::CChecksum::calculate(seed, a) !=
                maths::CChecksum::calculate(seed, b));
 }
 
@@ -310,24 +310,24 @@ BOOST_AUTO_TEST_CASE(testCombinations) {
         TFooDeque b(std::begin(values), std::end(values));
         LOG_DEBUG(<< "checksum a = " << maths::CChecksum::calculate(seed, a));
         LOG_DEBUG(<< "checksum b = " << maths::CChecksum::calculate(seed, b));
-        BOOST_CHECK_EQUAL(maths::CChecksum::calculate(seed, a),
+        BOOST_REQUIRE_EQUAL(maths::CChecksum::calculate(seed, a),
                           maths::CChecksum::calculate(seed, b));
         b[2] = SFoo(3);
         LOG_DEBUG(<< "checksum a = " << maths::CChecksum::calculate(seed, a));
         LOG_DEBUG(<< "checksum b = " << maths::CChecksum::calculate(seed, b));
-        BOOST_TEST(maths::CChecksum::calculate(seed, a) !=
+        BOOST_TEST_REQUIRE(maths::CChecksum::calculate(seed, a) !=
                    maths::CChecksum::calculate(seed, b));
         b.assign(std::begin(values), std::end(values));
         rng.random_shuffle(b.begin(), b.end());
         LOG_DEBUG(<< "checksum a = " << maths::CChecksum::calculate(seed, a));
         LOG_DEBUG(<< "checksum b = " << maths::CChecksum::calculate(seed, b));
-        BOOST_TEST(maths::CChecksum::calculate(seed, a) !=
+        BOOST_TEST_REQUIRE(maths::CChecksum::calculate(seed, a) !=
                    maths::CChecksum::calculate(seed, b));
         b.assign(std::begin(values), std::end(values));
         b[b.size() - 1] = 3;
         LOG_DEBUG(<< "checksum a = " << maths::CChecksum::calculate(seed, a));
         LOG_DEBUG(<< "checksum b = " << maths::CChecksum::calculate(seed, b));
-        BOOST_TEST(maths::CChecksum::calculate(seed, a) !=
+        BOOST_TEST_REQUIRE(maths::CChecksum::calculate(seed, a) !=
                    maths::CChecksum::calculate(seed, b));
     }
     {
@@ -337,24 +337,24 @@ BOOST_AUTO_TEST_CASE(testCombinations) {
         TBarVec b(std::begin(values), std::end(values));
         LOG_DEBUG(<< "checksum a = " << maths::CChecksum::calculate(seed, a));
         LOG_DEBUG(<< "checksum b = " << maths::CChecksum::calculate(seed, b));
-        BOOST_CHECK_EQUAL(maths::CChecksum::calculate(seed, a),
+        BOOST_REQUIRE_EQUAL(maths::CChecksum::calculate(seed, a),
                           maths::CChecksum::calculate(seed, b));
         b[2] = SBar(3);
         LOG_DEBUG(<< "checksum a = " << maths::CChecksum::calculate(seed, a));
         LOG_DEBUG(<< "checksum b = " << maths::CChecksum::calculate(seed, b));
-        BOOST_TEST(maths::CChecksum::calculate(seed, a) !=
+        BOOST_TEST_REQUIRE(maths::CChecksum::calculate(seed, a) !=
                    maths::CChecksum::calculate(seed, b));
         b.assign(std::begin(values), std::end(values));
         rng.random_shuffle(b.begin(), b.end());
         LOG_DEBUG(<< "checksum a = " << maths::CChecksum::calculate(seed, a));
         LOG_DEBUG(<< "checksum b = " << maths::CChecksum::calculate(seed, b));
-        BOOST_TEST(maths::CChecksum::calculate(seed, a) !=
+        BOOST_TEST_REQUIRE(maths::CChecksum::calculate(seed, a) !=
                    maths::CChecksum::calculate(seed, b));
         b.assign(std::begin(values), std::end(values));
         b[b.size() - 1] = 3;
         LOG_DEBUG(<< "checksum a = " << maths::CChecksum::calculate(seed, a));
         LOG_DEBUG(<< "checksum b = " << maths::CChecksum::calculate(seed, b));
-        BOOST_TEST(maths::CChecksum::calculate(seed, a) !=
+        BOOST_TEST_REQUIRE(maths::CChecksum::calculate(seed, a) !=
                    maths::CChecksum::calculate(seed, b));
     }
 }

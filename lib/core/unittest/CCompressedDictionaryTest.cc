@@ -55,9 +55,9 @@ BOOST_AUTO_TEST_CASE(testAll) {
 
         TWordUSet uniqueWords;
         for (std::size_t j = 0u; j < words.size(); ++j) {
-            BOOST_TEST(uniqueWords.insert(dictionary.word(words[j])).second);
-            BOOST_TEST(uniqueWords.insert(dictionary.word(words[j], word2)).second);
-            BOOST_TEST(
+            BOOST_TEST_REQUIRE(uniqueWords.insert(dictionary.word(words[j])).second);
+            BOOST_TEST_REQUIRE(uniqueWords.insert(dictionary.word(words[j], word2)).second);
+            BOOST_TEST_REQUIRE(
                 uniqueWords.insert(dictionary.word(words[j], word2, word3)).second);
         }
     }
@@ -69,36 +69,36 @@ BOOST_AUTO_TEST_CASE(testPersist) {
         TDictionary1::CWord word = dictionary.word("hello");
         const std::string representation = word.toDelimited();
         word = dictionary.word("blank");
-        BOOST_TEST(dictionary.word("special") != word);
-        BOOST_TEST(word.fromDelimited(representation));
-        BOOST_TEST(dictionary.word("hello") == word);
+        BOOST_TEST_REQUIRE(dictionary.word("special") != word);
+        BOOST_TEST_REQUIRE(word.fromDelimited(representation));
+        BOOST_TEST_REQUIRE(dictionary.word("hello") == word);
     }
     {
         TDictionary2 dictionary;
         TDictionary2::CWord word = dictionary.word("world");
         const std::string representation = word.toDelimited();
         word = dictionary.word("blank");
-        BOOST_TEST(dictionary.word("special") != word);
-        BOOST_TEST(word.fromDelimited(representation));
-        BOOST_TEST(dictionary.word("world") == word);
+        BOOST_TEST_REQUIRE(dictionary.word("special") != word);
+        BOOST_TEST_REQUIRE(word.fromDelimited(representation));
+        BOOST_TEST_REQUIRE(dictionary.word("world") == word);
     }
     {
         TDictionary3 dictionary;
         TDictionary3::CWord word = dictionary.word("special");
         const std::string representation = word.toDelimited();
         word = dictionary.word("blank");
-        BOOST_TEST(dictionary.word("special") != word);
-        BOOST_TEST(word.fromDelimited(representation));
-        BOOST_TEST(dictionary.word("special") == word);
+        BOOST_TEST_REQUIRE(dictionary.word("special") != word);
+        BOOST_TEST_REQUIRE(word.fromDelimited(representation));
+        BOOST_TEST_REQUIRE(dictionary.word("special") == word);
     }
     {
         TDictionary4 dictionary;
         TDictionary4::CWord word = dictionary.word("TEST");
         const std::string representation = word.toDelimited();
         word = dictionary.word("blank");
-        BOOST_TEST(dictionary.word("special") != word);
-        BOOST_TEST(word.fromDelimited(representation));
-        BOOST_TEST(dictionary.word("TEST") == word);
+        BOOST_TEST_REQUIRE(dictionary.word("special") != word);
+        BOOST_TEST_REQUIRE(word.fromDelimited(representation));
+        BOOST_TEST_REQUIRE(dictionary.word("TEST") == word);
     }
 }
 

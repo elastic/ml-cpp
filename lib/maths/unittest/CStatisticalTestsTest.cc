@@ -69,11 +69,11 @@ BOOST_AUTO_TEST_CASE(testCramerVonMises) {
                 LOG_DEBUG(<< "percentile = " << percentile << ", p value percentile = " << pp
                           << ", error = " << std::fabs(pp - percentile));
                 meanError += std::fabs(pp - percentile);
-                BOOST_TEST(std::fabs(pp - percentile) < 0.055);
+                BOOST_TEST_REQUIRE(std::fabs(pp - percentile) < 0.055);
             }
             meanError /= 21.0;
             LOG_DEBUG(<< "meanError = " << meanError);
-            BOOST_TEST(meanError < 0.026);
+            BOOST_TEST_REQUIRE(meanError < 0.026);
             averageMeanError += meanError;
         }
         {
@@ -101,18 +101,18 @@ BOOST_AUTO_TEST_CASE(testCramerVonMises) {
                 LOG_DEBUG(<< "percentile = " << percentile << ", p value percentile = " << pp
                           << ", error = " << std::fabs(pp - percentile));
                 meanError += std::fabs(pp - percentile);
-                BOOST_TEST(std::fabs(pp - percentile) < 0.055);
+                BOOST_TEST_REQUIRE(std::fabs(pp - percentile) < 0.055);
             }
             meanError /= 21.0;
             LOG_DEBUG(<< "meanError = " << meanError);
-            BOOST_TEST(meanError < 0.025);
+            BOOST_TEST_REQUIRE(meanError < 0.025);
             averageMeanError += meanError;
         }
     }
 
     averageMeanError /= 2.0 * static_cast<double>(boost::size(n));
     LOG_DEBUG(<< "averageMeanError = " << averageMeanError);
-    BOOST_TEST(averageMeanError < 0.011);
+    BOOST_TEST_REQUIRE(averageMeanError < 0.011);
 }
 
 BOOST_AUTO_TEST_CASE(testPersist) {
@@ -142,11 +142,11 @@ BOOST_AUTO_TEST_CASE(testPersist) {
 
         // Restore the XML into a new filter
         core::CRapidXmlParser parser;
-        BOOST_TEST(parser.parseStringIgnoreCdata(origXml));
+        BOOST_TEST_REQUIRE(parser.parseStringIgnoreCdata(origXml));
         core::CRapidXmlStateRestoreTraverser traverser(parser);
 
         maths::CStatisticalTests::CCramerVonMises restoredCvm(traverser);
-        BOOST_CHECK_EQUAL(origCvm.checksum(), restoredCvm.checksum());
+        BOOST_REQUIRE_EQUAL(origCvm.checksum(), restoredCvm.checksum());
 
         std::string newXml;
         {
@@ -154,7 +154,7 @@ BOOST_AUTO_TEST_CASE(testPersist) {
             restoredCvm.acceptPersistInserter(inserter);
             inserter.toXml(newXml);
         }
-        BOOST_CHECK_EQUAL(origXml, newXml);
+        BOOST_REQUIRE_EQUAL(origXml, newXml);
     }
 }
 

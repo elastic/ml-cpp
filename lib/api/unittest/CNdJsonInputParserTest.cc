@@ -29,7 +29,7 @@ public:
     bool operator()(const ml::api::CCsvInputParser::TStrStrUMap& dataRowFields) {
         ++m_RecordsPerBlock;
 
-        BOOST_TEST(m_OutputWriter.writeRow(dataRowFields));
+        BOOST_TEST_REQUIRE(m_OutputWriter.writeRow(dataRowFields));
 
         return true;
     }
@@ -108,13 +108,13 @@ void CNdJsonInputParserTest::runTest(bool allDocsSameStructure, bool parseAsVecs
     LOG_DEBUG(<< "Creating throughput test data");
 
     std::ifstream ifs("testfiles/simple.txt");
-    BOOST_TEST(ifs.is_open());
+    BOOST_TEST_REQUIRE(ifs.is_open());
 
     CSetupVisitor setupVisitor;
 
     ml::api::CCsvInputParser setupParser(ifs);
 
-    BOOST_TEST(setupParser.readStreamIntoMaps(std::ref(setupVisitor)));
+    BOOST_TEST_REQUIRE(setupParser.readStreamIntoMaps(std::ref(setupVisitor)));
 
     // Construct a large test input
     static const size_t TEST_SIZE(5000);
@@ -128,15 +128,15 @@ void CNdJsonInputParserTest::runTest(bool allDocsSameStructure, bool parseAsVecs
     LOG_INFO(<< "Starting throughput test at " << ml::core::CTimeUtils::toTimeString(start));
 
     if (parseAsVecs) {
-        BOOST_TEST(parser.readStreamIntoVecs(std::ref(visitor)));
+        BOOST_TEST_REQUIRE(parser.readStreamIntoVecs(std::ref(visitor)));
     } else {
-        BOOST_TEST(parser.readStreamIntoMaps(std::ref(visitor)));
+        BOOST_TEST_REQUIRE(parser.readStreamIntoMaps(std::ref(visitor)));
     }
 
     ml::core_t::TTime end(ml::core::CTimeUtils::now());
     LOG_INFO(<< "Finished throughput test at " << ml::core::CTimeUtils::toTimeString(end));
 
-    BOOST_CHECK_EQUAL(setupVisitor.recordsPerBlock() * TEST_SIZE, visitor.recordCount());
+    BOOST_REQUIRE_EQUAL(setupVisitor.recordsPerBlock() * TEST_SIZE, visitor.recordCount());
 
     LOG_INFO(<< "Parsing " << visitor.recordCount() << " records took "
              << (end - start) << " seconds");

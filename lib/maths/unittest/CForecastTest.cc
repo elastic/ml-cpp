@@ -312,9 +312,9 @@ BOOST_AUTO_TEST_CASE(testNonNegative) {
         rng.generateNormalSamples(2.0, 3.0, 48, noise);
         for (auto value = noise.begin(); i < prediction.size() && value != noise.end();
              ++i, ++value, time += bucketLength) {
-            BOOST_TEST(prediction[i].s_LowerBound >= 0);
-            BOOST_TEST(prediction[i].s_Predicted >= 0);
-            BOOST_TEST(prediction[i].s_UpperBound >= 0);
+            BOOST_TEST_REQUIRE(prediction[i].s_LowerBound >= 0);
+            BOOST_TEST_REQUIRE(prediction[i].s_Predicted >= 0);
+            BOOST_TEST_REQUIRE(prediction[i].s_UpperBound >= 0);
 
             double y{std::max(*value, 0.0)};
             outOfBounds +=
@@ -329,7 +329,7 @@ BOOST_AUTO_TEST_CASE(testNonNegative) {
                                  static_cast<double>(count)};
     LOG_DEBUG(<< "% out of bounds = " << percentageOutOfBounds);
 
-    BOOST_TEST(percentageOutOfBounds < 4.0);
+    BOOST_TEST_REQUIRE(percentageOutOfBounds < 4.0);
 }
 
 BOOST_AUTO_TEST_CASE(testFinancialIndex) {
@@ -338,10 +338,10 @@ BOOST_AUTO_TEST_CASE(testFinancialIndex) {
     TTimeDoublePrVec timeseries;
     core_t::TTime startTime;
     core_t::TTime endTime;
-    BOOST_TEST(test::CTimeSeriesTestData::parse("testfiles/financial_index.csv",
+    BOOST_TEST_REQUIRE(test::CTimeSeriesTestData::parse("testfiles/financial_index.csv",
                                                 timeseries, startTime, endTime,
                                                 "^([0-9]+),([0-9\\.]+)"));
-    BOOST_TEST(!timeseries.empty());
+    BOOST_TEST_REQUIRE(!timeseries.empty());
 
     LOG_DEBUG(<< "timeseries = "
               << core::CContainerPrinter::print(timeseries.begin(), timeseries.begin() + 10)
@@ -404,8 +404,8 @@ BOOST_AUTO_TEST_CASE(testFinancialIndex) {
     LOG_DEBUG(<< "% out of bounds = " << percentageOutOfBounds);
     LOG_DEBUG(<< "error = " << maths::CBasicStatistics::mean(error));
 
-    BOOST_TEST(percentageOutOfBounds < 40.0);
-    BOOST_TEST(maths::CBasicStatistics::mean(error) < 0.1);
+    BOOST_TEST_REQUIRE(percentageOutOfBounds < 40.0);
+    BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(error) < 0.1);
 }
 
 BOOST_AUTO_TEST_CASE(testTruncation) {
@@ -439,9 +439,9 @@ BOOST_AUTO_TEST_CASE(testTruncation) {
             90.0, MINIMUM_VALUE, MAXIMUM_VALUE,
             std::bind(&mockSink, std::placeholders::_1, std::ref(prediction)), m1);
         LOG_DEBUG(<< "response = '" << m1 << "'");
-        BOOST_TEST((m1.size() > 0) == (dataEndTime < 2 * core::constants::DAY));
-        BOOST_TEST(prediction.size() > 0);
-        BOOST_TEST(prediction.back().s_Time < 2 * dataEndTime);
+        BOOST_TEST_REQUIRE((m1.size() > 0) == (dataEndTime < 2 * core::constants::DAY));
+        BOOST_TEST_REQUIRE(prediction.size() > 0);
+        BOOST_TEST_REQUIRE(prediction.back().s_Time < 2 * dataEndTime);
 
         // Check forecast range out-of-bounds
 
@@ -452,9 +452,9 @@ BOOST_AUTO_TEST_CASE(testTruncation) {
             dataEndTime + 40 * core::constants::DAY, 90.0, MINIMUM_VALUE, MAXIMUM_VALUE,
             std::bind(&mockSink, std::placeholders::_1, std::ref(prediction)), m2);
         LOG_DEBUG(<< "response = '" << m2 << "'");
-        BOOST_TEST(m2.empty() == false);
-        BOOST_TEST(m1 != m2);
-        BOOST_TEST(prediction.empty());
+        BOOST_TEST_REQUIRE(m2.empty() == false);
+        BOOST_TEST_REQUIRE(m1 != m2);
+        BOOST_TEST_REQUIRE(prediction.empty());
     }
 }
 
@@ -531,8 +531,8 @@ BOOST_AUTO_TEST_CASE(testTTrend trend,
     LOG_DEBUG(<< "% out of bounds = " << percentageOutOfBounds);
     LOG_DEBUG(<< "error = " << maths::CBasicStatistics::mean(error));
 
-    BOOST_TEST(percentageOutOfBounds < maximumPercentageOutOfBounds);
-    BOOST_TEST(maths::CBasicStatistics::mean(error) < maximumError);
+    BOOST_TEST_REQUIRE(percentageOutOfBounds < maximumPercentageOutOfBounds);
+    BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(error) < maximumError);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

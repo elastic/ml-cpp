@@ -102,29 +102,29 @@ BOOST_AUTO_TEST_CASE(testAccuracy) {
         LOG_DEBUG(<< "falsePositives = " << core::CContainerPrinter::print(falsePositives));
         LOG_DEBUG(<< "trueNegatives = " << core::CContainerPrinter::print(trueNegatives));
         for (std::size_t i = 0u; i < boost::size(falsePositives); ++i) {
-            BOOST_TEST(falsePositives[i] / trueNegatives[i] < 0.1);
+            BOOST_TEST_REQUIRE(falsePositives[i] / trueNegatives[i] < 0.1);
             typeI.add(falsePositives[i] / trueNegatives[i]);
         }
         LOG_DEBUG(<< "truePositives = " << core::CContainerPrinter::print(truePositives));
         LOG_DEBUG(<< "falseNegatives = " << core::CContainerPrinter::print(falseNegatives));
         for (std::size_t i = 0u; i < boost::size(falsePositives); ++i) {
-            BOOST_TEST(falseNegatives[i] / truePositives[i] < 0.2);
+            BOOST_TEST_REQUIRE(falseNegatives[i] / truePositives[i] < 0.2);
             typeII.add(falseNegatives[i] / truePositives[i]);
         }
 
         for (std::size_t i = 0u; i < boost::size(timeToDetectionMoments); ++i) {
             LOG_DEBUG(<< "time to detect moments = " << timeToDetectionMoments[i]);
             LOG_DEBUG(<< "maximum time to detect = " << timeToDetectionMax[i][0]);
-            BOOST_TEST(maths::CBasicStatistics::mean(timeToDetectionMoments[i]) < 1.5 * DAY);
-            BOOST_TEST(std::sqrt(maths::CBasicStatistics::variance(
+            BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(timeToDetectionMoments[i]) < 1.5 * DAY);
+            BOOST_TEST_REQUIRE(std::sqrt(maths::CBasicStatistics::variance(
                            timeToDetectionMoments[i])) < 5 * DAY);
-            BOOST_TEST(timeToDetectionMax[i][0] <= 27 * WEEK);
+            BOOST_TEST_REQUIRE(timeToDetectionMax[i][0] <= 27 * WEEK);
         }
     }
     LOG_DEBUG(<< "type I  = " << maths::CBasicStatistics::mean(typeI));
     LOG_DEBUG(<< "type II = " << maths::CBasicStatistics::mean(typeII));
-    BOOST_TEST(maths::CBasicStatistics::mean(typeI) < 0.015);
-    BOOST_TEST(maths::CBasicStatistics::mean(typeII) < 0.05);
+    BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(typeI) < 0.015);
+    BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(typeII) < 0.05);
 }
 
 BOOST_AUTO_TEST_CASE(testPersist) {
@@ -158,9 +158,9 @@ BOOST_AUTO_TEST_CASE(testPersist) {
     maths::CRandomizedPeriodicityTest test2;
     {
         core::CRapidXmlParser parser;
-        BOOST_TEST(parser.parseStringIgnoreCdata(origXml));
+        BOOST_TEST_REQUIRE(parser.parseStringIgnoreCdata(origXml));
         core::CRapidXmlStateRestoreTraverser traverser(parser);
-        BOOST_TEST(traverser.traverseSubLevel(
+        BOOST_TEST_REQUIRE(traverser.traverseSubLevel(
             std::bind(&maths::CRandomizedPeriodicityTest::acceptRestoreTraverser,
                       &test2, std::placeholders::_1)));
     }
@@ -170,14 +170,14 @@ BOOST_AUTO_TEST_CASE(testPersist) {
         test2.acceptPersistInserter(inserter);
         inserter.toXml(newXml);
     }
-    BOOST_CHECK_EQUAL(origXml, newXml);
-    BOOST_CHECK_EQUAL(test.checksum(), test2.checksum());
+    BOOST_REQUIRE_EQUAL(origXml, newXml);
+    BOOST_REQUIRE_EQUAL(test.checksum(), test2.checksum());
 
     {
         core::CRapidXmlParser parser;
-        BOOST_TEST(parser.parseStringIgnoreCdata(origStaticsXml));
+        BOOST_TEST_REQUIRE(parser.parseStringIgnoreCdata(origStaticsXml));
         core::CRapidXmlStateRestoreTraverser traverser(parser);
-        BOOST_TEST(traverser.traverseSubLevel(
+        BOOST_TEST_REQUIRE(traverser.traverseSubLevel(
             &maths::CRandomizedPeriodicityTest::staticsAcceptRestoreTraverser));
     }
     std::string newStaticsXml;
@@ -186,10 +186,10 @@ BOOST_AUTO_TEST_CASE(testPersist) {
         test2.staticsAcceptPersistInserter(inserter);
         inserter.toXml(newStaticsXml);
     }
-    BOOST_CHECK_EQUAL(origStaticsXml, newStaticsXml);
+    BOOST_REQUIRE_EQUAL(origStaticsXml, newStaticsXml);
 
     uint64_t newNextRandom = test2.ms_Rng();
-    BOOST_CHECK_EQUAL(origNextRandom, newNextRandom);
+    BOOST_REQUIRE_EQUAL(origNextRandom, newNextRandom);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

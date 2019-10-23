@@ -58,8 +58,8 @@ BOOST_AUTO_TEST_CASE(testMode) {
                     double curvature = (pPlusEps - 2.0 * p + pMinusEps) / eps / eps;
 
                     // Gradient zero + curvature negative => maximum.
-                    BOOST_CHECK_CLOSE_ABSOLUTE(0.0, derivative, 1e-6);
-                    BOOST_TEST(curvature < 0.0);
+                    BOOST_REQUIRE_CLOSE_ABSOLUTE(0.0, derivative, 1e-6);
+                    BOOST_TEST_REQUIRE(curvature < 0.0);
                 }
             }
         }
@@ -93,7 +93,7 @@ BOOST_AUTO_TEST_CASE(testPdf) {
             LOG_DEBUG(<< "percentile = " << p << "%"
                       << ", pdf = " << pdf << ", dcdfdx = " << dcdfdx);
 
-            BOOST_CHECK_CLOSE_ABSOLUTE(pdf, dcdfdx, tolerance);
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(pdf, dcdfdx, tolerance);
         }
     }
 }
@@ -138,7 +138,7 @@ BOOST_AUTO_TEST_CASE(testCdf) {
                       << ", expected cdf = " << expectedCdf);
 
             // No more than a 10% error in the sample percentile.
-            BOOST_CHECK_CLOSE_ABSOLUTE(expectedCdf, actualCdf, 0.1 * expectedCdf);
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(expectedCdf, actualCdf, 0.1 * expectedCdf);
         }
     }
 }
@@ -162,7 +162,7 @@ BOOST_AUTO_TEST_CASE(testQuantile) {
 
             // Check that the quantile function is the inverse
             // of the c.d.f.
-            BOOST_CHECK_CLOSE_ABSOLUTE(q, cdf(logt, quantile(logt, q)), 1e-10);
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(q, cdf(logt, quantile(logt, q)), 1e-10);
         }
     }
 }

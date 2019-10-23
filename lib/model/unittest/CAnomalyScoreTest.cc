@@ -61,21 +61,21 @@ BOOST_AUTO_TEST_CASE(testComputeScores) {
                          minExtremeSamples, maxExtremeSamples, maximumAnomalousProbability,
                          p1, overallScore, overallProbability);
         LOG_DEBUG(<< "1) score 1 = " << overallScore);
-        BOOST_CHECK_CLOSE_ABSOLUTE(0.078557, overallScore, 5e-7);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(0.078557, overallScore, 5e-7);
 
         TDoubleVec p2(1u, 0.02);
         TScores::compute(jointProbabilityWeight, extremeProbabilityWeight,
                          minExtremeSamples, maxExtremeSamples, maximumAnomalousProbability,
                          p2, overallScore, overallProbability);
         LOG_DEBUG(<< "1) score 2 = " << overallScore);
-        BOOST_CHECK_CLOSE_ABSOLUTE(0.002405, overallScore, 5e-7);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(0.002405, overallScore, 5e-7);
 
         TDoubleVec p3(1u, 0.1);
         TScores::compute(jointProbabilityWeight, extremeProbabilityWeight,
                          minExtremeSamples, maxExtremeSamples, maximumAnomalousProbability,
                          p3, overallScore, overallProbability);
         LOG_DEBUG(<< "1) score 3 = " << overallScore);
-        BOOST_CHECK_EQUAL(0.0, overallScore);
+        BOOST_REQUIRE_EQUAL(0.0, overallScore);
     }
 
     // Test 2: low anomalousness.
@@ -87,7 +87,7 @@ BOOST_AUTO_TEST_CASE(testComputeScores) {
                          minExtremeSamples, maxExtremeSamples, maximumAnomalousProbability,
                          probabilities, overallScore, overallProbability);
         LOG_DEBUG(<< "2) score = " << overallScore);
-        BOOST_CHECK_EQUAL(0.0, overallScore);
+        BOOST_REQUIRE_EQUAL(0.0, overallScore);
     }
 
     // Test 3: a lot of slightly anomalous values.
@@ -109,16 +109,16 @@ BOOST_AUTO_TEST_CASE(testComputeScores) {
         }
 
         double jointProbability;
-        BOOST_TEST(jointProbabilityCalculator.calculate(jointProbability));
+        BOOST_TEST_REQUIRE(jointProbabilityCalculator.calculate(jointProbability));
         double extremeProbability;
-        BOOST_TEST(extremeProbabilityCalculator.calculate(extremeProbability));
+        BOOST_TEST_REQUIRE(extremeProbabilityCalculator.calculate(extremeProbability));
         extremeProbability = std::exp(extremeProbability);
 
         LOG_DEBUG(<< "3) probabilities = " << core::CContainerPrinter::print(probabilities));
         LOG_DEBUG(<< "   joint probability = " << jointProbability << ", extreme probability = "
                   << extremeProbability << ", overallScore = " << overallScore);
 
-        BOOST_CHECK_CLOSE_ABSOLUTE(0.318231, overallScore, 5e-7);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(0.318231, overallScore, 5e-7);
     }
 
     // Test 4: one very anomalous value.
@@ -139,17 +139,17 @@ BOOST_AUTO_TEST_CASE(testComputeScores) {
         }
 
         double jointProbability;
-        BOOST_TEST(jointProbabilityCalculator.calculate(jointProbability));
+        BOOST_TEST_REQUIRE(jointProbabilityCalculator.calculate(jointProbability));
 
         double extremeProbability;
-        BOOST_TEST(extremeProbabilityCalculator.calculate(extremeProbability));
+        BOOST_TEST_REQUIRE(extremeProbabilityCalculator.calculate(extremeProbability));
         extremeProbability = std::exp(extremeProbability);
 
         LOG_DEBUG(<< "4) probabilities = " << core::CContainerPrinter::print(probabilities));
         LOG_DEBUG(<< "   joint probability = " << jointProbability << ", extreme probability = "
                   << extremeProbability << ", overallScore = " << overallScore);
 
-        BOOST_CHECK_CLOSE_ABSOLUTE(0.137591, overallScore, 5e-7);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(0.137591, overallScore, 5e-7);
     }
 
     // Test 5: a small number of "mid" anomalous values.
@@ -171,17 +171,17 @@ BOOST_AUTO_TEST_CASE(testComputeScores) {
         }
 
         double jointProbability;
-        BOOST_TEST(jointProbabilityCalculator.calculate(jointProbability));
+        BOOST_TEST_REQUIRE(jointProbabilityCalculator.calculate(jointProbability));
 
         double extremeProbability;
-        BOOST_TEST(extremeProbabilityCalculator.calculate(extremeProbability));
+        BOOST_TEST_REQUIRE(extremeProbabilityCalculator.calculate(extremeProbability));
         extremeProbability = std::exp(extremeProbability);
 
         LOG_DEBUG(<< "5) probabilities = " << core::CContainerPrinter::print(probabilities));
         LOG_DEBUG(<< "   joint probability = " << jointProbability << ", extreme probability = "
                   << extremeProbability << ", overallScore = " << overallScore);
 
-        BOOST_CHECK_CLOSE_ABSOLUTE(0.029413, overallScore, 5e-7);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(0.029413, overallScore, 5e-7);
     }
 
     // Test 6: underflow.
@@ -194,7 +194,7 @@ BOOST_AUTO_TEST_CASE(testComputeScores) {
 
         LOG_DEBUG(<< "6) probabilities = " << core::CContainerPrinter::print(probabilities));
         LOG_DEBUG(<< "   overallScore = " << overallScore);
-        BOOST_CHECK_CLOSE_ABSOLUTE(86.995953, overallScore, 5e-7);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(86.995953, overallScore, 5e-7);
     }
 }
 
@@ -242,12 +242,12 @@ BOOST_AUTO_TEST_CASE(testNormalizeScoresQuantiles) {
 
             LOG_DEBUG(<< "trueQuantile = " << trueQuantile << ", lowerBound = " << lowerBound
                       << ", upperBound = " << upperBound);
-            BOOST_TEST(error < 0.02);
+            BOOST_TEST_REQUIRE(error < 0.02);
         }
     }
 
     LOG_DEBUG(<< "meanError = " << totalError / numberSamples);
-    BOOST_TEST(totalError / numberSamples < 0.0043);
+    BOOST_TEST_REQUIRE(totalError / numberSamples < 0.0043);
 }
 
 // Test as with testNormalizeScores but with more than one partition
@@ -268,7 +268,7 @@ BOOST_AUTO_TEST_CASE(testNormalizeScoresQuantilesMultiplePartitions) {
     TDoubleVec samplesJAL;
     rng.generateGammaSamples(1.0, 2.0, 20000, samplesJAL);
 
-    BOOST_CHECK_EQUAL(samplesAAL.size(), samplesKLM.size());
+    BOOST_REQUIRE_EQUAL(samplesAAL.size(), samplesKLM.size());
     for (std::size_t i = 0u; i < samplesAAL.size(); ++i) {
         if (samplesAAL[i] < 0.5) {
             samplesAAL[i] = 0.0;
@@ -313,12 +313,12 @@ BOOST_AUTO_TEST_CASE(testNormalizeScoresQuantilesMultiplePartitions) {
 
             LOG_DEBUG(<< "trueQuantile = " << trueQuantile << ", lowerBound = " << lowerBound
                       << ", upperBound = " << upperBound);
-            BOOST_TEST(error < 0.02);
+            BOOST_TEST_REQUIRE(error < 0.02);
         }
     }
 
     LOG_DEBUG(<< "meanError = " << totalError / numberSamples);
-    BOOST_TEST(totalError / numberSamples < 0.0047);
+    BOOST_TEST_REQUIRE(totalError / numberSamples < 0.0047);
 }
 
 BOOST_AUTO_TEST_CASE(testNormalizeScoresNoisy) {
@@ -398,7 +398,7 @@ BOOST_AUTO_TEST_CASE(testNormalizeScoresNoisy) {
 
     LOG_DEBUG(<< "times = " << core::CContainerPrinter::print(times));
 
-    BOOST_CHECK_EQUAL(core::CContainerPrinter::print(largeAnomalyTimes),
+    BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(largeAnomalyTimes),
                       core::CContainerPrinter::print(times));
 }
 
@@ -457,7 +457,7 @@ BOOST_AUTO_TEST_CASE(testNormalizeScoresPerPartitionMaxScore) {
         LOG_DEBUG(<< "pctChange = " << pctChange << " actualAALScores[" << i
                   << "] = " << actualAALScores[i] << " expectedAALScores[" << i
                   << "] = " << expectedAALScores[i]);
-        BOOST_TEST(pctChange < 5.0);
+        BOOST_TEST_REQUIRE(pctChange < 5.0);
     }
 }
 
@@ -500,8 +500,8 @@ BOOST_AUTO_TEST_CASE(testNormalizeScoresLargeScore) {
         double uplift = scores[i] - change;
         LOG_DEBUG(<< "uplift = " << uplift << " scores[" << i << "] = " << scores[i] << " anomalies["
                   << i << "] = " << anomalies[i] << " change = " << change);
-        BOOST_TEST(uplift > 5.0);
-        BOOST_TEST(uplift < 13.0);
+        BOOST_TEST_REQUIRE(uplift > 5.0);
+        BOOST_TEST_REQUIRE(uplift < 13.0);
     }
 }
 
@@ -554,7 +554,7 @@ BOOST_AUTO_TEST_CASE(testNormalizeScoresNearZero) {
         }
         LOG_DEBUG(<< "maxScores = " << core::CContainerPrinter::print(maxScores));
 
-        BOOST_CHECK_EQUAL(expectedScores[i], core::CContainerPrinter::print(maxScores));
+        BOOST_REQUIRE_EQUAL(expectedScores[i], core::CContainerPrinter::print(maxScores));
     }
 }
 
@@ -585,7 +585,7 @@ BOOST_AUTO_TEST_CASE(testNormalizeScoresOrdering) {
 
         TDoubleVec normalizedScores(scores);
         for (std::size_t j = 0u; j < i; ++j) {
-            BOOST_TEST(normalizer.normalize({"", "", "bucket_time", ""},
+            BOOST_TEST_REQUIRE(normalizer.normalize({"", "", "bucket_time", ""},
                                             normalizedScores[j]));
         }
 
@@ -594,7 +594,7 @@ BOOST_AUTO_TEST_CASE(testNormalizeScoresOrdering) {
             if (normalizedScores[j] - normalizedScores[j - 1] < -0.01) {
                 LOG_DEBUG(<< normalizedScores[j] << " " << normalizedScores[j - 1]);
             }
-            BOOST_TEST(normalizedScores[j] - normalizedScores[j - 1] > -0.01);
+            BOOST_TEST_REQUIRE(normalizedScores[j] - normalizedScores[j - 1] > -0.01);
         }
     }
 }
@@ -634,10 +634,10 @@ BOOST_AUTO_TEST_CASE(testNormalizerGetMaxScore) {
     }
 
     double maxScoreAAL;
-    BOOST_TEST(normalizer.maxScore({"", "", "airline", "AAL"}, maxScoreAAL));
+    BOOST_TEST_REQUIRE(normalizer.maxScore({"", "", "airline", "AAL"}, maxScoreAAL));
 
     double maxScoreKLM;
-    BOOST_TEST(normalizer.maxScore({"", "", "airline", "KLM"}, maxScoreKLM));
+    BOOST_TEST_REQUIRE(normalizer.maxScore({"", "", "airline", "KLM"}, maxScoreKLM));
 
     LOG_DEBUG(<< "maxScoreAAL = " << maxScoreAAL);
     LOG_DEBUG(<< "maxScoreKLM = " << maxScoreKLM);
@@ -647,8 +647,8 @@ BOOST_AUTO_TEST_CASE(testNormalizerGetMaxScore) {
 
     // Check that the partition wise max scores are as expected
     // (and hence different from one another)
-    BOOST_CHECK_CLOSE_ABSOLUTE(expecteMaxScoreAAL, maxScoreAAL, 5e-5);
-    BOOST_CHECK_CLOSE_ABSOLUTE(expecteMaxScoreKLM, maxScoreKLM, 5e-5);
+    BOOST_REQUIRE_CLOSE_ABSOLUTE(expecteMaxScoreAAL, maxScoreAAL, 5e-5);
+    BOOST_REQUIRE_CLOSE_ABSOLUTE(expecteMaxScoreKLM, maxScoreKLM, 5e-5);
 }
 
 BOOST_AUTO_TEST_CASE(testJsonConversion) {
@@ -700,7 +700,7 @@ BOOST_AUTO_TEST_CASE(testJsonConversion) {
         restoredNormalizer.acceptPersistInserter(inserter);
     }
     std::string newJson = restoredSs.str();
-    BOOST_CHECK_EQUAL(ss.str(), newJson);
+    BOOST_REQUIRE_EQUAL(ss.str(), newJson);
 
     // The persisted representation should include most the partial
     // representation and extra fields that are used for indexing
@@ -712,29 +712,29 @@ BOOST_AUTO_TEST_CASE(testJsonConversion) {
     rapidjson::Document doc;
     doc.Parse<rapidjson::kParseDefaultFlags>(toJson.c_str());
 
-    BOOST_TEST(doc.HasMember(model::CAnomalyScore::MLCUE_ATTRIBUTE.c_str()));
-    BOOST_TEST(doc.HasMember(model::CAnomalyScore::MLKEY_ATTRIBUTE.c_str()));
-    BOOST_TEST(doc.HasMember(
+    BOOST_TEST_REQUIRE(doc.HasMember(model::CAnomalyScore::MLCUE_ATTRIBUTE.c_str()));
+    BOOST_TEST_REQUIRE(doc.HasMember(model::CAnomalyScore::MLKEY_ATTRIBUTE.c_str()));
+    BOOST_TEST_REQUIRE(doc.HasMember(
         model::CAnomalyScore::MLQUANTILESDESCRIPTION_ATTRIBUTE.c_str()));
-    BOOST_TEST(doc.HasMember(model::CAnomalyScore::MLVERSION_ATTRIBUTE.c_str()));
-    BOOST_TEST(doc.HasMember(model::CAnomalyScore::TIME_ATTRIBUTE.c_str()));
-    BOOST_TEST(doc.HasMember("a"));
+    BOOST_TEST_REQUIRE(doc.HasMember(model::CAnomalyScore::MLVERSION_ATTRIBUTE.c_str()));
+    BOOST_TEST_REQUIRE(doc.HasMember(model::CAnomalyScore::TIME_ATTRIBUTE.c_str()));
+    BOOST_TEST_REQUIRE(doc.HasMember("a"));
 
     rapidjson::Value& stateDoc = doc["a"];
 
     {
         // Check that all required fields are present in the persisted state
-        BOOST_TEST(stateDoc.HasMember("a"));
-        BOOST_TEST(stateDoc.HasMember("b"));
+        BOOST_TEST_REQUIRE(stateDoc.HasMember("a"));
+        BOOST_TEST_REQUIRE(stateDoc.HasMember("b"));
         // Field 'c' - m_MaxScore - removed in version > 6.5
-        BOOST_TEST(stateDoc.HasMember("d"));
-        BOOST_TEST(stateDoc.HasMember("e"));
-        BOOST_TEST(stateDoc.HasMember("f"));
-        BOOST_TEST(stateDoc.HasMember("g"));
-        BOOST_TEST(stateDoc["g"].HasMember("d"));
-        BOOST_TEST(stateDoc["g"].HasMember("a"));
-        BOOST_TEST(stateDoc["g"]["a"].HasMember("a"));
-        BOOST_TEST(stateDoc["g"]["a"].HasMember("b"));
+        BOOST_TEST_REQUIRE(stateDoc.HasMember("d"));
+        BOOST_TEST_REQUIRE(stateDoc.HasMember("e"));
+        BOOST_TEST_REQUIRE(stateDoc.HasMember("f"));
+        BOOST_TEST_REQUIRE(stateDoc.HasMember("g"));
+        BOOST_TEST_REQUIRE(stateDoc["g"].HasMember("d"));
+        BOOST_TEST_REQUIRE(stateDoc["g"].HasMember("a"));
+        BOOST_TEST_REQUIRE(stateDoc["g"]["a"].HasMember("a"));
+        BOOST_TEST_REQUIRE(stateDoc["g"]["a"].HasMember("b"));
 
         rapidjson::Value& partitionMaxScoreDoc = stateDoc["g"]["a"]["b"]["a"];
 
@@ -746,7 +746,7 @@ BOOST_AUTO_TEST_CASE(testJsonConversion) {
         partitionMaxScoreStr.erase(std::remove(partitionMaxScoreStr.begin(),
                                                partitionMaxScoreStr.end(), '\n'),
                                    partitionMaxScoreStr.end());
-        BOOST_CHECK_EQUAL("\"" + core::CStringUtils::typeToStringPretty(maxScore) + "\"",
+        BOOST_REQUIRE_EQUAL("\"" + core::CStringUtils::typeToStringPretty(maxScore) + "\"",
                           partitionMaxScoreStr);
     }
 
@@ -760,18 +760,18 @@ BOOST_AUTO_TEST_CASE(testJsonConversion) {
 
     origJson.erase(std::remove(origJson.begin(), origJson.end(), '\n'), origJson.end());
 
-    BOOST_CHECK_EQUAL(origJson, state);
+    BOOST_REQUIRE_EQUAL(origJson, state);
 
     // restore from the JSON state with extra fields used for
     // indexing in the database
     model::CAnomalyScore::CNormalizer fromJsonNormalizer(config);
-    BOOST_TEST(model::CAnomalyScore::normalizerFromJson(toJson, fromJsonNormalizer));
+    BOOST_TEST_REQUIRE(model::CAnomalyScore::normalizerFromJson(toJson, fromJsonNormalizer));
 
     std::string restoredJson;
     model::CAnomalyScore::normalizerToJson(fromJsonNormalizer, "dummy", "sysChange",
                                            "my normalizer", 1234567890, restoredJson);
 
-    BOOST_CHECK_EQUAL(toJson, restoredJson);
+    BOOST_REQUIRE_EQUAL(toJson, restoredJson);
 }
 
 BOOST_AUTO_TEST_CASE(testPersistEmpty) {
@@ -783,7 +783,7 @@ BOOST_AUTO_TEST_CASE(testPersistEmpty) {
 
     model::CAnomalyScore::CNormalizer origNormalizer(config);
 
-    BOOST_TEST(!origNormalizer.canNormalize());
+    BOOST_TEST_REQUIRE(!origNormalizer.canNormalize());
 
     std::string origJson;
     model::CAnomalyScore::normalizerToJson(origNormalizer, "test", "test",
@@ -791,15 +791,15 @@ BOOST_AUTO_TEST_CASE(testPersistEmpty) {
 
     model::CAnomalyScore::CNormalizer newNormalizer(config);
 
-    BOOST_TEST(model::CAnomalyScore::normalizerFromJson(origJson, newNormalizer));
+    BOOST_TEST_REQUIRE(model::CAnomalyScore::normalizerFromJson(origJson, newNormalizer));
 
-    BOOST_TEST(!newNormalizer.canNormalize());
+    BOOST_TEST_REQUIRE(!newNormalizer.canNormalize());
 
     std::string newJson;
     model::CAnomalyScore::normalizerToJson(newNormalizer, "test", "test",
                                            "test", 1234567890, newJson);
 
-    BOOST_CHECK_EQUAL(origJson, newJson);
+    BOOST_REQUIRE_EQUAL(origJson, newJson);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

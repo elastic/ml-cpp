@@ -27,7 +27,7 @@ void assertSize(const T& t) {
     std::size_t s = t.size();
     std::size_t c = t.capacity();
     LOG_DEBUG(<< "Size " << s << ", capacity " << c);
-    BOOST_TEST(double(c) <= std::max(double(s) * RATIO, double(s) + TOLERANCE));
+    BOOST_TEST_REQUIRE(double(c) <= std::max(double(s) * RATIO, double(s) + TOLERANCE));
 }
 
 BOOST_AUTO_TEST_CASE(test) {
@@ -35,7 +35,7 @@ BOOST_AUTO_TEST_CASE(test) {
 
     {
         TIntVec v;
-        BOOST_CHECK_EQUAL(std::size_t(0), v.capacity());
+        BOOST_REQUIRE_EQUAL(std::size_t(0), v.capacity());
 
         core::CAllocationStrategy::resize(v, 1);
         assertSize(v);

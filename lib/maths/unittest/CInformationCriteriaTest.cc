@@ -86,13 +86,13 @@ BOOST_AUTO_TEST_CASE(testSphericalGaussian) {
         bic.add(samples);
         LOG_DEBUG(<< "expected BIC  = " << expectedBIC);
         LOG_DEBUG(<< "BIC           = " << bic.calculate());
-        BOOST_CHECK_CLOSE_ABSOLUTE(expectedBIC, bic.calculate(), 2e-3 * expectedBIC);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(expectedBIC, bic.calculate(), 2e-3 * expectedBIC);
 
         maths::CSphericalGaussianInfoCriterion<TVector2, maths::E_AICc> aic;
         aic.add(samples);
         LOG_DEBUG(<< "expected AICc = " << expectedAICc);
         LOG_DEBUG(<< "AICc          = " << aic.calculate());
-        BOOST_CHECK_CLOSE_ABSOLUTE(expectedAICc, aic.calculate(), 2e-3 * expectedAICc);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(expectedAICc, aic.calculate(), 2e-3 * expectedAICc);
     }
     {
         double variance = 8.0;
@@ -123,13 +123,13 @@ BOOST_AUTO_TEST_CASE(testSphericalGaussian) {
         bic.add(samples);
         LOG_DEBUG(<< "expected BIC = " << expectedBIC);
         LOG_DEBUG(<< "BIC          = " << bic.calculate());
-        BOOST_CHECK_CLOSE_ABSOLUTE(expectedBIC, bic.calculate(), 2e-3 * expectedBIC);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(expectedBIC, bic.calculate(), 2e-3 * expectedBIC);
 
         maths::CSphericalGaussianInfoCriterion<TVector4, maths::E_AICc> aic;
         aic.add(samples);
         LOG_DEBUG(<< "expected AICc = " << expectedAICc);
         LOG_DEBUG(<< "AICc          = " << aic.calculate());
-        BOOST_CHECK_CLOSE_ABSOLUTE(expectedAICc, aic.calculate(), 2e-3 * expectedAICc);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(expectedAICc, aic.calculate(), 2e-3 * expectedAICc);
     }
 
     // Check that they correctly distinguish the best fit model.
@@ -170,11 +170,11 @@ BOOST_AUTO_TEST_CASE(testSphericalGaussian) {
 
             LOG_DEBUG(<< "1 cluster BIC = " << bic1.calculate());
             LOG_DEBUG(<< "2 cluster BIC = " << bic2.calculate());
-            BOOST_TEST(bic1.calculate() < bic2.calculate());
+            BOOST_TEST_REQUIRE(bic1.calculate() < bic2.calculate());
 
             LOG_DEBUG(<< "1 cluster AIC = " << aic1.calculate());
             LOG_DEBUG(<< "2 cluster AIC = " << aic2.calculate());
-            BOOST_TEST(aic1.calculate() < aic2.calculate());
+            BOOST_TEST_REQUIRE(aic1.calculate() < aic2.calculate());
         }
 
         TVector2Vec centres;
@@ -195,11 +195,11 @@ BOOST_AUTO_TEST_CASE(testSphericalGaussian) {
 
             LOG_DEBUG(<< "1 cluster BIC = " << bic1.calculate());
             LOG_DEBUG(<< "2 cluster BIC = " << bic2.calculate());
-            BOOST_TEST(bic1.calculate() < bic2.calculate());
+            BOOST_TEST_REQUIRE(bic1.calculate() < bic2.calculate());
 
             LOG_DEBUG(<< "1 cluster AIC = " << aic1.calculate());
             LOG_DEBUG(<< "2 cluster AIC = " << aic2.calculate());
-            BOOST_TEST(aic1.calculate() < aic2.calculate());
+            BOOST_TEST_REQUIRE(aic1.calculate() < aic2.calculate());
         }
     }
 }
@@ -251,7 +251,7 @@ BOOST_AUTO_TEST_CASE(testSphericalGaussianWithSphericalCluster) {
         LOG_DEBUG(<< "BIC points  = " << bicPoints.calculate());
         LOG_DEBUG(<< "BIC clusters  = " << bicClusters.calculate());
 
-        BOOST_CHECK_CLOSE_ABSOLUTE(bicPoints.calculate(), bicClusters.calculate(),
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(bicPoints.calculate(), bicClusters.calculate(),
                                    1e-10 * bicPoints.calculate());
 
         maths::CSphericalGaussianInfoCriterion<TVector2, maths::E_AICc> aicPoints;
@@ -260,7 +260,7 @@ BOOST_AUTO_TEST_CASE(testSphericalGaussianWithSphericalCluster) {
         aicClusters.add(clusters);
         LOG_DEBUG(<< "AICc points   = " << aicPoints.calculate());
         LOG_DEBUG(<< "AICc clusters = " << aicClusters.calculate());
-        BOOST_CHECK_CLOSE_ABSOLUTE(aicPoints.calculate(), aicClusters.calculate(),
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(aicPoints.calculate(), aicClusters.calculate(),
                                    1e-10 * aicPoints.calculate());
     }
 }
@@ -295,13 +295,13 @@ BOOST_AUTO_TEST_CASE(testGaussian) {
         bic.add(samples);
         LOG_DEBUG(<< "expected BIC  = " << expectedBIC);
         LOG_DEBUG(<< "BIC           = " << bic.calculate());
-        BOOST_CHECK_CLOSE_ABSOLUTE(expectedBIC, bic.calculate(), 2e-3 * expectedBIC);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(expectedBIC, bic.calculate(), 2e-3 * expectedBIC);
 
         maths::CGaussianInfoCriterion<TVector2, maths::E_AICc> aic;
         aic.add(samples);
         LOG_DEBUG(<< "expected AICc = " << expectedAICc);
         LOG_DEBUG(<< "AICc          = " << aic.calculate());
-        BOOST_CHECK_CLOSE_ABSOLUTE(expectedAICc, aic.calculate(), 2e-3 * expectedAICc);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(expectedAICc, aic.calculate(), 2e-3 * expectedAICc);
     }
     {
         double mean_[] = {-5.0, 30.0, 2.0, 7.9};
@@ -331,13 +331,13 @@ BOOST_AUTO_TEST_CASE(testGaussian) {
         bic.add(samples);
         LOG_DEBUG(<< "expected BIC = " << expectedBIC);
         LOG_DEBUG(<< "BIC          = " << bic.calculate());
-        BOOST_CHECK_CLOSE_ABSOLUTE(expectedBIC, bic.calculate(), 2e-3 * expectedBIC);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(expectedBIC, bic.calculate(), 2e-3 * expectedBIC);
 
         maths::CGaussianInfoCriterion<TVector4, maths::E_AICc> aic;
         aic.add(samples);
         LOG_DEBUG(<< "expected AICc = " << expectedAICc);
         LOG_DEBUG(<< "AICc          = " << aic.calculate());
-        BOOST_CHECK_CLOSE_ABSOLUTE(expectedAICc, aic.calculate(), 2e-3 * expectedAICc);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(expectedAICc, aic.calculate(), 2e-3 * expectedAICc);
     }
 
     // Check that they correctly distinguish the best fit model.
@@ -377,11 +377,11 @@ BOOST_AUTO_TEST_CASE(testGaussian) {
 
             LOG_DEBUG(<< "1 cluster BIC = " << bic1.calculate());
             LOG_DEBUG(<< "2 cluster BIC = " << bic2.calculate());
-            BOOST_TEST(bic1.calculate() < bic2.calculate());
+            BOOST_TEST_REQUIRE(bic1.calculate() < bic2.calculate());
 
             LOG_DEBUG(<< "1 cluster AIC = " << aic1.calculate());
             LOG_DEBUG(<< "2 cluster AIC = " << aic2.calculate());
-            BOOST_TEST(aic1.calculate() < aic2.calculate());
+            BOOST_TEST_REQUIRE(aic1.calculate() < aic2.calculate());
         }
 
         TVector2Vec centres;
@@ -402,11 +402,11 @@ BOOST_AUTO_TEST_CASE(testGaussian) {
 
             LOG_DEBUG(<< "1 cluster BIC = " << bic1.calculate());
             LOG_DEBUG(<< "2 cluster BIC = " << bic2.calculate());
-            BOOST_TEST(bic1.calculate() < bic2.calculate());
+            BOOST_TEST_REQUIRE(bic1.calculate() < bic2.calculate());
 
             LOG_DEBUG(<< "1 cluster AIC = " << aic1.calculate());
             LOG_DEBUG(<< "2 cluster AIC = " << aic2.calculate());
-            BOOST_TEST(aic1.calculate() < aic2.calculate());
+            BOOST_TEST_REQUIRE(aic1.calculate() < aic2.calculate());
         }
     }
 }
@@ -454,7 +454,7 @@ BOOST_AUTO_TEST_CASE(testGaussianWithSphericalCluster) {
         LOG_DEBUG(<< "BIC points  = " << bicPoints.calculate());
         LOG_DEBUG(<< "BIC clusters  = " << bicClusters.calculate());
 
-        BOOST_CHECK_CLOSE_ABSOLUTE(bicPoints.calculate(), bicClusters.calculate(),
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(bicPoints.calculate(), bicClusters.calculate(),
                                    2e-3 * bicPoints.calculate());
 
         maths::CGaussianInfoCriterion<TVector2, maths::E_AICc> aicPoints;
@@ -463,7 +463,7 @@ BOOST_AUTO_TEST_CASE(testGaussianWithSphericalCluster) {
         aicClusters.add(clusters);
         LOG_DEBUG(<< "AICc points   = " << aicPoints.calculate());
         LOG_DEBUG(<< "AICc clusters = " << aicClusters.calculate());
-        BOOST_CHECK_CLOSE_ABSOLUTE(aicPoints.calculate(), aicClusters.calculate(),
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(aicPoints.calculate(), aicClusters.calculate(),
                                    2e-3 * aicPoints.calculate());
     }
 }

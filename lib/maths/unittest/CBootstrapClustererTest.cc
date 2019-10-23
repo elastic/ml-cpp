@@ -99,7 +99,7 @@ void clique(std::size_t a, std::size_t b, TGraph& graph) {
 }
 
 void connect(const TSizeVec& U, const TSizeVec& V, TGraph& graph) {
-    BOOST_CHECK_EQUAL(U.size(), V.size());
+    BOOST_REQUIRE_EQUAL(U.size(), V.size());
     for (std::size_t i = 0u; i < U.size(); ++i) {
         boost::put(boost::edge_weight, graph, boost::add_edge(U[i], V[i], graph).first, 1.0);
     }
@@ -167,9 +167,9 @@ BOOST_AUTO_TEST_CASE(testFacade) {
                 std::sort(expected[i].begin(), expected[i].end());
             }
 
-            BOOST_CHECK_EQUAL(expected.size(), actual.size());
+            BOOST_REQUIRE_EQUAL(expected.size(), actual.size());
             for (std::size_t i = 0u; i < expected.size(); ++i) {
-                BOOST_CHECK_EQUAL(core::CContainerPrinter::print(expected[i]),
+                BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(expected[i]),
                                   core::CContainerPrinter::print(actual[i]));
             }
         }
@@ -275,7 +275,7 @@ BOOST_AUTO_TEST_CASE(testBuildClusterGraph) {
         }
 
         LOG_DEBUG(<< "Overlap graph " << rep);
-        BOOST_CHECK_EQUAL(expected[i], rep);
+        BOOST_REQUIRE_EQUAL(expected[i], rep);
     }
 }
 
@@ -327,7 +327,7 @@ BOOST_AUTO_TEST_CASE(testCutSearch) {
     }
 
     LOG_DEBUG(<< "quality = " << 1.0 - maths::CBasicStatistics::mean(quality));
-    BOOST_TEST(1.0 - maths::CBasicStatistics::mean(quality) > 0.98);
+    BOOST_TEST_REQUIRE(1.0 - maths::CBasicStatistics::mean(quality) > 0.98);
 }
 
 BOOST_AUTO_TEST_CASE(testSeparate) {
@@ -408,8 +408,8 @@ BOOST_AUTO_TEST_CASE(testSeparate) {
 
     LOG_DEBUG(<< "errors = " << errors);
     LOG_DEBUG(<< "quality = " << 1.0 - maths::CBasicStatistics::mean(quality));
-    BOOST_TEST(errors < 4);
-    BOOST_TEST(1.0 - maths::CBasicStatistics::mean(quality) > 0.99);
+    BOOST_TEST_REQUIRE(errors < 4);
+    BOOST_TEST_REQUIRE(1.0 - maths::CBasicStatistics::mean(quality) > 0.99);
 }
 
 BOOST_AUTO_TEST_CASE(testThickets) {
@@ -481,7 +481,7 @@ BOOST_AUTO_TEST_CASE(testThickets) {
                 double jaccard = maths::CSetTools::jaccard(
                     expectedClusters[i].begin(), expectedClusters[i].end(),
                     clusters[i].begin(), clusters[i].end());
-                BOOST_TEST(jaccard > 0.8);
+                BOOST_TEST_REQUIRE(jaccard > 0.8);
                 meanJaccard.add(jaccard);
             }
         }
@@ -489,8 +489,8 @@ BOOST_AUTO_TEST_CASE(testThickets) {
 
     LOG_DEBUG(<< "error = " << error);
     LOG_DEBUG(<< "mean Jaccard = " << maths::CBasicStatistics::mean(meanJaccard));
-    BOOST_TEST(error < 2);
-    BOOST_TEST(maths::CBasicStatistics::mean(meanJaccard) > 0.99);
+    BOOST_TEST_REQUIRE(error < 2);
+    BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(meanJaccard) > 0.99);
 }
 
 BOOST_AUTO_TEST_CASE(testNonConvexClustering) {
@@ -590,7 +590,7 @@ BOOST_AUTO_TEST_CASE(testNonConvexClustering) {
             bootstrap[i].clear();
             for (std::size_t j = 0u; j < bootstrapClusters[i].size(); ++j) {
                 auto k = lookup.find(bootstrapClusters[i][j]);
-                BOOST_TEST(k != lookup.end());
+                BOOST_TEST_REQUIRE(k != lookup.end());
                 bootstrap[i].push_back(k->second);
             }
             std::sort(bootstrap[i].begin(), bootstrap[i].end());
@@ -620,7 +620,7 @@ BOOST_AUTO_TEST_CASE(testNonConvexClustering) {
             vanilla[i].clear();
             for (std::size_t j = 0u; j < xmeans.clusters()[i].points().size(); ++j) {
                 auto k = lookup.find(xmeans.clusters()[i].points()[j]);
-                BOOST_TEST(k != lookup.end());
+                BOOST_TEST_REQUIRE(k != lookup.end());
                 vanilla[i].push_back(k->second);
             }
             std::sort(vanilla[i].begin(), vanilla[i].end());
@@ -650,11 +650,11 @@ BOOST_AUTO_TEST_CASE(testNonConvexClustering) {
     LOG_DEBUG(<< "# clusters vanilla   = "
               << maths::CBasicStatistics::mean(numberClustersVanilla));
 
-    BOOST_CHECK_CLOSE_ABSOLUTE(
+    BOOST_REQUIRE_CLOSE_ABSOLUTE(
         1.0, maths::CBasicStatistics::mean(jaccardBootstrapToPerfect), 0.1);
-    BOOST_CHECK_CLOSE_ABSOLUTE(
+    BOOST_REQUIRE_CLOSE_ABSOLUTE(
         3.0, maths::CBasicStatistics::mean(numberClustersBootstrap), 0.6);
-    BOOST_TEST(maths::CBasicStatistics::mean(jaccardBootstrapToPerfect) >
+    BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(jaccardBootstrapToPerfect) >
                maths::CBasicStatistics::mean(jaccardVanillaToPerfect));
 }
 
@@ -728,7 +728,7 @@ BOOST_AUTO_TEST_CASE(testClusteringStability) {
                 bootstrap[i].clear();
                 for (std::size_t j = 0u; j < bootstrapClusters[i].size(); ++j) {
                     auto k = lookup.find(bootstrapClusters[i][j]);
-                    BOOST_TEST(k != lookup.end());
+                    BOOST_TEST_REQUIRE(k != lookup.end());
                     bootstrap[i].push_back(k->second);
                 }
                 std::sort(bootstrap[i].begin(), bootstrap[i].end());
@@ -766,7 +766,7 @@ BOOST_AUTO_TEST_CASE(testClusteringStability) {
     TMeanAccumulator meanConsistency;
     meanConsistency.add(consistency);
     LOG_DEBUG(<< "mean = " << maths::CBasicStatistics::mean(meanConsistency));
-    BOOST_TEST(maths::CBasicStatistics::mean(meanConsistency) > 0.95);
+    BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(meanConsistency) > 0.95);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

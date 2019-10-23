@@ -72,12 +72,12 @@ BOOST_AUTO_TEST_CASE(testBasicUsage) {
             expected300[(time - startTime) / 300].add(value);
             expected1800[(time - startTime) / 1800].add(value);
             if (((time - startTime) / bucketLength) % 3 == 0) {
-                BOOST_CHECK_EQUAL(uncompressed.checksum(), compressed.checksum());
+                BOOST_REQUIRE_EQUAL(uncompressed.checksum(), compressed.checksum());
             }
         }
-        BOOST_CHECK_EQUAL(core::CContainerPrinter::print(expected300),
+        BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(expected300),
                           core::CContainerPrinter::print(uncompressed.values()));
-        BOOST_CHECK_EQUAL(core::CContainerPrinter::print(expected300),
+        BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(expected300),
                           core::CContainerPrinter::print(compressed.values()));
 
         core_t::TTime time{startTime + static_cast<core_t::TTime>(600 * size + 1)};
@@ -85,9 +85,9 @@ BOOST_AUTO_TEST_CASE(testBasicUsage) {
         uncompressed.add(time, 5.0, 0.9);
         expected1800[(time - startTime) / 1800].add(5.0, 0.9);
 
-        BOOST_CHECK_EQUAL(core::CContainerPrinter::print(expected1800),
+        BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(expected1800),
                           core::CContainerPrinter::print(uncompressed.values()));
-        BOOST_CHECK_EQUAL(core::CContainerPrinter::print(expected1800),
+        BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(expected1800),
                           core::CContainerPrinter::print(compressed.values()));
     }
 
@@ -139,9 +139,9 @@ BOOST_AUTO_TEST_CASE(testBasicUsage) {
         TFloatMeanAccumulatorVec actual{window.values()};
 
         for (std::size_t j = 0; j < size; ++j) {
-            BOOST_CHECK_CLOSE_ABSOLUTE(maths::CBasicStatistics::count(expected[j]),
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(maths::CBasicStatistics::count(expected[j]),
                                        maths::CBasicStatistics::count(actual[j]), 1e-5);
-            BOOST_CHECK_CLOSE_ABSOLUTE(maths::CBasicStatistics::mean(expected[j]),
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(maths::CBasicStatistics::mean(expected[j]),
                                        maths::CBasicStatistics::mean(actual[j]), 1e-5);
         }
     }
@@ -149,14 +149,14 @@ BOOST_AUTO_TEST_CASE(testBasicUsage) {
     LOG_DEBUG(<< "Testing overflow");
 
     window.add(static_cast<core_t::TTime>(size * 3600 + 1), 0.1);
-    BOOST_CHECK_EQUAL(static_cast<core_t::TTime>(size * 3600), window.startTime());
-    BOOST_CHECK_EQUAL(static_cast<core_t::TTime>(size * 3900), window.endTime());
+    BOOST_REQUIRE_EQUAL(static_cast<core_t::TTime>(size * 3600), window.startTime());
+    BOOST_REQUIRE_EQUAL(static_cast<core_t::TTime>(size * 3900), window.endTime());
 
     TFloatMeanAccumulatorVec expected(size);
     expected[0].add(0.1);
     TFloatMeanAccumulatorVec actual{window.values()};
 
-    BOOST_CHECK_EQUAL(core::CContainerPrinter::print(expected),
+    BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(expected),
                       core::CContainerPrinter::print(actual));
 }
 
@@ -189,9 +189,9 @@ BOOST_AUTO_TEST_CASE(testValuesMinusPrediction) {
     TFloatMeanAccumulatorVec actual{window.valuesMinusPrediction(trend)};
 
     for (std::size_t i = 0; i < size; ++i) {
-        BOOST_CHECK_EQUAL(maths::CBasicStatistics::count(expected[i]),
+        BOOST_REQUIRE_EQUAL(maths::CBasicStatistics::count(expected[i]),
                           maths::CBasicStatistics::count(actual[i]));
-        BOOST_CHECK_CLOSE_ABSOLUTE(maths::CBasicStatistics::mean(expected[i]),
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(maths::CBasicStatistics::mean(expected[i]),
                                    maths::CBasicStatistics::mean(actual[i]), 1e-5);
     }
 }
@@ -229,17 +229,17 @@ BOOST_AUTO_TEST_CASE(testPersistence) {
         // Restore the XML into a new window.
         {
             core::CRapidXmlParser parser;
-            BOOST_TEST(parser.parseStringIgnoreCdata(origXml));
+            BOOST_TEST_REQUIRE(parser.parseStringIgnoreCdata(origXml));
             core::CRapidXmlStateRestoreTraverser traverser(parser);
             maths::CExpandingWindow restoredWindow{
                 bucketLength, TTimeCRng{BUCKET_LENGTHS, 0, 4}, size, decayRate, compressed};
-            BOOST_CHECK_EQUAL(true, traverser.traverseSubLevel(std::bind(
+            BOOST_REQUIRE_EQUAL(true, traverser.traverseSubLevel(std::bind(
                                         &maths::CExpandingWindow::acceptRestoreTraverser,
                                         &restoredWindow, std::placeholders::_1)));
 
             LOG_DEBUG(<< "orig checksum = " << origWindow.checksum()
                       << ", new checksum = " << restoredWindow.checksum());
-            BOOST_CHECK_EQUAL(origWindow.checksum(), restoredWindow.checksum());
+            BOOST_REQUIRE_EQUAL(origWindow.checksum(), restoredWindow.checksum());
         }
     }
 }

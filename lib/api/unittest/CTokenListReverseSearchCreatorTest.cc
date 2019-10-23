@@ -15,7 +15,7 @@ using namespace api;
 
 BOOST_AUTO_TEST_CASE(testCostOfToken) {
     CTokenListReverseSearchCreator reverseSearchCreator("foo");
-    BOOST_CHECK_EQUAL(std::size_t(110), reverseSearchCreator.costOfToken("someToken", 5));
+    BOOST_REQUIRE_EQUAL(std::size_t(110), reverseSearchCreator.costOfToken("someToken", 5));
 }
 
 BOOST_AUTO_TEST_CASE(testCreateNullSearch) {
@@ -24,10 +24,10 @@ BOOST_AUTO_TEST_CASE(testCreateNullSearch) {
     std::string reverseSearchPart1;
     std::string reverseSearchPart2;
 
-    BOOST_TEST(reverseSearchCreator.createNullSearch(reverseSearchPart1, reverseSearchPart2));
+    BOOST_TEST_REQUIRE(reverseSearchCreator.createNullSearch(reverseSearchPart1, reverseSearchPart2));
 
-    BOOST_CHECK_EQUAL(std::string(""), reverseSearchPart1);
-    BOOST_CHECK_EQUAL(std::string(""), reverseSearchPart2);
+    BOOST_REQUIRE_EQUAL(std::string(""), reverseSearchPart1);
+    BOOST_REQUIRE_EQUAL(std::string(""), reverseSearchPart2);
 }
 
 BOOST_AUTO_TEST_CASE(testCreateNoUniqueTokenSearch) {
@@ -36,11 +36,11 @@ BOOST_AUTO_TEST_CASE(testCreateNoUniqueTokenSearch) {
     std::string reverseSearchPart1;
     std::string reverseSearchPart2;
 
-    BOOST_TEST(reverseSearchCreator.createNoUniqueTokenSearch(
+    BOOST_TEST_REQUIRE(reverseSearchCreator.createNoUniqueTokenSearch(
         1, "404", 4, reverseSearchPart1, reverseSearchPart2));
 
-    BOOST_CHECK_EQUAL(std::string(""), reverseSearchPart1);
-    BOOST_CHECK_EQUAL(std::string(""), reverseSearchPart2);
+    BOOST_REQUIRE_EQUAL(std::string(""), reverseSearchPart1);
+    BOOST_REQUIRE_EQUAL(std::string(""), reverseSearchPart2);
 }
 
 BOOST_AUTO_TEST_CASE(testInitStandardSearch) {
@@ -52,8 +52,8 @@ BOOST_AUTO_TEST_CASE(testInitStandardSearch) {
     reverseSearchCreator.initStandardSearch(1, "User 'foo' logged in host '0.0.0.0'",
                                             1, reverseSearchPart1, reverseSearchPart2);
 
-    BOOST_CHECK_EQUAL(std::string(""), reverseSearchPart1);
-    BOOST_CHECK_EQUAL(std::string(""), reverseSearchPart2);
+    BOOST_REQUIRE_EQUAL(std::string(""), reverseSearchPart1);
+    BOOST_REQUIRE_EQUAL(std::string(""), reverseSearchPart2);
 }
 
 BOOST_AUTO_TEST_CASE(testAddCommonUniqueToken) {
@@ -65,8 +65,8 @@ BOOST_AUTO_TEST_CASE(testAddCommonUniqueToken) {
     reverseSearchCreator.addCommonUniqueToken("user", reverseSearchPart1, reverseSearchPart2);
     reverseSearchCreator.addCommonUniqueToken("logged", reverseSearchPart1, reverseSearchPart2);
 
-    BOOST_CHECK_EQUAL(std::string(""), reverseSearchPart1);
-    BOOST_CHECK_EQUAL(std::string(""), reverseSearchPart2);
+    BOOST_REQUIRE_EQUAL(std::string(""), reverseSearchPart1);
+    BOOST_REQUIRE_EQUAL(std::string(""), reverseSearchPart2);
 }
 
 BOOST_AUTO_TEST_CASE(testAddInOrderCommonToken) {
@@ -84,8 +84,8 @@ BOOST_AUTO_TEST_CASE(testAddInOrderCommonToken) {
     reverseSearchCreator.addInOrderCommonToken("logged", false, reverseSearchPart1,
                                                reverseSearchPart2);
 
-    BOOST_CHECK_EQUAL(std::string("user logged b=0.15+a logged"), reverseSearchPart1);
-    BOOST_CHECK_EQUAL(std::string(".*?user.+?logged.+?b=0\\.15\\+a.+?logged"), reverseSearchPart2);
+    BOOST_REQUIRE_EQUAL(std::string("user logged b=0.15+a logged"), reverseSearchPart1);
+    BOOST_REQUIRE_EQUAL(std::string(".*?user.+?logged.+?b=0\\.15\\+a.+?logged"), reverseSearchPart2);
 }
 
 BOOST_AUTO_TEST_CASE(testCloseStandardSearch) {
@@ -96,8 +96,8 @@ BOOST_AUTO_TEST_CASE(testCloseStandardSearch) {
 
     reverseSearchCreator.closeStandardSearch(reverseSearchPart1, reverseSearchPart2);
 
-    BOOST_CHECK_EQUAL(std::string(""), reverseSearchPart1);
-    BOOST_CHECK_EQUAL(std::string(".*"), reverseSearchPart2);
+    BOOST_REQUIRE_EQUAL(std::string(""), reverseSearchPart1);
+    BOOST_REQUIRE_EQUAL(std::string(".*"), reverseSearchPart2);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

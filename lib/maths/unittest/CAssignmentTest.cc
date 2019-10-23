@@ -99,7 +99,7 @@ BOOST_AUTO_TEST_CASE(testKuhnMunkres) {
         fill(test12, costs);
 
         TSizeSizePrVec matching;
-        BOOST_TEST(!maths::CAssignment::kuhnMunkres(costs, matching));
+        BOOST_TEST_REQUIRE(!maths::CAssignment::kuhnMunkres(costs, matching));
     }
     {
         LOG_DEBUG(<< "test 2: 5x5");
@@ -112,10 +112,10 @@ BOOST_AUTO_TEST_CASE(testKuhnMunkres) {
         fill(test2, costs);
 
         TSizeSizePrVec matching;
-        BOOST_TEST(maths::CAssignment::kuhnMunkres(costs, matching));
+        BOOST_TEST_REQUIRE(maths::CAssignment::kuhnMunkres(costs, matching));
 
         LOG_DEBUG(<< "matching = " << core::CContainerPrinter::print(matching));
-        BOOST_CHECK_EQUAL(5.0, cost(costs, matching));
+        BOOST_REQUIRE_EQUAL(5.0, cost(costs, matching));
     }
     {
         LOG_DEBUG(<< "test 3: 5x4");
@@ -128,10 +128,10 @@ BOOST_AUTO_TEST_CASE(testKuhnMunkres) {
         fill(test3, costs);
 
         TSizeSizePrVec matching;
-        BOOST_TEST(maths::CAssignment::kuhnMunkres(costs, matching));
+        BOOST_TEST_REQUIRE(maths::CAssignment::kuhnMunkres(costs, matching));
 
         LOG_DEBUG(<< "matching = " << core::CContainerPrinter::print(matching));
-        BOOST_CHECK_EQUAL(4.0, cost(costs, matching));
+        BOOST_REQUIRE_EQUAL(4.0, cost(costs, matching));
     }
     {
         LOG_DEBUG(<< "test 4: 4x5");
@@ -145,10 +145,10 @@ BOOST_AUTO_TEST_CASE(testKuhnMunkres) {
         fill(test4, costs);
 
         TSizeSizePrVec matching;
-        BOOST_TEST(maths::CAssignment::kuhnMunkres(costs, matching));
+        BOOST_TEST_REQUIRE(maths::CAssignment::kuhnMunkres(costs, matching));
 
         LOG_DEBUG(<< "matching = " << core::CContainerPrinter::print(matching));
-        BOOST_CHECK_EQUAL(4.0, cost(costs, matching));
+        BOOST_REQUIRE_EQUAL(4.0, cost(costs, matching));
     }
 
     test::CRandomNumbers rng;
@@ -180,7 +180,7 @@ BOOST_AUTO_TEST_CASE(testKuhnMunkres) {
                     LOG_DEBUG(<< "cost = " << cost(costs, matching));
                 }
 
-                BOOST_CHECK_EQUAL(expectedCost, cost(costs, matching));
+                BOOST_REQUIRE_EQUAL(expectedCost, cost(costs, matching));
             }
         }
     }
@@ -199,7 +199,7 @@ BOOST_AUTO_TEST_CASE(testKuhnMunkres) {
         fill(samples, costs);
 
         TSizeSizePrVec matching;
-        BOOST_TEST(maths::CAssignment::kuhnMunkres(costs, matching));
+        BOOST_TEST_REQUIRE(maths::CAssignment::kuhnMunkres(costs, matching));
 
         double optimalCost = cost(costs, matching);
         LOG_DEBUG(<< "cost = " << optimalCost);
@@ -223,13 +223,13 @@ BOOST_AUTO_TEST_CASE(testKuhnMunkres) {
 
         LOG_DEBUG(<< "optimal cost = " << optimalCost
                   << ", lowest random cost = " << lowestRandomCost);
-        BOOST_TEST(lowestRandomCost >= optimalCost);
+        BOOST_TEST_REQUIRE(lowestRandomCost >= optimalCost);
 
         // Check adding higher cost row has no effect.
         {
             costs.push_back(TDoubleVec(100, 2.1));
-            BOOST_TEST(maths::CAssignment::kuhnMunkres(costs, matching));
-            BOOST_CHECK_EQUAL(optimalCost, cost(costs, matching));
+            BOOST_TEST_REQUIRE(maths::CAssignment::kuhnMunkres(costs, matching));
+            BOOST_REQUIRE_EQUAL(optimalCost, cost(costs, matching));
         }
     }
 
@@ -262,7 +262,7 @@ BOOST_AUTO_TEST_CASE(testKuhnMunkres) {
         TSizeSizePrVec matching;
         maths::CAssignment::kuhnMunkres(costs, matching);
         LOG_DEBUG(<< "cost = " << 15000.0 - cost(costs, matching));
-        BOOST_CHECK_EQUAL(13938.0, 15000.0 - cost(costs, matching));
+        BOOST_REQUIRE_EQUAL(13938.0, 15000.0 - cost(costs, matching));
     }
 }
 

@@ -115,7 +115,7 @@ BOOST_AUTO_TEST_CASE(testFFTVersusOctave) {
             }
             error /= static_cast<double>(l);
             LOG_DEBUG(<< "error = " << error);
-            BOOST_TEST(error < 0.2);
+            BOOST_TEST_REQUIRE(error < 0.2);
         }
     }
 
@@ -139,7 +139,7 @@ BOOST_AUTO_TEST_CASE(testFFTVersusOctave) {
         }
         error /= static_cast<double>(actual.size());
         LOG_DEBUG(<< "error = " << error);
-        BOOST_TEST(error < 0.2);
+        BOOST_TEST_REQUIRE(error < 0.2);
     }
 }
 
@@ -211,7 +211,7 @@ BOOST_AUTO_TEST_CASE(testIFFTVersusOctave) {
             }
             error /= static_cast<double>(l);
             LOG_DEBUG(<< "error = " << error);
-            BOOST_TEST(error < 0.01);
+            BOOST_TEST_REQUIRE(error < 0.01);
         }
     }
 }
@@ -248,7 +248,7 @@ BOOST_AUTO_TEST_CASE(testFFTRandomized) {
         if (i % 5 == 0 || error >= 1e-5) {
             LOG_DEBUG(<< "length = " << lengths[i] << ", error  = " << error);
         }
-        BOOST_TEST(error < 1e-5);
+        BOOST_TEST_REQUIRE(error < 1e-5);
     }
 }
 
@@ -284,7 +284,7 @@ BOOST_AUTO_TEST_CASE(testIFFTRandomized) {
         if (i % 5 == 0 || error >= 1e-5) {
             LOG_DEBUG(<< "length = " << lengths[i] << ", error  = " << error);
         }
-        BOOST_TEST(error < 1e-5);
+        BOOST_TEST_REQUIRE(error < 1e-5);
     }
 }
 
@@ -320,7 +320,7 @@ BOOST_AUTO_TEST_CASE(testFFTIFFTIdempotency) {
         if (i % 5 == 0 || error >= 1e-5) {
             LOG_DEBUG(<< "length = " << lengths[i] << ", error  = " << error);
         }
-        BOOST_TEST(error < 1e-5);
+        BOOST_TEST_REQUIRE(error < 1e-5);
     }
 }
 
@@ -351,7 +351,7 @@ BOOST_AUTO_TEST_CASE(testAutocorrelations) {
             LOG_DEBUG(<< "expected = " << core::CContainerPrinter::print(expected));
             LOG_DEBUG(<< "actual   = " << core::CContainerPrinter::print(actual));
         }
-        BOOST_CHECK_EQUAL(core::CContainerPrinter::print(expected),
+        BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(expected),
                           core::CContainerPrinter::print(actual));
     }
 }

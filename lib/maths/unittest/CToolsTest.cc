@@ -291,10 +291,10 @@ double numericalIntervalExpectation(const DISTRIBUTION& distribution, double a, 
     double dx = (b - a) / 10.0;
     for (std::size_t i = 0u; i < 10; ++i, a += dx) {
         double fxi;
-        BOOST_TEST(maths::CIntegration::gaussLegendre<maths::CIntegration::OrderFive>(
+        BOOST_TEST_REQUIRE(maths::CIntegration::gaussLegendre<maths::CIntegration::OrderFive>(
             fx, a, a + dx, fxi));
         double xfxi;
-        BOOST_TEST(maths::CIntegration::gaussLegendre<maths::CIntegration::OrderFive>(
+        BOOST_TEST_REQUIRE(maths::CIntegration::gaussLegendre<maths::CIntegration::OrderFive>(
             xfx, a, a + dx, xfxi));
         numerator += xfxi;
         denominator += fxi;
@@ -369,23 +369,23 @@ BOOST_AUTO_TEST_CASE(testProbabilityOfLessLikelySample) {
     p1 = numericalProbabilityOfLessLikelySample(normal, -1.0);
     p2 = probabilityOfLessLikelySample(normal, -1.0, tail);
     LOG_DEBUG(<< "p1 = " << p1 << ", p2 = " << p2);
-    BOOST_CHECK_CLOSE_ABSOLUTE(p1, p2, 0.01 * std::max(p1, p2));
-    BOOST_CHECK_EQUAL(maths_t::E_LeftTail, tail);
+    BOOST_REQUIRE_CLOSE_ABSOLUTE(p1, p2, 0.01 * std::max(p1, p2));
+    BOOST_REQUIRE_EQUAL(maths_t::E_LeftTail, tail);
 
     m = adapters::stationaryPoint(normal).first;
     tail = maths_t::E_UndeterminedTail;
     p1 = 1.0;
     p2 = probabilityOfLessLikelySample(normal, m, tail);
     LOG_DEBUG(<< "p1 = " << p1 << ", p2 = " << p2);
-    BOOST_CHECK_EQUAL(p1, p2);
-    BOOST_CHECK_EQUAL(maths_t::E_MixedOrNeitherTail, tail);
+    BOOST_REQUIRE_EQUAL(p1, p2);
+    BOOST_REQUIRE_EQUAL(maths_t::E_MixedOrNeitherTail, tail);
 
     tail = maths_t::E_UndeterminedTail;
     p1 = numericalProbabilityOfLessLikelySample(normal, 8.0);
     p2 = probabilityOfLessLikelySample(normal, 8.0, tail);
     LOG_DEBUG(<< "p1 = " << p1 << ", p2 = " << p2);
-    BOOST_CHECK_CLOSE_ABSOLUTE(p1, p2, 0.01 * std::max(p1, p2));
-    BOOST_CHECK_EQUAL(maths_t::E_RightTail, tail);
+    BOOST_REQUIRE_CLOSE_ABSOLUTE(p1, p2, 0.01 * std::max(p1, p2));
+    BOOST_REQUIRE_EQUAL(maths_t::E_RightTail, tail);
 
     LOG_DEBUG(<< "******** student's t ********");
 
@@ -395,23 +395,23 @@ BOOST_AUTO_TEST_CASE(testProbabilityOfLessLikelySample) {
     p1 = numericalProbabilityOfLessLikelySample(students, -4.0);
     p2 = probabilityOfLessLikelySample(students, -4.0, tail);
     LOG_DEBUG(<< "p1 = " << p1 << ", p2 = " << p2);
-    BOOST_CHECK_CLOSE_ABSOLUTE(p1, p2, 0.01 * std::max(p1, p2));
-    BOOST_CHECK_EQUAL(maths_t::E_LeftTail, tail);
+    BOOST_REQUIRE_CLOSE_ABSOLUTE(p1, p2, 0.01 * std::max(p1, p2));
+    BOOST_REQUIRE_EQUAL(maths_t::E_LeftTail, tail);
 
     m = adapters::stationaryPoint(students).first;
     tail = maths_t::E_UndeterminedTail;
     p1 = 1.0;
     p2 = probabilityOfLessLikelySample(students, m, tail);
     LOG_DEBUG(<< "p1 = " << p1 << ", p2 = " << p2);
-    BOOST_CHECK_EQUAL(p1, p2);
-    BOOST_CHECK_EQUAL(maths_t::E_MixedOrNeitherTail, tail);
+    BOOST_REQUIRE_EQUAL(p1, p2);
+    BOOST_REQUIRE_EQUAL(maths_t::E_MixedOrNeitherTail, tail);
 
     tail = maths_t::E_UndeterminedTail;
     p1 = numericalProbabilityOfLessLikelySample(students, 3.0);
     p2 = probabilityOfLessLikelySample(students, 3.0, tail);
     LOG_DEBUG(<< "p1 = " << p1 << ", p2 = " << p2);
-    BOOST_CHECK_CLOSE_ABSOLUTE(p1, p2, 0.01 * std::max(p1, p2));
-    BOOST_CHECK_EQUAL(maths_t::E_RightTail, tail);
+    BOOST_REQUIRE_CLOSE_ABSOLUTE(p1, p2, 0.01 * std::max(p1, p2));
+    BOOST_REQUIRE_EQUAL(maths_t::E_RightTail, tail);
 
     LOG_DEBUG(<< "******** negative binomial ********");
 
@@ -437,17 +437,17 @@ BOOST_AUTO_TEST_CASE(testProbabilityOfLessLikelySample) {
                              CTools::safePdf(negativeBinomial, x);
                         p2 = probabilityOfLessLikelySample(negativeBinomial, x, tail);
                         LOG_DEBUG(<< "x = " << x << ", p1 = " << p1 << ", p2 = " << p2);
-                        BOOST_CHECK_CLOSE_ABSOLUTE(p1, p2, 1e-3 * std::max(p1, p2));
-                        BOOST_CHECK_EQUAL(maths_t::E_RightTail, tail);
+                        BOOST_REQUIRE_CLOSE_ABSOLUTE(p1, p2, 1e-3 * std::max(p1, p2));
+                        BOOST_REQUIRE_EQUAL(maths_t::E_RightTail, tail);
                     }
                     continue;
                 }
 
                 double m1 = boost::math::mode(negativeBinomial);
 
-                BOOST_CHECK_EQUAL(
+                BOOST_REQUIRE_EQUAL(
                     1.0, probabilityOfLessLikelySample(negativeBinomial, m1, tail));
-                BOOST_CHECK_EQUAL(maths_t::E_MixedOrNeitherTail, tail);
+                BOOST_REQUIRE_EQUAL(maths_t::E_MixedOrNeitherTail, tail);
 
                 double offset = m1;
                 for (int l = 0; l < 5; ++l) {
@@ -460,24 +460,24 @@ BOOST_AUTO_TEST_CASE(testProbabilityOfLessLikelySample) {
                     LOG_DEBUG(<< "x = " << x << ", p1 = " << p1 << ", p2 = " << p2
                               << ", log(p1) = " << std::log(p1)
                               << ", log(p2) = " << std::log(p2));
-                    BOOST_TEST(std::fabs(p1 - p2) <= 0.02 * std::max(p1, p2) ||
+                    BOOST_TEST_REQUIRE(std::fabs(p1 - p2) <= 0.02 * std::max(p1, p2) ||
                                std::fabs(std::log(p1) - std::log(p2)) <=
                                    0.02 * std::fabs(std::min(std::log(p1), std::log(p2))));
                     if (offset > 0.0)
-                        BOOST_CHECK_EQUAL(maths_t::E_LeftTail, tail);
+                        BOOST_REQUIRE_EQUAL(maths_t::E_LeftTail, tail);
                     if (offset == 0.0)
-                        BOOST_CHECK_EQUAL(maths_t::E_MixedOrNeitherTail, tail);
+                        BOOST_REQUIRE_EQUAL(maths_t::E_MixedOrNeitherTail, tail);
 
                     x = std::ceil(m1 + offset);
                     tail = maths_t::E_UndeterminedTail;
                     p1 = numericalProbabilityOfLessLikelySample(negativeBinomial, x);
                     p2 = probabilityOfLessLikelySample(negativeBinomial, x, tail);
                     LOG_DEBUG(<< "x = " << x << ", p1 = " << p1 << ", p2 = " << p2);
-                    BOOST_CHECK_CLOSE_ABSOLUTE(p1, p2, 0.02 * std::max(p1, p2));
+                    BOOST_REQUIRE_CLOSE_ABSOLUTE(p1, p2, 0.02 * std::max(p1, p2));
                     if (offset > 0.0)
-                        BOOST_CHECK_EQUAL(maths_t::E_RightTail, tail);
+                        BOOST_REQUIRE_EQUAL(maths_t::E_RightTail, tail);
                     if (offset == 0.0)
-                        BOOST_CHECK_EQUAL(maths_t::E_MixedOrNeitherTail, tail);
+                        BOOST_REQUIRE_EQUAL(maths_t::E_MixedOrNeitherTail, tail);
                 }
 
                 double factor = 1.0;
@@ -491,13 +491,13 @@ BOOST_AUTO_TEST_CASE(testProbabilityOfLessLikelySample) {
                     LOG_DEBUG(<< "x = " << x << ", p1 = " << p1 << ", p2 = " << p2
                               << ", log(p1) = " << std::log(p1)
                               << ", log(p2) = " << std::log(p2));
-                    BOOST_TEST(std::fabs(p1 - p2) <= 0.01 * std::max(p1, p2) ||
+                    BOOST_TEST_REQUIRE(std::fabs(p1 - p2) <= 0.01 * std::max(p1, p2) ||
                                std::fabs(std::log(p1) - std::log(p2)) <=
                                    0.05 * std::fabs(std::min(std::log(p1), std::log(p2))));
                     if (x != m1)
-                        BOOST_CHECK_EQUAL(maths_t::E_LeftTail, tail);
+                        BOOST_REQUIRE_EQUAL(maths_t::E_LeftTail, tail);
                     if (x == m1)
-                        BOOST_CHECK_EQUAL(maths_t::E_MixedOrNeitherTail, tail);
+                        BOOST_REQUIRE_EQUAL(maths_t::E_MixedOrNeitherTail, tail);
 
                     x = std::ceil(m1 * factor);
                     tail = maths_t::E_UndeterminedTail;
@@ -506,13 +506,13 @@ BOOST_AUTO_TEST_CASE(testProbabilityOfLessLikelySample) {
                     LOG_DEBUG(<< "x = " << x << ", p1 = " << p1 << ", p2 = " << p2
                               << ", log(p1) = " << std::log(p1)
                               << ", log(p2) = " << std::log(p2));
-                    BOOST_TEST(std::fabs(p1 - p2) <= 0.01 * std::max(p1, p2) ||
+                    BOOST_TEST_REQUIRE(std::fabs(p1 - p2) <= 0.01 * std::max(p1, p2) ||
                                std::fabs(std::log(p1) - std::log(p2)) <=
                                    0.05 * std::fabs(std::min(std::log(p1), std::log(p2))));
                     if (x != m1)
-                        BOOST_CHECK_EQUAL(maths_t::E_RightTail, tail);
+                        BOOST_REQUIRE_EQUAL(maths_t::E_RightTail, tail);
                     if (x == m1)
-                        BOOST_CHECK_EQUAL(maths_t::E_MixedOrNeitherTail, tail);
+                        BOOST_REQUIRE_EQUAL(maths_t::E_MixedOrNeitherTail, tail);
                 }
             }
         }
@@ -529,23 +529,23 @@ BOOST_AUTO_TEST_CASE(testProbabilityOfLessLikelySample) {
     p1 = -std::log(numericalProbabilityOfLessLikelySample(logNormal, 0.3));
     p2 = -std::log(probabilityOfLessLikelySample(logNormal, 0.3, tail));
     LOG_DEBUG(<< "-log(p1) = " << p1 << ", -log(p2) = " << p2);
-    BOOST_CHECK_CLOSE_ABSOLUTE(p1, p2, 0.05 * std::max(p1, p2));
-    BOOST_CHECK_EQUAL(maths_t::E_LeftTail, tail);
+    BOOST_REQUIRE_CLOSE_ABSOLUTE(p1, p2, 0.05 * std::max(p1, p2));
+    BOOST_REQUIRE_EQUAL(maths_t::E_LeftTail, tail);
 
     m = adapters::stationaryPoint(logNormal).first;
     tail = maths_t::E_UndeterminedTail;
     p1 = 1.0;
     p2 = probabilityOfLessLikelySample(logNormal, m, tail);
     LOG_DEBUG(<< "p1 = " << p1 << ", p2 = " << p2);
-    BOOST_CHECK_EQUAL(p1, p2);
-    BOOST_CHECK_EQUAL(maths_t::E_MixedOrNeitherTail, tail);
+    BOOST_REQUIRE_EQUAL(p1, p2);
+    BOOST_REQUIRE_EQUAL(maths_t::E_MixedOrNeitherTail, tail);
 
     tail = maths_t::E_UndeterminedTail;
     p1 = -std::log(numericalProbabilityOfLessLikelySample(logNormal, 12.0));
     p2 = -std::log(probabilityOfLessLikelySample(logNormal, 12.0, tail));
     LOG_DEBUG(<< "-log(p1) = " << p1 << ", -log(p2) = " << p2);
-    BOOST_CHECK_CLOSE_ABSOLUTE(p1, p2, 0.01 * std::max(p1, p2));
-    BOOST_CHECK_EQUAL(maths_t::E_RightTail, tail);
+    BOOST_REQUIRE_CLOSE_ABSOLUTE(p1, p2, 0.01 * std::max(p1, p2));
+    BOOST_REQUIRE_EQUAL(maths_t::E_RightTail, tail);
 
     LOG_DEBUG(<< "******** log t ********");
 
@@ -572,9 +572,9 @@ BOOST_AUTO_TEST_CASE(testProbabilityOfLessLikelySample) {
                             p1 = cdfComplement(logt, x);
                             p2 = probabilityOfLessLikelySample(logt, x, tail);
                             LOG_DEBUG(<< "x = " << x << ", p1 = " << p1 << ", p2 = " << p2);
-                            BOOST_CHECK_CLOSE_ABSOLUTE(p1, p2, 1e-3 * std::max(p1, p2));
+                            BOOST_REQUIRE_CLOSE_ABSOLUTE(p1, p2, 1e-3 * std::max(p1, p2));
                         }
-                        BOOST_CHECK_EQUAL(maths_t::E_RightTail, tail);
+                        BOOST_REQUIRE_EQUAL(maths_t::E_RightTail, tail);
                         continue;
                     }
 
@@ -587,16 +587,16 @@ BOOST_AUTO_TEST_CASE(testProbabilityOfLessLikelySample) {
                         p1 = numericalProbabilityOfLessLikelySample(logt, x);
                         p2 = probabilityOfLessLikelySample(logt, x, tail);
                         LOG_DEBUG(<< "x = " << x << ", p1 = " << p1 << ", p2 = " << p2);
-                        BOOST_CHECK_CLOSE_ABSOLUTE(p1, p2, 0.02 * std::max(p1, p2));
-                        BOOST_CHECK_EQUAL(maths_t::E_LeftTail, tail);
+                        BOOST_REQUIRE_CLOSE_ABSOLUTE(p1, p2, 0.02 * std::max(p1, p2));
+                        BOOST_REQUIRE_EQUAL(maths_t::E_LeftTail, tail);
 
                         x = m1 + offset;
                         tail = maths_t::E_UndeterminedTail;
                         p1 = numericalProbabilityOfLessLikelySample(logt, x);
                         p2 = probabilityOfLessLikelySample(logt, x, tail);
                         LOG_DEBUG(<< "x = " << x << ", p1 = " << p1 << ", p2 = " << p2);
-                        BOOST_CHECK_CLOSE_ABSOLUTE(p1, p2, 0.02 * std::max(p1, p2));
-                        BOOST_CHECK_EQUAL(maths_t::E_RightTail, tail);
+                        BOOST_REQUIRE_CLOSE_ABSOLUTE(p1, p2, 0.02 * std::max(p1, p2));
+                        BOOST_REQUIRE_EQUAL(maths_t::E_RightTail, tail);
                     }
 
                     double factor = 1.0;
@@ -610,10 +610,10 @@ BOOST_AUTO_TEST_CASE(testProbabilityOfLessLikelySample) {
                         LOG_DEBUG(<< "x = " << x << ", p1 = " << p1 << ", p2 = " << p2
                                   << ", log(p1) = " << std::log(p1)
                                   << ", log(p2) = " << std::log(p2));
-                        BOOST_TEST(std::fabs(p1 - p2) <= 0.01 * std::max(p1, p2) ||
+                        BOOST_TEST_REQUIRE(std::fabs(p1 - p2) <= 0.01 * std::max(p1, p2) ||
                                    std::fabs(std::log(p1) - std::log(p2)) <=
                                        0.05 * std::fabs(std::min(std::log(p1), std::log(p2))));
-                        BOOST_CHECK_EQUAL(maths_t::E_LeftTail, tail);
+                        BOOST_REQUIRE_EQUAL(maths_t::E_LeftTail, tail);
 
                         x = m1 * factor;
                         tail = maths_t::E_UndeterminedTail;
@@ -623,10 +623,10 @@ BOOST_AUTO_TEST_CASE(testProbabilityOfLessLikelySample) {
                                   << ", log(p1) = " << std::log(p1)
                                   << ", log(p2) = " << std::log(p2));
 
-                        BOOST_TEST(std::fabs(p1 - p2) <= 0.01 * std::max(p1, p2) ||
+                        BOOST_TEST_REQUIRE(std::fabs(p1 - p2) <= 0.01 * std::max(p1, p2) ||
                                    std::fabs(std::log(p1) - std::log(p2)) <=
                                        0.05 * std::fabs(std::min(std::log(p1), std::log(p2))));
-                        BOOST_CHECK_EQUAL(maths_t::E_RightTail, tail);
+                        BOOST_REQUIRE_EQUAL(maths_t::E_RightTail, tail);
                     }
                 }
             }
@@ -654,8 +654,8 @@ BOOST_AUTO_TEST_CASE(testProbabilityOfLessLikelySample) {
                         p1 = CTools::safeCdfComplement(gamma, x);
                         p2 = probabilityOfLessLikelySample(gamma, x, tail);
                         LOG_DEBUG(<< "x = " << x << ", p1 = " << p1 << ", p2 = " << p2);
-                        BOOST_CHECK_CLOSE_ABSOLUTE(p1, p2, 1e-3 * std::max(p1, p2));
-                        BOOST_CHECK_EQUAL(maths_t::E_RightTail, tail);
+                        BOOST_REQUIRE_CLOSE_ABSOLUTE(p1, p2, 1e-3 * std::max(p1, p2));
+                        BOOST_REQUIRE_EQUAL(maths_t::E_RightTail, tail);
                     }
                     continue;
                 }
@@ -674,10 +674,10 @@ BOOST_AUTO_TEST_CASE(testProbabilityOfLessLikelySample) {
                     LOG_DEBUG(<< "x = " << x << ", p1 = " << p1 << ", p2 = " << p2
                               << ", log(p1) = " << std::log(p1)
                               << ", log(p2) = " << std::log(p2));
-                    BOOST_TEST(std::fabs(p1 - p2) <= 0.06 * std::max(p1, p2) ||
+                    BOOST_TEST_REQUIRE(std::fabs(p1 - p2) <= 0.06 * std::max(p1, p2) ||
                                std::fabs(std::log(p1) - std::log(p2)) <=
                                    0.01 * std::fabs(std::min(std::log(p1), std::log(p2))));
-                    BOOST_CHECK_EQUAL(maths_t::E_LeftTail, tail);
+                    BOOST_REQUIRE_EQUAL(maths_t::E_LeftTail, tail);
 
                     double y = (1.0 + offset) * m1;
                     tail = maths_t::E_UndeterminedTail;
@@ -686,10 +686,10 @@ BOOST_AUTO_TEST_CASE(testProbabilityOfLessLikelySample) {
                     LOG_DEBUG(<< "y = " << y << ", p1 = " << p1 << ", p2 = " << p2
                               << ", log(p1) = " << std::log(p1)
                               << ", log(p2) = " << std::log(p2));
-                    BOOST_TEST(std::fabs(p1 - p2) <= 0.06 * std::max(p1, p2) ||
+                    BOOST_TEST_REQUIRE(std::fabs(p1 - p2) <= 0.06 * std::max(p1, p2) ||
                                std::fabs(std::log(p1) - std::log(p2)) <=
                                    0.01 * std::fabs(std::min(std::log(p1), std::log(p2))));
-                    BOOST_CHECK_EQUAL(maths_t::E_RightTail, tail);
+                    BOOST_REQUIRE_EQUAL(maths_t::E_RightTail, tail);
                 }
 
                 double factor = 1.0;
@@ -703,10 +703,10 @@ BOOST_AUTO_TEST_CASE(testProbabilityOfLessLikelySample) {
                     LOG_DEBUG(<< "x = " << x << ", p1 = " << p1 << ", p2 = " << p2
                               << ", log(p1) = " << std::log(p1)
                               << ", log(p2) = " << std::log(p2));
-                    BOOST_TEST(std::fabs(p1 - p2) <= 0.1 * std::max(p1, p2) ||
+                    BOOST_TEST_REQUIRE(std::fabs(p1 - p2) <= 0.1 * std::max(p1, p2) ||
                                std::fabs(std::log(p1) - std::log(p2)) <=
                                    0.01 * std::fabs(std::min(std::log(p1), std::log(p2))));
-                    BOOST_CHECK_EQUAL(maths_t::E_LeftTail, tail);
+                    BOOST_REQUIRE_EQUAL(maths_t::E_LeftTail, tail);
 
                     double y = factor * m1;
                     tail = maths_t::E_UndeterminedTail;
@@ -715,10 +715,10 @@ BOOST_AUTO_TEST_CASE(testProbabilityOfLessLikelySample) {
                     LOG_DEBUG(<< "y = " << y << ", p1 = " << p1 << ", p2 = " << p2
                               << ", log(p1) = " << std::log(p1)
                               << ", log(p2) = " << std::log(p2));
-                    BOOST_TEST(std::fabs(p1 - p2) <= 0.1 * std::max(p1, p2) ||
+                    BOOST_TEST_REQUIRE(std::fabs(p1 - p2) <= 0.1 * std::max(p1, p2) ||
                                std::fabs(std::log(p1) - std::log(p2)) <=
                                    0.01 * std::fabs(std::min(std::log(p1), std::log(p2))));
-                    BOOST_CHECK_EQUAL(maths_t::E_RightTail, tail);
+                    BOOST_REQUIRE_EQUAL(maths_t::E_RightTail, tail);
                 }
             }
         }
@@ -746,8 +746,8 @@ BOOST_AUTO_TEST_CASE(testProbabilityOfLessLikelySample) {
                         p2 = probabilityOfLessLikelySample(beta, x, tail);
                         LOG_DEBUG(<< "x = " << x << ", f(x) = " << CTools::safePdf(beta, x)
                                   << ", p1 = " << p1 << ", p2 = " << p2);
-                        BOOST_CHECK_EQUAL(p1, p2);
-                        BOOST_CHECK_EQUAL(maths_t::E_MixedOrNeitherTail, tail);
+                        BOOST_REQUIRE_EQUAL(p1, p2);
+                        BOOST_REQUIRE_EQUAL(maths_t::E_MixedOrNeitherTail, tail);
                     }
                 } else if (alphas[i] <= 1.0 && betas[j] >= 1.0) {
                     // Monotone decreasing.
@@ -758,8 +758,8 @@ BOOST_AUTO_TEST_CASE(testProbabilityOfLessLikelySample) {
                         p2 = probabilityOfLessLikelySample(beta, x, tail);
                         LOG_DEBUG(<< "x = " << x << ", f(x) = " << CTools::safePdf(beta, x)
                                   << ", p1 = " << p1 << ", p2 = " << p2);
-                        BOOST_CHECK_CLOSE_ABSOLUTE(p1, p2, 1e-3 * std::max(p1, p2));
-                        BOOST_CHECK_EQUAL(maths_t::E_RightTail, tail);
+                        BOOST_REQUIRE_CLOSE_ABSOLUTE(p1, p2, 1e-3 * std::max(p1, p2));
+                        BOOST_REQUIRE_EQUAL(maths_t::E_RightTail, tail);
                     }
                 } else if (alphas[i] >= 1.0 && betas[j] <= 1.0) {
                     // Monotone increasing.
@@ -770,8 +770,8 @@ BOOST_AUTO_TEST_CASE(testProbabilityOfLessLikelySample) {
                         p2 = probabilityOfLessLikelySample(beta, x, tail);
                         LOG_DEBUG(<< "x = " << x << ", f(x) = " << CTools::safePdf(beta, x)
                                   << ", p1 = " << p1 << ", p2 = " << p2);
-                        BOOST_CHECK_CLOSE_ABSOLUTE(p1, p2, 1e-3 * std::max(p1, p2));
-                        BOOST_CHECK_EQUAL(maths_t::E_LeftTail, tail);
+                        BOOST_REQUIRE_CLOSE_ABSOLUTE(p1, p2, 1e-3 * std::max(p1, p2));
+                        BOOST_REQUIRE_EQUAL(maths_t::E_LeftTail, tail);
                     }
                 } else {
                     double stationaryPoint = adapters::stationaryPoint(beta).first;
@@ -789,13 +789,13 @@ BOOST_AUTO_TEST_CASE(testProbabilityOfLessLikelySample) {
                         LOG_DEBUG(<< "x- = " << xMinus << ", p1 = " << p1
                                   << ", p2 = " << p2 << ", log(p1) = " << log(p1)
                                   << ", log(p2) = " << std::log(p2));
-                        BOOST_TEST(std::fabs(p1 - p2) <= 0.05 * std::max(p1, p2) ||
+                        BOOST_TEST_REQUIRE(std::fabs(p1 - p2) <= 0.05 * std::max(p1, p2) ||
                                    std::fabs(std::log(p1) - std::log(p2)) <
                                        0.25 * std::fabs(std::min(std::log(p1), std::log(p2))));
                         if (maximum)
-                            BOOST_CHECK_EQUAL(maths_t::E_LeftTail, tail);
+                            BOOST_REQUIRE_EQUAL(maths_t::E_LeftTail, tail);
                         if (!maximum)
-                            BOOST_CHECK_EQUAL(maths_t::E_MixedOrNeitherTail, tail);
+                            BOOST_REQUIRE_EQUAL(maths_t::E_MixedOrNeitherTail, tail);
 
                         epsPlus /= 2.0;
                         double xPlus = stationaryPoint + epsPlus;
@@ -803,11 +803,11 @@ BOOST_AUTO_TEST_CASE(testProbabilityOfLessLikelySample) {
                         p1 = numericalProbabilityOfLessLikelySample(beta, xPlus);
                         p2 = probabilityOfLessLikelySample(beta, xPlus, tail);
                         LOG_DEBUG(<< "x+ = " << xPlus << ", p1 = " << p1 << ", p2 = " << p2);
-                        BOOST_CHECK_CLOSE_ABSOLUTE(p1, p2, 0.05 * std::max(p1, p2));
+                        BOOST_REQUIRE_CLOSE_ABSOLUTE(p1, p2, 0.05 * std::max(p1, p2));
                         if (maximum)
-                            BOOST_CHECK_EQUAL(maths_t::E_RightTail, tail);
+                            BOOST_REQUIRE_EQUAL(maths_t::E_RightTail, tail);
                         if (!maximum)
-                            BOOST_CHECK_EQUAL(maths_t::E_MixedOrNeitherTail, tail);
+                            BOOST_REQUIRE_EQUAL(maths_t::E_MixedOrNeitherTail, tail);
                     }
                 }
             }
@@ -822,8 +822,8 @@ BOOST_AUTO_TEST_CASE(testProbabilityOfLessLikelySample) {
         p1 = 1.0;
         p2 = probabilityOfLessLikelySample(beta, mode, tail);
         LOG_DEBUG(<< "p1 = " << p1 << ", p2 = " << p2);
-        BOOST_CHECK_EQUAL(p1, p2);
-        BOOST_CHECK_EQUAL(maths_t::E_MixedOrNeitherTail, tail);
+        BOOST_REQUIRE_EQUAL(p1, p2);
+        BOOST_REQUIRE_EQUAL(maths_t::E_MixedOrNeitherTail, tail);
     }
     {
         // x at minimum
@@ -833,8 +833,8 @@ BOOST_AUTO_TEST_CASE(testProbabilityOfLessLikelySample) {
         p1 = 0.0;
         p2 = probabilityOfLessLikelySample(beta, mode, tail);
         LOG_DEBUG(<< "p1 = " << p1 << ", p2 = " << p2);
-        BOOST_CHECK_EQUAL(p1, p2);
-        BOOST_CHECK_EQUAL(maths_t::E_MixedOrNeitherTail, tail);
+        BOOST_REQUIRE_EQUAL(p1, p2);
+        BOOST_REQUIRE_EQUAL(maths_t::E_MixedOrNeitherTail, tail);
     }
 }
 
@@ -855,23 +855,23 @@ BOOST_AUTO_TEST_CASE(testIntervalExpectation) {
         expected = numericalIntervalExpectation(normal, 0.0, 12.0);
         actual = expectation(normal, 0.0, 12.0);
         LOG_DEBUG(<< "expected = " << expected << ", actual = " << actual);
-        BOOST_CHECK_CLOSE_ABSOLUTE(expected, actual, 1e-5 * expected);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(expected, actual, 1e-5 * expected);
 
         expected = numericalIntervalExpectation(normal, -40.0, 13.0);
         actual = expectation(normal, boost::numeric::bounds<double>::lowest(), 13.0);
         LOG_DEBUG(<< "expected = " << expected << ", actual = " << actual);
-        BOOST_CHECK_CLOSE_ABSOLUTE(expected, actual, 1e-5 * expected);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(expected, actual, 1e-5 * expected);
 
         expected = 7.0;
         actual = expectation(normal, 7.0, 7.0);
         LOG_DEBUG(<< "expected = " << expected << ", actual = " << actual);
-        BOOST_CHECK_CLOSE_ABSOLUTE(expected, actual, 1e-12 * expected);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(expected, actual, 1e-12 * expected);
 
         expected = 8.1;
         actual = expectation(normal, 8.1,
                              8.1 * (1.0 + std::numeric_limits<double>::epsilon()));
         LOG_DEBUG(<< "expected = " << expected << ", actual = " << actual);
-        BOOST_CHECK_CLOSE_ABSOLUTE(expected, actual, 1e-12 * expected);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(expected, actual, 1e-12 * expected);
     }
 
     LOG_DEBUG(<< "*** Log-Normal ***");
@@ -880,23 +880,23 @@ BOOST_AUTO_TEST_CASE(testIntervalExpectation) {
         expected = numericalIntervalExpectation(logNormal, 0.5, 7.0);
         actual = expectation(logNormal, 0.5, 7.0);
         LOG_DEBUG(<< "expected = " << expected << ", actual = " << actual);
-        BOOST_CHECK_CLOSE_ABSOLUTE(expected, actual, 1e-5 * expected);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(expected, actual, 1e-5 * expected);
 
         expected = numericalIntervalExpectation(logNormal, 0.0, 9.0);
         actual = expectation(logNormal, boost::numeric::bounds<double>::lowest(), 9.0);
         LOG_DEBUG(<< "expected = " << expected << ", actual = " << actual);
-        BOOST_CHECK_CLOSE_ABSOLUTE(expected, actual, 1e-5 * expected);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(expected, actual, 1e-5 * expected);
 
         expected = 6.0;
         actual = expectation(logNormal, 6.0, 6.0);
         LOG_DEBUG(<< "expected = " << expected << ", actual = " << actual);
-        BOOST_CHECK_CLOSE_ABSOLUTE(expected, actual, 1e-12 * expected);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(expected, actual, 1e-12 * expected);
 
         expected = 8.1;
         actual = expectation(logNormal, 8.1,
                              8.1 * (1.0 + std::numeric_limits<double>::epsilon()));
         LOG_DEBUG(<< "expected = " << expected << ", actual = " << actual);
-        BOOST_CHECK_CLOSE_ABSOLUTE(expected, actual, 1e-12 * expected);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(expected, actual, 1e-12 * expected);
     }
 
     LOG_DEBUG(<< "*** Gamma ***");
@@ -905,23 +905,23 @@ BOOST_AUTO_TEST_CASE(testIntervalExpectation) {
         expected = numericalIntervalExpectation(gamma, 0.5, 4.0);
         actual = expectation(gamma, 0.5, 4.0);
         LOG_DEBUG(<< "expected = " << expected << ", actual = " << actual);
-        BOOST_CHECK_CLOSE_ABSOLUTE(expected, actual, 1e-5 * expected);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(expected, actual, 1e-5 * expected);
 
         expected = numericalIntervalExpectation(gamma, 0.0, 5.0);
         actual = expectation(gamma, boost::numeric::bounds<double>::lowest(), 5.0);
         LOG_DEBUG(<< "expected = " << expected << ", actual = " << actual);
-        BOOST_CHECK_CLOSE_ABSOLUTE(expected, actual, 1e-5 * expected);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(expected, actual, 1e-5 * expected);
 
         expected = 6.0;
         actual = expectation(gamma, 6.0, 6.0);
         LOG_DEBUG(<< "expected = " << expected << ", actual = " << actual);
-        BOOST_CHECK_CLOSE_ABSOLUTE(expected, actual, 1e-12 * expected);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(expected, actual, 1e-12 * expected);
 
         expected = 8.1;
         actual = expectation(gamma, 8.1,
                              8.1 * (1.0 + std::numeric_limits<double>::epsilon()));
         LOG_DEBUG(<< "expected = " << expected << ", actual = " << actual);
-        BOOST_CHECK_CLOSE_ABSOLUTE(expected, actual, 1e-12 * expected);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(expected, actual, 1e-12 * expected);
     }
 }
 
@@ -981,10 +981,10 @@ BOOST_AUTO_TEST_CASE(testMixtureProbabilityOfLessLikelySample) {
                 maths::CEqualWithTolerance<double> equal(
                     maths::CToleranceTypes::E_AbsoluteTolerance, 0.5);
                 double xleft;
-                BOOST_TEST(calculator.leftTail(logPdf, 10, equal, xleft));
+                BOOST_TEST_REQUIRE(calculator.leftTail(logPdf, 10, equal, xleft));
                 pTails += maths::cdf(mixture, xleft);
                 double xright;
-                BOOST_TEST(calculator.rightTail(logPdf, 10, equal, xright));
+                BOOST_TEST_REQUIRE(calculator.rightTail(logPdf, 10, equal, xright));
                 pTails += maths::cdfComplement(mixture, xright);
 
                 double p = pTails + calculator.calculate(logPdf, pTails);
@@ -1005,14 +1005,14 @@ BOOST_AUTO_TEST_CASE(testMixtureProbabilityOfLessLikelySample) {
                               << ", P(x) = " << p << ", expected P(x) = " << pExpected);
                 }
 
-                BOOST_TEST(pExpected > 0.0);
+                BOOST_TEST_REQUIRE(pExpected > 0.0);
                 if (pExpected > 0.1) {
-                    BOOST_CHECK_CLOSE_ABSOLUTE(pExpected, p, 0.12);
+                    BOOST_REQUIRE_CLOSE_ABSOLUTE(pExpected, p, 0.12);
                 } else if (pExpected > 1e-10) {
-                    BOOST_CHECK_CLOSE_ABSOLUTE(std::log(pExpected), std::log(p),
+                    BOOST_REQUIRE_CLOSE_ABSOLUTE(std::log(pExpected), std::log(p),
                                                0.15 * std::fabs(std::log(pExpected)));
                 } else {
-                    BOOST_CHECK_CLOSE_ABSOLUTE(std::log(pExpected), std::log(p),
+                    BOOST_REQUIRE_CLOSE_ABSOLUTE(std::log(pExpected), std::log(p),
                                                0.015 * std::fabs(std::log(pExpected)));
                 }
                 meanError.add(std::fabs(p - pExpected));
@@ -1024,8 +1024,8 @@ BOOST_AUTO_TEST_CASE(testMixtureProbabilityOfLessLikelySample) {
 
         LOG_DEBUG(<< "meanError    = " << maths::CBasicStatistics::mean(meanError));
         LOG_DEBUG(<< "meanLogError = " << maths::CBasicStatistics::mean(meanLogError));
-        BOOST_TEST(maths::CBasicStatistics::mean(meanError) < 0.005);
-        BOOST_TEST(maths::CBasicStatistics::mean(meanLogError) < 0.03);
+        BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(meanError) < 0.005);
+        BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(meanLogError) < 0.03);
     }
 }
 
@@ -1036,7 +1036,7 @@ BOOST_AUTO_TEST_CASE(testAnomalyScore) {
     for (std::size_t i = 0u; i < 305; ++i, p *= 0.1) {
         double anomalyScore = CTools::anomalyScore(p);
         LOG_DEBUG(<< "p = " << p << ", anomalyScore = " << anomalyScore);
-        BOOST_CHECK_CLOSE_ABSOLUTE(p, CTools::inverseAnomalyScore(anomalyScore), 1e-3 * p);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(p, CTools::inverseAnomalyScore(anomalyScore), 1e-3 * p);
     }
 }
 
@@ -1049,12 +1049,12 @@ BOOST_AUTO_TEST_CASE(testSpread) {
         TDoubleVec points(std::begin(raw), std::end(raw));
         std::string expected = core::CContainerPrinter::print(points);
         CTools::spread(0.0, period, separation, points);
-        BOOST_CHECK_EQUAL(expected, core::CContainerPrinter::print(points));
+        BOOST_REQUIRE_EQUAL(expected, core::CContainerPrinter::print(points));
         separation = 200.0;
         expected = "[0, 200, 4500, 9000, 25700, 43100, 73000, 74000, 84300]";
         CTools::spread(0.0, period, separation, points);
         LOG_DEBUG(<< "spread = " << core::CContainerPrinter::print(points));
-        BOOST_CHECK_EQUAL(expected, core::CContainerPrinter::print(points));
+        BOOST_REQUIRE_EQUAL(expected, core::CContainerPrinter::print(points));
     }
     {
         double raw[] = {150.0,   170.0,   4500.0,  4650.0,  4700.0,  4800.0,
@@ -1064,7 +1064,7 @@ BOOST_AUTO_TEST_CASE(testSpread) {
         TDoubleVec points(std::begin(raw), std::end(raw));
         CTools::spread(0.0, period, separation, points);
         LOG_DEBUG(<< "spread = " << core::CContainerPrinter::print(points));
-        BOOST_CHECK_EQUAL(expected, core::CContainerPrinter::print(points));
+        BOOST_REQUIRE_EQUAL(expected, core::CContainerPrinter::print(points));
     }
     {
         CRandomNumbers rng;
@@ -1082,7 +1082,7 @@ BOOST_AUTO_TEST_CASE(testSpread) {
                            (samples[0] - eps - origSamples[0]) *
                                (samples[0] - eps - origSamples[0]);
             for (std::size_t j = 1u; j < samples.size(); ++j) {
-                BOOST_TEST(samples[j] - samples[j - 1] >= 150.0 - eps);
+                BOOST_TEST_REQUIRE(samples[j] - samples[j - 1] >= 150.0 - eps);
                 dcost += (samples[j] + eps - origSamples[j]) *
                              (samples[j] + eps - origSamples[j]) -
                          (samples[j] - eps - origSamples[j]) *
@@ -1090,7 +1090,7 @@ BOOST_AUTO_TEST_CASE(testSpread) {
             }
             dcost /= 2.0 * eps;
             LOG_DEBUG(<< "d(cost)/dx = " << dcost);
-            BOOST_TEST(std::fabs(dcost) < 2e-6);
+            BOOST_TEST_REQUIRE(std::fabs(dcost) < 2e-6);
         }
     }
 }
@@ -1107,7 +1107,7 @@ BOOST_AUTO_TEST_CASE(testFastLog) {
                 LOG_DEBUG(<< "x = " << std::exp(x[i]) << ", log(x) = " << x[i] << ", fast log(x) = "
                           << maths::CTools::fastLog(std::exp(x[i])));
             }
-            BOOST_CHECK_CLOSE_ABSOLUTE(x[i], maths::CTools::fastLog(std::exp(x[i])), 5e-5);
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(x[i], maths::CTools::fastLog(std::exp(x[i])), 5e-5);
         }
     }
     // Mid
@@ -1119,7 +1119,7 @@ BOOST_AUTO_TEST_CASE(testFastLog) {
                 LOG_DEBUG(<< "x = " << x[i] << ", log(x) = " << std::log(x[i])
                           << ", fast log(x) = " << maths::CTools::fastLog(x[i]));
             }
-            BOOST_CHECK_CLOSE_ABSOLUTE(std::log(x[i]), maths::CTools::fastLog(x[i]), 5e-5);
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(std::log(x[i]), maths::CTools::fastLog(x[i]), 5e-5);
         }
     }
     // Large
@@ -1131,7 +1131,7 @@ BOOST_AUTO_TEST_CASE(testFastLog) {
                 LOG_DEBUG(<< "x = " << std::exp(x[i]) << ", log(x) = " << x[i] << ", fast log(x) = "
                           << maths::CTools::fastLog(std::exp(x[i])));
             }
-            BOOST_CHECK_CLOSE_ABSOLUTE(x[i], maths::CTools::fastLog(std::exp(x[i])), 5e-5);
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(x[i], maths::CTools::fastLog(std::exp(x[i])), 5e-5);
         }
     }
 }
@@ -1154,7 +1154,7 @@ BOOST_AUTO_TEST_CASE(testMiscellaneous) {
         maths::CVectorNx1<double, 5> actual = maths::CTools::truncate(x, a, b);
 
         LOG_DEBUG(<< "truncated = " << actual);
-        BOOST_CHECK_EQUAL(expect, actual);
+        BOOST_REQUIRE_EQUAL(expect, actual);
 
         a = a + maths::CVectorNx1<double, 5>(0.5);
         b = b - maths::CVectorNx1<double, 5>(0.5);
@@ -1176,29 +1176,29 @@ BOOST_AUTO_TEST_CASE(testLgamma) {
     for (std::size_t i = 0u; i < testData.size(); ++i) {
         double actual;
         double expected = expectedData[i];
-        BOOST_TEST(maths::CTools::lgamma(testData[i], actual, true));
-        BOOST_CHECK_CLOSE_ABSOLUTE(expected, actual, 1e-5 * expected);
+        BOOST_TEST_REQUIRE(maths::CTools::lgamma(testData[i], actual, true));
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(expected, actual, 1e-5 * expected);
     }
 
     double result;
-    BOOST_TEST(maths::CTools::lgamma(0, result, false));
-    BOOST_CHECK_EQUAL(result, std::numeric_limits<double>::infinity());
+    BOOST_TEST_REQUIRE(maths::CTools::lgamma(0, result, false));
+    BOOST_REQUIRE_EQUAL(result, std::numeric_limits<double>::infinity());
 
-    BOOST_TEST((maths::CTools::lgamma(0, result, true) == false));
-    BOOST_CHECK_EQUAL(result, std::numeric_limits<double>::infinity());
+    BOOST_TEST_REQUIRE((maths::CTools::lgamma(0, result, true) == false));
+    BOOST_REQUIRE_EQUAL(result, std::numeric_limits<double>::infinity());
 
-    BOOST_TEST((maths::CTools::lgamma(-1, result, false)));
-    BOOST_CHECK_EQUAL(result, std::numeric_limits<double>::infinity());
+    BOOST_TEST_REQUIRE((maths::CTools::lgamma(-1, result, false)));
+    BOOST_REQUIRE_EQUAL(result, std::numeric_limits<double>::infinity());
 
-    BOOST_TEST((maths::CTools::lgamma(-1, result, true) == false));
-    BOOST_CHECK_EQUAL(result, std::numeric_limits<double>::infinity());
+    BOOST_TEST_REQUIRE((maths::CTools::lgamma(-1, result, true) == false));
+    BOOST_REQUIRE_EQUAL(result, std::numeric_limits<double>::infinity());
 
-    BOOST_TEST((maths::CTools::lgamma(std::numeric_limits<double>::max() - 1, result, false)));
-    BOOST_CHECK_EQUAL(result, std::numeric_limits<double>::infinity());
+    BOOST_TEST_REQUIRE((maths::CTools::lgamma(std::numeric_limits<double>::max() - 1, result, false)));
+    BOOST_REQUIRE_EQUAL(result, std::numeric_limits<double>::infinity());
 
-    BOOST_TEST((maths::CTools::lgamma(std::numeric_limits<double>::max() - 1,
+    BOOST_TEST_REQUIRE((maths::CTools::lgamma(std::numeric_limits<double>::max() - 1,
                                       result, true) == false));
-    BOOST_CHECK_EQUAL(result, std::numeric_limits<double>::infinity());
+    BOOST_REQUIRE_EQUAL(result, std::numeric_limits<double>::infinity());
 }
 
 BOOST_AUTO_TEST_SUITE_END()

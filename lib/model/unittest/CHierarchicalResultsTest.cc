@@ -105,7 +105,7 @@ public:
         using TNodeCPtrSetCItr = TNodeCPtrSet::const_iterator;
 
         LOG_DEBUG(<< "# layers = " << m_Layers.size());
-        BOOST_CHECK_EQUAL(expectedLayers, m_Layers.size());
+        BOOST_REQUIRE_EQUAL(expectedLayers, m_Layers.size());
 
         for (std::size_t i = 0u; i < m_Layers.size(); ++i) {
             LOG_DEBUG(<< "Checking layer " << core::CContainerPrinter::print(m_Layers[i]));
@@ -114,7 +114,7 @@ public:
                 if ((*itr)->s_Parent) {
                     std::size_t p = this->layer((*itr)->s_Parent);
                     LOG_DEBUG(<< "layer = " << i << ", parent layer = " << p);
-                    BOOST_TEST(p > i);
+                    BOOST_TEST_REQUIRE(p > i);
                 }
             }
         }
@@ -130,7 +130,7 @@ private:
         }
 
         LOG_ERROR(<< "Couldn't find node " << node->print());
-        BOOST_TEST(false);
+        BOOST_TEST_REQUIRE(false);
 
         return 0;
     }
@@ -152,8 +152,8 @@ public:
                        bool /*pivot*/) {
         LOG_DEBUG(<< "Visiting " << node.print());
         for (std::size_t i = node.s_Children.size(); i > 0; --i) {
-            BOOST_TEST(!m_Children.empty());
-            BOOST_CHECK_EQUAL(m_Children.back(), node.s_Children[i - 1]);
+            BOOST_TEST_REQUIRE(!m_Children.empty());
+            BOOST_REQUIRE_EQUAL(m_Children.back(), node.s_Children[i - 1]);
             m_Children.pop_back();
         }
         m_Children.push_back(&node);
@@ -239,7 +239,7 @@ public:
                        bool /*pivot*/) {
         LOG_DEBUG(<< node.s_Spec.print() << " score = " << node.s_RawAnomalyScore << ", expected score = "
                   << maths::CTools::anomalyScore(node.probability()));
-        BOOST_CHECK_CLOSE_ABSOLUTE(maths::CTools::anomalyScore(node.probability()),
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(maths::CTools::anomalyScore(node.probability()),
                                    node.s_RawAnomalyScore, 1e-10);
     }
 };
@@ -258,20 +258,20 @@ public:
         if (!this->isLeaf(node)) {
             bool willWriteAChild(false);
             for (size_t i = 0; i < node.s_Children.size(); ++i) {
-                BOOST_TEST(node.s_Children[i] != nullptr);
+                BOOST_TEST_REQUIRE(node.s_Children[i] != nullptr);
                 willWriteAChild = this->shouldWriteResult(
                     m_Limits, results, *node.s_Children[i], pivot);
                 if (willWriteAChild) {
                     break;
                 }
             }
-            BOOST_TEST(willWriteAChild);
+            BOOST_TEST_REQUIRE(willWriteAChild);
         }
 
         if (!this->isRoot(node)) {
-            BOOST_TEST(node.s_Parent != nullptr);
+            BOOST_TEST_REQUIRE(node.s_Parent != nullptr);
             if (isTypeForWhichWeWriteResults(*node.s_Parent, pivot)) {
-                BOOST_TEST(this->shouldWriteResult(m_Limits, results, *node.s_Parent, pivot));
+                BOOST_TEST_REQUIRE(this->shouldWriteResult(m_Limits, results, *node.s_Parent, pivot));
             }
         }
     }
@@ -345,7 +345,7 @@ public:
                         probabilities.s_Probabilities.find(detectors[k])->second);
                     LOG_DEBUG(<< detectors[j] << " vs " << detectors[k]
                               << ": significance = " << significance);
-                    BOOST_TEST(significance > minimumSignificance);
+                    BOOST_TEST_REQUIRE(significance > minimumSignificance);
                     meanSignificance.add(std::log(significance));
                 }
             }
@@ -602,7 +602,7 @@ BOOST_AUTO_TEST_CASE(testBuildHierarchy) {
         CPrinter printer;
         results.postorderDepthFirst(printer);
         LOG_DEBUG(<< "\nby:\n" << printer.result());
-        BOOST_CHECK_EQUAL(std::string("'false/false/mean/////': 1, 0"), printer.result());
+        BOOST_REQUIRE_EQUAL(std::string("'false/false/mean/////': 1, 0"), printer.result());
     }
     {
         model::CHierarchicalResults results;
@@ -614,7 +614,7 @@ BOOST_AUTO_TEST_CASE(testBuildHierarchy) {
         CPrinter printer;
         results.postorderDepthFirst(printer);
         LOG_DEBUG(<< "\nby:\n" << printer.result());
-        BOOST_CHECK_EQUAL(std::string("'false/false////PF1//': 1, 0\n"
+        BOOST_REQUIRE_EQUAL(std::string("'false/false////PF1//': 1, 0\n"
                                       "  'false/false/mean///PF1/p12/': 0.03, 0\n"
                                       "  'false/false/mean///PF1/p11/': 0.01, 0"),
                           printer.result());
@@ -633,7 +633,7 @@ BOOST_AUTO_TEST_CASE(testBuildHierarchy) {
         CPrinter printer;
         results.postorderDepthFirst(printer);
         LOG_DEBUG(<< "\nover:\n" << printer.result());
-        BOOST_CHECK_EQUAL(std::string("'false/true//////': 1, 0\n"
+        BOOST_REQUIRE_EQUAL(std::string("'false/true//////': 1, 0\n"
                                       "  'false/false/mean///PF2/p22/': 0.03, 0\n"
                                       "  'false/true////PF1//': 1, 0\n"
                                       "    'false/true/mean///PF1/p12/': 0.03, 0\n"
@@ -655,7 +655,7 @@ BOOST_AUTO_TEST_CASE(testBuildHierarchy) {
         CPrinter printer;
         results.postorderDepthFirst(printer);
         LOG_DEBUG(<< "\npartition:\n" << printer.result());
-        BOOST_CHECK_EQUAL(std::string("'false/false//PNF1////': 1, 0\n"
+        BOOST_REQUIRE_EQUAL(std::string("'false/false//PNF1////': 1, 0\n"
                                       "  'false/false/mean/PNF1/pn13///': 0.05, 0\n"
                                       "  'false/false/mean/PNF1/pn12///': 0.01, 0\n"
                                       "  'false/false/mean/PNF1/pn11///': 0.01, 0"),
@@ -692,7 +692,7 @@ BOOST_AUTO_TEST_CASE(testBuildHierarchy) {
         CPrinter printer;
         results.postorderDepthFirst(printer);
         LOG_DEBUG(<< "\ncomplex:\n" << printer.result());
-        BOOST_CHECK_EQUAL(
+        BOOST_REQUIRE_EQUAL(
             std::string("'false/true//////': 1, 0\n"
                         "  'false/true//PNF2////': 1, 0\n"
                         "    'false/true/mean/PNF2/pn23///': 0.05, 0\n"
@@ -741,39 +741,39 @@ BOOST_AUTO_TEST_CASE(testBuildHierarchyGivenPartitionsWithSinglePersonFieldValue
 
     CNodeExtractor extract;
     results.bottomUpBreadthFirst(extract);
-    BOOST_CHECK_EQUAL(std::size_t(1), extract.partitionedNodes().size());
-    BOOST_CHECK_EQUAL(std::size_t(2), extract.partitionNodes().size());
-    BOOST_CHECK_EQUAL(std::size_t(2), extract.personNodes().size());
+    BOOST_REQUIRE_EQUAL(std::size_t(1), extract.partitionedNodes().size());
+    BOOST_REQUIRE_EQUAL(std::size_t(2), extract.partitionNodes().size());
+    BOOST_REQUIRE_EQUAL(std::size_t(2), extract.personNodes().size());
 
     // partitioned node
-    BOOST_CHECK_EQUAL(partition, *extract.partitionedNodes()[0]->s_Spec.s_PartitionFieldName);
-    BOOST_CHECK_EQUAL(EMPTY_STRING, *extract.partitionedNodes()[0]->s_Spec.s_PartitionFieldValue);
-    BOOST_CHECK_EQUAL(EMPTY_STRING, *extract.partitionedNodes()[0]->s_Spec.s_PersonFieldName);
-    BOOST_CHECK_EQUAL(EMPTY_STRING, *extract.partitionedNodes()[0]->s_Spec.s_PersonFieldValue);
+    BOOST_REQUIRE_EQUAL(partition, *extract.partitionedNodes()[0]->s_Spec.s_PartitionFieldName);
+    BOOST_REQUIRE_EQUAL(EMPTY_STRING, *extract.partitionedNodes()[0]->s_Spec.s_PartitionFieldValue);
+    BOOST_REQUIRE_EQUAL(EMPTY_STRING, *extract.partitionedNodes()[0]->s_Spec.s_PersonFieldName);
+    BOOST_REQUIRE_EQUAL(EMPTY_STRING, *extract.partitionedNodes()[0]->s_Spec.s_PersonFieldValue);
 
     // partition nodes
-    BOOST_CHECK_EQUAL(partition, *extract.partitionNodes()[0]->s_Spec.s_PartitionFieldName);
-    BOOST_CHECK_EQUAL(partition1, *extract.partitionNodes()[0]->s_Spec.s_PartitionFieldValue);
-    BOOST_CHECK_EQUAL(person, *extract.partitionNodes()[0]->s_Spec.s_PersonFieldName);
-    BOOST_CHECK_EQUAL(person1, *extract.partitionNodes()[0]->s_Spec.s_PersonFieldValue);
+    BOOST_REQUIRE_EQUAL(partition, *extract.partitionNodes()[0]->s_Spec.s_PartitionFieldName);
+    BOOST_REQUIRE_EQUAL(partition1, *extract.partitionNodes()[0]->s_Spec.s_PartitionFieldValue);
+    BOOST_REQUIRE_EQUAL(person, *extract.partitionNodes()[0]->s_Spec.s_PersonFieldName);
+    BOOST_REQUIRE_EQUAL(person1, *extract.partitionNodes()[0]->s_Spec.s_PersonFieldValue);
 
-    BOOST_CHECK_EQUAL(partition, *extract.partitionNodes()[1]->s_Spec.s_PartitionFieldName);
-    BOOST_CHECK_EQUAL(partition2, *extract.partitionNodes()[1]->s_Spec.s_PartitionFieldValue);
-    BOOST_CHECK_EQUAL(person, *extract.partitionNodes()[1]->s_Spec.s_PersonFieldName);
-    BOOST_CHECK_EQUAL(person1, *extract.partitionNodes()[1]->s_Spec.s_PersonFieldValue);
+    BOOST_REQUIRE_EQUAL(partition, *extract.partitionNodes()[1]->s_Spec.s_PartitionFieldName);
+    BOOST_REQUIRE_EQUAL(partition2, *extract.partitionNodes()[1]->s_Spec.s_PartitionFieldValue);
+    BOOST_REQUIRE_EQUAL(person, *extract.partitionNodes()[1]->s_Spec.s_PersonFieldName);
+    BOOST_REQUIRE_EQUAL(person1, *extract.partitionNodes()[1]->s_Spec.s_PersonFieldValue);
 
     // person nodes
-    BOOST_CHECK_EQUAL(partition, *extract.personNodes()[0]->s_Spec.s_PartitionFieldName);
-    BOOST_CHECK_EQUAL(partition1, *extract.personNodes()[0]->s_Spec.s_PartitionFieldValue);
-    BOOST_CHECK_EQUAL(person, *extract.personNodes()[0]->s_Spec.s_PersonFieldName);
-    BOOST_CHECK_EQUAL(person1, *extract.personNodes()[0]->s_Spec.s_PersonFieldValue);
-    BOOST_CHECK_EQUAL(std::size_t(0), extract.personNodes()[0]->s_Children.size());
+    BOOST_REQUIRE_EQUAL(partition, *extract.personNodes()[0]->s_Spec.s_PartitionFieldName);
+    BOOST_REQUIRE_EQUAL(partition1, *extract.personNodes()[0]->s_Spec.s_PartitionFieldValue);
+    BOOST_REQUIRE_EQUAL(person, *extract.personNodes()[0]->s_Spec.s_PersonFieldName);
+    BOOST_REQUIRE_EQUAL(person1, *extract.personNodes()[0]->s_Spec.s_PersonFieldValue);
+    BOOST_REQUIRE_EQUAL(std::size_t(0), extract.personNodes()[0]->s_Children.size());
 
-    BOOST_CHECK_EQUAL(partition, *extract.personNodes()[1]->s_Spec.s_PartitionFieldName);
-    BOOST_CHECK_EQUAL(partition2, *extract.personNodes()[1]->s_Spec.s_PartitionFieldValue);
-    BOOST_CHECK_EQUAL(person, *extract.personNodes()[1]->s_Spec.s_PersonFieldName);
-    BOOST_CHECK_EQUAL(person1, *extract.personNodes()[1]->s_Spec.s_PersonFieldValue);
-    BOOST_CHECK_EQUAL(std::size_t(0), extract.personNodes()[1]->s_Children.size());
+    BOOST_REQUIRE_EQUAL(partition, *extract.personNodes()[1]->s_Spec.s_PartitionFieldName);
+    BOOST_REQUIRE_EQUAL(partition2, *extract.personNodes()[1]->s_Spec.s_PartitionFieldValue);
+    BOOST_REQUIRE_EQUAL(person, *extract.personNodes()[1]->s_Spec.s_PersonFieldName);
+    BOOST_REQUIRE_EQUAL(person1, *extract.personNodes()[1]->s_Spec.s_PersonFieldValue);
+    BOOST_REQUIRE_EQUAL(std::size_t(0), extract.personNodes()[1]->s_Children.size());
 }
 
 BOOST_AUTO_TEST_CASE(testBasicVisitor) {
@@ -791,9 +791,9 @@ BOOST_AUTO_TEST_CASE(testBasicVisitor) {
         LOG_DEBUG(<< "\nby:\n" << printer.result());
         CNodeExtractor extract;
         results.bottomUpBreadthFirst(extract);
-        BOOST_CHECK_EQUAL(std::size_t(0), extract.partitionedNodes().size());
-        BOOST_CHECK_EQUAL(std::size_t(0), extract.partitionNodes().size());
-        BOOST_CHECK_EQUAL(std::size_t(0), extract.personNodes().size());
+        BOOST_REQUIRE_EQUAL(std::size_t(0), extract.partitionedNodes().size());
+        BOOST_REQUIRE_EQUAL(std::size_t(0), extract.partitionNodes().size());
+        BOOST_REQUIRE_EQUAL(std::size_t(0), extract.personNodes().size());
     }
     {
         model::CHierarchicalResults results;
@@ -805,12 +805,12 @@ BOOST_AUTO_TEST_CASE(testBasicVisitor) {
         LOG_DEBUG(<< "\nby:\n" << printer.result());
         CNodeExtractor extract;
         results.bottomUpBreadthFirst(extract);
-        BOOST_CHECK_EQUAL(std::size_t(0), extract.partitionedNodes().size());
-        BOOST_CHECK_EQUAL(std::size_t(0), extract.partitionNodes().size());
-        BOOST_CHECK_EQUAL(std::size_t(1), extract.personNodes().size());
-        BOOST_CHECK_EQUAL(PF1, *extract.personNodes()[0]->s_Spec.s_PersonFieldName);
-        BOOST_CHECK_EQUAL(EMPTY_STRING, *extract.personNodes()[0]->s_Spec.s_PersonFieldValue);
-        BOOST_CHECK_EQUAL(std::size_t(0), extract.personNodes()[0]->s_Children.size());
+        BOOST_REQUIRE_EQUAL(std::size_t(0), extract.partitionedNodes().size());
+        BOOST_REQUIRE_EQUAL(std::size_t(0), extract.partitionNodes().size());
+        BOOST_REQUIRE_EQUAL(std::size_t(1), extract.personNodes().size());
+        BOOST_REQUIRE_EQUAL(PF1, *extract.personNodes()[0]->s_Spec.s_PersonFieldName);
+        BOOST_REQUIRE_EQUAL(EMPTY_STRING, *extract.personNodes()[0]->s_Spec.s_PersonFieldValue);
+        BOOST_REQUIRE_EQUAL(std::size_t(0), extract.personNodes()[0]->s_Children.size());
     }
     {
         model::CHierarchicalResults results;
@@ -827,26 +827,26 @@ BOOST_AUTO_TEST_CASE(testBasicVisitor) {
         CNodeExtractor extract;
         results.bottomUpBreadthFirst(extract);
 
-        BOOST_CHECK_EQUAL(std::size_t(0), extract.partitionedNodes().size());
-        BOOST_CHECK_EQUAL(std::size_t(0), extract.partitionNodes().size());
-        BOOST_CHECK_EQUAL(std::size_t(1), extract.personNodes().size());
-        BOOST_CHECK_EQUAL(std::size_t(3), extract.leafNodes().size());
-        BOOST_CHECK_EQUAL(FUNC, *extract.leafNodes()[0]->s_Spec.s_FunctionName);
-        BOOST_CHECK_EQUAL(FUNC, *extract.leafNodes()[1]->s_Spec.s_FunctionName);
-        BOOST_CHECK_EQUAL(FUNC, *extract.leafNodes()[2]->s_Spec.s_FunctionName);
-        BOOST_CHECK_EQUAL(PF1, *extract.leafNodes()[0]->s_Spec.s_PersonFieldName);
-        BOOST_CHECK_EQUAL(PF1, *extract.leafNodes()[1]->s_Spec.s_PersonFieldName);
-        BOOST_CHECK_EQUAL(PF1, *extract.leafNodes()[2]->s_Spec.s_PersonFieldName);
-        BOOST_CHECK_EQUAL(EMPTY_STRING, *extract.leafNodes()[0]->s_Spec.s_PersonFieldValue);
-        BOOST_CHECK_EQUAL(p11, *extract.leafNodes()[1]->s_Spec.s_PersonFieldValue);
-        BOOST_CHECK_EQUAL(p12, *extract.leafNodes()[2]->s_Spec.s_PersonFieldValue);
-        BOOST_CHECK_EQUAL(std::size_t(0), extract.leafNodes()[0]->s_Children.size());
-        BOOST_CHECK_EQUAL(std::size_t(0), extract.leafNodes()[1]->s_Children.size());
-        BOOST_CHECK_EQUAL(std::size_t(0), extract.leafNodes()[2]->s_Children.size());
-        BOOST_CHECK_EQUAL(EMPTY_STRING, *extract.personNodes()[0]->s_Spec.s_FunctionName);
-        BOOST_CHECK_EQUAL(PF1, *extract.personNodes()[0]->s_Spec.s_PersonFieldName);
-        BOOST_CHECK_EQUAL(EMPTY_STRING, *extract.personNodes()[0]->s_Spec.s_PersonFieldValue);
-        BOOST_CHECK_EQUAL(std::size_t(3), extract.personNodes()[0]->s_Children.size());
+        BOOST_REQUIRE_EQUAL(std::size_t(0), extract.partitionedNodes().size());
+        BOOST_REQUIRE_EQUAL(std::size_t(0), extract.partitionNodes().size());
+        BOOST_REQUIRE_EQUAL(std::size_t(1), extract.personNodes().size());
+        BOOST_REQUIRE_EQUAL(std::size_t(3), extract.leafNodes().size());
+        BOOST_REQUIRE_EQUAL(FUNC, *extract.leafNodes()[0]->s_Spec.s_FunctionName);
+        BOOST_REQUIRE_EQUAL(FUNC, *extract.leafNodes()[1]->s_Spec.s_FunctionName);
+        BOOST_REQUIRE_EQUAL(FUNC, *extract.leafNodes()[2]->s_Spec.s_FunctionName);
+        BOOST_REQUIRE_EQUAL(PF1, *extract.leafNodes()[0]->s_Spec.s_PersonFieldName);
+        BOOST_REQUIRE_EQUAL(PF1, *extract.leafNodes()[1]->s_Spec.s_PersonFieldName);
+        BOOST_REQUIRE_EQUAL(PF1, *extract.leafNodes()[2]->s_Spec.s_PersonFieldName);
+        BOOST_REQUIRE_EQUAL(EMPTY_STRING, *extract.leafNodes()[0]->s_Spec.s_PersonFieldValue);
+        BOOST_REQUIRE_EQUAL(p11, *extract.leafNodes()[1]->s_Spec.s_PersonFieldValue);
+        BOOST_REQUIRE_EQUAL(p12, *extract.leafNodes()[2]->s_Spec.s_PersonFieldValue);
+        BOOST_REQUIRE_EQUAL(std::size_t(0), extract.leafNodes()[0]->s_Children.size());
+        BOOST_REQUIRE_EQUAL(std::size_t(0), extract.leafNodes()[1]->s_Children.size());
+        BOOST_REQUIRE_EQUAL(std::size_t(0), extract.leafNodes()[2]->s_Children.size());
+        BOOST_REQUIRE_EQUAL(EMPTY_STRING, *extract.personNodes()[0]->s_Spec.s_FunctionName);
+        BOOST_REQUIRE_EQUAL(PF1, *extract.personNodes()[0]->s_Spec.s_PersonFieldName);
+        BOOST_REQUIRE_EQUAL(EMPTY_STRING, *extract.personNodes()[0]->s_Spec.s_PersonFieldValue);
+        BOOST_REQUIRE_EQUAL(std::size_t(3), extract.personNodes()[0]->s_Children.size());
     }
     {
 
@@ -863,21 +863,21 @@ BOOST_AUTO_TEST_CASE(testBasicVisitor) {
         LOG_DEBUG(<< "\nover:\n" << printer.result());
         CNodeExtractor extract;
         results.bottomUpBreadthFirst(extract);
-        BOOST_CHECK_EQUAL(std::size_t(0), extract.partitionedNodes().size());
-        BOOST_CHECK_EQUAL(std::size_t(0), extract.partitionNodes().size());
-        BOOST_CHECK_EQUAL(std::size_t(3), extract.personNodes().size());
-        BOOST_CHECK_EQUAL(FUNC, *extract.personNodes()[0]->s_Spec.s_FunctionName);
-        BOOST_CHECK_EQUAL(FUNC, *extract.personNodes()[1]->s_Spec.s_FunctionName);
-        BOOST_CHECK_EQUAL(FUNC, *extract.personNodes()[2]->s_Spec.s_FunctionName);
-        BOOST_CHECK_EQUAL(PF1, *extract.personNodes()[0]->s_Spec.s_PersonFieldName);
-        BOOST_CHECK_EQUAL(PF1, *extract.personNodes()[1]->s_Spec.s_PersonFieldName);
-        BOOST_CHECK_EQUAL(PF2, *extract.personNodes()[2]->s_Spec.s_PersonFieldName);
-        BOOST_CHECK_EQUAL(EMPTY_STRING, *extract.personNodes()[0]->s_Spec.s_PersonFieldValue);
-        BOOST_CHECK_EQUAL(p11, *extract.personNodes()[1]->s_Spec.s_PersonFieldValue);
-        BOOST_CHECK_EQUAL(p23, *extract.personNodes()[2]->s_Spec.s_PersonFieldValue);
-        BOOST_CHECK_EQUAL(std::size_t(0), extract.personNodes()[0]->s_Children.size());
-        BOOST_CHECK_EQUAL(std::size_t(0), extract.personNodes()[1]->s_Children.size());
-        BOOST_CHECK_EQUAL(std::size_t(0), extract.personNodes()[2]->s_Children.size());
+        BOOST_REQUIRE_EQUAL(std::size_t(0), extract.partitionedNodes().size());
+        BOOST_REQUIRE_EQUAL(std::size_t(0), extract.partitionNodes().size());
+        BOOST_REQUIRE_EQUAL(std::size_t(3), extract.personNodes().size());
+        BOOST_REQUIRE_EQUAL(FUNC, *extract.personNodes()[0]->s_Spec.s_FunctionName);
+        BOOST_REQUIRE_EQUAL(FUNC, *extract.personNodes()[1]->s_Spec.s_FunctionName);
+        BOOST_REQUIRE_EQUAL(FUNC, *extract.personNodes()[2]->s_Spec.s_FunctionName);
+        BOOST_REQUIRE_EQUAL(PF1, *extract.personNodes()[0]->s_Spec.s_PersonFieldName);
+        BOOST_REQUIRE_EQUAL(PF1, *extract.personNodes()[1]->s_Spec.s_PersonFieldName);
+        BOOST_REQUIRE_EQUAL(PF2, *extract.personNodes()[2]->s_Spec.s_PersonFieldName);
+        BOOST_REQUIRE_EQUAL(EMPTY_STRING, *extract.personNodes()[0]->s_Spec.s_PersonFieldValue);
+        BOOST_REQUIRE_EQUAL(p11, *extract.personNodes()[1]->s_Spec.s_PersonFieldValue);
+        BOOST_REQUIRE_EQUAL(p23, *extract.personNodes()[2]->s_Spec.s_PersonFieldValue);
+        BOOST_REQUIRE_EQUAL(std::size_t(0), extract.personNodes()[0]->s_Children.size());
+        BOOST_REQUIRE_EQUAL(std::size_t(0), extract.personNodes()[1]->s_Children.size());
+        BOOST_REQUIRE_EQUAL(std::size_t(0), extract.personNodes()[2]->s_Children.size());
     }
     {
         LOG_DEBUG(<< "Clear...");
@@ -896,17 +896,17 @@ BOOST_AUTO_TEST_CASE(testBasicVisitor) {
         LOG_DEBUG(<< "\nover:\n" << printer.result());
         CNodeExtractor extract;
         results.bottomUpBreadthFirst(extract);
-        BOOST_CHECK_EQUAL(std::size_t(0), extract.partitionedNodes().size());
-        BOOST_CHECK_EQUAL(std::size_t(0), extract.partitionNodes().size());
-        BOOST_CHECK_EQUAL(std::size_t(2), extract.personNodes().size());
-        BOOST_CHECK_EQUAL(FUNC, *extract.personNodes()[0]->s_Spec.s_FunctionName);
-        BOOST_CHECK_EQUAL(EMPTY_STRING, *extract.personNodes()[1]->s_Spec.s_FunctionName);
-        BOOST_CHECK_EQUAL(PF2, *extract.personNodes()[0]->s_Spec.s_PersonFieldName);
-        BOOST_CHECK_EQUAL(PF1, *extract.personNodes()[1]->s_Spec.s_PersonFieldName);
-        BOOST_CHECK_EQUAL(EMPTY_STRING, *extract.personNodes()[0]->s_Spec.s_PersonFieldValue);
-        BOOST_CHECK_EQUAL(p11, *extract.personNodes()[1]->s_Spec.s_PersonFieldValue);
-        BOOST_CHECK_EQUAL(std::size_t(0), extract.personNodes()[0]->s_Children.size());
-        BOOST_CHECK_EQUAL(std::size_t(2), extract.personNodes()[1]->s_Children.size());
+        BOOST_REQUIRE_EQUAL(std::size_t(0), extract.partitionedNodes().size());
+        BOOST_REQUIRE_EQUAL(std::size_t(0), extract.partitionNodes().size());
+        BOOST_REQUIRE_EQUAL(std::size_t(2), extract.personNodes().size());
+        BOOST_REQUIRE_EQUAL(FUNC, *extract.personNodes()[0]->s_Spec.s_FunctionName);
+        BOOST_REQUIRE_EQUAL(EMPTY_STRING, *extract.personNodes()[1]->s_Spec.s_FunctionName);
+        BOOST_REQUIRE_EQUAL(PF2, *extract.personNodes()[0]->s_Spec.s_PersonFieldName);
+        BOOST_REQUIRE_EQUAL(PF1, *extract.personNodes()[1]->s_Spec.s_PersonFieldName);
+        BOOST_REQUIRE_EQUAL(EMPTY_STRING, *extract.personNodes()[0]->s_Spec.s_PersonFieldValue);
+        BOOST_REQUIRE_EQUAL(p11, *extract.personNodes()[1]->s_Spec.s_PersonFieldValue);
+        BOOST_REQUIRE_EQUAL(std::size_t(0), extract.personNodes()[0]->s_Children.size());
+        BOOST_REQUIRE_EQUAL(std::size_t(2), extract.personNodes()[1]->s_Children.size());
     }
 
     // Test partition
@@ -934,46 +934,46 @@ BOOST_AUTO_TEST_CASE(testBasicVisitor) {
         CNodeExtractor extract;
         results.bottomUpBreadthFirst(extract);
 
-        BOOST_CHECK_EQUAL(std::size_t(1), extract.partitionedNodes().size());
-        BOOST_CHECK_EQUAL(PNF1, *extract.partitionedNodes()[0]->s_Spec.s_PartitionFieldName);
-        BOOST_CHECK_EQUAL(EMPTY_STRING, *extract.partitionedNodes()[0]->s_Spec.s_PartitionFieldValue);
-        BOOST_CHECK_EQUAL(std::size_t(4),
+        BOOST_REQUIRE_EQUAL(std::size_t(1), extract.partitionedNodes().size());
+        BOOST_REQUIRE_EQUAL(PNF1, *extract.partitionedNodes()[0]->s_Spec.s_PartitionFieldName);
+        BOOST_REQUIRE_EQUAL(EMPTY_STRING, *extract.partitionedNodes()[0]->s_Spec.s_PartitionFieldValue);
+        BOOST_REQUIRE_EQUAL(std::size_t(4),
                           extract.partitionedNodes()[0]->s_Children.size());
 
-        BOOST_CHECK_EQUAL(std::size_t(4), extract.partitionNodes().size());
-        BOOST_CHECK_EQUAL(PNF1, *extract.partitionNodes()[0]->s_Spec.s_PartitionFieldName);
-        BOOST_CHECK_EQUAL(PNF1, *extract.partitionNodes()[1]->s_Spec.s_PartitionFieldName);
-        BOOST_CHECK_EQUAL(PNF1, *extract.partitionNodes()[2]->s_Spec.s_PartitionFieldName);
-        BOOST_CHECK_EQUAL(PNF1, *extract.partitionNodes()[3]->s_Spec.s_PartitionFieldName);
-        BOOST_CHECK_EQUAL(EMPTY_STRING, *extract.partitionNodes()[0]->s_Spec.s_PartitionFieldValue);
-        BOOST_CHECK_EQUAL(pn11, *extract.partitionNodes()[1]->s_Spec.s_PartitionFieldValue);
-        BOOST_CHECK_EQUAL(pn12, *extract.partitionNodes()[2]->s_Spec.s_PartitionFieldValue);
-        BOOST_CHECK_EQUAL(pn13, *extract.partitionNodes()[3]->s_Spec.s_PartitionFieldValue);
-        BOOST_CHECK_EQUAL(std::size_t(0),
+        BOOST_REQUIRE_EQUAL(std::size_t(4), extract.partitionNodes().size());
+        BOOST_REQUIRE_EQUAL(PNF1, *extract.partitionNodes()[0]->s_Spec.s_PartitionFieldName);
+        BOOST_REQUIRE_EQUAL(PNF1, *extract.partitionNodes()[1]->s_Spec.s_PartitionFieldName);
+        BOOST_REQUIRE_EQUAL(PNF1, *extract.partitionNodes()[2]->s_Spec.s_PartitionFieldName);
+        BOOST_REQUIRE_EQUAL(PNF1, *extract.partitionNodes()[3]->s_Spec.s_PartitionFieldName);
+        BOOST_REQUIRE_EQUAL(EMPTY_STRING, *extract.partitionNodes()[0]->s_Spec.s_PartitionFieldValue);
+        BOOST_REQUIRE_EQUAL(pn11, *extract.partitionNodes()[1]->s_Spec.s_PartitionFieldValue);
+        BOOST_REQUIRE_EQUAL(pn12, *extract.partitionNodes()[2]->s_Spec.s_PartitionFieldValue);
+        BOOST_REQUIRE_EQUAL(pn13, *extract.partitionNodes()[3]->s_Spec.s_PartitionFieldValue);
+        BOOST_REQUIRE_EQUAL(std::size_t(0),
                           extract.partitionNodes()[0]->s_Children.size());
-        BOOST_CHECK_EQUAL(std::size_t(0),
+        BOOST_REQUIRE_EQUAL(std::size_t(0),
                           extract.partitionNodes()[1]->s_Children.size());
-        BOOST_CHECK_EQUAL(std::size_t(0),
+        BOOST_REQUIRE_EQUAL(std::size_t(0),
                           extract.partitionNodes()[2]->s_Children.size());
-        BOOST_CHECK_EQUAL(std::size_t(0),
+        BOOST_REQUIRE_EQUAL(std::size_t(0),
                           extract.partitionNodes()[3]->s_Children.size());
 
-        BOOST_CHECK_EQUAL(std::size_t(5), extract.personNodes().size());
-        BOOST_CHECK_EQUAL(PF2, *extract.personNodes()[0]->s_Spec.s_PersonFieldName);
-        BOOST_CHECK_EQUAL(PF1, *extract.personNodes()[1]->s_Spec.s_PersonFieldName);
-        BOOST_CHECK_EQUAL(PF1, *extract.personNodes()[2]->s_Spec.s_PersonFieldName);
-        BOOST_CHECK_EQUAL(PF2, *extract.personNodes()[3]->s_Spec.s_PersonFieldName);
-        BOOST_CHECK_EQUAL(PF1, *extract.personNodes()[4]->s_Spec.s_PersonFieldName);
-        BOOST_CHECK_EQUAL(EMPTY_STRING, *extract.personNodes()[0]->s_Spec.s_PersonFieldValue);
-        BOOST_CHECK_EQUAL(p11, *extract.personNodes()[1]->s_Spec.s_PersonFieldValue);
-        BOOST_CHECK_EQUAL(p11, *extract.personNodes()[2]->s_Spec.s_PersonFieldValue);
-        BOOST_CHECK_EQUAL(EMPTY_STRING, *extract.personNodes()[3]->s_Spec.s_PersonFieldValue);
-        BOOST_CHECK_EQUAL(p11, *extract.personNodes()[4]->s_Spec.s_PersonFieldValue);
-        BOOST_CHECK_EQUAL(std::size_t(0), extract.personNodes()[0]->s_Children.size());
-        BOOST_CHECK_EQUAL(std::size_t(0), extract.personNodes()[1]->s_Children.size());
-        BOOST_CHECK_EQUAL(std::size_t(0), extract.personNodes()[2]->s_Children.size());
-        BOOST_CHECK_EQUAL(std::size_t(0), extract.personNodes()[3]->s_Children.size());
-        BOOST_CHECK_EQUAL(std::size_t(2), extract.personNodes()[4]->s_Children.size());
+        BOOST_REQUIRE_EQUAL(std::size_t(5), extract.personNodes().size());
+        BOOST_REQUIRE_EQUAL(PF2, *extract.personNodes()[0]->s_Spec.s_PersonFieldName);
+        BOOST_REQUIRE_EQUAL(PF1, *extract.personNodes()[1]->s_Spec.s_PersonFieldName);
+        BOOST_REQUIRE_EQUAL(PF1, *extract.personNodes()[2]->s_Spec.s_PersonFieldName);
+        BOOST_REQUIRE_EQUAL(PF2, *extract.personNodes()[3]->s_Spec.s_PersonFieldName);
+        BOOST_REQUIRE_EQUAL(PF1, *extract.personNodes()[4]->s_Spec.s_PersonFieldName);
+        BOOST_REQUIRE_EQUAL(EMPTY_STRING, *extract.personNodes()[0]->s_Spec.s_PersonFieldValue);
+        BOOST_REQUIRE_EQUAL(p11, *extract.personNodes()[1]->s_Spec.s_PersonFieldValue);
+        BOOST_REQUIRE_EQUAL(p11, *extract.personNodes()[2]->s_Spec.s_PersonFieldValue);
+        BOOST_REQUIRE_EQUAL(EMPTY_STRING, *extract.personNodes()[3]->s_Spec.s_PersonFieldValue);
+        BOOST_REQUIRE_EQUAL(p11, *extract.personNodes()[4]->s_Spec.s_PersonFieldValue);
+        BOOST_REQUIRE_EQUAL(std::size_t(0), extract.personNodes()[0]->s_Children.size());
+        BOOST_REQUIRE_EQUAL(std::size_t(0), extract.personNodes()[1]->s_Children.size());
+        BOOST_REQUIRE_EQUAL(std::size_t(0), extract.personNodes()[2]->s_Children.size());
+        BOOST_REQUIRE_EQUAL(std::size_t(0), extract.personNodes()[3]->s_Children.size());
+        BOOST_REQUIRE_EQUAL(std::size_t(2), extract.personNodes()[4]->s_Children.size());
     }
 }
 
@@ -1015,9 +1015,9 @@ BOOST_AUTO_TEST_CASE(testAggregator) {
         results.postorderDepthFirst(printer);
         LOG_DEBUG(<< "\nby:\n" << printer.result());
         attributeComputer(probabilities, score, probability);
-        BOOST_TEST(results.root());
-        BOOST_CHECK_CLOSE_ABSOLUTE(score, results.root()->s_RawAnomalyScore, 1e-12);
-        BOOST_CHECK_CLOSE_ABSOLUTE(probability, results.root()->probability(), 1e-12);
+        BOOST_TEST_REQUIRE(results.root());
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(score, results.root()->s_RawAnomalyScore, 1e-12);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(probability, results.root()->probability(), 1e-12);
     }
 
     // Test over.
@@ -1041,9 +1041,9 @@ BOOST_AUTO_TEST_CASE(testAggregator) {
         results.postorderDepthFirst(printer);
         LOG_DEBUG(<< "\nover:\n" << printer.result());
         personComputer(probabilities, score, probability);
-        BOOST_TEST(results.root());
-        BOOST_CHECK_CLOSE_ABSOLUTE(score, results.root()->s_RawAnomalyScore, 1e-12);
-        BOOST_CHECK_CLOSE_ABSOLUTE(probability, results.root()->probability(), 1e-12);
+        BOOST_TEST_REQUIRE(results.root());
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(score, results.root()->s_RawAnomalyScore, 1e-12);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(probability, results.root()->probability(), 1e-12);
     }
 
     // Test aggregation of multiple searches.
@@ -1110,13 +1110,13 @@ BOOST_AUTO_TEST_CASE(testAggregator) {
         maths::COrderings::simultaneousSort(expectedProbabilities, expectedScores);
         LOG_DEBUG(<< "expectedScores = " << core::CContainerPrinter::print(expectedScores));
         LOG_DEBUG(<< "scores         = " << core::CContainerPrinter::print(scores));
-        BOOST_CHECK_EQUAL(core::CContainerPrinter::print(expectedScores),
+        BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(expectedScores),
                           core::CContainerPrinter::print(scores));
         LOG_DEBUG(<< "expectedProbabilities = "
                   << core::CContainerPrinter::print(expectedProbabilities));
         LOG_DEBUG(<< "probabilities         = "
                   << core::CContainerPrinter::print(probabilities));
-        BOOST_CHECK_EQUAL(core::CContainerPrinter::print(expectedProbabilities),
+        BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(expectedProbabilities),
                           core::CContainerPrinter::print(probabilities));
     }
 
@@ -1140,9 +1140,9 @@ BOOST_AUTO_TEST_CASE(testAggregator) {
         results.postorderDepthFirst(printer);
         LOG_DEBUG(<< "\npartition:\n" << printer.result());
         partitionComputer(probabilities, score, probability);
-        BOOST_TEST(results.root());
-        BOOST_CHECK_CLOSE_ABSOLUTE(score, results.root()->s_RawAnomalyScore, 1e-12);
-        BOOST_CHECK_CLOSE_ABSOLUTE(probability, results.root()->probability(), 1e-12);
+        BOOST_TEST_REQUIRE(results.root());
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(score, results.root()->s_RawAnomalyScore, 1e-12);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(probability, results.root()->probability(), 1e-12);
     }
 }
 
@@ -1186,7 +1186,7 @@ BOOST_AUTO_TEST_CASE(testInfluence) {
         results.postorderDepthFirst(printer);
         results.pivotsBottomUpBreadthFirst(printer);
         LOG_DEBUG(<< "\nby:\n" << printer.result());
-        BOOST_CHECK_EQUAL(
+        BOOST_REQUIRE_EQUAL(
             std::string("'false/false////I//': 0.003600205, 0.02066228 pivot\n"
                         "  'false/false////I/i2/': 0.003, 0.0251169 pivot\n"
                         "  'false/false////I/i1/': 0.001801726, 0.04288765 pivot\n"
@@ -1238,7 +1238,7 @@ BOOST_AUTO_TEST_CASE(testInfluence) {
         results.postorderDepthFirst(printer);
         results.pivotsBottomUpBreadthFirst(printer);
         LOG_DEBUG(<< "\ncomplex:\n" << printer.result());
-        BOOST_CHECK_EQUAL(
+        BOOST_REQUIRE_EQUAL(
             std::string("'false/false////I//': 0.006210884, 0.01130322 pivot\n"
                         "  'false/false////I/i2/': 0.003110279, 0.0241695 pivot\n"
                         "  'false/false////I/i1/': 0.00619034, 0.01134605 pivot\n"
@@ -1295,7 +1295,7 @@ BOOST_AUTO_TEST_CASE(testInfluence) {
         results.pivotsBottomUpBreadthFirst(writtenNodesOnlyPrinter);
         LOG_DEBUG(<< "\nhigh p records with low p influencer:\n"
                   << writtenNodesOnlyPrinter.result());
-        BOOST_CHECK_EQUAL(
+        BOOST_REQUIRE_EQUAL(
             std::string("'false/false////I//': 0.001999, 0.038497 pivot\n"
                         "  'false/false////I/i2/': 0.001, 0.07855711 pivot\n"
                         "  'false/false////I/i1/': 0.01939367, 0.002530117 pivot\n"
@@ -1617,7 +1617,7 @@ BOOST_AUTO_TEST_CASE(testNormalizer) {
                                    ? 0.0
                                    : maths::CTools::anomalyScore(probability);
                 normalized.push_back(leaf->s_NormalizedAnomalyScore);
-                BOOST_TEST(expectedNormalizer->normalize(scope(leaf), score));
+                BOOST_TEST_REQUIRE(expectedNormalizer->normalize(scope(leaf), score));
                 expectedNormalized.push_back(score);
             }
         }
@@ -1625,7 +1625,7 @@ BOOST_AUTO_TEST_CASE(testNormalizer) {
         LOG_DEBUG(<< "expectedNormalized = "
                   << core::CContainerPrinter::print(expectedNormalized));
         LOG_DEBUG(<< "normalized         = " << core::CContainerPrinter::print(normalized));
-        BOOST_CHECK_EQUAL(core::CContainerPrinter::print(expectedNormalized),
+        BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(expectedNormalized),
                           core::CContainerPrinter::print(normalized));
 
         normalized.clear();
@@ -1650,7 +1650,7 @@ BOOST_AUTO_TEST_CASE(testNormalizer) {
                                    ? 0.0
                                    : maths::CTools::anomalyScore(probability);
                 normalized.push_back(person->s_NormalizedAnomalyScore);
-                BOOST_TEST(expectedNormalizer->normalize(scope(person), score));
+                BOOST_TEST_REQUIRE(expectedNormalizer->normalize(scope(person), score));
                 expectedNormalized.push_back(score);
             }
         }
@@ -1658,7 +1658,7 @@ BOOST_AUTO_TEST_CASE(testNormalizer) {
         LOG_DEBUG(<< "expectedNormalized = "
                   << core::CContainerPrinter::print(expectedNormalized));
         LOG_DEBUG(<< "normalized         = " << core::CContainerPrinter::print(normalized));
-        BOOST_CHECK_EQUAL(core::CContainerPrinter::print(expectedNormalized),
+        BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(expectedNormalized),
                           core::CContainerPrinter::print(normalized));
 
         normalized.clear();
@@ -1683,7 +1683,7 @@ BOOST_AUTO_TEST_CASE(testNormalizer) {
                                    ? 0.0
                                    : maths::CTools::anomalyScore(probability);
                 normalized.push_back(partition->s_NormalizedAnomalyScore);
-                BOOST_TEST(expectedNormalizer->normalize(scope(partition), score));
+                BOOST_TEST_REQUIRE(expectedNormalizer->normalize(scope(partition), score));
                 expectedNormalized.push_back(score);
             }
         }
@@ -1691,7 +1691,7 @@ BOOST_AUTO_TEST_CASE(testNormalizer) {
         LOG_DEBUG(<< "expectedNormalized = "
                   << core::CContainerPrinter::print(expectedNormalized));
         LOG_DEBUG(<< "normalized         = " << core::CContainerPrinter::print(normalized));
-        BOOST_CHECK_EQUAL(core::CContainerPrinter::print(expectedNormalized),
+        BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(expectedNormalized),
                           core::CContainerPrinter::print(normalized));
 
         double probability = results.root()->probability();
@@ -1707,24 +1707,24 @@ BOOST_AUTO_TEST_CASE(testNormalizer) {
         LOG_DEBUG(<< "* root *");
         LOG_DEBUG(<< "expectedNormalized = " << results.root()->s_NormalizedAnomalyScore);
         LOG_DEBUG(<< "normalized         = " << score);
-        BOOST_CHECK_CLOSE_ABSOLUTE(results.root()->s_NormalizedAnomalyScore, score, 1e-10);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(results.root()->s_NormalizedAnomalyScore, score, 1e-10);
     }
 
     // Test JSON round-tripping
     std::string origJson;
     normalizer.toJson(123, "mykey", origJson, true);
-    BOOST_TEST(!origJson.empty());
+    BOOST_TEST_REQUIRE(!origJson.empty());
 
     LOG_DEBUG(<< "JSON doc is:\n" << origJson);
 
     model::CHierarchicalResultsNormalizer newNormalizerJson(modelConfig);
     std::stringstream stream(origJson);
-    BOOST_CHECK_EQUAL(model::CHierarchicalResultsNormalizer::E_Ok,
+    BOOST_REQUIRE_EQUAL(model::CHierarchicalResultsNormalizer::E_Ok,
                       newNormalizerJson.fromJsonStream(stream));
 
     std::string newJson;
     newNormalizerJson.toJson(123, "mykey", newJson, true);
-    BOOST_CHECK_EQUAL(newJson, origJson);
+    BOOST_REQUIRE_EQUAL(newJson, origJson);
 }
 
 BOOST_AUTO_TEST_CASE(testDetectorEqualizing) {
@@ -1791,7 +1791,7 @@ BOOST_AUTO_TEST_CASE(testDetectorEqualizing) {
         double significance = probabilityGatherer.test(8e-7);
         LOG_DEBUG(<< "total significance = " << significance);
 
-        BOOST_TEST(significance > 0.002);
+        BOOST_TEST_REQUIRE(significance > 0.002);
 
         std::string origXml;
         {
@@ -1805,15 +1805,15 @@ BOOST_AUTO_TEST_CASE(testDetectorEqualizing) {
         model::CHierarchicalResultsAggregator restoredAggregator(modelConfig);
         {
             core::CRapidXmlParser parser;
-            BOOST_TEST(parser.parseStringIgnoreCdata(origXml));
+            BOOST_TEST_REQUIRE(parser.parseStringIgnoreCdata(origXml));
             core::CRapidXmlStateRestoreTraverser traverser(parser);
-            BOOST_TEST(traverser.traverseSubLevel(std::bind(
+            BOOST_TEST_REQUIRE(traverser.traverseSubLevel(std::bind(
                 &model::CHierarchicalResultsAggregator::acceptRestoreTraverser,
                 &restoredAggregator, std::placeholders::_1)));
         }
 
         // Checksums should agree.
-        BOOST_CHECK_EQUAL(aggregator.checksum(), restoredAggregator.checksum());
+        BOOST_REQUIRE_EQUAL(aggregator.checksum(), restoredAggregator.checksum());
 
         // The persist and restore should be idempotent.
         std::string newXml;
@@ -1822,7 +1822,7 @@ BOOST_AUTO_TEST_CASE(testDetectorEqualizing) {
             restoredAggregator.acceptPersistInserter(inserter);
             inserter.toXml(newXml);
         }
-        BOOST_CHECK_EQUAL(origXml, newXml);
+        BOOST_REQUIRE_EQUAL(origXml, newXml);
     }
     {
         model::CHierarchicalResultsAggregator aggregator(modelConfig);
@@ -1876,8 +1876,8 @@ BOOST_AUTO_TEST_CASE(testDetectorEqualizing) {
 
         mostAnomalous.sort();
         LOG_DEBUG(<< "mostAnomalousBucket = " << mostAnomalous.print());
-        BOOST_CHECK_EQUAL(std::size_t(70), mostAnomalous[0].second);
-        BOOST_TEST(mostAnomalous[0].first / mostAnomalous[1].first < 100);
+        BOOST_REQUIRE_EQUAL(std::size_t(70), mostAnomalous[0].second);
+        BOOST_TEST_REQUIRE(mostAnomalous[0].first / mostAnomalous[1].first < 100);
     }
 }
 
@@ -1905,23 +1905,23 @@ BOOST_AUTO_TEST_CASE(testShouldWritePartition) {
     LOG_DEBUG(<< "\nhierarchy:\n" << printer.result());
 
     const ml::model::CHierarchicalResults::TNode* root = results.root();
-    BOOST_CHECK_EQUAL(std::size_t(2), root->s_Children.size());
+    BOOST_REQUIRE_EQUAL(std::size_t(2), root->s_Children.size());
 
     CNodeExtractor extract;
     results.bottomUpBreadthFirst(extract);
-    BOOST_CHECK_EQUAL(std::size_t(1), extract.partitionedNodes().size());
-    BOOST_CHECK_EQUAL(std::size_t(2), extract.partitionNodes().size());
+    BOOST_REQUIRE_EQUAL(std::size_t(1), extract.partitionedNodes().size());
+    BOOST_REQUIRE_EQUAL(std::size_t(2), extract.partitionNodes().size());
 
-    BOOST_CHECK_EQUAL(std::size_t(2), extract.personNodes().size());
-    BOOST_CHECK_EQUAL(std::size_t(3), extract.leafNodes().size());
+    BOOST_REQUIRE_EQUAL(std::size_t(2), extract.personNodes().size());
+    BOOST_REQUIRE_EQUAL(std::size_t(3), extract.leafNodes().size());
 
     LOG_DEBUG(<< "Partition 1 child count "
               << extract.partitionNodes()[0]->s_Children.size());
     LOG_DEBUG(<< "Partition 2 child count "
               << extract.partitionNodes()[1]->s_Children.size());
 
-    BOOST_CHECK_EQUAL(std::size_t(0), extract.partitionNodes()[0]->s_Children.size());
-    BOOST_CHECK_EQUAL(std::size_t(2), extract.partitionNodes()[1]->s_Children.size());
+    BOOST_REQUIRE_EQUAL(std::size_t(0), extract.partitionNodes()[0]->s_Children.size());
+    BOOST_REQUIRE_EQUAL(std::size_t(2), extract.partitionNodes()[1]->s_Children.size());
 
     model::CAnomalyDetectorModelConfig modelConfig =
         model::CAnomalyDetectorModelConfig::defaultConfig();
@@ -1929,9 +1929,9 @@ BOOST_AUTO_TEST_CASE(testShouldWritePartition) {
     results.bottomUpBreadthFirst(aggregator);
 
     model::CLimits limits;
-    BOOST_TEST(ml::model::CHierarchicalResultsVisitor::shouldWriteResult(
+    BOOST_TEST_REQUIRE(ml::model::CHierarchicalResultsVisitor::shouldWriteResult(
         limits, results, *extract.partitionNodes()[0], false));
-    BOOST_TEST(ml::model::CHierarchicalResultsVisitor::shouldWriteResult(
+    BOOST_TEST_REQUIRE(ml::model::CHierarchicalResultsVisitor::shouldWriteResult(
         limits, results, *extract.partitionNodes()[1], false));
 }
 

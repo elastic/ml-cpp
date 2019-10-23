@@ -27,9 +27,9 @@ BOOST_AUTO_TEST_CASE(testParseRulesGivenEmptyString) {
     CDetectionRulesJsonParser::TDetectionRuleVec rules;
     std::string rulesJson = "";
 
-    BOOST_TEST(parser.parseRules(rulesJson, rules) == false);
+    BOOST_TEST_REQUIRE(parser.parseRules(rulesJson, rules) == false);
 
-    BOOST_TEST(rules.empty());
+    BOOST_TEST_REQUIRE(rules.empty());
 }
 
 BOOST_AUTO_TEST_CASE(testParseRulesGivenEmptyArray) {
@@ -37,9 +37,9 @@ BOOST_AUTO_TEST_CASE(testParseRulesGivenEmptyArray) {
     CDetectionRulesJsonParser::TDetectionRuleVec rules;
     std::string rulesJson = "[]";
 
-    BOOST_TEST(parser.parseRules(rulesJson, rules));
+    BOOST_TEST_REQUIRE(parser.parseRules(rulesJson, rules));
 
-    BOOST_TEST(rules.empty());
+    BOOST_TEST_REQUIRE(rules.empty());
 }
 
 BOOST_AUTO_TEST_CASE(testParseRulesGivenArrayContainsStrings) {
@@ -47,9 +47,9 @@ BOOST_AUTO_TEST_CASE(testParseRulesGivenArrayContainsStrings) {
     CDetectionRulesJsonParser::TDetectionRuleVec rules;
     std::string rulesJson = "[\"a\", \"b\"]";
 
-    BOOST_TEST(parser.parseRules(rulesJson, rules) == false);
+    BOOST_TEST_REQUIRE(parser.parseRules(rulesJson, rules) == false);
 
-    BOOST_TEST(rules.empty());
+    BOOST_TEST_REQUIRE(rules.empty());
 }
 
 BOOST_AUTO_TEST_CASE(testParseRulesGivenMissingRuleAction) {
@@ -63,8 +63,8 @@ BOOST_AUTO_TEST_CASE(testParseRulesGivenMissingRuleAction) {
     rulesJson += "}";
     rulesJson += "]";
 
-    BOOST_TEST(parser.parseRules(rulesJson, rules) == false);
-    BOOST_TEST(rules.empty());
+    BOOST_TEST_REQUIRE(parser.parseRules(rulesJson, rules) == false);
+    BOOST_TEST_REQUIRE(rules.empty());
 }
 
 BOOST_AUTO_TEST_CASE(testParseRulesGivenRuleActionIsNotArray) {
@@ -79,8 +79,8 @@ BOOST_AUTO_TEST_CASE(testParseRulesGivenRuleActionIsNotArray) {
     rulesJson += "}";
     rulesJson += "]";
 
-    BOOST_TEST(parser.parseRules(rulesJson, rules) == false);
-    BOOST_TEST(rules.empty());
+    BOOST_TEST_REQUIRE(parser.parseRules(rulesJson, rules) == false);
+    BOOST_TEST_REQUIRE(rules.empty());
 }
 
 BOOST_AUTO_TEST_CASE(testParseRulesGivenInvalidRuleAction) {
@@ -95,8 +95,8 @@ BOOST_AUTO_TEST_CASE(testParseRulesGivenInvalidRuleAction) {
     rulesJson += "}";
     rulesJson += "]";
 
-    BOOST_TEST(parser.parseRules(rulesJson, rules) == false);
-    BOOST_TEST(rules.empty());
+    BOOST_TEST_REQUIRE(parser.parseRules(rulesJson, rules) == false);
+    BOOST_TEST_REQUIRE(rules.empty());
 }
 
 BOOST_AUTO_TEST_CASE(testParseRulesGivenNeitherScopeNorConditions) {
@@ -108,8 +108,8 @@ BOOST_AUTO_TEST_CASE(testParseRulesGivenNeitherScopeNorConditions) {
     rulesJson += "}";
     rulesJson += "]";
 
-    BOOST_TEST(parser.parseRules(rulesJson, rules) == false);
-    BOOST_TEST(rules.empty());
+    BOOST_TEST_REQUIRE(parser.parseRules(rulesJson, rules) == false);
+    BOOST_TEST_REQUIRE(rules.empty());
 }
 
 BOOST_AUTO_TEST_CASE(testParseRulesGivenRuleConditionsIsNotArray) {
@@ -122,8 +122,8 @@ BOOST_AUTO_TEST_CASE(testParseRulesGivenRuleConditionsIsNotArray) {
     rulesJson += "}";
     rulesJson += "]";
 
-    BOOST_TEST(parser.parseRules(rulesJson, rules) == false);
-    BOOST_TEST(rules.empty());
+    BOOST_TEST_REQUIRE(parser.parseRules(rulesJson, rules) == false);
+    BOOST_TEST_REQUIRE(rules.empty());
 }
 
 BOOST_AUTO_TEST_CASE(testParseRulesGivenRuleConditionsIsEmptyArray) {
@@ -136,8 +136,8 @@ BOOST_AUTO_TEST_CASE(testParseRulesGivenRuleConditionsIsEmptyArray) {
     rulesJson += "}";
     rulesJson += "]";
 
-    BOOST_TEST(parser.parseRules(rulesJson, rules) == false);
-    BOOST_TEST(rules.empty());
+    BOOST_TEST_REQUIRE(parser.parseRules(rulesJson, rules) == false);
+    BOOST_TEST_REQUIRE(rules.empty());
 }
 
 BOOST_AUTO_TEST_CASE(testParseRulesGivenMissingConditionOperator) {
@@ -152,8 +152,8 @@ BOOST_AUTO_TEST_CASE(testParseRulesGivenMissingConditionOperator) {
     rulesJson += "}";
     rulesJson += "]";
 
-    BOOST_TEST(parser.parseRules(rulesJson, rules) == false);
-    BOOST_TEST(rules.empty());
+    BOOST_TEST_REQUIRE(parser.parseRules(rulesJson, rules) == false);
+    BOOST_TEST_REQUIRE(rules.empty());
 }
 
 BOOST_AUTO_TEST_CASE(testParseRulesGivenInvalidConditionOperator) {
@@ -168,8 +168,8 @@ BOOST_AUTO_TEST_CASE(testParseRulesGivenInvalidConditionOperator) {
     rulesJson += "}";
     rulesJson += "]";
 
-    BOOST_TEST(parser.parseRules(rulesJson, rules) == false);
-    BOOST_TEST(rules.empty());
+    BOOST_TEST_REQUIRE(parser.parseRules(rulesJson, rules) == false);
+    BOOST_TEST_REQUIRE(rules.empty());
 }
 
 BOOST_AUTO_TEST_CASE(testParseRulesGivenConditionOnActual) {
@@ -185,10 +185,10 @@ BOOST_AUTO_TEST_CASE(testParseRulesGivenConditionOnActual) {
     rulesJson += "}";
     rulesJson += "]";
 
-    BOOST_TEST(parser.parseRules(rulesJson, rules));
+    BOOST_TEST_REQUIRE(parser.parseRules(rulesJson, rules));
 
-    BOOST_CHECK_EQUAL(std::size_t(1), rules.size());
-    BOOST_CHECK_EQUAL(std::string("SKIP_RESULT IF ACTUAL < 5.000000 AND ACTUAL <= 2.300000"),
+    BOOST_REQUIRE_EQUAL(std::size_t(1), rules.size());
+    BOOST_REQUIRE_EQUAL(std::string("SKIP_RESULT IF ACTUAL < 5.000000 AND ACTUAL <= 2.300000"),
                       rules[0].print());
 }
 
@@ -205,10 +205,10 @@ BOOST_AUTO_TEST_CASE(testParseRulesGivenConditionsOnTypicalAndDiffFromTypical) {
     rulesJson += "}";
     rulesJson += "]";
 
-    BOOST_TEST(parser.parseRules(rulesJson, rules));
+    BOOST_TEST_REQUIRE(parser.parseRules(rulesJson, rules));
 
-    BOOST_CHECK_EQUAL(std::size_t(1), rules.size());
-    BOOST_CHECK_EQUAL(std::string("SKIP_RESULT IF TYPICAL > 5.000000 AND DIFF_FROM_TYPICAL >= 2.300000"),
+    BOOST_REQUIRE_EQUAL(std::size_t(1), rules.size());
+    BOOST_REQUIRE_EQUAL(std::string("SKIP_RESULT IF TYPICAL > 5.000000 AND DIFF_FROM_TYPICAL >= 2.300000"),
                       rules[0].print());
 }
 
@@ -230,11 +230,11 @@ BOOST_AUTO_TEST_CASE(testParseRulesGivenMultipleRules) {
     rulesJson += "}";
     rulesJson += "]";
 
-    BOOST_TEST(parser.parseRules(rulesJson, rules));
+    BOOST_TEST_REQUIRE(parser.parseRules(rulesJson, rules));
 
-    BOOST_CHECK_EQUAL(std::size_t(2), rules.size());
-    BOOST_CHECK_EQUAL(std::string("SKIP_RESULT IF ACTUAL < 1.000000"), rules[0].print());
-    BOOST_CHECK_EQUAL(std::string("SKIP_MODEL_UPDATE IF TYPICAL < 2.000000"),
+    BOOST_REQUIRE_EQUAL(std::size_t(2), rules.size());
+    BOOST_REQUIRE_EQUAL(std::string("SKIP_RESULT IF ACTUAL < 1.000000"), rules[0].print());
+    BOOST_REQUIRE_EQUAL(std::string("SKIP_MODEL_UPDATE IF TYPICAL < 2.000000"),
                       rules[1].print());
 }
 
@@ -248,8 +248,8 @@ BOOST_AUTO_TEST_CASE(testParseRulesGivenScopeIsEmpty) {
     rulesJson += "}";
     rulesJson += "]";
 
-    BOOST_TEST(parser.parseRules(rulesJson, rules) == false);
-    BOOST_TEST(rules.empty());
+    BOOST_TEST_REQUIRE(parser.parseRules(rulesJson, rules) == false);
+    BOOST_TEST_REQUIRE(rules.empty());
 }
 
 BOOST_AUTO_TEST_CASE(testParseRulesGivenIncludeScope) {
@@ -269,10 +269,10 @@ BOOST_AUTO_TEST_CASE(testParseRulesGivenIncludeScope) {
     rulesJson += "}";
     rulesJson += "]";
 
-    BOOST_TEST(parser.parseRules(rulesJson, rules));
+    BOOST_TEST_REQUIRE(parser.parseRules(rulesJson, rules));
 
-    BOOST_CHECK_EQUAL(std::size_t(1), rules.size());
-    BOOST_CHECK_EQUAL(std::string("SKIP_RESULT IF 'foo' IN FILTER"), rules[0].print());
+    BOOST_REQUIRE_EQUAL(std::size_t(1), rules.size());
+    BOOST_REQUIRE_EQUAL(std::string("SKIP_RESULT IF 'foo' IN FILTER"), rules[0].print());
 }
 
 BOOST_AUTO_TEST_CASE(testParseRulesGivenExcludeScope) {
@@ -292,10 +292,10 @@ BOOST_AUTO_TEST_CASE(testParseRulesGivenExcludeScope) {
     rulesJson += "}";
     rulesJson += "]";
 
-    BOOST_TEST(parser.parseRules(rulesJson, rules));
+    BOOST_TEST_REQUIRE(parser.parseRules(rulesJson, rules));
 
-    BOOST_CHECK_EQUAL(std::size_t(1), rules.size());
-    BOOST_CHECK_EQUAL(std::string("SKIP_RESULT IF 'foo' NOT IN FILTER"),
+    BOOST_REQUIRE_EQUAL(std::size_t(1), rules.size());
+    BOOST_REQUIRE_EQUAL(std::string("SKIP_RESULT IF 'foo' NOT IN FILTER"),
                       rules[0].print());
 }
 
@@ -320,10 +320,10 @@ BOOST_AUTO_TEST_CASE(testParseRulesGivenMultipleScopedFields) {
     rulesJson += "}";
     rulesJson += "]";
 
-    BOOST_TEST(parser.parseRules(rulesJson, rules));
+    BOOST_TEST_REQUIRE(parser.parseRules(rulesJson, rules));
 
-    BOOST_CHECK_EQUAL(std::size_t(1), rules.size());
-    BOOST_CHECK_EQUAL(std::string("SKIP_RESULT IF 'foo' IN FILTER AND 'bar' NOT IN FILTER"),
+    BOOST_REQUIRE_EQUAL(std::size_t(1), rules.size());
+    BOOST_REQUIRE_EQUAL(std::string("SKIP_RESULT IF 'foo' IN FILTER AND 'bar' NOT IN FILTER"),
                       rules[0].print());
 }
 
@@ -347,10 +347,10 @@ BOOST_AUTO_TEST_CASE(testParseRulesGivenScopeAndConditions) {
     rulesJson += "}";
     rulesJson += "]";
 
-    BOOST_TEST(parser.parseRules(rulesJson, rules));
+    BOOST_TEST_REQUIRE(parser.parseRules(rulesJson, rules));
 
-    BOOST_CHECK_EQUAL(std::size_t(1), rules.size());
-    BOOST_CHECK_EQUAL(std::string("SKIP_RESULT IF 'foo' IN FILTER AND ACTUAL < 2.000000"),
+    BOOST_REQUIRE_EQUAL(std::size_t(1), rules.size());
+    BOOST_REQUIRE_EQUAL(std::string("SKIP_RESULT IF 'foo' IN FILTER AND ACTUAL < 2.000000"),
                       rules[0].print());
 }
 
@@ -367,9 +367,9 @@ BOOST_AUTO_TEST_CASE(testParseRulesGivenTimeRule) {
     rulesJson += "}";
     rulesJson += "]";
 
-    BOOST_TEST(parser.parseRules(rulesJson, rules));
-    BOOST_CHECK_EQUAL(std::size_t(1), rules.size());
-    BOOST_CHECK_EQUAL(std::string("SKIP_RESULT IF TIME >= 5000.000000 AND TIME < 10000.000000"),
+    BOOST_TEST_REQUIRE(parser.parseRules(rulesJson, rules));
+    BOOST_REQUIRE_EQUAL(std::size_t(1), rules.size());
+    BOOST_REQUIRE_EQUAL(std::string("SKIP_RESULT IF TIME >= 5000.000000 AND TIME < 10000.000000"),
                       rules[0].print());
 }
 
@@ -386,10 +386,10 @@ BOOST_AUTO_TEST_CASE(testParseRulesGivenDifferentActions) {
         rulesJson += "}";
         rulesJson += "]";
 
-        BOOST_TEST(parser.parseRules(rulesJson, rules));
+        BOOST_TEST_REQUIRE(parser.parseRules(rulesJson, rules));
 
-        BOOST_CHECK_EQUAL(std::size_t(1), rules.size());
-        BOOST_CHECK_EQUAL(std::string("SKIP_RESULT IF ACTUAL < 5.000000"),
+        BOOST_REQUIRE_EQUAL(std::size_t(1), rules.size());
+        BOOST_REQUIRE_EQUAL(std::string("SKIP_RESULT IF ACTUAL < 5.000000"),
                           rules[0].print());
     }
 
@@ -405,10 +405,10 @@ BOOST_AUTO_TEST_CASE(testParseRulesGivenDifferentActions) {
         rulesJson += "}";
         rulesJson += "]";
 
-        BOOST_TEST(parser.parseRules(rulesJson, rules));
+        BOOST_TEST_REQUIRE(parser.parseRules(rulesJson, rules));
 
-        BOOST_CHECK_EQUAL(std::size_t(1), rules.size());
-        BOOST_CHECK_EQUAL(std::string("SKIP_MODEL_UPDATE IF ACTUAL < 5.000000"),
+        BOOST_REQUIRE_EQUAL(std::size_t(1), rules.size());
+        BOOST_REQUIRE_EQUAL(std::string("SKIP_MODEL_UPDATE IF ACTUAL < 5.000000"),
                           rules[0].print());
     }
 
@@ -424,10 +424,10 @@ BOOST_AUTO_TEST_CASE(testParseRulesGivenDifferentActions) {
         rulesJson += "}";
         rulesJson += "]";
 
-        BOOST_TEST(parser.parseRules(rulesJson, rules));
+        BOOST_TEST_REQUIRE(parser.parseRules(rulesJson, rules));
 
-        BOOST_CHECK_EQUAL(std::size_t(1), rules.size());
-        BOOST_CHECK_EQUAL(std::string("SKIP_RESULT AND SKIP_MODEL_UPDATE IF ACTUAL < 5.000000"),
+        BOOST_REQUIRE_EQUAL(std::size_t(1), rules.size());
+        BOOST_REQUIRE_EQUAL(std::string("SKIP_RESULT AND SKIP_MODEL_UPDATE IF ACTUAL < 5.000000"),
                           rules[0].print());
     }
 }

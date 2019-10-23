@@ -187,7 +187,7 @@ BOOST_AUTO_TEST_CASE(testJointProbabilityOfLessLikelySamples) {
                     }
 
                     double expectedCount;
-                    BOOST_TEST(jointProbability.calculate(expectedCount));
+                    BOOST_TEST_REQUIRE(jointProbability.calculate(expectedCount));
                     expectedCount *= static_cast<double>(numberSamples);
 
                     double count = 0.0;
@@ -213,7 +213,7 @@ BOOST_AUTO_TEST_CASE(testJointProbabilityOfLessLikelySamples) {
 
                     double error = std::fabs(count - expectedCount) /
                                    std::max(count, expectedCount);
-                    BOOST_TEST(error < 0.2);
+                    BOOST_TEST_REQUIRE(error < 0.2);
 
                     totalExpectedCount += expectedCount;
                     totalCount += count;
@@ -224,7 +224,7 @@ BOOST_AUTO_TEST_CASE(testJointProbabilityOfLessLikelySamples) {
         double totalError = std::fabs(totalCount - totalExpectedCount) /
                             std::max(totalCount, totalExpectedCount);
         LOG_DEBUG(<< "totalError = " << totalError);
-        BOOST_TEST(totalError < 0.01);
+        BOOST_TEST_REQUIRE(totalError < 0.01);
     }
 
     LOG_DEBUG(<< "*** Test correlated ***");
@@ -259,7 +259,7 @@ BOOST_AUTO_TEST_CASE(testJointProbabilityOfLessLikelySamples) {
                     }
 
                     double expectedCount;
-                    BOOST_TEST(jointProbability.calculate(expectedCount));
+                    BOOST_TEST_REQUIRE(jointProbability.calculate(expectedCount));
                     expectedCount *= static_cast<double>(numberSamples);
 
                     double count = 0.0;
@@ -285,7 +285,7 @@ BOOST_AUTO_TEST_CASE(testJointProbabilityOfLessLikelySamples) {
 
                     double error = std::fabs(count - expectedCount) /
                                    std::max(count, expectedCount);
-                    BOOST_TEST(error < 0.2);
+                    BOOST_TEST_REQUIRE(error < 0.2);
 
                     totalExpectedCount += expectedCount;
                     totalCount += count;
@@ -296,7 +296,7 @@ BOOST_AUTO_TEST_CASE(testJointProbabilityOfLessLikelySamples) {
         double totalError = std::fabs(totalCount - totalExpectedCount) /
                             std::max(totalCount, totalExpectedCount);
         LOG_DEBUG(<< "totalError = " << totalError);
-        BOOST_TEST(totalError < 0.01);
+        BOOST_TEST_REQUIRE(totalError < 0.01);
     }
 
     LOG_DEBUG(<< "*** Test overflow ***");
@@ -309,7 +309,7 @@ BOOST_AUTO_TEST_CASE(testJointProbabilityOfLessLikelySamples) {
         double probability;
         jointProbability.calculate(probability);
         LOG_DEBUG(<< "probability = " << probability);
-        BOOST_CHECK_EQUAL(1.0, probability);
+        BOOST_REQUIRE_EQUAL(1.0, probability);
     }
 }
 
@@ -317,7 +317,7 @@ BOOST_AUTO_TEST_CASE(testLogJointProbabilityOfLessLikelySamples) {
     {
         std::ifstream ifs("testfiles/probabilities");
 
-        BOOST_TEST(ifs.is_open());
+        BOOST_TEST_REQUIRE(ifs.is_open());
 
         CJointProbabilityOfLessLikelySamples jointProbability;
         CLogJointProbabilityOfLessLikelySamples logJointProbability;
@@ -325,7 +325,7 @@ BOOST_AUTO_TEST_CASE(testLogJointProbabilityOfLessLikelySamples) {
         std::string line;
         while (std::getline(ifs, line)) {
             double probability;
-            BOOST_TEST(ml::core::CStringUtils::stringToType(line, probability));
+            BOOST_TEST_REQUIRE(ml::core::CStringUtils::stringToType(line, probability));
             logJointProbability.add(probability);
             jointProbability.add(probability);
         }
@@ -337,15 +337,15 @@ BOOST_AUTO_TEST_CASE(testLogJointProbabilityOfLessLikelySamples) {
         LOG_DEBUG(<< "log(p) = " << logP);
 
         double lowerBound, upperBound;
-        BOOST_TEST(logJointProbability.calculateLowerBound(lowerBound));
-        BOOST_TEST(logJointProbability.calculateUpperBound(upperBound));
+        BOOST_TEST_REQUIRE(logJointProbability.calculateLowerBound(lowerBound));
+        BOOST_TEST_REQUIRE(logJointProbability.calculateUpperBound(upperBound));
         LOG_DEBUG(<< "log(pu) - log(p) = " << upperBound - logP
                   << ", log(p) - log(pl) " << logP - lowerBound);
 
-        BOOST_TEST(logP < upperBound);
-        BOOST_TEST(logP > lowerBound);
+        BOOST_TEST_REQUIRE(logP < upperBound);
+        BOOST_TEST_REQUIRE(logP > lowerBound);
 
-        BOOST_CHECK_CLOSE_ABSOLUTE(upperBound, lowerBound, std::fabs(5e-6 * upperBound));
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(upperBound, lowerBound, std::fabs(5e-6 * upperBound));
     }
 
     // Now test the quality of bounds near underflow.
@@ -371,7 +371,7 @@ BOOST_AUTO_TEST_CASE(testLogJointProbabilityOfLessLikelySamples) {
                 logJointProbability.add(p[i]);
 
                 double probability;
-                BOOST_TEST(jointProbability.calculate(probability));
+                BOOST_TEST_REQUIRE(jointProbability.calculate(probability));
                 if (probability < 10.0 * std::numeric_limits<double>::min()) {
                     ++count;
 
@@ -383,15 +383,15 @@ BOOST_AUTO_TEST_CASE(testLogJointProbabilityOfLessLikelySamples) {
                     LOG_DEBUG(<< "log(p) = " << logP);
 
                     double lowerBound, upperBound;
-                    BOOST_TEST(logJointProbability.calculateLowerBound(lowerBound));
-                    BOOST_TEST(logJointProbability.calculateUpperBound(upperBound));
+                    BOOST_TEST_REQUIRE(logJointProbability.calculateLowerBound(lowerBound));
+                    BOOST_TEST_REQUIRE(logJointProbability.calculateUpperBound(upperBound));
                     LOG_DEBUG(<< "log(pu) - log(p) = " << upperBound - logP
                               << ", log(p) - log(pl) " << logP - lowerBound);
 
-                    BOOST_TEST(logP < upperBound);
-                    BOOST_TEST(logP > lowerBound);
+                    BOOST_TEST_REQUIRE(logP < upperBound);
+                    BOOST_TEST_REQUIRE(logP > lowerBound);
 
-                    BOOST_CHECK_CLOSE_ABSOLUTE(upperBound, lowerBound,
+                    BOOST_REQUIRE_CLOSE_ABSOLUTE(upperBound, lowerBound,
                                                std::fabs(8e-4 * upperBound));
 
                     error += (upperBound - lowerBound) / std::fabs(upperBound);
@@ -402,20 +402,20 @@ BOOST_AUTO_TEST_CASE(testLogJointProbabilityOfLessLikelySamples) {
                     double logP = logUpperIncompleteGamma(s, x) - std::lgamma(s);
 
                     double lowerBound, upperBound;
-                    BOOST_TEST(logJointProbability.calculateLowerBound(lowerBound));
-                    BOOST_TEST(logJointProbability.calculateUpperBound(upperBound));
+                    BOOST_TEST_REQUIRE(logJointProbability.calculateLowerBound(lowerBound));
+                    BOOST_TEST_REQUIRE(logJointProbability.calculateUpperBound(upperBound));
 
                     // Test the test function.
-                    BOOST_CHECK_CLOSE_ABSOLUTE(std::log(probability), logP, 2e-5);
+                    BOOST_REQUIRE_CLOSE_ABSOLUTE(std::log(probability), logP, 2e-5);
 
-                    BOOST_CHECK_CLOSE_ABSOLUTE(std::log(probability), upperBound, 1e-6);
-                    BOOST_CHECK_CLOSE_ABSOLUTE(std::log(probability), lowerBound, 1e-6);
+                    BOOST_REQUIRE_CLOSE_ABSOLUTE(std::log(probability), upperBound, 1e-6);
+                    BOOST_REQUIRE_CLOSE_ABSOLUTE(std::log(probability), lowerBound, 1e-6);
                 }
             }
 
             error /= static_cast<double>(count);
             LOG_DEBUG(<< "mean relative interval = " << error);
-            BOOST_TEST(error < expectedErrors[i]);
+            BOOST_TEST_REQUIRE(error < expectedErrors[i]);
         }
     }
 }
@@ -444,7 +444,7 @@ BOOST_AUTO_TEST_CASE(testProbabilityOfExtremeSample) {
             }
 
             double probability;
-            BOOST_TEST(probabilityCalculator.calculate(probability));
+            BOOST_TEST_REQUIRE(probabilityCalculator.calculate(probability));
 
             LOG_DEBUG(<< "sample size = " << sampleSizes[i] << ", extreme sample probability = "
                       << probabilities[j] << ", probability = " << probability);
@@ -475,7 +475,7 @@ BOOST_AUTO_TEST_CASE(testProbabilityOfExtremeSample) {
             LOG_DEBUG(<< "count = " << count << ", expectedProbability = " << expectedProbability
                       << ", error = " << std::fabs(probability - expectedProbability));
 
-            BOOST_CHECK_CLOSE_ABSOLUTE(probability, expectedProbability, 0.012);
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(probability, expectedProbability, 0.012);
 
             totalError += std::fabs(probability - expectedProbability);
             totalProbability += std::max(probability, expectedProbability);
@@ -483,7 +483,7 @@ BOOST_AUTO_TEST_CASE(testProbabilityOfExtremeSample) {
     }
 
     LOG_DEBUG(<< "totalError = " << totalError << ", totalProbability = " << totalProbability);
-    BOOST_TEST(totalError / totalProbability < 0.01);
+    BOOST_TEST_REQUIRE(totalError / totalProbability < 0.01);
 }
 
 BOOST_AUTO_TEST_CASE(testProbabilityOfMFromNExtremeSamples) {
@@ -516,12 +516,12 @@ BOOST_AUTO_TEST_CASE(testProbabilityOfMFromNExtremeSamples) {
 
             double p1 = expectedProbabilityCalculator.calculate();
             double p2;
-            BOOST_TEST(probabilityCalculator.calculate(p2));
+            BOOST_TEST_REQUIRE(probabilityCalculator.calculate(p2));
 
             LOG_DEBUG(<< "log(probability) = " << p2
                       << ", expected log(probability) = " << p1);
 
-            BOOST_CHECK_CLOSE_ABSOLUTE(p1, p2, 1e-8 * std::fabs(std::max(p1, p2)));
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(p1, p2, 1e-8 * std::fabs(std::max(p1, p2)));
         }
     }
 
@@ -535,7 +535,7 @@ BOOST_AUTO_TEST_CASE(testProbabilityOfMFromNExtremeSamples) {
         CRandomNumbers rng;
 
         for (std::size_t i = 2; i < 4; ++i) {
-            BOOST_TEST(i <= numberProbabilities);
+            BOOST_TEST_REQUIRE(i <= numberProbabilities);
 
             using TSizeVec = std::vector<size_t>;
 
@@ -569,7 +569,7 @@ BOOST_AUTO_TEST_CASE(testProbabilityOfMFromNExtremeSamples) {
                 }
 
                 double p;
-                BOOST_TEST(probabilityCalculator.calculate(p));
+                BOOST_TEST_REQUIRE(probabilityCalculator.calculate(p));
                 p = std::exp(p);
 
                 unsigned int nTrials = 50000u;
@@ -608,7 +608,7 @@ BOOST_AUTO_TEST_CASE(testProbabilityOfMFromNExtremeSamples) {
                 LOG_DEBUG(<< "probability = " << p << ", expectedProbability = " << expectedProbability
                           << ", error = " << error << ", relative error = " << relativeError);
 
-                BOOST_TEST(relativeError < 0.33);
+                BOOST_TEST_REQUIRE(relativeError < 0.33);
 
                 totalError += error;
                 totalProbability += std::max(p, expectedProbability);
@@ -632,7 +632,7 @@ BOOST_AUTO_TEST_CASE(testProbabilityOfMFromNExtremeSamples) {
             LOG_DEBUG(<< "totalError = " << totalError
                       << ", totalRelativeError = " << (totalError / totalProbability));
 
-            BOOST_TEST(totalError < 0.01 * totalProbability);
+            BOOST_TEST_REQUIRE(totalError < 0.01 * totalProbability);
         }
     }
 
@@ -661,11 +661,11 @@ BOOST_AUTO_TEST_CASE(testProbabilityOfMFromNExtremeSamples) {
 
                 double p1 = expectedProbabilityCalculator.calculate();
                 double p2;
-                BOOST_TEST(probabilityCalculator.calculate(p2));
+                BOOST_TEST_REQUIRE(probabilityCalculator.calculate(p2));
 
                 LOG_DEBUG(<< "log(probability) = " << p2
                           << ", expected log(probability) = " << p1);
-                BOOST_CHECK_CLOSE_ABSOLUTE(p1, p2, 1e-4 * std::fabs(std::max(p1, p2)));
+                BOOST_REQUIRE_CLOSE_ABSOLUTE(p1, p2, 1e-4 * std::fabs(std::max(p1, p2)));
             }
         }
     }
@@ -705,9 +705,9 @@ BOOST_AUTO_TEST_CASE(testProbabilityOfMFromNExtremeSamples) {
         }
 
         double p;
-        BOOST_TEST(probabilityCalculator.calculate(p));
+        BOOST_TEST_REQUIRE(probabilityCalculator.calculate(p));
         LOG_DEBUG(<< "log(probability) = " << p << ", expected log(probability) = 0");
-        BOOST_CHECK_CLOSE_ABSOLUTE(0.0, p, 1e-6);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(0.0, p, 1e-6);
     }
 
     {
@@ -717,9 +717,9 @@ BOOST_AUTO_TEST_CASE(testProbabilityOfMFromNExtremeSamples) {
         }
 
         double p;
-        BOOST_TEST(probabilityCalculator.calculate(p));
+        BOOST_TEST_REQUIRE(probabilityCalculator.calculate(p));
         LOG_DEBUG(<< "log(probability) = " << p << ", expected log(probability) = 0");
-        BOOST_CHECK_CLOSE_ABSOLUTE(0.0, p, 1e-6);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(0.0, p, 1e-6);
     }
 
     {
@@ -732,9 +732,9 @@ BOOST_AUTO_TEST_CASE(testProbabilityOfMFromNExtremeSamples) {
 
         double p1 = expectedProbabilityCalculator.calculate();
         double p2;
-        BOOST_TEST(probabilityCalculator.calculate(p2));
+        BOOST_TEST_REQUIRE(probabilityCalculator.calculate(p2));
         LOG_DEBUG(<< "probability = " << p2 << ", expectedProbability = " << p1);
-        BOOST_CHECK_CLOSE_ABSOLUTE(p1, p2, 1e-8 * std::fabs(std::max(p1, p2)));
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(p1, p2, 1e-8 * std::fabs(std::max(p1, p2)));
     }
 
     {
@@ -757,9 +757,9 @@ BOOST_AUTO_TEST_CASE(testProbabilityOfMFromNExtremeSamples) {
 
         double p1 = expectedProbabilityCalculator.calculate();
         double p2;
-        BOOST_TEST(probabilityCalculator.calculate(p2));
+        BOOST_TEST_REQUIRE(probabilityCalculator.calculate(p2));
         LOG_DEBUG(<< "probability = " << p2 << ", expectedProbability = " << p1);
-        BOOST_CHECK_CLOSE_ABSOLUTE(p1, p2, 1e-8 * std::fabs(std::max(p1, p2)));
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(p1, p2, 1e-8 * std::fabs(std::max(p1, p2)));
     }
 
     {
@@ -784,7 +784,7 @@ BOOST_AUTO_TEST_CASE(testProbabilityOfMFromNExtremeSamples) {
         double p2;
         probabilityCalculator.calculate(p2);
         LOG_DEBUG(<< "probability = " << p2 << ", expectedProbability = " << p1);
-        BOOST_CHECK_CLOSE_ABSOLUTE(p1, p2, 1e-8 * std::fabs(std::max(p1, p2)));
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(p1, p2, 1e-8 * std::fabs(std::max(p1, p2)));
     }
 
     {
@@ -807,7 +807,7 @@ BOOST_AUTO_TEST_CASE(testProbabilityOfMFromNExtremeSamples) {
         double p2;
         probabilityCalculator.calculate(p2);
         LOG_DEBUG(<< "probability = " << p2 << ", expectedProbability = " << p1);
-        BOOST_CHECK_CLOSE_ABSOLUTE(p1, p2, 1e-8 * std::fabs(std::max(p1, p2)));
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(p1, p2, 1e-8 * std::fabs(std::max(p1, p2)));
     }
 
     {
@@ -825,7 +825,7 @@ BOOST_AUTO_TEST_CASE(testProbabilityOfMFromNExtremeSamples) {
         double p2;
         probabilityCalculator.calculate(p2);
         LOG_DEBUG(<< "probability = " << p2 << ", expectedProbability = " << p1);
-        BOOST_CHECK_CLOSE_ABSOLUTE(p1, p2, 1e-3);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(p1, p2, 1e-3);
     }
 }
 

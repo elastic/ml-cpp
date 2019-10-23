@@ -17,15 +17,15 @@ BOOST_AUTO_TEST_CASE(testConfigure_GivenInvalidRegex) {
     regexVector.push_back(std::string("("));
 
     ml::core::CRegexFilter filter;
-    BOOST_TEST(filter.configure(regexVector) == false);
-    BOOST_TEST(filter.empty());
+    BOOST_TEST_REQUIRE(filter.configure(regexVector) == false);
+    BOOST_TEST_REQUIRE(filter.empty());
 }
 
 BOOST_AUTO_TEST_CASE(testApply_GivenEmptyFilter) {
     ml::core::CRegexFilter filter;
-    BOOST_TEST(filter.empty());
+    BOOST_TEST_REQUIRE(filter.empty());
 
-    BOOST_CHECK_EQUAL(std::string("foo"), filter.apply(std::string("foo")));
+    BOOST_REQUIRE_EQUAL(std::string("foo"), filter.apply(std::string("foo")));
 }
 
 BOOST_AUTO_TEST_CASE(testApply_GivenSingleMatchAllRegex) {
@@ -33,9 +33,9 @@ BOOST_AUTO_TEST_CASE(testApply_GivenSingleMatchAllRegex) {
     regexVector.push_back(std::string(".*"));
 
     ml::core::CRegexFilter filter;
-    BOOST_TEST(filter.configure(regexVector));
+    BOOST_TEST_REQUIRE(filter.configure(regexVector));
 
-    BOOST_CHECK_EQUAL(std::string(), filter.apply(std::string("foo")));
+    BOOST_REQUIRE_EQUAL(std::string(), filter.apply(std::string("foo")));
 }
 
 BOOST_AUTO_TEST_CASE(testApply_GivenSingleRegex) {
@@ -43,9 +43,9 @@ BOOST_AUTO_TEST_CASE(testApply_GivenSingleRegex) {
     regexVector.push_back(std::string("f"));
 
     ml::core::CRegexFilter filter;
-    BOOST_TEST(filter.configure(regexVector));
+    BOOST_TEST_REQUIRE(filter.configure(regexVector));
 
-    BOOST_CHECK_EQUAL(std::string("a"), filter.apply(std::string("fffa")));
+    BOOST_REQUIRE_EQUAL(std::string("a"), filter.apply(std::string("fffa")));
 }
 
 BOOST_AUTO_TEST_CASE(testApply_GivenMultipleRegex) {
@@ -55,9 +55,9 @@ BOOST_AUTO_TEST_CASE(testApply_GivenMultipleRegex) {
     regexVector.push_back(std::string(" "));
 
     ml::core::CRegexFilter filter;
-    BOOST_TEST(filter.configure(regexVector));
+    BOOST_TEST_REQUIRE(filter.configure(regexVector));
 
-    BOOST_CHECK_EQUAL(std::string("a"), filter.apply(std::string("foo bar fooooobar a")));
+    BOOST_REQUIRE_EQUAL(std::string("a"), filter.apply(std::string("foo bar fooooobar a")));
 }
 
 BOOST_AUTO_TEST_SUITE_END()

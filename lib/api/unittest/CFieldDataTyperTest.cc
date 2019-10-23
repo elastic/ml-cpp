@@ -109,7 +109,7 @@ private:
 BOOST_AUTO_TEST_CASE(testAll) {
     model::CLimits limits;
     CFieldConfig config;
-    BOOST_TEST(config.initFromFile("testfiles/new_persist_categorization.conf"));
+    BOOST_TEST_REQUIRE(config.initFromFile("testfiles/new_persist_categorization.conf"));
     CTestOutputHandler handler;
 
     std::ostringstream outputStrm;
@@ -117,39 +117,39 @@ BOOST_AUTO_TEST_CASE(testAll) {
     CJsonOutputWriter writer("job", wrappedOutputStream);
 
     CFieldDataTyper typer("job", config, limits, handler, writer);
-    BOOST_CHECK_EQUAL(false, handler.isNewStream());
+    BOOST_REQUIRE_EQUAL(false, handler.isNewStream());
     typer.newOutputStream();
-    BOOST_CHECK_EQUAL(true, handler.isNewStream());
+    BOOST_REQUIRE_EQUAL(true, handler.isNewStream());
 
-    BOOST_CHECK_EQUAL(false, handler.hasFinalised());
-    BOOST_CHECK_EQUAL(uint64_t(0), typer.numRecordsHandled());
+    BOOST_REQUIRE_EQUAL(false, handler.hasFinalised());
+    BOOST_REQUIRE_EQUAL(uint64_t(0), typer.numRecordsHandled());
 
     CFieldDataTyper::TStrStrUMap dataRowFields;
     dataRowFields["message"] = "thing";
     dataRowFields["two"] = "other";
 
-    BOOST_TEST(typer.handleRecord(dataRowFields));
+    BOOST_TEST_REQUIRE(typer.handleRecord(dataRowFields));
 
-    BOOST_CHECK_EQUAL(uint64_t(1), typer.numRecordsHandled());
-    BOOST_CHECK_EQUAL(typer.numRecordsHandled(), handler.getNumRows());
+    BOOST_REQUIRE_EQUAL(uint64_t(1), typer.numRecordsHandled());
+    BOOST_REQUIRE_EQUAL(typer.numRecordsHandled(), handler.getNumRows());
 
     // try a couple of erroneous cases
     dataRowFields.clear();
-    BOOST_TEST(typer.handleRecord(dataRowFields));
+    BOOST_TEST_REQUIRE(typer.handleRecord(dataRowFields));
 
     dataRowFields["thing"] = "bling";
     dataRowFields["thang"] = "wing";
-    BOOST_TEST(typer.handleRecord(dataRowFields));
+    BOOST_TEST_REQUIRE(typer.handleRecord(dataRowFields));
 
     dataRowFields["message"] = "";
     dataRowFields["thang"] = "wing";
-    BOOST_TEST(typer.handleRecord(dataRowFields));
+    BOOST_TEST_REQUIRE(typer.handleRecord(dataRowFields));
 
-    BOOST_CHECK_EQUAL(uint64_t(4), typer.numRecordsHandled());
-    BOOST_CHECK_EQUAL(typer.numRecordsHandled(), handler.getNumRows());
+    BOOST_REQUIRE_EQUAL(uint64_t(4), typer.numRecordsHandled());
+    BOOST_REQUIRE_EQUAL(typer.numRecordsHandled(), handler.getNumRows());
 
     typer.finalise();
-    BOOST_TEST(handler.hasFinalised());
+    BOOST_TEST_REQUIRE(handler.hasFinalised());
 
     // do a persist / restore
     std::string origJson;
@@ -180,13 +180,13 @@ BOOST_AUTO_TEST_CASE(testAll) {
         std::ostringstream& ss = dynamic_cast<std::ostringstream&>(*adder.getStream());
         newJson = ss.str();
     }
-    BOOST_CHECK_EQUAL(origJson, newJson);
+    BOOST_REQUIRE_EQUAL(origJson, newJson);
 }
 
 BOOST_AUTO_TEST_CASE(testNodeReverseSearch) {
     model::CLimits limits;
     CFieldConfig config;
-    BOOST_TEST(config.initFromFile("testfiles/new_persist_categorization.conf"));
+    BOOST_TEST_REQUIRE(config.initFromFile("testfiles/new_persist_categorization.conf"));
 
     std::ostringstream outputStrm;
     {
@@ -199,11 +199,11 @@ BOOST_AUTO_TEST_CASE(testNodeReverseSearch) {
         CFieldDataTyper::TStrStrUMap dataRowFields;
         dataRowFields["message"] = "Node 1 started";
 
-        BOOST_TEST(typer.handleRecord(dataRowFields));
+        BOOST_TEST_REQUIRE(typer.handleRecord(dataRowFields));
 
         dataRowFields["message"] = "Node 2 started";
 
-        BOOST_TEST(typer.handleRecord(dataRowFields));
+        BOOST_TEST_REQUIRE(typer.handleRecord(dataRowFields));
 
         typer.finalise();
     }
@@ -216,16 +216,16 @@ BOOST_AUTO_TEST_CASE(testNodeReverseSearch) {
     // reverse search creation are tested more thoroughly in the unit tests for
     // their respective classes, but this test helps to confirm that they work
     // together)
-    BOOST_TEST(output.find("\"terms\":\"Node started\"") != std::string::npos);
-    BOOST_TEST(output.find("\"regex\":\".*?Node.+?started.*\"") != std::string::npos);
+    BOOST_TEST_REQUIRE(output.find("\"terms\":\"Node started\"") != std::string::npos);
+    BOOST_TEST_REQUIRE(output.find("\"regex\":\".*?Node.+?started.*\"") != std::string::npos);
     // The input data should NOT be in the output
-    BOOST_TEST(output.find("\"message\"") == std::string::npos);
+    BOOST_TEST_REQUIRE(output.find("\"message\"") == std::string::npos);
 }
 
 BOOST_AUTO_TEST_CASE(testPassOnControlMessages) {
     model::CLimits limits;
     CFieldConfig config;
-    BOOST_TEST(config.initFromFile("testfiles/new_persist_categorization.conf"));
+    BOOST_TEST_REQUIRE(config.initFromFile("testfiles/new_persist_categorization.conf"));
 
     std::ostringstream outputStrm;
     {
@@ -240,20 +240,20 @@ BOOST_AUTO_TEST_CASE(testPassOnControlMessages) {
         CFieldDataTyper::TStrStrUMap dataRowFields;
         dataRowFields["."] = "f7";
 
-        BOOST_TEST(typer.handleRecord(dataRowFields));
+        BOOST_TEST_REQUIRE(typer.handleRecord(dataRowFields));
 
         typer.finalise();
     }
 
     const std::string& output = outputStrm.str();
     LOG_DEBUG(<< "Output is: " << output);
-    BOOST_CHECK_EQUAL(std::string("[]"), output);
+    BOOST_REQUIRE_EQUAL(std::string("[]"), output);
 }
 
 BOOST_AUTO_TEST_CASE(testHandleControlMessages) {
     model::CLimits limits;
     CFieldConfig config;
-    BOOST_TEST(config.initFromFile("testfiles/new_persist_categorization.conf"));
+    BOOST_TEST_REQUIRE(config.initFromFile("testfiles/new_persist_categorization.conf"));
 
     std::ostringstream outputStrm;
     {
@@ -266,21 +266,21 @@ BOOST_AUTO_TEST_CASE(testHandleControlMessages) {
         CFieldDataTyper::TStrStrUMap dataRowFields;
         dataRowFields["."] = "f7";
 
-        BOOST_TEST(typer.handleRecord(dataRowFields));
+        BOOST_TEST_REQUIRE(typer.handleRecord(dataRowFields));
 
         typer.finalise();
     }
 
     const std::string& output = outputStrm.str();
     LOG_DEBUG(<< "Output is: " << output);
-    BOOST_CHECK_EQUAL(std::string::size_type(0),
+    BOOST_REQUIRE_EQUAL(std::string::size_type(0),
                       output.find("[{\"flush\":{\"id\":\"7\",\"last_finalized_bucket_end\":0}}"));
 }
 
 BOOST_AUTO_TEST_CASE(testRestoreStateFailsWithEmptyState) {
     model::CLimits limits;
     CFieldConfig config;
-    BOOST_TEST(config.initFromFile("testfiles/new_persist_categorization.conf"));
+    BOOST_TEST_REQUIRE(config.initFromFile("testfiles/new_persist_categorization.conf"));
 
     std::ostringstream outputStrm;
     CNullOutput nullOutput;
@@ -290,7 +290,7 @@ BOOST_AUTO_TEST_CASE(testRestoreStateFailsWithEmptyState) {
 
     core_t::TTime completeToTime(0);
     CEmptySearcher restoreSearcher;
-    BOOST_TEST(typer.restoreState(restoreSearcher, completeToTime) == false);
+    BOOST_TEST_REQUIRE(typer.restoreState(restoreSearcher, completeToTime) == false);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

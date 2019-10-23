@@ -164,7 +164,7 @@ void testPersistRestore(const T& collection, const T& initial = T()) {
     std::stringstream restoredSs;
     {
         core::CJsonStateRestoreTraverser traverser(origSs);
-        BOOST_TEST(core::CPersistUtils::restore(tag, restored, traverser));
+        BOOST_TEST_REQUIRE(core::CPersistUtils::restore(tag, restored, traverser));
     }
     LOG_TRACE(<< " - doing persist again " << typeid(T).name());
     {
@@ -174,8 +174,8 @@ void testPersistRestore(const T& collection, const T& initial = T()) {
     }
     LOG_TRACE(<< "String data is: " << restoredSs.str());
 
-    BOOST_CHECK_EQUAL(origSs.str(), restoredSs.str());
-    BOOST_TEST(compare(collection, restored));
+    BOOST_REQUIRE_EQUAL(origSs.str(), restoredSs.str());
+    BOOST_TEST_REQUIRE(compare(collection, restored));
 }
 }
 
@@ -410,17 +410,17 @@ BOOST_AUTO_TEST_CASE(testPersistContainers) {
     {
         std::string bad("dejk");
         TDoubleVec collection;
-        BOOST_TEST(!core::CPersistUtils::fromString(bad, collection));
-        BOOST_TEST(collection.empty());
+        BOOST_TEST_REQUIRE(!core::CPersistUtils::fromString(bad, collection));
+        BOOST_TEST_REQUIRE(collection.empty());
 
         bad += core::CPersistUtils::DELIMITER;
         bad += "12";
-        BOOST_TEST(!core::CPersistUtils::fromString(bad, collection));
-        BOOST_TEST(collection.empty());
+        BOOST_TEST_REQUIRE(!core::CPersistUtils::fromString(bad, collection));
+        BOOST_TEST_REQUIRE(collection.empty());
 
         bad = std::string("1.3") + core::CPersistUtils::DELIMITER + bad;
-        BOOST_TEST(!core::CPersistUtils::fromString(bad, collection));
-        BOOST_TEST(collection.empty());
+        BOOST_TEST_REQUIRE(!core::CPersistUtils::fromString(bad, collection));
+        BOOST_TEST_REQUIRE(collection.empty());
     }
     {
         std::string bad;
@@ -428,13 +428,13 @@ BOOST_AUTO_TEST_CASE(testPersistContainers) {
         bad += core::CPersistUtils::PAIR_DELIMITER;
         bad += "kdsk";
         TSizeDoubleMap collection;
-        BOOST_TEST(!core::CPersistUtils::fromString(bad, collection));
-        BOOST_TEST(collection.empty());
+        BOOST_TEST_REQUIRE(!core::CPersistUtils::fromString(bad, collection));
+        BOOST_TEST_REQUIRE(collection.empty());
 
         bad = std::string("etjdjk") + core::CPersistUtils::PAIR_DELIMITER +
               "2.3" + core::CPersistUtils::DELIMITER + bad;
-        BOOST_TEST(!core::CPersistUtils::fromString(bad, collection));
-        BOOST_TEST(collection.empty());
+        BOOST_TEST_REQUIRE(!core::CPersistUtils::fromString(bad, collection));
+        BOOST_TEST_REQUIRE(collection.empty());
     }
     {
         std::string state;
@@ -442,7 +442,7 @@ BOOST_AUTO_TEST_CASE(testPersistContainers) {
         state += core::CPersistUtils::DELIMITER;
         state += "2.4";
         std::array<double, 3> wrongSize;
-        BOOST_TEST(!core::CPersistUtils::fromString(state, wrongSize));
+        BOOST_TEST_REQUIRE(!core::CPersistUtils::fromString(state, wrongSize));
     }
 }
 
@@ -461,7 +461,7 @@ BOOST_AUTO_TEST_CASE(testPersistIterators) {
 
         std::string state = core::CPersistUtils::toString(begin, end);
         LOG_DEBUG(<< "state = " << state);
-        BOOST_TEST(begin == end);
+        BOOST_TEST_REQUIRE(begin == end);
         TDoubleVec restored;
         core::CPersistUtils::fromString(state, restored);
 
@@ -469,14 +469,14 @@ BOOST_AUTO_TEST_CASE(testPersistIterators) {
         for (int i = 0; i < 10; i++) {
             firstTen.push_back(i);
         }
-        BOOST_TEST(equal(firstTen, restored));
+        BOOST_TEST_REQUIRE(equal(firstTen, restored));
 
         TDoubleVec::iterator fifth = collection.begin() + 5;
         TDoubleVec::iterator tenth = collection.begin() + 10;
 
         state = core::CPersistUtils::toString(fifth, tenth);
         LOG_DEBUG(<< "state = " << state);
-        BOOST_TEST(fifth == tenth);
+        BOOST_TEST_REQUIRE(fifth == tenth);
         restored.clear();
         core::CPersistUtils::fromString(state, restored);
 
@@ -484,7 +484,7 @@ BOOST_AUTO_TEST_CASE(testPersistIterators) {
         for (int i = 5; i < 10; i++) {
             fithToTenth.push_back(i);
         }
-        BOOST_TEST(equal(fithToTenth, restored));
+        BOOST_TEST_REQUIRE(equal(fithToTenth, restored));
     }
 }
 
@@ -502,7 +502,7 @@ BOOST_AUTO_TEST_CASE(testAppend) {
         LOG_DEBUG(<< "state = " << state);
         TDoubleVec restored;
         core::CPersistUtils::fromString(state, restored);
-        BOOST_TEST(equal(source, restored));
+        BOOST_TEST_REQUIRE(equal(source, restored));
 
         for (int i = 9; i < 15; i++) {
             source.push_back(i);
@@ -512,12 +512,12 @@ BOOST_AUTO_TEST_CASE(testAppend) {
         TDoubleVec::iterator end = source.begin() + 15;
 
         state = core::CPersistUtils::toString(begin, end);
-        BOOST_TEST(begin == end);
+        BOOST_TEST_REQUIRE(begin == end);
         LOG_DEBUG(<< "state = " << state);
 
         core::CPersistUtils::fromString(state, restored, core::CPersistUtils::DELIMITER,
                                         core::CPersistUtils::PAIR_DELIMITER, true);
-        BOOST_TEST(equal(source, restored));
+        BOOST_TEST_REQUIRE(equal(source, restored));
 
         for (int i = 15; i < 19; i++) {
             source.push_back(i);
@@ -527,12 +527,12 @@ BOOST_AUTO_TEST_CASE(testAppend) {
         end = source.begin() + 19;
 
         state = core::CPersistUtils::toString(begin, end);
-        BOOST_TEST(begin == end);
+        BOOST_TEST_REQUIRE(begin == end);
         LOG_DEBUG(<< "state = " << state);
 
         core::CPersistUtils::fromString(state, restored, core::CPersistUtils::DELIMITER,
                                         core::CPersistUtils::PAIR_DELIMITER, true);
-        BOOST_TEST(equal(source, restored));
+        BOOST_TEST_REQUIRE(equal(source, restored));
     }
 
     {
@@ -545,7 +545,7 @@ BOOST_AUTO_TEST_CASE(testAppend) {
         TSizeDoubleMap restored;
         core::CPersistUtils::fromString(state, restored, core::CPersistUtils::DELIMITER,
                                         core::CPersistUtils::PAIR_DELIMITER, true);
-        BOOST_TEST(equal(collection, restored));
+        BOOST_TEST_REQUIRE(equal(collection, restored));
 
         for (int i = 0; i < 10; i++) {
             collection.insert(TSizeDoublePr(i, 3.2));
@@ -555,7 +555,7 @@ BOOST_AUTO_TEST_CASE(testAppend) {
         LOG_DEBUG(<< "state = " << state);
         core::CPersistUtils::fromString(state, restored, core::CPersistUtils::DELIMITER,
                                         core::CPersistUtils::PAIR_DELIMITER, true);
-        BOOST_TEST(equal(collection, restored));
+        BOOST_TEST_REQUIRE(equal(collection, restored));
 
         // add another element
         std::pair<TSizeDoubleMap::iterator, bool> pr =
@@ -566,7 +566,7 @@ BOOST_AUTO_TEST_CASE(testAppend) {
         LOG_DEBUG(<< "state = " << state);
         core::CPersistUtils::fromString(state, restored, core::CPersistUtils::DELIMITER,
                                         core::CPersistUtils::PAIR_DELIMITER, true);
-        BOOST_TEST(equal(collection, restored));
+        BOOST_TEST_REQUIRE(equal(collection, restored));
 
         pr = collection.insert(TSizeDoublePr(20, 158.0));
         collection.insert(TSizeDoublePr(21, 1.678e-45));
@@ -576,7 +576,7 @@ BOOST_AUTO_TEST_CASE(testAppend) {
         LOG_DEBUG(<< "state = " << state);
         core::CPersistUtils::fromString(state, restored, core::CPersistUtils::DELIMITER,
                                         core::CPersistUtils::PAIR_DELIMITER, true);
-        BOOST_TEST(equal(collection, restored));
+        BOOST_TEST_REQUIRE(equal(collection, restored));
     }
 }
 

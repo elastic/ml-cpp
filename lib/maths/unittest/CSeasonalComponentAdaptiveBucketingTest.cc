@@ -42,15 +42,15 @@ BOOST_AUTO_TEST_CASE(testInitialize) {
     maths::CGeneralPeriodTime time(100);
     maths::CSeasonalComponentAdaptiveBucketing bucketing(time);
 
-    BOOST_TEST(!bucketing.initialize(0));
+    BOOST_TEST_REQUIRE(!bucketing.initialize(0));
 
     const std::string expectedEndpoints("[0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100]");
     const std::string expectedKnots("[0, 5, 15, 25, 35, 45, 55, 65, 75, 85, 95, 100]");
     const std::string expectedValues("[50, 5, 15, 25, 35, 45, 55, 65, 75, 85, 95, 50]");
 
-    BOOST_TEST(bucketing.initialize(10));
+    BOOST_TEST_REQUIRE(bucketing.initialize(10));
     const TFloatVec& endpoints = bucketing.endpoints();
-    BOOST_CHECK_EQUAL(expectedEndpoints, core::CContainerPrinter::print(endpoints));
+    BOOST_REQUIRE_EQUAL(expectedEndpoints, core::CContainerPrinter::print(endpoints));
 
     for (core_t::TTime t = 5; t < 100; t += 10) {
         double v = static_cast<double>(t);
@@ -60,8 +60,8 @@ BOOST_AUTO_TEST_CASE(testInitialize) {
     TDoubleVec values;
     TDoubleVec variances;
     bucketing.knots(1, maths::CSplineTypes::E_Periodic, knots, values, variances);
-    BOOST_CHECK_EQUAL(expectedKnots, core::CContainerPrinter::print(knots));
-    BOOST_CHECK_EQUAL(expectedValues, core::CContainerPrinter::print(values));
+    BOOST_REQUIRE_EQUAL(expectedKnots, core::CContainerPrinter::print(knots));
+    BOOST_REQUIRE_EQUAL(expectedValues, core::CContainerPrinter::print(values));
 }
 
 BOOST_AUTO_TEST_CASE(testSwap) {
@@ -96,8 +96,8 @@ BOOST_AUTO_TEST_CASE(testSwap) {
     LOG_DEBUG(<< "checksum 1 = " << checksum1);
     LOG_DEBUG(<< "checksum 2 = " << checksum2);
 
-    BOOST_CHECK_EQUAL(checksum1, bucketing2.checksum());
-    BOOST_CHECK_EQUAL(checksum2, bucketing1.checksum());
+    BOOST_REQUIRE_EQUAL(checksum1, bucketing2.checksum());
+    BOOST_REQUIRE_EQUAL(checksum2, bucketing1.checksum());
 }
 
 BOOST_AUTO_TEST_CASE(testRefine) {
@@ -182,9 +182,9 @@ BOOST_AUTO_TEST_CASE(testRefine) {
         LOG_DEBUG(<< "max error          = " << maxError1[0]);
         LOG_DEBUG(<< "refined mean error = " << maths::CBasicStatistics::mean(meanError2));
         LOG_DEBUG(<< "refined max error  = " << maxError2[0]);
-        BOOST_TEST(maths::CBasicStatistics::mean(meanError2) <
+        BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(meanError2) <
                    0.85 * maths::CBasicStatistics::mean(meanError1));
-        BOOST_TEST(maxError2[0] < 0.7 * maxError1[0]);
+        BOOST_TEST_REQUIRE(maxError2[0] < 0.7 * maxError1[0]);
     }
 
     {
@@ -243,8 +243,8 @@ BOOST_AUTO_TEST_CASE(testRefine) {
             LOG_DEBUG(<< "v = " << v << ", v_ = " << v_
                       << ", relative error = " << std::fabs(v - v_) / v_);
 
-            BOOST_CHECK_CLOSE_ABSOLUTE(m_, m, 0.7);
-            BOOST_CHECK_CLOSE_ABSOLUTE(v_, v, 0.4 * v_);
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(m_, m, 0.7);
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(v_, v, 0.4 * v_);
             meanError.add(std::fabs(m_ - m) / m_);
             varianceError.add(std::fabs(v_ - v) / v_);
 
@@ -281,14 +281,14 @@ BOOST_AUTO_TEST_CASE(testRefine) {
         double varianceError_ = maths::CBasicStatistics::mean(varianceError);
         LOG_DEBUG(<< "meanError = " << meanError_ << ", varianceError = " << varianceError_);
 
-        BOOST_TEST(meanError_ < 0.09);
-        BOOST_TEST(varianceError_ < 0.21);
+        BOOST_TEST_REQUIRE(meanError_ < 0.09);
+        BOOST_TEST_REQUIRE(varianceError_ < 0.21);
 
         double avgErrorMean = maths::CBasicStatistics::mean(avgError);
         double avgErrorStd = std::sqrt(maths::CBasicStatistics::variance(avgError));
         LOG_DEBUG(<< "avgErrorMean = " << avgErrorMean << ", avgErrorStd = " << avgErrorStd);
 
-        BOOST_TEST(avgErrorStd / avgErrorMean < 0.5);
+        BOOST_TEST_REQUIRE(avgErrorStd / avgErrorMean < 0.5);
     }
 }
 
@@ -318,8 +318,8 @@ BOOST_AUTO_TEST_CASE(testPropagateForwardsByTime) {
         double count = bucketing.count();
         LOG_DEBUG(<< "count = " << count << ", lastCount = " << lastCount
                   << " count/lastCount = " << count / lastCount);
-        BOOST_TEST(count < lastCount);
-        BOOST_CHECK_CLOSE_ABSOLUTE(0.81873, count / lastCount, 5e-6);
+        BOOST_TEST_REQUIRE(count < lastCount);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(0.81873, count / lastCount, 5e-6);
         lastCount = count;
     }
 }
@@ -363,7 +363,7 @@ BOOST_AUTO_TEST_CASE(testMinimumBucketLength) {
         const TFloatVec& endpoints1 = bucketing1.endpoints();
         const TFloatVec& endpoints2 = bucketing2.endpoints();
 
-        BOOST_CHECK_EQUAL(endpoints1.size(), endpoints2.size());
+        BOOST_REQUIRE_EQUAL(endpoints1.size(), endpoints2.size());
         TMinAccumulator minimumBucketLength1;
         TMinAccumulator minimumBucketLength2;
         double minimumTotalError = 0.0;
@@ -376,7 +376,7 @@ BOOST_AUTO_TEST_CASE(testMinimumBucketLength) {
         }
         LOG_DEBUG(<< "minimumBucketLength1 = " << minimumBucketLength1);
         LOG_DEBUG(<< "minimumBucketLength2 = " << minimumBucketLength2);
-        BOOST_TEST(minimumBucketLength2[0] >= 3000.0);
+        BOOST_TEST_REQUIRE(minimumBucketLength2[0] >= 3000.0);
 
         double totalError = 0.0;
         for (std::size_t j = 1u; j + 1 < endpoints1.size(); ++j) {
@@ -384,7 +384,7 @@ BOOST_AUTO_TEST_CASE(testMinimumBucketLength) {
         }
         LOG_DEBUG(<< "minimumTotalError = " << minimumTotalError);
         LOG_DEBUG(<< "totalError        = " << totalError);
-        BOOST_TEST(totalError <= 7.5 * minimumTotalError);
+        BOOST_TEST_REQUIRE(totalError <= 7.5 * minimumTotalError);
     }
 }
 
@@ -398,38 +398,38 @@ BOOST_AUTO_TEST_CASE(testUnintialized) {
     bucketing.add(0, 1.0, 1.0);
     bucketing.add(1, 2.0, 2.0);
 
-    BOOST_TEST(!bucketing.initialized());
+    BOOST_TEST_REQUIRE(!bucketing.initialized());
     bucketing.propagateForwardsByTime(1.0);
     bucketing.refine(10);
     TDoubleVec knots;
     TDoubleVec values;
     TDoubleVec variances;
     bucketing.knots(10, maths::CSplineTypes::E_Periodic, knots, values, variances);
-    BOOST_TEST(knots.empty());
-    BOOST_TEST(values.empty());
-    BOOST_TEST(variances.empty());
-    BOOST_CHECK_EQUAL(0.0, bucketing.count());
-    BOOST_TEST(bucketing.endpoints().empty());
-    BOOST_TEST(bucketing.values(100).empty());
-    BOOST_TEST(bucketing.variances().empty());
+    BOOST_TEST_REQUIRE(knots.empty());
+    BOOST_TEST_REQUIRE(values.empty());
+    BOOST_TEST_REQUIRE(variances.empty());
+    BOOST_REQUIRE_EQUAL(0.0, bucketing.count());
+    BOOST_TEST_REQUIRE(bucketing.endpoints().empty());
+    BOOST_TEST_REQUIRE(bucketing.values(100).empty());
+    BOOST_TEST_REQUIRE(bucketing.variances().empty());
 
     bucketing.initialize(10);
-    BOOST_TEST(bucketing.initialized());
+    BOOST_TEST_REQUIRE(bucketing.initialized());
     for (std::size_t i = 0u; i < 10; ++i) {
         core_t::TTime t = static_cast<core_t::TTime>(i);
         double v = static_cast<double>(t * t);
         bucketing.add(t, v, v);
     }
     bucketing.clear();
-    BOOST_TEST(!bucketing.initialized());
+    BOOST_TEST_REQUIRE(!bucketing.initialized());
     bucketing.knots(10, maths::CSplineTypes::E_Periodic, knots, values, variances);
-    BOOST_TEST(knots.empty());
-    BOOST_TEST(values.empty());
-    BOOST_TEST(variances.empty());
-    BOOST_CHECK_EQUAL(0.0, bucketing.count());
-    BOOST_TEST(bucketing.endpoints().empty());
-    BOOST_TEST(bucketing.values(100).empty());
-    BOOST_TEST(bucketing.variances().empty());
+    BOOST_TEST_REQUIRE(knots.empty());
+    BOOST_TEST_REQUIRE(values.empty());
+    BOOST_TEST_REQUIRE(variances.empty());
+    BOOST_REQUIRE_EQUAL(0.0, bucketing.count());
+    BOOST_TEST_REQUIRE(bucketing.endpoints().empty());
+    BOOST_TEST_REQUIRE(bucketing.values(100).empty());
+    BOOST_TEST_REQUIRE(bucketing.variances().empty());
 }
 
 BOOST_AUTO_TEST_CASE(testKnots) {
@@ -469,13 +469,13 @@ BOOST_AUTO_TEST_CASE(testKnots) {
                 double x = knots[i] / 864.0;
                 double expectedValue = 0.02 * (x - 50.0) * (x - 50.0);
                 LOG_DEBUG(<< "expected = " << expectedValue << ", value = " << values[i]);
-                BOOST_CHECK_CLOSE_ABSOLUTE(expectedValue, values[i], 15.0);
+                BOOST_REQUIRE_CLOSE_ABSOLUTE(expectedValue, values[i], 15.0);
                 meanError.add(std::fabs(values[i] - expectedValue));
                 meanValue.add(std::fabs(expectedValue));
             }
             LOG_DEBUG(<< "meanError = " << maths::CBasicStatistics::mean(meanError));
             LOG_DEBUG(<< "meanValue = " << maths::CBasicStatistics::mean(meanValue));
-            BOOST_TEST(maths::CBasicStatistics::mean(meanError) /
+            BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(meanError) /
                            maths::CBasicStatistics::mean(meanValue) <
                        0.1 / std::sqrt(static_cast<double>(p + 1)));
         }
@@ -514,13 +514,13 @@ BOOST_AUTO_TEST_CASE(testKnots) {
                     double expectedVariance = 0.01 * (x - 50.0) * (x - 50.0);
                     LOG_DEBUG(<< "expected = " << expectedVariance
                               << ", variance = " << variances[i]);
-                    BOOST_CHECK_CLOSE_ABSOLUTE(expectedVariance, variances[i], 15.0);
+                    BOOST_REQUIRE_CLOSE_ABSOLUTE(expectedVariance, variances[i], 15.0);
                     meanError.add(std::fabs(variances[i] - expectedVariance));
                     meanVariance.add(std::fabs(expectedVariance));
                 }
                 LOG_DEBUG(<< "meanError    = " << maths::CBasicStatistics::mean(meanError));
                 LOG_DEBUG(<< "meanVariance = " << maths::CBasicStatistics::mean(meanVariance));
-                BOOST_TEST(maths::CBasicStatistics::mean(meanError) /
+                BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(meanError) /
                                maths::CBasicStatistics::mean(meanVariance) <
                            0.2);
             }
@@ -574,13 +574,13 @@ BOOST_AUTO_TEST_CASE(testLongTermTrendKnots) {
                             std::max(static_cast<double>(p + 1) + x - 50.0, 0.0) +
                             10.0 * std::sin(boost::math::double_constants::two_pi * x));
                 LOG_DEBUG(<< "expected = " << expectedValue << ", value = " << values[i]);
-                BOOST_CHECK_CLOSE_ABSOLUTE(expectedValue, values[i], 70.0);
+                BOOST_REQUIRE_CLOSE_ABSOLUTE(expectedValue, values[i], 70.0);
                 meanError.add(std::fabs(values[i] - expectedValue));
                 meanValue.add(std::fabs(expectedValue));
             }
             LOG_DEBUG(<< "meanError = " << maths::CBasicStatistics::mean(meanError));
             LOG_DEBUG(<< "meanValue = " << maths::CBasicStatistics::mean(meanValue));
-            BOOST_TEST(maths::CBasicStatistics::mean(meanError) /
+            BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(meanError) /
                            maths::CBasicStatistics::mean(meanValue) <
                        0.15);
         }
@@ -621,14 +621,14 @@ BOOST_AUTO_TEST_CASE(testShiftValue) {
     TDoubleVec variances2;
     bucketing.knots(t + 7 * 86400, maths::CSplineTypes::E_Natural, knots2, values2, variances2);
 
-    BOOST_CHECK_EQUAL(core::CContainerPrinter::print(knots1),
+    BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(knots1),
                       core::CContainerPrinter::print(knots2));
-    BOOST_CHECK_EQUAL(core::CContainerPrinter::print(variances1),
+    BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(variances1),
                       core::CContainerPrinter::print(variances2));
 
     for (std::size_t i = 0u; i < values1.size(); ++i) {
         LOG_DEBUG(<< "values = " << values1[i] << " vs " << values2[i]);
-        BOOST_CHECK_CLOSE_ABSOLUTE(20.0 + values1[i], values2[i], 1e-6 * values1[i]);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(20.0 + values1[i], values2[i], 1e-6 * values1[i]);
     }
 }
 
@@ -656,14 +656,14 @@ BOOST_AUTO_TEST_CASE(testSlope) {
     double slopeBefore = bucketing.slope();
 
     LOG_DEBUG(<< "slope = " << slopeBefore);
-    BOOST_CHECK_CLOSE_ABSOLUTE(7.0, slopeBefore, 0.25);
+    BOOST_REQUIRE_CLOSE_ABSOLUTE(7.0, slopeBefore, 0.25);
 
     bucketing.shiftSlope(t, 10.0);
 
     double slopeAfter = bucketing.slope();
 
     LOG_DEBUG(<< "slope = " << slopeAfter);
-    BOOST_CHECK_CLOSE_ABSOLUTE(slopeBefore + 10.0, slopeAfter, 1e-4);
+    BOOST_REQUIRE_CLOSE_ABSOLUTE(slopeBefore + 10.0, slopeAfter, 1e-4);
 }
 
 BOOST_AUTO_TEST_CASE(testPersist) {
@@ -698,7 +698,7 @@ BOOST_AUTO_TEST_CASE(testPersist) {
     LOG_DEBUG(<< "Bucketing XML representation:\n" << origXml);
 
     core::CRapidXmlParser parser;
-    BOOST_TEST(parser.parseStringIgnoreCdata(origXml));
+    BOOST_TEST_REQUIRE(parser.parseStringIgnoreCdata(origXml));
     core::CRapidXmlStateRestoreTraverser traverser(parser);
 
     // Restore the XML into a new bucketing.
@@ -707,7 +707,7 @@ BOOST_AUTO_TEST_CASE(testPersist) {
 
     LOG_DEBUG(<< "orig checksum = " << checksum
               << " restored checksum = " << restoredBucketing.checksum());
-    BOOST_CHECK_EQUAL(checksum, restoredBucketing.checksum());
+    BOOST_REQUIRE_EQUAL(checksum, restoredBucketing.checksum());
 
     // The XML representation of the new bucketing should be the
     // same as the original.
@@ -717,7 +717,7 @@ BOOST_AUTO_TEST_CASE(testPersist) {
         restoredBucketing.acceptPersistInserter(inserter);
         inserter.toXml(newXml);
     }
-    BOOST_CHECK_EQUAL(origXml, newXml);
+    BOOST_REQUIRE_EQUAL(origXml, newXml);
 }
 
 BOOST_AUTO_TEST_CASE(testUpgrade) {
@@ -748,7 +748,7 @@ BOOST_AUTO_TEST_CASE(testUpgrade) {
     LOG_DEBUG(<< "Saved state size = " << xml.size());
 
     core::CRapidXmlParser parser;
-    BOOST_TEST(parser.parseStringIgnoreCdata(xml));
+    BOOST_TEST_REQUIRE(parser.parseStringIgnoreCdata(xml));
     core::CRapidXmlStateRestoreTraverser traverser(parser);
 
     // Restore the XML into a new bucketing.
@@ -770,21 +770,21 @@ BOOST_AUTO_TEST_CASE(testUpgrade) {
     expectedBucketing.knots(863136, maths::CSplineTypes::E_Periodic,
                             restoredKnots, restoredValues, restoredVariances);
 
-    BOOST_CHECK_EQUAL(expectedBucketing.decayRate(), restoredBucketing.decayRate());
+    BOOST_REQUIRE_EQUAL(expectedBucketing.decayRate(), restoredBucketing.decayRate());
 
     LOG_DEBUG(<< "expected knots = " << core::CContainerPrinter::print(expectedKnots));
     LOG_DEBUG(<< "restored knots = " << core::CContainerPrinter::print(restoredKnots));
-    BOOST_CHECK_EQUAL(core::CContainerPrinter::print(expectedKnots),
+    BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(expectedKnots),
                       core::CContainerPrinter::print(restoredKnots));
 
     LOG_DEBUG(<< "expected values = " << core::CContainerPrinter::print(expectedValues));
     LOG_DEBUG(<< "restored values = " << core::CContainerPrinter::print(restoredValues));
-    BOOST_CHECK_EQUAL(core::CContainerPrinter::print(expectedValues),
+    BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(expectedValues),
                       core::CContainerPrinter::print(restoredValues));
 
     LOG_DEBUG(<< "expected variances = " << core::CContainerPrinter::print(expectedVariances));
     LOG_DEBUG(<< "restored variances = " << core::CContainerPrinter::print(restoredVariances));
-    BOOST_CHECK_EQUAL(core::CContainerPrinter::print(expectedVariances),
+    BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(expectedVariances),
                       core::CContainerPrinter::print(restoredVariances));
 }
 
@@ -795,7 +795,7 @@ BOOST_AUTO_TEST_CASE(testName) {
     maths::CDiurnalTime time(0, 0, core::constants::WEEK, core::constants::DAY);
     maths::CSeasonalComponentAdaptiveBucketing bucketing(time, decayRate, minimumBucketLength);
 
-    BOOST_CHECK_EQUAL(std::string("Seasonal[") + std::to_string(decayRate) +
+    BOOST_REQUIRE_EQUAL(std::string("Seasonal[") + std::to_string(decayRate) +
                           "," + std::to_string(minimumBucketLength) + "]",
                       bucketing.name());
 }

@@ -53,12 +53,12 @@ BOOST_AUTO_TEST_CASE(testIndexGenerator) {
             LOG_DEBUG(<< "indices = " << core::CContainerPrinter::print(indices));
         }
         if (nexts[i] == 1) {
-            BOOST_TEST(indices.insert(generator.next()).second);
+            BOOST_TEST_REQUIRE(indices.insert(generator.next()).second);
             maxSetSize = std::max(maxSetSize, indices.size());
             if (*indices.begin() >= maxSetSize) {
                 LOG_DEBUG(<< "index = " << *indices.begin() << ", maxSetSize = " << maxSetSize);
             }
-            BOOST_TEST(*indices.begin() < maxSetSize);
+            BOOST_TEST_REQUIRE(*indices.begin() < maxSetSize);
         } else if (!indices.empty()) {
             TDoubleVec indexToErase;
             double max = static_cast<double>(indices.size()) - 1e-3;

@@ -187,9 +187,9 @@ BOOST_AUTO_TEST_CASE(testCorrelation) {
         LOG_DEBUG(<< "correlationEstimate = " << correlationEstimate);
 
         double sd = std::sqrt(maths::CBasicStatistics::variance(correlationEstimate));
-        BOOST_CHECK_CLOSE_ABSOLUTE(
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(
             0.2, maths::CBasicStatistics::mean(correlationEstimate), 3.0 * sd / 10.0);
-        BOOST_CHECK_CLOSE_ABSOLUTE(0.0, sd, 0.5);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(0.0, sd, 0.5);
     }
     {
         LOG_DEBUG(<< "*** Medium Correlation ***");
@@ -204,9 +204,9 @@ BOOST_AUTO_TEST_CASE(testCorrelation) {
         LOG_DEBUG(<< "correlation = " << correlationEstimate);
 
         double sd = std::sqrt(maths::CBasicStatistics::variance(correlationEstimate));
-        BOOST_CHECK_CLOSE_ABSOLUTE(
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(
             0.5, maths::CBasicStatistics::mean(correlationEstimate), 3.0 * sd / 10.0);
-        BOOST_CHECK_CLOSE_ABSOLUTE(0.0, sd, 0.42);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(0.0, sd, 0.42);
     }
     {
         LOG_DEBUG(<< "*** Strong Correlation ***");
@@ -221,9 +221,9 @@ BOOST_AUTO_TEST_CASE(testCorrelation) {
         LOG_DEBUG(<< "correlation = " << correlationEstimate);
 
         double sd = std::sqrt(maths::CBasicStatistics::variance(correlationEstimate));
-        BOOST_CHECK_CLOSE_ABSOLUTE(
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(
             0.9, maths::CBasicStatistics::mean(correlationEstimate), 3.0 * sd / 10.0);
-        BOOST_CHECK_CLOSE_ABSOLUTE(0.0, sd, 0.2);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(0.0, sd, 0.2);
     }
 }
 
@@ -252,8 +252,8 @@ BOOST_AUTO_TEST_CASE(testNextProjection) {
     for (std::size_t i = 0u; i < p1.size(); ++i) {
         LOG_DEBUG(<< "  " << core::CContainerPrinter::print(p1[i]));
     }
-    BOOST_TEST(!p1.empty());
-    BOOST_CHECK_EQUAL(std::size_t(10), p1[0].dimension());
+    BOOST_TEST_REQUIRE(!p1.empty());
+    BOOST_REQUIRE_EQUAL(std::size_t(10), p1[0].dimension());
     TDoubleVecVec projections1(10, TDoubleVec(p1.size()));
     for (std::size_t i = 0u; i < p1.size(); ++i) {
         for (std::size_t j = 0u; j < p1[i].dimension(); ++j) {
@@ -268,7 +268,7 @@ BOOST_AUTO_TEST_CASE(testNextProjection) {
         }
     }
     LOG_DEBUG(<< "I1 = " << maths::CBasicStatistics::mean(I1));
-    BOOST_TEST(maths::CBasicStatistics::mean(I1) < 0.1);
+    BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(I1) < 0.1);
 
     for (std::size_t i = 0u; i < 19; ++i) {
         for (std::size_t j = 0u, X = 0u; j < variables; j += 2) {
@@ -303,8 +303,8 @@ BOOST_AUTO_TEST_CASE(testNextProjection) {
     for (std::size_t i = 0u; i < p2.size(); ++i) {
         LOG_DEBUG(<< "  " << core::CContainerPrinter::print(p2[i]));
     }
-    BOOST_TEST(!p2.empty());
-    BOOST_CHECK_EQUAL(std::size_t(10), p2[0].dimension());
+    BOOST_TEST_REQUIRE(!p2.empty());
+    BOOST_REQUIRE_EQUAL(std::size_t(10), p2[0].dimension());
     TDoubleVecVec projections2(10, TDoubleVec(p2.size()));
     for (std::size_t i = 0u; i < p2.size(); ++i) {
         for (std::size_t j = 0u; j < p2[i].dimension(); ++j) {
@@ -319,7 +319,7 @@ BOOST_AUTO_TEST_CASE(testNextProjection) {
         }
     }
     LOG_DEBUG(<< "I2 = " << maths::CBasicStatistics::mean(I2));
-    BOOST_TEST(maths::CBasicStatistics::mean(I2) < 0.1);
+    BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(I2) < 0.1);
     TMeanAccumulator I12;
     for (std::size_t i = 0u; i < projections1.size(); ++i) {
         for (std::size_t j = 0u; j < projections2.size(); ++j) {
@@ -327,15 +327,15 @@ BOOST_AUTO_TEST_CASE(testNextProjection) {
         }
     }
     LOG_DEBUG(<< "I12 = " << maths::CBasicStatistics::mean(I12));
-    BOOST_TEST(maths::CBasicStatistics::mean(I12) < 0.1);
+    BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(I12) < 0.1);
 
     for (std::size_t i = 0u; i < moments1.size(); ++i) {
-        BOOST_TEST(maths::CBasicStatistics::count(moments1[i]) >
+        BOOST_TEST_REQUIRE(maths::CBasicStatistics::count(moments1[i]) >
                    maths::CBasicStatistics::count(moments2[i]));
     }
     for (std::size_t i = 0u; i < correlations2.size(); ++i) {
-        BOOST_TEST(maths::CBasicStatistics::count(correlations2[i].s_Correlation) > 0.0);
-        BOOST_TEST(maths::CBasicStatistics::count(correlations2[i].s_Correlation) < 1.0);
+        BOOST_TEST_REQUIRE(maths::CBasicStatistics::count(correlations2[i].s_Correlation) > 0.0);
+        BOOST_TEST_REQUIRE(maths::CBasicStatistics::count(correlations2[i].s_Correlation) < 1.0);
     }
 }
 
@@ -390,7 +390,7 @@ BOOST_AUTO_TEST_CASE(testMostCorrelated) {
     CKMostCorrelatedForTest::TCorrelationVec actual;
     mostCorrelated.mostCorrelated(actual);
 
-    BOOST_CHECK_EQUAL(core::CContainerPrinter::print(expected),
+    BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(expected),
                       core::CContainerPrinter::print(actual));
 }
 
@@ -438,9 +438,9 @@ BOOST_AUTO_TEST_CASE(testRemoveVariables) {
     LOG_DEBUG(<< "correlatedPairs = " << core::CContainerPrinter::print(correlatedPairs));
 
     for (std::size_t i = 0u; i < correlatedPairs.size(); ++i) {
-        BOOST_TEST(std::find(remove.begin(), remove.end(),
+        BOOST_TEST_REQUIRE(std::find(remove.begin(), remove.end(),
                              correlatedPairs[i].first) == remove.end());
-        BOOST_TEST(std::find(remove.begin(), remove.end(),
+        BOOST_TEST_REQUIRE(std::find(remove.begin(), remove.end(),
                              correlatedPairs[i].second) == remove.end());
     }
 }
@@ -491,7 +491,7 @@ BOOST_AUTO_TEST_CASE(testAccuracy) {
                           << core::CContainerPrinter::print(
                                  correlations.begin(), correlations.begin() + 5));
                 std::sort(correlatedPairs.begin(), correlatedPairs.begin() + 5);
-                BOOST_CHECK_EQUAL(
+                BOOST_REQUIRE_EQUAL(
                     std::string("[(0, 1), (2, 3), (4, 5), (6, 7), (8, 9)]"),
                     core::CContainerPrinter::print(correlatedPairs.begin(),
                                                    correlatedPairs.begin() + 5));
@@ -547,7 +547,7 @@ BOOST_AUTO_TEST_CASE(testStability) {
             LOG_DEBUG(<< "correlations = " << core::CContainerPrinter::print(correlations));
             std::sort(correlatedPairs.begin(), correlatedPairs.begin() + 5);
             std::sort(correlatedPairs.begin() + 5, correlatedPairs.begin() + 10);
-            BOOST_CHECK_EQUAL(std::string("[(0, 1), (2, 3), (4, 5), (6, 7), (8, 9), "
+            BOOST_REQUIRE_EQUAL(std::string("[(0, 1), (2, 3), (4, 5), (6, 7), (8, 9), "
                                           "(10, 11), (12, 13), (14, 15), (16, 17), (18, 19)]"),
                               core::CContainerPrinter::print(correlatedPairs));
         }
@@ -597,12 +597,12 @@ BOOST_AUTO_TEST_CASE(testChangingCorrelation) {
     for (std::size_t i = 0u; i < mostCorrelated.correlations().size(); ++i) {
         if (mostCorrelated.correlations()[i].s_X == 8 &&
             mostCorrelated.correlations()[i].s_Y == 9) {
-            BOOST_TEST(maths::CBasicStatistics::mean(
+            BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(
                            mostCorrelated.correlations()[i].s_Correlation) > 0.7);
             present = true;
         }
     }
-    BOOST_TEST(present);
+    BOOST_TEST_REQUIRE(present);
 }
 
 BOOST_AUTO_TEST_CASE(testMissingData) {
@@ -658,7 +658,7 @@ BOOST_AUTO_TEST_CASE(testMissingData) {
                                                         correlations.begin() + 5));
             std::sort(correlatedPairs.begin(), correlatedPairs.begin() + 3);
             std::sort(correlatedPairs.begin() + 3, correlatedPairs.begin() + 5);
-            BOOST_CHECK_EQUAL(std::string("[(0, 1), (2, 3), (8, 9), (4, 5), (6, 7)]"),
+            BOOST_REQUIRE_EQUAL(std::string("[(0, 1), (2, 3), (8, 9), (4, 5), (6, 7)]"),
                               core::CContainerPrinter::print(
                                   correlatedPairs.begin(), correlatedPairs.begin() + 5));
         }
@@ -755,11 +755,11 @@ BOOST_AUTO_TEST_CASE(testScale) {
     if (likelyInCi) {
         // Allow more leeway when running in CI because CI is most likely running on
         // a VM and in this case non-linearity is most likely due to the VM stalling
-        BOOST_TEST(exponent < 2.0);
-        BOOST_TEST(sdRatio < 0.75);
+        BOOST_TEST_REQUIRE(exponent < 2.0);
+        BOOST_TEST_REQUIRE(sdRatio < 0.75);
     } else {
-        BOOST_TEST(exponent < 1.75);
-        BOOST_TEST(sdRatio < 0.5);
+        BOOST_TEST_REQUIRE(exponent < 1.75);
+        BOOST_TEST_REQUIRE(sdRatio < 0.5);
     }
 }
 
@@ -802,23 +802,23 @@ BOOST_AUTO_TEST_CASE(testPersistence) {
 
     // Restore the XML into a new sketch.
     core::CRapidXmlParser parser;
-    BOOST_TEST(parser.parseStringIgnoreCdata(origXml));
+    BOOST_TEST_REQUIRE(parser.parseStringIgnoreCdata(origXml));
     core::CRapidXmlStateRestoreTraverser traverser(parser);
     maths::CKMostCorrelated restoredMostCorrelated(10, 0.001);
-    BOOST_TEST(traverser.traverseSubLevel(
+    BOOST_TEST_REQUIRE(traverser.traverseSubLevel(
         std::bind(&maths::CKMostCorrelated::acceptRestoreTraverser,
                   &restoredMostCorrelated, std::placeholders::_1)));
 
     LOG_DEBUG(<< "orig checksum = " << origMostCorrelated.checksum()
               << ", new checksum = " << restoredMostCorrelated.checksum());
-    BOOST_CHECK_EQUAL(origMostCorrelated.checksum(), restoredMostCorrelated.checksum());
+    BOOST_REQUIRE_EQUAL(origMostCorrelated.checksum(), restoredMostCorrelated.checksum());
 
     std::string newXml;
     core::CRapidXmlStatePersistInserter inserter("root");
     restoredMostCorrelated.acceptPersistInserter(inserter);
     inserter.toXml(newXml);
 
-    BOOST_CHECK_EQUAL(origXml, newXml);
+    BOOST_REQUIRE_EQUAL(origXml, newXml);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

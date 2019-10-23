@@ -41,8 +41,8 @@ std::set<std::string> getUniqueValues(const std::string& key, const std::string&
     std::set<std::string> values;
     rapidjson::Document doc;
     doc.Parse<rapidjson::kParseDefaultFlags>(output);
-    BOOST_TEST(!doc.HasParseError());
-    BOOST_TEST(doc.IsArray());
+    BOOST_TEST_REQUIRE(!doc.HasParseError());
+    BOOST_TEST_REQUIRE(doc.IsArray());
 
     size_t i = 0;
 
@@ -103,7 +103,7 @@ BOOST_AUTO_TEST_CASE(testAccuracy) {
         clause.push_back("species");
         clause.push_back("partitionfield=greenhouse");
 
-        BOOST_TEST(fieldConfig.initFromClause(clause));
+        BOOST_TEST_REQUIRE(fieldConfig.initFromClause(clause));
 
         model::CAnomalyDetectorModelConfig modelConfig =
             model::CAnomalyDetectorModelConfig::defaultConfig(3600);
@@ -119,16 +119,16 @@ BOOST_AUTO_TEST_CASE(testAccuracy) {
             api::CAnomalyJob job("job", limits, fieldConfig, modelConfig, wrappedOutputStream);
 
             std::ifstream inputStrm("testfiles/resource_accuracy.csv");
-            BOOST_TEST(inputStrm.is_open());
+            BOOST_TEST_REQUIRE(inputStrm.is_open());
             api::CCsvInputParser parser(inputStrm);
 
             LOG_TRACE(<< "Reading file");
-            BOOST_TEST(parser.readStreamIntoMaps(std::bind(
+            BOOST_TEST_REQUIRE(parser.readStreamIntoMaps(std::bind(
                 &api::CAnomalyJob::handleRecord, &job, std::placeholders::_1)));
 
             LOG_TRACE(<< "Checking results");
 
-            BOOST_CHECK_EQUAL(uint64_t(18630), job.numRecordsHandled());
+            BOOST_REQUIRE_EQUAL(uint64_t(18630), job.numRecordsHandled());
         }
 
         nonLimitedUsage = limits.resourceMonitor().totalMemory();
@@ -144,7 +144,7 @@ BOOST_AUTO_TEST_CASE(testAccuracy) {
         clause.push_back("species");
         clause.push_back("partitionfield=greenhouse");
 
-        BOOST_TEST(fieldConfig.initFromClause(clause));
+        BOOST_TEST_REQUIRE(fieldConfig.initFromClause(clause));
 
         model::CAnomalyDetectorModelConfig modelConfig =
             model::CAnomalyDetectorModelConfig::defaultConfig(3600);
@@ -162,16 +162,16 @@ BOOST_AUTO_TEST_CASE(testAccuracy) {
             api::CAnomalyJob job("job", limits, fieldConfig, modelConfig, wrappedOutputStream);
 
             std::ifstream inputStrm("testfiles/resource_accuracy.csv");
-            BOOST_TEST(inputStrm.is_open());
+            BOOST_TEST_REQUIRE(inputStrm.is_open());
             api::CCsvInputParser parser(inputStrm);
 
             LOG_TRACE(<< "Reading file");
-            BOOST_TEST(parser.readStreamIntoMaps(std::bind(
+            BOOST_TEST_REQUIRE(parser.readStreamIntoMaps(std::bind(
                 &api::CAnomalyJob::handleRecord, &job, std::placeholders::_1)));
 
             LOG_TRACE(<< "Checking results");
 
-            BOOST_CHECK_EQUAL(uint64_t(18630), job.numRecordsHandled());
+            BOOST_REQUIRE_EQUAL(uint64_t(18630), job.numRecordsHandled());
         }
         LOG_TRACE(<< outputStrm.str());
 
@@ -179,7 +179,7 @@ BOOST_AUTO_TEST_CASE(testAccuracy) {
         // over the model memory creation
         std::size_t limitedUsage = limits.resourceMonitor().totalMemory();
         LOG_DEBUG(<< "Non-limited usage: " << nonLimitedUsage << "; limited: " << limitedUsage);
-        BOOST_TEST(limitedUsage < nonLimitedUsage);
+        BOOST_TEST_REQUIRE(limitedUsage < nonLimitedUsage);
     }
 }
 
@@ -201,7 +201,7 @@ BOOST_AUTO_TEST_CASE(testLimit) {
         clause.push_back("species");
         clause.push_back("partitionfield=greenhouse");
 
-        BOOST_TEST(fieldConfig.initFromClause(clause));
+        BOOST_TEST_REQUIRE(fieldConfig.initFromClause(clause));
 
         model::CAnomalyDetectorModelConfig modelConfig =
             model::CAnomalyDetectorModelConfig::defaultConfig(3600);
@@ -210,14 +210,14 @@ BOOST_AUTO_TEST_CASE(testLimit) {
         api::CAnomalyJob job("job", limits, fieldConfig, modelConfig, wrappedOutputStream);
 
         std::ifstream inputStrm("testfiles/resource_limits_3_2over_3partition.csv");
-        BOOST_TEST(inputStrm.is_open());
+        BOOST_TEST_REQUIRE(inputStrm.is_open());
         api::CCsvInputParser parser(inputStrm);
 
         LOG_TRACE(<< "Reading file");
-        BOOST_TEST(parser.readStreamIntoMaps(std::bind(
+        BOOST_TEST_REQUIRE(parser.readStreamIntoMaps(std::bind(
             &api::CAnomalyJob::handleRecord, &job, std::placeholders::_1)));
         LOG_TRACE(<< "Checking results");
-        BOOST_CHECK_EQUAL(uint64_t(1176), job.numRecordsHandled());
+        BOOST_REQUIRE_EQUAL(uint64_t(1176), job.numRecordsHandled());
     }
 
     std::string out = outputStrm.str();
@@ -225,9 +225,9 @@ BOOST_AUTO_TEST_CASE(testLimit) {
     TStrSet partitions = getUniqueValues("partition_field_value", out);
     TStrSet people = getUniqueValues("over_field_value", out);
     TStrSet attributes = getUniqueValues("by_field_value", out);
-    BOOST_CHECK_EQUAL(std::size_t(3), partitions.size());
-    BOOST_CHECK_EQUAL(std::size_t(2), people.size());
-    BOOST_CHECK_EQUAL(std::size_t(2), attributes.size());
+    BOOST_REQUIRE_EQUAL(std::size_t(3), partitions.size());
+    BOOST_REQUIRE_EQUAL(std::size_t(2), people.size());
+    BOOST_REQUIRE_EQUAL(std::size_t(2), attributes.size());
 
     outputStrm.str("");
     outputStrm.clear();
@@ -244,7 +244,7 @@ BOOST_AUTO_TEST_CASE(testLimit) {
         clause.push_back("species");
         clause.push_back("partitionfield=greenhouse");
 
-        BOOST_TEST(fieldConfig.initFromClause(clause));
+        BOOST_TEST_REQUIRE(fieldConfig.initFromClause(clause));
 
         model::CAnomalyDetectorModelConfig modelConfig =
             model::CAnomalyDetectorModelConfig::defaultConfig(3600);
@@ -256,11 +256,11 @@ BOOST_AUTO_TEST_CASE(testLimit) {
         api::CAnomalyJob job("job", limits, fieldConfig, modelConfig, wrappedOutputStream);
 
         std::ifstream inputStrm("testfiles/resource_limits_3_2over_3partition_first8.csv");
-        BOOST_TEST(inputStrm.is_open());
+        BOOST_TEST_REQUIRE(inputStrm.is_open());
         api::CCsvInputParser parser(inputStrm);
 
         LOG_TRACE(<< "Reading file");
-        BOOST_TEST(parser.readStreamIntoMaps(std::bind(
+        BOOST_TEST_REQUIRE(parser.readStreamIntoMaps(std::bind(
             &api::CAnomalyJob::handleRecord, &job, std::placeholders::_1)));
         // Now turn on the resource limiting
         limits.resourceMonitor().m_ByteLimitHigh = 0;
@@ -268,14 +268,14 @@ BOOST_AUTO_TEST_CASE(testLimit) {
         limits.resourceMonitor().m_AllowAllocations = false;
 
         std::ifstream inputStrm2("testfiles/resource_limits_3_2over_3partition_last1169.csv");
-        BOOST_TEST(inputStrm2.is_open());
+        BOOST_TEST_REQUIRE(inputStrm2.is_open());
         api::CCsvInputParser parser2(inputStrm2);
 
         LOG_TRACE(<< "Reading second file");
-        BOOST_TEST(parser2.readStreamIntoMaps(std::bind(
+        BOOST_TEST_REQUIRE(parser2.readStreamIntoMaps(std::bind(
             &api::CAnomalyJob::handleRecord, &job, std::placeholders::_1)));
         LOG_TRACE(<< "Checking results");
-        BOOST_CHECK_EQUAL(uint64_t(1180), job.numRecordsHandled());
+        BOOST_REQUIRE_EQUAL(uint64_t(1180), job.numRecordsHandled());
     }
 
     out = outputStrm.str();
@@ -283,9 +283,9 @@ BOOST_AUTO_TEST_CASE(testLimit) {
     partitions = getUniqueValues("partition_field_value", out);
     people = getUniqueValues("over_field_value", out);
     attributes = getUniqueValues("by_field_value", out);
-    BOOST_CHECK_EQUAL(std::size_t(1), partitions.size());
-    BOOST_CHECK_EQUAL(std::size_t(2), people.size());
-    BOOST_CHECK_EQUAL(std::size_t(1), attributes.size());
+    BOOST_REQUIRE_EQUAL(std::size_t(1), partitions.size());
+    BOOST_REQUIRE_EQUAL(std::size_t(2), people.size());
+    BOOST_REQUIRE_EQUAL(std::size_t(1), attributes.size());
 }
 
 BOOST_AUTO_TEST_CASE(testModelledEntityCountForFixedMemoryLimit) {
@@ -383,7 +383,7 @@ BOOST_AUTO_TEST_CASE(testModelledEntityCountForFixedMemoryLimit) {
                         dataRows["time"] = core::CStringUtils::typeToString(time);
                         dataRows["foo"] = core::CStringUtils::typeToString(*value);
                         dataRows["bar"] = "b" + core::CStringUtils::typeToString(i + 1);
-                        BOOST_TEST(job.handleRecord(dataRows));
+                        BOOST_TEST_REQUIRE(job.handleRecord(dataRows));
                     }
                 }
             }
@@ -395,10 +395,10 @@ BOOST_AUTO_TEST_CASE(testModelledEntityCountForFixedMemoryLimit) {
             LOG_DEBUG(<< "Memory status = " << used.s_MemoryStatus);
             LOG_DEBUG(<< "Memory usage bytes = " << used.s_Usage);
             LOG_DEBUG(<< "Memory limit bytes = " << memoryLimit * 1024 * 1024);
-            BOOST_TEST(used.s_ByFields > testParam.s_ExpectedByFields);
-            BOOST_TEST(used.s_ByFields < 800);
-            BOOST_CHECK_EQUAL(std::size_t(2), used.s_PartitionFields);
-            BOOST_CHECK_CLOSE_ABSOLUTE(
+            BOOST_TEST_REQUIRE(used.s_ByFields > testParam.s_ExpectedByFields);
+            BOOST_TEST_REQUIRE(used.s_ByFields < 800);
+            BOOST_REQUIRE_EQUAL(std::size_t(2), used.s_PartitionFields);
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(
                 memoryLimit * 1024 * 1024 / 2, used.s_Usage,
                 memoryLimit * 1024 * 1024 / testParam.s_ExpectedByMemoryUsageRelativeErrorDivisor);
         }
@@ -434,7 +434,7 @@ BOOST_AUTO_TEST_CASE(testModelledEntityCountForFixedMemoryLimit) {
                         dataRows["time"] = core::CStringUtils::typeToString(time);
                         dataRows["foo"] = core::CStringUtils::typeToString(*value);
                         dataRows["bar"] = "b" + core::CStringUtils::typeToString(i + 1);
-                        BOOST_TEST(job.handleRecord(dataRows));
+                        BOOST_TEST_REQUIRE(job.handleRecord(dataRows));
                     }
                 }
             }
@@ -445,11 +445,11 @@ BOOST_AUTO_TEST_CASE(testModelledEntityCountForFixedMemoryLimit) {
             LOG_DEBUG(<< "# partition = " << used.s_PartitionFields);
             LOG_DEBUG(<< "Memory status = " << used.s_MemoryStatus);
             LOG_DEBUG(<< "Memory usage = " << used.s_Usage);
-            BOOST_TEST(used.s_PartitionFields > testParam.s_ExpectedPartitionFields);
-            BOOST_TEST(used.s_PartitionFields < 450);
-            BOOST_TEST(static_cast<double>(used.s_ByFields) >
+            BOOST_TEST_REQUIRE(used.s_PartitionFields > testParam.s_ExpectedPartitionFields);
+            BOOST_TEST_REQUIRE(used.s_PartitionFields < 450);
+            BOOST_TEST_REQUIRE(static_cast<double>(used.s_ByFields) >
                        0.96 * static_cast<double>(used.s_PartitionFields));
-            BOOST_CHECK_CLOSE_ABSOLUTE(
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(
                 memoryLimit * 1024 * 1024 / 2, used.s_Usage,
                 memoryLimit * 1024 * 1024 / testParam.s_ExpectedPartitionUsageRelativeErrorDivisor);
         }
@@ -484,7 +484,7 @@ BOOST_AUTO_TEST_CASE(testModelledEntityCountForFixedMemoryLimit) {
                         dataRows["time"] = core::CStringUtils::typeToString(time);
                         dataRows["foo"] = core::CStringUtils::typeToString(*value);
                         dataRows["bar"] = "b" + core::CStringUtils::typeToString(i + 1);
-                        BOOST_TEST(job.handleRecord(dataRows));
+                        BOOST_TEST_REQUIRE(job.handleRecord(dataRows));
                     }
                 }
             }
@@ -494,9 +494,9 @@ BOOST_AUTO_TEST_CASE(testModelledEntityCountForFixedMemoryLimit) {
             LOG_DEBUG(<< "# over = " << used.s_OverFields);
             LOG_DEBUG(<< "Memory status = " << used.s_MemoryStatus);
             LOG_DEBUG(<< "Memory usage = " << used.s_Usage);
-            BOOST_TEST(used.s_OverFields > testParam.s_ExpectedOverFields);
-            BOOST_TEST(used.s_OverFields < 7000);
-            BOOST_CHECK_CLOSE_ABSOLUTE(
+            BOOST_TEST_REQUIRE(used.s_OverFields > testParam.s_ExpectedOverFields);
+            BOOST_TEST_REQUIRE(used.s_OverFields < 7000);
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(
                 memoryLimit * 1024 * 1024 / 2, used.s_Usage,
                 memoryLimit * 1024 * 1024 / testParam.s_ExpectedOverUsageRelativeErrorDivisor);
         }

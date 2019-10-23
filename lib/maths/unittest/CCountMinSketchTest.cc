@@ -65,7 +65,7 @@ BOOST_AUTO_TEST_CASE(testCounts) {
         LOG_DEBUG(<< "mean error = " << maths::CBasicStatistics::mean(meanError));
         LOG_DEBUG(<< "error count = " << errorCount);
         if (sketch.oneMinusDeltaError() == 0.0) {
-            BOOST_CHECK_EQUAL(0.0, maths::CBasicStatistics::mean(meanError));
+            BOOST_REQUIRE_EQUAL(0.0, maths::CBasicStatistics::mean(meanError));
         } else {
             //BOOST_TEST(maths::CBasicStatistics::mean(meanError)
             //                   < 0.1 * static_cast<double>(n));
@@ -105,14 +105,14 @@ BOOST_AUTO_TEST_CASE(testCounts) {
                       << ", estimated count = " << estimated);
 
             double relativeError = std::fabs(estimated - count) / count;
-            BOOST_TEST(relativeError < 0.01);
+            BOOST_TEST_REQUIRE(relativeError < 0.01);
 
             meanRelativeError.add(relativeError);
         }
 
         LOG_DEBUG(<< "mean relative error "
                   << maths::CBasicStatistics::mean(meanRelativeError));
-        BOOST_TEST(maths::CBasicStatistics::mean(meanRelativeError) < 0.005);
+        BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(meanRelativeError) < 0.005);
     }
 }
 
@@ -155,23 +155,23 @@ BOOST_AUTO_TEST_CASE(testSwap) {
     LOG_DEBUG(<< "checksum4 = " << checksum4);
 
     sketch1.swap(sketch2);
-    BOOST_CHECK_EQUAL(checksum2, sketch1.checksum());
-    BOOST_CHECK_EQUAL(checksum1, sketch2.checksum());
+    BOOST_REQUIRE_EQUAL(checksum2, sketch1.checksum());
+    BOOST_REQUIRE_EQUAL(checksum1, sketch2.checksum());
     sketch1.swap(sketch2);
 
     sketch2.swap(sketch3);
-    BOOST_CHECK_EQUAL(checksum3, sketch2.checksum());
-    BOOST_CHECK_EQUAL(checksum2, sketch3.checksum());
+    BOOST_REQUIRE_EQUAL(checksum3, sketch2.checksum());
+    BOOST_REQUIRE_EQUAL(checksum2, sketch3.checksum());
     sketch2.swap(sketch3);
 
     sketch1.swap(sketch4);
-    BOOST_CHECK_EQUAL(checksum1, sketch4.checksum());
-    BOOST_CHECK_EQUAL(checksum4, sketch1.checksum());
+    BOOST_REQUIRE_EQUAL(checksum1, sketch4.checksum());
+    BOOST_REQUIRE_EQUAL(checksum4, sketch1.checksum());
     sketch1.swap(sketch4);
 
     sketch3.swap(sketch4);
-    BOOST_CHECK_EQUAL(checksum3, sketch4.checksum());
-    BOOST_CHECK_EQUAL(checksum4, sketch3.checksum());
+    BOOST_REQUIRE_EQUAL(checksum3, sketch4.checksum());
+    BOOST_REQUIRE_EQUAL(checksum4, sketch3.checksum());
     sketch3.swap(sketch4);
 }
 
@@ -197,20 +197,20 @@ BOOST_AUTO_TEST_CASE(testPersist) {
     // Restore the XML into a new sketch.
     {
         core::CRapidXmlParser parser;
-        BOOST_TEST(parser.parseStringIgnoreCdata(origXml));
+        BOOST_TEST_REQUIRE(parser.parseStringIgnoreCdata(origXml));
         core::CRapidXmlStateRestoreTraverser traverser(parser);
         maths::CCountMinSketch restoredSketch(traverser);
 
         LOG_DEBUG(<< "orig checksum = " << origSketch.checksum()
                   << ", new checksum = " << restoredSketch.checksum());
-        BOOST_CHECK_EQUAL(origSketch.checksum(), restoredSketch.checksum());
+        BOOST_REQUIRE_EQUAL(origSketch.checksum(), restoredSketch.checksum());
 
         std::string newXml;
         core::CRapidXmlStatePersistInserter inserter("root");
         restoredSketch.acceptPersistInserter(inserter);
         inserter.toXml(newXml);
 
-        BOOST_CHECK_EQUAL(origXml, newXml);
+        BOOST_REQUIRE_EQUAL(origXml, newXml);
     }
 
     // Sketch.
@@ -231,20 +231,20 @@ BOOST_AUTO_TEST_CASE(testPersist) {
     // Restore the XML into a new sketch.
     {
         core::CRapidXmlParser parser;
-        BOOST_TEST(parser.parseStringIgnoreCdata(origXml));
+        BOOST_TEST_REQUIRE(parser.parseStringIgnoreCdata(origXml));
         core::CRapidXmlStateRestoreTraverser traverser(parser);
         maths::CCountMinSketch restoredSketch(traverser);
 
         LOG_DEBUG(<< "orig checksum = " << origSketch.checksum()
                   << ", new checksum = " << restoredSketch.checksum());
-        BOOST_CHECK_EQUAL(origSketch.checksum(), restoredSketch.checksum());
+        BOOST_REQUIRE_EQUAL(origSketch.checksum(), restoredSketch.checksum());
 
         std::string newXml;
         core::CRapidXmlStatePersistInserter inserter("root");
         restoredSketch.acceptPersistInserter(inserter);
         inserter.toXml(newXml);
 
-        BOOST_CHECK_EQUAL(origXml, newXml);
+        BOOST_REQUIRE_EQUAL(origXml, newXml);
     }
 }
 

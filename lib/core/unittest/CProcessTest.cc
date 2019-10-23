@@ -18,9 +18,9 @@ BOOST_AUTO_TEST_CASE(testPids) {
 
     LOG_DEBUG(<< "PID = " << pid << " and parent PID = " << ppid);
 
-    BOOST_TEST(pid != 0);
-    BOOST_TEST(ppid != 0);
-    BOOST_TEST(pid != ppid);
+    BOOST_TEST_REQUIRE(pid != 0);
+    BOOST_TEST_REQUIRE(ppid != 0);
+    BOOST_TEST_REQUIRE(pid != ppid);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

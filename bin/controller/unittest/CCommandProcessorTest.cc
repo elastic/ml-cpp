@@ -67,14 +67,14 @@ BOOST_AUTO_TEST_CASE(testStartPermitted) {
     ml::core::CSleep::sleep(1000);
 
     std::ifstream ifs(OUTPUT_FILE.c_str());
-    BOOST_TEST(ifs.is_open());
+    BOOST_TEST_REQUIRE(ifs.is_open());
     std::string content;
     std::getline(ifs, content);
     ifs.close();
 
-    BOOST_CHECK_EQUAL(SLOGAN1, content);
+    BOOST_REQUIRE_EQUAL(SLOGAN1, content);
 
-    BOOST_CHECK_EQUAL(0, ::remove(OUTPUT_FILE.c_str()));
+    BOOST_REQUIRE_EQUAL(0, ::remove(OUTPUT_FILE.c_str()));
 }
 
 BOOST_AUTO_TEST_CASE(testStartNonPermitted) {
@@ -96,12 +96,12 @@ BOOST_AUTO_TEST_CASE(testStartNonPermitted) {
     // still exist and have the expected contents
 
     std::ifstream ifs(INPUT_FILE2.c_str());
-    BOOST_TEST(ifs.is_open());
+    BOOST_TEST_REQUIRE(ifs.is_open());
     std::string content;
     std::getline(ifs, content);
     ifs.close();
 
-    BOOST_CHECK_EQUAL(SLOGAN2, content);
+    BOOST_REQUIRE_EQUAL(SLOGAN2, content);
 }
 
 BOOST_AUTO_TEST_CASE(testStartNonExistent) {
@@ -111,7 +111,7 @@ BOOST_AUTO_TEST_CASE(testStartNonExistent) {
     std::string command(ml::controller::CCommandProcessor::START);
     command += "\tsome other process";
 
-    BOOST_TEST(!processor.handleCommand(command));
+    BOOST_TEST_REQUIRE(!processor.handleCommand(command));
 }
 
 BOOST_AUTO_TEST_CASE(testKillDisallowed) {
@@ -126,7 +126,7 @@ BOOST_AUTO_TEST_CASE(testKillDisallowed) {
     command +=
         ml::core::CStringUtils::typeToString(ml::core::CProcess::instance().id());
 
-    BOOST_TEST(!processor.handleCommand(command));
+    BOOST_TEST_REQUIRE(!processor.handleCommand(command));
 }
 
 BOOST_AUTO_TEST_CASE(testInvalidVerb) {
@@ -136,7 +136,7 @@ BOOST_AUTO_TEST_CASE(testInvalidVerb) {
     std::string command("drive");
     command += "\tsome other process";
 
-    BOOST_TEST(!processor.handleCommand(command));
+    BOOST_TEST_REQUIRE(!processor.handleCommand(command));
 }
 
 BOOST_AUTO_TEST_SUITE_END()

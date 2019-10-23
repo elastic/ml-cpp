@@ -137,10 +137,10 @@ BOOST_AUTO_TEST_CASE(testLimitBy) {
         results = writer.results();
 
         // expect there to be 2 anomalies
-        BOOST_CHECK_EQUAL(std::size_t(2), results.size());
-        BOOST_CHECK_EQUAL(core_t::TTime(1407571200), results[0].get<0>());
-        BOOST_CHECK_EQUAL(core_t::TTime(1407715200), results[1].get<0>());
-        BOOST_CHECK_EQUAL(std::size_t(8), detector.numberActivePeople());
+        BOOST_REQUIRE_EQUAL(std::size_t(2), results.size());
+        BOOST_REQUIRE_EQUAL(core_t::TTime(1407571200), results[0].get<0>());
+        BOOST_REQUIRE_EQUAL(core_t::TTime(1407715200), results[1].get<0>());
+        BOOST_REQUIRE_EQUAL(std::size_t(8), detector.numberActivePeople());
     }
     {
         // This time, repeat the test but set a resource limit to prevent
@@ -162,7 +162,7 @@ BOOST_AUTO_TEST_CASE(testLimitBy) {
 
         const ::CResultWriter::TResultsVec& secondResults = writer.results();
 
-        BOOST_CHECK_EQUAL(std::size_t(0), secondResults.size());
+        BOOST_REQUIRE_EQUAL(std::size_t(0), secondResults.size());
     }
 }
 
@@ -196,9 +196,9 @@ BOOST_AUTO_TEST_CASE(testLimitByOver) {
         results = writer.results();
 
         // check we have the expected 4 anomalies
-        BOOST_CHECK_EQUAL(std::size_t(4), results.size());
-        BOOST_CHECK_EQUAL(std::size_t(2), detector.numberActivePeople());
-        BOOST_CHECK_EQUAL(std::size_t(3), detector.numberActiveAttributes());
+        BOOST_REQUIRE_EQUAL(std::size_t(4), results.size());
+        BOOST_REQUIRE_EQUAL(std::size_t(2), detector.numberActivePeople());
+        BOOST_REQUIRE_EQUAL(std::size_t(3), detector.numberActiveAttributes());
     }
 
     // Now limit after 1 sample, so only expect no results
@@ -220,7 +220,7 @@ BOOST_AUTO_TEST_CASE(testLimitByOver) {
     const ::CResultWriter::TResultsVec& secondResults = writer.results();
 
     // should only have red flowers as results now
-    BOOST_CHECK_EQUAL(std::size_t(0), secondResults.size());
+    BOOST_REQUIRE_EQUAL(std::size_t(0), secondResults.size());
 }
 
 namespace {
@@ -413,8 +413,8 @@ TAddPersonDataFunc createModel(model_t::EModelType modelType,
             CAnomalyDetectorModel::TFeatureInfluenceCalculatorCPtrPrVecVec(),
             resourceMonitor);
 
-        BOOST_CHECK_EQUAL(model_t::E_EventRateOnline, model_->category());
-        BOOST_TEST(model_->isPopulation() == false);
+        BOOST_REQUIRE_EQUAL(model_t::E_EventRateOnline, model_->category());
+        BOOST_TEST_REQUIRE(model_->isPopulation() == false);
 
         model = model_;
 
@@ -443,8 +443,8 @@ TAddPersonDataFunc createModel(model_t::EModelType modelType,
             CAnomalyDetectorModel::TFeatureInfluenceCalculatorCPtrPrVecVec(),
             resourceMonitor);
 
-        BOOST_CHECK_EQUAL(model_t::E_MetricOnline, model_->category());
-        BOOST_TEST(model_->isPopulation() == false);
+        BOOST_REQUIRE_EQUAL(model_t::E_MetricOnline, model_->category());
+        BOOST_TEST_REQUIRE(model_->isPopulation() == false);
 
         model = model_;
         return addPersonMetricData;
@@ -484,20 +484,20 @@ void doTestLargeAllocations(SLargeAllocationTestParams& param) {
 
     core_t::TTime time = FIRST_TIME;
 
-    BOOST_TEST(resourceMonitor.areAllocationsAllowed());
+    BOOST_TEST_REQUIRE(resourceMonitor.areAllocationsAllowed());
 
     // Add some people & attributes to the gatherer
     // Run a sample
     // Check that the models can create the right number of people/attributes
     personAdder(0, 400, time, *gatherer, resourceMonitor);
 
-    BOOST_CHECK_EQUAL(std::size_t(400), gatherer->numberActivePeople());
+    BOOST_REQUIRE_EQUAL(std::size_t(400), gatherer->numberActivePeople());
 
     LOG_DEBUG(<< "Testing for 1st time");
     model->test(time);
-    BOOST_CHECK_EQUAL(std::size_t(400), gatherer->numberActivePeople());
-    BOOST_CHECK_EQUAL(std::size_t(400), model->getNewPeople());
-    BOOST_CHECK_EQUAL(std::size_t(0), model->getNewAttributes());
+    BOOST_REQUIRE_EQUAL(std::size_t(400), gatherer->numberActivePeople());
+    BOOST_REQUIRE_EQUAL(std::size_t(400), model->getNewPeople());
+    BOOST_REQUIRE_EQUAL(std::size_t(0), model->getNewAttributes());
     time += BUCKET_LENGTH;
 
     personAdder(400, 1000, time, *gatherer, resourceMonitor);
@@ -509,10 +509,10 @@ void doTestLargeAllocations(SLargeAllocationTestParams& param) {
     LOG_DEBUG(<< "Testing for 2nd time");
     model->test(time);
     LOG_DEBUG(<< "# new people = " << model->getNewPeople());
-    BOOST_TEST(model->getNewPeople() > param.m_NewPeopleLowerBound);
-    BOOST_TEST(model->getNewPeople() < param.m_NewPeopleUpperBound);
-    BOOST_CHECK_EQUAL(std::size_t(0), model->getNewAttributes());
-    BOOST_CHECK_EQUAL(model->getNewPeople(), gatherer->numberActivePeople());
+    BOOST_TEST_REQUIRE(model->getNewPeople() > param.m_NewPeopleLowerBound);
+    BOOST_TEST_REQUIRE(model->getNewPeople() < param.m_NewPeopleUpperBound);
+    BOOST_REQUIRE_EQUAL(std::size_t(0), model->getNewAttributes());
+    BOOST_REQUIRE_EQUAL(model->getNewPeople(), gatherer->numberActivePeople());
 
     // Adding a small number of new people should be fine though,
     // as they're allowed in
@@ -523,9 +523,9 @@ void doTestLargeAllocations(SLargeAllocationTestParams& param) {
 
     LOG_DEBUG(<< "Testing for 3rd time");
     model->test(time);
-    BOOST_CHECK_EQUAL(oldNumberPeople + 10, model->getNewPeople());
-    BOOST_CHECK_EQUAL(std::size_t(0), model->getNewAttributes());
-    BOOST_CHECK_EQUAL(model->getNewPeople(), gatherer->numberActivePeople());
+    BOOST_REQUIRE_EQUAL(oldNumberPeople + 10, model->getNewPeople());
+    BOOST_REQUIRE_EQUAL(std::size_t(0), model->getNewAttributes());
+    BOOST_REQUIRE_EQUAL(model->getNewPeople(), gatherer->numberActivePeople());
 }
 }
 
@@ -552,14 +552,14 @@ void CResourceLimitTest::importCsvDataWithLimiter(core_t::TTime firstTime,
 
     using TifstreamPtr = std::shared_ptr<std::ifstream>;
     TifstreamPtr ifs(new std::ifstream(fileName.c_str()));
-    BOOST_TEST(ifs->is_open());
+    BOOST_TEST_REQUIRE(ifs->is_open());
 
     core::CRegex regex;
-    BOOST_TEST(regex.init(","));
+    BOOST_TEST_REQUIRE(regex.init(","));
 
     std::string line;
     // read the header
-    BOOST_TEST(std::getline(*ifs, line));
+    BOOST_TEST_REQUIRE(std::getline(*ifs, line));
 
     core_t::TTime lastBucketTime = firstTime;
 
@@ -576,7 +576,7 @@ void CResourceLimitTest::importCsvDataWithLimiter(core_t::TTime firstTime,
         regex.split(line, tokens);
 
         core_t::TTime time;
-        BOOST_TEST(core::CStringUtils::stringToType(tokens[0], time));
+        BOOST_TEST_REQUIRE(core::CStringUtils::stringToType(tokens[0], time));
 
         for (/**/; lastBucketTime + bucketLength <= time; lastBucketTime += bucketLength) {
             outputResults(detector, lastBucketTime, lastBucketTime + bucketLength);

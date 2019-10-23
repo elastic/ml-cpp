@@ -37,7 +37,7 @@ BOOST_AUTO_TEST_CASE(testSupport) {
         modes.push_back(n1);
         modes.push_back(n2);
         CMixtureDistribution<boost::math::normal_distribution<>> mixture(weights, modes);
-        BOOST_CHECK_EQUAL(core::CContainerPrinter::print(boost::math::support(n1)),
+        BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(boost::math::support(n1)),
                           core::CContainerPrinter::print(support(mixture)));
     }
     {
@@ -50,7 +50,7 @@ BOOST_AUTO_TEST_CASE(testSupport) {
         modes.push_back(l1);
         modes.push_back(l2);
         CMixtureDistribution<boost::math::lognormal_distribution<>> mixture(weights, modes);
-        BOOST_CHECK_EQUAL(core::CContainerPrinter::print(boost::math::support(l1)),
+        BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(boost::math::support(l1)),
                           core::CContainerPrinter::print(support(mixture)));
     }
 }
@@ -94,8 +94,8 @@ BOOST_AUTO_TEST_CASE(testMode) {
                       << ", d^2f/dx^2 = " << curvature);
 
             // Gradient zero + curvature negative => maximum.
-            BOOST_CHECK_CLOSE_ABSOLUTE(0.0, derivative, 1e-6);
-            BOOST_TEST(curvature < 0.0);
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(0.0, derivative, 1e-6);
+            BOOST_TEST_REQUIRE(curvature < 0.0);
         }
     }
 
@@ -126,8 +126,8 @@ BOOST_AUTO_TEST_CASE(testMode) {
         LOG_DEBUG(<< "x = " << x << ", df/dx = " << derivative << ", d^2f/dx^2 = " << curvature);
 
         // Gradient zero + curvature negative => maximum.
-        BOOST_CHECK_CLOSE_ABSOLUTE(0.0, derivative, 1e-6);
-        BOOST_TEST(curvature < 0.0);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(0.0, derivative, 1e-6);
+        BOOST_TEST_REQUIRE(curvature < 0.0);
     }
     {
         LOG_DEBUG(<< "Mixture Two Log-Normals");
@@ -153,8 +153,8 @@ BOOST_AUTO_TEST_CASE(testMode) {
         LOG_DEBUG(<< "x = " << x << ", df/dx = " << derivative << ", d^2f/dx^2 = " << curvature);
 
         // Gradient zero + curvature negative => maximum.
-        BOOST_CHECK_CLOSE_ABSOLUTE(0.0, derivative, 1e-6);
-        BOOST_TEST(curvature < 0.0);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(0.0, derivative, 1e-6);
+        BOOST_TEST_REQUIRE(curvature < 0.0);
     }
 }
 
@@ -175,8 +175,8 @@ BOOST_AUTO_TEST_CASE(testPdf) {
             {0.3, 10.0}, {1.0, 0.4}, {1.4, 6.0}, {3.0, 1.1}, {3.0, 3.5},
             {1.0, 5.0},  {2.3, 4.0}, {3.0, 1.0}, {1.1, 1.0}, {3.0, 3.2}};
 
-        BOOST_CHECK_EQUAL(boost::size(weights), boost::size(means));
-        BOOST_CHECK_EQUAL(boost::size(means), boost::size(variances));
+        BOOST_REQUIRE_EQUAL(boost::size(weights), boost::size(means));
+        BOOST_REQUIRE_EQUAL(boost::size(means), boost::size(variances));
 
         for (size_t i = 0u; i < boost::size(weights); ++i) {
             LOG_DEBUG(<< "*** Test Case " << i << " ***");
@@ -201,7 +201,7 @@ BOOST_AUTO_TEST_CASE(testPdf) {
                 LOG_DEBUG(<< "percentile = " << p << "%"
                           << ", f = " << f << ", dF/dx = " << dFdx);
 
-                BOOST_CHECK_CLOSE_ABSOLUTE(f, dFdx, tolerance);
+                BOOST_REQUIRE_CLOSE_ABSOLUTE(f, dFdx, tolerance);
             }
         }
     }
@@ -219,8 +219,8 @@ BOOST_AUTO_TEST_CASE(testCdf) {
         {10.0, 30.0}, {5.0, 25.0}, {20.0, 25.0}, {4.0, 50.0}, {11.0, 33.0}};
     const double scales[][2] = {{0.3, 0.2}, {1.0, 1.1}, {0.9, 0.95}, {0.4, 1.2}, {2.3, 2.1}};
 
-    BOOST_CHECK_EQUAL(boost::size(weights), boost::size(shapes));
-    BOOST_CHECK_EQUAL(boost::size(shapes), boost::size(scales));
+    BOOST_REQUIRE_EQUAL(boost::size(weights), boost::size(shapes));
+    BOOST_REQUIRE_EQUAL(boost::size(shapes), boost::size(scales));
 
     CRandomNumbers rng;
 
@@ -264,7 +264,7 @@ BOOST_AUTO_TEST_CASE(testCdf) {
                       << ", expected cdf = " << expectedCdf);
 
             // No more than a 10% error in the sample percentile.
-            BOOST_CHECK_CLOSE_ABSOLUTE(expectedCdf, actualCdf, 0.1 * expectedCdf);
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(expectedCdf, actualCdf, 0.1 * expectedCdf);
         }
     }
 }
@@ -279,8 +279,8 @@ BOOST_AUTO_TEST_CASE(testQuantile) {
     const double scales[][3] = {
         {0.1, 0.04, 0.5}, {0.8, 0.3, 0.6}, {0.5, 0.3, 0.4}, {0.3, 0.08, 0.9}, {0.1, 0.2, 1.0}};
 
-    BOOST_CHECK_EQUAL(boost::size(weights), boost::size(locations));
-    BOOST_CHECK_EQUAL(boost::size(locations), boost::size(scales));
+    BOOST_REQUIRE_EQUAL(boost::size(weights), boost::size(locations));
+    BOOST_REQUIRE_EQUAL(boost::size(locations), boost::size(scales));
 
     for (std::size_t i = 0u; i < boost::size(weights); ++i) {
         LOG_DEBUG(<< "*** Test " << i << " ***");
@@ -302,7 +302,7 @@ BOOST_AUTO_TEST_CASE(testQuantile) {
             double q = static_cast<double>(p) / 100.0;
             double f = cdf(mixture, quantile(mixture, q));
             LOG_DEBUG(<< "Error = " << std::fabs(q - f));
-            BOOST_CHECK_CLOSE_ABSOLUTE(q, f, 1e-10);
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(q, f, 1e-10);
         }
     }
 }

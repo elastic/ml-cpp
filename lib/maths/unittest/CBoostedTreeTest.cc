@@ -183,7 +183,7 @@ auto predictAndComputeEvaluationMetrics(const F& generateFunction,
 
 void readFileToStream(const std::string& filename, std::stringstream& stream) {
     std::ifstream file(filename);
-    BOOST_TEST(file.is_open());
+    BOOST_TEST_REQUIRE(file.is_open());
     std::string str((std::istreambuf_iterator<char>(file)),
                     std::istreambuf_iterator<char>());
     stream << str;
@@ -240,22 +240,22 @@ BOOST_AUTO_TEST_CASE(testPiecewiseConstant) {
 
         // In and out-of-core agree.
         for (std::size_t j = 1; j < modelBias[i].size(); ++j) {
-            BOOST_CHECK_EQUAL(modelBias[i][0], modelBias[i][j]);
-            BOOST_CHECK_EQUAL(modelRSquared[i][0], modelRSquared[i][j]);
+            BOOST_REQUIRE_EQUAL(modelBias[i][0], modelBias[i][j]);
+            BOOST_REQUIRE_EQUAL(modelRSquared[i][0], modelRSquared[i][j]);
         }
 
         // Unbiased...
-        BOOST_CHECK_CLOSE_ABSOLUTE(
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(
             0.0, modelBias[i][0],
             4.0 * std::sqrt(noiseVariance / static_cast<double>(trainRows)));
         // Good R^2...
-        BOOST_TEST(modelRSquared[i][0] > 0.96);
+        BOOST_TEST_REQUIRE(modelRSquared[i][0] > 0.96);
 
         meanModelRSquared.add(modelRSquared[i][0]);
     }
 
     LOG_DEBUG(<< "mean R^2 = " << maths::CBasicStatistics::mean(meanModelRSquared));
-    BOOST_TEST(maths::CBasicStatistics::mean(meanModelRSquared) > 0.97);
+    BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(meanModelRSquared) > 0.97);
 }
 
 BOOST_AUTO_TEST_CASE(testLinear) {
@@ -296,21 +296,21 @@ BOOST_AUTO_TEST_CASE(testLinear) {
 
         // In and out-of-core agree.
         for (std::size_t j = 1; j < modelBias[i].size(); ++j) {
-            BOOST_CHECK_EQUAL(modelBias[i][0], modelBias[i][j]);
-            BOOST_CHECK_EQUAL(modelRSquared[i][0], modelRSquared[i][j]);
+            BOOST_REQUIRE_EQUAL(modelBias[i][0], modelBias[i][j]);
+            BOOST_REQUIRE_EQUAL(modelRSquared[i][0], modelRSquared[i][j]);
         }
 
         // Unbiased...
-        BOOST_CHECK_CLOSE_ABSOLUTE(
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(
             0.0, modelBias[i][0],
             4.0 * std::sqrt(noiseVariance / static_cast<double>(trainRows)));
         // Good R^2...
-        BOOST_TEST(modelRSquared[i][0] > 0.97);
+        BOOST_TEST_REQUIRE(modelRSquared[i][0] > 0.97);
 
         meanModelRSquared.add(modelRSquared[i][0]);
     }
     LOG_DEBUG(<< "mean R^2 = " << maths::CBasicStatistics::mean(meanModelRSquared));
-    BOOST_TEST(maths::CBasicStatistics::mean(meanModelRSquared) > 0.97);
+    BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(meanModelRSquared) > 0.97);
 }
 
 BOOST_AUTO_TEST_CASE(testNonLinear) {
@@ -363,21 +363,21 @@ BOOST_AUTO_TEST_CASE(testNonLinear) {
 
         // In and out-of-core agree.
         for (std::size_t j = 1; j < modelBias[i].size(); ++j) {
-            BOOST_CHECK_EQUAL(modelBias[i][0], modelBias[i][j]);
-            BOOST_CHECK_EQUAL(modelRSquared[i][0], modelRSquared[i][j]);
+            BOOST_REQUIRE_EQUAL(modelBias[i][0], modelBias[i][j]);
+            BOOST_REQUIRE_EQUAL(modelRSquared[i][0], modelRSquared[i][j]);
         }
 
         // Unbiased...
-        BOOST_CHECK_CLOSE_ABSOLUTE(
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(
             0.0, modelBias[i][0],
             4.0 * std::sqrt(noiseVariance / static_cast<double>(trainRows)));
         // Good R^2...
-        BOOST_TEST(modelRSquared[i][0] > 0.96);
+        BOOST_TEST_REQUIRE(modelRSquared[i][0] > 0.96);
 
         meanModelRSquared.add(modelRSquared[i][0]);
     }
     LOG_DEBUG(<< "mean R^2 = " << maths::CBasicStatistics::mean(meanModelRSquared));
-    BOOST_TEST(maths::CBasicStatistics::mean(meanModelRSquared) > 0.97);
+    BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(meanModelRSquared) > 0.97);
 }
 
 BOOST_AUTO_TEST_CASE(testThreading) {
@@ -455,8 +455,8 @@ BOOST_AUTO_TEST_CASE(testThreading) {
         core::startDefaultAsyncExecutor();
     }
 
-    BOOST_CHECK_EQUAL(modelBias[0], modelBias[1]);
-    BOOST_CHECK_EQUAL(modelMse[0], modelMse[1]);
+    BOOST_REQUIRE_EQUAL(modelBias[0], modelBias[1]);
+    BOOST_REQUIRE_EQUAL(modelMse[0], modelMse[1]);
 
     core::stopDefaultAsyncExecutor();
 }
@@ -504,7 +504,7 @@ BOOST_AUTO_TEST_CASE(testConstantFeatures) {
     TDoubleVec featureWeights(regression->featureWeights());
 
     LOG_DEBUG(<< "feature weights = " << core::CContainerPrinter::print(featureWeights));
-    BOOST_TEST(featureWeights[cols - 2] < 1e-4);
+    BOOST_TEST_REQUIRE(featureWeights[cols - 2] < 1e-4);
 }
 
 BOOST_AUTO_TEST_CASE(testConstantTarget) {
@@ -542,7 +542,7 @@ BOOST_AUTO_TEST_CASE(testConstantTarget) {
 
     LOG_DEBUG(<< "mean prediction error = "
               << maths::CBasicStatistics::mean(modelPredictionError));
-    BOOST_CHECK_EQUAL(0.0, maths::CBasicStatistics::mean(modelPredictionError));
+    BOOST_REQUIRE_EQUAL(0.0, maths::CBasicStatistics::mean(modelPredictionError));
 }
 
 BOOST_AUTO_TEST_CASE(testCategoricalRegressors) {
@@ -613,8 +613,8 @@ BOOST_AUTO_TEST_CASE(testCategoricalRegressors) {
 
     LOG_DEBUG(<< "bias = " << modelBias);
     LOG_DEBUG(<< " R^2 = " << modelRSquared);
-    BOOST_CHECK_CLOSE_ABSOLUTE(0.0, modelBias, 0.1);
-    BOOST_TEST(modelRSquared > 0.91);
+    BOOST_REQUIRE_CLOSE_ABSOLUTE(0.0, modelBias, 0.1);
+    BOOST_TEST_REQUIRE(modelRSquared > 0.91);
 }
 
 BOOST_AUTO_TEST_CASE(testIntegerRegressor) {
@@ -656,8 +656,8 @@ BOOST_AUTO_TEST_CASE(testIntegerRegressor) {
 
     LOG_DEBUG(<< "bias = " << modelBias);
     LOG_DEBUG(<< " R^2 = " << modelRSquared);
-    BOOST_CHECK_CLOSE_ABSOLUTE(0.0, modelBias, 0.05);
-    BOOST_TEST(modelRSquared > 0.99);
+    BOOST_REQUIRE_CLOSE_ABSOLUTE(0.0, modelBias, 0.05);
+    BOOST_TEST_REQUIRE(modelRSquared > 0.99);
 }
 
 BOOST_AUTO_TEST_CASE(testSingleSplit) {
@@ -700,7 +700,7 @@ BOOST_AUTO_TEST_CASE(testSingleSplit) {
 
     LOG_DEBUG(<< "bias = " << modelBias);
     LOG_DEBUG(<< " R^2 = " << modelRSquared);
-    BOOST_TEST(modelRSquared > 0.99);
+    BOOST_TEST_REQUIRE(modelRSquared > 0.99);
 }
 
 BOOST_AUTO_TEST_CASE(testTranslationInvariance) {
@@ -762,7 +762,7 @@ BOOST_AUTO_TEST_CASE(testTranslationInvariance) {
         rsquared.push_back(modelRSquared);
     }
 
-    BOOST_CHECK_CLOSE_ABSOLUTE(rsquared[0], rsquared[1], 5e-3);
+    BOOST_REQUIRE_CLOSE_ABSOLUTE(rsquared[0], rsquared[1], 5e-3);
 }
 
 std::size_t maxDepth(const std::vector<maths::CBoostedTreeNode>& tree,
@@ -828,11 +828,11 @@ BOOST_AUTO_TEST_CASE(testDepthBasedRegularization) {
 
         TMeanAccumulator meanDepth;
         for (const auto& tree : regression->trainedModel()) {
-            BOOST_TEST(maxDepth(tree, tree[0], 0) <= static_cast<std::size_t>(targetDepth));
+            BOOST_TEST_REQUIRE(maxDepth(tree, tree[0], 0) <= static_cast<std::size_t>(targetDepth));
             meanDepth.add(static_cast<double>(maxDepth(tree, tree[0], 0)));
         }
         LOG_DEBUG(<< "mean depth = " << maths::CBasicStatistics::mean(meanDepth));
-        BOOST_TEST(maths::CBasicStatistics::mean(meanDepth) > targetDepth - 1.0);
+        BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(meanDepth) > targetDepth - 1.0);
     }
 }
 
@@ -848,7 +848,7 @@ BOOST_AUTO_TEST_CASE(testLogisticMinimizerEdgeCases) {
         argmin.add(0.0, 1.0);
         argmin.add(0.0, 0.0);
         argmin.nextPass();
-        BOOST_CHECK_EQUAL(0.0, argmin.value());
+        BOOST_REQUIRE_EQUAL(0.0, argmin.value());
     }
 
     // All predictions are equal.
@@ -879,8 +879,8 @@ BOOST_AUTO_TEST_CASE(testLogisticMinimizerEdgeCases) {
         double expected{std::log(p / (1.0 - p))};
         double actual{argmin.value()};
 
-        BOOST_CHECK_EQUAL(std::size_t{1}, numberPasses);
-        BOOST_CHECK_CLOSE_ABSOLUTE(expected, actual, 0.01 * std::fabs(expected));
+        BOOST_REQUIRE_EQUAL(std::size_t{1}, numberPasses);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(expected, actual, 0.01 * std::fabs(expected));
     }
 
     // Test underflow of probabilities.
@@ -907,8 +907,8 @@ BOOST_AUTO_TEST_CASE(testLogisticMinimizerEdgeCases) {
             }
             losses.push_back(lossAtEps);
         }
-        BOOST_TEST(losses[0] >= losses[1]);
-        BOOST_TEST(losses[2] >= losses[1]);
+        BOOST_TEST_REQUIRE(losses[0] >= losses[1]);
+        BOOST_TEST_REQUIRE(losses[2] >= losses[1]);
     }
 }
 
@@ -997,9 +997,9 @@ BOOST_AUTO_TEST_CASE(testLogisticMinimizerRandom) {
 
             // We should be within 1% for the value and 0.001% for the objective
             // at the value.
-            BOOST_CHECK_EQUAL(actual, actualPartition);
-            BOOST_CHECK_CLOSE_ABSOLUTE(expected, actual, 0.01 * std::fabs(expected));
-            BOOST_CHECK_CLOSE_ABSOLUTE(objectiveAtExpected, objective(actual),
+            BOOST_REQUIRE_EQUAL(actual, actualPartition);
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(expected, actual, 0.01 * std::fabs(expected));
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(objectiveAtExpected, objective(actual),
                                        1e-5 * objectiveAtExpected);
         }
     }
@@ -1022,8 +1022,8 @@ BOOST_AUTO_TEST_CASE(testLogisticLossForUnderflow) {
         for (double scale : {0.75, 0.5, 0.25, 0.0, -0.25, -0.5, -0.75, -1.0}) {
             TDoubleVec currentLoss{loss.value(scale - std::log(eps), 0.0),
                                    loss.value(scale + std::log(eps), 1.0)};
-            BOOST_CHECK_CLOSE_ABSOLUTE(0.25, lastLoss[0] - currentLoss[0], 5e-3);
-            BOOST_CHECK_CLOSE_ABSOLUTE(-0.25, lastLoss[1] - currentLoss[1], 5e-3);
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(0.25, lastLoss[0] - currentLoss[0], 5e-3);
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(-0.25, lastLoss[1] - currentLoss[1], 5e-3);
             lastLoss = currentLoss;
         }
     }
@@ -1040,13 +1040,13 @@ BOOST_AUTO_TEST_CASE(testLogisticLossForUnderflow) {
                                        loss.gradient(scale - std::log(eps), 1.0)};
             TDoubleVec currentCurvature{loss.curvature(scale + std::log(eps), 0.0),
                                         loss.curvature(scale - std::log(eps), 1.0)};
-            BOOST_CHECK_CLOSE_ABSOLUTE(std::exp(0.25),
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(std::exp(0.25),
                                        lastGradient[0] / currentGradient[0], 5e-3);
-            BOOST_CHECK_CLOSE_ABSOLUTE(std::exp(-0.25),
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(std::exp(-0.25),
                                        lastGradient[1] / currentGradient[1], 5e-3);
-            BOOST_CHECK_CLOSE_ABSOLUTE(std::exp(0.25),
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(std::exp(0.25),
                                        lastCurvature[0] / currentCurvature[0], 5e-3);
-            BOOST_CHECK_CLOSE_ABSOLUTE(std::exp(-0.25),
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(std::exp(-0.25),
                                        lastCurvature[1] / currentCurvature[1], 5e-3);
             lastGradient = currentGradient;
             lastCurvature = currentCurvature;
@@ -1131,7 +1131,7 @@ BOOST_AUTO_TEST_CASE(testLogisticRegression) {
                   << ", minimum cross entropy = " << minimumCrossEntropy);
 
         // We should be with 40% of the minimum possible cross entropy.
-        BOOST_TEST(actualCrossEntropy < 1.4 * minimumCrossEntropy);
+        BOOST_TEST_REQUIRE(actualCrossEntropy < 1.4 * minimumCrossEntropy);
         meanExcessCrossEntropy.add(actualCrossEntropy / minimumCrossEntropy);
     }
 
@@ -1139,7 +1139,7 @@ BOOST_AUTO_TEST_CASE(testLogisticRegression) {
               << maths::CBasicStatistics::mean(meanExcessCrossEntropy));
 
     // We should be within 25% of the minimum possible cross entropy on average.
-    BOOST_TEST(maths::CBasicStatistics::mean(meanExcessCrossEntropy) < 1.25);
+    BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(meanExcessCrossEntropy) < 1.25);
 }
 
 BOOST_AUTO_TEST_CASE(testEstimateMemoryUsedByTrain) {
@@ -1200,7 +1200,7 @@ BOOST_AUTO_TEST_CASE(testEstimateMemoryUsedByTrain) {
         LOG_DEBUG(<< "estimated memory usage = " << estimatedMemory);
         LOG_DEBUG(<< "high water mark = " << maxMemoryUsage);
 
-        BOOST_TEST(maxMemoryUsage < estimatedMemory);
+        BOOST_TEST_REQUIRE(maxMemoryUsage < estimatedMemory);
     }
 }
 
@@ -1269,7 +1269,7 @@ BOOST_AUTO_TEST_CASE(testProgressMonitoring) {
         }
         worker.join();
 
-        BOOST_TEST(monotonic);
+        BOOST_TEST_REQUIRE(monotonic);
 
         core::startDefaultAsyncExecutor();
     }
@@ -1326,7 +1326,7 @@ BOOST_AUTO_TEST_CASE(testPersistRestore) {
         boostedTree->acceptPersistInserter(inserter);
         persistTwiceSStream.flush();
     }
-    BOOST_CHECK_EQUAL(persistOnceSStream.str(), persistTwiceSStream.str());
+    BOOST_REQUIRE_EQUAL(persistOnceSStream.str(), persistTwiceSStream.str());
     LOG_DEBUG(<< "First string " << persistOnceSStream.str());
     LOG_DEBUG(<< "Second string " << persistTwiceSStream.str());
 
@@ -1347,7 +1347,7 @@ BOOST_AUTO_TEST_CASE(testRestoreErrorHandling) {
     const std::string logFile{"test.log"};
 
     // log at level ERROR only
-    BOOST_TEST(ml::core::CLogger::instance().reconfigureFromFile(
+    BOOST_TEST_REQUIRE(ml::core::CLogger::instance().reconfigureFromFile(
         "testfiles/testLogErrors.boost.log.ini"));
 
     std::size_t cols{3};
@@ -1372,12 +1372,12 @@ BOOST_AUTO_TEST_CASE(testRestoreErrorHandling) {
         throwsExceptions = true;
         core::CRegex re;
         re.init("Input error:.*");
-        BOOST_TEST(re.matches(e.what()));
+        BOOST_TEST_REQUIRE(re.matches(e.what()));
         readFileToStream(logFile, buffer);
-        BOOST_TEST(buffer.str().find("Failed to restore MAX_BOUNDARY_TAG") !=
+        BOOST_TEST_REQUIRE(buffer.str().find("Failed to restore MAX_BOUNDARY_TAG") !=
                    std::string::npos);
     }
-    BOOST_TEST(throwsExceptions);
+    BOOST_TEST_REQUIRE(throwsExceptions);
 
     std::stringstream errorInBoostedTreeImplState;
     readFileToStream("testfiles/error_boosted_tree_impl_state.json", errorInBoostedTreeImplState);
@@ -1394,12 +1394,12 @@ BOOST_AUTO_TEST_CASE(testRestoreErrorHandling) {
         throwsExceptions = true;
         core::CRegex re;
         re.init("Input error:.*");
-        BOOST_TEST(re.matches(e.what()));
+        BOOST_TEST_REQUIRE(re.matches(e.what()));
         readFileToStream(logFile, buffer);
-        BOOST_TEST(buffer.str().find("Failed to restore NUMBER_FOLDS_TAG") !=
+        BOOST_TEST_REQUIRE(buffer.str().find("Failed to restore NUMBER_FOLDS_TAG") !=
                    std::string::npos);
     }
-    BOOST_TEST(throwsExceptions);
+    BOOST_TEST_REQUIRE(throwsExceptions);
 
     std::stringstream errorInStateVersion;
     readFileToStream("testfiles/error_no_version_state.json", errorInStateVersion);
@@ -1416,12 +1416,12 @@ BOOST_AUTO_TEST_CASE(testRestoreErrorHandling) {
         throwsExceptions = true;
         core::CRegex re;
         re.init("Input error:.*");
-        BOOST_TEST(re.matches(e.what()));
+        BOOST_TEST_REQUIRE(re.matches(e.what()));
         readFileToStream(logFile, buffer);
-        BOOST_TEST(buffer.str().find("unsupported state serialization version.") !=
+        BOOST_TEST_REQUIRE(buffer.str().find("unsupported state serialization version.") !=
                    std::string::npos);
     }
-    BOOST_TEST(throwsExceptions);
+    BOOST_TEST_REQUIRE(throwsExceptions);
     ml::core::CLogger::instance().reset();
 }
 

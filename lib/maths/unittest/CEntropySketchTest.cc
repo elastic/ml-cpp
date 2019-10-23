@@ -82,11 +82,11 @@ BOOST_AUTO_TEST_CASE(testAll) {
         LOG_DEBUG(<< "mean error = " << maths::CBasicStatistics::mean(meanError[i]));
         LOG_DEBUG(<< "large deviations = "
                   << core::CContainerPrinter::print(epsDeviations[i]));
-        BOOST_TEST(maxError[i][0] < maxMaxErrors[i]);
-        BOOST_TEST(maths::CBasicStatistics::mean(meanError[i]) < maxMeanErrors[i]);
+        BOOST_TEST_REQUIRE(maxError[i][0] < maxMaxErrors[i]);
+        BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(meanError[i]) < maxMeanErrors[i]);
         // Test additive approximation bounds.
         for (std::size_t j = 0u; j < 3; ++j) {
-            BOOST_TEST(epsDeviations[i][j] / 1000.0 <
+            BOOST_TEST_REQUIRE(epsDeviations[i][j] / 1000.0 <
                        2.0 * std::exp(-K[i] * eps[j] * eps[j] / 6.0));
         }
     }

@@ -90,11 +90,11 @@ BOOST_AUTO_TEST_CASE(testClassification) {
         double P1{(initialCount + 100.0) / (2.0 * initialCount + 300.0)};
         double P2{(initialCount + 200.0) / (2.0 * initialCount + 300.0)};
 
-        BOOST_CHECK_EQUAL(std::size_t(2), probabilities.size());
-        BOOST_CHECK_CLOSE_ABSOLUTE(P1, probabilities[1].first, 1e-5);
-        BOOST_CHECK_EQUAL(std::size_t(1), probabilities[1].second);
-        BOOST_CHECK_CLOSE_ABSOLUTE(P2, probabilities[0].first, 1e-5);
-        BOOST_CHECK_EQUAL(std::size_t(2), probabilities[0].second);
+        BOOST_REQUIRE_EQUAL(std::size_t(2), probabilities.size());
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(P1, probabilities[1].first, 1e-5);
+        BOOST_REQUIRE_EQUAL(std::size_t(1), probabilities[1].second);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(P2, probabilities[0].first, 1e-5);
+        BOOST_REQUIRE_EQUAL(std::size_t(2), probabilities[0].second);
 
         // If we supply feature values we should approximately
         // get these modulated by the product of the true density
@@ -130,9 +130,9 @@ BOOST_AUTO_TEST_CASE(testClassification) {
                               << " got P(1) = " << p1_ << ", P(2) = " << p2_);
                 }
 
-                BOOST_CHECK_EQUAL(std::size_t(2), p.size());
-                BOOST_CHECK_CLOSE_ABSOLUTE(p1, p1_, 0.03);
-                BOOST_CHECK_CLOSE_ABSOLUTE(p2, p2_, 0.03);
+                BOOST_REQUIRE_EQUAL(std::size_t(2), p.size());
+                BOOST_REQUIRE_CLOSE_ABSOLUTE(p1, p1_, 0.03);
+                BOOST_REQUIRE_CLOSE_ABSOLUTE(p2, p2_, 0.03);
                 if (p1 > 0.001) {
                     meanError.add(std::fabs((p1 - p1_) / p1));
                 }
@@ -165,7 +165,7 @@ BOOST_AUTO_TEST_CASE(testClassification) {
         for (std::size_t i = 0u; i < 3; ++i) {
             LOG_DEBUG(<< "Mean relative error = "
                       << maths::CBasicStatistics::mean(meanErrors[i]));
-            BOOST_TEST(maths::CBasicStatistics::mean(meanErrors[i]) < 0.05);
+            BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(meanErrors[i]) < 0.05);
             meanMeanError += meanErrors[i];
         }
     }
@@ -185,7 +185,7 @@ BOOST_AUTO_TEST_CASE(testUninitialized) {
     TDoubleVec trainingData[2];
 
     for (std::size_t i = 0u; i < 2; ++i) {
-        BOOST_CHECK_EQUAL(false, nb.initialized());
+        BOOST_REQUIRE_EQUAL(false, nb.initialized());
 
         double x{static_cast<double>(i)};
         rng.generateNormalSamples(0.02 * x - 14.0, 16.0, 1, trainingData[0]);
@@ -195,7 +195,7 @@ BOOST_AUTO_TEST_CASE(testUninitialized) {
         nb.propagateForwardsByTime(1.0);
     }
 
-    BOOST_CHECK_EQUAL(true, nb.initialized());
+    BOOST_REQUIRE_EQUAL(true, nb.initialized());
 }
 
 BOOST_AUTO_TEST_CASE(testPropagationByTime) {
@@ -239,10 +239,10 @@ BOOST_AUTO_TEST_CASE(testPropagationByTime) {
                   << core::CContainerPrinter::print(probabilities[0]));
         LOG_DEBUG(<< "Class probabilities = "
                   << core::CContainerPrinter::print(probabilities[1]));
-        BOOST_CHECK_EQUAL(std::size_t(2), probabilities[0][0].second);
-        BOOST_TEST(probabilities[0][0].first > 0.99);
-        BOOST_CHECK_EQUAL(std::size_t(1), probabilities[1][0].second);
-        BOOST_TEST(probabilities[1][0].first > 0.95);
+        BOOST_REQUIRE_EQUAL(std::size_t(2), probabilities[0][0].second);
+        BOOST_TEST_REQUIRE(probabilities[0][0].first > 0.99);
+        BOOST_REQUIRE_EQUAL(std::size_t(1), probabilities[1][0].second);
+        BOOST_TEST_REQUIRE(probabilities[1][0].first > 0.95);
     }
     {
         TDoubleSizePrVec probabilities[]{
@@ -252,10 +252,10 @@ BOOST_AUTO_TEST_CASE(testPropagationByTime) {
                   << core::CContainerPrinter::print(probabilities[0]));
         LOG_DEBUG(<< "Class probabilities = "
                   << core::CContainerPrinter::print(probabilities[1]));
-        BOOST_CHECK_EQUAL(std::size_t(1), probabilities[0][0].second);
-        BOOST_TEST(probabilities[0][0].first > 0.99);
-        BOOST_CHECK_EQUAL(std::size_t(2), probabilities[1][0].second);
-        BOOST_TEST(probabilities[1][0].first > 0.95);
+        BOOST_REQUIRE_EQUAL(std::size_t(1), probabilities[0][0].second);
+        BOOST_TEST_REQUIRE(probabilities[0][0].first > 0.99);
+        BOOST_REQUIRE_EQUAL(std::size_t(2), probabilities[1][0].second);
+        BOOST_TEST_REQUIRE(probabilities[1][0].first > 0.95);
     }
 }
 
@@ -292,10 +292,10 @@ BOOST_AUTO_TEST_CASE(testMemoryUsage) {
     nb->debugMemoryUsage(mem.get());
 
     LOG_DEBUG(<< "Memory = " << memoryUsage);
-    BOOST_CHECK_EQUAL(memoryUsage, mem->usage());
+    BOOST_REQUIRE_EQUAL(memoryUsage, mem->usage());
 
     LOG_DEBUG(<< "Memory = " << core::CMemory::dynamicSize(nb));
-    BOOST_CHECK_EQUAL(memoryUsage + sizeof(maths::CNaiveBayes),
+    BOOST_REQUIRE_EQUAL(memoryUsage + sizeof(maths::CNaiveBayes),
                       core::CMemory::dynamicSize(nb));
 }
 
@@ -331,14 +331,14 @@ BOOST_AUTO_TEST_CASE(testPersist) {
     LOG_DEBUG(<< "Naive Bayes XML representation:\n" << origXml);
 
     core::CRapidXmlParser parser;
-    BOOST_TEST(parser.parseStringIgnoreCdata(origXml));
+    BOOST_TEST_REQUIRE(parser.parseStringIgnoreCdata(origXml));
     core::CRapidXmlStateRestoreTraverser traverser(parser);
 
     maths::SDistributionRestoreParams params{maths_t::E_ContinuousData, 0.1, 0.0, 0.0, 0.0};
     maths::CNaiveBayes restoredNb{maths::CNaiveBayesFeatureDensityFromPrior(normal),
                                   params, traverser};
 
-    BOOST_CHECK_EQUAL(origNb.checksum(), restoredNb.checksum());
+    BOOST_REQUIRE_EQUAL(origNb.checksum(), restoredNb.checksum());
 
     std::string restoredXml;
     {
@@ -346,7 +346,7 @@ BOOST_AUTO_TEST_CASE(testPersist) {
         origNb.acceptPersistInserter(inserter);
         inserter.toXml(restoredXml);
     }
-    BOOST_CHECK_EQUAL(origXml, restoredXml);
+    BOOST_REQUIRE_EQUAL(origXml, restoredXml);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

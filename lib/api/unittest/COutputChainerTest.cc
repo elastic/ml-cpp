@@ -33,17 +33,17 @@ BOOST_AUTO_TEST_CASE(testChaining) {
     {
         // Open the input and output files
         std::ifstream inputStrm(inputFileName.c_str());
-        BOOST_TEST(inputStrm.is_open());
+        BOOST_TEST_REQUIRE(inputStrm.is_open());
 
         std::ofstream outputStrm(outputFileName.c_str());
-        BOOST_TEST(outputStrm.is_open());
+        BOOST_TEST_REQUIRE(outputStrm.is_open());
         ml::core::CJsonOutputStreamWrapper wrappedOutputStream(outputStrm);
         // Set up the processing chain as:
         // big.txt -> typer -> chainer -> detector -> chainerOutput.txt
 
         ml::model::CLimits limits;
         ml::api::CFieldConfig fieldConfig;
-        BOOST_TEST(fieldConfig.initFromFile("testfiles/new_mlfields.conf"));
+        BOOST_TEST_REQUIRE(fieldConfig.initFromFile("testfiles/new_mlfields.conf"));
 
         ml::model::CAnomalyDetectorModelConfig modelConfig =
             ml::model::CAnomalyDetectorModelConfig::defaultConfig(BUCKET_SIZE);
@@ -58,7 +58,7 @@ BOOST_AUTO_TEST_CASE(testChaining) {
 
         ml::api::CNdJsonInputParser parser(inputStrm);
 
-        BOOST_TEST(parser.readStreamIntoMaps(std::bind(
+        BOOST_TEST_REQUIRE(parser.readStreamIntoMaps(std::bind(
             &CMockDataProcessor::handleRecord, &mockProcessor, std::placeholders::_1)));
     }
 
@@ -78,12 +78,12 @@ BOOST_AUTO_TEST_CASE(testChaining) {
     line = line.substr(1);
     // We don't care what the exact output is for this test
     // only that it is present and looks valid
-    BOOST_CHECK_EQUAL(expectedLineStart, line.substr(0, expectedLineStart.length()));
+    BOOST_REQUIRE_EQUAL(expectedLineStart, line.substr(0, expectedLineStart.length()));
 
     // TODO add more checks
 
     reReadStrm.close();
-    BOOST_CHECK_EQUAL(0, ::remove(outputFileName.c_str()));
+    BOOST_REQUIRE_EQUAL(0, ::remove(outputFileName.c_str()));
 }
 
 BOOST_AUTO_TEST_SUITE_END()

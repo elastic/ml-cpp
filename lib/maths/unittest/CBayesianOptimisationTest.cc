@@ -80,7 +80,7 @@ BOOST_AUTO_TEST_CASE(testLikelihoodGradient) {
 
             TVector gradient{g(a)};
 
-            BOOST_TEST((expectedGradient - gradient).norm() <
+            BOOST_TEST_REQUIRE((expectedGradient - gradient).norm() <
                        1e-3 * expectedGradient.norm());
         }
     }
@@ -119,7 +119,7 @@ BOOST_AUTO_TEST_CASE(testMaximumLikelihoodKernel) {
         double minusML{l(parameters)};
         LOG_TRACE(<< "maximum likelihood = " << -minusML);
 
-        BOOST_CHECK_CLOSE_ABSOLUTE(0.0, g(parameters).norm(), 0.05);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(0.0, g(parameters).norm(), 0.05);
 
         TVector eps{parameters.size()};
         eps.setZero();
@@ -129,8 +129,8 @@ BOOST_AUTO_TEST_CASE(testMaximumLikelihoodKernel) {
             eps(i) = -0.1;
             double minusLMinusEps{l(parameters + eps)};
             eps(i) = 0.0;
-            BOOST_TEST(minusML < minusLPlusEps);
-            BOOST_TEST(minusML < minusLMinusEps);
+            BOOST_TEST_REQUIRE(minusML < minusLPlusEps);
+            BOOST_TEST_REQUIRE(minusML < minusLMinusEps);
         }
     }
 }
@@ -178,7 +178,7 @@ BOOST_AUTO_TEST_CASE(testExpectedImprovementGradient) {
 
             TVector gradient{eig(x)};
 
-            BOOST_TEST((expectedGradient - gradient).norm() <
+            BOOST_TEST_REQUIRE((expectedGradient - gradient).norm() <
                        1e-2 * expectedGradient.norm());
         }
     }
@@ -263,7 +263,7 @@ BOOST_AUTO_TEST_CASE(testMaximumExpectedImprovement) {
     }
 
     LOG_DEBUG(<< "mean gain = " << maths::CBasicStatistics::mean(gain));
-    BOOST_TEST(maths::CBasicStatistics::mean(gain) > 1.27);
+    BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(gain) > 1.27);
 }
 
 BOOST_AUTO_TEST_CASE(testPersistRestore) {
@@ -357,7 +357,7 @@ const {
     }
     LOG_DEBUG(<< "First string " << persistOnceSStream.str());
     LOG_DEBUG(<< "Second string " << persistTwiceSStream.str());
-    BOOST_CHECK_EQUAL(persistOnceSStream.str(), persistTwiceSStream.str());
+    BOOST_REQUIRE_EQUAL(persistOnceSStream.str(), persistTwiceSStream.str());
 }
 
 BOOST_AUTO_TEST_SUITE_END()

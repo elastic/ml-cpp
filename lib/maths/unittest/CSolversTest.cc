@@ -83,12 +83,12 @@ BOOST_AUTO_TEST_CASE(testBracket) {
         std::size_t maxIterations = 10u;
         double a = 0.5, b = 0.5;
         double fa = f(a), fb = f(b);
-        BOOST_TEST(CSolvers::rightBracket(a, b, fa, fb, f, maxIterations));
+        BOOST_TEST_REQUIRE(CSolvers::rightBracket(a, b, fa, fb, f, maxIterations));
         LOG_DEBUG(<< "a = " << a << ", b = " << b << ", f(a) = " << fa
                   << ", f(b) = " << fb << ", maxIterations = " << maxIterations);
-        BOOST_CHECK_EQUAL(f(a), fa);
-        BOOST_CHECK_EQUAL(f(b), fb);
-        BOOST_TEST(fa * fb <= 0.0);
+        BOOST_REQUIRE_EQUAL(f(a), fa);
+        BOOST_REQUIRE_EQUAL(f(b), fb);
+        BOOST_TEST_REQUIRE(fa * fb <= 0.0);
     }
 
     {
@@ -96,12 +96,12 @@ BOOST_AUTO_TEST_CASE(testBracket) {
         std::size_t maxIterations = 10u;
         double a = 0.5, b = 0.6;
         double fa = f(a), fb = f(b);
-        BOOST_TEST(CSolvers::rightBracket(a, b, fa, fb, f, maxIterations));
+        BOOST_TEST_REQUIRE(CSolvers::rightBracket(a, b, fa, fb, f, maxIterations));
         LOG_DEBUG(<< "a = " << a << ", b = " << b << ", f(a) = " << fa
                   << ", f(b) = " << fb << ", maxIterations = " << maxIterations);
-        BOOST_CHECK_EQUAL(f(a), fa);
-        BOOST_CHECK_EQUAL(f(b), fb);
-        BOOST_TEST(fa * fb <= 0.0);
+        BOOST_REQUIRE_EQUAL(f(a), fa);
+        BOOST_REQUIRE_EQUAL(f(b), fb);
+        BOOST_TEST_REQUIRE(fa * fb <= 0.0);
     }
 
     {
@@ -109,12 +109,12 @@ BOOST_AUTO_TEST_CASE(testBracket) {
         std::size_t maxIterations = 10u;
         double a = 0.5, b = 5.0;
         double fa = f(a), fb = f(b);
-        BOOST_TEST(CSolvers::rightBracket(a, b, fa, fb, f, maxIterations));
+        BOOST_TEST_REQUIRE(CSolvers::rightBracket(a, b, fa, fb, f, maxIterations));
         LOG_DEBUG(<< "a = " << a << ", b = " << b << ", f(a) = " << fa
                   << ", f(b) = " << fb << ", maxIterations = " << maxIterations);
-        BOOST_CHECK_EQUAL(f(a), fa);
-        BOOST_CHECK_EQUAL(f(b), fb);
-        BOOST_TEST(fa * fb <= 0.0);
+        BOOST_REQUIRE_EQUAL(f(a), fa);
+        BOOST_REQUIRE_EQUAL(f(b), fb);
+        BOOST_TEST_REQUIRE(fa * fb <= 0.0);
     }
 
     {
@@ -122,13 +122,13 @@ BOOST_AUTO_TEST_CASE(testBracket) {
         std::size_t maxIterations = 10u;
         double a = 100.0, b = 100.0;
         double fa = f(a), fb = f(b);
-        BOOST_TEST(CSolvers::leftBracket(a, b, fa, fb, f, maxIterations,
+        BOOST_TEST_REQUIRE(CSolvers::leftBracket(a, b, fa, fb, f, maxIterations,
                                          std::numeric_limits<double>::min()));
         LOG_DEBUG(<< "a = " << a << ", b = " << b << ", f(a) = " << fa
                   << ", f(b) = " << fb << ", maxIterations = " << maxIterations);
-        BOOST_CHECK_EQUAL(f(a), fa);
-        BOOST_CHECK_EQUAL(f(b), fb);
-        BOOST_TEST(fa * fb <= 0.0);
+        BOOST_REQUIRE_EQUAL(f(a), fa);
+        BOOST_REQUIRE_EQUAL(f(b), fb);
+        BOOST_TEST_REQUIRE(fa * fb <= 0.0);
     }
 }
 
@@ -143,7 +143,7 @@ BOOST_AUTO_TEST_CASE(testBisection) {
         b = 10.0;
         iterations = 5u;
         CEqualWithTolerance<double> equal(CToleranceTypes::E_AbsoluteTolerance, 0.1);
-        BOOST_TEST(!CSolvers::bisection(a, b, &f1, iterations, equal, bestGuess));
+        BOOST_TEST_REQUIRE(!CSolvers::bisection(a, b, &f1, iterations, equal, bestGuess));
     }
 
     // Test that the method terminates if hits the root.
@@ -152,11 +152,11 @@ BOOST_AUTO_TEST_CASE(testBisection) {
         b = 10.0;
         iterations = 10;
         CEqualWithTolerance<double> equal(CToleranceTypes::E_AbsoluteTolerance, 0.1);
-        BOOST_TEST(CSolvers::bisection(a, b, -5.0, 5.0, &f1, iterations, equal, bestGuess));
-        BOOST_CHECK_EQUAL(static_cast<std::size_t>(1), iterations);
-        BOOST_CHECK_EQUAL(5.0, bestGuess);
-        BOOST_CHECK_EQUAL(5.0, a);
-        BOOST_CHECK_EQUAL(5.0, b);
+        BOOST_TEST_REQUIRE(CSolvers::bisection(a, b, -5.0, 5.0, &f1, iterations, equal, bestGuess));
+        BOOST_REQUIRE_EQUAL(static_cast<std::size_t>(1), iterations);
+        BOOST_REQUIRE_EQUAL(5.0, bestGuess);
+        BOOST_REQUIRE_EQUAL(5.0, a);
+        BOOST_REQUIRE_EQUAL(5.0, b);
     }
 
     // Test that the best guess correctly linearly interpolates
@@ -166,11 +166,11 @@ BOOST_AUTO_TEST_CASE(testBisection) {
         b = 7.0;
         iterations = 10;
         CEqualWithTolerance<double> equal(CToleranceTypes::E_AbsoluteTolerance, 0.1);
-        BOOST_TEST(CSolvers::bisection(a, b, -5.0, 5.0, &f1, iterations, equal, bestGuess));
+        BOOST_TEST_REQUIRE(CSolvers::bisection(a, b, -5.0, 5.0, &f1, iterations, equal, bestGuess));
         LOG_DEBUG(<< "a = " << a << ", b = " << b << ", f(a) = " << f1(a)
                   << ", f(b) = " << f1(b) << ", iterations = " << iterations
                   << ", bestGuess = " << bestGuess);
-        BOOST_CHECK_EQUAL(5.0, bestGuess);
+        BOOST_REQUIRE_EQUAL(5.0, bestGuess);
     }
 
     // Test convergence on f(x) = cos(x) - x.
@@ -186,16 +186,16 @@ BOOST_AUTO_TEST_CASE(testBisection) {
             CSolvers::bisection(a, b, &f3, iterations, equal, bestGuess);
 
             LOG_DEBUG(<< "iterations = " << iterations);
-            BOOST_CHECK_EQUAL(i, iterations);
+            BOOST_REQUIRE_EQUAL(i, iterations);
 
             LOG_DEBUG(<< "a = " << a << ", b = " << b << ", f(a) = " << f3(a)
                       << ", f(b) = " << f3(b));
-            BOOST_TEST(f3(a) * f3(b) <= 0.0);
+            BOOST_TEST_REQUIRE(f3(a) * f3(b) <= 0.0);
 
             double error = std::fabs(bestGuess - 0.7390851332151607);
             LOG_DEBUG(<< "bestGuess = " << bestGuess
                       << ", f(bestGuess) = " << f3(bestGuess) << ", error = " << error);
-            BOOST_TEST(error < std::fabs((a + b) / 2.0 - 0.7390851332151607));
+            BOOST_TEST_REQUIRE(error < std::fabs((a + b) / 2.0 - 0.7390851332151607));
             double convergenceFactor = error / lastError;
             lastError = error;
             if (i != 3) {
@@ -206,7 +206,7 @@ BOOST_AUTO_TEST_CASE(testBisection) {
 
         double meanConvergenceFactor = std::pow(lastError / 0.7390851332151607, 1.0 / 20.0);
         LOG_DEBUG(<< "mean convergence factor = " << meanConvergenceFactor);
-        BOOST_TEST(meanConvergenceFactor < 0.4);
+        BOOST_TEST_REQUIRE(meanConvergenceFactor < 0.4);
     }
 
     // Test convergence of f(x) = {  |x - 2.0/3.0|^0.2  x <= 2.0/3.0
@@ -230,18 +230,18 @@ BOOST_AUTO_TEST_CASE(testBisection) {
             CSolvers::bisection(a, b, &f4, iterations, equal, bestGuess);
 
             LOG_DEBUG(<< "iterations = " << iterations);
-            BOOST_CHECK_EQUAL(i, iterations);
+            BOOST_REQUIRE_EQUAL(i, iterations);
 
             LOG_DEBUG(<< "a = " << a << ", b = " << b << ", f(a) = " << f4(a)
                       << ", f(b) = " << f4(b));
-            BOOST_TEST(f4(a) * f4(b) <= 0.0);
-            BOOST_CHECK_CLOSE_ABSOLUTE(0.5 * lastInterval, b - a, 1e-5);
+            BOOST_TEST_REQUIRE(f4(a) * f4(b) <= 0.0);
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(0.5 * lastInterval, b - a, 1e-5);
             lastInterval = b - a;
 
             double error = std::fabs(bestGuess - 2.0 / 3.0);
             LOG_DEBUG(<< "bestGuess = " << bestGuess
                       << ", f(bestGuess) = " << f4(bestGuess) << ", error = " << error);
-            BOOST_TEST(error < std::fabs((a + b) / 2.0 - 2.0 / 3.0));
+            BOOST_TEST_REQUIRE(error < std::fabs((a + b) / 2.0 - 2.0 / 3.0));
             convergenceFactor *= (error / lastError);
             lastError = error;
 
@@ -249,7 +249,7 @@ BOOST_AUTO_TEST_CASE(testBisection) {
                 convergenceFactor = std::pow(convergenceFactor, 0.25);
                 LOG_DEBUG(<< "convergence factor = " << convergenceFactor);
                 if (i - 2 != 4) {
-                    BOOST_CHECK_CLOSE_ABSOLUTE(0.5, convergenceFactor, 1e-5);
+                    BOOST_REQUIRE_CLOSE_ABSOLUTE(0.5, convergenceFactor, 1e-5);
                 }
                 convergenceFactor = 1.0;
             }
@@ -258,7 +258,7 @@ BOOST_AUTO_TEST_CASE(testBisection) {
 
         double meanConvergenceFactor = std::pow(lastError / (2.0 / 3.0), 1.0 / 40.0);
         LOG_DEBUG(<< "mean convergence factor = " << meanConvergenceFactor);
-        BOOST_TEST(meanConvergenceFactor < 0.56);
+        BOOST_TEST_REQUIRE(meanConvergenceFactor < 0.56);
     }
 }
 
@@ -273,7 +273,7 @@ BOOST_AUTO_TEST_CASE(testBrent) {
         b = 10.0;
         iterations = 5u;
         CEqualWithTolerance<double> equal(CToleranceTypes::E_AbsoluteTolerance, 0.1);
-        BOOST_TEST(!CSolvers::brent(a, b, &f1, iterations, equal, bestGuess));
+        BOOST_TEST_REQUIRE(!CSolvers::brent(a, b, &f1, iterations, equal, bestGuess));
     }
 
     // Test that the method terminates if hits the root.
@@ -282,11 +282,11 @@ BOOST_AUTO_TEST_CASE(testBrent) {
         b = 16.0;
         iterations = 10;
         CEqualWithTolerance<double> equal(CToleranceTypes::E_AbsoluteTolerance, 0.1);
-        BOOST_TEST(CSolvers::brent(a, b, -5.0, 11.0, &f1, iterations, equal, bestGuess));
-        BOOST_CHECK_EQUAL(static_cast<std::size_t>(1), iterations);
-        BOOST_CHECK_EQUAL(5.0, bestGuess);
-        BOOST_CHECK_EQUAL(5.0, a);
-        BOOST_CHECK_EQUAL(5.0, b);
+        BOOST_TEST_REQUIRE(CSolvers::brent(a, b, -5.0, 11.0, &f1, iterations, equal, bestGuess));
+        BOOST_REQUIRE_EQUAL(static_cast<std::size_t>(1), iterations);
+        BOOST_REQUIRE_EQUAL(5.0, bestGuess);
+        BOOST_REQUIRE_EQUAL(5.0, a);
+        BOOST_REQUIRE_EQUAL(5.0, b);
     }
 
     // Test the quadratic interpolation will solve for quadratic exactly.
@@ -295,11 +295,11 @@ BOOST_AUTO_TEST_CASE(testBrent) {
         b = 5.0;
         iterations = 10;
         CEqualWithTolerance<double> equal(CToleranceTypes::E_AbsoluteTolerance, 0.1);
-        BOOST_TEST(CSolvers::brent(a, b, &f2, iterations, equal, bestGuess));
-        BOOST_CHECK_EQUAL(static_cast<std::size_t>(6), iterations);
-        BOOST_CHECK_EQUAL(2.0, bestGuess);
-        BOOST_CHECK_EQUAL(2.0, a);
-        BOOST_CHECK_EQUAL(2.0, b);
+        BOOST_TEST_REQUIRE(CSolvers::brent(a, b, &f2, iterations, equal, bestGuess));
+        BOOST_REQUIRE_EQUAL(static_cast<std::size_t>(6), iterations);
+        BOOST_REQUIRE_EQUAL(2.0, bestGuess);
+        BOOST_REQUIRE_EQUAL(2.0, a);
+        BOOST_REQUIRE_EQUAL(2.0, b);
     }
 
     // Test convergence on f(x) = cos(x) - x.
@@ -315,25 +315,25 @@ BOOST_AUTO_TEST_CASE(testBrent) {
 
             LOG_DEBUG(<< "-");
             LOG_DEBUG(<< "iterations = " << iterations);
-            BOOST_CHECK_EQUAL(i, iterations);
+            BOOST_REQUIRE_EQUAL(i, iterations);
 
             LOG_DEBUG(<< "a = " << a << ", b = " << b << ", f(a) = " << f3(a)
                       << ", f(b) = " << f3(b));
-            BOOST_TEST(f3(a) * f3(b) <= 0.0);
+            BOOST_TEST_REQUIRE(f3(a) * f3(b) <= 0.0);
 
             double error = std::fabs(bestGuess - 0.7390851332151607);
             LOG_DEBUG(<< "bestGuess = " << bestGuess
                       << ", f(bestGuess) = " << f3(bestGuess) << ", error = " << error);
-            BOOST_TEST(error < std::fabs((a + b) / 2.0 - 0.7390851332151607));
+            BOOST_TEST_REQUIRE(error < std::fabs((a + b) / 2.0 - 0.7390851332151607));
             double convergenceFactor = error / lastError;
             lastError = error;
             if (i != 3) {
                 LOG_DEBUG(<< "convergenceFactor = " << convergenceFactor);
-                BOOST_TEST(convergenceFactor < 0.75);
+                BOOST_TEST_REQUIRE(convergenceFactor < 0.75);
             }
         }
 
-        BOOST_TEST(lastError < 5e-16);
+        BOOST_TEST_REQUIRE(lastError < 5e-16);
     }
 
     // Test convergence on f(x) = {  |x - 2.0/3.0|^0.2  x <= 2.0/3.0
@@ -352,16 +352,16 @@ BOOST_AUTO_TEST_CASE(testBrent) {
 
             LOG_DEBUG(<< "-");
             LOG_DEBUG(<< "iterations = " << iterations);
-            BOOST_CHECK_EQUAL(i, iterations);
+            BOOST_REQUIRE_EQUAL(i, iterations);
 
             LOG_DEBUG(<< "a = " << a << ", b = " << b << ", f(a) = " << f4(a)
                       << ", f(b) = " << f4(b));
-            BOOST_TEST(f4(a) * f4(b) <= 0.0);
+            BOOST_TEST_REQUIRE(f4(a) * f4(b) <= 0.0);
 
             double error = std::fabs(bestGuess - 2.0 / 3.0);
             LOG_DEBUG(<< "bestGuess = " << bestGuess
                       << ", f(bestGuess) = " << f4(bestGuess) << ", error = " << error);
-            BOOST_TEST(error < std::fabs((a + b) / 2.0 - 2.0 / 3.0));
+            BOOST_TEST_REQUIRE(error < std::fabs((a + b) / 2.0 - 2.0 / 3.0));
             double convergenceFactor = error / lastError;
             lastError = error;
             LOG_DEBUG(<< "convergence factor = " << convergenceFactor);
@@ -369,7 +369,7 @@ BOOST_AUTO_TEST_CASE(testBrent) {
 
         double meanConvergenceFactor = std::pow(lastError / (2.0 / 3.0), 1.0 / 40.0);
         LOG_DEBUG(<< "mean convergence factor = " << meanConvergenceFactor);
-        BOOST_TEST(meanConvergenceFactor < 0.505);
+        BOOST_TEST_REQUIRE(meanConvergenceFactor < 0.505);
     }
 }
 
@@ -388,10 +388,10 @@ BOOST_AUTO_TEST_CASE(testSublevelSet) {
         LOG_DEBUG(<< "fmax = " << fmax);
 
         if (CSolvers::sublevelSet(4.0, 10.0, f5(4.0), f5(10.0), &f5, fmax, 10, sublevelSet)) {
-            BOOST_CHECK_CLOSE_ABSOLUTE(fmax, f5(sublevelSet.first), 1e-5);
-            BOOST_CHECK_CLOSE_ABSOLUTE(fmax, f5(sublevelSet.second), 1e-5);
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(fmax, f5(sublevelSet.first), 1e-5);
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(fmax, f5(sublevelSet.second), 1e-5);
         } else {
-            BOOST_TEST(sublevelSet.second - sublevelSet.first < 1e-4);
+            BOOST_TEST_REQUIRE(sublevelSet.second - sublevelSet.first < 1e-4);
         }
         LOG_DEBUG(<< "sublevelSet = " << core::CContainerPrinter::print(sublevelSet));
         LOG_DEBUG(<< "f(a) = " << f5(sublevelSet.first)
@@ -412,10 +412,10 @@ BOOST_AUTO_TEST_CASE(testSublevelSet) {
                   << ", f(b) = " << f6(sublevelSet.second));
 
         if (found) {
-            BOOST_CHECK_CLOSE_ABSOLUTE(fmax, f6(sublevelSet.first), 1e-4);
-            BOOST_CHECK_CLOSE_ABSOLUTE(fmax, f6(sublevelSet.second), 1e-4);
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(fmax, f6(sublevelSet.first), 1e-4);
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(fmax, f6(sublevelSet.second), 1e-4);
         } else {
-            BOOST_TEST(sublevelSet.second - sublevelSet.first < 1e-4);
+            BOOST_TEST_REQUIRE(sublevelSet.second - sublevelSet.first < 1e-4);
         }
     }
 }

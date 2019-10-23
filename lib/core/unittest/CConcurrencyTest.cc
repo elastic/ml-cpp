@@ -60,15 +60,15 @@ BOOST_AUTO_TEST_CASE(testAsyncWithExecutors) {
 
         auto result =
             core::async(core::defaultAsyncExecutor(), []() { return 42; });
-        BOOST_CHECK_EQUAL(42, result.get());
+        BOOST_REQUIRE_EQUAL(42, result.get());
 
         result = core::async(core::defaultAsyncExecutor(),
                              [](int i) { return i; }, 43);
-        BOOST_CHECK_EQUAL(43, result.get());
+        BOOST_REQUIRE_EQUAL(43, result.get());
 
         result = core::async(core::defaultAsyncExecutor(),
                              [](int i, int j) { return i + j; }, 22, 22);
-        BOOST_CHECK_EQUAL(44, result.get());
+        BOOST_REQUIRE_EQUAL(44, result.get());
 
         core::startDefaultAsyncExecutor();
     }
@@ -86,7 +86,7 @@ BOOST_AUTO_TEST_CASE(testAsyncWithExecutorsAndExceptions) {
 
         auto result = core::async(core::defaultAsyncExecutor(),
                                   static_cast<double (*)()>(throws));
-        BOOST_CHECK_THROW(result.get(), std::runtime_error);
+        BOOST_REQUIRE_THROW(result.get(), std::runtime_error);
 
         core::startDefaultAsyncExecutor();
     }
@@ -105,8 +105,8 @@ BOOST_AUTO_TEST_CASE(testParallelForEachWithEmpty) {
                                                   sum += static_cast<double>(values[i]);
                                               },
                                               0.0));
-    BOOST_CHECK_EQUAL(std::size_t{1}, result.size());
-    BOOST_CHECK_EQUAL(0.0, result[0].s_FunctionState);
+    BOOST_REQUIRE_EQUAL(std::size_t{1}, result.size());
+    BOOST_REQUIRE_EQUAL(0.0, result[0].s_FunctionState);
 }
 
 BOOST_AUTO_TEST_CASE(testParallelForEach) {
@@ -131,7 +131,7 @@ BOOST_AUTO_TEST_CASE(testParallelForEach) {
                                         0.0));
 
         if (std::strcmp(tag, "sequential") == 0) {
-            BOOST_CHECK_EQUAL(std::size_t{1}, results.size());
+            BOOST_REQUIRE_EQUAL(std::size_t{1}, results.size());
         }
         double sum{0.0};
         for (const auto& result : results) {
@@ -141,7 +141,7 @@ BOOST_AUTO_TEST_CASE(testParallelForEach) {
 
         LOG_DEBUG(<< "expected " << expected);
         LOG_DEBUG(<< "got      " << sum);
-        BOOST_CHECK_EQUAL(expected, sum);
+        BOOST_REQUIRE_EQUAL(expected, sum);
 
         core::startDefaultAsyncExecutor();
     }
@@ -157,7 +157,7 @@ BOOST_AUTO_TEST_CASE(testParallelForEach) {
                 [](double& sum, int value) { sum += static_cast<double>(value); }, 0.0));
 
         if (std::strcmp(tag, "sequential") == 0) {
-            BOOST_CHECK_EQUAL(std::size_t{1}, results.size());
+            BOOST_REQUIRE_EQUAL(std::size_t{1}, results.size());
         }
         double sum{0.0};
         for (const auto& result : results) {
@@ -167,7 +167,7 @@ BOOST_AUTO_TEST_CASE(testParallelForEach) {
 
         LOG_DEBUG(<< "expected " << expected);
         LOG_DEBUG(<< "got      " << sum);
-        BOOST_CHECK_EQUAL(expected, sum);
+        BOOST_REQUIRE_EQUAL(expected, sum);
 
         core::startDefaultAsyncExecutor();
     }
@@ -193,11 +193,11 @@ BOOST_AUTO_TEST_CASE(testParallelForEachWithExceptions) {
                 0, values.size(), static_cast<void (*)(std::size_t)>(throws));
         } catch (const std::runtime_error& e) {
             LOG_DEBUG(<< "Caught: " << e.what());
-            BOOST_CHECK_EQUAL(std::string{"don't run me"}, std::string{e.what()});
+            BOOST_REQUIRE_EQUAL(std::string{"don't run me"}, std::string{e.what()});
             exceptionCaught = true;
         }
 
-        BOOST_TEST(exceptionCaught);
+        BOOST_TEST_REQUIRE(exceptionCaught);
 
         core::startDefaultAsyncExecutor();
     }
@@ -213,11 +213,11 @@ BOOST_AUTO_TEST_CASE(testParallelForEachWithExceptions) {
                 values.begin(), values.end(), static_cast<void (*)(int)>(throws));
         } catch (const std::runtime_error& e) {
             LOG_DEBUG(<< "Caught: " << e.what());
-            BOOST_CHECK_EQUAL(std::string{"don't run me"}, std::string{e.what()});
+            BOOST_REQUIRE_EQUAL(std::string{"don't run me"}, std::string{e.what()});
             exceptionCaught = true;
         }
 
-        BOOST_TEST(exceptionCaught);
+        BOOST_TEST_REQUIRE(exceptionCaught);
 
         core::startDefaultAsyncExecutor();
     }
@@ -251,7 +251,7 @@ BOOST_AUTO_TEST_CASE(testParallelForEachReentry) {
         for (const auto& result : results) {
             actual += result.s_FunctionState;
         }
-        BOOST_CHECK_EQUAL(expected, actual);
+        BOOST_REQUIRE_EQUAL(expected, actual);
     }
 }
 
@@ -299,8 +299,8 @@ BOOST_AUTO_TEST_CASE(testProgressMonitoring) {
         }
         worker.join();
 
-        BOOST_CHECK_EQUAL(true, monotonic);
-        BOOST_CHECK_CLOSE_ABSOLUTE(1.0, totalProgress, 1e-14);
+        BOOST_REQUIRE_EQUAL(true, monotonic);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(1.0, totalProgress, 1e-14);
 
         core::startDefaultAsyncExecutor();
     }
@@ -339,8 +339,8 @@ BOOST_AUTO_TEST_CASE(testProgressMonitoring) {
         }
         worker.join();
 
-        BOOST_CHECK_EQUAL(true, monotonic);
-        BOOST_CHECK_CLOSE_ABSOLUTE(1.0, totalProgress, 1e-14);
+        BOOST_REQUIRE_EQUAL(true, monotonic);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(1.0, totalProgress, 1e-14);
 
         core::startDefaultAsyncExecutor();
     }

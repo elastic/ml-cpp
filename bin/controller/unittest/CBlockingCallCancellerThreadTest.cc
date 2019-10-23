@@ -43,7 +43,7 @@ BOOST_AUTO_TEST_CASE(testCancelBlock) {
 
     ml::controller::CBlockingCallCancellerThread cancellerThread(
         ml::core::CThread::currentThreadId(), monStrm);
-    BOOST_TEST(cancellerThread.start());
+    BOOST_TEST_REQUIRE(cancellerThread.start());
 
     // The CBlockingCallCancellerThread should wake up the blocking open of the
     // named pipe "test_pipe".  Without this wake up, it would block
@@ -53,15 +53,15 @@ BOOST_AUTO_TEST_CASE(testCancelBlock) {
     // source, and it runs out of data after 0.2 seconds.
 
     CEofThread eofThread(buf);
-    BOOST_TEST(eofThread.start());
+    BOOST_TEST_REQUIRE(eofThread.start());
 
     ml::core::CNamedPipeFactory::TIStreamP pipeStrm = ml::core::CNamedPipeFactory::openPipeStreamRead(
         ml::core::CNamedPipeFactory::defaultPath() + "test_pipe");
-    BOOST_TEST(pipeStrm == nullptr);
+    BOOST_TEST_REQUIRE(pipeStrm == nullptr);
 
-    BOOST_TEST(cancellerThread.stop());
+    BOOST_TEST_REQUIRE(cancellerThread.stop());
 
-    BOOST_TEST(eofThread.stop());
+    BOOST_TEST_REQUIRE(eofThread.stop());
 }
 
 BOOST_AUTO_TEST_SUITE_END()

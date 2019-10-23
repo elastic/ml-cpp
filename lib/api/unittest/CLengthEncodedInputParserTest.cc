@@ -112,27 +112,27 @@ public:
         }
 
         // Check the field names
-        BOOST_CHECK_EQUAL(m_ExpectedFieldNames.size(), dataRowFields.size());
+        BOOST_REQUIRE_EQUAL(m_ExpectedFieldNames.size(), dataRowFields.size());
         for (ml::api::CCsvInputParser::TStrStrUMapCItr iter = dataRowFields.begin();
              iter != dataRowFields.end(); ++iter) {
             LOG_DEBUG(<< "Field " << iter->first << " is " << iter->second);
-            BOOST_TEST(std::find(m_ExpectedFieldNames.begin(),
+            BOOST_TEST_REQUIRE(std::find(m_ExpectedFieldNames.begin(),
                                  m_ExpectedFieldNames.end(),
                                  iter->first) != m_ExpectedFieldNames.end());
         }
 
         // Check the line count is consistent with the _raw field
         ml::api::CCsvInputParser::TStrStrUMapCItr rawIter = dataRowFields.find("_raw");
-        BOOST_TEST(rawIter != dataRowFields.end());
+        BOOST_TEST_REQUIRE(rawIter != dataRowFields.end());
         ml::api::CCsvInputParser::TStrStrUMapCItr lineCountIter =
             dataRowFields.find("linecount");
-        BOOST_TEST(lineCountIter != dataRowFields.end());
+        BOOST_TEST_REQUIRE(lineCountIter != dataRowFields.end());
 
         size_t expectedLineCount(1 + std::count(rawIter->second.begin(),
                                                 rawIter->second.end(), '\n'));
         size_t lineCount(0);
-        BOOST_TEST(ml::core::CStringUtils::stringToType(lineCountIter->second, lineCount));
-        BOOST_CHECK_EQUAL(expectedLineCount, lineCount);
+        BOOST_TEST_REQUIRE(ml::core::CStringUtils::stringToType(lineCountIter->second, lineCount));
+        BOOST_REQUIRE_EQUAL(expectedLineCount, lineCount);
 
         return true;
     }
@@ -149,23 +149,23 @@ public:
         }
 
         // Check the field names
-        BOOST_CHECK_EQUAL(ml::core::CContainerPrinter::print(m_ExpectedFieldNames),
+        BOOST_REQUIRE_EQUAL(ml::core::CContainerPrinter::print(m_ExpectedFieldNames),
                           ml::core::CContainerPrinter::print(fieldNames));
 
-        BOOST_CHECK_EQUAL(m_ExpectedFieldNames.size(), fieldValues.size());
+        BOOST_REQUIRE_EQUAL(m_ExpectedFieldNames.size(), fieldValues.size());
 
         // Check the line count is consistent with the _raw field
         auto rawIter = std::find(fieldNames.begin(), fieldNames.end(), "_raw");
-        BOOST_TEST(rawIter != fieldNames.end());
+        BOOST_TEST_REQUIRE(rawIter != fieldNames.end());
         auto lineCountIter = std::find(fieldNames.begin(), fieldNames.end(), "linecount");
-        BOOST_TEST(lineCountIter != fieldNames.end());
+        BOOST_TEST_REQUIRE(lineCountIter != fieldNames.end());
 
         const std::string& rawStr = fieldValues[rawIter - fieldNames.begin()];
         std::size_t expectedLineCount(1 + std::count(rawStr.begin(), rawStr.end(), '\n'));
         std::size_t lineCount(0);
         const std::string& lineCountStr = fieldValues[lineCountIter - fieldNames.begin()];
-        BOOST_TEST(ml::core::CStringUtils::stringToType(lineCountStr, lineCount));
-        BOOST_CHECK_EQUAL(expectedLineCount, lineCount);
+        BOOST_TEST_REQUIRE(ml::core::CStringUtils::stringToType(lineCountStr, lineCount));
+        BOOST_REQUIRE_EQUAL(expectedLineCount, lineCount);
 
         return true;
     }
@@ -181,13 +181,13 @@ private:
 
 BOOST_AUTO_TEST_CASE(testCsvEquivalence) {
     std::ifstream ifs("testfiles/simple.txt");
-    BOOST_TEST(ifs.is_open());
+    BOOST_TEST_REQUIRE(ifs.is_open());
 
     CSetupVisitor setupVisitor;
 
     ml::api::CCsvInputParser setupParser(ifs);
 
-    BOOST_TEST(setupParser.readStreamIntoVecs(std::ref(setupVisitor)));
+    BOOST_TEST_REQUIRE(setupParser.readStreamIntoVecs(std::ref(setupVisitor)));
 
     // Input must be binary otherwise Windows will stop at CTRL+Z
     std::istringstream input(setupVisitor.input(1), std::ios::in | std::ios::binary);
@@ -224,8 +224,8 @@ BOOST_AUTO_TEST_CASE(testCsvEquivalence) {
 
     // First read to a map
     ml::api::CLengthEncodedInputParser parser1(input);
-    BOOST_TEST(parser1.readStreamIntoMaps(std::ref(visitor)));
-    BOOST_CHECK_EQUAL(size_t(15), visitor.recordCount());
+    BOOST_TEST_REQUIRE(parser1.readStreamIntoMaps(std::ref(visitor)));
+    BOOST_REQUIRE_EQUAL(size_t(15), visitor.recordCount());
 
     // Now re-read to vectors
     ifs.clear();
@@ -233,8 +233,8 @@ BOOST_AUTO_TEST_CASE(testCsvEquivalence) {
     visitor.reset();
 
     ml::api::CCsvInputParser parser2(ifs);
-    BOOST_TEST(parser2.readStreamIntoVecs(std::ref(visitor)));
-    BOOST_CHECK_EQUAL(size_t(15), visitor.recordCount());
+    BOOST_TEST_REQUIRE(parser2.readStreamIntoVecs(std::ref(visitor)));
+    BOOST_REQUIRE_EQUAL(size_t(15), visitor.recordCount());
 }
 
 BOOST_AUTO_TEST_CASE(testThroughput) {
@@ -244,13 +244,13 @@ BOOST_AUTO_TEST_CASE(testThroughput) {
     LOG_DEBUG(<< "Creating throughput test data");
 
     std::ifstream ifs("testfiles/simple.txt");
-    BOOST_TEST(ifs.is_open());
+    BOOST_TEST_REQUIRE(ifs.is_open());
 
     CSetupVisitor setupVisitor;
 
     ml::api::CCsvInputParser setupParser(ifs);
 
-    BOOST_TEST(setupParser.readStreamIntoVecs(std::ref(setupVisitor)));
+    BOOST_TEST_REQUIRE(setupParser.readStreamIntoVecs(std::ref(setupVisitor)));
 
     // Construct a large test input
     static const size_t TEST_SIZE(10000);
@@ -264,12 +264,12 @@ BOOST_AUTO_TEST_CASE(testThroughput) {
     ml::core_t::TTime start(ml::core::CTimeUtils::now());
     LOG_INFO(<< "Starting throughput test at " << ml::core::CTimeUtils::toTimeString(start));
 
-    BOOST_TEST(parser.readStreamIntoMaps(std::ref(visitor)));
+    BOOST_TEST_REQUIRE(parser.readStreamIntoMaps(std::ref(visitor)));
 
     ml::core_t::TTime end(ml::core::CTimeUtils::now());
     LOG_INFO(<< "Finished throughput test at " << ml::core::CTimeUtils::toTimeString(end));
 
-    BOOST_CHECK_EQUAL(setupVisitor.recordsPerBlock() * TEST_SIZE, visitor.recordCount());
+    BOOST_REQUIRE_EQUAL(setupVisitor.recordsPerBlock() * TEST_SIZE, visitor.recordCount());
 
     LOG_INFO(<< "Parsing " << visitor.recordCount() << " records took "
              << (end - start) << " seconds");
@@ -291,7 +291,7 @@ BOOST_AUTO_TEST_CASE(testCorruptStreamDetection) {
     CVisitor visitor;
 
     LOG_INFO(<< "Expect the next parse to report a suspiciously long length");
-    BOOST_TEST(!parser.readStreamIntoMaps(std::ref(visitor)));
+    BOOST_TEST_REQUIRE(!parser.readStreamIntoMaps(std::ref(visitor)));
 }
 
 BOOST_AUTO_TEST_SUITE_END()

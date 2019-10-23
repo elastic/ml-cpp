@@ -15,39 +15,39 @@ BOOST_AUTO_TEST_SUITE(CWordDictionaryTest)
 BOOST_AUTO_TEST_CASE(testLookups) {
     const ml::core::CWordDictionary& dict = ml::core::CWordDictionary::instance();
 
-    BOOST_TEST(dict.isInDictionary("hello"));
-    BOOST_TEST(dict.isInDictionary("Hello"));
-    BOOST_TEST(dict.isInDictionary("HELLO"));
-    BOOST_TEST(dict.isInDictionary("service"));
-    BOOST_TEST(dict.isInDictionary("has"));
-    BOOST_TEST(dict.isInDictionary("started"));
+    BOOST_TEST_REQUIRE(dict.isInDictionary("hello"));
+    BOOST_TEST_REQUIRE(dict.isInDictionary("Hello"));
+    BOOST_TEST_REQUIRE(dict.isInDictionary("HELLO"));
+    BOOST_TEST_REQUIRE(dict.isInDictionary("service"));
+    BOOST_TEST_REQUIRE(dict.isInDictionary("has"));
+    BOOST_TEST_REQUIRE(dict.isInDictionary("started"));
 
-    BOOST_TEST(!dict.isInDictionary(""));
-    BOOST_TEST(!dict.isInDictionary("r"));
-    BOOST_TEST(!dict.isInDictionary("hkjsdfg"));
-    BOOST_TEST(!dict.isInDictionary("hello2"));
-    BOOST_TEST(!dict.isInDictionary("HELLO2"));
+    BOOST_TEST_REQUIRE(!dict.isInDictionary(""));
+    BOOST_TEST_REQUIRE(!dict.isInDictionary("r"));
+    BOOST_TEST_REQUIRE(!dict.isInDictionary("hkjsdfg"));
+    BOOST_TEST_REQUIRE(!dict.isInDictionary("hello2"));
+    BOOST_TEST_REQUIRE(!dict.isInDictionary("HELLO2"));
 }
 
 BOOST_AUTO_TEST_CASE(testPartOfSpeech) {
     const ml::core::CWordDictionary& dict = ml::core::CWordDictionary::instance();
 
-    BOOST_CHECK_EQUAL(ml::core::CWordDictionary::E_NotInDictionary,
+    BOOST_REQUIRE_EQUAL(ml::core::CWordDictionary::E_NotInDictionary,
                       dict.partOfSpeech("ajksdf"));
-    BOOST_CHECK_EQUAL(ml::core::CWordDictionary::E_UnknownPart,
+    BOOST_REQUIRE_EQUAL(ml::core::CWordDictionary::E_UnknownPart,
                       dict.partOfSpeech("callback"));
-    BOOST_CHECK_EQUAL(ml::core::CWordDictionary::E_Noun, dict.partOfSpeech("House"));
-    BOOST_CHECK_EQUAL(ml::core::CWordDictionary::E_Plural, dict.partOfSpeech("Houses"));
-    BOOST_CHECK_EQUAL(ml::core::CWordDictionary::E_Verb, dict.partOfSpeech("COMPLETED"));
-    BOOST_CHECK_EQUAL(ml::core::CWordDictionary::E_Adjective, dict.partOfSpeech("heavy"));
-    BOOST_CHECK_EQUAL(ml::core::CWordDictionary::E_Adverb, dict.partOfSpeech("slowly"));
-    BOOST_CHECK_EQUAL(ml::core::CWordDictionary::E_Conjunction, dict.partOfSpeech("AND"));
-    BOOST_CHECK_EQUAL(ml::core::CWordDictionary::E_Preposition, dict.partOfSpeech("without"));
-    BOOST_CHECK_EQUAL(ml::core::CWordDictionary::E_Interjection, dict.partOfSpeech("gosh"));
-    BOOST_CHECK_EQUAL(ml::core::CWordDictionary::E_Pronoun, dict.partOfSpeech("hers"));
-    BOOST_CHECK_EQUAL(ml::core::CWordDictionary::E_DefiniteArticle,
+    BOOST_REQUIRE_EQUAL(ml::core::CWordDictionary::E_Noun, dict.partOfSpeech("House"));
+    BOOST_REQUIRE_EQUAL(ml::core::CWordDictionary::E_Plural, dict.partOfSpeech("Houses"));
+    BOOST_REQUIRE_EQUAL(ml::core::CWordDictionary::E_Verb, dict.partOfSpeech("COMPLETED"));
+    BOOST_REQUIRE_EQUAL(ml::core::CWordDictionary::E_Adjective, dict.partOfSpeech("heavy"));
+    BOOST_REQUIRE_EQUAL(ml::core::CWordDictionary::E_Adverb, dict.partOfSpeech("slowly"));
+    BOOST_REQUIRE_EQUAL(ml::core::CWordDictionary::E_Conjunction, dict.partOfSpeech("AND"));
+    BOOST_REQUIRE_EQUAL(ml::core::CWordDictionary::E_Preposition, dict.partOfSpeech("without"));
+    BOOST_REQUIRE_EQUAL(ml::core::CWordDictionary::E_Interjection, dict.partOfSpeech("gosh"));
+    BOOST_REQUIRE_EQUAL(ml::core::CWordDictionary::E_Pronoun, dict.partOfSpeech("hers"));
+    BOOST_REQUIRE_EQUAL(ml::core::CWordDictionary::E_DefiniteArticle,
                       dict.partOfSpeech("the"));
-    BOOST_CHECK_EQUAL(ml::core::CWordDictionary::E_IndefiniteArticle,
+    BOOST_REQUIRE_EQUAL(ml::core::CWordDictionary::E_IndefiniteArticle,
                       dict.partOfSpeech("a"));
 }
 
@@ -55,36 +55,36 @@ BOOST_AUTO_TEST_CASE(testWeightingFunctors) {
     {
         ml::core::CWordDictionary::TWeightAll2 weighter;
 
-        BOOST_CHECK_EQUAL(size_t(0), weighter(ml::core::CWordDictionary::E_NotInDictionary));
-        BOOST_CHECK_EQUAL(size_t(2), weighter(ml::core::CWordDictionary::E_UnknownPart));
-        BOOST_CHECK_EQUAL(size_t(2), weighter(ml::core::CWordDictionary::E_Noun));
-        BOOST_CHECK_EQUAL(size_t(2), weighter(ml::core::CWordDictionary::E_Plural));
-        BOOST_CHECK_EQUAL(size_t(2), weighter(ml::core::CWordDictionary::E_Verb));
-        BOOST_CHECK_EQUAL(size_t(2), weighter(ml::core::CWordDictionary::E_Adjective));
-        BOOST_CHECK_EQUAL(size_t(2), weighter(ml::core::CWordDictionary::E_Adverb));
-        BOOST_CHECK_EQUAL(size_t(2), weighter(ml::core::CWordDictionary::E_Conjunction));
-        BOOST_CHECK_EQUAL(size_t(2), weighter(ml::core::CWordDictionary::E_Preposition));
-        BOOST_CHECK_EQUAL(size_t(2), weighter(ml::core::CWordDictionary::E_Interjection));
-        BOOST_CHECK_EQUAL(size_t(2), weighter(ml::core::CWordDictionary::E_Pronoun));
-        BOOST_CHECK_EQUAL(size_t(2), weighter(ml::core::CWordDictionary::E_DefiniteArticle));
-        BOOST_CHECK_EQUAL(size_t(2), weighter(ml::core::CWordDictionary::E_IndefiniteArticle));
+        BOOST_REQUIRE_EQUAL(size_t(0), weighter(ml::core::CWordDictionary::E_NotInDictionary));
+        BOOST_REQUIRE_EQUAL(size_t(2), weighter(ml::core::CWordDictionary::E_UnknownPart));
+        BOOST_REQUIRE_EQUAL(size_t(2), weighter(ml::core::CWordDictionary::E_Noun));
+        BOOST_REQUIRE_EQUAL(size_t(2), weighter(ml::core::CWordDictionary::E_Plural));
+        BOOST_REQUIRE_EQUAL(size_t(2), weighter(ml::core::CWordDictionary::E_Verb));
+        BOOST_REQUIRE_EQUAL(size_t(2), weighter(ml::core::CWordDictionary::E_Adjective));
+        BOOST_REQUIRE_EQUAL(size_t(2), weighter(ml::core::CWordDictionary::E_Adverb));
+        BOOST_REQUIRE_EQUAL(size_t(2), weighter(ml::core::CWordDictionary::E_Conjunction));
+        BOOST_REQUIRE_EQUAL(size_t(2), weighter(ml::core::CWordDictionary::E_Preposition));
+        BOOST_REQUIRE_EQUAL(size_t(2), weighter(ml::core::CWordDictionary::E_Interjection));
+        BOOST_REQUIRE_EQUAL(size_t(2), weighter(ml::core::CWordDictionary::E_Pronoun));
+        BOOST_REQUIRE_EQUAL(size_t(2), weighter(ml::core::CWordDictionary::E_DefiniteArticle));
+        BOOST_REQUIRE_EQUAL(size_t(2), weighter(ml::core::CWordDictionary::E_IndefiniteArticle));
     }
     {
         ml::core::CWordDictionary::TWeightVerbs5Other2 weighter;
 
-        BOOST_CHECK_EQUAL(size_t(0), weighter(ml::core::CWordDictionary::E_NotInDictionary));
-        BOOST_CHECK_EQUAL(size_t(2), weighter(ml::core::CWordDictionary::E_UnknownPart));
-        BOOST_CHECK_EQUAL(size_t(2), weighter(ml::core::CWordDictionary::E_Noun));
-        BOOST_CHECK_EQUAL(size_t(2), weighter(ml::core::CWordDictionary::E_Plural));
-        BOOST_CHECK_EQUAL(size_t(5), weighter(ml::core::CWordDictionary::E_Verb));
-        BOOST_CHECK_EQUAL(size_t(2), weighter(ml::core::CWordDictionary::E_Adjective));
-        BOOST_CHECK_EQUAL(size_t(2), weighter(ml::core::CWordDictionary::E_Adverb));
-        BOOST_CHECK_EQUAL(size_t(2), weighter(ml::core::CWordDictionary::E_Conjunction));
-        BOOST_CHECK_EQUAL(size_t(2), weighter(ml::core::CWordDictionary::E_Preposition));
-        BOOST_CHECK_EQUAL(size_t(2), weighter(ml::core::CWordDictionary::E_Interjection));
-        BOOST_CHECK_EQUAL(size_t(2), weighter(ml::core::CWordDictionary::E_Pronoun));
-        BOOST_CHECK_EQUAL(size_t(2), weighter(ml::core::CWordDictionary::E_DefiniteArticle));
-        BOOST_CHECK_EQUAL(size_t(2), weighter(ml::core::CWordDictionary::E_IndefiniteArticle));
+        BOOST_REQUIRE_EQUAL(size_t(0), weighter(ml::core::CWordDictionary::E_NotInDictionary));
+        BOOST_REQUIRE_EQUAL(size_t(2), weighter(ml::core::CWordDictionary::E_UnknownPart));
+        BOOST_REQUIRE_EQUAL(size_t(2), weighter(ml::core::CWordDictionary::E_Noun));
+        BOOST_REQUIRE_EQUAL(size_t(2), weighter(ml::core::CWordDictionary::E_Plural));
+        BOOST_REQUIRE_EQUAL(size_t(5), weighter(ml::core::CWordDictionary::E_Verb));
+        BOOST_REQUIRE_EQUAL(size_t(2), weighter(ml::core::CWordDictionary::E_Adjective));
+        BOOST_REQUIRE_EQUAL(size_t(2), weighter(ml::core::CWordDictionary::E_Adverb));
+        BOOST_REQUIRE_EQUAL(size_t(2), weighter(ml::core::CWordDictionary::E_Conjunction));
+        BOOST_REQUIRE_EQUAL(size_t(2), weighter(ml::core::CWordDictionary::E_Preposition));
+        BOOST_REQUIRE_EQUAL(size_t(2), weighter(ml::core::CWordDictionary::E_Interjection));
+        BOOST_REQUIRE_EQUAL(size_t(2), weighter(ml::core::CWordDictionary::E_Pronoun));
+        BOOST_REQUIRE_EQUAL(size_t(2), weighter(ml::core::CWordDictionary::E_DefiniteArticle));
+        BOOST_REQUIRE_EQUAL(size_t(2), weighter(ml::core::CWordDictionary::E_IndefiniteArticle));
     }
 }
 

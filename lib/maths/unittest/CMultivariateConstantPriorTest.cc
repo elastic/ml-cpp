@@ -34,19 +34,19 @@ BOOST_AUTO_TEST_CASE(testAddSamples) {
 
     filter.addSamples({TDouble10Vec(std::begin(wrongDimension), std::end(wrongDimension))},
                       maths_t::CUnitWeights::singleUnit<TDouble10Vec>(3));
-    BOOST_TEST(filter.isNonInformative());
+    BOOST_TEST_REQUIRE(filter.isNonInformative());
 
     double nans[] = {1.3, std::numeric_limits<double>::quiet_NaN()};
 
     filter.addSamples({TDouble10Vec(std::begin(nans), std::end(nans))},
                       maths_t::CUnitWeights::singleUnit<TDouble10Vec>(2));
-    BOOST_TEST(filter.isNonInformative());
+    BOOST_TEST_REQUIRE(filter.isNonInformative());
 
     double constant[] = {1.4, 1.0};
 
     filter.addSamples({TDouble10Vec(std::begin(constant), std::end(constant))},
                       maths_t::CUnitWeights::singleUnit<TDouble10Vec>(2));
-    BOOST_TEST(!filter.isNonInformative());
+    BOOST_TEST_REQUIRE(!filter.isNonInformative());
 }
 
 BOOST_AUTO_TEST_CASE(testMarginalLikelihood) {
@@ -61,35 +61,35 @@ BOOST_AUTO_TEST_CASE(testMarginalLikelihood) {
 
     double likelihood;
 
-    BOOST_CHECK_EQUAL(maths_t::E_FpFailed,
+    BOOST_REQUIRE_EQUAL(maths_t::E_FpFailed,
                       filter.jointLogMarginalLikelihood(
                           {}, maths_t::CUnitWeights::singleUnit<TDouble10Vec>(2), likelihood));
-    BOOST_CHECK_EQUAL(
+    BOOST_REQUIRE_EQUAL(
         maths_t::E_FpFailed,
         filter.jointLogMarginalLikelihood(
             TDouble10Vec1Vec(2, TDouble10Vec(std::begin(constant), std::end(constant))),
             maths_t::CUnitWeights::singleUnit<TDouble10Vec>(2), likelihood));
-    BOOST_CHECK_EQUAL(maths_t::E_FpOverflowed,
+    BOOST_REQUIRE_EQUAL(maths_t::E_FpOverflowed,
                       filter.jointLogMarginalLikelihood(
                           {TDouble10Vec(std::begin(constant), std::end(constant))},
                           maths_t::CUnitWeights::singleUnit<TDouble10Vec>(2), likelihood));
-    BOOST_CHECK_EQUAL(boost::numeric::bounds<double>::lowest(), likelihood);
+    BOOST_REQUIRE_EQUAL(boost::numeric::bounds<double>::lowest(), likelihood);
 
     filter.addSamples(
         TDouble10Vec1Vec(2, TDouble10Vec(std::begin(constant), std::end(constant))),
         maths_t::CUnitWeights::singleUnit<TDouble10Vec>(2));
 
-    BOOST_CHECK_EQUAL(maths_t::E_FpNoErrors,
+    BOOST_REQUIRE_EQUAL(maths_t::E_FpNoErrors,
                       filter.jointLogMarginalLikelihood(
                           {TDouble10Vec(std::begin(constant), std::end(constant))},
                           maths_t::CUnitWeights::singleUnit<TDouble10Vec>(2), likelihood));
-    BOOST_CHECK_EQUAL(std::log(boost::numeric::bounds<double>::highest()), likelihood);
+    BOOST_REQUIRE_EQUAL(std::log(boost::numeric::bounds<double>::highest()), likelihood);
 
-    BOOST_CHECK_EQUAL(maths_t::E_FpOverflowed,
+    BOOST_REQUIRE_EQUAL(maths_t::E_FpOverflowed,
                       filter.jointLogMarginalLikelihood(
                           {TDouble10Vec(std::begin(different), std::end(different))},
                           maths_t::CUnitWeights::singleUnit<TDouble10Vec>(2), likelihood));
-    BOOST_CHECK_EQUAL(boost::numeric::bounds<double>::lowest(), likelihood);
+    BOOST_REQUIRE_EQUAL(boost::numeric::bounds<double>::lowest(), likelihood);
 }
 
 BOOST_AUTO_TEST_CASE(testMarginalLikelihoodMean) {
@@ -98,14 +98,14 @@ BOOST_AUTO_TEST_CASE(testMarginalLikelihoodMean) {
 
     maths::CMultivariateConstantPrior filter(3);
 
-    BOOST_CHECK_EQUAL(std::string("[0, 0, 0]"),
+    BOOST_REQUIRE_EQUAL(std::string("[0, 0, 0]"),
                       core::CContainerPrinter::print(filter.marginalLikelihoodMean()));
 
     double constant[] = {1.2, 6.0, 14.1};
     filter.addSamples({TDouble10Vec(std::begin(constant), std::end(constant))},
                       maths_t::CUnitWeights::singleUnit<TDouble10Vec>(3));
 
-    BOOST_CHECK_EQUAL(std::string("[1.2, 6, 14.1]"),
+    BOOST_REQUIRE_EQUAL(std::string("[1.2, 6, 14.1]"),
                       core::CContainerPrinter::print(filter.marginalLikelihoodMean()));
 }
 
@@ -115,7 +115,7 @@ BOOST_AUTO_TEST_CASE(testMarginalLikelihoodMode) {
 
     maths::CMultivariateConstantPrior filter(4);
 
-    BOOST_CHECK_EQUAL(core::CContainerPrinter::print(filter.marginalLikelihoodMean()),
+    BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(filter.marginalLikelihoodMean()),
                       core::CContainerPrinter::print(filter.marginalLikelihoodMode(
                           maths_t::CUnitWeights::unit<TDouble10Vec>(4))));
 
@@ -123,7 +123,7 @@ BOOST_AUTO_TEST_CASE(testMarginalLikelihoodMode) {
     filter.addSamples({TDouble10Vec(std::begin(constant), std::end(constant))},
                       maths_t::CUnitWeights::singleUnit<TDouble10Vec>(4));
 
-    BOOST_CHECK_EQUAL(core::CContainerPrinter::print(filter.marginalLikelihoodMean()),
+    BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(filter.marginalLikelihoodMean()),
                       core::CContainerPrinter::print(filter.marginalLikelihoodMode(
                           maths_t::CUnitWeights::unit<TDouble10Vec>(4))));
 }
@@ -135,15 +135,15 @@ BOOST_AUTO_TEST_CASE(testMarginalLikelihoodCovariance) {
     maths::CMultivariateConstantPrior filter(4);
 
     TDouble10Vec10Vec covariance = filter.marginalLikelihoodCovariance();
-    BOOST_CHECK_EQUAL(std::size_t(4), covariance.size());
+    BOOST_REQUIRE_EQUAL(std::size_t(4), covariance.size());
     for (std::size_t i = 0u; i < 4; ++i) {
-        BOOST_CHECK_EQUAL(std::size_t(4), covariance[i].size());
-        BOOST_CHECK_EQUAL(boost::numeric::bounds<double>::highest(), covariance[i][i]);
+        BOOST_REQUIRE_EQUAL(std::size_t(4), covariance[i].size());
+        BOOST_REQUIRE_EQUAL(boost::numeric::bounds<double>::highest(), covariance[i][i]);
         for (std::size_t j = 0; j < i; ++j) {
-            BOOST_CHECK_EQUAL(0.0, covariance[i][j]);
+            BOOST_REQUIRE_EQUAL(0.0, covariance[i][j]);
         }
         for (std::size_t j = i + 1; j < 4; ++j) {
-            BOOST_CHECK_EQUAL(0.0, covariance[i][j]);
+            BOOST_REQUIRE_EQUAL(0.0, covariance[i][j]);
         }
     }
 
@@ -152,11 +152,11 @@ BOOST_AUTO_TEST_CASE(testMarginalLikelihoodCovariance) {
                       maths_t::CUnitWeights::singleUnit<TDouble10Vec>(2));
 
     covariance = filter.marginalLikelihoodCovariance();
-    BOOST_CHECK_EQUAL(std::size_t(4), covariance.size());
+    BOOST_REQUIRE_EQUAL(std::size_t(4), covariance.size());
     for (std::size_t i = 0u; i < 4; ++i) {
-        BOOST_CHECK_EQUAL(std::size_t(4), covariance[i].size());
+        BOOST_REQUIRE_EQUAL(std::size_t(4), covariance[i].size());
         for (std::size_t j = 0; j < 4; ++j) {
-            BOOST_CHECK_EQUAL(0.0, covariance[i][j]);
+            BOOST_REQUIRE_EQUAL(0.0, covariance[i][j]);
         }
     }
 }
@@ -169,7 +169,7 @@ BOOST_AUTO_TEST_CASE(testSampleMarginalLikelihood) {
 
     TDouble10Vec1Vec samples;
     filter.sampleMarginalLikelihood(3, samples);
-    BOOST_CHECK_EQUAL(std::size_t(0), samples.size());
+    BOOST_REQUIRE_EQUAL(std::size_t(0), samples.size());
 
     double constant[] = {1.2, 4.1};
 
@@ -177,9 +177,9 @@ BOOST_AUTO_TEST_CASE(testSampleMarginalLikelihood) {
                       maths_t::CUnitWeights::singleUnit<TDouble10Vec>(2));
 
     filter.sampleMarginalLikelihood(4, samples);
-    BOOST_CHECK_EQUAL(std::size_t(4), samples.size());
+    BOOST_REQUIRE_EQUAL(std::size_t(4), samples.size());
     for (std::size_t i = 0u; i < 4; ++i) {
-        BOOST_CHECK_EQUAL(std::string("[1.2, 4.1]"),
+        BOOST_REQUIRE_EQUAL(std::string("[1.2, 4.1]"),
                           core::CContainerPrinter::print(samples[i]));
     }
 }
@@ -201,14 +201,14 @@ BOOST_AUTO_TEST_CASE(testProbabilityOfLessLikelySamples) {
         filter.probabilityOfLessLikelySamples(
             maths_t::E_TwoSided, samples[i],
             maths_t::CUnitWeights::singleUnit<TDouble10Vec>(2), lb, ub, tail);
-        BOOST_CHECK_EQUAL(1.0, lb);
-        BOOST_CHECK_EQUAL(1.0, ub);
+        BOOST_REQUIRE_EQUAL(1.0, lb);
+        BOOST_REQUIRE_EQUAL(1.0, ub);
         LOG_DEBUG(<< "tail = " << core::CContainerPrinter::print(tail));
-        BOOST_CHECK_EQUAL(std::string("[0, 0]"), core::CContainerPrinter::print(tail));
+        BOOST_REQUIRE_EQUAL(std::string("[0, 0]"), core::CContainerPrinter::print(tail));
     }
 
     filter.addSamples(samples[0], maths_t::CUnitWeights::singleUnit<TDouble10Vec>(2));
-    BOOST_TEST(!filter.isNonInformative());
+    BOOST_TEST_REQUIRE(!filter.isNonInformative());
 
     std::string expectedTails[] = {"[0, 0]", "[1, 2]", "[1, 2]"};
     for (std::size_t i = 0u; i < boost::size(samples); ++i) {
@@ -217,10 +217,10 @@ BOOST_AUTO_TEST_CASE(testProbabilityOfLessLikelySamples) {
         filter.probabilityOfLessLikelySamples(
             maths_t::E_TwoSided, samples[i],
             maths_t::CUnitWeights::singleUnit<TDouble10Vec>(2), lb, ub, tail);
-        BOOST_CHECK_EQUAL(i == 0 ? 1.0 : 0.0, lb);
-        BOOST_CHECK_EQUAL(i == 0 ? 1.0 : 0.0, ub);
+        BOOST_REQUIRE_EQUAL(i == 0 ? 1.0 : 0.0, lb);
+        BOOST_REQUIRE_EQUAL(i == 0 ? 1.0 : 0.0, ub);
         LOG_DEBUG(<< "tail = " << core::CContainerPrinter::print(tail));
-        BOOST_CHECK_EQUAL(expectedTails[i], core::CContainerPrinter::print(tail));
+        BOOST_REQUIRE_EQUAL(expectedTails[i], core::CContainerPrinter::print(tail));
     }
 }
 
@@ -243,14 +243,14 @@ BOOST_AUTO_TEST_CASE(testPersist) {
 
         // Restore the XML into a new filter
         core::CRapidXmlParser parser;
-        BOOST_TEST(parser.parseStringIgnoreCdata(origXml));
+        BOOST_TEST_REQUIRE(parser.parseStringIgnoreCdata(origXml));
         core::CRapidXmlStateRestoreTraverser traverser(parser);
 
         maths::CMultivariateConstantPrior restoredFilter(3, traverser);
 
         LOG_DEBUG(<< "orig checksum = " << checksum
                   << " restored checksum = " << restoredFilter.checksum());
-        BOOST_CHECK_EQUAL(checksum, restoredFilter.checksum());
+        BOOST_REQUIRE_EQUAL(checksum, restoredFilter.checksum());
 
         // The XML representation of the new filter should be the same as the original
         std::string newXml;
@@ -259,7 +259,7 @@ BOOST_AUTO_TEST_CASE(testPersist) {
             restoredFilter.acceptPersistInserter(inserter);
             inserter.toXml(newXml);
         }
-        BOOST_CHECK_EQUAL(origXml, newXml);
+        BOOST_REQUIRE_EQUAL(origXml, newXml);
     }
 
     LOG_DEBUG(<< "*** Constant ***");
@@ -281,14 +281,14 @@ BOOST_AUTO_TEST_CASE(testPersist) {
 
         // Restore the XML into a new filter
         core::CRapidXmlParser parser;
-        BOOST_TEST(parser.parseStringIgnoreCdata(origXml));
+        BOOST_TEST_REQUIRE(parser.parseStringIgnoreCdata(origXml));
         core::CRapidXmlStateRestoreTraverser traverser(parser);
 
         maths::CMultivariateConstantPrior restoredFilter(3, traverser);
 
         LOG_DEBUG(<< "orig checksum = " << checksum
                   << " restored checksum = " << restoredFilter.checksum());
-        BOOST_CHECK_EQUAL(checksum, restoredFilter.checksum());
+        BOOST_REQUIRE_EQUAL(checksum, restoredFilter.checksum());
 
         // The XML representation of the new filter should be the same as the original
         std::string newXml;
@@ -297,7 +297,7 @@ BOOST_AUTO_TEST_CASE(testPersist) {
             restoredFilter.acceptPersistInserter(inserter);
             inserter.toXml(newXml);
         }
-        BOOST_CHECK_EQUAL(origXml, newXml);
+        BOOST_REQUIRE_EQUAL(origXml, newXml);
     }
 }
 

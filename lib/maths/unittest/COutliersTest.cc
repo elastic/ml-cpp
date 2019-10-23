@@ -228,7 +228,7 @@ BOOST_AUTO_TEST_CASE(testLof) {
         for (auto outlier : outliers) {
             indicator[outlier] = -1;
         }
-        BOOST_CHECK_EQUAL(expected[k / 5 - 1], core::CContainerPrinter::print(indicator));
+        BOOST_REQUIRE_EQUAL(expected[k / 5 - 1], core::CContainerPrinter::print(indicator));
     }
 }
 
@@ -268,7 +268,7 @@ BOOST_AUTO_TEST_CASE(testDlof) {
     LOG_DEBUG(<< "ldof = " << core::CContainerPrinter::print(ldof));
 
     for (std::size_t i = 0; i < scores.size(); ++i) {
-        BOOST_CHECK_CLOSE_ABSOLUTE(ldof[i], scores[i], 1e-5);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(ldof[i], scores[i], 1e-5);
     }
 }
 
@@ -301,7 +301,7 @@ BOOST_AUTO_TEST_CASE(testDistancekNN) {
     LOG_DEBUG(<< "distances = " << core::CContainerPrinter::print(distances));
 
     for (std::size_t i = 0; i < scores.size(); ++i) {
-        BOOST_CHECK_CLOSE_ABSOLUTE(distances[i], scores[i], 1e-5);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(distances[i], scores[i], 1e-5);
     }
 }
 
@@ -339,7 +339,7 @@ BOOST_AUTO_TEST_CASE(testTotalDistancekNN) {
     LOG_DEBUG(<< "distances = " << core::CContainerPrinter::print(distances));
 
     for (std::size_t i = 0; i < scores.size(); ++i) {
-        BOOST_CHECK_CLOSE_ABSOLUTE(distances[i], scores[i], 1e-5);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(distances[i], scores[i], 1e-5);
     }
 }
 
@@ -393,8 +393,8 @@ BOOST_AUTO_TEST_CASE(testEnsemble) {
                 double recall{TP[k] / (TP[k] + FN[k])};
                 LOG_DEBUG(<< "precision = " << precision);
                 LOG_DEBUG(<< "recall = " << recall);
-                BOOST_TEST(precision >= precisionLowerBounds[k]);
-                BOOST_TEST(recall >= recallLowerBounds[k]);
+                BOOST_TEST_REQUIRE(precision >= precisionLowerBounds[k]);
+                BOOST_TEST_REQUIRE(recall >= recallLowerBounds[k]);
             }
 
             core::startDefaultAsyncExecutor();
@@ -499,10 +499,10 @@ BOOST_AUTO_TEST_CASE(testFeatureInfluences) {
                     averageSignificances[1].add((*row)[4]);
                 }
             });
-            BOOST_TEST(passed);
+            BOOST_TEST_REQUIRE(passed);
 
             LOG_DEBUG(<< averageSignificances[0] << " " << averageSignificances[1]);
-            BOOST_TEST(
+            BOOST_TEST_REQUIRE(
                 std::fabs(maths::CBasicStatistics::mean(averageSignificances[0]) -
                           maths::CBasicStatistics::mean(averageSignificances[1])) < 0.05);
             core::startDefaultAsyncExecutor();
@@ -581,7 +581,7 @@ BOOST_AUTO_TEST_CASE(testEstimateMemoryUsedByCompute) {
 
         LOG_DEBUG(<< "estimated peak memory = " << estimatedMemoryUsage);
         LOG_DEBUG(<< "high water mark = " << maxMemoryUsage);
-        BOOST_TEST(std::abs(maxMemoryUsage - estimatedMemoryUsage) <
+        BOOST_TEST_REQUIRE(std::abs(maxMemoryUsage - estimatedMemoryUsage) <
                    std::max(maxMemoryUsage.load(), estimatedMemoryUsage) / 10);
     }
 }
@@ -653,10 +653,10 @@ BOOST_AUTO_TEST_CASE(testProgressMonitoring) {
         }
         worker.join();
 
-        BOOST_TEST(monotonic);
+        BOOST_TEST_REQUIRE(monotonic);
 
         LOG_DEBUG(<< "total fractional progress = " << totalFractionalProgress.load());
-        BOOST_TEST(std::fabs(65536 - totalFractionalProgress.load()) < 300);
+        BOOST_TEST_REQUIRE(std::fabs(65536 - totalFractionalProgress.load()) < 300);
     }
 
     core::startDefaultAsyncExecutor();
@@ -708,7 +708,7 @@ BOOST_AUTO_TEST_CASE(testMostlyDuplicate) {
 
         LOG_DEBUG(<< "outlier scores = " << core::CContainerPrinter::print(outlierScores));
         for (auto score : outlierScores) {
-            BOOST_CHECK_CLOSE_ABSOLUTE(0.98, score, 0.02);
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(0.98, score, 0.02);
         }
     }
 }
@@ -757,7 +757,7 @@ BOOST_AUTO_TEST_CASE(testFewPoints) {
             }
         });
 
-        BOOST_TEST(passed);
+        BOOST_TEST_REQUIRE(passed);
     }
 }
 

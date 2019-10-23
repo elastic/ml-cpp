@@ -35,17 +35,17 @@ BOOST_AUTO_TEST_CASE(testWrite) {
     rapidjson::Document arrayDoc;
     arrayDoc.Parse<rapidjson::kParseDefaultFlags>(sstream.str().c_str());
 
-    BOOST_TEST(arrayDoc.IsArray());
-    BOOST_CHECK_EQUAL(rapidjson::SizeType(1), arrayDoc.Size());
+    BOOST_TEST_REQUIRE(arrayDoc.IsArray());
+    BOOST_REQUIRE_EQUAL(rapidjson::SizeType(1), arrayDoc.Size());
 
     const rapidjson::Value& object = arrayDoc[rapidjson::SizeType(0)];
-    BOOST_TEST(object.IsObject());
+    BOOST_TEST_REQUIRE(object.IsObject());
 
-    BOOST_TEST(object.HasMember("expected_memory_without_disk"));
-    BOOST_CHECK_EQUAL(std::string("16kB"),
+    BOOST_TEST_REQUIRE(object.HasMember("expected_memory_without_disk"));
+    BOOST_REQUIRE_EQUAL(std::string("16kB"),
                       std::string(object["expected_memory_without_disk"].GetString()));
-    BOOST_TEST(object.HasMember("expected_memory_with_disk"));
-    BOOST_CHECK_EQUAL(std::string("8kB"),
+    BOOST_TEST_REQUIRE(object.HasMember("expected_memory_with_disk"));
+    BOOST_REQUIRE_EQUAL(std::string("8kB"),
                       std::string(object["expected_memory_with_disk"].GetString()));
 }
 

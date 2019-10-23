@@ -31,48 +31,48 @@ BOOST_AUTO_TEST_CASE(testAddName) {
     bool personAdded = false;
     std::string person1("foo");
     std::string person2("bar");
-    BOOST_CHECK_EQUAL(std::size_t(0),
+    BOOST_REQUIRE_EQUAL(std::size_t(0),
                       registry.addName(person1, 100, resourceMonitor, personAdded));
-    BOOST_TEST(personAdded);
+    BOOST_TEST_REQUIRE(personAdded);
 
     personAdded = false;
-    BOOST_CHECK_EQUAL(std::size_t(1),
+    BOOST_REQUIRE_EQUAL(std::size_t(1),
                       registry.addName(person2, 200, resourceMonitor, personAdded));
-    BOOST_TEST(personAdded);
+    BOOST_TEST_REQUIRE(personAdded);
     personAdded = false;
 
-    BOOST_CHECK_EQUAL(std::size_t(0),
+    BOOST_REQUIRE_EQUAL(std::size_t(0),
                       registry.addName(person1, 300, resourceMonitor, personAdded));
-    BOOST_TEST(personAdded == false);
+    BOOST_TEST_REQUIRE(personAdded == false);
 
     std::string person3("noot");
-    BOOST_CHECK_EQUAL(std::size_t(2),
+    BOOST_REQUIRE_EQUAL(std::size_t(2),
                       registry.addName(person3, 400, resourceMonitor, personAdded));
-    BOOST_TEST(personAdded);
+    BOOST_TEST_REQUIRE(personAdded);
     personAdded = false;
 
-    BOOST_CHECK_EQUAL(std::size_t(3), registry.numberNames());
-    BOOST_CHECK_EQUAL(std::size_t(3), registry.numberActiveNames());
+    BOOST_REQUIRE_EQUAL(std::size_t(3), registry.numberNames());
+    BOOST_REQUIRE_EQUAL(std::size_t(3), registry.numberActiveNames());
 
     std::string defaultName("-");
     CDynamicStringIdRegistry::TSizeVec toRecycle;
     toRecycle.push_back(std::size_t(1));
     registry.recycleNames(toRecycle, defaultName);
 
-    BOOST_CHECK_EQUAL(std::size_t(3), registry.numberNames());
-    BOOST_CHECK_EQUAL(std::size_t(2), registry.numberActiveNames());
-    BOOST_TEST(registry.isIdActive(0));
-    BOOST_TEST(registry.isIdActive(1) == false);
-    BOOST_TEST(registry.isIdActive(2));
+    BOOST_REQUIRE_EQUAL(std::size_t(3), registry.numberNames());
+    BOOST_REQUIRE_EQUAL(std::size_t(2), registry.numberActiveNames());
+    BOOST_TEST_REQUIRE(registry.isIdActive(0));
+    BOOST_TEST_REQUIRE(registry.isIdActive(1) == false);
+    BOOST_TEST_REQUIRE(registry.isIdActive(2));
 
     std::string person4("recycled");
-    BOOST_CHECK_EQUAL(std::size_t(1),
+    BOOST_REQUIRE_EQUAL(std::size_t(1),
                       registry.addName(person4, 500, resourceMonitor, personAdded));
-    BOOST_CHECK_EQUAL(std::size_t(3), registry.numberNames());
-    BOOST_CHECK_EQUAL(std::size_t(3), registry.numberActiveNames());
-    BOOST_TEST(registry.isIdActive(0));
-    BOOST_TEST(registry.isIdActive(1));
-    BOOST_TEST(registry.isIdActive(2));
+    BOOST_REQUIRE_EQUAL(std::size_t(3), registry.numberNames());
+    BOOST_REQUIRE_EQUAL(std::size_t(3), registry.numberActiveNames());
+    BOOST_TEST_REQUIRE(registry.isIdActive(0));
+    BOOST_TEST_REQUIRE(registry.isIdActive(1));
+    BOOST_TEST_REQUIRE(registry.isIdActive(2));
 }
 
 BOOST_AUTO_TEST_CASE(testPersist) {
@@ -96,7 +96,7 @@ BOOST_AUTO_TEST_CASE(testPersist) {
     LOG_TRACE(<< "Original XML:\n" << origXml);
 
     core::CRapidXmlParser parser;
-    BOOST_TEST(parser.parseStringIgnoreCdata(origXml));
+    BOOST_TEST_REQUIRE(parser.parseStringIgnoreCdata(origXml));
     core::CRapidXmlStateRestoreTraverser traverser(parser);
     CDynamicStringIdRegistry restoredRegistry("person", counter_t::E_TSADNumberNewPeople,
                                               counter_t::E_TSADNumberNewPeopleNotAllowed,
@@ -112,7 +112,7 @@ BOOST_AUTO_TEST_CASE(testPersist) {
     }
     LOG_TRACE(<< "Restored XML:\n" << restoredXml);
 
-    BOOST_CHECK_EQUAL(restoredXml, origXml);
+    BOOST_REQUIRE_EQUAL(restoredXml, origXml);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

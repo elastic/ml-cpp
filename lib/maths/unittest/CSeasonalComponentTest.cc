@@ -177,7 +177,7 @@ BOOST_AUTO_TEST_CASE(testNoPeriodicity) {
             if (d > 1) {
                 LOG_DEBUG(<< "f(0) = " << mean(seasonal.value(time, 0.0)) << ", f(T) = "
                           << mean(seasonal.value(time + core::constants::DAY - 1, 0.0)));
-                BOOST_CHECK_CLOSE_ABSOLUTE(
+                BOOST_REQUIRE_CLOSE_ABSOLUTE(
                     mean(seasonal.value(time, 0.0)),
                     mean(seasonal.value(time + core::constants::DAY - 1, 0.0)), 0.1);
             }
@@ -185,8 +185,8 @@ BOOST_AUTO_TEST_CASE(testNoPeriodicity) {
             error2 /= static_cast<double>(function.size());
             LOG_DEBUG(<< "error1 = " << error1);
             LOG_DEBUG(<< "error2 = " << error2);
-            BOOST_TEST(error1 < 1.4);
-            BOOST_TEST(error2 < 0.35);
+            BOOST_TEST_REQUIRE(error1 < 1.4);
+            BOOST_TEST_REQUIRE(error2 < 0.35);
             totalError1 += error1;
             totalError2 += error2;
 
@@ -202,8 +202,8 @@ BOOST_AUTO_TEST_CASE(testNoPeriodicity) {
     totalError2 /= 30.0;
     LOG_DEBUG(<< "totalError1 = " << totalError1);
     LOG_DEBUG(<< "totalError2 = " << totalError2);
-    BOOST_TEST(totalError1 < 0.6);
-    BOOST_TEST(totalError2 < 0.15);
+    BOOST_TEST_REQUIRE(totalError1 < 0.6);
+    BOOST_TEST_REQUIRE(totalError2 < 0.15);
 }
 
 BOOST_AUTO_TEST_CASE(testConstantPeriodic) {
@@ -272,7 +272,7 @@ BOOST_AUTO_TEST_CASE(testConstantPeriodic) {
                 if (d > 1) {
                     LOG_DEBUG(<< "f(0) = " << mean(seasonal.value(time, 0.0)) << ", f(T) = "
                               << mean(seasonal.value(time + core::constants::DAY - 1, 0.0)));
-                    BOOST_CHECK_CLOSE_ABSOLUTE(
+                    BOOST_REQUIRE_CLOSE_ABSOLUTE(
                         mean(seasonal.value(time, 0.0)),
                         mean(seasonal.value(time + core::constants::DAY - 1, 0.0)), 0.1);
                 }
@@ -281,8 +281,8 @@ BOOST_AUTO_TEST_CASE(testConstantPeriodic) {
                 error2 /= static_cast<double>(function.size());
                 LOG_DEBUG(<< "error1 = " << error1);
                 LOG_DEBUG(<< "error2 = " << error2);
-                BOOST_TEST(error1 < 1.7);
-                BOOST_TEST(error2 < 0.6);
+                BOOST_TEST_REQUIRE(error1 < 1.7);
+                BOOST_TEST_REQUIRE(error2 < 0.6);
                 totalError1 += error1;
                 totalError2 += error2;
 
@@ -300,8 +300,8 @@ BOOST_AUTO_TEST_CASE(testConstantPeriodic) {
         totalError2 /= 30.0;
         LOG_DEBUG(<< "totalError1 = " << totalError1);
         LOG_DEBUG(<< "totalError2 = " << totalError2);
-        BOOST_TEST(totalError1 < 0.42);
-        BOOST_TEST(totalError2 < 0.01);
+        BOOST_TEST_REQUIRE(totalError1 < 0.42);
+        BOOST_TEST_REQUIRE(totalError2 < 0.01);
     }
 
     // Test high slope.
@@ -387,7 +387,7 @@ BOOST_AUTO_TEST_CASE(testConstantPeriodic) {
                 if (d > 1) {
                     LOG_DEBUG(<< "f(0) = " << mean(seasonal.value(time, 0.0)) << ", f(T) = "
                               << mean(seasonal.value(time + core::constants::DAY - 1, 0.0)));
-                    BOOST_CHECK_CLOSE_ABSOLUTE(
+                    BOOST_REQUIRE_CLOSE_ABSOLUTE(
                         mean(seasonal.value(time, 0.0)),
                         mean(seasonal.value(time + core::constants::DAY - 1, 0.0)), 0.1);
                 }
@@ -396,8 +396,8 @@ BOOST_AUTO_TEST_CASE(testConstantPeriodic) {
                 error2 /= static_cast<double>(function.size());
                 LOG_DEBUG(<< "error1 = " << error1);
                 LOG_DEBUG(<< "error2 = " << error2);
-                BOOST_TEST(error1 < 11.0);
-                BOOST_TEST(error2 < 4.7);
+                BOOST_TEST_REQUIRE(error1 < 11.0);
+                BOOST_TEST_REQUIRE(error2 < 4.7);
                 totalError1 += error1;
                 totalError2 += error2;
 
@@ -415,8 +415,8 @@ BOOST_AUTO_TEST_CASE(testConstantPeriodic) {
         totalError2 /= 40.0;
         LOG_DEBUG(<< "totalError1 = " << totalError1);
         LOG_DEBUG(<< "totalError2 = " << totalError2);
-        BOOST_TEST(totalError1 < 7.5);
-        BOOST_TEST(totalError2 < 4.2);
+        BOOST_TEST_REQUIRE(totalError1 < 7.5);
+        BOOST_TEST_REQUIRE(totalError2 < 4.2);
     }
 }
 
@@ -509,7 +509,7 @@ BOOST_AUTO_TEST_CASE(testTimeVaryingPeriodic) {
             if (d > 1) {
                 LOG_DEBUG(<< "f(0) = " << mean(seasonal.value(time, 0.0)) << ", f(T) = "
                           << mean(seasonal.value(time + core::constants::DAY - 1, 0.0)));
-                BOOST_CHECK_CLOSE_ABSOLUTE(
+                BOOST_REQUIRE_CLOSE_ABSOLUTE(
                     mean(seasonal.value(time, 0.0)),
                     mean(seasonal.value(time + core::constants::DAY - 1, 0.0)), 0.2);
             }
@@ -518,8 +518,8 @@ BOOST_AUTO_TEST_CASE(testTimeVaryingPeriodic) {
             error2 /= static_cast<double>(function.size());
             LOG_DEBUG(<< "error1 = " << error1);
             LOG_DEBUG(<< "error2 = " << error2);
-            BOOST_TEST(error1 < 27.0);
-            BOOST_TEST(error2 < 19.0);
+            BOOST_TEST_REQUIRE(error1 < 27.0);
+            BOOST_TEST_REQUIRE(error2 < 19.0);
             totalError1 += error1;
             totalError2 += error2;
             numberErrors += 1.0;
@@ -536,8 +536,8 @@ BOOST_AUTO_TEST_CASE(testTimeVaryingPeriodic) {
 
     LOG_DEBUG(<< "mean error 1 = " << totalError1 / numberErrors);
     LOG_DEBUG(<< "mean error 2 = " << totalError2 / numberErrors);
-    BOOST_TEST(totalError1 / numberErrors < 18.0);
-    BOOST_TEST(totalError2 / numberErrors < 14.0);
+    BOOST_TEST_REQUIRE(totalError1 / numberErrors < 18.0);
+    BOOST_TEST_REQUIRE(totalError2 / numberErrors < 14.0);
 }
 
 BOOST_AUTO_TEST_CASE(testVeryLowVariation) {
@@ -604,7 +604,7 @@ BOOST_AUTO_TEST_CASE(testVeryLowVariation) {
             if (d > 1) {
                 LOG_DEBUG(<< "f(0) = " << mean(seasonal.value(time, 0.0)) << ", f(T) = "
                           << mean(seasonal.value(time + core::constants::DAY - 1, 0.0)));
-                BOOST_CHECK_CLOSE_ABSOLUTE(
+                BOOST_REQUIRE_CLOSE_ABSOLUTE(
                     mean(seasonal.value(time, 0.0)),
                     mean(seasonal.value(time + core::constants::DAY - 1, 0.0)), 0.1);
             }
@@ -612,8 +612,8 @@ BOOST_AUTO_TEST_CASE(testVeryLowVariation) {
             error2 /= static_cast<double>(function.size());
             LOG_DEBUG(<< "deviation = " << deviation);
             LOG_DEBUG(<< "error1 = " << error1 << ", error2 = " << error2);
-            BOOST_CHECK_CLOSE_ABSOLUTE(0.0, error1, 1.0 * deviation);
-            BOOST_CHECK_CLOSE_ABSOLUTE(0.0, error2, 0.1 * deviation);
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(0.0, error1, 1.0 * deviation);
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(0.0, error2, 0.1 * deviation);
             totalError1 += error1;
             totalError2 += error2;
 
@@ -629,8 +629,8 @@ BOOST_AUTO_TEST_CASE(testVeryLowVariation) {
     totalError2 /= 30.0;
     LOG_DEBUG(<< "deviation = " << deviation);
     LOG_DEBUG(<< "totalError1 = " << totalError1 << ", totalError2 = " << totalError2);
-    BOOST_CHECK_CLOSE_ABSOLUTE(totalError1, 0.0, 0.20 * deviation);
-    BOOST_CHECK_CLOSE_ABSOLUTE(totalError2, 0.0, 0.04 * deviation);
+    BOOST_REQUIRE_CLOSE_ABSOLUTE(totalError1, 0.0, 0.20 * deviation);
+    BOOST_REQUIRE_CLOSE_ABSOLUTE(totalError2, 0.0, 0.04 * deviation);
 }
 
 BOOST_AUTO_TEST_CASE(testVariance) {
@@ -669,14 +669,14 @@ BOOST_AUTO_TEST_CASE(testVariance) {
         LOG_DEBUG(<< "v_ = " << v_ << ", v = " << core::CContainerPrinter::print(vv)
                   << ", relative error = " << std::fabs(v - v_) / v_);
 
-        BOOST_CHECK_CLOSE_ABSOLUTE(v_, v, 0.4 * v_);
-        BOOST_TEST(v_ > vv.first);
-        BOOST_TEST(v_ < vv.second);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(v_, v, 0.4 * v_);
+        BOOST_TEST_REQUIRE(v_ > vv.first);
+        BOOST_TEST_REQUIRE(v_ < vv.second);
         error.add(std::fabs(v - v_) / v_);
     }
 
     LOG_DEBUG(<< "mean relative error = " << maths::CBasicStatistics::mean(error));
-    BOOST_TEST(maths::CBasicStatistics::mean(error) < 0.11);
+    BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(error) < 0.11);
 }
 
 BOOST_AUTO_TEST_CASE(testPersist) {
@@ -724,7 +724,7 @@ BOOST_AUTO_TEST_CASE(testPersist) {
 
     // Restore the XML into a new filter
     core::CRapidXmlParser parser;
-    BOOST_TEST(parser.parseStringIgnoreCdata(origXml));
+    BOOST_TEST_REQUIRE(parser.parseStringIgnoreCdata(origXml));
     core::CRapidXmlStateRestoreTraverser traverser(parser);
 
     maths::CSeasonalComponent restoredSeasonal(decayRate, minimumBucketLength, traverser);
@@ -735,7 +735,7 @@ BOOST_AUTO_TEST_CASE(testPersist) {
         restoredSeasonal.acceptPersistInserter(inserter);
         inserter.toXml(newXml);
     }
-    BOOST_CHECK_EQUAL(origXml, newXml);
+    BOOST_REQUIRE_EQUAL(origXml, newXml);
 
     // Test that the values and variances of the original and
     // restored components are similar.
@@ -746,16 +746,16 @@ BOOST_AUTO_TEST_CASE(testPersist) {
             LOG_DEBUG(<< "xo = " << core::CContainerPrinter::print(xo)
                       << ", xn = " << core::CContainerPrinter::print(xn));
         }
-        BOOST_CHECK_CLOSE_ABSOLUTE(xo.first, xn.first, 0.3);
-        BOOST_CHECK_CLOSE_ABSOLUTE(xo.second, xn.second, 0.3);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(xo.first, xn.first, 0.3);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(xo.second, xn.second, 0.3);
         TDoubleDoublePr vo = origSeasonal.variance(time, 80.0);
         TDoubleDoublePr vn = origSeasonal.variance(time, 80.0);
         if (time % (15 * minute) == 0) {
             LOG_DEBUG(<< "vo = " << core::CContainerPrinter::print(vo)
                       << ", vn = " << core::CContainerPrinter::print(vn));
         }
-        BOOST_CHECK_CLOSE_ABSOLUTE(vo.first, vn.first, 1e-3);
-        BOOST_CHECK_CLOSE_ABSOLUTE(vo.second, vn.second, 1e-3);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(vo.first, vn.first, 1e-3);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(vo.second, vn.second, 1e-3);
     }
 }
 

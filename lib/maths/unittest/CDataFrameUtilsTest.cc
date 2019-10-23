@@ -129,28 +129,28 @@ BOOST_AUTO_TEST_CASE(testColumnDataTypes) {
                 [](const auto& type) { return type.toDelimited(); },
                 maths::CDataFrameUtils::SDataType::EXTERNAL_DELIMITER)};
             LOG_DEBUG(<< "delimited = " << delimitedCollection);
-            BOOST_TEST(core::CPersistUtils::fromString(
+            BOOST_TEST_REQUIRE(core::CPersistUtils::fromString(
                 delimitedCollection,
                 [](const std::string& delimited, auto& type) {
                     return type.fromDelimited(delimited);
                 },
                 restoredTypes, maths::CDataFrameUtils::SDataType::EXTERNAL_DELIMITER));
 
-            BOOST_CHECK_EQUAL(expectedTypes.size(), actualTypes.size());
+            BOOST_REQUIRE_EQUAL(expectedTypes.size(), actualTypes.size());
             for (std::size_t i = 0; i < expectedTypes.size(); ++i) {
                 double eps{100.0 * std::numeric_limits<double>::epsilon()};
-                BOOST_CHECK_EQUAL(expectedTypes[i].s_IsInteger, actualTypes[i].s_IsInteger);
-                BOOST_CHECK_CLOSE_ABSOLUTE(expectedTypes[i].s_Min,
+                BOOST_REQUIRE_EQUAL(expectedTypes[i].s_IsInteger, actualTypes[i].s_IsInteger);
+                BOOST_REQUIRE_CLOSE_ABSOLUTE(expectedTypes[i].s_Min,
                                            actualTypes[i].s_Min,
                                            eps * expectedTypes[i].s_Min);
-                BOOST_CHECK_CLOSE_ABSOLUTE(expectedTypes[i].s_Max,
+                BOOST_REQUIRE_CLOSE_ABSOLUTE(expectedTypes[i].s_Max,
                                            actualTypes[i].s_Max,
                                            eps * expectedTypes[i].s_Max);
-                BOOST_CHECK_EQUAL(expectedTypes[i].s_IsInteger, restoredTypes[i].s_IsInteger);
-                BOOST_CHECK_CLOSE_ABSOLUTE(expectedTypes[i].s_Min,
+                BOOST_REQUIRE_EQUAL(expectedTypes[i].s_IsInteger, restoredTypes[i].s_IsInteger);
+                BOOST_REQUIRE_CLOSE_ABSOLUTE(expectedTypes[i].s_Min,
                                            restoredTypes[i].s_Min,
                                            eps * expectedTypes[i].s_Min);
-                BOOST_CHECK_CLOSE_ABSOLUTE(expectedTypes[i].s_Max,
+                BOOST_REQUIRE_CLOSE_ABSOLUTE(expectedTypes[i].s_Max,
                                            restoredTypes[i].s_Max,
                                            eps * expectedTypes[i].s_Max);
             }
@@ -212,7 +212,7 @@ BOOST_AUTO_TEST_CASE(testStandardizeColumns) {
             }
             frame->finishWritingRows();
 
-            BOOST_TEST(maths::CDataFrameUtils::standardizeColumns(threads, *frame));
+            BOOST_TEST_REQUIRE(maths::CDataFrameUtils::standardizeColumns(threads, *frame));
 
             // Check the column values are what we expect given the data we generated.
 
@@ -232,7 +232,7 @@ BOOST_AUTO_TEST_CASE(testStandardizeColumns) {
                 }
             });
 
-            BOOST_TEST(passed);
+            BOOST_TEST_REQUIRE(passed);
 
             // Check that the mean and variance of the columns are zero and one,
             // respectively.
@@ -251,8 +251,8 @@ BOOST_AUTO_TEST_CASE(testStandardizeColumns) {
                 double mean{maths::CBasicStatistics::mean(columnMoments)};
                 double variance{maths::CBasicStatistics::variance(columnMoments)};
                 LOG_DEBUG(<< "mean = " << mean << ", variance = " << variance);
-                BOOST_CHECK_CLOSE_ABSOLUTE(0.0, mean, 1e-6);
-                BOOST_CHECK_CLOSE_ABSOLUTE(1.0, variance, 1e-6);
+                BOOST_REQUIRE_CLOSE_ABSOLUTE(0.0, mean, 1e-6);
+                BOOST_REQUIRE_CLOSE_ABSOLUTE(1.0, variance, 1e-6);
             }
         }
 
@@ -316,7 +316,7 @@ BOOST_AUTO_TEST_CASE(testColumnQuantiles) {
 
             maths::CQuantileSketch sketch{maths::CQuantileSketch::E_Linear, 100};
             TQuantileSketchVec actualQuantiles;
-            BOOST_TEST(maths::CDataFrameUtils::columnQuantiles(
+            BOOST_TEST_REQUIRE(maths::CDataFrameUtils::columnQuantiles(
                 threads, *frame, maskAll(rows), columnMask, sketch, actualQuantiles));
 
             // Check the quantile sketches match.
@@ -327,9 +327,9 @@ BOOST_AUTO_TEST_CASE(testColumnQuantiles) {
                 for (std::size_t feature = 0; feature < columnMask.size(); ++feature) {
                     double x{static_cast<double>(i)};
                     double qa, qe;
-                    BOOST_TEST(expectedQuantiles[feature].quantile(x, qe));
-                    BOOST_TEST(actualQuantiles[feature].quantile(x, qa));
-                    BOOST_CHECK_CLOSE_ABSOLUTE(qe, qa, 0.02 * std::max(std::fabs(qa), 1.5));
+                    BOOST_TEST_REQUIRE(expectedQuantiles[feature].quantile(x, qe));
+                    BOOST_TEST_REQUIRE(actualQuantiles[feature].quantile(x, qa));
+                    BOOST_REQUIRE_CLOSE_ABSOLUTE(qe, qa, 0.02 * std::max(std::fabs(qa), 1.5));
                     columnsMae[feature].add(std::fabs(qa - qe));
                 }
             }
@@ -338,11 +338,11 @@ BOOST_AUTO_TEST_CASE(testColumnQuantiles) {
             for (std::size_t i = 0; i < columnsMae.size(); ++i) {
                 LOG_DEBUG(<< "Column MAE = "
                           << maths::CBasicStatistics::mean(columnsMae[i]));
-                BOOST_TEST(maths::CBasicStatistics::mean(columnsMae[i]) < 0.03);
+                BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(columnsMae[i]) < 0.03);
                 mae += columnsMae[i];
             }
             LOG_DEBUG(<< "MAE = " << maths::CBasicStatistics::mean(mae));
-            BOOST_TEST(maths::CBasicStatistics::mean(mae) < 0.015);
+            BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(mae) < 0.015);
         }
 
         core::startDefaultAsyncExecutor();
@@ -416,16 +416,16 @@ BOOST_AUTO_TEST_CASE(testColumnQuantilesWithEncoding) {
 
     TQuantileSketchVec actualQuantiles;
     maths::CQuantileSketch sketch{maths::CQuantileSketch::E_Linear, 100};
-    BOOST_TEST(maths::CDataFrameUtils::columnQuantiles(
+    BOOST_TEST_REQUIRE(maths::CDataFrameUtils::columnQuantiles(
         1, *frame, maskAll(rows), columnMask, sketch, actualQuantiles, &encoder));
 
     for (std::size_t i = 5; i < 100; i += 5) {
         for (std::size_t feature = 0; feature < columnMask.size(); ++feature) {
             double x{static_cast<double>(i)};
             double qa, qe;
-            BOOST_TEST(expectedQuantiles[feature].quantile(x, qe));
-            BOOST_TEST(actualQuantiles[feature].quantile(x, qa));
-            BOOST_CHECK_EQUAL(qe, qa);
+            BOOST_TEST_REQUIRE(expectedQuantiles[feature].quantile(x, qe));
+            BOOST_TEST_REQUIRE(actualQuantiles[feature].quantile(x, qa));
+            BOOST_REQUIRE_EQUAL(qe, qa);
         }
     }
 }
@@ -487,7 +487,7 @@ BOOST_AUTO_TEST_CASE(testMicWithColumn) {
 
         LOG_DEBUG(<< "expected = " << core::CContainerPrinter::print(expected));
         LOG_DEBUG(<< "actual   = " << core::CContainerPrinter::print(actual));
-        BOOST_CHECK_EQUAL(core::CContainerPrinter::print(expected),
+        BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(expected),
                           core::CContainerPrinter::print(actual));
     }
 
@@ -543,7 +543,7 @@ BOOST_AUTO_TEST_CASE(testMicWithColumn) {
 
         LOG_DEBUG(<< "expected = " << core::CContainerPrinter::print(expected));
         LOG_DEBUG(<< "actual   = " << core::CContainerPrinter::print(actual));
-        BOOST_CHECK_EQUAL(core::CContainerPrinter::print(expected),
+        BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(expected),
                           core::CContainerPrinter::print(actual));
     }
 }
@@ -590,17 +590,17 @@ BOOST_AUTO_TEST_CASE(testCategoryFrequencies) {
             TDoubleVecVec actualFrequencies{maths::CDataFrameUtils::categoryFrequencies(
                 threads, *frame, maskAll(rows), {0, 1, 2, 3})};
 
-            BOOST_CHECK_EQUAL(std::size_t{4}, actualFrequencies.size());
+            BOOST_REQUIRE_EQUAL(std::size_t{4}, actualFrequencies.size());
             for (std::size_t i : {0, 2}) {
-                BOOST_CHECK_EQUAL(actualFrequencies.size(), expectedFrequencies.size());
+                BOOST_REQUIRE_EQUAL(actualFrequencies.size(), expectedFrequencies.size());
                 for (std::size_t j = 0; j < actualFrequencies[i].size(); ++j) {
-                    BOOST_CHECK_CLOSE_ABSOLUTE(expectedFrequencies[i][j],
+                    BOOST_REQUIRE_CLOSE_ABSOLUTE(expectedFrequencies[i][j],
                                                actualFrequencies[i][j],
                                                1.0 / static_cast<double>(rows));
                 }
             }
             for (std::size_t i : {1, 3}) {
-                BOOST_TEST(actualFrequencies[i].empty());
+                BOOST_TEST_REQUIRE(actualFrequencies[i].empty());
             }
         }
 
@@ -666,11 +666,11 @@ BOOST_AUTO_TEST_CASE(testMeanValueOfTargetForCategories) {
                 maths::CDataFrameUtils::CMetricColumnValue{3}, threads, *frame,
                 maskAll(rows), {0, 1, 2}));
 
-            BOOST_CHECK_EQUAL(std::size_t{4}, actualMeans.size());
+            BOOST_REQUIRE_EQUAL(std::size_t{4}, actualMeans.size());
             for (std::size_t i : {0, 2}) {
-                BOOST_CHECK_EQUAL(actualMeans.size(), expectedMeans.size());
+                BOOST_REQUIRE_EQUAL(actualMeans.size(), expectedMeans.size());
                 for (std::size_t j = 0; j < actualMeans[i].size(); ++j) {
-                    BOOST_CHECK_CLOSE_ABSOLUTE(
+                    BOOST_REQUIRE_CLOSE_ABSOLUTE(
                         maths::CBasicStatistics::mean(expectedMeans[i][j]),
                         actualMeans[i][j],
                         static_cast<double>(std::numeric_limits<float>::epsilon()) *
@@ -678,7 +678,7 @@ BOOST_AUTO_TEST_CASE(testMeanValueOfTargetForCategories) {
                 }
             }
             for (std::size_t i : {1, 3}) {
-                BOOST_TEST(actualMeans[i].empty());
+                BOOST_TEST_REQUIRE(actualMeans[i].empty());
             }
         }
 
@@ -739,11 +739,11 @@ BOOST_AUTO_TEST_CASE(testMeanValueOfTargetForCategoriesWithMissing) {
         maths::CDataFrameUtils::CMetricColumnValue{3}, 1, *frame,
         core::CPackedBitVector{rows, true}, {0, 1, 2}));
 
-    BOOST_CHECK_EQUAL(std::size_t{4}, actualMeans.size());
+    BOOST_REQUIRE_EQUAL(std::size_t{4}, actualMeans.size());
     for (std::size_t i : {0, 2}) {
-        BOOST_CHECK_EQUAL(actualMeans.size(), expectedMeans.size());
+        BOOST_REQUIRE_EQUAL(actualMeans.size(), expectedMeans.size());
         for (std::size_t j = 0; j < actualMeans[i].size(); ++j) {
-            BOOST_CHECK_EQUAL(maths::CBasicStatistics::mean(expectedMeans[i][j]),
+            BOOST_REQUIRE_EQUAL(maths::CBasicStatistics::mean(expectedMeans[i][j]),
                               actualMeans[i][j]);
         }
     }
@@ -806,29 +806,29 @@ BOOST_AUTO_TEST_CASE(testCategoryMicWithColumn) {
             LOG_DEBUG(<< "mics[0] = " << core::CContainerPrinter::print(mics[0]));
             LOG_DEBUG(<< "mics[2] = " << core::CContainerPrinter::print(mics[2]));
 
-            BOOST_CHECK_EQUAL(std::size_t{4}, mics.size());
+            BOOST_REQUIRE_EQUAL(std::size_t{4}, mics.size());
             for (const auto& mic : mics) {
-                BOOST_TEST(std::is_sorted(
+                BOOST_TEST_REQUIRE(std::is_sorted(
                     mic.begin(), mic.end(), [](const auto& lhs, const auto& rhs) {
                         return maths::COrderings::lexicographical_compare(
                             -lhs.second, lhs.first, -rhs.second, rhs.first);
                     }));
             }
             for (std::size_t i : {0, 2}) {
-                BOOST_CHECK_EQUAL(std::size_t{5}, mics[i].size());
+                BOOST_REQUIRE_EQUAL(std::size_t{5}, mics[i].size());
             }
             for (std::size_t i : {1, 3}) {
-                BOOST_TEST(mics[i].empty());
+                BOOST_TEST_REQUIRE(mics[i].empty());
             }
 
-            BOOST_TEST(mics[0][0].second < 0.05);
-            BOOST_TEST(mics[2][0].second > 0.50);
+            BOOST_TEST_REQUIRE(mics[0][0].second < 0.05);
+            BOOST_TEST_REQUIRE(mics[2][0].second > 0.50);
 
             TSizeVec categoryOrder;
             for (const auto& category : mics[2]) {
                 categoryOrder.push_back(category.first);
             }
-            BOOST_CHECK_EQUAL(std::string{"[1, 3, 0, 4, 2]"},
+            BOOST_REQUIRE_EQUAL(std::string{"[1, 3, 0, 4, 2]"},
                               core::CContainerPrinter::print(categoryOrder));
         }
 

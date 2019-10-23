@@ -91,7 +91,7 @@ protected:
             if (m_Shutdown) {
                 return;
             }
-            BOOST_TEST(attempt++ <= MAX_ATTEMPTS);
+            BOOST_TEST_REQUIRE(attempt++ <= MAX_ATTEMPTS);
             ml::core::CSleep::sleep(PAUSE_TIME_MS);
             strm.open(m_FileName.c_str());
         } while (!strm.is_open());
@@ -103,7 +103,7 @@ protected:
                 return;
             }
             strm.read(buffer, BUF_SIZE);
-            BOOST_TEST(!strm.bad());
+            BOOST_TEST_REQUIRE(!strm.bad());
             if (strm.gcount() > 0) {
                 ml::core::CScopedLock lock(m_Mutex);
                 // This code deals with the test character we write to
@@ -133,15 +133,15 @@ private:
 
 BOOST_AUTO_TEST_CASE(testStdinStdout) {
     ml::api::CIoManager ioMgr("", false, "", false);
-    BOOST_TEST(ioMgr.initIo());
+    BOOST_TEST_REQUIRE(ioMgr.initIo());
 
     // Assign to a different pointer in case of "this" pointer manipulation due
     // to multiple inheritance
     std::istream* cinAsIStream = &std::cin;
-    BOOST_CHECK_EQUAL(cinAsIStream, &ioMgr.inputStream());
+    BOOST_REQUIRE_EQUAL(cinAsIStream, &ioMgr.inputStream());
 
     std::ostream* coutAsIStream = &std::cout;
-    BOOST_CHECK_EQUAL(coutAsIStream, &ioMgr.outputStream());
+    BOOST_REQUIRE_EQUAL(coutAsIStream, &ioMgr.outputStream());
 }
 
 BOOST_AUTO_TEST_CASE(testFileIoGood) {
@@ -158,8 +158,8 @@ BOOST_AUTO_TEST_CASE(testFileIoGood) {
 
     this->testCommon(GOOD_INPUT_FILE_NAME, false, GOOD_OUTPUT_FILE_NAME, false, true);
 
-    BOOST_CHECK_EQUAL(0, ::remove(GOOD_INPUT_FILE_NAME));
-    BOOST_CHECK_EQUAL(0, ::remove(GOOD_OUTPUT_FILE_NAME));
+    BOOST_REQUIRE_EQUAL(0, ::remove(GOOD_INPUT_FILE_NAME));
+    BOOST_REQUIRE_EQUAL(0, ::remove(GOOD_OUTPUT_FILE_NAME));
 }
 
 BOOST_AUTO_TEST_CASE(testFileIoBad) {
@@ -170,11 +170,11 @@ BOOST_AUTO_TEST_CASE(testNamedPipeIoGood) {
     // For the named pipe test, data needs to be written to the IO manager's
     // input pipe after the IO manager has started
     CThreadDataWriter threadWriter(GOOD_INPUT_PIPE_NAME, TEST_SIZE);
-    BOOST_TEST(threadWriter.start());
+    BOOST_TEST_REQUIRE(threadWriter.start());
 
     this->testCommon(GOOD_INPUT_PIPE_NAME, true, GOOD_OUTPUT_PIPE_NAME, true, true);
 
-    BOOST_TEST(threadWriter.stop());
+    BOOST_TEST_REQUIRE(threadWriter.stop());
 }
 
 BOOST_AUTO_TEST_CASE(testNamedPipeIoBad) {
@@ -188,41 +188,41 @@ BOOST_AUTO_TEST_CASE(testCommonconst std::string& inputFileName,
                      bool isGood) {
     // Test reader reads from the IO manager's output stream.
     CThreadDataReader threadReader(outputFileName);
-    BOOST_TEST(threadReader.start());
+    BOOST_TEST_REQUIRE(threadReader.start());
 
     std::string processedData;
 
     {
         ml::api::CIoManager ioMgr(inputFileName, isInputFileNamedPipe,
                                   outputFileName, isOutputFileNamedPipe);
-        BOOST_CHECK_EQUAL(isGood, ioMgr.initIo());
+        BOOST_REQUIRE_EQUAL(isGood, ioMgr.initIo());
         if (isGood) {
             static const std::streamsize BUF_SIZE = 512;
             char buffer[BUF_SIZE];
             do {
                 ioMgr.inputStream().read(buffer, BUF_SIZE);
-                BOOST_TEST(!ioMgr.inputStream().bad());
+                BOOST_TEST_REQUIRE(!ioMgr.inputStream().bad());
                 if (ioMgr.inputStream().gcount() > 0) {
                     processedData.append(
                         buffer, static_cast<size_t>(ioMgr.inputStream().gcount()));
                 }
-                BOOST_TEST(!ioMgr.outputStream().bad());
+                BOOST_TEST_REQUIRE(!ioMgr.outputStream().bad());
                 ioMgr.outputStream().write(
                     buffer, static_cast<size_t>(ioMgr.inputStream().gcount()));
             } while (!ioMgr.inputStream().eof());
-            BOOST_TEST(!ioMgr.outputStream().bad());
+            BOOST_TEST_REQUIRE(!ioMgr.outputStream().bad());
         }
     }
 
     if (isGood) {
-        BOOST_TEST(threadReader.waitForFinish());
-        BOOST_CHECK_EQUAL(TEST_SIZE, processedData.length());
-        BOOST_CHECK_EQUAL(std::string(TEST_SIZE, TEST_CHAR), processedData);
-        BOOST_CHECK_EQUAL(processedData.length(), threadReader.data().length());
-        BOOST_CHECK_EQUAL(processedData, threadReader.data());
+        BOOST_TEST_REQUIRE(threadReader.waitForFinish());
+        BOOST_REQUIRE_EQUAL(TEST_SIZE, processedData.length());
+        BOOST_REQUIRE_EQUAL(std::string(TEST_SIZE, TEST_CHAR), processedData);
+        BOOST_REQUIRE_EQUAL(processedData.length(), threadReader.data().length());
+        BOOST_REQUIRE_EQUAL(processedData, threadReader.data());
     } else {
-        BOOST_TEST(threadReader.stop());
-        BOOST_TEST(processedData.empty());
+        BOOST_TEST_REQUIRE(threadReader.stop());
+        BOOST_TEST_REQUIRE(processedData.empty());
     }
 }
 

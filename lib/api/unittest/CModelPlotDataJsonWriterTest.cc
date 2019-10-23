@@ -36,37 +36,37 @@ BOOST_AUTO_TEST_CASE(testWriteFlat) {
 
     rapidjson::Document doc;
     doc.Parse<rapidjson::kParseDefaultFlags>(sstream.str());
-    BOOST_TEST(!doc.HasParseError());
+    BOOST_TEST_REQUIRE(!doc.HasParseError());
     const rapidjson::Value& firstElement = doc[0];
-    BOOST_TEST(firstElement.HasMember("model_plot"));
+    BOOST_TEST_REQUIRE(firstElement.HasMember("model_plot"));
     const rapidjson::Value& modelPlot = firstElement["model_plot"];
-    BOOST_TEST(modelPlot.HasMember("job_id"));
-    BOOST_CHECK_EQUAL(std::string("job-id"), std::string(modelPlot["job_id"].GetString()));
-    BOOST_TEST(modelPlot.HasMember("model_feature"));
-    BOOST_CHECK_EQUAL(std::string("'count per bucket by person'"),
+    BOOST_TEST_REQUIRE(modelPlot.HasMember("job_id"));
+    BOOST_REQUIRE_EQUAL(std::string("job-id"), std::string(modelPlot["job_id"].GetString()));
+    BOOST_TEST_REQUIRE(modelPlot.HasMember("model_feature"));
+    BOOST_REQUIRE_EQUAL(std::string("'count per bucket by person'"),
                       std::string(modelPlot["model_feature"].GetString()));
-    BOOST_TEST(modelPlot.HasMember("timestamp"));
-    BOOST_CHECK_EQUAL(int64_t(1000), modelPlot["timestamp"].GetInt64());
-    BOOST_TEST(modelPlot.HasMember("partition_field_name"));
-    BOOST_CHECK_EQUAL(std::string("pName"),
+    BOOST_TEST_REQUIRE(modelPlot.HasMember("timestamp"));
+    BOOST_REQUIRE_EQUAL(int64_t(1000), modelPlot["timestamp"].GetInt64());
+    BOOST_TEST_REQUIRE(modelPlot.HasMember("partition_field_name"));
+    BOOST_REQUIRE_EQUAL(std::string("pName"),
                       std::string(modelPlot["partition_field_name"].GetString()));
-    BOOST_TEST(modelPlot.HasMember("partition_field_value"));
-    BOOST_CHECK_EQUAL(std::string("pValue"),
+    BOOST_TEST_REQUIRE(modelPlot.HasMember("partition_field_value"));
+    BOOST_REQUIRE_EQUAL(std::string("pValue"),
                       std::string(modelPlot["partition_field_value"].GetString()));
-    BOOST_TEST(modelPlot.HasMember("by_field_name"));
-    BOOST_CHECK_EQUAL(std::string("bName"),
+    BOOST_TEST_REQUIRE(modelPlot.HasMember("by_field_name"));
+    BOOST_REQUIRE_EQUAL(std::string("bName"),
                       std::string(modelPlot["by_field_name"].GetString()));
-    BOOST_TEST(modelPlot.HasMember("by_field_value"));
-    BOOST_CHECK_EQUAL(std::string("bName"),
+    BOOST_TEST_REQUIRE(modelPlot.HasMember("by_field_value"));
+    BOOST_REQUIRE_EQUAL(std::string("bName"),
                       std::string(modelPlot["by_field_value"].GetString()));
-    BOOST_TEST(modelPlot.HasMember("model_lower"));
-    BOOST_CHECK_CLOSE_ABSOLUTE(1.0, modelPlot["model_lower"].GetDouble(), 0.01);
-    BOOST_TEST(modelPlot.HasMember("model_upper"));
-    BOOST_CHECK_CLOSE_ABSOLUTE(2.0, modelPlot["model_upper"].GetDouble(), 0.01);
-    BOOST_TEST(modelPlot.HasMember("model_median"));
-    BOOST_CHECK_CLOSE_ABSOLUTE(3.0, modelPlot["model_median"].GetDouble(), 0.01);
-    BOOST_TEST(modelPlot.HasMember("bucket_span"));
-    BOOST_CHECK_EQUAL(int64_t(300), modelPlot["bucket_span"].GetInt64());
+    BOOST_TEST_REQUIRE(modelPlot.HasMember("model_lower"));
+    BOOST_REQUIRE_CLOSE_ABSOLUTE(1.0, modelPlot["model_lower"].GetDouble(), 0.01);
+    BOOST_TEST_REQUIRE(modelPlot.HasMember("model_upper"));
+    BOOST_REQUIRE_CLOSE_ABSOLUTE(2.0, modelPlot["model_upper"].GetDouble(), 0.01);
+    BOOST_TEST_REQUIRE(modelPlot.HasMember("model_median"));
+    BOOST_REQUIRE_CLOSE_ABSOLUTE(3.0, modelPlot["model_median"].GetDouble(), 0.01);
+    BOOST_TEST_REQUIRE(modelPlot.HasMember("bucket_span"));
+    BOOST_REQUIRE_EQUAL(int64_t(300), modelPlot["bucket_span"].GetInt64());
 }
 
 BOOST_AUTO_TEST_SUITE_END()

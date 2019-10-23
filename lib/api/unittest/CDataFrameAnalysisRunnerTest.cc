@@ -59,9 +59,9 @@ BOOST_AUTO_TEST_CASE(testComputeExecutionStrategyForOutliers) {
             std::size_t numberPartitions{runner->numberPartitions()};
             std::size_t maxRowsPerPartition{runner->maximumNumberRowsPerPartition()};
 
-            BOOST_CHECK_EQUAL(numberPartitions == 1, inMainMemory);
-            BOOST_TEST(numberPartitions * maxRowsPerPartition >= numberRows);
-            BOOST_TEST((numberPartitions - 1) * maxRowsPerPartition <= numberRows);
+            BOOST_REQUIRE_EQUAL(numberPartitions == 1, inMainMemory);
+            BOOST_TEST_REQUIRE(numberPartitions * maxRowsPerPartition >= numberRows);
+            BOOST_TEST_REQUIRE((numberPartitions - 1) * maxRowsPerPartition <= numberRows);
         }
     }
 
@@ -99,8 +99,8 @@ BOOST_AUTO_TEST_CASE(testComputeAndSaveExecutionStrategyDiskUsageFlag) {
         LOG_DEBUG(<< "errors = " << core::CContainerPrinter::print(errors));
         core::CRegex re;
         re.init("Input error: memory limit.*");
-        BOOST_CHECK_EQUAL(1, static_cast<int>(errors.size()));
-        BOOST_TEST(re.matches(errors[0]));
+        BOOST_REQUIRE_EQUAL(1, static_cast<int>(errors.size()));
+        BOOST_TEST_REQUIRE(re.matches(errors[0]));
     }
 
     // Test large memory requirement with disk usage
@@ -110,7 +110,7 @@ BOOST_AUTO_TEST_CASE(testComputeAndSaveExecutionStrategyDiskUsageFlag) {
         api::CDataFrameAnalysisSpecification spec{jsonSpec};
 
         // no error should be registered
-        BOOST_CHECK_EQUAL(0, static_cast<int>(errors.size()));
+        BOOST_REQUIRE_EQUAL(0, static_cast<int>(errors.size()));
     }
 
     // Test low memory requirement without disk usage
@@ -120,7 +120,7 @@ BOOST_AUTO_TEST_CASE(testComputeAndSaveExecutionStrategyDiskUsageFlag) {
         api::CDataFrameAnalysisSpecification spec{jsonSpec};
 
         // no error should be registered
-        BOOST_CHECK_EQUAL(0, static_cast<int>(errors.size()));
+        BOOST_REQUIRE_EQUAL(0, static_cast<int>(errors.size()));
     }
 }
 
@@ -155,20 +155,20 @@ void testEstimateMemoryUsage(int64_t numberRows,
     rapidjson::Document arrayDoc;
     arrayDoc.Parse<rapidjson::kParseDefaultFlags>(sstream.str().c_str());
 
-    BOOST_TEST(arrayDoc.IsArray());
-    BOOST_CHECK_EQUAL(rapidjson::SizeType(1), arrayDoc.Size());
+    BOOST_TEST_REQUIRE(arrayDoc.IsArray());
+    BOOST_REQUIRE_EQUAL(rapidjson::SizeType(1), arrayDoc.Size());
 
     const rapidjson::Value& result = arrayDoc[rapidjson::SizeType(0)];
-    BOOST_TEST(result.IsObject());
+    BOOST_TEST_REQUIRE(result.IsObject());
 
-    BOOST_TEST(result.HasMember("expected_memory_without_disk"));
-    BOOST_CHECK_EQUAL(expected_expected_memory_without_disk,
+    BOOST_TEST_REQUIRE(result.HasMember("expected_memory_without_disk"));
+    BOOST_REQUIRE_EQUAL(expected_expected_memory_without_disk,
                       std::string(result["expected_memory_without_disk"].GetString()));
-    BOOST_TEST(result.HasMember("expected_memory_with_disk"));
-    BOOST_CHECK_EQUAL(expected_expected_memory_with_disk,
+    BOOST_TEST_REQUIRE(result.HasMember("expected_memory_with_disk"));
+    BOOST_REQUIRE_EQUAL(expected_expected_memory_with_disk,
                       std::string(result["expected_memory_with_disk"].GetString()));
 
-    BOOST_CHECK_EQUAL(expected_number_errors, static_cast<int>(errors.size()));
+    BOOST_REQUIRE_EQUAL(expected_number_errors, static_cast<int>(errors.size()));
 }
 
 BOOST_AUTO_TEST_CASE(testEstimateMemoryUsage_0) {
@@ -205,11 +205,11 @@ void testColumnsForWhichEmptyIsMissing(const std::string& analysis,
     TStrVec fieldNames{"feature_1", "feature_2", "feature_3", "label"};
     TBoolVec emptyAsMissing{spec.columnsForWhichEmptyIsMissing(fieldNames)};
 
-    BOOST_CHECK_EQUAL(fieldNames.size(), emptyAsMissing.size());
-    BOOST_CHECK_EQUAL(false, bool(emptyAsMissing[0]));
-    BOOST_CHECK_EQUAL(false, bool(emptyAsMissing[1]));
-    BOOST_CHECK_EQUAL(false, bool(emptyAsMissing[2]));
-    BOOST_CHECK_EQUAL(expected_dependentVariableEmptyAsMissing, bool(emptyAsMissing[3]));
+    BOOST_REQUIRE_EQUAL(fieldNames.size(), emptyAsMissing.size());
+    BOOST_REQUIRE_EQUAL(false, bool(emptyAsMissing[0]));
+    BOOST_REQUIRE_EQUAL(false, bool(emptyAsMissing[1]));
+    BOOST_REQUIRE_EQUAL(false, bool(emptyAsMissing[2]));
+    BOOST_REQUIRE_EQUAL(expected_dependentVariableEmptyAsMissing, bool(emptyAsMissing[3]));
 }
 
 BOOST_AUTO_TEST_CASE(testColumnsForWhichEmptyIsMissingClassification) {

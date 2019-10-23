@@ -57,7 +57,7 @@ public:
 //! Extra Boost.Test macros for close absolute value.
 //!
 //! DESCRIPTION:\n
-//! Boost.Test provides BOOST_CHECK_CLOSE_FRACTION, which
+//! Boost.Test provides BOOST_REQUIRE_CLOSE_FRACTION, which
 //! looks at the relative difference between two values.  If
 //! we were starting from scratch this would be fine but we
 //! have hundreds of assertions that were using
@@ -68,12 +68,12 @@ public:
 //! difference.
 //!
 //! IMPLEMENTATION DECISIONS:\n
-//! They could have been implemented using BOOST_CHECK_PREDICATE,
+//! They could have been implemented using BOOST_REQUIRE_PREDICATE,
 //! but use a lower level integration into Boost.Test so that
 //! the failure messages they generate can be in the same
-//! format that BOOST_CHECK_CLOSE_FRACTION generates.  As time
-//! goes by and we have a mix of BOOST_CHECK_CLOSE_FRACTION and
-//! BOOST_CHECK_CLOSE_ABSOLUTE it will be better to have a
+//! format that BOOST_REQUIRE_CLOSE_FRACTION generates.  As time
+//! goes by and we have a mix of BOOST_REQUIRE_CLOSE_FRACTION and
+//! BOOST_REQUIRE_CLOSE_ABSOLUTE it will be better to have a
 //! consistent failure message format.
 //!
 

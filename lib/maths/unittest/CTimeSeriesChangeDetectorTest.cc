@@ -136,7 +136,7 @@ BOOST_AUTO_TEST_CASE(testNoChange) {
                 break;
             }
 
-            BOOST_TEST(!detector.change());
+            BOOST_TEST_REQUIRE(!detector.change());
 
             time += BUCKET_LENGTH;
         }
@@ -219,7 +219,7 @@ BOOST_AUTO_TEST_CASE(testPersist) {
             trendModel, residualModel, 6 * core::constants::HOUR,
             24 * core::constants::HOUR, 12.0};
         core::CRapidXmlParser parser;
-        BOOST_TEST(parser.parseStringIgnoreCdata(origXml));
+        BOOST_TEST_REQUIRE(parser.parseStringIgnoreCdata(origXml));
         core::CRapidXmlStateRestoreTraverser traverser(parser);
         traverser.traverseSubLevel(std::bind(
             &maths::CUnivariateTimeSeriesChangeDetector::acceptRestoreTraverser,
@@ -227,7 +227,7 @@ BOOST_AUTO_TEST_CASE(testPersist) {
 
         LOG_DEBUG(<< "expected " << origDetector.checksum() << " got "
                   << restoredDetector.checksum());
-        BOOST_CHECK_EQUAL(origDetector.checksum(), restoredDetector.checksum());
+        BOOST_REQUIRE_EQUAL(origDetector.checksum(), restoredDetector.checksum());
     }
 }
 
@@ -288,8 +288,8 @@ BOOST_AUTO_TEST_CASE(testChangeconst TGeneratorVec& trends,
                 if (!bucketsToDetect) {
                     bucketsToDetect.reset(i - 949);
                 }
-                BOOST_CHECK_EQUAL(change->s_Description, description);
-                BOOST_CHECK_CLOSE_ABSOLUTE(expectedChange, change->s_Value[0],
+                BOOST_REQUIRE_EQUAL(change->s_Description, description);
+                BOOST_REQUIRE_CLOSE_ABSOLUTE(expectedChange, change->s_Value[0],
                                            0.5 * std::fabs(expectedChange));
                 break;
             }
@@ -308,8 +308,8 @@ BOOST_AUTO_TEST_CASE(testChangeconst TGeneratorVec& trends,
 
     LOG_DEBUG(<< "false negatives = " << falseNegatives);
     LOG_DEBUG(<< "buckets to detect = " << maths::CBasicStatistics::mean(meanBucketsToDetect));
-    BOOST_TEST(falseNegatives <= maximumFalseNegatives);
-    BOOST_TEST(maths::CBasicStatistics::mean(meanBucketsToDetect) < maximumMeanBucketsToDetectChange);
+    BOOST_TEST_REQUIRE(falseNegatives <= maximumFalseNegatives);
+    BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(meanBucketsToDetect) < maximumMeanBucketsToDetectChange);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

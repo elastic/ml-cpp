@@ -268,15 +268,15 @@ void testProbabilityAndGetInfluences(model_t::EFeature feature,
     }
 
     double probability;
-    BOOST_TEST(calculator.calculate(probability, influences));
+    BOOST_TEST_REQUIRE(calculator.calculate(probability, influences));
 
     double pj, pe;
-    BOOST_TEST(pJoint.calculate(pj));
-    BOOST_TEST(pExtreme.calculate(pe));
+    BOOST_TEST_REQUIRE(pJoint.calculate(pj));
+    BOOST_TEST_REQUIRE(pExtreme.calculate(pe));
 
     LOG_DEBUG(<< "  probability = " << probability
               << ", expected probability = " << std::min(pj, pe));
-    BOOST_CHECK_CLOSE_ABSOLUTE(std::min(pe, pj), probability, 1e-10);
+    BOOST_REQUIRE_CLOSE_ABSOLUTE(std::min(pe, pj), probability, 1e-10);
 }
 }
 
@@ -310,7 +310,7 @@ BOOST_AUTO_TEST_CASE(testInfluenceUnavailableCalculator) {
                           influencerValues, influences);
 
         LOG_DEBUG(<< "influences = " << core::CContainerPrinter::print(influences));
-        BOOST_TEST(influences.empty());
+        BOOST_TEST_REQUIRE(influences.empty());
     }
     {
         LOG_DEBUG(<< "Test correlated");
@@ -345,7 +345,7 @@ BOOST_AUTO_TEST_CASE(testInfluenceUnavailableCalculator) {
                           influencerValues, influences);
 
         LOG_DEBUG(<< "influences = " << core::CContainerPrinter::print(influences));
-        BOOST_TEST(influences.empty());
+        BOOST_TEST_REQUIRE(influences.empty());
     }
 }
 
@@ -383,7 +383,7 @@ BOOST_AUTO_TEST_CASE(testLogProbabilityComplementInfluenceCalculator) {
                               p, tail, I, influencerValues, influences);
 
             LOG_DEBUG(<< "  influences = " << core::CContainerPrinter::print(influences));
-            BOOST_CHECK_EQUAL(std::string("[((I, i1), 1)]"),
+            BOOST_REQUIRE_EQUAL(std::string("[((I, i1), 1)]"),
                               core::CContainerPrinter::print(influences));
         }
         {
@@ -413,7 +413,7 @@ BOOST_AUTO_TEST_CASE(testLogProbabilityComplementInfluenceCalculator) {
                               p, tail, I, influencerValues, influences);
 
             LOG_DEBUG(<< "  influences = " << core::CContainerPrinter::print(influences));
-            BOOST_CHECK_EQUAL(std::string("[((I, i3), 1)]"),
+            BOOST_REQUIRE_EQUAL(std::string("[((I, i3), 1)]"),
                               core::CContainerPrinter::print(influences));
         }
         {
@@ -461,9 +461,9 @@ BOOST_AUTO_TEST_CASE(testLogProbabilityComplementInfluenceCalculator) {
 
                 LOG_DEBUG(<< "  influences = " << core::CContainerPrinter::print(influences));
                 for (std::size_t j = 0u; j < influences.size(); ++j) {
-                    BOOST_CHECK_EQUAL(expectedInfluencerValues[j],
+                    BOOST_REQUIRE_EQUAL(expectedInfluencerValues[j],
                                       *influences[j].first.second);
-                    BOOST_CHECK_CLOSE_ABSOLUTE(expectedInfluences[i][j],
+                    BOOST_REQUIRE_CLOSE_ABSOLUTE(expectedInfluences[i][j],
                                                influences[j].second, 0.06);
                 }
             }
@@ -510,7 +510,7 @@ BOOST_AUTO_TEST_CASE(testLogProbabilityComplementInfluenceCalculator) {
                               tail, I, influencerValues, influences);
 
             LOG_DEBUG(<< "  influences = " << core::CContainerPrinter::print(influences));
-            BOOST_CHECK_EQUAL(std::string("[((I, i1), 1)]"),
+            BOOST_REQUIRE_EQUAL(std::string("[((I, i1), 1)]"),
                               core::CContainerPrinter::print(influences));
         }
         /*{
@@ -551,7 +551,7 @@ BOOST_AUTO_TEST_CASE(testLogProbabilityComplementInfluenceCalculator) {
                               tail, I, influencerValues, influences);
 
             LOG_DEBUG(<< "  influences = " << core::CContainerPrinter::print(influences));
-            BOOST_CHECK_EQUAL(std::string("[((I, i3), 1)]"),
+            BOOST_REQUIRE_EQUAL(std::string("[((I, i3), 1)]"),
                                  core::CContainerPrinter::print(influences));
         }
         {
@@ -646,8 +646,8 @@ BOOST_AUTO_TEST_CASE(testLogProbabilityComplementInfluenceCalculator) {
                 LOG_DEBUG(<< "  influences = " << core::CContainerPrinter::print(influences));
                 for (std::size_t j = 0u; j < influences.size(); ++j)
                 {
-                    BOOST_CHECK_EQUAL(expectedInfluencerValues[j], *influences[j].first.second);
-                    BOOST_CHECK_CLOSE_ABSOLUTE(expectedInfluences[i][j], influences[j].second, 0.05);
+                    BOOST_REQUIRE_EQUAL(expectedInfluencerValues[j], *influences[j].first.second);
+                    BOOST_REQUIRE_CLOSE_ABSOLUTE(expectedInfluences[i][j], influences[j].second, 0.05);
                 }
             }
         }*/
@@ -688,7 +688,7 @@ BOOST_AUTO_TEST_CASE(testMeanInfluenceCalculator) {
                               p, tail, I, influencerValues, influences);
 
             LOG_DEBUG(<< "  influences = " << core::CContainerPrinter::print(influences));
-            BOOST_CHECK_EQUAL(std::string("[((I, i1), 1)]"),
+            BOOST_REQUIRE_EQUAL(std::string("[((I, i1), 1)]"),
                               core::CContainerPrinter::print(influences));
         }
         {
@@ -722,7 +722,7 @@ BOOST_AUTO_TEST_CASE(testMeanInfluenceCalculator) {
                                   p, tail, I, influencerValues, influences);
 
                 LOG_DEBUG(<< "  influences = " << core::CContainerPrinter::print(influences));
-                BOOST_CHECK_EQUAL(std::string("[((I, i1), 1)]"),
+                BOOST_REQUIRE_EQUAL(std::string("[((I, i1), 1)]"),
                                   core::CContainerPrinter::print(influences));
             }
             {
@@ -743,7 +743,7 @@ BOOST_AUTO_TEST_CASE(testMeanInfluenceCalculator) {
                                   p, tail, I, influencerValues, influences);
 
                 LOG_DEBUG(<< "  influences = " << core::CContainerPrinter::print(influences));
-                BOOST_TEST(influences.empty());
+                BOOST_TEST_REQUIRE(influences.empty());
             }
             {
                 LOG_DEBUG(<< "Left tail, no clear influences");
@@ -763,7 +763,7 @@ BOOST_AUTO_TEST_CASE(testMeanInfluenceCalculator) {
                                   p, tail, I, influencerValues, influences);
 
                 LOG_DEBUG(<< "  influences = " << core::CContainerPrinter::print(influences));
-                BOOST_TEST(influences.empty());
+                BOOST_TEST_REQUIRE(influences.empty());
             }
             {
                 LOG_DEBUG(<< "Left tail, two influences");
@@ -784,11 +784,11 @@ BOOST_AUTO_TEST_CASE(testMeanInfluenceCalculator) {
                                   p, tail, I, influencerValues, influences);
 
                 LOG_DEBUG(<< "  influences = " << core::CContainerPrinter::print(influences));
-                BOOST_CHECK_EQUAL(std::size_t(2), influences.size());
-                BOOST_CHECK_EQUAL(i3, *influences[0].first.second);
-                BOOST_CHECK_CLOSE_ABSOLUTE(0.7, influences[0].second, 0.04);
-                BOOST_CHECK_EQUAL(i1, *influences[1].first.second);
-                BOOST_CHECK_CLOSE_ABSOLUTE(0.6, influences[1].second, 0.03);
+                BOOST_REQUIRE_EQUAL(std::size_t(2), influences.size());
+                BOOST_REQUIRE_EQUAL(i3, *influences[0].first.second);
+                BOOST_REQUIRE_CLOSE_ABSOLUTE(0.7, influences[0].second, 0.04);
+                BOOST_REQUIRE_EQUAL(i1, *influences[1].first.second);
+                BOOST_REQUIRE_CLOSE_ABSOLUTE(0.6, influences[1].second, 0.03);
             }
         }
     }
@@ -836,7 +836,7 @@ BOOST_AUTO_TEST_CASE(testMeanInfluenceCalculator) {
                               tail, I, influencerValues, influences);
 
             LOG_DEBUG(<< "  influences = " << core::CContainerPrinter::print(influences));
-            BOOST_CHECK_EQUAL(std::string("[((I, i1), 1)]"),
+            BOOST_REQUIRE_EQUAL(std::string("[((I, i1), 1)]"),
                               core::CContainerPrinter::print(influences));
         }
         /*{
@@ -890,7 +890,7 @@ BOOST_AUTO_TEST_CASE(testMeanInfluenceCalculator) {
                                   I, influencerValues, influences);
 
                 LOG_DEBUG(<< "  influences = " << core::CContainerPrinter::print(influences));
-                BOOST_CHECK_EQUAL(std::string("[((I, i1), 1)]"),
+                BOOST_REQUIRE_EQUAL(std::string("[((I, i1), 1)]"),
                                      core::CContainerPrinter::print(influences));
             }
             {
@@ -923,7 +923,7 @@ BOOST_AUTO_TEST_CASE(testMeanInfluenceCalculator) {
                                   I, influencerValues, influences);
 
                 LOG_DEBUG(<< "  influences = " << core::CContainerPrinter::print(influences));
-                BOOST_TEST(influences.empty());
+                BOOST_TEST_REQUIRE(influences.empty());
             }
             {
                 LOG_DEBUG(<< "Left tail, no clear influences");
@@ -955,7 +955,7 @@ BOOST_AUTO_TEST_CASE(testMeanInfluenceCalculator) {
                                   I, influencerValues, influences);
 
                 LOG_DEBUG(<< "  influences = " << core::CContainerPrinter::print(influences));
-                BOOST_TEST(influences.empty());
+                BOOST_TEST_REQUIRE(influences.empty());
             }
             {
                 LOG_DEBUG(<< "Left tail, two influences");
@@ -988,11 +988,11 @@ BOOST_AUTO_TEST_CASE(testMeanInfluenceCalculator) {
                                   I, influencerValues, influences);
 
                 LOG_DEBUG(<< "  influences = " << core::CContainerPrinter::print(influences));
-                BOOST_CHECK_EQUAL(std::size_t(2), influences.size());
-                BOOST_CHECK_EQUAL(i1, *influences[0].first.second);
-                BOOST_CHECK_CLOSE_ABSOLUTE(0.6, influences[0].second, 0.04);
-                BOOST_CHECK_EQUAL(i3, *influences[1].first.second);
-                BOOST_CHECK_CLOSE_ABSOLUTE(0.6, influences[1].second, 0.08);
+                BOOST_REQUIRE_EQUAL(std::size_t(2), influences.size());
+                BOOST_REQUIRE_EQUAL(i1, *influences[0].first.second);
+                BOOST_REQUIRE_CLOSE_ABSOLUTE(0.6, influences[0].second, 0.04);
+                BOOST_REQUIRE_EQUAL(i3, *influences[1].first.second);
+                BOOST_REQUIRE_CLOSE_ABSOLUTE(0.6, influences[1].second, 0.08);
             }
         }*/
     }
@@ -1032,7 +1032,7 @@ BOOST_AUTO_TEST_CASE(testLogProbabilityInfluenceCalculator) {
                               p, tail, I, influencerValues, influences);
 
             LOG_DEBUG(<< "  influences = " << core::CContainerPrinter::print(influences));
-            BOOST_CHECK_EQUAL(std::string("[((I, i1), 1)]"),
+            BOOST_REQUIRE_EQUAL(std::string("[((I, i1), 1)]"),
                               core::CContainerPrinter::print(influences));
         }
         {
@@ -1062,7 +1062,7 @@ BOOST_AUTO_TEST_CASE(testLogProbabilityInfluenceCalculator) {
                               p, tail, I, influencerValues, influences);
 
             LOG_DEBUG(<< "  influences = " << core::CContainerPrinter::print(influences));
-            BOOST_CHECK_EQUAL(std::string("[((I, i2), 1), ((I, i3), 1)]"),
+            BOOST_REQUIRE_EQUAL(std::string("[((I, i2), 1), ((I, i3), 1)]"),
                               core::CContainerPrinter::print(influences));
         }
         {
@@ -1112,9 +1112,9 @@ BOOST_AUTO_TEST_CASE(testLogProbabilityInfluenceCalculator) {
                 std::sort(influences.begin(), influences.end(),
                           maths::COrderings::SFirstLess());
                 for (std::size_t j = 0u; j < influences.size(); ++j) {
-                    BOOST_CHECK_EQUAL(expectedInfluencerValues[j],
+                    BOOST_REQUIRE_EQUAL(expectedInfluencerValues[j],
                                       *influences[j].first.second);
-                    BOOST_CHECK_CLOSE_ABSOLUTE(expectedInfluences[i][j],
+                    BOOST_REQUIRE_CLOSE_ABSOLUTE(expectedInfluences[i][j],
                                                influences[j].second, 0.03);
                 }
             }
@@ -1168,7 +1168,7 @@ BOOST_AUTO_TEST_CASE(testLogProbabilityInfluenceCalculator) {
     //                              I, influencerValues, influences);
     //
     //            LOG_DEBUG(<< "  influences = " << core::CContainerPrinter::print(influences));
-    //            BOOST_CHECK_EQUAL(std::string("[((I, i1), 1)]"),
+    //            BOOST_REQUIRE_EQUAL(std::string("[((I, i1), 1)]"),
     //                                 core::CContainerPrinter::print(influences));
     //        }
     //        {
@@ -1221,7 +1221,7 @@ BOOST_AUTO_TEST_CASE(testLogProbabilityInfluenceCalculator) {
     //                              I, influencerValues, influences);
     //
     //            LOG_DEBUG(<< "  influences = " << core::CContainerPrinter::print(influences));
-    //            BOOST_CHECK_EQUAL(std::string("[((I, i2), 1), ((I, i3), 1)]"),
+    //            BOOST_REQUIRE_EQUAL(std::string("[((I, i2), 1), ((I, i3), 1)]"),
     //                                 core::CContainerPrinter::print(influences));
     //        }
     //        {
@@ -1320,9 +1320,9 @@ BOOST_AUTO_TEST_CASE(testLogProbabilityInfluenceCalculator) {
     //                LOG_DEBUG(<< "  influences = " << core::CContainerPrinter::print(influences));
     //                for (std::size_t j = 0u; j < influences.size(); ++j)
     //                {
-    //                    BOOST_CHECK_EQUAL(expectedInfluencerValues[j],
+    //                    BOOST_REQUIRE_EQUAL(expectedInfluencerValues[j],
     //                                         *influences[j].first.second);
-    //                    BOOST_CHECK_CLOSE_ABSOLUTE(expectedInfluences[i][j], influences[j].second, 0.04);
+    //                    BOOST_REQUIRE_CLOSE_ABSOLUTE(expectedInfluences[i][j], influences[j].second, 0.04);
     //                }
     //            }
     //        }
@@ -1351,7 +1351,7 @@ BOOST_AUTO_TEST_CASE(testIndicatorInfluenceCalculator) {
                           {maths_t::E_RightTail}, I, influencerValues, influences);
 
         LOG_DEBUG(<< "influences = " << core::CContainerPrinter::print(influences));
-        BOOST_CHECK_EQUAL(std::string("[((I, i1), 1), ((I, i2), 1), ((I, i3), 1)]"),
+        BOOST_REQUIRE_EQUAL(std::string("[((I, i1), 1), ((I, i2), 1), ((I, i3), 1)]"),
                           core::CContainerPrinter::print(influences));
     }
     {
@@ -1383,7 +1383,7 @@ BOOST_AUTO_TEST_CASE(testIndicatorInfluenceCalculator) {
                           influencerValues, influences);
 
         LOG_DEBUG(<< "influences = " << core::CContainerPrinter::print(influences));
-        BOOST_CHECK_EQUAL(std::string("[((I, i1), 1), ((I, i2), 1), ((I, i3), 1)]"),
+        BOOST_REQUIRE_EQUAL(std::string("[((I, i1), 1), ((I, i2), 1), ((I, i3), 1)]"),
                           core::CContainerPrinter::print(influences));
     }
 }
@@ -1488,15 +1488,15 @@ BOOST_AUTO_TEST_CASE(testProbabilityAndInfluenceCalculator) {
 
         double probability;
         TStoredStringPtrStoredStringPtrPrDoublePrVec influences;
-        BOOST_TEST(calculator.calculate(probability, influences));
+        BOOST_TEST_REQUIRE(calculator.calculate(probability, influences));
 
         double pj, pe;
-        BOOST_TEST(pJoint.calculate(pj));
-        BOOST_TEST(pExtreme.calculate(pe));
+        BOOST_TEST_REQUIRE(pJoint.calculate(pj));
+        BOOST_TEST_REQUIRE(pExtreme.calculate(pe));
 
         LOG_DEBUG(<< "  probability = " << probability
                   << ", expected probability = " << std::min(pj, pe));
-        BOOST_CHECK_CLOSE_ABSOLUTE(std::min(pe, pj), probability, 1e-10);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(std::min(pe, pj), probability, 1e-10);
     }
     {
         LOG_DEBUG(<< "influencing joint probability");
@@ -1520,9 +1520,9 @@ BOOST_AUTO_TEST_CASE(testProbabilityAndInfluenceCalculator) {
             testProbabilityAndGetInfluences(features[i], *models[i], now, values[i],
                                             influencerValues[i], influences);
             LOG_DEBUG(<< "  influences = " << core::CContainerPrinter::print(influences));
-            BOOST_CHECK_EQUAL(std::size_t(1), influences.size());
-            BOOST_CHECK_EQUAL(i1, *influences[0].first.second);
-            BOOST_CHECK_CLOSE_ABSOLUTE(0.95, influences[0].second, 0.06);
+            BOOST_REQUIRE_EQUAL(std::size_t(1), influences.size());
+            BOOST_REQUIRE_EQUAL(i1, *influences[0].first.second);
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(0.95, influences[0].second, 0.06);
         }
     }
     {
@@ -1548,9 +1548,9 @@ BOOST_AUTO_TEST_CASE(testProbabilityAndInfluenceCalculator) {
             testProbabilityAndGetInfluences(features[i], *models[i], now, values[i],
                                             influencerValues[i], influences);
             LOG_DEBUG(<< "  influences = " << core::CContainerPrinter::print(influences));
-            BOOST_CHECK_EQUAL(std::size_t(1), influences.size());
-            BOOST_CHECK_EQUAL(i2, *influences[0].first.second);
-            BOOST_CHECK_CLOSE_ABSOLUTE(1.0, influences[0].second, 0.03);
+            BOOST_REQUIRE_EQUAL(std::size_t(1), influences.size());
+            BOOST_REQUIRE_EQUAL(i2, *influences[0].first.second);
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(1.0, influences[0].second, 0.03);
         }
     }
     {
@@ -1582,9 +1582,9 @@ BOOST_AUTO_TEST_CASE(testProbabilityAndInfluenceCalculator) {
                                             univariateModel, now, values[0],
                                             influencerValues[0], influences);
             LOG_DEBUG(<< "  influences = " << core::CContainerPrinter::print(influences));
-            BOOST_CHECK_EQUAL(std::size_t(1), influences.size());
-            BOOST_CHECK_EQUAL(i1, *influences[0].first.second);
-            BOOST_CHECK_CLOSE_ABSOLUTE(0.75, influences[0].second, 0.05);
+            BOOST_REQUIRE_EQUAL(std::size_t(1), influences.size());
+            BOOST_REQUIRE_EQUAL(i1, *influences[0].first.second);
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(0.75, influences[0].second, 0.05);
         }
         {
             TStoredStringPtrStoredStringPtrPrDoublePrVec influences;
@@ -1592,11 +1592,11 @@ BOOST_AUTO_TEST_CASE(testProbabilityAndInfluenceCalculator) {
                                             multivariateModel, now, values[1],
                                             influencerValues[1], influences);
             LOG_DEBUG(<< "  influences = " << core::CContainerPrinter::print(influences));
-            BOOST_CHECK_EQUAL(std::size_t(2), influences.size());
-            BOOST_CHECK_EQUAL(i2, *influences[0].first.second);
-            BOOST_CHECK_EQUAL(i1, *influences[1].first.second);
-            BOOST_CHECK_CLOSE_ABSOLUTE(1.0, influences[0].second, 1e-3);
-            BOOST_CHECK_CLOSE_ABSOLUTE(1.0, influences[1].second, 1e-3);
+            BOOST_REQUIRE_EQUAL(std::size_t(2), influences.size());
+            BOOST_REQUIRE_EQUAL(i2, *influences[0].first.second);
+            BOOST_REQUIRE_EQUAL(i1, *influences[1].first.second);
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(1.0, influences[0].second, 1e-3);
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(1.0, influences[1].second, 1e-3);
         }
     }
 }

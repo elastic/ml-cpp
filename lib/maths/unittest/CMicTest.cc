@@ -132,7 +132,7 @@ BOOST_AUTO_TEST_CASE(testOptimizeXAxis) {
     LOG_DEBUG(<< "MI expected = " << core::CContainerPrinter::print(expected));
     LOG_DEBUG(<< "MI actual   = " << core::CContainerPrinter::print(actual));
     for (std::size_t i = 0; i < expected.size(); ++i) {
-        BOOST_CHECK_CLOSE_ABSOLUTE(expected[i], actual[i], 1e-4);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(expected[i], actual[i], 1e-4);
     }
 }
 
@@ -165,7 +165,7 @@ BOOST_AUTO_TEST_CASE(testInvariants) {
         }
         double actual{mic.compute()};
         LOG_DEBUG(<< "shifted MICe = " << actual);
-        BOOST_CHECK_CLOSE_ABSOLUTE(expected, actual, 1e-3);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(expected, actual, 1e-3);
     }
     {
         maths::CMic mic;
@@ -175,7 +175,7 @@ BOOST_AUTO_TEST_CASE(testInvariants) {
         }
         double actual{mic.compute()};
         LOG_DEBUG(<< "scaled MICe = " << actual);
-        BOOST_CHECK_CLOSE_ABSOLUTE(expected, actual, 1e-3);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(expected, actual, 1e-3);
     }
     {
         maths::CMic mic;
@@ -185,7 +185,7 @@ BOOST_AUTO_TEST_CASE(testInvariants) {
         }
         double actual{mic.compute()};
         LOG_DEBUG(<< "reflected MICe = " << actual);
-        BOOST_CHECK_CLOSE_ABSOLUTE(expected, actual, 2e-3);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(expected, actual, 2e-3);
     }
 }
 
@@ -214,7 +214,7 @@ BOOST_AUTO_TEST_CASE(testIndependent) {
 
         double mic_{mic.compute()};
         LOG_DEBUG(<< "MICe = " << mic_);
-        BOOST_TEST(mic_ < maximumMic[t]);
+        BOOST_TEST_REQUIRE(mic_ < maximumMic[t]);
     }
 
     LOG_DEBUG(<< "Independent normal");
@@ -230,7 +230,7 @@ BOOST_AUTO_TEST_CASE(testIndependent) {
 
         double mic_{mic.compute()};
         LOG_DEBUG(<< "MICe = " << mic_);
-        BOOST_TEST(mic_ < maximumMic[t]);
+        BOOST_TEST_REQUIRE(mic_ < maximumMic[t]);
     }
 }
 
@@ -262,7 +262,7 @@ BOOST_AUTO_TEST_CASE(testOneToOne) {
 
         double mic_{mic.compute()};
         LOG_DEBUG(<< "MICe = " << mic_);
-        BOOST_TEST(mic_ > 0.99);
+        BOOST_TEST_REQUIRE(mic_ > 0.99);
     }
 
     LOG_DEBUG(<< "Test sine");
@@ -281,7 +281,7 @@ BOOST_AUTO_TEST_CASE(testOneToOne) {
 
         double mic_{mic.compute()};
         LOG_DEBUG(<< "MICe = " << mic_);
-        BOOST_TEST(mic_ > 0.97);
+        BOOST_TEST_REQUIRE(mic_ > 0.97);
     }
 }
 
@@ -307,7 +307,7 @@ BOOST_AUTO_TEST_CASE(testCorrelated) {
 
         double current{mic.compute()};
         LOG_DEBUG(<< "MICe = " << current);
-        BOOST_TEST(current < last);
+        BOOST_TEST_REQUIRE(current < last);
         last = current;
     }
 
@@ -324,7 +324,7 @@ BOOST_AUTO_TEST_CASE(testCorrelated) {
 
         double current{mic.compute()};
         LOG_DEBUG(<< "MICe = " << current);
-        BOOST_TEST(current < last);
+        BOOST_TEST_REQUIRE(current < last);
         last = current;
     }
 }
@@ -409,7 +409,7 @@ BOOST_AUTO_TEST_CASE(testVsMutualInformation) {
     }
     LOG_DEBUG(<< "Error = " << maths::CBasicStatistics::mean(error));
 
-    BOOST_TEST(maths::CBasicStatistics::mean(error) < 0.11);
+    BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(error) < 0.11);
 
     LOG_DEBUG(<< "Test circle");
 
@@ -438,7 +438,7 @@ BOOST_AUTO_TEST_CASE(testVsMutualInformation) {
 
         double mic_{mic.compute()};
         LOG_DEBUG(<< "MICe = " << mic_);
-        BOOST_CHECK_CLOSE_ABSOLUTE(0.6, mic_, 0.02);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(0.6, mic_, 0.02);
     }
 }
 
@@ -479,7 +479,7 @@ BOOST_AUTO_TEST_CASE(testBinaryVariables) {
                   p[1] * maths::CTools::fastLog(p[1] / px[0] / py[1]) +
                   p[2] * maths::CTools::fastLog(p[2] / px[1] / py[0]) +
                   p[3] * maths::CTools::fastLog(p[3] / px[1] / py[1])};
-        BOOST_CHECK_CLOSE_ABSOLUTE(maths::CTools::fastLog(2.0), mi / mic_, 1e-3);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(maths::CTools::fastLog(2.0), mi / mic_, 1e-3);
     }
 }
 
@@ -504,7 +504,7 @@ BOOST_AUTO_TEST_CASE(testEdgeCases) {
 
         double mic_{mic.compute()};
         LOG_DEBUG(<< "MICe = " << mic_);
-        BOOST_CHECK_EQUAL(0.0, mic_);
+        BOOST_REQUIRE_EQUAL(0.0, mic_);
     }
 
     LOG_DEBUG(<< "Test constant");
@@ -516,7 +516,7 @@ BOOST_AUTO_TEST_CASE(testEdgeCases) {
     }
     double mic_{mic.compute()};
     LOG_DEBUG(<< "MICe = " << mic_);
-    BOOST_CHECK_EQUAL(0.0, mic_);
+    BOOST_REQUIRE_EQUAL(0.0, mic_);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

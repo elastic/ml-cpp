@@ -26,9 +26,9 @@ BOOST_AUTO_TEST_CASE(testPointerSemantics) {
         }
 
         if (!null) {
-            BOOST_TEST(null != ml::core::CStoredStringPtr::makeStoredString("not null"));
-            BOOST_TEST(null == nullptr);
-            BOOST_TEST(null.get() == nullptr);
+            BOOST_TEST_REQUIRE(null != ml::core::CStoredStringPtr::makeStoredString("not null"));
+            BOOST_TEST_REQUIRE(null == nullptr);
+            BOOST_TEST_REQUIRE(null.get() == nullptr);
         } else {
             BOOST_FAIL("Should not return false in negated boolean context");
         }
@@ -39,9 +39,9 @@ BOOST_AUTO_TEST_CASE(testPointerSemantics) {
         ml::core::CStoredStringPtr ptr1 = ml::core::CStoredStringPtr::makeStoredString(str1);
 
         if (ptr1) {
-            BOOST_TEST(ptr1 == ptr1);
-            BOOST_TEST(ptr1 != nullptr);
-            BOOST_TEST(ptr1.get() != nullptr);
+            BOOST_TEST_REQUIRE(ptr1 == ptr1);
+            BOOST_TEST_REQUIRE(ptr1 != nullptr);
+            BOOST_TEST_REQUIRE(ptr1.get() != nullptr);
         } else {
             BOOST_FAIL("Should not return false in boolean context");
         }
@@ -49,7 +49,7 @@ BOOST_AUTO_TEST_CASE(testPointerSemantics) {
         if (!ptr1) {
             BOOST_FAIL("Should not return true in negated boolean context");
         } else {
-            BOOST_CHECK_EQUAL(0, ptr1->compare(str1));
+            BOOST_REQUIRE_EQUAL(0, ptr1->compare(str1));
         }
     }
     {
@@ -61,9 +61,9 @@ BOOST_AUTO_TEST_CASE(testPointerSemantics) {
             ml::core::CStoredStringPtr::makeStoredString(std::move(str2));
 
         if (ptr2) {
-            BOOST_TEST(ptr2 == ptr2);
-            BOOST_TEST(ptr2 != nullptr);
-            BOOST_TEST(ptr2.get() != nullptr);
+            BOOST_TEST_REQUIRE(ptr2 == ptr2);
+            BOOST_TEST_REQUIRE(ptr2 != nullptr);
+            BOOST_TEST_REQUIRE(ptr2.get() != nullptr);
         } else {
             BOOST_FAIL("Should not return false in boolean context");
         }
@@ -73,7 +73,7 @@ BOOST_AUTO_TEST_CASE(testPointerSemantics) {
         } else {
             // str2 should no longer contain its original value, as it should
             // have been moved to the stored string
-            BOOST_TEST(ptr2->compare(str2) != 0);
+            BOOST_TEST_REQUIRE(ptr2->compare(str2) != 0);
         }
     }
 }
@@ -82,24 +82,24 @@ BOOST_AUTO_TEST_CASE(testMemoryUsage) {
     {
         ml::core::CStoredStringPtr null;
 
-        BOOST_CHECK_EQUAL(std::size_t(0), ml::core::CMemory::dynamicSize(null));
-        BOOST_CHECK_EQUAL(std::size_t(0), null.actualMemoryUsage());
+        BOOST_REQUIRE_EQUAL(std::size_t(0), ml::core::CMemory::dynamicSize(null));
+        BOOST_REQUIRE_EQUAL(std::size_t(0), null.actualMemoryUsage());
     }
     {
         std::string str1("short");
 
         ml::core::CStoredStringPtr ptr1 = ml::core::CStoredStringPtr::makeStoredString(str1);
 
-        BOOST_CHECK_EQUAL(std::size_t(0), ml::core::CMemory::dynamicSize(ptr1));
-        BOOST_CHECK_EQUAL(ml::core::CMemory::dynamicSize(&str1), ptr1.actualMemoryUsage());
+        BOOST_REQUIRE_EQUAL(std::size_t(0), ml::core::CMemory::dynamicSize(ptr1));
+        BOOST_REQUIRE_EQUAL(ml::core::CMemory::dynamicSize(&str1), ptr1.actualMemoryUsage());
     }
     {
         std::string str2("much longer - YUGE in fact!");
 
         ml::core::CStoredStringPtr ptr2 = ml::core::CStoredStringPtr::makeStoredString(str2);
 
-        BOOST_CHECK_EQUAL(std::size_t(0), ml::core::CMemory::dynamicSize(ptr2));
-        BOOST_CHECK_EQUAL(ml::core::CMemory::dynamicSize(&str2), ptr2.actualMemoryUsage());
+        BOOST_REQUIRE_EQUAL(std::size_t(0), ml::core::CMemory::dynamicSize(ptr2));
+        BOOST_REQUIRE_EQUAL(ml::core::CMemory::dynamicSize(&str2), ptr2.actualMemoryUsage());
     }
 }
 
@@ -109,9 +109,9 @@ BOOST_AUTO_TEST_CASE(testHash) {
     ml::core::CStoredStringPtr key = ml::core::CStoredStringPtr::makeStoredString("key");
 
     TStoredStringPtrUSet s;
-    BOOST_TEST(s.insert(key).second);
+    BOOST_TEST_REQUIRE(s.insert(key).second);
 
-    BOOST_CHECK_EQUAL(std::size_t(1), s.count(key));
+    BOOST_REQUIRE_EQUAL(std::size_t(1), s.count(key));
 }
 
 BOOST_AUTO_TEST_SUITE_END()

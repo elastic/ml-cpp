@@ -146,7 +146,7 @@ void importData(core_t::TTime firstTime,
                 const std::string& fileName,
                 model::CAnomalyDetector& detector) {
     test::CTimeSeriesTestData::TTimeDoublePrVec timeData;
-    BOOST_TEST(test::CTimeSeriesTestData::parse(fileName, timeData));
+    BOOST_TEST_REQUIRE(test::CTimeSeriesTestData::parse(fileName, timeData));
 
     core_t::TTime lastBucketTime = maths::CIntegerTools::ceil(firstTime, bucketLength);
 
@@ -177,14 +177,14 @@ void importCsvData(core_t::TTime firstTime,
                    model::CAnomalyDetector& detector) {
     using TifstreamPtr = std::shared_ptr<std::ifstream>;
     TifstreamPtr ifs(new std::ifstream(fileName.c_str()));
-    BOOST_TEST(ifs->is_open());
+    BOOST_TEST_REQUIRE(ifs->is_open());
 
     core::CRegex regex;
-    BOOST_TEST(regex.init(","));
+    BOOST_TEST_REQUIRE(regex.init(","));
 
     std::string line;
     // read the header
-    BOOST_TEST(std::getline(*ifs, line));
+    BOOST_TEST_REQUIRE(std::getline(*ifs, line));
 
     core_t::TTime lastBucketTime = firstTime;
 
@@ -194,7 +194,7 @@ void importCsvData(core_t::TTime firstTime,
         regex.split(line, tokens);
 
         core_t::TTime time{0};
-        BOOST_TEST(core::CStringUtils::stringToType(tokens[0], time));
+        BOOST_TEST_REQUIRE(core::CStringUtils::stringToType(tokens[0], time));
 
         for (/**/; lastBucketTime + bucketLength <= time; lastBucketTime += bucketLength) {
             outputResults(detector, lastBucketTime, lastBucketTime + bucketLength);
@@ -292,7 +292,7 @@ BOOST_AUTO_TEST_CASE(testAnomalies) {
         for (std::size_t j = 0u; j < highAnomalyTimes.size(); ++j) {
             LOG_DEBUG(<< "Testing " << core::CContainerPrinter::print(highAnomalyTimes[j])
                       << ' ' << highAnomalyFactors[j]);
-            BOOST_TEST((doIntersect(highAnomalyTimes[j], ANOMALOUS_INTERVALS[0]) ||
+            BOOST_TEST_REQUIRE((doIntersect(highAnomalyTimes[j], ANOMALOUS_INTERVALS[0]) ||
                         doIntersect(highAnomalyTimes[j], ANOMALOUS_INTERVALS[1])));
         }
 
@@ -302,7 +302,7 @@ BOOST_AUTO_TEST_CASE(testAnomalies) {
             double noise = std::accumulate(anomalyFactors.begin(),
                                            anomalyFactors.end(), 0.0);
             LOG_DEBUG(<< "S/N = " << (signal / noise));
-            BOOST_TEST(signal / noise > 33.0);
+            BOOST_TEST_REQUIRE(signal / noise > 33.0);
         }
 
         // Find the high/low rate partition point.
@@ -332,7 +332,7 @@ BOOST_AUTO_TEST_CASE(testAnomalies) {
     LOG_DEBUG(<< "high rate noise = " << highRateNoise << ", low rate noise = " << lowRateNoise);
 
     // We don't have significantly more noise in the low rate channel.
-    BOOST_TEST(std::fabs((1.0 + lowRateNoise) / (1.0 + highRateNoise) - 1.0) < 0.1);
+    BOOST_TEST_REQUIRE(std::fabs((1.0 + lowRateNoise) / (1.0 + highRateNoise) - 1.0) < 0.1);
 }
 
 BOOST_AUTO_TEST_CASE(testPersist) {
@@ -369,9 +369,9 @@ BOOST_AUTO_TEST_CASE(testPersist) {
                                              0, modelConfig.factory(key));
     {
         core::CRapidXmlParser parser;
-        BOOST_TEST(parser.parseStringIgnoreCdata(origXml));
+        BOOST_TEST_REQUIRE(parser.parseStringIgnoreCdata(origXml));
         core::CRapidXmlStateRestoreTraverser traverser(parser);
-        BOOST_TEST(traverser.traverseSubLevel(
+        BOOST_TEST_REQUIRE(traverser.traverseSubLevel(
             std::bind(&model::CAnomalyDetector::acceptRestoreTraverser,
                       &restoredDetector, EMPTY_STRING, std::placeholders::_1)));
     }
@@ -383,7 +383,7 @@ BOOST_AUTO_TEST_CASE(testPersist) {
         restoredDetector.acceptPersistInserter(inserter);
         inserter.toXml(newXml);
     }
-    BOOST_CHECK_EQUAL(origXml, newXml);
+    BOOST_REQUIRE_EQUAL(origXml, newXml);
 }
 
 BOOST_AUTO_TEST_CASE(testExcludeFrequent) {
@@ -415,8 +415,8 @@ BOOST_AUTO_TEST_CASE(testExcludeFrequent) {
                   << core::CContainerPrinter::print(highAnomalyFactors));
 
         // expect there to be 2 anomalies
-        BOOST_CHECK_EQUAL(std::size_t(2), highAnomalyTimes.size());
-        BOOST_CHECK_CLOSE_ABSOLUTE(92.0, highAnomalyFactors[1], 2.0);
+        BOOST_REQUIRE_EQUAL(std::size_t(2), highAnomalyTimes.size());
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(92.0, highAnomalyFactors[1], 2.0);
     }
     {
         model::CAnomalyDetectorModelConfig modelConfig =
@@ -443,8 +443,8 @@ BOOST_AUTO_TEST_CASE(testExcludeFrequent) {
                   << core::CContainerPrinter::print(highAnomalyFactors));
 
         // expect there to be 1 anomaly
-        BOOST_CHECK_EQUAL(std::size_t(1), highAnomalyTimes.size());
-        BOOST_CHECK_CLOSE_ABSOLUTE(12.0, highAnomalyFactors[0], 2.0);
+        BOOST_REQUIRE_EQUAL(std::size_t(1), highAnomalyTimes.size());
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(12.0, highAnomalyFactors[0], 2.0);
     }
 }
 

@@ -22,11 +22,11 @@ BOOST_AUTO_TEST_CASE(testStringOutput) {
     overrideDataRowFields["normalized_score"] = "3.3";
 
     ml::api::CNdJsonOutputWriter writer;
-    BOOST_TEST(writer.writeRow(dataRowFields, overrideDataRowFields));
+    BOOST_TEST_REQUIRE(writer.writeRow(dataRowFields, overrideDataRowFields));
 
     const std::string& output = writer.internalString();
 
-    BOOST_CHECK_EQUAL(
+    BOOST_REQUIRE_EQUAL(
         std::string("{\"probability\":\"0.01\",\"normalized_score\":\"3.3\"}\n"), output);
 }
 
@@ -38,11 +38,11 @@ BOOST_AUTO_TEST_CASE(testNumericOutput) {
     overrideDataRowFields["normalized_score"] = "3.3";
 
     ml::api::CNdJsonOutputWriter writer({"probability", "normalized_score"});
-    BOOST_TEST(writer.writeRow(dataRowFields, overrideDataRowFields));
+    BOOST_TEST_REQUIRE(writer.writeRow(dataRowFields, overrideDataRowFields));
 
     const std::string& output = writer.internalString();
 
-    BOOST_CHECK_EQUAL(std::string("{\"probability\":0.01,\"normalized_score\":3.3}\n"), output);
+    BOOST_REQUIRE_EQUAL(std::string("{\"probability\":0.01,\"normalized_score\":3.3}\n"), output);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

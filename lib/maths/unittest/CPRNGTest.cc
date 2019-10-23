@@ -35,9 +35,9 @@ BOOST_AUTO_TEST_CASE(testSplitMix64) {
         max.add(x);
     }
     LOG_DEBUG(<< "min = " << min[0] << ", max = " << max[0]);
-    BOOST_TEST(min[0] <
+    BOOST_TEST_REQUIRE(min[0] <
                (maths::CPRNG::CSplitMix64::max() - maths::CPRNG::CSplitMix64::min()) / 2000);
-    BOOST_TEST(max[0] >
+    BOOST_TEST_REQUIRE(max[0] >
                maths::CPRNG::CSplitMix64::max() -
                    (maths::CPRNG::CSplitMix64::max() - maths::CPRNG::CSplitMix64::min()) / 2000);
 
@@ -49,7 +49,7 @@ BOOST_AUTO_TEST_CASE(testSplitMix64) {
     for (std::size_t i = 0u; i < 50; ++i) {
         samples2[i] = rng2();
     }
-    BOOST_TEST(std::equal(&samples1[0], &samples1[50], &samples2[0]));
+    BOOST_TEST_REQUIRE(std::equal(&samples1[0], &samples1[50], &samples2[0]));
 
     // Test distribution.
     {
@@ -74,7 +74,7 @@ BOOST_AUTO_TEST_CASE(testSplitMix64) {
         LOG_DEBUG(<< "p2 = " << core::CContainerPrinter::print(p2));
         LOG_DEBUG(<< "m1 = " << maths::CBasicStatistics::mean(m1));
         LOG_DEBUG(<< "m2 = " << maths::CBasicStatistics::mean(m2));
-        BOOST_TEST(maths::CBasicStatistics::mean(m1) >
+        BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(m1) >
                    0.95 * maths::CBasicStatistics::mean(m2));
     }
     {
@@ -100,7 +100,7 @@ BOOST_AUTO_TEST_CASE(testSplitMix64) {
         LOG_DEBUG(<< "p2 = " << core::CContainerPrinter::print(p2));
         LOG_DEBUG(<< "m1 = " << maths::CBasicStatistics::mean(m1));
         LOG_DEBUG(<< "m2 = " << maths::CBasicStatistics::mean(m2));
-        BOOST_TEST(maths::CBasicStatistics::mean(m1) >
+        BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(m1) >
                    0.95 * maths::CBasicStatistics::mean(m2));
     }
 
@@ -111,16 +111,16 @@ BOOST_AUTO_TEST_CASE(testSplitMix64) {
         rng3();
     }
     for (std::size_t t = 0u; t < 500; ++t) {
-        BOOST_CHECK_EQUAL(rng1(), rng3());
+        BOOST_REQUIRE_EQUAL(rng1(), rng3());
     }
 
     // Test serialization.
     std::string state = rng1.toString();
     LOG_DEBUG(<< "state = " << state);
     maths::CPRNG::CSplitMix64 rng4;
-    BOOST_TEST(rng4.fromString(state));
+    BOOST_TEST_REQUIRE(rng4.fromString(state));
     for (std::size_t t = 0u; t < 500; ++t) {
-        BOOST_CHECK_EQUAL(rng1(), rng4());
+        BOOST_REQUIRE_EQUAL(rng1(), rng4());
     }
 }
 
@@ -139,10 +139,10 @@ BOOST_AUTO_TEST_CASE(testXorOShiro128Plus) {
         max.add(x);
     }
     LOG_DEBUG(<< "min = " << min[0] << ", max = " << max[0]);
-    BOOST_TEST(min[0] < (maths::CPRNG::CXorOShiro128Plus::max() -
+    BOOST_TEST_REQUIRE(min[0] < (maths::CPRNG::CXorOShiro128Plus::max() -
                          maths::CPRNG::CXorOShiro128Plus::min()) /
                             2000);
-    BOOST_TEST(max[0] > maths::CPRNG::CXorOShiro128Plus::max() -
+    BOOST_TEST_REQUIRE(max[0] > maths::CPRNG::CXorOShiro128Plus::max() -
                             (maths::CPRNG::CXorOShiro128Plus::max() -
                              maths::CPRNG::CXorOShiro128Plus::min()) /
                                 2000);
@@ -155,7 +155,7 @@ BOOST_AUTO_TEST_CASE(testXorOShiro128Plus) {
     for (std::size_t i = 0u; i < 50; ++i) {
         samples2[i] = rng2();
     }
-    BOOST_TEST(std::equal(&samples1[0], &samples1[50], &samples2[0]));
+    BOOST_TEST_REQUIRE(std::equal(&samples1[0], &samples1[50], &samples2[0]));
 
     // Test distribution.
     {
@@ -180,7 +180,7 @@ BOOST_AUTO_TEST_CASE(testXorOShiro128Plus) {
         LOG_DEBUG(<< "p2 = " << core::CContainerPrinter::print(p2));
         LOG_DEBUG(<< "m1 = " << maths::CBasicStatistics::mean(m1));
         LOG_DEBUG(<< "m2 = " << maths::CBasicStatistics::mean(m2));
-        BOOST_TEST(maths::CBasicStatistics::mean(m1) >
+        BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(m1) >
                    0.95 * maths::CBasicStatistics::mean(m2));
     }
     {
@@ -206,7 +206,7 @@ BOOST_AUTO_TEST_CASE(testXorOShiro128Plus) {
         LOG_DEBUG(<< "p2 = " << core::CContainerPrinter::print(p2));
         LOG_DEBUG(<< "m1 = " << maths::CBasicStatistics::mean(m1));
         LOG_DEBUG(<< "m2 = " << maths::CBasicStatistics::mean(m2));
-        BOOST_TEST(maths::CBasicStatistics::mean(m1) >
+        BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(m1) >
                    0.95 * maths::CBasicStatistics::mean(m2));
     }
 
@@ -217,7 +217,7 @@ BOOST_AUTO_TEST_CASE(testXorOShiro128Plus) {
         rng3();
     }
     for (std::size_t t = 0u; t < 500; ++t) {
-        BOOST_CHECK_EQUAL(rng1(), rng3());
+        BOOST_REQUIRE_EQUAL(rng1(), rng3());
     }
 
     // Test jump. This is difficult to test since the equivalent
@@ -233,16 +233,16 @@ BOOST_AUTO_TEST_CASE(testXorOShiro128Plus) {
         rng5.discard(steps[s]);
         rng5.jump();
         for (std::size_t t = 0u; t < 20; ++t) {
-            BOOST_CHECK_EQUAL(rng4(), rng5());
+            BOOST_REQUIRE_EQUAL(rng4(), rng5());
         }
     }
 
     // Test serialization.
     std::string state = rng1.toString();
     LOG_DEBUG(<< "state = " << state);
-    BOOST_TEST(rng4.fromString(state));
+    BOOST_TEST_REQUIRE(rng4.fromString(state));
     for (std::size_t t = 0u; t < 500; ++t) {
-        BOOST_CHECK_EQUAL(rng1(), rng4());
+        BOOST_REQUIRE_EQUAL(rng1(), rng4());
     }
 }
 
@@ -261,10 +261,10 @@ BOOST_AUTO_TEST_CASE(testXorShift1024Mult) {
         max.add(x);
     }
     LOG_DEBUG(<< "min = " << min[0] << ", max = " << max[0]);
-    BOOST_TEST(min[0] < (maths::CPRNG::CXorShift1024Mult::max() -
+    BOOST_TEST_REQUIRE(min[0] < (maths::CPRNG::CXorShift1024Mult::max() -
                          maths::CPRNG::CXorShift1024Mult::min()) /
                             2000);
-    BOOST_TEST(max[0] > maths::CPRNG::CXorShift1024Mult::max() -
+    BOOST_TEST_REQUIRE(max[0] > maths::CPRNG::CXorShift1024Mult::max() -
                             (maths::CPRNG::CXorShift1024Mult::max() -
                              maths::CPRNG::CXorShift1024Mult::min()) /
                                 2000);
@@ -277,7 +277,7 @@ BOOST_AUTO_TEST_CASE(testXorShift1024Mult) {
     for (std::size_t i = 0u; i < 50; ++i) {
         samples2[i] = rng2();
     }
-    BOOST_TEST(std::equal(&samples1[0], &samples1[50], &samples2[0]));
+    BOOST_TEST_REQUIRE(std::equal(&samples1[0], &samples1[50], &samples2[0]));
 
     // Test distribution.
     {
@@ -302,7 +302,7 @@ BOOST_AUTO_TEST_CASE(testXorShift1024Mult) {
         LOG_DEBUG(<< "p2 = " << core::CContainerPrinter::print(p2));
         LOG_DEBUG(<< "m1 = " << maths::CBasicStatistics::mean(m1));
         LOG_DEBUG(<< "m2 = " << maths::CBasicStatistics::mean(m2));
-        BOOST_TEST(maths::CBasicStatistics::mean(m1) >
+        BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(m1) >
                    0.95 * maths::CBasicStatistics::mean(m2));
     }
     {
@@ -328,7 +328,7 @@ BOOST_AUTO_TEST_CASE(testXorShift1024Mult) {
         LOG_DEBUG(<< "p2 = " << core::CContainerPrinter::print(p2));
         LOG_DEBUG(<< "m1 = " << maths::CBasicStatistics::mean(m1));
         LOG_DEBUG(<< "m2 = " << maths::CBasicStatistics::mean(m2));
-        BOOST_TEST(maths::CBasicStatistics::mean(m1) >
+        BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(m1) >
                    0.95 * maths::CBasicStatistics::mean(m2));
     }
 
@@ -339,7 +339,7 @@ BOOST_AUTO_TEST_CASE(testXorShift1024Mult) {
         rng3();
     }
     for (std::size_t t = 0u; t < 500; ++t) {
-        BOOST_CHECK_EQUAL(rng1(), rng3());
+        BOOST_REQUIRE_EQUAL(rng1(), rng3());
     }
 
     // Test jump. This is difficult to test since the equivalent
@@ -355,7 +355,7 @@ BOOST_AUTO_TEST_CASE(testXorShift1024Mult) {
         rng5.discard(steps[s]);
         rng5.jump();
         for (std::size_t t = 0u; t < 20; ++t) {
-            BOOST_CHECK_EQUAL(rng4(), rng5());
+            BOOST_REQUIRE_EQUAL(rng4(), rng5());
         }
     }
 
@@ -363,9 +363,9 @@ BOOST_AUTO_TEST_CASE(testXorShift1024Mult) {
     rng1();
     std::string state = rng1.toString();
     LOG_DEBUG(<< "state = " << state);
-    BOOST_TEST(rng4.fromString(state));
+    BOOST_TEST_REQUIRE(rng4.fromString(state));
     for (std::size_t t = 0u; t < 500; ++t) {
-        BOOST_CHECK_EQUAL(rng1(), rng4());
+        BOOST_REQUIRE_EQUAL(rng1(), rng4());
     }
 }
 

@@ -80,76 +80,76 @@ BOOST_AUTO_TEST_CASE(testPersistAndRestore) {
         model_t::EFeature restoredFeature;
 
         // test timeSeriesModel
-        BOOST_TEST(restorer.nextModel(restoredModel, firstDataTime, lastDataTime,
+        BOOST_TEST_REQUIRE(restorer.nextModel(restoredModel, firstDataTime, lastDataTime,
                                       restoredFeature, restoredByFieldValue));
 
-        BOOST_TEST(restoredModel);
-        BOOST_CHECK_EQUAL(model_t::EFeature::E_IndividualCountByBucketAndPerson, restoredFeature);
-        BOOST_CHECK_EQUAL(core_t::TTime(10), firstDataTime);
-        BOOST_CHECK_EQUAL(core_t::TTime(50), lastDataTime);
-        BOOST_CHECK_EQUAL(std::string("some_by_field"), restoredByFieldValue);
-        BOOST_CHECK_EQUAL(bucketLength, restoredModel->params().bucketLength());
-        BOOST_CHECK_EQUAL(size_t(1), restoredModel->identifier());
-        BOOST_CHECK_EQUAL(maths_t::E_ContinuousData, restoredModel->dataType());
+        BOOST_TEST_REQUIRE(restoredModel);
+        BOOST_REQUIRE_EQUAL(model_t::EFeature::E_IndividualCountByBucketAndPerson, restoredFeature);
+        BOOST_REQUIRE_EQUAL(core_t::TTime(10), firstDataTime);
+        BOOST_REQUIRE_EQUAL(core_t::TTime(50), lastDataTime);
+        BOOST_REQUIRE_EQUAL(std::string("some_by_field"), restoredByFieldValue);
+        BOOST_REQUIRE_EQUAL(bucketLength, restoredModel->params().bucketLength());
+        BOOST_REQUIRE_EQUAL(size_t(1), restoredModel->identifier());
+        BOOST_REQUIRE_EQUAL(maths_t::E_ContinuousData, restoredModel->dataType());
 
         CForecastModelPersist::TMathsModelPtr timeSeriesModelForForecast{
             timeSeriesModel.cloneForForecast()};
-        BOOST_CHECK_EQUAL(timeSeriesModelForForecast->params().learnRate(),
+        BOOST_REQUIRE_EQUAL(timeSeriesModelForForecast->params().learnRate(),
                           restoredModel->params().learnRate());
-        BOOST_CHECK_EQUAL(params.s_DecayRate, restoredModel->params().decayRate());
-        BOOST_CHECK_EQUAL(minimumSeasonalVarianceScale,
+        BOOST_REQUIRE_EQUAL(params.s_DecayRate, restoredModel->params().decayRate());
+        BOOST_REQUIRE_EQUAL(minimumSeasonalVarianceScale,
                           restoredModel->params().minimumSeasonalVarianceScale());
-        BOOST_CHECK_EQUAL(params.s_MinimumTimeToDetectChange,
+        BOOST_REQUIRE_EQUAL(params.s_MinimumTimeToDetectChange,
                           restoredModel->params().minimumTimeToDetectChange());
-        BOOST_CHECK_EQUAL(params.s_MaximumTimeToTestForChange,
+        BOOST_REQUIRE_EQUAL(params.s_MaximumTimeToTestForChange,
                           restoredModel->params().maximumTimeToTestForChange());
-        BOOST_CHECK_EQUAL(timeSeriesModelForForecast->checksum(42),
+        BOOST_REQUIRE_EQUAL(timeSeriesModelForForecast->checksum(42),
                           restoredModel->checksum(42));
 
         // test otherTimeSeriesModel
         restoredModel.reset();
-        BOOST_TEST(restorer.nextModel(restoredModel, firstDataTime, lastDataTime,
+        BOOST_TEST_REQUIRE(restorer.nextModel(restoredModel, firstDataTime, lastDataTime,
                                       restoredFeature, restoredByFieldValue));
-        BOOST_TEST(restoredModel);
-        BOOST_CHECK_EQUAL(core_t::TTime(5), firstDataTime);
-        BOOST_CHECK_EQUAL(core_t::TTime(45), lastDataTime);
-        BOOST_CHECK_EQUAL(model_t::EFeature::E_IndividualLowMeanByPerson, restoredFeature);
-        BOOST_CHECK_EQUAL(std::string("some_other_by_field"), restoredByFieldValue);
-        BOOST_CHECK_EQUAL(bucketLength, restoredModel->params().bucketLength());
-        BOOST_CHECK_EQUAL(size_t(2), restoredModel->identifier());
-        BOOST_CHECK_EQUAL(maths_t::E_MixedData, restoredModel->dataType());
+        BOOST_TEST_REQUIRE(restoredModel);
+        BOOST_REQUIRE_EQUAL(core_t::TTime(5), firstDataTime);
+        BOOST_REQUIRE_EQUAL(core_t::TTime(45), lastDataTime);
+        BOOST_REQUIRE_EQUAL(model_t::EFeature::E_IndividualLowMeanByPerson, restoredFeature);
+        BOOST_REQUIRE_EQUAL(std::string("some_other_by_field"), restoredByFieldValue);
+        BOOST_REQUIRE_EQUAL(bucketLength, restoredModel->params().bucketLength());
+        BOOST_REQUIRE_EQUAL(size_t(2), restoredModel->identifier());
+        BOOST_REQUIRE_EQUAL(maths_t::E_MixedData, restoredModel->dataType());
         CForecastModelPersist::TMathsModelPtr otherTimeSeriesModelForForecast{
             otherTimeSeriesModel.cloneForForecast()};
-        BOOST_CHECK_EQUAL(otherTimeSeriesModelForForecast->params().learnRate(),
+        BOOST_REQUIRE_EQUAL(otherTimeSeriesModelForForecast->params().learnRate(),
                           restoredModel->params().learnRate());
-        BOOST_CHECK_EQUAL(params.s_DecayRate, restoredModel->params().decayRate());
-        BOOST_CHECK_EQUAL(minimumSeasonalVarianceScale,
+        BOOST_REQUIRE_EQUAL(params.s_DecayRate, restoredModel->params().decayRate());
+        BOOST_REQUIRE_EQUAL(minimumSeasonalVarianceScale,
                           restoredModel->params().minimumSeasonalVarianceScale());
-        BOOST_CHECK_EQUAL(params.s_MinimumTimeToDetectChange,
+        BOOST_REQUIRE_EQUAL(params.s_MinimumTimeToDetectChange,
                           restoredModel->params().minimumTimeToDetectChange());
-        BOOST_CHECK_EQUAL(params.s_MaximumTimeToTestForChange,
+        BOOST_REQUIRE_EQUAL(params.s_MaximumTimeToTestForChange,
                           restoredModel->params().maximumTimeToTestForChange());
-        BOOST_CHECK_EQUAL(otherTimeSeriesModelForForecast->checksum(42),
+        BOOST_REQUIRE_EQUAL(otherTimeSeriesModelForForecast->checksum(42),
                           restoredModel->checksum(42));
 
         // test otherTimeSeriesModelEmptyByField
         restoredModel.reset();
-        BOOST_TEST(restorer.nextModel(restoredModel, firstDataTime, lastDataTime,
+        BOOST_TEST_REQUIRE(restorer.nextModel(restoredModel, firstDataTime, lastDataTime,
                                       restoredFeature, restoredByFieldValue));
-        BOOST_TEST(restoredModel);
-        BOOST_CHECK_EQUAL(core_t::TTime(25), firstDataTime);
-        BOOST_CHECK_EQUAL(core_t::TTime(65), lastDataTime);
-        BOOST_CHECK_EQUAL(model_t::EFeature::E_IndividualHighMedianByPerson, restoredFeature);
-        BOOST_CHECK_EQUAL(std::string(), restoredByFieldValue);
-        BOOST_CHECK_EQUAL(bucketLength, restoredModel->params().bucketLength());
-        BOOST_CHECK_EQUAL(size_t(3), restoredModel->identifier());
-        BOOST_CHECK_EQUAL(maths_t::E_DiscreteData, restoredModel->dataType());
+        BOOST_TEST_REQUIRE(restoredModel);
+        BOOST_REQUIRE_EQUAL(core_t::TTime(25), firstDataTime);
+        BOOST_REQUIRE_EQUAL(core_t::TTime(65), lastDataTime);
+        BOOST_REQUIRE_EQUAL(model_t::EFeature::E_IndividualHighMedianByPerson, restoredFeature);
+        BOOST_REQUIRE_EQUAL(std::string(), restoredByFieldValue);
+        BOOST_REQUIRE_EQUAL(bucketLength, restoredModel->params().bucketLength());
+        BOOST_REQUIRE_EQUAL(size_t(3), restoredModel->identifier());
+        BOOST_REQUIRE_EQUAL(maths_t::E_DiscreteData, restoredModel->dataType());
         CForecastModelPersist::TMathsModelPtr otherTimeSeriesModelEmptyByFieldForForecast{
             otherTimeSeriesModelEmptyByField.cloneForForecast()};
-        BOOST_CHECK_EQUAL(otherTimeSeriesModelEmptyByFieldForForecast->checksum(42),
+        BOOST_REQUIRE_EQUAL(otherTimeSeriesModelEmptyByFieldForForecast->checksum(42),
                           restoredModel->checksum(42));
 
-        BOOST_TEST(!restorer.nextModel(restoredModel, firstDataTime, lastDataTime,
+        BOOST_TEST_REQUIRE(!restorer.nextModel(restoredModel, firstDataTime, lastDataTime,
                                        restoredFeature, restoredByFieldValue));
     }
     std::remove(persistedModels.c_str());
@@ -171,7 +171,7 @@ BOOST_AUTO_TEST_CASE(testPersistAndRestoreEmpty) {
         std::string restoredByFieldValue;
         model_t::EFeature restoredFeature;
 
-        BOOST_TEST(!restorer.nextModel(restoredModel, firstDataTime, lastDataTime,
+        BOOST_TEST_REQUIRE(!restorer.nextModel(restoredModel, firstDataTime, lastDataTime,
                                        restoredFeature, restoredByFieldValue));
     }
     std::remove(persistedModels.c_str());

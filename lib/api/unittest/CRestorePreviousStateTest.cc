@@ -107,7 +107,7 @@ BOOST_AUTO_TEST_CASE(testRestoreNormalizer) {
             ml::model::CAnomalyDetectorModelConfig::defaultConfig(3600);
         ml::api::CCsvOutputWriter outputWriter;
         ml::api::CResultNormalizer normalizer(modelConfig, outputWriter);
-        BOOST_TEST(normalizer.initNormalizer(
+        BOOST_TEST_REQUIRE(normalizer.initNormalizer(
             "testfiles/state/" + version.s_Version + "/normalizer_state.json"));
     }
 }
@@ -131,7 +131,7 @@ void CRestorePreviousStateTest::categorizerRestoreHelper(const std::string& stat
     ml::api::CFieldDataTyper restoredTyper("job", config, limits, writer, writer);
 
     std::ifstream inputStrm(stateFile.c_str());
-    BOOST_TEST(inputStrm.is_open());
+    BOOST_TEST_REQUIRE(inputStrm.is_open());
     std::string origPersistedState(std::istreambuf_iterator<char>{inputStrm},
                                    std::istreambuf_iterator<char>{});
 
@@ -145,7 +145,7 @@ void CRestorePreviousStateTest::categorizerRestoreHelper(const std::string& stat
         inputStrm.seekg(0);
         strm->push(inputStrm);
         ml::api::CSingleStreamSearcher retriever(strm);
-        BOOST_TEST(restoredTyper.restoreState(retriever, completeToTime));
+        BOOST_TEST_REQUIRE(restoredTyper.restoreState(retriever, completeToTime));
     }
 
     if (isSymmetric) {
@@ -156,10 +156,10 @@ void CRestorePreviousStateTest::categorizerRestoreHelper(const std::string& stat
             std::ostringstream* strm(nullptr);
             ml::api::CSingleStreamDataAdder::TOStreamP ptr(strm = new std::ostringstream());
             ml::api::CSingleStreamDataAdder persister(ptr);
-            BOOST_TEST(restoredTyper.persistState(persister, ""));
+            BOOST_TEST_REQUIRE(restoredTyper.persistState(persister, ""));
             newPersistedState = strm->str();
         }
-        BOOST_CHECK_EQUAL(this->stripDocIds(origPersistedState),
+        BOOST_REQUIRE_EQUAL(this->stripDocIds(origPersistedState),
                           this->stripDocIds(newPersistedState));
     }
 }
@@ -170,7 +170,7 @@ void CRestorePreviousStateTest::anomalyDetectorRestoreHelper(const std::string& 
                                                              int latencyBuckets) {
     // Open the input state file
     std::ifstream inputStrm(stateFile.c_str());
-    BOOST_TEST(inputStrm.is_open());
+    BOOST_TEST_REQUIRE(inputStrm.is_open());
     std::string origPersistedState(std::istreambuf_iterator<char>{inputStrm},
                                    std::istreambuf_iterator<char>{});
 
@@ -180,14 +180,14 @@ void CRestorePreviousStateTest::anomalyDetectorRestoreHelper(const std::string& 
 
     ml::model::CLimits limits;
     ml::api::CFieldConfig fieldConfig;
-    BOOST_TEST(fieldConfig.initFromFile(configFileName));
+    BOOST_TEST_REQUIRE(fieldConfig.initFromFile(configFileName));
 
     ml::model::CAnomalyDetectorModelConfig modelConfig =
         ml::model::CAnomalyDetectorModelConfig::defaultConfig(
             BUCKET_SIZE, ml::model_t::E_None, "", BUCKET_SIZE * latencyBuckets, false);
 
     std::ofstream outputStrm(ml::core::COsFileFuncs::NULL_FILENAME);
-    BOOST_TEST(outputStrm.is_open());
+    BOOST_TEST_REQUIRE(outputStrm.is_open());
 
     ml::core::CJsonOutputStreamWrapper wrappedOutputStream(outputStrm);
 
@@ -214,8 +214,8 @@ void CRestorePreviousStateTest::anomalyDetectorRestoreHelper(const std::string& 
             in.component<ml::api::CStateRestoreStreamFilter>(0)->getDocCount();
 
         ml::api::CSingleStreamSearcher retriever(strm);
-        BOOST_TEST(restoredJob.restoreState(retriever, completeToTime));
-        BOOST_TEST(completeToTime > 0);
+        BOOST_TEST_REQUIRE(restoredJob.restoreState(retriever, completeToTime));
+        BOOST_TEST_REQUIRE(completeToTime > 0);
     }
 
     if (isSymmetric) {
@@ -226,12 +226,12 @@ void CRestorePreviousStateTest::anomalyDetectorRestoreHelper(const std::string& 
             std::ostringstream* strm(nullptr);
             ml::api::CSingleStreamDataAdder::TOStreamP ptr(strm = new std::ostringstream());
             ml::api::CSingleStreamDataAdder persister(ptr);
-            BOOST_TEST(restoredJob.persistState(persister, ""));
+            BOOST_TEST_REQUIRE(restoredJob.persistState(persister, ""));
             newPersistedState = strm->str();
         }
 
-        BOOST_CHECK_EQUAL(numRestoredDocs, numDocsInStateFile);
-        BOOST_CHECK_EQUAL(this->stripDocIds(origPersistedState),
+        BOOST_REQUIRE_EQUAL(numRestoredDocs, numDocsInStateFile);
+        BOOST_REQUIRE_EQUAL(this->stripDocIds(origPersistedState),
                           this->stripDocIds(newPersistedState));
     }
 }

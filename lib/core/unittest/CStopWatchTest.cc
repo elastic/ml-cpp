@@ -28,8 +28,8 @@ BOOST_AUTO_TEST_CASE(testStopWatch) {
     LOG_DEBUG(<< "After a 5.5 second wait, the stop watch reads " << elapsed << " milliseconds");
 
     // Elapsed time should be between 5.4 and 5.6 seconds
-    BOOST_TEST(elapsed >= 5400);
-    BOOST_TEST(elapsed <= 5600);
+    BOOST_TEST_REQUIRE(elapsed >= 5400);
+    BOOST_TEST_REQUIRE(elapsed <= 5600);
 
     ml::core::CSleep::sleep(3500);
 
@@ -39,8 +39,8 @@ BOOST_AUTO_TEST_CASE(testStopWatch) {
               << elapsed << " milliseconds");
 
     // Elapsed time should be between 8.9 and 9.1 seconds
-    BOOST_TEST(elapsed >= 8900);
-    BOOST_TEST(elapsed <= 9100);
+    BOOST_TEST_REQUIRE(elapsed >= 8900);
+    BOOST_TEST_REQUIRE(elapsed <= 9100);
 
     // The stop watch should not count this time, as it's stopped
     ml::core::CSleep::sleep(2000);
@@ -57,8 +57,8 @@ BOOST_AUTO_TEST_CASE(testStopWatch) {
               << elapsed << " milliseconds");
 
     // Elapsed time should be between 9.4 and 9.6 seconds
-    BOOST_TEST(elapsed >= 9400);
-    BOOST_TEST(elapsed <= 9600);
+    BOOST_TEST_REQUIRE(elapsed >= 9400);
+    BOOST_TEST_REQUIRE(elapsed <= 9600);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

@@ -60,7 +60,7 @@ BOOST_AUTO_TEST_CASE(testQuadtratic) {
             x -= s * g(x);
         }
 
-        BOOST_TEST(fx < 0.02 * static_cast<double>(f(x)));
+        BOOST_TEST_REQUIRE(fx < 0.02 * static_cast<double>(f(x)));
     }
 
     // Check convergence to the minimum of a quadtratic form for a variety of
@@ -89,15 +89,15 @@ BOOST_AUTO_TEST_CASE(testQuadtratic) {
         double fx;
         for (double scale : {0.01, 1.0, 100.0}) {
             std::tie(x, fx) = lbfgs.minimize(f, g, scale * x0);
-            BOOST_CHECK_EQUAL(fx, static_cast<double>(f(x)));
-            BOOST_CHECK_CLOSE_ABSOLUTE(0.0, fx, 0.5 * scale * scale);
+            BOOST_REQUIRE_EQUAL(fx, static_cast<double>(f(x)));
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(0.0, fx, 0.5 * scale * scale);
         }
 
         std::tie(std::ignore, fx) = lbfgs.minimize(f, g, x0);
         fmean += fx / 1000.0;
     }
 
-    BOOST_CHECK_CLOSE_ABSOLUTE(0.0, fmean, 5e-3);
+    BOOST_REQUIRE_CLOSE_ABSOLUTE(0.0, fmean, 5e-3);
 }
 
 BOOST_AUTO_TEST_CASE(testSingularHessian) {
@@ -153,8 +153,8 @@ BOOST_AUTO_TEST_CASE(testSingularHessian) {
         eps.setZero();
         for (std::size_t j = 0; j < 10; ++j) {
             eps(j) = 0.2;
-            BOOST_TEST(f(x - eps) > fx);
-            BOOST_TEST(f(x + eps) > fx);
+            BOOST_TEST_REQUIRE(f(x - eps) > fx);
+            BOOST_TEST_REQUIRE(f(x + eps) > fx);
             eps(j) = 0.0;
         }
     }
@@ -218,13 +218,13 @@ BOOST_AUTO_TEST_CASE(testConstrainedMinimize) {
         double fx;
         std::tie(x, fx) = lbfgs.constrainedMinimize(f, g, a, b, x0, 0.2);
 
-        BOOST_CHECK_EQUAL(fx, static_cast<double>(f(x)));
-        BOOST_CHECK_CLOSE_ABSOLUTE(f(xmin), fx, 1e-3);
+        BOOST_REQUIRE_EQUAL(fx, static_cast<double>(f(x)));
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(f(xmin), fx, 1e-3);
 
         ferror += std::fabs(fx - f(xmin)) / 100.0;
     }
 
-    BOOST_CHECK_CLOSE_ABSOLUTE(0.0, ferror, 1e-5);
+    BOOST_REQUIRE_CLOSE_ABSOLUTE(0.0, ferror, 1e-5);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

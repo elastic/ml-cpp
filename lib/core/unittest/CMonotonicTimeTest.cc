@@ -26,8 +26,8 @@ BOOST_AUTO_TEST_CASE(testMilliseconds) {
               << diff << " milliseconds");
 
     // Allow 10% margin of error - this is as much for the sleep as the timer
-    BOOST_TEST(diff > 900);
-    BOOST_TEST(diff < 1100);
+    BOOST_TEST_REQUIRE(diff > 900);
+    BOOST_TEST_REQUIRE(diff < 1100);
 }
 
 BOOST_AUTO_TEST_CASE(testNanoseconds) {
@@ -44,8 +44,8 @@ BOOST_AUTO_TEST_CASE(testNanoseconds) {
               << diff << " nanoseconds");
 
     // Allow 10% margin of error - this is as much for the sleep as the timer
-    BOOST_TEST(diff > 900000000);
-    BOOST_TEST(diff < 1100000000);
+    BOOST_TEST_REQUIRE(diff > 900000000);
+    BOOST_TEST_REQUIRE(diff < 1100000000);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

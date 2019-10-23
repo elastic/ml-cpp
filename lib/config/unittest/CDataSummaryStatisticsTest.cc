@@ -53,7 +53,7 @@ BOOST_AUTO_TEST_CASE(testRate) {
         LOG_DEBUG(<< "earliest = " << summary.earliest()
                   << ", latest = " << summary.latest());
         LOG_DEBUG(<< "rate = " << summary.meanRate());
-        BOOST_CHECK_CLOSE_ABSOLUTE(rate[i], summary.meanRate(),
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(rate[i], summary.meanRate(),
                                    2.0 * rate[i] * rate[i] / n);
     }
 }
@@ -91,7 +91,7 @@ BOOST_AUTO_TEST_CASE(testCategoricalDistinctCount) {
         }
 
         LOG_DEBUG(<< "# categories = 1000000, distinct count = " << summary.distinctCount());
-        BOOST_CHECK_CLOSE_ABSOLUTE(
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(
             1000000.0, static_cast<double>(summary.distinctCount()), 0.005 * 1000000.0);
     }
 }
@@ -149,13 +149,13 @@ BOOST_AUTO_TEST_CASE(testCategoricalTopN) {
         double approx = static_cast<double>(topn[i].second);
         double error = std::fabs(exact - approx) / exact;
 
-        BOOST_CHECK_EQUAL(categories[freq[i]], topn[i].first);
-        BOOST_TEST(error < 0.05);
+        BOOST_REQUIRE_EQUAL(categories[freq[i]], topn[i].first);
+        BOOST_TEST_REQUIRE(error < 0.05);
         meanError.add(error);
     }
 
     LOG_DEBUG(<< "mean error = " << maths::CBasicStatistics::mean(meanError));
-    BOOST_TEST(maths::CBasicStatistics::mean(meanError) < 0.005);
+    BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(meanError) < 0.005);
 }
 
 BOOST_AUTO_TEST_CASE(testNumericBasicStatistics) {
@@ -170,9 +170,9 @@ BOOST_AUTO_TEST_CASE(testNumericBasicStatistics) {
             summary.add(static_cast<std::size_t>(i), core::CStringUtils::typeToString(i));
         }
 
-        BOOST_CHECK_EQUAL(0.0, summary.minimum());
-        BOOST_CHECK_EQUAL(250.0, summary.median());
-        BOOST_CHECK_EQUAL(500.0, summary.maximum());
+        BOOST_REQUIRE_EQUAL(0.0, summary.minimum());
+        BOOST_REQUIRE_EQUAL(250.0, summary.median());
+        BOOST_REQUIRE_EQUAL(500.0, summary.maximum());
     }
 
     test::CRandomNumbers rng;
@@ -193,9 +193,9 @@ BOOST_AUTO_TEST_CASE(testNumericBasicStatistics) {
             LOG_DEBUG(<< "minimum = " << summary.minimum());
             LOG_DEBUG(<< "median  = " << summary.median());
             LOG_DEBUG(<< "maximum = " << summary.maximum());
-            BOOST_CHECK_CLOSE_ABSOLUTE(-10.0, summary.minimum(), 0.15);
-            BOOST_CHECK_CLOSE_ABSOLUTE(20.0, summary.median(), 1.0);
-            BOOST_CHECK_CLOSE_ABSOLUTE(50.0, summary.maximum(), 0.15);
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(-10.0, summary.minimum(), 0.15);
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(20.0, summary.median(), 1.0);
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(50.0, summary.maximum(), 0.15);
         }
     }
 
@@ -220,14 +220,14 @@ BOOST_AUTO_TEST_CASE(testNumericBasicStatistics) {
             }
 
             LOG_DEBUG(<< "median  = " << summary.median());
-            BOOST_TEST(std::fabs(summary.median() - boost::math::median(lognormal)) < 0.25);
+            BOOST_TEST_REQUIRE(std::fabs(summary.median() - boost::math::median(lognormal)) < 0.25);
 
             meanError.add(std::fabs(summary.median() - boost::math::median(lognormal)) /
                           boost::math::median(lognormal));
         }
 
         LOG_DEBUG(<< "mean error = " << maths::CBasicStatistics::mean(meanError));
-        BOOST_TEST(maths::CBasicStatistics::mean(meanError) < 0.05);
+        BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(meanError) < 0.05);
     }
 }
 
@@ -269,7 +269,7 @@ BOOST_AUTO_TEST_CASE(testNumericDistribution) {
 
         LOG_DEBUG(<< "meanAbsError = " << maths::CBasicStatistics::mean(meanAbsError));
         LOG_DEBUG(<< "mean = " << maths::CBasicStatistics::mean(mean));
-        BOOST_TEST(maths::CBasicStatistics::mean(meanAbsError) /
+        BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(meanAbsError) /
                        maths::CBasicStatistics::mean(mean) <
                    0.3);
     }
@@ -323,8 +323,8 @@ BOOST_AUTO_TEST_CASE(testNumericDistribution) {
 
         LOG_DEBUG(<< "meanAbsError = " << maths::CBasicStatistics::mean(meanAbsError));
         LOG_DEBUG(<< "meanRelError = " << maths::CBasicStatistics::mean(meanRelError));
-        BOOST_TEST(maths::CBasicStatistics::mean(meanAbsError) < 0.005);
-        BOOST_TEST(maths::CBasicStatistics::mean(meanRelError) < 0.05);
+        BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(meanAbsError) < 0.005);
+        BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(meanRelError) < 0.05);
     }
 }
 

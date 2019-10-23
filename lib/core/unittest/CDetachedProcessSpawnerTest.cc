@@ -57,16 +57,16 @@ BOOST_AUTO_TEST_CASE(testSpawn) {
     ml::core::CDetachedProcessSpawner::TStrVec args(
         PROCESS_ARGS1, PROCESS_ARGS1 + boost::size(PROCESS_ARGS1));
 
-    BOOST_TEST(spawner.spawn(PROCESS_PATH1, args));
+    BOOST_TEST_REQUIRE(spawner.spawn(PROCESS_PATH1, args));
 
     // Expect the copy to complete in less than 1 second
     ml::core::CSleep::sleep(1000);
 
     ml::core::COsFileFuncs::TStat statBuf;
-    BOOST_CHECK_EQUAL(0, ml::core::COsFileFuncs::stat(OUTPUT_FILE.c_str(), &statBuf));
-    BOOST_CHECK_EQUAL(EXPECTED_FILE_SIZE, static_cast<size_t>(statBuf.st_size));
+    BOOST_REQUIRE_EQUAL(0, ml::core::COsFileFuncs::stat(OUTPUT_FILE.c_str(), &statBuf));
+    BOOST_REQUIRE_EQUAL(EXPECTED_FILE_SIZE, static_cast<size_t>(statBuf.st_size));
 
-    BOOST_CHECK_EQUAL(0, ::remove(OUTPUT_FILE.c_str()));
+    BOOST_REQUIRE_EQUAL(0, ::remove(OUTPUT_FILE.c_str()));
 }
 
 BOOST_AUTO_TEST_CASE(testKill) {
@@ -81,23 +81,23 @@ BOOST_AUTO_TEST_CASE(testKill) {
         PROCESS_ARGS2, PROCESS_ARGS2 + boost::size(PROCESS_ARGS2));
 
     ml::core::CProcess::TPid childPid = 0;
-    BOOST_TEST(spawner.spawn(PROCESS_PATH2, args, childPid));
+    BOOST_TEST_REQUIRE(spawner.spawn(PROCESS_PATH2, args, childPid));
 
-    BOOST_TEST(spawner.hasChild(childPid));
-    BOOST_TEST(spawner.terminateChild(childPid));
+    BOOST_TEST_REQUIRE(spawner.hasChild(childPid));
+    BOOST_TEST_REQUIRE(spawner.terminateChild(childPid));
 
     // The spawner should detect the death of the process within half a second
     ml::core::CSleep::sleep(500);
 
-    BOOST_TEST(!spawner.hasChild(childPid));
+    BOOST_TEST_REQUIRE(!spawner.hasChild(childPid));
 
     // We shouldn't be able to kill an already killed process
-    BOOST_TEST(!spawner.terminateChild(childPid));
+    BOOST_TEST_REQUIRE(!spawner.terminateChild(childPid));
 
     // We shouldn't be able to kill processes we didn't start
-    BOOST_TEST(!spawner.terminateChild(1));
-    BOOST_TEST(!spawner.terminateChild(0));
-    BOOST_TEST(!spawner.terminateChild(static_cast<ml::core::CProcess::TPid>(-1)));
+    BOOST_TEST_REQUIRE(!spawner.terminateChild(1));
+    BOOST_TEST_REQUIRE(!spawner.terminateChild(0));
+    BOOST_TEST_REQUIRE(!spawner.terminateChild(static_cast<ml::core::CProcess::TPid>(-1)));
 }
 
 BOOST_AUTO_TEST_CASE(testPermitted) {
@@ -105,7 +105,7 @@ BOOST_AUTO_TEST_CASE(testPermitted) {
     ml::core::CDetachedProcessSpawner spawner(permittedPaths);
 
     // Should fail as ml_test is not on the permitted processes list
-    BOOST_TEST(!spawner.spawn("./ml_test", ml::core::CDetachedProcessSpawner::TStrVec()));
+    BOOST_TEST_REQUIRE(!spawner.spawn("./ml_test", ml::core::CDetachedProcessSpawner::TStrVec()));
 }
 
 BOOST_AUTO_TEST_CASE(testNonExistent) {
@@ -113,7 +113,7 @@ BOOST_AUTO_TEST_CASE(testNonExistent) {
     ml::core::CDetachedProcessSpawner spawner(permittedPaths);
 
     // Should fail as even though it's a permitted process as the file doesn't exist
-    BOOST_TEST(!spawner.spawn("./does_not_exist",
+    BOOST_TEST_REQUIRE(!spawner.spawn("./does_not_exist",
                               ml::core::CDetachedProcessSpawner::TStrVec()));
 }
 

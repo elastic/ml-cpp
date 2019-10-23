@@ -73,8 +73,8 @@ struct SKdTreeDataInvariantsChecker {
             centroid += *node.s_RightChild->centroid();
         }
 
-        BOOST_CHECK_EQUAL(bb.print(), node.boundingBox().print());
-        BOOST_CHECK_EQUAL(maths::CBasicStatistics::print(centroid),
+        BOOST_REQUIRE_EQUAL(bb.print(), node.boundingBox().print());
+        BOOST_REQUIRE_EQUAL(maths::CBasicStatistics::print(centroid),
                           maths::CBasicStatistics::print(*node.centroid()));
     }
 };
@@ -106,7 +106,7 @@ public:
             filtered.end()) {
             LOG_DEBUG(<< "filtered = " << core::CContainerPrinter::print(filtered));
             LOG_DEBUG(<< "closest  = " << closest.print());
-            BOOST_TEST(false);
+            BOOST_TEST_REQUIRE(false);
         }
         if (filtered.size() > 1) {
             m_NumberAdmitted += filtered.size();
@@ -249,7 +249,7 @@ BOOST_AUTO_TEST_CASE(testFilter) {
                              static_cast<double>(centres.size()) /
                              static_cast<double>(numberAdmitted);
             LOG_DEBUG(<< "  speedup = " << speedup);
-            BOOST_TEST(speedup > 30.0);
+            BOOST_TEST_REQUIRE(speedup > 30.0);
         }
 
         {
@@ -275,7 +275,7 @@ BOOST_AUTO_TEST_CASE(testFilter) {
                              static_cast<double>(centres.size()) /
                              static_cast<double>(numberAdmitted);
             LOG_DEBUG(<< "  speedup = " << speedup);
-            BOOST_TEST(speedup > 5.5);
+            BOOST_TEST_REQUIRE(speedup > 5.5);
         }
     }
 }
@@ -321,7 +321,7 @@ BOOST_AUTO_TEST_CASE(testCentroids) {
                       << core::CContainerPrinter::print(expectedCentroids));
             LOG_DEBUG(<< "  centroids          = "
                       << core::CContainerPrinter::print(centroids));
-            BOOST_CHECK_EQUAL(core::CContainerPrinter::print(expectedCentroids),
+            BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(expectedCentroids),
                               core::CContainerPrinter::print(centroids));
         }
         {
@@ -351,7 +351,7 @@ BOOST_AUTO_TEST_CASE(testCentroids) {
                       << core::CContainerPrinter::print(expectedCentroids));
             LOG_DEBUG(<< "  centroids          = "
                       << core::CContainerPrinter::print(centroids));
-            BOOST_CHECK_EQUAL(core::CContainerPrinter::print(expectedCentroids),
+            BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(expectedCentroids),
                               core::CContainerPrinter::print(centroids));
         }
     }
@@ -393,7 +393,7 @@ BOOST_AUTO_TEST_CASE(testClosestPoints) {
 
             for (std::size_t j = 0u; j < closestPoints.size(); ++j) {
                 for (std::size_t k = 0u; k < closestPoints[j].size(); ++k) {
-                    BOOST_CHECK_EQUAL(closest(centres, closestPoints[j][k]).first, j);
+                    BOOST_REQUIRE_EQUAL(closest(centres, closestPoints[j][k]).first, j);
                 }
             }
         }
@@ -418,7 +418,7 @@ BOOST_AUTO_TEST_CASE(testClosestPoints) {
 
             for (std::size_t j = 0u; j < closestPoints.size(); ++j) {
                 for (std::size_t k = 0u; k < closestPoints[j].size(); ++k) {
-                    BOOST_CHECK_EQUAL(closest(centres, closestPoints[j][k]).first, j);
+                    BOOST_REQUIRE_EQUAL(closest(centres, closestPoints[j][k]).first, j);
                 }
             }
         }
@@ -463,8 +463,8 @@ BOOST_AUTO_TEST_CASE(testRun) {
             LOG_DEBUG(<< "centres      = " << core::CContainerPrinter::print(centres));
             LOG_DEBUG(<< "fast centres = "
                       << core::CContainerPrinter::print(kmeansFast.centres()));
-            BOOST_CHECK_EQUAL(converged, fastConverged);
-            BOOST_CHECK_EQUAL(core::CContainerPrinter::print(centres),
+            BOOST_REQUIRE_EQUAL(converged, fastConverged);
+            BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(centres),
                               core::CContainerPrinter::print(kmeansFast.centres()));
         }
     }
@@ -540,7 +540,7 @@ BOOST_AUTO_TEST_CASE(testRunWithSphericalClusters) {
                   << core::CContainerPrinter::print(kmeansPointsCentres));
         LOG_DEBUG(<< "k-means clusters = "
                   << core::CContainerPrinter::print(kmeansClustersCentres));
-        BOOST_CHECK_EQUAL(core::CContainerPrinter::print(kmeansPointsCentres),
+        BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(kmeansPointsCentres),
                           core::CContainerPrinter::print(kmeansClustersCentres));
     }
 }
@@ -614,7 +614,7 @@ BOOST_AUTO_TEST_CASE(testPlusPlus) {
         sampledClusters.erase(
             std::unique(sampledClusters.begin(), sampledClusters.end()),
             sampledClusters.end());
-        BOOST_TEST(sampledClusters.size() >= 2);
+        BOOST_TEST_REQUIRE(sampledClusters.size() >= 2);
         numberClustersSampled.add(static_cast<double>(sampledClusters.size()));
 
         maths::CKMeans<TVector2> kmeans;
@@ -652,10 +652,10 @@ BOOST_AUTO_TEST_CASE(testPlusPlus) {
     LOG_DEBUG(<< "mean ratio = " << maths::CBasicStatistics::mean(meanSSRRatio));
     LOG_DEBUG(<< "max ratio  = " << maxSSRRatio);
 
-    BOOST_TEST(minSSRRatio < 0.14);
-    BOOST_TEST(maths::CBasicStatistics::mean(meanSSRRatio) < 0.9);
-    BOOST_TEST(maxSSRRatio < 9.0);
-    BOOST_CHECK_CLOSE_ABSOLUTE(4.0, maths::CBasicStatistics::mean(numberClustersSampled), 0.3);
+    BOOST_TEST_REQUIRE(minSSRRatio < 0.14);
+    BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(meanSSRRatio) < 0.9);
+    BOOST_TEST_REQUIRE(maxSSRRatio < 9.0);
+    BOOST_REQUIRE_CLOSE_ABSOLUTE(4.0, maths::CBasicStatistics::mean(numberClustersSampled), 0.3);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

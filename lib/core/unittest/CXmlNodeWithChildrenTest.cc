@@ -41,53 +41,53 @@ BOOST_AUTO_TEST_CASE(testNodeHierarchyToXml) {
     LOG_DEBUG(<< "Indented representation of XML node hierarchy is:\n"
               << strRep);
 
-    BOOST_TEST(strRep.find("root") != std::string::npos);
-    BOOST_TEST(strRep.find("oneDeep1") != std::string::npos);
-    BOOST_TEST(strRep.find("oneDeep2") != std::string::npos);
-    BOOST_TEST(strRep.find("twoDeepA") != std::string::npos);
-    BOOST_TEST(strRep.find("twoDeepB") != std::string::npos);
-    BOOST_TEST(strRep.find("twoDeepC") != std::string::npos);
+    BOOST_TEST_REQUIRE(strRep.find("root") != std::string::npos);
+    BOOST_TEST_REQUIRE(strRep.find("oneDeep1") != std::string::npos);
+    BOOST_TEST_REQUIRE(strRep.find("oneDeep2") != std::string::npos);
+    BOOST_TEST_REQUIRE(strRep.find("twoDeepA") != std::string::npos);
+    BOOST_TEST_REQUIRE(strRep.find("twoDeepB") != std::string::npos);
+    BOOST_TEST_REQUIRE(strRep.find("twoDeepC") != std::string::npos);
 
-    BOOST_TEST(strRep.find("type") != std::string::npos);
-    BOOST_TEST(strRep.find("letter") != std::string::npos);
-    BOOST_TEST(strRep.find("case") != std::string::npos);
-    BOOST_TEST(strRep.find("upper") != std::string::npos);
-    BOOST_TEST(strRep.find("number") != std::string::npos);
-    BOOST_TEST(strRep.find("value") != std::string::npos);
-    BOOST_TEST(strRep.find("2") != std::string::npos);
+    BOOST_TEST_REQUIRE(strRep.find("type") != std::string::npos);
+    BOOST_TEST_REQUIRE(strRep.find("letter") != std::string::npos);
+    BOOST_TEST_REQUIRE(strRep.find("case") != std::string::npos);
+    BOOST_TEST_REQUIRE(strRep.find("upper") != std::string::npos);
+    BOOST_TEST_REQUIRE(strRep.find("number") != std::string::npos);
+    BOOST_TEST_REQUIRE(strRep.find("value") != std::string::npos);
+    BOOST_TEST_REQUIRE(strRep.find("2") != std::string::npos);
 
-    BOOST_TEST(strRep.find("oneDeep1") < strRep.find("oneDeep2"));
-    BOOST_TEST(strRep.find("twoDeepA") < strRep.find("twoDeepB"));
-    BOOST_TEST(strRep.find("twoDeepA") < strRep.find("twoDeepC"));
+    BOOST_TEST_REQUIRE(strRep.find("oneDeep1") < strRep.find("oneDeep2"));
+    BOOST_TEST_REQUIRE(strRep.find("twoDeepA") < strRep.find("twoDeepB"));
+    BOOST_TEST_REQUIRE(strRep.find("twoDeepA") < strRep.find("twoDeepC"));
     // C is a child of 1, but B is a child of 2, so C should have
     // been printed out first
-    BOOST_TEST(strRep.find("twoDeepC") < strRep.find("twoDeepB"));
+    BOOST_TEST_REQUIRE(strRep.find("twoDeepC") < strRep.find("twoDeepB"));
 
     std::string xml;
     ml::core::CXmlParser::convert(root, xml);
     LOG_DEBUG(<< "XML representation of XML node hierarchy is:\n" << xml);
 
-    BOOST_TEST(xml.find("root") != std::string::npos);
-    BOOST_TEST(xml.find("oneDeep1") != std::string::npos);
-    BOOST_TEST(xml.find("oneDeep2") != std::string::npos);
-    BOOST_TEST(xml.find("twoDeepA") != std::string::npos);
-    BOOST_TEST(xml.find("twoDeepB") != std::string::npos);
-    BOOST_TEST(xml.find("twoDeepC") != std::string::npos);
+    BOOST_TEST_REQUIRE(xml.find("root") != std::string::npos);
+    BOOST_TEST_REQUIRE(xml.find("oneDeep1") != std::string::npos);
+    BOOST_TEST_REQUIRE(xml.find("oneDeep2") != std::string::npos);
+    BOOST_TEST_REQUIRE(xml.find("twoDeepA") != std::string::npos);
+    BOOST_TEST_REQUIRE(xml.find("twoDeepB") != std::string::npos);
+    BOOST_TEST_REQUIRE(xml.find("twoDeepC") != std::string::npos);
 
-    BOOST_TEST(xml.find("type") != std::string::npos);
-    BOOST_TEST(xml.find("letter") != std::string::npos);
-    BOOST_TEST(xml.find("case") != std::string::npos);
-    BOOST_TEST(xml.find("upper") != std::string::npos);
-    BOOST_TEST(xml.find("number") != std::string::npos);
-    BOOST_TEST(xml.find("value") != std::string::npos);
-    BOOST_TEST(xml.find("2") != std::string::npos);
+    BOOST_TEST_REQUIRE(xml.find("type") != std::string::npos);
+    BOOST_TEST_REQUIRE(xml.find("letter") != std::string::npos);
+    BOOST_TEST_REQUIRE(xml.find("case") != std::string::npos);
+    BOOST_TEST_REQUIRE(xml.find("upper") != std::string::npos);
+    BOOST_TEST_REQUIRE(xml.find("number") != std::string::npos);
+    BOOST_TEST_REQUIRE(xml.find("value") != std::string::npos);
+    BOOST_TEST_REQUIRE(xml.find("2") != std::string::npos);
 
-    BOOST_TEST(xml.find("oneDeep1") < xml.find("oneDeep2"));
-    BOOST_TEST(xml.find("twoDeepA") < xml.find("twoDeepB"));
-    BOOST_TEST(xml.find("twoDeepA") < xml.find("twoDeepC"));
+    BOOST_TEST_REQUIRE(xml.find("oneDeep1") < xml.find("oneDeep2"));
+    BOOST_TEST_REQUIRE(xml.find("twoDeepA") < xml.find("twoDeepB"));
+    BOOST_TEST_REQUIRE(xml.find("twoDeepA") < xml.find("twoDeepC"));
     // C is a child of 1, but B is a child of 2, so C should have
     // been printed out first
-    BOOST_TEST(xml.find("twoDeepC") < xml.find("twoDeepB"));
+    BOOST_TEST_REQUIRE(xml.find("twoDeepC") < xml.find("twoDeepB"));
 }
 
 BOOST_AUTO_TEST_CASE(testParserToNodeHierarchy) {
@@ -104,40 +104,40 @@ BOOST_AUTO_TEST_CASE(testParserToNodeHierarchy) {
     </complex> \
 </root>";
 
-    BOOST_TEST(parser.parseString(xml));
+    BOOST_TEST_REQUIRE(parser.parseString(xml));
 
     ml::core::CXmlNodeWithChildren::TXmlNodeWithChildrenP rootNodePtr;
 
-    BOOST_TEST(parser.toNodeHierarchy(rootNodePtr));
+    BOOST_TEST_REQUIRE(parser.toNodeHierarchy(rootNodePtr));
 
-    BOOST_TEST(rootNodePtr != nullptr);
+    BOOST_TEST_REQUIRE(rootNodePtr != nullptr);
 
     std::string strRep(rootNodePtr->dump());
     LOG_DEBUG(<< "Indented representation of XML node hierarchy is:\n"
               << strRep);
 
-    BOOST_TEST(xml.find("root") != std::string::npos);
-    BOOST_TEST(xml.find("name1") != std::string::npos);
-    BOOST_TEST(xml.find("a") != std::string::npos);
-    BOOST_TEST(xml.find("sdacsdac") != std::string::npos);
-    BOOST_TEST(xml.find("value1") != std::string::npos);
-    BOOST_TEST(xml.find("name2") != std::string::npos);
-    BOOST_TEST(xml.find("value2") != std::string::npos);
-    BOOST_TEST(xml.find("name3") != std::string::npos);
-    BOOST_TEST(xml.find("value3") != std::string::npos);
-    BOOST_TEST(xml.find("complex") != std::string::npos);
-    BOOST_TEST(xml.find("name4") != std::string::npos);
-    BOOST_TEST(xml.find("value4") != std::string::npos);
-    BOOST_TEST(xml.find("name5") != std::string::npos);
-    BOOST_TEST(xml.find("b") != std::string::npos);
-    BOOST_TEST(xml.find("qwerty") != std::string::npos);
-    BOOST_TEST(xml.find("value5") != std::string::npos);
+    BOOST_TEST_REQUIRE(xml.find("root") != std::string::npos);
+    BOOST_TEST_REQUIRE(xml.find("name1") != std::string::npos);
+    BOOST_TEST_REQUIRE(xml.find("a") != std::string::npos);
+    BOOST_TEST_REQUIRE(xml.find("sdacsdac") != std::string::npos);
+    BOOST_TEST_REQUIRE(xml.find("value1") != std::string::npos);
+    BOOST_TEST_REQUIRE(xml.find("name2") != std::string::npos);
+    BOOST_TEST_REQUIRE(xml.find("value2") != std::string::npos);
+    BOOST_TEST_REQUIRE(xml.find("name3") != std::string::npos);
+    BOOST_TEST_REQUIRE(xml.find("value3") != std::string::npos);
+    BOOST_TEST_REQUIRE(xml.find("complex") != std::string::npos);
+    BOOST_TEST_REQUIRE(xml.find("name4") != std::string::npos);
+    BOOST_TEST_REQUIRE(xml.find("value4") != std::string::npos);
+    BOOST_TEST_REQUIRE(xml.find("name5") != std::string::npos);
+    BOOST_TEST_REQUIRE(xml.find("b") != std::string::npos);
+    BOOST_TEST_REQUIRE(xml.find("qwerty") != std::string::npos);
+    BOOST_TEST_REQUIRE(xml.find("value5") != std::string::npos);
 }
 
 BOOST_AUTO_TEST_CASE(testPerformanceNoPool) {
     ml::core::CXmlParser parser;
 
-    BOOST_TEST(parser.parseFile("testfiles/p2psmon.xml"));
+    BOOST_TEST_REQUIRE(parser.parseFile("testfiles/p2psmon.xml"));
 
     ml::core_t::TTime start(ml::core::CTimeUtils::now());
     LOG_INFO(<< "Starting node hierarchy performance test with no pool at "
@@ -146,8 +146,8 @@ BOOST_AUTO_TEST_CASE(testPerformanceNoPool) {
     static const size_t TEST_SIZE(20000);
     for (size_t count = 0; count < TEST_SIZE; ++count) {
         ml::core::CXmlNodeWithChildren::TXmlNodeWithChildrenP rootNodePtr;
-        BOOST_TEST(parser.toNodeHierarchy(rootNodePtr));
-        BOOST_TEST(rootNodePtr != nullptr);
+        BOOST_TEST_REQUIRE(parser.toNodeHierarchy(rootNodePtr));
+        BOOST_TEST_REQUIRE(rootNodePtr != nullptr);
     }
 
     ml::core_t::TTime end(ml::core::CTimeUtils::now());
@@ -161,7 +161,7 @@ BOOST_AUTO_TEST_CASE(testPerformanceNoPool) {
 BOOST_AUTO_TEST_CASE(testPerformanceWithPool) {
     ml::core::CXmlParser parser;
 
-    BOOST_TEST(parser.parseFile("testfiles/p2psmon.xml"));
+    BOOST_TEST_REQUIRE(parser.parseFile("testfiles/p2psmon.xml"));
 
     ml::core_t::TTime start(ml::core::CTimeUtils::now());
     LOG_INFO(<< "Starting node hierarchy performance test with pool at "
@@ -172,8 +172,8 @@ BOOST_AUTO_TEST_CASE(testPerformanceWithPool) {
     static const size_t TEST_SIZE(20000);
     for (size_t count = 0; count < TEST_SIZE; ++count) {
         ml::core::CXmlNodeWithChildren::TXmlNodeWithChildrenP rootNodePtr;
-        BOOST_TEST(parser.toNodeHierarchy(pool, rootNodePtr));
-        BOOST_TEST(rootNodePtr != nullptr);
+        BOOST_TEST_REQUIRE(parser.toNodeHierarchy(pool, rootNodePtr));
+        BOOST_TEST_REQUIRE(rootNodePtr != nullptr);
         pool.recycle(rootNodePtr);
     }
 

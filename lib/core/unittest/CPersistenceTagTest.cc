@@ -30,42 +30,42 @@ const ml::core::TPersistenceTag TAG2{SHORT_TAG2, LONG_TAG2};
 
 BOOST_AUTO_TEST_CASE(testName) {
     ml::core::TPersistenceTag emptyTag;
-    BOOST_CHECK_EQUAL(EMPTY_TAG, emptyTag.name(useShortTag));
-    BOOST_CHECK_EQUAL(EMPTY_TAG, emptyTag.name(useLongTag));
+    BOOST_REQUIRE_EQUAL(EMPTY_TAG, emptyTag.name(useShortTag));
+    BOOST_REQUIRE_EQUAL(EMPTY_TAG, emptyTag.name(useLongTag));
 
     ml::core::TPersistenceTag fromShortTag(SHORT_TAG1);
-    BOOST_CHECK_EQUAL(SHORT_TAG1, fromShortTag.name(useShortTag));
-    BOOST_CHECK_EQUAL(SHORT_TAG1, fromShortTag.name(useLongTag));
+    BOOST_REQUIRE_EQUAL(SHORT_TAG1, fromShortTag.name(useShortTag));
+    BOOST_REQUIRE_EQUAL(SHORT_TAG1, fromShortTag.name(useLongTag));
 
-    BOOST_CHECK_EQUAL(SHORT_TAG1, TAG1.name(useShortTag));
-    BOOST_CHECK_EQUAL(LONG_TAG1, TAG1.name(useLongTag));
+    BOOST_REQUIRE_EQUAL(SHORT_TAG1, TAG1.name(useShortTag));
+    BOOST_REQUIRE_EQUAL(LONG_TAG1, TAG1.name(useLongTag));
 
-    BOOST_CHECK_EQUAL(SHORT_TAG2, TAG2.name(useShortTag));
-    BOOST_CHECK_EQUAL(LONG_TAG2, TAG2.name(useLongTag));
+    BOOST_REQUIRE_EQUAL(SHORT_TAG2, TAG2.name(useShortTag));
+    BOOST_REQUIRE_EQUAL(LONG_TAG2, TAG2.name(useLongTag));
 }
 
 BOOST_AUTO_TEST_CASE(testComparisons) {
     ml::core::TPersistenceTag tag2Copy = TAG2;
-    BOOST_CHECK_EQUAL(tag2Copy, TAG2);
+    BOOST_REQUIRE_EQUAL(tag2Copy, TAG2);
 
-    BOOST_TEST(TAG1 != TAG2);
-    BOOST_TEST(SHORT_TAG2 != TAG1);
+    BOOST_TEST_REQUIRE(TAG1 != TAG2);
+    BOOST_TEST_REQUIRE(SHORT_TAG2 != TAG1);
 
     const std::string shortTag1 = TAG1;
-    BOOST_CHECK_EQUAL(shortTag1, SHORT_TAG1);
+    BOOST_REQUIRE_EQUAL(shortTag1, SHORT_TAG1);
 
     const std::string shortTag2{TAG2};
-    BOOST_CHECK_EQUAL(shortTag2, SHORT_TAG2);
+    BOOST_REQUIRE_EQUAL(shortTag2, SHORT_TAG2);
 
-    BOOST_TEST(SHORT_TAG1 == TAG1);
-    BOOST_TEST(LONG_TAG1 == TAG1);
-    BOOST_TEST(TAG1 == SHORT_TAG1);
-    BOOST_TEST(TAG1 == LONG_TAG1);
+    BOOST_TEST_REQUIRE(SHORT_TAG1 == TAG1);
+    BOOST_TEST_REQUIRE(LONG_TAG1 == TAG1);
+    BOOST_TEST_REQUIRE(TAG1 == SHORT_TAG1);
+    BOOST_TEST_REQUIRE(TAG1 == LONG_TAG1);
 
-    BOOST_TEST(SHORT_TAG2 == TAG2);
-    BOOST_TEST(LONG_TAG2 == TAG2);
-    BOOST_TEST(TAG2 == SHORT_TAG2);
-    BOOST_TEST(TAG2 == LONG_TAG2);
+    BOOST_TEST_REQUIRE(SHORT_TAG2 == TAG2);
+    BOOST_TEST_REQUIRE(LONG_TAG2 == TAG2);
+    BOOST_TEST_REQUIRE(TAG2 == SHORT_TAG2);
+    BOOST_TEST_REQUIRE(TAG2 == LONG_TAG2);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

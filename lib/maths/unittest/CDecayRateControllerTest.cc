@@ -35,14 +35,14 @@ BOOST_AUTO_TEST_CASE(testLowCov) {
         decayRate *= multiplier;
     }
     LOG_DEBUG(<< "Controlled decay = " << decayRate);
-    BOOST_TEST(decayRate > 0.0005);
+    BOOST_TEST_REQUIRE(decayRate > 0.0005);
 
     for (std::size_t i = 0u; i < 1000; ++i) {
         double multiplier{controller.multiplier({10000.0}, {{0.0}}, 3600, 1.0, 0.0005)};
         decayRate *= multiplier;
     }
     LOG_DEBUG(<< "Controlled decay = " << decayRate);
-    BOOST_TEST(decayRate < 0.0005);
+    BOOST_TEST_REQUIRE(decayRate < 0.0005);
 }
 
 BOOST_AUTO_TEST_CASE(testOrderedErrors) {
@@ -64,7 +64,7 @@ BOOST_AUTO_TEST_CASE(testOrderedErrors) {
         decayRate *= multiplier;
     }
     LOG_DEBUG(<< "Controlled decay = " << decayRate);
-    BOOST_TEST(decayRate <= 0.0005);
+    BOOST_TEST_REQUIRE(decayRate <= 0.0005);
 }
 
 BOOST_AUTO_TEST_CASE(testPersist) {
@@ -96,16 +96,16 @@ BOOST_AUTO_TEST_CASE(testPersist) {
     // Restore the XML into a new controller.
     {
         core::CRapidXmlParser parser;
-        BOOST_TEST(parser.parseStringIgnoreCdata(origXml));
+        BOOST_TEST_REQUIRE(parser.parseStringIgnoreCdata(origXml));
         core::CRapidXmlStateRestoreTraverser traverser(parser);
         maths::CDecayRateController restoredController;
-        BOOST_CHECK_EQUAL(true, traverser.traverseSubLevel(std::bind(
+        BOOST_REQUIRE_EQUAL(true, traverser.traverseSubLevel(std::bind(
                                     &maths::CDecayRateController::acceptRestoreTraverser,
                                     &restoredController, std::placeholders::_1)));
 
         LOG_DEBUG(<< "orig checksum = " << origController.checksum()
                   << ", new checksum = " << restoredController.checksum());
-        BOOST_CHECK_EQUAL(origController.checksum(), restoredController.checksum());
+        BOOST_REQUIRE_EQUAL(origController.checksum(), restoredController.checksum());
     }
 }
 

@@ -31,37 +31,37 @@ BOOST_AUTO_TEST_CASE(testInode) {
 
     ::memset(&statBuf, 0, sizeof(statBuf));
     ml::core::COsFileFuncs::TIno headerDirect(0);
-    BOOST_CHECK_EQUAL(0, ml::core::COsFileFuncs::stat(mainFile.c_str(), &statBuf));
+    BOOST_REQUIRE_EQUAL(0, ml::core::COsFileFuncs::stat(mainFile.c_str(), &statBuf));
     headerDirect = statBuf.st_ino;
     LOG_DEBUG(<< "Inode for " << mainFile << " from directory is " << headerDirect);
 
     ::memset(&statBuf, 0, sizeof(statBuf));
     ml::core::COsFileFuncs::TIno headerOpen(0);
     int headerFd(ml::core::COsFileFuncs::open(mainFile.c_str(), ml::core::COsFileFuncs::RDONLY));
-    BOOST_TEST(headerFd != -1);
-    BOOST_CHECK_EQUAL(0, ml::core::COsFileFuncs::fstat(headerFd, &statBuf));
-    BOOST_CHECK_EQUAL(0, ml::core::COsFileFuncs::close(headerFd));
+    BOOST_TEST_REQUIRE(headerFd != -1);
+    BOOST_REQUIRE_EQUAL(0, ml::core::COsFileFuncs::fstat(headerFd, &statBuf));
+    BOOST_REQUIRE_EQUAL(0, ml::core::COsFileFuncs::close(headerFd));
     headerOpen = statBuf.st_ino;
     LOG_DEBUG(<< "Inode for " << mainFile << " from open file is " << headerOpen);
 
     ::memset(&statBuf, 0, sizeof(statBuf));
     ml::core::COsFileFuncs::TIno implDirect(0);
-    BOOST_CHECK_EQUAL(0, ml::core::COsFileFuncs::stat(testFile.c_str(), &statBuf));
+    BOOST_REQUIRE_EQUAL(0, ml::core::COsFileFuncs::stat(testFile.c_str(), &statBuf));
     implDirect = statBuf.st_ino;
     LOG_DEBUG(<< "Inode for " << testFile << " from directory is " << implDirect);
 
     ::memset(&statBuf, 0, sizeof(statBuf));
     ml::core::COsFileFuncs::TIno implOpen(0);
     int implFd(ml::core::COsFileFuncs::open(testFile.c_str(), ml::core::COsFileFuncs::RDONLY));
-    BOOST_TEST(implFd != -1);
-    BOOST_CHECK_EQUAL(0, ml::core::COsFileFuncs::fstat(implFd, &statBuf));
-    BOOST_CHECK_EQUAL(0, ml::core::COsFileFuncs::close(implFd));
+    BOOST_TEST_REQUIRE(implFd != -1);
+    BOOST_REQUIRE_EQUAL(0, ml::core::COsFileFuncs::fstat(implFd, &statBuf));
+    BOOST_REQUIRE_EQUAL(0, ml::core::COsFileFuncs::close(implFd));
     implOpen = statBuf.st_ino;
     LOG_DEBUG(<< "Inode for " << testFile << " from open file is " << implOpen);
 
-    BOOST_CHECK_EQUAL(headerDirect, headerOpen);
-    BOOST_CHECK_EQUAL(implDirect, implOpen);
-    BOOST_TEST(implDirect != headerDirect);
+    BOOST_REQUIRE_EQUAL(headerDirect, headerOpen);
+    BOOST_REQUIRE_EQUAL(implDirect, implOpen);
+    BOOST_TEST_REQUIRE(implDirect != headerDirect);
 }
 
 BOOST_AUTO_TEST_CASE(testLStat) {
@@ -79,20 +79,20 @@ BOOST_AUTO_TEST_CASE(testLStat) {
     LOG_WARN(<< "Skipping lstat() test as it would need to run as administrator");
 #else
 #ifdef Windows
-    BOOST_TEST(CreateSymbolicLink(symLink.c_str(), file.c_str(),
+    BOOST_TEST_REQUIRE(CreateSymbolicLink(symLink.c_str(), file.c_str(),
                                   SYMBOLIC_LINK_FLAG_ALLOW_UNPRIVILEGED_CREATE) != FALSE);
 #else
-    BOOST_CHECK_EQUAL(0, ::symlink(file.c_str(), symLink.c_str()));
+    BOOST_REQUIRE_EQUAL(0, ::symlink(file.c_str(), symLink.c_str()));
 #endif
 
     ml::core::COsFileFuncs::TStat statBuf;
     ::memset(&statBuf, 0, sizeof(statBuf));
-    BOOST_CHECK_EQUAL(0, ml::core::COsFileFuncs::lstat(symLink.c_str(), &statBuf));
+    BOOST_REQUIRE_EQUAL(0, ml::core::COsFileFuncs::lstat(symLink.c_str(), &statBuf));
     // Windows doesn't have a flag for symlinks, so just assert that lstat()
     // doesn't think the link is one of the other types of file system object
-    BOOST_TEST((statBuf.st_mode & S_IFMT) != S_IFREG);
-    BOOST_TEST((statBuf.st_mode & S_IFMT) != S_IFDIR);
-    BOOST_TEST((statBuf.st_mode & S_IFMT) != S_IFCHR);
+    BOOST_TEST_REQUIRE((statBuf.st_mode & S_IFMT) != S_IFREG);
+    BOOST_TEST_REQUIRE((statBuf.st_mode & S_IFMT) != S_IFDIR);
+    BOOST_TEST_REQUIRE((statBuf.st_mode & S_IFMT) != S_IFCHR);
 
     // Due to the way this test is structured, the link should have been created
     // in the last few seconds (but the linked file, Main.cc, could be older)
@@ -100,11 +100,11 @@ BOOST_AUTO_TEST_CASE(testLStat) {
     LOG_INFO(<< "now: " << now << ", symlink create time: " << statBuf.st_ctime
              << ", symlink modification time: " << statBuf.st_mtime
              << ", symlink access time: " << statBuf.st_atime);
-    BOOST_TEST(statBuf.st_ctime > now - 3);
-    BOOST_TEST(statBuf.st_mtime > now - 3);
-    BOOST_TEST(statBuf.st_atime > now - 3);
+    BOOST_TEST_REQUIRE(statBuf.st_ctime > now - 3);
+    BOOST_TEST_REQUIRE(statBuf.st_mtime > now - 3);
+    BOOST_TEST_REQUIRE(statBuf.st_atime > now - 3);
 
-    BOOST_CHECK_EQUAL(0, ::remove(symLink.c_str()));
+    BOOST_REQUIRE_EQUAL(0, ::remove(symLink.c_str()));
 #endif
 }
 

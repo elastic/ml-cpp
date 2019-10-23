@@ -21,7 +21,7 @@ std::string fileToString(const std::string& fileName) {
     std::string ret;
 
     std::ifstream ifs(fileName.c_str());
-    BOOST_CHECK_MESSAGE(ifs.is_open(), fileName + " is not open");
+    BOOST_REQUIRE_MESSAGE(ifs.is_open(), fileName + " is not open");
 
     std::string line;
     while (std::getline(ifs, line)) {
@@ -87,62 +87,62 @@ ml::core::CXmlNodeWithChildren::TXmlNodeWithChildrenP makeTestNodeHierarchy() {
 void testParseHelper(const ml::core::CRapidXmlParser& parser) {
     ml::core::CXmlNodeWithChildren::TXmlNodeWithChildrenP rootNodePtr;
 
-    BOOST_TEST(parser.toNodeHierarchy(rootNodePtr));
-    BOOST_TEST(rootNodePtr != nullptr);
-    BOOST_CHECK_EQUAL(std::string("ItemSearchResponse"), rootNodePtr->name());
-    BOOST_CHECK_EQUAL(rootNodePtr->name(), parser.rootElementName());
+    BOOST_TEST_REQUIRE(parser.toNodeHierarchy(rootNodePtr));
+    BOOST_TEST_REQUIRE(rootNodePtr != nullptr);
+    BOOST_REQUIRE_EQUAL(std::string("ItemSearchResponse"), rootNodePtr->name());
+    BOOST_REQUIRE_EQUAL(rootNodePtr->name(), parser.rootElementName());
 
     const ml::core::CXmlNodeWithChildren::TChildNodePVec& firstLevelChildren =
         rootNodePtr->children();
-    BOOST_CHECK_EQUAL(size_t(2), firstLevelChildren.size());
-    BOOST_TEST(firstLevelChildren[0] != nullptr);
-    BOOST_CHECK_EQUAL(std::string("OperationRequest"), firstLevelChildren[0]->name());
-    BOOST_TEST(firstLevelChildren[1] != nullptr);
-    BOOST_CHECK_EQUAL(std::string("Items"), firstLevelChildren[1]->name());
+    BOOST_REQUIRE_EQUAL(size_t(2), firstLevelChildren.size());
+    BOOST_TEST_REQUIRE(firstLevelChildren[0] != nullptr);
+    BOOST_REQUIRE_EQUAL(std::string("OperationRequest"), firstLevelChildren[0]->name());
+    BOOST_TEST_REQUIRE(firstLevelChildren[1] != nullptr);
+    BOOST_REQUIRE_EQUAL(std::string("Items"), firstLevelChildren[1]->name());
 
     const ml::core::CXmlNodeWithChildren::TChildNodePVec& opReqChildren =
         firstLevelChildren[0]->children();
-    BOOST_CHECK_EQUAL(size_t(4), opReqChildren.size());
-    BOOST_TEST(opReqChildren[0] != nullptr);
-    BOOST_CHECK_EQUAL(std::string("HTTPHeaders"), opReqChildren[0]->name());
-    BOOST_TEST(opReqChildren[1] != nullptr);
-    BOOST_CHECK_EQUAL(std::string("RequestId"), opReqChildren[1]->name());
-    BOOST_CHECK_EQUAL(std::string("18CZWZFXKSV8F601AGMF"), opReqChildren[1]->value());
-    BOOST_TEST(opReqChildren[2] != nullptr);
-    BOOST_CHECK_EQUAL(std::string("Arguments"), opReqChildren[2]->name());
-    BOOST_TEST(opReqChildren[3] != nullptr);
-    BOOST_CHECK_EQUAL(std::string("RequestProcessingTime"), opReqChildren[3]->name());
-    BOOST_CHECK_EQUAL(std::string("1.05041599273682"), opReqChildren[3]->value());
+    BOOST_REQUIRE_EQUAL(size_t(4), opReqChildren.size());
+    BOOST_TEST_REQUIRE(opReqChildren[0] != nullptr);
+    BOOST_REQUIRE_EQUAL(std::string("HTTPHeaders"), opReqChildren[0]->name());
+    BOOST_TEST_REQUIRE(opReqChildren[1] != nullptr);
+    BOOST_REQUIRE_EQUAL(std::string("RequestId"), opReqChildren[1]->name());
+    BOOST_REQUIRE_EQUAL(std::string("18CZWZFXKSV8F601AGMF"), opReqChildren[1]->value());
+    BOOST_TEST_REQUIRE(opReqChildren[2] != nullptr);
+    BOOST_REQUIRE_EQUAL(std::string("Arguments"), opReqChildren[2]->name());
+    BOOST_TEST_REQUIRE(opReqChildren[3] != nullptr);
+    BOOST_REQUIRE_EQUAL(std::string("RequestProcessingTime"), opReqChildren[3]->name());
+    BOOST_REQUIRE_EQUAL(std::string("1.05041599273682"), opReqChildren[3]->value());
 
     // Test CDATA
     const ml::core::CXmlNodeWithChildren::TChildNodePVec& itemsChildren =
         firstLevelChildren[1]->children();
-    BOOST_CHECK_EQUAL(size_t(13), itemsChildren.size());
+    BOOST_REQUIRE_EQUAL(size_t(13), itemsChildren.size());
 
-    BOOST_TEST(itemsChildren[3] != nullptr);
+    BOOST_TEST_REQUIRE(itemsChildren[3] != nullptr);
     const ml::core::CXmlNodeWithChildren::TChildNodePVec& item3Children =
         itemsChildren[3]->children();
-    BOOST_CHECK_EQUAL(size_t(4), item3Children.size());
-    BOOST_TEST(item3Children[0] != nullptr);
-    BOOST_CHECK_EQUAL(std::string("msg"), item3Children[0]->name());
-    BOOST_CHECK_EQUAL(std::string("\n\
+    BOOST_REQUIRE_EQUAL(size_t(4), item3Children.size());
+    BOOST_TEST_REQUIRE(item3Children[0] != nullptr);
+    BOOST_REQUIRE_EQUAL(std::string("msg"), item3Children[0]->name());
+    BOOST_REQUIRE_EQUAL(std::string("\n\
             Invalid Date of Birth. <br /><i>This is a test validation message from the server </i>\n\
              "),
                       item3Children[0]->value());
 
     // Test escaped ampersand
-    BOOST_TEST(itemsChildren[10] != nullptr);
+    BOOST_TEST_REQUIRE(itemsChildren[10] != nullptr);
     const ml::core::CXmlNodeWithChildren::TChildNodePVec& item10Children =
         itemsChildren[10]->children();
-    BOOST_CHECK_EQUAL(size_t(3), item10Children.size());
-    BOOST_TEST(item10Children[2] != nullptr);
-    BOOST_CHECK_EQUAL(std::string("ItemAttributes"), item10Children[2]->name());
+    BOOST_REQUIRE_EQUAL(size_t(3), item10Children.size());
+    BOOST_TEST_REQUIRE(item10Children[2] != nullptr);
+    BOOST_REQUIRE_EQUAL(std::string("ItemAttributes"), item10Children[2]->name());
     const ml::core::CXmlNodeWithChildren::TChildNodePVec& itemAttributesChildren =
         item10Children[2]->children();
-    BOOST_CHECK_EQUAL(size_t(4), itemAttributesChildren.size());
-    BOOST_TEST(itemAttributesChildren[1] != nullptr);
-    BOOST_CHECK_EQUAL(std::string("Manufacturer"), itemAttributesChildren[1]->name());
-    BOOST_CHECK_EQUAL(std::string("William Morrow & Company"),
+    BOOST_REQUIRE_EQUAL(size_t(4), itemAttributesChildren.size());
+    BOOST_TEST_REQUIRE(itemAttributesChildren[1] != nullptr);
+    BOOST_REQUIRE_EQUAL(std::string("Manufacturer"), itemAttributesChildren[1]->name());
+    BOOST_REQUIRE_EQUAL(std::string("William Morrow & Company"),
                       itemAttributesChildren[1]->value());
 }
 
@@ -151,7 +151,7 @@ BOOST_AUTO_TEST_CASE(testParse1) {
 
     ml::core::CRapidXmlParser parser;
 
-    BOOST_TEST(parser.parseString(goodString));
+    BOOST_TEST_REQUIRE(parser.parseString(goodString));
 
     testParseHelper(parser);
 }
@@ -161,62 +161,62 @@ BOOST_AUTO_TEST_CASE(testParse2) {
 
     ml::core::CRapidXmlParser parser;
 
-    BOOST_TEST(parser.parseString(goodString));
+    BOOST_TEST_REQUIRE(parser.parseString(goodString));
 
     ml::core::CXmlNodeWithChildren::TXmlNodeWithChildrenP rootNodePtr;
 
-    BOOST_TEST(parser.toNodeHierarchy(rootNodePtr));
-    BOOST_TEST(rootNodePtr != nullptr);
-    BOOST_CHECK_EQUAL(std::string("syslog_parser"), rootNodePtr->name());
-    BOOST_CHECK_EQUAL(rootNodePtr->name(), parser.rootElementName());
+    BOOST_TEST_REQUIRE(parser.toNodeHierarchy(rootNodePtr));
+    BOOST_TEST_REQUIRE(rootNodePtr != nullptr);
+    BOOST_REQUIRE_EQUAL(std::string("syslog_parser"), rootNodePtr->name());
+    BOOST_REQUIRE_EQUAL(rootNodePtr->name(), parser.rootElementName());
 
     const ml::core::CXmlNodeWithChildren::TChildNodePVec& parseTree =
         rootNodePtr->children();
-    BOOST_CHECK_EQUAL(size_t(1), parseTree.size());
-    BOOST_TEST(parseTree[0] != nullptr);
-    BOOST_CHECK_EQUAL(std::string("parsetree"), parseTree[0]->name());
+    BOOST_REQUIRE_EQUAL(size_t(1), parseTree.size());
+    BOOST_TEST_REQUIRE(parseTree[0] != nullptr);
+    BOOST_REQUIRE_EQUAL(std::string("parsetree"), parseTree[0]->name());
 
     const ml::core::CXmlNodeWithChildren::TChildNodePVec& expression =
         parseTree[0]->children();
-    BOOST_CHECK_EQUAL(size_t(2), expression.size());
-    BOOST_TEST(expression[0] != nullptr);
-    BOOST_CHECK_EQUAL(std::string("expression"), expression[0]->name());
+    BOOST_REQUIRE_EQUAL(size_t(2), expression.size());
+    BOOST_TEST_REQUIRE(expression[0] != nullptr);
+    BOOST_REQUIRE_EQUAL(std::string("expression"), expression[0]->name());
 
     const ml::core::CXmlNodeWithChildren::TChildNodePVec& descriptionAndRegexes =
         expression[0]->children();
-    BOOST_CHECK_EQUAL(size_t(2), descriptionAndRegexes.size());
-    BOOST_TEST(descriptionAndRegexes[0] != nullptr);
-    BOOST_CHECK_EQUAL(std::string("description"), descriptionAndRegexes[0]->name());
-    BOOST_CHECK_EQUAL(std::string("Transport node error"),
+    BOOST_REQUIRE_EQUAL(size_t(2), descriptionAndRegexes.size());
+    BOOST_TEST_REQUIRE(descriptionAndRegexes[0] != nullptr);
+    BOOST_REQUIRE_EQUAL(std::string("description"), descriptionAndRegexes[0]->name());
+    BOOST_REQUIRE_EQUAL(std::string("Transport node error"),
                       descriptionAndRegexes[0]->value());
-    BOOST_TEST(descriptionAndRegexes[1] != nullptr);
-    BOOST_CHECK_EQUAL(std::string("regexes"), descriptionAndRegexes[1]->name());
+    BOOST_TEST_REQUIRE(descriptionAndRegexes[1] != nullptr);
+    BOOST_REQUIRE_EQUAL(std::string("regexes"), descriptionAndRegexes[1]->name());
 
     const ml::core::CXmlNodeWithChildren::TChildNodePVec& varbind =
         descriptionAndRegexes[1]->children();
-    BOOST_CHECK_EQUAL(size_t(2), varbind.size());
-    BOOST_TEST(varbind[0] != nullptr);
-    BOOST_CHECK_EQUAL(std::string("varbind"), varbind[0]->name());
-    BOOST_TEST(varbind[1] != nullptr);
-    BOOST_CHECK_EQUAL(std::string("varbind"), varbind[1]->name());
+    BOOST_REQUIRE_EQUAL(size_t(2), varbind.size());
+    BOOST_TEST_REQUIRE(varbind[0] != nullptr);
+    BOOST_REQUIRE_EQUAL(std::string("varbind"), varbind[0]->name());
+    BOOST_TEST_REQUIRE(varbind[1] != nullptr);
+    BOOST_REQUIRE_EQUAL(std::string("varbind"), varbind[1]->name());
 
     // Test attributes
     const ml::core::CXmlNodeWithChildren::TChildNodePVec& tokenAndRegex0 =
         varbind[0]->children();
-    BOOST_CHECK_EQUAL(std::string("token"), tokenAndRegex0[0]->name());
-    BOOST_CHECK_EQUAL(std::string(""), tokenAndRegex0[0]->value());
-    BOOST_CHECK_EQUAL(std::string("regex"), tokenAndRegex0[1]->name());
-    BOOST_CHECK_EQUAL(std::string("^[[:space:]]*"), tokenAndRegex0[1]->value());
-    BOOST_TEST(testAttribute(*(tokenAndRegex0[1]), "function", "default"));
-    BOOST_TEST(testAttribute(*(tokenAndRegex0[1]), "local", "BZ"));
+    BOOST_REQUIRE_EQUAL(std::string("token"), tokenAndRegex0[0]->name());
+    BOOST_REQUIRE_EQUAL(std::string(""), tokenAndRegex0[0]->value());
+    BOOST_REQUIRE_EQUAL(std::string("regex"), tokenAndRegex0[1]->name());
+    BOOST_REQUIRE_EQUAL(std::string("^[[:space:]]*"), tokenAndRegex0[1]->value());
+    BOOST_TEST_REQUIRE(testAttribute(*(tokenAndRegex0[1]), "function", "default"));
+    BOOST_TEST_REQUIRE(testAttribute(*(tokenAndRegex0[1]), "local", "BZ"));
 
     // Test CDATA
     const ml::core::CXmlNodeWithChildren::TChildNodePVec& tokenAndRegex1 =
         varbind[1]->children();
-    BOOST_CHECK_EQUAL(std::string("token"), tokenAndRegex1[0]->name());
-    BOOST_CHECK_EQUAL(std::string("source"), tokenAndRegex1[0]->value());
-    BOOST_CHECK_EQUAL(std::string("regex"), tokenAndRegex1[1]->name());
-    BOOST_CHECK_EQUAL(std::string("(template[[:space:]]*<[^;:{]+>[[:space:]]*)?"),
+    BOOST_REQUIRE_EQUAL(std::string("token"), tokenAndRegex1[0]->name());
+    BOOST_REQUIRE_EQUAL(std::string("source"), tokenAndRegex1[0]->value());
+    BOOST_REQUIRE_EQUAL(std::string("regex"), tokenAndRegex1[1]->name());
+    BOOST_REQUIRE_EQUAL(std::string("(template[[:space:]]*<[^;:{]+>[[:space:]]*)?"),
                       tokenAndRegex1[1]->value());
 }
 
@@ -225,33 +225,33 @@ BOOST_AUTO_TEST_CASE(testNavigate) {
 
     ml::core::CRapidXmlParser parser;
 
-    BOOST_TEST(parser.parseString(goodString));
+    BOOST_TEST_REQUIRE(parser.parseString(goodString));
 
     std::string str;
-    BOOST_TEST(parser.navigateRoot());
-    BOOST_TEST(parser.currentNodeName(str));
-    BOOST_CHECK_EQUAL(std::string("syslog_parser"), str);
-    BOOST_TEST(parser.navigateFirstChild());
-    BOOST_TEST(parser.currentNodeName(str));
-    BOOST_CHECK_EQUAL(std::string("parsetree"), str);
-    BOOST_TEST(parser.navigateFirstChild());
-    BOOST_TEST(parser.currentNodeName(str));
-    BOOST_CHECK_EQUAL(std::string("expression"), str);
-    BOOST_TEST(parser.navigateFirstChild());
-    BOOST_TEST(parser.currentNodeName(str));
-    BOOST_CHECK_EQUAL(std::string("description"), str);
-    BOOST_TEST(parser.currentNodeValue(str));
-    BOOST_CHECK_EQUAL(std::string("Transport node error"), str);
-    BOOST_TEST(parser.navigateNext());
-    BOOST_TEST(parser.currentNodeName(str));
-    BOOST_CHECK_EQUAL(std::string("regexes"), str);
-    BOOST_TEST(parser.navigateParent());
-    BOOST_TEST(parser.currentNodeName(str));
-    BOOST_CHECK_EQUAL(std::string("expression"), str);
-    BOOST_TEST(parser.navigateParent());
-    BOOST_TEST(parser.currentNodeName(str));
-    BOOST_CHECK_EQUAL(std::string("parsetree"), str);
-    BOOST_TEST(!parser.navigateNext());
+    BOOST_TEST_REQUIRE(parser.navigateRoot());
+    BOOST_TEST_REQUIRE(parser.currentNodeName(str));
+    BOOST_REQUIRE_EQUAL(std::string("syslog_parser"), str);
+    BOOST_TEST_REQUIRE(parser.navigateFirstChild());
+    BOOST_TEST_REQUIRE(parser.currentNodeName(str));
+    BOOST_REQUIRE_EQUAL(std::string("parsetree"), str);
+    BOOST_TEST_REQUIRE(parser.navigateFirstChild());
+    BOOST_TEST_REQUIRE(parser.currentNodeName(str));
+    BOOST_REQUIRE_EQUAL(std::string("expression"), str);
+    BOOST_TEST_REQUIRE(parser.navigateFirstChild());
+    BOOST_TEST_REQUIRE(parser.currentNodeName(str));
+    BOOST_REQUIRE_EQUAL(std::string("description"), str);
+    BOOST_TEST_REQUIRE(parser.currentNodeValue(str));
+    BOOST_REQUIRE_EQUAL(std::string("Transport node error"), str);
+    BOOST_TEST_REQUIRE(parser.navigateNext());
+    BOOST_TEST_REQUIRE(parser.currentNodeName(str));
+    BOOST_REQUIRE_EQUAL(std::string("regexes"), str);
+    BOOST_TEST_REQUIRE(parser.navigateParent());
+    BOOST_TEST_REQUIRE(parser.currentNodeName(str));
+    BOOST_REQUIRE_EQUAL(std::string("expression"), str);
+    BOOST_TEST_REQUIRE(parser.navigateParent());
+    BOOST_TEST_REQUIRE(parser.currentNodeName(str));
+    BOOST_REQUIRE_EQUAL(std::string("parsetree"), str);
+    BOOST_TEST_REQUIRE(!parser.navigateNext());
 }
 
 BOOST_AUTO_TEST_CASE(testConvert) {
@@ -264,27 +264,27 @@ BOOST_AUTO_TEST_CASE(testConvert) {
 
     LOG_DEBUG(<< "Converted node hierarchy is:\n" << converted);
 
-    BOOST_TEST(converted.find("<root>") != std::string::npos);
-    BOOST_TEST(converted.find("</root>") != std::string::npos);
-    BOOST_TEST(converted.find("<id>") != std::string::npos);
-    BOOST_TEST(converted.find("123") != std::string::npos);
-    BOOST_TEST(converted.find("</id>") != std::string::npos);
-    BOOST_TEST(converted.find("<parent>") != std::string::npos);
-    BOOST_TEST(converted.find("</parent>") != std::string::npos);
-    BOOST_TEST(converted.find("<child>") != std::string::npos);
-    BOOST_TEST(converted.find("boo!") != std::string::npos);
-    BOOST_TEST(converted.find("2nd") != std::string::npos);
-    BOOST_TEST(converted.find("</child>") != std::string::npos);
-    BOOST_TEST(converted.find("<child ") != std::string::npos);
-    BOOST_TEST(converted.find("&amp; ") != std::string::npos);
-    BOOST_TEST((converted.find("<empty/>") != std::string::npos ||
+    BOOST_TEST_REQUIRE(converted.find("<root>") != std::string::npos);
+    BOOST_TEST_REQUIRE(converted.find("</root>") != std::string::npos);
+    BOOST_TEST_REQUIRE(converted.find("<id>") != std::string::npos);
+    BOOST_TEST_REQUIRE(converted.find("123") != std::string::npos);
+    BOOST_TEST_REQUIRE(converted.find("</id>") != std::string::npos);
+    BOOST_TEST_REQUIRE(converted.find("<parent>") != std::string::npos);
+    BOOST_TEST_REQUIRE(converted.find("</parent>") != std::string::npos);
+    BOOST_TEST_REQUIRE(converted.find("<child>") != std::string::npos);
+    BOOST_TEST_REQUIRE(converted.find("boo!") != std::string::npos);
+    BOOST_TEST_REQUIRE(converted.find("2nd") != std::string::npos);
+    BOOST_TEST_REQUIRE(converted.find("</child>") != std::string::npos);
+    BOOST_TEST_REQUIRE(converted.find("<child ") != std::string::npos);
+    BOOST_TEST_REQUIRE(converted.find("&amp; ") != std::string::npos);
+    BOOST_TEST_REQUIRE((converted.find("<empty/>") != std::string::npos ||
                 converted.find("<empty></empty>") != std::string::npos));
-    BOOST_TEST(converted.find("<dual ") != std::string::npos);
-    BOOST_TEST(converted.find("first") != std::string::npos);
-    BOOST_TEST(converted.find("second") != std::string::npos);
-    BOOST_TEST(converted.find("attribute") != std::string::npos);
-    BOOST_TEST(converted.find("got") != std::string::npos);
-    BOOST_TEST(converted.find("</dual>") != std::string::npos);
+    BOOST_TEST_REQUIRE(converted.find("<dual ") != std::string::npos);
+    BOOST_TEST_REQUIRE(converted.find("first") != std::string::npos);
+    BOOST_TEST_REQUIRE(converted.find("second") != std::string::npos);
+    BOOST_TEST_REQUIRE(converted.find("attribute") != std::string::npos);
+    BOOST_TEST_REQUIRE(converted.find("got") != std::string::npos);
+    BOOST_TEST_REQUIRE(converted.find("</dual>") != std::string::npos);
 }
 
 BOOST_AUTO_TEST_CASE(testDump) {
@@ -292,14 +292,14 @@ BOOST_AUTO_TEST_CASE(testDump) {
 
     ml::core::CRapidXmlParser parser1;
 
-    BOOST_TEST(parser1.parseString(goodString));
+    BOOST_TEST_REQUIRE(parser1.parseString(goodString));
 
     testParseHelper(parser1);
 
     std::string expected = parser1.dumpToString();
 
     ml::core::CRapidXmlParser parser2;
-    BOOST_TEST(parser2.parseString(expected));
+    BOOST_TEST_REQUIRE(parser2.parseString(expected));
     testParseHelper(parser2);
 }
 
@@ -316,12 +316,12 @@ BOOST_AUTO_TEST_CASE(testParseSpeed) {
 
     for (size_t count = 0; count < TEST_SIZE; ++count) {
         ml::core::CRapidXmlParser parser;
-        BOOST_TEST(parser.parseString(testString));
+        BOOST_TEST_REQUIRE(parser.parseString(testString));
 
         ml::core::CXmlNodeWithChildren::TXmlNodeWithChildrenP rootNodePtr;
-        BOOST_TEST(parser.toNodeHierarchy(nodePool, rootNodePtr));
+        BOOST_TEST_REQUIRE(parser.toNodeHierarchy(nodePool, rootNodePtr));
 
-        BOOST_TEST(rootNodePtr != nullptr);
+        BOOST_TEST_REQUIRE(rootNodePtr != nullptr);
 
         nodePool.recycle(rootNodePtr);
     }

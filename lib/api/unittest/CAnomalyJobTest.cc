@@ -145,8 +145,8 @@ size_t countBuckets(const std::string& key, const std::string& output) {
     size_t count = 0;
     rapidjson::Document doc;
     doc.Parse<rapidjson::kParseDefaultFlags>(output);
-    BOOST_TEST(!doc.HasParseError());
-    BOOST_TEST(doc.IsArray());
+    BOOST_TEST_REQUIRE(!doc.HasParseError());
+    BOOST_TEST_REQUIRE(doc.IsArray());
 
     const rapidjson::Value& allRecords = doc.GetArray();
     for (auto& r : allRecords.GetArray()) {
@@ -197,8 +197,8 @@ BOOST_AUTO_TEST_CASE(testBadTimes) {
         dataRows["value"] = "1.0";
         dataRows["greenhouse"] = "rhubarb";
 
-        BOOST_TEST(job.handleRecord(dataRows));
-        BOOST_CHECK_EQUAL(uint64_t(0), job.numRecordsHandled());
+        BOOST_TEST_REQUIRE(job.handleRecord(dataRows));
+        BOOST_REQUIRE_EQUAL(uint64_t(0), job.numRecordsHandled());
     }
     {
         // Test with bad time field
@@ -220,8 +220,8 @@ BOOST_AUTO_TEST_CASE(testBadTimes) {
         dataRows["value"] = "1.0";
         dataRows["greenhouse"] = "rhubarb";
 
-        BOOST_TEST(job.handleRecord(dataRows));
-        BOOST_CHECK_EQUAL(uint64_t(0), job.numRecordsHandled());
+        BOOST_TEST_REQUIRE(job.handleRecord(dataRows));
+        BOOST_REQUIRE_EQUAL(uint64_t(0), job.numRecordsHandled());
     }
     {
         // Test with bad time field format
@@ -245,8 +245,8 @@ BOOST_AUTO_TEST_CASE(testBadTimes) {
         dataRows["value"] = "1.0";
         dataRows["greenhouse"] = "rhubarb";
 
-        BOOST_TEST(job.handleRecord(dataRows));
-        BOOST_CHECK_EQUAL(uint64_t(0), job.numRecordsHandled());
+        BOOST_TEST_REQUIRE(job.handleRecord(dataRows));
+        BOOST_REQUIRE_EQUAL(uint64_t(0), job.numRecordsHandled());
     }
 }
 
@@ -275,13 +275,13 @@ BOOST_AUTO_TEST_CASE(testOutOfSequence) {
         dataRows["value"] = "1.0";
         dataRows["greenhouse"] = "rhubarb";
 
-        BOOST_TEST(job.handleRecord(dataRows));
-        BOOST_CHECK_EQUAL(uint64_t(1), job.numRecordsHandled());
+        BOOST_TEST_REQUIRE(job.handleRecord(dataRows));
+        BOOST_REQUIRE_EQUAL(uint64_t(1), job.numRecordsHandled());
 
         dataRows["time"] = "1234567";
 
-        BOOST_TEST(job.handleRecord(dataRows));
-        BOOST_CHECK_EQUAL(uint64_t(1), job.numRecordsHandled());
+        BOOST_TEST_REQUIRE(job.handleRecord(dataRows));
+        BOOST_REQUIRE_EQUAL(uint64_t(1), job.numRecordsHandled());
         job.finalise();
     }
 }
@@ -304,20 +304,20 @@ BOOST_AUTO_TEST_CASE(testControlMessages) {
 
         api::CAnomalyJob::TStrStrUMap dataRows;
         dataRows["."] = " ";
-        BOOST_TEST(job.handleRecord(dataRows));
-        BOOST_CHECK_EQUAL(uint64_t(0), job.numRecordsHandled());
+        BOOST_TEST_REQUIRE(job.handleRecord(dataRows));
+        BOOST_REQUIRE_EQUAL(uint64_t(0), job.numRecordsHandled());
 
         dataRows["."] = ".";
-        BOOST_TEST(job.handleRecord(dataRows));
-        BOOST_CHECK_EQUAL(uint64_t(0), job.numRecordsHandled());
+        BOOST_TEST_REQUIRE(job.handleRecord(dataRows));
+        BOOST_REQUIRE_EQUAL(uint64_t(0), job.numRecordsHandled());
 
         dataRows["."] = "f";
-        BOOST_TEST(job.handleRecord(dataRows));
-        BOOST_CHECK_EQUAL(uint64_t(0), job.numRecordsHandled());
+        BOOST_TEST_REQUIRE(job.handleRecord(dataRows));
+        BOOST_REQUIRE_EQUAL(uint64_t(0), job.numRecordsHandled());
 
         dataRows["."] = "f1";
-        BOOST_TEST(job.handleRecord(dataRows));
-        BOOST_CHECK_EQUAL(uint64_t(0), job.numRecordsHandled());
+        BOOST_TEST_REQUIRE(job.handleRecord(dataRows));
+        BOOST_REQUIRE_EQUAL(uint64_t(0), job.numRecordsHandled());
     }
     {
         // Test reset bucket
@@ -346,14 +346,14 @@ BOOST_AUTO_TEST_CASE(testControlMessages) {
                 dataRows["time"] = ss.str();
                 if (i == 40) {
                     for (std::size_t j = 0; j < 100; j++) {
-                        BOOST_TEST(job.handleRecord(dataRows));
+                        BOOST_TEST_REQUIRE(job.handleRecord(dataRows));
                     }
                 }
-                BOOST_TEST(job.handleRecord(dataRows));
+                BOOST_TEST_REQUIRE(job.handleRecord(dataRows));
                 if (i < 2) {
                     // We haven't processed one full bucket but it should be safe to flush.
                     dataRows["."] = "f1";
-                    BOOST_TEST(job.handleRecord(dataRows));
+                    BOOST_TEST_REQUIRE(job.handleRecord(dataRows));
                     dataRows.erase(".");
                 }
             }
@@ -361,8 +361,8 @@ BOOST_AUTO_TEST_CASE(testControlMessages) {
 
         rapidjson::Document doc;
         doc.Parse<rapidjson::kParseDefaultFlags>(outputStrm.str());
-        BOOST_TEST(!doc.HasParseError());
-        BOOST_TEST(doc.IsArray());
+        BOOST_TEST_REQUIRE(!doc.HasParseError());
+        BOOST_TEST_REQUIRE(doc.IsArray());
 
         const rapidjson::Value& allRecords = doc.GetArray();
         bool foundRecord = false;
@@ -373,15 +373,15 @@ BOOST_AUTO_TEST_CASE(testControlMessages) {
                 auto& recordsArray = recordsIt->value.GetArray()[0];
                 rapidjson::Value::ConstMemberIterator actualIt =
                     recordsArray.FindMember("actual");
-                BOOST_TEST(actualIt != recordsArray.MemberEnd());
+                BOOST_TEST_REQUIRE(actualIt != recordsArray.MemberEnd());
                 const rapidjson::Value::ConstArray& values = actualIt->value.GetArray();
 
-                BOOST_CHECK_EQUAL(102.0, values[0].GetDouble());
+                BOOST_REQUIRE_EQUAL(102.0, values[0].GetDouble());
                 foundRecord = true;
             }
         }
 
-        BOOST_TEST(foundRecord);
+        BOOST_TEST_REQUIRE(foundRecord);
         std::stringstream outputStrm2;
         {
             core::CJsonOutputStreamWrapper wrappedOutputStream(outputStrm2);
@@ -394,16 +394,16 @@ BOOST_AUTO_TEST_CASE(testControlMessages) {
                 dataRows["time"] = ss.str();
                 if (i == 40) {
                     for (std::size_t j = 0; j < 100; j++) {
-                        BOOST_TEST(job.handleRecord(dataRows));
+                        BOOST_TEST_REQUIRE(job.handleRecord(dataRows));
                     }
                 }
-                BOOST_TEST(job.handleRecord(dataRows));
+                BOOST_TEST_REQUIRE(job.handleRecord(dataRows));
                 if (i == 40) {
                     api::CAnomalyJob::TStrStrUMap rows;
                     rows["."] = "r" + ss.str() + " " + ss.str();
-                    BOOST_TEST(job.handleRecord(rows));
+                    BOOST_TEST_REQUIRE(job.handleRecord(rows));
                     for (std::size_t j = 0; j < 100; j++) {
-                        BOOST_TEST(job.handleRecord(dataRows));
+                        BOOST_TEST_REQUIRE(job.handleRecord(dataRows));
                     }
                 }
             }
@@ -411,8 +411,8 @@ BOOST_AUTO_TEST_CASE(testControlMessages) {
 
         rapidjson::Document doc2;
         doc2.Parse<rapidjson::kParseDefaultFlags>(outputStrm2.str());
-        BOOST_TEST(!doc2.HasParseError());
-        BOOST_TEST(doc2.IsArray());
+        BOOST_TEST_REQUIRE(!doc2.HasParseError());
+        BOOST_TEST_REQUIRE(doc2.IsArray());
 
         const rapidjson::Value& allRecords2 = doc2.GetArray();
         foundRecord = false;
@@ -423,15 +423,15 @@ BOOST_AUTO_TEST_CASE(testControlMessages) {
                 auto& recordsArray = recordsIt->value.GetArray()[0];
                 rapidjson::Value::ConstMemberIterator actualIt =
                     recordsArray.FindMember("actual");
-                BOOST_TEST(actualIt != recordsArray.MemberEnd());
+                BOOST_TEST_REQUIRE(actualIt != recordsArray.MemberEnd());
                 const rapidjson::Value::ConstArray& values = actualIt->value.GetArray();
 
-                BOOST_CHECK_EQUAL(101.0, values[0].GetDouble());
+                BOOST_REQUIRE_EQUAL(101.0, values[0].GetDouble());
                 foundRecord = true;
             }
         }
 
-        BOOST_TEST(foundRecord);
+        BOOST_TEST_REQUIRE(foundRecord);
     }
 }
 
@@ -456,33 +456,33 @@ BOOST_AUTO_TEST_CASE(testSkipTimeControlMessage) {
         std::ostringstream ss;
         ss << time;
         dataRows["time"] = ss.str();
-        BOOST_TEST(job.handleRecord(dataRows));
+        BOOST_TEST_REQUIRE(job.handleRecord(dataRows));
     }
 
     wrappedOutputStream.syncFlush();
-    BOOST_CHECK_EQUAL(std::size_t(9), countBuckets("bucket", outputStrm.str() + "]"));
+    BOOST_REQUIRE_EQUAL(std::size_t(9), countBuckets("bucket", outputStrm.str() + "]"));
 
     // Now let's skip time to Thursday, June 29, 2017 12:00:00 AM
     time = 1498694400;
     dataRows["."] = "s1498694400";
-    BOOST_TEST(job.handleRecord(dataRows));
+    BOOST_TEST_REQUIRE(job.handleRecord(dataRows));
     dataRows.erase(".");
 
     // Check no new bucket results were written
     wrappedOutputStream.syncFlush();
-    BOOST_CHECK_EQUAL(std::size_t(9), countBuckets("bucket", outputStrm.str() + "]"));
+    BOOST_REQUIRE_EQUAL(std::size_t(9), countBuckets("bucket", outputStrm.str() + "]"));
 
     // Let's send a few buckets after skip time
     for (std::size_t i = 0; i < 3; ++i, time += BUCKET_SIZE) {
         std::ostringstream ss;
         ss << time;
         dataRows["time"] = ss.str();
-        BOOST_TEST(job.handleRecord(dataRows));
+        BOOST_TEST_REQUIRE(job.handleRecord(dataRows));
     }
 
     // Assert only 2 new buckets were written
     wrappedOutputStream.syncFlush();
-    BOOST_CHECK_EQUAL(std::size_t(11), countBuckets("bucket", outputStrm.str() + "]"));
+    BOOST_REQUIRE_EQUAL(std::size_t(11), countBuckets("bucket", outputStrm.str() + "]"));
 }
 
 BOOST_AUTO_TEST_CASE(testIsPersistenceNeeded) {
@@ -504,7 +504,7 @@ BOOST_AUTO_TEST_CASE(testIsPersistenceNeeded) {
 
         api::CAnomalyJob job("job", limits, fieldConfig, modelConfig, wrappedOutputStream);
 
-        BOOST_CHECK_EQUAL(false, job.isPersistenceNeeded("test state"));
+        BOOST_REQUIRE_EQUAL(false, job.isPersistenceNeeded("test state"));
 
         job.finalise();
         wrappedOutputStream.syncFlush();
@@ -517,7 +517,7 @@ BOOST_AUTO_TEST_CASE(testIsPersistenceNeeded) {
         regex.init("\n");
         core::CRegex::TStrVec lines;
         regex.split(output, lines);
-        BOOST_CHECK_EQUAL(false, findLine("\"quantiles\":{\"job_id\":\"job\",\"quantile_state\".*",
+        BOOST_REQUIRE_EQUAL(false, findLine("\"quantiles\":{\"job_id\":\"job\",\"quantile_state\".*",
                                           lines));
     }
 
@@ -535,9 +535,9 @@ BOOST_AUTO_TEST_CASE(testIsPersistenceNeeded) {
         std::ostringstream ss;
         ss << time;
         dataRows["time"] = ss.str();
-        BOOST_TEST(job.handleRecord(dataRows));
+        BOOST_TEST_REQUIRE(job.handleRecord(dataRows));
 
-        BOOST_CHECK_EQUAL(true, job.isPersistenceNeeded("test state"));
+        BOOST_REQUIRE_EQUAL(true, job.isPersistenceNeeded("test state"));
 
         job.finalise();
         wrappedOutputStream.syncFlush();
@@ -550,7 +550,7 @@ BOOST_AUTO_TEST_CASE(testIsPersistenceNeeded) {
         regex.init("\n");
         core::CRegex::TStrVec lines;
         regex.split(output, lines);
-        BOOST_CHECK_EQUAL(true, findLine("\"quantiles\":{\"job_id\":\"job\",\"quantile_state\".*",
+        BOOST_REQUIRE_EQUAL(true, findLine("\"quantiles\":{\"job_id\":\"job\",\"quantile_state\".*",
                                          lines));
     }
 
@@ -567,10 +567,10 @@ BOOST_AUTO_TEST_CASE(testIsPersistenceNeeded) {
 
         time = 39600;
         dataRows["."] = "t39600";
-        BOOST_TEST(job.handleRecord(dataRows));
-        BOOST_TEST(job.isPersistenceNeeded("test state"));
+        BOOST_TEST_REQUIRE(job.handleRecord(dataRows));
+        BOOST_TEST_REQUIRE(job.isPersistenceNeeded("test state"));
 
-        BOOST_CHECK_EQUAL(true, job.isPersistenceNeeded("test state"));
+        BOOST_REQUIRE_EQUAL(true, job.isPersistenceNeeded("test state"));
 
         job.finalise();
         wrappedOutputStream.syncFlush();
@@ -583,7 +583,7 @@ BOOST_AUTO_TEST_CASE(testIsPersistenceNeeded) {
         regex.init("\n");
         core::CRegex::TStrVec lines;
         regex.split(output, lines);
-        BOOST_CHECK_EQUAL(true, findLine("\"quantiles\":{\"job_id\":\"job\",\"quantile_state\".*",
+        BOOST_REQUIRE_EQUAL(true, findLine("\"quantiles\":{\"job_id\":\"job\",\"quantile_state\".*",
                                          lines));
     }
 }
@@ -613,38 +613,38 @@ BOOST_AUTO_TEST_CASE(testModelPlot) {
         dataRows["time"] = "10000000";
         dataRows["value"] = "2.0";
         dataRows["animal"] = "baboon";
-        BOOST_TEST(job.handleRecord(dataRows));
+        BOOST_TEST_REQUIRE(job.handleRecord(dataRows));
         dataRows["value"] = "5.0";
         dataRows["animal"] = "shark";
-        BOOST_TEST(job.handleRecord(dataRows));
+        BOOST_TEST_REQUIRE(job.handleRecord(dataRows));
         dataRows["time"] = "10010000";
         dataRows["value"] = "2.0";
         dataRows["animal"] = "baboon";
-        BOOST_TEST(job.handleRecord(dataRows));
+        BOOST_TEST_REQUIRE(job.handleRecord(dataRows));
         dataRows["value"] = "5.0";
         dataRows["animal"] = "shark";
-        BOOST_TEST(job.handleRecord(dataRows));
+        BOOST_TEST_REQUIRE(job.handleRecord(dataRows));
         dataRows["time"] = "10020000";
         dataRows["value"] = "2.0";
         dataRows["animal"] = "baboon";
-        BOOST_TEST(job.handleRecord(dataRows));
+        BOOST_TEST_REQUIRE(job.handleRecord(dataRows));
         dataRows["value"] = "5.0";
         dataRows["animal"] = "shark";
-        BOOST_TEST(job.handleRecord(dataRows));
+        BOOST_TEST_REQUIRE(job.handleRecord(dataRows));
         dataRows["time"] = "10030000";
         dataRows["value"] = "2.0";
         dataRows["animal"] = "baboon";
-        BOOST_TEST(job.handleRecord(dataRows));
+        BOOST_TEST_REQUIRE(job.handleRecord(dataRows));
         dataRows["value"] = "5.0";
         dataRows["animal"] = "shark";
-        BOOST_TEST(job.handleRecord(dataRows));
+        BOOST_TEST_REQUIRE(job.handleRecord(dataRows));
         dataRows["time"] = "10040000";
         dataRows["value"] = "3.0";
         dataRows["animal"] = "baboon";
-        BOOST_TEST(job.handleRecord(dataRows));
+        BOOST_TEST_REQUIRE(job.handleRecord(dataRows));
         dataRows["value"] = "5.0";
         dataRows["animal"] = "shark";
-        BOOST_TEST(job.handleRecord(dataRows));
+        BOOST_TEST_REQUIRE(job.handleRecord(dataRows));
         job.finalise();
     }
 
@@ -654,14 +654,14 @@ BOOST_AUTO_TEST_CASE(testModelPlot) {
     regex.init("\n");
     core::CRegex::TStrVec lines;
     regex.split(output, lines);
-    BOOST_TEST(findLine("model_feature.*timestamp.*10000000.*baboon", lines));
-    BOOST_TEST(findLine("model_feature.*timestamp.*10000000.*shark", lines));
-    BOOST_TEST(findLine("model_feature.*timestamp.*10010000.*baboon", lines));
-    BOOST_TEST(findLine("model_feature.*timestamp.*10010000.*shark", lines));
-    BOOST_TEST(findLine("model_feature.*timestamp.*10020000.*baboon", lines));
-    BOOST_TEST(findLine("model_feature.*timestamp.*10020000.*shark", lines));
-    BOOST_TEST(findLine("model_feature.*timestamp.*10030000.*baboon", lines));
-    BOOST_TEST(findLine("model_feature.*timestamp.*10030000.*shark", lines));
+    BOOST_TEST_REQUIRE(findLine("model_feature.*timestamp.*10000000.*baboon", lines));
+    BOOST_TEST_REQUIRE(findLine("model_feature.*timestamp.*10000000.*shark", lines));
+    BOOST_TEST_REQUIRE(findLine("model_feature.*timestamp.*10010000.*baboon", lines));
+    BOOST_TEST_REQUIRE(findLine("model_feature.*timestamp.*10010000.*shark", lines));
+    BOOST_TEST_REQUIRE(findLine("model_feature.*timestamp.*10020000.*baboon", lines));
+    BOOST_TEST_REQUIRE(findLine("model_feature.*timestamp.*10020000.*shark", lines));
+    BOOST_TEST_REQUIRE(findLine("model_feature.*timestamp.*10030000.*baboon", lines));
+    BOOST_TEST_REQUIRE(findLine("model_feature.*timestamp.*10030000.*shark", lines));
 }
 
 BOOST_AUTO_TEST_CASE(testInterimResultEdgeCases) {
@@ -683,33 +683,33 @@ BOOST_AUTO_TEST_CASE(testInterimResultEdgeCases) {
     api::CAnomalyJob job("job", limits, fieldConfig, modelConfig, wrappedOutputStream);
 
     std::remove(logFile);
-    BOOST_TEST(ml::core::CLogger::instance().reconfigureFromFile(
+    BOOST_TEST_REQUIRE(ml::core::CLogger::instance().reconfigureFromFile(
         "testfiles/testLogErrors.boost.log.ini"));
 
     api::CAnomalyJob::TStrStrUMap dataRows;
     dataRows["time"] = "3610";
     dataRows["error"] = "e1";
-    BOOST_TEST(job.handleRecord(dataRows));
+    BOOST_TEST_REQUIRE(job.handleRecord(dataRows));
     dataRows["time"] = "3670";
     dataRows["error"] = "e2";
-    BOOST_TEST(job.handleRecord(dataRows));
+    BOOST_TEST_REQUIRE(job.handleRecord(dataRows));
     dataRows["time"] = "6820";
     dataRows["error"] = "e1";
-    BOOST_TEST(job.handleRecord(dataRows));
+    BOOST_TEST_REQUIRE(job.handleRecord(dataRows));
     dataRows["time"] = "6820";
     dataRows["error"] = "e1";
-    BOOST_TEST(job.handleRecord(dataRows));
+    BOOST_TEST_REQUIRE(job.handleRecord(dataRows));
     dataRows["time"] = "7850";
     dataRows["error"] = "e1";
-    BOOST_TEST(job.handleRecord(dataRows));
+    BOOST_TEST_REQUIRE(job.handleRecord(dataRows));
     dataRows["time"] = "9310";
     dataRows["error"] = "e2";
-    BOOST_TEST(job.handleRecord(dataRows));
+    BOOST_TEST_REQUIRE(job.handleRecord(dataRows));
 
     dataRows["."] = "t7200";
-    BOOST_TEST(job.handleRecord(dataRows));
+    BOOST_TEST_REQUIRE(job.handleRecord(dataRows));
     dataRows["."] = "i";
-    BOOST_TEST(job.handleRecord(dataRows));
+    BOOST_TEST_REQUIRE(job.handleRecord(dataRows));
 
     // Revert to the default logger settings
     ml::core::CLogger::instance().reset();
@@ -721,7 +721,7 @@ BOOST_AUTO_TEST_CASE(testInterimResultEdgeCases) {
         char line[256];
         while (log.getline(line, 256)) {
             LOG_DEBUG(<< "Got '" << line << "'");
-            BOOST_TEST(false);
+            BOOST_TEST_REQUIRE(false);
         }
         log.close();
         std::remove(logFile);
@@ -744,7 +744,7 @@ BOOST_AUTO_TEST_CASE(testRestoreFailsWithEmptyStream) {
 
     core_t::TTime completeToTime(0);
     CEmptySearcher restoreSearcher;
-    BOOST_TEST(job.restoreState(restoreSearcher, completeToTime) == false);
+    BOOST_TEST_REQUIRE(job.restoreState(restoreSearcher, completeToTime) == false);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

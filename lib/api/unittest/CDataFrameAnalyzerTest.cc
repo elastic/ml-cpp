@@ -94,7 +94,7 @@ rapidjson::Document treeToJsonDocument(const maths::CBoostedTree& tree) {
     }
     rapidjson::Document results;
     rapidjson::ParseResult ok(results.Parse(persistStream.str()));
-    BOOST_TEST(static_cast<bool>(ok) == true);
+    BOOST_TEST_REQUIRE(static_cast<bool>(ok) == true);
     return results;
 }
 
@@ -524,11 +524,11 @@ void testOneRunOfBoostedTreeTrainingWithStateRecovery(F makeSpec, std::size_t it
         if (expectedHyperparameters.HasMember(key)) {
             double expected{std::stod(expectedHyperparameters[key].GetString())};
             double actual{std::stod(actualHyperparameters[key].GetString())};
-            BOOST_CHECK_CLOSE_ABSOLUTE(expected, actual, 1e-4 * expected);
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(expected, actual, 1e-4 * expected);
         } else if (expectedRegularizationHyperparameters.HasMember(key)) {
             double expected{std::stod(expectedRegularizationHyperparameters[key].GetString())};
             double actual{std::stod(actualRegularizationHyperparameters[key].GetString())};
-            BOOST_CHECK_CLOSE_ABSOLUTE(expected, actual, 1e-4 * expected);
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(expected, actual, 1e-4 * expected);
         } else {
             BOOST_FAIL("Missing " + key);
         }
@@ -560,25 +560,25 @@ BOOST_AUTO_TEST_CASE(testWithoutControlMessages) {
 
     rapidjson::Document results;
     rapidjson::ParseResult ok(results.Parse(output.str()));
-    BOOST_TEST(static_cast<bool>(ok) == true);
+    BOOST_TEST_REQUIRE(static_cast<bool>(ok) == true);
 
     auto expectedScore = expectedScores.begin();
     for (const auto& result : results.GetArray()) {
         if (result.HasMember("row_results")) {
-            BOOST_TEST(expectedScore != expectedScores.end());
-            BOOST_CHECK_CLOSE_ABSOLUTE(
+            BOOST_TEST_REQUIRE(expectedScore != expectedScores.end());
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(
                 *expectedScore,
                 result["row_results"]["results"]["ml"]["outlier_score"].GetDouble(),
                 1e-4 * *expectedScore);
-            BOOST_TEST(result.HasMember("progress_percent") == false);
+            BOOST_TEST_REQUIRE(result.HasMember("progress_percent") == false);
             ++expectedScore;
         } else if (result.HasMember("progress_percent")) {
-            BOOST_TEST(result["progress_percent"].GetInt() >= 0);
-            BOOST_TEST(result["progress_percent"].GetInt() <= 100);
-            BOOST_TEST(result.HasMember("row_results") == false);
+            BOOST_TEST_REQUIRE(result["progress_percent"].GetInt() >= 0);
+            BOOST_TEST_REQUIRE(result["progress_percent"].GetInt() <= 100);
+            BOOST_TEST_REQUIRE(result.HasMember("row_results") == false);
         }
     }
-    BOOST_TEST(expectedScore == expectedScores.end());
+    BOOST_TEST_REQUIRE(expectedScore == expectedScores.end());
 }
 
 BOOST_AUTO_TEST_CASE(testRunOutlierDetection) {
@@ -604,35 +604,35 @@ BOOST_AUTO_TEST_CASE(testRunOutlierDetection) {
 
     rapidjson::Document results;
     rapidjson::ParseResult ok(results.Parse(output.str()));
-    BOOST_TEST(static_cast<bool>(ok) == true);
+    BOOST_TEST_REQUIRE(static_cast<bool>(ok) == true);
 
     auto expectedScore = expectedScores.begin();
     bool progressCompleted{false};
     for (const auto& result : results.GetArray()) {
         if (result.HasMember("row_results")) {
-            BOOST_TEST(expectedScore != expectedScores.end());
-            BOOST_CHECK_CLOSE_ABSOLUTE(
+            BOOST_TEST_REQUIRE(expectedScore != expectedScores.end());
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(
                 *expectedScore,
                 result["row_results"]["results"]["ml"]["outlier_score"].GetDouble(),
                 1e-4 * *expectedScore);
             ++expectedScore;
-            BOOST_TEST(result.HasMember("progress_percent") == false);
+            BOOST_TEST_REQUIRE(result.HasMember("progress_percent") == false);
         } else if (result.HasMember("progress_percent")) {
-            BOOST_TEST(result["progress_percent"].GetInt() >= 0);
-            BOOST_TEST(result["progress_percent"].GetInt() <= 100);
-            BOOST_TEST(result.HasMember("row_results") == false);
+            BOOST_TEST_REQUIRE(result["progress_percent"].GetInt() >= 0);
+            BOOST_TEST_REQUIRE(result["progress_percent"].GetInt() <= 100);
+            BOOST_TEST_REQUIRE(result.HasMember("row_results") == false);
             progressCompleted = result["progress_percent"].GetInt() == 100;
         }
     }
-    BOOST_TEST(expectedScore == expectedScores.end());
-    BOOST_TEST(progressCompleted);
+    BOOST_TEST_REQUIRE(expectedScore == expectedScores.end());
+    BOOST_TEST_REQUIRE(progressCompleted);
 
     LOG_DEBUG(<< "number partitions = "
               << core::CProgramCounters::counter(counter_t::E_DFONumberPartitions));
     LOG_DEBUG(<< "peak memory = "
               << core::CProgramCounters::counter(counter_t::E_DFOPeakMemoryUsage));
-    BOOST_TEST(core::CProgramCounters::counter(counter_t::E_DFONumberPartitions) == 1);
-    BOOST_TEST(core::CProgramCounters::counter(counter_t::E_DFOPeakMemoryUsage) < 100000);
+    BOOST_TEST_REQUIRE(core::CProgramCounters::counter(counter_t::E_DFONumberPartitions) == 1);
+    BOOST_TEST_REQUIRE(core::CProgramCounters::counter(counter_t::E_DFOPeakMemoryUsage) < 100000);
 }
 
 BOOST_AUTO_TEST_CASE(testRunOutlierDetectionPartitioned) {
@@ -658,27 +658,27 @@ BOOST_AUTO_TEST_CASE(testRunOutlierDetectionPartitioned) {
 
     rapidjson::Document results;
     rapidjson::ParseResult ok(results.Parse(output.str()));
-    BOOST_TEST(static_cast<bool>(ok) == true);
+    BOOST_TEST_REQUIRE(static_cast<bool>(ok) == true);
 
     auto expectedScore = expectedScores.begin();
     for (const auto& result : results.GetArray()) {
         if (result.HasMember("row_results")) {
-            BOOST_TEST(expectedScore != expectedScores.end());
-            BOOST_CHECK_CLOSE_ABSOLUTE(
+            BOOST_TEST_REQUIRE(expectedScore != expectedScores.end());
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(
                 *expectedScore,
                 result["row_results"]["results"]["ml"]["outlier_score"].GetDouble(),
                 1e-4 * *expectedScore);
             ++expectedScore;
         }
     }
-    BOOST_TEST(expectedScore == expectedScores.end());
+    BOOST_TEST_REQUIRE(expectedScore == expectedScores.end());
 
     LOG_DEBUG(<< "number partitions = "
               << core::CProgramCounters::counter(counter_t::E_DFONumberPartitions));
     LOG_DEBUG(<< "peak memory = "
               << core::CProgramCounters::counter(counter_t::E_DFOPeakMemoryUsage));
-    BOOST_TEST(core::CProgramCounters::counter(counter_t::E_DFONumberPartitions) > 1);
-    BOOST_TEST(core::CProgramCounters::counter(counter_t::E_DFOPeakMemoryUsage) < 116000); // + 16%
+    BOOST_TEST_REQUIRE(core::CProgramCounters::counter(counter_t::E_DFONumberPartitions) > 1);
+    BOOST_TEST_REQUIRE(core::CProgramCounters::counter(counter_t::E_DFOPeakMemoryUsage) < 116000); // + 16%
 }
 
 BOOST_AUTO_TEST_CASE(testRunOutlierFeatureInfluences) {
@@ -705,14 +705,14 @@ BOOST_AUTO_TEST_CASE(testRunOutlierFeatureInfluences) {
 
     rapidjson::Document results;
     rapidjson::ParseResult ok(results.Parse(output.str()));
-    BOOST_TEST(static_cast<bool>(ok) == true);
+    BOOST_TEST_REQUIRE(static_cast<bool>(ok) == true);
 
     auto expectedFeatureInfluence = expectedFeatureInfluences.begin();
     for (const auto& result : results.GetArray()) {
         if (result.HasMember("row_results")) {
-            BOOST_TEST(expectedFeatureInfluence != expectedFeatureInfluences.end());
+            BOOST_TEST_REQUIRE(expectedFeatureInfluence != expectedFeatureInfluences.end());
             for (std::size_t i = 0; i < 5; ++i) {
-                BOOST_CHECK_CLOSE_ABSOLUTE(
+                BOOST_REQUIRE_CLOSE_ABSOLUTE(
                     (*expectedFeatureInfluence)[i],
                     result["row_results"]["results"]["ml"][expectedNames[i]].GetDouble(),
                     1e-4 * (*expectedFeatureInfluence)[i]);
@@ -720,7 +720,7 @@ BOOST_AUTO_TEST_CASE(testRunOutlierFeatureInfluences) {
             ++expectedFeatureInfluence;
         }
     }
-    BOOST_TEST(expectedFeatureInfluence == expectedFeatureInfluences.end());
+    BOOST_TEST_REQUIRE(expectedFeatureInfluence == expectedFeatureInfluences.end());
 }
 
 BOOST_AUTO_TEST_CASE(testRunOutlierDetectionWithParams) {
@@ -756,20 +756,20 @@ BOOST_AUTO_TEST_CASE(testRunOutlierDetectionWithParams) {
 
             rapidjson::Document results;
             rapidjson::ParseResult ok(results.Parse(output.str()));
-            BOOST_TEST(static_cast<bool>(ok) == true);
+            BOOST_TEST_REQUIRE(static_cast<bool>(ok) == true);
 
             auto expectedScore = expectedScores.begin();
             for (const auto& result : results.GetArray()) {
                 if (result.HasMember("row_results")) {
-                    BOOST_TEST(expectedScore != expectedScores.end());
-                    BOOST_CHECK_CLOSE_ABSOLUTE(
+                    BOOST_TEST_REQUIRE(expectedScore != expectedScores.end());
+                    BOOST_REQUIRE_CLOSE_ABSOLUTE(
                         *expectedScore,
                         result["row_results"]["results"]["ml"]["outlier_score"].GetDouble(),
                         1e-6 * *expectedScore);
                     ++expectedScore;
                 }
             }
-            BOOST_TEST(expectedScore == expectedScores.end());
+            BOOST_TEST_REQUIRE(expectedScore == expectedScores.end());
         }
     }
 }
@@ -796,28 +796,28 @@ BOOST_AUTO_TEST_CASE(testRunBoostedTreeRegressionTraining) {
 
     rapidjson::Document results;
     rapidjson::ParseResult ok(results.Parse(output.str()));
-    BOOST_TEST(static_cast<bool>(ok) == true);
+    BOOST_TEST_REQUIRE(static_cast<bool>(ok) == true);
 
     auto expectedPrediction = expectedPredictions.begin();
     bool progressCompleted{false};
     for (const auto& result : results.GetArray()) {
         if (result.HasMember("row_results")) {
-            BOOST_TEST(expectedPrediction != expectedPredictions.end());
-            BOOST_CHECK_CLOSE_ABSOLUTE(
+            BOOST_TEST_REQUIRE(expectedPrediction != expectedPredictions.end());
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(
                 *expectedPrediction,
                 result["row_results"]["results"]["ml"]["c5_prediction"].GetDouble(),
                 1e-4 * std::fabs(*expectedPrediction));
             ++expectedPrediction;
-            BOOST_TEST(result.HasMember("progress_percent") == false);
+            BOOST_TEST_REQUIRE(result.HasMember("progress_percent") == false);
         } else if (result.HasMember("progress_percent")) {
-            BOOST_TEST(result["progress_percent"].GetInt() >= 0);
-            BOOST_TEST(result["progress_percent"].GetInt() <= 100);
-            BOOST_TEST(result.HasMember("row_results") == false);
+            BOOST_TEST_REQUIRE(result["progress_percent"].GetInt() >= 0);
+            BOOST_TEST_REQUIRE(result["progress_percent"].GetInt() <= 100);
+            BOOST_TEST_REQUIRE(result.HasMember("row_results") == false);
             progressCompleted = result["progress_percent"].GetInt() == 100;
         }
     }
-    BOOST_TEST(expectedPrediction == expectedPredictions.end());
-    BOOST_TEST(progressCompleted);
+    BOOST_TEST_REQUIRE(expectedPrediction == expectedPredictions.end());
+    BOOST_TEST_REQUIRE(progressCompleted);
 
     LOG_DEBUG(<< "estimated memory usage = "
               << core::CProgramCounters::counter(counter_t::E_DFTPMEstimatedPeakMemoryUsage));
@@ -826,10 +826,10 @@ BOOST_AUTO_TEST_CASE(testRunBoostedTreeRegressionTraining) {
     LOG_DEBUG(<< "time to train = " << core::CProgramCounters::counter(counter_t::E_DFTPMTimeToTrain)
               << "ms");
 
-    BOOST_TEST(core::CProgramCounters::counter(counter_t::E_DFTPMEstimatedPeakMemoryUsage) < 2700000);
-    BOOST_TEST(core::CProgramCounters::counter(counter_t::E_DFTPMPeakMemoryUsage) < 1050000);
-    BOOST_TEST(core::CProgramCounters::counter(counter_t::E_DFTPMTimeToTrain) > 0);
-    BOOST_TEST(core::CProgramCounters::counter(counter_t::E_DFTPMTimeToTrain) <= duration);
+    BOOST_TEST_REQUIRE(core::CProgramCounters::counter(counter_t::E_DFTPMEstimatedPeakMemoryUsage) < 2700000);
+    BOOST_TEST_REQUIRE(core::CProgramCounters::counter(counter_t::E_DFTPMPeakMemoryUsage) < 1050000);
+    BOOST_TEST_REQUIRE(core::CProgramCounters::counter(counter_t::E_DFTPMTimeToTrain) > 0);
+    BOOST_TEST_REQUIRE(core::CProgramCounters::counter(counter_t::E_DFTPMTimeToTrain) <= duration);
 }
 
 BOOST_AUTO_TEST_CASE(testRunBoostedTreeRegressionTrainingWithParams) {
@@ -869,28 +869,28 @@ BOOST_AUTO_TEST_CASE(testRunBoostedTreeRegressionTrainingWithParams) {
 
     rapidjson::Document results;
     rapidjson::ParseResult ok(results.Parse(output.str()));
-    BOOST_TEST(static_cast<bool>(ok) == true);
+    BOOST_TEST_REQUIRE(static_cast<bool>(ok) == true);
 
     auto expectedPrediction = expectedPredictions.begin();
     bool progressCompleted{false};
     for (const auto& result : results.GetArray()) {
         if (result.HasMember("row_results")) {
-            BOOST_TEST(expectedPrediction != expectedPredictions.end());
-            BOOST_CHECK_CLOSE_ABSOLUTE(
+            BOOST_TEST_REQUIRE(expectedPrediction != expectedPredictions.end());
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(
                 *expectedPrediction,
                 result["row_results"]["results"]["ml"]["c5_prediction"].GetDouble(),
                 1e-4 * std::fabs(*expectedPrediction));
             ++expectedPrediction;
-            BOOST_TEST(result.HasMember("progress_percent") == false);
+            BOOST_TEST_REQUIRE(result.HasMember("progress_percent") == false);
         } else if (result.HasMember("progress_percent")) {
-            BOOST_TEST(result["progress_percent"].GetInt() >= 0);
-            BOOST_TEST(result["progress_percent"].GetInt() <= 100);
-            BOOST_TEST(result.HasMember("row_results") == false);
+            BOOST_TEST_REQUIRE(result["progress_percent"].GetInt() >= 0);
+            BOOST_TEST_REQUIRE(result["progress_percent"].GetInt() <= 100);
+            BOOST_TEST_REQUIRE(result.HasMember("row_results") == false);
             progressCompleted = result["progress_percent"].GetInt() == 100;
         }
     }
-    BOOST_TEST(expectedPrediction == expectedPredictions.end());
-    BOOST_TEST(progressCompleted);
+    BOOST_TEST_REQUIRE(expectedPrediction == expectedPredictions.end());
+    BOOST_TEST_REQUIRE(progressCompleted);
 }
 
 BOOST_AUTO_TEST_CASE(testRunBoostedTreeRegressionTrainingWithRowsMissingTargetValue) {
@@ -932,24 +932,24 @@ BOOST_AUTO_TEST_CASE(testRunBoostedTreeRegressionTrainingWithRowsMissingTargetVa
 
     rapidjson::Document results;
     rapidjson::ParseResult ok(results.Parse(output.str()));
-    BOOST_TEST(static_cast<bool>(ok) == true);
+    BOOST_TEST_REQUIRE(static_cast<bool>(ok) == true);
 
     std::size_t numberResults{0};
     for (const auto& result : results.GetArray()) {
         if (result.HasMember("row_results")) {
             std::size_t index(result["row_results"]["checksum"].GetUint64());
             double expected{target(feature[index])};
-            BOOST_CHECK_CLOSE_ABSOLUTE(
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(
                 expected,
                 result["row_results"]["results"]["ml"]["target_prediction"].GetDouble(),
                 0.15 * expected);
-            BOOST_CHECK_EQUAL(
+            BOOST_REQUIRE_EQUAL(
                 index < 40,
                 result["row_results"]["results"]["ml"]["is_training"].GetBool());
             ++numberResults;
         }
     }
-    BOOST_CHECK_EQUAL(std::size_t{50}, numberResults);
+    BOOST_REQUIRE_EQUAL(std::size_t{50}, numberResults);
 }
 
 BOOST_AUTO_TEST_CASE(testRunBoostedTreeRegressionTrainingWithStateRecovery) {
@@ -1034,27 +1034,27 @@ BOOST_AUTO_TEST_CASE(testRunBoostedTreeClassifierTraining) {
 
     rapidjson::Document results;
     rapidjson::ParseResult ok(results.Parse(output.str()));
-    BOOST_TEST(static_cast<bool>(ok) == true);
+    BOOST_TEST_REQUIRE(static_cast<bool>(ok) == true);
 
     auto expectedPrediction = expectedPredictions.begin();
     bool progressCompleted{false};
     for (const auto& result : results.GetArray()) {
         if (result.HasMember("row_results")) {
-            BOOST_TEST(expectedPrediction != expectedPredictions.end());
+            BOOST_TEST_REQUIRE(expectedPrediction != expectedPredictions.end());
             std::string actualPrediction{
                 result["row_results"]["results"]["ml"]["c5_prediction"].GetString()};
-            BOOST_CHECK_EQUAL(*expectedPrediction, actualPrediction);
+            BOOST_REQUIRE_EQUAL(*expectedPrediction, actualPrediction);
             ++expectedPrediction;
-            BOOST_TEST(result.HasMember("progress_percent") == false);
+            BOOST_TEST_REQUIRE(result.HasMember("progress_percent") == false);
         } else if (result.HasMember("progress_percent")) {
-            BOOST_TEST(result["progress_percent"].GetInt() >= 0);
-            BOOST_TEST(result["progress_percent"].GetInt() <= 100);
-            BOOST_TEST(result.HasMember("row_results") == false);
+            BOOST_TEST_REQUIRE(result["progress_percent"].GetInt() >= 0);
+            BOOST_TEST_REQUIRE(result["progress_percent"].GetInt() <= 100);
+            BOOST_TEST_REQUIRE(result.HasMember("row_results") == false);
             progressCompleted = result["progress_percent"].GetInt() == 100;
         }
     }
-    BOOST_TEST(expectedPrediction == expectedPredictions.end());
-    BOOST_TEST(progressCompleted);
+    BOOST_TEST_REQUIRE(expectedPrediction == expectedPredictions.end());
+    BOOST_TEST_REQUIRE(progressCompleted);
 
     LOG_DEBUG(<< "estimated memory usage = "
               << core::CProgramCounters::counter(counter_t::E_DFTPMEstimatedPeakMemoryUsage));
@@ -1062,10 +1062,10 @@ BOOST_AUTO_TEST_CASE(testRunBoostedTreeClassifierTraining) {
               << core::CProgramCounters::counter(counter_t::E_DFTPMPeakMemoryUsage));
     LOG_DEBUG(<< "time to train = " << core::CProgramCounters::counter(counter_t::E_DFTPMTimeToTrain)
               << "ms");
-    BOOST_TEST(core::CProgramCounters::counter(counter_t::E_DFTPMEstimatedPeakMemoryUsage) < 2650000);
-    BOOST_TEST(core::CProgramCounters::counter(counter_t::E_DFTPMPeakMemoryUsage) < 1050000);
-    BOOST_TEST(core::CProgramCounters::counter(counter_t::E_DFTPMTimeToTrain) > 0);
-    BOOST_TEST(core::CProgramCounters::counter(counter_t::E_DFTPMTimeToTrain) <= duration);
+    BOOST_TEST_REQUIRE(core::CProgramCounters::counter(counter_t::E_DFTPMEstimatedPeakMemoryUsage) < 2650000);
+    BOOST_TEST_REQUIRE(core::CProgramCounters::counter(counter_t::E_DFTPMPeakMemoryUsage) < 1050000);
+    BOOST_TEST_REQUIRE(core::CProgramCounters::counter(counter_t::E_DFTPMTimeToTrain) > 0);
+    BOOST_TEST_REQUIRE(core::CProgramCounters::counter(counter_t::E_DFTPMTimeToTrain) <= duration);
 }
 
 BOOST_AUTO_TEST_CASE(testFlushMessage) {
@@ -1078,7 +1078,7 @@ BOOST_AUTO_TEST_CASE(testFlushMessage) {
     };
 
     api::CDataFrameAnalyzer analyzer{outlierSpec(), outputWriterFactory};
-    BOOST_CHECK_EQUAL(
+    BOOST_REQUIRE_EQUAL(
         true, analyzer.handleRecord({"c1", "c2", "c3", "c4", "c5", ".", "."},
                                     {"", "", "", "", "", "", "           "}));
 }
@@ -1106,8 +1106,8 @@ BOOST_AUTO_TEST_CASE(testErrors) {
             std::make_unique<api::CDataFrameAnalysisSpecification>(std::string{"junk"}),
             outputWriterFactory};
         LOG_DEBUG(<< core::CContainerPrinter::print(errors));
-        BOOST_TEST(errors.size() > 0);
-        BOOST_CHECK_EQUAL(false, analyzer.handleRecord({"c1", "c2", "c3", "c4", "c5"},
+        BOOST_TEST_REQUIRE(errors.size() > 0);
+        BOOST_REQUIRE_EQUAL(false, analyzer.handleRecord({"c1", "c2", "c3", "c4", "c5"},
                                                        {"10", "10", "10", "10", "10"}));
     }
 
@@ -1115,44 +1115,44 @@ BOOST_AUTO_TEST_CASE(testErrors) {
     {
         errors.clear();
         api::CDataFrameAnalyzer analyzer{outlierSpec(), outputWriterFactory};
-        BOOST_CHECK_EQUAL(
+        BOOST_REQUIRE_EQUAL(
             false, analyzer.handleRecord({"c1", "c2", "c3", ".", "c4", "c5", "."},
                                          {"10", "10", "10", "", "10", "10", ""}));
         LOG_DEBUG(<< core::CContainerPrinter::print(errors));
-        BOOST_TEST(errors.size() > 0);
+        BOOST_TEST_REQUIRE(errors.size() > 0);
     }
 
     // Test missing special field
     {
         api::CDataFrameAnalyzer analyzer{outlierSpec(), outputWriterFactory};
         errors.clear();
-        BOOST_CHECK_EQUAL(
+        BOOST_REQUIRE_EQUAL(
             false, analyzer.handleRecord({"c1", "c2", "c3", "c4", "c5", "."},
                                          {"10", "10", "10", "10", "10", ""}));
         LOG_DEBUG(<< core::CContainerPrinter::print(errors));
-        BOOST_TEST(errors.size() > 0);
+        BOOST_TEST_REQUIRE(errors.size() > 0);
     }
 
     // Test bad control message
     {
         api::CDataFrameAnalyzer analyzer{outlierSpec(), outputWriterFactory};
         errors.clear();
-        BOOST_CHECK_EQUAL(
+        BOOST_REQUIRE_EQUAL(
             false, analyzer.handleRecord({"c1", "c2", "c3", "c4", "c5", ".", "."},
                                          {"10", "10", "10", "10", "10", "", "foo"}));
         LOG_DEBUG(<< core::CContainerPrinter::print(errors));
-        BOOST_TEST(errors.size() > 0);
+        BOOST_TEST_REQUIRE(errors.size() > 0);
     }
 
     // Test bad input
     {
         api::CDataFrameAnalyzer analyzer{outlierSpec(), outputWriterFactory};
         errors.clear();
-        BOOST_CHECK_EQUAL(
+        BOOST_REQUIRE_EQUAL(
             false, analyzer.handleRecord({"c1", "c2", "c3", "c4", "c5", ".", "."},
                                          {"10", "10", "10", "10", "10"}));
         LOG_DEBUG(<< core::CContainerPrinter::print(errors));
-        BOOST_TEST(errors.size() > 0);
+        BOOST_TEST_REQUIRE(errors.size() > 0);
     }
 
     // Test inconsistent number of rows
@@ -1160,44 +1160,44 @@ BOOST_AUTO_TEST_CASE(testErrors) {
         // Fewer rows than expected is ignored.
         api::CDataFrameAnalyzer analyzer{outlierSpec(2), outputWriterFactory};
         errors.clear();
-        BOOST_CHECK_EQUAL(
+        BOOST_REQUIRE_EQUAL(
             true, analyzer.handleRecord({"c1", "c2", "c3", "c4", "c5", ".", "."},
                                         {"10", "10", "10", "10", "10", "0", ""}));
-        BOOST_CHECK_EQUAL(
+        BOOST_REQUIRE_EQUAL(
             true, analyzer.handleRecord({"c1", "c2", "c3", "c4", "c5", ".", "."},
                                         {"", "", "", "", "", "", "$"}));
         LOG_DEBUG(<< core::CContainerPrinter::print(errors));
-        BOOST_TEST(errors.empty());
+        BOOST_TEST_REQUIRE(errors.empty());
     }
     {
         api::CDataFrameAnalyzer analyzer{outlierSpec(2), outputWriterFactory};
         errors.clear();
-        BOOST_CHECK_EQUAL(
+        BOOST_REQUIRE_EQUAL(
             true, analyzer.handleRecord({"c1", "c2", "c3", "c4", "c5", ".", "."},
                                         {"10", "10", "10", "10", "10", "0", ""}));
-        BOOST_CHECK_EQUAL(
+        BOOST_REQUIRE_EQUAL(
             true, analyzer.handleRecord({"c1", "c2", "c3", "c4", "c5", ".", "."},
                                         {"10", "10", "10", "10", "10", "0", ""}));
-        BOOST_CHECK_EQUAL(
+        BOOST_REQUIRE_EQUAL(
             true, analyzer.handleRecord({"c1", "c2", "c3", "c4", "c5", ".", "."},
                                         {"10", "10", "10", "10", "10", "0", ""}));
-        BOOST_CHECK_EQUAL(
+        BOOST_REQUIRE_EQUAL(
             true, analyzer.handleRecord({"c1", "c2", "c3", "c4", "c5", ".", "."},
                                         {"", "", "", "", "", "", "$"}));
         LOG_DEBUG(<< core::CContainerPrinter::print(errors));
-        BOOST_TEST(errors.size() > 0);
+        BOOST_TEST_REQUIRE(errors.size() > 0);
     }
 
     // No data.
     {
         api::CDataFrameAnalyzer analyzer{outlierSpec(2), outputWriterFactory};
         errors.clear();
-        BOOST_CHECK_EQUAL(
+        BOOST_REQUIRE_EQUAL(
             true, analyzer.handleRecord({"c1", "c2", "c3", "c4", "c5", ".", "."},
                                         {"", "", "", "", "", "", "$"}));
         LOG_DEBUG(<< core::CContainerPrinter::print(errors));
-        BOOST_TEST(errors.size() > 0);
-        BOOST_CHECK_EQUAL(std::string{"Input error: no data sent."}, errors[0]);
+        BOOST_TEST_REQUIRE(errors.size() > 0);
+        BOOST_REQUIRE_EQUAL(std::string{"Input error: no data sent."}, errors[0]);
     }
 }
 
@@ -1219,13 +1219,13 @@ BOOST_AUTO_TEST_CASE(testRoundTripDocHashes) {
 
     rapidjson::Document results;
     rapidjson::ParseResult ok(results.Parse(output.str()));
-    BOOST_TEST(static_cast<bool>(ok) == true);
+    BOOST_TEST_REQUIRE(static_cast<bool>(ok) == true);
 
     int expectedHash{0};
     for (const auto& result : results.GetArray()) {
         if (result.HasMember("row_results")) {
             LOG_DEBUG(<< "checksum = " << result["row_results"]["checksum"].GetInt());
-            BOOST_CHECK_EQUAL(++expectedHash, result["row_results"]["checksum"].GetInt());
+            BOOST_REQUIRE_EQUAL(++expectedHash, result["row_results"]["checksum"].GetInt());
         }
     }
 }
@@ -1271,7 +1271,7 @@ BOOST_AUTO_TEST_CASE(testCategoricalFields) {
             }
         });
 
-        BOOST_TEST(passed);
+        BOOST_TEST_REQUIRE(passed);
     }
 
     LOG_DEBUG(<< "Test overflow");
@@ -1308,7 +1308,7 @@ BOOST_AUTO_TEST_CASE(testCategoricalFields) {
             }
         });
 
-        BOOST_TEST(passed);
+        BOOST_TEST_REQUIRE(passed);
     }
 }
 
@@ -1362,7 +1362,7 @@ BOOST_AUTO_TEST_CASE(testCategoricalFieldsEmptyAsMissing) {
     frame.readRows(1, [&](TRowItr beginRows, TRowItr endRows) {
         std::vector<TRowRef> rows;
         std::copy(beginRows, endRows, std::back_inserter(rows));
-        BOOST_CHECK_EQUAL(std::size_t{10}, rows.size());
+        BOOST_REQUIRE_EQUAL(std::size_t{10}, rows.size());
         assertRow(0, {eq(0.0), eq(0.0), eq(0.0), eq(0.0), eq(0.0)}, rows[0]);
         assertRow(1, {eq(1.0), eq(1.0), eq(1.0), eq(1.0), eq(1.0)}, rows[1]);
         assertRow(2, {eq(2.0), eq(2.0), eq(2.0), eq(2.0), eq(0.0)}, rows[2]);

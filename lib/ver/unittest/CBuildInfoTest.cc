@@ -22,12 +22,12 @@ BOOST_AUTO_TEST_CASE(testFullInfo) {
         ml::core::CTimeUtils::toIso8601(ml::core::CTimeUtils::now()), 0, 4);
     LOG_DEBUG(<< "Current year is " << currentYear);
 
-    BOOST_TEST(fullInfo.find("ml_test") != std::string::npos);
-    BOOST_TEST(fullInfo.find("Version") != std::string::npos);
-    BOOST_TEST(fullInfo.find("Build") != std::string::npos);
-    BOOST_TEST(fullInfo.find("Copyright") != std::string::npos);
-    BOOST_TEST(fullInfo.find("Elasticsearch BV") != std::string::npos);
-    BOOST_TEST(fullInfo.find(currentYear) != std::string::npos);
+    BOOST_TEST_REQUIRE(fullInfo.find("ml_test") != std::string::npos);
+    BOOST_TEST_REQUIRE(fullInfo.find("Version") != std::string::npos);
+    BOOST_TEST_REQUIRE(fullInfo.find("Build") != std::string::npos);
+    BOOST_TEST_REQUIRE(fullInfo.find("Copyright") != std::string::npos);
+    BOOST_TEST_REQUIRE(fullInfo.find("Elasticsearch BV") != std::string::npos);
+    BOOST_TEST_REQUIRE(fullInfo.find(currentYear) != std::string::npos);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

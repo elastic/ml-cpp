@@ -37,13 +37,13 @@ BOOST_AUTO_TEST_CASE(testTimeSeriesDecompositions) {
 
     core::CMemoryUsage mem;
     decomp.debugMemoryUsage(mem.addChild());
-    BOOST_CHECK_EQUAL(decomp.memoryUsage(), mem.usage());
+    BOOST_REQUIRE_EQUAL(decomp.memoryUsage(), mem.usage());
 }
 
 BOOST_AUTO_TEST_CASE(testPriors) {
     CConstantPrior::TOptionalDouble d;
     CConstantPrior constantPrior(d);
-    BOOST_CHECK_EQUAL(std::size_t(0), constantPrior.memoryUsage());
+    BOOST_REQUIRE_EQUAL(std::size_t(0), constantPrior.memoryUsage());
 
     CGammaRateConjugate::TDoubleVec samples;
     samples.push_back(0.996);
@@ -51,31 +51,31 @@ BOOST_AUTO_TEST_CASE(testPriors) {
     maths_t::TDoubleWeightsAry1Vec weights{weight};
 
     CGammaRateConjugate gammaRateConjugate(maths_t::E_ContinuousData, 0.0, 0.9, 0.8, 0.7);
-    BOOST_CHECK_EQUAL(std::size_t(0), gammaRateConjugate.memoryUsage());
+    BOOST_REQUIRE_EQUAL(std::size_t(0), gammaRateConjugate.memoryUsage());
     gammaRateConjugate.addSamples(samples, weights);
-    BOOST_CHECK_EQUAL(std::size_t(0), gammaRateConjugate.memoryUsage());
+    BOOST_REQUIRE_EQUAL(std::size_t(0), gammaRateConjugate.memoryUsage());
 
     CLogNormalMeanPrecConjugate logNormalConjugate(maths_t::E_ContinuousData,
                                                    0.0, 0.9, 0.8, 0.7, 0.2);
-    BOOST_CHECK_EQUAL(std::size_t(0), logNormalConjugate.memoryUsage());
+    BOOST_REQUIRE_EQUAL(std::size_t(0), logNormalConjugate.memoryUsage());
     logNormalConjugate.addSamples(samples, weights);
-    BOOST_CHECK_EQUAL(std::size_t(0), logNormalConjugate.memoryUsage());
+    BOOST_REQUIRE_EQUAL(std::size_t(0), logNormalConjugate.memoryUsage());
 
     CPoissonMeanConjugate poissonConjugate(0.0, 0.8, 0.7, 0.3);
-    BOOST_CHECK_EQUAL(std::size_t(0), poissonConjugate.memoryUsage());
+    BOOST_REQUIRE_EQUAL(std::size_t(0), poissonConjugate.memoryUsage());
     poissonConjugate.addSamples(samples, weights);
-    BOOST_CHECK_EQUAL(std::size_t(0), poissonConjugate.memoryUsage());
+    BOOST_REQUIRE_EQUAL(std::size_t(0), poissonConjugate.memoryUsage());
 
     CNormalMeanPrecConjugate normalConjugate(maths_t::E_ContinuousData, 0.0,
                                              0.9, 0.8, 0.7, 0.2);
-    BOOST_CHECK_EQUAL(std::size_t(0), normalConjugate.memoryUsage());
+    BOOST_REQUIRE_EQUAL(std::size_t(0), normalConjugate.memoryUsage());
     normalConjugate.addSamples(samples, weights);
-    BOOST_CHECK_EQUAL(std::size_t(0), normalConjugate.memoryUsage());
+    BOOST_REQUIRE_EQUAL(std::size_t(0), normalConjugate.memoryUsage());
 
     CMultinomialConjugate multinomialConjugate;
-    BOOST_CHECK_EQUAL(std::size_t(0), multinomialConjugate.memoryUsage());
+    BOOST_REQUIRE_EQUAL(std::size_t(0), multinomialConjugate.memoryUsage());
     multinomialConjugate.addSamples(samples, weights);
-    BOOST_CHECK_EQUAL(std::size_t(0), multinomialConjugate.memoryUsage());
+    BOOST_REQUIRE_EQUAL(std::size_t(0), multinomialConjugate.memoryUsage());
 
     CXMeansOnline1d clusterer(maths_t::E_ContinuousData,
                               maths::CAvailableModeDistributions::ALL,
@@ -87,7 +87,7 @@ BOOST_AUTO_TEST_CASE(testPriors) {
                                 sizeof(CClusterer1d::CIndexGenerator) +
                                 sizeof(CXMeansOnline1d::TClusterVec);
 
-    BOOST_TEST(clusterer.memoryUsage() >= clustererSize);
+    BOOST_TEST_REQUIRE(clusterer.memoryUsage() >= clustererSize);
 
     CClusterer1d::TPointPreciseDoublePrVec clusters;
     clusters.push_back(CClusterer1d::TPointPreciseDoublePr(0.1, 0.7));
@@ -109,11 +109,11 @@ BOOST_AUTO_TEST_CASE(testPriors) {
     std::size_t initialMultimodalPriorSize = multimodalPrior.memoryUsage();
 
     multimodalPrior.addSamples(samples, weights);
-    BOOST_TEST(initialMultimodalPriorSize < multimodalPrior.memoryUsage());
+    BOOST_TEST_REQUIRE(initialMultimodalPriorSize < multimodalPrior.memoryUsage());
 
     core::CMemoryUsage mem;
     multimodalPrior.debugMemoryUsage(mem.addChild());
-    BOOST_CHECK_EQUAL(multimodalPrior.memoryUsage(), mem.usage());
+    BOOST_REQUIRE_EQUAL(multimodalPrior.memoryUsage(), mem.usage());
 }
 
 BOOST_AUTO_TEST_CASE(testBjkstVec) {
@@ -124,7 +124,7 @@ BOOST_AUTO_TEST_CASE(testBjkstVec) {
         core::CMemoryUsage mem;
         mem.setName("root", 0);
         core::CMemoryDebug::dynamicSize("values", values, &mem);
-        BOOST_CHECK_EQUAL(core::CMemory::dynamicSize(values), mem.usage());
+        BOOST_REQUIRE_EQUAL(core::CMemory::dynamicSize(values), mem.usage());
     }
     {
         // Test adding values to the vector part
@@ -139,7 +139,7 @@ BOOST_AUTO_TEST_CASE(testBjkstVec) {
         core::CMemoryUsage mem;
         mem.setName("root", 0);
         core::CMemoryDebug::dynamicSize("values", values, &mem);
-        BOOST_CHECK_EQUAL(core::CMemory::dynamicSize(values), mem.usage());
+        BOOST_REQUIRE_EQUAL(core::CMemory::dynamicSize(values), mem.usage());
     }
     {
         // Test adding values to the sketch part
@@ -154,7 +154,7 @@ BOOST_AUTO_TEST_CASE(testBjkstVec) {
         core::CMemoryUsage mem;
         mem.setName("root", 0);
         core::CMemoryDebug::dynamicSize("values", values, &mem);
-        BOOST_CHECK_EQUAL(core::CMemory::dynamicSize(values), mem.usage());
+        BOOST_REQUIRE_EQUAL(core::CMemory::dynamicSize(values), mem.usage());
     }
 }
 

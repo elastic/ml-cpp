@@ -41,7 +41,7 @@ uint8_t trailingZeros(uint32_t x) {
 BOOST_AUTO_TEST_CASE(testTrailingZeros) {
     uint32_t n = 1;
     for (uint8_t i = 0; i < 32; n <<= 1, ++i) {
-        BOOST_CHECK_EQUAL(i, CBjkstUniqueValues::trailingZeros(n));
+        BOOST_REQUIRE_EQUAL(i, CBjkstUniqueValues::trailingZeros(n));
     }
 
     TDoubleVec samples;
@@ -51,7 +51,7 @@ BOOST_AUTO_TEST_CASE(testTrailingZeros) {
 
     for (std::size_t i = 0u; i < samples.size(); ++i) {
         uint32_t sample = static_cast<uint32_t>(samples[i]);
-        BOOST_CHECK_EQUAL(trailingZeros(sample), CBjkstUniqueValues::trailingZeros(sample));
+        BOOST_REQUIRE_EQUAL(trailingZeros(sample), CBjkstUniqueValues::trailingZeros(sample));
     }
 }
 
@@ -93,8 +93,8 @@ BOOST_AUTO_TEST_CASE(testNumber) {
         if (i % 20 == 0) {
             LOG_DEBUG(<< "error5 = " << error5 << ", error6 = " << error6);
         }
-        BOOST_TEST(error5 < 0.35);
-        BOOST_TEST(error6 < 0.30);
+        BOOST_TEST_REQUIRE(error5 < 0.35);
+        BOOST_TEST_REQUIRE(error6 < 0.30);
 
         if (error5 > 0.14) {
             ++largeError5Count;
@@ -113,11 +113,11 @@ BOOST_AUTO_TEST_CASE(testNumber) {
     LOG_DEBUG(<< "totalError5 = " << totalError5 << ", largeErrorCount5 = " << largeError5Count);
     LOG_DEBUG(<< "totalError6 = " << totalError6 << ", largeErrorCount6 = " << largeError6Count);
 
-    BOOST_TEST(totalError5 < 0.07);
-    BOOST_TEST(largeError5Count < 80);
+    BOOST_TEST_REQUIRE(totalError5 < 0.07);
+    BOOST_TEST_REQUIRE(largeError5Count < 80);
 
-    BOOST_TEST(totalError6 < 0.06);
-    BOOST_TEST(largeError6Count < 85);
+    BOOST_TEST_REQUIRE(totalError6 < 0.06);
+    BOOST_TEST_REQUIRE(largeError6Count < 85);
 }
 
 BOOST_AUTO_TEST_CASE(testRemove) {
@@ -153,7 +153,7 @@ BOOST_AUTO_TEST_CASE(testRemove) {
             LOG_DEBUG(<< "exact  = " << unique.size());
             LOG_DEBUG(<< "approx = " << sketch.number());
         }
-        BOOST_CHECK_CLOSE_ABSOLUTE(static_cast<double>(unique.size()),
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(static_cast<double>(unique.size()),
                                    static_cast<double>(sketch.number()),
                                    0.3 * static_cast<double>(unique.size()));
         meanRelativeErrorBeforeRemove.add(std::fabs(static_cast<double>(unique.size()) -
@@ -170,7 +170,7 @@ BOOST_AUTO_TEST_CASE(testRemove) {
             LOG_DEBUG(<< "exact  = " << unique.size());
             LOG_DEBUG(<< "approx = " << sketch.number());
         }
-        BOOST_CHECK_CLOSE_ABSOLUTE(static_cast<double>(unique.size()),
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(static_cast<double>(unique.size()),
                                    static_cast<double>(sketch.number()),
                                    0.25 * static_cast<double>(unique.size()));
         meanRelativeErrorAfterRemove.add(std::fabs(static_cast<double>(unique.size()) -
@@ -182,8 +182,8 @@ BOOST_AUTO_TEST_CASE(testRemove) {
               << maths::CBasicStatistics::mean(meanRelativeErrorBeforeRemove));
     LOG_DEBUG(<< "meanRelativeErrorAfterRemove  = "
               << maths::CBasicStatistics::mean(meanRelativeErrorAfterRemove));
-    BOOST_TEST(maths::CBasicStatistics::mean(meanRelativeErrorBeforeRemove) < 0.05);
-    BOOST_TEST(maths::CBasicStatistics::mean(meanRelativeErrorAfterRemove) <
+    BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(meanRelativeErrorBeforeRemove) < 0.05);
+    BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(meanRelativeErrorAfterRemove) <
                1.3 * maths::CBasicStatistics::mean(meanRelativeErrorBeforeRemove));
 }
 
@@ -226,23 +226,23 @@ BOOST_AUTO_TEST_CASE(testSwap) {
     LOG_DEBUG(<< "checksum4 = " << checksum4);
 
     sketch1.swap(sketch2);
-    BOOST_CHECK_EQUAL(checksum2, sketch1.checksum());
-    BOOST_CHECK_EQUAL(checksum1, sketch2.checksum());
+    BOOST_REQUIRE_EQUAL(checksum2, sketch1.checksum());
+    BOOST_REQUIRE_EQUAL(checksum1, sketch2.checksum());
     sketch1.swap(sketch2);
 
     sketch2.swap(sketch3);
-    BOOST_CHECK_EQUAL(checksum3, sketch2.checksum());
-    BOOST_CHECK_EQUAL(checksum2, sketch3.checksum());
+    BOOST_REQUIRE_EQUAL(checksum3, sketch2.checksum());
+    BOOST_REQUIRE_EQUAL(checksum2, sketch3.checksum());
     sketch2.swap(sketch3);
 
     sketch1.swap(sketch4);
-    BOOST_CHECK_EQUAL(checksum1, sketch4.checksum());
-    BOOST_CHECK_EQUAL(checksum4, sketch1.checksum());
+    BOOST_REQUIRE_EQUAL(checksum1, sketch4.checksum());
+    BOOST_REQUIRE_EQUAL(checksum4, sketch1.checksum());
     sketch1.swap(sketch4);
 
     sketch3.swap(sketch4);
-    BOOST_CHECK_EQUAL(checksum3, sketch4.checksum());
-    BOOST_CHECK_EQUAL(checksum4, sketch3.checksum());
+    BOOST_REQUIRE_EQUAL(checksum3, sketch4.checksum());
+    BOOST_REQUIRE_EQUAL(checksum4, sketch3.checksum());
     sketch3.swap(sketch4);
 }
 
@@ -264,7 +264,7 @@ BOOST_AUTO_TEST_CASE(testSmall) {
         uint32_t category = static_cast<uint32_t>(categories[i]);
         sketch.add(category);
         unique.insert(category);
-        BOOST_CHECK_EQUAL(unique.size(), std::size_t(sketch.number()));
+        BOOST_REQUIRE_EQUAL(unique.size(), std::size_t(sketch.number()));
         meanRelativeError.add(0.0);
     }
 
@@ -277,7 +277,7 @@ BOOST_AUTO_TEST_CASE(testSmall) {
             LOG_DEBUG(<< "exact  = " << unique.size());
             LOG_DEBUG(<< "approx = " << sketch.number());
         }
-        BOOST_CHECK_CLOSE_ABSOLUTE(static_cast<double>(unique.size()),
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(static_cast<double>(unique.size()),
                                    static_cast<double>(sketch.number()),
                                    0.15 * static_cast<double>(unique.size()));
         meanRelativeError.add(std::fabs(static_cast<double>(unique.size()) -
@@ -286,7 +286,7 @@ BOOST_AUTO_TEST_CASE(testSmall) {
     }
 
     LOG_DEBUG(<< "meanRelativeError = " << maths::CBasicStatistics::mean(meanRelativeError));
-    BOOST_TEST(maths::CBasicStatistics::mean(meanRelativeError) < 0.05);
+    BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(meanRelativeError) < 0.05);
 }
 
 BOOST_AUTO_TEST_CASE(testPersist) {
@@ -311,20 +311,20 @@ BOOST_AUTO_TEST_CASE(testPersist) {
     // Restore the XML into a new sketch.
     {
         core::CRapidXmlParser parser;
-        BOOST_TEST(parser.parseStringIgnoreCdata(origXml));
+        BOOST_TEST_REQUIRE(parser.parseStringIgnoreCdata(origXml));
         core::CRapidXmlStateRestoreTraverser traverser(parser);
         maths::CBjkstUniqueValues restoredSketch(traverser);
 
         LOG_DEBUG(<< "orig checksum = " << origSketch.checksum()
                   << ", new checksum = " << restoredSketch.checksum());
-        BOOST_CHECK_EQUAL(origSketch.checksum(), restoredSketch.checksum());
+        BOOST_REQUIRE_EQUAL(origSketch.checksum(), restoredSketch.checksum());
 
         std::string newXml;
         core::CRapidXmlStatePersistInserter inserter("root");
         restoredSketch.acceptPersistInserter(inserter);
         inserter.toXml(newXml);
 
-        BOOST_CHECK_EQUAL(origXml, newXml);
+        BOOST_REQUIRE_EQUAL(origXml, newXml);
     }
 
     for (std::size_t i = 100u; i < categories.size(); ++i) {
@@ -342,20 +342,20 @@ BOOST_AUTO_TEST_CASE(testPersist) {
     // Restore the XML into a new sketch.
     {
         core::CRapidXmlParser parser;
-        BOOST_TEST(parser.parseStringIgnoreCdata(origXml));
+        BOOST_TEST_REQUIRE(parser.parseStringIgnoreCdata(origXml));
         core::CRapidXmlStateRestoreTraverser traverser(parser);
         maths::CBjkstUniqueValues restoredSketch(traverser);
 
         LOG_DEBUG(<< "orig checksum = " << origSketch.checksum()
                   << ", new checksum = " << restoredSketch.checksum());
-        BOOST_CHECK_EQUAL(origSketch.checksum(), restoredSketch.checksum());
+        BOOST_REQUIRE_EQUAL(origSketch.checksum(), restoredSketch.checksum());
 
         std::string newXml;
         core::CRapidXmlStatePersistInserter inserter("root");
         restoredSketch.acceptPersistInserter(inserter);
         inserter.toXml(newXml);
 
-        BOOST_CHECK_EQUAL(origXml, newXml);
+        BOOST_REQUIRE_EQUAL(origXml, newXml);
     }
 }
 

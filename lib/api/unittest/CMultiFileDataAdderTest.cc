@@ -69,21 +69,21 @@ BOOST_AUTO_TEST_CASE(testSimpleWrite) {
 
         ml::test::CMultiFileDataAdder persister(baseOutputFilename, EXTENSION);
         ml::core::CDataAdder::TOStreamP strm = persister.addStreamed("hello", "1");
-        BOOST_TEST(strm);
+        BOOST_TEST_REQUIRE(strm);
         (*strm) << EVENT;
-        BOOST_TEST(persister.streamComplete(strm, true));
+        BOOST_TEST_REQUIRE(persister.streamComplete(strm, true));
     }
 
     {
         std::ifstream persistedFile(expectedFilename.c_str());
 
-        BOOST_TEST(persistedFile.is_open());
+        BOOST_TEST_REQUIRE(persistedFile.is_open());
         std::string line;
         std::getline(persistedFile, line);
-        BOOST_CHECK_EQUAL(EVENT, line);
+        BOOST_REQUIRE_EQUAL(EVENT, line);
     }
 
-    BOOST_CHECK_EQUAL(0, ::remove(expectedFilename.c_str()));
+    BOOST_REQUIRE_EQUAL(0, ::remove(expectedFilename.c_str()));
 
     expectedFilename = baseOutputFilename;
     expectedFilename += "/_stash/1";
@@ -92,18 +92,18 @@ BOOST_AUTO_TEST_CASE(testSimpleWrite) {
     {
         ml::test::CMultiFileDataAdder persister(baseOutputFilename, EXTENSION);
         ml::core::CDataAdder::TOStreamP strm = persister.addStreamed("stash", "1");
-        BOOST_TEST(strm);
+        BOOST_TEST_REQUIRE(strm);
         (*strm) << SUMMARY_EVENT;
-        BOOST_TEST(persister.streamComplete(strm, true));
+        BOOST_TEST_REQUIRE(persister.streamComplete(strm, true));
     }
 
     {
         std::ifstream persistedFile(expectedFilename.c_str());
 
-        BOOST_TEST(persistedFile.is_open());
+        BOOST_TEST_REQUIRE(persistedFile.is_open());
         std::string line;
         std::getline(persistedFile, line);
-        BOOST_CHECK_EQUAL(SUMMARY_EVENT, line);
+        BOOST_REQUIRE_EQUAL(SUMMARY_EVENT, line);
     }
 
     // Clean up
@@ -146,15 +146,15 @@ void CMultiFileDataAdderTest::detectorPersistHelper(const std::string& configFil
 
     // Open the input and output files
     std::ifstream inputStrm(inputFilename.c_str());
-    BOOST_TEST(inputStrm.is_open());
+    BOOST_TEST_REQUIRE(inputStrm.is_open());
 
     std::ofstream outputStrm(ml::core::COsFileFuncs::NULL_FILENAME);
-    BOOST_TEST(outputStrm.is_open());
+    BOOST_TEST_REQUIRE(outputStrm.is_open());
     ml::core::CJsonOutputStreamWrapper wrappedOutputStream(outputStrm);
 
     ml::model::CLimits limits;
     ml::api::CFieldConfig fieldConfig;
-    BOOST_TEST(fieldConfig.initFromFile(configFileName));
+    BOOST_TEST_REQUIRE(fieldConfig.initFromFile(configFileName));
 
     ml::model::CAnomalyDetectorModelConfig modelConfig =
         ml::model::CAnomalyDetectorModelConfig::defaultConfig(
@@ -176,7 +176,7 @@ void CMultiFileDataAdderTest::detectorPersistHelper(const std::string& configFil
         return std::make_unique<ml::api::CNdJsonInputParser>(inputStrm);
     }()};
 
-    BOOST_TEST(parser->readStreamIntoMaps(std::bind(
+    BOOST_TEST_REQUIRE(parser->readStreamIntoMaps(std::bind(
         &ml::api::CAnomalyJob::handleRecord, &origJob, std::placeholders::_1)));
 
     // Persist the detector state to file(s)
@@ -188,7 +188,7 @@ void CMultiFileDataAdderTest::detectorPersistHelper(const std::string& configFil
         CPPUNIT_ASSERT_NO_THROW(boost::filesystem::remove_all(origDir));
 
         ml::test::CMultiFileDataAdder persister(baseOrigOutputFilename);
-        BOOST_TEST(origJob.persistState(persister, ""));
+        BOOST_TEST_REQUIRE(origJob.persistState(persister, ""));
     }
 
     std::string origBaseDocId(JOB_ID + '_' + ml::api::CAnomalyJob::STATE_TYPE +
@@ -206,15 +206,15 @@ void CMultiFileDataAdderTest::detectorPersistHelper(const std::string& configFil
         expectedOrigFilename += ml::test::CMultiFileDataAdder::JSON_FILE_EXT;
         LOG_DEBUG(<< "Trying to open file: " << expectedOrigFilename);
         std::ifstream origFile(expectedOrigFilename.c_str());
-        BOOST_TEST(origFile.is_open());
+        BOOST_TEST_REQUIRE(origFile.is_open());
         std::string json((std::istreambuf_iterator<char>(origFile)),
                          std::istreambuf_iterator<char>());
         origFileContents[index] = json;
 
         // Ensure that the JSON is valid, by parsing string using Rapidjson
         rapidjson::Document document;
-        BOOST_TEST(!document.Parse<0>(origFileContents[index].c_str()).HasParseError());
-        BOOST_TEST(document.IsObject());
+        BOOST_TEST_REQUIRE(!document.Parse<0>(origFileContents[index].c_str()).HasParseError());
+        BOOST_TEST_REQUIRE(document.IsObject());
     }
 
     // Now restore the state into a different detector
@@ -230,8 +230,8 @@ void CMultiFileDataAdderTest::detectorPersistHelper(const std::string& configFil
         ml::core_t::TTime completeToTime(0);
 
         ml::test::CMultiFileSearcher retriever(baseOrigOutputFilename, origBaseDocId);
-        BOOST_TEST(restoredJob.restoreState(retriever, completeToTime));
-        BOOST_TEST(completeToTime > 0);
+        BOOST_TEST_REQUIRE(restoredJob.restoreState(retriever, completeToTime));
+        BOOST_TEST_REQUIRE(completeToTime > 0);
     }
 
     // Finally, persist the new detector state to a file
@@ -243,7 +243,7 @@ void CMultiFileDataAdderTest::detectorPersistHelper(const std::string& configFil
         CPPUNIT_ASSERT_NO_THROW(boost::filesystem::remove_all(restoredDir));
 
         ml::test::CMultiFileDataAdder persister(baseRestoredOutputFilename);
-        BOOST_TEST(restoredJob.persistState(persister, ""));
+        BOOST_TEST_REQUIRE(restoredJob.persistState(persister, ""));
     }
 
     std::string restoredBaseDocId(JOB_ID + '_' + ml::api::CAnomalyJob::STATE_TYPE +
@@ -258,11 +258,11 @@ void CMultiFileDataAdderTest::detectorPersistHelper(const std::string& configFil
             ml::core::CDataAdder::makeCurrentDocId(restoredBaseDocId, 1 + index);
         expectedRestoredFilename += ml::test::CMultiFileDataAdder::JSON_FILE_EXT;
         std::ifstream restoredFile(expectedRestoredFilename.c_str());
-        BOOST_TEST(restoredFile.is_open());
+        BOOST_TEST_REQUIRE(restoredFile.is_open());
         std::string json((std::istreambuf_iterator<char>(restoredFile)),
                          std::istreambuf_iterator<char>());
 
-        BOOST_CHECK_EQUAL(origFileContents[index], json);
+        BOOST_REQUIRE_EQUAL(origFileContents[index], json);
     }
 
     // Clean up

@@ -26,7 +26,7 @@ BOOST_AUTO_TEST_CASE(testUpdateGivenUpdateCannotBeParsed) {
     model::CAnomalyDetectorModelConfig modelConfig =
         model::CAnomalyDetectorModelConfig::defaultConfig();
     CConfigUpdater configUpdater(fieldConfig, modelConfig);
-    BOOST_TEST(configUpdater.update("this is invalid") == false);
+    BOOST_TEST_REQUIRE(configUpdater.update("this is invalid") == false);
 }
 
 BOOST_AUTO_TEST_CASE(testUpdateGivenUnknownStanzas) {
@@ -34,7 +34,7 @@ BOOST_AUTO_TEST_CASE(testUpdateGivenUnknownStanzas) {
     model::CAnomalyDetectorModelConfig modelConfig =
         model::CAnomalyDetectorModelConfig::defaultConfig();
     CConfigUpdater configUpdater(fieldConfig, modelConfig);
-    BOOST_TEST(configUpdater.update("[unknown1]\na = 1\n[unknown2]\nb = 2\n") == false);
+    BOOST_TEST_REQUIRE(configUpdater.update("[unknown1]\na = 1\n[unknown2]\nb = 2\n") == false);
 }
 
 BOOST_AUTO_TEST_CASE(testUpdateGivenModelPlotConfig) {
@@ -53,13 +53,13 @@ BOOST_AUTO_TEST_CASE(testUpdateGivenModelPlotConfig) {
 
     CConfigUpdater configUpdater(fieldConfig, modelConfig);
 
-    BOOST_TEST(configUpdater.update(configUpdate));
-    BOOST_CHECK_EQUAL(83.5, modelConfig.modelPlotBoundsPercentile());
+    BOOST_TEST_REQUIRE(configUpdater.update(configUpdate));
+    BOOST_REQUIRE_EQUAL(83.5, modelConfig.modelPlotBoundsPercentile());
 
     terms = modelConfig.modelPlotTerms();
-    BOOST_CHECK_EQUAL(std::size_t(2), terms.size());
-    BOOST_TEST(terms.find(std::string("c")) != terms.end());
-    BOOST_TEST(terms.find(std::string("d")) != terms.end());
+    BOOST_REQUIRE_EQUAL(std::size_t(2), terms.size());
+    BOOST_TEST_REQUIRE(terms.find(std::string("c")) != terms.end());
+    BOOST_TEST_REQUIRE(terms.find(std::string("d")) != terms.end());
 }
 
 BOOST_AUTO_TEST_CASE(testUpdateGivenDetectorRules) {
@@ -81,15 +81,15 @@ BOOST_AUTO_TEST_CASE(testUpdateGivenDetectorRules) {
 
     CConfigUpdater configUpdater(fieldConfig, modelConfig);
 
-    BOOST_TEST(configUpdater.update(configUpdate0));
-    BOOST_TEST(configUpdater.update(configUpdate1));
+    BOOST_TEST_REQUIRE(configUpdater.update(configUpdate0));
+    BOOST_TEST_REQUIRE(configUpdater.update(configUpdate1));
 
     CFieldConfig::TIntDetectionRuleVecUMap::const_iterator itr =
         fieldConfig.detectionRules().find(0);
-    BOOST_TEST(itr->second.empty());
+    BOOST_TEST_REQUIRE(itr->second.empty());
     itr = fieldConfig.detectionRules().find(1);
-    BOOST_CHECK_EQUAL(std::size_t(1), itr->second.size());
-    BOOST_CHECK_EQUAL(std::string("SKIP_RESULT IF TYPICAL < 15.000000"),
+    BOOST_REQUIRE_EQUAL(std::size_t(1), itr->second.size());
+    BOOST_REQUIRE_EQUAL(std::string("SKIP_RESULT IF TYPICAL < 15.000000"),
                       itr->second[0].print());
 }
 
@@ -106,7 +106,7 @@ BOOST_AUTO_TEST_CASE(testUpdateGivenRulesWithInvalidDetectorIndex) {
 
     CConfigUpdater configUpdater(fieldConfig, modelConfig);
 
-    BOOST_TEST(configUpdater.update(configUpdate) == false);
+    BOOST_TEST_REQUIRE(configUpdater.update(configUpdate) == false);
 }
 
 BOOST_AUTO_TEST_CASE(testUpdateGivenFilters) {
@@ -118,45 +118,45 @@ BOOST_AUTO_TEST_CASE(testUpdateGivenFilters) {
         model::CAnomalyDetectorModelConfig::defaultConfig();
 
     auto ruleFilters = fieldConfig.ruleFilters();
-    BOOST_CHECK_EQUAL(std::size_t(2), ruleFilters.size());
+    BOOST_REQUIRE_EQUAL(std::size_t(2), ruleFilters.size());
 
-    BOOST_TEST(ruleFilters["filter_1"].contains("aaa"));
-    BOOST_TEST(ruleFilters["filter_1"].contains("bbb"));
-    BOOST_TEST(ruleFilters["filter_1"].contains("ccc") == false);
-    BOOST_TEST(ruleFilters["filter_1"].contains("ddd") == false);
+    BOOST_TEST_REQUIRE(ruleFilters["filter_1"].contains("aaa"));
+    BOOST_TEST_REQUIRE(ruleFilters["filter_1"].contains("bbb"));
+    BOOST_TEST_REQUIRE(ruleFilters["filter_1"].contains("ccc") == false);
+    BOOST_TEST_REQUIRE(ruleFilters["filter_1"].contains("ddd") == false);
 
-    BOOST_TEST(ruleFilters["filter_2"].contains("aaa") == false);
-    BOOST_TEST(ruleFilters["filter_2"].contains("bbb") == false);
-    BOOST_TEST(ruleFilters["filter_2"].contains("ccc"));
-    BOOST_TEST(ruleFilters["filter_2"].contains("ddd"));
+    BOOST_TEST_REQUIRE(ruleFilters["filter_2"].contains("aaa") == false);
+    BOOST_TEST_REQUIRE(ruleFilters["filter_2"].contains("bbb") == false);
+    BOOST_TEST_REQUIRE(ruleFilters["filter_2"].contains("ccc"));
+    BOOST_TEST_REQUIRE(ruleFilters["filter_2"].contains("ddd"));
 
     // Update existing ones
     std::string configUpdate("[filters]\nfilter.filter_1=[\"ccc\",\"ddd\"]\nfilter.filter_2=[\"aaa\",\"bbb\"]\n");
 
     CConfigUpdater configUpdater(fieldConfig, modelConfig);
 
-    BOOST_TEST(configUpdater.update(configUpdate));
+    BOOST_TEST_REQUIRE(configUpdater.update(configUpdate));
 
     ruleFilters = fieldConfig.ruleFilters();
-    BOOST_CHECK_EQUAL(std::size_t(2), ruleFilters.size());
+    BOOST_REQUIRE_EQUAL(std::size_t(2), ruleFilters.size());
 
-    BOOST_TEST(ruleFilters["filter_1"].contains("aaa") == false);
-    BOOST_TEST(ruleFilters["filter_1"].contains("bbb") == false);
-    BOOST_TEST(ruleFilters["filter_1"].contains("ccc"));
-    BOOST_TEST(ruleFilters["filter_1"].contains("ddd"));
+    BOOST_TEST_REQUIRE(ruleFilters["filter_1"].contains("aaa") == false);
+    BOOST_TEST_REQUIRE(ruleFilters["filter_1"].contains("bbb") == false);
+    BOOST_TEST_REQUIRE(ruleFilters["filter_1"].contains("ccc"));
+    BOOST_TEST_REQUIRE(ruleFilters["filter_1"].contains("ddd"));
 
-    BOOST_TEST(ruleFilters["filter_2"].contains("aaa"));
-    BOOST_TEST(ruleFilters["filter_2"].contains("bbb"));
-    BOOST_TEST(ruleFilters["filter_2"].contains("ccc") == false);
-    BOOST_TEST(ruleFilters["filter_2"].contains("ddd") == false);
+    BOOST_TEST_REQUIRE(ruleFilters["filter_2"].contains("aaa"));
+    BOOST_TEST_REQUIRE(ruleFilters["filter_2"].contains("bbb"));
+    BOOST_TEST_REQUIRE(ruleFilters["filter_2"].contains("ccc") == false);
+    BOOST_TEST_REQUIRE(ruleFilters["filter_2"].contains("ddd") == false);
 
     // Now update by adding a new filter
     configUpdate = "[filters]\nfilter.filter_3=[\"new\"]\n";
-    BOOST_TEST(configUpdater.update(configUpdate));
+    BOOST_TEST_REQUIRE(configUpdater.update(configUpdate));
 
     ruleFilters = fieldConfig.ruleFilters();
-    BOOST_CHECK_EQUAL(std::size_t(3), ruleFilters.size());
-    BOOST_TEST(ruleFilters["filter_3"].contains("new"));
+    BOOST_REQUIRE_EQUAL(std::size_t(3), ruleFilters.size());
+    BOOST_TEST_REQUIRE(ruleFilters["filter_3"].contains("new"));
 }
 
 BOOST_AUTO_TEST_CASE(testUpdateGivenScheduledEvents) {
@@ -185,12 +185,12 @@ BOOST_AUTO_TEST_CASE(testUpdateGivenScheduledEvents) {
         fieldConfig.updateScheduledEvents(propTree);
 
         const auto& events = fieldConfig.scheduledEvents();
-        BOOST_CHECK_EQUAL(std::size_t(2), events.size());
-        BOOST_CHECK_EQUAL(std::string("old_event_1"), events[0].first);
-        BOOST_CHECK_EQUAL(std::string("SKIP_RESULT AND SKIP_MODEL_UPDATE IF TIME >= 1.000000 AND TIME < 2.000000"),
+        BOOST_REQUIRE_EQUAL(std::size_t(2), events.size());
+        BOOST_REQUIRE_EQUAL(std::string("old_event_1"), events[0].first);
+        BOOST_REQUIRE_EQUAL(std::string("SKIP_RESULT AND SKIP_MODEL_UPDATE IF TIME >= 1.000000 AND TIME < 2.000000"),
                           events[0].second.print());
-        BOOST_CHECK_EQUAL(std::string("old_event_2"), events[1].first);
-        BOOST_CHECK_EQUAL(std::string("SKIP_RESULT AND SKIP_MODEL_UPDATE IF TIME >= 3.000000 AND TIME < 4.000000"),
+        BOOST_REQUIRE_EQUAL(std::string("old_event_2"), events[1].first);
+        BOOST_REQUIRE_EQUAL(std::string("SKIP_RESULT AND SKIP_MODEL_UPDATE IF TIME >= 3.000000 AND TIME < 4.000000"),
                           events[1].second.print());
     }
 
@@ -210,15 +210,15 @@ BOOST_AUTO_TEST_CASE(testUpdateGivenScheduledEvents) {
                      << "\n";
         configUpdate << "scheduledevent.1.rules = " << validRule1 << "\n";
 
-        BOOST_TEST(configUpdater.update(configUpdate.str()));
+        BOOST_TEST_REQUIRE(configUpdater.update(configUpdate.str()));
 
         const auto& events = fieldConfig.scheduledEvents();
-        BOOST_CHECK_EQUAL(std::size_t(2), events.size());
-        BOOST_CHECK_EQUAL(std::string("new_event_1"), events[0].first);
-        BOOST_CHECK_EQUAL(std::string("SKIP_RESULT AND SKIP_MODEL_UPDATE IF TIME >= 3.000000 AND TIME < 4.000000"),
+        BOOST_REQUIRE_EQUAL(std::size_t(2), events.size());
+        BOOST_REQUIRE_EQUAL(std::string("new_event_1"), events[0].first);
+        BOOST_REQUIRE_EQUAL(std::string("SKIP_RESULT AND SKIP_MODEL_UPDATE IF TIME >= 3.000000 AND TIME < 4.000000"),
                           events[0].second.print());
-        BOOST_CHECK_EQUAL(std::string("new_event_2"), events[1].first);
-        BOOST_CHECK_EQUAL(std::string("SKIP_RESULT AND SKIP_MODEL_UPDATE IF TIME >= 1.000000 AND TIME < 2.000000"),
+        BOOST_REQUIRE_EQUAL(std::string("new_event_2"), events[1].first);
+        BOOST_REQUIRE_EQUAL(std::string("SKIP_RESULT AND SKIP_MODEL_UPDATE IF TIME >= 1.000000 AND TIME < 2.000000"),
                           events[1].second.print());
     }
 
@@ -230,10 +230,10 @@ BOOST_AUTO_TEST_CASE(testUpdateGivenScheduledEvents) {
         configUpdate << "clear = true"
                      << "\n";
 
-        BOOST_TEST(configUpdater.update(configUpdate.str()));
+        BOOST_TEST_REQUIRE(configUpdater.update(configUpdate.str()));
 
         const auto& events = fieldConfig.scheduledEvents();
-        BOOST_TEST(events.empty());
+        BOOST_TEST_REQUIRE(events.empty());
     }
 }
 

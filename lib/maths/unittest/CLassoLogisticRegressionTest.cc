@@ -118,7 +118,7 @@ BOOST_AUTO_TEST_CASE(testCyclicCoordinateDescent) {
         LOG_DEBUG(<< "sparse beta = " << core::CContainerPrinter::print(beta2)
                   << ", numberIterations = " << numberIterations);
 
-        BOOST_CHECK_EQUAL(core::CContainerPrinter::print(beta1),
+        BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(beta1),
                           core::CContainerPrinter::print(beta2));
 
         initializeMatrix(x_, x);
@@ -150,10 +150,10 @@ BOOST_AUTO_TEST_CASE(testCyclicCoordinateDescent) {
 
             double slope = (llPlusEps - llMinusEps) / length;
             LOG_DEBUG(<< "slope = " << slope);
-            BOOST_TEST(slope < 0.015);
+            BOOST_TEST_REQUIRE(slope < 0.015);
         }
-        BOOST_TEST(ll > llMinusEps / 10.0);
-        BOOST_TEST(ll > llPlusEps / 10.0);
+        BOOST_TEST_REQUIRE(ll > llMinusEps / 10.0);
+        BOOST_TEST_REQUIRE(ll > llPlusEps / 10.0);
     }
 
     double lambdas[] = {2.5, 5.0, 10.0, 15.0, 20.0};
@@ -206,7 +206,7 @@ BOOST_AUTO_TEST_CASE(testCyclicCoordinateDescent) {
                       std::sqrt(inner(effectiveDecisionNormal, effectiveDecisionNormal))) *
             360.0 / boost::math::double_constants::two_pi;
         LOG_DEBUG(<< "angular error = " << theta << " deg");
-        BOOST_TEST(theta < 7.5);
+        BOOST_TEST_REQUIRE(theta < 7.5);
     }
 
     // Generate three features with monotonically increasing

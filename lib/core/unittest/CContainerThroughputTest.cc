@@ -31,8 +31,8 @@ struct SContent {
 };
 
 BOOST_AUTO_TEST_CASE(testConstants) {
-    BOOST_TEST(FILL_SIZE > 0);
-    BOOST_TEST(TEST_SIZE > FILL_SIZE);
+    BOOST_TEST_REQUIRE(FILL_SIZE > 0);
+    BOOST_TEST_REQUIRE(TEST_SIZE > FILL_SIZE);
 }
 
 BOOST_AUTO_TEST_CASE(testVector) {
@@ -60,7 +60,7 @@ BOOST_AUTO_TEST_CASE(testVector) {
     LOG_INFO(<< "Finished vector throughput test at "
              << ml::core::CTimeUtils::toTimeString(end));
 
-    BOOST_CHECK_EQUAL(FILL_SIZE, testVec.size());
+    BOOST_REQUIRE_EQUAL(FILL_SIZE, testVec.size());
 
     LOG_INFO(<< "Vector throughput test with fill size " << FILL_SIZE << " and test size "
              << TEST_SIZE << " took " << (end - start) << " seconds");
@@ -90,7 +90,7 @@ BOOST_AUTO_TEST_CASE(testList) {
     LOG_INFO(<< "Finished list throughput test at "
              << ml::core::CTimeUtils::toTimeString(end));
 
-    BOOST_CHECK_EQUAL(FILL_SIZE, testList.size());
+    BOOST_REQUIRE_EQUAL(FILL_SIZE, testList.size());
 
     LOG_INFO(<< "List throughput test with fill size " << FILL_SIZE << " and test size "
              << TEST_SIZE << " took " << (end - start) << " seconds");
@@ -120,7 +120,7 @@ BOOST_AUTO_TEST_CASE(testDeque) {
     LOG_INFO(<< "Finished deque throughput test at "
              << ml::core::CTimeUtils::toTimeString(end));
 
-    BOOST_CHECK_EQUAL(FILL_SIZE, testDeque.size());
+    BOOST_REQUIRE_EQUAL(FILL_SIZE, testDeque.size());
 
     LOG_INFO(<< "Deque throughput test with fill size " << FILL_SIZE << " and test size "
              << TEST_SIZE << " took " << (end - start) << " seconds");
@@ -150,7 +150,7 @@ BOOST_AUTO_TEST_CASE(testMap) {
     LOG_INFO(<< "Finished map throughput test at "
              << ml::core::CTimeUtils::toTimeString(end));
 
-    BOOST_CHECK_EQUAL(FILL_SIZE, testMap.size());
+    BOOST_REQUIRE_EQUAL(FILL_SIZE, testMap.size());
 
     LOG_INFO(<< "Map throughput test with fill size " << FILL_SIZE << " and test size "
              << TEST_SIZE << " took " << (end - start) << " seconds");
@@ -180,7 +180,7 @@ BOOST_AUTO_TEST_CASE(testCircBuf) {
     LOG_INFO(<< "Finished circular buffer throughput test at "
              << ml::core::CTimeUtils::toTimeString(end));
 
-    BOOST_CHECK_EQUAL(FILL_SIZE, testCircBuf.size());
+    BOOST_REQUIRE_EQUAL(FILL_SIZE, testCircBuf.size());
 
     LOG_INFO(<< "Circular buffer throughput test with fill size " << FILL_SIZE << " and test size "
              << TEST_SIZE << " took " << (end - start) << " seconds");
@@ -211,7 +211,7 @@ BOOST_AUTO_TEST_CASE(testMultiIndex) {
     LOG_INFO(<< "Finished multi-index throughput test at "
              << ml::core::CTimeUtils::toTimeString(end));
 
-    BOOST_CHECK_EQUAL(FILL_SIZE, testMultiIndex.size());
+    BOOST_REQUIRE_EQUAL(FILL_SIZE, testMultiIndex.size());
 
     LOG_INFO(<< "Multi-index throughput test with fill size " << FILL_SIZE << " and test size "
              << TEST_SIZE << " took " << (end - start) << " seconds");

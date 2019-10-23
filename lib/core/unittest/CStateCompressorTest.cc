@@ -67,10 +67,10 @@ public:
     }
 
     virtual bool streamComplete(TOStreamP& strm, bool /*force*/) {
-        BOOST_CHECK_EQUAL(m_CurrentStream, strm);
+        BOOST_REQUIRE_EQUAL(m_CurrentStream, strm);
         std::ostringstream* ss =
             dynamic_cast<std::ostringstream*>(m_CurrentStream.get());
-        BOOST_TEST(ss);
+        BOOST_TEST_REQUIRE(ss);
         LOG_TRACE(<< ss->str());
         m_Data[m_CurrentDocNum] = ss->str();
         LOG_TRACE(<< m_Data[m_CurrentDocNum]);
@@ -155,7 +155,7 @@ BOOST_AUTO_TEST_CASE(testForApiNoKey) {
     LOG_DEBUG(<< "Size: " << restored.size());
     LOG_DEBUG(<< "Reference size: " << ref.size());
 
-    BOOST_CHECK_EQUAL(ref.size(), restored.size());
+    BOOST_REQUIRE_EQUAL(ref.size(), restored.size());
 }
 
 BOOST_AUTO_TEST_CASE(testStreaming) {
@@ -189,40 +189,40 @@ BOOST_AUTO_TEST_CASE(testStreaming) {
         decompressor.setStateRestoreSearch("1", "");
         TIStreamP istrm = decompressor.search(1, 1);
 
-        BOOST_CHECK_EQUAL(std::size_t(0), mockKvSearcher.askedFor());
+        BOOST_REQUIRE_EQUAL(std::size_t(0), mockKvSearcher.askedFor());
 
         CJsonStateRestoreTraverser traverser(*istrm);
         traverser.next();
-        BOOST_TEST(mockKvSearcher.askedFor() > lastAskedFor);
+        BOOST_TEST_REQUIRE(mockKvSearcher.askedFor() > lastAskedFor);
         lastAskedFor = mockKvSearcher.askedFor();
 
         for (std::size_t i = 0; i < 5000; i++) {
             traverser.next();
         }
-        BOOST_TEST(mockKvSearcher.askedFor() > lastAskedFor);
+        BOOST_TEST_REQUIRE(mockKvSearcher.askedFor() > lastAskedFor);
         lastAskedFor = mockKvSearcher.askedFor();
 
         for (std::size_t i = 0; i < 5000; i++) {
             traverser.next();
         }
-        BOOST_TEST(mockKvSearcher.askedFor() > lastAskedFor);
+        BOOST_TEST_REQUIRE(mockKvSearcher.askedFor() > lastAskedFor);
         lastAskedFor = mockKvSearcher.askedFor();
 
         for (std::size_t i = 0; i < 5000; i++) {
             traverser.next();
         }
-        BOOST_TEST(mockKvSearcher.askedFor() > lastAskedFor);
+        BOOST_TEST_REQUIRE(mockKvSearcher.askedFor() > lastAskedFor);
         lastAskedFor = mockKvSearcher.askedFor();
 
         for (std::size_t i = 0; i < 5000; i++) {
             traverser.next();
         }
-        BOOST_TEST(mockKvSearcher.askedFor() > lastAskedFor);
+        BOOST_TEST_REQUIRE(mockKvSearcher.askedFor() > lastAskedFor);
         lastAskedFor = mockKvSearcher.askedFor();
         while (traverser.next()) {
         };
         LOG_TRACE(<< "Asked for: " << mockKvSearcher.askedFor());
-        BOOST_CHECK_EQUAL(mockKvSearcher.askedFor(), mockKvAdder.data().size());
+        BOOST_REQUIRE_EQUAL(mockKvSearcher.askedFor(), mockKvAdder.data().size());
     }
 }
 
@@ -261,9 +261,9 @@ BOOST_AUTO_TEST_CASE(testChunking) {
             } catch (std::exception& e) {
                 LOG_DEBUG(<< "Error in test case " << i << " / " << j << ": " << e.what());
                 LOG_DEBUG(<< "String is: " << ss.str());
-                BOOST_TEST(false);
+                BOOST_TEST_REQUIRE(false);
             }
-            BOOST_CHECK_EQUAL(ss.str(), decompressed);
+            BOOST_REQUIRE_EQUAL(ss.str(), decompressed);
         }
         LOG_DEBUG(<< "Done chunk size " << i);
     }
@@ -294,9 +294,9 @@ BOOST_AUTO_TEST_CASE(testChunking) {
         } catch (std::exception& e) {
             LOG_DEBUG(<< "Error in test case " << e.what());
             LOG_DEBUG(<< "String is: " << ss.str());
-            BOOST_TEST(false);
+            BOOST_TEST_REQUIRE(false);
         }
-        BOOST_CHECK_EQUAL(ss.str(), decompressed);
+        BOOST_REQUIRE_EQUAL(ss.str(), decompressed);
     }
 }
 

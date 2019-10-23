@@ -14,31 +14,31 @@ BOOST_AUTO_TEST_SUITE(CRapidXmlStateRestoreTraverserTest)
 namespace {
 
 bool traverse2ndLevel(ml::core::CStateRestoreTraverser& traverser) {
-    BOOST_CHECK_EQUAL(std::string("level2A"), traverser.name());
-    BOOST_CHECK_EQUAL(std::string("3.14"), traverser.value());
-    BOOST_TEST(!traverser.hasSubLevel());
-    BOOST_TEST(traverser.next());
-    BOOST_CHECK_EQUAL(std::string("level2B"), traverser.name());
-    BOOST_CHECK_EQUAL(std::string("z"), traverser.value());
-    BOOST_TEST(!traverser.hasSubLevel());
-    BOOST_TEST(!traverser.next());
+    BOOST_REQUIRE_EQUAL(std::string("level2A"), traverser.name());
+    BOOST_REQUIRE_EQUAL(std::string("3.14"), traverser.value());
+    BOOST_TEST_REQUIRE(!traverser.hasSubLevel());
+    BOOST_TEST_REQUIRE(traverser.next());
+    BOOST_REQUIRE_EQUAL(std::string("level2B"), traverser.name());
+    BOOST_REQUIRE_EQUAL(std::string("z"), traverser.value());
+    BOOST_TEST_REQUIRE(!traverser.hasSubLevel());
+    BOOST_TEST_REQUIRE(!traverser.next());
 
     return true;
 }
 
 bool traverse1stLevel(ml::core::CStateRestoreTraverser& traverser) {
-    BOOST_CHECK_EQUAL(std::string("level1A"), traverser.name());
-    BOOST_CHECK_EQUAL(std::string("a"), traverser.value());
-    BOOST_TEST(!traverser.hasSubLevel());
-    BOOST_TEST(traverser.next());
-    BOOST_CHECK_EQUAL(std::string("level1B"), traverser.name());
-    BOOST_CHECK_EQUAL(std::string("25"), traverser.value());
-    BOOST_TEST(!traverser.hasSubLevel());
-    BOOST_TEST(traverser.next());
-    BOOST_CHECK_EQUAL(std::string("level1C"), traverser.name());
-    BOOST_TEST(traverser.hasSubLevel());
-    BOOST_TEST(traverser.traverseSubLevel(&traverse2ndLevel));
-    BOOST_TEST(!traverser.next());
+    BOOST_REQUIRE_EQUAL(std::string("level1A"), traverser.name());
+    BOOST_REQUIRE_EQUAL(std::string("a"), traverser.value());
+    BOOST_TEST_REQUIRE(!traverser.hasSubLevel());
+    BOOST_TEST_REQUIRE(traverser.next());
+    BOOST_REQUIRE_EQUAL(std::string("level1B"), traverser.name());
+    BOOST_REQUIRE_EQUAL(std::string("25"), traverser.value());
+    BOOST_TEST_REQUIRE(!traverser.hasSubLevel());
+    BOOST_TEST_REQUIRE(traverser.next());
+    BOOST_REQUIRE_EQUAL(std::string("level1C"), traverser.name());
+    BOOST_TEST_REQUIRE(traverser.hasSubLevel());
+    BOOST_TEST_REQUIRE(traverser.traverseSubLevel(&traverse2ndLevel));
+    BOOST_TEST_REQUIRE(!traverser.next());
 
     return true;
 }
@@ -50,14 +50,14 @@ BOOST_AUTO_TEST_CASE(testRestore) {
                     "level1C></root>");
 
     ml::core::CRapidXmlParser parser;
-    BOOST_TEST(parser.parseStringIgnoreCdata(xml));
+    BOOST_TEST_REQUIRE(parser.parseStringIgnoreCdata(xml));
 
     ml::core::CRapidXmlStateRestoreTraverser traverser(parser);
 
-    BOOST_CHECK_EQUAL(std::string("root"), traverser.name());
-    BOOST_TEST(traverser.hasSubLevel());
-    BOOST_TEST(traverser.traverseSubLevel(&traverse1stLevel));
-    BOOST_TEST(!traverser.next());
+    BOOST_REQUIRE_EQUAL(std::string("root"), traverser.name());
+    BOOST_TEST_REQUIRE(traverser.hasSubLevel());
+    BOOST_TEST_REQUIRE(traverser.traverseSubLevel(&traverse1stLevel));
+    BOOST_TEST_REQUIRE(!traverser.next());
 }
 
 BOOST_AUTO_TEST_SUITE_END()

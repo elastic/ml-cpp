@@ -344,9 +344,9 @@ BOOST_AUTO_TEST_CASE(testClone) {
         uint64_t checksum1 = model.checksum();
         std::unique_ptr<maths::CUnivariateTimeSeriesModel> clone1{model.clone(1)};
         uint64_t checksum2 = clone1->checksum();
-        BOOST_CHECK_EQUAL(checksum1, checksum2);
+        BOOST_REQUIRE_EQUAL(checksum1, checksum2);
         std::unique_ptr<maths::CUnivariateTimeSeriesModel> clone2{model.clone(2)};
-        BOOST_CHECK_EQUAL(std::size_t(2), clone2->identifier());
+        BOOST_REQUIRE_EQUAL(std::size_t(2), clone2->identifier());
     }
     {
         maths::CTimeSeriesDecomposition trend{DECAY_RATE, bucketLength};
@@ -370,11 +370,11 @@ BOOST_AUTO_TEST_CASE(testClone) {
         uint64_t checksum1 = model.checksum();
         std::unique_ptr<maths::CMultivariateTimeSeriesModel> clone1{model.clone(1)};
         uint64_t checksum2 = clone1->checksum();
-        BOOST_CHECK_EQUAL(checksum1, checksum2);
+        BOOST_REQUIRE_EQUAL(checksum1, checksum2);
         std::unique_ptr<maths::CMultivariateTimeSeriesModel> clone2{model.clone(2)};
         uint64_t checksum3 = clone2->checksum();
-        BOOST_CHECK_EQUAL(checksum1, checksum3);
-        BOOST_CHECK_EQUAL(std::size_t(0), clone2->identifier());
+        BOOST_REQUIRE_EQUAL(checksum1, checksum3);
+        BOOST_REQUIRE_EQUAL(std::size_t(0), clone2->identifier());
     }
 }
 
@@ -417,8 +417,8 @@ BOOST_AUTO_TEST_CASE(testMode) {
 
         LOG_DEBUG(<< "expected mode = " << expectedMode);
         LOG_DEBUG(<< "mode          = " << mode[0]);
-        BOOST_CHECK_EQUAL(std::size_t(1), mode.size());
-        BOOST_CHECK_CLOSE_ABSOLUTE(expectedMode, mode[0], 1e-3 * expectedMode);
+        BOOST_REQUIRE_EQUAL(std::size_t(1), mode.size());
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(expectedMode, mode[0], 1e-3 * expectedMode);
     }
 
     LOG_DEBUG(<< "Univariate trend");
@@ -460,8 +460,8 @@ BOOST_AUTO_TEST_CASE(testMode) {
 
         LOG_DEBUG(<< "expected mode = " << expectedMode);
         LOG_DEBUG(<< "mode          = " << mode[0]);
-        BOOST_CHECK_EQUAL(std::size_t(1), mode.size());
-        BOOST_CHECK_CLOSE_ABSOLUTE(expectedMode, mode[0], 1e-3 * expectedMode);
+        BOOST_REQUIRE_EQUAL(std::size_t(1), mode.size());
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(expectedMode, mode[0], 1e-3 * expectedMode);
     }
 
     LOG_DEBUG(<< "Multivariate no trend");
@@ -507,10 +507,10 @@ BOOST_AUTO_TEST_CASE(testMode) {
 
         LOG_DEBUG(<< "expected mode = " << expectedMode);
         LOG_DEBUG(<< "mode          = " << mode);
-        BOOST_CHECK_EQUAL(std::size_t(3), mode.size());
-        BOOST_CHECK_CLOSE_ABSOLUTE(expectedMode[0], mode[0], 0.02 * expectedMode[0]);
-        BOOST_CHECK_CLOSE_ABSOLUTE(expectedMode[1], mode[1], 0.02 * expectedMode[0]);
-        BOOST_CHECK_CLOSE_ABSOLUTE(expectedMode[2], mode[2], 0.02 * expectedMode[0]);
+        BOOST_REQUIRE_EQUAL(std::size_t(3), mode.size());
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(expectedMode[0], mode[0], 0.02 * expectedMode[0]);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(expectedMode[1], mode[1], 0.02 * expectedMode[0]);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(expectedMode[2], mode[2], 0.02 * expectedMode[0]);
     }
 
     LOG_DEBUG(<< "Multivariate trend");
@@ -575,10 +575,10 @@ BOOST_AUTO_TEST_CASE(testMode) {
 
         LOG_DEBUG(<< "expected mode = " << expectedMode);
         LOG_DEBUG(<< "mode          = " << mode);
-        BOOST_CHECK_EQUAL(std::size_t(3), mode.size());
-        BOOST_CHECK_CLOSE_ABSOLUTE(expectedMode[0], mode[0], 1e-3 * expectedMode[0]);
-        BOOST_CHECK_CLOSE_ABSOLUTE(expectedMode[1], mode[1], 1e-3 * expectedMode[1]);
-        BOOST_CHECK_CLOSE_ABSOLUTE(expectedMode[2], mode[2], 1e-3 * expectedMode[2]);
+        BOOST_REQUIRE_EQUAL(std::size_t(3), mode.size());
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(expectedMode[0], mode[0], 1e-3 * expectedMode[0]);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(expectedMode[1], mode[1], 1e-3 * expectedMode[1]);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(expectedMode[2], mode[2], 1e-3 * expectedMode[2]);
     }
 }
 
@@ -612,7 +612,7 @@ BOOST_AUTO_TEST_CASE(testAddBucketValue) {
     model.addSamples(addSampleParams(modelWeights), samples);
     model.addBucketValue({core::make_triple(core_t::TTime{20}, TDouble2Vec{-1.0}, TAG)});
 
-    BOOST_CHECK_EQUAL(prior.checksum(), model.residualModel().checksum());
+    BOOST_REQUIRE_EQUAL(prior.checksum(), model.residualModel().checksum());
 }
 
 BOOST_AUTO_TEST_CASE(testAddSamples) {
@@ -657,11 +657,11 @@ BOOST_AUTO_TEST_CASE(testAddSamples) {
         uint64_t checksum1{trend.checksum()};
         uint64_t checksum2{model.trendModel().checksum()};
         LOG_DEBUG(<< "checksum1 = " << checksum1 << " checksum2 = " << checksum2);
-        BOOST_CHECK_EQUAL(checksum1, checksum2);
+        BOOST_REQUIRE_EQUAL(checksum1, checksum2);
         checksum1 = prior.checksum();
         checksum2 = model.residualModel().checksum();
         LOG_DEBUG(<< "checksum1 = " << checksum1 << " checksum2 = " << checksum2);
-        BOOST_CHECK_EQUAL(checksum1, checksum2);
+        BOOST_REQUIRE_EQUAL(checksum1, checksum2);
     }
 
     LOG_DEBUG(<< "Multiple samples multivariate");
@@ -707,12 +707,12 @@ BOOST_AUTO_TEST_CASE(testAddSamples) {
             uint64_t checksum1{trends[i]->checksum()};
             uint64_t checksum2{model.trendModel()[i]->checksum()};
             LOG_DEBUG(<< "checksum1 = " << checksum1 << " checksum2 = " << checksum2);
-            BOOST_CHECK_EQUAL(checksum1, checksum2);
+            BOOST_REQUIRE_EQUAL(checksum1, checksum2);
         }
         uint64_t checksum1{prior.checksum()};
         uint64_t checksum2{model.residualModel().checksum()};
         LOG_DEBUG(<< "checksum1 = " << checksum1 << " checksum2 = " << checksum2);
-        BOOST_CHECK_EQUAL(checksum1, checksum2);
+        BOOST_REQUIRE_EQUAL(checksum1, checksum2);
     }
 
     LOG_DEBUG(<< "Propagation interval univariate");
@@ -743,7 +743,7 @@ BOOST_AUTO_TEST_CASE(testAddSamples) {
             uint64_t checksum1{prior.checksum()};
             uint64_t checksum2{model.residualModel().checksum()};
             LOG_DEBUG(<< "checksum1 = " << checksum1 << " checksum2 = " << checksum2);
-            BOOST_CHECK_EQUAL(checksum1, checksum2);
+            BOOST_REQUIRE_EQUAL(checksum1, checksum2);
 
             time += bucketLength;
         }
@@ -781,7 +781,7 @@ BOOST_AUTO_TEST_CASE(testAddSamples) {
             uint64_t checksum1{prior.checksum()};
             uint64_t checksum2{model.residualModel().checksum()};
             LOG_DEBUG(<< "checksum1 = " << checksum1 << " checksum2 = " << checksum2);
-            BOOST_CHECK_EQUAL(checksum1, checksum2);
+            BOOST_REQUIRE_EQUAL(checksum1, checksum2);
 
             time += bucketLength;
         }
@@ -834,10 +834,10 @@ BOOST_AUTO_TEST_CASE(testAddSamples) {
 
             uint64_t checksum1{trend.checksum()};
             uint64_t checksum2{model.trendModel().checksum()};
-            BOOST_CHECK_EQUAL(checksum1, checksum2);
+            BOOST_REQUIRE_EQUAL(checksum1, checksum2);
             checksum1 = prior.checksum();
             checksum2 = model.residualModel().checksum();
-            BOOST_CHECK_EQUAL(checksum1, checksum2);
+            BOOST_REQUIRE_EQUAL(checksum1, checksum2);
 
             time += bucketLength;
         }
@@ -923,11 +923,11 @@ BOOST_AUTO_TEST_CASE(testAddSamples) {
             for (std::size_t i = 0u; i < trends.size(); ++i) {
                 uint64_t checksum1{trends[i]->checksum()};
                 uint64_t checksum2{model.trendModel()[i]->checksum()};
-                BOOST_CHECK_EQUAL(checksum1, checksum2);
+                BOOST_REQUIRE_EQUAL(checksum1, checksum2);
             }
             uint64_t checksum1{prior.checksum()};
             uint64_t checksum2{model.residualModel().checksum()};
-            BOOST_CHECK_EQUAL(checksum1, checksum2);
+            BOOST_REQUIRE_EQUAL(checksum1, checksum2);
 
             time += bucketLength;
         }
@@ -980,13 +980,13 @@ BOOST_AUTO_TEST_CASE(testPredict) {
             double predicted{model.predict(time_)[0]};
             LOG_DEBUG(<< "expected = " << expected << " predicted = " << predicted
                       << " (trend = " << trend_ << ")");
-            BOOST_CHECK_CLOSE_ABSOLUTE(expected, predicted, 1e-3 * expected);
-            BOOST_TEST(std::fabs(trend_ - predicted) / trend_ < 0.2);
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(expected, predicted, 1e-3 * expected);
+            BOOST_TEST_REQUIRE(std::fabs(trend_ - predicted) / trend_ < 0.2);
             meanError.add(std::fabs(trend_ - predicted) / trend_);
         }
 
         LOG_DEBUG(<< "mean error = " << maths::CBasicStatistics::mean(meanError));
-        BOOST_TEST(maths::CBasicStatistics::mean(meanError) < 0.05);
+        BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(meanError) < 0.05);
     }
 
     LOG_DEBUG(<< "Univariate nearest mode");
@@ -1020,9 +1020,9 @@ BOOST_AUTO_TEST_CASE(testPredict) {
                   << " actual(0) = " << predicted[0]);
         LOG_DEBUG(<< "expected(1) = " << maths::CBasicStatistics::mean(modes[1])
                   << " actual(1) = " << predicted[1]);
-        BOOST_CHECK_CLOSE_ABSOLUTE(maths::CBasicStatistics::mean(modes[0]), predicted[0],
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(maths::CBasicStatistics::mean(modes[0]), predicted[0],
                                    0.1 * maths::CBasicStatistics::mean(modes[0]));
-        BOOST_CHECK_CLOSE_ABSOLUTE(maths::CBasicStatistics::mean(modes[1]), predicted[1],
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(maths::CBasicStatistics::mean(modes[1]), predicted[1],
                                    0.01 * maths::CBasicStatistics::mean(modes[1]));
     }
 
@@ -1089,8 +1089,8 @@ BOOST_AUTO_TEST_CASE(testPredict) {
                 --marginalize[std::min(i, marginalize.size() - 1)];
                 LOG_DEBUG(<< "expected = " << expected << " predicted = " << predicted
                           << " (trend = " << trend_ << ")");
-                BOOST_CHECK_CLOSE_ABSOLUTE(expected, predicted, 1e-3 * expected);
-                BOOST_TEST(std::fabs(trend_ - predicted) / trend_ < 0.25);
+                BOOST_REQUIRE_CLOSE_ABSOLUTE(expected, predicted, 1e-3 * expected);
+                BOOST_TEST_REQUIRE(std::fabs(trend_ - predicted) / trend_ < 0.25);
             }
         }
     }
@@ -1145,9 +1145,9 @@ BOOST_AUTO_TEST_CASE(testPredict) {
                       << " actual(0) = " << predicted[0][i]);
             LOG_DEBUG(<< "expected(1) = " << expected[1][i]
                       << " actual(1) = " << predicted[1][i]);
-            BOOST_CHECK_CLOSE_ABSOLUTE(expected[0][i], predicted[0][i],
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(expected[0][i], predicted[0][i],
                                        std::fabs(0.2 * expected[0][i]));
-            BOOST_CHECK_CLOSE_ABSOLUTE(expected[1][i], predicted[1][i],
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(expected[1][i], predicted[1][i],
                                        std::fabs(0.01 * expected[1][i]));
         }
     }
@@ -1249,10 +1249,10 @@ BOOST_AUTO_TEST_CASE(testProbability) {
                         model1.probability(params, time_, {sample}, results[1]);
                     }
 
-                    BOOST_CHECK_EQUAL(expectedProbability[0], results[0].s_Probability);
-                    BOOST_CHECK_EQUAL(expectedTail[0], results[0].s_Tail[0]);
-                    BOOST_CHECK_EQUAL(expectedProbability[1], results[1].s_Probability);
-                    BOOST_CHECK_EQUAL(expectedTail[1], results[1].s_Tail[0]);
+                    BOOST_REQUIRE_EQUAL(expectedProbability[0], results[0].s_Probability);
+                    BOOST_REQUIRE_EQUAL(expectedTail[0], results[0].s_Tail[0]);
+                    BOOST_REQUIRE_EQUAL(expectedProbability[1], results[1].s_Probability);
+                    BOOST_REQUIRE_EQUAL(expectedTail[1], results[1].s_Tail[0]);
                 }
             }
         }
@@ -1349,11 +1349,11 @@ BOOST_AUTO_TEST_CASE(testProbability) {
                         model1.probability(params, time_, {sample}, results[1]);
                     }
 
-                    BOOST_CHECK_EQUAL(expectedProbability[0], results[0].s_Probability);
-                    BOOST_CHECK_EQUAL(expectedProbability[1], results[1].s_Probability);
+                    BOOST_REQUIRE_EQUAL(expectedProbability[0], results[0].s_Probability);
+                    BOOST_REQUIRE_EQUAL(expectedProbability[1], results[1].s_Probability);
                     for (std::size_t j = 0u; j < 3; ++j) {
-                        BOOST_CHECK_EQUAL(expectedTail[0][j], results[0].s_Tail[j]);
-                        BOOST_CHECK_EQUAL(expectedTail[1][j], results[1].s_Tail[j]);
+                        BOOST_REQUIRE_EQUAL(expectedTail[0][j], results[0].s_Tail[j]);
+                        BOOST_REQUIRE_EQUAL(expectedTail[1][j], results[1].s_Tail[j]);
                     }
                 }
             }
@@ -1397,7 +1397,7 @@ BOOST_AUTO_TEST_CASE(testProbability) {
 
         LOG_DEBUG(<< "expected anomalies = " << core::CContainerPrinter::print(anomalies));
         LOG_DEBUG(<< "actual anomalies   = " << core::CContainerPrinter::print(anomalies_));
-        BOOST_CHECK_EQUAL(core::CContainerPrinter::print(anomalies),
+        BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(anomalies),
                           core::CContainerPrinter::print(anomalies_));
     }
 }
@@ -1449,12 +1449,12 @@ BOOST_AUTO_TEST_CASE(testWeights) {
 
             LOG_DEBUG(<< "expected weight = " << expectedScale << ", weight = " << scale
                       << " (data weight = " << dataScale << ")");
-            BOOST_CHECK_EQUAL(std::max(expectedScale, MINIMUM_SEASONAL_SCALE), scale);
+            BOOST_REQUIRE_EQUAL(std::max(expectedScale, MINIMUM_SEASONAL_SCALE), scale);
 
             error.add(std::fabs(scale - dataScale) / dataScale);
         }
         LOG_DEBUG(<< "error = " << maths::CBasicStatistics::mean(error));
-        BOOST_TEST(maths::CBasicStatistics::mean(error) < 0.18);
+        BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(error) < 0.18);
 
         LOG_DEBUG(<< "Winsorisation");
         TDouble2Vec prediction(model.predict(time));
@@ -1462,7 +1462,7 @@ BOOST_AUTO_TEST_CASE(testWeights) {
         for (std::size_t i = 0u; i < 10; ++i) {
             double weight_{model.winsorisationWeight(0.0, time, prediction)[0]};
             LOG_DEBUG(<< "weight = " << weight_);
-            BOOST_TEST(weight_ <= lastWeight);
+            BOOST_TEST_REQUIRE(weight_ <= lastWeight);
             lastWeight = weight_;
             prediction[0] *= 1.1;
         }
@@ -1508,12 +1508,12 @@ BOOST_AUTO_TEST_CASE(testWeights) {
                 double scale{model.seasonalWeight(0.0, time_)[i]};
                 LOG_DEBUG(<< "expected weight = " << expectedScale << ", weight = " << scale
                           << " (data weight = " << dataScale << ")");
-                BOOST_CHECK_EQUAL(std::max(expectedScale, MINIMUM_SEASONAL_SCALE), scale);
+                BOOST_REQUIRE_EQUAL(std::max(expectedScale, MINIMUM_SEASONAL_SCALE), scale);
                 error.add(std::fabs(scale - dataScale) / dataScale);
             }
         }
         LOG_DEBUG(<< "error = " << maths::CBasicStatistics::mean(error));
-        BOOST_TEST(maths::CBasicStatistics::mean(error) < 0.26);
+        BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(error) < 0.26);
 
         LOG_DEBUG(<< "Winsorisation");
         TDouble2Vec prediction(model.predict(time));
@@ -1521,7 +1521,7 @@ BOOST_AUTO_TEST_CASE(testWeights) {
         for (std::size_t i = 0u; i < 10; ++i) {
             double weight_{model.winsorisationWeight(0.0, time, prediction)[0]};
             LOG_DEBUG(<< "weight = " << weight_);
-            BOOST_TEST(weight_ <= lastWeight);
+            BOOST_TEST_REQUIRE(weight_ <= lastWeight);
             lastWeight = weight_;
             prediction[0] *= 1.1;
         }
@@ -1562,7 +1562,7 @@ BOOST_AUTO_TEST_CASE(testMemoryUsage) {
             2 * controllers[0].memoryUsage() + 16 * 12 /*Recent samples*/};
         std::size_t size = model->memoryUsage();
         LOG_DEBUG(<< "size " << size << " expected " << expectedSize);
-        BOOST_TEST(size < 1.1 * expectedSize);
+        BOOST_TEST_REQUIRE(size < 1.1 * expectedSize);
     }
 
     LOG_DEBUG(<< "Multivariate");
@@ -1598,7 +1598,7 @@ BOOST_AUTO_TEST_CASE(testMemoryUsage) {
             2 * controllers[0].memoryUsage() + 32 * 12 /*Recent samples*/};
         std::size_t size = model->memoryUsage();
         LOG_DEBUG(<< "size " << size << " expected " << expectedSize);
-        BOOST_TEST(size < 1.1 * expectedSize);
+        BOOST_TEST_REQUIRE(size < 1.1 * expectedSize);
     }
 
     // TODO LOG_DEBUG(<< "Correlates");
@@ -1641,7 +1641,7 @@ BOOST_AUTO_TEST_CASE(testPersist) {
 
         // Restore the XML into a new time series model.
         core::CRapidXmlParser parser;
-        BOOST_TEST(parser.parseStringIgnoreCdata(origXml));
+        BOOST_TEST_REQUIRE(parser.parseStringIgnoreCdata(origXml));
         core::CRapidXmlStateRestoreTraverser traverser(parser);
 
         maths::SDistributionRestoreParams distributionParams{maths_t::E_ContinuousData,
@@ -1651,7 +1651,7 @@ BOOST_AUTO_TEST_CASE(testPersist) {
         maths::SModelRestoreParams restoreParams{params, decompositionParams, distributionParams};
         maths::CUnivariateTimeSeriesModel restoredModel{restoreParams, traverser};
 
-        BOOST_CHECK_EQUAL(origModel.checksum(), restoredModel.checksum());
+        BOOST_REQUIRE_EQUAL(origModel.checksum(), restoredModel.checksum());
     }
 
     LOG_DEBUG(<< "Multivariate");
@@ -1687,7 +1687,7 @@ BOOST_AUTO_TEST_CASE(testPersist) {
 
         // Restore the XML into a new time series model.
         core::CRapidXmlParser parser;
-        BOOST_TEST(parser.parseStringIgnoreCdata(origXml));
+        BOOST_TEST_REQUIRE(parser.parseStringIgnoreCdata(origXml));
         core::CRapidXmlStateRestoreTraverser traverser(parser);
 
         maths::SDistributionRestoreParams distributionParams{maths_t::E_ContinuousData,
@@ -1697,7 +1697,7 @@ BOOST_AUTO_TEST_CASE(testPersist) {
         maths::SModelRestoreParams restoreParams{params, decompositionParams, distributionParams};
         maths::CMultivariateTimeSeriesModel restoredModel{restoreParams, traverser};
 
-        BOOST_CHECK_EQUAL(origModel.checksum(), restoredModel.checksum());
+        BOOST_REQUIRE_EQUAL(origModel.checksum(), restoredModel.checksum());
     }
 
     // TODO LOG_DEBUG(<< "Correlates");
@@ -1737,7 +1737,7 @@ BOOST_AUTO_TEST_CASE(testUpgrade) {
         core::CStringUtils::tokenise(";", intervals, expectedIntervals, empty);
 
         core::CRapidXmlParser parser;
-        BOOST_TEST(parser.parseStringIgnoreCdata(xml));
+        BOOST_TEST_REQUIRE(parser.parseStringIgnoreCdata(xml));
         core::CRapidXmlStateRestoreTraverser traverser(parser);
 
         maths::SDistributionRestoreParams distributionParams{maths_t::E_ContinuousData,
@@ -1764,9 +1764,9 @@ BOOST_AUTO_TEST_CASE(testUpgrade) {
             interval_ += ",";
             core::CStringUtils::tokenise(",", interval_, interval, empty);
 
-            BOOST_CHECK_EQUAL(expectedInterval.size(), interval.size());
+            BOOST_REQUIRE_EQUAL(expectedInterval.size(), interval.size());
             for (std::size_t j = 0u; j < expectedInterval.size(); ++j) {
-                BOOST_CHECK_CLOSE_ABSOLUTE(
+                BOOST_REQUIRE_CLOSE_ABSOLUTE(
                     boost::lexical_cast<double>(expectedInterval[j]),
                     boost::lexical_cast<double>(interval[j]), 0.0001);
             }
@@ -1786,7 +1786,7 @@ BOOST_AUTO_TEST_CASE(testUpgrade) {
         core::CStringUtils::tokenise(";", intervals, expectedIntervals, empty);
 
         core::CRapidXmlParser parser;
-        BOOST_TEST(parser.parseStringIgnoreCdata(xml));
+        BOOST_TEST_REQUIRE(parser.parseStringIgnoreCdata(xml));
         core::CRapidXmlStateRestoreTraverser traverser(parser);
 
         maths::SDistributionRestoreParams distributionParams{maths_t::E_ContinuousData,
@@ -1813,9 +1813,9 @@ BOOST_AUTO_TEST_CASE(testUpgrade) {
             interval_ += ",";
             core::CStringUtils::tokenise(",", interval_, interval, empty);
 
-            BOOST_CHECK_EQUAL(expectedInterval.size(), interval.size());
+            BOOST_REQUIRE_EQUAL(expectedInterval.size(), interval.size());
             for (std::size_t j = 0u; j < expectedInterval.size(); ++j) {
-                BOOST_CHECK_CLOSE_ABSOLUTE(
+                BOOST_REQUIRE_CLOSE_ABSOLUTE(
                     boost::lexical_cast<double>(expectedInterval[j]),
                     boost::lexical_cast<double>(interval[j]), 0.0001);
             }
@@ -1925,11 +1925,11 @@ BOOST_AUTO_TEST_CASE(testAnomalyModel) {
         LOG_DEBUG(<< "anomalies = " << core::CContainerPrinter::print(anomalyBuckets));
         LOG_DEBUG(<< "probabilities = "
                   << core::CContainerPrinter::print(anomalyProbabilities));
-        BOOST_TEST(std::find(anomalyBuckets.begin(), anomalyBuckets.end(), 1905) !=
+        BOOST_TEST_REQUIRE(std::find(anomalyBuckets.begin(), anomalyBuckets.end(), 1905) !=
                    anomalyBuckets.end());
-        BOOST_TEST(std::find(anomalyBuckets.begin(), anomalyBuckets.end(), 1906) !=
+        BOOST_TEST_REQUIRE(std::find(anomalyBuckets.begin(), anomalyBuckets.end(), 1906) !=
                    anomalyBuckets.end());
-        BOOST_TEST(std::find(anomalyBuckets.begin(), anomalyBuckets.end(), 1907) !=
+        BOOST_TEST_REQUIRE(std::find(anomalyBuckets.begin(), anomalyBuckets.end(), 1907) !=
                    anomalyBuckets.end());
 
         //file << "v = " << core::CContainerPrinter::print(samples) << ";\n";
@@ -1995,11 +1995,11 @@ BOOST_AUTO_TEST_CASE(testAnomalyModel) {
         LOG_DEBUG(<< "anomalies = " << core::CContainerPrinter::print(anomalyBuckets));
         LOG_DEBUG(<< "probabilities = "
                   << core::CContainerPrinter::print(anomalyProbabilities));
-        BOOST_TEST(std::find(anomalyBuckets.begin(), anomalyBuckets.end(), 1906) !=
+        BOOST_TEST_REQUIRE(std::find(anomalyBuckets.begin(), anomalyBuckets.end(), 1906) !=
                    anomalyBuckets.end());
-        BOOST_TEST(std::find(anomalyBuckets.begin(), anomalyBuckets.end(), 1907) !=
+        BOOST_TEST_REQUIRE(std::find(anomalyBuckets.begin(), anomalyBuckets.end(), 1907) !=
                    anomalyBuckets.end());
-        BOOST_TEST(std::find(anomalyBuckets.begin(), anomalyBuckets.end(), 1908) !=
+        BOOST_TEST_REQUIRE(std::find(anomalyBuckets.begin(), anomalyBuckets.end(), 1908) !=
                    anomalyBuckets.end());
 
         //file << "v = [";
@@ -2066,8 +2066,8 @@ BOOST_AUTO_TEST_CASE(testStepChangeDiscontinuities) {
         auto confidenceInterval = model.confidenceInterval(
             time, 50.0, maths_t::CUnitWeights::unit<TDouble2Vec>(1));
         LOG_DEBUG(<< "confidence interval = " << confidenceInterval);
-        BOOST_TEST(std::fabs(confidenceInterval[1][0] - 40.0) < 1.0);
-        BOOST_TEST(confidenceInterval[2][0] - confidenceInterval[0][0] < 4.0);
+        BOOST_TEST_REQUIRE(std::fabs(confidenceInterval[1][0] - 40.0) < 1.0);
+        BOOST_TEST_REQUIRE(confidenceInterval[2][0] - confidenceInterval[0][0] < 4.0);
     }
     LOG_DEBUG(<< "Univariate: Piecewise Constant");
     {
@@ -2130,14 +2130,14 @@ BOOST_AUTO_TEST_CASE(testStepChangeDiscontinuities) {
 
         double outOfBounds{0.0};
         for (std::size_t i = 0u; i < forecast.size(); ++i) {
-            BOOST_CHECK_CLOSE_ABSOLUTE(expected[i], forecast[i][1], 0.1 * expected[i]);
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(expected[i], forecast[i][1], 0.1 * expected[i]);
             outOfBounds += static_cast<double>(expected[i] < forecast[i][0] ||
                                                expected[i] > forecast[i][2]);
         }
         double percentageOutOfBounds{100.0 * outOfBounds /
                                      static_cast<double>(forecast.size())};
         LOG_DEBUG(<< "% out-of-bounds = " << percentageOutOfBounds);
-        BOOST_TEST(percentageOutOfBounds < 2.0);
+        BOOST_TEST_REQUIRE(percentageOutOfBounds < 2.0);
     }
 
     LOG_DEBUG(<< "Univariate: Saw Tooth");
@@ -2209,7 +2209,7 @@ BOOST_AUTO_TEST_CASE(testStepChangeDiscontinuities) {
         double percentageOutOfBounds{100.0 * outOfBounds /
                                      static_cast<double>(forecast.size())};
         LOG_DEBUG(<< "% out-of-bounds = " << percentageOutOfBounds);
-        BOOST_TEST(percentageOutOfBounds < 5.0);
+        BOOST_TEST_REQUIRE(percentageOutOfBounds < 5.0);
     }
 }
 
@@ -2265,8 +2265,8 @@ BOOST_AUTO_TEST_CASE(testLinearScaling) {
         debug.addValueAndPrediction(time, sample, model);
         auto x = model.confidenceInterval(
             time, 90.0, maths_t::CUnitWeights::unit<TDouble2Vec>(1));
-        BOOST_TEST(std::fabs(sample - x[1][0]) < 1.3 * std::sqrt(noiseVariance));
-        BOOST_TEST(std::fabs(x[2][0] - x[0][0]) < 3.3 * std::sqrt(noiseVariance));
+        BOOST_TEST_REQUIRE(std::fabs(sample - x[1][0]) < 1.3 * std::sqrt(noiseVariance));
+        BOOST_TEST_REQUIRE(std::fabs(x[2][0] - x[0][0]) < 3.3 * std::sqrt(noiseVariance));
         time += bucketLength;
     }
 
@@ -2286,8 +2286,8 @@ BOOST_AUTO_TEST_CASE(testLinearScaling) {
         debug.addValueAndPrediction(time, sample, model);
         auto x = model.confidenceInterval(
             time, 90.0, maths_t::CUnitWeights::unit<TDouble2Vec>(1));
-        BOOST_TEST(std::fabs(sample - x[1][0]) < 3.3 * std::sqrt(noiseVariance));
-        BOOST_TEST(std::fabs(x[2][0] - x[0][0]) < 3.3 * std::sqrt(noiseVariance));
+        BOOST_TEST_REQUIRE(std::fabs(sample - x[1][0]) < 3.3 * std::sqrt(noiseVariance));
+        BOOST_TEST_REQUIRE(std::fabs(x[2][0] - x[0][0]) < 3.3 * std::sqrt(noiseVariance));
         time += bucketLength;
     }
 }
@@ -2338,11 +2338,11 @@ BOOST_AUTO_TEST_CASE(testDaylightSaving) {
         sample += 12.0 + 10.0 * smoothDaily(time + hour);
         updateModel(time, sample, model);
         debug.addValueAndPrediction(time, sample, model);
-        BOOST_CHECK_EQUAL(hour, model.trendModel().timeShift());
+        BOOST_REQUIRE_EQUAL(hour, model.trendModel().timeShift());
         auto x = model.confidenceInterval(
             time, 90.0, maths_t::CUnitWeights::unit<TDouble2Vec>(1));
-        BOOST_TEST(std::fabs(sample - x[1][0]) < 3.6 * std::sqrt(noiseVariance));
-        BOOST_TEST(std::fabs(x[2][0] - x[0][0]) < 3.7 * std::sqrt(noiseVariance));
+        BOOST_TEST_REQUIRE(std::fabs(sample - x[1][0]) < 3.6 * std::sqrt(noiseVariance));
+        BOOST_TEST_REQUIRE(std::fabs(x[2][0] - x[0][0]) < 3.7 * std::sqrt(noiseVariance));
         time += bucketLength;
     }
 
@@ -2360,11 +2360,11 @@ BOOST_AUTO_TEST_CASE(testDaylightSaving) {
         sample += 12.0 + 10.0 * smoothDaily(time);
         updateModel(time, sample, model);
         debug.addValueAndPrediction(time, sample, model);
-        BOOST_CHECK_EQUAL(core_t::TTime(0), model.trendModel().timeShift());
+        BOOST_REQUIRE_EQUAL(core_t::TTime(0), model.trendModel().timeShift());
         auto x = model.confidenceInterval(
             time, 90.0, maths_t::CUnitWeights::unit<TDouble2Vec>(1));
-        BOOST_TEST(std::fabs(sample - x[1][0]) < 4.1 * std::sqrt(noiseVariance));
-        BOOST_TEST(std::fabs(x[2][0] - x[0][0]) < 3.9 * std::sqrt(noiseVariance));
+        BOOST_TEST_REQUIRE(std::fabs(sample - x[1][0]) < 4.1 * std::sqrt(noiseVariance));
+        BOOST_TEST_REQUIRE(std::fabs(x[2][0] - x[0][0]) < 3.9 * std::sqrt(noiseVariance));
         time += bucketLength;
     }
 }
@@ -2415,8 +2415,8 @@ BOOST_AUTO_TEST_CASE(testSkipAnomalyModelUpdate) {
         LOG_DEBUG(<< "probabilities = " << core::CContainerPrinter::print(probabilities));
 
         // Assert probs are decreasing
-        BOOST_TEST(probabilities[0] < 0.00001);
-        BOOST_TEST(std::is_sorted(probabilities.rbegin(), probabilities.rend()));
+        BOOST_TEST_REQUIRE(probabilities[0] < 0.00001);
+        BOOST_TEST_REQUIRE(std::is_sorted(probabilities.rbegin(), probabilities.rend()));
     }
 
     LOG_DEBUG(<< "Multivariate");
@@ -2459,8 +2459,8 @@ BOOST_AUTO_TEST_CASE(testSkipAnomalyModelUpdate) {
         LOG_DEBUG(<< "probabilities = " << core::CContainerPrinter::print(probabilities));
 
         // Assert probs are decreasing
-        BOOST_TEST(probabilities[0] < 0.00001);
-        BOOST_TEST(std::is_sorted(probabilities.rbegin(), probabilities.rend()));
+        BOOST_TEST_REQUIRE(probabilities[0] < 0.00001);
+        BOOST_TEST_REQUIRE(std::is_sorted(probabilities.rbegin(), probabilities.rend()));
     }
 }
 

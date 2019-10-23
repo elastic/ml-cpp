@@ -83,10 +83,10 @@ BOOST_AUTO_TEST_CASE(testOnlineEventRateModel) {
     features.push_back(model_t::E_IndividualTotalBucketCountByPerson);
     factory.features(features);
     CModelFactory::TDataGathererPtr gatherer(factory.makeDataGatherer(startTime));
-    BOOST_CHECK_EQUAL(std::size_t(0), addPerson("p", gatherer));
+    BOOST_REQUIRE_EQUAL(std::size_t(0), addPerson("p", gatherer));
     CModelFactory::TModelPtr modelPtr(factory.makeModel(gatherer));
-    BOOST_TEST(modelPtr);
-    BOOST_CHECK_EQUAL(model_t::E_EventRateOnline, modelPtr->category());
+    BOOST_TEST_REQUIRE(modelPtr);
+    BOOST_REQUIRE_EQUAL(model_t::E_EventRateOnline, modelPtr->category());
     CEventRateModel& model = static_cast<CEventRateModel&>(*modelPtr.get());
     std::size_t startMemoryUsage = model.memoryUsage();
     CResourceMonitor resourceMonitor;
@@ -103,12 +103,12 @@ BOOST_AUTO_TEST_CASE(testOnlineEventRateModel) {
         time += bucketLength;
     }
     LOG_INFO(<< "Sizeof model now: " << model.memoryUsage());
-    BOOST_TEST(model.memoryUsage() > startMemoryUsage);
+    BOOST_TEST_REQUIRE(model.memoryUsage() > startMemoryUsage);
 
     core::CMemoryUsage memoryUsage;
     model.debugMemoryUsage(&memoryUsage);
     LOG_DEBUG(<< "Debug sizeof model: " << memoryUsage.usage());
-    BOOST_CHECK_EQUAL(model.computeMemoryUsage(), memoryUsage.usage());
+    BOOST_REQUIRE_EQUAL(model.computeMemoryUsage(), memoryUsage.usage());
 }
 
 BOOST_AUTO_TEST_CASE(testOnlineMetricModel) {
@@ -134,10 +134,10 @@ BOOST_AUTO_TEST_CASE(testOnlineMetricModel) {
     features.push_back(model_t::E_IndividualMaxByPerson);
     factory.features(features);
     CModelFactory::TDataGathererPtr gatherer(factory.makeDataGatherer(startTime));
-    BOOST_CHECK_EQUAL(std::size_t(0), addPerson("p", gatherer));
+    BOOST_REQUIRE_EQUAL(std::size_t(0), addPerson("p", gatherer));
     CModelFactory::TModelPtr modelPtr(factory.makeModel(gatherer));
-    BOOST_TEST(modelPtr);
-    BOOST_CHECK_EQUAL(model_t::E_MetricOnline, modelPtr->category());
+    BOOST_TEST_REQUIRE(modelPtr);
+    BOOST_REQUIRE_EQUAL(model_t::E_MetricOnline, modelPtr->category());
     CMetricModel& model = static_cast<CMetricModel&>(*modelPtr.get());
     std::size_t startMemoryUsage = model.memoryUsage();
     CResourceMonitor resourceMonitor;
@@ -163,12 +163,12 @@ BOOST_AUTO_TEST_CASE(testOnlineMetricModel) {
         time += bucketLength;
     }
     LOG_INFO(<< "Sizeof model now: " << model.memoryUsage());
-    BOOST_TEST(model.memoryUsage() > startMemoryUsage);
+    BOOST_TEST_REQUIRE(model.memoryUsage() > startMemoryUsage);
 
     core::CMemoryUsage memoryUsage;
     model.debugMemoryUsage(&memoryUsage);
     LOG_DEBUG(<< "Debug sizeof model: " << memoryUsage.usage());
-    BOOST_CHECK_EQUAL(model.computeMemoryUsage(), memoryUsage.usage());
+    BOOST_REQUIRE_EQUAL(model.computeMemoryUsage(), memoryUsage.usage());
 }
 
 BOOST_AUTO_TEST_SUITE_END()

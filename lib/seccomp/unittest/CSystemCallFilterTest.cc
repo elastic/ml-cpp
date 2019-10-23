@@ -82,7 +82,7 @@ protected:
         // thread to create it
         size_t attempt(1);
         do {
-            BOOST_TEST(attempt++ <= MAX_ATTEMPTS);
+            BOOST_TEST_REQUIRE(attempt++ <= MAX_ATTEMPTS);
             ml::core::CSleep::sleep(SLEEP_TIME_MS);
             strm.open(m_FileName.c_str());
         } while (!strm.is_open());
@@ -91,7 +91,7 @@ protected:
         char buffer[BUF_SIZE];
         while (strm.good()) {
             strm.read(buffer, BUF_SIZE);
-            BOOST_TEST(!strm.bad());
+            BOOST_TEST_REQUIRE(!strm.bad());
             if (strm.gcount() > 0) {
                 // This code deals with the test character we write to
                 // detect the short-lived connection problem on Windows
@@ -122,11 +122,11 @@ bool systemCall() {
 void openPipeAndRead(const std::string& filename) {
 
     CNamedPipeWriter threadWriter(filename, TEST_SIZE);
-    BOOST_TEST(threadWriter.start());
+    BOOST_TEST_REQUIRE(threadWriter.start());
 
     ml::core::CNamedPipeFactory::TIStreamP strm =
         ml::core::CNamedPipeFactory::openPipeStreamRead(filename);
-    BOOST_TEST(strm);
+    BOOST_TEST_REQUIRE(strm);
 
     static const std::streamsize BUF_SIZE = 512;
     std::string readData;
@@ -134,27 +134,27 @@ void openPipeAndRead(const std::string& filename) {
     char buffer[BUF_SIZE];
     do {
         strm->read(buffer, BUF_SIZE);
-        BOOST_TEST(!strm->bad());
+        BOOST_TEST_REQUIRE(!strm->bad());
         if (strm->gcount() > 0) {
             readData.append(buffer, static_cast<size_t>(strm->gcount()));
         }
     } while (!strm->eof());
 
-    BOOST_CHECK_EQUAL(TEST_SIZE, readData.length());
-    BOOST_CHECK_EQUAL(std::string(TEST_SIZE, TEST_CHAR), readData);
+    BOOST_REQUIRE_EQUAL(TEST_SIZE, readData.length());
+    BOOST_REQUIRE_EQUAL(std::string(TEST_SIZE, TEST_CHAR), readData);
 
-    BOOST_TEST(threadWriter.stop());
+    BOOST_TEST_REQUIRE(threadWriter.stop());
 
     strm.reset();
 }
 
 void openPipeAndWrite(const std::string& filename) {
     CNamedPipeReader threadReader(filename);
-    BOOST_TEST(threadReader.start());
+    BOOST_TEST_REQUIRE(threadReader.start());
 
     ml::core::CNamedPipeFactory::TOStreamP strm =
         ml::core::CNamedPipeFactory::openPipeStreamWrite(filename);
-    BOOST_TEST(strm);
+    BOOST_TEST_REQUIRE(strm);
 
     size_t charsLeft(TEST_SIZE);
     size_t blockSize(7);
@@ -163,16 +163,16 @@ void openPipeAndWrite(const std::string& filename) {
             blockSize = charsLeft;
         }
         (*strm) << std::string(blockSize, TEST_CHAR);
-        BOOST_TEST(!strm->bad());
+        BOOST_TEST_REQUIRE(!strm->bad());
         charsLeft -= blockSize;
     }
 
     strm.reset();
 
-    BOOST_TEST(threadReader.stop());
+    BOOST_TEST_REQUIRE(threadReader.stop());
 
-    BOOST_CHECK_EQUAL(TEST_SIZE, threadReader.data().length());
-    BOOST_CHECK_EQUAL(std::string(TEST_SIZE, TEST_CHAR), threadReader.data());
+    BOOST_REQUIRE_EQUAL(TEST_SIZE, threadReader.data().length());
+    BOOST_REQUIRE_EQUAL(std::string(TEST_SIZE, TEST_CHAR), threadReader.data());
 }
 
 void makeAndRemoveDirectory(const std::string& dirname) {
@@ -182,9 +182,9 @@ void makeAndRemoveDirectory(const std::string& dirname) {
 
     boost::system::error_code errorCode;
     boost::filesystem::create_directories(temporaryFolder, errorCode);
-    BOOST_CHECK_EQUAL(boost::system::error_code(), errorCode);
+    BOOST_REQUIRE_EQUAL(boost::system::error_code(), errorCode);
     boost::filesystem::remove_all(temporaryFolder, errorCode);
-    BOOST_CHECK_EQUAL(boost::system::error_code(), errorCode);
+    BOOST_REQUIRE_EQUAL(boost::system::error_code(), errorCode);
 }
 
 #ifdef Linux
@@ -204,9 +204,9 @@ BOOST_AUTO_TEST_CASE(testSystemCallFilter) {
 #ifdef Linux
     std::string release{ml::core::CUname::release()};
     ml::core::CRegex semVersion;
-    BOOST_TEST(semVersion.init("(\\d)\\.(\\d{1,2})\\.(\\d{1,2}).*"));
+    BOOST_TEST_REQUIRE(semVersion.init("(\\d)\\.(\\d{1,2})\\.(\\d{1,2}).*"));
     ml::core::CRegex::TStrVec tokens;
-    BOOST_TEST(semVersion.tokenise(release, tokens));
+    BOOST_TEST_REQUIRE(semVersion.tokenise(release, tokens));
     // Seccomp is available in kernels since 3.5
 
     std::int64_t major = std::stoi(tokens[0]);
@@ -219,12 +219,12 @@ BOOST_AUTO_TEST_CASE(testSystemCallFilter) {
 
     // Ensure actions are not prohibited before the
     // system call filters are applied
-    BOOST_TEST(systemCall());
+    BOOST_TEST_REQUIRE(systemCall());
 
     // Install the filter
     ml::seccomp::CSystemCallFilter::installSystemCallFilter();
 
-    BOOST_CHECK_MESSAGE(systemCall() == false, "Calling std::system should fail");
+    BOOST_REQUIRE_MESSAGE(systemCall() == false, "Calling std::system should fail");
 
     // Operations that must function after seccomp is initialised
     openPipeAndRead(TEST_READ_PIPE_NAME);

@@ -138,8 +138,8 @@ BOOST_AUTO_TEST_CASE(testCluster) {
             maths::CXMeans<TVector2>::CCluster cluster1;
             maths::CXMeans<TVector2>::CCluster cluster2;
 
-            BOOST_CHECK_EQUAL(std::size_t(0), cluster1.size());
-            BOOST_CHECK_EQUAL(std::size_t(0), cluster2.size());
+            BOOST_REQUIRE_EQUAL(std::size_t(0), cluster1.size());
+            BOOST_REQUIRE_EQUAL(std::size_t(0), cluster2.size());
 
             TVector2Vec points;
             for (std::size_t i = 0u; i < samples.size(); i += 2) {
@@ -150,19 +150,19 @@ BOOST_AUTO_TEST_CASE(testCluster) {
             rng.random_shuffle(points.begin(), points.end());
             cluster2.points(points);
 
-            BOOST_CHECK_EQUAL(samples.size() / 2, cluster1.size());
-            BOOST_CHECK_EQUAL(samples.size() / 2, cluster2.size());
-            BOOST_CHECK_EQUAL(cluster1.checksum(), cluster2.checksum());
-            BOOST_TEST(cluster1 == cluster2);
-            BOOST_TEST(!(cluster1 < cluster2));
-            BOOST_TEST(!(cluster2 < cluster1));
+            BOOST_REQUIRE_EQUAL(samples.size() / 2, cluster1.size());
+            BOOST_REQUIRE_EQUAL(samples.size() / 2, cluster2.size());
+            BOOST_REQUIRE_EQUAL(cluster1.checksum(), cluster2.checksum());
+            BOOST_TEST_REQUIRE(cluster1 == cluster2);
+            BOOST_TEST_REQUIRE(!(cluster1 < cluster2));
+            BOOST_TEST_REQUIRE(!(cluster2 < cluster1));
         }
         {
             maths::CXMeans<TVector4>::CCluster cluster1;
             maths::CXMeans<TVector4>::CCluster cluster2;
 
-            BOOST_CHECK_EQUAL(std::size_t(0), cluster1.size());
-            BOOST_CHECK_EQUAL(std::size_t(0), cluster2.size());
+            BOOST_REQUIRE_EQUAL(std::size_t(0), cluster1.size());
+            BOOST_REQUIRE_EQUAL(std::size_t(0), cluster2.size());
 
             TVector4Vec points;
             for (std::size_t i = 0u; i < samples.size(); i += 4) {
@@ -173,12 +173,12 @@ BOOST_AUTO_TEST_CASE(testCluster) {
             rng.random_shuffle(points.begin(), points.end());
             cluster2.points(points);
 
-            BOOST_CHECK_EQUAL(samples.size() / 4, cluster1.size());
-            BOOST_CHECK_EQUAL(samples.size() / 4, cluster2.size());
-            BOOST_CHECK_EQUAL(cluster1.checksum(), cluster2.checksum());
-            BOOST_TEST(cluster1 == cluster2);
-            BOOST_TEST(!(cluster1 < cluster2));
-            BOOST_TEST(!(cluster2 < cluster1));
+            BOOST_REQUIRE_EQUAL(samples.size() / 4, cluster1.size());
+            BOOST_REQUIRE_EQUAL(samples.size() / 4, cluster2.size());
+            BOOST_REQUIRE_EQUAL(cluster1.checksum(), cluster2.checksum());
+            BOOST_TEST_REQUIRE(cluster1 == cluster2);
+            BOOST_TEST_REQUIRE(!(cluster1 < cluster2));
+            BOOST_TEST_REQUIRE(!(cluster2 < cluster1));
         }
     }
 }
@@ -222,7 +222,7 @@ BOOST_AUTO_TEST_CASE(testImproveStructure) {
         for (std::size_t i = 0u; i < clusters.size(); ++i) {
             TVector2 mean(&means[i][0], &means[i][2]);
             double error = (clusters[i] - mean).euclidean();
-            BOOST_TEST(error < 0.75);
+            BOOST_TEST_REQUIRE(error < 0.75);
             meanError.add(error);
         }
 
@@ -242,12 +242,12 @@ BOOST_AUTO_TEST_CASE(testImproveStructure) {
                               std::back_inserter(inactive));
         LOG_DEBUG(<< "inactive = " << core::CContainerPrinter::print(inactive));
         for (std::size_t i = 0u; i < inactive.size(); ++i) {
-            BOOST_TEST(xmeans.inactive().count(inactive[i]) > 0);
+            BOOST_TEST_REQUIRE(xmeans.inactive().count(inactive[i]) > 0);
         }
     }
 
     LOG_DEBUG(<< "mean error = " << maths::CBasicStatistics::mean(meanError));
-    BOOST_TEST(maths::CBasicStatistics::mean(meanError) < 0.25);
+    BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(meanError) < 0.25);
 }
 
 BOOST_AUTO_TEST_CASE(testImproveParams) {
@@ -301,7 +301,7 @@ BOOST_AUTO_TEST_CASE(testImproveParams) {
 
         LOG_DEBUG(<< "expected centres = " << core::CContainerPrinter::print(expectedCentres));
         LOG_DEBUG(<< "centres          = " << core::CContainerPrinter::print(centres));
-        BOOST_CHECK_EQUAL(core::CContainerPrinter::print(expectedCentres),
+        BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(expectedCentres),
                           core::CContainerPrinter::print(centres));
     }
 }
@@ -350,13 +350,13 @@ BOOST_AUTO_TEST_CASE(testOneCluster) {
 
         meanNumberClusters.add(static_cast<double>(xmeans.clusters().size()));
         if (xmeans.clusters().size() > 1) {
-            BOOST_TEST(kl.value() - klc.value() > 0.7);
+            BOOST_TEST_REQUIRE(kl.value() - klc.value() > 0.7);
         }
     }
 
     LOG_DEBUG(<< "mean number clusters = "
               << maths::CBasicStatistics::mean(meanNumberClusters));
-    BOOST_TEST(maths::CBasicStatistics::mean(meanNumberClusters) < 1.15);
+    BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(meanNumberClusters) < 1.15);
 }
 
 BOOST_AUTO_TEST_CASE(testFiveClusters) {
@@ -432,7 +432,7 @@ BOOST_AUTO_TEST_CASE(testFiveClusters) {
                 }
 
                 LOG_ERROR(<< "Didn't find " << clusterPoints[j]);
-                BOOST_TEST(false);
+                BOOST_TEST_REQUIRE(false);
 
             FoundPoint:
                 trueClusters[i].push_back(k);
@@ -440,7 +440,7 @@ BOOST_AUTO_TEST_CASE(testFiveClusters) {
             //file << "];\n";
         }
 
-        BOOST_CHECK_EQUAL(ne, n);
+        BOOST_REQUIRE_EQUAL(ne, n);
 
         TDoubleVec purities;
         computePurities(trueClusters, purities);
@@ -462,8 +462,8 @@ BOOST_AUTO_TEST_CASE(testFiveClusters) {
         LOG_DEBUG(<< "  minPurity             = " << minPurity);
         LOG_DEBUG(<< "  totalPurity           = "
                   << maths::CBasicStatistics::mean(totalPurity));
-        BOOST_TEST(minPurity > 0.39);
-        BOOST_TEST(maths::CBasicStatistics::mean(totalPurity) > 0.54);
+        BOOST_TEST_REQUIRE(minPurity > 0.39);
+        BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(totalPurity) > 0.54);
 
         meanNumberClusters.add(static_cast<double>(xmeans.clusters().size()));
         klgain.add((kl.value() - klc.value()));
@@ -477,10 +477,10 @@ BOOST_AUTO_TEST_CASE(testFiveClusters) {
     LOG_DEBUG(<< "KL gain = " << maths::CBasicStatistics::mean(klgain));
     LOG_DEBUG(<< "mean total purity = " << maths::CBasicStatistics::mean(meanTotalPurity));
 
-    BOOST_CHECK_CLOSE_ABSOLUTE(5.0, maths::CBasicStatistics::mean(meanNumberClusters), 0.3);
-    BOOST_TEST(std::sqrt(maths::CBasicStatistics::variance(meanNumberClusters)) < 0.9);
-    BOOST_TEST(maths::CBasicStatistics::mean(klgain) > -0.1);
-    BOOST_TEST(maths::CBasicStatistics::mean(meanTotalPurity) > 0.93);
+    BOOST_REQUIRE_CLOSE_ABSOLUTE(5.0, maths::CBasicStatistics::mean(meanNumberClusters), 0.3);
+    BOOST_TEST_REQUIRE(std::sqrt(maths::CBasicStatistics::variance(meanNumberClusters)) < 0.9);
+    BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(klgain) > -0.1);
+    BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(meanTotalPurity) > 0.93);
 }
 
 BOOST_AUTO_TEST_CASE(testTwentyClusters) {
@@ -550,7 +550,7 @@ BOOST_AUTO_TEST_CASE(testTwentyClusters) {
             }
 
             LOG_ERROR(<< "Didn't find " << clusterPoints[j]);
-            BOOST_TEST(false);
+            BOOST_TEST_REQUIRE(false);
 
         FoundPoint:
             trueClusters[i].push_back(k);
@@ -558,7 +558,7 @@ BOOST_AUTO_TEST_CASE(testTwentyClusters) {
         //file << "];\n";
     }
 
-    BOOST_CHECK_EQUAL(ne, n);
+    BOOST_REQUIRE_EQUAL(ne, n);
 
     TDoubleVec purities;
     computePurities(trueClusters, purities);
@@ -576,11 +576,11 @@ BOOST_AUTO_TEST_CASE(testTwentyClusters) {
     LOG_DEBUG(<< "minPurity             = " << minPurity);
     LOG_DEBUG(<< "totalPurity           = " << maths::CBasicStatistics::mean(totalPurity));
 
-    BOOST_CHECK_CLOSE_ABSOLUTE(20.0, static_cast<double>(xmeans.clusters().size()), 6.0);
-    BOOST_TEST(klc.value() < kl.value() + 0.05 * std::max(std::fabs(klc.value()),
+    BOOST_REQUIRE_CLOSE_ABSOLUTE(20.0, static_cast<double>(xmeans.clusters().size()), 6.0);
+    BOOST_TEST_REQUIRE(klc.value() < kl.value() + 0.05 * std::max(std::fabs(klc.value()),
                                                           std::fabs(kl.value())));
-    BOOST_TEST(minPurity > 0.4);
-    BOOST_TEST(maths::CBasicStatistics::mean(totalPurity) > 0.8);
+    BOOST_TEST_REQUIRE(minPurity > 0.4);
+    BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(totalPurity) > 0.8);
 }
 
 BOOST_AUTO_TEST_CASE(testPoorlyConditioned) {
@@ -632,7 +632,7 @@ BOOST_AUTO_TEST_CASE(testPoorlyConditioned) {
             TVector2Vec clusterPoints = xmeans.clusters()[i].points();
             std::sort(clusterPoints.begin(), clusterPoints.end());
             LOG_DEBUG(<< "points = " << core::CContainerPrinter::print(clusterPoints));
-            BOOST_TEST((clusterPoints == cluster1 ||
+            BOOST_TEST_REQUIRE((clusterPoints == cluster1 ||
                         clusterPoints == cluster2 || clusterPoints == cluster3));
         }
     }

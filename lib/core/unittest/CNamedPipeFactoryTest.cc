@@ -73,7 +73,7 @@ protected:
         // thread to create it
         size_t attempt(1);
         do {
-            BOOST_TEST(attempt++ <= MAX_ATTEMPTS);
+            BOOST_TEST_REQUIRE(attempt++ <= MAX_ATTEMPTS);
             ml::core::CSleep::sleep(PAUSE_TIME_MS);
             strm.open(m_FileName.c_str());
         } while (!strm.is_open());
@@ -82,7 +82,7 @@ protected:
         char buffer[BUF_SIZE];
         while (strm.good()) {
             strm.read(buffer, BUF_SIZE);
-            BOOST_TEST(!strm.bad());
+            BOOST_TEST_REQUIRE(!strm.bad());
             if (strm.gcount() > 0) {
                 // This code deals with the test character we write to
                 // detect the short-lived connection problem on Windows
@@ -117,7 +117,7 @@ protected:
         ml::core::CSleep::sleep(SLEEP_TIME_MS);
 
         // Cancel the open() or read() operation on the file
-        BOOST_TEST(ml::core::CThread::cancelBlockedIo(m_ThreadId));
+        BOOST_TEST_REQUIRE(ml::core::CThread::cancelBlockedIo(m_ThreadId));
     }
 
     virtual void shutdown() {}
@@ -129,65 +129,65 @@ private:
 
 BOOST_AUTO_TEST_CASE(testServerIsCppReader) {
     CThreadDataWriter threadWriter(TEST_PIPE_NAME, TEST_SIZE);
-    BOOST_TEST(threadWriter.start());
+    BOOST_TEST_REQUIRE(threadWriter.start());
 
     ml::core::CNamedPipeFactory::TIStreamP strm =
         ml::core::CNamedPipeFactory::openPipeStreamRead(TEST_PIPE_NAME);
-    BOOST_TEST(strm);
+    BOOST_TEST_REQUIRE(strm);
 
     static const std::streamsize BUF_SIZE = 512;
     std::string readData;
     char buffer[BUF_SIZE];
     do {
         strm->read(buffer, BUF_SIZE);
-        BOOST_TEST(!strm->bad());
+        BOOST_TEST_REQUIRE(!strm->bad());
         if (strm->gcount() > 0) {
             readData.append(buffer, static_cast<size_t>(strm->gcount()));
         }
     } while (!strm->eof());
 
-    BOOST_CHECK_EQUAL(TEST_SIZE, readData.length());
-    BOOST_CHECK_EQUAL(std::string(TEST_SIZE, TEST_CHAR), readData);
+    BOOST_REQUIRE_EQUAL(TEST_SIZE, readData.length());
+    BOOST_REQUIRE_EQUAL(std::string(TEST_SIZE, TEST_CHAR), readData);
 
-    BOOST_TEST(threadWriter.stop());
+    BOOST_TEST_REQUIRE(threadWriter.stop());
 
     strm.reset();
 }
 
 BOOST_AUTO_TEST_CASE(testServerIsCReader) {
     CThreadDataWriter threadWriter(TEST_PIPE_NAME, TEST_SIZE);
-    BOOST_TEST(threadWriter.start());
+    BOOST_TEST_REQUIRE(threadWriter.start());
 
     ml::core::CNamedPipeFactory::TFileP file =
         ml::core::CNamedPipeFactory::openPipeFileRead(TEST_PIPE_NAME);
-    BOOST_TEST(file);
+    BOOST_TEST_REQUIRE(file);
 
     static const size_t BUF_SIZE = 512;
     std::string readData;
     char buffer[BUF_SIZE];
     do {
         size_t charsRead = ::fread(buffer, sizeof(char), BUF_SIZE, file.get());
-        BOOST_TEST(!::ferror(file.get()));
+        BOOST_TEST_REQUIRE(!::ferror(file.get()));
         if (charsRead > 0) {
             readData.append(buffer, charsRead);
         }
     } while (!::feof(file.get()));
 
-    BOOST_CHECK_EQUAL(TEST_SIZE, readData.length());
-    BOOST_CHECK_EQUAL(std::string(TEST_SIZE, TEST_CHAR), readData);
+    BOOST_REQUIRE_EQUAL(TEST_SIZE, readData.length());
+    BOOST_REQUIRE_EQUAL(std::string(TEST_SIZE, TEST_CHAR), readData);
 
-    BOOST_TEST(threadWriter.stop());
+    BOOST_TEST_REQUIRE(threadWriter.stop());
 
     file.reset();
 }
 
 BOOST_AUTO_TEST_CASE(testServerIsCppWriter) {
     CThreadDataReader threadReader(TEST_PIPE_NAME);
-    BOOST_TEST(threadReader.start());
+    BOOST_TEST_REQUIRE(threadReader.start());
 
     ml::core::CNamedPipeFactory::TOStreamP strm =
         ml::core::CNamedPipeFactory::openPipeStreamWrite(TEST_PIPE_NAME);
-    BOOST_TEST(strm);
+    BOOST_TEST_REQUIRE(strm);
 
     size_t charsLeft(TEST_SIZE);
     size_t blockSize(7);
@@ -196,25 +196,25 @@ BOOST_AUTO_TEST_CASE(testServerIsCppWriter) {
             blockSize = charsLeft;
         }
         (*strm) << std::string(blockSize, TEST_CHAR);
-        BOOST_TEST(!strm->bad());
+        BOOST_TEST_REQUIRE(!strm->bad());
         charsLeft -= blockSize;
     }
 
     strm.reset();
 
-    BOOST_TEST(threadReader.stop());
+    BOOST_TEST_REQUIRE(threadReader.stop());
 
-    BOOST_CHECK_EQUAL(TEST_SIZE, threadReader.data().length());
-    BOOST_CHECK_EQUAL(std::string(TEST_SIZE, TEST_CHAR), threadReader.data());
+    BOOST_REQUIRE_EQUAL(TEST_SIZE, threadReader.data().length());
+    BOOST_REQUIRE_EQUAL(std::string(TEST_SIZE, TEST_CHAR), threadReader.data());
 }
 
 BOOST_AUTO_TEST_CASE(testServerIsCWriter) {
     CThreadDataReader threadReader(TEST_PIPE_NAME);
-    BOOST_TEST(threadReader.start());
+    BOOST_TEST_REQUIRE(threadReader.start());
 
     ml::core::CNamedPipeFactory::TFileP file =
         ml::core::CNamedPipeFactory::openPipeFileWrite(TEST_PIPE_NAME);
-    BOOST_TEST(file);
+    BOOST_TEST_REQUIRE(file);
 
     size_t charsLeft(TEST_SIZE);
     size_t blockSize(7);
@@ -222,33 +222,33 @@ BOOST_AUTO_TEST_CASE(testServerIsCWriter) {
         if (blockSize > charsLeft) {
             blockSize = charsLeft;
         }
-        BOOST_TEST(::fputs(std::string(blockSize, TEST_CHAR).c_str(), file.get()) >= 0);
+        BOOST_TEST_REQUIRE(::fputs(std::string(blockSize, TEST_CHAR).c_str(), file.get()) >= 0);
         charsLeft -= blockSize;
     }
 
     file.reset();
 
-    BOOST_TEST(threadReader.stop());
+    BOOST_TEST_REQUIRE(threadReader.stop());
 
-    BOOST_CHECK_EQUAL(TEST_SIZE, threadReader.data().length());
-    BOOST_CHECK_EQUAL(std::string(TEST_SIZE, TEST_CHAR), threadReader.data());
+    BOOST_REQUIRE_EQUAL(TEST_SIZE, threadReader.data().length());
+    BOOST_REQUIRE_EQUAL(std::string(TEST_SIZE, TEST_CHAR), threadReader.data());
 }
 
 BOOST_AUTO_TEST_CASE(testCancelBlock) {
     CThreadBlockCanceller cancellerThread(ml::core::CThread::currentThreadId());
-    BOOST_TEST(cancellerThread.start());
+    BOOST_TEST_REQUIRE(cancellerThread.start());
 
     ml::core::CNamedPipeFactory::TOStreamP strm =
         ml::core::CNamedPipeFactory::openPipeStreamWrite(TEST_PIPE_NAME);
-    BOOST_TEST(strm == nullptr);
+    BOOST_TEST_REQUIRE(strm == nullptr);
 
-    BOOST_TEST(cancellerThread.stop());
+    BOOST_TEST_REQUIRE(cancellerThread.stop());
 }
 
 BOOST_AUTO_TEST_CASE(testErrorIfRegularFile) {
     ml::core::CNamedPipeFactory::TIStreamP strm =
         ml::core::CNamedPipeFactory::openPipeStreamRead("Main.cc");
-    BOOST_TEST(strm == nullptr);
+    BOOST_TEST_REQUIRE(strm == nullptr);
 }
 
 BOOST_AUTO_TEST_CASE(testErrorIfSymlink) {
@@ -265,15 +265,15 @@ BOOST_AUTO_TEST_CASE(testErrorIfSymlink) {
     ::unlink(TEST_SYMLINK_NAME);
     ::unlink(TEST_PIPE_NAME);
 
-    BOOST_CHECK_EQUAL(0, ::mkfifo(TEST_PIPE_NAME, S_IRUSR | S_IWUSR));
-    BOOST_CHECK_EQUAL(0, ::symlink(TEST_PIPE_NAME, TEST_SYMLINK_NAME));
+    BOOST_REQUIRE_EQUAL(0, ::mkfifo(TEST_PIPE_NAME, S_IRUSR | S_IWUSR));
+    BOOST_REQUIRE_EQUAL(0, ::symlink(TEST_PIPE_NAME, TEST_SYMLINK_NAME));
 
     ml::core::CNamedPipeFactory::TIStreamP strm =
         ml::core::CNamedPipeFactory::openPipeStreamRead(TEST_SYMLINK_NAME);
-    BOOST_TEST(strm == nullptr);
+    BOOST_TEST_REQUIRE(strm == nullptr);
 
-    BOOST_CHECK_EQUAL(0, ::unlink(TEST_SYMLINK_NAME));
-    BOOST_CHECK_EQUAL(0, ::unlink(TEST_PIPE_NAME));
+    BOOST_REQUIRE_EQUAL(0, ::unlink(TEST_SYMLINK_NAME));
+    BOOST_REQUIRE_EQUAL(0, ::unlink(TEST_PIPE_NAME));
 #endif
 }
 

@@ -17,7 +17,7 @@ BOOST_AUTO_TEST_CASE(testProgName) {
 
     LOG_DEBUG(<< "Current program name is " << progName);
 
-    BOOST_CHECK_EQUAL(std::string("ml_test"), progName);
+    BOOST_REQUIRE_EQUAL(std::string("ml_test"), progName);
 }
 
 BOOST_AUTO_TEST_CASE(testProgDir) {
@@ -26,11 +26,11 @@ BOOST_AUTO_TEST_CASE(testProgDir) {
     LOG_DEBUG(<< "Current program directory is " << progDir);
 
     ml::core::CRegex expectedPathRegex;
-    BOOST_TEST(expectedPathRegex.init(".+[\\\\/]lib[\\\\/]core[\\\\/]unittest$"));
-    BOOST_TEST(expectedPathRegex.matches(progDir));
+    BOOST_TEST_REQUIRE(expectedPathRegex.init(".+[\\\\/]lib[\\\\/]core[\\\\/]unittest$"));
+    BOOST_TEST_REQUIRE(expectedPathRegex.matches(progDir));
 
     // Confirm we've stripped any extended length indicator on Windows
-    BOOST_TEST(progDir.compare(0, 4, "\\\\?\\") != 0);
+    BOOST_TEST_REQUIRE(progDir.compare(0, 4, "\\\\?\\") != 0);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

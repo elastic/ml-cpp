@@ -141,8 +141,8 @@ BOOST_FIXTURE_TEST_CASE(testInMainMemoryBasicReadWrite, CTestFixture) {
             std::tie(std::ignore, successful) = frame->readRows(
                 1, std::bind(makeReader(components, cols, passed), std::ref(i),
                              std::placeholders::_1, std::placeholders::_2));
-            BOOST_TEST(successful);
-            BOOST_TEST(passed);
+            BOOST_TEST_REQUIRE(successful);
+            BOOST_TEST_REQUIRE(passed);
         }
     }
 }
@@ -170,15 +170,15 @@ BOOST_FIXTURE_TEST_CASE(testInMainMemoryParallelRead, CTestFixture) {
         std::vector<CThreadReader> readers;
         bool successful;
         std::tie(readers, successful) = frame->readRows(3, CThreadReader{});
-        BOOST_TEST(successful);
-        BOOST_CHECK_EQUAL(std::size_t{3}, readers.size());
+        BOOST_TEST_REQUIRE(successful);
+        BOOST_REQUIRE_EQUAL(std::size_t{3}, readers.size());
 
         TBoolVec rowRead(rows, false);
         for (const auto& reader : readers) {
-            BOOST_CHECK_EQUAL(false, reader.duplicates());
-            BOOST_TEST(reader.rowsRead().size() <= 2000);
+            BOOST_REQUIRE_EQUAL(false, reader.duplicates());
+            BOOST_TEST_REQUIRE(reader.rowsRead().size() <= 2000);
             for (const auto& row : reader.rowsRead()) {
-                BOOST_TEST(std::equal(components.begin() + row.first * cols,
+                BOOST_TEST_REQUIRE(std::equal(components.begin() + row.first * cols,
                                       components.begin() + (row.first + 1) * cols,
                                       row.second.begin()));
                 rowRead[row.first] = true;
@@ -186,7 +186,7 @@ BOOST_FIXTURE_TEST_CASE(testInMainMemoryParallelRead, CTestFixture) {
         }
 
         std::size_t rowsRead(std::count(rowRead.begin(), rowRead.end(), true));
-        BOOST_CHECK_EQUAL(rows, rowsRead);
+        BOOST_REQUIRE_EQUAL(rows, rowsRead);
     }
 }
 
@@ -214,8 +214,8 @@ BOOST_FIXTURE_TEST_CASE(testOnDiskBasicReadWrite, CTestFixture) {
     std::tie(std::ignore, successful) = frame->readRows(
         1, std::bind(makeReader(components, cols, passed), std::ref(i),
                      std::placeholders::_1, std::placeholders::_2));
-    BOOST_TEST(successful);
-    BOOST_TEST(passed);
+    BOOST_TEST_REQUIRE(successful);
+    BOOST_TEST_REQUIRE(passed);
 }
 
 BOOST_FIXTURE_TEST_CASE(testOnDiskParallelRead, CTestFixture) {
@@ -240,15 +240,15 @@ BOOST_FIXTURE_TEST_CASE(testOnDiskParallelRead, CTestFixture) {
     std::vector<CThreadReader> readers;
     bool successful;
     std::tie(readers, successful) = frame->readRows(3, CThreadReader{});
-    BOOST_TEST(successful);
-    BOOST_CHECK_EQUAL(std::size_t{(rows + 1999) / 2000}, readers.size());
+    BOOST_TEST_REQUIRE(successful);
+    BOOST_REQUIRE_EQUAL(std::size_t{(rows + 1999) / 2000}, readers.size());
 
     TBoolVec rowRead(rows, false);
     for (const auto& reader : readers) {
-        BOOST_CHECK_EQUAL(false, reader.duplicates());
-        BOOST_TEST(reader.rowsRead().size() <= 2000);
+        BOOST_REQUIRE_EQUAL(false, reader.duplicates());
+        BOOST_TEST_REQUIRE(reader.rowsRead().size() <= 2000);
         for (const auto& row : reader.rowsRead()) {
-            BOOST_TEST(std::equal(components.begin() + row.first * cols,
+            BOOST_TEST_REQUIRE(std::equal(components.begin() + row.first * cols,
                                   components.begin() + (row.first + 1) * cols,
                                   row.second.begin()));
             rowRead[row.first] = true;
@@ -256,7 +256,7 @@ BOOST_FIXTURE_TEST_CASE(testOnDiskParallelRead, CTestFixture) {
     }
 
     std::size_t rowsRead(std::count(rowRead.begin(), rowRead.end(), true));
-    BOOST_CHECK_EQUAL(rows, rowsRead);
+    BOOST_REQUIRE_EQUAL(rows, rowsRead);
 }
 
 BOOST_FIXTURE_TEST_CASE(testReadRange, CTestFixture) {
@@ -319,7 +319,7 @@ BOOST_FIXTURE_TEST_CASE(testReadRange, CTestFixture) {
                                 }
                             }
                         });
-                    BOOST_TEST(passed);
+                    BOOST_TEST_REQUIRE(passed);
                 }
             }
         }
@@ -392,7 +392,7 @@ BOOST_FIXTURE_TEST_CASE(testWriteRange, CTestFixture) {
                             }
                         }
                     });
-                    BOOST_TEST(passed);
+                    BOOST_TEST_REQUIRE(passed);
                 }
             }
         }
@@ -442,7 +442,7 @@ BOOST_FIXTURE_TEST_CASE(testMemoryUsage, CTestFixture) {
 
         LOG_DEBUG(<< "Memory = " << frame->memoryUsage()
                   << ", limit = " << maximumMemory[t]);
-        BOOST_TEST(frame->memoryUsage() < maximumMemory[t++]);
+        BOOST_TEST_REQUIRE(frame->memoryUsage() < maximumMemory[t++]);
     }
 }
 
@@ -488,8 +488,8 @@ BOOST_FIXTURE_TEST_CASE(testReserve, CTestFixture) {
         std::tie(std::ignore, successful) = frame->readRows(
             1, std::bind(makeReader(components, cols, passed), std::ref(i),
                          std::placeholders::_1, std::placeholders::_2));
-        BOOST_TEST(successful);
-        BOOST_TEST(passed);
+        BOOST_TEST_REQUIRE(successful);
+        BOOST_TEST_REQUIRE(passed);
     }
 
     LOG_DEBUG(<< "*** Test reserve after write ***");
@@ -513,8 +513,8 @@ BOOST_FIXTURE_TEST_CASE(testReserve, CTestFixture) {
         std::tie(std::ignore, successful) = frame->readRows(
             1, std::bind(makeReader(components, cols, passed), std::ref(i),
                          std::placeholders::_1, std::placeholders::_2));
-        BOOST_TEST(successful);
-        BOOST_TEST(passed);
+        BOOST_TEST_REQUIRE(successful);
+        BOOST_TEST_REQUIRE(passed);
     }
 }
 
@@ -572,8 +572,8 @@ BOOST_FIXTURE_TEST_CASE(testResizeColumns, CTestFixture) {
                     }
                 }
             });
-        BOOST_TEST(successful);
-        BOOST_TEST(passed);
+        BOOST_TEST_REQUIRE(successful);
+        BOOST_TEST_REQUIRE(passed);
     }
 }
 
@@ -627,8 +627,8 @@ BOOST_FIXTURE_TEST_CASE(testWriteColumns, CTestFixture) {
         std::tie(std::ignore, successful) = frame->readRows(
             1, std::bind(makeReader(components, cols + extraCols, passed),
                          std::ref(i), std::placeholders::_1, std::placeholders::_2));
-        BOOST_TEST(successful);
-        BOOST_TEST(passed);
+        BOOST_TEST_REQUIRE(successful);
+        BOOST_TEST_REQUIRE(passed);
     }
 }
 
@@ -690,8 +690,8 @@ BOOST_FIXTURE_TEST_CASE(testDocHashes, CTestFixture) {
                 expectedDocHash += static_cast<std::int32_t>(cols + extraCols);
             }
         });
-        BOOST_TEST(successful);
-        BOOST_TEST(passed);
+        BOOST_TEST_REQUIRE(successful);
+        BOOST_TEST_REQUIRE(passed);
     }
 }
 
@@ -779,7 +779,7 @@ BOOST_FIXTURE_TEST_CASE(testRowMask, CTestFixture) {
                 }
                 std::sort(readRowsIndices.begin(), readRowsIndices.end());
 
-                BOOST_CHECK_EQUAL(core::CContainerPrinter::print(rangeRowMaskIndices[i]),
+                BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(rangeRowMaskIndices[i]),
                                   core::CContainerPrinter::print(readRowsIndices));
             }
 
@@ -824,7 +824,7 @@ BOOST_FIXTURE_TEST_CASE(testRowMask, CTestFixture) {
                 }
                 std::sort(readRowsIndices.begin(), readRowsIndices.end());
 
-                BOOST_CHECK_EQUAL(core::CContainerPrinter::print(rowMaskIndices),
+                BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(rowMaskIndices),
                                   core::CContainerPrinter::print(readRowsIndices));
             }
         }
