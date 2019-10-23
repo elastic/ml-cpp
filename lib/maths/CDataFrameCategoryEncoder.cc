@@ -622,7 +622,8 @@ CMakeDataFrameCategoryEncoder::readEncodings() const {
         std::size_t inputColumnIndex{m_EncodedColumnInputColumnMap[encodedColumnIndex]};
         double mic{m_EncodedColumnMics[encodedColumnIndex]};
 
-        if (m_Frame->columnIsCategorical()[inputColumnIndex] == false) {
+        if (inputColumnIndex == m_TargetColumn ||
+            m_Frame->columnIsCategorical()[inputColumnIndex] == false) {
             encodings.push_back(std::make_unique<CIdentityEncoding>(inputColumnIndex, mic));
             continue;
         }
