@@ -345,7 +345,7 @@ CBoostedTreeNode::TSizeSizePr CBoostedTreeNode::split(std::size_t splitFeature,
     return {m_LeftChild.get(), m_RightChild.get()};
 }
 
-CBoostedTreeNode::TPackedBitVectorPackedBitVectorBoolTr
+CBoostedTreeNode::TPackedBitVectorPackedBitVectorPr
 CBoostedTreeNode::childrenRowMasks(std::size_t numberThreads,
                                    const core::CDataFrame& frame,
                                    const CDataFrameCategoryEncoder& encoder,
@@ -360,10 +360,7 @@ CBoostedTreeNode::childrenRowMasks(std::size_t numberThreads,
     auto result = frame.readRows(
         numberThreads, 0, frame.numberRows(),
         core::bindRetrievableState(
-            [&](auto& state, TRowItr beginRows, TRowItr endRows) {
-                core::CPackedBitVector& leftRowMask{std::get<0>(state)};
-                std::size_t& leftChildNumberRows{std::get<1>(state)};
-                std::size_t& rightChildNumberRows{std::get<2>(state)};
+            [&](core::CPackedBitVector& leftRowMask, TRowItr beginRows, TRowItr endRows) {
                 for (auto row = beginRows; row != endRows; ++row) {
                     std::size_t index{row->index()};
                     double value{encoder.encode(*row)[m_SplitFeature]};
@@ -372,30 +369,21 @@ CBoostedTreeNode::childrenRowMasks(std::size_t numberThreads,
                         (missing == false && value < m_SplitValue)) {
                         leftRowMask.extend(false, index - leftRowMask.size());
                         leftRowMask.extend(true);
-                        ++leftChildNumberRows;
-                    } else {
-                        ++rightChildNumberRows;
                     }
                 }
             },
-            std::make_tuple(core::CPackedBitVector{}, std::size_t{0}, std::size_t{0})),
+            core::CPackedBitVector{}),
         &rowMask);
     auto& masks = result.first;
 
     for (auto& mask_ : masks) {
-        auto& mask = std::get<0>(mask_.s_FunctionState);
+        auto& mask = mask_.s_FunctionState;
         mask.extend(false, rowMask.size() - mask.size());
     }
 
-    core::CPackedBitVector leftRowMask;
-    std::size_t leftChildNumberRows;
-    std::size_t rightChildNumberRows;
-    std::tie(leftRowMask, leftChildNumberRows, rightChildNumberRows) =
-        std::move(masks[0].s_FunctionState);
+    core::CPackedBitVector leftRowMask{std::move(masks[0].s_FunctionState)};
     for (std::size_t i = 1; i < masks.size(); ++i) {
-        leftRowMask |= std::get<0>(masks[i].s_FunctionState);
-        leftChildNumberRows += std::get<1>(masks[i].s_FunctionState);
-        rightChildNumberRows += std::get<2>(masks[i].s_FunctionState);
+        leftRowMask |= masks[i].s_FunctionState;
     }
     LOG_TRACE(<< "# rows in left node = " << leftRowMask.manhattan());
     LOG_TRACE(<< "left row mask = " << leftRowMask);
@@ -405,8 +393,7 @@ CBoostedTreeNode::childrenRowMasks(std::size_t numberThreads,
     LOG_TRACE(<< "# rows in right node = " << rightRowMask.manhattan());
     LOG_TRACE(<< "left row mask = " << rightRowMask);
 
-    return std::make_tuple(std::move(leftRowMask), std::move(rightRowMask),
-                           leftChildNumberRows < rightChildNumberRows);
+    return std::make_pair(std::move(leftRowMask), std::move(rightRowMask));
 }
 
 void CBoostedTreeNode::acceptPersistInserter(core::CStatePersistInserter& inserter) const {

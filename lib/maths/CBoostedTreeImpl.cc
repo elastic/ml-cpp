@@ -89,6 +89,26 @@ const std::size_t ASSIGN_MISSING_TO_RIGHT{1};
 const double SMALLEST_RELATIVE_CURVATURE{1e-20};
 }
 
+CBoostedTreeImpl::CLeafNodeStatistics::CLeafNodeStatistics(
+    std::size_t id,
+    std::size_t numberThreads,
+    const core::CDataFrame& frame,
+    const CDataFrameCategoryEncoder& encoder,
+    const TRegularization& regularization,
+    const TDoubleVecVec& candidateSplits,
+    std::size_t depth,
+    TSizeVec featureBag,
+    core::CPackedBitVector rowMask)
+    : m_Id{id}, m_Regularization{regularization}, m_CandidateSplits{candidateSplits},
+      m_Depth{depth}, m_FeatureBag{std::move(featureBag)}, m_RowMask{std::move(rowMask)} {
+
+    std::sort(m_FeatureBag.begin(), m_FeatureBag.end());
+    LOG_TRACE(<< "row mask = " << m_RowMask);
+    LOG_TRACE(<< "feature bag = " << core::CContainerPrinter::print(m_FeatureBag));
+
+    this->computeAggregateLossDerivatives(numberThreads, frame, encoder);
+}
+
 CBoostedTreeImpl::CLeafNodeStatistics::CLeafNodeStatistics(std::size_t id,
                                                            const CLeafNodeStatistics& parent,
                                                            const CLeafNodeStatistics& sibling,
@@ -100,55 +120,113 @@ CBoostedTreeImpl::CLeafNodeStatistics::CLeafNodeStatistics(std::size_t id,
     LOG_TRACE(<< "row mask = " << m_RowMask);
     LOG_TRACE(<< "feature bag = " << core::CContainerPrinter::print(m_FeatureBag));
 
-    m_Gradients.resize(m_CandidateSplits.size());
-    m_Curvatures.resize(m_CandidateSplits.size());
-    m_MissingGradients.resize(m_CandidateSplits.size(), 0.0);
-    m_MissingCurvatures.resize(m_CandidateSplits.size(), 0.0);
+    m_Derivatives.resize(m_CandidateSplits.size());
+    m_MissingDerivatives.resize(m_CandidateSplits.size());
 
     for (std::size_t i = 0; i < m_CandidateSplits.size(); ++i) {
         std::size_t numberSplits{m_CandidateSplits[i].size() + 1};
-        m_Gradients[i].resize(numberSplits);
-        m_Curvatures[i].resize(numberSplits);
+        m_Derivatives[i].resize(numberSplits);
         for (std::size_t j = 0; j < numberSplits; ++j) {
             // Numeric errors mean that it's possible the sum curvature for a candidate
             // split is identically zero while the gradient is epsilon. This can cause
             // the node gain to appear infinite (when there is no weight regularisation)
             // which in turns causes problems initialising the region we search for optimal
-            // hyperparameter values. Since none of our loss functions should have curvature
-            // identically equal to zero, we can safely force the gradient to be zero if
-            // detect that the curvature is zero. Also, none of our loss functions have
-            // negative curvatures therefore we shouldn't allow the cumulative curvature
+            // hyperparameter values. We can safely force the gradient and curvature to
+            // be zero if we detect that the count is zero. Also, none of our loss functions
+            // have negative curvature therefore we shouldn't allow the cumulative curvature
             // to be negative either. In this case we force it to be a v.small multiple
             // of the magnitude of the gradient since this is the closest feasible estimate.
-            m_Curvatures[i][j] = parent.m_Curvatures[i][j] - sibling.m_Curvatures[i][j];
-            m_Gradients[i][j] = m_Curvatures[i][j] == 0.0
-                                    ? 0.0
-                                    : parent.m_Gradients[i][j] -
-                                          sibling.m_Gradients[i][j];
-            m_Curvatures[i][j] =
-                std::max(m_Curvatures[i][j], SMALLEST_RELATIVE_CURVATURE *
-                                                 std::fabs(m_Gradients[i][j]));
+            std::size_t count{parent.m_Derivatives[i][j].s_Count -
+                              sibling.m_Derivatives[i][j].s_Count};
+            if (count > 0) {
+                double gradient{parent.m_Derivatives[i][j].s_Gradient -
+                                sibling.m_Derivatives[i][j].s_Gradient};
+                double curvature{parent.m_Derivatives[i][j].s_Curvature -
+                                 sibling.m_Derivatives[i][j].s_Curvature};
+                curvature = std::max(curvature, SMALLEST_RELATIVE_CURVATURE *
+                                                    std::fabs(gradient));
+                m_Derivatives[i][j] = SAggregateDerivatives{count, gradient, curvature};
+            }
         }
-        m_MissingCurvatures[i] = parent.m_MissingCurvatures[i] -
-                                 sibling.m_MissingCurvatures[i];
-        m_MissingGradients[i] = m_MissingCurvatures[i] == 0.0
-                                    ? 0.0
-                                    : parent.m_MissingGradients[i] -
-                                          sibling.m_MissingGradients[i];
-        m_MissingCurvatures[i] = std::max(m_MissingCurvatures[i],
-                                          SMALLEST_RELATIVE_CURVATURE *
-                                              std::fabs(m_MissingGradients[i]));
+        std::size_t count{parent.m_MissingDerivatives[i].s_Count -
+                          sibling.m_MissingDerivatives[i].s_Count};
+        if (count > 0) {
+            double gradient{parent.m_MissingDerivatives[i].s_Gradient -
+                            sibling.m_MissingDerivatives[i].s_Gradient};
+            double curvature{parent.m_MissingDerivatives[i].s_Curvature -
+                             sibling.m_MissingDerivatives[i].s_Curvature};
+            curvature = std::max(curvature, SMALLEST_RELATIVE_CURVATURE * std::fabs(gradient));
+            m_MissingDerivatives[i] = SAggregateDerivatives{count, gradient, curvature};
+        }
     }
 
-    LOG_TRACE(<< "gradients = " << core::CContainerPrinter::print(m_Gradients));
-    LOG_TRACE(<< "curvatures = " << core::CContainerPrinter::print(m_Curvatures));
-    LOG_TRACE(<< "missing gradients = " << core::CContainerPrinter::print(m_MissingGradients));
-    LOG_TRACE(<< "missing curvatures = "
-              << core::CContainerPrinter::print(m_MissingCurvatures));
+    LOG_TRACE(<< "derivatives = " << core::CContainerPrinter::print(m_Derivatives));
+    LOG_TRACE(<< "missing derivatives = "
+              << core::CContainerPrinter::print(m_MissingDerivatives));
 }
 
-void CBoostedTreeImpl::CLeafNodeStatistics::addRowDerivatives(const CEncodedDataFrameRowRef& row,
-                                                              SDerivatives& derivatives) const {
+auto CBoostedTreeImpl::CLeafNodeStatistics::split(std::size_t leftChildId,
+                                                  std::size_t rightChildId,
+                                                  std::size_t numberThreads,
+                                                  const core::CDataFrame& frame,
+                                                  const CDataFrameCategoryEncoder& encoder,
+                                                  const TRegularization& regularization,
+                                                  const TDoubleVecVec& candidateSplits,
+                                                  TSizeVec featureBag,
+                                                  core::CPackedBitVector leftChildRowMask,
+                                                  core::CPackedBitVector rightChildRowMask,
+                                                  bool leftChildHasFewerRows) {
+
+    if (leftChildHasFewerRows) {
+        auto leftChild = std::make_shared<CLeafNodeStatistics>(
+            leftChildId, numberThreads, frame, encoder, regularization, candidateSplits,
+            m_Depth + 1, std::move(featureBag), std::move(leftChildRowMask));
+        auto rightChild = std::make_shared<CLeafNodeStatistics>(
+            rightChildId, *this, *leftChild, std::move(rightChildRowMask));
+
+        return std::make_pair(leftChild, rightChild);
+    }
+
+    auto rightChild = std::make_shared<CLeafNodeStatistics>(
+        rightChildId, numberThreads, frame, encoder, regularization, candidateSplits,
+        m_Depth + 1, std::move(featureBag), std::move(rightChildRowMask));
+    auto leftChild = std::make_shared<CLeafNodeStatistics>(
+        leftChildId, *this, *rightChild, std::move(leftChildRowMask));
+
+    return std::make_pair(leftChild, rightChild);
+}
+
+void CBoostedTreeImpl::CLeafNodeStatistics::computeAggregateLossDerivatives(
+    std::size_t numberThreads,
+    const core::CDataFrame& frame,
+    const CDataFrameCategoryEncoder& encoder) {
+
+    auto result = frame.readRows(
+        numberThreads, 0, frame.numberRows(),
+        core::bindRetrievableState(
+            [&](SSplitAggregateDerivatives& derivatives, TRowItr beginRows, TRowItr endRows) {
+                for (auto row = beginRows; row != endRows; ++row) {
+                    this->addRowDerivatives(encoder.encode(*row), derivatives);
+                }
+            },
+            SSplitAggregateDerivatives{m_CandidateSplits}),
+        &m_RowMask);
+
+    SSplitAggregateDerivatives derivatives{std::move(result.first[0].s_FunctionState)};
+    for (std::size_t i = 1; i < result.first.size(); ++i) {
+        derivatives.merge(result.first[i].s_FunctionState);
+    }
+
+    std::tie(m_Derivatives, m_MissingDerivatives) = derivatives.move();
+
+    LOG_TRACE(<< "derivatives = " << core::CContainerPrinter::print(m_Derivatives));
+    LOG_TRACE(<< "missing derivatives = "
+              << core::CContainerPrinter::print(m_MissingDerivatives));
+}
+
+void CBoostedTreeImpl::CLeafNodeStatistics::addRowDerivatives(
+    const CEncodedDataFrameRowRef& row,
+    SSplitAggregateDerivatives& splitAggregateDerivatives) const {
 
     const TRowRef& unencodedRow{row.unencodedRow()};
     double gradient{readLossGradient(unencodedRow)};
@@ -157,15 +235,13 @@ void CBoostedTreeImpl::CLeafNodeStatistics::addRowDerivatives(const CEncodedData
     for (std::size_t i = 0; i < m_CandidateSplits.size(); ++i) {
         double featureValue{row[i]};
         if (CDataFrameUtils::isMissing(featureValue)) {
-            derivatives.s_MissingGradients[i] += gradient;
-            derivatives.s_MissingCurvatures[i] += curvature;
+            splitAggregateDerivatives.s_MissingDerivatives[i].add(1, gradient, curvature);
         } else {
             const auto& featureCandidateSplits = m_CandidateSplits[i];
             auto j = std::upper_bound(featureCandidateSplits.begin(),
                                       featureCandidateSplits.end(), featureValue) -
                      featureCandidateSplits.begin();
-            derivatives.s_Gradients[i][j] += gradient;
-            derivatives.s_Curvatures[i][j] += curvature;
+            splitAggregateDerivatives.s_Derivatives[i][j].add(1, gradient, curvature);
         }
     }
 }
@@ -178,25 +254,33 @@ CBoostedTreeImpl::CLeafNodeStatistics::computeBestSplitStatistics() const {
     //   2. Sum square weights: lambda * sum{"leaf weight" ^ 2)}
     //   3. Tree depth: alpha * sum{exp(("depth" / "target depth" - 1.0) / "tolerance")}
 
-    SSplitStatistics result{-INF, 0.0, m_FeatureBag.size(), INF, true};
+    SSplitStatistics result{-INF, 0.0, m_FeatureBag.size(), INF, true, true};
 
     for (auto i : m_FeatureBag) {
-        double g{std::accumulate(m_Gradients[i].begin(), m_Gradients[i].end(), 0.0) +
-                 m_MissingGradients[i]};
-        double h{std::accumulate(m_Curvatures[i].begin(), m_Curvatures[i].end(), 0.0) +
-                 m_MissingCurvatures[i]};
-        double gl[]{m_MissingGradients[i], 0.0};
-        double hl[]{m_MissingCurvatures[i], 0.0};
+        std::size_t c{m_MissingDerivatives[i].s_Count};
+        double g{m_MissingDerivatives[i].s_Gradient};
+        double h{m_MissingDerivatives[i].s_Curvature};
+        for (const auto& derivatives : m_Derivatives[i]) {
+            c += derivatives.s_Count;
+            g += derivatives.s_Gradient;
+            h += derivatives.s_Curvature;
+        }
+        std::size_t cl[]{m_MissingDerivatives[i].s_Count, 0};
+        double gl[]{m_MissingDerivatives[i].s_Gradient, 0.0};
+        double hl[]{m_MissingDerivatives[i].s_Curvature, 0.0};
 
         double maximumGain{-INF};
         double splitAt{-INF};
+        bool leftChildHasFewerRows{true};
         bool assignMissingToLeft{true};
 
-        for (std::size_t j = 0; j + 1 < m_Gradients[i].size(); ++j) {
-            gl[ASSIGN_MISSING_TO_LEFT] += m_Gradients[i][j];
-            hl[ASSIGN_MISSING_TO_LEFT] += m_Curvatures[i][j];
-            gl[ASSIGN_MISSING_TO_RIGHT] += m_Gradients[i][j];
-            hl[ASSIGN_MISSING_TO_RIGHT] += m_Curvatures[i][j];
+        for (std::size_t j = 0; j + 1 < m_Derivatives[i].size(); ++j) {
+            cl[ASSIGN_MISSING_TO_LEFT] += m_Derivatives[i][j].s_Count;
+            gl[ASSIGN_MISSING_TO_LEFT] += m_Derivatives[i][j].s_Gradient;
+            hl[ASSIGN_MISSING_TO_LEFT] += m_Derivatives[i][j].s_Curvature;
+            cl[ASSIGN_MISSING_TO_RIGHT] += m_Derivatives[i][j].s_Count;
+            gl[ASSIGN_MISSING_TO_RIGHT] += m_Derivatives[i][j].s_Gradient;
+            hl[ASSIGN_MISSING_TO_RIGHT] += m_Derivatives[i][j].s_Curvature;
 
             double gain[]{CTools::pow2(gl[ASSIGN_MISSING_TO_LEFT]) /
                                   (hl[ASSIGN_MISSING_TO_LEFT] +
@@ -214,11 +298,13 @@ CBoostedTreeImpl::CLeafNodeStatistics::computeBestSplitStatistics() const {
             if (gain[ASSIGN_MISSING_TO_LEFT] > maximumGain) {
                 maximumGain = gain[ASSIGN_MISSING_TO_LEFT];
                 splitAt = m_CandidateSplits[i][j];
+                leftChildHasFewerRows = (2 * cl[ASSIGN_MISSING_TO_LEFT] < c);
                 assignMissingToLeft = true;
             }
             if (gain[ASSIGN_MISSING_TO_RIGHT] > maximumGain) {
                 maximumGain = gain[ASSIGN_MISSING_TO_RIGHT];
                 splitAt = m_CandidateSplits[i][j];
+                leftChildHasFewerRows = (2 * cl[ASSIGN_MISSING_TO_RIGHT] < c);
                 assignMissingToLeft = false;
             }
         }
@@ -230,7 +316,8 @@ CBoostedTreeImpl::CLeafNodeStatistics::computeBestSplitStatistics() const {
                     m_Regularization.depthPenaltyMultiplier() *
                         (2.0 * penaltyForDepthPlusOne - penaltyForDepth)};
 
-        SSplitStatistics candidate{gain, h, i, splitAt, assignMissingToLeft};
+        SSplitStatistics candidate{
+            gain, h, i, splitAt, leftChildHasFewerRows, assignMissingToLeft};
         LOG_TRACE(<< "candidate split: " << candidate.print());
 
         if (candidate > result) {
@@ -683,6 +770,7 @@ CBoostedTreeImpl::trainTree(core::CDataFrame& frame,
         double splitValue;
         std::tie(splitFeature, splitValue) = leaf->bestSplit();
 
+        bool leftChildHasFewerRows{leaf->leftChildHasFewerRows()};
         bool assignMissingToLeft{leaf->assignMissingToLeft()};
 
         std::size_t leftChildId, rightChildId;
@@ -694,8 +782,7 @@ CBoostedTreeImpl::trainTree(core::CDataFrame& frame,
 
         core::CPackedBitVector leftChildRowMask;
         core::CPackedBitVector rightChildRowMask;
-        bool leftChildHasFewerRows;
-        std::tie(leftChildRowMask, rightChildRowMask, leftChildHasFewerRows) =
+        std::tie(leftChildRowMask, rightChildRowMask) =
             tree[leaf->id()].childrenRowMasks(m_NumberThreads, frame, *m_Encoder,
                                               std::move(leaf->rowMask()));
 

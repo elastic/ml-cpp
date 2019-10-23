@@ -230,8 +230,8 @@ class MATHS_EXPORT CBoostedTreeNode final {
 public:
     using TNodeIndex = std::uint32_t;
     using TSizeSizePr = std::pair<TNodeIndex, TNodeIndex>;
-    using TPackedBitVectorPackedBitVectorBoolTr =
-        std::tuple<core::CPackedBitVector, core::CPackedBitVector, bool>;
+    using TPackedBitVectorPackedBitVectorPr =
+        std::pair<core::CPackedBitVector, core::CPackedBitVector>;
     using TNodeVec = std::vector<CBoostedTreeNode>;
     using TOptionalNodeIndex = boost::optional<TNodeIndex>;
 
@@ -292,7 +292,7 @@ public:
                       TNodeVec& tree);
 
     //! Get the row masks of the left and right children of this node.
-    TPackedBitVectorPackedBitVectorBoolTr
+    TPackedBitVectorPackedBitVectorPr
     childrenRowMasks(std::size_t numberThreads,
                      const core::CDataFrame& frame,
                      const CDataFrameCategoryEncoder& encoder,
