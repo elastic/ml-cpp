@@ -678,7 +678,8 @@ BOOST_AUTO_TEST_CASE(testRunOutlierDetectionPartitioned) {
     LOG_DEBUG(<< "peak memory = "
               << core::CProgramCounters::counter(counter_t::E_DFOPeakMemoryUsage));
     BOOST_TEST_REQUIRE(core::CProgramCounters::counter(counter_t::E_DFONumberPartitions) > 1);
-    BOOST_TEST_REQUIRE(core::CProgramCounters::counter(counter_t::E_DFOPeakMemoryUsage) < 116000); // + 16%
+    BOOST_TEST_REQUIRE(core::CProgramCounters::counter(counter_t::E_DFOPeakMemoryUsage) <
+                       116000); // + 16%
 }
 
 BOOST_AUTO_TEST_CASE(testRunOutlierFeatureInfluences) {
@@ -710,7 +711,8 @@ BOOST_AUTO_TEST_CASE(testRunOutlierFeatureInfluences) {
     auto expectedFeatureInfluence = expectedFeatureInfluences.begin();
     for (const auto& result : results.GetArray()) {
         if (result.HasMember("row_results")) {
-            BOOST_TEST_REQUIRE(expectedFeatureInfluence != expectedFeatureInfluences.end());
+            BOOST_TEST_REQUIRE(expectedFeatureInfluence !=
+                               expectedFeatureInfluences.end());
             for (std::size_t i = 0; i < 5; ++i) {
                 BOOST_REQUIRE_CLOSE_ABSOLUTE(
                     (*expectedFeatureInfluence)[i],
@@ -826,7 +828,8 @@ BOOST_AUTO_TEST_CASE(testRunBoostedTreeRegressionTraining) {
     LOG_DEBUG(<< "time to train = " << core::CProgramCounters::counter(counter_t::E_DFTPMTimeToTrain)
               << "ms");
 
-    BOOST_TEST_REQUIRE(core::CProgramCounters::counter(counter_t::E_DFTPMEstimatedPeakMemoryUsage) < 2700000);
+    BOOST_TEST_REQUIRE(core::CProgramCounters::counter(
+                           counter_t::E_DFTPMEstimatedPeakMemoryUsage) < 2700000);
     BOOST_TEST_REQUIRE(core::CProgramCounters::counter(counter_t::E_DFTPMPeakMemoryUsage) < 1050000);
     BOOST_TEST_REQUIRE(core::CProgramCounters::counter(counter_t::E_DFTPMTimeToTrain) > 0);
     BOOST_TEST_REQUIRE(core::CProgramCounters::counter(counter_t::E_DFTPMTimeToTrain) <= duration);
@@ -1062,7 +1065,8 @@ BOOST_AUTO_TEST_CASE(testRunBoostedTreeClassifierTraining) {
               << core::CProgramCounters::counter(counter_t::E_DFTPMPeakMemoryUsage));
     LOG_DEBUG(<< "time to train = " << core::CProgramCounters::counter(counter_t::E_DFTPMTimeToTrain)
               << "ms");
-    BOOST_TEST_REQUIRE(core::CProgramCounters::counter(counter_t::E_DFTPMEstimatedPeakMemoryUsage) < 2650000);
+    BOOST_TEST_REQUIRE(core::CProgramCounters::counter(
+                           counter_t::E_DFTPMEstimatedPeakMemoryUsage) < 2650000);
     BOOST_TEST_REQUIRE(core::CProgramCounters::counter(counter_t::E_DFTPMPeakMemoryUsage) < 1050000);
     BOOST_TEST_REQUIRE(core::CProgramCounters::counter(counter_t::E_DFTPMTimeToTrain) > 0);
     BOOST_TEST_REQUIRE(core::CProgramCounters::counter(counter_t::E_DFTPMTimeToTrain) <= duration);
@@ -1108,7 +1112,7 @@ BOOST_AUTO_TEST_CASE(testErrors) {
         LOG_DEBUG(<< core::CContainerPrinter::print(errors));
         BOOST_TEST_REQUIRE(errors.size() > 0);
         BOOST_REQUIRE_EQUAL(false, analyzer.handleRecord({"c1", "c2", "c3", "c4", "c5"},
-                                                       {"10", "10", "10", "10", "10"}));
+                                                         {"10", "10", "10", "10", "10"}));
     }
 
     // Test special field in the wrong position
@@ -1225,7 +1229,8 @@ BOOST_AUTO_TEST_CASE(testRoundTripDocHashes) {
     for (const auto& result : results.GetArray()) {
         if (result.HasMember("row_results")) {
             LOG_DEBUG(<< "checksum = " << result["row_results"]["checksum"].GetInt());
-            BOOST_REQUIRE_EQUAL(++expectedHash, result["row_results"]["checksum"].GetInt());
+            BOOST_REQUIRE_EQUAL(++expectedHash,
+                                result["row_results"]["checksum"].GetInt());
         }
     }
 }

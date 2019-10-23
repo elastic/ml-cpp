@@ -99,7 +99,7 @@ BOOST_AUTO_TEST_CASE(testThroughput) {
     }
 
     BOOST_REQUIRE_EQUAL(static_cast<std::streampos>(totalDataSize),
-                      buf.pubseekoff(0, std::ios_base::cur, std::ios_base::out));
+                        buf.pubseekoff(0, std::ios_base::cur, std::ios_base::out));
 
     buf.signalEndOfFile();
 

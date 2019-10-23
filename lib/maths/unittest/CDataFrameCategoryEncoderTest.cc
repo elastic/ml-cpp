@@ -583,7 +583,7 @@ BOOST_AUTO_TEST_CASE(testUnseenCategoryEncoding) {
         rep << " " << encodedRow[i];
     }
     BOOST_REQUIRE_EQUAL(maths::CFloatStorage{1.5},
-                      encodedRow[encodedRow.numberColumns() - 1]);
+                        encodedRow[encodedRow.numberColumns() - 1]);
     LOG_DEBUG(<< "encoded = [" << rep.str() << "]");
 }
 

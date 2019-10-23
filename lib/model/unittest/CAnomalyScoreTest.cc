@@ -399,7 +399,7 @@ BOOST_AUTO_TEST_CASE(testNormalizeScoresNoisy) {
     LOG_DEBUG(<< "times = " << core::CContainerPrinter::print(times));
 
     BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(largeAnomalyTimes),
-                      core::CContainerPrinter::print(times));
+                        core::CContainerPrinter::print(times));
 }
 
 BOOST_AUTO_TEST_CASE(testNormalizeScoresPerPartitionMaxScore) {
@@ -586,7 +586,7 @@ BOOST_AUTO_TEST_CASE(testNormalizeScoresOrdering) {
         TDoubleVec normalizedScores(scores);
         for (std::size_t j = 0u; j < i; ++j) {
             BOOST_TEST_REQUIRE(normalizer.normalize({"", "", "bucket_time", ""},
-                                            normalizedScores[j]));
+                                                    normalizedScores[j]));
         }
 
         maths::COrderings::simultaneousSort(scores, normalizedScores);
@@ -747,7 +747,7 @@ BOOST_AUTO_TEST_CASE(testJsonConversion) {
                                                partitionMaxScoreStr.end(), '\n'),
                                    partitionMaxScoreStr.end());
         BOOST_REQUIRE_EQUAL("\"" + core::CStringUtils::typeToStringPretty(maxScore) + "\"",
-                          partitionMaxScoreStr);
+                            partitionMaxScoreStr);
     }
 
     rapidjson::StringBuffer buffer;

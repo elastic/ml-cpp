@@ -842,7 +842,7 @@ BOOST_AUTO_TEST_CASE(testSparseGrid) {
         TDoubleVec expectedWeights;
         TDoubleVecVec expectedPoints;
         BOOST_TEST_REQUIRE(readGrid("testfiles/sparse_guass_quadrature_test_d2_l1",
-                            expectedWeights, expectedPoints));
+                                    expectedWeights, expectedPoints));
 
         using TSparse2do1 =
             CIntegration::CSparseGaussLegendreQuadrature<CIntegration::OrderOne, CIntegration::TwoDimensions>;
@@ -855,12 +855,13 @@ BOOST_AUTO_TEST_CASE(testSparseGrid) {
 
         for (std::size_t i = 0u; i < expectedWeights.size(); ++i) {
             LOG_DEBUG(<< "weight = " << (sparse.weights())[i]);
-            BOOST_REQUIRE_CLOSE_ABSOLUTE(expectedWeights[i], (sparse.weights())[i] / 4.0, 1e-6);
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(expectedWeights[i],
+                                         (sparse.weights())[i] / 4.0, 1e-6);
 
             LOG_DEBUG(<< "point = " << (sparse.points())[i]);
             for (std::size_t j = 0u; j < expectedPoints[i].size(); ++j) {
                 BOOST_REQUIRE_CLOSE_ABSOLUTE(expectedPoints[i][j],
-                                           0.5 + (sparse.points())[i](j) / 2.0, 1e-6);
+                                             0.5 + (sparse.points())[i](j) / 2.0, 1e-6);
             }
         }
     }
@@ -871,7 +872,7 @@ BOOST_AUTO_TEST_CASE(testSparseGrid) {
         TDoubleVec expectedWeights;
         TDoubleVecVec expectedPoints;
         BOOST_TEST_REQUIRE(readGrid("testfiles/sparse_guass_quadrature_test_d2_l2",
-                            expectedWeights, expectedPoints));
+                                    expectedWeights, expectedPoints));
 
         using TSparse2do2 =
             CIntegration::CSparseGaussLegendreQuadrature<CIntegration::OrderTwo, CIntegration::TwoDimensions>;
@@ -884,12 +885,13 @@ BOOST_AUTO_TEST_CASE(testSparseGrid) {
 
         for (std::size_t i = 0u; i < expectedWeights.size(); ++i) {
             LOG_DEBUG(<< "weight = " << (sparse.weights())[i]);
-            BOOST_REQUIRE_CLOSE_ABSOLUTE(expectedWeights[i], (sparse.weights())[i] / 4.0, 1e-6);
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(expectedWeights[i],
+                                         (sparse.weights())[i] / 4.0, 1e-6);
 
             LOG_DEBUG(<< "point = " << (sparse.points())[i]);
             for (std::size_t j = 0u; j < expectedPoints[i].size(); ++j) {
                 BOOST_REQUIRE_CLOSE_ABSOLUTE(expectedPoints[i][j],
-                                           0.5 + (sparse.points())[i](j) / 2.0, 1e-6);
+                                             0.5 + (sparse.points())[i](j) / 2.0, 1e-6);
             }
         }
     }
@@ -900,7 +902,7 @@ BOOST_AUTO_TEST_CASE(testSparseGrid) {
         TDoubleVec expectedWeights;
         TDoubleVecVec expectedPoints;
         BOOST_TEST_REQUIRE(readGrid("testfiles/sparse_guass_quadrature_test_d2_l4",
-                            expectedWeights, expectedPoints));
+                                    expectedWeights, expectedPoints));
 
         using TSparse2do4 =
             CIntegration::CSparseGaussLegendreQuadrature<CIntegration::OrderFour, CIntegration::TwoDimensions>;
@@ -913,12 +915,13 @@ BOOST_AUTO_TEST_CASE(testSparseGrid) {
 
         for (std::size_t i = 0u; i < expectedWeights.size(); ++i) {
             LOG_DEBUG(<< "weight = " << (sparse.weights())[i]);
-            BOOST_REQUIRE_CLOSE_ABSOLUTE(expectedWeights[i], (sparse.weights())[i] / 4.0, 1e-6);
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(expectedWeights[i],
+                                         (sparse.weights())[i] / 4.0, 1e-6);
 
             LOG_DEBUG(<< "point = " << (sparse.points())[i]);
             for (std::size_t j = 0u; j < expectedPoints[i].size(); ++j) {
                 BOOST_REQUIRE_CLOSE_ABSOLUTE(expectedPoints[i][j],
-                                           0.5 + (sparse.points())[i](j) / 2.0, 1e-6);
+                                             0.5 + (sparse.points())[i](j) / 2.0, 1e-6);
             }
         }
     }
@@ -929,7 +932,7 @@ BOOST_AUTO_TEST_CASE(testSparseGrid) {
         TDoubleVec expectedWeights;
         TDoubleVecVec expectedPoints;
         BOOST_TEST_REQUIRE(readGrid("testfiles/sparse_guass_quadrature_test_d7_l3",
-                            expectedWeights, expectedPoints));
+                                    expectedWeights, expectedPoints));
 
         using TSparse7do3 =
             CIntegration::CSparseGaussLegendreQuadrature<CIntegration::OrderThree, CIntegration::SevenDimensions>;
@@ -942,13 +945,13 @@ BOOST_AUTO_TEST_CASE(testSparseGrid) {
 
         for (std::size_t i = 0u; i < expectedWeights.size(); ++i) {
             LOG_DEBUG(<< "weight = " << (sparse.weights())[i]);
-            BOOST_REQUIRE_CLOSE_ABSOLUTE(expectedWeights[i],
-                                       (sparse.weights())[i] / std::pow(2.0, 7.0), 1e-6);
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(
+                expectedWeights[i], (sparse.weights())[i] / std::pow(2.0, 7.0), 1e-6);
 
             LOG_DEBUG(<< "point = " << (sparse.points())[i]);
             for (std::size_t j = 0u; j < expectedPoints[i].size(); ++j) {
                 BOOST_REQUIRE_CLOSE_ABSOLUTE(expectedPoints[i][j],
-                                           0.5 + (sparse.points())[i](j) / 2.0, 1e-6);
+                                             0.5 + (sparse.points())[i](j) / 2.0, 1e-6);
             }
         }
     }
@@ -959,7 +962,7 @@ BOOST_AUTO_TEST_CASE(testSparseGrid) {
         TDoubleVec expectedWeights;
         TDoubleVecVec expectedPoints;
         BOOST_TEST_REQUIRE(readGrid("testfiles/sparse_guass_quadrature_test_d7_l5",
-                            expectedWeights, expectedPoints));
+                                    expectedWeights, expectedPoints));
 
         using TSparse7do5 =
             CIntegration::CSparseGaussLegendreQuadrature<CIntegration::OrderFive, CIntegration::SevenDimensions>;
@@ -974,15 +977,15 @@ BOOST_AUTO_TEST_CASE(testSparseGrid) {
             if (i % 10 == 0) {
                 LOG_DEBUG(<< "weight = " << (sparse.weights())[i]);
             }
-            BOOST_REQUIRE_CLOSE_ABSOLUTE(expectedWeights[i],
-                                       (sparse.weights())[i] / std::pow(2.0, 7.0), 1e-6);
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(
+                expectedWeights[i], (sparse.weights())[i] / std::pow(2.0, 7.0), 1e-6);
 
             if (i % 10 == 0) {
                 LOG_DEBUG(<< "point = " << (sparse.points())[i]);
             }
             for (std::size_t j = 0u; j < expectedPoints[i].size(); ++j) {
                 BOOST_REQUIRE_CLOSE_ABSOLUTE(expectedPoints[i][j],
-                                           0.5 + (sparse.points())[i](j) / 2.0, 1e-6);
+                                             0.5 + (sparse.points())[i](j) / 2.0, 1e-6);
             }
         }
     }

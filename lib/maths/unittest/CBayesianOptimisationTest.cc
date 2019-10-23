@@ -81,7 +81,7 @@ BOOST_AUTO_TEST_CASE(testLikelihoodGradient) {
             TVector gradient{g(a)};
 
             BOOST_TEST_REQUIRE((expectedGradient - gradient).norm() <
-                       1e-3 * expectedGradient.norm());
+                               1e-3 * expectedGradient.norm());
         }
     }
 }
@@ -179,7 +179,7 @@ BOOST_AUTO_TEST_CASE(testExpectedImprovementGradient) {
             TVector gradient{eig(x)};
 
             BOOST_TEST_REQUIRE((expectedGradient - gradient).norm() <
-                       1e-2 * expectedGradient.norm());
+                               1e-2 * expectedGradient.norm());
         }
     }
 }

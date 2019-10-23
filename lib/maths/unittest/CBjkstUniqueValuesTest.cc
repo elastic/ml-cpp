@@ -51,7 +51,8 @@ BOOST_AUTO_TEST_CASE(testTrailingZeros) {
 
     for (std::size_t i = 0u; i < samples.size(); ++i) {
         uint32_t sample = static_cast<uint32_t>(samples[i]);
-        BOOST_REQUIRE_EQUAL(trailingZeros(sample), CBjkstUniqueValues::trailingZeros(sample));
+        BOOST_REQUIRE_EQUAL(trailingZeros(sample),
+                            CBjkstUniqueValues::trailingZeros(sample));
     }
 }
 
@@ -154,8 +155,8 @@ BOOST_AUTO_TEST_CASE(testRemove) {
             LOG_DEBUG(<< "approx = " << sketch.number());
         }
         BOOST_REQUIRE_CLOSE_ABSOLUTE(static_cast<double>(unique.size()),
-                                   static_cast<double>(sketch.number()),
-                                   0.3 * static_cast<double>(unique.size()));
+                                     static_cast<double>(sketch.number()),
+                                     0.3 * static_cast<double>(unique.size()));
         meanRelativeErrorBeforeRemove.add(std::fabs(static_cast<double>(unique.size()) -
                                                     static_cast<double>(sketch.number())) /
                                           static_cast<double>(unique.size()));
@@ -171,8 +172,8 @@ BOOST_AUTO_TEST_CASE(testRemove) {
             LOG_DEBUG(<< "approx = " << sketch.number());
         }
         BOOST_REQUIRE_CLOSE_ABSOLUTE(static_cast<double>(unique.size()),
-                                   static_cast<double>(sketch.number()),
-                                   0.25 * static_cast<double>(unique.size()));
+                                     static_cast<double>(sketch.number()),
+                                     0.25 * static_cast<double>(unique.size()));
         meanRelativeErrorAfterRemove.add(std::fabs(static_cast<double>(unique.size()) -
                                                    static_cast<double>(sketch.number())) /
                                          static_cast<double>(unique.size()));
@@ -184,7 +185,7 @@ BOOST_AUTO_TEST_CASE(testRemove) {
               << maths::CBasicStatistics::mean(meanRelativeErrorAfterRemove));
     BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(meanRelativeErrorBeforeRemove) < 0.05);
     BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(meanRelativeErrorAfterRemove) <
-               1.3 * maths::CBasicStatistics::mean(meanRelativeErrorBeforeRemove));
+                       1.3 * maths::CBasicStatistics::mean(meanRelativeErrorBeforeRemove));
 }
 
 BOOST_AUTO_TEST_CASE(testSwap) {
@@ -278,8 +279,8 @@ BOOST_AUTO_TEST_CASE(testSmall) {
             LOG_DEBUG(<< "approx = " << sketch.number());
         }
         BOOST_REQUIRE_CLOSE_ABSOLUTE(static_cast<double>(unique.size()),
-                                   static_cast<double>(sketch.number()),
-                                   0.15 * static_cast<double>(unique.size()));
+                                     static_cast<double>(sketch.number()),
+                                     0.15 * static_cast<double>(unique.size()));
         meanRelativeError.add(std::fabs(static_cast<double>(unique.size()) -
                                         static_cast<double>(sketch.number())) /
                               static_cast<double>(unique.size()));

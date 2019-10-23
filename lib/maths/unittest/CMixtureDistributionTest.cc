@@ -38,7 +38,7 @@ BOOST_AUTO_TEST_CASE(testSupport) {
         modes.push_back(n2);
         CMixtureDistribution<boost::math::normal_distribution<>> mixture(weights, modes);
         BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(boost::math::support(n1)),
-                          core::CContainerPrinter::print(support(mixture)));
+                            core::CContainerPrinter::print(support(mixture)));
     }
     {
         boost::math::lognormal_distribution<> l1(1.0, 0.5);
@@ -51,7 +51,7 @@ BOOST_AUTO_TEST_CASE(testSupport) {
         modes.push_back(l2);
         CMixtureDistribution<boost::math::lognormal_distribution<>> mixture(weights, modes);
         BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(boost::math::support(l1)),
-                          core::CContainerPrinter::print(support(mixture)));
+                            core::CContainerPrinter::print(support(mixture)));
     }
 }
 

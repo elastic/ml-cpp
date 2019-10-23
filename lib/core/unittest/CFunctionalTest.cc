@@ -58,7 +58,7 @@ BOOST_AUTO_TEST_CASE(testDereference) {
     for (std::size_t i = 0u; i < boost::size(values); ++i) {
         for (std::size_t j = 0u; j < boost::size(values); ++j) {
             BOOST_REQUIRE_EQUAL(less(*values[i], *values[j]),
-                              derefLess(values[i], values[j]));
+                                derefLess(values[i], values[j]));
         }
     }
 }

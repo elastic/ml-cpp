@@ -57,7 +57,8 @@ BOOST_AUTO_TEST_CASE(testDoublePrecission) {
         writer.EndObject();
     }
 
-    BOOST_REQUIRE_EQUAL(std::string("{\"a\":0.00003,\"b\":5e-300,\"c\":0.0}\n"), strm.str());
+    BOOST_REQUIRE_EQUAL(std::string("{\"a\":0.00003,\"b\":5e-300,\"c\":0.0}\n"),
+                        strm.str());
 }
 
 BOOST_AUTO_TEST_CASE(testDoublePrecissionDtoa) {
@@ -65,23 +66,24 @@ BOOST_AUTO_TEST_CASE(testDoublePrecissionDtoa) {
 
     char* end = rapidjson::internal::dtoa(3e-5, buffer);
     BOOST_REQUIRE_EQUAL(std::string("0.00003"),
-                      std::string(buffer, static_cast<size_t>(end - buffer)));
+                        std::string(buffer, static_cast<size_t>(end - buffer)));
 
     end = rapidjson::internal::dtoa(2e-20, buffer, 20);
     BOOST_REQUIRE_EQUAL(std::string("2e-20"),
-                      std::string(buffer, static_cast<size_t>(end - buffer)));
+                        std::string(buffer, static_cast<size_t>(end - buffer)));
 
     end = rapidjson::internal::dtoa(1e-308, buffer);
     BOOST_REQUIRE_EQUAL(std::string("1e-308"),
-                      std::string(buffer, static_cast<size_t>(end - buffer)));
+                        std::string(buffer, static_cast<size_t>(end - buffer)));
 
     end = rapidjson::internal::dtoa(1e-300, buffer, 20);
     BOOST_REQUIRE_EQUAL(std::string("0.0"),
-                      std::string(buffer, static_cast<size_t>(end - buffer)));
+                        std::string(buffer, static_cast<size_t>(end - buffer)));
 
     // test the limit, to not hardcode the string we check that it is not 0.0
     end = rapidjson::internal::dtoa(std::numeric_limits<double>::denorm_min(), buffer);
-    BOOST_TEST_REQUIRE(std::string("0.0") != std::string(buffer, static_cast<size_t>(end - buffer)));
+    BOOST_TEST_REQUIRE(std::string("0.0") !=
+                       std::string(buffer, static_cast<size_t>(end - buffer)));
 
     int ret = ::snprintf(buffer, sizeof(buffer), "%g", 1e-300);
 

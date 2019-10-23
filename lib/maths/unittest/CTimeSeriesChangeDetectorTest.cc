@@ -290,7 +290,7 @@ BOOST_AUTO_TEST_CASE(testChangeconst TGeneratorVec& trends,
                 }
                 BOOST_REQUIRE_EQUAL(change->s_Description, description);
                 BOOST_REQUIRE_CLOSE_ABSOLUTE(expectedChange, change->s_Value[0],
-                                           0.5 * std::fabs(expectedChange));
+                                             0.5 * std::fabs(expectedChange));
                 break;
             }
             if (detector.stopTesting()) {
@@ -309,7 +309,8 @@ BOOST_AUTO_TEST_CASE(testChangeconst TGeneratorVec& trends,
     LOG_DEBUG(<< "false negatives = " << falseNegatives);
     LOG_DEBUG(<< "buckets to detect = " << maths::CBasicStatistics::mean(meanBucketsToDetect));
     BOOST_TEST_REQUIRE(falseNegatives <= maximumFalseNegatives);
-    BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(meanBucketsToDetect) < maximumMeanBucketsToDetectChange);
+    BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(meanBucketsToDetect) <
+                       maximumMeanBucketsToDetectChange);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

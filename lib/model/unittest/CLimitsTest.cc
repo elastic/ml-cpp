@@ -14,15 +14,15 @@ BOOST_AUTO_TEST_CASE(testTrivial) {
     ml::model::CLimits config;
 
     BOOST_REQUIRE_EQUAL(ml::model::CLimits::DEFAULT_AUTOCONFIG_EVENTS,
-                      config.autoConfigEvents());
+                        config.autoConfigEvents());
     BOOST_REQUIRE_EQUAL(ml::model::CLimits::DEFAULT_ANOMALY_MAX_TIME_BUCKETS,
-                      config.anomalyMaxTimeBuckets());
+                        config.anomalyMaxTimeBuckets());
     BOOST_REQUIRE_EQUAL(ml::model::CLimits::DEFAULT_RESULTS_MAX_EXAMPLES,
-                      config.maxExamples());
+                        config.maxExamples());
     BOOST_REQUIRE_EQUAL(ml::model::CLimits::DEFAULT_RESULTS_UNUSUAL_PROBABILITY_THRESHOLD / 100.0,
-                      config.unusualProbabilityThreshold());
+                        config.unusualProbabilityThreshold());
     BOOST_REQUIRE_EQUAL(ml::model::CResourceMonitor::DEFAULT_MEMORY_LIMIT_MB,
-                      config.memoryLimitMB());
+                        config.memoryLimitMB());
 }
 
 BOOST_AUTO_TEST_CASE(testValid) {
@@ -31,7 +31,7 @@ BOOST_AUTO_TEST_CASE(testValid) {
 
     // This one isn't present in the config file so should be defaulted
     BOOST_REQUIRE_EQUAL(ml::model::CLimits::DEFAULT_ANOMALY_MAX_TIME_BUCKETS,
-                      config.anomalyMaxTimeBuckets());
+                        config.anomalyMaxTimeBuckets());
 
     BOOST_REQUIRE_EQUAL(size_t(8), config.maxExamples());
 

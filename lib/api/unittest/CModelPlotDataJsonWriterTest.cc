@@ -41,24 +41,25 @@ BOOST_AUTO_TEST_CASE(testWriteFlat) {
     BOOST_TEST_REQUIRE(firstElement.HasMember("model_plot"));
     const rapidjson::Value& modelPlot = firstElement["model_plot"];
     BOOST_TEST_REQUIRE(modelPlot.HasMember("job_id"));
-    BOOST_REQUIRE_EQUAL(std::string("job-id"), std::string(modelPlot["job_id"].GetString()));
+    BOOST_REQUIRE_EQUAL(std::string("job-id"),
+                        std::string(modelPlot["job_id"].GetString()));
     BOOST_TEST_REQUIRE(modelPlot.HasMember("model_feature"));
     BOOST_REQUIRE_EQUAL(std::string("'count per bucket by person'"),
-                      std::string(modelPlot["model_feature"].GetString()));
+                        std::string(modelPlot["model_feature"].GetString()));
     BOOST_TEST_REQUIRE(modelPlot.HasMember("timestamp"));
     BOOST_REQUIRE_EQUAL(int64_t(1000), modelPlot["timestamp"].GetInt64());
     BOOST_TEST_REQUIRE(modelPlot.HasMember("partition_field_name"));
     BOOST_REQUIRE_EQUAL(std::string("pName"),
-                      std::string(modelPlot["partition_field_name"].GetString()));
+                        std::string(modelPlot["partition_field_name"].GetString()));
     BOOST_TEST_REQUIRE(modelPlot.HasMember("partition_field_value"));
     BOOST_REQUIRE_EQUAL(std::string("pValue"),
-                      std::string(modelPlot["partition_field_value"].GetString()));
+                        std::string(modelPlot["partition_field_value"].GetString()));
     BOOST_TEST_REQUIRE(modelPlot.HasMember("by_field_name"));
     BOOST_REQUIRE_EQUAL(std::string("bName"),
-                      std::string(modelPlot["by_field_name"].GetString()));
+                        std::string(modelPlot["by_field_name"].GetString()));
     BOOST_TEST_REQUIRE(modelPlot.HasMember("by_field_value"));
     BOOST_REQUIRE_EQUAL(std::string("bName"),
-                      std::string(modelPlot["by_field_value"].GetString()));
+                        std::string(modelPlot["by_field_value"].GetString()));
     BOOST_TEST_REQUIRE(modelPlot.HasMember("model_lower"));
     BOOST_REQUIRE_CLOSE_ABSOLUTE(1.0, modelPlot["model_lower"].GetDouble(), 0.01);
     BOOST_TEST_REQUIRE(modelPlot.HasMember("model_upper"));

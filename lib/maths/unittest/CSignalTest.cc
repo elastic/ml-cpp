@@ -352,7 +352,7 @@ BOOST_AUTO_TEST_CASE(testAutocorrelations) {
             LOG_DEBUG(<< "actual   = " << core::CContainerPrinter::print(actual));
         }
         BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(expected),
-                          core::CContainerPrinter::print(actual));
+                            core::CContainerPrinter::print(actual));
     }
 }
 

@@ -552,11 +552,11 @@ BOOST_AUTO_TEST_CASE(testJoin) {
     strVec.push_back(std::string("ccc"));
 
     BOOST_REQUIRE_EQUAL(std::string("aaa,bbb,ccc"),
-                      CStringUtils::join(strVec, std::string(",")));
+                        CStringUtils::join(strVec, std::string(",")));
 
     LOG_DEBUG(<< "Test delimiter has more than one characters");
     BOOST_REQUIRE_EQUAL(std::string("aaa::bbb::ccc"),
-                      CStringUtils::join(strVec, std::string("::")));
+                        CStringUtils::join(strVec, std::string("::")));
 
     LOG_DEBUG(<< "Test set instead of vector");
     TStrSet strSet;
@@ -564,7 +564,7 @@ BOOST_AUTO_TEST_CASE(testJoin) {
     strSet.insert(std::string("bbb"));
     strSet.insert(std::string("ccc"));
     BOOST_REQUIRE_EQUAL(std::string("aaa,bbb,ccc"),
-                      CStringUtils::join(strSet, std::string(",")));
+                        CStringUtils::join(strSet, std::string(",")));
 }
 
 BOOST_AUTO_TEST_CASE(testLower) {
@@ -592,9 +592,9 @@ BOOST_AUTO_TEST_CASE(testNarrowWiden) {
     std::wstring hello2(L"Hello");
 
     BOOST_REQUIRE_EQUAL(hello1.length(),
-                      ml::core::CStringUtils::narrowToWide(hello1).length());
+                        ml::core::CStringUtils::narrowToWide(hello1).length());
     BOOST_REQUIRE_EQUAL(hello2.length(),
-                      ml::core::CStringUtils::wideToNarrow(hello2).length());
+                        ml::core::CStringUtils::wideToNarrow(hello2).length());
 
     BOOST_TEST_REQUIRE(ml::core::CStringUtils::narrowToWide(hello1) == hello2);
     BOOST_TEST_REQUIRE(ml::core::CStringUtils::wideToNarrow(hello2) == hello1);

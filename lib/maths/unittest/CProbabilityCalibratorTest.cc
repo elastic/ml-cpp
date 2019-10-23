@@ -100,7 +100,7 @@ BOOST_AUTO_TEST_CASE(testCalibration) {
                       << ", maxCalibratedError = " << maxCalibratedError);
             BOOST_TEST_REQUIRE((rawError - calibratedError) / rawError > improvements[i]);
             BOOST_TEST_REQUIRE((maxRawError - maxCalibratedError) / maxRawError >
-                       maxImprovements[i]);
+                               maxImprovements[i]);
         }
     }
 
@@ -174,7 +174,7 @@ BOOST_AUTO_TEST_CASE(testCalibration) {
                       << ", maxCalibratedError = " << maxCalibratedError);
             BOOST_TEST_REQUIRE((rawError - calibratedError) / rawError >= improvements[i]);
             BOOST_TEST_REQUIRE((maxRawError - maxCalibratedError) / maxRawError >=
-                       maxImprovements[i]);
+                               maxImprovements[i]);
         }
     }
 }

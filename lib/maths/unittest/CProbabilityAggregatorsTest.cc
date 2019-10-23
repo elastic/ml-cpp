@@ -392,7 +392,7 @@ BOOST_AUTO_TEST_CASE(testLogJointProbabilityOfLessLikelySamples) {
                     BOOST_TEST_REQUIRE(logP > lowerBound);
 
                     BOOST_REQUIRE_CLOSE_ABSOLUTE(upperBound, lowerBound,
-                                               std::fabs(8e-4 * upperBound));
+                                                 std::fabs(8e-4 * upperBound));
 
                     error += (upperBound - lowerBound) / std::fabs(upperBound);
                 } else if (jointProbability.numberSamples() > 1.0) {

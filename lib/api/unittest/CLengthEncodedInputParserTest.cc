@@ -117,8 +117,8 @@ public:
              iter != dataRowFields.end(); ++iter) {
             LOG_DEBUG(<< "Field " << iter->first << " is " << iter->second);
             BOOST_TEST_REQUIRE(std::find(m_ExpectedFieldNames.begin(),
-                                 m_ExpectedFieldNames.end(),
-                                 iter->first) != m_ExpectedFieldNames.end());
+                                         m_ExpectedFieldNames.end(), iter->first) !=
+                               m_ExpectedFieldNames.end());
         }
 
         // Check the line count is consistent with the _raw field
@@ -150,7 +150,7 @@ public:
 
         // Check the field names
         BOOST_REQUIRE_EQUAL(ml::core::CContainerPrinter::print(m_ExpectedFieldNames),
-                          ml::core::CContainerPrinter::print(fieldNames));
+                            ml::core::CContainerPrinter::print(fieldNames));
 
         BOOST_REQUIRE_EQUAL(m_ExpectedFieldNames.size(), fieldValues.size());
 

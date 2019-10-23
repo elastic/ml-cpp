@@ -24,7 +24,8 @@ BOOST_AUTO_TEST_CASE(testCreateNullSearch) {
     std::string reverseSearchPart1;
     std::string reverseSearchPart2;
 
-    BOOST_TEST_REQUIRE(reverseSearchCreator.createNullSearch(reverseSearchPart1, reverseSearchPart2));
+    BOOST_TEST_REQUIRE(reverseSearchCreator.createNullSearch(reverseSearchPart1,
+                                                             reverseSearchPart2));
 
     BOOST_REQUIRE_EQUAL(std::string(""), reverseSearchPart1);
     BOOST_REQUIRE_EQUAL(std::string(""), reverseSearchPart2);
@@ -85,7 +86,8 @@ BOOST_AUTO_TEST_CASE(testAddInOrderCommonToken) {
                                                reverseSearchPart2);
 
     BOOST_REQUIRE_EQUAL(std::string("user logged b=0.15+a logged"), reverseSearchPart1);
-    BOOST_REQUIRE_EQUAL(std::string(".*?user.+?logged.+?b=0\\.15\\+a.+?logged"), reverseSearchPart2);
+    BOOST_REQUIRE_EQUAL(std::string(".*?user.+?logged.+?b=0\\.15\\+a.+?logged"),
+                        reverseSearchPart2);
 }
 
 BOOST_AUTO_TEST_CASE(testCloseStandardSearch) {

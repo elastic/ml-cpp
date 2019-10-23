@@ -168,7 +168,7 @@ BOOST_AUTO_TEST_CASE(testCentralMoments) {
             }
 
             BOOST_REQUIRE_CLOSE_ABSOLUTE(maths::CBasicStatistics::mean(acc1),
-                                       maths::CBasicStatistics::mean(acc2), 1e-10);
+                                         maths::CBasicStatistics::mean(acc2), 1e-10);
         }
 
         {
@@ -183,9 +183,9 @@ BOOST_AUTO_TEST_CASE(testCentralMoments) {
             }
 
             BOOST_REQUIRE_CLOSE_ABSOLUTE(maths::CBasicStatistics::mean(acc1),
-                                       maths::CBasicStatistics::mean(acc2), 1e-10);
+                                         maths::CBasicStatistics::mean(acc2), 1e-10);
             BOOST_REQUIRE_CLOSE_ABSOLUTE(maths::CBasicStatistics::variance(acc1),
-                                       maths::CBasicStatistics::variance(acc2), 1e-10);
+                                         maths::CBasicStatistics::variance(acc2), 1e-10);
         }
 
         {
@@ -200,11 +200,11 @@ BOOST_AUTO_TEST_CASE(testCentralMoments) {
             }
 
             BOOST_REQUIRE_CLOSE_ABSOLUTE(maths::CBasicStatistics::mean(acc1),
-                                       maths::CBasicStatistics::mean(acc2), 1e-10);
+                                         maths::CBasicStatistics::mean(acc2), 1e-10);
             BOOST_REQUIRE_CLOSE_ABSOLUTE(maths::CBasicStatistics::variance(acc1),
-                                       maths::CBasicStatistics::variance(acc2), 1e-10);
+                                         maths::CBasicStatistics::variance(acc2), 1e-10);
             BOOST_REQUIRE_CLOSE_ABSOLUTE(maths::CBasicStatistics::skewness(acc1),
-                                       maths::CBasicStatistics::skewness(acc2), 1e-10);
+                                         maths::CBasicStatistics::skewness(acc2), 1e-10);
         }
     }
 
@@ -297,13 +297,15 @@ BOOST_AUTO_TEST_CASE(testCentralMoments) {
                 TMeanAccumulator sum = acc1 + acc2;
 
                 BOOST_REQUIRE_EQUAL(maths::CBasicStatistics::count(acc1),
-                                  maths::CBasicStatistics::count(sum - acc2));
+                                    maths::CBasicStatistics::count(sum - acc2));
                 BOOST_REQUIRE_CLOSE_ABSOLUTE(maths::CBasicStatistics::mean(acc1),
-                                           maths::CBasicStatistics::mean(sum - acc2), 1e-10);
+                                             maths::CBasicStatistics::mean(sum - acc2),
+                                             1e-10);
                 BOOST_REQUIRE_EQUAL(maths::CBasicStatistics::count(acc2),
-                                  maths::CBasicStatistics::count(sum - acc1));
+                                    maths::CBasicStatistics::count(sum - acc1));
                 BOOST_REQUIRE_CLOSE_ABSOLUTE(maths::CBasicStatistics::mean(acc2),
-                                           maths::CBasicStatistics::mean(sum - acc1), 1e-10);
+                                             maths::CBasicStatistics::mean(sum - acc1),
+                                             1e-10);
             }
         }
         LOG_DEBUG(<< "Test mean and variance");
@@ -327,16 +329,18 @@ BOOST_AUTO_TEST_CASE(testCentralMoments) {
                 TMeanVarAccumulator sum = acc1 + acc2;
 
                 BOOST_REQUIRE_EQUAL(maths::CBasicStatistics::count(acc1),
-                                  maths::CBasicStatistics::count(sum - acc2));
+                                    maths::CBasicStatistics::count(sum - acc2));
                 BOOST_REQUIRE_CLOSE_ABSOLUTE(maths::CBasicStatistics::mean(acc1),
-                                           maths::CBasicStatistics::mean(sum - acc2), 1e-10);
+                                             maths::CBasicStatistics::mean(sum - acc2),
+                                             1e-10);
                 BOOST_REQUIRE_CLOSE_ABSOLUTE(
                     maths::CBasicStatistics::variance(acc1),
                     maths::CBasicStatistics::variance(sum - acc2), 1e-10);
                 BOOST_REQUIRE_EQUAL(maths::CBasicStatistics::count(acc2),
-                                  maths::CBasicStatistics::count(sum - acc1));
+                                    maths::CBasicStatistics::count(sum - acc1));
                 BOOST_REQUIRE_CLOSE_ABSOLUTE(maths::CBasicStatistics::mean(acc2),
-                                           maths::CBasicStatistics::mean(sum - acc1), 1e-10);
+                                             maths::CBasicStatistics::mean(sum - acc1),
+                                             1e-10);
                 BOOST_REQUIRE_CLOSE_ABSOLUTE(
                     maths::CBasicStatistics::variance(acc2),
                     maths::CBasicStatistics::variance(sum - acc1), 1e-10);
@@ -363,9 +367,10 @@ BOOST_AUTO_TEST_CASE(testCentralMoments) {
                 TMeanVarSkewAccumulator sum = acc1 + acc2;
 
                 BOOST_REQUIRE_EQUAL(maths::CBasicStatistics::count(acc1),
-                                  maths::CBasicStatistics::count(sum - acc2));
+                                    maths::CBasicStatistics::count(sum - acc2));
                 BOOST_REQUIRE_CLOSE_ABSOLUTE(maths::CBasicStatistics::mean(acc1),
-                                           maths::CBasicStatistics::mean(sum - acc2), 1e-10);
+                                             maths::CBasicStatistics::mean(sum - acc2),
+                                             1e-10);
                 BOOST_REQUIRE_CLOSE_ABSOLUTE(
                     maths::CBasicStatistics::variance(acc1),
                     maths::CBasicStatistics::variance(sum - acc2), 1e-10);
@@ -373,9 +378,10 @@ BOOST_AUTO_TEST_CASE(testCentralMoments) {
                     maths::CBasicStatistics::skewness(acc1),
                     maths::CBasicStatistics::skewness(sum - acc2), 1e-10);
                 BOOST_REQUIRE_EQUAL(maths::CBasicStatistics::count(acc2),
-                                  maths::CBasicStatistics::count(sum - acc1));
+                                    maths::CBasicStatistics::count(sum - acc1));
                 BOOST_REQUIRE_CLOSE_ABSOLUTE(maths::CBasicStatistics::mean(acc2),
-                                           maths::CBasicStatistics::mean(sum - acc1), 1e-10);
+                                             maths::CBasicStatistics::mean(sum - acc1),
+                                             1e-10);
                 BOOST_REQUIRE_CLOSE_ABSOLUTE(
                     maths::CBasicStatistics::variance(acc2),
                     maths::CBasicStatistics::variance(sum - acc1), 1e-10);
@@ -416,10 +422,10 @@ BOOST_AUTO_TEST_CASE(testCentralMoments) {
                 vectorMean.add(v);
 
                 BOOST_REQUIRE_EQUAL(maths::CBasicStatistics::count(means[0]),
-                                  maths::CBasicStatistics::count(vectorMean));
+                                    maths::CBasicStatistics::count(vectorMean));
                 for (std::size_t j = 0u; j < 4; ++j) {
                     BOOST_REQUIRE_EQUAL(maths::CBasicStatistics::mean(means[j]),
-                                      (maths::CBasicStatistics::mean(vectorMean))(j));
+                                        (maths::CBasicStatistics::mean(vectorMean))(j));
                 }
             }
         }
@@ -441,8 +447,9 @@ BOOST_AUTO_TEST_CASE(testCentralMoments) {
                 LOG_DEBUG(<< "v = " << v);
                 vectorMeanAndVariances.add(v);
 
-                BOOST_REQUIRE_EQUAL(maths::CBasicStatistics::count(meansAndVariances[0]),
-                                  maths::CBasicStatistics::count(vectorMeanAndVariances));
+                BOOST_REQUIRE_EQUAL(
+                    maths::CBasicStatistics::count(meansAndVariances[0]),
+                    maths::CBasicStatistics::count(vectorMeanAndVariances));
                 for (std::size_t j = 0u; j < 4; ++j) {
                     BOOST_REQUIRE_EQUAL(
                         maths::CBasicStatistics::mean(meansAndVariances[j]),
@@ -686,9 +693,11 @@ BOOST_AUTO_TEST_CASE(testVectorCentralMoments) {
         TDoubleVec counts2 = maths::CBasicStatistics::count(moments2);
         TDoubleVec means2 = maths::CBasicStatistics::mean(moments2);
         BOOST_REQUIRE_EQUAL(std::string("[3, 2]"), core::CContainerPrinter::print(counts1));
-        BOOST_REQUIRE_EQUAL(std::string("[3.3, 3.5]"), core::CContainerPrinter::print(means1));
+        BOOST_REQUIRE_EQUAL(std::string("[3.3, 3.5]"),
+                            core::CContainerPrinter::print(means1));
         BOOST_REQUIRE_EQUAL(std::string("[3, 2]"), core::CContainerPrinter::print(counts2));
-        BOOST_REQUIRE_EQUAL(std::string("[3.3, 3.5]"), core::CContainerPrinter::print(means2));
+        BOOST_REQUIRE_EQUAL(std::string("[3.3, 3.5]"),
+                            core::CContainerPrinter::print(means2));
     }
     {
         TMeanVarAccumulator2Vec moments1(2);
@@ -715,12 +724,12 @@ BOOST_AUTO_TEST_CASE(testVectorCentralMoments) {
         BOOST_REQUIRE_EQUAL(std::string("[3, 4]"), core::CContainerPrinter::print(means1));
         BOOST_REQUIRE_EQUAL(std::string("[2, 1]"), core::CContainerPrinter::print(vars1));
         BOOST_REQUIRE_EQUAL(std::string("[1, 0.6666667]"),
-                          core::CContainerPrinter::print(mlvars1));
+                            core::CContainerPrinter::print(mlvars1));
         BOOST_REQUIRE_EQUAL(std::string("[2, 3]"), core::CContainerPrinter::print(counts2));
         BOOST_REQUIRE_EQUAL(std::string("[3, 4]"), core::CContainerPrinter::print(means2));
         BOOST_REQUIRE_EQUAL(std::string("[2, 1]"), core::CContainerPrinter::print(vars2));
         BOOST_REQUIRE_EQUAL(std::string("[1, 0.6666667]"),
-                          core::CContainerPrinter::print(mlvars2));
+                            core::CContainerPrinter::print(mlvars2));
     }
     {
         TMeanVarSkewAccumulator2Vec moments1(2);
@@ -750,13 +759,13 @@ BOOST_AUTO_TEST_CASE(testVectorCentralMoments) {
         BOOST_REQUIRE_EQUAL(std::string("[2, 3]"), core::CContainerPrinter::print(vars1));
         BOOST_REQUIRE_EQUAL(std::string("[1, 2]"), core::CContainerPrinter::print(mlvars1));
         BOOST_REQUIRE_EQUAL(std::string("[0, -0.3849002]"),
-                          core::CContainerPrinter::print(skews1));
+                            core::CContainerPrinter::print(skews1));
         BOOST_REQUIRE_EQUAL(std::string("[2, 3]"), core::CContainerPrinter::print(counts2));
         BOOST_REQUIRE_EQUAL(std::string("[3, 4]"), core::CContainerPrinter::print(means2));
         BOOST_REQUIRE_EQUAL(std::string("[2, 3]"), core::CContainerPrinter::print(vars2));
         BOOST_REQUIRE_EQUAL(std::string("[1, 2]"), core::CContainerPrinter::print(mlvars2));
         BOOST_REQUIRE_EQUAL(std::string("[0, -0.3849002]"),
-                          core::CContainerPrinter::print(skews2));
+                            core::CContainerPrinter::print(skews2));
     }
 }
 
@@ -810,11 +819,11 @@ BOOST_AUTO_TEST_CASE(testCovariances) {
                   << maths::CBasicStatistics::covariances(covariances3));
 
         BOOST_REQUIRE_EQUAL(static_cast<double>(boost::size(raw)),
-                          maths::CBasicStatistics::count(covariances1));
+                            maths::CBasicStatistics::count(covariances1));
         BOOST_REQUIRE_EQUAL(static_cast<double>(boost::size(raw)),
-                          maths::CBasicStatistics::count(covariances2));
+                            maths::CBasicStatistics::count(covariances2));
         BOOST_REQUIRE_EQUAL(static_cast<double>(boost::size(raw)),
-                          maths::CBasicStatistics::count(covariances3));
+                            maths::CBasicStatistics::count(covariances3));
 
         for (std::size_t i = 0u; i < 3; ++i) {
             BOOST_REQUIRE_CLOSE_ABSOLUTE(
@@ -919,7 +928,7 @@ BOOST_AUTO_TEST_CASE(testCovariances) {
         BOOST_TEST_REQUIRE(sampleCovariances.fromDelimited(expectedDelimited));
 
         BOOST_REQUIRE_EQUAL(expectedSampleCovariances.checksum(),
-                          sampleCovariances.checksum());
+                            sampleCovariances.checksum());
 
         std::string delimited = sampleCovariances.toDelimited();
         BOOST_REQUIRE_EQUAL(expectedDelimited, delimited);
@@ -1015,7 +1024,7 @@ BOOST_AUTO_TEST_CASE(testCovariancesLedoitWolf) {
     LOG_DEBUG(<< "error    = " << error);
     LOG_DEBUG(<< "error LW = " << errorLW);
     BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(errorLW) <
-               0.9 * maths::CBasicStatistics::mean(error));
+                       0.9 * maths::CBasicStatistics::mean(error));
 }
 
 BOOST_AUTO_TEST_CASE(testMedian) {
@@ -1157,7 +1166,7 @@ BOOST_AUTO_TEST_CASE(testOrderStatistics) {
         TMinStatsStack minFirstPlusSecondHalf = (minFirstHalf + minSecondHalf);
         minFirstPlusSecondHalf.sort();
         BOOST_TEST_REQUIRE(std::equal(minValues.begin(), minValues.end(),
-                              minFirstPlusSecondHalf.begin()));
+                                      minFirstPlusSecondHalf.begin()));
 
         // Test persist is idempotent.
 

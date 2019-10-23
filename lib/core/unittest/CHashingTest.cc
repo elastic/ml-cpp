@@ -367,8 +367,8 @@ BOOST_AUTO_TEST_CASE(testHashCombine) {
         LOG_DEBUG(<< "# unique combined hashes = " << uniqueHashCombines.size());
 
         BOOST_TEST_REQUIRE(uniqueHashCombines.size() >
-                   static_cast<std::size_t>(
-                       0.999 * static_cast<double>(uniqueHashes.size())));
+                           static_cast<std::size_t>(
+                               0.999 * static_cast<double>(uniqueHashes.size())));
     }
 }
 
@@ -397,7 +397,7 @@ BOOST_AUTO_TEST_CASE(testConstructors) {
         a.push_back(30);
         CHashing::CUniversalHash::CUInt32VecHash hash(5, a, 6);
         BOOST_REQUIRE_EQUAL(CContainerPrinter::print(a),
-                          CContainerPrinter::print(hash.a()));
+                            CContainerPrinter::print(hash.a()));
         BOOST_REQUIRE_EQUAL(uint32_t(5), hash.m());
         BOOST_REQUIRE_EQUAL(uint32_t(6), hash.b());
         LOG_DEBUG(<< hash.print());

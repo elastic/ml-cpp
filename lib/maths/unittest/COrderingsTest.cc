@@ -175,35 +175,35 @@ BOOST_AUTO_TEST_CASE(testLess) {
 
     {
         BOOST_TEST_REQUIRE(less(std::make_pair(std::make_pair(one, three), three),
-                        std::make_pair(std::make_pair(two, two), two)));
+                                std::make_pair(std::make_pair(two, two), two)));
         BOOST_TEST_REQUIRE(less(std::make_pair(std::make_pair(one, two), three),
-                        std::make_pair(std::make_pair(one, three), two)));
+                                std::make_pair(std::make_pair(one, three), two)));
         BOOST_TEST_REQUIRE(less(std::make_pair(std::make_pair(one, two), two),
-                        std::make_pair(std::make_pair(one, two), three)));
+                                std::make_pair(std::make_pair(one, two), three)));
         BOOST_TEST_REQUIRE(!less(std::make_pair(std::make_pair(one, two), three),
-                         std::make_pair(std::make_pair(one, two), three)));
+                                 std::make_pair(std::make_pair(one, two), three)));
         BOOST_TEST_REQUIRE(!less(std::make_pair(std::make_pair(two, two), two),
-                         std::make_pair(std::make_pair(one, three), three)));
+                                 std::make_pair(std::make_pair(one, three), three)));
         BOOST_TEST_REQUIRE(!less(std::make_pair(std::make_pair(one, three), two),
-                         std::make_pair(std::make_pair(one, two), three)));
+                                 std::make_pair(std::make_pair(one, two), three)));
         BOOST_TEST_REQUIRE(!less(std::make_pair(std::make_pair(one, two), three),
-                         std::make_pair(std::make_pair(one, two), two)));
+                                 std::make_pair(std::make_pair(one, two), two)));
     }
     {
         BOOST_TEST_REQUIRE(less(std::make_pair(std::make_pair(&one, three), three),
-                        std::make_pair(std::make_pair(&two, two), two)));
+                                std::make_pair(std::make_pair(&two, two), two)));
         BOOST_TEST_REQUIRE(less(std::make_pair(std::make_pair(&one, two), three),
-                        std::make_pair(std::make_pair(&one, three), two)));
+                                std::make_pair(std::make_pair(&one, three), two)));
         BOOST_TEST_REQUIRE(less(std::make_pair(std::make_pair(one, &two), two),
-                        std::make_pair(std::make_pair(one, &two), three)));
+                                std::make_pair(std::make_pair(one, &two), three)));
         BOOST_TEST_REQUIRE(!less(std::make_pair(std::make_pair(one, &two), three),
-                         std::make_pair(std::make_pair(one, &two), three)));
+                                 std::make_pair(std::make_pair(one, &two), three)));
         BOOST_TEST_REQUIRE(!less(std::make_pair(std::make_pair(two, two), &two),
-                         std::make_pair(std::make_pair(one, three), &three)));
+                                 std::make_pair(std::make_pair(one, three), &three)));
         BOOST_TEST_REQUIRE(!less(std::make_pair(std::make_pair(&one, &three), &two),
-                         std::make_pair(std::make_pair(&one, &two), &three)));
+                                 std::make_pair(std::make_pair(&one, &two), &three)));
         BOOST_TEST_REQUIRE(!less(std::make_pair(std::make_pair(one, two), three),
-                         std::make_pair(std::make_pair(one, two), two)));
+                                 std::make_pair(std::make_pair(one, two), two)));
     }
 }
 
@@ -221,11 +221,11 @@ BOOST_AUTO_TEST_CASE(testFirstLess) {
     BOOST_TEST_REQUIRE(!less(std::make_pair(2.0, 2.0), 1.0));
 
     BOOST_TEST_REQUIRE(less(std::make_pair(std::make_pair(1.0, 1.0), 1.0),
-                    std::make_pair(std::make_pair(1.0, 2.0), 1.0)));
+                            std::make_pair(std::make_pair(1.0, 2.0), 1.0)));
     BOOST_TEST_REQUIRE(!less(std::make_pair(std::make_pair(1.0, 1.0), 1.0),
-                     std::make_pair(std::make_pair(1.0, 1.0), 1.0)));
+                             std::make_pair(std::make_pair(1.0, 1.0), 1.0)));
     BOOST_TEST_REQUIRE(!less(std::make_pair(std::make_pair(1.0, 2.0), 1.0),
-                     std::make_pair(std::make_pair(1.0, 1.0), 1.0)));
+                             std::make_pair(std::make_pair(1.0, 1.0), 1.0)));
 
     double one(1.0);
     double two(2.0);
@@ -256,11 +256,11 @@ BOOST_AUTO_TEST_CASE(testFirstGreater) {
     BOOST_TEST_REQUIRE(greater(std::make_pair(2.0, 2.0), 1.0));
 
     BOOST_TEST_REQUIRE(!greater(std::make_pair(std::make_pair(1.0, 1.0), 1.0),
-                        std::make_pair(std::make_pair(1.0, 2.0), 1.0)));
+                                std::make_pair(std::make_pair(1.0, 2.0), 1.0)));
     BOOST_TEST_REQUIRE(!greater(std::make_pair(std::make_pair(1.0, 1.0), 1.0),
-                        std::make_pair(std::make_pair(1.0, 1.0), 1.0)));
+                                std::make_pair(std::make_pair(1.0, 1.0), 1.0)));
     BOOST_TEST_REQUIRE(greater(std::make_pair(std::make_pair(1.0, 2.0), 1.0),
-                       std::make_pair(std::make_pair(1.0, 1.0), 1.0)));
+                               std::make_pair(std::make_pair(1.0, 1.0), 1.0)));
 
     double one(1.0);
     double two(2.0);
@@ -291,14 +291,15 @@ BOOST_AUTO_TEST_CASE(testSecondLess) {
     BOOST_TEST_REQUIRE(less(std::make_pair(2.0, 1.0), 2.0));
 
     BOOST_TEST_REQUIRE(less(std::make_pair(1.0, std::make_pair(1.0, 2.0)),
-                    std::make_pair(2.0, std::make_pair(2.0, 1.0))));
+                            std::make_pair(2.0, std::make_pair(2.0, 1.0))));
     BOOST_TEST_REQUIRE(!less(std::make_pair(1.0, std::make_pair(1.0, 2.0)),
-                     std::make_pair(2.0, std::make_pair(1.0, 2.0))));
+                             std::make_pair(2.0, std::make_pair(1.0, 2.0))));
     BOOST_TEST_REQUIRE(!less(std::make_pair(1.0, std::make_pair(2.0, 2.0)),
-                     std::make_pair(2.0, std::make_pair(2.0, 1.0))));
+                             std::make_pair(2.0, std::make_pair(2.0, 1.0))));
     BOOST_TEST_REQUIRE(less(std::make_pair(1.0, 1.0),
-                    std::make_pair(3.0, std::make_pair(1.0, 2.0))));
-    BOOST_TEST_REQUIRE(less(std::make_pair(1.0, std::make_pair(3.0, 1.0)), std::make_pair(3.0, 2.0)));
+                            std::make_pair(3.0, std::make_pair(1.0, 2.0))));
+    BOOST_TEST_REQUIRE(less(std::make_pair(1.0, std::make_pair(3.0, 1.0)),
+                            std::make_pair(3.0, 2.0)));
 
     double one(1.0);
     double two(2.0);
@@ -329,15 +330,15 @@ BOOST_AUTO_TEST_CASE(testSecondGreater) {
     BOOST_TEST_REQUIRE(!greater(std::make_pair(2.0, 1.0), 2.0));
 
     BOOST_TEST_REQUIRE(greater(std::make_pair(1.0, std::make_pair(2.0, 2.0)),
-                       std::make_pair(2.0, std::make_pair(2.0, 1.0))));
+                               std::make_pair(2.0, std::make_pair(2.0, 1.0))));
     BOOST_TEST_REQUIRE(!greater(std::make_pair(1.0, std::make_pair(2.0, 2.0)),
-                        std::make_pair(2.0, std::make_pair(2.0, 2.0))));
+                                std::make_pair(2.0, std::make_pair(2.0, 2.0))));
     BOOST_TEST_REQUIRE(!greater(std::make_pair(1.0, std::make_pair(2.0, 2.0)),
-                        std::make_pair(2.0, std::make_pair(2.0, 3.0))));
+                                std::make_pair(2.0, std::make_pair(2.0, 3.0))));
     BOOST_TEST_REQUIRE(greater(std::make_pair(2.0, 2.0),
-                       std::make_pair(3.0, std::make_pair(1.0, 2.0))));
+                               std::make_pair(3.0, std::make_pair(1.0, 2.0))));
     BOOST_TEST_REQUIRE(greater(std::make_pair(1.0, std::make_pair(3.0, 3.0)),
-                       std::make_pair(3.0, 2.0)));
+                               std::make_pair(3.0, 2.0)));
 
     double one(1.0);
     double two(2.0);
@@ -430,64 +431,80 @@ BOOST_AUTO_TEST_CASE(testLexicographicalCompare) {
     BOOST_TEST_REQUIRE(!maths::COrderings::lexicographical_compare(i2, p1, d1, i1, p1, d1));
     BOOST_TEST_REQUIRE(!maths::COrderings::lexicographical_compare(i1, p2, d1, i1, p1, d1));
     BOOST_TEST_REQUIRE(!maths::COrderings::lexicographical_compare(i1, p1, d2, i1, p1, d1));
-    BOOST_TEST_REQUIRE(!maths::COrderings::lexicographical_compare(i1, p1, d1, i2, p1, d1, greater));
-    BOOST_TEST_REQUIRE(!maths::COrderings::lexicographical_compare(i1, p1, d1, i1, p2, d1, greater));
-    BOOST_TEST_REQUIRE(!maths::COrderings::lexicographical_compare(i1, p1, d1, i1, p1, d2, greater));
-    BOOST_TEST_REQUIRE(!maths::COrderings::lexicographical_compare(i1, p1, d1, i1, p1, d1, greater));
-    BOOST_TEST_REQUIRE(maths::COrderings::lexicographical_compare(i2, p1, d1, i1, p1, d1, greater));
-    BOOST_TEST_REQUIRE(maths::COrderings::lexicographical_compare(i1, p2, d1, i1, p1, d1, greater));
-    BOOST_TEST_REQUIRE(maths::COrderings::lexicographical_compare(i1, p1, d2, i1, p1, d1, greater));
+    BOOST_TEST_REQUIRE(!maths::COrderings::lexicographical_compare(
+        i1, p1, d1, i2, p1, d1, greater));
+    BOOST_TEST_REQUIRE(!maths::COrderings::lexicographical_compare(
+        i1, p1, d1, i1, p2, d1, greater));
+    BOOST_TEST_REQUIRE(!maths::COrderings::lexicographical_compare(
+        i1, p1, d1, i1, p1, d2, greater));
+    BOOST_TEST_REQUIRE(!maths::COrderings::lexicographical_compare(
+        i1, p1, d1, i1, p1, d1, greater));
+    BOOST_TEST_REQUIRE(maths::COrderings::lexicographical_compare(i2, p1, d1, i1, p1,
+                                                                  d1, greater));
+    BOOST_TEST_REQUIRE(maths::COrderings::lexicographical_compare(i1, p2, d1, i1, p1,
+                                                                  d1, greater));
+    BOOST_TEST_REQUIRE(maths::COrderings::lexicographical_compare(i1, p1, d2, i1, p1,
+                                                                  d1, greater));
 
-    BOOST_TEST_REQUIRE(maths::COrderings::lexicographical_compare(i1, p1, d1, v1, i2, p1, d1, v1));
-    BOOST_TEST_REQUIRE(maths::COrderings::lexicographical_compare(i1, p1, d1, v1, i1, p2, d1, v1));
-    BOOST_TEST_REQUIRE(maths::COrderings::lexicographical_compare(i1, p1, d1, v1, i1, p1, d2, v1));
-    BOOST_TEST_REQUIRE(maths::COrderings::lexicographical_compare(i1, p1, d1, v1, i1, p1, d1, v2));
-    BOOST_TEST_REQUIRE(!maths::COrderings::lexicographical_compare(i1, p1, d1, v1, i1, p1, d1, v1));
-    BOOST_TEST_REQUIRE(!maths::COrderings::lexicographical_compare(i2, p1, d1, v1, i1, p1, d1, v1));
-    BOOST_TEST_REQUIRE(!maths::COrderings::lexicographical_compare(i1, p2, d1, v1, i1, p1, d1, v1));
-    BOOST_TEST_REQUIRE(!maths::COrderings::lexicographical_compare(i1, p1, d2, v1, i1, p1, d1, v1));
-    BOOST_TEST_REQUIRE(!maths::COrderings::lexicographical_compare(i1, p1, d1, v2, i1, p1, d1, v1));
-    BOOST_TEST_REQUIRE(!maths::COrderings::lexicographical_compare(i1, p1, d1, v1, i2,
-                                                           p1, d1, v1, greater));
-    BOOST_TEST_REQUIRE(!maths::COrderings::lexicographical_compare(i1, p1, d1, v1, i1,
-                                                           p2, d1, v1, greater));
-    BOOST_TEST_REQUIRE(!maths::COrderings::lexicographical_compare(i1, p1, d1, v1, i1,
-                                                           p1, d2, v1, greater));
-    BOOST_TEST_REQUIRE(!maths::COrderings::lexicographical_compare(i1, p1, d1, v1, i1,
-                                                           p1, d1, v2, greater));
-    BOOST_TEST_REQUIRE(!maths::COrderings::lexicographical_compare(i1, p1, d1, v1, i1,
-                                                           p1, d1, v1, greater));
-    BOOST_TEST_REQUIRE(maths::COrderings::lexicographical_compare(i2, p1, d1, v1, i1,
-                                                          p1, d1, v1, greater));
-    BOOST_TEST_REQUIRE(maths::COrderings::lexicographical_compare(i1, p2, d1, v1, i1,
-                                                          p1, d1, v1, greater));
-    BOOST_TEST_REQUIRE(maths::COrderings::lexicographical_compare(i1, p1, d2, v1, i1,
-                                                          p1, d1, v1, greater));
-    BOOST_TEST_REQUIRE(maths::COrderings::lexicographical_compare(i1, p1, d1, v2, i1,
-                                                          p1, d1, v1, greater));
+    BOOST_TEST_REQUIRE(maths::COrderings::lexicographical_compare(i1, p1, d1, v1,
+                                                                  i2, p1, d1, v1));
+    BOOST_TEST_REQUIRE(maths::COrderings::lexicographical_compare(i1, p1, d1, v1,
+                                                                  i1, p2, d1, v1));
+    BOOST_TEST_REQUIRE(maths::COrderings::lexicographical_compare(i1, p1, d1, v1,
+                                                                  i1, p1, d2, v1));
+    BOOST_TEST_REQUIRE(maths::COrderings::lexicographical_compare(i1, p1, d1, v1,
+                                                                  i1, p1, d1, v2));
+    BOOST_TEST_REQUIRE(
+        !maths::COrderings::lexicographical_compare(i1, p1, d1, v1, i1, p1, d1, v1));
+    BOOST_TEST_REQUIRE(
+        !maths::COrderings::lexicographical_compare(i2, p1, d1, v1, i1, p1, d1, v1));
+    BOOST_TEST_REQUIRE(
+        !maths::COrderings::lexicographical_compare(i1, p2, d1, v1, i1, p1, d1, v1));
+    BOOST_TEST_REQUIRE(
+        !maths::COrderings::lexicographical_compare(i1, p1, d2, v1, i1, p1, d1, v1));
+    BOOST_TEST_REQUIRE(
+        !maths::COrderings::lexicographical_compare(i1, p1, d1, v2, i1, p1, d1, v1));
+    BOOST_TEST_REQUIRE(!maths::COrderings::lexicographical_compare(
+        i1, p1, d1, v1, i2, p1, d1, v1, greater));
+    BOOST_TEST_REQUIRE(!maths::COrderings::lexicographical_compare(
+        i1, p1, d1, v1, i1, p2, d1, v1, greater));
+    BOOST_TEST_REQUIRE(!maths::COrderings::lexicographical_compare(
+        i1, p1, d1, v1, i1, p1, d2, v1, greater));
+    BOOST_TEST_REQUIRE(!maths::COrderings::lexicographical_compare(
+        i1, p1, d1, v1, i1, p1, d1, v2, greater));
+    BOOST_TEST_REQUIRE(!maths::COrderings::lexicographical_compare(
+        i1, p1, d1, v1, i1, p1, d1, v1, greater));
+    BOOST_TEST_REQUIRE(maths::COrderings::lexicographical_compare(
+        i2, p1, d1, v1, i1, p1, d1, v1, greater));
+    BOOST_TEST_REQUIRE(maths::COrderings::lexicographical_compare(
+        i1, p2, d1, v1, i1, p1, d1, v1, greater));
+    BOOST_TEST_REQUIRE(maths::COrderings::lexicographical_compare(
+        i1, p1, d2, v1, i1, p1, d1, v1, greater));
+    BOOST_TEST_REQUIRE(maths::COrderings::lexicographical_compare(
+        i1, p1, d1, v2, i1, p1, d1, v1, greater));
 
-    BOOST_TEST_REQUIRE(maths::COrderings::lexicographical_compare(i1, p1, d1, v1, s1,
-                                                          i2, p1, d1, v1, s1));
-    BOOST_TEST_REQUIRE(maths::COrderings::lexicographical_compare(i1, p1, d1, v1, s1,
-                                                          i1, p2, d1, v1, s1));
-    BOOST_TEST_REQUIRE(maths::COrderings::lexicographical_compare(i1, p1, d1, v1, s1,
-                                                          i1, p1, d2, v1, s1));
-    BOOST_TEST_REQUIRE(maths::COrderings::lexicographical_compare(i1, p1, d1, v1, s1,
-                                                          i1, p1, d1, v2, s1));
-    BOOST_TEST_REQUIRE(maths::COrderings::lexicographical_compare(i1, p1, d1, v1, s1,
-                                                          i1, p1, d1, v1, s2));
-    BOOST_TEST_REQUIRE(!maths::COrderings::lexicographical_compare(i1, p1, d1, v1, s1,
-                                                           i1, p1, d1, v1, s1));
-    BOOST_TEST_REQUIRE(!maths::COrderings::lexicographical_compare(i2, p1, d1, v1, s1,
-                                                           i1, p1, d1, v1, s1));
-    BOOST_TEST_REQUIRE(!maths::COrderings::lexicographical_compare(i1, p2, d1, v1, s1,
-                                                           i1, p1, d1, v1, s1));
-    BOOST_TEST_REQUIRE(!maths::COrderings::lexicographical_compare(i1, p1, d2, v1, s1,
-                                                           i1, p1, d1, v1, s1));
-    BOOST_TEST_REQUIRE(!maths::COrderings::lexicographical_compare(i1, p1, d1, v2, s1,
-                                                           i1, p1, d1, v1, s1));
-    BOOST_TEST_REQUIRE(!maths::COrderings::lexicographical_compare(i1, p1, d1, v1, s2,
-                                                           i1, p1, d1, v1, s1));
+    BOOST_TEST_REQUIRE(maths::COrderings::lexicographical_compare(
+        i1, p1, d1, v1, s1, i2, p1, d1, v1, s1));
+    BOOST_TEST_REQUIRE(maths::COrderings::lexicographical_compare(
+        i1, p1, d1, v1, s1, i1, p2, d1, v1, s1));
+    BOOST_TEST_REQUIRE(maths::COrderings::lexicographical_compare(
+        i1, p1, d1, v1, s1, i1, p1, d2, v1, s1));
+    BOOST_TEST_REQUIRE(maths::COrderings::lexicographical_compare(
+        i1, p1, d1, v1, s1, i1, p1, d1, v2, s1));
+    BOOST_TEST_REQUIRE(maths::COrderings::lexicographical_compare(
+        i1, p1, d1, v1, s1, i1, p1, d1, v1, s2));
+    BOOST_TEST_REQUIRE(!maths::COrderings::lexicographical_compare(
+        i1, p1, d1, v1, s1, i1, p1, d1, v1, s1));
+    BOOST_TEST_REQUIRE(!maths::COrderings::lexicographical_compare(
+        i2, p1, d1, v1, s1, i1, p1, d1, v1, s1));
+    BOOST_TEST_REQUIRE(!maths::COrderings::lexicographical_compare(
+        i1, p2, d1, v1, s1, i1, p1, d1, v1, s1));
+    BOOST_TEST_REQUIRE(!maths::COrderings::lexicographical_compare(
+        i1, p1, d2, v1, s1, i1, p1, d1, v1, s1));
+    BOOST_TEST_REQUIRE(!maths::COrderings::lexicographical_compare(
+        i1, p1, d1, v2, s1, i1, p1, d1, v1, s1));
+    BOOST_TEST_REQUIRE(!maths::COrderings::lexicographical_compare(
+        i1, p1, d1, v1, s2, i1, p1, d1, v1, s1));
     BOOST_TEST_REQUIRE(!maths::COrderings::lexicographical_compare(
         i1, p1, d1, v1, s1, i2, p1, d1, v1, s1, greater));
     BOOST_TEST_REQUIRE(!maths::COrderings::lexicographical_compare(
@@ -500,16 +517,16 @@ BOOST_AUTO_TEST_CASE(testLexicographicalCompare) {
         i1, p1, d1, v1, s1, i1, p1, d1, v1, s2, greater));
     BOOST_TEST_REQUIRE(!maths::COrderings::lexicographical_compare(
         i1, p1, d1, v1, s1, i1, p1, d1, v1, s1, greater));
-    BOOST_TEST_REQUIRE(maths::COrderings::lexicographical_compare(i2, p1, d1, v1, s1, i1, p1,
-                                                          d1, v1, s1, greater));
-    BOOST_TEST_REQUIRE(maths::COrderings::lexicographical_compare(i1, p2, d1, v1, s1, i1, p1,
-                                                          d1, v1, s1, greater));
-    BOOST_TEST_REQUIRE(maths::COrderings::lexicographical_compare(i1, p1, d2, v1, s1, i1, p1,
-                                                          d1, v1, s1, greater));
-    BOOST_TEST_REQUIRE(maths::COrderings::lexicographical_compare(i1, p1, d1, v2, s1, i1, p1,
-                                                          d1, v1, s1, greater));
-    BOOST_TEST_REQUIRE(maths::COrderings::lexicographical_compare(i1, p1, d1, v1, s2, i1, p1,
-                                                          d1, v1, s1, greater));
+    BOOST_TEST_REQUIRE(maths::COrderings::lexicographical_compare(
+        i2, p1, d1, v1, s1, i1, p1, d1, v1, s1, greater));
+    BOOST_TEST_REQUIRE(maths::COrderings::lexicographical_compare(
+        i1, p2, d1, v1, s1, i1, p1, d1, v1, s1, greater));
+    BOOST_TEST_REQUIRE(maths::COrderings::lexicographical_compare(
+        i1, p1, d2, v1, s1, i1, p1, d1, v1, s1, greater));
+    BOOST_TEST_REQUIRE(maths::COrderings::lexicographical_compare(
+        i1, p1, d1, v2, s1, i1, p1, d1, v1, s1, greater));
+    BOOST_TEST_REQUIRE(maths::COrderings::lexicographical_compare(
+        i1, p1, d1, v1, s2, i1, p1, d1, v1, s1, greater));
 }
 
 BOOST_AUTO_TEST_CASE(testSimultaneousSort) {
@@ -623,9 +640,9 @@ BOOST_AUTO_TEST_CASE(testSimultaneousSort) {
         LOG_DEBUG(<< "values1 = " << core::CContainerPrinter::print(values1));
         LOG_DEBUG(<< "values2 = " << core::CContainerPrinter::print(values2));
         BOOST_REQUIRE_EQUAL(std::string("[5, 2, 3, 4, 1]"),
-                          core::CContainerPrinter::print(values1));
+                            core::CContainerPrinter::print(values1));
         BOOST_REQUIRE_EQUAL(std::string("[1, 5, 2, 3, 4]"),
-                          core::CContainerPrinter::print(values2));
+                            core::CContainerPrinter::print(values2));
 
         maths::COrderings::simultaneousSort(range2, range1, range3);
 
@@ -633,11 +650,11 @@ BOOST_AUTO_TEST_CASE(testSimultaneousSort) {
         LOG_DEBUG(<< "values2 = " << core::CContainerPrinter::print(values2));
         LOG_DEBUG(<< "values3 = " << core::CContainerPrinter::print(values3));
         BOOST_REQUIRE_EQUAL(std::string("[5, 3, 4, 2, 1]"),
-                          core::CContainerPrinter::print(values1));
+                            core::CContainerPrinter::print(values1));
         BOOST_REQUIRE_EQUAL(std::string("[1, 2, 3, 5, 4]"),
-                          core::CContainerPrinter::print(values2));
+                            core::CContainerPrinter::print(values2));
         BOOST_REQUIRE_EQUAL(std::string("[4, 3, 3, 2, 5]"),
-                          core::CContainerPrinter::print(values3));
+                            core::CContainerPrinter::print(values3));
 
         maths::COrderings::simultaneousSort(range4, range1, range2, range3);
 
@@ -646,13 +663,13 @@ BOOST_AUTO_TEST_CASE(testSimultaneousSort) {
         LOG_DEBUG(<< "values3 = " << core::CContainerPrinter::print(values3));
         LOG_DEBUG(<< "values4 = " << core::CContainerPrinter::print(values4));
         BOOST_REQUIRE_EQUAL(std::string("[5, 3, 2, 4, 1]"),
-                          core::CContainerPrinter::print(values1));
+                            core::CContainerPrinter::print(values1));
         BOOST_REQUIRE_EQUAL(std::string("[1, 2, 5, 3, 4]"),
-                          core::CContainerPrinter::print(values2));
+                            core::CContainerPrinter::print(values2));
         BOOST_REQUIRE_EQUAL(std::string("[4, 3, 2, 3, 5]"),
-                          core::CContainerPrinter::print(values3));
+                            core::CContainerPrinter::print(values3));
         BOOST_REQUIRE_EQUAL(std::string("[2, 1, 4, 5, 1]"),
-                          core::CContainerPrinter::print(values4));
+                            core::CContainerPrinter::print(values4));
     }
     {
         for (std::size_t i = 0u; i < 50; ++i) {

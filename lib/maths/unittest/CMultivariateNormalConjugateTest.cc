@@ -509,7 +509,8 @@ BOOST_AUTO_TEST_CASE(testMarginalLikelihood) {
                 TVector2 meanError = actualMean - expectedMean;
                 TMatrix2 covarianceError = actualCovariance - expectedCovariance;
                 BOOST_TEST_REQUIRE(meanError.euclidean() < expectedMean.euclidean());
-                BOOST_TEST_REQUIRE(covarianceError.frobenius() < expectedCovariance.frobenius());
+                BOOST_TEST_REQUIRE(covarianceError.frobenius() <
+                                   expectedCovariance.frobenius());
 
                 meanMeanError.add(meanError.euclidean() / expectedMean.euclidean());
                 meanCovarianceError.add(covarianceError.frobenius() /
@@ -613,7 +614,7 @@ BOOST_AUTO_TEST_CASE(testSampleMarginalLikelihood) {
         } else {
             BOOST_TEST_REQUIRE(resamples.size() == 1);
             BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(filter.marginalLikelihoodMean()),
-                              core::CContainerPrinter::print(resamples[0]));
+                                core::CContainerPrinter::print(resamples[0]));
         }
 
         filter.addSamples({samples[i]},
@@ -647,8 +648,10 @@ BOOST_AUTO_TEST_CASE(testSampleMarginalLikelihood) {
         LOG_DEBUG(<< "likelihood cov  = " << likelihoodCov);
         LOG_DEBUG(<< "sample cov      = " << sampleCov);
 
-        BOOST_TEST_REQUIRE((sampleMean - likelihoodMean).euclidean() / likelihoodMean.euclidean() < 1e-6);
-        BOOST_TEST_REQUIRE((sampleCov - likelihoodCov).frobenius() / likelihoodCov.frobenius() < 0.01);
+        BOOST_TEST_REQUIRE(
+            (sampleMean - likelihoodMean).euclidean() / likelihoodMean.euclidean() < 1e-6);
+        BOOST_TEST_REQUIRE(
+            (sampleCov - likelihoodCov).frobenius() / likelihoodCov.frobenius() < 0.01);
 
         TDoubleVec sampleProbabilities;
         for (std::size_t j = 0u; j < resamples.size(); ++j) {
@@ -854,7 +857,8 @@ BOOST_AUTO_TEST_CASE(testLowVariationData) {
 
         TDouble10Vec10Vec covariances = filter.marginalLikelihoodCovariance();
         LOG_DEBUG(<< "covariance matrix " << core::CContainerPrinter::print(covariances));
-        BOOST_REQUIRE_CLOSE_ABSOLUTE(12.0, 2.0 / (covariances[0][0] + covariances[1][1]), 0.3);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(
+            12.0, 2.0 / (covariances[0][0] + covariances[1][1]), 0.3);
     }
     {
         maths::CMultivariateNormalConjugate<2> filter(

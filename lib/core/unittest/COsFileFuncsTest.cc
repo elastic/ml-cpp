@@ -80,7 +80,7 @@ BOOST_AUTO_TEST_CASE(testLStat) {
 #else
 #ifdef Windows
     BOOST_TEST_REQUIRE(CreateSymbolicLink(symLink.c_str(), file.c_str(),
-                                  SYMBOLIC_LINK_FLAG_ALLOW_UNPRIVILEGED_CREATE) != FALSE);
+                                          SYMBOLIC_LINK_FLAG_ALLOW_UNPRIVILEGED_CREATE) != FALSE);
 #else
     BOOST_REQUIRE_EQUAL(0, ::symlink(file.c_str(), symLink.c_str()));
 #endif

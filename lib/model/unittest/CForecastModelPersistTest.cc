@@ -81,10 +81,11 @@ BOOST_AUTO_TEST_CASE(testPersistAndRestore) {
 
         // test timeSeriesModel
         BOOST_TEST_REQUIRE(restorer.nextModel(restoredModel, firstDataTime, lastDataTime,
-                                      restoredFeature, restoredByFieldValue));
+                                              restoredFeature, restoredByFieldValue));
 
         BOOST_TEST_REQUIRE(restoredModel);
-        BOOST_REQUIRE_EQUAL(model_t::EFeature::E_IndividualCountByBucketAndPerson, restoredFeature);
+        BOOST_REQUIRE_EQUAL(model_t::EFeature::E_IndividualCountByBucketAndPerson,
+                            restoredFeature);
         BOOST_REQUIRE_EQUAL(core_t::TTime(10), firstDataTime);
         BOOST_REQUIRE_EQUAL(core_t::TTime(50), lastDataTime);
         BOOST_REQUIRE_EQUAL(std::string("some_by_field"), restoredByFieldValue);
@@ -95,21 +96,21 @@ BOOST_AUTO_TEST_CASE(testPersistAndRestore) {
         CForecastModelPersist::TMathsModelPtr timeSeriesModelForForecast{
             timeSeriesModel.cloneForForecast()};
         BOOST_REQUIRE_EQUAL(timeSeriesModelForForecast->params().learnRate(),
-                          restoredModel->params().learnRate());
+                            restoredModel->params().learnRate());
         BOOST_REQUIRE_EQUAL(params.s_DecayRate, restoredModel->params().decayRate());
         BOOST_REQUIRE_EQUAL(minimumSeasonalVarianceScale,
-                          restoredModel->params().minimumSeasonalVarianceScale());
+                            restoredModel->params().minimumSeasonalVarianceScale());
         BOOST_REQUIRE_EQUAL(params.s_MinimumTimeToDetectChange,
-                          restoredModel->params().minimumTimeToDetectChange());
+                            restoredModel->params().minimumTimeToDetectChange());
         BOOST_REQUIRE_EQUAL(params.s_MaximumTimeToTestForChange,
-                          restoredModel->params().maximumTimeToTestForChange());
+                            restoredModel->params().maximumTimeToTestForChange());
         BOOST_REQUIRE_EQUAL(timeSeriesModelForForecast->checksum(42),
-                          restoredModel->checksum(42));
+                            restoredModel->checksum(42));
 
         // test otherTimeSeriesModel
         restoredModel.reset();
         BOOST_TEST_REQUIRE(restorer.nextModel(restoredModel, firstDataTime, lastDataTime,
-                                      restoredFeature, restoredByFieldValue));
+                                              restoredFeature, restoredByFieldValue));
         BOOST_TEST_REQUIRE(restoredModel);
         BOOST_REQUIRE_EQUAL(core_t::TTime(5), firstDataTime);
         BOOST_REQUIRE_EQUAL(core_t::TTime(45), lastDataTime);
@@ -121,21 +122,21 @@ BOOST_AUTO_TEST_CASE(testPersistAndRestore) {
         CForecastModelPersist::TMathsModelPtr otherTimeSeriesModelForForecast{
             otherTimeSeriesModel.cloneForForecast()};
         BOOST_REQUIRE_EQUAL(otherTimeSeriesModelForForecast->params().learnRate(),
-                          restoredModel->params().learnRate());
+                            restoredModel->params().learnRate());
         BOOST_REQUIRE_EQUAL(params.s_DecayRate, restoredModel->params().decayRate());
         BOOST_REQUIRE_EQUAL(minimumSeasonalVarianceScale,
-                          restoredModel->params().minimumSeasonalVarianceScale());
+                            restoredModel->params().minimumSeasonalVarianceScale());
         BOOST_REQUIRE_EQUAL(params.s_MinimumTimeToDetectChange,
-                          restoredModel->params().minimumTimeToDetectChange());
+                            restoredModel->params().minimumTimeToDetectChange());
         BOOST_REQUIRE_EQUAL(params.s_MaximumTimeToTestForChange,
-                          restoredModel->params().maximumTimeToTestForChange());
+                            restoredModel->params().maximumTimeToTestForChange());
         BOOST_REQUIRE_EQUAL(otherTimeSeriesModelForForecast->checksum(42),
-                          restoredModel->checksum(42));
+                            restoredModel->checksum(42));
 
         // test otherTimeSeriesModelEmptyByField
         restoredModel.reset();
         BOOST_TEST_REQUIRE(restorer.nextModel(restoredModel, firstDataTime, lastDataTime,
-                                      restoredFeature, restoredByFieldValue));
+                                              restoredFeature, restoredByFieldValue));
         BOOST_TEST_REQUIRE(restoredModel);
         BOOST_REQUIRE_EQUAL(core_t::TTime(25), firstDataTime);
         BOOST_REQUIRE_EQUAL(core_t::TTime(65), lastDataTime);
@@ -147,10 +148,10 @@ BOOST_AUTO_TEST_CASE(testPersistAndRestore) {
         CForecastModelPersist::TMathsModelPtr otherTimeSeriesModelEmptyByFieldForForecast{
             otherTimeSeriesModelEmptyByField.cloneForForecast()};
         BOOST_REQUIRE_EQUAL(otherTimeSeriesModelEmptyByFieldForForecast->checksum(42),
-                          restoredModel->checksum(42));
+                            restoredModel->checksum(42));
 
         BOOST_TEST_REQUIRE(!restorer.nextModel(restoredModel, firstDataTime, lastDataTime,
-                                       restoredFeature, restoredByFieldValue));
+                                               restoredFeature, restoredByFieldValue));
     }
     std::remove(persistedModels.c_str());
 }
@@ -172,7 +173,7 @@ BOOST_AUTO_TEST_CASE(testPersistAndRestoreEmpty) {
         model_t::EFeature restoredFeature;
 
         BOOST_TEST_REQUIRE(!restorer.nextModel(restoredModel, firstDataTime, lastDataTime,
-                                       restoredFeature, restoredByFieldValue));
+                                               restoredFeature, restoredByFieldValue));
     }
     std::remove(persistedModels.c_str());
 }

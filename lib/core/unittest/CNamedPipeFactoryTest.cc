@@ -222,7 +222,8 @@ BOOST_AUTO_TEST_CASE(testServerIsCWriter) {
         if (blockSize > charsLeft) {
             blockSize = charsLeft;
         }
-        BOOST_TEST_REQUIRE(::fputs(std::string(blockSize, TEST_CHAR).c_str(), file.get()) >= 0);
+        BOOST_TEST_REQUIRE(
+            ::fputs(std::string(blockSize, TEST_CHAR).c_str(), file.get()) >= 0);
         charsLeft -= blockSize;
     }
 

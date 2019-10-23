@@ -128,7 +128,7 @@ void testParseHelper(const ml::core::CRapidXmlParser& parser) {
     BOOST_REQUIRE_EQUAL(std::string("\n\
             Invalid Date of Birth. <br /><i>This is a test validation message from the server </i>\n\
              "),
-                      item3Children[0]->value());
+                        item3Children[0]->value());
 
     // Test escaped ampersand
     BOOST_TEST_REQUIRE(itemsChildren[10] != nullptr);
@@ -143,7 +143,7 @@ void testParseHelper(const ml::core::CRapidXmlParser& parser) {
     BOOST_TEST_REQUIRE(itemAttributesChildren[1] != nullptr);
     BOOST_REQUIRE_EQUAL(std::string("Manufacturer"), itemAttributesChildren[1]->name());
     BOOST_REQUIRE_EQUAL(std::string("William Morrow & Company"),
-                      itemAttributesChildren[1]->value());
+                        itemAttributesChildren[1]->value());
 }
 
 BOOST_AUTO_TEST_CASE(testParse1) {
@@ -188,7 +188,7 @@ BOOST_AUTO_TEST_CASE(testParse2) {
     BOOST_TEST_REQUIRE(descriptionAndRegexes[0] != nullptr);
     BOOST_REQUIRE_EQUAL(std::string("description"), descriptionAndRegexes[0]->name());
     BOOST_REQUIRE_EQUAL(std::string("Transport node error"),
-                      descriptionAndRegexes[0]->value());
+                        descriptionAndRegexes[0]->value());
     BOOST_TEST_REQUIRE(descriptionAndRegexes[1] != nullptr);
     BOOST_REQUIRE_EQUAL(std::string("regexes"), descriptionAndRegexes[1]->name());
 
@@ -217,7 +217,7 @@ BOOST_AUTO_TEST_CASE(testParse2) {
     BOOST_REQUIRE_EQUAL(std::string("source"), tokenAndRegex1[0]->value());
     BOOST_REQUIRE_EQUAL(std::string("regex"), tokenAndRegex1[1]->name());
     BOOST_REQUIRE_EQUAL(std::string("(template[[:space:]]*<[^;:{]+>[[:space:]]*)?"),
-                      tokenAndRegex1[1]->value());
+                        tokenAndRegex1[1]->value());
 }
 
 BOOST_AUTO_TEST_CASE(testNavigate) {
@@ -278,7 +278,7 @@ BOOST_AUTO_TEST_CASE(testConvert) {
     BOOST_TEST_REQUIRE(converted.find("<child ") != std::string::npos);
     BOOST_TEST_REQUIRE(converted.find("&amp; ") != std::string::npos);
     BOOST_TEST_REQUIRE((converted.find("<empty/>") != std::string::npos ||
-                converted.find("<empty></empty>") != std::string::npos));
+                        converted.find("<empty></empty>") != std::string::npos));
     BOOST_TEST_REQUIRE(converted.find("<dual ") != std::string::npos);
     BOOST_TEST_REQUIRE(converted.find("first") != std::string::npos);
     BOOST_TEST_REQUIRE(converted.find("second") != std::string::npos);

@@ -76,9 +76,9 @@ BOOST_AUTO_TEST_CASE(testBasicUsage) {
             }
         }
         BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(expected300),
-                          core::CContainerPrinter::print(uncompressed.values()));
+                            core::CContainerPrinter::print(uncompressed.values()));
         BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(expected300),
-                          core::CContainerPrinter::print(compressed.values()));
+                            core::CContainerPrinter::print(compressed.values()));
 
         core_t::TTime time{startTime + static_cast<core_t::TTime>(600 * size + 1)};
         compressed.add(time, 5.0, 0.9);
@@ -86,9 +86,9 @@ BOOST_AUTO_TEST_CASE(testBasicUsage) {
         expected1800[(time - startTime) / 1800].add(5.0, 0.9);
 
         BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(expected1800),
-                          core::CContainerPrinter::print(uncompressed.values()));
+                            core::CContainerPrinter::print(uncompressed.values()));
         BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(expected1800),
-                          core::CContainerPrinter::print(compressed.values()));
+                            core::CContainerPrinter::print(compressed.values()));
     }
 
     LOG_DEBUG(<< "Testing multiple rounds of compression");
@@ -140,9 +140,9 @@ BOOST_AUTO_TEST_CASE(testBasicUsage) {
 
         for (std::size_t j = 0; j < size; ++j) {
             BOOST_REQUIRE_CLOSE_ABSOLUTE(maths::CBasicStatistics::count(expected[j]),
-                                       maths::CBasicStatistics::count(actual[j]), 1e-5);
+                                         maths::CBasicStatistics::count(actual[j]), 1e-5);
             BOOST_REQUIRE_CLOSE_ABSOLUTE(maths::CBasicStatistics::mean(expected[j]),
-                                       maths::CBasicStatistics::mean(actual[j]), 1e-5);
+                                         maths::CBasicStatistics::mean(actual[j]), 1e-5);
         }
     }
 
@@ -157,7 +157,7 @@ BOOST_AUTO_TEST_CASE(testBasicUsage) {
     TFloatMeanAccumulatorVec actual{window.values()};
 
     BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(expected),
-                      core::CContainerPrinter::print(actual));
+                        core::CContainerPrinter::print(actual));
 }
 
 BOOST_AUTO_TEST_CASE(testValuesMinusPrediction) {
@@ -190,9 +190,9 @@ BOOST_AUTO_TEST_CASE(testValuesMinusPrediction) {
 
     for (std::size_t i = 0; i < size; ++i) {
         BOOST_REQUIRE_EQUAL(maths::CBasicStatistics::count(expected[i]),
-                          maths::CBasicStatistics::count(actual[i]));
+                            maths::CBasicStatistics::count(actual[i]));
         BOOST_REQUIRE_CLOSE_ABSOLUTE(maths::CBasicStatistics::mean(expected[i]),
-                                   maths::CBasicStatistics::mean(actual[i]), 1e-5);
+                                     maths::CBasicStatistics::mean(actual[i]), 1e-5);
     }
 }
 
@@ -234,8 +234,8 @@ BOOST_AUTO_TEST_CASE(testPersistence) {
             maths::CExpandingWindow restoredWindow{
                 bucketLength, TTimeCRng{BUCKET_LENGTHS, 0, 4}, size, decayRate, compressed};
             BOOST_REQUIRE_EQUAL(true, traverser.traverseSubLevel(std::bind(
-                                        &maths::CExpandingWindow::acceptRestoreTraverser,
-                                        &restoredWindow, std::placeholders::_1)));
+                                          &maths::CExpandingWindow::acceptRestoreTraverser,
+                                          &restoredWindow, std::placeholders::_1)));
 
             LOG_DEBUG(<< "orig checksum = " << origWindow.checksum()
                       << ", new checksum = " << restoredWindow.checksum());

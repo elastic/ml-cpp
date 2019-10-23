@@ -253,7 +253,8 @@ BOOST_AUTO_TEST_CASE(testValueAndVariance) {
 
     LOG_DEBUG(<< "normalised error moments = " << normalisedResiduals);
     BOOST_TEST_REQUIRE(std::fabs(maths::CBasicStatistics::mean(normalisedResiduals)) < 0.5);
-    BOOST_TEST_REQUIRE(std::fabs(maths::CBasicStatistics::variance(normalisedResiduals) - 1.0) < 0.2);
+    BOOST_TEST_REQUIRE(
+        std::fabs(maths::CBasicStatistics::variance(normalisedResiduals) - 1.0) < 0.2);
 }
 
 BOOST_AUTO_TEST_CASE(testDecayRate) {

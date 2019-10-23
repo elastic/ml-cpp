@@ -142,11 +142,10 @@ BOOST_AUTO_TEST_CASE(testOffset) {
 
             if (month == offsetMonth) {
                 for (const auto& feature : features) {
-                    BOOST_TEST_REQUIRE(feature.offset(time) + offset == feature.offset(offsetTime) ||
-                               feature.offset(time) + offset ==
-                                   feature.offset(offsetTime) - 3600 ||
-                               feature.offset(time) + offset ==
-                                   feature.offset(offsetTime) + 3600);
+                    BOOST_TEST_REQUIRE(
+                        feature.offset(time) + offset == feature.offset(offsetTime) ||
+                        feature.offset(time) + offset == feature.offset(offsetTime) - 3600 ||
+                        feature.offset(time) + offset == feature.offset(offsetTime) + 3600);
                     ++tests;
                 }
             }
@@ -178,7 +177,7 @@ BOOST_AUTO_TEST_CASE(testOffset) {
         for (core_t::TTime time = march1st; time < april1st; time += DAY) {
             BOOST_REQUIRE_EQUAL(time - march1st - 12 * DAY, feature.offset(time));
             BOOST_REQUIRE_EQUAL(time - march1st - 12 * DAY + 43400,
-                              feature.offset(time + 43400));
+                                feature.offset(time + 43400));
         }
     }
 
@@ -188,7 +187,8 @@ BOOST_AUTO_TEST_CASE(testOffset) {
             maths::CCalendarFeature::DAYS_BEFORE_END_OF_MONTH, feb1st);
         for (core_t::TTime time = march1st; time < april1st; time += DAY) {
             BOOST_REQUIRE_EQUAL(time - march1st - 3 * DAY, feature.offset(time));
-            BOOST_REQUIRE_EQUAL(time - march1st - 3 * DAY + 7200, feature.offset(time + 7200));
+            BOOST_REQUIRE_EQUAL(time - march1st - 3 * DAY + 7200,
+                                feature.offset(time + 7200));
         }
     }
     {
@@ -197,7 +197,7 @@ BOOST_AUTO_TEST_CASE(testOffset) {
         for (core_t::TTime time = march1st; time < april1st; time += DAY) {
             BOOST_REQUIRE_EQUAL(time - march1st - 13 * DAY, feature.offset(time));
             BOOST_REQUIRE_EQUAL(time - march1st - 13 * DAY + 86399,
-                              feature.offset(time + 86399));
+                                feature.offset(time + 86399));
         }
     }
 
@@ -208,7 +208,8 @@ BOOST_AUTO_TEST_CASE(testOffset) {
             maths::CCalendarFeature::DAY_OF_WEEK_AND_WEEKS_SINCE_START_OF_MONTH, feb1st);
         for (core_t::TTime time = april1st; time < may1st; time += DAY) {
             BOOST_REQUIRE_EQUAL(time - april1st - 4 * DAY, feature.offset(time));
-            BOOST_REQUIRE_EQUAL(time - april1st - 4 * DAY + 7200, feature.offset(time + 7200));
+            BOOST_REQUIRE_EQUAL(time - april1st - 4 * DAY + 7200,
+                                feature.offset(time + 7200));
         }
     }
     {
@@ -218,7 +219,7 @@ BOOST_AUTO_TEST_CASE(testOffset) {
         for (core_t::TTime time = april1st; time < may1st; time += DAY) {
             BOOST_REQUIRE_EQUAL(time - april1st - 9 * DAY, feature.offset(time));
             BOOST_REQUIRE_EQUAL(time - april1st - 9 * DAY + 73000,
-                              feature.offset(time + 73000));
+                                feature.offset(time + 73000));
         }
     }
 
@@ -229,7 +230,8 @@ BOOST_AUTO_TEST_CASE(testOffset) {
             maths::CCalendarFeature::DAY_OF_WEEK_AND_WEEKS_BEFORE_END_OF_MONTH, feb1st);
         for (core_t::TTime time = april1st; time < may1st; time += DAY) {
             BOOST_REQUIRE_EQUAL(time - april1st - 4 * DAY, feature.offset(time));
-            BOOST_REQUIRE_EQUAL(time - april1st - 4 * DAY + 7200, feature.offset(time + 7200));
+            BOOST_REQUIRE_EQUAL(time - april1st - 4 * DAY + 7200,
+                                feature.offset(time + 7200));
         }
     }
     {
@@ -239,7 +241,7 @@ BOOST_AUTO_TEST_CASE(testOffset) {
         for (core_t::TTime time = april1st; time < may1st; time += DAY) {
             BOOST_REQUIRE_EQUAL(time - april1st - 9 * DAY, feature.offset(time));
             BOOST_REQUIRE_EQUAL(time - april1st - 9 * DAY + 73000,
-                              feature.offset(time + 73000));
+                                feature.offset(time + 73000));
         }
     }
 }

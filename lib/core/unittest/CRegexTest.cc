@@ -59,13 +59,15 @@ BOOST_AUTO_TEST_CASE(testInit) {
         BOOST_TEST_REQUIRE(regex.init(regexStr));
 
         BOOST_REQUIRE_EQUAL(regexStr, regex.str());
-        BOOST_TEST_REQUIRE(regex.matches("<Jan 19, 2011 1:58:42 PM EST> <Notice> <WebLogicServer> <BEA-000365> <Server state changed to STARTING>"));
+        BOOST_TEST_REQUIRE(regex.matches(
+            "<Jan 19, 2011 1:58:42 PM EST> <Notice> <WebLogicServer> <BEA-000365> <Server state changed to STARTING>"));
     }
     {
         // Uninitialised
         std::string regexStr = "<.*";
         ml::core::CRegex regex;
-        BOOST_TEST_REQUIRE(!regex.matches("<Jan 19, 2011 1:58:42 PM EST> <Notice> <WebLogicServer> <BEA-000365> <Server state changed to STARTING>"));
+        BOOST_TEST_REQUIRE(!regex.matches(
+            "<Jan 19, 2011 1:58:42 PM EST> <Notice> <WebLogicServer> <BEA-000365> <Server state changed to STARTING>"));
     }
 }
 
@@ -318,12 +320,13 @@ BOOST_AUTO_TEST_CASE(testSplit) {
 }
 
 BOOST_AUTO_TEST_CASE(testEscape) {
-    BOOST_REQUIRE_EQUAL(std::string("\\.\\.\\."), ml::core::CRegex::escapeRegexSpecial("..."));
+    BOOST_REQUIRE_EQUAL(std::string("\\.\\.\\."),
+                        ml::core::CRegex::escapeRegexSpecial("..."));
     BOOST_REQUIRE_EQUAL(std::string("hello"), ml::core::CRegex::escapeRegexSpecial("hello"));
     BOOST_REQUIRE_EQUAL(std::string("\\)hello\\(\\n\\^"),
-                      ml::core::CRegex::escapeRegexSpecial(")hello(\n^"));
+                        ml::core::CRegex::escapeRegexSpecial(")hello(\n^"));
     BOOST_REQUIRE_EQUAL(std::string("\\)hello\\(\\r?\\n\\^"),
-                      ml::core::CRegex::escapeRegexSpecial(")hello(\r\n^"));
+                        ml::core::CRegex::escapeRegexSpecial(")hello(\r\n^"));
 }
 
 BOOST_AUTO_TEST_CASE(testLiteralCount) {

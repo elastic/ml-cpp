@@ -448,7 +448,7 @@ BOOST_AUTO_TEST_CASE(testModelledEntityCountForFixedMemoryLimit) {
             BOOST_TEST_REQUIRE(used.s_PartitionFields > testParam.s_ExpectedPartitionFields);
             BOOST_TEST_REQUIRE(used.s_PartitionFields < 450);
             BOOST_TEST_REQUIRE(static_cast<double>(used.s_ByFields) >
-                       0.96 * static_cast<double>(used.s_PartitionFields));
+                               0.96 * static_cast<double>(used.s_PartitionFields));
             BOOST_REQUIRE_CLOSE_ABSOLUTE(
                 memoryLimit * 1024 * 1024 / 2, used.s_Usage,
                 memoryLimit * 1024 * 1024 / testParam.s_ExpectedPartitionUsageRelativeErrorDivisor);

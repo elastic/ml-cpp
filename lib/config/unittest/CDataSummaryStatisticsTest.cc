@@ -54,7 +54,7 @@ BOOST_AUTO_TEST_CASE(testRate) {
                   << ", latest = " << summary.latest());
         LOG_DEBUG(<< "rate = " << summary.meanRate());
         BOOST_REQUIRE_CLOSE_ABSOLUTE(rate[i], summary.meanRate(),
-                                   2.0 * rate[i] * rate[i] / n);
+                                     2.0 * rate[i] * rate[i] / n);
     }
 }
 
@@ -220,7 +220,8 @@ BOOST_AUTO_TEST_CASE(testNumericBasicStatistics) {
             }
 
             LOG_DEBUG(<< "median  = " << summary.median());
-            BOOST_TEST_REQUIRE(std::fabs(summary.median() - boost::math::median(lognormal)) < 0.25);
+            BOOST_TEST_REQUIRE(
+                std::fabs(summary.median() - boost::math::median(lognormal)) < 0.25);
 
             meanError.add(std::fabs(summary.median() - boost::math::median(lognormal)) /
                           boost::math::median(lognormal));
@@ -270,8 +271,8 @@ BOOST_AUTO_TEST_CASE(testNumericDistribution) {
         LOG_DEBUG(<< "meanAbsError = " << maths::CBasicStatistics::mean(meanAbsError));
         LOG_DEBUG(<< "mean = " << maths::CBasicStatistics::mean(mean));
         BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(meanAbsError) /
-                       maths::CBasicStatistics::mean(mean) <
-                   0.3);
+                               maths::CBasicStatistics::mean(mean) <
+                           0.3);
     }
 
     {

@@ -70,7 +70,7 @@ BOOST_AUTO_TEST_CASE(testBoostHashReady) {
         std::size_t(2),
         map[ml::core::make_triple(std::string("bar"), std::size_t(20), short(4))]);
     BOOST_TEST_REQUIRE(map.find(ml::core::make_triple(std::string("bar"), std::size_t(20),
-                                              short(8))) == map.end());
+                                                      short(8))) == map.end());
 }
 
 BOOST_AUTO_TEST_SUITE_END()

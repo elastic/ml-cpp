@@ -62,17 +62,17 @@ BOOST_AUTO_TEST_CASE(testMarginalLikelihood) {
     double likelihood;
 
     BOOST_REQUIRE_EQUAL(maths_t::E_FpFailed,
-                      filter.jointLogMarginalLikelihood(
-                          {}, maths_t::CUnitWeights::singleUnit<TDouble10Vec>(2), likelihood));
+                        filter.jointLogMarginalLikelihood(
+                            {}, maths_t::CUnitWeights::singleUnit<TDouble10Vec>(2), likelihood));
     BOOST_REQUIRE_EQUAL(
         maths_t::E_FpFailed,
         filter.jointLogMarginalLikelihood(
             TDouble10Vec1Vec(2, TDouble10Vec(std::begin(constant), std::end(constant))),
             maths_t::CUnitWeights::singleUnit<TDouble10Vec>(2), likelihood));
     BOOST_REQUIRE_EQUAL(maths_t::E_FpOverflowed,
-                      filter.jointLogMarginalLikelihood(
-                          {TDouble10Vec(std::begin(constant), std::end(constant))},
-                          maths_t::CUnitWeights::singleUnit<TDouble10Vec>(2), likelihood));
+                        filter.jointLogMarginalLikelihood(
+                            {TDouble10Vec(std::begin(constant), std::end(constant))},
+                            maths_t::CUnitWeights::singleUnit<TDouble10Vec>(2), likelihood));
     BOOST_REQUIRE_EQUAL(boost::numeric::bounds<double>::lowest(), likelihood);
 
     filter.addSamples(
@@ -80,15 +80,16 @@ BOOST_AUTO_TEST_CASE(testMarginalLikelihood) {
         maths_t::CUnitWeights::singleUnit<TDouble10Vec>(2));
 
     BOOST_REQUIRE_EQUAL(maths_t::E_FpNoErrors,
-                      filter.jointLogMarginalLikelihood(
-                          {TDouble10Vec(std::begin(constant), std::end(constant))},
-                          maths_t::CUnitWeights::singleUnit<TDouble10Vec>(2), likelihood));
+                        filter.jointLogMarginalLikelihood(
+                            {TDouble10Vec(std::begin(constant), std::end(constant))},
+                            maths_t::CUnitWeights::singleUnit<TDouble10Vec>(2), likelihood));
     BOOST_REQUIRE_EQUAL(std::log(boost::numeric::bounds<double>::highest()), likelihood);
 
-    BOOST_REQUIRE_EQUAL(maths_t::E_FpOverflowed,
-                      filter.jointLogMarginalLikelihood(
-                          {TDouble10Vec(std::begin(different), std::end(different))},
-                          maths_t::CUnitWeights::singleUnit<TDouble10Vec>(2), likelihood));
+    BOOST_REQUIRE_EQUAL(
+        maths_t::E_FpOverflowed,
+        filter.jointLogMarginalLikelihood(
+            {TDouble10Vec(std::begin(different), std::end(different))},
+            maths_t::CUnitWeights::singleUnit<TDouble10Vec>(2), likelihood));
     BOOST_REQUIRE_EQUAL(boost::numeric::bounds<double>::lowest(), likelihood);
 }
 
@@ -99,14 +100,14 @@ BOOST_AUTO_TEST_CASE(testMarginalLikelihoodMean) {
     maths::CMultivariateConstantPrior filter(3);
 
     BOOST_REQUIRE_EQUAL(std::string("[0, 0, 0]"),
-                      core::CContainerPrinter::print(filter.marginalLikelihoodMean()));
+                        core::CContainerPrinter::print(filter.marginalLikelihoodMean()));
 
     double constant[] = {1.2, 6.0, 14.1};
     filter.addSamples({TDouble10Vec(std::begin(constant), std::end(constant))},
                       maths_t::CUnitWeights::singleUnit<TDouble10Vec>(3));
 
     BOOST_REQUIRE_EQUAL(std::string("[1.2, 6, 14.1]"),
-                      core::CContainerPrinter::print(filter.marginalLikelihoodMean()));
+                        core::CContainerPrinter::print(filter.marginalLikelihoodMean()));
 }
 
 BOOST_AUTO_TEST_CASE(testMarginalLikelihoodMode) {
@@ -116,16 +117,16 @@ BOOST_AUTO_TEST_CASE(testMarginalLikelihoodMode) {
     maths::CMultivariateConstantPrior filter(4);
 
     BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(filter.marginalLikelihoodMean()),
-                      core::CContainerPrinter::print(filter.marginalLikelihoodMode(
-                          maths_t::CUnitWeights::unit<TDouble10Vec>(4))));
+                        core::CContainerPrinter::print(filter.marginalLikelihoodMode(
+                            maths_t::CUnitWeights::unit<TDouble10Vec>(4))));
 
     double constant[] = {1.1, 6.5, 12.3, 14.1};
     filter.addSamples({TDouble10Vec(std::begin(constant), std::end(constant))},
                       maths_t::CUnitWeights::singleUnit<TDouble10Vec>(4));
 
     BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(filter.marginalLikelihoodMean()),
-                      core::CContainerPrinter::print(filter.marginalLikelihoodMode(
-                          maths_t::CUnitWeights::unit<TDouble10Vec>(4))));
+                        core::CContainerPrinter::print(filter.marginalLikelihoodMode(
+                            maths_t::CUnitWeights::unit<TDouble10Vec>(4))));
 }
 
 BOOST_AUTO_TEST_CASE(testMarginalLikelihoodCovariance) {
@@ -180,7 +181,7 @@ BOOST_AUTO_TEST_CASE(testSampleMarginalLikelihood) {
     BOOST_REQUIRE_EQUAL(std::size_t(4), samples.size());
     for (std::size_t i = 0u; i < 4; ++i) {
         BOOST_REQUIRE_EQUAL(std::string("[1.2, 4.1]"),
-                          core::CContainerPrinter::print(samples[i]));
+                            core::CContainerPrinter::print(samples[i]));
     }
 }
 

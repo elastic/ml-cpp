@@ -76,13 +76,13 @@ BOOST_AUTO_TEST_CASE(testEqual) {
     double small = -1e37;
     double large = 1e23;
     BOOST_TEST_REQUIRE(maths::COrdinal(small) !=
-               maths::COrdinal(boost::numeric::bounds<int64_t>::lowest()));
+                       maths::COrdinal(boost::numeric::bounds<int64_t>::lowest()));
     BOOST_TEST_REQUIRE(maths::COrdinal(large) !=
-               maths::COrdinal(boost::numeric::bounds<uint64_t>::highest()));
+                       maths::COrdinal(boost::numeric::bounds<uint64_t>::highest()));
     BOOST_TEST_REQUIRE(maths::COrdinal(boost::numeric::bounds<int64_t>::lowest()) !=
-               maths::COrdinal(small));
+                       maths::COrdinal(small));
     BOOST_TEST_REQUIRE(maths::COrdinal(boost::numeric::bounds<uint64_t>::highest()) !=
-               maths::COrdinal(large));
+                       maths::COrdinal(large));
 
     // Check some integer values which can't be represented as doubles.
     maths::COrdinal s1[] = {maths::COrdinal(int64_t(-179809067369808278)),
@@ -160,17 +160,17 @@ BOOST_AUTO_TEST_CASE(testLess) {
     double small = -1e37;
     double large = 1e23;
     BOOST_TEST_REQUIRE(maths::COrdinal(small) <
-               maths::COrdinal(boost::numeric::bounds<int64_t>::lowest()));
+                       maths::COrdinal(boost::numeric::bounds<int64_t>::lowest()));
     BOOST_TEST_REQUIRE(!(maths::COrdinal(boost::numeric::bounds<int64_t>::lowest()) <
-                 maths::COrdinal(small)));
+                         maths::COrdinal(small)));
     BOOST_TEST_REQUIRE(maths::COrdinal(large) >
-               maths::COrdinal(boost::numeric::bounds<int64_t>::highest()));
+                       maths::COrdinal(boost::numeric::bounds<int64_t>::highest()));
     BOOST_TEST_REQUIRE(!(maths::COrdinal(boost::numeric::bounds<int64_t>::highest()) >
-                 maths::COrdinal(large)));
+                         maths::COrdinal(large)));
     BOOST_TEST_REQUIRE(maths::COrdinal(large) >
-               maths::COrdinal(boost::numeric::bounds<int64_t>::highest()));
+                       maths::COrdinal(boost::numeric::bounds<int64_t>::highest()));
     BOOST_TEST_REQUIRE(!(maths::COrdinal(boost::numeric::bounds<int64_t>::highest()) >
-                 maths::COrdinal(large)));
+                         maths::COrdinal(large)));
 
     // Check some integer values which can't be represented as doubles.
     maths::COrdinal s1[] = {maths::COrdinal(int64_t(-179809067369808278)),

@@ -33,7 +33,7 @@ BOOST_AUTO_TEST_CASE(testAll) {
         BOOST_REQUIRE_EQUAL(learnRate, params.learnRate());
         BOOST_REQUIRE_EQUAL(decayRate, params.decayRate());
         BOOST_REQUIRE_EQUAL(minimumSeasonalVarianceScale,
-                          params.minimumSeasonalVarianceScale());
+                            params.minimumSeasonalVarianceScale());
         BOOST_REQUIRE_EQUAL(6 * core::constants::HOUR, params.minimumTimeToDetectChange());
         BOOST_REQUIRE_EQUAL(core::constants::DAY, params.maximumTimeToTestForChange());
     }
@@ -49,9 +49,9 @@ BOOST_AUTO_TEST_CASE(testAll) {
         BOOST_REQUIRE_EQUAL(maths_t::E_IntegerData, params.type());
         BOOST_REQUIRE_EQUAL(1.5, params.propagationInterval());
         BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(trendWeights),
-                          core::CContainerPrinter::print(params.trendWeights()));
+                            core::CContainerPrinter::print(params.trendWeights()));
         BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(priorWeights),
-                          core::CContainerPrinter::print(params.priorWeights()));
+                            core::CContainerPrinter::print(params.priorWeights()));
     }
     {
         maths_t::TDouble2VecWeightsAry weight1(maths_t::CUnitWeights::unit<TDouble2Vec>(2));
@@ -75,10 +75,10 @@ BOOST_AUTO_TEST_CASE(testAll) {
         BOOST_REQUIRE_EQUAL(maths_t::E_TwoSided, params.calculation(1));
         BOOST_REQUIRE_EQUAL(50.0, params.seasonalConfidenceInterval());
         BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(weights),
-                          core::CContainerPrinter::print(params.weights()));
+                            core::CContainerPrinter::print(params.weights()));
         BOOST_REQUIRE_EQUAL(std::size_t(1), *params.mostAnomalousCorrelate());
         BOOST_REQUIRE_EQUAL(std::string("[1, 0]"),
-                          core::CContainerPrinter::print(params.coordinates()));
+                            core::CContainerPrinter::print(params.coordinates()));
     }
 }
 

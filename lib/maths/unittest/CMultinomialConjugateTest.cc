@@ -101,8 +101,9 @@ BOOST_AUTO_TEST_CASE(testPropagation) {
 
     using TEqual = maths::CEqualWithTolerance<double>;
     TEqual equal(maths::CToleranceTypes::E_AbsoluteTolerance, 1e-12);
-    BOOST_TEST_REQUIRE(std::equal(expectedProbabilities.begin(), expectedProbabilities.end(),
-                          propagatedExpectedProbabilities.begin(), equal));
+    BOOST_TEST_REQUIRE(std::equal(expectedProbabilities.begin(),
+                                  expectedProbabilities.end(),
+                                  propagatedExpectedProbabilities.begin(), equal));
 }
 
 BOOST_AUTO_TEST_CASE(testProbabilityEstimation) {
@@ -218,7 +219,7 @@ BOOST_AUTO_TEST_CASE(testMarginalLikelihood) {
 
                 double logp;
                 BOOST_REQUIRE_EQUAL(maths_t::E_FpNoErrors,
-                                  filter.jointLogMarginalLikelihood(sample, logp));
+                                    filter.jointLogMarginalLikelihood(sample, logp));
 
                 const TDoubleVec& filterCategories = filter.categories();
                 std::size_t k = std::lower_bound(filterCategories.begin(),
@@ -289,13 +290,14 @@ BOOST_AUTO_TEST_CASE(testMarginalLikelihood) {
             for (std::size_t i = 0u; i < o2.size(); ++i) {
                 double p;
                 BOOST_REQUIRE_EQUAL(maths_t::E_FpNoErrors,
-                                  filter.jointLogMarginalLikelihood(o2[i], p));
+                                    filter.jointLogMarginalLikelihood(o2[i], p));
                 p = std::exp(p);
                 p2.push_back(p);
                 LOG_DEBUG(<< "categories = " << core::CContainerPrinter::print(o2[i])
                           << ", p = " << p);
             }
-            BOOST_REQUIRE_CLOSE_ABSOLUTE(1.0, std::accumulate(p2.begin(), p2.end(), 0.0), 1e-10);
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(
+                1.0, std::accumulate(p2.begin(), p2.end(), 0.0), 1e-10);
 
             TDoubleVec frequencies(o2.size(), 0.0);
 
@@ -329,13 +331,14 @@ BOOST_AUTO_TEST_CASE(testMarginalLikelihood) {
             for (std::size_t i = 0u; i < o3.size(); ++i) {
                 double p;
                 BOOST_REQUIRE_EQUAL(maths_t::E_FpNoErrors,
-                                  filter.jointLogMarginalLikelihood(o3[i], p));
+                                    filter.jointLogMarginalLikelihood(o3[i], p));
                 p = std::exp(p);
                 p3.push_back(p);
                 LOG_DEBUG(<< "categories = " << core::CContainerPrinter::print(o3[i])
                           << ", p = " << p);
             }
-            BOOST_REQUIRE_CLOSE_ABSOLUTE(1.0, std::accumulate(p3.begin(), p3.end(), 0.0), 1e-10);
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(
+                1.0, std::accumulate(p3.begin(), p3.end(), 0.0), 1e-10);
 
             TDoubleVec frequencies(o3.size(), 0.0);
 
@@ -398,7 +401,7 @@ BOOST_AUTO_TEST_CASE(testSampleMarginalLikelihood) {
         LOG_DEBUG(<< "samples = " << core::CContainerPrinter::print(samples));
 
         BOOST_REQUIRE_EQUAL(std::string("[1.1, 1.1, 1.1, 1.2, 2.1, 2.1, 2.2, 2.2, 2.2, 2.2]"),
-                          core::CContainerPrinter::print(samples));
+                            core::CContainerPrinter::print(samples));
     }
 
     {
@@ -421,7 +424,7 @@ BOOST_AUTO_TEST_CASE(testSampleMarginalLikelihood) {
         LOG_DEBUG(<< "samples = " << core::CContainerPrinter::print(samples));
 
         BOOST_REQUIRE_EQUAL(std::string("[1.1, 1.2, 1.2, 2.1, 2.1, 2.2, 2.2, 2.2, 2.2, 5.1]"),
-                          core::CContainerPrinter::print(samples));
+                            core::CContainerPrinter::print(samples));
     }
 
     {
@@ -444,7 +447,7 @@ BOOST_AUTO_TEST_CASE(testSampleMarginalLikelihood) {
         LOG_DEBUG(<< "samples = " << core::CContainerPrinter::print(samples));
 
         BOOST_REQUIRE_EQUAL(std::string("[1.1, 1.2, 1.2, 2.1, 2.1, 2.2, 2.2, 2.2, 2.2, 3.2]"),
-                          core::CContainerPrinter::print(samples));
+                            core::CContainerPrinter::print(samples));
     }
 }
 
@@ -749,7 +752,7 @@ BOOST_AUTO_TEST_CASE(testProbabilityOfLessLikelySamples) {
                                                    lowerBounds, upperBounds);
         LOG_DEBUG(<< "probabilities = " << core::CContainerPrinter::print(lowerBounds));
         BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(lowerBounds),
-                          core::CContainerPrinter::print(upperBounds));
+                            core::CContainerPrinter::print(upperBounds));
 
         double totalError = 0.0;
         for (std::size_t i = 0u; i < lowerBounds.size(); ++i) {

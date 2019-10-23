@@ -112,7 +112,7 @@ BOOST_AUTO_TEST_CASE(testFuzzyDeduplicate) {
             }
         }
         BOOST_REQUIRE_EQUAL(std::string("[1, 4, 1, 3, 1.2, 25]"),
-                          core::CContainerPrinter::print(uniques));
+                            core::CContainerPrinter::print(uniques));
     }
 
     TDoubleVec values;
@@ -237,8 +237,9 @@ BOOST_AUTO_TEST_CASE(testProbabilityCache) {
                 ++hits;
                 error.add(std::fabs(result.s_Probability - expectedResult.s_Probability) /
                           expectedResult.s_Probability);
-                BOOST_REQUIRE_CLOSE_ABSOLUTE(expectedResult.s_Probability, result.s_Probability,
-                                           0.05 * expectedResult.s_Probability);
+                BOOST_REQUIRE_CLOSE_ABSOLUTE(expectedResult.s_Probability,
+                                             result.s_Probability,
+                                             0.05 * expectedResult.s_Probability);
                 BOOST_REQUIRE_EQUAL(expectedResult.s_Tail[0], result.s_Tail[0]);
                 BOOST_REQUIRE_EQUAL(false, result.s_Conditional);
                 BOOST_TEST_REQUIRE(result.s_MostAnomalousCorrelate.empty());

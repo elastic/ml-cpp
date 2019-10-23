@@ -49,7 +49,7 @@ BOOST_AUTO_TEST_CASE(testAdd) {
         BOOST_TEST_REQUIRE(qDigest.checkInvariants());
 
         BOOST_REQUIRE_EQUAL(std::string("50 | 10 | { \"[5,5],50,50\" \"[0,7],0,50\" }"),
-                          qDigest.print());
+                            qDigest.print());
     }
 
     {
@@ -251,7 +251,8 @@ BOOST_AUTO_TEST_CASE(testSummary) {
         TUInt32UInt64PrVec summary;
         qDigest.summary(summary);
 
-        BOOST_REQUIRE_EQUAL(std::string("[(3, 1)]"), core::CContainerPrinter::print(summary));
+        BOOST_REQUIRE_EQUAL(std::string("[(3, 1)]"),
+                            core::CContainerPrinter::print(summary));
     }
 
     // Edge case: non-zero count at the root.
@@ -267,7 +268,7 @@ BOOST_AUTO_TEST_CASE(testSummary) {
         qDigest.summary(summary);
 
         BOOST_REQUIRE_EQUAL(std::string("[(0, 3), (7, 4)]"),
-                          core::CContainerPrinter::print(summary));
+                            core::CContainerPrinter::print(summary));
     }
 }
 
@@ -298,9 +299,9 @@ BOOST_AUTO_TEST_CASE(testPropagateForwardByTime) {
         BOOST_TEST_REQUIRE(qDigest.checkInvariants());
 
         BOOST_REQUIRE_EQUAL(std::string("90 | 10 | { \"[0,0],18,18\" \"[1,1],18,18\" \"[2,2],9,9\""
-                                      " \"[3,3],9,9\" \"[5,5],9,9\" \"[7,7],9,9\" \"[8,8],9,9\""
-                                      " \"[15,15],9,9\" \"[0,15],0,90\" }"),
-                          qDigest.print());
+                                        " \"[3,3],9,9\" \"[5,5],9,9\" \"[7,7],9,9\" \"[8,8],9,9\""
+                                        " \"[15,15],9,9\" \"[0,15],0,90\" }"),
+                            qDigest.print());
     }
 
     double intrinsicError;
@@ -360,9 +361,9 @@ BOOST_AUTO_TEST_CASE(testPropagateForwardByTime) {
         TMeanAccumlator diff;
         for (std::size_t i = 0; i < cdfLower.size(); ++i) {
             BOOST_REQUIRE_CLOSE_ABSOLUTE(cdfLower[i], cdfLowerAged[i],
-                                       std::min(5e-5, 2e-3 * cdfLower[i]));
+                                         std::min(5e-5, 2e-3 * cdfLower[i]));
             BOOST_REQUIRE_CLOSE_ABSOLUTE(cdfUpper[i], cdfUpperAged[i],
-                                       std::min(5e-5, 2e-3 * cdfUpper[i]));
+                                         std::min(5e-5, 2e-3 * cdfUpper[i]));
             diff.add(std::fabs(cdfLower[i] - cdfLowerAged[i]));
             diff.add(std::fabs(cdfUpper[i] - cdfUpperAged[i]));
         }
@@ -434,9 +435,9 @@ BOOST_AUTO_TEST_CASE(testScale) {
         BOOST_TEST_REQUIRE(qDigest.checkInvariants());
 
         BOOST_REQUIRE_EQUAL(std::string("100 | 10 | { \"[0,0],20,20\" \"[3,3],20,20\" \"[6,6],10,10\""
-                                      " \"[9,9],10,10\" \"[15,15],10,10\" \"[21,21],10,10\" \"[24,24],10,10\""
-                                      " \"[45,45],10,10\" \"[0,63],0,100\" }"),
-                          qDigest.print());
+                                        " \"[9,9],10,10\" \"[15,15],10,10\" \"[21,21],10,10\" \"[24,24],10,10\""
+                                        " \"[45,45],10,10\" \"[0,63],0,100\" }"),
+                            qDigest.print());
 
         // Test that adding more values after scaling works
         for (std::size_t i = 0; i < 10; ++i) {

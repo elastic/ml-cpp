@@ -105,7 +105,8 @@ BOOST_AUTO_TEST_CASE(testPermitted) {
     ml::core::CDetachedProcessSpawner spawner(permittedPaths);
 
     // Should fail as ml_test is not on the permitted processes list
-    BOOST_TEST_REQUIRE(!spawner.spawn("./ml_test", ml::core::CDetachedProcessSpawner::TStrVec()));
+    BOOST_TEST_REQUIRE(
+        !spawner.spawn("./ml_test", ml::core::CDetachedProcessSpawner::TStrVec()));
 }
 
 BOOST_AUTO_TEST_CASE(testNonExistent) {
@@ -113,8 +114,8 @@ BOOST_AUTO_TEST_CASE(testNonExistent) {
     ml::core::CDetachedProcessSpawner spawner(permittedPaths);
 
     // Should fail as even though it's a permitted process as the file doesn't exist
-    BOOST_TEST_REQUIRE(!spawner.spawn("./does_not_exist",
-                              ml::core::CDetachedProcessSpawner::TStrVec()));
+    BOOST_TEST_REQUIRE(!spawner.spawn(
+        "./does_not_exist", ml::core::CDetachedProcessSpawner::TStrVec()));
 }
 
 BOOST_AUTO_TEST_SUITE_END()

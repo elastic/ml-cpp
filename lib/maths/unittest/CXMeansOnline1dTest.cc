@@ -257,8 +257,9 @@ BOOST_AUTO_TEST_CASE(testMixtureOfGaussians) {
             BOOST_REQUIRE_EQUAL(std::size_t(3), clusters.size());
 
             for (std::size_t j = 0u; j < clusters.size(); ++j) {
-                BOOST_REQUIRE_CLOSE_ABSOLUTE(maths::CBasicStatistics::mean(expectedClusters[j]),
-                                           clusters[j].centre(), 0.1);
+                BOOST_REQUIRE_CLOSE_ABSOLUTE(
+                    maths::CBasicStatistics::mean(expectedClusters[j]),
+                    clusters[j].centre(), 0.1);
                 BOOST_REQUIRE_CLOSE_ABSOLUTE(
                     std::sqrt(maths::CBasicStatistics::variance(expectedClusters[j])),
                     clusters[j].spread(), 0.4);
@@ -320,9 +321,10 @@ BOOST_AUTO_TEST_CASE(testMixtureOfGaussians) {
 
         BOOST_REQUIRE_EQUAL(std::size_t(1), clusters.size());
         BOOST_REQUIRE_CLOSE_ABSOLUTE(maths::CBasicStatistics::mean(expectedClusters),
-                                   clusters[0].centre(), 0.05);
-        BOOST_REQUIRE_CLOSE_ABSOLUTE(std::sqrt(maths::CBasicStatistics::variance(expectedClusters)),
-                                   clusters[0].spread(), 0.3);
+                                     clusters[0].centre(), 0.05);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(
+            std::sqrt(maths::CBasicStatistics::variance(expectedClusters)),
+            clusters[0].spread(), 0.3);
     }
 
     // Test 3:
@@ -374,8 +376,9 @@ BOOST_AUTO_TEST_CASE(testMixtureOfGaussians) {
 
             BOOST_REQUIRE_EQUAL(std::size_t(2), clusters.size());
             for (std::size_t j = 0u; j < clusters.size(); ++j) {
-                BOOST_REQUIRE_CLOSE_ABSOLUTE(maths::CBasicStatistics::mean(expectedClusters[j]),
-                                           clusters[j].centre(), 0.4);
+                BOOST_REQUIRE_CLOSE_ABSOLUTE(
+                    maths::CBasicStatistics::mean(expectedClusters[j]),
+                    clusters[j].centre(), 0.4);
                 BOOST_REQUIRE_CLOSE_ABSOLUTE(
                     std::sqrt(maths::CBasicStatistics::variance(expectedClusters[j])),
                     clusters[j].spread(), 0.3);
@@ -446,7 +449,7 @@ BOOST_AUTO_TEST_CASE(testMixtureOfUniforms) {
 
         for (std::size_t j = 0u; j < clusters.size(); ++j) {
             BOOST_REQUIRE_CLOSE_ABSOLUTE(maths::CBasicStatistics::mean(expectedClusters[j]),
-                                       clusters[j].centre(), 0.01);
+                                         clusters[j].centre(), 0.01);
             BOOST_REQUIRE_CLOSE_ABSOLUTE(
                 std::sqrt(maths::CBasicStatistics::variance(expectedClusters[j])),
                 clusters[j].spread(), 0.02);

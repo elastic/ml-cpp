@@ -102,7 +102,7 @@ BOOST_AUTO_TEST_CASE(testGenerateProjections) {
         LOG_DEBUG(<< "projections = " << core::CContainerPrinter::print(projections));
 
         BOOST_REQUIRE_EQUAL(std::string("[[[1 0 0], [0 1 0], [0 0 1], [0 0 0], [0 0 0]]]"),
-                          core::CContainerPrinter::print(projections));
+                            core::CContainerPrinter::print(projections));
     }
 
     // Test that the projections are mutually orthonormal and
@@ -148,11 +148,11 @@ BOOST_AUTO_TEST_CASE(testGenerateProjections) {
         LOG_DEBUG(<< "Actual variance   = " << maths::CBasicStatistics::variance(moments));
 
         BOOST_REQUIRE_CLOSE_ABSOLUTE(0.0, maths::CBasicStatistics::mean(moments),
-                                   1.0 / static_cast<double>(t));
+                                     1.0 / static_cast<double>(t));
 
         BOOST_REQUIRE_CLOSE_ABSOLUTE(1.0 / static_cast<double>(t),
-                                   maths::CBasicStatistics::variance(moments),
-                                   0.2 / static_cast<double>(t));
+                                     maths::CBasicStatistics::variance(moments),
+                                     0.2 / static_cast<double>(t));
 
         error.add(static_cast<double>(t) *
                   std::fabs(maths::CBasicStatistics::variance(moments) -
@@ -256,9 +256,9 @@ BOOST_AUTO_TEST_CASE(testClusterProjections) {
     LOG_DEBUG(<< "means   = " << core::CContainerPrinter::print(means));
 
     BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(expectedWeights),
-                      core::CContainerPrinter::print(weights));
+                        core::CContainerPrinter::print(weights));
     BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(expectedMeans),
-                      core::CContainerPrinter::print(means));
+                        core::CContainerPrinter::print(means));
 }
 
 BOOST_AUTO_TEST_CASE(testNeighbourhoods) {
@@ -533,7 +533,7 @@ BOOST_AUTO_TEST_CASE(testClusterNeighbourhoods) {
 
     for (std::size_t i = 0u; i < expectedClustering.size(); ++i) {
         BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(expectedClustering[i]),
-                          core::CContainerPrinter::print(clustering[i]));
+                            core::CContainerPrinter::print(clustering[i]));
     }
 }
 

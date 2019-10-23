@@ -56,7 +56,8 @@ BOOST_AUTO_TEST_CASE(testAll) {
         TWordUSet uniqueWords;
         for (std::size_t j = 0u; j < words.size(); ++j) {
             BOOST_TEST_REQUIRE(uniqueWords.insert(dictionary.word(words[j])).second);
-            BOOST_TEST_REQUIRE(uniqueWords.insert(dictionary.word(words[j], word2)).second);
+            BOOST_TEST_REQUIRE(
+                uniqueWords.insert(dictionary.word(words[j], word2)).second);
             BOOST_TEST_REQUIRE(
                 uniqueWords.insert(dictionary.word(words[j], word2, word3)).second);
         }

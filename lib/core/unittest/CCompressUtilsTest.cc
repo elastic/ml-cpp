@@ -178,7 +178,7 @@ BOOST_AUTO_TEST_CASE(testTriviallyCopyableTypeVector) {
     BOOST_TEST_REQUIRE(decompressor.data(true, uncompressed));
 
     BOOST_TEST_REQUIRE(std::equal(uncompressed.begin(), uncompressed.end(),
-                          reinterpret_cast<Bytef*>(input.data())));
+                                  reinterpret_cast<Bytef*>(input.data())));
 }
 
 BOOST_AUTO_TEST_SUITE_END()

@@ -828,7 +828,8 @@ BOOST_AUTO_TEST_CASE(testDepthBasedRegularization) {
 
         TMeanAccumulator meanDepth;
         for (const auto& tree : regression->trainedModel()) {
-            BOOST_TEST_REQUIRE(maxDepth(tree, tree[0], 0) <= static_cast<std::size_t>(targetDepth));
+            BOOST_TEST_REQUIRE(maxDepth(tree, tree[0], 0) <=
+                               static_cast<std::size_t>(targetDepth));
             meanDepth.add(static_cast<double>(maxDepth(tree, tree[0], 0)));
         }
         LOG_DEBUG(<< "mean depth = " << maths::CBasicStatistics::mean(meanDepth));
@@ -1000,7 +1001,7 @@ BOOST_AUTO_TEST_CASE(testLogisticMinimizerRandom) {
             BOOST_REQUIRE_EQUAL(actual, actualPartition);
             BOOST_REQUIRE_CLOSE_ABSOLUTE(expected, actual, 0.01 * std::fabs(expected));
             BOOST_REQUIRE_CLOSE_ABSOLUTE(objectiveAtExpected, objective(actual),
-                                       1e-5 * objectiveAtExpected);
+                                         1e-5 * objectiveAtExpected);
         }
     }
 }
@@ -1041,13 +1042,13 @@ BOOST_AUTO_TEST_CASE(testLogisticLossForUnderflow) {
             TDoubleVec currentCurvature{loss.curvature(scale + std::log(eps), 0.0),
                                         loss.curvature(scale - std::log(eps), 1.0)};
             BOOST_REQUIRE_CLOSE_ABSOLUTE(std::exp(0.25),
-                                       lastGradient[0] / currentGradient[0], 5e-3);
+                                         lastGradient[0] / currentGradient[0], 5e-3);
             BOOST_REQUIRE_CLOSE_ABSOLUTE(std::exp(-0.25),
-                                       lastGradient[1] / currentGradient[1], 5e-3);
-            BOOST_REQUIRE_CLOSE_ABSOLUTE(std::exp(0.25),
-                                       lastCurvature[0] / currentCurvature[0], 5e-3);
-            BOOST_REQUIRE_CLOSE_ABSOLUTE(std::exp(-0.25),
-                                       lastCurvature[1] / currentCurvature[1], 5e-3);
+                                         lastGradient[1] / currentGradient[1], 5e-3);
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(
+                std::exp(0.25), lastCurvature[0] / currentCurvature[0], 5e-3);
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(
+                std::exp(-0.25), lastCurvature[1] / currentCurvature[1], 5e-3);
             lastGradient = currentGradient;
             lastCurvature = currentCurvature;
         }
@@ -1375,7 +1376,7 @@ BOOST_AUTO_TEST_CASE(testRestoreErrorHandling) {
         BOOST_TEST_REQUIRE(re.matches(e.what()));
         readFileToStream(logFile, buffer);
         BOOST_TEST_REQUIRE(buffer.str().find("Failed to restore MAX_BOUNDARY_TAG") !=
-                   std::string::npos);
+                           std::string::npos);
     }
     BOOST_TEST_REQUIRE(throwsExceptions);
 
@@ -1397,7 +1398,7 @@ BOOST_AUTO_TEST_CASE(testRestoreErrorHandling) {
         BOOST_TEST_REQUIRE(re.matches(e.what()));
         readFileToStream(logFile, buffer);
         BOOST_TEST_REQUIRE(buffer.str().find("Failed to restore NUMBER_FOLDS_TAG") !=
-                   std::string::npos);
+                           std::string::npos);
     }
     BOOST_TEST_REQUIRE(throwsExceptions);
 
@@ -1419,7 +1420,7 @@ BOOST_AUTO_TEST_CASE(testRestoreErrorHandling) {
         BOOST_TEST_REQUIRE(re.matches(e.what()));
         readFileToStream(logFile, buffer);
         BOOST_TEST_REQUIRE(buffer.str().find("unsupported state serialization version.") !=
-                   std::string::npos);
+                           std::string::npos);
     }
     BOOST_TEST_REQUIRE(throwsExceptions);
     ml::core::CLogger::instance().reset();

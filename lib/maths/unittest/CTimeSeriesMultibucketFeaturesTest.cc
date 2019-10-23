@@ -92,7 +92,7 @@ BOOST_AUTO_TEST_CASE(testUnivariateMean) {
     LOG_DEBUG(<< "size = " << core::CMemory::dynamicSize(&feature));
 
     BOOST_REQUIRE_EQUAL(core::CMemory::dynamicSize(base),
-                      core::CMemory::dynamicSize(&feature));
+                        core::CMemory::dynamicSize(&feature));
 
     // Check clearing the feature.
 
@@ -195,14 +195,14 @@ BOOST_AUTO_TEST_CASE(testUnivariateMean) {
         LOG_DEBUG(<< "correlation = " << correlation
                   << " expected = " << feature.correlationWithBucketValue());
         BOOST_REQUIRE_CLOSE_ABSOLUTE(feature.correlationWithBucketValue(), correlation,
-                                   0.15 * feature.correlationWithBucketValue());
+                                     0.15 * feature.correlationWithBucketValue());
         meanCorrelation.add(correlation);
     }
 
     LOG_DEBUG(<< "mean correlation = " << maths::CBasicStatistics::mean(meanCorrelation));
     BOOST_REQUIRE_CLOSE_ABSOLUTE(feature.correlationWithBucketValue(),
-                               maths::CBasicStatistics::mean(meanCorrelation),
-                               0.015 * feature.correlationWithBucketValue());
+                                 maths::CBasicStatistics::mean(meanCorrelation),
+                                 0.015 * feature.correlationWithBucketValue());
 
     // Check persist and restore is idempotent.
     for (auto i : {0, 1}) {
@@ -279,7 +279,7 @@ BOOST_AUTO_TEST_CASE(testMultivariateMean) {
     LOG_DEBUG(<< "size = " << core::CMemory::dynamicSize(&feature));
 
     BOOST_REQUIRE_EQUAL(core::CMemory::dynamicSize(base),
-                      core::CMemory::dynamicSize(&feature));
+                        core::CMemory::dynamicSize(&feature));
 
     // Check clearing the feature.
 

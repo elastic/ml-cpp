@@ -119,7 +119,7 @@ BOOST_AUTO_TEST_CASE(testCyclicCoordinateDescent) {
                   << ", numberIterations = " << numberIterations);
 
         BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(beta1),
-                          core::CContainerPrinter::print(beta2));
+                            core::CContainerPrinter::print(beta2));
 
         initializeMatrix(x_, x);
         double ll = logLikelihood(x, y, lambda, beta1);

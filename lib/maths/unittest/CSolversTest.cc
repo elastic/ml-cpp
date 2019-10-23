@@ -122,8 +122,8 @@ BOOST_AUTO_TEST_CASE(testBracket) {
         std::size_t maxIterations = 10u;
         double a = 100.0, b = 100.0;
         double fa = f(a), fb = f(b);
-        BOOST_TEST_REQUIRE(CSolvers::leftBracket(a, b, fa, fb, f, maxIterations,
-                                         std::numeric_limits<double>::min()));
+        BOOST_TEST_REQUIRE(CSolvers::leftBracket(
+            a, b, fa, fb, f, maxIterations, std::numeric_limits<double>::min()));
         LOG_DEBUG(<< "a = " << a << ", b = " << b << ", f(a) = " << fa
                   << ", f(b) = " << fb << ", maxIterations = " << maxIterations);
         BOOST_REQUIRE_EQUAL(f(a), fa);
@@ -152,7 +152,8 @@ BOOST_AUTO_TEST_CASE(testBisection) {
         b = 10.0;
         iterations = 10;
         CEqualWithTolerance<double> equal(CToleranceTypes::E_AbsoluteTolerance, 0.1);
-        BOOST_TEST_REQUIRE(CSolvers::bisection(a, b, -5.0, 5.0, &f1, iterations, equal, bestGuess));
+        BOOST_TEST_REQUIRE(CSolvers::bisection(a, b, -5.0, 5.0, &f1, iterations,
+                                               equal, bestGuess));
         BOOST_REQUIRE_EQUAL(static_cast<std::size_t>(1), iterations);
         BOOST_REQUIRE_EQUAL(5.0, bestGuess);
         BOOST_REQUIRE_EQUAL(5.0, a);
@@ -166,7 +167,8 @@ BOOST_AUTO_TEST_CASE(testBisection) {
         b = 7.0;
         iterations = 10;
         CEqualWithTolerance<double> equal(CToleranceTypes::E_AbsoluteTolerance, 0.1);
-        BOOST_TEST_REQUIRE(CSolvers::bisection(a, b, -5.0, 5.0, &f1, iterations, equal, bestGuess));
+        BOOST_TEST_REQUIRE(CSolvers::bisection(a, b, -5.0, 5.0, &f1, iterations,
+                                               equal, bestGuess));
         LOG_DEBUG(<< "a = " << a << ", b = " << b << ", f(a) = " << f1(a)
                   << ", f(b) = " << f1(b) << ", iterations = " << iterations
                   << ", bestGuess = " << bestGuess);

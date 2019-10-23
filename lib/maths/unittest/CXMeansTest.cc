@@ -302,7 +302,7 @@ BOOST_AUTO_TEST_CASE(testImproveParams) {
         LOG_DEBUG(<< "expected centres = " << core::CContainerPrinter::print(expectedCentres));
         LOG_DEBUG(<< "centres          = " << core::CContainerPrinter::print(centres));
         BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(expectedCentres),
-                          core::CContainerPrinter::print(centres));
+                            core::CContainerPrinter::print(centres));
     }
 }
 
@@ -577,8 +577,9 @@ BOOST_AUTO_TEST_CASE(testTwentyClusters) {
     LOG_DEBUG(<< "totalPurity           = " << maths::CBasicStatistics::mean(totalPurity));
 
     BOOST_REQUIRE_CLOSE_ABSOLUTE(20.0, static_cast<double>(xmeans.clusters().size()), 6.0);
-    BOOST_TEST_REQUIRE(klc.value() < kl.value() + 0.05 * std::max(std::fabs(klc.value()),
-                                                          std::fabs(kl.value())));
+    BOOST_TEST_REQUIRE(klc.value() <
+                       kl.value() + 0.05 * std::max(std::fabs(klc.value()),
+                                                    std::fabs(kl.value())));
     BOOST_TEST_REQUIRE(minPurity > 0.4);
     BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(totalPurity) > 0.8);
 }
@@ -632,8 +633,8 @@ BOOST_AUTO_TEST_CASE(testPoorlyConditioned) {
             TVector2Vec clusterPoints = xmeans.clusters()[i].points();
             std::sort(clusterPoints.begin(), clusterPoints.end());
             LOG_DEBUG(<< "points = " << core::CContainerPrinter::print(clusterPoints));
-            BOOST_TEST_REQUIRE((clusterPoints == cluster1 ||
-                        clusterPoints == cluster2 || clusterPoints == cluster3));
+            BOOST_TEST_REQUIRE((clusterPoints == cluster1 || clusterPoints == cluster2 ||
+                                clusterPoints == cluster3));
         }
     }
 }

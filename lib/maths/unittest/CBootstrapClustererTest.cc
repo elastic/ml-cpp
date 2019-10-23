@@ -170,7 +170,7 @@ BOOST_AUTO_TEST_CASE(testFacade) {
             BOOST_REQUIRE_EQUAL(expected.size(), actual.size());
             for (std::size_t i = 0u; i < expected.size(); ++i) {
                 BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(expected[i]),
-                                  core::CContainerPrinter::print(actual[i]));
+                                    core::CContainerPrinter::print(actual[i]));
             }
         }
     }
@@ -655,7 +655,7 @@ BOOST_AUTO_TEST_CASE(testNonConvexClustering) {
     BOOST_REQUIRE_CLOSE_ABSOLUTE(
         3.0, maths::CBasicStatistics::mean(numberClustersBootstrap), 0.6);
     BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(jaccardBootstrapToPerfect) >
-               maths::CBasicStatistics::mean(jaccardVanillaToPerfect));
+                       maths::CBasicStatistics::mean(jaccardVanillaToPerfect));
 }
 
 BOOST_AUTO_TEST_CASE(testClusteringStability) {

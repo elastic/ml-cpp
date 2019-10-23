@@ -338,9 +338,8 @@ BOOST_AUTO_TEST_CASE(testFinancialIndex) {
     TTimeDoublePrVec timeseries;
     core_t::TTime startTime;
     core_t::TTime endTime;
-    BOOST_TEST_REQUIRE(test::CTimeSeriesTestData::parse("testfiles/financial_index.csv",
-                                                timeseries, startTime, endTime,
-                                                "^([0-9]+),([0-9\\.]+)"));
+    BOOST_TEST_REQUIRE(test::CTimeSeriesTestData::parse(
+        "testfiles/financial_index.csv", timeseries, startTime, endTime, "^([0-9]+),([0-9\\.]+)"));
     BOOST_TEST_REQUIRE(!timeseries.empty());
 
     LOG_DEBUG(<< "timeseries = "

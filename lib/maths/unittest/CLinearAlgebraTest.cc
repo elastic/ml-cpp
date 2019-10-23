@@ -134,7 +134,8 @@ BOOST_AUTO_TEST_CASE(testSymmetricMatrixNxN) {
         LOG_DEBUG(<< "3 * m = " << ms);
         for (std::size_t i = 0u; i < 5; ++i) {
             for (std::size_t j = 0u; j < 5; ++j) {
-                BOOST_REQUIRE_EQUAL(3.0 * static_cast<double>((i + 1) * (j + 1)), ms(i, j));
+                BOOST_REQUIRE_EQUAL(3.0 * static_cast<double>((i + 1) * (j + 1)),
+                                    ms(i, j));
             }
         }
     }
@@ -148,7 +149,8 @@ BOOST_AUTO_TEST_CASE(testSymmetricMatrixNxN) {
         LOG_DEBUG(<< "m / 4.0 = " << ms);
         for (std::size_t i = 0u; i < 5; ++i) {
             for (std::size_t j = 0u; j < 5; ++j) {
-                BOOST_REQUIRE_EQUAL(static_cast<double>((i + 1) * (j + 1)) / 4.0, ms(i, j));
+                BOOST_REQUIRE_EQUAL(static_cast<double>((i + 1) * (j + 1)) / 4.0,
+                                    ms(i, j));
             }
         }
     }
@@ -385,7 +387,8 @@ BOOST_AUTO_TEST_CASE(testSymmetricMatrix) {
         LOG_DEBUG(<< "3 * m = " << ms);
         for (std::size_t i = 0u; i < 5; ++i) {
             for (std::size_t j = 0u; j < 5; ++j) {
-                BOOST_REQUIRE_EQUAL(3.0 * static_cast<double>((i + 1) * (j + 1)), ms(i, j));
+                BOOST_REQUIRE_EQUAL(3.0 * static_cast<double>((i + 1) * (j + 1)),
+                                    ms(i, j));
             }
         }
     }
@@ -399,7 +402,8 @@ BOOST_AUTO_TEST_CASE(testSymmetricMatrix) {
         LOG_DEBUG(<< "m / 4.0 = " << ms);
         for (std::size_t i = 0u; i < 5; ++i) {
             for (std::size_t j = 0u; j < 5; ++j) {
-                BOOST_REQUIRE_EQUAL(static_cast<double>((i + 1) * (j + 1)) / 4.0, ms(i, j));
+                BOOST_REQUIRE_EQUAL(static_cast<double>((i + 1) * (j + 1)) / 4.0,
+                                    ms(i, j));
             }
         }
     }
@@ -629,7 +633,7 @@ BOOST_AUTO_TEST_CASE(testUtils) {
         for (std::size_t i = 0u; i < 3; ++i) {
             for (std::size_t j = 0u; j < 3; ++j) {
                 BOOST_REQUIRE_EQUAL((maths::min(m1, 3.0))(i, j),
-                                  (maths::min(3.0, m1))(i, j));
+                                    (maths::min(3.0, m1))(i, j));
             }
         }
         {
@@ -654,7 +658,7 @@ BOOST_AUTO_TEST_CASE(testUtils) {
         for (std::size_t i = 0u; i < 3; ++i) {
             for (std::size_t j = 0u; j < 3; ++j) {
                 BOOST_REQUIRE_EQUAL((maths::max(m1, 2.0))(i, j),
-                                  (maths::max(2.0, m1))(i, j));
+                                    (maths::max(2.0, m1))(i, j));
             }
         }
         {
@@ -707,7 +711,7 @@ BOOST_AUTO_TEST_CASE(testScaleCovariances) {
 
         for (std::size_t i = 0u; i < 4; ++i) {
             BOOST_REQUIRE_CLOSE_ABSOLUTE(scale_[i] * covariance_[i][i],
-                                       covariance(i, i), 1e-10);
+                                         covariance(i, i), 1e-10);
             for (std::size_t j = i + 1; j < 4; ++j) {
                 double expected = ::sqrt(scale_[i] * scale_[j]) * covariance_[i][j];
                 BOOST_REQUIRE_CLOSE_ABSOLUTE(expected, covariance(i, j), 1e-10);
@@ -731,7 +735,7 @@ BOOST_AUTO_TEST_CASE(testScaleCovariances) {
 
         for (std::size_t i = 0u; i < 4; ++i) {
             BOOST_REQUIRE_CLOSE_ABSOLUTE(scale_[i] * covariance_[i][i],
-                                       covariance(i, i), 1e-10);
+                                         covariance(i, i), 1e-10);
             for (std::size_t j = i + 1; j < 4; ++j) {
                 double expected = ::sqrt(scale_[i] * scale_[j]) * covariance_[i][j];
                 BOOST_REQUIRE_CLOSE_ABSOLUTE(expected, covariance(i, j), 1e-10);
@@ -769,7 +773,7 @@ BOOST_AUTO_TEST_CASE(testGaussianLogLikelihood) {
             maths::CVectorNx1<double, 4> x(x_[i]);
             double likelihood;
             BOOST_REQUIRE_EQUAL(maths_t::E_FpNoErrors,
-                              maths::gaussianLogLikelihood(covariance, x, likelihood));
+                                maths::gaussianLogLikelihood(covariance, x, likelihood));
             LOG_DEBUG(<< "expected log(L(x)) = " << expected[i]);
             LOG_DEBUG(<< "got      log(L(x)) = " << likelihood);
             BOOST_REQUIRE_CLOSE_ABSOLUTE(expected[i], likelihood, 1e-6);
@@ -796,31 +800,31 @@ BOOST_AUTO_TEST_CASE(testGaussianLogLikelihood) {
 
         double likelihood;
         BOOST_REQUIRE_EQUAL(maths_t::E_FpNoErrors,
-                          maths::gaussianLogLikelihood(covariance, e1, likelihood));
+                            maths::gaussianLogLikelihood(covariance, e1, likelihood));
         BOOST_REQUIRE_CLOSE_ABSOLUTE(
             -0.5 * (3.0 * std::log(boost::math::double_constants::two_pi) +
                     std::log(10.0 * 5.0 * 5.0) + 4.0 / 10.0),
             likelihood, 1e-10);
 
         BOOST_REQUIRE_EQUAL(maths_t::E_FpNoErrors,
-                          maths::gaussianLogLikelihood(covariance, e2, likelihood));
+                            maths::gaussianLogLikelihood(covariance, e2, likelihood));
         BOOST_REQUIRE_CLOSE_ABSOLUTE(
             -0.5 * (3.0 * std::log(boost::math::double_constants::two_pi) +
                     std::log(10.0 * 5.0 * 5.0) + 2.0 / 5.0),
             likelihood, 1e-10);
 
         BOOST_REQUIRE_EQUAL(maths_t::E_FpNoErrors,
-                          maths::gaussianLogLikelihood(covariance, e3, likelihood));
+                            maths::gaussianLogLikelihood(covariance, e3, likelihood));
         BOOST_REQUIRE_CLOSE_ABSOLUTE(
             -0.5 * (3.0 * std::log(boost::math::double_constants::two_pi) +
                     std::log(10.0 * 5.0 * 5.0) + 6.0 / 5.0),
             likelihood, 1e-10);
 
         BOOST_REQUIRE_EQUAL(maths_t::E_FpOverflowed,
-                          maths::gaussianLogLikelihood(covariance, e1, likelihood, false));
+                            maths::gaussianLogLikelihood(covariance, e1, likelihood, false));
         BOOST_TEST_REQUIRE(likelihood > 0.0);
         BOOST_REQUIRE_EQUAL(maths_t::E_FpOverflowed,
-                          maths::gaussianLogLikelihood(covariance, e4, likelihood, false));
+                            maths::gaussianLogLikelihood(covariance, e4, likelihood, false));
         BOOST_TEST_REQUIRE(likelihood < 0.0);
     }
 
@@ -846,25 +850,25 @@ BOOST_AUTO_TEST_CASE(testGaussianLogLikelihood) {
 
         double likelihood;
         BOOST_REQUIRE_EQUAL(maths_t::E_FpNoErrors,
-                          maths::gaussianLogLikelihood(covariance, e1, likelihood));
+                            maths::gaussianLogLikelihood(covariance, e1, likelihood));
         BOOST_REQUIRE_CLOSE_ABSOLUTE(
             -0.5 * (4.0 * std::log(boost::math::double_constants::two_pi) +
                     std::log(10.0 * 5.0 * 5.0 * 2.0) + 4.0 / 10.0),
             likelihood, 1e-10);
         BOOST_REQUIRE_EQUAL(maths_t::E_FpNoErrors,
-                          maths::gaussianLogLikelihood(covariance, e2, likelihood));
+                            maths::gaussianLogLikelihood(covariance, e2, likelihood));
         BOOST_REQUIRE_CLOSE_ABSOLUTE(
             -0.5 * (4.0 * std::log(boost::math::double_constants::two_pi) +
                     std::log(10.0 * 5.0 * 5.0 * 2.0) + 2.0 / 5.0),
             likelihood, 1e-10);
         BOOST_REQUIRE_EQUAL(maths_t::E_FpNoErrors,
-                          maths::gaussianLogLikelihood(covariance, e3, likelihood));
+                            maths::gaussianLogLikelihood(covariance, e3, likelihood));
         BOOST_REQUIRE_CLOSE_ABSOLUTE(
             -0.5 * (4.0 * std::log(boost::math::double_constants::two_pi) +
                     std::log(10.0 * 5.0 * 5.0 * 2.0) + 6.0 / 5.0),
             likelihood, 1e-10);
         BOOST_REQUIRE_EQUAL(maths_t::E_FpNoErrors,
-                          maths::gaussianLogLikelihood(covariance, e4, likelihood));
+                            maths::gaussianLogLikelihood(covariance, e4, likelihood));
         BOOST_REQUIRE_CLOSE_ABSOLUTE(
             -0.5 * (4.0 * std::log(boost::math::double_constants::two_pi) +
                     std::log(10.0 * 5.0 * 5.0 * 2.0) + 12.0 / 2.0),
@@ -1006,7 +1010,7 @@ BOOST_AUTO_TEST_CASE(testLogDeterminant) {
             LOG_DEBUG(<< "expected |M| = " << expected[i]);
             LOG_DEBUG(<< "got      |M| = " << std::exp(logDeterminant));
             BOOST_REQUIRE_CLOSE_ABSOLUTE(expected[i], std::exp(logDeterminant),
-                                       1e-4 * expected[i]);
+                                         1e-4 * expected[i]);
         }
     }
 
@@ -1089,7 +1093,7 @@ BOOST_AUTO_TEST_CASE(testProjected) {
         LOG_DEBUG(<< "projectedMatrix =\n" << projectedMatrix);
         LOG_DEBUG(<< "projectedVector =\n" << projectedVector);
         BOOST_REQUIRE_EQUAL(std::string("  1 2.4 3.1\n2.4 1.2 8.3\n3.1 8.3 0.9"),
-                          print(projectedMatrix));
+                            print(projectedMatrix));
         BOOST_REQUIRE_EQUAL(std::string("3.4\n0.3\n5.7"), print(projectedVector));
     }
 }
@@ -1132,8 +1136,10 @@ BOOST_AUTO_TEST_CASE(testShims) {
     {
         BOOST_TEST_REQUIRE(TMatrix4(0.0) == maths::las::conformableZeroMatrix(vector1));
         BOOST_TEST_REQUIRE(TMatrix(4, 0.0) == maths::las::conformableZeroMatrix(vector2));
-        BOOST_TEST_REQUIRE(TDenseMatrix::Zero(4, 4) == maths::las::conformableZeroMatrix(vector3));
-        BOOST_TEST_REQUIRE(TDenseMatrix::Zero(4, 4) == maths::las::conformableZeroMatrix(vector4));
+        BOOST_TEST_REQUIRE(TDenseMatrix::Zero(4, 4) ==
+                           maths::las::conformableZeroMatrix(vector3));
+        BOOST_TEST_REQUIRE(TDenseMatrix::Zero(4, 4) ==
+                           maths::las::conformableZeroMatrix(vector4));
     }
     LOG_DEBUG(<< "Test isZero");
     {
@@ -1204,15 +1210,15 @@ BOOST_AUTO_TEST_CASE(testShims) {
         std::ostringstream o12;
         o12 << vector12.transpose();
         BOOST_REQUIRE_EQUAL(std::string("[0.9, 3.1, 2.1, 1.5]"),
-                          core::CContainerPrinter::print(vector5));
+                            core::CContainerPrinter::print(vector5));
         BOOST_REQUIRE_EQUAL(std::string("[0.9, 3.1, 2.1, 1.5]"),
-                          core::CContainerPrinter::print(vector6));
+                            core::CContainerPrinter::print(vector6));
         BOOST_REQUIRE_EQUAL(std::string("0.9 3.1 2.1 1.5"), o7.str());
         BOOST_REQUIRE_EQUAL(std::string("0.9 3.1 2.1 1.5"), o8.str());
         BOOST_REQUIRE_EQUAL(std::string("[1, 1.6, 4, 0.2]"),
-                          core::CContainerPrinter::print(vector9));
+                            core::CContainerPrinter::print(vector9));
         BOOST_REQUIRE_EQUAL(std::string("[1, 1.6, 4, 0.2]"),
-                          core::CContainerPrinter::print(vector10));
+                            core::CContainerPrinter::print(vector10));
         BOOST_REQUIRE_EQUAL(std::string("  1 1.6   4 0.2"), o11.str());
         BOOST_REQUIRE_EQUAL(std::string("  1 1.6   4 0.2"), o12.str());
     }
@@ -1260,15 +1266,15 @@ BOOST_AUTO_TEST_CASE(testShims) {
         std::ostringstream o12;
         o12 << vector12.transpose();
         BOOST_REQUIRE_EQUAL(std::string("[1, 3.2, 4, 1.7]"),
-                          core::CContainerPrinter::print(vector5));
+                            core::CContainerPrinter::print(vector5));
         BOOST_REQUIRE_EQUAL(std::string("[1, 3.2, 4, 1.7]"),
-                          core::CContainerPrinter::print(vector6));
+                            core::CContainerPrinter::print(vector6));
         BOOST_REQUIRE_EQUAL(std::string("  1 3.2   4 1.7"), o7.str());
         BOOST_REQUIRE_EQUAL(std::string("  1 3.2   4 1.7"), o8.str());
         BOOST_REQUIRE_EQUAL(std::string("[1.3, 3.1, 8.9, 1.5]"),
-                          core::CContainerPrinter::print(vector9));
+                            core::CContainerPrinter::print(vector9));
         BOOST_REQUIRE_EQUAL(std::string("[1.3, 3.1, 8.9, 1.5]"),
-                          core::CContainerPrinter::print(vector10));
+                            core::CContainerPrinter::print(vector10));
         BOOST_REQUIRE_EQUAL(std::string("1.3 3.1 8.9 1.5"), o11.str());
         BOOST_REQUIRE_EQUAL(std::string("1.3 3.1 8.9 1.5"), o12.str());
     }
@@ -1295,9 +1301,9 @@ BOOST_AUTO_TEST_CASE(testShims) {
         std::ostringstream o4;
         o4 << d4.transpose();
         BOOST_REQUIRE_EQUAL(std::string("[1.111111, 0.96875, 1.904762, 0.8823529]"),
-                          core::CContainerPrinter::print(d1));
+                            core::CContainerPrinter::print(d1));
         BOOST_REQUIRE_EQUAL(std::string("[1.111111, 0.96875, 1.904762, 0.8823529]"),
-                          core::CContainerPrinter::print(d2));
+                            core::CContainerPrinter::print(d2));
         BOOST_REQUIRE_EQUAL(std::string(" 1.11111  0.96875  1.90476 0.882353"), o3.str());
         BOOST_REQUIRE_EQUAL(std::string(" 1.11111  0.96875  1.90476 0.882353"), o4.str());
     }

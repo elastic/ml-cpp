@@ -251,7 +251,7 @@ BOOST_AUTO_TEST_CASE(testNearestNeighbours) {
                               << (tests[j] - neighbours[k]).euclidean());
                 }
                 BOOST_REQUIRE_EQUAL(print(expectedNeighbours[k].second),
-                                  print(neighbours[k]));
+                                    print(neighbours[k]));
             }
         }
     }

@@ -160,7 +160,7 @@ void CRestorePreviousStateTest::categorizerRestoreHelper(const std::string& stat
             newPersistedState = strm->str();
         }
         BOOST_REQUIRE_EQUAL(this->stripDocIds(origPersistedState),
-                          this->stripDocIds(newPersistedState));
+                            this->stripDocIds(newPersistedState));
     }
 }
 
@@ -232,7 +232,7 @@ void CRestorePreviousStateTest::anomalyDetectorRestoreHelper(const std::string& 
 
         BOOST_REQUIRE_EQUAL(numRestoredDocs, numDocsInStateFile);
         BOOST_REQUIRE_EQUAL(this->stripDocIds(origPersistedState),
-                          this->stripDocIds(newPersistedState));
+                            this->stripDocIds(newPersistedState));
     }
 }
 

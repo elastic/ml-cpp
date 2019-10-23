@@ -48,8 +48,8 @@ void testParseHelper(const ml::core::CXmlParser& parser) {
         "/ItemSearchResponse/OperationRequest/HTTPHeaders/Header/@Value", node));
     BOOST_REQUIRE_EQUAL(std::string("Value"), node.name());
     BOOST_REQUIRE_EQUAL(std::string("Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1; Avant Browser; Avant Browser; .NET CLR 1.0.3705; "
-                                  ".NET CLR 2.0.50727; .NET CLR 1.1.4322; Media Center PC 4.0; InfoPath.2)"),
-                      node.value());
+                                    ".NET CLR 2.0.50727; .NET CLR 1.1.4322; Media Center PC 4.0; InfoPath.2)"),
+                        node.value());
     BOOST_TEST_REQUIRE(node.attributes().empty());
 
     BOOST_TEST_REQUIRE(parser.evalXPathExpression(
@@ -72,7 +72,7 @@ void testParseHelper(const ml::core::CXmlParser& parser) {
     BOOST_REQUIRE_EQUAL(std::string("\n\
             Invalid Date of Birth. <br /><i>This is a test validation message from the server </i>\n\
              "),
-                      node.value());
+                        node.value());
     BOOST_TEST_REQUIRE(node.attributes().empty());
 
     BOOST_REQUIRE_EQUAL(std::string("ItemSearchResponse"), parser.rootElementName());
@@ -164,7 +164,7 @@ BOOST_AUTO_TEST_CASE(testParse2) {
 
     BOOST_REQUIRE_EQUAL(std::string("regex"), nodes[1].name());
     BOOST_REQUIRE_EQUAL(std::string("(template[[:space:]]*<[^;:{]+>[[:space:]]*)?"),
-                      nodes[1].value());
+                        nodes[1].value());
     BOOST_TEST_REQUIRE(nodes[1].attributes().empty());
 }
 
@@ -252,7 +252,7 @@ BOOST_AUTO_TEST_CASE(testParseXInclude) {
 
     BOOST_REQUIRE_EQUAL(std::string("regex"), nodes[1].name());
     BOOST_REQUIRE_EQUAL(std::string("(template[[:space:]]*<[^;:{]+>[[:space:]]*)?"),
-                      nodes[1].value());
+                        nodes[1].value());
     BOOST_TEST_REQUIRE(nodes[1].attributes().empty());
 }
 
@@ -299,13 +299,16 @@ BOOST_AUTO_TEST_CASE(testParse4) {
     BOOST_TEST_REQUIRE(parser.parseFile(fileName));
 
     bool valid(false);
-    BOOST_TEST_REQUIRE(parser.evalXPathExpression("/ItemSearchResponse/Items/Request/IsValid", valid));
+    BOOST_TEST_REQUIRE(parser.evalXPathExpression(
+        "/ItemSearchResponse/Items/Request/IsValid", valid));
     BOOST_TEST_REQUIRE(valid);
 
-    BOOST_TEST_REQUIRE(parser.evalXPathExpression("/ItemSearchResponse/Items/TotalPages", valid));
+    BOOST_TEST_REQUIRE(
+        parser.evalXPathExpression("/ItemSearchResponse/Items/TotalPages", valid));
     BOOST_TEST_REQUIRE(valid);
 
-    BOOST_TEST_REQUIRE(parser.evalXPathExpression("/ItemSearchResponse/Items/Request/IsNotValid", valid));
+    BOOST_TEST_REQUIRE(parser.evalXPathExpression(
+        "/ItemSearchResponse/Items/Request/IsNotValid", valid));
     BOOST_TEST_REQUIRE(!valid);
 
     BOOST_TEST_REQUIRE(parser.evalXPathExpression(
@@ -317,7 +320,8 @@ BOOST_AUTO_TEST_CASE(testParse4) {
     BOOST_REQUIRE_EQUAL(21, i);
 
     // Invalid conversions
-    BOOST_TEST_REQUIRE(!parser.evalXPathExpression("/ItemSearchResponse/Items/Request/IsValid", i));
+    BOOST_TEST_REQUIRE(
+        !parser.evalXPathExpression("/ItemSearchResponse/Items/Request/IsValid", i));
     BOOST_TEST_REQUIRE(!parser.evalXPathExpression(
         "/ItemSearchResponse/Items/Request/ItemSearchRequest", i));
     BOOST_TEST_REQUIRE(!parser.evalXPathExpression(
@@ -501,11 +505,14 @@ BOOST_AUTO_TEST_CASE(testConvert3) {
     BOOST_REQUIRE_EQUAL(std::string("<&sdacasdc"), node.value());
     BOOST_TEST_REQUIRE(parser.evalXPathExpression("/test_convert/count", node));
     BOOST_REQUIRE_EQUAL(std::string("1"), node.value());
-    BOOST_TEST_REQUIRE(parser.evalXPathExpression("/test_convert/field[@name='idle cpu %']", node));
+    BOOST_TEST_REQUIRE(
+        parser.evalXPathExpression("/test_convert/field[@name='idle cpu %']", node));
     BOOST_REQUIRE_EQUAL(std::string("96"), node.value());
-    BOOST_TEST_REQUIRE(parser.evalXPathExpression("/test_convert/field[@name='user cpu %']", node));
+    BOOST_TEST_REQUIRE(
+        parser.evalXPathExpression("/test_convert/field[@name='user cpu %']", node));
     BOOST_REQUIRE_EQUAL(std::string("3"), node.value());
-    BOOST_TEST_REQUIRE(parser.evalXPathExpression("/test_convert/field[@name='system cpu %']", node));
+    BOOST_TEST_REQUIRE(parser.evalXPathExpression(
+        "/test_convert/field[@name='system cpu %']", node));
     BOOST_REQUIRE_EQUAL(std::string("1"), node.value());
 }
 
@@ -586,7 +593,7 @@ BOOST_AUTO_TEST_CASE(testMakeValidName) {
     BOOST_REQUIRE_EQUAL(std::string("name_2"), ml::core::CXmlParser::makeValidName("name/2"));
     BOOST_REQUIRE_EQUAL(std::string("_name_"), ml::core::CXmlParser::makeValidName("_name_"));
     BOOST_REQUIRE_EQUAL(std::string("__cencl01b_System_System_Calls_sec"),
-                      ml::core::CXmlParser::makeValidName("\\\\cencl01b\\System\\System Calls/sec"));
+                        ml::core::CXmlParser::makeValidName("\\\\cencl01b\\System\\System Calls/sec"));
 }
 
 BOOST_AUTO_TEST_CASE(testChangeChild) {
@@ -723,7 +730,7 @@ BOOST_AUTO_TEST_CASE(testComplexXPath) {
     // This convoluted query is for XML schemas that
     // have a default namespace but don't give it a name!
     BOOST_TEST_REQUIRE(parser.evalXPathExpression("//*[local-name()='title' and .='ml']/..//*[local-name()='key' and @name='disabled']",
-                                          disabled));
+                                                  disabled));
     BOOST_REQUIRE_EQUAL(true, disabled);
 }
 

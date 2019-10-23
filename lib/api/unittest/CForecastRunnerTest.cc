@@ -125,23 +125,23 @@ BOOST_AUTO_TEST_CASE(testSummaryCount) {
     const rapidjson::Value& forecastStats = lastElement["model_forecast_request_stats"];
 
     BOOST_REQUIRE_EQUAL(std::string("42"),
-                      std::string(forecastStats["forecast_id"].GetString()));
+                        std::string(forecastStats["forecast_id"].GetString()));
     BOOST_REQUIRE_EQUAL(std::string("sumcount"),
-                      std::string(forecastStats["forecast_alias"].GetString()));
+                        std::string(forecastStats["forecast_alias"].GetString()));
     BOOST_REQUIRE_EQUAL(1511370819 * int64_t(1000),
-                      forecastStats["forecast_create_timestamp"].GetInt64());
+                        forecastStats["forecast_create_timestamp"].GetInt64());
     BOOST_TEST_REQUIRE(forecastStats.HasMember("processed_record_count"));
     BOOST_REQUIRE_EQUAL(13, forecastStats["processed_record_count"].GetInt());
     BOOST_REQUIRE_EQUAL(1.0, forecastStats["forecast_progress"].GetDouble());
     BOOST_REQUIRE_EQUAL(std::string("finished"),
-                      std::string(forecastStats["forecast_status"].GetString()));
+                        std::string(forecastStats["forecast_status"].GetString()));
     BOOST_REQUIRE_EQUAL(15591600 * int64_t(1000), forecastStats["timestamp"].GetInt64());
     BOOST_REQUIRE_EQUAL(15591600 * int64_t(1000),
-                      forecastStats["forecast_start_timestamp"].GetInt64());
+                        forecastStats["forecast_start_timestamp"].GetInt64());
     BOOST_REQUIRE_EQUAL((15591600 + 13 * BUCKET_LENGTH) * int64_t(1000),
-                      forecastStats["forecast_end_timestamp"].GetInt64());
+                        forecastStats["forecast_end_timestamp"].GetInt64());
     BOOST_REQUIRE_EQUAL((1511370819 + 100 * ml::core::constants::DAY) * int64_t(1000),
-                      forecastStats["forecast_expiry_timestamp"].GetInt64());
+                        forecastStats["forecast_expiry_timestamp"].GetInt64());
 }
 
 BOOST_AUTO_TEST_CASE(testPopulation) {
@@ -178,15 +178,15 @@ BOOST_AUTO_TEST_CASE(testPopulation) {
 
     BOOST_TEST_REQUIRE(!doc.HasParseError());
     BOOST_REQUIRE_EQUAL(std::string("31"),
-                      std::string(forecastStats["forecast_id"].GetString()));
+                        std::string(forecastStats["forecast_id"].GetString()));
     BOOST_TEST_REQUIRE(!forecastStats.HasMember("forecast_alias"));
     BOOST_REQUIRE_EQUAL(std::string("failed"),
-                      std::string(forecastStats["forecast_status"].GetString()));
+                        std::string(forecastStats["forecast_status"].GetString()));
     BOOST_REQUIRE_EQUAL(
         ml::api::CForecastRunner::ERROR_NOT_SUPPORTED_FOR_POPULATION_MODELS,
         std::string(forecastStats["forecast_messages"].GetArray()[0].GetString()));
     BOOST_REQUIRE_EQUAL((1511370819 + 14 * ml::core::constants::DAY) * int64_t(1000),
-                      forecastStats["forecast_expiry_timestamp"].GetInt64());
+                        forecastStats["forecast_expiry_timestamp"].GetInt64());
 }
 
 BOOST_AUTO_TEST_CASE(testRare) {
@@ -224,15 +224,15 @@ BOOST_AUTO_TEST_CASE(testRare) {
 
     BOOST_TEST_REQUIRE(!doc.HasParseError());
     BOOST_REQUIRE_EQUAL(std::string("42"),
-                      std::string(forecastStats["forecast_id"].GetString()));
+                        std::string(forecastStats["forecast_id"].GetString()));
     BOOST_TEST_REQUIRE(!forecastStats.HasMember("forecast_alias"));
     BOOST_REQUIRE_EQUAL(std::string("failed"),
-                      std::string(forecastStats["forecast_status"].GetString()));
+                        std::string(forecastStats["forecast_status"].GetString()));
     BOOST_REQUIRE_EQUAL(
         ml::api::CForecastRunner::ERROR_NO_SUPPORTED_FUNCTIONS,
         std::string(forecastStats["forecast_messages"].GetArray()[0].GetString()));
     BOOST_REQUIRE_EQUAL((1511370819 + 14 * ml::core::constants::DAY) * int64_t(1000),
-                      forecastStats["forecast_expiry_timestamp"].GetInt64());
+                        forecastStats["forecast_expiry_timestamp"].GetInt64());
 }
 
 BOOST_AUTO_TEST_CASE(testInsufficientData) {
@@ -267,15 +267,15 @@ BOOST_AUTO_TEST_CASE(testInsufficientData) {
 
     BOOST_TEST_REQUIRE(!doc.HasParseError());
     BOOST_REQUIRE_EQUAL(std::string("31"),
-                      std::string(forecastStats["forecast_id"].GetString()));
+                        std::string(forecastStats["forecast_id"].GetString()));
     BOOST_REQUIRE_EQUAL(std::string("finished"),
-                      std::string(forecastStats["forecast_status"].GetString()));
+                        std::string(forecastStats["forecast_status"].GetString()));
     BOOST_REQUIRE_EQUAL(1.0, forecastStats["forecast_progress"].GetDouble());
     BOOST_REQUIRE_EQUAL(
         ml::api::CForecastRunner::INFO_NO_MODELS_CAN_CURRENTLY_BE_FORECAST,
         std::string(forecastStats["forecast_messages"].GetArray()[0].GetString()));
     BOOST_REQUIRE_EQUAL((1511370819 + 14 * ml::core::constants::DAY) * int64_t(1000),
-                      forecastStats["forecast_expiry_timestamp"].GetInt64());
+                        forecastStats["forecast_expiry_timestamp"].GetInt64());
 }
 
 BOOST_AUTO_TEST_CASE(testValidateDefaultExpiry) {
@@ -331,7 +331,7 @@ BOOST_AUTO_TEST_CASE(testValidateBrokenMessage) {
     std::string message("p{\"dura");
 
     BOOST_TEST_REQUIRE(ml::api::CForecastRunner::parseAndValidateForecastRequest(
-                   message, forecastJob, 1400000000) == false);
+                           message, forecastJob, 1400000000) == false);
 }
 
 BOOST_AUTO_TEST_CASE(testValidateMissingId) {
@@ -341,7 +341,7 @@ BOOST_AUTO_TEST_CASE(testValidateMissingId) {
                         ",\"create_time\": \"1511370819\"}");
 
     BOOST_TEST_REQUIRE(ml::api::CForecastRunner::parseAndValidateForecastRequest(
-                   message, forecastJob, 1400000000) == false);
+                           message, forecastJob, 1400000000) == false);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

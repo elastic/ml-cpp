@@ -500,7 +500,7 @@ BOOST_AUTO_TEST_CASE(testManyClusters) {
         }
         LOG_DEBUG(<< "loss = " << maths::CBasicStatistics::mean(loss));
         BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(loss) <
-                   0.02 * maths::CBasicStatistics::mean(differentialEntropy));
+                           0.02 * maths::CBasicStatistics::mean(differentialEntropy));
     }
 }
 
@@ -715,7 +715,7 @@ BOOST_AUTO_TEST_CASE(testLatLongData) {
     LOG_DEBUG(<< "gaussian log(L)  = " << maths::CBasicStatistics::mean(LLR));
     LOG_DEBUG(<< "clustered log(L) = " << maths::CBasicStatistics::mean(LLC));
     BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(LLC) <
-               0.6 * maths::CBasicStatistics::mean(LLR));
+                       0.6 * maths::CBasicStatistics::mean(LLR));
 }
 
 BOOST_AUTO_TEST_CASE(testPersist) {

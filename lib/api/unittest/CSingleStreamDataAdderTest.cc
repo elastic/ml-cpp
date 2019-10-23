@@ -203,9 +203,9 @@ void CSingleStreamDataAdderTest::detectorPersistHelper(const std::string& config
     // The snapshot ID can be different between the two persists, so replace the
     // first occurrence of it (which is in the bulk metadata)
     BOOST_REQUIRE_EQUAL(size_t(1), ml::core::CStringUtils::replaceFirst(
-                                     origSnapshotId, "snap", origPersistedState));
+                                       origSnapshotId, "snap", origPersistedState));
     BOOST_REQUIRE_EQUAL(size_t(1), ml::core::CStringUtils::replaceFirst(
-                                     restoredSnapshotId, "snap", newPersistedState));
+                                       restoredSnapshotId, "snap", newPersistedState));
 
     BOOST_REQUIRE_EQUAL(origPersistedState, newPersistedState);
 }

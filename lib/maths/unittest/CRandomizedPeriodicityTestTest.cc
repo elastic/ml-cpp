@@ -115,9 +115,10 @@ BOOST_AUTO_TEST_CASE(testAccuracy) {
         for (std::size_t i = 0u; i < boost::size(timeToDetectionMoments); ++i) {
             LOG_DEBUG(<< "time to detect moments = " << timeToDetectionMoments[i]);
             LOG_DEBUG(<< "maximum time to detect = " << timeToDetectionMax[i][0]);
-            BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(timeToDetectionMoments[i]) < 1.5 * DAY);
+            BOOST_TEST_REQUIRE(
+                maths::CBasicStatistics::mean(timeToDetectionMoments[i]) < 1.5 * DAY);
             BOOST_TEST_REQUIRE(std::sqrt(maths::CBasicStatistics::variance(
-                           timeToDetectionMoments[i])) < 5 * DAY);
+                                   timeToDetectionMoments[i])) < 5 * DAY);
             BOOST_TEST_REQUIRE(timeToDetectionMax[i][0] <= 27 * WEEK);
         }
     }

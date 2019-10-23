@@ -163,10 +163,10 @@ void testEstimateMemoryUsage(int64_t numberRows,
 
     BOOST_TEST_REQUIRE(result.HasMember("expected_memory_without_disk"));
     BOOST_REQUIRE_EQUAL(expected_expected_memory_without_disk,
-                      std::string(result["expected_memory_without_disk"].GetString()));
+                        std::string(result["expected_memory_without_disk"].GetString()));
     BOOST_TEST_REQUIRE(result.HasMember("expected_memory_with_disk"));
     BOOST_REQUIRE_EQUAL(expected_expected_memory_with_disk,
-                      std::string(result["expected_memory_with_disk"].GetString()));
+                        std::string(result["expected_memory_with_disk"].GetString()));
 
     BOOST_REQUIRE_EQUAL(expected_number_errors, static_cast<int>(errors.size()));
 }

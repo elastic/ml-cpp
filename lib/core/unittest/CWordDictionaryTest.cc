@@ -33,22 +33,24 @@ BOOST_AUTO_TEST_CASE(testPartOfSpeech) {
     const ml::core::CWordDictionary& dict = ml::core::CWordDictionary::instance();
 
     BOOST_REQUIRE_EQUAL(ml::core::CWordDictionary::E_NotInDictionary,
-                      dict.partOfSpeech("ajksdf"));
+                        dict.partOfSpeech("ajksdf"));
     BOOST_REQUIRE_EQUAL(ml::core::CWordDictionary::E_UnknownPart,
-                      dict.partOfSpeech("callback"));
+                        dict.partOfSpeech("callback"));
     BOOST_REQUIRE_EQUAL(ml::core::CWordDictionary::E_Noun, dict.partOfSpeech("House"));
     BOOST_REQUIRE_EQUAL(ml::core::CWordDictionary::E_Plural, dict.partOfSpeech("Houses"));
     BOOST_REQUIRE_EQUAL(ml::core::CWordDictionary::E_Verb, dict.partOfSpeech("COMPLETED"));
     BOOST_REQUIRE_EQUAL(ml::core::CWordDictionary::E_Adjective, dict.partOfSpeech("heavy"));
     BOOST_REQUIRE_EQUAL(ml::core::CWordDictionary::E_Adverb, dict.partOfSpeech("slowly"));
     BOOST_REQUIRE_EQUAL(ml::core::CWordDictionary::E_Conjunction, dict.partOfSpeech("AND"));
-    BOOST_REQUIRE_EQUAL(ml::core::CWordDictionary::E_Preposition, dict.partOfSpeech("without"));
-    BOOST_REQUIRE_EQUAL(ml::core::CWordDictionary::E_Interjection, dict.partOfSpeech("gosh"));
+    BOOST_REQUIRE_EQUAL(ml::core::CWordDictionary::E_Preposition,
+                        dict.partOfSpeech("without"));
+    BOOST_REQUIRE_EQUAL(ml::core::CWordDictionary::E_Interjection,
+                        dict.partOfSpeech("gosh"));
     BOOST_REQUIRE_EQUAL(ml::core::CWordDictionary::E_Pronoun, dict.partOfSpeech("hers"));
     BOOST_REQUIRE_EQUAL(ml::core::CWordDictionary::E_DefiniteArticle,
-                      dict.partOfSpeech("the"));
+                        dict.partOfSpeech("the"));
     BOOST_REQUIRE_EQUAL(ml::core::CWordDictionary::E_IndefiniteArticle,
-                      dict.partOfSpeech("a"));
+                        dict.partOfSpeech("a"));
 }
 
 BOOST_AUTO_TEST_CASE(testWeightingFunctors) {

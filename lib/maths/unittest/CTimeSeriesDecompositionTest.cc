@@ -994,8 +994,8 @@ BOOST_AUTO_TEST_CASE(testSpikeyDataProblemCase) {
     TTimeDoublePrVec timeseries;
     core_t::TTime startTime;
     core_t::TTime endTime;
-    BOOST_TEST_REQUIRE(test::CTimeSeriesTestData::parse("testfiles/spikey_data.csv", timeseries, startTime,
-                                                endTime, "^([0-9]+),([0-9\\.]+)"));
+    BOOST_TEST_REQUIRE(test::CTimeSeriesTestData::parse(
+        "testfiles/spikey_data.csv", timeseries, startTime, endTime, "^([0-9]+),([0-9\\.]+)"));
     BOOST_TEST_REQUIRE(!timeseries.empty());
 
     LOG_DEBUG(<< "timeseries = "
@@ -1145,8 +1145,8 @@ BOOST_AUTO_TEST_CASE(testVeryLargeValuesProblemCase) {
     TTimeDoublePrVec timeseries;
     core_t::TTime startTime;
     core_t::TTime endTime;
-    BOOST_TEST_REQUIRE(test::CTimeSeriesTestData::parse("testfiles/diurnal.csv", timeseries, startTime,
-                                                endTime, "^([0-9]+),([0-9\\.]+)"));
+    BOOST_TEST_REQUIRE(test::CTimeSeriesTestData::parse(
+        "testfiles/diurnal.csv", timeseries, startTime, endTime, "^([0-9]+),([0-9\\.]+)"));
     BOOST_TEST_REQUIRE(!timeseries.empty());
 
     LOG_DEBUG(<< "timeseries = "
@@ -2223,13 +2223,13 @@ BOOST_AUTO_TEST_CASE(testUpgrade) {
             TDoubleDoublePr value{decomposition.value(time, 10.0)};
             TDoubleDoublePr scale{decomposition.scale(time, 286374.0, 10.0)};
             BOOST_REQUIRE_CLOSE_ABSOLUTE(expectedValue.first, value.first,
-                                       0.005 * std::fabs(expectedValue.first));
+                                         0.005 * std::fabs(expectedValue.first));
             BOOST_REQUIRE_CLOSE_ABSOLUTE(expectedValue.second, value.second,
-                                       0.005 * std::fabs(expectedValue.second));
+                                         0.005 * std::fabs(expectedValue.second));
             BOOST_REQUIRE_CLOSE_ABSOLUTE(expectedScale.first, scale.first,
-                                       0.005 * expectedScale.first);
+                                         0.005 * expectedScale.first);
             BOOST_REQUIRE_CLOSE_ABSOLUTE(expectedScale.second, scale.second,
-                                       0.005 * std::max(expectedScale.second, 0.4));
+                                         0.005 * std::max(expectedScale.second, 0.4));
         }
 
         // Check some basic operations on the upgraded model.
@@ -2292,13 +2292,13 @@ BOOST_AUTO_TEST_CASE(testUpgrade) {
             TDoubleDoublePr value{decomposition.value(time, 10.0)};
             TDoubleDoublePr scale{decomposition.scale(time, 96.1654, 10.0)};
             BOOST_REQUIRE_CLOSE_ABSOLUTE(expectedValue.first, value.first,
-                                       0.1 * std::fabs(expectedValue.first));
+                                         0.1 * std::fabs(expectedValue.first));
             BOOST_REQUIRE_CLOSE_ABSOLUTE(expectedValue.second, value.second,
-                                       0.1 * std::fabs(expectedValue.second));
+                                         0.1 * std::fabs(expectedValue.second));
             BOOST_REQUIRE_CLOSE_ABSOLUTE(expectedScale.first, scale.first,
-                                       0.3 * expectedScale.first);
+                                         0.3 * expectedScale.first);
             BOOST_REQUIRE_CLOSE_ABSOLUTE(expectedScale.second, scale.second,
-                                       0.3 * expectedScale.second);
+                                         0.3 * expectedScale.second);
             meanValueError.add(std::fabs(expectedValue.first - value.first) /
                                std::fabs(expectedValue.first));
             meanValueError.add(std::fabs(expectedValue.second - value.second) /

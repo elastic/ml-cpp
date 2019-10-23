@@ -295,7 +295,7 @@ BOOST_AUTO_TEST_CASE(testShiftOrdinate) {
     LOG_DEBUG(<< "parameters 2 = " << core::CContainerPrinter::print(params2));
 
     BOOST_REQUIRE_CLOSE_ABSOLUTE(1000.0 + params1[0], params2[0],
-                               1e-6 * std::fabs(params1[0]));
+                                 1e-6 * std::fabs(params1[0]));
     BOOST_REQUIRE_CLOSE_ABSOLUTE(params1[1], params2[1], 1e-6 * std::fabs(params1[1]));
     BOOST_REQUIRE_CLOSE_ABSOLUTE(params1[2], params2[2], 1e-6 * std::fabs(params1[2]));
     BOOST_REQUIRE_CLOSE_ABSOLUTE(params1[3], params2[3], 1e-6 * std::fabs(params1[3]));
@@ -324,7 +324,7 @@ BOOST_AUTO_TEST_CASE(testShiftGradient) {
 
     BOOST_REQUIRE_CLOSE_ABSOLUTE(params1[0], params2[0], 1e-6 * std::fabs(params1[0]));
     BOOST_REQUIRE_CLOSE_ABSOLUTE(10.0 + params1[1], params2[1],
-                               1e-6 * std::fabs(params1[1]));
+                                 1e-6 * std::fabs(params1[1]));
     BOOST_REQUIRE_CLOSE_ABSOLUTE(params1[2], params2[2], 1e-6 * std::fabs(params1[2]));
     BOOST_REQUIRE_CLOSE_ABSOLUTE(params1[3], params2[3], 1e-6 * std::fabs(params1[3]));
 }
@@ -554,10 +554,12 @@ BOOST_AUTO_TEST_CASE(testPrediction) {
               << ", e2 = " << maths::CBasicStatistics::mean(e2)
               << ", e3 = " << maths::CBasicStatistics::mean(e3)
               << ", e4 = " << maths::CBasicStatistics::mean(e4));
-    BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(e2) < 0.27 * maths::CBasicStatistics::mean(em));
-    BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(e3) < 0.08 * maths::CBasicStatistics::mean(em));
+    BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(e2) <
+                       0.27 * maths::CBasicStatistics::mean(em));
+    BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(e3) <
+                       0.08 * maths::CBasicStatistics::mean(em));
     BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(e4) <
-               0.025 * maths::CBasicStatistics::mean(em));
+                       0.025 * maths::CBasicStatistics::mean(em));
 }
 
 BOOST_AUTO_TEST_CASE(testCombination) {
@@ -611,7 +613,7 @@ BOOST_AUTO_TEST_CASE(testCombination) {
 
     for (std::size_t i = 0u; i < params.size(); ++i) {
         BOOST_REQUIRE_CLOSE_ABSOLUTE(params[i], paramsAPlusB[i],
-                                   5e-3 * std::fabs(params[i]));
+                                     5e-3 * std::fabs(params[i]));
     }
 }
 
@@ -753,7 +755,7 @@ BOOST_AUTO_TEST_CASE(testScale) {
     TDoubleArray2 params2;
     regression2.parameters(params2);
     BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(params1),
-                      core::CContainerPrinter::print(params2));
+                        core::CContainerPrinter::print(params2));
     BOOST_REQUIRE_EQUAL(maths::CBasicStatistics::count(regression2.statistic()), 10.0);
 
     maths::CLeastSquaresOnlineRegression<1, double> regression3 = regression2.scaled(0.5);
@@ -761,7 +763,7 @@ BOOST_AUTO_TEST_CASE(testScale) {
     TDoubleArray2 params3;
     regression3.parameters(params3);
     BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(params1),
-                      core::CContainerPrinter::print(params3));
+                        core::CContainerPrinter::print(params3));
     BOOST_REQUIRE_EQUAL(maths::CBasicStatistics::count(regression3.statistic()), 5.0);
 }
 
@@ -921,7 +923,7 @@ BOOST_AUTO_TEST_CASE(testParameters) {
         LOG_DEBUG(<< "params 1 = " << core::CContainerPrinter::print(params1));
         LOG_DEBUG(<< "params 2 = " << core::CContainerPrinter::print(params2));
         BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(params2),
-                          core::CContainerPrinter::print(params1));
+                            core::CContainerPrinter::print(params1));
     }
 }
 

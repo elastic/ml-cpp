@@ -179,8 +179,8 @@ BOOST_FIXTURE_TEST_CASE(testInMainMemoryParallelRead, CTestFixture) {
             BOOST_TEST_REQUIRE(reader.rowsRead().size() <= 2000);
             for (const auto& row : reader.rowsRead()) {
                 BOOST_TEST_REQUIRE(std::equal(components.begin() + row.first * cols,
-                                      components.begin() + (row.first + 1) * cols,
-                                      row.second.begin()));
+                                              components.begin() + (row.first + 1) * cols,
+                                              row.second.begin()));
                 rowRead[row.first] = true;
             }
         }
@@ -249,8 +249,8 @@ BOOST_FIXTURE_TEST_CASE(testOnDiskParallelRead, CTestFixture) {
         BOOST_TEST_REQUIRE(reader.rowsRead().size() <= 2000);
         for (const auto& row : reader.rowsRead()) {
             BOOST_TEST_REQUIRE(std::equal(components.begin() + row.first * cols,
-                                  components.begin() + (row.first + 1) * cols,
-                                  row.second.begin()));
+                                          components.begin() + (row.first + 1) * cols,
+                                          row.second.begin()));
             rowRead[row.first] = true;
         }
     }
@@ -780,7 +780,7 @@ BOOST_FIXTURE_TEST_CASE(testRowMask, CTestFixture) {
                 std::sort(readRowsIndices.begin(), readRowsIndices.end());
 
                 BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(rangeRowMaskIndices[i]),
-                                  core::CContainerPrinter::print(readRowsIndices));
+                                    core::CContainerPrinter::print(readRowsIndices));
             }
 
             TSizeVec strides;
@@ -825,7 +825,7 @@ BOOST_FIXTURE_TEST_CASE(testRowMask, CTestFixture) {
                 std::sort(readRowsIndices.begin(), readRowsIndices.end());
 
                 BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(rowMaskIndices),
-                                  core::CContainerPrinter::print(readRowsIndices));
+                                    core::CContainerPrinter::print(readRowsIndices));
             }
         }
     }

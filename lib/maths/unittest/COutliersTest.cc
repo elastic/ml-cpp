@@ -582,7 +582,7 @@ BOOST_AUTO_TEST_CASE(testEstimateMemoryUsedByCompute) {
         LOG_DEBUG(<< "estimated peak memory = " << estimatedMemoryUsage);
         LOG_DEBUG(<< "high water mark = " << maxMemoryUsage);
         BOOST_TEST_REQUIRE(std::abs(maxMemoryUsage - estimatedMemoryUsage) <
-                   std::max(maxMemoryUsage.load(), estimatedMemoryUsage) / 10);
+                           std::max(maxMemoryUsage.load(), estimatedMemoryUsage) / 10);
     }
 }
 

@@ -82,7 +82,7 @@ public:
 
         // Check the field names
         BOOST_REQUIRE_EQUAL(ml::core::CContainerPrinter::print(m_ExpectedFieldNames),
-                          ml::core::CContainerPrinter::print(fieldNames));
+                            ml::core::CContainerPrinter::print(fieldNames));
 
         BOOST_REQUIRE_EQUAL(m_ExpectedFieldNames.size(), fieldValues.size());
 
@@ -136,7 +136,8 @@ public:
         if (m_TimeFormat.empty()) {
             BOOST_TEST_REQUIRE(ml::core::CStringUtils::stringToType(fieldIter->second, timeVal));
         } else {
-            BOOST_TEST_REQUIRE(ml::core::CTimeUtils::strptime(m_TimeFormat, fieldIter->second, timeVal));
+            BOOST_TEST_REQUIRE(ml::core::CTimeUtils::strptime(
+                m_TimeFormat, fieldIter->second, timeVal));
             LOG_DEBUG(<< "Converted " << fieldIter->second << " to " << timeVal
                       << " using format " << m_TimeFormat);
         }

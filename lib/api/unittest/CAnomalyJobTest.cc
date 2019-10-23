@@ -518,7 +518,7 @@ BOOST_AUTO_TEST_CASE(testIsPersistenceNeeded) {
         core::CRegex::TStrVec lines;
         regex.split(output, lines);
         BOOST_REQUIRE_EQUAL(false, findLine("\"quantiles\":{\"job_id\":\"job\",\"quantile_state\".*",
-                                          lines));
+                                            lines));
     }
 
     core_t::TTime time = 3600;
@@ -551,7 +551,7 @@ BOOST_AUTO_TEST_CASE(testIsPersistenceNeeded) {
         core::CRegex::TStrVec lines;
         regex.split(output, lines);
         BOOST_REQUIRE_EQUAL(true, findLine("\"quantiles\":{\"job_id\":\"job\",\"quantile_state\".*",
-                                         lines));
+                                           lines));
     }
 
     {
@@ -584,7 +584,7 @@ BOOST_AUTO_TEST_CASE(testIsPersistenceNeeded) {
         core::CRegex::TStrVec lines;
         regex.split(output, lines);
         BOOST_REQUIRE_EQUAL(true, findLine("\"quantiles\":{\"job_id\":\"job\",\"quantile_state\".*",
-                                         lines));
+                                           lines));
     }
 }
 

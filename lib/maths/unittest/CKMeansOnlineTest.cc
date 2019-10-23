@@ -142,7 +142,7 @@ BOOST_AUTO_TEST_CASE(testAdd) {
                    static_cast<double>(ones.dimension()));
 
         BOOST_REQUIRE_EQUAL(print(maths::CBasicStatistics::mean(expected)),
-                          print(maths::CBasicStatistics::mean(actual.first)));
+                            print(maths::CBasicStatistics::mean(actual.first)));
         BOOST_REQUIRE_CLOSE_ABSOLUTE(
             maths::CBasicStatistics::maximumLikelihoodVariance(expected).inner(ones) /
                 static_cast<double>(ones.dimension()),
@@ -199,9 +199,9 @@ BOOST_AUTO_TEST_CASE(testReduce) {
                 LOG_DEBUG(<< "expected = " << expected);
                 LOG_DEBUG(<< "actual   = " << actual);
                 BOOST_REQUIRE_CLOSE_ABSOLUTE(maths::CBasicStatistics::count(expected),
-                                           maths::CBasicStatistics::count(actual), 1e-10);
+                                             maths::CBasicStatistics::count(actual), 1e-10);
                 BOOST_REQUIRE_EQUAL(print(maths::CBasicStatistics::mean(expected)),
-                                  print(maths::CBasicStatistics::mean(actual)));
+                                    print(maths::CBasicStatistics::mean(actual)));
                 BOOST_REQUIRE_CLOSE_ABSOLUTE(
                     maths::CBasicStatistics::maximumLikelihoodVariance(expected).inner(ones),
                     maths::CBasicStatistics::maximumLikelihoodVariance(actual).inner(ones),
@@ -279,7 +279,7 @@ BOOST_AUTO_TEST_CASE(testClustering) {
         LOG_DEBUG(<< "cost online = " << costOnline);
 
         BOOST_REQUIRE_CLOSE_ABSOLUTE(maths::CBasicStatistics::mean(costOnline),
-                                   maths::CBasicStatistics::mean(cost), 1e-10);
+                                     maths::CBasicStatistics::mean(cost), 1e-10);
         BOOST_REQUIRE_CLOSE_ABSOLUTE(
             std::sqrt(maths::CBasicStatistics::variance(costOnline)),
             std::sqrt(maths::CBasicStatistics::variance(cost)), 1e-10);
@@ -343,9 +343,9 @@ BOOST_AUTO_TEST_CASE(testClustering) {
         LOG_DEBUG(<< "cost online = " << costOnline);
 
         BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(costOnline) <=
-                   1.01 * maths::CBasicStatistics::mean(cost));
+                           1.01 * maths::CBasicStatistics::mean(cost));
         BOOST_TEST_REQUIRE(std::sqrt(maths::CBasicStatistics::variance(costOnline)) <=
-                   26.0 * std::sqrt(maths::CBasicStatistics::variance(cost)));
+                           26.0 * std::sqrt(maths::CBasicStatistics::variance(cost)));
     }
 }
 
@@ -407,7 +407,7 @@ BOOST_AUTO_TEST_CASE(testSplit) {
         LOG_DEBUG(<< "actual clusters   = " << core::CContainerPrinter::print(actual));
 
         BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(expected),
-                          core::CContainerPrinter::print(actual));
+                            core::CContainerPrinter::print(actual));
     }
 }
 
@@ -464,9 +464,9 @@ BOOST_AUTO_TEST_CASE(testMerge) {
     LOG_DEBUG(<< "expected = " << expected);
     LOG_DEBUG(<< "actual   = " << actual);
     BOOST_REQUIRE_EQUAL(maths::CBasicStatistics::count(expected),
-                      maths::CBasicStatistics::count(actual));
+                        maths::CBasicStatistics::count(actual));
     BOOST_REQUIRE_EQUAL(print(maths::CBasicStatistics::mean(expected)),
-                      print(maths::CBasicStatistics::mean(actual)));
+                        print(maths::CBasicStatistics::mean(actual)));
     BOOST_REQUIRE_CLOSE_ABSOLUTE(
         maths::CBasicStatistics::maximumLikelihoodVariance(expected).inner(ones),
         maths::CBasicStatistics::maximumLikelihoodVariance(actual).inner(ones),
@@ -557,7 +557,7 @@ BOOST_AUTO_TEST_CASE(testSample) {
         std::sort(sampled.begin(), sampled.end());
 
         BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(expectedSampled),
-                          core::CContainerPrinter::print(sampled));
+                            core::CContainerPrinter::print(sampled));
     }
 
     for (std::size_t i = 10u; i < samples.size(); ++i) {

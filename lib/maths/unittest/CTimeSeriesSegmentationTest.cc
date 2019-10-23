@@ -138,14 +138,15 @@ BOOST_AUTO_TEST_CASE(testPiecewiseLinear) {
         BOOST_TEST_REQUIRE(distance(trueSegmentation, segmentation) < 35);
 
         // Not biased.
-        BOOST_TEST_REQUIRE(std::fabs(maths::CBasicStatistics::mean(residualMoments) -
-                             maths::CBasicStatistics::mean(noiseMoments)) <
-                   2.0 * std::sqrt(maths::CBasicStatistics::variance(noiseMoments) /
-                                   maths::CBasicStatistics::count(noiseMoments)));
+        BOOST_TEST_REQUIRE(
+            std::fabs(maths::CBasicStatistics::mean(residualMoments) -
+                      maths::CBasicStatistics::mean(noiseMoments)) <
+            2.0 * std::sqrt(maths::CBasicStatistics::variance(noiseMoments) /
+                            maths::CBasicStatistics::count(noiseMoments)));
 
         // We've explained nearly all the variance.
         BOOST_TEST_REQUIRE(maths::CBasicStatistics::variance(residualMoments) <
-                   1.4 * maths::CBasicStatistics::variance(noiseMoments));
+                           1.4 * maths::CBasicStatistics::variance(noiseMoments));
     }
 
     LOG_DEBUG(<< "With Outliers");
@@ -204,13 +205,13 @@ BOOST_AUTO_TEST_CASE(testPiecewiseLinear) {
 
     // Not biased.
     BOOST_TEST_REQUIRE(std::fabs(maths::CBasicStatistics::mean(residualMoments) -
-                         maths::CBasicStatistics::mean(noiseMoments)) <
-               3.0 * std::sqrt(maths::CBasicStatistics::variance(noiseMoments) /
-                               maths::CBasicStatistics::count(noiseMoments)));
+                                 maths::CBasicStatistics::mean(noiseMoments)) <
+                       3.0 * std::sqrt(maths::CBasicStatistics::variance(noiseMoments) /
+                                       maths::CBasicStatistics::count(noiseMoments)));
 
     // We've explained nearly all the variance.
     BOOST_TEST_REQUIRE(maths::CBasicStatistics::variance(residualMoments) <
-               1.4 * maths::CBasicStatistics::variance(noiseMoments));
+                       1.4 * maths::CBasicStatistics::variance(noiseMoments));
 }
 
 BOOST_AUTO_TEST_CASE(testPiecewiseLinearScaledPeriodic) {
@@ -277,14 +278,15 @@ BOOST_AUTO_TEST_CASE(testPiecewiseLinearScaledPeriodic) {
             BOOST_TEST_REQUIRE(distance(trueSegmentation, segmentation) < 5);
 
             // Not biased.
-            BOOST_TEST_REQUIRE(std::fabs(maths::CBasicStatistics::mean(residualMoments) -
-                                 maths::CBasicStatistics::mean(noiseMoments)) <
-                       3.0 * std::sqrt(maths::CBasicStatistics::variance(noiseMoments) /
-                                       maths::CBasicStatistics::count(noiseMoments)));
+            BOOST_TEST_REQUIRE(
+                std::fabs(maths::CBasicStatistics::mean(residualMoments) -
+                          maths::CBasicStatistics::mean(noiseMoments)) <
+                3.0 * std::sqrt(maths::CBasicStatistics::variance(noiseMoments) /
+                                maths::CBasicStatistics::count(noiseMoments)));
 
             // We've explained nearly all the variance.
             BOOST_TEST_REQUIRE(maths::CBasicStatistics::variance(residualMoments) <
-                       1.4 * maths::CBasicStatistics::variance(noiseMoments));
+                               1.4 * maths::CBasicStatistics::variance(noiseMoments));
         }
     }
 
@@ -347,14 +349,15 @@ BOOST_AUTO_TEST_CASE(testPiecewiseLinearScaledPeriodic) {
         BOOST_TEST_REQUIRE(distance(trueSegmentation, segmentation) < 20);
 
         // Not biased.
-        BOOST_TEST_REQUIRE(std::fabs(maths::CBasicStatistics::mean(residualMoments) -
-                             maths::CBasicStatistics::mean(noiseMoments)) <
-                   3.0 * std::sqrt(maths::CBasicStatistics::variance(noiseMoments) /
-                                   maths::CBasicStatistics::count(noiseMoments)));
+        BOOST_TEST_REQUIRE(
+            std::fabs(maths::CBasicStatistics::mean(residualMoments) -
+                      maths::CBasicStatistics::mean(noiseMoments)) <
+            3.0 * std::sqrt(maths::CBasicStatistics::variance(noiseMoments) /
+                            maths::CBasicStatistics::count(noiseMoments)));
 
         // We've explained nearly all the variance.
         BOOST_TEST_REQUIRE(maths::CBasicStatistics::variance(residualMoments) <
-                   1.4 * maths::CBasicStatistics::variance(noiseMoments));
+                           1.4 * maths::CBasicStatistics::variance(noiseMoments));
     }
 }
 
@@ -406,7 +409,7 @@ BOOST_AUTO_TEST_CASE(testRemovePiecewiseLinearDiscontinuities) {
 
     for (std::size_t i = 1; i < values.size(); ++i) {
         BOOST_TEST_REQUIRE(std::fabs(maths::CBasicStatistics::mean(values[i]) -
-                             maths::CBasicStatistics::mean(values[i - 1])) < 0.25);
+                                     maths::CBasicStatistics::mean(values[i - 1])) < 0.25);
     }
     for (std::size_t i = 1; i < length; ++i) {
         if (i < 50) {

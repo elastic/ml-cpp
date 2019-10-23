@@ -148,7 +148,8 @@ BOOST_AUTO_TEST_CASE(testStringStore) {
         BOOST_REQUIRE_EQUAL(strings.size(), CStringStore::names().m_Strings.size());
         CStringStore::names().pruneNotThreadSafe();
         BOOST_REQUIRE_EQUAL(strings.size(), CStringStore::names().m_Strings.size());
-        BOOST_REQUIRE_EQUAL(std::size_t(0), CStringStore::influencers().m_Strings.size());
+        BOOST_REQUIRE_EQUAL(std::size_t(0),
+                            CStringStore::influencers().m_Strings.size());
 
         for (std::size_t i = 0; i < threads.size(); ++i) {
             // CppUnit won't automatically catch the exceptions thrown by
@@ -222,7 +223,8 @@ BOOST_AUTO_TEST_CASE(testMemUsage) {
 
         inUseMemUse = CStringStore::names().memoryUsage();
         LOG_DEBUG(<< "Memory usage with in-use pointers: " << inUseMemUse);
-        BOOST_TEST_REQUIRE(inUseMemUse > origMemUse + shortStr.length() + longStr.length());
+        BOOST_TEST_REQUIRE(inUseMemUse >
+                           origMemUse + shortStr.length() + longStr.length());
 
         // This pruning should have no effect, as there are external pointers to
         // the contents

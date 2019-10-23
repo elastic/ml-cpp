@@ -156,7 +156,8 @@ BOOST_AUTO_TEST_CASE(testRandom) {
         lookups.insert(lookups.end(), prefixes.begin(), prefixes.end());
 
         for (std::size_t i = 0; i < lookups.size(); ++i) {
-            BOOST_TEST_REQUIRE(prefixTree.matchesFully(lookups[i]) == (set.count(lookups[i]) > 0));
+            BOOST_TEST_REQUIRE(prefixTree.matchesFully(lookups[i]) ==
+                               (set.count(lookups[i]) > 0));
         }
     }
 

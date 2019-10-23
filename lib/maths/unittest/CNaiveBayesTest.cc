@@ -296,7 +296,7 @@ BOOST_AUTO_TEST_CASE(testMemoryUsage) {
 
     LOG_DEBUG(<< "Memory = " << core::CMemory::dynamicSize(nb));
     BOOST_REQUIRE_EQUAL(memoryUsage + sizeof(maths::CNaiveBayes),
-                      core::CMemory::dynamicSize(nb));
+                        core::CMemory::dynamicSize(nb));
 }
 
 BOOST_AUTO_TEST_CASE(testPersist) {

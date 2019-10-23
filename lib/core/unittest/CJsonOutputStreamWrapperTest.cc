@@ -64,7 +64,7 @@ BOOST_AUTO_TEST_CASE(testConcurrentWrites) {
 
     // check number of documents
     BOOST_REQUIRE_EQUAL(rapidjson::SizeType(WRITERS * DOCUMENTS_PER_WRITER),
-                      allRecords.Size());
+                        allRecords.Size());
 }
 
 BOOST_AUTO_TEST_CASE(testShrink) {

@@ -43,10 +43,10 @@ BOOST_AUTO_TEST_CASE(testWrite) {
 
     BOOST_TEST_REQUIRE(object.HasMember("expected_memory_without_disk"));
     BOOST_REQUIRE_EQUAL(std::string("16kB"),
-                      std::string(object["expected_memory_without_disk"].GetString()));
+                        std::string(object["expected_memory_without_disk"].GetString()));
     BOOST_TEST_REQUIRE(object.HasMember("expected_memory_with_disk"));
     BOOST_REQUIRE_EQUAL(std::string("8kB"),
-                      std::string(object["expected_memory_with_disk"].GetString()));
+                        std::string(object["expected_memory_with_disk"].GetString()));
 }
 
 BOOST_AUTO_TEST_SUITE_END()

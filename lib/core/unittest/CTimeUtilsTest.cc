@@ -80,13 +80,13 @@ BOOST_AUTO_TEST_CASE(testToLocal) {
 
 BOOST_AUTO_TEST_CASE(testToEpochMs) {
     BOOST_REQUIRE_EQUAL(int64_t(1000),
-                      ml::core::CTimeUtils::toEpochMs(ml::core_t::TTime(1)));
+                        ml::core::CTimeUtils::toEpochMs(ml::core_t::TTime(1)));
     BOOST_REQUIRE_EQUAL(int64_t(-1000),
-                      ml::core::CTimeUtils::toEpochMs(ml::core_t::TTime(-1)));
+                        ml::core::CTimeUtils::toEpochMs(ml::core_t::TTime(-1)));
     BOOST_REQUIRE_EQUAL(int64_t(1521035866000),
-                      ml::core::CTimeUtils::toEpochMs(ml::core_t::TTime(1521035866)));
+                        ml::core::CTimeUtils::toEpochMs(ml::core_t::TTime(1521035866)));
     BOOST_REQUIRE_EQUAL(int64_t(-1521035866000),
-                      ml::core::CTimeUtils::toEpochMs(ml::core_t::TTime(-1521035866)));
+                        ml::core::CTimeUtils::toEpochMs(ml::core_t::TTime(-1521035866)));
 }
 
 BOOST_AUTO_TEST_CASE(testStrptime) {
@@ -222,7 +222,7 @@ BOOST_AUTO_TEST_CASE(testStrptime) {
 
         // Allow small tolerance in case of clock discrepancies between machines
         BOOST_TEST_REQUIRE(actual <= ml::core::CTimeUtils::now() +
-                                 ml::core::CTimeUtils::MAX_CLOCK_DISCREPANCY);
+                                         ml::core::CTimeUtils::MAX_CLOCK_DISCREPANCY);
     }
     {
         // Test what happens when no year is given
@@ -244,7 +244,7 @@ BOOST_AUTO_TEST_CASE(testStrptime) {
 
         // Allow small tolerance in case of clock discrepancies between machines
         BOOST_TEST_REQUIRE(actual <= ml::core::CTimeUtils::now() +
-                                 ml::core::CTimeUtils::MAX_CLOCK_DISCREPANCY);
+                                         ml::core::CTimeUtils::MAX_CLOCK_DISCREPANCY);
     }
     {
         // Test what happens when no year is given
@@ -266,7 +266,7 @@ BOOST_AUTO_TEST_CASE(testStrptime) {
 
         // Allow small tolerance in case of clock discrepancies between machines
         BOOST_TEST_REQUIRE(actual <= ml::core::CTimeUtils::now() +
-                                 ml::core::CTimeUtils::MAX_CLOCK_DISCREPANCY);
+                                         ml::core::CTimeUtils::MAX_CLOCK_DISCREPANCY);
     }
 }
 

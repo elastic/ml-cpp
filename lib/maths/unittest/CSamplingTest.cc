@@ -139,7 +139,7 @@ BOOST_AUTO_TEST_CASE(testMultinomialSample) {
          pItr != empiricalProbabilities.end(); ++pItr) {
         LOG_DEBUG(<< "counts = " << core::CContainerPrinter::print(pItr->first));
         BOOST_REQUIRE_EQUAL(size_t(20), std::accumulate(pItr->first.begin(),
-                                                      pItr->first.end(), size_t(0)));
+                                                        pItr->first.end(), size_t(0)));
 
         double p = multinomialProbability(probabilities, pItr->first);
         double pe = pItr->second;
@@ -187,7 +187,8 @@ BOOST_AUTO_TEST_CASE(testMultivariateNormalSample) {
             TDoubleVec error = test_detail::minus(mean_, m_);
             LOG_DEBUG(<< "||error|| = " << test_detail::euclidean(error));
             LOG_DEBUG(<< "||m|| = " << test_detail::euclidean(m_));
-            BOOST_TEST_REQUIRE(test_detail::euclidean(error) < 0.02 * test_detail::euclidean(m_));
+            BOOST_TEST_REQUIRE(test_detail::euclidean(error) <
+                               0.02 * test_detail::euclidean(m_));
         }
 
         // Get the sample covariance matrix.
@@ -207,7 +208,8 @@ BOOST_AUTO_TEST_CASE(testMultivariateNormalSample) {
             TDoubleVecVec error = test_detail::minus(covariance, C_);
             LOG_DEBUG(<< "||error|| = " << test_detail::frobenius(error));
             LOG_DEBUG(<< "||C|| = " << test_detail::frobenius(C_));
-            BOOST_TEST_REQUIRE(test_detail::frobenius(error) < 0.1 * test_detail::frobenius(C_));
+            BOOST_TEST_REQUIRE(test_detail::frobenius(error) <
+                               0.1 * test_detail::frobenius(C_));
         }
     }
 }

@@ -86,7 +86,8 @@ void restore(const std::string& staticsXml) {
     ml::core::CRapidXmlParser parser;
     BOOST_TEST_REQUIRE(parser.parseStringIgnoreCdata(staticsXml));
     ml::core::CRapidXmlStateRestoreTraverser traverser(parser);
-    BOOST_TEST_REQUIRE(traverser.traverseSubLevel(&ml::core::CProgramCounters::staticsAcceptRestoreTraverser));
+    BOOST_TEST_REQUIRE(traverser.traverseSubLevel(
+        &ml::core::CProgramCounters::staticsAcceptRestoreTraverser));
 }
 
 BOOST_FIXTURE_TEST_CASE(testCounters, CTestFixture) {
@@ -367,7 +368,7 @@ BOOST_FIXTURE_TEST_CASE(testCacheCounters, CTestFixture) {
     // check that the cached and live counters match and that the values are as expected
     for (size_t i = 0; i < ml::counter_t::NUM_COUNTERS; ++i) {
         BOOST_REQUIRE_EQUAL(static_cast<std::uint64_t>(counters.counter(i)),
-                          counters.m_Cache[i]);
+                            counters.m_Cache[i]);
         BOOST_REQUIRE_EQUAL(std::uint64_t(i + 1), counters.m_Cache[i]);
     }
 

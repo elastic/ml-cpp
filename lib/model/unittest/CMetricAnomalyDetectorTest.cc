@@ -292,8 +292,9 @@ BOOST_AUTO_TEST_CASE(testAnomalies) {
         for (std::size_t j = 0u; j < highAnomalyTimes.size(); ++j) {
             LOG_DEBUG(<< "Testing " << core::CContainerPrinter::print(highAnomalyTimes[j])
                       << ' ' << highAnomalyFactors[j]);
-            BOOST_TEST_REQUIRE((doIntersect(highAnomalyTimes[j], ANOMALOUS_INTERVALS[0]) ||
-                        doIntersect(highAnomalyTimes[j], ANOMALOUS_INTERVALS[1])));
+            BOOST_TEST_REQUIRE(
+                (doIntersect(highAnomalyTimes[j], ANOMALOUS_INTERVALS[0]) ||
+                 doIntersect(highAnomalyTimes[j], ANOMALOUS_INTERVALS[1])));
         }
 
         if (!anomalyFactors.empty()) {

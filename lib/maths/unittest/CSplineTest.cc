@@ -277,7 +277,7 @@ BOOST_AUTO_TEST_CASE(testMean) {
             LOG_DEBUG(<< "expectedMean = " << expectedMean
                       << ", mean = " << spline.mean());
             BOOST_REQUIRE_CLOSE_ABSOLUTE(expectedMean, spline.mean(),
-                                       std::numeric_limits<double>::epsilon() * expectedMean);
+                                         std::numeric_limits<double>::epsilon() * expectedMean);
         }
     }
 
@@ -373,7 +373,7 @@ BOOST_AUTO_TEST_CASE(testIllposed) {
             LOG_DEBUG(<< "expected = " << 0.2 * static_cast<double>(i)
                       << ", actual = " << spline.value(static_cast<double>(i)));
             BOOST_REQUIRE_CLOSE_ABSOLUTE(0.2 * static_cast<double>(i),
-                                       spline.value(static_cast<double>(i)), 5e-7);
+                                         spline.value(static_cast<double>(i)), 5e-7);
         }
     }
 }
@@ -450,7 +450,7 @@ BOOST_AUTO_TEST_CASE(testSlope) {
                                   << ", numerical slope = " << numericalSlope);
                     }
                     BOOST_REQUIRE_CLOSE_ABSOLUTE(numericalSlope, slope,
-                                               1e-3 * std::fabs(numericalSlope));
+                                                 1e-3 * std::fabs(numericalSlope));
                 }
             }
         }
@@ -514,11 +514,11 @@ BOOST_AUTO_TEST_CASE(testSplineReference) {
     splineRef.interpolate(x, y, maths::CSplineTypes::E_Natural);
 
     BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(spline.knots()),
-                      core::CContainerPrinter::print(splineRef.knots()));
+                        core::CContainerPrinter::print(splineRef.knots()));
     BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(spline.values()),
-                      core::CContainerPrinter::print(splineRef.values()));
+                        core::CContainerPrinter::print(splineRef.values()));
     BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(spline.curvatures()),
-                      core::CContainerPrinter::print(splineRef.curvatures()));
+                        core::CContainerPrinter::print(splineRef.curvatures()));
 
     for (std::size_t i = 0u; i < 21; ++i) {
         double xx = boost::math::double_constants::two_pi * static_cast<double>(i) / 20.0;

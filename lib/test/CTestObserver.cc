@@ -25,7 +25,8 @@ void CTestObserver::test_unit_start(const boost::unit_test::test_unit& test) {
     LOG_DEBUG(<< '+' << std::string(unitName.length() + 4, '-') << '+');
 }
 
-void CTestObserver::test_unit_finish(const boost::unit_test::test_unit& test, unsigned long elapsed) {
+void CTestObserver::test_unit_finish(const boost::unit_test::test_unit& test,
+                                     unsigned long elapsed) {
     const std::string& unitName{test.full_name()};
     if (unitName.find('/') == std::string::npos) {
         // This gets called for suites as well as test cases - ignore these

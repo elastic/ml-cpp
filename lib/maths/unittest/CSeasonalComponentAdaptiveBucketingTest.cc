@@ -183,7 +183,7 @@ BOOST_AUTO_TEST_CASE(testRefine) {
         LOG_DEBUG(<< "refined mean error = " << maths::CBasicStatistics::mean(meanError2));
         LOG_DEBUG(<< "refined max error  = " << maxError2[0]);
         BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(meanError2) <
-                   0.85 * maths::CBasicStatistics::mean(meanError1));
+                           0.85 * maths::CBasicStatistics::mean(meanError1));
         BOOST_TEST_REQUIRE(maxError2[0] < 0.7 * maxError1[0]);
     }
 
@@ -476,8 +476,8 @@ BOOST_AUTO_TEST_CASE(testKnots) {
             LOG_DEBUG(<< "meanError = " << maths::CBasicStatistics::mean(meanError));
             LOG_DEBUG(<< "meanValue = " << maths::CBasicStatistics::mean(meanValue));
             BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(meanError) /
-                           maths::CBasicStatistics::mean(meanValue) <
-                       0.1 / std::sqrt(static_cast<double>(p + 1)));
+                                   maths::CBasicStatistics::mean(meanValue) <
+                               0.1 / std::sqrt(static_cast<double>(p + 1)));
         }
     }
     LOG_DEBUG(<< "*** Variances ***");
@@ -521,8 +521,8 @@ BOOST_AUTO_TEST_CASE(testKnots) {
                 LOG_DEBUG(<< "meanError    = " << maths::CBasicStatistics::mean(meanError));
                 LOG_DEBUG(<< "meanVariance = " << maths::CBasicStatistics::mean(meanVariance));
                 BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(meanError) /
-                               maths::CBasicStatistics::mean(meanVariance) <
-                           0.2);
+                                       maths::CBasicStatistics::mean(meanVariance) <
+                                   0.2);
             }
         }
     }
@@ -581,8 +581,8 @@ BOOST_AUTO_TEST_CASE(testLongTermTrendKnots) {
             LOG_DEBUG(<< "meanError = " << maths::CBasicStatistics::mean(meanError));
             LOG_DEBUG(<< "meanValue = " << maths::CBasicStatistics::mean(meanValue));
             BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(meanError) /
-                           maths::CBasicStatistics::mean(meanValue) <
-                       0.15);
+                                   maths::CBasicStatistics::mean(meanValue) <
+                               0.15);
         }
     }
 }
@@ -622,9 +622,9 @@ BOOST_AUTO_TEST_CASE(testShiftValue) {
     bucketing.knots(t + 7 * 86400, maths::CSplineTypes::E_Natural, knots2, values2, variances2);
 
     BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(knots1),
-                      core::CContainerPrinter::print(knots2));
+                        core::CContainerPrinter::print(knots2));
     BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(variances1),
-                      core::CContainerPrinter::print(variances2));
+                        core::CContainerPrinter::print(variances2));
 
     for (std::size_t i = 0u; i < values1.size(); ++i) {
         LOG_DEBUG(<< "values = " << values1[i] << " vs " << values2[i]);
@@ -775,17 +775,17 @@ BOOST_AUTO_TEST_CASE(testUpgrade) {
     LOG_DEBUG(<< "expected knots = " << core::CContainerPrinter::print(expectedKnots));
     LOG_DEBUG(<< "restored knots = " << core::CContainerPrinter::print(restoredKnots));
     BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(expectedKnots),
-                      core::CContainerPrinter::print(restoredKnots));
+                        core::CContainerPrinter::print(restoredKnots));
 
     LOG_DEBUG(<< "expected values = " << core::CContainerPrinter::print(expectedValues));
     LOG_DEBUG(<< "restored values = " << core::CContainerPrinter::print(restoredValues));
     BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(expectedValues),
-                      core::CContainerPrinter::print(restoredValues));
+                        core::CContainerPrinter::print(restoredValues));
 
     LOG_DEBUG(<< "expected variances = " << core::CContainerPrinter::print(expectedVariances));
     LOG_DEBUG(<< "restored variances = " << core::CContainerPrinter::print(restoredVariances));
     BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(expectedVariances),
-                      core::CContainerPrinter::print(restoredVariances));
+                        core::CContainerPrinter::print(restoredVariances));
 }
 
 BOOST_AUTO_TEST_CASE(testName) {
@@ -796,8 +796,8 @@ BOOST_AUTO_TEST_CASE(testName) {
     maths::CSeasonalComponentAdaptiveBucketing bucketing(time, decayRate, minimumBucketLength);
 
     BOOST_REQUIRE_EQUAL(std::string("Seasonal[") + std::to_string(decayRate) +
-                          "," + std::to_string(minimumBucketLength) + "]",
-                      bucketing.name());
+                            "," + std::to_string(minimumBucketLength) + "]",
+                        bucketing.name());
 }
 
 BOOST_AUTO_TEST_SUITE_END()

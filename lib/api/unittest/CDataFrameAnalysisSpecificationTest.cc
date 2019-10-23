@@ -136,7 +136,7 @@ BOOST_AUTO_TEST_CASE(testCreate) {
         BOOST_REQUIRE_EQUAL(std::size_t{2}, spec.numberThreads());
         BOOST_REQUIRE_EQUAL(std::string("custom_ml"), spec.resultsField());
         BOOST_REQUIRE_EQUAL(std::string("[x, y]"),
-                          core::CContainerPrinter::print(spec.categoricalFieldNames()));
+                            core::CContainerPrinter::print(spec.categoricalFieldNames()));
     }
 
     LOG_DEBUG(<< "Bad input");
@@ -395,8 +395,8 @@ BOOST_AUTO_TEST_CASE(testTempDirDiskUsage) {
         // single error is registered that temp dir is empty
         BOOST_REQUIRE_EQUAL(static_cast<std::size_t>(1), errors.size());
         BOOST_TEST_REQUIRE(errors[0].find("Input error: temporary directory path should"
-                                  " be explicitly set if disk usage is allowed!") !=
-                   std::string::npos);
+                                          " be explicitly set if disk usage is allowed!") !=
+                           std::string::npos);
     }
 
     // No temp dir given, no disk usage allowed
