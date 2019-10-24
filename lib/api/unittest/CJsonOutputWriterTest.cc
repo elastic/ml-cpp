@@ -29,251 +29,19 @@
 
 #include <boost/test/unit_test.hpp>
 
+#include <fstream>
 #include <set>
 #include <sstream>
 #include <string>
 
 BOOST_AUTO_TEST_SUITE(CJsonOutputWriterTest)
 
+namespace {
 using TDouble1Vec = ml::core::CSmallVector<double, 1>;
 using TStr1Vec = ml::core::CSmallVector<std::string, 1>;
 const TStr1Vec EMPTY_STRING_LIST;
 
-BOOST_AUTO_TEST_CASE(testSimpleWrite) {
-    // Data isn't grouped by bucket/detector record it
-    // is written straight through and everything is a string
-    ml::api::CJsonOutputWriter::TStrStrUMap dataFields;
-
-    dataFields["anomalyFactor"] = "2.24";
-    dataFields["by_field_name"] = "airline";
-    dataFields["by_field_value"] = "GAL";
-    dataFields["typical"] = "6953";
-    dataFields["actual"] = "10090";
-    dataFields["probability"] = "0";
-    dataFields["field_name"] = "responsetime";
-
-    ml::api::CJsonOutputWriter::TStrStrUMap emptyFields;
-
-    std::ostringstream sstream;
-
-    // The output writer won't close the JSON structures until is is destroyed
-    {
-        ml::core::CJsonOutputStreamWrapper outputStream(sstream);
-        ml::api::CJsonOutputWriter writer("job", outputStream);
-        writer.writeRow(emptyFields, dataFields);
-
-        dataFields["by_field_name"] = "busroute";
-        dataFields["by_field_value"] = "No 32";
-        writer.writeRow(emptyFields, dataFields);
-    }
-
-    rapidjson::Document arrayDoc;
-    arrayDoc.Parse<rapidjson::kParseDefaultFlags>(sstream.str().c_str());
-
-    BOOST_TEST_REQUIRE(arrayDoc.IsArray());
-    BOOST_REQUIRE_EQUAL(rapidjson::SizeType(2), arrayDoc.Size());
-
-    const rapidjson::Value& object = arrayDoc[rapidjson::SizeType(0)];
-    BOOST_TEST_REQUIRE(object.IsObject());
-
-    BOOST_TEST_REQUIRE(object.HasMember("by_field_name"));
-    BOOST_REQUIRE_EQUAL(std::string("airline"),
-                        std::string(object["by_field_name"].GetString()));
-    BOOST_TEST_REQUIRE(object.HasMember("by_field_value"));
-    BOOST_REQUIRE_EQUAL(std::string("GAL"),
-                        std::string(object["by_field_value"].GetString()));
-    BOOST_TEST_REQUIRE(object.HasMember("typical"));
-    BOOST_REQUIRE_EQUAL(std::string("6953"), std::string(object["typical"].GetString()));
-    BOOST_TEST_REQUIRE(object.HasMember("actual"));
-    BOOST_REQUIRE_EQUAL(std::string("10090"), std::string(object["actual"].GetString()));
-    BOOST_TEST_REQUIRE(object.HasMember("probability"));
-    BOOST_REQUIRE_EQUAL(std::string("0"), std::string(object["probability"].GetString()));
-    BOOST_TEST_REQUIRE(object.HasMember("field_name"));
-    BOOST_REQUIRE_EQUAL(std::string("responsetime"),
-                        std::string(object["field_name"].GetString()));
-
-    const rapidjson::Value& object2 = arrayDoc[rapidjson::SizeType(1)];
-    BOOST_TEST_REQUIRE(object.IsObject());
-
-    BOOST_TEST_REQUIRE(object2.HasMember("by_field_name"));
-    BOOST_REQUIRE_EQUAL(std::string("busroute"),
-                        std::string(object2["by_field_name"].GetString()));
-    BOOST_TEST_REQUIRE(object2.HasMember("by_field_value"));
-    BOOST_REQUIRE_EQUAL(std::string("No 32"),
-                        std::string(object2["by_field_value"].GetString()));
-    BOOST_TEST_REQUIRE(object2.HasMember("typical"));
-    BOOST_REQUIRE_EQUAL(std::string("6953"), std::string(object2["typical"].GetString()));
-    BOOST_TEST_REQUIRE(object2.HasMember("actual"));
-    BOOST_REQUIRE_EQUAL(std::string("10090"), std::string(object2["actual"].GetString()));
-    BOOST_TEST_REQUIRE(object2.HasMember("probability"));
-    BOOST_REQUIRE_EQUAL(std::string("0"), std::string(object2["probability"].GetString()));
-    BOOST_TEST_REQUIRE(object2.HasMember("field_name"));
-    BOOST_REQUIRE_EQUAL(std::string("responsetime"),
-                        std::string(object2["field_name"].GetString()));
-}
-
-BOOST_AUTO_TEST_CASE(testWriteNonAnomalousBucket) {
-    std::ostringstream sstream;
-
-    std::string function("mean");
-    std::string functionDescription("mean(responsetime)");
-    std::string emptyString;
-    ml::api::CHierarchicalResultsWriter::TStoredStringPtrStoredStringPtrPrDoublePrVec influences;
-    {
-        ml::core::CJsonOutputStreamWrapper outputStream(sstream);
-        ml::api::CJsonOutputWriter writer("job", outputStream);
-
-        ml::api::CHierarchicalResultsWriter::SResults result(
-            false, false, emptyString, emptyString, emptyString, emptyString,
-            emptyString, emptyString, emptyString, 1, function,
-            functionDescription, TDouble1Vec(1, 42.0), TDouble1Vec(1, 42.0),
-            0.0, 0.0, 1.0, 30, emptyString, influences, false, false, 1, 100);
-
-        BOOST_TEST_REQUIRE(writer.acceptResult(result));
-        writer.acceptBucketTimeInfluencer(1, 1.0, 0.0, 0.0);
-        BOOST_TEST_REQUIRE(writer.endOutputBatch(false, 10U));
-        writer.finalise();
-    }
-
-    rapidjson::Document arrayDoc;
-    arrayDoc.Parse<rapidjson::kParseDefaultFlags>(sstream.str().c_str());
-
-    rapidjson::StringBuffer strbuf;
-    using TStringBufferPrettyWriter = rapidjson::PrettyWriter<rapidjson::StringBuffer>;
-    TStringBufferPrettyWriter prettyPrinter(strbuf);
-    arrayDoc.Accept(prettyPrinter);
-    LOG_DEBUG(<< "Results:\n" << strbuf.GetString());
-
-    BOOST_TEST_REQUIRE(arrayDoc.IsArray());
-    BOOST_REQUIRE_EQUAL(rapidjson::SizeType(1), arrayDoc.Size());
-
-    const rapidjson::Value& bucketWrapper = arrayDoc[rapidjson::SizeType(0)];
-    BOOST_TEST_REQUIRE(bucketWrapper.IsObject());
-    BOOST_TEST_REQUIRE(bucketWrapper.HasMember("bucket"));
-
-    const rapidjson::Value& bucket = bucketWrapper["bucket"];
-    BOOST_TEST_REQUIRE(bucket.HasMember("job_id"));
-    BOOST_REQUIRE_EQUAL(std::string("job"), std::string(bucket["job_id"].GetString()));
-    BOOST_REQUIRE_EQUAL(1000, bucket["timestamp"].GetInt());
-    BOOST_TEST_REQUIRE(bucket.HasMember("bucket_influencers") == false);
-    BOOST_REQUIRE_EQUAL(0, bucket["event_count"].GetInt());
-    BOOST_TEST_REQUIRE(bucket.HasMember("anomaly_score"));
-    BOOST_REQUIRE_CLOSE_ABSOLUTE(0.0, bucket["anomaly_score"].GetDouble(), 0.00001);
-}
-
-BOOST_AUTO_TEST_CASE(testFlush) {
-    std::string testId("testflush");
-    ml::core_t::TTime lastFinalizedBucketEnd(123456789);
-    std::ostringstream sstream;
-
-    {
-        ml::core::CJsonOutputStreamWrapper outputStream(sstream);
-        ml::api::CJsonOutputWriter writer("job", outputStream);
-
-        writer.acknowledgeFlush(testId, lastFinalizedBucketEnd);
-    }
-
-    rapidjson::Document arrayDoc;
-    arrayDoc.Parse<rapidjson::kParseDefaultFlags>(sstream.str().c_str());
-
-    BOOST_TEST_REQUIRE(arrayDoc.IsArray());
-    BOOST_REQUIRE_EQUAL(rapidjson::SizeType(1), arrayDoc.Size());
-
-    rapidjson::StringBuffer strbuf;
-    using TStringBufferPrettyWriter = rapidjson::PrettyWriter<rapidjson::StringBuffer>;
-    TStringBufferPrettyWriter writer(strbuf);
-    arrayDoc.Accept(writer);
-    LOG_DEBUG(<< "Flush:\n" << strbuf.GetString());
-
-    const rapidjson::Value& flushWrapper = arrayDoc[rapidjson::SizeType(0)];
-    BOOST_TEST_REQUIRE(flushWrapper.IsObject());
-    BOOST_TEST_REQUIRE(flushWrapper.HasMember("flush"));
-
-    const rapidjson::Value& flush = flushWrapper["flush"];
-    BOOST_TEST_REQUIRE(flush.IsObject());
-    BOOST_TEST_REQUIRE(flush.HasMember("id"));
-    BOOST_REQUIRE_EQUAL(testId, std::string(flush["id"].GetString()));
-    BOOST_TEST_REQUIRE(flush.HasMember("last_finalized_bucket_end"));
-    BOOST_REQUIRE_EQUAL(lastFinalizedBucketEnd * 1000,
-                        static_cast<ml::core_t::TTime>(
-                            flush["last_finalized_bucket_end"].GetInt64()));
-}
-
-BOOST_AUTO_TEST_CASE(testWriteCategoryDefinition) {
-    int categoryId(42);
-    std::string terms("foo bar");
-    std::string regex(".*?foo.+?bar.*");
-    std::size_t maxMatchingLength(132);
-    using TStrSet = std::set<std::string>;
-    TStrSet examples;
-    examples.insert("User foo failed to log in");
-    examples.insert("User bar failed to log in");
-
-    std::ostringstream sstream;
-
-    {
-        ml::core::CJsonOutputStreamWrapper outputStream(sstream);
-        ml::api::CJsonOutputWriter writer("job", outputStream);
-
-        writer.writeCategoryDefinition(categoryId, terms, regex, maxMatchingLength, examples);
-    }
-
-    rapidjson::Document arrayDoc;
-    arrayDoc.Parse<rapidjson::kParseDefaultFlags>(sstream.str().c_str());
-
-    BOOST_TEST_REQUIRE(arrayDoc.IsArray());
-    BOOST_REQUIRE_EQUAL(rapidjson::SizeType(1), arrayDoc.Size());
-
-    rapidjson::StringBuffer strbuf;
-    using TStringBufferPrettyWriter = rapidjson::PrettyWriter<rapidjson::StringBuffer>;
-    TStringBufferPrettyWriter writer(strbuf);
-    arrayDoc.Accept(writer);
-    LOG_DEBUG(<< "CategoryDefinition:\n" << strbuf.GetString());
-
-    const rapidjson::Value& categoryWrapper = arrayDoc[rapidjson::SizeType(0)];
-    BOOST_TEST_REQUIRE(categoryWrapper.IsObject());
-    BOOST_TEST_REQUIRE(categoryWrapper.HasMember("category_definition"));
-
-    const rapidjson::Value& category = categoryWrapper["category_definition"];
-    BOOST_TEST_REQUIRE(category.HasMember("job_id"));
-    BOOST_REQUIRE_EQUAL(std::string("job"), std::string(category["job_id"].GetString()));
-    BOOST_TEST_REQUIRE(category.IsObject());
-    BOOST_TEST_REQUIRE(category.HasMember("category_id"));
-    BOOST_REQUIRE_EQUAL(categoryId, category["category_id"].GetInt());
-    BOOST_TEST_REQUIRE(category.HasMember("terms"));
-    BOOST_REQUIRE_EQUAL(terms, std::string(category["terms"].GetString()));
-    BOOST_TEST_REQUIRE(category.HasMember("regex"));
-    BOOST_REQUIRE_EQUAL(regex, std::string(category["regex"].GetString()));
-    BOOST_TEST_REQUIRE(category.HasMember("max_matching_length"));
-    BOOST_REQUIRE_EQUAL(maxMatchingLength,
-                        static_cast<std::size_t>(category["max_matching_length"].GetInt()));
-    BOOST_TEST_REQUIRE(category.HasMember("examples"));
-
-    TStrSet writtenExamplesSet;
-    const rapidjson::Value& writtenExamples = category["examples"];
-    for (rapidjson::SizeType i = 0; i < writtenExamples.Size(); i++) {
-        writtenExamplesSet.insert(std::string(writtenExamples[i].GetString()));
-    }
-    BOOST_TEST_REQUIRE(writtenExamplesSet == examples);
-}
-
-BOOST_AUTO_TEST_CASE(testBucketWrite) {
-    this->testBucketWriteHelper(false);
-}
-
-BOOST_AUTO_TEST_CASE(testBucketWriteInterim) {
-    this->testBucketWriteHelper(true);
-}
-
-BOOST_AUTO_TEST_CASE(testLimitedRecordsWrite) {
-    this->testLimitedRecordsWriteHelper(false);
-}
-
-BOOST_AUTO_TEST_CASE(testLimitedRecordsWriteInterim) {
-    this->testLimitedRecordsWriteHelper(true);
-}
-
-BOOST_AUTO_TEST_CASE(testBucketWriteHelperbool isInterim) {
+void testBucketWriteHelper(bool isInterim) {
     // groups output by bucket/detector
 
     std::ostringstream sstream;
@@ -735,7 +503,7 @@ BOOST_AUTO_TEST_CASE(testBucketWriteHelperbool isInterim) {
     }
 }
 
-BOOST_AUTO_TEST_CASE(testLimitedRecordsWriteHelperbool isInterim) {
+void testLimitedRecordsWriteHelper(bool isInterim) {
     // Tests CJsonOutputWriter::limitNumberRecords(size_t)
     // set the record limit for each detector to 2
 
@@ -1108,6 +876,345 @@ createBucketInfluencerNode(const std::string& personName,
     node.s_Spec = spec;
 
     return node;
+}
+
+void testThroughputHelper(bool useScopedAllocator) {
+    // Write to /dev/null (Unix) or nul (Windows)
+    std::ofstream ofs(ml::core::COsFileFuncs::NULL_FILENAME);
+    BOOST_TEST_REQUIRE(ofs.is_open());
+
+    ml::core::CJsonOutputStreamWrapper outputStream(ofs);
+    ml::api::CJsonOutputWriter writer("job", outputStream);
+
+    std::string partitionFieldName("tfn");
+    std::string partitionFieldValue("");
+    std::string overFieldName("pfn");
+    std::string overFieldValue("pfv");
+    std::string byFieldName("airline");
+    std::string byFieldValue("GAL");
+    std::string correlatedByFieldValue("BAW");
+    std::string fieldName("responsetime");
+    std::string function("mean");
+    std::string functionDescription("mean(responsetime)");
+    std::string emptyString;
+    ml::api::CHierarchicalResultsWriter::TStoredStringPtrStoredStringPtrPrDoublePrVec influences;
+
+    ml::api::CHierarchicalResultsWriter::SResults result11(
+        false, false, partitionFieldName, partitionFieldValue, overFieldName,
+        overFieldValue, byFieldName, byFieldValue, correlatedByFieldValue, 1, function,
+        functionDescription, TDouble1Vec(1, 10090.0), TDouble1Vec(1, 6953.0),
+        2.24, 0.5, 0.0, 79, fieldName, influences, false, false, 1, 100);
+
+    ml::api::CHierarchicalResultsWriter::SResults result112(
+        false, true, partitionFieldName, partitionFieldValue, overFieldName,
+        overFieldValue, byFieldName, byFieldValue, correlatedByFieldValue, 1, function,
+        functionDescription, TDouble1Vec(1, 10090.0), TDouble1Vec(1, 6953.0),
+        2.24, 0.5, 0.0, 79, fieldName, influences, false, false, 1, 100);
+
+    ml::api::CHierarchicalResultsWriter::SResults result12(
+        ml::api::CHierarchicalResultsWriter::E_Result, partitionFieldName,
+        partitionFieldValue, byFieldName, byFieldValue, correlatedByFieldValue,
+        1, function, functionDescription, 42.0, 79, TDouble1Vec(1, 6953.0),
+        TDouble1Vec(1, 10090.0), 2.24, 0.8, 0.0, -5.0, fieldName, influences,
+        false, true, 2, 100, EMPTY_STRING_LIST);
+
+    ml::api::CHierarchicalResultsWriter::SResults result13(
+        ml::api::CHierarchicalResultsWriter::E_SimpleCountResult,
+        partitionFieldName, partitionFieldValue, byFieldName, byFieldValue,
+        correlatedByFieldValue, 1, function, functionDescription, 42.0, 79,
+        TDouble1Vec(1, 6953.0), TDouble1Vec(1, 10090.0), 2.24, 0.5, 0.0, -5.0,
+        fieldName, influences, false, false, 3, 100, EMPTY_STRING_LIST);
+
+    ml::api::CHierarchicalResultsWriter::SResults result14(
+        ml::api::CHierarchicalResultsWriter::E_Result, partitionFieldName,
+        partitionFieldValue, byFieldName, byFieldValue, correlatedByFieldValue,
+        1, function, functionDescription, 42.0, 79, TDouble1Vec(1, 6953.0),
+        TDouble1Vec(1, 10090.0), 2.24, 0.0, 0.0, -5.0, fieldName, influences,
+        false, false, 4, 100, EMPTY_STRING_LIST);
+
+    // 1st bucket
+    writer.acceptBucketTimeInfluencer(1, 0.01, 13.44, 70.0);
+
+    // Write the record this many times
+    static const size_t TEST_SIZE(75000);
+
+    ml::core_t::TTime start(ml::core::CTimeUtils::now());
+    LOG_INFO(<< "Starting throughput test at " << ml::core::CTimeUtils::toTimeString(start));
+
+    for (size_t count = 0; count < TEST_SIZE; ++count) {
+        if (useScopedAllocator) {
+            using TScopedAllocator =
+                ml::core::CScopedRapidJsonPoolAllocator<ml::api::CJsonOutputWriter>;
+            static const std::string ALLOCATOR_ID("CAnomalyJob::writeOutResults");
+            TScopedAllocator scopedAllocator(ALLOCATOR_ID, writer);
+
+            BOOST_TEST_REQUIRE(writer.acceptResult(result11));
+            BOOST_TEST_REQUIRE(writer.acceptResult(result11));
+            BOOST_TEST_REQUIRE(writer.acceptResult(result112));
+            BOOST_TEST_REQUIRE(writer.acceptResult(result12));
+            BOOST_TEST_REQUIRE(writer.acceptResult(result12));
+            BOOST_TEST_REQUIRE(writer.acceptResult(result13));
+            BOOST_TEST_REQUIRE(writer.acceptResult(result13));
+            BOOST_TEST_REQUIRE(writer.acceptResult(result14));
+            BOOST_TEST_REQUIRE(writer.acceptResult(result14));
+
+            // Finished adding results
+            BOOST_TEST_REQUIRE(writer.endOutputBatch(false, 1U));
+        } else {
+            BOOST_TEST_REQUIRE(writer.acceptResult(result11));
+            BOOST_TEST_REQUIRE(writer.acceptResult(result11));
+            BOOST_TEST_REQUIRE(writer.acceptResult(result112));
+            BOOST_TEST_REQUIRE(writer.acceptResult(result12));
+            BOOST_TEST_REQUIRE(writer.acceptResult(result12));
+            BOOST_TEST_REQUIRE(writer.acceptResult(result13));
+            BOOST_TEST_REQUIRE(writer.acceptResult(result13));
+            BOOST_TEST_REQUIRE(writer.acceptResult(result14));
+            BOOST_TEST_REQUIRE(writer.acceptResult(result14));
+
+            // Finished adding results
+            BOOST_TEST_REQUIRE(writer.endOutputBatch(false, 1U));
+        }
+    }
+
+    ml::core_t::TTime end(ml::core::CTimeUtils::now());
+    LOG_INFO(<< "Finished throughput test at " << ml::core::CTimeUtils::toTimeString(end));
+
+    LOG_INFO(<< "Writing " << TEST_SIZE << " records took " << (end - start) << " seconds");
+}
+}
+
+BOOST_AUTO_TEST_CASE(testSimpleWrite) {
+    // Data isn't grouped by bucket/detector record it
+    // is written straight through and everything is a string
+    ml::api::CJsonOutputWriter::TStrStrUMap dataFields;
+
+    dataFields["anomalyFactor"] = "2.24";
+    dataFields["by_field_name"] = "airline";
+    dataFields["by_field_value"] = "GAL";
+    dataFields["typical"] = "6953";
+    dataFields["actual"] = "10090";
+    dataFields["probability"] = "0";
+    dataFields["field_name"] = "responsetime";
+
+    ml::api::CJsonOutputWriter::TStrStrUMap emptyFields;
+
+    std::ostringstream sstream;
+
+    // The output writer won't close the JSON structures until is is destroyed
+    {
+        ml::core::CJsonOutputStreamWrapper outputStream(sstream);
+        ml::api::CJsonOutputWriter writer("job", outputStream);
+        writer.writeRow(emptyFields, dataFields);
+
+        dataFields["by_field_name"] = "busroute";
+        dataFields["by_field_value"] = "No 32";
+        writer.writeRow(emptyFields, dataFields);
+    }
+
+    rapidjson::Document arrayDoc;
+    arrayDoc.Parse<rapidjson::kParseDefaultFlags>(sstream.str().c_str());
+
+    BOOST_TEST_REQUIRE(arrayDoc.IsArray());
+    BOOST_REQUIRE_EQUAL(rapidjson::SizeType(2), arrayDoc.Size());
+
+    const rapidjson::Value& object = arrayDoc[rapidjson::SizeType(0)];
+    BOOST_TEST_REQUIRE(object.IsObject());
+
+    BOOST_TEST_REQUIRE(object.HasMember("by_field_name"));
+    BOOST_REQUIRE_EQUAL(std::string("airline"),
+                        std::string(object["by_field_name"].GetString()));
+    BOOST_TEST_REQUIRE(object.HasMember("by_field_value"));
+    BOOST_REQUIRE_EQUAL(std::string("GAL"),
+                        std::string(object["by_field_value"].GetString()));
+    BOOST_TEST_REQUIRE(object.HasMember("typical"));
+    BOOST_REQUIRE_EQUAL(std::string("6953"), std::string(object["typical"].GetString()));
+    BOOST_TEST_REQUIRE(object.HasMember("actual"));
+    BOOST_REQUIRE_EQUAL(std::string("10090"), std::string(object["actual"].GetString()));
+    BOOST_TEST_REQUIRE(object.HasMember("probability"));
+    BOOST_REQUIRE_EQUAL(std::string("0"), std::string(object["probability"].GetString()));
+    BOOST_TEST_REQUIRE(object.HasMember("field_name"));
+    BOOST_REQUIRE_EQUAL(std::string("responsetime"),
+                        std::string(object["field_name"].GetString()));
+
+    const rapidjson::Value& object2 = arrayDoc[rapidjson::SizeType(1)];
+    BOOST_TEST_REQUIRE(object.IsObject());
+
+    BOOST_TEST_REQUIRE(object2.HasMember("by_field_name"));
+    BOOST_REQUIRE_EQUAL(std::string("busroute"),
+                        std::string(object2["by_field_name"].GetString()));
+    BOOST_TEST_REQUIRE(object2.HasMember("by_field_value"));
+    BOOST_REQUIRE_EQUAL(std::string("No 32"),
+                        std::string(object2["by_field_value"].GetString()));
+    BOOST_TEST_REQUIRE(object2.HasMember("typical"));
+    BOOST_REQUIRE_EQUAL(std::string("6953"), std::string(object2["typical"].GetString()));
+    BOOST_TEST_REQUIRE(object2.HasMember("actual"));
+    BOOST_REQUIRE_EQUAL(std::string("10090"), std::string(object2["actual"].GetString()));
+    BOOST_TEST_REQUIRE(object2.HasMember("probability"));
+    BOOST_REQUIRE_EQUAL(std::string("0"), std::string(object2["probability"].GetString()));
+    BOOST_TEST_REQUIRE(object2.HasMember("field_name"));
+    BOOST_REQUIRE_EQUAL(std::string("responsetime"),
+                        std::string(object2["field_name"].GetString()));
+}
+
+BOOST_AUTO_TEST_CASE(testWriteNonAnomalousBucket) {
+    std::ostringstream sstream;
+
+    std::string function("mean");
+    std::string functionDescription("mean(responsetime)");
+    std::string emptyString;
+    ml::api::CHierarchicalResultsWriter::TStoredStringPtrStoredStringPtrPrDoublePrVec influences;
+    {
+        ml::core::CJsonOutputStreamWrapper outputStream(sstream);
+        ml::api::CJsonOutputWriter writer("job", outputStream);
+
+        ml::api::CHierarchicalResultsWriter::SResults result(
+            false, false, emptyString, emptyString, emptyString, emptyString,
+            emptyString, emptyString, emptyString, 1, function,
+            functionDescription, TDouble1Vec(1, 42.0), TDouble1Vec(1, 42.0),
+            0.0, 0.0, 1.0, 30, emptyString, influences, false, false, 1, 100);
+
+        BOOST_TEST_REQUIRE(writer.acceptResult(result));
+        writer.acceptBucketTimeInfluencer(1, 1.0, 0.0, 0.0);
+        BOOST_TEST_REQUIRE(writer.endOutputBatch(false, 10U));
+        writer.finalise();
+    }
+
+    rapidjson::Document arrayDoc;
+    arrayDoc.Parse<rapidjson::kParseDefaultFlags>(sstream.str().c_str());
+
+    rapidjson::StringBuffer strbuf;
+    using TStringBufferPrettyWriter = rapidjson::PrettyWriter<rapidjson::StringBuffer>;
+    TStringBufferPrettyWriter prettyPrinter(strbuf);
+    arrayDoc.Accept(prettyPrinter);
+    LOG_DEBUG(<< "Results:\n" << strbuf.GetString());
+
+    BOOST_TEST_REQUIRE(arrayDoc.IsArray());
+    BOOST_REQUIRE_EQUAL(rapidjson::SizeType(1), arrayDoc.Size());
+
+    const rapidjson::Value& bucketWrapper = arrayDoc[rapidjson::SizeType(0)];
+    BOOST_TEST_REQUIRE(bucketWrapper.IsObject());
+    BOOST_TEST_REQUIRE(bucketWrapper.HasMember("bucket"));
+
+    const rapidjson::Value& bucket = bucketWrapper["bucket"];
+    BOOST_TEST_REQUIRE(bucket.HasMember("job_id"));
+    BOOST_REQUIRE_EQUAL(std::string("job"), std::string(bucket["job_id"].GetString()));
+    BOOST_REQUIRE_EQUAL(1000, bucket["timestamp"].GetInt());
+    BOOST_TEST_REQUIRE(bucket.HasMember("bucket_influencers") == false);
+    BOOST_REQUIRE_EQUAL(0, bucket["event_count"].GetInt());
+    BOOST_TEST_REQUIRE(bucket.HasMember("anomaly_score"));
+    BOOST_REQUIRE_CLOSE_ABSOLUTE(0.0, bucket["anomaly_score"].GetDouble(), 0.00001);
+}
+
+BOOST_AUTO_TEST_CASE(testFlush) {
+    std::string testId("testflush");
+    ml::core_t::TTime lastFinalizedBucketEnd(123456789);
+    std::ostringstream sstream;
+
+    {
+        ml::core::CJsonOutputStreamWrapper outputStream(sstream);
+        ml::api::CJsonOutputWriter writer("job", outputStream);
+
+        writer.acknowledgeFlush(testId, lastFinalizedBucketEnd);
+    }
+
+    rapidjson::Document arrayDoc;
+    arrayDoc.Parse<rapidjson::kParseDefaultFlags>(sstream.str().c_str());
+
+    BOOST_TEST_REQUIRE(arrayDoc.IsArray());
+    BOOST_REQUIRE_EQUAL(rapidjson::SizeType(1), arrayDoc.Size());
+
+    rapidjson::StringBuffer strbuf;
+    using TStringBufferPrettyWriter = rapidjson::PrettyWriter<rapidjson::StringBuffer>;
+    TStringBufferPrettyWriter writer(strbuf);
+    arrayDoc.Accept(writer);
+    LOG_DEBUG(<< "Flush:\n" << strbuf.GetString());
+
+    const rapidjson::Value& flushWrapper = arrayDoc[rapidjson::SizeType(0)];
+    BOOST_TEST_REQUIRE(flushWrapper.IsObject());
+    BOOST_TEST_REQUIRE(flushWrapper.HasMember("flush"));
+
+    const rapidjson::Value& flush = flushWrapper["flush"];
+    BOOST_TEST_REQUIRE(flush.IsObject());
+    BOOST_TEST_REQUIRE(flush.HasMember("id"));
+    BOOST_REQUIRE_EQUAL(testId, std::string(flush["id"].GetString()));
+    BOOST_TEST_REQUIRE(flush.HasMember("last_finalized_bucket_end"));
+    BOOST_REQUIRE_EQUAL(lastFinalizedBucketEnd * 1000,
+                        static_cast<ml::core_t::TTime>(
+                            flush["last_finalized_bucket_end"].GetInt64()));
+}
+
+BOOST_AUTO_TEST_CASE(testWriteCategoryDefinition) {
+    int categoryId(42);
+    std::string terms("foo bar");
+    std::string regex(".*?foo.+?bar.*");
+    std::size_t maxMatchingLength(132);
+    using TStrSet = std::set<std::string>;
+    TStrSet examples;
+    examples.insert("User foo failed to log in");
+    examples.insert("User bar failed to log in");
+
+    std::ostringstream sstream;
+
+    {
+        ml::core::CJsonOutputStreamWrapper outputStream(sstream);
+        ml::api::CJsonOutputWriter writer("job", outputStream);
+
+        writer.writeCategoryDefinition(categoryId, terms, regex, maxMatchingLength, examples);
+    }
+
+    rapidjson::Document arrayDoc;
+    arrayDoc.Parse<rapidjson::kParseDefaultFlags>(sstream.str().c_str());
+
+    BOOST_TEST_REQUIRE(arrayDoc.IsArray());
+    BOOST_REQUIRE_EQUAL(rapidjson::SizeType(1), arrayDoc.Size());
+
+    rapidjson::StringBuffer strbuf;
+    using TStringBufferPrettyWriter = rapidjson::PrettyWriter<rapidjson::StringBuffer>;
+    TStringBufferPrettyWriter writer(strbuf);
+    arrayDoc.Accept(writer);
+    LOG_DEBUG(<< "CategoryDefinition:\n" << strbuf.GetString());
+
+    const rapidjson::Value& categoryWrapper = arrayDoc[rapidjson::SizeType(0)];
+    BOOST_TEST_REQUIRE(categoryWrapper.IsObject());
+    BOOST_TEST_REQUIRE(categoryWrapper.HasMember("category_definition"));
+
+    const rapidjson::Value& category = categoryWrapper["category_definition"];
+    BOOST_TEST_REQUIRE(category.HasMember("job_id"));
+    BOOST_REQUIRE_EQUAL(std::string("job"), std::string(category["job_id"].GetString()));
+    BOOST_TEST_REQUIRE(category.IsObject());
+    BOOST_TEST_REQUIRE(category.HasMember("category_id"));
+    BOOST_REQUIRE_EQUAL(categoryId, category["category_id"].GetInt());
+    BOOST_TEST_REQUIRE(category.HasMember("terms"));
+    BOOST_REQUIRE_EQUAL(terms, std::string(category["terms"].GetString()));
+    BOOST_TEST_REQUIRE(category.HasMember("regex"));
+    BOOST_REQUIRE_EQUAL(regex, std::string(category["regex"].GetString()));
+    BOOST_TEST_REQUIRE(category.HasMember("max_matching_length"));
+    BOOST_REQUIRE_EQUAL(maxMatchingLength,
+                        static_cast<std::size_t>(category["max_matching_length"].GetInt()));
+    BOOST_TEST_REQUIRE(category.HasMember("examples"));
+
+    TStrSet writtenExamplesSet;
+    const rapidjson::Value& writtenExamples = category["examples"];
+    for (rapidjson::SizeType i = 0; i < writtenExamples.Size(); i++) {
+        writtenExamplesSet.insert(std::string(writtenExamples[i].GetString()));
+    }
+    BOOST_TEST_REQUIRE(writtenExamplesSet == examples);
+}
+
+BOOST_AUTO_TEST_CASE(testBucketWrite) {
+    testBucketWriteHelper(false);
+}
+
+BOOST_AUTO_TEST_CASE(testBucketWriteInterim) {
+    testBucketWriteHelper(true);
+}
+
+BOOST_AUTO_TEST_CASE(testLimitedRecordsWrite) {
+    testLimitedRecordsWriteHelper(false);
+}
+
+BOOST_AUTO_TEST_CASE(testLimitedRecordsWriteInterim) {
+    testLimitedRecordsWriteHelper(true);
 }
 
 BOOST_AUTO_TEST_CASE(testWriteInfluencers) {
@@ -1622,115 +1729,11 @@ BOOST_AUTO_TEST_CASE(testWriteScheduledEvent) {
 }
 
 BOOST_AUTO_TEST_CASE(testThroughputWithScopedAllocator) {
-    this->testThroughputHelper(true);
+    testThroughputHelper(true);
 }
 
 BOOST_AUTO_TEST_CASE(testThroughputWithoutScopedAllocator) {
-    this->testThroughputHelper(false);
-}
-
-BOOST_AUTO_TEST_CASE(testThroughputHelperbool useScopedAllocator) {
-    // Write to /dev/null (Unix) or nul (Windows)
-    std::ofstream ofs(ml::core::COsFileFuncs::NULL_FILENAME);
-    BOOST_TEST_REQUIRE(ofs.is_open());
-
-    ml::core::CJsonOutputStreamWrapper outputStream(ofs);
-    ml::api::CJsonOutputWriter writer("job", outputStream);
-
-    std::string partitionFieldName("tfn");
-    std::string partitionFieldValue("");
-    std::string overFieldName("pfn");
-    std::string overFieldValue("pfv");
-    std::string byFieldName("airline");
-    std::string byFieldValue("GAL");
-    std::string correlatedByFieldValue("BAW");
-    std::string fieldName("responsetime");
-    std::string function("mean");
-    std::string functionDescription("mean(responsetime)");
-    std::string emptyString;
-    ml::api::CHierarchicalResultsWriter::TStoredStringPtrStoredStringPtrPrDoublePrVec influences;
-
-    ml::api::CHierarchicalResultsWriter::SResults result11(
-        false, false, partitionFieldName, partitionFieldValue, overFieldName,
-        overFieldValue, byFieldName, byFieldValue, correlatedByFieldValue, 1, function,
-        functionDescription, TDouble1Vec(1, 10090.0), TDouble1Vec(1, 6953.0),
-        2.24, 0.5, 0.0, 79, fieldName, influences, false, false, 1, 100);
-
-    ml::api::CHierarchicalResultsWriter::SResults result112(
-        false, true, partitionFieldName, partitionFieldValue, overFieldName,
-        overFieldValue, byFieldName, byFieldValue, correlatedByFieldValue, 1, function,
-        functionDescription, TDouble1Vec(1, 10090.0), TDouble1Vec(1, 6953.0),
-        2.24, 0.5, 0.0, 79, fieldName, influences, false, false, 1, 100);
-
-    ml::api::CHierarchicalResultsWriter::SResults result12(
-        ml::api::CHierarchicalResultsWriter::E_Result, partitionFieldName,
-        partitionFieldValue, byFieldName, byFieldValue, correlatedByFieldValue,
-        1, function, functionDescription, 42.0, 79, TDouble1Vec(1, 6953.0),
-        TDouble1Vec(1, 10090.0), 2.24, 0.8, 0.0, -5.0, fieldName, influences,
-        false, true, 2, 100, EMPTY_STRING_LIST);
-
-    ml::api::CHierarchicalResultsWriter::SResults result13(
-        ml::api::CHierarchicalResultsWriter::E_SimpleCountResult,
-        partitionFieldName, partitionFieldValue, byFieldName, byFieldValue,
-        correlatedByFieldValue, 1, function, functionDescription, 42.0, 79,
-        TDouble1Vec(1, 6953.0), TDouble1Vec(1, 10090.0), 2.24, 0.5, 0.0, -5.0,
-        fieldName, influences, false, false, 3, 100, EMPTY_STRING_LIST);
-
-    ml::api::CHierarchicalResultsWriter::SResults result14(
-        ml::api::CHierarchicalResultsWriter::E_Result, partitionFieldName,
-        partitionFieldValue, byFieldName, byFieldValue, correlatedByFieldValue,
-        1, function, functionDescription, 42.0, 79, TDouble1Vec(1, 6953.0),
-        TDouble1Vec(1, 10090.0), 2.24, 0.0, 0.0, -5.0, fieldName, influences,
-        false, false, 4, 100, EMPTY_STRING_LIST);
-
-    // 1st bucket
-    writer.acceptBucketTimeInfluencer(1, 0.01, 13.44, 70.0);
-
-    // Write the record this many times
-    static const size_t TEST_SIZE(75000);
-
-    ml::core_t::TTime start(ml::core::CTimeUtils::now());
-    LOG_INFO(<< "Starting throughput test at " << ml::core::CTimeUtils::toTimeString(start));
-
-    for (size_t count = 0; count < TEST_SIZE; ++count) {
-        if (useScopedAllocator) {
-            using TScopedAllocator =
-                ml::core::CScopedRapidJsonPoolAllocator<ml::api::CJsonOutputWriter>;
-            static const std::string ALLOCATOR_ID("CAnomalyJob::writeOutResults");
-            TScopedAllocator scopedAllocator(ALLOCATOR_ID, writer);
-
-            BOOST_TEST_REQUIRE(writer.acceptResult(result11));
-            BOOST_TEST_REQUIRE(writer.acceptResult(result11));
-            BOOST_TEST_REQUIRE(writer.acceptResult(result112));
-            BOOST_TEST_REQUIRE(writer.acceptResult(result12));
-            BOOST_TEST_REQUIRE(writer.acceptResult(result12));
-            BOOST_TEST_REQUIRE(writer.acceptResult(result13));
-            BOOST_TEST_REQUIRE(writer.acceptResult(result13));
-            BOOST_TEST_REQUIRE(writer.acceptResult(result14));
-            BOOST_TEST_REQUIRE(writer.acceptResult(result14));
-
-            // Finished adding results
-            BOOST_TEST_REQUIRE(writer.endOutputBatch(false, 1U));
-        } else {
-            BOOST_TEST_REQUIRE(writer.acceptResult(result11));
-            BOOST_TEST_REQUIRE(writer.acceptResult(result11));
-            BOOST_TEST_REQUIRE(writer.acceptResult(result112));
-            BOOST_TEST_REQUIRE(writer.acceptResult(result12));
-            BOOST_TEST_REQUIRE(writer.acceptResult(result12));
-            BOOST_TEST_REQUIRE(writer.acceptResult(result13));
-            BOOST_TEST_REQUIRE(writer.acceptResult(result13));
-            BOOST_TEST_REQUIRE(writer.acceptResult(result14));
-            BOOST_TEST_REQUIRE(writer.acceptResult(result14));
-
-            // Finished adding results
-            BOOST_TEST_REQUIRE(writer.endOutputBatch(false, 1U));
-        }
-    }
-
-    ml::core_t::TTime end(ml::core::CTimeUtils::now());
-    LOG_INFO(<< "Finished throughput test at " << ml::core::CTimeUtils::toTimeString(end));
-
-    LOG_INFO(<< "Writing " << TEST_SIZE << " records took " << (end - start) << " seconds");
+    testThroughputHelper(false);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

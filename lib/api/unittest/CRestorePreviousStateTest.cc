@@ -4,8 +4,6 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
-#include "CSingleStreamDataAdderTest.h"
-
 #include <core/CJsonOutputStreamWrapper.h>
 #include <core/CLogger.h>
 #include <core/COsFileFuncs.h>
@@ -53,75 +51,31 @@ struct SRestoreTestConfig {
 const std::vector<SRestoreTestConfig> BWC_VERSIONS{
     SRestoreTestConfig{"5.6.0", false, true}, SRestoreTestConfig{"6.0.0", false, true},
     SRestoreTestConfig{"6.1.0", false, true}};
-}
 
-BOOST_AUTO_TEST_CASE(testRestoreDetectorBy) {
-    for (const auto& version : BWC_VERSIONS) {
-        LOG_INFO(<< "Test restoring state from version " << version.s_Version);
-        this->anomalyDetectorRestoreHelper(
-            "testfiles/state/" + version.s_Version + "/by_detector_state.json",
-            "testfiles/new_mlfields.conf", version.s_DetectorRestoreIsSymmetric, 0);
+std::string stripDocIds(const std::string& persistedState) {
+    // State is persisted in the Elasticsearch bulk format.
+    // This is an index action followed by the document source:
+    // { "index": { "id": "foo" ... }}\n
+    // { "field1" : "value1", ... }\n
+    //
+    // Only the doc IDs should be different so strip out the lines with index operations
+    std::istringstream input(persistedState);
+    std::ostringstream output;
+
+    std::string line;
+    while (std::getline(input, line)) {
+        // Remove lines with the document IDs
+        if (line.compare(0, 16, "{\"index\":{\"_id\":") != 0) {
+            output << line;
+        }
     }
+
+    std::string strippedText = output.str();
+    LOG_TRACE(<< "Stripped:" << strippedText << ml::core_t::LINE_ENDING);
+    return strippedText;
 }
 
-BOOST_AUTO_TEST_CASE(testRestoreDetectorOver) {
-    for (const auto& version : BWC_VERSIONS) {
-        LOG_INFO(<< "Test restoring state from version " << version.s_Version);
-        this->anomalyDetectorRestoreHelper(
-            "testfiles/state/" + version.s_Version + "/over_detector_state.json",
-            "testfiles/new_mlfields_over.conf", version.s_DetectorRestoreIsSymmetric, 0);
-    }
-}
-
-BOOST_AUTO_TEST_CASE(testRestoreDetectorPartition) {
-    for (const auto& version : BWC_VERSIONS) {
-        LOG_INFO(<< "Test restoring state from version " << version.s_Version);
-        this->anomalyDetectorRestoreHelper(
-            "testfiles/state/" + version.s_Version + "/partition_detector_state.json",
-            "testfiles/new_mlfields_partition.conf",
-            version.s_DetectorRestoreIsSymmetric, 0);
-    }
-}
-
-BOOST_AUTO_TEST_CASE(testRestoreDetectorDc) {
-    for (const auto& version : BWC_VERSIONS) {
-        LOG_INFO(<< "Test restoring state from version " << version.s_Version);
-        this->anomalyDetectorRestoreHelper(
-            "testfiles/state/" + version.s_Version + "/dc_detector_state.json",
-            "testfiles/new_persist_dc.conf", version.s_DetectorRestoreIsSymmetric, 5);
-    }
-}
-
-BOOST_AUTO_TEST_CASE(testRestoreDetectorCount) {
-    for (const auto& version : BWC_VERSIONS) {
-        LOG_INFO(<< "Test restoring state from version " << version.s_Version);
-        this->anomalyDetectorRestoreHelper(
-            "testfiles/state/" + version.s_Version + "/count_detector_state.json",
-            "testfiles/new_persist_count.conf", version.s_DetectorRestoreIsSymmetric, 5);
-    }
-}
-
-BOOST_AUTO_TEST_CASE(testRestoreNormalizer) {
-    for (const auto& version : BWC_VERSIONS) {
-        ml::model::CAnomalyDetectorModelConfig modelConfig =
-            ml::model::CAnomalyDetectorModelConfig::defaultConfig(3600);
-        ml::api::CCsvOutputWriter outputWriter;
-        ml::api::CResultNormalizer normalizer(modelConfig, outputWriter);
-        BOOST_TEST_REQUIRE(normalizer.initNormalizer(
-            "testfiles/state/" + version.s_Version + "/normalizer_state.json"));
-    }
-}
-
-BOOST_AUTO_TEST_CASE(testRestoreCategorizer) {
-    for (const auto& version : BWC_VERSIONS) {
-        LOG_INFO(<< "Test restoring state from version " << version.s_Version);
-        categorizerRestoreHelper("testfiles/state/" + version.s_Version + "/categorizer_state.json",
-                                 version.s_CategorizerRestoreIsSymmetric);
-    }
-}
-
-void CRestorePreviousStateTest::categorizerRestoreHelper(const std::string& stateFile,
-                                                         bool isSymmetric) {
+void categorizerRestoreHelper(const std::string& stateFile, bool isSymmetric) {
     ml::model::CLimits limits;
     ml::api::CFieldConfig config("count", "mlcategory");
 
@@ -159,15 +113,14 @@ void CRestorePreviousStateTest::categorizerRestoreHelper(const std::string& stat
             BOOST_TEST_REQUIRE(restoredTyper.persistState(persister, ""));
             newPersistedState = strm->str();
         }
-        BOOST_REQUIRE_EQUAL(this->stripDocIds(origPersistedState),
-                            this->stripDocIds(newPersistedState));
+        BOOST_REQUIRE_EQUAL(stripDocIds(origPersistedState), stripDocIds(newPersistedState));
     }
 }
 
-void CRestorePreviousStateTest::anomalyDetectorRestoreHelper(const std::string& stateFile,
-                                                             const std::string& configFileName,
-                                                             bool isSymmetric,
-                                                             int latencyBuckets) {
+void anomalyDetectorRestoreHelper(const std::string& stateFile,
+                                  const std::string& configFileName,
+                                  bool isSymmetric,
+                                  int latencyBuckets) {
     // Open the input state file
     std::ifstream inputStrm(stateFile.c_str());
     BOOST_TEST_REQUIRE(inputStrm.is_open());
@@ -231,32 +184,73 @@ void CRestorePreviousStateTest::anomalyDetectorRestoreHelper(const std::string& 
         }
 
         BOOST_REQUIRE_EQUAL(numRestoredDocs, numDocsInStateFile);
-        BOOST_REQUIRE_EQUAL(this->stripDocIds(origPersistedState),
-                            this->stripDocIds(newPersistedState));
+        BOOST_REQUIRE_EQUAL(stripDocIds(origPersistedState), stripDocIds(newPersistedState));
+    }
+}
+}
+
+BOOST_AUTO_TEST_CASE(testRestoreDetectorBy) {
+    for (const auto& version : BWC_VERSIONS) {
+        LOG_INFO(<< "Test restoring state from version " << version.s_Version);
+        anomalyDetectorRestoreHelper(
+            "testfiles/state/" + version.s_Version + "/by_detector_state.json",
+            "testfiles/new_mlfields.conf", version.s_DetectorRestoreIsSymmetric, 0);
     }
 }
 
-std::string CRestorePreviousStateTest::stripDocIds(const std::string& persistedState) {
-    // State is persisted in the Elasticsearch bulk format.
-    // This is an index action followed by the document source:
-    // { "index": { "id": "foo" ... }}\n
-    // { "field1" : "value1", ... }\n
-    //
-    // Only the doc IDs should be different so strip out the lines with index operations
-    std::istringstream input(persistedState);
-    std::ostringstream output;
-
-    std::string line;
-    while (std::getline(input, line)) {
-        // Remove lines with the document IDs
-        if (line.compare(0, 16, "{\"index\":{\"_id\":") != 0) {
-            output << line;
-        }
+BOOST_AUTO_TEST_CASE(testRestoreDetectorOver) {
+    for (const auto& version : BWC_VERSIONS) {
+        LOG_INFO(<< "Test restoring state from version " << version.s_Version);
+        anomalyDetectorRestoreHelper("testfiles/state/" + version.s_Version + "/over_detector_state.json",
+                                     "testfiles/new_mlfields_over.conf",
+                                     version.s_DetectorRestoreIsSymmetric, 0);
     }
+}
 
-    std::string strippedText = output.str();
-    LOG_TRACE(<< "Stripped:" << strippedText << ml::core_t::LINE_ENDING);
-    return strippedText;
+BOOST_AUTO_TEST_CASE(testRestoreDetectorPartition) {
+    for (const auto& version : BWC_VERSIONS) {
+        LOG_INFO(<< "Test restoring state from version " << version.s_Version);
+        anomalyDetectorRestoreHelper("testfiles/state/" + version.s_Version + "/partition_detector_state.json",
+                                     "testfiles/new_mlfields_partition.conf",
+                                     version.s_DetectorRestoreIsSymmetric, 0);
+    }
+}
+
+BOOST_AUTO_TEST_CASE(testRestoreDetectorDc) {
+    for (const auto& version : BWC_VERSIONS) {
+        LOG_INFO(<< "Test restoring state from version " << version.s_Version);
+        anomalyDetectorRestoreHelper(
+            "testfiles/state/" + version.s_Version + "/dc_detector_state.json",
+            "testfiles/new_persist_dc.conf", version.s_DetectorRestoreIsSymmetric, 5);
+    }
+}
+
+BOOST_AUTO_TEST_CASE(testRestoreDetectorCount) {
+    for (const auto& version : BWC_VERSIONS) {
+        LOG_INFO(<< "Test restoring state from version " << version.s_Version);
+        anomalyDetectorRestoreHelper("testfiles/state/" + version.s_Version + "/count_detector_state.json",
+                                     "testfiles/new_persist_count.conf",
+                                     version.s_DetectorRestoreIsSymmetric, 5);
+    }
+}
+
+BOOST_AUTO_TEST_CASE(testRestoreNormalizer) {
+    for (const auto& version : BWC_VERSIONS) {
+        ml::model::CAnomalyDetectorModelConfig modelConfig =
+            ml::model::CAnomalyDetectorModelConfig::defaultConfig(3600);
+        ml::api::CCsvOutputWriter outputWriter;
+        ml::api::CResultNormalizer normalizer(modelConfig, outputWriter);
+        BOOST_TEST_REQUIRE(normalizer.initNormalizer(
+            "testfiles/state/" + version.s_Version + "/normalizer_state.json"));
+    }
+}
+
+BOOST_AUTO_TEST_CASE(testRestoreCategorizer) {
+    for (const auto& version : BWC_VERSIONS) {
+        LOG_INFO(<< "Test restoring state from version " << version.s_Version);
+        categorizerRestoreHelper("testfiles/state/" + version.s_Version + "/categorizer_state.json",
+                                 version.s_CategorizerRestoreIsSymmetric);
+    }
 }
 
 BOOST_AUTO_TEST_SUITE_END()

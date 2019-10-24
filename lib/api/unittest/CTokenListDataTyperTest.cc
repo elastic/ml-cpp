@@ -35,17 +35,20 @@ using TTokenListDataTyperKeepsFields =
 const TTokenListDataTyperKeepsFields::TTokenListReverseSearchCreatorIntfCPtr NO_REVERSE_SEARCH_CREATOR;
 }
 
-void CTokenListDataTyperTest::setUp() {
-    // Enable trace level logging for these unit tests
-    ml::core::CLogger::instance().setLoggingLevel(ml::core::CLogger::E_Trace);
-}
+class CTestFixture {
+public:
+    CTestFixture() {
+        // Enable trace level logging for these unit tests
+        ml::core::CLogger::instance().setLoggingLevel(ml::core::CLogger::E_Trace);
+    }
 
-void CTokenListDataTyperTest::tearDown() {
-    // Revert to debug level logging for any subsequent unit tests
-    ml::core::CLogger::instance().setLoggingLevel(ml::core::CLogger::E_Debug);
-}
+    ~CTestFixture() {
+        // Revert to debug level logging for any subsequent unit tests
+        ml::core::CLogger::instance().setLoggingLevel(ml::core::CLogger::E_Debug);
+    }
+};
 
-BOOST_AUTO_TEST_CASE(testHexData) {
+BOOST_FIXTURE_TEST_CASE(testHexData, CTestFixture) {
     TTokenListDataTyperKeepsFields typer(NO_REVERSE_SEARCH_CREATOR, 0.7, "whatever");
 
     BOOST_REQUIRE_EQUAL(1, typer.computeType(false, "[0x0000000800000000 ", 500));
@@ -55,7 +58,7 @@ BOOST_AUTO_TEST_CASE(testHexData) {
     BOOST_REQUIRE_EQUAL(1, typer.computeType(false, " 0x0000000800000000,", 500));
 }
 
-BOOST_AUTO_TEST_CASE(testRmdsData) {
+BOOST_FIXTURE_TEST_CASE(testRmdsData, CTestFixture) {
     TTokenListDataTyperKeepsFields typer(NO_REVERSE_SEARCH_CREATOR, 0.7, "whatever");
 
     BOOST_REQUIRE_EQUAL(1, typer.computeType(false, "<ml13-4608.1.p2ps: Info: > Source ML_SERVICE2 on 13122:867 has shut down.",
@@ -80,7 +83,7 @@ BOOST_AUTO_TEST_CASE(testRmdsData) {
                                              500));
 }
 
-BOOST_AUTO_TEST_CASE(testProxyData) {
+BOOST_FIXTURE_TEST_CASE(testProxyData, CTestFixture) {
     TTokenListDataTyperKeepsFields typer(NO_REVERSE_SEARCH_CREATOR, 0.7, "whatever");
 
     BOOST_REQUIRE_EQUAL(1, typer.computeType(false,
@@ -109,7 +112,7 @@ BOOST_AUTO_TEST_CASE(testProxyData) {
                                              500));
 }
 
-BOOST_AUTO_TEST_CASE(testFxData) {
+BOOST_FIXTURE_TEST_CASE(testFxData, CTestFixture) {
     TTokenListDataTyperKeepsFields typer(NO_REVERSE_SEARCH_CREATOR, 0.7, "whatever");
 
     BOOST_REQUIRE_EQUAL(1, typer.computeType(false,
@@ -124,7 +127,7 @@ BOOST_AUTO_TEST_CASE(testFxData) {
                                              500));
 }
 
-BOOST_AUTO_TEST_CASE(testApacheData) {
+BOOST_FIXTURE_TEST_CASE(testApacheData, CTestFixture) {
     TTokenListDataTyperKeepsFields typer(NO_REVERSE_SEARCH_CREATOR, 0.7, "whatever");
 
     BOOST_REQUIRE_EQUAL(1, typer.computeType(false, " org.apache.coyote.http11.Http11BaseProtocol destroy",
@@ -137,7 +140,7 @@ BOOST_AUTO_TEST_CASE(testApacheData) {
                                              500));
 }
 
-BOOST_AUTO_TEST_CASE(testBrokerageData) {
+BOOST_FIXTURE_TEST_CASE(testBrokerageData, CTestFixture) {
     TTokenListDataTyperKeepsFields typer(NO_REVERSE_SEARCH_CREATOR, 0.7, "whatever");
 
     BOOST_REQUIRE_EQUAL(
@@ -159,7 +162,7 @@ BOOST_AUTO_TEST_CASE(testBrokerageData) {
                                              500));
 }
 
-BOOST_AUTO_TEST_CASE(testVmwareData) {
+BOOST_FIXTURE_TEST_CASE(testVmwareData, CTestFixture) {
     TTokenListDataTyperKeepsFields typer(NO_REVERSE_SEARCH_CREATOR, 0.7, "whatever");
 
     BOOST_REQUIRE_EQUAL(1, typer.computeType(false, "Vpxa: [49EC0B90 verbose 'VpxaHalCnxHostagent' opID=WFU-ddeadb59] [WaitForUpdatesDone] Received callback",
@@ -176,7 +179,7 @@ BOOST_AUTO_TEST_CASE(testVmwareData) {
                                              104));
 }
 
-BOOST_AUTO_TEST_CASE(testBankData) {
+BOOST_FIXTURE_TEST_CASE(testBankData, CTestFixture) {
     TTokenListDataTyperKeepsFields typer(NO_REVERSE_SEARCH_CREATOR, 0.7, "whatever");
 
     BOOST_REQUIRE_EQUAL(1, typer.computeType(false,
@@ -196,7 +199,7 @@ BOOST_AUTO_TEST_CASE(testBankData) {
                                              500));
 }
 
-BOOST_AUTO_TEST_CASE(testJavaGcData) {
+BOOST_FIXTURE_TEST_CASE(testJavaGcData, CTestFixture) {
     TTokenListDataTyperKeepsFields typer(NO_REVERSE_SEARCH_CREATOR, 0.7, "whatever");
 
     BOOST_REQUIRE_EQUAL(
@@ -242,7 +245,7 @@ BOOST_AUTO_TEST_CASE(testJavaGcData) {
                                              106));
 }
 
-BOOST_AUTO_TEST_CASE(testPersist) {
+BOOST_FIXTURE_TEST_CASE(testPersist, CTestFixture) {
     TTokenListDataTyperKeepsFields origTyper(NO_REVERSE_SEARCH_CREATOR, 0.7, "whatever");
 
     origTyper.computeType(false, "<ml13-4608.1.p2ps: Info: > Source ML_SERVICE2 on 13122:867 has shut down.",
@@ -296,7 +299,7 @@ BOOST_AUTO_TEST_CASE(testPersist) {
     BOOST_REQUIRE_EQUAL(origXml, newXml);
 }
 
-BOOST_AUTO_TEST_CASE(testLongReverseSearch) {
+BOOST_FIXTURE_TEST_CASE(testLongReverseSearch, CTestFixture) {
     TTokenListDataTyperKeepsFields::TTokenListReverseSearchCreatorIntfCPtr reverseSearchCreator(
         new ml::api::CTokenListReverseSearchCreator("_raw"));
     TTokenListDataTyperKeepsFields typer(reverseSearchCreator, 0.7, "_raw");
@@ -344,7 +347,7 @@ BOOST_AUTO_TEST_CASE(testLongReverseSearch) {
     BOOST_TEST_REQUIRE(terms.find("off") != std::string::npos);
 }
 
-BOOST_AUTO_TEST_CASE(testPreTokenised) {
+BOOST_FIXTURE_TEST_CASE(testPreTokenised, CTestFixture) {
     TTokenListDataTyperKeepsFields typer(NO_REVERSE_SEARCH_CREATOR, 0.7, "whatever");
 
     BOOST_REQUIRE_EQUAL(1, typer.computeType(false, "<ml13-4608.1.p2ps: Info: > Source ML_SERVICE2 on 13122:867 has shut down.",
@@ -396,7 +399,7 @@ BOOST_AUTO_TEST_CASE(testPreTokenised) {
                                              500));
 }
 
-BOOST_AUTO_TEST_CASE(testPreTokenisedPerformance) {
+BOOST_FIXTURE_TEST_CASE(testPreTokenisedPerformance, CTestFixture) {
     static const size_t TEST_SIZE(100000);
     ml::core::CStopWatch stopWatch;
 

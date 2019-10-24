@@ -4,8 +4,6 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
-#include "CDataFrameAnalyzerTrainingTest.h"
-
 #include <core/CDataFrame.h>
 #include <core/CDataSearcher.h>
 #include <core/CJsonStatePersistInserter.h>
@@ -24,15 +22,24 @@
 #include <test/CDataFrameAnalysisSpecificationFactory.h>
 #include <test/CRandomNumbers.h>
 
+#include <test/BoostTestCloseAbsolute.h>
+
+#include <boost/test/unit_test.hpp>
+
 #include <memory>
+
+using TDoubleVec = std::vector<double>;
+using TStrVec = std::vector<std::string>;
+BOOST_TEST_DONT_PRINT_LOG_VALUE(TDoubleVec::iterator)
+BOOST_TEST_DONT_PRINT_LOG_VALUE(TStrVec::iterator)
+
+BOOST_AUTO_TEST_SUITE(CDataFrameAnalyzerTrainingTest)
 
 using namespace ml;
 
 namespace {
 using TBoolVec = std::vector<bool>;
-using TDoubleVec = std::vector<double>;
 using TSizeVec = std::vector<std::size_t>;
-using TStrVec = std::vector<std::string>;
 using TRowItr = core::CDataFrame::TRowItr;
 using TDataFrameUPtr = std::unique_ptr<core::CDataFrame>;
 using TDataAdderUPtr = std::unique_ptr<core::CDataAdder>;
@@ -77,7 +84,7 @@ rapidjson::Document treeToJsonDocument(const maths::CBoostedTree& tree) {
     }
     rapidjson::Document results;
     rapidjson::ParseResult ok(results.Parse(persistStream.str()));
-    CPPUNIT_ASSERT(static_cast<bool>(ok) == true);
+    BOOST_TEST_REQUIRE(static_cast<bool>(ok) == true);
     return results;
 }
 
@@ -330,19 +337,19 @@ void testOneRunOfBoostedTreeTrainingWithStateRecovery(F makeSpec, std::size_t it
         if (expectedHyperparameters.HasMember(key)) {
             double expected{std::stod(expectedHyperparameters[key].GetString())};
             double actual{std::stod(actualHyperparameters[key].GetString())};
-            CPPUNIT_ASSERT_DOUBLES_EQUAL(expected, actual, 1e-4 * expected);
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(expected, actual, 1e-4 * expected);
         } else if (expectedRegularizationHyperparameters.HasMember(key)) {
             double expected{std::stod(expectedRegularizationHyperparameters[key].GetString())};
             double actual{std::stod(actualRegularizationHyperparameters[key].GetString())};
-            CPPUNIT_ASSERT_DOUBLES_EQUAL(expected, actual, 1e-4 * expected);
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(expected, actual, 1e-4 * expected);
         } else {
-            CPPUNIT_FAIL("Missing " + key);
+            BOOST_FAIL("Missing " + key);
         }
     }
 }
 }
 
-void CDataFrameAnalyzerTrainingTest::testRunBoostedTreeRegressionTraining() {
+BOOST_AUTO_TEST_CASE(testRunBoostedTreeRegressionTraining) {
 
     // Test the results the analyzer produces match running the regression directly.
 
@@ -366,28 +373,28 @@ void CDataFrameAnalyzerTrainingTest::testRunBoostedTreeRegressionTraining() {
 
     rapidjson::Document results;
     rapidjson::ParseResult ok(results.Parse(output.str()));
-    CPPUNIT_ASSERT(static_cast<bool>(ok) == true);
+    BOOST_TEST_REQUIRE(static_cast<bool>(ok) == true);
 
     auto expectedPrediction = expectedPredictions.begin();
     bool progressCompleted{false};
     for (const auto& result : results.GetArray()) {
         if (result.HasMember("row_results")) {
-            CPPUNIT_ASSERT(expectedPrediction != expectedPredictions.end());
-            CPPUNIT_ASSERT_DOUBLES_EQUAL(
+            BOOST_TEST_REQUIRE(expectedPrediction != expectedPredictions.end());
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(
                 *expectedPrediction,
                 result["row_results"]["results"]["ml"]["c5_prediction"].GetDouble(),
                 1e-4 * std::fabs(*expectedPrediction));
             ++expectedPrediction;
-            CPPUNIT_ASSERT(result.HasMember("progress_percent") == false);
+            BOOST_TEST_REQUIRE(result.HasMember("progress_percent") == false);
         } else if (result.HasMember("progress_percent")) {
-            CPPUNIT_ASSERT(result["progress_percent"].GetInt() >= 0);
-            CPPUNIT_ASSERT(result["progress_percent"].GetInt() <= 100);
-            CPPUNIT_ASSERT(result.HasMember("row_results") == false);
+            BOOST_TEST_REQUIRE(result["progress_percent"].GetInt() >= 0);
+            BOOST_TEST_REQUIRE(result["progress_percent"].GetInt() <= 100);
+            BOOST_TEST_REQUIRE(result.HasMember("row_results") == false);
             progressCompleted = result["progress_percent"].GetInt() == 100;
         }
     }
-    CPPUNIT_ASSERT(expectedPrediction == expectedPredictions.end());
-    CPPUNIT_ASSERT(progressCompleted);
+    BOOST_TEST_REQUIRE(expectedPrediction == expectedPredictions.end());
+    BOOST_TEST_REQUIRE(progressCompleted);
 
     LOG_DEBUG(<< "estimated memory usage = "
               << core::CProgramCounters::counter(counter_t::E_DFTPMEstimatedPeakMemoryUsage));
@@ -396,14 +403,14 @@ void CDataFrameAnalyzerTrainingTest::testRunBoostedTreeRegressionTraining() {
     LOG_DEBUG(<< "time to train = " << core::CProgramCounters::counter(counter_t::E_DFTPMTimeToTrain)
               << "ms");
 
-    CPPUNIT_ASSERT(core::CProgramCounters::counter(
-                       counter_t::E_DFTPMEstimatedPeakMemoryUsage) < 2900000);
-    CPPUNIT_ASSERT(core::CProgramCounters::counter(counter_t::E_DFTPMPeakMemoryUsage) < 1050000);
-    CPPUNIT_ASSERT(core::CProgramCounters::counter(counter_t::E_DFTPMTimeToTrain) > 0);
-    CPPUNIT_ASSERT(core::CProgramCounters::counter(counter_t::E_DFTPMTimeToTrain) <= duration);
+    BOOST_TEST_REQUIRE(core::CProgramCounters::counter(
+                           counter_t::E_DFTPMEstimatedPeakMemoryUsage) < 2900000);
+    BOOST_TEST_REQUIRE(core::CProgramCounters::counter(counter_t::E_DFTPMPeakMemoryUsage) < 1050000);
+    BOOST_TEST_REQUIRE(core::CProgramCounters::counter(counter_t::E_DFTPMTimeToTrain) > 0);
+    BOOST_TEST_REQUIRE(core::CProgramCounters::counter(counter_t::E_DFTPMTimeToTrain) <= duration);
 }
 
-void CDataFrameAnalyzerTrainingTest::testRunBoostedTreeRegressionTrainingWithParams() {
+BOOST_AUTO_TEST_CASE(testRunBoostedTreeRegressionTrainingWithParams) {
 
     // Test the regression hyperparameter settings are correctly propagated to the
     // analysis runner.
@@ -440,31 +447,31 @@ void CDataFrameAnalyzerTrainingTest::testRunBoostedTreeRegressionTrainingWithPar
 
     rapidjson::Document results;
     rapidjson::ParseResult ok(results.Parse(output.str()));
-    CPPUNIT_ASSERT(static_cast<bool>(ok) == true);
+    BOOST_TEST_REQUIRE(static_cast<bool>(ok) == true);
 
     auto expectedPrediction = expectedPredictions.begin();
     bool progressCompleted{false};
     for (const auto& result : results.GetArray()) {
         if (result.HasMember("row_results")) {
-            CPPUNIT_ASSERT(expectedPrediction != expectedPredictions.end());
-            CPPUNIT_ASSERT_DOUBLES_EQUAL(
+            BOOST_TEST_REQUIRE(expectedPrediction != expectedPredictions.end());
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(
                 *expectedPrediction,
                 result["row_results"]["results"]["ml"]["c5_prediction"].GetDouble(),
                 1e-4 * std::fabs(*expectedPrediction));
             ++expectedPrediction;
-            CPPUNIT_ASSERT(result.HasMember("progress_percent") == false);
+            BOOST_TEST_REQUIRE(result.HasMember("progress_percent") == false);
         } else if (result.HasMember("progress_percent")) {
-            CPPUNIT_ASSERT(result["progress_percent"].GetInt() >= 0);
-            CPPUNIT_ASSERT(result["progress_percent"].GetInt() <= 100);
-            CPPUNIT_ASSERT(result.HasMember("row_results") == false);
+            BOOST_TEST_REQUIRE(result["progress_percent"].GetInt() >= 0);
+            BOOST_TEST_REQUIRE(result["progress_percent"].GetInt() <= 100);
+            BOOST_TEST_REQUIRE(result.HasMember("row_results") == false);
             progressCompleted = result["progress_percent"].GetInt() == 100;
         }
     }
-    CPPUNIT_ASSERT(expectedPrediction == expectedPredictions.end());
-    CPPUNIT_ASSERT(progressCompleted);
+    BOOST_TEST_REQUIRE(expectedPrediction == expectedPredictions.end());
+    BOOST_TEST_REQUIRE(progressCompleted);
 }
 
-void CDataFrameAnalyzerTrainingTest::testRunBoostedTreeRegressionTrainingWithRowsMissingTargetValue() {
+BOOST_AUTO_TEST_CASE(testRunBoostedTreeRegressionTrainingWithRowsMissingTargetValue) {
 
     // Test we are able to predict value rows for which the dependent variable
     // is missing.
@@ -504,27 +511,27 @@ void CDataFrameAnalyzerTrainingTest::testRunBoostedTreeRegressionTrainingWithRow
 
     rapidjson::Document results;
     rapidjson::ParseResult ok(results.Parse(output.str()));
-    CPPUNIT_ASSERT(static_cast<bool>(ok) == true);
+    BOOST_TEST_REQUIRE(static_cast<bool>(ok) == true);
 
     std::size_t numberResults{0};
     for (const auto& result : results.GetArray()) {
         if (result.HasMember("row_results")) {
             std::size_t index(result["row_results"]["checksum"].GetUint64());
             double expected{target(feature[index])};
-            CPPUNIT_ASSERT_DOUBLES_EQUAL(
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(
                 expected,
                 result["row_results"]["results"]["ml"]["target_prediction"].GetDouble(),
                 0.15 * expected);
-            CPPUNIT_ASSERT_EQUAL(
+            BOOST_REQUIRE_EQUAL(
                 index < 40,
                 result["row_results"]["results"]["ml"]["is_training"].GetBool());
             ++numberResults;
         }
     }
-    CPPUNIT_ASSERT_EQUAL(std::size_t{50}, numberResults);
+    BOOST_REQUIRE_EQUAL(std::size_t{50}, numberResults);
 }
 
-void CDataFrameAnalyzerTrainingTest::testRunBoostedTreeRegressionTrainingWithStateRecovery() {
+BOOST_AUTO_TEST_CASE(testRunBoostedTreeRegressionTrainingWithStateRecovery) {
 
     struct SHyperparameters {
         SHyperparameters(double alpha = 2.0, double lambda = 1.0, double gamma = 10.0)
@@ -580,7 +587,7 @@ void CDataFrameAnalyzerTrainingTest::testRunBoostedTreeRegressionTrainingWithSta
     }
 }
 
-void CDataFrameAnalyzerTrainingTest::testRunBoostedTreeClassifierTraining() {
+BOOST_AUTO_TEST_CASE(testRunBoostedTreeClassifierTraining) {
 
     // Test the results the analyzer produces match running classification directly.
 
@@ -606,27 +613,27 @@ void CDataFrameAnalyzerTrainingTest::testRunBoostedTreeClassifierTraining() {
 
     rapidjson::Document results;
     rapidjson::ParseResult ok(results.Parse(output.str()));
-    CPPUNIT_ASSERT(static_cast<bool>(ok) == true);
+    BOOST_TEST_REQUIRE(static_cast<bool>(ok) == true);
 
     auto expectedPrediction = expectedPredictions.begin();
     bool progressCompleted{false};
     for (const auto& result : results.GetArray()) {
         if (result.HasMember("row_results")) {
-            CPPUNIT_ASSERT(expectedPrediction != expectedPredictions.end());
+            BOOST_TEST_REQUIRE(expectedPrediction != expectedPredictions.end());
             std::string actualPrediction{
                 result["row_results"]["results"]["ml"]["c5_prediction"].GetString()};
-            CPPUNIT_ASSERT_EQUAL(*expectedPrediction, actualPrediction);
+            BOOST_REQUIRE_EQUAL(*expectedPrediction, actualPrediction);
             ++expectedPrediction;
-            CPPUNIT_ASSERT(result.HasMember("progress_percent") == false);
+            BOOST_TEST_REQUIRE(result.HasMember("progress_percent") == false);
         } else if (result.HasMember("progress_percent")) {
-            CPPUNIT_ASSERT(result["progress_percent"].GetInt() >= 0);
-            CPPUNIT_ASSERT(result["progress_percent"].GetInt() <= 100);
-            CPPUNIT_ASSERT(result.HasMember("row_results") == false);
+            BOOST_TEST_REQUIRE(result["progress_percent"].GetInt() >= 0);
+            BOOST_TEST_REQUIRE(result["progress_percent"].GetInt() <= 100);
+            BOOST_TEST_REQUIRE(result.HasMember("row_results") == false);
             progressCompleted = result["progress_percent"].GetInt() == 100;
         }
     }
-    CPPUNIT_ASSERT(expectedPrediction == expectedPredictions.end());
-    CPPUNIT_ASSERT(progressCompleted);
+    BOOST_TEST_REQUIRE(expectedPrediction == expectedPredictions.end());
+    BOOST_TEST_REQUIRE(progressCompleted);
 
     LOG_DEBUG(<< "estimated memory usage = "
               << core::CProgramCounters::counter(counter_t::E_DFTPMEstimatedPeakMemoryUsage));
@@ -634,31 +641,11 @@ void CDataFrameAnalyzerTrainingTest::testRunBoostedTreeClassifierTraining() {
               << core::CProgramCounters::counter(counter_t::E_DFTPMPeakMemoryUsage));
     LOG_DEBUG(<< "time to train = " << core::CProgramCounters::counter(counter_t::E_DFTPMTimeToTrain)
               << "ms");
-    CPPUNIT_ASSERT(core::CProgramCounters::counter(
-                       counter_t::E_DFTPMEstimatedPeakMemoryUsage) < 2900000);
-    CPPUNIT_ASSERT(core::CProgramCounters::counter(counter_t::E_DFTPMPeakMemoryUsage) < 1050000);
-    CPPUNIT_ASSERT(core::CProgramCounters::counter(counter_t::E_DFTPMTimeToTrain) > 0);
-    CPPUNIT_ASSERT(core::CProgramCounters::counter(counter_t::E_DFTPMTimeToTrain) <= duration);
+    BOOST_TEST_REQUIRE(core::CProgramCounters::counter(
+                           counter_t::E_DFTPMEstimatedPeakMemoryUsage) < 2900000);
+    BOOST_TEST_REQUIRE(core::CProgramCounters::counter(counter_t::E_DFTPMPeakMemoryUsage) < 1050000);
+    BOOST_TEST_REQUIRE(core::CProgramCounters::counter(counter_t::E_DFTPMTimeToTrain) > 0);
+    BOOST_TEST_REQUIRE(core::CProgramCounters::counter(counter_t::E_DFTPMTimeToTrain) <= duration);
 }
 
-CppUnit::Test* CDataFrameAnalyzerTrainingTest::suite() {
-    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CDataFrameAnalyzerTrainingTest");
-
-    suiteOfTests->addTest(new CppUnit::TestCaller<CDataFrameAnalyzerTrainingTest>(
-        "CDataFrameAnalyzerTrainingTest::testRunBoostedTreeRegressionTraining",
-        &CDataFrameAnalyzerTrainingTest::testRunBoostedTreeRegressionTraining));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CDataFrameAnalyzerTrainingTest>(
-        "CDataFrameAnalyzerTrainingTest::testRunBoostedTreeRegressionTrainingWithStateRecovery",
-        &CDataFrameAnalyzerTrainingTest::testRunBoostedTreeRegressionTrainingWithStateRecovery));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CDataFrameAnalyzerTrainingTest>(
-        "CDataFrameAnalyzerTrainingTest::testRunBoostedTreeRegressionTrainingWithParams",
-        &CDataFrameAnalyzerTrainingTest::testRunBoostedTreeRegressionTrainingWithParams));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CDataFrameAnalyzerTrainingTest>(
-        "CDataFrameAnalyzerTrainingTest::testRunBoostedTreeRegressionTrainingWithRowsMissingTargetValue",
-        &CDataFrameAnalyzerTrainingTest::testRunBoostedTreeRegressionTrainingWithRowsMissingTargetValue));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CDataFrameAnalyzerTrainingTest>(
-        "CDataFrameAnalyzerTrainingTest::testRunBoostedTreeClassifierTraining",
-        &CDataFrameAnalyzerTrainingTest::testRunBoostedTreeClassifierTraining));
-
-    return suiteOfTests;
-}
+BOOST_AUTO_TEST_SUITE_END()

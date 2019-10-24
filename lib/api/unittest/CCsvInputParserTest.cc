@@ -20,6 +20,10 @@
 #include <functional>
 #include <vector>
 
+BOOST_TEST_DONT_PRINT_LOG_VALUE(ml::api::CCsvInputParser::TStrVecItr)
+BOOST_TEST_DONT_PRINT_LOG_VALUE(ml::api::CCsvInputParser::TStrVecCItr)
+BOOST_TEST_DONT_PRINT_LOG_VALUE(ml::api::CCsvInputParser::TStrStrUMapCItr)
+
 BOOST_AUTO_TEST_SUITE(CCsvInputParserTest)
 
 namespace {

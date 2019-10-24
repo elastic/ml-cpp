@@ -44,42 +44,11 @@ void reportPersistComplete(ml::api::CModelSnapshotJsonWriter::SModelSnapshotRepo
     snapshotIdOut = modelSnapshotReport.s_SnapshotId;
     numDocsOut = modelSnapshotReport.s_NumDocs;
 }
-}
 
-BOOST_AUTO_TEST_CASE(testDetectorPersistBy) {
-    this->detectorPersistHelper("testfiles/new_mlfields.conf",
-                                "testfiles/big_ascending.txt", 0, "%d/%b/%Y:%T %z");
-}
-
-BOOST_AUTO_TEST_CASE(testDetectorPersistOver) {
-    this->detectorPersistHelper("testfiles/new_mlfields_over.conf",
-                                "testfiles/big_ascending.txt", 0, "%d/%b/%Y:%T %z");
-}
-
-BOOST_AUTO_TEST_CASE(testDetectorPersistPartition) {
-    this->detectorPersistHelper("testfiles/new_mlfields_partition.conf",
-                                "testfiles/big_ascending.txt", 0, "%d/%b/%Y:%T %z");
-}
-
-BOOST_AUTO_TEST_CASE(testDetectorPersistDc) {
-    this->detectorPersistHelper("testfiles/new_persist_dc.conf",
-                                "testfiles/files_users_programs.csv", 5);
-}
-
-BOOST_AUTO_TEST_CASE(testDetectorPersistCount) {
-    this->detectorPersistHelper("testfiles/new_persist_count.conf",
-                                "testfiles/files_users_programs.csv", 5);
-}
-
-BOOST_AUTO_TEST_CASE(testDetectorPersistCategorization) {
-    this->detectorPersistHelper("testfiles/new_persist_categorization.conf",
-                                "testfiles/time_messages.csv", 0);
-}
-
-void CSingleStreamDataAdderTest::detectorPersistHelper(const std::string& configFileName,
-                                                       const std::string& inputFilename,
-                                                       int latencyBuckets,
-                                                       const std::string& timeFormat) {
+void detectorPersistHelper(const std::string& configFileName,
+                           const std::string& inputFilename,
+                           int latencyBuckets,
+                           const std::string& timeFormat = std::string()) {
     // Start by creating a detector with non-trivial state
     static const ml::core_t::TTime BUCKET_SIZE(3600);
     static const std::string JOB_ID("job");
@@ -208,6 +177,37 @@ void CSingleStreamDataAdderTest::detectorPersistHelper(const std::string& config
                                        restoredSnapshotId, "snap", newPersistedState));
 
     BOOST_REQUIRE_EQUAL(origPersistedState, newPersistedState);
+}
+}
+
+BOOST_AUTO_TEST_CASE(testDetectorPersistBy) {
+    detectorPersistHelper("testfiles/new_mlfields.conf",
+                          "testfiles/big_ascending.txt", 0, "%d/%b/%Y:%T %z");
+}
+
+BOOST_AUTO_TEST_CASE(testDetectorPersistOver) {
+    detectorPersistHelper("testfiles/new_mlfields_over.conf",
+                          "testfiles/big_ascending.txt", 0, "%d/%b/%Y:%T %z");
+}
+
+BOOST_AUTO_TEST_CASE(testDetectorPersistPartition) {
+    detectorPersistHelper("testfiles/new_mlfields_partition.conf",
+                          "testfiles/big_ascending.txt", 0, "%d/%b/%Y:%T %z");
+}
+
+BOOST_AUTO_TEST_CASE(testDetectorPersistDc) {
+    detectorPersistHelper("testfiles/new_persist_dc.conf",
+                          "testfiles/files_users_programs.csv", 5);
+}
+
+BOOST_AUTO_TEST_CASE(testDetectorPersistCount) {
+    detectorPersistHelper("testfiles/new_persist_count.conf",
+                          "testfiles/files_users_programs.csv", 5);
+}
+
+BOOST_AUTO_TEST_CASE(testDetectorPersistCategorization) {
+    detectorPersistHelper("testfiles/new_persist_categorization.conf",
+                          "testfiles/time_messages.csv", 0);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

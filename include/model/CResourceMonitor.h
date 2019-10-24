@@ -23,7 +23,8 @@ namespace CResourceLimitTest {
 class CTestFixture;
 }
 namespace CAnomalyJobLimitTest {
-struct testFoo;
+struct testAccuracy;
+struct testLimit;
 }
 
 namespace ml {
@@ -251,7 +252,8 @@ private:
     friend struct CResourceMonitorTest::testMonitor;
     friend struct CResourceMonitorTest::testPruning;
     friend class CResourceLimitTest::CTestFixture;
-    friend struct CAnomalyJobLimitTest::testFoo;
+    friend struct CAnomalyJobLimitTest::testAccuracy;
+    friend struct CAnomalyJobLimitTest::testLimit;
 };
 
 } // model

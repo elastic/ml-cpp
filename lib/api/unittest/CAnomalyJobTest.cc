@@ -27,6 +27,8 @@
 #include <fstream>
 #include <sstream>
 
+BOOST_TEST_DONT_PRINT_LOG_VALUE(rapidjson::Value::ConstMemberIterator)
+
 BOOST_AUTO_TEST_SUITE(CAnomalyJobTest)
 
 namespace {

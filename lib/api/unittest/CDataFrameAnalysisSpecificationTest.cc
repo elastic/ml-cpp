@@ -35,6 +35,13 @@ namespace {
 using TStrVec = std::vector<std::string>;
 using TRunnerFactoryUPtr = std::unique_ptr<api::CDataFrameAnalysisRunnerFactory>;
 using TRunnerFactoryUPtrVec = std::vector<TRunnerFactoryUPtr>;
+
+std::string createSpecJsonForTempDirDiskUsageTest(bool tempDirPathSet, bool diskUsageAllowed) {
+    std::string tempDir = tempDirPathSet ? test::CTestTmpDir::tmpDir() : "";
+    return api::CDataFrameAnalysisSpecificationJsonWriter::jsonString(
+        "testJob", 100, 3, 500000, 1, {}, diskUsageAllowed, tempDir, "",
+        "outlier_detection", "");
+}
 }
 
 BOOST_AUTO_TEST_CASE(testCreate) {
@@ -336,7 +343,7 @@ BOOST_AUTO_TEST_CASE(testCreate) {
                 "testJob", 10000, 5, 100000000, 1, {}, true,
                 test::CTestTmpDir::tmpDir(), "", "classification", parameters)};
         LOG_DEBUG(<< core::CContainerPrinter::print(errors));
-        CPPUNIT_ASSERT(errors.size() > 0);
+        BOOST_TEST_REQUIRE(errors.size() > 0);
     }
 
     LOG_DEBUG(<< "Regression with categorical target");
@@ -348,7 +355,7 @@ BOOST_AUTO_TEST_CASE(testCreate) {
                 "testJob", 10000, 5, 100000000, 1, {"value"}, true,
                 test::CTestTmpDir::tmpDir(), "", "regression", parameters)};
         LOG_DEBUG(<< core::CContainerPrinter::print(errors));
-        CPPUNIT_ASSERT(errors.size() > 0);
+        BOOST_TEST_REQUIRE(errors.size() > 0);
     }
 }
 
@@ -388,15 +395,6 @@ BOOST_AUTO_TEST_CASE(testRunAnalysis) {
         LOG_DEBUG(<< "progress = " << lastProgress);
         BOOST_REQUIRE_EQUAL(1.0, runner->progress());
     }
-}
-
-std::string
-CDataFrameAnalysisSpecificationTest::createSpecJsonForTempDirDiskUsageTest(bool tempDirPathSet,
-                                                                           bool diskUsageAllowed) {
-    std::string tempDir = tempDirPathSet ? test::CTestTmpDir::tmpDir() : "";
-    return api::CDataFrameAnalysisSpecificationJsonWriter::jsonString(
-        "testJob", 100, 3, 500000, 1, {}, diskUsageAllowed, tempDir, "",
-        "outlier_detection", "");
 }
 
 BOOST_AUTO_TEST_CASE(testTempDirDiskUsage) {

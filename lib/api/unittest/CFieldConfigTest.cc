@@ -8,11 +8,320 @@
 
 #include <model/FunctionTypes.h>
 
+#include <api/CFieldConfig.h>
+
 #include <boost/test/unit_test.hpp>
 
 #include <algorithm>
+#include <functional>
+
+BOOST_TEST_DONT_PRINT_LOG_VALUE(ml::api::CFieldConfig::TFieldOptionsMIndexCItr)
 
 BOOST_AUTO_TEST_SUITE(CFieldConfigTest)
+
+namespace {
+using TInitFromFileFunc = std::function<bool(ml::api::CFieldConfig*, const std::string&)>;
+
+void testValidFile(TInitFromFileFunc initFunc, const std::string& fileName) {
+    ml::api::CFieldConfig config;
+
+    BOOST_TEST_REQUIRE(initFunc(&config, fileName));
+    BOOST_TEST_REQUIRE(!config.havePartitionFields());
+    BOOST_TEST_REQUIRE(config.summaryCountFieldName().empty());
+    BOOST_TEST_REQUIRE(config.categorizationFilters().empty());
+
+    LOG_DEBUG(<< config.debug());
+
+    const ml::api::CFieldConfig::TFieldOptionsMIndex& fields = config.fieldOptions();
+    BOOST_REQUIRE_EQUAL(size_t(7), fields.size());
+
+    ml::api::CFieldConfig::TFieldOptionsMIndexCItr iter = fields.begin();
+    {
+        BOOST_TEST_REQUIRE(iter->fieldName().empty());
+        BOOST_REQUIRE_EQUAL(std::string("mlcategory"), iter->byFieldName());
+        BOOST_TEST_REQUIRE(iter->overFieldName().empty());
+        BOOST_TEST_REQUIRE(iter->partitionFieldName().empty());
+        BOOST_REQUIRE_EQUAL(false, iter->useNull());
+        BOOST_REQUIRE_EQUAL(false, ml::model::function_t::isMetric(iter->function()));
+        BOOST_REQUIRE_EQUAL(false, ml::model::function_t::isPopulation(iter->function()));
+        iter++;
+    }
+    {
+        BOOST_TEST_REQUIRE(iter->fieldName().empty());
+        BOOST_REQUIRE_EQUAL(std::string("remote_ip"), iter->byFieldName());
+        BOOST_TEST_REQUIRE(iter->overFieldName().empty());
+        BOOST_TEST_REQUIRE(iter->partitionFieldName().empty());
+        BOOST_REQUIRE_EQUAL(false, iter->useNull());
+        BOOST_REQUIRE_EQUAL(false, ml::model::function_t::isMetric(iter->function()));
+        BOOST_REQUIRE_EQUAL(false, ml::model::function_t::isPopulation(iter->function()));
+        iter++;
+    }
+    {
+        BOOST_TEST_REQUIRE(iter->fieldName().empty());
+        BOOST_REQUIRE_EQUAL(std::string("remote_user"), iter->byFieldName());
+        BOOST_TEST_REQUIRE(iter->overFieldName().empty());
+        BOOST_TEST_REQUIRE(iter->partitionFieldName().empty());
+        BOOST_REQUIRE_EQUAL(false, iter->useNull());
+        BOOST_REQUIRE_EQUAL(false, ml::model::function_t::isMetric(iter->function()));
+        BOOST_REQUIRE_EQUAL(false, ml::model::function_t::isPopulation(iter->function()));
+        iter++;
+    }
+    {
+        BOOST_TEST_REQUIRE(iter->fieldName().empty());
+        BOOST_REQUIRE_EQUAL(std::string("request"), iter->byFieldName());
+        BOOST_TEST_REQUIRE(iter->overFieldName().empty());
+        BOOST_TEST_REQUIRE(iter->partitionFieldName().empty());
+        BOOST_REQUIRE_EQUAL(false, iter->useNull());
+        BOOST_REQUIRE_EQUAL(false, ml::model::function_t::isMetric(iter->function()));
+        BOOST_REQUIRE_EQUAL(false, ml::model::function_t::isPopulation(iter->function()));
+        iter++;
+    }
+    {
+        BOOST_TEST_REQUIRE(iter->fieldName().empty());
+        BOOST_REQUIRE_EQUAL(std::string("response"), iter->byFieldName());
+        BOOST_TEST_REQUIRE(iter->overFieldName().empty());
+        BOOST_TEST_REQUIRE(iter->partitionFieldName().empty());
+        BOOST_REQUIRE_EQUAL(false, iter->useNull());
+        BOOST_REQUIRE_EQUAL(false, ml::model::function_t::isMetric(iter->function()));
+        BOOST_REQUIRE_EQUAL(false, ml::model::function_t::isPopulation(iter->function()));
+        iter++;
+    }
+    {
+        BOOST_REQUIRE_EQUAL(std::string("bytes"), iter->fieldName());
+        BOOST_REQUIRE_EQUAL(std::string("referrer"), iter->byFieldName());
+        BOOST_TEST_REQUIRE(iter->overFieldName().empty());
+        BOOST_TEST_REQUIRE(iter->partitionFieldName().empty());
+        BOOST_REQUIRE_EQUAL(false, iter->useNull());
+        BOOST_REQUIRE_EQUAL(true, ml::model::function_t::isMetric(iter->function()));
+        BOOST_REQUIRE_EQUAL(false, ml::model::function_t::isPopulation(iter->function()));
+        iter++;
+    }
+    {
+        BOOST_TEST_REQUIRE(iter->fieldName().empty());
+        BOOST_REQUIRE_EQUAL(std::string("agent"), iter->byFieldName());
+        BOOST_TEST_REQUIRE(iter->overFieldName().empty());
+        BOOST_TEST_REQUIRE(iter->partitionFieldName().empty());
+        BOOST_REQUIRE_EQUAL(false, iter->useNull());
+        BOOST_REQUIRE_EQUAL(false, ml::model::function_t::isMetric(iter->function()));
+        BOOST_REQUIRE_EQUAL(false, ml::model::function_t::isPopulation(iter->function()));
+        iter++;
+    }
+
+    const ml::api::CFieldConfig::TStrSet& superset = config.fieldNameSuperset();
+    BOOST_REQUIRE_EQUAL(size_t(8), superset.size());
+    BOOST_REQUIRE_EQUAL(size_t(1), superset.count("agent"));
+    BOOST_REQUIRE_EQUAL(size_t(1), superset.count("bytes"));
+    BOOST_REQUIRE_EQUAL(size_t(1), superset.count("mlcategory"));
+    BOOST_REQUIRE_EQUAL(size_t(1), superset.count("referrer"));
+    BOOST_REQUIRE_EQUAL(size_t(1), superset.count("remote_ip"));
+    BOOST_REQUIRE_EQUAL(size_t(1), superset.count("remote_user"));
+    BOOST_REQUIRE_EQUAL(size_t(1), superset.count("request"));
+    BOOST_REQUIRE_EQUAL(size_t(1), superset.count("response"));
+}
+
+void testInvalidFile(TInitFromFileFunc initFunc, const std::string& fileName) {
+    ml::api::CFieldConfig config;
+
+    BOOST_TEST_REQUIRE(!initFunc(&config, fileName));
+}
+
+void testValidSummaryCountFieldNameFile(TInitFromFileFunc initFunc,
+                                        const std::string& fileName) {
+    ml::api::CFieldConfig config;
+
+    BOOST_TEST_REQUIRE(initFunc(&config, fileName));
+    BOOST_TEST_REQUIRE(!config.havePartitionFields());
+    BOOST_REQUIRE_EQUAL(std::string("count"), config.summaryCountFieldName());
+}
+
+void testValidPopulationFile(TInitFromFileFunc initFunc, const std::string& fileName) {
+    {
+        ml::api::CFieldConfig config;
+        BOOST_TEST_REQUIRE(initFunc(&config, fileName));
+        BOOST_TEST_REQUIRE(!config.havePartitionFields());
+        BOOST_TEST_REQUIRE(config.summaryCountFieldName().empty());
+
+        LOG_DEBUG(<< config.debug());
+
+        const ml::api::CFieldConfig::TFieldOptionsMIndex& fields = config.fieldOptions();
+        BOOST_REQUIRE_EQUAL(size_t(2), fields.size());
+        ml::api::CFieldConfig::TFieldOptionsMIndexCItr iter = fields.begin();
+        BOOST_TEST_REQUIRE(iter != fields.end());
+        BOOST_TEST_REQUIRE(iter->fieldName().empty());
+        BOOST_REQUIRE_EQUAL(std::string("SRC"), iter->byFieldName());
+        BOOST_TEST_REQUIRE(iter->overFieldName().empty());
+        BOOST_TEST_REQUIRE(iter->partitionFieldName().empty());
+        BOOST_REQUIRE_EQUAL(false, iter->useNull());
+        BOOST_REQUIRE_EQUAL(false, ml::model::function_t::isMetric(iter->function()));
+        BOOST_REQUIRE_EQUAL(false, ml::model::function_t::isPopulation(iter->function()));
+        ++iter;
+        BOOST_TEST_REQUIRE(iter != fields.end());
+        BOOST_TEST_REQUIRE(iter->fieldName().empty());
+        BOOST_REQUIRE_EQUAL(std::string("DPT"), iter->byFieldName());
+        BOOST_REQUIRE_EQUAL(std::string("SRC"), iter->overFieldName());
+        BOOST_TEST_REQUIRE(iter->partitionFieldName().empty());
+        BOOST_REQUIRE_EQUAL(true, iter->useNull());
+        BOOST_REQUIRE_EQUAL(false, ml::model::function_t::isMetric(iter->function()));
+        BOOST_REQUIRE_EQUAL(true, ml::model::function_t::isPopulation(iter->function()));
+    }
+}
+
+void testDefaultCategorizationFieldFile(TInitFromFileFunc initFunc,
+                                        const std::string& fileName) {
+    ml::api::CFieldConfig config;
+
+    BOOST_TEST_REQUIRE(initFunc(&config, fileName));
+    BOOST_TEST_REQUIRE(!config.havePartitionFields());
+    BOOST_TEST_REQUIRE(config.summaryCountFieldName().empty());
+
+    LOG_DEBUG(<< config.debug());
+
+    const std::string& categorizationFieldName = config.categorizationFieldName();
+    BOOST_REQUIRE_EQUAL(std::string("message"), categorizationFieldName);
+    BOOST_TEST_REQUIRE(config.categorizationFilters().empty());
+
+    const ml::api::CFieldConfig::TFieldOptionsMIndex& fields = config.fieldOptions();
+    BOOST_REQUIRE_EQUAL(size_t(1), fields.size());
+    ml::api::CFieldConfig::TFieldOptionsMIndexCItr iter = fields.begin();
+    BOOST_TEST_REQUIRE(iter != fields.end());
+    BOOST_TEST_REQUIRE(iter->fieldName().empty());
+    BOOST_REQUIRE_EQUAL(std::string("mlcategory"), iter->byFieldName());
+    BOOST_TEST_REQUIRE(iter->overFieldName().empty());
+    BOOST_TEST_REQUIRE(iter->partitionFieldName().empty());
+    BOOST_REQUIRE_EQUAL(false, iter->useNull());
+    BOOST_REQUIRE_EQUAL(false, ml::model::function_t::isMetric(iter->function()));
+    BOOST_REQUIRE_EQUAL(false, ml::model::function_t::isPopulation(iter->function()));
+}
+
+void testExcludeFrequentFile(TInitFromFileFunc initFunc, const std::string& fileName) {
+    ml::api::CFieldConfig config;
+
+    BOOST_TEST_REQUIRE(initFunc(&config, fileName));
+    BOOST_TEST_REQUIRE(config.havePartitionFields());
+    BOOST_TEST_REQUIRE(config.summaryCountFieldName().empty());
+
+    const ml::api::CFieldConfig::TFieldOptionsMIndex& fields = config.fieldOptions();
+    BOOST_REQUIRE_EQUAL(size_t(8), fields.size());
+    ml::api::CFieldConfig::TFieldOptionsMIndexCItr iter = fields.begin();
+
+    {
+        BOOST_TEST_REQUIRE(iter != fields.end());
+        BOOST_REQUIRE_EQUAL(ml::model_t::E_XF_Both, iter->excludeFrequent());
+        BOOST_REQUIRE_EQUAL(std::string("sum"), iter->verboseFunctionName());
+        BOOST_REQUIRE_EQUAL(std::string("bytes"), iter->fieldName());
+        BOOST_REQUIRE_EQUAL(std::string("dest_ip"), iter->byFieldName());
+        BOOST_REQUIRE_EQUAL(std::string("src_ip"), iter->overFieldName());
+        BOOST_TEST_REQUIRE(iter->partitionFieldName().empty());
+        iter++;
+    }
+    {
+        BOOST_TEST_REQUIRE(iter != fields.end());
+        BOOST_REQUIRE_EQUAL(ml::model_t::E_XF_None, iter->excludeFrequent());
+        BOOST_REQUIRE_EQUAL(std::string("metric"), iter->verboseFunctionName());
+        BOOST_REQUIRE_EQUAL(std::string("responsetime"), iter->fieldName());
+        BOOST_REQUIRE_EQUAL(std::string("airline"), iter->byFieldName());
+        BOOST_TEST_REQUIRE(iter->overFieldName().empty());
+        BOOST_TEST_REQUIRE(iter->partitionFieldName().empty());
+        iter++;
+    }
+    {
+        BOOST_TEST_REQUIRE(iter != fields.end());
+        BOOST_REQUIRE_EQUAL(ml::model_t::E_XF_By, iter->excludeFrequent());
+        BOOST_REQUIRE_EQUAL(std::string("sum"), iter->verboseFunctionName());
+        BOOST_REQUIRE_EQUAL(std::string("bytes"), iter->fieldName());
+        BOOST_REQUIRE_EQUAL(std::string("dest_ip"), iter->byFieldName());
+        BOOST_TEST_REQUIRE(iter->overFieldName().empty());
+        BOOST_TEST_REQUIRE(iter->partitionFieldName().empty());
+        iter++;
+    }
+    {
+        BOOST_TEST_REQUIRE(iter != fields.end());
+        BOOST_REQUIRE_EQUAL(ml::model_t::E_XF_By, iter->excludeFrequent());
+        BOOST_REQUIRE_EQUAL(std::string("sum"), iter->verboseFunctionName());
+        BOOST_REQUIRE_EQUAL(std::string("bytes"), iter->fieldName());
+        BOOST_REQUIRE_EQUAL(std::string("src_ip"), iter->byFieldName());
+        BOOST_REQUIRE_EQUAL(std::string("dest_ip"), iter->overFieldName());
+        BOOST_TEST_REQUIRE(iter->partitionFieldName().empty());
+        iter++;
+    }
+    {
+        BOOST_TEST_REQUIRE(iter != fields.end());
+        BOOST_REQUIRE_EQUAL(ml::model_t::E_XF_By, iter->excludeFrequent());
+        BOOST_REQUIRE_EQUAL(std::string("sum"), iter->verboseFunctionName());
+        BOOST_REQUIRE_EQUAL(std::string("bytes"), iter->fieldName());
+        BOOST_REQUIRE_EQUAL(std::string("src_ip"), iter->byFieldName());
+        BOOST_TEST_REQUIRE(iter->overFieldName().empty());
+        BOOST_REQUIRE_EQUAL(std::string("host"), iter->partitionFieldName());
+        iter++;
+    }
+    {
+        BOOST_TEST_REQUIRE(iter != fields.end());
+        BOOST_REQUIRE_EQUAL(ml::model_t::E_XF_Over, iter->excludeFrequent());
+        BOOST_REQUIRE_EQUAL(std::string("sum"), iter->verboseFunctionName());
+        BOOST_REQUIRE_EQUAL(std::string("bytes"), iter->fieldName());
+        BOOST_TEST_REQUIRE(iter->byFieldName().empty());
+        BOOST_REQUIRE_EQUAL(std::string("dest_ip"), iter->overFieldName());
+        BOOST_TEST_REQUIRE(iter->partitionFieldName().empty());
+        iter++;
+    }
+    {
+        BOOST_TEST_REQUIRE(iter != fields.end());
+        BOOST_REQUIRE_EQUAL(ml::model_t::E_XF_By, iter->excludeFrequent());
+        BOOST_REQUIRE_EQUAL(std::string("rare"), iter->verboseFunctionName());
+        BOOST_TEST_REQUIRE(iter->fieldName().empty());
+        BOOST_REQUIRE_EQUAL(std::string("process"), iter->byFieldName());
+        BOOST_TEST_REQUIRE(iter->overFieldName().empty());
+        BOOST_TEST_REQUIRE(iter->partitionFieldName().empty());
+        iter++;
+    }
+    {
+        BOOST_TEST_REQUIRE(iter != fields.end());
+        BOOST_REQUIRE_EQUAL(ml::model_t::E_XF_None, iter->excludeFrequent());
+        BOOST_REQUIRE_EQUAL(std::string("rare"), iter->verboseFunctionName());
+        BOOST_TEST_REQUIRE(iter->fieldName().empty());
+        BOOST_REQUIRE_EQUAL(std::string("client"), iter->byFieldName());
+        BOOST_TEST_REQUIRE(iter->overFieldName().empty());
+        BOOST_TEST_REQUIRE(iter->partitionFieldName().empty());
+        iter++;
+    }
+}
+
+void testSlashesFile(TInitFromFileFunc initFunc, const std::string& fileName) {
+    ml::api::CFieldConfig config;
+
+    BOOST_TEST_REQUIRE(initFunc(&config, fileName));
+
+    LOG_DEBUG(<< config.debug());
+
+    const ml::api::CFieldConfig::TFieldOptionsMIndex& fields = config.fieldOptions();
+
+    for (ml::api::CFieldConfig::TFieldOptionsMIndexCItr iter = fields.begin();
+         iter != fields.end(); ++iter) {
+        BOOST_REQUIRE_EQUAL(std::string("host"), iter->partitionFieldName());
+    }
+}
+
+void testBracketPercentFile(TInitFromFileFunc initFunc, const std::string& fileName) {
+    ml::api::CFieldConfig config;
+
+    BOOST_TEST_REQUIRE(initFunc(&config, fileName));
+
+    LOG_DEBUG(<< config.debug());
+
+    const ml::api::CFieldConfig::TFieldOptionsMIndex& fields = config.fieldOptions();
+
+    ml::api::CFieldConfig::TFieldOptionsMIndexCItr iter = fields.begin();
+    BOOST_TEST_REQUIRE(iter != fields.end());
+    BOOST_REQUIRE_EQUAL(ml::model_t::E_XF_None, iter->excludeFrequent());
+    BOOST_REQUIRE_EQUAL(std::string("max"), iter->terseFunctionName());
+    BOOST_REQUIRE_EQUAL(std::string("Level 1 (Urgent)"), iter->fieldName());
+    BOOST_REQUIRE_EQUAL(std::string("10%"), iter->byFieldName());
+    BOOST_REQUIRE_EQUAL(std::string("%10"), iter->overFieldName());
+    BOOST_REQUIRE_EQUAL(std::string("Percentage (%)"), iter->partitionFieldName());
+    BOOST_REQUIRE_EQUAL(std::string("This string should have quotes removed"),
+                        config.categorizationFieldName());
+}
+}
 
 BOOST_AUTO_TEST_CASE(testTrivial) {
     ml::api::CFieldConfig config("count", "mlcategory");
@@ -35,19 +344,19 @@ BOOST_AUTO_TEST_CASE(testTrivial) {
 }
 
 BOOST_AUTO_TEST_CASE(testValid) {
-    this->testValidFile(std::bind(&ml::api::CFieldConfig::initFromFile,
-                                  std::placeholders::_1, std::placeholders::_2),
-                        "testfiles/new_mlfields.conf");
+    testValidFile(std::bind(&ml::api::CFieldConfig::initFromFile,
+                            std::placeholders::_1, std::placeholders::_2),
+                  "testfiles/new_mlfields.conf");
 }
 
 BOOST_AUTO_TEST_CASE(testInvalid) {
-    this->testInvalidFile(std::bind(&ml::api::CFieldConfig::initFromFile,
-                                    std::placeholders::_1, std::placeholders::_2),
-                          "testfiles/new_invalidmlfields.conf");
+    testInvalidFile(std::bind(&ml::api::CFieldConfig::initFromFile,
+                              std::placeholders::_1, std::placeholders::_2),
+                    "testfiles/new_invalidmlfields.conf");
 }
 
 BOOST_AUTO_TEST_CASE(testValidSummaryCountFieldName) {
-    this->testValidSummaryCountFieldNameFile(
+    testValidSummaryCountFieldNameFile(
         std::bind(&ml::api::CFieldConfig::initFromFile, std::placeholders::_1,
                   std::placeholders::_2),
         "testfiles/new_mlfields_summarycount.conf");
@@ -1027,13 +1336,13 @@ BOOST_AUTO_TEST_CASE(testValidPopulationClauses) {
 }
 
 BOOST_AUTO_TEST_CASE(testValidPopulation) {
-    this->testValidPopulationFile(std::bind(&ml::api::CFieldConfig::initFromFile,
-                                            std::placeholders::_1, std::placeholders::_2),
-                                  "testfiles/new_populationmlfields.conf");
+    testValidPopulationFile(std::bind(&ml::api::CFieldConfig::initFromFile,
+                                      std::placeholders::_1, std::placeholders::_2),
+                            "testfiles/new_populationmlfields.conf");
 }
 
 BOOST_AUTO_TEST_CASE(testDefaultCategorizationField) {
-    this->testDefaultCategorizationFieldFile(
+    testDefaultCategorizationFieldFile(
         std::bind(&ml::api::CFieldConfig::initFromFile, std::placeholders::_1,
                   std::placeholders::_2),
         "testfiles/new_mlfields_sos_message_cat.conf");
@@ -1269,21 +1578,21 @@ BOOST_AUTO_TEST_CASE(testExcludeFrequentClauses) {
 }
 
 BOOST_AUTO_TEST_CASE(testExcludeFrequent) {
-    this->testExcludeFrequentFile(std::bind(&ml::api::CFieldConfig::initFromFile,
-                                            std::placeholders::_1, std::placeholders::_2),
-                                  "testfiles/new_mlfields_excludefrequent.conf");
+    testExcludeFrequentFile(std::bind(&ml::api::CFieldConfig::initFromFile,
+                                      std::placeholders::_1, std::placeholders::_2),
+                            "testfiles/new_mlfields_excludefrequent.conf");
 }
 
 BOOST_AUTO_TEST_CASE(testSlashes) {
-    this->testSlashesFile(std::bind(&ml::api::CFieldConfig::initFromFile,
-                                    std::placeholders::_1, std::placeholders::_2),
-                          "testfiles/new_mlfields_slashes.conf");
+    testSlashesFile(std::bind(&ml::api::CFieldConfig::initFromFile,
+                              std::placeholders::_1, std::placeholders::_2),
+                    "testfiles/new_mlfields_slashes.conf");
 }
 
 BOOST_AUTO_TEST_CASE(testBracketPercent) {
-    this->testBracketPercentFile(std::bind(&ml::api::CFieldConfig::initFromFile,
-                                           std::placeholders::_1, std::placeholders::_2),
-                                 "testfiles/new_mlfields_bracket_percent.conf");
+    testBracketPercentFile(std::bind(&ml::api::CFieldConfig::initFromFile,
+                                     std::placeholders::_1, std::placeholders::_2),
+                           "testfiles/new_mlfields_bracket_percent.conf");
 }
 
 BOOST_AUTO_TEST_CASE(testClauseTokenise) {
@@ -1483,309 +1792,6 @@ BOOST_AUTO_TEST_CASE(testAddOptions) {
     BOOST_TEST_REQUIRE(configFromScratch.addOptions(options2));
 
     BOOST_REQUIRE_EQUAL(configFromFile.debug(), configFromScratch.debug());
-}
-
-BOOST_AUTO_TEST_CASE(testValidFileTInitFromFileFunc initFunc, const std::string& fileName) {
-    ml::api::CFieldConfig config;
-
-    BOOST_TEST_REQUIRE(initFunc(&config, fileName));
-    BOOST_TEST_REQUIRE(!config.havePartitionFields());
-    BOOST_TEST_REQUIRE(config.summaryCountFieldName().empty());
-    BOOST_TEST_REQUIRE(config.categorizationFilters().empty());
-
-    LOG_DEBUG(<< config.debug());
-
-    const ml::api::CFieldConfig::TFieldOptionsMIndex& fields = config.fieldOptions();
-    BOOST_REQUIRE_EQUAL(size_t(7), fields.size());
-
-    ml::api::CFieldConfig::TFieldOptionsMIndexCItr iter = fields.begin();
-    {
-        BOOST_TEST_REQUIRE(iter->fieldName().empty());
-        BOOST_REQUIRE_EQUAL(std::string("mlcategory"), iter->byFieldName());
-        BOOST_TEST_REQUIRE(iter->overFieldName().empty());
-        BOOST_TEST_REQUIRE(iter->partitionFieldName().empty());
-        BOOST_REQUIRE_EQUAL(false, iter->useNull());
-        BOOST_REQUIRE_EQUAL(false, ml::model::function_t::isMetric(iter->function()));
-        BOOST_REQUIRE_EQUAL(false, ml::model::function_t::isPopulation(iter->function()));
-        iter++;
-    }
-    {
-        BOOST_TEST_REQUIRE(iter->fieldName().empty());
-        BOOST_REQUIRE_EQUAL(std::string("remote_ip"), iter->byFieldName());
-        BOOST_TEST_REQUIRE(iter->overFieldName().empty());
-        BOOST_TEST_REQUIRE(iter->partitionFieldName().empty());
-        BOOST_REQUIRE_EQUAL(false, iter->useNull());
-        BOOST_REQUIRE_EQUAL(false, ml::model::function_t::isMetric(iter->function()));
-        BOOST_REQUIRE_EQUAL(false, ml::model::function_t::isPopulation(iter->function()));
-        iter++;
-    }
-    {
-        BOOST_TEST_REQUIRE(iter->fieldName().empty());
-        BOOST_REQUIRE_EQUAL(std::string("remote_user"), iter->byFieldName());
-        BOOST_TEST_REQUIRE(iter->overFieldName().empty());
-        BOOST_TEST_REQUIRE(iter->partitionFieldName().empty());
-        BOOST_REQUIRE_EQUAL(false, iter->useNull());
-        BOOST_REQUIRE_EQUAL(false, ml::model::function_t::isMetric(iter->function()));
-        BOOST_REQUIRE_EQUAL(false, ml::model::function_t::isPopulation(iter->function()));
-        iter++;
-    }
-    {
-        BOOST_TEST_REQUIRE(iter->fieldName().empty());
-        BOOST_REQUIRE_EQUAL(std::string("request"), iter->byFieldName());
-        BOOST_TEST_REQUIRE(iter->overFieldName().empty());
-        BOOST_TEST_REQUIRE(iter->partitionFieldName().empty());
-        BOOST_REQUIRE_EQUAL(false, iter->useNull());
-        BOOST_REQUIRE_EQUAL(false, ml::model::function_t::isMetric(iter->function()));
-        BOOST_REQUIRE_EQUAL(false, ml::model::function_t::isPopulation(iter->function()));
-        iter++;
-    }
-    {
-        BOOST_TEST_REQUIRE(iter->fieldName().empty());
-        BOOST_REQUIRE_EQUAL(std::string("response"), iter->byFieldName());
-        BOOST_TEST_REQUIRE(iter->overFieldName().empty());
-        BOOST_TEST_REQUIRE(iter->partitionFieldName().empty());
-        BOOST_REQUIRE_EQUAL(false, iter->useNull());
-        BOOST_REQUIRE_EQUAL(false, ml::model::function_t::isMetric(iter->function()));
-        BOOST_REQUIRE_EQUAL(false, ml::model::function_t::isPopulation(iter->function()));
-        iter++;
-    }
-    {
-        BOOST_REQUIRE_EQUAL(std::string("bytes"), iter->fieldName());
-        BOOST_REQUIRE_EQUAL(std::string("referrer"), iter->byFieldName());
-        BOOST_TEST_REQUIRE(iter->overFieldName().empty());
-        BOOST_TEST_REQUIRE(iter->partitionFieldName().empty());
-        BOOST_REQUIRE_EQUAL(false, iter->useNull());
-        BOOST_REQUIRE_EQUAL(true, ml::model::function_t::isMetric(iter->function()));
-        BOOST_REQUIRE_EQUAL(false, ml::model::function_t::isPopulation(iter->function()));
-        iter++;
-    }
-    {
-        BOOST_TEST_REQUIRE(iter->fieldName().empty());
-        BOOST_REQUIRE_EQUAL(std::string("agent"), iter->byFieldName());
-        BOOST_TEST_REQUIRE(iter->overFieldName().empty());
-        BOOST_TEST_REQUIRE(iter->partitionFieldName().empty());
-        BOOST_REQUIRE_EQUAL(false, iter->useNull());
-        BOOST_REQUIRE_EQUAL(false, ml::model::function_t::isMetric(iter->function()));
-        BOOST_REQUIRE_EQUAL(false, ml::model::function_t::isPopulation(iter->function()));
-        iter++;
-    }
-
-    const ml::api::CFieldConfig::TStrSet& superset = config.fieldNameSuperset();
-    BOOST_REQUIRE_EQUAL(size_t(8), superset.size());
-    BOOST_REQUIRE_EQUAL(size_t(1), superset.count("agent"));
-    BOOST_REQUIRE_EQUAL(size_t(1), superset.count("bytes"));
-    BOOST_REQUIRE_EQUAL(size_t(1), superset.count("mlcategory"));
-    BOOST_REQUIRE_EQUAL(size_t(1), superset.count("referrer"));
-    BOOST_REQUIRE_EQUAL(size_t(1), superset.count("remote_ip"));
-    BOOST_REQUIRE_EQUAL(size_t(1), superset.count("remote_user"));
-    BOOST_REQUIRE_EQUAL(size_t(1), superset.count("request"));
-    BOOST_REQUIRE_EQUAL(size_t(1), superset.count("response"));
-}
-
-BOOST_AUTO_TEST_CASE(testInvalidFileTInitFromFileFunc initFunc, const std::string& fileName) {
-    ml::api::CFieldConfig config;
-
-    BOOST_TEST_REQUIRE(!initFunc(&config, fileName));
-}
-
-BOOST_AUTO_TEST_CASE(testValidSummaryCountFieldNameFileTInitFromFileFunc initFunc,
-                     const std::string& fileName) {
-    ml::api::CFieldConfig config;
-
-    BOOST_TEST_REQUIRE(initFunc(&config, fileName));
-    BOOST_TEST_REQUIRE(!config.havePartitionFields());
-    BOOST_REQUIRE_EQUAL(std::string("count"), config.summaryCountFieldName());
-}
-
-BOOST_AUTO_TEST_CASE(testValidPopulationFileTInitFromFileFunc initFunc,
-                     const std::string& fileName) {
-    {
-        ml::api::CFieldConfig config;
-        BOOST_TEST_REQUIRE(initFunc(&config, fileName));
-        BOOST_TEST_REQUIRE(!config.havePartitionFields());
-        BOOST_TEST_REQUIRE(config.summaryCountFieldName().empty());
-
-        LOG_DEBUG(<< config.debug());
-
-        const ml::api::CFieldConfig::TFieldOptionsMIndex& fields = config.fieldOptions();
-        BOOST_REQUIRE_EQUAL(size_t(2), fields.size());
-        ml::api::CFieldConfig::TFieldOptionsMIndexCItr iter = fields.begin();
-        BOOST_TEST_REQUIRE(iter != fields.end());
-        BOOST_TEST_REQUIRE(iter->fieldName().empty());
-        BOOST_REQUIRE_EQUAL(std::string("SRC"), iter->byFieldName());
-        BOOST_TEST_REQUIRE(iter->overFieldName().empty());
-        BOOST_TEST_REQUIRE(iter->partitionFieldName().empty());
-        BOOST_REQUIRE_EQUAL(false, iter->useNull());
-        BOOST_REQUIRE_EQUAL(false, ml::model::function_t::isMetric(iter->function()));
-        BOOST_REQUIRE_EQUAL(false, ml::model::function_t::isPopulation(iter->function()));
-        ++iter;
-        BOOST_TEST_REQUIRE(iter != fields.end());
-        BOOST_TEST_REQUIRE(iter->fieldName().empty());
-        BOOST_REQUIRE_EQUAL(std::string("DPT"), iter->byFieldName());
-        BOOST_REQUIRE_EQUAL(std::string("SRC"), iter->overFieldName());
-        BOOST_TEST_REQUIRE(iter->partitionFieldName().empty());
-        BOOST_REQUIRE_EQUAL(true, iter->useNull());
-        BOOST_REQUIRE_EQUAL(false, ml::model::function_t::isMetric(iter->function()));
-        BOOST_REQUIRE_EQUAL(true, ml::model::function_t::isPopulation(iter->function()));
-    }
-}
-
-BOOST_AUTO_TEST_CASE(testDefaultCategorizationFieldFileTInitFromFileFunc initFunc,
-                     const std::string& fileName) {
-    ml::api::CFieldConfig config;
-
-    BOOST_TEST_REQUIRE(initFunc(&config, fileName));
-    BOOST_TEST_REQUIRE(!config.havePartitionFields());
-    BOOST_TEST_REQUIRE(config.summaryCountFieldName().empty());
-
-    LOG_DEBUG(<< config.debug());
-
-    const std::string& categorizationFieldName = config.categorizationFieldName();
-    BOOST_REQUIRE_EQUAL(std::string("message"), categorizationFieldName);
-    BOOST_TEST_REQUIRE(config.categorizationFilters().empty());
-
-    const ml::api::CFieldConfig::TFieldOptionsMIndex& fields = config.fieldOptions();
-    BOOST_REQUIRE_EQUAL(size_t(1), fields.size());
-    ml::api::CFieldConfig::TFieldOptionsMIndexCItr iter = fields.begin();
-    BOOST_TEST_REQUIRE(iter != fields.end());
-    BOOST_TEST_REQUIRE(iter->fieldName().empty());
-    BOOST_REQUIRE_EQUAL(std::string("mlcategory"), iter->byFieldName());
-    BOOST_TEST_REQUIRE(iter->overFieldName().empty());
-    BOOST_TEST_REQUIRE(iter->partitionFieldName().empty());
-    BOOST_REQUIRE_EQUAL(false, iter->useNull());
-    BOOST_REQUIRE_EQUAL(false, ml::model::function_t::isMetric(iter->function()));
-    BOOST_REQUIRE_EQUAL(false, ml::model::function_t::isPopulation(iter->function()));
-}
-
-BOOST_AUTO_TEST_CASE(testExcludeFrequentFileTInitFromFileFunc initFunc,
-                     const std::string& fileName) {
-    ml::api::CFieldConfig config;
-
-    BOOST_TEST_REQUIRE(initFunc(&config, fileName));
-    BOOST_TEST_REQUIRE(config.havePartitionFields());
-    BOOST_TEST_REQUIRE(config.summaryCountFieldName().empty());
-
-    const ml::api::CFieldConfig::TFieldOptionsMIndex& fields = config.fieldOptions();
-    BOOST_REQUIRE_EQUAL(size_t(8), fields.size());
-    ml::api::CFieldConfig::TFieldOptionsMIndexCItr iter = fields.begin();
-
-    {
-        BOOST_TEST_REQUIRE(iter != fields.end());
-        BOOST_REQUIRE_EQUAL(ml::model_t::E_XF_Both, iter->excludeFrequent());
-        BOOST_REQUIRE_EQUAL(std::string("sum"), iter->verboseFunctionName());
-        BOOST_REQUIRE_EQUAL(std::string("bytes"), iter->fieldName());
-        BOOST_REQUIRE_EQUAL(std::string("dest_ip"), iter->byFieldName());
-        BOOST_REQUIRE_EQUAL(std::string("src_ip"), iter->overFieldName());
-        BOOST_TEST_REQUIRE(iter->partitionFieldName().empty());
-        iter++;
-    }
-    {
-        BOOST_TEST_REQUIRE(iter != fields.end());
-        BOOST_REQUIRE_EQUAL(ml::model_t::E_XF_None, iter->excludeFrequent());
-        BOOST_REQUIRE_EQUAL(std::string("metric"), iter->verboseFunctionName());
-        BOOST_REQUIRE_EQUAL(std::string("responsetime"), iter->fieldName());
-        BOOST_REQUIRE_EQUAL(std::string("airline"), iter->byFieldName());
-        BOOST_TEST_REQUIRE(iter->overFieldName().empty());
-        BOOST_TEST_REQUIRE(iter->partitionFieldName().empty());
-        iter++;
-    }
-    {
-        BOOST_TEST_REQUIRE(iter != fields.end());
-        BOOST_REQUIRE_EQUAL(ml::model_t::E_XF_By, iter->excludeFrequent());
-        BOOST_REQUIRE_EQUAL(std::string("sum"), iter->verboseFunctionName());
-        BOOST_REQUIRE_EQUAL(std::string("bytes"), iter->fieldName());
-        BOOST_REQUIRE_EQUAL(std::string("dest_ip"), iter->byFieldName());
-        BOOST_TEST_REQUIRE(iter->overFieldName().empty());
-        BOOST_TEST_REQUIRE(iter->partitionFieldName().empty());
-        iter++;
-    }
-    {
-        BOOST_TEST_REQUIRE(iter != fields.end());
-        BOOST_REQUIRE_EQUAL(ml::model_t::E_XF_By, iter->excludeFrequent());
-        BOOST_REQUIRE_EQUAL(std::string("sum"), iter->verboseFunctionName());
-        BOOST_REQUIRE_EQUAL(std::string("bytes"), iter->fieldName());
-        BOOST_REQUIRE_EQUAL(std::string("src_ip"), iter->byFieldName());
-        BOOST_REQUIRE_EQUAL(std::string("dest_ip"), iter->overFieldName());
-        BOOST_TEST_REQUIRE(iter->partitionFieldName().empty());
-        iter++;
-    }
-    {
-        BOOST_TEST_REQUIRE(iter != fields.end());
-        BOOST_REQUIRE_EQUAL(ml::model_t::E_XF_By, iter->excludeFrequent());
-        BOOST_REQUIRE_EQUAL(std::string("sum"), iter->verboseFunctionName());
-        BOOST_REQUIRE_EQUAL(std::string("bytes"), iter->fieldName());
-        BOOST_REQUIRE_EQUAL(std::string("src_ip"), iter->byFieldName());
-        BOOST_TEST_REQUIRE(iter->overFieldName().empty());
-        BOOST_REQUIRE_EQUAL(std::string("host"), iter->partitionFieldName());
-        iter++;
-    }
-    {
-        BOOST_TEST_REQUIRE(iter != fields.end());
-        BOOST_REQUIRE_EQUAL(ml::model_t::E_XF_Over, iter->excludeFrequent());
-        BOOST_REQUIRE_EQUAL(std::string("sum"), iter->verboseFunctionName());
-        BOOST_REQUIRE_EQUAL(std::string("bytes"), iter->fieldName());
-        BOOST_TEST_REQUIRE(iter->byFieldName().empty());
-        BOOST_REQUIRE_EQUAL(std::string("dest_ip"), iter->overFieldName());
-        BOOST_TEST_REQUIRE(iter->partitionFieldName().empty());
-        iter++;
-    }
-    {
-        BOOST_TEST_REQUIRE(iter != fields.end());
-        BOOST_REQUIRE_EQUAL(ml::model_t::E_XF_By, iter->excludeFrequent());
-        BOOST_REQUIRE_EQUAL(std::string("rare"), iter->verboseFunctionName());
-        BOOST_TEST_REQUIRE(iter->fieldName().empty());
-        BOOST_REQUIRE_EQUAL(std::string("process"), iter->byFieldName());
-        BOOST_TEST_REQUIRE(iter->overFieldName().empty());
-        BOOST_TEST_REQUIRE(iter->partitionFieldName().empty());
-        iter++;
-    }
-    {
-        BOOST_TEST_REQUIRE(iter != fields.end());
-        BOOST_REQUIRE_EQUAL(ml::model_t::E_XF_None, iter->excludeFrequent());
-        BOOST_REQUIRE_EQUAL(std::string("rare"), iter->verboseFunctionName());
-        BOOST_TEST_REQUIRE(iter->fieldName().empty());
-        BOOST_REQUIRE_EQUAL(std::string("client"), iter->byFieldName());
-        BOOST_TEST_REQUIRE(iter->overFieldName().empty());
-        BOOST_TEST_REQUIRE(iter->partitionFieldName().empty());
-        iter++;
-    }
-}
-
-BOOST_AUTO_TEST_CASE(testSlashesFileTInitFromFileFunc initFunc, const std::string& fileName) {
-    ml::api::CFieldConfig config;
-
-    BOOST_TEST_REQUIRE(initFunc(&config, fileName));
-
-    LOG_DEBUG(<< config.debug());
-
-    const ml::api::CFieldConfig::TFieldOptionsMIndex& fields = config.fieldOptions();
-
-    for (ml::api::CFieldConfig::TFieldOptionsMIndexCItr iter = fields.begin();
-         iter != fields.end(); ++iter) {
-        BOOST_REQUIRE_EQUAL(std::string("host"), iter->partitionFieldName());
-    }
-}
-
-BOOST_AUTO_TEST_CASE(testBracketPercentFileTInitFromFileFunc initFunc,
-                     const std::string& fileName) {
-    ml::api::CFieldConfig config;
-
-    BOOST_TEST_REQUIRE(initFunc(&config, fileName));
-
-    LOG_DEBUG(<< config.debug());
-
-    const ml::api::CFieldConfig::TFieldOptionsMIndex& fields = config.fieldOptions();
-
-    ml::api::CFieldConfig::TFieldOptionsMIndexCItr iter = fields.begin();
-    BOOST_TEST_REQUIRE(iter != fields.end());
-    BOOST_REQUIRE_EQUAL(ml::model_t::E_XF_None, iter->excludeFrequent());
-    BOOST_REQUIRE_EQUAL(std::string("max"), iter->terseFunctionName());
-    BOOST_REQUIRE_EQUAL(std::string("Level 1 (Urgent)"), iter->fieldName());
-    BOOST_REQUIRE_EQUAL(std::string("10%"), iter->byFieldName());
-    BOOST_REQUIRE_EQUAL(std::string("%10"), iter->overFieldName());
-    BOOST_REQUIRE_EQUAL(std::string("Percentage (%)"), iter->partitionFieldName());
-    BOOST_REQUIRE_EQUAL(std::string("This string should have quotes removed"),
-                        config.categorizationFieldName());
 }
 
 BOOST_AUTO_TEST_CASE(testScheduledEvents) {

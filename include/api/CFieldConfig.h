@@ -25,7 +25,8 @@
 #include <vector>
 
 namespace CFieldConfigTest {
-struct testFoo;
+struct testFieldOptions;
+struct testClauseTokenise;
 }
 
 namespace ml {
@@ -591,7 +592,8 @@ private:
     TStrDetectionRulePrVec m_ScheduledEvents;
 
     // For unit testing
-    friend struct CFieldConfigTest::testFoo;
+    friend struct CFieldConfigTest::testFieldOptions;
+    friend struct CFieldConfigTest::testClauseTokenise;
 };
 
 //! Efficient swap for field options

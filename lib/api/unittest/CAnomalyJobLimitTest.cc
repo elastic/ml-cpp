@@ -33,6 +33,8 @@
 #include <sstream>
 #include <string>
 
+BOOST_TEST_DONT_PRINT_LOG_VALUE(rapidjson::Value::MemberIterator)
+
 BOOST_AUTO_TEST_SUITE(CAnomalyJobLimitTest)
 
 using namespace ml;

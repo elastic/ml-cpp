@@ -72,8 +72,6 @@ void populateJob(TGenerateRecord generateRecord,
 }
 
 BOOST_AUTO_TEST_CASE(testSummaryCount) {
-    LOG_INFO(<< "*** test forecast on summary count ***");
-
     std::stringstream outputStrm;
     {
         ml::core::CJsonOutputStreamWrapper streamWrapper(outputStrm);
@@ -145,8 +143,6 @@ BOOST_AUTO_TEST_CASE(testSummaryCount) {
 }
 
 BOOST_AUTO_TEST_CASE(testPopulation) {
-    LOG_INFO(<< "*** test forecast on population ***");
-
     std::stringstream outputStrm;
     {
         ml::core::CJsonOutputStreamWrapper streamWrapper(outputStrm);
@@ -190,8 +186,6 @@ BOOST_AUTO_TEST_CASE(testPopulation) {
 }
 
 BOOST_AUTO_TEST_CASE(testRare) {
-    LOG_INFO(<< "*** test forecast on rare ***");
-
     std::stringstream outputStrm;
     {
         ml::core::CJsonOutputStreamWrapper streamWrapper(outputStrm);
@@ -236,8 +230,6 @@ BOOST_AUTO_TEST_CASE(testRare) {
 }
 
 BOOST_AUTO_TEST_CASE(testInsufficientData) {
-    LOG_INFO(<< "*** test insufficient data ***");
-
     std::stringstream outputStrm;
     {
         ml::core::CJsonOutputStreamWrapper streamWrapper(outputStrm);

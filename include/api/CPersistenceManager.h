@@ -19,7 +19,8 @@
 #include <list>
 
 namespace CPersistenceManagerTest {
-struct testFoo;
+class CTestFixture;
+struct testCategorizationOnlyPersist;
 }
 
 namespace ml {
@@ -215,7 +216,8 @@ private:
     friend class CBackgroundThread;
 
     // For testing
-    friend struct CPersistenceManagerTest::testFoo;
+    friend class CPersistenceManagerTest::CTestFixture;
+    friend struct CPersistenceManagerTest::testCategorizationOnlyPersist;
 };
 }
 }

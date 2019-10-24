@@ -16,6 +16,9 @@
 #include <sstream>
 #include <string>
 
+using TStrSet = ml::model::CAnomalyDetectorModelConfig::TStrSet;
+BOOST_TEST_DONT_PRINT_LOG_VALUE(TStrSet::iterator)
+
 BOOST_AUTO_TEST_SUITE(CConfigUpdaterTest)
 
 using namespace ml;
@@ -38,8 +41,6 @@ BOOST_AUTO_TEST_CASE(testUpdateGivenUnknownStanzas) {
 }
 
 BOOST_AUTO_TEST_CASE(testUpdateGivenModelPlotConfig) {
-    using TStrSet = model::CAnomalyDetectorModelConfig::TStrSet;
-
     CFieldConfig fieldConfig;
     model::CAnomalyDetectorModelConfig modelConfig =
         model::CAnomalyDetectorModelConfig::defaultConfig();

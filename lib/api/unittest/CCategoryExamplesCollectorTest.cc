@@ -12,6 +12,8 @@
 
 #include <boost/test/unit_test.hpp>
 
+BOOST_TEST_DONT_PRINT_LOG_VALUE(ml::api::CCategoryExamplesCollector::TStrSet::iterator)
+
 BOOST_AUTO_TEST_SUITE(CCategoryExamplesCollectorTest)
 
 using namespace ml;

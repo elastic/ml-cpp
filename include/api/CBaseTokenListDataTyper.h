@@ -22,7 +22,8 @@
 #include <vector>
 
 namespace CBaseTokenListDataTyperTest {
-struct testFoo;
+struct testMaxMatchingWeights;
+struct testMinMatchingWeights;
 }
 
 namespace ml {
@@ -294,7 +295,8 @@ private:
     CCsvInputParser::CCsvLineParser m_CsvLineParser;
 
     // For unit testing
-    friend struct CBaseTokenListDataTyperTest::testFoo;
+    friend struct CBaseTokenListDataTyperTest::testMaxMatchingWeights;
+    friend struct CBaseTokenListDataTyperTest::testMinMatchingWeights;
 
     // For ostream output
     friend API_EXPORT std::ostream& operator<<(std::ostream&, const SIdTranslater&);

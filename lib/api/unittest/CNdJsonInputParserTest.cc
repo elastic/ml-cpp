@@ -79,29 +79,8 @@ public:
 private:
     size_t m_RecordCount;
 };
-}
 
-BOOST_AUTO_TEST_CASE(testThroughputArbitraryMapHandler) {
-    LOG_INFO(<< "Testing parse to map assuming arbitrary fields in JSON documents");
-    this->runTest(false, false);
-}
-
-BOOST_AUTO_TEST_CASE(testThroughputCommonMapHandler) {
-    LOG_INFO(<< "Testing parse to map assuming all JSON documents have the same fields");
-    this->runTest(true, false);
-}
-
-BOOST_AUTO_TEST_CASE(testThroughputArbitraryVecHandler) {
-    LOG_INFO(<< "Testing parse to vectors assuming arbitrary fields in JSON documents");
-    this->runTest(false, true);
-}
-
-BOOST_AUTO_TEST_CASE(testThroughputCommonVecHandler) {
-    LOG_INFO(<< "Testing parse to vectors assuming all JSON documents have the same fields");
-    this->runTest(true, true);
-}
-
-void CNdJsonInputParserTest::runTest(bool allDocsSameStructure, bool parseAsVecs) {
+void runTest(bool allDocsSameStructure, bool parseAsVecs) {
     // NB: For fair comparison with the other input formats (CSV and Google
     // Protocol Buffers), the input data and test size must be identical
 
@@ -140,6 +119,27 @@ void CNdJsonInputParserTest::runTest(bool allDocsSameStructure, bool parseAsVecs
 
     LOG_INFO(<< "Parsing " << visitor.recordCount() << " records took "
              << (end - start) << " seconds");
+}
+}
+
+BOOST_AUTO_TEST_CASE(testThroughputArbitraryMapHandler) {
+    LOG_INFO(<< "Testing parse to map assuming arbitrary fields in JSON documents");
+    runTest(false, false);
+}
+
+BOOST_AUTO_TEST_CASE(testThroughputCommonMapHandler) {
+    LOG_INFO(<< "Testing parse to map assuming all JSON documents have the same fields");
+    runTest(true, false);
+}
+
+BOOST_AUTO_TEST_CASE(testThroughputArbitraryVecHandler) {
+    LOG_INFO(<< "Testing parse to vectors assuming arbitrary fields in JSON documents");
+    runTest(false, true);
+}
+
+BOOST_AUTO_TEST_CASE(testThroughputCommonVecHandler) {
+    LOG_INFO(<< "Testing parse to vectors assuming all JSON documents have the same fields");
+    runTest(true, true);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

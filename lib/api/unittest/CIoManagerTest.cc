@@ -129,63 +129,12 @@ private:
     std::string m_Data;
     volatile bool m_Shutdown;
 };
-}
 
-BOOST_AUTO_TEST_CASE(testStdinStdout) {
-    ml::api::CIoManager ioMgr("", false, "", false);
-    BOOST_TEST_REQUIRE(ioMgr.initIo());
-
-    // Assign to a different pointer in case of "this" pointer manipulation due
-    // to multiple inheritance
-    std::istream* cinAsIStream = &std::cin;
-    BOOST_REQUIRE_EQUAL(cinAsIStream, &ioMgr.inputStream());
-
-    std::ostream* coutAsIStream = &std::cout;
-    BOOST_REQUIRE_EQUAL(coutAsIStream, &ioMgr.outputStream());
-}
-
-BOOST_AUTO_TEST_CASE(testFileIoGood) {
-    // Remove output file that possibly might have been left behind by a
-    // previous failed test - ignore the error code from this call though as
-    // it'll generally fail
-    ::remove(GOOD_OUTPUT_FILE_NAME);
-
-    // For the file test the input file needs to exist before the IO manager
-    // is started
-    std::ofstream strm(GOOD_INPUT_FILE_NAME);
-    strm << std::string(TEST_SIZE, TEST_CHAR);
-    strm.close();
-
-    this->testCommon(GOOD_INPUT_FILE_NAME, false, GOOD_OUTPUT_FILE_NAME, false, true);
-
-    BOOST_REQUIRE_EQUAL(0, ::remove(GOOD_INPUT_FILE_NAME));
-    BOOST_REQUIRE_EQUAL(0, ::remove(GOOD_OUTPUT_FILE_NAME));
-}
-
-BOOST_AUTO_TEST_CASE(testFileIoBad) {
-    this->testCommon(BAD_INPUT_FILE_NAME, false, BAD_OUTPUT_FILE_NAME, false, false);
-}
-
-BOOST_AUTO_TEST_CASE(testNamedPipeIoGood) {
-    // For the named pipe test, data needs to be written to the IO manager's
-    // input pipe after the IO manager has started
-    CThreadDataWriter threadWriter(GOOD_INPUT_PIPE_NAME, TEST_SIZE);
-    BOOST_TEST_REQUIRE(threadWriter.start());
-
-    this->testCommon(GOOD_INPUT_PIPE_NAME, true, GOOD_OUTPUT_PIPE_NAME, true, true);
-
-    BOOST_TEST_REQUIRE(threadWriter.stop());
-}
-
-BOOST_AUTO_TEST_CASE(testNamedPipeIoBad) {
-    this->testCommon(BAD_INPUT_PIPE_NAME, true, BAD_OUTPUT_PIPE_NAME, true, false);
-}
-
-BOOST_AUTO_TEST_CASE(testCommonconst std::string& inputFileName,
-                     bool isInputFileNamedPipe,
-                     const std::string& outputFileName,
-                     bool isOutputFileNamedPipe,
-                     bool isGood) {
+void testCommon(const std::string& inputFileName,
+                bool isInputFileNamedPipe,
+                const std::string& outputFileName,
+                bool isOutputFileNamedPipe,
+                bool isGood) {
     // Test reader reads from the IO manager's output stream.
     CThreadDataReader threadReader(outputFileName);
     BOOST_TEST_REQUIRE(threadReader.start());
@@ -224,6 +173,57 @@ BOOST_AUTO_TEST_CASE(testCommonconst std::string& inputFileName,
         BOOST_TEST_REQUIRE(threadReader.stop());
         BOOST_TEST_REQUIRE(processedData.empty());
     }
+}
+}
+
+BOOST_AUTO_TEST_CASE(testStdinStdout) {
+    ml::api::CIoManager ioMgr("", false, "", false);
+    BOOST_TEST_REQUIRE(ioMgr.initIo());
+
+    // Assign to a different pointer in case of "this" pointer manipulation due
+    // to multiple inheritance
+    std::istream* cinAsIStream = &std::cin;
+    BOOST_REQUIRE_EQUAL(cinAsIStream, &ioMgr.inputStream());
+
+    std::ostream* coutAsOStream = &std::cout;
+    BOOST_REQUIRE_EQUAL(coutAsOStream, &ioMgr.outputStream());
+}
+
+BOOST_AUTO_TEST_CASE(testFileIoGood) {
+    // Remove output file that possibly might have been left behind by a
+    // previous failed test - ignore the error code from this call though as
+    // it'll generally fail
+    ::remove(GOOD_OUTPUT_FILE_NAME);
+
+    // For the file test the input file needs to exist before the IO manager
+    // is started
+    std::ofstream strm(GOOD_INPUT_FILE_NAME);
+    strm << std::string(TEST_SIZE, TEST_CHAR);
+    strm.close();
+
+    testCommon(GOOD_INPUT_FILE_NAME, false, GOOD_OUTPUT_FILE_NAME, false, true);
+
+    BOOST_REQUIRE_EQUAL(0, ::remove(GOOD_INPUT_FILE_NAME));
+    BOOST_REQUIRE_EQUAL(0, ::remove(GOOD_OUTPUT_FILE_NAME));
+}
+
+BOOST_AUTO_TEST_CASE(testFileIoBad) {
+    testCommon(BAD_INPUT_FILE_NAME, false, BAD_OUTPUT_FILE_NAME, false, false);
+}
+
+BOOST_AUTO_TEST_CASE(testNamedPipeIoGood) {
+    // For the named pipe test, data needs to be written to the IO manager's
+    // input pipe after the IO manager has started
+    CThreadDataWriter threadWriter(GOOD_INPUT_PIPE_NAME, TEST_SIZE);
+    BOOST_TEST_REQUIRE(threadWriter.start());
+
+    testCommon(GOOD_INPUT_PIPE_NAME, true, GOOD_OUTPUT_PIPE_NAME, true, true);
+
+    BOOST_TEST_REQUIRE(threadWriter.stop());
+}
+
+BOOST_AUTO_TEST_CASE(testNamedPipeIoBad) {
+    testCommon(BAD_INPUT_PIPE_NAME, true, BAD_OUTPUT_PIPE_NAME, true, false);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

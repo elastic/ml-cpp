@@ -30,7 +30,7 @@ BOOST_AUTO_TEST_CASE(testBulkIndexHeaderRemoval) {
     expected += '\0';
     expected += '\n';
 
-    // replace zerobytes to avoid printing problems of cppunit
+    // replace zerobytes to avoid printing problems
     std::replace(output.begin(), output.end(), '\0', ',');
     std::replace(expected.begin(), expected.end(), '\0', ',');
 
@@ -61,7 +61,7 @@ BOOST_AUTO_TEST_CASE(testBulkIndexHeaderRemovalZerobyte) {
     expected += '\0';
     expected += '\n';
 
-    // replace zerobytes to avoid printing problems of cppunit
+    // replace zerobytes to avoid printing problems
     std::replace(output.begin(), output.end(), '\0', ',');
     std::replace(expected.begin(), expected.end(), '\0', ',');
 

@@ -4,9 +4,6 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
-#include "CMockDataAdder.h"
-#include "CMockSearcher.h"
-
 #include <core/CJsonOutputStreamWrapper.h>
 #include <core/CLogger.h>
 
@@ -19,6 +16,9 @@
 #include <api/CFieldConfig.h>
 #include <api/CHierarchicalResultsWriter.h>
 #include <api/CJsonOutputWriter.h>
+
+#include "CMockDataAdder.h"
+#include "CMockSearcher.h"
 
 #include <boost/test/unit_test.hpp>
 
@@ -101,22 +101,24 @@ struct SLookup {
         return lhs == *rhs;
     }
 };
-
 } // namespace
 
-bool CStringStoreTest::nameExists(const std::string& string) {
-    model::CStringStore::TStoredStringPtrUSet names =
-        model::CStringStore::names().m_Strings;
-    return names.find(string, ::SLookup(), ::SLookup()) != names.end();
-}
+class CTestFixture {
+protected:
+    bool nameExists(const std::string& string) {
+        model::CStringStore::TStoredStringPtrUSet names =
+            model::CStringStore::names().m_Strings;
+        return names.find(string, SLookup(), SLookup()) != names.end();
+    }
 
-bool CStringStoreTest::influencerExists(const std::string& string) {
-    model::CStringStore::TStoredStringPtrUSet names =
-        model::CStringStore::influencers().m_Strings;
-    return names.find(string, ::SLookup(), ::SLookup()) != names.end();
-}
+    bool influencerExists(const std::string& string) {
+        model::CStringStore::TStoredStringPtrUSet names =
+            model::CStringStore::influencers().m_Strings;
+        return names.find(string, SLookup(), SLookup()) != names.end();
+    }
+};
 
-BOOST_AUTO_TEST_CASE(testPersonStringPruning) {
+BOOST_FIXTURE_TEST_CASE(testPersonStringPruning, CTestFixture) {
     core_t::TTime BUCKET_SPAN(10000);
     core_t::TTime time = 100000000;
 
@@ -307,7 +309,7 @@ BOOST_AUTO_TEST_CASE(testPersonStringPruning) {
     }
 }
 
-BOOST_AUTO_TEST_CASE(testAttributeStringPruning) {
+BOOST_FIXTURE_TEST_CASE(testAttributeStringPruning, CTestFixture) {
     core_t::TTime BUCKET_SPAN(10000);
     core_t::TTime time = 100000000;
 
@@ -498,7 +500,7 @@ BOOST_AUTO_TEST_CASE(testAttributeStringPruning) {
     }
 }
 
-BOOST_AUTO_TEST_CASE(testInfluencerStringPruning) {
+BOOST_FIXTURE_TEST_CASE(testInfluencerStringPruning, CTestFixture) {
     core_t::TTime BUCKET_SPAN(10000);
     core_t::TTime time = 100000000;
 
