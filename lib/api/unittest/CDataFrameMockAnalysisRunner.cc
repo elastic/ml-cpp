@@ -17,12 +17,12 @@ std::size_t CDataFrameMockAnalysisRunner::numberExtraColumns() const {
     return 2;
 }
 
-void CDataFrameMockAnalysisRunner::writeOneRow(const TStrVec&,
-                                               TRowRef,
+void CDataFrameMockAnalysisRunner::writeOneRow(const ml::core::CDataFrame&,
+                                               const TRowRef&,
                                                ml::core::CRapidJsonConcurrentLineWriter&) const {
 }
 
-void CDataFrameMockAnalysisRunner::runImpl(const TStrVec&, ml::core::CDataFrame&) {
+void CDataFrameMockAnalysisRunner::runImpl(ml::core::CDataFrame&) {
     ml::core::CLoopProgress progress{31, this->progressRecorder()};
     for (std::size_t i = 0; i < 31; ++i, progress.increment()) {
         std::vector<std::size_t> wait;

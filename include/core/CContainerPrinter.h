@@ -255,10 +255,10 @@ private:
         return result.str();
     }
 
-    //! Print a std::auto_ptr.
+    //! Print a std::unique_ptr.
     template<typename T>
-    static std::string printElement(const std::auto_ptr<T>& value) {
-        if (value.get() == nullptr) {
+    static std::string printElement(const std::unique_ptr<T>& value) {
+        if (value == nullptr) {
             return "\"null\"";
         }
         std::ostringstream result;

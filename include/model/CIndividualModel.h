@@ -171,8 +171,8 @@ protected:
         std::vector<TStrCRefDouble1VecDouble1VecPrPrVecVec>;
 
 protected:
-    //! Persist the state of the residual models only.
-    void doPersistResidualModelsState(core::CStatePersistInserter& inserter) const;
+    //! Persist the state of the models only.
+    void doPersistModelsState(core::CStatePersistInserter& inserter) const;
 
     //! Persist state by passing information to the supplied inserter.
     void doAcceptPersistInserter(core::CStatePersistInserter& inserter) const;
@@ -235,10 +235,6 @@ protected:
     //! Get the weight associated with an update to the prior from an empty bucket
     //! for features which count empty buckets.
     double emptyBucketWeight(model_t::EFeature feature, std::size_t pid, core_t::TTime time) const;
-
-    //! Get the "probability the bucket is empty" to use to correct probabilities
-    //! for features which count empty buckets.
-    double probabilityBucketEmpty(model_t::EFeature feature, std::size_t pid) const;
 
     //! Get a read only model corresponding to \p feature of the person \p pid.
     const maths::CModel* model(model_t::EFeature feature, std::size_t pid) const;

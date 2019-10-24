@@ -36,7 +36,7 @@ namespace model {
 // We use short field names to reduce the state size
 namespace {
 
-using TModelDetailsViewPtr = CAnomalyDetectorModel::CModelDetailsViewPtr;
+using TModelDetailsViewUPtr = CAnomalyDetectorModel::TModelDetailsViewUPtr;
 
 // tag 'a' was previously used for persisting first time;
 // DO NOT USE; unless it is decided to break model state BWC
@@ -341,8 +341,8 @@ void CAnomalyDetector::legacyModelEnsembleAcceptPersistInserter(core::CStatePers
                                                this, std::placeholders::_1));
 }
 
-void CAnomalyDetector::persistResidualModelsState(core::CStatePersistInserter& inserter) const {
-    m_Model->persistResidualModelsState(inserter);
+void CAnomalyDetector::persistModelsState(core::CStatePersistInserter& inserter) const {
+    m_Model->persistModelsState(inserter);
 }
 
 void CAnomalyDetector::legacyModelsAcceptPersistInserter(core::CStatePersistInserter& inserter) const {
@@ -439,7 +439,7 @@ void CAnomalyDetector::generateModelPlot(core_t::TTime bucketStartTime,
     if (terms.empty() || m_DataGatherer->partitionFieldValue().empty() ||
         terms.find(m_DataGatherer->partitionFieldValue()) != terms.end()) {
         const CSearchKey& key = m_DataGatherer->searchKey();
-        TModelDetailsViewPtr view = m_Model.get()->details();
+        TModelDetailsViewUPtr view = m_Model.get()->details();
         if (view.get()) {
             core_t::TTime bucketLength = m_ModelConfig.bucketLength();
             for (core_t::TTime time = bucketStartTime; time < bucketEndTime;
@@ -458,7 +458,7 @@ CForecastDataSink::SForecastModelPrerequisites
 CAnomalyDetector::getForecastPrerequisites() const {
     CForecastDataSink::SForecastModelPrerequisites prerequisites{0, 0, 0, true, false};
 
-    TModelDetailsViewPtr view = m_Model->details();
+    TModelDetailsViewUPtr view = m_Model->details();
 
     // The view can be empty, e.g. for the counting model.
     if (view.get() == nullptr) {
@@ -508,7 +508,7 @@ CAnomalyDetector::getForecastModels(bool persistOnDisk,
         return series;
     }
 
-    TModelDetailsViewPtr view = m_Model.get()->details();
+    TModelDetailsViewUPtr view = m_Model.get()->details();
 
     // The view can be empty, e.g. for the counting model.
     if (view.get() == nullptr) {

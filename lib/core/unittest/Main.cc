@@ -7,8 +7,6 @@
 
 #include "CAllocationStrategyTest.h"
 #include "CBase64FilterTest.h"
-#include "CBlockingMessageQueueTest.h"
-#include "CByteSwapperTest.h"
 #include "CCompressUtilsTest.h"
 #include "CCompressedDictionaryTest.h"
 #include "CConcurrencyTest.h"
@@ -17,14 +15,11 @@
 #include "CContainerPrinterTest.h"
 #include "CContainerThroughputTest.h"
 #include "CDataFrameTest.h"
-#include "CDelimiterTest.h"
 #include "CDetachedProcessSpawnerTest.h"
 #include "CDualThreadStreamBufTest.h"
-#include "CFileDeleterTest.h"
 #include "CFlatPrefixTreeTest.h"
 #include "CFunctionalTest.h"
 #include "CHashingTest.h"
-#include "CHexUtilsTest.h"
 #include "CIEEE754Test.h"
 #include "CJsonLogLayoutTest.h"
 #include "CJsonOutputStreamWrapperTest.h"
@@ -35,8 +30,6 @@
 #include "CMapPopulationTest.h"
 #include "CMemoryUsageJsonWriterTest.h"
 #include "CMemoryUsageTest.h"
-#include "CMessageBufferTest.h"
-#include "CMessageQueueTest.h"
 #include "CMonotonicTimeTest.h"
 #include "CMutexTest.h"
 #include "CNamedPipeFactoryTest.h"
@@ -45,7 +38,6 @@
 #include "CPatternSetTest.h"
 #include "CPersistUtilsTest.h"
 #include "CPersistenceTagTest.h"
-#include "CPolymorphicStackObjectCPtrTest.h"
 #include "CProcessPriorityTest.h"
 #include "CProcessTest.h"
 #include "CProgNameTest.h"
@@ -69,9 +61,7 @@
 #include "CStoredStringPtrTest.h"
 #include "CStringSimilarityTesterTest.h"
 #include "CStringUtilsTest.h"
-#include "CThreadFarmTest.h"
 #include "CThreadMutexConditionTest.h"
-#include "CTickerTest.h"
 #include "CTimeUtilsTest.h"
 #include "CTripleTest.h"
 #include "CUnameTest.h"
@@ -87,8 +77,6 @@ int main(int argc, const char** argv) {
 
     runner.addTest(CAllocationStrategyTest::suite());
     runner.addTest(CBase64FilterTest::suite());
-    runner.addTest(CBlockingMessageQueueTest::suite());
-    runner.addTest(CByteSwapperTest::suite());
     runner.addTest(CCompressedDictionaryTest::suite());
     runner.addTest(CCompressUtilsTest::suite());
     runner.addTest(CConcurrencyTest::suite());
@@ -97,14 +85,11 @@ int main(int argc, const char** argv) {
     runner.addTest(CContainerPrinterTest::suite());
     runner.addTest(CContainerThroughputTest::suite());
     runner.addTest(CDataFrameTest::suite());
-    runner.addTest(CDelimiterTest::suite());
     runner.addTest(CDetachedProcessSpawnerTest::suite());
     runner.addTest(CDualThreadStreamBufTest::suite());
-    runner.addTest(CFileDeleterTest::suite());
     runner.addTest(CFlatPrefixTreeTest::suite());
     runner.addTest(CFunctionalTest::suite());
     runner.addTest(CHashingTest::suite());
-    runner.addTest(CHexUtilsTest::suite());
     runner.addTest(CIEEE754Test::suite());
     runner.addTest(CJsonLogLayoutTest::suite());
     runner.addTest(CJsonOutputStreamWrapperTest::suite());
@@ -115,8 +100,6 @@ int main(int argc, const char** argv) {
     runner.addTest(CMapPopulationTest::suite());
     runner.addTest(CMemoryUsageJsonWriterTest::suite());
     runner.addTest(CMemoryUsageTest::suite());
-    runner.addTest(CMessageBufferTest::suite());
-    runner.addTest(CMessageQueueTest::suite());
     runner.addTest(CMonotonicTimeTest::suite());
     runner.addTest(CMutexTest::suite());
     runner.addTest(CNamedPipeFactoryTest::suite());
@@ -125,7 +108,6 @@ int main(int argc, const char** argv) {
     runner.addTest(CPatternSetTest::suite());
     runner.addTest(CPersistenceTagTest::suite());
     runner.addTest(CPersistUtilsTest::suite());
-    runner.addTest(CPolymorphicStackObjectCPtrTest::suite());
     runner.addTest(CProcessTest::suite());
     runner.addTest(CProcessPriorityTest::suite());
     runner.addTest(CProgNameTest::suite());
@@ -149,9 +131,7 @@ int main(int argc, const char** argv) {
     runner.addTest(CStoredStringPtrTest::suite());
     runner.addTest(CStringSimilarityTesterTest::suite());
     runner.addTest(CStringUtilsTest::suite());
-    runner.addTest(CThreadFarmTest::suite());
     runner.addTest(CThreadMutexConditionTest::suite());
-    runner.addTest(CTickerTest::suite());
     runner.addTest(CTimeUtilsTest::suite());
     runner.addTest(CTripleTest::suite());
     runner.addTest(CUnameTest::suite());

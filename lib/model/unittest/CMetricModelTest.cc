@@ -2478,9 +2478,9 @@ void CMetricModelTest::testIgnoreSamplingGivenDetectionRules() {
     CPPUNIT_ASSERT(modelWithSkip->checksum() != modelNoSkip->checksum());
 
     // but the underlying models should be the same
-    CAnomalyDetectorModel::CModelDetailsViewPtr modelWithSkipView =
+    CAnomalyDetectorModel::TModelDetailsViewUPtr modelWithSkipView =
         modelWithSkip->details();
-    CAnomalyDetectorModel::CModelDetailsViewPtr modelNoSkipView = modelNoSkip->details();
+    CAnomalyDetectorModel::TModelDetailsViewUPtr modelNoSkipView = modelNoSkip->details();
 
     // TODO this test fails due a different checksums for the decay rate and prior
     // uint64_t withSkipChecksum = modelWithSkipView->model(model_t::E_IndividualMeanByPerson, 0)->checksum();

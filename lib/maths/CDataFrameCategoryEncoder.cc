@@ -8,6 +8,8 @@
 
 #include <core/CContainerPrinter.h>
 #include <core/CLogger.h>
+#include <core/CPackedBitVector.h>
+#include <core/CPersistUtils.h>
 #include <core/CTriple.h>
 
 #include <maths/CBasicStatistics.h>
@@ -26,31 +28,48 @@ using TSizeDoublePr = std::pair<std::size_t, double>;
 using TSizeDoublePrVec = std::vector<TSizeDoublePr>;
 using TSizeDoublePrVecVec = std::vector<TSizeDoublePrVec>;
 using TSizeUSet = boost::unordered_set<std::size_t>;
-
-enum EEncoding {
-    E_OneHot = 0,
-    E_Frequency,
-    E_TargetMean,
-    E_CandidateEncodings
-};
+using TDoubleUSet = boost::unordered_set<double>;
+using CIdentityEncoding = CDataFrameCategoryEncoder::CIdentityEncoding;
+using COneHotEncoding = CDataFrameCategoryEncoder::COneHotEncoding;
+using CMappedEncoding = CDataFrameCategoryEncoder::CMappedEncoding;
 
 const std::size_t CATEGORY_FOR_METRICS{std::numeric_limits<std::size_t>::max()};
-const std::size_t CATEGORY_FOR_FREQUANCY_ENCODING{CATEGORY_FOR_METRICS - 1};
-const std::size_t CATEGORY_FOR_TARGET_MEAN_ENCODING{CATEGORY_FOR_FREQUANCY_ENCODING - 1};
+const std::size_t CATEGORY_FOR_FREQUENCY_ENCODING{CATEGORY_FOR_METRICS - 1};
+const std::size_t CATEGORY_FOR_TARGET_MEAN_ENCODING{CATEGORY_FOR_FREQUENCY_ENCODING - 1};
 const std::size_t CATEGORY_FOR_DEPENDENT_VARIABLE{CATEGORY_FOR_TARGET_MEAN_ENCODING - 1};
 
+const std::string VERSION_7_5_TAG{"7.5"};
+
+const std::string ENCODING_VECTOR_TAG{"encoding_vector"};
+const std::string ENCODING_INPUT_COLUMN_INDEX_TAG{"encoding_input_column_index"};
+const std::string ENCODING_MIC_TAG{"encoding_mic"};
+const std::string ONE_HOT_ENCODING_CATEGORY_TAG{"one_hot_encoding_category"};
+const std::string MAPPED_ENCODING_TYPE_TAG{"mapped_encoding_type"};
+const std::string MAPPED_ENCODING_MAP_TAG{"mapped_encoding_map"};
+const std::string MAPPED_ENCODING_FALLBACK_TAG{"mapped_encoding_fallback"};
+const std::string MAPPED_ENCODING_BINARY_TAG{"mapped_encoding_binary"};
+const std::string IDENTITY_ENCODING_TAG{"identity_encoding"};
+const std::string ONE_HOT_ENCODING_TAG{"one_hot_encoding"};
+const std::string FREQUENCY_ENCODING_TAG{"frequency_encoding"};
+const std::string TARGET_MEAN_ENCODING_TAG{"target_mean_encoding"};
+
+// TODO can these constants be replaced with EEncodings?
 bool isMetric(std::size_t category) {
     return category == CATEGORY_FOR_METRICS;
 }
+
 bool isFrequency(std::size_t category) {
-    return category == CATEGORY_FOR_FREQUANCY_ENCODING;
+    return category == CATEGORY_FOR_FREQUENCY_ENCODING;
 }
+
 bool isTargetMean(std::size_t category) {
     return category == CATEGORY_FOR_TARGET_MEAN_ENCODING;
 }
+
 bool isCategory(std::size_t category) {
     return (isMetric(category) || isFrequency(category) || isTargetMean(category)) == false;
 }
+
 std::string print(std::size_t category) {
     if (isMetric(category)) {
         return "metric";
@@ -76,10 +95,15 @@ public:
                                                         micWithDependentVariable} {}
 
     bool isMetric() const { return maths::isMetric(m_Category); }
+
     bool isFrequency() const { return maths::isFrequency(m_Category); }
+
     bool isTargetMean() const { return maths::isTargetMean(m_Category); }
+
     bool isCategory() const { return maths::isCategory(m_Category); }
+
     std::size_t feature() const { return m_Feature; }
+
     std::size_t category() const { return m_Category; }
 
     double micWithDependentVariable() const {
@@ -189,53 +213,14 @@ private:
     double m_RedundancyWeight;
     TFeatureRelevanceMinusRedundancyList m_Features;
 };
-
-const std::string MINIMUM_ROWS_PER_FEATURE_TAG{"minimum_rows_per_feature"};
-const std::string MINIMUM_FREQUENCY_TO_ONE_HOT_ENCODE_TAG{"minimum_frequency_to_one_hot_encode"};
-const std::string REDUNDANCY_WEIGHT_TAG{"redundancy_weight"};
-const std::string COLUMN_IS_CATEGORICAL_TAG{"is_categorical"};
-const std::string COLUMN_USES_FREQUENCY_ENCODING_TAG{"uses_frequency_encoding"};
-const std::string ONE_HOT_ENCODED_CATEGORIES_TAG{"one_hot_encoded_categories"};
-const std::string RARE_CATEGORIES_TAG{"rare_categories"};
-const std::string CATEGORY_FREQUENCIES_TAG{"category_frequencies"};
-const std::string MEAN_CATEGORY_FREQUENCIES_TAG{"mean_category_frequencies"};
-const std::string CATEGORY_TARGET_MEAN_VALUES_TAG{"category_target_mean_values"};
-const std::string MEAN_CATEGORY_TARGET_MEAN_VALUES_TAG{"mean_category_target_mean_values"};
-const std::string FEATURE_VECTOR_MICS_TAG{"feature_vector_mics"};
-const std::string FEATURE_VECTOR_COLUMN_MAP_TAG{"feature_vector_column_map"};
-const std::string FEATURE_VECTOR_ENCODING_MAP_TAG{"feature_vector_encoding_map"};
 }
 
 CEncodedDataFrameRowRef::CEncodedDataFrameRowRef(TRowRef row, const CDataFrameCategoryEncoder& encoder)
     : m_Row{std::move(row)}, m_Encoder{&encoder} {
 }
 
-CFloatStorage CEncodedDataFrameRowRef::operator[](std::size_t i) const {
-
-    std::size_t feature{m_Encoder->column(i)};
-
-    CFloatStorage value{m_Row[feature]};
-
-    if (m_Encoder->columnIsCategorical(feature) == false) {
-        return value;
-    }
-
-    std::size_t encoding{m_Encoder->encoding(i)};
-    std::size_t category{static_cast<std::size_t>(value)};
-
-    std::size_t numberOneHotEncodedCategories{
-        m_Encoder->numberOneHotEncodedCategories(feature)};
-
-    if (encoding < numberOneHotEncodedCategories) {
-        return m_Encoder->isHot(encoding, feature, category) ? 1.0 : 0.0;
-    }
-
-    if (encoding == numberOneHotEncodedCategories &&
-        m_Encoder->usesFrequencyEncoding(feature)) {
-        return m_Encoder->frequency(feature, category);
-    }
-
-    return m_Encoder->targetMeanValue(feature, category);
+CFloatStorage CEncodedDataFrameRowRef::operator[](std::size_t encodedColumnIndex) const {
+    return m_Encoder->encoding(encodedColumnIndex).encode(m_Row);
 }
 
 std::size_t CEncodedDataFrameRowRef::index() const {
@@ -243,60 +228,11 @@ std::size_t CEncodedDataFrameRowRef::index() const {
 }
 
 std::size_t CEncodedDataFrameRowRef::numberColumns() const {
-    return m_Encoder->numberFeatures();
+    return m_Encoder->numberEncodedColumns();
 }
 
-const CEncodedDataFrameRowRef::TRowRef& CEncodedDataFrameRowRef::unencodedRow() const {
-    return m_Row;
-}
-
-CDataFrameCategoryEncoder::CDataFrameCategoryEncoder(std::size_t numberThreads,
-                                                     const core::CDataFrame& frame,
-                                                     const core::CPackedBitVector& rowMask,
-                                                     const TSizeVec& columnMask,
-                                                     std::size_t targetColumn,
-                                                     std::size_t minimumRowsPerFeature,
-                                                     double minimumFrequencyToOneHotEncode,
-                                                     double redundancyWeight)
-    : m_MinimumRowsPerFeature{minimumRowsPerFeature},
-      m_MinimumFrequencyToOneHotEncode{minimumFrequencyToOneHotEncode}, m_RedundancyWeight{redundancyWeight},
-      m_ColumnIsCategorical(frame.columnIsCategorical()) {
-
-    TSizeVec metricColumnMask(columnMask);
-    metricColumnMask.erase(
-        std::remove_if(metricColumnMask.begin(), metricColumnMask.end(),
-                       [targetColumn, this](std::size_t i) {
-                           return i == targetColumn || m_ColumnIsCategorical[i];
-                       }),
-        metricColumnMask.end());
-    LOG_TRACE(<< "metric column mask = " << core::CContainerPrinter::print(metricColumnMask));
-
-    TSizeVec categoricalColumnMask(columnMask);
-    categoricalColumnMask.erase(
-        std::remove_if(categoricalColumnMask.begin(), categoricalColumnMask.end(),
-                       [targetColumn, this](std::size_t i) {
-                           return i == targetColumn || m_ColumnIsCategorical[i] == false;
-                       }),
-        categoricalColumnMask.end());
-    LOG_TRACE(<< "categorical column mask = "
-              << core::CContainerPrinter::print(categoricalColumnMask));
-
-    // The top-level strategy is as follows:
-    //
-    // We one-hot encode the frequent categories with the highest non-zero MICe up
-    // to the permitted overall feature count.
-    // We mean value encode the remaining features where we have a representative
-    // sample size.
-    // We frequency encode all rare categories of a categorical feature.
-
-    this->setupFrequencyEncoding(numberThreads, frame, rowMask, categoricalColumnMask);
-
-    this->setupTargetMeanValueEncoding(numberThreads, frame, rowMask,
-                                       categoricalColumnMask, targetColumn);
-
-    this->finishEncoding(
-        targetColumn, this->selectFeatures(numberThreads, frame, rowMask, metricColumnMask,
-                                           categoricalColumnMask, targetColumn));
+CDataFrameCategoryEncoder::CDataFrameCategoryEncoder(CMakeDataFrameCategoryEncoder builder) {
+    m_Encodings = builder.makeEncodings();
 }
 
 CDataFrameCategoryEncoder::CDataFrameCategoryEncoder(core::CStateRestoreTraverser& traverser) {
@@ -310,49 +246,392 @@ CEncodedDataFrameRowRef CDataFrameCategoryEncoder::encode(TRowRef row) const {
     return {std::move(row), *this};
 }
 
-bool CDataFrameCategoryEncoder::columnIsCategorical(std::size_t feature) const {
-    return m_ColumnIsCategorical[feature];
+CDataFrameCategoryEncoder::TDoubleVec CDataFrameCategoryEncoder::encodedColumnMics() const {
+    TDoubleVec mics;
+    mics.reserve(m_Encodings.size());
+    for (const auto& encoding : m_Encodings) {
+        mics.push_back(encoding->mic());
+    }
+    return mics;
 }
 
-const CDataFrameCategoryEncoder::TDoubleVec& CDataFrameCategoryEncoder::featureMics() const {
-    return m_FeatureVectorMics;
+std::size_t CDataFrameCategoryEncoder::numberEncodedColumns() const {
+    return m_Encodings.size();
 }
 
-std::size_t CDataFrameCategoryEncoder::numberFeatures() const {
-    return m_FeatureVectorMics.size();
+const CDataFrameCategoryEncoder::CEncoding&
+CDataFrameCategoryEncoder::encoding(std::size_t encodedColumnIndex) const {
+    return *m_Encodings[encodedColumnIndex];
 }
 
-std::size_t CDataFrameCategoryEncoder::encoding(std::size_t index) const {
-    return m_FeatureVectorEncodingMap[index];
+bool CDataFrameCategoryEncoder::isBinary(std::size_t encodedColumnIndex) const {
+    return m_Encodings[encodedColumnIndex]->isBinary();
 }
 
-std::size_t CDataFrameCategoryEncoder::column(std::size_t index) const {
-    return m_FeatureVectorColumnMap[index];
+std::uint64_t CDataFrameCategoryEncoder::checksum(std::uint64_t seed) const {
+    return CChecksum::calculate(seed, m_Encodings);
 }
 
-bool CDataFrameCategoryEncoder::isBinary(std::size_t index) const {
-    std::size_t encoding{this->encoding(index)};
-    std::size_t feature{this->column(index)};
-    return encoding < m_OneHotEncodedCategories[feature].size();
+void CDataFrameCategoryEncoder::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
+    core::CPersistUtils::persist(VERSION_7_5_TAG, "", inserter);
+    inserter.insertLevel(ENCODING_VECTOR_TAG,
+                         std::bind(&CDataFrameCategoryEncoder::persistEncodings,
+                                   this, std::placeholders::_1));
 }
 
-std::size_t CDataFrameCategoryEncoder::numberOneHotEncodedCategories(std::size_t feature) const {
-    return m_OneHotEncodedCategories[feature].size();
+bool CDataFrameCategoryEncoder::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
+    if (traverser.name() == VERSION_7_5_TAG) {
+        do {
+            const std::string& name{traverser.name()};
+            RESTORE(ENCODING_VECTOR_TAG, traverser.traverseSubLevel(std::bind(
+                                             &CDataFrameCategoryEncoder::restoreEncodings,
+                                             this, std::placeholders::_1)))
+        } while (traverser.next());
+        return true;
+    }
+    LOG_ERROR(<< "Input error: unsupported state serialization version. Currently supported version: "
+              << VERSION_7_5_TAG);
+    return false;
 }
 
-bool CDataFrameCategoryEncoder::usesOneHotEncoding(std::size_t feature,
-                                                   std::size_t category) const {
-    return std::binary_search(m_OneHotEncodedCategories[feature].begin(),
-                              m_OneHotEncodedCategories[feature].end(), category);
+void CDataFrameCategoryEncoder::persistEncodings(core::CStatePersistInserter& inserter) const {
+    for (const auto& encoding : m_Encodings) {
+        auto persistEncoding = [&encoding](core::CStatePersistInserter& inserter_) {
+            encoding->acceptPersistInserter(inserter_);
+        };
+        inserter.insertLevel(encoding->typeString(), persistEncoding);
+    }
 }
 
-bool CDataFrameCategoryEncoder::isHot(std::size_t encoding,
-                                      std::size_t feature,
-                                      std::size_t category) const {
+bool CDataFrameCategoryEncoder::restoreEncodings(core::CStateRestoreTraverser& traverser) {
+    do {
+        const std::string& name = traverser.name();
+        RESTORE(IDENTITY_ENCODING_TAG, this->restore<CIdentityEncoding>(traverser, 0, 0.0))
+        RESTORE(ONE_HOT_ENCODING_TAG, this->restore<COneHotEncoding>(traverser, 0, 0.0, 0))
+        RESTORE(FREQUENCY_ENCODING_TAG,
+                this->restore<CMappedEncoding>(traverser, 0, 0.0, E_Frequency,
+                                               TDoubleVec{}, 0.0))
+        RESTORE(TARGET_MEAN_ENCODING_TAG,
+                this->restore<CMappedEncoding>(traverser, 0, 0.0, E_TargetMean,
+                                               TDoubleVec{}, 0.0))
+        LOG_ERROR(<< "Unknown encoding type " << name);
+        return false;
+    } while (traverser.next());
+    return true;
+}
 
-    // The most important categories are one-hot encode. In the encoded row the
-    // layout of the encoding dimensions, for each categorical feature, is as
-    // follows:
+template<typename T, typename... Args>
+bool CDataFrameCategoryEncoder::restore(core::CStateRestoreTraverser& traverser,
+                                        Args&&... args) {
+    m_Encodings.emplace_back(std::make_unique<T>(std::forward<Args>(args)...));
+    if (traverser.traverseSubLevel(std::bind(&T::acceptRestoreTraverser,
+                                             static_cast<T*>(m_Encodings.back().get()),
+                                             std::placeholders::_1)) == false) {
+        LOG_ERROR(<< "Error restoring encoding " << traverser.name());
+        return false;
+    }
+    return true;
+}
+
+void CDataFrameCategoryEncoder::accept(CDataFrameCategoryEncoder::CVisitor& visitor) const {
+    for (const auto& encoding : m_Encodings) {
+        if (encoding->type() == E_IdentityEncoding) {
+            visitor.addIdentityEncoding(encoding->inputColumnIndex());
+        }
+        if (encoding->type() == E_OneHot) {
+            auto enc = static_cast<const COneHotEncoding*>(encoding.get());
+            visitor.addOneHotEncoding(enc->inputColumnIndex(), enc->hotCategory());
+        } else if (encoding->type() == E_Frequency) {
+            auto enc = static_cast<const CMappedEncoding*>(encoding.get());
+            visitor.addFrequencyEncoding(enc->inputColumnIndex(), enc->map());
+        } else if (encoding->type() == E_TargetMean) {
+            auto enc = static_cast<const CMappedEncoding*>(encoding.get());
+            visitor.addTargetMeanEncoding(enc->inputColumnIndex(), enc->map(),
+                                          enc->fallback());
+        }
+    }
+}
+
+CDataFrameCategoryEncoder::CEncoding::CEncoding(std::size_t inputColumnIndex, double mic)
+    : m_InputColumnIndex{inputColumnIndex}, m_Mic{mic} {
+}
+
+std::size_t CDataFrameCategoryEncoder::CEncoding::inputColumnIndex() const {
+    return m_InputColumnIndex;
+}
+
+double CDataFrameCategoryEncoder::CEncoding::encode(const TRowRef& row) const {
+    return this->encode(row[m_InputColumnIndex]);
+}
+
+double CDataFrameCategoryEncoder::CEncoding::mic() const {
+    return m_Mic;
+}
+
+void CDataFrameCategoryEncoder::CEncoding::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
+    core::CPersistUtils::persist(ENCODING_INPUT_COLUMN_INDEX_TAG, m_InputColumnIndex, inserter);
+    core::CPersistUtils::persist(ENCODING_MIC_TAG, m_Mic, inserter);
+    this->acceptPersistInserterForDerivedTypeState(inserter);
+}
+
+bool CDataFrameCategoryEncoder::CEncoding::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
+    do {
+        const std::string& name = traverser.name();
+        RESTORE(ENCODING_INPUT_COLUMN_INDEX_TAG,
+                core::CPersistUtils::restore(ENCODING_INPUT_COLUMN_INDEX_TAG,
+                                             m_InputColumnIndex, traverser))
+        RESTORE(ENCODING_MIC_TAG,
+                core::CPersistUtils::restore(ENCODING_MIC_TAG, m_Mic, traverser))
+        if (this->acceptRestoreTraverserForDerivedTypeState(traverser) == false) {
+            return false;
+        }
+
+    } while (traverser.next());
+    return true;
+}
+
+CDataFrameCategoryEncoder::CIdentityEncoding::CIdentityEncoding(std::size_t inputColumnIndex,
+                                                                double mic)
+    : CEncoding{inputColumnIndex, mic} {
+}
+
+EEncoding CDataFrameCategoryEncoder::CIdentityEncoding::type() const {
+    return E_IdentityEncoding;
+}
+
+double CDataFrameCategoryEncoder::CIdentityEncoding::encode(double value) const {
+    return value;
+}
+
+bool CDataFrameCategoryEncoder::CIdentityEncoding::isBinary() const {
+    return false;
+}
+
+std::uint64_t CDataFrameCategoryEncoder::CIdentityEncoding::checksum() const {
+    return CChecksum::calculate(this->inputColumnIndex(), this->mic());
+}
+
+const std::string& CDataFrameCategoryEncoder::CIdentityEncoding::typeString() const {
+    return IDENTITY_ENCODING_TAG;
+}
+
+void CDataFrameCategoryEncoder::CIdentityEncoding::acceptPersistInserterForDerivedTypeState(
+    core::CStatePersistInserter& /*inserter*/) const {
+    // do nothing
+}
+
+bool CDataFrameCategoryEncoder::CIdentityEncoding::acceptRestoreTraverserForDerivedTypeState(
+    core::CStateRestoreTraverser& /*traverser*/) {
+    return true;
+}
+
+CDataFrameCategoryEncoder::COneHotEncoding::COneHotEncoding(std::size_t inputColumnIndex,
+                                                            double mic,
+                                                            std::size_t hotCategory)
+    : CEncoding{inputColumnIndex, mic}, m_HotCategory{hotCategory} {
+}
+
+EEncoding CDataFrameCategoryEncoder::COneHotEncoding::type() const {
+    return E_OneHot;
+}
+
+double CDataFrameCategoryEncoder::COneHotEncoding::encode(double value) const {
+    return static_cast<std::size_t>(value) == m_HotCategory;
+}
+
+bool CDataFrameCategoryEncoder::COneHotEncoding::isBinary() const {
+    return true;
+}
+
+std::uint64_t CDataFrameCategoryEncoder::COneHotEncoding::checksum() const {
+    std::size_t seed{CChecksum::calculate(this->inputColumnIndex(), this->mic())};
+    return CChecksum::calculate(seed, m_HotCategory);
+}
+
+void CDataFrameCategoryEncoder::COneHotEncoding::acceptPersistInserterForDerivedTypeState(
+    core::CStatePersistInserter& inserter) const {
+    core::CPersistUtils::persist(ONE_HOT_ENCODING_CATEGORY_TAG, m_HotCategory, inserter);
+}
+
+bool CDataFrameCategoryEncoder::COneHotEncoding::acceptRestoreTraverserForDerivedTypeState(
+    core::CStateRestoreTraverser& traverser) {
+
+    const std::string& name = traverser.name();
+    RESTORE_NO_LOOP(ONE_HOT_ENCODING_CATEGORY_TAG,
+                    core::CPersistUtils::restore(ONE_HOT_ENCODING_CATEGORY_TAG,
+                                                 m_HotCategory, traverser))
+    return true;
+}
+
+const std::string& CDataFrameCategoryEncoder::COneHotEncoding::typeString() const {
+    return ONE_HOT_ENCODING_TAG;
+}
+
+size_t CDataFrameCategoryEncoder::COneHotEncoding::hotCategory() const {
+    return m_HotCategory;
+}
+
+CDataFrameCategoryEncoder::CMappedEncoding::CMappedEncoding(std::size_t inputColumnIndex,
+                                                            double mic,
+                                                            EEncoding encoding,
+                                                            const TDoubleVec& map,
+                                                            double fallback)
+    : CEncoding{inputColumnIndex, mic}, m_Encoding{encoding}, m_Map{map}, m_Fallback{fallback} {
+    TDoubleUSet uniques{map.begin(), map.end()};
+    uniques.insert(m_Fallback);
+    m_Binary = uniques.size() == 2;
+}
+
+EEncoding CDataFrameCategoryEncoder::CMappedEncoding::type() const {
+    return m_Encoding;
+}
+
+double CDataFrameCategoryEncoder::CMappedEncoding::encode(double value) const {
+    std::size_t category{static_cast<std::size_t>(value)};
+    return category < m_Map.size() ? m_Map[category] : m_Fallback;
+}
+
+bool CDataFrameCategoryEncoder::CMappedEncoding::isBinary() const {
+    return m_Binary;
+}
+
+std::uint64_t CDataFrameCategoryEncoder::CMappedEncoding::checksum() const {
+    std::size_t seed{CChecksum::calculate(this->inputColumnIndex(), this->mic())};
+    seed = CChecksum::calculate(seed, m_Map);
+    seed = CChecksum::calculate(seed, m_Fallback);
+    return CChecksum::calculate(seed, m_Binary);
+}
+
+void CDataFrameCategoryEncoder::CMappedEncoding::acceptPersistInserterForDerivedTypeState(
+    core::CStatePersistInserter& inserter) const {
+    core::CPersistUtils::persist(MAPPED_ENCODING_TYPE_TAG, m_Encoding, inserter);
+    core::CPersistUtils::persist(MAPPED_ENCODING_MAP_TAG, m_Map, inserter);
+    core::CPersistUtils::persist(MAPPED_ENCODING_FALLBACK_TAG, m_Fallback, inserter);
+    core::CPersistUtils::persist(MAPPED_ENCODING_BINARY_TAG, m_Binary, inserter);
+}
+
+bool CDataFrameCategoryEncoder::CMappedEncoding::acceptRestoreTraverserForDerivedTypeState(
+    core::CStateRestoreTraverser& traverser) {
+    const std::string& name = traverser.name();
+    RESTORE_NO_LOOP(MAPPED_ENCODING_MAP_TAG,
+                    core::CPersistUtils::restore(MAPPED_ENCODING_MAP_TAG, m_Map, traverser))
+    RESTORE_NO_LOOP(MAPPED_ENCODING_FALLBACK_TAG,
+                    core::CPersistUtils::restore(MAPPED_ENCODING_FALLBACK_TAG,
+                                                 m_Fallback, traverser))
+    RESTORE_NO_LOOP(MAPPED_ENCODING_BINARY_TAG,
+                    core::CPersistUtils::restore(MAPPED_ENCODING_BINARY_TAG, m_Binary, traverser))
+
+    return true;
+}
+
+const std::string& CDataFrameCategoryEncoder::CMappedEncoding::typeString() const {
+    return (m_Encoding == EEncoding::E_Frequency) ? FREQUENCY_ENCODING_TAG
+                                                  : TARGET_MEAN_ENCODING_TAG;
+}
+
+const TDoubleVec& CDataFrameCategoryEncoder::CMappedEncoding::map() const {
+    return m_Map;
+}
+
+double CDataFrameCategoryEncoder::CMappedEncoding::fallback() const {
+    return m_Fallback;
+}
+
+CMakeDataFrameCategoryEncoder::CMakeDataFrameCategoryEncoder(std::size_t numberThreads,
+                                                             const core::CDataFrame& frame,
+                                                             std::size_t targetColumn)
+    : m_NumberThreads{numberThreads}, m_Frame{&frame}, m_RowMask{frame.numberRows(), true},
+      m_TargetColumn{targetColumn} {
+
+    m_ColumnMask.resize(frame.numberColumns());
+    std::iota(m_ColumnMask.begin(), m_ColumnMask.end(), 0);
+    m_ColumnMask.erase(m_ColumnMask.begin() + targetColumn);
+}
+
+CMakeDataFrameCategoryEncoder&
+CMakeDataFrameCategoryEncoder::minimumRowsPerFeature(std::size_t minimumRowsPerFeature) {
+    m_MinimumRowsPerFeature = minimumRowsPerFeature;
+    return *this;
+}
+
+CMakeDataFrameCategoryEncoder&
+CMakeDataFrameCategoryEncoder::minimumFrequencyToOneHotEncode(TOptionalDouble minimumFrequencyToOneHotEncode) {
+    if (minimumFrequencyToOneHotEncode != boost::none) {
+        m_MinimumFrequencyToOneHotEncode = *minimumFrequencyToOneHotEncode;
+    }
+    return *this;
+}
+
+CMakeDataFrameCategoryEncoder&
+CMakeDataFrameCategoryEncoder::redundancyWeight(TOptionalDouble redundancyWeight) {
+    if (redundancyWeight != boost::none) {
+        m_RedundancyWeight = *redundancyWeight;
+    }
+    return *this;
+}
+
+CMakeDataFrameCategoryEncoder&
+CMakeDataFrameCategoryEncoder::minimumRelativeMicToSelectFeature(TOptionalDouble minimumRelativeMicToSelectFeature) {
+    if (minimumRelativeMicToSelectFeature != boost::none) {
+        m_MinimumRelativeMicToSelectFeature = *minimumRelativeMicToSelectFeature;
+    }
+    return *this;
+}
+
+CMakeDataFrameCategoryEncoder&
+CMakeDataFrameCategoryEncoder::rowMask(core::CPackedBitVector rowMask) {
+    m_RowMask = std::move(rowMask);
+    return *this;
+}
+
+CMakeDataFrameCategoryEncoder& CMakeDataFrameCategoryEncoder::columnMask(TSizeVec columnMask) {
+    m_ColumnMask = std::move(columnMask);
+    return *this;
+}
+
+CMakeDataFrameCategoryEncoder::TEncodingUPtrVec CMakeDataFrameCategoryEncoder::makeEncodings() {
+
+    TSizeVec metricColumnMask(m_ColumnMask);
+    metricColumnMask.erase(
+        std::remove_if(metricColumnMask.begin(), metricColumnMask.end(),
+                       [this](std::size_t i) {
+                           return i == m_TargetColumn ||
+                                  m_Frame->columnIsCategorical()[i];
+                       }),
+        metricColumnMask.end());
+    LOG_TRACE(<< "metric column mask = " << core::CContainerPrinter::print(metricColumnMask));
+
+    TSizeVec categoricalColumnMask(m_ColumnMask);
+    categoricalColumnMask.erase(
+        std::remove_if(categoricalColumnMask.begin(), categoricalColumnMask.end(),
+                       [this](std::size_t i) {
+                           return i == m_TargetColumn ||
+                                  m_Frame->columnIsCategorical()[i] == false;
+                       }),
+        categoricalColumnMask.end());
+    LOG_TRACE(<< "categorical column mask = "
+              << core::CContainerPrinter::print(categoricalColumnMask));
+
+    // The top-level strategy is as follows:
+    //
+    // We one-hot encode the frequent categories with the highest non-zero MICe up
+    // to the permitted overall feature count.
+    // We mean value encode the remaining features where we have a representative
+    // sample size.
+    // We frequency encode all rare categories of a categorical feature.
+
+    this->setupFrequencyEncoding(categoricalColumnMask);
+    this->setupTargetMeanValueEncoding(categoricalColumnMask);
+    this->finishEncoding(this->selectFeatures(metricColumnMask, categoricalColumnMask));
+
+    return this->readEncodings();
+}
+
+CMakeDataFrameCategoryEncoder::TEncodingUPtrVec
+CMakeDataFrameCategoryEncoder::readEncodings() const {
+
+    // In the encoded row the layout of the encoding dimensions, for each categorical
+    // feature, is as follows:
     //   (...| one-hot | mean target | frequency |...)
     //
     // The ones are in the order the categories appear in m_OneHotEncodedCategories.
@@ -366,128 +645,68 @@ bool CDataFrameCategoryEncoder::isHot(std::size_t encoding,
     // relative to the start of the encoding dimensions for the feature, is equal
     // to the position of the one for the category.
 
-    auto one = std::lower_bound(m_OneHotEncodedCategories[feature].begin(),
-                                m_OneHotEncodedCategories[feature].end(), category);
-    return one != m_OneHotEncodedCategories[feature].end() && category == *one &&
-           static_cast<std::ptrdiff_t>(encoding) ==
-               one - m_OneHotEncodedCategories[feature].begin();
+    TEncodingUPtrVec encodings;
+
+    for (std::size_t encodedColumnIndex = 0;
+         encodedColumnIndex < m_EncodedColumnInputColumnMap.size(); ++encodedColumnIndex) {
+
+        std::size_t inputColumnIndex{m_EncodedColumnInputColumnMap[encodedColumnIndex]};
+        double mic{m_EncodedColumnMics[encodedColumnIndex]};
+
+        if (inputColumnIndex == m_TargetColumn ||
+            m_Frame->columnIsCategorical()[inputColumnIndex] == false) {
+            encodings.push_back(std::make_unique<CIdentityEncoding>(inputColumnIndex, mic));
+            continue;
+        }
+
+        std::size_t categoryEncoding{m_EncodedColumnEncodingMap[encodedColumnIndex]};
+        std::size_t numberOneHotCategories{
+            m_OneHotEncodedCategories[inputColumnIndex].size()};
+
+        if (categoryEncoding < numberOneHotCategories) {
+            std::size_t hotCategory{m_OneHotEncodedCategories[inputColumnIndex][categoryEncoding]};
+            encodings.push_back(std::make_unique<COneHotEncoding>(
+                inputColumnIndex, mic, hotCategory));
+            continue;
+        }
+        if (categoryEncoding == numberOneHotCategories &&
+            m_InputColumnUsesFrequencyEncoding[inputColumnIndex]) {
+            encodings.push_back(std::make_unique<CMappedEncoding>(
+                inputColumnIndex, mic, E_Frequency, m_CategoryFrequencies[inputColumnIndex],
+                m_MeanCategoryFrequencies[inputColumnIndex]));
+            continue;
+        }
+        encodings.push_back(std::make_unique<CMappedEncoding>(
+            inputColumnIndex, mic, E_TargetMean, m_CategoryTargetMeanValues[inputColumnIndex],
+            m_MeanCategoryTargetMeanValues[inputColumnIndex]));
+    }
+
+    return encodings;
 }
 
-bool CDataFrameCategoryEncoder::usesFrequencyEncoding(std::size_t feature) const {
-    return m_ColumnUsesFrequencyEncoding[feature];
+std::size_t CMakeDataFrameCategoryEncoder::encoding(std::size_t encodedColumnIndex) const {
+    return m_EncodedColumnEncodingMap[encodedColumnIndex];
 }
 
-double CDataFrameCategoryEncoder::frequency(std::size_t feature, std::size_t category) const {
-    const auto& frequencies = m_CategoryFrequencies[feature];
-    return category < frequencies.size() ? frequencies[category]
-                                         : m_MeanCategoryFrequencies[feature];
+bool CMakeDataFrameCategoryEncoder::usesOneHotEncoding(std::size_t inputColumnIndex,
+                                                       std::size_t category) const {
+    return std::binary_search(m_OneHotEncodedCategories[inputColumnIndex].begin(),
+                              m_OneHotEncodedCategories[inputColumnIndex].end(), category);
 }
 
-bool CDataFrameCategoryEncoder::isRareCategory(std::size_t feature, std::size_t category) const {
-    return m_RareCategories[feature].find(category) != m_RareCategories[feature].end();
+bool CMakeDataFrameCategoryEncoder::isRareCategory(std::size_t inputColumnIndex,
+                                                   std::size_t category) const {
+    return m_RareCategories[inputColumnIndex].find(category) !=
+           m_RareCategories[inputColumnIndex].end();
 }
 
-double CDataFrameCategoryEncoder::targetMeanValue(std::size_t feature,
-                                                  std::size_t category) const {
-    const auto& targetMeanValues = m_CategoryTargetMeanValues[feature];
-    return category < targetMeanValues.size() ? targetMeanValues[category]
-                                              : m_MeanCategoryTargetMeanValues[feature];
-}
+CMakeDataFrameCategoryEncoder::TSizeDoublePrVecVec
+CMakeDataFrameCategoryEncoder::mics(const CDataFrameUtils::CColumnValue& target,
+                                    const TSizeVec& metricColumnMask,
+                                    const TSizeVec& categoricalColumnMask) const {
 
-std::uint64_t CDataFrameCategoryEncoder::checksum(std::uint64_t seed) const {
-    seed = CChecksum::calculate(seed, m_MinimumRowsPerFeature);
-    seed = CChecksum::calculate(seed, m_MinimumFrequencyToOneHotEncode);
-    seed = CChecksum::calculate(seed, m_RedundancyWeight);
-    seed = CChecksum::calculate(seed, m_ColumnIsCategorical);
-    seed = CChecksum::calculate(seed, m_ColumnUsesFrequencyEncoding);
-    seed = CChecksum::calculate(seed, m_OneHotEncodedCategories);
-    seed = CChecksum::calculate(seed, m_RareCategories);
-    seed = CChecksum::calculate(seed, m_CategoryFrequencies);
-    seed = CChecksum::calculate(seed, m_MeanCategoryFrequencies);
-    seed = CChecksum::calculate(seed, m_CategoryTargetMeanValues);
-    seed = CChecksum::calculate(seed, m_MeanCategoryTargetMeanValues);
-    seed = CChecksum::calculate(seed, m_FeatureVectorMics);
-    seed = CChecksum::calculate(seed, m_FeatureVectorColumnMap);
-    return CChecksum::calculate(seed, m_FeatureVectorEncodingMap);
-}
-
-void CDataFrameCategoryEncoder::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
-    inserter.insertValue(MINIMUM_ROWS_PER_FEATURE_TAG, m_MinimumRowsPerFeature);
-    inserter.insertValue(MINIMUM_FREQUENCY_TO_ONE_HOT_ENCODE_TAG, m_MinimumFrequencyToOneHotEncode,
-                         core::CIEEE754::E_DoublePrecision);
-    inserter.insertValue(REDUNDANCY_WEIGHT_TAG, m_RedundancyWeight,
-                         core::CIEEE754::E_DoublePrecision);
-    core::CPersistUtils::persist(COLUMN_IS_CATEGORICAL_TAG, m_ColumnIsCategorical, inserter);
-    core::CPersistUtils::persist(COLUMN_USES_FREQUENCY_ENCODING_TAG,
-                                 m_ColumnUsesFrequencyEncoding, inserter);
-    core::CPersistUtils::persist(ONE_HOT_ENCODED_CATEGORIES_TAG,
-                                 m_OneHotEncodedCategories, inserter);
-    core::CPersistUtils::persist(RARE_CATEGORIES_TAG, m_RareCategories, inserter);
-    core::CPersistUtils::persist(CATEGORY_FREQUENCIES_TAG, m_CategoryFrequencies, inserter);
-    core::CPersistUtils::persist(MEAN_CATEGORY_FREQUENCIES_TAG,
-                                 m_MeanCategoryFrequencies, inserter);
-    core::CPersistUtils::persist(CATEGORY_TARGET_MEAN_VALUES_TAG,
-                                 m_CategoryTargetMeanValues, inserter);
-    core::CPersistUtils::persist(MEAN_CATEGORY_TARGET_MEAN_VALUES_TAG,
-                                 m_MeanCategoryTargetMeanValues, inserter);
-    core::CPersistUtils::persist(FEATURE_VECTOR_MICS_TAG, m_FeatureVectorMics, inserter);
-    core::CPersistUtils::persist(FEATURE_VECTOR_COLUMN_MAP_TAG,
-                                 m_FeatureVectorColumnMap, inserter);
-    core::CPersistUtils::persist(FEATURE_VECTOR_ENCODING_MAP_TAG,
-                                 m_FeatureVectorEncodingMap, inserter);
-}
-
-bool CDataFrameCategoryEncoder::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
-    do {
-        const std::string& name{traverser.name()};
-        RESTORE_BUILT_IN(MINIMUM_ROWS_PER_FEATURE_TAG, m_MinimumRowsPerFeature)
-        RESTORE_BUILT_IN(MINIMUM_FREQUENCY_TO_ONE_HOT_ENCODE_TAG, m_MinimumFrequencyToOneHotEncode)
-        RESTORE_BUILT_IN(REDUNDANCY_WEIGHT_TAG, m_RedundancyWeight)
-        RESTORE(COLUMN_IS_CATEGORICAL_TAG,
-                core::CPersistUtils::restore(COLUMN_IS_CATEGORICAL_TAG,
-                                             m_ColumnIsCategorical, traverser))
-        RESTORE(COLUMN_USES_FREQUENCY_ENCODING_TAG,
-                core::CPersistUtils::restore(COLUMN_USES_FREQUENCY_ENCODING_TAG,
-                                             m_ColumnUsesFrequencyEncoding, traverser))
-        RESTORE(ONE_HOT_ENCODED_CATEGORIES_TAG,
-                core::CPersistUtils::restore(ONE_HOT_ENCODED_CATEGORIES_TAG,
-                                             m_OneHotEncodedCategories, traverser))
-        RESTORE(RARE_CATEGORIES_TAG,
-                core::CPersistUtils::restore(RARE_CATEGORIES_TAG, m_RareCategories, traverser))
-        RESTORE(CATEGORY_FREQUENCIES_TAG,
-                core::CPersistUtils::restore(CATEGORY_FREQUENCIES_TAG,
-                                             m_CategoryFrequencies, traverser))
-        RESTORE(MEAN_CATEGORY_FREQUENCIES_TAG,
-                core::CPersistUtils::restore(MEAN_CATEGORY_FREQUENCIES_TAG,
-                                             m_MeanCategoryFrequencies, traverser))
-        RESTORE(CATEGORY_TARGET_MEAN_VALUES_TAG,
-                core::CPersistUtils::restore(CATEGORY_TARGET_MEAN_VALUES_TAG,
-                                             m_CategoryTargetMeanValues, traverser))
-        RESTORE(MEAN_CATEGORY_TARGET_MEAN_VALUES_TAG,
-                core::CPersistUtils::restore(MEAN_CATEGORY_TARGET_MEAN_VALUES_TAG,
-                                             m_MeanCategoryTargetMeanValues, traverser))
-        RESTORE(FEATURE_VECTOR_MICS_TAG,
-                core::CPersistUtils::restore(FEATURE_VECTOR_MICS_TAG,
-                                             m_FeatureVectorMics, traverser))
-        RESTORE(FEATURE_VECTOR_COLUMN_MAP_TAG,
-                core::CPersistUtils::restore(FEATURE_VECTOR_COLUMN_MAP_TAG,
-                                             m_FeatureVectorColumnMap, traverser))
-        RESTORE(FEATURE_VECTOR_ENCODING_MAP_TAG,
-                core::CPersistUtils::restore(FEATURE_VECTOR_ENCODING_MAP_TAG,
-                                             m_FeatureVectorEncodingMap, traverser))
-    } while (traverser.next());
-    return true;
-}
-
-CDataFrameCategoryEncoder::TSizeDoublePrVecVec
-CDataFrameCategoryEncoder::mics(std::size_t numberThreads,
-                                const core::CDataFrame& frame,
-                                const CDataFrameUtils::CColumnValue& target,
-                                const core::CPackedBitVector& rowMask,
-                                const TSizeVec& metricColumnMask,
-                                const TSizeVec& categoricalColumnMask) const {
-
-    CDataFrameUtils::TEncoderFactoryVec encoderFactories(E_CandidateEncodings);
+    CDataFrameUtils::TEncoderFactoryVec encoderFactories(
+        static_cast<std::size_t>(E_IdentityEncoding));
     encoderFactories[E_OneHot] = std::make_pair(
         [](std::size_t, std::size_t sampleColumn, std::size_t category) {
             return std::make_unique<CDataFrameUtils::COneHotCategoricalColumnValue>(
@@ -507,21 +726,21 @@ CDataFrameCategoryEncoder::mics(std::size_t numberThreads,
         },
         0.0);
 
-    auto metricMics = CDataFrameUtils::metricMicWithColumn(target, frame, rowMask,
+    auto metricMics = CDataFrameUtils::metricMicWithColumn(target, *m_Frame, m_RowMask,
                                                            metricColumnMask);
     auto categoricalMics = CDataFrameUtils::categoricalMicWithColumn(
-        target, numberThreads, frame, rowMask, categoricalColumnMask, encoderFactories);
+        target, m_NumberThreads, *m_Frame, m_RowMask, categoricalColumnMask, encoderFactories);
 
     TSizeDoublePrVecVec mics(std::move(categoricalMics[E_OneHot]));
     for (std::size_t i = 0; i < categoricalMics[E_TargetMean].size(); ++i) {
-        if (categoricalMics[E_TargetMean][i].size() > 0) {
+        if (categoricalMics[E_TargetMean][i].empty() == false) {
             mics[i].emplace_back(CATEGORY_FOR_TARGET_MEAN_ENCODING,
                                  categoricalMics[E_TargetMean][i][0].second);
         }
     }
     for (std::size_t i = 0; i < categoricalMics[E_Frequency].size(); ++i) {
-        if (categoricalMics[E_Frequency][i].size() > 0) {
-            mics[i].emplace_back(CATEGORY_FOR_FREQUANCY_ENCODING,
+        if (categoricalMics[E_Frequency][i].empty() == false) {
+            mics[i].emplace_back(CATEGORY_FOR_FREQUENCY_ENCODING,
                                  categoricalMics[E_Frequency][i][0].second);
         }
     }
@@ -535,13 +754,10 @@ CDataFrameCategoryEncoder::mics(std::size_t numberThreads,
     return mics;
 }
 
-void CDataFrameCategoryEncoder::setupFrequencyEncoding(std::size_t numberThreads,
-                                                       const core::CDataFrame& frame,
-                                                       const core::CPackedBitVector& rowMask,
-                                                       const TSizeVec& categoricalColumnMask) {
+void CMakeDataFrameCategoryEncoder::setupFrequencyEncoding(const TSizeVec& categoricalColumnMask) {
 
     m_CategoryFrequencies = CDataFrameUtils::categoryFrequencies(
-        numberThreads, frame, rowMask, categoricalColumnMask);
+        m_NumberThreads, *m_Frame, m_RowMask, categoricalColumnMask);
     LOG_TRACE(<< "category frequencies = "
               << core::CContainerPrinter::print(m_CategoryFrequencies));
 
@@ -554,7 +770,7 @@ void CDataFrameCategoryEncoder::setupFrequencyEncoding(std::size_t numberThreads
                 : 1.0 / static_cast<double>(m_CategoryFrequencies[i].size());
         for (std::size_t j = 0; j < m_CategoryFrequencies[i].size(); ++j) {
             std::size_t count{static_cast<std::size_t>(
-                m_CategoryFrequencies[i][j] * static_cast<double>(frame.numberRows()) + 0.5)};
+                m_CategoryFrequencies[i][j] * static_cast<double>(m_Frame->numberRows()) + 0.5)};
             if (count < m_MinimumRowsPerFeature) {
                 m_RareCategories[i].insert(j);
             }
@@ -565,15 +781,11 @@ void CDataFrameCategoryEncoder::setupFrequencyEncoding(std::size_t numberThreads
     LOG_TRACE(<< "rare categories = " << core::CContainerPrinter::print(m_RareCategories));
 }
 
-void CDataFrameCategoryEncoder::setupTargetMeanValueEncoding(std::size_t numberThreads,
-                                                             const core::CDataFrame& frame,
-                                                             const core::CPackedBitVector& rowMask,
-                                                             const TSizeVec& categoricalColumnMask,
-                                                             std::size_t targetColumn) {
+void CMakeDataFrameCategoryEncoder::setupTargetMeanValueEncoding(const TSizeVec& categoricalColumnMask) {
 
     m_CategoryTargetMeanValues = CDataFrameUtils::meanValueOfTargetForCategories(
-        CDataFrameUtils::CMetricColumnValue{targetColumn}, numberThreads, frame,
-        rowMask, categoricalColumnMask);
+        CDataFrameUtils::CMetricColumnValue{m_TargetColumn}, m_NumberThreads,
+        *m_Frame, m_RowMask, categoricalColumnMask);
     LOG_TRACE(<< "category target mean values = "
               << core::CContainerPrinter::print(m_CategoryTargetMeanValues));
 
@@ -588,8 +800,8 @@ void CDataFrameCategoryEncoder::setupTargetMeanValueEncoding(std::size_t numberT
               << core::CContainerPrinter::print(m_MeanCategoryTargetMeanValues));
 }
 
-CDataFrameCategoryEncoder::TSizeSizePrDoubleMap
-CDataFrameCategoryEncoder::selectAllFeatures(const TSizeDoublePrVecVec& mics) {
+CMakeDataFrameCategoryEncoder::TSizeSizePrDoubleMap
+CMakeDataFrameCategoryEncoder::selectAllFeatures(const TSizeDoublePrVecVec& mics) {
 
     TSizeSizePrDoubleMap selectedFeatureMics;
 
@@ -609,7 +821,7 @@ CDataFrameCategoryEncoder::selectAllFeatures(const TSizeDoublePrVecVec& mics) {
             if (isCategory(category)) {
                 m_OneHotEncodedCategories[feature].push_back(category);
             } else if (isFrequency(category)) {
-                m_ColumnUsesFrequencyEncoding[feature] = true;
+                m_InputColumnUsesFrequencyEncoding[feature] = true;
             } // else if (isTargetMean(category)) { nothing to do }
         }
     }
@@ -620,13 +832,9 @@ CDataFrameCategoryEncoder::selectAllFeatures(const TSizeDoublePrVecVec& mics) {
     return selectedFeatureMics;
 }
 
-CDataFrameCategoryEncoder::TSizeSizePrDoubleMap
-CDataFrameCategoryEncoder::selectFeatures(std::size_t numberThreads,
-                                          const core::CDataFrame& frame,
-                                          const core::CPackedBitVector& rowMask,
-                                          TSizeVec metricColumnMask,
-                                          TSizeVec categoricalColumnMask,
-                                          std::size_t targetColumn) {
+CMakeDataFrameCategoryEncoder::TSizeSizePrDoubleMap
+CMakeDataFrameCategoryEncoder::selectFeatures(TSizeVec metricColumnMask,
+                                              const TSizeVec& categoricalColumnMask) {
 
     // We want to choose features which provide independent information about the
     // target variable. Ideally, we'd recompute MICe w.r.t. target - f(x) with x
@@ -641,25 +849,27 @@ CDataFrameCategoryEncoder::selectFeatures(std::size_t numberThreads,
     // and as redundancy weight -> infinity means exclusively minimise MICe with
     // the selected variables.
 
-    TSizeDoublePrVecVec mics(this->mics(
-        numberThreads, frame, CDataFrameUtils::CMetricColumnValue{targetColumn},
-        rowMask, metricColumnMask, categoricalColumnMask));
+    TSizeDoublePrVecVec mics(this->mics(CDataFrameUtils::CMetricColumnValue{m_TargetColumn},
+                                        metricColumnMask, categoricalColumnMask));
+    this->discardNuisanceFeatures(mics);
     LOG_TRACE(<< "features MICe = " << core::CContainerPrinter::print(mics));
 
     std::size_t numberAvailableFeatures{this->numberAvailableFeatures(mics)};
     std::size_t maximumNumberFeatures{
-        (frame.numberRows() + m_MinimumRowsPerFeature / 2) / m_MinimumRowsPerFeature};
+        (static_cast<std::size_t>(m_RowMask.manhattan()) + m_MinimumRowsPerFeature / 2) /
+        m_MinimumRowsPerFeature};
     LOG_TRACE(<< "number possible features = " << numberAvailableFeatures
               << " maximum permitted features = " << maximumNumberFeatures);
 
-    m_ColumnUsesFrequencyEncoding.resize(frame.numberColumns(), false);
-    m_OneHotEncodedCategories.resize(frame.numberColumns());
+    m_InputColumnUsesFrequencyEncoding.resize(m_Frame->numberColumns(), false);
+    m_OneHotEncodedCategories.resize(m_Frame->numberColumns());
 
     TSizeSizePrDoubleMap selectedFeatureMics;
 
     if (maximumNumberFeatures >= numberAvailableFeatures) {
 
         selectedFeatureMics = this->selectAllFeatures(mics);
+
     } else {
 
         CMinRedundancyMaxRelevancyGreedySearch search{m_RedundancyWeight, mics};
@@ -679,7 +889,7 @@ CDataFrameCategoryEncoder::selectFeatures(std::size_t numberThreads,
             if (selected.isCategory()) {
                 m_OneHotEncodedCategories[feature].push_back(category);
             } else if (selected.isFrequency()) {
-                m_ColumnUsesFrequencyEncoding[feature] = true;
+                m_InputColumnUsesFrequencyEncoding[feature] = true;
             } else if (selected.isMetric()) {
                 metricColumnMask.erase(std::find(metricColumnMask.begin(),
                                                  metricColumnMask.end(), feature));
@@ -688,8 +898,7 @@ CDataFrameCategoryEncoder::selectFeatures(std::size_t numberThreads,
             auto columnValue = selected.columnValue(
                 m_RareCategories[feature], m_CategoryFrequencies[feature],
                 m_CategoryTargetMeanValues[feature]);
-            mics = this->mics(numberThreads, frame, *columnValue, rowMask,
-                              metricColumnMask, categoricalColumnMask);
+            mics = this->mics(*columnValue, metricColumnMask, categoricalColumnMask);
             search.update(mics);
         }
     }
@@ -707,8 +916,7 @@ CDataFrameCategoryEncoder::selectFeatures(std::size_t numberThreads,
     return selectedFeatureMics;
 }
 
-void CDataFrameCategoryEncoder::finishEncoding(std::size_t targetColumn,
-                                               TSizeSizePrDoubleMap selectedFeatureMics) {
+void CMakeDataFrameCategoryEncoder::finishEncoding(TSizeSizePrDoubleMap selectedFeatureMics) {
 
     using TMeanAccumulator = CBasicStatistics::SSampleMean<double>::TAccumulator;
 
@@ -744,11 +952,11 @@ void CDataFrameCategoryEncoder::finishEncoding(std::size_t targetColumn,
 
     // Fill in a mapping from encoded column indices to raw column indices.
 
-    selectedFeatureMics[{targetColumn, CATEGORY_FOR_DEPENDENT_VARIABLE}] = 0.0;
+    selectedFeatureMics[{m_TargetColumn, CATEGORY_FOR_DEPENDENT_VARIABLE}] = 0.0;
 
-    m_FeatureVectorMics.reserve(selectedFeatureMics.size());
-    m_FeatureVectorColumnMap.reserve(selectedFeatureMics.size());
-    m_FeatureVectorEncodingMap.reserve(selectedFeatureMics.size());
+    m_EncodedColumnMics.reserve(selectedFeatureMics.size());
+    m_EncodedColumnInputColumnMap.reserve(selectedFeatureMics.size());
+    m_EncodedColumnEncodingMap.reserve(selectedFeatureMics.size());
 
     auto i = selectedFeatureMics.begin();
     auto end = selectedFeatureMics.end();
@@ -756,9 +964,9 @@ void CDataFrameCategoryEncoder::finishEncoding(std::size_t targetColumn,
     for (;;) {
         std::size_t feature{i->first.first};
         double mic{i->second};
-        m_FeatureVectorMics.push_back(mic);
-        m_FeatureVectorColumnMap.push_back(feature);
-        m_FeatureVectorEncodingMap.push_back(encoding);
+        m_EncodedColumnMics.push_back(mic);
+        m_EncodedColumnInputColumnMap.push_back(feature);
+        m_EncodedColumnEncodingMap.push_back(encoding);
         if (++i == end) {
             break;
         }
@@ -766,14 +974,43 @@ void CDataFrameCategoryEncoder::finishEncoding(std::size_t targetColumn,
     }
 
     LOG_TRACE(<< "feature vector MICe = "
-              << core::CContainerPrinter::print(m_FeatureVectorMics));
+              << core::CContainerPrinter::print(m_EncodedColumnMics));
     LOG_TRACE(<< "feature vector index to column map = "
-              << core::CContainerPrinter::print(m_FeatureVectorColumnMap));
+              << core::CContainerPrinter::print(m_EncodedColumnInputColumnMap));
     LOG_TRACE(<< "feature vector index to encoding map = "
-              << core::CContainerPrinter::print(m_FeatureVectorEncodingMap));
+              << core::CContainerPrinter::print(m_EncodedColumnEncodingMap));
 }
 
-std::size_t CDataFrameCategoryEncoder::numberAvailableFeatures(const TSizeDoublePrVecVec& mics) const {
+void CMakeDataFrameCategoryEncoder::discardNuisanceFeatures(TSizeDoublePrVecVec& mics) const {
+
+    // Discard features carrying very little relative information about the target.
+    // These will have a low chance of being selected and including them represents
+    // a poor runtime QoR tradeoff. We achieve this by zeroing their MICe.
+
+    using TSizeDoublePrVecItrVec = std::vector<TSizeDoublePrVec::iterator>;
+
+    TSizeDoublePrVecItrVec flatMics;
+    for (auto& featureMics : mics) {
+        for (auto i = featureMics.begin(); i != featureMics.end(); ++i) {
+            flatMics.push_back(i);
+        }
+    }
+    std::stable_sort(flatMics.begin(), flatMics.end(),
+                     [](auto lhs, auto rhs) { return lhs->second > rhs->second; });
+
+    double totalMic{0.0};
+    auto firstFeatureToDiscard =
+        std::find_if(flatMics.begin(), flatMics.end(), [&](auto mic) {
+            totalMic += mic->second;
+            return mic->second < m_MinimumRelativeMicToSelectFeature * totalMic;
+        });
+    for (auto i = firstFeatureToDiscard; i != flatMics.end(); ++i) {
+        (*i)->second = 0.0;
+    }
+}
+
+std::size_t
+CMakeDataFrameCategoryEncoder::numberAvailableFeatures(const TSizeDoublePrVecVec& mics) const {
     std::size_t count{0};
     for (const auto& featureMics : mics) {
         count += std::count_if(featureMics.begin(), featureMics.end(),

@@ -10,8 +10,9 @@
 #include <core/CLogger.h>
 
 #include <api/CDataFrameAnalysisConfigReader.h>
-#include <api/CDataFrameBoostedTreeRunner.h>
 #include <api/CDataFrameOutliersRunner.h>
+#include <api/CDataFrameTrainBoostedTreeClassifierRunner.h>
+#include <api/CDataFrameTrainBoostedTreeRegressionRunner.h>
 #include <api/CMemoryUsageEstimationResultJsonWriter.h>
 
 #include <rapidjson/document.h>
@@ -27,6 +28,7 @@ namespace ml {
 namespace api {
 
 // These must be consistent with Java names.
+const std::string CDataFrameAnalysisSpecification::JOB_ID("job_id");
 const std::string CDataFrameAnalysisSpecification::ROWS("rows");
 const std::string CDataFrameAnalysisSpecification::COLS("cols");
 const std::string CDataFrameAnalysisSpecification::MEMORY_LIMIT("memory_limit");
@@ -40,12 +42,16 @@ const std::string CDataFrameAnalysisSpecification::NAME("name");
 const std::string CDataFrameAnalysisSpecification::PARAMETERS("parameters");
 
 namespace {
-using TRunnerFactoryUPtrVec = ml::api::CDataFrameAnalysisSpecification::TRunnerFactoryUPtrVec;
+using TBoolVec = std::vector<bool>;
+using TRunnerFactoryUPtrVec = CDataFrameAnalysisSpecification::TRunnerFactoryUPtrVec;
 
 TRunnerFactoryUPtrVec analysisFactories() {
     TRunnerFactoryUPtrVec factories;
-    factories.push_back(std::make_unique<ml::api::CDataFrameBoostedTreeRunnerFactory>());
-    factories.push_back(std::make_unique<ml::api::CDataFrameOutliersRunnerFactory>());
+    factories.push_back(std::make_unique<CDataFrameOutliersRunnerFactory>());
+    factories.push_back(
+        std::make_unique<CDataFrameTrainBoostedTreeRegressionRunnerFactory>());
+    factories.push_back(
+        std::make_unique<CDataFrameTrainBoostedTreeClassifierRunnerFactory>());
     // Add new analysis types here.
     return factories;
 }
@@ -55,6 +61,8 @@ const bool DEFAULT_DISK_USAGE_ALLOWED(false);
 
 const CDataFrameAnalysisConfigReader CONFIG_READER{[] {
     CDataFrameAnalysisConfigReader theReader;
+    theReader.addParameter(CDataFrameAnalysisSpecification::JOB_ID,
+                           CDataFrameAnalysisConfigReader::E_OptionalParameter);
     theReader.addParameter(CDataFrameAnalysisSpecification::ROWS,
                            CDataFrameAnalysisConfigReader::E_RequiredParameter);
     theReader.addParameter(CDataFrameAnalysisSpecification::COLS,
@@ -86,13 +94,22 @@ const CDataFrameAnalysisConfigReader ANALYSIS_READER{[] {
 }()};
 }
 
-CDataFrameAnalysisSpecification::CDataFrameAnalysisSpecification(const std::string& jsonSpecification)
-    : CDataFrameAnalysisSpecification{analysisFactories(), jsonSpecification} {
+CDataFrameAnalysisSpecification::CDataFrameAnalysisSpecification(
+    const std::string& jsonSpecification,
+    TPersisterSupplier persisterSupplier,
+    TRestoreSearcherSupplier restoreSearcherSupplier)
+    : CDataFrameAnalysisSpecification{analysisFactories(), jsonSpecification,
+                                      std::move(persisterSupplier),
+                                      std::move(restoreSearcherSupplier)} {
 }
 
-CDataFrameAnalysisSpecification::CDataFrameAnalysisSpecification(TRunnerFactoryUPtrVec runnerFactories,
-                                                                 const std::string& jsonSpecification)
-    : m_RunnerFactories{std::move(runnerFactories)} {
+CDataFrameAnalysisSpecification::CDataFrameAnalysisSpecification(
+    TRunnerFactoryUPtrVec runnerFactories,
+    const std::string& jsonSpecification,
+    TPersisterSupplier persisterSupplier,
+    TRestoreSearcherSupplier restoreSearcherSupplier)
+    : m_RunnerFactories{std::move(runnerFactories)}, m_PersisterSupplier{std::move(persisterSupplier)},
+      m_RestoreSearcherSupplier{std::move(restoreSearcherSupplier)} {
 
     rapidjson::Document specification;
     if (specification.Parse(jsonSpecification.c_str()) == false) {
@@ -112,6 +129,7 @@ CDataFrameAnalysisSpecification::CDataFrameAnalysisSpecification(TRunnerFactoryU
         m_MemoryLimit = parameters[MEMORY_LIMIT].as<std::size_t>();
         m_NumberThreads = parameters[THREADS].as<std::size_t>();
         m_TemporaryDirectory = parameters[TEMPORARY_DIRECTORY].fallback(std::string{});
+        m_JobId = parameters[JOB_ID].fallback(std::string{});
         m_ResultsField = parameters[RESULTS_FIELD].fallback(DEFAULT_RESULT_FIELD);
         m_CategoricalFieldNames = parameters[CATEGORICAL_FIELD_NAMES].fallback(TStrVec{});
         m_DiskUsageAllowed = parameters[DISK_USAGE_ALLOWED].fallback(DEFAULT_DISK_USAGE_ALLOWED);
@@ -176,10 +194,9 @@ CDataFrameAnalysisSpecification::makeDataFrame() {
     return result;
 }
 
-CDataFrameAnalysisRunner* CDataFrameAnalysisSpecification::run(const TStrVec& featureNames,
-                                                               core::CDataFrame& frame) const {
+CDataFrameAnalysisRunner* CDataFrameAnalysisSpecification::run(core::CDataFrame& frame) const {
     if (m_Runner != nullptr) {
-        m_Runner->run(featureNames, frame);
+        m_Runner->run(frame);
         return m_Runner.get();
     }
     return nullptr;
@@ -187,10 +204,19 @@ CDataFrameAnalysisRunner* CDataFrameAnalysisSpecification::run(const TStrVec& fe
 
 void CDataFrameAnalysisSpecification::estimateMemoryUsage(CMemoryUsageEstimationResultJsonWriter& writer) const {
     if (m_Runner == nullptr) {
-        HANDLE_FATAL(<< "Internal error: no runner available so can't estimate memory. Please report this problem.");
+        HANDLE_FATAL(<< "Internal error: no runner available so can't estimate memory."
+                     << " Please report this problem.");
         return;
     }
     m_Runner->estimateMemoryUsage(writer);
+}
+
+TBoolVec CDataFrameAnalysisSpecification::columnsForWhichEmptyIsMissing(const TStrVec& fieldNames) const {
+    if (m_Runner == nullptr) {
+        HANDLE_FATAL(<< "Internal error: no runner available. Please report this problem.");
+        return TBoolVec(fieldNames.size(), false);
+    }
+    return m_Runner->columnsForWhichEmptyIsMissing(fieldNames);
 }
 
 void CDataFrameAnalysisSpecification::initializeRunner(const rapidjson::Value& jsonAnalysis) {
@@ -212,6 +238,34 @@ void CDataFrameAnalysisSpecification::initializeRunner(const rapidjson::Value& j
 
     HANDLE_FATAL(<< "Input error: unexpected analysis name '" << name
                  << "'. Please report this problem.");
+}
+
+CDataFrameAnalysisSpecification::TDataAdderUPtr
+CDataFrameAnalysisSpecification::persister() const {
+    return m_PersisterSupplier();
+}
+
+CDataFrameAnalysisSpecification::TDataSearcherUPtr
+CDataFrameAnalysisSpecification::restoreSearcher() const {
+    return m_RestoreSearcherSupplier();
+}
+
+CDataFrameAnalysisSpecification::TDataAdderUPtr
+CDataFrameAnalysisSpecification::noopPersisterSupplier() {
+    return nullptr;
+}
+
+CDataFrameAnalysisSpecification::TDataSearcherUPtr
+CDataFrameAnalysisSpecification::noopRestoreSearcherSupplier() {
+    return nullptr;
+}
+
+const std::string& CDataFrameAnalysisSpecification::jobId() const {
+    return m_JobId;
+}
+
+const CDataFrameAnalysisRunner* CDataFrameAnalysisSpecification::runner() {
+    return m_Runner.get();
 }
 }
 }

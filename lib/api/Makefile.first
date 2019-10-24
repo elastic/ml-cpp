@@ -30,8 +30,10 @@ CDataFrameAnalysisRunner.cc \
 CDataFrameAnalysisSpecification.cc \
 CDataFrameAnalysisSpecificationJsonWriter.cc \
 CDataFrameAnalyzer.cc \
-CDataFrameBoostedTreeRunner.cc \
 CDataFrameOutliersRunner.cc \
+CDataFrameTrainBoostedTreeRunner.cc \
+CDataFrameTrainBoostedTreeClassifierRunner.cc \
+CDataFrameTrainBoostedTreeRegressionRunner.cc \
 CDataProcessor.cc \
 CDataTyper.cc \
 CDetectionRulesJsonParser.cc \
@@ -39,6 +41,8 @@ CFieldConfig.cc \
 CFieldDataTyper.cc \
 CForecastRunner.cc \
 CHierarchicalResultsWriter.cc \
+CInferenceModelDefinition.cc \
+CBoostedTreeInferenceModelBuilder.cc \
 CInputParser.cc \
 CIoManager.cc \
 CJsonOutputWriter.cc \
@@ -61,6 +65,8 @@ CStateRestoreStreamFilter.cc \
 CTokenListReverseSearchCreator.cc \
 CTokenListReverseSearchCreatorIntf.cc \
 CTokenListType.cc \
+ElasticsearchStateIndex.cc
+
 
 include $(CPP_SRC_HOME)/mk/dynamiclib.mk
 

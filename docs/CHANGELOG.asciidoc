@@ -28,12 +28,55 @@
 
 //=== Regressions
 
+== {es} version 7.6.0
+
+=== Enhancements
+
+* Improve performance of boosted tree training for both classification and regression.
+(See {ml-pull}775[#775].)
+
+== {es} version 7.5.0
+
+=== Enhancements
+
+* Improve performance and concurrency training boosted tree regression models.
+For large data sets this change was observed to give a 10% to 20% decrease in
+train time. (See {ml-pull}622[#622].)
+* Upgrade Boost libraries to version 1.71. (See {ml-pull}638[#638].)
+* Improve initialisation of boosted tree training. This generally enables us to
+find lower loss models faster. (See {ml-pull}686[#686].)
+* Include a smooth tree depth based penalty to regularized objective function for
+boosted tree training. Hard depth based regularization is often the strategy of
+choice to prevent over fitting for XGBoost. By smoothing we can make better tradeoffs.
+Also, the parameters of the penalty function are mode suited to optimising with our
+Bayesian optimisation based hyperparameter search. (See {ml-pull}698[#698].)
+* Binomial logistic regression targeting cross entropy. (See {ml-pull}713[#713].) 
+* Improvements to count and sum anomaly detection for sparse data. This primarily
+aims to improve handling of data which are predictably present: detecting when they
+are unexpectedly missing. (See {ml-pull}721[#721].)
+* Trap numeric errors causing bad hyperparameter search initialisation and repeated
+errors to be logged during boosted tree training. (See {ml-pull}732[#732].)
+
+== {es} version 7.4.1
+
+=== Enhancements
+
+* The {ml} native processes are now arranged in a .app directory structure on
+  macOS, to allow for notarization on macOS Catalina. (See {ml-pull}593[#593].)
+
+=== Bug Fixes
+
+* A reference to a temporary variable was causing forecast model restoration to fail.
+The bug exhibited itself on MacOS builds with versions of clangd > 10.0.0. (See {ml-pull}688[#688].)
+
 == {es} version 7.4.0
 
 === Bug Fixes
 
 * Rename outlier detection method values knn and tnn to distance_kth_nn and distance_knn
 respectively to match the API. (See {ml-pull}598[#598].)
+* Fix occasional (non-deterministic) reinitialisation of modelling for the lat_long
+function. (See {ml-pull}641[#641].)
 
 == {es} version 7.3.1
 
@@ -96,6 +139,13 @@ to the model. (See {ml-pull}214[#214].)
 * Ensure statics are persisted in a consistent manner {ml-pull}360[#360]
 
 == {es} version 7.0.0-alpha1
+
+== {es} version 6.8.4
+
+=== Bug Fixes
+
+* A reference to a temporary variable was causing forecast model restoration to fail.
+The bug exhibited itself on MacOS builds with versions of clangd > 10.0.0. (See {ml-pull}688[#688].)
 
 == {es} version 6.8.2
 

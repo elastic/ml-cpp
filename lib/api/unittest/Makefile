@@ -13,7 +13,7 @@ USE_NET=1
 USE_RAPIDJSON=1
 USE_EIGEN=1
 
-LIBS:=$(LIB_ML_MATHS) $(LIB_ML_MODEL) $(LIB_ML_API)
+LIBS:=$(LIB_ML_MATHS) $(LIB_ML_MODEL) $(LIB_ML_API) $(LIB_ML_TEST)
 
 all: build
 
@@ -22,13 +22,15 @@ SRCS=\
 	CAnomalyJobLimitTest.cc \
 	CAnomalyJobTest.cc \
 	CBaseTokenListDataTyperTest.cc \
+	CBoostedTreeInferenceModelBuilderTest.cc \
 	CCategoryExamplesCollectorTest.cc \
 	CConfigUpdaterTest.cc \
 	CCsvInputParserTest.cc \
 	CCsvOutputWriterTest.cc \
 	CDataFrameAnalysisRunnerTest.cc \
 	CDataFrameAnalysisSpecificationTest.cc \
-	CDataFrameAnalyzerTest.cc \
+	CDataFrameAnalyzerOutlierTest.cc \
+	CDataFrameAnalyzerTrainingTest.cc \
 	CDataFrameMockAnalysisRunner.cc \
 	CDetectionRulesJsonParserTest.cc \
 	CFieldConfigTest.cc \

@@ -11,8 +11,6 @@
 #include <core/CJsonOutputStreamWrapper.h>
 #include <core/CLogger.h>
 
-#include <maths/CTools.h>
-
 #include <api/CDataFrameAnalysisSpecification.h>
 
 #include <chrono>
@@ -25,11 +23,6 @@ namespace api {
 namespace {
 using TStrVec = std::vector<std::string>;
 
-core::CFloatStorage truncateToFloatRange(double value) {
-    double largest{static_cast<double>(std::numeric_limits<float>::max())};
-    return maths::CTools::truncate(value, -largest, largest);
-}
-
 const std::string SPECIAL_COLUMN_FIELD_NAME{"."};
 
 // Control message types:
@@ -38,6 +31,7 @@ const char FINISHED_DATA_CONTROL_MESSAGE_FIELD_VALUE{'$'};
 // Result types
 const std::string ROW_RESULTS{"row_results"};
 const std::string PROGRESS_PERCENT{"progress_percent"};
+const std::string ANALYZER_STATE{"analyzer_state"};
 
 // Row result fields
 const std::string CHECKSUM{"checksum"};
@@ -45,8 +39,9 @@ const std::string RESULTS{"results"};
 }
 
 CDataFrameAnalyzer::CDataFrameAnalyzer(TDataFrameAnalysisSpecificationUPtr analysisSpecification,
-                                       TJsonOutputStreamWrapperUPtrSupplier outStreamSupplier)
-    : m_AnalysisSpecification{std::move(analysisSpecification)}, m_OutStreamSupplier{outStreamSupplier} {
+                                       TJsonOutputStreamWrapperUPtrSupplier resultsStreamSupplier)
+    : m_AnalysisSpecification{std::move(analysisSpecification)},
+      m_ResultsStreamSupplier{std::move(resultsStreamSupplier)} {
 
     if (m_AnalysisSpecification != nullptr) {
         auto frameAndDirectory = m_AnalysisSpecification->makeDataFrame();
@@ -101,18 +96,9 @@ bool CDataFrameAnalyzer::handleRecord(const TStrVec& fieldNames, const TStrVec& 
 }
 
 void CDataFrameAnalyzer::receivedAllRows() {
-
     if (m_DataFrame != nullptr) {
         m_DataFrame->finishWritingRows();
         LOG_DEBUG(<< "Received " << m_DataFrame->numberRows() << " rows");
-    }
-
-    for (std::size_t i = 0; i < m_CategoricalFieldValues.size(); ++i) {
-        std::size_t distinct{m_CategoricalFieldValues[i].size()};
-        if (distinct >= MAX_CATEGORICAL_CARDINALITY) {
-            LOG_WARN(<< "Failed to represent all distinct values of "
-                     << m_CategoricalFieldNames[i]);
-        }
     }
 }
 
@@ -140,7 +126,7 @@ void CDataFrameAnalyzer::run() {
 
     LOG_TRACE(<< "Running analysis...");
 
-    CDataFrameAnalysisRunner* analysis{m_AnalysisSpecification->run(m_FieldNames, *m_DataFrame)};
+    CDataFrameAnalysisRunner* analysis{m_AnalysisSpecification->run(*m_DataFrame)};
 
     if (analysis == nullptr) {
         return;
@@ -150,7 +136,7 @@ void CDataFrameAnalyzer::run() {
     // get called and the wrapped stream does its job to close the array.
 
     // TODO Revisit this can probably be core::CRapidJsonLineWriter.
-    auto outStream = m_OutStreamSupplier();
+    auto outStream = m_ResultsStreamSupplier();
     core::CRapidJsonConcurrentLineWriter outputWriter{*outStream};
 
     this->monitorProgress(*analysis, outputWriter);
@@ -209,23 +195,6 @@ bool CDataFrameAnalyzer::prepareToReceiveControlMessages(const TStrVec& fieldNam
         m_DocHashFieldIndex = m_ControlFieldIndex - 1;
     }
 
-    m_CategoricalFieldNames.resize(m_EndDataFieldValues);
-    m_CategoricalFieldValues.resize(m_EndDataFieldValues);
-
-    std::vector<bool> isCategorical(m_EndDataFieldValues, false);
-
-    const auto& categoricalFieldNames = m_AnalysisSpecification->categoricalFieldNames();
-    for (std::ptrdiff_t i = 0; i < m_EndDataFieldValues; ++i) {
-        isCategorical[i] = std::find(categoricalFieldNames.begin(),
-                                     categoricalFieldNames.end(),
-                                     fieldNames[i]) != categoricalFieldNames.end();
-        m_CategoricalFieldNames[i] = isCategorical[i] ? fieldNames[i] : "";
-    }
-
-    if (m_DataFrame != nullptr) {
-        m_DataFrame->categoricalColumns(std::move(isCategorical));
-    }
-
     return true;
 }
 
@@ -273,9 +242,17 @@ bool CDataFrameAnalyzer::handleControlMessage(const TStrVec& fieldValues) {
 }
 
 void CDataFrameAnalyzer::captureFieldNames(const TStrVec& fieldNames) {
-    if (m_FieldNames.empty()) {
-        m_FieldNames.assign(fieldNames.begin() + m_BeginDataFieldValues,
-                            fieldNames.begin() + m_EndDataFieldValues);
+    if (m_DataFrame == nullptr) {
+        return;
+    }
+    if (m_DataFrame != nullptr && m_CapturedFieldNames == false) {
+        TStrVec columnNames{fieldNames.begin() + m_BeginDataFieldValues,
+                            fieldNames.begin() + m_EndDataFieldValues};
+        m_DataFrame->columnNames(columnNames);
+        m_DataFrame->emptyIsMissing(
+            m_AnalysisSpecification->columnsForWhichEmptyIsMissing(columnNames));
+        m_DataFrame->categoricalColumns(m_AnalysisSpecification->categoricalFieldNames());
+        m_CapturedFieldNames = true;
     }
 }
 
@@ -283,68 +260,11 @@ void CDataFrameAnalyzer::addRowToDataFrame(const TStrVec& fieldValues) {
     if (m_DataFrame == nullptr) {
         return;
     }
-
-    using TFloatVecItr = core::CDataFrame::TFloatVecItr;
-
-    auto fieldToValue = [this](bool isCategorical, TStrSizeUMap& categoricalFields,
-                               const std::string& fieldValue) {
-        if (isCategorical) {
-            // This encodes in a format suitable for efficient storage. The
-            // actual encoding approach is chosen when the analysis runs.
-            std::int64_t id;
-            if (categoricalFields.size() == MAX_CATEGORICAL_CARDINALITY) {
-                auto itr = categoricalFields.find(fieldValue);
-                id = itr != categoricalFields.end()
-                         ? itr->second
-                         : static_cast<std::int64_t>(MAX_CATEGORICAL_CARDINALITY);
-            } else {
-                // We can represent up to float mantissa bits - 1 distinct
-                // categories so can faithfully store categorical fields with
-                // up to around 17M distinct values. For higher cardinalities
-                // one would need to use some form of dimension reduction such
-                // as hashing anyway.
-                id = static_cast<std::int64_t>(
-                    categoricalFields
-                        .emplace(fieldValue, categoricalFields.size())
-                        .first->second);
-            }
-            return core::CFloatStorage{static_cast<double>(id)};
-        }
-
-        // Use NaN to indicate missing or bad values in the data frame. This
-        // needs handling with care from an analysis perspective. If analyses
-        // can deal with missing values they need to treat NaNs as missing
-        // otherwise we must impute or exit with failure.
-
-        double value;
-        if (fieldValue.empty()) {
-            ++m_MissingValueCount;
-            return core::CFloatStorage{core::CDataFrame::valueOfMissing()};
-        } else if (core::CStringUtils::stringToTypeSilent(fieldValue, value) == false) {
-            ++m_BadValueCount;
-            return core::CFloatStorage{core::CDataFrame::valueOfMissing()};
-        }
-
-        // Tuncation is very unlikely since the values will typically be
-        // standardised.
-        return truncateToFloatRange(value);
-    };
-
-    const auto& isCategorical = m_DataFrame->columnIsCategorical();
-
-    m_DataFrame->writeRow([&](TFloatVecItr columns, std::int32_t& docHash) {
-        for (std::ptrdiff_t i = m_BeginDataFieldValues;
-             i != m_EndDataFieldValues; ++i, ++columns) {
-            *columns = fieldToValue(isCategorical[i],
-                                    m_CategoricalFieldValues[i], fieldValues[i]);
-        }
-        docHash = 0;
-        if (m_DocHashFieldIndex != FIELD_MISSING &&
-            core::CStringUtils::stringToTypeSilent(fieldValues[m_DocHashFieldIndex],
-                                                   docHash) == false) {
-            ++m_BadDocHashCount;
-        }
-    });
+    auto columnValues = core::make_range(fieldValues, m_BeginDataFieldValues,
+                                         m_EndDataFieldValues);
+    m_DataFrame->parseAndWriteRow(columnValues, m_DocHashFieldIndex != FIELD_MISSING
+                                                    ? &fieldValues[m_DocHashFieldIndex]
+                                                    : nullptr);
 }
 
 void CDataFrameAnalyzer::monitorProgress(const CDataFrameAnalysisRunner& analysis,
@@ -359,6 +279,7 @@ void CDataFrameAnalyzer::monitorProgress(const CDataFrameAnalysisRunner& analysi
             this->writeProgress(progress, writer);
         }
     }
+    this->writeProgress(100, writer);
 }
 
 void CDataFrameAnalyzer::writeProgress(int progress,
@@ -389,7 +310,7 @@ void CDataFrameAnalyzer::writeResultsOf(const CDataFrameAnalysisRunner& analysis
 
             writer.StartObject();
             writer.Key(m_AnalysisSpecification->resultsField());
-            analysis.writeOneRow(m_FieldNames, *row, writer);
+            analysis.writeOneRow(*m_DataFrame, *row, writer);
             writer.EndObject();
 
             writer.EndObject();
@@ -397,10 +318,23 @@ void CDataFrameAnalyzer::writeResultsOf(const CDataFrameAnalysisRunner& analysis
         }
     });
 
+    // Write the resulting model for inference
+    const auto& modelDefinition = m_AnalysisSpecification->runner()->inferenceModelDefinition(
+        m_DataFrame->columnNames(), m_DataFrame->categoricalColumnValues());
+    if (modelDefinition) {
+        rapidjson::Value inferenceModelObject{writer.makeObject()};
+        modelDefinition->addToDocument(inferenceModelObject, writer);
+        writer.StartObject();
+        writer.Key(modelDefinition->typeString());
+        writer.write(inferenceModelObject);
+        writer.EndObject();
+    }
+
     writer.flush();
 }
 
-const std::size_t CDataFrameAnalyzer::MAX_CATEGORICAL_CARDINALITY{
-    1 << (std::numeric_limits<float>::digits)};
+const CDataFrameAnalysisRunner* CDataFrameAnalyzer::runner() const {
+    return m_AnalysisSpecification->runner();
+}
 }
 }

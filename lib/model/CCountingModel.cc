@@ -329,8 +329,8 @@ std::size_t CCountingModel::staticSize() const {
     return sizeof(*this);
 }
 
-CCountingModel::CModelDetailsViewPtr CCountingModel::details() const {
-    return CModelDetailsViewPtr();
+CCountingModel::TModelDetailsViewUPtr CCountingModel::details() const {
+    return TModelDetailsViewUPtr();
 }
 
 core_t::TTime CCountingModel::currentBucketStartTime() const {

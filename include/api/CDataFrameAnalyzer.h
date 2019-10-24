@@ -40,13 +40,8 @@ public:
     using TTemporaryDirectoryPtr = std::shared_ptr<core::CTemporaryDirectory>;
 
 public:
-    //! The maximum number of distinct categorical fields we can faithfully
-    //! represent.
-    static const std::size_t MAX_CATEGORICAL_CARDINALITY;
-
-public:
     CDataFrameAnalyzer(TDataFrameAnalysisSpecificationUPtr analysisSpecification,
-                       TJsonOutputStreamWrapperUPtrSupplier outStreamSupplier);
+                       TJsonOutputStreamWrapperUPtrSupplier resultsStreamSupplier);
     ~CDataFrameAnalyzer();
 
     //! This is true if the analyzer is receiving control messages.
@@ -67,10 +62,11 @@ public:
     //! Get the data frame asserting there is one.
     const core::CDataFrame& dataFrame() const;
 
+    //! Get pointer to the analysis runner.
+    const CDataFrameAnalysisRunner* runner() const;
+
 private:
     using TDataFrameUPtr = std::unique_ptr<core::CDataFrame>;
-    using TStrSizeUMap = boost::unordered_map<std::string, std::size_t>;
-    using TStrSizeUMapVec = std::vector<TStrSizeUMap>;
 
 private:
     static const std::ptrdiff_t FIELD_UNSET{-2};
@@ -96,16 +92,11 @@ private:
     std::ptrdiff_t m_BeginDataFieldValues = FIELD_UNSET;
     std::ptrdiff_t m_EndDataFieldValues = FIELD_UNSET;
     std::ptrdiff_t m_DocHashFieldIndex = FIELD_UNSET;
-    std::uint64_t m_MissingValueCount = 0;
-    std::uint64_t m_BadValueCount = 0;
-    std::uint64_t m_BadDocHashCount = 0;
+    bool m_CapturedFieldNames = false;
     TDataFrameAnalysisSpecificationUPtr m_AnalysisSpecification;
-    TStrVec m_CategoricalFieldNames;
-    TStrSizeUMapVec m_CategoricalFieldValues;
     TDataFrameUPtr m_DataFrame;
-    TStrVec m_FieldNames;
     TTemporaryDirectoryPtr m_DataFrameDirectory;
-    TJsonOutputStreamWrapperUPtrSupplier m_OutStreamSupplier;
+    TJsonOutputStreamWrapperUPtrSupplier m_ResultsStreamSupplier;
 };
 }
 }

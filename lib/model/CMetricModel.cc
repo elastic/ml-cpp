@@ -277,9 +277,6 @@ void CMetricModel::sample(core_t::TTime startTime,
                           << ", count weight = " << count << ", dimension = " << dimension
                           << ", empty bucket weight = " << emptyBucketWeight);
 
-                model->params().probabilityBucketEmpty(
-                    this->probabilityBucketEmpty(feature, pid));
-
                 values.resize(n);
                 trendWeights.resize(n, maths_t::CUnitWeights::unit<TDouble2Vec>(dimension));
                 priorWeights.resize(n, maths_t::CUnitWeights::unit<TDouble2Vec>(dimension));
@@ -372,9 +369,10 @@ bool CMetricModel::computeProbability(const std::size_t pid,
                                               pJoint, resultBuilder);
         } else {
             CProbabilityAndInfluenceCalculator::SParams params(partitioningFields);
-            this->fill(feature, pid, startTime, result.isInterim(), params);
-            this->addProbabilityAndInfluences(pid, params, data->s_InfluenceValues,
-                                              pJoint, resultBuilder);
+            if (this->fill(feature, pid, startTime, result.isInterim(), params)) {
+                this->addProbabilityAndInfluences(pid, params, data->s_InfluenceValues,
+                                                  pJoint, resultBuilder);
+            }
         }
     }
 
@@ -465,8 +463,8 @@ std::size_t CMetricModel::staticSize() const {
     return sizeof(*this);
 }
 
-CMetricModel::CModelDetailsViewPtr CMetricModel::details() const {
-    return CModelDetailsViewPtr(new CMetricModelDetailsView(*this));
+CMetricModel::TModelDetailsViewUPtr CMetricModel::details() const {
+    return TModelDetailsViewUPtr(new CMetricModelDetailsView(*this));
 }
 
 const CMetricModel::TFeatureData*
@@ -528,7 +526,7 @@ bool CMetricModel::correlates(model_t::EFeature feature, std::size_t pid, core_t
     return false;
 }
 
-void CMetricModel::fill(model_t::EFeature feature,
+bool CMetricModel::fill(model_t::EFeature feature,
                         std::size_t pid,
                         core_t::TTime bucketTime,
                         bool interim,
@@ -536,15 +534,22 @@ void CMetricModel::fill(model_t::EFeature feature,
 
     std::size_t dimension{model_t::dimension(feature)};
     const TFeatureData* data{this->featureData(feature, pid, bucketTime)};
+    if (data == nullptr) {
+        LOG_TRACE(<< "data unexpectedly null");
+        return false;
+    }
     const TOptionalSample& bucket{data->s_BucketValue};
     const maths::CModel* model{this->model(feature, pid)};
+    if (model == nullptr) {
+        LOG_TRACE(<< "model unexpectedly null");
+        return false;
+    }
     core_t::TTime time{model_t::sampleTime(feature, bucketTime,
                                            this->bucketLength(), bucket->time())};
     maths_t::TDouble2VecWeightsAry weights(maths_t::CUnitWeights::unit<TDouble2Vec>(dimension));
     maths_t::setSeasonalVarianceScale(
         model->seasonalWeight(maths::DEFAULT_SEASONAL_CONFIDENCE_INTERVAL, time), weights);
     maths_t::setCountVarianceScale(TDouble2Vec(dimension, bucket->varianceScale()), weights);
-    TOptionalUInt64 count{this->currentBucketCount(pid, bucketTime)};
     bool skipAnomalyModelUpdate = this->shouldIgnoreSample(
         feature, pid, model_t::INDIVIDUAL_ANALYSIS_ATTRIBUTE_ID, time);
 
@@ -563,10 +568,11 @@ void CMetricModel::fill(model_t::EFeature feature,
     }
     params.s_Count = bucket->count();
     params.s_ComputeProbabilityParams
-        .addCalculation(model_t::probabilityCalculation(feature)) // new line
-        .addBucketEmpty({!count || *count == 0})
+        .addCalculation(model_t::probabilityCalculation(feature))
         .addWeights(weights)
         .skipAnomalyModelUpdate(skipAnomalyModelUpdate);
+
+    return true;
 }
 
 void CMetricModel::fill(model_t::EFeature feature,
@@ -675,12 +681,7 @@ void CMetricModel::fill(model_t::EFeature feature,
                 }
             }
         }
-        TOptionalUInt64 count[2];
-        count[0] = this->currentBucketCount(correlates[i][0], bucketTime);
-        count[1] = this->currentBucketCount(correlates[i][1], bucketTime);
-        params.s_ComputeProbabilityParams
-            .addBucketEmpty({!count[0] || *count[0] == 0, !count[1] || *count[1] == 0}) // new line
-            .addWeights(weight);
+        params.s_ComputeProbabilityParams.addWeights(weight);
     }
     if (interim && model_t::requiresInterimResultAdjustment(feature)) {
         core_t::TTime time{bucketTime + bucketLength / 2};

@@ -16,6 +16,7 @@
 #include <future>
 #include <thread>
 #include <type_traits>
+#include <vector>
 
 namespace ml {
 namespace core {

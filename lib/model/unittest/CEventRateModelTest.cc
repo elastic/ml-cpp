@@ -2130,7 +2130,8 @@ void CEventRateModelTest::testSkipSampling() {
 
     SModelParams params(bucketLength);
     params.s_InitialDecayRateMultiplier = 1.0;
-    model_t::TFeatureVec features{model_t::E_IndividualCountByBucketAndPerson};
+    model_t::EFeature feature{model_t::E_IndividualCountByBucketAndPerson};
+    model_t::TFeatureVec features{feature};
     CModelFactory::TDataGathererPtr gathererNoGap;
     CModelFactory::TModelPtr modelNoGap_;
     this->makeModel(params, features, startTime, 2, gathererNoGap, modelNoGap_);
@@ -2176,24 +2177,22 @@ void CEventRateModelTest::testSkipSampling() {
     modelWithGap->sample(1100, 1200, m_ResourceMonitor);
 
     // Check priors are the same
-    CPPUNIT_ASSERT_EQUAL(
-        static_cast<const maths::CUnivariateTimeSeriesModel*>(
-            modelWithGap->details()->model(model_t::E_IndividualCountByBucketAndPerson, 0))
-            ->residualModel()
-            .checksum(),
-        static_cast<const maths::CUnivariateTimeSeriesModel*>(
-            modelNoGap->details()->model(model_t::E_IndividualCountByBucketAndPerson, 0))
-            ->residualModel()
-            .checksum());
-    CPPUNIT_ASSERT_EQUAL(
-        static_cast<const maths::CUnivariateTimeSeriesModel*>(
-            modelWithGap->details()->model(model_t::E_IndividualCountByBucketAndPerson, 1))
-            ->residualModel()
-            .checksum(),
-        static_cast<const maths::CUnivariateTimeSeriesModel*>(
-            modelNoGap->details()->model(model_t::E_IndividualCountByBucketAndPerson, 1))
-            ->residualModel()
-            .checksum());
+    CPPUNIT_ASSERT_EQUAL(static_cast<const maths::CUnivariateTimeSeriesModel*>(
+                             modelWithGap->details()->model(feature, 0))
+                             ->residualModel()
+                             .checksum(),
+                         static_cast<const maths::CUnivariateTimeSeriesModel*>(
+                             modelNoGap->details()->model(feature, 0))
+                             ->residualModel()
+                             .checksum());
+    CPPUNIT_ASSERT_EQUAL(static_cast<const maths::CUnivariateTimeSeriesModel*>(
+                             modelWithGap->details()->model(feature, 1))
+                             ->residualModel()
+                             .checksum(),
+                         static_cast<const maths::CUnivariateTimeSeriesModel*>(
+                             modelNoGap->details()->model(feature, 1))
+                             ->residualModel()
+                             .checksum());
 
     // Confirm last seen times are only updated by gap duration by forcing p2 to be pruned
     modelWithGap->sample(1200, 1500, m_ResourceMonitor);
@@ -2213,7 +2212,8 @@ void CEventRateModelTest::testExplicitNulls() {
 
     SModelParams params(bucketLength);
     params.s_InitialDecayRateMultiplier = 1.0;
-    model_t::TFeatureVec features{model_t::E_IndividualCountByBucketAndPerson};
+    model_t::EFeature feature{model_t::E_IndividualNonZeroCountByBucketAndPerson};
+    model_t::TFeatureVec features{feature};
     CModelFactory::TDataGathererPtr gathererSkipGap;
     CModelFactory::TModelPtr modelSkipGap_;
     this->makeModel(params, features, startTime, 0, gathererSkipGap,
@@ -2286,24 +2286,22 @@ void CEventRateModelTest::testExplicitNulls() {
     modelExNullGap->sample(600, 700, m_ResourceMonitor);
 
     // Check priors are the same
-    CPPUNIT_ASSERT_EQUAL(
-        static_cast<const maths::CUnivariateTimeSeriesModel*>(
-            modelExNullGap->details()->model(model_t::E_IndividualCountByBucketAndPerson, 0))
-            ->residualModel()
-            .checksum(),
-        static_cast<const maths::CUnivariateTimeSeriesModel*>(
-            modelSkipGap->details()->model(model_t::E_IndividualCountByBucketAndPerson, 0))
-            ->residualModel()
-            .checksum());
-    CPPUNIT_ASSERT_EQUAL(
-        static_cast<const maths::CUnivariateTimeSeriesModel*>(
-            modelExNullGap->details()->model(model_t::E_IndividualCountByBucketAndPerson, 1))
-            ->residualModel()
-            .checksum(),
-        static_cast<const maths::CUnivariateTimeSeriesModel*>(
-            modelSkipGap->details()->model(model_t::E_IndividualCountByBucketAndPerson, 1))
-            ->residualModel()
-            .checksum());
+    CPPUNIT_ASSERT_EQUAL(static_cast<const maths::CUnivariateTimeSeriesModel*>(
+                             modelExNullGap->details()->model(feature, 0))
+                             ->residualModel()
+                             .checksum(),
+                         static_cast<const maths::CUnivariateTimeSeriesModel*>(
+                             modelSkipGap->details()->model(feature, 0))
+                             ->residualModel()
+                             .checksum());
+    CPPUNIT_ASSERT_EQUAL(static_cast<const maths::CUnivariateTimeSeriesModel*>(
+                             modelExNullGap->details()->model(feature, 1))
+                             ->residualModel()
+                             .checksum(),
+                         static_cast<const maths::CUnivariateTimeSeriesModel*>(
+                             modelSkipGap->details()->model(feature, 1))
+                             ->residualModel()
+                             .checksum());
 }
 
 void CEventRateModelTest::testInterimCorrections() {
@@ -2895,9 +2893,9 @@ void CEventRateModelTest::testIgnoreSamplingGivenDetectionRules() {
     CPPUNIT_ASSERT(modelWithSkip->checksum() != modelNoSkip->checksum());
 
     // but the underlying models should be the same
-    CAnomalyDetectorModel::CModelDetailsViewPtr modelWithSkipView =
+    CAnomalyDetectorModel::TModelDetailsViewUPtr modelWithSkipView =
         modelWithSkip->details();
-    CAnomalyDetectorModel::CModelDetailsViewPtr modelNoSkipView = modelNoSkip->details();
+    CAnomalyDetectorModel::TModelDetailsViewUPtr modelNoSkipView = modelNoSkip->details();
 
     uint64_t withSkipChecksum =
         static_cast<const maths::CUnivariateTimeSeriesModel*>(

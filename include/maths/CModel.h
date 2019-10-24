@@ -74,12 +74,6 @@ public:
     //! Get the maximum time to test for a change point in the model.
     core_t::TTime maximumTimeToTestForChange() const;
 
-    //! Set the probability that the bucket will be empty for the model.
-    void probabilityBucketEmpty(double probability);
-
-    //! Get the probability that the bucket will be empty for the model.
-    double probabilityBucketEmpty() const;
-
 private:
     //! The data bucketing length.
     core_t::TTime m_BucketLength;
@@ -93,8 +87,6 @@ private:
     core_t::TTime m_MinimumTimeToDetectChange;
     //! The maximum time permitted to test for a change in the model.
     core_t::TTime m_MaximumTimeToTestForChange;
-    //! The probability that a bucket will be empty for the model.
-    double m_ProbabilityBucketEmpty;
 };
 
 //! \brief The extra parameters needed by CModel::addSamples.
@@ -169,13 +161,6 @@ public:
     //! Get the confidence interval to use when detrending.
     double seasonalConfidenceInterval() const;
 
-    //! Add whether a value's bucket is empty.
-    CModelProbabilityParams& addBucketEmpty(const TBool2Vec& empty);
-    //! Set whether or not the values' bucket is empty.
-    CModelProbabilityParams& bucketEmpty(const TBool2Vec1Vec& empty);
-    //! Get whether the values' bucket is empty.
-    const TBool2Vec1Vec& bucketEmpty() const;
-
     //! Add a value's weights.
     CModelProbabilityParams& addWeights(const TDouble2VecWeightsAry& weights);
     //! Set the values' weights.
@@ -215,8 +200,6 @@ private:
     TProbabilityCalculation2Vec m_Calculations;
     //! The confidence interval to use when detrending.
     double m_SeasonalConfidenceInterval;
-    //! True if the bucket is empty and false otherwise.
-    TBool2Vec1Vec m_BucketEmpty;
     //! The sample weights.
     TDouble2VecWeightsAry1Vec m_Weights;
     //! The coordinates for which to compute the probability.
@@ -315,7 +298,7 @@ public:
     static EUpdateResult combine(EUpdateResult lhs, EUpdateResult rhs);
 
 public:
-    CModel(const CModelParams& params);
+    explicit CModel(const CModelParams& params);
     virtual ~CModel() = default;
 
     //! These don't need to be and shouldn't be copied.
@@ -438,7 +421,7 @@ public:
     virtual void acceptPersistInserter(core::CStatePersistInserter& inserter) const = 0;
 
     //! Persist the state of the residual models only.
-    virtual void persistResidualModelsState(core::CStatePersistInserter& inserter) const = 0;
+    virtual void persistModelsState(core::CStatePersistInserter& inserter) const = 0;
 
     //! Get the type of data being modeled.
     virtual maths_t::EDataType dataType() const = 0;
@@ -469,16 +452,6 @@ protected:
     static boost::optional<VECTOR>
     predictionError(double propagationInterval, const PRIOR& prior, const VECTOR& sample);
 
-    //! Correct \p probability with \p probabilityEmptyBucket.
-    static double jointProbabilityGivenBucket(bool bucketEmpty,
-                                              double probabilityBucketEmpty,
-                                              double probability);
-
-    //! Correct \p probability with \p probabilityEmptyBucket.
-    static double jointProbabilityGivenBucket(const TBool2Vec& bucketEmpty,
-                                              const TDouble2Vec& probabilityEmptyBucket,
-                                              double probability);
-
 private:
     //! The model parameters.
     CModelParams m_Params;
@@ -490,102 +463,103 @@ public:
     CModelStub();
 
     //! Returns 0.
-    virtual std::size_t identifier() const;
+    std::size_t identifier() const override;
 
     //! Create a copy of this model passing ownership to the caller.
-    virtual CModelStub* clone(std::size_t id) const;
+    CModelStub* clone(std::size_t id) const override;
 
     //! Create a copy of the state we need to persist passing ownership to the caller.
-    virtual CModelStub* cloneForPersistence() const;
+    CModelStub* cloneForPersistence() const override;
 
     //! Create a copy of the state we need to run forecasting.
-    virtual CModelStub* cloneForForecast() const;
+    CModelStub* cloneForForecast() const override;
 
     //! Return false;
-    virtual bool isForecastPossible() const;
+    bool isForecastPossible() const override;
 
     //! No-op.
-    virtual void modelCorrelations(CTimeSeriesCorrelations& model);
+    void modelCorrelations(CTimeSeriesCorrelations& model) override;
 
     //! Returns empty.
-    virtual TSize2Vec1Vec correlates() const;
+    TSize2Vec1Vec correlates() const override;
 
     //! No-op.
-    virtual void addBucketValue(const TTimeDouble2VecSizeTrVec& value);
+    void addBucketValue(const TTimeDouble2VecSizeTrVec& value) override;
 
     //! No-op.
-    virtual EUpdateResult addSamples(const CModelAddSamplesParams& params,
-                                     TTimeDouble2VecSizeTrVec samples);
+    EUpdateResult addSamples(const CModelAddSamplesParams& params,
+                             TTimeDouble2VecSizeTrVec samples) override;
 
     //! No-op.
-    virtual void skipTime(core_t::TTime gap);
+    void skipTime(core_t::TTime gap) override;
 
     //! Returns empty.
-    virtual TDouble2Vec mode(core_t::TTime time, const TDouble2VecWeightsAry& weights) const;
+    TDouble2Vec mode(core_t::TTime time, const TDouble2VecWeightsAry& weights) const override;
 
     //! Returns empty.
-    virtual TDouble2Vec1Vec
-    correlateModes(core_t::TTime time, const TDouble2VecWeightsAry1Vec& weights) const;
+    TDouble2Vec1Vec correlateModes(core_t::TTime time,
+                                   const TDouble2VecWeightsAry1Vec& weights) const override;
 
     //! Returns empty.
-    virtual TDouble2Vec1Vec residualModes(const TDouble2VecWeightsAry& weights) const;
+    TDouble2Vec1Vec residualModes(const TDouble2VecWeightsAry& weights) const override;
 
     //! No-op.
-    virtual void detrend(const TTime2Vec1Vec& time,
-                         double confidenceInterval,
-                         TDouble2Vec1Vec& value) const;
+    void detrend(const TTime2Vec1Vec& time,
+                 double confidenceInterval,
+                 TDouble2Vec1Vec& value) const override;
 
     //! Returns empty.
-    virtual TDouble2Vec predict(core_t::TTime time,
-                                const TSizeDoublePr1Vec& correlated,
-                                TDouble2Vec hint = TDouble2Vec()) const;
+    TDouble2Vec predict(core_t::TTime time,
+                        const TSizeDoublePr1Vec& correlated,
+                        TDouble2Vec hint = TDouble2Vec()) const override;
 
     //! Returns empty.
-    virtual TDouble2Vec3Vec confidenceInterval(core_t::TTime time,
-                                               double confidenceInterval,
-                                               const TDouble2VecWeightsAry& weights) const;
+    TDouble2Vec3Vec confidenceInterval(core_t::TTime time,
+                                       double confidenceInterval,
+                                       const TDouble2VecWeightsAry& weights) const override;
 
     //! Returns empty.
-    virtual bool forecast(core_t::TTime firstDataTime,
-                          core_t::TTime lastDataTime,
-                          core_t::TTime startTime,
-                          core_t::TTime endTime,
-                          double confidenceInterval,
-                          const TDouble2Vec& minimum,
-                          const TDouble2Vec& maximum,
-                          const TForecastPushDatapointFunc& forecastPushDataPointFunc,
-                          std::string& messageOut);
+    bool forecast(core_t::TTime firstDataTime,
+                  core_t::TTime lastDataTime,
+                  core_t::TTime startTime,
+                  core_t::TTime endTime,
+                  double confidenceInterval,
+                  const TDouble2Vec& minimum,
+                  const TDouble2Vec& maximum,
+                  const TForecastPushDatapointFunc& forecastPushDataPointFunc,
+                  std::string& messageOut) override;
 
     //! Returns true.
-    virtual bool probability(const CModelProbabilityParams& params,
-                             const TTime2Vec1Vec& time,
-                             const TDouble2Vec1Vec& value,
-                             SModelProbabilityResult& result) const;
+    bool probability(const CModelProbabilityParams& params,
+                     const TTime2Vec1Vec& time,
+                     const TDouble2Vec1Vec& value,
+                     SModelProbabilityResult& result) const override;
 
     //! Returns empty.
-    virtual TDouble2Vec
-    winsorisationWeight(double derate, core_t::TTime time, const TDouble2Vec& value) const;
+    TDouble2Vec winsorisationWeight(double derate,
+                                    core_t::TTime time,
+                                    const TDouble2Vec& value) const override;
 
     //! Returns empty.
-    virtual TDouble2Vec seasonalWeight(double confidence, core_t::TTime time) const;
+    TDouble2Vec seasonalWeight(double confidence, core_t::TTime time) const override;
 
     //! Returns the seed.
-    virtual std::uint64_t checksum(std::uint64_t seed = 0) const;
+    std::uint64_t checksum(std::uint64_t seed = 0) const override;
 
     //! Debug the memory used by this object.
-    virtual void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const;
+    void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const override;
 
     //! Get the memory used by this object.
-    virtual std::size_t memoryUsage() const;
+    std::size_t memoryUsage() const override;
 
     //! No-op.
-    virtual void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
+    void acceptPersistInserter(core::CStatePersistInserter& inserter) const override;
 
     //! Persist the state of the residual models only.
-    virtual void persistResidualModelsState(core::CStatePersistInserter& inserter) const;
+    void persistModelsState(core::CStatePersistInserter& inserter) const override;
 
     //! Returns mixed data type since we don't know.
-    virtual maths_t::EDataType dataType() const;
+    maths_t::EDataType dataType() const override;
 };
 }
 }

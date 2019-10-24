@@ -36,9 +36,9 @@ void clearAndShrink(std::vector<T>& vector) {
     empty.swap(vector);
 }
 
-const std::string ADAPTIVE_BUCKETING_TAG{"a"};
-const std::string FEATURE_TAG{"b"};
-const std::string VALUES_TAG{"c"};
+const core::TPersistenceTag ADAPTIVE_BUCKETING_TAG{"a", "adaptive_bucketing"};
+const core::TPersistenceTag FEATURE_TAG{"b", "feature"};
+const core::TPersistenceTag VALUES_TAG{"c", "values"};
 const std::string EMPTY_STRING;
 }
 

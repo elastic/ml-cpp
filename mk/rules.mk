@@ -36,7 +36,7 @@ OS_SRCS=$(PLATFORM_SRCS)
 endif
 
 OBJS:=$(OBJS) $(patsubst %.cc, $(OBJS_DIR)/%$(OBJECT_FILE_EXT), $(SRCS))
-ANALYZEOBJS:=$(ANALYZEOBJS) $(patsubst %.cc, $(OBJS_DIR)/%.plist, $(SRCS))
+ANALYZEOBJS:=$(ANALYZEOBJS) $(patsubst %.cc, $(OBJS_DIR)/%.xml, $(SRCS))
 
 # define MAKE_PREFIX_SRC_PATH to prefix source file names with their path
 # leave undefined for normal behaviour
@@ -47,7 +47,10 @@ $(OBJS_DIR)/%$(OBJECT_FILE_EXT): %.cc
 $(OBJS_DIR)/%$(OBJECT_FILE_EXT): %.c
 	$(CC) -c $(COMP_OUT_FLAG)$@ $(CFLAGS) $(PICFLAGS) $(PDB_FLAGS) $(CPPFLAGS) $(if $(MAKE_PREFIX_SRC_PATH), $(shell pwd)/)$<
 
-$(OBJS_DIR)/%.plist: %.cc
+$(OBJS_DIR)/%.plist: $(CPP_SRC_HOME)/gradle.properties $(CPP_SRC_HOME)/mk/make_info_plist.sh
+	$(CPP_SRC_HOME)/mk/make_info_plist.sh "$(ML_APP_NAME)" false > $@
+
+$(OBJS_DIR)/%.xml: %.cc
 	$(CXX) $(ANALYZE_OUT_FLAG)$@ $(ANALYZEFLAGS) $(filter-out -DNDEBUG, $(CPPFLAGS)) $(if $(MAKE_PREFIX_SRC_PATH), $(shell pwd)/)$<
 
 # JOB_NAME will be set for builds kicked off by Jenkins, where dependency
@@ -95,8 +98,10 @@ $(OBJS_DIR)/%.res: $(CPP_SRC_HOME)/mk/%.rc $(CPP_SRC_HOME)/gradle.properties $(C
 INCLUDE_PATH+=-I$(CPP_SRC_HOME)/include
 
 # We link to the logging library by default, but very occasionally exclude it
-ifndef NO_LOG4CXX
-LOCALLIBS+=$(LOG4CXXLIBS)
+ifndef NO_BOOST_LOG_LIBS
+USE_BOOST=1
+LDFLAGS+=$(BOOSTLOGLDFLAGS)
+LOCALLIBS+=$(BOOSTLOGLIBS)
 endif
 
 ifdef USE_XML
@@ -109,6 +114,12 @@ endif
 ifdef USE_BOOST
 INCLUDE_PATH+=$(BOOSTINCLUDES)
 CPPFLAGS+=$(BOOSTCPPFLAGS)
+endif
+
+# if this uses BOOST add the paths
+ifdef USE_BOOST_LOGSETUP_LIBS
+LDFLAGS+=$(BOOSTLOGSETUPLDFLAGS)
+LOCALLIBS+=$(BOOSTLOGSETUPLIBS)
 endif
 
 # if this uses BOOST add the paths

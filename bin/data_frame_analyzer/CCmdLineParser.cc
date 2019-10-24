@@ -27,7 +27,11 @@ bool CCmdLineParser::parse(int argc,
                            std::string& inputFileName,
                            bool& isInputFileNamedPipe,
                            std::string& outputFileName,
-                           bool& isOutputFileNamedPipe) {
+                           bool& isOutputFileNamedPipe,
+                           std::string& restoreFileName,
+                           bool& isRestoreFileNamedPipe,
+                           std::string& persistFileName,
+                           bool& isPersistFileNamedPipe) {
     try {
         boost::program_options::options_description desc(DESCRIPTION);
         // clang-format off
@@ -49,6 +53,12 @@ bool CCmdLineParser::parse(int argc,
             ("output", boost::program_options::value<std::string>(),
                     "Optional file to write output to - not present means write to STDOUT")
             ("outputIsPipe", "Specified output file is a named pipe")
+            ("restore", boost::program_options::value<std::string>(),
+                    "Optional file to restore state from - not present means no state restoration")
+            ("restoreIsPipe", "Specified restore file is a named pipe")
+            ("persist", boost::program_options::value<std::string>(),
+                   "File to persist state to - not present means no state persistence")
+            ("persistIsPipe", "Specified persist file is a named pipe")
         ;
         // clang-format on
 
@@ -91,6 +101,18 @@ bool CCmdLineParser::parse(int argc,
         }
         if (vm.count("outputIsPipe") > 0) {
             isOutputFileNamedPipe = true;
+        }
+        if (vm.count("restore") > 0) {
+            restoreFileName = vm["restore"].as<std::string>();
+        }
+        if (vm.count("restoreIsPipe") > 0) {
+            isRestoreFileNamedPipe = true;
+        }
+        if (vm.count("persist") > 0) {
+            persistFileName = vm["persist"].as<std::string>();
+        }
+        if (vm.count("persistIsPipe") > 0) {
+            isPersistFileNamedPipe = true;
         }
     } catch (std::exception& e) {
         std::cerr << "Error processing command line: " << e.what() << std::endl;

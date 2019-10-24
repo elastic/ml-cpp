@@ -1,0 +1,87 @@
+/*
+ * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
+ * or more contributor license agreements. Licensed under the Elastic License;
+ * you may not use this file except in compliance with the Elastic License.
+ */
+
+#ifndef INCLUDED_ml_api_CDataFrameTrainBoostedTreeRunner_h
+#define INCLUDED_ml_api_CDataFrameTrainBoostedTreeRunner_h
+
+#include <api/CDataFrameAnalysisRunner.h>
+#include <api/CDataFrameAnalysisSpecification.h>
+#include <api/ImportExport.h>
+
+#include <rapidjson/fwd.h>
+
+#include <memory>
+
+namespace ml {
+namespace maths {
+namespace boosted_tree {
+class CLoss;
+}
+class CBoostedTree;
+class CBoostedTreeFactory;
+}
+namespace api {
+class CDataFrameAnalysisConfigReader;
+class CDataFrameAnalysisParameters;
+
+//! \brief Runs boosted tree regression on a core::CDataFrame.
+class API_EXPORT CDataFrameTrainBoostedTreeRunner : public CDataFrameAnalysisRunner {
+public:
+    ~CDataFrameTrainBoostedTreeRunner() override;
+
+    //! \return The number of columns this adds to the data frame.
+    std::size_t numberExtraColumns() const override;
+
+protected:
+    using TBoostedTreeUPtr = std::unique_ptr<maths::CBoostedTree>;
+    using TLossFunctionUPtr = std::unique_ptr<maths::boosted_tree::CLoss>;
+
+protected:
+    CDataFrameTrainBoostedTreeRunner(const CDataFrameAnalysisSpecification& spec,
+                                     const CDataFrameAnalysisParameters& parameters);
+    CDataFrameTrainBoostedTreeRunner(const CDataFrameAnalysisSpecification& spec);
+
+    //! Parameter reader handling parameters that are shared by subclasses.
+    static const CDataFrameAnalysisConfigReader& getParameterReader();
+    //! Name of dependent variable field.
+    const std::string& dependentVariableFieldName() const;
+    //! Name of prediction field.
+    const std::string& predictionFieldName() const;
+    //! The boosted tree.
+    const maths::CBoostedTree& boostedTree() const;
+
+    //! The boosted tree factory.
+    maths::CBoostedTreeFactory& boostedTreeFactory();
+
+private:
+    using TBoostedTreeFactoryUPtr = std::unique_ptr<maths::CBoostedTreeFactory>;
+    using TDataSearcherUPtr = CDataFrameAnalysisSpecification::TDataSearcherUPtr;
+
+private:
+    void runImpl(core::CDataFrame& frame) override;
+    bool restoreBoostedTree(core::CDataFrame& frame,
+                            std::size_t dependentVariableColumn,
+                            TDataSearcherUPtr& restoreSearcher);
+    std::size_t estimateBookkeepingMemoryUsage(std::size_t numberPartitions,
+                                               std::size_t totalNumberRows,
+                                               std::size_t partitionNumberRows,
+                                               std::size_t numberColumns) const override;
+
+    virtual TLossFunctionUPtr chooseLossFunction(const core::CDataFrame& frame,
+                                                 std::size_t dependentVariableColumn) const = 0;
+
+private:
+    // Note custom config is written directly to the factory object.
+
+    std::string m_DependentVariableFieldName;
+    std::string m_PredictionFieldName;
+    TBoostedTreeFactoryUPtr m_BoostedTreeFactory;
+    TBoostedTreeUPtr m_BoostedTree;
+};
+}
+}
+
+#endif // INCLUDED_ml_api_CDataFrameTrainBoostedTreeRunner_h

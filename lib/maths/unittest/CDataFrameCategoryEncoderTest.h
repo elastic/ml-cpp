@@ -16,8 +16,10 @@ public:
     void testRareCategories();
     void testCorrelatedFeatures();
     void testWithRowMask();
+    void testEncodingOfCategoricalTarget();
     void testEncodedDataFrameRowRef();
     void testUnseenCategoryEncoding();
+    void testDiscardNuisanceFeatures();
     void testPersistRestore();
 
     static CppUnit::Test* suite();

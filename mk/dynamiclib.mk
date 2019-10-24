@@ -64,6 +64,6 @@ build: $(TARGET)
 	$(MAKE) -f $(filter-out %.mk %.d,$(MAKEFILE_LIST)) install
 
 clean:
-	$(RM) $(OBJS_DIR)/*$(OBJECT_FILE_EXT) $(OBJS_DIR)/*.d* $(OBJS_DIR)/*.plist $(OBJS_DIR)/*.res $(APP_CLEAN) core core.* $(TARGET) $(IMPORT_LIB_NAME) $(basename $(TARGET)).pdb $(basename $(TARGET)).map $(basename $(TARGET)).exp
+	$(RM) $(OBJS_DIR)/*$(OBJECT_FILE_EXT) $(OBJS_DIR)/*.d* $(OBJS_DIR)/*.plist $(OBJS_DIR)/*.xml $(OBJS_DIR)/*.res $(APP_CLEAN) core core.* $(TARGET) $(IMPORT_LIB_NAME) $(basename $(TARGET)).pdb $(basename $(TARGET)).map $(basename $(TARGET)).exp
 	+$(CLEAN_CMDS)
 	$(RMDIR) results

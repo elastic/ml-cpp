@@ -15,10 +15,10 @@ COMPONENTS= \
             ver \
             maths \
             model \
-            test \
             api \
             config \
             seccomp \
+            test \
 
 
 

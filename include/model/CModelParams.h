@@ -83,9 +83,6 @@ struct MODEL_EXPORT SModelParams {
     //! The minimum permitted count of points in a distribution mode.
     double s_MinimumModeCount;
 
-    //! The minimum frequency of non-empty buckets at which we model all buckets.
-    double s_CutoffToModelEmptyBuckets;
-
     //! The number of points to use for approximating each seasonal component.
     std::size_t s_ComponentSize;
 

@@ -68,12 +68,12 @@ TDoubleDoublePr confidenceInterval(double confidence, double variance) {
 
 // Version 6.3
 const std::string VERSION_6_3_TAG("6.3");
-const std::string LAST_VALUE_TIME_6_3_TAG{"a"};
-const std::string LAST_PROPAGATION_TIME_6_3_TAG{"b"};
-const std::string PERIODICITY_TEST_6_3_TAG{"c"};
-const std::string CALENDAR_CYCLIC_TEST_6_3_TAG{"d"};
-const std::string COMPONENTS_6_3_TAG{"e"};
-const std::string TIME_SHIFT_6_3_TAG{"f"};
+const core::TPersistenceTag LAST_VALUE_TIME_6_3_TAG{"a", "last_value_time"};
+const core::TPersistenceTag LAST_PROPAGATION_TIME_6_3_TAG{"b", "last_propagation_time"};
+const core::TPersistenceTag PERIODICITY_TEST_6_3_TAG{"c", "periodicity_test"};
+const core::TPersistenceTag CALENDAR_CYCLIC_TEST_6_3_TAG{"d", "calendar_cyclic_test"};
+const core::TPersistenceTag COMPONENTS_6_3_TAG{"e", "components"};
+const core::TPersistenceTag TIME_SHIFT_6_3_TAG{"f", "time_shift"};
 // Version < 6.3
 const std::string DECAY_RATE_OLD_TAG{"a"};
 const std::string LAST_VALUE_TIME_OLD_TAG{"b"};
@@ -223,7 +223,7 @@ void CTimeSeriesDecomposition::addPoint(core_t::TTime time,
                                         const TComponentChangeCallback& componentChangeCallback) {
 
     if (CMathsFuncs::isFinite(value) == false) {
-        LOG_ERROR("Discarding invalid value.");
+        LOG_ERROR(<< "Discarding invalid value.");
         return;
     }
 

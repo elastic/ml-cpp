@@ -464,6 +464,10 @@ void CMetricPopulationModel::sample(core_t::TTime startTime,
                     .priorWeights(attribute.second.s_PriorWeights);
 
                 maths::CModel* model{this->model(feature, cid)};
+                if (model == nullptr) {
+                    LOG_TRACE(<< "Model unexpectedly null");
+                    return;
+                }
                 if (model->addSamples(params, attribute.second.s_Values) ==
                     maths::CModel::E_Reset) {
                     gatherer.resetSampleCount(cid);
@@ -587,7 +591,10 @@ bool CMetricPopulationModel::computeProbability(std::size_t pid,
                 // TODO
             } else {
                 CProbabilityAndInfluenceCalculator::SParams params(partitioningFields);
-                this->fill(feature, pid, cid, startTime, result.isInterim(), params);
+                if (this->fill(feature, pid, cid, startTime, result.isInterim(),
+                               params) == false) {
+                    continue;
+                }
                 model_t::CResultType type;
                 TSize1Vec mostAnomalousCorrelate;
                 if (pJoint.addProbability(feature, cid, *params.s_Model, params.s_ElapsedTime,
@@ -754,8 +761,8 @@ std::size_t CMetricPopulationModel::staticSize() const {
     return sizeof(*this);
 }
 
-CMetricPopulationModel::CModelDetailsViewPtr CMetricPopulationModel::details() const {
-    return CModelDetailsViewPtr(new CMetricPopulationModelDetailsView(*this));
+CMetricPopulationModel::TModelDetailsViewUPtr CMetricPopulationModel::details() const {
+    return TModelDetailsViewUPtr(new CMetricPopulationModelDetailsView(*this));
 }
 
 const TSizeSizePrFeatureDataPrVec&
@@ -894,6 +901,10 @@ bool CMetricPopulationModel::correlates(model_t::EFeature feature,
     }
 
     const maths::CModel* model{this->model(feature, cid)};
+    if (model == nullptr) {
+        LOG_TRACE(<< "Model unexpectedly null");
+        return false;
+    }
     const TSizeSizePrFeatureDataPrVec& data = this->featureData(feature, time);
     TSizeSizePr range = personRange(data, pid);
 
@@ -909,7 +920,7 @@ bool CMetricPopulationModel::correlates(model_t::EFeature feature,
     return false;
 }
 
-void CMetricPopulationModel::fill(model_t::EFeature feature,
+bool CMetricPopulationModel::fill(model_t::EFeature feature,
                                   std::size_t pid,
                                   std::size_t cid,
                                   core_t::TTime bucketTime,
@@ -919,6 +930,10 @@ void CMetricPopulationModel::fill(model_t::EFeature feature,
     std::size_t dimension{model_t::dimension(feature)};
     auto data = find(this->featureData(feature, bucketTime), pid, cid);
     const maths::CModel* model{this->model(feature, cid)};
+    if (model == nullptr) {
+        LOG_TRACE(<< "Model unexpectedly null");
+        return false;
+    }
     const TOptionalSample& bucket{CDataGatherer::extractData(*data).s_BucketValue};
     core_t::TTime time{model_t::sampleTime(feature, bucketTime,
                                            this->bucketLength(), bucket->time())};
@@ -944,9 +959,10 @@ void CMetricPopulationModel::fill(model_t::EFeature feature,
     params.s_Count = bucket->count();
     params.s_ComputeProbabilityParams
         .addCalculation(model_t::probabilityCalculation(feature))
-        .addBucketEmpty({false})
         .addWeights(weights)
         .skipAnomalyModelUpdate(skipAnomalyModelUpdate);
+
+    return true;
 }
 
 ////////// CMetricPopulationModel::SBucketStats Implementation //////////

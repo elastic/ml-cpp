@@ -23,6 +23,7 @@
 using namespace ml;
 
 namespace {
+using TBoolVec = std::vector<bool>;
 using TDoubleVec = std::vector<double>;
 using TDoubleVecVec = std::vector<TDoubleVec>;
 using TSizeVec = std::vector<std::size_t>;
@@ -31,10 +32,6 @@ using TFloatVec = std::vector<maths::CFloatStorage>;
 using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
 using TMeanAccumulatorVec = std::vector<TMeanAccumulator>;
 using TMeanAccumulatorVecVec = std::vector<TMeanAccumulatorVec>;
-
-core::CPackedBitVector maskAll(std::size_t rows) {
-    return {rows, true};
-}
 }
 
 void CDataFrameCategoryEncoderTest::testOneHotEncoding() {
@@ -66,7 +63,7 @@ void CDataFrameCategoryEncoderTest::testOneHotEncoding() {
 
         auto frame = core::makeMainStorageDataFrame(cols, 2 * rows).first;
 
-        frame->categoricalColumns({true, false, false, false});
+        frame->categoricalColumns(TBoolVec{true, false, false, false});
         for (std::size_t i = 0; i < rows; ++i) {
             frame->writeRow([&](core::CDataFrame::TFloatVecItr column, std::int32_t&) {
                 *(column++) = std::floor(features[0][i]);
@@ -78,28 +75,21 @@ void CDataFrameCategoryEncoderTest::testOneHotEncoding() {
         }
         frame->finishWritingRows();
 
-        maths::CDataFrameCategoryEncoder encoder{
-            threads, *frame, maskAll(rows), {0, 1, 2}, 3, 50};
+        maths::CDataFrameCategoryEncoder encoder{{threads, *frame, 3}};
 
-        for (std::size_t i = 0; i < cols; ++i) {
-            CPPUNIT_ASSERT_EQUAL(bool{frame->columnIsCategorical()[i]},
-                                 encoder.columnIsCategorical(i));
-        }
-
-        TSizeVec expectedColumns{0, 0, 0, 0, 1, 2, 3};
-        TSizeVec expectedEncoding{0, 1, 2, 3, 0, 0, 0};
-        CPPUNIT_ASSERT_EQUAL(expectedColumns.size(), encoder.numberFeatures());
-        for (std::size_t i = 0; i < expectedColumns.size(); ++i) {
-            CPPUNIT_ASSERT_EQUAL(expectedColumns[i], encoder.column(i));
-            CPPUNIT_ASSERT_EQUAL(expectedEncoding[i], encoder.encoding(i));
-        }
-
-        TSizeVecVec expectedOneHotEncodedCategories{{0, 1}, {}, {}, {}};
-        for (std::size_t i = 0; i < cols; ++i) {
-            if (encoder.columnIsCategorical(i)) {
-                for (auto j : expectedOneHotEncodedCategories[i]) {
-                    CPPUNIT_ASSERT_EQUAL(true, encoder.isHot(j, i, j));
-                }
+        for (std::size_t i = 0; i < encoder.numberEncodedColumns(); ++i) {
+            switch (i) {
+            case 0:
+                CPPUNIT_ASSERT(maths::E_OneHot == encoder.encoding(i).type());
+                CPPUNIT_ASSERT_EQUAL(1.0, encoder.encoding(i).encode(0.0));
+                break;
+            case 1:
+                CPPUNIT_ASSERT(maths::E_OneHot == encoder.encoding(i).type());
+                CPPUNIT_ASSERT_EQUAL(1.0, encoder.encoding(i).encode(1.0));
+                break;
+            default:
+                CPPUNIT_ASSERT(maths::E_OneHot != encoder.encoding(i).type());
+                break;
             }
         }
 
@@ -139,7 +129,7 @@ void CDataFrameCategoryEncoderTest::testMeanValueEncoding() {
 
         TMeanAccumulatorVec expectedTargetMeanValues(static_cast<std::size_t>(numberCategories));
 
-        frame->categoricalColumns({true, false, false, false});
+        frame->categoricalColumns(TBoolVec{true, false, false, false});
         for (std::size_t i = 0; i < rows; ++i) {
             frame->writeRow([&](core::CDataFrame::TFloatVecItr column, std::int32_t&) {
                 *(column++) = std::floor(features[0][i]);
@@ -153,32 +143,39 @@ void CDataFrameCategoryEncoderTest::testMeanValueEncoding() {
         }
         frame->finishWritingRows();
 
-        maths::CDataFrameCategoryEncoder encoder{
-            threads, *frame, maskAll(rows), {0, 1, 2}, 3, 50};
+        maths::CMakeDataFrameCategoryEncoder factory{threads, *frame, 3};
+        maths::CDataFrameCategoryEncoder encoder{factory};
+        factory.makeEncodings();
 
         TMeanAccumulator oneHotTargetMean;
         TMeanAccumulator rareTargetMean;
         for (std::size_t i = 0; i < expectedTargetMeanValues.size(); ++i) {
-            if (encoder.usesOneHotEncoding(0, i)) {
+            if (factory.usesOneHotEncoding(0, i)) {
                 oneHotTargetMean += expectedTargetMeanValues[i];
-            } else if (encoder.isRareCategory(0, i)) {
+            } else if (factory.isRareCategory(0, i)) {
                 rareTargetMean += expectedTargetMeanValues[i];
             }
         }
         for (std::size_t i = 0; i < expectedTargetMeanValues.size(); ++i) {
-            if (encoder.usesOneHotEncoding(0, i)) {
+            if (factory.usesOneHotEncoding(0, i)) {
                 expectedTargetMeanValues[i] = oneHotTargetMean;
-            } else if (encoder.isRareCategory(0, i)) {
+            } else if (factory.isRareCategory(0, i)) {
                 expectedTargetMeanValues[i] = rareTargetMean;
             }
         }
 
-        for (std::size_t i = 0; i < expectedTargetMeanValues.size(); ++i) {
-            CPPUNIT_ASSERT_DOUBLES_EQUAL(
-                maths::CBasicStatistics::mean(expectedTargetMeanValues[i]),
-                encoder.targetMeanValue(0, i),
-                static_cast<double>(std::numeric_limits<float>::epsilon()) *
-                    std::fabs(maths::CBasicStatistics::mean(expectedTargetMeanValues[i])));
+        for (std::size_t i = 0; i < encoder.numberEncodedColumns(); ++i) {
+            if (encoder.encoding(i).type() == maths::E_TargetMean) {
+                for (std::size_t j = 0; j < expectedTargetMeanValues.size(); ++j) {
+                    CPPUNIT_ASSERT_DOUBLES_EQUAL(
+                        maths::CBasicStatistics::mean(expectedTargetMeanValues[j]),
+                        encoder.encoding(i).encode(static_cast<double>(j)),
+                        static_cast<double>(std::numeric_limits<float>::epsilon()) *
+                            std::fabs(maths::CBasicStatistics::mean(
+                                expectedTargetMeanValues[i])));
+                }
+                break;
+            }
         }
 
         core::startDefaultAsyncExecutor();
@@ -210,7 +207,7 @@ void CDataFrameCategoryEncoderTest::testRareCategories() {
 
     TSizeVec categoryCounts(static_cast<std::size_t>(numberCategories), 0);
 
-    frame->categoricalColumns({false, false, true, false});
+    frame->categoricalColumns(TBoolVec{false, false, true, false});
     for (std::size_t i = 0; i < rows; ++i) {
         frame->writeRow([&](core::CDataFrame::TFloatVecItr column, std::int32_t&) {
             for (std::size_t j = 0; j + 2 < cols; ++j, ++column) {
@@ -223,12 +220,12 @@ void CDataFrameCategoryEncoderTest::testRareCategories() {
     }
     frame->finishWritingRows();
 
-    maths::CDataFrameCategoryEncoder encoder{
-        1, *frame, maskAll(rows), {0, 1, 2}, 3, 50, 0.1};
+    auto factory = maths::CMakeDataFrameCategoryEncoder{1, *frame, 3}.minimumFrequencyToOneHotEncode(
+        0.1);
+    factory.makeEncodings();
 
-    CPPUNIT_ASSERT(encoder.usesFrequencyEncoding(2));
     for (std::size_t i = 0; i < categoryCounts.size(); ++i) {
-        CPPUNIT_ASSERT_EQUAL(categoryCounts[i] < 50, encoder.isRareCategory(2, i));
+        CPPUNIT_ASSERT_EQUAL(categoryCounts[i] < 50, factory.isRareCategory(2, i));
     }
 }
 
@@ -267,7 +264,7 @@ void CDataFrameCategoryEncoderTest::testCorrelatedFeatures() {
 
         auto frame = core::makeMainStorageDataFrame(cols, 2 * rows).first;
 
-        frame->categoricalColumns({false, false, false, false, false, false, false});
+        frame->categoricalColumns(TBoolVec{false, false, false, false, false, false, false});
         for (std::size_t i = 0; i < rows; ++i) {
             frame->writeRow([&](core::CDataFrame::TFloatVecItr column, std::int32_t&) {
                 for (std::size_t j = 0; j + 1 < cols; ++j, ++column) {
@@ -278,17 +275,16 @@ void CDataFrameCategoryEncoderTest::testCorrelatedFeatures() {
         }
         frame->finishWritingRows();
 
-        maths::CDataFrameCategoryEncoder encoder{
-            1, *frame, maskAll(rows), {0, 1, 2, 3, 4, 5}, 6, 50};
+        maths::CDataFrameCategoryEncoder encoder{{1, *frame, 6}};
 
         // Dispite both carrying a lot of information about the target nearly
         // the same information is carried by columns 0 and 1 so we should
         // choose feature 0 or 1 and feature 5.
 
         TSizeVec expectedColumns{1, 5, 6};
-        CPPUNIT_ASSERT_EQUAL(expectedColumns.size(), encoder.numberFeatures());
-        for (std::size_t i = 0; i < encoder.numberFeatures(); ++i) {
-            CPPUNIT_ASSERT_EQUAL(expectedColumns[i], encoder.column(i));
+        CPPUNIT_ASSERT_EQUAL(expectedColumns.size(), encoder.numberEncodedColumns());
+        for (std::size_t i = 0; i < encoder.numberEncodedColumns(); ++i) {
+            CPPUNIT_ASSERT_EQUAL(expectedColumns[i], encoder.encoding(i).inputColumnIndex());
         }
     }
 
@@ -313,7 +309,7 @@ void CDataFrameCategoryEncoderTest::testCorrelatedFeatures() {
 
         auto frame = core::makeMainStorageDataFrame(cols, 2 * rows).first;
 
-        frame->categoricalColumns({true, true, true, true, false});
+        frame->categoricalColumns(TBoolVec{true, true, true, true, false});
         for (std::size_t i = 0; i < rows; ++i) {
             frame->writeRow([&](core::CDataFrame::TFloatVecItr column, std::int32_t&) {
                 for (std::size_t j = 0; j + 1 < cols; ++j, ++column) {
@@ -324,17 +320,16 @@ void CDataFrameCategoryEncoderTest::testCorrelatedFeatures() {
         }
         frame->finishWritingRows();
 
-        maths::CDataFrameCategoryEncoder encoder{
-            1, *frame, maskAll(rows), {0, 1, 2, 3}, 4, 50};
+        maths::CDataFrameCategoryEncoder encoder{{1, *frame, 4}};
 
         // Dispite both carrying a lot of information about the target nearly
         // the same information is carried by columns 0 and 1 so we should
         // choose feature 0 or 1 and features 2 and 3.
 
         TSizeVec expectedColumns{0, 0, 2, 3, 4};
-        CPPUNIT_ASSERT_EQUAL(expectedColumns.size(), encoder.numberFeatures());
-        for (std::size_t i = 0; i < encoder.numberFeatures(); ++i) {
-            CPPUNIT_ASSERT_EQUAL(expectedColumns[i], encoder.column(i));
+        CPPUNIT_ASSERT_EQUAL(expectedColumns.size(), encoder.numberEncodedColumns());
+        for (std::size_t i = 0; i < encoder.numberEncodedColumns(); ++i) {
+            CPPUNIT_ASSERT_EQUAL(expectedColumns[i], encoder.encoding(i).inputColumnIndex());
         }
     }
 }
@@ -384,11 +379,49 @@ void CDataFrameCategoryEncoderTest::testWithRowMask() {
     frame->finishWritingRows();
     maskedFrame->finishWritingRows();
 
-    maths::CDataFrameCategoryEncoder encoder(1, *frame, rowMask, {0, 1, 2}, 3, 50);
-    maths::CDataFrameCategoryEncoder maskedEncoder{
-        1, *maskedFrame, maskAll(rows), {0, 1, 2}, 3, 50};
+    maths::CDataFrameCategoryEncoder encoder{
+        maths::CMakeDataFrameCategoryEncoder{1, *frame, 3}.rowMask(rowMask)};
+    maths::CDataFrameCategoryEncoder maskedEncoder{{1, *maskedFrame, 3}};
 
     CPPUNIT_ASSERT_EQUAL(encoder.checksum(), maskedEncoder.checksum());
+}
+
+void CDataFrameCategoryEncoderTest::testEncodingOfCategoricalTarget() {
+
+    // Test the target uses identity encoding.
+
+    test::CRandomNumbers rng;
+
+    auto target = [&](const TDoubleVecVec& features, std::size_t row) {
+        return std::floor(features[0][row] + features[1][row] + features[2][row]);
+    };
+
+    std::size_t rows{500};
+    std::size_t cols{4};
+
+    TDoubleVecVec features(cols - 1);
+    rng.generateUniformSamples(0.0, 2.0, rows, features[0]);
+    rng.generateUniformSamples(0.0, 2.0, rows, features[1]);
+    rng.generateUniformSamples(0.0, 2.0, rows, features[2]);
+
+    auto frame = core::makeMainStorageDataFrame(cols).first;
+    frame->categoricalColumns(TBoolVec{false, false, false, true});
+    for (std::size_t i = 0; i < rows; ++i) {
+        auto writeOneRow = [&](core::CDataFrame::TFloatVecItr column, std::int32_t&) {
+            for (std::size_t j = 0; j + 1 < cols; ++j, ++column) {
+                *column = features[j][i];
+            }
+            *column = target(features, i);
+        };
+        frame->writeRow(writeOneRow);
+    }
+    frame->finishWritingRows();
+
+    maths::CDataFrameCategoryEncoder encoder{{1, *frame, 3}};
+
+    for (std::size_t i = 0; i < encoder.numberEncodedColumns(); ++i) {
+        CPPUNIT_ASSERT_EQUAL(maths::E_IdentityEncoding, encoder.encoding(i).type());
+    }
 }
 
 void CDataFrameCategoryEncoderTest::testEncodedDataFrameRowRef() {
@@ -443,7 +476,7 @@ void CDataFrameCategoryEncoderTest::testEncodedDataFrameRowRef() {
         return TSizeVec{category};
     };
 
-    frame->categoricalColumns({true, false, false, true, false});
+    frame->categoricalColumns(TBoolVec{true, false, false, true, false});
     for (std::size_t i = 0; i < rows; ++i) {
         frame->writeRow([&](core::CDataFrame::TFloatVecItr column, std::int32_t&) {
             *(column++) = std::floor(features[0][i]);
@@ -476,9 +509,10 @@ void CDataFrameCategoryEncoderTest::testEncodedDataFrameRowRef() {
         }
     }
 
-    maths::CDataFrameCategoryEncoder encoder{
-        1, *frame, maskAll(rows), {0, 1, 2, 3}, 4, 50};
-    LOG_DEBUG(<< "# features = " << encoder.numberFeatures());
+    maths::CMakeDataFrameCategoryEncoder factory{1, *frame, 4};
+    maths::CDataFrameCategoryEncoder encoder{factory};
+    factory.makeEncodings();
+    LOG_DEBUG(<< "# features = " << encoder.numberEncodedColumns());
 
     auto expectedEncoded = [&](const core::CDataFrame::TRowRef& row, std::size_t i) {
 
@@ -488,7 +522,7 @@ void CDataFrameCategoryEncoderTest::testEncodedDataFrameRowRef() {
         }
 
         if (i < expectedOneHot[0].size()) {
-            return categories[0] == expectedOneHot[0][encoder.encoding(i)] ? 1.0 : 0.0; // one-hot
+            return categories[0] == expectedOneHot[0][factory.encoding(i)] ? 1.0 : 0.0; // one-hot
         }
         if (i < expectedOneHot[0].size() + 1) {
             return expectedFrequencies[0][categories[0]]; // frequency
@@ -498,16 +532,16 @@ void CDataFrameCategoryEncoderTest::testEncodedDataFrameRowRef() {
                 expectedTargetMeanValues[0][categories[0]]); // target mean
         }
         if (i < expectedOneHot[0].size() + 4) {
-            return static_cast<double>(row[encoder.column(i)]); // metrics
+            return static_cast<double>(row[encoder.encoding(i).inputColumnIndex()]); // metrics
         }
         if (i < expectedOneHot[0].size() + 4 + expectedOneHot[3].size()) {
-            return categories[3] == expectedOneHot[3][encoder.encoding(i)] ? 1.0 : 0.0; // one-hot
+            return categories[3] == expectedOneHot[3][factory.encoding(i)] ? 1.0 : 0.0; // one-hot
         }
         if (i < expectedOneHot[0].size() + 4 + expectedOneHot[3].size() + 1) {
             return maths::CBasicStatistics::mean(
                 expectedTargetMeanValues[3][categories[3]]); // target mean
         }
-        return static_cast<double>(row[encoder.column(i)]); // target
+        return static_cast<double>(row[encoder.encoding(i).inputColumnIndex()]); // target
     };
 
     bool passed{true};
@@ -552,7 +586,7 @@ void CDataFrameCategoryEncoderTest::testUnseenCategoryEncoding() {
     rng.generateUniformSamples(0.0, 3.0, rows, features[2]);
 
     auto frame = core::makeMainStorageDataFrame(cols).first;
-    frame->categoricalColumns({true, true, true, false});
+    frame->categoricalColumns(TBoolVec{true, true, true, false});
     for (std::size_t i = 0; i < rows; ++i) {
         auto writeOneRow = [&](core::CDataFrame::TFloatVecItr column, std::int32_t&) {
             for (std::size_t j = 0; j + 1 < cols; ++j, ++column) {
@@ -565,7 +599,7 @@ void CDataFrameCategoryEncoderTest::testUnseenCategoryEncoding() {
     }
     frame->finishWritingRows();
 
-    maths::CDataFrameCategoryEncoder encoder(1, *frame, maskAll(rows), {0, 1, 2}, 3, 50);
+    maths::CDataFrameCategoryEncoder encoder{{1, *frame, 3}};
 
     TFloatVec unseen{3.0, 5.0, 4.0, 1.5};
     core::CDataFrame::TRowRef row{rows, unseen.begin(), unseen.end(), 0};
@@ -586,6 +620,51 @@ void CDataFrameCategoryEncoderTest::testUnseenCategoryEncoding() {
     CPPUNIT_ASSERT_EQUAL(maths::CFloatStorage{1.5},
                          encodedRow[encodedRow.numberColumns() - 1]);
     LOG_DEBUG(<< "encoded = [" << rep.str() << "]");
+}
+
+void CDataFrameCategoryEncoderTest::testDiscardNuisanceFeatures() {
+
+    // Test we discard features altogether which don't carry any information.
+
+    test::CRandomNumbers rng;
+
+    std::size_t rows{10000};
+    std::size_t cols{7};
+
+    TDoubleVecVec features(cols - 1);
+    rng.generateUniformSamples(0.0, 6.0, rows, features[0]);
+    rng.generateUniformSamples(0.0, 5.0, rows, features[1]);
+    rng.generateUniformSamples(0.0, 7.0, rows, features[2]);
+    rng.generateUniformSamples(0.0, 5.0, rows, features[3]);
+    rng.generateUniformSamples(0.0, 6.0, rows, features[4]);
+    rng.generateUniformSamples(0.0, 5.0, rows, features[5]);
+
+    auto frame = core::makeMainStorageDataFrame(cols).first;
+    frame->categoricalColumns(TBoolVec{false, false, false, false, false, false, false});
+    for (std::size_t i = 0; i < rows; ++i) {
+        auto writeOneRow = [&](core::CDataFrame::TFloatVecItr column, std::int32_t&) {
+            double target{0.0};
+            std::size_t j = 0;
+            for (/**/; j + 2 < cols; ++j, ++column) {
+                target += * column = features[j][i];
+            }
+            *(column++) = features[j][i];
+            *column = target;
+        };
+
+        frame->writeRow(writeOneRow);
+    }
+    frame->finishWritingRows();
+
+    maths::CDataFrameCategoryEncoder encoder{
+        maths::CMakeDataFrameCategoryEncoder{1, *frame, 6}.minimumRelativeMicToSelectFeature(0.02)};
+
+    LOG_DEBUG(<< "number selected features = " << encoder.numberEncodedColumns()
+              << " / " << cols);
+    CPPUNIT_ASSERT_EQUAL(cols - 1, encoder.numberEncodedColumns());
+    for (std::size_t i = 0; i < encoder.numberEncodedColumns(); ++i) {
+        CPPUNIT_ASSERT(encoder.encoding(i).inputColumnIndex() != 5);
+    }
 }
 
 void CDataFrameCategoryEncoderTest::testPersistRestore() {
@@ -616,7 +695,7 @@ void CDataFrameCategoryEncoderTest::testPersistRestore() {
 
     auto frame = core::makeMainStorageDataFrame(cols, 2 * rows).first;
 
-    frame->categoricalColumns({true, false, false, true, false});
+    frame->categoricalColumns(TBoolVec{true, false, false, true, false});
     for (std::size_t i = 0; i < rows; ++i) {
         frame->writeRow([&](core::CDataFrame::TFloatVecItr column, std::int32_t&) {
             *(column++) = std::floor(features[0][i]);
@@ -629,8 +708,7 @@ void CDataFrameCategoryEncoderTest::testPersistRestore() {
     }
     frame->finishWritingRows();
 
-    maths::CDataFrameCategoryEncoder encoder{
-        1, *frame, maskAll(rows), {0, 1, 2, 3}, 4, 50};
+    maths::CDataFrameCategoryEncoder encoder{{1, *frame, 4}};
 
     std::stringstream persistTo;
     core::CJsonStatePersistInserter inserter{persistTo};
@@ -668,11 +746,17 @@ CppUnit::Test* CDataFrameCategoryEncoderTest::suite() {
         "CDataFrameCategoryEncoderTest::testWithRowMask",
         &CDataFrameCategoryEncoderTest::testWithRowMask));
     suiteOfTests->addTest(new CppUnit::TestCaller<CDataFrameCategoryEncoderTest>(
+        "CDataFrameCategoryEncoderTest::testEncodingOfCategoricalTarget",
+        &CDataFrameCategoryEncoderTest::testEncodingOfCategoricalTarget));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CDataFrameCategoryEncoderTest>(
         "CDataFrameCategoryEncoderTest::testEncodedDataFrameRowRef",
         &CDataFrameCategoryEncoderTest::testEncodedDataFrameRowRef));
     suiteOfTests->addTest(new CppUnit::TestCaller<CDataFrameCategoryEncoderTest>(
         "CDataFrameCategoryEncoderTest::testUnseenCategoryEncoding",
         &CDataFrameCategoryEncoderTest::testUnseenCategoryEncoding));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CDataFrameCategoryEncoderTest>(
+        "CDataFrameCategoryEncoderTest::testDiscardNuisanceFeatures",
+        &CDataFrameCategoryEncoderTest::testDiscardNuisanceFeatures));
     suiteOfTests->addTest(new CppUnit::TestCaller<CDataFrameCategoryEncoderTest>(
         "CDataFrameCategoryEncoderTest::testPersistRestore",
         &CDataFrameCategoryEncoderTest::testPersistRestore));

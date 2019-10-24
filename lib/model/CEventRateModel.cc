@@ -14,7 +14,6 @@
 #include <core/CoreTypes.h>
 
 #include <maths/CChecksum.h>
-#include <maths/CMultivariatePrior.h>
 #include <maths/COrderings.h>
 #include <maths/CPrior.h>
 #include <maths/CRestoreParams.h>
@@ -32,14 +31,9 @@
 #include <model/CResourceMonitor.h>
 #include <model/FrequencyPredicates.h>
 
-#include <boost/iterator/counting_iterator.hpp>
-
 #include <algorithm>
 #include <string>
 #include <utility>
-#include <vector>
-
-#include <stdint.h>
 
 namespace ml {
 namespace model {
@@ -103,8 +97,8 @@ CEventRateModel::CEventRateModel(bool isForPersistence, const CEventRateModel& o
     }
 }
 
-void CEventRateModel::persistResidualModelsState(core::CStatePersistInserter& inserter) const {
-    this->doPersistResidualModelsState(inserter);
+void CEventRateModel::persistModelsState(core::CStatePersistInserter& inserter) const {
+    this->doPersistModelsState(inserter);
 }
 
 void CEventRateModel::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
@@ -310,9 +304,6 @@ void CEventRateModel::sample(core_t::TTime startTime,
                           << ", empty bucket weight = " << emptyBucketWeight
                           << ", derate = " << derate << ", interval = " << interval);
 
-                model->params().probabilityBucketEmpty(
-                    this->probabilityBucketEmpty(feature, pid));
-
                 TDouble2Vec value{count};
                 values.assign(1, core::make_triple(sampleTime, value, model_t::INDIVIDUAL_ANALYSIS_ATTRIBUTE_ID));
                 weights.resize(1, maths_t::CUnitWeights::unit<TDouble2Vec>(dimension));
@@ -390,7 +381,7 @@ bool CEventRateModel::computeProbability(std::size_t pid,
 
         addPersonProbability = true;
 
-        LOG_TRACE(<< "Compute probability for " << data->print());
+        LOG_TRACE(<< "value(" << this->personName(pid) << ") = " << data->print());
 
         if (this->correlates(feature, pid, startTime)) {
             CProbabilityAndInfluenceCalculator::SCorrelateParams params(partitioningFields);
@@ -400,9 +391,10 @@ bool CEventRateModel::computeProbability(std::size_t pid,
                                               pFeatures, resultBuilder);
         } else {
             CProbabilityAndInfluenceCalculator::SParams params(partitioningFields);
-            this->fill(feature, pid, startTime, result.isInterim(), params);
-            this->addProbabilityAndInfluences(pid, params, data->s_InfluenceValues,
-                                              pFeatures, resultBuilder);
+            if (this->fill(feature, pid, startTime, result.isInterim(), params)) {
+                this->addProbabilityAndInfluences(pid, params, data->s_InfluenceValues,
+                                                  pFeatures, resultBuilder);
+            }
         }
     }
 
@@ -507,8 +499,8 @@ std::size_t CEventRateModel::computeMemoryUsage() const {
     return mem;
 }
 
-CEventRateModel::CModelDetailsViewPtr CEventRateModel::details() const {
-    return CModelDetailsViewPtr(new CEventRateModelDetailsView(*this));
+CEventRateModel::TModelDetailsViewUPtr CEventRateModel::details() const {
+    return TModelDetailsViewUPtr(new CEventRateModelDetailsView(*this));
 }
 
 const CEventRateModel::TFeatureData*
@@ -578,15 +570,24 @@ bool CEventRateModel::correlates(model_t::EFeature feature, std::size_t pid, cor
     return false;
 }
 
-void CEventRateModel::fill(model_t::EFeature feature,
+bool CEventRateModel::fill(model_t::EFeature feature,
                            std::size_t pid,
                            core_t::TTime bucketTime,
                            bool interim,
                            CProbabilityAndInfluenceCalculator::SParams& params) const {
     const TFeatureData* data{this->featureData(feature, pid, bucketTime)};
+    if (data == nullptr) {
+        LOG_TRACE(<< "Feature data unexpectedly null");
+        return false;
+    }
+
     const maths::CModel* model{this->model(feature, pid)};
+    if (model == nullptr) {
+        LOG_TRACE(<< "Model unexpectedly null");
+        return false;
+    }
+
     core_t::TTime time{model_t::sampleTime(feature, bucketTime, this->bucketLength())};
-    TOptionalUInt64 count{this->currentBucketCount(pid, bucketTime)};
     double value{model_t::offsetCountToZero(feature, static_cast<double>(data->s_Count))};
     maths_t::TDouble2VecWeightsAry weight(maths_t::seasonalVarianceScaleWeight(
         model->seasonalWeight(maths::DEFAULT_SEASONAL_CONFIDENCE_INTERVAL, time)));
@@ -607,10 +608,11 @@ void CEventRateModel::fill(model_t::EFeature feature,
     }
     params.s_Count = 1.0;
     params.s_ComputeProbabilityParams
-        .addCalculation(model_t::probabilityCalculation(feature)) // new line
-        .addBucketEmpty({!count || *count == 0})
+        .addCalculation(model_t::probabilityCalculation(feature))
         .addWeights(weight)
         .skipAnomalyModelUpdate(skipAnomalyModelUpdate);
+
+    return true;
 }
 
 void CEventRateModel::fill(model_t::EFeature feature,
@@ -667,12 +669,8 @@ void CEventRateModel::fill(model_t::EFeature feature,
             maths::DEFAULT_SEASONAL_CONFIDENCE_INTERVAL, time)[0];
         scale[variables[1]] = models[1]->seasonalWeight(
             maths::DEFAULT_SEASONAL_CONFIDENCE_INTERVAL, time)[0];
-        TOptionalUInt64 count[2];
-        count[0] = this->currentBucketCount(correlates[i][0], bucketTime);
-        count[1] = this->currentBucketCount(correlates[i][1], bucketTime);
-        params.s_ComputeProbabilityParams
-            .addBucketEmpty({!count[0] || *count[0] == 0, !count[1] || *count[1] == 0}) // new line
-            .addWeights(maths_t::seasonalVarianceScaleWeight(scale));
+        params.s_ComputeProbabilityParams.addWeights(
+            maths_t::seasonalVarianceScaleWeight(scale));
 
         const TFeatureData* data[2];
         data[0] = this->featureData(feature, correlates[i][0], bucketTime);

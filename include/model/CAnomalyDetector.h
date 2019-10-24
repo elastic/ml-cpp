@@ -190,7 +190,7 @@ public:
     void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
 
     // Persist the state of the residual models only.
-    void persistResidualModelsState(core::CStatePersistInserter& inserter) const;
+    void persistModelsState(core::CStatePersistInserter& inserter) const;
 
     //! Get the cue for this detector.  This consists of the search key cue
     //! with the partition field value appended.

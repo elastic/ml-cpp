@@ -8,7 +8,10 @@
 #define INCLUDED_ml_api_CDataFrameAnalysisRunner_h
 
 #include <core/CFastMutex.h>
+#include <core/CProgramCounters.h>
+#include <core/CStatePersistInserter.h>
 
+#include <api/CInferenceModelDefinition.h>
 #include <api/ImportExport.h>
 
 #include <rapidjson/fwd.h>
@@ -58,9 +61,12 @@ class CMemoryUsageEstimationResultJsonWriter;
 //! early to determine how to implement a good cooperative interrupt scheme.
 class API_EXPORT CDataFrameAnalysisRunner {
 public:
+    using TBoolVec = std::vector<bool>;
     using TStrVec = std::vector<std::string>;
     using TRowRef = core::data_frame_detail::CRowRef;
     using TProgressRecorder = std::function<void(double)>;
+    using TStrVecVec = std::vector<TStrVec>;
+    using TInferenceModelDefinitionUPtr = std::unique_ptr<CInferenceModelDefinition>;
 
 public:
     //! The intention is that concrete objects of this hierarchy are constructed
@@ -97,6 +103,9 @@ public:
     //! \return The number of columns this analysis appends.
     virtual std::size_t numberExtraColumns() const = 0;
 
+    //! \return Indicator of columns for which empty value should be treated as missing.
+    virtual TBoolVec columnsForWhichEmptyIsMissing(const TStrVec& fieldNames) const;
+
     //! Write the extra columns of \p row added by the analysis to \p writer.
     //!
     //! This should create a new object of the form:
@@ -109,11 +118,11 @@ public:
     //! </pre>
     //! with one named member for each column added.
     //!
-    //! \param[in] featureNames The names of the analysis features.
+    //! \param[in] frame The data frame for which to write results.
     //! \param[in] row The row to write the columns added by this analysis.
     //! \param[in,out] writer The stream to which to write the extra columns.
-    virtual void writeOneRow(const TStrVec& featureNames,
-                             TRowRef row,
+    virtual void writeOneRow(const core::CDataFrame& frame,
+                             const TRowRef& row,
                              core::CRapidJsonConcurrentLineWriter& writer) const = 0;
 
     //! Checks whether the analysis is already running and if not launches it
@@ -121,7 +130,7 @@ public:
     //!
     //! \note The thread calling this is expected to be nearly always idle, i.e.
     //! just progress monitoring, so this doesn't count towards the thread limit.
-    void run(const TStrVec& featureNames, core::CDataFrame& frame);
+    void run(core::CDataFrame& frame);
 
     //! This waits to until the analysis has finished and joins the thread.
     void waitToFinish();
@@ -133,15 +142,28 @@ public:
     //! of the proportion of total work complete for a single run.
     double progress() const;
 
+    //! \return A serialisable definition of the trained model.
+    virtual TInferenceModelDefinitionUPtr
+    inferenceModelDefinition(const TStrVec& fieldNames, const TStrVecVec& categoryNames) const;
+
+protected:
+    using TMemoryMonitor = std::function<void(std::int64_t)>;
+    using TStatePersister =
+        std::function<void(std::function<void(core::CStatePersistInserter&)>)>;
+
 protected:
     const CDataFrameAnalysisSpecification& spec() const;
     TProgressRecorder progressRecorder();
+    TMemoryMonitor memoryMonitor(counter_t::ECounterTypes counter);
     std::size_t estimateMemoryUsage(std::size_t totalNumberRows,
                                     std::size_t partitionNumberRows,
                                     std::size_t numberColumns) const;
 
+    //! \return Callback function for writing state using given persist inserter
+    TStatePersister statePersister();
+
 private:
-    virtual void runImpl(const TStrVec& featureNames, core::CDataFrame& frame) = 0;
+    virtual void runImpl(core::CDataFrame& frame) = 0;
     virtual std::size_t estimateBookkeepingMemoryUsage(std::size_t numberPartitions,
                                                        std::size_t totalNumberRows,
                                                        std::size_t partitionNumberRows,
@@ -166,6 +188,7 @@ private:
 
     std::atomic_bool m_Finished;
     std::atomic_size_t m_FractionalProgress;
+    std::atomic<std::int64_t> m_Memory;
 
     std::thread m_Runner;
 };
@@ -181,12 +204,12 @@ public:
 
     TRunnerUPtr make(const CDataFrameAnalysisSpecification& spec) const;
     TRunnerUPtr make(const CDataFrameAnalysisSpecification& spec,
-                     const rapidjson::Value& params) const;
+                     const rapidjson::Value& jsonParameters) const;
 
 private:
     virtual TRunnerUPtr makeImpl(const CDataFrameAnalysisSpecification& spec) const = 0;
     virtual TRunnerUPtr makeImpl(const CDataFrameAnalysisSpecification& spec,
-                                 const rapidjson::Value& params) const = 0;
+                                 const rapidjson::Value& jsonParameters) const = 0;
 };
 }
 }

@@ -66,7 +66,7 @@ makeReader(TFloatVec& components, std::size_t cols, bool& passed) {
                       expectedRow.begin());
             j->copyTo(row.begin());
             if (passed && expectedRow != row) {
-                LOG_DEBUG(<< "mismatch for row " << i / cols)
+                LOG_DEBUG(<< "mismatch for row " << i / cols);
                 LOG_DEBUG(<< "expected = " << core::CContainerPrinter::print(expectedRow));
                 LOG_DEBUG(<< "actual   = " << core::CContainerPrinter::print(row));
                 passed = false;
@@ -410,10 +410,10 @@ void CDataFrameTest::testMemoryUsage() {
     std::size_t capacity{5000};
     TFloatVec components{testData(rows, cols)};
 
+    const std::string& rootDirectory{test::CTestTmpDir::tmpDir()};
     TFactoryFunc makeOnDisk = [=] {
-        return core::makeDiskStorageDataFrame(
-                   test::CTestTmpDir::tmpDir(), cols, rows, capacity,
-                   core::CDataFrame::EReadWriteToStorage::E_Async)
+        return core::makeDiskStorageDataFrame(rootDirectory, cols, rows, capacity,
+                                              core::CDataFrame::EReadWriteToStorage::E_Async)
             .first;
     };
     TFactoryFunc makeMainMemory = [=] {
@@ -423,9 +423,10 @@ void CDataFrameTest::testMemoryUsage() {
     };
 
     // Memory usage should be less than:
-    //   1) 800 bytes for on disk, and
-    //   2) data size + doc ids size + 200 byte overhead in main memory.
-    std::size_t maximumMemory[]{850, rows * (cols + 1) * 4 + 350};
+    //   1) 1075 + 4 times the root directory length bytes for on disk, and
+    //   2) data size + doc ids size + 900 byte overhead in main memory.
+    std::size_t maximumMemory[]{1075 + 4 * rootDirectory.length(),
+                                rows * (cols + 1) * 4 + 900};
 
     std::string type[]{"on disk", "main memory"};
     std::size_t t{0};

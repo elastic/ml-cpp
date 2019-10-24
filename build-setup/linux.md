@@ -1,3 +1,4 @@
+
 # Machine Learning Build Machine Setup for Linux
 
 To ensure everything is consistent for redistributable builds we build all redistributable components from source with a specific version of gcc.
@@ -150,223 +151,25 @@ sudo make install
 
 to install.
 
-### expat
+### Boost 1.71.0
 
-Download expat from <https://github.com/libexpat/libexpat/releases/download/R_2_2_6/expat-2.2.6.tar.bz2>.
-
-Extract the tarball to a temporary directory:
-
-```
-tar jxvf expat-2.2.6.tar.bz2
-```
-
-Then build using:
-
-```
-./configure --prefix=/usr/local/gcc73 --without-docbook
-make
-sudo make install
-```
-
-### APR
-
-For Linux, before building log4cxx you must download the Apache Portable Runtime (APR) from <http://archive.apache.org/dist/apr/apr-1.7.0.tar.bz2>.
-
-Extract the tarball to a temporary directory:
-
-```
-tar jxvf apr-1.7.0.tar.bz2
-```
-
-We want to avoid a dependency on the operating system `libcrypt`, as this may not be available in all Linux distributions.  Therefore, before building, in `configure` change:
-
-```
-for ac_lib in '' crypt ufc; do
-```
-
-to:
-
-```
-for ac_lib in ''; do
-```
-
-And in `include/apr.h.in` change:
-
-```
-#define APR_HAVE_CRYPT_H         @crypth@
-```
-
-to:
-
-```
-#define APR_HAVE_CRYPT_H         0
-```
-
-Then build using:
-
-```
-./configure --prefix=/usr/local/gcc73
-make
-sudo make install
-```
-
-### APR utilities
-
-For Linux, before building log4cxx you must download the Apache Portable Runtime (APR) utilities from <http://archive.apache.org/dist/apr/apr-util-1.6.1.tar.bz2>.
-
-Extract the tarball to a temporary directory:
-
-```
-tar jxvf apr-util-1.6.1.tar.bz2
-```
-
-We want to avoid a dependency on the operating system `libcrypt`, as this may not be available in all Linux distributions.  Therefore, before building, in `configure` change:
-
-```
-for ac_lib in '' crypt ufc; do
-```
-
-to:
-
-```
-for ac_lib in ''; do
-```
-
-And in `crypto/apr_passwd.c` change:
-
-```
-#define CRYPT_MISSING 0
-```
-
-to:
-
-```
-#define CRYPT_MISSING 1
-```
-
-Then build using:
-
-```
-./configure --prefix=/usr/local/gcc73 --with-apr=/usr/local/gcc73/bin/apr-1-config --with-expat=/usr/local/gcc73
-make
-sudo make install
-```
-
-### log4cxx
-
-Download from one of the mirrors listed at <http://www.apache.org/dyn/closer.cgi/logging/log4cxx/0.10.0/apache-log4cxx-0.10.0.tar.gz>.
-
-Unzip using:
-
-```
-tar zxvf apache-log4cxx-0.10.0.tar.gz
-```
-
-Unfortunately one of the log4cxx headers triggers an annoying (but harmless) g++ warning message. This is due to a copy constructor failing to explicitly call a base class constructor - it doesn't matter as the base class has no member variables, but g++ still complains. You can prevent the header causing a warning (without changing its meaning in any way) by making the changes detailed at <http://issues.apache.org/jira/browse/LOGCXX-314>, i.e. change:
-
-```
-#if LOG4CXX_HELGRIND
-#define _LOG4CXX_OBJECTPTR_INIT(x) { exchange(x);
-#else
-#define _LOG4CXX_OBJECTPTR_INIT(x) : p(x) {
-#endif
-```
-
-to:
-
-```
-#if LOG4CXX_HELGRIND
-#define _LOG4CXX_OBJECTPTR_INIT(x) : ObjectPtrBase() { exchange(x);
-#else
-#define _LOG4CXX_OBJECTPTR_INIT(x) : ObjectPtrBase(), p(x) {
-#endif
-```
-
-in `src/main/include/log4cxx/helpers/objectptr.h`.
-
-Also, in `src/main/cpp/inputstreamreader.cpp` and `src/main/cpp/socketoutputstream.cpp`, after the last existing `#include` add:
-
-```
-#include <string.h>
-```
-
-and in `src/examples/cpp/console.cpp`, after the last existing `#include` add:
-
-```
-#include <string.h>
-#include <stdio.h>
-#include <wchar.h>
-```
-
-Note that the following 5 edits can be accomplished using these `sed` commands:
-
-```
-sed -i -e '152,163s/0x/(char)0x/g' src/main/cpp/locationinfo.cpp
-sed -i -e '239,292s/0x/(char)0x/g' src/main/cpp/loggingevent.cpp
-sed -i -e '39s/0x/(char)0x/g' src/main/cpp/objectoutputstream.cpp
-sed -i -e '84,92s/0x/(char)0x/g' src/main/cpp/objectoutputstream.cpp
-sed -i -e '193,214s/0x/(char)0x/g' src/test/cpp/xml/domtestcase.cpp
-```
-
-In `src/main/cpp/locationinfo.cpp` replace `0x` with `(char)0x` on lines 152 to 163 - this can be done using the vim command:
-
-```
-:152,163s/0x/(char)0x/g
-```
-
-In `src/main/cpp/loggingevent.cpp` replace `0x` with `(char)0x` on lines 239 to 292 - this can be done using the vim command:
-
-```
-:239,292s/0x/(char)0x/g
-```
-
-In `src/main/cpp/objectoutputstream.cpp` replace `0x` with `(char)0x` on lines 39 and 84 to 92 - this can be done using the vim commands:
-
-```
-:39s/0x/(char)0x/g
-:84,92s/0x/(char)0x/g
-```
-
-In `src/test/cpp/xml/domtestcase.cpp` replace `0x` with `(char)0x` on lines 193 to 214 - this can be done using the vim command:
-
-```
-:193,214s/0x/(char)0x/g
-```
-
-Once all the changes are made, configure using:
-
-```
-./configure --prefix=/usr/local/gcc73 --with-charset=utf-8 --with-logchar=utf-8 --with-apr=/usr/local/gcc73 --with-apr-util=/usr/local/gcc73
-```
-
-This should build an appropriate Makefile. Assuming it does, type:
-
-```
-make
-sudo make install
-```
-
-to install the necessary headers and libraries.
-
-### Boost 1.65.1
-
-Download version 1.65.1 of Boost from <http://sourceforge.net/projects/boost/files/boost/1.65.1/>. You must get this exact version, as the Machine Learning Makefiles expect it.
+Download version 1.71.0 of Boost from <https://dl.bintray.com/boostorg/release/1.71.0/source/boost_1_71_0.tar.bz2>. You must get this exact version, as the Machine Learning Makefiles expect it.
 
 Assuming you chose the `.bz2` version, extract it to a temporary directory:
 
 ```
-bzip2 -cd boost_1_65_1.tar.bz2 | tar xvf -
+bzip2 -cd boost_1_71_0.tar.bz2 | tar xvf -
 ```
 
-In the resulting `boost_1_65_1` directory, run:
+In the resulting `boost_1_71_0` directory, run:
 
 ```
-./bootstrap.sh --without-libraries=context --without-libraries=coroutine --without-libraries=graph_parallel --without-libraries=log --without-libraries=mpi --without-libraries=python --without-icu
+./bootstrap.sh --without-libraries=context --without-libraries=coroutine --without-libraries=graph_parallel --without-libraries=mpi --without-libraries=python --without-icu
 ```
 
 This should build the `b2` program, which in turn is used to build Boost.
 
-Edit `boost/unordered/detail/implementation.hpp` and change line 270 from:
+Edit `boost/unordered/detail/implementation.hpp` and change line 287 from:
 
 ```
     (17ul)(29ul)(37ul)(53ul)(67ul)(79ul) \
@@ -393,8 +196,8 @@ to:
 Finally, run:
 
 ```
-./b2 -j6 --layout=versioned --disable-icu pch=off optimization=speed inlining=full define=BOOST_MATH_NO_LONG_DOUBLE_MATH_FUNCTIONS define=_FORTIFY_SOURCE=2 cxxflags=-std=gnu++14 cxxflags=-fstack-protector linkflags=-Wl,-z,relro linkflags=-Wl,-z,now
-sudo env PATH="$PATH" ./b2 install --prefix=/usr/local/gcc73 --layout=versioned --disable-icu pch=off optimization=speed inlining=full define=BOOST_MATH_NO_LONG_DOUBLE_MATH_FUNCTIONS define=_FORTIFY_SOURCE=2 cxxflags=-std=gnu++14 cxxflags=-fstack-protector linkflags=-Wl,-z,relro linkflags=-Wl,-z,now
+./b2 -j6 --layout=versioned --disable-icu pch=off optimization=speed inlining=full define=BOOST_MATH_NO_LONG_DOUBLE_MATH_FUNCTIONS define=BOOST_LOG_WITHOUT_DEBUG_OUTPUT define=BOOST_LOG_WITHOUT_EVENT_LOG define=BOOST_LOG_WITHOUT_SYSLOG define=BOOST_LOG_WITHOUT_IPC define=_FORTIFY_SOURCE=2 cxxflags=-std=gnu++14 cxxflags=-fstack-protector linkflags=-Wl,-z,relro linkflags=-Wl,-z,now
+sudo env PATH="$PATH" LD_LIBRARY_PATH="$LD_LIBRARY_PATH" ./b2 install --prefix=/usr/local/gcc73 --layout=versioned --disable-icu pch=off optimization=speed inlining=full define=BOOST_MATH_NO_LONG_DOUBLE_MATH_FUNCTIONS define=BOOST_LOG_WITHOUT_DEBUG_OUTPUT define=BOOST_LOG_WITHOUT_EVENT_LOG define=BOOST_LOG_WITHOUT_SYSLOG define=BOOST_LOG_WITHOUT_IPC define=_FORTIFY_SOURCE=2 cxxflags=-std=gnu++14 cxxflags=-fstack-protector linkflags=-Wl,-z,relro linkflags=-Wl,-z,now
 ```
 
 to install the Boost headers and libraries.  (Note the `env PATH="$PATH"` bit in the install command - this is because `sudo` usually resets `PATH` and that will cause Boost to rebuild everything again with the default compiler as part of the install!)

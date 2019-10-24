@@ -27,8 +27,6 @@ $(OS_SRCS) \
 Main.cc \
 CAllocationStrategyTest.cc \
 CBase64FilterTest.cc \
-CBlockingMessageQueueTest.cc \
-CByteSwapperTest.cc \
 CCompressedDictionaryTest.cc \
 CCompressUtilsTest.cc \
 CConcurrencyTest.cc \
@@ -37,14 +35,11 @@ CConcurrentWrapperTest.cc \
 CContainerPrinterTest.cc \
 CContainerThroughputTest.cc \
 CDataFrameTest.cc \
-CDelimiterTest.cc \
 CDetachedProcessSpawnerTest.cc \
 CDualThreadStreamBufTest.cc \
-CFileDeleterTest.cc \
 CFlatPrefixTreeTest.cc \
 CFunctionalTest.cc \
 CHashingTest.cc \
-CHexUtilsTest.cc \
 CIEEE754Test.cc \
 CJsonLogLayoutTest.cc \
 CJsonOutputStreamWrapperTest.cc \
@@ -54,8 +49,6 @@ CLoggerTest.cc \
 CLoopProgressTest.cc \
 CMemoryUsageJsonWriterTest.cc \
 CMemoryUsageTest.cc \
-CMessageBufferTest.cc \
-CMessageQueueTest.cc \
 CMonotonicTimeTest.cc \
 CMapPopulationTest.cc \
 CMutexTest.cc \
@@ -65,7 +58,6 @@ CPackedBitVectorTest.cc \
 CPatternSetTest.cc \
 CPersistenceTagTest.cc \
 CPersistUtilsTest.cc \
-CPolymorphicStackObjectCPtrTest.cc \
 CProcessTest.cc \
 CProgNameTest.cc \
 CProgramCountersTest.cc \
@@ -88,9 +80,7 @@ CStopWatchTest.cc \
 CStoredStringPtrTest.cc \
 CStringSimilarityTesterTest.cc \
 CStringUtilsTest.cc \
-CThreadFarmTest.cc \
 CThreadMutexConditionTest.cc \
-CTickerTest.cc \
 CTimeUtilsTest.cc \
 CTripleTest.cc \
 CUnameTest.cc \

@@ -19,6 +19,14 @@ public:
     void testConstantTarget();
     void testCategoricalRegressors();
     void testIntegerRegressor();
+    void testSingleSplit();
+    void testTranslationInvariance();
+    void testDepthBasedRegularization();
+    void testLogisticMinimizerEdgeCases();
+    void testLogisticMinimizerRandom();
+    void testLogisticLossForUnderflow();
+    void testLogisticRegression();
+    void testUnbalancedClasses();
     void testEstimateMemoryUsedByTrain();
     void testProgressMonitoring();
     void testMissingData();

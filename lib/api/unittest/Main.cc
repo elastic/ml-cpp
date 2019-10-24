@@ -8,13 +8,15 @@
 #include "CAnomalyJobLimitTest.h"
 #include "CAnomalyJobTest.h"
 #include "CBaseTokenListDataTyperTest.h"
+#include "CBoostedTreeInferenceModelBuilderTest.h"
 #include "CCategoryExamplesCollectorTest.h"
 #include "CConfigUpdaterTest.h"
 #include "CCsvInputParserTest.h"
 #include "CCsvOutputWriterTest.h"
 #include "CDataFrameAnalysisRunnerTest.h"
 #include "CDataFrameAnalysisSpecificationTest.h"
-#include "CDataFrameAnalyzerTest.h"
+#include "CDataFrameAnalyzerOutlierTest.h"
+#include "CDataFrameAnalyzerTrainingTest.h"
 #include "CDetectionRulesJsonParserTest.h"
 #include "CFieldConfigTest.h"
 #include "CFieldDataTyperTest.h"
@@ -50,7 +52,9 @@ int main(int argc, const char** argv) {
     runner.addTest(CCsvOutputWriterTest::suite());
     runner.addTest(CDataFrameAnalysisRunnerTest::suite());
     runner.addTest(CDataFrameAnalysisSpecificationTest::suite());
-    runner.addTest(CDataFrameAnalyzerTest::suite());
+    runner.addTest(CBoostedTreeInferenceModelBuilderTest::suite());
+    runner.addTest(CDataFrameAnalyzerOutlierTest::suite());
+    runner.addTest(CDataFrameAnalyzerTrainingTest::suite());
     runner.addTest(CDetectionRulesJsonParserTest::suite());
     runner.addTest(CFieldConfigTest::suite());
     runner.addTest(CFieldDataTyperTest::suite());

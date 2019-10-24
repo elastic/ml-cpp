@@ -162,7 +162,7 @@ public:
     using TFeatureCorrelationsPtrPr = std::pair<model_t::EFeature, TCorrelationsPtr>;
     using TFeatureCorrelationsPtrPrVec = std::vector<TFeatureCorrelationsPtrPr>;
     using TDataGathererPtr = std::shared_ptr<CDataGatherer>;
-    using CModelDetailsViewPtr = std::auto_ptr<CModelDetailsView>;
+    using TModelDetailsViewUPtr = std::unique_ptr<CModelDetailsView>;
     using TModelPtr = std::unique_ptr<CAnomalyDetectorModel>;
 
 public:
@@ -196,8 +196,8 @@ public:
 
     //! \name Persistence
     //@{
-    //! Persist the state of the residual models only.
-    virtual void persistResidualModelsState(core::CStatePersistInserter& inserter) const = 0;
+    //! Persist the state of the models.
+    virtual void persistModelsState(core::CStatePersistInserter& inserter) const = 0;
 
     //! Persist state by passing information to the supplied inserter.
     virtual void acceptPersistInserter(core::CStatePersistInserter& inserter) const = 0;
@@ -471,7 +471,7 @@ public:
     core_t::TTime bucketLength() const;
 
     //! Get a view of the internals of the model for visualization.
-    virtual CModelDetailsViewPtr details() const = 0;
+    virtual TModelDetailsViewUPtr details() const = 0;
 
     //! Get the frequency of the person identified by \p pid.
     double personFrequency(std::size_t pid) const;
@@ -505,7 +505,7 @@ protected:
         void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
 
         //! Persist the state of the residual models only.
-        void persistResidualModelsState(core::CStatePersistInserter& inserter) const;
+        void persistModelsState(core::CStatePersistInserter& inserter) const;
 
         //! Debug the memory used by this model.
         void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const;

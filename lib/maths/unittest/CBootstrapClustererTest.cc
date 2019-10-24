@@ -387,7 +387,7 @@ void CBootstrapClustererTest::testSeparate() {
                 cut += 1.0;
             }
         }
-        LOG_DEBUG(<< "cost = " << cut / (a * b))
+        LOG_DEBUG(<< "cost = " << cut / (a * b));
 
         double sparsestCut = std::min(
             static_cast<double>(connections[2 * t]) /
