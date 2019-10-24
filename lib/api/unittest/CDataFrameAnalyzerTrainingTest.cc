@@ -397,8 +397,8 @@ void CDataFrameAnalyzerTrainingTest::testRunBoostedTreeRegressionTraining() {
               << "ms");
 
     CPPUNIT_ASSERT(core::CProgramCounters::counter(
-                       counter_t::E_DFTPMEstimatedPeakMemoryUsage) < 2900000);
-    CPPUNIT_ASSERT(core::CProgramCounters::counter(counter_t::E_DFTPMPeakMemoryUsage) < 1050000);
+                       counter_t::E_DFTPMEstimatedPeakMemoryUsage) < 3900000);
+    CPPUNIT_ASSERT(core::CProgramCounters::counter(counter_t::E_DFTPMPeakMemoryUsage) < 140000);
     CPPUNIT_ASSERT(core::CProgramCounters::counter(counter_t::E_DFTPMTimeToTrain) > 0);
     CPPUNIT_ASSERT(core::CProgramCounters::counter(counter_t::E_DFTPMTimeToTrain) <= duration);
 }
@@ -424,7 +424,7 @@ void CDataFrameAnalyzerTrainingTest::testRunBoostedTreeRegressionTrainingWithPar
 
     api::CDataFrameAnalyzer analyzer{
         test::CDataFrameAnalysisSpecificationFactory::predictionSpec(
-            "regression", "c5", 100, 5, 3000000, 0, 0, {}, alpha, lambda, gamma, softTreeDepthLimit,
+            "regression", "c5", 100, 5, 4000000, 0, 0, {}, alpha, lambda, gamma, softTreeDepthLimit,
             softTreeDepthTolerance, eta, maximumNumberTrees, featureBagFraction),
         outputWriterFactory};
 
@@ -595,7 +595,7 @@ void CDataFrameAnalyzerTrainingTest::testRunBoostedTreeClassifierTraining() {
     TStrVec fieldValues{"", "", "", "", "", "0", ""};
     api::CDataFrameAnalyzer analyzer{
         test::CDataFrameAnalysisSpecificationFactory::predictionSpec(
-            "classification", "c5", 100, 5, 3000000, 0, 0, {"c5"}),
+            "classification", "c5", 100, 5, 4000000, 0, 0, {"c5"}),
         outputWriterFactory};
     addPredictionTestData(E_BinaryClassification, fieldNames, fieldValues,
                           analyzer, expectedPredictions);
@@ -635,8 +635,8 @@ void CDataFrameAnalyzerTrainingTest::testRunBoostedTreeClassifierTraining() {
     LOG_DEBUG(<< "time to train = " << core::CProgramCounters::counter(counter_t::E_DFTPMTimeToTrain)
               << "ms");
     CPPUNIT_ASSERT(core::CProgramCounters::counter(
-                       counter_t::E_DFTPMEstimatedPeakMemoryUsage) < 2900000);
-    CPPUNIT_ASSERT(core::CProgramCounters::counter(counter_t::E_DFTPMPeakMemoryUsage) < 1050000);
+                       counter_t::E_DFTPMEstimatedPeakMemoryUsage) < 3900000);
+    CPPUNIT_ASSERT(core::CProgramCounters::counter(counter_t::E_DFTPMPeakMemoryUsage) < 50000);
     CPPUNIT_ASSERT(core::CProgramCounters::counter(counter_t::E_DFTPMTimeToTrain) > 0);
     CPPUNIT_ASSERT(core::CProgramCounters::counter(counter_t::E_DFTPMTimeToTrain) <= duration);
 }

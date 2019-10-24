@@ -277,6 +277,8 @@ private:
                             std::size_t depth,
                             TSizeVec featureBag,
                             const core::CPackedBitVector& rowMask);
+
+        //! Only called by split but is public so it's accessible to std::make_shared.
         CLeafNodeStatistics(std::size_t id,
                             std::size_t numberThreads,
                             const core::CDataFrame& frame,
@@ -288,8 +290,7 @@ private:
                             bool isLeftChild,
                             const CBoostedTreeNode& split,
                             const core::CPackedBitVector& parentRowMask);
-
-        //! This should only called by split but is public so it's accessible to std::make_shared.
+        //! Only called by split but is public so it's accessible to std::make_shared.
         CLeafNodeStatistics(std::size_t id,
                             const CLeafNodeStatistics& parent,
                             const CLeafNodeStatistics& sibling,
@@ -361,9 +362,9 @@ private:
             return mem;
         }
 
-        //! Estimate maximum leaf statistics bookkeeping memory for training
-        //! boosted trees on data frames with \p numberRows rows, \p numberCols columns
-        //! with specified settings for \p featureBagFraction and \p numberSplitsPerFeature
+        //! Estimate the maximum leaf statistics' memory usage training on a data frame
+        //! with \p numberRows rows and \p numberCols columns using \p featureBagFraction
+        //! and \p numberSplitsPerFeature.
         static std::size_t estimateMemoryUsage(std::size_t numberRows,
                                                std::size_t numberCols,
                                                double featureBagFraction,
@@ -426,9 +427,7 @@ private:
             }
 
             void merge(const SAggregateDerivatives& other) {
-                s_Count += other.s_Count;
-                s_Gradient += other.s_Gradient;
-                s_Curvature += other.s_Curvature;
+                this->add(other.s_Count, other.s_Gradient, other.s_Curvature);
             }
 
             std::string print() const {
