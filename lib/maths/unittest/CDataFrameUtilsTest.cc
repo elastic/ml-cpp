@@ -18,6 +18,7 @@
 #include <test/CTestTmpDir.h>
 
 #include <boost/test/unit_test.hpp>
+#include <boost/unordered_map.hpp>
 
 #include <functional>
 #include <limits>
@@ -64,6 +65,25 @@ auto generateCategoricalData(test::CRandomNumbers& rng,
 
 core::CPackedBitVector maskAll(std::size_t rows) {
     return {rows, true};
+}
+
+core::CPackedBitVector generateRandomRowMask(test::CRandomNumbers& rng, std::size_t numberRows) {
+    TSizeVec sampleCount;
+    rng.generateUniformSamples(numberRows / 2, 3 * numberRows / 2, 1, sampleCount);
+
+    TSizeVec sampledRows;
+    rng.generateUniformSamples(0, numberRows, sampleCount[0], sampledRows);
+    std::sort(sampledRows.begin(), sampledRows.end());
+    sampledRows.erase(std::unique(sampledRows.begin(), sampledRows.end()),
+                      sampledRows.end());
+
+    core::CPackedBitVector rowMask;
+    for (auto i : sampledRows) {
+        rowMask.extend(false, i - rowMask.size());
+        rowMask.extend(true);
+    }
+    rowMask.extend(false, numberRows - rowMask.size());
+    return rowMask;
 }
 }
 
@@ -428,6 +448,137 @@ BOOST_AUTO_TEST_CASE(testColumnQuantilesWithEncoding) {
             BOOST_TEST_REQUIRE(expectedQuantiles[feature].quantile(x, qe));
             BOOST_TEST_REQUIRE(actualQuantiles[feature].quantile(x, qa));
             BOOST_REQUIRE_EQUAL(qe, qa);
+        }
+    }
+}
+
+BOOST_AUTO_TEST_CASE(testStratifiedCrossValidationRowMasks) {
+
+    // Check some invariants of the test and train masks:
+    //   1) The folds are approximately the same size,
+    //   2) The test masks are disjoint for each fold,
+    //   3) The train and test masks are disjoint for a given fold,
+    //   4) They're all subsets of the initial mask supplied,
+    //   5) The number of examples in each category per fold is proportional to
+    //      their overall frequency.
+
+    using TDoubleDoubleUMap = boost::unordered_map<double, double>;
+
+    test::CRandomNumbers testRng;
+    maths::CPRNG::CXorOShiro128Plus rng;
+
+    std::size_t numberRows{2000};
+    std::size_t numberCols{1};
+
+    for (std::size_t trial = 0; trial < 10; ++trial) {
+
+        TDoubleVec categories;
+        testRng.generateNormalSamples(0.0, 3.0, numberRows, categories);
+        TSizeVec numberFolds;
+        testRng.generateUniformSamples(2, 6, 1, numberFolds);
+
+        auto frame = core::makeMainStorageDataFrame(numberCols).first;
+        frame->categoricalColumns(TBoolVec{true});
+        for (std::size_t i = 0; i < numberRows; ++i) {
+            frame->writeRow([&](core::CDataFrame::TFloatVecItr column, std::int32_t&) {
+                *column = std::floor(std::fabs(categories[i]));
+            });
+        }
+        frame->finishWritingRows();
+
+        core::CPackedBitVector allTrainingRowsMask{generateRandomRowMask(testRng, numberRows)};
+
+        TDoubleDoubleUMap categoryCounts;
+        for (auto i = allTrainingRowsMask.beginOneBits();
+             i != allTrainingRowsMask.endOneBits(); ++i) {
+            categoryCounts[std::floor(std::fabs(categories[*i]))] += 1.0;
+        }
+
+        maths::CDataFrameUtils::TPackedBitVectorVec trainingRowMasks;
+        maths::CDataFrameUtils::TPackedBitVectorVec testingRowMasks;
+        std::tie(trainingRowMasks, testingRowMasks, std::ignore) =
+            maths::CDataFrameUtils::stratifiedCrossValidationRowMasks(
+                1, *frame, 0, rng, numberFolds[0], allTrainingRowsMask);
+
+        BOOST_REQUIRE_EQUAL(numberFolds[0], trainingRowMasks.size());
+        BOOST_REQUIRE_EQUAL(numberFolds[0], testingRowMasks.size());
+
+        core::CPackedBitVector allTestingRowsMask{numberRows, false};
+        for (std::size_t fold = 0; fold < numberFolds[0]; ++fold) {
+            // Count should be very nearly the expected value.
+            double expectedTestRowCount{allTrainingRowsMask.manhattan() /
+                                        static_cast<double>(numberFolds[0])};
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(expectedTestRowCount,
+                                         testingRowMasks[fold].manhattan(), 10.0);
+            BOOST_REQUIRE_EQUAL(0.0, testingRowMasks[fold].inner(allTestingRowsMask));
+            BOOST_REQUIRE_EQUAL(0.0, trainingRowMasks[fold].inner(testingRowMasks[fold]));
+            BOOST_REQUIRE_EQUAL(trainingRowMasks[fold].manhattan(),
+                                trainingRowMasks[fold].inner(allTrainingRowsMask));
+            BOOST_REQUIRE_EQUAL(testingRowMasks[fold].manhattan(),
+                                testingRowMasks[fold].inner(allTrainingRowsMask));
+            allTestingRowsMask |= testingRowMasks[fold];
+
+            TDoubleDoubleUMap testingCategoryCounts;
+            frame->readRows(1, 0, frame->numberRows(),
+                            [&](core::CDataFrame::TRowItr beginRows,
+                                core::CDataFrame::TRowItr endRows) {
+                                for (auto row = beginRows; row != endRows; ++row) {
+                                    testingCategoryCounts[(*row)[0]] += 1.0;
+                                }
+                            },
+                            &testingRowMasks[fold]);
+            for (const auto& count : categoryCounts) {
+                BOOST_REQUIRE_CLOSE_ABSOLUTE(
+                    count.second / static_cast<double>(numberFolds[0]),
+                    testingCategoryCounts[count.first], 5.0);
+            }
+        }
+    }
+}
+
+BOOST_AUTO_TEST_CASE(testCrossValidationRowMasks) {
+
+    // Check some invariants of the test and train masks:
+    //   1) The folds are approximately the same size,
+    //   2) The test masks are disjoint for each fold,
+    //   3) The train and test masks are disjoint for a given fold,
+    //   4) They're all subsets of the initial mask supplied.
+
+    test::CRandomNumbers testRng;
+    maths::CPRNG::CXorOShiro128Plus rng;
+
+    std::size_t numberRows{2000};
+
+    for (std::size_t trial = 0; trial < 10; ++trial) {
+
+        core::CPackedBitVector allTrainingRowsMask{generateRandomRowMask(testRng, numberRows)};
+        TSizeVec numberFolds;
+        testRng.generateUniformSamples(2, 6, 1, numberFolds);
+
+        maths::CDataFrameUtils::TPackedBitVectorVec trainingRowMasks;
+        maths::CDataFrameUtils::TPackedBitVectorVec testingRowMasks;
+        std::tie(trainingRowMasks, testingRowMasks) =
+            maths::CDataFrameUtils::crossValidationRowMasks(rng, numberFolds[0],
+                                                            allTrainingRowsMask);
+
+        BOOST_REQUIRE_EQUAL(numberFolds[0], trainingRowMasks.size());
+        BOOST_REQUIRE_EQUAL(numberFolds[0], testingRowMasks.size());
+
+        core::CPackedBitVector allTestingRowsMask{numberRows, false};
+        for (std::size_t fold = 0; fold < numberFolds[0]; ++fold) {
+            // Expect count ~ binomial(n, 1 / "number folds").
+            double expectedTestRowCount{allTrainingRowsMask.manhattan() /
+                                        static_cast<double>(numberFolds[0])};
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(expectedTestRowCount,
+                                         testingRowMasks[fold].manhattan(),
+                                         3.0 * std::sqrt(expectedTestRowCount));
+            BOOST_REQUIRE_EQUAL(0.0, testingRowMasks[fold].inner(allTestingRowsMask));
+            BOOST_REQUIRE_EQUAL(0.0, trainingRowMasks[fold].inner(testingRowMasks[fold]));
+            BOOST_REQUIRE_EQUAL(trainingRowMasks[fold].manhattan(),
+                                trainingRowMasks[fold].inner(allTrainingRowsMask));
+            BOOST_REQUIRE_EQUAL(testingRowMasks[fold].manhattan(),
+                                testingRowMasks[fold].inner(allTrainingRowsMask));
+            allTestingRowsMask |= testingRowMasks[fold];
         }
     }
 }

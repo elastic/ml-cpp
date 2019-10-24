@@ -11,9 +11,9 @@
 #include <api/CDataFrameAnalysisRunner.h>
 #include <api/CDataFrameAnalysisSpecification.h>
 #include <api/CDataFrameAnalysisSpecificationJsonWriter.h>
-#include <api/CDataFrameClassificationRunner.h>
 #include <api/CDataFrameOutliersRunner.h>
-#include <api/CDataFrameRegressionRunner.h>
+#include <api/CDataFrameTrainBoostedTreeClassifierRunner.h>
+#include <api/CDataFrameTrainBoostedTreeRegressionRunner.h>
 
 #include <test/CTestTmpDir.h>
 
@@ -50,9 +50,9 @@ BOOST_AUTO_TEST_CASE(testCreate) {
     auto runnerFactories = []() {
         TRunnerFactoryUPtr outliers{std::make_unique<api::CDataFrameOutliersRunnerFactory>()};
         TRunnerFactoryUPtr regression{
-            std::make_unique<api::CDataFrameRegressionRunnerFactory>()};
+            std::make_unique<api::CDataFrameTrainBoostedTreeRegressionRunnerFactory>()};
         TRunnerFactoryUPtr classification{
-            std::make_unique<api::CDataFrameClassificationRunnerFactory>()};
+            std::make_unique<api::CDataFrameTrainBoostedTreeClassifierRunnerFactory>()};
         TRunnerFactoryUPtrVec factories;
         factories.push_back(std::move(outliers));
         factories.push_back(std::move(regression));
@@ -325,6 +325,30 @@ BOOST_AUTO_TEST_CASE(testCreate) {
                                         {}, "outlier_detection", "", "threeds")};
         LOG_DEBUG(<< core::CContainerPrinter::print(errors));
         BOOST_TEST_REQUIRE(errors.size() > 0);
+    }
+
+    LOG_DEBUG(<< "Classification with numeric target");
+    {
+        errors.clear();
+        std::string parameters{"{\"dependent_variable\": \"class\"}"};
+        api::CDataFrameAnalysisSpecification spec{
+            api::CDataFrameAnalysisSpecificationJsonWriter::jsonString(
+                "testJob", 10000, 5, 100000000, 1, {}, true,
+                test::CTestTmpDir::tmpDir(), "", "classification", parameters)};
+        LOG_DEBUG(<< core::CContainerPrinter::print(errors));
+        CPPUNIT_ASSERT(errors.size() > 0);
+    }
+
+    LOG_DEBUG(<< "Regression with categorical target");
+    {
+        errors.clear();
+        std::string parameters{"{\"dependent_variable\": \"value\"}"};
+        api::CDataFrameAnalysisSpecification spec{
+            api::CDataFrameAnalysisSpecificationJsonWriter::jsonString(
+                "testJob", 10000, 5, 100000000, 1, {"value"}, true,
+                test::CTestTmpDir::tmpDir(), "", "regression", parameters)};
+        LOG_DEBUG(<< core::CContainerPrinter::print(errors));
+        CPPUNIT_ASSERT(errors.size() > 0);
     }
 }
 

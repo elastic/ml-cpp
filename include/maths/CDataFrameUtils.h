@@ -11,11 +11,14 @@
 #include <core/CNonInstantiatable.h>
 
 #include <maths/CLinearAlgebraEigen.h>
+#include <maths/CPRNG.h>
 #include <maths/ImportExport.h>
 
 #include <boost/unordered_set.hpp>
 
 #include <functional>
+#include <tuple>
+#include <utility>
 #include <vector>
 
 namespace ml {
@@ -233,6 +236,38 @@ public:
                                 TQuantileSketchVec& result,
                                 const CDataFrameCategoryEncoder* encoder = nullptr,
                                 TWeightFunction weight = unitWeight);
+
+    //! \brief Compute disjoint random train/test row masks suitable for cross
+    //! validation ensuring nearly equal numbers of examples for each distinct
+    //! value of the target column.
+    //!
+    //! TODO stratify by target quantiles for regression.
+    //!
+    //! \param[in] numberThreads The number of threads available.
+    //! \param[in] frame The data frame for which to compute the row masks.
+    //! \param[in] targetColumn The index of the column to predict.
+    //! \param[in] rng The random number generator to use.
+    //! \param[in] numberFolds The number of folds to use.
+    //! \param[in] allTrainingRowsMask A mask of the candidate training rows.
+    //! \warning This fails if the target is not categorical.
+    static std::tuple<TPackedBitVectorVec, TPackedBitVectorVec, TDoubleVec>
+    stratifiedCrossValidationRowMasks(std::size_t numberThreads,
+                                      const core::CDataFrame& frame,
+                                      std::size_t targetColumn,
+                                      CPRNG::CXorOShiro128Plus rng,
+                                      std::size_t numberFolds,
+                                      core::CPackedBitVector allTrainingRowsMask);
+
+    //! \brief Compute disjoint random train/test row masks suitable for cross
+    //! validation.
+    //!
+    //! \param[in] rng The random number generator to use.
+    //! \param[in] numberFolds The number of folds to use.
+    //! \param[in] allTrainingRowsMask A mask of the candidate training rows.
+    static std::pair<TPackedBitVectorVec, TPackedBitVectorVec>
+    crossValidationRowMasks(CPRNG::CXorOShiro128Plus rng,
+                            std::size_t numberFolds,
+                            core::CPackedBitVector allTrainingRowsMask);
 
     //! Get the relative frequency of each category in \p frame.
     //!

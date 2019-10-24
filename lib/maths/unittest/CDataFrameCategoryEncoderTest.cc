@@ -389,6 +389,44 @@ BOOST_AUTO_TEST_CASE(testWithRowMask) {
     BOOST_REQUIRE_EQUAL(encoder.checksum(), maskedEncoder.checksum());
 }
 
+BOOST_AUTO_TEST_CASE(testEncodingOfCategoricalTarget) {
+
+    // Test the target uses identity encoding.
+
+    test::CRandomNumbers rng;
+
+    auto target = [&](const TDoubleVecVec& features, std::size_t row) {
+        return std::floor(features[0][row] + features[1][row] + features[2][row]);
+    };
+
+    std::size_t rows{500};
+    std::size_t cols{4};
+
+    TDoubleVecVec features(cols - 1);
+    rng.generateUniformSamples(0.0, 2.0, rows, features[0]);
+    rng.generateUniformSamples(0.0, 2.0, rows, features[1]);
+    rng.generateUniformSamples(0.0, 2.0, rows, features[2]);
+
+    auto frame = core::makeMainStorageDataFrame(cols).first;
+    frame->categoricalColumns(TBoolVec{false, false, false, true});
+    for (std::size_t i = 0; i < rows; ++i) {
+        auto writeOneRow = [&](core::CDataFrame::TFloatVecItr column, std::int32_t&) {
+            for (std::size_t j = 0; j + 1 < cols; ++j, ++column) {
+                *column = features[j][i];
+            }
+            *column = target(features, i);
+        };
+        frame->writeRow(writeOneRow);
+    }
+    frame->finishWritingRows();
+
+    maths::CDataFrameCategoryEncoder encoder{{1, *frame, 3}};
+
+    for (std::size_t i = 0; i < encoder.numberEncodedColumns(); ++i) {
+        BOOST_REQUIRE_EQUAL(maths::E_IdentityEncoding, encoder.encoding(i).type());
+    }
+}
+
 BOOST_AUTO_TEST_CASE(testEncodedDataFrameRowRef) {
 
     // Test we get the feature vectors we expect after encoding.

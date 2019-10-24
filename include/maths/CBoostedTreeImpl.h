@@ -38,12 +38,6 @@ namespace ml {
 namespace maths {
 class CBayesianOptimisation;
 
-namespace boosted_tree_detail {
-inline std::size_t predictionColumn(std::size_t numberColumns) {
-    return numberColumns - 3;
-}
-}
-
 //! \brief Implementation of CBoostedTree.
 class MATHS_EXPORT CBoostedTreeImpl final {
 public:
@@ -93,7 +87,15 @@ public:
     std::size_t columnHoldingDependentVariable() const;
 
     //! Get the number of columns training the model will add to the data frame.
-    static std::size_t numberExtraColumnsForTrain();
+    constexpr static std::size_t numberExtraColumnsForTrain() {
+        // We store as follows:
+        //   1. The predicted value for the dependent variable
+        //   2. The gradient of the loss function
+        //   3. The curvature of the loss function
+        //   4. The example's weight
+        // In the last four rows of the data frame.
+        return 4;
+    }
 
     //! Get the memory used by this object.
     std::size_t memoryUsage() const;
@@ -667,6 +669,24 @@ private:
 
     friend class CBoostedTreeFactory;
 };
+
+namespace boosted_tree_detail {
+constexpr inline std::size_t predictionColumn(std::size_t numberColumns) {
+    return numberColumns - CBoostedTreeImpl::numberExtraColumnsForTrain();
+}
+
+constexpr inline std::size_t lossGradientColumn(std::size_t numberColumns) {
+    return predictionColumn(numberColumns) + 1;
+}
+
+constexpr inline std::size_t lossCurvatureColumn(std::size_t numberColumns) {
+    return predictionColumn(numberColumns) + 2;
+}
+
+constexpr inline std::size_t exampleWeightColumn(std::size_t numberColumns) {
+    return predictionColumn(numberColumns) + 3;
+}
+}
 }
 }
 

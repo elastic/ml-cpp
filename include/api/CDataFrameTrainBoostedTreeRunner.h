@@ -4,19 +4,16 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
-#ifndef INCLUDED_ml_api_CDataFrameBoostedTreeRunner_h
-#define INCLUDED_ml_api_CDataFrameBoostedTreeRunner_h
+#ifndef INCLUDED_ml_api_CDataFrameTrainBoostedTreeRunner_h
+#define INCLUDED_ml_api_CDataFrameTrainBoostedTreeRunner_h
 
-#include <core/CDataSearcher.h>
-
-#include <api/CDataFrameAnalysisConfigReader.h>
 #include <api/CDataFrameAnalysisRunner.h>
 #include <api/CDataFrameAnalysisSpecification.h>
 #include <api/ImportExport.h>
 
 #include <rapidjson/fwd.h>
 
-#include <atomic>
+#include <memory>
 
 namespace ml {
 namespace maths {
@@ -27,18 +24,13 @@ class CBoostedTree;
 class CBoostedTreeFactory;
 }
 namespace api {
+class CDataFrameAnalysisConfigReader;
+class CDataFrameAnalysisParameters;
 
 //! \brief Runs boosted tree regression on a core::CDataFrame.
-class API_EXPORT CDataFrameBoostedTreeRunner : public CDataFrameAnalysisRunner {
+class API_EXPORT CDataFrameTrainBoostedTreeRunner : public CDataFrameAnalysisRunner {
 public:
-    //! This is not intended to be called directly: use CDataFrameBoostedTreeRunnerFactory.
-    CDataFrameBoostedTreeRunner(const CDataFrameAnalysisSpecification& spec,
-                                const CDataFrameAnalysisConfigReader::CParameters& parameters);
-
-    //! This is not intended to be called directly: use CDataFrameBoostedTreeRunnerFactory.
-    CDataFrameBoostedTreeRunner(const CDataFrameAnalysisSpecification& spec);
-
-    ~CDataFrameBoostedTreeRunner() override;
+    ~CDataFrameTrainBoostedTreeRunner() override;
 
     //! \return The number of columns this adds to the data frame.
     std::size_t numberExtraColumns() const override;
@@ -48,19 +40,25 @@ protected:
     using TLossFunctionUPtr = std::unique_ptr<maths::boosted_tree::CLoss>;
 
 protected:
+    CDataFrameTrainBoostedTreeRunner(const CDataFrameAnalysisSpecification& spec,
+                                     const CDataFrameAnalysisParameters& parameters);
+    CDataFrameTrainBoostedTreeRunner(const CDataFrameAnalysisSpecification& spec);
+
     //! Parameter reader handling parameters that are shared by subclasses.
-    static CDataFrameAnalysisConfigReader getParameterReader();
+    static const CDataFrameAnalysisConfigReader& getParameterReader();
     //! Name of dependent variable field.
     const std::string& dependentVariableFieldName() const;
     //! Name of prediction field.
     const std::string& predictionFieldName() const;
-    //! Underlying boosted tree.
+    //! The boosted tree.
     const maths::CBoostedTree& boostedTree() const;
+
+    //! The boosted tree factory.
+    maths::CBoostedTreeFactory& boostedTreeFactory();
 
 private:
     using TBoostedTreeFactoryUPtr = std::unique_ptr<maths::CBoostedTreeFactory>;
     using TDataSearcherUPtr = CDataFrameAnalysisSpecification::TDataSearcherUPtr;
-    using TMemoryEstimator = std::function<void(std::int64_t)>;
 
 private:
     void runImpl(core::CDataFrame& frame) override;
@@ -71,7 +69,6 @@ private:
                                                std::size_t totalNumberRows,
                                                std::size_t partitionNumberRows,
                                                std::size_t numberColumns) const override;
-    TMemoryEstimator memoryEstimator();
 
     virtual TLossFunctionUPtr chooseLossFunction(const core::CDataFrame& frame,
                                                  std::size_t dependentVariableColumn) const = 0;
@@ -83,9 +80,8 @@ private:
     std::string m_PredictionFieldName;
     TBoostedTreeFactoryUPtr m_BoostedTreeFactory;
     TBoostedTreeUPtr m_BoostedTree;
-    std::atomic<std::int64_t> m_Memory;
 };
 }
 }
 
-#endif // INCLUDED_ml_api_CDataFrameBoostedTreeRunner_h
+#endif // INCLUDED_ml_api_CDataFrameTrainBoostedTreeRunner_h

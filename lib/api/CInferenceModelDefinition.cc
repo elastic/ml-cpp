@@ -6,15 +6,14 @@
 #include <api/CInferenceModelDefinition.h>
 
 #include <core/CPersistUtils.h>
-#include <core/CRapidJsonLineWriter.h>
 
 #include <unordered_map>
+#include <unordered_set>
 
 namespace ml {
 namespace api {
 
 namespace {
-using TRapidJsonWriter = core::CRapidJsonLineWriter<rapidjson::StringBuffer>;
 
 const std::string JSON_AGGREGATE_OUTPUT_TAG{"aggregate_output"};
 const std::string JSON_CLASSIFICATION_LABELS_TAG{"classification_labels"};
@@ -58,7 +57,7 @@ template<typename T>
 void addJsonArray(const std::string& tag,
                   const std::vector<T>& vector,
                   rapidjson::Value& parentObject,
-                  TRapidJsonWriter& writer) {
+                  CSerializableToJson::TRapidJsonWriter& writer) {
     rapidjson::Value array = writer.makeArray(vector.size());
     for (const auto& item : vector) {
         rapidjson::Value value;
@@ -119,6 +118,18 @@ CTree::CTreeNode::CTreeNode(TNodeIndex nodeIndex,
       m_Threshold(threshold), m_LeafValue(leafValue), m_SplitGain(splitGain) {
 }
 
+size_t CTree::CTreeNode::splitFeature() const {
+    return m_SplitFeature;
+}
+
+void CTree::CTreeNode::splitFeature(size_t splitFeature) {
+    m_SplitFeature = splitFeature;
+}
+
+bool CTree::CTreeNode::leaf() const {
+    return m_LeftChild.is_initialized() == false;
+}
+
 void CEnsemble::addToDocument(rapidjson::Value& parentObject, TRapidJsonWriter& writer) const {
     rapidjson::Value ensembleObject = writer.makeObject();
     this->CTrainedModel::addToDocument(ensembleObject, writer);
@@ -171,6 +182,21 @@ CTrainedModel::ETargetType CEnsemble::targetType() const {
     return this->CTrainedModel::targetType();
 }
 
+CTrainedModel::TStringVec CEnsemble::removeUnusedFeatures() {
+    TStringVec selectedFeatureNames;
+    selectedFeatureNames.reserve(this->featureNames().size());
+    std::unordered_set<std::string> set;
+    for (auto& trainedModel : this->trainedModels()) {
+        TStringVec vec(std::move(trainedModel->removeUnusedFeatures()));
+        set.insert(vec.begin(), vec.end());
+    }
+    std::copy(set.begin(), set.end(), std::back_inserter(selectedFeatureNames));
+    selectedFeatureNames.shrink_to_fit();
+    std::sort(selectedFeatureNames.begin(), selectedFeatureNames.end());
+    this->CTrainedModel::featureNames(selectedFeatureNames);
+    return selectedFeatureNames;
+}
+
 const CTrainedModel::TStringVec& CEnsemble::featureNames() const {
     return this->CTrainedModel::featureNames();
 }
@@ -196,13 +222,41 @@ CTree::TTreeNodeVec& CTree::treeStructure() {
     return m_TreeStructure;
 }
 
+CTrainedModel::TStringVec CTree::removeUnusedFeatures() {
+    std::unordered_map<std::size_t, std::size_t> selectedFeatureIndices;
+    for (auto& treeNode : m_TreeStructure) {
+        if (treeNode.leaf() == false) {
+            std::size_t adjustedIndex{selectedFeatureIndices
+                                          .emplace(treeNode.splitFeature(),
+                                                   selectedFeatureIndices.size())
+                                          .first->second};
+            treeNode.splitFeature(adjustedIndex);
+        }
+    }
+    TStringVec selectedFeatureNames(selectedFeatureIndices.size());
+    auto& featureNames = this->featureNames();
+    for (auto i = selectedFeatureIndices.begin(); i != selectedFeatureIndices.end(); ++i) {
+        selectedFeatureNames[i->second] = std::move(featureNames[i->first]);
+    }
+    this->featureNames(std::move(selectedFeatureNames));
+    return this->featureNames();
+}
+
 std::string CInferenceModelDefinition::jsonString() {
-    rapidjson::StringBuffer stringBuffer;
-    core::CRapidJsonLineWriter<rapidjson::StringBuffer> writer(stringBuffer);
-    rapidjson::Value doc = writer.makeObject();
-    this->addToDocument(doc, writer);
-    writer.write(doc);
-    return stringBuffer.GetString();
+
+    std::ostringstream stream;
+    {
+        core::CJsonOutputStreamWrapper wrapper{stream};
+        CSerializableToJson::TRapidJsonWriter writer{wrapper};
+        rapidjson::Value doc = writer.makeObject();
+        this->addToDocument(doc, writer);
+        writer.write(doc);
+        stream.flush();
+    }
+    // string writer puts the json object in an array, so we strip the external brackets
+    std::string jsonStr{stream.str()};
+    std::string resultString(jsonStr, 1, jsonStr.size() - 2);
+    return resultString;
 }
 
 void CInferenceModelDefinition::addToDocument(rapidjson::Value& parentObject,
@@ -275,9 +329,20 @@ CTrainedModel::ETargetType CTrainedModel::targetType() const {
     return m_TargetType;
 }
 
-void CInferenceModelDefinition::fieldNames(const TStringVec& fieldNames) {
+CTrainedModel::TStringVec& CTrainedModel::featureNames() {
+    return m_FeatureNames;
+}
+
+void CTrainedModel::featureNames(CTrainedModel::TStringVec&& featureNames) {
+    m_FeatureNames = featureNames;
+}
+
+void CInferenceModelDefinition::fieldNames(TStringVec&& fieldNames,
+                                           std::size_t dependentVariableColumnIndex) {
     m_FieldNames = fieldNames;
-    m_Input.fieldNames(fieldNames);
+    fieldNames.erase(fieldNames.begin() +
+                     static_cast<std::ptrdiff_t>(dependentVariableColumnIndex));
+    m_Input.fieldNames(std::move(fieldNames));
 }
 
 void CInferenceModelDefinition::trainedModel(std::unique_ptr<CTrainedModel>&& trainedModel) {
@@ -304,12 +369,24 @@ void CInferenceModelDefinition::typeString(const std::string& typeString) {
     CInferenceModelDefinition::m_TypeString = typeString;
 }
 
+const CInferenceModelDefinition::TStringVec& CInferenceModelDefinition::fieldNames() const {
+    return m_FieldNames;
+}
+
+size_t CInferenceModelDefinition::dependentVariableColumnIndex() const {
+    return m_DependentVariableColumnIndex;
+}
+
+void CInferenceModelDefinition::dependentVariableColumnIndex(size_t dependentVariableColumnIndex) {
+    m_DependentVariableColumnIndex = dependentVariableColumnIndex;
+}
+
 const CInput::TStringVec& CInput::fieldNames() const {
     return m_FieldNames;
 }
 
-void CInput::fieldNames(const TStringVec& columns) {
-    m_FieldNames = columns;
+void CInput::fieldNames(TStringVec&& fieldNames) {
+    m_FieldNames = fieldNames;
 }
 
 void CInput::addToDocument(rapidjson::Value& parentObject, TRapidJsonWriter& writer) const {
@@ -321,7 +398,7 @@ const std::string& CTargetMeanEncoding::typeString() const {
 }
 
 void CTargetMeanEncoding::addToDocument(rapidjson::Value& parentObject,
-                                        CSerializableToJson::TRapidJsonWriter& writer) const {
+                                        TRapidJsonWriter& writer) const {
     this->CEncoding::addToDocument(parentObject, writer);
     writer.addMember(JSON_DEFAULT_VALUE_TAG,
                      rapidjson::Value(m_DefaultValue).Move(), parentObject);
@@ -370,6 +447,10 @@ void CEncoding::addToDocument(rapidjson::Value& parentObject, TRapidJsonWriter& 
 }
 
 CEncoding::CEncoding(std::string field) : m_Field(std::move(field)) {
+}
+
+const std::string& CEncoding::field() const {
+    return m_Field;
 }
 
 void CFrequencyEncoding::addToDocument(rapidjson::Value& parentObject,

@@ -13,6 +13,7 @@
 #include <api/CDataFrameOutliersRunner.h>
 #include <api/CMemoryUsageEstimationResultJsonWriter.h>
 
+#include <test/CDataFrameAnalysisSpecificationFactory.h>
 #include <test/CTestTmpDir.h>
 
 #include <boost/test/unit_test.hpp>
@@ -25,7 +26,11 @@ BOOST_AUTO_TEST_SUITE(CDataFrameAnalysisRunnerTest)
 
 using namespace ml;
 
+using TBoolVec = std::vector<bool>;
+using TStrVec = std::vector<std::string>;
+
 BOOST_AUTO_TEST_CASE(testComputeExecutionStrategyForOutliers) {
+
     using TSizeVec = std::vector<std::size_t>;
 
     TSizeVec numbersRows{100, 100000, 1000000};
@@ -35,15 +40,10 @@ BOOST_AUTO_TEST_CASE(testComputeExecutionStrategyForOutliers) {
         for (auto numberCols : numbersCols) {
             LOG_DEBUG(<< "# rows = " << numberRows << ", # cols = " << numberCols);
 
-            // Give the process approximately 100MB.
-            std::string jsonSpec{api::CDataFrameAnalysisSpecificationJsonWriter::jsonString(
-                "testJob", numberRows, numberCols, 100000000, 1, {}, true,
-                test::CTestTmpDir::tmpDir(), "", "outlier_detection", "")};
-
-            api::CDataFrameAnalysisSpecification spec{jsonSpec};
-
+            auto spec{test::CDataFrameAnalysisSpecificationFactory::outlierSpec(
+                numberRows, numberCols, 100000000, "", 0, true)};
             api::CDataFrameOutliersRunnerFactory factory;
-            auto runner = factory.make(spec);
+            auto runner = factory.make(*spec);
 
             LOG_DEBUG(<< "  Use main memory = " << runner->storeDataFrameInMainMemory());
             LOG_DEBUG(<< "  # partitions = " << runner->numberPartitions());
@@ -68,18 +68,9 @@ BOOST_AUTO_TEST_CASE(testComputeExecutionStrategyForOutliers) {
     // TODO test running memory is in acceptable range.
 }
 
-std::string
-CDataFrameAnalysisRunnerTest::createSpecJsonForDiskUsageTest(std::size_t numberRows,
-                                                             std::size_t numberCols,
-                                                             bool diskUsageAllowed) {
-    return api::CDataFrameAnalysisSpecificationJsonWriter::jsonString(
-        "testJob", numberRows, numberCols, 500000, 1, {}, diskUsageAllowed,
-        test::CTestTmpDir::tmpDir(), "", "outlier_detection", "");
-}
-
 BOOST_AUTO_TEST_CASE(testComputeAndSaveExecutionStrategyDiskUsageFlag) {
 
-    std::vector<std::string> errors;
+    TStrVec errors;
     std::mutex errorsMutex;
     auto errorHandler = [&errors, &errorsMutex](std::string error) {
         std::lock_guard<std::mutex> lock{errorsMutex};
@@ -92,8 +83,8 @@ BOOST_AUTO_TEST_CASE(testComputeAndSaveExecutionStrategyDiskUsageFlag) {
     // Test large memory requirement without disk usage
     {
         errors.clear();
-        std::string jsonSpec{createSpecJsonForDiskUsageTest(1000, 100, false)};
-        api::CDataFrameAnalysisSpecification spec{jsonSpec};
+        auto spec = test::CDataFrameAnalysisSpecificationFactory::diskUsageTestSpec(
+            1000, 100, false);
 
         // single error is registered that the memory limit is to low
         LOG_DEBUG(<< "errors = " << core::CContainerPrinter::print(errors));
@@ -106,8 +97,8 @@ BOOST_AUTO_TEST_CASE(testComputeAndSaveExecutionStrategyDiskUsageFlag) {
     // Test large memory requirement with disk usage
     {
         errors.clear();
-        std::string jsonSpec{createSpecJsonForDiskUsageTest(1000, 100, true)};
-        api::CDataFrameAnalysisSpecification spec{jsonSpec};
+        auto spec = test::CDataFrameAnalysisSpecificationFactory::diskUsageTestSpec(
+            1000, 100, true);
 
         // no error should be registered
         BOOST_REQUIRE_EQUAL(0, static_cast<int>(errors.size()));
@@ -116,21 +107,21 @@ BOOST_AUTO_TEST_CASE(testComputeAndSaveExecutionStrategyDiskUsageFlag) {
     // Test low memory requirement without disk usage
     {
         errors.clear();
-        std::string jsonSpec{createSpecJsonForDiskUsageTest(10, 10, false)};
-        api::CDataFrameAnalysisSpecification spec{jsonSpec};
+        auto spec = test::CDataFrameAnalysisSpecificationFactory::diskUsageTestSpec(
+            10, 10, false);
 
         // no error should be registered
         BOOST_REQUIRE_EQUAL(0, static_cast<int>(errors.size()));
     }
 }
 
-void testEstimateMemoryUsage(int64_t numberRows,
-                             const std::string& expected_expected_memory_without_disk,
-                             const std::string& expected_expected_memory_with_disk,
-                             int expected_number_errors) {
+void testEstimateMemoryUsage(std::int64_t numberRows,
+                             const std::string& expectedExpectedMemoryWithoutDisk,
+                             const std::string& expectedExpectedMemoryWithDisk,
+                             int expectedNumberErrors) {
 
     std::ostringstream sstream;
-    std::vector<std::string> errors;
+    TStrVec errors;
     std::mutex errorsMutex;
     auto errorHandler = [&errors, &errorsMutex](std::string error) {
         std::lock_guard<std::mutex> lock{errorsMutex};
@@ -141,15 +132,13 @@ void testEstimateMemoryUsage(int64_t numberRows,
 
     // The output writer won't close the JSON structures until is is destroyed
     {
-        std::string jsonSpec{api::CDataFrameAnalysisSpecificationJsonWriter::jsonString(
-            "testJob", numberRows, 5, 100000000, 1, {}, true,
-            test::CTestTmpDir::tmpDir(), "", "outlier_detection", "")};
-        api::CDataFrameAnalysisSpecification spec{jsonSpec};
+        auto spec{test::CDataFrameAnalysisSpecificationFactory::outlierSpec(
+            numberRows, 5, 100000000, "", 0, true)};
 
         core::CJsonOutputStreamWrapper wrappedOutStream(sstream);
         api::CMemoryUsageEstimationResultJsonWriter writer(wrappedOutStream);
 
-        spec.estimateMemoryUsage(writer);
+        spec->estimateMemoryUsage(writer);
     }
 
     rapidjson::Document arrayDoc;
@@ -158,66 +147,64 @@ void testEstimateMemoryUsage(int64_t numberRows,
     BOOST_TEST_REQUIRE(arrayDoc.IsArray());
     BOOST_REQUIRE_EQUAL(rapidjson::SizeType(1), arrayDoc.Size());
 
-    const rapidjson::Value& result = arrayDoc[rapidjson::SizeType(0)];
+    const rapidjson::Value& result{arrayDoc[rapidjson::SizeType(0)]};
     BOOST_TEST_REQUIRE(result.IsObject());
 
     BOOST_TEST_REQUIRE(result.HasMember("expected_memory_without_disk"));
-    BOOST_REQUIRE_EQUAL(expected_expected_memory_without_disk,
+    BOOST_REQUIRE_EQUAL(expectedExpectedMemoryWithoutDisk,
                         std::string(result["expected_memory_without_disk"].GetString()));
     BOOST_TEST_REQUIRE(result.HasMember("expected_memory_with_disk"));
-    BOOST_REQUIRE_EQUAL(expected_expected_memory_with_disk,
+    BOOST_REQUIRE_EQUAL(expectedExpectedMemoryWithDisk,
                         std::string(result["expected_memory_with_disk"].GetString()));
 
-    BOOST_REQUIRE_EQUAL(expected_number_errors, static_cast<int>(errors.size()));
+    BOOST_REQUIRE_EQUAL(expectedNumberErrors, static_cast<int>(errors.size()));
 }
 
-BOOST_AUTO_TEST_CASE(testEstimateMemoryUsage_0) {
+BOOST_AUTO_TEST_CASE(testEstimateMemoryUsageFor0Rows) {
     testEstimateMemoryUsage(0, "0", "0", 1);
 }
 
-BOOST_AUTO_TEST_CASE(testEstimateMemoryUsage_1) {
+BOOST_AUTO_TEST_CASE(testEstimateMemoryUsageFor1Row) {
     testEstimateMemoryUsage(1, "6kB", "6kB", 0);
 }
 
-BOOST_AUTO_TEST_CASE(testEstimateMemoryUsage_10) {
+BOOST_AUTO_TEST_CASE(testEstimateMemoryUsageFor10Rows) {
     testEstimateMemoryUsage(10, "15kB", "13kB", 0);
 }
 
-BOOST_AUTO_TEST_CASE(testEstimateMemoryUsage_100) {
+BOOST_AUTO_TEST_CASE(testEstimateMemoryUsageFor100Rows) {
     testEstimateMemoryUsage(100, "62kB", "35kB", 0);
 }
 
-BOOST_AUTO_TEST_CASE(testEstimateMemoryUsage_1000) {
+BOOST_AUTO_TEST_CASE(testEstimateMemoryUsageFor1000Rows) {
     testEstimateMemoryUsage(1000, "450kB", "143kB", 0);
 }
 
 void testColumnsForWhichEmptyIsMissing(const std::string& analysis,
-                                       bool expected_dependentVariableEmptyAsMissing) {
-    using TBoolVec = std::vector<bool>;
-    using TStrVec = std::vector<std::string>;
-
-    std::string parameters{"{\"dependent_variable\": \"label\"}"};
+                                       const std::string& dependentVariableName,
+                                       const TStrVec& fieldNames,
+                                       const TStrVec& categoricalFields,
+                                       const TBoolVec& expectedEmptyIsMissing) {
+    std::string parameters{"{\"dependent_variable\": \"" + dependentVariableName + "\"}"};
     std::string jsonSpec{api::CDataFrameAnalysisSpecificationJsonWriter::jsonString(
-        "testJob", 10000, 5, 100000000, 1, {}, true,
+        "testJob", 10000, 5, 100000000, 1, categoricalFields, true,
         test::CTestTmpDir::tmpDir(), "", analysis, parameters)};
     api::CDataFrameAnalysisSpecification spec{jsonSpec};
-
-    TStrVec fieldNames{"feature_1", "feature_2", "feature_3", "label"};
-    TBoolVec emptyAsMissing{spec.columnsForWhichEmptyIsMissing(fieldNames)};
-
-    BOOST_REQUIRE_EQUAL(fieldNames.size(), emptyAsMissing.size());
-    BOOST_REQUIRE_EQUAL(false, bool(emptyAsMissing[0]));
-    BOOST_REQUIRE_EQUAL(false, bool(emptyAsMissing[1]));
-    BOOST_REQUIRE_EQUAL(false, bool(emptyAsMissing[2]));
-    BOOST_REQUIRE_EQUAL(expected_dependentVariableEmptyAsMissing, bool(emptyAsMissing[3]));
+    auto emptyIsMissing = spec.columnsForWhichEmptyIsMissing(fieldNames);
+    BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(expectedEmptyIsMissing),
+                        core::CContainerPrinter::print(emptyIsMissing));
 }
 
 BOOST_AUTO_TEST_CASE(testColumnsForWhichEmptyIsMissingClassification) {
-    testColumnsForWhichEmptyIsMissing("classification", true);
+    testColumnsForWhichEmptyIsMissing("classification", "class",
+                                      {"feature_1", "feature_2", "feature_3", "class"},
+                                      {"class"}, {false, false, false, true});
 }
 
 BOOST_AUTO_TEST_CASE(testColumnsForWhichEmptyIsMissingRegression) {
-    testColumnsForWhichEmptyIsMissing("regression", false);
+    testColumnsForWhichEmptyIsMissing("regression", "value",
+                                      {"feature_1", "feature_2", "feature_3", "value"},
+                                      {}, {false, false, false, false});
 }
 
 BOOST_AUTO_TEST_SUITE_END()

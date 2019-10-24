@@ -19,6 +19,7 @@
 #include <test/CRandomNumbers.h>
 #include <test/CTestTmpDir.h>
 
+#include <boost/make_shared.hpp>
 #include <boost/test/unit_test.hpp>
 
 #include <fstream>
@@ -189,12 +190,6 @@ void readFileToStream(const std::string& filename, std::stringstream& stream) {
     stream << str;
     stream.flush();
 }
-
-void clearFile(const std::string& filename) {
-    std::ofstream file;
-    file.open(filename, std::ofstream::out | std::ofstream::trunc);
-    file.close();
-}
 }
 
 BOOST_AUTO_TEST_CASE(testPiecewiseConstant) {
@@ -249,7 +244,7 @@ BOOST_AUTO_TEST_CASE(testPiecewiseConstant) {
             0.0, modelBias[i][0],
             4.0 * std::sqrt(noiseVariance / static_cast<double>(trainRows)));
         // Good R^2...
-        BOOST_TEST_REQUIRE(modelRSquared[i][0] > 0.96);
+        BOOST_TEST_REQUIRE(modelRSquared[i][0] > 0.95);
 
         meanModelRSquared.add(modelRSquared[i][0]);
     }
@@ -370,9 +365,9 @@ BOOST_AUTO_TEST_CASE(testNonLinear) {
         // Unbiased...
         BOOST_REQUIRE_CLOSE_ABSOLUTE(
             0.0, modelBias[i][0],
-            4.0 * std::sqrt(noiseVariance / static_cast<double>(trainRows)));
+            5.0 * std::sqrt(noiseVariance / static_cast<double>(trainRows)));
         // Good R^2...
-        BOOST_TEST_REQUIRE(modelRSquared[i][0] > 0.96);
+        BOOST_TEST_REQUIRE(modelRSquared[i][0] > 0.95);
 
         meanModelRSquared.add(modelRSquared[i][0]);
     }
@@ -762,7 +757,7 @@ BOOST_AUTO_TEST_CASE(testTranslationInvariance) {
         rsquared.push_back(modelRSquared);
     }
 
-    BOOST_REQUIRE_CLOSE_ABSOLUTE(rsquared[0], rsquared[1], 5e-3);
+    BOOST_REQUIRE_CLOSE_ABSOLUTE(rsquared[0], rsquared[1], 0.01);
 }
 
 std::size_t maxDepth(const std::vector<maths::CBoostedTreeNode>& tree,
@@ -1076,7 +1071,6 @@ BOOST_AUTO_TEST_CASE(testLogisticRegression) {
     std::size_t cols{4};
     std::size_t capacity{600};
 
-    TMeanAccumulator meanExcessCrossEntropy;
     for (std::size_t test = 0; test < 3; ++test) {
         TDoubleVec weights;
         rng.generateUniformSamples(-2.0, 2.0, cols - 1, weights);
@@ -1107,40 +1101,126 @@ BOOST_AUTO_TEST_CASE(testLogisticRegression) {
         fillDataFrame(trainRows, rows - trainRows, cols, {false, false, false, true},
                       x, TDoubleVec(rows, 0.0), target, *frame);
 
-        auto regression = maths::CBoostedTreeFactory::constructFromParameters(1).buildFor(
-            *frame, std::make_unique<maths::boosted_tree::CLogistic>(), cols - 1);
+        auto regression =
+            maths::CBoostedTreeFactory::constructFromParameters(1)
+                .balanceClassTrainingLoss(false)
+                .buildFor(*frame, std::make_unique<maths::boosted_tree::CLogistic>(),
+                          cols - 1);
 
         regression->train();
         regression->predict();
 
-        double actualCrossEntropy{0.0};
-        double minimumCrossEntropy{0.0};
+        TMeanAccumulator logRelativeError;
         frame->readRows(1, [&](TRowItr beginRows, TRowItr endRows) {
             for (auto row = beginRows; row != endRows; ++row) {
                 if (row->index() >= trainRows) {
                     std::size_t index{
                         regression->columnHoldingPrediction(row->numberColumns())};
-                    actualCrossEntropy -=
-                        probability(*row) *
-                        std::log(maths::CTools::logisticFunction((*row)[index]));
-                    minimumCrossEntropy -= probability(*row) *
-                                           std::log(probability(*row));
+                    double expectedProbability{probability(*row)};
+                    double actualProbability{maths::CTools::logisticFunction((*row)[index])};
+                    logRelativeError.add(
+                        std::log(std::max(actualProbability, expectedProbability) /
+                                 std::min(actualProbability, expectedProbability)));
                 }
             }
         });
-        LOG_DEBUG(<< "actual cross entropy = " << actualCrossEntropy
-                  << ", minimum cross entropy = " << minimumCrossEntropy);
+        LOG_DEBUG(<< "log relative error = "
+                  << maths::CBasicStatistics::mean(logRelativeError));
 
-        // We should be with 40% of the minimum possible cross entropy.
-        BOOST_TEST_REQUIRE(actualCrossEntropy < 1.4 * minimumCrossEntropy);
-        meanExcessCrossEntropy.add(actualCrossEntropy / minimumCrossEntropy);
+        BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(logRelativeError) < 0.7);
+    }
+}
+
+BOOST_AUTO_TEST_CASE(testUnbalancedClasses) {
+
+    // Test we get similar per class precision and recall with unbalanced training
+    // data targeting balanced within class accuracy.
+
+    test::CRandomNumbers rng;
+
+    std::size_t trainRows{1000};
+    std::size_t classes[]{1, 0, 1, 0};
+    std::size_t classesRowCounts[]{800, 200, 100, 100};
+    std::size_t cols{3};
+
+    TDoubleVecVec x;
+    TDoubleVec means{0.0, 3.0};
+    TDoubleVec variances{6.0, 6.0};
+    for (std::size_t i = 0; i < 4; ++i) {
+        TDoubleVecVec xi;
+        double mean{means[classes[i]]};
+        double variance{variances[classes[i]]};
+        rng.generateMultivariateNormalSamples(
+            {mean, mean}, {{variance, 0.0}, {0.0, variance}}, classesRowCounts[i], xi);
+        x.insert(x.end(), xi.begin(), xi.end());
     }
 
-    LOG_DEBUG(<< "mean excess cross entropy = "
-              << maths::CBasicStatistics::mean(meanExcessCrossEntropy));
+    TDoubleVecVec precisions;
+    TDoubleVecVec recalls;
 
-    // We should be within 25% of the minimum possible cross entropy on average.
-    BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(meanExcessCrossEntropy) < 1.25);
+    for (bool balanceClassTrainingLoss : {false, true}) {
+        auto frame = core::makeMainStorageDataFrame(cols).first;
+        frame->categoricalColumns(TBoolVec{false, false, true});
+        for (std::size_t i = 0, index = 0; i < 4; ++i) {
+            for (std::size_t j = 0; j < classesRowCounts[i]; ++j, ++index) {
+                frame->writeRow([&](core::CDataFrame::TFloatVecItr column, std::int32_t&) {
+                    for (std::size_t k = 0; k < cols - 1; ++k, ++column) {
+                        *column = x[index][k];
+                    }
+                    *column = index < trainRows ? static_cast<double>(i)
+                                                : core::CDataFrame::valueOfMissing();
+                });
+            }
+        }
+        frame->finishWritingRows();
+
+        auto regression =
+            maths::CBoostedTreeFactory::constructFromParameters(1)
+                .balanceClassTrainingLoss(balanceClassTrainingLoss)
+                .buildFor(*frame, std::make_unique<maths::boosted_tree::CLogistic>(),
+                          cols - 1);
+
+        regression->train();
+        regression->predict();
+
+        TDoubleVec truePositives(2, 0.0);
+        TDoubleVec trueNegatives(2, 0.0);
+        TDoubleVec falsePositives(2, 0.0);
+        TDoubleVec falseNegatives(2, 0.0);
+        frame->readRows(1, [&](TRowItr beginRows, TRowItr endRows) {
+            for (auto row = beginRows; row != endRows; ++row) {
+                double logOddsClassOne{
+                    (*row)[regression->columnHoldingPrediction(row->numberColumns())]};
+                double prediction{
+                    maths::CTools::logisticFunction(logOddsClassOne) < 0.5 ? 0.0 : 1.0};
+                if (row->index() >= trainRows &&
+                    row->index() < trainRows + classesRowCounts[2]) {
+                    // Actual is zero.
+                    (prediction == 0.0 ? truePositives[0] : falseNegatives[0]) += 1.0;
+                    (prediction == 0.0 ? trueNegatives[1] : falsePositives[1]) += 1.0;
+                } else if (row->index() >= trainRows + classesRowCounts[2]) {
+                    // Actual is one.
+                    (prediction == 1.0 ? truePositives[1] : falseNegatives[1]) += 1.0;
+                    (prediction == 1.0 ? trueNegatives[0] : falsePositives[0]) += 1.0;
+                }
+            }
+        });
+
+        precisions.push_back(
+            {truePositives[0] / (truePositives[0] + falsePositives[0]),
+             truePositives[1] / (truePositives[1] + falsePositives[1])});
+        recalls.push_back({truePositives[0] / (truePositives[0] + falseNegatives[0]),
+                           truePositives[1] / (truePositives[1] + falseNegatives[1])});
+    }
+
+    LOG_DEBUG(<< "precisions = " << core::CContainerPrinter::print(precisions));
+    LOG_DEBUG(<< "recalls    = " << core::CContainerPrinter::print(recalls));
+
+    // We expect more similar precision and recall when balancing training loss.
+    BOOST_TEST_REQUIRE(std::fabs(precisions[1][0] - precisions[1][1]) <
+                       0.4 * std::fabs(precisions[0][0] - precisions[0][1]));
+    BOOST_TEST_REQUIRE(std::fabs(recalls[1][0] - recalls[1][1]) <
+                       0.4 * std::fabs(recalls[0][0] - recalls[0][1]));
 }
 
 BOOST_AUTO_TEST_CASE(testEstimateMemoryUsedByTrain) {
@@ -1345,11 +1425,10 @@ BOOST_AUTO_TEST_CASE(testRestoreErrorHandling) {
     };
     core::CLogger::CScopeSetFatalErrorHandler scope{errorHandler};
 
-    const std::string logFile{"test.log"};
+    auto stream = boost::make_shared<std::ostringstream>();
 
     // log at level ERROR only
-    BOOST_TEST_REQUIRE(ml::core::CLogger::instance().reconfigureFromFile(
-        "testfiles/testLogErrors.boost.log.ini"));
+    BOOST_TEST_REQUIRE(core::CLogger::instance().reconfigure(stream));
 
     std::size_t cols{3};
     std::size_t capacity{50};
@@ -1362,8 +1441,6 @@ BOOST_AUTO_TEST_CASE(testRestoreErrorHandling) {
     errorInBayesianOptimisationState.flush();
 
     bool throwsExceptions{false};
-    std::stringstream buffer;
-    clearFile(logFile);
     try {
 
         auto boostedTree = maths::CBoostedTreeFactory::constructFromString(errorInBayesianOptimisationState)
@@ -1374,8 +1451,7 @@ BOOST_AUTO_TEST_CASE(testRestoreErrorHandling) {
         core::CRegex re;
         re.init("Input error:.*");
         BOOST_TEST_REQUIRE(re.matches(e.what()));
-        readFileToStream(logFile, buffer);
-        BOOST_TEST_REQUIRE(buffer.str().find("Failed to restore MAX_BOUNDARY_TAG") !=
+        BOOST_TEST_REQUIRE(stream->str().find("Failed to restore MAX_BOUNDARY_TAG") !=
                            std::string::npos);
     }
     BOOST_TEST_REQUIRE(throwsExceptions);
@@ -1385,8 +1461,7 @@ BOOST_AUTO_TEST_CASE(testRestoreErrorHandling) {
     errorInBoostedTreeImplState.flush();
 
     throwsExceptions = false;
-    buffer.clear();
-    clearFile(logFile);
+    stream->clear();
     try {
         auto boostedTree = maths::CBoostedTreeFactory::constructFromString(errorInBoostedTreeImplState)
                                .restoreFor(*frame, 2);
@@ -1396,8 +1471,7 @@ BOOST_AUTO_TEST_CASE(testRestoreErrorHandling) {
         core::CRegex re;
         re.init("Input error:.*");
         BOOST_TEST_REQUIRE(re.matches(e.what()));
-        readFileToStream(logFile, buffer);
-        BOOST_TEST_REQUIRE(buffer.str().find("Failed to restore NUMBER_FOLDS_TAG") !=
+        BOOST_TEST_REQUIRE(stream->str().find("Failed to restore NUMBER_FOLDS_TAG") !=
                            std::string::npos);
     }
     BOOST_TEST_REQUIRE(throwsExceptions);
@@ -1407,8 +1481,7 @@ BOOST_AUTO_TEST_CASE(testRestoreErrorHandling) {
     errorInStateVersion.flush();
 
     throwsExceptions = false;
-    buffer.clear();
-    clearFile(logFile);
+    stream->clear();
     try {
         auto boostedTree = maths::CBoostedTreeFactory::constructFromString(errorInBoostedTreeImplState)
                                .restoreFor(*frame, 2);
@@ -1418,8 +1491,7 @@ BOOST_AUTO_TEST_CASE(testRestoreErrorHandling) {
         core::CRegex re;
         re.init("Input error:.*");
         BOOST_TEST_REQUIRE(re.matches(e.what()));
-        readFileToStream(logFile, buffer);
-        BOOST_TEST_REQUIRE(buffer.str().find("unsupported state serialization version.") !=
+        BOOST_TEST_REQUIRE(stream->str().find("unsupported state serialization version.") !=
                            std::string::npos);
     }
     BOOST_TEST_REQUIRE(throwsExceptions);

@@ -8,6 +8,7 @@
 #define INCLUDED_ml_api_CDataFrameAnalysisRunner_h
 
 #include <core/CFastMutex.h>
+#include <core/CProgramCounters.h>
 #include <core/CStatePersistInserter.h>
 
 #include <api/CInferenceModelDefinition.h>
@@ -141,16 +142,19 @@ public:
     //! of the proportion of total work complete for a single run.
     double progress() const;
 
+    //! \return A serialisable definition of the trained model.
     virtual TInferenceModelDefinitionUPtr
     inferenceModelDefinition(const TStrVec& fieldNames, const TStrVecVec& categoryNames) const;
 
 protected:
+    using TMemoryMonitor = std::function<void(std::int64_t)>;
     using TStatePersister =
         std::function<void(std::function<void(core::CStatePersistInserter&)>)>;
 
 protected:
     const CDataFrameAnalysisSpecification& spec() const;
     TProgressRecorder progressRecorder();
+    TMemoryMonitor memoryMonitor(counter_t::ECounterTypes counter);
     std::size_t estimateMemoryUsage(std::size_t totalNumberRows,
                                     std::size_t partitionNumberRows,
                                     std::size_t numberColumns) const;
@@ -184,6 +188,7 @@ private:
 
     std::atomic_bool m_Finished;
     std::atomic_size_t m_FractionalProgress;
+    std::atomic<std::int64_t> m_Memory;
 
     std::thread m_Runner;
 };

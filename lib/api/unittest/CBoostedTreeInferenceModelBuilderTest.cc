@@ -10,14 +10,17 @@
 #include <core/CDataFrame.h>
 #include <core/CDataSearcher.h>
 #include <core/CFloatStorage.h>
+#include <core/CProgramCounters.h>
 
 #include <maths/CLinearAlgebraEigen.h>
 
+#include <api/CBoostedTreeInferenceModelBuilder.h>
 #include <api/CDataFrameAnalysisSpecification.h>
 #include <api/CDataFrameAnalysisSpecificationJsonWriter.h>
 #include <api/CDataFrameAnalyzer.h>
 #include <api/CInferenceModelDefinition.h>
 
+#include <test/CDataFrameAnalysisSpecificationFactory.h>
 #include <test/CDataFrameTestUtils.h>
 #include <test/CRandomNumbers.h>
 #include <test/CTestTmpDir.h>
@@ -43,58 +46,6 @@ using TPoint = maths::CDenseVector<maths::CFloatStorage>;
 using TPointVec = std::vector<TPoint>;
 using TRowItr = core::CDataFrame::TRowItr;
 using TStrVecVec = std::vector<TStrVec>;
-
-// TODO factor out this method to avoid code duplication
-auto regressionSpec(std::string dependentVariable,
-                    std::string analysis,
-                    std::size_t rows = 100,
-                    std::size_t cols = 5,
-                    std::size_t memoryLimit = 3000000,
-                    std::size_t numberRoundsPerHyperparameter = 0,
-                    std::size_t bayesianOptimisationRestarts = 0,
-                    const TStrVec& categoricalFieldNames = TStrVec{},
-                    double lambda = -1.0,
-                    double gamma = -1.0,
-                    double eta = -1.0,
-                    std::size_t maximumNumberTrees = 0,
-                    double featureBagFraction = -1.0) {
-
-    std::string parameters = "{\n\"dependent_variable\": \"" + dependentVariable + "\"";
-    if (lambda >= 0.0) {
-        parameters += ",\n\"lambda\": " + core::CStringUtils::typeToString(lambda);
-    }
-    if (gamma >= 0.0) {
-        parameters += ",\n\"gamma\": " + core::CStringUtils::typeToString(gamma);
-    }
-    if (eta > 0.0) {
-        parameters += ",\n\"eta\": " + core::CStringUtils::typeToString(eta);
-    }
-    if (maximumNumberTrees > 0) {
-        parameters += ",\n\"maximum_number_trees\": " +
-                      core::CStringUtils::typeToString(maximumNumberTrees);
-    }
-    if (featureBagFraction > 0.0) {
-        parameters += ",\n\"feature_bag_fraction\": " +
-                      core::CStringUtils::typeToString(featureBagFraction);
-    }
-    if (numberRoundsPerHyperparameter > 0) {
-        parameters += ",\n\"number_rounds_per_hyperparameter\": " +
-                      core::CStringUtils::typeToString(numberRoundsPerHyperparameter);
-    }
-    if (bayesianOptimisationRestarts > 0) {
-        parameters += ",\n\"bayesian_optimisation_restarts\": " +
-                      core::CStringUtils::typeToString(bayesianOptimisationRestarts);
-    }
-    parameters += "\n}";
-
-    std::string spec{api::CDataFrameAnalysisSpecificationJsonWriter::jsonString(
-        "testJob", rows, cols, memoryLimit, 1, categoricalFieldNames, true,
-        test::CTestTmpDir::tmpDir(), "ml", analysis, parameters)};
-
-    LOG_TRACE(<< "spec =\n" << spec);
-
-    return std::make_unique<api::CDataFrameAnalysisSpecification>(spec);
-}
 
 auto generateCategoricalData(test::CRandomNumbers& rng, std::size_t rows, TDoubleVec expectedFrequencies) {
 
@@ -140,9 +91,9 @@ void CBoostedTreeInferenceModelBuilderTest::testIntegrationRegression() {
         values[2].push_back(values[0][i] * weights[0] + values[1][i] * weights[1]);
     }
 
-    api::CDataFrameAnalyzer analyzer{regressionSpec("target_col", "regression",
-                                                    numberExamples, cols, 30000000,
-                                                    0, 0, {"categorical_col"}),
+    api::CDataFrameAnalyzer analyzer{test::CDataFrameAnalysisSpecificationFactory::predictionSpec(
+                                         "regression", "target_col", numberExamples,
+                                         cols, 30000000, 0, 0, {"categorical_col"}),
                                      outputWriterFactory};
 
     TDataFrameUPtr frame =
@@ -195,14 +146,13 @@ void CBoostedTreeInferenceModelBuilderTest::testIntegrationRegression() {
     CPPUNIT_ASSERT(oneHot && target && frequency);
 
     // assert trained model
-    auto trainedModel = dynamic_cast<api::CEnsemble*>(definition->trainedModel().get());
+    auto* trainedModel =
+        dynamic_cast<api::CEnsemble*>(definition->trainedModel().get());
     CPPUNIT_ASSERT_EQUAL(api::CTrainedModel::E_Regression, trainedModel->targetType());
-    CPPUNIT_ASSERT_EQUAL(std::size_t(22), trainedModel->size());
+    std::size_t expectedSize{core::CProgramCounters::counter(
+        ml::counter_t::E_DFTPMTrainedForestNumberTrees)};
+    CPPUNIT_ASSERT_EQUAL(expectedSize, trainedModel->size());
     CPPUNIT_ASSERT("weighted_sum" == trainedModel->aggregateOutput()->stringType());
-    CPPUNIT_ASSERT(trainedModel->featureNames() ==
-                   std::vector<std::string>({"numeric_col", "categorical_col_cat1", "categorical_col_cat2",
-                                             "categorical_col_cat3", "categorical_col_frequency",
-                                             "categorical_col_targetmean"}));
 }
 
 void CBoostedTreeInferenceModelBuilderTest::testIntegrationClassification() {
@@ -228,8 +178,9 @@ void CBoostedTreeInferenceModelBuilderTest::testIntegrationClassification() {
     values[2] = generateCategoricalData(rng, numberExamples, {5.0, 5.0}).second;
 
     api::CDataFrameAnalyzer analyzer{
-        regressionSpec("target_col", "classification", numberExamples, cols,
-                       30000000, 0, 0, {"categorical_col", "target_col"}),
+        test::CDataFrameAnalysisSpecificationFactory::predictionSpec(
+            "classification", "target_col", numberExamples, cols, 30000000, 0,
+            0, {"categorical_col", "target_col"}),
         outputWriterFactory};
 
     TDataFrameUPtr frame =
@@ -243,7 +194,7 @@ void CBoostedTreeInferenceModelBuilderTest::testIntegrationClassification() {
     }
     analyzer.handleRecord(fieldNames, {"", "", "", "", "$"});
     auto analysisRunner = analyzer.runner();
-    TStrVecVec categoryMappingVector{{}, {"cat1", "cat2", "cat3"}, {}};
+    TStrVecVec categoryMappingVector{{}, {"cat1", "cat2", "cat3"}, {"true", "false"}};
     auto definition = analysisRunner->inferenceModelDefinition(fieldNames, categoryMappingVector);
 
     LOG_DEBUG(<< "Inference model definition: " << definition->jsonString());
@@ -251,7 +202,9 @@ void CBoostedTreeInferenceModelBuilderTest::testIntegrationClassification() {
     // assert trained model
     auto trainedModel = dynamic_cast<api::CEnsemble*>(definition->trainedModel().get());
     CPPUNIT_ASSERT_EQUAL(api::CTrainedModel::E_Classification, trainedModel->targetType());
-    CPPUNIT_ASSERT_EQUAL(std::size_t(5), trainedModel->size());
+    std::size_t expectedSize{core::CProgramCounters::counter(
+        ml::counter_t::E_DFTPMTrainedForestNumberTrees)};
+    CPPUNIT_ASSERT_EQUAL(expectedSize, trainedModel->size());
     CPPUNIT_ASSERT("logistic_regression" == trainedModel->aggregateOutput()->stringType());
 }
 
@@ -279,9 +232,9 @@ void CBoostedTreeInferenceModelBuilderTest::testJsonSchema() {
         values[2].push_back(values[0][i] * weights[0] + values[1][i] * weights[1]);
     }
 
-    api::CDataFrameAnalyzer analyzer{regressionSpec("target_col", "regression",
-                                                    numberExamples, cols, 30000000,
-                                                    0, 0, {"categorical_col"}),
+    api::CDataFrameAnalyzer analyzer{test::CDataFrameAnalysisSpecificationFactory::predictionSpec(
+                                         "regression", "target_col", numberExamples,
+                                         cols, 30000000, 0, 0, {"categorical_col"}),
                                      outputWriterFactory};
 
     TDataFrameUPtr frame =
@@ -325,6 +278,60 @@ void CBoostedTreeInferenceModelBuilderTest::testJsonSchema() {
     }
 }
 
+void CBoostedTreeInferenceModelBuilderTest::testEncoders() {
+    {
+        TStrVec fieldNames{"col1", "target", "col2", "col3"};
+        std::size_t dependentVariableColumnIndex{1};
+        TStrVecVec categoryNames{{},
+                                 {"targetcat1", "targetcat2"},
+                                 {"col2cat1", "col2cat2", "col2cat3"},
+                                 {"col3cat1", "col3cat2"}};
+        api::CClassificationInferenceModelBuilder builder(
+            fieldNames, dependentVariableColumnIndex, categoryNames);
+        builder.addIdentityEncoding(0);
+        builder.addOneHotEncoding(2, 0);
+        builder.addOneHotEncoding(2, 1);
+        builder.addFrequencyEncoding(2, {1.0, 1.0, 1.0});
+        builder.addOneHotEncoding(3, 0);
+        builder.addFrequencyEncoding(3, {1.0, 1.0});
+        auto definition{builder.build()};
+        const auto& preprocessors{definition.preprocessors()};
+        CPPUNIT_ASSERT_EQUAL(std::size_t(4), preprocessors.size());
+        for (const auto& encoding : preprocessors) {
+            if (encoding->typeString() == "frequency_encoding") {
+                const auto& frequencyEncoding{
+                    static_cast<api::CFrequencyEncoding*>(encoding.get())};
+                const auto& map{frequencyEncoding->frequencyMap()};
+                if (frequencyEncoding->featureName() == "col2_frequency") {
+                    CPPUNIT_ASSERT_EQUAL(std::size_t(3), map.size());
+                    CPPUNIT_ASSERT(map.find("col2cat1") != map.end());
+                    CPPUNIT_ASSERT(map.find("col2cat2") != map.end());
+                    CPPUNIT_ASSERT(map.find("col2cat3") != map.end());
+                } else if (frequencyEncoding->featureName() == "col3_frequency") {
+                    CPPUNIT_ASSERT_EQUAL(std::size_t(2), map.size());
+                    CPPUNIT_ASSERT(map.find("col3cat1") != map.end());
+                    CPPUNIT_ASSERT(map.find("col3cat2") != map.end());
+                }
+            } else if (encoding->typeString() == "one_hot_encoding") {
+                const auto& oneHotEncoding{
+                    static_cast<api::COneHotEncoding*>(encoding.get())};
+                const auto& map{oneHotEncoding->hotMap()};
+
+                if (oneHotEncoding->field() == "col2") {
+                    CPPUNIT_ASSERT_EQUAL(std::size_t(2), map.size());
+                    CPPUNIT_ASSERT(map.find("col2cat1") != map.end());
+                    CPPUNIT_ASSERT(map.find("col2cat2") != map.end());
+                } else if (oneHotEncoding->field() == "col3") {
+                    CPPUNIT_ASSERT_EQUAL(std::size_t(1), map.size());
+                    CPPUNIT_ASSERT(map.find("col3cat1") != map.end());
+                }
+            } else {
+                CPPUNIT_FAIL("Unexpected encoding type");
+            }
+        }
+    }
+}
+
 CppUnit::Test* CBoostedTreeInferenceModelBuilderTest::suite() {
     CppUnit::TestSuite* suiteOfTests =
         new CppUnit::TestSuite("CBoostedTreeInferenceModelBuilderTest");
@@ -338,6 +345,9 @@ CppUnit::Test* CBoostedTreeInferenceModelBuilderTest::suite() {
     suiteOfTests->addTest(new CppUnit::TestCaller<CBoostedTreeInferenceModelBuilderTest>(
         "CBoostedTreeInferenceModelBuilderTest::testJsonSchema",
         &CBoostedTreeInferenceModelBuilderTest::testJsonSchema));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CBoostedTreeInferenceModelBuilderTest>(
+        "CBoostedTreeInferenceModelBuilderTest::testEncoders",
+        &CBoostedTreeInferenceModelBuilderTest::testEncoders));
 
     return suiteOfTests;
 }

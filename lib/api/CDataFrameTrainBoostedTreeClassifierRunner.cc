@@ -4,14 +4,11 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
-#include <api/CDataFrameClassificationRunner.h>
+#include <api/CDataFrameTrainBoostedTreeClassifierRunner.h>
 
 #include <core/CDataFrame.h>
 #include <core/CLogger.h>
-#include <core/CProgramCounters.h>
 #include <core/CRapidJsonConcurrentLineWriter.h>
-#include <core/CStateDecompressor.h>
-#include <core/CStopWatch.h>
 
 #include <maths/CBoostedTree.h>
 #include <maths/CBoostedTreeFactory.h>
@@ -22,10 +19,7 @@
 #include <api/CBoostedTreeInferenceModelBuilder.h>
 #include <api/CDataFrameAnalysisConfigReader.h>
 #include <api/CDataFrameAnalysisSpecification.h>
-#include <api/CDataFrameBoostedTreeRunner.h>
 #include <api/ElasticsearchStateIndex.h>
-
-#include <rapidjson/document.h>
 
 #include <numeric>
 
@@ -38,6 +32,7 @@ using TSizeVec = std::vector<std::size_t>;
 
 // Configuration
 const std::string NUM_TOP_CLASSES{"num_top_classes"};
+const std::string BALANCED_CLASS_LOSS{"balanced_class_loss"};
 
 // Output
 const std::string IS_TRAINING_FIELD_NAME{"is_training"};
@@ -46,25 +41,41 @@ const std::string CLASS_NAME_FIELD_NAME{"class_name"};
 const std::string CLASS_PROBABILITY_FIELD_NAME{"class_probability"};
 }
 
-const CDataFrameAnalysisConfigReader CDataFrameClassificationRunner::getParameterReader() {
-    CDataFrameAnalysisConfigReader theReader{CDataFrameBoostedTreeRunner::getParameterReader()};
-    theReader.addParameter(NUM_TOP_CLASSES, CDataFrameAnalysisConfigReader::E_OptionalParameter);
-    return theReader;
+const CDataFrameAnalysisConfigReader&
+CDataFrameTrainBoostedTreeClassifierRunner::getParameterReader() {
+    static const CDataFrameAnalysisConfigReader PARAMETER_READER{[] {
+        auto theReader = CDataFrameTrainBoostedTreeRunner::getParameterReader();
+        theReader.addParameter(NUM_TOP_CLASSES, CDataFrameAnalysisConfigReader::E_OptionalParameter);
+        theReader.addParameter(BALANCED_CLASS_LOSS,
+                               CDataFrameAnalysisConfigReader::E_OptionalParameter);
+        return theReader;
+    }()};
+    return PARAMETER_READER;
 }
 
-CDataFrameClassificationRunner::CDataFrameClassificationRunner(
+CDataFrameTrainBoostedTreeClassifierRunner::CDataFrameTrainBoostedTreeClassifierRunner(
     const CDataFrameAnalysisSpecification& spec,
-    const CDataFrameAnalysisConfigReader::CParameters& parameters)
-    : CDataFrameBoostedTreeRunner{spec, parameters} {
+    const CDataFrameAnalysisParameters& parameters)
+    : CDataFrameTrainBoostedTreeRunner{spec, parameters} {
 
     m_NumTopClasses = parameters[NUM_TOP_CLASSES].fallback(std::size_t{0});
+    this->boostedTreeFactory().balanceClassTrainingLoss(
+        parameters[BALANCED_CLASS_LOSS].fallback(true));
+
+    const TStrVec& categoricalFieldNames{spec.categoricalFieldNames()};
+    if (std::find(categoricalFieldNames.begin(), categoricalFieldNames.end(),
+                  this->dependentVariableFieldName()) == categoricalFieldNames.end()) {
+        HANDLE_FATAL(<< "Input error: trying to perform classification with numeric target.");
+    }
 }
 
-CDataFrameClassificationRunner::CDataFrameClassificationRunner(const CDataFrameAnalysisSpecification& spec)
-    : CDataFrameBoostedTreeRunner{spec} {
+CDataFrameTrainBoostedTreeClassifierRunner::CDataFrameTrainBoostedTreeClassifierRunner(
+    const CDataFrameAnalysisSpecification& spec)
+    : CDataFrameTrainBoostedTreeRunner{spec} {
 }
 
-TBoolVec CDataFrameClassificationRunner::columnsForWhichEmptyIsMissing(const TStrVec& fieldNames) const {
+TBoolVec CDataFrameTrainBoostedTreeClassifierRunner::columnsForWhichEmptyIsMissing(
+    const TStrVec& fieldNames) const {
     // The only field for which empty value should be treated as missing is dependent
     // variable which has empty value for non-training rows.
     TBoolVec emptyAsMissing(fieldNames.size(), false);
@@ -76,9 +87,10 @@ TBoolVec CDataFrameClassificationRunner::columnsForWhichEmptyIsMissing(const TSt
     return emptyAsMissing;
 }
 
-void CDataFrameClassificationRunner::writeOneRow(const core::CDataFrame& frame,
-                                                 const TRowRef& row,
-                                                 core::CRapidJsonConcurrentLineWriter& writer) const {
+void CDataFrameTrainBoostedTreeClassifierRunner::writeOneRow(
+    const core::CDataFrame& frame,
+    const TRowRef& row,
+    core::CRapidJsonConcurrentLineWriter& writer) const {
     const auto& tree = this->boostedTree();
     const std::size_t columnHoldingDependentVariable{tree.columnHoldingDependentVariable()};
     const std::size_t columnHoldingPrediction{
@@ -122,21 +134,23 @@ void CDataFrameClassificationRunner::writeOneRow(const core::CDataFrame& frame,
     writer.EndObject();
 }
 
-CDataFrameClassificationRunner::TLossFunctionUPtr
-CDataFrameClassificationRunner::chooseLossFunction(const core::CDataFrame& frame,
-                                                   std::size_t dependentVariableColumn) const {
+CDataFrameTrainBoostedTreeClassifierRunner::TLossFunctionUPtr
+CDataFrameTrainBoostedTreeClassifierRunner::chooseLossFunction(const core::CDataFrame& frame,
+                                                               std::size_t dependentVariableColumn) const {
     std::size_t categoryCount{
         frame.categoricalColumnValues()[dependentVariableColumn].size()};
     if (categoryCount == 2) {
         return std::make_unique<maths::boosted_tree::CLogistic>();
     }
     HANDLE_FATAL(<< "Input error: only binary classification is supported. "
-                 << "Trying to predict '" << categoryCount << "' categories.");
+                 << "Trying to predict '" << frame.columnNames()[dependentVariableColumn]
+                 << "' which has '" << categoryCount << "' categories. "
+                 << "The number of rows read is '" << frame.numberRows() << "'.");
     return nullptr;
 }
 
 CDataFrameAnalysisRunner::TInferenceModelDefinitionUPtr
-CDataFrameClassificationRunner::inferenceModelDefinition(
+CDataFrameTrainBoostedTreeClassifierRunner::inferenceModelDefinition(
     const CDataFrameAnalysisRunner::TStrVec& fieldNames,
     const CDataFrameAnalysisRunner::TStrVecVec& categoryNames) const {
     CClassificationInferenceModelBuilder builder(
@@ -146,24 +160,25 @@ CDataFrameClassificationRunner::inferenceModelDefinition(
     return std::make_unique<CInferenceModelDefinition>(builder.build());
 }
 
-const std::string& CDataFrameClassificationRunnerFactory::name() const {
+const std::string& CDataFrameTrainBoostedTreeClassifierRunnerFactory::name() const {
     return NAME;
 }
 
-CDataFrameClassificationRunnerFactory::TRunnerUPtr
-CDataFrameClassificationRunnerFactory::makeImpl(const CDataFrameAnalysisSpecification& spec) const {
-    return std::make_unique<CDataFrameClassificationRunner>(spec);
+CDataFrameTrainBoostedTreeClassifierRunnerFactory::TRunnerUPtr
+CDataFrameTrainBoostedTreeClassifierRunnerFactory::makeImpl(const CDataFrameAnalysisSpecification& spec) const {
+    return std::make_unique<CDataFrameTrainBoostedTreeClassifierRunner>(spec);
 }
 
-CDataFrameClassificationRunnerFactory::TRunnerUPtr
-CDataFrameClassificationRunnerFactory::makeImpl(const CDataFrameAnalysisSpecification& spec,
-                                                const rapidjson::Value& jsonParameters) const {
+CDataFrameTrainBoostedTreeClassifierRunnerFactory::TRunnerUPtr
+CDataFrameTrainBoostedTreeClassifierRunnerFactory::makeImpl(
+    const CDataFrameAnalysisSpecification& spec,
+    const rapidjson::Value& jsonParameters) const {
     CDataFrameAnalysisConfigReader parameterReader =
-        CDataFrameClassificationRunner::getParameterReader();
+        CDataFrameTrainBoostedTreeClassifierRunner::getParameterReader();
     auto parameters = parameterReader.read(jsonParameters);
-    return std::make_unique<CDataFrameClassificationRunner>(spec, parameters);
+    return std::make_unique<CDataFrameTrainBoostedTreeClassifierRunner>(spec, parameters);
 }
 
-const std::string CDataFrameClassificationRunnerFactory::NAME{"classification"};
+const std::string CDataFrameTrainBoostedTreeClassifierRunnerFactory::NAME{"classification"};
 }
 }

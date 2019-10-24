@@ -4,7 +4,7 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
-#include <api/CDataFrameBoostedTreeRunner.h>
+#include <api/CDataFrameTrainBoostedTreeRunner.h>
 
 #include <core/CDataFrame.h>
 #include <core/CLogger.h>
@@ -45,36 +45,39 @@ const std::string NUMBER_ROUNDS_PER_HYPERPARAMETER{"number_rounds_per_hyperparam
 const std::string BAYESIAN_OPTIMISATION_RESTARTS{"bayesian_optimisation_restarts"};
 }
 
-CDataFrameAnalysisConfigReader CDataFrameBoostedTreeRunner::getParameterReader() {
-    CDataFrameAnalysisConfigReader theReader;
-    theReader.addParameter(DEPENDENT_VARIABLE_NAME,
-                           CDataFrameAnalysisConfigReader::E_RequiredParameter);
-    theReader.addParameter(PREDICTION_FIELD_NAME,
-                           CDataFrameAnalysisConfigReader::E_OptionalParameter);
-    theReader.addParameter(ALPHA, CDataFrameAnalysisConfigReader::E_OptionalParameter);
-    theReader.addParameter(LAMBDA, CDataFrameAnalysisConfigReader::E_OptionalParameter);
-    theReader.addParameter(GAMMA, CDataFrameAnalysisConfigReader::E_OptionalParameter);
-    theReader.addParameter(ETA, CDataFrameAnalysisConfigReader::E_OptionalParameter);
-    theReader.addParameter(SOFT_TREE_DEPTH_LIMIT,
-                           CDataFrameAnalysisConfigReader::E_OptionalParameter);
-    theReader.addParameter(SOFT_TREE_DEPTH_TOLERANCE,
-                           CDataFrameAnalysisConfigReader::E_OptionalParameter);
-    theReader.addParameter(MAXIMUM_NUMBER_TREES,
-                           CDataFrameAnalysisConfigReader::E_OptionalParameter);
-    theReader.addParameter(FEATURE_BAG_FRACTION,
-                           CDataFrameAnalysisConfigReader::E_OptionalParameter);
-    theReader.addParameter(NUMBER_FOLDS, CDataFrameAnalysisConfigReader::E_OptionalParameter);
-    theReader.addParameter(NUMBER_ROUNDS_PER_HYPERPARAMETER,
-                           CDataFrameAnalysisConfigReader::E_OptionalParameter);
-    theReader.addParameter(BAYESIAN_OPTIMISATION_RESTARTS,
-                           CDataFrameAnalysisConfigReader::E_OptionalParameter);
-    return theReader;
+const CDataFrameAnalysisConfigReader& CDataFrameTrainBoostedTreeRunner::getParameterReader() {
+    static const CDataFrameAnalysisConfigReader PARAMETER_READER{[] {
+        CDataFrameAnalysisConfigReader theReader;
+        theReader.addParameter(DEPENDENT_VARIABLE_NAME,
+                               CDataFrameAnalysisConfigReader::E_RequiredParameter);
+        theReader.addParameter(PREDICTION_FIELD_NAME,
+                               CDataFrameAnalysisConfigReader::E_OptionalParameter);
+        theReader.addParameter(ALPHA, CDataFrameAnalysisConfigReader::E_OptionalParameter);
+        theReader.addParameter(LAMBDA, CDataFrameAnalysisConfigReader::E_OptionalParameter);
+        theReader.addParameter(GAMMA, CDataFrameAnalysisConfigReader::E_OptionalParameter);
+        theReader.addParameter(ETA, CDataFrameAnalysisConfigReader::E_OptionalParameter);
+        theReader.addParameter(SOFT_TREE_DEPTH_LIMIT,
+                               CDataFrameAnalysisConfigReader::E_OptionalParameter);
+        theReader.addParameter(SOFT_TREE_DEPTH_TOLERANCE,
+                               CDataFrameAnalysisConfigReader::E_OptionalParameter);
+        theReader.addParameter(MAXIMUM_NUMBER_TREES,
+                               CDataFrameAnalysisConfigReader::E_OptionalParameter);
+        theReader.addParameter(FEATURE_BAG_FRACTION,
+                               CDataFrameAnalysisConfigReader::E_OptionalParameter);
+        theReader.addParameter(NUMBER_FOLDS, CDataFrameAnalysisConfigReader::E_OptionalParameter);
+        theReader.addParameter(NUMBER_ROUNDS_PER_HYPERPARAMETER,
+                               CDataFrameAnalysisConfigReader::E_OptionalParameter);
+        theReader.addParameter(BAYESIAN_OPTIMISATION_RESTARTS,
+                               CDataFrameAnalysisConfigReader::E_OptionalParameter);
+        return theReader;
+    }()};
+    return PARAMETER_READER;
 }
 
-CDataFrameBoostedTreeRunner::CDataFrameBoostedTreeRunner(
+CDataFrameTrainBoostedTreeRunner::CDataFrameTrainBoostedTreeRunner(
     const CDataFrameAnalysisSpecification& spec,
-    const CDataFrameAnalysisConfigReader::CParameters& parameters)
-    : CDataFrameBoostedTreeRunner{spec} {
+    const CDataFrameAnalysisParameters& parameters)
+    : CDataFrameTrainBoostedTreeRunner{spec} {
 
     m_DependentVariableFieldName = parameters[DEPENDENT_VARIABLE_NAME].as<std::string>();
 
@@ -127,7 +130,7 @@ CDataFrameBoostedTreeRunner::CDataFrameBoostedTreeRunner(
     (*m_BoostedTreeFactory)
         .progressCallback(this->progressRecorder())
         .trainingStateCallback(this->statePersister())
-        .memoryUsageCallback(this->memoryEstimator());
+        .memoryUsageCallback(this->memoryMonitor(counter_t::E_DFTPMPeakMemoryUsage));
 
     if (alpha >= 0.0) {
         m_BoostedTreeFactory->depthPenaltyMultiplier(alpha);
@@ -164,45 +167,39 @@ CDataFrameBoostedTreeRunner::CDataFrameBoostedTreeRunner(
     }
 }
 
-CDataFrameBoostedTreeRunner::TMemoryEstimator CDataFrameBoostedTreeRunner::memoryEstimator() {
-    return [this](int64_t delta) {
-        int64_t memory{m_Memory.fetch_add(delta)};
-        if (memory >= 0) {
-            core::CProgramCounters::counter(counter_t::E_DFTPMPeakMemoryUsage).max(memory);
-        } else {
-            // Something has gone wrong with memory estimation. Trap this case
-            // to avoid underflowing the peak memory usage statistic.
-            LOG_DEBUG(<< "Memory estimate " << memory << " is negative!");
-        }
-    };
+CDataFrameTrainBoostedTreeRunner::CDataFrameTrainBoostedTreeRunner(const CDataFrameAnalysisSpecification& spec)
+    : CDataFrameAnalysisRunner{spec} {
 }
 
-CDataFrameBoostedTreeRunner::CDataFrameBoostedTreeRunner(const CDataFrameAnalysisSpecification& spec)
-    : CDataFrameAnalysisRunner{spec}, m_Memory{0} {
-}
+CDataFrameTrainBoostedTreeRunner::~CDataFrameTrainBoostedTreeRunner() = default;
 
-CDataFrameBoostedTreeRunner::~CDataFrameBoostedTreeRunner() = default;
-
-std::size_t CDataFrameBoostedTreeRunner::numberExtraColumns() const {
+std::size_t CDataFrameTrainBoostedTreeRunner::numberExtraColumns() const {
     return m_BoostedTreeFactory->numberExtraColumnsForTrain();
 }
 
-const std::string& CDataFrameBoostedTreeRunner::dependentVariableFieldName() const {
+const std::string& CDataFrameTrainBoostedTreeRunner::dependentVariableFieldName() const {
     return m_DependentVariableFieldName;
 }
 
-const std::string& CDataFrameBoostedTreeRunner::predictionFieldName() const {
+const std::string& CDataFrameTrainBoostedTreeRunner::predictionFieldName() const {
     return m_PredictionFieldName;
 }
 
-const maths::CBoostedTree& CDataFrameBoostedTreeRunner::boostedTree() const {
+const maths::CBoostedTree& CDataFrameTrainBoostedTreeRunner::boostedTree() const {
     if (m_BoostedTree == nullptr) {
-        HANDLE_FATAL(<< "Internal error: boosted tree object missing. Please report this error.");
+        HANDLE_FATAL(<< "Internal error: boosted tree missing. Please report this problem.");
     }
     return *m_BoostedTree;
 }
 
-void CDataFrameBoostedTreeRunner::runImpl(core::CDataFrame& frame) {
+maths::CBoostedTreeFactory& CDataFrameTrainBoostedTreeRunner::boostedTreeFactory() {
+    if (m_BoostedTreeFactory == nullptr) {
+        HANDLE_FATAL(<< "Internal error: boosted tree factory missing. Please report this problem.");
+    }
+    return *m_BoostedTreeFactory;
+}
+
+void CDataFrameTrainBoostedTreeRunner::runImpl(core::CDataFrame& frame) {
     auto dependentVariablePos = std::find(frame.columnNames().begin(),
                                           frame.columnNames().end(),
                                           m_DependentVariableFieldName);
@@ -240,9 +237,9 @@ void CDataFrameBoostedTreeRunner::runImpl(core::CDataFrame& frame) {
     core::CProgramCounters::counter(counter_t::E_DFTPMTimeToTrain) = watch.stop();
 }
 
-bool CDataFrameBoostedTreeRunner::restoreBoostedTree(core::CDataFrame& frame,
-                                                     std::size_t dependentVariableColumn,
-                                                     TDataSearcherUPtr& restoreSearcher) {
+bool CDataFrameTrainBoostedTreeRunner::restoreBoostedTree(core::CDataFrame& frame,
+                                                          std::size_t dependentVariableColumn,
+                                                          TDataSearcherUPtr& restoreSearcher) {
     // Restore from Elasticsearch compressed data
     try {
         core::CStateDecompressor decompressor(*restoreSearcher);
@@ -268,7 +265,7 @@ bool CDataFrameBoostedTreeRunner::restoreBoostedTree(core::CDataFrame& frame,
         m_BoostedTree = maths::CBoostedTreeFactory::constructFromString(*inputStream)
                             .progressCallback(this->progressRecorder())
                             .trainingStateCallback(this->statePersister())
-                            .memoryUsageCallback(this->memoryEstimator())
+                            .memoryUsageCallback(this->memoryMonitor(counter_t::E_DFTPMPeakMemoryUsage))
                             .restoreFor(frame, dependentVariableColumn);
     } catch (std::exception& e) {
         LOG_ERROR(<< "Failed to restore state! " << e.what());
@@ -277,7 +274,7 @@ bool CDataFrameBoostedTreeRunner::restoreBoostedTree(core::CDataFrame& frame,
     return true;
 }
 
-std::size_t CDataFrameBoostedTreeRunner::estimateBookkeepingMemoryUsage(
+std::size_t CDataFrameTrainBoostedTreeRunner::estimateBookkeepingMemoryUsage(
     std::size_t /*numberPartitions*/,
     std::size_t totalNumberRows,
     std::size_t /*partitionNumberRows*/,

@@ -10,8 +10,9 @@ USE_BOOST=1
 USE_BOOST_FILESYSTEM_LIBS=1
 USE_BOOST_TEST_LIBS=1
 USE_EIGEN=1
+USE_RAPIDJSON=1
 
-LIBS:=$(LIB_ML_CORE) $(LIB_ML_MATHS)
+LIBS:=$(LIB_ML_CORE) $(LIB_ML_MATHS) $(LIB_ML_API)
 
 PLATFORM_SRCS= \
     CShellCmdEscape.cc \
@@ -20,6 +21,7 @@ PLATFORM_SRCS= \
 SRCS= \
     $(OS_SRCS) \
     CBoostTestJUnitOutput.cc \
+    CDataFrameAnalysisSpecificationFactory.cc \
     CMultiFileDataAdder.cc \
     CMultiFileSearcher.cc \
     CRandomNumbers.cc \

@@ -4,7 +4,7 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
-#include <api/CBoostedTreeInferenceModelBuilder.h>
+#include <api/CBoostedTreeRegressionInferenceModelBuilder.h>
 
 #include <core/LogMacros.h>
 
@@ -21,18 +21,21 @@ namespace {
 const std::string INFERENCE_MODEL{"inference_model"};
 }
 
-void CBoostedTreeInferenceModelBuilder::addTree() {
+void CBoostedTreeRegressionInferenceModelBuilder::addTree() {
     auto ensemble = static_cast<CEnsemble*>(m_Definition.trainedModel().get());
     ensemble->trainedModels().emplace_back(std::make_unique<CTree>());
 }
 
-void CBoostedTreeInferenceModelBuilder::addIdentityEncoding(std::size_t inputColumnIndex) {
-    m_FeatureNames.push_back(m_FieldNames[inputColumnIndex]);
+void CBoostedTreeRegressionInferenceModelBuilder::addIdentityEncoding(std::size_t inputColumnIndex) {
+    if (inputColumnIndex < m_FieldNames.size()) {
+        // The target column is excluded from m_FieldNames.
+        m_FeatureNames.push_back(m_FieldNames[inputColumnIndex]);
+    }
 }
 
-void CBoostedTreeInferenceModelBuilder::addOneHotEncoding(std::size_t inputColumnIndex,
-                                                          std::size_t hotCategory) {
-    std::string fieldName{m_Definition.fieldNames()[inputColumnIndex]};
+void CBoostedTreeRegressionInferenceModelBuilder::addOneHotEncoding(std::size_t inputColumnIndex,
+                                                                    std::size_t hotCategory) {
+    std::string fieldName{m_Definition.input().fieldNames()[inputColumnIndex]};
     std::string category = m_CategoryNames[inputColumnIndex][hotCategory];
     std::string featureName = fieldName + "_" + category;
     if (m_OneHotEncodingMaps.find(fieldName) == m_OneHotEncodingMaps.end()) {
@@ -44,10 +47,10 @@ void CBoostedTreeInferenceModelBuilder::addOneHotEncoding(std::size_t inputColum
     m_FeatureNames.push_back(featureName);
 }
 
-void CBoostedTreeInferenceModelBuilder::addTargetMeanEncoding(std::size_t inputColumnIndex,
-                                                              const TDoubleVec& map,
-                                                              double fallback) {
-    const std::string& fieldName{m_Definition.fieldNames()[inputColumnIndex]};
+void CBoostedTreeRegressionInferenceModelBuilder::addTargetMeanEncoding(std::size_t inputColumnIndex,
+                                                                        const TDoubleVec& map,
+                                                                        double fallback) {
+    std::string fieldName{m_Definition.input().fieldNames()[inputColumnIndex]};
     std::string featureName{fieldName + "_targetmean"};
     auto stringMap = this->encodingMap(inputColumnIndex, map);
     m_Definition.preprocessors().push_back(std::make_unique<CTargetMeanEncoding>(
@@ -55,9 +58,9 @@ void CBoostedTreeInferenceModelBuilder::addTargetMeanEncoding(std::size_t inputC
     m_FeatureNames.push_back(featureName);
 }
 
-void CBoostedTreeInferenceModelBuilder::addFrequencyEncoding(std::size_t inputColumnIndex,
-                                                             const TDoubleVec& map) {
-    const std::string& fieldName{m_Definition.fieldNames()[inputColumnIndex]};
+void CBoostedTreeRegressionInferenceModelBuilder::addFrequencyEncoding(std::size_t inputColumnIndex,
+                                                                       const TDoubleVec& map) {
+    std::string fieldName{m_Definition.input().fieldNames()[inputColumnIndex]};
     std::string featureName{fieldName + "_frequency"};
     auto stringMap = this->encodingMap(inputColumnIndex, map);
     m_Definition.preprocessors().push_back(std::make_unique<CFrequencyEncoding>(
@@ -65,7 +68,7 @@ void CBoostedTreeInferenceModelBuilder::addFrequencyEncoding(std::size_t inputCo
     m_FeatureNames.push_back(featureName);
 }
 
-CInferenceModelDefinition&& CBoostedTreeInferenceModelBuilder::build() {
+CInferenceModelDefinition&& CBoostedTreeRegressionInferenceModelBuilder::build() {
 
     // Finalize OneHotEncoding Mappings
     for (auto& oneHotEncodingMapping : m_OneHotEncodingMaps) {
@@ -75,16 +78,16 @@ CInferenceModelDefinition&& CBoostedTreeInferenceModelBuilder::build() {
 
     // Add aggregated output after the number of trees is known
     auto ensemble{static_cast<CEnsemble*>(m_Definition.trainedModel().get())};
-    this->setAggregateOutput(ensemble);
+    ensemble->aggregateOutput(std::make_unique<CWeightedSum>(ensemble->size(), 1.0));
 
-    this->setTargetType();
+    ensemble->targetType(CTrainedModel::E_Regression);
     ensemble->featureNames(m_FeatureNames);
-    ensemble->removeUnusedFeatures();
+    ensemble->adjustFeatureNames();
 
     return std::move(m_Definition);
 }
 
-void CBoostedTreeInferenceModelBuilder::addNode(
+void CBoostedTreeRegressionInferenceModelBuilder::addNode(
     std::size_t splitFeature,
     double splitValue,
     bool assignMissingToLeft,
@@ -102,9 +105,11 @@ void CBoostedTreeInferenceModelBuilder::addNode(
                                        splitFeature, leftChild, rightChild, gain);
 }
 
-CBoostedTreeInferenceModelBuilder::CBoostedTreeInferenceModelBuilder(TStrVec fieldNames,
-                                                                     std::size_t dependentVariableColumnIndex,
-                                                                     TStrVecVec categoryNames) {
+CBoostedTreeRegressionInferenceModelBuilder::CBoostedTreeRegressionInferenceModelBuilder(
+    TStrVec fieldNames,
+    std::size_t dependentVariableColumnIndex,
+    TStrVecVec categoryNames)
+    : m_DependentVariableColumnIndex(dependentVariableColumnIndex) {
     // filter filed names containing empty string
     fieldNames.erase(std::remove(fieldNames.begin(), fieldNames.end(), ""),
                      fieldNames.end());
@@ -113,15 +118,16 @@ CBoostedTreeInferenceModelBuilder::CBoostedTreeInferenceModelBuilder(TStrVec fie
     m_FieldNames = fieldNames;
 
     this->categoryNames(categoryNames);
-    m_Definition.dependentVariableColumnIndex(dependentVariableColumnIndex);
-    m_Definition.fieldNames(std::move(fieldNames), dependentVariableColumnIndex);
+    fieldNames.erase(fieldNames.begin() +
+                     static_cast<std::ptrdiff_t>(dependentVariableColumnIndex));
+    m_Definition.fieldNames(fieldNames);
     m_Definition.trainedModel(std::make_unique<CEnsemble>());
     m_Definition.typeString(INFERENCE_MODEL);
 }
 
-CBoostedTreeInferenceModelBuilder::TStringDoubleUMap
-CBoostedTreeInferenceModelBuilder::encodingMap(std::size_t inputColumnIndex,
-                                               const TDoubleVec& map_) {
+CBoostedTreeRegressionInferenceModelBuilder::TStringDoubleUMap
+CBoostedTreeRegressionInferenceModelBuilder::encodingMap(std::size_t inputColumnIndex,
+                                                         const TDoubleVec& map_) {
     TStringDoubleUMap map;
     for (std::size_t categoryUInt = 0; categoryUInt < map_.size(); ++categoryUInt) {
         std::string category{m_CategoryNames[inputColumnIndex][categoryUInt]};
@@ -130,41 +136,8 @@ CBoostedTreeInferenceModelBuilder::encodingMap(std::size_t inputColumnIndex,
     return map;
 }
 
-void CBoostedTreeInferenceModelBuilder::categoryNames(const TStrVecVec& categoryNames) {
+void CBoostedTreeRegressionInferenceModelBuilder::categoryNames(const TStrVecVec& categoryNames) {
     m_CategoryNames = categoryNames;
-}
-
-CInferenceModelDefinition& CBoostedTreeInferenceModelBuilder::definition() {
-    return m_Definition;
-}
-
-void CRegressionInferenceModelBuilder::setTargetType() {
-    this->definition().trainedModel()->targetType(CTrainedModel::ETargetType::E_Regression);
-}
-
-CRegressionInferenceModelBuilder::CRegressionInferenceModelBuilder(TStrVec fieldNames,
-                                                                   std::size_t dependentVariableColumnIndex,
-                                                                   const TStrVecVec& categoryNames)
-    : CBoostedTreeInferenceModelBuilder(fieldNames, dependentVariableColumnIndex, categoryNames) {
-}
-
-void CRegressionInferenceModelBuilder::setAggregateOutput(CEnsemble* ensemble) const {
-    ensemble->aggregateOutput(std::make_unique<CWeightedSum>(ensemble->size(), 1.0));
-}
-
-void CClassificationInferenceModelBuilder::setTargetType() {
-    this->definition().trainedModel()->targetType(CTrainedModel::ETargetType::E_Classification);
-}
-
-CClassificationInferenceModelBuilder::CClassificationInferenceModelBuilder(
-    TStrVec fieldNames,
-    std::size_t dependentVariableColumnIndex,
-    const TStrVecVec& categoryNames)
-    : CBoostedTreeInferenceModelBuilder(fieldNames, dependentVariableColumnIndex, categoryNames) {
-}
-
-void CClassificationInferenceModelBuilder::setAggregateOutput(CEnsemble* ensemble) const {
-    ensemble->aggregateOutput(std::make_unique<CLogisticRegression>(ensemble->size(), 1.0));
 }
 }
 }
