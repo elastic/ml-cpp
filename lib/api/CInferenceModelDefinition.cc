@@ -183,15 +183,14 @@ CTrainedModel::ETargetType CEnsemble::targetType() const {
 }
 
 CTrainedModel::TStringVec CEnsemble::removeUnusedFeatures() {
-    TStringVec selectedFeatureNames;
-    selectedFeatureNames.reserve(this->featureNames().size());
     std::unordered_set<std::string> set;
     for (auto& trainedModel : this->trainedModels()) {
-        TStringVec vec(std::move(trainedModel->removeUnusedFeatures()));
+        TStringVec vec(trainedModel->removeUnusedFeatures());
         set.insert(vec.begin(), vec.end());
     }
+    TStringVec selectedFeatureNames;
+    selectedFeatureNames.reserve(set.size());
     std::copy(set.begin(), set.end(), std::back_inserter(selectedFeatureNames));
-    selectedFeatureNames.shrink_to_fit();
     std::sort(selectedFeatureNames.begin(), selectedFeatureNames.end());
     this->CTrainedModel::featureNames(selectedFeatureNames);
     return selectedFeatureNames;
