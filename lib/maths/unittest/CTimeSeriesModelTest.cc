@@ -33,7 +33,11 @@
 #include <boost/test/unit_test.hpp>
 
 #include <cmath>
+#include <fstream>
 #include <memory>
+
+using TSizeVec = std::vector<std::size_t>;
+BOOST_TEST_DONT_PRINT_LOG_VALUE(TSizeVec::iterator)
 
 BOOST_AUTO_TEST_SUITE(CTimeSeriesModelTest)
 
@@ -44,7 +48,6 @@ using namespace handy_typedefs;
 using TBool2Vec = core::CSmallVector<bool, 2>;
 using TDoubleVec = std::vector<double>;
 using TDoubleVecVec = std::vector<TDoubleVec>;
-using TSizeVec = std::vector<std::size_t>;
 using TDouble2Vec = core::CSmallVector<double, 2>;
 using TDouble2Vec1Vec = core::CSmallVector<TDouble2Vec, 1>;
 using TDouble2VecWeightsAry = maths_t::TDouble2VecWeightsAry;

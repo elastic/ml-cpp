@@ -22,6 +22,7 @@
 #include <boost/tuple/tuple.hpp>
 
 #include <cmath>
+#include <fstream>
 #include <numeric>
 
 BOOST_AUTO_TEST_SUITE(CTrendComponentTest)

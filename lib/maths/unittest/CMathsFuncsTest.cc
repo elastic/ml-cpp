@@ -12,6 +12,9 @@
 #include <limits>
 #include <vector>
 
+using TDoubleVec = std::vector<double>;
+BOOST_TEST_DONT_PRINT_LOG_VALUE(ml::maths::CMathsFuncs::CFiniteIterator<TDoubleVec::iterator>)
+
 BOOST_AUTO_TEST_SUITE(CMathsFuncsTest)
 
 using namespace ml;
@@ -49,8 +52,6 @@ BOOST_AUTO_TEST_CASE(testIsInf) {
 }
 
 BOOST_AUTO_TEST_CASE(testIsFinite) {
-    using TDoubleVec = std::vector<double>;
-
     BOOST_TEST_REQUIRE(maths::CMathsFuncs::isFinite(0.0));
     BOOST_TEST_REQUIRE(maths::CMathsFuncs::isFinite(1.3e7));
     BOOST_TEST_REQUIRE(maths::CMathsFuncs::isFinite(-1.5368e17));

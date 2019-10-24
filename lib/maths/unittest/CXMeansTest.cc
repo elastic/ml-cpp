@@ -7,6 +7,7 @@
 #include <core/CLogger.h>
 
 #include <maths/CLinearAlgebra.h>
+#include <maths/CLinearAlgebraPersist.h>
 #include <maths/CLinearAlgebraTools.h>
 #include <maths/CSampling.h>
 #include <maths/CXMeans.h>
@@ -21,6 +22,40 @@
 
 #include <stdint.h>
 
+using TVector2 = ml::maths::CVectorNx1<double, 2>;
+using TVector4 = ml::maths::CVectorNx1<double, 4>;
+using TVector4Vec = std::vector<TVector4>;
+
+namespace ml {
+namespace maths {
+
+std::ostream& operator<<(std::ostream& strm,
+                         const typename CXMeans<TVector2>::CCluster& cluster) {
+    return strm << "Cluster{ cost: " << cluster.cost()
+                << ", centre: " << cluster.centre().toDelimited()
+                << ", points checksum: " << cluster.checksum() << " }";
+}
+
+std::ostream& operator<<(std::ostream& strm,
+                         const typename CXMeans<TVector4>::CCluster& cluster) {
+    return strm << "Cluster{ cost: " << cluster.cost()
+                << ", centre: " << cluster.centre().toDelimited()
+                << ", points checksum: " << cluster.checksum() << " }";
+}
+
+std::ostream& operator<<(std::ostream& strm,
+                         const typename CXMeans<TVector4Vec>::CCluster& cluster) {
+    strm << "Cluster{ cost: " << cluster.cost() << ", centre: ";
+    const char* delim{"("};
+    for (const auto& element : cluster.centre()) {
+        strm << delim << element.toDelimited() << ')';
+        delim = ", (";
+    }
+    return strm << ", points checksum: " << cluster.checksum() << " }";
+}
+}
+}
+
 BOOST_AUTO_TEST_SUITE(CXMeansTest)
 
 using namespace ml;
@@ -33,15 +68,12 @@ using TSizeVecVec = std::vector<TSizeVec>;
 using TUInt64Vec = std::vector<uint64_t>;
 using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
 using TMeanVarAccumulator = maths::CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
-using TVector2 = maths::CVectorNx1<double, 2>;
 using TVector2Vec = std::vector<TVector2>;
 using TVector2VecCItr = TVector2Vec::const_iterator;
 using TVector2VecVec = std::vector<TVector2Vec>;
 using TMeanVar2Accumulator = maths::CBasicStatistics::SSampleMeanVar<TVector2>::TAccumulator;
 using TMatrix2 = maths::CSymmetricMatrixNxN<double, 2>;
 using TMatrix2Vec = std::vector<TMatrix2>;
-using TVector4 = maths::CVectorNx1<double, 4>;
-using TVector4Vec = std::vector<TVector4>;
 using TMeanVar4Accumulator = maths::CBasicStatistics::SSampleMeanVar<TVector4>::TAccumulator;
 using TMatrix4 = maths::CSymmetricMatrixNxN<double, 4>;
 using TMatrix4Vec = std::vector<TMatrix4>;

@@ -17,6 +17,7 @@
 
 #include <boost/test/unit_test.hpp>
 
+#include <fstream>
 #include <vector>
 
 BOOST_AUTO_TEST_SUITE(CTimeSeriesSegmentationTest)

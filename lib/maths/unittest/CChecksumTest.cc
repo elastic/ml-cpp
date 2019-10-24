@@ -195,8 +195,8 @@ BOOST_AUTO_TEST_CASE(testNullable) {
     // Test null values are hashed and that the hash of non-null values
     // matches the raw object hash.
     {
-        CPPUNIT_ASSERT_NO_THROW(maths::CChecksum::calculate(seed, TOptionalDouble()));
-        CPPUNIT_ASSERT_NO_THROW(maths::CChecksum::calculate(seed, TMeanVarAccumulatorPtr()));
+        BOOST_REQUIRE_NO_THROW(maths::CChecksum::calculate(seed, TOptionalDouble()));
+        BOOST_REQUIRE_NO_THROW(maths::CChecksum::calculate(seed, TMeanVarAccumulatorPtr()));
     }
     {
         double value(52.1);

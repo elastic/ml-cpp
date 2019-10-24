@@ -143,9 +143,9 @@ BOOST_AUTO_TEST_CASE(testOffset) {
             if (month == offsetMonth) {
                 for (const auto& feature : features) {
                     BOOST_TEST_REQUIRE(
-                        feature.offset(time) + offset == feature.offset(offsetTime) ||
-                        feature.offset(time) + offset == feature.offset(offsetTime) - 3600 ||
-                        feature.offset(time) + offset == feature.offset(offsetTime) + 3600);
+                        (feature.offset(time) + offset == feature.offset(offsetTime) ||
+                         feature.offset(time) + offset == feature.offset(offsetTime) - 3600 ||
+                         feature.offset(time) + offset == feature.offset(offsetTime) + 3600));
                     ++tests;
                 }
             }

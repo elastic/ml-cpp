@@ -17,8 +17,17 @@
 #include <boost/test/unit_test.hpp>
 #include <boost/tuple/tuple.hpp>
 
+#include <ostream>
 #include <utility>
 #include <vector>
+
+using TDoubleDoublePr = std::pair<double, double>;
+
+namespace std {
+std::ostream& operator<<(std::ostream& strm, const TDoubleDoublePr& pr) {
+    return strm << '{' << pr.first << ',' << pr.second << '}';
+}
+}
 
 BOOST_AUTO_TEST_SUITE(COrderingsTest)
 
@@ -378,7 +387,6 @@ BOOST_AUTO_TEST_CASE(testDereference) {
 
 BOOST_AUTO_TEST_CASE(testLexicographicalCompare) {
     using TDoubleVec = std::vector<double>;
-    using TDoubleDoublePr = std::pair<double, double>;
 
     maths::COrderings::SReferenceGreater greater;
 
@@ -532,7 +540,6 @@ BOOST_AUTO_TEST_CASE(testLexicographicalCompare) {
 BOOST_AUTO_TEST_CASE(testSimultaneousSort) {
     using TDoubleVec = std::vector<double>;
     using TDouble1Vec = core::CSmallVector<double, 1>;
-    using TDoubleDoublePr = std::pair<double, double>;
     using TDoubleDoublePrVec = std::vector<TDoubleDoublePr>;
     using TStrVec = std::vector<std::string>;
     using TDictionaryVec = std::vector<CDictionary>;

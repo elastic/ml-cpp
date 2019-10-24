@@ -140,9 +140,11 @@ BOOST_AUTO_TEST_CASE(testBasicUsage) {
 
         for (std::size_t j = 0; j < size; ++j) {
             BOOST_REQUIRE_CLOSE_ABSOLUTE(maths::CBasicStatistics::count(expected[j]),
-                                         maths::CBasicStatistics::count(actual[j]), 1e-5);
+                                         maths::CBasicStatistics::count(actual[j]),
+                                         maths::CFloatStorage(1e-5f));
             BOOST_REQUIRE_CLOSE_ABSOLUTE(maths::CBasicStatistics::mean(expected[j]),
-                                         maths::CBasicStatistics::mean(actual[j]), 1e-5);
+                                         maths::CBasicStatistics::mean(actual[j]),
+                                         maths::CFloatStorage(1e-5f));
         }
     }
 
@@ -192,7 +194,8 @@ BOOST_AUTO_TEST_CASE(testValuesMinusPrediction) {
         BOOST_REQUIRE_EQUAL(maths::CBasicStatistics::count(expected[i]),
                             maths::CBasicStatistics::count(actual[i]));
         BOOST_REQUIRE_CLOSE_ABSOLUTE(maths::CBasicStatistics::mean(expected[i]),
-                                     maths::CBasicStatistics::mean(actual[i]), 1e-5);
+                                     maths::CBasicStatistics::mean(actual[i]),
+                                     maths::CFloatStorage(1e-5f));
     }
 }
 

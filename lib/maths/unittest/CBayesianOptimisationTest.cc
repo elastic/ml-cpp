@@ -34,6 +34,55 @@ TVector vector(TDoubleVec components) {
     }
     return result;
 }
+
+void testPersistRestoreIsIdempotent(const TDoubleVec& minBoundary,
+                                    const TDoubleVec& maxBoundary,
+                                    const std::vector<TDoubleVec>& parameterFunctionValues) {
+    std::stringstream persistOnceSStream;
+    std::stringstream persistTwiceSStream;
+    std::size_t dimensions = minBoundary.size();
+
+    std::string topLevelTag{"bayesian_optimisation"};
+
+    // persist
+    {
+        maths::CBayesianOptimisation::TDoubleDoublePrVec parameterBoundaries;
+        for (std::size_t i = 0; i < dimensions; ++i) {
+            parameterBoundaries.emplace_back(minBoundary[i], maxBoundary[i]);
+        }
+        maths::CBayesianOptimisation bayesianOptimisation{parameterBoundaries};
+        if (parameterFunctionValues.size() > 0) {
+            for (auto parameterFunctionValue : parameterFunctionValues) {
+                maths::CBayesianOptimisation::TVector parameter(dimensions);
+                for (std::size_t i = 0; i < dimensions; ++i) {
+                    parameter(i) = parameterFunctionValue[i];
+                }
+                bayesianOptimisation.add(parameter, parameterFunctionValue[dimensions],
+                                         parameterFunctionValue[dimensions + 1]);
+            }
+        }
+
+        core::CJsonStatePersistInserter inserter(persistOnceSStream);
+        inserter.insertLevel(
+            topLevelTag, std::bind(&maths::CBayesianOptimisation::acceptPersistInserter,
+                                   &bayesianOptimisation, std::placeholders::_1));
+        persistOnceSStream.flush();
+    }
+    // and restore
+    {
+        core::CJsonStateRestoreTraverser traverser{persistOnceSStream};
+        maths::CBayesianOptimisation bayesianOptimisation{traverser};
+
+        core::CJsonStatePersistInserter inserter(persistTwiceSStream);
+        inserter.insertLevel(
+            topLevelTag, std::bind(&maths::CBayesianOptimisation::acceptPersistInserter,
+                                   &bayesianOptimisation, std::placeholders::_1));
+        persistTwiceSStream.flush();
+    }
+    LOG_DEBUG(<< "First string " << persistOnceSStream.str());
+    LOG_DEBUG(<< "Second string " << persistTwiceSStream.str());
+    BOOST_REQUIRE_EQUAL(persistOnceSStream.str(), persistTwiceSStream.str());
+}
 }
 
 BOOST_AUTO_TEST_CASE(testLikelihoodGradient) {
@@ -274,8 +323,7 @@ BOOST_AUTO_TEST_CASE(testPersistRestore) {
         // empty
         {
             std::vector<TDoubleVec> parameterFunctionValues{};
-            this->testPersistRestoreIsIdempotent(minBoundary, maxBoundary,
-                                                 parameterFunctionValues);
+            testPersistRestoreIsIdempotent(minBoundary, maxBoundary, parameterFunctionValues);
         }
         // with data
         {
@@ -283,8 +331,7 @@ BOOST_AUTO_TEST_CASE(testPersistRestore) {
                 {5., 1., 0.2},
                 {7., 1., 0.2},
             };
-            this->testPersistRestoreIsIdempotent(minBoundary, maxBoundary,
-                                                 parameterFunctionValues);
+            testPersistRestoreIsIdempotent(minBoundary, maxBoundary, parameterFunctionValues);
         }
     }
 
@@ -295,8 +342,7 @@ BOOST_AUTO_TEST_CASE(testPersistRestore) {
         // empty
         {
             std::vector<TDoubleVec> parameterFunctionValues{};
-            this->testPersistRestoreIsIdempotent(minBoundary, maxBoundary,
-                                                 parameterFunctionValues);
+            testPersistRestoreIsIdempotent(minBoundary, maxBoundary, parameterFunctionValues);
         }
         // with data
         {
@@ -304,60 +350,9 @@ BOOST_AUTO_TEST_CASE(testPersistRestore) {
                 {5., 0., 1., 0.2},
                 {7., 0., 1., 0.2},
             };
-            this->testPersistRestoreIsIdempotent(minBoundary, maxBoundary,
-                                                 parameterFunctionValues);
+            testPersistRestoreIsIdempotent(minBoundary, maxBoundary, parameterFunctionValues);
         }
     }
-}
-
-BOOST_AUTO_TEST_CASE(testPersistRestoreIsIdempotent const TDoubleVec& minBoundary,
-                     const TDoubleVec& maxBoundary,
-                     const std::vector<TDoubleVec>& parameterFunctionValues)
-const {
-    std::stringstream persistOnceSStream;
-    std::stringstream persistTwiceSStream;
-    std::size_t dimensions = minBoundary.size();
-
-    std::string topLevelTag{"bayesian_optimisation"};
-
-    // persist
-    {
-        maths::CBayesianOptimisation::TDoubleDoublePrVec parameterBoundaries;
-        for (std::size_t i = 0; i < dimensions; ++i) {
-            parameterBoundaries.emplace_back(minBoundary[i], maxBoundary[i]);
-        }
-        maths::CBayesianOptimisation bayesianOptimisation{parameterBoundaries};
-        if (parameterFunctionValues.size() > 0) {
-            for (auto parameterFunctionValue : parameterFunctionValues) {
-                maths::CBayesianOptimisation::TVector parameter(dimensions);
-                for (std::size_t i = 0; i < dimensions; ++i) {
-                    parameter(i) = parameterFunctionValue[i];
-                }
-                bayesianOptimisation.add(parameter, parameterFunctionValue[dimensions],
-                                         parameterFunctionValue[dimensions + 1]);
-            }
-        }
-
-        core::CJsonStatePersistInserter inserter(persistOnceSStream);
-        inserter.insertLevel(
-            topLevelTag, std::bind(&maths::CBayesianOptimisation::acceptPersistInserter,
-                                   &bayesianOptimisation, std::placeholders::_1));
-        persistOnceSStream.flush();
-    }
-    // and restore
-    {
-        core::CJsonStateRestoreTraverser traverser{persistOnceSStream};
-        maths::CBayesianOptimisation bayesianOptimisation{traverser};
-
-        core::CJsonStatePersistInserter inserter(persistTwiceSStream);
-        inserter.insertLevel(
-            topLevelTag, std::bind(&maths::CBayesianOptimisation::acceptPersistInserter,
-                                   &bayesianOptimisation, std::placeholders::_1));
-        persistTwiceSStream.flush();
-    }
-    LOG_DEBUG(<< "First string " << persistOnceSStream.str());
-    LOG_DEBUG(<< "Second string " << persistTwiceSStream.str());
-    BOOST_REQUIRE_EQUAL(persistOnceSStream.str(), persistTwiceSStream.str());
 }
 
 BOOST_AUTO_TEST_SUITE_END()

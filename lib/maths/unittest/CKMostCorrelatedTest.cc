@@ -23,6 +23,8 @@
 #include <cstdlib>
 #include <vector>
 
+BOOST_TEST_DONT_PRINT_LOG_VALUE(ml::maths::CKMostCorrelated::TSizeVec::iterator)
+
 BOOST_AUTO_TEST_SUITE(CKMostCorrelatedTest)
 
 using namespace ml;

@@ -140,7 +140,14 @@ private:
     }
 };
 
-BOOST_AUTO_TEST_CASE(testSuperpositionOfSines) {
+class CTestFixture {
+public:
+    CTestFixture() { core::CTimezone::instance().setTimezone("GMT"); }
+
+    ~CTestFixture() { core::CTimezone::instance().setTimezone(""); }
+};
+
+BOOST_FIXTURE_TEST_CASE(testSuperpositionOfSines, CTestFixture) {
     TTimeVec times;
     TDoubleVec trend;
     for (core_t::TTime time = 0; time < 100 * WEEK + 1; time += HALF_HOUR) {
@@ -226,7 +233,7 @@ BOOST_AUTO_TEST_CASE(testSuperpositionOfSines) {
     BOOST_TEST_REQUIRE(totalPercentileError < 0.01 * totalSumValue);
 }
 
-BOOST_AUTO_TEST_CASE(testDistortedPeriodic) {
+BOOST_FIXTURE_TEST_CASE(testDistortedPeriodic, CTestFixture) {
     const core_t::TTime bucketLength = HOUR;
     const core_t::TTime startTime = 0;
     const TDoubleVec timeseries{
@@ -394,7 +401,7 @@ BOOST_AUTO_TEST_CASE(testDistortedPeriodic) {
     BOOST_TEST_REQUIRE(totalPercentileError < 0.1 * totalSumValue);
 }
 
-BOOST_AUTO_TEST_CASE(testMinimizeLongComponents) {
+BOOST_FIXTURE_TEST_CASE(testMinimizeLongComponents, CTestFixture) {
     double weights[] = {1.0, 0.1, 1.0, 1.0, 0.1, 1.0, 1.0};
 
     TTimeVec times;
@@ -497,7 +504,7 @@ BOOST_AUTO_TEST_CASE(testMinimizeLongComponents) {
     BOOST_TEST_REQUIRE(meanSlope < 0.0013);
 }
 
-BOOST_AUTO_TEST_CASE(testWeekend) {
+BOOST_FIXTURE_TEST_CASE(testWeekend, CTestFixture) {
     double weights[] = {0.1, 0.1, 1.0, 1.0, 1.0, 1.0, 1.0};
 
     for (auto offset : {0 * DAY, 5 * DAY}) {
@@ -585,7 +592,7 @@ BOOST_AUTO_TEST_CASE(testWeekend) {
     }
 }
 
-BOOST_AUTO_TEST_CASE(testNanHandling) {
+BOOST_FIXTURE_TEST_CASE(testNanHandling, CTestFixture) {
 
     TTimeVec times;
     TDoubleVec trend;
@@ -647,7 +654,7 @@ BOOST_AUTO_TEST_CASE(testNanHandling) {
     BOOST_TEST_REQUIRE(components[0].initialized());
 }
 
-BOOST_AUTO_TEST_CASE(testSinglePeriodicity) {
+BOOST_FIXTURE_TEST_CASE(testSinglePeriodicity, CTestFixture) {
     TTimeVec times;
     TDoubleVec trend;
     for (core_t::TTime time = 0; time < 10 * WEEK + 1; time += HALF_HOUR) {
@@ -745,7 +752,7 @@ BOOST_AUTO_TEST_CASE(testSinglePeriodicity) {
     BOOST_TEST_REQUIRE(components[0].initialized());
 }
 
-BOOST_AUTO_TEST_CASE(testSeasonalOnset) {
+BOOST_FIXTURE_TEST_CASE(testSeasonalOnset, CTestFixture) {
     const double daily[] = {0.0,  0.0,  0.0,  0.0,  5.0,  5.0,  5.0,  40.0,
                             40.0, 40.0, 30.0, 30.0, 35.0, 35.0, 40.0, 50.0,
                             60.0, 80.0, 80.0, 10.0, 5.0,  0.0,  0.0,  0.0};
@@ -845,7 +852,7 @@ BOOST_AUTO_TEST_CASE(testSeasonalOnset) {
     BOOST_TEST_REQUIRE(totalPercentileError < 0.03 * totalSumValue);
 }
 
-BOOST_AUTO_TEST_CASE(testVarianceScale) {
+BOOST_FIXTURE_TEST_CASE(testVarianceScale, CTestFixture) {
     // Test that variance scales are correctly computed.
 
     test::CRandomNumbers rng;
@@ -990,7 +997,7 @@ BOOST_AUTO_TEST_CASE(testVarianceScale) {
     }
 }
 
-BOOST_AUTO_TEST_CASE(testSpikeyDataProblemCase) {
+BOOST_FIXTURE_TEST_CASE(testSpikeyDataProblemCase, CTestFixture) {
     TTimeDoublePrVec timeseries;
     core_t::TTime startTime;
     core_t::TTime endTime;
@@ -1141,7 +1148,7 @@ BOOST_AUTO_TEST_CASE(testSpikeyDataProblemCase) {
     BOOST_TEST_REQUIRE(pMinScaled > 1e11 * pMinUnscaled);
 }
 
-BOOST_AUTO_TEST_CASE(testVeryLargeValuesProblemCase) {
+BOOST_FIXTURE_TEST_CASE(testVeryLargeValuesProblemCase, CTestFixture) {
     TTimeDoublePrVec timeseries;
     core_t::TTime startTime;
     core_t::TTime endTime;
@@ -1234,7 +1241,7 @@ BOOST_AUTO_TEST_CASE(testVeryLargeValuesProblemCase) {
     BOOST_REQUIRE_CLOSE_ABSOLUTE(1.0, maths::CBasicStatistics::mean(scale), 0.08);
 }
 
-BOOST_AUTO_TEST_CASE(testMixedSmoothAndSpikeyDataProblemCase) {
+BOOST_FIXTURE_TEST_CASE(testMixedSmoothAndSpikeyDataProblemCase, CTestFixture) {
     TTimeDoublePrVec timeseries;
     core_t::TTime startTime;
     core_t::TTime endTime;
@@ -1321,7 +1328,7 @@ BOOST_AUTO_TEST_CASE(testMixedSmoothAndSpikeyDataProblemCase) {
     BOOST_TEST_REQUIRE(totalPercentileError < 0.06 * totalSumValue);
 }
 
-BOOST_AUTO_TEST_CASE(testDiurnalPeriodicityWithMissingValues) {
+BOOST_FIXTURE_TEST_CASE(testDiurnalPeriodicityWithMissingValues, CTestFixture) {
     // Test the accuracy of the modeling when there are periodically missing
     // values.
 
@@ -1410,7 +1417,7 @@ BOOST_AUTO_TEST_CASE(testDiurnalPeriodicityWithMissingValues) {
     }
 }
 
-BOOST_AUTO_TEST_CASE(testLongTermTrend) {
+BOOST_FIXTURE_TEST_CASE(testLongTermTrend, CTestFixture) {
     // Test a simple linear ramp and non-periodic saw tooth series.
 
     const core_t::TTime length = 120 * DAY;
@@ -1557,7 +1564,7 @@ BOOST_AUTO_TEST_CASE(testLongTermTrend) {
     }
 }
 
-BOOST_AUTO_TEST_CASE(testLongTermTrendAndPeriodicity) {
+BOOST_FIXTURE_TEST_CASE(testLongTermTrendAndPeriodicity, CTestFixture) {
     // Test a long term mean reverting component plus daily periodic component.
 
     TTimeVec times;
@@ -1634,7 +1641,7 @@ BOOST_AUTO_TEST_CASE(testLongTermTrendAndPeriodicity) {
     BOOST_TEST_REQUIRE(totalMaxResidual / totalMaxValue < 0.05);
 }
 
-BOOST_AUTO_TEST_CASE(testNonDiurnal) {
+BOOST_FIXTURE_TEST_CASE(testNonDiurnal, CTestFixture) {
     // Test the accuracy of the modeling of some non-daily or weekly
     // seasonal components.
     test::CRandomNumbers rng;
@@ -1788,7 +1795,7 @@ BOOST_AUTO_TEST_CASE(testNonDiurnal) {
     }
 }
 
-BOOST_AUTO_TEST_CASE(testYearly) {
+BOOST_FIXTURE_TEST_CASE(testYearly, CTestFixture) {
     // Test a yearly seasonal component.
 
     test::CRandomNumbers rng;
@@ -1842,7 +1849,7 @@ BOOST_AUTO_TEST_CASE(testYearly) {
     BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(meanError) < 0.025);
 }
 
-BOOST_AUTO_TEST_CASE(testWithOutliers) {
+BOOST_FIXTURE_TEST_CASE(testWithOutliers, CTestFixture) {
     // Test smooth periodic signal polluted with outliers.
 
     using TSizeVec = std::vector<std::size_t>;
@@ -1900,7 +1907,7 @@ BOOST_AUTO_TEST_CASE(testWithOutliers) {
     }
 }
 
-BOOST_AUTO_TEST_CASE(testCalendar) {
+BOOST_FIXTURE_TEST_CASE(testCalendar, CTestFixture) {
     // Test that we significantly reduce the error on the last Friday of each
     // month after estimating the appropriate component.
 
@@ -1971,7 +1978,7 @@ BOOST_AUTO_TEST_CASE(testCalendar) {
     }
 }
 
-BOOST_AUTO_TEST_CASE(testConditionOfTrend) {
+BOOST_FIXTURE_TEST_CASE(testConditionOfTrend, CTestFixture) {
     auto trend = [](core_t::TTime time) {
         return std::pow(static_cast<double>(time) / static_cast<double>(WEEK), 2.0);
     };
@@ -1991,7 +1998,7 @@ BOOST_AUTO_TEST_CASE(testConditionOfTrend) {
     }
 }
 
-BOOST_AUTO_TEST_CASE(testComponentLifecycle) {
+BOOST_FIXTURE_TEST_CASE(testComponentLifecycle, CTestFixture) {
     // Test we adapt to changing seasonality adding and removing components
     // as necessary.
 
@@ -2057,7 +2064,7 @@ BOOST_AUTO_TEST_CASE(testComponentLifecycle) {
     }
 }
 
-BOOST_AUTO_TEST_CASE(testSwap) {
+BOOST_FIXTURE_TEST_CASE(testSwap, CTestFixture) {
     const double decayRate = 0.01;
     const core_t::TTime bucketLength = HALF_HOUR;
 
@@ -2096,7 +2103,7 @@ BOOST_AUTO_TEST_CASE(testSwap) {
     BOOST_REQUIRE_EQUAL(checksum2, decomposition1.checksum());
 }
 
-BOOST_AUTO_TEST_CASE(testPersist) {
+BOOST_FIXTURE_TEST_CASE(testPersist, CTestFixture) {
     // Check that serialization is idempotent.
     const double decayRate = 0.01;
     const core_t::TTime bucketLength = HALF_HOUR;
@@ -2149,7 +2156,7 @@ BOOST_AUTO_TEST_CASE(testPersist) {
     BOOST_REQUIRE_EQUAL(origXml, newXml);
 }
 
-BOOST_AUTO_TEST_CASE(testUpgrade) {
+BOOST_FIXTURE_TEST_CASE(testUpgrade, CTestFixture) {
     // Check we can validly upgrade existing state.
 
     using TStrVec = std::vector<std::string>;
@@ -2388,14 +2395,6 @@ BOOST_AUTO_TEST_CASE(testUpgrade) {
             decomposition.addPoint(time, 10.0);
         }
     }
-}
-
-void CTimeSeriesDecompositionTest::setUp() {
-    core::CTimezone::instance().setTimezone("GMT");
-}
-
-void CTimeSeriesDecompositionTest::tearDown() {
-    core::CTimezone::instance().setTimezone("");
 }
 
 BOOST_AUTO_TEST_SUITE_END()

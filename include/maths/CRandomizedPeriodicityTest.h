@@ -23,7 +23,7 @@
 #include <vector>
 
 namespace CRandomizedPeriodicityTestTest {
-struct testFoo;
+struct testPersist;
 }
 
 namespace ml {
@@ -153,7 +153,7 @@ private:
     //! The last time the day projections were updated.
     core_t::TTime m_WeekRefreshedProjections;
 
-    friend struct CRandomizedPeriodicityTestTest::testFoo;
+    friend struct CRandomizedPeriodicityTestTest::testPersist;
 };
 }
 }

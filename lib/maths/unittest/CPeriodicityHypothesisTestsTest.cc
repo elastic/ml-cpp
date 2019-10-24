@@ -322,10 +322,11 @@ BOOST_AUTO_TEST_CASE(testDiurnal) {
             core_t::TTime time{timeseries[i].first};
             if (time > lastTest + window) {
                 maths::CPeriodicityHypothesisTestsResult result{hypotheses.test()};
-                LOG_DEBUG(<< "result = " << result.print());
-                BOOST_TEST_REQUIRE(
-                    result.print() == "{ 'weekend daily' 'weekday daily' 'weekend weekly' }" ||
-                    result.print() == "{ 'weekend daily' 'weekday daily' 'weekend weekly' 'weekday weekly' }");
+                const std::string& printedResult{result.print()};
+                LOG_DEBUG(<< "result = " << printedResult);
+                if (printedResult != "{ 'weekend daily' 'weekday daily' 'weekend weekly' }") {
+                    BOOST_TEST_REQUIRE(printedResult == "{ 'weekend daily' 'weekday daily' 'weekend weekly' 'weekday weekly' }");
+                }
                 hypotheses = maths::CPeriodicityHypothesisTests();
                 hypotheses.initialize(0 /*startTime*/, HOUR, window, DAY);
                 lastTest += window;

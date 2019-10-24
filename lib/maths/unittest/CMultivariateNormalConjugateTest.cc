@@ -20,6 +20,8 @@
 
 #include <boost/test/unit_test.hpp>
 
+#include <fstream>
+
 BOOST_AUTO_TEST_SUITE(CMultivariateNormalConjugateTest)
 
 using namespace ml;
@@ -75,6 +77,141 @@ void gaussianSamples(test::CRandomNumbers& rng,
         samples.push_back(TDouble10Vec(samples_[j].begin(), samples_[j].end()));
     }
     LOG_DEBUG(<< "# samples = " << samples.size());
+}
+
+void calibrationExperiment() {
+    using TVector10 = maths::CVectorNx1<double, 10>;
+    using TMatrix10 = maths::CSymmetricMatrixNxN<double, 10>;
+
+    double means[] = {10.0, 10.0, 20.0, 20.0, 30.0,
+                      20.0, 10.0, 40.0, 30.0, 20.0};
+    double covariances[] = {
+        10.0, 9.0, 10.0, -5.0, 1.0,  6.0,  -8.0, 9.0, 4.0, 20.0, 8.0,
+        3.0,  1.0, 12.0, 12.0, -4.0, 2.0,  1.0,  1.0, 4.0, 4.0,  5.0,
+        1.0,  3.0, 8.0,  10.0, 3.0,  10.0, 9.0,  9.0, 5.0, 19.0, 11.0,
+        3.0,  9.0, 25.0, 5.0,  0.0,  0.0,  0.0,  0.0, 0.0, 0.0,  0.0,
+        20.0, 1.0, 1.0,  1.0,  1.0,  1.0,  1.0,  1.0, 1.0, 1.0,  1.0};
+    TVector10 mean(means, means + boost::size(means));
+    TMatrix10 covariance(covariances, covariances + boost::size(covariances));
+
+    test::CRandomNumbers rng;
+    TDoubleVecVec samples_;
+    rng.generateMultivariateNormalSamples(mean.toVector<TDoubleVec>(),
+                                          covariance.toVectors<TDoubleVecVec>(),
+                                          2000, samples_);
+
+    TDouble10Vec1Vec samples;
+    samples.reserve(samples.size() + samples_.size());
+    for (std::size_t j = 0u; j < samples_.size(); ++j) {
+        samples.push_back(TDouble10Vec(samples_[j].begin(), samples_[j].end()));
+    }
+
+    maths::CMultivariateNormalConjugate<2> filters[] = {
+        maths::CMultivariateNormalConjugate<2>::nonInformativePrior(maths_t::E_ContinuousData),
+        maths::CMultivariateNormalConjugate<2>::nonInformativePrior(maths_t::E_ContinuousData),
+        maths::CMultivariateNormalConjugate<2>::nonInformativePrior(maths_t::E_ContinuousData),
+        maths::CMultivariateNormalConjugate<2>::nonInformativePrior(maths_t::E_ContinuousData),
+        maths::CMultivariateNormalConjugate<2>::nonInformativePrior(maths_t::E_ContinuousData),
+        maths::CMultivariateNormalConjugate<2>::nonInformativePrior(maths_t::E_ContinuousData),
+        maths::CMultivariateNormalConjugate<2>::nonInformativePrior(maths_t::E_ContinuousData),
+        maths::CMultivariateNormalConjugate<2>::nonInformativePrior(maths_t::E_ContinuousData),
+        maths::CMultivariateNormalConjugate<2>::nonInformativePrior(maths_t::E_ContinuousData)};
+    std::size_t indices[][2] = {{0, 1}, {0, 2}, {0, 3}, {0, 4}, {0, 5},
+                                {0, 6}, {0, 7}, {0, 8}, {0, 9}};
+
+    for (std::size_t i = 0u; i < 200; ++i) {
+        for (std::size_t j = 0u; j < boost::size(filters); ++j) {
+            TDouble10Vec1Vec sample(1, TDouble10Vec(2));
+            sample[0][0] = samples[i][indices[j][0]];
+            sample[0][1] = samples[i][indices[j][1]];
+            filters[j].addSamples(
+                sample, maths_t::CUnitWeights::singleUnit<TDouble10Vec>(2));
+        }
+    }
+
+    TDoubleVecVec p(boost::size(filters));
+    TDoubleVec mp;
+    TDoubleVec ep;
+    for (std::size_t i = 200u; i < 2000; ++i) {
+        double mpi = 1.0;
+        maths::CProbabilityOfExtremeSample epi;
+        for (std::size_t j = 0u; j < boost::size(filters); ++j) {
+            TDouble10Vec1Vec sample(1, TDouble10Vec(2));
+            sample[0][0] = samples[i][indices[j][0]];
+            sample[0][1] = samples[i][indices[j][1]];
+            double lb, ub;
+            maths::CMultivariatePrior::TTail10Vec tail;
+            filters[j].probabilityOfLessLikelySamples(
+                maths_t::E_TwoSided, sample,
+                maths_t::CUnitWeights::singleUnit<TDouble10Vec>(2), lb, ub, tail);
+            p[j].push_back((lb + ub) / 2.0);
+            mpi = std::min(mpi, (lb + ub) / 2.0);
+            epi.add((lb + ub) / 2.0, 0.5);
+        }
+        mp.push_back(mpi);
+        double pi;
+        epi.calculate(pi);
+        ep.push_back(pi);
+    }
+
+    for (std::size_t i = 0u; i < p.size(); ++i) {
+        std::sort(p[i].begin(), p[i].end());
+    }
+    std::sort(mp.begin(), mp.end());
+    std::sort(ep.begin(), ep.end());
+
+    double test[] = {0.01, 0.05, 0.1, 0.25, 0.5, 0.75, 0.9, 0.95, 0.99};
+    for (std::size_t i = 0u; i < boost::size(test); ++i) {
+        for (std::size_t j = 0u; j < p.size(); ++j) {
+            LOG_DEBUG(<< j << ") " << test[i] << " "
+                      << static_cast<double>(
+                             std::lower_bound(p[j].begin(), p[j].end(), test[i]) -
+                             p[j].begin()) /
+                             static_cast<double>(p[j].size()));
+        }
+        LOG_DEBUG(<< "min " << test[i] << " "
+                  << static_cast<double>(
+                         std::lower_bound(mp.begin(), mp.end(), test[i]) - mp.begin()) /
+                         static_cast<double>(mp.size()));
+        LOG_DEBUG(<< "corrected min " << test[i] << " "
+                  << static_cast<double>(
+                         std::lower_bound(ep.begin(), ep.end(), test[i]) - ep.begin()) /
+                         static_cast<double>(ep.size()));
+    }
+}
+
+void dataGenerator() {
+    const double means[][2] = {{10.0, 20.0}, {30.0, 25.0}, {50.0, 5.0}, {100.0, 50.0}};
+    const double covariances[][3] = {
+        {3.0, 2.0, 2.0}, {6.0, -4.0, 5.0}, {4.0, 1.0, 3.0}, {20.0, -12.0, 12.0}};
+
+    double anomalies[][4] = {{7000.0, 0.0, 2.8, -2.8}, {7001.0, 0.0, 2.8, -2.8},
+                             {7002.0, 0.0, 2.8, -2.8}, {7003.0, 0.0, 2.8, -2.8},
+                             {8000.0, 3.0, 3.5, 4.9},  {8001.0, 3.0, 3.5, 4.9},
+                             {8002.0, 3.0, 3.5, 4.9},  {8003.0, 3.0, 3.5, 4.9},
+                             {8004.0, 3.0, 3.5, 4.9},  {8005.0, 3.0, 3.5, 4.9}};
+
+    test::CRandomNumbers rng;
+
+    TDouble10Vec1Vec samples[4];
+    for (std::size_t i = 0u; i < boost::size(means); ++i) {
+        gaussianSamples(rng, 10000, means[i], covariances[i], samples[i]);
+    }
+    for (std::size_t i = 0u; i < boost::size(anomalies); ++i) {
+        std::size_t j = static_cast<std::size_t>(anomalies[i][1]);
+        std::size_t k = static_cast<std::size_t>(anomalies[i][0]);
+        samples[j][k][0] += anomalies[i][2];
+        samples[j][k][1] += anomalies[i][3];
+    }
+
+    std::ofstream f("four_2d_gaussian.csv");
+    core_t::TTime time = 1451606400;
+    for (std::size_t i = 0u; i < 10000; ++i, time += 30) {
+        for (std::size_t j = 0u; j < boost::size(samples); ++j) {
+            f << time << ",x" << 2 * j << "," << samples[j][i][0] << "\n";
+            f << time << ",x" << 2 * j + 1 << "," << samples[j][i][1] << "\n";
+        }
+    }
 }
 }
 
@@ -929,143 +1066,6 @@ BOOST_AUTO_TEST_CASE(testPersist) {
         inserter.toXml(newXml);
     }
     BOOST_REQUIRE_EQUAL(origXml, newXml);
-}
-
-void CMultivariateNormalConjugateTest::calibrationExperiment() {
-    using TVector10 = maths::CVectorNx1<double, 10>;
-    using TMatrix10 = maths::CSymmetricMatrixNxN<double, 10>;
-
-    double means[] = {10.0, 10.0, 20.0, 20.0, 30.0,
-                      20.0, 10.0, 40.0, 30.0, 20.0};
-    double covariances[] = {
-        10.0, 9.0, 10.0, -5.0, 1.0,  6.0,  -8.0, 9.0, 4.0, 20.0, 8.0,
-        3.0,  1.0, 12.0, 12.0, -4.0, 2.0,  1.0,  1.0, 4.0, 4.0,  5.0,
-        1.0,  3.0, 8.0,  10.0, 3.0,  10.0, 9.0,  9.0, 5.0, 19.0, 11.0,
-        3.0,  9.0, 25.0, 5.0,  0.0,  0.0,  0.0,  0.0, 0.0, 0.0,  0.0,
-        20.0, 1.0, 1.0,  1.0,  1.0,  1.0,  1.0,  1.0, 1.0, 1.0,  1.0};
-    TVector10 mean(means, means + boost::size(means));
-    TMatrix10 covariance(covariances, covariances + boost::size(covariances));
-
-    test::CRandomNumbers rng;
-    TDoubleVecVec samples_;
-    rng.generateMultivariateNormalSamples(mean.toVector<TDoubleVec>(),
-                                          covariance.toVectors<TDoubleVecVec>(),
-                                          2000, samples_);
-
-    TDouble10Vec1Vec samples;
-    samples.reserve(samples.size() + samples_.size());
-    for (std::size_t j = 0u; j < samples_.size(); ++j) {
-        samples.push_back(TDouble10Vec(samples_[j].begin(), samples_[j].end()));
-    }
-
-    maths::CMultivariateNormalConjugate<2> filters[] = {
-        maths::CMultivariateNormalConjugate<2>::nonInformativePrior(maths_t::E_ContinuousData),
-        maths::CMultivariateNormalConjugate<2>::nonInformativePrior(maths_t::E_ContinuousData),
-        maths::CMultivariateNormalConjugate<2>::nonInformativePrior(maths_t::E_ContinuousData),
-        maths::CMultivariateNormalConjugate<2>::nonInformativePrior(maths_t::E_ContinuousData),
-        maths::CMultivariateNormalConjugate<2>::nonInformativePrior(maths_t::E_ContinuousData),
-        maths::CMultivariateNormalConjugate<2>::nonInformativePrior(maths_t::E_ContinuousData),
-        maths::CMultivariateNormalConjugate<2>::nonInformativePrior(maths_t::E_ContinuousData),
-        maths::CMultivariateNormalConjugate<2>::nonInformativePrior(maths_t::E_ContinuousData),
-        maths::CMultivariateNormalConjugate<2>::nonInformativePrior(maths_t::E_ContinuousData)};
-    std::size_t indices[][2] = {{0, 1}, {0, 2}, {0, 3}, {0, 4}, {0, 5},
-                                {0, 6}, {0, 7}, {0, 8}, {0, 9}};
-
-    for (std::size_t i = 0u; i < 200; ++i) {
-        for (std::size_t j = 0u; j < boost::size(filters); ++j) {
-            TDouble10Vec1Vec sample(1, TDouble10Vec(2));
-            sample[0][0] = samples[i][indices[j][0]];
-            sample[0][1] = samples[i][indices[j][1]];
-            filters[j].addSamples(
-                sample, maths_t::CUnitWeights::singleUnit<TDouble10Vec>(2));
-        }
-    }
-
-    TDoubleVecVec p(boost::size(filters));
-    TDoubleVec mp;
-    TDoubleVec ep;
-    for (std::size_t i = 200u; i < 2000; ++i) {
-        double mpi = 1.0;
-        maths::CProbabilityOfExtremeSample epi;
-        for (std::size_t j = 0u; j < boost::size(filters); ++j) {
-            TDouble10Vec1Vec sample(1, TDouble10Vec(2));
-            sample[0][0] = samples[i][indices[j][0]];
-            sample[0][1] = samples[i][indices[j][1]];
-            double lb, ub;
-            maths::CMultivariatePrior::TTail10Vec tail;
-            filters[j].probabilityOfLessLikelySamples(
-                maths_t::E_TwoSided, sample,
-                maths_t::CUnitWeights::singleUnit<TDouble10Vec>(2), lb, ub, tail);
-            p[j].push_back((lb + ub) / 2.0);
-            mpi = std::min(mpi, (lb + ub) / 2.0);
-            epi.add((lb + ub) / 2.0, 0.5);
-        }
-        mp.push_back(mpi);
-        double pi;
-        epi.calculate(pi);
-        ep.push_back(pi);
-    }
-
-    for (std::size_t i = 0u; i < p.size(); ++i) {
-        std::sort(p[i].begin(), p[i].end());
-    }
-    std::sort(mp.begin(), mp.end());
-    std::sort(ep.begin(), ep.end());
-
-    double test[] = {0.01, 0.05, 0.1, 0.25, 0.5, 0.75, 0.9, 0.95, 0.99};
-    for (std::size_t i = 0u; i < boost::size(test); ++i) {
-        for (std::size_t j = 0u; j < p.size(); ++j) {
-            LOG_DEBUG(<< j << ") " << test[i] << " "
-                      << static_cast<double>(
-                             std::lower_bound(p[j].begin(), p[j].end(), test[i]) -
-                             p[j].begin()) /
-                             static_cast<double>(p[j].size()));
-        }
-        LOG_DEBUG(<< "min " << test[i] << " "
-                  << static_cast<double>(
-                         std::lower_bound(mp.begin(), mp.end(), test[i]) - mp.begin()) /
-                         static_cast<double>(mp.size()));
-        LOG_DEBUG(<< "corrected min " << test[i] << " "
-                  << static_cast<double>(
-                         std::lower_bound(ep.begin(), ep.end(), test[i]) - ep.begin()) /
-                         static_cast<double>(ep.size()));
-    }
-}
-
-void CMultivariateNormalConjugateTest::dataGenerator() {
-    const double means[][2] = {{10.0, 20.0}, {30.0, 25.0}, {50.0, 5.0}, {100.0, 50.0}};
-    const double covariances[][3] = {
-        {3.0, 2.0, 2.0}, {6.0, -4.0, 5.0}, {4.0, 1.0, 3.0}, {20.0, -12.0, 12.0}};
-
-    double anomalies[][4] = {{7000.0, 0.0, 2.8, -2.8}, {7001.0, 0.0, 2.8, -2.8},
-                             {7002.0, 0.0, 2.8, -2.8}, {7003.0, 0.0, 2.8, -2.8},
-                             {8000.0, 3.0, 3.5, 4.9},  {8001.0, 3.0, 3.5, 4.9},
-                             {8002.0, 3.0, 3.5, 4.9},  {8003.0, 3.0, 3.5, 4.9},
-                             {8004.0, 3.0, 3.5, 4.9},  {8005.0, 3.0, 3.5, 4.9}};
-
-    test::CRandomNumbers rng;
-
-    TDouble10Vec1Vec samples[4];
-    for (std::size_t i = 0u; i < boost::size(means); ++i) {
-        gaussianSamples(rng, 10000, means[i], covariances[i], samples[i]);
-    }
-    for (std::size_t i = 0u; i < boost::size(anomalies); ++i) {
-        std::size_t j = static_cast<std::size_t>(anomalies[i][1]);
-        std::size_t k = static_cast<std::size_t>(anomalies[i][0]);
-        samples[j][k][0] += anomalies[i][2];
-        samples[j][k][1] += anomalies[i][3];
-    }
-
-    std::ofstream f;
-    f.open("four_2d_gaussian.csv");
-    core_t::TTime time = 1451606400;
-    for (std::size_t i = 0u; i < 10000; ++i, time += 30) {
-        for (std::size_t j = 0u; j < boost::size(samples); ++j) {
-            f << time << ",x" << 2 * j << "," << samples[j][i][0] << "\n";
-            f << time << ",x" << 2 * j + 1 << "," << samples[j][i][1] << "\n";
-        }
-    }
-    f.close();
 }
 
 BOOST_AUTO_TEST_SUITE_END()

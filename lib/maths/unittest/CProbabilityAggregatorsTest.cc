@@ -20,6 +20,7 @@
 #include <boost/test/unit_test.hpp>
 
 #include <cmath>
+#include <fstream>
 
 BOOST_AUTO_TEST_SUITE(CProbabilityAggregatorsTest)
 

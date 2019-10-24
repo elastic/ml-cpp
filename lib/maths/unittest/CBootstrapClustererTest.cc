@@ -18,6 +18,16 @@
 
 #include <vector>
 
+using TVector2 = ml::maths::CVectorNx1<double, 2>;
+struct SVector2Hash {
+    std::size_t operator()(const TVector2& x) const {
+        return static_cast<std::size_t>(x.checksum());
+    }
+};
+using TVector2SizeUMap = boost::unordered_map<TVector2, std::size_t, SVector2Hash>;
+
+BOOST_TEST_DONT_PRINT_LOG_VALUE(TVector2SizeUMap::iterator)
+
 BOOST_AUTO_TEST_SUITE(CBootstrapClustererTest)
 
 using namespace ml;
@@ -28,19 +38,11 @@ using TBoolVec = std::vector<bool>;
 using TDoubleVec = std::vector<double>;
 using TSizeVec = std::vector<std::size_t>;
 using TSizeVecVec = std::vector<TSizeVec>;
-using TVector2 = maths::CVectorNx1<double, 2>;
 using TVector2Vec = std::vector<TVector2>;
 using TVector2VecVec = std::vector<TVector2Vec>;
 using TMatrix2 = maths::CSymmetricMatrixNxN<double, 2>;
 using TMatrix2Vec = std::vector<TMatrix2>;
 using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
-
-struct SVector2Hash {
-    std::size_t operator()(const TVector2& x) const {
-        return static_cast<std::size_t>(x.checksum());
-    }
-};
-using TVector2SizeUMap = boost::unordered_map<TVector2, std::size_t, SVector2Hash>;
 
 template<typename POINT>
 class CBootstrapClustererForTest : public maths::CBootstrapClusterer<POINT> {

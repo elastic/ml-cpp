@@ -167,7 +167,7 @@ BOOST_AUTO_TEST_CASE(testCluster) {
     maths::CXMeansOnline1d::TOptionalClusterClusterPr split =
         cluster.split(maths::CAvailableModeDistributions::ALL, 5.0, 0.0,
                       std::make_pair(0.0, 15.0), clusterer.indexGenerator());
-    BOOST_TEST_REQUIRE(split);
+    BOOST_TEST_REQUIRE(split.has_value());
     LOG_DEBUG(<< "left centre  = " << split->first.centre());
     LOG_DEBUG(<< "left spread  = " << split->first.spread());
     LOG_DEBUG(<< "right centre = " << split->second.centre());

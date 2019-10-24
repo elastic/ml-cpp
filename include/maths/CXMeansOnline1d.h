@@ -22,7 +22,7 @@
 #include <vector>
 
 namespace CXMeansOnline1dTest {
-struct testFoo;
+struct testPruneEmptyCluster;
 }
 
 namespace ml {
@@ -465,7 +465,7 @@ private:
     //! The clusters.
     TClusterVec m_Clusters;
 
-    friend struct CXMeansOnline1dTest::testFoo;
+    friend struct CXMeansOnline1dTest::testPruneEmptyCluster;
 };
 }
 }

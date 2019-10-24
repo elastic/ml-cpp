@@ -1412,8 +1412,8 @@ BOOST_AUTO_TEST_CASE(testPersistRestore) {
     LOG_DEBUG(<< "Second string " << persistTwiceSStream.str());
 
     // and even run
-    CPPUNIT_ASSERT_NO_THROW(boostedTree->train());
-    CPPUNIT_ASSERT_NO_THROW(boostedTree->predict());
+    BOOST_REQUIRE_NO_THROW(boostedTree->train());
+    BOOST_REQUIRE_NO_THROW(boostedTree->predict());
 
     // TODO test persist and restore produces same train result.
 }

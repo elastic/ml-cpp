@@ -461,9 +461,9 @@ BOOST_AUTO_TEST_CASE(testProbabilityOfLessLikelySample) {
                               << ", log(p1) = " << std::log(p1)
                               << ", log(p2) = " << std::log(p2));
                     BOOST_TEST_REQUIRE(
-                        std::fabs(p1 - p2) <= 0.02 * std::max(p1, p2) ||
-                        std::fabs(std::log(p1) - std::log(p2)) <=
-                            0.02 * std::fabs(std::min(std::log(p1), std::log(p2))));
+                        (std::fabs(p1 - p2) <= 0.02 * std::max(p1, p2) ||
+                         std::fabs(std::log(p1) - std::log(p2)) <=
+                             0.02 * std::fabs(std::min(std::log(p1), std::log(p2)))));
                     if (offset > 0.0)
                         BOOST_REQUIRE_EQUAL(maths_t::E_LeftTail, tail);
                     if (offset == 0.0)
@@ -493,9 +493,9 @@ BOOST_AUTO_TEST_CASE(testProbabilityOfLessLikelySample) {
                               << ", log(p1) = " << std::log(p1)
                               << ", log(p2) = " << std::log(p2));
                     BOOST_TEST_REQUIRE(
-                        std::fabs(p1 - p2) <= 0.01 * std::max(p1, p2) ||
-                        std::fabs(std::log(p1) - std::log(p2)) <=
-                            0.05 * std::fabs(std::min(std::log(p1), std::log(p2))));
+                        (std::fabs(p1 - p2) <= 0.01 * std::max(p1, p2) ||
+                         std::fabs(std::log(p1) - std::log(p2)) <=
+                             0.05 * std::fabs(std::min(std::log(p1), std::log(p2)))));
                     if (x != m1)
                         BOOST_REQUIRE_EQUAL(maths_t::E_LeftTail, tail);
                     if (x == m1)
@@ -509,9 +509,9 @@ BOOST_AUTO_TEST_CASE(testProbabilityOfLessLikelySample) {
                               << ", log(p1) = " << std::log(p1)
                               << ", log(p2) = " << std::log(p2));
                     BOOST_TEST_REQUIRE(
-                        std::fabs(p1 - p2) <= 0.01 * std::max(p1, p2) ||
-                        std::fabs(std::log(p1) - std::log(p2)) <=
-                            0.05 * std::fabs(std::min(std::log(p1), std::log(p2))));
+                        (std::fabs(p1 - p2) <= 0.01 * std::max(p1, p2) ||
+                         std::fabs(std::log(p1) - std::log(p2)) <=
+                             0.05 * std::fabs(std::min(std::log(p1), std::log(p2)))));
                     if (x != m1)
                         BOOST_REQUIRE_EQUAL(maths_t::E_RightTail, tail);
                     if (x == m1)
@@ -614,9 +614,9 @@ BOOST_AUTO_TEST_CASE(testProbabilityOfLessLikelySample) {
                                   << ", log(p1) = " << std::log(p1)
                                   << ", log(p2) = " << std::log(p2));
                         BOOST_TEST_REQUIRE(
-                            std::fabs(p1 - p2) <= 0.01 * std::max(p1, p2) ||
-                            std::fabs(std::log(p1) - std::log(p2)) <=
-                                0.05 * std::fabs(std::min(std::log(p1), std::log(p2))));
+                            (std::fabs(p1 - p2) <= 0.01 * std::max(p1, p2) ||
+                             std::fabs(std::log(p1) - std::log(p2)) <=
+                                 0.05 * std::fabs(std::min(std::log(p1), std::log(p2)))));
                         BOOST_REQUIRE_EQUAL(maths_t::E_LeftTail, tail);
 
                         x = m1 * factor;
@@ -628,9 +628,9 @@ BOOST_AUTO_TEST_CASE(testProbabilityOfLessLikelySample) {
                                   << ", log(p2) = " << std::log(p2));
 
                         BOOST_TEST_REQUIRE(
-                            std::fabs(p1 - p2) <= 0.01 * std::max(p1, p2) ||
-                            std::fabs(std::log(p1) - std::log(p2)) <=
-                                0.05 * std::fabs(std::min(std::log(p1), std::log(p2))));
+                            (std::fabs(p1 - p2) <= 0.01 * std::max(p1, p2) ||
+                             std::fabs(std::log(p1) - std::log(p2)) <=
+                                 0.05 * std::fabs(std::min(std::log(p1), std::log(p2)))));
                         BOOST_REQUIRE_EQUAL(maths_t::E_RightTail, tail);
                     }
                 }
@@ -680,9 +680,9 @@ BOOST_AUTO_TEST_CASE(testProbabilityOfLessLikelySample) {
                               << ", log(p1) = " << std::log(p1)
                               << ", log(p2) = " << std::log(p2));
                     BOOST_TEST_REQUIRE(
-                        std::fabs(p1 - p2) <= 0.06 * std::max(p1, p2) ||
-                        std::fabs(std::log(p1) - std::log(p2)) <=
-                            0.01 * std::fabs(std::min(std::log(p1), std::log(p2))));
+                        (std::fabs(p1 - p2) <= 0.06 * std::max(p1, p2) ||
+                         std::fabs(std::log(p1) - std::log(p2)) <=
+                             0.01 * std::fabs(std::min(std::log(p1), std::log(p2)))));
                     BOOST_REQUIRE_EQUAL(maths_t::E_LeftTail, tail);
 
                     double y = (1.0 + offset) * m1;
@@ -693,9 +693,9 @@ BOOST_AUTO_TEST_CASE(testProbabilityOfLessLikelySample) {
                               << ", log(p1) = " << std::log(p1)
                               << ", log(p2) = " << std::log(p2));
                     BOOST_TEST_REQUIRE(
-                        std::fabs(p1 - p2) <= 0.06 * std::max(p1, p2) ||
-                        std::fabs(std::log(p1) - std::log(p2)) <=
-                            0.01 * std::fabs(std::min(std::log(p1), std::log(p2))));
+                        (std::fabs(p1 - p2) <= 0.06 * std::max(p1, p2) ||
+                         std::fabs(std::log(p1) - std::log(p2)) <=
+                             0.01 * std::fabs(std::min(std::log(p1), std::log(p2)))));
                     BOOST_REQUIRE_EQUAL(maths_t::E_RightTail, tail);
                 }
 
@@ -711,9 +711,9 @@ BOOST_AUTO_TEST_CASE(testProbabilityOfLessLikelySample) {
                               << ", log(p1) = " << std::log(p1)
                               << ", log(p2) = " << std::log(p2));
                     BOOST_TEST_REQUIRE(
-                        std::fabs(p1 - p2) <= 0.1 * std::max(p1, p2) ||
-                        std::fabs(std::log(p1) - std::log(p2)) <=
-                            0.01 * std::fabs(std::min(std::log(p1), std::log(p2))));
+                        (std::fabs(p1 - p2) <= 0.1 * std::max(p1, p2) ||
+                         std::fabs(std::log(p1) - std::log(p2)) <=
+                             0.01 * std::fabs(std::min(std::log(p1), std::log(p2)))));
                     BOOST_REQUIRE_EQUAL(maths_t::E_LeftTail, tail);
 
                     double y = factor * m1;
@@ -724,9 +724,9 @@ BOOST_AUTO_TEST_CASE(testProbabilityOfLessLikelySample) {
                               << ", log(p1) = " << std::log(p1)
                               << ", log(p2) = " << std::log(p2));
                     BOOST_TEST_REQUIRE(
-                        std::fabs(p1 - p2) <= 0.1 * std::max(p1, p2) ||
-                        std::fabs(std::log(p1) - std::log(p2)) <=
-                            0.01 * std::fabs(std::min(std::log(p1), std::log(p2))));
+                        (std::fabs(p1 - p2) <= 0.1 * std::max(p1, p2) ||
+                         std::fabs(std::log(p1) - std::log(p2)) <=
+                             0.01 * std::fabs(std::min(std::log(p1), std::log(p2)))));
                     BOOST_REQUIRE_EQUAL(maths_t::E_RightTail, tail);
                 }
             }
@@ -799,9 +799,9 @@ BOOST_AUTO_TEST_CASE(testProbabilityOfLessLikelySample) {
                                   << ", p2 = " << p2 << ", log(p1) = " << log(p1)
                                   << ", log(p2) = " << std::log(p2));
                         BOOST_TEST_REQUIRE(
-                            std::fabs(p1 - p2) <= 0.05 * std::max(p1, p2) ||
-                            std::fabs(std::log(p1) - std::log(p2)) <
-                                0.25 * std::fabs(std::min(std::log(p1), std::log(p2))));
+                            (std::fabs(p1 - p2) <= 0.05 * std::max(p1, p2) ||
+                             std::fabs(std::log(p1) - std::log(p2)) <
+                                 0.25 * std::fabs(std::min(std::log(p1), std::log(p2)))));
                         if (maximum)
                             BOOST_REQUIRE_EQUAL(maths_t::E_LeftTail, tail);
                         if (!maximum)

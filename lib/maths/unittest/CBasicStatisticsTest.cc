@@ -104,7 +104,7 @@ BOOST_AUTO_TEST_CASE(testCentralMoments) {
 
         BOOST_REQUIRE_EQUAL(count, static_cast<size_t>(maths::CBasicStatistics::count(acc)));
 
-        BOOST_REQUIRE_CLOSE_ABSOLUTE(1.72875, maths::CBasicStatistics::mean(acc), 0.000005);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(1.72875f, maths::CBasicStatistics::mean(acc), 0.000005f);
     }
 
     LOG_DEBUG(<< "Test mean and variance");

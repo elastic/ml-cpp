@@ -16,7 +16,8 @@
 #include <vector>
 
 namespace CMicTest {
-struct testFoo;
+struct testOptimizeXAxis;
+struct testVsMutualInformation;
 }
 
 namespace ml {
@@ -71,7 +72,8 @@ private:
     TVector2dVec m_Samples;
     TSizeVec2Ary m_Order;
 
-    friend struct CMicTest::testFoo;
+    friend struct CMicTest::testOptimizeXAxis;
+    friend struct CMicTest::testVsMutualInformation;
 };
 }
 }
