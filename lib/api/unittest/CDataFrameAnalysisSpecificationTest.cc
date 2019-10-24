@@ -324,6 +324,30 @@ void CDataFrameAnalysisSpecificationTest::testCreate() {
         LOG_DEBUG(<< core::CContainerPrinter::print(errors));
         CPPUNIT_ASSERT(errors.size() > 0);
     }
+
+    LOG_DEBUG(<< "Classification with numeric target");
+    {
+        errors.clear();
+        std::string parameters{"{\"dependent_variable\": \"class\"}"};
+        api::CDataFrameAnalysisSpecification spec{
+            api::CDataFrameAnalysisSpecificationJsonWriter::jsonString(
+                "testJob", 10000, 5, 100000000, 1, {}, true,
+                test::CTestTmpDir::tmpDir(), "", "classification", parameters)};
+        LOG_DEBUG(<< core::CContainerPrinter::print(errors));
+        CPPUNIT_ASSERT(errors.size() > 0);
+    }
+
+    LOG_DEBUG(<< "Regression with categorical target");
+    {
+        errors.clear();
+        std::string parameters{"{\"dependent_variable\": \"value\"}"};
+        api::CDataFrameAnalysisSpecification spec{
+            api::CDataFrameAnalysisSpecificationJsonWriter::jsonString(
+                "testJob", 10000, 5, 100000000, 1, {"value"}, true,
+                test::CTestTmpDir::tmpDir(), "", "regression", parameters)};
+        LOG_DEBUG(<< core::CContainerPrinter::print(errors));
+        CPPUNIT_ASSERT(errors.size() > 0);
+    }
 }
 
 void CDataFrameAnalysisSpecificationTest::testRunAnalysis() {
