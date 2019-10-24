@@ -15,6 +15,8 @@ public:
     void testRunBoostedTreeRegressionTrainingWithRowsMissingTargetValue();
     void testRunBoostedTreeRegressionTrainingWithStateRecovery();
     void testRunBoostedTreeClassifierTraining();
+    void testCategoricalFields();
+    void testCategoricalFieldsEmptyAsMissing();
 
     static CppUnit::Test* suite();
 };
