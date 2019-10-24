@@ -1424,11 +1424,8 @@ void CBoostedTreeTest::testRestoreErrorHandling() {
 
     auto stream = boost::make_shared<std::ostringstream>();
 
-    boost::shared_ptr<std::ostream> castedStream(
-        boost::static_pointer_cast<std::ostream>(stream));
-
     // log at level ERROR only
-    CPPUNIT_ASSERT(core::CLogger::instance().reconfigure(castedStream));
+    CPPUNIT_ASSERT(core::CLogger::instance().reconfigure(stream));
 
     std::size_t cols{3};
     std::size_t capacity{50};

@@ -93,7 +93,7 @@ public:
     bool reconfigure(const std::string& pipeName, const std::string& propertiesFile);
 
     //! Reconfigure to use provided stream.
-    bool reconfigure(boost::shared_ptr<std::ostream>& streamPtr);
+    bool reconfigure(boost::shared_ptr<std::ostream> streamPtr);
 
     //! Tell the logger to log to a named pipe rather than a file.
     bool reconfigureLogToNamedPipe(const std::string& pipeName);

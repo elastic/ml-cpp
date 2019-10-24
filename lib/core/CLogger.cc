@@ -276,7 +276,7 @@ bool CLogger::reconfigure(const std::string& pipeName, const std::string& proper
     return this->reconfigureLogToNamedPipe(pipeName);
 }
 
-bool CLogger::reconfigure(boost::shared_ptr<std::ostream>& streamPtr) {
+bool CLogger::reconfigure(boost::shared_ptr<std::ostream> streamPtr) {
     if (streamPtr->good()) {
         auto newSink{boost::make_shared<TTextOStreamSynchronousSink>()};
         newSink->locked_backend()->add_stream(streamPtr);
