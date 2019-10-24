@@ -28,6 +28,13 @@
 
 //=== Regressions
 
+== {es} version 7.6.0
+
+=== Enhancements
+
+* Improve performance of boosted tree training for both classification and regression.
+(See {ml-pull}775[#775].)
+
 == {es} version 7.5.0
 
 === Enhancements
