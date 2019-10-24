@@ -30,6 +30,21 @@ class CDataFrameAnalysisParameters;
 //! \brief Runs boosted tree regression on a core::CDataFrame.
 class API_EXPORT CDataFrameTrainBoostedTreeRunner : public CDataFrameAnalysisRunner {
 public:
+    static const std::string DEPENDENT_VARIABLE_NAME;
+    static const std::string PREDICTION_FIELD_NAME;
+    static const std::string ALPHA;
+    static const std::string LAMBDA;
+    static const std::string GAMMA;
+    static const std::string ETA;
+    static const std::string SOFT_TREE_DEPTH_LIMIT;
+    static const std::string SOFT_TREE_DEPTH_TOLERANCE;
+    static const std::string MAXIMUM_NUMBER_TREES;
+    static const std::string FEATURE_BAG_FRACTION;
+    static const std::string NUMBER_FOLDS;
+    static const std::string NUMBER_ROUNDS_PER_HYPERPARAMETER;
+    static const std::string BAYESIAN_OPTIMISATION_RESTARTS;
+
+public:
     ~CDataFrameTrainBoostedTreeRunner() override;
 
     //! \return The number of columns this adds to the data frame.
@@ -45,7 +60,7 @@ protected:
     CDataFrameTrainBoostedTreeRunner(const CDataFrameAnalysisSpecification& spec);
 
     //! Parameter reader handling parameters that are shared by subclasses.
-    static const CDataFrameAnalysisConfigReader& getParameterReader();
+    static const CDataFrameAnalysisConfigReader& parameterReader();
     //! Name of dependent variable field.
     const std::string& dependentVariableFieldName() const;
     //! Name of prediction field.

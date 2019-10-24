@@ -26,8 +26,8 @@ const std::string IS_TRAINING_FIELD_NAME{"is_training"};
 }
 
 const CDataFrameAnalysisConfigReader&
-CDataFrameTrainBoostedTreeRegressionRunner::getParameterReader() {
-    return CDataFrameTrainBoostedTreeRunner::getParameterReader();
+CDataFrameTrainBoostedTreeRegressionRunner::parameterReader() {
+    return CDataFrameTrainBoostedTreeRunner::parameterReader();
 }
 
 CDataFrameTrainBoostedTreeRegressionRunner::CDataFrameTrainBoostedTreeRegressionRunner(
@@ -94,8 +94,8 @@ CDataFrameTrainBoostedTreeRegressionRunnerFactory::TRunnerUPtr
 CDataFrameTrainBoostedTreeRegressionRunnerFactory::makeImpl(
     const CDataFrameAnalysisSpecification& spec,
     const rapidjson::Value& jsonParameters) const {
-    CDataFrameAnalysisConfigReader parameterReader =
-        CDataFrameTrainBoostedTreeRegressionRunner::getParameterReader();
+    const CDataFrameAnalysisConfigReader& parameterReader{
+        CDataFrameTrainBoostedTreeRegressionRunner::parameterReader()};
     auto parameters = parameterReader.read(jsonParameters);
     return std::make_unique<CDataFrameTrainBoostedTreeRegressionRunner>(spec, parameters);
 }

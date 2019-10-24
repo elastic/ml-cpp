@@ -28,24 +28,8 @@
 
 namespace ml {
 namespace api {
-namespace {
-// Configuration
-const std::string DEPENDENT_VARIABLE_NAME{"dependent_variable"};
-const std::string PREDICTION_FIELD_NAME{"prediction_field_name"};
-const std::string ALPHA{"alpha"};
-const std::string LAMBDA{"lambda"};
-const std::string GAMMA{"gamma"};
-const std::string ETA{"eta"};
-const std::string SOFT_TREE_DEPTH_LIMIT{"soft_tree_depth_limit"};
-const std::string SOFT_TREE_DEPTH_TOLERANCE{"soft_tree_depth_tolerance"};
-const std::string MAXIMUM_NUMBER_TREES{"maximum_number_trees"};
-const std::string FEATURE_BAG_FRACTION{"feature_bag_fraction"};
-const std::string NUMBER_FOLDS{"number_folds"};
-const std::string NUMBER_ROUNDS_PER_HYPERPARAMETER{"number_rounds_per_hyperparameter"};
-const std::string BAYESIAN_OPTIMISATION_RESTARTS{"bayesian_optimisation_restarts"};
-}
 
-const CDataFrameAnalysisConfigReader& CDataFrameTrainBoostedTreeRunner::getParameterReader() {
+const CDataFrameAnalysisConfigReader& CDataFrameTrainBoostedTreeRunner::parameterReader() {
     static const CDataFrameAnalysisConfigReader PARAMETER_READER{[] {
         CDataFrameAnalysisConfigReader theReader;
         theReader.addParameter(DEPENDENT_VARIABLE_NAME,
@@ -281,5 +265,21 @@ std::size_t CDataFrameTrainBoostedTreeRunner::estimateBookkeepingMemoryUsage(
     std::size_t numberColumns) const {
     return m_BoostedTreeFactory->estimateMemoryUsage(totalNumberRows, numberColumns);
 }
+
+// clang-format off
+const std::string CDataFrameTrainBoostedTreeRunner::DEPENDENT_VARIABLE_NAME{"dependent_variable"};
+const std::string CDataFrameTrainBoostedTreeRunner::PREDICTION_FIELD_NAME{"prediction_field_name"};
+const std::string CDataFrameTrainBoostedTreeRunner::ALPHA{"alpha"};
+const std::string CDataFrameTrainBoostedTreeRunner::LAMBDA{"lambda"};
+const std::string CDataFrameTrainBoostedTreeRunner::GAMMA{"gamma"};
+const std::string CDataFrameTrainBoostedTreeRunner::ETA{"eta"};
+const std::string CDataFrameTrainBoostedTreeRunner::SOFT_TREE_DEPTH_LIMIT{"soft_tree_depth_limit"};
+const std::string CDataFrameTrainBoostedTreeRunner::SOFT_TREE_DEPTH_TOLERANCE{"soft_tree_depth_tolerance"};
+const std::string CDataFrameTrainBoostedTreeRunner::MAXIMUM_NUMBER_TREES{"maximum_number_trees"};
+const std::string CDataFrameTrainBoostedTreeRunner::FEATURE_BAG_FRACTION{"feature_bag_fraction"};
+const std::string CDataFrameTrainBoostedTreeRunner::NUMBER_FOLDS{"number_folds"};
+const std::string CDataFrameTrainBoostedTreeRunner::NUMBER_ROUNDS_PER_HYPERPARAMETER{"number_rounds_per_hyperparameter"};
+const std::string CDataFrameTrainBoostedTreeRunner::BAYESIAN_OPTIMISATION_RESTARTS{"bayesian_optimisation_restarts"};
+// clang-format on
 }
 }
