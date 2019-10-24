@@ -345,57 +345,6 @@ CBoostedTreeNode::TSizeSizePr CBoostedTreeNode::split(std::size_t splitFeature,
     return {m_LeftChild.get(), m_RightChild.get()};
 }
 
-CBoostedTreeNode::TPackedBitVectorPackedBitVectorPr
-CBoostedTreeNode::childrenRowMasks(std::size_t numberThreads,
-                                   const core::CDataFrame& frame,
-                                   const CDataFrameCategoryEncoder& encoder,
-                                   core::CPackedBitVector rowMask) const {
-
-    LOG_TRACE(<< "Splitting feature '" << m_SplitFeature << "' @ " << m_SplitValue);
-    LOG_TRACE(<< "# rows in node = " << rowMask.manhattan());
-    LOG_TRACE(<< "row mask = " << rowMask);
-
-    using TRowItr = core::CDataFrame::TRowItr;
-
-    auto result = frame.readRows(
-        numberThreads, 0, frame.numberRows(),
-        core::bindRetrievableState(
-            [&](core::CPackedBitVector& leftRowMask, TRowItr beginRows, TRowItr endRows) {
-                for (auto row = beginRows; row != endRows; ++row) {
-                    std::size_t index{row->index()};
-                    double value{encoder.encode(*row)[m_SplitFeature]};
-                    bool missing{CDataFrameUtils::isMissing(value)};
-                    if ((missing && m_AssignMissingToLeft) ||
-                        (missing == false && value < m_SplitValue)) {
-                        leftRowMask.extend(false, index - leftRowMask.size());
-                        leftRowMask.extend(true);
-                    }
-                }
-            },
-            core::CPackedBitVector{}),
-        &rowMask);
-    auto& masks = result.first;
-
-    for (auto& mask_ : masks) {
-        auto& mask = mask_.s_FunctionState;
-        mask.extend(false, rowMask.size() - mask.size());
-    }
-
-    core::CPackedBitVector leftRowMask{std::move(masks[0].s_FunctionState)};
-    for (std::size_t i = 1; i < masks.size(); ++i) {
-        leftRowMask |= masks[i].s_FunctionState;
-    }
-    LOG_TRACE(<< "# rows in left node = " << leftRowMask.manhattan());
-    LOG_TRACE(<< "left row mask = " << leftRowMask);
-
-    core::CPackedBitVector rightRowMask{std::move(rowMask)};
-    rightRowMask ^= leftRowMask;
-    LOG_TRACE(<< "# rows in right node = " << rightRowMask.manhattan());
-    LOG_TRACE(<< "left row mask = " << rightRowMask);
-
-    return std::make_pair(std::move(leftRowMask), std::move(rightRowMask));
-}
-
 void CBoostedTreeNode::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
     core::CPersistUtils::persist(LEFT_CHILD_TAG, m_LeftChild, inserter);
     core::CPersistUtils::persist(RIGHT_CHILD_TAG, m_RightChild, inserter);

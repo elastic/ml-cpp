@@ -260,6 +260,14 @@ public:
                          const TNodeVec& tree,
                          TNodeIndex index = 0) const;
 
+    //! Check if we should assign \p row to the left leaf.
+    bool assignToLeft(const CEncodedDataFrameRowRef& row) const {
+        double value{row[m_SplitFeature]};
+        bool missing{CDataFrameUtils::isMissing(value)};
+        return (missing && m_AssignMissingToLeft) ||
+               (missing == false && value < m_SplitValue);
+    }
+
     //! Get the value predicted by \p tree for the feature vector \p row.
     double value(const CEncodedDataFrameRowRef& row, const TNodeVec& tree) const {
         return tree[this->leafIndex(row, tree)].m_NodeValue;
@@ -291,19 +299,13 @@ public:
                       double curvature,
                       TNodeVec& tree);
 
-    //! Get the row masks of the left and right children of this node.
-    TPackedBitVectorPackedBitVectorPr
-    childrenRowMasks(std::size_t numberThreads,
-                     const core::CDataFrame& frame,
-                     const CDataFrameCategoryEncoder& encoder,
-                     core::CPackedBitVector rowMask) const;
-
     //! Persist by passing information to \p inserter.
     void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
 
     //! Populate the object from serialized data.
     bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
 
+    //! Visit this node.
     void accept(CVisitor& visitor) const;
 
     //! Get a human readable description of this tree.

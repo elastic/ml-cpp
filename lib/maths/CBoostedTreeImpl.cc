@@ -98,15 +98,37 @@ CBoostedTreeImpl::CLeafNodeStatistics::CLeafNodeStatistics(
     const TDoubleVecVec& candidateSplits,
     std::size_t depth,
     TSizeVec featureBag,
-    core::CPackedBitVector rowMask)
+    const core::CPackedBitVector& rowMask)
     : m_Id{id}, m_Regularization{regularization}, m_CandidateSplits{candidateSplits},
-      m_Depth{depth}, m_FeatureBag{std::move(featureBag)}, m_RowMask{std::move(rowMask)} {
+      m_Depth{depth}, m_FeatureBag{std::move(featureBag)}, m_RowMask{rowMask} {
 
     std::sort(m_FeatureBag.begin(), m_FeatureBag.end());
     LOG_TRACE(<< "row mask = " << m_RowMask);
     LOG_TRACE(<< "feature bag = " << core::CContainerPrinter::print(m_FeatureBag));
 
     this->computeAggregateLossDerivatives(numberThreads, frame, encoder);
+}
+
+CBoostedTreeImpl::CLeafNodeStatistics::CLeafNodeStatistics(
+    std::size_t id,
+    std::size_t numberThreads,
+    const core::CDataFrame& frame,
+    const CDataFrameCategoryEncoder& encoder,
+    const TRegularization& regularization,
+    const TDoubleVecVec& candidateSplits,
+    std::size_t depth,
+    TSizeVec featureBag,
+    bool isLeftChild,
+    const CBoostedTreeNode& split,
+    const core::CPackedBitVector& parentRowMask)
+    : m_Id{id}, m_Regularization{regularization},
+      m_CandidateSplits{candidateSplits}, m_Depth{depth}, m_FeatureBag{std::move(featureBag)} {
+
+    std::sort(m_FeatureBag.begin(), m_FeatureBag.end());
+    LOG_TRACE(<< "feature bag = " << core::CContainerPrinter::print(m_FeatureBag));
+
+    this->computeRowMaskAndAggregateLossDerivatives(
+        numberThreads, frame, encoder, isLeftChild, split, parentRowMask);
 }
 
 CBoostedTreeImpl::CLeafNodeStatistics::CLeafNodeStatistics(std::size_t id,
@@ -173,14 +195,16 @@ auto CBoostedTreeImpl::CLeafNodeStatistics::split(std::size_t leftChildId,
                                                   const TRegularization& regularization,
                                                   const TDoubleVecVec& candidateSplits,
                                                   TSizeVec featureBag,
-                                                  core::CPackedBitVector leftChildRowMask,
-                                                  core::CPackedBitVector rightChildRowMask,
+                                                  const CBoostedTreeNode& split,
                                                   bool leftChildHasFewerRows) {
 
     if (leftChildHasFewerRows) {
         auto leftChild = std::make_shared<CLeafNodeStatistics>(
-            leftChildId, numberThreads, frame, encoder, regularization, candidateSplits,
-            m_Depth + 1, std::move(featureBag), std::move(leftChildRowMask));
+            leftChildId, numberThreads, frame, encoder, regularization,
+            candidateSplits, m_Depth + 1, std::move(featureBag),
+            true /*is left child*/, split, m_RowMask);
+        core::CPackedBitVector rightChildRowMask{m_RowMask};
+        rightChildRowMask ^= leftChild->rowMask();
         auto rightChild = std::make_shared<CLeafNodeStatistics>(
             rightChildId, *this, *leftChild, std::move(rightChildRowMask));
 
@@ -189,7 +213,9 @@ auto CBoostedTreeImpl::CLeafNodeStatistics::split(std::size_t leftChildId,
 
     auto rightChild = std::make_shared<CLeafNodeStatistics>(
         rightChildId, numberThreads, frame, encoder, regularization, candidateSplits,
-        m_Depth + 1, std::move(featureBag), std::move(rightChildRowMask));
+        m_Depth + 1, std::move(featureBag), false /*is left child*/, split, m_RowMask);
+    core::CPackedBitVector leftChildRowMask{m_RowMask};
+    leftChildRowMask ^= rightChild->rowMask();
     auto leftChild = std::make_shared<CLeafNodeStatistics>(
         leftChildId, *this, *rightChild, std::move(leftChildRowMask));
 
@@ -204,21 +230,72 @@ void CBoostedTreeImpl::CLeafNodeStatistics::computeAggregateLossDerivatives(
     auto result = frame.readRows(
         numberThreads, 0, frame.numberRows(),
         core::bindRetrievableState(
-            [&](SSplitAggregateDerivatives& derivatives, TRowItr beginRows, TRowItr endRows) {
+            [&](SSplitAggregateDerivatives& splitAggregateDerivatives,
+                TRowItr beginRows, TRowItr endRows) {
                 for (auto row = beginRows; row != endRows; ++row) {
-                    this->addRowDerivatives(encoder.encode(*row), derivatives);
+                    this->addRowDerivatives(encoder.encode(*row), splitAggregateDerivatives);
                 }
             },
             SSplitAggregateDerivatives{m_CandidateSplits}),
         &m_RowMask);
+    auto& state = result.first;
 
-    SSplitAggregateDerivatives derivatives{std::move(result.first[0].s_FunctionState)};
-    for (std::size_t i = 1; i < result.first.size(); ++i) {
-        derivatives.merge(result.first[i].s_FunctionState);
+    SSplitAggregateDerivatives derivatives{std::move(state[0].s_FunctionState)};
+    for (std::size_t i = 1; i < state.size(); ++i) {
+        derivatives.merge(state[i].s_FunctionState);
     }
 
     std::tie(m_Derivatives, m_MissingDerivatives) = derivatives.move();
 
+    LOG_TRACE(<< "derivatives = " << core::CContainerPrinter::print(m_Derivatives));
+    LOG_TRACE(<< "missing derivatives = "
+              << core::CContainerPrinter::print(m_MissingDerivatives));
+}
+
+void CBoostedTreeImpl::CLeafNodeStatistics::computeRowMaskAndAggregateLossDerivatives(
+    std::size_t numberThreads,
+    const core::CDataFrame& frame,
+    const CDataFrameCategoryEncoder& encoder,
+    bool isLeftChild,
+    const CBoostedTreeNode& split,
+    const core::CPackedBitVector& parentRowMask) {
+
+    auto result = frame.readRows(
+        numberThreads, 0, frame.numberRows(),
+        core::bindRetrievableState(
+            [&](std::pair<core::CPackedBitVector, SSplitAggregateDerivatives>& state,
+                TRowItr beginRows, TRowItr endRows) {
+                auto& mask = state.first;
+                auto& splitAggregateDerivatives = state.second;
+                for (auto row = beginRows; row != endRows; ++row) {
+                    auto encodedRow = encoder.encode(*row);
+                    if (split.assignToLeft(encodedRow) == isLeftChild) {
+                        std::size_t index{row->index()};
+                        mask.extend(false, index - mask.size());
+                        mask.extend(true);
+                        this->addRowDerivatives(encodedRow, splitAggregateDerivatives);
+                    }
+                }
+            },
+            std::make_pair(core::CPackedBitVector{}, SSplitAggregateDerivatives{m_CandidateSplits})),
+        &parentRowMask);
+    auto& state = result.first;
+
+    for (auto& mask_ : state) {
+        auto& mask = mask_.s_FunctionState.first;
+        mask.extend(false, parentRowMask.size() - mask.size());
+    }
+
+    m_RowMask = std::move(state[0].s_FunctionState.first);
+    SSplitAggregateDerivatives derivatives{std::move(state[0].s_FunctionState.second)};
+    for (std::size_t i = 1; i < state.size(); ++i) {
+        m_RowMask |= state[i].s_FunctionState.first;
+        derivatives.merge(state[i].s_FunctionState.second);
+    }
+
+    std::tie(m_Derivatives, m_MissingDerivatives) = derivatives.move();
+
+    LOG_TRACE(<< "row mask = " << m_RowMask);
     LOG_TRACE(<< "derivatives = " << core::CContainerPrinter::print(m_Derivatives));
     LOG_TRACE(<< "missing derivatives = "
               << core::CContainerPrinter::print(m_MissingDerivatives));
@@ -780,18 +857,12 @@ CBoostedTreeImpl::trainTree(core::CDataFrame& frame,
 
         TSizeVec featureBag{this->featureBag()};
 
-        core::CPackedBitVector leftChildRowMask;
-        core::CPackedBitVector rightChildRowMask;
-        std::tie(leftChildRowMask, rightChildRowMask) =
-            tree[leaf->id()].childrenRowMasks(m_NumberThreads, frame, *m_Encoder,
-                                              std::move(leaf->rowMask()));
-
         TLeafNodeStatisticsPtr leftChild;
         TLeafNodeStatisticsPtr rightChild;
-        std::tie(leftChild, rightChild) = leaf->split(
-            leftChildId, rightChildId, m_NumberThreads, frame, *m_Encoder, m_Regularization,
-            candidateSplits, std::move(featureBag), std::move(leftChildRowMask),
-            std::move(rightChildRowMask), leftChildHasFewerRows);
+        std::tie(leftChild, rightChild) =
+            leaf->split(leftChildId, rightChildId, m_NumberThreads, frame, *m_Encoder,
+                        m_Regularization, candidateSplits, std::move(featureBag),
+                        tree[leaf->id()], leftChildHasFewerRows);
 
         scopeMemoryUsage.add(leftChild);
         scopeMemoryUsage.add(rightChild);

@@ -276,7 +276,18 @@ private:
                             const TDoubleVecVec& candidateSplits,
                             std::size_t depth,
                             TSizeVec featureBag,
-                            core::CPackedBitVector rowMask);
+                            const core::CPackedBitVector& rowMask);
+        CLeafNodeStatistics(std::size_t id,
+                            std::size_t numberThreads,
+                            const core::CDataFrame& frame,
+                            const CDataFrameCategoryEncoder& encoder,
+                            const TRegularization& regularization,
+                            const TDoubleVecVec& candidateSplits,
+                            std::size_t depth,
+                            TSizeVec featureBag,
+                            bool isLeftChild,
+                            const CBoostedTreeNode& split,
+                            const core::CPackedBitVector& parentRowMask);
 
         //! This should only called by split but is public so it's accessible to std::make_shared.
         CLeafNodeStatistics(std::size_t id,
@@ -303,8 +314,7 @@ private:
                    const TRegularization& regularization,
                    const TDoubleVecVec& candidateSplits,
                    TSizeVec featureBag,
-                   core::CPackedBitVector leftChildRowMask,
-                   core::CPackedBitVector rightChildRowMask,
+                   const CBoostedTreeNode& split,
                    bool leftChildHasFewerRows);
 
         //! Order two leaves by decreasing gain in splitting them.
@@ -468,6 +478,12 @@ private:
         void computeAggregateLossDerivatives(std::size_t numberThreads,
                                              const core::CDataFrame& frame,
                                              const CDataFrameCategoryEncoder& encoder);
+        void computeRowMaskAndAggregateLossDerivatives(std::size_t numberThreads,
+                                                       const core::CDataFrame& frame,
+                                                       const CDataFrameCategoryEncoder& encoder,
+                                                       bool isLeftChild,
+                                                       const CBoostedTreeNode& split,
+                                                       const core::CPackedBitVector& parentRowMask);
 
         void addRowDerivatives(const CEncodedDataFrameRowRef& row,
                                SSplitAggregateDerivatives& splitAggregateDerivatives) const;
