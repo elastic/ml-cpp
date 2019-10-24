@@ -20,6 +20,8 @@
 #include <test/CRandomNumbers.h>
 #include <test/CTestTmpDir.h>
 
+#include <boost/make_shared.hpp>
+
 #include <fstream>
 #include <functional>
 #include <memory>
@@ -185,12 +187,6 @@ void readFileToStream(const std::string& filename, std::stringstream& stream) {
                     std::istreambuf_iterator<char>());
     stream << str;
     stream.flush();
-}
-
-void clearFile(const std::string& filename) {
-    std::ofstream file;
-    file.open(filename, std::ofstream::out | std::ofstream::trunc);
-    file.close();
 }
 }
 
@@ -1426,11 +1422,10 @@ void CBoostedTreeTest::testRestoreErrorHandling() {
     };
     core::CLogger::CScopeSetFatalErrorHandler scope{errorHandler};
 
-    const std::string logFile{"test.log"};
+    auto stream = boost::make_shared<std::ostringstream>();
 
     // log at level ERROR only
-    CPPUNIT_ASSERT(ml::core::CLogger::instance().reconfigureFromFile(
-        "testfiles/testLogErrors.boost.log.ini"));
+    CPPUNIT_ASSERT(core::CLogger::instance().reconfigure(stream));
 
     std::size_t cols{3};
     std::size_t capacity{50};
@@ -1443,8 +1438,6 @@ void CBoostedTreeTest::testRestoreErrorHandling() {
     errorInBayesianOptimisationState.flush();
 
     bool throwsExceptions{false};
-    std::stringstream buffer;
-    clearFile(logFile);
     try {
 
         auto boostedTree = maths::CBoostedTreeFactory::constructFromString(errorInBayesianOptimisationState)
@@ -1455,8 +1448,7 @@ void CBoostedTreeTest::testRestoreErrorHandling() {
         core::CRegex re;
         re.init("Input error:.*");
         CPPUNIT_ASSERT(re.matches(e.what()));
-        readFileToStream(logFile, buffer);
-        CPPUNIT_ASSERT(buffer.str().find("Failed to restore MAX_BOUNDARY_TAG") !=
+        CPPUNIT_ASSERT(stream->str().find("Failed to restore MAX_BOUNDARY_TAG") !=
                        std::string::npos);
     }
     CPPUNIT_ASSERT(throwsExceptions);
@@ -1466,8 +1458,7 @@ void CBoostedTreeTest::testRestoreErrorHandling() {
     errorInBoostedTreeImplState.flush();
 
     throwsExceptions = false;
-    buffer.clear();
-    clearFile(logFile);
+    stream->clear();
     try {
         auto boostedTree = maths::CBoostedTreeFactory::constructFromString(errorInBoostedTreeImplState)
                                .restoreFor(*frame, 2);
@@ -1477,8 +1468,7 @@ void CBoostedTreeTest::testRestoreErrorHandling() {
         core::CRegex re;
         re.init("Input error:.*");
         CPPUNIT_ASSERT(re.matches(e.what()));
-        readFileToStream(logFile, buffer);
-        CPPUNIT_ASSERT(buffer.str().find("Failed to restore NUMBER_FOLDS_TAG") !=
+        CPPUNIT_ASSERT(stream->str().find("Failed to restore NUMBER_FOLDS_TAG") !=
                        std::string::npos);
     }
     CPPUNIT_ASSERT(throwsExceptions);
@@ -1488,8 +1478,7 @@ void CBoostedTreeTest::testRestoreErrorHandling() {
     errorInStateVersion.flush();
 
     throwsExceptions = false;
-    buffer.clear();
-    clearFile(logFile);
+    stream->clear();
     try {
         auto boostedTree = maths::CBoostedTreeFactory::constructFromString(errorInBoostedTreeImplState)
                                .restoreFor(*frame, 2);
@@ -1499,8 +1488,7 @@ void CBoostedTreeTest::testRestoreErrorHandling() {
         core::CRegex re;
         re.init("Input error:.*");
         CPPUNIT_ASSERT(re.matches(e.what()));
-        readFileToStream(logFile, buffer);
-        CPPUNIT_ASSERT(buffer.str().find("unsupported state serialization version.") !=
+        CPPUNIT_ASSERT(stream->str().find("unsupported state serialization version.") !=
                        std::string::npos);
     }
     CPPUNIT_ASSERT(throwsExceptions);

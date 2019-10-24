@@ -44,10 +44,10 @@ void CDataFrameAnalysisConfigReader::addParameter(const std::string& name,
     m_ParameterReaders.emplace_back(name, requirement, std::move(permittedValues));
 }
 
-CDataFrameAnalysisConfigReader::CParameters
+CDataFrameAnalysisParameters
 CDataFrameAnalysisConfigReader::read(const rapidjson::Value& json) const {
 
-    CParameters result;
+    CDataFrameAnalysisParameters result;
 
     if (json.IsObject() == false) {
         HANDLE_FATAL(<< "Input error: expected JSON object but input was '"
@@ -144,16 +144,6 @@ CDataFrameAnalysisConfigReader::CParameter::CParameter(const std::string& name, 
 void CDataFrameAnalysisConfigReader::CParameter::handleFatal() const {
     HANDLE_FATAL(<< "Input error: bad value '" << toString(*m_Value) << "' for "
                  << (m_ArrayElement ? "element of '" : "'") << m_Name << "'.");
-}
-
-CDataFrameAnalysisConfigReader::CParameter CDataFrameAnalysisConfigReader::CParameters::
-operator[](const std::string& name) const {
-    for (const auto& value : m_ParameterValues) {
-        if (name == value.name()) {
-            return value;
-        }
-    }
-    return CParameter{name};
 }
 
 CDataFrameAnalysisConfigReader::CParameterReader::CParameterReader(const std::string& name,

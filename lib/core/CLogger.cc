@@ -56,8 +56,7 @@ const ml::core::CLogger& DO_NOT_USE_THIS_VARIABLE = ml::core::CLogger::instance(
 using TOStreamPtr = boost::shared_ptr<std::ostream>;
 using TTextOStream = boost::log::sinks::text_ostream_backend;
 using TTextOStreamSynchronousSink = boost::log::sinks::synchronous_sink<TTextOStream>;
-using TTextOStreamSynchronousSinkPtr =
-    boost::shared_ptr<boost::log::sinks::synchronous_sink<TTextOStream>>;
+using TTextOStreamSynchronousSinkPtr = boost::shared_ptr<TTextOStreamSynchronousSink>;
 
 class CTimeStampFormatterFactory
     : public boost::log::basic_formatter_factory<char, boost::posix_time::ptime> {
@@ -275,6 +274,16 @@ bool CLogger::reconfigure(const std::string& pipeName, const std::string& proper
         return this->reconfigureFromFile(propertiesFile);
     }
     return this->reconfigureLogToNamedPipe(pipeName);
+}
+
+bool CLogger::reconfigure(boost::shared_ptr<std::ostream> streamPtr) {
+    if (streamPtr->good()) {
+        auto newSink{boost::make_shared<TTextOStreamSynchronousSink>()};
+        newSink->locked_backend()->add_stream(streamPtr);
+        resetSink(newSink);
+        return true;
+    }
+    return false;
 }
 
 bool CLogger::reconfigureLogToNamedPipe(const std::string& pipeName) {
