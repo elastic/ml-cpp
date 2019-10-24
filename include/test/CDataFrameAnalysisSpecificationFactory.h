@@ -44,7 +44,7 @@ public:
                    const std::string& dependentVariable,
                    std::size_t rows = 100,
                    std::size_t cols = 5,
-                   std::size_t memoryLimit = 3000000,
+                   std::size_t memoryLimit = 5000000,
                    std::size_t numberRoundsPerHyperparameter = 0,
                    std::size_t bayesianOptimisationRestarts = 0,
                    const TStrVec& categoricalFieldNames = TStrVec{},
