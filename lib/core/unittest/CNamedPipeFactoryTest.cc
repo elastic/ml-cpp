@@ -17,9 +17,9 @@
 #include <stdio.h>
 #ifndef Windows
 #include <unistd.h>
+#endif
 
 BOOST_AUTO_TEST_SUITE(CNamedPipeFactoryTest)
-#endif
 
 namespace {
 

@@ -30,6 +30,7 @@
 #include <model/CResourceMonitor.h>
 
 #include <test/BoostTestCloseAbsolute.h>
+#include <test/BoostTestPointerOutput.h>
 #include <test/CRandomNumbers.h>
 
 #include <boost/lexical_cast.hpp>

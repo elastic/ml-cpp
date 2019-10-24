@@ -16,6 +16,8 @@
 #include <boost/test/unit_test.hpp>
 #include <boost/unordered_set.hpp>
 
+#include <set>
+
 BOOST_AUTO_TEST_SUITE(CHashingTest)
 
 using namespace ml;

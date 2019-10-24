@@ -27,8 +27,7 @@ namespace test {
 //! which makes it clear which file a CI system needs to
 //! pick up to render the test results.
 //!
-TEST_EXPORT
-class CBoostTestJUnitOutput {
+class TEST_EXPORT CBoostTestJUnitOutput {
 public:
     CBoostTestJUnitOutput() = delete;
     CBoostTestJUnitOutput(const CBoostTestJUnitOutput&) = delete;

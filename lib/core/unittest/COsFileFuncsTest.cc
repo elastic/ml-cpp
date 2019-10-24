@@ -9,15 +9,15 @@
 #include <core/CTimeUtils.h>
 #include <core/WindowsSafe.h>
 
+#include <boost/test/unit_test.hpp>
+
 #include <stdio.h>
 #include <string.h>
 #ifndef Windows
 #include <unistd.h>
-
-#include <boost/test/unit_test.hpp>
+#endif
 
 BOOST_AUTO_TEST_SUITE(COsFileFuncsTest)
-#endif
 
 BOOST_AUTO_TEST_CASE(testInode) {
     // Windows doesn't have inodes as such, but on NTFS we can simulate a number
