@@ -191,7 +191,7 @@ CDataFrameAnalysisRunner::memoryMonitor(counter_t::ECounterTypes counter) {
         } else {
             // Something has gone wrong with memory estimation. Trap this case
             // to avoid underflowing the peak memory usage statistic.
-            LOG_DEBUG(<< "Memory estimate " << memory << " is negative!");
+            LOG_WARN(<< "Memory estimate " << memory << " is negative!");
         }
     };
 }
