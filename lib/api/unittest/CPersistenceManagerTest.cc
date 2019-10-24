@@ -265,8 +265,8 @@ protected:
         BOOST_REQUIRE_EQUAL(size_t(1), ml::core::CStringUtils::replaceFirst(
                                            foregroundSnapshotId, "snap", foregroundState));
 
-        // Replace the zero byte separators so the expected/actual strings don't get
-        // truncated by CppUnit if the test fails
+        // Replace the zero byte separators to avoid '\0's in the output if the
+        // test fails
         std::replace(backgroundState.begin(), backgroundState.end(), '\0', ',');
         std::replace(foregroundState.begin(), foregroundState.end(), '\0', ',');
 
@@ -356,8 +356,8 @@ BOOST_FIXTURE_TEST_CASE(testCategorizationOnlyPersist, CTestFixture) {
     std::string backgroundState = backgroundStream->str();
     std::string foregroundState = foregroundStream->str();
 
-    // Replace the zero byte separators so the expected/actual strings don't get
-    // truncated by CppUnit if the test fails
+    // Replace the zero byte separators to avoid '\0's in the output if the test
+    // fails
     std::replace(backgroundState.begin(), backgroundState.end(), '\0', ',');
     std::replace(foregroundState.begin(), foregroundState.end(), '\0', ',');
 
