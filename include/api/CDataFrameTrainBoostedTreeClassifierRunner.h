@@ -4,39 +4,29 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
-#ifndef INCLUDED_ml_api_CDataFrameClassificationRunner_h
-#define INCLUDED_ml_api_CDataFrameClassificationRunner_h
+#ifndef INCLUDED_ml_api_CDataFrameTrainBoostedTreeClassifierRunner_h
+#define INCLUDED_ml_api_CDataFrameTrainBoostedTreeClassifierRunner_h
 
-#include <core/CDataSearcher.h>
-
-#include <api/CDataFrameAnalysisConfigReader.h>
-#include <api/CDataFrameAnalysisRunner.h>
-#include <api/CDataFrameAnalysisSpecification.h>
-#include <api/CDataFrameBoostedTreeRunner.h>
+#include <api/CDataFrameTrainBoostedTreeRunner.h>
 #include <api/ImportExport.h>
 
 #include <rapidjson/fwd.h>
-
-#include <atomic>
 
 namespace ml {
 namespace api {
 
 //! \brief Runs boosted tree classification on a core::CDataFrame.
-class API_EXPORT CDataFrameClassificationRunner final : public CDataFrameBoostedTreeRunner {
+class API_EXPORT CDataFrameTrainBoostedTreeClassifierRunner final
+    : public CDataFrameTrainBoostedTreeRunner {
 public:
-    TInferenceModelDefinitionUPtr
-    inferenceModelDefinition(const TStrVec& fieldNames,
-                             const TStrVecVec& categoryNames) const override;
+    static const CDataFrameAnalysisConfigReader& getParameterReader();
 
-    static const CDataFrameAnalysisConfigReader getParameterReader();
+    //! This is not intended to be called directly: use CDataFrameTrainBoostedTreeClassifierRunnerFactory.
+    CDataFrameTrainBoostedTreeClassifierRunner(const CDataFrameAnalysisSpecification& spec,
+                                               const CDataFrameAnalysisParameters& parameters);
 
-    //! This is not intended to be called directly: use CDataFrameClassificationRunnerFactory.
-    CDataFrameClassificationRunner(const CDataFrameAnalysisSpecification& spec,
-                                   const CDataFrameAnalysisConfigReader::CParameters& parameters);
-
-    //! This is not intended to be called directly: use CDataFrameClassificationRunnerFactory.
-    CDataFrameClassificationRunner(const CDataFrameAnalysisSpecification& spec);
+    //! This is not intended to be called directly: use CDataFrameTrainBoostedTreeClassifierRunnerFactory.
+    CDataFrameTrainBoostedTreeClassifierRunner(const CDataFrameAnalysisSpecification& spec);
 
     //! \return Indicator of columns for which empty value should be treated as missing.
     TBoolVec columnsForWhichEmptyIsMissing(const TStrVec& fieldNames) const override;
@@ -45,6 +35,11 @@ public:
     void writeOneRow(const core::CDataFrame& frame,
                      const TRowRef& row,
                      core::CRapidJsonConcurrentLineWriter& writer) const override;
+
+    //! \return A serialisable definition of the trained classification model.
+    TInferenceModelDefinitionUPtr
+    inferenceModelDefinition(const TStrVec& fieldNames,
+                             const TStrVecVec& categoryNames) const override;
 
 private:
     TLossFunctionUPtr chooseLossFunction(const core::CDataFrame& frame,
@@ -55,7 +50,7 @@ private:
 };
 
 //! \brief Makes a core::CDataFrame boosted tree classification runner.
-class API_EXPORT CDataFrameClassificationRunnerFactory final
+class API_EXPORT CDataFrameTrainBoostedTreeClassifierRunnerFactory final
     : public CDataFrameAnalysisRunnerFactory {
 public:
     const std::string& name() const override;
@@ -71,4 +66,4 @@ private:
 }
 }
 
-#endif // INCLUDED_ml_api_CDataFrameClassificationRunner_h
+#endif // INCLUDED_ml_api_CDataFrameTrainBoostedTreeClassifierRunner_h

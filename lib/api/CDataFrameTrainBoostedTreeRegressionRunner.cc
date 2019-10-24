@@ -4,14 +4,10 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
-#include <api/CDataFrameRegressionRunner.h>
+#include <api/CDataFrameTrainBoostedTreeRegressionRunner.h>
 
-#include <core/CDataFrame.h>
 #include <core/CLogger.h>
-#include <core/CProgramCounters.h>
 #include <core/CRapidJsonConcurrentLineWriter.h>
-#include <core/CStateDecompressor.h>
-#include <core/CStopWatch.h>
 
 #include <maths/CBoostedTree.h>
 #include <maths/CBoostedTreeFactory.h>
@@ -20,10 +16,7 @@
 #include <api/CBoostedTreeInferenceModelBuilder.h>
 #include <api/CDataFrameAnalysisConfigReader.h>
 #include <api/CDataFrameAnalysisSpecification.h>
-#include <api/CDataFrameBoostedTreeRunner.h>
 #include <api/ElasticsearchStateIndex.h>
-
-#include <rapidjson/document.h>
 
 namespace ml {
 namespace api {
@@ -32,14 +25,15 @@ namespace {
 const std::string IS_TRAINING_FIELD_NAME{"is_training"};
 }
 
-const CDataFrameAnalysisConfigReader CDataFrameRegressionRunner::getParameterReader() {
-    return CDataFrameBoostedTreeRunner::getParameterReader();
+const CDataFrameAnalysisConfigReader&
+CDataFrameTrainBoostedTreeRegressionRunner::getParameterReader() {
+    return CDataFrameTrainBoostedTreeRunner::getParameterReader();
 }
 
-CDataFrameRegressionRunner::CDataFrameRegressionRunner(
+CDataFrameTrainBoostedTreeRegressionRunner::CDataFrameTrainBoostedTreeRegressionRunner(
     const CDataFrameAnalysisSpecification& spec,
-    const CDataFrameAnalysisConfigReader::CParameters& parameters)
-    : CDataFrameBoostedTreeRunner{spec, parameters} {
+    const CDataFrameAnalysisParameters& parameters)
+    : CDataFrameTrainBoostedTreeRunner{spec, parameters} {
 
     const TStrVec& categoricalFieldNames{spec.categoricalFieldNames()};
     if (std::find(categoricalFieldNames.begin(), categoricalFieldNames.end(),
@@ -48,13 +42,15 @@ CDataFrameRegressionRunner::CDataFrameRegressionRunner(
     }
 }
 
-CDataFrameRegressionRunner::CDataFrameRegressionRunner(const CDataFrameAnalysisSpecification& spec)
-    : CDataFrameBoostedTreeRunner{spec} {
+CDataFrameTrainBoostedTreeRegressionRunner::CDataFrameTrainBoostedTreeRegressionRunner(
+    const CDataFrameAnalysisSpecification& spec)
+    : CDataFrameTrainBoostedTreeRunner{spec} {
 }
 
-void CDataFrameRegressionRunner::writeOneRow(const core::CDataFrame&,
-                                             const TRowRef& row,
-                                             core::CRapidJsonConcurrentLineWriter& writer) const {
+void CDataFrameTrainBoostedTreeRegressionRunner::writeOneRow(
+    const core::CDataFrame&,
+    const TRowRef& row,
+    core::CRapidJsonConcurrentLineWriter& writer) const {
     const auto& tree = this->boostedTree();
     const std::size_t columnHoldingDependentVariable = tree.columnHoldingDependentVariable();
     const std::size_t columnHoldingPrediction =
@@ -68,12 +64,14 @@ void CDataFrameRegressionRunner::writeOneRow(const core::CDataFrame&,
     writer.EndObject();
 }
 
-CDataFrameRegressionRunner::TLossFunctionUPtr
-CDataFrameRegressionRunner::chooseLossFunction(const core::CDataFrame&, std::size_t) const {
+CDataFrameTrainBoostedTreeRegressionRunner::TLossFunctionUPtr
+CDataFrameTrainBoostedTreeRegressionRunner::chooseLossFunction(const core::CDataFrame&,
+                                                               std::size_t) const {
     return std::make_unique<maths::boosted_tree::CMse>();
 }
 
-CDataFrameAnalysisRunner::TInferenceModelDefinitionUPtr CDataFrameRegressionRunner::inferenceModelDefinition(
+CDataFrameAnalysisRunner::TInferenceModelDefinitionUPtr
+CDataFrameTrainBoostedTreeRegressionRunner::inferenceModelDefinition(
     const CDataFrameAnalysisRunner::TStrVec& fieldNames,
     const CDataFrameAnalysisRunner::TStrVecVec& categoryNames) const {
     CRegressionInferenceModelBuilder builder(
@@ -83,24 +81,25 @@ CDataFrameAnalysisRunner::TInferenceModelDefinitionUPtr CDataFrameRegressionRunn
     return std::make_unique<CInferenceModelDefinition>(builder.build());
 }
 
-const std::string& CDataFrameRegressionRunnerFactory::name() const {
+const std::string& CDataFrameTrainBoostedTreeRegressionRunnerFactory::name() const {
     return NAME;
 }
 
-CDataFrameRegressionRunnerFactory::TRunnerUPtr
-CDataFrameRegressionRunnerFactory::makeImpl(const CDataFrameAnalysisSpecification& spec) const {
-    return std::make_unique<CDataFrameRegressionRunner>(spec);
+CDataFrameTrainBoostedTreeRegressionRunnerFactory::TRunnerUPtr
+CDataFrameTrainBoostedTreeRegressionRunnerFactory::makeImpl(const CDataFrameAnalysisSpecification& spec) const {
+    return std::make_unique<CDataFrameTrainBoostedTreeRegressionRunner>(spec);
 }
 
-CDataFrameRegressionRunnerFactory::TRunnerUPtr
-CDataFrameRegressionRunnerFactory::makeImpl(const CDataFrameAnalysisSpecification& spec,
-                                            const rapidjson::Value& jsonParameters) const {
+CDataFrameTrainBoostedTreeRegressionRunnerFactory::TRunnerUPtr
+CDataFrameTrainBoostedTreeRegressionRunnerFactory::makeImpl(
+    const CDataFrameAnalysisSpecification& spec,
+    const rapidjson::Value& jsonParameters) const {
     CDataFrameAnalysisConfigReader parameterReader =
-        CDataFrameRegressionRunner::getParameterReader();
+        CDataFrameTrainBoostedTreeRegressionRunner::getParameterReader();
     auto parameters = parameterReader.read(jsonParameters);
-    return std::make_unique<CDataFrameRegressionRunner>(spec, parameters);
+    return std::make_unique<CDataFrameTrainBoostedTreeRegressionRunner>(spec, parameters);
 }
 
-const std::string CDataFrameRegressionRunnerFactory::NAME{"regression"};
+const std::string CDataFrameTrainBoostedTreeRegressionRunnerFactory::NAME{"regression"};
 }
 }
