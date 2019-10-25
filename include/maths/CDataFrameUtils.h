@@ -237,11 +237,22 @@ public:
                                 const CDataFrameCategoryEncoder* encoder = nullptr,
                                 TWeightFunction weight = unitWeight);
 
-    //! \brief Compute disjoint random train/test row masks suitable for cross
-    //! validation ensuring nearly equal numbers of examples for each distinct
-    //! value of the target column.
+    //! \brief Compute disjoint stratified random train/test row masks suitable
+    //! for cross validation.
     //!
-    //! TODO stratify by target quantiles for regression.
+    //! This works for both classification and regression.
+    //!
+    //! For classification we assign uniformly at random equal proportions of
+    //! each class as they appear in the full training set. For example, if we
+    //! have \f$n_A\f$ and \f$n_B\f$ counts of class A and B, respectively, and
+    //! we're doing \f$k\f$-fold cross validation we'd choose random subsets of
+    //! sizes \f$\frac{n_A}{k}\f$ and \f$\frac{n_B}{k}\f$ of A and B examples,
+    //! respectively, for each test set.
+    //!
+    //! For regression we do stratified fractional cross validation on the data
+    //! deciles. This is equivalent to stratification for classification where
+    //! each class accounts for 1/10 of the data and the comprises the examples
+    //! in each inter decile range.
     //!
     //! \param[in] numberThreads The number of threads available.
     //! \param[in] frame The data frame for which to compute the row masks.

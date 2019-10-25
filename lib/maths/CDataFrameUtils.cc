@@ -22,6 +22,7 @@
 #include <boost/unordered_map.hpp>
 
 #include <memory>
+#include <numeric>
 #include <vector>
 
 namespace ml {
@@ -128,13 +129,10 @@ classifierStratifiedCrossValidationRowSampler(std::size_t numberThreads,
         numberThreads, frame, allTrainingRowsMask, {targetColumn})[targetColumn]};
 
     TSizeVec categoryCounts;
-    categoryCounts.reserve(frequencies.size());
     double numberTrainingRows{allTrainingRowsMask.manhattan()};
-    for (auto& frequency : frequencies) {
-        std::size_t desiredCount{static_cast<std::size_t>(
-            numberTrainingRows * frequency / static_cast<double>(numberFolds) + 0.5)};
-        categoryCounts.push_back(std::max(desiredCount, std::size_t{1}));
-    }
+    std::size_t desiredCount{
+        (static_cast<std::size_t>(numberTrainingRows) + numberFolds / 2) / numberFolds};
+    CSampling::weightedSample(desiredCount, frequencies, categoryCounts);
     LOG_TRACE(<< "desired category counts per test fold = "
               << core::CContainerPrinter::print(categoryCounts));
 
@@ -164,10 +162,10 @@ regressionStratifiedCrossValiationRowSampler(std::size_t numberThreads,
         CQuantileSketch{CQuantileSketch::E_Linear, 50}, quantiles);
 
     TDoubleVec buckets;
-    for (std::size_t percentile = 20; percentile < 100; percentile += 20) {
-        double xq;
-        quantiles[0].quantile(static_cast<double>(percentile), xq);
-        buckets.push_back(xq);
+    for (double percentile = 10.0; percentile < 100.0; percentile += 10.0) {
+        double xDecile;
+        quantiles[0].quantile(percentile, xDecile);
+        buckets.push_back(xDecile);
     }
     buckets.erase(std::unique(buckets.begin(), buckets.end()), buckets.end());
     buckets.push_back(std::numeric_limits<double>::max());
@@ -180,29 +178,34 @@ regressionStratifiedCrossValiationRowSampler(std::size_t numberThreads,
     };
 
     auto countBucketRows = core::bindRetrievableState(
-        [&](TSizeVec& bucketCounts, TRowItr beginRows, TRowItr endRows) {
+        [&](TDoubleVec& bucketCounts, TRowItr beginRows, TRowItr endRows) {
             for (auto row = beginRows; row != endRows; ++row) {
-                ++bucketCounts[bucketSelector(*row)];
+                bucketCounts[bucketSelector(*row)] += 1.0;
             }
         },
-        TSizeVec(buckets.size(), 0));
-    auto copyBucketRowCounts = [](TSizeVec counts_, TSizeVec& counts) {
+        TDoubleVec(buckets.size(), 0.0));
+    auto copyBucketRowCounts = [](TDoubleVec counts_, TDoubleVec& counts) {
         counts = std::move(counts_);
     };
-    auto reduceBucketRowCounts = [](TSizeVec counts_, TSizeVec& counts) {
+    auto reduceBucketRowCounts = [](TDoubleVec counts_, TDoubleVec& counts) {
         for (std::size_t i = 0; i < counts.size(); ++i) {
             counts[i] += counts_[i];
         }
     };
 
-    TSizeVec bucketCounts;
+    TDoubleVec weights;
     doReduce(frame.readRows(numberThreads, 0, frame.numberRows(),
                             countBucketRows, &allTrainingRowsMask),
-             copyBucketRowCounts, reduceBucketRowCounts, bucketCounts);
-    for (auto& count : bucketCounts) {
-        count /= numberFolds;
+             copyBucketRowCounts, reduceBucketRowCounts, weights);
+    double Z{std::accumulate(weights.begin(), weights.end(), 0.0)};
+    for (auto& weight : weights) {
+        weight /= Z;
     }
-    LOG_DEBUG(<< "desired bucket counts per fold = "
+
+    TSizeVec bucketCounts;
+    std::size_t desiredCount{(static_cast<std::size_t>(Z) + numberFolds / 2) / numberFolds};
+    CSampling::weightedSample(desiredCount, weights, bucketCounts);
+    LOG_TRACE(<< "desired bucket counts per fold = "
               << core::CContainerPrinter::print(bucketCounts));
 
     auto sampler = std::make_unique<CStratifiedSampler>(buckets.size());
@@ -510,7 +513,6 @@ CDataFrameUtils::stratifiedCrossValidationRowMasks(std::size_t numberThreads,
                            }
                        },
                        &candidateTestingRowsMask);
-
         sampler->finishSampling(rng, rowIndices);
         std::sort(rowIndices.begin(), rowIndices.end());
         LOG_TRACE(<< "# row indices = " << rowIndices.size());
@@ -521,9 +523,15 @@ CDataFrameUtils::stratifiedCrossValidationRowMasks(std::size_t numberThreads,
         }
         testingRowMasks[fold].extend(false, allTrainingRowsMask.size() -
                                                 testingRowMasks[fold].size());
+
+        // We exclusive or here to remove the rows we've selected for the current
+        //test fold. This is equivalent to samplng without replacement
         candidateTestingRowsMask ^= testingRowMasks[fold];
     }
+
+    // Everything which is left.
     testingRowMasks.back() = std::move(candidateTestingRowsMask);
+    LOG_TRACE(<< "# remaining rows = " << testingRowMasks.back().manhattan());
 
     TPackedBitVectorVec trainingRowMasks{complementRowMasks(testingRowMasks, allTrainingRowsMask)};
 
