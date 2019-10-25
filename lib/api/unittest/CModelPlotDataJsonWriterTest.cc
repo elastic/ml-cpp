@@ -3,29 +3,24 @@
  * or more contributor license agreements. Licensed under the Elastic License;
  * you may not use this file except in compliance with the Elastic License.
  */
-#include "CModelPlotDataJsonWriterTest.h"
 
 #include <core/CJsonOutputStreamWrapper.h>
-
-#include <api/CModelPlotDataJsonWriter.h>
 
 #include <model/CModelPlotData.h>
 #include <model/ModelTypes.h>
 
+#include <api/CModelPlotDataJsonWriter.h>
+
+#include <test/BoostTestCloseAbsolute.h>
+
 #include <rapidjson/document.h>
 #include <rapidjson/prettywriter.h>
 
-CppUnit::Test* CModelPlotDataJsonWriterTest::suite() {
-    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CModelPlotDataJsonWriterTest");
+#include <boost/test/unit_test.hpp>
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CModelPlotDataJsonWriterTest>(
-        "CModelPlotDataJsonWriterTest::testWriteFlat",
-        &CModelPlotDataJsonWriterTest::testWriteFlat));
+BOOST_AUTO_TEST_SUITE(CModelPlotDataJsonWriterTest)
 
-    return suiteOfTests;
-}
-
-void CModelPlotDataJsonWriterTest::testWriteFlat() {
+BOOST_AUTO_TEST_CASE(testWriteFlat) {
     std::ostringstream sstream;
 
     {
@@ -41,36 +36,38 @@ void CModelPlotDataJsonWriterTest::testWriteFlat() {
 
     rapidjson::Document doc;
     doc.Parse<rapidjson::kParseDefaultFlags>(sstream.str());
-    CPPUNIT_ASSERT(!doc.HasParseError());
+    BOOST_TEST_REQUIRE(!doc.HasParseError());
     const rapidjson::Value& firstElement = doc[0];
-    CPPUNIT_ASSERT(firstElement.HasMember("model_plot"));
+    BOOST_TEST_REQUIRE(firstElement.HasMember("model_plot"));
     const rapidjson::Value& modelPlot = firstElement["model_plot"];
-    CPPUNIT_ASSERT(modelPlot.HasMember("job_id"));
-    CPPUNIT_ASSERT_EQUAL(std::string("job-id"),
-                         std::string(modelPlot["job_id"].GetString()));
-    CPPUNIT_ASSERT(modelPlot.HasMember("model_feature"));
-    CPPUNIT_ASSERT_EQUAL(std::string("'count per bucket by person'"),
-                         std::string(modelPlot["model_feature"].GetString()));
-    CPPUNIT_ASSERT(modelPlot.HasMember("timestamp"));
-    CPPUNIT_ASSERT_EQUAL(int64_t(1000), modelPlot["timestamp"].GetInt64());
-    CPPUNIT_ASSERT(modelPlot.HasMember("partition_field_name"));
-    CPPUNIT_ASSERT_EQUAL(std::string("pName"),
-                         std::string(modelPlot["partition_field_name"].GetString()));
-    CPPUNIT_ASSERT(modelPlot.HasMember("partition_field_value"));
-    CPPUNIT_ASSERT_EQUAL(std::string("pValue"),
-                         std::string(modelPlot["partition_field_value"].GetString()));
-    CPPUNIT_ASSERT(modelPlot.HasMember("by_field_name"));
-    CPPUNIT_ASSERT_EQUAL(std::string("bName"),
-                         std::string(modelPlot["by_field_name"].GetString()));
-    CPPUNIT_ASSERT(modelPlot.HasMember("by_field_value"));
-    CPPUNIT_ASSERT_EQUAL(std::string("bName"),
-                         std::string(modelPlot["by_field_value"].GetString()));
-    CPPUNIT_ASSERT(modelPlot.HasMember("model_lower"));
-    CPPUNIT_ASSERT_DOUBLES_EQUAL(1.0, modelPlot["model_lower"].GetDouble(), 0.01);
-    CPPUNIT_ASSERT(modelPlot.HasMember("model_upper"));
-    CPPUNIT_ASSERT_DOUBLES_EQUAL(2.0, modelPlot["model_upper"].GetDouble(), 0.01);
-    CPPUNIT_ASSERT(modelPlot.HasMember("model_median"));
-    CPPUNIT_ASSERT_DOUBLES_EQUAL(3.0, modelPlot["model_median"].GetDouble(), 0.01);
-    CPPUNIT_ASSERT(modelPlot.HasMember("bucket_span"));
-    CPPUNIT_ASSERT_EQUAL(int64_t(300), modelPlot["bucket_span"].GetInt64());
+    BOOST_TEST_REQUIRE(modelPlot.HasMember("job_id"));
+    BOOST_REQUIRE_EQUAL(std::string("job-id"),
+                        std::string(modelPlot["job_id"].GetString()));
+    BOOST_TEST_REQUIRE(modelPlot.HasMember("model_feature"));
+    BOOST_REQUIRE_EQUAL(std::string("'count per bucket by person'"),
+                        std::string(modelPlot["model_feature"].GetString()));
+    BOOST_TEST_REQUIRE(modelPlot.HasMember("timestamp"));
+    BOOST_REQUIRE_EQUAL(int64_t(1000), modelPlot["timestamp"].GetInt64());
+    BOOST_TEST_REQUIRE(modelPlot.HasMember("partition_field_name"));
+    BOOST_REQUIRE_EQUAL(std::string("pName"),
+                        std::string(modelPlot["partition_field_name"].GetString()));
+    BOOST_TEST_REQUIRE(modelPlot.HasMember("partition_field_value"));
+    BOOST_REQUIRE_EQUAL(std::string("pValue"),
+                        std::string(modelPlot["partition_field_value"].GetString()));
+    BOOST_TEST_REQUIRE(modelPlot.HasMember("by_field_name"));
+    BOOST_REQUIRE_EQUAL(std::string("bName"),
+                        std::string(modelPlot["by_field_name"].GetString()));
+    BOOST_TEST_REQUIRE(modelPlot.HasMember("by_field_value"));
+    BOOST_REQUIRE_EQUAL(std::string("bName"),
+                        std::string(modelPlot["by_field_value"].GetString()));
+    BOOST_TEST_REQUIRE(modelPlot.HasMember("model_lower"));
+    BOOST_REQUIRE_CLOSE_ABSOLUTE(1.0, modelPlot["model_lower"].GetDouble(), 0.01);
+    BOOST_TEST_REQUIRE(modelPlot.HasMember("model_upper"));
+    BOOST_REQUIRE_CLOSE_ABSOLUTE(2.0, modelPlot["model_upper"].GetDouble(), 0.01);
+    BOOST_TEST_REQUIRE(modelPlot.HasMember("model_median"));
+    BOOST_REQUIRE_CLOSE_ABSOLUTE(3.0, modelPlot["model_median"].GetDouble(), 0.01);
+    BOOST_TEST_REQUIRE(modelPlot.HasMember("bucket_span"));
+    BOOST_REQUIRE_EQUAL(int64_t(300), modelPlot["bucket_span"].GetInt64());
 }
+
+BOOST_AUTO_TEST_SUITE_END()

@@ -19,8 +19,17 @@
 #include <functional>
 #include <string>
 
-class CResourceMonitorTest;
-class CStringStoreTest;
+namespace CResourceMonitorTest {
+class CTestFixture;
+}
+namespace CStringStoreTest {
+class CTestFixture;
+struct testStringStore;
+struct testMemUsage;
+struct testPersonStringPruning;
+struct testAttributeStringPruning;
+struct testInfluencerStringPruning;
+}
 
 namespace ml {
 
@@ -132,8 +141,13 @@ private:
     //! Locking primitive
     mutable core::CFastMutex m_Mutex;
 
-    friend class ::CResourceMonitorTest;
-    friend class ::CStringStoreTest;
+    friend class CResourceMonitorTest::CTestFixture;
+    friend class CStringStoreTest::CTestFixture;
+    friend struct CStringStoreTest::testStringStore;
+    friend struct CStringStoreTest::testMemUsage;
+    friend struct CStringStoreTest::testPersonStringPruning;
+    friend struct CStringStoreTest::testAttributeStringPruning;
+    friend struct CStringStoreTest::testInfluencerStringPruning;
 };
 
 } // model

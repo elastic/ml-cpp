@@ -55,6 +55,7 @@ ml_test
 .cproject
 unit_test_skip_dirs.csv
 gcovr-unit-report.xml
+junit_results.xml
 cppunit_results.xml
 **/.objs/*.*
 !**/.objs/.gitignore

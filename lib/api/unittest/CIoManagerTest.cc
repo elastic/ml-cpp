@@ -3,7 +3,6 @@
  * or more contributor license agreements. Licensed under the Elastic License;
  * you may not use this file except in compliance with the Elastic License.
  */
-#include "CIoManagerTest.h"
 
 #include <core/CMutex.h>
 #include <core/CNamedPipeFactory.h>
@@ -13,10 +12,14 @@
 
 #include <api/CIoManager.h>
 
+#include <boost/test/unit_test.hpp>
+
 #include <fstream>
 #include <iostream>
 
 #include <stdio.h>
+
+BOOST_AUTO_TEST_SUITE(CIoManagerTest)
 
 namespace {
 
@@ -88,7 +91,7 @@ protected:
             if (m_Shutdown) {
                 return;
             }
-            CPPUNIT_ASSERT(attempt++ <= MAX_ATTEMPTS);
+            BOOST_TEST_REQUIRE(attempt++ <= MAX_ATTEMPTS);
             ml::core::CSleep::sleep(PAUSE_TIME_MS);
             strm.open(m_FileName.c_str());
         } while (!strm.is_open());
@@ -100,7 +103,7 @@ protected:
                 return;
             }
             strm.read(buffer, BUF_SIZE);
-            CPPUNIT_ASSERT(!strm.bad());
+            BOOST_TEST_REQUIRE(!strm.bad());
             if (strm.gcount() > 0) {
                 ml::core::CScopedLock lock(m_Mutex);
                 // This code deals with the test character we write to
@@ -126,39 +129,67 @@ private:
     std::string m_Data;
     volatile bool m_Shutdown;
 };
+
+void testCommon(const std::string& inputFileName,
+                bool isInputFileNamedPipe,
+                const std::string& outputFileName,
+                bool isOutputFileNamedPipe,
+                bool isGood) {
+    // Test reader reads from the IO manager's output stream.
+    CThreadDataReader threadReader(outputFileName);
+    BOOST_TEST_REQUIRE(threadReader.start());
+
+    std::string processedData;
+
+    {
+        ml::api::CIoManager ioMgr(inputFileName, isInputFileNamedPipe,
+                                  outputFileName, isOutputFileNamedPipe);
+        BOOST_REQUIRE_EQUAL(isGood, ioMgr.initIo());
+        if (isGood) {
+            static const std::streamsize BUF_SIZE = 512;
+            char buffer[BUF_SIZE];
+            do {
+                ioMgr.inputStream().read(buffer, BUF_SIZE);
+                BOOST_TEST_REQUIRE(!ioMgr.inputStream().bad());
+                if (ioMgr.inputStream().gcount() > 0) {
+                    processedData.append(
+                        buffer, static_cast<size_t>(ioMgr.inputStream().gcount()));
+                }
+                BOOST_TEST_REQUIRE(!ioMgr.outputStream().bad());
+                ioMgr.outputStream().write(
+                    buffer, static_cast<size_t>(ioMgr.inputStream().gcount()));
+            } while (!ioMgr.inputStream().eof());
+            BOOST_TEST_REQUIRE(!ioMgr.outputStream().bad());
+        }
+    }
+
+    if (isGood) {
+        BOOST_TEST_REQUIRE(threadReader.waitForFinish());
+        BOOST_REQUIRE_EQUAL(TEST_SIZE, processedData.length());
+        BOOST_REQUIRE_EQUAL(std::string(TEST_SIZE, TEST_CHAR), processedData);
+        BOOST_REQUIRE_EQUAL(processedData.length(), threadReader.data().length());
+        BOOST_REQUIRE_EQUAL(processedData, threadReader.data());
+    } else {
+        BOOST_TEST_REQUIRE(threadReader.stop());
+        BOOST_TEST_REQUIRE(processedData.empty());
+    }
+}
 }
 
-CppUnit::Test* CIoManagerTest::suite() {
-    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CIoManagerTest");
-
-    suiteOfTests->addTest(new CppUnit::TestCaller<CIoManagerTest>(
-        "CIoManagerTest::testStdinStdout", &CIoManagerTest::testStdinStdout));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CIoManagerTest>(
-        "CIoManagerTest::testFileIoGood", &CIoManagerTest::testFileIoGood));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CIoManagerTest>(
-        "CIoManagerTest::testFileIoBad", &CIoManagerTest::testFileIoBad));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CIoManagerTest>(
-        "CIoManagerTest::testNamedPipeIoGood", &CIoManagerTest::testNamedPipeIoGood));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CIoManagerTest>(
-        "CIoManagerTest::testNamedPipeIoBad", &CIoManagerTest::testNamedPipeIoBad));
-
-    return suiteOfTests;
-}
-
-void CIoManagerTest::testStdinStdout() {
+BOOST_AUTO_TEST_CASE(testStdinStdout) {
     ml::api::CIoManager ioMgr("", false, "", false);
-    CPPUNIT_ASSERT(ioMgr.initIo());
+    BOOST_TEST_REQUIRE(ioMgr.initIo());
 
     // Assign to a different pointer in case of "this" pointer manipulation due
     // to multiple inheritance
     std::istream* cinAsIStream = &std::cin;
-    CPPUNIT_ASSERT_EQUAL(cinAsIStream, &ioMgr.inputStream());
+    BOOST_REQUIRE_EQUAL(cinAsIStream, &ioMgr.inputStream());
 
-    std::ostream* coutAsIStream = &std::cout;
-    CPPUNIT_ASSERT_EQUAL(coutAsIStream, &ioMgr.outputStream());
+    std::ostream* coutAsOStream = &std::cout;
+    BOOST_REQUIRE_EQUAL(coutAsOStream, &ioMgr.outputStream());
 }
 
-void CIoManagerTest::testFileIoGood() {
+BOOST_AUTO_TEST_CASE(testFileIoGood) {
     // Remove output file that possibly might have been left behind by a
     // previous failed test - ignore the error code from this call though as
     // it'll generally fail
@@ -170,72 +201,29 @@ void CIoManagerTest::testFileIoGood() {
     strm << std::string(TEST_SIZE, TEST_CHAR);
     strm.close();
 
-    this->testCommon(GOOD_INPUT_FILE_NAME, false, GOOD_OUTPUT_FILE_NAME, false, true);
+    testCommon(GOOD_INPUT_FILE_NAME, false, GOOD_OUTPUT_FILE_NAME, false, true);
 
-    CPPUNIT_ASSERT_EQUAL(0, ::remove(GOOD_INPUT_FILE_NAME));
-    CPPUNIT_ASSERT_EQUAL(0, ::remove(GOOD_OUTPUT_FILE_NAME));
+    BOOST_REQUIRE_EQUAL(0, ::remove(GOOD_INPUT_FILE_NAME));
+    BOOST_REQUIRE_EQUAL(0, ::remove(GOOD_OUTPUT_FILE_NAME));
 }
 
-void CIoManagerTest::testFileIoBad() {
-    this->testCommon(BAD_INPUT_FILE_NAME, false, BAD_OUTPUT_FILE_NAME, false, false);
+BOOST_AUTO_TEST_CASE(testFileIoBad) {
+    testCommon(BAD_INPUT_FILE_NAME, false, BAD_OUTPUT_FILE_NAME, false, false);
 }
 
-void CIoManagerTest::testNamedPipeIoGood() {
+BOOST_AUTO_TEST_CASE(testNamedPipeIoGood) {
     // For the named pipe test, data needs to be written to the IO manager's
     // input pipe after the IO manager has started
     CThreadDataWriter threadWriter(GOOD_INPUT_PIPE_NAME, TEST_SIZE);
-    CPPUNIT_ASSERT(threadWriter.start());
+    BOOST_TEST_REQUIRE(threadWriter.start());
 
-    this->testCommon(GOOD_INPUT_PIPE_NAME, true, GOOD_OUTPUT_PIPE_NAME, true, true);
+    testCommon(GOOD_INPUT_PIPE_NAME, true, GOOD_OUTPUT_PIPE_NAME, true, true);
 
-    CPPUNIT_ASSERT(threadWriter.stop());
+    BOOST_TEST_REQUIRE(threadWriter.stop());
 }
 
-void CIoManagerTest::testNamedPipeIoBad() {
-    this->testCommon(BAD_INPUT_PIPE_NAME, true, BAD_OUTPUT_PIPE_NAME, true, false);
+BOOST_AUTO_TEST_CASE(testNamedPipeIoBad) {
+    testCommon(BAD_INPUT_PIPE_NAME, true, BAD_OUTPUT_PIPE_NAME, true, false);
 }
 
-void CIoManagerTest::testCommon(const std::string& inputFileName,
-                                bool isInputFileNamedPipe,
-                                const std::string& outputFileName,
-                                bool isOutputFileNamedPipe,
-                                bool isGood) {
-    // Test reader reads from the IO manager's output stream.
-    CThreadDataReader threadReader(outputFileName);
-    CPPUNIT_ASSERT(threadReader.start());
-
-    std::string processedData;
-
-    {
-        ml::api::CIoManager ioMgr(inputFileName, isInputFileNamedPipe,
-                                  outputFileName, isOutputFileNamedPipe);
-        CPPUNIT_ASSERT_EQUAL(isGood, ioMgr.initIo());
-        if (isGood) {
-            static const std::streamsize BUF_SIZE = 512;
-            char buffer[BUF_SIZE];
-            do {
-                ioMgr.inputStream().read(buffer, BUF_SIZE);
-                CPPUNIT_ASSERT(!ioMgr.inputStream().bad());
-                if (ioMgr.inputStream().gcount() > 0) {
-                    processedData.append(
-                        buffer, static_cast<size_t>(ioMgr.inputStream().gcount()));
-                }
-                CPPUNIT_ASSERT(!ioMgr.outputStream().bad());
-                ioMgr.outputStream().write(
-                    buffer, static_cast<size_t>(ioMgr.inputStream().gcount()));
-            } while (!ioMgr.inputStream().eof());
-            CPPUNIT_ASSERT(!ioMgr.outputStream().bad());
-        }
-    }
-
-    if (isGood) {
-        CPPUNIT_ASSERT(threadReader.waitForFinish());
-        CPPUNIT_ASSERT_EQUAL(TEST_SIZE, processedData.length());
-        CPPUNIT_ASSERT_EQUAL(std::string(TEST_SIZE, TEST_CHAR), processedData);
-        CPPUNIT_ASSERT_EQUAL(processedData.length(), threadReader.data().length());
-        CPPUNIT_ASSERT_EQUAL(processedData, threadReader.data());
-    } else {
-        CPPUNIT_ASSERT(threadReader.stop());
-        CPPUNIT_ASSERT(processedData.empty());
-    }
-}
+BOOST_AUTO_TEST_SUITE_END()

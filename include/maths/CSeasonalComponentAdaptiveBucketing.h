@@ -21,7 +21,9 @@
 
 #include <stdint.h>
 
+namespace CTimeSeriesDecompositionTest {
 class CNanInjector;
+}
 
 namespace ml {
 namespace core {
@@ -208,7 +210,7 @@ private:
     TBucketVec m_Buckets;
 
     //! Befriend a helper class used by the unit tests
-    friend class ::CNanInjector;
+    friend class CTimeSeriesDecompositionTest::CNanInjector;
 };
 
 //! Create a free function which will be found by Koenig lookup.

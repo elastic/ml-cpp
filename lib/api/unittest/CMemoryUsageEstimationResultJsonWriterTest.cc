@@ -3,7 +3,6 @@
  * or more contributor license agreements. Licensed under the Elastic License;
  * you may not use this file except in compliance with the Elastic License.
  */
-#include "CMemoryUsageEstimationResultJsonWriterTest.h"
 
 #include <core/CJsonOutputStreamWrapper.h>
 #include <core/CoreTypes.h>
@@ -14,21 +13,16 @@
 
 #include <rapidjson/document.h>
 
+#include <boost/test/unit_test.hpp>
+
 #include <string>
+
+BOOST_AUTO_TEST_SUITE(CMemoryUsageEstimationResultJsonWriterTest)
 
 using namespace ml;
 using namespace api;
 
-CppUnit::Test* CMemoryUsageEstimationResultJsonWriterTest::suite() {
-    CppUnit::TestSuite* suiteOfTests =
-        new CppUnit::TestSuite("CMemoryUsageEstimationResultJsonWriterTest");
-    suiteOfTests->addTest(new CppUnit::TestCaller<CMemoryUsageEstimationResultJsonWriterTest>(
-        "CMemoryUsageEstimationResultJsonWriterTest::testWrite",
-        &CMemoryUsageEstimationResultJsonWriterTest::testWrite));
-    return suiteOfTests;
-}
-
-void CMemoryUsageEstimationResultJsonWriterTest::testWrite() {
+BOOST_AUTO_TEST_CASE(testWrite) {
     std::ostringstream sstream;
 
     // The output writer won't close the JSON structures until is is destroyed
@@ -41,16 +35,18 @@ void CMemoryUsageEstimationResultJsonWriterTest::testWrite() {
     rapidjson::Document arrayDoc;
     arrayDoc.Parse<rapidjson::kParseDefaultFlags>(sstream.str().c_str());
 
-    CPPUNIT_ASSERT(arrayDoc.IsArray());
-    CPPUNIT_ASSERT_EQUAL(rapidjson::SizeType(1), arrayDoc.Size());
+    BOOST_TEST_REQUIRE(arrayDoc.IsArray());
+    BOOST_REQUIRE_EQUAL(rapidjson::SizeType(1), arrayDoc.Size());
 
     const rapidjson::Value& object = arrayDoc[rapidjson::SizeType(0)];
-    CPPUNIT_ASSERT(object.IsObject());
+    BOOST_TEST_REQUIRE(object.IsObject());
 
-    CPPUNIT_ASSERT(object.HasMember("expected_memory_without_disk"));
-    CPPUNIT_ASSERT_EQUAL(std::string("16kB"),
-                         std::string(object["expected_memory_without_disk"].GetString()));
-    CPPUNIT_ASSERT(object.HasMember("expected_memory_with_disk"));
-    CPPUNIT_ASSERT_EQUAL(std::string("8kB"),
-                         std::string(object["expected_memory_with_disk"].GetString()));
+    BOOST_TEST_REQUIRE(object.HasMember("expected_memory_without_disk"));
+    BOOST_REQUIRE_EQUAL(std::string("16kB"),
+                        std::string(object["expected_memory_without_disk"].GetString()));
+    BOOST_TEST_REQUIRE(object.HasMember("expected_memory_with_disk"));
+    BOOST_REQUIRE_EQUAL(std::string("8kB"),
+                        std::string(object["expected_memory_with_disk"].GetString()));
 }
+
+BOOST_AUTO_TEST_SUITE_END()

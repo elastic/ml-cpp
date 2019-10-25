@@ -3,7 +3,6 @@
  * or more contributor license agreements. Licensed under the Elastic License;
  * you may not use this file except in compliance with the Elastic License.
  */
-#include "CTimeUtilsTest.h"
 
 #include <core/CCTimeR.h>
 #include <core/CLogger.h>
@@ -13,39 +12,22 @@
 
 #include <time.h>
 
-CppUnit::Test* CTimeUtilsTest::suite() {
-    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CTimeUtilsTest");
+#include <boost/test/unit_test.hpp>
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CTimeUtilsTest>(
-        "CTimeUtilsTest::testNow", &CTimeUtilsTest::testNow));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CTimeUtilsTest>(
-        "CTimeUtilsTest::testToIso8601", &CTimeUtilsTest::testToIso8601));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CTimeUtilsTest>(
-        "CTimeUtilsTest::testToLocal", &CTimeUtilsTest::testToLocal));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CTimeUtilsTest>(
-        "CTimeUtilsTest::testToEpochMs", &CTimeUtilsTest::testToEpochMs));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CTimeUtilsTest>(
-        "CTimeUtilsTest::testStrptime", &CTimeUtilsTest::testStrptime));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CTimeUtilsTest>(
-        "CTimeUtilsTest::testTimezone", &CTimeUtilsTest::testTimezone));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CTimeUtilsTest>(
-        "CTimeUtilsTest::testDateWords", &CTimeUtilsTest::testDateWords));
+BOOST_AUTO_TEST_SUITE(CTimeUtilsTest)
 
-    return suiteOfTests;
-}
-
-void CTimeUtilsTest::testNow() {
+BOOST_AUTO_TEST_CASE(testNow) {
     ml::core_t::TTime t1(ml::core::CTimeUtils::now());
     ml::core::CSleep::sleep(1001);
     ml::core_t::TTime t2(ml::core::CTimeUtils::now());
 
-    CPPUNIT_ASSERT(t2 > t1);
+    BOOST_TEST_REQUIRE(t2 > t1);
 }
 
-void CTimeUtilsTest::testToIso8601() {
+BOOST_AUTO_TEST_CASE(testToIso8601) {
     // These tests assume UK time.  In case they're ever run outside the UK,
     // we'll explicitly set the timezone for the purpose of these tests.
-    CPPUNIT_ASSERT(ml::core::CTimezone::setTimezone("Europe/London"));
+    BOOST_TEST_REQUIRE(ml::core::CTimezone::setTimezone("Europe/London"));
 
     {
         ml::core_t::TTime t(1227710437);
@@ -53,7 +35,7 @@ void CTimeUtilsTest::testToIso8601() {
 
         const std::string strRep = ml::core::CTimeUtils::toIso8601(t);
 
-        CPPUNIT_ASSERT_EQUAL(expected, strRep);
+        BOOST_REQUIRE_EQUAL(expected, strRep);
     }
     {
         ml::core_t::TTime t(1207925624);
@@ -61,14 +43,14 @@ void CTimeUtilsTest::testToIso8601() {
 
         const std::string strRep = ml::core::CTimeUtils::toIso8601(t);
 
-        CPPUNIT_ASSERT_EQUAL(expected, strRep);
+        BOOST_REQUIRE_EQUAL(expected, strRep);
     }
 }
 
-void CTimeUtilsTest::testToLocal() {
+BOOST_AUTO_TEST_CASE(testToLocal) {
     // These tests assume UK time.  In case they're ever run outside the UK,
     // we'll explicitly set the timezone for the purpose of these tests.
-    CPPUNIT_ASSERT(ml::core::CTimezone::setTimezone("Europe/London"));
+    BOOST_TEST_REQUIRE(ml::core::CTimezone::setTimezone("Europe/London"));
 
     {
         ml::core_t::TTime t(1227710437);
@@ -76,7 +58,7 @@ void CTimeUtilsTest::testToLocal() {
 
         const std::string strRep = ml::core::CTimeUtils::toLocalString(t);
 
-        CPPUNIT_ASSERT_EQUAL(expected, strRep);
+        BOOST_REQUIRE_EQUAL(expected, strRep);
     }
     {
         ml::core_t::TTime t(1207925624);
@@ -84,7 +66,7 @@ void CTimeUtilsTest::testToLocal() {
 
         const std::string strRep = ml::core::CTimeUtils::toLocalString(t);
 
-        CPPUNIT_ASSERT_EQUAL(expected, strRep);
+        BOOST_REQUIRE_EQUAL(expected, strRep);
     }
     {
         ml::core_t::TTime t(1207925624);
@@ -92,25 +74,25 @@ void CTimeUtilsTest::testToLocal() {
 
         const std::string strRep = ml::core::CTimeUtils::toTimeString(t);
 
-        CPPUNIT_ASSERT_EQUAL(expected, strRep);
+        BOOST_REQUIRE_EQUAL(expected, strRep);
     }
 }
 
-void CTimeUtilsTest::testToEpochMs() {
-    CPPUNIT_ASSERT_EQUAL(int64_t(1000),
-                         ml::core::CTimeUtils::toEpochMs(ml::core_t::TTime(1)));
-    CPPUNIT_ASSERT_EQUAL(int64_t(-1000),
-                         ml::core::CTimeUtils::toEpochMs(ml::core_t::TTime(-1)));
-    CPPUNIT_ASSERT_EQUAL(int64_t(1521035866000),
-                         ml::core::CTimeUtils::toEpochMs(ml::core_t::TTime(1521035866)));
-    CPPUNIT_ASSERT_EQUAL(int64_t(-1521035866000),
-                         ml::core::CTimeUtils::toEpochMs(ml::core_t::TTime(-1521035866)));
+BOOST_AUTO_TEST_CASE(testToEpochMs) {
+    BOOST_REQUIRE_EQUAL(int64_t(1000),
+                        ml::core::CTimeUtils::toEpochMs(ml::core_t::TTime(1)));
+    BOOST_REQUIRE_EQUAL(int64_t(-1000),
+                        ml::core::CTimeUtils::toEpochMs(ml::core_t::TTime(-1)));
+    BOOST_REQUIRE_EQUAL(int64_t(1521035866000),
+                        ml::core::CTimeUtils::toEpochMs(ml::core_t::TTime(1521035866)));
+    BOOST_REQUIRE_EQUAL(int64_t(-1521035866000),
+                        ml::core::CTimeUtils::toEpochMs(ml::core_t::TTime(-1521035866)));
 }
 
-void CTimeUtilsTest::testStrptime() {
+BOOST_AUTO_TEST_CASE(testStrptime) {
     // These tests assume UK time.  In case they're ever run outside the UK,
     // we'll explicitly set the timezone for the purpose of these tests.
-    CPPUNIT_ASSERT(ml::core::CTimezone::setTimezone("Europe/London"));
+    BOOST_TEST_REQUIRE(ml::core::CTimezone::setTimezone("Europe/London"));
 
     {
         // This time is deliberately chosen to be during daylight saving time
@@ -119,7 +101,7 @@ void CTimeUtilsTest::testStrptime() {
         std::string format("%s");
         ml::core_t::TTime actual(0);
 
-        CPPUNIT_ASSERT(ml::core::CTimeUtils::strptime(format, dateTime, actual));
+        BOOST_TEST_REQUIRE(ml::core::CTimeUtils::strptime(format, dateTime, actual));
 #ifndef Windows
         // This fails on Windows unless the operating system timezone is set to UK time.
         // This means that using %s as a time format doesn't work on Windows.  The reason
@@ -135,7 +117,7 @@ void CTimeUtilsTest::testStrptime() {
         // by a simple string to number conversion rather than using strptime().  So it
         // really would be a waste of effort getting %s to work on Windows at this time.
         ml::core_t::TTime expected(1122334455);
-        CPPUNIT_ASSERT_EQUAL(expected, actual);
+        BOOST_REQUIRE_EQUAL(expected, actual);
 #endif
     }
     {
@@ -146,11 +128,11 @@ void CTimeUtilsTest::testStrptime() {
         ml::core_t::TTime expected(1227710437);
         ml::core_t::TTime actual(0);
 
-        CPPUNIT_ASSERT(ml::core::CTimeUtils::strptime(format, dateTime, actual));
-        CPPUNIT_ASSERT_EQUAL(expected, actual);
+        BOOST_TEST_REQUIRE(ml::core::CTimeUtils::strptime(format, dateTime, actual));
+        BOOST_REQUIRE_EQUAL(expected, actual);
 
         std::string badDateTime("2008-11-26 25:40:37");
-        CPPUNIT_ASSERT(!ml::core::CTimeUtils::strptime(format, badDateTime, actual));
+        BOOST_TEST_REQUIRE(!ml::core::CTimeUtils::strptime(format, badDateTime, actual));
     }
     {
         std::string dateTime("10/31/2008 3:15:00 AM");
@@ -160,8 +142,8 @@ void CTimeUtilsTest::testStrptime() {
         ml::core_t::TTime expected(1225422900);
         ml::core_t::TTime actual(0);
 
-        CPPUNIT_ASSERT(ml::core::CTimeUtils::strptime(format, dateTime, actual));
-        CPPUNIT_ASSERT_EQUAL(expected, actual);
+        BOOST_TEST_REQUIRE(ml::core::CTimeUtils::strptime(format, dateTime, actual));
+        BOOST_REQUIRE_EQUAL(expected, actual);
         LOG_DEBUG(<< actual);
     }
     {
@@ -172,8 +154,8 @@ void CTimeUtilsTest::testStrptime() {
         ml::core_t::TTime expected(1225422900);
         ml::core_t::TTime actual(0);
 
-        CPPUNIT_ASSERT(ml::core::CTimeUtils::strptime(format, dateTime, actual));
-        CPPUNIT_ASSERT_EQUAL(expected, actual);
+        BOOST_TEST_REQUIRE(ml::core::CTimeUtils::strptime(format, dateTime, actual));
+        BOOST_REQUIRE_EQUAL(expected, actual);
         LOG_DEBUG(<< actual);
     }
     {
@@ -184,8 +166,8 @@ void CTimeUtilsTest::testStrptime() {
         ml::core_t::TTime expected(1245774295);
         ml::core_t::TTime actual(0);
 
-        CPPUNIT_ASSERT(ml::core::CTimeUtils::strptime(format, dateTime, actual));
-        CPPUNIT_ASSERT_EQUAL(expected, actual);
+        BOOST_TEST_REQUIRE(ml::core::CTimeUtils::strptime(format, dateTime, actual));
+        BOOST_REQUIRE_EQUAL(expected, actual);
         LOG_DEBUG(<< actual);
     }
     {
@@ -196,8 +178,8 @@ void CTimeUtilsTest::testStrptime() {
         ml::core_t::TTime expected(1245774295);
         ml::core_t::TTime actual(0);
 
-        CPPUNIT_ASSERT(ml::core::CTimeUtils::strptime(format, dateTime, actual));
-        CPPUNIT_ASSERT_EQUAL(expected, actual);
+        BOOST_TEST_REQUIRE(ml::core::CTimeUtils::strptime(format, dateTime, actual));
+        BOOST_REQUIRE_EQUAL(expected, actual);
         LOG_DEBUG(<< actual);
     }
     {
@@ -210,15 +192,15 @@ void CTimeUtilsTest::testStrptime() {
         ml::core_t::TTime expected(1245777895);
         ml::core_t::TTime actual(0);
 
-        CPPUNIT_ASSERT(ml::core::CTimeUtils::strptime(format, dateTime, actual));
-        CPPUNIT_ASSERT_EQUAL(expected, actual);
+        BOOST_TEST_REQUIRE(ml::core::CTimeUtils::strptime(format, dateTime, actual));
+        BOOST_REQUIRE_EQUAL(expected, actual);
         LOG_DEBUG(<< actual);
 
         std::string badDateTime1("Tue Jun 23  17:24:55 2009");
-        CPPUNIT_ASSERT(!ml::core::CTimeUtils::strptime(format, badDateTime1, actual));
+        BOOST_TEST_REQUIRE(!ml::core::CTimeUtils::strptime(format, badDateTime1, actual));
 
         std::string badDateTime2("Tue Jun 23  17:24:55 2009 0000");
-        CPPUNIT_ASSERT(!ml::core::CTimeUtils::strptime(format, badDateTime2, actual));
+        BOOST_TEST_REQUIRE(!ml::core::CTimeUtils::strptime(format, badDateTime2, actual));
     }
     {
         // Test what happens when no year is given
@@ -228,19 +210,19 @@ void CTimeUtilsTest::testStrptime() {
 
         ml::core_t::TTime actual(0);
 
-        CPPUNIT_ASSERT(ml::core::CTimeUtils::strptime(format, dateTime, actual));
+        BOOST_TEST_REQUIRE(ml::core::CTimeUtils::strptime(format, dateTime, actual));
         LOG_DEBUG(<< actual);
 
         // This test is only approximate (assuming leap year with leap second), so
         // print a warning too
-        CPPUNIT_ASSERT(actual >= ml::core::CTimeUtils::now() - 366 * 24 * 60 * 60 - 1);
+        BOOST_TEST_REQUIRE(actual >= ml::core::CTimeUtils::now() - 366 * 24 * 60 * 60 - 1);
         char buf[128] = {'\0'};
         LOG_WARN(<< "If the following date is not within the last year then something is wrong: "
                  << ml::core::CCTimeR::cTimeR(&actual, buf));
 
         // Allow small tolerance in case of clock discrepancies between machines
-        CPPUNIT_ASSERT(actual <= ml::core::CTimeUtils::now() +
-                                     ml::core::CTimeUtils::MAX_CLOCK_DISCREPANCY);
+        BOOST_TEST_REQUIRE(actual <= ml::core::CTimeUtils::now() +
+                                         ml::core::CTimeUtils::MAX_CLOCK_DISCREPANCY);
     }
     {
         // Test what happens when no year is given
@@ -250,19 +232,19 @@ void CTimeUtilsTest::testStrptime() {
 
         ml::core_t::TTime actual(0);
 
-        CPPUNIT_ASSERT(ml::core::CTimeUtils::strptime(format, dateTime, actual));
+        BOOST_TEST_REQUIRE(ml::core::CTimeUtils::strptime(format, dateTime, actual));
         LOG_DEBUG(<< actual);
 
         // This test is only approximate (assuming leap year with leap second), so
         // print a warning too
-        CPPUNIT_ASSERT(actual >= ml::core::CTimeUtils::now() - 366 * 24 * 60 * 60 - 1);
+        BOOST_TEST_REQUIRE(actual >= ml::core::CTimeUtils::now() - 366 * 24 * 60 * 60 - 1);
         char buf[128] = {'\0'};
         LOG_WARN(<< "If the following date is not within the last year then something is wrong: "
                  << ml::core::CCTimeR::cTimeR(&actual, buf));
 
         // Allow small tolerance in case of clock discrepancies between machines
-        CPPUNIT_ASSERT(actual <= ml::core::CTimeUtils::now() +
-                                     ml::core::CTimeUtils::MAX_CLOCK_DISCREPANCY);
+        BOOST_TEST_REQUIRE(actual <= ml::core::CTimeUtils::now() +
+                                         ml::core::CTimeUtils::MAX_CLOCK_DISCREPANCY);
     }
     {
         // Test what happens when no year is given
@@ -272,23 +254,23 @@ void CTimeUtilsTest::testStrptime() {
 
         ml::core_t::TTime actual(0);
 
-        CPPUNIT_ASSERT(ml::core::CTimeUtils::strptime(format, dateTime, actual));
+        BOOST_TEST_REQUIRE(ml::core::CTimeUtils::strptime(format, dateTime, actual));
         LOG_DEBUG(<< actual);
 
         // This test is only approximate (assuming leap year with leap second), so
         // print a warning too
-        CPPUNIT_ASSERT(actual >= ml::core::CTimeUtils::now() - 366 * 24 * 60 * 60 - 1);
+        BOOST_TEST_REQUIRE(actual >= ml::core::CTimeUtils::now() - 366 * 24 * 60 * 60 - 1);
         char buf[128] = {'\0'};
         LOG_WARN(<< "If the following date is not within the last year then something is wrong: "
                  << ml::core::CCTimeR::cTimeR(&actual, buf));
 
         // Allow small tolerance in case of clock discrepancies between machines
-        CPPUNIT_ASSERT(actual <= ml::core::CTimeUtils::now() +
-                                     ml::core::CTimeUtils::MAX_CLOCK_DISCREPANCY);
+        BOOST_TEST_REQUIRE(actual <= ml::core::CTimeUtils::now() +
+                                         ml::core::CTimeUtils::MAX_CLOCK_DISCREPANCY);
     }
 }
 
-void CTimeUtilsTest::testTimezone() {
+BOOST_AUTO_TEST_CASE(testTimezone) {
     static const ml::core_t::TTime SECONDS_PER_HOUR = 3600;
 
     // These convert the same date/time to a Unix time, but in a variety of
@@ -313,58 +295,58 @@ void CTimeUtilsTest::testTimezone() {
     ml::core_t::TTime twoHoursBehindUtc(utcExpected + 2 * SECONDS_PER_HOUR);
 
     // UK first
-    CPPUNIT_ASSERT(ml::core::CTimezone::setTimezone("Europe/London"));
+    BOOST_TEST_REQUIRE(ml::core::CTimezone::setTimezone("Europe/London"));
     {
         ml::core_t::TTime expected(utcExpected);
         ml::core_t::TTime actual(0);
 
-        CPPUNIT_ASSERT(ml::core::CTimeUtils::strptime(format, dateTime, actual));
-        CPPUNIT_ASSERT_EQUAL(expected, actual);
+        BOOST_TEST_REQUIRE(ml::core::CTimeUtils::strptime(format, dateTime, actual));
+        BOOST_REQUIRE_EQUAL(expected, actual);
 
-        CPPUNIT_ASSERT(ml::core::CTimeUtils::strptime(formatExplicit, dateTimeUtc, actual));
-        CPPUNIT_ASSERT_EQUAL(utcExpected, actual);
+        BOOST_TEST_REQUIRE(ml::core::CTimeUtils::strptime(formatExplicit, dateTimeUtc, actual));
+        BOOST_REQUIRE_EQUAL(utcExpected, actual);
 
-        CPPUNIT_ASSERT(ml::core::CTimeUtils::strptime(
+        BOOST_TEST_REQUIRE(ml::core::CTimeUtils::strptime(
             formatExplicit, dateTimeTwoHoursBehindUtc, actual));
-        CPPUNIT_ASSERT_EQUAL(twoHoursBehindUtc, actual);
+        BOOST_REQUIRE_EQUAL(twoHoursBehindUtc, actual);
     }
 
     // US eastern time: 5 hours behind the UK (except during daylight saving
     // time switchover)
-    CPPUNIT_ASSERT(ml::core::CTimezone::setTimezone("America/New_York"));
+    BOOST_TEST_REQUIRE(ml::core::CTimezone::setTimezone("America/New_York"));
     {
         // The Unix time is in UTC, and UTC will be 5 hours ahead of US eastern
         // time at this time of the year (UTC is only 4 hours ahead in summer).
         ml::core_t::TTime expected(utcExpected + 5 * SECONDS_PER_HOUR);
         ml::core_t::TTime actual(0);
 
-        CPPUNIT_ASSERT(ml::core::CTimeUtils::strptime(format, dateTime, actual));
-        CPPUNIT_ASSERT_EQUAL(expected, actual);
+        BOOST_TEST_REQUIRE(ml::core::CTimeUtils::strptime(format, dateTime, actual));
+        BOOST_REQUIRE_EQUAL(expected, actual);
 
-        CPPUNIT_ASSERT(ml::core::CTimeUtils::strptime(formatExplicit, dateTimeUtc, actual));
-        CPPUNIT_ASSERT_EQUAL(utcExpected, actual);
+        BOOST_TEST_REQUIRE(ml::core::CTimeUtils::strptime(formatExplicit, dateTimeUtc, actual));
+        BOOST_REQUIRE_EQUAL(utcExpected, actual);
 
-        CPPUNIT_ASSERT(ml::core::CTimeUtils::strptime(
+        BOOST_TEST_REQUIRE(ml::core::CTimeUtils::strptime(
             formatExplicit, dateTimeTwoHoursBehindUtc, actual));
-        CPPUNIT_ASSERT_EQUAL(twoHoursBehindUtc, actual);
+        BOOST_REQUIRE_EQUAL(twoHoursBehindUtc, actual);
     }
 
     // US Pacific time: 8 hours behind the UK (except during daylight saving
     // time switchover)
-    CPPUNIT_ASSERT(ml::core::CTimezone::setTimezone("America/Los_Angeles"));
+    BOOST_TEST_REQUIRE(ml::core::CTimezone::setTimezone("America/Los_Angeles"));
     {
         ml::core_t::TTime expected(utcExpected + 8 * SECONDS_PER_HOUR);
         ml::core_t::TTime actual(0);
 
-        CPPUNIT_ASSERT(ml::core::CTimeUtils::strptime(format, dateTime, actual));
-        CPPUNIT_ASSERT_EQUAL(expected, actual);
+        BOOST_TEST_REQUIRE(ml::core::CTimeUtils::strptime(format, dateTime, actual));
+        BOOST_REQUIRE_EQUAL(expected, actual);
 
-        CPPUNIT_ASSERT(ml::core::CTimeUtils::strptime(formatExplicit, dateTimeUtc, actual));
-        CPPUNIT_ASSERT_EQUAL(utcExpected, actual);
+        BOOST_TEST_REQUIRE(ml::core::CTimeUtils::strptime(formatExplicit, dateTimeUtc, actual));
+        BOOST_REQUIRE_EQUAL(utcExpected, actual);
 
-        CPPUNIT_ASSERT(ml::core::CTimeUtils::strptime(
+        BOOST_TEST_REQUIRE(ml::core::CTimeUtils::strptime(
             formatExplicit, dateTimeTwoHoursBehindUtc, actual));
-        CPPUNIT_ASSERT_EQUAL(twoHoursBehindUtc, actual);
+        BOOST_REQUIRE_EQUAL(twoHoursBehindUtc, actual);
     }
 
     // Australian central time: 9.5 hours ahead of GMT all year around in the
@@ -373,132 +355,134 @@ void CTimeUtilsTest::testTimezone() {
     // hemisphere) summer.
 
     // Northern Territory first
-    CPPUNIT_ASSERT(ml::core::CTimezone::setTimezone("Australia/Darwin"));
+    BOOST_TEST_REQUIRE(ml::core::CTimezone::setTimezone("Australia/Darwin"));
     {
         ml::core_t::TTime expected(
             utcExpected - static_cast<ml::core_t::TTime>(9.5 * SECONDS_PER_HOUR));
         ml::core_t::TTime actual(0);
 
-        CPPUNIT_ASSERT(ml::core::CTimeUtils::strptime(format, dateTime, actual));
-        CPPUNIT_ASSERT_EQUAL(expected, actual);
+        BOOST_TEST_REQUIRE(ml::core::CTimeUtils::strptime(format, dateTime, actual));
+        BOOST_REQUIRE_EQUAL(expected, actual);
 
-        CPPUNIT_ASSERT(ml::core::CTimeUtils::strptime(formatExplicit, dateTimeUtc, actual));
-        CPPUNIT_ASSERT_EQUAL(utcExpected, actual);
+        BOOST_TEST_REQUIRE(ml::core::CTimeUtils::strptime(formatExplicit, dateTimeUtc, actual));
+        BOOST_REQUIRE_EQUAL(utcExpected, actual);
 
-        CPPUNIT_ASSERT(ml::core::CTimeUtils::strptime(
+        BOOST_TEST_REQUIRE(ml::core::CTimeUtils::strptime(
             formatExplicit, dateTimeTwoHoursBehindUtc, actual));
-        CPPUNIT_ASSERT_EQUAL(twoHoursBehindUtc, actual);
+        BOOST_REQUIRE_EQUAL(twoHoursBehindUtc, actual);
     }
 
     // Now South Australia - remember, 26th November is summer in Australia,
     // so daylight saving is in force
-    CPPUNIT_ASSERT(ml::core::CTimezone::setTimezone("Australia/Adelaide"));
+    BOOST_TEST_REQUIRE(ml::core::CTimezone::setTimezone("Australia/Adelaide"));
     {
         ml::core_t::TTime expected(
             utcExpected - static_cast<ml::core_t::TTime>(10.5 * SECONDS_PER_HOUR));
         ml::core_t::TTime actual(0);
 
-        CPPUNIT_ASSERT(ml::core::CTimeUtils::strptime(format, dateTime, actual));
-        CPPUNIT_ASSERT_EQUAL(expected, actual);
+        BOOST_TEST_REQUIRE(ml::core::CTimeUtils::strptime(format, dateTime, actual));
+        BOOST_REQUIRE_EQUAL(expected, actual);
 
-        CPPUNIT_ASSERT(ml::core::CTimeUtils::strptime(formatExplicit, dateTimeUtc, actual));
-        CPPUNIT_ASSERT_EQUAL(utcExpected, actual);
+        BOOST_TEST_REQUIRE(ml::core::CTimeUtils::strptime(formatExplicit, dateTimeUtc, actual));
+        BOOST_REQUIRE_EQUAL(utcExpected, actual);
 
-        CPPUNIT_ASSERT(ml::core::CTimeUtils::strptime(
+        BOOST_TEST_REQUIRE(ml::core::CTimeUtils::strptime(
             formatExplicit, dateTimeTwoHoursBehindUtc, actual));
-        CPPUNIT_ASSERT_EQUAL(twoHoursBehindUtc, actual);
+        BOOST_REQUIRE_EQUAL(twoHoursBehindUtc, actual);
     }
 
     // Set the timezone back to nothing, i.e. let the operating system decide
     // what to use
-    CPPUNIT_ASSERT(ml::core::CTimezone::setTimezone(""));
+    BOOST_TEST_REQUIRE(ml::core::CTimezone::setTimezone(""));
 }
 
-void CTimeUtilsTest::testDateWords() {
+BOOST_AUTO_TEST_CASE(testDateWords) {
     // These tests assume they're being run in an English speaking country
 
     LOG_DEBUG(<< "Checking day of week abbreviations");
-    CPPUNIT_ASSERT(ml::core::CTimeUtils::isDateWord("Mon"));
-    CPPUNIT_ASSERT(ml::core::CTimeUtils::isDateWord("Tue"));
-    CPPUNIT_ASSERT(ml::core::CTimeUtils::isDateWord("Wed"));
-    CPPUNIT_ASSERT(ml::core::CTimeUtils::isDateWord("Thu"));
-    CPPUNIT_ASSERT(ml::core::CTimeUtils::isDateWord("Fri"));
-    CPPUNIT_ASSERT(ml::core::CTimeUtils::isDateWord("Sat"));
-    CPPUNIT_ASSERT(ml::core::CTimeUtils::isDateWord("Sun"));
+    BOOST_TEST_REQUIRE(ml::core::CTimeUtils::isDateWord("Mon"));
+    BOOST_TEST_REQUIRE(ml::core::CTimeUtils::isDateWord("Tue"));
+    BOOST_TEST_REQUIRE(ml::core::CTimeUtils::isDateWord("Wed"));
+    BOOST_TEST_REQUIRE(ml::core::CTimeUtils::isDateWord("Thu"));
+    BOOST_TEST_REQUIRE(ml::core::CTimeUtils::isDateWord("Fri"));
+    BOOST_TEST_REQUIRE(ml::core::CTimeUtils::isDateWord("Sat"));
+    BOOST_TEST_REQUIRE(ml::core::CTimeUtils::isDateWord("Sun"));
 
     LOG_DEBUG(<< "Checking full days of week");
-    CPPUNIT_ASSERT(ml::core::CTimeUtils::isDateWord("Monday"));
-    CPPUNIT_ASSERT(ml::core::CTimeUtils::isDateWord("Tuesday"));
-    CPPUNIT_ASSERT(ml::core::CTimeUtils::isDateWord("Wednesday"));
-    CPPUNIT_ASSERT(ml::core::CTimeUtils::isDateWord("Thursday"));
-    CPPUNIT_ASSERT(ml::core::CTimeUtils::isDateWord("Friday"));
-    CPPUNIT_ASSERT(ml::core::CTimeUtils::isDateWord("Saturday"));
-    CPPUNIT_ASSERT(ml::core::CTimeUtils::isDateWord("Sunday"));
+    BOOST_TEST_REQUIRE(ml::core::CTimeUtils::isDateWord("Monday"));
+    BOOST_TEST_REQUIRE(ml::core::CTimeUtils::isDateWord("Tuesday"));
+    BOOST_TEST_REQUIRE(ml::core::CTimeUtils::isDateWord("Wednesday"));
+    BOOST_TEST_REQUIRE(ml::core::CTimeUtils::isDateWord("Thursday"));
+    BOOST_TEST_REQUIRE(ml::core::CTimeUtils::isDateWord("Friday"));
+    BOOST_TEST_REQUIRE(ml::core::CTimeUtils::isDateWord("Saturday"));
+    BOOST_TEST_REQUIRE(ml::core::CTimeUtils::isDateWord("Sunday"));
 
     LOG_DEBUG(<< "Checking non-days of week");
-    CPPUNIT_ASSERT(!ml::core::CTimeUtils::isDateWord("Money"));
-    CPPUNIT_ASSERT(!ml::core::CTimeUtils::isDateWord("Tues"));
-    CPPUNIT_ASSERT(!ml::core::CTimeUtils::isDateWord("Wedding"));
-    CPPUNIT_ASSERT(!ml::core::CTimeUtils::isDateWord("Thug"));
-    CPPUNIT_ASSERT(!ml::core::CTimeUtils::isDateWord("Fried"));
-    CPPUNIT_ASSERT(!ml::core::CTimeUtils::isDateWord("Satanic"));
-    CPPUNIT_ASSERT(!ml::core::CTimeUtils::isDateWord("Sunburn"));
-    CPPUNIT_ASSERT(!ml::core::CTimeUtils::isDateWord("Ml"));
-    CPPUNIT_ASSERT(!ml::core::CTimeUtils::isDateWord("Dave"));
-    CPPUNIT_ASSERT(!ml::core::CTimeUtils::isDateWord("Hello"));
+    BOOST_TEST_REQUIRE(!ml::core::CTimeUtils::isDateWord("Money"));
+    BOOST_TEST_REQUIRE(!ml::core::CTimeUtils::isDateWord("Tues"));
+    BOOST_TEST_REQUIRE(!ml::core::CTimeUtils::isDateWord("Wedding"));
+    BOOST_TEST_REQUIRE(!ml::core::CTimeUtils::isDateWord("Thug"));
+    BOOST_TEST_REQUIRE(!ml::core::CTimeUtils::isDateWord("Fried"));
+    BOOST_TEST_REQUIRE(!ml::core::CTimeUtils::isDateWord("Satanic"));
+    BOOST_TEST_REQUIRE(!ml::core::CTimeUtils::isDateWord("Sunburn"));
+    BOOST_TEST_REQUIRE(!ml::core::CTimeUtils::isDateWord("Ml"));
+    BOOST_TEST_REQUIRE(!ml::core::CTimeUtils::isDateWord("Dave"));
+    BOOST_TEST_REQUIRE(!ml::core::CTimeUtils::isDateWord("Hello"));
 
     LOG_DEBUG(<< "Checking month abbreviations");
-    CPPUNIT_ASSERT(ml::core::CTimeUtils::isDateWord("Jan"));
-    CPPUNIT_ASSERT(ml::core::CTimeUtils::isDateWord("Feb"));
-    CPPUNIT_ASSERT(ml::core::CTimeUtils::isDateWord("Mar"));
-    CPPUNIT_ASSERT(ml::core::CTimeUtils::isDateWord("Apr"));
-    CPPUNIT_ASSERT(ml::core::CTimeUtils::isDateWord("May"));
-    CPPUNIT_ASSERT(ml::core::CTimeUtils::isDateWord("Jun"));
-    CPPUNIT_ASSERT(ml::core::CTimeUtils::isDateWord("Jul"));
-    CPPUNIT_ASSERT(ml::core::CTimeUtils::isDateWord("Aug"));
-    CPPUNIT_ASSERT(ml::core::CTimeUtils::isDateWord("Sep"));
-    CPPUNIT_ASSERT(ml::core::CTimeUtils::isDateWord("Oct"));
-    CPPUNIT_ASSERT(ml::core::CTimeUtils::isDateWord("Nov"));
-    CPPUNIT_ASSERT(ml::core::CTimeUtils::isDateWord("Dec"));
+    BOOST_TEST_REQUIRE(ml::core::CTimeUtils::isDateWord("Jan"));
+    BOOST_TEST_REQUIRE(ml::core::CTimeUtils::isDateWord("Feb"));
+    BOOST_TEST_REQUIRE(ml::core::CTimeUtils::isDateWord("Mar"));
+    BOOST_TEST_REQUIRE(ml::core::CTimeUtils::isDateWord("Apr"));
+    BOOST_TEST_REQUIRE(ml::core::CTimeUtils::isDateWord("May"));
+    BOOST_TEST_REQUIRE(ml::core::CTimeUtils::isDateWord("Jun"));
+    BOOST_TEST_REQUIRE(ml::core::CTimeUtils::isDateWord("Jul"));
+    BOOST_TEST_REQUIRE(ml::core::CTimeUtils::isDateWord("Aug"));
+    BOOST_TEST_REQUIRE(ml::core::CTimeUtils::isDateWord("Sep"));
+    BOOST_TEST_REQUIRE(ml::core::CTimeUtils::isDateWord("Oct"));
+    BOOST_TEST_REQUIRE(ml::core::CTimeUtils::isDateWord("Nov"));
+    BOOST_TEST_REQUIRE(ml::core::CTimeUtils::isDateWord("Dec"));
 
     LOG_DEBUG(<< "Checking full months");
-    CPPUNIT_ASSERT(ml::core::CTimeUtils::isDateWord("January"));
-    CPPUNIT_ASSERT(ml::core::CTimeUtils::isDateWord("February"));
-    CPPUNIT_ASSERT(ml::core::CTimeUtils::isDateWord("March"));
-    CPPUNIT_ASSERT(ml::core::CTimeUtils::isDateWord("April"));
-    CPPUNIT_ASSERT(ml::core::CTimeUtils::isDateWord("May"));
-    CPPUNIT_ASSERT(ml::core::CTimeUtils::isDateWord("June"));
-    CPPUNIT_ASSERT(ml::core::CTimeUtils::isDateWord("July"));
-    CPPUNIT_ASSERT(ml::core::CTimeUtils::isDateWord("August"));
-    CPPUNIT_ASSERT(ml::core::CTimeUtils::isDateWord("September"));
-    CPPUNIT_ASSERT(ml::core::CTimeUtils::isDateWord("October"));
-    CPPUNIT_ASSERT(ml::core::CTimeUtils::isDateWord("November"));
-    CPPUNIT_ASSERT(ml::core::CTimeUtils::isDateWord("December"));
+    BOOST_TEST_REQUIRE(ml::core::CTimeUtils::isDateWord("January"));
+    BOOST_TEST_REQUIRE(ml::core::CTimeUtils::isDateWord("February"));
+    BOOST_TEST_REQUIRE(ml::core::CTimeUtils::isDateWord("March"));
+    BOOST_TEST_REQUIRE(ml::core::CTimeUtils::isDateWord("April"));
+    BOOST_TEST_REQUIRE(ml::core::CTimeUtils::isDateWord("May"));
+    BOOST_TEST_REQUIRE(ml::core::CTimeUtils::isDateWord("June"));
+    BOOST_TEST_REQUIRE(ml::core::CTimeUtils::isDateWord("July"));
+    BOOST_TEST_REQUIRE(ml::core::CTimeUtils::isDateWord("August"));
+    BOOST_TEST_REQUIRE(ml::core::CTimeUtils::isDateWord("September"));
+    BOOST_TEST_REQUIRE(ml::core::CTimeUtils::isDateWord("October"));
+    BOOST_TEST_REQUIRE(ml::core::CTimeUtils::isDateWord("November"));
+    BOOST_TEST_REQUIRE(ml::core::CTimeUtils::isDateWord("December"));
 
     LOG_DEBUG(<< "Checking non-months");
-    CPPUNIT_ASSERT(!ml::core::CTimeUtils::isDateWord("Jane"));
-    CPPUNIT_ASSERT(!ml::core::CTimeUtils::isDateWord("Febrile"));
-    CPPUNIT_ASSERT(!ml::core::CTimeUtils::isDateWord("Market"));
-    CPPUNIT_ASSERT(!ml::core::CTimeUtils::isDateWord("Apricot"));
-    CPPUNIT_ASSERT(!ml::core::CTimeUtils::isDateWord("Maybe"));
-    CPPUNIT_ASSERT(!ml::core::CTimeUtils::isDateWord("Junk"));
-    CPPUNIT_ASSERT(!ml::core::CTimeUtils::isDateWord("Juliet"));
-    CPPUNIT_ASSERT(!ml::core::CTimeUtils::isDateWord("Augment"));
-    CPPUNIT_ASSERT(!ml::core::CTimeUtils::isDateWord("Separator"));
-    CPPUNIT_ASSERT(!ml::core::CTimeUtils::isDateWord("Octet"));
-    CPPUNIT_ASSERT(!ml::core::CTimeUtils::isDateWord("Novel"));
-    CPPUNIT_ASSERT(!ml::core::CTimeUtils::isDateWord("Decadent"));
-    CPPUNIT_ASSERT(!ml::core::CTimeUtils::isDateWord("Table"));
-    CPPUNIT_ASSERT(!ml::core::CTimeUtils::isDateWord("Chair"));
-    CPPUNIT_ASSERT(!ml::core::CTimeUtils::isDateWord("Laptop"));
+    BOOST_TEST_REQUIRE(!ml::core::CTimeUtils::isDateWord("Jane"));
+    BOOST_TEST_REQUIRE(!ml::core::CTimeUtils::isDateWord("Febrile"));
+    BOOST_TEST_REQUIRE(!ml::core::CTimeUtils::isDateWord("Market"));
+    BOOST_TEST_REQUIRE(!ml::core::CTimeUtils::isDateWord("Apricot"));
+    BOOST_TEST_REQUIRE(!ml::core::CTimeUtils::isDateWord("Maybe"));
+    BOOST_TEST_REQUIRE(!ml::core::CTimeUtils::isDateWord("Junk"));
+    BOOST_TEST_REQUIRE(!ml::core::CTimeUtils::isDateWord("Juliet"));
+    BOOST_TEST_REQUIRE(!ml::core::CTimeUtils::isDateWord("Augment"));
+    BOOST_TEST_REQUIRE(!ml::core::CTimeUtils::isDateWord("Separator"));
+    BOOST_TEST_REQUIRE(!ml::core::CTimeUtils::isDateWord("Octet"));
+    BOOST_TEST_REQUIRE(!ml::core::CTimeUtils::isDateWord("Novel"));
+    BOOST_TEST_REQUIRE(!ml::core::CTimeUtils::isDateWord("Decadent"));
+    BOOST_TEST_REQUIRE(!ml::core::CTimeUtils::isDateWord("Table"));
+    BOOST_TEST_REQUIRE(!ml::core::CTimeUtils::isDateWord("Chair"));
+    BOOST_TEST_REQUIRE(!ml::core::CTimeUtils::isDateWord("Laptop"));
 
     LOG_DEBUG(<< "Checking time zones");
-    CPPUNIT_ASSERT(ml::core::CTimeUtils::isDateWord("GMT"));
-    CPPUNIT_ASSERT(ml::core::CTimeUtils::isDateWord("UTC"));
+    BOOST_TEST_REQUIRE(ml::core::CTimeUtils::isDateWord("GMT"));
+    BOOST_TEST_REQUIRE(ml::core::CTimeUtils::isDateWord("UTC"));
 
     LOG_DEBUG(<< "Checking space");
-    CPPUNIT_ASSERT(!ml::core::CTimeUtils::isDateWord(""));
-    CPPUNIT_ASSERT(!ml::core::CTimeUtils::isDateWord(" "));
-    CPPUNIT_ASSERT(!ml::core::CTimeUtils::isDateWord("\t"));
-    CPPUNIT_ASSERT(!ml::core::CTimeUtils::isDateWord(" \t"));
+    BOOST_TEST_REQUIRE(!ml::core::CTimeUtils::isDateWord(""));
+    BOOST_TEST_REQUIRE(!ml::core::CTimeUtils::isDateWord(" "));
+    BOOST_TEST_REQUIRE(!ml::core::CTimeUtils::isDateWord("\t"));
+    BOOST_TEST_REQUIRE(!ml::core::CTimeUtils::isDateWord(" \t"));
 }
+
+BOOST_AUTO_TEST_SUITE_END()

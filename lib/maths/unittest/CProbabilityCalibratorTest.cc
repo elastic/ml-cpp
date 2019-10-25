@@ -4,8 +4,6 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
-#include "CProbabilityCalibratorTest.h"
-
 #include <core/CContainerPrinter.h>
 #include <core/CLogger.h>
 
@@ -18,12 +16,15 @@
 #include "TestUtils.h"
 
 #include <boost/range.hpp>
+#include <boost/test/unit_test.hpp>
 
 #include <vector>
 
+BOOST_AUTO_TEST_SUITE(CProbabilityCalibratorTest)
+
 using namespace ml;
 
-void CProbabilityCalibratorTest::testCalibration() {
+BOOST_AUTO_TEST_CASE(testCalibration) {
     using TDoubleVec = std::vector<double>;
     using CLogNormalMeanPrecConjugate =
         CPriorTestInterfaceMixin<maths::CLogNormalMeanPrecConjugate>;
@@ -97,9 +98,9 @@ void CProbabilityCalibratorTest::testCalibration() {
                       << ", maxRawError =        " << maxRawError);
             LOG_DEBUG(<< "totalCalibratedError = " << calibratedError
                       << ", maxCalibratedError = " << maxCalibratedError);
-            CPPUNIT_ASSERT((rawError - calibratedError) / rawError > improvements[i]);
-            CPPUNIT_ASSERT((maxRawError - maxCalibratedError) / maxRawError >
-                           maxImprovements[i]);
+            BOOST_TEST_REQUIRE((rawError - calibratedError) / rawError > improvements[i]);
+            BOOST_TEST_REQUIRE((maxRawError - maxCalibratedError) / maxRawError >
+                               maxImprovements[i]);
         }
     }
 
@@ -171,19 +172,11 @@ void CProbabilityCalibratorTest::testCalibration() {
                       << ", maxRawError =        " << maxRawError);
             LOG_DEBUG(<< "totalCalibratedError = " << calibratedError
                       << ", maxCalibratedError = " << maxCalibratedError);
-            CPPUNIT_ASSERT((rawError - calibratedError) / rawError >= improvements[i]);
-            CPPUNIT_ASSERT((maxRawError - maxCalibratedError) / maxRawError >=
-                           maxImprovements[i]);
+            BOOST_TEST_REQUIRE((rawError - calibratedError) / rawError >= improvements[i]);
+            BOOST_TEST_REQUIRE((maxRawError - maxCalibratedError) / maxRawError >=
+                               maxImprovements[i]);
         }
     }
 }
 
-CppUnit::Test* CProbabilityCalibratorTest::suite() {
-    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CProbabilityCalibratorTest");
-
-    suiteOfTests->addTest(new CppUnit::TestCaller<CProbabilityCalibratorTest>(
-        "CProbabilityCalibratorTest::testCalibration",
-        &CProbabilityCalibratorTest::testCalibration));
-
-    return suiteOfTests;
-}
+BOOST_AUTO_TEST_SUITE_END()

@@ -4,8 +4,6 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
-#include "CPriorTest.h"
-
 #include <core/CLogger.h>
 
 #include <maths/CBasicStatistics.h>
@@ -17,11 +15,15 @@
 #include <maths/CPriorDetail.h>
 #include <maths/CTools.h>
 
+#include <test/BoostTestCloseAbsolute.h>
 #include <test/CRandomNumbers.h>
 
 #include "TestUtils.h"
 
 #include <boost/math/distributions/normal.hpp>
+#include <boost/test/unit_test.hpp>
+
+BOOST_AUTO_TEST_SUITE(CPriorTest)
 
 using namespace ml;
 using namespace handy_typedefs;
@@ -73,7 +75,7 @@ private:
 };
 }
 
-void CPriorTest::testExpectation() {
+BOOST_AUTO_TEST_CASE(testExpectation) {
     using TMeanVarAccumulator = maths::CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
 
     test::CRandomNumbers rng;
@@ -93,10 +95,10 @@ void CPriorTest::testExpectation() {
     LOG_DEBUG(<< "true mean = " << trueMean);
     for (std::size_t n = 1; n < 10; ++n) {
         double mean;
-        CPPUNIT_ASSERT(prior.expectation(CX(), n, mean));
+        BOOST_TEST_REQUIRE(prior.expectation(CX(), n, mean));
         LOG_DEBUG(<< "n = " << n << ", mean = " << mean
                   << ", error = " << std::fabs(mean - trueMean));
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(trueMean, mean, 1e-7);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(trueMean, mean, 1e-7);
     }
 
     double varianceErrors[] = {1.4,    0.1,    0.05,   0.01,  0.005,
@@ -105,10 +107,10 @@ void CPriorTest::testExpectation() {
     LOG_DEBUG(<< "true variance = " << trueVariance);
     for (std::size_t n = 1; n < 10; ++n) {
         double variance;
-        CPPUNIT_ASSERT(prior.expectation(CVariance(prior.mean()), n, variance));
+        BOOST_TEST_REQUIRE(prior.expectation(CVariance(prior.mean()), n, variance));
         LOG_DEBUG(<< "n = " << n << ", variance = " << variance
                   << ", error = " << std::fabs(variance - trueVariance));
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(trueVariance, variance, varianceErrors[n - 1]);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(trueVariance, variance, varianceErrors[n - 1]);
     }
 
     double entropyErrors[] = {0.5,    0.05,   0.01,   0.005, 0.001,
@@ -118,18 +120,11 @@ void CPriorTest::testExpectation() {
     LOG_DEBUG(<< "true differential entropy = " << trueEntropy);
     for (std::size_t n = 1; n < 10; ++n) {
         double entropy;
-        CPPUNIT_ASSERT(prior.expectation(CMinusLogLikelihood(prior), n, entropy));
+        BOOST_TEST_REQUIRE(prior.expectation(CMinusLogLikelihood(prior), n, entropy));
         LOG_DEBUG(<< "n = " << n << ", differential entropy = " << entropy
                   << ", error = " << std::fabs(entropy - trueEntropy));
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(trueEntropy, entropy, entropyErrors[n - 1]);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(trueEntropy, entropy, entropyErrors[n - 1]);
     }
 }
 
-CppUnit::Test* CPriorTest::suite() {
-    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CPriorTest");
-
-    suiteOfTests->addTest(new CppUnit::TestCaller<CPriorTest>(
-        "CPriorTest::testExpectation", &CPriorTest::testExpectation));
-
-    return suiteOfTests;
-}
+BOOST_AUTO_TEST_SUITE_END()

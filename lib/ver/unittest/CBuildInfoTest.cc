@@ -3,25 +3,18 @@
  * or more contributor license agreements. Licensed under the Elastic License;
  * you may not use this file except in compliance with the Elastic License.
  */
-#include "CBuildInfoTest.h"
-
 #include <ver/CBuildInfo.h>
 
 #include <core/CLogger.h>
 #include <core/CTimeUtils.h>
 
+#include <boost/test/unit_test.hpp>
+
 #include <string>
 
-CppUnit::Test* CBuildInfoTest::suite() {
-    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CBuildInfoTest");
+BOOST_AUTO_TEST_SUITE(CBuildInfoTest)
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CBuildInfoTest>(
-        "CBuildInfoTest::testFullInfo", &CBuildInfoTest::testFullInfo));
-
-    return suiteOfTests;
-}
-
-void CBuildInfoTest::testFullInfo() {
+BOOST_AUTO_TEST_CASE(testFullInfo) {
     std::string fullInfo(ml::ver::CBuildInfo::fullInfo());
     LOG_DEBUG(<< fullInfo);
 
@@ -29,10 +22,12 @@ void CBuildInfoTest::testFullInfo() {
         ml::core::CTimeUtils::toIso8601(ml::core::CTimeUtils::now()), 0, 4);
     LOG_DEBUG(<< "Current year is " << currentYear);
 
-    CPPUNIT_ASSERT(fullInfo.find("ml_test") != std::string::npos);
-    CPPUNIT_ASSERT(fullInfo.find("Version") != std::string::npos);
-    CPPUNIT_ASSERT(fullInfo.find("Build") != std::string::npos);
-    CPPUNIT_ASSERT(fullInfo.find("Copyright") != std::string::npos);
-    CPPUNIT_ASSERT(fullInfo.find("Elasticsearch BV") != std::string::npos);
-    CPPUNIT_ASSERT(fullInfo.find(currentYear) != std::string::npos);
+    BOOST_TEST_REQUIRE(fullInfo.find("ml_test") != std::string::npos);
+    BOOST_TEST_REQUIRE(fullInfo.find("Version") != std::string::npos);
+    BOOST_TEST_REQUIRE(fullInfo.find("Build") != std::string::npos);
+    BOOST_TEST_REQUIRE(fullInfo.find("Copyright") != std::string::npos);
+    BOOST_TEST_REQUIRE(fullInfo.find("Elasticsearch BV") != std::string::npos);
+    BOOST_TEST_REQUIRE(fullInfo.find(currentYear) != std::string::npos);
 }
+
+BOOST_AUTO_TEST_SUITE_END()

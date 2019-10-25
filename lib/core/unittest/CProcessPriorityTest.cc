@@ -3,19 +3,15 @@
  * or more contributor license agreements. Licensed under the Elastic License;
  * you may not use this file except in compliance with the Elastic License.
  */
-#include "CProcessPriorityTest.h"
 
 #include <core/CProcessPriority.h>
 
-CppUnit::Test* CProcessPriorityTest::suite() {
-    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CProcessPriorityTest");
+#include <boost/test/unit_test.hpp>
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CProcessPriorityTest>(
-        "CProcessPriorityTest::testReducePriority", &CProcessPriorityTest::testReducePriority));
+BOOST_AUTO_TEST_SUITE(CProcessPriorityTest)
 
-    return suiteOfTests;
-}
-
-void CProcessPriorityTest::testReducePriority() {
+BOOST_AUTO_TEST_CASE(testReducePriority) {
     ml::core::CProcessPriority::reducePriority();
 }
+
+BOOST_AUTO_TEST_SUITE_END()

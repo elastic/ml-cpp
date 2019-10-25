@@ -3,7 +3,6 @@
  * or more contributor license agreements. Licensed under the Elastic License;
  * you may not use this file except in compliance with the Elastic License.
  */
-#include "CReadWriteLockTest.h"
 
 #include <core/CFastMutex.h>
 #include <core/CLogger.h>
@@ -17,23 +16,13 @@
 #include <core/CThread.h>
 #include <core/CTimeUtils.h>
 
+#include <boost/test/unit_test.hpp>
+
 #include <atomic>
 
 #include <stdint.h>
 
-CppUnit::Test* CReadWriteLockTest::suite() {
-    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CReadWriteLockTest");
-
-    suiteOfTests->addTest(new CppUnit::TestCaller<CReadWriteLockTest>(
-        "CReadWriteLockTest::testReadLock", &CReadWriteLockTest::testReadLock));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CReadWriteLockTest>(
-        "CReadWriteLockTest::testWriteLock", &CReadWriteLockTest::testWriteLock));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CReadWriteLockTest>(
-        "CReadWriteLockTest::testPerformanceVersusMutex",
-        &CReadWriteLockTest::testPerformanceVersusMutex));
-
-    return suiteOfTests;
-}
+BOOST_AUTO_TEST_SUITE(CReadWriteLockTest)
 
 namespace {
 
@@ -217,7 +206,7 @@ private:
 };
 }
 
-void CReadWriteLockTest::testReadLock() {
+BOOST_AUTO_TEST_CASE(testReadLock) {
     uint32_t testVariable(0);
     ml::core::CReadWriteLock readWriteLock;
 
@@ -248,15 +237,15 @@ void CReadWriteLockTest::testReadLock() {
 
     // Allow the test to run slightly over 1 second, as there is processing
     // other than the sleeping.
-    CPPUNIT_ASSERT(duration <= 2);
-    CPPUNIT_ASSERT(duration >= 1);
+    BOOST_TEST_REQUIRE(duration <= 2);
+    BOOST_TEST_REQUIRE(duration >= 1);
 
-    CPPUNIT_ASSERT_EQUAL(testVariable, reader1.lastRead());
-    CPPUNIT_ASSERT_EQUAL(testVariable, reader2.lastRead());
-    CPPUNIT_ASSERT_EQUAL(testVariable, reader3.lastRead());
+    BOOST_REQUIRE_EQUAL(testVariable, reader1.lastRead());
+    BOOST_REQUIRE_EQUAL(testVariable, reader2.lastRead());
+    BOOST_REQUIRE_EQUAL(testVariable, reader3.lastRead());
 }
 
-void CReadWriteLockTest::testWriteLock() {
+BOOST_AUTO_TEST_CASE(testWriteLock) {
     static const uint32_t TEST_SIZE(50000);
 
     uint32_t testVariable(0);
@@ -276,10 +265,10 @@ void CReadWriteLockTest::testWriteLock() {
 
     LOG_INFO(<< "Write lock protected variable incremented to " << testVariable);
 
-    CPPUNIT_ASSERT_EQUAL(TEST_SIZE * (1 + 5 + 9), testVariable);
+    BOOST_REQUIRE_EQUAL(TEST_SIZE * (1 + 5 + 9), testVariable);
 }
 
-void CReadWriteLockTest::testPerformanceVersusMutex() {
+BOOST_AUTO_TEST_CASE(testPerformanceVersusMutex) {
     static const uint32_t TEST_SIZE(1000000);
 
     {
@@ -345,8 +334,7 @@ void CReadWriteLockTest::testPerformanceVersusMutex() {
 
         LOG_INFO(<< "Atomic variable incremented to " << testVariable.load());
 
-        CPPUNIT_ASSERT_EQUAL(uint_fast32_t(TEST_SIZE * (1 + 5 + 9)),
-                             testVariable.load());
+        BOOST_REQUIRE_EQUAL(uint_fast32_t(TEST_SIZE * (1 + 5 + 9)), testVariable.load());
     }
     {
         uint32_t testVariable(0);
@@ -377,7 +365,7 @@ void CReadWriteLockTest::testPerformanceVersusMutex() {
 
         LOG_INFO(<< "Fast mutex lock protected variable incremented to " << testVariable);
 
-        CPPUNIT_ASSERT_EQUAL(TEST_SIZE * (1 + 5 + 9), testVariable);
+        BOOST_REQUIRE_EQUAL(TEST_SIZE * (1 + 5 + 9), testVariable);
     }
     {
         uint32_t testVariable(0);
@@ -408,7 +396,7 @@ void CReadWriteLockTest::testPerformanceVersusMutex() {
 
         LOG_INFO(<< "Mutex lock protected variable incremented to " << testVariable);
 
-        CPPUNIT_ASSERT_EQUAL(TEST_SIZE * (1 + 5 + 9), testVariable);
+        BOOST_REQUIRE_EQUAL(TEST_SIZE * (1 + 5 + 9), testVariable);
     }
     {
         uint32_t testVariable(0);
@@ -439,6 +427,8 @@ void CReadWriteLockTest::testPerformanceVersusMutex() {
 
         LOG_INFO(<< "Write lock protected variable incremented to " << testVariable);
 
-        CPPUNIT_ASSERT_EQUAL(TEST_SIZE * (1 + 5 + 9), testVariable);
+        BOOST_REQUIRE_EQUAL(TEST_SIZE * (1 + 5 + 9), testVariable);
     }
 }
+
+BOOST_AUTO_TEST_SUITE_END()

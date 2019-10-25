@@ -4,8 +4,6 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
-#include "CMathsMemoryTest.h"
-
 #include <maths/CBasicStatistics.h>
 #include <maths/CBjkstUniqueValues.h>
 #include <maths/CConstantPrior.h>
@@ -20,10 +18,14 @@
 #include <maths/CTools.h>
 #include <maths/CXMeansOnline1d.h>
 
+#include <boost/test/unit_test.hpp>
+
+BOOST_AUTO_TEST_SUITE(CMathsMemoryTest)
+
 using namespace ml;
 using namespace maths;
 
-void CMathsMemoryTest::testTimeSeriesDecompositions() {
+BOOST_AUTO_TEST_CASE(testTimeSeriesDecompositions) {
     CTimeSeriesDecomposition decomp(0.95, 3600, 55);
 
     core_t::TTime time;
@@ -35,13 +37,13 @@ void CMathsMemoryTest::testTimeSeriesDecompositions() {
 
     core::CMemoryUsage mem;
     decomp.debugMemoryUsage(mem.addChild());
-    CPPUNIT_ASSERT_EQUAL(decomp.memoryUsage(), mem.usage());
+    BOOST_REQUIRE_EQUAL(decomp.memoryUsage(), mem.usage());
 }
 
-void CMathsMemoryTest::testPriors() {
+BOOST_AUTO_TEST_CASE(testPriors) {
     CConstantPrior::TOptionalDouble d;
     CConstantPrior constantPrior(d);
-    CPPUNIT_ASSERT_EQUAL(std::size_t(0), constantPrior.memoryUsage());
+    BOOST_REQUIRE_EQUAL(std::size_t(0), constantPrior.memoryUsage());
 
     CGammaRateConjugate::TDoubleVec samples;
     samples.push_back(0.996);
@@ -49,31 +51,31 @@ void CMathsMemoryTest::testPriors() {
     maths_t::TDoubleWeightsAry1Vec weights{weight};
 
     CGammaRateConjugate gammaRateConjugate(maths_t::E_ContinuousData, 0.0, 0.9, 0.8, 0.7);
-    CPPUNIT_ASSERT_EQUAL(std::size_t(0), gammaRateConjugate.memoryUsage());
+    BOOST_REQUIRE_EQUAL(std::size_t(0), gammaRateConjugate.memoryUsage());
     gammaRateConjugate.addSamples(samples, weights);
-    CPPUNIT_ASSERT_EQUAL(std::size_t(0), gammaRateConjugate.memoryUsage());
+    BOOST_REQUIRE_EQUAL(std::size_t(0), gammaRateConjugate.memoryUsage());
 
     CLogNormalMeanPrecConjugate logNormalConjugate(maths_t::E_ContinuousData,
                                                    0.0, 0.9, 0.8, 0.7, 0.2);
-    CPPUNIT_ASSERT_EQUAL(std::size_t(0), logNormalConjugate.memoryUsage());
+    BOOST_REQUIRE_EQUAL(std::size_t(0), logNormalConjugate.memoryUsage());
     logNormalConjugate.addSamples(samples, weights);
-    CPPUNIT_ASSERT_EQUAL(std::size_t(0), logNormalConjugate.memoryUsage());
+    BOOST_REQUIRE_EQUAL(std::size_t(0), logNormalConjugate.memoryUsage());
 
     CPoissonMeanConjugate poissonConjugate(0.0, 0.8, 0.7, 0.3);
-    CPPUNIT_ASSERT_EQUAL(std::size_t(0), poissonConjugate.memoryUsage());
+    BOOST_REQUIRE_EQUAL(std::size_t(0), poissonConjugate.memoryUsage());
     poissonConjugate.addSamples(samples, weights);
-    CPPUNIT_ASSERT_EQUAL(std::size_t(0), poissonConjugate.memoryUsage());
+    BOOST_REQUIRE_EQUAL(std::size_t(0), poissonConjugate.memoryUsage());
 
     CNormalMeanPrecConjugate normalConjugate(maths_t::E_ContinuousData, 0.0,
                                              0.9, 0.8, 0.7, 0.2);
-    CPPUNIT_ASSERT_EQUAL(std::size_t(0), normalConjugate.memoryUsage());
+    BOOST_REQUIRE_EQUAL(std::size_t(0), normalConjugate.memoryUsage());
     normalConjugate.addSamples(samples, weights);
-    CPPUNIT_ASSERT_EQUAL(std::size_t(0), normalConjugate.memoryUsage());
+    BOOST_REQUIRE_EQUAL(std::size_t(0), normalConjugate.memoryUsage());
 
     CMultinomialConjugate multinomialConjugate;
-    CPPUNIT_ASSERT_EQUAL(std::size_t(0), multinomialConjugate.memoryUsage());
+    BOOST_REQUIRE_EQUAL(std::size_t(0), multinomialConjugate.memoryUsage());
     multinomialConjugate.addSamples(samples, weights);
-    CPPUNIT_ASSERT_EQUAL(std::size_t(0), multinomialConjugate.memoryUsage());
+    BOOST_REQUIRE_EQUAL(std::size_t(0), multinomialConjugate.memoryUsage());
 
     CXMeansOnline1d clusterer(maths_t::E_ContinuousData,
                               maths::CAvailableModeDistributions::ALL,
@@ -85,7 +87,7 @@ void CMathsMemoryTest::testPriors() {
                                 sizeof(CClusterer1d::CIndexGenerator) +
                                 sizeof(CXMeansOnline1d::TClusterVec);
 
-    CPPUNIT_ASSERT(clusterer.memoryUsage() >= clustererSize);
+    BOOST_TEST_REQUIRE(clusterer.memoryUsage() >= clustererSize);
 
     CClusterer1d::TPointPreciseDoublePrVec clusters;
     clusters.push_back(CClusterer1d::TPointPreciseDoublePr(0.1, 0.7));
@@ -107,14 +109,14 @@ void CMathsMemoryTest::testPriors() {
     std::size_t initialMultimodalPriorSize = multimodalPrior.memoryUsage();
 
     multimodalPrior.addSamples(samples, weights);
-    CPPUNIT_ASSERT(initialMultimodalPriorSize < multimodalPrior.memoryUsage());
+    BOOST_TEST_REQUIRE(initialMultimodalPriorSize < multimodalPrior.memoryUsage());
 
     core::CMemoryUsage mem;
     multimodalPrior.debugMemoryUsage(mem.addChild());
-    CPPUNIT_ASSERT_EQUAL(multimodalPrior.memoryUsage(), mem.usage());
+    BOOST_REQUIRE_EQUAL(multimodalPrior.memoryUsage(), mem.usage());
 }
 
-void CMathsMemoryTest::testBjkstVec() {
+BOOST_AUTO_TEST_CASE(testBjkstVec) {
     using TBjkstValuesVec = std::vector<maths::CBjkstUniqueValues>;
     {
         // Test empty
@@ -122,7 +124,7 @@ void CMathsMemoryTest::testBjkstVec() {
         core::CMemoryUsage mem;
         mem.setName("root", 0);
         core::CMemoryDebug::dynamicSize("values", values, &mem);
-        CPPUNIT_ASSERT_EQUAL(core::CMemory::dynamicSize(values), mem.usage());
+        BOOST_REQUIRE_EQUAL(core::CMemory::dynamicSize(values), mem.usage());
     }
     {
         // Test adding values to the vector part
@@ -137,7 +139,7 @@ void CMathsMemoryTest::testBjkstVec() {
         core::CMemoryUsage mem;
         mem.setName("root", 0);
         core::CMemoryDebug::dynamicSize("values", values, &mem);
-        CPPUNIT_ASSERT_EQUAL(core::CMemory::dynamicSize(values), mem.usage());
+        BOOST_REQUIRE_EQUAL(core::CMemory::dynamicSize(values), mem.usage());
     }
     {
         // Test adding values to the sketch part
@@ -152,22 +154,8 @@ void CMathsMemoryTest::testBjkstVec() {
         core::CMemoryUsage mem;
         mem.setName("root", 0);
         core::CMemoryDebug::dynamicSize("values", values, &mem);
-        CPPUNIT_ASSERT_EQUAL(core::CMemory::dynamicSize(values), mem.usage());
+        BOOST_REQUIRE_EQUAL(core::CMemory::dynamicSize(values), mem.usage());
     }
 }
 
-CppUnit::Test* CMathsMemoryTest::suite() {
-    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CMathsMemoryTest");
-
-    suiteOfTests->addTest(new CppUnit::TestCaller<CMathsMemoryTest>(
-        "CMathsMemoryTest::testPriors", &CMathsMemoryTest::testPriors));
-
-    suiteOfTests->addTest(new CppUnit::TestCaller<CMathsMemoryTest>(
-        "CMathsMemoryTest::testTimeSeriesDecompositions",
-        &CMathsMemoryTest::testTimeSeriesDecompositions));
-
-    suiteOfTests->addTest(new CppUnit::TestCaller<CMathsMemoryTest>(
-        "CMathsMemoryTest::testBjkstVec", &CMathsMemoryTest::testBjkstVec));
-
-    return suiteOfTests;
-}
+BOOST_AUTO_TEST_SUITE_END()

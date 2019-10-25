@@ -244,7 +244,7 @@ The use of the words SHOULD, MUST etc., comply with RFC 2119.
 
 ## Testing
 
-The CPPUNIT framework is used for testing the Elastic Machine Learning C++ code.
+The Boost.Test framework is used for testing the Elastic Machine Learning C++ code.
 
 1.  Every class SHOULD have a corresponding unit test suite
 1.  Test classes SHOULD belong to the parent or global namespace

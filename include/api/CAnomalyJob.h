@@ -36,9 +36,6 @@
 
 #include <stdint.h>
 
-class CPersistenceManagerTest;
-class CAnomalyJobTest;
-
 namespace ml {
 namespace core {
 class CDataAdder;
@@ -474,9 +471,6 @@ private:
 
     //! Flag indicating whether or not time has been advanced.
     bool m_TimeAdvanced{false};
-
-    friend class ::CPersistenceManagerTest;
-    friend class ::CAnomalyJobTest;
 };
 }
 }

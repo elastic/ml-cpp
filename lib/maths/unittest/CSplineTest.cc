@@ -4,18 +4,20 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
-#include "CSplineTest.h"
-
 #include <core/CContainerPrinter.h>
 #include <core/CLogger.h>
 
 #include <maths/CIntegration.h>
 #include <maths/CSpline.h>
 
+#include <test/BoostTestCloseAbsolute.h>
+#include <test/CRandomNumbers.h>
+
 #include <boost/math/constants/constants.hpp>
 #include <boost/range.hpp>
+#include <boost/test/unit_test.hpp>
 
-#include <test/CRandomNumbers.h>
+BOOST_AUTO_TEST_SUITE(CSplineTest)
 
 using namespace ml;
 
@@ -48,7 +50,7 @@ std::string print(maths::CSplineTypes::EType type) {
 }
 }
 
-void CSplineTest::testNatural() {
+BOOST_AUTO_TEST_CASE(testNatural) {
     // Test cubic spline with the natural boundary condition,
     // i.e. the case that the curvature vanishes at the interval
     // end points.
@@ -66,23 +68,23 @@ void CSplineTest::testNatural() {
         for (std::size_t i = 0u; i < x.size(); ++i) {
             double yy = spline.value(x[i]);
             LOG_DEBUG(<< "f(x[" << i << "]) = " << yy);
-            CPPUNIT_ASSERT_EQUAL(y[i], yy);
+            BOOST_REQUIRE_EQUAL(y[i], yy);
 
             double ym = spline.value(x[i] - 1e-3);
-            CPPUNIT_ASSERT(std::fabs(yy - ym) < 1e-2);
+            BOOST_TEST_REQUIRE(std::fabs(yy - ym) < 1e-2);
             LOG_DEBUG(<< "f(x[" << i << " - eps]) = " << ym);
 
             double yp = spline.value(x[i] + 1e-3);
             LOG_DEBUG(<< "f(x[" << i << " + eps]) = " << yp);
-            CPPUNIT_ASSERT(std::fabs(yp - yy) < 1e-2);
+            BOOST_TEST_REQUIRE(std::fabs(yp - yy) < 1e-2);
         }
 
         const TDoubleVec& curvatures = spline.curvatures();
         std::size_t n = curvatures.size();
         LOG_DEBUG(<< "curvatures[0] = " << curvatures[0]
                   << ", curvatures[n] = " << curvatures[n - 1]);
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(0.0, curvatures[0], 1e-10);
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(0.0, curvatures[n - 1], 1e-10);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(0.0, curvatures[0], 1e-10);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(0.0, curvatures[n - 1], 1e-10);
     }
 
     {
@@ -105,19 +107,19 @@ void CSplineTest::testNatural() {
             double yy = spline.value(xx);
             LOG_DEBUG(<< "spline(" << xx << ") = " << yy << ", f(" << xx
                       << ") = " << std::sin(xx));
-            CPPUNIT_ASSERT(std::fabs(std::sin(xx) - yy) < 0.02);
+            BOOST_TEST_REQUIRE(std::fabs(std::sin(xx) - yy) < 0.02);
         }
 
         const TDoubleVec& curvatures = spline.curvatures();
         std::size_t n = curvatures.size();
         LOG_DEBUG(<< "curvatures[0] = " << curvatures[0]
                   << ", curvatures[n] = " << curvatures[n - 1]);
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(0.0, curvatures[0], 1e-10);
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(0.0, curvatures[n - 1], 1e-10);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(0.0, curvatures[0], 1e-10);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(0.0, curvatures[n - 1], 1e-10);
     }
 }
 
-void CSplineTest::testParabolicRunout() {
+BOOST_AUTO_TEST_CASE(testParabolicRunout) {
     {
         double x_[] = {0.0, 20.0, 21.0, 30.0, 56.0, 100.0, 102.0};
         double y_[] = {1.0, 5.0, 4.0, 13.0, 20.0, 12.0, 17.0};
@@ -131,25 +133,25 @@ void CSplineTest::testParabolicRunout() {
         for (std::size_t i = 0u; i < x.size(); ++i) {
             double yy = spline.value(x[i]);
             LOG_DEBUG(<< "f(x[" << i << "]) = " << yy);
-            CPPUNIT_ASSERT_EQUAL(y[i], yy);
+            BOOST_REQUIRE_EQUAL(y[i], yy);
 
             double ym = spline.value(x[i] - 1e-3);
-            CPPUNIT_ASSERT(std::fabs(yy - ym) < 1e-2);
+            BOOST_TEST_REQUIRE(std::fabs(yy - ym) < 1e-2);
             LOG_DEBUG(<< "f(x[" << i << " - eps]) = " << ym);
 
             double yp = spline.value(x[i] + 1e-3);
             LOG_DEBUG(<< "f(x[" << i << " + eps]) = " << yp);
-            CPPUNIT_ASSERT(std::fabs(yp - yy) < 1e-2);
+            BOOST_TEST_REQUIRE(std::fabs(yp - yy) < 1e-2);
         }
 
         const TDoubleVec& curvatures = spline.curvatures();
         std::size_t n = curvatures.size();
         LOG_DEBUG(<< "curvatures[0] = " << curvatures[0]
                   << ", curvatures[1] = " << curvatures[1]);
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(curvatures[0], curvatures[1], 1e-10);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(curvatures[0], curvatures[1], 1e-10);
         LOG_DEBUG(<< "curvatures[n-1] = " << curvatures[n - 2]
                   << ", curvatures[n] = " << curvatures[n - 1]);
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(curvatures[n - 2], curvatures[n - 1], 1e-10);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(curvatures[n - 2], curvatures[n - 1], 1e-10);
     }
 
     {
@@ -172,21 +174,21 @@ void CSplineTest::testParabolicRunout() {
             double yy = spline.value(xx);
             LOG_DEBUG(<< "spline(" << xx << ") = " << yy << ", f(" << xx
                       << ") = " << std::sin(xx));
-            CPPUNIT_ASSERT(std::fabs(std::sin(xx) - yy) < 0.04);
+            BOOST_TEST_REQUIRE(std::fabs(std::sin(xx) - yy) < 0.04);
         }
 
         const TDoubleVec& curvatures = spline.curvatures();
         std::size_t n = curvatures.size();
         LOG_DEBUG(<< "curvatures[0] = " << curvatures[0]
                   << ", curvatures[1] = " << curvatures[1]);
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(curvatures[0], curvatures[1], 1e-10);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(curvatures[0], curvatures[1], 1e-10);
         LOG_DEBUG(<< "curvatures[n-1] = " << curvatures[n - 2]
                   << ", curvatures[n] = " << curvatures[n - 1]);
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(curvatures[n - 2], curvatures[n - 1], 1e-10);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(curvatures[n - 2], curvatures[n - 1], 1e-10);
     }
 }
 
-void CSplineTest::testPeriodic() {
+BOOST_AUTO_TEST_CASE(testPeriodic) {
     {
         double x_[] = {0.0, 0.1, 0.3, 0.33, 0.5, 0.75, 0.8, 1.0};
         TDoubleVec x(std::begin(x_), std::end(x_));
@@ -207,7 +209,7 @@ void CSplineTest::testPeriodic() {
             double yy = spline.value(xx);
             LOG_DEBUG(<< "spline(" << xx << ") = " << yy << ", f(" << xx
                       << ") = " << std::cos(xx));
-            CPPUNIT_ASSERT(std::fabs(std::cos(xx) - yy) < 0.02);
+            BOOST_TEST_REQUIRE(std::fabs(std::cos(xx) - yy) < 0.02);
         }
     }
 
@@ -233,13 +235,13 @@ void CSplineTest::testPeriodic() {
             double yy = spline.value(static_cast<double>(i));
             if (i % 5 == 0) {
                 LOG_DEBUG(<< "t = " << xx << ", y = " << y[i / 5] << ", ySpline= " << yy);
-                CPPUNIT_ASSERT_DOUBLES_EQUAL(y[i / 5], yy, 1e-6);
+                BOOST_REQUIRE_CLOSE_ABSOLUTE(y[i / 5], yy, 1e-6);
             }
         }
     }
 }
 
-void CSplineTest::testMean() {
+BOOST_AUTO_TEST_CASE(testMean) {
     // Test that the mean of the cubic spline agrees with its
     // (numerical) integral and the expected mean of the cosine
     // over a whole number of periods.
@@ -274,7 +276,7 @@ void CSplineTest::testMean() {
 
             LOG_DEBUG(<< "expectedMean = " << expectedMean
                       << ", mean = " << spline.mean());
-            CPPUNIT_ASSERT_DOUBLES_EQUAL(expectedMean, spline.mean(),
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(expectedMean, spline.mean(),
                                          std::numeric_limits<double>::epsilon() * expectedMean);
         }
     }
@@ -314,7 +316,7 @@ void CSplineTest::testMean() {
                 LOG_DEBUG(<< "expectedMean = " << expectedMean
                           << ", mean = " << spline.mean());
 
-                CPPUNIT_ASSERT_DOUBLES_EQUAL(expectedMean, spline.mean(), 1e-4);
+                BOOST_REQUIRE_CLOSE_ABSOLUTE(expectedMean, spline.mean(), 1e-4);
             }
         }
     }
@@ -335,12 +337,12 @@ void CSplineTest::testMean() {
             spline.interpolate(x, y, maths::CSplineTypes::E_Periodic);
 
             LOG_DEBUG(<< "mean = " << spline.mean());
-            CPPUNIT_ASSERT_DOUBLES_EQUAL(0.0, spline.mean(), 1e-10);
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(0.0, spline.mean(), 1e-10);
         }
     }
 }
 
-void CSplineTest::testIllposed() {
+BOOST_AUTO_TEST_CASE(testIllposed) {
     // Test a case where some of the knot points are colocated.
 
     double x_[] = {0.0,  0.0,  10.0, 10.0, 15.0, 15.5,
@@ -364,19 +366,19 @@ void CSplineTest::testIllposed() {
         TDoubleVec curvatures = spline.curvatures();
         LOG_DEBUG(<< "curvatures = " << core::CContainerPrinter::print(curvatures));
         for (std::size_t i = 0u; i < curvatures.size(); ++i) {
-            CPPUNIT_ASSERT(std::fabs(curvatures[i]) < 2e-7);
+            BOOST_TEST_REQUIRE(std::fabs(curvatures[i]) < 2e-7);
         }
 
         for (std::size_t i = 0u; i <= 30; ++i) {
             LOG_DEBUG(<< "expected = " << 0.2 * static_cast<double>(i)
                       << ", actual = " << spline.value(static_cast<double>(i)));
-            CPPUNIT_ASSERT_DOUBLES_EQUAL(0.2 * static_cast<double>(i),
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(0.2 * static_cast<double>(i),
                                          spline.value(static_cast<double>(i)), 5e-7);
         }
     }
 }
 
-void CSplineTest::testSlope() {
+BOOST_AUTO_TEST_CASE(testSlope) {
     // Test that the slope and absolute slope agree with the
     // numerical derivatives of the value.
 
@@ -408,7 +410,7 @@ void CSplineTest::testSlope() {
                     (spline.value(xiPlusEps) - spline.value(xiMinusEps)) / (2 * eps);
                 LOG_DEBUG(<< "x = " << xi << ", slope = " << slope
                           << ", numerical slope = " << numericalSlope);
-                CPPUNIT_ASSERT_DOUBLES_EQUAL(numericalSlope, slope, 6.0 * eps * eps);
+                BOOST_REQUIRE_CLOSE_ABSOLUTE(numericalSlope, slope, 6.0 * eps * eps);
             }
         }
     }
@@ -447,7 +449,7 @@ void CSplineTest::testSlope() {
                         LOG_DEBUG(<< "x = " << xj << ", slope = " << slope
                                   << ", numerical slope = " << numericalSlope);
                     }
-                    CPPUNIT_ASSERT_DOUBLES_EQUAL(numericalSlope, slope,
+                    BOOST_REQUIRE_CLOSE_ABSOLUTE(numericalSlope, slope,
                                                  1e-3 * std::fabs(numericalSlope));
                 }
             }
@@ -479,13 +481,13 @@ void CSplineTest::testSlope() {
                     (spline.value(xiPlusEps) - spline.value(xiMinusEps)) / (2 * eps);
                 LOG_DEBUG(<< "x = " << xi << ", slope = " << slope
                           << ", numerical slope = " << numericalSlope);
-                CPPUNIT_ASSERT_DOUBLES_EQUAL(numericalSlope, slope, eps * eps);
+                BOOST_REQUIRE_CLOSE_ABSOLUTE(numericalSlope, slope, eps * eps);
             }
         }
     }
 }
 
-void CSplineTest::testSplineReference() {
+BOOST_AUTO_TEST_CASE(testSplineReference) {
     using TFloatVec = std::vector<maths::CFloatStorage>;
     using TFloatVecRef = std::reference_wrapper<TFloatVec>;
     using TDoubleVecRef = std::reference_wrapper<TDoubleVec>;
@@ -511,54 +513,35 @@ void CSplineTest::testSplineReference() {
                          std::ref(valuesStorage), std::ref(curvaturesStorage));
     splineRef.interpolate(x, y, maths::CSplineTypes::E_Natural);
 
-    CPPUNIT_ASSERT_EQUAL(core::CContainerPrinter::print(spline.knots()),
-                         core::CContainerPrinter::print(splineRef.knots()));
-    CPPUNIT_ASSERT_EQUAL(core::CContainerPrinter::print(spline.values()),
-                         core::CContainerPrinter::print(splineRef.values()));
-    CPPUNIT_ASSERT_EQUAL(core::CContainerPrinter::print(spline.curvatures()),
-                         core::CContainerPrinter::print(splineRef.curvatures()));
+    BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(spline.knots()),
+                        core::CContainerPrinter::print(splineRef.knots()));
+    BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(spline.values()),
+                        core::CContainerPrinter::print(splineRef.values()));
+    BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(spline.curvatures()),
+                        core::CContainerPrinter::print(splineRef.curvatures()));
 
     for (std::size_t i = 0u; i < 21; ++i) {
         double xx = boost::math::double_constants::two_pi * static_cast<double>(i) / 20.0;
 
         LOG_DEBUG(<< "spline.value(" << xx << ") = " << spline.value(xx)
                   << ", splineRef.value(" << xx << ") = " << splineRef.value(xx));
-        CPPUNIT_ASSERT_EQUAL(spline.value(xx), splineRef.value(xx));
+        BOOST_REQUIRE_EQUAL(spline.value(xx), splineRef.value(xx));
 
         LOG_DEBUG(<< "spline.slope(" << xx << ") = " << spline.slope(xx)
                   << ", splineRef.slope(" << xx << ") = " << splineRef.slope(xx));
-        CPPUNIT_ASSERT_EQUAL(spline.slope(xx), splineRef.slope(xx));
+        BOOST_REQUIRE_EQUAL(spline.slope(xx), splineRef.slope(xx));
     }
 
     LOG_DEBUG(<< "spline.mean() = " << spline.mean()
               << ", splineRef.mean() = " << splineRef.mean());
-    CPPUNIT_ASSERT_EQUAL(spline.mean(), splineRef.mean());
+    BOOST_REQUIRE_EQUAL(spline.mean(), splineRef.mean());
 
     LOG_DEBUG(<< "spline.absSlope() = " << spline.absSlope()
               << ", splineRef.absSlope() = " << splineRef.absSlope());
-    CPPUNIT_ASSERT_EQUAL(spline.absSlope(), splineRef.absSlope());
+    BOOST_REQUIRE_EQUAL(spline.absSlope(), splineRef.absSlope());
 
     LOG_DEBUG(<< "splineRef.memoryUsage = " << splineRef.memoryUsage());
-    CPPUNIT_ASSERT_EQUAL(std::size_t(0), splineRef.memoryUsage());
+    BOOST_REQUIRE_EQUAL(std::size_t(0), splineRef.memoryUsage());
 }
 
-CppUnit::Test* CSplineTest::suite() {
-    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CSplineTest");
-
-    suiteOfTests->addTest(new CppUnit::TestCaller<CSplineTest>(
-        "CSplineTest::testNatural", &CSplineTest::testNatural));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CSplineTest>(
-        "CSplineTest::testParabolicRunout", &CSplineTest::testParabolicRunout));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CSplineTest>(
-        "CSplineTest::testPeriodic", &CSplineTest::testPeriodic));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CSplineTest>(
-        "CSplineTest::testMean", &CSplineTest::testMean));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CSplineTest>(
-        "CSplineTest::testIllposed", &CSplineTest::testIllposed));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CSplineTest>(
-        "CSplineTest::testSlope", &CSplineTest::testSlope));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CSplineTest>(
-        "CSplineTest::testSplineReference", &CSplineTest::testSplineReference));
-
-    return suiteOfTests;
-}
+BOOST_AUTO_TEST_SUITE_END()

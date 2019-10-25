@@ -4,8 +4,6 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
-#include "CEventRateDataGathererTest.h"
-
 #include <core/CJsonStatePersistInserter.h>
 #include <core/CJsonStateRestoreTraverser.h>
 #include <core/CLogger.h>
@@ -26,9 +24,13 @@
 #include <model/ModelTypes.h>
 
 #include <boost/range.hpp>
+#include <boost/test/unit_test.hpp>
 
+#include <fstream>
 #include <utility>
 #include <vector>
+
+BOOST_AUTO_TEST_SUITE(CEventRateDataGathererTest)
 
 using namespace ml;
 using namespace model;
@@ -163,14 +165,14 @@ void testPersistence(const SModelParams& params, const CDataGatherer& origGather
 
     // Restore the XML into a new filter.
     core::CRapidXmlParser parser;
-    CPPUNIT_ASSERT(parser.parseStringIgnoreCdata(origXml));
+    BOOST_TEST_REQUIRE(parser.parseStringIgnoreCdata(origXml));
     core::CRapidXmlStateRestoreTraverser traverser(parser);
 
     CDataGatherer restoredGatherer(model_t::E_EventRate, model_t::E_None, params,
                                    EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
                                    EMPTY_STRING, EMPTY_STRING, {}, key, traverser);
 
-    CPPUNIT_ASSERT_EQUAL(origGatherer.checksum(), restoredGatherer.checksum());
+    BOOST_REQUIRE_EQUAL(origGatherer.checksum(), restoredGatherer.checksum());
 
     // The XML representation of the new filter should be the
     // same as the original.
@@ -180,7 +182,7 @@ void testPersistence(const SModelParams& params, const CDataGatherer& origGather
         restoredGatherer.acceptPersistInserter(inserter);
         inserter.toXml(newXml);
     }
-    CPPUNIT_ASSERT_EQUAL(origXml, newXml);
+    BOOST_REQUIRE_EQUAL(origXml, newXml);
 }
 
 void testInfluencerPerFeature(model_t::EFeature feature,
@@ -202,33 +204,33 @@ void testInfluencerPerFeature(model_t::EFeature feature,
     CDataGatherer gatherer(model_t::E_EventRate, model_t::E_None, params, EMPTY_STRING,
                            EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, valueField,
                            influencerFieldNames, key, features, startTime, 0);
-    CPPUNIT_ASSERT(!gatherer.isPopulation());
-    CPPUNIT_ASSERT_EQUAL(std::size_t(0),
-                         addPerson(gatherer, resourceMonitor, "p", valueField, 1));
+    BOOST_TEST_REQUIRE(!gatherer.isPopulation());
+    BOOST_REQUIRE_EQUAL(std::size_t(0),
+                        addPerson(gatherer, resourceMonitor, "p", valueField, 1));
 
-    CPPUNIT_ASSERT_EQUAL(std::size_t(1), gatherer.numberFeatures());
+    BOOST_REQUIRE_EQUAL(std::size_t(1), gatherer.numberFeatures());
     for (std::size_t i = 0u; i < features.size(); ++i) {
-        CPPUNIT_ASSERT_EQUAL(features[i], gatherer.feature(i));
+        BOOST_REQUIRE_EQUAL(features[i], gatherer.feature(i));
     }
 
-    CPPUNIT_ASSERT_EQUAL(std::size_t(1), gatherer.numberActivePeople());
-    CPPUNIT_ASSERT_EQUAL(std::size_t(1), gatherer.numberByFieldValues());
-    CPPUNIT_ASSERT_EQUAL(std::string("p"), gatherer.personName(0));
-    CPPUNIT_ASSERT_EQUAL(std::string("-"), gatherer.personName(1));
+    BOOST_REQUIRE_EQUAL(std::size_t(1), gatherer.numberActivePeople());
+    BOOST_REQUIRE_EQUAL(std::size_t(1), gatherer.numberByFieldValues());
+    BOOST_REQUIRE_EQUAL(std::string("p"), gatherer.personName(0));
+    BOOST_REQUIRE_EQUAL(std::string("-"), gatherer.personName(1));
     std::size_t pid;
-    CPPUNIT_ASSERT(gatherer.personId("p", pid));
-    CPPUNIT_ASSERT_EQUAL(std::size_t(0), pid);
-    CPPUNIT_ASSERT(!gatherer.personId("a.n.other p", pid));
+    BOOST_TEST_REQUIRE(gatherer.personId("p", pid));
+    BOOST_REQUIRE_EQUAL(std::size_t(0), pid);
+    BOOST_TEST_REQUIRE(!gatherer.personId("a.n.other p", pid));
 
-    CPPUNIT_ASSERT_EQUAL(std::size_t(0), gatherer.numberActiveAttributes());
-    CPPUNIT_ASSERT_EQUAL(std::size_t(0), gatherer.numberOverFieldValues());
+    BOOST_REQUIRE_EQUAL(std::size_t(0), gatherer.numberActiveAttributes());
+    BOOST_REQUIRE_EQUAL(std::size_t(0), gatherer.numberOverFieldValues());
 
-    CPPUNIT_ASSERT_EQUAL(startTime, gatherer.currentBucketStartTime());
+    BOOST_REQUIRE_EQUAL(startTime, gatherer.currentBucketStartTime());
     gatherer.currentBucketStartTime(200);
-    CPPUNIT_ASSERT_EQUAL(static_cast<core_t::TTime>(200), gatherer.currentBucketStartTime());
+    BOOST_REQUIRE_EQUAL(static_cast<core_t::TTime>(200), gatherer.currentBucketStartTime());
     gatherer.currentBucketStartTime(startTime);
 
-    CPPUNIT_ASSERT_EQUAL(bucketLength, gatherer.bucketLength());
+    BOOST_REQUIRE_EQUAL(bucketLength, gatherer.bucketLength());
 
     core_t::TTime time = startTime;
     for (std::size_t i = 0, j = 0u; i < data.size(); ++i) {
@@ -239,11 +241,11 @@ void testInfluencerPerFeature(model_t::EFeature feature,
             TFeatureSizeFeatureDataPrVecPrVec featureData;
             gatherer.featureData(time, bucketLength, featureData);
             LOG_DEBUG(<< "featureData = " << core::CContainerPrinter::print(featureData));
-            CPPUNIT_ASSERT_EQUAL(std::size_t(1), featureData.size());
+            BOOST_REQUIRE_EQUAL(std::size_t(1), featureData.size());
 
-            CPPUNIT_ASSERT_EQUAL(feature, featureData[0].first);
-            CPPUNIT_ASSERT_EQUAL(
-                expected[j], core::CContainerPrinter::print(featureData[0].second));
+            BOOST_REQUIRE_EQUAL(feature, featureData[0].first);
+            BOOST_REQUIRE_EQUAL(expected[j],
+                                core::CContainerPrinter::print(featureData[0].second));
 
             testPersistence(params, gatherer);
         }
@@ -261,14 +263,14 @@ void importCsvData(CDataGatherer& gatherer,
                    const TSizeVec& fields) {
     using TifstreamPtr = std::shared_ptr<std::ifstream>;
     TifstreamPtr ifs(new std::ifstream(filename.c_str()));
-    CPPUNIT_ASSERT(ifs->is_open());
+    BOOST_TEST_REQUIRE(ifs->is_open());
 
     core::CRegex regex;
-    CPPUNIT_ASSERT(regex.init(","));
+    BOOST_TEST_REQUIRE(regex.init(","));
 
     std::string line;
     // read the header
-    CPPUNIT_ASSERT(std::getline(*ifs, line));
+    BOOST_TEST_REQUIRE(std::getline(*ifs, line).good());
 
     while (std::getline(*ifs, line)) {
         LOG_TRACE(<< "Got string: " << line);
@@ -276,7 +278,7 @@ void importCsvData(CDataGatherer& gatherer,
         regex.split(line, tokens);
 
         core_t::TTime time;
-        CPPUNIT_ASSERT(core::CStringUtils::stringToType(tokens[0], time));
+        BOOST_TEST_REQUIRE(core::CStringUtils::stringToType(tokens[0], time));
 
         CDataGatherer::TStrCPtrVec fieldValues;
         CEventData data;
@@ -291,7 +293,12 @@ void importCsvData(CDataGatherer& gatherer,
 
 } // namespace
 
-void CEventRateDataGathererTest::testLatencyPersist() {
+class CTestFixture {
+protected:
+    CResourceMonitor m_ResourceMonitor;
+};
+
+BOOST_FIXTURE_TEST_CASE(testLatencyPersist, CTestFixture) {
     core_t::TTime bucketLength = 3600;
     core_t::TTime latency = 5 * bucketLength;
     core_t::TTime startTime = 1420192800;
@@ -368,8 +375,7 @@ void CEventRateDataGathererTest::testLatencyPersist() {
     }
 }
 
-void CEventRateDataGathererTest::singleSeriesTests() {
-    LOG_DEBUG(<< "*** singleSeriesTests ***");
+BOOST_FIXTURE_TEST_CASE(testSingleSeries, CTestFixture) {
 
     // Test that the various statistics come back as we expect.
 
@@ -411,35 +417,35 @@ void CEventRateDataGathererTest::singleSeriesTests() {
         CDataGatherer gatherer(model_t::E_EventRate, model_t::E_None, params,
                                EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
                                EMPTY_STRING, {}, key, features, startTime, 0);
-        CPPUNIT_ASSERT(!gatherer.isPopulation());
-        CPPUNIT_ASSERT_EQUAL(std::size_t(0), addPerson(gatherer, m_ResourceMonitor, "p"));
+        BOOST_TEST_REQUIRE(!gatherer.isPopulation());
+        BOOST_REQUIRE_EQUAL(std::size_t(0), addPerson(gatherer, m_ResourceMonitor, "p"));
 
-        CPPUNIT_ASSERT_EQUAL(std::size_t(1), gatherer.numberFeatures());
+        BOOST_REQUIRE_EQUAL(std::size_t(1), gatherer.numberFeatures());
         for (std::size_t i = 0u; i < 1; ++i) {
-            CPPUNIT_ASSERT_EQUAL(features[i], gatherer.feature(i));
+            BOOST_REQUIRE_EQUAL(features[i], gatherer.feature(i));
         }
-        CPPUNIT_ASSERT(gatherer.hasFeature(model_t::E_IndividualCountByBucketAndPerson));
-        CPPUNIT_ASSERT(!gatherer.hasFeature(model_t::E_IndividualMinByPerson));
+        BOOST_TEST_REQUIRE(gatherer.hasFeature(model_t::E_IndividualCountByBucketAndPerson));
+        BOOST_TEST_REQUIRE(!gatherer.hasFeature(model_t::E_IndividualMinByPerson));
 
-        CPPUNIT_ASSERT_EQUAL(std::size_t(1), gatherer.numberActivePeople());
-        CPPUNIT_ASSERT_EQUAL(std::size_t(1), gatherer.numberByFieldValues());
-        CPPUNIT_ASSERT_EQUAL(std::string("p"), gatherer.personName(0));
-        CPPUNIT_ASSERT_EQUAL(std::string("-"), gatherer.personName(1));
+        BOOST_REQUIRE_EQUAL(std::size_t(1), gatherer.numberActivePeople());
+        BOOST_REQUIRE_EQUAL(std::size_t(1), gatherer.numberByFieldValues());
+        BOOST_REQUIRE_EQUAL(std::string("p"), gatherer.personName(0));
+        BOOST_REQUIRE_EQUAL(std::string("-"), gatherer.personName(1));
         std::size_t pid;
-        CPPUNIT_ASSERT(gatherer.personId("p", pid));
-        CPPUNIT_ASSERT_EQUAL(std::size_t(0), pid);
-        CPPUNIT_ASSERT(!gatherer.personId("a.n.other p", pid));
+        BOOST_TEST_REQUIRE(gatherer.personId("p", pid));
+        BOOST_REQUIRE_EQUAL(std::size_t(0), pid);
+        BOOST_TEST_REQUIRE(!gatherer.personId("a.n.other p", pid));
 
-        CPPUNIT_ASSERT_EQUAL(std::size_t(0), gatherer.numberActiveAttributes());
-        CPPUNIT_ASSERT_EQUAL(std::size_t(0), gatherer.numberOverFieldValues());
+        BOOST_REQUIRE_EQUAL(std::size_t(0), gatherer.numberActiveAttributes());
+        BOOST_REQUIRE_EQUAL(std::size_t(0), gatherer.numberOverFieldValues());
 
-        CPPUNIT_ASSERT_EQUAL(startTime, gatherer.currentBucketStartTime());
+        BOOST_REQUIRE_EQUAL(startTime, gatherer.currentBucketStartTime());
         gatherer.currentBucketStartTime(200);
-        CPPUNIT_ASSERT_EQUAL(static_cast<core_t::TTime>(200),
-                             gatherer.currentBucketStartTime());
+        BOOST_REQUIRE_EQUAL(static_cast<core_t::TTime>(200),
+                            gatherer.currentBucketStartTime());
         gatherer.currentBucketStartTime(startTime);
 
-        CPPUNIT_ASSERT_EQUAL(bucketLength, gatherer.bucketLength());
+        BOOST_REQUIRE_EQUAL(bucketLength, gatherer.bucketLength());
 
         core_t::TTime time = startTime;
         for (std::size_t i = 0, j = 0u; i < boost::size(data); ++i) {
@@ -451,10 +457,10 @@ void CEventRateDataGathererTest::singleSeriesTests() {
                 TFeatureSizeFeatureDataPrVecPrVec featureData;
                 gatherer.featureData(time, bucketLength, featureData);
                 LOG_DEBUG(<< "featureData = " << core::CContainerPrinter::print(featureData));
-                CPPUNIT_ASSERT_EQUAL(std::size_t(1), featureData.size());
-                CPPUNIT_ASSERT_EQUAL(model_t::E_IndividualCountByBucketAndPerson,
-                                     featureData[0].first);
-                CPPUNIT_ASSERT_EQUAL(
+                BOOST_REQUIRE_EQUAL(std::size_t(1), featureData.size());
+                BOOST_REQUIRE_EQUAL(model_t::E_IndividualCountByBucketAndPerson,
+                                    featureData[0].first);
+                BOOST_REQUIRE_EQUAL(
                     expectedPersonCounts[j],
                     core::CContainerPrinter::print(featureData[0].second));
 
@@ -475,7 +481,7 @@ void CEventRateDataGathererTest::singleSeriesTests() {
         CDataGatherer gatherer(model_t::E_EventRate, model_t::E_None, params,
                                EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
                                EMPTY_STRING, {}, key, features, startTime, 0);
-        CPPUNIT_ASSERT_EQUAL(std::size_t(0), addPerson(gatherer, m_ResourceMonitor, "p"));
+        BOOST_REQUIRE_EQUAL(std::size_t(0), addPerson(gatherer, m_ResourceMonitor, "p"));
 
         core_t::TTime time = startTime;
         for (std::size_t i = 0, j = 0u; i < boost::size(data); ++i) {
@@ -487,15 +493,15 @@ void CEventRateDataGathererTest::singleSeriesTests() {
                 TFeatureSizeFeatureDataPrVecPrVec featureData;
                 gatherer.featureData(time, bucketLength, featureData);
                 LOG_DEBUG(<< "featureData = " << core::CContainerPrinter::print(featureData));
-                CPPUNIT_ASSERT_EQUAL(std::size_t(2), featureData.size());
-                CPPUNIT_ASSERT_EQUAL(model_t::E_IndividualNonZeroCountByBucketAndPerson,
-                                     featureData[0].first);
-                CPPUNIT_ASSERT_EQUAL(
+                BOOST_REQUIRE_EQUAL(std::size_t(2), featureData.size());
+                BOOST_REQUIRE_EQUAL(model_t::E_IndividualNonZeroCountByBucketAndPerson,
+                                    featureData[0].first);
+                BOOST_REQUIRE_EQUAL(
                     expectedPersonNonZeroCounts[j],
                     core::CContainerPrinter::print(featureData[0].second));
-                CPPUNIT_ASSERT_EQUAL(model_t::E_IndividualTotalBucketCountByPerson,
-                                     featureData[1].first);
-                CPPUNIT_ASSERT_EQUAL(
+                BOOST_REQUIRE_EQUAL(model_t::E_IndividualTotalBucketCountByPerson,
+                                    featureData[1].first);
+                BOOST_REQUIRE_EQUAL(
                     expectedPersonNonZeroCounts[j],
                     core::CContainerPrinter::print(featureData[1].second));
 
@@ -515,7 +521,7 @@ void CEventRateDataGathererTest::singleSeriesTests() {
         CDataGatherer gatherer(model_t::E_EventRate, model_t::E_None, params,
                                EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
                                EMPTY_STRING, {}, key, features, startTime, 0);
-        CPPUNIT_ASSERT_EQUAL(std::size_t(0), addPerson(gatherer, m_ResourceMonitor, "p"));
+        BOOST_REQUIRE_EQUAL(std::size_t(0), addPerson(gatherer, m_ResourceMonitor, "p"));
 
         core_t::TTime time = startTime;
         for (std::size_t i = 0, j = 0u; i < boost::size(data); ++i) {
@@ -527,10 +533,10 @@ void CEventRateDataGathererTest::singleSeriesTests() {
                 TFeatureSizeFeatureDataPrVecPrVec featureData;
                 gatherer.featureData(time, bucketLength, featureData);
                 LOG_DEBUG(<< "featureData = " << core::CContainerPrinter::print(featureData));
-                CPPUNIT_ASSERT_EQUAL(std::size_t(1), featureData.size());
-                CPPUNIT_ASSERT_EQUAL(model_t::E_IndividualIndicatorOfBucketPerson,
-                                     featureData[0].first);
-                CPPUNIT_ASSERT_EQUAL(
+                BOOST_REQUIRE_EQUAL(std::size_t(1), featureData.size());
+                BOOST_REQUIRE_EQUAL(model_t::E_IndividualIndicatorOfBucketPerson,
+                                    featureData[0].first);
+                BOOST_REQUIRE_EQUAL(
                     expectedPersonIndicator[j],
                     core::CContainerPrinter::print(featureData[0].second));
 
@@ -544,8 +550,7 @@ void CEventRateDataGathererTest::singleSeriesTests() {
     }
 }
 
-void CEventRateDataGathererTest::multipleSeriesTests() {
-    LOG_DEBUG(<< "*** multipleSeriesTests ***");
+BOOST_FIXTURE_TEST_CASE(testMultipleSeries, CTestFixture) {
 
     // Test that the various statistics come back as we expect
     // for multiple people.
@@ -587,8 +592,8 @@ void CEventRateDataGathererTest::multipleSeriesTests() {
         CDataGatherer gatherer(model_t::E_EventRate, model_t::E_None, params,
                                EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
                                EMPTY_STRING, {}, key, features, startTime, 0);
-        CPPUNIT_ASSERT_EQUAL(std::size_t(0), addPerson(gatherer, m_ResourceMonitor, "p1"));
-        CPPUNIT_ASSERT_EQUAL(std::size_t(1), addPerson(gatherer, m_ResourceMonitor, "p2"));
+        BOOST_REQUIRE_EQUAL(std::size_t(0), addPerson(gatherer, m_ResourceMonitor, "p1"));
+        BOOST_REQUIRE_EQUAL(std::size_t(1), addPerson(gatherer, m_ResourceMonitor, "p2"));
 
         core_t::TTime time = startTime;
         std::size_t i1 = 0u, i2 = 0u, j = 0u;
@@ -601,10 +606,10 @@ void CEventRateDataGathererTest::multipleSeriesTests() {
                 TFeatureSizeFeatureDataPrVecPrVec featureData;
                 gatherer.featureData(time, bucketLength, featureData);
                 LOG_DEBUG(<< "featureData = " << core::CContainerPrinter::print(featureData));
-                CPPUNIT_ASSERT_EQUAL(std::size_t(1), featureData.size());
-                CPPUNIT_ASSERT_EQUAL(model_t::E_IndividualCountByBucketAndPerson,
-                                     featureData[0].first);
-                CPPUNIT_ASSERT_EQUAL(
+                BOOST_REQUIRE_EQUAL(std::size_t(1), featureData.size());
+                BOOST_REQUIRE_EQUAL(model_t::E_IndividualCountByBucketAndPerson,
+                                    featureData[0].first);
+                BOOST_REQUIRE_EQUAL(
                     expectedPersonCounts[j],
                     core::CContainerPrinter::print(featureData[0].second));
 
@@ -630,23 +635,23 @@ void CEventRateDataGathererTest::multipleSeriesTests() {
         peopleToRemove.push_back(1);
         gatherer.recyclePeople(peopleToRemove);
 
-        CPPUNIT_ASSERT_EQUAL(std::size_t(1), gatherer.numberActivePeople());
-        CPPUNIT_ASSERT_EQUAL(std::size_t(1), gatherer.numberByFieldValues());
-        CPPUNIT_ASSERT_EQUAL(std::string("p1"), gatherer.personName(0));
-        CPPUNIT_ASSERT_EQUAL(std::string("-"), gatherer.personName(1));
+        BOOST_REQUIRE_EQUAL(std::size_t(1), gatherer.numberActivePeople());
+        BOOST_REQUIRE_EQUAL(std::size_t(1), gatherer.numberByFieldValues());
+        BOOST_REQUIRE_EQUAL(std::string("p1"), gatherer.personName(0));
+        BOOST_REQUIRE_EQUAL(std::string("-"), gatherer.personName(1));
         std::size_t pid;
-        CPPUNIT_ASSERT(gatherer.personId("p1", pid));
-        CPPUNIT_ASSERT_EQUAL(std::size_t(0), pid);
-        CPPUNIT_ASSERT(!gatherer.personId("p2", pid));
+        BOOST_TEST_REQUIRE(gatherer.personId("p1", pid));
+        BOOST_REQUIRE_EQUAL(std::size_t(0), pid);
+        BOOST_TEST_REQUIRE(!gatherer.personId("p2", pid));
 
         TFeatureSizeFeatureDataPrVecPrVec featureData;
         gatherer.featureData(startTime + 4 * bucketLength, bucketLength, featureData);
         LOG_DEBUG(<< "featureData = " << core::CContainerPrinter::print(featureData));
-        CPPUNIT_ASSERT_EQUAL(std::size_t(1), featureData.size());
-        CPPUNIT_ASSERT_EQUAL(model_t::E_IndividualCountByBucketAndPerson,
-                             featureData[0].first);
-        CPPUNIT_ASSERT_EQUAL(std::string("[(0, 3)]"),
-                             core::CContainerPrinter::print(featureData[0].second));
+        BOOST_REQUIRE_EQUAL(std::size_t(1), featureData.size());
+        BOOST_REQUIRE_EQUAL(model_t::E_IndividualCountByBucketAndPerson,
+                            featureData[0].first);
+        BOOST_REQUIRE_EQUAL(std::string("[(0, 3)]"),
+                            core::CContainerPrinter::print(featureData[0].second));
     }
 
     {
@@ -655,11 +660,11 @@ void CEventRateDataGathererTest::multipleSeriesTests() {
         CDataGatherer gatherer(model_t::E_EventRate, model_t::E_None, params,
                                EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
                                EMPTY_STRING, {}, key, features, startTime, 0);
-        CPPUNIT_ASSERT_EQUAL(std::size_t(0), addPerson(gatherer, m_ResourceMonitor, "p1"));
-        CPPUNIT_ASSERT_EQUAL(std::size_t(1), addPerson(gatherer, m_ResourceMonitor, "p2"));
-        CPPUNIT_ASSERT_EQUAL(std::size_t(2), addPerson(gatherer, m_ResourceMonitor, "p3"));
-        CPPUNIT_ASSERT_EQUAL(std::size_t(3), addPerson(gatherer, m_ResourceMonitor, "p4"));
-        CPPUNIT_ASSERT_EQUAL(std::size_t(4), addPerson(gatherer, m_ResourceMonitor, "p5"));
+        BOOST_REQUIRE_EQUAL(std::size_t(0), addPerson(gatherer, m_ResourceMonitor, "p1"));
+        BOOST_REQUIRE_EQUAL(std::size_t(1), addPerson(gatherer, m_ResourceMonitor, "p2"));
+        BOOST_REQUIRE_EQUAL(std::size_t(2), addPerson(gatherer, m_ResourceMonitor, "p3"));
+        BOOST_REQUIRE_EQUAL(std::size_t(3), addPerson(gatherer, m_ResourceMonitor, "p4"));
+        BOOST_REQUIRE_EQUAL(std::size_t(4), addPerson(gatherer, m_ResourceMonitor, "p5"));
 
         for (std::size_t i = 0u; i < 5; ++i) {
             addArrival(gatherer, m_ResourceMonitor, startTime, gatherer.personName(i));
@@ -673,11 +678,11 @@ void CEventRateDataGathererTest::multipleSeriesTests() {
         TFeatureSizeFeatureDataPrVecPrVec featureData;
         gatherer.featureData(startTime, bucketLength, featureData);
         LOG_DEBUG(<< "featureData = " << core::CContainerPrinter::print(featureData));
-        CPPUNIT_ASSERT_EQUAL(std::size_t(1), featureData.size());
-        CPPUNIT_ASSERT_EQUAL(model_t::E_IndividualCountByBucketAndPerson,
-                             featureData[0].first);
-        CPPUNIT_ASSERT_EQUAL(std::string("[(0, 1), (1, 1), (2, 2), (3, 1), (4, 3)]"),
-                             core::CContainerPrinter::print(featureData[0].second));
+        BOOST_REQUIRE_EQUAL(std::size_t(1), featureData.size());
+        BOOST_REQUIRE_EQUAL(model_t::E_IndividualCountByBucketAndPerson,
+                            featureData[0].first);
+        BOOST_REQUIRE_EQUAL(std::string("[(0, 1), (1, 1), (2, 2), (3, 1), (4, 3)]"),
+                            core::CContainerPrinter::print(featureData[0].second));
 
         TSizeVec peopleToRemove;
         peopleToRemove.push_back(0);
@@ -685,30 +690,30 @@ void CEventRateDataGathererTest::multipleSeriesTests() {
         peopleToRemove.push_back(3);
         gatherer.recyclePeople(peopleToRemove);
 
-        CPPUNIT_ASSERT_EQUAL(std::size_t(2), gatherer.numberActivePeople());
-        CPPUNIT_ASSERT_EQUAL(std::size_t(2), gatherer.numberByFieldValues());
-        CPPUNIT_ASSERT_EQUAL(std::string("p3"), gatherer.personName(2));
-        CPPUNIT_ASSERT_EQUAL(std::string("p5"), gatherer.personName(4));
-        CPPUNIT_ASSERT_EQUAL(std::string("-"), gatherer.personName(0));
-        CPPUNIT_ASSERT_EQUAL(std::string("-"), gatherer.personName(1));
-        CPPUNIT_ASSERT_EQUAL(std::string("-"), gatherer.personName(3));
+        BOOST_REQUIRE_EQUAL(std::size_t(2), gatherer.numberActivePeople());
+        BOOST_REQUIRE_EQUAL(std::size_t(2), gatherer.numberByFieldValues());
+        BOOST_REQUIRE_EQUAL(std::string("p3"), gatherer.personName(2));
+        BOOST_REQUIRE_EQUAL(std::string("p5"), gatherer.personName(4));
+        BOOST_REQUIRE_EQUAL(std::string("-"), gatherer.personName(0));
+        BOOST_REQUIRE_EQUAL(std::string("-"), gatherer.personName(1));
+        BOOST_REQUIRE_EQUAL(std::string("-"), gatherer.personName(3));
         std::size_t pid;
-        CPPUNIT_ASSERT(gatherer.personId("p3", pid));
-        CPPUNIT_ASSERT_EQUAL(std::size_t(2), pid);
-        CPPUNIT_ASSERT(gatherer.personId("p5", pid));
-        CPPUNIT_ASSERT_EQUAL(std::size_t(4), pid);
+        BOOST_TEST_REQUIRE(gatherer.personId("p3", pid));
+        BOOST_REQUIRE_EQUAL(std::size_t(2), pid);
+        BOOST_TEST_REQUIRE(gatherer.personId("p5", pid));
+        BOOST_REQUIRE_EQUAL(std::size_t(4), pid);
 
         gatherer.featureData(startTime, bucketLength, featureData);
         LOG_DEBUG(<< "featureData = " << core::CContainerPrinter::print(featureData));
-        CPPUNIT_ASSERT_EQUAL(std::size_t(1), featureData.size());
-        CPPUNIT_ASSERT_EQUAL(model_t::E_IndividualCountByBucketAndPerson,
-                             featureData[0].first);
-        CPPUNIT_ASSERT_EQUAL(std::string("[(2, 2), (4, 3)]"),
-                             core::CContainerPrinter::print(featureData[0].second));
+        BOOST_REQUIRE_EQUAL(std::size_t(1), featureData.size());
+        BOOST_REQUIRE_EQUAL(model_t::E_IndividualCountByBucketAndPerson,
+                            featureData[0].first);
+        BOOST_REQUIRE_EQUAL(std::string("[(2, 2), (4, 3)]"),
+                            core::CContainerPrinter::print(featureData[0].second));
     }
 }
 
-void CEventRateDataGathererTest::testRemovePeople() {
+BOOST_FIXTURE_TEST_CASE(testRemovePeople, CTestFixture) {
     // Test various combinations of removed people.
 
     const core_t::TTime startTime = 0;
@@ -725,14 +730,14 @@ void CEventRateDataGathererTest::testRemovePeople() {
     CDataGatherer gatherer(model_t::E_EventRate, model_t::E_None, params,
                            EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
                            EMPTY_STRING, {}, key, features, startTime, 0);
-    CPPUNIT_ASSERT_EQUAL(std::size_t(0), addPerson(gatherer, m_ResourceMonitor, "p1"));
-    CPPUNIT_ASSERT_EQUAL(std::size_t(1), addPerson(gatherer, m_ResourceMonitor, "p2"));
-    CPPUNIT_ASSERT_EQUAL(std::size_t(2), addPerson(gatherer, m_ResourceMonitor, "p3"));
-    CPPUNIT_ASSERT_EQUAL(std::size_t(3), addPerson(gatherer, m_ResourceMonitor, "p4"));
-    CPPUNIT_ASSERT_EQUAL(std::size_t(4), addPerson(gatherer, m_ResourceMonitor, "p5"));
-    CPPUNIT_ASSERT_EQUAL(std::size_t(5), addPerson(gatherer, m_ResourceMonitor, "p6"));
-    CPPUNIT_ASSERT_EQUAL(std::size_t(6), addPerson(gatherer, m_ResourceMonitor, "p7"));
-    CPPUNIT_ASSERT_EQUAL(std::size_t(7), addPerson(gatherer, m_ResourceMonitor, "p8"));
+    BOOST_REQUIRE_EQUAL(std::size_t(0), addPerson(gatherer, m_ResourceMonitor, "p1"));
+    BOOST_REQUIRE_EQUAL(std::size_t(1), addPerson(gatherer, m_ResourceMonitor, "p2"));
+    BOOST_REQUIRE_EQUAL(std::size_t(2), addPerson(gatherer, m_ResourceMonitor, "p3"));
+    BOOST_REQUIRE_EQUAL(std::size_t(3), addPerson(gatherer, m_ResourceMonitor, "p4"));
+    BOOST_REQUIRE_EQUAL(std::size_t(4), addPerson(gatherer, m_ResourceMonitor, "p5"));
+    BOOST_REQUIRE_EQUAL(std::size_t(5), addPerson(gatherer, m_ResourceMonitor, "p6"));
+    BOOST_REQUIRE_EQUAL(std::size_t(6), addPerson(gatherer, m_ResourceMonitor, "p7"));
+    BOOST_REQUIRE_EQUAL(std::size_t(7), addPerson(gatherer, m_ResourceMonitor, "p8"));
 
     core_t::TTime counts[] = {0, 3, 5, 2, 0, 5, 7, 10};
     for (std::size_t i = 0u; i < boost::size(counts); ++i) {
@@ -752,18 +757,18 @@ void CEventRateDataGathererTest::testRemovePeople() {
                                        params, EMPTY_STRING, EMPTY_STRING,
                                        EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
                                        {}, key, features, startTime, 0);
-        CPPUNIT_ASSERT_EQUAL(std::size_t(0),
-                             addPerson(expectedGatherer, m_ResourceMonitor, "p3"));
-        CPPUNIT_ASSERT_EQUAL(std::size_t(1),
-                             addPerson(expectedGatherer, m_ResourceMonitor, "p4"));
-        CPPUNIT_ASSERT_EQUAL(std::size_t(2),
-                             addPerson(expectedGatherer, m_ResourceMonitor, "p5"));
-        CPPUNIT_ASSERT_EQUAL(std::size_t(3),
-                             addPerson(expectedGatherer, m_ResourceMonitor, "p6"));
-        CPPUNIT_ASSERT_EQUAL(std::size_t(4),
-                             addPerson(expectedGatherer, m_ResourceMonitor, "p7"));
-        CPPUNIT_ASSERT_EQUAL(std::size_t(5),
-                             addPerson(expectedGatherer, m_ResourceMonitor, "p8"));
+        BOOST_REQUIRE_EQUAL(std::size_t(0),
+                            addPerson(expectedGatherer, m_ResourceMonitor, "p3"));
+        BOOST_REQUIRE_EQUAL(std::size_t(1),
+                            addPerson(expectedGatherer, m_ResourceMonitor, "p4"));
+        BOOST_REQUIRE_EQUAL(std::size_t(2),
+                            addPerson(expectedGatherer, m_ResourceMonitor, "p5"));
+        BOOST_REQUIRE_EQUAL(std::size_t(3),
+                            addPerson(expectedGatherer, m_ResourceMonitor, "p6"));
+        BOOST_REQUIRE_EQUAL(std::size_t(4),
+                            addPerson(expectedGatherer, m_ResourceMonitor, "p7"));
+        BOOST_REQUIRE_EQUAL(std::size_t(5),
+                            addPerson(expectedGatherer, m_ResourceMonitor, "p8"));
 
         core_t::TTime expectedCounts[] = {5, 2, 0, 5, 7, 10};
         for (std::size_t i = 0u; i < boost::size(expectedCounts); ++i) {
@@ -775,7 +780,7 @@ void CEventRateDataGathererTest::testRemovePeople() {
 
         LOG_DEBUG(<< "checksum          = " << gatherer.checksum());
         LOG_DEBUG(<< "expected checksum = " << expectedGatherer.checksum());
-        CPPUNIT_ASSERT_EQUAL(gatherer.checksum(), expectedGatherer.checksum());
+        BOOST_REQUIRE_EQUAL(gatherer.checksum(), expectedGatherer.checksum());
     }
     {
         TSizeVec peopleToRemove;
@@ -788,12 +793,12 @@ void CEventRateDataGathererTest::testRemovePeople() {
                                        params, EMPTY_STRING, EMPTY_STRING,
                                        EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
                                        {}, key, features, startTime, 0);
-        CPPUNIT_ASSERT_EQUAL(std::size_t(0),
-                             addPerson(expectedGatherer, m_ResourceMonitor, "p3"));
-        CPPUNIT_ASSERT_EQUAL(std::size_t(1),
-                             addPerson(expectedGatherer, m_ResourceMonitor, "p6"));
-        CPPUNIT_ASSERT_EQUAL(std::size_t(2),
-                             addPerson(expectedGatherer, m_ResourceMonitor, "p7"));
+        BOOST_REQUIRE_EQUAL(std::size_t(0),
+                            addPerson(expectedGatherer, m_ResourceMonitor, "p3"));
+        BOOST_REQUIRE_EQUAL(std::size_t(1),
+                            addPerson(expectedGatherer, m_ResourceMonitor, "p6"));
+        BOOST_REQUIRE_EQUAL(std::size_t(2),
+                            addPerson(expectedGatherer, m_ResourceMonitor, "p7"));
 
         core_t::TTime expectedCounts[] = {5, 5, 7};
         for (std::size_t i = 0u; i < boost::size(expectedCounts); ++i) {
@@ -805,7 +810,7 @@ void CEventRateDataGathererTest::testRemovePeople() {
 
         LOG_DEBUG(<< "checksum          = " << gatherer.checksum());
         LOG_DEBUG(<< "expected checksum = " << expectedGatherer.checksum());
-        CPPUNIT_ASSERT_EQUAL(gatherer.checksum(), expectedGatherer.checksum());
+        BOOST_REQUIRE_EQUAL(gatherer.checksum(), expectedGatherer.checksum());
     }
     {
         TSizeVec peopleToRemove;
@@ -821,7 +826,7 @@ void CEventRateDataGathererTest::testRemovePeople() {
 
         LOG_DEBUG(<< "checksum          = " << gatherer.checksum());
         LOG_DEBUG(<< "expected checksum = " << expectedGatherer.checksum());
-        CPPUNIT_ASSERT_EQUAL(gatherer.checksum(), expectedGatherer.checksum());
+        BOOST_REQUIRE_EQUAL(gatherer.checksum(), expectedGatherer.checksum());
     }
 
     TSizeVec expectedRecycled;
@@ -831,12 +836,11 @@ void CEventRateDataGathererTest::testRemovePeople() {
     LOG_DEBUG(<< "recycled          = "
               << core::CContainerPrinter::print(gatherer.recycledPersonIds()));
     LOG_DEBUG(<< "expected recycled = " << core::CContainerPrinter::print(expectedRecycled));
-    CPPUNIT_ASSERT_EQUAL(core::CContainerPrinter::print(expectedRecycled),
-                         core::CContainerPrinter::print(gatherer.recycledPersonIds()));
+    BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(expectedRecycled),
+                        core::CContainerPrinter::print(gatherer.recycledPersonIds()));
 }
 
-void CEventRateDataGathererTest::singleSeriesOutOfOrderFinalResultTests() {
-    LOG_DEBUG(<< "*** singleSeriesOutOfOrderFinalResultTests ***");
+BOOST_FIXTURE_TEST_CASE(testSingleSeriesOutOfOrderFinalResult, CTestFixture) {
 
     // Test that the various statistics come back as we expect.
 
@@ -891,10 +895,10 @@ void CEventRateDataGathererTest::singleSeriesOutOfOrderFinalResultTests() {
                 TFeatureSizeFeatureDataPrVecPrVec featureData;
                 gatherer.featureData(time, bucketLength, featureData);
                 LOG_DEBUG(<< "featureData = " << core::CContainerPrinter::print(featureData));
-                CPPUNIT_ASSERT_EQUAL(std::size_t(1), featureData.size());
-                CPPUNIT_ASSERT_EQUAL(model_t::E_IndividualCountByBucketAndPerson,
-                                     featureData[0].first);
-                CPPUNIT_ASSERT_EQUAL(
+                BOOST_REQUIRE_EQUAL(std::size_t(1), featureData.size());
+                BOOST_REQUIRE_EQUAL(model_t::E_IndividualCountByBucketAndPerson,
+                                    featureData[0].first);
+                BOOST_REQUIRE_EQUAL(
                     expectedPersonCounts[j],
                     core::CContainerPrinter::print(featureData[0].second));
 
@@ -916,7 +920,7 @@ void CEventRateDataGathererTest::singleSeriesOutOfOrderFinalResultTests() {
         CDataGatherer gatherer(model_t::E_EventRate, model_t::E_None, params,
                                EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
                                EMPTY_STRING, {}, key, features, startTime, 0);
-        CPPUNIT_ASSERT_EQUAL(std::size_t(0), addPerson(gatherer, m_ResourceMonitor, "p"));
+        BOOST_REQUIRE_EQUAL(std::size_t(0), addPerson(gatherer, m_ResourceMonitor, "p"));
 
         core_t::TTime time = startTime;
         for (std::size_t i = 0, j = 0u; i < boost::size(data); ++i) {
@@ -928,15 +932,15 @@ void CEventRateDataGathererTest::singleSeriesOutOfOrderFinalResultTests() {
                 TFeatureSizeFeatureDataPrVecPrVec featureData;
                 gatherer.featureData(time, bucketLength, featureData);
                 LOG_DEBUG(<< "featureData = " << core::CContainerPrinter::print(featureData));
-                CPPUNIT_ASSERT_EQUAL(std::size_t(2), featureData.size());
-                CPPUNIT_ASSERT_EQUAL(model_t::E_IndividualNonZeroCountByBucketAndPerson,
-                                     featureData[0].first);
-                CPPUNIT_ASSERT_EQUAL(
+                BOOST_REQUIRE_EQUAL(std::size_t(2), featureData.size());
+                BOOST_REQUIRE_EQUAL(model_t::E_IndividualNonZeroCountByBucketAndPerson,
+                                    featureData[0].first);
+                BOOST_REQUIRE_EQUAL(
                     expectedPersonNonZeroCounts[j],
                     core::CContainerPrinter::print(featureData[0].second));
-                CPPUNIT_ASSERT_EQUAL(model_t::E_IndividualTotalBucketCountByPerson,
-                                     featureData[1].first);
-                CPPUNIT_ASSERT_EQUAL(
+                BOOST_REQUIRE_EQUAL(model_t::E_IndividualTotalBucketCountByPerson,
+                                    featureData[1].first);
+                BOOST_REQUIRE_EQUAL(
                     expectedPersonNonZeroCounts[j],
                     core::CContainerPrinter::print(featureData[1].second));
 
@@ -956,7 +960,7 @@ void CEventRateDataGathererTest::singleSeriesOutOfOrderFinalResultTests() {
         CDataGatherer gatherer(model_t::E_EventRate, model_t::E_None, params,
                                EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
                                EMPTY_STRING, {}, key, features, startTime, 0);
-        CPPUNIT_ASSERT_EQUAL(std::size_t(0), addPerson(gatherer, m_ResourceMonitor, "p"));
+        BOOST_REQUIRE_EQUAL(std::size_t(0), addPerson(gatherer, m_ResourceMonitor, "p"));
 
         core_t::TTime time = startTime;
         for (std::size_t i = 0, j = 0u; i < boost::size(data); ++i) {
@@ -968,10 +972,10 @@ void CEventRateDataGathererTest::singleSeriesOutOfOrderFinalResultTests() {
                 TFeatureSizeFeatureDataPrVecPrVec featureData;
                 gatherer.featureData(time, bucketLength, featureData);
                 LOG_DEBUG(<< "featureData = " << core::CContainerPrinter::print(featureData));
-                CPPUNIT_ASSERT_EQUAL(std::size_t(1), featureData.size());
-                CPPUNIT_ASSERT_EQUAL(model_t::E_IndividualIndicatorOfBucketPerson,
-                                     featureData[0].first);
-                CPPUNIT_ASSERT_EQUAL(
+                BOOST_REQUIRE_EQUAL(std::size_t(1), featureData.size());
+                BOOST_REQUIRE_EQUAL(model_t::E_IndividualIndicatorOfBucketPerson,
+                                    featureData[0].first);
+                BOOST_REQUIRE_EQUAL(
                     expectedPersonIndicator[j],
                     core::CContainerPrinter::print(featureData[0].second));
 
@@ -985,8 +989,7 @@ void CEventRateDataGathererTest::singleSeriesOutOfOrderFinalResultTests() {
     }
 }
 
-void CEventRateDataGathererTest::singleSeriesOutOfOrderInterimResultTests() {
-    LOG_DEBUG(<< "*** singleSeriesOutOfOrderInterimResultTests ***");
+BOOST_FIXTURE_TEST_CASE(testSingleSeriesOutOfOrderInterimResult, CTestFixture) {
 
     const core_t::TTime startTime = 0;
     const core_t::TTime bucketLength = 600;
@@ -1017,103 +1020,102 @@ void CEventRateDataGathererTest::singleSeriesOutOfOrderInterimResultTests() {
     addArrival(gatherer, m_ResourceMonitor, data[0], "p");
 
     gatherer.featureData(0, bucketLength, featureData);
-    CPPUNIT_ASSERT_EQUAL(std::string("[(0, 1)]"),
-                         core::CContainerPrinter::print(featureData[0].second));
+    BOOST_REQUIRE_EQUAL(std::string("[(0, 1)]"),
+                        core::CContainerPrinter::print(featureData[0].second));
 
     // Bucket 1, 2 & 3
     addArrival(gatherer, m_ResourceMonitor, data[1], "p");
 
     gatherer.featureData(0, bucketLength, featureData);
-    CPPUNIT_ASSERT_EQUAL(std::string("[(0, 1)]"),
-                         core::CContainerPrinter::print(featureData[0].second));
+    BOOST_REQUIRE_EQUAL(std::string("[(0, 1)]"),
+                        core::CContainerPrinter::print(featureData[0].second));
     gatherer.featureData(600, bucketLength, featureData);
-    CPPUNIT_ASSERT_EQUAL(std::string("[(0, 0)]"),
-                         core::CContainerPrinter::print(featureData[0].second));
+    BOOST_REQUIRE_EQUAL(std::string("[(0, 0)]"),
+                        core::CContainerPrinter::print(featureData[0].second));
     gatherer.featureData(1200, bucketLength, featureData);
-    CPPUNIT_ASSERT_EQUAL(std::string("[(0, 1)]"),
-                         core::CContainerPrinter::print(featureData[0].second));
+    BOOST_REQUIRE_EQUAL(std::string("[(0, 1)]"),
+                        core::CContainerPrinter::print(featureData[0].second));
 
     // Bucket 1, 2 & 3
     addArrival(gatherer, m_ResourceMonitor, data[2], "p");
 
     gatherer.featureData(0, bucketLength, featureData);
-    CPPUNIT_ASSERT_EQUAL(std::string("[(0, 1)]"),
-                         core::CContainerPrinter::print(featureData[0].second));
+    BOOST_REQUIRE_EQUAL(std::string("[(0, 1)]"),
+                        core::CContainerPrinter::print(featureData[0].second));
     gatherer.featureData(600, bucketLength, featureData);
-    CPPUNIT_ASSERT_EQUAL(std::string("[(0, 1)]"),
-                         core::CContainerPrinter::print(featureData[0].second));
+    BOOST_REQUIRE_EQUAL(std::string("[(0, 1)]"),
+                        core::CContainerPrinter::print(featureData[0].second));
     gatherer.featureData(1200, bucketLength, featureData);
-    CPPUNIT_ASSERT_EQUAL(std::string("[(0, 1)]"),
-                         core::CContainerPrinter::print(featureData[0].second));
+    BOOST_REQUIRE_EQUAL(std::string("[(0, 1)]"),
+                        core::CContainerPrinter::print(featureData[0].second));
 
     // Bucket 1, 2 & 3
     addArrival(gatherer, m_ResourceMonitor, data[3], "p");
 
     gatherer.featureData(0, bucketLength, featureData);
-    CPPUNIT_ASSERT_EQUAL(std::string("[(0, 1)]"),
-                         core::CContainerPrinter::print(featureData[0].second));
+    BOOST_REQUIRE_EQUAL(std::string("[(0, 1)]"),
+                        core::CContainerPrinter::print(featureData[0].second));
     gatherer.featureData(600, bucketLength, featureData);
-    CPPUNIT_ASSERT_EQUAL(std::string("[(0, 2)]"),
-                         core::CContainerPrinter::print(featureData[0].second));
+    BOOST_REQUIRE_EQUAL(std::string("[(0, 2)]"),
+                        core::CContainerPrinter::print(featureData[0].second));
     gatherer.featureData(1200, bucketLength, featureData);
-    CPPUNIT_ASSERT_EQUAL(std::string("[(0, 1)]"),
-                         core::CContainerPrinter::print(featureData[0].second));
+    BOOST_REQUIRE_EQUAL(std::string("[(0, 1)]"),
+                        core::CContainerPrinter::print(featureData[0].second));
 
     // Bucket 1, 2 & 3
     addArrival(gatherer, m_ResourceMonitor, data[4], "p");
 
     gatherer.featureData(0, bucketLength, featureData);
-    CPPUNIT_ASSERT_EQUAL(std::string("[(0, 2)]"),
-                         core::CContainerPrinter::print(featureData[0].second));
+    BOOST_REQUIRE_EQUAL(std::string("[(0, 2)]"),
+                        core::CContainerPrinter::print(featureData[0].second));
     gatherer.featureData(600, bucketLength, featureData);
-    CPPUNIT_ASSERT_EQUAL(std::string("[(0, 2)]"),
-                         core::CContainerPrinter::print(featureData[0].second));
+    BOOST_REQUIRE_EQUAL(std::string("[(0, 2)]"),
+                        core::CContainerPrinter::print(featureData[0].second));
     gatherer.featureData(1200, bucketLength, featureData);
-    CPPUNIT_ASSERT_EQUAL(std::string("[(0, 1)]"),
-                         core::CContainerPrinter::print(featureData[0].second));
+    BOOST_REQUIRE_EQUAL(std::string("[(0, 1)]"),
+                        core::CContainerPrinter::print(featureData[0].second));
 
     // Bucket 3, 4 & 5
     addArrival(gatherer, m_ResourceMonitor, data[5], "p");
 
     gatherer.featureData(1200, bucketLength, featureData);
-    CPPUNIT_ASSERT_EQUAL(std::string("[(0, 1)]"),
-                         core::CContainerPrinter::print(featureData[0].second));
+    BOOST_REQUIRE_EQUAL(std::string("[(0, 1)]"),
+                        core::CContainerPrinter::print(featureData[0].second));
     gatherer.featureData(1800, bucketLength, featureData);
-    CPPUNIT_ASSERT_EQUAL(std::string("[(0, 0)]"),
-                         core::CContainerPrinter::print(featureData[0].second));
+    BOOST_REQUIRE_EQUAL(std::string("[(0, 0)]"),
+                        core::CContainerPrinter::print(featureData[0].second));
     gatherer.featureData(2400, bucketLength, featureData);
-    CPPUNIT_ASSERT_EQUAL(std::string("[(0, 1)]"),
-                         core::CContainerPrinter::print(featureData[0].second));
+    BOOST_REQUIRE_EQUAL(std::string("[(0, 1)]"),
+                        core::CContainerPrinter::print(featureData[0].second));
 
     // Bucket 3, 4 & 5
     addArrival(gatherer, m_ResourceMonitor, data[6], "p");
 
     gatherer.featureData(1200, bucketLength, featureData);
-    CPPUNIT_ASSERT_EQUAL(std::string("[(0, 1)]"),
-                         core::CContainerPrinter::print(featureData[0].second));
+    BOOST_REQUIRE_EQUAL(std::string("[(0, 1)]"),
+                        core::CContainerPrinter::print(featureData[0].second));
     gatherer.featureData(1800, bucketLength, featureData);
-    CPPUNIT_ASSERT_EQUAL(std::string("[(0, 0)]"),
-                         core::CContainerPrinter::print(featureData[0].second));
+    BOOST_REQUIRE_EQUAL(std::string("[(0, 0)]"),
+                        core::CContainerPrinter::print(featureData[0].second));
     gatherer.featureData(2400, bucketLength, featureData);
-    CPPUNIT_ASSERT_EQUAL(std::string("[(0, 2)]"),
-                         core::CContainerPrinter::print(featureData[0].second));
+    BOOST_REQUIRE_EQUAL(std::string("[(0, 2)]"),
+                        core::CContainerPrinter::print(featureData[0].second));
 
     // Bucket 3, 4 & 5
     addArrival(gatherer, m_ResourceMonitor, data[7], "p");
 
     gatherer.featureData(1200, bucketLength, featureData);
-    CPPUNIT_ASSERT_EQUAL(std::string("[(0, 2)]"),
-                         core::CContainerPrinter::print(featureData[0].second));
+    BOOST_REQUIRE_EQUAL(std::string("[(0, 2)]"),
+                        core::CContainerPrinter::print(featureData[0].second));
     gatherer.featureData(1800, bucketLength, featureData);
-    CPPUNIT_ASSERT_EQUAL(std::string("[(0, 0)]"),
-                         core::CContainerPrinter::print(featureData[0].second));
+    BOOST_REQUIRE_EQUAL(std::string("[(0, 0)]"),
+                        core::CContainerPrinter::print(featureData[0].second));
     gatherer.featureData(2400, bucketLength, featureData);
-    CPPUNIT_ASSERT_EQUAL(std::string("[(0, 2)]"),
-                         core::CContainerPrinter::print(featureData[0].second));
+    BOOST_REQUIRE_EQUAL(std::string("[(0, 2)]"),
+                        core::CContainerPrinter::print(featureData[0].second));
 }
 
-void CEventRateDataGathererTest::multipleSeriesOutOfOrderFinalResultTests() {
-    LOG_DEBUG(<< "*** multipleSeriesOutOfOrderFinalResultTests ***");
+BOOST_FIXTURE_TEST_CASE(testMultipleSeriesOutOfOrderFinalResult, CTestFixture) {
 
     // Test that the various statistics come back as we expect
     // for multiple people.
@@ -1157,8 +1159,8 @@ void CEventRateDataGathererTest::multipleSeriesOutOfOrderFinalResultTests() {
         CDataGatherer gatherer(model_t::E_EventRate, model_t::E_None, params,
                                EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
                                EMPTY_STRING, {}, key, features, startTime, 0);
-        CPPUNIT_ASSERT_EQUAL(std::size_t(0), addPerson(gatherer, m_ResourceMonitor, "p1"));
-        CPPUNIT_ASSERT_EQUAL(std::size_t(1), addPerson(gatherer, m_ResourceMonitor, "p2"));
+        BOOST_REQUIRE_EQUAL(std::size_t(0), addPerson(gatherer, m_ResourceMonitor, "p1"));
+        BOOST_REQUIRE_EQUAL(std::size_t(1), addPerson(gatherer, m_ResourceMonitor, "p2"));
 
         core_t::TTime time = startTime;
         std::size_t i1 = 0u, i2 = 0u, j = 0u;
@@ -1171,10 +1173,10 @@ void CEventRateDataGathererTest::multipleSeriesOutOfOrderFinalResultTests() {
                 TFeatureSizeFeatureDataPrVecPrVec featureData;
                 gatherer.featureData(time, bucketLength, featureData);
                 LOG_DEBUG(<< "featureData = " << core::CContainerPrinter::print(featureData));
-                CPPUNIT_ASSERT_EQUAL(std::size_t(1), featureData.size());
-                CPPUNIT_ASSERT_EQUAL(model_t::E_IndividualCountByBucketAndPerson,
-                                     featureData[0].first);
-                CPPUNIT_ASSERT_EQUAL(
+                BOOST_REQUIRE_EQUAL(std::size_t(1), featureData.size());
+                BOOST_REQUIRE_EQUAL(model_t::E_IndividualCountByBucketAndPerson,
+                                    featureData[0].first);
+                BOOST_REQUIRE_EQUAL(
                     expectedPersonCounts[j],
                     core::CContainerPrinter::print(featureData[0].second));
 
@@ -1200,22 +1202,22 @@ void CEventRateDataGathererTest::multipleSeriesOutOfOrderFinalResultTests() {
         peopleToRemove.push_back(1);
         gatherer.recyclePeople(peopleToRemove);
 
-        CPPUNIT_ASSERT_EQUAL(std::size_t(1), gatherer.numberActivePeople());
-        CPPUNIT_ASSERT_EQUAL(std::string("p1"), gatherer.personName(0));
-        CPPUNIT_ASSERT_EQUAL(std::string("-"), gatherer.personName(1));
+        BOOST_REQUIRE_EQUAL(std::size_t(1), gatherer.numberActivePeople());
+        BOOST_REQUIRE_EQUAL(std::string("p1"), gatherer.personName(0));
+        BOOST_REQUIRE_EQUAL(std::string("-"), gatherer.personName(1));
         std::size_t pid;
-        CPPUNIT_ASSERT(gatherer.personId("p1", pid));
-        CPPUNIT_ASSERT_EQUAL(std::size_t(0), pid);
-        CPPUNIT_ASSERT(!gatherer.personId("p2", pid));
+        BOOST_TEST_REQUIRE(gatherer.personId("p1", pid));
+        BOOST_REQUIRE_EQUAL(std::size_t(0), pid);
+        BOOST_TEST_REQUIRE(!gatherer.personId("p2", pid));
 
         TFeatureSizeFeatureDataPrVecPrVec featureData;
         gatherer.featureData(startTime + 4 * bucketLength, bucketLength, featureData);
         LOG_DEBUG(<< "featureData = " << core::CContainerPrinter::print(featureData));
-        CPPUNIT_ASSERT_EQUAL(std::size_t(1), featureData.size());
-        CPPUNIT_ASSERT_EQUAL(model_t::E_IndividualCountByBucketAndPerson,
-                             featureData[0].first);
-        CPPUNIT_ASSERT_EQUAL(std::string("[(0, 3)]"),
-                             core::CContainerPrinter::print(featureData[0].second));
+        BOOST_REQUIRE_EQUAL(std::size_t(1), featureData.size());
+        BOOST_REQUIRE_EQUAL(model_t::E_IndividualCountByBucketAndPerson,
+                            featureData[0].first);
+        BOOST_REQUIRE_EQUAL(std::string("[(0, 3)]"),
+                            core::CContainerPrinter::print(featureData[0].second));
     }
 
     {
@@ -1224,11 +1226,11 @@ void CEventRateDataGathererTest::multipleSeriesOutOfOrderFinalResultTests() {
         CDataGatherer gatherer(model_t::E_EventRate, model_t::E_None, params,
                                EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
                                EMPTY_STRING, {}, key, features, startTime, 0);
-        CPPUNIT_ASSERT_EQUAL(std::size_t(0), addPerson(gatherer, m_ResourceMonitor, "p1"));
-        CPPUNIT_ASSERT_EQUAL(std::size_t(1), addPerson(gatherer, m_ResourceMonitor, "p2"));
-        CPPUNIT_ASSERT_EQUAL(std::size_t(2), addPerson(gatherer, m_ResourceMonitor, "p3"));
-        CPPUNIT_ASSERT_EQUAL(std::size_t(3), addPerson(gatherer, m_ResourceMonitor, "p4"));
-        CPPUNIT_ASSERT_EQUAL(std::size_t(4), addPerson(gatherer, m_ResourceMonitor, "p5"));
+        BOOST_REQUIRE_EQUAL(std::size_t(0), addPerson(gatherer, m_ResourceMonitor, "p1"));
+        BOOST_REQUIRE_EQUAL(std::size_t(1), addPerson(gatherer, m_ResourceMonitor, "p2"));
+        BOOST_REQUIRE_EQUAL(std::size_t(2), addPerson(gatherer, m_ResourceMonitor, "p3"));
+        BOOST_REQUIRE_EQUAL(std::size_t(3), addPerson(gatherer, m_ResourceMonitor, "p4"));
+        BOOST_REQUIRE_EQUAL(std::size_t(4), addPerson(gatherer, m_ResourceMonitor, "p5"));
 
         for (std::size_t i = 0u; i < 5; ++i) {
             addArrival(gatherer, m_ResourceMonitor, startTime, gatherer.personName(i));
@@ -1242,11 +1244,11 @@ void CEventRateDataGathererTest::multipleSeriesOutOfOrderFinalResultTests() {
         TFeatureSizeFeatureDataPrVecPrVec featureData;
         gatherer.featureData(startTime, bucketLength, featureData);
         LOG_DEBUG(<< "featureData = " << core::CContainerPrinter::print(featureData));
-        CPPUNIT_ASSERT_EQUAL(std::size_t(1), featureData.size());
-        CPPUNIT_ASSERT_EQUAL(model_t::E_IndividualCountByBucketAndPerson,
-                             featureData[0].first);
-        CPPUNIT_ASSERT_EQUAL(std::string("[(0, 1), (1, 1), (2, 2), (3, 1), (4, 3)]"),
-                             core::CContainerPrinter::print(featureData[0].second));
+        BOOST_REQUIRE_EQUAL(std::size_t(1), featureData.size());
+        BOOST_REQUIRE_EQUAL(model_t::E_IndividualCountByBucketAndPerson,
+                            featureData[0].first);
+        BOOST_REQUIRE_EQUAL(std::string("[(0, 1), (1, 1), (2, 2), (3, 1), (4, 3)]"),
+                            core::CContainerPrinter::print(featureData[0].second));
 
         TSizeVec peopleToRemove;
         peopleToRemove.push_back(0);
@@ -1254,29 +1256,29 @@ void CEventRateDataGathererTest::multipleSeriesOutOfOrderFinalResultTests() {
         peopleToRemove.push_back(3);
         gatherer.recyclePeople(peopleToRemove);
 
-        CPPUNIT_ASSERT_EQUAL(std::size_t(2), gatherer.numberActivePeople());
-        CPPUNIT_ASSERT_EQUAL(std::string("p3"), gatherer.personName(2));
-        CPPUNIT_ASSERT_EQUAL(std::string("p5"), gatherer.personName(4));
-        CPPUNIT_ASSERT_EQUAL(std::string("-"), gatherer.personName(0));
-        CPPUNIT_ASSERT_EQUAL(std::string("-"), gatherer.personName(1));
-        CPPUNIT_ASSERT_EQUAL(std::string("-"), gatherer.personName(3));
+        BOOST_REQUIRE_EQUAL(std::size_t(2), gatherer.numberActivePeople());
+        BOOST_REQUIRE_EQUAL(std::string("p3"), gatherer.personName(2));
+        BOOST_REQUIRE_EQUAL(std::string("p5"), gatherer.personName(4));
+        BOOST_REQUIRE_EQUAL(std::string("-"), gatherer.personName(0));
+        BOOST_REQUIRE_EQUAL(std::string("-"), gatherer.personName(1));
+        BOOST_REQUIRE_EQUAL(std::string("-"), gatherer.personName(3));
         std::size_t pid;
-        CPPUNIT_ASSERT(gatherer.personId("p3", pid));
-        CPPUNIT_ASSERT_EQUAL(std::size_t(2), pid);
-        CPPUNIT_ASSERT(gatherer.personId("p5", pid));
-        CPPUNIT_ASSERT_EQUAL(std::size_t(4), pid);
+        BOOST_TEST_REQUIRE(gatherer.personId("p3", pid));
+        BOOST_REQUIRE_EQUAL(std::size_t(2), pid);
+        BOOST_TEST_REQUIRE(gatherer.personId("p5", pid));
+        BOOST_REQUIRE_EQUAL(std::size_t(4), pid);
 
         gatherer.featureData(startTime, bucketLength, featureData);
         LOG_DEBUG(<< "featureData = " << core::CContainerPrinter::print(featureData));
-        CPPUNIT_ASSERT_EQUAL(std::size_t(1), featureData.size());
-        CPPUNIT_ASSERT_EQUAL(model_t::E_IndividualCountByBucketAndPerson,
-                             featureData[0].first);
-        CPPUNIT_ASSERT_EQUAL(std::string("[(2, 2), (4, 3)]"),
-                             core::CContainerPrinter::print(featureData[0].second));
+        BOOST_REQUIRE_EQUAL(std::size_t(1), featureData.size());
+        BOOST_REQUIRE_EQUAL(model_t::E_IndividualCountByBucketAndPerson,
+                            featureData[0].first);
+        BOOST_REQUIRE_EQUAL(std::string("[(2, 2), (4, 3)]"),
+                            core::CContainerPrinter::print(featureData[0].second));
     }
 }
 
-void CEventRateDataGathererTest::testArrivalBeforeLatencyWindowIsIgnored() {
+BOOST_FIXTURE_TEST_CASE(testArrivalBeforeLatencyWindowIsIgnored, CTestFixture) {
     const core_t::TTime startTime = 0;
     const core_t::TTime bucketLength = 600;
     std::size_t latencyBuckets(2);
@@ -1301,22 +1303,22 @@ void CEventRateDataGathererTest::testArrivalBeforeLatencyWindowIsIgnored() {
     TFeatureSizeFeatureDataPrVecPrVec featureData;
 
     gatherer.featureData(0, bucketLength, featureData);
-    CPPUNIT_ASSERT_EQUAL(std::size_t(0), featureData.size());
+    BOOST_REQUIRE_EQUAL(std::size_t(0), featureData.size());
 
     gatherer.featureData(600, bucketLength, featureData);
-    CPPUNIT_ASSERT_EQUAL(std::string("[(0, 0)]"),
-                         core::CContainerPrinter::print(featureData[0].second));
+    BOOST_REQUIRE_EQUAL(std::string("[(0, 0)]"),
+                        core::CContainerPrinter::print(featureData[0].second));
 
     gatherer.featureData(1200, bucketLength, featureData);
-    CPPUNIT_ASSERT_EQUAL(std::string("[(0, 0)]"),
-                         core::CContainerPrinter::print(featureData[0].second));
+    BOOST_REQUIRE_EQUAL(std::string("[(0, 0)]"),
+                        core::CContainerPrinter::print(featureData[0].second));
 
     gatherer.featureData(1800, bucketLength, featureData);
-    CPPUNIT_ASSERT_EQUAL(std::string("[(0, 1)]"),
-                         core::CContainerPrinter::print(featureData[0].second));
+    BOOST_REQUIRE_EQUAL(std::string("[(0, 1)]"),
+                        core::CContainerPrinter::print(featureData[0].second));
 }
 
-void CEventRateDataGathererTest::testResetBucketGivenSingleSeries() {
+BOOST_FIXTURE_TEST_CASE(testResetBucketGivenSingleSeries, CTestFixture) {
     const core_t::TTime startTime = 0;
     const core_t::TTime bucketLength = 600;
     std::size_t latencyBuckets(2);
@@ -1345,33 +1347,33 @@ void CEventRateDataGathererTest::testResetBucketGivenSingleSeries() {
     TFeatureSizeFeatureDataPrVecPrVec featureData;
 
     gatherer.featureData(0, bucketLength, featureData);
-    CPPUNIT_ASSERT_EQUAL(std::string("[(0, 2)]"),
-                         core::CContainerPrinter::print(featureData[0].second));
+    BOOST_REQUIRE_EQUAL(std::string("[(0, 2)]"),
+                        core::CContainerPrinter::print(featureData[0].second));
 
     gatherer.featureData(600, bucketLength, featureData);
-    CPPUNIT_ASSERT_EQUAL(std::string("[(0, 3)]"),
-                         core::CContainerPrinter::print(featureData[0].second));
+    BOOST_REQUIRE_EQUAL(std::string("[(0, 3)]"),
+                        core::CContainerPrinter::print(featureData[0].second));
 
     gatherer.featureData(1200, bucketLength, featureData);
-    CPPUNIT_ASSERT_EQUAL(std::string("[(0, 1)]"),
-                         core::CContainerPrinter::print(featureData[0].second));
+    BOOST_REQUIRE_EQUAL(std::string("[(0, 1)]"),
+                        core::CContainerPrinter::print(featureData[0].second));
 
     gatherer.resetBucket(600);
 
     gatherer.featureData(0, bucketLength, featureData);
-    CPPUNIT_ASSERT_EQUAL(std::string("[(0, 2)]"),
-                         core::CContainerPrinter::print(featureData[0].second));
+    BOOST_REQUIRE_EQUAL(std::string("[(0, 2)]"),
+                        core::CContainerPrinter::print(featureData[0].second));
 
     gatherer.featureData(600, bucketLength, featureData);
-    CPPUNIT_ASSERT_EQUAL(std::string("[(0, 0)]"),
-                         core::CContainerPrinter::print(featureData[0].second));
+    BOOST_REQUIRE_EQUAL(std::string("[(0, 0)]"),
+                        core::CContainerPrinter::print(featureData[0].second));
 
     gatherer.featureData(1200, bucketLength, featureData);
-    CPPUNIT_ASSERT_EQUAL(std::string("[(0, 1)]"),
-                         core::CContainerPrinter::print(featureData[0].second));
+    BOOST_REQUIRE_EQUAL(std::string("[(0, 1)]"),
+                        core::CContainerPrinter::print(featureData[0].second));
 }
 
-void CEventRateDataGathererTest::testResetBucketGivenMultipleSeries() {
+BOOST_FIXTURE_TEST_CASE(testResetBucketGivenMultipleSeries, CTestFixture) {
     const core_t::TTime startTime = 0;
     const core_t::TTime bucketLength = 600;
     std::size_t latencyBuckets(2);
@@ -1404,33 +1406,33 @@ void CEventRateDataGathererTest::testResetBucketGivenMultipleSeries() {
     TFeatureSizeFeatureDataPrVecPrVec featureData;
 
     gatherer.featureData(0, bucketLength, featureData);
-    CPPUNIT_ASSERT_EQUAL(std::string("[(0, 2), (1, 2), (2, 2)]"),
-                         core::CContainerPrinter::print(featureData[0].second));
+    BOOST_REQUIRE_EQUAL(std::string("[(0, 2), (1, 2), (2, 2)]"),
+                        core::CContainerPrinter::print(featureData[0].second));
 
     gatherer.featureData(600, bucketLength, featureData);
-    CPPUNIT_ASSERT_EQUAL(std::string("[(0, 3), (1, 3), (2, 3)]"),
-                         core::CContainerPrinter::print(featureData[0].second));
+    BOOST_REQUIRE_EQUAL(std::string("[(0, 3), (1, 3), (2, 3)]"),
+                        core::CContainerPrinter::print(featureData[0].second));
 
     gatherer.featureData(1200, bucketLength, featureData);
-    CPPUNIT_ASSERT_EQUAL(std::string("[(0, 1), (1, 1), (2, 1)]"),
-                         core::CContainerPrinter::print(featureData[0].second));
+    BOOST_REQUIRE_EQUAL(std::string("[(0, 1), (1, 1), (2, 1)]"),
+                        core::CContainerPrinter::print(featureData[0].second));
 
     gatherer.resetBucket(600);
 
     gatherer.featureData(0, bucketLength, featureData);
-    CPPUNIT_ASSERT_EQUAL(std::string("[(0, 2), (1, 2), (2, 2)]"),
-                         core::CContainerPrinter::print(featureData[0].second));
+    BOOST_REQUIRE_EQUAL(std::string("[(0, 2), (1, 2), (2, 2)]"),
+                        core::CContainerPrinter::print(featureData[0].second));
 
     gatherer.featureData(600, bucketLength, featureData);
-    CPPUNIT_ASSERT_EQUAL(std::string("[(0, 0), (1, 0), (2, 0)]"),
-                         core::CContainerPrinter::print(featureData[0].second));
+    BOOST_REQUIRE_EQUAL(std::string("[(0, 0), (1, 0), (2, 0)]"),
+                        core::CContainerPrinter::print(featureData[0].second));
 
     gatherer.featureData(1200, bucketLength, featureData);
-    CPPUNIT_ASSERT_EQUAL(std::string("[(0, 1), (1, 1), (2, 1)]"),
-                         core::CContainerPrinter::print(featureData[0].second));
+    BOOST_REQUIRE_EQUAL(std::string("[(0, 1), (1, 1), (2, 1)]"),
+                        core::CContainerPrinter::print(featureData[0].second));
 }
 
-void CEventRateDataGathererTest::testResetBucketGivenBucketNotAvailable() {
+BOOST_FIXTURE_TEST_CASE(testResetBucketGivenBucketNotAvailable, CTestFixture) {
     const core_t::TTime startTime = 0;
     const core_t::TTime bucketLength = 600;
     std::size_t latencyBuckets(1);
@@ -1446,13 +1448,13 @@ void CEventRateDataGathererTest::testResetBucketGivenBucketNotAvailable() {
 
     addArrival(gatherer, m_ResourceMonitor, 1200, "p");
 
-    CPPUNIT_ASSERT(gatherer.resetBucket(0) == false);
-    CPPUNIT_ASSERT(gatherer.resetBucket(600));
-    CPPUNIT_ASSERT(gatherer.resetBucket(1200));
-    CPPUNIT_ASSERT(gatherer.resetBucket(1800) == false);
+    BOOST_TEST_REQUIRE(gatherer.resetBucket(0) == false);
+    BOOST_TEST_REQUIRE(gatherer.resetBucket(600));
+    BOOST_TEST_REQUIRE(gatherer.resetBucket(1200));
+    BOOST_TEST_REQUIRE(gatherer.resetBucket(1800) == false);
 }
 
-void CEventRateDataGathererTest::testInfluencerBucketStatistics() {
+BOOST_FIXTURE_TEST_CASE(testInfluencerBucketStatistics, CTestFixture) {
     core_t::TTime data[] = {
         1, 15, 180, 190, 400,
         550, // bucket 1
@@ -1527,7 +1529,7 @@ void CEventRateDataGathererTest::testInfluencerBucketStatistics() {
                              "value", m_ResourceMonitor);
 }
 
-void CEventRateDataGathererTest::testDistinctStrings() {
+BOOST_FIXTURE_TEST_CASE(testDistinctStrings, CTestFixture) {
     using TStoredStringPtrVec = std::vector<core::CStoredStringPtr>;
 
     // Test the SUniqueStringFeatureData struct
@@ -1540,21 +1542,21 @@ void CEventRateDataGathererTest::testDistinctStrings() {
         {
             SEventRateFeatureData featureData(0);
             data.populateDistinctCountFeatureData(featureData);
-            CPPUNIT_ASSERT_EQUAL(std::string("0"), featureData.print());
+            BOOST_REQUIRE_EQUAL(std::string("0"), featureData.print());
         }
 
         for (std::size_t i = 0; i < 100; ++i) {
             data.insert("str1", influencers);
             SEventRateFeatureData featureData(0);
             data.populateDistinctCountFeatureData(featureData);
-            CPPUNIT_ASSERT_EQUAL(std::string("1"), featureData.print());
+            BOOST_REQUIRE_EQUAL(std::string("1"), featureData.print());
         }
         for (std::size_t i = 0; i < 100; ++i) {
             data.insert("str2", influencers);
             data.insert("str3", influencers);
             SEventRateFeatureData featureData(0);
             data.populateDistinctCountFeatureData(featureData);
-            CPPUNIT_ASSERT_EQUAL(std::string("3"), featureData.print());
+            BOOST_REQUIRE_EQUAL(std::string("3"), featureData.print());
         }
         for (std::size_t i = 1; i < 100; ++i) {
             std::stringstream ss;
@@ -1562,7 +1564,7 @@ void CEventRateDataGathererTest::testDistinctStrings() {
             data.insert(ss.str(), influencers);
             SEventRateFeatureData featureData(0);
             data.populateDistinctCountFeatureData(featureData);
-            CPPUNIT_ASSERT_EQUAL(std::max(uint64_t(3), uint64_t(i)), featureData.s_Count);
+            BOOST_REQUIRE_EQUAL(std::max(uint64_t(3), uint64_t(i)), featureData.s_Count);
         }
     }
     {
@@ -1576,7 +1578,7 @@ void CEventRateDataGathererTest::testDistinctStrings() {
         {
             SEventRateFeatureData featureData(0);
             data.populateDistinctCountFeatureData(featureData);
-            CPPUNIT_ASSERT_EQUAL(std::string("1, [[]]"), featureData.print());
+            BOOST_REQUIRE_EQUAL(std::string("1, [[]]"), featureData.print());
         }
 
         influencers.back() = CStringStore::influencers().get("inf1");
@@ -1584,8 +1586,8 @@ void CEventRateDataGathererTest::testDistinctStrings() {
         {
             SEventRateFeatureData featureData(0);
             data.populateDistinctCountFeatureData(featureData);
-            CPPUNIT_ASSERT_EQUAL(std::string("1, [[(inf1, ([1], 1))]]"),
-                                 featureData.print());
+            BOOST_REQUIRE_EQUAL(std::string("1, [[(inf1, ([1], 1))]]"),
+                                featureData.print());
         }
 
         data.insert("str2", influencers);
@@ -1605,8 +1607,8 @@ void CEventRateDataGathererTest::testDistinctStrings() {
                       featureData.s_InfluenceValues[0].end(),
                       maths::COrderings::SFirstLess());
 
-            CPPUNIT_ASSERT_EQUAL(std::string("3, [[(inf1, ([2], 1)), (inf2, ([2], 1)), (inf3, ([1], 1))]]"),
-                                 featureData.print());
+            BOOST_REQUIRE_EQUAL(std::string("3, [[(inf1, ([2], 1)), (inf2, ([2], 1)), (inf3, ([1], 1))]]"),
+                                featureData.print());
         }
     }
 
@@ -1623,7 +1625,7 @@ void CEventRateDataGathererTest::testDistinctStrings() {
         {
             SEventRateFeatureData featureData(0);
             data.populateDistinctCountFeatureData(featureData);
-            CPPUNIT_ASSERT_EQUAL(std::string("2, [[], []]"), featureData.print());
+            BOOST_REQUIRE_EQUAL(std::string("2, [[], []]"), featureData.print());
         }
 
         influencers[0] = CStringStore::influencers().get("inf1");
@@ -1632,8 +1634,8 @@ void CEventRateDataGathererTest::testDistinctStrings() {
         {
             SEventRateFeatureData featureData(0);
             data.populateDistinctCountFeatureData(featureData);
-            CPPUNIT_ASSERT_EQUAL(std::string("2, [[(inf1, ([2], 1))], []]"),
-                                 featureData.print());
+            BOOST_REQUIRE_EQUAL(std::string("2, [[(inf1, ([2], 1))], []]"),
+                                featureData.print());
         }
         influencers[1] = CStringStore::influencers().get("inf_v2");
 
@@ -1651,8 +1653,8 @@ void CEventRateDataGathererTest::testDistinctStrings() {
                           featureData.s_InfluenceValues[i].end(),
                           maths::COrderings::SFirstLess());
             }
-            CPPUNIT_ASSERT_EQUAL(std::string("3, [[(inf1, ([2], 1)), (inf2, ([2], 1))], [(inf_v2, ([1], 1)), (inf_v3, ([2], 1))]]"),
-                                 featureData.print());
+            BOOST_REQUIRE_EQUAL(std::string("3, [[(inf1, ([2], 1)), (inf2, ([2], 1))], [(inf_v2, ([1], 1)), (inf_v3, ([2], 1))]]"),
+                                featureData.print());
         }
     }
     {
@@ -1664,14 +1666,14 @@ void CEventRateDataGathererTest::testDistinctStrings() {
         {
             SEventRateFeatureData featureData(0);
             data.populateInfoContentFeatureData(featureData);
-            CPPUNIT_ASSERT_EQUAL(std::string("0"), featureData.print());
+            BOOST_REQUIRE_EQUAL(std::string("0"), featureData.print());
         }
 
         {
             data.insert("str1", influencers);
             SEventRateFeatureData featureData(0);
             data.populateInfoContentFeatureData(featureData);
-            CPPUNIT_ASSERT_EQUAL(std::string("12"), featureData.print());
+            BOOST_REQUIRE_EQUAL(std::string("12"), featureData.print());
         }
 
         {
@@ -1679,7 +1681,7 @@ void CEventRateDataGathererTest::testDistinctStrings() {
             data.insert("str3", influencers);
             SEventRateFeatureData featureData(0);
             data.populateInfoContentFeatureData(featureData);
-            CPPUNIT_ASSERT_EQUAL(std::string("18"), featureData.print());
+            BOOST_REQUIRE_EQUAL(std::string("18"), featureData.print());
         }
 
         for (std::size_t i = 1; i < 100; ++i) {
@@ -1688,10 +1690,10 @@ void CEventRateDataGathererTest::testDistinctStrings() {
             data.insert(ss.str(), influencers);
             SEventRateFeatureData featureData(0);
             data.populateInfoContentFeatureData(featureData);
-            CPPUNIT_ASSERT((featureData.s_Count - 12) >=
-                           std::max(uint64_t(3), uint64_t(i)));
-            CPPUNIT_ASSERT((featureData.s_Count - 12) <=
-                           std::max(uint64_t(3), uint64_t(i)) * 3);
+            BOOST_TEST_REQUIRE((featureData.s_Count - 12) >=
+                               std::max(uint64_t(3), uint64_t(i)));
+            BOOST_TEST_REQUIRE((featureData.s_Count - 12) <=
+                               std::max(uint64_t(3), uint64_t(i)) * 3);
         }
     }
     {
@@ -1705,7 +1707,7 @@ void CEventRateDataGathererTest::testDistinctStrings() {
         {
             SEventRateFeatureData featureData(0);
             data.populateInfoContentFeatureData(featureData);
-            CPPUNIT_ASSERT_EQUAL(std::string("12, [[]]"), featureData.print());
+            BOOST_REQUIRE_EQUAL(std::string("12, [[]]"), featureData.print());
         }
 
         influencers.back() = CStringStore::influencers().get("inf1");
@@ -1713,8 +1715,8 @@ void CEventRateDataGathererTest::testDistinctStrings() {
         {
             SEventRateFeatureData featureData(0);
             data.populateInfoContentFeatureData(featureData);
-            CPPUNIT_ASSERT_EQUAL(std::string("12, [[(inf1, ([12], 1))]]"),
-                                 featureData.print());
+            BOOST_REQUIRE_EQUAL(std::string("12, [[(inf1, ([12], 1))]]"),
+                                featureData.print());
         }
 
         data.insert("str2", influencers);
@@ -1734,8 +1736,8 @@ void CEventRateDataGathererTest::testDistinctStrings() {
                       featureData.s_InfluenceValues[0].end(),
                       maths::COrderings::SFirstLess());
 
-            CPPUNIT_ASSERT_EQUAL(std::string("18, [[(inf1, ([16], 1)), (inf2, ([16], 1)), (inf3, ([12], 1))]]"),
-                                 featureData.print());
+            BOOST_REQUIRE_EQUAL(std::string("18, [[(inf1, ([16], 1)), (inf2, ([16], 1)), (inf3, ([12], 1))]]"),
+                                featureData.print());
         }
     }
     {
@@ -1751,7 +1753,7 @@ void CEventRateDataGathererTest::testDistinctStrings() {
         {
             SEventRateFeatureData featureData(0);
             data.populateInfoContentFeatureData(featureData);
-            CPPUNIT_ASSERT_EQUAL(std::string("16, [[], []]"), featureData.print());
+            BOOST_REQUIRE_EQUAL(std::string("16, [[], []]"), featureData.print());
         }
 
         influencers[0] = CStringStore::influencers().get("inf1");
@@ -1760,8 +1762,8 @@ void CEventRateDataGathererTest::testDistinctStrings() {
         {
             SEventRateFeatureData featureData(0);
             data.populateInfoContentFeatureData(featureData);
-            CPPUNIT_ASSERT_EQUAL(std::string("16, [[(inf1, ([16], 1))], []]"),
-                                 featureData.print());
+            BOOST_REQUIRE_EQUAL(std::string("16, [[(inf1, ([16], 1))], []]"),
+                                featureData.print());
         }
         influencers[1] = CStringStore::influencers().get("inf_v2");
 
@@ -1779,8 +1781,8 @@ void CEventRateDataGathererTest::testDistinctStrings() {
                           featureData.s_InfluenceValues[i].end(),
                           maths::COrderings::SFirstLess());
             }
-            CPPUNIT_ASSERT_EQUAL(std::string("18, [[(inf1, ([16], 1)), (inf2, ([16], 1))], [(inf_v2, ([12], 1)), (inf_v3, ([16], 1))]]"),
-                                 featureData.print());
+            BOOST_REQUIRE_EQUAL(std::string("18, [[(inf1, ([16], 1)), (inf2, ([16], 1))], [(inf_v2, ([12], 1)), (inf_v3, ([16], 1))]]"),
+                                featureData.print());
         }
     }
     {
@@ -1797,22 +1799,22 @@ void CEventRateDataGathererTest::testDistinctStrings() {
                                EMPTY_STRING, EMPTY_STRING, "P", EMPTY_STRING,
                                "V", {"INF"}, key, features, startTime, 0);
 
-        CPPUNIT_ASSERT(!gatherer.isPopulation());
-        CPPUNIT_ASSERT_EQUAL(std::size_t(0),
-                             addPerson(gatherer, m_ResourceMonitor, "p", "v", 1));
+        BOOST_TEST_REQUIRE(!gatherer.isPopulation());
+        BOOST_REQUIRE_EQUAL(std::size_t(0),
+                            addPerson(gatherer, m_ResourceMonitor, "p", "v", 1));
 
-        CPPUNIT_ASSERT_EQUAL(std::size_t(1), gatherer.numberFeatures());
+        BOOST_REQUIRE_EQUAL(std::size_t(1), gatherer.numberFeatures());
         for (std::size_t i = 0u; i < 1; ++i) {
-            CPPUNIT_ASSERT_EQUAL(features[i], gatherer.feature(i));
+            BOOST_REQUIRE_EQUAL(features[i], gatherer.feature(i));
         }
-        CPPUNIT_ASSERT(gatherer.hasFeature(model_t::E_IndividualUniqueCountByBucketAndPerson));
+        BOOST_TEST_REQUIRE(gatherer.hasFeature(model_t::E_IndividualUniqueCountByBucketAndPerson));
 
-        CPPUNIT_ASSERT_EQUAL(std::size_t(1), gatherer.numberActivePeople());
-        CPPUNIT_ASSERT_EQUAL(std::size_t(1), gatherer.numberByFieldValues());
-        CPPUNIT_ASSERT_EQUAL(std::string("p"), gatherer.personName(0));
+        BOOST_REQUIRE_EQUAL(std::size_t(1), gatherer.numberActivePeople());
+        BOOST_REQUIRE_EQUAL(std::size_t(1), gatherer.numberByFieldValues());
+        BOOST_REQUIRE_EQUAL(std::string("p"), gatherer.personName(0));
         core_t::TTime time = startTime;
 
-        CPPUNIT_ASSERT_EQUAL(bucketLength, gatherer.bucketLength());
+        BOOST_REQUIRE_EQUAL(bucketLength, gatherer.bucketLength());
         testPersistence(params, gatherer);
 
         // Add data, some of which will be out of order
@@ -1830,7 +1832,7 @@ void CEventRateDataGathererTest::testDistinctStrings() {
     }
 }
 
-void CEventRateDataGathererTest::testDiurnalFeatures() {
+BOOST_FIXTURE_TEST_CASE(testDiurnalFeatures, CTestFixture) {
     const std::string person("p");
     const std::string attribute("a");
     const std::string emptyString("");
@@ -1850,17 +1852,17 @@ void CEventRateDataGathererTest::testDiurnalFeatures() {
                                EMPTY_STRING, EMPTY_STRING, "person", EMPTY_STRING,
                                EMPTY_STRING, {}, key, features, startTime, 0);
 
-        CPPUNIT_ASSERT(!gatherer.isPopulation());
+        BOOST_TEST_REQUIRE(!gatherer.isPopulation());
 
-        CPPUNIT_ASSERT_EQUAL(std::size_t(1), gatherer.numberFeatures());
+        BOOST_REQUIRE_EQUAL(std::size_t(1), gatherer.numberFeatures());
         for (std::size_t i = 0u; i < 1; ++i) {
-            CPPUNIT_ASSERT_EQUAL(features[i], gatherer.feature(i));
+            BOOST_REQUIRE_EQUAL(features[i], gatherer.feature(i));
         }
-        CPPUNIT_ASSERT(gatherer.hasFeature(model_t::E_IndividualTimeOfDayByBucketAndPerson));
+        BOOST_TEST_REQUIRE(gatherer.hasFeature(model_t::E_IndividualTimeOfDayByBucketAndPerson));
 
         core_t::TTime time = startTime;
 
-        CPPUNIT_ASSERT_EQUAL(bucketLength, gatherer.bucketLength());
+        BOOST_REQUIRE_EQUAL(bucketLength, gatherer.bucketLength());
         testPersistence(params, gatherer);
 
         // Add some data, and check that we get the right numbers out of the featureData
@@ -1869,20 +1871,20 @@ void CEventRateDataGathererTest::testDiurnalFeatures() {
 
             TFeatureSizeFeatureDataPrVecPrVec featureData;
             gatherer.featureData(time, bucketLength, featureData);
-            CPPUNIT_ASSERT_EQUAL(std::size_t(1), featureData.size());
-            CPPUNIT_ASSERT_EQUAL(std::size_t(1), featureData[0].second.size());
-            CPPUNIT_ASSERT_EQUAL(uint64_t(time % 86400),
-                                 featureData[0].second[0].second.s_Count);
+            BOOST_REQUIRE_EQUAL(std::size_t(1), featureData.size());
+            BOOST_REQUIRE_EQUAL(std::size_t(1), featureData[0].second.size());
+            BOOST_REQUIRE_EQUAL(uint64_t(time % 86400),
+                                featureData[0].second[0].second.s_Count);
         }
         {
             addArrival(gatherer, m_ResourceMonitor, time + 100, person);
 
             TFeatureSizeFeatureDataPrVecPrVec featureData;
             gatherer.featureData(time, bucketLength, featureData);
-            CPPUNIT_ASSERT_EQUAL(std::size_t(1), featureData.size());
-            CPPUNIT_ASSERT_EQUAL(std::size_t(1), featureData[0].second.size());
-            CPPUNIT_ASSERT_EQUAL(uint64_t((time % 86400) + 50),
-                                 featureData[0].second[0].second.s_Count);
+            BOOST_REQUIRE_EQUAL(std::size_t(1), featureData.size());
+            BOOST_REQUIRE_EQUAL(std::size_t(1), featureData[0].second.size());
+            BOOST_REQUIRE_EQUAL(uint64_t((time % 86400) + 50),
+                                featureData[0].second[0].second.s_Count);
         }
         time += bucketLength;
         {
@@ -1890,20 +1892,20 @@ void CEventRateDataGathererTest::testDiurnalFeatures() {
 
             TFeatureSizeFeatureDataPrVecPrVec featureData;
             gatherer.featureData(time, bucketLength, featureData);
-            CPPUNIT_ASSERT_EQUAL(std::size_t(1), featureData.size());
-            CPPUNIT_ASSERT_EQUAL(std::size_t(1), featureData[0].second.size());
-            CPPUNIT_ASSERT_EQUAL(uint64_t(time % 86400),
-                                 featureData[0].second[0].second.s_Count);
+            BOOST_REQUIRE_EQUAL(std::size_t(1), featureData.size());
+            BOOST_REQUIRE_EQUAL(std::size_t(1), featureData[0].second.size());
+            BOOST_REQUIRE_EQUAL(uint64_t(time % 86400),
+                                featureData[0].second[0].second.s_Count);
         }
         {
             addArrival(gatherer, m_ResourceMonitor, time + 200, person);
 
             TFeatureSizeFeatureDataPrVecPrVec featureData;
             gatherer.featureData(time, bucketLength, featureData);
-            CPPUNIT_ASSERT_EQUAL(std::size_t(1), featureData.size());
-            CPPUNIT_ASSERT_EQUAL(std::size_t(1), featureData[0].second.size());
-            CPPUNIT_ASSERT_EQUAL(uint64_t((time % 86400) + 100),
-                                 featureData[0].second[0].second.s_Count);
+            BOOST_REQUIRE_EQUAL(std::size_t(1), featureData.size());
+            BOOST_REQUIRE_EQUAL(std::size_t(1), featureData[0].second.size());
+            BOOST_REQUIRE_EQUAL(uint64_t((time % 86400) + 100),
+                                featureData[0].second[0].second.s_Count);
         }
         time += bucketLength;
         {
@@ -1911,20 +1913,20 @@ void CEventRateDataGathererTest::testDiurnalFeatures() {
 
             TFeatureSizeFeatureDataPrVecPrVec featureData;
             gatherer.featureData(time, bucketLength, featureData);
-            CPPUNIT_ASSERT_EQUAL(std::size_t(1), featureData.size());
-            CPPUNIT_ASSERT_EQUAL(std::size_t(1), featureData[0].second.size());
-            CPPUNIT_ASSERT_EQUAL(uint64_t(time % 86400),
-                                 featureData[0].second[0].second.s_Count);
+            BOOST_REQUIRE_EQUAL(std::size_t(1), featureData.size());
+            BOOST_REQUIRE_EQUAL(std::size_t(1), featureData[0].second.size());
+            BOOST_REQUIRE_EQUAL(uint64_t(time % 86400),
+                                featureData[0].second[0].second.s_Count);
         }
         {
             addArrival(gatherer, m_ResourceMonitor, time + 300, person);
 
             TFeatureSizeFeatureDataPrVecPrVec featureData;
             gatherer.featureData(time, bucketLength, featureData);
-            CPPUNIT_ASSERT_EQUAL(std::size_t(1), featureData.size());
-            CPPUNIT_ASSERT_EQUAL(std::size_t(1), featureData[0].second.size());
-            CPPUNIT_ASSERT_EQUAL(uint64_t((time % 86400) + 150),
-                                 featureData[0].second[0].second.s_Count);
+            BOOST_REQUIRE_EQUAL(std::size_t(1), featureData.size());
+            BOOST_REQUIRE_EQUAL(std::size_t(1), featureData[0].second.size());
+            BOOST_REQUIRE_EQUAL(uint64_t((time % 86400) + 150),
+                                featureData[0].second[0].second.s_Count);
         }
 
         // Check latency by going backwards in time
@@ -1934,10 +1936,10 @@ void CEventRateDataGathererTest::testDiurnalFeatures() {
 
             TFeatureSizeFeatureDataPrVecPrVec featureData;
             gatherer.featureData(time, bucketLength, featureData);
-            CPPUNIT_ASSERT_EQUAL(std::size_t(1), featureData.size());
-            CPPUNIT_ASSERT_EQUAL(std::size_t(1), featureData[0].second.size());
-            CPPUNIT_ASSERT_EQUAL(uint64_t((time % 86400) + 100),
-                                 featureData[0].second[0].second.s_Count);
+            BOOST_REQUIRE_EQUAL(std::size_t(1), featureData.size());
+            BOOST_REQUIRE_EQUAL(std::size_t(1), featureData[0].second.size());
+            BOOST_REQUIRE_EQUAL(uint64_t((time % 86400) + 100),
+                                featureData[0].second[0].second.s_Count);
         }
         time += bucketLength;
         {
@@ -1945,15 +1947,15 @@ void CEventRateDataGathererTest::testDiurnalFeatures() {
 
             TFeatureSizeFeatureDataPrVecPrVec featureData;
             gatherer.featureData(time, bucketLength, featureData);
-            CPPUNIT_ASSERT_EQUAL(std::size_t(1), featureData.size());
-            CPPUNIT_ASSERT_EQUAL(std::size_t(1), featureData[0].second.size());
-            CPPUNIT_ASSERT_EQUAL(uint64_t((time % 86400) + 200),
-                                 featureData[0].second[0].second.s_Count);
+            BOOST_REQUIRE_EQUAL(std::size_t(1), featureData.size());
+            BOOST_REQUIRE_EQUAL(std::size_t(1), featureData[0].second.size());
+            BOOST_REQUIRE_EQUAL(uint64_t((time % 86400) + 200),
+                                featureData[0].second[0].second.s_Count);
         }
 
-        CPPUNIT_ASSERT_EQUAL(std::size_t(1), gatherer.numberActivePeople());
-        CPPUNIT_ASSERT_EQUAL(std::size_t(1), gatherer.numberByFieldValues());
-        CPPUNIT_ASSERT_EQUAL(std::string("p"), gatherer.personName(0));
+        BOOST_REQUIRE_EQUAL(std::size_t(1), gatherer.numberActivePeople());
+        BOOST_REQUIRE_EQUAL(std::size_t(1), gatherer.numberByFieldValues());
+        BOOST_REQUIRE_EQUAL(std::string("p"), gatherer.personName(0));
         testPersistence(params, gatherer);
     }
     {
@@ -1972,17 +1974,17 @@ void CEventRateDataGathererTest::testDiurnalFeatures() {
                                EMPTY_STRING, EMPTY_STRING, "person", EMPTY_STRING,
                                EMPTY_STRING, {}, key, features, startTime, 0);
 
-        CPPUNIT_ASSERT(!gatherer.isPopulation());
+        BOOST_TEST_REQUIRE(!gatherer.isPopulation());
 
-        CPPUNIT_ASSERT_EQUAL(std::size_t(1), gatherer.numberFeatures());
+        BOOST_REQUIRE_EQUAL(std::size_t(1), gatherer.numberFeatures());
         for (std::size_t i = 0u; i < 1; ++i) {
-            CPPUNIT_ASSERT_EQUAL(features[i], gatherer.feature(i));
+            BOOST_REQUIRE_EQUAL(features[i], gatherer.feature(i));
         }
-        CPPUNIT_ASSERT(gatherer.hasFeature(model_t::E_IndividualTimeOfWeekByBucketAndPerson));
+        BOOST_TEST_REQUIRE(gatherer.hasFeature(model_t::E_IndividualTimeOfWeekByBucketAndPerson));
 
         core_t::TTime time = startTime;
 
-        CPPUNIT_ASSERT_EQUAL(bucketLength, gatherer.bucketLength());
+        BOOST_REQUIRE_EQUAL(bucketLength, gatherer.bucketLength());
         testPersistence(params, gatherer);
 
         // Add some data, and check that we get the right numbers out of the featureData
@@ -1991,20 +1993,20 @@ void CEventRateDataGathererTest::testDiurnalFeatures() {
 
             TFeatureSizeFeatureDataPrVecPrVec featureData;
             gatherer.featureData(time, bucketLength, featureData);
-            CPPUNIT_ASSERT_EQUAL(std::size_t(1), featureData.size());
-            CPPUNIT_ASSERT_EQUAL(std::size_t(1), featureData[0].second.size());
-            CPPUNIT_ASSERT_EQUAL(uint64_t(time % 604800),
-                                 featureData[0].second[0].second.s_Count);
+            BOOST_REQUIRE_EQUAL(std::size_t(1), featureData.size());
+            BOOST_REQUIRE_EQUAL(std::size_t(1), featureData[0].second.size());
+            BOOST_REQUIRE_EQUAL(uint64_t(time % 604800),
+                                featureData[0].second[0].second.s_Count);
         }
         {
             addArrival(gatherer, m_ResourceMonitor, time + 100, person);
 
             TFeatureSizeFeatureDataPrVecPrVec featureData;
             gatherer.featureData(time, bucketLength, featureData);
-            CPPUNIT_ASSERT_EQUAL(std::size_t(1), featureData.size());
-            CPPUNIT_ASSERT_EQUAL(std::size_t(1), featureData[0].second.size());
-            CPPUNIT_ASSERT_EQUAL(uint64_t((time % 604800) + 50),
-                                 featureData[0].second[0].second.s_Count);
+            BOOST_REQUIRE_EQUAL(std::size_t(1), featureData.size());
+            BOOST_REQUIRE_EQUAL(std::size_t(1), featureData[0].second.size());
+            BOOST_REQUIRE_EQUAL(uint64_t((time % 604800) + 50),
+                                featureData[0].second[0].second.s_Count);
         }
         time += bucketLength;
         {
@@ -2012,20 +2014,20 @@ void CEventRateDataGathererTest::testDiurnalFeatures() {
 
             TFeatureSizeFeatureDataPrVecPrVec featureData;
             gatherer.featureData(time, bucketLength, featureData);
-            CPPUNIT_ASSERT_EQUAL(std::size_t(1), featureData.size());
-            CPPUNIT_ASSERT_EQUAL(std::size_t(1), featureData[0].second.size());
-            CPPUNIT_ASSERT_EQUAL(uint64_t(time % 604800),
-                                 featureData[0].second[0].second.s_Count);
+            BOOST_REQUIRE_EQUAL(std::size_t(1), featureData.size());
+            BOOST_REQUIRE_EQUAL(std::size_t(1), featureData[0].second.size());
+            BOOST_REQUIRE_EQUAL(uint64_t(time % 604800),
+                                featureData[0].second[0].second.s_Count);
         }
         {
             addArrival(gatherer, m_ResourceMonitor, time + 200, person);
 
             TFeatureSizeFeatureDataPrVecPrVec featureData;
             gatherer.featureData(time, bucketLength, featureData);
-            CPPUNIT_ASSERT_EQUAL(std::size_t(1), featureData.size());
-            CPPUNIT_ASSERT_EQUAL(std::size_t(1), featureData[0].second.size());
-            CPPUNIT_ASSERT_EQUAL(uint64_t((time % 604800) + 100),
-                                 featureData[0].second[0].second.s_Count);
+            BOOST_REQUIRE_EQUAL(std::size_t(1), featureData.size());
+            BOOST_REQUIRE_EQUAL(std::size_t(1), featureData[0].second.size());
+            BOOST_REQUIRE_EQUAL(uint64_t((time % 604800) + 100),
+                                featureData[0].second[0].second.s_Count);
         }
         time += bucketLength;
         {
@@ -2033,20 +2035,20 @@ void CEventRateDataGathererTest::testDiurnalFeatures() {
 
             TFeatureSizeFeatureDataPrVecPrVec featureData;
             gatherer.featureData(time, bucketLength, featureData);
-            CPPUNIT_ASSERT_EQUAL(std::size_t(1), featureData.size());
-            CPPUNIT_ASSERT_EQUAL(std::size_t(1), featureData[0].second.size());
-            CPPUNIT_ASSERT_EQUAL(uint64_t(time % 604800),
-                                 featureData[0].second[0].second.s_Count);
+            BOOST_REQUIRE_EQUAL(std::size_t(1), featureData.size());
+            BOOST_REQUIRE_EQUAL(std::size_t(1), featureData[0].second.size());
+            BOOST_REQUIRE_EQUAL(uint64_t(time % 604800),
+                                featureData[0].second[0].second.s_Count);
         }
         {
             addArrival(gatherer, m_ResourceMonitor, time + 300, person);
 
             TFeatureSizeFeatureDataPrVecPrVec featureData;
             gatherer.featureData(time, bucketLength, featureData);
-            CPPUNIT_ASSERT_EQUAL(std::size_t(1), featureData.size());
-            CPPUNIT_ASSERT_EQUAL(std::size_t(1), featureData[0].second.size());
-            CPPUNIT_ASSERT_EQUAL(uint64_t((time % 604800) + 150),
-                                 featureData[0].second[0].second.s_Count);
+            BOOST_REQUIRE_EQUAL(std::size_t(1), featureData.size());
+            BOOST_REQUIRE_EQUAL(std::size_t(1), featureData[0].second.size());
+            BOOST_REQUIRE_EQUAL(uint64_t((time % 604800) + 150),
+                                featureData[0].second[0].second.s_Count);
         }
 
         // Check latency by going backwards in time
@@ -2056,10 +2058,10 @@ void CEventRateDataGathererTest::testDiurnalFeatures() {
 
             TFeatureSizeFeatureDataPrVecPrVec featureData;
             gatherer.featureData(time, bucketLength, featureData);
-            CPPUNIT_ASSERT_EQUAL(std::size_t(1), featureData.size());
-            CPPUNIT_ASSERT_EQUAL(std::size_t(1), featureData[0].second.size());
-            CPPUNIT_ASSERT_EQUAL(uint64_t((time % 604800) + 100),
-                                 featureData[0].second[0].second.s_Count);
+            BOOST_REQUIRE_EQUAL(std::size_t(1), featureData.size());
+            BOOST_REQUIRE_EQUAL(std::size_t(1), featureData[0].second.size());
+            BOOST_REQUIRE_EQUAL(uint64_t((time % 604800) + 100),
+                                featureData[0].second[0].second.s_Count);
         }
         time += bucketLength;
         {
@@ -2067,15 +2069,15 @@ void CEventRateDataGathererTest::testDiurnalFeatures() {
 
             TFeatureSizeFeatureDataPrVecPrVec featureData;
             gatherer.featureData(time, bucketLength, featureData);
-            CPPUNIT_ASSERT_EQUAL(std::size_t(1), featureData.size());
-            CPPUNIT_ASSERT_EQUAL(std::size_t(1), featureData[0].second.size());
-            CPPUNIT_ASSERT_EQUAL(uint64_t((time % 604800) + 200),
-                                 featureData[0].second[0].second.s_Count);
+            BOOST_REQUIRE_EQUAL(std::size_t(1), featureData.size());
+            BOOST_REQUIRE_EQUAL(std::size_t(1), featureData[0].second.size());
+            BOOST_REQUIRE_EQUAL(uint64_t((time % 604800) + 200),
+                                featureData[0].second[0].second.s_Count);
         }
 
-        CPPUNIT_ASSERT_EQUAL(std::size_t(1), gatherer.numberActivePeople());
-        CPPUNIT_ASSERT_EQUAL(std::size_t(1), gatherer.numberByFieldValues());
-        CPPUNIT_ASSERT_EQUAL(std::string("p"), gatherer.personName(0));
+        BOOST_REQUIRE_EQUAL(std::size_t(1), gatherer.numberActivePeople());
+        BOOST_REQUIRE_EQUAL(std::size_t(1), gatherer.numberByFieldValues());
+        BOOST_REQUIRE_EQUAL(std::string("p"), gatherer.personName(0));
         testPersistence(params, gatherer);
     }
     {
@@ -2094,17 +2096,18 @@ void CEventRateDataGathererTest::testDiurnalFeatures() {
                                params, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
                                "att", EMPTY_STRING, {}, key, features, startTime, 0);
 
-        CPPUNIT_ASSERT(gatherer.isPopulation());
+        BOOST_TEST_REQUIRE(gatherer.isPopulation());
 
-        CPPUNIT_ASSERT_EQUAL(std::size_t(1), gatherer.numberFeatures());
+        BOOST_REQUIRE_EQUAL(std::size_t(1), gatherer.numberFeatures());
         for (std::size_t i = 0u; i < 1; ++i) {
-            CPPUNIT_ASSERT_EQUAL(features[i], gatherer.feature(i));
+            BOOST_REQUIRE_EQUAL(features[i], gatherer.feature(i));
         }
-        CPPUNIT_ASSERT(gatherer.hasFeature(model_t::E_PopulationTimeOfWeekByBucketPersonAndAttribute));
+        BOOST_TEST_REQUIRE(gatherer.hasFeature(
+            model_t::E_PopulationTimeOfWeekByBucketPersonAndAttribute));
 
         core_t::TTime time = startTime;
 
-        CPPUNIT_ASSERT_EQUAL(bucketLength, gatherer.bucketLength());
+        BOOST_REQUIRE_EQUAL(bucketLength, gatherer.bucketLength());
         testPersistence(params, gatherer);
 
         // Add some data, and check that we get the right numbers out of the featureData
@@ -2113,20 +2116,20 @@ void CEventRateDataGathererTest::testDiurnalFeatures() {
 
             TFeatureSizeSizePrFeatureDataPrVecPrVec featureData;
             gatherer.featureData(time, bucketLength, featureData);
-            CPPUNIT_ASSERT_EQUAL(std::size_t(1), featureData.size());
-            CPPUNIT_ASSERT_EQUAL(std::size_t(1), featureData[0].second.size());
-            CPPUNIT_ASSERT_EQUAL(uint64_t(time % 604800),
-                                 featureData[0].second[0].second.s_Count);
+            BOOST_REQUIRE_EQUAL(std::size_t(1), featureData.size());
+            BOOST_REQUIRE_EQUAL(std::size_t(1), featureData[0].second.size());
+            BOOST_REQUIRE_EQUAL(uint64_t(time % 604800),
+                                featureData[0].second[0].second.s_Count);
         }
         {
             addArrival(gatherer, m_ResourceMonitor, time + 100, person, attribute);
 
             TFeatureSizeSizePrFeatureDataPrVecPrVec featureData;
             gatherer.featureData(time, bucketLength, featureData);
-            CPPUNIT_ASSERT_EQUAL(std::size_t(1), featureData.size());
-            CPPUNIT_ASSERT_EQUAL(std::size_t(1), featureData[0].second.size());
-            CPPUNIT_ASSERT_EQUAL(uint64_t((time % 604800) + 50),
-                                 featureData[0].second[0].second.s_Count);
+            BOOST_REQUIRE_EQUAL(std::size_t(1), featureData.size());
+            BOOST_REQUIRE_EQUAL(std::size_t(1), featureData[0].second.size());
+            BOOST_REQUIRE_EQUAL(uint64_t((time % 604800) + 50),
+                                featureData[0].second[0].second.s_Count);
         }
         time += bucketLength;
         {
@@ -2134,20 +2137,20 @@ void CEventRateDataGathererTest::testDiurnalFeatures() {
 
             TFeatureSizeSizePrFeatureDataPrVecPrVec featureData;
             gatherer.featureData(time, bucketLength, featureData);
-            CPPUNIT_ASSERT_EQUAL(std::size_t(1), featureData.size());
-            CPPUNIT_ASSERT_EQUAL(std::size_t(1), featureData[0].second.size());
-            CPPUNIT_ASSERT_EQUAL(uint64_t(time % 604800),
-                                 featureData[0].second[0].second.s_Count);
+            BOOST_REQUIRE_EQUAL(std::size_t(1), featureData.size());
+            BOOST_REQUIRE_EQUAL(std::size_t(1), featureData[0].second.size());
+            BOOST_REQUIRE_EQUAL(uint64_t(time % 604800),
+                                featureData[0].second[0].second.s_Count);
         }
         {
             addArrival(gatherer, m_ResourceMonitor, time + 200, person, attribute);
 
             TFeatureSizeSizePrFeatureDataPrVecPrVec featureData;
             gatherer.featureData(time, bucketLength, featureData);
-            CPPUNIT_ASSERT_EQUAL(std::size_t(1), featureData.size());
-            CPPUNIT_ASSERT_EQUAL(std::size_t(1), featureData[0].second.size());
-            CPPUNIT_ASSERT_EQUAL(uint64_t((time % 604800) + 100),
-                                 featureData[0].second[0].second.s_Count);
+            BOOST_REQUIRE_EQUAL(std::size_t(1), featureData.size());
+            BOOST_REQUIRE_EQUAL(std::size_t(1), featureData[0].second.size());
+            BOOST_REQUIRE_EQUAL(uint64_t((time % 604800) + 100),
+                                featureData[0].second[0].second.s_Count);
         }
         time += bucketLength;
         {
@@ -2155,20 +2158,20 @@ void CEventRateDataGathererTest::testDiurnalFeatures() {
 
             TFeatureSizeSizePrFeatureDataPrVecPrVec featureData;
             gatherer.featureData(time, bucketLength, featureData);
-            CPPUNIT_ASSERT_EQUAL(std::size_t(1), featureData.size());
-            CPPUNIT_ASSERT_EQUAL(std::size_t(1), featureData[0].second.size());
-            CPPUNIT_ASSERT_EQUAL(uint64_t(time % 604800),
-                                 featureData[0].second[0].second.s_Count);
+            BOOST_REQUIRE_EQUAL(std::size_t(1), featureData.size());
+            BOOST_REQUIRE_EQUAL(std::size_t(1), featureData[0].second.size());
+            BOOST_REQUIRE_EQUAL(uint64_t(time % 604800),
+                                featureData[0].second[0].second.s_Count);
         }
         {
             addArrival(gatherer, m_ResourceMonitor, time + 300, person, attribute);
 
             TFeatureSizeSizePrFeatureDataPrVecPrVec featureData;
             gatherer.featureData(time, bucketLength, featureData);
-            CPPUNIT_ASSERT_EQUAL(std::size_t(1), featureData.size());
-            CPPUNIT_ASSERT_EQUAL(std::size_t(1), featureData[0].second.size());
-            CPPUNIT_ASSERT_EQUAL(uint64_t((time % 604800) + 150),
-                                 featureData[0].second[0].second.s_Count);
+            BOOST_REQUIRE_EQUAL(std::size_t(1), featureData.size());
+            BOOST_REQUIRE_EQUAL(std::size_t(1), featureData[0].second.size());
+            BOOST_REQUIRE_EQUAL(uint64_t((time % 604800) + 150),
+                                featureData[0].second[0].second.s_Count);
         }
 
         // Check latency by going backwards in time
@@ -2178,10 +2181,10 @@ void CEventRateDataGathererTest::testDiurnalFeatures() {
 
             TFeatureSizeSizePrFeatureDataPrVecPrVec featureData;
             gatherer.featureData(time, bucketLength, featureData);
-            CPPUNIT_ASSERT_EQUAL(std::size_t(1), featureData.size());
-            CPPUNIT_ASSERT_EQUAL(std::size_t(1), featureData[0].second.size());
-            CPPUNIT_ASSERT_EQUAL(uint64_t((time % 604800) + 100),
-                                 featureData[0].second[0].second.s_Count);
+            BOOST_REQUIRE_EQUAL(std::size_t(1), featureData.size());
+            BOOST_REQUIRE_EQUAL(std::size_t(1), featureData[0].second.size());
+            BOOST_REQUIRE_EQUAL(uint64_t((time % 604800) + 100),
+                                featureData[0].second[0].second.s_Count);
         }
         time += bucketLength;
         {
@@ -2189,16 +2192,16 @@ void CEventRateDataGathererTest::testDiurnalFeatures() {
 
             TFeatureSizeSizePrFeatureDataPrVecPrVec featureData;
             gatherer.featureData(time, bucketLength, featureData);
-            CPPUNIT_ASSERT_EQUAL(std::size_t(1), featureData.size());
-            CPPUNIT_ASSERT_EQUAL(std::size_t(1), featureData[0].second.size());
-            CPPUNIT_ASSERT_EQUAL(uint64_t((time % 604800) + 200),
-                                 featureData[0].second[0].second.s_Count);
+            BOOST_REQUIRE_EQUAL(std::size_t(1), featureData.size());
+            BOOST_REQUIRE_EQUAL(std::size_t(1), featureData[0].second.size());
+            BOOST_REQUIRE_EQUAL(uint64_t((time % 604800) + 200),
+                                featureData[0].second[0].second.s_Count);
         }
 
-        CPPUNIT_ASSERT_EQUAL(std::size_t(1), gatherer.numberActivePeople());
-        CPPUNIT_ASSERT_EQUAL(std::size_t(1), gatherer.numberActiveAttributes());
-        CPPUNIT_ASSERT_EQUAL(std::size_t(1), gatherer.numberByFieldValues());
-        CPPUNIT_ASSERT_EQUAL(std::string("a"), gatherer.attributeName(0));
+        BOOST_REQUIRE_EQUAL(std::size_t(1), gatherer.numberActivePeople());
+        BOOST_REQUIRE_EQUAL(std::size_t(1), gatherer.numberActiveAttributes());
+        BOOST_REQUIRE_EQUAL(std::size_t(1), gatherer.numberByFieldValues());
+        BOOST_REQUIRE_EQUAL(std::string("a"), gatherer.attributeName(0));
         testPersistence(params, gatherer);
     }
     {
@@ -2217,17 +2220,18 @@ void CEventRateDataGathererTest::testDiurnalFeatures() {
                                params, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
                                "att", EMPTY_STRING, {}, key, features, startTime, 0);
 
-        CPPUNIT_ASSERT(gatherer.isPopulation());
+        BOOST_TEST_REQUIRE(gatherer.isPopulation());
 
-        CPPUNIT_ASSERT_EQUAL(std::size_t(1), gatherer.numberFeatures());
+        BOOST_REQUIRE_EQUAL(std::size_t(1), gatherer.numberFeatures());
         for (std::size_t i = 0u; i < 1; ++i) {
-            CPPUNIT_ASSERT_EQUAL(features[i], gatherer.feature(i));
+            BOOST_REQUIRE_EQUAL(features[i], gatherer.feature(i));
         }
-        CPPUNIT_ASSERT(gatherer.hasFeature(model_t::E_PopulationTimeOfDayByBucketPersonAndAttribute));
+        BOOST_TEST_REQUIRE(gatherer.hasFeature(
+            model_t::E_PopulationTimeOfDayByBucketPersonAndAttribute));
 
         core_t::TTime time = startTime;
 
-        CPPUNIT_ASSERT_EQUAL(bucketLength, gatherer.bucketLength());
+        BOOST_REQUIRE_EQUAL(bucketLength, gatherer.bucketLength());
         testPersistence(params, gatherer);
 
         // Add some data, and check that we get the right numbers out of the featureData
@@ -2236,20 +2240,20 @@ void CEventRateDataGathererTest::testDiurnalFeatures() {
 
             TFeatureSizeSizePrFeatureDataPrVecPrVec featureData;
             gatherer.featureData(time, bucketLength, featureData);
-            CPPUNIT_ASSERT_EQUAL(std::size_t(1), featureData.size());
-            CPPUNIT_ASSERT_EQUAL(std::size_t(1), featureData[0].second.size());
-            CPPUNIT_ASSERT_EQUAL(uint64_t(time % 86400),
-                                 featureData[0].second[0].second.s_Count);
+            BOOST_REQUIRE_EQUAL(std::size_t(1), featureData.size());
+            BOOST_REQUIRE_EQUAL(std::size_t(1), featureData[0].second.size());
+            BOOST_REQUIRE_EQUAL(uint64_t(time % 86400),
+                                featureData[0].second[0].second.s_Count);
         }
         {
             addArrival(gatherer, m_ResourceMonitor, time + 100, person, attribute);
 
             TFeatureSizeSizePrFeatureDataPrVecPrVec featureData;
             gatherer.featureData(time, bucketLength, featureData);
-            CPPUNIT_ASSERT_EQUAL(std::size_t(1), featureData.size());
-            CPPUNIT_ASSERT_EQUAL(std::size_t(1), featureData[0].second.size());
-            CPPUNIT_ASSERT_EQUAL(uint64_t((time % 86400) + 50),
-                                 featureData[0].second[0].second.s_Count);
+            BOOST_REQUIRE_EQUAL(std::size_t(1), featureData.size());
+            BOOST_REQUIRE_EQUAL(std::size_t(1), featureData[0].second.size());
+            BOOST_REQUIRE_EQUAL(uint64_t((time % 86400) + 50),
+                                featureData[0].second[0].second.s_Count);
         }
         time += bucketLength;
         {
@@ -2257,20 +2261,20 @@ void CEventRateDataGathererTest::testDiurnalFeatures() {
 
             TFeatureSizeSizePrFeatureDataPrVecPrVec featureData;
             gatherer.featureData(time, bucketLength, featureData);
-            CPPUNIT_ASSERT_EQUAL(std::size_t(1), featureData.size());
-            CPPUNIT_ASSERT_EQUAL(std::size_t(1), featureData[0].second.size());
-            CPPUNIT_ASSERT_EQUAL(uint64_t(time % 86400),
-                                 featureData[0].second[0].second.s_Count);
+            BOOST_REQUIRE_EQUAL(std::size_t(1), featureData.size());
+            BOOST_REQUIRE_EQUAL(std::size_t(1), featureData[0].second.size());
+            BOOST_REQUIRE_EQUAL(uint64_t(time % 86400),
+                                featureData[0].second[0].second.s_Count);
         }
         {
             addArrival(gatherer, m_ResourceMonitor, time + 200, person, attribute);
 
             TFeatureSizeSizePrFeatureDataPrVecPrVec featureData;
             gatherer.featureData(time, bucketLength, featureData);
-            CPPUNIT_ASSERT_EQUAL(std::size_t(1), featureData.size());
-            CPPUNIT_ASSERT_EQUAL(std::size_t(1), featureData[0].second.size());
-            CPPUNIT_ASSERT_EQUAL(uint64_t((time % 86400) + 100),
-                                 featureData[0].second[0].second.s_Count);
+            BOOST_REQUIRE_EQUAL(std::size_t(1), featureData.size());
+            BOOST_REQUIRE_EQUAL(std::size_t(1), featureData[0].second.size());
+            BOOST_REQUIRE_EQUAL(uint64_t((time % 86400) + 100),
+                                featureData[0].second[0].second.s_Count);
         }
         time += bucketLength;
         {
@@ -2278,20 +2282,20 @@ void CEventRateDataGathererTest::testDiurnalFeatures() {
 
             TFeatureSizeSizePrFeatureDataPrVecPrVec featureData;
             gatherer.featureData(time, bucketLength, featureData);
-            CPPUNIT_ASSERT_EQUAL(std::size_t(1), featureData.size());
-            CPPUNIT_ASSERT_EQUAL(std::size_t(1), featureData[0].second.size());
-            CPPUNIT_ASSERT_EQUAL(uint64_t(time % 86400),
-                                 featureData[0].second[0].second.s_Count);
+            BOOST_REQUIRE_EQUAL(std::size_t(1), featureData.size());
+            BOOST_REQUIRE_EQUAL(std::size_t(1), featureData[0].second.size());
+            BOOST_REQUIRE_EQUAL(uint64_t(time % 86400),
+                                featureData[0].second[0].second.s_Count);
         }
         {
             addArrival(gatherer, m_ResourceMonitor, time + 300, person, attribute);
 
             TFeatureSizeSizePrFeatureDataPrVecPrVec featureData;
             gatherer.featureData(time, bucketLength, featureData);
-            CPPUNIT_ASSERT_EQUAL(std::size_t(1), featureData.size());
-            CPPUNIT_ASSERT_EQUAL(std::size_t(1), featureData[0].second.size());
-            CPPUNIT_ASSERT_EQUAL(uint64_t((time % 86400) + 150),
-                                 featureData[0].second[0].second.s_Count);
+            BOOST_REQUIRE_EQUAL(std::size_t(1), featureData.size());
+            BOOST_REQUIRE_EQUAL(std::size_t(1), featureData[0].second.size());
+            BOOST_REQUIRE_EQUAL(uint64_t((time % 86400) + 150),
+                                featureData[0].second[0].second.s_Count);
         }
 
         // Check latency by going backwards in time
@@ -2301,10 +2305,10 @@ void CEventRateDataGathererTest::testDiurnalFeatures() {
 
             TFeatureSizeSizePrFeatureDataPrVecPrVec featureData;
             gatherer.featureData(time, bucketLength, featureData);
-            CPPUNIT_ASSERT_EQUAL(std::size_t(1), featureData.size());
-            CPPUNIT_ASSERT_EQUAL(std::size_t(1), featureData[0].second.size());
-            CPPUNIT_ASSERT_EQUAL(uint64_t((time % 86400) + 100),
-                                 featureData[0].second[0].second.s_Count);
+            BOOST_REQUIRE_EQUAL(std::size_t(1), featureData.size());
+            BOOST_REQUIRE_EQUAL(std::size_t(1), featureData[0].second.size());
+            BOOST_REQUIRE_EQUAL(uint64_t((time % 86400) + 100),
+                                featureData[0].second[0].second.s_Count);
         }
         time += bucketLength;
         {
@@ -2312,64 +2316,18 @@ void CEventRateDataGathererTest::testDiurnalFeatures() {
 
             TFeatureSizeSizePrFeatureDataPrVecPrVec featureData;
             gatherer.featureData(time, bucketLength, featureData);
-            CPPUNIT_ASSERT_EQUAL(std::size_t(1), featureData.size());
-            CPPUNIT_ASSERT_EQUAL(std::size_t(1), featureData[0].second.size());
-            CPPUNIT_ASSERT_EQUAL(uint64_t((time % 86400) + 200),
-                                 featureData[0].second[0].second.s_Count);
+            BOOST_REQUIRE_EQUAL(std::size_t(1), featureData.size());
+            BOOST_REQUIRE_EQUAL(std::size_t(1), featureData[0].second.size());
+            BOOST_REQUIRE_EQUAL(uint64_t((time % 86400) + 200),
+                                featureData[0].second[0].second.s_Count);
         }
 
-        CPPUNIT_ASSERT_EQUAL(std::size_t(1), gatherer.numberActivePeople());
-        CPPUNIT_ASSERT_EQUAL(std::size_t(1), gatherer.numberActiveAttributes());
-        CPPUNIT_ASSERT_EQUAL(std::size_t(1), gatherer.numberByFieldValues());
-        CPPUNIT_ASSERT_EQUAL(std::string("a"), gatherer.attributeName(0));
+        BOOST_REQUIRE_EQUAL(std::size_t(1), gatherer.numberActivePeople());
+        BOOST_REQUIRE_EQUAL(std::size_t(1), gatherer.numberActiveAttributes());
+        BOOST_REQUIRE_EQUAL(std::size_t(1), gatherer.numberByFieldValues());
+        BOOST_REQUIRE_EQUAL(std::string("a"), gatherer.attributeName(0));
         testPersistence(params, gatherer);
     }
 }
 
-CppUnit::Test* CEventRateDataGathererTest::suite() {
-    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CEventRateDataGathererTest");
-
-    suiteOfTests->addTest(new CppUnit::TestCaller<CEventRateDataGathererTest>(
-        "CEventRateDataGathererTest::singleSeriesTests",
-        &CEventRateDataGathererTest::singleSeriesTests));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CEventRateDataGathererTest>(
-        "CEventRateDataGathererTest::multipleSeriesTests",
-        &CEventRateDataGathererTest::multipleSeriesTests));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CEventRateDataGathererTest>(
-        "CEventRateDataGathererTest::testRemovePeople",
-        &CEventRateDataGathererTest::testRemovePeople));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CEventRateDataGathererTest>(
-        "CEventRateDataGathererTest::singleSeriesOutOfOrderFinalResultTests",
-        &CEventRateDataGathererTest::singleSeriesOutOfOrderFinalResultTests));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CEventRateDataGathererTest>(
-        "CEventRateDataGathererTest::singleSeriesOutOfOrderInterimResultTests",
-        &CEventRateDataGathererTest::singleSeriesOutOfOrderInterimResultTests));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CEventRateDataGathererTest>(
-        "CEventRateDataGathererTest::multipleSeriesOutOfOrderFinalResultTests",
-        &CEventRateDataGathererTest::multipleSeriesOutOfOrderFinalResultTests));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CEventRateDataGathererTest>(
-        "CEventRateDataGathererTest::testArrivalBeforeLatencyWindowIsIgnored",
-        &CEventRateDataGathererTest::testArrivalBeforeLatencyWindowIsIgnored));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CEventRateDataGathererTest>(
-        "CEventRateDataGathererTest::testResetBucketGivenSingleSeries",
-        &CEventRateDataGathererTest::testResetBucketGivenSingleSeries));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CEventRateDataGathererTest>(
-        "CEventRateDataGathererTest::testResetBucketGivenMultipleSeries",
-        &CEventRateDataGathererTest::testResetBucketGivenMultipleSeries));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CEventRateDataGathererTest>(
-        "CEventRateDataGathererTest::testResetBucketGivenBucketNotAvailable",
-        &CEventRateDataGathererTest::testResetBucketGivenBucketNotAvailable));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CEventRateDataGathererTest>(
-        "CEventRateDataGathererTest::testInfluencerBucketStatistics",
-        &CEventRateDataGathererTest::testInfluencerBucketStatistics));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CEventRateDataGathererTest>(
-        "CEventRateDataGathererTest::testDistinctStrings",
-        &CEventRateDataGathererTest::testDistinctStrings));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CEventRateDataGathererTest>(
-        "CEventRateDataGathererTest::testLatencyPersist",
-        &CEventRateDataGathererTest::testLatencyPersist));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CEventRateDataGathererTest>(
-        "CEventRateDataGathererTest::testDiurnalFeatures",
-        &CEventRateDataGathererTest::testDiurnalFeatures));
-    return suiteOfTests;
-}
+BOOST_AUTO_TEST_SUITE_END()

@@ -4,8 +4,6 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
-#include "CMetricAnomalyDetectorTest.h"
-
 #include <core/CContainerPrinter.h>
 #include <core/CRapidXmlParser.h>
 #include <core/CRapidXmlStatePersistInserter.h>
@@ -23,13 +21,18 @@
 #include <model/CSearchKey.h>
 #include <model/FunctionTypes.h>
 
+#include <test/BoostTestCloseAbsolute.h>
 #include <test/CTimeSeriesTestData.h>
+
+#include <boost/test/unit_test.hpp>
 
 #include <algorithm>
 #include <fstream>
 #include <numeric>
 #include <string>
 #include <vector>
+
+BOOST_AUTO_TEST_SUITE(CMetricAnomalyDetectorTest)
 
 using namespace ml;
 
@@ -143,7 +146,7 @@ void importData(core_t::TTime firstTime,
                 const std::string& fileName,
                 model::CAnomalyDetector& detector) {
     test::CTimeSeriesTestData::TTimeDoublePrVec timeData;
-    CPPUNIT_ASSERT(test::CTimeSeriesTestData::parse(fileName, timeData));
+    BOOST_TEST_REQUIRE(test::CTimeSeriesTestData::parse(fileName, timeData));
 
     core_t::TTime lastBucketTime = maths::CIntegerTools::ceil(firstTime, bucketLength);
 
@@ -174,14 +177,14 @@ void importCsvData(core_t::TTime firstTime,
                    model::CAnomalyDetector& detector) {
     using TifstreamPtr = std::shared_ptr<std::ifstream>;
     TifstreamPtr ifs(new std::ifstream(fileName.c_str()));
-    CPPUNIT_ASSERT(ifs->is_open());
+    BOOST_TEST_REQUIRE(ifs->is_open());
 
     core::CRegex regex;
-    CPPUNIT_ASSERT(regex.init(","));
+    BOOST_TEST_REQUIRE(regex.init(","));
 
     std::string line;
     // read the header
-    CPPUNIT_ASSERT(std::getline(*ifs, line));
+    BOOST_TEST_REQUIRE(std::getline(*ifs, line).good());
 
     core_t::TTime lastBucketTime = firstTime;
 
@@ -191,7 +194,7 @@ void importCsvData(core_t::TTime firstTime,
         regex.split(line, tokens);
 
         core_t::TTime time{0};
-        CPPUNIT_ASSERT(core::CStringUtils::stringToType(tokens[0], time));
+        BOOST_TEST_REQUIRE(core::CStringUtils::stringToType(tokens[0], time));
 
         for (/**/; lastBucketTime + bucketLength <= time; lastBucketTime += bucketLength) {
             outputResults(detector, lastBucketTime, lastBucketTime + bucketLength);
@@ -212,7 +215,7 @@ void importCsvData(core_t::TTime firstTime,
 const std::string EMPTY_STRING;
 }
 
-void CMetricAnomalyDetectorTest::testAnomalies() {
+BOOST_AUTO_TEST_CASE(testAnomalies) {
     // The test data has one genuine anomaly in the interval
     // [1360617335, 1360617481]. The rest of the samples are
     // Gaussian with mean 30 and standard deviation 5. The
@@ -289,8 +292,9 @@ void CMetricAnomalyDetectorTest::testAnomalies() {
         for (std::size_t j = 0u; j < highAnomalyTimes.size(); ++j) {
             LOG_DEBUG(<< "Testing " << core::CContainerPrinter::print(highAnomalyTimes[j])
                       << ' ' << highAnomalyFactors[j]);
-            CPPUNIT_ASSERT(doIntersect(highAnomalyTimes[j], ANOMALOUS_INTERVALS[0]) ||
-                           doIntersect(highAnomalyTimes[j], ANOMALOUS_INTERVALS[1]));
+            BOOST_TEST_REQUIRE(
+                (doIntersect(highAnomalyTimes[j], ANOMALOUS_INTERVALS[0]) ||
+                 doIntersect(highAnomalyTimes[j], ANOMALOUS_INTERVALS[1])));
         }
 
         if (!anomalyFactors.empty()) {
@@ -299,7 +303,7 @@ void CMetricAnomalyDetectorTest::testAnomalies() {
             double noise = std::accumulate(anomalyFactors.begin(),
                                            anomalyFactors.end(), 0.0);
             LOG_DEBUG(<< "S/N = " << (signal / noise));
-            CPPUNIT_ASSERT(signal / noise > 33.0);
+            BOOST_TEST_REQUIRE(signal / noise > 33.0);
         }
 
         // Find the high/low rate partition point.
@@ -329,10 +333,10 @@ void CMetricAnomalyDetectorTest::testAnomalies() {
     LOG_DEBUG(<< "high rate noise = " << highRateNoise << ", low rate noise = " << lowRateNoise);
 
     // We don't have significantly more noise in the low rate channel.
-    CPPUNIT_ASSERT(std::fabs((1.0 + lowRateNoise) / (1.0 + highRateNoise) - 1.0) < 0.1);
+    BOOST_TEST_REQUIRE(std::fabs((1.0 + lowRateNoise) / (1.0 + highRateNoise) - 1.0) < 0.1);
 }
 
-void CMetricAnomalyDetectorTest::testPersist() {
+BOOST_AUTO_TEST_CASE(testPersist) {
     static const core_t::TTime FIRST_TIME(1360540800);
     static const core_t::TTime LAST_TIME(FIRST_TIME + 86400);
     static const core_t::TTime BUCKET_LENGTH(300);
@@ -366,9 +370,9 @@ void CMetricAnomalyDetectorTest::testPersist() {
                                              0, modelConfig.factory(key));
     {
         core::CRapidXmlParser parser;
-        CPPUNIT_ASSERT(parser.parseStringIgnoreCdata(origXml));
+        BOOST_TEST_REQUIRE(parser.parseStringIgnoreCdata(origXml));
         core::CRapidXmlStateRestoreTraverser traverser(parser);
-        CPPUNIT_ASSERT(traverser.traverseSubLevel(
+        BOOST_TEST_REQUIRE(traverser.traverseSubLevel(
             std::bind(&model::CAnomalyDetector::acceptRestoreTraverser,
                       &restoredDetector, EMPTY_STRING, std::placeholders::_1)));
     }
@@ -380,10 +384,10 @@ void CMetricAnomalyDetectorTest::testPersist() {
         restoredDetector.acceptPersistInserter(inserter);
         inserter.toXml(newXml);
     }
-    CPPUNIT_ASSERT_EQUAL(origXml, newXml);
+    BOOST_REQUIRE_EQUAL(origXml, newXml);
 }
 
-void CMetricAnomalyDetectorTest::testExcludeFrequent() {
+BOOST_AUTO_TEST_CASE(testExcludeFrequent) {
     static const core_t::TTime FIRST_TIME(1406916000);
     static const core_t::TTime BUCKET_LENGTH(3600);
 
@@ -412,8 +416,8 @@ void CMetricAnomalyDetectorTest::testExcludeFrequent() {
                   << core::CContainerPrinter::print(highAnomalyFactors));
 
         // expect there to be 2 anomalies
-        CPPUNIT_ASSERT_EQUAL(std::size_t(2), highAnomalyTimes.size());
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(92.0, highAnomalyFactors[1], 2.0);
+        BOOST_REQUIRE_EQUAL(std::size_t(2), highAnomalyTimes.size());
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(92.0, highAnomalyFactors[1], 2.0);
     }
     {
         model::CAnomalyDetectorModelConfig modelConfig =
@@ -440,21 +444,9 @@ void CMetricAnomalyDetectorTest::testExcludeFrequent() {
                   << core::CContainerPrinter::print(highAnomalyFactors));
 
         // expect there to be 1 anomaly
-        CPPUNIT_ASSERT_EQUAL(std::size_t(1), highAnomalyTimes.size());
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(12.0, highAnomalyFactors[0], 2.0);
+        BOOST_REQUIRE_EQUAL(std::size_t(1), highAnomalyTimes.size());
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(12.0, highAnomalyFactors[0], 2.0);
     }
 }
 
-CppUnit::Test* CMetricAnomalyDetectorTest::suite() {
-    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CMetricAnomalyDetectorTest");
-
-    suiteOfTests->addTest(new CppUnit::TestCaller<CMetricAnomalyDetectorTest>(
-        "CMetricAnomalyDetectorTest::testAnomalies", &CMetricAnomalyDetectorTest::testAnomalies));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CMetricAnomalyDetectorTest>(
-        "CMetricAnomalyDetectorTest::testPersist", &CMetricAnomalyDetectorTest::testPersist));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CMetricAnomalyDetectorTest>(
-        "CMetricAnomalyDetectorTest::testExcludeFrequent",
-        &CMetricAnomalyDetectorTest::testExcludeFrequent));
-
-    return suiteOfTests;
-}
+BOOST_AUTO_TEST_SUITE_END()

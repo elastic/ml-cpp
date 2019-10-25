@@ -4,15 +4,17 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
-#include "CDetectorEnumeratorTest.h"
-
 #include <core/CLogger.h>
 
 #include <config/CAutoconfigurerParams.h>
 #include <config/CDetectorEnumerator.h>
 #include <config/CDetectorSpecification.h>
 
+#include <boost/test/unit_test.hpp>
+
 #include <sstream>
+
+BOOST_AUTO_TEST_SUITE(CDetectorEnumeratorTest)
 
 using namespace ml;
 
@@ -27,7 +29,7 @@ std::string print(const config::CDetectorEnumerator::TDetectorSpecificationVec& 
 }
 }
 
-void CDetectorEnumeratorTest::testAll() {
+BOOST_AUTO_TEST_CASE(testAll) {
     std::string empty;
     config::CAutoconfigurerParams params(empty, empty, false, false);
     config::CDetectorEnumerator enumerator(params);
@@ -42,7 +44,7 @@ void CDetectorEnumeratorTest::testAll() {
         enumerator.generate(spec);
         LOG_DEBUG(<< "1) detectors =\n" << print(spec, " "));
         std::string expected = "[low_|high_][non_zero_]count\n";
-        CPPUNIT_ASSERT_EQUAL(expected, print(spec));
+        BOOST_REQUIRE_EQUAL(expected, print(spec));
     }
 
     {
@@ -53,7 +55,7 @@ void CDetectorEnumeratorTest::testAll() {
         std::string expected = "[low_|high_][non_zero_]count\n"
                                "[low_|high_]distinct_count(port)\n"
                                "[low_|high_]mean(bytes)\n";
-        CPPUNIT_ASSERT_EQUAL(expected, print(spec));
+        BOOST_REQUIRE_EQUAL(expected, print(spec));
     }
 
     {
@@ -70,7 +72,7 @@ void CDetectorEnumeratorTest::testAll() {
                                "[low_|high_]distinct_count(port) by 'parent_process'\n"
                                "[low_|high_]mean(bytes) by 'process'\n"
                                "[low_|high_]mean(bytes) by 'parent_process'\n";
-        CPPUNIT_ASSERT_EQUAL(expected, print(spec));
+        BOOST_REQUIRE_EQUAL(expected, print(spec));
     }
 
     {
@@ -106,7 +108,7 @@ void CDetectorEnumeratorTest::testAll() {
             "[low_|high_]mean(bytes) by 'process' over 'person'\n"
             "[low_|high_]mean(bytes) by 'parent_process' over 'machine'\n"
             "[low_|high_]mean(bytes) by 'parent_process' over 'person'\n";
-        CPPUNIT_ASSERT_EQUAL(expected, print(spec));
+        BOOST_REQUIRE_EQUAL(expected, print(spec));
     }
 
     {
@@ -206,15 +208,8 @@ void CDetectorEnumeratorTest::testAll() {
             "[low_|high_]mean(bytes) by 'parent_process' over 'person' partition 'machine'\n"
             "[low_|high_]mean(bytes) by 'parent_process' over 'person' partition 'data_centre'\n";
         LOG_DEBUG(<< "5) detectors =\n" << print(spec, " "));
-        CPPUNIT_ASSERT_EQUAL(expected, print(spec));
+        BOOST_REQUIRE_EQUAL(expected, print(spec));
     }
 }
 
-CppUnit::Test* CDetectorEnumeratorTest::suite() {
-    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CDetectorEnumeratorTest");
-
-    suiteOfTests->addTest(new CppUnit::TestCaller<CDetectorEnumeratorTest>(
-        "CDetectorEnumeratorTest::testAll", &CDetectorEnumeratorTest::testAll));
-
-    return suiteOfTests;
-}
+BOOST_AUTO_TEST_SUITE_END()

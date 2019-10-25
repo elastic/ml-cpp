@@ -4,8 +4,6 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
-#include "CKMeansOnlineTest.h"
-
 #include <core/CLogger.h>
 #include <core/CRapidXmlParser.h>
 #include <core/CRapidXmlStatePersistInserter.h>
@@ -17,7 +15,12 @@
 #include <maths/CLinearAlgebra.h>
 #include <maths/CRestoreParams.h>
 
+#include <test/BoostTestCloseAbsolute.h>
 #include <test/CRandomNumbers.h>
+
+#include <boost/test/unit_test.hpp>
+
+BOOST_AUTO_TEST_SUITE(CKMeansOnlineTest)
 
 using namespace ml;
 
@@ -64,7 +67,7 @@ std::string print(const POINT& point) {
 }
 }
 
-void CKMeansOnlineTest::testVariance() {
+BOOST_AUTO_TEST_CASE(testVariance) {
     // Check that the variance calculation gives the correct
     // spherical variance.
 
@@ -94,14 +97,14 @@ void CKMeansOnlineTest::testVariance() {
         LOG_DEBUG(<< "expected = "
                   << maths::CBasicStatistics::maximumLikelihoodVariance(expected));
 
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(
             maths::CBasicStatistics::maximumLikelihoodVariance(expected),
             CKMeansOnlineTestForTest<TVector5>::variance(actual),
             1e-10 * maths::CBasicStatistics::maximumLikelihoodVariance(expected));
     }
 }
 
-void CKMeansOnlineTest::testAdd() {
+BOOST_AUTO_TEST_CASE(testAdd) {
     // Test that we correctly compute the mean and spherical
     // variance.
 
@@ -138,9 +141,9 @@ void CKMeansOnlineTest::testAdd() {
             << maths::CBasicStatistics::maximumLikelihoodVariance(expected).inner(ones) /
                    static_cast<double>(ones.dimension()));
 
-        CPPUNIT_ASSERT_EQUAL(print(maths::CBasicStatistics::mean(expected)),
-                             print(maths::CBasicStatistics::mean(actual.first)));
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(
+        BOOST_REQUIRE_EQUAL(print(maths::CBasicStatistics::mean(expected)),
+                            print(maths::CBasicStatistics::mean(actual.first)));
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(
             maths::CBasicStatistics::maximumLikelihoodVariance(expected).inner(ones) /
                 static_cast<double>(ones.dimension()),
             actual.second,
@@ -149,7 +152,7 @@ void CKMeansOnlineTest::testAdd() {
     }
 }
 
-void CKMeansOnlineTest::testReduce() {
+BOOST_AUTO_TEST_CASE(testReduce) {
     // Test some invariants:
     //   - Number of clusters should be no more than k after
     //     reduce.
@@ -186,7 +189,7 @@ void CKMeansOnlineTest::testReduce() {
             if ((i + 1) % 7 == 0) {
                 CKMeansOnlineTestForTest<TVector2>::TSphericalClusterVec clusters;
                 kmeans.clusters(clusters);
-                CPPUNIT_ASSERT(clusters.size() <= 10);
+                BOOST_TEST_REQUIRE(clusters.size() <= 10);
 
                 TMeanVar2Accumulator actual;
                 for (std::size_t j = 0u; j < clusters.size(); ++j) {
@@ -195,11 +198,11 @@ void CKMeansOnlineTest::testReduce() {
 
                 LOG_DEBUG(<< "expected = " << expected);
                 LOG_DEBUG(<< "actual   = " << actual);
-                CPPUNIT_ASSERT_DOUBLES_EQUAL(maths::CBasicStatistics::count(expected),
+                BOOST_REQUIRE_CLOSE_ABSOLUTE(maths::CBasicStatistics::count(expected),
                                              maths::CBasicStatistics::count(actual), 1e-10);
-                CPPUNIT_ASSERT_EQUAL(print(maths::CBasicStatistics::mean(expected)),
-                                     print(maths::CBasicStatistics::mean(actual)));
-                CPPUNIT_ASSERT_DOUBLES_EQUAL(
+                BOOST_REQUIRE_EQUAL(print(maths::CBasicStatistics::mean(expected)),
+                                    print(maths::CBasicStatistics::mean(actual)));
+                BOOST_REQUIRE_CLOSE_ABSOLUTE(
                     maths::CBasicStatistics::maximumLikelihoodVariance(expected).inner(ones),
                     maths::CBasicStatistics::maximumLikelihoodVariance(actual).inner(ones),
                     1e-10 * maths::CBasicStatistics::maximumLikelihoodVariance(expected)
@@ -209,7 +212,7 @@ void CKMeansOnlineTest::testReduce() {
     }
 }
 
-void CKMeansOnlineTest::testClustering() {
+BOOST_AUTO_TEST_CASE(testClustering) {
     // Test we are reliably able to find as approximately as good
     // clusterings as k-means working on the full data set.
 
@@ -275,9 +278,9 @@ void CKMeansOnlineTest::testClustering() {
         LOG_DEBUG(<< "cost        = " << cost);
         LOG_DEBUG(<< "cost online = " << costOnline);
 
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(maths::CBasicStatistics::mean(costOnline),
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(maths::CBasicStatistics::mean(costOnline),
                                      maths::CBasicStatistics::mean(cost), 1e-10);
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(
             std::sqrt(maths::CBasicStatistics::variance(costOnline)),
             std::sqrt(maths::CBasicStatistics::variance(cost)), 1e-10);
     }
@@ -339,14 +342,14 @@ void CKMeansOnlineTest::testClustering() {
         LOG_DEBUG(<< "cost        = " << cost);
         LOG_DEBUG(<< "cost online = " << costOnline);
 
-        CPPUNIT_ASSERT(maths::CBasicStatistics::mean(costOnline) <=
-                       1.01 * maths::CBasicStatistics::mean(cost));
-        CPPUNIT_ASSERT(std::sqrt(maths::CBasicStatistics::variance(costOnline)) <=
-                       26.0 * std::sqrt(maths::CBasicStatistics::variance(cost)));
+        BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(costOnline) <=
+                           1.01 * maths::CBasicStatistics::mean(cost));
+        BOOST_TEST_REQUIRE(std::sqrt(maths::CBasicStatistics::variance(costOnline)) <=
+                           26.0 * std::sqrt(maths::CBasicStatistics::variance(cost)));
     }
 }
 
-void CKMeansOnlineTest::testSplit() {
+BOOST_AUTO_TEST_CASE(testSplit) {
     // Test that the clusters are divided amoung the clusterers
     // in the split as expected.
 
@@ -370,7 +373,7 @@ void CKMeansOnlineTest::testSplit() {
     for (std::size_t i = 0u; i < points.size(); ++i) {
         kmeansOnline.add(points[i]);
     }
-    CPPUNIT_ASSERT(!kmeansOnline.buffering());
+    BOOST_TEST_REQUIRE(!kmeansOnline.buffering());
 
     std::size_t one[]{0, 2, 7, 18, 19, 22};
     std::size_t two[]{3, 4, 5, 6, 10, 11, 23, 24};
@@ -389,12 +392,12 @@ void CKMeansOnlineTest::testSplit() {
     TKMeansOnline2Vec clusterers;
     kmeansOnline.split(split, clusterers);
 
-    CPPUNIT_ASSERT_EQUAL(split.size(), clusterers.size());
+    BOOST_REQUIRE_EQUAL(split.size(), clusterers.size());
     for (std::size_t i = 0u; i < split.size(); ++i) {
         maths::CKMeansOnline<TVector2>::TSphericalClusterVec actual;
         clusterers[i].clusters(actual);
-        CPPUNIT_ASSERT(!clusterers[i].buffering());
-        CPPUNIT_ASSERT_EQUAL(split[i].size(), actual.size());
+        BOOST_TEST_REQUIRE(!clusterers[i].buffering());
+        BOOST_REQUIRE_EQUAL(split[i].size(), actual.size());
 
         maths::CKMeansOnline<TVector2>::TSphericalClusterVec expected;
         for (std::size_t j = 0u; j < split[i].size(); ++j) {
@@ -403,12 +406,12 @@ void CKMeansOnlineTest::testSplit() {
         LOG_DEBUG(<< "expected clusters = " << core::CContainerPrinter::print(expected));
         LOG_DEBUG(<< "actual clusters   = " << core::CContainerPrinter::print(actual));
 
-        CPPUNIT_ASSERT_EQUAL(core::CContainerPrinter::print(expected),
-                             core::CContainerPrinter::print(actual));
+        BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(expected),
+                            core::CContainerPrinter::print(actual));
     }
 }
 
-void CKMeansOnlineTest::testMerge() {
+BOOST_AUTO_TEST_CASE(testMerge) {
     // Test some invariants:
     //   - Number of clusters should be no more than k after merge.
     //   - The count of the points should be unchanged.
@@ -460,17 +463,17 @@ void CKMeansOnlineTest::testMerge() {
 
     LOG_DEBUG(<< "expected = " << expected);
     LOG_DEBUG(<< "actual   = " << actual);
-    CPPUNIT_ASSERT_EQUAL(maths::CBasicStatistics::count(expected),
-                         maths::CBasicStatistics::count(actual));
-    CPPUNIT_ASSERT_EQUAL(print(maths::CBasicStatistics::mean(expected)),
-                         print(maths::CBasicStatistics::mean(actual)));
-    CPPUNIT_ASSERT_DOUBLES_EQUAL(
+    BOOST_REQUIRE_EQUAL(maths::CBasicStatistics::count(expected),
+                        maths::CBasicStatistics::count(actual));
+    BOOST_REQUIRE_EQUAL(print(maths::CBasicStatistics::mean(expected)),
+                        print(maths::CBasicStatistics::mean(actual)));
+    BOOST_REQUIRE_CLOSE_ABSOLUTE(
         maths::CBasicStatistics::maximumLikelihoodVariance(expected).inner(ones),
         maths::CBasicStatistics::maximumLikelihoodVariance(actual).inner(ones),
         1e-10 * maths::CBasicStatistics::maximumLikelihoodVariance(expected).inner(ones));
 }
 
-void CKMeansOnlineTest::testPropagateForwardsByTime() {
+BOOST_AUTO_TEST_CASE(testPropagateForwardsByTime) {
     // Test pruning of dead clusters.
 
     test::CRandomNumbers rng;
@@ -504,13 +507,13 @@ void CKMeansOnlineTest::testPropagateForwardsByTime() {
     kmeans.clusters(clusters);
     LOG_DEBUG(<< "clusters after  = " << core::CContainerPrinter::print(clusters));
 
-    CPPUNIT_ASSERT_EQUAL(std::size_t(4), clusters.size());
+    BOOST_REQUIRE_EQUAL(std::size_t(4), clusters.size());
     for (std::size_t i = 0u; i < clusters.size(); ++i) {
-        CPPUNIT_ASSERT(clusters[i] != outlier);
+        BOOST_TEST_REQUIRE(clusters[i] != outlier);
     }
 }
 
-void CKMeansOnlineTest::testSample() {
+BOOST_AUTO_TEST_CASE(testSample) {
     // We test that for a small number of samples we get back
     // exactly the points we have added and for a large number
     // of samples we sample the modes of the mixture correctly.
@@ -553,8 +556,8 @@ void CKMeansOnlineTest::testSample() {
         kmeans.sample(i + 1, sampled);
         std::sort(sampled.begin(), sampled.end());
 
-        CPPUNIT_ASSERT_EQUAL(core::CContainerPrinter::print(expectedSampled),
-                             core::CContainerPrinter::print(sampled));
+        BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(expectedSampled),
+                            core::CContainerPrinter::print(sampled));
     }
 
     for (std::size_t i = 10u; i < samples.size(); ++i) {
@@ -596,18 +599,18 @@ void CKMeansOnlineTest::testSample() {
     double covarianceError0 = (covariance0 - expectedCovariance0).frobenius() /
                               expectedCovariance0.frobenius();
     LOG_DEBUG(<< "mean error 0 = " << meanError0 << ", covariance error 0 = " << covarianceError0);
-    CPPUNIT_ASSERT_DOUBLES_EQUAL(0.0, meanError0, 0.01);
-    CPPUNIT_ASSERT_DOUBLES_EQUAL(0.0, covarianceError0, 0.27);
+    BOOST_REQUIRE_CLOSE_ABSOLUTE(0.0, meanError0, 0.01);
+    BOOST_REQUIRE_CLOSE_ABSOLUTE(0.0, covarianceError0, 0.27);
 
     double meanError1 = (mean1 - expectedMean1).euclidean() / expectedMean0.euclidean();
     double covarianceError1 = (covariance1 - expectedCovariance1).frobenius() /
                               expectedCovariance1.frobenius();
     LOG_DEBUG(<< "mean error 1 = " << meanError1 << ", covariance error 1 = " << covarianceError1);
-    CPPUNIT_ASSERT_DOUBLES_EQUAL(0.0, meanError1, 0.01);
-    CPPUNIT_ASSERT_DOUBLES_EQUAL(0.0, covarianceError1, 0.24);
+    BOOST_REQUIRE_CLOSE_ABSOLUTE(0.0, meanError1, 0.01);
+    BOOST_REQUIRE_CLOSE_ABSOLUTE(0.0, covarianceError1, 0.24);
 }
 
-void CKMeansOnlineTest::testPersist() {
+BOOST_AUTO_TEST_CASE(testPersist) {
     test::CRandomNumbers rng;
 
     TDoubleVec coordinates;
@@ -635,51 +638,27 @@ void CKMeansOnlineTest::testPersist() {
     // Restore the XML into a new sketch.
     {
         core::CRapidXmlParser parser;
-        CPPUNIT_ASSERT(parser.parseStringIgnoreCdata(origXml));
+        BOOST_TEST_REQUIRE(parser.parseStringIgnoreCdata(origXml));
         core::CRapidXmlStateRestoreTraverser traverser(parser);
         maths::CKMeansOnline<TVector2> restoredKmeans(0);
         maths::SDistributionRestoreParams params(
             maths_t::E_ContinuousData, 0.1, maths::MINIMUM_CLUSTER_SPLIT_FRACTION,
             maths::MINIMUM_CLUSTER_SPLIT_COUNT, maths::MINIMUM_CATEGORY_COUNT);
-        CPPUNIT_ASSERT(traverser.traverseSubLevel(
+        BOOST_TEST_REQUIRE(traverser.traverseSubLevel(
             std::bind(&maths::CKMeansOnline<TVector2>::acceptRestoreTraverser,
                       &restoredKmeans, std::cref(params), std::placeholders::_1)));
 
         LOG_DEBUG(<< "orig checksum = " << origKmeans.checksum()
                   << ", new checksum = " << restoredKmeans.checksum());
-        CPPUNIT_ASSERT_EQUAL(origKmeans.checksum(), restoredKmeans.checksum());
+        BOOST_REQUIRE_EQUAL(origKmeans.checksum(), restoredKmeans.checksum());
 
         std::string newXml;
         core::CRapidXmlStatePersistInserter inserter("root");
         restoredKmeans.acceptPersistInserter(inserter);
         inserter.toXml(newXml);
 
-        CPPUNIT_ASSERT_EQUAL(origXml, newXml);
+        BOOST_REQUIRE_EQUAL(origXml, newXml);
     }
 }
 
-CppUnit::Test* CKMeansOnlineTest::suite() {
-    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CKMeansOnlineTest");
-
-    suiteOfTests->addTest(new CppUnit::TestCaller<CKMeansOnlineTest>(
-        "CKMeansOnlineTest::testVariance", &CKMeansOnlineTest::testVariance));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CKMeansOnlineTest>(
-        "CKMeansOnlineTest::testAdd", &CKMeansOnlineTest::testAdd));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CKMeansOnlineTest>(
-        "CKMeansOnlineTest::testReduce", &CKMeansOnlineTest::testReduce));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CKMeansOnlineTest>(
-        "CKMeansOnlineTest::testClustering", &CKMeansOnlineTest::testClustering));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CKMeansOnlineTest>(
-        "CKMeansOnlineTest::testSplit", &CKMeansOnlineTest::testSplit));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CKMeansOnlineTest>(
-        "CKMeansOnlineTest::testMerge", &CKMeansOnlineTest::testMerge));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CKMeansOnlineTest>(
-        "CKMeansOnlineTest::testPropagateForwardsByTime",
-        &CKMeansOnlineTest::testPropagateForwardsByTime));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CKMeansOnlineTest>(
-        "CKMeansOnlineTest::testSample", &CKMeansOnlineTest::testSample));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CKMeansOnlineTest>(
-        "CKMeansOnlineTest::testPersist", &CKMeansOnlineTest::testPersist));
-
-    return suiteOfTests;
-}
+BOOST_AUTO_TEST_SUITE_END()

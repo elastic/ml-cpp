@@ -4,8 +4,6 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
-#include "CPersistUtilsTest.h"
-
 #include <core/CContainerPrinter.h>
 #include <core/CJsonStatePersistInserter.h>
 #include <core/CJsonStateRestoreTraverser.h>
@@ -13,6 +11,7 @@
 #include <core/CPersistUtils.h>
 
 #include <boost/circular_buffer.hpp>
+#include <boost/test/unit_test.hpp>
 #include <boost/unordered_map.hpp>
 #include <boost/unordered_set.hpp>
 
@@ -21,9 +20,13 @@
 #include <set>
 #include <vector>
 
+using TDoubleVec = std::vector<double>;
+BOOST_TEST_DONT_PRINT_LOG_VALUE(TDoubleVec::iterator)
+
+BOOST_AUTO_TEST_SUITE(CPersistUtilsTest)
+
 using namespace ml;
 
-using TDoubleVec = std::vector<double>;
 using TSizeDoublePr = std::pair<std::size_t, double>;
 using TSizeDoubleMap = std::map<std::size_t, double>;
 using TIntSet = std::set<int>;
@@ -161,7 +164,7 @@ void testPersistRestore(const T& collection, const T& initial = T()) {
     std::stringstream restoredSs;
     {
         core::CJsonStateRestoreTraverser traverser(origSs);
-        CPPUNIT_ASSERT(core::CPersistUtils::restore(tag, restored, traverser));
+        BOOST_TEST_REQUIRE(core::CPersistUtils::restore(tag, restored, traverser));
     }
     LOG_TRACE(<< " - doing persist again " << typeid(T).name());
     {
@@ -171,12 +174,12 @@ void testPersistRestore(const T& collection, const T& initial = T()) {
     }
     LOG_TRACE(<< "String data is: " << restoredSs.str());
 
-    CPPUNIT_ASSERT_EQUAL(origSs.str(), restoredSs.str());
-    CPPUNIT_ASSERT(compare(collection, restored));
+    BOOST_REQUIRE_EQUAL(origSs.str(), restoredSs.str());
+    BOOST_TEST_REQUIRE(compare(collection, restored));
 }
 }
 
-void CPersistUtilsTest::testPersistContainers() {
+BOOST_AUTO_TEST_CASE(testPersistContainers) {
     // 1) Check that persistence and restoration is idempotent.
     // 2) Check some edge cases.
     // 3) Test failures.
@@ -186,7 +189,7 @@ void CPersistUtilsTest::testPersistContainers() {
         TDoubleVec collection;
         testPersistRestore(collection);
         TDoubleVec other;
-        LOG_DEBUG(<< "The same: " << ::compare(collection, other));
+        LOG_DEBUG(<< "The same: " << compare(collection, other));
     }
     {
         TSizeDoubleMap collection;
@@ -407,17 +410,17 @@ void CPersistUtilsTest::testPersistContainers() {
     {
         std::string bad("dejk");
         TDoubleVec collection;
-        CPPUNIT_ASSERT(!core::CPersistUtils::fromString(bad, collection));
-        CPPUNIT_ASSERT(collection.empty());
+        BOOST_TEST_REQUIRE(!core::CPersistUtils::fromString(bad, collection));
+        BOOST_TEST_REQUIRE(collection.empty());
 
         bad += core::CPersistUtils::DELIMITER;
         bad += "12";
-        CPPUNIT_ASSERT(!core::CPersistUtils::fromString(bad, collection));
-        CPPUNIT_ASSERT(collection.empty());
+        BOOST_TEST_REQUIRE(!core::CPersistUtils::fromString(bad, collection));
+        BOOST_TEST_REQUIRE(collection.empty());
 
         bad = std::string("1.3") + core::CPersistUtils::DELIMITER + bad;
-        CPPUNIT_ASSERT(!core::CPersistUtils::fromString(bad, collection));
-        CPPUNIT_ASSERT(collection.empty());
+        BOOST_TEST_REQUIRE(!core::CPersistUtils::fromString(bad, collection));
+        BOOST_TEST_REQUIRE(collection.empty());
     }
     {
         std::string bad;
@@ -425,13 +428,13 @@ void CPersistUtilsTest::testPersistContainers() {
         bad += core::CPersistUtils::PAIR_DELIMITER;
         bad += "kdsk";
         TSizeDoubleMap collection;
-        CPPUNIT_ASSERT(!core::CPersistUtils::fromString(bad, collection));
-        CPPUNIT_ASSERT(collection.empty());
+        BOOST_TEST_REQUIRE(!core::CPersistUtils::fromString(bad, collection));
+        BOOST_TEST_REQUIRE(collection.empty());
 
         bad = std::string("etjdjk") + core::CPersistUtils::PAIR_DELIMITER +
               "2.3" + core::CPersistUtils::DELIMITER + bad;
-        CPPUNIT_ASSERT(!core::CPersistUtils::fromString(bad, collection));
-        CPPUNIT_ASSERT(collection.empty());
+        BOOST_TEST_REQUIRE(!core::CPersistUtils::fromString(bad, collection));
+        BOOST_TEST_REQUIRE(collection.empty());
     }
     {
         std::string state;
@@ -439,11 +442,11 @@ void CPersistUtilsTest::testPersistContainers() {
         state += core::CPersistUtils::DELIMITER;
         state += "2.4";
         std::array<double, 3> wrongSize;
-        CPPUNIT_ASSERT(!core::CPersistUtils::fromString(state, wrongSize));
+        BOOST_TEST_REQUIRE(!core::CPersistUtils::fromString(state, wrongSize));
     }
 }
 
-void CPersistUtilsTest::testPersistIterators() {
+BOOST_AUTO_TEST_CASE(testPersistIterators) {
     // Persist only a sub set of a collection
     {
         LOG_DEBUG(<< "*** vector range ***");
@@ -458,7 +461,7 @@ void CPersistUtilsTest::testPersistIterators() {
 
         std::string state = core::CPersistUtils::toString(begin, end);
         LOG_DEBUG(<< "state = " << state);
-        CPPUNIT_ASSERT(begin == end);
+        BOOST_TEST_REQUIRE(begin == end);
         TDoubleVec restored;
         core::CPersistUtils::fromString(state, restored);
 
@@ -466,14 +469,14 @@ void CPersistUtilsTest::testPersistIterators() {
         for (int i = 0; i < 10; i++) {
             firstTen.push_back(i);
         }
-        CPPUNIT_ASSERT(equal(firstTen, restored));
+        BOOST_TEST_REQUIRE(equal(firstTen, restored));
 
         TDoubleVec::iterator fifth = collection.begin() + 5;
         TDoubleVec::iterator tenth = collection.begin() + 10;
 
         state = core::CPersistUtils::toString(fifth, tenth);
         LOG_DEBUG(<< "state = " << state);
-        CPPUNIT_ASSERT(fifth == tenth);
+        BOOST_TEST_REQUIRE(fifth == tenth);
         restored.clear();
         core::CPersistUtils::fromString(state, restored);
 
@@ -481,11 +484,11 @@ void CPersistUtilsTest::testPersistIterators() {
         for (int i = 5; i < 10; i++) {
             fithToTenth.push_back(i);
         }
-        CPPUNIT_ASSERT(equal(fithToTenth, restored));
+        BOOST_TEST_REQUIRE(equal(fithToTenth, restored));
     }
 }
 
-void CPersistUtilsTest::testAppend() {
+BOOST_AUTO_TEST_CASE(testAppend) {
     // Persist only a sub set of a collection
     {
         LOG_DEBUG(<< "*** vector append ***");
@@ -499,7 +502,7 @@ void CPersistUtilsTest::testAppend() {
         LOG_DEBUG(<< "state = " << state);
         TDoubleVec restored;
         core::CPersistUtils::fromString(state, restored);
-        CPPUNIT_ASSERT(equal(source, restored));
+        BOOST_TEST_REQUIRE(equal(source, restored));
 
         for (int i = 9; i < 15; i++) {
             source.push_back(i);
@@ -509,12 +512,12 @@ void CPersistUtilsTest::testAppend() {
         TDoubleVec::iterator end = source.begin() + 15;
 
         state = core::CPersistUtils::toString(begin, end);
-        CPPUNIT_ASSERT(begin == end);
+        BOOST_TEST_REQUIRE(begin == end);
         LOG_DEBUG(<< "state = " << state);
 
         core::CPersistUtils::fromString(state, restored, core::CPersistUtils::DELIMITER,
                                         core::CPersistUtils::PAIR_DELIMITER, true);
-        CPPUNIT_ASSERT(equal(source, restored));
+        BOOST_TEST_REQUIRE(equal(source, restored));
 
         for (int i = 15; i < 19; i++) {
             source.push_back(i);
@@ -524,12 +527,12 @@ void CPersistUtilsTest::testAppend() {
         end = source.begin() + 19;
 
         state = core::CPersistUtils::toString(begin, end);
-        CPPUNIT_ASSERT(begin == end);
+        BOOST_TEST_REQUIRE(begin == end);
         LOG_DEBUG(<< "state = " << state);
 
         core::CPersistUtils::fromString(state, restored, core::CPersistUtils::DELIMITER,
                                         core::CPersistUtils::PAIR_DELIMITER, true);
-        CPPUNIT_ASSERT(equal(source, restored));
+        BOOST_TEST_REQUIRE(equal(source, restored));
     }
 
     {
@@ -542,7 +545,7 @@ void CPersistUtilsTest::testAppend() {
         TSizeDoubleMap restored;
         core::CPersistUtils::fromString(state, restored, core::CPersistUtils::DELIMITER,
                                         core::CPersistUtils::PAIR_DELIMITER, true);
-        CPPUNIT_ASSERT(equal(collection, restored));
+        BOOST_TEST_REQUIRE(equal(collection, restored));
 
         for (int i = 0; i < 10; i++) {
             collection.insert(TSizeDoublePr(i, 3.2));
@@ -552,7 +555,7 @@ void CPersistUtilsTest::testAppend() {
         LOG_DEBUG(<< "state = " << state);
         core::CPersistUtils::fromString(state, restored, core::CPersistUtils::DELIMITER,
                                         core::CPersistUtils::PAIR_DELIMITER, true);
-        CPPUNIT_ASSERT(equal(collection, restored));
+        BOOST_TEST_REQUIRE(equal(collection, restored));
 
         // add another element
         std::pair<TSizeDoubleMap::iterator, bool> pr =
@@ -563,7 +566,7 @@ void CPersistUtilsTest::testAppend() {
         LOG_DEBUG(<< "state = " << state);
         core::CPersistUtils::fromString(state, restored, core::CPersistUtils::DELIMITER,
                                         core::CPersistUtils::PAIR_DELIMITER, true);
-        CPPUNIT_ASSERT(equal(collection, restored));
+        BOOST_TEST_REQUIRE(equal(collection, restored));
 
         pr = collection.insert(TSizeDoublePr(20, 158.0));
         collection.insert(TSizeDoublePr(21, 1.678e-45));
@@ -573,19 +576,8 @@ void CPersistUtilsTest::testAppend() {
         LOG_DEBUG(<< "state = " << state);
         core::CPersistUtils::fromString(state, restored, core::CPersistUtils::DELIMITER,
                                         core::CPersistUtils::PAIR_DELIMITER, true);
-        CPPUNIT_ASSERT(equal(collection, restored));
+        BOOST_TEST_REQUIRE(equal(collection, restored));
     }
 }
 
-CppUnit::Test* CPersistUtilsTest::suite() {
-    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CPersistUtilsTest");
-
-    suiteOfTests->addTest(new CppUnit::TestCaller<CPersistUtilsTest>(
-        "CPersistUtilsTest::testPersistContainers", &CPersistUtilsTest::testPersistContainers));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CPersistUtilsTest>(
-        "CPersistUtilsTest::testPersistIterators", &CPersistUtilsTest::testPersistIterators));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CPersistUtilsTest>(
-        "CPersistUtilsTest::testAppend", &CPersistUtilsTest::testAppend));
-
-    return suiteOfTests;
-}
+BOOST_AUTO_TEST_SUITE_END()

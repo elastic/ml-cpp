@@ -4,16 +4,19 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
-#include "CMicTest.h"
-
 #include <maths/CBasicStatistics.h>
 #include <maths/CMic.h>
 #include <maths/CTools.h>
 
+#include <test/BoostTestCloseAbsolute.h>
 #include <test/CRandomNumbers.h>
+
+#include <boost/test/unit_test.hpp>
 
 #include <numeric>
 #include <vector>
+
+BOOST_AUTO_TEST_SUITE(CMicTest)
 
 using namespace ml;
 
@@ -64,7 +67,7 @@ TDoubleVecVec allSubsetsOfSizeLessThan(std::size_t m, const TDoubleVec& pi) {
 }
 }
 
-void CMicTest::testOptimizeXAxis() {
+BOOST_AUTO_TEST_CASE(testOptimizeXAxis) {
 
     // Test that the dynamic program matches the brute force calculation of mutual
     // information over subsets of a master partition.
@@ -129,11 +132,11 @@ void CMicTest::testOptimizeXAxis() {
     LOG_DEBUG(<< "MI expected = " << core::CContainerPrinter::print(expected));
     LOG_DEBUG(<< "MI actual   = " << core::CContainerPrinter::print(actual));
     for (std::size_t i = 0; i < expected.size(); ++i) {
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(expected[i], actual[i], 1e-4);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(expected[i], actual[i], 1e-4);
     }
 }
 
-void CMicTest::testInvariants() {
+BOOST_AUTO_TEST_CASE(testInvariants) {
 
     // Test the MICe doesn't change for shifts, scales and reflections.
 
@@ -162,7 +165,7 @@ void CMicTest::testInvariants() {
         }
         double actual{mic.compute()};
         LOG_DEBUG(<< "shifted MICe = " << actual);
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(expected, actual, 1e-3);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(expected, actual, 1e-3);
     }
     {
         maths::CMic mic;
@@ -172,7 +175,7 @@ void CMicTest::testInvariants() {
         }
         double actual{mic.compute()};
         LOG_DEBUG(<< "scaled MICe = " << actual);
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(expected, actual, 1e-3);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(expected, actual, 1e-3);
     }
     {
         maths::CMic mic;
@@ -182,11 +185,11 @@ void CMicTest::testInvariants() {
         }
         double actual{mic.compute()};
         LOG_DEBUG(<< "reflected MICe = " << actual);
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(expected, actual, 2e-3);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(expected, actual, 2e-3);
     }
 }
 
-void CMicTest::testIndependent() {
+BOOST_AUTO_TEST_CASE(testIndependent) {
 
     // Test for independent random variable MICe is close to zero.
 
@@ -211,7 +214,7 @@ void CMicTest::testIndependent() {
 
         double mic_{mic.compute()};
         LOG_DEBUG(<< "MICe = " << mic_);
-        CPPUNIT_ASSERT(mic_ < maximumMic[t]);
+        BOOST_TEST_REQUIRE(mic_ < maximumMic[t]);
     }
 
     LOG_DEBUG(<< "Independent normal");
@@ -227,11 +230,11 @@ void CMicTest::testIndependent() {
 
         double mic_{mic.compute()};
         LOG_DEBUG(<< "MICe = " << mic_);
-        CPPUNIT_ASSERT(mic_ < maximumMic[t]);
+        BOOST_TEST_REQUIRE(mic_ < maximumMic[t]);
     }
 }
 
-void CMicTest::testOneToOne() {
+BOOST_AUTO_TEST_CASE(testOneToOne) {
 
     // Test for one-to-one function MICe is close to 1.
 
@@ -259,7 +262,7 @@ void CMicTest::testOneToOne() {
 
         double mic_{mic.compute()};
         LOG_DEBUG(<< "MICe = " << mic_);
-        CPPUNIT_ASSERT(mic_ > 0.99);
+        BOOST_TEST_REQUIRE(mic_ > 0.99);
     }
 
     LOG_DEBUG(<< "Test sine");
@@ -278,11 +281,11 @@ void CMicTest::testOneToOne() {
 
         double mic_{mic.compute()};
         LOG_DEBUG(<< "MICe = " << mic_);
-        CPPUNIT_ASSERT(mic_ > 0.97);
+        BOOST_TEST_REQUIRE(mic_ > 0.97);
     }
 }
 
-void CMicTest::testCorrelated() {
+BOOST_AUTO_TEST_CASE(testCorrelated) {
 
     // Test MICe monotonically reduces with increasing noise.
 
@@ -304,7 +307,7 @@ void CMicTest::testCorrelated() {
 
         double current{mic.compute()};
         LOG_DEBUG(<< "MICe = " << current);
-        CPPUNIT_ASSERT(current < last);
+        BOOST_TEST_REQUIRE(current < last);
         last = current;
     }
 
@@ -321,12 +324,12 @@ void CMicTest::testCorrelated() {
 
         double current{mic.compute()};
         LOG_DEBUG(<< "MICe = " << current);
-        CPPUNIT_ASSERT(current < last);
+        BOOST_TEST_REQUIRE(current < last);
         last = current;
     }
 }
 
-void CMicTest::testVsMutualInformation() {
+BOOST_AUTO_TEST_CASE(testVsMutualInformation) {
 
     // Test against some relationships where we can calculate the expected maximum
     // normalised mutual information.
@@ -406,7 +409,7 @@ void CMicTest::testVsMutualInformation() {
     }
     LOG_DEBUG(<< "Error = " << maths::CBasicStatistics::mean(error));
 
-    CPPUNIT_ASSERT(maths::CBasicStatistics::mean(error) < 0.11);
+    BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(error) < 0.11);
 
     LOG_DEBUG(<< "Test circle");
 
@@ -435,11 +438,11 @@ void CMicTest::testVsMutualInformation() {
 
         double mic_{mic.compute()};
         LOG_DEBUG(<< "MICe = " << mic_);
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(0.6, mic_, 0.02);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(0.6, mic_, 0.02);
     }
 }
 
-void CMicTest::testBinaryVariables() {
+BOOST_AUTO_TEST_CASE(testBinaryVariables) {
 
     // Test we produce the correct results for binary variables. In particular,
     // we should match mutual information (up to normalising constant log(2))
@@ -476,11 +479,11 @@ void CMicTest::testBinaryVariables() {
                   p[1] * maths::CTools::fastLog(p[1] / px[0] / py[1]) +
                   p[2] * maths::CTools::fastLog(p[2] / px[1] / py[0]) +
                   p[3] * maths::CTools::fastLog(p[3] / px[1] / py[1])};
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(maths::CTools::fastLog(2.0), mi / mic_, 1e-3);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(maths::CTools::fastLog(2.0), mi / mic_, 1e-3);
     }
 }
 
-void CMicTest::testEdgeCases() {
+BOOST_AUTO_TEST_CASE(testEdgeCases) {
 
     // Test small number samples and constant.
 
@@ -501,7 +504,7 @@ void CMicTest::testEdgeCases() {
 
         double mic_{mic.compute()};
         LOG_DEBUG(<< "MICe = " << mic_);
-        CPPUNIT_ASSERT_EQUAL(0.0, mic_);
+        BOOST_REQUIRE_EQUAL(0.0, mic_);
     }
 
     LOG_DEBUG(<< "Test constant");
@@ -513,28 +516,7 @@ void CMicTest::testEdgeCases() {
     }
     double mic_{mic.compute()};
     LOG_DEBUG(<< "MICe = " << mic_);
-    CPPUNIT_ASSERT_EQUAL(0.0, mic_);
+    BOOST_REQUIRE_EQUAL(0.0, mic_);
 }
 
-CppUnit::Test* CMicTest::suite() {
-    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CMicTest");
-
-    suiteOfTests->addTest(new CppUnit::TestCaller<CMicTest>(
-        "CMicTest::testOptimizeXAxis", &CMicTest::testOptimizeXAxis));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CMicTest>(
-        "CMicTest::testInvariants", &CMicTest::testInvariants));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CMicTest>(
-        "CMicTest::testIndependent", &CMicTest::testIndependent));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CMicTest>(
-        "CMicTest::testOneToOne", &CMicTest::testOneToOne));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CMicTest>(
-        "CMicTest::testCorrelated", &CMicTest::testCorrelated));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CMicTest>(
-        "CMicTest::testVsMutualInformation", &CMicTest::testVsMutualInformation));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CMicTest>(
-        "CMicTest::testBinaryVariables", &CMicTest::testBinaryVariables));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CMicTest>(
-        "CMicTest::testEdgeCases", &CMicTest::testEdgeCases));
-
-    return suiteOfTests;
-}
+BOOST_AUTO_TEST_SUITE_END()
