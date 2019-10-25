@@ -10,9 +10,9 @@
 #include <core/CLogger.h>
 
 #include <api/CDataFrameAnalysisConfigReader.h>
-#include <api/CDataFrameClassificationRunner.h>
 #include <api/CDataFrameOutliersRunner.h>
-#include <api/CDataFrameRegressionRunner.h>
+#include <api/CDataFrameTrainBoostedTreeClassifierRunner.h>
+#include <api/CDataFrameTrainBoostedTreeRegressionRunner.h>
 #include <api/CMemoryUsageEstimationResultJsonWriter.h>
 
 #include <rapidjson/document.h>
@@ -43,13 +43,15 @@ const std::string CDataFrameAnalysisSpecification::PARAMETERS("parameters");
 
 namespace {
 using TBoolVec = std::vector<bool>;
-using TRunnerFactoryUPtrVec = ml::api::CDataFrameAnalysisSpecification::TRunnerFactoryUPtrVec;
+using TRunnerFactoryUPtrVec = CDataFrameAnalysisSpecification::TRunnerFactoryUPtrVec;
 
 TRunnerFactoryUPtrVec analysisFactories() {
     TRunnerFactoryUPtrVec factories;
-    factories.push_back(std::make_unique<ml::api::CDataFrameRegressionRunnerFactory>());
-    factories.push_back(std::make_unique<ml::api::CDataFrameClassificationRunnerFactory>());
-    factories.push_back(std::make_unique<ml::api::CDataFrameOutliersRunnerFactory>());
+    factories.push_back(std::make_unique<CDataFrameOutliersRunnerFactory>());
+    factories.push_back(
+        std::make_unique<CDataFrameTrainBoostedTreeRegressionRunnerFactory>());
+    factories.push_back(
+        std::make_unique<CDataFrameTrainBoostedTreeClassifierRunnerFactory>());
     // Add new analysis types here.
     return factories;
 }

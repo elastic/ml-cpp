@@ -274,24 +274,28 @@ private:
                             const CDataFrameCategoryEncoder& encoder,
                             const TRegularization& regularization,
                             const TDoubleVecVec& candidateSplits,
+                            const TSizeVec& featureBag,
                             std::size_t depth,
-                            TSizeVec featureBag,
-                            core::CPackedBitVector rowMask)
-            : m_Id{id}, m_Regularization{regularization},
-              m_CandidateSplits{candidateSplits}, m_Depth{depth},
-              m_FeatureBag{std::move(featureBag)}, m_RowMask{std::move(rowMask)} {
+                            const core::CPackedBitVector& rowMask);
 
-            std::sort(m_FeatureBag.begin(), m_FeatureBag.end());
-            LOG_TRACE(<< "row mask = " << m_RowMask);
-            LOG_TRACE(<< "feature bag = " << core::CContainerPrinter::print(m_FeatureBag));
-
-            this->computeAggregateLossDerivatives(numberThreads, frame, encoder);
-        }
-
-        //! This should only called by split but is public so it's accessible to std::make_shared.
+        //! Only called by split but is public so it's accessible to std::make_shared.
+        CLeafNodeStatistics(std::size_t id,
+                            std::size_t numberThreads,
+                            const core::CDataFrame& frame,
+                            const CDataFrameCategoryEncoder& encoder,
+                            const TRegularization& regularization,
+                            const TDoubleVecVec& candidateSplits,
+                            const TSizeVec& featureBag,
+                            bool isLeftChild,
+                            std::size_t depth,
+                            const CBoostedTreeNode& split,
+                            const core::CPackedBitVector& parentRowMask);
+        //! Only called by split but is public so it's accessible to std::make_shared.
         CLeafNodeStatistics(std::size_t id,
                             const CLeafNodeStatistics& parent,
                             const CLeafNodeStatistics& sibling,
+                            const TRegularization& regularization,
+                            const TSizeVec& featureBag,
                             core::CPackedBitVector rowMask);
 
         CLeafNodeStatistics(const CLeafNodeStatistics&) = delete;
@@ -302,7 +306,9 @@ private:
 
         CLeafNodeStatistics& operator=(CLeafNodeStatistics&&) = default;
 
-        //! Apply the split defined by (\p leftChildRowMask, \p rightChildRowMask).
+        //! Apply the split defined by \p split.
+        //!
+        //! \return Shared pointers to the left and right child node statistics.
         auto split(std::size_t leftChildId,
                    std::size_t rightChildId,
                    std::size_t numberThreads,
@@ -310,53 +316,34 @@ private:
                    const CDataFrameCategoryEncoder& encoder,
                    const TRegularization& regularization,
                    const TDoubleVecVec& candidateSplits,
-                   TSizeVec featureBag,
-                   core::CPackedBitVector leftChildRowMask,
-                   core::CPackedBitVector rightChildRowMask,
-                   bool leftChildHasFewerRows) {
-
-            if (leftChildHasFewerRows) {
-                auto leftChild = std::make_shared<CLeafNodeStatistics>(
-                    leftChildId, numberThreads, frame, encoder, regularization,
-                    candidateSplits, m_Depth + 1, std::move(featureBag),
-                    std::move(leftChildRowMask));
-                auto rightChild = std::make_shared<CLeafNodeStatistics>(
-                    rightChildId, *this, *leftChild, std::move(rightChildRowMask));
-
-                return std::make_pair(leftChild, rightChild);
-            }
-
-            auto rightChild = std::make_shared<CLeafNodeStatistics>(
-                rightChildId, numberThreads, frame, encoder, regularization, candidateSplits,
-                m_Depth + 1, std::move(featureBag), std::move(rightChildRowMask));
-            auto leftChild = std::make_shared<CLeafNodeStatistics>(
-                leftChildId, *this, *rightChild, std::move(leftChildRowMask));
-
-            return std::make_pair(leftChild, rightChild);
-        }
+                   const TSizeVec& featureBag,
+                   const CBoostedTreeNode& split,
+                   bool leftChildHasFewerRows);
 
         //! Order two leaves by decreasing gain in splitting them.
         bool operator<(const CLeafNodeStatistics& rhs) const {
-            return this->bestSplitStatistics() < rhs.bestSplitStatistics();
+            return m_BestSplit < rhs.m_BestSplit;
         }
 
         //! Get the gain in loss of the best split of this leaf.
-        double gain() const { return this->bestSplitStatistics().s_Gain; }
+        double gain() const { return m_BestSplit.s_Gain; }
 
-        double curvature() const {
-            return this->bestSplitStatistics().s_Curvature;
-        }
+        double curvature() const { return this->m_BestSplit.s_Curvature; }
 
         //! Get the best (feature, feature value) split.
         TSizeDoublePr bestSplit() const {
-            const auto& split = this->bestSplitStatistics();
-            return {split.s_Feature, split.s_SplitAt};
+            return {m_BestSplit.s_Feature, m_BestSplit.s_SplitAt};
+        }
+
+        //! Check if the left child has fewer rows than the right child.
+        bool leftChildHasFewerRows() const {
+            return m_BestSplit.s_LeftChildHasFewerRows;
         }
 
         //! Check if we should assign the missing feature rows to the left child
         //! of the split.
         bool assignMissingToLeft() const {
-            return this->bestSplitStatistics().s_AssignMissingToLeft;
+            return m_BestSplit.s_AssignMissingToLeft;
         }
 
         //! Get the node's identifier.
@@ -367,46 +354,42 @@ private:
 
         //! Get the memory used by this object.
         std::size_t memoryUsage() const {
-            std::size_t mem{core::CMemory::dynamicSize(m_FeatureBag)};
-            mem += core::CMemory::dynamicSize(m_RowMask);
-            mem += core::CMemory::dynamicSize(m_Gradients);
-            mem += core::CMemory::dynamicSize(m_Curvatures);
-            mem += core::CMemory::dynamicSize(m_MissingGradients);
-            mem += core::CMemory::dynamicSize(m_MissingCurvatures);
+            std::size_t mem{core::CMemory::dynamicSize(m_RowMask)};
+            mem += core::CMemory::dynamicSize(m_Derivatives);
+            mem += core::CMemory::dynamicSize(m_MissingDerivatives);
             return mem;
         }
 
-        //! Estimate maximum leaf statistics bookkeeping memory for training
-        //! boosted trees on data frames with \p numberRows rows, \p numberCols columns
-        //! with specified settings for \p featureBagFraction and \p numberSplitsPerFeature
+        //! Estimate the maximum leaf statistics' memory usage training on a data frame
+        //! with \p numberRows rows and \p numberCols columns using \p featureBagFraction
+        //! and \p numberSplitsPerFeature.
         static std::size_t estimateMemoryUsage(std::size_t numberRows,
                                                std::size_t numberCols,
-                                               double featureBagFraction,
                                                std::size_t numberSplitsPerFeature) {
-            std::size_t featureBagSize{
-                static_cast<std::size_t>(std::ceil(
-                    featureBagFraction * static_cast<double>(numberCols - 1))) *
-                sizeof(std::size_t)};
             // We will typically get the close to the best compression for most of the
             // leaves when the set of splits becomes large, corresponding to the worst
             // case for memory usage. This is because the rows will be spread over many
             // rows so the masks will mainly contain 0 bits in this case.
             std::size_t rowMaskSize{numberRows / PACKED_BIT_VECTOR_MAXIMUM_ROWS_PER_BYTE};
-            std::size_t gradientsSize{(numberCols - 1) *
-                                      numberSplitsPerFeature * sizeof(double)};
-            std::size_t curvatureSize{gradientsSize};
-            std::size_t missingGradientsSize{(numberCols - 1) * sizeof(double)};
-            std::size_t missingCurvatureSize{missingGradientsSize};
-            return sizeof(CLeafNodeStatistics) + featureBagSize + rowMaskSize + gradientsSize +
-                   curvatureSize + missingGradientsSize + missingCurvatureSize;
+            std::size_t derivativesSize{(numberCols - 1) * numberSplitsPerFeature *
+                                        sizeof(SAggregateDerivatives)};
+            std::size_t missingDerivativesSize{(numberCols - 1) * sizeof(SAggregateDerivatives)};
+            return sizeof(CLeafNodeStatistics) + rowMaskSize + derivativesSize + missingDerivativesSize;
         }
 
     private:
         //! \brief Statistics relating to a split of the node.
         struct SSplitStatistics : private boost::less_than_comparable<SSplitStatistics> {
-            SSplitStatistics(double gain, double curvature, std::size_t feature, double splitAt, bool assignMissingToLeft)
+            SSplitStatistics() = default;
+            SSplitStatistics(double gain,
+                             double curvature,
+                             std::size_t feature,
+                             double splitAt,
+                             bool leftChildHasFewerRows,
+                             bool assignMissingToLeft)
                 : s_Gain{gain}, s_Curvature{curvature}, s_Feature{feature}, s_SplitAt{splitAt},
-                  s_AssignMissingToLeft{assignMissingToLeft} {}
+                  s_LeftChildHasFewerRows{leftChildHasFewerRows}, s_AssignMissingToLeft{assignMissingToLeft} {
+            }
 
             bool operator<(const SSplitStatistics& rhs) const {
                 return COrderings::lexicographical_compare(
@@ -420,107 +403,94 @@ private:
                 return result.str();
             }
 
-            double s_Gain;
-            double s_Curvature;
-            std::size_t s_Feature;
-            double s_SplitAt;
-            bool s_AssignMissingToLeft;
+            double s_Gain = -INF;
+            double s_Curvature = 0.0;
+            std::size_t s_Feature = -1;
+            double s_SplitAt = INF;
+            bool s_LeftChildHasFewerRows = true;
+            bool s_AssignMissingToLeft = true;
         };
 
-        //! \brief A collection of aggregate derivatives.
-        struct SDerivatives {
-            SDerivatives(const TDoubleVecVec& candidateSplits)
-                : s_Gradients(candidateSplits.size()),
-                  s_Curvatures(candidateSplits.size()),
-                  s_MissingGradients(candidateSplits.size(), 0.0),
-                  s_MissingCurvatures(candidateSplits.size(), 0.0) {
+        //! \brief Aggregate derivatives.
+        struct SAggregateDerivatives {
+            void add(std::size_t count, double gradient, double curvature) {
+                s_Count += count;
+                s_Gradient += gradient;
+                s_Curvature += curvature;
+            }
 
+            void merge(const SAggregateDerivatives& other) {
+                this->add(other.s_Count, other.s_Gradient, other.s_Curvature);
+            }
+
+            std::string print() const {
+                std::ostringstream result;
+                result << "count = " << s_Count << ", gradient = " << s_Gradient
+                       << ", curvature = " << s_Curvature;
+                return result.str();
+            }
+
+            std::size_t s_Count = 0;
+            double s_Gradient = 0.0;
+            double s_Curvature = 0.0;
+        };
+
+        using TAggregateDerivativesVec = std::vector<SAggregateDerivatives>;
+        using TAggregateDerivativesVecVec = std::vector<TAggregateDerivativesVec>;
+
+        //! \brief A collection of aggregate derivatives for candidate feature splits.
+        struct SSplitAggregateDerivatives {
+            SSplitAggregateDerivatives(const TDoubleVecVec& candidateSplits)
+                : s_Derivatives(candidateSplits.size()),
+                  s_MissingDerivatives(candidateSplits.size()) {
                 for (std::size_t i = 0; i < candidateSplits.size(); ++i) {
-                    std::size_t numberSplits{candidateSplits[i].size() + 1};
-                    s_Gradients[i].resize(numberSplits, 0.0);
-                    s_Curvatures[i].resize(numberSplits, 0.0);
+                    s_Derivatives[i].resize(candidateSplits[i].size() + 1);
                 }
             }
 
-            void merge(const SDerivatives& other) {
-                for (std::size_t i = 0; i < s_Gradients.size(); ++i) {
-                    for (std::size_t j = 0; j < s_Gradients[i].size(); ++j) {
-                        s_Gradients[i][j] += other.s_Gradients[i][j];
-                        s_Curvatures[i][j] += other.s_Curvatures[i][j];
+            void merge(const SSplitAggregateDerivatives& other) {
+                for (std::size_t i = 0; i < s_Derivatives.size(); ++i) {
+                    for (std::size_t j = 0; j < s_Derivatives[i].size(); ++j) {
+                        s_Derivatives[i][j].merge(other.s_Derivatives[i][j]);
                     }
-                    s_MissingGradients[i] += other.s_MissingGradients[i];
-                    s_MissingCurvatures[i] += other.s_MissingCurvatures[i];
+                    s_MissingDerivatives[i].merge(other.s_MissingDerivatives[i]);
                 }
             }
 
             auto move() {
-                return std::make_tuple(std::move(s_Gradients), std::move(s_Curvatures),
-                                       std::move(s_MissingGradients),
-                                       std::move(s_MissingCurvatures));
+                return std::make_pair(std::move(s_Derivatives),
+                                      std::move(s_MissingDerivatives));
             }
 
-            TDoubleVecVec s_Gradients;
-            TDoubleVecVec s_Curvatures;
-            TDoubleVec s_MissingGradients;
-            TDoubleVec s_MissingCurvatures;
+            TAggregateDerivativesVecVec s_Derivatives;
+            TAggregateDerivativesVec s_MissingDerivatives;
         };
 
     private:
         void computeAggregateLossDerivatives(std::size_t numberThreads,
                                              const core::CDataFrame& frame,
-                                             const CDataFrameCategoryEncoder& encoder) {
-
-            auto result = frame.readRows(
-                numberThreads, 0, frame.numberRows(),
-                core::bindRetrievableState(
-                    [&](SDerivatives& derivatives, TRowItr beginRows, TRowItr endRows) {
-                        for (auto row = beginRows; row != endRows; ++row) {
-                            this->addRowDerivatives(encoder.encode(*row), derivatives);
-                        }
-                    },
-                    SDerivatives{m_CandidateSplits}),
-                &m_RowMask);
-
-            SDerivatives derivatives{std::move(result.first[0].s_FunctionState)};
-            for (std::size_t i = 1; i < result.first.size(); ++i) {
-                derivatives.merge(result.first[i].s_FunctionState);
-            }
-
-            std::tie(m_Gradients, m_Curvatures, m_MissingGradients,
-                     m_MissingCurvatures) = derivatives.move();
-
-            LOG_TRACE(<< "gradients = " << core::CContainerPrinter::print(m_Gradients));
-            LOG_TRACE(<< "curvatures = " << core::CContainerPrinter::print(m_Curvatures));
-            LOG_TRACE(<< "missing gradients = "
-                      << core::CContainerPrinter::print(m_MissingGradients));
-            LOG_TRACE(<< "missing curvatures = "
-                      << core::CContainerPrinter::print(m_MissingCurvatures));
-        }
+                                             const CDataFrameCategoryEncoder& encoder);
+        void computeRowMaskAndAggregateLossDerivatives(std::size_t numberThreads,
+                                                       const core::CDataFrame& frame,
+                                                       const CDataFrameCategoryEncoder& encoder,
+                                                       bool isLeftChild,
+                                                       const CBoostedTreeNode& split,
+                                                       const core::CPackedBitVector& parentRowMask);
 
         void addRowDerivatives(const CEncodedDataFrameRowRef& row,
-                               SDerivatives& derivatives) const;
+                               SSplitAggregateDerivatives& splitAggregateDerivatives) const;
 
-        const SSplitStatistics& bestSplitStatistics() const {
-            if (m_BestSplit == boost::none) {
-                m_BestSplit = this->computeBestSplitStatistics();
-            }
-            return *m_BestSplit;
-        }
-
-        SSplitStatistics computeBestSplitStatistics() const;
+        SSplitStatistics computeBestSplitStatistics(const TRegularization& regularization,
+                                                    const TSizeVec& featureBag) const;
 
     private:
         std::size_t m_Id;
-        const TRegularization& m_Regularization;
         const TDoubleVecVec& m_CandidateSplits;
         std::size_t m_Depth;
-        TSizeVec m_FeatureBag;
         core::CPackedBitVector m_RowMask;
-        TDoubleVecVec m_Gradients;
-        TDoubleVecVec m_Curvatures;
-        TDoubleVec m_MissingGradients;
-        TDoubleVec m_MissingCurvatures;
-        mutable boost::optional<SSplitStatistics> m_BestSplit;
+        TAggregateDerivativesVecVec m_Derivatives;
+        TAggregateDerivativesVec m_MissingDerivatives;
+        SSplitStatistics m_BestSplit;
     };
 
 private:

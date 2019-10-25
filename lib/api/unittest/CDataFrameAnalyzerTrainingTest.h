@@ -3,31 +3,21 @@
  * or more contributor license agreements. Licensed under the Elastic License;
  * you may not use this file except in compliance with the Elastic License.
  */
-
-#ifndef INCLUDED_CDataFrameAnalyzerTest_h
-#define INCLUDED_CDataFrameAnalyzerTest_h
+#ifndef INCLUDED_CDataFrameAnalyzerTrainingTest_h
+#define INCLUDED_CDataFrameAnalyzerTrainingTest_h
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class CDataFrameAnalyzerTest : public CppUnit::TestFixture {
+class CDataFrameAnalyzerTrainingTest : public CppUnit::TestFixture {
 public:
-    void testWithoutControlMessages();
-    void testRunOutlierDetection();
-    void testRunOutlierDetectionPartitioned();
-    void testRunOutlierFeatureInfluences();
-    void testRunOutlierDetectionWithParams();
     void testRunBoostedTreeRegressionTraining();
     void testRunBoostedTreeRegressionTrainingWithParams();
     void testRunBoostedTreeRegressionTrainingWithRowsMissingTargetValue();
     void testRunBoostedTreeRegressionTrainingWithStateRecovery();
     void testRunBoostedTreeClassifierTraining();
-    void testFlushMessage();
-    void testErrors();
-    void testRoundTripDocHashes();
     void testCategoricalFields();
     void testCategoricalFieldsEmptyAsMissing();
 
     static CppUnit::Test* suite();
 };
-
-#endif // INCLUDED_CDataFrameAnalyzerTest_h
+#endif // INCLUDED_CDataFrameAnalyzerTrainingTest_h
