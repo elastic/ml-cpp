@@ -11,6 +11,7 @@
 #include <core/CTimeUtils.h>
 #include <core/CoreTypes.h>
 
+#include <boost/optional.hpp>
 #include <boost/test/unit_test.hpp>
 
 #include <algorithm>
@@ -25,12 +26,33 @@ BOOST_AUTO_TEST_SUITE(CDualThreadStreamBufTest)
 namespace {
 
 class CInputThread : public ml::core::CThread {
+private:
+    class CTellgStore {
+    public:
+        CTellgStore(std::streampos tellg) : m_Tellg{tellg} {}
+        std::streampos tellg() { return m_Tellg; }
+
+    private:
+        std::streampos m_Tellg;
+    };
+
+    using TOptionalTellgStore = boost::optional<CTellgStore>;
+
 public:
     CInputThread(ml::core::CDualThreadStreamBuf& buffer, uint32_t delay = 0, size_t fatalAfter = 0)
         : m_Buffer(buffer), m_Delay(delay), m_FatalAfter(fatalAfter),
           m_TotalData(0) {}
 
     size_t totalData() const { return m_TotalData; }
+
+    void propagateLastDetectedMismatch() {
+        if (m_LastMismatch.has_value()) {
+            // Reconstruct the original local variable to make any
+            // assertion failure message easier to understand
+            CTellgStore strm{*m_LastMismatch};
+            BOOST_REQUIRE_EQUAL(static_cast<std::streampos>(m_TotalData), strm.tellg());
+        }
+    }
 
 protected:
     virtual void run() {
@@ -41,7 +63,11 @@ protected:
             ++count;
             m_TotalData += line.length();
             ++m_TotalData; // For the delimiter
-            BOOST_REQUIRE_EQUAL(static_cast<std::streampos>(m_TotalData), strm.tellg());
+            if (static_cast<std::streampos>(m_TotalData) != strm.tellg()) {
+                m_LastMismatch = CTellgStore(strm.tellg());
+                m_Buffer.signalFatalError();
+                break;
+            }
             ml::core::CSleep::sleep(m_Delay);
             if (count == m_FatalAfter) {
                 m_Buffer.signalFatalError();
@@ -56,6 +82,7 @@ private:
     uint32_t m_Delay;
     size_t m_FatalAfter;
     size_t m_TotalData;
+    TOptionalTellgStore m_LastMismatch;
 };
 
 const char*
@@ -104,6 +131,7 @@ BOOST_AUTO_TEST_CASE(testThroughput) {
     buf.signalEndOfFile();
 
     inputThread.waitForFinish();
+    inputThread.propagateLastDetectedMismatch();
 
     ml::core_t::TTime end(ml::core::CTimeUtils::now());
     LOG_INFO(<< "Finished REST buffer throughput test at "
@@ -144,6 +172,7 @@ BOOST_AUTO_TEST_CASE(testSlowConsumer) {
     buf.signalEndOfFile();
 
     inputThread.waitForFinish();
+    inputThread.propagateLastDetectedMismatch();
 
     ml::core_t::TTime end(ml::core::CTimeUtils::now());
     LOG_INFO(<< "Finished REST buffer slow consumer test at "
@@ -235,6 +264,7 @@ BOOST_AUTO_TEST_CASE(testFatal) {
     buf.signalEndOfFile();
 
     inputThread.waitForFinish();
+    inputThread.propagateLastDetectedMismatch();
 
     LOG_DEBUG(<< "Total data written in fatal error test of size " << TEST_SIZE
               << " is " << totalDataWritten << " bytes");

@@ -10,10 +10,11 @@
 
 #include <model/CStringStore.h>
 
+#include <boost/optional.hpp>
 #include <boost/test/unit_test.hpp>
 
-#include <exception>
 #include <memory>
+#include <tuple>
 
 BOOST_TEST_DONT_PRINT_LOG_VALUE(ml::core::CStoredStringPtr)
 
@@ -29,6 +30,10 @@ using TStoredStringPtrVec = std::vector<core::CStoredStringPtr>;
 using TStrCPtrUSet = boost::unordered_set<const std::string*>;
 
 class CStringThread : public core::CThread {
+private:
+    using TSizeSizeStrTr = std::tuple<std::size_t, std::size_t, core::CStoredStringPtr>;
+    using TOptionalSizeSizeStrTr = boost::optional<TSizeSizeStrTr>;
+
 public:
     CStringThread(std::size_t i, const TStrVec& strings)
         : m_I(i), m_Strings(strings) {}
@@ -37,9 +42,15 @@ public:
         result.insert(m_UniquePtrs.begin(), m_UniquePtrs.end());
     }
 
-    void propagateLastThreadAssert() {
-        if (m_LastException) {
-            std::rethrow_exception(m_LastException);
+    void propagateLastDetectedMismatch() {
+        if (m_LastMismatch.has_value()) {
+            // Reconstruct the original local variables to make any
+            // assertion failure message easier to understand
+            std::size_t i{0};
+            std::size_t n{0};
+            core::CStoredStringPtr p;
+            std::tie(i, n, p) = *m_LastMismatch;
+            BOOST_REQUIRE_EQUAL(m_Strings[i % n], *p);
         }
     }
 
@@ -50,34 +61,40 @@ public:
 
 private:
     virtual void run() {
-        try {
-            std::size_t n = m_Strings.size();
-            for (std::size_t i = m_I; i < 1000; ++i) {
-                m_Ptrs.push_back(core::CStoredStringPtr());
-                m_Ptrs.back() = CStringStore::names().get(m_Strings[i % n]);
-                m_UniquePtrs.insert(m_Ptrs.back().get());
-                BOOST_REQUIRE_EQUAL(m_Strings[i % n], *m_Ptrs.back());
-            }
-            for (std::size_t i = m_I; i < 1000000; ++i) {
-                core::CStoredStringPtr p = CStringStore::names().get(m_Strings[i % n]);
-                m_UniquePtrs.insert(p.get());
-                BOOST_REQUIRE_EQUAL(m_Strings[i % n], *p);
+        std::size_t n = m_Strings.size();
+        for (std::size_t i = m_I; i < 1000; ++i) {
+            m_Ptrs.push_back(core::CStoredStringPtr());
+            m_Ptrs.back() = CStringStore::names().get(m_Strings[i % n]);
+            m_UniquePtrs.insert(m_Ptrs.back().get());
+            if (isMismatch(i, n, m_Ptrs.back())) {
+                break;
             }
         }
-        // Propagate exceptions to main testing thread
-        catch (...) {
-            m_LastException = std::current_exception();
+        for (std::size_t i = m_I; i < 1000000; ++i) {
+            core::CStoredStringPtr p = CStringStore::names().get(m_Strings[i % n]);
+            m_UniquePtrs.insert(p.get());
+            if (isMismatch(i, n, p)) {
+                break;
+            }
         }
     }
 
     virtual void shutdown() {}
 
+    bool isMismatch(std::size_t i, std::size_t n, const core::CStoredStringPtr& p) {
+        if (m_Strings[i % n] != *p) {
+            m_LastMismatch = TSizeSizeStrTr{i, n, p};
+            return true;
+        }
+        return false;
+    }
+
 private:
-    std::size_t m_I;
-    TStrVec m_Strings;
+    const std::size_t m_I;
+    const TStrVec m_Strings;
     TStoredStringPtrVec m_Ptrs;
     TStrCPtrUSet m_UniquePtrs;
-    std::exception_ptr m_LastException;
+    TOptionalSizeSizeStrTr m_LastMismatch;
 };
 }
 
@@ -152,8 +169,8 @@ BOOST_FIXTURE_TEST_CASE(testStringStore, CTestFixture) {
                             CStringStore::influencers().m_Strings.size());
 
         for (std::size_t i = 0; i < threads.size(); ++i) {
-            // Propagate exceptions to main testing thread
-            threads[i]->propagateLastThreadAssert();
+            // Propagate problems to main testing thread
+            threads[i]->propagateLastDetectedMismatch();
         }
         for (std::size_t i = 0; i < threads.size(); ++i) {
             threads[i]->clearPtrs();
@@ -188,7 +205,7 @@ BOOST_FIXTURE_TEST_CASE(testStringStore, CTestFixture) {
 
         for (std::size_t i = 0; i < threads.size(); ++i) {
             // Propagate exceptions to main testing thread
-            threads[i]->propagateLastThreadAssert();
+            threads[i]->propagateLastDetectedMismatch();
         }
 
         TStrCPtrUSet uniques;
