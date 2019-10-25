@@ -4,8 +4,6 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
-#include "CStatisticalTestsTest.h"
-
 #include <core/CLogger.h>
 #include <core/CRapidXmlParser.h>
 #include <core/CRapidXmlStatePersistInserter.h>
@@ -20,16 +18,19 @@
 #include <boost/math/constants/constants.hpp>
 #include <boost/math/distributions/lognormal.hpp>
 #include <boost/math/distributions/normal.hpp>
+#include <boost/test/unit_test.hpp>
 
 #include <boost/range.hpp>
 
 #include <vector>
 
+BOOST_AUTO_TEST_SUITE(CStatisticalTestsTest)
+
 using namespace ml;
 
 using TDoubleVec = std::vector<double>;
 
-void CStatisticalTestsTest::testCramerVonMises() {
+BOOST_AUTO_TEST_CASE(testCramerVonMises) {
     // These test that the test statistic p value percentiles
     // are correct if the random variable and the distribution
     // function are perfectly matched.
@@ -68,11 +69,11 @@ void CStatisticalTestsTest::testCramerVonMises() {
                 LOG_DEBUG(<< "percentile = " << percentile << ", p value percentile = " << pp
                           << ", error = " << std::fabs(pp - percentile));
                 meanError += std::fabs(pp - percentile);
-                CPPUNIT_ASSERT(std::fabs(pp - percentile) < 0.055);
+                BOOST_TEST_REQUIRE(std::fabs(pp - percentile) < 0.055);
             }
             meanError /= 21.0;
             LOG_DEBUG(<< "meanError = " << meanError);
-            CPPUNIT_ASSERT(meanError < 0.026);
+            BOOST_TEST_REQUIRE(meanError < 0.026);
             averageMeanError += meanError;
         }
         {
@@ -100,21 +101,21 @@ void CStatisticalTestsTest::testCramerVonMises() {
                 LOG_DEBUG(<< "percentile = " << percentile << ", p value percentile = " << pp
                           << ", error = " << std::fabs(pp - percentile));
                 meanError += std::fabs(pp - percentile);
-                CPPUNIT_ASSERT(std::fabs(pp - percentile) < 0.055);
+                BOOST_TEST_REQUIRE(std::fabs(pp - percentile) < 0.055);
             }
             meanError /= 21.0;
             LOG_DEBUG(<< "meanError = " << meanError);
-            CPPUNIT_ASSERT(meanError < 0.025);
+            BOOST_TEST_REQUIRE(meanError < 0.025);
             averageMeanError += meanError;
         }
     }
 
     averageMeanError /= 2.0 * static_cast<double>(boost::size(n));
     LOG_DEBUG(<< "averageMeanError = " << averageMeanError);
-    CPPUNIT_ASSERT(averageMeanError < 0.011);
+    BOOST_TEST_REQUIRE(averageMeanError < 0.011);
 }
 
-void CStatisticalTestsTest::testPersist() {
+BOOST_AUTO_TEST_CASE(testPersist) {
     // Check that serialization is idempotent.
 
     {
@@ -141,11 +142,11 @@ void CStatisticalTestsTest::testPersist() {
 
         // Restore the XML into a new filter
         core::CRapidXmlParser parser;
-        CPPUNIT_ASSERT(parser.parseStringIgnoreCdata(origXml));
+        BOOST_TEST_REQUIRE(parser.parseStringIgnoreCdata(origXml));
         core::CRapidXmlStateRestoreTraverser traverser(parser);
 
         maths::CStatisticalTests::CCramerVonMises restoredCvm(traverser);
-        CPPUNIT_ASSERT_EQUAL(origCvm.checksum(), restoredCvm.checksum());
+        BOOST_REQUIRE_EQUAL(origCvm.checksum(), restoredCvm.checksum());
 
         std::string newXml;
         {
@@ -153,17 +154,8 @@ void CStatisticalTestsTest::testPersist() {
             restoredCvm.acceptPersistInserter(inserter);
             inserter.toXml(newXml);
         }
-        CPPUNIT_ASSERT_EQUAL(origXml, newXml);
+        BOOST_REQUIRE_EQUAL(origXml, newXml);
     }
 }
 
-CppUnit::Test* CStatisticalTestsTest::suite() {
-    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CStatisticalTestsTest");
-
-    suiteOfTests->addTest(new CppUnit::TestCaller<CStatisticalTestsTest>(
-        "CStatisticalTestsTest::testCramerVonMises", &CStatisticalTestsTest::testCramerVonMises));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CStatisticalTestsTest>(
-        "CStatisticalTestsTest::testPersist", &CStatisticalTestsTest::testPersist));
-
-    return suiteOfTests;
-}
+BOOST_AUTO_TEST_SUITE_END()

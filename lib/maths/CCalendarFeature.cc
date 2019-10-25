@@ -16,6 +16,8 @@
 
 #include <boost/numeric/conversion/bounds.hpp>
 
+#include <ostream>
+
 namespace ml {
 namespace maths {
 
@@ -221,5 +223,9 @@ std::string CCalendarFeature::print() const {
 }
 
 const uint16_t CCalendarFeature::INVALID(boost::numeric::bounds<uint16_t>::highest());
+
+std::ostream& operator<<(std::ostream& strm, const CCalendarFeature& feature) {
+    return strm << feature.print();
+}
 }
 }

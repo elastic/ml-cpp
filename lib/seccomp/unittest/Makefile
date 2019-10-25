@@ -9,6 +9,8 @@ TARGET=ml_test$(EXE_EXT)
 
 USE_BOOST=1
 USE_BOOST_FILESYSTEM_LIBS=1
+USE_BOOST_TEST_LIBS=1
+
 LIBS:=$(LIB_ML_SECCOMP)
 LDFLAGS:=$(ML_SECCOMP_LDFLAGS)
 
@@ -18,5 +20,5 @@ SRCS=\
 	Main.cc \
 	CSystemCallFilterTest.cc \
 
-include $(CPP_SRC_HOME)/mk/stdcppunit.mk
+include $(CPP_SRC_HOME)/mk/stdboosttest.mk
 

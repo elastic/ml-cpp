@@ -4,8 +4,6 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
-#include "CEventRateAnomalyDetectorTest.h"
-
 #include <core/CContainerPrinter.h>
 #include <core/CLogger.h>
 #include <core/CRapidXmlParser.h>
@@ -24,7 +22,11 @@
 #include <model/CSearchKey.h>
 #include <model/FunctionTypes.h>
 
+#include <boost/test/unit_test.hpp>
+
 #include <fstream>
+
+BOOST_AUTO_TEST_SUITE(CEventRateAnomalyDetectorTest)
 
 namespace {
 
@@ -122,7 +124,7 @@ void importData(ml::core_t::TTime firstTime,
     TifstreamPtrVec ifss;
     for (std::size_t i = 0u; i < fileNames.size(); ++i) {
         TifstreamPtr ifs(new std::ifstream(fileNames[i].c_str()));
-        CPPUNIT_ASSERT(ifs->is_open());
+        BOOST_TEST_REQUIRE(ifs->is_open());
         ifss.push_back(ifs);
     }
 
@@ -132,7 +134,7 @@ void importData(ml::core_t::TTime firstTime,
     for (std::size_t i = 0u; i < ifss.size(); ++i) {
         std::string line;
         std::getline(*ifss[i], line);
-        CPPUNIT_ASSERT(ml::core::CStringUtils::stringToType(line, times[i]));
+        BOOST_TEST_REQUIRE(ml::core::CStringUtils::stringToType(line, times[i]));
     }
 
     ml::core_t::TTime time(0);
@@ -159,7 +161,7 @@ void importData(ml::core_t::TTime firstTime,
             times[file] = std::numeric_limits<ml::core_t::TTime>::max();
             ifss[file].reset();
         } else {
-            CPPUNIT_ASSERT(ml::core::CStringUtils::stringToType(line, times[file]));
+            BOOST_TEST_REQUIRE(ml::core::CStringUtils::stringToType(line, times[file]));
         }
     }
 
@@ -169,7 +171,7 @@ void importData(ml::core_t::TTime firstTime,
 }
 }
 
-void CEventRateAnomalyDetectorTest::testAnomalies() {
+BOOST_AUTO_TEST_CASE(testAnomalies) {
     // We have 11 instances of correlated rare 503s and SQL statements.
     static const double HIGH_ANOMALY_SCORE(0.0014);
     static const size_t EXPECTED_ANOMALOUS_HOURS(11);
@@ -206,7 +208,7 @@ void CEventRateAnomalyDetectorTest::testAnomalies() {
         }
     }
 
-    CPPUNIT_ASSERT_EQUAL(EXPECTED_ANOMALOUS_HOURS, peaks.size());
+    BOOST_REQUIRE_EQUAL(EXPECTED_ANOMALOUS_HOURS, peaks.size());
 
     std::size_t detected503 = 0u;
     std::size_t detectedMySQL = 0u;
@@ -221,11 +223,11 @@ void CEventRateAnomalyDetectorTest::testAnomalies() {
         }
     }
     LOG_DEBUG(<< "# 503 = " << detected503 << ", # My SQL = " << detectedMySQL);
-    CPPUNIT_ASSERT_EQUAL(std::size_t(11), detected503);
-    CPPUNIT_ASSERT_EQUAL(std::size_t(11), detectedMySQL);
+    BOOST_REQUIRE_EQUAL(std::size_t(11), detected503);
+    BOOST_REQUIRE_EQUAL(std::size_t(11), detectedMySQL);
 }
 
-void CEventRateAnomalyDetectorTest::testPersist() {
+BOOST_AUTO_TEST_CASE(testPersist) {
     static const ml::core_t::TTime FIRST_TIME(1346713620);
     static const ml::core_t::TTime LAST_TIME(1347317974);
     static const ml::core_t::TTime BUCKET_SIZE(3600);
@@ -262,9 +264,9 @@ void CEventRateAnomalyDetectorTest::testPersist() {
                                                  modelConfig.factory(key));
     {
         ml::core::CRapidXmlParser parser;
-        CPPUNIT_ASSERT(parser.parseStringIgnoreCdata(origXml));
+        BOOST_TEST_REQUIRE(parser.parseStringIgnoreCdata(origXml));
         ml::core::CRapidXmlStateRestoreTraverser traverser(parser);
-        CPPUNIT_ASSERT(traverser.traverseSubLevel(
+        BOOST_TEST_REQUIRE(traverser.traverseSubLevel(
             std::bind(&ml::model::CAnomalyDetector::acceptRestoreTraverser,
                       &restoredDetector, EMPTY_STRING, std::placeholders::_1)));
     }
@@ -276,18 +278,7 @@ void CEventRateAnomalyDetectorTest::testPersist() {
         restoredDetector.acceptPersistInserter(inserter);
         inserter.toXml(newXml);
     }
-    CPPUNIT_ASSERT_EQUAL(origXml, newXml);
+    BOOST_REQUIRE_EQUAL(origXml, newXml);
 }
 
-CppUnit::Test* CEventRateAnomalyDetectorTest::suite() {
-    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CEventRateAnomalyDetectorTest");
-
-    suiteOfTests->addTest(new CppUnit::TestCaller<CEventRateAnomalyDetectorTest>(
-        "CEventRateAnomalyDetectorTest::testAnomalies",
-        &CEventRateAnomalyDetectorTest::testAnomalies));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CEventRateAnomalyDetectorTest>(
-        "CEventRateAnomalyDetectorTest::testPersist",
-        &CEventRateAnomalyDetectorTest::testPersist));
-
-    return suiteOfTests;
-}
+BOOST_AUTO_TEST_SUITE_END()

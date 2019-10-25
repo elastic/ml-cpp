@@ -4,8 +4,6 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
-#include "CNaiveBayesTest.h"
-
 #include <core/CLogger.h>
 #include <core/CRapidXmlParser.h>
 #include <core/CRapidXmlStatePersistInserter.h>
@@ -16,12 +14,16 @@
 #include <maths/CRestoreParams.h>
 #include <maths/CTools.h>
 
+#include <test/BoostTestCloseAbsolute.h>
 #include <test/CRandomNumbers.h>
 
 #include <boost/math/distributions/normal.hpp>
+#include <boost/test/unit_test.hpp>
 
 #include <cmath>
 #include <memory>
+
+BOOST_AUTO_TEST_SUITE(CNaiveBayesTest)
 
 using namespace ml;
 
@@ -33,7 +35,7 @@ using TDoubleSizePrVec = std::vector<TDoubleSizePr>;
 using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
 using TMeanVarAccumulator = maths::CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
 
-void CNaiveBayesTest::testClassification() {
+BOOST_AUTO_TEST_CASE(testClassification) {
     // We'll test classification using Gaussian naive Bayes. We
     // test:
     //   - We get the probabilities we expect using if the underlying
@@ -88,11 +90,11 @@ void CNaiveBayesTest::testClassification() {
         double P1{(initialCount + 100.0) / (2.0 * initialCount + 300.0)};
         double P2{(initialCount + 200.0) / (2.0 * initialCount + 300.0)};
 
-        CPPUNIT_ASSERT_EQUAL(std::size_t(2), probabilities.size());
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(P1, probabilities[1].first, 1e-5);
-        CPPUNIT_ASSERT_EQUAL(std::size_t(1), probabilities[1].second);
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(P2, probabilities[0].first, 1e-5);
-        CPPUNIT_ASSERT_EQUAL(std::size_t(2), probabilities[0].second);
+        BOOST_REQUIRE_EQUAL(std::size_t(2), probabilities.size());
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(P1, probabilities[1].first, 1e-5);
+        BOOST_REQUIRE_EQUAL(std::size_t(1), probabilities[1].second);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(P2, probabilities[0].first, 1e-5);
+        BOOST_REQUIRE_EQUAL(std::size_t(2), probabilities[0].second);
 
         // If we supply feature values we should approximately
         // get these modulated by the product of the true density
@@ -128,9 +130,9 @@ void CNaiveBayesTest::testClassification() {
                               << " got P(1) = " << p1_ << ", P(2) = " << p2_);
                 }
 
-                CPPUNIT_ASSERT_EQUAL(std::size_t(2), p.size());
-                CPPUNIT_ASSERT_DOUBLES_EQUAL(p1, p1_, 0.03);
-                CPPUNIT_ASSERT_DOUBLES_EQUAL(p2, p2_, 0.03);
+                BOOST_REQUIRE_EQUAL(std::size_t(2), p.size());
+                BOOST_REQUIRE_CLOSE_ABSOLUTE(p1, p1_, 0.03);
+                BOOST_REQUIRE_CLOSE_ABSOLUTE(p2, p2_, 0.03);
                 if (p1 > 0.001) {
                     meanError.add(std::fabs((p1 - p1_) / p1));
                 }
@@ -163,13 +165,13 @@ void CNaiveBayesTest::testClassification() {
         for (std::size_t i = 0u; i < 3; ++i) {
             LOG_DEBUG(<< "Mean relative error = "
                       << maths::CBasicStatistics::mean(meanErrors[i]));
-            CPPUNIT_ASSERT(maths::CBasicStatistics::mean(meanErrors[i]) < 0.05);
+            BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(meanErrors[i]) < 0.05);
             meanMeanError += meanErrors[i];
         }
     }
 }
 
-void CNaiveBayesTest::testUninitialized() {
+BOOST_AUTO_TEST_CASE(testUninitialized) {
     // Check that the classifier remains uninitialized while the class
     // conditional densities are improper.
 
@@ -183,7 +185,7 @@ void CNaiveBayesTest::testUninitialized() {
     TDoubleVec trainingData[2];
 
     for (std::size_t i = 0u; i < 2; ++i) {
-        CPPUNIT_ASSERT_EQUAL(false, nb.initialized());
+        BOOST_REQUIRE_EQUAL(false, nb.initialized());
 
         double x{static_cast<double>(i)};
         rng.generateNormalSamples(0.02 * x - 14.0, 16.0, 1, trainingData[0]);
@@ -193,10 +195,10 @@ void CNaiveBayesTest::testUninitialized() {
         nb.propagateForwardsByTime(1.0);
     }
 
-    CPPUNIT_ASSERT_EQUAL(true, nb.initialized());
+    BOOST_REQUIRE_EQUAL(true, nb.initialized());
 }
 
-void CNaiveBayesTest::testPropagationByTime() {
+BOOST_AUTO_TEST_CASE(testPropagationByTime) {
     // Make feature distributions drift over time and verify that
     // the classifier adapts.
 
@@ -237,10 +239,10 @@ void CNaiveBayesTest::testPropagationByTime() {
                   << core::CContainerPrinter::print(probabilities[0]));
         LOG_DEBUG(<< "Class probabilities = "
                   << core::CContainerPrinter::print(probabilities[1]));
-        CPPUNIT_ASSERT_EQUAL(std::size_t(2), probabilities[0][0].second);
-        CPPUNIT_ASSERT(probabilities[0][0].first > 0.99);
-        CPPUNIT_ASSERT_EQUAL(std::size_t(1), probabilities[1][0].second);
-        CPPUNIT_ASSERT(probabilities[1][0].first > 0.95);
+        BOOST_REQUIRE_EQUAL(std::size_t(2), probabilities[0][0].second);
+        BOOST_TEST_REQUIRE(probabilities[0][0].first > 0.99);
+        BOOST_REQUIRE_EQUAL(std::size_t(1), probabilities[1][0].second);
+        BOOST_TEST_REQUIRE(probabilities[1][0].first > 0.95);
     }
     {
         TDoubleSizePrVec probabilities[]{
@@ -250,14 +252,14 @@ void CNaiveBayesTest::testPropagationByTime() {
                   << core::CContainerPrinter::print(probabilities[0]));
         LOG_DEBUG(<< "Class probabilities = "
                   << core::CContainerPrinter::print(probabilities[1]));
-        CPPUNIT_ASSERT_EQUAL(std::size_t(1), probabilities[0][0].second);
-        CPPUNIT_ASSERT(probabilities[0][0].first > 0.99);
-        CPPUNIT_ASSERT_EQUAL(std::size_t(2), probabilities[1][0].second);
-        CPPUNIT_ASSERT(probabilities[1][0].first > 0.95);
+        BOOST_REQUIRE_EQUAL(std::size_t(1), probabilities[0][0].second);
+        BOOST_TEST_REQUIRE(probabilities[0][0].first > 0.99);
+        BOOST_REQUIRE_EQUAL(std::size_t(2), probabilities[1][0].second);
+        BOOST_TEST_REQUIRE(probabilities[1][0].first > 0.95);
     }
 }
 
-void CNaiveBayesTest::testMemoryUsage() {
+BOOST_AUTO_TEST_CASE(testMemoryUsage) {
     // Check invariants.
 
     using TMemoryUsagePtr = std::unique_ptr<core::CMemoryUsage>;
@@ -290,14 +292,14 @@ void CNaiveBayesTest::testMemoryUsage() {
     nb->debugMemoryUsage(mem.get());
 
     LOG_DEBUG(<< "Memory = " << memoryUsage);
-    CPPUNIT_ASSERT_EQUAL(memoryUsage, mem->usage());
+    BOOST_REQUIRE_EQUAL(memoryUsage, mem->usage());
 
     LOG_DEBUG(<< "Memory = " << core::CMemory::dynamicSize(nb));
-    CPPUNIT_ASSERT_EQUAL(memoryUsage + sizeof(maths::CNaiveBayes),
-                         core::CMemory::dynamicSize(nb));
+    BOOST_REQUIRE_EQUAL(memoryUsage + sizeof(maths::CNaiveBayes),
+                        core::CMemory::dynamicSize(nb));
 }
 
-void CNaiveBayesTest::testPersist() {
+BOOST_AUTO_TEST_CASE(testPersist) {
     test::CRandomNumbers rng;
 
     TDoubleVec trainingData[4];
@@ -329,14 +331,14 @@ void CNaiveBayesTest::testPersist() {
     LOG_DEBUG(<< "Naive Bayes XML representation:\n" << origXml);
 
     core::CRapidXmlParser parser;
-    CPPUNIT_ASSERT(parser.parseStringIgnoreCdata(origXml));
+    BOOST_TEST_REQUIRE(parser.parseStringIgnoreCdata(origXml));
     core::CRapidXmlStateRestoreTraverser traverser(parser);
 
     maths::SDistributionRestoreParams params{maths_t::E_ContinuousData, 0.1, 0.0, 0.0, 0.0};
     maths::CNaiveBayes restoredNb{maths::CNaiveBayesFeatureDensityFromPrior(normal),
                                   params, traverser};
 
-    CPPUNIT_ASSERT_EQUAL(origNb.checksum(), restoredNb.checksum());
+    BOOST_REQUIRE_EQUAL(origNb.checksum(), restoredNb.checksum());
 
     std::string restoredXml;
     {
@@ -344,22 +346,7 @@ void CNaiveBayesTest::testPersist() {
         origNb.acceptPersistInserter(inserter);
         inserter.toXml(restoredXml);
     }
-    CPPUNIT_ASSERT_EQUAL(origXml, restoredXml);
+    BOOST_REQUIRE_EQUAL(origXml, restoredXml);
 }
 
-CppUnit::Test* CNaiveBayesTest::suite() {
-    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CNaiveBayesTest");
-
-    suiteOfTests->addTest(new CppUnit::TestCaller<CNaiveBayesTest>(
-        "CNaiveBayesTest::testClassification", &CNaiveBayesTest::testClassification));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CNaiveBayesTest>(
-        "CNaiveBayesTest::testUninitialized", &CNaiveBayesTest::testUninitialized));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CNaiveBayesTest>(
-        "CNaiveBayesTest::testPropagationByTime", &CNaiveBayesTest::testPropagationByTime));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CNaiveBayesTest>(
-        "CNaiveBayesTest::testMemoryUsage", &CNaiveBayesTest::testMemoryUsage));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CNaiveBayesTest>(
-        "CNaiveBayesTest::testPersist", &CNaiveBayesTest::testPersist));
-
-    return suiteOfTests;
-}
+BOOST_AUTO_TEST_SUITE_END()

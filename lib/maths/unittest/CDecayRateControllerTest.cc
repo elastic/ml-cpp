@@ -4,8 +4,6 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
-#include "CDecayRateControllerTest.h"
-
 #include <core/CLogger.h>
 #include <core/CRapidXmlStatePersistInserter.h>
 #include <core/CRapidXmlStateRestoreTraverser.h>
@@ -16,10 +14,14 @@
 
 #include "TestUtils.h"
 
+#include <boost/test/unit_test.hpp>
+
+BOOST_AUTO_TEST_SUITE(CDecayRateControllerTest)
+
 using namespace ml;
 using namespace handy_typedefs;
 
-void CDecayRateControllerTest::testLowCov() {
+BOOST_AUTO_TEST_CASE(testLowCov) {
     // Supply small but biased errors so we increase the decay
     // rate to its maximum then gradually reduce the error to
     // less than the coefficient of variation cutoff to control
@@ -33,17 +35,17 @@ void CDecayRateControllerTest::testLowCov() {
         decayRate *= multiplier;
     }
     LOG_DEBUG(<< "Controlled decay = " << decayRate);
-    CPPUNIT_ASSERT(decayRate > 0.0005);
+    BOOST_TEST_REQUIRE(decayRate > 0.0005);
 
     for (std::size_t i = 0u; i < 1000; ++i) {
         double multiplier{controller.multiplier({10000.0}, {{0.0}}, 3600, 1.0, 0.0005)};
         decayRate *= multiplier;
     }
     LOG_DEBUG(<< "Controlled decay = " << decayRate);
-    CPPUNIT_ASSERT(decayRate < 0.0005);
+    BOOST_TEST_REQUIRE(decayRate < 0.0005);
 }
 
-void CDecayRateControllerTest::testOrderedErrors() {
+BOOST_AUTO_TEST_CASE(testOrderedErrors) {
     // Test that if we add a number of ordered samples, such
     // that overall they don't have bias, the decay rate is
     // not increased.
@@ -62,10 +64,10 @@ void CDecayRateControllerTest::testOrderedErrors() {
         decayRate *= multiplier;
     }
     LOG_DEBUG(<< "Controlled decay = " << decayRate);
-    CPPUNIT_ASSERT(decayRate <= 0.0005);
+    BOOST_TEST_REQUIRE(decayRate <= 0.0005);
 }
 
-void CDecayRateControllerTest::testPersist() {
+BOOST_AUTO_TEST_CASE(testPersist) {
     using TDoubleVec = std::vector<double>;
 
     test::CRandomNumbers rng;
@@ -94,29 +96,17 @@ void CDecayRateControllerTest::testPersist() {
     // Restore the XML into a new controller.
     {
         core::CRapidXmlParser parser;
-        CPPUNIT_ASSERT(parser.parseStringIgnoreCdata(origXml));
+        BOOST_TEST_REQUIRE(parser.parseStringIgnoreCdata(origXml));
         core::CRapidXmlStateRestoreTraverser traverser(parser);
         maths::CDecayRateController restoredController;
-        CPPUNIT_ASSERT_EQUAL(true, traverser.traverseSubLevel(std::bind(
-                                       &maths::CDecayRateController::acceptRestoreTraverser,
-                                       &restoredController, std::placeholders::_1)));
+        BOOST_REQUIRE_EQUAL(true, traverser.traverseSubLevel(std::bind(
+                                      &maths::CDecayRateController::acceptRestoreTraverser,
+                                      &restoredController, std::placeholders::_1)));
 
         LOG_DEBUG(<< "orig checksum = " << origController.checksum()
                   << ", new checksum = " << restoredController.checksum());
-        CPPUNIT_ASSERT_EQUAL(origController.checksum(), restoredController.checksum());
+        BOOST_REQUIRE_EQUAL(origController.checksum(), restoredController.checksum());
     }
 }
 
-CppUnit::Test* CDecayRateControllerTest::suite() {
-    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CDecayRateControllerTest");
-
-    suiteOfTests->addTest(new CppUnit::TestCaller<CDecayRateControllerTest>(
-        "CDecayRateControllerTest::testLowCov", &CDecayRateControllerTest::testLowCov));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CDecayRateControllerTest>(
-        "CDecayRateControllerTest::testOrderedErrors",
-        &CDecayRateControllerTest::testOrderedErrors));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CDecayRateControllerTest>(
-        "CDecayRateControllerTest::testPersist", &CDecayRateControllerTest::testPersist));
-
-    return suiteOfTests;
-}
+BOOST_AUTO_TEST_SUITE_END()

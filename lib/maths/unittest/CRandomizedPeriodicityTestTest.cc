@@ -4,8 +4,6 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
-#include "CRandomizedPeriodicityTestTest.h"
-
 #include <core/CLogger.h>
 #include <core/CRapidXmlParser.h>
 #include <core/CRapidXmlStatePersistInserter.h>
@@ -22,9 +20,12 @@
 
 #include <boost/optional.hpp>
 #include <boost/range.hpp>
+#include <boost/test/unit_test.hpp>
 
 #include <string>
 #include <vector>
+
+BOOST_AUTO_TEST_SUITE(CRandomizedPeriodicityTestTest)
 
 using namespace ml;
 
@@ -39,7 +40,7 @@ const core_t::TTime DAY{core::constants::DAY};
 const core_t::TTime WEEK{core::constants::WEEK};
 }
 
-void CRandomizedPeriodicityTestTest::testAccuracy() {
+BOOST_AUTO_TEST_CASE(testAccuracy) {
     using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
     using TMeanVarAccumulator = maths::CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
     using TMaxAccumulator =
@@ -101,33 +102,33 @@ void CRandomizedPeriodicityTestTest::testAccuracy() {
         LOG_DEBUG(<< "falsePositives = " << core::CContainerPrinter::print(falsePositives));
         LOG_DEBUG(<< "trueNegatives = " << core::CContainerPrinter::print(trueNegatives));
         for (std::size_t i = 0u; i < boost::size(falsePositives); ++i) {
-            CPPUNIT_ASSERT(falsePositives[i] / trueNegatives[i] < 0.1);
+            BOOST_TEST_REQUIRE(falsePositives[i] / trueNegatives[i] < 0.1);
             typeI.add(falsePositives[i] / trueNegatives[i]);
         }
         LOG_DEBUG(<< "truePositives = " << core::CContainerPrinter::print(truePositives));
         LOG_DEBUG(<< "falseNegatives = " << core::CContainerPrinter::print(falseNegatives));
         for (std::size_t i = 0u; i < boost::size(falsePositives); ++i) {
-            CPPUNIT_ASSERT(falseNegatives[i] / truePositives[i] < 0.2);
+            BOOST_TEST_REQUIRE(falseNegatives[i] / truePositives[i] < 0.2);
             typeII.add(falseNegatives[i] / truePositives[i]);
         }
 
         for (std::size_t i = 0u; i < boost::size(timeToDetectionMoments); ++i) {
             LOG_DEBUG(<< "time to detect moments = " << timeToDetectionMoments[i]);
             LOG_DEBUG(<< "maximum time to detect = " << timeToDetectionMax[i][0]);
-            CPPUNIT_ASSERT(maths::CBasicStatistics::mean(timeToDetectionMoments[i]) <
-                           1.5 * DAY);
-            CPPUNIT_ASSERT(std::sqrt(maths::CBasicStatistics::variance(
-                               timeToDetectionMoments[i])) < 5 * DAY);
-            CPPUNIT_ASSERT(timeToDetectionMax[i][0] <= 27 * WEEK);
+            BOOST_TEST_REQUIRE(
+                maths::CBasicStatistics::mean(timeToDetectionMoments[i]) < 1.5 * DAY);
+            BOOST_TEST_REQUIRE(std::sqrt(maths::CBasicStatistics::variance(
+                                   timeToDetectionMoments[i])) < 5 * DAY);
+            BOOST_TEST_REQUIRE(timeToDetectionMax[i][0] <= 27 * WEEK);
         }
     }
     LOG_DEBUG(<< "type I  = " << maths::CBasicStatistics::mean(typeI));
     LOG_DEBUG(<< "type II = " << maths::CBasicStatistics::mean(typeII));
-    CPPUNIT_ASSERT(maths::CBasicStatistics::mean(typeI) < 0.015);
-    CPPUNIT_ASSERT(maths::CBasicStatistics::mean(typeII) < 0.05);
+    BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(typeI) < 0.015);
+    BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(typeII) < 0.05);
 }
 
-void CRandomizedPeriodicityTestTest::testPersist() {
+BOOST_AUTO_TEST_CASE(testPersist) {
     // Check that persistence is idempotent.
 
     maths::CRandomizedPeriodicityTest test;
@@ -158,9 +159,9 @@ void CRandomizedPeriodicityTestTest::testPersist() {
     maths::CRandomizedPeriodicityTest test2;
     {
         core::CRapidXmlParser parser;
-        CPPUNIT_ASSERT(parser.parseStringIgnoreCdata(origXml));
+        BOOST_TEST_REQUIRE(parser.parseStringIgnoreCdata(origXml));
         core::CRapidXmlStateRestoreTraverser traverser(parser);
-        CPPUNIT_ASSERT(traverser.traverseSubLevel(
+        BOOST_TEST_REQUIRE(traverser.traverseSubLevel(
             std::bind(&maths::CRandomizedPeriodicityTest::acceptRestoreTraverser,
                       &test2, std::placeholders::_1)));
     }
@@ -170,14 +171,14 @@ void CRandomizedPeriodicityTestTest::testPersist() {
         test2.acceptPersistInserter(inserter);
         inserter.toXml(newXml);
     }
-    CPPUNIT_ASSERT_EQUAL(origXml, newXml);
-    CPPUNIT_ASSERT_EQUAL(test.checksum(), test2.checksum());
+    BOOST_REQUIRE_EQUAL(origXml, newXml);
+    BOOST_REQUIRE_EQUAL(test.checksum(), test2.checksum());
 
     {
         core::CRapidXmlParser parser;
-        CPPUNIT_ASSERT(parser.parseStringIgnoreCdata(origStaticsXml));
+        BOOST_TEST_REQUIRE(parser.parseStringIgnoreCdata(origStaticsXml));
         core::CRapidXmlStateRestoreTraverser traverser(parser);
-        CPPUNIT_ASSERT(traverser.traverseSubLevel(
+        BOOST_TEST_REQUIRE(traverser.traverseSubLevel(
             &maths::CRandomizedPeriodicityTest::staticsAcceptRestoreTraverser));
     }
     std::string newStaticsXml;
@@ -186,19 +187,10 @@ void CRandomizedPeriodicityTestTest::testPersist() {
         test2.staticsAcceptPersistInserter(inserter);
         inserter.toXml(newStaticsXml);
     }
-    CPPUNIT_ASSERT_EQUAL(origStaticsXml, newStaticsXml);
+    BOOST_REQUIRE_EQUAL(origStaticsXml, newStaticsXml);
 
     uint64_t newNextRandom = test2.ms_Rng();
-    CPPUNIT_ASSERT_EQUAL(origNextRandom, newNextRandom);
+    BOOST_REQUIRE_EQUAL(origNextRandom, newNextRandom);
 }
 
-CppUnit::Test* CRandomizedPeriodicityTestTest::suite() {
-    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CRandomizedPeriodicityTestTest");
-
-    suiteOfTests->addTest(new CppUnit::TestCaller<CRandomizedPeriodicityTestTest>(
-        "CTrendTestsTest::testAccuracy", &CRandomizedPeriodicityTestTest::testAccuracy));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CRandomizedPeriodicityTestTest>(
-        "CTrendTestsTest::testPersist", &CRandomizedPeriodicityTestTest::testPersist));
-
-    return suiteOfTests;
-}
+BOOST_AUTO_TEST_SUITE_END()

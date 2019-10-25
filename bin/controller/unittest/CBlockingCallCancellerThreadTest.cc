@@ -3,7 +3,6 @@
  * or more contributor license agreements. Licensed under the Elastic License;
  * you may not use this file except in compliance with the Elastic License.
  */
-#include "CBlockingCallCancellerThreadTest.h"
 
 #include <core/CDualThreadStreamBuf.h>
 #include <core/CNamedPipeFactory.h>
@@ -12,7 +11,11 @@
 
 #include "../CBlockingCallCancellerThread.h"
 
+#include <boost/test/unit_test.hpp>
+
 #include <istream>
+
+BOOST_AUTO_TEST_SUITE(CBlockingCallCancellerThreadTest)
 
 namespace {
 
@@ -34,23 +37,13 @@ private:
 };
 }
 
-CppUnit::Test* CBlockingCallCancellerThreadTest::suite() {
-    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CBlockingCallCancellerThreadTest");
-
-    suiteOfTests->addTest(new CppUnit::TestCaller<CBlockingCallCancellerThreadTest>(
-        "CBlockingCallCancellerThreadTest::testCancelBlock",
-        &CBlockingCallCancellerThreadTest::testCancelBlock));
-
-    return suiteOfTests;
-}
-
-void CBlockingCallCancellerThreadTest::testCancelBlock() {
+BOOST_AUTO_TEST_CASE(testCancelBlock) {
     ml::core::CDualThreadStreamBuf buf;
     std::istream monStrm(&buf);
 
     ml::controller::CBlockingCallCancellerThread cancellerThread(
         ml::core::CThread::currentThreadId(), monStrm);
-    CPPUNIT_ASSERT(cancellerThread.start());
+    BOOST_TEST_REQUIRE(cancellerThread.start());
 
     // The CBlockingCallCancellerThread should wake up the blocking open of the
     // named pipe "test_pipe".  Without this wake up, it would block
@@ -60,13 +53,15 @@ void CBlockingCallCancellerThreadTest::testCancelBlock() {
     // source, and it runs out of data after 0.2 seconds.
 
     CEofThread eofThread(buf);
-    CPPUNIT_ASSERT(eofThread.start());
+    BOOST_TEST_REQUIRE(eofThread.start());
 
     ml::core::CNamedPipeFactory::TIStreamP pipeStrm = ml::core::CNamedPipeFactory::openPipeStreamRead(
         ml::core::CNamedPipeFactory::defaultPath() + "test_pipe");
-    CPPUNIT_ASSERT(pipeStrm == nullptr);
+    BOOST_TEST_REQUIRE(pipeStrm == nullptr);
 
-    CPPUNIT_ASSERT(cancellerThread.stop());
+    BOOST_TEST_REQUIRE(cancellerThread.stop());
 
-    CPPUNIT_ASSERT(eofThread.stop());
+    BOOST_TEST_REQUIRE(eofThread.stop());
 }
+
+BOOST_AUTO_TEST_SUITE_END()

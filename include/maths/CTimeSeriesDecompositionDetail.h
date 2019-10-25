@@ -27,7 +27,9 @@
 #include <memory>
 #include <vector>
 
+namespace CTimeSeriesDecompositionTest {
 class CNanInjector;
+}
 
 namespace ml {
 namespace maths {
@@ -664,7 +666,7 @@ public:
             TComponentErrorsVec m_PredictionErrors;
 
             //! Befriend a helper class used by the unit tests
-            friend class ::CNanInjector;
+            friend class CTimeSeriesDecompositionTest::CNanInjector;
         };
 
         using TSeasonalPtr = std::unique_ptr<CSeasonal>;
@@ -859,7 +861,7 @@ public:
         bool m_UsingTrendForPrediction = false;
 
         //! Befriend a helper class used by the unit tests
-        friend class ::CNanInjector;
+        friend class CTimeSeriesDecompositionTest::CNanInjector;
     };
 };
 

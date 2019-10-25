@@ -202,25 +202,6 @@ sudo env PATH="$PATH" LD_LIBRARY_PATH="$LD_LIBRARY_PATH" ./b2 install --prefix=/
 
 to install the Boost headers and libraries.  (Note the `env PATH="$PATH"` bit in the install command - this is because `sudo` usually resets `PATH` and that will cause Boost to rebuild everything again with the default compiler as part of the install!)
 
-### cppunit
-
-Download the latest version of cppunit from <http://dev-www.libreoffice.org/src/cppunit-1.13.2.tar.gz> (or if that no longer exists by the time you read this, find the relevant link on <http://dev-www.libreoffice.org/src>).
-
-Untar it to a temporary directory and run:
-
-```
-./configure --prefix=/usr/local/gcc73
-```
-
-This should build an appropriate Makefile. Assuming it does, type:
-
-```
-make
-sudo make install
-```
-
-to install the cppunit headers, libraries, binaries and documentation.
-
 ### patchelf
 
 Obtain patchelf from <http://nixos.org/releases/patchelf/patchelf-0.9/> - the download file will be `patchelf-0.9.tar.bz2`.

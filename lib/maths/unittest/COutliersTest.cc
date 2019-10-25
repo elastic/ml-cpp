@@ -4,8 +4,6 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
-#include "COutliersTest.h"
-
 #include <core/CContainerPrinter.h>
 #include <core/CDataFrame.h>
 #include <core/CLogger.h>
@@ -15,14 +13,18 @@
 #include <maths/COutliers.h>
 #include <maths/CSetTools.h>
 
+#include <test/BoostTestCloseAbsolute.h>
 #include <test/CDataFrameTestUtils.h>
 #include <test/CRandomNumbers.h>
 #include <test/CTestTmpDir.h>
 
 #include <boost/filesystem.hpp>
+#include <boost/test/unit_test.hpp>
 
 #include <atomic>
 #include <numeric>
+
+BOOST_AUTO_TEST_SUITE(COutliersTest)
 
 using namespace ml;
 
@@ -176,7 +178,7 @@ void outlierErrorStatisticsForEnsemble(std::size_t numberThreads,
 }
 }
 
-void COutliersTest::testLof() {
+BOOST_AUTO_TEST_CASE(testLof) {
     // Test vanilla verses sklearn.
 
     test::CRandomNumbers rng;
@@ -226,11 +228,11 @@ void COutliersTest::testLof() {
         for (auto outlier : outliers) {
             indicator[outlier] = -1;
         }
-        CPPUNIT_ASSERT_EQUAL(expected[k / 5 - 1], core::CContainerPrinter::print(indicator));
+        BOOST_REQUIRE_EQUAL(expected[k / 5 - 1], core::CContainerPrinter::print(indicator));
     }
 }
 
-void COutliersTest::testDlof() {
+BOOST_AUTO_TEST_CASE(testDlof) {
 
     // Test against definition without projecting.
 
@@ -266,11 +268,11 @@ void COutliersTest::testDlof() {
     LOG_DEBUG(<< "ldof = " << core::CContainerPrinter::print(ldof));
 
     for (std::size_t i = 0; i < scores.size(); ++i) {
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(ldof[i], scores[i], 1e-5);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(ldof[i], scores[i], 1e-5);
     }
 }
 
-void COutliersTest::testDistancekNN() {
+BOOST_AUTO_TEST_CASE(testDistancekNN) {
 
     // Test against definition without projecting.
 
@@ -299,11 +301,11 @@ void COutliersTest::testDistancekNN() {
     LOG_DEBUG(<< "distances = " << core::CContainerPrinter::print(distances));
 
     for (std::size_t i = 0; i < scores.size(); ++i) {
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(distances[i], scores[i], 1e-5);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(distances[i], scores[i], 1e-5);
     }
 }
 
-void COutliersTest::testTotalDistancekNN() {
+BOOST_AUTO_TEST_CASE(testTotalDistancekNN) {
 
     // Test against definition without projecting.
 
@@ -337,11 +339,11 @@ void COutliersTest::testTotalDistancekNN() {
     LOG_DEBUG(<< "distances = " << core::CContainerPrinter::print(distances));
 
     for (std::size_t i = 0; i < scores.size(); ++i) {
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(distances[i], scores[i], 1e-5);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(distances[i], scores[i], 1e-5);
     }
 }
 
-void COutliersTest::testEnsemble() {
+BOOST_AUTO_TEST_CASE(testEnsemble) {
 
     // Check error stats for scores, 0.1, 0.5 and 0.9. We should see precision increase
     // for higher scores but recall decrease.
@@ -391,8 +393,8 @@ void COutliersTest::testEnsemble() {
                 double recall{TP[k] / (TP[k] + FN[k])};
                 LOG_DEBUG(<< "precision = " << precision);
                 LOG_DEBUG(<< "recall = " << recall);
-                CPPUNIT_ASSERT(precision >= precisionLowerBounds[k]);
-                CPPUNIT_ASSERT(recall >= recallLowerBounds[k]);
+                BOOST_TEST_REQUIRE(precision >= precisionLowerBounds[k]);
+                BOOST_TEST_REQUIRE(recall >= recallLowerBounds[k]);
             }
 
             core::startDefaultAsyncExecutor();
@@ -402,7 +404,7 @@ void COutliersTest::testEnsemble() {
     }
 }
 
-void COutliersTest::testFeatureInfluences() {
+BOOST_AUTO_TEST_CASE(testFeatureInfluences) {
 
     // Test calculation of outlier significant features.
 
@@ -497,10 +499,10 @@ void COutliersTest::testFeatureInfluences() {
                     averageSignificances[1].add((*row)[4]);
                 }
             });
-            CPPUNIT_ASSERT(passed);
+            BOOST_TEST_REQUIRE(passed);
 
             LOG_DEBUG(<< averageSignificances[0] << " " << averageSignificances[1]);
-            CPPUNIT_ASSERT(
+            BOOST_TEST_REQUIRE(
                 std::fabs(maths::CBasicStatistics::mean(averageSignificances[0]) -
                           maths::CBasicStatistics::mean(averageSignificances[1])) < 0.05);
             core::startDefaultAsyncExecutor();
@@ -510,7 +512,7 @@ void COutliersTest::testFeatureInfluences() {
     }
 }
 
-void COutliersTest::testEstimateMemoryUsedByCompute() {
+BOOST_AUTO_TEST_CASE(testEstimateMemoryUsedByCompute) {
 
     // Test that the memory estimated for compute is close to what it uses.
 
@@ -579,12 +581,12 @@ void COutliersTest::testEstimateMemoryUsedByCompute() {
 
         LOG_DEBUG(<< "estimated peak memory = " << estimatedMemoryUsage);
         LOG_DEBUG(<< "high water mark = " << maxMemoryUsage);
-        CPPUNIT_ASSERT(std::abs(maxMemoryUsage - estimatedMemoryUsage) <
-                       std::max(maxMemoryUsage.load(), estimatedMemoryUsage) / 10);
+        BOOST_TEST_REQUIRE(std::abs(maxMemoryUsage - estimatedMemoryUsage) <
+                           std::max(maxMemoryUsage.load(), estimatedMemoryUsage) / 10);
     }
 }
 
-void COutliersTest::testProgressMonitoring() {
+BOOST_AUTO_TEST_CASE(testProgressMonitoring) {
 
     // Test progress monitoring invariants with and without partitioning.
 
@@ -651,16 +653,16 @@ void COutliersTest::testProgressMonitoring() {
         }
         worker.join();
 
-        CPPUNIT_ASSERT(monotonic);
+        BOOST_TEST_REQUIRE(monotonic);
 
         LOG_DEBUG(<< "total fractional progress = " << totalFractionalProgress.load());
-        CPPUNIT_ASSERT(std::fabs(65536 - totalFractionalProgress.load()) < 300);
+        BOOST_TEST_REQUIRE(std::fabs(65536 - totalFractionalProgress.load()) < 300);
     }
 
     core::startDefaultAsyncExecutor();
 }
 
-void COutliersTest::testMostlyDuplicate() {
+BOOST_AUTO_TEST_CASE(testMostlyDuplicate) {
     using TSizeDoublePr = std::pair<std::size_t, double>;
     using TSizeDoublePrVec = std::vector<TSizeDoublePr>;
 
@@ -706,12 +708,12 @@ void COutliersTest::testMostlyDuplicate() {
 
         LOG_DEBUG(<< "outlier scores = " << core::CContainerPrinter::print(outlierScores));
         for (auto score : outlierScores) {
-            CPPUNIT_ASSERT_DOUBLES_EQUAL(0.98, score, 0.02);
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(0.98, score, 0.02);
         }
     }
 }
 
-void COutliersTest::testFewPoints() {
+BOOST_AUTO_TEST_CASE(testFewPoints) {
 
     // Check there are no failures when there only a few points.
 
@@ -755,34 +757,8 @@ void COutliersTest::testFewPoints() {
             }
         });
 
-        CPPUNIT_ASSERT(passed);
+        BOOST_TEST_REQUIRE(passed);
     }
 }
 
-CppUnit::Test* COutliersTest::suite() {
-    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("COutliersTest");
-
-    suiteOfTests->addTest(new CppUnit::TestCaller<COutliersTest>(
-        "COutliersTest::testLof", &COutliersTest::testLof));
-    suiteOfTests->addTest(new CppUnit::TestCaller<COutliersTest>(
-        "COutliersTest::testDlof", &COutliersTest::testDlof));
-    suiteOfTests->addTest(new CppUnit::TestCaller<COutliersTest>(
-        "COutliersTest::testDistancekNN", &COutliersTest::testDistancekNN));
-    suiteOfTests->addTest(new CppUnit::TestCaller<COutliersTest>(
-        "COutliersTest::testTotalDistancekNN", &COutliersTest::testTotalDistancekNN));
-    suiteOfTests->addTest(new CppUnit::TestCaller<COutliersTest>(
-        "COutliersTest::testEnsemble", &COutliersTest::testEnsemble));
-    suiteOfTests->addTest(new CppUnit::TestCaller<COutliersTest>(
-        "COutliersTest::testFeatureInfluences", &COutliersTest::testFeatureInfluences));
-    suiteOfTests->addTest(new CppUnit::TestCaller<COutliersTest>(
-        "COutliersTest::testEstimateMemoryUsedByCompute",
-        &COutliersTest::testEstimateMemoryUsedByCompute));
-    suiteOfTests->addTest(new CppUnit::TestCaller<COutliersTest>(
-        "COutliersTest::testProgressMonitoring", &COutliersTest::testProgressMonitoring));
-    suiteOfTests->addTest(new CppUnit::TestCaller<COutliersTest>(
-        "COutliersTest::testMostlyDuplicate", &COutliersTest::testMostlyDuplicate));
-    suiteOfTests->addTest(new CppUnit::TestCaller<COutliersTest>(
-        "COutliersTest::testFewPoints", &COutliersTest::testFewPoints));
-
-    return suiteOfTests;
-}
+BOOST_AUTO_TEST_SUITE_END()

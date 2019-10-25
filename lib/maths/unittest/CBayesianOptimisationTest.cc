@@ -4,8 +4,6 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
-#include "CBayesianOptimisationTest.h"
-
 #include <core/CJsonStatePersistInserter.h>
 #include <core/CJsonStateRestoreTraverser.h>
 
@@ -13,9 +11,14 @@
 #include <maths/CBayesianOptimisation.h>
 #include <maths/CLinearAlgebraEigen.h>
 
+#include <test/BoostTestCloseAbsolute.h>
 #include <test/CRandomNumbers.h>
 
+#include <boost/test/unit_test.hpp>
+
 #include <vector>
+
+BOOST_AUTO_TEST_SUITE(CBayesianOptimisationTest)
 
 using namespace ml;
 
@@ -31,9 +34,58 @@ TVector vector(TDoubleVec components) {
     }
     return result;
 }
+
+void testPersistRestoreIsIdempotent(const TDoubleVec& minBoundary,
+                                    const TDoubleVec& maxBoundary,
+                                    const std::vector<TDoubleVec>& parameterFunctionValues) {
+    std::stringstream persistOnceSStream;
+    std::stringstream persistTwiceSStream;
+    std::size_t dimensions = minBoundary.size();
+
+    std::string topLevelTag{"bayesian_optimisation"};
+
+    // persist
+    {
+        maths::CBayesianOptimisation::TDoubleDoublePrVec parameterBoundaries;
+        for (std::size_t i = 0; i < dimensions; ++i) {
+            parameterBoundaries.emplace_back(minBoundary[i], maxBoundary[i]);
+        }
+        maths::CBayesianOptimisation bayesianOptimisation{parameterBoundaries};
+        if (parameterFunctionValues.size() > 0) {
+            for (auto parameterFunctionValue : parameterFunctionValues) {
+                maths::CBayesianOptimisation::TVector parameter(dimensions);
+                for (std::size_t i = 0; i < dimensions; ++i) {
+                    parameter(i) = parameterFunctionValue[i];
+                }
+                bayesianOptimisation.add(parameter, parameterFunctionValue[dimensions],
+                                         parameterFunctionValue[dimensions + 1]);
+            }
+        }
+
+        core::CJsonStatePersistInserter inserter(persistOnceSStream);
+        inserter.insertLevel(
+            topLevelTag, std::bind(&maths::CBayesianOptimisation::acceptPersistInserter,
+                                   &bayesianOptimisation, std::placeholders::_1));
+        persistOnceSStream.flush();
+    }
+    // and restore
+    {
+        core::CJsonStateRestoreTraverser traverser{persistOnceSStream};
+        maths::CBayesianOptimisation bayesianOptimisation{traverser};
+
+        core::CJsonStatePersistInserter inserter(persistTwiceSStream);
+        inserter.insertLevel(
+            topLevelTag, std::bind(&maths::CBayesianOptimisation::acceptPersistInserter,
+                                   &bayesianOptimisation, std::placeholders::_1));
+        persistTwiceSStream.flush();
+    }
+    LOG_DEBUG(<< "First string " << persistOnceSStream.str());
+    LOG_DEBUG(<< "Second string " << persistTwiceSStream.str());
+    BOOST_REQUIRE_EQUAL(persistOnceSStream.str(), persistTwiceSStream.str());
+}
 }
 
-void CBayesianOptimisationTest::testLikelihoodGradient() {
+BOOST_AUTO_TEST_CASE(testLikelihoodGradient) {
 
     // Test that the likelihood gradient matches the numerical gradient.
 
@@ -77,13 +129,13 @@ void CBayesianOptimisationTest::testLikelihoodGradient() {
 
             TVector gradient{g(a)};
 
-            CPPUNIT_ASSERT((expectedGradient - gradient).norm() <
-                           1e-3 * expectedGradient.norm());
+            BOOST_TEST_REQUIRE((expectedGradient - gradient).norm() <
+                               1e-3 * expectedGradient.norm());
         }
     }
 }
 
-void CBayesianOptimisationTest::testMaximumLikelihoodKernel() {
+BOOST_AUTO_TEST_CASE(testMaximumLikelihoodKernel) {
 
     // Check that the kernel parameters we choose are at a minimum of the likelihood
     // as a function of those parameters.
@@ -116,7 +168,7 @@ void CBayesianOptimisationTest::testMaximumLikelihoodKernel() {
         double minusML{l(parameters)};
         LOG_TRACE(<< "maximum likelihood = " << -minusML);
 
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(0.0, g(parameters).norm(), 0.05);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(0.0, g(parameters).norm(), 0.05);
 
         TVector eps{parameters.size()};
         eps.setZero();
@@ -126,13 +178,13 @@ void CBayesianOptimisationTest::testMaximumLikelihoodKernel() {
             eps(i) = -0.1;
             double minusLMinusEps{l(parameters + eps)};
             eps(i) = 0.0;
-            CPPUNIT_ASSERT(minusML < minusLPlusEps);
-            CPPUNIT_ASSERT(minusML < minusLMinusEps);
+            BOOST_TEST_REQUIRE(minusML < minusLPlusEps);
+            BOOST_TEST_REQUIRE(minusML < minusLMinusEps);
         }
     }
 }
 
-void CBayesianOptimisationTest::testExpectedImprovementGradient() {
+BOOST_AUTO_TEST_CASE(testExpectedImprovementGradient) {
 
     // Test that the expected improvement gradient matches the numerical gradient.
 
@@ -175,13 +227,13 @@ void CBayesianOptimisationTest::testExpectedImprovementGradient() {
 
             TVector gradient{eig(x)};
 
-            CPPUNIT_ASSERT((expectedGradient - gradient).norm() <
-                           1e-2 * expectedGradient.norm());
+            BOOST_TEST_REQUIRE((expectedGradient - gradient).norm() <
+                               1e-2 * expectedGradient.norm());
         }
     }
 }
 
-void CBayesianOptimisationTest::testMaximumExpectedImprovement() {
+BOOST_AUTO_TEST_CASE(testMaximumExpectedImprovement) {
 
     // This tests the efficiency of the search on a variety of non-convex functions.
     // We check the value of the function we find after fixed number of iterations
@@ -260,10 +312,10 @@ void CBayesianOptimisationTest::testMaximumExpectedImprovement() {
     }
 
     LOG_DEBUG(<< "mean gain = " << maths::CBasicStatistics::mean(gain));
-    CPPUNIT_ASSERT(maths::CBasicStatistics::mean(gain) > 1.27);
+    BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(gain) > 1.27);
 }
 
-void CBayesianOptimisationTest::testPersistRestore() {
+BOOST_AUTO_TEST_CASE(testPersistRestore) {
     // 1d
     {
         TDoubleVec minBoundary{0.};
@@ -271,8 +323,7 @@ void CBayesianOptimisationTest::testPersistRestore() {
         // empty
         {
             std::vector<TDoubleVec> parameterFunctionValues{};
-            this->testPersistRestoreIsIdempotent(minBoundary, maxBoundary,
-                                                 parameterFunctionValues);
+            testPersistRestoreIsIdempotent(minBoundary, maxBoundary, parameterFunctionValues);
         }
         // with data
         {
@@ -280,8 +331,7 @@ void CBayesianOptimisationTest::testPersistRestore() {
                 {5., 1., 0.2},
                 {7., 1., 0.2},
             };
-            this->testPersistRestoreIsIdempotent(minBoundary, maxBoundary,
-                                                 parameterFunctionValues);
+            testPersistRestoreIsIdempotent(minBoundary, maxBoundary, parameterFunctionValues);
         }
     }
 
@@ -292,8 +342,7 @@ void CBayesianOptimisationTest::testPersistRestore() {
         // empty
         {
             std::vector<TDoubleVec> parameterFunctionValues{};
-            this->testPersistRestoreIsIdempotent(minBoundary, maxBoundary,
-                                                 parameterFunctionValues);
+            testPersistRestoreIsIdempotent(minBoundary, maxBoundary, parameterFunctionValues);
         }
         // with data
         {
@@ -301,80 +350,9 @@ void CBayesianOptimisationTest::testPersistRestore() {
                 {5., 0., 1., 0.2},
                 {7., 0., 1., 0.2},
             };
-            this->testPersistRestoreIsIdempotent(minBoundary, maxBoundary,
-                                                 parameterFunctionValues);
+            testPersistRestoreIsIdempotent(minBoundary, maxBoundary, parameterFunctionValues);
         }
     }
 }
 
-void CBayesianOptimisationTest::testPersistRestoreIsIdempotent(
-    const TDoubleVec& minBoundary,
-    const TDoubleVec& maxBoundary,
-    const std::vector<TDoubleVec>& parameterFunctionValues) const {
-    std::stringstream persistOnceSStream;
-    std::stringstream persistTwiceSStream;
-    std::size_t dimensions = minBoundary.size();
-
-    std::string topLevelTag{"bayesian_optimisation"};
-
-    // persist
-    {
-        maths::CBayesianOptimisation::TDoubleDoublePrVec parameterBoundaries;
-        for (std::size_t i = 0; i < dimensions; ++i) {
-            parameterBoundaries.emplace_back(minBoundary[i], maxBoundary[i]);
-        }
-        maths::CBayesianOptimisation bayesianOptimisation{parameterBoundaries};
-        if (parameterFunctionValues.size() > 0) {
-            for (auto parameterFunctionValue : parameterFunctionValues) {
-                maths::CBayesianOptimisation::TVector parameter(dimensions);
-                for (std::size_t i = 0; i < dimensions; ++i) {
-                    parameter(i) = parameterFunctionValue[i];
-                }
-                bayesianOptimisation.add(parameter, parameterFunctionValue[dimensions],
-                                         parameterFunctionValue[dimensions + 1]);
-            }
-        }
-
-        core::CJsonStatePersistInserter inserter(persistOnceSStream);
-        inserter.insertLevel(
-            topLevelTag, std::bind(&maths::CBayesianOptimisation::acceptPersistInserter,
-                                   &bayesianOptimisation, std::placeholders::_1));
-        persistOnceSStream.flush();
-    }
-    // and restore
-    {
-        core::CJsonStateRestoreTraverser traverser{persistOnceSStream};
-        maths::CBayesianOptimisation bayesianOptimisation{traverser};
-
-        core::CJsonStatePersistInserter inserter(persistTwiceSStream);
-        inserter.insertLevel(
-            topLevelTag, std::bind(&maths::CBayesianOptimisation::acceptPersistInserter,
-                                   &bayesianOptimisation, std::placeholders::_1));
-        persistTwiceSStream.flush();
-    }
-    LOG_DEBUG(<< "First string " << persistOnceSStream.str());
-    LOG_DEBUG(<< "Second string " << persistTwiceSStream.str());
-    CPPUNIT_ASSERT_EQUAL(persistOnceSStream.str(), persistTwiceSStream.str());
-}
-
-CppUnit::Test* CBayesianOptimisationTest::suite() {
-    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CBayesianOptimisationTest");
-
-    suiteOfTests->addTest(new CppUnit::TestCaller<CBayesianOptimisationTest>(
-        "CBayesianOptimisationTest::testLikelihoodGradient",
-        &CBayesianOptimisationTest::testLikelihoodGradient));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CBayesianOptimisationTest>(
-        "CBayesianOptimisationTest::testMaximumLikelihoodKernel",
-        &CBayesianOptimisationTest::testMaximumLikelihoodKernel));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CBayesianOptimisationTest>(
-        "CBayesianOptimisationTest::testExpectedImprovementGradient",
-        &CBayesianOptimisationTest::testExpectedImprovementGradient));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CBayesianOptimisationTest>(
-        "CBayesianOptimisationTest::testMaximumExpectedImprovement",
-        &CBayesianOptimisationTest::testMaximumExpectedImprovement));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CBayesianOptimisationTest>(
-        "CBayesianOptimisationTest::testPersistRestore",
-        &CBayesianOptimisationTest::testPersistRestore));
-
-    return suiteOfTests;
-}
+BOOST_AUTO_TEST_SUITE_END()

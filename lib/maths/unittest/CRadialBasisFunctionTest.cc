@@ -4,15 +4,18 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
-#include "CRadialBasisFunctionTest.h"
-
 #include <core/CLogger.h>
 
 #include <maths/CCompositeFunctions.h>
 #include <maths/CIntegration.h>
 #include <maths/CRadialBasisFunction.h>
 
+#include <test/BoostTestCloseAbsolute.h>
+
 #include <boost/range.hpp>
+#include <boost/test/unit_test.hpp>
+
+BOOST_AUTO_TEST_SUITE(CRadialBasisFunctionTest)
 
 using namespace ml;
 
@@ -55,7 +58,7 @@ private:
 };
 }
 
-void CRadialBasisFunctionTest::testDerivative() {
+BOOST_AUTO_TEST_CASE(testDerivative) {
     const double a = 0.0;
     const double b = 10.0;
     const double centres[] = {0.0, 5.0, 10.0};
@@ -79,7 +82,7 @@ void CRadialBasisFunctionTest::testDerivative() {
 
                 // Centred difference nuemrical derivative should
                 // be accurate to o(eps^2).
-                CPPUNIT_ASSERT_DOUBLES_EQUAL(d, e, eps * eps);
+                BOOST_REQUIRE_CLOSE_ABSOLUTE(d, e, eps * eps);
             }
         }
     }
@@ -100,13 +103,13 @@ void CRadialBasisFunctionTest::testDerivative() {
 
                 // Centred difference nuemrical derivative should
                 // be accurate to o(eps^2).
-                CPPUNIT_ASSERT_DOUBLES_EQUAL(d, e, eps * eps);
+                BOOST_REQUIRE_CLOSE_ABSOLUTE(d, e, eps * eps);
             }
         }
     }
 }
 
-void CRadialBasisFunctionTest::testMean() {
+BOOST_AUTO_TEST_CASE(testMean) {
     const double a = 0.0;
     const double b = 10.0;
     const double centres[] = {0.0, 5.0, 10.0};
@@ -135,7 +138,7 @@ void CRadialBasisFunctionTest::testMean() {
 
             double mean = gaussian.mean(a, b, centres[i], scales[j]);
             LOG_DEBUG(<< "expectedMean = " << expectedMean << ", mean = " << mean);
-            CPPUNIT_ASSERT_DOUBLES_EQUAL(expectedMean, mean, eps * mean);
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(expectedMean, mean, eps * mean);
         }
     }
 
@@ -160,12 +163,12 @@ void CRadialBasisFunctionTest::testMean() {
 
             double mean = inverseQuadratic.mean(a, b, centres[i], scales[j]);
             LOG_DEBUG(<< "expectedMean = " << expectedMean << ", mean = " << mean);
-            CPPUNIT_ASSERT_DOUBLES_EQUAL(expectedMean, mean, eps * mean);
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(expectedMean, mean, eps * mean);
         }
     }
 }
 
-void CRadialBasisFunctionTest::testMeanSquareDerivative() {
+BOOST_AUTO_TEST_CASE(testMeanSquareDerivative) {
     const double a = 0.0;
     const double b = 10.0;
     const double centres[] = {0.0, 5.0, 10.0};
@@ -194,7 +197,7 @@ void CRadialBasisFunctionTest::testMeanSquareDerivative() {
 
             double mean = gaussian.meanSquareDerivative(a, b, centres[i], scales[j]);
             LOG_DEBUG(<< "expectedMean = " << expectedMean << ", mean = " << mean);
-            CPPUNIT_ASSERT_DOUBLES_EQUAL(expectedMean, mean, eps * mean);
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(expectedMean, mean, eps * mean);
         }
     }
 
@@ -220,12 +223,12 @@ void CRadialBasisFunctionTest::testMeanSquareDerivative() {
             double mean = inverseQuadratic.meanSquareDerivative(a, b, centres[i],
                                                                 scales[j]);
             LOG_DEBUG(<< "expectedMean = " << expectedMean << ", mean = " << mean);
-            CPPUNIT_ASSERT_DOUBLES_EQUAL(expectedMean, mean, eps * mean);
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(expectedMean, mean, eps * mean);
         }
     }
 }
 
-void CRadialBasisFunctionTest::testProduct() {
+BOOST_AUTO_TEST_CASE(testProduct) {
     const double a = 0.0;
     const double b = 10.0;
     const double centres[] = {0.0, 5.0, 10.0};
@@ -263,7 +266,7 @@ void CRadialBasisFunctionTest::testProduct() {
                                                       scales[k], scales[l]);
                     LOG_DEBUG(<< "expectedMean = " << expectedProduct
                               << ", mean = " << product);
-                    CPPUNIT_ASSERT_DOUBLES_EQUAL(expectedProduct, product, eps * product);
+                    BOOST_REQUIRE_CLOSE_ABSOLUTE(expectedProduct, product, eps * product);
                 }
             }
         }
@@ -299,25 +302,11 @@ void CRadialBasisFunctionTest::testProduct() {
                         a, b, centres[i], centres[j], scales[k], scales[l]);
                     LOG_DEBUG(<< "expectedProduct = " << expectedProduct
                               << ", product = " << product);
-                    CPPUNIT_ASSERT_DOUBLES_EQUAL(expectedProduct, product, eps * product);
+                    BOOST_REQUIRE_CLOSE_ABSOLUTE(expectedProduct, product, eps * product);
                 }
             }
         }
     }
 }
 
-CppUnit::Test* CRadialBasisFunctionTest::suite() {
-    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CRadialBasisFunctionTest");
-
-    suiteOfTests->addTest(new CppUnit::TestCaller<CRadialBasisFunctionTest>(
-        "CRadialBasisFunctionTest::testDerivative", &CRadialBasisFunctionTest::testDerivative));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CRadialBasisFunctionTest>(
-        "CRadialBasisFunctionTest::testMean", &CRadialBasisFunctionTest::testMean));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CRadialBasisFunctionTest>(
-        "CRadialBasisFunctionTest::testMeanSquareDerivative",
-        &CRadialBasisFunctionTest::testMeanSquareDerivative));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CRadialBasisFunctionTest>(
-        "CRadialBasisFunctionTest::testProduct", &CRadialBasisFunctionTest::testProduct));
-
-    return suiteOfTests;
-}
+BOOST_AUTO_TEST_SUITE_END()

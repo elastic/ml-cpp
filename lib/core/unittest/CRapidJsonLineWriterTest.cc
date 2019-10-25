@@ -4,8 +4,6 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
-#include "CRapidJsonLineWriterTest.h"
-
 #include <core/CLogger.h>
 #include <core/CRapidJsonLineWriter.h>
 #include <core/CStopWatch.h>
@@ -15,10 +13,14 @@
 #include <rapidjson/internal/dtoa.h>
 #include <rapidjson/ostreamwrapper.h>
 
+#include <boost/test/unit_test.hpp>
+
 #include <limits>
 #include <sstream>
 
 #include <stdio.h>
+
+BOOST_AUTO_TEST_SUITE(CRapidJsonLineWriterTest)
 
 namespace {
 const std::string STR_NAME("str");
@@ -36,7 +38,7 @@ const std::string NAN_ARRAY_NAME("nan[]");
 const std::string TTIME_ARRAY_NAME("TTime[]");
 }
 
-void CRapidJsonLineWriterTest::testDoublePrecission() {
+BOOST_AUTO_TEST_CASE(testDoublePrecission) {
     std::ostringstream strm;
     {
         using TGenericLineWriter =
@@ -55,40 +57,40 @@ void CRapidJsonLineWriterTest::testDoublePrecission() {
         writer.EndObject();
     }
 
-    CPPUNIT_ASSERT_EQUAL(std::string("{\"a\":0.00003,\"b\":5e-300,\"c\":0.0}\n"),
-                         strm.str());
+    BOOST_REQUIRE_EQUAL(std::string("{\"a\":0.00003,\"b\":5e-300,\"c\":0.0}\n"),
+                        strm.str());
 }
 
-void CRapidJsonLineWriterTest::testDoublePrecissionDtoa() {
+BOOST_AUTO_TEST_CASE(testDoublePrecissionDtoa) {
     char buffer[100];
 
     char* end = rapidjson::internal::dtoa(3e-5, buffer);
-    CPPUNIT_ASSERT_EQUAL(std::string("0.00003"),
-                         std::string(buffer, static_cast<size_t>(end - buffer)));
+    BOOST_REQUIRE_EQUAL(std::string("0.00003"),
+                        std::string(buffer, static_cast<size_t>(end - buffer)));
 
     end = rapidjson::internal::dtoa(2e-20, buffer, 20);
-    CPPUNIT_ASSERT_EQUAL(std::string("2e-20"),
-                         std::string(buffer, static_cast<size_t>(end - buffer)));
+    BOOST_REQUIRE_EQUAL(std::string("2e-20"),
+                        std::string(buffer, static_cast<size_t>(end - buffer)));
 
     end = rapidjson::internal::dtoa(1e-308, buffer);
-    CPPUNIT_ASSERT_EQUAL(std::string("1e-308"),
-                         std::string(buffer, static_cast<size_t>(end - buffer)));
+    BOOST_REQUIRE_EQUAL(std::string("1e-308"),
+                        std::string(buffer, static_cast<size_t>(end - buffer)));
 
     end = rapidjson::internal::dtoa(1e-300, buffer, 20);
-    CPPUNIT_ASSERT_EQUAL(std::string("0.0"),
-                         std::string(buffer, static_cast<size_t>(end - buffer)));
+    BOOST_REQUIRE_EQUAL(std::string("0.0"),
+                        std::string(buffer, static_cast<size_t>(end - buffer)));
 
     // test the limit, to not hardcode the string we check that it is not 0.0
     end = rapidjson::internal::dtoa(std::numeric_limits<double>::denorm_min(), buffer);
-    CPPUNIT_ASSERT(std::string("0.0") !=
-                   std::string(buffer, static_cast<size_t>(end - buffer)));
+    BOOST_TEST_REQUIRE(std::string("0.0") !=
+                       std::string(buffer, static_cast<size_t>(end - buffer)));
 
     int ret = ::snprintf(buffer, sizeof(buffer), "%g", 1e-300);
 
-    CPPUNIT_ASSERT_EQUAL(std::string("1e-300"), std::string(buffer, ret));
+    BOOST_REQUIRE_EQUAL(std::string("1e-300"), std::string(buffer, ret));
 }
 
-void CRapidJsonLineWriterTest::microBenchmark() {
+BOOST_AUTO_TEST_CASE(testMicroBenchmark, *boost::unit_test::disabled()) {
     char buffer[100];
     ml::core::CStopWatch stopWatch;
 
@@ -118,20 +120,4 @@ void CRapidJsonLineWriterTest::microBenchmark() {
     LOG_INFO(<< "snprintf " << runs << " runs took " << elapsed);
 }
 
-CppUnit::Test* CRapidJsonLineWriterTest::suite() {
-    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CRapidJsonLineWriterTest");
-
-    suiteOfTests->addTest(new CppUnit::TestCaller<CRapidJsonLineWriterTest>(
-        "CRapidJsonLineWriterTest::testDoublePrecissionDtoa",
-        &CRapidJsonLineWriterTest::testDoublePrecissionDtoa));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CRapidJsonLineWriterTest>(
-        "CRapidJsonLineWriterTest::testDoublePrecission",
-        &CRapidJsonLineWriterTest::testDoublePrecission));
-
-    // microbenchmark, enable if you are interested
-    /*suiteOfTests->addTest( new CppUnit::TestCaller<CRapidJsonLineWriterTest>(
-                                   "CRapidJsonLineWriterTest::microBenchmark",
-                                   &CRapidJsonLineWriterTest::microBenchmark) );*/
-
-    return suiteOfTests;
-}
+BOOST_AUTO_TEST_SUITE_END()

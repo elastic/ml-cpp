@@ -3,7 +3,6 @@
  * or more contributor license agreements. Licensed under the Elastic License;
  * you may not use this file except in compliance with the Elastic License.
  */
-#include "CLengthEncodedInputParserTest.h"
 
 #include <core/CContainerPrinter.h>
 #include <core/CLogger.h>
@@ -12,6 +11,8 @@
 
 #include <api/CCsvInputParser.h>
 #include <api/CLengthEncodedInputParser.h>
+
+#include <boost/test/unit_test.hpp>
 
 #include <fstream>
 #include <functional>
@@ -25,21 +26,11 @@
 #include <netinet/in.h>
 #endif
 
-CppUnit::Test* CLengthEncodedInputParserTest::suite() {
-    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CLengthEncodedInputParserTest");
+BOOST_TEST_DONT_PRINT_LOG_VALUE(ml::api::CCsvInputParser::TStrVecItr)
+BOOST_TEST_DONT_PRINT_LOG_VALUE(ml::api::CCsvInputParser::TStrVecCItr)
+BOOST_TEST_DONT_PRINT_LOG_VALUE(ml::api::CCsvInputParser::TStrStrUMapCItr)
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CLengthEncodedInputParserTest>(
-        "CLengthEncodedInputParserTest::testCsvEquivalence",
-        &CLengthEncodedInputParserTest::testCsvEquivalence));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CLengthEncodedInputParserTest>(
-        "CLengthEncodedInputParserTest::testThroughput",
-        &CLengthEncodedInputParserTest::testThroughput));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CLengthEncodedInputParserTest>(
-        "CLengthEncodedInputParserTest::testCorruptStreamDetection",
-        &CLengthEncodedInputParserTest::testCorruptStreamDetection));
-
-    return suiteOfTests;
-}
+BOOST_AUTO_TEST_SUITE(CLengthEncodedInputParserTest)
 
 namespace {
 
@@ -125,27 +116,27 @@ public:
         }
 
         // Check the field names
-        CPPUNIT_ASSERT_EQUAL(m_ExpectedFieldNames.size(), dataRowFields.size());
+        BOOST_REQUIRE_EQUAL(m_ExpectedFieldNames.size(), dataRowFields.size());
         for (ml::api::CCsvInputParser::TStrStrUMapCItr iter = dataRowFields.begin();
              iter != dataRowFields.end(); ++iter) {
             LOG_DEBUG(<< "Field " << iter->first << " is " << iter->second);
-            CPPUNIT_ASSERT(std::find(m_ExpectedFieldNames.begin(),
-                                     m_ExpectedFieldNames.end(),
-                                     iter->first) != m_ExpectedFieldNames.end());
+            BOOST_TEST_REQUIRE(std::find(m_ExpectedFieldNames.begin(),
+                                         m_ExpectedFieldNames.end(), iter->first) !=
+                               m_ExpectedFieldNames.end());
         }
 
         // Check the line count is consistent with the _raw field
         ml::api::CCsvInputParser::TStrStrUMapCItr rawIter = dataRowFields.find("_raw");
-        CPPUNIT_ASSERT(rawIter != dataRowFields.end());
+        BOOST_TEST_REQUIRE(rawIter != dataRowFields.end());
         ml::api::CCsvInputParser::TStrStrUMapCItr lineCountIter =
             dataRowFields.find("linecount");
-        CPPUNIT_ASSERT(lineCountIter != dataRowFields.end());
+        BOOST_TEST_REQUIRE(lineCountIter != dataRowFields.end());
 
         size_t expectedLineCount(1 + std::count(rawIter->second.begin(),
                                                 rawIter->second.end(), '\n'));
         size_t lineCount(0);
-        CPPUNIT_ASSERT(ml::core::CStringUtils::stringToType(lineCountIter->second, lineCount));
-        CPPUNIT_ASSERT_EQUAL(expectedLineCount, lineCount);
+        BOOST_TEST_REQUIRE(ml::core::CStringUtils::stringToType(lineCountIter->second, lineCount));
+        BOOST_REQUIRE_EQUAL(expectedLineCount, lineCount);
 
         return true;
     }
@@ -162,23 +153,23 @@ public:
         }
 
         // Check the field names
-        CPPUNIT_ASSERT_EQUAL(ml::core::CContainerPrinter::print(m_ExpectedFieldNames),
-                             ml::core::CContainerPrinter::print(fieldNames));
+        BOOST_REQUIRE_EQUAL(ml::core::CContainerPrinter::print(m_ExpectedFieldNames),
+                            ml::core::CContainerPrinter::print(fieldNames));
 
-        CPPUNIT_ASSERT_EQUAL(m_ExpectedFieldNames.size(), fieldValues.size());
+        BOOST_REQUIRE_EQUAL(m_ExpectedFieldNames.size(), fieldValues.size());
 
         // Check the line count is consistent with the _raw field
         auto rawIter = std::find(fieldNames.begin(), fieldNames.end(), "_raw");
-        CPPUNIT_ASSERT(rawIter != fieldNames.end());
+        BOOST_TEST_REQUIRE(rawIter != fieldNames.end());
         auto lineCountIter = std::find(fieldNames.begin(), fieldNames.end(), "linecount");
-        CPPUNIT_ASSERT(lineCountIter != fieldNames.end());
+        BOOST_TEST_REQUIRE(lineCountIter != fieldNames.end());
 
         const std::string& rawStr = fieldValues[rawIter - fieldNames.begin()];
         std::size_t expectedLineCount(1 + std::count(rawStr.begin(), rawStr.end(), '\n'));
         std::size_t lineCount(0);
         const std::string& lineCountStr = fieldValues[lineCountIter - fieldNames.begin()];
-        CPPUNIT_ASSERT(ml::core::CStringUtils::stringToType(lineCountStr, lineCount));
-        CPPUNIT_ASSERT_EQUAL(expectedLineCount, lineCount);
+        BOOST_TEST_REQUIRE(ml::core::CStringUtils::stringToType(lineCountStr, lineCount));
+        BOOST_REQUIRE_EQUAL(expectedLineCount, lineCount);
 
         return true;
     }
@@ -192,15 +183,15 @@ private:
 };
 }
 
-void CLengthEncodedInputParserTest::testCsvEquivalence() {
+BOOST_AUTO_TEST_CASE(testCsvEquivalence) {
     std::ifstream ifs("testfiles/simple.txt");
-    CPPUNIT_ASSERT(ifs.is_open());
+    BOOST_TEST_REQUIRE(ifs.is_open());
 
     CSetupVisitor setupVisitor;
 
     ml::api::CCsvInputParser setupParser(ifs);
 
-    CPPUNIT_ASSERT(setupParser.readStreamIntoVecs(std::ref(setupVisitor)));
+    BOOST_TEST_REQUIRE(setupParser.readStreamIntoVecs(std::ref(setupVisitor)));
 
     // Input must be binary otherwise Windows will stop at CTRL+Z
     std::istringstream input(setupVisitor.input(1), std::ios::in | std::ios::binary);
@@ -237,8 +228,8 @@ void CLengthEncodedInputParserTest::testCsvEquivalence() {
 
     // First read to a map
     ml::api::CLengthEncodedInputParser parser1(input);
-    CPPUNIT_ASSERT(parser1.readStreamIntoMaps(std::ref(visitor)));
-    CPPUNIT_ASSERT_EQUAL(size_t(15), visitor.recordCount());
+    BOOST_TEST_REQUIRE(parser1.readStreamIntoMaps(std::ref(visitor)));
+    BOOST_REQUIRE_EQUAL(size_t(15), visitor.recordCount());
 
     // Now re-read to vectors
     ifs.clear();
@@ -246,24 +237,24 @@ void CLengthEncodedInputParserTest::testCsvEquivalence() {
     visitor.reset();
 
     ml::api::CCsvInputParser parser2(ifs);
-    CPPUNIT_ASSERT(parser2.readStreamIntoVecs(std::ref(visitor)));
-    CPPUNIT_ASSERT_EQUAL(size_t(15), visitor.recordCount());
+    BOOST_TEST_REQUIRE(parser2.readStreamIntoVecs(std::ref(visitor)));
+    BOOST_REQUIRE_EQUAL(size_t(15), visitor.recordCount());
 }
 
-void CLengthEncodedInputParserTest::testThroughput() {
+BOOST_AUTO_TEST_CASE(testThroughput) {
     // NB: For fair comparison with the other input formats (CSV and Google
     // Protocol Buffers), the input data and test size must be identical
 
     LOG_DEBUG(<< "Creating throughput test data");
 
     std::ifstream ifs("testfiles/simple.txt");
-    CPPUNIT_ASSERT(ifs.is_open());
+    BOOST_TEST_REQUIRE(ifs.is_open());
 
     CSetupVisitor setupVisitor;
 
     ml::api::CCsvInputParser setupParser(ifs);
 
-    CPPUNIT_ASSERT(setupParser.readStreamIntoVecs(std::ref(setupVisitor)));
+    BOOST_TEST_REQUIRE(setupParser.readStreamIntoVecs(std::ref(setupVisitor)));
 
     // Construct a large test input
     static const size_t TEST_SIZE(10000);
@@ -277,18 +268,18 @@ void CLengthEncodedInputParserTest::testThroughput() {
     ml::core_t::TTime start(ml::core::CTimeUtils::now());
     LOG_INFO(<< "Starting throughput test at " << ml::core::CTimeUtils::toTimeString(start));
 
-    CPPUNIT_ASSERT(parser.readStreamIntoMaps(std::ref(visitor)));
+    BOOST_TEST_REQUIRE(parser.readStreamIntoMaps(std::ref(visitor)));
 
     ml::core_t::TTime end(ml::core::CTimeUtils::now());
     LOG_INFO(<< "Finished throughput test at " << ml::core::CTimeUtils::toTimeString(end));
 
-    CPPUNIT_ASSERT_EQUAL(setupVisitor.recordsPerBlock() * TEST_SIZE, visitor.recordCount());
+    BOOST_REQUIRE_EQUAL(setupVisitor.recordsPerBlock() * TEST_SIZE, visitor.recordCount());
 
     LOG_INFO(<< "Parsing " << visitor.recordCount() << " records took "
              << (end - start) << " seconds");
 }
 
-void CLengthEncodedInputParserTest::testCorruptStreamDetection() {
+BOOST_AUTO_TEST_CASE(testCorruptStreamDetection) {
     uint32_t numFields(1);
     uint32_t numFieldsNet(htonl(numFields));
     std::string dodgyInput(reinterpret_cast<char*>(&numFieldsNet), sizeof(uint32_t));
@@ -304,5 +295,7 @@ void CLengthEncodedInputParserTest::testCorruptStreamDetection() {
     CVisitor visitor;
 
     LOG_INFO(<< "Expect the next parse to report a suspiciously long length");
-    CPPUNIT_ASSERT(!parser.readStreamIntoMaps(std::ref(visitor)));
+    BOOST_TEST_REQUIRE(!parser.readStreamIntoMaps(std::ref(visitor)));
 }
+
+BOOST_AUTO_TEST_SUITE_END()

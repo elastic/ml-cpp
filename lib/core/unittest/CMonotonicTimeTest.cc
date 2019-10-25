@@ -3,24 +3,16 @@
  * or more contributor license agreements. Licensed under the Elastic License;
  * you may not use this file except in compliance with the Elastic License.
  */
-#include "CMonotonicTimeTest.h"
 
 #include <core/CLogger.h>
 #include <core/CMonotonicTime.h>
 #include <core/CSleep.h>
 
-CppUnit::Test* CMonotonicTimeTest::suite() {
-    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CMonotonicTimeTest");
+#include <boost/test/unit_test.hpp>
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CMonotonicTimeTest>(
-        "CMonotonicTimeTest::testMilliseconds", &CMonotonicTimeTest::testMilliseconds));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CMonotonicTimeTest>(
-        "CMonotonicTimeTest::testNanoseconds", &CMonotonicTimeTest::testNanoseconds));
+BOOST_AUTO_TEST_SUITE(CMonotonicTimeTest)
 
-    return suiteOfTests;
-}
-
-void CMonotonicTimeTest::testMilliseconds() {
+BOOST_AUTO_TEST_CASE(testMilliseconds) {
     ml::core::CMonotonicTime monoTime;
 
     uint64_t start(monoTime.milliseconds());
@@ -34,11 +26,11 @@ void CMonotonicTimeTest::testMilliseconds() {
               << diff << " milliseconds");
 
     // Allow 10% margin of error - this is as much for the sleep as the timer
-    CPPUNIT_ASSERT(diff > 900);
-    CPPUNIT_ASSERT(diff < 1100);
+    BOOST_TEST_REQUIRE(diff > 900);
+    BOOST_TEST_REQUIRE(diff < 1100);
 }
 
-void CMonotonicTimeTest::testNanoseconds() {
+BOOST_AUTO_TEST_CASE(testNanoseconds) {
     ml::core::CMonotonicTime monoTime;
 
     uint64_t start(monoTime.nanoseconds());
@@ -52,6 +44,8 @@ void CMonotonicTimeTest::testNanoseconds() {
               << diff << " nanoseconds");
 
     // Allow 10% margin of error - this is as much for the sleep as the timer
-    CPPUNIT_ASSERT(diff > 900000000);
-    CPPUNIT_ASSERT(diff < 1100000000);
+    BOOST_TEST_REQUIRE(diff > 900000000);
+    BOOST_TEST_REQUIRE(diff < 1100000000);
 }
+
+BOOST_AUTO_TEST_SUITE_END()

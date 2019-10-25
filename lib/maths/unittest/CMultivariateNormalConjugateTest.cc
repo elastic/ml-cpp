@@ -4,8 +4,6 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
-#include "CMultivariateNormalConjugateTest.h"
-
 #include <core/CLogger.h>
 #include <core/CRapidXmlParser.h>
 #include <core/CRapidXmlStatePersistInserter.h>
@@ -15,9 +13,16 @@
 #include <maths/CMultivariateNormalConjugate.h>
 #include <maths/CRestoreParams.h>
 
+#include <test/BoostTestCloseAbsolute.h>
+#include <test/CRandomNumbers.h>
+
 #include "TestUtils.h"
 
-#include <test/CRandomNumbers.h>
+#include <boost/test/unit_test.hpp>
+
+#include <fstream>
+
+BOOST_AUTO_TEST_SUITE(CMultivariateNormalConjugateTest)
 
 using namespace ml;
 using namespace handy_typedefs;
@@ -73,9 +78,144 @@ void gaussianSamples(test::CRandomNumbers& rng,
     }
     LOG_DEBUG(<< "# samples = " << samples.size());
 }
+
+void calibrationExperiment() {
+    using TVector10 = maths::CVectorNx1<double, 10>;
+    using TMatrix10 = maths::CSymmetricMatrixNxN<double, 10>;
+
+    double means[] = {10.0, 10.0, 20.0, 20.0, 30.0,
+                      20.0, 10.0, 40.0, 30.0, 20.0};
+    double covariances[] = {
+        10.0, 9.0, 10.0, -5.0, 1.0,  6.0,  -8.0, 9.0, 4.0, 20.0, 8.0,
+        3.0,  1.0, 12.0, 12.0, -4.0, 2.0,  1.0,  1.0, 4.0, 4.0,  5.0,
+        1.0,  3.0, 8.0,  10.0, 3.0,  10.0, 9.0,  9.0, 5.0, 19.0, 11.0,
+        3.0,  9.0, 25.0, 5.0,  0.0,  0.0,  0.0,  0.0, 0.0, 0.0,  0.0,
+        20.0, 1.0, 1.0,  1.0,  1.0,  1.0,  1.0,  1.0, 1.0, 1.0,  1.0};
+    TVector10 mean(means, means + boost::size(means));
+    TMatrix10 covariance(covariances, covariances + boost::size(covariances));
+
+    test::CRandomNumbers rng;
+    TDoubleVecVec samples_;
+    rng.generateMultivariateNormalSamples(mean.toVector<TDoubleVec>(),
+                                          covariance.toVectors<TDoubleVecVec>(),
+                                          2000, samples_);
+
+    TDouble10Vec1Vec samples;
+    samples.reserve(samples.size() + samples_.size());
+    for (std::size_t j = 0u; j < samples_.size(); ++j) {
+        samples.push_back(TDouble10Vec(samples_[j].begin(), samples_[j].end()));
+    }
+
+    maths::CMultivariateNormalConjugate<2> filters[] = {
+        maths::CMultivariateNormalConjugate<2>::nonInformativePrior(maths_t::E_ContinuousData),
+        maths::CMultivariateNormalConjugate<2>::nonInformativePrior(maths_t::E_ContinuousData),
+        maths::CMultivariateNormalConjugate<2>::nonInformativePrior(maths_t::E_ContinuousData),
+        maths::CMultivariateNormalConjugate<2>::nonInformativePrior(maths_t::E_ContinuousData),
+        maths::CMultivariateNormalConjugate<2>::nonInformativePrior(maths_t::E_ContinuousData),
+        maths::CMultivariateNormalConjugate<2>::nonInformativePrior(maths_t::E_ContinuousData),
+        maths::CMultivariateNormalConjugate<2>::nonInformativePrior(maths_t::E_ContinuousData),
+        maths::CMultivariateNormalConjugate<2>::nonInformativePrior(maths_t::E_ContinuousData),
+        maths::CMultivariateNormalConjugate<2>::nonInformativePrior(maths_t::E_ContinuousData)};
+    std::size_t indices[][2] = {{0, 1}, {0, 2}, {0, 3}, {0, 4}, {0, 5},
+                                {0, 6}, {0, 7}, {0, 8}, {0, 9}};
+
+    for (std::size_t i = 0u; i < 200; ++i) {
+        for (std::size_t j = 0u; j < boost::size(filters); ++j) {
+            TDouble10Vec1Vec sample(1, TDouble10Vec(2));
+            sample[0][0] = samples[i][indices[j][0]];
+            sample[0][1] = samples[i][indices[j][1]];
+            filters[j].addSamples(
+                sample, maths_t::CUnitWeights::singleUnit<TDouble10Vec>(2));
+        }
+    }
+
+    TDoubleVecVec p(boost::size(filters));
+    TDoubleVec mp;
+    TDoubleVec ep;
+    for (std::size_t i = 200u; i < 2000; ++i) {
+        double mpi = 1.0;
+        maths::CProbabilityOfExtremeSample epi;
+        for (std::size_t j = 0u; j < boost::size(filters); ++j) {
+            TDouble10Vec1Vec sample(1, TDouble10Vec(2));
+            sample[0][0] = samples[i][indices[j][0]];
+            sample[0][1] = samples[i][indices[j][1]];
+            double lb, ub;
+            maths::CMultivariatePrior::TTail10Vec tail;
+            filters[j].probabilityOfLessLikelySamples(
+                maths_t::E_TwoSided, sample,
+                maths_t::CUnitWeights::singleUnit<TDouble10Vec>(2), lb, ub, tail);
+            p[j].push_back((lb + ub) / 2.0);
+            mpi = std::min(mpi, (lb + ub) / 2.0);
+            epi.add((lb + ub) / 2.0, 0.5);
+        }
+        mp.push_back(mpi);
+        double pi;
+        epi.calculate(pi);
+        ep.push_back(pi);
+    }
+
+    for (std::size_t i = 0u; i < p.size(); ++i) {
+        std::sort(p[i].begin(), p[i].end());
+    }
+    std::sort(mp.begin(), mp.end());
+    std::sort(ep.begin(), ep.end());
+
+    double test[] = {0.01, 0.05, 0.1, 0.25, 0.5, 0.75, 0.9, 0.95, 0.99};
+    for (std::size_t i = 0u; i < boost::size(test); ++i) {
+        for (std::size_t j = 0u; j < p.size(); ++j) {
+            LOG_DEBUG(<< j << ") " << test[i] << " "
+                      << static_cast<double>(
+                             std::lower_bound(p[j].begin(), p[j].end(), test[i]) -
+                             p[j].begin()) /
+                             static_cast<double>(p[j].size()));
+        }
+        LOG_DEBUG(<< "min " << test[i] << " "
+                  << static_cast<double>(
+                         std::lower_bound(mp.begin(), mp.end(), test[i]) - mp.begin()) /
+                         static_cast<double>(mp.size()));
+        LOG_DEBUG(<< "corrected min " << test[i] << " "
+                  << static_cast<double>(
+                         std::lower_bound(ep.begin(), ep.end(), test[i]) - ep.begin()) /
+                         static_cast<double>(ep.size()));
+    }
 }
 
-void CMultivariateNormalConjugateTest::testMultipleUpdate() {
+void dataGenerator() {
+    const double means[][2] = {{10.0, 20.0}, {30.0, 25.0}, {50.0, 5.0}, {100.0, 50.0}};
+    const double covariances[][3] = {
+        {3.0, 2.0, 2.0}, {6.0, -4.0, 5.0}, {4.0, 1.0, 3.0}, {20.0, -12.0, 12.0}};
+
+    double anomalies[][4] = {{7000.0, 0.0, 2.8, -2.8}, {7001.0, 0.0, 2.8, -2.8},
+                             {7002.0, 0.0, 2.8, -2.8}, {7003.0, 0.0, 2.8, -2.8},
+                             {8000.0, 3.0, 3.5, 4.9},  {8001.0, 3.0, 3.5, 4.9},
+                             {8002.0, 3.0, 3.5, 4.9},  {8003.0, 3.0, 3.5, 4.9},
+                             {8004.0, 3.0, 3.5, 4.9},  {8005.0, 3.0, 3.5, 4.9}};
+
+    test::CRandomNumbers rng;
+
+    TDouble10Vec1Vec samples[4];
+    for (std::size_t i = 0u; i < boost::size(means); ++i) {
+        gaussianSamples(rng, 10000, means[i], covariances[i], samples[i]);
+    }
+    for (std::size_t i = 0u; i < boost::size(anomalies); ++i) {
+        std::size_t j = static_cast<std::size_t>(anomalies[i][1]);
+        std::size_t k = static_cast<std::size_t>(anomalies[i][0]);
+        samples[j][k][0] += anomalies[i][2];
+        samples[j][k][1] += anomalies[i][3];
+    }
+
+    std::ofstream f("four_2d_gaussian.csv");
+    core_t::TTime time = 1451606400;
+    for (std::size_t i = 0u; i < 10000; ++i, time += 30) {
+        for (std::size_t j = 0u; j < boost::size(samples); ++j) {
+            f << time << ",x" << 2 * j << "," << samples[j][i][0] << "\n";
+            f << time << ",x" << 2 * j + 1 << "," << samples[j][i][1] << "\n";
+        }
+    }
+}
+}
+
+BOOST_AUTO_TEST_CASE(testMultipleUpdate) {
     maths::CSampling::seed();
 
     const maths_t::EDataType dataTypes[] = {maths_t::E_IntegerData, maths_t::E_ContinuousData};
@@ -107,7 +247,7 @@ void CMultivariateNormalConjugateTest::testMultipleUpdate() {
             samples.size(), maths_t::CUnitWeights::unit<TDouble10Vec>(2));
         filter2.addSamples(samples, weights);
 
-        CPPUNIT_ASSERT(filter1.equalTolerance(
+        BOOST_TEST_REQUIRE(filter1.equalTolerance(
             filter2, maths::CToleranceTypes::E_AbsoluteTolerance, 1e-5));
     }
 
@@ -127,7 +267,7 @@ void CMultivariateNormalConjugateTest::testMultipleUpdate() {
         }
         filter2.addSamples(samples, weights);
 
-        CPPUNIT_ASSERT(filter1.equalTolerance(
+        BOOST_TEST_REQUIRE(filter1.equalTolerance(
             filter2, maths::CToleranceTypes::E_RelativeTolerance, 1e-5));
     }
 
@@ -150,12 +290,12 @@ void CMultivariateNormalConjugateTest::testMultipleUpdate() {
         filter2.addSamples({TDouble10Vec(2, x)},
                            {maths_t::countWeight(static_cast<double>(count), 2)});
 
-        CPPUNIT_ASSERT(filter1.equalTolerance(
+        BOOST_TEST_REQUIRE(filter1.equalTolerance(
             filter2, maths::CToleranceTypes::E_AbsoluteTolerance, 1e-5));
     }
 }
 
-void CMultivariateNormalConjugateTest::testPropagation() {
+BOOST_AUTO_TEST_CASE(testPropagation) {
     // Test that propagation doesn't affect the marginal likelihood
     // mean and expected precision.
 
@@ -196,13 +336,13 @@ void CMultivariateNormalConjugateTest::testPropagation() {
         LOG_DEBUG(<< "initial precision    = " << initialPrecision);
         LOG_DEBUG(<< "propagated precision = " << propagatedPrecision);
 
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(0.0, (propagatedMean - initialMean).euclidean(), eps);
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(0.0, (propagatedMean - initialMean).euclidean(), eps);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(
             0.0, (propagatedPrecision - initialPrecision).frobenius(), eps);
     }
 }
 
-void CMultivariateNormalConjugateTest::testMeanVectorEstimation() {
+BOOST_AUTO_TEST_CASE(testMeanVectorEstimation) {
     // We are going to test that we correctly estimate a distribution
     // for the mean of a multivariate normal by checking that the true
     // mean lies in various confidence intervals the correct percentage
@@ -286,16 +426,16 @@ void CMultivariateNormalConjugateTest::testMeanVectorEstimation() {
                 // If the decay rate is zero the intervals should be accurate.
                 // Otherwise, they should be an upper bound.
                 if (decayRates[i] == 0.0) {
-                    CPPUNIT_ASSERT_DOUBLES_EQUAL(interval, (100.0 - testIntervals[j]), 5.0);
+                    BOOST_REQUIRE_CLOSE_ABSOLUTE(interval, (100.0 - testIntervals[j]), 5.0);
                 } else {
-                    CPPUNIT_ASSERT(interval <= (100.0 - testIntervals[j]) + 4.0);
+                    BOOST_TEST_REQUIRE(interval <= (100.0 - testIntervals[j]) + 4.0);
                 }
             }
         }
     }
 }
 
-void CMultivariateNormalConjugateTest::testPrecisionMatrixEstimation() {
+BOOST_AUTO_TEST_CASE(testPrecisionMatrixEstimation) {
     // We are going to test that we correctly estimate a distribution
     // for the precision of a multivariate normal by checking that the
     // true precision lies in various confidence intervals the correct
@@ -394,16 +534,16 @@ void CMultivariateNormalConjugateTest::testPrecisionMatrixEstimation() {
                 // If the decay rate is zero the intervals should be accurate.
                 // Otherwise, they should be an upper bound.
                 if (decayRates[i] == 0.0) {
-                    CPPUNIT_ASSERT_DOUBLES_EQUAL(interval, (100.0 - testIntervals[j]), 4.0);
+                    BOOST_REQUIRE_CLOSE_ABSOLUTE(interval, (100.0 - testIntervals[j]), 4.0);
                 } else {
-                    CPPUNIT_ASSERT(interval <= (100.0 - testIntervals[j]));
+                    BOOST_TEST_REQUIRE(interval <= (100.0 - testIntervals[j]));
                 }
             }
         }
     }
 }
 
-void CMultivariateNormalConjugateTest::testMarginalLikelihood() {
+BOOST_AUTO_TEST_CASE(testMarginalLikelihood) {
     // Test that:
     //   1) The likelihood is normalized.
     //   2) E[X] w.r.t. the likelihood is equal to the predictive distribution mean.
@@ -505,8 +645,9 @@ void CMultivariateNormalConjugateTest::testMarginalLikelihood() {
 
                 TVector2 meanError = actualMean - expectedMean;
                 TMatrix2 covarianceError = actualCovariance - expectedCovariance;
-                CPPUNIT_ASSERT(meanError.euclidean() < expectedMean.euclidean());
-                CPPUNIT_ASSERT(covarianceError.frobenius() < expectedCovariance.frobenius());
+                BOOST_TEST_REQUIRE(meanError.euclidean() < expectedMean.euclidean());
+                BOOST_TEST_REQUIRE(covarianceError.frobenius() <
+                                   expectedCovariance.frobenius());
 
                 meanMeanError.add(meanError.euclidean() / expectedMean.euclidean());
                 meanCovarianceError.add(covarianceError.frobenius() /
@@ -517,12 +658,12 @@ void CMultivariateNormalConjugateTest::testMarginalLikelihood() {
         LOG_DEBUG(<< "Mean mean error = " << maths::CBasicStatistics::mean(meanMeanError));
         LOG_DEBUG(<< "Mean covariance error = "
                   << maths::CBasicStatistics::mean(meanCovarianceError));
-        CPPUNIT_ASSERT(maths::CBasicStatistics::mean(meanMeanError) < 0.12);
-        CPPUNIT_ASSERT(maths::CBasicStatistics::mean(meanCovarianceError) < 0.07);
+        BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(meanMeanError) < 0.12);
+        BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(meanCovarianceError) < 0.07);
     }
 }
 
-void CMultivariateNormalConjugateTest::testMarginalLikelihoodMode() {
+BOOST_AUTO_TEST_CASE(testMarginalLikelihoodMode) {
     // Test that the marginal likelihood mode is at a stationary maximum
     // of the likelihood function.
 
@@ -570,12 +711,13 @@ void CMultivariateNormalConjugateTest::testMarginalLikelihoodMode() {
             modePlusEps, maths_t::CUnitWeights::singleUnit<TDouble10Vec>(2), llp);
         double gradient = std::fabs(std::exp(llp) - std::exp(llm)) / norm;
         LOG_DEBUG(<< "gradient = " << gradient);
-        CPPUNIT_ASSERT(gradient < 1e-6);
-        CPPUNIT_ASSERT(ll > llm && ll > llp);
+        BOOST_TEST_REQUIRE(gradient < 1e-6);
+        BOOST_TEST_REQUIRE(ll > llm);
+        BOOST_TEST_REQUIRE(ll > llp);
     }
 }
 
-void CMultivariateNormalConjugateTest::testSampleMarginalLikelihood() {
+BOOST_AUTO_TEST_CASE(testSampleMarginalLikelihood) {
     // We're going to test three properties of the sampling:
     //   1) That the sample mean is equal to the marginal likelihood mean.
     //   2) The sample variance is close to the marginal likelihood variance.
@@ -605,12 +747,11 @@ void CMultivariateNormalConjugateTest::testSampleMarginalLikelihood() {
         TDouble10Vec1Vec resamples;
         filter.sampleMarginalLikelihood(40, resamples);
         if (filter.numberSamples() == 0) {
-            CPPUNIT_ASSERT(resamples.empty());
+            BOOST_TEST_REQUIRE(resamples.empty());
         } else {
-            CPPUNIT_ASSERT(resamples.size() == 1);
-            CPPUNIT_ASSERT_EQUAL(
-                core::CContainerPrinter::print(filter.marginalLikelihoodMean()),
-                core::CContainerPrinter::print(resamples[0]));
+            BOOST_TEST_REQUIRE(resamples.size() == 1);
+            BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(filter.marginalLikelihoodMean()),
+                                core::CContainerPrinter::print(resamples[0]));
         }
 
         filter.addSamples({samples[i]},
@@ -644,9 +785,10 @@ void CMultivariateNormalConjugateTest::testSampleMarginalLikelihood() {
         LOG_DEBUG(<< "likelihood cov  = " << likelihoodCov);
         LOG_DEBUG(<< "sample cov      = " << sampleCov);
 
-        CPPUNIT_ASSERT(
+        BOOST_TEST_REQUIRE(
             (sampleMean - likelihoodMean).euclidean() / likelihoodMean.euclidean() < 1e-6);
-        CPPUNIT_ASSERT((sampleCov - likelihoodCov).frobenius() / likelihoodCov.frobenius() < 0.01);
+        BOOST_TEST_REQUIRE(
+            (sampleCov - likelihoodCov).frobenius() / likelihoodCov.frobenius() < 0.01);
 
         TDoubleVec sampleProbabilities;
         for (std::size_t j = 0u; j < resamples.size(); ++j) {
@@ -673,11 +815,11 @@ void CMultivariateNormalConjugateTest::testSampleMarginalLikelihood() {
 
     LOG_DEBUG(<< "pAbsError = " << maths::CBasicStatistics::mean(pAbsError));
     LOG_DEBUG(<< "pRelError = " << maths::CBasicStatistics::mean(pRelError));
-    CPPUNIT_ASSERT(maths::CBasicStatistics::mean(pAbsError) < 0.15);
-    CPPUNIT_ASSERT(maths::CBasicStatistics::mean(pRelError) < 0.3);
+    BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(pAbsError) < 0.15);
+    BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(pRelError) < 0.3);
 }
 
-void CMultivariateNormalConjugateTest::testProbabilityOfLessLikelySamples() {
+BOOST_AUTO_TEST_CASE(testProbabilityOfLessLikelySamples) {
     // Test that the probability is approximately equal to the chance of drawing
     // a less likely sample from generating distribution.
 
@@ -750,16 +892,16 @@ void CMultivariateNormalConjugateTest::testProbabilityOfLessLikelySamples() {
 
             LOG_DEBUG(<< "mean absolute error = "
                       << maths::CBasicStatistics::mean(meanAbsError));
-            CPPUNIT_ASSERT(maths::CBasicStatistics::mean(meanAbsError) < 0.018);
+            BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(meanAbsError) < 0.018);
 
             LOG_DEBUG(<< "mean relative error = "
                       << maths::CBasicStatistics::mean(meanRelError));
-            CPPUNIT_ASSERT(maths::CBasicStatistics::mean(meanRelError) < 0.15);
+            BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(meanRelError) < 0.15);
         }
     }
 }
 
-void CMultivariateNormalConjugateTest::testIntegerData() {
+BOOST_AUTO_TEST_CASE(testIntegerData) {
     // If the data are discrete then we approximate the discrete distribution
     // by saying it is uniform on the intervals [n,n+1] for each integral n.
     // The idea of this test is to check that the inferred model agrees in the
@@ -808,7 +950,7 @@ void CMultivariateNormalConjugateTest::testIntegerData() {
                     sample, maths_t::CUnitWeights::singleUnit<TDouble10Vec>(2));
             }
 
-            CPPUNIT_ASSERT(filter1.equalTolerance(
+            BOOST_TEST_REQUIRE(filter1.equalTolerance(
                 filter2, maths::CToleranceTypes::E_RelativeTolerance | maths::CToleranceTypes::E_AbsoluteTolerance,
                 0.005));
 
@@ -834,14 +976,14 @@ void CMultivariateNormalConjugateTest::testIntegerData() {
                       << ", meanLogLikelihood2 = "
                       << maths::CBasicStatistics::mean(meanLogLikelihood2));
 
-            CPPUNIT_ASSERT_DOUBLES_EQUAL(
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(
                 maths::CBasicStatistics::mean(meanLogLikelihood1),
                 maths::CBasicStatistics::mean(meanLogLikelihood2), 0.03);
         }
     }
 }
 
-void CMultivariateNormalConjugateTest::testLowVariationData() {
+BOOST_AUTO_TEST_CASE(testLowVariationData) {
     {
         maths::CMultivariateNormalConjugate<2> filter(
             maths::CMultivariateNormalConjugate<2>::nonInformativePrior(maths_t::E_IntegerData));
@@ -852,7 +994,7 @@ void CMultivariateNormalConjugateTest::testLowVariationData() {
 
         TDouble10Vec10Vec covariances = filter.marginalLikelihoodCovariance();
         LOG_DEBUG(<< "covariance matrix " << core::CContainerPrinter::print(covariances));
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(
             12.0, 2.0 / (covariances[0][0] + covariances[1][1]), 0.3);
     }
     {
@@ -865,13 +1007,13 @@ void CMultivariateNormalConjugateTest::testLowVariationData() {
 
         TDouble10Vec10Vec covariances = filter.marginalLikelihoodCovariance();
         LOG_DEBUG(<< "covariance matrix " << core::CContainerPrinter::print(covariances));
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(
             1.0 / maths::MINIMUM_COEFFICIENT_OF_VARIATION / std::sqrt(2.0) / 430.5,
             std::sqrt(2.0 / (covariances[0][0] + covariances[1][1])), 0.4);
     }
 }
 
-void CMultivariateNormalConjugateTest::testPersist() {
+BOOST_AUTO_TEST_CASE(testPersist) {
     // Check that persist/restore is idempotent.
 
     const double mean[] = {10.0, 20.0};
@@ -904,7 +1046,7 @@ void CMultivariateNormalConjugateTest::testPersist() {
 
     // Restore the XML into a new filter
     core::CRapidXmlParser parser;
-    CPPUNIT_ASSERT(parser.parseStringIgnoreCdata(origXml));
+    BOOST_TEST_REQUIRE(parser.parseStringIgnoreCdata(origXml));
     core::CRapidXmlStateRestoreTraverser traverser(parser);
 
     maths::SDistributionRestoreParams params(
@@ -914,7 +1056,7 @@ void CMultivariateNormalConjugateTest::testPersist() {
 
     LOG_DEBUG(<< "orig checksum = " << checksum
               << " restored checksum = " << restoredFilter.checksum());
-    CPPUNIT_ASSERT_EQUAL(checksum, restoredFilter.checksum());
+    BOOST_REQUIRE_EQUAL(checksum, restoredFilter.checksum());
 
     // The XML representation of the new filter should be the same as the original
     std::string newXml;
@@ -923,188 +1065,7 @@ void CMultivariateNormalConjugateTest::testPersist() {
         restoredFilter.acceptPersistInserter(inserter);
         inserter.toXml(newXml);
     }
-    CPPUNIT_ASSERT_EQUAL(origXml, newXml);
+    BOOST_REQUIRE_EQUAL(origXml, newXml);
 }
 
-void CMultivariateNormalConjugateTest::calibrationExperiment() {
-    using TVector10 = maths::CVectorNx1<double, 10>;
-    using TMatrix10 = maths::CSymmetricMatrixNxN<double, 10>;
-
-    double means[] = {10.0, 10.0, 20.0, 20.0, 30.0,
-                      20.0, 10.0, 40.0, 30.0, 20.0};
-    double covariances[] = {
-        10.0, 9.0, 10.0, -5.0, 1.0,  6.0,  -8.0, 9.0, 4.0, 20.0, 8.0,
-        3.0,  1.0, 12.0, 12.0, -4.0, 2.0,  1.0,  1.0, 4.0, 4.0,  5.0,
-        1.0,  3.0, 8.0,  10.0, 3.0,  10.0, 9.0,  9.0, 5.0, 19.0, 11.0,
-        3.0,  9.0, 25.0, 5.0,  0.0,  0.0,  0.0,  0.0, 0.0, 0.0,  0.0,
-        20.0, 1.0, 1.0,  1.0,  1.0,  1.0,  1.0,  1.0, 1.0, 1.0,  1.0};
-    TVector10 mean(means, means + boost::size(means));
-    TMatrix10 covariance(covariances, covariances + boost::size(covariances));
-
-    test::CRandomNumbers rng;
-    TDoubleVecVec samples_;
-    rng.generateMultivariateNormalSamples(mean.toVector<TDoubleVec>(),
-                                          covariance.toVectors<TDoubleVecVec>(),
-                                          2000, samples_);
-
-    TDouble10Vec1Vec samples;
-    samples.reserve(samples.size() + samples_.size());
-    for (std::size_t j = 0u; j < samples_.size(); ++j) {
-        samples.push_back(TDouble10Vec(samples_[j].begin(), samples_[j].end()));
-    }
-
-    maths::CMultivariateNormalConjugate<2> filters[] = {
-        maths::CMultivariateNormalConjugate<2>::nonInformativePrior(maths_t::E_ContinuousData),
-        maths::CMultivariateNormalConjugate<2>::nonInformativePrior(maths_t::E_ContinuousData),
-        maths::CMultivariateNormalConjugate<2>::nonInformativePrior(maths_t::E_ContinuousData),
-        maths::CMultivariateNormalConjugate<2>::nonInformativePrior(maths_t::E_ContinuousData),
-        maths::CMultivariateNormalConjugate<2>::nonInformativePrior(maths_t::E_ContinuousData),
-        maths::CMultivariateNormalConjugate<2>::nonInformativePrior(maths_t::E_ContinuousData),
-        maths::CMultivariateNormalConjugate<2>::nonInformativePrior(maths_t::E_ContinuousData),
-        maths::CMultivariateNormalConjugate<2>::nonInformativePrior(maths_t::E_ContinuousData),
-        maths::CMultivariateNormalConjugate<2>::nonInformativePrior(maths_t::E_ContinuousData)};
-    std::size_t indices[][2] = {{0, 1}, {0, 2}, {0, 3}, {0, 4}, {0, 5},
-                                {0, 6}, {0, 7}, {0, 8}, {0, 9}};
-
-    for (std::size_t i = 0u; i < 200; ++i) {
-        for (std::size_t j = 0u; j < boost::size(filters); ++j) {
-            TDouble10Vec1Vec sample(1, TDouble10Vec(2));
-            sample[0][0] = samples[i][indices[j][0]];
-            sample[0][1] = samples[i][indices[j][1]];
-            filters[j].addSamples(
-                sample, maths_t::CUnitWeights::singleUnit<TDouble10Vec>(2));
-        }
-    }
-
-    TDoubleVecVec p(boost::size(filters));
-    TDoubleVec mp;
-    TDoubleVec ep;
-    for (std::size_t i = 200u; i < 2000; ++i) {
-        double mpi = 1.0;
-        maths::CProbabilityOfExtremeSample epi;
-        for (std::size_t j = 0u; j < boost::size(filters); ++j) {
-            TDouble10Vec1Vec sample(1, TDouble10Vec(2));
-            sample[0][0] = samples[i][indices[j][0]];
-            sample[0][1] = samples[i][indices[j][1]];
-            double lb, ub;
-            maths::CMultivariatePrior::TTail10Vec tail;
-            filters[j].probabilityOfLessLikelySamples(
-                maths_t::E_TwoSided, sample,
-                maths_t::CUnitWeights::singleUnit<TDouble10Vec>(2), lb, ub, tail);
-            p[j].push_back((lb + ub) / 2.0);
-            mpi = std::min(mpi, (lb + ub) / 2.0);
-            epi.add((lb + ub) / 2.0, 0.5);
-        }
-        mp.push_back(mpi);
-        double pi;
-        epi.calculate(pi);
-        ep.push_back(pi);
-    }
-
-    for (std::size_t i = 0u; i < p.size(); ++i) {
-        std::sort(p[i].begin(), p[i].end());
-    }
-    std::sort(mp.begin(), mp.end());
-    std::sort(ep.begin(), ep.end());
-
-    double test[] = {0.01, 0.05, 0.1, 0.25, 0.5, 0.75, 0.9, 0.95, 0.99};
-    for (std::size_t i = 0u; i < boost::size(test); ++i) {
-        for (std::size_t j = 0u; j < p.size(); ++j) {
-            LOG_DEBUG(<< j << ") " << test[i] << " "
-                      << static_cast<double>(
-                             std::lower_bound(p[j].begin(), p[j].end(), test[i]) -
-                             p[j].begin()) /
-                             static_cast<double>(p[j].size()));
-        }
-        LOG_DEBUG(<< "min " << test[i] << " "
-                  << static_cast<double>(
-                         std::lower_bound(mp.begin(), mp.end(), test[i]) - mp.begin()) /
-                         static_cast<double>(mp.size()));
-        LOG_DEBUG(<< "corrected min " << test[i] << " "
-                  << static_cast<double>(
-                         std::lower_bound(ep.begin(), ep.end(), test[i]) - ep.begin()) /
-                         static_cast<double>(ep.size()));
-    }
-}
-
-void CMultivariateNormalConjugateTest::dataGenerator() {
-    const double means[][2] = {{10.0, 20.0}, {30.0, 25.0}, {50.0, 5.0}, {100.0, 50.0}};
-    const double covariances[][3] = {
-        {3.0, 2.0, 2.0}, {6.0, -4.0, 5.0}, {4.0, 1.0, 3.0}, {20.0, -12.0, 12.0}};
-
-    double anomalies[][4] = {{7000.0, 0.0, 2.8, -2.8}, {7001.0, 0.0, 2.8, -2.8},
-                             {7002.0, 0.0, 2.8, -2.8}, {7003.0, 0.0, 2.8, -2.8},
-                             {8000.0, 3.0, 3.5, 4.9},  {8001.0, 3.0, 3.5, 4.9},
-                             {8002.0, 3.0, 3.5, 4.9},  {8003.0, 3.0, 3.5, 4.9},
-                             {8004.0, 3.0, 3.5, 4.9},  {8005.0, 3.0, 3.5, 4.9}};
-
-    test::CRandomNumbers rng;
-
-    TDouble10Vec1Vec samples[4];
-    for (std::size_t i = 0u; i < boost::size(means); ++i) {
-        gaussianSamples(rng, 10000, means[i], covariances[i], samples[i]);
-    }
-    for (std::size_t i = 0u; i < boost::size(anomalies); ++i) {
-        std::size_t j = static_cast<std::size_t>(anomalies[i][1]);
-        std::size_t k = static_cast<std::size_t>(anomalies[i][0]);
-        samples[j][k][0] += anomalies[i][2];
-        samples[j][k][1] += anomalies[i][3];
-    }
-
-    std::ofstream f;
-    f.open("four_2d_gaussian.csv");
-    core_t::TTime time = 1451606400;
-    for (std::size_t i = 0u; i < 10000; ++i, time += 30) {
-        for (std::size_t j = 0u; j < boost::size(samples); ++j) {
-            f << time << ",x" << 2 * j << "," << samples[j][i][0] << "\n";
-            f << time << ",x" << 2 * j + 1 << "," << samples[j][i][1] << "\n";
-        }
-    }
-    f.close();
-}
-
-CppUnit::Test* CMultivariateNormalConjugateTest::suite() {
-    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CMultivariateNormalConjugateTest");
-
-    suiteOfTests->addTest(new CppUnit::TestCaller<CMultivariateNormalConjugateTest>(
-        "CMultivariateNormalConjugateTest::testMultipleUpdate",
-        &CMultivariateNormalConjugateTest::testMultipleUpdate));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CMultivariateNormalConjugateTest>(
-        "CMultivariateNormalConjugateTest::testPropagation",
-        &CMultivariateNormalConjugateTest::testPropagation));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CMultivariateNormalConjugateTest>(
-        "CMultivariateNormalConjugateTest::testMeanVectorEstimation",
-        &CMultivariateNormalConjugateTest::testMeanVectorEstimation));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CMultivariateNormalConjugateTest>(
-        "CMultivariateNormalConjugateTest::testPrecisionMatrixEstimation",
-        &CMultivariateNormalConjugateTest::testPrecisionMatrixEstimation));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CMultivariateNormalConjugateTest>(
-        "CMultivariateNormalConjugateTest::testMarginalLikelihood",
-        &CMultivariateNormalConjugateTest::testMarginalLikelihood));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CMultivariateNormalConjugateTest>(
-        "CMultivariateNormalConjugateTest::testMarginalLikelihoodMode",
-        &CMultivariateNormalConjugateTest::testMarginalLikelihoodMode));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CMultivariateNormalConjugateTest>(
-        "CMultivariateNormalConjugateTest::testSampleMarginalLikelihood",
-        &CMultivariateNormalConjugateTest::testSampleMarginalLikelihood));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CMultivariateNormalConjugateTest>(
-        "CMultivariateNormalConjugateTest::testProbabilityOfLessLikelySamples",
-        &CMultivariateNormalConjugateTest::testProbabilityOfLessLikelySamples));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CMultivariateNormalConjugateTest>(
-        "CMultivariateNormalConjugateTest::testIntegerData",
-        &CMultivariateNormalConjugateTest::testIntegerData));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CMultivariateNormalConjugateTest>(
-        "CMultivariateNormalConjugateTest::testLowVariationData",
-        &CMultivariateNormalConjugateTest::testLowVariationData));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CMultivariateNormalConjugateTest>(
-        "CMultivariateNormalConjugateTest::testPersist",
-        &CMultivariateNormalConjugateTest::testPersist));
-    //suiteOfTests->addTest( new CppUnit::TestCaller<CMultivariateNormalConjugateTest>(
-    //                               "CMultivariateNormalConjugateTest::calibrationExperiment",
-    //                               &CMultivariateNormalConjugateTest::calibrationExperiment) );
-    //suiteOfTests->addTest( new CppUnit::TestCaller<CMultivariateNormalConjugateTest>(
-    //                               "CMultivariateNormalConjugateTest::dataGenerator",
-    //                               &CMultivariateNormalConjugateTest::dataGenerator) );
-
-    return suiteOfTests;
-}
+BOOST_AUTO_TEST_SUITE_END()

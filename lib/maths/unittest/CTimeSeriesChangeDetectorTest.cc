@@ -4,13 +4,12 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
-#include "CTimeSeriesChangeDetectorTest.h"
-
 #include <core/CLogger.h>
 #include <core/CRapidXmlStatePersistInserter.h>
 #include <core/CRapidXmlStateRestoreTraverser.h>
 #include <core/CTriple.h>
 #include <core/Constants.h>
+#include <core/CoreTypes.h>
 
 #include <maths/CGammaRateConjugate.h>
 #include <maths/CLogNormalMeanPrecConjugate.h>
@@ -23,18 +22,27 @@
 #include <maths/CTimeSeriesDecomposition.h>
 #include <maths/CXMeansOnline1d.h>
 
+#include <test/BoostTestCloseAbsolute.h>
 #include <test/CRandomNumbers.h>
 
 #include "TestUtils.h"
 
+#include <boost/test/unit_test.hpp>
+
 #include <cmath>
+#include <functional>
 #include <memory>
 #include <vector>
+
+BOOST_AUTO_TEST_SUITE(CTimeSeriesChangeDetectorTest)
 
 using namespace ml;
 
 namespace {
 
+using TGenerator = std::function<double(core_t::TTime)>;
+using TGeneratorVec = std::vector<TGenerator>;
+using TChange = std::function<double(TGenerator generator, core_t::TTime)>;
 using TDoubleVec = std::vector<double>;
 using TDouble2Vec = core::CSmallVector<double, 2>;
 using TTimeDoublePr = std::pair<core_t::TTime, double>;
@@ -78,9 +86,91 @@ TPriorPtr makeResidualModel() {
     return TPriorPtr{
         maths::COneOfNPrior{mode, maths_t::E_ContinuousData, DECAY_RATE}.clone()};
 }
+
+void testChange(const TGeneratorVec& trends,
+                maths::SChangeDescription::EDescription description,
+                TChange applyChange,
+                double expectedChange,
+                double maximumFalseNegatives,
+                double maximumMeanBucketsToDetectChange) {
+    using TOptionalSize = boost::optional<std::size_t>;
+    using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
+
+    test::CRandomNumbers rng;
+
+    double falseNegatives{0.0};
+    TMeanAccumulator meanBucketsToDetect;
+
+    TDoubleVec samples;
+    for (std::size_t t = 0u; t < 100; ++t) {
+        if (t % 10 == 0) {
+            LOG_DEBUG(<< t << "%");
+        }
+
+        rng.generateNormalSamples(0.0, 1.0, 1000, samples);
+
+        TDecompositionPtr trendModel(
+            new maths::CTimeSeriesDecomposition{DECAY_RATE, BUCKET_LENGTH});
+        TPriorPtr residualModel(makeResidualModel());
+
+        auto addSampleToModel = [&trendModel, &residualModel](
+                                    core_t::TTime time, double x, double weight) {
+            trendModel->addPoint(time, x, maths_t::countWeight(weight));
+            double detrended{trendModel->detrend(time, x, 0.0)};
+            residualModel->addSamples({detrended}, {maths_t::countWeight(weight)});
+            residualModel->propagateForwardsByTime(1.0);
+        };
+
+        core_t::TTime time{0};
+        for (std::size_t i = 0u; i < 950; ++i) {
+            double x{10.0 * trends[t % trends.size()](time) + samples[i]};
+            addSampleToModel(time, x, 1.0);
+            time += BUCKET_LENGTH;
+        }
+
+        maths::CUnivariateTimeSeriesChangeDetector detector{
+            trendModel, residualModel, 6 * core::constants::HOUR,
+            24 * core::constants::HOUR, 14.0};
+
+        TOptionalSize bucketsToDetect;
+        for (std::size_t i = 950u; i < samples.size(); ++i) {
+            double x{10.0 * applyChange(trends[t % trends.size()], time) + samples[i]};
+
+            addSampleToModel(time, x, 0.5);
+            detector.addSamples({{time, x}}, maths_t::CUnitWeights::SINGLE_UNIT);
+
+            auto change = detector.change();
+            if (change) {
+                if (!bucketsToDetect) {
+                    bucketsToDetect.reset(i - 949);
+                }
+                BOOST_REQUIRE_EQUAL(change->s_Description, description);
+                BOOST_REQUIRE_CLOSE_ABSOLUTE(expectedChange, change->s_Value[0],
+                                             0.5 * std::fabs(expectedChange));
+                break;
+            }
+            if (detector.stopTesting()) {
+                break;
+            }
+
+            time += BUCKET_LENGTH;
+        }
+        if (bucketsToDetect == boost::none) {
+            falseNegatives += 0.01;
+        } else {
+            meanBucketsToDetect.add(static_cast<double>(*bucketsToDetect));
+        }
+    }
+
+    LOG_DEBUG(<< "false negatives = " << falseNegatives);
+    LOG_DEBUG(<< "buckets to detect = " << maths::CBasicStatistics::mean(meanBucketsToDetect));
+    BOOST_TEST_REQUIRE(falseNegatives <= maximumFalseNegatives);
+    BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(meanBucketsToDetect) <
+                       maximumMeanBucketsToDetectChange);
+}
 }
 
-void CTimeSeriesChangeDetectorTest::testNoChange() {
+BOOST_AUTO_TEST_CASE(testNoChange) {
     test::CRandomNumbers rng;
 
     TDoubleVec variances{1.0, 10.0, 20.0, 30.0, 100.0, 1000.0};
@@ -133,44 +223,44 @@ void CTimeSeriesChangeDetectorTest::testNoChange() {
                 break;
             }
 
-            CPPUNIT_ASSERT(!detector.change());
+            BOOST_TEST_REQUIRE(!detector.change());
 
             time += BUCKET_LENGTH;
         }
     }
 }
 
-void CTimeSeriesChangeDetectorTest::testLevelShift() {
+BOOST_AUTO_TEST_CASE(testLevelShift) {
     TGeneratorVec trends{constant, ramp, smoothDaily, weekends, spikeyDaily};
-    this->testChange(
+    testChange(
         trends, maths::SChangeDescription::E_LevelShift,
         [](TGenerator trend, core_t::TTime time) { return trend(time) + 0.7; },
         7.0, 0.0, 16.0);
 }
 
-void CTimeSeriesChangeDetectorTest::testLinearScale() {
+BOOST_AUTO_TEST_CASE(testLinearScale) {
     TGeneratorVec trends{smoothDaily, spikeyDaily};
-    this->testChange(
+    testChange(
         trends, maths::SChangeDescription::E_LinearScale,
         [](TGenerator trend, core_t::TTime time) { return 3.0 * trend(time); },
         3.0, 0.0, 15.0);
 }
 
-void CTimeSeriesChangeDetectorTest::testTimeShift() {
+BOOST_AUTO_TEST_CASE(testTimeShift) {
     TGeneratorVec trends{smoothDaily, spikeyDaily};
-    this->testChange(trends, maths::SChangeDescription::E_TimeShift,
-                     [](TGenerator trend, core_t::TTime time) {
-                         return trend(time - core::constants::HOUR);
-                     },
-                     -static_cast<double>(core::constants::HOUR), 0.04, 23.0);
-    this->testChange(trends, maths::SChangeDescription::E_TimeShift,
-                     [](TGenerator trend, core_t::TTime time) {
-                         return trend(time + core::constants::HOUR);
-                     },
-                     +static_cast<double>(core::constants::HOUR), 0.04, 23.0);
+    testChange(trends, maths::SChangeDescription::E_TimeShift,
+               [](TGenerator trend, core_t::TTime time) {
+                   return trend(time - core::constants::HOUR);
+               },
+               -static_cast<double>(core::constants::HOUR), 0.04, 23.0);
+    testChange(trends, maths::SChangeDescription::E_TimeShift,
+               [](TGenerator trend, core_t::TTime time) {
+                   return trend(time + core::constants::HOUR);
+               },
+               +static_cast<double>(core::constants::HOUR), 0.04, 23.0);
 }
 
-void CTimeSeriesChangeDetectorTest::testPersist() {
+BOOST_AUTO_TEST_CASE(testPersist) {
     test::CRandomNumbers rng;
 
     TDoubleVec samples;
@@ -216,7 +306,7 @@ void CTimeSeriesChangeDetectorTest::testPersist() {
             trendModel, residualModel, 6 * core::constants::HOUR,
             24 * core::constants::HOUR, 12.0};
         core::CRapidXmlParser parser;
-        CPPUNIT_ASSERT(parser.parseStringIgnoreCdata(origXml));
+        BOOST_TEST_REQUIRE(parser.parseStringIgnoreCdata(origXml));
         core::CRapidXmlStateRestoreTraverser traverser(parser);
         traverser.traverseSubLevel(std::bind(
             &maths::CUnivariateTimeSeriesChangeDetector::acceptRestoreTraverser,
@@ -224,110 +314,8 @@ void CTimeSeriesChangeDetectorTest::testPersist() {
 
         LOG_DEBUG(<< "expected " << origDetector.checksum() << " got "
                   << restoredDetector.checksum());
-        CPPUNIT_ASSERT_EQUAL(origDetector.checksum(), restoredDetector.checksum());
+        BOOST_REQUIRE_EQUAL(origDetector.checksum(), restoredDetector.checksum());
     }
 }
 
-CppUnit::Test* CTimeSeriesChangeDetectorTest::suite() {
-    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CTimeSeriesChangeDetectorTest");
-
-    suiteOfTests->addTest(new CppUnit::TestCaller<CTimeSeriesChangeDetectorTest>(
-        "CTimeSeriesChangeDetectorTest::testNoChange",
-        &CTimeSeriesChangeDetectorTest::testNoChange));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CTimeSeriesChangeDetectorTest>(
-        "CTimeSeriesChangeDetectorTest::testLevelShift",
-        &CTimeSeriesChangeDetectorTest::testLevelShift));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CTimeSeriesChangeDetectorTest>(
-        "CTimeSeriesChangeDetectorTest::testLinearScale",
-        &CTimeSeriesChangeDetectorTest::testLinearScale));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CTimeSeriesChangeDetectorTest>(
-        "CTimeSeriesChangeDetectorTest::testTimeShift",
-        &CTimeSeriesChangeDetectorTest::testTimeShift));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CTimeSeriesChangeDetectorTest>(
-        "CTimeSeriesChangeDetectorTest::testPersist",
-        &CTimeSeriesChangeDetectorTest::testPersist));
-
-    return suiteOfTests;
-}
-
-void CTimeSeriesChangeDetectorTest::testChange(const TGeneratorVec& trends,
-                                               maths::SChangeDescription::EDescription description,
-                                               TChange applyChange,
-                                               double expectedChange,
-                                               double maximumFalseNegatives,
-                                               double maximumMeanBucketsToDetectChange) {
-    using TOptionalSize = boost::optional<std::size_t>;
-    using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
-
-    test::CRandomNumbers rng;
-
-    double falseNegatives{0.0};
-    TMeanAccumulator meanBucketsToDetect;
-
-    TDoubleVec samples;
-    for (std::size_t t = 0u; t < 100; ++t) {
-        if (t % 10 == 0) {
-            LOG_DEBUG(<< t << "%");
-        }
-
-        rng.generateNormalSamples(0.0, 1.0, 1000, samples);
-
-        TDecompositionPtr trendModel(
-            new maths::CTimeSeriesDecomposition{DECAY_RATE, BUCKET_LENGTH});
-        TPriorPtr residualModel(makeResidualModel());
-
-        auto addSampleToModel = [&trendModel, &residualModel](
-                                    core_t::TTime time, double x, double weight) {
-            trendModel->addPoint(time, x, maths_t::countWeight(weight));
-            double detrended{trendModel->detrend(time, x, 0.0)};
-            residualModel->addSamples({detrended}, {maths_t::countWeight(weight)});
-            residualModel->propagateForwardsByTime(1.0);
-        };
-
-        core_t::TTime time{0};
-        for (std::size_t i = 0u; i < 950; ++i) {
-            double x{10.0 * trends[t % trends.size()](time) + samples[i]};
-            addSampleToModel(time, x, 1.0);
-            time += BUCKET_LENGTH;
-        }
-
-        maths::CUnivariateTimeSeriesChangeDetector detector{
-            trendModel, residualModel, 6 * core::constants::HOUR,
-            24 * core::constants::HOUR, 14.0};
-
-        TOptionalSize bucketsToDetect;
-        for (std::size_t i = 950u; i < samples.size(); ++i) {
-            double x{10.0 * applyChange(trends[t % trends.size()], time) + samples[i]};
-
-            addSampleToModel(time, x, 0.5);
-            detector.addSamples({{time, x}}, maths_t::CUnitWeights::SINGLE_UNIT);
-
-            auto change = detector.change();
-            if (change) {
-                if (!bucketsToDetect) {
-                    bucketsToDetect.reset(i - 949);
-                }
-                CPPUNIT_ASSERT_EQUAL(change->s_Description, description);
-                CPPUNIT_ASSERT_DOUBLES_EQUAL(expectedChange, change->s_Value[0],
-                                             0.5 * std::fabs(expectedChange));
-                break;
-            }
-            if (detector.stopTesting()) {
-                break;
-            }
-
-            time += BUCKET_LENGTH;
-        }
-        if (bucketsToDetect == boost::none) {
-            falseNegatives += 0.01;
-        } else {
-            meanBucketsToDetect.add(static_cast<double>(*bucketsToDetect));
-        }
-    }
-
-    LOG_DEBUG(<< "false negatives = " << falseNegatives);
-    LOG_DEBUG(<< "buckets to detect = " << maths::CBasicStatistics::mean(meanBucketsToDetect));
-    CPPUNIT_ASSERT(falseNegatives <= maximumFalseNegatives);
-    CPPUNIT_ASSERT(maths::CBasicStatistics::mean(meanBucketsToDetect) <
-                   maximumMeanBucketsToDetectChange);
-}
+BOOST_AUTO_TEST_SUITE_END()

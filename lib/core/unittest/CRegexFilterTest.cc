@@ -3,78 +3,61 @@
  * or more contributor license agreements. Licensed under the Elastic License;
  * you may not use this file except in compliance with the Elastic License.
  */
-#include "CRegexFilterTest.h"
 
 #include <core/CLogger.h>
 #include <core/CRegexFilter.h>
 
-CppUnit::Test* CRegexFilterTest::suite() {
-    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CRegexFilterTest");
+#include <boost/test/unit_test.hpp>
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CRegexFilterTest>(
-        "CRegexFilterTest::testConfigure_GivenInvalidRegex",
-        &CRegexFilterTest::testConfigure_GivenInvalidRegex));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CRegexFilterTest>(
-        "CRegexFilterTest::testApply_GivenEmptyFilter",
-        &CRegexFilterTest::testApply_GivenEmptyFilter));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CRegexFilterTest>(
-        "CRegexFilterTest::testApply_GivenSingleMatchAllRegex",
-        &CRegexFilterTest::testApply_GivenSingleMatchAllRegex));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CRegexFilterTest>(
-        "CRegexFilterTest::testApply_GivenSingleRegex",
-        &CRegexFilterTest::testApply_GivenSingleRegex));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CRegexFilterTest>(
-        "CRegexFilterTest::testApply_GivenMultipleRegex",
-        &CRegexFilterTest::testApply_GivenMultipleRegex));
+BOOST_AUTO_TEST_SUITE(CRegexFilterTest)
 
-    return suiteOfTests;
-}
-
-void CRegexFilterTest::testConfigure_GivenInvalidRegex() {
+BOOST_AUTO_TEST_CASE(testConfigure_GivenInvalidRegex) {
     std::vector<std::string> regexVector;
     regexVector.push_back(std::string(".*"));
     regexVector.push_back(std::string("("));
 
     ml::core::CRegexFilter filter;
-    CPPUNIT_ASSERT(filter.configure(regexVector) == false);
-    CPPUNIT_ASSERT(filter.empty());
+    BOOST_TEST_REQUIRE(filter.configure(regexVector) == false);
+    BOOST_TEST_REQUIRE(filter.empty());
 }
 
-void CRegexFilterTest::testApply_GivenEmptyFilter() {
+BOOST_AUTO_TEST_CASE(testApply_GivenEmptyFilter) {
     ml::core::CRegexFilter filter;
-    CPPUNIT_ASSERT(filter.empty());
+    BOOST_TEST_REQUIRE(filter.empty());
 
-    CPPUNIT_ASSERT_EQUAL(std::string("foo"), filter.apply(std::string("foo")));
+    BOOST_REQUIRE_EQUAL(std::string("foo"), filter.apply(std::string("foo")));
 }
 
-void CRegexFilterTest::testApply_GivenSingleMatchAllRegex() {
+BOOST_AUTO_TEST_CASE(testApply_GivenSingleMatchAllRegex) {
     std::vector<std::string> regexVector;
     regexVector.push_back(std::string(".*"));
 
     ml::core::CRegexFilter filter;
-    CPPUNIT_ASSERT(filter.configure(regexVector));
+    BOOST_TEST_REQUIRE(filter.configure(regexVector));
 
-    CPPUNIT_ASSERT_EQUAL(std::string(), filter.apply(std::string("foo")));
+    BOOST_REQUIRE_EQUAL(std::string(), filter.apply(std::string("foo")));
 }
 
-void CRegexFilterTest::testApply_GivenSingleRegex() {
+BOOST_AUTO_TEST_CASE(testApply_GivenSingleRegex) {
     std::vector<std::string> regexVector;
     regexVector.push_back(std::string("f"));
 
     ml::core::CRegexFilter filter;
-    CPPUNIT_ASSERT(filter.configure(regexVector));
+    BOOST_TEST_REQUIRE(filter.configure(regexVector));
 
-    CPPUNIT_ASSERT_EQUAL(std::string("a"), filter.apply(std::string("fffa")));
+    BOOST_REQUIRE_EQUAL(std::string("a"), filter.apply(std::string("fffa")));
 }
 
-void CRegexFilterTest::testApply_GivenMultipleRegex() {
+BOOST_AUTO_TEST_CASE(testApply_GivenMultipleRegex) {
     std::vector<std::string> regexVector;
     regexVector.push_back(std::string("f[o]+"));
     regexVector.push_back(std::string("bar"));
     regexVector.push_back(std::string(" "));
 
     ml::core::CRegexFilter filter;
-    CPPUNIT_ASSERT(filter.configure(regexVector));
+    BOOST_TEST_REQUIRE(filter.configure(regexVector));
 
-    CPPUNIT_ASSERT_EQUAL(std::string("a"), filter.apply(std::string("foo bar fooooobar a")));
+    BOOST_REQUIRE_EQUAL(std::string("a"), filter.apply(std::string("foo bar fooooobar a")));
 }
+
+BOOST_AUTO_TEST_SUITE_END()
