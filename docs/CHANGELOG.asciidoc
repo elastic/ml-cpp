@@ -34,6 +34,8 @@
 
 * Improve performance of boosted tree training for both classification and regression.
 (See {ml-pull}775[#775].)
+* Reduce the peak memory used by boosted tree training and fix an overcounting bug
+estimating maximum memory usage. (See {ml-pull}781[#781].)
 
 == {es} version 7.5.0
 
