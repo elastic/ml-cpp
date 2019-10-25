@@ -4,8 +4,6 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
-#include "CDataSemanticsTest.h"
-
 #include <core/CLogger.h>
 #include <core/CStringUtils.h>
 
@@ -15,6 +13,9 @@
 #include <test/CRandomNumbersDetail.h>
 
 #include <boost/range.hpp>
+#include <boost/test/unit_test.hpp>
+
+BOOST_AUTO_TEST_SUITE(CDataSemanticsTest)
 
 using namespace ml;
 
@@ -22,7 +23,7 @@ using TDoubleVec = std::vector<double>;
 using TSizeVec = std::vector<std::size_t>;
 using TStrVec = std::vector<std::string>;
 
-void CDataSemanticsTest::testBinary() {
+BOOST_AUTO_TEST_CASE(testBinary) {
     // Try a numeric and non-numeric example of a binary variable.
 
     std::string categories[][2] = {{"false", "true"}, {"0", "1"}};
@@ -34,16 +35,16 @@ void CDataSemanticsTest::testBinary() {
 
     for (std::size_t i = 0u; i < boost::size(categories); ++i) {
         config::CDataSemantics semantics;
-        CPPUNIT_ASSERT_EQUAL(config_t::E_UndeterminedType, semantics.type());
+        BOOST_REQUIRE_EQUAL(config_t::E_UndeterminedType, semantics.type());
         for (std::size_t j = 0u; j < v.size(); ++j) {
             semantics.add(categories[i][v[j]]);
         }
         semantics.computeType();
-        CPPUNIT_ASSERT_EQUAL(config_t::E_Binary, semantics.type());
+        BOOST_REQUIRE_EQUAL(config_t::E_Binary, semantics.type());
     }
 }
 
-void CDataSemanticsTest::testNonNumericCategorical() {
+BOOST_AUTO_TEST_CASE(testNonNumericCategorical) {
     // Test we identify non-numerical non-binary data as categorical.
 
     test::CRandomNumbers rng;
@@ -61,12 +62,12 @@ void CDataSemanticsTest::testNonNumericCategorical() {
         semantics.add(categories[samples[i]]);
         if (i > 10) {
             semantics.computeType();
-            CPPUNIT_ASSERT_EQUAL(config_t::E_Categorical, semantics.type());
+            BOOST_REQUIRE_EQUAL(config_t::E_Categorical, semantics.type());
         }
     }
 }
 
-void CDataSemanticsTest::testNumericCategorical() {
+BOOST_AUTO_TEST_CASE(testNumericCategorical) {
     // Test plausible http status code distribution is correctly
     // identified as categorical.
 
@@ -90,10 +91,10 @@ void CDataSemanticsTest::testNumericCategorical() {
     }
     semantics.computeType();
     LOG_DEBUG(<< "type = " << semantics.type());
-    CPPUNIT_ASSERT_EQUAL(config_t::E_Categorical, semantics.type());
+    BOOST_REQUIRE_EQUAL(config_t::E_Categorical, semantics.type());
 }
 
-void CDataSemanticsTest::testInteger() {
+BOOST_AUTO_TEST_CASE(testInteger) {
     // Test a variety of uni- and multi-modal distributions.
 
     test::CRandomNumbers rng;
@@ -114,12 +115,12 @@ void CDataSemanticsTest::testInteger() {
             //{
             //    semantics.computeType();
             //    LOG_DEBUG(<< "  type = " << semantics.type());
-            //    CPPUNIT_ASSERT_EQUAL(config_t::E_PositiveInteger, semantics.type());
+            //    BOOST_REQUIRE_EQUAL(config_t::E_PositiveInteger, semantics.type());
             //}
         }
         semantics.computeType();
         LOG_DEBUG(<< "  type = " << semantics.type());
-        CPPUNIT_ASSERT_EQUAL(config_t::E_PositiveInteger, semantics.type());
+        BOOST_REQUIRE_EQUAL(config_t::E_PositiveInteger, semantics.type());
     }
     {
         LOG_DEBUG(<< "*** normal ***");
@@ -135,7 +136,7 @@ void CDataSemanticsTest::testInteger() {
             if ((i + 1) % 100 == 0) {
                 semantics.computeType();
                 LOG_DEBUG(<< "  type = " << semantics.type());
-                CPPUNIT_ASSERT_EQUAL(config_t::E_Integer, semantics.type());
+                BOOST_REQUIRE_EQUAL(config_t::E_Integer, semantics.type());
             }
         }
     }
@@ -153,7 +154,7 @@ void CDataSemanticsTest::testInteger() {
             if ((i + 1) % 100 == 0) {
                 semantics.computeType();
                 LOG_DEBUG(<< "  type = " << semantics.type());
-                CPPUNIT_ASSERT_EQUAL(config_t::E_PositiveInteger, semantics.type());
+                BOOST_REQUIRE_EQUAL(config_t::E_PositiveInteger, semantics.type());
             }
         }
     }
@@ -179,14 +180,14 @@ void CDataSemanticsTest::testInteger() {
                 semantics.computeType();
                 LOG_DEBUG(<< "  type = " << semantics.type());
                 if (i > 30) {
-                    CPPUNIT_ASSERT_EQUAL(config_t::E_Integer, semantics.type());
+                    BOOST_REQUIRE_EQUAL(config_t::E_Integer, semantics.type());
                 }
             }
         }
     }
 }
 
-void CDataSemanticsTest::testReal() {
+BOOST_AUTO_TEST_CASE(testReal) {
     // Test a variety of uni- and multi-modal distributions.
 
     test::CRandomNumbers rng;
@@ -206,7 +207,7 @@ void CDataSemanticsTest::testReal() {
             if ((i + 1) % 50 == 0) {
                 semantics.computeType();
                 LOG_DEBUG(<< "  type = " << semantics.type());
-                CPPUNIT_ASSERT_EQUAL(config_t::E_PositiveReal, semantics.type());
+                BOOST_REQUIRE_EQUAL(config_t::E_PositiveReal, semantics.type());
             }
         }
     }
@@ -224,7 +225,7 @@ void CDataSemanticsTest::testReal() {
             if ((i + 1) % 50 == 0) {
                 semantics.computeType();
                 LOG_DEBUG(<< "  type = " << semantics.type());
-                CPPUNIT_ASSERT_EQUAL(config_t::E_Real, semantics.type());
+                BOOST_REQUIRE_EQUAL(config_t::E_Real, semantics.type());
             }
         }
     }
@@ -242,7 +243,7 @@ void CDataSemanticsTest::testReal() {
             if ((i + 1) % 50 == 0) {
                 semantics.computeType();
                 LOG_DEBUG(<< "  type = " << semantics.type());
-                CPPUNIT_ASSERT_EQUAL(config_t::E_PositiveReal, semantics.type());
+                BOOST_REQUIRE_EQUAL(config_t::E_PositiveReal, semantics.type());
             }
         }
     }
@@ -266,27 +267,11 @@ void CDataSemanticsTest::testReal() {
                 semantics.computeType();
                 LOG_DEBUG(<< "  type = " << semantics.type());
                 if (i > 25) {
-                    CPPUNIT_ASSERT_EQUAL(config_t::E_Real, semantics.type());
+                    BOOST_REQUIRE_EQUAL(config_t::E_Real, semantics.type());
                 }
             }
         }
     }
 }
 
-CppUnit::Test* CDataSemanticsTest::suite() {
-    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CDataSemanticsTest");
-
-    suiteOfTests->addTest(new CppUnit::TestCaller<CDataSemanticsTest>(
-        "CDataSemanticsTest::testBinary", &CDataSemanticsTest::testBinary));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CDataSemanticsTest>(
-        "CDataSemanticsTest::testNonNumericCategorical",
-        &CDataSemanticsTest::testNonNumericCategorical));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CDataSemanticsTest>(
-        "CDataSemanticsTest::testNumericCategorical", &CDataSemanticsTest::testNumericCategorical));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CDataSemanticsTest>(
-        "CDataSemanticsTest::testInteger", &CDataSemanticsTest::testInteger));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CDataSemanticsTest>(
-        "CDataSemanticsTest::testReal", &CDataSemanticsTest::testReal));
-
-    return suiteOfTests;
-}
+BOOST_AUTO_TEST_SUITE_END()

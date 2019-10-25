@@ -35,7 +35,16 @@
 
 #include <stdint.h>
 
-class CForecastRunnerTest;
+namespace CForecastRunnerTest {
+struct testPopulation;
+struct testRare;
+struct testInsufficientData;
+struct testValidateDefaultExpiry;
+struct testValidateNoExpiry;
+struct testValidateInvalidExpiry;
+struct testValidateBrokenMessage;
+struct testValidateMissingId;
+}
 
 namespace ml {
 namespace api {
@@ -275,7 +284,14 @@ private:
     //! Condition variable for notifications on done requests
     std::condition_variable m_WorkCompleteCondition;
 
-    friend class ::CForecastRunnerTest;
+    friend struct CForecastRunnerTest::testPopulation;
+    friend struct CForecastRunnerTest::testRare;
+    friend struct CForecastRunnerTest::testInsufficientData;
+    friend struct CForecastRunnerTest::testValidateDefaultExpiry;
+    friend struct CForecastRunnerTest::testValidateNoExpiry;
+    friend struct CForecastRunnerTest::testValidateInvalidExpiry;
+    friend struct CForecastRunnerTest::testValidateBrokenMessage;
+    friend struct CForecastRunnerTest::testValidateMissingId;
 };
 }
 }

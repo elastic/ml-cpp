@@ -14,6 +14,8 @@
 #include <boost/operators.hpp>
 
 #include <array>
+#include <iosfwd>
+
 #include <stdint.h>
 
 namespace ml {
@@ -90,6 +92,9 @@ private:
     //! The feature value.
     uint16_t m_Value;
 };
+
+MATHS_EXPORT
+std::ostream& operator<<(std::ostream& strm, const CCalendarFeature& feature);
 }
 }
 

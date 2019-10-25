@@ -19,7 +19,9 @@
 #include <string>
 #include <vector>
 
+namespace CTimeSeriesDecompositionTest {
 class CNanInjector;
+}
 
 namespace ml {
 namespace core {
@@ -209,7 +211,7 @@ private:
     CSeasonalComponentAdaptiveBucketing m_Bucketing;
 
     //! Befriend a helper class used by the unit tests
-    friend class ::CNanInjector;
+    friend class CTimeSeriesDecompositionTest::CNanInjector;
 };
 
 //! Create a free function which will be picked up in Koenig lookup.

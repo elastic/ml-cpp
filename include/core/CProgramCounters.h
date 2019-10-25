@@ -17,7 +17,15 @@
 #include <string>
 #include <vector>
 
-class CProgramCountersTest;
+namespace CProgramCountersTest {
+class CTestFixture;
+class CProgramCountersTestRunner;
+struct testCounters;
+struct testUnknownCounter;
+struct testMissingCounter;
+struct testCacheCounters;
+struct testPersist;
+}
 
 namespace ml {
 namespace counter_t {
@@ -220,7 +228,8 @@ private:
         std::atomic_uint_fast64_t m_Counter;
 
         //! Befriend the test suite
-        friend class ::CProgramCountersTest;
+        friend class CProgramCountersTest::CProgramCountersTestRunner;
+        friend struct CProgramCountersTest::testCounters;
     };
 
 private:
@@ -335,7 +344,13 @@ private:
                                                 const CProgramCounters& counters);
 
     //! Befriend the test suite
-    friend class ::CProgramCountersTest;
+    friend class CProgramCountersTest::CTestFixture;
+    friend class CProgramCountersTest::CProgramCountersTestRunner;
+    friend struct CProgramCountersTest::testCounters;
+    friend struct CProgramCountersTest::testUnknownCounter;
+    friend struct CProgramCountersTest::testMissingCounter;
+    friend struct CProgramCountersTest::testCacheCounters;
+    friend struct CProgramCountersTest::testPersist;
 };
 
 } // core

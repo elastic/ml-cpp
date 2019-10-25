@@ -4,8 +4,6 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
-#include "CLassoLogisticRegressionTest.h"
-
 #include <core/CContainerPrinter.h>
 #include <core/CLogger.h>
 
@@ -15,9 +13,12 @@
 
 #include <boost/math/constants/constants.hpp>
 #include <boost/range.hpp>
+#include <boost/test/unit_test.hpp>
 
 #include <cmath>
 #include <vector>
+
+BOOST_AUTO_TEST_SUITE(CLassoLogisticRegressionTest)
 
 using namespace ml;
 
@@ -77,7 +78,7 @@ double logLikelihood(const TDoubleVecVec& x,
 }
 }
 
-void CLassoLogisticRegressionTest::testCyclicCoordinateDescent() {
+BOOST_AUTO_TEST_CASE(testCyclicCoordinateDescent) {
     static const double EPS = 5e-3;
 
     test::CRandomNumbers rng;
@@ -117,8 +118,8 @@ void CLassoLogisticRegressionTest::testCyclicCoordinateDescent() {
         LOG_DEBUG(<< "sparse beta = " << core::CContainerPrinter::print(beta2)
                   << ", numberIterations = " << numberIterations);
 
-        CPPUNIT_ASSERT_EQUAL(core::CContainerPrinter::print(beta1),
-                             core::CContainerPrinter::print(beta2));
+        BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(beta1),
+                            core::CContainerPrinter::print(beta2));
 
         initializeMatrix(x_, x);
         double ll = logLikelihood(x, y, lambda, beta1);
@@ -149,10 +150,10 @@ void CLassoLogisticRegressionTest::testCyclicCoordinateDescent() {
 
             double slope = (llPlusEps - llMinusEps) / length;
             LOG_DEBUG(<< "slope = " << slope);
-            CPPUNIT_ASSERT(slope < 0.015);
+            BOOST_TEST_REQUIRE(slope < 0.015);
         }
-        CPPUNIT_ASSERT(ll > llMinusEps / 10.0);
-        CPPUNIT_ASSERT(ll > llPlusEps / 10.0);
+        BOOST_TEST_REQUIRE(ll > llMinusEps / 10.0);
+        BOOST_TEST_REQUIRE(ll > llPlusEps / 10.0);
     }
 
     double lambdas[] = {2.5, 5.0, 10.0, 15.0, 20.0};
@@ -205,7 +206,7 @@ void CLassoLogisticRegressionTest::testCyclicCoordinateDescent() {
                       std::sqrt(inner(effectiveDecisionNormal, effectiveDecisionNormal))) *
             360.0 / boost::math::double_constants::two_pi;
         LOG_DEBUG(<< "angular error = " << theta << " deg");
-        CPPUNIT_ASSERT(theta < 7.5);
+        BOOST_TEST_REQUIRE(theta < 7.5);
     }
 
     // Generate three features with monotonically increasing
@@ -213,40 +214,20 @@ void CLassoLogisticRegressionTest::testCyclicCoordinateDescent() {
     // in order as we increase lambda.
 }
 
-void CLassoLogisticRegressionTest::testCyclicCoordinateDescentLargeSparse() {
+BOOST_AUTO_TEST_CASE(testCyclicCoordinateDescentLargeSparse) {
     // TODO
 }
 
-void CLassoLogisticRegressionTest::testCyclicCoordinateDescentIncremental() {
+BOOST_AUTO_TEST_CASE(testCyclicCoordinateDescentIncremental) {
     // TODO
 }
 
-void CLassoLogisticRegressionTest::testNormBasedLambda() {
+BOOST_AUTO_TEST_CASE(testNormBasedLambda) {
     // TODO
 }
 
-void CLassoLogisticRegressionTest::testCrossValidatedLambda() {
+BOOST_AUTO_TEST_CASE(testCrossValidatedLambda) {
     // TODO
 }
 
-CppUnit::Test* CLassoLogisticRegressionTest::suite() {
-    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CLassoLogisticRegressionTest");
-
-    suiteOfTests->addTest(new CppUnit::TestCaller<CLassoLogisticRegressionTest>(
-        "CLassoLogisticRegressionTest::testCyclicCoordinateDescent",
-        &CLassoLogisticRegressionTest::testCyclicCoordinateDescent));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CLassoLogisticRegressionTest>(
-        "CLassoLogisticRegressionTest::testCyclicCoordinateDescentLargeSparse",
-        &CLassoLogisticRegressionTest::testCyclicCoordinateDescentLargeSparse));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CLassoLogisticRegressionTest>(
-        "CLassoLogisticRegressionTest::testCyclicCoordinateDescentIncremental",
-        &CLassoLogisticRegressionTest::testCyclicCoordinateDescentIncremental));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CLassoLogisticRegressionTest>(
-        "CLassoLogisticRegressionTest::testNormBasedLambda",
-        &CLassoLogisticRegressionTest::testNormBasedLambda));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CLassoLogisticRegressionTest>(
-        "CLassoLogisticRegressionTest::testCrossValidatedLambda",
-        &CLassoLogisticRegressionTest::testCrossValidatedLambda));
-
-    return suiteOfTests;
-}
+BOOST_AUTO_TEST_SUITE_END()

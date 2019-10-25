@@ -3,20 +3,14 @@
  * or more contributor license agreements. Licensed under the Elastic License;
  * you may not use this file except in compliance with the Elastic License.
  */
-#include "CMutexTest.h"
 
 #include <core/CMutex.h>
 
-CppUnit::Test* CMutexTest::suite() {
-    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CMutexTest");
+#include <boost/test/unit_test.hpp>
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CMutexTest>(
-        "CMutexTest::testRecursive", &CMutexTest::testRecursive));
+BOOST_AUTO_TEST_SUITE(CMutexTest)
 
-    return suiteOfTests;
-}
-
-void CMutexTest::testRecursive() {
+BOOST_AUTO_TEST_CASE(testRecursive) {
     ml::core::CMutex mutex;
 
     mutex.lock();
@@ -27,3 +21,5 @@ void CMutexTest::testRecursive() {
     mutex.unlock();
     mutex.unlock();
 }
+
+BOOST_AUTO_TEST_SUITE_END()

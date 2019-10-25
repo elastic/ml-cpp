@@ -14,7 +14,10 @@
 #include <string>
 #include <utility>
 
-class CJsonLogLayoutTest;
+namespace CJsonLogLayoutTest {
+struct testExtractClassAndMethod;
+struct testPathCropping;
+}
 
 namespace ml {
 namespace core {
@@ -82,7 +85,8 @@ private:
     bool m_LocationInfo;
 
     // For unit testing
-    friend class ::CJsonLogLayoutTest;
+    friend struct CJsonLogLayoutTest::testExtractClassAndMethod;
+    friend struct CJsonLogLayoutTest::testPathCropping;
 };
 }
 }
