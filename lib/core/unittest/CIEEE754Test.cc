@@ -4,19 +4,21 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
-#include "CIEEE754Test.h"
-
 #include <core/CIEEE754.h>
 #include <core/CLogger.h>
+
+#include <boost/test/unit_test.hpp>
 
 #include <cmath>
 #include <iomanip>
 #include <sstream>
 
+BOOST_AUTO_TEST_SUITE(CIEEE754Test)
+
 using namespace ml;
 using namespace core;
 
-void CIEEE754Test::testRound() {
+BOOST_AUTO_TEST_CASE(testRound) {
     {
         // Check it matches float precision.
         double test1 = 0.049999998;
@@ -25,7 +27,7 @@ void CIEEE754Test::testRound() {
         std::ostringstream o2;
         o2 << std::setprecision(10) << CIEEE754::round(test1, CIEEE754::E_SinglePrecision);
         LOG_DEBUG(<< "test1 " << o1.str() << " " << o2.str());
-        CPPUNIT_ASSERT_EQUAL(o1.str(), o2.str());
+        BOOST_REQUIRE_EQUAL(o1.str(), o2.str());
     }
     {
         // Check it matches float precision.
@@ -35,7 +37,7 @@ void CIEEE754Test::testRound() {
         std::ostringstream o2;
         o2 << std::setprecision(10) << CIEEE754::round(test2, CIEEE754::E_SinglePrecision);
         LOG_DEBUG(<< "test2 " << o1.str() << " " << o2.str());
-        CPPUNIT_ASSERT_EQUAL(o1.str(), o2.str());
+        BOOST_REQUIRE_EQUAL(o1.str(), o2.str());
     }
     {
         // Check rounding away from zero.
@@ -45,7 +47,7 @@ void CIEEE754Test::testRound() {
         std::ostringstream o2;
         o2 << std::setprecision(10) << CIEEE754::round(test3, CIEEE754::E_SinglePrecision);
         LOG_DEBUG(<< "test3 " << o1.str() << " " << o2.str());
-        CPPUNIT_ASSERT_EQUAL(o1.str(), o2.str());
+        BOOST_REQUIRE_EQUAL(o1.str(), o2.str());
     }
     {
         // Check rounding away from zero.
@@ -55,7 +57,7 @@ void CIEEE754Test::testRound() {
         std::ostringstream o2;
         o2 << std::setprecision(10) << CIEEE754::round(test4, CIEEE754::E_SinglePrecision);
         LOG_DEBUG(<< "test4 " << o1.str() << " " << o2.str());
-        CPPUNIT_ASSERT_EQUAL(o1.str(), o2.str());
+        BOOST_REQUIRE_EQUAL(o1.str(), o2.str());
     }
     {
         // Check rounding for very large numbers.
@@ -65,7 +67,7 @@ void CIEEE754Test::testRound() {
         std::ostringstream o2;
         o2 << std::setprecision(10) << CIEEE754::round(test5, CIEEE754::E_SinglePrecision);
         LOG_DEBUG(<< "test5 " << o1.str() << " " << o2.str());
-        CPPUNIT_ASSERT_EQUAL(o1.str(), o2.str());
+        BOOST_REQUIRE_EQUAL(o1.str(), o2.str());
     }
     {
         // Check rounding for very large numbers.
@@ -75,15 +77,8 @@ void CIEEE754Test::testRound() {
         std::ostringstream o2;
         o2 << std::setprecision(10) << CIEEE754::round(test6, CIEEE754::E_SinglePrecision);
         LOG_DEBUG(<< "test6 " << o1.str() << " " << o2.str());
-        CPPUNIT_ASSERT_EQUAL(o1.str(), o2.str());
+        BOOST_REQUIRE_EQUAL(o1.str(), o2.str());
     }
 }
 
-CppUnit::Test* CIEEE754Test::suite() {
-    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CIEEE754Test");
-
-    suiteOfTests->addTest(new CppUnit::TestCaller<CIEEE754Test>(
-        "CIEEE754Test::testRound", &CIEEE754Test::testRound));
-
-    return suiteOfTests;
-}
+BOOST_AUTO_TEST_SUITE_END()

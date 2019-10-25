@@ -4,8 +4,6 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
-#include "COrdinalTest.h"
-
 #include <core/CLogger.h>
 
 #include <maths/COrdinal.h>
@@ -14,11 +12,14 @@
 
 #include <boost/numeric/conversion/bounds.hpp>
 #include <boost/range.hpp>
+#include <boost/test/unit_test.hpp>
 #include <boost/unordered_set.hpp>
 
 #include <iomanip>
 #include <sstream>
 #include <vector>
+
+BOOST_AUTO_TEST_SUITE(COrdinalTest)
 
 using namespace ml;
 
@@ -34,7 +35,7 @@ std::string precisePrint(T x) {
 }
 }
 
-void COrdinalTest::testEqual() {
+BOOST_AUTO_TEST_CASE(testEqual) {
     test::CRandomNumbers rng;
 
     for (std::size_t i = 0u; i < 1000; ++i) {
@@ -42,46 +43,46 @@ void COrdinalTest::testEqual() {
         rng.generateUniformSamples(-10000.0, 10000.0, 1, sample);
         bool equal = maths::COrdinal(static_cast<int64_t>(sample[0])) ==
                      maths::COrdinal(static_cast<int64_t>(sample[0]));
-        CPPUNIT_ASSERT_EQUAL(true, equal);
+        BOOST_REQUIRE_EQUAL(true, equal);
         equal = maths::COrdinal(static_cast<uint64_t>(sample[0])) ==
                 maths::COrdinal(static_cast<uint64_t>(sample[0]));
-        CPPUNIT_ASSERT_EQUAL(true, equal);
+        BOOST_REQUIRE_EQUAL(true, equal);
         equal = maths::COrdinal(sample[0]) == maths::COrdinal(sample[0]);
-        CPPUNIT_ASSERT_EQUAL(true, equal);
+        BOOST_REQUIRE_EQUAL(true, equal);
         if (sample[0] >= 0.0) {
             equal = maths::COrdinal(static_cast<int64_t>(sample[0])) ==
                     maths::COrdinal(std::floor(sample[0]));
-            CPPUNIT_ASSERT_EQUAL(true, equal);
+            BOOST_REQUIRE_EQUAL(true, equal);
             equal = maths::COrdinal(std::floor(sample[0])) ==
                     maths::COrdinal(static_cast<int64_t>(sample[0]));
-            CPPUNIT_ASSERT_EQUAL(true, equal);
+            BOOST_REQUIRE_EQUAL(true, equal);
             equal = maths::COrdinal(static_cast<uint64_t>(sample[0])) ==
                     maths::COrdinal(std::floor(sample[0]));
-            CPPUNIT_ASSERT_EQUAL(true, equal);
+            BOOST_REQUIRE_EQUAL(true, equal);
             equal = maths::COrdinal(std::floor(sample[0])) ==
                     maths::COrdinal(static_cast<uint64_t>(sample[0]));
-            CPPUNIT_ASSERT_EQUAL(true, equal);
+            BOOST_REQUIRE_EQUAL(true, equal);
         } else {
             equal = maths::COrdinal(static_cast<int64_t>(sample[0])) ==
                     maths::COrdinal(std::ceil(sample[0]));
-            CPPUNIT_ASSERT_EQUAL(true, equal);
+            BOOST_REQUIRE_EQUAL(true, equal);
             equal = maths::COrdinal(std::ceil(sample[0])) ==
                     maths::COrdinal(static_cast<int64_t>(sample[0]));
-            CPPUNIT_ASSERT_EQUAL(true, equal);
+            BOOST_REQUIRE_EQUAL(true, equal);
         }
     }
 
     // Test doubles outside the integer range.
     double small = -1e37;
     double large = 1e23;
-    CPPUNIT_ASSERT(maths::COrdinal(small) !=
-                   maths::COrdinal(boost::numeric::bounds<int64_t>::lowest()));
-    CPPUNIT_ASSERT(maths::COrdinal(large) !=
-                   maths::COrdinal(boost::numeric::bounds<uint64_t>::highest()));
-    CPPUNIT_ASSERT(maths::COrdinal(boost::numeric::bounds<int64_t>::lowest()) !=
-                   maths::COrdinal(small));
-    CPPUNIT_ASSERT(maths::COrdinal(boost::numeric::bounds<uint64_t>::highest()) !=
-                   maths::COrdinal(large));
+    BOOST_TEST_REQUIRE(maths::COrdinal(small) !=
+                       maths::COrdinal(boost::numeric::bounds<int64_t>::lowest()));
+    BOOST_TEST_REQUIRE(maths::COrdinal(large) !=
+                       maths::COrdinal(boost::numeric::bounds<uint64_t>::highest()));
+    BOOST_TEST_REQUIRE(maths::COrdinal(boost::numeric::bounds<int64_t>::lowest()) !=
+                       maths::COrdinal(small));
+    BOOST_TEST_REQUIRE(maths::COrdinal(boost::numeric::bounds<uint64_t>::highest()) !=
+                       maths::COrdinal(large));
 
     // Check some integer values which can't be represented as doubles.
     maths::COrdinal s1[] = {maths::COrdinal(int64_t(-179809067369808278)),
@@ -93,21 +94,21 @@ void COrdinalTest::testEqual() {
     for (std::size_t i = 0u; i < boost::size(s1); ++i) {
         LOG_DEBUG(<< s1[i] << " (as double " << precisePrint(s1[i].asDouble()) << ")");
         for (std::size_t j = 0u; j < i; ++j) {
-            CPPUNIT_ASSERT(s1[i] != s1[j]);
+            BOOST_TEST_REQUIRE(s1[i] != s1[j]);
         }
-        CPPUNIT_ASSERT(s1[i] == s1[i]);
-        CPPUNIT_ASSERT(s1[i] != maths::COrdinal(s1[i].asDouble()));
+        BOOST_TEST_REQUIRE(s1[i] == s1[i]);
+        BOOST_TEST_REQUIRE(s1[i] != maths::COrdinal(s1[i].asDouble()));
         for (std::size_t j = i + 1; j < boost::size(s1); ++j) {
-            CPPUNIT_ASSERT(s1[i] != s1[j]);
+            BOOST_TEST_REQUIRE(s1[i] != s1[j]);
         }
     }
-    CPPUNIT_ASSERT(s1[2] != s2[1]);
-    CPPUNIT_ASSERT(s1[3] != s2[0]);
-    CPPUNIT_ASSERT(s2[0] != s1[3]);
-    CPPUNIT_ASSERT(s2[1] != s1[0]);
+    BOOST_TEST_REQUIRE(s1[2] != s2[1]);
+    BOOST_TEST_REQUIRE(s1[3] != s2[0]);
+    BOOST_TEST_REQUIRE(s2[0] != s1[3]);
+    BOOST_TEST_REQUIRE(s2[1] != s1[0]);
 }
 
-void COrdinalTest::testLess() {
+BOOST_AUTO_TEST_CASE(testLess) {
     test::CRandomNumbers rng;
 
     // Test some random orderings on integer types which don't overflow.
@@ -118,7 +119,7 @@ void COrdinalTest::testLess() {
         bool less = static_cast<int64_t>(samples[0]) < static_cast<int64_t>(samples[1]);
         bool ordinalLess = maths::COrdinal(static_cast<int64_t>(samples[0])) <
                            maths::COrdinal(static_cast<int64_t>(samples[1]));
-        CPPUNIT_ASSERT_EQUAL(less, ordinalLess);
+        BOOST_REQUIRE_EQUAL(less, ordinalLess);
         if (samples[0] >= 0.0) {
             less = static_cast<int64_t>(samples[0]) < static_cast<int64_t>(samples[1]);
             ordinalLess = maths::COrdinal(static_cast<uint64_t>(samples[0])) <
@@ -152,24 +153,24 @@ void COrdinalTest::testLess() {
                           maths::COrdinal(static_cast<uint64_t>(samples[1]));
         }
         ordinalLess = maths::COrdinal(samples[0]) < maths::COrdinal(samples[1]);
-        CPPUNIT_ASSERT_EQUAL(less, ordinalLess);
+        BOOST_REQUIRE_EQUAL(less, ordinalLess);
     }
 
     // Test doubles outside the integer range.
     double small = -1e37;
     double large = 1e23;
-    CPPUNIT_ASSERT(maths::COrdinal(small) <
-                   maths::COrdinal(boost::numeric::bounds<int64_t>::lowest()));
-    CPPUNIT_ASSERT(!(maths::COrdinal(boost::numeric::bounds<int64_t>::lowest()) <
-                     maths::COrdinal(small)));
-    CPPUNIT_ASSERT(maths::COrdinal(large) >
-                   maths::COrdinal(boost::numeric::bounds<int64_t>::highest()));
-    CPPUNIT_ASSERT(!(maths::COrdinal(boost::numeric::bounds<int64_t>::highest()) >
-                     maths::COrdinal(large)));
-    CPPUNIT_ASSERT(maths::COrdinal(large) >
-                   maths::COrdinal(boost::numeric::bounds<int64_t>::highest()));
-    CPPUNIT_ASSERT(!(maths::COrdinal(boost::numeric::bounds<int64_t>::highest()) >
-                     maths::COrdinal(large)));
+    BOOST_TEST_REQUIRE(maths::COrdinal(small) <
+                       maths::COrdinal(boost::numeric::bounds<int64_t>::lowest()));
+    BOOST_TEST_REQUIRE(!(maths::COrdinal(boost::numeric::bounds<int64_t>::lowest()) <
+                         maths::COrdinal(small)));
+    BOOST_TEST_REQUIRE(maths::COrdinal(large) >
+                       maths::COrdinal(boost::numeric::bounds<int64_t>::highest()));
+    BOOST_TEST_REQUIRE(!(maths::COrdinal(boost::numeric::bounds<int64_t>::highest()) >
+                         maths::COrdinal(large)));
+    BOOST_TEST_REQUIRE(maths::COrdinal(large) >
+                       maths::COrdinal(boost::numeric::bounds<int64_t>::highest()));
+    BOOST_TEST_REQUIRE(!(maths::COrdinal(boost::numeric::bounds<int64_t>::highest()) >
+                         maths::COrdinal(large)));
 
     // Check some integer values which can't be represented as doubles.
     maths::COrdinal s1[] = {maths::COrdinal(int64_t(-179809067369808278)),
@@ -181,60 +182,60 @@ void COrdinalTest::testLess() {
     for (std::size_t i = 0u; i < boost::size(s1); ++i) {
         LOG_DEBUG(<< s1[i] << " (as double " << precisePrint(s1[i].asDouble()) << ")");
         for (std::size_t j = 0u; j < i; ++j) {
-            CPPUNIT_ASSERT(!(s1[i] < s1[j]));
+            BOOST_TEST_REQUIRE(!(s1[i] < s1[j]));
         }
         for (std::size_t j = i + 1; j < boost::size(s1); ++j) {
-            CPPUNIT_ASSERT(s1[i] < s1[j]);
+            BOOST_TEST_REQUIRE(s1[i] < s1[j]);
         }
     }
 
-    CPPUNIT_ASSERT(s1[2] < s2[1]);
-    CPPUNIT_ASSERT(!(s2[1] < s1[2]));
-    CPPUNIT_ASSERT(s2[0] < s1[3]);
-    CPPUNIT_ASSERT(!(s1[3] < s2[0]));
+    BOOST_TEST_REQUIRE(s1[2] < s2[1]);
+    BOOST_TEST_REQUIRE(!(s2[1] < s1[2]));
+    BOOST_TEST_REQUIRE(s2[0] < s1[3]);
+    BOOST_TEST_REQUIRE(!(s1[3] < s2[0]));
 }
 
-void COrdinalTest::testIsNan() {
+BOOST_AUTO_TEST_CASE(testIsNan) {
     maths::COrdinal nan;
-    CPPUNIT_ASSERT(nan.isNan());
+    BOOST_TEST_REQUIRE(nan.isNan());
 
-    CPPUNIT_ASSERT_EQUAL(false, nan < nan);
-    CPPUNIT_ASSERT_EQUAL(false, nan > nan);
-    CPPUNIT_ASSERT_EQUAL(false, nan == nan);
+    BOOST_REQUIRE_EQUAL(false, nan < nan);
+    BOOST_REQUIRE_EQUAL(false, nan > nan);
+    BOOST_REQUIRE_EQUAL(false, nan == nan);
 
     {
         maths::COrdinal vsmall(boost::numeric::bounds<int64_t>::lowest());
         maths::COrdinal vlarge(boost::numeric::bounds<int64_t>::highest());
-        CPPUNIT_ASSERT_EQUAL(false, nan < vsmall);
-        CPPUNIT_ASSERT_EQUAL(false, nan > vsmall);
-        CPPUNIT_ASSERT_EQUAL(false, nan == vsmall);
-        CPPUNIT_ASSERT_EQUAL(false, nan < vlarge);
-        CPPUNIT_ASSERT_EQUAL(false, nan > vlarge);
-        CPPUNIT_ASSERT_EQUAL(false, nan == vlarge);
+        BOOST_REQUIRE_EQUAL(false, nan < vsmall);
+        BOOST_REQUIRE_EQUAL(false, nan > vsmall);
+        BOOST_REQUIRE_EQUAL(false, nan == vsmall);
+        BOOST_REQUIRE_EQUAL(false, nan < vlarge);
+        BOOST_REQUIRE_EQUAL(false, nan > vlarge);
+        BOOST_REQUIRE_EQUAL(false, nan == vlarge);
     }
     {
         maths::COrdinal vsmall(boost::numeric::bounds<uint64_t>::lowest());
         maths::COrdinal vlarge(boost::numeric::bounds<uint64_t>::highest());
-        CPPUNIT_ASSERT_EQUAL(false, nan < vsmall);
-        CPPUNIT_ASSERT_EQUAL(false, nan > vsmall);
-        CPPUNIT_ASSERT_EQUAL(false, nan == vsmall);
-        CPPUNIT_ASSERT_EQUAL(false, nan < vlarge);
-        CPPUNIT_ASSERT_EQUAL(false, nan > vlarge);
-        CPPUNIT_ASSERT_EQUAL(false, nan == vlarge);
+        BOOST_REQUIRE_EQUAL(false, nan < vsmall);
+        BOOST_REQUIRE_EQUAL(false, nan > vsmall);
+        BOOST_REQUIRE_EQUAL(false, nan == vsmall);
+        BOOST_REQUIRE_EQUAL(false, nan < vlarge);
+        BOOST_REQUIRE_EQUAL(false, nan > vlarge);
+        BOOST_REQUIRE_EQUAL(false, nan == vlarge);
     }
     {
         maths::COrdinal vsmall(boost::numeric::bounds<double>::lowest());
         maths::COrdinal vlarge(boost::numeric::bounds<double>::highest());
-        CPPUNIT_ASSERT_EQUAL(false, nan < vsmall);
-        CPPUNIT_ASSERT_EQUAL(false, nan > vsmall);
-        CPPUNIT_ASSERT_EQUAL(false, nan == vsmall);
-        CPPUNIT_ASSERT_EQUAL(false, nan < vlarge);
-        CPPUNIT_ASSERT_EQUAL(false, nan > vlarge);
-        CPPUNIT_ASSERT_EQUAL(false, nan == vlarge);
+        BOOST_REQUIRE_EQUAL(false, nan < vsmall);
+        BOOST_REQUIRE_EQUAL(false, nan > vsmall);
+        BOOST_REQUIRE_EQUAL(false, nan == vsmall);
+        BOOST_REQUIRE_EQUAL(false, nan < vlarge);
+        BOOST_REQUIRE_EQUAL(false, nan > vlarge);
+        BOOST_REQUIRE_EQUAL(false, nan == vlarge);
     }
 }
 
-void COrdinalTest::testAsDouble() {
+BOOST_AUTO_TEST_CASE(testAsDouble) {
     // Check that double conversion is as expected.
 
     test::CRandomNumbers rng;
@@ -243,15 +244,15 @@ void COrdinalTest::testAsDouble() {
         TDoubleVec sample;
         rng.generateUniformSamples(-20000.0, 0.0, 1, sample);
         maths::COrdinal signedOrdinal(static_cast<int64_t>(sample[0]));
-        CPPUNIT_ASSERT_EQUAL(std::ceil(sample[0]), signedOrdinal.asDouble());
+        BOOST_REQUIRE_EQUAL(std::ceil(sample[0]), signedOrdinal.asDouble());
 
         rng.generateUniformSamples(0.0, 20000.0, 1, sample);
         maths::COrdinal unsignedOrdinal(static_cast<uint64_t>(sample[0]));
-        CPPUNIT_ASSERT_EQUAL(std::floor(sample[0]), unsignedOrdinal.asDouble());
+        BOOST_REQUIRE_EQUAL(std::floor(sample[0]), unsignedOrdinal.asDouble());
 
         rng.generateUniformSamples(-1.0, 1.0, 1, sample);
         maths::COrdinal doubleOrdinal(sample[0]);
-        CPPUNIT_ASSERT_EQUAL(sample[0], doubleOrdinal.asDouble());
+        BOOST_REQUIRE_EQUAL(sample[0], doubleOrdinal.asDouble());
     }
 
     // Check some integer values which can't be represented as doubles.
@@ -262,11 +263,11 @@ void COrdinalTest::testAsDouble() {
     for (std::size_t i = 0u; i < boost::size(s); ++i) {
         maths::COrdinal o(s[i]);
         LOG_DEBUG(<< o << " (as double " << precisePrint(o.asDouble()) << ")");
-        CPPUNIT_ASSERT_EQUAL(static_cast<double>(s[i]), o.asDouble());
+        BOOST_REQUIRE_EQUAL(static_cast<double>(s[i]), o.asDouble());
     }
 }
 
-void COrdinalTest::testHash() {
+BOOST_AUTO_TEST_CASE(testHash) {
     // Test that hashing works over the full range of the distinct types.
 
     using TSizeUSet = boost::unordered_set<std::size_t>;
@@ -295,26 +296,9 @@ void COrdinalTest::testHash() {
     LOG_DEBUG(<< "# signed hashes   = " << signedHashes.size());
     LOG_DEBUG(<< "# unsigned hashes = " << unsignedHashes.size());
     LOG_DEBUG(<< "# double hashes   = " << doubleHashes.size());
-    CPPUNIT_ASSERT_EQUAL(std::size_t(100), signedHashes.size());
-    CPPUNIT_ASSERT_EQUAL(std::size_t(100), unsignedHashes.size());
-    CPPUNIT_ASSERT_EQUAL(std::size_t(100), doubleHashes.size());
+    BOOST_REQUIRE_EQUAL(std::size_t(100), signedHashes.size());
+    BOOST_REQUIRE_EQUAL(std::size_t(100), unsignedHashes.size());
+    BOOST_REQUIRE_EQUAL(std::size_t(100), doubleHashes.size());
 }
 
-CppUnit::Test* COrdinalTest::suite() {
-    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("COrdinalTest");
-
-    suiteOfTests->addTest(new CppUnit::TestCaller<COrdinalTest>(
-        "COrdinalTest::testEqual", &COrdinalTest::testEqual));
-    suiteOfTests->addTest(new CppUnit::TestCaller<COrdinalTest>(
-        "COrdinalTest::testLess", &COrdinalTest::testLess));
-    suiteOfTests->addTest(new CppUnit::TestCaller<COrdinalTest>(
-        "COrdinalTest::testLess", &COrdinalTest::testLess));
-    suiteOfTests->addTest(new CppUnit::TestCaller<COrdinalTest>(
-        "COrdinalTest::testIsNan", &COrdinalTest::testIsNan));
-    suiteOfTests->addTest(new CppUnit::TestCaller<COrdinalTest>(
-        "COrdinalTest::testAsDouble", &COrdinalTest::testAsDouble));
-    suiteOfTests->addTest(new CppUnit::TestCaller<COrdinalTest>(
-        "COrdinalTest::testHash", &COrdinalTest::testHash));
-
-    return suiteOfTests;
-}
+BOOST_AUTO_TEST_SUITE_END()

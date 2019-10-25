@@ -4,16 +4,20 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
-#include "CConcurrencyTest.h"
-
 #include <core/CConcurrentQueue.h>
 #include <core/CLogger.h>
 #include <core/Concurrency.h>
+
+#include <test/BoostTestCloseAbsolute.h>
+
+#include <boost/test/unit_test.hpp>
 
 #include <atomic>
 #include <exception>
 #include <numeric>
 #include <vector>
+
+BOOST_AUTO_TEST_SUITE(CConcurrencyTest)
 
 using namespace ml;
 
@@ -46,7 +50,7 @@ double parallelSum(const TIntVec& values) {
 }
 }
 
-void CConcurrencyTest::testAsyncWithExecutors() {
+BOOST_AUTO_TEST_CASE(testAsyncWithExecutors) {
 
     core::stopDefaultAsyncExecutor();
 
@@ -56,15 +60,15 @@ void CConcurrencyTest::testAsyncWithExecutors() {
 
         auto result =
             core::async(core::defaultAsyncExecutor(), []() { return 42; });
-        CPPUNIT_ASSERT_EQUAL(42, result.get());
+        BOOST_REQUIRE_EQUAL(42, result.get());
 
         result = core::async(core::defaultAsyncExecutor(),
                              [](int i) { return i; }, 43);
-        CPPUNIT_ASSERT_EQUAL(43, result.get());
+        BOOST_REQUIRE_EQUAL(43, result.get());
 
         result = core::async(core::defaultAsyncExecutor(),
                              [](int i, int j) { return i + j; }, 22, 22);
-        CPPUNIT_ASSERT_EQUAL(44, result.get());
+        BOOST_REQUIRE_EQUAL(44, result.get());
 
         core::startDefaultAsyncExecutor();
     }
@@ -72,7 +76,7 @@ void CConcurrencyTest::testAsyncWithExecutors() {
     core::stopDefaultAsyncExecutor();
 }
 
-void CConcurrencyTest::testAsyncWithExecutorsAndExceptions() {
+BOOST_AUTO_TEST_CASE(testAsyncWithExecutorsAndExceptions) {
 
     core::stopDefaultAsyncExecutor();
 
@@ -82,7 +86,7 @@ void CConcurrencyTest::testAsyncWithExecutorsAndExceptions() {
 
         auto result = core::async(core::defaultAsyncExecutor(),
                                   static_cast<double (*)()>(throws));
-        CPPUNIT_ASSERT_THROW_MESSAGE("don't run me", result.get(), std::runtime_error);
+        BOOST_REQUIRE_THROW(result.get(), std::runtime_error);
 
         core::startDefaultAsyncExecutor();
     }
@@ -90,7 +94,7 @@ void CConcurrencyTest::testAsyncWithExecutorsAndExceptions() {
     core::stopDefaultAsyncExecutor();
 }
 
-void CConcurrencyTest::testParallelForEachWithEmpty() {
+BOOST_AUTO_TEST_CASE(testParallelForEachWithEmpty) {
 
     core::stopDefaultAsyncExecutor();
 
@@ -101,11 +105,11 @@ void CConcurrencyTest::testParallelForEachWithEmpty() {
                                                   sum += static_cast<double>(values[i]);
                                               },
                                               0.0));
-    CPPUNIT_ASSERT_EQUAL(std::size_t{1}, result.size());
-    CPPUNIT_ASSERT_EQUAL(0.0, result[0].s_FunctionState);
+    BOOST_REQUIRE_EQUAL(std::size_t{1}, result.size());
+    BOOST_REQUIRE_EQUAL(0.0, result[0].s_FunctionState);
 }
 
-void CConcurrencyTest::testParallelForEach() {
+BOOST_AUTO_TEST_CASE(testParallelForEach) {
 
     core::stopDefaultAsyncExecutor();
 
@@ -127,7 +131,7 @@ void CConcurrencyTest::testParallelForEach() {
                                         0.0));
 
         if (std::strcmp(tag, "sequential") == 0) {
-            CPPUNIT_ASSERT_EQUAL(std::size_t{1}, results.size());
+            BOOST_REQUIRE_EQUAL(std::size_t{1}, results.size());
         }
         double sum{0.0};
         for (const auto& result : results) {
@@ -137,7 +141,7 @@ void CConcurrencyTest::testParallelForEach() {
 
         LOG_DEBUG(<< "expected " << expected);
         LOG_DEBUG(<< "got      " << sum);
-        CPPUNIT_ASSERT_EQUAL(expected, sum);
+        BOOST_REQUIRE_EQUAL(expected, sum);
 
         core::startDefaultAsyncExecutor();
     }
@@ -153,7 +157,7 @@ void CConcurrencyTest::testParallelForEach() {
                 [](double& sum, int value) { sum += static_cast<double>(value); }, 0.0));
 
         if (std::strcmp(tag, "sequential") == 0) {
-            CPPUNIT_ASSERT_EQUAL(std::size_t{1}, results.size());
+            BOOST_REQUIRE_EQUAL(std::size_t{1}, results.size());
         }
         double sum{0.0};
         for (const auto& result : results) {
@@ -163,7 +167,7 @@ void CConcurrencyTest::testParallelForEach() {
 
         LOG_DEBUG(<< "expected " << expected);
         LOG_DEBUG(<< "got      " << sum);
-        CPPUNIT_ASSERT_EQUAL(expected, sum);
+        BOOST_REQUIRE_EQUAL(expected, sum);
 
         core::startDefaultAsyncExecutor();
     }
@@ -171,7 +175,7 @@ void CConcurrencyTest::testParallelForEach() {
     core::stopDefaultAsyncExecutor();
 }
 
-void CConcurrencyTest::testParallelForEachWithExceptions() {
+BOOST_AUTO_TEST_CASE(testParallelForEachWithExceptions) {
 
     // Test functions throwing exceptions are safely handled in worker threads
     // and the exceptions are propagated to the calling thread.
@@ -189,11 +193,11 @@ void CConcurrencyTest::testParallelForEachWithExceptions() {
                 0, values.size(), static_cast<void (*)(std::size_t)>(throws));
         } catch (const std::runtime_error& e) {
             LOG_DEBUG(<< "Caught: " << e.what());
-            CPPUNIT_ASSERT_EQUAL(std::string{"don't run me"}, std::string{e.what()});
+            BOOST_REQUIRE_EQUAL(std::string{"don't run me"}, std::string{e.what()});
             exceptionCaught = true;
         }
 
-        CPPUNIT_ASSERT(exceptionCaught);
+        BOOST_TEST_REQUIRE(exceptionCaught);
 
         core::startDefaultAsyncExecutor();
     }
@@ -209,11 +213,11 @@ void CConcurrencyTest::testParallelForEachWithExceptions() {
                 values.begin(), values.end(), static_cast<void (*)(int)>(throws));
         } catch (const std::runtime_error& e) {
             LOG_DEBUG(<< "Caught: " << e.what());
-            CPPUNIT_ASSERT_EQUAL(std::string{"don't run me"}, std::string{e.what()});
+            BOOST_REQUIRE_EQUAL(std::string{"don't run me"}, std::string{e.what()});
             exceptionCaught = true;
         }
 
-        CPPUNIT_ASSERT(exceptionCaught);
+        BOOST_TEST_REQUIRE(exceptionCaught);
 
         core::startDefaultAsyncExecutor();
     }
@@ -221,7 +225,7 @@ void CConcurrencyTest::testParallelForEachWithExceptions() {
     core::stopDefaultAsyncExecutor();
 }
 
-void CConcurrencyTest::testParallelForEachReentry() {
+BOOST_AUTO_TEST_CASE(testParallelForEachReentry) {
 
     // Test that calls to parallel_for_each can be safely nested.
 
@@ -247,11 +251,11 @@ void CConcurrencyTest::testParallelForEachReentry() {
         for (const auto& result : results) {
             actual += result.s_FunctionState;
         }
-        CPPUNIT_ASSERT_EQUAL(expected, actual);
+        BOOST_REQUIRE_EQUAL(expected, actual);
     }
 }
 
-void CConcurrencyTest::testProgressMonitoring() {
+BOOST_AUTO_TEST_CASE(testProgressMonitoring) {
 
     // Test progress monitoring invariants.
 
@@ -295,8 +299,8 @@ void CConcurrencyTest::testProgressMonitoring() {
         }
         worker.join();
 
-        CPPUNIT_ASSERT_EQUAL(true, monotonic);
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(1.0, totalProgress, 1e-14);
+        BOOST_REQUIRE_EQUAL(true, monotonic);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(1.0, totalProgress, 1e-14);
 
         core::startDefaultAsyncExecutor();
     }
@@ -335,8 +339,8 @@ void CConcurrencyTest::testProgressMonitoring() {
         }
         worker.join();
 
-        CPPUNIT_ASSERT_EQUAL(true, monotonic);
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(1.0, totalProgress, 1e-14);
+        BOOST_REQUIRE_EQUAL(true, monotonic);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(1.0, totalProgress, 1e-14);
 
         core::startDefaultAsyncExecutor();
     }
@@ -344,27 +348,4 @@ void CConcurrencyTest::testProgressMonitoring() {
     core::stopDefaultAsyncExecutor();
 }
 
-CppUnit::Test* CConcurrencyTest::suite() {
-    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CConcurrencyTest");
-
-    suiteOfTests->addTest(new CppUnit::TestCaller<CConcurrencyTest>(
-        "CConcurrencyTest::testAsyncWithExecutors", &CConcurrencyTest::testAsyncWithExecutors));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CConcurrencyTest>(
-        "CConcurrencyTest::testAsyncWithExecutorsAndExceptions",
-        &CConcurrencyTest::testAsyncWithExecutorsAndExceptions));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CConcurrencyTest>(
-        "CConcurrencyTest::testParallelForEachWithEmpty",
-        &CConcurrencyTest::testParallelForEachWithEmpty));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CConcurrencyTest>(
-        "CConcurrencyTest::testParallelForEach", &CConcurrencyTest::testParallelForEach));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CConcurrencyTest>(
-        "CConcurrencyTest::testParallelForEachWithExceptions",
-        &CConcurrencyTest::testParallelForEachWithExceptions));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CConcurrencyTest>(
-        "CConcurrencyTest::testParallelForEachReentry",
-        &CConcurrencyTest::testParallelForEachReentry));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CConcurrencyTest>(
-        "CConcurrencyTest::testProgressMonitoring", &CConcurrencyTest::testProgressMonitoring));
-
-    return suiteOfTests;
-}
+BOOST_AUTO_TEST_SUITE_END()

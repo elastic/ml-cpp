@@ -4,8 +4,6 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
-#include "CModelToolsTest.h"
-
 #include <core/CLogger.h>
 #include <core/CSmallVector.h>
 #include <core/Constants.h>
@@ -18,11 +16,15 @@
 
 #include <model/CModelTools.h>
 
+#include <test/BoostTestCloseAbsolute.h>
 #include <test/CRandomNumbers.h>
 #include <test/CRandomNumbersDetail.h>
 
 #include <boost/math/distributions/lognormal.hpp>
 #include <boost/math/distributions/normal.hpp>
+#include <boost/test/unit_test.hpp>
+
+BOOST_AUTO_TEST_SUITE(CModelToolsTest)
 
 using namespace ml;
 
@@ -62,7 +64,7 @@ maths::CMultimodalPrior multimodal() {
 }
 }
 
-void CModelToolsTest::testFuzzyDeduplicate() {
+BOOST_AUTO_TEST_CASE(testFuzzyDeduplicate) {
     // Test de-duplication and fuzzy de-duplication.
     //
     // We shouldn't have repeated values and no value should be further
@@ -88,7 +90,7 @@ void CModelToolsTest::testFuzzyDeduplicate() {
         for (auto value : values) {
             std::size_t duplicate{duplicates.duplicate(300, {value})};
             if (duplicate < uniques.size()) {
-                CPPUNIT_ASSERT_DOUBLES_EQUAL(uniques[duplicate], value, tolerance);
+                BOOST_REQUIRE_CLOSE_ABSOLUTE(uniques[duplicate], value, tolerance);
             } else {
                 uniques.push_back(value);
             }
@@ -106,11 +108,11 @@ void CModelToolsTest::testFuzzyDeduplicate() {
             if (duplicate == uniques.size()) {
                 uniques.push_back(values[i]);
             } else {
-                CPPUNIT_ASSERT_EQUAL(values[i], uniques[duplicate]);
+                BOOST_REQUIRE_EQUAL(values[i], uniques[duplicate]);
             }
         }
-        CPPUNIT_ASSERT_EQUAL(std::string("[1, 4, 1, 3, 1.2, 25]"),
-                             core::CContainerPrinter::print(uniques));
+        BOOST_REQUIRE_EQUAL(std::string("[1, 4, 1, 3, 1.2, 25]"),
+                            core::CContainerPrinter::print(uniques));
     }
 
     TDoubleVec values;
@@ -125,7 +127,7 @@ void CModelToolsTest::testFuzzyDeduplicate() {
         double q80{(boost::math::quantile(normal, 0.9) - boost::math::quantile(normal, 0.1))};
         fuzzyUniqueValues(values, q80, uniques);
         LOG_DEBUG(<< "Got " << uniques.size() << "/" << values.size());
-        CPPUNIT_ASSERT(uniques.size() < 25000);
+        BOOST_TEST_REQUIRE(uniques.size() < 25000);
     }
 
     LOG_DEBUG(<< "Uniform");
@@ -134,7 +136,7 @@ void CModelToolsTest::testFuzzyDeduplicate() {
         double q80{0.8 * range};
         fuzzyUniqueValues(values, q80, uniques);
         LOG_DEBUG(<< "Got " << uniques.size() << "/" << values.size());
-        CPPUNIT_ASSERT(uniques.size() < 15000);
+        BOOST_TEST_REQUIRE(uniques.size() < 15000);
     }
 
     LOG_DEBUG(<< "Sorted Uniform");
@@ -144,7 +146,7 @@ void CModelToolsTest::testFuzzyDeduplicate() {
         double q80{80.0};
         fuzzyUniqueValues(values, q80, uniques);
         LOG_DEBUG(<< "Got " << uniques.size() << "/" << values.size());
-        CPPUNIT_ASSERT(uniques.size() < 15000);
+        BOOST_TEST_REQUIRE(uniques.size() < 15000);
     }
 
     LOG_DEBUG(<< "Log-Normal");
@@ -155,11 +157,11 @@ void CModelToolsTest::testFuzzyDeduplicate() {
                    boost::math::quantile(lognormal, 0.1)};
         fuzzyUniqueValues(values, q80, uniques);
         LOG_DEBUG(<< "Got " << uniques.size() << "/" << values.size());
-        CPPUNIT_ASSERT(uniques.size() < 30000);
+        BOOST_TEST_REQUIRE(uniques.size() < 30000);
     }
 }
 
-void CModelToolsTest::testProbabilityCache() {
+BOOST_AUTO_TEST_CASE(testProbabilityCache) {
     // Test the error introduced by caching the probability and that we
     // don't get any errors in the tailness we calculate for the value.
 
@@ -235,12 +237,12 @@ void CModelToolsTest::testProbabilityCache() {
                 ++hits;
                 error.add(std::fabs(result.s_Probability - expectedResult.s_Probability) /
                           expectedResult.s_Probability);
-                CPPUNIT_ASSERT_DOUBLES_EQUAL(expectedResult.s_Probability,
+                BOOST_REQUIRE_CLOSE_ABSOLUTE(expectedResult.s_Probability,
                                              result.s_Probability,
                                              0.05 * expectedResult.s_Probability);
-                CPPUNIT_ASSERT_EQUAL(expectedResult.s_Tail[0], result.s_Tail[0]);
-                CPPUNIT_ASSERT_EQUAL(false, result.s_Conditional);
-                CPPUNIT_ASSERT(result.s_MostAnomalousCorrelate.empty());
+                BOOST_REQUIRE_EQUAL(expectedResult.s_Tail[0], result.s_Tail[0]);
+                BOOST_REQUIRE_EQUAL(false, result.s_Conditional);
+                BOOST_TEST_REQUIRE(result.s_MostAnomalousCorrelate.empty());
             } else {
                 cache.addModes(feature, id, model);
                 cache.addProbability(feature, id, sample, expectedResult);
@@ -249,8 +251,8 @@ void CModelToolsTest::testProbabilityCache() {
 
         LOG_DEBUG(<< "hits = " << hits);
         LOG_DEBUG(<< "mean error = " << maths::CBasicStatistics::mean(error));
-        CPPUNIT_ASSERT(hits > 19000);
-        CPPUNIT_ASSERT(maths::CBasicStatistics::mean(error) < 0.001);
+        BOOST_TEST_REQUIRE(hits > 19000);
+        BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(error) < 0.001);
     }
 
     LOG_DEBUG(<< "Test Adversary");
@@ -271,7 +273,7 @@ void CModelToolsTest::testProbabilityCache() {
             maths::SModelProbabilityResult result;
             if (cache.lookup(feature, id, sample, result)) {
                 // Shouldn't have any cache hits.
-                CPPUNIT_ASSERT(false);
+                BOOST_TEST_REQUIRE(false);
             } else {
                 cache.addModes(feature, id, model);
                 cache.addProbability(feature, id, sample, expectedResult);
@@ -280,13 +282,4 @@ void CModelToolsTest::testProbabilityCache() {
     }
 }
 
-CppUnit::Test* CModelToolsTest::suite() {
-    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CModelToolsTest");
-
-    suiteOfTests->addTest(new CppUnit::TestCaller<CModelToolsTest>(
-        "CModelToolsTest::testFuzzyDeduplicate", &CModelToolsTest::testFuzzyDeduplicate));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CModelToolsTest>(
-        "CModelToolsTest::testProbabilityCache", &CModelToolsTest::testProbabilityCache));
-
-    return suiteOfTests;
-}
+BOOST_AUTO_TEST_SUITE_END()

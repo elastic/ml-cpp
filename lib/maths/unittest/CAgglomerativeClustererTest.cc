@@ -4,8 +4,6 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
-#include "CAgglomerativeClustererTest.h"
-
 #include <core/CContainerPrinter.h>
 #include <core/CLogger.h>
 
@@ -15,10 +13,13 @@
 #include <test/CRandomNumbers.h>
 
 #include <boost/range.hpp>
+#include <boost/test/unit_test.hpp>
 
 #include <algorithm>
 #include <cmath>
 #include <vector>
+
+BOOST_AUTO_TEST_SUITE(CAgglomerativeClustererTest)
 
 using namespace ml;
 
@@ -181,7 +182,7 @@ std::string print(maths::CAgglomerativeClusterer::EObjective o) {
 }
 }
 
-void CAgglomerativeClustererTest::testNode() {
+BOOST_AUTO_TEST_CASE(testNode) {
     double heights[] = {0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 1.5, 1.9, 4.0};
 
     maths::CAgglomerativeClusterer::CNode nodes[] = {
@@ -209,26 +210,26 @@ void CAgglomerativeClustererTest::testNode() {
     LOG_DEBUG(<< "tree = \n" << root.print());
 
     for (std::size_t i = 0u; i < 8; ++i) {
-        CPPUNIT_ASSERT_EQUAL(root.index(), nodes[i].root().index());
+        BOOST_REQUIRE_EQUAL(root.index(), nodes[i].root().index());
     }
 
     TSizeVec points;
     root.points(points);
     std::sort(points.begin(), points.end());
-    CPPUNIT_ASSERT_EQUAL(std::string("[0, 1, 2, 3, 4]"),
-                         core::CContainerPrinter::print(points));
+    BOOST_REQUIRE_EQUAL(std::string("[0, 1, 2, 3, 4]"),
+                        core::CContainerPrinter::print(points));
 
     points.clear();
     nodes[7].points(points);
     std::sort(points.begin(), points.end());
-    CPPUNIT_ASSERT_EQUAL(std::string("[2, 3, 4]"), core::CContainerPrinter::print(points));
+    BOOST_REQUIRE_EQUAL(std::string("[2, 3, 4]"), core::CContainerPrinter::print(points));
 
     {
         TDoubleSizeVecPrVec clusters;
         root.clusters(clusters);
         std::sort(clusters.begin(), clusters.end(), maths::COrderings::SFirstLess());
-        CPPUNIT_ASSERT_EQUAL(std::string("[(1, [0, 1]), (1.5, [2, 3]), (1.9, [4, 2, 3]), (4, [0, 1, 4, 2, 3])]"),
-                             core::CContainerPrinter::print(clusters));
+        BOOST_REQUIRE_EQUAL(std::string("[(1, [0, 1]), (1.5, [2, 3]), (1.9, [4, 2, 3]), (4, [0, 1, 4, 2, 3])]"),
+                            core::CContainerPrinter::print(clusters));
     }
 
     std::string expected[] = {std::string("[[0, 1], [2], [3], [4]]"),
@@ -241,11 +242,11 @@ void CAgglomerativeClustererTest::testNode() {
         std::sort(clusters.begin(), clusters.end());
         LOG_DEBUG(<< "Clusters at " << heights[h] << " are "
                   << core::CContainerPrinter::print(clusters));
-        CPPUNIT_ASSERT_EQUAL(expected[h - 5], core::CContainerPrinter::print(clusters));
+        BOOST_REQUIRE_EQUAL(expected[h - 5], core::CContainerPrinter::print(clusters));
     }
 }
 
-void CAgglomerativeClustererTest::testSimplePermutations() {
+BOOST_AUTO_TEST_CASE(testSimplePermutations) {
     double x[] = {1.0, 3.2, 4.5, 7.8};
     std::size_t n = boost::size(x);
 
@@ -273,7 +274,7 @@ void CAgglomerativeClustererTest::testSimplePermutations() {
             }
 
             maths::CAgglomerativeClusterer clusterer;
-            CPPUNIT_ASSERT(clusterer.initialize(distanceMatrix));
+            BOOST_TEST_REQUIRE(clusterer.initialize(distanceMatrix));
 
             maths::CAgglomerativeClusterer::TNodeVec tree;
             clusterer.run(objectives[o], tree);
@@ -292,12 +293,12 @@ void CAgglomerativeClustererTest::testSimplePermutations() {
 
             LOG_DEBUG(<< "canonical clusters = " << core::CContainerPrinter::print(clusters));
 
-            CPPUNIT_ASSERT_EQUAL(expected[o], core::CContainerPrinter::print(clusters));
+            BOOST_REQUIRE_EQUAL(expected[o], core::CContainerPrinter::print(clusters));
         } while (std::next_permutation(std::begin(p), std::end(p)));
     }
 }
 
-void CAgglomerativeClustererTest::testDegenerate() {
+BOOST_AUTO_TEST_CASE(testDegenerate) {
     double x[] = {1.0, 3.2, 3.2, 3.2, 4.5, 7.8};
     std::size_t n = boost::size(x);
 
@@ -334,7 +335,7 @@ void CAgglomerativeClustererTest::testDegenerate() {
             }
 
             maths::CAgglomerativeClusterer clusterer;
-            CPPUNIT_ASSERT(clusterer.initialize(distanceMatrix));
+            BOOST_TEST_REQUIRE(clusterer.initialize(distanceMatrix));
 
             maths::CAgglomerativeClusterer::TNodeVec tree;
             clusterer.run(objectives[o], tree);
@@ -359,15 +360,16 @@ void CAgglomerativeClustererTest::testDegenerate() {
                           << core::CContainerPrinter::print(clusters));
             }
 
-            CPPUNIT_ASSERT(expected[o][0] == core::CContainerPrinter::print(clusters) ||
-                           expected[o][1] == core::CContainerPrinter::print(clusters) ||
-                           expected[o][2] == core::CContainerPrinter::print(clusters));
+            BOOST_TEST_REQUIRE(
+                (expected[o][0] == core::CContainerPrinter::print(clusters) ||
+                 expected[o][1] == core::CContainerPrinter::print(clusters) ||
+                 expected[o][2] == core::CContainerPrinter::print(clusters)));
             ++count;
         } while (std::next_permutation(std::begin(p), std::end(p)));
     }
 }
 
-void CAgglomerativeClustererTest::testRandom() {
+BOOST_AUTO_TEST_CASE(testRandom) {
     test::CRandomNumbers rng;
 
     std::size_t n = 20u;
@@ -402,7 +404,7 @@ void CAgglomerativeClustererTest::testRandom() {
             case maths::CAgglomerativeClusterer::E_Weighted:
             case maths::CAgglomerativeClusterer::E_Ward:
                 // TODO
-                CPPUNIT_ASSERT(false);
+                BOOST_TEST_REQUIRE(false);
                 break;
             }
 
@@ -417,7 +419,7 @@ void CAgglomerativeClustererTest::testRandom() {
                       << core::CContainerPrinter::print(expectedClusters));
 
             maths::CAgglomerativeClusterer clusterer;
-            CPPUNIT_ASSERT(clusterer.initialize(distanceMatrix));
+            BOOST_TEST_REQUIRE(clusterer.initialize(distanceMatrix));
 
             maths::CAgglomerativeClusterer::TNodeVec tree;
             clusterer.run(objectives[o], tree);
@@ -431,25 +433,10 @@ void CAgglomerativeClustererTest::testRandom() {
 
             LOG_DEBUG(<< "clusters          = " << core::CContainerPrinter::print(clusters));
 
-            CPPUNIT_ASSERT_EQUAL(core::CContainerPrinter::print(expectedClusters),
-                                 core::CContainerPrinter::print(clusters));
+            BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(expectedClusters),
+                                core::CContainerPrinter::print(clusters));
         }
     }
 }
 
-CppUnit::Test* CAgglomerativeClustererTest::suite() {
-    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CAgglomerativeClustererTest");
-
-    suiteOfTests->addTest(new CppUnit::TestCaller<CAgglomerativeClustererTest>(
-        "CAgglomerativeClustererTest::testNode", &CAgglomerativeClustererTest::testNode));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CAgglomerativeClustererTest>(
-        "CAgglomerativeClustererTest::testSimplePermutations",
-        &CAgglomerativeClustererTest::testSimplePermutations));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CAgglomerativeClustererTest>(
-        "CAgglomerativeClustererTest::testDegenerate",
-        &CAgglomerativeClustererTest::testDegenerate));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CAgglomerativeClustererTest>(
-        "CAgglomerativeClustererTest::testRandom", &CAgglomerativeClustererTest::testRandom));
-
-    return suiteOfTests;
-}
+BOOST_AUTO_TEST_SUITE_END()

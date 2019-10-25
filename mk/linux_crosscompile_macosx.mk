@@ -68,6 +68,7 @@ BOOSTPROGRAMOPTIONSLIBS=-lboost_program_options-clang-darwin$(BOOSTCLANGVER)-mt-
 BOOSTTHREADLIBS=-lboost_thread-clang-darwin$(BOOSTCLANGVER)-mt-x64-$(BOOSTVER) -lboost_system-clang-darwin$(BOOSTCLANGVER)-mt-x64-$(BOOSTVER)
 BOOSTFILESYSTEMLIBS=-lboost_filesystem-clang-darwin$(BOOSTCLANGVER)-mt-x64-$(BOOSTVER) -lboost_system-clang-darwin$(BOOSTCLANGVER)-mt-x64-$(BOOSTVER)
 BOOSTDATETIMELIBS=-lboost_date_time-clang-darwin$(BOOSTCLANGVER)-mt-x64-$(BOOSTVER)
+BOOSTTESTLIBS=-lboost_unit_test_framework-clang-darwin$(BOOSTCLANGVER)-mt-x64-$(BOOSTVER)
 RAPIDJSONINCLUDES=-isystem $(CPP_SRC_HOME)/3rd_party/rapidjson/include
 RAPIDJSONCPPFLAGS=-DRAPIDJSON_HAS_STDSTRING -DRAPIDJSON_SSE42
 EIGENCPPFLAGS=-DEIGEN_MPL2_ONLY
@@ -76,7 +77,6 @@ XMLLIBLDFLAGS=-L$(SYSROOT)/usr/lib
 XMLLIBS=-lxml2
 ML_VERSION_NUM=$(shell cat $(CPP_SRC_HOME)/gradle.properties | grep '^elasticsearchVersion' | awk -F= '{ print $$2 }' | xargs echo | sed 's/-.*//')
 DYNAMICLIBLDFLAGS=-current_version $(ML_VERSION_NUM) -compatibility_version $(ML_VERSION_NUM) -dynamiclib -Wl,-dead_strip_dylibs $(COVERAGE) -Wl,-install_name,@rpath/$(notdir $(TARGET)) -L$(CPP_PLATFORM_HOME)/$(DYNAMIC_LIB_DIR) -Wl,-rpath,@loader_path/. -Wl,-headerpad_max_install_names
-CPPUNITLIBS=-lcppunit
 ZLIBLIBS=-lz
 EXELDFLAGS=-bind_at_load -L$(CPP_PLATFORM_HOME)/$(DYNAMIC_LIB_DIR) $(COVERAGE) -Wl,-rpath,@loader_path/../lib -Wl,-headerpad_max_install_names
 UTLDFLAGS=$(EXELDFLAGS) -Wl,-rpath,$(CPP_PLATFORM_HOME)/$(DYNAMIC_LIB_DIR)

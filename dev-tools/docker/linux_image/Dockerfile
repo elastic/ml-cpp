@@ -63,16 +63,6 @@ RUN \
   cd .. && \
   rm -rf boost_1_71_0
 
-# Build cppunit
-RUN \
-  wget --quiet -O - http://dev-www.libreoffice.org/src/cppunit-1.13.2.tar.gz | tar zxf - && \
-  cd cppunit-1.13.2 && \
-  ./configure --prefix=/usr/local/gcc73 && \
-  make -j`grep -c '^processor' /proc/cpuinfo` && \
-  make install && \
-  cd .. && \
-  rm -rf cppunit-1.13.2
-
 # Build patchelf
 RUN \
   wget --quiet -O - http://nixos.org/releases/patchelf/patchelf-0.9/patchelf-0.9.tar.gz | tar zxf - && \

@@ -4,8 +4,6 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
-#include "CDataFrameAnalyzerOutlierTest.h"
-
 #include <core/CContainerPrinter.h>
 #include <core/CJsonOutputStreamWrapper.h>
 #include <core/CProgramCounters.h>
@@ -20,15 +18,24 @@
 #include <test/CDataFrameAnalysisSpecificationFactory.h>
 #include <test/CRandomNumbers.h>
 
+#include <test/BoostTestCloseAbsolute.h>
+
+#include <boost/test/unit_test.hpp>
+
 #include <memory>
 #include <string>
 #include <vector>
 
+using TDoubleVec = std::vector<double>;
+using TDoubleVecVec = std::vector<TDoubleVec>;
+BOOST_TEST_DONT_PRINT_LOG_VALUE(TDoubleVec::iterator)
+BOOST_TEST_DONT_PRINT_LOG_VALUE(TDoubleVecVec::iterator)
+
+BOOST_AUTO_TEST_SUITE(CDataFrameAnalyzerOutlierTest)
+
 using namespace ml;
 
 namespace {
-using TDoubleVec = std::vector<double>;
-using TDoubleVecVec = std::vector<TDoubleVec>;
 using TStrVec = std::vector<std::string>;
 using TRowItr = core::CDataFrame::TRowItr;
 
@@ -98,7 +105,7 @@ void addOutlierTestData(TStrVec fieldNames,
 }
 }
 
-void CDataFrameAnalyzerOutlierTest::testWithoutControlMessages() {
+BOOST_AUTO_TEST_CASE(testWithoutControlMessages) {
 
     std::stringstream output;
     auto outputWriterFactory = [&output]() {
@@ -123,28 +130,28 @@ void CDataFrameAnalyzerOutlierTest::testWithoutControlMessages() {
 
     rapidjson::Document results;
     rapidjson::ParseResult ok(results.Parse(output.str()));
-    CPPUNIT_ASSERT(static_cast<bool>(ok) == true);
+    BOOST_TEST_REQUIRE(static_cast<bool>(ok) == true);
 
     auto expectedScore = expectedScores.begin();
     for (const auto& result : results.GetArray()) {
         if (result.HasMember("row_results")) {
-            CPPUNIT_ASSERT(expectedScore != expectedScores.end());
-            CPPUNIT_ASSERT_DOUBLES_EQUAL(
+            BOOST_TEST_REQUIRE(expectedScore != expectedScores.end());
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(
                 *expectedScore,
                 result["row_results"]["results"]["ml"]["outlier_score"].GetDouble(),
                 1e-4 * *expectedScore);
-            CPPUNIT_ASSERT(result.HasMember("progress_percent") == false);
+            BOOST_TEST_REQUIRE(result.HasMember("progress_percent") == false);
             ++expectedScore;
         } else if (result.HasMember("progress_percent")) {
-            CPPUNIT_ASSERT(result["progress_percent"].GetInt() >= 0);
-            CPPUNIT_ASSERT(result["progress_percent"].GetInt() <= 100);
-            CPPUNIT_ASSERT(result.HasMember("row_results") == false);
+            BOOST_TEST_REQUIRE(result["progress_percent"].GetInt() >= 0);
+            BOOST_TEST_REQUIRE(result["progress_percent"].GetInt() <= 100);
+            BOOST_TEST_REQUIRE(result.HasMember("row_results") == false);
         }
     }
-    CPPUNIT_ASSERT(expectedScore == expectedScores.end());
+    BOOST_TEST_REQUIRE(expectedScore == expectedScores.end());
 }
 
-void CDataFrameAnalyzerOutlierTest::testRunOutlierDetection() {
+BOOST_AUTO_TEST_CASE(testRunOutlierDetection) {
 
     // Test the results the analyzer produces match running outlier detection
     // directly.
@@ -168,38 +175,38 @@ void CDataFrameAnalyzerOutlierTest::testRunOutlierDetection() {
 
     rapidjson::Document results;
     rapidjson::ParseResult ok(results.Parse(output.str()));
-    CPPUNIT_ASSERT(static_cast<bool>(ok) == true);
+    BOOST_TEST_REQUIRE(static_cast<bool>(ok) == true);
 
     auto expectedScore = expectedScores.begin();
     bool progressCompleted{false};
     for (const auto& result : results.GetArray()) {
         if (result.HasMember("row_results")) {
-            CPPUNIT_ASSERT(expectedScore != expectedScores.end());
-            CPPUNIT_ASSERT_DOUBLES_EQUAL(
+            BOOST_TEST_REQUIRE(expectedScore != expectedScores.end());
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(
                 *expectedScore,
                 result["row_results"]["results"]["ml"]["outlier_score"].GetDouble(),
                 1e-4 * *expectedScore);
             ++expectedScore;
-            CPPUNIT_ASSERT(result.HasMember("progress_percent") == false);
+            BOOST_TEST_REQUIRE(result.HasMember("progress_percent") == false);
         } else if (result.HasMember("progress_percent")) {
-            CPPUNIT_ASSERT(result["progress_percent"].GetInt() >= 0);
-            CPPUNIT_ASSERT(result["progress_percent"].GetInt() <= 100);
-            CPPUNIT_ASSERT(result.HasMember("row_results") == false);
+            BOOST_TEST_REQUIRE(result["progress_percent"].GetInt() >= 0);
+            BOOST_TEST_REQUIRE(result["progress_percent"].GetInt() <= 100);
+            BOOST_TEST_REQUIRE(result.HasMember("row_results") == false);
             progressCompleted = result["progress_percent"].GetInt() == 100;
         }
     }
-    CPPUNIT_ASSERT(expectedScore == expectedScores.end());
-    CPPUNIT_ASSERT(progressCompleted);
+    BOOST_TEST_REQUIRE(expectedScore == expectedScores.end());
+    BOOST_TEST_REQUIRE(progressCompleted);
 
     LOG_DEBUG(<< "number partitions = "
               << core::CProgramCounters::counter(counter_t::E_DFONumberPartitions));
     LOG_DEBUG(<< "peak memory = "
               << core::CProgramCounters::counter(counter_t::E_DFOPeakMemoryUsage));
-    CPPUNIT_ASSERT(core::CProgramCounters::counter(counter_t::E_DFONumberPartitions) == 1);
-    CPPUNIT_ASSERT(core::CProgramCounters::counter(counter_t::E_DFOPeakMemoryUsage) < 100000);
+    BOOST_TEST_REQUIRE(core::CProgramCounters::counter(counter_t::E_DFONumberPartitions) == 1);
+    BOOST_TEST_REQUIRE(core::CProgramCounters::counter(counter_t::E_DFOPeakMemoryUsage) < 100000);
 }
 
-void CDataFrameAnalyzerOutlierTest::testRunOutlierDetectionPartitioned() {
+BOOST_AUTO_TEST_CASE(testRunOutlierDetectionPartitioned) {
 
     // Test the case we have to overflow to disk to compute outliers subject
     // to the memory constraints.
@@ -223,30 +230,31 @@ void CDataFrameAnalyzerOutlierTest::testRunOutlierDetectionPartitioned() {
 
     rapidjson::Document results;
     rapidjson::ParseResult ok(results.Parse(output.str()));
-    CPPUNIT_ASSERT(static_cast<bool>(ok) == true);
+    BOOST_TEST_REQUIRE(static_cast<bool>(ok) == true);
 
     auto expectedScore = expectedScores.begin();
     for (const auto& result : results.GetArray()) {
         if (result.HasMember("row_results")) {
-            CPPUNIT_ASSERT(expectedScore != expectedScores.end());
-            CPPUNIT_ASSERT_DOUBLES_EQUAL(
+            BOOST_TEST_REQUIRE(expectedScore != expectedScores.end());
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(
                 *expectedScore,
                 result["row_results"]["results"]["ml"]["outlier_score"].GetDouble(),
                 1e-4 * *expectedScore);
             ++expectedScore;
         }
     }
-    CPPUNIT_ASSERT(expectedScore == expectedScores.end());
+    BOOST_TEST_REQUIRE(expectedScore == expectedScores.end());
 
     LOG_DEBUG(<< "number partitions = "
               << core::CProgramCounters::counter(counter_t::E_DFONumberPartitions));
     LOG_DEBUG(<< "peak memory = "
               << core::CProgramCounters::counter(counter_t::E_DFOPeakMemoryUsage));
-    CPPUNIT_ASSERT(core::CProgramCounters::counter(counter_t::E_DFONumberPartitions) > 1);
-    CPPUNIT_ASSERT(core::CProgramCounters::counter(counter_t::E_DFOPeakMemoryUsage) < 116000); // + 16%
+    BOOST_TEST_REQUIRE(core::CProgramCounters::counter(counter_t::E_DFONumberPartitions) > 1);
+    BOOST_TEST_REQUIRE(core::CProgramCounters::counter(counter_t::E_DFOPeakMemoryUsage) <
+                       116000); // + 16%
 }
 
-void CDataFrameAnalyzerOutlierTest::testRunOutlierFeatureInfluences() {
+BOOST_AUTO_TEST_CASE(testRunOutlierFeatureInfluences) {
 
     // Test we compute and write out the feature influences when requested.
 
@@ -272,14 +280,15 @@ void CDataFrameAnalyzerOutlierTest::testRunOutlierFeatureInfluences() {
 
     rapidjson::Document results;
     rapidjson::ParseResult ok(results.Parse(output.str()));
-    CPPUNIT_ASSERT(static_cast<bool>(ok) == true);
+    BOOST_TEST_REQUIRE(static_cast<bool>(ok) == true);
 
     auto expectedFeatureInfluence = expectedFeatureInfluences.begin();
     for (const auto& result : results.GetArray()) {
         if (result.HasMember("row_results")) {
-            CPPUNIT_ASSERT(expectedFeatureInfluence != expectedFeatureInfluences.end());
+            BOOST_TEST_REQUIRE(expectedFeatureInfluence !=
+                               expectedFeatureInfluences.end());
             for (std::size_t i = 0; i < 5; ++i) {
-                CPPUNIT_ASSERT_DOUBLES_EQUAL(
+                BOOST_REQUIRE_CLOSE_ABSOLUTE(
                     (*expectedFeatureInfluence)[i],
                     result["row_results"]["results"]["ml"][expectedNames[i]].GetDouble(),
                     1e-4 * (*expectedFeatureInfluence)[i]);
@@ -287,10 +296,10 @@ void CDataFrameAnalyzerOutlierTest::testRunOutlierFeatureInfluences() {
             ++expectedFeatureInfluence;
         }
     }
-    CPPUNIT_ASSERT(expectedFeatureInfluence == expectedFeatureInfluences.end());
+    BOOST_TEST_REQUIRE(expectedFeatureInfluence == expectedFeatureInfluences.end());
 }
 
-void CDataFrameAnalyzerOutlierTest::testRunOutlierDetectionWithParams() {
+BOOST_AUTO_TEST_CASE(testRunOutlierDetectionWithParams) {
 
     // Test the method and number of neighbours parameters are correctly
     // propagated to the analysis runner.
@@ -325,25 +334,25 @@ void CDataFrameAnalyzerOutlierTest::testRunOutlierDetectionWithParams() {
 
             rapidjson::Document results;
             rapidjson::ParseResult ok(results.Parse(output.str()));
-            CPPUNIT_ASSERT(static_cast<bool>(ok) == true);
+            BOOST_TEST_REQUIRE(static_cast<bool>(ok) == true);
 
             auto expectedScore = expectedScores.begin();
             for (const auto& result : results.GetArray()) {
                 if (result.HasMember("row_results")) {
-                    CPPUNIT_ASSERT(expectedScore != expectedScores.end());
-                    CPPUNIT_ASSERT_DOUBLES_EQUAL(
+                    BOOST_TEST_REQUIRE(expectedScore != expectedScores.end());
+                    BOOST_REQUIRE_CLOSE_ABSOLUTE(
                         *expectedScore,
                         result["row_results"]["results"]["ml"]["outlier_score"].GetDouble(),
                         1e-6 * *expectedScore);
                     ++expectedScore;
                 }
             }
-            CPPUNIT_ASSERT(expectedScore == expectedScores.end());
+            BOOST_TEST_REQUIRE(expectedScore == expectedScores.end());
         }
     }
 }
 
-void CDataFrameAnalyzerOutlierTest::testFlushMessage() {
+BOOST_AUTO_TEST_CASE(testFlushMessage) {
 
     // Test that white space is just ignored.
 
@@ -354,12 +363,12 @@ void CDataFrameAnalyzerOutlierTest::testFlushMessage() {
 
     api::CDataFrameAnalyzer analyzer{
         test::CDataFrameAnalysisSpecificationFactory::outlierSpec(), outputWriterFactory};
-    CPPUNIT_ASSERT_EQUAL(
+    BOOST_REQUIRE_EQUAL(
         true, analyzer.handleRecord({"c1", "c2", "c3", "c4", "c5", ".", "."},
                                     {"", "", "", "", "", "", "           "}));
 }
 
-void CDataFrameAnalyzerOutlierTest::testErrors() {
+BOOST_AUTO_TEST_CASE(testErrors) {
 
     std::vector<std::string> errors;
     std::mutex errorsMutex;
@@ -382,10 +391,9 @@ void CDataFrameAnalyzerOutlierTest::testErrors() {
             std::make_unique<api::CDataFrameAnalysisSpecification>(std::string{"junk"}),
             outputWriterFactory};
         LOG_DEBUG(<< core::CContainerPrinter::print(errors));
-        CPPUNIT_ASSERT(errors.size() > 0);
-        CPPUNIT_ASSERT_EQUAL(false,
-                             analyzer.handleRecord({"c1", "c2", "c3", "c4", "c5"},
-                                                   {"10", "10", "10", "10", "10"}));
+        BOOST_TEST_REQUIRE(errors.size() > 0);
+        BOOST_REQUIRE_EQUAL(false, analyzer.handleRecord({"c1", "c2", "c3", "c4", "c5"},
+                                                         {"10", "10", "10", "10", "10"}));
     }
 
     // Test special field in the wrong position
@@ -393,11 +401,11 @@ void CDataFrameAnalyzerOutlierTest::testErrors() {
         errors.clear();
         api::CDataFrameAnalyzer analyzer{
             test::CDataFrameAnalysisSpecificationFactory::outlierSpec(), outputWriterFactory};
-        CPPUNIT_ASSERT_EQUAL(
+        BOOST_REQUIRE_EQUAL(
             false, analyzer.handleRecord({"c1", "c2", "c3", ".", "c4", "c5", "."},
                                          {"10", "10", "10", "", "10", "10", ""}));
         LOG_DEBUG(<< core::CContainerPrinter::print(errors));
-        CPPUNIT_ASSERT(errors.size() > 0);
+        BOOST_TEST_REQUIRE(errors.size() > 0);
     }
 
     // Test missing special field
@@ -405,11 +413,11 @@ void CDataFrameAnalyzerOutlierTest::testErrors() {
         api::CDataFrameAnalyzer analyzer{
             test::CDataFrameAnalysisSpecificationFactory::outlierSpec(), outputWriterFactory};
         errors.clear();
-        CPPUNIT_ASSERT_EQUAL(
+        BOOST_REQUIRE_EQUAL(
             false, analyzer.handleRecord({"c1", "c2", "c3", "c4", "c5", "."},
                                          {"10", "10", "10", "10", "10", ""}));
         LOG_DEBUG(<< core::CContainerPrinter::print(errors));
-        CPPUNIT_ASSERT(errors.size() > 0);
+        BOOST_TEST_REQUIRE(errors.size() > 0);
     }
 
     // Test bad control message
@@ -417,11 +425,11 @@ void CDataFrameAnalyzerOutlierTest::testErrors() {
         api::CDataFrameAnalyzer analyzer{
             test::CDataFrameAnalysisSpecificationFactory::outlierSpec(), outputWriterFactory};
         errors.clear();
-        CPPUNIT_ASSERT_EQUAL(
+        BOOST_REQUIRE_EQUAL(
             false, analyzer.handleRecord({"c1", "c2", "c3", "c4", "c5", ".", "."},
                                          {"10", "10", "10", "10", "10", "", "foo"}));
         LOG_DEBUG(<< core::CContainerPrinter::print(errors));
-        CPPUNIT_ASSERT(errors.size() > 0);
+        BOOST_TEST_REQUIRE(errors.size() > 0);
     }
 
     // Test bad input
@@ -429,11 +437,11 @@ void CDataFrameAnalyzerOutlierTest::testErrors() {
         api::CDataFrameAnalyzer analyzer{
             test::CDataFrameAnalysisSpecificationFactory::outlierSpec(), outputWriterFactory};
         errors.clear();
-        CPPUNIT_ASSERT_EQUAL(
+        BOOST_REQUIRE_EQUAL(
             false, analyzer.handleRecord({"c1", "c2", "c3", "c4", "c5", ".", "."},
                                          {"10", "10", "10", "10", "10"}));
         LOG_DEBUG(<< core::CContainerPrinter::print(errors));
-        CPPUNIT_ASSERT(errors.size() > 0);
+        BOOST_TEST_REQUIRE(errors.size() > 0);
     }
 
     // Test inconsistent number of rows
@@ -442,33 +450,33 @@ void CDataFrameAnalyzerOutlierTest::testErrors() {
         api::CDataFrameAnalyzer analyzer{
             test::CDataFrameAnalysisSpecificationFactory::outlierSpec(2), outputWriterFactory};
         errors.clear();
-        CPPUNIT_ASSERT_EQUAL(
+        BOOST_REQUIRE_EQUAL(
             true, analyzer.handleRecord({"c1", "c2", "c3", "c4", "c5", ".", "."},
                                         {"10", "10", "10", "10", "10", "0", ""}));
-        CPPUNIT_ASSERT_EQUAL(
+        BOOST_REQUIRE_EQUAL(
             true, analyzer.handleRecord({"c1", "c2", "c3", "c4", "c5", ".", "."},
                                         {"", "", "", "", "", "", "$"}));
         LOG_DEBUG(<< core::CContainerPrinter::print(errors));
-        CPPUNIT_ASSERT(errors.empty());
+        BOOST_TEST_REQUIRE(errors.empty());
     }
     {
         api::CDataFrameAnalyzer analyzer{
             test::CDataFrameAnalysisSpecificationFactory::outlierSpec(2), outputWriterFactory};
         errors.clear();
-        CPPUNIT_ASSERT_EQUAL(
+        BOOST_REQUIRE_EQUAL(
             true, analyzer.handleRecord({"c1", "c2", "c3", "c4", "c5", ".", "."},
                                         {"10", "10", "10", "10", "10", "0", ""}));
-        CPPUNIT_ASSERT_EQUAL(
+        BOOST_REQUIRE_EQUAL(
             true, analyzer.handleRecord({"c1", "c2", "c3", "c4", "c5", ".", "."},
                                         {"10", "10", "10", "10", "10", "0", ""}));
-        CPPUNIT_ASSERT_EQUAL(
+        BOOST_REQUIRE_EQUAL(
             true, analyzer.handleRecord({"c1", "c2", "c3", "c4", "c5", ".", "."},
                                         {"10", "10", "10", "10", "10", "0", ""}));
-        CPPUNIT_ASSERT_EQUAL(
+        BOOST_REQUIRE_EQUAL(
             true, analyzer.handleRecord({"c1", "c2", "c3", "c4", "c5", ".", "."},
                                         {"", "", "", "", "", "", "$"}));
         LOG_DEBUG(<< core::CContainerPrinter::print(errors));
-        CPPUNIT_ASSERT(errors.size() > 0);
+        BOOST_TEST_REQUIRE(errors.size() > 0);
     }
 
     // No data.
@@ -476,16 +484,16 @@ void CDataFrameAnalyzerOutlierTest::testErrors() {
         api::CDataFrameAnalyzer analyzer{
             test::CDataFrameAnalysisSpecificationFactory::outlierSpec(2), outputWriterFactory};
         errors.clear();
-        CPPUNIT_ASSERT_EQUAL(
+        BOOST_REQUIRE_EQUAL(
             true, analyzer.handleRecord({"c1", "c2", "c3", "c4", "c5", ".", "."},
                                         {"", "", "", "", "", "", "$"}));
         LOG_DEBUG(<< core::CContainerPrinter::print(errors));
-        CPPUNIT_ASSERT(errors.size() > 0);
-        CPPUNIT_ASSERT_EQUAL(std::string{"Input error: no data sent."}, errors[0]);
+        BOOST_TEST_REQUIRE(errors.size() > 0);
+        BOOST_REQUIRE_EQUAL(std::string{"Input error: no data sent."}, errors[0]);
     }
 }
 
-void CDataFrameAnalyzerOutlierTest::testRoundTripDocHashes() {
+BOOST_AUTO_TEST_CASE(testRoundTripDocHashes) {
 
     std::stringstream output;
     auto outputWriterFactory = [&output]() {
@@ -504,44 +512,16 @@ void CDataFrameAnalyzerOutlierTest::testRoundTripDocHashes() {
 
     rapidjson::Document results;
     rapidjson::ParseResult ok(results.Parse(output.str()));
-    CPPUNIT_ASSERT(static_cast<bool>(ok) == true);
+    BOOST_TEST_REQUIRE(static_cast<bool>(ok) == true);
 
     int expectedHash{0};
     for (const auto& result : results.GetArray()) {
         if (result.HasMember("row_results")) {
             LOG_DEBUG(<< "checksum = " << result["row_results"]["checksum"].GetInt());
-            CPPUNIT_ASSERT_EQUAL(++expectedHash,
-                                 result["row_results"]["checksum"].GetInt());
+            BOOST_REQUIRE_EQUAL(++expectedHash,
+                                result["row_results"]["checksum"].GetInt());
         }
     }
 }
 
-CppUnit::Test* CDataFrameAnalyzerOutlierTest::suite() {
-    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CDataFrameAnalyzerOutlierTest");
-
-    suiteOfTests->addTest(new CppUnit::TestCaller<CDataFrameAnalyzerOutlierTest>(
-        "CDataFrameAnalyzerOutlierTest::testWithoutControlMessages",
-        &CDataFrameAnalyzerOutlierTest::testWithoutControlMessages));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CDataFrameAnalyzerOutlierTest>(
-        "CDataFrameAnalyzerOutlierTest::testRunOutlierDetection",
-        &CDataFrameAnalyzerOutlierTest::testRunOutlierDetection));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CDataFrameAnalyzerOutlierTest>(
-        "CDataFrameAnalyzerOutlierTest::testRunOutlierDetectionPartitioned",
-        &CDataFrameAnalyzerOutlierTest::testRunOutlierDetectionPartitioned));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CDataFrameAnalyzerOutlierTest>(
-        "CDataFrameAnalyzerOutlierTest::testRunOutlierFeatureInfluences",
-        &CDataFrameAnalyzerOutlierTest::testRunOutlierFeatureInfluences));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CDataFrameAnalyzerOutlierTest>(
-        "CDataFrameAnalyzerOutlierTest::testRunOutlierDetectionWithParams",
-        &CDataFrameAnalyzerOutlierTest::testRunOutlierDetectionWithParams));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CDataFrameAnalyzerOutlierTest>(
-        "CDataFrameAnalyzerOutlierTest::testFlushMessage",
-        &CDataFrameAnalyzerOutlierTest::testFlushMessage));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CDataFrameAnalyzerOutlierTest>(
-        "CDataFrameAnalyzerOutlierTest::testErrors", &CDataFrameAnalyzerOutlierTest::testErrors));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CDataFrameAnalyzerOutlierTest>(
-        "CDataFrameAnalyzerOutlierTest::testRoundTripDocHashes",
-        &CDataFrameAnalyzerOutlierTest::testRoundTripDocHashes));
-
-    return suiteOfTests;
-}
+BOOST_AUTO_TEST_SUITE_END()

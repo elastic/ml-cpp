@@ -14,7 +14,9 @@
 
 #include <memory>
 
+namespace CTimeSeriesDecompositionTest {
 class CNanInjector;
+}
 
 namespace ml {
 namespace core {
@@ -249,7 +251,7 @@ private:
     CComponents m_Components;
 
     //! Befriend a helper class used by the unit tests
-    friend class ::CNanInjector;
+    friend class CTimeSeriesDecompositionTest::CNanInjector;
 };
 }
 }

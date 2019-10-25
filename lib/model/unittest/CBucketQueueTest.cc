@@ -4,8 +4,6 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
-#include "CBucketQueueTest.h"
-
 #include <core/CJsonStatePersistInserter.h>
 #include <core/CJsonStateRestoreTraverser.h>
 #include <core/CLogger.h>
@@ -13,7 +11,10 @@
 
 #include <model/CBucketQueue.h>
 
+#include <boost/test/unit_test.hpp>
 #include <boost/unordered_map.hpp>
+
+BOOST_AUTO_TEST_SUITE(CBucketQueueTest)
 
 using namespace ml;
 using namespace model;
@@ -25,70 +26,70 @@ using TSizeSizePrUInt64UMap = boost::unordered_map<TSizeSizePr, uint64_t>;
 using TSizeSizePrUInt64UMapQueue = model::CBucketQueue<TSizeSizePrUInt64UMap>;
 using TSizeSizePrUInt64UMapQueueCItr = TSizeSizePrUInt64UMapQueue::const_iterator;
 
-void CBucketQueueTest::testConstructorFillsQueue() {
+BOOST_AUTO_TEST_CASE(testConstructorFillsQueue) {
     CBucketQueue<int> queue(3, 5, 15);
 
-    CPPUNIT_ASSERT_EQUAL(std::size_t(4), queue.size());
+    BOOST_REQUIRE_EQUAL(std::size_t(4), queue.size());
 
     std::set<const int*> values;
     values.insert(&queue.get(0));
     values.insert(&queue.get(5));
     values.insert(&queue.get(10));
     values.insert(&queue.get(15));
-    CPPUNIT_ASSERT_EQUAL(std::size_t(4), values.size());
+    BOOST_REQUIRE_EQUAL(std::size_t(4), values.size());
 }
 
-void CBucketQueueTest::testPushGivenEarlierTime() {
+BOOST_AUTO_TEST_CASE(testPushGivenEarlierTime) {
     CBucketQueue<std::string> queue(1, 5, 0);
     queue.push("a", 5);
     queue.push("b", 10);
-    CPPUNIT_ASSERT_EQUAL(std::size_t(2), queue.size());
+    BOOST_REQUIRE_EQUAL(std::size_t(2), queue.size());
 
     queue.push("c", 3);
 
-    CPPUNIT_ASSERT_EQUAL(std::size_t(2), queue.size());
-    CPPUNIT_ASSERT_EQUAL(std::string("a"), queue.get(7));
-    CPPUNIT_ASSERT_EQUAL(std::string("b"), queue.get(12));
+    BOOST_REQUIRE_EQUAL(std::size_t(2), queue.size());
+    BOOST_REQUIRE_EQUAL(std::string("a"), queue.get(7));
+    BOOST_REQUIRE_EQUAL(std::string("b"), queue.get(12));
 }
 
-void CBucketQueueTest::testGetGivenFullQueueWithNoPop() {
+BOOST_AUTO_TEST_CASE(testGetGivenFullQueueWithNoPop) {
     CBucketQueue<std::string> queue(1, 5, 0);
     queue.push("a", 5);
     queue.push("b", 10);
 
-    CPPUNIT_ASSERT_EQUAL(std::size_t(2), queue.size());
-    CPPUNIT_ASSERT_EQUAL(std::string("a"), queue.get(5));
-    CPPUNIT_ASSERT_EQUAL(std::string("b"), queue.get(10));
+    BOOST_REQUIRE_EQUAL(std::size_t(2), queue.size());
+    BOOST_REQUIRE_EQUAL(std::string("a"), queue.get(5));
+    BOOST_REQUIRE_EQUAL(std::string("b"), queue.get(10));
 }
 
-void CBucketQueueTest::testGetGivenFullQueueAfterPop() {
+BOOST_AUTO_TEST_CASE(testGetGivenFullQueueAfterPop) {
     CBucketQueue<std::string> queue(1, 5, 0);
     queue.push("a", 5);
     queue.push("b", 10);
     queue.push("c", 15);
 
-    CPPUNIT_ASSERT_EQUAL(std::size_t(2), queue.size());
-    CPPUNIT_ASSERT_EQUAL(std::string("b"), queue.get(11));
-    CPPUNIT_ASSERT_EQUAL(std::string("c"), queue.get(19));
+    BOOST_REQUIRE_EQUAL(std::size_t(2), queue.size());
+    BOOST_REQUIRE_EQUAL(std::string("b"), queue.get(11));
+    BOOST_REQUIRE_EQUAL(std::string("c"), queue.get(19));
 }
 
-void CBucketQueueTest::testClear() {
+BOOST_AUTO_TEST_CASE(testClear) {
     CBucketQueue<int> queue(2, 5, 0);
-    CPPUNIT_ASSERT_EQUAL(std::size_t(3), queue.size());
+    BOOST_REQUIRE_EQUAL(std::size_t(3), queue.size());
     queue.push(0, 5);
     queue.push(1, 10);
     queue.push(2, 15);
-    CPPUNIT_ASSERT_EQUAL(std::size_t(3), queue.size());
+    BOOST_REQUIRE_EQUAL(std::size_t(3), queue.size());
 
     queue.clear();
-    CPPUNIT_ASSERT_EQUAL(int(0), queue.get(5));
-    CPPUNIT_ASSERT_EQUAL(int(0), queue.get(10));
-    CPPUNIT_ASSERT_EQUAL(int(0), queue.get(15));
+    BOOST_REQUIRE_EQUAL(int(0), queue.get(5));
+    BOOST_REQUIRE_EQUAL(int(0), queue.get(10));
+    BOOST_REQUIRE_EQUAL(int(0), queue.get(15));
 
-    CPPUNIT_ASSERT_EQUAL(std::size_t(3), queue.size());
+    BOOST_REQUIRE_EQUAL(std::size_t(3), queue.size());
 }
 
-void CBucketQueueTest::testIterators() {
+BOOST_AUTO_TEST_CASE(testIterators) {
     using TStringQueueItr = CBucketQueue<std::string>::iterator;
 
     CBucketQueue<std::string> queue(1, 5, 0);
@@ -100,12 +101,12 @@ void CBucketQueueTest::testIterators() {
         strings.push_back(*itr);
     }
 
-    CPPUNIT_ASSERT_EQUAL(std::size_t(2), strings.size());
-    CPPUNIT_ASSERT_EQUAL(std::string("b"), strings[0]);
-    CPPUNIT_ASSERT_EQUAL(std::string("a"), strings[1]);
+    BOOST_REQUIRE_EQUAL(std::size_t(2), strings.size());
+    BOOST_REQUIRE_EQUAL(std::string("b"), strings[0]);
+    BOOST_REQUIRE_EQUAL(std::string("a"), strings[1]);
 }
 
-void CBucketQueueTest::testReverseIterators() {
+BOOST_AUTO_TEST_CASE(testReverseIterators) {
     using TStringQueueCRItr = CBucketQueue<std::string>::const_reverse_iterator;
 
     CBucketQueue<std::string> queue(1, 5, 0);
@@ -117,12 +118,12 @@ void CBucketQueueTest::testReverseIterators() {
         strings.push_back(*itr);
     }
 
-    CPPUNIT_ASSERT_EQUAL(std::size_t(2), strings.size());
-    CPPUNIT_ASSERT_EQUAL(std::string("a"), strings[0]);
-    CPPUNIT_ASSERT_EQUAL(std::string("b"), strings[1]);
+    BOOST_REQUIRE_EQUAL(std::size_t(2), strings.size());
+    BOOST_REQUIRE_EQUAL(std::string("a"), strings[0]);
+    BOOST_REQUIRE_EQUAL(std::string("b"), strings[1]);
 }
 
-void CBucketQueueTest::testBucketQueueUMap() {
+BOOST_AUTO_TEST_CASE(testBucketQueueUMap) {
     // Tests the memory usage of an unordered_map in a bucket queue
     // before and after persistence
     std::size_t usageBefore = 0;
@@ -166,32 +167,8 @@ void CBucketQueueTest::testBucketQueueUMap() {
         core::CJsonStateRestoreTraverser traverser(ss);
         core::CPersistUtils::restore(queueTag, queue, traverser);
         std::size_t usageAfter = core::CMemory::dynamicSize(queue);
-        CPPUNIT_ASSERT_EQUAL(usageBefore, usageAfter);
+        BOOST_REQUIRE_EQUAL(usageBefore, usageAfter);
     }
 }
 
-CppUnit::Test* CBucketQueueTest::suite() {
-    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CBucketQueueTest");
-
-    suiteOfTests->addTest(new CppUnit::TestCaller<CBucketQueueTest>(
-        "CBucketQueueTest::testConstructorFillsQueue",
-        &CBucketQueueTest::testConstructorFillsQueue));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CBucketQueueTest>(
-        "CBucketQueueTest::testPushGivenEarlierTime", &CBucketQueueTest::testPushGivenEarlierTime));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CBucketQueueTest>(
-        "CBucketQueueTest::testGetGivenFullQueueWithNoPop",
-        &CBucketQueueTest::testGetGivenFullQueueWithNoPop));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CBucketQueueTest>(
-        "CBucketQueueTest::testGetGivenFullQueueAfterPop",
-        &CBucketQueueTest::testGetGivenFullQueueAfterPop));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CBucketQueueTest>(
-        "CBucketQueueTest::testClear", &CBucketQueueTest::testClear));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CBucketQueueTest>(
-        "CBucketQueueTest::testIterators", &CBucketQueueTest::testIterators));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CBucketQueueTest>(
-        "CBucketQueueTest::testReverseIterators", &CBucketQueueTest::testReverseIterators));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CBucketQueueTest>(
-        "CBucketQueueTest::testBucketQueueUMap", &CBucketQueueTest::testBucketQueueUMap));
-
-    return suiteOfTests;
-}
+BOOST_AUTO_TEST_SUITE_END()

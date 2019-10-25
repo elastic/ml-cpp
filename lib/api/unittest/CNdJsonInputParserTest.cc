@@ -3,7 +3,6 @@
  * or more contributor license agreements. Licensed under the Elastic License;
  * you may not use this file except in compliance with the Elastic License.
  */
-#include "CNdJsonInputParserTest.h"
 
 #include <core/CLogger.h>
 #include <core/CTimeUtils.h>
@@ -12,28 +11,13 @@
 #include <api/CNdJsonInputParser.h>
 #include <api/CNdJsonOutputWriter.h>
 
+#include <boost/test/unit_test.hpp>
+
 #include <fstream>
 #include <functional>
 #include <sstream>
 
-CppUnit::Test* CNdJsonInputParserTest::suite() {
-    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CNdJsonInputParserTest");
-
-    suiteOfTests->addTest(new CppUnit::TestCaller<CNdJsonInputParserTest>(
-        "CNdJsonInputParserTest::testThroughputArbitraryMapHandler",
-        &CNdJsonInputParserTest::testThroughputArbitraryMapHandler));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CNdJsonInputParserTest>(
-        "CNdJsonInputParserTest::testThroughputCommonMapHandler",
-        &CNdJsonInputParserTest::testThroughputCommonMapHandler));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CNdJsonInputParserTest>(
-        "CNdJsonInputParserTest::testThroughputArbitraryVecHandler",
-        &CNdJsonInputParserTest::testThroughputArbitraryVecHandler));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CNdJsonInputParserTest>(
-        "CNdJsonInputParserTest::testThroughputCommonVecHandler",
-        &CNdJsonInputParserTest::testThroughputCommonVecHandler));
-
-    return suiteOfTests;
-}
+BOOST_AUTO_TEST_SUITE(CNdJsonInputParserTest)
 
 namespace {
 
@@ -45,7 +29,7 @@ public:
     bool operator()(const ml::api::CCsvInputParser::TStrStrUMap& dataRowFields) {
         ++m_RecordsPerBlock;
 
-        CPPUNIT_ASSERT(m_OutputWriter.writeRow(dataRowFields));
+        BOOST_TEST_REQUIRE(m_OutputWriter.writeRow(dataRowFields));
 
         return true;
     }
@@ -95,42 +79,21 @@ public:
 private:
     size_t m_RecordCount;
 };
-}
 
-void CNdJsonInputParserTest::testThroughputArbitraryMapHandler() {
-    LOG_INFO(<< "Testing parse to map assuming arbitrary fields in JSON documents");
-    this->runTest(false, false);
-}
-
-void CNdJsonInputParserTest::testThroughputCommonMapHandler() {
-    LOG_INFO(<< "Testing parse to map assuming all JSON documents have the same fields");
-    this->runTest(true, false);
-}
-
-void CNdJsonInputParserTest::testThroughputArbitraryVecHandler() {
-    LOG_INFO(<< "Testing parse to vectors assuming arbitrary fields in JSON documents");
-    this->runTest(false, true);
-}
-
-void CNdJsonInputParserTest::testThroughputCommonVecHandler() {
-    LOG_INFO(<< "Testing parse to vectors assuming all JSON documents have the same fields");
-    this->runTest(true, true);
-}
-
-void CNdJsonInputParserTest::runTest(bool allDocsSameStructure, bool parseAsVecs) {
+void runTest(bool allDocsSameStructure, bool parseAsVecs) {
     // NB: For fair comparison with the other input formats (CSV and Google
     // Protocol Buffers), the input data and test size must be identical
 
     LOG_DEBUG(<< "Creating throughput test data");
 
     std::ifstream ifs("testfiles/simple.txt");
-    CPPUNIT_ASSERT(ifs.is_open());
+    BOOST_TEST_REQUIRE(ifs.is_open());
 
     CSetupVisitor setupVisitor;
 
     ml::api::CCsvInputParser setupParser(ifs);
 
-    CPPUNIT_ASSERT(setupParser.readStreamIntoMaps(std::ref(setupVisitor)));
+    BOOST_TEST_REQUIRE(setupParser.readStreamIntoMaps(std::ref(setupVisitor)));
 
     // Construct a large test input
     static const size_t TEST_SIZE(5000);
@@ -144,16 +107,39 @@ void CNdJsonInputParserTest::runTest(bool allDocsSameStructure, bool parseAsVecs
     LOG_INFO(<< "Starting throughput test at " << ml::core::CTimeUtils::toTimeString(start));
 
     if (parseAsVecs) {
-        CPPUNIT_ASSERT(parser.readStreamIntoVecs(std::ref(visitor)));
+        BOOST_TEST_REQUIRE(parser.readStreamIntoVecs(std::ref(visitor)));
     } else {
-        CPPUNIT_ASSERT(parser.readStreamIntoMaps(std::ref(visitor)));
+        BOOST_TEST_REQUIRE(parser.readStreamIntoMaps(std::ref(visitor)));
     }
 
     ml::core_t::TTime end(ml::core::CTimeUtils::now());
     LOG_INFO(<< "Finished throughput test at " << ml::core::CTimeUtils::toTimeString(end));
 
-    CPPUNIT_ASSERT_EQUAL(setupVisitor.recordsPerBlock() * TEST_SIZE, visitor.recordCount());
+    BOOST_REQUIRE_EQUAL(setupVisitor.recordsPerBlock() * TEST_SIZE, visitor.recordCount());
 
     LOG_INFO(<< "Parsing " << visitor.recordCount() << " records took "
              << (end - start) << " seconds");
 }
+}
+
+BOOST_AUTO_TEST_CASE(testThroughputArbitraryMapHandler) {
+    LOG_INFO(<< "Testing parse to map assuming arbitrary fields in JSON documents");
+    runTest(false, false);
+}
+
+BOOST_AUTO_TEST_CASE(testThroughputCommonMapHandler) {
+    LOG_INFO(<< "Testing parse to map assuming all JSON documents have the same fields");
+    runTest(true, false);
+}
+
+BOOST_AUTO_TEST_CASE(testThroughputArbitraryVecHandler) {
+    LOG_INFO(<< "Testing parse to vectors assuming arbitrary fields in JSON documents");
+    runTest(false, true);
+}
+
+BOOST_AUTO_TEST_CASE(testThroughputCommonVecHandler) {
+    LOG_INFO(<< "Testing parse to vectors assuming all JSON documents have the same fields");
+    runTest(true, true);
+}
+
+BOOST_AUTO_TEST_SUITE_END()

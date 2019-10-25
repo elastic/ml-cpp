@@ -20,7 +20,9 @@
 
 #include <stdlib.h>
 
-class CStringSimilarityTesterTest;
+namespace CStringSimilarityTesterTest {
+struct testLevensteinDistanceAlgorithmEquivalence;
+}
 
 namespace ml {
 namespace core {
@@ -443,7 +445,7 @@ private:
     mutable CDeflator m_Compressor;
 
     // For unit testing
-    friend class ::CStringSimilarityTesterTest;
+    friend struct CStringSimilarityTesterTest::testLevensteinDistanceAlgorithmEquivalence;
 };
 }
 }

@@ -3,24 +3,16 @@
  * or more contributor license agreements. Licensed under the Elastic License;
  * you may not use this file except in compliance with the Elastic License.
  */
-#include "CPersistenceTagTest.h"
 
 #include <core/CLogger.h>
 #include <core/CStatePersistInserter.h>
 #include <core/CStringUtils.h>
 
+#include <boost/test/unit_test.hpp>
+
 #include <sstream>
 
-CppUnit::Test* CPersistenceTagTest::suite() {
-    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CPersistenceTagTest");
-
-    suiteOfTests->addTest(new CppUnit::TestCaller<CPersistenceTagTest>(
-        "CPersistenceTagTest::testName", &CPersistenceTagTest::testName));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CPersistenceTagTest>(
-        "CPersistenceTagTest::testComparisons", &CPersistenceTagTest::testComparisons));
-
-    return suiteOfTests;
-}
+BOOST_AUTO_TEST_SUITE(CPersistenceTagTest)
 
 namespace {
 constexpr bool useShortTag{false};
@@ -36,42 +28,44 @@ const std::string LONG_TAG2{"attribute2_name"};
 const ml::core::TPersistenceTag TAG2{SHORT_TAG2, LONG_TAG2};
 }
 
-void CPersistenceTagTest::testName() {
+BOOST_AUTO_TEST_CASE(testName) {
     ml::core::TPersistenceTag emptyTag;
-    CPPUNIT_ASSERT_EQUAL(EMPTY_TAG, emptyTag.name(useShortTag));
-    CPPUNIT_ASSERT_EQUAL(EMPTY_TAG, emptyTag.name(useLongTag));
+    BOOST_REQUIRE_EQUAL(EMPTY_TAG, emptyTag.name(useShortTag));
+    BOOST_REQUIRE_EQUAL(EMPTY_TAG, emptyTag.name(useLongTag));
 
     ml::core::TPersistenceTag fromShortTag(SHORT_TAG1);
-    CPPUNIT_ASSERT_EQUAL(SHORT_TAG1, fromShortTag.name(useShortTag));
-    CPPUNIT_ASSERT_EQUAL(SHORT_TAG1, fromShortTag.name(useLongTag));
+    BOOST_REQUIRE_EQUAL(SHORT_TAG1, fromShortTag.name(useShortTag));
+    BOOST_REQUIRE_EQUAL(SHORT_TAG1, fromShortTag.name(useLongTag));
 
-    CPPUNIT_ASSERT_EQUAL(SHORT_TAG1, TAG1.name(useShortTag));
-    CPPUNIT_ASSERT_EQUAL(LONG_TAG1, TAG1.name(useLongTag));
+    BOOST_REQUIRE_EQUAL(SHORT_TAG1, TAG1.name(useShortTag));
+    BOOST_REQUIRE_EQUAL(LONG_TAG1, TAG1.name(useLongTag));
 
-    CPPUNIT_ASSERT_EQUAL(SHORT_TAG2, TAG2.name(useShortTag));
-    CPPUNIT_ASSERT_EQUAL(LONG_TAG2, TAG2.name(useLongTag));
+    BOOST_REQUIRE_EQUAL(SHORT_TAG2, TAG2.name(useShortTag));
+    BOOST_REQUIRE_EQUAL(LONG_TAG2, TAG2.name(useLongTag));
 }
 
-void CPersistenceTagTest::testComparisons() {
+BOOST_AUTO_TEST_CASE(testComparisons) {
     ml::core::TPersistenceTag tag2Copy = TAG2;
-    CPPUNIT_ASSERT_EQUAL(tag2Copy, TAG2);
+    BOOST_REQUIRE_EQUAL(tag2Copy, TAG2);
 
-    CPPUNIT_ASSERT(TAG1 != TAG2);
-    CPPUNIT_ASSERT(SHORT_TAG2 != TAG1);
+    BOOST_TEST_REQUIRE(TAG1 != TAG2);
+    BOOST_TEST_REQUIRE(SHORT_TAG2 != TAG1);
 
     const std::string shortTag1 = TAG1;
-    CPPUNIT_ASSERT_EQUAL(shortTag1, SHORT_TAG1);
+    BOOST_REQUIRE_EQUAL(shortTag1, SHORT_TAG1);
 
     const std::string shortTag2{TAG2};
-    CPPUNIT_ASSERT_EQUAL(shortTag2, SHORT_TAG2);
+    BOOST_REQUIRE_EQUAL(shortTag2, SHORT_TAG2);
 
-    CPPUNIT_ASSERT(SHORT_TAG1 == TAG1);
-    CPPUNIT_ASSERT(LONG_TAG1 == TAG1);
-    CPPUNIT_ASSERT(TAG1 == SHORT_TAG1);
-    CPPUNIT_ASSERT(TAG1 == LONG_TAG1);
+    BOOST_TEST_REQUIRE(SHORT_TAG1 == TAG1);
+    BOOST_TEST_REQUIRE(LONG_TAG1 == TAG1);
+    BOOST_TEST_REQUIRE(TAG1 == SHORT_TAG1);
+    BOOST_TEST_REQUIRE(TAG1 == LONG_TAG1);
 
-    CPPUNIT_ASSERT(SHORT_TAG2 == TAG2);
-    CPPUNIT_ASSERT(LONG_TAG2 == TAG2);
-    CPPUNIT_ASSERT(TAG2 == SHORT_TAG2);
-    CPPUNIT_ASSERT(TAG2 == LONG_TAG2);
+    BOOST_TEST_REQUIRE(SHORT_TAG2 == TAG2);
+    BOOST_TEST_REQUIRE(LONG_TAG2 == TAG2);
+    BOOST_TEST_REQUIRE(TAG2 == SHORT_TAG2);
+    BOOST_TEST_REQUIRE(TAG2 == LONG_TAG2);
 }
+
+BOOST_AUTO_TEST_SUITE_END()

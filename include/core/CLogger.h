@@ -18,8 +18,6 @@
 
 #include <stdio.h> // fileno() is not C++ so need the C header
 
-class CLoggerTest;
-
 namespace ml {
 namespace core {
 
@@ -186,9 +184,6 @@ private:
 
     //! The default handler for fatal errors.
     TFatalErrorHandler m_FatalErrorHandler;
-
-    //! friend class for testing
-    friend class ::CLoggerTest;
 };
 
 CORE_EXPORT std::ostream& operator<<(std::ostream& strm, CLogger::ELevel level);

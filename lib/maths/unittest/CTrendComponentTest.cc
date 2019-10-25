@@ -4,8 +4,6 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
-#include "CTrendComponentTest.h"
-
 #include <core/CLogger.h>
 #include <core/CRapidXmlStatePersistInserter.h>
 #include <core/CRapidXmlStateRestoreTraverser.h>
@@ -20,10 +18,14 @@
 
 #include <test/CRandomNumbers.h>
 
+#include <boost/test/unit_test.hpp>
 #include <boost/tuple/tuple.hpp>
 
 #include <cmath>
+#include <fstream>
 #include <numeric>
+
+BOOST_AUTO_TEST_SUITE(CTrendComponentTest)
 
 using namespace ml;
 
@@ -215,7 +217,7 @@ auto forecastErrors(ITR actual, ITR endActual, core_t::TTime time, const maths::
 }
 }
 
-void CTrendComponentTest::testValueAndVariance() {
+BOOST_AUTO_TEST_CASE(testValueAndVariance) {
     // Check that the prediction bias is small in the long run
     // and that the predicted variance approximately matches the
     // variance observed in prediction errors.
@@ -251,11 +253,12 @@ void CTrendComponentTest::testValueAndVariance() {
     }
 
     LOG_DEBUG(<< "normalised error moments = " << normalisedResiduals);
-    CPPUNIT_ASSERT(std::fabs(maths::CBasicStatistics::mean(normalisedResiduals)) < 0.5);
-    CPPUNIT_ASSERT(std::fabs(maths::CBasicStatistics::variance(normalisedResiduals) - 1.0) < 0.2);
+    BOOST_TEST_REQUIRE(std::fabs(maths::CBasicStatistics::mean(normalisedResiduals)) < 0.5);
+    BOOST_TEST_REQUIRE(
+        std::fabs(maths::CBasicStatistics::variance(normalisedResiduals) - 1.0) < 0.2);
 }
 
-void CTrendComponentTest::testDecayRate() {
+BOOST_AUTO_TEST_CASE(testDecayRate) {
     // Test that the trend short range predictions approximately
     // match a regression model with the same decay rate.
 
@@ -297,7 +300,7 @@ void CTrendComponentTest::testDecayRate() {
     LOG_DEBUG(<< "relative error = " << relativeError);
 }
 
-void CTrendComponentTest::testForecast() {
+BOOST_AUTO_TEST_CASE(testForecast) {
     // Check the forecast errors for a variety of signals.
 
     test::CRandomNumbers rng;
@@ -314,8 +317,8 @@ void CTrendComponentTest::testForecast() {
         trainModel(values.begin(), values.begin() + 3000000 / BUCKET_LENGTH);
     std::tie(error, errorAt95) = forecastErrors(values.begin() + 3000000 / BUCKET_LENGTH,
                                                 values.end(), startForecast, component);
-    CPPUNIT_ASSERT(error < 0.17);
-    CPPUNIT_ASSERT(errorAt95 < 0.001);
+    BOOST_TEST_REQUIRE(error < 0.17);
+    BOOST_TEST_REQUIRE(errorAt95 < 0.001);
 
     LOG_DEBUG(<< "Piecewise Linear");
     values = piecewiseLinear(rng, 0, 3200000 + 1000 * BUCKET_LENGTH);
@@ -323,8 +326,8 @@ void CTrendComponentTest::testForecast() {
         trainModel(values.begin(), values.begin() + 3200000 / BUCKET_LENGTH);
     std::tie(error, errorAt95) = forecastErrors(values.begin() + 3200000 / BUCKET_LENGTH,
                                                 values.end(), startForecast, component);
-    CPPUNIT_ASSERT(error < 0.03);
-    CPPUNIT_ASSERT(errorAt95 < 0.001);
+    BOOST_TEST_REQUIRE(error < 0.03);
+    BOOST_TEST_REQUIRE(errorAt95 < 0.001);
 
     LOG_DEBUG(<< "Staircase");
     values = staircase(rng, 0, 2000000 + 1000 * BUCKET_LENGTH);
@@ -332,8 +335,8 @@ void CTrendComponentTest::testForecast() {
         trainModel(values.begin(), values.begin() + 2000000 / BUCKET_LENGTH);
     std::tie(error, errorAt95) = forecastErrors(values.begin() + 2000000 / BUCKET_LENGTH,
                                                 values.end(), startForecast, component);
-    CPPUNIT_ASSERT(error < 0.15);
-    CPPUNIT_ASSERT(errorAt95 < 0.08);
+    BOOST_TEST_REQUIRE(error < 0.15);
+    BOOST_TEST_REQUIRE(errorAt95 < 0.08);
 
     LOG_DEBUG(<< "Switching");
     values = switching(rng, 0, 3000000 + 1000 * BUCKET_LENGTH);
@@ -341,11 +344,11 @@ void CTrendComponentTest::testForecast() {
         trainModel(values.begin(), values.begin() + 3000000 / BUCKET_LENGTH);
     std::tie(error, errorAt95) = forecastErrors(values.begin() + 3000000 / BUCKET_LENGTH,
                                                 values.end(), startForecast, component);
-    CPPUNIT_ASSERT(error < 0.14);
-    CPPUNIT_ASSERT(errorAt95 < 0.001);
+    BOOST_TEST_REQUIRE(error < 0.14);
+    BOOST_TEST_REQUIRE(errorAt95 < 0.001);
 }
 
-void CTrendComponentTest::testPersist() {
+BOOST_AUTO_TEST_CASE(testPersist) {
     // Check that serialization is idempotent.
 
     test::CRandomNumbers rng;
@@ -373,7 +376,7 @@ void CTrendComponentTest::testPersist() {
     LOG_DEBUG(<< "decomposition XML representation:\n" << origXml);
 
     core::CRapidXmlParser parser;
-    CPPUNIT_ASSERT(parser.parseStringIgnoreCdata(origXml));
+    BOOST_TEST_REQUIRE(parser.parseStringIgnoreCdata(origXml));
     core::CRapidXmlStateRestoreTraverser traverser(parser);
     maths::SDistributionRestoreParams params{maths_t::E_ContinuousData, 0.1};
 
@@ -382,7 +385,7 @@ void CTrendComponentTest::testPersist() {
         std::bind(&maths::CTrendComponent::acceptRestoreTraverser,
                   &restoredComponent, std::cref(params), std::placeholders::_1));
 
-    CPPUNIT_ASSERT_EQUAL(origComponent.checksum(), restoredComponent.checksum());
+    BOOST_REQUIRE_EQUAL(origComponent.checksum(), restoredComponent.checksum());
 
     std::string newXml;
     {
@@ -390,10 +393,10 @@ void CTrendComponentTest::testPersist() {
         restoredComponent.acceptPersistInserter(inserter);
         inserter.toXml(newXml);
     }
-    CPPUNIT_ASSERT_EQUAL(origXml, newXml);
+    BOOST_REQUIRE_EQUAL(origXml, newXml);
 }
 
-void CTrendComponentTest::testUpgradeTo7p1() {
+BOOST_AUTO_TEST_CASE(testUpgradeTo7p1) {
     // Read in the old trend format and test we get an accurate forecast.
 
     auto load = [](const std::string& name, std::string& result) {
@@ -415,7 +418,7 @@ void CTrendComponentTest::testUpgradeTo7p1() {
     core::CStringUtils::tokenise(",", expectedValues, tokens, empty);
     for (const auto& token : tokens) {
         double value;
-        CPPUNIT_ASSERT(core::CStringUtils::stringToType(token, value));
+        BOOST_TEST_REQUIRE(core::CStringUtils::stringToType(token, value));
         values.push_back(value);
     }
 
@@ -423,7 +426,7 @@ void CTrendComponentTest::testUpgradeTo7p1() {
     maths::CTrendComponent component{0.012};
 
     core::CRapidXmlParser parser;
-    CPPUNIT_ASSERT(parser.parseStringIgnoreCdata(xml));
+    BOOST_TEST_REQUIRE(parser.parseStringIgnoreCdata(xml));
     core::CRapidXmlStateRestoreTraverser traverser(parser);
     traverser.traverseSubLevel(
         std::bind(&maths::CTrendComponent::acceptRestoreTraverser, &component,
@@ -435,23 +438,8 @@ void CTrendComponentTest::testUpgradeTo7p1() {
     double errorAt95;
     std::tie(error, errorAt95) =
         forecastErrors(values.begin(), values.end(), 3000000, component);
-    CPPUNIT_ASSERT(error < 0.17);
-    CPPUNIT_ASSERT(errorAt95 < 0.001);
+    BOOST_TEST_REQUIRE(error < 0.17);
+    BOOST_TEST_REQUIRE(errorAt95 < 0.001);
 }
 
-CppUnit::Test* CTrendComponentTest::suite() {
-    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CTrendComponentTest");
-
-    suiteOfTests->addTest(new CppUnit::TestCaller<CTrendComponentTest>(
-        "CTrendComponentTest::testValueAndVariance", &CTrendComponentTest::testValueAndVariance));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CTrendComponentTest>(
-        "CTrendComponentTest::testDecayRate", &CTrendComponentTest::testDecayRate));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CTrendComponentTest>(
-        "CTrendComponentTest::testForecast", &CTrendComponentTest::testForecast));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CTrendComponentTest>(
-        "CTrendComponentTest::testPersist", &CTrendComponentTest::testPersist));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CTrendComponentTest>(
-        "CTrendComponentTest::testUpgradeTo7p1", &CTrendComponentTest::testUpgradeTo7p1));
-
-    return suiteOfTests;
-}
+BOOST_AUTO_TEST_SUITE_END()
