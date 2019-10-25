@@ -852,13 +852,11 @@ CBoostedTreeImpl::trainTree(core::CDataFrame& frame,
             tree[leaf->id()].split(splitFeature, splitValue, assignMissingToLeft,
                                    leaf->gain(), leaf->curvature(), tree);
 
-        TSizeVec featureBag{this->featureBag()};
-
         TLeafNodeStatisticsPtr leftChild;
         TLeafNodeStatisticsPtr rightChild;
         std::tie(leftChild, rightChild) =
             leaf->split(leftChildId, rightChildId, m_NumberThreads, frame, *m_Encoder,
-                        m_Regularization, candidateSplits, std::move(featureBag),
+                        m_Regularization, candidateSplits, this->featureBag(),
                         tree[leaf->id()], leftChildHasFewerRows);
 
         scopeMemoryUsage.add(leftChild);
