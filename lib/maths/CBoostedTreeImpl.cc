@@ -96,17 +96,14 @@ CBoostedTreeImpl::CLeafNodeStatistics::CLeafNodeStatistics(
     const CDataFrameCategoryEncoder& encoder,
     const TRegularization& regularization,
     const TDoubleVecVec& candidateSplits,
+    const TSizeVec& featureBag,
     std::size_t depth,
-    TSizeVec featureBag,
     const core::CPackedBitVector& rowMask)
-    : m_Id{id}, m_Regularization{regularization}, m_CandidateSplits{candidateSplits},
-      m_Depth{depth}, m_FeatureBag{std::move(featureBag)}, m_RowMask{rowMask} {
+    : m_Id{id}, m_CandidateSplits{candidateSplits}, m_Depth{depth}, m_RowMask{rowMask} {
 
-    std::sort(m_FeatureBag.begin(), m_FeatureBag.end());
     LOG_TRACE(<< "row mask = " << m_RowMask);
-    LOG_TRACE(<< "feature bag = " << core::CContainerPrinter::print(m_FeatureBag));
-
     this->computeAggregateLossDerivatives(numberThreads, frame, encoder);
+    m_BestSplit = this->computeBestSplitStatistics(regularization, featureBag);
 }
 
 CBoostedTreeImpl::CLeafNodeStatistics::CLeafNodeStatistics(
@@ -116,31 +113,28 @@ CBoostedTreeImpl::CLeafNodeStatistics::CLeafNodeStatistics(
     const CDataFrameCategoryEncoder& encoder,
     const TRegularization& regularization,
     const TDoubleVecVec& candidateSplits,
-    std::size_t depth,
-    TSizeVec featureBag,
+    const TSizeVec& featureBag,
     bool isLeftChild,
+    std::size_t depth,
     const CBoostedTreeNode& split,
     const core::CPackedBitVector& parentRowMask)
-    : m_Id{id}, m_Regularization{regularization},
-      m_CandidateSplits{candidateSplits}, m_Depth{depth}, m_FeatureBag{std::move(featureBag)} {
-
-    std::sort(m_FeatureBag.begin(), m_FeatureBag.end());
-    LOG_TRACE(<< "feature bag = " << core::CContainerPrinter::print(m_FeatureBag));
+    : m_Id{id}, m_CandidateSplits{candidateSplits}, m_Depth{depth} {
 
     this->computeRowMaskAndAggregateLossDerivatives(
         numberThreads, frame, encoder, isLeftChild, split, parentRowMask);
+    m_BestSplit = this->computeBestSplitStatistics(regularization, featureBag);
 }
 
 CBoostedTreeImpl::CLeafNodeStatistics::CLeafNodeStatistics(std::size_t id,
                                                            const CLeafNodeStatistics& parent,
                                                            const CLeafNodeStatistics& sibling,
+                                                           const TRegularization& regularization,
+                                                           const TSizeVec& featureBag,
                                                            core::CPackedBitVector rowMask)
-    : m_Id{id}, m_Regularization{sibling.m_Regularization},
-      m_CandidateSplits{sibling.m_CandidateSplits}, m_Depth{sibling.m_Depth},
-      m_FeatureBag{sibling.m_FeatureBag}, m_RowMask{std::move(rowMask)} {
+    : m_Id{id}, m_CandidateSplits{sibling.m_CandidateSplits},
+      m_Depth{sibling.m_Depth}, m_RowMask{std::move(rowMask)} {
 
     LOG_TRACE(<< "row mask = " << m_RowMask);
-    LOG_TRACE(<< "feature bag = " << core::CContainerPrinter::print(m_FeatureBag));
 
     m_Derivatives.resize(m_CandidateSplits.size());
     m_MissingDerivatives.resize(m_CandidateSplits.size());
@@ -181,10 +175,11 @@ CBoostedTreeImpl::CLeafNodeStatistics::CLeafNodeStatistics(std::size_t id,
             m_MissingDerivatives[i] = SAggregateDerivatives{count, gradient, curvature};
         }
     }
-
     LOG_TRACE(<< "derivatives = " << core::CContainerPrinter::print(m_Derivatives));
     LOG_TRACE(<< "missing derivatives = "
               << core::CContainerPrinter::print(m_MissingDerivatives));
+
+    m_BestSplit = this->computeBestSplitStatistics(regularization, featureBag);
 }
 
 auto CBoostedTreeImpl::CLeafNodeStatistics::split(std::size_t leftChildId,
@@ -194,30 +189,31 @@ auto CBoostedTreeImpl::CLeafNodeStatistics::split(std::size_t leftChildId,
                                                   const CDataFrameCategoryEncoder& encoder,
                                                   const TRegularization& regularization,
                                                   const TDoubleVecVec& candidateSplits,
-                                                  TSizeVec featureBag,
+                                                  const TSizeVec& featureBag,
                                                   const CBoostedTreeNode& split,
                                                   bool leftChildHasFewerRows) {
 
     if (leftChildHasFewerRows) {
         auto leftChild = std::make_shared<CLeafNodeStatistics>(
-            leftChildId, numberThreads, frame, encoder, regularization,
-            candidateSplits, m_Depth + 1, std::move(featureBag),
-            true /*is left child*/, split, m_RowMask);
+            leftChildId, numberThreads, frame, encoder, regularization, candidateSplits,
+            featureBag, true /*is left child*/, m_Depth + 1, split, m_RowMask);
         core::CPackedBitVector rightChildRowMask{m_RowMask};
         rightChildRowMask ^= leftChild->rowMask();
         auto rightChild = std::make_shared<CLeafNodeStatistics>(
-            rightChildId, *this, *leftChild, std::move(rightChildRowMask));
+            rightChildId, *this, *leftChild, regularization, featureBag,
+            std::move(rightChildRowMask));
 
         return std::make_pair(leftChild, rightChild);
     }
 
     auto rightChild = std::make_shared<CLeafNodeStatistics>(
         rightChildId, numberThreads, frame, encoder, regularization, candidateSplits,
-        m_Depth + 1, std::move(featureBag), false /*is left child*/, split, m_RowMask);
+        featureBag, false /*is left child*/, m_Depth + 1, split, m_RowMask);
     core::CPackedBitVector leftChildRowMask{m_RowMask};
     leftChildRowMask ^= rightChild->rowMask();
     auto leftChild = std::make_shared<CLeafNodeStatistics>(
-        leftChildId, *this, *rightChild, std::move(leftChildRowMask));
+        leftChildId, *this, *rightChild, regularization, featureBag,
+        std::move(leftChildRowMask));
 
     return std::make_pair(leftChild, rightChild);
 }
@@ -324,16 +320,17 @@ void CBoostedTreeImpl::CLeafNodeStatistics::addRowDerivatives(
 }
 
 CBoostedTreeImpl::CLeafNodeStatistics::SSplitStatistics
-CBoostedTreeImpl::CLeafNodeStatistics::computeBestSplitStatistics() const {
+CBoostedTreeImpl::CLeafNodeStatistics::computeBestSplitStatistics(const TRegularization& regularization,
+                                                                  const TSizeVec& featureBag) const {
 
     // We have three possible regularization terms we'll use:
     //   1. Tree size: gamma * "node count"
     //   2. Sum square weights: lambda * sum{"leaf weight" ^ 2)}
     //   3. Tree depth: alpha * sum{exp(("depth" / "target depth" - 1.0) / "tolerance")}
 
-    SSplitStatistics result{-INF, 0.0, m_FeatureBag.size(), INF, true, true};
+    SSplitStatistics result;
 
-    for (auto i : m_FeatureBag) {
+    for (auto i : featureBag) {
         std::size_t c{m_MissingDerivatives[i].s_Count};
         double g{m_MissingDerivatives[i].s_Gradient};
         double h{m_MissingDerivatives[i].s_Curvature};
@@ -361,16 +358,16 @@ CBoostedTreeImpl::CLeafNodeStatistics::computeBestSplitStatistics() const {
 
             double gain[]{CTools::pow2(gl[ASSIGN_MISSING_TO_LEFT]) /
                                   (hl[ASSIGN_MISSING_TO_LEFT] +
-                                   m_Regularization.leafWeightPenaltyMultiplier()) +
+                                   regularization.leafWeightPenaltyMultiplier()) +
                               CTools::pow2(g - gl[ASSIGN_MISSING_TO_LEFT]) /
                                   (h - hl[ASSIGN_MISSING_TO_LEFT] +
-                                   m_Regularization.leafWeightPenaltyMultiplier()),
+                                   regularization.leafWeightPenaltyMultiplier()),
                           CTools::pow2(gl[ASSIGN_MISSING_TO_RIGHT]) /
                                   (hl[ASSIGN_MISSING_TO_RIGHT] +
-                                   m_Regularization.leafWeightPenaltyMultiplier()) +
+                                   regularization.leafWeightPenaltyMultiplier()) +
                               CTools::pow2(g - gl[ASSIGN_MISSING_TO_RIGHT]) /
                                   (h - hl[ASSIGN_MISSING_TO_RIGHT] +
-                                   m_Regularization.leafWeightPenaltyMultiplier())};
+                                   regularization.leafWeightPenaltyMultiplier())};
 
             if (gain[ASSIGN_MISSING_TO_LEFT] > maximumGain) {
                 maximumGain = gain[ASSIGN_MISSING_TO_LEFT];
@@ -386,11 +383,11 @@ CBoostedTreeImpl::CLeafNodeStatistics::computeBestSplitStatistics() const {
             }
         }
 
-        double penaltyForDepth{m_Regularization.penaltyForDepth(m_Depth)};
-        double penaltyForDepthPlusOne{m_Regularization.penaltyForDepth(m_Depth + 1)};
-        double gain{0.5 * (maximumGain - CTools::pow2(g) / (h + m_Regularization.leafWeightPenaltyMultiplier())) -
-                    m_Regularization.treeSizePenaltyMultiplier() -
-                    m_Regularization.depthPenaltyMultiplier() *
+        double penaltyForDepth{regularization.penaltyForDepth(m_Depth)};
+        double penaltyForDepthPlusOne{regularization.penaltyForDepth(m_Depth + 1)};
+        double gain{0.5 * (maximumGain - CTools::pow2(g) / (h + regularization.leafWeightPenaltyMultiplier())) -
+                    regularization.treeSizePenaltyMultiplier() -
+                    regularization.depthPenaltyMultiplier() *
                         (2.0 * penaltyForDepthPlusOne - penaltyForDepth)};
 
         SSplitStatistics candidate{
@@ -546,7 +543,8 @@ std::size_t CBoostedTreeImpl::estimateMemoryUsage(std::size_t numberRows,
                                                   std::size_t numberColumns) const {
     // The maximum tree size is defined is the maximum number of leaves minus one.
     // A binary tree with n + 1 leaves has 2n + 1 nodes in total.
-    std::size_t maximumNumberNodes{2 * this->maximumTreeSize(numberRows) + 1};
+    std::size_t maximumNumberLeaves{this->maximumTreeSize(numberRows) + 1};
+    std::size_t maximumNumberNodes{2 * maximumNumberLeaves - 1};
     std::size_t forestMemoryUsage{
         m_MaximumNumberTrees *
         (sizeof(TNodeVec) + maximumNumberNodes * sizeof(CBoostedTreeNode))};
@@ -554,9 +552,8 @@ std::size_t CBoostedTreeImpl::estimateMemoryUsage(std::size_t numberRows,
                                         numberRows * sizeof(CFloatStorage)};
     std::size_t hyperparametersMemoryUsage{numberColumns * sizeof(double)};
     std::size_t leafNodeStatisticsMemoryUsage{
-        maximumNumberNodes * CLeafNodeStatistics::estimateMemoryUsage(
-                                 numberRows, numberColumns, m_FeatureBagFraction,
-                                 m_NumberSplitsPerFeature)};
+        maximumNumberLeaves * CLeafNodeStatistics::estimateMemoryUsage(
+                                  numberRows, numberColumns, m_NumberSplitsPerFeature)};
     std::size_t dataTypeMemoryUsage{numberColumns * sizeof(CDataFrameUtils::SDataType)};
     std::size_t featureSampleProbabilities{numberColumns * sizeof(double)};
     std::size_t missingFeatureMaskMemoryUsage{
@@ -810,7 +807,7 @@ CBoostedTreeImpl::trainTree(core::CDataFrame& frame,
     TLeafNodeStatisticsPtrQueue leaves;
     leaves.push(std::make_shared<CLeafNodeStatistics>(
         0 /*root*/, m_NumberThreads, frame, *m_Encoder, m_Regularization,
-        candidateSplits, 0 /*depth*/, this->featureBag(), trainingRowMask));
+        candidateSplits, this->featureBag(), 0 /*depth*/, trainingRowMask));
 
     // We update local variables because the callback can be expensive if it
     // requires accessing atomics.
