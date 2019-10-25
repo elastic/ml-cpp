@@ -556,7 +556,7 @@ BOOST_AUTO_TEST_CASE(testStratifiedCrossValidationRowMasks) {
             maths::CDataFrameUtils::stratifiedCrossValidationRowMasks(
                 1, *frame, 0, rng, numberFolds[0], allTrainingRowsMask);
 
-        TDoubleVecVec targetPercentiles;
+        TDoubleVecVec targetDecile(numberFolds[0], TDoubleVec(10));
 
         core::CPackedBitVector allTestingRowsMask{numberRows, false};
         for (std::size_t fold = 0; fold < numberFolds[0]; ++fold) {
@@ -580,19 +580,19 @@ BOOST_AUTO_TEST_CASE(testStratifiedCrossValidationRowMasks) {
                             },
                             &testingRowMasks[fold]);
             std::sort(values.begin(), values.end());
-            targetPercentiles.push_back(
-                {values[(2 * values.size()) / 10], values[(4 * values.size()) / 10],
-                 values[(6 * values.size()) / 10], values[(8 * values.size()) / 10]});
+            for (std::size_t i = 1; i < 10; ++i) {
+                targetDecile[fold][i] = values[(i * values.size()) / 10];
+            }
         }
 
-        for (std::size_t i = 0; i < 4; ++i) {
-            TMeanVarAccumulator testTargetPercentileMoments;
+        for (std::size_t i = 1; i < 10; ++i) {
+            TMeanVarAccumulator testTargetDecileMoments;
             for (std::size_t fold = 0; fold < numberFolds[0]; ++fold) {
-                testTargetPercentileMoments.add(targetPercentiles[fold][i]);
+                testTargetDecileMoments.add(targetDecile[fold][i]);
             }
             LOG_DEBUG(<< "variance in test set target percentile = "
-                      << maths::CBasicStatistics::variance(testTargetPercentileMoments));
-            BOOST_REQUIRE(maths::CBasicStatistics::variance(testTargetPercentileMoments) < 2e-3);
+                      << maths::CBasicStatistics::variance(testTargetDecileMoments));
+            BOOST_REQUIRE(maths::CBasicStatistics::variance(testTargetDecileMoments) < 0.02);
         }
     }
 }
