@@ -26,6 +26,9 @@ using TVector2 = ml::maths::CVectorNx1<double, 2>;
 using TVector4 = ml::maths::CVectorNx1<double, 4>;
 using TVector4Vec = std::vector<TVector4>;
 
+// TODO boost test: replace these output operators
+// with a more generic way of printing clusters in
+// the production code
 namespace ml {
 namespace maths {
 

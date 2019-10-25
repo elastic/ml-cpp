@@ -35,15 +35,15 @@
 //! file is a temporary measure.
 //!
 
-// TODO: delete this source file once all compilers are using C++20
+// TODO boost test: delete this source file once all compilers are using C++20
 namespace std {
 
-// TODO: remove once all compilers are using C++17
+// TODO boost test: remove once all compilers are using C++17
 inline std::ostream& boost_test_print_type(std::ostream& os, std::nullptr_t p) {
     return os << static_cast<void*>(p);
 }
 
-// TODO: remove once all compilers are using C++20
+// TODO boost test: remove once all compilers are using C++20
 template<class T, class D>
 std::ostream& boost_test_print_type(std::ostream& os, const std::unique_ptr<T, D>& p) {
     return os << p.get();
