@@ -18,7 +18,7 @@ namespace test {
 //!
 //! DESCRIPTION:\n
 //! A custom Boost.Test init function that unconditionally adds
-//! Boost.Text format XML output (to boost_test_results.xml)
+//! Boost.Test format XML output (to boost_test_results.xml)
 //! in addition to the default console output (or whatever this
 //! has been overridden to via command line arguments).
 //!
