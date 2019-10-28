@@ -160,11 +160,19 @@ CClassificationInferenceModelBuilder::CClassificationInferenceModelBuilder(
     TStrVec fieldNames,
     std::size_t dependentVariableColumnIndex,
     const TStrVecVec& categoryNames)
-    : CBoostedTreeInferenceModelBuilder(fieldNames, dependentVariableColumnIndex, categoryNames) {
+    : CBoostedTreeInferenceModelBuilder(fieldNames, dependentVariableColumnIndex, categoryNames),
+      m_ClassificationLabels{categoryNames[dependentVariableColumnIndex]} {
 }
 
 void CClassificationInferenceModelBuilder::setAggregateOutput(CEnsemble* ensemble) const {
     ensemble->aggregateOutput(std::make_unique<CLogisticRegression>(ensemble->size(), 1.0));
+}
+
+CInferenceModelDefinition&& CClassificationInferenceModelBuilder::build() {
+    auto definition{this->CBoostedTreeInferenceModelBuilder::build()};
+    const auto& trainedModel{definition.trainedModel()};
+    trainedModel->classificationLabels(m_ClassificationLabels);
+    return std::move(definition);
 }
 }
 }

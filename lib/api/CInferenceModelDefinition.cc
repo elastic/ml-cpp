@@ -200,6 +200,13 @@ const CTrainedModel::TStringVec& CEnsemble::featureNames() const {
     return this->CTrainedModel::featureNames();
 }
 
+void CEnsemble::classificationLabels(const CTrainedModel::TStringVec& classificationLabels) {
+    this->CTrainedModel::classificationLabels(classificationLabels);
+    for (auto& trainedModel : m_TrainedModels) {
+        trainedModel->classificationLabels(classificationLabels);
+    }
+}
+
 void CTree::addToDocument(rapidjson::Value& parentObject, TRapidJsonWriter& writer) const {
     rapidjson::Value object = writer.makeObject();
     this->CTrainedModel::addToDocument(object, writer);
@@ -334,6 +341,14 @@ CTrainedModel::TStringVec& CTrainedModel::featureNames() {
 
 void CTrainedModel::featureNames(CTrainedModel::TStringVec&& featureNames) {
     m_FeatureNames = featureNames;
+}
+
+const CTrainedModel::TStringVecOptional& CTrainedModel::classificationLabels() const {
+    return m_ClassificationLabels;
+}
+
+void CTrainedModel::classificationLabels(const TStringVec& classificationLabels) {
+    m_ClassificationLabels = classificationLabels;
 }
 
 void CInferenceModelDefinition::fieldNames(TStringVec&& fieldNames,

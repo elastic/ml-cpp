@@ -202,7 +202,8 @@ BOOST_AUTO_TEST_CASE(testIntegrationClassification) {
     }
     analyzer.handleRecord(fieldNames, {"", "", "", "", "$"});
     auto analysisRunner = analyzer.runner();
-    TStrVecVec categoryMappingVector{{}, {"cat1", "cat2", "cat3"}, {"true", "false"}};
+    TStrVec expectedClassificationLabels{"true", "false"};
+    TStrVecVec categoryMappingVector{{}, {"cat1", "cat2", "cat3"}, expectedClassificationLabels};
     auto definition = analysisRunner->inferenceModelDefinition(fieldNames, categoryMappingVector);
 
     LOG_DEBUG(<< "Inference model definition: " << definition->jsonString());
@@ -215,6 +216,10 @@ BOOST_AUTO_TEST_CASE(testIntegrationClassification) {
     BOOST_REQUIRE_EQUAL(expectedSize, trainedModel->size());
     BOOST_TEST_REQUIRE("logistic_regression" ==
                        trainedModel->aggregateOutput()->stringType());
+    const auto& classificationLabels{trainedModel->classificationLabels()};
+    BOOST_REQUIRE_EQUAL_COLLECTIONS(
+        classificationLabels.begin(), classificationLabels.end(),
+        expectedClassificationLabels.begin(), expectedClassificationLabels.end());
 }
 
 BOOST_AUTO_TEST_CASE(testJsonSchema) {
