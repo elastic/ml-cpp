@@ -57,6 +57,8 @@ public:
     CBoostedTreeFactory& minimumFrequencyToOneHotEncode(double frequency);
     //! Set the number of folds to use for estimating the generalisation error.
     CBoostedTreeFactory& numberFolds(std::size_t numberFolds);
+    //! Stratify the cross validation we do for regression.
+    CBoostedTreeFactory& stratifyRegressionCrossValidation(bool stratify);
     //! Set the sum of leaf depth penalties multiplier.
     CBoostedTreeFactory& depthPenaltyMultiplier(double depthPenaltyMultiplier);
     //! Set the tree size penalty multiplier.
@@ -185,6 +187,7 @@ private:
     TOptionalDouble m_MinimumFrequencyToOneHotEncode;
     TOptionalSize m_BayesianOptimisationRestarts;
     bool m_BalanceClassTrainingLoss = true;
+    bool m_StratifyRegressionCrossValidation = true;
     std::size_t m_NumberThreads;
     TBoostedTreeImplUPtr m_TreeImpl;
     TVector m_LogDepthPenaltyMultiplierSearchInterval;
