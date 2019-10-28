@@ -125,14 +125,14 @@ classifierStratifiedCrossValidationRowSampler(std::size_t numberThreads,
                                               std::size_t numberFolds,
                                               const core::CPackedBitVector& allTrainingRowsMask) {
 
-    TDoubleVec frequencies{CDataFrameUtils::categoryFrequencies(
+    TDoubleVec categoryFrequencies{CDataFrameUtils::categoryFrequencies(
         numberThreads, frame, allTrainingRowsMask, {targetColumn})[targetColumn]};
 
     TSizeVec categoryCounts;
     double numberTrainingRows{allTrainingRowsMask.manhattan()};
     std::size_t desiredCount{
         (static_cast<std::size_t>(numberTrainingRows) + numberFolds / 2) / numberFolds};
-    CSampling::weightedSample(desiredCount, frequencies, categoryCounts);
+    CSampling::weightedSample(desiredCount, categoryFrequencies, categoryCounts);
     LOG_TRACE(<< "desired category counts per test fold = "
               << core::CContainerPrinter::print(categoryCounts));
 
@@ -144,7 +144,7 @@ classifierStratifiedCrossValidationRowSampler(std::size_t numberThreads,
         return static_cast<std::size_t>(row[targetColumn]);
     });
 
-    return {std::move(sampler), std::move(frequencies)};
+    return {std::move(sampler), std::move(categoryFrequencies)};
 }
 
 //! Get a regression stratified row sampler for cross fold validation.
@@ -195,18 +195,20 @@ regressionStratifiedCrossValiationRowSampler(std::size_t numberThreads,
         }
     };
 
-    TDoubleVec weights;
+    TDoubleVec bucketFrequencies;
     doReduce(frame.readRows(numberThreads, 0, frame.numberRows(),
                             countBucketRows, &allTrainingRowsMask),
-             copyBucketRowCounts, reduceBucketRowCounts, weights);
-    double Z{std::accumulate(weights.begin(), weights.end(), 0.0)};
-    for (auto& weight : weights) {
-        weight /= Z;
+             copyBucketRowCounts, reduceBucketRowCounts, bucketFrequencies);
+    double totalCount{std::accumulate(bucketFrequencies.begin(),
+                                      bucketFrequencies.end(), 0.0)};
+    for (auto& frequency : bucketFrequencies) {
+        frequency /= totalCount;
     }
 
     TSizeVec bucketCounts;
-    std::size_t desiredCount{(static_cast<std::size_t>(Z) + numberFolds / 2) / numberFolds};
-    CSampling::weightedSample(desiredCount, weights, bucketCounts);
+    std::size_t desiredCount{
+        (static_cast<std::size_t>(totalCount) + numberFolds / 2) / numberFolds};
+    CSampling::weightedSample(desiredCount, bucketFrequencies, bucketCounts);
     LOG_TRACE(<< "desired bucket counts per fold = "
               << core::CContainerPrinter::print(bucketCounts));
 
