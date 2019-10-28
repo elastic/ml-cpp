@@ -237,17 +237,30 @@ public:
                                 const CDataFrameCategoryEncoder* encoder = nullptr,
                                 TWeightFunction weight = unitWeight);
 
-    //! \brief Compute disjoint random train/test row masks suitable for cross
-    //! validation ensuring nearly equal numbers of examples for each distinct
-    //! value of the target column.
+    //! \brief Compute disjoint stratified random train/test row masks suitable
+    //! for cross-validation.
     //!
-    //! TODO stratify by target quantiles for regression.
+    //! This works for both classification and regression.
+    //!
+    //! For classification we assign uniformly at random equal proportions of
+    //! each class as they appear in the full training set. For example, if we
+    //! have \f$n_A\f$ and \f$n_B\f$ counts of class A and B, respectively, and
+    //! we're doing \f$k\f$-fold cross validation we'd choose random subsets of
+    //! sizes \f$\frac{n_A}{k}\f$ and \f$\frac{n_B}{k}\f$ of A and B examples,
+    //! respectively, for each test set.
+    //!
+    //! For regression we do stratified fractional cross-validation on \p numberBins
+    //! data quantiles. This is equivalent to stratification for classification
+    //! where each class accounts for 1/\p numberBins of the data and the comprises
+    //! the examples in each inter quantile range.
     //!
     //! \param[in] numberThreads The number of threads available.
     //! \param[in] frame The data frame for which to compute the row masks.
     //! \param[in] targetColumn The index of the column to predict.
     //! \param[in] rng The random number generator to use.
     //! \param[in] numberFolds The number of folds to use.
+    //! \param[in] numberBuckets The number of buckets to use when stratifying by
+    //! target quantiles for regression.
     //! \param[in] allTrainingRowsMask A mask of the candidate training rows.
     //! \warning This fails if the target is not categorical.
     static std::tuple<TPackedBitVectorVec, TPackedBitVectorVec, TDoubleVec>
@@ -256,18 +269,8 @@ public:
                                       std::size_t targetColumn,
                                       CPRNG::CXorOShiro128Plus rng,
                                       std::size_t numberFolds,
-                                      core::CPackedBitVector allTrainingRowsMask);
-
-    //! \brief Compute disjoint random train/test row masks suitable for cross
-    //! validation.
-    //!
-    //! \param[in] rng The random number generator to use.
-    //! \param[in] numberFolds The number of folds to use.
-    //! \param[in] allTrainingRowsMask A mask of the candidate training rows.
-    static std::pair<TPackedBitVectorVec, TPackedBitVectorVec>
-    crossValidationRowMasks(CPRNG::CXorOShiro128Plus rng,
-                            std::size_t numberFolds,
-                            core::CPackedBitVector allTrainingRowsMask);
+                                      std::size_t numberBuckets,
+                                      const core::CPackedBitVector& allTrainingRowsMask);
 
     //! Get the relative frequency of each category in \p frame.
     //!
