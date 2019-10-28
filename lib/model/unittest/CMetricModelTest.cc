@@ -1071,7 +1071,9 @@ BOOST_FIXTURE_TEST_CASE(testProbabilityCalculationForHighSum, CTestFixture) {
     BOOST_TEST_REQUIRE(probabilities[highSumBucket] < 0.01);
 }
 
-BOOST_FIXTURE_TEST_CASE(testProbabilityCalculationForLatLong, CTestFixture) {
+BOOST_FIXTURE_TEST_CASE(testProbabilityCalculationForLatLong,
+                        CTestFixture,
+                        *boost::unit_test::disabled()) {
     // TODO
 }
 
@@ -1317,7 +1319,7 @@ BOOST_FIXTURE_TEST_CASE(testInfluence, CTestFixture) {
     }
 }
 
-BOOST_FIXTURE_TEST_CASE(testLatLongInfluence, CTestFixture) {
+BOOST_FIXTURE_TEST_CASE(testLatLongInfluence, CTestFixture, *boost::unit_test::disabled()) {
     // TODO
 }
 

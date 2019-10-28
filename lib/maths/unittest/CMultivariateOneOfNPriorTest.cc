@@ -381,7 +381,7 @@ BOOST_AUTO_TEST_CASE(testModelUpdate) {
     }
 }
 
-BOOST_AUTO_TEST_CASE(testModelSelection) {
+BOOST_AUTO_TEST_CASE(testModelSelection, *boost::unit_test::disabled()) {
     // TODO When copula models are available.
 }
 

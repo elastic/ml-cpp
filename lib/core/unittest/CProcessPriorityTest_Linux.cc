@@ -52,7 +52,7 @@ bool readFromSystemFile(const std::string& fileName, std::string& content) {
 }
 
 BOOST_AUTO_TEST_CASE(testReducePriority) {
-    ml::core::CProcessPriority::reducePriority();
+    BOOST_REQUIRE_NO_THROW(ml::core::CProcessPriority::reducePriority());
 
     bool readFromOneOrOther(false);
 

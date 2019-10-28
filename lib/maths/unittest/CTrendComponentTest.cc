@@ -298,6 +298,7 @@ BOOST_AUTO_TEST_CASE(testDecayRate) {
     double relativeError{maths::CBasicStatistics::mean(error) /
                          std::fabs(maths::CBasicStatistics::mean(level))};
     LOG_DEBUG(<< "relative error = " << relativeError);
+    BOOST_REQUIRE_SMALL(relativeError, 0.5);
 }
 
 BOOST_AUTO_TEST_CASE(testForecast) {
