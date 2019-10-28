@@ -191,11 +191,11 @@ void CBoostedTreeFactory::initializeCrossValidation(core::CDataFrame& frame) con
     TDoubleVec frequencies;
     core::CDataFrame::TRowFunc writeRowWeight;
 
-    std::size_t numberBins(m_StratifyRegressionCrossValidation ? 10 : 1);
+    std::size_t numberBuckets(m_StratifyRegressionCrossValidation ? 10 : 1);
     std::tie(m_TreeImpl->m_TrainingRowMasks, m_TreeImpl->m_TestingRowMasks, frequencies) =
         CDataFrameUtils::stratifiedCrossValidationRowMasks(
             m_TreeImpl->m_NumberThreads, frame, m_TreeImpl->m_DependentVariable,
-            m_TreeImpl->m_Rng, m_TreeImpl->m_NumberFolds, numberBins, allTrainingRowsMask);
+            m_TreeImpl->m_Rng, m_TreeImpl->m_NumberFolds, numberBuckets, allTrainingRowsMask);
 
     if (frame.columnIsCategorical()[m_TreeImpl->m_DependentVariable]) {
         writeRowWeight = [&](TRowItr beginRows, TRowItr endRows) {

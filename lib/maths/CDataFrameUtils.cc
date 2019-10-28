@@ -154,7 +154,7 @@ regressionStratifiedCrossValiationRowSampler(std::size_t numberThreads,
                                              std::size_t targetColumn,
                                              CPRNG::CXorOShiro128Plus rng,
                                              std::size_t numberFolds,
-                                             std::size_t numberBins,
+                                             std::size_t numberBuckets,
                                              const core::CPackedBitVector& allTrainingRowsMask) {
 
     CDataFrameUtils::TQuantileSketchVec quantiles;
@@ -163,7 +163,7 @@ regressionStratifiedCrossValiationRowSampler(std::size_t numberThreads,
         CQuantileSketch{CQuantileSketch::E_Linear, 50}, quantiles);
 
     TDoubleVec buckets;
-    for (double step = 100.0 / static_cast<double>(numberBins), percentile = step;
+    for (double step = 100.0 / static_cast<double>(numberBuckets), percentile = step;
          percentile < 100.0; percentile += step) {
         double xQuantile;
         quantiles[0].quantile(percentile, xQuantile);
@@ -490,7 +490,7 @@ CDataFrameUtils::stratifiedCrossValidationRowMasks(std::size_t numberThreads,
                                                    std::size_t targetColumn,
                                                    CPRNG::CXorOShiro128Plus rng,
                                                    std::size_t numberFolds,
-                                                   std::size_t numberBins,
+                                                   std::size_t numberBuckets,
                                                    const core::CPackedBitVector& allTrainingRowsMask) {
 
     TDoubleVec frequencies;
@@ -501,7 +501,8 @@ CDataFrameUtils::stratifiedCrossValidationRowMasks(std::size_t numberThreads,
             numberThreads, frame, targetColumn, rng, numberFolds, allTrainingRowsMask);
     } else {
         sampler = regressionStratifiedCrossValiationRowSampler(
-            numberThreads, frame, targetColumn, rng, numberFolds, numberBins, allTrainingRowsMask);
+            numberThreads, frame, targetColumn, rng, numberFolds, numberBuckets,
+            allTrainingRowsMask);
     }
 
     LOG_TRACE(<< "number training rows = " << allTrainingRowsMask.manhattan());
