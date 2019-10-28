@@ -154,6 +154,7 @@ regressionStratifiedCrossValiationRowSampler(std::size_t numberThreads,
                                              std::size_t targetColumn,
                                              CPRNG::CXorOShiro128Plus rng,
                                              std::size_t numberFolds,
+                                             std::size_t numberBins,
                                              const core::CPackedBitVector& allTrainingRowsMask) {
 
     CDataFrameUtils::TQuantileSketchVec quantiles;
@@ -162,10 +163,11 @@ regressionStratifiedCrossValiationRowSampler(std::size_t numberThreads,
         CQuantileSketch{CQuantileSketch::E_Linear, 50}, quantiles);
 
     TDoubleVec buckets;
-    for (double percentile = 10.0; percentile < 100.0; percentile += 10.0) {
-        double xDecile;
-        quantiles[0].quantile(percentile, xDecile);
-        buckets.push_back(xDecile);
+    for (double step = 100.0 / static_cast<double>(numberBins), percentile = step;
+         percentile < 100.0; percentile += step) {
+        double xQuantile;
+        quantiles[0].quantile(percentile, xQuantile);
+        buckets.push_back(xQuantile);
     }
     buckets.erase(std::unique(buckets.begin(), buckets.end()), buckets.end());
     buckets.push_back(std::numeric_limits<double>::max());
@@ -486,6 +488,7 @@ CDataFrameUtils::stratifiedCrossValidationRowMasks(std::size_t numberThreads,
                                                    std::size_t targetColumn,
                                                    CPRNG::CXorOShiro128Plus rng,
                                                    std::size_t numberFolds,
+                                                   std::size_t numberBins,
                                                    const core::CPackedBitVector& allTrainingRowsMask) {
 
     TDoubleVec frequencies;
@@ -496,7 +499,7 @@ CDataFrameUtils::stratifiedCrossValidationRowMasks(std::size_t numberThreads,
             numberThreads, frame, targetColumn, rng, numberFolds, allTrainingRowsMask);
     } else {
         sampler = regressionStratifiedCrossValiationRowSampler(
-            numberThreads, frame, targetColumn, rng, numberFolds, allTrainingRowsMask);
+            numberThreads, frame, targetColumn, rng, numberFolds, numberBins, allTrainingRowsMask);
     }
 
     LOG_TRACE(<< "number training rows = " << allTrainingRowsMask.manhattan());

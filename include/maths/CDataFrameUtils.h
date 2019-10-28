@@ -238,7 +238,7 @@ public:
                                 TWeightFunction weight = unitWeight);
 
     //! \brief Compute disjoint stratified random train/test row masks suitable
-    //! for cross validation.
+    //! for cross-validation.
     //!
     //! This works for both classification and regression.
     //!
@@ -249,16 +249,18 @@ public:
     //! sizes \f$\frac{n_A}{k}\f$ and \f$\frac{n_B}{k}\f$ of A and B examples,
     //! respectively, for each test set.
     //!
-    //! For regression we do stratified fractional cross validation on the data
-    //! deciles. This is equivalent to stratification for classification where
-    //! each class accounts for 1/10 of the data and the comprises the examples
-    //! in each inter decile range.
+    //! For regression we do stratified fractional cross-validation on \p numberBins
+    //! data quantiles. This is equivalent to stratification for classification
+    //! where each class accounts for 1/\p numberBins of the data and the comprises
+    //! the examples in each inter quantile range.
     //!
     //! \param[in] numberThreads The number of threads available.
     //! \param[in] frame The data frame for which to compute the row masks.
     //! \param[in] targetColumn The index of the column to predict.
     //! \param[in] rng The random number generator to use.
     //! \param[in] numberFolds The number of folds to use.
+    //! \param[in] numberBins The number of bins to use when stratifying by target
+    //! quantiles for regression.
     //! \param[in] allTrainingRowsMask A mask of the candidate training rows.
     //! \warning This fails if the target is not categorical.
     static std::tuple<TPackedBitVectorVec, TPackedBitVectorVec, TDoubleVec>
@@ -267,6 +269,7 @@ public:
                                       std::size_t targetColumn,
                                       CPRNG::CXorOShiro128Plus rng,
                                       std::size_t numberFolds,
+                                      std::size_t numberBins,
                                       const core::CPackedBitVector& allTrainingRowsMask);
 
     //! Get the relative frequency of each category in \p frame.

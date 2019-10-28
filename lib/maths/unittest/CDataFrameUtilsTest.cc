@@ -468,6 +468,7 @@ BOOST_AUTO_TEST_CASE(testStratifiedCrossValidationRowMasks) {
 
     std::size_t numberRows{2000};
     std::size_t numberCols{1};
+    std::size_t numberBins{10};
 
     for (std::size_t trial = 0; trial < 10; ++trial) {
 
@@ -497,7 +498,7 @@ BOOST_AUTO_TEST_CASE(testStratifiedCrossValidationRowMasks) {
         maths::CDataFrameUtils::TPackedBitVectorVec testingRowMasks;
         std::tie(trainingRowMasks, testingRowMasks, std::ignore) =
             maths::CDataFrameUtils::stratifiedCrossValidationRowMasks(
-                1, *frame, 0, rng, numberFolds[0], allTrainingRowsMask);
+                1, *frame, 0, rng, numberFolds[0], numberBins, allTrainingRowsMask);
 
         BOOST_REQUIRE_EQUAL(numberFolds[0], trainingRowMasks.size());
         BOOST_REQUIRE_EQUAL(numberFolds[0], testingRowMasks.size());
@@ -554,9 +555,9 @@ BOOST_AUTO_TEST_CASE(testStratifiedCrossValidationRowMasks) {
         maths::CDataFrameUtils::TPackedBitVectorVec testingRowMasks;
         std::tie(std::ignore, testingRowMasks, std::ignore) =
             maths::CDataFrameUtils::stratifiedCrossValidationRowMasks(
-                1, *frame, 0, rng, numberFolds[0], allTrainingRowsMask);
+                1, *frame, 0, rng, numberFolds[0], numberBins, allTrainingRowsMask);
 
-        TDoubleVecVec targetDecile(numberFolds[0], TDoubleVec(10));
+        TDoubleVecVec targetDecile(numberFolds[0], TDoubleVec(numberBins));
 
         core::CPackedBitVector allTestingRowsMask{numberRows, false};
         for (std::size_t fold = 0; fold < numberFolds[0]; ++fold) {
@@ -580,12 +581,12 @@ BOOST_AUTO_TEST_CASE(testStratifiedCrossValidationRowMasks) {
                             },
                             &testingRowMasks[fold]);
             std::sort(values.begin(), values.end());
-            for (std::size_t i = 1; i < 10; ++i) {
-                targetDecile[fold][i] = values[(i * values.size()) / 10];
+            for (std::size_t i = 1; i < numberBins; ++i) {
+                targetDecile[fold][i] = values[(i * values.size()) / numberBins];
             }
         }
 
-        for (std::size_t i = 1; i < 10; ++i) {
+        for (std::size_t i = 1; i < numberBins; ++i) {
             TMeanVarAccumulator testTargetDecileMoments;
             for (std::size_t fold = 0; fold < numberFolds[0]; ++fold) {
                 testTargetDecileMoments.add(targetDecile[fold][i]);
