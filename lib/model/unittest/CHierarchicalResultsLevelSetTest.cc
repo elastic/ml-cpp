@@ -4,8 +4,6 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
-#include "CHierarchicalResultsLevelSetTest.h"
-
 #include <core/CLogger.h>
 #include <core/CStoredStringPtr.h>
 
@@ -14,7 +12,11 @@
 #include <model/CHierarchicalResultsLevelSet.h>
 #include <model/CStringStore.h>
 
+#include <boost/test/unit_test.hpp>
+
 #include <memory>
+
+BOOST_AUTO_TEST_SUITE(CHierarchicalResultsLevelSetTest)
 
 namespace {
 struct STestNode {
@@ -83,17 +85,7 @@ auto makeNode(CConcreteHierarchicalResultsLevelSet::TNode& parent,
 }
 }
 
-CppUnit::Test* CHierarchicalResultsLevelSetTest::suite() {
-    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CHierarchicalResultsLevelSetTest");
-
-    suiteOfTests->addTest(new CppUnit::TestCaller<CHierarchicalResultsLevelSetTest>(
-        "CHierarchicalResultsLevelSetTest::testElements",
-        &CHierarchicalResultsLevelSetTest::testElements));
-
-    return suiteOfTests;
-}
-
-void CHierarchicalResultsLevelSetTest::testElements() {
+BOOST_AUTO_TEST_CASE(testElements) {
 
     using TNodePtr = std::unique_ptr<CConcreteHierarchicalResultsLevelSet::TNode>;
 
@@ -122,8 +114,8 @@ void CHierarchicalResultsLevelSetTest::testElements() {
         levelSet.elements(*partition, false,
                           CConcreteHierarchicalResultsLevelSet::CFactory(), result);
         LOG_DEBUG(<< "partition level = " << ml::core::CContainerPrinter::print(result));
-        CPPUNIT_ASSERT_EQUAL(std::string{"[\"PA pa1  \"]"},
-                             ml::core::CContainerPrinter::print(result));
+        BOOST_REQUIRE_EQUAL(std::string{"[\"PA pa1  \"]"},
+                            ml::core::CContainerPrinter::print(result));
     }
 
     // We should get the same level set corresponding to ("pa1", "pb1")
@@ -133,7 +125,9 @@ void CHierarchicalResultsLevelSetTest::testElements() {
         levelSet.elements(*leaf, false,
                           CConcreteHierarchicalResultsLevelSet::CFactory(), result);
         LOG_DEBUG(<< "leaf level = " << ml::core::CContainerPrinter::print(result));
-        CPPUNIT_ASSERT_EQUAL(std::string{"[\"PA pa1 PB pb1\"]"},
-                             ml::core::CContainerPrinter::print(result));
+        BOOST_REQUIRE_EQUAL(std::string{"[\"PA pa1 PB pb1\"]"},
+                            ml::core::CContainerPrinter::print(result));
     }
 }
+
+BOOST_AUTO_TEST_SUITE_END()

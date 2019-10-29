@@ -3,7 +3,6 @@
  * or more contributor license agreements. Licensed under the Elastic License;
  * you may not use this file except in compliance with the Elastic License.
  */
-#include "CCommandProcessorTest.h"
 
 #include <core/CProcess.h>
 #include <core/CSleep.h>
@@ -12,12 +11,15 @@
 #include "../CCommandProcessor.h"
 
 #include <boost/range.hpp>
+#include <boost/test/unit_test.hpp>
 
 #include <fstream>
 #include <sstream>
 #include <string>
 
 #include <stdio.h>
+
+BOOST_AUTO_TEST_SUITE(CCommandProcessorTest)
 
 namespace {
 const std::string OUTPUT_FILE("slogan1.txt");
@@ -42,26 +44,7 @@ const std::string SLOGAN1("Elastic is great!");
 const std::string SLOGAN2("You know, for search!");
 }
 
-CppUnit::Test* CCommandProcessorTest::suite() {
-    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CCommandProcessorTest");
-
-    suiteOfTests->addTest(new CppUnit::TestCaller<CCommandProcessorTest>(
-        "CCommandProcessorTest::testStartPermitted", &CCommandProcessorTest::testStartPermitted));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CCommandProcessorTest>(
-        "CCommandProcessorTest::testStartNonPermitted",
-        &CCommandProcessorTest::testStartNonPermitted));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CCommandProcessorTest>(
-        "CCommandProcessorTest::testStartNonExistent",
-        &CCommandProcessorTest::testStartNonExistent));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CCommandProcessorTest>(
-        "CCommandProcessorTest::testKillDisallowed", &CCommandProcessorTest::testKillDisallowed));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CCommandProcessorTest>(
-        "CCommandProcessorTest::testInvalidVerb", &CCommandProcessorTest::testInvalidVerb));
-
-    return suiteOfTests;
-}
-
-void CCommandProcessorTest::testStartPermitted() {
+BOOST_AUTO_TEST_CASE(testStartPermitted) {
     // Remove any output file left behind by a previous failed test, but don't
     // check the return code as this will usually fail
     ::remove(OUTPUT_FILE.c_str());
@@ -84,17 +67,17 @@ void CCommandProcessorTest::testStartPermitted() {
     ml::core::CSleep::sleep(1000);
 
     std::ifstream ifs(OUTPUT_FILE.c_str());
-    CPPUNIT_ASSERT(ifs.is_open());
+    BOOST_TEST_REQUIRE(ifs.is_open());
     std::string content;
     std::getline(ifs, content);
     ifs.close();
 
-    CPPUNIT_ASSERT_EQUAL(SLOGAN1, content);
+    BOOST_REQUIRE_EQUAL(SLOGAN1, content);
 
-    CPPUNIT_ASSERT_EQUAL(0, ::remove(OUTPUT_FILE.c_str()));
+    BOOST_REQUIRE_EQUAL(0, ::remove(OUTPUT_FILE.c_str()));
 }
 
-void CCommandProcessorTest::testStartNonPermitted() {
+BOOST_AUTO_TEST_CASE(testStartNonPermitted) {
     ml::controller::CCommandProcessor::TStrVec permittedPaths(1, "some other process");
     ml::controller::CCommandProcessor processor(permittedPaths);
 
@@ -113,25 +96,25 @@ void CCommandProcessorTest::testStartNonPermitted() {
     // still exist and have the expected contents
 
     std::ifstream ifs(INPUT_FILE2.c_str());
-    CPPUNIT_ASSERT(ifs.is_open());
+    BOOST_TEST_REQUIRE(ifs.is_open());
     std::string content;
     std::getline(ifs, content);
     ifs.close();
 
-    CPPUNIT_ASSERT_EQUAL(SLOGAN2, content);
+    BOOST_REQUIRE_EQUAL(SLOGAN2, content);
 }
 
-void CCommandProcessorTest::testStartNonExistent() {
+BOOST_AUTO_TEST_CASE(testStartNonExistent) {
     ml::controller::CCommandProcessor::TStrVec permittedPaths(1, "some other process");
     ml::controller::CCommandProcessor processor(permittedPaths);
 
     std::string command(ml::controller::CCommandProcessor::START);
     command += "\tsome other process";
 
-    CPPUNIT_ASSERT(!processor.handleCommand(command));
+    BOOST_TEST_REQUIRE(!processor.handleCommand(command));
 }
 
-void CCommandProcessorTest::testKillDisallowed() {
+BOOST_AUTO_TEST_CASE(testKillDisallowed) {
     // Attempt to kill a process that exists but isn't allowed to be killed,
     // namely the unit test program
 
@@ -143,15 +126,17 @@ void CCommandProcessorTest::testKillDisallowed() {
     command +=
         ml::core::CStringUtils::typeToString(ml::core::CProcess::instance().id());
 
-    CPPUNIT_ASSERT(!processor.handleCommand(command));
+    BOOST_TEST_REQUIRE(!processor.handleCommand(command));
 }
 
-void CCommandProcessorTest::testInvalidVerb() {
+BOOST_AUTO_TEST_CASE(testInvalidVerb) {
     ml::controller::CCommandProcessor::TStrVec permittedPaths(1, "some other process");
     ml::controller::CCommandProcessor processor(permittedPaths);
 
     std::string command("drive");
     command += "\tsome other process";
 
-    CPPUNIT_ASSERT(!processor.handleCommand(command));
+    BOOST_TEST_REQUIRE(!processor.handleCommand(command));
 }
+
+BOOST_AUTO_TEST_SUITE_END()

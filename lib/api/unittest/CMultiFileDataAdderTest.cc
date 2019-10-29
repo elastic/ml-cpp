@@ -3,7 +3,6 @@
  * or more contributor license agreements. Licensed under the Elastic License;
  * you may not use this file except in compliance with the Elastic License.
  */
-#include "CMultiFileDataAdderTest.h"
 
 #include <core/CDataAdder.h>
 #include <core/CJsonOutputStreamWrapper.h>
@@ -28,6 +27,7 @@
 #include <rapidjson/document.h>
 
 #include <boost/filesystem.hpp>
+#include <boost/test/unit_test.hpp>
 
 #include <fstream>
 #include <ios>
@@ -35,6 +35,8 @@
 #include <memory>
 #include <string>
 #include <vector>
+
+BOOST_AUTO_TEST_SUITE(CMultiFileDataAdderTest)
 
 namespace {
 
@@ -47,134 +49,26 @@ void reportPersistComplete(ml::api::CModelSnapshotJsonWriter::SModelSnapshotRepo
     snapshotIdOut = modelSnapshotReport.s_SnapshotId;
     numDocsOut = modelSnapshotReport.s_NumDocs;
 }
-}
 
-CppUnit::Test* CMultiFileDataAdderTest::suite() {
-    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CMultiFileDataAdderTest");
-    suiteOfTests->addTest(new CppUnit::TestCaller<CMultiFileDataAdderTest>(
-        "CMultiFileDataAdderTest::testSimpleWrite", &CMultiFileDataAdderTest::testSimpleWrite));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CMultiFileDataAdderTest>(
-        "CMultiFileDataAdderTest::testDetectorPersistBy",
-        &CMultiFileDataAdderTest::testDetectorPersistBy));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CMultiFileDataAdderTest>(
-        "CMultiFileDataAdderTest::testDetectorPersistOver",
-        &CMultiFileDataAdderTest::testDetectorPersistOver));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CMultiFileDataAdderTest>(
-        "CMultiFileDataAdderTest::testDetectorPersistPartition",
-        &CMultiFileDataAdderTest::testDetectorPersistPartition));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CMultiFileDataAdderTest>(
-        "CMultiFileDataAdderTest::testDetectorPersistDc",
-        &CMultiFileDataAdderTest::testDetectorPersistDc));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CMultiFileDataAdderTest>(
-        "CMultiFileDataAdderTest::testDetectorPersistCount",
-        &CMultiFileDataAdderTest::testDetectorPersistCount));
-    return suiteOfTests;
-}
-
-void CMultiFileDataAdderTest::testSimpleWrite() {
-    static const std::string EVENT("Hello Event");
-    static const std::string SUMMARY_EVENT("Hello Summary Event");
-
-    static const std::string EXTENSION(".txt");
-    std::string baseOutputFilename(ml::test::CTestTmpDir::tmpDir() + "/filepersister");
-
-    std::string expectedFilename(baseOutputFilename);
-    expectedFilename += "/_hello/1";
-    expectedFilename += EXTENSION;
-
-    {
-        // Clean up any leftovers of previous failures
-        boost::filesystem::path workDir(baseOutputFilename);
-        CPPUNIT_ASSERT_NO_THROW(boost::filesystem::remove_all(workDir));
-
-        ml::test::CMultiFileDataAdder persister(baseOutputFilename, EXTENSION);
-        ml::core::CDataAdder::TOStreamP strm = persister.addStreamed("hello", "1");
-        CPPUNIT_ASSERT(strm);
-        (*strm) << EVENT;
-        CPPUNIT_ASSERT(persister.streamComplete(strm, true));
-    }
-
-    {
-        std::ifstream persistedFile(expectedFilename.c_str());
-
-        CPPUNIT_ASSERT(persistedFile.is_open());
-        std::string line;
-        std::getline(persistedFile, line);
-        CPPUNIT_ASSERT_EQUAL(EVENT, line);
-    }
-
-    CPPUNIT_ASSERT_EQUAL(0, ::remove(expectedFilename.c_str()));
-
-    expectedFilename = baseOutputFilename;
-    expectedFilename += "/_stash/1";
-    expectedFilename += EXTENSION;
-
-    {
-        ml::test::CMultiFileDataAdder persister(baseOutputFilename, EXTENSION);
-        ml::core::CDataAdder::TOStreamP strm = persister.addStreamed("stash", "1");
-        CPPUNIT_ASSERT(strm);
-        (*strm) << SUMMARY_EVENT;
-        CPPUNIT_ASSERT(persister.streamComplete(strm, true));
-    }
-
-    {
-        std::ifstream persistedFile(expectedFilename.c_str());
-
-        CPPUNIT_ASSERT(persistedFile.is_open());
-        std::string line;
-        std::getline(persistedFile, line);
-        CPPUNIT_ASSERT_EQUAL(SUMMARY_EVENT, line);
-    }
-
-    // Clean up
-    boost::filesystem::path workDir(baseOutputFilename);
-    CPPUNIT_ASSERT_NO_THROW(boost::filesystem::remove_all(workDir));
-}
-
-void CMultiFileDataAdderTest::testDetectorPersistBy() {
-    this->detectorPersistHelper("testfiles/new_mlfields.conf",
-                                "testfiles/big_ascending.txt", 0, "%d/%b/%Y:%T %z");
-}
-
-void CMultiFileDataAdderTest::testDetectorPersistOver() {
-    this->detectorPersistHelper("testfiles/new_mlfields_over.conf",
-                                "testfiles/big_ascending.txt", 0, "%d/%b/%Y:%T %z");
-}
-
-void CMultiFileDataAdderTest::testDetectorPersistPartition() {
-    this->detectorPersistHelper("testfiles/new_mlfields_partition.conf",
-                                "testfiles/big_ascending.txt", 0, "%d/%b/%Y:%T %z");
-}
-
-void CMultiFileDataAdderTest::testDetectorPersistDc() {
-    this->detectorPersistHelper("testfiles/new_persist_dc.conf",
-                                "testfiles/files_users_programs.csv", 5);
-}
-
-void CMultiFileDataAdderTest::testDetectorPersistCount() {
-    this->detectorPersistHelper("testfiles/new_persist_count.conf",
-                                "testfiles/files_users_programs.csv", 5);
-}
-
-void CMultiFileDataAdderTest::detectorPersistHelper(const std::string& configFileName,
-                                                    const std::string& inputFilename,
-                                                    int latencyBuckets,
-                                                    const std::string& timeFormat) {
+void detectorPersistHelper(const std::string& configFileName,
+                           const std::string& inputFilename,
+                           int latencyBuckets,
+                           const std::string& timeFormat = std::string()) {
     // Start by creating a detector with non-trivial state
     static const ml::core_t::TTime BUCKET_SIZE(3600);
     static const std::string JOB_ID("job");
 
     // Open the input and output files
     std::ifstream inputStrm(inputFilename.c_str());
-    CPPUNIT_ASSERT(inputStrm.is_open());
+    BOOST_TEST_REQUIRE(inputStrm.is_open());
 
     std::ofstream outputStrm(ml::core::COsFileFuncs::NULL_FILENAME);
-    CPPUNIT_ASSERT(outputStrm.is_open());
+    BOOST_TEST_REQUIRE(outputStrm.is_open());
     ml::core::CJsonOutputStreamWrapper wrappedOutputStream(outputStrm);
 
     ml::model::CLimits limits;
     ml::api::CFieldConfig fieldConfig;
-    CPPUNIT_ASSERT(fieldConfig.initFromFile(configFileName));
+    BOOST_TEST_REQUIRE(fieldConfig.initFromFile(configFileName));
 
     ml::model::CAnomalyDetectorModelConfig modelConfig =
         ml::model::CAnomalyDetectorModelConfig::defaultConfig(
@@ -196,7 +90,7 @@ void CMultiFileDataAdderTest::detectorPersistHelper(const std::string& configFil
         return std::make_unique<ml::api::CNdJsonInputParser>(inputStrm);
     }()};
 
-    CPPUNIT_ASSERT(parser->readStreamIntoMaps(std::bind(
+    BOOST_TEST_REQUIRE(parser->readStreamIntoMaps(std::bind(
         &ml::api::CAnomalyJob::handleRecord, &origJob, std::placeholders::_1)));
 
     // Persist the detector state to file(s)
@@ -205,10 +99,10 @@ void CMultiFileDataAdderTest::detectorPersistHelper(const std::string& configFil
     {
         // Clean up any leftovers of previous failures
         boost::filesystem::path origDir(baseOrigOutputFilename);
-        CPPUNIT_ASSERT_NO_THROW(boost::filesystem::remove_all(origDir));
+        BOOST_REQUIRE_NO_THROW(boost::filesystem::remove_all(origDir));
 
         ml::test::CMultiFileDataAdder persister(baseOrigOutputFilename);
-        CPPUNIT_ASSERT(origJob.persistState(persister, ""));
+        BOOST_TEST_REQUIRE(origJob.persistState(persister, ""));
     }
 
     std::string origBaseDocId(JOB_ID + '_' + ml::api::CAnomalyJob::STATE_TYPE +
@@ -226,15 +120,15 @@ void CMultiFileDataAdderTest::detectorPersistHelper(const std::string& configFil
         expectedOrigFilename += ml::test::CMultiFileDataAdder::JSON_FILE_EXT;
         LOG_DEBUG(<< "Trying to open file: " << expectedOrigFilename);
         std::ifstream origFile(expectedOrigFilename.c_str());
-        CPPUNIT_ASSERT(origFile.is_open());
+        BOOST_TEST_REQUIRE(origFile.is_open());
         std::string json((std::istreambuf_iterator<char>(origFile)),
                          std::istreambuf_iterator<char>());
         origFileContents[index] = json;
 
         // Ensure that the JSON is valid, by parsing string using Rapidjson
         rapidjson::Document document;
-        CPPUNIT_ASSERT(!document.Parse<0>(origFileContents[index].c_str()).HasParseError());
-        CPPUNIT_ASSERT(document.IsObject());
+        BOOST_TEST_REQUIRE(!document.Parse<0>(origFileContents[index].c_str()).HasParseError());
+        BOOST_TEST_REQUIRE(document.IsObject());
     }
 
     // Now restore the state into a different detector
@@ -250,8 +144,8 @@ void CMultiFileDataAdderTest::detectorPersistHelper(const std::string& configFil
         ml::core_t::TTime completeToTime(0);
 
         ml::test::CMultiFileSearcher retriever(baseOrigOutputFilename, origBaseDocId);
-        CPPUNIT_ASSERT(restoredJob.restoreState(retriever, completeToTime));
-        CPPUNIT_ASSERT(completeToTime > 0);
+        BOOST_TEST_REQUIRE(restoredJob.restoreState(retriever, completeToTime));
+        BOOST_TEST_REQUIRE(completeToTime > 0);
     }
 
     // Finally, persist the new detector state to a file
@@ -260,10 +154,10 @@ void CMultiFileDataAdderTest::detectorPersistHelper(const std::string& configFil
     {
         // Clean up any leftovers of previous failures
         boost::filesystem::path restoredDir(baseRestoredOutputFilename);
-        CPPUNIT_ASSERT_NO_THROW(boost::filesystem::remove_all(restoredDir));
+        BOOST_REQUIRE_NO_THROW(boost::filesystem::remove_all(restoredDir));
 
         ml::test::CMultiFileDataAdder persister(baseRestoredOutputFilename);
-        CPPUNIT_ASSERT(restoredJob.persistState(persister, ""));
+        BOOST_TEST_REQUIRE(restoredJob.persistState(persister, ""));
     }
 
     std::string restoredBaseDocId(JOB_ID + '_' + ml::api::CAnomalyJob::STATE_TYPE +
@@ -278,16 +172,104 @@ void CMultiFileDataAdderTest::detectorPersistHelper(const std::string& configFil
             ml::core::CDataAdder::makeCurrentDocId(restoredBaseDocId, 1 + index);
         expectedRestoredFilename += ml::test::CMultiFileDataAdder::JSON_FILE_EXT;
         std::ifstream restoredFile(expectedRestoredFilename.c_str());
-        CPPUNIT_ASSERT(restoredFile.is_open());
+        BOOST_TEST_REQUIRE(restoredFile.is_open());
         std::string json((std::istreambuf_iterator<char>(restoredFile)),
                          std::istreambuf_iterator<char>());
 
-        CPPUNIT_ASSERT_EQUAL(origFileContents[index], json);
+        BOOST_REQUIRE_EQUAL(origFileContents[index], json);
     }
 
     // Clean up
     boost::filesystem::path origDir(baseOrigOutputFilename);
-    CPPUNIT_ASSERT_NO_THROW(boost::filesystem::remove_all(origDir));
+    BOOST_REQUIRE_NO_THROW(boost::filesystem::remove_all(origDir));
     boost::filesystem::path restoredDir(baseRestoredOutputFilename);
-    CPPUNIT_ASSERT_NO_THROW(boost::filesystem::remove_all(restoredDir));
+    BOOST_REQUIRE_NO_THROW(boost::filesystem::remove_all(restoredDir));
 }
+}
+
+BOOST_AUTO_TEST_CASE(testSimpleWrite) {
+    static const std::string EVENT("Hello Event");
+    static const std::string SUMMARY_EVENT("Hello Summary Event");
+
+    static const std::string EXTENSION(".txt");
+    std::string baseOutputFilename(ml::test::CTestTmpDir::tmpDir() + "/filepersister");
+
+    std::string expectedFilename(baseOutputFilename);
+    expectedFilename += "/_hello/1";
+    expectedFilename += EXTENSION;
+
+    {
+        // Clean up any leftovers of previous failures
+        boost::filesystem::path workDir(baseOutputFilename);
+        BOOST_REQUIRE_NO_THROW(boost::filesystem::remove_all(workDir));
+
+        ml::test::CMultiFileDataAdder persister(baseOutputFilename, EXTENSION);
+        ml::core::CDataAdder::TOStreamP strm = persister.addStreamed("hello", "1");
+        BOOST_TEST_REQUIRE(strm);
+        (*strm) << EVENT;
+        BOOST_TEST_REQUIRE(persister.streamComplete(strm, true));
+    }
+
+    {
+        std::ifstream persistedFile(expectedFilename.c_str());
+
+        BOOST_TEST_REQUIRE(persistedFile.is_open());
+        std::string line;
+        std::getline(persistedFile, line);
+        BOOST_REQUIRE_EQUAL(EVENT, line);
+    }
+
+    BOOST_REQUIRE_EQUAL(0, ::remove(expectedFilename.c_str()));
+
+    expectedFilename = baseOutputFilename;
+    expectedFilename += "/_stash/1";
+    expectedFilename += EXTENSION;
+
+    {
+        ml::test::CMultiFileDataAdder persister(baseOutputFilename, EXTENSION);
+        ml::core::CDataAdder::TOStreamP strm = persister.addStreamed("stash", "1");
+        BOOST_TEST_REQUIRE(strm);
+        (*strm) << SUMMARY_EVENT;
+        BOOST_TEST_REQUIRE(persister.streamComplete(strm, true));
+    }
+
+    {
+        std::ifstream persistedFile(expectedFilename.c_str());
+
+        BOOST_TEST_REQUIRE(persistedFile.is_open());
+        std::string line;
+        std::getline(persistedFile, line);
+        BOOST_REQUIRE_EQUAL(SUMMARY_EVENT, line);
+    }
+
+    // Clean up
+    boost::filesystem::path workDir(baseOutputFilename);
+    BOOST_REQUIRE_NO_THROW(boost::filesystem::remove_all(workDir));
+}
+
+BOOST_AUTO_TEST_CASE(testDetectorPersistBy) {
+    detectorPersistHelper("testfiles/new_mlfields.conf",
+                          "testfiles/big_ascending.txt", 0, "%d/%b/%Y:%T %z");
+}
+
+BOOST_AUTO_TEST_CASE(testDetectorPersistOver) {
+    detectorPersistHelper("testfiles/new_mlfields_over.conf",
+                          "testfiles/big_ascending.txt", 0, "%d/%b/%Y:%T %z");
+}
+
+BOOST_AUTO_TEST_CASE(testDetectorPersistPartition) {
+    detectorPersistHelper("testfiles/new_mlfields_partition.conf",
+                          "testfiles/big_ascending.txt", 0, "%d/%b/%Y:%T %z");
+}
+
+BOOST_AUTO_TEST_CASE(testDetectorPersistDc) {
+    detectorPersistHelper("testfiles/new_persist_dc.conf",
+                          "testfiles/files_users_programs.csv", 5);
+}
+
+BOOST_AUTO_TEST_CASE(testDetectorPersistCount) {
+    detectorPersistHelper("testfiles/new_persist_count.conf",
+                          "testfiles/files_users_programs.csv", 5);
+}
+
+BOOST_AUTO_TEST_SUITE_END()

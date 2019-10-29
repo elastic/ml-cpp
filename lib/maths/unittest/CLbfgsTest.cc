@@ -4,16 +4,19 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
-#include "CLbfgsTest.h"
-
 #include <core/CLogger.h>
 
 #include <maths/CLbfgs.h>
 #include <maths/CLinearAlgebraEigen.h>
 
+#include <test/BoostTestCloseAbsolute.h>
 #include <test/CRandomNumbers.h>
 
+#include <boost/test/unit_test.hpp>
+
 #include <vector>
+
+BOOST_AUTO_TEST_SUITE(CLbfgsTest)
 
 using namespace ml;
 
@@ -22,7 +25,7 @@ using TSizeVec = std::vector<std::size_t>;
 using TVector = maths::CDenseVector<double>;
 using TVectorVec = std::vector<TVector>;
 
-void CLbfgsTest::testQuadtratic() {
+BOOST_AUTO_TEST_CASE(testQuadtratic) {
 
     test::CRandomNumbers rng;
 
@@ -57,7 +60,7 @@ void CLbfgsTest::testQuadtratic() {
             x -= s * g(x);
         }
 
-        CPPUNIT_ASSERT(fx < 0.02 * static_cast<double>(f(x)));
+        BOOST_TEST_REQUIRE(fx < 0.02 * static_cast<double>(f(x)));
     }
 
     // Check convergence to the minimum of a quadtratic form for a variety of
@@ -86,18 +89,18 @@ void CLbfgsTest::testQuadtratic() {
         double fx;
         for (double scale : {0.01, 1.0, 100.0}) {
             std::tie(x, fx) = lbfgs.minimize(f, g, scale * x0);
-            CPPUNIT_ASSERT_EQUAL(fx, static_cast<double>(f(x)));
-            CPPUNIT_ASSERT_DOUBLES_EQUAL(0.0, fx, 0.5 * scale * scale);
+            BOOST_REQUIRE_EQUAL(fx, static_cast<double>(f(x)));
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(0.0, fx, 0.5 * scale * scale);
         }
 
         std::tie(std::ignore, fx) = lbfgs.minimize(f, g, x0);
         fmean += fx / 1000.0;
     }
 
-    CPPUNIT_ASSERT_DOUBLES_EQUAL(0.0, fmean, 5e-3);
+    BOOST_REQUIRE_CLOSE_ABSOLUTE(0.0, fmean, 5e-3);
 }
 
-void CLbfgsTest::testSingularHessian() {
+BOOST_AUTO_TEST_CASE(testSingularHessian) {
 
     // Test we converge to the global minimum of a convex function when the Hessian
     // is mostly singular.
@@ -150,14 +153,14 @@ void CLbfgsTest::testSingularHessian() {
         eps.setZero();
         for (std::size_t j = 0; j < 10; ++j) {
             eps(j) = 0.2;
-            CPPUNIT_ASSERT(f(x - eps) > fx);
-            CPPUNIT_ASSERT(f(x + eps) > fx);
+            BOOST_TEST_REQUIRE(f(x - eps) > fx);
+            BOOST_TEST_REQUIRE(f(x + eps) > fx);
             eps(j) = 0.0;
         }
     }
 }
 
-void CLbfgsTest::testConstrainedMinimize() {
+BOOST_AUTO_TEST_CASE(testConstrainedMinimize) {
 
     // Check convergence to the minimum of a quadtratic form for a variety of
     // matrix conditions and start positions.
@@ -215,24 +218,13 @@ void CLbfgsTest::testConstrainedMinimize() {
         double fx;
         std::tie(x, fx) = lbfgs.constrainedMinimize(f, g, a, b, x0, 0.2);
 
-        CPPUNIT_ASSERT_EQUAL(fx, static_cast<double>(f(x)));
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(f(xmin), fx, 1e-3);
+        BOOST_REQUIRE_EQUAL(fx, static_cast<double>(f(x)));
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(static_cast<double>(f(xmin)), fx, 1e-3);
 
         ferror += std::fabs(fx - f(xmin)) / 100.0;
     }
 
-    CPPUNIT_ASSERT_DOUBLES_EQUAL(0.0, ferror, 1e-5);
+    BOOST_REQUIRE_CLOSE_ABSOLUTE(0.0, ferror, 1e-5);
 }
 
-CppUnit::Test* CLbfgsTest::suite() {
-    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CLbfgsTest");
-
-    suiteOfTests->addTest(new CppUnit::TestCaller<CLbfgsTest>(
-        "CLbfgsTest::testQuadtratic", &CLbfgsTest::testQuadtratic));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CLbfgsTest>(
-        "CLbfgsTest::testSingularHessian", &CLbfgsTest::testSingularHessian));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CLbfgsTest>(
-        "CLbfgsTest::testConstrainedMinimize", &CLbfgsTest::testConstrainedMinimize));
-
-    return suiteOfTests;
-}
+BOOST_AUTO_TEST_SUITE_END()

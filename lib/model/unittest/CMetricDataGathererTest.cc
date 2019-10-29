@@ -4,8 +4,6 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
-#include "CMetricDataGathererTest.h"
-
 #include <core/CContainerPrinter.h>
 #include <core/CLogger.h>
 #include <core/CRapidXmlParser.h>
@@ -23,10 +21,14 @@
 #include <model/CResourceMonitor.h>
 #include <model/CSearchKey.h>
 
+#include <test/BoostTestCloseAbsolute.h>
 #include <test/CRandomNumbers.h>
 
 #include <boost/optional.hpp>
 #include <boost/range.hpp>
+#include <boost/test/unit_test.hpp>
+
+BOOST_AUTO_TEST_SUITE(CMetricDataGathererTest)
 
 using namespace ml;
 using namespace model;
@@ -176,14 +178,14 @@ void testPersistence(const SModelParams& params, const CDataGatherer& origGather
 
     // Restore the XML into a new filter
     core::CRapidXmlParser parser;
-    CPPUNIT_ASSERT(parser.parseStringIgnoreCdata(origXml));
+    BOOST_TEST_REQUIRE(parser.parseStringIgnoreCdata(origXml));
     core::CRapidXmlStateRestoreTraverser traverser(parser);
 
     CDataGatherer restoredGatherer(model_t::E_Metric, model_t::E_None, params,
                                    EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
                                    EMPTY_STRING, EMPTY_STRING, {}, KEY, traverser);
 
-    CPPUNIT_ASSERT_EQUAL(origGatherer.checksum(), restoredGatherer.checksum());
+    BOOST_REQUIRE_EQUAL(origGatherer.checksum(), restoredGatherer.checksum());
 
     // The XML representation of the new filter should be the
     // same as the original
@@ -193,11 +195,16 @@ void testPersistence(const SModelParams& params, const CDataGatherer& origGather
         restoredGatherer.acceptPersistInserter(inserter);
         inserter.toXml(newXml);
     }
-    CPPUNIT_ASSERT_EQUAL(origXml, newXml);
+    BOOST_REQUIRE_EQUAL(origXml, newXml);
 }
 }
 
-void CMetricDataGathererTest::singleSeriesTests() {
+class CTestFixture {
+protected:
+    CResourceMonitor m_ResourceMonitor;
+};
+
+BOOST_FIXTURE_TEST_CASE(testSingleSeries, CTestFixture) {
     // Test that the various statistics come back as we suspect.
 
     const core_t::TTime startTime = 0;
@@ -224,22 +231,22 @@ void CMetricDataGathererTest::singleSeriesTests() {
         CDataGatherer gatherer(model_t::E_Metric, model_t::E_None, params,
                                EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
                                EMPTY_STRING, {}, KEY, features, startTime, 2u);
-        CPPUNIT_ASSERT(!gatherer.isPopulation());
-        CPPUNIT_ASSERT_EQUAL(std::size_t(0), addPerson("p", gatherer, m_ResourceMonitor));
+        BOOST_TEST_REQUIRE(!gatherer.isPopulation());
+        BOOST_REQUIRE_EQUAL(std::size_t(0), addPerson("p", gatherer, m_ResourceMonitor));
 
-        CPPUNIT_ASSERT_EQUAL(std::size_t(4), gatherer.numberFeatures());
+        BOOST_REQUIRE_EQUAL(std::size_t(4), gatherer.numberFeatures());
         for (std::size_t i = 0u; i < 4; ++i) {
-            CPPUNIT_ASSERT_EQUAL(features[i], gatherer.feature(i));
+            BOOST_REQUIRE_EQUAL(features[i], gatherer.feature(i));
         }
 
-        CPPUNIT_ASSERT_EQUAL(std::size_t(1), gatherer.numberActivePeople());
-        CPPUNIT_ASSERT_EQUAL(std::size_t(1), gatherer.numberByFieldValues());
-        CPPUNIT_ASSERT_EQUAL(std::string("p"), gatherer.personName(0));
-        CPPUNIT_ASSERT_EQUAL(std::string("-"), gatherer.personName(1));
+        BOOST_REQUIRE_EQUAL(std::size_t(1), gatherer.numberActivePeople());
+        BOOST_REQUIRE_EQUAL(std::size_t(1), gatherer.numberByFieldValues());
+        BOOST_REQUIRE_EQUAL(std::string("p"), gatherer.personName(0));
+        BOOST_REQUIRE_EQUAL(std::string("-"), gatherer.personName(1));
         std::size_t pid;
-        CPPUNIT_ASSERT(gatherer.personId("p", pid));
-        CPPUNIT_ASSERT_EQUAL(std::size_t(0), pid);
-        CPPUNIT_ASSERT(!gatherer.personId("a.n.other p", pid));
+        BOOST_TEST_REQUIRE(gatherer.personId("p", pid));
+        BOOST_REQUIRE_EQUAL(std::size_t(0), pid);
+        BOOST_TEST_REQUIRE(!gatherer.personId("a.n.other p", pid));
 
         {
             addArrival(gatherer, m_ResourceMonitor, bucket1[0].first, "p",
@@ -247,18 +254,18 @@ void CMetricDataGathererTest::singleSeriesTests() {
             TFeatureSizeFeatureDataPrVecPrVec featureData;
             gatherer.featureData(startTime, bucketLength, featureData);
             LOG_DEBUG(<< "featureData = " << core::CContainerPrinter::print(featureData));
-            CPPUNIT_ASSERT_EQUAL(
+            BOOST_REQUIRE_EQUAL(
                 1.0, featureData[0].second[0].second.s_BucketValue->value()[0]);
-            CPPUNIT_ASSERT_EQUAL(
+            BOOST_REQUIRE_EQUAL(
                 1.0, featureData[1].second[0].second.s_BucketValue->value()[0]);
-            CPPUNIT_ASSERT_EQUAL(
+            BOOST_REQUIRE_EQUAL(
                 1.0, featureData[2].second[0].second.s_BucketValue->value()[0]);
-            CPPUNIT_ASSERT_EQUAL(
+            BOOST_REQUIRE_EQUAL(
                 1.0, featureData[3].second[0].second.s_BucketValue->value()[0]);
-            CPPUNIT_ASSERT_EQUAL(true, featureData[0].second[0].second.s_IsInteger);
-            CPPUNIT_ASSERT_EQUAL(true, featureData[1].second[0].second.s_IsInteger);
-            CPPUNIT_ASSERT_EQUAL(true, featureData[2].second[0].second.s_IsInteger);
-            CPPUNIT_ASSERT_EQUAL(true, featureData[3].second[0].second.s_IsInteger);
+            BOOST_REQUIRE_EQUAL(true, featureData[0].second[0].second.s_IsInteger);
+            BOOST_REQUIRE_EQUAL(true, featureData[1].second[0].second.s_IsInteger);
+            BOOST_REQUIRE_EQUAL(true, featureData[2].second[0].second.s_IsInteger);
+            BOOST_REQUIRE_EQUAL(true, featureData[3].second[0].second.s_IsInteger);
         }
 
         for (std::size_t i = 1; i < boost::size(bucket1); ++i) {
@@ -271,31 +278,31 @@ void CMetricDataGathererTest::singleSeriesTests() {
             gatherer.featureData(core_t::TTime(startTime + bucketLength - 1),
                                  bucketLength, featureData);
             LOG_DEBUG(<< "featureData = " << core::CContainerPrinter::print(featureData));
-            CPPUNIT_ASSERT(!featureData.empty());
-            CPPUNIT_ASSERT_EQUAL(
+            BOOST_TEST_REQUIRE(!featureData.empty());
+            BOOST_REQUIRE_EQUAL(
                 1.5, featureData[0].second[0].second.s_BucketValue->value()[0]);
-            CPPUNIT_ASSERT_EQUAL(
+            BOOST_REQUIRE_EQUAL(
                 0.9, featureData[1].second[0].second.s_BucketValue->value()[0]);
-            CPPUNIT_ASSERT_EQUAL(
+            BOOST_REQUIRE_EQUAL(
                 2.1, featureData[2].second[0].second.s_BucketValue->value()[0]);
-            CPPUNIT_ASSERT_EQUAL(
+            BOOST_REQUIRE_EQUAL(
                 9.0, featureData[3].second[0].second.s_BucketValue->value()[0]);
-            CPPUNIT_ASSERT_EQUAL(false, featureData[0].second[0].second.s_IsInteger);
-            CPPUNIT_ASSERT_EQUAL(false, featureData[1].second[0].second.s_IsInteger);
-            CPPUNIT_ASSERT_EQUAL(false, featureData[2].second[0].second.s_IsInteger);
-            CPPUNIT_ASSERT_EQUAL(true, featureData[3].second[0].second.s_IsInteger);
-            CPPUNIT_ASSERT_EQUAL(
+            BOOST_REQUIRE_EQUAL(false, featureData[0].second[0].second.s_IsInteger);
+            BOOST_REQUIRE_EQUAL(false, featureData[1].second[0].second.s_IsInteger);
+            BOOST_REQUIRE_EQUAL(false, featureData[2].second[0].second.s_IsInteger);
+            BOOST_REQUIRE_EQUAL(true, featureData[3].second[0].second.s_IsInteger);
+            BOOST_REQUIRE_EQUAL(
                 std::string("[(8 [1.55] 1 2), (185 [1.2] 1 2), (475 [1.75] 1 2)]"),
                 core::CContainerPrinter::print(featureData[0].second[0].second.s_Samples));
-            CPPUNIT_ASSERT_EQUAL(
+            BOOST_REQUIRE_EQUAL(
                 std::string("[(8 [1] 1 2), (185 [0.9] 1 2), (475 [1.5] 1 2)]"),
                 core::CContainerPrinter::print(featureData[1].second[0].second.s_Samples));
-            CPPUNIT_ASSERT_EQUAL(
+            BOOST_REQUIRE_EQUAL(
                 std::string("[(8 [2.1] 1 2), (185 [1.5] 1 2), (475 [2] 1 2)]"),
                 core::CContainerPrinter::print(featureData[2].second[0].second.s_Samples));
-            CPPUNIT_ASSERT_EQUAL(std::string("[(0 [9] 1 6)]"),
-                                 core::CContainerPrinter::print(
-                                     featureData[3].second[0].second.s_Samples));
+            BOOST_REQUIRE_EQUAL(std::string("[(0 [9] 1 6)]"),
+                                core::CContainerPrinter::print(
+                                    featureData[3].second[0].second.s_Samples));
             testPersistence(params, gatherer);
         }
 
@@ -307,28 +314,28 @@ void CMetricDataGathererTest::singleSeriesTests() {
             TFeatureSizeFeatureDataPrVecPrVec featureData;
             gatherer.sampleNow(startTime + bucketLength);
             gatherer.featureData(startTime + bucketLength, bucketLength, featureData);
-            CPPUNIT_ASSERT(!featureData.empty());
-            CPPUNIT_ASSERT_EQUAL(
+            BOOST_TEST_REQUIRE(!featureData.empty());
+            BOOST_REQUIRE_EQUAL(
                 2.0, featureData[0].second[0].second.s_BucketValue->value()[0]);
-            CPPUNIT_ASSERT_EQUAL(
+            BOOST_REQUIRE_EQUAL(
                 1.8, featureData[1].second[0].second.s_BucketValue->value()[0]);
-            CPPUNIT_ASSERT_EQUAL(
+            BOOST_REQUIRE_EQUAL(
                 2.2, featureData[2].second[0].second.s_BucketValue->value()[0]);
-            CPPUNIT_ASSERT_EQUAL(
+            BOOST_REQUIRE_EQUAL(
                 6.0, featureData[3].second[0].second.s_BucketValue->value()[0]);
-            CPPUNIT_ASSERT_EQUAL(true, featureData[3].second[0].second.s_IsInteger);
-            CPPUNIT_ASSERT_EQUAL(std::string("[(700 [2.1] 1 2)]"),
-                                 core::CContainerPrinter::print(
-                                     featureData[0].second[0].second.s_Samples));
-            CPPUNIT_ASSERT_EQUAL(std::string("[(700 [2] 1 2)]"),
-                                 core::CContainerPrinter::print(
-                                     featureData[1].second[0].second.s_Samples));
-            CPPUNIT_ASSERT_EQUAL(std::string("[(700 [2.2] 1 2)]"),
-                                 core::CContainerPrinter::print(
-                                     featureData[2].second[0].second.s_Samples));
-            CPPUNIT_ASSERT_EQUAL(std::string("[(600 [6] 1 3)]"),
-                                 core::CContainerPrinter::print(
-                                     featureData[3].second[0].second.s_Samples));
+            BOOST_REQUIRE_EQUAL(true, featureData[3].second[0].second.s_IsInteger);
+            BOOST_REQUIRE_EQUAL(std::string("[(700 [2.1] 1 2)]"),
+                                core::CContainerPrinter::print(
+                                    featureData[0].second[0].second.s_Samples));
+            BOOST_REQUIRE_EQUAL(std::string("[(700 [2] 1 2)]"),
+                                core::CContainerPrinter::print(
+                                    featureData[1].second[0].second.s_Samples));
+            BOOST_REQUIRE_EQUAL(std::string("[(700 [2.2] 1 2)]"),
+                                core::CContainerPrinter::print(
+                                    featureData[2].second[0].second.s_Samples));
+            BOOST_REQUIRE_EQUAL(std::string("[(600 [6] 1 3)]"),
+                                core::CContainerPrinter::print(
+                                    featureData[3].second[0].second.s_Samples));
             testPersistence(params, gatherer);
         }
     }
@@ -344,7 +351,7 @@ void CMetricDataGathererTest::singleSeriesTests() {
         CDataGatherer gatherer(model_t::E_Metric, model_t::E_None, params,
                                EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
                                EMPTY_STRING, {}, KEY, features, startTime, 0);
-        CPPUNIT_ASSERT_EQUAL(std::size_t(0), addPerson("p", gatherer, m_ResourceMonitor));
+        BOOST_REQUIRE_EQUAL(std::size_t(0), addPerson("p", gatherer, m_ResourceMonitor));
 
         TTimeDoublePrVecVec buckets;
         buckets.push_back(TTimeDoublePrVec(std::begin(bucket1), std::end(bucket1)));
@@ -363,41 +370,39 @@ void CMetricDataGathererTest::singleSeriesTests() {
             }
         }
 
-        CPPUNIT_ASSERT_EQUAL(4.0, gatherer.effectiveSampleCount(0));
+        BOOST_REQUIRE_EQUAL(4.0, gatherer.effectiveSampleCount(0));
         TFeatureSizeFeatureDataPrVecPrVec featureData;
         core_t::TTime featureBucketStart = core_t::TTime(startTime + 4 * bucketLength);
         gatherer.sampleNow(featureBucketStart);
         gatherer.featureData(featureBucketStart, bucketLength, featureData);
-        CPPUNIT_ASSERT(!featureData.empty());
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(
+        BOOST_TEST_REQUIRE(!featureData.empty());
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(
             3.5, featureData[0].second[0].second.s_BucketValue->value()[0], 1e-10);
-        CPPUNIT_ASSERT_EQUAL(
-            3.2, featureData[1].second[0].second.s_BucketValue->value()[0]);
-        CPPUNIT_ASSERT_EQUAL(
-            3.8, featureData[2].second[0].second.s_BucketValue->value()[0]);
-        CPPUNIT_ASSERT_EQUAL(
+        BOOST_REQUIRE_EQUAL(3.2, featureData[1].second[0].second.s_BucketValue->value()[0]);
+        BOOST_REQUIRE_EQUAL(3.8, featureData[2].second[0].second.s_BucketValue->value()[0]);
+        BOOST_REQUIRE_EQUAL(
             10.5, featureData[3].second[0].second.s_BucketValue->value()[0]);
-        CPPUNIT_ASSERT_EQUAL(false, featureData[0].second[0].second.s_IsInteger);
-        CPPUNIT_ASSERT_EQUAL(false, featureData[1].second[0].second.s_IsInteger);
-        CPPUNIT_ASSERT_EQUAL(false, featureData[2].second[0].second.s_IsInteger);
-        CPPUNIT_ASSERT_EQUAL(false, featureData[3].second[0].second.s_IsInteger);
+        BOOST_REQUIRE_EQUAL(false, featureData[0].second[0].second.s_IsInteger);
+        BOOST_REQUIRE_EQUAL(false, featureData[1].second[0].second.s_IsInteger);
+        BOOST_REQUIRE_EQUAL(false, featureData[2].second[0].second.s_IsInteger);
+        BOOST_REQUIRE_EQUAL(false, featureData[3].second[0].second.s_IsInteger);
 
-        CPPUNIT_ASSERT_EQUAL(
+        BOOST_REQUIRE_EQUAL(
             std::string("[(2323 [3.5] 1 4)]"),
             core::CContainerPrinter::print(featureData[0].second[0].second.s_Samples));
-        CPPUNIT_ASSERT_EQUAL(
+        BOOST_REQUIRE_EQUAL(
             std::string("[(2323 [3.2] 1 4)]"),
             core::CContainerPrinter::print(featureData[1].second[0].second.s_Samples));
-        CPPUNIT_ASSERT_EQUAL(
+        BOOST_REQUIRE_EQUAL(
             std::string("[(2323 [3.8] 1 4)]"),
             core::CContainerPrinter::print(featureData[2].second[0].second.s_Samples));
-        CPPUNIT_ASSERT_EQUAL(
+        BOOST_REQUIRE_EQUAL(
             std::string("[(2400 [10.5] 1 3)]"),
             core::CContainerPrinter::print(featureData[3].second[0].second.s_Samples));
     }
 }
 
-void CMetricDataGathererTest::multipleSeriesTests() {
+BOOST_FIXTURE_TEST_CASE(testMultipleSeries, CTestFixture) {
     // Test that the various statistics come back as we suspect
     // for multiple people.
 
@@ -413,8 +418,8 @@ void CMetricDataGathererTest::multipleSeriesTests() {
     CDataGatherer gatherer(model_t::E_Metric, model_t::E_None, params,
                            EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
                            EMPTY_STRING, {}, KEY, features, startTime, 0);
-    CPPUNIT_ASSERT_EQUAL(std::size_t(0), addPerson("p1", gatherer, m_ResourceMonitor));
-    CPPUNIT_ASSERT_EQUAL(std::size_t(1), addPerson("p2", gatherer, m_ResourceMonitor));
+    BOOST_REQUIRE_EQUAL(std::size_t(0), addPerson("p1", gatherer, m_ResourceMonitor));
+    BOOST_REQUIRE_EQUAL(std::size_t(1), addPerson("p2", gatherer, m_ResourceMonitor));
 
     TTimeDoublePr bucket11[] = {
         TTimeDoublePr(1, 1.0),   TTimeDoublePr(15, 2.1),
@@ -476,68 +481,68 @@ void CMetricDataGathererTest::multipleSeriesTests() {
         }
     }
 
-    CPPUNIT_ASSERT_DOUBLES_EQUAL(4.0, gatherer.effectiveSampleCount(0), 1e-10);
-    CPPUNIT_ASSERT_DOUBLES_EQUAL(6.0, gatherer.effectiveSampleCount(1), 1e-10);
+    BOOST_REQUIRE_CLOSE_ABSOLUTE(4.0, gatherer.effectiveSampleCount(0), 1e-10);
+    BOOST_REQUIRE_CLOSE_ABSOLUTE(6.0, gatherer.effectiveSampleCount(1), 1e-10);
 
     TSizeUInt64PrVec nonZeroCounts;
     gatherer.personNonZeroCounts(startTime + 4 * bucketLength, nonZeroCounts);
-    CPPUNIT_ASSERT_EQUAL(std::string("[(0, 3), (1, 6)]"),
-                         core::CContainerPrinter::print(nonZeroCounts));
+    BOOST_REQUIRE_EQUAL(std::string("[(0, 3), (1, 6)]"),
+                        core::CContainerPrinter::print(nonZeroCounts));
 
     TFeatureSizeFeatureDataPrVecPrVec featureData;
     core_t::TTime featureBucketStart = core_t::TTime(startTime + 4 * bucketLength);
     gatherer.sampleNow(featureBucketStart);
     gatherer.featureData(featureBucketStart, bucketLength, featureData);
 
-    CPPUNIT_ASSERT(!featureData.empty());
-    CPPUNIT_ASSERT_EQUAL(std::size_t(2), featureData[0].second.size());
-    CPPUNIT_ASSERT_EQUAL(std::size_t(2), featureData[1].second.size());
-    CPPUNIT_ASSERT_EQUAL(std::size_t(2), featureData[2].second.size());
-    CPPUNIT_ASSERT_EQUAL(std::size_t(2), featureData[3].second.size());
+    BOOST_TEST_REQUIRE(!featureData.empty());
+    BOOST_REQUIRE_EQUAL(std::size_t(2), featureData[0].second.size());
+    BOOST_REQUIRE_EQUAL(std::size_t(2), featureData[1].second.size());
+    BOOST_REQUIRE_EQUAL(std::size_t(2), featureData[2].second.size());
+    BOOST_REQUIRE_EQUAL(std::size_t(2), featureData[3].second.size());
 
-    CPPUNIT_ASSERT_DOUBLES_EQUAL(
+    BOOST_REQUIRE_CLOSE_ABSOLUTE(
         3.5, featureData[0].second[0].second.s_BucketValue->value()[0], 1e-10);
-    CPPUNIT_ASSERT_EQUAL(3.2, featureData[1].second[0].second.s_BucketValue->value()[0]);
-    CPPUNIT_ASSERT_EQUAL(3.8, featureData[2].second[0].second.s_BucketValue->value()[0]);
-    CPPUNIT_ASSERT_EQUAL(10.5, featureData[3].second[0].second.s_BucketValue->value()[0]);
-    CPPUNIT_ASSERT_EQUAL(false, featureData[0].second[0].second.s_IsInteger);
-    CPPUNIT_ASSERT_EQUAL(false, featureData[1].second[0].second.s_IsInteger);
-    CPPUNIT_ASSERT_EQUAL(false, featureData[2].second[0].second.s_IsInteger);
-    CPPUNIT_ASSERT_EQUAL(false, featureData[3].second[0].second.s_IsInteger);
+    BOOST_REQUIRE_EQUAL(3.2, featureData[1].second[0].second.s_BucketValue->value()[0]);
+    BOOST_REQUIRE_EQUAL(3.8, featureData[2].second[0].second.s_BucketValue->value()[0]);
+    BOOST_REQUIRE_EQUAL(10.5, featureData[3].second[0].second.s_BucketValue->value()[0]);
+    BOOST_REQUIRE_EQUAL(false, featureData[0].second[0].second.s_IsInteger);
+    BOOST_REQUIRE_EQUAL(false, featureData[1].second[0].second.s_IsInteger);
+    BOOST_REQUIRE_EQUAL(false, featureData[2].second[0].second.s_IsInteger);
+    BOOST_REQUIRE_EQUAL(false, featureData[3].second[0].second.s_IsInteger);
 
-    CPPUNIT_ASSERT_EQUAL(
+    BOOST_REQUIRE_EQUAL(
         std::string("[(2323 [3.5] 1 4)]"),
         core::CContainerPrinter::print(featureData[0].second[0].second.s_Samples));
-    CPPUNIT_ASSERT_EQUAL(
+    BOOST_REQUIRE_EQUAL(
         std::string("[(2323 [3.2] 1 4)]"),
         core::CContainerPrinter::print(featureData[1].second[0].second.s_Samples));
-    CPPUNIT_ASSERT_EQUAL(
+    BOOST_REQUIRE_EQUAL(
         std::string("[(2323 [3.8] 1 4)]"),
         core::CContainerPrinter::print(featureData[2].second[0].second.s_Samples));
-    CPPUNIT_ASSERT_EQUAL(
+    BOOST_REQUIRE_EQUAL(
         std::string("[(2400 [10.5] 1 3)]"),
         core::CContainerPrinter::print(featureData[3].second[0].second.s_Samples));
 
-    CPPUNIT_ASSERT_DOUBLES_EQUAL(
+    BOOST_REQUIRE_CLOSE_ABSOLUTE(
         3.6, featureData[0].second[1].second.s_BucketValue->value()[0], 1e-10);
-    CPPUNIT_ASSERT_EQUAL(2.9, featureData[1].second[1].second.s_BucketValue->value()[0]);
-    CPPUNIT_ASSERT_EQUAL(4.1, featureData[2].second[1].second.s_BucketValue->value()[0]);
-    CPPUNIT_ASSERT_EQUAL(21.6, featureData[3].second[1].second.s_BucketValue->value()[0]);
-    CPPUNIT_ASSERT_EQUAL(false, featureData[0].second[1].second.s_IsInteger);
-    CPPUNIT_ASSERT_EQUAL(false, featureData[1].second[1].second.s_IsInteger);
-    CPPUNIT_ASSERT_EQUAL(false, featureData[2].second[1].second.s_IsInteger);
-    CPPUNIT_ASSERT_EQUAL(false, featureData[3].second[1].second.s_IsInteger);
+    BOOST_REQUIRE_EQUAL(2.9, featureData[1].second[1].second.s_BucketValue->value()[0]);
+    BOOST_REQUIRE_EQUAL(4.1, featureData[2].second[1].second.s_BucketValue->value()[0]);
+    BOOST_REQUIRE_EQUAL(21.6, featureData[3].second[1].second.s_BucketValue->value()[0]);
+    BOOST_REQUIRE_EQUAL(false, featureData[0].second[1].second.s_IsInteger);
+    BOOST_REQUIRE_EQUAL(false, featureData[1].second[1].second.s_IsInteger);
+    BOOST_REQUIRE_EQUAL(false, featureData[2].second[1].second.s_IsInteger);
+    BOOST_REQUIRE_EQUAL(false, featureData[3].second[1].second.s_IsInteger);
 
-    CPPUNIT_ASSERT_EQUAL(
+    BOOST_REQUIRE_EQUAL(
         std::string("[(2290 [3.45] 1 6)]"),
         core::CContainerPrinter::print(featureData[0].second[1].second.s_Samples));
-    CPPUNIT_ASSERT_EQUAL(
+    BOOST_REQUIRE_EQUAL(
         std::string("[(2290 [2.9] 1 6)]"),
         core::CContainerPrinter::print(featureData[1].second[1].second.s_Samples));
-    CPPUNIT_ASSERT_EQUAL(
+    BOOST_REQUIRE_EQUAL(
         std::string("[(2290 [3.9] 1 6)]"),
         core::CContainerPrinter::print(featureData[2].second[1].second.s_Samples));
-    CPPUNIT_ASSERT_EQUAL(
+    BOOST_REQUIRE_EQUAL(
         std::string("[(2400 [21.6] 1 6)]"),
         core::CContainerPrinter::print(featureData[3].second[1].second.s_Samples));
     testPersistence(params, gatherer);
@@ -547,56 +552,56 @@ void CMetricDataGathererTest::multipleSeriesTests() {
     peopleToRemove.push_back(0);
     gatherer.recyclePeople(peopleToRemove);
 
-    CPPUNIT_ASSERT_EQUAL(std::size_t(1), gatherer.numberActivePeople());
-    CPPUNIT_ASSERT_EQUAL(std::size_t(1), gatherer.numberByFieldValues());
-    CPPUNIT_ASSERT_EQUAL(std::string("-"), gatherer.personName(0));
-    CPPUNIT_ASSERT_EQUAL(std::string("p2"), gatherer.personName(1));
+    BOOST_REQUIRE_EQUAL(std::size_t(1), gatherer.numberActivePeople());
+    BOOST_REQUIRE_EQUAL(std::size_t(1), gatherer.numberByFieldValues());
+    BOOST_REQUIRE_EQUAL(std::string("-"), gatherer.personName(0));
+    BOOST_REQUIRE_EQUAL(std::string("p2"), gatherer.personName(1));
     std::size_t pid;
-    CPPUNIT_ASSERT(gatherer.personId("p2", pid));
-    CPPUNIT_ASSERT_EQUAL(std::size_t(1), pid);
-    CPPUNIT_ASSERT(!gatherer.personId("p1", pid));
+    BOOST_TEST_REQUIRE(gatherer.personId("p2", pid));
+    BOOST_REQUIRE_EQUAL(std::size_t(1), pid);
+    BOOST_TEST_REQUIRE(!gatherer.personId("p1", pid));
 
-    CPPUNIT_ASSERT_EQUAL(std::size_t(0), gatherer.numberActiveAttributes());
-    CPPUNIT_ASSERT_EQUAL(std::size_t(0), gatherer.numberOverFieldValues());
+    BOOST_REQUIRE_EQUAL(std::size_t(0), gatherer.numberActiveAttributes());
+    BOOST_REQUIRE_EQUAL(std::size_t(0), gatherer.numberOverFieldValues());
 
     gatherer.personNonZeroCounts(startTime + 4 * bucketLength, nonZeroCounts);
-    CPPUNIT_ASSERT_EQUAL(std::string("[(1, 6)]"),
-                         core::CContainerPrinter::print(nonZeroCounts));
+    BOOST_REQUIRE_EQUAL(std::string("[(1, 6)]"),
+                        core::CContainerPrinter::print(nonZeroCounts));
 
-    CPPUNIT_ASSERT_DOUBLES_EQUAL(6.0, gatherer.effectiveSampleCount(1), 1e-10);
+    BOOST_REQUIRE_CLOSE_ABSOLUTE(6.0, gatherer.effectiveSampleCount(1), 1e-10);
 
     gatherer.featureData(core_t::TTime(startTime + 4 * bucketLength), bucketLength, featureData);
 
-    CPPUNIT_ASSERT(!featureData.empty());
-    CPPUNIT_ASSERT_EQUAL(std::size_t(1), featureData[0].second.size());
-    CPPUNIT_ASSERT_EQUAL(std::size_t(1), featureData[1].second.size());
-    CPPUNIT_ASSERT_EQUAL(std::size_t(1), featureData[2].second.size());
+    BOOST_TEST_REQUIRE(!featureData.empty());
+    BOOST_REQUIRE_EQUAL(std::size_t(1), featureData[0].second.size());
+    BOOST_REQUIRE_EQUAL(std::size_t(1), featureData[1].second.size());
+    BOOST_REQUIRE_EQUAL(std::size_t(1), featureData[2].second.size());
 
-    CPPUNIT_ASSERT_DOUBLES_EQUAL(
+    BOOST_REQUIRE_CLOSE_ABSOLUTE(
         3.6, featureData[0].second[0].second.s_BucketValue->value()[0], 1e-10);
-    CPPUNIT_ASSERT_EQUAL(2.9, featureData[1].second[0].second.s_BucketValue->value()[0]);
-    CPPUNIT_ASSERT_EQUAL(4.1, featureData[2].second[0].second.s_BucketValue->value()[0]);
-    CPPUNIT_ASSERT_EQUAL(21.6, featureData[3].second[0].second.s_BucketValue->value()[0]);
-    CPPUNIT_ASSERT_EQUAL(false, featureData[0].second[0].second.s_IsInteger);
-    CPPUNIT_ASSERT_EQUAL(false, featureData[1].second[0].second.s_IsInteger);
-    CPPUNIT_ASSERT_EQUAL(false, featureData[2].second[0].second.s_IsInteger);
-    CPPUNIT_ASSERT_EQUAL(false, featureData[3].second[0].second.s_IsInteger);
+    BOOST_REQUIRE_EQUAL(2.9, featureData[1].second[0].second.s_BucketValue->value()[0]);
+    BOOST_REQUIRE_EQUAL(4.1, featureData[2].second[0].second.s_BucketValue->value()[0]);
+    BOOST_REQUIRE_EQUAL(21.6, featureData[3].second[0].second.s_BucketValue->value()[0]);
+    BOOST_REQUIRE_EQUAL(false, featureData[0].second[0].second.s_IsInteger);
+    BOOST_REQUIRE_EQUAL(false, featureData[1].second[0].second.s_IsInteger);
+    BOOST_REQUIRE_EQUAL(false, featureData[2].second[0].second.s_IsInteger);
+    BOOST_REQUIRE_EQUAL(false, featureData[3].second[0].second.s_IsInteger);
 
-    CPPUNIT_ASSERT_EQUAL(
+    BOOST_REQUIRE_EQUAL(
         std::string("[(2290 [3.45] 1 6)]"),
         core::CContainerPrinter::print(featureData[0].second[0].second.s_Samples));
-    CPPUNIT_ASSERT_EQUAL(
+    BOOST_REQUIRE_EQUAL(
         std::string("[(2290 [2.9] 1 6)]"),
         core::CContainerPrinter::print(featureData[1].second[0].second.s_Samples));
-    CPPUNIT_ASSERT_EQUAL(
+    BOOST_REQUIRE_EQUAL(
         std::string("[(2290 [3.9] 1 6)]"),
         core::CContainerPrinter::print(featureData[2].second[0].second.s_Samples));
-    CPPUNIT_ASSERT_EQUAL(
+    BOOST_REQUIRE_EQUAL(
         std::string("[(2400 [21.6] 1 6)]"),
         core::CContainerPrinter::print(featureData[3].second[0].second.s_Samples));
 }
 
-void CMetricDataGathererTest::testSampleCount() {
+BOOST_FIXTURE_TEST_CASE(testSampleCount, CTestFixture) {
     // Test that we set sensible sample counts for each person.
 
     // Person 1 has constant update rate of 4 values per bucket.
@@ -653,8 +658,8 @@ void CMetricDataGathererTest::testSampleCount() {
 
     LOG_DEBUG(<< "p1 sample count = " << gatherer.effectiveSampleCount(pid1));
     LOG_DEBUG(<< "p2 sample count = " << gatherer.effectiveSampleCount(pid2));
-    CPPUNIT_ASSERT_DOUBLES_EQUAL(6.0, gatherer.effectiveSampleCount(pid1), 1e-5);
-    CPPUNIT_ASSERT_DOUBLES_EQUAL(2.0, gatherer.effectiveSampleCount(pid2), 1.0 + 1e-5);
+    BOOST_REQUIRE_CLOSE_ABSOLUTE(6.0, gatherer.effectiveSampleCount(pid1), 1e-5);
+    BOOST_REQUIRE_CLOSE_ABSOLUTE(2.0, gatherer.effectiveSampleCount(pid2), 1.0 + 1e-5);
 
     for (std::size_t i = numberBuckets; i < 100; ++i) {
         gatherer.timeNow(startTime + i * bucketLength);
@@ -662,10 +667,10 @@ void CMetricDataGathererTest::testSampleCount() {
                    startTime + i * bucketLength + 10, "p1", 1.0);
     }
     LOG_DEBUG(<< "p1 sample count = " << gatherer.effectiveSampleCount(pid1));
-    CPPUNIT_ASSERT_DOUBLES_EQUAL(2.0, gatherer.effectiveSampleCount(pid1), 0.5);
+    BOOST_REQUIRE_CLOSE_ABSOLUTE(2.0, gatherer.effectiveSampleCount(pid1), 0.5);
 }
 
-void CMetricDataGathererTest::testRemovePeople() {
+BOOST_FIXTURE_TEST_CASE(testRemovePeople, CTestFixture) {
     // Test various combinations of removed people.
 
     const core_t::TTime startTime = 0;
@@ -680,14 +685,14 @@ void CMetricDataGathererTest::testRemovePeople() {
     CDataGatherer gatherer(model_t::E_Metric, model_t::E_None, params,
                            EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
                            EMPTY_STRING, {}, KEY, features, startTime, 0);
-    CPPUNIT_ASSERT_EQUAL(std::size_t(0), addPerson("p1", gatherer, m_ResourceMonitor));
-    CPPUNIT_ASSERT_EQUAL(std::size_t(1), addPerson("p2", gatherer, m_ResourceMonitor));
-    CPPUNIT_ASSERT_EQUAL(std::size_t(2), addPerson("p3", gatherer, m_ResourceMonitor));
-    CPPUNIT_ASSERT_EQUAL(std::size_t(3), addPerson("p4", gatherer, m_ResourceMonitor));
-    CPPUNIT_ASSERT_EQUAL(std::size_t(4), addPerson("p5", gatherer, m_ResourceMonitor));
-    CPPUNIT_ASSERT_EQUAL(std::size_t(5), addPerson("p6", gatherer, m_ResourceMonitor));
-    CPPUNIT_ASSERT_EQUAL(std::size_t(6), addPerson("p7", gatherer, m_ResourceMonitor));
-    CPPUNIT_ASSERT_EQUAL(std::size_t(7), addPerson("p8", gatherer, m_ResourceMonitor));
+    BOOST_REQUIRE_EQUAL(std::size_t(0), addPerson("p1", gatherer, m_ResourceMonitor));
+    BOOST_REQUIRE_EQUAL(std::size_t(1), addPerson("p2", gatherer, m_ResourceMonitor));
+    BOOST_REQUIRE_EQUAL(std::size_t(2), addPerson("p3", gatherer, m_ResourceMonitor));
+    BOOST_REQUIRE_EQUAL(std::size_t(3), addPerson("p4", gatherer, m_ResourceMonitor));
+    BOOST_REQUIRE_EQUAL(std::size_t(4), addPerson("p5", gatherer, m_ResourceMonitor));
+    BOOST_REQUIRE_EQUAL(std::size_t(5), addPerson("p6", gatherer, m_ResourceMonitor));
+    BOOST_REQUIRE_EQUAL(std::size_t(6), addPerson("p7", gatherer, m_ResourceMonitor));
+    BOOST_REQUIRE_EQUAL(std::size_t(7), addPerson("p8", gatherer, m_ResourceMonitor));
 
     core_t::TTime times[][8] = {
         {0, 0, 0, 0, 0, 0, 0, 0},
@@ -728,18 +733,18 @@ void CMetricDataGathererTest::testRemovePeople() {
                                        params, EMPTY_STRING, EMPTY_STRING,
                                        EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
                                        {}, KEY, features, startTime, 0);
-        CPPUNIT_ASSERT_EQUAL(std::size_t(0),
-                             addPerson("p3", expectedGatherer, m_ResourceMonitor));
-        CPPUNIT_ASSERT_EQUAL(std::size_t(1),
-                             addPerson("p4", expectedGatherer, m_ResourceMonitor));
-        CPPUNIT_ASSERT_EQUAL(std::size_t(2),
-                             addPerson("p5", expectedGatherer, m_ResourceMonitor));
-        CPPUNIT_ASSERT_EQUAL(std::size_t(3),
-                             addPerson("p6", expectedGatherer, m_ResourceMonitor));
-        CPPUNIT_ASSERT_EQUAL(std::size_t(4),
-                             addPerson("p7", expectedGatherer, m_ResourceMonitor));
-        CPPUNIT_ASSERT_EQUAL(std::size_t(5),
-                             addPerson("p8", expectedGatherer, m_ResourceMonitor));
+        BOOST_REQUIRE_EQUAL(std::size_t(0),
+                            addPerson("p3", expectedGatherer, m_ResourceMonitor));
+        BOOST_REQUIRE_EQUAL(std::size_t(1),
+                            addPerson("p4", expectedGatherer, m_ResourceMonitor));
+        BOOST_REQUIRE_EQUAL(std::size_t(2),
+                            addPerson("p5", expectedGatherer, m_ResourceMonitor));
+        BOOST_REQUIRE_EQUAL(std::size_t(3),
+                            addPerson("p6", expectedGatherer, m_ResourceMonitor));
+        BOOST_REQUIRE_EQUAL(std::size_t(4),
+                            addPerson("p7", expectedGatherer, m_ResourceMonitor));
+        BOOST_REQUIRE_EQUAL(std::size_t(5),
+                            addPerson("p8", expectedGatherer, m_ResourceMonitor));
 
         std::size_t people[] = {2, 3, 4, 5, 6, 7};
         for (std::size_t i = 0u; i < boost::size(people); ++i) {
@@ -754,7 +759,7 @@ void CMetricDataGathererTest::testRemovePeople() {
 
         LOG_DEBUG(<< "checksum          = " << gatherer.checksum());
         LOG_DEBUG(<< "expected checksum = " << expectedGatherer.checksum());
-        CPPUNIT_ASSERT_EQUAL(expectedGatherer.checksum(), gatherer.checksum());
+        BOOST_REQUIRE_EQUAL(expectedGatherer.checksum(), gatherer.checksum());
     }
     {
         TSizeVec peopleToRemove;
@@ -767,12 +772,12 @@ void CMetricDataGathererTest::testRemovePeople() {
                                        params, EMPTY_STRING, EMPTY_STRING,
                                        EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
                                        {}, KEY, features, startTime, 0);
-        CPPUNIT_ASSERT_EQUAL(std::size_t(0),
-                             addPerson("p3", expectedGatherer, m_ResourceMonitor));
-        CPPUNIT_ASSERT_EQUAL(std::size_t(1),
-                             addPerson("p6", expectedGatherer, m_ResourceMonitor));
-        CPPUNIT_ASSERT_EQUAL(std::size_t(2),
-                             addPerson("p7", expectedGatherer, m_ResourceMonitor));
+        BOOST_REQUIRE_EQUAL(std::size_t(0),
+                            addPerson("p3", expectedGatherer, m_ResourceMonitor));
+        BOOST_REQUIRE_EQUAL(std::size_t(1),
+                            addPerson("p6", expectedGatherer, m_ResourceMonitor));
+        BOOST_REQUIRE_EQUAL(std::size_t(2),
+                            addPerson("p7", expectedGatherer, m_ResourceMonitor));
 
         std::size_t people[] = {2, 5, 6};
         for (std::size_t i = 0u; i < boost::size(people); ++i) {
@@ -787,7 +792,7 @@ void CMetricDataGathererTest::testRemovePeople() {
 
         LOG_DEBUG(<< "checksum          = " << gatherer.checksum());
         LOG_DEBUG(<< "expected checksum = " << expectedGatherer.checksum());
-        CPPUNIT_ASSERT_EQUAL(expectedGatherer.checksum(), gatherer.checksum());
+        BOOST_REQUIRE_EQUAL(expectedGatherer.checksum(), gatherer.checksum());
     }
     {
         TSizeVec peopleToRemove;
@@ -803,7 +808,7 @@ void CMetricDataGathererTest::testRemovePeople() {
 
         LOG_DEBUG(<< "checksum          = " << gatherer.checksum());
         LOG_DEBUG(<< "expected checksum = " << expectedGatherer.checksum());
-        CPPUNIT_ASSERT_EQUAL(expectedGatherer.checksum(), gatherer.checksum());
+        BOOST_REQUIRE_EQUAL(expectedGatherer.checksum(), gatherer.checksum());
     }
 
     TSizeVec expectedRecycled;
@@ -813,11 +818,11 @@ void CMetricDataGathererTest::testRemovePeople() {
     LOG_DEBUG(<< "recycled          = "
               << core::CContainerPrinter::print(gatherer.recycledPersonIds()));
     LOG_DEBUG(<< "expected recycled = " << core::CContainerPrinter::print(expectedRecycled));
-    CPPUNIT_ASSERT_EQUAL(core::CContainerPrinter::print(expectedRecycled),
-                         core::CContainerPrinter::print(gatherer.recycledPersonIds()));
+    BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(expectedRecycled),
+                        core::CContainerPrinter::print(gatherer.recycledPersonIds()));
 }
 
-void CMetricDataGathererTest::testSum() {
+BOOST_FIXTURE_TEST_CASE(testSum, CTestFixture) {
     // Test sum and non-zero sum work as expected.
 
     const core_t::TTime bucketLength = 600;
@@ -832,7 +837,7 @@ void CMetricDataGathererTest::testSum() {
     CDataGatherer sum(model_t::E_Metric, model_t::E_None, params, EMPTY_STRING,
                       EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
                       {}, KEY, sumFeatures, startTime, 0);
-    CPPUNIT_ASSERT_EQUAL(std::size_t(0), addPerson("p1", sum, m_ResourceMonitor));
+    BOOST_REQUIRE_EQUAL(std::size_t(0), addPerson("p1", sum, m_ResourceMonitor));
 
     TFeatureVec nonZeroSumFeatures;
     nonZeroSumFeatures.push_back(model_t::E_IndividualNonNullSumByBucketAndPerson);
@@ -840,7 +845,7 @@ void CMetricDataGathererTest::testSum() {
     CDataGatherer nonZeroSum(model_t::E_Metric, model_t::E_None, params, EMPTY_STRING,
                              EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
                              {}, KEY, nonZeroSumFeatures, startTime, 0);
-    CPPUNIT_ASSERT_EQUAL(std::size_t(0), addPerson("p1", nonZeroSum, m_ResourceMonitor));
+    BOOST_REQUIRE_EQUAL(std::size_t(0), addPerson("p1", nonZeroSum, m_ResourceMonitor));
 
     core_t::TTime bucketStart = startTime;
     for (std::size_t i = 0u; i < boost::size(bucketCounts); ++i) {
@@ -868,16 +873,16 @@ void CMetricDataGathererTest::testSum() {
         {
             TFeatureSizeFeatureDataPrVecPrVec data;
             sum.featureData(bucketStart, bucketLength, data);
-            CPPUNIT_ASSERT_EQUAL(std::size_t(1), data.size());
+            BOOST_REQUIRE_EQUAL(std::size_t(1), data.size());
             for (std::size_t j = 0u; j < data.size(); ++j) {
                 const TSizeFeatureDataPrVec& featureData = data[j].second;
-                CPPUNIT_ASSERT_EQUAL(std::size_t(1), featureData.size());
-                CPPUNIT_ASSERT_EQUAL(
+                BOOST_REQUIRE_EQUAL(std::size_t(1), featureData.size());
+                BOOST_REQUIRE_EQUAL(
                     expected, featureData[j].second.s_BucketValue->value()[0]);
-                CPPUNIT_ASSERT_EQUAL(
+                BOOST_REQUIRE_EQUAL(
                     std::size_t(1),
                     ml::core::unwrap_ref(featureData[j].second.s_Samples).size());
-                CPPUNIT_ASSERT_EQUAL(
+                BOOST_REQUIRE_EQUAL(
                     expected,
                     ml::core::unwrap_ref(featureData[j].second.s_Samples)[0].value()[0]);
             }
@@ -885,19 +890,19 @@ void CMetricDataGathererTest::testSum() {
         {
             TFeatureSizeFeatureDataPrVecPrVec data;
             nonZeroSum.featureData(bucketStart, bucketLength, data);
-            CPPUNIT_ASSERT_EQUAL(std::size_t(1), data.size());
+            BOOST_REQUIRE_EQUAL(std::size_t(1), data.size());
             for (std::size_t j = 0u; j < data.size(); ++j) {
                 const TSizeFeatureDataPrVec& featureData = data[j].second;
                 if (count == 0) {
-                    CPPUNIT_ASSERT_EQUAL(std::size_t(0), featureData.size());
+                    BOOST_REQUIRE_EQUAL(std::size_t(0), featureData.size());
                 } else {
-                    CPPUNIT_ASSERT_EQUAL(std::size_t(1), featureData.size());
-                    CPPUNIT_ASSERT_EQUAL(
+                    BOOST_REQUIRE_EQUAL(std::size_t(1), featureData.size());
+                    BOOST_REQUIRE_EQUAL(
                         expected, featureData[j].second.s_BucketValue->value()[0]);
-                    CPPUNIT_ASSERT_EQUAL(
+                    BOOST_REQUIRE_EQUAL(
                         std::size_t(1),
                         ml::core::unwrap_ref(featureData[j].second.s_Samples).size());
-                    CPPUNIT_ASSERT_EQUAL(
+                    BOOST_REQUIRE_EQUAL(
                         expected,
                         ml::core::unwrap_ref(featureData[j].second.s_Samples)[0].value()[0]);
                 }
@@ -910,7 +915,7 @@ void CMetricDataGathererTest::testSum() {
     }
 }
 
-void CMetricDataGathererTest::singleSeriesOutOfOrderTests() {
+BOOST_FIXTURE_TEST_CASE(testSingleSeriesOutOfOrder, CTestFixture) {
     // Test that the various statistics come back as we suspect.
 
     const core_t::TTime startTime = 0;
@@ -936,40 +941,40 @@ void CMetricDataGathererTest::singleSeriesOutOfOrderTests() {
         CDataGatherer gatherer(model_t::E_Metric, model_t::E_None, params,
                                EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
                                EMPTY_STRING, {}, KEY, features, startTime, 2u);
-        CPPUNIT_ASSERT(!gatherer.isPopulation());
-        CPPUNIT_ASSERT_EQUAL(std::size_t(0), addPerson("p", gatherer, m_ResourceMonitor));
+        BOOST_TEST_REQUIRE(!gatherer.isPopulation());
+        BOOST_REQUIRE_EQUAL(std::size_t(0), addPerson("p", gatherer, m_ResourceMonitor));
 
-        CPPUNIT_ASSERT_EQUAL(std::size_t(4), gatherer.numberFeatures());
+        BOOST_REQUIRE_EQUAL(std::size_t(4), gatherer.numberFeatures());
         for (std::size_t i = 0u; i < 4; ++i) {
-            CPPUNIT_ASSERT_EQUAL(features[i], gatherer.feature(i));
+            BOOST_REQUIRE_EQUAL(features[i], gatherer.feature(i));
         }
 
-        CPPUNIT_ASSERT_EQUAL(std::size_t(1), gatherer.numberActivePeople());
-        CPPUNIT_ASSERT_EQUAL(std::size_t(1), gatherer.numberByFieldValues());
-        CPPUNIT_ASSERT_EQUAL(std::string("p"), gatherer.personName(0));
-        CPPUNIT_ASSERT_EQUAL(std::string("-"), gatherer.personName(1));
+        BOOST_REQUIRE_EQUAL(std::size_t(1), gatherer.numberActivePeople());
+        BOOST_REQUIRE_EQUAL(std::size_t(1), gatherer.numberByFieldValues());
+        BOOST_REQUIRE_EQUAL(std::string("p"), gatherer.personName(0));
+        BOOST_REQUIRE_EQUAL(std::string("-"), gatherer.personName(1));
         std::size_t pid;
-        CPPUNIT_ASSERT(gatherer.personId("p", pid));
-        CPPUNIT_ASSERT_EQUAL(std::size_t(0), pid);
-        CPPUNIT_ASSERT(!gatherer.personId("a.n.other p", pid));
+        BOOST_TEST_REQUIRE(gatherer.personId("p", pid));
+        BOOST_REQUIRE_EQUAL(std::size_t(0), pid);
+        BOOST_TEST_REQUIRE(!gatherer.personId("a.n.other p", pid));
 
         {
             addArrival(gatherer, m_ResourceMonitor, bucket1[0].first, "p",
                        bucket1[0].second);
             TFeatureSizeFeatureDataPrVecPrVec featureData;
             gatherer.featureData(startTime, bucketLength, featureData);
-            CPPUNIT_ASSERT_EQUAL(
+            BOOST_REQUIRE_EQUAL(
                 1.0, featureData[0].second[0].second.s_BucketValue->value()[0]);
-            CPPUNIT_ASSERT_EQUAL(
+            BOOST_REQUIRE_EQUAL(
                 1.0, featureData[1].second[0].second.s_BucketValue->value()[0]);
-            CPPUNIT_ASSERT_EQUAL(
+            BOOST_REQUIRE_EQUAL(
                 1.0, featureData[2].second[0].second.s_BucketValue->value()[0]);
-            CPPUNIT_ASSERT_EQUAL(
+            BOOST_REQUIRE_EQUAL(
                 1.0, featureData[3].second[0].second.s_BucketValue->value()[0]);
-            CPPUNIT_ASSERT_EQUAL(true, featureData[0].second[0].second.s_IsInteger);
-            CPPUNIT_ASSERT_EQUAL(true, featureData[1].second[0].second.s_IsInteger);
-            CPPUNIT_ASSERT_EQUAL(true, featureData[2].second[0].second.s_IsInteger);
-            CPPUNIT_ASSERT_EQUAL(true, featureData[3].second[0].second.s_IsInteger);
+            BOOST_REQUIRE_EQUAL(true, featureData[0].second[0].second.s_IsInteger);
+            BOOST_REQUIRE_EQUAL(true, featureData[1].second[0].second.s_IsInteger);
+            BOOST_REQUIRE_EQUAL(true, featureData[2].second[0].second.s_IsInteger);
+            BOOST_REQUIRE_EQUAL(true, featureData[3].second[0].second.s_IsInteger);
         }
 
         for (std::size_t i = 1; i < boost::size(bucket1); ++i) {
@@ -981,31 +986,31 @@ void CMetricDataGathererTest::singleSeriesOutOfOrderTests() {
             gatherer.featureData(core_t::TTime(startTime + bucketLength - 1),
                                  bucketLength, featureData);
             LOG_DEBUG(<< "featureData = " << core::CContainerPrinter::print(featureData));
-            CPPUNIT_ASSERT(!featureData.empty());
-            CPPUNIT_ASSERT_EQUAL(
+            BOOST_TEST_REQUIRE(!featureData.empty());
+            BOOST_REQUIRE_EQUAL(
                 1.5, featureData[0].second[0].second.s_BucketValue->value()[0]);
-            CPPUNIT_ASSERT_EQUAL(
+            BOOST_REQUIRE_EQUAL(
                 0.9, featureData[1].second[0].second.s_BucketValue->value()[0]);
-            CPPUNIT_ASSERT_EQUAL(
+            BOOST_REQUIRE_EQUAL(
                 2.1, featureData[2].second[0].second.s_BucketValue->value()[0]);
-            CPPUNIT_ASSERT_EQUAL(
+            BOOST_REQUIRE_EQUAL(
                 7.5, featureData[3].second[0].second.s_BucketValue->value()[0]);
-            CPPUNIT_ASSERT_EQUAL(false, featureData[1].second[0].second.s_IsInteger);
-            CPPUNIT_ASSERT_EQUAL(false, featureData[1].second[0].second.s_IsInteger);
-            CPPUNIT_ASSERT_EQUAL(false, featureData[2].second[0].second.s_IsInteger);
-            CPPUNIT_ASSERT_EQUAL(false, featureData[3].second[0].second.s_IsInteger);
-            CPPUNIT_ASSERT_EQUAL(std::string("[]"),
-                                 core::CContainerPrinter::print(
-                                     featureData[0].second[0].second.s_Samples));
-            CPPUNIT_ASSERT_EQUAL(std::string("[]"),
-                                 core::CContainerPrinter::print(
-                                     featureData[1].second[0].second.s_Samples));
-            CPPUNIT_ASSERT_EQUAL(std::string("[]"),
-                                 core::CContainerPrinter::print(
-                                     featureData[2].second[0].second.s_Samples));
-            CPPUNIT_ASSERT_EQUAL(std::string("[(0 [7.5] 1 5)]"),
-                                 core::CContainerPrinter::print(
-                                     featureData[3].second[0].second.s_Samples));
+            BOOST_REQUIRE_EQUAL(false, featureData[1].second[0].second.s_IsInteger);
+            BOOST_REQUIRE_EQUAL(false, featureData[1].second[0].second.s_IsInteger);
+            BOOST_REQUIRE_EQUAL(false, featureData[2].second[0].second.s_IsInteger);
+            BOOST_REQUIRE_EQUAL(false, featureData[3].second[0].second.s_IsInteger);
+            BOOST_REQUIRE_EQUAL(std::string("[]"),
+                                core::CContainerPrinter::print(
+                                    featureData[0].second[0].second.s_Samples));
+            BOOST_REQUIRE_EQUAL(std::string("[]"),
+                                core::CContainerPrinter::print(
+                                    featureData[1].second[0].second.s_Samples));
+            BOOST_REQUIRE_EQUAL(std::string("[]"),
+                                core::CContainerPrinter::print(
+                                    featureData[2].second[0].second.s_Samples));
+            BOOST_REQUIRE_EQUAL(std::string("[(0 [7.5] 1 5)]"),
+                                core::CContainerPrinter::print(
+                                    featureData[3].second[0].second.s_Samples));
             testPersistence(params, gatherer);
         }
 
@@ -1017,34 +1022,34 @@ void CMetricDataGathererTest::singleSeriesOutOfOrderTests() {
             TFeatureSizeFeatureDataPrVecPrVec featureData;
             gatherer.sampleNow(startTime);
             gatherer.featureData(startTime, bucketLength, featureData);
-            CPPUNIT_ASSERT(!featureData.empty());
-            CPPUNIT_ASSERT_EQUAL(
+            BOOST_TEST_REQUIRE(!featureData.empty());
+            BOOST_REQUIRE_EQUAL(
                 1.5, featureData[0].second[0].second.s_BucketValue->value()[0]);
-            CPPUNIT_ASSERT_EQUAL(
+            BOOST_REQUIRE_EQUAL(
                 0.9, featureData[1].second[0].second.s_BucketValue->value()[0]);
-            CPPUNIT_ASSERT_EQUAL(
+            BOOST_REQUIRE_EQUAL(
                 2.1, featureData[2].second[0].second.s_BucketValue->value()[0]);
-            CPPUNIT_ASSERT_EQUAL(
+            BOOST_REQUIRE_EQUAL(
                 9.0, featureData[3].second[0].second.s_BucketValue->value()[0]);
-            CPPUNIT_ASSERT_EQUAL(true, featureData[3].second[0].second.s_IsInteger);
-            CPPUNIT_ASSERT_EQUAL(
+            BOOST_REQUIRE_EQUAL(true, featureData[3].second[0].second.s_IsInteger);
+            BOOST_REQUIRE_EQUAL(
                 std::string("[(8 [1.55] 1 2), (257 [1.3] 0.666667 3)]"),
                 core::CContainerPrinter::print(featureData[0].second[0].second.s_Samples));
-            CPPUNIT_ASSERT_EQUAL(std::string("[(8 [1] 1 2), (257 [0.9] 1 3)]"),
-                                 core::CContainerPrinter::print(
-                                     featureData[1].second[0].second.s_Samples));
-            CPPUNIT_ASSERT_EQUAL(std::string("[(8 [2.1] 1 2), (257 [1.5] 1 3)]"),
-                                 core::CContainerPrinter::print(
-                                     featureData[2].second[0].second.s_Samples));
-            CPPUNIT_ASSERT_EQUAL(std::string("[(0 [9] 1 6)]"),
-                                 core::CContainerPrinter::print(
-                                     featureData[3].second[0].second.s_Samples));
+            BOOST_REQUIRE_EQUAL(std::string("[(8 [1] 1 2), (257 [0.9] 1 3)]"),
+                                core::CContainerPrinter::print(
+                                    featureData[1].second[0].second.s_Samples));
+            BOOST_REQUIRE_EQUAL(std::string("[(8 [2.1] 1 2), (257 [1.5] 1 3)]"),
+                                core::CContainerPrinter::print(
+                                    featureData[2].second[0].second.s_Samples));
+            BOOST_REQUIRE_EQUAL(std::string("[(0 [9] 1 6)]"),
+                                core::CContainerPrinter::print(
+                                    featureData[3].second[0].second.s_Samples));
             testPersistence(params, gatherer);
         }
     }
 }
 
-void CMetricDataGathererTest::testResetBucketGivenSingleSeries() {
+BOOST_FIXTURE_TEST_CASE(testResetBucketGivenSingleSeries, CTestFixture) {
     const core_t::TTime startTime = 0;
     const core_t::TTime bucketLength = 600;
     SModelParams params(bucketLength);
@@ -1074,87 +1079,85 @@ void CMetricDataGathererTest::testResetBucketGivenSingleSeries() {
     TSizeSizePr pidCidPr(0, 0);
 
     gatherer.featureData(0, bucketLength, featureData);
-    CPPUNIT_ASSERT_EQUAL(1.5, featureData[0].second[0].second.s_BucketValue->value()[0]);
-    CPPUNIT_ASSERT_EQUAL(1.0, featureData[1].second[0].second.s_BucketValue->value()[0]);
-    CPPUNIT_ASSERT_EQUAL(2.0, featureData[2].second[0].second.s_BucketValue->value()[0]);
-    CPPUNIT_ASSERT_EQUAL(3.0, featureData[3].second[0].second.s_BucketValue->value()[0]);
-    CPPUNIT_ASSERT_EQUAL(uint64_t(2), gatherer.bucketCounts(0).find(pidCidPr)->second);
+    BOOST_REQUIRE_EQUAL(1.5, featureData[0].second[0].second.s_BucketValue->value()[0]);
+    BOOST_REQUIRE_EQUAL(1.0, featureData[1].second[0].second.s_BucketValue->value()[0]);
+    BOOST_REQUIRE_EQUAL(2.0, featureData[2].second[0].second.s_BucketValue->value()[0]);
+    BOOST_REQUIRE_EQUAL(3.0, featureData[3].second[0].second.s_BucketValue->value()[0]);
+    BOOST_REQUIRE_EQUAL(uint64_t(2), gatherer.bucketCounts(0).find(pidCidPr)->second);
 
     gatherer.featureData(600, bucketLength, featureData);
-    CPPUNIT_ASSERT_EQUAL(4.0, featureData[0].second[0].second.s_BucketValue->value()[0]);
-    CPPUNIT_ASSERT_EQUAL(3.0, featureData[1].second[0].second.s_BucketValue->value()[0]);
-    CPPUNIT_ASSERT_EQUAL(5.0, featureData[2].second[0].second.s_BucketValue->value()[0]);
-    CPPUNIT_ASSERT_EQUAL(12.0, featureData[3].second[0].second.s_BucketValue->value()[0]);
-    CPPUNIT_ASSERT_EQUAL(uint64_t(3), gatherer.bucketCounts(600).find(pidCidPr)->second);
+    BOOST_REQUIRE_EQUAL(4.0, featureData[0].second[0].second.s_BucketValue->value()[0]);
+    BOOST_REQUIRE_EQUAL(3.0, featureData[1].second[0].second.s_BucketValue->value()[0]);
+    BOOST_REQUIRE_EQUAL(5.0, featureData[2].second[0].second.s_BucketValue->value()[0]);
+    BOOST_REQUIRE_EQUAL(12.0, featureData[3].second[0].second.s_BucketValue->value()[0]);
+    BOOST_REQUIRE_EQUAL(uint64_t(3), gatherer.bucketCounts(600).find(pidCidPr)->second);
 
     gatherer.featureData(1200, bucketLength, featureData);
-    CPPUNIT_ASSERT_EQUAL(6.0, featureData[0].second[0].second.s_BucketValue->value()[0]);
-    CPPUNIT_ASSERT_EQUAL(6.0, featureData[1].second[0].second.s_BucketValue->value()[0]);
-    CPPUNIT_ASSERT_EQUAL(6.0, featureData[2].second[0].second.s_BucketValue->value()[0]);
-    CPPUNIT_ASSERT_EQUAL(6.0, featureData[3].second[0].second.s_BucketValue->value()[0]);
-    CPPUNIT_ASSERT_EQUAL(uint64_t(1),
-                         gatherer.bucketCounts(1200).find(pidCidPr)->second);
+    BOOST_REQUIRE_EQUAL(6.0, featureData[0].second[0].second.s_BucketValue->value()[0]);
+    BOOST_REQUIRE_EQUAL(6.0, featureData[1].second[0].second.s_BucketValue->value()[0]);
+    BOOST_REQUIRE_EQUAL(6.0, featureData[2].second[0].second.s_BucketValue->value()[0]);
+    BOOST_REQUIRE_EQUAL(6.0, featureData[3].second[0].second.s_BucketValue->value()[0]);
+    BOOST_REQUIRE_EQUAL(uint64_t(1), gatherer.bucketCounts(1200).find(pidCidPr)->second);
 
     gatherer.resetBucket(600);
     addArrival(gatherer, m_ResourceMonitor, 610, "p", 2.0);
     addArrival(gatherer, m_ResourceMonitor, 620, "p", 3.0);
 
     gatherer.featureData(0, bucketLength, featureData);
-    CPPUNIT_ASSERT_EQUAL(1.5, featureData[0].second[0].second.s_BucketValue->value()[0]);
-    CPPUNIT_ASSERT_EQUAL(1.0, featureData[1].second[0].second.s_BucketValue->value()[0]);
-    CPPUNIT_ASSERT_EQUAL(2.0, featureData[2].second[0].second.s_BucketValue->value()[0]);
-    CPPUNIT_ASSERT_EQUAL(3.0, featureData[3].second[0].second.s_BucketValue->value()[0]);
-    CPPUNIT_ASSERT_EQUAL(uint64_t(2), gatherer.bucketCounts(0).find(pidCidPr)->second);
+    BOOST_REQUIRE_EQUAL(1.5, featureData[0].second[0].second.s_BucketValue->value()[0]);
+    BOOST_REQUIRE_EQUAL(1.0, featureData[1].second[0].second.s_BucketValue->value()[0]);
+    BOOST_REQUIRE_EQUAL(2.0, featureData[2].second[0].second.s_BucketValue->value()[0]);
+    BOOST_REQUIRE_EQUAL(3.0, featureData[3].second[0].second.s_BucketValue->value()[0]);
+    BOOST_REQUIRE_EQUAL(uint64_t(2), gatherer.bucketCounts(0).find(pidCidPr)->second);
 
     gatherer.featureData(600, bucketLength, featureData);
-    CPPUNIT_ASSERT_EQUAL(2.5, featureData[0].second[0].second.s_BucketValue->value()[0]);
-    CPPUNIT_ASSERT_EQUAL(2.0, featureData[1].second[0].second.s_BucketValue->value()[0]);
-    CPPUNIT_ASSERT_EQUAL(3.0, featureData[2].second[0].second.s_BucketValue->value()[0]);
-    CPPUNIT_ASSERT_EQUAL(5.0, featureData[3].second[0].second.s_BucketValue->value()[0]);
-    CPPUNIT_ASSERT_EQUAL(uint64_t(2), gatherer.bucketCounts(0).find(pidCidPr)->second);
+    BOOST_REQUIRE_EQUAL(2.5, featureData[0].second[0].second.s_BucketValue->value()[0]);
+    BOOST_REQUIRE_EQUAL(2.0, featureData[1].second[0].second.s_BucketValue->value()[0]);
+    BOOST_REQUIRE_EQUAL(3.0, featureData[2].second[0].second.s_BucketValue->value()[0]);
+    BOOST_REQUIRE_EQUAL(5.0, featureData[3].second[0].second.s_BucketValue->value()[0]);
+    BOOST_REQUIRE_EQUAL(uint64_t(2), gatherer.bucketCounts(0).find(pidCidPr)->second);
 
     gatherer.featureData(1200, bucketLength, featureData);
-    CPPUNIT_ASSERT_EQUAL(6.0, featureData[0].second[0].second.s_BucketValue->value()[0]);
-    CPPUNIT_ASSERT_EQUAL(6.0, featureData[1].second[0].second.s_BucketValue->value()[0]);
-    CPPUNIT_ASSERT_EQUAL(6.0, featureData[2].second[0].second.s_BucketValue->value()[0]);
-    CPPUNIT_ASSERT_EQUAL(6.0, featureData[3].second[0].second.s_BucketValue->value()[0]);
-    CPPUNIT_ASSERT_EQUAL(uint64_t(1),
-                         gatherer.bucketCounts(1200).find(pidCidPr)->second);
+    BOOST_REQUIRE_EQUAL(6.0, featureData[0].second[0].second.s_BucketValue->value()[0]);
+    BOOST_REQUIRE_EQUAL(6.0, featureData[1].second[0].second.s_BucketValue->value()[0]);
+    BOOST_REQUIRE_EQUAL(6.0, featureData[2].second[0].second.s_BucketValue->value()[0]);
+    BOOST_REQUIRE_EQUAL(6.0, featureData[3].second[0].second.s_BucketValue->value()[0]);
+    BOOST_REQUIRE_EQUAL(uint64_t(1), gatherer.bucketCounts(1200).find(pidCidPr)->second);
 
     gatherer.sampleNow(0);
     gatherer.featureData(0, bucketLength, featureData);
 
-    CPPUNIT_ASSERT_EQUAL(
+    BOOST_REQUIRE_EQUAL(
         std::string("[(276 [1.5] 1 2)]"),
         core::CContainerPrinter::print(featureData[0].second[0].second.s_Samples));
-    CPPUNIT_ASSERT_EQUAL(
+    BOOST_REQUIRE_EQUAL(
         std::string("[(276 [1] 1 2)]"),
         core::CContainerPrinter::print(featureData[1].second[0].second.s_Samples));
-    CPPUNIT_ASSERT_EQUAL(
+    BOOST_REQUIRE_EQUAL(
         std::string("[(276 [2] 1 2)]"),
         core::CContainerPrinter::print(featureData[2].second[0].second.s_Samples));
-    CPPUNIT_ASSERT_EQUAL(
+    BOOST_REQUIRE_EQUAL(
         std::string("[(0 [3] 1 2)]"),
         core::CContainerPrinter::print(featureData[3].second[0].second.s_Samples));
 
     gatherer.sampleNow(600);
     gatherer.featureData(600, bucketLength, featureData);
 
-    CPPUNIT_ASSERT_EQUAL(
+    BOOST_REQUIRE_EQUAL(
         std::string("[(615 [2.5] 1 2)]"),
         core::CContainerPrinter::print(featureData[0].second[0].second.s_Samples));
-    CPPUNIT_ASSERT_EQUAL(
+    BOOST_REQUIRE_EQUAL(
         std::string("[(615 [2] 1 2)]"),
         core::CContainerPrinter::print(featureData[1].second[0].second.s_Samples));
-    CPPUNIT_ASSERT_EQUAL(
+    BOOST_REQUIRE_EQUAL(
         std::string("[(615 [3] 1 2)]"),
         core::CContainerPrinter::print(featureData[2].second[0].second.s_Samples));
-    CPPUNIT_ASSERT_EQUAL(
+    BOOST_REQUIRE_EQUAL(
         std::string("[(600 [5] 1 2)]"),
         core::CContainerPrinter::print(featureData[3].second[0].second.s_Samples));
 }
 
-void CMetricDataGathererTest::testResetBucketGivenMultipleSeries() {
+BOOST_FIXTURE_TEST_CASE(testResetBucketGivenMultipleSeries, CTestFixture) {
     const core_t::TTime startTime = 0;
     const core_t::TTime bucketLength = 600;
     SModelParams params(bucketLength);
@@ -1191,61 +1194,58 @@ void CMetricDataGathererTest::testResetBucketGivenMultipleSeries() {
     TSizeSizePr pidCidPr2(2, 0);
 
     gatherer.featureData(0, bucketLength, featureData);
-    CPPUNIT_ASSERT_EQUAL(1.5, featureData[0].second[0].second.s_BucketValue->value()[0]);
-    CPPUNIT_ASSERT_EQUAL(1.5, featureData[0].second[1].second.s_BucketValue->value()[0]);
-    CPPUNIT_ASSERT_EQUAL(1.5, featureData[0].second[2].second.s_BucketValue->value()[0]);
-    CPPUNIT_ASSERT_EQUAL(1.0, featureData[1].second[0].second.s_BucketValue->value()[0]);
-    CPPUNIT_ASSERT_EQUAL(1.0, featureData[1].second[1].second.s_BucketValue->value()[0]);
-    CPPUNIT_ASSERT_EQUAL(1.0, featureData[1].second[2].second.s_BucketValue->value()[0]);
-    CPPUNIT_ASSERT_EQUAL(2.0, featureData[2].second[0].second.s_BucketValue->value()[0]);
-    CPPUNIT_ASSERT_EQUAL(2.0, featureData[2].second[1].second.s_BucketValue->value()[0]);
-    CPPUNIT_ASSERT_EQUAL(2.0, featureData[2].second[2].second.s_BucketValue->value()[0]);
-    CPPUNIT_ASSERT_EQUAL(3.0, featureData[3].second[2].second.s_BucketValue->value()[0]);
-    CPPUNIT_ASSERT_EQUAL(3.0, featureData[3].second[2].second.s_BucketValue->value()[0]);
-    CPPUNIT_ASSERT_EQUAL(3.0, featureData[3].second[2].second.s_BucketValue->value()[0]);
-    CPPUNIT_ASSERT_EQUAL(uint64_t(2), gatherer.bucketCounts(0).find(pidCidPr0)->second);
-    CPPUNIT_ASSERT_EQUAL(uint64_t(2), gatherer.bucketCounts(0).find(pidCidPr1)->second);
-    CPPUNIT_ASSERT_EQUAL(uint64_t(2), gatherer.bucketCounts(0).find(pidCidPr2)->second);
+    BOOST_REQUIRE_EQUAL(1.5, featureData[0].second[0].second.s_BucketValue->value()[0]);
+    BOOST_REQUIRE_EQUAL(1.5, featureData[0].second[1].second.s_BucketValue->value()[0]);
+    BOOST_REQUIRE_EQUAL(1.5, featureData[0].second[2].second.s_BucketValue->value()[0]);
+    BOOST_REQUIRE_EQUAL(1.0, featureData[1].second[0].second.s_BucketValue->value()[0]);
+    BOOST_REQUIRE_EQUAL(1.0, featureData[1].second[1].second.s_BucketValue->value()[0]);
+    BOOST_REQUIRE_EQUAL(1.0, featureData[1].second[2].second.s_BucketValue->value()[0]);
+    BOOST_REQUIRE_EQUAL(2.0, featureData[2].second[0].second.s_BucketValue->value()[0]);
+    BOOST_REQUIRE_EQUAL(2.0, featureData[2].second[1].second.s_BucketValue->value()[0]);
+    BOOST_REQUIRE_EQUAL(2.0, featureData[2].second[2].second.s_BucketValue->value()[0]);
+    BOOST_REQUIRE_EQUAL(3.0, featureData[3].second[2].second.s_BucketValue->value()[0]);
+    BOOST_REQUIRE_EQUAL(3.0, featureData[3].second[2].second.s_BucketValue->value()[0]);
+    BOOST_REQUIRE_EQUAL(3.0, featureData[3].second[2].second.s_BucketValue->value()[0]);
+    BOOST_REQUIRE_EQUAL(uint64_t(2), gatherer.bucketCounts(0).find(pidCidPr0)->second);
+    BOOST_REQUIRE_EQUAL(uint64_t(2), gatherer.bucketCounts(0).find(pidCidPr1)->second);
+    BOOST_REQUIRE_EQUAL(uint64_t(2), gatherer.bucketCounts(0).find(pidCidPr2)->second);
 
     gatherer.featureData(600, bucketLength, featureData);
-    CPPUNIT_ASSERT_EQUAL(4.0, featureData[0].second[0].second.s_BucketValue->value()[0]);
-    CPPUNIT_ASSERT_EQUAL(4.0, featureData[0].second[1].second.s_BucketValue->value()[0]);
-    CPPUNIT_ASSERT_EQUAL(4.0, featureData[0].second[2].second.s_BucketValue->value()[0]);
-    CPPUNIT_ASSERT_EQUAL(3.0, featureData[1].second[0].second.s_BucketValue->value()[0]);
-    CPPUNIT_ASSERT_EQUAL(3.0, featureData[1].second[1].second.s_BucketValue->value()[0]);
-    CPPUNIT_ASSERT_EQUAL(3.0, featureData[1].second[2].second.s_BucketValue->value()[0]);
-    CPPUNIT_ASSERT_EQUAL(5.0, featureData[2].second[0].second.s_BucketValue->value()[0]);
-    CPPUNIT_ASSERT_EQUAL(5.0, featureData[2].second[1].second.s_BucketValue->value()[0]);
-    CPPUNIT_ASSERT_EQUAL(5.0, featureData[2].second[2].second.s_BucketValue->value()[0]);
-    CPPUNIT_ASSERT_EQUAL(12.0, featureData[3].second[2].second.s_BucketValue->value()[0]);
-    CPPUNIT_ASSERT_EQUAL(12.0, featureData[3].second[2].second.s_BucketValue->value()[0]);
-    CPPUNIT_ASSERT_EQUAL(12.0, featureData[3].second[2].second.s_BucketValue->value()[0]);
-    CPPUNIT_ASSERT_EQUAL(uint64_t(3),
-                         gatherer.bucketCounts(600).find(pidCidPr0)->second);
-    CPPUNIT_ASSERT_EQUAL(uint64_t(3),
-                         gatherer.bucketCounts(600).find(pidCidPr1)->second);
-    CPPUNIT_ASSERT_EQUAL(uint64_t(3),
-                         gatherer.bucketCounts(600).find(pidCidPr2)->second);
+    BOOST_REQUIRE_EQUAL(4.0, featureData[0].second[0].second.s_BucketValue->value()[0]);
+    BOOST_REQUIRE_EQUAL(4.0, featureData[0].second[1].second.s_BucketValue->value()[0]);
+    BOOST_REQUIRE_EQUAL(4.0, featureData[0].second[2].second.s_BucketValue->value()[0]);
+    BOOST_REQUIRE_EQUAL(3.0, featureData[1].second[0].second.s_BucketValue->value()[0]);
+    BOOST_REQUIRE_EQUAL(3.0, featureData[1].second[1].second.s_BucketValue->value()[0]);
+    BOOST_REQUIRE_EQUAL(3.0, featureData[1].second[2].second.s_BucketValue->value()[0]);
+    BOOST_REQUIRE_EQUAL(5.0, featureData[2].second[0].second.s_BucketValue->value()[0]);
+    BOOST_REQUIRE_EQUAL(5.0, featureData[2].second[1].second.s_BucketValue->value()[0]);
+    BOOST_REQUIRE_EQUAL(5.0, featureData[2].second[2].second.s_BucketValue->value()[0]);
+    BOOST_REQUIRE_EQUAL(12.0, featureData[3].second[2].second.s_BucketValue->value()[0]);
+    BOOST_REQUIRE_EQUAL(12.0, featureData[3].second[2].second.s_BucketValue->value()[0]);
+    BOOST_REQUIRE_EQUAL(12.0, featureData[3].second[2].second.s_BucketValue->value()[0]);
+    BOOST_REQUIRE_EQUAL(uint64_t(3), gatherer.bucketCounts(600).find(pidCidPr0)->second);
+    BOOST_REQUIRE_EQUAL(uint64_t(3), gatherer.bucketCounts(600).find(pidCidPr1)->second);
+    BOOST_REQUIRE_EQUAL(uint64_t(3), gatherer.bucketCounts(600).find(pidCidPr2)->second);
 
     gatherer.featureData(1200, bucketLength, featureData);
-    CPPUNIT_ASSERT_EQUAL(6.0, featureData[0].second[0].second.s_BucketValue->value()[0]);
-    CPPUNIT_ASSERT_EQUAL(6.0, featureData[0].second[1].second.s_BucketValue->value()[0]);
-    CPPUNIT_ASSERT_EQUAL(6.0, featureData[0].second[2].second.s_BucketValue->value()[0]);
-    CPPUNIT_ASSERT_EQUAL(6.0, featureData[1].second[0].second.s_BucketValue->value()[0]);
-    CPPUNIT_ASSERT_EQUAL(6.0, featureData[1].second[1].second.s_BucketValue->value()[0]);
-    CPPUNIT_ASSERT_EQUAL(6.0, featureData[1].second[2].second.s_BucketValue->value()[0]);
-    CPPUNIT_ASSERT_EQUAL(6.0, featureData[2].second[0].second.s_BucketValue->value()[0]);
-    CPPUNIT_ASSERT_EQUAL(6.0, featureData[2].second[1].second.s_BucketValue->value()[0]);
-    CPPUNIT_ASSERT_EQUAL(6.0, featureData[2].second[2].second.s_BucketValue->value()[0]);
-    CPPUNIT_ASSERT_EQUAL(6.0, featureData[3].second[2].second.s_BucketValue->value()[0]);
-    CPPUNIT_ASSERT_EQUAL(6.0, featureData[3].second[2].second.s_BucketValue->value()[0]);
-    CPPUNIT_ASSERT_EQUAL(6.0, featureData[3].second[2].second.s_BucketValue->value()[0]);
-    CPPUNIT_ASSERT_EQUAL(uint64_t(1),
-                         gatherer.bucketCounts(1200).find(pidCidPr0)->second);
-    CPPUNIT_ASSERT_EQUAL(uint64_t(1),
-                         gatherer.bucketCounts(1200).find(pidCidPr1)->second);
-    CPPUNIT_ASSERT_EQUAL(uint64_t(1),
-                         gatherer.bucketCounts(1200).find(pidCidPr2)->second);
+    BOOST_REQUIRE_EQUAL(6.0, featureData[0].second[0].second.s_BucketValue->value()[0]);
+    BOOST_REQUIRE_EQUAL(6.0, featureData[0].second[1].second.s_BucketValue->value()[0]);
+    BOOST_REQUIRE_EQUAL(6.0, featureData[0].second[2].second.s_BucketValue->value()[0]);
+    BOOST_REQUIRE_EQUAL(6.0, featureData[1].second[0].second.s_BucketValue->value()[0]);
+    BOOST_REQUIRE_EQUAL(6.0, featureData[1].second[1].second.s_BucketValue->value()[0]);
+    BOOST_REQUIRE_EQUAL(6.0, featureData[1].second[2].second.s_BucketValue->value()[0]);
+    BOOST_REQUIRE_EQUAL(6.0, featureData[2].second[0].second.s_BucketValue->value()[0]);
+    BOOST_REQUIRE_EQUAL(6.0, featureData[2].second[1].second.s_BucketValue->value()[0]);
+    BOOST_REQUIRE_EQUAL(6.0, featureData[2].second[2].second.s_BucketValue->value()[0]);
+    BOOST_REQUIRE_EQUAL(6.0, featureData[3].second[2].second.s_BucketValue->value()[0]);
+    BOOST_REQUIRE_EQUAL(6.0, featureData[3].second[2].second.s_BucketValue->value()[0]);
+    BOOST_REQUIRE_EQUAL(6.0, featureData[3].second[2].second.s_BucketValue->value()[0]);
+    BOOST_REQUIRE_EQUAL(uint64_t(1),
+                        gatherer.bucketCounts(1200).find(pidCidPr0)->second);
+    BOOST_REQUIRE_EQUAL(uint64_t(1),
+                        gatherer.bucketCounts(1200).find(pidCidPr1)->second);
+    BOOST_REQUIRE_EQUAL(uint64_t(1),
+                        gatherer.bucketCounts(1200).find(pidCidPr2)->second);
 
     gatherer.resetBucket(600);
     for (std::size_t pid = 0; pid < gatherer.numberActivePeople(); ++pid) {
@@ -1254,144 +1254,141 @@ void CMetricDataGathererTest::testResetBucketGivenMultipleSeries() {
     }
 
     gatherer.featureData(0, bucketLength, featureData);
-    CPPUNIT_ASSERT_EQUAL(1.5, featureData[0].second[0].second.s_BucketValue->value()[0]);
-    CPPUNIT_ASSERT_EQUAL(1.5, featureData[0].second[1].second.s_BucketValue->value()[0]);
-    CPPUNIT_ASSERT_EQUAL(1.5, featureData[0].second[2].second.s_BucketValue->value()[0]);
-    CPPUNIT_ASSERT_EQUAL(1.0, featureData[1].second[0].second.s_BucketValue->value()[0]);
-    CPPUNIT_ASSERT_EQUAL(1.0, featureData[1].second[1].second.s_BucketValue->value()[0]);
-    CPPUNIT_ASSERT_EQUAL(1.0, featureData[1].second[2].second.s_BucketValue->value()[0]);
-    CPPUNIT_ASSERT_EQUAL(2.0, featureData[2].second[0].second.s_BucketValue->value()[0]);
-    CPPUNIT_ASSERT_EQUAL(2.0, featureData[2].second[1].second.s_BucketValue->value()[0]);
-    CPPUNIT_ASSERT_EQUAL(2.0, featureData[2].second[2].second.s_BucketValue->value()[0]);
-    CPPUNIT_ASSERT_EQUAL(3.0, featureData[3].second[2].second.s_BucketValue->value()[0]);
-    CPPUNIT_ASSERT_EQUAL(3.0, featureData[3].second[2].second.s_BucketValue->value()[0]);
-    CPPUNIT_ASSERT_EQUAL(3.0, featureData[3].second[2].second.s_BucketValue->value()[0]);
-    CPPUNIT_ASSERT_EQUAL(uint64_t(2), gatherer.bucketCounts(0).find(pidCidPr0)->second);
-    CPPUNIT_ASSERT_EQUAL(uint64_t(2), gatherer.bucketCounts(0).find(pidCidPr1)->second);
-    CPPUNIT_ASSERT_EQUAL(uint64_t(2), gatherer.bucketCounts(0).find(pidCidPr2)->second);
+    BOOST_REQUIRE_EQUAL(1.5, featureData[0].second[0].second.s_BucketValue->value()[0]);
+    BOOST_REQUIRE_EQUAL(1.5, featureData[0].second[1].second.s_BucketValue->value()[0]);
+    BOOST_REQUIRE_EQUAL(1.5, featureData[0].second[2].second.s_BucketValue->value()[0]);
+    BOOST_REQUIRE_EQUAL(1.0, featureData[1].second[0].second.s_BucketValue->value()[0]);
+    BOOST_REQUIRE_EQUAL(1.0, featureData[1].second[1].second.s_BucketValue->value()[0]);
+    BOOST_REQUIRE_EQUAL(1.0, featureData[1].second[2].second.s_BucketValue->value()[0]);
+    BOOST_REQUIRE_EQUAL(2.0, featureData[2].second[0].second.s_BucketValue->value()[0]);
+    BOOST_REQUIRE_EQUAL(2.0, featureData[2].second[1].second.s_BucketValue->value()[0]);
+    BOOST_REQUIRE_EQUAL(2.0, featureData[2].second[2].second.s_BucketValue->value()[0]);
+    BOOST_REQUIRE_EQUAL(3.0, featureData[3].second[2].second.s_BucketValue->value()[0]);
+    BOOST_REQUIRE_EQUAL(3.0, featureData[3].second[2].second.s_BucketValue->value()[0]);
+    BOOST_REQUIRE_EQUAL(3.0, featureData[3].second[2].second.s_BucketValue->value()[0]);
+    BOOST_REQUIRE_EQUAL(uint64_t(2), gatherer.bucketCounts(0).find(pidCidPr0)->second);
+    BOOST_REQUIRE_EQUAL(uint64_t(2), gatherer.bucketCounts(0).find(pidCidPr1)->second);
+    BOOST_REQUIRE_EQUAL(uint64_t(2), gatherer.bucketCounts(0).find(pidCidPr2)->second);
 
     gatherer.featureData(600, bucketLength, featureData);
-    CPPUNIT_ASSERT_EQUAL(2.5, featureData[0].second[0].second.s_BucketValue->value()[0]);
-    CPPUNIT_ASSERT_EQUAL(2.5, featureData[0].second[1].second.s_BucketValue->value()[0]);
-    CPPUNIT_ASSERT_EQUAL(2.5, featureData[0].second[2].second.s_BucketValue->value()[0]);
-    CPPUNIT_ASSERT_EQUAL(2.0, featureData[1].second[0].second.s_BucketValue->value()[0]);
-    CPPUNIT_ASSERT_EQUAL(2.0, featureData[1].second[1].second.s_BucketValue->value()[0]);
-    CPPUNIT_ASSERT_EQUAL(2.0, featureData[1].second[2].second.s_BucketValue->value()[0]);
-    CPPUNIT_ASSERT_EQUAL(3.0, featureData[2].second[0].second.s_BucketValue->value()[0]);
-    CPPUNIT_ASSERT_EQUAL(3.0, featureData[2].second[1].second.s_BucketValue->value()[0]);
-    CPPUNIT_ASSERT_EQUAL(3.0, featureData[2].second[2].second.s_BucketValue->value()[0]);
-    CPPUNIT_ASSERT_EQUAL(5.0, featureData[3].second[2].second.s_BucketValue->value()[0]);
-    CPPUNIT_ASSERT_EQUAL(5.0, featureData[3].second[2].second.s_BucketValue->value()[0]);
-    CPPUNIT_ASSERT_EQUAL(5.0, featureData[3].second[2].second.s_BucketValue->value()[0]);
-    CPPUNIT_ASSERT_EQUAL(uint64_t(2),
-                         gatherer.bucketCounts(600).find(pidCidPr0)->second);
-    CPPUNIT_ASSERT_EQUAL(uint64_t(2),
-                         gatherer.bucketCounts(600).find(pidCidPr1)->second);
-    CPPUNIT_ASSERT_EQUAL(uint64_t(2),
-                         gatherer.bucketCounts(600).find(pidCidPr2)->second);
+    BOOST_REQUIRE_EQUAL(2.5, featureData[0].second[0].second.s_BucketValue->value()[0]);
+    BOOST_REQUIRE_EQUAL(2.5, featureData[0].second[1].second.s_BucketValue->value()[0]);
+    BOOST_REQUIRE_EQUAL(2.5, featureData[0].second[2].second.s_BucketValue->value()[0]);
+    BOOST_REQUIRE_EQUAL(2.0, featureData[1].second[0].second.s_BucketValue->value()[0]);
+    BOOST_REQUIRE_EQUAL(2.0, featureData[1].second[1].second.s_BucketValue->value()[0]);
+    BOOST_REQUIRE_EQUAL(2.0, featureData[1].second[2].second.s_BucketValue->value()[0]);
+    BOOST_REQUIRE_EQUAL(3.0, featureData[2].second[0].second.s_BucketValue->value()[0]);
+    BOOST_REQUIRE_EQUAL(3.0, featureData[2].second[1].second.s_BucketValue->value()[0]);
+    BOOST_REQUIRE_EQUAL(3.0, featureData[2].second[2].second.s_BucketValue->value()[0]);
+    BOOST_REQUIRE_EQUAL(5.0, featureData[3].second[2].second.s_BucketValue->value()[0]);
+    BOOST_REQUIRE_EQUAL(5.0, featureData[3].second[2].second.s_BucketValue->value()[0]);
+    BOOST_REQUIRE_EQUAL(5.0, featureData[3].second[2].second.s_BucketValue->value()[0]);
+    BOOST_REQUIRE_EQUAL(uint64_t(2), gatherer.bucketCounts(600).find(pidCidPr0)->second);
+    BOOST_REQUIRE_EQUAL(uint64_t(2), gatherer.bucketCounts(600).find(pidCidPr1)->second);
+    BOOST_REQUIRE_EQUAL(uint64_t(2), gatherer.bucketCounts(600).find(pidCidPr2)->second);
 
     gatherer.featureData(1200, bucketLength, featureData);
-    CPPUNIT_ASSERT_EQUAL(6.0, featureData[0].second[0].second.s_BucketValue->value()[0]);
-    CPPUNIT_ASSERT_EQUAL(6.0, featureData[0].second[1].second.s_BucketValue->value()[0]);
-    CPPUNIT_ASSERT_EQUAL(6.0, featureData[0].second[2].second.s_BucketValue->value()[0]);
-    CPPUNIT_ASSERT_EQUAL(6.0, featureData[1].second[0].second.s_BucketValue->value()[0]);
-    CPPUNIT_ASSERT_EQUAL(6.0, featureData[1].second[1].second.s_BucketValue->value()[0]);
-    CPPUNIT_ASSERT_EQUAL(6.0, featureData[1].second[2].second.s_BucketValue->value()[0]);
-    CPPUNIT_ASSERT_EQUAL(6.0, featureData[2].second[0].second.s_BucketValue->value()[0]);
-    CPPUNIT_ASSERT_EQUAL(6.0, featureData[2].second[1].second.s_BucketValue->value()[0]);
-    CPPUNIT_ASSERT_EQUAL(6.0, featureData[2].second[2].second.s_BucketValue->value()[0]);
-    CPPUNIT_ASSERT_EQUAL(6.0, featureData[3].second[2].second.s_BucketValue->value()[0]);
-    CPPUNIT_ASSERT_EQUAL(6.0, featureData[3].second[2].second.s_BucketValue->value()[0]);
-    CPPUNIT_ASSERT_EQUAL(6.0, featureData[3].second[2].second.s_BucketValue->value()[0]);
-    CPPUNIT_ASSERT_EQUAL(uint64_t(1),
-                         gatherer.bucketCounts(1200).find(pidCidPr0)->second);
-    CPPUNIT_ASSERT_EQUAL(uint64_t(1),
-                         gatherer.bucketCounts(1200).find(pidCidPr1)->second);
-    CPPUNIT_ASSERT_EQUAL(uint64_t(1),
-                         gatherer.bucketCounts(1200).find(pidCidPr2)->second);
+    BOOST_REQUIRE_EQUAL(6.0, featureData[0].second[0].second.s_BucketValue->value()[0]);
+    BOOST_REQUIRE_EQUAL(6.0, featureData[0].second[1].second.s_BucketValue->value()[0]);
+    BOOST_REQUIRE_EQUAL(6.0, featureData[0].second[2].second.s_BucketValue->value()[0]);
+    BOOST_REQUIRE_EQUAL(6.0, featureData[1].second[0].second.s_BucketValue->value()[0]);
+    BOOST_REQUIRE_EQUAL(6.0, featureData[1].second[1].second.s_BucketValue->value()[0]);
+    BOOST_REQUIRE_EQUAL(6.0, featureData[1].second[2].second.s_BucketValue->value()[0]);
+    BOOST_REQUIRE_EQUAL(6.0, featureData[2].second[0].second.s_BucketValue->value()[0]);
+    BOOST_REQUIRE_EQUAL(6.0, featureData[2].second[1].second.s_BucketValue->value()[0]);
+    BOOST_REQUIRE_EQUAL(6.0, featureData[2].second[2].second.s_BucketValue->value()[0]);
+    BOOST_REQUIRE_EQUAL(6.0, featureData[3].second[2].second.s_BucketValue->value()[0]);
+    BOOST_REQUIRE_EQUAL(6.0, featureData[3].second[2].second.s_BucketValue->value()[0]);
+    BOOST_REQUIRE_EQUAL(6.0, featureData[3].second[2].second.s_BucketValue->value()[0]);
+    BOOST_REQUIRE_EQUAL(uint64_t(1),
+                        gatherer.bucketCounts(1200).find(pidCidPr0)->second);
+    BOOST_REQUIRE_EQUAL(uint64_t(1),
+                        gatherer.bucketCounts(1200).find(pidCidPr1)->second);
+    BOOST_REQUIRE_EQUAL(uint64_t(1),
+                        gatherer.bucketCounts(1200).find(pidCidPr2)->second);
 
     gatherer.sampleNow(0);
     gatherer.featureData(0, bucketLength, featureData);
 
-    CPPUNIT_ASSERT_EQUAL(
+    BOOST_REQUIRE_EQUAL(
         std::string("[(276 [1.5] 1 2)]"),
         core::CContainerPrinter::print(featureData[0].second[0].second.s_Samples));
-    CPPUNIT_ASSERT_EQUAL(
+    BOOST_REQUIRE_EQUAL(
         std::string("[(276 [1.5] 1 2)]"),
         core::CContainerPrinter::print(featureData[0].second[1].second.s_Samples));
-    CPPUNIT_ASSERT_EQUAL(
+    BOOST_REQUIRE_EQUAL(
         std::string("[(276 [1.5] 1 2)]"),
         core::CContainerPrinter::print(featureData[0].second[2].second.s_Samples));
-    CPPUNIT_ASSERT_EQUAL(
+    BOOST_REQUIRE_EQUAL(
         std::string("[(276 [1] 1 2)]"),
         core::CContainerPrinter::print(featureData[1].second[0].second.s_Samples));
-    CPPUNIT_ASSERT_EQUAL(
+    BOOST_REQUIRE_EQUAL(
         std::string("[(276 [1] 1 2)]"),
         core::CContainerPrinter::print(featureData[1].second[1].second.s_Samples));
-    CPPUNIT_ASSERT_EQUAL(
+    BOOST_REQUIRE_EQUAL(
         std::string("[(276 [1] 1 2)]"),
         core::CContainerPrinter::print(featureData[1].second[2].second.s_Samples));
-    CPPUNIT_ASSERT_EQUAL(
+    BOOST_REQUIRE_EQUAL(
         std::string("[(276 [2] 1 2)]"),
         core::CContainerPrinter::print(featureData[2].second[0].second.s_Samples));
-    CPPUNIT_ASSERT_EQUAL(
+    BOOST_REQUIRE_EQUAL(
         std::string("[(276 [2] 1 2)]"),
         core::CContainerPrinter::print(featureData[2].second[1].second.s_Samples));
-    CPPUNIT_ASSERT_EQUAL(
+    BOOST_REQUIRE_EQUAL(
         std::string("[(276 [2] 1 2)]"),
         core::CContainerPrinter::print(featureData[2].second[2].second.s_Samples));
-    CPPUNIT_ASSERT_EQUAL(
+    BOOST_REQUIRE_EQUAL(
         std::string("[(0 [3] 1 2)]"),
         core::CContainerPrinter::print(featureData[3].second[0].second.s_Samples));
-    CPPUNIT_ASSERT_EQUAL(
+    BOOST_REQUIRE_EQUAL(
         std::string("[(0 [3] 1 2)]"),
         core::CContainerPrinter::print(featureData[3].second[1].second.s_Samples));
-    CPPUNIT_ASSERT_EQUAL(
+    BOOST_REQUIRE_EQUAL(
         std::string("[(0 [3] 1 2)]"),
         core::CContainerPrinter::print(featureData[3].second[2].second.s_Samples));
 
     gatherer.sampleNow(600);
     gatherer.featureData(600, bucketLength, featureData);
 
-    CPPUNIT_ASSERT_EQUAL(
+    BOOST_REQUIRE_EQUAL(
         std::string("[(615 [2.5] 1 2)]"),
         core::CContainerPrinter::print(featureData[0].second[0].second.s_Samples));
-    CPPUNIT_ASSERT_EQUAL(
+    BOOST_REQUIRE_EQUAL(
         std::string("[(615 [2.5] 1 2)]"),
         core::CContainerPrinter::print(featureData[0].second[1].second.s_Samples));
-    CPPUNIT_ASSERT_EQUAL(
+    BOOST_REQUIRE_EQUAL(
         std::string("[(615 [2.5] 1 2)]"),
         core::CContainerPrinter::print(featureData[0].second[2].second.s_Samples));
-    CPPUNIT_ASSERT_EQUAL(
+    BOOST_REQUIRE_EQUAL(
         std::string("[(615 [2] 1 2)]"),
         core::CContainerPrinter::print(featureData[1].second[0].second.s_Samples));
-    CPPUNIT_ASSERT_EQUAL(
+    BOOST_REQUIRE_EQUAL(
         std::string("[(615 [2] 1 2)]"),
         core::CContainerPrinter::print(featureData[1].second[1].second.s_Samples));
-    CPPUNIT_ASSERT_EQUAL(
+    BOOST_REQUIRE_EQUAL(
         std::string("[(615 [2] 1 2)]"),
         core::CContainerPrinter::print(featureData[1].second[2].second.s_Samples));
-    CPPUNIT_ASSERT_EQUAL(
+    BOOST_REQUIRE_EQUAL(
         std::string("[(615 [3] 1 2)]"),
         core::CContainerPrinter::print(featureData[2].second[0].second.s_Samples));
-    CPPUNIT_ASSERT_EQUAL(
+    BOOST_REQUIRE_EQUAL(
         std::string("[(615 [3] 1 2)]"),
         core::CContainerPrinter::print(featureData[2].second[1].second.s_Samples));
-    CPPUNIT_ASSERT_EQUAL(
+    BOOST_REQUIRE_EQUAL(
         std::string("[(615 [3] 1 2)]"),
         core::CContainerPrinter::print(featureData[2].second[2].second.s_Samples));
-    CPPUNIT_ASSERT_EQUAL(
+    BOOST_REQUIRE_EQUAL(
         std::string("[(600 [5] 1 2)]"),
         core::CContainerPrinter::print(featureData[3].second[0].second.s_Samples));
-    CPPUNIT_ASSERT_EQUAL(
+    BOOST_REQUIRE_EQUAL(
         std::string("[(600 [5] 1 2)]"),
         core::CContainerPrinter::print(featureData[3].second[1].second.s_Samples));
-    CPPUNIT_ASSERT_EQUAL(
+    BOOST_REQUIRE_EQUAL(
         std::string("[(600 [5] 1 2)]"),
         core::CContainerPrinter::print(featureData[3].second[2].second.s_Samples));
 }
 
-void CMetricDataGathererTest::testInfluenceStatistics() {
+BOOST_FIXTURE_TEST_CASE(testInfluenceStatistics, CTestFixture) {
     using TTimeDoubleStrStrTuple =
         boost::tuple<core_t::TTime, double, std::string, std::string>;
     using TDoubleDoublePr = std::pair<double, double>;
@@ -1504,8 +1501,8 @@ void CMetricDataGathererTest::testInfluenceStatistics() {
                     LOG_DEBUG(<< "statistics = "
                               << core::CContainerPrinter::print(statistics));
                     LOG_DEBUG(<< "expected   = " << *expected);
-                    CPPUNIT_ASSERT_EQUAL((*expected++),
-                                         core::CContainerPrinter::print(statistics));
+                    BOOST_REQUIRE_EQUAL((*expected++),
+                                        core::CContainerPrinter::print(statistics));
                 }
             }
 
@@ -1520,7 +1517,7 @@ void CMetricDataGathererTest::testInfluenceStatistics() {
     }
 }
 
-void CMetricDataGathererTest::testMultivariate() {
+BOOST_FIXTURE_TEST_CASE(testMultivariate, CTestFixture) {
     using TTimeDoubleDoubleTuple = boost::tuple<core_t::TTime, double, double>;
     using TTimeDoubleDoubleTupleVec = std::vector<TTimeDoubleDoubleTuple>;
     using TTimeDoubleDoubleTupleVecVec = std::vector<TTimeDoubleDoubleTupleVec>;
@@ -1556,19 +1553,19 @@ void CMetricDataGathererTest::testMultivariate() {
         CDataGatherer gatherer(model_t::E_Metric, model_t::E_None, params, EMPTY_STRING,
                                EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
                                influencerNames, KEY, features, startTime, 2u);
-        CPPUNIT_ASSERT(!gatherer.isPopulation());
-        CPPUNIT_ASSERT_EQUAL(std::size_t(0), addPerson("p", gatherer, m_ResourceMonitor));
-        CPPUNIT_ASSERT_EQUAL(std::size_t(1), gatherer.numberFeatures());
-        CPPUNIT_ASSERT_EQUAL(features[0], gatherer.feature(0));
+        BOOST_TEST_REQUIRE(!gatherer.isPopulation());
+        BOOST_REQUIRE_EQUAL(std::size_t(0), addPerson("p", gatherer, m_ResourceMonitor));
+        BOOST_REQUIRE_EQUAL(std::size_t(1), gatherer.numberFeatures());
+        BOOST_REQUIRE_EQUAL(features[0], gatherer.feature(0));
 
-        CPPUNIT_ASSERT_EQUAL(std::size_t(1), gatherer.numberActivePeople());
-        CPPUNIT_ASSERT_EQUAL(std::size_t(1), gatherer.numberByFieldValues());
-        CPPUNIT_ASSERT_EQUAL(std::string("p"), gatherer.personName(0));
-        CPPUNIT_ASSERT_EQUAL(std::string("-"), gatherer.personName(1));
+        BOOST_REQUIRE_EQUAL(std::size_t(1), gatherer.numberActivePeople());
+        BOOST_REQUIRE_EQUAL(std::size_t(1), gatherer.numberByFieldValues());
+        BOOST_REQUIRE_EQUAL(std::string("p"), gatherer.personName(0));
+        BOOST_REQUIRE_EQUAL(std::string("-"), gatherer.personName(1));
         std::size_t pid;
-        CPPUNIT_ASSERT(gatherer.personId("p", pid));
-        CPPUNIT_ASSERT_EQUAL(std::size_t(0), pid);
-        CPPUNIT_ASSERT(!gatherer.personId("a.n.other p", pid));
+        BOOST_TEST_REQUIRE(gatherer.personId("p", pid));
+        BOOST_REQUIRE_EQUAL(std::size_t(0), pid);
+        BOOST_TEST_REQUIRE(!gatherer.personId("a.n.other p", pid));
 
         {
             addArrival(gatherer, m_ResourceMonitor, bucket1[0].get<0>(), "p",
@@ -1576,11 +1573,11 @@ void CMetricDataGathererTest::testMultivariate() {
             TFeatureSizeFeatureDataPrVecPrVec featureData;
             gatherer.featureData(startTime, bucketLength, featureData);
             LOG_DEBUG(<< "featureData = " << core::CContainerPrinter::print(featureData));
-            CPPUNIT_ASSERT_EQUAL(
+            BOOST_REQUIRE_EQUAL(
                 1.0, featureData[0].second[0].second.s_BucketValue->value()[0]);
-            CPPUNIT_ASSERT_EQUAL(
+            BOOST_REQUIRE_EQUAL(
                 1.0, featureData[0].second[0].second.s_BucketValue->value()[1]);
-            CPPUNIT_ASSERT_EQUAL(true, featureData[0].second[0].second.s_IsInteger);
+            BOOST_REQUIRE_EQUAL(true, featureData[0].second[0].second.s_IsInteger);
         }
 
         for (std::size_t i = 1; i < boost::size(bucket1); ++i) {
@@ -1593,15 +1590,15 @@ void CMetricDataGathererTest::testMultivariate() {
             gatherer.featureData(core_t::TTime(startTime + bucketLength - 1),
                                  bucketLength, featureData);
             LOG_DEBUG(<< "featureData = " << core::CContainerPrinter::print(featureData));
-            CPPUNIT_ASSERT(!featureData.empty());
-            CPPUNIT_ASSERT_DOUBLES_EQUAL(
+            BOOST_TEST_REQUIRE(!featureData.empty());
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(
                 1.5, featureData[0].second[0].second.s_BucketValue->value()[0], 1e-10);
-            CPPUNIT_ASSERT_DOUBLES_EQUAL(
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(
                 1.4, featureData[0].second[0].second.s_BucketValue->value()[1], 1e-10);
-            CPPUNIT_ASSERT_EQUAL(false, featureData[0].second[0].second.s_IsInteger);
+            BOOST_REQUIRE_EQUAL(false, featureData[0].second[0].second.s_IsInteger);
             LOG_DEBUG(<< core::CContainerPrinter::print(
                           featureData[0].second[0].second.s_Samples));
-            CPPUNIT_ASSERT_EQUAL(
+            BOOST_REQUIRE_EQUAL(
                 std::string("[(8 [1.55, 1.5] 1 2), (185 [1.2, 1.1] 1 2), (475 [1.75, 1.6] 1 2)]"),
                 core::CContainerPrinter::print(featureData[0].second[0].second.s_Samples));
             testPersistence(params, gatherer);
@@ -1617,14 +1614,14 @@ void CMetricDataGathererTest::testMultivariate() {
             gatherer.sampleNow(startTime + bucketLength);
             gatherer.featureData(startTime + bucketLength, bucketLength, featureData);
             LOG_DEBUG(<< "featureData = " << core::CContainerPrinter::print(featureData));
-            CPPUNIT_ASSERT(!featureData.empty());
-            CPPUNIT_ASSERT_DOUBLES_EQUAL(
+            BOOST_TEST_REQUIRE(!featureData.empty());
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(
                 2.0, featureData[0].second[0].second.s_BucketValue->value()[0], 1e-10);
-            CPPUNIT_ASSERT_DOUBLES_EQUAL(
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(
                 1.8, featureData[0].second[0].second.s_BucketValue->value()[1], 1e-10);
-            CPPUNIT_ASSERT_EQUAL(std::string("[(700 [2.1, 1.9] 1 2)]"),
-                                 core::CContainerPrinter::print(
-                                     featureData[0].second[0].second.s_Samples));
+            BOOST_REQUIRE_EQUAL(std::string("[(700 [2.1, 1.9] 1 2)]"),
+                                core::CContainerPrinter::print(
+                                    featureData[0].second[0].second.s_Samples));
             testPersistence(params, gatherer);
         }
 
@@ -1638,14 +1635,14 @@ void CMetricDataGathererTest::testMultivariate() {
             gatherer.sampleNow(startTime + 2 * bucketLength);
             gatherer.featureData(startTime + 2 * bucketLength, bucketLength, featureData);
             LOG_DEBUG(<< "featureData = " << core::CContainerPrinter::print(featureData));
-            CPPUNIT_ASSERT(!featureData.empty());
-            CPPUNIT_ASSERT_DOUBLES_EQUAL(
+            BOOST_TEST_REQUIRE(!featureData.empty());
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(
                 2.3, featureData[0].second[0].second.s_BucketValue->value()[0], 1e-10);
-            CPPUNIT_ASSERT_DOUBLES_EQUAL(
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(
                 2.2, featureData[0].second[0].second.s_BucketValue->value()[1], 1e-10);
-            CPPUNIT_ASSERT_EQUAL(std::string("[(1200 [1.95, 1.8] 1 2)]"),
-                                 core::CContainerPrinter::print(
-                                     featureData[0].second[0].second.s_Samples));
+            BOOST_REQUIRE_EQUAL(std::string("[(1200 [1.95, 1.8] 1 2)]"),
+                                core::CContainerPrinter::print(
+                                    featureData[0].second[0].second.s_Samples));
         }
     }
 
@@ -1656,7 +1653,7 @@ void CMetricDataGathererTest::testMultivariate() {
         CDataGatherer gatherer(model_t::E_Metric, model_t::E_None, params,
                                EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
                                EMPTY_STRING, {}, KEY, features, startTime, 0);
-        CPPUNIT_ASSERT_EQUAL(std::size_t(0), addPerson("p", gatherer, m_ResourceMonitor));
+        BOOST_REQUIRE_EQUAL(std::size_t(0), addPerson("p", gatherer, m_ResourceMonitor));
 
         TTimeDoubleDoubleTupleVecVec buckets;
         buckets.push_back(TTimeDoubleDoubleTupleVec(std::begin(bucket1), std::end(bucket1)));
@@ -1675,23 +1672,23 @@ void CMetricDataGathererTest::testMultivariate() {
             }
         }
 
-        CPPUNIT_ASSERT_EQUAL(4.0, gatherer.effectiveSampleCount(0));
+        BOOST_REQUIRE_EQUAL(4.0, gatherer.effectiveSampleCount(0));
         TFeatureSizeFeatureDataPrVecPrVec featureData;
         core_t::TTime featureBucketStart = core_t::TTime(startTime + 4 * bucketLength);
         gatherer.sampleNow(featureBucketStart);
         gatherer.featureData(featureBucketStart, bucketLength, featureData);
-        CPPUNIT_ASSERT(!featureData.empty());
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(
+        BOOST_TEST_REQUIRE(!featureData.empty());
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(
             3.5, featureData[0].second[0].second.s_BucketValue->value()[0], 1e-10);
-        CPPUNIT_ASSERT_EQUAL(false, featureData[0].second[0].second.s_IsInteger);
+        BOOST_REQUIRE_EQUAL(false, featureData[0].second[0].second.s_IsInteger);
         LOG_DEBUG(<< "featureData = " << core::CContainerPrinter::print(featureData));
-        CPPUNIT_ASSERT_EQUAL(
+        BOOST_REQUIRE_EQUAL(
             std::string("[(2323 [3.5, 3.3] 1 4)]"),
             core::CContainerPrinter::print(featureData[0].second[0].second.s_Samples));
     }
 }
 
-void CMetricDataGathererTest::testStatisticsPersist() {
+BOOST_FIXTURE_TEST_CASE(testStatisticsPersist, CTestFixture) {
     CGathererTools::TMeanGatherer::TMetricPartialStatistic stat(1);
     stat.add(TDoubleVec(1, 44.4), 1299196740, 1);
     stat.add(TDoubleVec(1, 5.5), 1299196741, 1);
@@ -1710,7 +1707,7 @@ void CMetricDataGathererTest::testStatisticsPersist() {
     core_t::TTime restoredTime;
     {
         core::CRapidXmlParser parser;
-        CPPUNIT_ASSERT(parser.parseStringIgnoreCdata(origXml));
+        BOOST_TEST_REQUIRE(parser.parseStringIgnoreCdata(origXml));
         core::CRapidXmlStateRestoreTraverser traverser(parser);
         CGathererTools::TMeanGatherer::TMetricPartialStatistic restored(1);
         traverser.traverseSubLevel(
@@ -1724,11 +1721,11 @@ void CMetricDataGathererTest::testStatisticsPersist() {
             inserter.toXml(restoredXml);
         }
     }
-    CPPUNIT_ASSERT_EQUAL(origXml, restoredXml);
-    CPPUNIT_ASSERT_EQUAL(origTime, restoredTime);
+    BOOST_REQUIRE_EQUAL(origXml, restoredXml);
+    BOOST_REQUIRE_EQUAL(origTime, restoredTime);
 }
 
-void CMetricDataGathererTest::testVarp() {
+BOOST_FIXTURE_TEST_CASE(testVarp, CTestFixture) {
     core_t::TTime startTime = 100000;
     const core_t::TTime bucketLength = 1000;
     const std::string person("p");
@@ -1746,10 +1743,10 @@ void CMetricDataGathererTest::testVarp() {
         CDataGatherer gatherer(model_t::E_Metric, model_t::E_None, params,
                                EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
                                EMPTY_STRING, {}, KEY, features, startTime, 2u);
-        CPPUNIT_ASSERT(!gatherer.isPopulation());
-        CPPUNIT_ASSERT_EQUAL(std::size_t(0), addPerson(person, gatherer, m_ResourceMonitor));
+        BOOST_TEST_REQUIRE(!gatherer.isPopulation());
+        BOOST_REQUIRE_EQUAL(std::size_t(0), addPerson(person, gatherer, m_ResourceMonitor));
 
-        CPPUNIT_ASSERT_EQUAL(std::size_t(1), gatherer.numberFeatures());
+        BOOST_REQUIRE_EQUAL(std::size_t(1), gatherer.numberFeatures());
 
         {
             values.assign({5.0, 6.0, 3.0, 2.0, 4.0});
@@ -1758,15 +1755,15 @@ void CMetricDataGathererTest::testVarp() {
             TFeatureSizeFeatureDataPrVecPrVec featureData;
             gatherer.featureData(startTime, bucketLength, featureData);
             // Expect only 1 feature
-            CPPUNIT_ASSERT_EQUAL(std::size_t(1), featureData.size());
+            BOOST_REQUIRE_EQUAL(std::size_t(1), featureData.size());
             TFeatureSizeFeatureDataPrVecPr fsfd = featureData[0];
-            CPPUNIT_ASSERT_EQUAL(model_t::E_IndividualVarianceByPerson, fsfd.first);
+            BOOST_REQUIRE_EQUAL(model_t::E_IndividualVarianceByPerson, fsfd.first);
             CSample::TDouble1Vec v =
                 featureData[0].second[0].second.s_BucketValue->value();
             double expectedMean = 0;
-            double expectedVariance = ::variance(values, expectedMean);
-            CPPUNIT_ASSERT_DOUBLES_EQUAL(v[0], expectedVariance, 0.0001);
-            CPPUNIT_ASSERT_DOUBLES_EQUAL(v[1], expectedMean, 0.0001);
+            double expectedVariance = variance(values, expectedMean);
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(v[0], expectedVariance, 0.0001);
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(v[1], expectedMean, 0.0001);
         }
         startTime += bucketLength;
         {
@@ -1779,9 +1776,9 @@ void CMetricDataGathererTest::testVarp() {
             CSample::TDouble1Vec v =
                 featureData[0].second[0].second.s_BucketValue->value();
             double expectedMean = 0;
-            double expectedVariance = ::variance(values, expectedMean);
-            CPPUNIT_ASSERT_DOUBLES_EQUAL(v[0], expectedVariance, 0.0001);
-            CPPUNIT_ASSERT_DOUBLES_EQUAL(v[1], expectedMean, 0.0001);
+            double expectedVariance = variance(values, expectedMean);
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(v[0], expectedVariance, 0.0001);
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(v[1], expectedMean, 0.0001);
         }
         startTime += bucketLength;
         gatherer.sampleNow(startTime);
@@ -1793,7 +1790,7 @@ void CMetricDataGathererTest::testVarp() {
             TFeatureSizeFeatureDataPrVecPrVec featureData;
             gatherer.featureData(startTime, bucketLength, featureData);
             LOG_DEBUG(<< "featureData = " << core::CContainerPrinter::print(featureData));
-            CPPUNIT_ASSERT(!featureData[0].second[0].second.s_BucketValue);
+            BOOST_TEST_REQUIRE(!featureData[0].second[0].second.s_BucketValue);
         }
     }
 
@@ -1808,9 +1805,9 @@ void CMetricDataGathererTest::testVarp() {
         CDataGatherer gatherer(model_t::E_Metric, model_t::E_None, params, EMPTY_STRING,
                                EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
                                influencerFieldNames, KEY, features, startTime, 2u);
-        CPPUNIT_ASSERT(!gatherer.isPopulation());
-        CPPUNIT_ASSERT_EQUAL(std::size_t(0), addPerson(person, gatherer, m_ResourceMonitor,
-                                                       influencerFieldNames.size()));
+        BOOST_TEST_REQUIRE(!gatherer.isPopulation());
+        BOOST_REQUIRE_EQUAL(std::size_t(0), addPerson(person, gatherer, m_ResourceMonitor,
+                                                      influencerFieldNames.size()));
 
         TStrVec testInf(gatherer.beginInfluencers(), gatherer.endInfluencers());
 
@@ -1818,7 +1815,7 @@ void CMetricDataGathererTest::testVarp() {
         LOG_DEBUG(<< "FOI: "
                   << core::CContainerPrinter::print(gatherer.fieldsOfInterest()));
 
-        CPPUNIT_ASSERT_EQUAL(std::size_t(1), gatherer.numberFeatures());
+        BOOST_REQUIRE_EQUAL(std::size_t(1), gatherer.numberFeatures());
         {
             addArrival(gatherer, m_ResourceMonitor, startTime + 0, person, 5.0, inf1, inf2);
             addArrival(gatherer, m_ResourceMonitor, startTime + 100, person, 5.5, inf1, "");
@@ -1839,96 +1836,62 @@ void CMetricDataGathererTest::testVarp() {
             TFeatureSizeFeatureDataPrVecPrVec featureData;
             gatherer.featureData(startTime, bucketLength, featureData);
             TFeatureSizeFeatureDataPrVecPr fsfd = featureData[0];
-            CPPUNIT_ASSERT_EQUAL(model_t::E_IndividualVarianceByPerson, fsfd.first);
+            BOOST_REQUIRE_EQUAL(model_t::E_IndividualVarianceByPerson, fsfd.first);
 
             CSample::TDouble1Vec v =
                 featureData[0].second[0].second.s_BucketValue->value();
             values.assign({5.0, 5.5, 5.9, 5.2, 5.1, 2.2, 4.9, 5.1, 5.0, 12.12, 5.2, 5.0, 1.0});
             double expectedMean = 0;
-            double expectedVariance = ::variance(values, expectedMean);
-            CPPUNIT_ASSERT_DOUBLES_EQUAL(v[0], expectedVariance, 0.0001);
-            CPPUNIT_ASSERT_DOUBLES_EQUAL(v[1], expectedMean, 0.0001);
+            double expectedVariance = variance(values, expectedMean);
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(v[0], expectedVariance, 0.0001);
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(v[1], expectedMean, 0.0001);
 
             values.pop_back();
             double i1ExpectedMean = 0;
-            double i1ExpectedVariance = ::variance(values, i1ExpectedMean);
+            double i1ExpectedVariance = variance(values, i1ExpectedMean);
 
             values.clear();
             values.push_back(5.0);
             values.push_back(2.2);
             values.push_back(12.12);
             double i2ExpectedMean = 0;
-            double i2ExpectedVariance = ::variance(values, i2ExpectedMean);
+            double i2ExpectedVariance = variance(values, i2ExpectedMean);
 
             values.clear();
             values.push_back(5.0);
             double i3ExpectedMean = 0;
-            double i3ExpectedVariance = ::variance(values, i3ExpectedMean);
+            double i3ExpectedVariance = variance(values, i3ExpectedMean);
 
             SMetricFeatureData mfd = fsfd.second[0].second;
             SMetricFeatureData::TStrCRefDouble1VecDoublePrPrVecVec ivs = mfd.s_InfluenceValues;
             LOG_DEBUG(<< "IVs: " << core::CContainerPrinter::print(ivs));
-            CPPUNIT_ASSERT_EQUAL(std::size_t(2), ivs.size());
-            CPPUNIT_ASSERT_EQUAL(std::size_t(1), ivs[0].size());
-            CPPUNIT_ASSERT_EQUAL(std::size_t(2), ivs[1].size());
+            BOOST_REQUIRE_EQUAL(std::size_t(2), ivs.size());
+            BOOST_REQUIRE_EQUAL(std::size_t(1), ivs[0].size());
+            BOOST_REQUIRE_EQUAL(std::size_t(2), ivs[1].size());
 
             const SMetricFeatureData::TStrCRefDouble1VecDoublePrPr& ivs1 = ivs[0][0];
-            CPPUNIT_ASSERT_EQUAL(inf1, ivs1.first.get());
-            CPPUNIT_ASSERT_DOUBLES_EQUAL(12.0, ivs1.second.second, 0.0001);
-            CPPUNIT_ASSERT_EQUAL(std::size_t(2), ivs1.second.first.size());
-            CPPUNIT_ASSERT_DOUBLES_EQUAL(ivs1.second.first[0], i1ExpectedVariance, 0.0001);
-            CPPUNIT_ASSERT_DOUBLES_EQUAL(ivs1.second.first[1], i1ExpectedMean, 0.0001);
+            BOOST_REQUIRE_EQUAL(inf1, ivs1.first.get());
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(12.0, ivs1.second.second, 0.0001);
+            BOOST_REQUIRE_EQUAL(std::size_t(2), ivs1.second.first.size());
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(ivs1.second.first[0], i1ExpectedVariance, 0.0001);
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(ivs1.second.first[1], i1ExpectedMean, 0.0001);
 
             // The order of ivs2 and ivs3 seems to be backwards...
             const SMetricFeatureData::TStrCRefDouble1VecDoublePrPr& ivs2 = ivs[1][1];
-            CPPUNIT_ASSERT_EQUAL(inf2, ivs2.first.get());
-            CPPUNIT_ASSERT_DOUBLES_EQUAL(3.0, ivs2.second.second, 0.0001);
-            CPPUNIT_ASSERT_EQUAL(std::size_t(2), ivs2.second.first.size());
-            CPPUNIT_ASSERT_DOUBLES_EQUAL(ivs2.second.first[0], i2ExpectedVariance, 0.0001);
-            CPPUNIT_ASSERT_DOUBLES_EQUAL(ivs2.second.first[1], i2ExpectedMean, 0.0001);
+            BOOST_REQUIRE_EQUAL(inf2, ivs2.first.get());
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(3.0, ivs2.second.second, 0.0001);
+            BOOST_REQUIRE_EQUAL(std::size_t(2), ivs2.second.first.size());
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(ivs2.second.first[0], i2ExpectedVariance, 0.0001);
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(ivs2.second.first[1], i2ExpectedMean, 0.0001);
 
             const SMetricFeatureData::TStrCRefDouble1VecDoublePrPr& ivs3 = ivs[1][0];
-            CPPUNIT_ASSERT_EQUAL(inf3, ivs3.first.get());
-            CPPUNIT_ASSERT_DOUBLES_EQUAL(1.0, ivs3.second.second, 0.0001);
-            CPPUNIT_ASSERT_EQUAL(std::size_t(2), ivs3.second.first.size());
-            CPPUNIT_ASSERT_DOUBLES_EQUAL(ivs3.second.first[0], i3ExpectedVariance, 0.0001);
-            CPPUNIT_ASSERT_DOUBLES_EQUAL(ivs3.second.first[1], i3ExpectedMean, 0.0001);
+            BOOST_REQUIRE_EQUAL(inf3, ivs3.first.get());
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(1.0, ivs3.second.second, 0.0001);
+            BOOST_REQUIRE_EQUAL(std::size_t(2), ivs3.second.first.size());
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(ivs3.second.first[0], i3ExpectedVariance, 0.0001);
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(ivs3.second.first[1], i3ExpectedMean, 0.0001);
         }
     }
 }
 
-CppUnit::Test* CMetricDataGathererTest::suite() {
-    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CMetricDataGathererTest");
-
-    suiteOfTests->addTest(new CppUnit::TestCaller<CMetricDataGathererTest>(
-        "CMetricDataGathererTest::singleSeriesTests", &CMetricDataGathererTest::singleSeriesTests));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CMetricDataGathererTest>(
-        "CMetricDataGathererTest::multipleSeriesTests",
-        &CMetricDataGathererTest::multipleSeriesTests));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CMetricDataGathererTest>(
-        "CMetricDataGathererTest::testSampleCount", &CMetricDataGathererTest::testSampleCount));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CMetricDataGathererTest>(
-        "CMetricDataGathererTest::testRemovePeople", &CMetricDataGathererTest::testRemovePeople));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CMetricDataGathererTest>(
-        "CMetricDataGathererTest::testSum", &CMetricDataGathererTest::testSum));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CMetricDataGathererTest>(
-        "CMetricDataGathererTest::singleSeriesOutOfOrderTests",
-        &CMetricDataGathererTest::singleSeriesOutOfOrderTests));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CMetricDataGathererTest>(
-        "CMetricDataGathererTest::testResetBucketGivenSingleSeries",
-        &CMetricDataGathererTest::testResetBucketGivenSingleSeries));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CMetricDataGathererTest>(
-        "CMetricDataGathererTest::testResetBucketGivenMultipleSeries",
-        &CMetricDataGathererTest::testResetBucketGivenMultipleSeries));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CMetricDataGathererTest>(
-        "CMetricDataGathererTest::testInfluenceStatistics",
-        &CMetricDataGathererTest::testInfluenceStatistics));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CMetricDataGathererTest>(
-        "CMetricDataGathererTest::testMultivariate", &CMetricDataGathererTest::testMultivariate));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CMetricDataGathererTest>(
-        "CMetricDataGathererTest::testStatisticsPersist",
-        &CMetricDataGathererTest::testStatisticsPersist));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CMetricDataGathererTest>(
-        "CMetricDataGathererTest::testVarp", &CMetricDataGathererTest::testVarp));
-    return suiteOfTests;
-}
+BOOST_AUTO_TEST_SUITE_END()

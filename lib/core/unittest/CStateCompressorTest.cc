@@ -4,8 +4,6 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
-#include "CStateCompressorTest.h"
-
 #include <core/CJsonStatePersistInserter.h>
 #include <core/CJsonStateRestoreTraverser.h>
 #include <core/CLogger.h>
@@ -15,8 +13,11 @@
 #include <boost/generator_iterator.hpp>
 #include <boost/random.hpp>
 #include <boost/random/uniform_int.hpp>
+#include <boost/test/unit_test.hpp>
 
 #include <iostream>
+
+BOOST_AUTO_TEST_SUITE(CStateCompressorTest)
 
 using namespace ml;
 using namespace core;
@@ -66,10 +67,10 @@ public:
     }
 
     virtual bool streamComplete(TOStreamP& strm, bool /*force*/) {
-        CPPUNIT_ASSERT_EQUAL(m_CurrentStream, strm);
+        BOOST_REQUIRE_EQUAL(m_CurrentStream, strm);
         std::ostringstream* ss =
             dynamic_cast<std::ostringstream*>(m_CurrentStream.get());
-        CPPUNIT_ASSERT(ss);
+        BOOST_TEST_REQUIRE(ss);
         LOG_TRACE(<< ss->str());
         m_Data[m_CurrentDocNum] = ss->str();
         LOG_TRACE(<< m_Data[m_CurrentDocNum]);
@@ -117,13 +118,13 @@ private:
 };
 }
 
-void CStateCompressorTest::testForApiNoKey() {
+BOOST_AUTO_TEST_CASE(testForApiNoKey) {
     // This test verifies the basic operation of compressing and decompressing
     // some JSON data, using two simultaneous streams: one regular stringstream,
     // and one compress/decompress stream
 
     std::ostringstream referenceStream;
-    ::CMockDataAdder mockKvAdder(3000);
+    CMockDataAdder mockKvAdder(3000);
     {
         ml::core::CStateCompressor compressor(mockKvAdder);
 
@@ -154,16 +155,16 @@ void CStateCompressorTest::testForApiNoKey() {
     LOG_DEBUG(<< "Size: " << restored.size());
     LOG_DEBUG(<< "Reference size: " << ref.size());
 
-    CPPUNIT_ASSERT_EQUAL(ref.size(), restored.size());
+    BOOST_REQUIRE_EQUAL(ref.size(), restored.size());
 }
 
-void CStateCompressorTest::testStreaming() {
+BOOST_AUTO_TEST_CASE(testStreaming) {
     // The purpose of this test is to add a reasonable block of data to the
     // compressed store, then read it back out and show that the data is
     // read in stream chunks, not all at once. CMockDataSearcher has a
     // method to return how much of the stored content has been accessed.
 
-    ::CMockDataAdder mockKvAdder(3000);
+    CMockDataAdder mockKvAdder(3000);
     {
         // Add lots of data to the mock datastore (compressed on the way)
         ml::core::CStateCompressor compressor(mockKvAdder);
@@ -181,51 +182,51 @@ void CStateCompressorTest::testStreaming() {
         // Read the datastore via a JSON traverser, and show that the
         // data is streamed, not read all at once
         std::size_t lastAskedFor = 0;
-        ::CMockDataSearcher mockKvSearcher(mockKvAdder);
+        CMockDataSearcher mockKvSearcher(mockKvAdder);
         LOG_TRACE(<< "After compression, there are " << mockKvSearcher.totalDocs()
                   << " docs, asked for " << mockKvSearcher.askedFor());
         ml::core::CStateDecompressor decompressor(mockKvSearcher);
         decompressor.setStateRestoreSearch("1", "");
         TIStreamP istrm = decompressor.search(1, 1);
 
-        CPPUNIT_ASSERT_EQUAL(std::size_t(0), mockKvSearcher.askedFor());
+        BOOST_REQUIRE_EQUAL(std::size_t(0), mockKvSearcher.askedFor());
 
         CJsonStateRestoreTraverser traverser(*istrm);
         traverser.next();
-        CPPUNIT_ASSERT(mockKvSearcher.askedFor() > lastAskedFor);
+        BOOST_TEST_REQUIRE(mockKvSearcher.askedFor() > lastAskedFor);
         lastAskedFor = mockKvSearcher.askedFor();
 
         for (std::size_t i = 0; i < 5000; i++) {
             traverser.next();
         }
-        CPPUNIT_ASSERT(mockKvSearcher.askedFor() > lastAskedFor);
+        BOOST_TEST_REQUIRE(mockKvSearcher.askedFor() > lastAskedFor);
         lastAskedFor = mockKvSearcher.askedFor();
 
         for (std::size_t i = 0; i < 5000; i++) {
             traverser.next();
         }
-        CPPUNIT_ASSERT(mockKvSearcher.askedFor() > lastAskedFor);
+        BOOST_TEST_REQUIRE(mockKvSearcher.askedFor() > lastAskedFor);
         lastAskedFor = mockKvSearcher.askedFor();
 
         for (std::size_t i = 0; i < 5000; i++) {
             traverser.next();
         }
-        CPPUNIT_ASSERT(mockKvSearcher.askedFor() > lastAskedFor);
+        BOOST_TEST_REQUIRE(mockKvSearcher.askedFor() > lastAskedFor);
         lastAskedFor = mockKvSearcher.askedFor();
 
         for (std::size_t i = 0; i < 5000; i++) {
             traverser.next();
         }
-        CPPUNIT_ASSERT(mockKvSearcher.askedFor() > lastAskedFor);
+        BOOST_TEST_REQUIRE(mockKvSearcher.askedFor() > lastAskedFor);
         lastAskedFor = mockKvSearcher.askedFor();
         while (traverser.next()) {
         };
         LOG_TRACE(<< "Asked for: " << mockKvSearcher.askedFor());
-        CPPUNIT_ASSERT_EQUAL(mockKvSearcher.askedFor(), mockKvAdder.data().size());
+        BOOST_REQUIRE_EQUAL(mockKvSearcher.askedFor(), mockKvAdder.data().size());
     }
 }
 
-void CStateCompressorTest::testChunking() {
+BOOST_AUTO_TEST_CASE(testChunking) {
     // Put arbitrary string data into the stream, and stress different sizes
     // check CMockDataAdder with max doc sizes from 500 to 500000
 
@@ -260,9 +261,9 @@ void CStateCompressorTest::testChunking() {
             } catch (std::exception& e) {
                 LOG_DEBUG(<< "Error in test case " << i << " / " << j << ": " << e.what());
                 LOG_DEBUG(<< "String is: " << ss.str());
-                CPPUNIT_ASSERT(false);
+                BOOST_TEST_REQUIRE(false);
             }
-            CPPUNIT_ASSERT_EQUAL(ss.str(), decompressed);
+            BOOST_REQUIRE_EQUAL(ss.str(), decompressed);
         }
         LOG_DEBUG(<< "Done chunk size " << i);
     }
@@ -293,21 +294,10 @@ void CStateCompressorTest::testChunking() {
         } catch (std::exception& e) {
             LOG_DEBUG(<< "Error in test case " << e.what());
             LOG_DEBUG(<< "String is: " << ss.str());
-            CPPUNIT_ASSERT(false);
+            BOOST_TEST_REQUIRE(false);
         }
-        CPPUNIT_ASSERT_EQUAL(ss.str(), decompressed);
+        BOOST_REQUIRE_EQUAL(ss.str(), decompressed);
     }
 }
 
-CppUnit::Test* CStateCompressorTest::suite() {
-    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CStateCompressorTest");
-
-    suiteOfTests->addTest(new CppUnit::TestCaller<CStateCompressorTest>(
-        "CStateCompressorTest::testForApiNoKey", &CStateCompressorTest::testForApiNoKey));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CStateCompressorTest>(
-        "CStateCompressorTest::testStreaming", &CStateCompressorTest::testStreaming));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CStateCompressorTest>(
-        "CStateCompressorTest::testChunking", &CStateCompressorTest::testChunking));
-
-    return suiteOfTests;
-}
+BOOST_AUTO_TEST_SUITE_END()

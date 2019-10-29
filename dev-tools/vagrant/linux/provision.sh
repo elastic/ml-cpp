@@ -112,24 +112,6 @@ if [ ! -f boost.state ]; then
   touch boost.state
 fi
 
-# ----------------- Compile cppunit -------------------------
-if [ ! -f cppunit.state ]; then
-  echo "Compiling cppunit..."
-  echo "  Downloading..."
-  wget --quiet http://dev-www.libreoffice.org/src/cppunit-1.13.2.tar.gz
-  mkdir cppunit
-  tar xfz cppunit-1.13.2.tar.gz -C cppunit --strip-components=1
-  cd cppunit
-  echo "  Configuring..."
-  ./configure --prefix=/usr/local/gcc73 > configure.log 2>&1
-  echo "  Making..."
-  make -j$NUMCPUS --load-average=$NUMCPUS > make.log 2>&1
-  make install > make_install.log 2>&1
-  cd ..
-  rm cppunit-1.13.2.tar.gz
-  touch cppunit.state
-fi
-
 # ----------------- Compile patchelf -------------------------
 if [ ! -f patchelf.state ]; then
   echo "Compiling patchelf..."

@@ -4,8 +4,6 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
-#include "CSignalTest.h"
-
 #include <core/CLogger.h>
 #include <core/CoreTypes.h>
 
@@ -14,6 +12,9 @@
 #include <test/CRandomNumbers.h>
 
 #include <boost/math/constants/constants.hpp>
+#include <boost/test/unit_test.hpp>
+
+BOOST_AUTO_TEST_SUITE(CSignalTest)
 
 using namespace ml;
 
@@ -46,7 +47,7 @@ void bruteForceDft(maths::CSignal::TComplexVec& f, double sign) {
 }
 }
 
-void CSignalTest::testFFTVersusOctave() {
+BOOST_AUTO_TEST_CASE(testFFTVersusOctave) {
     // Test versus values calculated using octave fft.
 
     double x[][20] = {
@@ -114,7 +115,7 @@ void CSignalTest::testFFTVersusOctave() {
             }
             error /= static_cast<double>(l);
             LOG_DEBUG(<< "error = " << error);
-            CPPUNIT_ASSERT(error < 0.2);
+            BOOST_TEST_REQUIRE(error < 0.2);
         }
     }
 
@@ -138,11 +139,11 @@ void CSignalTest::testFFTVersusOctave() {
         }
         error /= static_cast<double>(actual.size());
         LOG_DEBUG(<< "error = " << error);
-        CPPUNIT_ASSERT(error < 0.2);
+        BOOST_TEST_REQUIRE(error < 0.2);
     }
 }
 
-void CSignalTest::testIFFTVersusOctave() {
+BOOST_AUTO_TEST_CASE(testIFFTVersusOctave) {
     // Test versus values calculated using octave ifft.
 
     double x[][20] = {
@@ -210,12 +211,12 @@ void CSignalTest::testIFFTVersusOctave() {
             }
             error /= static_cast<double>(l);
             LOG_DEBUG(<< "error = " << error);
-            CPPUNIT_ASSERT(error < 0.01);
+            BOOST_TEST_REQUIRE(error < 0.01);
         }
     }
 }
 
-void CSignalTest::testFFTRandomized() {
+BOOST_AUTO_TEST_CASE(testFFTRandomized) {
     // Test on randomized input versus brute force.
 
     test::CRandomNumbers rng;
@@ -247,11 +248,11 @@ void CSignalTest::testFFTRandomized() {
         if (i % 5 == 0 || error >= 1e-5) {
             LOG_DEBUG(<< "length = " << lengths[i] << ", error  = " << error);
         }
-        CPPUNIT_ASSERT(error < 1e-5);
+        BOOST_TEST_REQUIRE(error < 1e-5);
     }
 }
 
-void CSignalTest::testIFFTRandomized() {
+BOOST_AUTO_TEST_CASE(testIFFTRandomized) {
     // Test on randomized input versus brute force.
 
     test::CRandomNumbers rng;
@@ -283,11 +284,11 @@ void CSignalTest::testIFFTRandomized() {
         if (i % 5 == 0 || error >= 1e-5) {
             LOG_DEBUG(<< "length = " << lengths[i] << ", error  = " << error);
         }
-        CPPUNIT_ASSERT(error < 1e-5);
+        BOOST_TEST_REQUIRE(error < 1e-5);
     }
 }
 
-void CSignalTest::testFFTIFFTIdempotency() {
+BOOST_AUTO_TEST_CASE(testFFTIFFTIdempotency) {
     // Test on randomized input that x = F(F^-1(x)).
 
     test::CRandomNumbers rng;
@@ -319,11 +320,11 @@ void CSignalTest::testFFTIFFTIdempotency() {
         if (i % 5 == 0 || error >= 1e-5) {
             LOG_DEBUG(<< "length = " << lengths[i] << ", error  = " << error);
         }
-        CPPUNIT_ASSERT(error < 1e-5);
+        BOOST_TEST_REQUIRE(error < 1e-5);
     }
 }
 
-void CSignalTest::testAutocorrelations() {
+BOOST_AUTO_TEST_CASE(testAutocorrelations) {
     test::CRandomNumbers rng;
 
     TSizeVec sizes;
@@ -350,26 +351,9 @@ void CSignalTest::testAutocorrelations() {
             LOG_DEBUG(<< "expected = " << core::CContainerPrinter::print(expected));
             LOG_DEBUG(<< "actual   = " << core::CContainerPrinter::print(actual));
         }
-        CPPUNIT_ASSERT_EQUAL(core::CContainerPrinter::print(expected),
-                             core::CContainerPrinter::print(actual));
+        BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(expected),
+                            core::CContainerPrinter::print(actual));
     }
 }
 
-CppUnit::Test* CSignalTest::suite() {
-    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CSignalTest");
-
-    suiteOfTests->addTest(new CppUnit::TestCaller<CSignalTest>(
-        "CSignalTest::testFFTVersusOctave", &CSignalTest::testFFTVersusOctave));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CSignalTest>(
-        "CSignalTest::testIFFTVersusOctave", &CSignalTest::testIFFTVersusOctave));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CSignalTest>(
-        "CSignalTest::testFFTRandomized", &CSignalTest::testFFTRandomized));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CSignalTest>(
-        "CSignalTest::testIFFTRandomized", &CSignalTest::testIFFTRandomized));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CSignalTest>(
-        "CSignalTest::testFFTIFFTIdempotency", &CSignalTest::testFFTIFFTIdempotency));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CSignalTest>(
-        "CSignalTest::testAutocorrelations", &CSignalTest::testAutocorrelations));
-
-    return suiteOfTests;
-}
+BOOST_AUTO_TEST_SUITE_END()

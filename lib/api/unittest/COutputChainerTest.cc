@@ -3,7 +3,6 @@
  * or more contributor license agreements. Licensed under the Elastic License;
  * you may not use this file except in compliance with the Elastic License.
  */
-#include "COutputChainerTest.h"
 
 #include <core/CJsonOutputStreamWrapper.h>
 
@@ -19,18 +18,13 @@
 
 #include "CMockDataProcessor.h"
 
+#include <boost/test/unit_test.hpp>
+
 #include <fstream>
 
-CppUnit::Test* COutputChainerTest::suite() {
-    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("COutputChainerTest");
+BOOST_AUTO_TEST_SUITE(COutputChainerTest)
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<COutputChainerTest>(
-        "COutputChainerTest::testChaining", &COutputChainerTest::testChaining));
-
-    return suiteOfTests;
-}
-
-void COutputChainerTest::testChaining() {
+BOOST_AUTO_TEST_CASE(testChaining) {
     static const ml::core_t::TTime BUCKET_SIZE(3600);
 
     std::string inputFileName("testfiles/big_ascending.txt");
@@ -39,17 +33,17 @@ void COutputChainerTest::testChaining() {
     {
         // Open the input and output files
         std::ifstream inputStrm(inputFileName.c_str());
-        CPPUNIT_ASSERT(inputStrm.is_open());
+        BOOST_TEST_REQUIRE(inputStrm.is_open());
 
         std::ofstream outputStrm(outputFileName.c_str());
-        CPPUNIT_ASSERT(outputStrm.is_open());
+        BOOST_TEST_REQUIRE(outputStrm.is_open());
         ml::core::CJsonOutputStreamWrapper wrappedOutputStream(outputStrm);
         // Set up the processing chain as:
         // big.txt -> typer -> chainer -> detector -> chainerOutput.txt
 
         ml::model::CLimits limits;
         ml::api::CFieldConfig fieldConfig;
-        CPPUNIT_ASSERT(fieldConfig.initFromFile("testfiles/new_mlfields.conf"));
+        BOOST_TEST_REQUIRE(fieldConfig.initFromFile("testfiles/new_mlfields.conf"));
 
         ml::model::CAnomalyDetectorModelConfig modelConfig =
             ml::model::CAnomalyDetectorModelConfig::defaultConfig(BUCKET_SIZE);
@@ -64,7 +58,7 @@ void COutputChainerTest::testChaining() {
 
         ml::api::CNdJsonInputParser parser(inputStrm);
 
-        CPPUNIT_ASSERT(parser.readStreamIntoMaps(std::bind(
+        BOOST_TEST_REQUIRE(parser.readStreamIntoMaps(std::bind(
             &CMockDataProcessor::handleRecord, &mockProcessor, std::placeholders::_1)));
     }
 
@@ -84,10 +78,12 @@ void COutputChainerTest::testChaining() {
     line = line.substr(1);
     // We don't care what the exact output is for this test
     // only that it is present and looks valid
-    CPPUNIT_ASSERT_EQUAL(expectedLineStart, line.substr(0, expectedLineStart.length()));
+    BOOST_REQUIRE_EQUAL(expectedLineStart, line.substr(0, expectedLineStart.length()));
 
     // TODO add more checks
 
     reReadStrm.close();
-    CPPUNIT_ASSERT_EQUAL(0, ::remove(outputFileName.c_str()));
+    BOOST_REQUIRE_EQUAL(0, ::remove(outputFileName.c_str()));
 }
+
+BOOST_AUTO_TEST_SUITE_END()

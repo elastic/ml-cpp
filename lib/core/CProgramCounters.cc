@@ -79,7 +79,7 @@ void CProgramCounters::cacheCounters() {
         // The cache should only exist for a very brief period of time,
         // while persistence is in operation.
         // Elsewhere there are checks to ensure that only one persistence
-        // operation occurs at any point in time,so the cache _should_ be
+        // operation occurs at any point in time, so the cache _should_ be
         // empty at this point.  Warn if that isn't the case.
         LOG_WARN(<< "Overwriting existing counters cache.");
 
@@ -118,7 +118,7 @@ void CProgramCounters::staticsAcceptPersistInserter(CStatePersistInserter& inser
         }
     };
 
-    if (ms_Instance.m_Cache.size() == 0) {
+    if (ms_Instance.m_Cache.empty()) {
         // Programmatic error, cacheCounters has not been called immediately prior to this call.
         // Choose to populate the persisted counters with the live values.
         LOG_ERROR(<< "Unexpectedly empty counters cache.");

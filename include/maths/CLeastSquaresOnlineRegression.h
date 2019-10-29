@@ -23,7 +23,9 @@
 #include <cstddef>
 #include <cstdint>
 
+namespace CTimeSeriesDecompositionTest {
 class CNanInjector;
+}
 
 namespace ml {
 namespace core {
@@ -419,7 +421,7 @@ private:
     TVectorMeanAccumulator m_S;
 
     //! Befriend a helper class used by the unit tests.
-    friend class ::CNanInjector;
+    friend class CTimeSeriesDecompositionTest::CNanInjector;
 };
 
 template<std::size_t N_, typename T>

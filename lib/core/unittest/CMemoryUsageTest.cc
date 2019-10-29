@@ -4,8 +4,6 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
-#include "CMemoryUsageTest.h"
-
 #include <core/CContainerPrinter.h>
 #include <core/CHashing.h>
 #include <core/CLogger.h>
@@ -19,6 +17,7 @@
 #include <boost/container/flat_set.hpp>
 #include <boost/optional.hpp>
 #include <boost/range.hpp>
+#include <boost/test/unit_test.hpp>
 #include <boost/unordered_map.hpp>
 
 #include <cstdlib>
@@ -26,6 +25,8 @@
 #include <memory>
 #include <string>
 #include <type_traits>
+
+BOOST_AUTO_TEST_SUITE(CMemoryUsageTest)
 
 using namespace ml;
 
@@ -266,7 +267,7 @@ template<typename T>
 std::size_t CTrackingAllocator<T>::ms_Allocated = 0;
 }
 
-void CMemoryUsageTest::testUsage() {
+BOOST_AUTO_TEST_CASE(testUsage) {
     using TFooVec = std::vector<SFoo>;
     using TFooWithMemoryVec = std::vector<SFooWithMemoryUsage>;
     using TFooList = std::list<SFoo>;
@@ -306,8 +307,8 @@ void CMemoryUsageTest::testUsage() {
         LOG_DEBUG(<< "dynamicSize(foos)           = " << core::CMemory::dynamicSize(foos));
         LOG_DEBUG(<< "dynamicSize(foosWithMemory) = "
                   << core::CMemory::dynamicSize(foosWithMemory));
-        CPPUNIT_ASSERT_EQUAL(core::CMemory::dynamicSize(foos),
-                             core::CMemory::dynamicSize(foosWithMemory));
+        BOOST_REQUIRE_EQUAL(core::CMemory::dynamicSize(foos),
+                            core::CMemory::dynamicSize(foosWithMemory));
     }
     {
         TFooList foos(10);
@@ -317,8 +318,8 @@ void CMemoryUsageTest::testUsage() {
         LOG_DEBUG(<< "dynamicSize(foos)           = " << core::CMemory::dynamicSize(foos));
         LOG_DEBUG(<< "dynamicSize(foosWithMemory) = "
                   << core::CMemory::dynamicSize(foosWithMemory));
-        CPPUNIT_ASSERT_EQUAL(core::CMemory::dynamicSize(foos),
-                             core::CMemory::dynamicSize(foosWithMemory));
+        BOOST_REQUIRE_EQUAL(core::CMemory::dynamicSize(foos),
+                            core::CMemory::dynamicSize(foosWithMemory));
     }
     {
         TFooDeque foos(10);
@@ -328,8 +329,8 @@ void CMemoryUsageTest::testUsage() {
         LOG_DEBUG(<< "dynamicSize(foos)           = " << core::CMemory::dynamicSize(foos));
         LOG_DEBUG(<< "dynamicSize(foosWithMemory) = "
                   << core::CMemory::dynamicSize(foosWithMemory));
-        CPPUNIT_ASSERT_EQUAL(core::CMemory::dynamicSize(foos),
-                             core::CMemory::dynamicSize(foosWithMemory));
+        BOOST_REQUIRE_EQUAL(core::CMemory::dynamicSize(foos),
+                            core::CMemory::dynamicSize(foosWithMemory));
     }
     {
         TFooCircBuf foos(10);
@@ -341,8 +342,8 @@ void CMemoryUsageTest::testUsage() {
         LOG_DEBUG(<< "dynamicSize(foos)           = " << core::CMemory::dynamicSize(foos));
         LOG_DEBUG(<< "dynamicSize(foosWithMemory) = "
                   << core::CMemory::dynamicSize(foosWithMemory));
-        CPPUNIT_ASSERT_EQUAL(core::CMemory::dynamicSize(foos),
-                             core::CMemory::dynamicSize(foosWithMemory));
+        BOOST_REQUIRE_EQUAL(core::CMemory::dynamicSize(foos),
+                            core::CMemory::dynamicSize(foosWithMemory));
     }
     {
         TFooFooMap foos;
@@ -358,8 +359,8 @@ void CMemoryUsageTest::testUsage() {
         LOG_DEBUG(<< "dynamicSize(foos)           = " << core::CMemory::dynamicSize(foos));
         LOG_DEBUG(<< "dynamicSize(foosWithMemory) = "
                   << core::CMemory::dynamicSize(foosWithMemory));
-        CPPUNIT_ASSERT_EQUAL(core::CMemory::dynamicSize(foos),
-                             core::CMemory::dynamicSize(foosWithMemory));
+        BOOST_REQUIRE_EQUAL(core::CMemory::dynamicSize(foos),
+                            core::CMemory::dynamicSize(foosWithMemory));
     }
     {
         TFooFooUMap foos;
@@ -375,8 +376,8 @@ void CMemoryUsageTest::testUsage() {
         LOG_DEBUG(<< "dynamicSize(foos)           = " << core::CMemory::dynamicSize(foos));
         LOG_DEBUG(<< "dynamicSize(foosWithMemory) = "
                   << core::CMemory::dynamicSize(foosWithMemory));
-        CPPUNIT_ASSERT_EQUAL(core::CMemory::dynamicSize(foos),
-                             core::CMemory::dynamicSize(foosWithMemory));
+        BOOST_REQUIRE_EQUAL(core::CMemory::dynamicSize(foos),
+                            core::CMemory::dynamicSize(foosWithMemory));
     }
     {
         TFooFSet foos;
@@ -388,8 +389,8 @@ void CMemoryUsageTest::testUsage() {
 
         LOG_DEBUG(<< "*** TFooFSet ***");
         LOG_DEBUG(<< "dynamicSize(foos)           = " << core::CMemory::dynamicSize(foos));
-        CPPUNIT_ASSERT_EQUAL(core::CMemory::dynamicSize(foos),
-                             foos.capacity() * sizeof(SFoo));
+        BOOST_REQUIRE_EQUAL(core::CMemory::dynamicSize(foos),
+                            foos.capacity() * sizeof(SFoo));
     }
 
     {
@@ -398,7 +399,7 @@ void CMemoryUsageTest::testUsage() {
         SFooWrapper wrapper;
         LOG_DEBUG(<< "memoryUsage foo     = " << foo.memoryUsage());
         LOG_DEBUG(<< "memoryUsage wrapper = " << wrapper.memoryUsage());
-        CPPUNIT_ASSERT_EQUAL(foo.memoryUsage(), wrapper.memoryUsage());
+        BOOST_REQUIRE_EQUAL(foo.memoryUsage(), wrapper.memoryUsage());
     }
 
     {
@@ -423,10 +424,10 @@ void CMemoryUsageTest::testUsage() {
         LOG_DEBUG(<< "expected dynamic size = "
                   << core::CMemory::dynamicSize(bars2) + core::CMemory::dynamicSize(state21) +
                          core::CMemory::dynamicSize(state22));
-        CPPUNIT_ASSERT_EQUAL(core::CMemory::dynamicSize(bars1),
-                             core::CMemory::dynamicSize(bars2) +
-                                 core::CMemory::dynamicSize(state21) +
-                                 core::CMemory::dynamicSize(state22));
+        BOOST_REQUIRE_EQUAL(core::CMemory::dynamicSize(bars1),
+                            core::CMemory::dynamicSize(bars2) +
+                                core::CMemory::dynamicSize(state21) +
+                                core::CMemory::dynamicSize(state22));
     }
     {
         SBar key;
@@ -445,10 +446,10 @@ void CMemoryUsageTest::testUsage() {
         LOG_DEBUG(<< "expected dynamic size = "
                   << core::CMemory::dynamicSize(bars2) + core::CMemory::dynamicSize(key) +
                          core::CMemory::dynamicSize(value));
-        CPPUNIT_ASSERT_EQUAL(core::CMemory::dynamicSize(bars1),
-                             core::CMemory::dynamicSize(bars2) +
-                                 core::CMemory::dynamicSize(key) +
-                                 core::CMemory::dynamicSize(value));
+        BOOST_REQUIRE_EQUAL(core::CMemory::dynamicSize(bars1),
+                            core::CMemory::dynamicSize(bars2) +
+                                core::CMemory::dynamicSize(key) +
+                                core::CMemory::dynamicSize(value));
     }
     {
         SBar key;
@@ -467,10 +468,10 @@ void CMemoryUsageTest::testUsage() {
         LOG_DEBUG(<< "expected dynamic size = "
                   << core::CMemory::dynamicSize(bars2) + core::CMemory::dynamicSize(key) +
                          core::CMemory::dynamicSize(value));
-        CPPUNIT_ASSERT_EQUAL(core::CMemory::dynamicSize(bars1),
-                             core::CMemory::dynamicSize(bars2) +
-                                 core::CMemory::dynamicSize(key) +
-                                 core::CMemory::dynamicSize(value));
+        BOOST_REQUIRE_EQUAL(core::CMemory::dynamicSize(bars1),
+                            core::CMemory::dynamicSize(bars2) +
+                                core::CMemory::dynamicSize(key) +
+                                core::CMemory::dynamicSize(value));
     }
     {
         SBar key;
@@ -480,7 +481,7 @@ void CMemoryUsageTest::testUsage() {
 
         TBarBarFMap bars1;
         bars1.reserve(4);
-        CPPUNIT_ASSERT(core::CMemory::dynamicSize(bars1) > 4 * sizeof(SBar));
+        BOOST_TEST_REQUIRE(core::CMemory::dynamicSize(bars1) > 4 * sizeof(SBar));
 
         bars1[key] = value;
 
@@ -493,10 +494,10 @@ void CMemoryUsageTest::testUsage() {
         LOG_DEBUG(<< "expected dynamic size = "
                   << core::CMemory::dynamicSize(bars2) + core::CMemory::dynamicSize(key) +
                          core::CMemory::dynamicSize(value));
-        CPPUNIT_ASSERT_EQUAL(core::CMemory::dynamicSize(bars1),
-                             core::CMemory::dynamicSize(bars2) +
-                                 core::CMemory::dynamicSize(key) +
-                                 core::CMemory::dynamicSize(value));
+        BOOST_REQUIRE_EQUAL(core::CMemory::dynamicSize(bars1),
+                            core::CMemory::dynamicSize(bars2) +
+                                core::CMemory::dynamicSize(key) +
+                                core::CMemory::dynamicSize(value));
     }
     {
         SBar value;
@@ -508,9 +509,9 @@ void CMemoryUsageTest::testUsage() {
         LOG_DEBUG(<< "dynamic size = " << core::CMemory::dynamicSize(pointer));
         LOG_DEBUG(<< "expected dynamic size = "
                   << sizeof(SBar) + sizeof(SFoo) * value.s_State.capacity());
-        CPPUNIT_ASSERT_EQUAL(core::CMemory::dynamicSize(pointer),
-                             sizeof(long) + sizeof(SBar) +
-                                 sizeof(SFoo) * value.s_State.capacity());
+        BOOST_REQUIRE_EQUAL(core::CMemory::dynamicSize(pointer),
+                            sizeof(long) + sizeof(SBar) +
+                                sizeof(SFoo) * value.s_State.capacity());
     }
 
     {
@@ -527,8 +528,8 @@ void CMemoryUsageTest::testUsage() {
         variables.push_back(b);
 
         LOG_DEBUG(<< "wrong dynamic size = " << core::CMemory::dynamicSize(variables));
-        CPPUNIT_ASSERT_EQUAL(variables.capacity() * sizeof(std::size_t),
-                             core::CMemory::dynamicSize(variables));
+        BOOST_REQUIRE_EQUAL(variables.capacity() * sizeof(std::size_t),
+                            core::CMemory::dynamicSize(variables));
 
         core::CMemory::CAnyVisitor& visitor = core::CMemory::anyVisitor();
         visitor.registerCallback<TDoubleVec>();
@@ -539,10 +540,10 @@ void CMemoryUsageTest::testUsage() {
                   << variables.capacity() * sizeof(std::size_t) + sizeof(a) +
                          core::CMemory::dynamicSize(a) + sizeof(b) +
                          core::CMemory::dynamicSize(b));
-        CPPUNIT_ASSERT_EQUAL(variables.capacity() * sizeof(std::size_t) +
-                                 sizeof(a) + core::CMemory::dynamicSize(a) +
-                                 sizeof(b) + core::CMemory::dynamicSize(b),
-                             core::CMemory::dynamicSize(variables));
+        BOOST_REQUIRE_EQUAL(variables.capacity() * sizeof(std::size_t) +
+                                sizeof(a) + core::CMemory::dynamicSize(a) +
+                                sizeof(b) + core::CMemory::dynamicSize(b),
+                            core::CMemory::dynamicSize(variables));
 
         core::CMemoryDebug::CAnyVisitor& debugVisitor = core::CMemoryDebug::anyVisitor();
         debugVisitor.registerCallback<TDoubleVec>();
@@ -550,7 +551,7 @@ void CMemoryUsageTest::testUsage() {
 
         core::CMemoryUsage mem;
         core::CMemoryDebug::dynamicSize("", variables, &mem);
-        CPPUNIT_ASSERT_EQUAL(mem.usage(), core::CMemory::dynamicSize(variables));
+        BOOST_REQUIRE_EQUAL(mem.usage(), core::CMemory::dynamicSize(variables));
         std::ostringstream ss;
         mem.print(ss);
         LOG_DEBUG(<< ss.str());
@@ -561,7 +562,7 @@ void CMemoryUsageTest::testUsage() {
         {
             core::CMemoryUsage mem;
             core::CMemoryDebug::dynamicSize("", *base, &mem);
-            CPPUNIT_ASSERT_EQUAL(mem.usage(), core::CMemory::dynamicSize(*base));
+            BOOST_REQUIRE_EQUAL(mem.usage(), core::CMemory::dynamicSize(*base));
             std::ostringstream ss;
             mem.print(ss);
             LOG_TRACE(<< ss.str());
@@ -569,20 +570,20 @@ void CMemoryUsageTest::testUsage() {
         {
             core::CMemoryUsage mem;
             core::CMemoryDebug::dynamicSize("", *derived, &mem);
-            CPPUNIT_ASSERT_EQUAL(mem.usage(), core::CMemory::dynamicSize(*derived));
+            BOOST_REQUIRE_EQUAL(mem.usage(), core::CMemory::dynamicSize(*derived));
             std::ostringstream ss;
             mem.print(ss);
             LOG_TRACE(<< ss.str());
         }
-        CPPUNIT_ASSERT(core::CMemory::dynamicSize(*base) <
-                       core::CMemory::dynamicSize(*derived));
+        BOOST_TEST_REQUIRE(core::CMemory::dynamicSize(*base) <
+                           core::CMemory::dynamicSize(*derived));
 
         TBasePtr sharedBase(new CBase(10));
         TBasePtr sharedDerived(new CDerived(10));
         {
             core::CMemoryUsage mem;
             core::CMemoryDebug::dynamicSize("", sharedBase, &mem);
-            CPPUNIT_ASSERT_EQUAL(mem.usage(), core::CMemory::dynamicSize(sharedBase));
+            BOOST_REQUIRE_EQUAL(mem.usage(), core::CMemory::dynamicSize(sharedBase));
             std::ostringstream ss;
             mem.print(ss);
             LOG_TRACE(<< ss.str());
@@ -590,18 +591,18 @@ void CMemoryUsageTest::testUsage() {
         {
             core::CMemoryUsage mem;
             core::CMemoryDebug::dynamicSize("", sharedDerived, &mem);
-            CPPUNIT_ASSERT_EQUAL(mem.usage(), core::CMemory::dynamicSize(sharedDerived));
+            BOOST_REQUIRE_EQUAL(mem.usage(), core::CMemory::dynamicSize(sharedDerived));
             std::ostringstream ss;
             mem.print(ss);
             LOG_TRACE(<< ss.str());
         }
         // boost:reference_wrapper should give zero
         std::reference_wrapper<CBase> baseRef(std::ref(*base));
-        CPPUNIT_ASSERT_EQUAL(std::size_t(0), core::CMemory::dynamicSize(baseRef));
+        BOOST_REQUIRE_EQUAL(std::size_t(0), core::CMemory::dynamicSize(baseRef));
         {
             core::CMemoryUsage mem;
             core::CMemoryDebug::dynamicSize("", baseRef, &mem);
-            CPPUNIT_ASSERT_EQUAL(mem.usage(), core::CMemory::dynamicSize(baseRef));
+            BOOST_REQUIRE_EQUAL(mem.usage(), core::CMemory::dynamicSize(baseRef));
             std::ostringstream ss;
             mem.print(ss);
             LOG_TRACE(<< ss.str());
@@ -609,26 +610,26 @@ void CMemoryUsageTest::testUsage() {
     }
     {
         CBase base(5);
-        CPPUNIT_ASSERT_EQUAL(base.memoryUsage(), core::CMemory::dynamicSize(base));
+        BOOST_REQUIRE_EQUAL(base.memoryUsage(), core::CMemory::dynamicSize(base));
 
         CBase* basePtr = new CBase(5);
-        CPPUNIT_ASSERT_EQUAL(basePtr->memoryUsage() + sizeof(*basePtr),
-                             core::CMemory::dynamicSize(basePtr));
+        BOOST_REQUIRE_EQUAL(basePtr->memoryUsage() + sizeof(*basePtr),
+                            core::CMemory::dynamicSize(basePtr));
 
         CDerived derived(6);
-        CPPUNIT_ASSERT_EQUAL(derived.memoryUsage(), core::CMemory::dynamicSize(derived));
+        BOOST_REQUIRE_EQUAL(derived.memoryUsage(), core::CMemory::dynamicSize(derived));
 
         CDerived* derivedPtr = new CDerived(5);
-        CPPUNIT_ASSERT_EQUAL(derivedPtr->memoryUsage() + sizeof(*derivedPtr),
-                             core::CMemory::dynamicSize(derivedPtr));
+        BOOST_REQUIRE_EQUAL(derivedPtr->memoryUsage() + sizeof(*derivedPtr),
+                            core::CMemory::dynamicSize(derivedPtr));
 
         CBase* basederivedPtr = new CDerived(5);
-        CPPUNIT_ASSERT_EQUAL(basederivedPtr->memoryUsage() + sizeof(CDerived),
-                             core::CMemory::dynamicSize(basederivedPtr));
+        BOOST_REQUIRE_EQUAL(basederivedPtr->memoryUsage() + sizeof(CDerived),
+                            core::CMemory::dynamicSize(basederivedPtr));
 
         TBasePtr sPtr(new CDerived(6));
-        CPPUNIT_ASSERT_EQUAL(sPtr->memoryUsage() + sizeof(long) + sizeof(CDerived),
-                             core::CMemory::dynamicSize(sPtr));
+        BOOST_REQUIRE_EQUAL(sPtr->memoryUsage() + sizeof(long) + sizeof(CDerived),
+                            core::CMemory::dynamicSize(sPtr));
     }
     {
         TDerivedVec vec;
@@ -644,7 +645,7 @@ void CMemoryUsageTest::testUsage() {
         for (std::size_t i = 0; i < vec.size(); ++i) {
             calc += vec[i].memoryUsage();
         }
-        CPPUNIT_ASSERT_EQUAL(calc, total);
+        BOOST_REQUIRE_EQUAL(calc, total);
     }
     {
         TBasePtrVec vec;
@@ -666,11 +667,11 @@ void CMemoryUsageTest::testUsage() {
         calc += sizeof(long);
         calc += static_cast<CDerived*>(vec[6].get())->memoryUsage();
         calc += sizeof(CDerived);
-        CPPUNIT_ASSERT_EQUAL(calc, total);
+        BOOST_REQUIRE_EQUAL(calc, total);
     }
 }
 
-void CMemoryUsageTest::testDebug() {
+BOOST_AUTO_TEST_CASE(testDebug) {
     using TBarVec = std::vector<SBar>;
     using TBarVecPtr = std::shared_ptr<TBarVec>;
 
@@ -686,13 +687,13 @@ void CMemoryUsageTest::testDebug() {
             LOG_TRACE(<< "SFooWithMemoryUsage usage: "
                       << sbarVectorDebug.s_State.back().memoryUsage());
         }
-        CPPUNIT_ASSERT_EQUAL(sbar.memoryUsage(), sbarDebug.memoryUsage());
-        CPPUNIT_ASSERT_EQUAL(sbar.memoryUsage(), sbarVectorDebug.memoryUsage());
+        BOOST_REQUIRE_EQUAL(sbar.memoryUsage(), sbarDebug.memoryUsage());
+        BOOST_REQUIRE_EQUAL(sbar.memoryUsage(), sbarVectorDebug.memoryUsage());
 
         {
             core::CMemoryUsage memoryUsage;
             sbarDebug.debugMemoryUsage(&memoryUsage);
-            CPPUNIT_ASSERT_EQUAL(sbarDebug.memoryUsage(), memoryUsage.usage());
+            BOOST_REQUIRE_EQUAL(sbarDebug.memoryUsage(), memoryUsage.usage());
             std::ostringstream ss;
             memoryUsage.print(ss);
             LOG_TRACE(<< "SBarDebug: " + ss.str());
@@ -705,7 +706,7 @@ void CMemoryUsageTest::testDebug() {
             LOG_TRACE(<< "SBarVectorDebug: " + ss.str());
             LOG_TRACE(<< "memoryUsage: " << sbarVectorDebug.memoryUsage()
                       << ", debugUsage: " << memoryUsage.usage());
-            CPPUNIT_ASSERT_EQUAL(sbarVectorDebug.memoryUsage(), memoryUsage.usage());
+            BOOST_REQUIRE_EQUAL(sbarVectorDebug.memoryUsage(), memoryUsage.usage());
         }
     }
     {
@@ -724,7 +725,7 @@ void CMemoryUsageTest::testDebug() {
         LOG_TRACE(<< "TBarVecPtr usage: " << core::CMemory::dynamicSize(t)
                   << ", debug: " << memoryUsage.usage());
         LOG_TRACE(<< ss.str());
-        CPPUNIT_ASSERT_EQUAL(core::CMemory::dynamicSize(t), memoryUsage.usage());
+        BOOST_REQUIRE_EQUAL(core::CMemory::dynamicSize(t), memoryUsage.usage());
     }
     {
         using TFeatureBarVecPtrPr = std::pair<EFeature, TBarVecPtr>;
@@ -754,42 +755,42 @@ void CMemoryUsageTest::testDebug() {
         LOG_TRACE(<< "TFeatureBarVecPtrPrVec usage: " << core::CMemory::dynamicSize(t)
                   << ", debug: " << memoryUsage.usage());
         LOG_TRACE(<< ss.str());
-        CPPUNIT_ASSERT_EQUAL(core::CMemory::dynamicSize(t), memoryUsage.usage());
+        BOOST_REQUIRE_EQUAL(core::CMemory::dynamicSize(t), memoryUsage.usage());
     }
 }
 
-void CMemoryUsageTest::testDynamicSizeAlwaysZero() {
+BOOST_AUTO_TEST_CASE(testDynamicSizeAlwaysZero) {
     bool test = core::memory_detail::SDynamicSizeAlwaysZero<int>::value();
-    CPPUNIT_ASSERT_EQUAL(true, test);
+    BOOST_REQUIRE_EQUAL(true, test);
     test = core::memory_detail::SDynamicSizeAlwaysZero<double>::value();
-    CPPUNIT_ASSERT_EQUAL(true, test);
+    BOOST_REQUIRE_EQUAL(true, test);
     test = core::memory_detail::SDynamicSizeAlwaysZero<SPod>::value();
-    CPPUNIT_ASSERT_EQUAL(true, test);
+    BOOST_REQUIRE_EQUAL(true, test);
     test = core::memory_detail::SDynamicSizeAlwaysZero<boost::optional<double>>::value();
-    CPPUNIT_ASSERT_EQUAL(true, test);
+    BOOST_REQUIRE_EQUAL(true, test);
     test = core::memory_detail::SDynamicSizeAlwaysZero<boost::optional<SPod>>::value();
-    CPPUNIT_ASSERT_EQUAL(true, test);
+    BOOST_REQUIRE_EQUAL(true, test);
     test = core::memory_detail::SDynamicSizeAlwaysZero<std::pair<int, int>>::value();
-    CPPUNIT_ASSERT_EQUAL(true, test);
+    BOOST_REQUIRE_EQUAL(true, test);
     test = std::is_pod<SFoo>::value;
-    CPPUNIT_ASSERT_EQUAL(false, test);
+    BOOST_REQUIRE_EQUAL(false, test);
     test = core::memory_detail::SDynamicSizeAlwaysZero<SFoo>::value();
-    CPPUNIT_ASSERT_EQUAL(true, test);
+    BOOST_REQUIRE_EQUAL(true, test);
     test = core::memory_detail::SDynamicSizeAlwaysZero<std::pair<boost::optional<double>, SFoo>>::value();
-    CPPUNIT_ASSERT_EQUAL(true, test);
+    BOOST_REQUIRE_EQUAL(true, test);
     test = core::memory_detail::SDynamicSizeAlwaysZero<core::CHashing::CUniversalHash::CUInt32Hash>::value();
-    CPPUNIT_ASSERT_EQUAL(true, test);
+    BOOST_REQUIRE_EQUAL(true, test);
     test = core::memory_detail::SDynamicSizeAlwaysZero<core::CHashing::CUniversalHash::CUInt32UnrestrictedHash>::value();
-    CPPUNIT_ASSERT_EQUAL(true, test);
+    BOOST_REQUIRE_EQUAL(true, test);
     test = core::memory_detail::SDynamicSizeAlwaysZero<std::pair<double, SFooWithMemoryUsage>>::value();
-    CPPUNIT_ASSERT_EQUAL(false, test);
+    BOOST_REQUIRE_EQUAL(false, test);
     test = core::memory_detail::SDynamicSizeAlwaysZero<SFooWithMemoryUsage>::value();
-    CPPUNIT_ASSERT_EQUAL(false, test);
+    BOOST_REQUIRE_EQUAL(false, test);
     test = core::memory_detail::SDynamicSizeAlwaysZero<SFooWrapper>::value();
-    CPPUNIT_ASSERT_EQUAL(false, test);
+    BOOST_REQUIRE_EQUAL(false, test);
 }
 
-void CMemoryUsageTest::testCompress() {
+BOOST_AUTO_TEST_CASE(testCompress) {
     {
         // Check that non-repeated entries are not removed
         core::CMemoryUsage mem;
@@ -804,7 +805,7 @@ void CMemoryUsageTest::testCompress() {
         mem.addItem("item4", 94);
         mem.addItem("item5", 95);
         mem.addItem("item6", 96);
-        CPPUNIT_ASSERT_EQUAL(std::size_t(656), mem.usage());
+        BOOST_REQUIRE_EQUAL(std::size_t(656), mem.usage());
         std::string before;
         {
             std::ostringstream ss;
@@ -812,14 +813,14 @@ void CMemoryUsageTest::testCompress() {
             before = ss.str();
         }
         mem.compress();
-        CPPUNIT_ASSERT_EQUAL(std::size_t(656), mem.usage());
+        BOOST_REQUIRE_EQUAL(std::size_t(656), mem.usage());
         std::string after;
         {
             std::ostringstream ss;
             mem.print(ss);
             after = ss.str();
         }
-        CPPUNIT_ASSERT_EQUAL(before, after);
+        BOOST_REQUIRE_EQUAL(before, after);
     }
     {
         // Check that repeated entries are removed
@@ -839,10 +840,10 @@ void CMemoryUsageTest::testCompress() {
         mem.addChild()->setName("child", 17);
         mem.addChild()->setName("child", 19);
         mem.addChild()->setName("child", 21);
-        CPPUNIT_ASSERT_EQUAL(std::size_t(227), mem.usage());
+        BOOST_REQUIRE_EQUAL(std::size_t(227), mem.usage());
 
         mem.compress();
-        CPPUNIT_ASSERT_EQUAL(std::size_t(227), mem.usage());
+        BOOST_REQUIRE_EQUAL(std::size_t(227), mem.usage());
         std::string after;
         {
             std::ostringstream ss;
@@ -853,19 +854,19 @@ void CMemoryUsageTest::testCompress() {
                              "{\"memory\":4}},{\"child [*10]\":{\"memory\":220}},{\"puffin\":"
                              "{\"memory\":2}}]}\n");
         LOG_DEBUG(<< after);
-        CPPUNIT_ASSERT_EQUAL(expected, after);
+        BOOST_REQUIRE_EQUAL(expected, after);
     }
 }
 
-void CMemoryUsageTest::testStringBehaviour() {
-    // This "test" highlights the way the std::string class behaves on each
-    // platform we support.  Experience shows that methods like reserve(),
-    // clear() and operator=() don't always work the way the books suggest...
-    //
-    // There are no assertions, but the idea is that a developer should go
-    // through the output after switching to a new standard library
-    // implementation to ensure that the quirks of std::string are in that
-    // implementation are understood.
+// This "test" highlights the way the std::string class behaves on each
+// platform we support.  Experience shows that methods like reserve(),
+// clear() and operator=() don't always work the way the books suggest...
+//
+// There are no assertions, but the idea is that a developer should go
+// through the output after switching to a new standard library
+// implementation to ensure that the quirks of std::string are in that
+// implementation are understood.
+BOOST_AUTO_TEST_CASE(testStringBehaviour, *boost::unit_test::disabled()) {
 
     LOG_INFO(<< "Size of std::string is " << sizeof(std::string));
 
@@ -1016,12 +1017,12 @@ void CMemoryUsageTest::testStringBehaviour() {
              << ((postShrinkCapacity < preShrinkCapacity) ? "works" : "DOESN'T WORK!"));
 }
 
-void CMemoryUsageTest::testStringMemory() {
-    using TAllocator = ::CTrackingAllocator<char>;
+BOOST_AUTO_TEST_CASE(testStringMemory) {
+    using TAllocator = CTrackingAllocator<char>;
     using TString = std::basic_string<char, std::char_traits<char>, TAllocator>;
 
     for (std::size_t i = 0; i < 1500; ++i) {
-        CPPUNIT_ASSERT_EQUAL(std::size_t(0), TAllocator::usage());
+        BOOST_REQUIRE_EQUAL(std::size_t(0), TAllocator::usage());
         TString trackingString;
         std::string normalString;
         for (std::size_t j = 0; j < i; ++j) {
@@ -1030,12 +1031,12 @@ void CMemoryUsageTest::testStringMemory() {
         }
         LOG_DEBUG(<< "String size " << core::CMemory::dynamicSize(normalString)
                   << ", allocated " << TAllocator::usage());
-        CPPUNIT_ASSERT_EQUAL(core::CMemory::dynamicSize(normalString), TAllocator::usage());
+        BOOST_REQUIRE_EQUAL(core::CMemory::dynamicSize(normalString), TAllocator::usage());
     }
 }
 
-void CMemoryUsageTest::testStringClear() {
-    using TAllocator = ::CTrackingAllocator<char>;
+BOOST_AUTO_TEST_CASE(testStringClear) {
+    using TAllocator = CTrackingAllocator<char>;
     using TString = std::basic_string<char, std::char_traits<char>, TAllocator>;
 
     TString empty;
@@ -1050,10 +1051,10 @@ void CMemoryUsageTest::testStringClear() {
 
     // If the following assertion fails after a standard library upgrade then
     // the logic in include/core/CMemory.h needs changing as well as this test
-    CPPUNIT_ASSERT_EQUAL(usage3Copies, TAllocator::usage());
+    BOOST_REQUIRE_EQUAL(usage3Copies, TAllocator::usage());
 }
 
-void CMemoryUsageTest::testSharedPointer() {
+BOOST_AUTO_TEST_CASE(testSharedPointer) {
     using TIntVecPtr = std::shared_ptr<TIntVec>;
     using TIntVecPtrVec = std::vector<TIntVecPtr>;
     using TStrPtr = std::shared_ptr<std::string>;
@@ -1103,8 +1104,8 @@ void CMemoryUsageTest::testSharedPointer() {
     LOG_DEBUG(<< "Expected: " << expectedSize << ", actual: "
               << (core::CMemory::dynamicSize(vec1) + core::CMemory::dynamicSize(vec2)));
 
-    CPPUNIT_ASSERT_EQUAL(expectedSize, core::CMemory::dynamicSize(vec1) +
-                                           core::CMemory::dynamicSize(vec2));
+    BOOST_REQUIRE_EQUAL(expectedSize, core::CMemory::dynamicSize(vec1) +
+                                          core::CMemory::dynamicSize(vec2));
 
     TStrPtrVec svec1;
     svec1.push_back(TStrPtr(new std::string("This is a string")));
@@ -1127,15 +1128,15 @@ void CMemoryUsageTest::testSharedPointer() {
     long stringSizeAfter = core::CMemory::dynamicSize(svec1) +
                            core::CMemory::dynamicSize(svec2);
 
-    CPPUNIT_ASSERT_EQUAL(core::CMemory::dynamicSize(svec1),
-                         core::CMemory::dynamicSize(svec2));
+    BOOST_REQUIRE_EQUAL(core::CMemory::dynamicSize(svec1),
+                        core::CMemory::dynamicSize(svec2));
     // Allow for integer rounding off by 1 for each string
-    CPPUNIT_ASSERT(std::abs(stringSizeBefore - stringSizeAfter) < 4);
+    BOOST_TEST_REQUIRE(std::abs(stringSizeBefore - stringSizeAfter) < 4);
 }
 
-void CMemoryUsageTest::testRawPointer() {
+BOOST_AUTO_TEST_CASE(testRawPointer) {
     std::string* strPtr = nullptr;
-    CPPUNIT_ASSERT_EQUAL(std::size_t(0), core::CMemory::dynamicSize(strPtr));
+    BOOST_REQUIRE_EQUAL(std::size_t(0), core::CMemory::dynamicSize(strPtr));
 
     std::string foo = "abcdefghijklmnopqrstuvwxyz";
     std::size_t fooMem = core::CMemory::dynamicSize(foo);
@@ -1143,10 +1144,10 @@ void CMemoryUsageTest::testRawPointer() {
     // but we do so here for testing purposes.
     strPtr = &foo;
 
-    CPPUNIT_ASSERT_EQUAL(fooMem + sizeof(std::string), core::CMemory::dynamicSize(strPtr));
+    BOOST_REQUIRE_EQUAL(fooMem + sizeof(std::string), core::CMemory::dynamicSize(strPtr));
 }
 
-void CMemoryUsageTest::testSmallVector() {
+BOOST_AUTO_TEST_CASE(testSmallVector) {
     using TSizeVec = std::vector<std::size_t>;
     using TDouble1Vec = core::CSmallVector<double, 2>;
     using TDouble6Vec = core::CSmallVector<double, 6>;
@@ -1163,30 +1164,36 @@ void CMemoryUsageTest::testSmallVector() {
         TSizeVec memory{core::CMemory::dynamicSize(vec1), core::CMemory::dynamicSize(vec2),
                         core::CMemory::dynamicSize(vec3)};
         // These assertions hold because the vectors never shrink
-        CPPUNIT_ASSERT(size > 2 || memory[0] == 0);
-        CPPUNIT_ASSERT(memory[0] == 0 || memory[0] == vec1.capacity() * sizeof(double));
-        CPPUNIT_ASSERT(size > 6 || memory[1] == 0);
-        CPPUNIT_ASSERT(memory[1] == 0 || memory[1] == vec2.capacity() * sizeof(double));
-        CPPUNIT_ASSERT(size > 8 || memory[2] == 0);
-        CPPUNIT_ASSERT(memory[2] == 0 || memory[2] == vec3.capacity() * sizeof(double));
+        if (size <= 2) {
+            BOOST_TEST_REQUIRE(memory[0] == 0);
+        }
+        BOOST_REQUIRE(memory[0] == 0 || memory[0] == vec1.capacity() * sizeof(double));
+        if (size <= 6) {
+            BOOST_TEST_REQUIRE(memory[1] == 0);
+        }
+        BOOST_REQUIRE(memory[1] == 0 || memory[1] == vec2.capacity() * sizeof(double));
+        if (size <= 8) {
+            BOOST_TEST_REQUIRE(memory[2] == 0);
+        }
+        BOOST_REQUIRE(memory[2] == 0 || memory[2] == vec3.capacity() * sizeof(double));
     }
 
     // Test growing and shrinking
     TDouble6Vec growShrink;
     std::size_t extraMem{core::CMemory::dynamicSize(growShrink)};
-    CPPUNIT_ASSERT_EQUAL(std::size_t(0), extraMem);
+    BOOST_REQUIRE_EQUAL(std::size_t(0), extraMem);
     growShrink.resize(6);
     extraMem = core::CMemory::dynamicSize(growShrink);
-    CPPUNIT_ASSERT_EQUAL(std::size_t(0), extraMem);
+    BOOST_REQUIRE_EQUAL(std::size_t(0), extraMem);
     growShrink.resize(10);
     extraMem = core::CMemory::dynamicSize(growShrink);
-    CPPUNIT_ASSERT(extraMem > 0);
+    BOOST_TEST_REQUIRE(extraMem > 0);
     growShrink.clear();
     extraMem = core::CMemory::dynamicSize(growShrink);
-    CPPUNIT_ASSERT(extraMem > 0);
+    BOOST_TEST_REQUIRE(extraMem > 0);
     growShrink.shrink_to_fit();
     extraMem = core::CMemory::dynamicSize(growShrink);
-    CPPUNIT_ASSERT_EQUAL(std::size_t(0), extraMem);
+    BOOST_REQUIRE_EQUAL(std::size_t(0), extraMem);
     growShrink.push_back(1.7);
     extraMem = core::CMemory::dynamicSize(growShrink);
     // Interesting (shocking?) result: once a boost::small_vector has switched
@@ -1194,33 +1201,7 @@ void CMemoryUsageTest::testSmallVector() {
     // Arguably this is a bug, and this assertion might start failing after a
     // Boost upgrade.  If that happens and changing it to assert extraMem is 0
     // fixes it then this means boost::small_vector has been improved.
-    CPPUNIT_ASSERT(extraMem > 0);
+    BOOST_TEST_REQUIRE(extraMem > 0);
 }
 
-CppUnit::Test* CMemoryUsageTest::suite() {
-    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CMemoryUsageTest");
-
-    suiteOfTests->addTest(new CppUnit::TestCaller<CMemoryUsageTest>(
-        "CMemoryUsageTest::testUsage", &CMemoryUsageTest::testUsage));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CMemoryUsageTest>(
-        "CMemoryUsageTest::testDebug", &CMemoryUsageTest::testDebug));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CMemoryUsageTest>(
-        "CMemoryUsageTest::testDynamicSizeAlwaysZero",
-        &CMemoryUsageTest::testDynamicSizeAlwaysZero));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CMemoryUsageTest>(
-        "CMemoryUsageTest::testCompress", &CMemoryUsageTest::testCompress));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CMemoryUsageTest>(
-        "CMemoryUsageTest::testStringBehaviour", &CMemoryUsageTest::testStringBehaviour));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CMemoryUsageTest>(
-        "CMemoryUsageTest::testStringMemory", &CMemoryUsageTest::testStringMemory));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CMemoryUsageTest>(
-        "CMemoryUsageTest::testStringClear", &CMemoryUsageTest::testStringClear));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CMemoryUsageTest>(
-        "CMemoryUsageTest::testSharedPointer", &CMemoryUsageTest::testSharedPointer));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CMemoryUsageTest>(
-        "CMemoryUsageTest::testRawPointer", &CMemoryUsageTest::testRawPointer));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CMemoryUsageTest>(
-        "CMemoryUsageTest::testSmallVector", &CMemoryUsageTest::testSmallVector));
-
-    return suiteOfTests;
-}
+BOOST_AUTO_TEST_SUITE_END()

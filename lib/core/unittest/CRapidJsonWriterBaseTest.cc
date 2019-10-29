@@ -3,7 +3,6 @@
  * or more contributor license agreements. Licensed under the Elastic License;
  * you may not use this file except in compliance with the Elastic License.
  */
-#include "CRapidJsonWriterBaseTest.h"
 
 #include <core/CLogger.h>
 #include <core/CRapidJsonWriterBase.h>
@@ -12,20 +11,12 @@
 #include <rapidjson/document.h>
 #include <rapidjson/ostreamwrapper.h>
 
+#include <boost/test/unit_test.hpp>
+
 #include <limits>
 #include <sstream>
 
-CppUnit::Test* CRapidJsonWriterBaseTest::suite() {
-    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CRapidJsonWriterBaseTest");
-
-    suiteOfTests->addTest(new CppUnit::TestCaller<CRapidJsonWriterBaseTest>(
-        "CRapidJsonWriterBaseTest::testAddFields", &CRapidJsonWriterBaseTest::testAddFields));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CRapidJsonWriterBaseTest>(
-        "CRapidJsonWriterBaseTest::testRemoveMemberIfPresent",
-        &CRapidJsonWriterBaseTest::testRemoveMemberIfPresent));
-
-    return suiteOfTests;
-}
+BOOST_AUTO_TEST_SUITE(CRapidJsonWriterBaseTest)
 
 namespace {
 const std::string STR_NAME("str");
@@ -44,7 +35,7 @@ const std::string NAN_ARRAY_NAME("nan[]");
 const std::string TTIME_ARRAY_NAME("TTime[]");
 }
 
-void CRapidJsonWriterBaseTest::testAddFields() {
+BOOST_AUTO_TEST_CASE(testAddFields) {
     std::ostringstream strm;
     rapidjson::OStreamWrapper writeStream(strm);
     using TGenericLineWriter =
@@ -99,10 +90,10 @@ void CRapidJsonWriterBaseTest::testAddFields() {
                             "\"TTime[]\":[1421421421000,1421421421000]"
                             "}");
 
-    CPPUNIT_ASSERT_EQUAL(expectedDoc, printedDoc);
+    BOOST_REQUIRE_EQUAL(expectedDoc, printedDoc);
 }
 
-void CRapidJsonWriterBaseTest::testRemoveMemberIfPresent() {
+BOOST_AUTO_TEST_CASE(testRemoveMemberIfPresent) {
     std::ostringstream strm;
     rapidjson::OStreamWrapper writeStream(strm);
     using TGenericLineWriter =
@@ -116,11 +107,13 @@ void CRapidJsonWriterBaseTest::testRemoveMemberIfPresent() {
     std::string foo("foo");
 
     writer.addStringFieldCopyToObj(foo, "42", doc);
-    CPPUNIT_ASSERT(doc.HasMember(foo));
+    BOOST_TEST_REQUIRE(doc.HasMember(foo));
 
     writer.removeMemberIfPresent(foo, doc);
-    CPPUNIT_ASSERT(doc.HasMember(foo) == false);
+    BOOST_TEST_REQUIRE(doc.HasMember(foo) == false);
 
     writer.removeMemberIfPresent(foo, doc);
-    CPPUNIT_ASSERT(doc.HasMember(foo) == false);
+    BOOST_TEST_REQUIRE(doc.HasMember(foo) == false);
 }
+
+BOOST_AUTO_TEST_SUITE_END()

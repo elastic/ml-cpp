@@ -4,8 +4,6 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
-#include "CMultivariateConstantPriorTest.h"
-
 #include <core/CContainerPrinter.h>
 #include <core/CLogger.h>
 #include <core/CRapidXmlParser.h>
@@ -18,13 +16,16 @@
 #include "TestUtils.h"
 
 #include <boost/range.hpp>
+#include <boost/test/unit_test.hpp>
 
 #include <limits>
+
+BOOST_AUTO_TEST_SUITE(CMultivariateConstantPriorTest)
 
 using namespace ml;
 using namespace handy_typedefs;
 
-void CMultivariateConstantPriorTest::testAddSamples() {
+BOOST_AUTO_TEST_CASE(testAddSamples) {
     // Test error cases.
 
     maths::CMultivariateConstantPrior filter(2);
@@ -33,22 +34,22 @@ void CMultivariateConstantPriorTest::testAddSamples() {
 
     filter.addSamples({TDouble10Vec(std::begin(wrongDimension), std::end(wrongDimension))},
                       maths_t::CUnitWeights::singleUnit<TDouble10Vec>(3));
-    CPPUNIT_ASSERT(filter.isNonInformative());
+    BOOST_TEST_REQUIRE(filter.isNonInformative());
 
     double nans[] = {1.3, std::numeric_limits<double>::quiet_NaN()};
 
     filter.addSamples({TDouble10Vec(std::begin(nans), std::end(nans))},
                       maths_t::CUnitWeights::singleUnit<TDouble10Vec>(2));
-    CPPUNIT_ASSERT(filter.isNonInformative());
+    BOOST_TEST_REQUIRE(filter.isNonInformative());
 
     double constant[] = {1.4, 1.0};
 
     filter.addSamples({TDouble10Vec(std::begin(constant), std::end(constant))},
                       maths_t::CUnitWeights::singleUnit<TDouble10Vec>(2));
-    CPPUNIT_ASSERT(!filter.isNonInformative());
+    BOOST_TEST_REQUIRE(!filter.isNonInformative());
 }
 
-void CMultivariateConstantPriorTest::testMarginalLikelihood() {
+BOOST_AUTO_TEST_CASE(testMarginalLikelihood) {
     // Check that the marginal likelihood is 0 for non informative, otherwise
     // either 0 or infinity depending on whether the value is equal to the
     // constant or not.
@@ -60,91 +61,90 @@ void CMultivariateConstantPriorTest::testMarginalLikelihood() {
 
     double likelihood;
 
-    CPPUNIT_ASSERT_EQUAL(
-        maths_t::E_FpFailed,
-        filter.jointLogMarginalLikelihood(
-            {}, maths_t::CUnitWeights::singleUnit<TDouble10Vec>(2), likelihood));
-    CPPUNIT_ASSERT_EQUAL(
+    BOOST_REQUIRE_EQUAL(maths_t::E_FpFailed,
+                        filter.jointLogMarginalLikelihood(
+                            {}, maths_t::CUnitWeights::singleUnit<TDouble10Vec>(2), likelihood));
+    BOOST_REQUIRE_EQUAL(
         maths_t::E_FpFailed,
         filter.jointLogMarginalLikelihood(
             TDouble10Vec1Vec(2, TDouble10Vec(std::begin(constant), std::end(constant))),
             maths_t::CUnitWeights::singleUnit<TDouble10Vec>(2), likelihood));
-    CPPUNIT_ASSERT_EQUAL(maths_t::E_FpOverflowed,
-                         filter.jointLogMarginalLikelihood(
-                             {TDouble10Vec(std::begin(constant), std::end(constant))},
-                             maths_t::CUnitWeights::singleUnit<TDouble10Vec>(2), likelihood));
-    CPPUNIT_ASSERT_EQUAL(boost::numeric::bounds<double>::lowest(), likelihood);
+    BOOST_REQUIRE_EQUAL(maths_t::E_FpOverflowed,
+                        filter.jointLogMarginalLikelihood(
+                            {TDouble10Vec(std::begin(constant), std::end(constant))},
+                            maths_t::CUnitWeights::singleUnit<TDouble10Vec>(2), likelihood));
+    BOOST_REQUIRE_EQUAL(boost::numeric::bounds<double>::lowest(), likelihood);
 
     filter.addSamples(
         TDouble10Vec1Vec(2, TDouble10Vec(std::begin(constant), std::end(constant))),
         maths_t::CUnitWeights::singleUnit<TDouble10Vec>(2));
 
-    CPPUNIT_ASSERT_EQUAL(maths_t::E_FpNoErrors,
-                         filter.jointLogMarginalLikelihood(
-                             {TDouble10Vec(std::begin(constant), std::end(constant))},
-                             maths_t::CUnitWeights::singleUnit<TDouble10Vec>(2), likelihood));
-    CPPUNIT_ASSERT_EQUAL(std::log(boost::numeric::bounds<double>::highest()), likelihood);
+    BOOST_REQUIRE_EQUAL(maths_t::E_FpNoErrors,
+                        filter.jointLogMarginalLikelihood(
+                            {TDouble10Vec(std::begin(constant), std::end(constant))},
+                            maths_t::CUnitWeights::singleUnit<TDouble10Vec>(2), likelihood));
+    BOOST_REQUIRE_EQUAL(std::log(boost::numeric::bounds<double>::highest()), likelihood);
 
-    CPPUNIT_ASSERT_EQUAL(
+    BOOST_REQUIRE_EQUAL(
         maths_t::E_FpOverflowed,
         filter.jointLogMarginalLikelihood(
             {TDouble10Vec(std::begin(different), std::end(different))},
             maths_t::CUnitWeights::singleUnit<TDouble10Vec>(2), likelihood));
-    CPPUNIT_ASSERT_EQUAL(boost::numeric::bounds<double>::lowest(), likelihood);
+    BOOST_REQUIRE_EQUAL(boost::numeric::bounds<double>::lowest(), likelihood);
 }
 
-void CMultivariateConstantPriorTest::testMarginalLikelihoodMean() {
+BOOST_AUTO_TEST_CASE(testMarginalLikelihoodMean) {
     // Check that the marginal likelihood mean is 0 for non informative,
     // otherwise equal to the constant.
 
     maths::CMultivariateConstantPrior filter(3);
 
-    CPPUNIT_ASSERT_EQUAL(std::string("[0, 0, 0]"),
-                         core::CContainerPrinter::print(filter.marginalLikelihoodMean()));
+    BOOST_REQUIRE_EQUAL(std::string("[0, 0, 0]"),
+                        core::CContainerPrinter::print(filter.marginalLikelihoodMean()));
 
     double constant[] = {1.2, 6.0, 14.1};
     filter.addSamples({TDouble10Vec(std::begin(constant), std::end(constant))},
                       maths_t::CUnitWeights::singleUnit<TDouble10Vec>(3));
 
-    CPPUNIT_ASSERT_EQUAL(std::string("[1.2, 6, 14.1]"),
-                         core::CContainerPrinter::print(filter.marginalLikelihoodMean()));
+    BOOST_REQUIRE_EQUAL(std::string("[1.2, 6, 14.1]"),
+                        core::CContainerPrinter::print(filter.marginalLikelihoodMean()));
 }
 
-void CMultivariateConstantPriorTest::testMarginalLikelihoodMode() {
+BOOST_AUTO_TEST_CASE(testMarginalLikelihoodMode) {
     // Check that the marginal likelihood mode is 0 for non informative,
     // otherwise equal to the constant.
 
     maths::CMultivariateConstantPrior filter(4);
 
-    CPPUNIT_ASSERT_EQUAL(core::CContainerPrinter::print(filter.marginalLikelihoodMean()),
-                         core::CContainerPrinter::print(filter.marginalLikelihoodMode(
-                             maths_t::CUnitWeights::unit<TDouble10Vec>(4))));
+    BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(filter.marginalLikelihoodMean()),
+                        core::CContainerPrinter::print(filter.marginalLikelihoodMode(
+                            maths_t::CUnitWeights::unit<TDouble10Vec>(4))));
 
     double constant[] = {1.1, 6.5, 12.3, 14.1};
     filter.addSamples({TDouble10Vec(std::begin(constant), std::end(constant))},
                       maths_t::CUnitWeights::singleUnit<TDouble10Vec>(4));
 
-    CPPUNIT_ASSERT_EQUAL(core::CContainerPrinter::print(filter.marginalLikelihoodMean()),
-                         core::CContainerPrinter::print(filter.marginalLikelihoodMode(
-                             maths_t::CUnitWeights::unit<TDouble10Vec>(4))));
+    BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(filter.marginalLikelihoodMean()),
+                        core::CContainerPrinter::print(filter.marginalLikelihoodMode(
+                            maths_t::CUnitWeights::unit<TDouble10Vec>(4))));
 }
 
-void CMultivariateConstantPriorTest::testMarginalLikelihoodCovariance() {
+BOOST_AUTO_TEST_CASE(testMarginalLikelihoodCovariance) {
     // Check that the marginal likelihood mode is infinite diagonal for
     // non informative, otherwise the zero matrix.
 
     maths::CMultivariateConstantPrior filter(4);
 
     TDouble10Vec10Vec covariance = filter.marginalLikelihoodCovariance();
-    CPPUNIT_ASSERT_EQUAL(std::size_t(4), covariance.size());
+    BOOST_REQUIRE_EQUAL(std::size_t(4), covariance.size());
     for (std::size_t i = 0u; i < 4; ++i) {
-        CPPUNIT_ASSERT_EQUAL(std::size_t(4), covariance[i].size());
-        CPPUNIT_ASSERT_EQUAL(boost::numeric::bounds<double>::highest(), covariance[i][i]);
+        BOOST_REQUIRE_EQUAL(std::size_t(4), covariance[i].size());
+        BOOST_REQUIRE_EQUAL(boost::numeric::bounds<double>::highest(), covariance[i][i]);
         for (std::size_t j = 0; j < i; ++j) {
-            CPPUNIT_ASSERT_EQUAL(0.0, covariance[i][j]);
+            BOOST_REQUIRE_EQUAL(0.0, covariance[i][j]);
         }
         for (std::size_t j = i + 1; j < 4; ++j) {
-            CPPUNIT_ASSERT_EQUAL(0.0, covariance[i][j]);
+            BOOST_REQUIRE_EQUAL(0.0, covariance[i][j]);
         }
     }
 
@@ -153,16 +153,16 @@ void CMultivariateConstantPriorTest::testMarginalLikelihoodCovariance() {
                       maths_t::CUnitWeights::singleUnit<TDouble10Vec>(2));
 
     covariance = filter.marginalLikelihoodCovariance();
-    CPPUNIT_ASSERT_EQUAL(std::size_t(4), covariance.size());
+    BOOST_REQUIRE_EQUAL(std::size_t(4), covariance.size());
     for (std::size_t i = 0u; i < 4; ++i) {
-        CPPUNIT_ASSERT_EQUAL(std::size_t(4), covariance[i].size());
+        BOOST_REQUIRE_EQUAL(std::size_t(4), covariance[i].size());
         for (std::size_t j = 0; j < 4; ++j) {
-            CPPUNIT_ASSERT_EQUAL(0.0, covariance[i][j]);
+            BOOST_REQUIRE_EQUAL(0.0, covariance[i][j]);
         }
     }
 }
 
-void CMultivariateConstantPriorTest::testSampleMarginalLikelihood() {
+BOOST_AUTO_TEST_CASE(testSampleMarginalLikelihood) {
     // Check we get zero samples for non-informative and sample of the
     // constant otherwise.
 
@@ -170,7 +170,7 @@ void CMultivariateConstantPriorTest::testSampleMarginalLikelihood() {
 
     TDouble10Vec1Vec samples;
     filter.sampleMarginalLikelihood(3, samples);
-    CPPUNIT_ASSERT_EQUAL(std::size_t(0), samples.size());
+    BOOST_REQUIRE_EQUAL(std::size_t(0), samples.size());
 
     double constant[] = {1.2, 4.1};
 
@@ -178,14 +178,14 @@ void CMultivariateConstantPriorTest::testSampleMarginalLikelihood() {
                       maths_t::CUnitWeights::singleUnit<TDouble10Vec>(2));
 
     filter.sampleMarginalLikelihood(4, samples);
-    CPPUNIT_ASSERT_EQUAL(std::size_t(4), samples.size());
+    BOOST_REQUIRE_EQUAL(std::size_t(4), samples.size());
     for (std::size_t i = 0u; i < 4; ++i) {
-        CPPUNIT_ASSERT_EQUAL(std::string("[1.2, 4.1]"),
-                             core::CContainerPrinter::print(samples[i]));
+        BOOST_REQUIRE_EQUAL(std::string("[1.2, 4.1]"),
+                            core::CContainerPrinter::print(samples[i]));
     }
 }
 
-void CMultivariateConstantPriorTest::testProbabilityOfLessLikelySamples() {
+BOOST_AUTO_TEST_CASE(testProbabilityOfLessLikelySamples) {
     // Check we get one for non-informative and the constant and zero
     // otherwise.
 
@@ -202,14 +202,14 @@ void CMultivariateConstantPriorTest::testProbabilityOfLessLikelySamples() {
         filter.probabilityOfLessLikelySamples(
             maths_t::E_TwoSided, samples[i],
             maths_t::CUnitWeights::singleUnit<TDouble10Vec>(2), lb, ub, tail);
-        CPPUNIT_ASSERT_EQUAL(1.0, lb);
-        CPPUNIT_ASSERT_EQUAL(1.0, ub);
+        BOOST_REQUIRE_EQUAL(1.0, lb);
+        BOOST_REQUIRE_EQUAL(1.0, ub);
         LOG_DEBUG(<< "tail = " << core::CContainerPrinter::print(tail));
-        CPPUNIT_ASSERT_EQUAL(std::string("[0, 0]"), core::CContainerPrinter::print(tail));
+        BOOST_REQUIRE_EQUAL(std::string("[0, 0]"), core::CContainerPrinter::print(tail));
     }
 
     filter.addSamples(samples[0], maths_t::CUnitWeights::singleUnit<TDouble10Vec>(2));
-    CPPUNIT_ASSERT(!filter.isNonInformative());
+    BOOST_TEST_REQUIRE(!filter.isNonInformative());
 
     std::string expectedTails[] = {"[0, 0]", "[1, 2]", "[1, 2]"};
     for (std::size_t i = 0u; i < boost::size(samples); ++i) {
@@ -218,14 +218,14 @@ void CMultivariateConstantPriorTest::testProbabilityOfLessLikelySamples() {
         filter.probabilityOfLessLikelySamples(
             maths_t::E_TwoSided, samples[i],
             maths_t::CUnitWeights::singleUnit<TDouble10Vec>(2), lb, ub, tail);
-        CPPUNIT_ASSERT_EQUAL(i == 0 ? 1.0 : 0.0, lb);
-        CPPUNIT_ASSERT_EQUAL(i == 0 ? 1.0 : 0.0, ub);
+        BOOST_REQUIRE_EQUAL(i == 0 ? 1.0 : 0.0, lb);
+        BOOST_REQUIRE_EQUAL(i == 0 ? 1.0 : 0.0, ub);
         LOG_DEBUG(<< "tail = " << core::CContainerPrinter::print(tail));
-        CPPUNIT_ASSERT_EQUAL(expectedTails[i], core::CContainerPrinter::print(tail));
+        BOOST_REQUIRE_EQUAL(expectedTails[i], core::CContainerPrinter::print(tail));
     }
 }
 
-void CMultivariateConstantPriorTest::testPersist() {
+BOOST_AUTO_TEST_CASE(testPersist) {
     // Check persistence is idempotent.
 
     LOG_DEBUG(<< "*** Non-informative ***");
@@ -244,14 +244,14 @@ void CMultivariateConstantPriorTest::testPersist() {
 
         // Restore the XML into a new filter
         core::CRapidXmlParser parser;
-        CPPUNIT_ASSERT(parser.parseStringIgnoreCdata(origXml));
+        BOOST_TEST_REQUIRE(parser.parseStringIgnoreCdata(origXml));
         core::CRapidXmlStateRestoreTraverser traverser(parser);
 
         maths::CMultivariateConstantPrior restoredFilter(3, traverser);
 
         LOG_DEBUG(<< "orig checksum = " << checksum
                   << " restored checksum = " << restoredFilter.checksum());
-        CPPUNIT_ASSERT_EQUAL(checksum, restoredFilter.checksum());
+        BOOST_REQUIRE_EQUAL(checksum, restoredFilter.checksum());
 
         // The XML representation of the new filter should be the same as the original
         std::string newXml;
@@ -260,7 +260,7 @@ void CMultivariateConstantPriorTest::testPersist() {
             restoredFilter.acceptPersistInserter(inserter);
             inserter.toXml(newXml);
         }
-        CPPUNIT_ASSERT_EQUAL(origXml, newXml);
+        BOOST_REQUIRE_EQUAL(origXml, newXml);
     }
 
     LOG_DEBUG(<< "*** Constant ***");
@@ -282,14 +282,14 @@ void CMultivariateConstantPriorTest::testPersist() {
 
         // Restore the XML into a new filter
         core::CRapidXmlParser parser;
-        CPPUNIT_ASSERT(parser.parseStringIgnoreCdata(origXml));
+        BOOST_TEST_REQUIRE(parser.parseStringIgnoreCdata(origXml));
         core::CRapidXmlStateRestoreTraverser traverser(parser);
 
         maths::CMultivariateConstantPrior restoredFilter(3, traverser);
 
         LOG_DEBUG(<< "orig checksum = " << checksum
                   << " restored checksum = " << restoredFilter.checksum());
-        CPPUNIT_ASSERT_EQUAL(checksum, restoredFilter.checksum());
+        BOOST_REQUIRE_EQUAL(checksum, restoredFilter.checksum());
 
         // The XML representation of the new filter should be the same as the original
         std::string newXml;
@@ -298,37 +298,8 @@ void CMultivariateConstantPriorTest::testPersist() {
             restoredFilter.acceptPersistInserter(inserter);
             inserter.toXml(newXml);
         }
-        CPPUNIT_ASSERT_EQUAL(origXml, newXml);
+        BOOST_REQUIRE_EQUAL(origXml, newXml);
     }
 }
 
-CppUnit::Test* CMultivariateConstantPriorTest::suite() {
-    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CMultivariateConstantPriorTest");
-
-    suiteOfTests->addTest(new CppUnit::TestCaller<CMultivariateConstantPriorTest>(
-        "CMultivariateConstantPriorTest::testAddSamples",
-        &CMultivariateConstantPriorTest::testAddSamples));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CMultivariateConstantPriorTest>(
-        "CMultivariateConstantPriorTest::testMarginalLikelihood",
-        &CMultivariateConstantPriorTest::testMarginalLikelihood));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CMultivariateConstantPriorTest>(
-        "CMultivariateConstantPriorTest::testMarginalLikelihoodMean",
-        &CMultivariateConstantPriorTest::testMarginalLikelihoodMean));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CMultivariateConstantPriorTest>(
-        "CMultivariateConstantPriorTest::testMarginalLikelihoodMode",
-        &CMultivariateConstantPriorTest::testMarginalLikelihoodMode));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CMultivariateConstantPriorTest>(
-        "CMultivariateConstantPriorTest::testMarginalLikelihoodCovariance",
-        &CMultivariateConstantPriorTest::testMarginalLikelihoodCovariance));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CMultivariateConstantPriorTest>(
-        "CMultivariateConstantPriorTest::testSampleMarginalLikelihood",
-        &CMultivariateConstantPriorTest::testSampleMarginalLikelihood));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CMultivariateConstantPriorTest>(
-        "CMultivariateConstantPriorTest::testProbabilityOfLessLikelySamples",
-        &CMultivariateConstantPriorTest::testProbabilityOfLessLikelySamples));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CMultivariateConstantPriorTest>(
-        "CMultivariateConstantPriorTest::testPersist",
-        &CMultivariateConstantPriorTest::testPersist));
-
-    return suiteOfTests;
-}
+BOOST_AUTO_TEST_SUITE_END()

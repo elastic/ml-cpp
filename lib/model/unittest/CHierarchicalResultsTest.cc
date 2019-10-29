@@ -4,8 +4,6 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
-#include "CHierarchicalResultsTest.h"
-
 #include <core/CContainerPrinter.h>
 #include <core/CLogger.h>
 #include <core/CRapidXmlParser.h>
@@ -33,14 +31,18 @@
 #include <model/CResourceMonitor.h>
 #include <model/CStringStore.h>
 
+#include <test/BoostTestCloseAbsolute.h>
 #include <test/CRandomNumbers.h>
 
 #include <boost/algorithm/cxx11/is_sorted.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/range.hpp>
+#include <boost/test/unit_test.hpp>
 
 #include <sstream>
 #include <string>
+
+BOOST_AUTO_TEST_SUITE(CHierarchicalResultsTest)
 
 using namespace ml;
 
@@ -103,7 +105,7 @@ public:
         using TNodeCPtrSetCItr = TNodeCPtrSet::const_iterator;
 
         LOG_DEBUG(<< "# layers = " << m_Layers.size());
-        CPPUNIT_ASSERT_EQUAL(expectedLayers, m_Layers.size());
+        BOOST_REQUIRE_EQUAL(expectedLayers, m_Layers.size());
 
         for (std::size_t i = 0u; i < m_Layers.size(); ++i) {
             LOG_DEBUG(<< "Checking layer " << core::CContainerPrinter::print(m_Layers[i]));
@@ -112,7 +114,7 @@ public:
                 if ((*itr)->s_Parent) {
                     std::size_t p = this->layer((*itr)->s_Parent);
                     LOG_DEBUG(<< "layer = " << i << ", parent layer = " << p);
-                    CPPUNIT_ASSERT(p > i);
+                    BOOST_TEST_REQUIRE(p > i);
                 }
             }
         }
@@ -128,7 +130,7 @@ private:
         }
 
         LOG_ERROR(<< "Couldn't find node " << node->print());
-        CPPUNIT_ASSERT(false);
+        BOOST_TEST_REQUIRE(false);
 
         return 0;
     }
@@ -150,8 +152,8 @@ public:
                        bool /*pivot*/) {
         LOG_DEBUG(<< "Visiting " << node.print());
         for (std::size_t i = node.s_Children.size(); i > 0; --i) {
-            CPPUNIT_ASSERT(!m_Children.empty());
-            CPPUNIT_ASSERT_EQUAL(m_Children.back(), node.s_Children[i - 1]);
+            BOOST_TEST_REQUIRE(!m_Children.empty());
+            BOOST_REQUIRE_EQUAL(m_Children.back(), node.s_Children[i - 1]);
             m_Children.pop_back();
         }
         m_Children.push_back(&node);
@@ -237,7 +239,7 @@ public:
                        bool /*pivot*/) {
         LOG_DEBUG(<< node.s_Spec.print() << " score = " << node.s_RawAnomalyScore << ", expected score = "
                   << maths::CTools::anomalyScore(node.probability()));
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(maths::CTools::anomalyScore(node.probability()),
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(maths::CTools::anomalyScore(node.probability()),
                                      node.s_RawAnomalyScore, 1e-10);
     }
 };
@@ -256,21 +258,21 @@ public:
         if (!this->isLeaf(node)) {
             bool willWriteAChild(false);
             for (size_t i = 0; i < node.s_Children.size(); ++i) {
-                CPPUNIT_ASSERT(node.s_Children[i] != nullptr);
+                BOOST_TEST_REQUIRE(node.s_Children[i] != nullptr);
                 willWriteAChild = this->shouldWriteResult(
                     m_Limits, results, *node.s_Children[i], pivot);
                 if (willWriteAChild) {
                     break;
                 }
             }
-            CPPUNIT_ASSERT(willWriteAChild);
+            BOOST_TEST_REQUIRE(willWriteAChild);
         }
 
         if (!this->isRoot(node)) {
-            CPPUNIT_ASSERT(node.s_Parent != nullptr);
+            BOOST_TEST_REQUIRE(node.s_Parent != nullptr);
             if (isTypeForWhichWeWriteResults(*node.s_Parent, pivot)) {
-                CPPUNIT_ASSERT(this->shouldWriteResult(m_Limits, results,
-                                                       *node.s_Parent, pivot));
+                BOOST_TEST_REQUIRE(this->shouldWriteResult(m_Limits, results,
+                                                           *node.s_Parent, pivot));
             }
         }
     }
@@ -344,7 +346,7 @@ public:
                         probabilities.s_Probabilities.find(detectors[k])->second);
                     LOG_DEBUG(<< detectors[j] << " vs " << detectors[k]
                               << ": significance = " << significance);
-                    CPPUNIT_ASSERT(significance > minimumSignificance);
+                    BOOST_TEST_REQUIRE(significance > minimumSignificance);
                     meanSignificance.add(std::log(significance));
                 }
             }
@@ -420,7 +422,7 @@ void addResult(int detector,
 
 } // unnamed::
 
-void CHierarchicalResultsTest::testBreadthFirstVisit() {
+BOOST_AUTO_TEST_CASE(testBreadthFirstVisit) {
     model::CHierarchicalResults results;
 
     // Three partitioning fields PART1, PART2, PART3:
@@ -483,7 +485,7 @@ void CHierarchicalResultsTest::testBreadthFirstVisit() {
     bfc.check(5 /*expected layers*/);
 }
 
-void CHierarchicalResultsTest::testDepthFirstVisit() {
+BOOST_AUTO_TEST_CASE(testDepthFirstVisit) {
     model::CHierarchicalResults results;
 
     // Three partitioning fields PART1, PART2, PART3:
@@ -587,7 +589,7 @@ const std::string p35("p35");
 
 } // unnamed::
 
-void CHierarchicalResultsTest::testBuildHierarchy() {
+BOOST_AUTO_TEST_CASE(testBuildHierarchy) {
     static const std::string FUNC("mean");
     static const ml::model::function_t::EFunction function(
         ml::model::function_t::E_IndividualMetricMean);
@@ -601,8 +603,8 @@ void CHierarchicalResultsTest::testBuildHierarchy() {
         CPrinter printer;
         results.postorderDepthFirst(printer);
         LOG_DEBUG(<< "\nby:\n" << printer.result());
-        CPPUNIT_ASSERT_EQUAL(std::string("'false/false/mean/////': 1, 0"),
-                             printer.result());
+        BOOST_REQUIRE_EQUAL(std::string("'false/false/mean/////': 1, 0"),
+                            printer.result());
     }
     {
         model::CHierarchicalResults results;
@@ -614,10 +616,10 @@ void CHierarchicalResultsTest::testBuildHierarchy() {
         CPrinter printer;
         results.postorderDepthFirst(printer);
         LOG_DEBUG(<< "\nby:\n" << printer.result());
-        CPPUNIT_ASSERT_EQUAL(std::string("'false/false////PF1//': 1, 0\n"
-                                         "  'false/false/mean///PF1/p12/': 0.03, 0\n"
-                                         "  'false/false/mean///PF1/p11/': 0.01, 0"),
-                             printer.result());
+        BOOST_REQUIRE_EQUAL(std::string("'false/false////PF1//': 1, 0\n"
+                                        "  'false/false/mean///PF1/p12/': 0.03, 0\n"
+                                        "  'false/false/mean///PF1/p11/': 0.01, 0"),
+                            printer.result());
     }
     {
         model::CHierarchicalResults results;
@@ -633,13 +635,13 @@ void CHierarchicalResultsTest::testBuildHierarchy() {
         CPrinter printer;
         results.postorderDepthFirst(printer);
         LOG_DEBUG(<< "\nover:\n" << printer.result());
-        CPPUNIT_ASSERT_EQUAL(std::string("'false/true//////': 1, 0\n"
-                                         "  'false/false/mean///PF2/p22/': 0.03, 0\n"
-                                         "  'false/true////PF1//': 1, 0\n"
-                                         "    'false/true/mean///PF1/p12/': 0.03, 0\n"
-                                         "    'false/true/mean///PF1/p11/': 0.01, 0\n"
-                                         "  'false/false/mean/////': 0.3, 0"),
-                             printer.result());
+        BOOST_REQUIRE_EQUAL(std::string("'false/true//////': 1, 0\n"
+                                        "  'false/false/mean///PF2/p22/': 0.03, 0\n"
+                                        "  'false/true////PF1//': 1, 0\n"
+                                        "    'false/true/mean///PF1/p12/': 0.03, 0\n"
+                                        "    'false/true/mean///PF1/p11/': 0.01, 0\n"
+                                        "  'false/false/mean/////': 0.3, 0"),
+                            printer.result());
     }
 
     // Test vanilla partition
@@ -655,11 +657,11 @@ void CHierarchicalResultsTest::testBuildHierarchy() {
         CPrinter printer;
         results.postorderDepthFirst(printer);
         LOG_DEBUG(<< "\npartition:\n" << printer.result());
-        CPPUNIT_ASSERT_EQUAL(std::string("'false/false//PNF1////': 1, 0\n"
-                                         "  'false/false/mean/PNF1/pn13///': 0.05, 0\n"
-                                         "  'false/false/mean/PNF1/pn12///': 0.01, 0\n"
-                                         "  'false/false/mean/PNF1/pn11///': 0.01, 0"),
-                             printer.result());
+        BOOST_REQUIRE_EQUAL(std::string("'false/false//PNF1////': 1, 0\n"
+                                        "  'false/false/mean/PNF1/pn13///': 0.05, 0\n"
+                                        "  'false/false/mean/PNF1/pn12///': 0.01, 0\n"
+                                        "  'false/false/mean/PNF1/pn11///': 0.01, 0"),
+                            printer.result());
     }
 
     // Test complex.
@@ -692,7 +694,7 @@ void CHierarchicalResultsTest::testBuildHierarchy() {
         CPrinter printer;
         results.postorderDepthFirst(printer);
         LOG_DEBUG(<< "\ncomplex:\n" << printer.result());
-        CPPUNIT_ASSERT_EQUAL(
+        BOOST_REQUIRE_EQUAL(
             std::string("'false/true//////': 1, 0\n"
                         "  'false/true//PNF2////': 1, 0\n"
                         "    'false/true/mean/PNF2/pn23///': 0.05, 0\n"
@@ -720,7 +722,7 @@ void CHierarchicalResultsTest::testBuildHierarchy() {
     }
 }
 
-void CHierarchicalResultsTest::testBuildHierarchyGivenPartitionsWithSinglePersonFieldValue() {
+BOOST_AUTO_TEST_CASE(testBuildHierarchyGivenPartitionsWithSinglePersonFieldValue) {
     static const std::string FUNC("mean");
     static const ml::model::function_t::EFunction function(
         ml::model::function_t::E_IndividualMetricMean);
@@ -741,42 +743,42 @@ void CHierarchicalResultsTest::testBuildHierarchyGivenPartitionsWithSinglePerson
 
     CNodeExtractor extract;
     results.bottomUpBreadthFirst(extract);
-    CPPUNIT_ASSERT_EQUAL(std::size_t(1), extract.partitionedNodes().size());
-    CPPUNIT_ASSERT_EQUAL(std::size_t(2), extract.partitionNodes().size());
-    CPPUNIT_ASSERT_EQUAL(std::size_t(2), extract.personNodes().size());
+    BOOST_REQUIRE_EQUAL(std::size_t(1), extract.partitionedNodes().size());
+    BOOST_REQUIRE_EQUAL(std::size_t(2), extract.partitionNodes().size());
+    BOOST_REQUIRE_EQUAL(std::size_t(2), extract.personNodes().size());
 
     // partitioned node
-    CPPUNIT_ASSERT_EQUAL(partition, *extract.partitionedNodes()[0]->s_Spec.s_PartitionFieldName);
-    CPPUNIT_ASSERT_EQUAL(EMPTY_STRING, *extract.partitionedNodes()[0]->s_Spec.s_PartitionFieldValue);
-    CPPUNIT_ASSERT_EQUAL(EMPTY_STRING, *extract.partitionedNodes()[0]->s_Spec.s_PersonFieldName);
-    CPPUNIT_ASSERT_EQUAL(EMPTY_STRING, *extract.partitionedNodes()[0]->s_Spec.s_PersonFieldValue);
+    BOOST_REQUIRE_EQUAL(partition, *extract.partitionedNodes()[0]->s_Spec.s_PartitionFieldName);
+    BOOST_REQUIRE_EQUAL(EMPTY_STRING, *extract.partitionedNodes()[0]->s_Spec.s_PartitionFieldValue);
+    BOOST_REQUIRE_EQUAL(EMPTY_STRING, *extract.partitionedNodes()[0]->s_Spec.s_PersonFieldName);
+    BOOST_REQUIRE_EQUAL(EMPTY_STRING, *extract.partitionedNodes()[0]->s_Spec.s_PersonFieldValue);
 
     // partition nodes
-    CPPUNIT_ASSERT_EQUAL(partition, *extract.partitionNodes()[0]->s_Spec.s_PartitionFieldName);
-    CPPUNIT_ASSERT_EQUAL(partition1, *extract.partitionNodes()[0]->s_Spec.s_PartitionFieldValue);
-    CPPUNIT_ASSERT_EQUAL(person, *extract.partitionNodes()[0]->s_Spec.s_PersonFieldName);
-    CPPUNIT_ASSERT_EQUAL(person1, *extract.partitionNodes()[0]->s_Spec.s_PersonFieldValue);
+    BOOST_REQUIRE_EQUAL(partition, *extract.partitionNodes()[0]->s_Spec.s_PartitionFieldName);
+    BOOST_REQUIRE_EQUAL(partition1, *extract.partitionNodes()[0]->s_Spec.s_PartitionFieldValue);
+    BOOST_REQUIRE_EQUAL(person, *extract.partitionNodes()[0]->s_Spec.s_PersonFieldName);
+    BOOST_REQUIRE_EQUAL(person1, *extract.partitionNodes()[0]->s_Spec.s_PersonFieldValue);
 
-    CPPUNIT_ASSERT_EQUAL(partition, *extract.partitionNodes()[1]->s_Spec.s_PartitionFieldName);
-    CPPUNIT_ASSERT_EQUAL(partition2, *extract.partitionNodes()[1]->s_Spec.s_PartitionFieldValue);
-    CPPUNIT_ASSERT_EQUAL(person, *extract.partitionNodes()[1]->s_Spec.s_PersonFieldName);
-    CPPUNIT_ASSERT_EQUAL(person1, *extract.partitionNodes()[1]->s_Spec.s_PersonFieldValue);
+    BOOST_REQUIRE_EQUAL(partition, *extract.partitionNodes()[1]->s_Spec.s_PartitionFieldName);
+    BOOST_REQUIRE_EQUAL(partition2, *extract.partitionNodes()[1]->s_Spec.s_PartitionFieldValue);
+    BOOST_REQUIRE_EQUAL(person, *extract.partitionNodes()[1]->s_Spec.s_PersonFieldName);
+    BOOST_REQUIRE_EQUAL(person1, *extract.partitionNodes()[1]->s_Spec.s_PersonFieldValue);
 
     // person nodes
-    CPPUNIT_ASSERT_EQUAL(partition, *extract.personNodes()[0]->s_Spec.s_PartitionFieldName);
-    CPPUNIT_ASSERT_EQUAL(partition1, *extract.personNodes()[0]->s_Spec.s_PartitionFieldValue);
-    CPPUNIT_ASSERT_EQUAL(person, *extract.personNodes()[0]->s_Spec.s_PersonFieldName);
-    CPPUNIT_ASSERT_EQUAL(person1, *extract.personNodes()[0]->s_Spec.s_PersonFieldValue);
-    CPPUNIT_ASSERT_EQUAL(std::size_t(0), extract.personNodes()[0]->s_Children.size());
+    BOOST_REQUIRE_EQUAL(partition, *extract.personNodes()[0]->s_Spec.s_PartitionFieldName);
+    BOOST_REQUIRE_EQUAL(partition1, *extract.personNodes()[0]->s_Spec.s_PartitionFieldValue);
+    BOOST_REQUIRE_EQUAL(person, *extract.personNodes()[0]->s_Spec.s_PersonFieldName);
+    BOOST_REQUIRE_EQUAL(person1, *extract.personNodes()[0]->s_Spec.s_PersonFieldValue);
+    BOOST_REQUIRE_EQUAL(std::size_t(0), extract.personNodes()[0]->s_Children.size());
 
-    CPPUNIT_ASSERT_EQUAL(partition, *extract.personNodes()[1]->s_Spec.s_PartitionFieldName);
-    CPPUNIT_ASSERT_EQUAL(partition2, *extract.personNodes()[1]->s_Spec.s_PartitionFieldValue);
-    CPPUNIT_ASSERT_EQUAL(person, *extract.personNodes()[1]->s_Spec.s_PersonFieldName);
-    CPPUNIT_ASSERT_EQUAL(person1, *extract.personNodes()[1]->s_Spec.s_PersonFieldValue);
-    CPPUNIT_ASSERT_EQUAL(std::size_t(0), extract.personNodes()[1]->s_Children.size());
+    BOOST_REQUIRE_EQUAL(partition, *extract.personNodes()[1]->s_Spec.s_PartitionFieldName);
+    BOOST_REQUIRE_EQUAL(partition2, *extract.personNodes()[1]->s_Spec.s_PartitionFieldValue);
+    BOOST_REQUIRE_EQUAL(person, *extract.personNodes()[1]->s_Spec.s_PersonFieldName);
+    BOOST_REQUIRE_EQUAL(person1, *extract.personNodes()[1]->s_Spec.s_PersonFieldValue);
+    BOOST_REQUIRE_EQUAL(std::size_t(0), extract.personNodes()[1]->s_Children.size());
 }
 
-void CHierarchicalResultsTest::testBasicVisitor() {
+BOOST_AUTO_TEST_CASE(testBasicVisitor) {
     static const std::string FUNC("max");
     static const ml::model::function_t::EFunction function(ml::model::function_t::E_IndividualMetricMax);
 
@@ -791,9 +793,9 @@ void CHierarchicalResultsTest::testBasicVisitor() {
         LOG_DEBUG(<< "\nby:\n" << printer.result());
         CNodeExtractor extract;
         results.bottomUpBreadthFirst(extract);
-        CPPUNIT_ASSERT_EQUAL(std::size_t(0), extract.partitionedNodes().size());
-        CPPUNIT_ASSERT_EQUAL(std::size_t(0), extract.partitionNodes().size());
-        CPPUNIT_ASSERT_EQUAL(std::size_t(0), extract.personNodes().size());
+        BOOST_REQUIRE_EQUAL(std::size_t(0), extract.partitionedNodes().size());
+        BOOST_REQUIRE_EQUAL(std::size_t(0), extract.partitionNodes().size());
+        BOOST_REQUIRE_EQUAL(std::size_t(0), extract.personNodes().size());
     }
     {
         model::CHierarchicalResults results;
@@ -805,13 +807,12 @@ void CHierarchicalResultsTest::testBasicVisitor() {
         LOG_DEBUG(<< "\nby:\n" << printer.result());
         CNodeExtractor extract;
         results.bottomUpBreadthFirst(extract);
-        CPPUNIT_ASSERT_EQUAL(std::size_t(0), extract.partitionedNodes().size());
-        CPPUNIT_ASSERT_EQUAL(std::size_t(0), extract.partitionNodes().size());
-        CPPUNIT_ASSERT_EQUAL(std::size_t(1), extract.personNodes().size());
-        CPPUNIT_ASSERT_EQUAL(PF1, *extract.personNodes()[0]->s_Spec.s_PersonFieldName);
-        CPPUNIT_ASSERT_EQUAL(EMPTY_STRING, *extract.personNodes()[0]->s_Spec.s_PersonFieldValue);
-        CPPUNIT_ASSERT_EQUAL(std::size_t(0),
-                             extract.personNodes()[0]->s_Children.size());
+        BOOST_REQUIRE_EQUAL(std::size_t(0), extract.partitionedNodes().size());
+        BOOST_REQUIRE_EQUAL(std::size_t(0), extract.partitionNodes().size());
+        BOOST_REQUIRE_EQUAL(std::size_t(1), extract.personNodes().size());
+        BOOST_REQUIRE_EQUAL(PF1, *extract.personNodes()[0]->s_Spec.s_PersonFieldName);
+        BOOST_REQUIRE_EQUAL(EMPTY_STRING, *extract.personNodes()[0]->s_Spec.s_PersonFieldValue);
+        BOOST_REQUIRE_EQUAL(std::size_t(0), extract.personNodes()[0]->s_Children.size());
     }
     {
         model::CHierarchicalResults results;
@@ -828,27 +829,26 @@ void CHierarchicalResultsTest::testBasicVisitor() {
         CNodeExtractor extract;
         results.bottomUpBreadthFirst(extract);
 
-        CPPUNIT_ASSERT_EQUAL(std::size_t(0), extract.partitionedNodes().size());
-        CPPUNIT_ASSERT_EQUAL(std::size_t(0), extract.partitionNodes().size());
-        CPPUNIT_ASSERT_EQUAL(std::size_t(1), extract.personNodes().size());
-        CPPUNIT_ASSERT_EQUAL(std::size_t(3), extract.leafNodes().size());
-        CPPUNIT_ASSERT_EQUAL(FUNC, *extract.leafNodes()[0]->s_Spec.s_FunctionName);
-        CPPUNIT_ASSERT_EQUAL(FUNC, *extract.leafNodes()[1]->s_Spec.s_FunctionName);
-        CPPUNIT_ASSERT_EQUAL(FUNC, *extract.leafNodes()[2]->s_Spec.s_FunctionName);
-        CPPUNIT_ASSERT_EQUAL(PF1, *extract.leafNodes()[0]->s_Spec.s_PersonFieldName);
-        CPPUNIT_ASSERT_EQUAL(PF1, *extract.leafNodes()[1]->s_Spec.s_PersonFieldName);
-        CPPUNIT_ASSERT_EQUAL(PF1, *extract.leafNodes()[2]->s_Spec.s_PersonFieldName);
-        CPPUNIT_ASSERT_EQUAL(EMPTY_STRING, *extract.leafNodes()[0]->s_Spec.s_PersonFieldValue);
-        CPPUNIT_ASSERT_EQUAL(p11, *extract.leafNodes()[1]->s_Spec.s_PersonFieldValue);
-        CPPUNIT_ASSERT_EQUAL(p12, *extract.leafNodes()[2]->s_Spec.s_PersonFieldValue);
-        CPPUNIT_ASSERT_EQUAL(std::size_t(0), extract.leafNodes()[0]->s_Children.size());
-        CPPUNIT_ASSERT_EQUAL(std::size_t(0), extract.leafNodes()[1]->s_Children.size());
-        CPPUNIT_ASSERT_EQUAL(std::size_t(0), extract.leafNodes()[2]->s_Children.size());
-        CPPUNIT_ASSERT_EQUAL(EMPTY_STRING, *extract.personNodes()[0]->s_Spec.s_FunctionName);
-        CPPUNIT_ASSERT_EQUAL(PF1, *extract.personNodes()[0]->s_Spec.s_PersonFieldName);
-        CPPUNIT_ASSERT_EQUAL(EMPTY_STRING, *extract.personNodes()[0]->s_Spec.s_PersonFieldValue);
-        CPPUNIT_ASSERT_EQUAL(std::size_t(3),
-                             extract.personNodes()[0]->s_Children.size());
+        BOOST_REQUIRE_EQUAL(std::size_t(0), extract.partitionedNodes().size());
+        BOOST_REQUIRE_EQUAL(std::size_t(0), extract.partitionNodes().size());
+        BOOST_REQUIRE_EQUAL(std::size_t(1), extract.personNodes().size());
+        BOOST_REQUIRE_EQUAL(std::size_t(3), extract.leafNodes().size());
+        BOOST_REQUIRE_EQUAL(FUNC, *extract.leafNodes()[0]->s_Spec.s_FunctionName);
+        BOOST_REQUIRE_EQUAL(FUNC, *extract.leafNodes()[1]->s_Spec.s_FunctionName);
+        BOOST_REQUIRE_EQUAL(FUNC, *extract.leafNodes()[2]->s_Spec.s_FunctionName);
+        BOOST_REQUIRE_EQUAL(PF1, *extract.leafNodes()[0]->s_Spec.s_PersonFieldName);
+        BOOST_REQUIRE_EQUAL(PF1, *extract.leafNodes()[1]->s_Spec.s_PersonFieldName);
+        BOOST_REQUIRE_EQUAL(PF1, *extract.leafNodes()[2]->s_Spec.s_PersonFieldName);
+        BOOST_REQUIRE_EQUAL(EMPTY_STRING, *extract.leafNodes()[0]->s_Spec.s_PersonFieldValue);
+        BOOST_REQUIRE_EQUAL(p11, *extract.leafNodes()[1]->s_Spec.s_PersonFieldValue);
+        BOOST_REQUIRE_EQUAL(p12, *extract.leafNodes()[2]->s_Spec.s_PersonFieldValue);
+        BOOST_REQUIRE_EQUAL(std::size_t(0), extract.leafNodes()[0]->s_Children.size());
+        BOOST_REQUIRE_EQUAL(std::size_t(0), extract.leafNodes()[1]->s_Children.size());
+        BOOST_REQUIRE_EQUAL(std::size_t(0), extract.leafNodes()[2]->s_Children.size());
+        BOOST_REQUIRE_EQUAL(EMPTY_STRING, *extract.personNodes()[0]->s_Spec.s_FunctionName);
+        BOOST_REQUIRE_EQUAL(PF1, *extract.personNodes()[0]->s_Spec.s_PersonFieldName);
+        BOOST_REQUIRE_EQUAL(EMPTY_STRING, *extract.personNodes()[0]->s_Spec.s_PersonFieldValue);
+        BOOST_REQUIRE_EQUAL(std::size_t(3), extract.personNodes()[0]->s_Children.size());
     }
     {
 
@@ -865,24 +865,21 @@ void CHierarchicalResultsTest::testBasicVisitor() {
         LOG_DEBUG(<< "\nover:\n" << printer.result());
         CNodeExtractor extract;
         results.bottomUpBreadthFirst(extract);
-        CPPUNIT_ASSERT_EQUAL(std::size_t(0), extract.partitionedNodes().size());
-        CPPUNIT_ASSERT_EQUAL(std::size_t(0), extract.partitionNodes().size());
-        CPPUNIT_ASSERT_EQUAL(std::size_t(3), extract.personNodes().size());
-        CPPUNIT_ASSERT_EQUAL(FUNC, *extract.personNodes()[0]->s_Spec.s_FunctionName);
-        CPPUNIT_ASSERT_EQUAL(FUNC, *extract.personNodes()[1]->s_Spec.s_FunctionName);
-        CPPUNIT_ASSERT_EQUAL(FUNC, *extract.personNodes()[2]->s_Spec.s_FunctionName);
-        CPPUNIT_ASSERT_EQUAL(PF1, *extract.personNodes()[0]->s_Spec.s_PersonFieldName);
-        CPPUNIT_ASSERT_EQUAL(PF1, *extract.personNodes()[1]->s_Spec.s_PersonFieldName);
-        CPPUNIT_ASSERT_EQUAL(PF2, *extract.personNodes()[2]->s_Spec.s_PersonFieldName);
-        CPPUNIT_ASSERT_EQUAL(EMPTY_STRING, *extract.personNodes()[0]->s_Spec.s_PersonFieldValue);
-        CPPUNIT_ASSERT_EQUAL(p11, *extract.personNodes()[1]->s_Spec.s_PersonFieldValue);
-        CPPUNIT_ASSERT_EQUAL(p23, *extract.personNodes()[2]->s_Spec.s_PersonFieldValue);
-        CPPUNIT_ASSERT_EQUAL(std::size_t(0),
-                             extract.personNodes()[0]->s_Children.size());
-        CPPUNIT_ASSERT_EQUAL(std::size_t(0),
-                             extract.personNodes()[1]->s_Children.size());
-        CPPUNIT_ASSERT_EQUAL(std::size_t(0),
-                             extract.personNodes()[2]->s_Children.size());
+        BOOST_REQUIRE_EQUAL(std::size_t(0), extract.partitionedNodes().size());
+        BOOST_REQUIRE_EQUAL(std::size_t(0), extract.partitionNodes().size());
+        BOOST_REQUIRE_EQUAL(std::size_t(3), extract.personNodes().size());
+        BOOST_REQUIRE_EQUAL(FUNC, *extract.personNodes()[0]->s_Spec.s_FunctionName);
+        BOOST_REQUIRE_EQUAL(FUNC, *extract.personNodes()[1]->s_Spec.s_FunctionName);
+        BOOST_REQUIRE_EQUAL(FUNC, *extract.personNodes()[2]->s_Spec.s_FunctionName);
+        BOOST_REQUIRE_EQUAL(PF1, *extract.personNodes()[0]->s_Spec.s_PersonFieldName);
+        BOOST_REQUIRE_EQUAL(PF1, *extract.personNodes()[1]->s_Spec.s_PersonFieldName);
+        BOOST_REQUIRE_EQUAL(PF2, *extract.personNodes()[2]->s_Spec.s_PersonFieldName);
+        BOOST_REQUIRE_EQUAL(EMPTY_STRING, *extract.personNodes()[0]->s_Spec.s_PersonFieldValue);
+        BOOST_REQUIRE_EQUAL(p11, *extract.personNodes()[1]->s_Spec.s_PersonFieldValue);
+        BOOST_REQUIRE_EQUAL(p23, *extract.personNodes()[2]->s_Spec.s_PersonFieldValue);
+        BOOST_REQUIRE_EQUAL(std::size_t(0), extract.personNodes()[0]->s_Children.size());
+        BOOST_REQUIRE_EQUAL(std::size_t(0), extract.personNodes()[1]->s_Children.size());
+        BOOST_REQUIRE_EQUAL(std::size_t(0), extract.personNodes()[2]->s_Children.size());
     }
     {
         LOG_DEBUG(<< "Clear...");
@@ -901,19 +898,17 @@ void CHierarchicalResultsTest::testBasicVisitor() {
         LOG_DEBUG(<< "\nover:\n" << printer.result());
         CNodeExtractor extract;
         results.bottomUpBreadthFirst(extract);
-        CPPUNIT_ASSERT_EQUAL(std::size_t(0), extract.partitionedNodes().size());
-        CPPUNIT_ASSERT_EQUAL(std::size_t(0), extract.partitionNodes().size());
-        CPPUNIT_ASSERT_EQUAL(std::size_t(2), extract.personNodes().size());
-        CPPUNIT_ASSERT_EQUAL(FUNC, *extract.personNodes()[0]->s_Spec.s_FunctionName);
-        CPPUNIT_ASSERT_EQUAL(EMPTY_STRING, *extract.personNodes()[1]->s_Spec.s_FunctionName);
-        CPPUNIT_ASSERT_EQUAL(PF2, *extract.personNodes()[0]->s_Spec.s_PersonFieldName);
-        CPPUNIT_ASSERT_EQUAL(PF1, *extract.personNodes()[1]->s_Spec.s_PersonFieldName);
-        CPPUNIT_ASSERT_EQUAL(EMPTY_STRING, *extract.personNodes()[0]->s_Spec.s_PersonFieldValue);
-        CPPUNIT_ASSERT_EQUAL(p11, *extract.personNodes()[1]->s_Spec.s_PersonFieldValue);
-        CPPUNIT_ASSERT_EQUAL(std::size_t(0),
-                             extract.personNodes()[0]->s_Children.size());
-        CPPUNIT_ASSERT_EQUAL(std::size_t(2),
-                             extract.personNodes()[1]->s_Children.size());
+        BOOST_REQUIRE_EQUAL(std::size_t(0), extract.partitionedNodes().size());
+        BOOST_REQUIRE_EQUAL(std::size_t(0), extract.partitionNodes().size());
+        BOOST_REQUIRE_EQUAL(std::size_t(2), extract.personNodes().size());
+        BOOST_REQUIRE_EQUAL(FUNC, *extract.personNodes()[0]->s_Spec.s_FunctionName);
+        BOOST_REQUIRE_EQUAL(EMPTY_STRING, *extract.personNodes()[1]->s_Spec.s_FunctionName);
+        BOOST_REQUIRE_EQUAL(PF2, *extract.personNodes()[0]->s_Spec.s_PersonFieldName);
+        BOOST_REQUIRE_EQUAL(PF1, *extract.personNodes()[1]->s_Spec.s_PersonFieldName);
+        BOOST_REQUIRE_EQUAL(EMPTY_STRING, *extract.personNodes()[0]->s_Spec.s_PersonFieldValue);
+        BOOST_REQUIRE_EQUAL(p11, *extract.personNodes()[1]->s_Spec.s_PersonFieldValue);
+        BOOST_REQUIRE_EQUAL(std::size_t(0), extract.personNodes()[0]->s_Children.size());
+        BOOST_REQUIRE_EQUAL(std::size_t(2), extract.personNodes()[1]->s_Children.size());
     }
 
     // Test partition
@@ -941,56 +936,50 @@ void CHierarchicalResultsTest::testBasicVisitor() {
         CNodeExtractor extract;
         results.bottomUpBreadthFirst(extract);
 
-        CPPUNIT_ASSERT_EQUAL(std::size_t(1), extract.partitionedNodes().size());
-        CPPUNIT_ASSERT_EQUAL(PNF1, *extract.partitionedNodes()[0]->s_Spec.s_PartitionFieldName);
-        CPPUNIT_ASSERT_EQUAL(EMPTY_STRING,
-                             *extract.partitionedNodes()[0]->s_Spec.s_PartitionFieldValue);
-        CPPUNIT_ASSERT_EQUAL(std::size_t(4),
-                             extract.partitionedNodes()[0]->s_Children.size());
+        BOOST_REQUIRE_EQUAL(std::size_t(1), extract.partitionedNodes().size());
+        BOOST_REQUIRE_EQUAL(PNF1, *extract.partitionedNodes()[0]->s_Spec.s_PartitionFieldName);
+        BOOST_REQUIRE_EQUAL(EMPTY_STRING, *extract.partitionedNodes()[0]->s_Spec.s_PartitionFieldValue);
+        BOOST_REQUIRE_EQUAL(std::size_t(4),
+                            extract.partitionedNodes()[0]->s_Children.size());
 
-        CPPUNIT_ASSERT_EQUAL(std::size_t(4), extract.partitionNodes().size());
-        CPPUNIT_ASSERT_EQUAL(PNF1, *extract.partitionNodes()[0]->s_Spec.s_PartitionFieldName);
-        CPPUNIT_ASSERT_EQUAL(PNF1, *extract.partitionNodes()[1]->s_Spec.s_PartitionFieldName);
-        CPPUNIT_ASSERT_EQUAL(PNF1, *extract.partitionNodes()[2]->s_Spec.s_PartitionFieldName);
-        CPPUNIT_ASSERT_EQUAL(PNF1, *extract.partitionNodes()[3]->s_Spec.s_PartitionFieldName);
-        CPPUNIT_ASSERT_EQUAL(EMPTY_STRING, *extract.partitionNodes()[0]->s_Spec.s_PartitionFieldValue);
-        CPPUNIT_ASSERT_EQUAL(pn11, *extract.partitionNodes()[1]->s_Spec.s_PartitionFieldValue);
-        CPPUNIT_ASSERT_EQUAL(pn12, *extract.partitionNodes()[2]->s_Spec.s_PartitionFieldValue);
-        CPPUNIT_ASSERT_EQUAL(pn13, *extract.partitionNodes()[3]->s_Spec.s_PartitionFieldValue);
-        CPPUNIT_ASSERT_EQUAL(std::size_t(0),
-                             extract.partitionNodes()[0]->s_Children.size());
-        CPPUNIT_ASSERT_EQUAL(std::size_t(0),
-                             extract.partitionNodes()[1]->s_Children.size());
-        CPPUNIT_ASSERT_EQUAL(std::size_t(0),
-                             extract.partitionNodes()[2]->s_Children.size());
-        CPPUNIT_ASSERT_EQUAL(std::size_t(0),
-                             extract.partitionNodes()[3]->s_Children.size());
+        BOOST_REQUIRE_EQUAL(std::size_t(4), extract.partitionNodes().size());
+        BOOST_REQUIRE_EQUAL(PNF1, *extract.partitionNodes()[0]->s_Spec.s_PartitionFieldName);
+        BOOST_REQUIRE_EQUAL(PNF1, *extract.partitionNodes()[1]->s_Spec.s_PartitionFieldName);
+        BOOST_REQUIRE_EQUAL(PNF1, *extract.partitionNodes()[2]->s_Spec.s_PartitionFieldName);
+        BOOST_REQUIRE_EQUAL(PNF1, *extract.partitionNodes()[3]->s_Spec.s_PartitionFieldName);
+        BOOST_REQUIRE_EQUAL(EMPTY_STRING, *extract.partitionNodes()[0]->s_Spec.s_PartitionFieldValue);
+        BOOST_REQUIRE_EQUAL(pn11, *extract.partitionNodes()[1]->s_Spec.s_PartitionFieldValue);
+        BOOST_REQUIRE_EQUAL(pn12, *extract.partitionNodes()[2]->s_Spec.s_PartitionFieldValue);
+        BOOST_REQUIRE_EQUAL(pn13, *extract.partitionNodes()[3]->s_Spec.s_PartitionFieldValue);
+        BOOST_REQUIRE_EQUAL(std::size_t(0),
+                            extract.partitionNodes()[0]->s_Children.size());
+        BOOST_REQUIRE_EQUAL(std::size_t(0),
+                            extract.partitionNodes()[1]->s_Children.size());
+        BOOST_REQUIRE_EQUAL(std::size_t(0),
+                            extract.partitionNodes()[2]->s_Children.size());
+        BOOST_REQUIRE_EQUAL(std::size_t(0),
+                            extract.partitionNodes()[3]->s_Children.size());
 
-        CPPUNIT_ASSERT_EQUAL(std::size_t(5), extract.personNodes().size());
-        CPPUNIT_ASSERT_EQUAL(PF2, *extract.personNodes()[0]->s_Spec.s_PersonFieldName);
-        CPPUNIT_ASSERT_EQUAL(PF1, *extract.personNodes()[1]->s_Spec.s_PersonFieldName);
-        CPPUNIT_ASSERT_EQUAL(PF1, *extract.personNodes()[2]->s_Spec.s_PersonFieldName);
-        CPPUNIT_ASSERT_EQUAL(PF2, *extract.personNodes()[3]->s_Spec.s_PersonFieldName);
-        CPPUNIT_ASSERT_EQUAL(PF1, *extract.personNodes()[4]->s_Spec.s_PersonFieldName);
-        CPPUNIT_ASSERT_EQUAL(EMPTY_STRING, *extract.personNodes()[0]->s_Spec.s_PersonFieldValue);
-        CPPUNIT_ASSERT_EQUAL(p11, *extract.personNodes()[1]->s_Spec.s_PersonFieldValue);
-        CPPUNIT_ASSERT_EQUAL(p11, *extract.personNodes()[2]->s_Spec.s_PersonFieldValue);
-        CPPUNIT_ASSERT_EQUAL(EMPTY_STRING, *extract.personNodes()[3]->s_Spec.s_PersonFieldValue);
-        CPPUNIT_ASSERT_EQUAL(p11, *extract.personNodes()[4]->s_Spec.s_PersonFieldValue);
-        CPPUNIT_ASSERT_EQUAL(std::size_t(0),
-                             extract.personNodes()[0]->s_Children.size());
-        CPPUNIT_ASSERT_EQUAL(std::size_t(0),
-                             extract.personNodes()[1]->s_Children.size());
-        CPPUNIT_ASSERT_EQUAL(std::size_t(0),
-                             extract.personNodes()[2]->s_Children.size());
-        CPPUNIT_ASSERT_EQUAL(std::size_t(0),
-                             extract.personNodes()[3]->s_Children.size());
-        CPPUNIT_ASSERT_EQUAL(std::size_t(2),
-                             extract.personNodes()[4]->s_Children.size());
+        BOOST_REQUIRE_EQUAL(std::size_t(5), extract.personNodes().size());
+        BOOST_REQUIRE_EQUAL(PF2, *extract.personNodes()[0]->s_Spec.s_PersonFieldName);
+        BOOST_REQUIRE_EQUAL(PF1, *extract.personNodes()[1]->s_Spec.s_PersonFieldName);
+        BOOST_REQUIRE_EQUAL(PF1, *extract.personNodes()[2]->s_Spec.s_PersonFieldName);
+        BOOST_REQUIRE_EQUAL(PF2, *extract.personNodes()[3]->s_Spec.s_PersonFieldName);
+        BOOST_REQUIRE_EQUAL(PF1, *extract.personNodes()[4]->s_Spec.s_PersonFieldName);
+        BOOST_REQUIRE_EQUAL(EMPTY_STRING, *extract.personNodes()[0]->s_Spec.s_PersonFieldValue);
+        BOOST_REQUIRE_EQUAL(p11, *extract.personNodes()[1]->s_Spec.s_PersonFieldValue);
+        BOOST_REQUIRE_EQUAL(p11, *extract.personNodes()[2]->s_Spec.s_PersonFieldValue);
+        BOOST_REQUIRE_EQUAL(EMPTY_STRING, *extract.personNodes()[3]->s_Spec.s_PersonFieldValue);
+        BOOST_REQUIRE_EQUAL(p11, *extract.personNodes()[4]->s_Spec.s_PersonFieldValue);
+        BOOST_REQUIRE_EQUAL(std::size_t(0), extract.personNodes()[0]->s_Children.size());
+        BOOST_REQUIRE_EQUAL(std::size_t(0), extract.personNodes()[1]->s_Children.size());
+        BOOST_REQUIRE_EQUAL(std::size_t(0), extract.personNodes()[2]->s_Children.size());
+        BOOST_REQUIRE_EQUAL(std::size_t(0), extract.personNodes()[3]->s_Children.size());
+        BOOST_REQUIRE_EQUAL(std::size_t(2), extract.personNodes()[4]->s_Children.size());
     }
 }
 
-void CHierarchicalResultsTest::testAggregator() {
+BOOST_AUTO_TEST_CASE(testAggregator) {
     using TAnnotatedProbabilityVec = std::vector<model::SAnnotatedProbability>;
 
     model::CAnomalyDetectorModelConfig modelConfig =
@@ -1028,9 +1017,9 @@ void CHierarchicalResultsTest::testAggregator() {
         results.postorderDepthFirst(printer);
         LOG_DEBUG(<< "\nby:\n" << printer.result());
         attributeComputer(probabilities, score, probability);
-        CPPUNIT_ASSERT(results.root());
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(score, results.root()->s_RawAnomalyScore, 1e-12);
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(probability, results.root()->probability(), 1e-12);
+        BOOST_TEST_REQUIRE(results.root());
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(score, results.root()->s_RawAnomalyScore, 1e-12);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(probability, results.root()->probability(), 1e-12);
     }
 
     // Test over.
@@ -1054,9 +1043,9 @@ void CHierarchicalResultsTest::testAggregator() {
         results.postorderDepthFirst(printer);
         LOG_DEBUG(<< "\nover:\n" << printer.result());
         personComputer(probabilities, score, probability);
-        CPPUNIT_ASSERT(results.root());
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(score, results.root()->s_RawAnomalyScore, 1e-12);
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(probability, results.root()->probability(), 1e-12);
+        BOOST_TEST_REQUIRE(results.root());
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(score, results.root()->s_RawAnomalyScore, 1e-12);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(probability, results.root()->probability(), 1e-12);
     }
 
     // Test aggregation of multiple searches.
@@ -1123,14 +1112,14 @@ void CHierarchicalResultsTest::testAggregator() {
         maths::COrderings::simultaneousSort(expectedProbabilities, expectedScores);
         LOG_DEBUG(<< "expectedScores = " << core::CContainerPrinter::print(expectedScores));
         LOG_DEBUG(<< "scores         = " << core::CContainerPrinter::print(scores));
-        CPPUNIT_ASSERT_EQUAL(core::CContainerPrinter::print(expectedScores),
-                             core::CContainerPrinter::print(scores));
+        BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(expectedScores),
+                            core::CContainerPrinter::print(scores));
         LOG_DEBUG(<< "expectedProbabilities = "
                   << core::CContainerPrinter::print(expectedProbabilities));
         LOG_DEBUG(<< "probabilities         = "
                   << core::CContainerPrinter::print(probabilities));
-        CPPUNIT_ASSERT_EQUAL(core::CContainerPrinter::print(expectedProbabilities),
-                             core::CContainerPrinter::print(probabilities));
+        BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(expectedProbabilities),
+                            core::CContainerPrinter::print(probabilities));
     }
 
     // Test partition
@@ -1153,13 +1142,13 @@ void CHierarchicalResultsTest::testAggregator() {
         results.postorderDepthFirst(printer);
         LOG_DEBUG(<< "\npartition:\n" << printer.result());
         partitionComputer(probabilities, score, probability);
-        CPPUNIT_ASSERT(results.root());
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(score, results.root()->s_RawAnomalyScore, 1e-12);
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(probability, results.root()->probability(), 1e-12);
+        BOOST_TEST_REQUIRE(results.root());
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(score, results.root()->s_RawAnomalyScore, 1e-12);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(probability, results.root()->probability(), 1e-12);
     }
 }
 
-void CHierarchicalResultsTest::testInfluence() {
+BOOST_AUTO_TEST_CASE(testInfluence) {
     model::CAnomalyDetectorModelConfig modelConfig =
         model::CAnomalyDetectorModelConfig::defaultConfig();
     model::CHierarchicalResultsAggregator aggregator(modelConfig);
@@ -1199,7 +1188,7 @@ void CHierarchicalResultsTest::testInfluence() {
         results.postorderDepthFirst(printer);
         results.pivotsBottomUpBreadthFirst(printer);
         LOG_DEBUG(<< "\nby:\n" << printer.result());
-        CPPUNIT_ASSERT_EQUAL(
+        BOOST_REQUIRE_EQUAL(
             std::string("'false/false////I//': 0.003600205, 0.02066228 pivot\n"
                         "  'false/false////I/i2/': 0.003, 0.0251169 pivot\n"
                         "  'false/false////I/i1/': 0.001801726, 0.04288765 pivot\n"
@@ -1251,7 +1240,7 @@ void CHierarchicalResultsTest::testInfluence() {
         results.postorderDepthFirst(printer);
         results.pivotsBottomUpBreadthFirst(printer);
         LOG_DEBUG(<< "\ncomplex:\n" << printer.result());
-        CPPUNIT_ASSERT_EQUAL(
+        BOOST_REQUIRE_EQUAL(
             std::string("'false/false////I//': 0.006210884, 0.01130322 pivot\n"
                         "  'false/false////I/i2/': 0.003110279, 0.0241695 pivot\n"
                         "  'false/false////I/i1/': 0.00619034, 0.01134605 pivot\n"
@@ -1308,7 +1297,7 @@ void CHierarchicalResultsTest::testInfluence() {
         results.pivotsBottomUpBreadthFirst(writtenNodesOnlyPrinter);
         LOG_DEBUG(<< "\nhigh p records with low p influencer:\n"
                   << writtenNodesOnlyPrinter.result());
-        CPPUNIT_ASSERT_EQUAL(
+        BOOST_REQUIRE_EQUAL(
             std::string("'false/false////I//': 0.001999, 0.038497 pivot\n"
                         "  'false/false////I/i2/': 0.001, 0.07855711 pivot\n"
                         "  'false/false////I/i1/': 0.01939367, 0.002530117 pivot\n"
@@ -1320,7 +1309,7 @@ void CHierarchicalResultsTest::testInfluence() {
     }
 }
 
-void CHierarchicalResultsTest::testScores() {
+BOOST_AUTO_TEST_CASE(testScores) {
     model::CAnomalyDetectorModelConfig modelConfig =
         model::CAnomalyDetectorModelConfig::defaultConfig();
     model::CLimits limits;
@@ -1449,7 +1438,7 @@ void CHierarchicalResultsTest::testScores() {
     }
 }
 
-void CHierarchicalResultsTest::testWriter() {
+BOOST_AUTO_TEST_CASE(testWriter) {
     model::CAnomalyDetectorModelConfig modelConfig =
         model::CAnomalyDetectorModelConfig::defaultConfig();
     model::CLimits limits;
@@ -1526,7 +1515,7 @@ void CHierarchicalResultsTest::testWriter() {
     }
 }
 
-void CHierarchicalResultsTest::testNormalizer() {
+BOOST_AUTO_TEST_CASE(testNormalizer) {
     using TNormalizerPtr = std::shared_ptr<model::CAnomalyScore::CNormalizer>;
     using TStrNormalizerPtrMap = std::map<std::string, TNormalizerPtr>;
     using TNodeCPtrSet = std::set<const model::CHierarchicalResultsVisitor::TNode*>;
@@ -1630,7 +1619,7 @@ void CHierarchicalResultsTest::testNormalizer() {
                                    ? 0.0
                                    : maths::CTools::anomalyScore(probability);
                 normalized.push_back(leaf->s_NormalizedAnomalyScore);
-                CPPUNIT_ASSERT(expectedNormalizer->normalize(scope(leaf), score));
+                BOOST_TEST_REQUIRE(expectedNormalizer->normalize(scope(leaf), score));
                 expectedNormalized.push_back(score);
             }
         }
@@ -1638,8 +1627,8 @@ void CHierarchicalResultsTest::testNormalizer() {
         LOG_DEBUG(<< "expectedNormalized = "
                   << core::CContainerPrinter::print(expectedNormalized));
         LOG_DEBUG(<< "normalized         = " << core::CContainerPrinter::print(normalized));
-        CPPUNIT_ASSERT_EQUAL(core::CContainerPrinter::print(expectedNormalized),
-                             core::CContainerPrinter::print(normalized));
+        BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(expectedNormalized),
+                            core::CContainerPrinter::print(normalized));
 
         normalized.clear();
         expectedNormalized.clear();
@@ -1663,7 +1652,7 @@ void CHierarchicalResultsTest::testNormalizer() {
                                    ? 0.0
                                    : maths::CTools::anomalyScore(probability);
                 normalized.push_back(person->s_NormalizedAnomalyScore);
-                CPPUNIT_ASSERT(expectedNormalizer->normalize(scope(person), score));
+                BOOST_TEST_REQUIRE(expectedNormalizer->normalize(scope(person), score));
                 expectedNormalized.push_back(score);
             }
         }
@@ -1671,8 +1660,8 @@ void CHierarchicalResultsTest::testNormalizer() {
         LOG_DEBUG(<< "expectedNormalized = "
                   << core::CContainerPrinter::print(expectedNormalized));
         LOG_DEBUG(<< "normalized         = " << core::CContainerPrinter::print(normalized));
-        CPPUNIT_ASSERT_EQUAL(core::CContainerPrinter::print(expectedNormalized),
-                             core::CContainerPrinter::print(normalized));
+        BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(expectedNormalized),
+                            core::CContainerPrinter::print(normalized));
 
         normalized.clear();
         expectedNormalized.clear();
@@ -1696,7 +1685,7 @@ void CHierarchicalResultsTest::testNormalizer() {
                                    ? 0.0
                                    : maths::CTools::anomalyScore(probability);
                 normalized.push_back(partition->s_NormalizedAnomalyScore);
-                CPPUNIT_ASSERT(expectedNormalizer->normalize(scope(partition), score));
+                BOOST_TEST_REQUIRE(expectedNormalizer->normalize(scope(partition), score));
                 expectedNormalized.push_back(score);
             }
         }
@@ -1704,8 +1693,8 @@ void CHierarchicalResultsTest::testNormalizer() {
         LOG_DEBUG(<< "expectedNormalized = "
                   << core::CContainerPrinter::print(expectedNormalized));
         LOG_DEBUG(<< "normalized         = " << core::CContainerPrinter::print(normalized));
-        CPPUNIT_ASSERT_EQUAL(core::CContainerPrinter::print(expectedNormalized),
-                             core::CContainerPrinter::print(normalized));
+        BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(expectedNormalized),
+                            core::CContainerPrinter::print(normalized));
 
         double probability = results.root()->probability();
         // This truncation condition needs to be kept the same as the one in
@@ -1720,27 +1709,27 @@ void CHierarchicalResultsTest::testNormalizer() {
         LOG_DEBUG(<< "* root *");
         LOG_DEBUG(<< "expectedNormalized = " << results.root()->s_NormalizedAnomalyScore);
         LOG_DEBUG(<< "normalized         = " << score);
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(results.root()->s_NormalizedAnomalyScore, score, 1e-10);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(results.root()->s_NormalizedAnomalyScore, score, 1e-10);
     }
 
     // Test JSON round-tripping
     std::string origJson;
     normalizer.toJson(123, "mykey", origJson, true);
-    CPPUNIT_ASSERT(!origJson.empty());
+    BOOST_TEST_REQUIRE(!origJson.empty());
 
     LOG_DEBUG(<< "JSON doc is:\n" << origJson);
 
     model::CHierarchicalResultsNormalizer newNormalizerJson(modelConfig);
     std::stringstream stream(origJson);
-    CPPUNIT_ASSERT_EQUAL(model::CHierarchicalResultsNormalizer::E_Ok,
-                         newNormalizerJson.fromJsonStream(stream));
+    BOOST_REQUIRE_EQUAL(model::CHierarchicalResultsNormalizer::E_Ok,
+                        newNormalizerJson.fromJsonStream(stream));
 
     std::string newJson;
     newNormalizerJson.toJson(123, "mykey", newJson, true);
-    CPPUNIT_ASSERT_EQUAL(newJson, origJson);
+    BOOST_REQUIRE_EQUAL(newJson, origJson);
 }
 
-void CHierarchicalResultsTest::testDetectorEqualizing() {
+BOOST_AUTO_TEST_CASE(testDetectorEqualizing) {
     model::CAnomalyDetectorModelConfig modelConfig =
         model::CAnomalyDetectorModelConfig::defaultConfig();
     test::CRandomNumbers rng;
@@ -1804,7 +1793,7 @@ void CHierarchicalResultsTest::testDetectorEqualizing() {
         double significance = probabilityGatherer.test(8e-7);
         LOG_DEBUG(<< "total significance = " << significance);
 
-        CPPUNIT_ASSERT(significance > 0.002);
+        BOOST_TEST_REQUIRE(significance > 0.002);
 
         std::string origXml;
         {
@@ -1818,15 +1807,15 @@ void CHierarchicalResultsTest::testDetectorEqualizing() {
         model::CHierarchicalResultsAggregator restoredAggregator(modelConfig);
         {
             core::CRapidXmlParser parser;
-            CPPUNIT_ASSERT(parser.parseStringIgnoreCdata(origXml));
+            BOOST_TEST_REQUIRE(parser.parseStringIgnoreCdata(origXml));
             core::CRapidXmlStateRestoreTraverser traverser(parser);
-            CPPUNIT_ASSERT(traverser.traverseSubLevel(std::bind(
+            BOOST_TEST_REQUIRE(traverser.traverseSubLevel(std::bind(
                 &model::CHierarchicalResultsAggregator::acceptRestoreTraverser,
                 &restoredAggregator, std::placeholders::_1)));
         }
 
         // Checksums should agree.
-        CPPUNIT_ASSERT_EQUAL(aggregator.checksum(), restoredAggregator.checksum());
+        BOOST_REQUIRE_EQUAL(aggregator.checksum(), restoredAggregator.checksum());
 
         // The persist and restore should be idempotent.
         std::string newXml;
@@ -1835,7 +1824,7 @@ void CHierarchicalResultsTest::testDetectorEqualizing() {
             restoredAggregator.acceptPersistInserter(inserter);
             inserter.toXml(newXml);
         }
-        CPPUNIT_ASSERT_EQUAL(origXml, newXml);
+        BOOST_REQUIRE_EQUAL(origXml, newXml);
     }
     {
         model::CHierarchicalResultsAggregator aggregator(modelConfig);
@@ -1889,12 +1878,12 @@ void CHierarchicalResultsTest::testDetectorEqualizing() {
 
         mostAnomalous.sort();
         LOG_DEBUG(<< "mostAnomalousBucket = " << mostAnomalous.print());
-        CPPUNIT_ASSERT_EQUAL(std::size_t(70), mostAnomalous[0].second);
-        CPPUNIT_ASSERT(mostAnomalous[0].first / mostAnomalous[1].first < 100);
+        BOOST_REQUIRE_EQUAL(std::size_t(70), mostAnomalous[0].second);
+        BOOST_TEST_REQUIRE(mostAnomalous[0].first / mostAnomalous[1].first < 100);
     }
 }
 
-void CHierarchicalResultsTest::testShouldWritePartition() {
+BOOST_AUTO_TEST_CASE(testShouldWritePartition) {
     static const std::string PART1("PART1");
     static const std::string PERS("PERS");
     std::string pers1("pers1");
@@ -1918,23 +1907,23 @@ void CHierarchicalResultsTest::testShouldWritePartition() {
     LOG_DEBUG(<< "\nhierarchy:\n" << printer.result());
 
     const ml::model::CHierarchicalResults::TNode* root = results.root();
-    CPPUNIT_ASSERT_EQUAL(std::size_t(2), root->s_Children.size());
+    BOOST_REQUIRE_EQUAL(std::size_t(2), root->s_Children.size());
 
     CNodeExtractor extract;
     results.bottomUpBreadthFirst(extract);
-    CPPUNIT_ASSERT_EQUAL(std::size_t(1), extract.partitionedNodes().size());
-    CPPUNIT_ASSERT_EQUAL(std::size_t(2), extract.partitionNodes().size());
+    BOOST_REQUIRE_EQUAL(std::size_t(1), extract.partitionedNodes().size());
+    BOOST_REQUIRE_EQUAL(std::size_t(2), extract.partitionNodes().size());
 
-    CPPUNIT_ASSERT_EQUAL(std::size_t(2), extract.personNodes().size());
-    CPPUNIT_ASSERT_EQUAL(std::size_t(3), extract.leafNodes().size());
+    BOOST_REQUIRE_EQUAL(std::size_t(2), extract.personNodes().size());
+    BOOST_REQUIRE_EQUAL(std::size_t(3), extract.leafNodes().size());
 
     LOG_DEBUG(<< "Partition 1 child count "
               << extract.partitionNodes()[0]->s_Children.size());
     LOG_DEBUG(<< "Partition 2 child count "
               << extract.partitionNodes()[1]->s_Children.size());
 
-    CPPUNIT_ASSERT_EQUAL(std::size_t(0), extract.partitionNodes()[0]->s_Children.size());
-    CPPUNIT_ASSERT_EQUAL(std::size_t(2), extract.partitionNodes()[1]->s_Children.size());
+    BOOST_REQUIRE_EQUAL(std::size_t(0), extract.partitionNodes()[0]->s_Children.size());
+    BOOST_REQUIRE_EQUAL(std::size_t(2), extract.partitionNodes()[1]->s_Children.size());
 
     model::CAnomalyDetectorModelConfig modelConfig =
         model::CAnomalyDetectorModelConfig::defaultConfig();
@@ -1942,45 +1931,10 @@ void CHierarchicalResultsTest::testShouldWritePartition() {
     results.bottomUpBreadthFirst(aggregator);
 
     model::CLimits limits;
-    CPPUNIT_ASSERT(ml::model::CHierarchicalResultsVisitor::shouldWriteResult(
+    BOOST_TEST_REQUIRE(ml::model::CHierarchicalResultsVisitor::shouldWriteResult(
         limits, results, *extract.partitionNodes()[0], false));
-    CPPUNIT_ASSERT(ml::model::CHierarchicalResultsVisitor::shouldWriteResult(
+    BOOST_TEST_REQUIRE(ml::model::CHierarchicalResultsVisitor::shouldWriteResult(
         limits, results, *extract.partitionNodes()[1], false));
 }
 
-CppUnit::Test* CHierarchicalResultsTest::suite() {
-    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CHierarchicalResultsTest");
-
-    suiteOfTests->addTest(new CppUnit::TestCaller<CHierarchicalResultsTest>(
-        "CHierarchicalResultsTest::testBreadthFirstVisit",
-        &CHierarchicalResultsTest::testBreadthFirstVisit));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CHierarchicalResultsTest>(
-        "CHierarchicalResultsTest::testpostorderDepthFirstVisit",
-        &CHierarchicalResultsTest::testDepthFirstVisit));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CHierarchicalResultsTest>(
-        "CHierarchicalResultsTest::testBuildHierarchy",
-        &CHierarchicalResultsTest::testBuildHierarchy));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CHierarchicalResultsTest>(
-        "CHierarchicalResultsTest::testBuildHierarchyGivenPartitionsWithSinglePersonFieldValue",
-        &CHierarchicalResultsTest::testBuildHierarchyGivenPartitionsWithSinglePersonFieldValue));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CHierarchicalResultsTest>(
-        "CHierarchicalResultsTest::testBasicVisitor", &CHierarchicalResultsTest::testBasicVisitor));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CHierarchicalResultsTest>(
-        "CHierarchicalResultsTest::testAggregator", &CHierarchicalResultsTest::testAggregator));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CHierarchicalResultsTest>(
-        "CHierarchicalResultsTest::testInfluence", &CHierarchicalResultsTest::testInfluence));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CHierarchicalResultsTest>(
-        "CHierarchicalResultsTest::testScores", &CHierarchicalResultsTest::testScores));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CHierarchicalResultsTest>(
-        "CHierarchicalResultsTest::testWriter", &CHierarchicalResultsTest::testWriter));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CHierarchicalResultsTest>(
-        "CHierarchicalResultsTest::testNormalizer", &CHierarchicalResultsTest::testNormalizer));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CHierarchicalResultsTest>(
-        "CHierarchicalResultsTest::testDetectorEqualizing",
-        &CHierarchicalResultsTest::testDetectorEqualizing));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CHierarchicalResultsTest>(
-        "CHierarchicalResultsTest::testShouldWritePartition",
-        &CHierarchicalResultsTest::testShouldWritePartition));
-
-    return suiteOfTests;
-}
+BOOST_AUTO_TEST_SUITE_END()

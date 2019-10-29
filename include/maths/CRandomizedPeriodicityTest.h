@@ -22,7 +22,9 @@
 #include <cstdint>
 #include <vector>
 
-class CRandomizedPeriodicityTestTest;
+namespace CRandomizedPeriodicityTestTest {
+struct testPersist;
+}
 
 namespace ml {
 namespace core {
@@ -151,7 +153,7 @@ private:
     //! The last time the day projections were updated.
     core_t::TTime m_WeekRefreshedProjections;
 
-    friend class ::CRandomizedPeriodicityTestTest;
+    friend struct CRandomizedPeriodicityTestTest::testPersist;
 };
 }
 }

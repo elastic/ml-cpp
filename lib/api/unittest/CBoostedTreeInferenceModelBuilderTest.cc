@@ -4,8 +4,6 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
-#include "CBoostedTreeInferenceModelBuilderTest.h"
-
 #include <core/CDataAdder.h>
 #include <core/CDataFrame.h>
 #include <core/CDataSearcher.h>
@@ -20,6 +18,7 @@
 #include <api/CDataFrameAnalyzer.h>
 #include <api/CInferenceModelDefinition.h>
 
+#include <test/BoostTestCloseAbsolute.h>
 #include <test/CDataFrameAnalysisSpecificationFactory.h>
 #include <test/CDataFrameTestUtils.h>
 #include <test/CRandomNumbers.h>
@@ -27,8 +26,15 @@
 
 #include <rapidjson/schema.h>
 
+#include <boost/test/unit_test.hpp>
+
 #include <fstream>
 #include <string>
+
+BOOST_TEST_DONT_PRINT_LOG_VALUE(ml::api::CFrequencyEncoding::TStringDoubleUMap::const_iterator)
+BOOST_TEST_DONT_PRINT_LOG_VALUE(ml::api::COneHotEncoding::TStringStringUMap::const_iterator)
+
+BOOST_AUTO_TEST_SUITE(CBoostedTreeInferenceModelBuilderTest)
 
 using namespace ml;
 
@@ -66,7 +72,7 @@ auto generateCategoricalData(test::CRandomNumbers& rng, std::size_t rows, TDoubl
 }
 }
 
-void CBoostedTreeInferenceModelBuilderTest::testIntegrationRegression() {
+BOOST_AUTO_TEST_CASE(testIntegrationRegression) {
     std::size_t numberExamples = 1000;
     std::size_t cols = 3;
     test::CRandomNumbers rng;
@@ -113,10 +119,10 @@ void CBoostedTreeInferenceModelBuilderTest::testIntegrationRegression() {
     LOG_DEBUG(<< "Inference model definition: " << definition->jsonString());
 
     // assert input
-    CPPUNIT_ASSERT(expectedFieldNames == definition->input().fieldNames());
+    BOOST_TEST_REQUIRE(expectedFieldNames == definition->input().fieldNames());
 
     // test pre-processing
-    CPPUNIT_ASSERT_EQUAL(std::size_t(3), definition->preprocessors().size());
+    BOOST_REQUIRE_EQUAL(std::size_t(3), definition->preprocessors().size());
     bool frequency = false;
     bool target = false;
     bool oneHot = false;
@@ -124,38 +130,40 @@ void CBoostedTreeInferenceModelBuilderTest::testIntegrationRegression() {
     for (const auto& encoding : definition->preprocessors()) {
         if (encoding->typeString() == "frequency_encoding") {
             auto enc = static_cast<ml::api::CFrequencyEncoding*>(encoding.get());
-            CPPUNIT_ASSERT_EQUAL(std::size_t(3), enc->frequencyMap().size());
-            CPPUNIT_ASSERT("categorical_col_frequency" == enc->featureName());
+            BOOST_REQUIRE_EQUAL(std::size_t(3), enc->frequencyMap().size());
+            BOOST_TEST_REQUIRE("categorical_col_frequency" == enc->featureName());
             frequency = true;
         } else if (encoding->typeString() == "target_mean_encoding") {
             auto enc = static_cast<ml::api::CTargetMeanEncoding*>(encoding.get());
-            CPPUNIT_ASSERT_EQUAL(std::size_t(3), enc->targetMap().size());
-            CPPUNIT_ASSERT("categorical_col_targetmean" == enc->featureName());
-            CPPUNIT_ASSERT_DOUBLES_EQUAL(100.0177288, enc->defaultValue(), 1e-6);
+            BOOST_REQUIRE_EQUAL(std::size_t(3), enc->targetMap().size());
+            BOOST_TEST_REQUIRE("categorical_col_targetmean" == enc->featureName());
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(100.0177288, enc->defaultValue(), 1e-6);
             target = true;
         } else if (encoding->typeString() == "one_hot_encoding") {
             auto enc = static_cast<ml::api::COneHotEncoding*>(encoding.get());
-            CPPUNIT_ASSERT_EQUAL(std::size_t(3), enc->hotMap().size());
-            CPPUNIT_ASSERT("categorical_col_cat1" == enc->hotMap()["cat1"]);
-            CPPUNIT_ASSERT("categorical_col_cat2" == enc->hotMap()["cat2"]);
-            CPPUNIT_ASSERT("categorical_col_cat3" == enc->hotMap()["cat3"]);
+            BOOST_REQUIRE_EQUAL(std::size_t(3), enc->hotMap().size());
+            BOOST_TEST_REQUIRE("categorical_col_cat1" == enc->hotMap()["cat1"]);
+            BOOST_TEST_REQUIRE("categorical_col_cat2" == enc->hotMap()["cat2"]);
+            BOOST_TEST_REQUIRE("categorical_col_cat3" == enc->hotMap()["cat3"]);
             oneHot = true;
         }
     }
 
-    CPPUNIT_ASSERT(oneHot && target && frequency);
+    BOOST_TEST_REQUIRE(oneHot);
+    BOOST_TEST_REQUIRE(target);
+    BOOST_TEST_REQUIRE(frequency);
 
     // assert trained model
     auto* trainedModel =
         dynamic_cast<api::CEnsemble*>(definition->trainedModel().get());
-    CPPUNIT_ASSERT_EQUAL(api::CTrainedModel::E_Regression, trainedModel->targetType());
+    BOOST_REQUIRE_EQUAL(api::CTrainedModel::E_Regression, trainedModel->targetType());
     std::size_t expectedSize{core::CProgramCounters::counter(
         ml::counter_t::E_DFTPMTrainedForestNumberTrees)};
-    CPPUNIT_ASSERT_EQUAL(expectedSize, trainedModel->size());
-    CPPUNIT_ASSERT("weighted_sum" == trainedModel->aggregateOutput()->stringType());
+    BOOST_REQUIRE_EQUAL(expectedSize, trainedModel->size());
+    BOOST_TEST_REQUIRE("weighted_sum" == trainedModel->aggregateOutput()->stringType());
 }
 
-void CBoostedTreeInferenceModelBuilderTest::testIntegrationClassification() {
+BOOST_AUTO_TEST_CASE(testIntegrationClassification) {
     std::size_t numberExamples = 1000;
     std::size_t cols = 3;
     test::CRandomNumbers rng;
@@ -201,14 +209,15 @@ void CBoostedTreeInferenceModelBuilderTest::testIntegrationClassification() {
 
     // assert trained model
     auto trainedModel = dynamic_cast<api::CEnsemble*>(definition->trainedModel().get());
-    CPPUNIT_ASSERT_EQUAL(api::CTrainedModel::E_Classification, trainedModel->targetType());
+    BOOST_REQUIRE_EQUAL(api::CTrainedModel::E_Classification, trainedModel->targetType());
     std::size_t expectedSize{core::CProgramCounters::counter(
         ml::counter_t::E_DFTPMTrainedForestNumberTrees)};
-    CPPUNIT_ASSERT_EQUAL(expectedSize, trainedModel->size());
-    CPPUNIT_ASSERT("logistic_regression" == trainedModel->aggregateOutput()->stringType());
+    BOOST_REQUIRE_EQUAL(expectedSize, trainedModel->size());
+    BOOST_TEST_REQUIRE("logistic_regression" ==
+                       trainedModel->aggregateOutput()->stringType());
 }
 
-void CBoostedTreeInferenceModelBuilderTest::testJsonSchema() {
+BOOST_AUTO_TEST_CASE(testJsonSchema) {
     std::size_t numberExamples = 1000;
     std::size_t cols = 3;
     test::CRandomNumbers rng;
@@ -252,17 +261,17 @@ void CBoostedTreeInferenceModelBuilderTest::testJsonSchema() {
     auto definition = analysisRunner->inferenceModelDefinition(fieldNames, categoryMappingVector);
 
     std::ifstream schemaFileStream("testfiles/inference_json_schema/definition.schema.json");
-    CPPUNIT_ASSERT_MESSAGE("Cannot open test file!", schemaFileStream);
+    BOOST_REQUIRE_MESSAGE(schemaFileStream.is_open(), "Cannot open test file!");
     std::string schemaJson((std::istreambuf_iterator<char>(schemaFileStream)),
                            std::istreambuf_iterator<char>());
     rapidjson::Document schemaDocument;
-    CPPUNIT_ASSERT_MESSAGE("Cannot parse JSON schema!",
-                           schemaDocument.Parse(schemaJson).HasParseError() == false);
+    BOOST_REQUIRE_MESSAGE(schemaDocument.Parse(schemaJson).HasParseError() == false,
+                          "Cannot parse JSON schema!");
     rapidjson::SchemaDocument schema(schemaDocument);
 
     rapidjson::Document doc;
-    CPPUNIT_ASSERT_MESSAGE("Error parsing JSON definition!",
-                           doc.Parse(definition->jsonString()).HasParseError() == false);
+    BOOST_REQUIRE_MESSAGE(doc.Parse(definition->jsonString()).HasParseError() == false,
+                          "Error parsing JSON definition!");
 
     rapidjson::SchemaValidator validator(schema);
     if (doc.Accept(validator) == false) {
@@ -274,11 +283,11 @@ void CBoostedTreeInferenceModelBuilderTest::testJsonSchema() {
         validator.GetInvalidDocumentPointer().StringifyUriFragment(sb);
         LOG_ERROR(<< "Invalid document: " << sb.GetString());
         LOG_DEBUG(<< "Document: " << definition->jsonString());
-        CPPUNIT_ASSERT_MESSAGE("Schema validation failed", false);
+        BOOST_FAIL("Schema validation failed");
     }
 }
 
-void CBoostedTreeInferenceModelBuilderTest::testEncoders() {
+BOOST_AUTO_TEST_CASE(testEncoders) {
     {
         TStrVec fieldNames{"col1", "target", "col2", "col3"};
         std::size_t dependentVariableColumnIndex{1};
@@ -296,21 +305,21 @@ void CBoostedTreeInferenceModelBuilderTest::testEncoders() {
         builder.addFrequencyEncoding(3, {1.0, 1.0});
         auto definition{builder.build()};
         const auto& preprocessors{definition.preprocessors()};
-        CPPUNIT_ASSERT_EQUAL(std::size_t(4), preprocessors.size());
+        BOOST_REQUIRE_EQUAL(std::size_t(4), preprocessors.size());
         for (const auto& encoding : preprocessors) {
             if (encoding->typeString() == "frequency_encoding") {
                 const auto& frequencyEncoding{
                     static_cast<api::CFrequencyEncoding*>(encoding.get())};
                 const auto& map{frequencyEncoding->frequencyMap()};
                 if (frequencyEncoding->featureName() == "col2_frequency") {
-                    CPPUNIT_ASSERT_EQUAL(std::size_t(3), map.size());
-                    CPPUNIT_ASSERT(map.find("col2cat1") != map.end());
-                    CPPUNIT_ASSERT(map.find("col2cat2") != map.end());
-                    CPPUNIT_ASSERT(map.find("col2cat3") != map.end());
+                    BOOST_REQUIRE_EQUAL(std::size_t(3), map.size());
+                    BOOST_TEST_REQUIRE(map.find("col2cat1") != map.end());
+                    BOOST_TEST_REQUIRE(map.find("col2cat2") != map.end());
+                    BOOST_TEST_REQUIRE(map.find("col2cat3") != map.end());
                 } else if (frequencyEncoding->featureName() == "col3_frequency") {
-                    CPPUNIT_ASSERT_EQUAL(std::size_t(2), map.size());
-                    CPPUNIT_ASSERT(map.find("col3cat1") != map.end());
-                    CPPUNIT_ASSERT(map.find("col3cat2") != map.end());
+                    BOOST_REQUIRE_EQUAL(std::size_t(2), map.size());
+                    BOOST_TEST_REQUIRE(map.find("col3cat1") != map.end());
+                    BOOST_TEST_REQUIRE(map.find("col3cat2") != map.end());
                 }
             } else if (encoding->typeString() == "one_hot_encoding") {
                 const auto& oneHotEncoding{
@@ -318,36 +327,18 @@ void CBoostedTreeInferenceModelBuilderTest::testEncoders() {
                 const auto& map{oneHotEncoding->hotMap()};
 
                 if (oneHotEncoding->field() == "col2") {
-                    CPPUNIT_ASSERT_EQUAL(std::size_t(2), map.size());
-                    CPPUNIT_ASSERT(map.find("col2cat1") != map.end());
-                    CPPUNIT_ASSERT(map.find("col2cat2") != map.end());
+                    BOOST_REQUIRE_EQUAL(std::size_t(2), map.size());
+                    BOOST_TEST_REQUIRE(map.find("col2cat1") != map.end());
+                    BOOST_TEST_REQUIRE(map.find("col2cat2") != map.end());
                 } else if (oneHotEncoding->field() == "col3") {
-                    CPPUNIT_ASSERT_EQUAL(std::size_t(1), map.size());
-                    CPPUNIT_ASSERT(map.find("col3cat1") != map.end());
+                    BOOST_REQUIRE_EQUAL(std::size_t(1), map.size());
+                    BOOST_TEST_REQUIRE(map.find("col3cat1") != map.end());
                 }
             } else {
-                CPPUNIT_FAIL("Unexpected encoding type");
+                BOOST_FAIL("Unexpected encoding type");
             }
         }
     }
 }
 
-CppUnit::Test* CBoostedTreeInferenceModelBuilderTest::suite() {
-    CppUnit::TestSuite* suiteOfTests =
-        new CppUnit::TestSuite("CBoostedTreeInferenceModelBuilderTest");
-
-    suiteOfTests->addTest(new CppUnit::TestCaller<CBoostedTreeInferenceModelBuilderTest>(
-        "CBoostedTreeInferenceModelBuilderTest::testIntegrationRegression",
-        &CBoostedTreeInferenceModelBuilderTest::testIntegrationRegression));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CBoostedTreeInferenceModelBuilderTest>(
-        "CBoostedTreeInferenceModelBuilderTest::testIntegrationClassification",
-        &CBoostedTreeInferenceModelBuilderTest::testIntegrationClassification));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CBoostedTreeInferenceModelBuilderTest>(
-        "CBoostedTreeInferenceModelBuilderTest::testJsonSchema",
-        &CBoostedTreeInferenceModelBuilderTest::testJsonSchema));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CBoostedTreeInferenceModelBuilderTest>(
-        "CBoostedTreeInferenceModelBuilderTest::testEncoders",
-        &CBoostedTreeInferenceModelBuilderTest::testEncoders));
-
-    return suiteOfTests;
-}
+BOOST_AUTO_TEST_SUITE_END()

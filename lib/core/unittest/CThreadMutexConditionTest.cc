@@ -3,7 +3,6 @@
  * or more contributor license agreements. Licensed under the Elastic License;
  * you may not use this file except in compliance with the Elastic License.
  */
-#include "CThreadMutexConditionTest.h"
 
 #include <core/CCondition.h>
 #include <core/CLogger.h>
@@ -11,19 +10,11 @@
 #include <core/CSleep.h>
 #include <core/CThread.h>
 
-CppUnit::Test* CThreadMutexConditionTest::suite() {
-    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CThreadMutexConditionTest");
+#include <boost/test/unit_test.hpp>
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CThreadMutexConditionTest>(
-        "CThreadMutexConditionTest::testThread", &CThreadMutexConditionTest::testThread));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CThreadMutexConditionTest>(
-        "CThreadMutexConditionTest::testThreadCondition",
-        &CThreadMutexConditionTest::testThreadCondition));
+BOOST_AUTO_TEST_SUITE(CThreadMutexConditionTest)
 
-    return suiteOfTests;
-}
-
-void CThreadMutexConditionTest::testThread() {
+BOOST_AUTO_TEST_CASE(testThread) {
     class CThread : public ml::core::CThread {
     public:
         CThread() : m_Running(false) {}
@@ -68,22 +59,22 @@ void CThreadMutexConditionTest::testThread() {
 
     CThread thread;
 
-    CPPUNIT_ASSERT(thread.isRunning() == false);
+    BOOST_TEST_REQUIRE(thread.isRunning() == false);
 
     // Start thread
-    CPPUNIT_ASSERT(thread.start());
+    BOOST_TEST_REQUIRE(thread.start());
 
     // Wait for thread to initialise
     ml::core::CSleep::sleep(1000);
 
-    CPPUNIT_ASSERT(thread.isRunning() == true);
+    BOOST_TEST_REQUIRE(thread.isRunning() == true);
 
     thread.stop();
 
-    CPPUNIT_ASSERT(thread.isRunning() == false);
+    BOOST_TEST_REQUIRE(thread.isRunning() == false);
 }
 
-void CThreadMutexConditionTest::testThreadCondition() {
+BOOST_AUTO_TEST_CASE(testThreadCondition) {
     class CThread : public ml::core::CThread {
     public:
         CThread() : m_Condition(m_Mutex) {}
@@ -136,9 +127,11 @@ void CThreadMutexConditionTest::testThreadCondition() {
     CThread thread;
 
     thread.lock();
-    CPPUNIT_ASSERT(thread.start());
+    BOOST_TEST_REQUIRE(thread.start());
     thread.wait();
     thread.unlock();
 
-    CPPUNIT_ASSERT(thread.stop());
+    BOOST_TEST_REQUIRE(thread.stop());
 }
+
+BOOST_AUTO_TEST_SUITE_END()

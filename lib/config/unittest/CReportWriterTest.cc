@@ -4,8 +4,6 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
-#include "CReportWriterTest.h"
-
 #include <core/CLogger.h>
 #include <core/CStringUtils.h>
 #include <core/Constants.h>
@@ -16,6 +14,9 @@
 #include <test/CRandomNumbers.h>
 
 #include <boost/range.hpp>
+#include <boost/test/unit_test.hpp>
+
+BOOST_AUTO_TEST_SUITE(CReportWriterTest)
 
 using namespace ml;
 
@@ -23,7 +24,7 @@ using TDoubleVec = std::vector<double>;
 using TSizeVec = std::vector<std::size_t>;
 using TStrVec = std::vector<std::string>;
 
-void CReportWriterTest::testPretty() {
+BOOST_AUTO_TEST_CASE(testPretty) {
     test::CRandomNumbers rng;
 
     core_t::TTime startTime = 1459468810;
@@ -119,17 +120,13 @@ void CReportWriterTest::testPretty() {
 
     writer.write();
 
-    LOG_DEBUG(<< o.str());
+    const std::string& output{o.str()};
+    LOG_DEBUG(<< output);
+    BOOST_TEST_REQUIRE(output.length() > 100);
 }
 
-void CReportWriterTest::testJSON() {
+BOOST_AUTO_TEST_CASE(testJSON, *boost::unit_test::disabled()) {
+    // TODO
 }
 
-CppUnit::Test* CReportWriterTest::suite() {
-    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CReportWriterTest");
-
-    suiteOfTests->addTest(new CppUnit::TestCaller<CReportWriterTest>(
-        "CReportWriterTest::testPretty", &CReportWriterTest::testPretty));
-
-    return suiteOfTests;
-}
+BOOST_AUTO_TEST_SUITE_END()
