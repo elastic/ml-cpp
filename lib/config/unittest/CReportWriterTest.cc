@@ -120,10 +120,13 @@ BOOST_AUTO_TEST_CASE(testPretty) {
 
     writer.write();
 
-    LOG_DEBUG(<< o.str());
+    const std::string& output{o.str()};
+    LOG_DEBUG(<< output);
+    BOOST_TEST_REQUIRE(output.length() > 100);
 }
 
-BOOST_AUTO_TEST_CASE(testJSON) {
+BOOST_AUTO_TEST_CASE(testJSON, *boost::unit_test::disabled()) {
+    // TODO
 }
 
 BOOST_AUTO_TEST_SUITE_END()

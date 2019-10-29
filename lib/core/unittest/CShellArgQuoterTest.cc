@@ -11,7 +11,7 @@
 
 BOOST_AUTO_TEST_SUITE(CShellArgQuoterTest)
 
-BOOST_AUTO_TEST_CASE(testQuote) {
+BOOST_AUTO_TEST_CASE(testQuote, *boost::unit_test::disabled()) {
     LOG_DEBUG(<< "\n"
                  "echo "
               << ml::core::CShellArgQuoter::quote("")
@@ -54,6 +54,10 @@ BOOST_AUTO_TEST_CASE(testQuote) {
 
     // Paste the output of the above into a command prompt and check what
     // happens...
+
+    // TODO: could run these using system() and assert on the output
+    // (but it's not high priority to do this as we don't use this
+    // functionality currently)
 }
 
 BOOST_AUTO_TEST_SUITE_END()

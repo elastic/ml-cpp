@@ -1862,13 +1862,16 @@ BOOST_AUTO_TEST_CASE(testAddSamplesWithCorrelations) {
             correlations.processSamples();
             time += bucketLength;
         }
+
+        BOOST_TEST_REQUIRE(correlations.correlationModels().size() > 0);
     }
 
     // TODO LOG_DEBUG(<< "Correlations trend");
     // TODO LOG_DEBUG(<< "Correlations with tags (for population)");
 }
 
-BOOST_AUTO_TEST_CASE(testProbabilityWithCorrelations) {
+BOOST_AUTO_TEST_CASE(testProbabilityWithCorrelations, *boost::unit_test::disabled()) {
+    // TODO
 }
 
 BOOST_AUTO_TEST_CASE(testAnomalyModel) {

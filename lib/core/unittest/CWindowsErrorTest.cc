@@ -18,6 +18,8 @@ BOOST_AUTO_TEST_CASE(testErrors) {
     LOG_INFO(<< "Windows error 4 is : " << ml::core::CWindowsError(4));
     LOG_INFO(<< "Windows error 5 is : " << ml::core::CWindowsError(5));
     LOG_INFO(<< "Windows error 6 is : " << ml::core::CWindowsError(6));
+
+    BOOST_TEST_REQUIRE(ml::core::CWindowsError(7).errorString().length() > 0);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

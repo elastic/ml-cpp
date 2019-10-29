@@ -90,7 +90,9 @@ BOOST_AUTO_TEST_CASE(testWeightingFunctors) {
     }
 }
 
-BOOST_AUTO_TEST_CASE(testPerformance) {
+// Disabled because it doesn't assert anything
+// Can be run on an ad hoc basis if performance is of interest
+BOOST_AUTO_TEST_CASE(testPerformance, *boost::unit_test::disabled()) {
     const ml::core::CWordDictionary& dict = ml::core::CWordDictionary::instance();
 
     ml::core_t::TTime start(ml::core::CTimeUtils::now());

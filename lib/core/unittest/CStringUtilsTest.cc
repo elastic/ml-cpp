@@ -297,8 +297,9 @@ BOOST_AUTO_TEST_CASE(testTypeToStringPrecise) {
 }
 
 BOOST_AUTO_TEST_CASE(testTypeToStringPretty) {
-    // This doesn't assert because the format differs between operating systems
     LOG_DEBUG(<< "1.0 -> " << ml::core::CStringUtils::typeToStringPretty(1.0));
+    BOOST_TEST_REQUIRE(ml::core::CStringUtils::typeToStringPretty(1.0) == "1");
+    // The others don't assert because the format differs between operating systems
     LOG_DEBUG(<< "0.123456 -> " << ml::core::CStringUtils::typeToStringPretty(0.123456));
     LOG_DEBUG(<< "0.123456e10 -> " << ml::core::CStringUtils::typeToStringPretty(0.123456e10));
     LOG_DEBUG(<< "0.123456e-10 -> "
@@ -824,7 +825,9 @@ BOOST_AUTO_TEST_CASE(testNormaliseWhitespace) {
     BOOST_REQUIRE_EQUAL(normalised, ml::core::CStringUtils::normaliseWhitespace(spacey));
 }
 
-BOOST_AUTO_TEST_CASE(testPerformance) {
+// Disabled because it doesn't assert anything
+// Can be run on an ad hoc basis if performance is of interest
+BOOST_AUTO_TEST_CASE(testPerformance, *boost::unit_test::disabled()) {
     static const size_t TEST_SIZE(1000000);
     static const double TEST_SIZE_D(static_cast<double>(TEST_SIZE));
 

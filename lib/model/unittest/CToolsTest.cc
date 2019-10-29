@@ -18,7 +18,7 @@ BOOST_AUTO_TEST_SUITE(CToolsTest)
 using namespace ml;
 using namespace model;
 
-BOOST_AUTO_TEST_CASE(testDataGatherers) {
+BOOST_AUTO_TEST_CASE(testDataGatherers, *boost::unit_test::disabled()) {
     // TODO
 }
 

@@ -67,8 +67,8 @@ BOOST_AUTO_TEST_CASE(testCounts) {
         if (sketch.oneMinusDeltaError() == 0.0) {
             BOOST_REQUIRE_EQUAL(0.0, maths::CBasicStatistics::mean(meanError));
         } else {
-            //BOOST_TEST(maths::CBasicStatistics::mean(meanError)
-            //                   < 0.1 * static_cast<double>(n));
+            //BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(meanError) <
+            //                   0.1 * static_cast<double>(n));
         }
         //BOOST_REQUIRE_EQUAL(0.0, errorCount);
     }

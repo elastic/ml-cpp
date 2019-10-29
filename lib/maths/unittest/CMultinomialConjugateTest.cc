@@ -777,7 +777,8 @@ BOOST_AUTO_TEST_CASE(testProbabilityOfLessLikelySamples) {
     }
 }
 
-BOOST_AUTO_TEST_CASE(testAnomalyScore) {
+BOOST_AUTO_TEST_CASE(testAnomalyScore, *boost::unit_test::disabled()) {
+    // TODO
 }
 
 BOOST_AUTO_TEST_CASE(testRemoveCategories) {
@@ -907,7 +908,8 @@ BOOST_AUTO_TEST_CASE(testPersist) {
     BOOST_REQUIRE_EQUAL(origXml, newXml);
 }
 
-BOOST_AUTO_TEST_CASE(testOverflow) {
+BOOST_AUTO_TEST_CASE(testOverflow, *boost::unit_test::disabled()) {
+    // TODO
 }
 
 BOOST_AUTO_TEST_CASE(testConcentration) {

@@ -858,15 +858,15 @@ BOOST_AUTO_TEST_CASE(testCompress) {
     }
 }
 
-BOOST_AUTO_TEST_CASE(testStringBehaviour) {
-    // This "test" highlights the way the std::string class behaves on each
-    // platform we support.  Experience shows that methods like reserve(),
-    // clear() and operator=() don't always work the way the books suggest...
-    //
-    // There are no assertions, but the idea is that a developer should go
-    // through the output after switching to a new standard library
-    // implementation to ensure that the quirks of std::string are in that
-    // implementation are understood.
+// This "test" highlights the way the std::string class behaves on each
+// platform we support.  Experience shows that methods like reserve(),
+// clear() and operator=() don't always work the way the books suggest...
+//
+// There are no assertions, but the idea is that a developer should go
+// through the output after switching to a new standard library
+// implementation to ensure that the quirks of std::string are in that
+// implementation are understood.
+BOOST_AUTO_TEST_CASE(testStringBehaviour, *boost::unit_test::disabled()) {
 
     LOG_INFO(<< "Size of std::string is " << sizeof(std::string));
 
