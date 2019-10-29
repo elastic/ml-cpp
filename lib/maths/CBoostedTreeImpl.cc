@@ -931,12 +931,12 @@ CBoostedTreeImpl::estimateMissingTestLosses(const TSizeVec& missing) const {
     // estimate the test loss we'll see for the remaining folds to decide if it
     // is worthwhile to continue training with these parameters and to correct
     // the loss value supplied to Bayesian Optimisation to account for the folds
-    // we haven't trained on. We achieve this by for each missing fold m fitting
+    // we haven't trained on. We achieve this by for each missing fold fitting an
     // OLS to the data (x_i, loss(m_i)) where i ranges over the previous rounds
     // and x_i is the i'th vector whose components comprise the losses for which
-    // we have values in this round and indicators for whether they were present
-    // in the i'th round. We only include a round if it at least one of the folds
-    // matches a fold for which we have a test loss in the current round.
+    // we have values in the current round and indicators for whether they were
+    // present in the i'th round. We only include a round if we've trained for at
+    // least one of same folds in the current round.
 
     TSizeVec present(m_NumberFolds);
     std::iota(present.begin(), present.end(), 0);
@@ -954,7 +954,7 @@ CBoostedTreeImpl::estimateMissingTestLosses(const TSizeVec& missing) const {
     predictedTestLosses.reserve(missing.size());
 
     for (std::size_t target : missing) {
-        // Extract training mask.
+        // Extract the training mask.
         TSizeVec mask;
         mask.reserve(m_CurrentRound);
         for (std::size_t round = 0; round < m_CurrentRound; ++round) {
@@ -966,7 +966,7 @@ CBoostedTreeImpl::estimateMissingTestLosses(const TSizeVec& missing) const {
             }
         }
 
-        // Fit the OLS model.
+        // Fit the OLS regression.
         CDenseMatrix<double> A(mask.size(), 2 * present.size());
         CDenseVector<double> b(mask.size());
         for (std::size_t row = 0; row < mask.size(); ++row) {
