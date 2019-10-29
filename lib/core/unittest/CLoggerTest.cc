@@ -199,7 +199,9 @@ BOOST_FIXTURE_TEST_CASE(testNonAsciiJsonLogging, CTestFixture) {
     BOOST_REQUIRE_EQUAL(messages.size(), foundMessages);
 }
 
-BOOST_FIXTURE_TEST_CASE(testLogEnvironment, CTestFixture) {
+// Disabled because it doesn't assert
+// Run ad hoc if required
+BOOST_FIXTURE_TEST_CASE(testLogEnvironment, CTestFixture, *boost::unit_test::disabled()) {
     ml::core::CLogger::instance().logEnvironment();
 }
 

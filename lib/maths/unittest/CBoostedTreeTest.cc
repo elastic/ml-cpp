@@ -1358,7 +1358,8 @@ BOOST_AUTO_TEST_CASE(testProgressMonitoring) {
     core::stopDefaultAsyncExecutor();
 }
 
-BOOST_AUTO_TEST_CASE(testMissingData) {
+BOOST_AUTO_TEST_CASE(testMissingData, *boost::unit_test::disabled()) {
+    // TODO
 }
 
 BOOST_AUTO_TEST_CASE(testPersistRestore) {

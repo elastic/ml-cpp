@@ -332,7 +332,9 @@ BOOST_AUTO_TEST_CASE(testParseSpeed) {
     LOG_INFO(<< "Parsing " << TEST_SIZE << " documents took " << (end - start) << " seconds");
 }
 
-BOOST_AUTO_TEST_CASE(testConvertSpeed) {
+// Disabled because it doesn't assert anything
+// Can be run on an ad hoc basis if performance is of interest
+BOOST_AUTO_TEST_CASE(testConvertSpeed, *boost::unit_test::disabled()) {
     static const size_t TEST_SIZE(100000);
 
     // Use a standard node hierarchy to allow for comparison with the
