@@ -214,19 +214,19 @@ BOOST_AUTO_TEST_CASE(testCyclicCoordinateDescent) {
     // in order as we increase lambda.
 }
 
-BOOST_AUTO_TEST_CASE(testCyclicCoordinateDescentLargeSparse) {
+BOOST_AUTO_TEST_CASE(testCyclicCoordinateDescentLargeSparse, *boost::unit_test::disabled()) {
     // TODO
 }
 
-BOOST_AUTO_TEST_CASE(testCyclicCoordinateDescentIncremental) {
+BOOST_AUTO_TEST_CASE(testCyclicCoordinateDescentIncremental, *boost::unit_test::disabled()) {
     // TODO
 }
 
-BOOST_AUTO_TEST_CASE(testNormBasedLambda) {
+BOOST_AUTO_TEST_CASE(testNormBasedLambda, *boost::unit_test::disabled()) {
     // TODO
 }
 
-BOOST_AUTO_TEST_CASE(testCrossValidatedLambda) {
+BOOST_AUTO_TEST_CASE(testCrossValidatedLambda, *boost::unit_test::disabled()) {
     // TODO
 }
 

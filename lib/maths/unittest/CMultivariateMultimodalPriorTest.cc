@@ -934,11 +934,11 @@ BOOST_AUTO_TEST_CASE(testProbabilityOfLessLikelySamples) {
     }
 }
 
-BOOST_AUTO_TEST_CASE(testIntegerData) {
+BOOST_AUTO_TEST_CASE(testIntegerData, *boost::unit_test::disabled()) {
     // TODO
 }
 
-BOOST_AUTO_TEST_CASE(testLowVariationData) {
+BOOST_AUTO_TEST_CASE(testLowVariationData, *boost::unit_test::disabled()) {
     // TODO
 }
 

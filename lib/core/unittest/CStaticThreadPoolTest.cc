@@ -65,7 +65,7 @@ BOOST_AUTO_TEST_CASE(testScheduleDelayMinimisation) {
 
         uint64_t timeToSchedule{watch.stop()};
         LOG_DEBUG(<< "Time to schedule " << timeToSchedule);
-        //BOOST_TEST(timeToSchedule <= 1);
+        //BOOST_TEST_REQUIRE(timeToSchedule <= 1);
     }
     BOOST_REQUIRE_EQUAL(200u, counter.load());
 }
@@ -103,8 +103,8 @@ BOOST_AUTO_TEST_CASE(testThroughputStability) {
 
         uint64_t timeToSchedule{watch.stop()};
         LOG_DEBUG(<< "Time to schedule " << timeToSchedule);
-        //BOOST_TEST(timeToSchedule >= 330);
-        //BOOST_TEST(timeToSchedule <= 350);
+        //BOOST_TEST_REQUIRE(timeToSchedule >= 330);
+        //BOOST_TEST_REQUIRE(timeToSchedule <= 350);
     }
 
     BOOST_REQUIRE_EQUAL(2000u, counter.load());
@@ -112,7 +112,7 @@ BOOST_AUTO_TEST_CASE(testThroughputStability) {
     // The best we can achieve is 2000ms ignoring all overheads.
     std::uint64_t totalTime{totalTimeWatch.stop()};
     LOG_DEBUG(<< "Total time = " << totalTime);
-    //BOOST_TEST(totalTime <= 2400);
+    //BOOST_TEST_REQUIRE(totalTime <= 2400);
 }
 
 BOOST_AUTO_TEST_CASE(testManyTasksThroughput) {
@@ -148,10 +148,12 @@ BOOST_AUTO_TEST_CASE(testManyTasksThroughput) {
     // We have 1400ms of delays so the best we can achieve here is 700ms elapsed.
     std::uint64_t totalTime{watch.stop()};
     LOG_DEBUG(<< "Total time = " << totalTime);
-    //BOOST_TEST(totalTime <= 780);
+    //BOOST_TEST_REQUIRE(totalTime <= 780);
 }
 
-BOOST_AUTO_TEST_CASE(testSchedulingOverhead) {
+// Disabled as the only assertion can fail due to VM scheduling when run in
+// a virtual environment
+BOOST_AUTO_TEST_CASE(testSchedulingOverhead, *boost::unit_test::disabled()) {
 
     // Test the overhead per task is less than 0.7 microseconds.
 
@@ -170,7 +172,7 @@ BOOST_AUTO_TEST_CASE(testSchedulingOverhead) {
 
     double overhead{static_cast<double>(watch.stop()) / 1000.0};
     LOG_DEBUG(<< "Total time = " << overhead);
-    //BOOST_TEST(overhead < 1.4);
+    BOOST_TEST_REQUIRE(overhead < 1.4);
 }
 
 BOOST_AUTO_TEST_CASE(testWithExceptions) {

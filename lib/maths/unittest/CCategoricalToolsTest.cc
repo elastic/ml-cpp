@@ -25,10 +25,14 @@ using TSizeVec = std::vector<std::size_t>;
 
 using namespace ml;
 
-BOOST_AUTO_TEST_CASE(testProbabilityOfLessLikelyMultinomialSample) {
+BOOST_AUTO_TEST_CASE(testProbabilityOfLessLikelyMultinomialSample,
+                     *boost::unit_test::disabled()) {
+    // TODO
 }
 
-BOOST_AUTO_TEST_CASE(testProbabilityOfLessLikelyCategoryCount) {
+BOOST_AUTO_TEST_CASE(testProbabilityOfLessLikelyCategoryCount,
+                     *boost::unit_test::disabled()) {
+    // TODO
 }
 
 BOOST_AUTO_TEST_CASE(testExpectedDistinctCategories) {

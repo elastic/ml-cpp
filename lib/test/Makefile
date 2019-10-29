@@ -5,7 +5,6 @@
 #
 include $(CPP_SRC_HOME)/mk/defines.mk
 
-USE_XML=1
 USE_BOOST=1
 USE_BOOST_FILESYSTEM_LIBS=1
 USE_BOOST_TEST_LIBS=1
@@ -20,7 +19,7 @@ PLATFORM_SRCS= \
 
 SRCS= \
     $(OS_SRCS) \
-    CBoostTestJUnitOutput.cc \
+    CBoostTestXmlOutput.cc \
     CDataFrameAnalysisSpecificationFactory.cc \
     CMultiFileDataAdder.cc \
     CMultiFileSearcher.cc \
