@@ -5,9 +5,6 @@
  */
 
 #include <core/CLogger.h>
-#include <core/COsFileFuncs.h>
-#include <core/CSleep.h>
-#include <core/CThread.h>
 #ifdef Linux
 #include <core/CRegex.h>
 #include <core/CUname.h>
@@ -16,6 +13,8 @@
 #include <seccomp/CSystemCallFilter.h>
 
 #include <test/CTestTmpDir.h>
+#include <test/CThreadDataReader.h>
+#include <test/CThreadDataWriter.h>
 
 #include <boost/filesystem.hpp>
 #include <boost/system/error_code.hpp>
@@ -43,85 +42,13 @@ const std::string TEST_READ_PIPE_NAME{TMP_DIR + "/testreadpipe"};
 const std::string TEST_WRITE_PIPE_NAME{TMP_DIR + "/testwritepipe"};
 #endif
 
-class CNamedPipeWriter : public ml::core::CThread {
-public:
-    CNamedPipeWriter(const std::string& fileName, size_t size)
-        : m_FileName(fileName), m_Size(size) {}
-
-protected:
-    virtual void run() {
-        // Wait for the file to exist
-        ml::core::CSleep::sleep(SLEEP_TIME_MS);
-
-        std::ofstream strm(m_FileName.c_str());
-        for (size_t i = 0; i < m_Size && strm.good(); ++i) {
-            strm << TEST_CHAR;
-        }
-    }
-
-    virtual void shutdown() {}
-
-private:
-    std::string m_FileName;
-    size_t m_Size;
-};
-
-class CNamedPipeReader : public ml::core::CThread {
-public:
-    CNamedPipeReader(const std::string& fileName) : m_FileName(fileName) {}
-
-    const std::string& data() const { return m_Data; }
-
-protected:
-    virtual void run() {
-        m_Data.clear();
-
-        std::ifstream strm;
-
-        // Try to open the file repeatedly to allow time for the other
-        // thread to create it
-        size_t attempt(1);
-        do {
-            BOOST_TEST_REQUIRE(attempt++ <= MAX_ATTEMPTS);
-            ml::core::CSleep::sleep(SLEEP_TIME_MS);
-            strm.open(m_FileName.c_str());
-        } while (!strm.is_open());
-
-        static const std::streamsize BUF_SIZE = 512;
-        char buffer[BUF_SIZE];
-        while (strm.good()) {
-            strm.read(buffer, BUF_SIZE);
-            BOOST_TEST_REQUIRE(!strm.bad());
-            if (strm.gcount() > 0) {
-                // This code deals with the test character we write to
-                // detect the short-lived connection problem on Windows
-                const char* copyFrom = buffer;
-                size_t copyLen = static_cast<size_t>(strm.gcount());
-                if (m_Data.empty() && *buffer == ml::core::CNamedPipeFactory::TEST_CHAR) {
-                    ++copyFrom;
-                    --copyLen;
-                }
-                if (copyLen > 0) {
-                    m_Data.append(copyFrom, copyLen);
-                }
-            }
-        }
-    }
-
-    virtual void shutdown() {}
-
-private:
-    std::string m_FileName;
-    std::string m_Data;
-};
-
 bool systemCall() {
     return std::system("hostname") == 0;
 }
 
 void openPipeAndRead(const std::string& filename) {
 
-    CNamedPipeWriter threadWriter(filename, TEST_SIZE);
+    ml::test::CThreadDataWriter threadWriter(SLEEP_TIME_MS, filename, TEST_CHAR, TEST_SIZE);
     BOOST_TEST_REQUIRE(threadWriter.start());
 
     ml::core::CNamedPipeFactory::TIStreamP strm =
@@ -143,13 +70,13 @@ void openPipeAndRead(const std::string& filename) {
     BOOST_REQUIRE_EQUAL(TEST_SIZE, readData.length());
     BOOST_REQUIRE_EQUAL(std::string(TEST_SIZE, TEST_CHAR), readData);
 
-    BOOST_TEST_REQUIRE(threadWriter.stop());
+    BOOST_TEST_REQUIRE(threadWriter.waitForFinish());
 
     strm.reset();
 }
 
 void openPipeAndWrite(const std::string& filename) {
-    CNamedPipeReader threadReader(filename);
+    ml::test::CThreadDataReader threadReader(SLEEP_TIME_MS, MAX_ATTEMPTS, filename);
     BOOST_TEST_REQUIRE(threadReader.start());
 
     ml::core::CNamedPipeFactory::TOStreamP strm =
@@ -169,7 +96,9 @@ void openPipeAndWrite(const std::string& filename) {
 
     strm.reset();
 
-    BOOST_TEST_REQUIRE(threadReader.stop());
+    BOOST_TEST_REQUIRE(threadReader.waitForFinish());
+    BOOST_TEST_REQUIRE(threadReader.attemptsTaken() <= MAX_ATTEMPTS);
+    BOOST_TEST_REQUIRE(threadReader.streamWentBad() == false);
 
     BOOST_REQUIRE_EQUAL(TEST_SIZE, threadReader.data().length());
     BOOST_REQUIRE_EQUAL(std::string(TEST_SIZE, TEST_CHAR), threadReader.data());
@@ -188,7 +117,7 @@ void makeAndRemoveDirectory(const std::string& dirname) {
 }
 
 #ifdef Linux
-bool versionIsBefore3_5(std::int64_t major, std::int64_t minor) {
+bool versionIsBefore3_5(int major, int minor) {
     if (major < 3) {
         return true;
     }
@@ -209,8 +138,8 @@ BOOST_AUTO_TEST_CASE(testSystemCallFilter) {
     BOOST_TEST_REQUIRE(semVersion.tokenise(release, tokens));
     // Seccomp is available in kernels since 3.5
 
-    std::int64_t major = std::stoi(tokens[0]);
-    std::int64_t minor = std::stoi(tokens[1]);
+    int major{std::stoi(tokens[0])};
+    int minor{std::stoi(tokens[1])};
     if (versionIsBefore3_5(major, minor)) {
         LOG_INFO(<< "Cannot test seccomp on linux kernels before 3.5");
         return;
