@@ -1167,15 +1167,15 @@ BOOST_AUTO_TEST_CASE(testSmallVector) {
         if (size <= 2) {
             BOOST_TEST_REQUIRE(memory[0] == 0);
         }
-        BOOST_TEST_REQUIRE((memory[0] == 0 || memory[0] == vec1.capacity() * sizeof(double)));
+        BOOST_REQUIRE(memory[0] == 0 || memory[0] == vec1.capacity() * sizeof(double));
         if (size <= 6) {
             BOOST_TEST_REQUIRE(memory[1] == 0);
         }
-        BOOST_TEST_REQUIRE((memory[1] == 0 || memory[1] == vec2.capacity() * sizeof(double)));
+        BOOST_REQUIRE(memory[1] == 0 || memory[1] == vec2.capacity() * sizeof(double));
         if (size <= 8) {
             BOOST_TEST_REQUIRE(memory[2] == 0);
         }
-        BOOST_TEST_REQUIRE((memory[2] == 0 || memory[2] == vec3.capacity() * sizeof(double)));
+        BOOST_REQUIRE(memory[2] == 0 || memory[2] == vec3.capacity() * sizeof(double));
     }
 
     // Test growing and shrinking
