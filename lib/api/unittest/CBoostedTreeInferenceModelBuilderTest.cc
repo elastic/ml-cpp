@@ -164,7 +164,7 @@ BOOST_AUTO_TEST_CASE(testIntegrationRegression) {
 }
 
 BOOST_AUTO_TEST_CASE(testIntegrationClassification) {
-    std::size_t numberExamples = 1000;
+    std::size_t numberExamples = 200;
     std::size_t cols = 3;
     test::CRandomNumbers rng;
     TDoubleVec weights{0.1, 100.0};
@@ -217,13 +217,14 @@ BOOST_AUTO_TEST_CASE(testIntegrationClassification) {
     BOOST_TEST_REQUIRE("logistic_regression" ==
                        trainedModel->aggregateOutput()->stringType());
     const auto& classificationLabels{trainedModel->classificationLabels()};
+    BOOST_REQUIRE(classificationLabels.is_initialized() == true);
     BOOST_REQUIRE_EQUAL_COLLECTIONS(
-        classificationLabels.begin(), classificationLabels.end(),
+        classificationLabels->begin(), classificationLabels->end(),
         expectedClassificationLabels.begin(), expectedClassificationLabels.end());
 }
 
 BOOST_AUTO_TEST_CASE(testJsonSchema) {
-    std::size_t numberExamples = 1000;
+    std::size_t numberExamples = 200;
     std::size_t cols = 3;
     test::CRandomNumbers rng;
     TDoubleVec weights{0.1, 100.0};

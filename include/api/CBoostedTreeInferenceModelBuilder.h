@@ -89,7 +89,8 @@ public:
     CClassificationInferenceModelBuilder(TStrVec fieldNames,
                                          std::size_t dependentVariableColumnIndex,
                                          const TStrVecVec& categoryNames);
-    virtual CInferenceModelDefinition&& build();
+    ~CClassificationInferenceModelBuilder() override = default;
+    CInferenceModelDefinition&& build() override;
 
 protected:
     void setTargetType() override;

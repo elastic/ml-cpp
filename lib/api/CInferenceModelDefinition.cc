@@ -207,6 +207,10 @@ void CEnsemble::classificationLabels(const CTrainedModel::TStringVec& classifica
     }
 }
 
+const CTrainedModel::TStringVecOptional& CEnsemble::classificationLabels() const {
+    return this->CTrainedModel::classificationLabels();
+}
+
 void CTree::addToDocument(rapidjson::Value& parentObject, TRapidJsonWriter& writer) const {
     rapidjson::Value object = writer.makeObject();
     this->CTrainedModel::addToDocument(object, writer);

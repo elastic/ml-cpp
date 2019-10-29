@@ -169,7 +169,7 @@ void CClassificationInferenceModelBuilder::setAggregateOutput(CEnsemble* ensembl
 }
 
 CInferenceModelDefinition&& CClassificationInferenceModelBuilder::build() {
-    auto definition{this->CBoostedTreeInferenceModelBuilder::build()};
+    auto&& definition{this->CBoostedTreeInferenceModelBuilder::build()};
     const auto& trainedModel{definition.trainedModel()};
     trainedModel->classificationLabels(m_ClassificationLabels);
     return std::move(definition);

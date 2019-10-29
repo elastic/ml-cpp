@@ -126,7 +126,7 @@ public:
     virtual ETargetType targetType() const;
     //! Adjust the feature names, e.g. to exclude not used feature names like the target column.
     virtual TStringVec removeUnusedFeatures() = 0;
-    const TStringVecOptional& classificationLabels() const;
+    virtual const TStringVecOptional& classificationLabels() const;
     virtual void classificationLabels(const TStringVec& classificationLabels);
 
 private:
@@ -204,8 +204,8 @@ public:
     TStringVec removeUnusedFeatures() override;
     void targetType(ETargetType targetType) override;
     ETargetType targetType() const override;
-
     void classificationLabels(const TStringVec& classificationLabels) override;
+    const TStringVecOptional& classificationLabels() const override;
 
 private:
     TTrainedModelUPtrVec m_TrainedModels;
