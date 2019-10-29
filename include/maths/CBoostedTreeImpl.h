@@ -45,6 +45,7 @@ public:
     using TStrVec = std::vector<std::string>;
     using TMeanAccumulator = CBasicStatistics::SSampleMean<double>::TAccumulator;
     using TMeanVarAccumulator = CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
+    using TMeanVarAccumulatorVec = std::vector<TMeanVarAccumulator>;
     using TBayesinOptimizationUPtr = std::unique_ptr<maths::CBayesianOptimisation>;
     using TNodeVec = CBoostedTree::TNodeVec;
     using TNodeVecVec = CBoostedTree::TNodeVecVec;
@@ -120,6 +121,7 @@ public:
     //! Populate the object from serialized data.
     bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
 
+    //! Visit the boosted tree implementation.
     void accept(CBoostedTree::CVisitor& visitor);
 
 private:
@@ -127,6 +129,8 @@ private:
     using TDoubleDoublePr = std::pair<double, double>;
     using TDoubleDoublePrVec = std::vector<TDoubleDoublePr>;
     using TOptionalDouble = boost::optional<double>;
+    using TOptionalDoubleVec = std::vector<TOptionalDouble>;
+    using TOptionalDoubleVecVec = std::vector<TOptionalDoubleVec>;
     using TOptionalSize = boost::optional<std::size_t>;
     using TDoubleVecVec = std::vector<TDoubleVec>;
     using TSizeVec = std::vector<std::size_t>;
@@ -515,7 +519,7 @@ private:
 
     //! Train the forest and compute loss moments on each fold.
     TMeanVarAccumulator crossValidateForest(core::CDataFrame& frame,
-                                            const TMemoryUsageCallback& recordMemoryUsage) const;
+                                            const TMemoryUsageCallback& recordMemoryUsage);
 
     //! Initialize the predictions and loss function derivatives for the masked
     //! rows in \p frame.
@@ -537,6 +541,13 @@ private:
                        const TDoubleVecVec& candidateSplits,
                        const std::size_t maximumTreeSize,
                        const TMemoryUsageCallback& recordMemoryUsage) const;
+
+    //! Estimate the loss we'll get including the missing folds.
+    TMeanVarAccumulator correctLossMoments(const TSizeVec& missing,
+                                           TMeanVarAccumulator lossMoments) const;
+
+    //! Estimate test losses for the \p missing folds.
+    TMeanVarAccumulatorVec estimateMissingTestLosses(const TSizeVec& missing) const;
 
     //! Get the number of features including category encoding.
     std::size_t numberFeatures() const;
@@ -630,6 +641,7 @@ private:
     TPackedBitVectorVec m_TrainingRowMasks;
     TPackedBitVectorVec m_TestingRowMasks;
     double m_BestForestTestLoss = INF;
+    TOptionalDoubleVecVec m_FoldRoundTestLosses;
     SHyperparameters m_BestHyperparameters;
     TNodeVecVec m_BestForest;
     TBayesinOptimizationUPtr m_BayesianOptimization;

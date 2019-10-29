@@ -25,6 +25,7 @@ using namespace boosted_tree;
 using namespace boosted_tree_detail;
 
 namespace {
+using TMeanVarAccumulator = CBoostedTreeImpl::TMeanVarAccumulator;
 using TRowRef = core::CDataFrame::TRowRef;
 
 class CScopeRecordMemoryUsage {
@@ -82,6 +83,11 @@ double readExampleWeight(const TRowRef& row) {
 
 double readActual(const TRowRef& row, std::size_t dependentVariable) {
     return row[dependentVariable];
+}
+
+double lossAtNSigma(double n, const TMeanVarAccumulator& lossMoments) {
+    return CBasicStatistics::mean(lossMoments) +
+           n * std::sqrt(CBasicStatistics::variance(lossMoments));
 }
 
 const std::size_t ASSIGN_MISSING_TO_LEFT{0};
@@ -446,6 +452,11 @@ void CBoostedTreeImpl::train(core::CDataFrame& frame,
 
         // Hyperparameter optimisation loop.
 
+        m_FoldRoundTestLosses.resize(m_NumberFolds);
+        for (auto& losses : m_FoldRoundTestLosses) {
+            losses.resize(m_NumberRounds);
+        }
+
         while (m_CurrentRound < m_NumberRounds) {
 
             LOG_TRACE(<< "Optimisation round = " << m_CurrentRound + 1);
@@ -608,18 +619,44 @@ CBoostedTreeImpl::gainAndCurvatureAtPercentile(double percentile,
 
 CBoostedTreeImpl::TMeanVarAccumulator
 CBoostedTreeImpl::crossValidateForest(core::CDataFrame& frame,
-                                      const TMemoryUsageCallback& recordMemoryUsage) const {
+                                      const TMemoryUsageCallback& recordMemoryUsage) {
+
+    TSizeVec folds(m_NumberFolds);
+    std::iota(folds.begin(), folds.end(), 0);
+    CSampling::random_shuffle(m_Rng, folds.begin(), folds.end());
+
+    auto stopCrossValidationEarly = [&](TMeanVarAccumulator lossMoments) {
+        // Always train on every folds for the first number folds rounds and at
+        // least two folds per round.
+        if (m_CurrentRound > m_NumberFolds && folds.size() <= m_NumberFolds - 2) {
+            for (const auto& loss : this->estimateMissingTestLosses(folds)) {
+                lossMoments.add(
+                    CBasicStatistics::mean(loss) -
+                    2.0 * std::sqrt(CBasicStatistics::maximumLikelihoodVariance(loss)));
+            }
+            return lossAtNSigma(1.0, lossMoments) > m_BestForestTestLoss;
+        }
+        return false;
+    };
+
     TMeanVarAccumulator lossMoments;
-    for (std::size_t i = 0; i < m_NumberFolds; ++i) {
-        TNodeVecVec forest(this->trainForest(frame, m_TrainingRowMasks[i], recordMemoryUsage));
-        double loss{this->meanLoss(frame, m_TestingRowMasks[i], forest)};
+    while (folds.empty() == false && stopCrossValidationEarly(lossMoments) == false) {
+        std::size_t fold{folds.back()};
+        folds.pop_back();
+        TNodeVecVec forest(this->trainForest(frame, m_TrainingRowMasks[fold], recordMemoryUsage));
+        double loss{this->meanLoss(frame, m_TestingRowMasks[fold], forest)};
         lossMoments.add(loss);
-        LOG_TRACE(<< "fold = " << i << " forest size = " << forest.size()
+        m_FoldRoundTestLosses[fold][m_CurrentRound] = loss;
+        LOG_TRACE(<< "fold = " << fold << " forest size = " << forest.size()
                   << " test set loss = " << loss);
     }
     LOG_TRACE(<< "test mean loss = " << CBasicStatistics::mean(lossMoments)
               << ", sigma = " << std::sqrt(CBasicStatistics::mean(lossMoments)));
-    return lossMoments;
+
+    m_TrainingProgress.increment(folds.size());
+    LOG_TRACE(<< "skipped " << folds.size() << " folds");
+
+    return this->correctLossMoments(std::move(folds), lossMoments);
 }
 
 CBoostedTreeImpl::TNodeVec CBoostedTreeImpl::initializePredictionsAndLossDerivatives(
@@ -875,6 +912,93 @@ CBoostedTreeImpl::trainTree(core::CDataFrame& frame,
     return tree;
 }
 
+TMeanVarAccumulator CBoostedTreeImpl::correctLossMoments(const TSizeVec& missing,
+                                                         TMeanVarAccumulator lossMoments) const {
+    if (missing.empty()) {
+        return lossMoments;
+    }
+    for (const auto& loss : this->estimateMissingTestLosses(missing)) {
+        lossMoments += loss;
+    }
+    return lossMoments;
+}
+
+CBoostedTreeImpl::TMeanVarAccumulatorVec
+CBoostedTreeImpl::estimateMissingTestLosses(const TSizeVec& missing) const {
+
+    // We have a subset of folds for which we've computed test loss. We want to
+    // estimate the test loss we'll see for the remaining folds to decide if it
+    // is worthwhile to continue training with these parameters and to correct
+    // the loss value supplied to Bayesian Optimisation to account for the folds
+    // we haven't trained on. We achieve this by for each missing fold m fitting
+    // OLS to the data (x_i, loss(m_i)) where i ranges over the previous rounds
+    // and x_i is the i'th vector whose components comprise the losses for which
+    // we have values in this round and indicators for whether they were present
+    // in the i'th round. We only include a round if it at least one of the folds
+    // matches a fold for which we have a test loss in the current round.
+
+    TSizeVec present(m_NumberFolds);
+    std::iota(present.begin(), present.end(), 0);
+    TSizeVec ordered{missing};
+    std::sort(ordered.begin(), ordered.end());
+    CSetTools::inplace_set_difference(present, ordered.begin(), ordered.end());
+
+    CDenseVector<double> x(2 * present.size());
+    for (std::size_t col = 0; col < present.size(); ++col) {
+        x(col) = *m_FoldRoundTestLosses[present[col]][m_CurrentRound];
+        x(present.size() + col) = 0.0;
+    }
+
+    TMeanVarAccumulatorVec predictedTestLosses;
+    predictedTestLosses.reserve(missing.size());
+
+    for (std::size_t target : missing) {
+        // Extract training mask.
+        TSizeVec mask;
+        mask.reserve(m_CurrentRound);
+        for (std::size_t round = 0; round < m_CurrentRound; ++round) {
+            if (m_FoldRoundTestLosses[target][round] &&
+                std::find_if(present.begin(), present.end(), [&](std::size_t fold) {
+                    return m_FoldRoundTestLosses[fold][round];
+                }) != present.end()) {
+                mask.push_back(round);
+            }
+        }
+
+        // Fit the OLS model.
+        CDenseMatrix<double> A(mask.size(), 2 * present.size());
+        CDenseVector<double> b(mask.size());
+        for (std::size_t row = 0; row < mask.size(); ++row) {
+            for (std::size_t col = 0; col < present.size(); ++col) {
+                if (m_FoldRoundTestLosses[present[col]][mask[row]]) {
+                    A(row, col) = *m_FoldRoundTestLosses[present[col]][mask[row]];
+                    A(row, present.size() + col) = 0.0;
+                } else {
+                    A(row, col) = 0.0;
+                    A(row, present.size() + col) = 1.0;
+                }
+            }
+            b(row) = *m_FoldRoundTestLosses[target][mask[row]];
+        }
+        CDenseVector<double> params{A.colPivHouseholderQr().solve(b)};
+
+        TMeanVarAccumulator residualMoments;
+        for (int row = 0; row < A.rows(); ++row) {
+            residualMoments.add(b(row) - A.row(row) * params);
+        }
+
+        double predictedLoss{params.transpose() * x};
+        double predictedLossVariance{CBasicStatistics::maximumLikelihoodVariance(residualMoments)};
+        predictedTestLosses.push_back(CBasicStatistics::momentsAccumulator(
+            1.0, predictedLoss, predictedLossVariance));
+        LOG_TRACE(<< "prediction(x = " << x.transpose() << ", fold = " << target
+                  << ") = (mean = " << predictedLoss
+                  << ", variance = " << predictedLossVariance << ")");
+    }
+
+    return predictedTestLosses;
+}
+
 std::size_t CBoostedTreeImpl::numberFeatures() const {
     return m_Encoder->numberEncodedColumns();
 }
@@ -1111,8 +1235,7 @@ void CBoostedTreeImpl::captureBestHyperparameters(const TMeanVarAccumulator& los
     // We capture the parameters with the lowest error at one standard
     // deviation above the mean. If the mean error improvement is marginal
     // we prefer the solution with the least variation across the folds.
-    double loss{CBasicStatistics::mean(lossMoments) +
-                std::sqrt(CBasicStatistics::variance(lossMoments))};
+    double loss{lossAtNSigma(1.0, lossMoments)};
     if (loss < m_BestForestTestLoss) {
         m_BestForestTestLoss = loss;
         m_BestHyperparameters = SHyperparameters{
@@ -1164,6 +1287,7 @@ const std::string FEATURE_BAG_FRACTION_OVERRIDE_TAG{"feature_bag_fraction_overri
 const std::string FEATURE_BAG_FRACTION_TAG{"feature_bag_fraction"};
 const std::string FEATURE_DATA_TYPES_TAG{"feature_data_types"};
 const std::string FEATURE_SAMPLE_PROBABILITIES_TAG{"feature_sample_probabilities"};
+const std::string FOLD_ROUND_TEST_LOSSES_TAG{"fold_round_test_losses"};
 const std::string LOSS_TAG{"loss"};
 const std::string MAXIMUM_ATTEMPTS_TO_ADD_TREE_TAG{"maximum_attempts_to_add_tree"};
 const std::string MAXIMUM_NUMBER_TREES_OVERRIDE_TAG{"maximum_number_trees_override"};
@@ -1255,6 +1379,7 @@ void CBoostedTreeImpl::acceptPersistInserter(core::CStatePersistInserter& insert
     core::CPersistUtils::persist(FEATURE_DATA_TYPES_TAG, m_FeatureDataTypes, inserter);
     core::CPersistUtils::persist(FEATURE_SAMPLE_PROBABILITIES_TAG,
                                  m_FeatureSampleProbabilities, inserter);
+    core::CPersistUtils::persist(FOLD_ROUND_TEST_LOSSES_TAG, m_FoldRoundTestLosses, inserter);
     core::CPersistUtils::persist(MAXIMUM_ATTEMPTS_TO_ADD_TREE_TAG,
                                  m_MaximumAttemptsToAddTree, inserter);
     core::CPersistUtils::persist(MAXIMUM_OPTIMISATION_ROUNDS_PER_HYPERPARAMETER_TAG,
@@ -1358,6 +1483,9 @@ bool CBoostedTreeImpl::acceptRestoreTraverser(core::CStateRestoreTraverser& trav
             RESTORE(FEATURE_SAMPLE_PROBABILITIES_TAG,
                     core::CPersistUtils::restore(FEATURE_SAMPLE_PROBABILITIES_TAG,
                                                  m_FeatureSampleProbabilities, traverser))
+            RESTORE(FOLD_ROUND_TEST_LOSSES_TAG,
+                    core::CPersistUtils::restore(FOLD_ROUND_TEST_LOSSES_TAG,
+                                                 m_FoldRoundTestLosses, traverser))
             RESTORE(MAXIMUM_ATTEMPTS_TO_ADD_TREE_TAG,
                     core::CPersistUtils::restore(MAXIMUM_ATTEMPTS_TO_ADD_TREE_TAG,
                                                  m_MaximumAttemptsToAddTree, traverser))
@@ -1441,6 +1569,7 @@ std::size_t CBoostedTreeImpl::memoryUsage() const {
     mem += core::CMemory::dynamicSize(m_MissingFeatureRowMasks);
     mem += core::CMemory::dynamicSize(m_TrainingRowMasks);
     mem += core::CMemory::dynamicSize(m_TestingRowMasks);
+    mem += core::CMemory::dynamicSize(m_FoldRoundTestLosses);
     mem += core::CMemory::dynamicSize(m_BestForest);
     mem += core::CMemory::dynamicSize(m_BayesianOptimization);
     return mem;
