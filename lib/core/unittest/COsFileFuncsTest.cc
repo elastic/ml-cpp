@@ -77,6 +77,8 @@ BOOST_AUTO_TEST_CASE(testLStat) {
     // create symlinks on Windows, and we don't want to force the unit tests to
     // run as administrator
     LOG_WARN(<< "Skipping lstat() test as it would need to run as administrator");
+    // NTDDI_VERSION should only be defined on Windows
+    BOOST_REQUIRE(BOOST_IS_DEFINED(Windows));
 #else
 #ifdef Windows
     BOOST_TEST_REQUIRE(CreateSymbolicLink(symLink.c_str(), file.c_str(),
