@@ -258,6 +258,8 @@ BOOST_AUTO_TEST_CASE(testErrorIfSymlink) {
     // live under \\.\pipe\ and it's not possible to symlink to this part of
     // the file system
     LOG_DEBUG(<< "symlink test not relevant to Windows");
+    // Suppress the error about no assertions in this case
+    BOOST_REQUIRE(BOOST_IS_DEFINED(Windows));
 #else
     static const char* const TEST_SYMLINK_NAME = "test_symlink";
 
