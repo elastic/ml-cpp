@@ -624,6 +624,7 @@ private:
     TOptionalSize m_MaximumNumberTreesOverride;
     TOptionalDouble m_FeatureBagFractionOverride;
     TRegularization m_Regularization;
+    bool m_StopCrossValidationEarly = true;
     double m_Eta = 0.1;
     double m_EtaGrowthRatePerTree = 1.05;
     std::size_t m_NumberFolds = 4;

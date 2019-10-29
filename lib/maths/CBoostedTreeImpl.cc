@@ -628,7 +628,8 @@ CBoostedTreeImpl::crossValidateForest(core::CDataFrame& frame,
     auto stopCrossValidationEarly = [&](TMeanVarAccumulator lossMoments) {
         // Always train on every folds for the first number folds rounds and at
         // least two folds per round.
-        if (m_CurrentRound > m_NumberFolds && folds.size() <= m_NumberFolds - 2) {
+        if (m_StopCrossValidationEarly && m_CurrentRound > m_NumberFolds &&
+            folds.size() <= m_NumberFolds - 2) {
             for (const auto& loss : this->estimateMissingTestLosses(folds)) {
                 lossMoments.add(
                     CBasicStatistics::mean(loss) -

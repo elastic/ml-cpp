@@ -671,6 +671,11 @@ CBoostedTreeFactory& CBoostedTreeFactory::stratifyRegressionCrossValidation(bool
     return *this;
 }
 
+CBoostedTreeFactory& CBoostedTreeFactory::stopCrossValidationEarly(bool stopEarly) {
+    m_TreeImpl->m_StopCrossValidationEarly = stopEarly;
+    return *this;
+}
+
 CBoostedTreeFactory& CBoostedTreeFactory::depthPenaltyMultiplier(double depthPenaltyMultiplier) {
     if (depthPenaltyMultiplier < 0.0) {
         LOG_WARN(<< "Depth penalty multiplier must be non-negative");
