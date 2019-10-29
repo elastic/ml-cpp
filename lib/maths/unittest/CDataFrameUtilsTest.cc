@@ -593,7 +593,7 @@ BOOST_AUTO_TEST_CASE(testStratifiedCrossValidationRowMasks) {
             }
             LOG_DEBUG(<< "variance in test set target percentile = "
                       << maths::CBasicStatistics::variance(testTargetDecileMoments));
-            BOOST_REQUIRE(maths::CBasicStatistics::variance(testTargetDecileMoments) < 0.02);
+            BOOST_TEST_REQUIRE(maths::CBasicStatistics::variance(testTargetDecileMoments) < 0.02);
         }
     }
 }

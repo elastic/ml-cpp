@@ -668,8 +668,8 @@ BOOST_AUTO_TEST_CASE(testPoorlyConditioned) {
             TVector2Vec clusterPoints = xmeans.clusters()[i].points();
             std::sort(clusterPoints.begin(), clusterPoints.end());
             LOG_DEBUG(<< "points = " << core::CContainerPrinter::print(clusterPoints));
-            BOOST_TEST_REQUIRE((clusterPoints == cluster1 || clusterPoints == cluster2 ||
-                                clusterPoints == cluster3));
+            BOOST_REQUIRE(clusterPoints == cluster1 ||
+                          clusterPoints == cluster2 || clusterPoints == cluster3);
         }
     }
 }

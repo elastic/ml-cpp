@@ -97,10 +97,10 @@ BOOST_AUTO_TEST_CASE(testComparison) {
 
     for (std::size_t i = 0u; i < features.size(); ++i) {
         BOOST_TEST_REQUIRE(features[i] == features[i]);
-        BOOST_TEST_REQUIRE(!(features[i] < features[i] || features[i] > features[i]));
+        BOOST_REQUIRE(!(features[i] < features[i] || features[i] > features[i]));
         for (std::size_t j = i + 1; j < features.size(); ++j) {
             BOOST_TEST_REQUIRE(features[i] != features[j]);
-            BOOST_TEST_REQUIRE((features[i] < features[j] || features[i] > features[j]));
+            BOOST_REQUIRE(features[i] < features[j] || features[i] > features[j]);
         }
     }
 }
