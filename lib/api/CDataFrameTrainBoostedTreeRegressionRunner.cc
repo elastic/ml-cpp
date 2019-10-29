@@ -21,19 +21,31 @@
 namespace ml {
 namespace api {
 namespace {
+// Configuration
+const std::string STRATIFIED_CROSS_VALIDATION{"stratified_cross_validation"};
+
 // Output
 const std::string IS_TRAINING_FIELD_NAME{"is_training"};
 }
 
 const CDataFrameAnalysisConfigReader&
 CDataFrameTrainBoostedTreeRegressionRunner::getParameterReader() {
-    return CDataFrameTrainBoostedTreeRunner::getParameterReader();
+    static const CDataFrameAnalysisConfigReader PARAMETER_READER{[] {
+        auto theReader = CDataFrameTrainBoostedTreeRunner::getParameterReader();
+        theReader.addParameter(STRATIFIED_CROSS_VALIDATION,
+                               CDataFrameAnalysisConfigReader::E_OptionalParameter);
+        return theReader;
+    }()};
+    return PARAMETER_READER;
 }
 
 CDataFrameTrainBoostedTreeRegressionRunner::CDataFrameTrainBoostedTreeRegressionRunner(
     const CDataFrameAnalysisSpecification& spec,
     const CDataFrameAnalysisParameters& parameters)
     : CDataFrameTrainBoostedTreeRunner{spec, parameters} {
+
+    this->boostedTreeFactory().stratifyRegressionCrossValidation(
+        parameters[STRATIFIED_CROSS_VALIDATION].fallback(true));
 
     const TStrVec& categoricalFieldNames{spec.categoricalFieldNames()};
     if (std::find(categoricalFieldNames.begin(), categoricalFieldNames.end(),
@@ -94,8 +106,8 @@ CDataFrameTrainBoostedTreeRegressionRunnerFactory::TRunnerUPtr
 CDataFrameTrainBoostedTreeRegressionRunnerFactory::makeImpl(
     const CDataFrameAnalysisSpecification& spec,
     const rapidjson::Value& jsonParameters) const {
-    CDataFrameAnalysisConfigReader parameterReader =
-        CDataFrameTrainBoostedTreeRegressionRunner::getParameterReader();
+    const CDataFrameAnalysisConfigReader& parameterReader{
+        CDataFrameTrainBoostedTreeRegressionRunner::getParameterReader()};
     auto parameters = parameterReader.read(jsonParameters);
     return std::make_unique<CDataFrameTrainBoostedTreeRegressionRunner>(spec, parameters);
 }

@@ -173,8 +173,8 @@ CDataFrameTrainBoostedTreeClassifierRunnerFactory::TRunnerUPtr
 CDataFrameTrainBoostedTreeClassifierRunnerFactory::makeImpl(
     const CDataFrameAnalysisSpecification& spec,
     const rapidjson::Value& jsonParameters) const {
-    CDataFrameAnalysisConfigReader parameterReader =
-        CDataFrameTrainBoostedTreeClassifierRunner::getParameterReader();
+    const CDataFrameAnalysisConfigReader& parameterReader{
+        CDataFrameTrainBoostedTreeClassifierRunner::getParameterReader()};
     auto parameters = parameterReader.read(jsonParameters);
     return std::make_unique<CDataFrameTrainBoostedTreeClassifierRunner>(spec, parameters);
 }

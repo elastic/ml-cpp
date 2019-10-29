@@ -712,8 +712,6 @@ CBoostedTreeImpl::TDoubleVecVec
 CBoostedTreeImpl::candidateSplits(const core::CDataFrame& frame,
                                   const core::CPackedBitVector& trainingRowMask) const {
 
-    using TQuantileSketchVec = std::vector<CQuantileSketch>;
-
     TSizeVec features{this->candidateRegressorFeatures()};
     LOG_TRACE(<< "candidate features = " << core::CContainerPrinter::print(features));
 
@@ -728,7 +726,7 @@ CBoostedTreeImpl::candidateSplits(const core::CDataFrame& frame,
     LOG_TRACE(<< "binary features = " << core::CContainerPrinter::print(binaryFeatures)
               << " other features = " << core::CContainerPrinter::print(features));
 
-    TQuantileSketchVec featureQuantiles;
+    CDataFrameUtils::TQuantileSketchVec featureQuantiles;
     CDataFrameUtils::columnQuantiles(
         m_NumberThreads, frame, trainingRowMask, features,
         CQuantileSketch{CQuantileSketch::E_Linear,

@@ -242,9 +242,9 @@ BOOST_AUTO_TEST_CASE(testPiecewiseConstant) {
         // Unbiased...
         BOOST_REQUIRE_CLOSE_ABSOLUTE(
             0.0, modelBias[i][0],
-            4.0 * std::sqrt(noiseVariance / static_cast<double>(trainRows)));
+            5.0 * std::sqrt(noiseVariance / static_cast<double>(trainRows)));
         // Good R^2...
-        BOOST_TEST_REQUIRE(modelRSquared[i][0] > 0.95);
+        BOOST_TEST_REQUIRE(modelRSquared[i][0] > 0.96);
 
         meanModelRSquared.add(modelRSquared[i][0]);
     }
@@ -365,9 +365,9 @@ BOOST_AUTO_TEST_CASE(testNonLinear) {
         // Unbiased...
         BOOST_REQUIRE_CLOSE_ABSOLUTE(
             0.0, modelBias[i][0],
-            5.0 * std::sqrt(noiseVariance / static_cast<double>(trainRows)));
+            4.0 * std::sqrt(noiseVariance / static_cast<double>(trainRows)));
         // Good R^2...
-        BOOST_TEST_REQUIRE(modelRSquared[i][0] > 0.95);
+        BOOST_TEST_REQUIRE(modelRSquared[i][0] > 0.96);
 
         meanModelRSquared.add(modelRSquared[i][0]);
     }
@@ -816,7 +816,7 @@ BOOST_AUTO_TEST_CASE(testDepthBasedRegularization) {
                 .treeSizePenaltyMultiplier(0.0)
                 .leafWeightPenaltyMultiplier(0.0)
                 .softTreeDepthLimit(targetDepth)
-                .softTreeDepthTolerance(0.05)
+                .softTreeDepthTolerance(0.01)
                 .buildFor(*frame, std::make_unique<maths::boosted_tree::CMse>(), cols - 1);
 
         regression->train();
