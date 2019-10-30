@@ -19,7 +19,7 @@ namespace api {
 class API_EXPORT CDataFrameTrainBoostedTreeRegressionRunner final
     : public CDataFrameTrainBoostedTreeRunner {
 public:
-    static const CDataFrameAnalysisConfigReader& getParameterReader();
+    static const CDataFrameAnalysisConfigReader& parameterReader();
 
     //! This is not intended to be called directly: use CDataFrameTrainBoostedTreeRegressionRunnerFactory.
     CDataFrameTrainBoostedTreeRegressionRunner(const CDataFrameAnalysisSpecification& spec,
@@ -47,10 +47,10 @@ private:
 class API_EXPORT CDataFrameTrainBoostedTreeRegressionRunnerFactory final
     : public CDataFrameAnalysisRunnerFactory {
 public:
-    const std::string& name() const override;
-
-private:
     static const std::string NAME;
+
+public:
+    const std::string& name() const override;
 
 private:
     TRunnerUPtr makeImpl(const CDataFrameAnalysisSpecification& spec) const override;

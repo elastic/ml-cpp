@@ -20,6 +20,14 @@ namespace api {
 //! \brief Runs outlier detection on a core::CDataFrame.
 class API_EXPORT CDataFrameOutliersRunner final : public CDataFrameAnalysisRunner {
 public:
+    static const std::string STANDARDIZATION_ENABLED;
+    static const std::string N_NEIGHBORS;
+    static const std::string METHOD;
+    static const std::string COMPUTE_FEATURE_INFLUENCE;
+    static const std::string FEATURE_INFLUENCE_THRESHOLD;
+    static const std::string OUTLIER_FRACTION;
+
+public:
     //! This is not intended to be called directly: use CDataFrameOutliersRunnerFactory.
     CDataFrameOutliersRunner(const CDataFrameAnalysisSpecification& spec,
                              const CDataFrameAnalysisParameters& parameters);
@@ -72,10 +80,10 @@ private:
 //! \brief Makes a core::CDataFrame outlier analysis runner.
 class API_EXPORT CDataFrameOutliersRunnerFactory final : public CDataFrameAnalysisRunnerFactory {
 public:
-    const std::string& name() const override;
-
-private:
     static const std::string NAME;
+
+public:
+    const std::string& name() const override;
 
 private:
     TRunnerUPtr makeImpl(const CDataFrameAnalysisSpecification& spec) const override;

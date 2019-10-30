@@ -10,54 +10,60 @@
 
 #include <api/CDataFrameAnalysisSpecification.h>
 #include <api/CDataFrameAnalysisSpecificationJsonWriter.h>
+#include <api/CDataFrameOutliersRunner.h>
+#include <api/CDataFrameTrainBoostedTreeRunner.h>
 
 #include <test/CTestTmpDir.h>
 
 #include <memory>
 
-using namespace ml;
+namespace ml {
+namespace test {
+using TRapidJsonLineWriter = core::CRapidJsonLineWriter<rapidjson::StringBuffer>;
 
-test::CDataFrameAnalysisSpecificationFactory::TSpecificationUPtr
-test::CDataFrameAnalysisSpecificationFactory::outlierSpec(std::size_t rows,
-                                                          std::size_t cols,
-                                                          std::size_t memoryLimit,
-                                                          const std::string& method,
-                                                          std::size_t numberNeighbours,
-                                                          bool computeFeatureInfluence) {
-    std::string parameters = "{\n";
-    bool hasTrailingParameter{false};
+CDataFrameAnalysisSpecificationFactory::TSpecificationUPtr
+CDataFrameAnalysisSpecificationFactory::outlierSpec(std::size_t rows,
+                                                    std::size_t cols,
+                                                    std::size_t memoryLimit,
+                                                    const std::string& method,
+                                                    std::size_t numberNeighbours,
+                                                    bool computeFeatureInfluence,
+                                                    bool diskUsageAllowed) {
+
+    rapidjson::StringBuffer parameters;
+    TRapidJsonLineWriter writer;
+    writer.Reset(parameters);
+
+    writer.StartObject();
     if (method != "") {
-        parameters += "\"method\": \"" + method + "\"";
-        hasTrailingParameter = true;
+        writer.Key(api::CDataFrameOutliersRunner::METHOD);
+        writer.String(method);
     }
     if (numberNeighbours > 0) {
-        parameters += (hasTrailingParameter ? ",\n" : "");
-        parameters += "\"n_neighbors\": " + core::CStringUtils::typeToString(numberNeighbours);
-        hasTrailingParameter = true;
+        writer.Key(api::CDataFrameOutliersRunner::N_NEIGHBORS);
+        writer.Uint64(numberNeighbours);
     }
     if (computeFeatureInfluence == false) {
-        parameters += (hasTrailingParameter ? ",\n" : "");
-        parameters += "\"compute_feature_influence\": false";
-        hasTrailingParameter = true;
+        writer.Key(api::CDataFrameOutliersRunner::COMPUTE_FEATURE_INFLUENCE);
+        writer.Bool(computeFeatureInfluence);
     } else {
-        parameters += (hasTrailingParameter ? ",\n" : "");
-        parameters += "\"feature_influence_threshold\": 0.0";
-        hasTrailingParameter = true;
+        writer.Key(api::CDataFrameOutliersRunner::FEATURE_INFLUENCE_THRESHOLD);
+        writer.Double(0.0);
     }
-    parameters += (hasTrailingParameter ? "\n" : "");
-    parameters += "}\n";
+    writer.EndObject();
+    writer.Flush();
 
     std::string spec{api::CDataFrameAnalysisSpecificationJsonWriter::jsonString(
-        "testJob", rows, cols, memoryLimit, 1, {}, true, CTestTmpDir::tmpDir(),
-        "ml", "outlier_detection", parameters)};
+        "testJob", rows, cols, memoryLimit, 1, {}, diskUsageAllowed, CTestTmpDir::tmpDir(),
+        "ml", api::CDataFrameOutliersRunnerFactory::NAME, parameters.GetString())};
 
-    LOG_DEBUG(<< "spec =\n" << spec);
+    LOG_TRACE(<< "spec =\n" << spec);
 
     return std::make_unique<api::CDataFrameAnalysisSpecification>(spec);
 }
 
-test::CDataFrameAnalysisSpecificationFactory::TSpecificationUPtr
-test::CDataFrameAnalysisSpecificationFactory::predictionSpec(
+CDataFrameAnalysisSpecificationFactory::TSpecificationUPtr
+CDataFrameAnalysisSpecificationFactory::predictionSpec(
     const std::string& analysis,
     const std::string& dependentVariable,
     std::size_t rows,
@@ -76,48 +82,59 @@ test::CDataFrameAnalysisSpecificationFactory::predictionSpec(
     double featureBagFraction,
     TPersisterSupplier* persisterSupplier,
     TRestoreSearcherSupplier* restoreSearcherSupplier) {
-    std::string parameters = "{\n\"dependent_variable\": \"" + dependentVariable + "\"";
+
+    rapidjson::StringBuffer parameters;
+    TRapidJsonLineWriter writer;
+    writer.Reset(parameters);
+
+    writer.StartObject();
+    writer.Key(api::CDataFrameTrainBoostedTreeRunner::DEPENDENT_VARIABLE_NAME);
+    writer.String(dependentVariable);
     if (alpha >= 0.0) {
-        parameters += ",\n\"alpha\": " + core::CStringUtils::typeToString(alpha);
+        writer.Key(api::CDataFrameTrainBoostedTreeRunner::ALPHA);
+        writer.Double(alpha);
     }
     if (lambda >= 0.0) {
-        parameters += ",\n\"lambda\": " + core::CStringUtils::typeToString(lambda);
+        writer.Key(api::CDataFrameTrainBoostedTreeRunner::LAMBDA);
+        writer.Double(lambda);
     }
     if (gamma >= 0.0) {
-        parameters += ",\n\"gamma\": " + core::CStringUtils::typeToString(gamma);
+        writer.Key(api::CDataFrameTrainBoostedTreeRunner::GAMMA);
+        writer.Double(gamma);
     }
     if (softTreeDepthLimit >= 0.0) {
-        parameters += ",\n\"soft_tree_depth_limit\": " +
-                      core::CStringUtils::typeToString(softTreeDepthLimit);
+        writer.Key(api::CDataFrameTrainBoostedTreeRunner::SOFT_TREE_DEPTH_LIMIT);
+        writer.Double(softTreeDepthLimit);
     }
     if (softTreeDepthTolerance >= 0.0) {
-        parameters += ",\n\"soft_tree_depth_tolerance\": " +
-                      core::CStringUtils::typeToString(softTreeDepthTolerance);
+        writer.Key(api::CDataFrameTrainBoostedTreeRunner::SOFT_TREE_DEPTH_TOLERANCE);
+        writer.Double(softTreeDepthTolerance);
     }
     if (eta > 0.0) {
-        parameters += ",\n\"eta\": " + core::CStringUtils::typeToString(eta);
+        writer.Key(api::CDataFrameTrainBoostedTreeRunner::ETA);
+        writer.Double(eta);
     }
     if (maximumNumberTrees > 0) {
-        parameters += ",\n\"maximum_number_trees\": " +
-                      core::CStringUtils::typeToString(maximumNumberTrees);
+        writer.Key(api::CDataFrameTrainBoostedTreeRunner::MAXIMUM_NUMBER_TREES);
+        writer.Uint64(maximumNumberTrees);
     }
     if (featureBagFraction > 0.0) {
-        parameters += ",\n\"feature_bag_fraction\": " +
-                      core::CStringUtils::typeToString(featureBagFraction);
+        writer.Key(api::CDataFrameTrainBoostedTreeRunner::FEATURE_BAG_FRACTION);
+        writer.Double(featureBagFraction);
     }
     if (numberRoundsPerHyperparameter > 0) {
-        parameters += ",\n\"number_rounds_per_hyperparameter\": " +
-                      core::CStringUtils::typeToString(numberRoundsPerHyperparameter);
+        writer.Key(api::CDataFrameTrainBoostedTreeRunner::NUMBER_ROUNDS_PER_HYPERPARAMETER);
+        writer.Uint64(numberRoundsPerHyperparameter);
     }
     if (bayesianOptimisationRestarts > 0) {
-        parameters += ",\n\"bayesian_optimisation_restarts\": " +
-                      core::CStringUtils::typeToString(bayesianOptimisationRestarts);
+        writer.Key(api::CDataFrameTrainBoostedTreeRunner::BAYESIAN_OPTIMISATION_RESTARTS);
+        writer.Uint64(bayesianOptimisationRestarts);
     }
-    parameters += "\n}";
+    writer.EndObject();
 
     std::string spec{api::CDataFrameAnalysisSpecificationJsonWriter::jsonString(
         "testJob", rows, cols, memoryLimit, 1, categoricalFieldNames, true,
-        CTestTmpDir::tmpDir(), "ml", analysis, parameters)};
+        CTestTmpDir::tmpDir(), "ml", analysis, parameters.GetString())};
 
     LOG_TRACE(<< "spec =\n" << spec);
 
@@ -130,13 +147,5 @@ test::CDataFrameAnalysisSpecificationFactory::predictionSpec(
         return std::make_unique<api::CDataFrameAnalysisSpecification>(spec);
     }
 }
-
-test::CDataFrameAnalysisSpecificationFactory::TSpecificationUPtr
-test::CDataFrameAnalysisSpecificationFactory::diskUsageTestSpec(std::size_t rows,
-                                                                std::size_t cols,
-                                                                bool diskUsageAllowed) {
-    std::string spec{api::CDataFrameAnalysisSpecificationJsonWriter::jsonString(
-        "testJob", rows, cols, 500000, 1, {}, diskUsageAllowed,
-        CTestTmpDir::tmpDir(), "", "outlier_detection", "")};
-    return std::make_unique<api::CDataFrameAnalysisSpecification>(spec);
+}
 }
