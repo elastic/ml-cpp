@@ -37,7 +37,8 @@ public:
                                           std::size_t memoryLimit = 100000,
                                           const std::string& method = "",
                                           std::size_t numberNeighbours = 0,
-                                          bool computeFeatureInfluence = false);
+                                          bool computeFeatureInfluence = false,
+                                          bool diskUsageAllowed = true);
 
     static TSpecificationUPtr
     predictionSpec(const std::string& analysis,
@@ -58,9 +59,6 @@ public:
                    double featureBagFraction = -1.0,
                    TPersisterSupplier* persisterSupplier = nullptr,
                    TRestoreSearcherSupplier* restoreSearcherSupplier = nullptr);
-
-    static TSpecificationUPtr
-    diskUsageTestSpec(std::size_t rows, std::size_t cols, bool diskUsageAllowed);
 };
 }
 }
