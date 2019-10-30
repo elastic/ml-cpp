@@ -126,11 +126,13 @@ public:
     virtual ETargetType targetType() const;
     //! Adjust the feature names, e.g. to exclude not used feature names like the target column.
     virtual TStringVec removeUnusedFeatures() = 0;
+    virtual const TStringVecOptional& classificationLabels() const;
+    virtual void classificationLabels(const TStringVec& classificationLabels);
 
 private:
-    TStringVecOptional m_ClassificationLabels;
     TStringVec m_FeatureNames;
     ETargetType m_TargetType;
+    TStringVecOptional m_ClassificationLabels;
 };
 
 //! Classification and regression trees.
@@ -201,8 +203,9 @@ public:
     std::size_t size() const;
     TStringVec removeUnusedFeatures() override;
     void targetType(ETargetType targetType) override;
-
     ETargetType targetType() const override;
+    void classificationLabels(const TStringVec& classificationLabels) override;
+    const TStringVecOptional& classificationLabels() const override;
 
 private:
     TTrainedModelUPtrVec m_TrainedModels;
