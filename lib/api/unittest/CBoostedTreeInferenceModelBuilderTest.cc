@@ -217,7 +217,7 @@ BOOST_AUTO_TEST_CASE(testIntegrationClassification) {
     BOOST_TEST_REQUIRE("logistic_regression" ==
                        trainedModel->aggregateOutput()->stringType());
     const auto& classificationLabels{trainedModel->classificationLabels()};
-    BOOST_REQUIRE(classificationLabels.is_initialized() == true);
+    BOOST_TEST_REQUIRE(classificationLabels.is_initialized() == true);
     BOOST_REQUIRE_EQUAL_COLLECTIONS(
         classificationLabels->begin(), classificationLabels->end(),
         expectedClassificationLabels.begin(), expectedClassificationLabels.end());
