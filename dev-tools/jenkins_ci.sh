@@ -39,14 +39,14 @@ fi
 set -e
 
 # Change directory to the directory containing this script
-cd $(dirname $0)
+cd "$(dirname $0)"
 
 # Default to a snapshot build
 if [ -z "$BUILD_SNAPSHOT" ] ; then
     BUILD_SNAPSHOT=true
 fi
 
-VERSION=$(cat ../gradle.properties | grep '^elasticsearchVersion' | awk -F= '{ print $$2 }' | xargs echo)
+VERSION=$(cat ../gradle.properties | grep '^elasticsearchVersion' | awk -F= '{ print $2 }' | xargs echo)
 
 # Jenkins sets BUILD_SNAPSHOT, but our Docker scripts require SNAPSHOT
 if [ "$BUILD_SNAPSHOT" = false ] ; then
