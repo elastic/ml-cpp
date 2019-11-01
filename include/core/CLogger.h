@@ -116,12 +116,11 @@ private:
     CLogger();
     ~CLogger();
 
-    //! Replace Ml specific patterns in log4cxx properties.  In
-    //! addition to the patterns usually supported by log4cxx, Ml will
+    //! Replace ML specific patterns in log4cxx properties.  In
+    //! addition to the patterns usually supported by log4cxx, ML will
     //! substitute:
-    //! 1) %D with the path to the Ml base log directory
-    //! 2) %N with the program's name
-    //! 3) %P with the program's process ID
+    //! 1) %N with the program's name
+    //! 2) %P with the program's process ID
     void massageProperties(log4cxx::helpers::Properties& props) const;
 
     using TLogCharLogStrMap = std::map<log4cxx::logchar, log4cxx::LogString>;

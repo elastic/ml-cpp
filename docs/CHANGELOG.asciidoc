@@ -28,6 +28,13 @@
 
 //=== Regressions
 
+== {es} version 6.8.5
+
+=== Enhancements
+
+* The {ml} native processes are now arranged in a .app directory structure on
+  macOS, to allow for notarization on macOS Catalina. (See {ml-pull}593[#593].)
+
 == {es} version 6.8.4
 
 === Bug Fixes
