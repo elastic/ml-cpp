@@ -157,10 +157,10 @@ regressionStratifiedCrossValiationRowSampler(std::size_t numberThreads,
                                              std::size_t numberBuckets,
                                              const core::CPackedBitVector& allTrainingRowsMask) {
 
-    CDataFrameUtils::TQuantileSketchVec quantiles;
-    CDataFrameUtils::columnQuantiles(
-        numberThreads, frame, allTrainingRowsMask, {targetColumn},
-        CQuantileSketch{CQuantileSketch::E_Linear, 50}, quantiles);
+    auto quantiles = CDataFrameUtils::columnQuantiles(
+                         numberThreads, frame, allTrainingRowsMask, {targetColumn},
+                         CQuantileSketch{CQuantileSketch::E_Linear, 50})
+                         .first;
 
     TDoubleVec buckets;
     for (double step = 100.0 / static_cast<double>(numberBuckets), percentile = step;
@@ -435,14 +435,14 @@ CDataFrameUtils::columnDataTypes(std::size_t numberThreads,
     return result;
 }
 
-bool CDataFrameUtils::columnQuantiles(std::size_t numberThreads,
-                                      const core::CDataFrame& frame,
-                                      const core::CPackedBitVector& rowMask,
-                                      const TSizeVec& columnMask,
-                                      const CQuantileSketch& sketch,
-                                      TQuantileSketchVec& result,
-                                      const CDataFrameCategoryEncoder* encoder,
-                                      TWeightFunction weight) {
+std::pair<CDataFrameUtils::TQuantileSketchVec, bool>
+CDataFrameUtils::columnQuantiles(std::size_t numberThreads,
+                                 const core::CDataFrame& frame,
+                                 const core::CPackedBitVector& rowMask,
+                                 const TSizeVec& columnMask,
+                                 CQuantileSketch estimateQuantiles,
+                                 const CDataFrameCategoryEncoder* encoder,
+                                 TWeightFunction weight) {
 
     auto readQuantiles = core::bindRetrievableState(
         [&](TQuantileSketchVec& quantiles, TRowItr beginRows, TRowItr endRows) {
@@ -465,23 +465,24 @@ bool CDataFrameUtils::columnQuantiles(std::size_t numberThreads,
                 }
             }
         },
-        TQuantileSketchVec(columnMask.size(), sketch));
-    auto copyQuantiles = [](TQuantileSketchVec quantiles, TQuantileSketchVec& result_) {
-        result_ = std::move(quantiles);
+        TQuantileSketchVec(columnMask.size(), std::move(estimateQuantiles)));
+    auto copyQuantiles = [](TQuantileSketchVec quantiles, TQuantileSketchVec& result) {
+        result = std::move(quantiles);
     };
-    auto reduceQuantiles = [&](TQuantileSketchVec quantiles, TQuantileSketchVec& result_) {
+    auto reduceQuantiles = [&](TQuantileSketchVec quantiles, TQuantileSketchVec& result) {
         for (std::size_t i = 0; i < columnMask.size(); ++i) {
-            result_[i] += quantiles[i];
+            result[i] += quantiles[i];
         }
     };
 
+    TQuantileSketchVec result;
     if (doReduce(frame.readRows(numberThreads, 0, frame.numberRows(), readQuantiles, &rowMask),
                  copyQuantiles, reduceQuantiles, result) == false) {
         LOG_ERROR(<< "Failed to compute column quantiles");
-        return false;
+        return {std::move(result), false};
     }
 
-    return true;
+    return {std::move(result), true};
 }
 
 std::tuple<TPackedBitVectorVec, TPackedBitVectorVec, TDoubleVec>

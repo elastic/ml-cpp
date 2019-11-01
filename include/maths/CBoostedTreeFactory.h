@@ -118,7 +118,7 @@ private:
     using TPackedBitVectorVec = std::vector<core::CPackedBitVector>;
     using TBoostedTreeImplUPtr = std::unique_ptr<CBoostedTreeImpl>;
     using TApplyRegularizerStep =
-        std::function<void(CBoostedTreeImpl&, double, std::size_t)>;
+        std::function<bool(CBoostedTreeImpl&, double, std::size_t)>;
 
 private:
     static const double MINIMUM_ETA;
@@ -150,10 +150,12 @@ private:
     //! search bounding box.
     void initializeUnsetRegularizationHyperparameters(core::CDataFrame& frame);
 
+    //! Estimates a good central value for the downsample factor search interval.
+    void initializeUnsetDownsampleFactor(core::CDataFrame& frame);
+
     //! Estimate the reduction in gain from a split and the total curvature of
     //! the loss function at a split.
-    TDoubleDoublePr estimateTreeGainAndCurvature(core::CDataFrame& frame,
-                                                 const core::CPackedBitVector& trainingRowMask) const;
+    TDoubleDoublePr estimateTreeGainAndCurvature(core::CDataFrame& frame) const;
 
     //! Perform a line search for the test loss w.r.t. a single regularization
     //! hyperparameter and apply Newton's method to find the minimum. The plan
@@ -162,10 +164,10 @@ private:
     //! \return The interval to search during the main hyperparameter optimisation
     //! loop or null if this couldn't be found.
     TOptionalVector testLossLineSearch(core::CDataFrame& frame,
-                                       core::CPackedBitVector trainingRowMask,
                                        const TApplyRegularizerStep& applyRegularizerStep,
                                        double returnedIntervalLeftEndOffset,
-                                       double returnedIntervalRightEndOffset) const;
+                                       double returnedIntervalRightEndOffset,
+                                       double searchIntervalSize) const;
 
     //! Initialize the state for hyperparameter optimisation.
     void initializeHyperparameterOptimisation() const;
@@ -190,6 +192,7 @@ private:
     bool m_StratifyRegressionCrossValidation = true;
     std::size_t m_NumberThreads;
     TBoostedTreeImplUPtr m_TreeImpl;
+    TVector m_LogDownsampleFactorSearchInterval;
     TVector m_LogDepthPenaltyMultiplierSearchInterval;
     TVector m_LogTreeSizePenaltyMultiplierSearchInterval;
     TVector m_LogLeafWeightPenaltyMultiplierSearchInterval;

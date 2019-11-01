@@ -334,10 +334,13 @@ BOOST_AUTO_TEST_CASE(testColumnQuantiles) {
             }
             frame->finishWritingRows();
 
-            maths::CQuantileSketch sketch{maths::CQuantileSketch::E_Linear, 100};
+            ;
             TQuantileSketchVec actualQuantiles;
-            BOOST_TEST_REQUIRE(maths::CDataFrameUtils::columnQuantiles(
-                threads, *frame, maskAll(rows), columnMask, sketch, actualQuantiles));
+            bool successful;
+            std::tie(actualQuantiles, successful) = maths::CDataFrameUtils::columnQuantiles(
+                threads, *frame, maskAll(rows), columnMask,
+                maths::CQuantileSketch{maths::CQuantileSketch::E_Linear, 100});
+            BOOST_TEST_REQUIRE(successful);
 
             // Check the quantile sketches match.
 
@@ -436,9 +439,11 @@ BOOST_AUTO_TEST_CASE(testColumnQuantilesWithEncoding) {
     });
 
     TQuantileSketchVec actualQuantiles;
-    maths::CQuantileSketch sketch{maths::CQuantileSketch::E_Linear, 100};
-    BOOST_TEST_REQUIRE(maths::CDataFrameUtils::columnQuantiles(
-        1, *frame, maskAll(rows), columnMask, sketch, actualQuantiles, &encoder));
+    bool successful;
+    std::tie(actualQuantiles, successful) = maths::CDataFrameUtils::columnQuantiles(
+        1, *frame, maskAll(rows), columnMask,
+        maths::CQuantileSketch{maths::CQuantileSketch::E_Linear, 100}, &encoder);
+    BOOST_TEST_REQUIRE(successful);
 
     for (std::size_t i = 5; i < 100; i += 5) {
         for (std::size_t feature = 0; feature < columnMask.size(); ++feature) {

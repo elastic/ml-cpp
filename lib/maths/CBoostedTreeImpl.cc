@@ -406,7 +406,8 @@ CBoostedTreeImpl::CLeafNodeStatistics::computeBestSplitStatistics(const TRegular
 
 CBoostedTreeImpl::CBoostedTreeImpl(std::size_t numberThreads, CBoostedTree::TLossFunctionUPtr loss)
     : m_NumberThreads{numberThreads}, m_Loss{std::move(loss)},
-      m_BestHyperparameters{m_Regularization, m_Eta, m_EtaGrowthRatePerTree, m_FeatureBagFraction} {
+      m_BestHyperparameters{m_Regularization, m_DownsampleFactor, m_Eta,
+                            m_EtaGrowthRatePerTree, m_FeatureBagFraction} {
 }
 
 CBoostedTreeImpl::CBoostedTreeImpl() = default;
@@ -521,10 +522,6 @@ void CBoostedTreeImpl::predict(core::CDataFrame& frame,
         HANDLE_FATAL(<< "Internal error: failed model inference. "
                      << "Please report this problem.");
     }
-}
-
-void CBoostedTreeImpl::write(core::CRapidJsonConcurrentLineWriter& /*writer*/) const {
-    // TODO
 }
 
 const CBoostedTreeImpl::TDoubleVec& CBoostedTreeImpl::featureWeights() const {
@@ -666,13 +663,16 @@ CBoostedTreeImpl::trainForest(core::CDataFrame& frame,
 
     double eta{m_Eta};
     double oneMinusBias{eta};
+    std::size_t nextTreeCountToRefreshSplits{
+        forest.size() + static_cast<std::size_t>(std::max(0.5 / eta, 1.0))};
 
-    TDoubleVecVec candidateSplits(this->candidateSplits(frame, trainingRowMask));
+    auto downsampledRowMask = this->downsample(trainingRowMask);
+    TDoubleVecVec candidateSplits(this->candidateSplits(frame, downsampledRowMask));
     scopeMemoryUsage.add(candidateSplits);
 
     std::size_t retries = 0;
     do {
-        auto tree = this->trainTree(frame, trainingRowMask, candidateSplits,
+        auto tree = this->trainTree(frame, downsampledRowMask, candidateSplits,
                                     maximumTreeSize, recordMemoryUsage);
 
         retries = tree.size() == 1 ? retries + 1 : 0;
@@ -696,16 +696,43 @@ CBoostedTreeImpl::trainForest(core::CDataFrame& frame,
         }
         LOG_TRACE(<< "bias = " << (1.0 - oneMinusBias));
 
-        if (m_Loss->isCurvatureConstant() == false) {
-            candidateSplits = this->candidateSplits(frame, trainingRowMask);
+        downsampledRowMask = this->downsample(trainingRowMask);
+
+        if ((m_Loss->isCurvatureConstant() == false || m_DownsampleFactor < 1.0) &&
+            forest.size() == nextTreeCountToRefreshSplits) {
+            candidateSplits = this->candidateSplits(frame, downsampledRowMask);
+            nextTreeCountToRefreshSplits +=
+                static_cast<std::size_t>(std::max(0.5 / eta, 1.0));
         }
     } while (forest.size() < m_MaximumNumberTrees);
 
     LOG_TRACE(<< "Trained one forest");
+    LOG_TRACE(<< "number trees = " << forest.size());
 
     m_TrainingProgress.increment();
 
     return forest;
+}
+
+core::CPackedBitVector
+CBoostedTreeImpl::downsample(const core::CPackedBitVector& trainingRowMask) const {
+    // We compute a stochastic version of the candidate splits, gradients and
+    // curvatures for each tree we train. The sampling scheme should minimize
+    // the correlation with previous trees for fixed sample size so randomly
+    // sampling without replacement is appropriate.
+    core::CPackedBitVector result;
+    do {
+        result = core::CPackedBitVector{};
+        for (auto i = trainingRowMask.beginOneBits();
+             i != trainingRowMask.endOneBits(); ++i) {
+            if (CSampling::uniformSample(m_Rng, 0.0, 1.0) < m_DownsampleFactor) {
+                result.extend(false, *i - result.size());
+                result.extend(true);
+            }
+        }
+    } while (result.manhattan() == 0.0);
+    result.extend(false, trainingRowMask.size() - result.size());
+    return result;
 }
 
 CBoostedTreeImpl::TDoubleVecVec
@@ -726,12 +753,13 @@ CBoostedTreeImpl::candidateSplits(const core::CDataFrame& frame,
     LOG_TRACE(<< "binary features = " << core::CContainerPrinter::print(binaryFeatures)
               << " other features = " << core::CContainerPrinter::print(features));
 
-    CDataFrameUtils::TQuantileSketchVec featureQuantiles;
-    CDataFrameUtils::columnQuantiles(
-        m_NumberThreads, frame, trainingRowMask, features,
-        CQuantileSketch{CQuantileSketch::E_Linear,
-                        std::max(2 * m_NumberSplitsPerFeature, std::size_t{50})},
-        featureQuantiles, m_Encoder.get(), readLossCurvature);
+    auto featureQuantiles =
+        CDataFrameUtils::columnQuantiles(
+            m_NumberThreads, frame, trainingRowMask, features,
+            CQuantileSketch{CQuantileSketch::E_Linear,
+                            std::max(m_NumberSplitsPerFeature, std::size_t{50})},
+            m_Encoder.get(), readLossCurvature)
+            .first;
 
     TDoubleVecVec candidateSplits(this->numberFeatures());
 
@@ -952,12 +980,12 @@ void CBoostedTreeImpl::refreshPredictionsAndLossDerivatives(core::CDataFrame& fr
         core::bindRetrievableState(
             [&](double& loss, TRowItr beginRows, TRowItr endRows) {
                 for (auto row = beginRows; row != endRows; ++row) {
+                    std::size_t numberColumns{row->numberColumns()};
                     double prediction{readPrediction(*row) +
                                       root(tree).value(m_Encoder->encode(*row), tree)};
                     double actual{readActual(*row, m_DependentVariable)};
                     double weight{readExampleWeight(*row)};
 
-                    std::size_t numberColumns{row->numberColumns()};
                     row->writeColumn(predictionColumn(numberColumns), prediction);
                     row->writeColumn(lossGradientColumn(numberColumns),
                                      m_Loss->gradient(prediction, actual, weight));
@@ -1035,6 +1063,9 @@ bool CBoostedTreeImpl::selectNextHyperparameters(const TMeanVarAccumulator& loss
 
     // Read parameters for last round.
     int i{0};
+    if (m_DownsampleFactorOverride == boost::none) {
+        parameters(i++) = std::log(m_DownsampleFactor);
+    }
     if (m_RegularizationOverride.depthPenaltyMultiplier() == boost::none) {
         parameters(i++) = std::log(m_Regularization.depthPenaltyMultiplier());
     }
@@ -1062,7 +1093,8 @@ bool CBoostedTreeImpl::selectNextHyperparameters(const TMeanVarAccumulator& loss
     double lossVariance{CBasicStatistics::variance(lossMoments)};
 
     LOG_TRACE(<< "round = " << m_CurrentRound << " loss = " << meanLoss
-              << ": regularization = " << m_Regularization.print() << ", eta = " << m_Eta
+              << ": regularization = " << m_Regularization.print()
+              << ", downsample factor = " << m_DownsampleFactor << ", eta = " << m_Eta
               << ", eta growth rate per tree = " << m_EtaGrowthRatePerTree
               << ", feature bag fraction = " << m_FeatureBagFraction);
 
@@ -1079,16 +1111,29 @@ bool CBoostedTreeImpl::selectNextHyperparameters(const TMeanVarAccumulator& loss
         parameters = bopt.maximumExpectedImprovement();
     }
 
+    // Downsampling acts as a regularisation and also increases the variance
+    // of each of the base learners so we scale the other regularisation terms
+    // and the weight shrinkage to compensate.
+    double scale{1.0};
+
     // Write parameters for next round.
     i = 0;
+    if (m_DownsampleFactorOverride == boost::none) {
+        m_DownsampleFactor = std::exp(parameters(i++));
+        TVector minBoundary;
+        TVector maxBoundary;
+        std::tie(minBoundary, maxBoundary) = bopt.boundingBox();
+        scale = std::min(scale, 2.0 * m_DownsampleFactor /
+                                    (std::exp(minBoundary(0)) + std::exp(maxBoundary(0))));
+    }
     if (m_RegularizationOverride.depthPenaltyMultiplier() == boost::none) {
         m_Regularization.depthPenaltyMultiplier(std::exp(parameters(i++)));
     }
     if (m_RegularizationOverride.leafWeightPenaltyMultiplier() == boost::none) {
-        m_Regularization.leafWeightPenaltyMultiplier(std::exp(parameters(i++)));
+        m_Regularization.leafWeightPenaltyMultiplier(scale * std::exp(parameters(i++)));
     }
     if (m_RegularizationOverride.treeSizePenaltyMultiplier() == boost::none) {
-        m_Regularization.treeSizePenaltyMultiplier(std::exp(parameters(i++)));
+        m_Regularization.treeSizePenaltyMultiplier(scale * std::exp(parameters(i++)));
     }
     if (m_RegularizationOverride.softTreeDepthLimit() == boost::none) {
         m_Regularization.softTreeDepthLimit(parameters(i++));
@@ -1097,7 +1142,7 @@ bool CBoostedTreeImpl::selectNextHyperparameters(const TMeanVarAccumulator& loss
         m_Regularization.softTreeDepthTolerance(parameters(i++));
     }
     if (m_EtaOverride == boost::none) {
-        m_Eta = std::exp(parameters(i++));
+        m_Eta = std::exp(scale * parameters(i++));
         m_EtaGrowthRatePerTree = parameters(i++);
     }
     if (m_FeatureBagFractionOverride == boost::none) {
@@ -1115,23 +1160,27 @@ void CBoostedTreeImpl::captureBestHyperparameters(const TMeanVarAccumulator& los
                 std::sqrt(CBasicStatistics::variance(lossMoments))};
     if (loss < m_BestForestTestLoss) {
         m_BestForestTestLoss = loss;
-        m_BestHyperparameters = SHyperparameters{
-            m_Regularization, m_Eta, m_EtaGrowthRatePerTree, m_FeatureBagFraction};
+        m_BestHyperparameters = SHyperparameters{m_Regularization, m_DownsampleFactor,
+                                                 m_Eta, m_EtaGrowthRatePerTree,
+                                                 m_FeatureBagFraction};
     }
 }
 
 void CBoostedTreeImpl::restoreBestHyperparameters() {
     m_Regularization = m_BestHyperparameters.s_Regularization;
+    m_DownsampleFactor = m_BestHyperparameters.s_DownsampleFactor;
     m_Eta = m_BestHyperparameters.s_Eta;
     m_EtaGrowthRatePerTree = m_BestHyperparameters.s_EtaGrowthRatePerTree;
     m_FeatureBagFraction = m_BestHyperparameters.s_FeatureBagFraction;
-    LOG_TRACE(<< "regularization* = " << m_Regularization.print() << ", eta* = " << m_Eta
+    LOG_TRACE(<< "regularization* = " << m_Regularization.print()
+              << ", downsample factor* = " << m_DownsampleFactor << ", eta* = " << m_Eta
               << ", eta growth rate per tree* = " << m_EtaGrowthRatePerTree
               << ", feature bag fraction* = " << m_FeatureBagFraction);
 }
 
 std::size_t CBoostedTreeImpl::numberHyperparametersToTune() const {
     return m_RegularizationOverride.countNotSet() +
+           (m_DownsampleFactorOverride != boost::none ? 0 : 1) +
            (m_EtaOverride != boost::none ? 0 : 2) +
            (m_FeatureBagFractionOverride != boost::none ? 0 : 1);
 }
