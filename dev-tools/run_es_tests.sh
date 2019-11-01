@@ -20,9 +20,11 @@
 set -e
 
 function isCloneTargetValid {
-    echo "Checking for '$1' branch at $2/elasticsearch"
-    if [ -n "$(git ls-remote --heads "git@github.com:$2/elasticsearch.git" "$1" 2>/dev/null)" ]; then
-        echo "Will use '$1' branch at $2/elasticsearch for ES integration tests"
+    FORK_TO_CHECK="$1"
+    BRANCH_TO_CHECK="$2"
+    echo "Checking for '$BRANCH_TO_CHECK' branch at $FORK_TO_CHECK/elasticsearch"
+    if [ -n "$(git ls-remote --heads "git@github.com:$FORK_TO_CHECK/elasticsearch.git" "$BRANCH_TO_CHECK" 2>/dev/null)" ]; then
+        echo "Will use '$BRANCH_TO_CHECK' branch at $FORK_TO_CHECK/elasticsearch for ES integration tests"
         return 0
     fi
     return 1
