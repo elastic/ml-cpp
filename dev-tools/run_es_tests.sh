@@ -46,8 +46,8 @@ function pickCloneTarget {
         return 0
     fi
 
-    if isCloneTargetValid "$SELECTED_FORK" "$PR_SOURCE_BRANCH" ; then
-        SELECTED_BRANCH="$PR_SOURCE_BRANCH"
+    if isCloneTargetValid "$SELECTED_FORK" "$PR_TARGET_BRANCH" ; then
+        SELECTED_BRANCH="$PR_TARGET_BRANCH"
         return 0
     fi
 
@@ -72,6 +72,18 @@ fi
 
 echo "Setting JAVA_HOME=$HOME/.java/$ES_BUILD_JAVA"
 export JAVA_HOME="$HOME/.java/$ES_BUILD_JAVA"
+
+# For the ES build we need to:
+# 1. Convince it that this is not part of a PR build, becuase it will get
+#    confused that the PR is an ml-cpp PR rather than an elasticsearch PR
+# 2. Set GIT_BRANCH to point at the elasticsearch branch, not the ml-cpp branch
+# 3. Set GIT_COMMIT to point at the elasticsearch commit, not the ml-cpp commit
+# 4. Set GIT_PREVIOUS_COMMIT the same as GIT_COMMIT as there are no changes to
+#    Elasticsearch code in the current ML PR
+unset ROOT_BUILD_CAUSE_GHPRBCAUSE
+export GIT_BRANCH="$SELECTED_BRANCH"
+export GIT_COMMIT="$(git rev-parse HEAD)"
+export GIT_PREVIOUS_COMMIT="$GIT_COMMIT"
 
 IVY_REPO_URL="file://$2"
 ./gradlew -Dbuild.ml_cpp.repo="$IVY_REPO_URL" :x-pack:plugin:ml:qa:native-multi-node-tests:integTestRunner
