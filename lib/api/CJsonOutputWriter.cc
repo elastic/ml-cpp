@@ -387,7 +387,7 @@ void CJsonOutputWriter::writeBucket(bool isInterim,
                                     SBucketData& bucketData,
                                     uint64_t bucketProcessingTime) {
     // Write records
-    if (!bucketData.s_DocumentsToWrite.empty()) {
+    if (false) {
         // Sort the results so they are grouped by detector and
         // ordered by probability
         std::sort(bucketData.s_DocumentsToWrite.begin(),
@@ -425,7 +425,7 @@ void CJsonOutputWriter::writeBucket(bool isInterim,
     }
 
     // Write influencers
-    if (!bucketData.s_InfluencerDocuments.empty()) {
+    if (false) {
         m_Writer.StartObject();
         m_Writer.String(INFLUENCERS);
         m_Writer.StartArray();
