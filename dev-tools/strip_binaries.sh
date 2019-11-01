@@ -90,13 +90,13 @@ case `uname` in
                 objcopy --add-gnu-debuglink="$LIBRARY-debug" "$LIBRARY"
             done
         elif [ "$CPP_CROSS_COMPILE" = macosx ] ; then
-            for PROGRAM in `ls -1d bin/* | grep -v '\.dSYM$'`
+            for PROGRAM in `ls -1d "$EXE_DIR"/* | grep -v '\.dSYM$'`
             do
                 echo "Stripping $PROGRAM"
                 llvm-dsymutil-3.8 $PROGRAM
                 /usr/local/bin/x86_64-apple-macosx10.10-strip -u -r $PROGRAM
             done
-            for LIBRARY in `ls -1d lib/* | grep -v '\.dSYM$'`
+            for LIBRARY in `ls -1d "$DYNAMIC_LIB_DIR"/* | grep -v '\.dSYM$'`
             do
                 echo "Stripping $LIBRARY"
                 case $LIBRARY in
