@@ -122,19 +122,6 @@ private:
     using TApplyRegularizerStep =
         std::function<bool(CBoostedTreeImpl&, double, std::size_t)>;
 
-    class CScopeTrainBaseLearner {
-    public:
-        CScopeTrainBaseLearner(CBoostedTreeImpl& tree);
-        ~CScopeTrainBaseLearner();
-        CScopeTrainBaseLearner(const CScopeTrainBaseLearner&) = delete;
-        CScopeTrainBaseLearner& operator=(const CScopeTrainBaseLearner&) = delete;
-
-    private:
-        CBoostedTreeImpl& m_Tree;
-        double m_Eta = 1.0;
-        std::size_t m_MaximumNumberTrees = 1;
-    };
-
 private:
     CBoostedTreeFactory(std::size_t numberThreads);
 

@@ -642,10 +642,11 @@ CBoostedTreeFactory::TDoubleDoublePrVec
 CBoostedTreeFactory::estimateTreeGainAndCurvature(core::CDataFrame& frame,
                                                   const TDoubleVec& percentiles) const {
 
-    CScopeTrainBaseLearner enableFor{*m_TreeImpl};
-
+    std::size_t maximumNumberOfTrees{1};
+    std::swap(maximumNumberOfTrees, m_TreeImpl->m_MaximumNumberTrees);
     auto forest = m_TreeImpl->trainForest(frame, m_TreeImpl->m_TrainingRowMasks[0],
                                           m_RecordMemoryUsage);
+    std::swap(maximumNumberOfTrees, m_TreeImpl->m_MaximumNumberTrees);
 
     TDoubleDoublePrVec result;
     result.reserve(percentiles.size());
@@ -1006,17 +1007,6 @@ void CBoostedTreeFactory::noopRecordProgress(double) {
 }
 
 void CBoostedTreeFactory::noopRecordMemoryUsage(std::int64_t) {
-}
-
-CBoostedTreeFactory::CScopeTrainBaseLearner::CScopeTrainBaseLearner(CBoostedTreeImpl& tree)
-    : m_Tree{tree} {
-    std::swap(m_Eta, m_Tree.m_Eta);
-    std::swap(m_MaximumNumberTrees, m_Tree.m_MaximumNumberTrees);
-}
-
-CBoostedTreeFactory::CScopeTrainBaseLearner::~CScopeTrainBaseLearner() {
-    std::swap(m_Eta, m_Tree.m_Eta);
-    std::swap(m_MaximumNumberTrees, m_Tree.m_MaximumNumberTrees);
 }
 }
 }
