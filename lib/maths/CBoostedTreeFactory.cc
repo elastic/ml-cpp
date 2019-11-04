@@ -395,9 +395,9 @@ void CBoostedTreeFactory::initializeUnsetRegularizationHyperparameters(core::CDa
     double totalCurvaturePerNode90thPercentile{gainAndTotalCurvaturePerNode[2].second};
 
     // Make sure all line search intervals are not empty.
-    gainPerNode1stPercentile = std::min(gainPerNode1stPercentile, 0.9 * gainPerNode90thPercentile);
+    gainPerNode1stPercentile = std::min(gainPerNode1stPercentile, 0.1 * gainPerNode90thPercentile);
     totalCurvaturePerNode1stPercentile = std::min(
-        totalCurvaturePerNode1stPercentile, 0.9 * totalCurvaturePerNode90thPercentile);
+        totalCurvaturePerNode1stPercentile, 0.1 * totalCurvaturePerNode90thPercentile);
 
     // Search for depth limit at which the tree starts to overfit.
     if (m_TreeImpl->m_RegularizationOverride.softTreeDepthLimit() == boost::none) {
@@ -686,6 +686,8 @@ CBoostedTreeFactory::testLossLineSearch(core::CDataFrame& frame,
 
     for (std::size_t i = 0; i < LINE_SEARCH_ITERATIONS; ++i) {
         if (applyRegularizerStep(*m_TreeImpl, stepSize, i) == false) {
+            m_TreeImpl->m_TrainingProgress.increment(
+                (LINE_SEARCH_ITERATIONS - i - 1) * m_TreeImpl->m_MaximumNumberTrees);
             break;
         }
         auto forest = m_TreeImpl->trainForest(
@@ -962,28 +964,22 @@ void CBoostedTreeFactory::initializeTrainingProgressMonitoring() {
     std::size_t lineSearchMaximumNumberTrees{
         computeMaximumNumberTrees(m_TreeImpl->m_Eta)};
     if (m_TreeImpl->m_RegularizationOverride.softTreeDepthLimit() == boost::none) {
-        totalNumberSteps += LINE_SEARCH_ITERATIONS * lineSearchMaximumNumberTrees *
-                            m_TreeImpl->m_MaximumAttemptsToAddTree;
+        totalNumberSteps += LINE_SEARCH_ITERATIONS * lineSearchMaximumNumberTrees;
     }
     if (m_TreeImpl->m_RegularizationOverride.depthPenaltyMultiplier() == boost::none) {
-        totalNumberSteps += LINE_SEARCH_ITERATIONS * lineSearchMaximumNumberTrees *
-                            m_TreeImpl->m_MaximumAttemptsToAddTree;
+        totalNumberSteps += LINE_SEARCH_ITERATIONS * lineSearchMaximumNumberTrees;
     }
     if (m_TreeImpl->m_RegularizationOverride.treeSizePenaltyMultiplier() == boost::none) {
-        totalNumberSteps += LINE_SEARCH_ITERATIONS * lineSearchMaximumNumberTrees *
-                            m_TreeImpl->m_MaximumAttemptsToAddTree;
+        totalNumberSteps += LINE_SEARCH_ITERATIONS * lineSearchMaximumNumberTrees;
     }
     if (m_TreeImpl->m_RegularizationOverride.leafWeightPenaltyMultiplier() == boost::none) {
-        totalNumberSteps += LINE_SEARCH_ITERATIONS * lineSearchMaximumNumberTrees *
-                            m_TreeImpl->m_MaximumAttemptsToAddTree;
+        totalNumberSteps += LINE_SEARCH_ITERATIONS * lineSearchMaximumNumberTrees;
     }
     if (m_TreeImpl->m_DownsampleFactorOverride == boost::none) {
-        totalNumberSteps += LINE_SEARCH_ITERATIONS * lineSearchMaximumNumberTrees *
-                            m_TreeImpl->m_MaximumAttemptsToAddTree;
+        totalNumberSteps += LINE_SEARCH_ITERATIONS * lineSearchMaximumNumberTrees;
     }
     totalNumberSteps += (this->numberHyperparameterTuningRounds() + 1) *
-                        this->mainLoopMaximumNumberTrees() *
-                        m_TreeImpl->m_MaximumAttemptsToAddTree * m_TreeImpl->m_NumberFolds;
+                        this->mainLoopMaximumNumberTrees() * m_TreeImpl->m_NumberFolds;
     LOG_TRACE(<< "total number steps = " << totalNumberSteps);
     m_TreeImpl->m_TrainingProgress =
         core::CLoopProgress{totalNumberSteps, m_RecordProgress, 1.0, 1024};
@@ -997,7 +993,7 @@ void CBoostedTreeFactory::resumeRestoredTrainingProgressMonitoring() {
 std::size_t CBoostedTreeFactory::mainLoopMaximumNumberTrees() const {
     if (m_TreeImpl->m_MaximumNumberTreesOverride == boost::none) {
         std::size_t maximumNumberTrees{computeMaximumNumberTrees(m_TreeImpl->m_Eta)};
-        maximumNumberTrees = scaleMaximumNumberTrees(m_TreeImpl->m_MaximumNumberTrees);
+        maximumNumberTrees = scaleMaximumNumberTrees(maximumNumberTrees);
         return maximumNumberTrees;
     }
     return *m_TreeImpl->m_MaximumNumberTreesOverride;
