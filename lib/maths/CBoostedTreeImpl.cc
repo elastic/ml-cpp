@@ -662,7 +662,6 @@ CBoostedTreeImpl::trainForest(core::CDataFrame& frame,
     //  4. Update predictions and loss derivatives
 
     double eta{m_Eta};
-    double oneMinusBias{eta};
     std::size_t nextTreeCountToRefreshSplits{
         forest.size() + static_cast<std::size_t>(std::max(0.5 / eta, 1.0))};
 
@@ -670,14 +669,14 @@ CBoostedTreeImpl::trainForest(core::CDataFrame& frame,
     TDoubleVecVec candidateSplits(this->candidateSplits(frame, downsampledRowMask));
     scopeMemoryUsage.add(candidateSplits);
 
-    std::size_t retries = 0;
+    std::size_t retries{0};
     do {
         auto tree = this->trainTree(frame, downsampledRowMask, candidateSplits,
                                     maximumTreeSize, recordMemoryUsage);
 
         retries = tree.size() == 1 ? retries + 1 : 0;
 
-        if (oneMinusBias > 0.9 && retries == m_MaximumAttemptsToAddTree) {
+        if (retries == m_MaximumAttemptsToAddTree) {
             break;
         }
 
@@ -686,30 +685,28 @@ CBoostedTreeImpl::trainForest(core::CDataFrame& frame,
             this->refreshPredictionsAndLossDerivatives(frame, trainingRowMask, eta, tree);
             forest.push_back(std::move(tree));
             eta = std::min(1.0, m_EtaGrowthRatePerTree * eta);
-            oneMinusBias += eta * (1.0 - oneMinusBias);
             retries = 0;
-        } else if (oneMinusBias < 1.0) {
-            scopeMemoryUsage.add(tree);
-            this->refreshPredictionsAndLossDerivatives(frame, trainingRowMask, 1.0, tree);
-            oneMinusBias = 1.0;
-            forest.push_back(std::move(tree));
+            m_TrainingProgress.increment();
+        } else {
+            candidateSplits = this->candidateSplits(frame, downsampledRowMask);
+            nextTreeCountToRefreshSplits +=
+                static_cast<std::size_t>(std::max(0.5 / eta, 2.0));
         }
-        LOG_TRACE(<< "bias = " << (1.0 - oneMinusBias));
 
         downsampledRowMask = this->downsample(trainingRowMask);
 
-        if ((m_Loss->isCurvatureConstant() == false || m_DownsampleFactor < 1.0) &&
-            forest.size() == nextTreeCountToRefreshSplits) {
+        if (forest.size() == nextTreeCountToRefreshSplits) {
             candidateSplits = this->candidateSplits(frame, downsampledRowMask);
             nextTreeCountToRefreshSplits +=
-                static_cast<std::size_t>(std::max(0.5 / eta, 1.0));
+                static_cast<std::size_t>(std::max(0.5 / eta, 2.0));
         }
     } while (forest.size() < m_MaximumNumberTrees);
 
     LOG_TRACE(<< "Trained one forest");
     LOG_TRACE(<< "number trees = " << forest.size());
 
-    m_TrainingProgress.increment();
+    m_TrainingProgress.increment(std::max(m_MaximumNumberTrees, forest.size()) -
+                                 forest.size());
 
     return forest;
 }
@@ -774,8 +771,8 @@ CBoostedTreeImpl::candidateSplits(const core::CDataFrame& frame,
         featureSplits.reserve(m_NumberSplitsPerFeature - 1);
 
         for (std::size_t j = 1; j < m_NumberSplitsPerFeature; ++j) {
-            double rank{100.0 * static_cast<double>(j) /
-                        static_cast<double>(m_NumberSplitsPerFeature)};
+            double rank{100.0 * static_cast<double>(j) / static_cast<double>(m_NumberSplitsPerFeature) +
+                        CSampling::uniformSample(m_Rng, -0.1, 0.1)};
             double q;
             if (featureQuantiles[i].quantile(rank, q)) {
                 featureSplits.push_back(q);
@@ -1190,8 +1187,8 @@ std::size_t CBoostedTreeImpl::maximumTreeSize(const core::CPackedBitVector& trai
 }
 
 std::size_t CBoostedTreeImpl::maximumTreeSize(std::size_t numberRows) const {
-    return static_cast<std::size_t>(std::ceil(
-        m_MaximumTreeSizeMultiplier * std::sqrt(static_cast<double>(numberRows))));
+    return static_cast<std::size_t>(
+        std::ceil(10.0 * std::sqrt(static_cast<double>(numberRows))));
 }
 
 const std::size_t CBoostedTreeImpl::PACKED_BIT_VECTOR_MAXIMUM_ROWS_PER_BYTE{256};
@@ -1219,7 +1216,6 @@ const std::string MAXIMUM_NUMBER_TREES_OVERRIDE_TAG{"maximum_number_trees_overri
 const std::string MAXIMUM_NUMBER_TREES_TAG{"maximum_number_trees"};
 const std::string MAXIMUM_OPTIMISATION_ROUNDS_PER_HYPERPARAMETER_TAG{
     "maximum_optimisation_rounds_per_hyperparameter"};
-const std::string MAXIMUM_TREE_SIZE_MULTIPLIER_TAG{"maximum_tree_size_multiplier"};
 const std::string MISSING_FEATURE_ROW_MASKS_TAG{"missing_feature_row_masks"};
 const std::string NUMBER_FOLDS_TAG{"number_folds"};
 const std::string NUMBER_ROUNDS_TAG{"number_rounds"};
@@ -1308,8 +1304,6 @@ void CBoostedTreeImpl::acceptPersistInserter(core::CStatePersistInserter& insert
                                  m_MaximumAttemptsToAddTree, inserter);
     core::CPersistUtils::persist(MAXIMUM_OPTIMISATION_ROUNDS_PER_HYPERPARAMETER_TAG,
                                  m_MaximumOptimisationRoundsPerHyperparameter, inserter);
-    core::CPersistUtils::persist(MAXIMUM_TREE_SIZE_MULTIPLIER_TAG,
-                                 m_MaximumTreeSizeMultiplier, inserter);
     core::CPersistUtils::persist(MISSING_FEATURE_ROW_MASKS_TAG,
                                  m_MissingFeatureRowMasks, inserter);
     core::CPersistUtils::persist(NUMBER_FOLDS_TAG, m_NumberFolds, inserter);
@@ -1414,9 +1408,6 @@ bool CBoostedTreeImpl::acceptRestoreTraverser(core::CStateRestoreTraverser& trav
                     core::CPersistUtils::restore(
                         MAXIMUM_OPTIMISATION_ROUNDS_PER_HYPERPARAMETER_TAG,
                         m_MaximumOptimisationRoundsPerHyperparameter, traverser))
-            RESTORE(MAXIMUM_TREE_SIZE_MULTIPLIER_TAG,
-                    core::CPersistUtils::restore(MAXIMUM_TREE_SIZE_MULTIPLIER_TAG,
-                                                 m_MaximumTreeSizeMultiplier, traverser))
             RESTORE(MISSING_FEATURE_ROW_MASKS_TAG,
                     core::CPersistUtils::restore(MISSING_FEATURE_ROW_MASKS_TAG,
                                                  m_MissingFeatureRowMasks, traverser))

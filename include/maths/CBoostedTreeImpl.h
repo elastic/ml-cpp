@@ -629,7 +629,6 @@ private:
     std::size_t m_MaximumOptimisationRoundsPerHyperparameter = 2;
     std::size_t m_RowsPerFeature = 50;
     double m_FeatureBagFraction = 0.5;
-    double m_MaximumTreeSizeMultiplier = 1.0;
     TDataTypeVec m_FeatureDataTypes;
     TDataFrameCategoryEncoderUPtr m_Encoder;
     TDoubleVec m_FeatureSampleProbabilities;

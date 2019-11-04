@@ -48,13 +48,21 @@ public:
     using TProgressCallback = std::function<void(double)>;
 
 public:
+    static const std::size_t STEPS{32};
+
+public:
     CLoopProgress();
     template<typename ITR>
-    CLoopProgress(ITR begin, ITR end, const TProgressCallback& recordProgress = noop, double scale = 1.0)
-        : CLoopProgress(std::distance(begin, end), recordProgress, scale) {}
+    CLoopProgress(ITR begin,
+                  ITR end,
+                  const TProgressCallback& recordProgress = noop,
+                  double scale = 1.0,
+                  std::size_t steps = STEPS)
+        : CLoopProgress(std::distance(begin, end), recordProgress, scale, steps) {}
     CLoopProgress(std::size_t size,
                   const TProgressCallback& recordProgress = noop,
-                  double scale = 1.0);
+                  double scale = 1.0,
+                  std::size_t steps = STEPS);
 
     //! Attach a new progress monitor callback.
     void progressCallback(const TProgressCallback& recordProgress);

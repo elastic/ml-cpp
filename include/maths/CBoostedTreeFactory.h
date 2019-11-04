@@ -110,7 +110,9 @@ public:
     TBoostedTreeUPtr restoreFor(core::CDataFrame& frame, std::size_t dependentVariable);
 
 private:
+    using TDoubleVec = std::vector<double>;
     using TDoubleDoublePr = std::pair<double, double>;
+    using TDoubleDoublePrVec = std::vector<TDoubleDoublePr>;
     using TOptionalDouble = boost::optional<double>;
     using TOptionalSize = boost::optional<std::size_t>;
     using TVector = CVectorNx1<double, 3>;
@@ -120,9 +122,18 @@ private:
     using TApplyRegularizerStep =
         std::function<bool(CBoostedTreeImpl&, double, std::size_t)>;
 
-private:
-    static const double MINIMUM_ETA;
-    static const std::size_t MAXIMUM_NUMBER_TREES;
+    class CScopeTrainBaseLearner {
+    public:
+        CScopeTrainBaseLearner(CBoostedTreeImpl& tree);
+        ~CScopeTrainBaseLearner();
+        CScopeTrainBaseLearner(const CScopeTrainBaseLearner&) = delete;
+        CScopeTrainBaseLearner& operator=(const CScopeTrainBaseLearner&) = delete;
+
+    private:
+        CBoostedTreeImpl& m_Tree;
+        double m_Eta = 1.0;
+        std::size_t m_MaximumNumberTrees = 1;
+    };
 
 private:
     CBoostedTreeFactory(std::size_t numberThreads);
@@ -155,7 +166,8 @@ private:
 
     //! Estimate the reduction in gain from a split and the total curvature of
     //! the loss function at a split.
-    TDoubleDoublePr estimateTreeGainAndCurvature(core::CDataFrame& frame) const;
+    TDoubleDoublePrVec estimateTreeGainAndCurvature(core::CDataFrame& frame,
+                                                    const TDoubleVec& percentiles) const;
 
     //! Perform a line search for the test loss w.r.t. a single regularization
     //! hyperparameter and apply Newton's method to find the minimum. The plan
@@ -167,7 +179,7 @@ private:
                                        const TApplyRegularizerStep& applyRegularizerStep,
                                        double returnedIntervalLeftEndOffset,
                                        double returnedIntervalRightEndOffset,
-                                       double searchIntervalSize) const;
+                                       double stepSize) const;
 
     //! Initialize the state for hyperparameter optimisation.
     void initializeHyperparameterOptimisation() const;
@@ -180,6 +192,9 @@ private:
 
     //! Refresh progress monitoring after restoring from saved training state.
     void resumeRestoredTrainingProgressMonitoring();
+
+    //! The maximum number of trees to use in the hyperparameter optimisation loop.
+    std::size_t mainLoopMaximumNumberTrees() const;
 
     static void noopRecordProgress(double);
     static void noopRecordMemoryUsage(std::int64_t);
@@ -196,6 +211,7 @@ private:
     TVector m_LogDepthPenaltyMultiplierSearchInterval;
     TVector m_LogTreeSizePenaltyMultiplierSearchInterval;
     TVector m_LogLeafWeightPenaltyMultiplierSearchInterval;
+    TVector m_SoftDepthLimitSearchInterval;
     TProgressCallback m_RecordProgress = noopRecordProgress;
     TMemoryUsageCallback m_RecordMemoryUsage = noopRecordMemoryUsage;
     TTrainingStateCallback m_RecordTrainingState = noopRecordTrainingState;
