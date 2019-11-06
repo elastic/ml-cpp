@@ -34,7 +34,7 @@ BOOST_AUTO_TEST_CASE(testInitNormalizerPartitioned) {
     LOG_DEBUG(<< "normalizer initialized");
 
     std::ifstream inputStrm("testfiles/new_normalizerInput.csv");
-    ml::api::CCsvInputParser inputParser(inputStrm, ml::api::CCsvInputParser::COMMA);
+    ml::api::CCsvInputParser inputParser(inputStrm);
     BOOST_TEST_REQUIRE(inputParser.readStreamIntoMaps(std::bind(
         &ml::api::CResultNormalizer::handleRecord, &normalizer, std::placeholders::_1)));
 
@@ -389,7 +389,7 @@ BOOST_AUTO_TEST_CASE(testInitNormalizer) {
     BOOST_TEST_REQUIRE(normalizer.initNormalizer("testfiles/quantilesState.json"));
 
     std::ifstream inputStrm("testfiles/normalizerInput.csv");
-    ml::api::CCsvInputParser inputParser(inputStrm, ml::api::CCsvInputParser::COMMA);
+    ml::api::CCsvInputParser inputParser(inputStrm);
     BOOST_TEST_REQUIRE(inputParser.readStreamIntoMaps(std::bind(
         &ml::api::CResultNormalizer::handleRecord, &normalizer, std::placeholders::_1)));
 

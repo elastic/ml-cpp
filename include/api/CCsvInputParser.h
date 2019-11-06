@@ -6,6 +6,8 @@
 #ifndef INCLUDED_ml_api_CCsvInputParser_h
 #define INCLUDED_ml_api_CCsvInputParser_h
 
+#include <core/CCsvLineParser.h>
+
 #include <api/CInputParser.h>
 #include <api/ImportExport.h>
 
@@ -31,9 +33,6 @@ namespace api {
 //! The default separator (,) can be changed to any other character e.g. \t
 //! which would make this tab separated value input parser.
 //!
-//! The parser for individual lines of CSV is also publicly available in the
-//! nested CCsvLineParser class.
-//!
 //! IMPLEMENTATION DECISIONS:\n
 //! It seems like overkill to be writing a bespoke CSV parser, but none of the
 //! open source options really works well:
@@ -49,92 +48,22 @@ namespace api {
 //!
 class API_EXPORT CCsvInputParser : public CInputParser {
 public:
-    //! Default CSV separator
-    static const char COMMA;
-
-    //! CSV quote character
-    static const char QUOTE;
-
     //! CSV record end character
     static const char RECORD_END;
 
     //! Character to ignore at the end of lines
     static const char STRIP_BEFORE_END;
 
-private:
-    using TScopedCharArray = boost::scoped_array<char>;
-
-public:
-    //! A class for parsing individual lines of CSV data.
-    //! Used in the implementation of the overall CSV input
-    //! parser, but also publicly available for use in other
-    //! situations.
-    class API_EXPORT CCsvLineParser {
-    public:
-        //! Construct, optionally supplying a non-standard separator.
-        //! The string to be parsed must be supplied by calling the
-        //! reset() method.
-        CCsvLineParser(char separator = COMMA);
-
-        //! Supply a new CSV string to be parsed.
-        void reset(const std::string& line);
-
-        //! Parse the next token from the current line.
-        bool parseNext(std::string& value);
-
-        //! Are we at the end of the current line?
-        bool atEnd() const;
-
-    private:
-        //! Attempt to parse the next token from the working record
-        //! into the working field.
-        bool parseNextToken(const char* end, const char*& current);
-
-    private:
-        //! Input field separator by default this is ',' but can be
-        //! overridden in the constructor.
-        const char m_Separator;
-
-        //! Did the separator character appear after the last CSV field
-        //! we parsed?
-        bool m_SeparatorAfterLastField;
-
-        //! The line to be parsed.  Held as a pointer that must outlive
-        //! use of this class to avoid copying.
-        const std::string* m_Line;
-
-        //! Pointers to the current position and end of the line being
-        //! parsed.
-        const char* m_LineCurrent;
-        const char* m_LineEnd;
-
-        //! The working field is a raw character array rather than a
-        //! string because it is built up one character at a time, and
-        //! when you append a character to a string the following
-        //! character has to be set to the zero terminator.  The array
-        //! of characters is NOT zero terminated and hence avoids this
-        //! overhead.  This is something to be aware of when accessing
-        //! it, but improves performance of the parsing by about 20%.
-        //! The character array is always big enough to hold the entire
-        //! current row string such that the code that pulls out
-        //! individual fields doesn't need to check the capacity - even
-        //! if the current row has just one field, the working field
-        //! array will be big enough to hold it.
-        TScopedCharArray m_WorkField;
-        char* m_WorkFieldEnd;
-        size_t m_WorkFieldCapacity;
-    };
-
 public:
     //! Construct with a string to be parsed
-    CCsvInputParser(const std::string& input, char separator = COMMA);
+    CCsvInputParser(const std::string& input, char separator = core::CCsvLineParser::COMMA);
 
     //! Construct with an input stream to be parsed.  Once a stream is
     //! passed to this constructor, no other object should read from it.
     //! For example, if std::cin is passed, no other object should read from
     //! std::cin, otherwise unpredictable and incorrect results will be
     //! generated.
-    CCsvInputParser(std::istream& strmIn, char separator = COMMA);
+    CCsvInputParser(std::istream& strmIn, char separator = core::CCsvLineParser::COMMA);
 
     //! Get field name row exactly as it was in the input
     const std::string& fieldNameStr() const;
@@ -152,6 +81,9 @@ public:
     //! stream or an error occurs.  If it successfully reaches the end of
     //! the stream it returns true, otherwise it returns false.
     bool readStreamIntoVecs(const TVecReaderFunc& readerFunc) override;
+
+private:
+    using TScopedCharArray = boost::scoped_array<char>;
 
 private:
     //! Attempt to parse a single CSV record that contains the field
@@ -219,7 +151,7 @@ private:
     std::string m_FieldNameStr;
 
     //! Parser used to parse the individual lines
-    CCsvLineParser m_LineParser;
+    core::CCsvLineParser m_LineParser;
 };
 }
 }

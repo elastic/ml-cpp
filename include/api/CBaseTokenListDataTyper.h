@@ -7,8 +7,8 @@
 #define INCLUDED_ml_api_CBaseTokenListDataTyper_h
 
 #include <core/BoostMultiIndex.h>
+#include <core/CCsvLineParser.h>
 
-#include <api/CCsvInputParser.h>
 #include <api/CDataTyper.h>
 #include <api/CTokenListType.h>
 #include <api/ImportExport.h>
@@ -292,7 +292,7 @@ private:
     TSizeSizeMap m_WorkTokenUniqueIds;
 
     //! Used to parse pre-tokenised input supplied as CSV.
-    CCsvInputParser::CCsvLineParser m_CsvLineParser;
+    core::CCsvLineParser m_CsvLineParser;
 
     // For unit testing
     friend struct CBaseTokenListDataTyperTest::testMaxMatchingWeights;

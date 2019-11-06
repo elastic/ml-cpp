@@ -34,6 +34,7 @@ CConcurrencyTest.cc \
 CConcurrentWrapperTest.cc \
 CContainerPrinterTest.cc \
 CContainerThroughputTest.cc \
+CCsvLineParserTest.cc \
 CDataFrameTest.cc \
 CDetachedProcessSpawnerTest.cc \
 CDualThreadStreamBufTest.cc \
