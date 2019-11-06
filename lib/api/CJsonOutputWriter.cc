@@ -15,6 +15,7 @@
 
 #include <api/CModelSizeStatsJsonWriter.h>
 #include <api/CModelSnapshotJsonWriter.h>
+#include <api/CFieldConfig.h>
 
 #include <algorithm>
 #include <ostream>
@@ -73,6 +74,9 @@ const std::string PROCESSING_TIME("processing_time_ms");
 const std::string TIME_INFLUENCER("bucket_time");
 const std::string SCHEDULED_EVENTS("scheduled_events");
 const std::string QUANTILES("quantiles");
+const std::string GEO_RESULTS("geo_results");
+const std::string ACTUAL_POINT("actual_point");
+const std::string TYPICAL_POINT("typical_point");
 
 //! Get a numeric field from a JSON document.
 //! Assumes the document contains the field.
@@ -553,6 +557,26 @@ void CJsonOutputWriter::addMetricFields(const CHierarchicalResultsWriter::TResul
                                      results.s_FunctionDescription, *docPtr);
     m_Writer.addDoubleArrayFieldToObj(TYPICAL, results.s_BaselineMean, *docPtr);
     m_Writer.addDoubleArrayFieldToObj(ACTUAL, results.s_CurrentMean, *docPtr);
+    if (results.s_FunctionName == CFieldConfig::FUNCTION_LAT_LONG) {
+        rapidjson::Value geoResults = m_Writer.makeObject();
+        if (results.s_BaselineMean.size() == 2) {
+            std::ostringstream ptStr;
+            // We don't want scientific notation and geo points only have precision up to 12 digits
+            ptStr << std::fixed;
+            ptStr << std::setprecision(12);
+            ptStr << results.s_BaselineMean[0] << "," << results.s_BaselineMean[1];
+            m_Writer.addStringFieldCopyToObj(TYPICAL_POINT, ptStr.str(), geoResults);
+        }
+        if (results.s_CurrentMean.size() == 2) {
+            std::ostringstream ptStr;
+            // We don't want scientific notation and geo points only have precision up to 12 digits
+            ptStr << std::fixed;
+            ptStr << std::setprecision(12);
+            ptStr << results.s_CurrentMean[0] << "," << results.s_CurrentMean[1];
+            m_Writer.addStringFieldCopyToObj(ACTUAL_POINT, ptStr.str(), geoResults);
+        }
+        m_Writer.addMember(GEO_RESULTS, geoResults, *docPtr);
+    }
 }
 
 void CJsonOutputWriter::addPopulationFields(const CHierarchicalResultsWriter::TResults& results,
@@ -653,6 +677,26 @@ void CJsonOutputWriter::addPopulationCauseFields(const CHierarchicalResultsWrite
                                      results.s_FunctionDescription, *docPtr);
     m_Writer.addDoubleArrayFieldToObj(TYPICAL, results.s_PopulationAverage, *docPtr);
     m_Writer.addDoubleArrayFieldToObj(ACTUAL, results.s_FunctionValue, *docPtr);
+    if (results.s_FunctionName == CFieldConfig::FUNCTION_LAT_LONG) {
+        rapidjson::Value geoResults = m_Writer.makeObject();
+        if (results.s_BaselineMean.size() == 2) {
+            std::ostringstream ptStr;
+            // We don't want scientific notation and geo points only have precision up to 12 digits
+            ptStr << std::fixed;
+            ptStr << std::setprecision(12);
+            ptStr << results.s_PopulationAverage[0] << "," << results.s_PopulationAverage[1];
+            m_Writer.addStringFieldCopyToObj(TYPICAL_POINT, ptStr.str(), geoResults);
+        }
+        if (results.s_FunctionValue.size() == 2) {
+            std::ostringstream ptStr;
+            // We don't want scientific notation and geo points only have precision up to 12 digits
+            ptStr << std::fixed;
+            ptStr << std::setprecision(12);
+            ptStr << results.s_FunctionValue[0] << "," << results.s_FunctionValue[1];
+            m_Writer.addStringFieldCopyToObj(ACTUAL_POINT, ptStr.str(), geoResults);
+        }
+        m_Writer.addMember(GEO_RESULTS, geoResults, *docPtr);
+    }
 }
 
 void CJsonOutputWriter::addInfluences(const CHierarchicalResultsWriter::TStoredStringPtrStoredStringPtrPrDoublePrVec& influenceResults,
