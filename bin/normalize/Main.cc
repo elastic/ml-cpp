@@ -97,8 +97,7 @@ int main(int argc, char** argv) {
         if (lengthEncodedInput) {
             return std::make_unique<ml::api::CLengthEncodedInputParser>(ioMgr.inputStream());
         }
-        return std::make_unique<ml::api::CCsvInputParser>(
-            ioMgr.inputStream(), ml::api::CCsvInputParser::COMMA);
+        return std::make_unique<ml::api::CCsvInputParser>(ioMgr.inputStream());
     }()};
 
     using TOutputHandlerUPtr = std::unique_ptr<ml::api::COutputHandler>;
