@@ -17,7 +17,6 @@
 #include <model/FunctionTypes.h>
 
 #include <api/CDetectionRulesJsonParser.h>
-#include <api/CFieldDataTyper.h>
 
 #include <boost/property_tree/ini_parser.hpp>
 #include <boost/property_tree/ptree.hpp>

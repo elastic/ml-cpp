@@ -1148,8 +1148,7 @@ BOOST_AUTO_TEST_CASE(testWriteCategoryDefinition) {
     std::string terms("foo bar");
     std::string regex(".*?foo.+?bar.*");
     std::size_t maxMatchingLength(132);
-    using TStrSet = std::set<std::string>;
-    TStrSet examples;
+    ml::api::CJsonOutputWriter::TStrFSet examples;
     examples.insert("User foo failed to log in");
     examples.insert("User bar failed to log in");
 
@@ -1193,7 +1192,7 @@ BOOST_AUTO_TEST_CASE(testWriteCategoryDefinition) {
                         static_cast<std::size_t>(category["max_matching_length"].GetInt()));
     BOOST_TEST_REQUIRE(category.HasMember("examples"));
 
-    TStrSet writtenExamplesSet;
+    ml::api::CJsonOutputWriter::TStrFSet writtenExamplesSet;
     const rapidjson::Value& writtenExamples = category["examples"];
     for (rapidjson::SizeType i = 0; i < writtenExamples.Size(); i++) {
         writtenExamplesSet.insert(std::string(writtenExamples[i].GetString()));

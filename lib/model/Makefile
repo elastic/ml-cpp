@@ -23,9 +23,12 @@ CAnomalyDetector.cc \
 CAnomalyDetectorModel.cc \
 CAnomalyDetectorModelConfig.cc \
 CAnomalyScore.cc \
+CBaseTokenListDataCategorizer.cc \
 CBucketGatherer.cc \
+CCategoryExamplesCollector.cc \
 CCountingModel.cc \
 CCountingModelFactory.cc \
+CDataCategorizer.cc \
 CDataClassifier.cc \
 CDataGatherer.cc \
 CDetectionRule.cc \
@@ -71,6 +74,9 @@ CSampleCounts.cc \
 CSearchKey.cc \
 CSimpleCountDetector.cc \
 CStringStore.cc \
+CTokenListCategory.cc \
+CTokenListReverseSearchCreator.cc \
+CTokenListReverseSearchCreatorIntf.cc \
 FrequencyPredicates.cc \
 FunctionTypes.cc \
 ModelTypes.cc
