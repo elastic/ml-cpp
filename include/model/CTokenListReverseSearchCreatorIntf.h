@@ -3,33 +3,33 @@
  * or more contributor license agreements. Licensed under the Elastic License;
  * you may not use this file except in compliance with the Elastic License.
  */
-#ifndef INCLUDED_ml_api_CTokenListReverseSearchCreatorIntf_h
-#define INCLUDED_ml_api_CTokenListReverseSearchCreatorIntf_h
+#ifndef INCLUDED_ml_model_CTokenListReverseSearchCreatorIntf_h
+#define INCLUDED_ml_model_CTokenListReverseSearchCreatorIntf_h
 
-#include <api/ImportExport.h>
+#include <model/ImportExport.h>
 
 #include <string>
 
 namespace ml {
-namespace api {
+namespace model {
 
 //! \brief
 //! Interface for classes that create reverse searches for the token
-//! list data typer.
+//! list data categorizer.
 //!
 //! DESCRIPTION:\n
 //! Abstract interface for classes that create reverse searches for
-//! the token list data typer.
+//! the token list data categorizer.
 //!
 //! IMPLEMENTATION DECISIONS:\n
 //! All methods are const, hence derived classes should have no
 //! state that changes after construction.  (If this rule needs to
 //! be changed then a strategy for appropriately copying these
 //! objects will need implementing within the token list data
-//! typer, because at present duplicating a const pointer is deemed
+//! categorizer, because at present duplicating a const pointer is deemed
 //! adequate.)
 //!
-class API_EXPORT CTokenListReverseSearchCreatorIntf {
+class MODEL_EXPORT CTokenListReverseSearchCreatorIntf {
 public:
     CTokenListReverseSearchCreatorIntf(const std::string& fieldName);
 
@@ -52,9 +52,9 @@ public:
     virtual bool createNullSearch(std::string& part1, std::string& part2) const = 0;
 
     //! If possible, create a reverse search for the case where there are no
-    //! unique tokens identifying the type.  (If this is not possible return
+    //! unique tokens identifying the category.  (If this is not possible return
     //! false.)
-    virtual bool createNoUniqueTokenSearch(int type,
+    virtual bool createNoUniqueTokenSearch(int categoryId,
                                            const std::string& example,
                                            size_t maxMatchingStringLen,
                                            std::string& part1,
@@ -63,7 +63,7 @@ public:
     //! Initialise the two strings that form a reverse search.  For example,
     //! this could be as simple as clearing the strings or setting them to
     //! some sort of one-off preamble.
-    virtual void initStandardSearch(int type,
+    virtual void initStandardSearch(int categoryId,
                                     const std::string& example,
                                     size_t maxMatchingStringLen,
                                     std::string& part1,
@@ -72,7 +72,7 @@ public:
     //! Modify the two strings that form a reverse search to account for the
     //! specified token, which may occur anywhere within the original
     //! message, but has been determined to be a good thing to distinguish
-    //! this type of messages from other types.
+    //! this category of messages from other categories.
     virtual void addCommonUniqueToken(const std::string& token,
                                       std::string& part1,
                                       std::string& part2) const = 0;
@@ -98,4 +98,4 @@ private:
 }
 }
 
-#endif // INCLUDED_ml_api_CTokenListReverseSearchCreatorIntf_h
+#endif // INCLUDED_ml_model_CTokenListReverseSearchCreatorIntf_h

@@ -33,7 +33,7 @@
 #include <api/CAnomalyJob.h>
 #include <api/CCsvInputParser.h>
 #include <api/CFieldConfig.h>
-#include <api/CFieldDataTyper.h>
+#include <api/CFieldDataCategorizer.h>
 #include <api/CJsonOutputWriter.h>
 #include <api/CModelSnapshotJsonWriter.h>
 #include <api/CNdJsonInputParser.h>
@@ -131,13 +131,13 @@ bool persistCategorizerStateToFile(const std::string& outputFileName) {
     ml::core::CJsonOutputStreamWrapper wrappendOutStream(outStream);
     ml::api::CJsonOutputWriter writer("job", wrappendOutStream);
 
-    ml::api::CFieldDataTyper typer("job", config, limits, writer, writer);
+    ml::api::CFieldDataCategorizer categorizer("job", config, limits, writer, writer);
 
-    ml::api::CFieldDataTyper::TStrStrUMap dataRowFields;
+    ml::api::CFieldDataCategorizer::TStrStrUMap dataRowFields;
     dataRowFields["_raw"] = "thing";
     dataRowFields["two"] = "other";
 
-    typer.handleRecord(dataRowFields);
+    categorizer.handleRecord(dataRowFields);
 
     // Persist the categorizer state to file
     {
@@ -149,7 +149,7 @@ bool persistCategorizerStateToFile(const std::string& outputFileName) {
         }
 
         ml::api::CSingleStreamDataAdder persister(ptr);
-        if (!typer.persistState(persister, "State persisted due to job close at ")) {
+        if (!categorizer.persistState(persister, "State persisted due to job close at ")) {
             LOG_ERROR(<< "Error persisting state to " << outputFileName);
             return false;
         }

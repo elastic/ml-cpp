@@ -16,7 +16,7 @@
 #include <api/CAnomalyJob.h>
 #include <api/CDataProcessor.h>
 #include <api/CFieldConfig.h>
-#include <api/CFieldDataTyper.h>
+#include <api/CFieldDataCategorizer.h>
 #include <api/CJsonOutputWriter.h>
 #include <api/CModelSnapshotJsonWriter.h>
 #include <api/CNdJsonInputParser.h>
@@ -109,14 +109,15 @@ protected:
             // Chain the detector's input
             ml::api::COutputChainer outputChainer(job);
 
-            // The typer knows how to assign categories to records
-            ml::api::CFieldDataTyper typer(JOB_ID, fieldConfig, limits, outputChainer,
-                                           outputWriter, &persistenceManager);
+            // The categorizer knows how to assign categories to records
+            ml::api::CFieldDataCategorizer categorizer(JOB_ID, fieldConfig, limits,
+                                                       outputChainer, outputWriter,
+                                                       &persistenceManager);
 
             if (fieldConfig.fieldNameSuperset().count(
-                    ml::api::CFieldDataTyper::MLCATEGORY_NAME) > 0) {
-                LOG_DEBUG(<< "Applying the categorization typer for anomaly detection");
-                firstProcessor = &typer;
+                    ml::api::CFieldDataCategorizer::MLCATEGORY_NAME) > 0) {
+                LOG_DEBUG(<< "Applying the categorization categorizer for anomaly detection");
+                firstProcessor = &categorizer;
             }
 
             ml::api::CNdJsonInputParser parser(inputStrm);
@@ -331,17 +332,17 @@ BOOST_FIXTURE_TEST_CASE(testCategorizationOnlyPersist, CTestFixture) {
         // output of the categorised input data can be dropped
         ml::api::CNullOutput nullOutput;
 
-        // The typer knows how to assign categories to records
-        ml::api::CFieldDataTyper typer(JOB_ID, fieldConfig, limits, nullOutput,
-                                       outputWriter, &persistenceManager);
+        // The categorizer knows how to assign categories to records
+        ml::api::CFieldDataCategorizer categorizer(
+            JOB_ID, fieldConfig, limits, nullOutput, outputWriter, &persistenceManager);
 
         ml::api::CNdJsonInputParser parser(inputStrm);
 
         BOOST_TEST_REQUIRE(parser.readStreamIntoMaps(std::bind(
-            &ml::api::CDataProcessor::handleRecord, &typer, std::placeholders::_1)));
+            &ml::api::CDataProcessor::handleRecord, &categorizer, std::placeholders::_1)));
 
         // Persist the processors' state in the background
-        BOOST_TEST_REQUIRE(typer.periodicPersistStateInBackground());
+        BOOST_TEST_REQUIRE(categorizer.periodicPersistStateInBackground());
         BOOST_TEST_REQUIRE(persistenceManager.startPersistInBackground());
 
         LOG_DEBUG(<< "Before waiting for the background persister to be idle");
@@ -349,7 +350,7 @@ BOOST_FIXTURE_TEST_CASE(testCategorizationOnlyPersist, CTestFixture) {
         LOG_DEBUG(<< "After waiting for the background persister to be idle");
 
         // Now persist the processors' state in the foreground
-        BOOST_TEST_REQUIRE(typer.periodicPersistStateInForeground());
+        BOOST_TEST_REQUIRE(categorizer.periodicPersistStateInForeground());
         persistenceManager.startPersist();
     }
 

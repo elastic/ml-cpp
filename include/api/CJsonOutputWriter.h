@@ -11,10 +11,10 @@
 #include <core/CSmallVector.h>
 #include <core/CoreTypes.h>
 
+#include <model/CCategoryExamplesCollector.h>
 #include <model/CHierarchicalResults.h>
 #include <model/CResourceMonitor.h>
 
-#include <api/CCategoryExamplesCollector.h>
 #include <api/CHierarchicalResultsWriter.h>
 #include <api/COutputHandler.h>
 #include <api/ImportExport.h>
@@ -169,10 +169,8 @@ public:
     using TTimeBucketDataMap = std::map<core_t::TTime, SBucketData>;
     using TTimeBucketDataMapItr = TTimeBucketDataMap::iterator;
     using TTimeBucketDataMapCItr = TTimeBucketDataMap::const_iterator;
-
-private:
-    using TStrSet = CCategoryExamplesCollector::TStrSet;
-    using TStrSetCItr = TStrSet::const_iterator;
+    using TStrFSet = model::CCategoryExamplesCollector::TStrFSet;
+    using TStrFSetCItr = TStrFSet::const_iterator;
 
 public:
     //! Constructor that causes output to be written to the specified wrapped stream
@@ -247,7 +245,7 @@ public:
                                  const std::string& terms,
                                  const std::string& regex,
                                  std::size_t maxMatchingFieldLength,
-                                 const TStrSet& examples);
+                                 const TStrFSet& examples);
 
     //! Persist a normalizer by writing its state to the output
     void persistNormalizer(const model::CHierarchicalResultsNormalizer& normalizer,
