@@ -334,7 +334,6 @@ BOOST_AUTO_TEST_CASE(testColumnQuantiles) {
             }
             frame->finishWritingRows();
 
-            ;
             TQuantileSketchVec actualQuantiles;
             bool successful;
             std::tie(actualQuantiles, successful) = maths::CDataFrameUtils::columnQuantiles(
