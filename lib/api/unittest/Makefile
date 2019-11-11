@@ -22,9 +22,7 @@ SRCS=\
 	Main.cc \
 	CAnomalyJobLimitTest.cc \
 	CAnomalyJobTest.cc \
-	CBaseTokenListDataTyperTest.cc \
 	CBoostedTreeInferenceModelBuilderTest.cc \
-	CCategoryExamplesCollectorTest.cc \
 	CConfigUpdaterTest.cc \
 	CCsvInputParserTest.cc \
 	CCsvOutputWriterTest.cc \
@@ -35,7 +33,7 @@ SRCS=\
 	CDataFrameMockAnalysisRunner.cc \
 	CDetectionRulesJsonParserTest.cc \
 	CFieldConfigTest.cc \
-	CFieldDataTyperTest.cc \
+	CFieldDataCategorizerTest.cc \
 	CForecastRunnerTest.cc \
 	CIoManagerTest.cc \
 	CJsonOutputWriterTest.cc \
@@ -56,8 +54,6 @@ SRCS=\
 	CSingleStreamDataAdderTest.cc \
 	CStateRestoreStreamFilterTest.cc \
 	CStringStoreTest.cc \
-	CTokenListDataTyperTest.cc \
-	CTokenListReverseSearchCreatorTest.cc \
 
 
 include $(CPP_SRC_HOME)/mk/stdboosttest.mk

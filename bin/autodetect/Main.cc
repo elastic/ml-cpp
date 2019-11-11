@@ -31,7 +31,7 @@
 #include <api/CCmdSkeleton.h>
 #include <api/CCsvInputParser.h>
 #include <api/CFieldConfig.h>
-#include <api/CFieldDataTyper.h>
+#include <api/CFieldDataCategorizer.h>
 #include <api/CIoManager.h>
 #include <api/CJsonOutputWriter.h>
 #include <api/CLengthEncodedInputParser.h>
@@ -269,15 +269,16 @@ int main(int argc, char** argv) {
     // Chain the categorizer's output to the anomaly detector's input
     ml::api::COutputChainer outputChainer(job);
 
-    ml::api::CJsonOutputWriter fieldDataTyperOutputWriter(jobId, wrappedOutputStream);
+    ml::api::CJsonOutputWriter fieldDataCategorizerOutputWriter(jobId, wrappedOutputStream);
 
-    // The typer knows how to assign categories to records
-    ml::api::CFieldDataTyper typer(jobId, fieldConfig, limits, outputChainer,
-                                   fieldDataTyperOutputWriter);
+    // The categorizer knows how to assign categories to records
+    ml::api::CFieldDataCategorizer categorizer(jobId, fieldConfig, limits, outputChainer,
+                                               fieldDataCategorizerOutputWriter);
 
-    if (fieldConfig.fieldNameSuperset().count(ml::api::CFieldDataTyper::MLCATEGORY_NAME) > 0) {
-        LOG_DEBUG(<< "Applying the categorization typer for anomaly detection");
-        firstProcessor = &typer;
+    if (fieldConfig.fieldNameSuperset().count(
+            ml::api::CFieldDataCategorizer::MLCATEGORY_NAME) > 0) {
+        LOG_DEBUG(<< "Applying the categorizer for anomaly detection");
+        firstProcessor = &categorizer;
     }
 
     if (periodicPersister != nullptr) {
@@ -297,7 +298,7 @@ int main(int argc, char** argv) {
     // as it must be finalised before the skeleton is destroyed, and C++
     // destruction order means the skeleton will be destroyed before the output
     // writer as it was constructed last.
-    fieldDataTyperOutputWriter.finalise();
+    fieldDataCategorizerOutputWriter.finalise();
 
     if (!ioLoopSucceeded) {
         LOG_FATAL(<< "Ml anomaly detector job failed");

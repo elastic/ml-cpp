@@ -18,9 +18,7 @@ all: build
 
 SRCS= \
 CAnomalyJob.cc \
-CBaseTokenListDataTyper.cc \
 CBenchMarker.cc \
-CCategoryExamplesCollector.cc \
 CCmdSkeleton.cc \
 CConfigUpdater.cc \
 CCsvInputParser.cc \
@@ -35,10 +33,9 @@ CDataFrameTrainBoostedTreeRunner.cc \
 CDataFrameTrainBoostedTreeClassifierRunner.cc \
 CDataFrameTrainBoostedTreeRegressionRunner.cc \
 CDataProcessor.cc \
-CDataTyper.cc \
 CDetectionRulesJsonParser.cc \
 CFieldConfig.cc \
-CFieldDataTyper.cc \
+CFieldDataCategorizer.cc \
 CForecastRunner.cc \
 CHierarchicalResultsWriter.cc \
 CInferenceModelDefinition.cc \
@@ -62,9 +59,6 @@ CResultNormalizer.cc \
 CSingleStreamDataAdder.cc \
 CSingleStreamSearcher.cc \
 CStateRestoreStreamFilter.cc \
-CTokenListReverseSearchCreator.cc \
-CTokenListReverseSearchCreatorIntf.cc \
-CTokenListType.cc \
 ElasticsearchStateIndex.cc
 
 

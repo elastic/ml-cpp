@@ -3,7 +3,7 @@
  * or more contributor license agreements. Licensed under the Elastic License;
  * you may not use this file except in compliance with the Elastic License.
  */
-#include <api/CTokenListType.h>
+#include <model/CTokenListCategory.h>
 
 #include <core/CLogger.h>
 #include <core/CStatePersistInserter.h>
@@ -14,7 +14,7 @@
 #include <functional>
 
 namespace ml {
-namespace api {
+namespace model {
 
 // We use short field names to reduce the state size
 namespace {
@@ -32,20 +32,20 @@ const std::string EMPTY_STRING;
 
 //! Functor for comparing just the first element of a pair of sizes
 class CSizePairFirstElementLess
-    : public std::binary_function<CTokenListType::TSizeSizePr, CTokenListType::TSizeSizePr, bool> {
+    : public std::binary_function<CTokenListCategory::TSizeSizePr, CTokenListCategory::TSizeSizePr, bool> {
 public:
-    bool operator()(CTokenListType::TSizeSizePr lhs, CTokenListType::TSizeSizePr rhs) {
+    bool operator()(CTokenListCategory::TSizeSizePr lhs, CTokenListCategory::TSizeSizePr rhs) {
         return lhs.first < rhs.first;
     }
 };
 }
 
-CTokenListType::CTokenListType(bool isDryRun,
-                               const std::string& baseString,
-                               size_t rawStringLen,
-                               const TSizeSizePrVec& baseTokenIds,
-                               size_t baseWeight,
-                               const TSizeSizeMap& uniqueTokenIds)
+CTokenListCategory::CTokenListCategory(bool isDryRun,
+                                       const std::string& baseString,
+                                       size_t rawStringLen,
+                                       const TSizeSizePrVec& baseTokenIds,
+                                       size_t baseWeight,
+                                       const TSizeSizeMap& uniqueTokenIds)
     : m_BaseString(baseString), m_BaseTokenIds(baseTokenIds),
       m_BaseWeight(baseWeight), m_MaxStringLen(rawStringLen),
       m_OutOfOrderCommonTokenIndex(baseTokenIds.size()),
@@ -61,14 +61,14 @@ CTokenListType::CTokenListType(bool isDryRun,
     m_OrigUniqueTokenWeight = m_CommonUniqueTokenWeight;
 }
 
-CTokenListType::CTokenListType(core::CStateRestoreTraverser& traverser)
+CTokenListCategory::CTokenListCategory(core::CStateRestoreTraverser& traverser)
     : m_BaseWeight(0), m_MaxStringLen(0), m_OutOfOrderCommonTokenIndex(0),
       m_CommonUniqueTokenWeight(0), m_OrigUniqueTokenWeight(0), m_NumMatches(0) {
-    traverser.traverseSubLevel(std::bind(&CTokenListType::acceptRestoreTraverser,
+    traverser.traverseSubLevel(std::bind(&CTokenListCategory::acceptRestoreTraverser,
                                          this, std::placeholders::_1));
 }
 
-bool CTokenListType::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
+bool CTokenListCategory::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
     bool expectWeight(false);
 
     do {
@@ -154,12 +154,12 @@ bool CTokenListType::acceptRestoreTraverser(core::CStateRestoreTraverser& traver
     return true;
 }
 
-bool CTokenListType::addString(bool isDryRun,
-                               const std::string& /* str */,
-                               size_t rawStringLen,
-                               const TSizeSizePrVec& tokenIds,
-                               const TSizeSizeMap& uniqueTokenIds,
-                               double /* similarity */) {
+bool CTokenListCategory::addString(bool isDryRun,
+                                   const std::string& /* str */,
+                                   size_t rawStringLen,
+                                   const TSizeSizePrVec& tokenIds,
+                                   const TSizeSizeMap& uniqueTokenIds,
+                                   double /* similarity */) {
     bool changed(false);
 
     // Remove any token IDs from the common unique token map that aren't present
@@ -232,44 +232,44 @@ bool CTokenListType::addString(bool isDryRun,
     return changed;
 }
 
-const std::string& CTokenListType::baseString() const {
+const std::string& CTokenListCategory::baseString() const {
     return m_BaseString;
 }
 
-const CTokenListType::TSizeSizePrVec& CTokenListType::baseTokenIds() const {
+const CTokenListCategory::TSizeSizePrVec& CTokenListCategory::baseTokenIds() const {
     return m_BaseTokenIds;
 }
 
-size_t CTokenListType::baseWeight() const {
+size_t CTokenListCategory::baseWeight() const {
     return m_BaseWeight;
 }
 
-const CTokenListType::TSizeSizePrVec& CTokenListType::commonUniqueTokenIds() const {
+const CTokenListCategory::TSizeSizePrVec& CTokenListCategory::commonUniqueTokenIds() const {
     return m_CommonUniqueTokenIds;
 }
 
-size_t CTokenListType::commonUniqueTokenWeight() const {
+size_t CTokenListCategory::commonUniqueTokenWeight() const {
     return m_CommonUniqueTokenWeight;
 }
 
-size_t CTokenListType::origUniqueTokenWeight() const {
+size_t CTokenListCategory::origUniqueTokenWeight() const {
     return m_OrigUniqueTokenWeight;
 }
 
-size_t CTokenListType::maxStringLen() const {
+size_t CTokenListCategory::maxStringLen() const {
     return m_MaxStringLen;
 }
 
-size_t CTokenListType::outOfOrderCommonTokenIndex() const {
+size_t CTokenListCategory::outOfOrderCommonTokenIndex() const {
     return m_OutOfOrderCommonTokenIndex;
 }
 
-size_t CTokenListType::maxMatchingStringLen() const {
+size_t CTokenListCategory::maxMatchingStringLen() const {
     // Add a 10% margin of error
     return (m_MaxStringLen * 11) / 10;
 }
 
-size_t CTokenListType::missingCommonTokenWeight(const TSizeSizeMap& uniqueTokenIds) const {
+size_t CTokenListCategory::missingCommonTokenWeight(const TSizeSizeMap& uniqueTokenIds) const {
     size_t presentWeight(0);
 
     TSizeSizePrVecCItr commonIter = m_CommonUniqueTokenIds.begin();
@@ -298,7 +298,7 @@ size_t CTokenListType::missingCommonTokenWeight(const TSizeSizeMap& uniqueTokenI
     return m_CommonUniqueTokenWeight - presentWeight;
 }
 
-bool CTokenListType::isMissingCommonTokenWeightZero(const TSizeSizeMap& uniqueTokenIds) const {
+bool CTokenListCategory::isMissingCommonTokenWeightZero(const TSizeSizeMap& uniqueTokenIds) const {
     // This method could be implemented as:
     // return this->missingCommonTokenWeight(uniqueTokenIds) == 0;
     //
@@ -327,7 +327,7 @@ bool CTokenListType::isMissingCommonTokenWeightZero(const TSizeSizeMap& uniqueTo
     return commonIter == m_CommonUniqueTokenIds.end();
 }
 
-bool CTokenListType::containsCommonTokensInOrder(const TSizeSizePrVec& tokenIds) const {
+bool CTokenListCategory::containsCommonTokensInOrder(const TSizeSizePrVec& tokenIds) const {
     TSizeSizePrVecCItr testIter = tokenIds.begin();
     for (TSizeSizePrVecCItr baseIter = m_BaseTokenIds.begin();
          baseIter != m_BaseTokenIds.end(); ++baseIter) {
@@ -352,11 +352,11 @@ bool CTokenListType::containsCommonTokensInOrder(const TSizeSizePrVec& tokenIds)
     return true;
 }
 
-size_t CTokenListType::numMatches() const {
+size_t CTokenListCategory::numMatches() const {
     return m_NumMatches;
 }
 
-void CTokenListType::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
+void CTokenListCategory::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
     inserter.insertValue(BASE_STRING, m_BaseString);
 
     for (TSizeSizePrVecCItr iter = m_BaseTokenIds.begin();
@@ -378,7 +378,7 @@ void CTokenListType::acceptPersistInserter(core::CStatePersistInserter& inserter
     inserter.insertValue(NUM_MATCHES, m_NumMatches);
 }
 
-bool CTokenListType::cachedReverseSearch(std::string& part1, std::string& part2) const {
+bool CTokenListCategory::cachedReverseSearch(std::string& part1, std::string& part2) const {
     part1 = m_ReverseSearchPart1;
     part2 = m_ReverseSearchPart2;
 
@@ -394,7 +394,8 @@ bool CTokenListType::cachedReverseSearch(std::string& part1, std::string& part2)
     return !missed;
 }
 
-void CTokenListType::cacheReverseSearch(const std::string& part1, const std::string& part2) {
+void CTokenListCategory::cacheReverseSearch(const std::string& part1,
+                                            const std::string& part2) {
     m_ReverseSearchPart1 = part1;
     m_ReverseSearchPart2 = part2;
 }
