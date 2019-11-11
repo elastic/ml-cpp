@@ -108,13 +108,9 @@ void CMetricModel::acceptPersistInserter(core::CStatePersistInserter& inserter) 
 bool CMetricModel::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
     do {
         const std::string& name = traverser.name();
-        if (name == INDIVIDUAL_STATE_TAG) {
-            if (traverser.traverseSubLevel(std::bind(&CMetricModel::doAcceptRestoreTraverser,
-                                                     this, std::placeholders::_1)) == false) {
-                // Logging handled already.
-                return false;
-            }
-        }
+        RESTORE(INDIVIDUAL_STATE_TAG,
+                traverser.traverseSubLevel(std::bind(&CMetricModel::doAcceptRestoreTraverser,
+                                                     this, std::placeholders::_1)))
     } while (traverser.next());
 
     return true;
