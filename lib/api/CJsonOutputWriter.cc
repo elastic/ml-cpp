@@ -13,9 +13,9 @@
 #include <model/CHierarchicalResultsNormalizer.h>
 #include <model/ModelTypes.h>
 
+#include <api/CFieldConfig.h>
 #include <api/CModelSizeStatsJsonWriter.h>
 #include <api/CModelSnapshotJsonWriter.h>
-#include <api/CFieldConfig.h>
 
 #include <algorithm>
 #include <ostream>
@@ -566,10 +566,12 @@ void CJsonOutputWriter::addMetricFields(const CHierarchicalResultsWriter::TResul
             return result.str();
         };
         if (results.s_BaselineMean.size() == 2) {
-            m_Writer.addStringFieldCopyToObj(TYPICAL_POINT, geoPointToString(results.s_BaselineMean), geoResults);
+            m_Writer.addStringFieldCopyToObj(
+                TYPICAL_POINT, geoPointToString(results.s_BaselineMean), geoResults);
         }
         if (results.s_CurrentMean.size() == 2) {
-            m_Writer.addStringFieldCopyToObj(ACTUAL_POINT, geoPointToString(results.s_CurrentMean), geoResults);
+            m_Writer.addStringFieldCopyToObj(
+                ACTUAL_POINT, geoPointToString(results.s_CurrentMean), geoResults);
         }
         m_Writer.addMember(GEO_RESULTS, geoResults, *docPtr);
     }
@@ -682,10 +684,12 @@ void CJsonOutputWriter::addPopulationCauseFields(const CHierarchicalResultsWrite
             return result.str();
         };
         if (results.s_BaselineMean.size() == 2) {
-            m_Writer.addStringFieldCopyToObj(TYPICAL_POINT, geoPointToString(results.s_PopulationAverage), geoResults);
+            m_Writer.addStringFieldCopyToObj(
+                TYPICAL_POINT, geoPointToString(results.s_PopulationAverage), geoResults);
         }
         if (results.s_FunctionValue.size() == 2) {
-            m_Writer.addStringFieldCopyToObj(ACTUAL_POINT, geoPointToString(results.s_FunctionValue), geoResults);
+            m_Writer.addStringFieldCopyToObj(
+                ACTUAL_POINT, geoPointToString(results.s_FunctionValue), geoResults);
         }
         m_Writer.addMember(GEO_RESULTS, geoResults, *docPtr);
     }

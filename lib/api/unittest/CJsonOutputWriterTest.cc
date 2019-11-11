@@ -1084,11 +1084,11 @@ BOOST_AUTO_TEST_CASE(testGeoResultsWrite) {
             typical[0] = 90.0;
             typical[1] = -90.0;
             ml::api::CHierarchicalResultsWriter::SResults result(
-                ml::api::CHierarchicalResultsWriter::E_Result, 
-                partitionFieldName, partitionFieldValue,
-                byFieldName, byFieldValue, correlatedByFieldValue,
-                1, function, functionDescription, 2.24, 79, typical, actual, 
-                10.0, 10.0, 0.5, 0.0, fieldName, influences, false, true, 1, 1, EMPTY_STRING_LIST);
+                ml::api::CHierarchicalResultsWriter::E_Result,
+                partitionFieldName, partitionFieldValue, byFieldName,
+                byFieldValue, correlatedByFieldValue, 1, function,
+                functionDescription, 2.24, 79, typical, actual, 10.0, 10.0, 0.5,
+                0.0, fieldName, influences, false, true, 1, 1, EMPTY_STRING_LIST);
             BOOST_TEST_REQUIRE(writer.acceptResult(result));
             BOOST_TEST_REQUIRE(writer.endOutputBatch(false, 1U));
         }
@@ -1105,7 +1105,8 @@ BOOST_AUTO_TEST_CASE(testGeoResultsWrite) {
         BOOST_TEST_REQUIRE(arrayDoc.IsArray());
         BOOST_REQUIRE_EQUAL(rapidjson::SizeType(2), arrayDoc.Size());
         BOOST_TEST_REQUIRE(arrayDoc[rapidjson::SizeType(0)].HasMember("records"));
-        const rapidjson::Value& record = arrayDoc[rapidjson::SizeType(0)]["records"][rapidjson::SizeType(0)];
+        const rapidjson::Value& record =
+            arrayDoc[rapidjson::SizeType(0)]["records"][rapidjson::SizeType(0)];
 
         BOOST_TEST_REQUIRE(record.HasMember("typical"));
         BOOST_TEST_REQUIRE(record.HasMember("actual"));
@@ -1127,11 +1128,11 @@ BOOST_AUTO_TEST_CASE(testGeoResultsWrite) {
             TDouble1Vec actual(1, 500);
             TDouble1Vec typical(1, 64);
             ml::api::CHierarchicalResultsWriter::SResults result(
-                ml::api::CHierarchicalResultsWriter::E_Result, 
-                partitionFieldName, partitionFieldValue,
-                byFieldName, byFieldValue, correlatedByFieldValue,
-                1, function, functionDescription, 2.24, 79, typical, actual, 
-                10.0, 10.0, 0.5, 0.0, fieldName, influences, false, true, 1, 1, EMPTY_STRING_LIST);
+                ml::api::CHierarchicalResultsWriter::E_Result,
+                partitionFieldName, partitionFieldValue, byFieldName,
+                byFieldValue, correlatedByFieldValue, 1, function,
+                functionDescription, 2.24, 79, typical, actual, 10.0, 10.0, 0.5,
+                0.0, fieldName, influences, false, true, 1, 1, EMPTY_STRING_LIST);
             BOOST_TEST_REQUIRE(writer.acceptResult(result));
             BOOST_TEST_REQUIRE(writer.endOutputBatch(false, 1U));
         }
@@ -1148,7 +1149,8 @@ BOOST_AUTO_TEST_CASE(testGeoResultsWrite) {
         BOOST_TEST_REQUIRE(arrayDoc.IsArray());
         BOOST_REQUIRE_EQUAL(rapidjson::SizeType(2), arrayDoc.Size());
         BOOST_TEST_REQUIRE(arrayDoc[rapidjson::SizeType(0)].HasMember("records"));
-        const rapidjson::Value& record = arrayDoc[rapidjson::SizeType(0)]["records"][rapidjson::SizeType(0)];
+        const rapidjson::Value& record =
+            arrayDoc[rapidjson::SizeType(0)]["records"][rapidjson::SizeType(0)];
 
         BOOST_TEST_REQUIRE(record.IsObject());
         BOOST_TEST_REQUIRE(record.HasMember("geo_results"));
@@ -1165,11 +1167,11 @@ BOOST_AUTO_TEST_CASE(testGeoResultsWrite) {
             TDouble1Vec actual(1, 500);
             TDouble1Vec typical(1, 64);
             ml::api::CHierarchicalResultsWriter::SResults result(
-                ml::api::CHierarchicalResultsWriter::E_Result, 
-                partitionFieldName, partitionFieldValue,
-                byFieldName, byFieldValue, correlatedByFieldValue,
-                1, "mean", functionDescription, 2.24, 79, typical, actual, 
-                10.0, 10.0, 0.5, 0.0, fieldName, influences, false, true, 1, 1, EMPTY_STRING_LIST);
+                ml::api::CHierarchicalResultsWriter::E_Result,
+                partitionFieldName, partitionFieldValue, byFieldName,
+                byFieldValue, correlatedByFieldValue, 1, "mean",
+                functionDescription, 2.24, 79, typical, actual, 10.0, 10.0, 0.5,
+                0.0, fieldName, influences, false, true, 1, 1, EMPTY_STRING_LIST);
             BOOST_TEST_REQUIRE(writer.acceptResult(result));
             BOOST_TEST_REQUIRE(writer.endOutputBatch(false, 1U));
         }
@@ -1186,7 +1188,8 @@ BOOST_AUTO_TEST_CASE(testGeoResultsWrite) {
         BOOST_TEST_REQUIRE(arrayDoc.IsArray());
         BOOST_REQUIRE_EQUAL(rapidjson::SizeType(2), arrayDoc.Size());
         BOOST_TEST_REQUIRE(arrayDoc[rapidjson::SizeType(0)].HasMember("records"));
-        const rapidjson::Value& record = arrayDoc[rapidjson::SizeType(0)]["records"][rapidjson::SizeType(0)];
+        const rapidjson::Value& record =
+            arrayDoc[rapidjson::SizeType(0)]["records"][rapidjson::SizeType(0)];
 
         BOOST_TEST_REQUIRE(record.IsObject());
         BOOST_REQUIRE_EQUAL(false, record.HasMember("geo_results"));
