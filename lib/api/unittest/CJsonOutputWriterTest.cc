@@ -1056,6 +1056,146 @@ BOOST_AUTO_TEST_CASE(testSimpleWrite) {
                         std::string(object2["field_name"].GetString()));
 }
 
+BOOST_AUTO_TEST_CASE(testGeoResultsWrite) {
+    ml::api::CJsonOutputWriter::TStrStrUMap emptyFields;
+
+    std::string partitionFieldName("tfn");
+    std::string partitionFieldValue("");
+    std::string overFieldName("ofn");
+    std::string overFieldValue("ofv");
+    std::string byFieldName("airline");
+    std::string byFieldValue("GAL");
+    std::string correlatedByFieldValue("BAW");
+    std::string fieldName("location");
+    std::string function("lat_long");
+    std::string functionDescription("lat_long(location)");
+    ml::api::CHierarchicalResultsWriter::TStoredStringPtrStoredStringPtrPrDoublePrVec influences;
+    std::string emptyString;
+    // The output writer won't close the JSON structures until is is destroyed
+    {
+        std::ostringstream sstream;
+        {
+            ml::core::CJsonOutputStreamWrapper outputStream(sstream);
+            ml::api::CJsonOutputWriter writer("job", outputStream);
+            TDouble1Vec actual(2, 0.0);
+            actual[0] = 40.0;
+            actual[1] = -40.0;
+            TDouble1Vec typical(2, 0.0);
+            typical[0] = 90.0;
+            typical[1] = -90.0;
+            ml::api::CHierarchicalResultsWriter::SResults result(
+                ml::api::CHierarchicalResultsWriter::E_Result,
+                partitionFieldName, partitionFieldValue, byFieldName,
+                byFieldValue, correlatedByFieldValue, 1, function,
+                functionDescription, 2.24, 79, typical, actual, 10.0, 10.0, 0.5,
+                0.0, fieldName, influences, false, true, 1, 1, EMPTY_STRING_LIST);
+            BOOST_TEST_REQUIRE(writer.acceptResult(result));
+            BOOST_TEST_REQUIRE(writer.endOutputBatch(false, 1U));
+        }
+        rapidjson::Document arrayDoc;
+        arrayDoc.Parse<rapidjson::kParseDefaultFlags>(sstream.str().c_str());
+        // Debug print record
+        {
+            rapidjson::StringBuffer strbuf;
+            using TStringBufferPrettyWriter = rapidjson::PrettyWriter<rapidjson::StringBuffer>;
+            TStringBufferPrettyWriter writer(strbuf);
+            arrayDoc.Accept(writer);
+            LOG_DEBUG(<< "Results:\n" << strbuf.GetString());
+        }
+        BOOST_TEST_REQUIRE(arrayDoc.IsArray());
+        BOOST_REQUIRE_EQUAL(rapidjson::SizeType(2), arrayDoc.Size());
+        BOOST_TEST_REQUIRE(arrayDoc[rapidjson::SizeType(0)].HasMember("records"));
+        const rapidjson::Value& record =
+            arrayDoc[rapidjson::SizeType(0)]["records"][rapidjson::SizeType(0)];
+
+        BOOST_TEST_REQUIRE(record.HasMember("typical"));
+        BOOST_TEST_REQUIRE(record.HasMember("actual"));
+        BOOST_TEST_REQUIRE(record.HasMember("geo_results"));
+        auto geoResultsObject = record["geo_results"].GetObject();
+        BOOST_TEST_REQUIRE(geoResultsObject.HasMember("actual_point"));
+        BOOST_REQUIRE_EQUAL(std::string("40.000000000000,-40.000000000000"),
+                            (geoResultsObject["actual_point"].GetString()));
+        BOOST_TEST_REQUIRE(geoResultsObject.HasMember("typical_point"));
+        BOOST_REQUIRE_EQUAL(std::string("90.000000000000,-90.000000000000"),
+                            (geoResultsObject["typical_point"].GetString()));
+    }
+
+    {
+        std::ostringstream sstream;
+        {
+            ml::core::CJsonOutputStreamWrapper outputStream(sstream);
+            ml::api::CJsonOutputWriter writer("job", outputStream);
+            TDouble1Vec actual(1, 500);
+            TDouble1Vec typical(1, 64);
+            ml::api::CHierarchicalResultsWriter::SResults result(
+                ml::api::CHierarchicalResultsWriter::E_Result,
+                partitionFieldName, partitionFieldValue, byFieldName,
+                byFieldValue, correlatedByFieldValue, 1, function,
+                functionDescription, 2.24, 79, typical, actual, 10.0, 10.0, 0.5,
+                0.0, fieldName, influences, false, true, 1, 1, EMPTY_STRING_LIST);
+            BOOST_TEST_REQUIRE(writer.acceptResult(result));
+            BOOST_TEST_REQUIRE(writer.endOutputBatch(false, 1U));
+        }
+        rapidjson::Document arrayDoc;
+        arrayDoc.Parse<rapidjson::kParseDefaultFlags>(sstream.str().c_str());
+        // Debug print record
+        {
+            rapidjson::StringBuffer strbuf;
+            using TStringBufferPrettyWriter = rapidjson::PrettyWriter<rapidjson::StringBuffer>;
+            TStringBufferPrettyWriter writer(strbuf);
+            arrayDoc.Accept(writer);
+            LOG_DEBUG(<< "Results:\n" << strbuf.GetString());
+        }
+        BOOST_TEST_REQUIRE(arrayDoc.IsArray());
+        BOOST_REQUIRE_EQUAL(rapidjson::SizeType(2), arrayDoc.Size());
+        BOOST_TEST_REQUIRE(arrayDoc[rapidjson::SizeType(0)].HasMember("records"));
+        const rapidjson::Value& record =
+            arrayDoc[rapidjson::SizeType(0)]["records"][rapidjson::SizeType(0)];
+
+        BOOST_TEST_REQUIRE(record.IsObject());
+        BOOST_TEST_REQUIRE(record.HasMember("geo_results"));
+        auto geoResultsObject = record["geo_results"].GetObject();
+        BOOST_TEST_REQUIRE(!geoResultsObject.HasMember("actual_point"));
+        BOOST_TEST_REQUIRE(!geoResultsObject.HasMember("typical_point"));
+    }
+
+    {
+        std::ostringstream sstream;
+        {
+            ml::core::CJsonOutputStreamWrapper outputStream(sstream);
+            ml::api::CJsonOutputWriter writer("job", outputStream);
+            TDouble1Vec actual(1, 500);
+            TDouble1Vec typical(1, 64);
+            ml::api::CHierarchicalResultsWriter::SResults result(
+                ml::api::CHierarchicalResultsWriter::E_Result,
+                partitionFieldName, partitionFieldValue, byFieldName,
+                byFieldValue, correlatedByFieldValue, 1, "mean",
+                functionDescription, 2.24, 79, typical, actual, 10.0, 10.0, 0.5,
+                0.0, fieldName, influences, false, true, 1, 1, EMPTY_STRING_LIST);
+            BOOST_TEST_REQUIRE(writer.acceptResult(result));
+            BOOST_TEST_REQUIRE(writer.endOutputBatch(false, 1U));
+        }
+        rapidjson::Document arrayDoc;
+        arrayDoc.Parse<rapidjson::kParseDefaultFlags>(sstream.str().c_str());
+        // Debug print record
+        {
+            rapidjson::StringBuffer strbuf;
+            using TStringBufferPrettyWriter = rapidjson::PrettyWriter<rapidjson::StringBuffer>;
+            TStringBufferPrettyWriter writer(strbuf);
+            arrayDoc.Accept(writer);
+            LOG_DEBUG(<< "Results:\n" << strbuf.GetString());
+        }
+        BOOST_TEST_REQUIRE(arrayDoc.IsArray());
+        BOOST_REQUIRE_EQUAL(rapidjson::SizeType(2), arrayDoc.Size());
+        BOOST_TEST_REQUIRE(arrayDoc[rapidjson::SizeType(0)].HasMember("records"));
+        const rapidjson::Value& record =
+            arrayDoc[rapidjson::SizeType(0)]["records"][rapidjson::SizeType(0)];
+
+        BOOST_TEST_REQUIRE(record.IsObject());
+        BOOST_REQUIRE_EQUAL(false, record.HasMember("geo_results"));
+    }
+}
+
 BOOST_AUTO_TEST_CASE(testWriteNonAnomalousBucket) {
     std::ostringstream sstream;
 
