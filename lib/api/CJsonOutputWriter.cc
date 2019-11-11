@@ -559,21 +559,17 @@ void CJsonOutputWriter::addMetricFields(const CHierarchicalResultsWriter::TResul
     m_Writer.addDoubleArrayFieldToObj(ACTUAL, results.s_CurrentMean, *docPtr);
     if (results.s_FunctionName == CFieldConfig::FUNCTION_LAT_LONG) {
         rapidjson::Value geoResults = m_Writer.makeObject();
-        if (results.s_BaselineMean.size() == 2) {
-            std::ostringstream ptStr;
+        auto geoPointToString = [](const auto& point) -> std::string {
+            std::ostringstream result;
             // We don't want scientific notation and geo points only have precision up to 12 digits
-            ptStr << std::fixed;
-            ptStr << std::setprecision(12);
-            ptStr << results.s_BaselineMean[0] << "," << results.s_BaselineMean[1];
-            m_Writer.addStringFieldCopyToObj(TYPICAL_POINT, ptStr.str(), geoResults);
+            result << std::fixed << std::setprecision(12) << point[0] << "," << point[1];
+            return result.str();
+        };
+        if (results.s_BaselineMean.size() == 2) {
+            m_Writer.addStringFieldCopyToObj(TYPICAL_POINT, geoPointToString(results.s_BaselineMean), geoResults);
         }
         if (results.s_CurrentMean.size() == 2) {
-            std::ostringstream ptStr;
-            // We don't want scientific notation and geo points only have precision up to 12 digits
-            ptStr << std::fixed;
-            ptStr << std::setprecision(12);
-            ptStr << results.s_CurrentMean[0] << "," << results.s_CurrentMean[1];
-            m_Writer.addStringFieldCopyToObj(ACTUAL_POINT, ptStr.str(), geoResults);
+            m_Writer.addStringFieldCopyToObj(ACTUAL_POINT, geoPointToString(results.s_CurrentMean), geoResults);
         }
         m_Writer.addMember(GEO_RESULTS, geoResults, *docPtr);
     }
@@ -679,21 +675,17 @@ void CJsonOutputWriter::addPopulationCauseFields(const CHierarchicalResultsWrite
     m_Writer.addDoubleArrayFieldToObj(ACTUAL, results.s_FunctionValue, *docPtr);
     if (results.s_FunctionName == CFieldConfig::FUNCTION_LAT_LONG) {
         rapidjson::Value geoResults = m_Writer.makeObject();
-        if (results.s_BaselineMean.size() == 2) {
-            std::ostringstream ptStr;
+        auto geoPointToString = [](const auto& point) -> std::string {
+            std::ostringstream result;
             // We don't want scientific notation and geo points only have precision up to 12 digits
-            ptStr << std::fixed;
-            ptStr << std::setprecision(12);
-            ptStr << results.s_PopulationAverage[0] << "," << results.s_PopulationAverage[1];
-            m_Writer.addStringFieldCopyToObj(TYPICAL_POINT, ptStr.str(), geoResults);
+            result << std::fixed << std::setprecision(12) << point[0] << "," << point[1];
+            return result.str();
+        };
+        if (results.s_BaselineMean.size() == 2) {
+            m_Writer.addStringFieldCopyToObj(TYPICAL_POINT, geoPointToString(results.s_PopulationAverage), geoResults);
         }
         if (results.s_FunctionValue.size() == 2) {
-            std::ostringstream ptStr;
-            // We don't want scientific notation and geo points only have precision up to 12 digits
-            ptStr << std::fixed;
-            ptStr << std::setprecision(12);
-            ptStr << results.s_FunctionValue[0] << "," << results.s_FunctionValue[1];
-            m_Writer.addStringFieldCopyToObj(ACTUAL_POINT, ptStr.str(), geoResults);
+            m_Writer.addStringFieldCopyToObj(ACTUAL_POINT, geoPointToString(results.s_FunctionValue), geoResults);
         }
         m_Writer.addMember(GEO_RESULTS, geoResults, *docPtr);
     }
