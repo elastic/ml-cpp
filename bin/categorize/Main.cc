@@ -27,7 +27,7 @@
 #include <api/CCmdSkeleton.h>
 #include <api/CCsvInputParser.h>
 #include <api/CFieldConfig.h>
-#include <api/CFieldDataTyper.h>
+#include <api/CFieldDataCategorizer.h>
 #include <api/CIoManager.h>
 #include <api/CJsonOutputWriter.h>
 #include <api/CLengthEncodedInputParser.h>
@@ -172,24 +172,24 @@ int main(int argc, char** argv) {
     // of the categorised input data can be dropped
     ml::api::CNullOutput nullOutput;
 
-    // output writer for CFieldDataTyper and persistence callback
+    // output writer for CFieldDataCategorizer and persistence callback
     ml::api::CJsonOutputWriter outputWriter(jobId, wrappedOutputStream);
 
-    // The typer knows how to assign categories to records
-    ml::api::CFieldDataTyper typer(jobId, fieldConfig, limits, nullOutput,
-                                   outputWriter, periodicPersister.get());
+    // The categorizer knows how to assign categories to records
+    ml::api::CFieldDataCategorizer categorizer(jobId, fieldConfig, limits, nullOutput,
+                                               outputWriter, periodicPersister.get());
 
     if (periodicPersister != nullptr) {
         periodicPersister->firstProcessorBackgroundPeriodicPersistFunc(std::bind(
-            &ml::api::CFieldDataTyper::periodicPersistStateInBackground, &typer));
+            &ml::api::CFieldDataCategorizer::periodicPersistStateInBackground, &categorizer));
 
         periodicPersister->firstProcessorForegroundPeriodicPersistFunc(std::bind(
-            &ml::api::CFieldDataTyper::periodicPersistStateInForeground, &typer));
+            &ml::api::CFieldDataCategorizer::periodicPersistStateInForeground, &categorizer));
     }
 
     // The skeleton avoids the need to duplicate a lot of boilerplate code
     ml::api::CCmdSkeleton skeleton(restoreSearcher.get(), persister.get(),
-                                   *inputParser, typer);
+                                   *inputParser, categorizer);
     bool ioLoopSucceeded(skeleton.ioLoop());
 
     // Unfortunately we cannot rely on destruction to finalise the output writer

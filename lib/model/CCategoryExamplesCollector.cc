@@ -3,17 +3,19 @@
  * or more contributor license agreements. Licensed under the Elastic License;
  * you may not use this file except in compliance with the Elastic License.
  */
-#include <api/CCategoryExamplesCollector.h>
+#include <model/CCategoryExamplesCollector.h>
 
 #include <core/CContainerPrinter.h>
 #include <core/CLogger.h>
+#include <core/CStatePersistInserter.h>
+#include <core/CStateRestoreTraverser.h>
 #include <core/CStringUtils.h>
 
 #include <algorithm>
 #include <vector>
 
 namespace ml {
-namespace api {
+namespace model {
 
 namespace {
 
@@ -21,13 +23,13 @@ const std::string EXAMPLES_BY_CATEGORY_TAG("a");
 const std::string CATEGORY_TAG("b");
 const std::string EXAMPLE_TAG("c");
 
-const CCategoryExamplesCollector::TStrSet EMPTY_EXAMPLES;
+const CCategoryExamplesCollector::TStrFSet EMPTY_EXAMPLES;
 
 const std::string ELLIPSIS(3, '.');
 
 } // unnamed
 
-const size_t CCategoryExamplesCollector::MAX_EXAMPLE_LENGTH(1000);
+const std::size_t CCategoryExamplesCollector::MAX_EXAMPLE_LENGTH(1000);
 
 CCategoryExamplesCollector::CCategoryExamplesCollector(std::size_t maxExamples)
     : m_MaxExamples(maxExamples) {
@@ -40,25 +42,25 @@ CCategoryExamplesCollector::CCategoryExamplesCollector(std::size_t maxExamples,
                                          this, std::placeholders::_1));
 }
 
-bool CCategoryExamplesCollector::add(std::size_t category, const std::string& example) {
+bool CCategoryExamplesCollector::add(int categoryId, const std::string& example) {
     if (m_MaxExamples == 0) {
         return false;
     }
-    TStrSet& examplesForCategory = m_ExamplesByCategory[category];
+    TStrFSet& examplesForCategory = m_ExamplesByCategory[categoryId];
     if (examplesForCategory.size() >= m_MaxExamples) {
         return false;
     }
     return examplesForCategory.insert(truncateExample(example)).second;
 }
 
-std::size_t CCategoryExamplesCollector::numberOfExamplesForCategory(std::size_t category) const {
-    auto iterator = m_ExamplesByCategory.find(category);
+std::size_t CCategoryExamplesCollector::numberOfExamplesForCategory(int categoryId) const {
+    auto iterator = m_ExamplesByCategory.find(categoryId);
     return (iterator == m_ExamplesByCategory.end()) ? 0 : iterator->second.size();
 }
 
-const CCategoryExamplesCollector::TStrSet&
-CCategoryExamplesCollector::examples(std::size_t category) const {
-    auto iterator = m_ExamplesByCategory.find(category);
+const CCategoryExamplesCollector::TStrFSet&
+CCategoryExamplesCollector::examples(int categoryId) const {
+    auto iterator = m_ExamplesByCategory.find(categoryId);
     if (iterator == m_ExamplesByCategory.end()) {
         return EMPTY_EXAMPLES;
     }
@@ -69,10 +71,10 @@ void CCategoryExamplesCollector::acceptPersistInserter(core::CStatePersistInsert
     // Persist the examples sorted by category ID to make it easier to compare
     // persisted state
 
-    using TSizeStrSetCPtrPr = std::pair<size_t, const TStrSet*>;
-    using TSizeStrSetCPtrPrVec = std::vector<TSizeStrSetCPtrPr>;
+    using TIntStrFSetCPtrPr = std::pair<int, const TStrFSet*>;
+    using TIntStrFSetCPtrPrVec = std::vector<TIntStrFSetCPtrPr>;
 
-    TSizeStrSetCPtrPrVec orderedData;
+    TIntStrFSetCPtrPrVec orderedData;
     orderedData.reserve(m_ExamplesByCategory.size());
 
     for (const auto& exampleByCategory : m_ExamplesByCategory) {
@@ -90,11 +92,11 @@ void CCategoryExamplesCollector::acceptPersistInserter(core::CStatePersistInsert
     }
 }
 
-void CCategoryExamplesCollector::persistExamples(std::size_t category,
-                                                 const TStrSet& examples,
+void CCategoryExamplesCollector::persistExamples(int categoryId,
+                                                 const TStrFSet& examples,
                                                  core::CStatePersistInserter& inserter) const {
-    inserter.insertValue(CATEGORY_TAG, category);
-    for (TStrSetCItr itr = examples.begin(); itr != examples.end(); ++itr) {
+    inserter.insertValue(CATEGORY_TAG, categoryId);
+    for (TStrFSetCItr itr = examples.begin(); itr != examples.end(); ++itr) {
         inserter.insertValue(EXAMPLE_TAG, *itr);
     }
 }
@@ -116,12 +118,12 @@ bool CCategoryExamplesCollector::acceptRestoreTraverser(core::CStateRestoreTrave
 }
 
 bool CCategoryExamplesCollector::restoreExamples(core::CStateRestoreTraverser& traverser) {
-    std::size_t category = 0;
-    TStrSet examples;
+    int categoryId = 0;
+    TStrFSet examples;
     do {
         const std::string& name = traverser.name();
         if (name == CATEGORY_TAG) {
-            if (core::CStringUtils::stringToType(traverser.value(), category) == false) {
+            if (core::CStringUtils::stringToType(traverser.value(), categoryId) == false) {
                 LOG_ERROR(<< "Error restoring category: " << traverser.value());
                 return false;
             }
@@ -130,9 +132,9 @@ bool CCategoryExamplesCollector::restoreExamples(core::CStateRestoreTraverser& t
         }
     } while (traverser.next());
 
-    LOG_TRACE(<< "Restoring examples for category " << category << ": "
+    LOG_TRACE(<< "Restoring examples for category " << categoryId << ": "
               << core::CContainerPrinter::print(examples));
-    m_ExamplesByCategory[category].swap(examples);
+    m_ExamplesByCategory[categoryId].swap(examples);
 
     return true;
 }
@@ -143,7 +145,7 @@ void CCategoryExamplesCollector::clear() {
 
 std::string CCategoryExamplesCollector::truncateExample(std::string example) {
     if (example.length() > MAX_EXAMPLE_LENGTH) {
-        size_t replacePos(MAX_EXAMPLE_LENGTH - ELLIPSIS.length());
+        std::size_t replacePos(MAX_EXAMPLE_LENGTH - ELLIPSIS.length());
 
         // Ensure truncation doesn't result in a partial UTF-8 character
         while (replacePos > 0 &&

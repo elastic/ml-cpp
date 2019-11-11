@@ -3,15 +3,15 @@
  * or more contributor license agreements. Licensed under the Elastic License;
  * you may not use this file except in compliance with the Elastic License.
  */
-#ifndef INCLUDED_ml_api_CTokenListDataTyper_h
-#define INCLUDED_ml_api_CTokenListDataTyper_h
+#ifndef INCLUDED_ml_model_CTokenListDataCategorizer_h
+#define INCLUDED_ml_model_CTokenListDataCategorizer_h
 
 #include <core/CLogger.h>
 #include <core/CStringSimilarityTester.h>
 #include <core/CTimeUtils.h>
 #include <core/CWordDictionary.h>
 
-#include <api/CBaseTokenListDataTyper.h>
+#include <model/CBaseTokenListDataCategorizer.h>
 
 #include <algorithm>
 #include <string>
@@ -19,7 +19,7 @@
 #include <ctype.h>
 
 namespace ml {
-namespace api {
+namespace model {
 
 //! \brief
 //! Concrete implementation class to categorise strings.
@@ -47,15 +47,15 @@ template<bool DO_WARPING = true,
          bool IGNORE_FIELD_NAMES = true,
          size_t MIN_DICTIONARY_LENGTH = 2,
          typename DICTIONARY_WEIGHT_FUNC = core::CWordDictionary::TWeightAll2>
-class CTokenListDataTyper : public CBaseTokenListDataTyper {
+class CTokenListDataCategorizer : public CBaseTokenListDataCategorizer {
 public:
-    //! Create a data typer with threshold for how comparable types are
-    //! 0.0 means everything is the same type
-    //! 1.0 means things have to match exactly to be the same type
-    CTokenListDataTyper(const TTokenListReverseSearchCreatorIntfCPtr& reverseSearchCreator,
-                        double threshold,
-                        const std::string& fieldName)
-        : CBaseTokenListDataTyper(reverseSearchCreator, threshold, fieldName),
+    //! Create a data categorizer with threshold for how comparable categories are
+    //! 0.0 means everything is the same category
+    //! 1.0 means things have to match exactly to be the same category
+    CTokenListDataCategorizer(const TTokenListReverseSearchCreatorIntfCPtr& reverseSearchCreator,
+                              double threshold,
+                              const std::string& fieldName)
+        : CBaseTokenListDataCategorizer(reverseSearchCreator, threshold, fieldName),
           m_Dict(core::CWordDictionary::instance()) {}
 
 protected:
@@ -241,4 +241,4 @@ private:
 }
 }
 
-#endif // INCLUDED_ml_api_CTokenListDataTyper_h
+#endif // INCLUDED_ml_model_CTokenListDataCategorizer_h

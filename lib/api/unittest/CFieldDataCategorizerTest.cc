@@ -11,7 +11,7 @@
 #include <model/CLimits.h>
 
 #include <api/CFieldConfig.h>
-#include <api/CFieldDataTyper.h>
+#include <api/CFieldDataCategorizer.h>
 #include <api/CJsonOutputWriter.h>
 #include <api/CNullOutput.h>
 #include <api/COutputChainer.h>
@@ -23,7 +23,7 @@
 
 #include <sstream>
 
-BOOST_AUTO_TEST_SUITE(CFieldDataTyperTest)
+BOOST_AUTO_TEST_SUITE(CFieldDataCategorizerTest)
 
 using namespace ml;
 using namespace api;
@@ -116,46 +116,46 @@ BOOST_AUTO_TEST_CASE(testAll) {
     core::CJsonOutputStreamWrapper wrappedOutputStream(outputStrm);
     CJsonOutputWriter writer("job", wrappedOutputStream);
 
-    CFieldDataTyper typer("job", config, limits, handler, writer);
+    CFieldDataCategorizer categorizer("job", config, limits, handler, writer);
     BOOST_REQUIRE_EQUAL(false, handler.isNewStream());
-    typer.newOutputStream();
+    categorizer.newOutputStream();
     BOOST_REQUIRE_EQUAL(true, handler.isNewStream());
 
     BOOST_REQUIRE_EQUAL(false, handler.hasFinalised());
-    BOOST_REQUIRE_EQUAL(uint64_t(0), typer.numRecordsHandled());
+    BOOST_REQUIRE_EQUAL(uint64_t(0), categorizer.numRecordsHandled());
 
-    CFieldDataTyper::TStrStrUMap dataRowFields;
+    CFieldDataCategorizer::TStrStrUMap dataRowFields;
     dataRowFields["message"] = "thing";
     dataRowFields["two"] = "other";
 
-    BOOST_TEST_REQUIRE(typer.handleRecord(dataRowFields));
+    BOOST_TEST_REQUIRE(categorizer.handleRecord(dataRowFields));
 
-    BOOST_REQUIRE_EQUAL(uint64_t(1), typer.numRecordsHandled());
-    BOOST_REQUIRE_EQUAL(typer.numRecordsHandled(), handler.getNumRows());
+    BOOST_REQUIRE_EQUAL(uint64_t(1), categorizer.numRecordsHandled());
+    BOOST_REQUIRE_EQUAL(categorizer.numRecordsHandled(), handler.getNumRows());
 
     // try a couple of erroneous cases
     dataRowFields.clear();
-    BOOST_TEST_REQUIRE(typer.handleRecord(dataRowFields));
+    BOOST_TEST_REQUIRE(categorizer.handleRecord(dataRowFields));
 
     dataRowFields["thing"] = "bling";
     dataRowFields["thang"] = "wing";
-    BOOST_TEST_REQUIRE(typer.handleRecord(dataRowFields));
+    BOOST_TEST_REQUIRE(categorizer.handleRecord(dataRowFields));
 
     dataRowFields["message"] = "";
     dataRowFields["thang"] = "wing";
-    BOOST_TEST_REQUIRE(typer.handleRecord(dataRowFields));
+    BOOST_TEST_REQUIRE(categorizer.handleRecord(dataRowFields));
 
-    BOOST_REQUIRE_EQUAL(uint64_t(4), typer.numRecordsHandled());
-    BOOST_REQUIRE_EQUAL(typer.numRecordsHandled(), handler.getNumRows());
+    BOOST_REQUIRE_EQUAL(uint64_t(4), categorizer.numRecordsHandled());
+    BOOST_REQUIRE_EQUAL(categorizer.numRecordsHandled(), handler.getNumRows());
 
-    typer.finalise();
+    categorizer.finalise();
     BOOST_TEST_REQUIRE(handler.hasFinalised());
 
     // do a persist / restore
     std::string origJson;
     {
         CTestDataAdder adder;
-        typer.persistState(adder, "");
+        categorizer.persistState(adder, "");
         std::ostringstream& ss = dynamic_cast<std::ostringstream&>(*adder.getStream());
         origJson = ss.str();
     }
@@ -170,13 +170,13 @@ BOOST_AUTO_TEST_CASE(testAll) {
         core::CJsonOutputStreamWrapper wrappedOutputStream2(outputStrm2);
         CJsonOutputWriter writer2("job", wrappedOutputStream2);
 
-        CFieldDataTyper newTyper("job", config2, limits2, handler2, writer2);
+        CFieldDataCategorizer newCategorizer("job", config2, limits2, handler2, writer2);
         CTestDataSearcher restorer(origJson);
         core_t::TTime time = 0;
-        newTyper.restoreState(restorer, time);
+        newCategorizer.restoreState(restorer, time);
 
         CTestDataAdder adder;
-        newTyper.persistState(adder, "");
+        newCategorizer.persistState(adder, "");
         std::ostringstream& ss = dynamic_cast<std::ostringstream&>(*adder.getStream());
         newJson = ss.str();
     }
@@ -194,18 +194,18 @@ BOOST_AUTO_TEST_CASE(testNodeReverseSearch) {
         core::CJsonOutputStreamWrapper wrappedOutputStream(outputStrm);
         CJsonOutputWriter writer("job", wrappedOutputStream);
 
-        CFieldDataTyper typer("job", config, limits, nullOutput, writer);
+        CFieldDataCategorizer categorizer("job", config, limits, nullOutput, writer);
 
-        CFieldDataTyper::TStrStrUMap dataRowFields;
+        CFieldDataCategorizer::TStrStrUMap dataRowFields;
         dataRowFields["message"] = "Node 1 started";
 
-        BOOST_TEST_REQUIRE(typer.handleRecord(dataRowFields));
+        BOOST_TEST_REQUIRE(categorizer.handleRecord(dataRowFields));
 
         dataRowFields["message"] = "Node 2 started";
 
-        BOOST_TEST_REQUIRE(typer.handleRecord(dataRowFields));
+        BOOST_TEST_REQUIRE(categorizer.handleRecord(dataRowFields));
 
-        typer.finalise();
+        categorizer.finalise();
     }
 
     const std::string& output = outputStrm.str();
@@ -235,14 +235,14 @@ BOOST_AUTO_TEST_CASE(testPassOnControlMessages) {
 
         CMockDataProcessor mockProcessor(nullOutput);
         COutputChainer outputChainer(mockProcessor);
-        CFieldDataTyper typer("job", config, limits, outputChainer, writer);
+        CFieldDataCategorizer categorizer("job", config, limits, outputChainer, writer);
 
-        CFieldDataTyper::TStrStrUMap dataRowFields;
+        CFieldDataCategorizer::TStrStrUMap dataRowFields;
         dataRowFields["."] = "f7";
 
-        BOOST_TEST_REQUIRE(typer.handleRecord(dataRowFields));
+        BOOST_TEST_REQUIRE(categorizer.handleRecord(dataRowFields));
 
-        typer.finalise();
+        categorizer.finalise();
     }
 
     const std::string& output = outputStrm.str();
@@ -261,14 +261,14 @@ BOOST_AUTO_TEST_CASE(testHandleControlMessages) {
         core::CJsonOutputStreamWrapper wrappedOutputStream(outputStrm);
         CJsonOutputWriter writer("job", wrappedOutputStream);
 
-        CFieldDataTyper typer("job", config, limits, nullOutput, writer, nullptr);
+        CFieldDataCategorizer categorizer("job", config, limits, nullOutput, writer, nullptr);
 
-        CFieldDataTyper::TStrStrUMap dataRowFields;
+        CFieldDataCategorizer::TStrStrUMap dataRowFields;
         dataRowFields["."] = "f7";
 
-        BOOST_TEST_REQUIRE(typer.handleRecord(dataRowFields));
+        BOOST_TEST_REQUIRE(categorizer.handleRecord(dataRowFields));
 
-        typer.finalise();
+        categorizer.finalise();
     }
 
     const std::string& output = outputStrm.str();
@@ -286,11 +286,11 @@ BOOST_AUTO_TEST_CASE(testRestoreStateFailsWithEmptyState) {
     CNullOutput nullOutput;
     core::CJsonOutputStreamWrapper wrappedOutputStream(outputStrm);
     CJsonOutputWriter writer("job", wrappedOutputStream);
-    CFieldDataTyper typer("job", config, limits, nullOutput, writer, nullptr);
+    CFieldDataCategorizer categorizer("job", config, limits, nullOutput, writer, nullptr);
 
     core_t::TTime completeToTime(0);
     CEmptySearcher restoreSearcher;
-    BOOST_TEST_REQUIRE(typer.restoreState(restoreSearcher, completeToTime) == false);
+    BOOST_TEST_REQUIRE(categorizer.restoreState(restoreSearcher, completeToTime) == false);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

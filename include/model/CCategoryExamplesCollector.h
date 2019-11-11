@@ -3,21 +3,22 @@
  * or more contributor license agreements. Licensed under the Elastic License;
  * you may not use this file except in compliance with the Elastic License.
  */
-#ifndef INCLUDED_ml_api_CCategoryExamplesCollector_h
-#define INCLUDED_ml_api_CCategoryExamplesCollector_h
+#ifndef INCLUDED_ml_model_CCategoryExamplesCollector_h
+#define INCLUDED_ml_model_CCategoryExamplesCollector_h
 
-#include <api/ImportExport.h>
+#include <model/ImportExport.h>
 
-#include <core/CStatePersistInserter.h>
-#include <core/CStateRestoreTraverser.h>
-
+#include <boost/container/flat_set.hpp>
 #include <boost/unordered_map.hpp>
 
-#include <set>
 #include <string>
 
 namespace ml {
-namespace api {
+namespace core {
+class CStatePersistInserter;
+class CStateRestoreTraverser;
+}
+namespace model {
 
 //! \brief
 //! Collects up to a configurable number of distinct examples per category
@@ -28,13 +29,13 @@ namespace api {
 //! small number of expected examples should be more performant than a
 //! traditional set.
 //!
-class API_EXPORT CCategoryExamplesCollector {
+class MODEL_EXPORT CCategoryExamplesCollector {
 public:
-    using TStrSet = std::set<std::string>;
-    using TStrSetCItr = TStrSet::const_iterator;
+    using TStrFSet = boost::container::flat_set<std::string>;
+    using TStrFSetCItr = TStrFSet::const_iterator;
 
     //! Truncate examples to be no longer than this
-    static const size_t MAX_EXAMPLE_LENGTH;
+    static const std::size_t MAX_EXAMPLE_LENGTH;
 
 public:
     CCategoryExamplesCollector(std::size_t maxExamples);
@@ -45,12 +46,12 @@ public:
     //! distinct example and if there are less than the maximum
     //! number of examples for the given category.
     //! Returns true if the example was added or false otherwise.
-    bool add(std::size_t category, const std::string& example);
+    bool add(int categoryId, const std::string& example);
 
     //! Returns the number of examples currently stored for a given category.
-    std::size_t numberOfExamplesForCategory(std::size_t category) const;
+    std::size_t numberOfExamplesForCategory(int categoryId) const;
 
-    const TStrSet& examples(std::size_t category) const;
+    const TStrFSet& examples(int categoryId) const;
 
     //! Persist state by passing information to the supplied inserter
     void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
@@ -62,11 +63,11 @@ public:
     void clear();
 
 private:
-    using TSizeStrSetUMap = boost::unordered_map<std::size_t, TStrSet>;
+    using TIntStrFSetUMap = boost::unordered_map<int, TStrFSet>;
 
 private:
-    void persistExamples(std::size_t category,
-                         const TStrSet& examples,
+    void persistExamples(int categoryId,
+                         const TStrFSet& examples,
                          core::CStatePersistInserter& inserter) const;
     bool restoreExamples(core::CStateRestoreTraverser& traverser);
 
@@ -79,9 +80,9 @@ private:
     std::size_t m_MaxExamples;
 
     //! A map from categories to the set that contains the examples
-    TSizeStrSetUMap m_ExamplesByCategory;
+    TIntStrFSetUMap m_ExamplesByCategory;
 };
 }
 }
 
-#endif // INCLUDED_ml_api_CCategoryExamplesCollector_h
+#endif // INCLUDED_ml_model_CCategoryExamplesCollector_h

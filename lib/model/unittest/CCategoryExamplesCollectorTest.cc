@@ -4,20 +4,20 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
-#include <api/CCategoryExamplesCollector.h>
-
 #include <core/CRapidXmlParser.h>
 #include <core/CRapidXmlStatePersistInserter.h>
 #include <core/CRapidXmlStateRestoreTraverser.h>
 
+#include <model/CCategoryExamplesCollector.h>
+
 #include <boost/test/unit_test.hpp>
 
-BOOST_TEST_DONT_PRINT_LOG_VALUE(ml::api::CCategoryExamplesCollector::TStrSet::iterator)
+BOOST_TEST_DONT_PRINT_LOG_VALUE(ml::model::CCategoryExamplesCollector::TStrFSet::iterator)
 
 BOOST_AUTO_TEST_SUITE(CCategoryExamplesCollectorTest)
 
 using namespace ml;
-using namespace api;
+using namespace model;
 
 BOOST_AUTO_TEST_CASE(testAddGivenMaxExamplesIsZero) {
     CCategoryExamplesCollector examplesCollector(0);
@@ -60,12 +60,12 @@ BOOST_AUTO_TEST_CASE(testExamples) {
     examplesCollector.add(1, "bar");
     examplesCollector.add(2, "foo");
 
-    CCategoryExamplesCollector::TStrSet examples1 = examplesCollector.examples(1);
+    CCategoryExamplesCollector::TStrFSet examples1 = examplesCollector.examples(1);
     BOOST_TEST_REQUIRE(examples1.find("foo") != examples1.end());
     BOOST_TEST_REQUIRE(examples1.find("bar") != examples1.end());
     BOOST_TEST_REQUIRE(examples1.find("invalid") == examples1.end());
 
-    CCategoryExamplesCollector::TStrSet examples2 = examplesCollector.examples(2);
+    CCategoryExamplesCollector::TStrFSet examples2 = examplesCollector.examples(2);
     BOOST_TEST_REQUIRE(examples2.find("foo") != examples2.end());
     BOOST_TEST_REQUIRE(examples2.find("invalid") == examples2.end());
 }

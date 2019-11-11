@@ -3,17 +3,18 @@
  * or more contributor license agreements. Licensed under the Elastic License;
  * you may not use this file except in compliance with the Elastic License.
  */
-#ifndef INCLUDED_ml_api_CFieldDataTyper_h
-#define INCLUDED_ml_api_CFieldDataTyper_h
+#ifndef INCLUDED_ml_api_CFieldDataCategorizer_h
+#define INCLUDED_ml_api_CFieldDataCategorizer_h
 
 #include <core/CRegexFilter.h>
 #include <core/CWordDictionary.h>
 #include <core/CoreTypes.h>
 
-#include <api/CCategoryExamplesCollector.h>
+#include <model/CCategoryExamplesCollector.h>
+#include <model/CDataCategorizer.h>
+#include <model/CTokenListDataCategorizer.h>
+
 #include <api/CDataProcessor.h>
-#include <api/CDataTyper.h>
-#include <api/CTokenListDataTyper.h>
 #include <api/ImportExport.h>
 
 #include <string>
@@ -43,7 +44,7 @@ class CPersistenceManager;
 //! Adds a new field called mlcategory and assigns to it
 //! integers that correspond to the various cateogories
 //!
-class API_EXPORT CFieldDataTyper : public CDataProcessor {
+class API_EXPORT CFieldDataCategorizer : public CDataProcessor {
 public:
     //! The index where state is stored
     static const std::string ML_STATE_INDEX;
@@ -59,36 +60,36 @@ public:
     static const std::string STATE_VERSION;
 
 public:
-    // A type of token list data typer that DOESN'T exclude fields from its
-    // analysis
-    using TTokenListDataTyperKeepsFields =
-        CTokenListDataTyper<true,  // Warping
-                            true,  // Underscores
-                            true,  // Dots
-                            true,  // Dashes
-                            true,  // Ignore leading digit
-                            true,  // Ignore hex
-                            true,  // Ignore date words
-                            false, // Ignore field names
-                            2,     // Min dictionary word length
-                            core::CWordDictionary::TWeightVerbs5Other2>;
+    // A type of token list data categorizer that DOESN'T exclude fields from
+    // its analysis
+    using TTokenListDataCategorizerKeepsFields =
+        model::CTokenListDataCategorizer<true,  // Warping
+                                         true,  // Underscores
+                                         true,  // Dots
+                                         true,  // Dashes
+                                         true,  // Ignore leading digit
+                                         true,  // Ignore hex
+                                         true,  // Ignore date words
+                                         false, // Ignore field names
+                                         2,     // Min dictionary word length
+                                         core::CWordDictionary::TWeightVerbs5Other2>;
 
 public:
     //! Construct without persistence capability
-    CFieldDataTyper(const std::string& jobId,
-                    const CFieldConfig& config,
-                    const model::CLimits& limits,
-                    COutputHandler& outputHandler,
-                    CJsonOutputWriter& jsonOutputWriter,
-                    CPersistenceManager* periodicPersister = nullptr);
+    CFieldDataCategorizer(const std::string& jobId,
+                          const CFieldConfig& config,
+                          const model::CLimits& limits,
+                          COutputHandler& outputHandler,
+                          CJsonOutputWriter& jsonOutputWriter,
+                          CPersistenceManager* periodicPersister = nullptr);
 
-    ~CFieldDataTyper() override;
+    ~CFieldDataCategorizer() override;
 
     //! We're going to be writing to a new output stream
     void newOutputStream() override;
 
-    //! Receive a single record to be typed, and output that record to
-    //! STDOUT with its type field added
+    //! Receive a single record to be categorized, and output that record
+    //! with its ML category field added
     bool handleRecord(const TStrStrUMap& dataRowFields) override;
 
     //! Perform any final processing once all input data has been seen.
@@ -115,20 +116,20 @@ public:
     COutputHandler& outputHandler() override;
 
 private:
-    //! Create the typer to operate on the categorization field
-    void createTyper(const std::string& fieldName);
+    //! Create the categorizer to operate on the categorization field
+    void createCategorizer(const std::string& fieldName);
 
-    //! Compute the type for a given record.
-    int computeType(const TStrStrUMap& dataRowFields);
+    //! Compute the category for a given record.
+    int computeCategory(const TStrStrUMap& dataRowFields);
 
     //! Create the reverse search and return true if it has changed or false otherwise
-    bool createReverseSearch(int type);
+    bool createReverseSearch(int categoryId);
 
-    bool doPersistState(const CDataTyper::TPersistFunc& dataTyperPersistFunc,
-                        const CCategoryExamplesCollector& examplesCollector,
+    bool doPersistState(const model::CDataCategorizer::TPersistFunc& dataCategorizerPersistFunc,
+                        const model::CCategoryExamplesCollector& examplesCollector,
                         core::CDataAdder& persister);
-    void acceptPersistInserter(const CDataTyper::TPersistFunc& dataTyperPersistFunc,
-                               const CCategoryExamplesCollector& examplesCollector,
+    void acceptPersistInserter(const model::CDataCategorizer::TPersistFunc& dataCategorizerPersistFunc,
+                               const model::CCategoryExamplesCollector& examplesCollector,
                                core::CStatePersistInserter& inserter) const;
     bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
 
@@ -146,9 +147,6 @@ private:
 
     //! Acknowledge a flush request
     void acknowledgeFlush(const std::string& flushId);
-
-private:
-    using TStrSet = CCategoryExamplesCollector::TStrSet;
 
 private:
     //! The job ID
@@ -182,14 +180,14 @@ private:
     //! The max matching length of the current category
     std::size_t m_MaxMatchingLength;
 
-    //! Pointer to the actual typer
-    CDataTyper::TDataTyperP m_DataTyper;
+    //! Pointer to the actual categorizer
+    model::CDataCategorizer::TDataCategorizerP m_DataCategorizer;
 
     //! Reference to the json output writer so that examples can be written
     CJsonOutputWriter& m_JsonOutputWriter;
 
     //! Collects up to a configurable number of examples per category
-    CCategoryExamplesCollector m_ExamplesCollector;
+    model::CCategoryExamplesCollector m_ExamplesCollector;
 
     //! Which field name are we categorizing?
     std::string m_CategorizationFieldName;
@@ -205,4 +203,4 @@ private:
 }
 }
 
-#endif // INCLUDED_ml_api_CFieldDataTyper_h
+#endif // INCLUDED_ml_api_CFieldDataCategorizer_h

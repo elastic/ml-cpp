@@ -3,29 +3,31 @@
  * or more contributor license agreements. Licensed under the Elastic License;
  * you may not use this file except in compliance with the Elastic License.
  */
-#ifndef INCLUDED_ml_api_CTokenListReverseSearchCreator_h
-#define INCLUDED_ml_api_CTokenListReverseSearchCreator_h
+#ifndef INCLUDED_ml_model_CTokenListReverseSearchCreator_h
+#define INCLUDED_ml_model_CTokenListReverseSearchCreator_h
 
-#include <api/CTokenListReverseSearchCreatorIntf.h>
+#include <model/CTokenListReverseSearchCreatorIntf.h>
 
 namespace ml {
-namespace api {
+namespace model {
 
 //! \brief
-//! Create Engine API reverse searches for categories of events.
+//! Create reverse searches for categories of events.
 //!
 //! DESCRIPTION:\n
-//! Creates Engine API reverse searches for categories of events defined
-//! by lists of tokens. In particular, the search has two parts. The first
-//! part is a space separated list of the search terms. The second part
-//! is a regex to be used in order to match values of the categorized field
+//! Creates reverse searches for categories of events defined by lists
+//! of tokens. In particular, the search has two parts. The first part
+//! is a space separated list of the search terms. The second part is
+//! a regex to be used in order to match values of the categorized field
 //! for the category in question.
 //!
 //! IMPLEMENTATION DECISIONS:\n
-//! The Engine API reverse search has the space separated list of the tokens
-//! and the regex because most modern index-based storages accept such searches.
+//! The reverse search includes the space separated list of the tokens as
+//! the fast way to search the inverted index, plus the regex to confirm
+//! the tokens are in the required order and maximum length to prevent
+//! short token lists matching much longer messages.
 //!
-class API_EXPORT CTokenListReverseSearchCreator : public CTokenListReverseSearchCreatorIntf {
+class MODEL_EXPORT CTokenListReverseSearchCreator : public CTokenListReverseSearchCreatorIntf {
 public:
     CTokenListReverseSearchCreator(const std::string& fieldName);
 
@@ -81,4 +83,4 @@ public:
 }
 }
 
-#endif // INCLUDED_ml_api_CTokenListReverseSearchCreator_h
+#endif // INCLUDED_ml_model_CTokenListReverseSearchCreator_h

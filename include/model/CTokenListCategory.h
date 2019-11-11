@@ -3,10 +3,10 @@
  * or more contributor license agreements. Licensed under the Elastic License;
  * you may not use this file except in compliance with the Elastic License.
  */
-#ifndef INCLUDED_ml_api_CTokenListType_h
-#define INCLUDED_ml_api_CTokenListType_h
+#ifndef INCLUDED_ml_model_CTokenListCategory_h
+#define INCLUDED_ml_model_CTokenListCategory_h
 
-#include <api/ImportExport.h>
+#include <model/ImportExport.h>
 
 #include <map>
 #include <string>
@@ -18,23 +18,23 @@ namespace core {
 class CStatePersistInserter;
 class CStateRestoreTraverser;
 }
-namespace api {
+namespace model {
 
 //! \brief
-//! The data associated with this Ml 'type'
+//! The data associated with this ML category
 //!
 //! DESCRIPTION:\n
-//! The data associated with this Ml 'type'
+//! The data associated with this ML category
 //!
 //! IMPLEMENTATION DECISIONS:\n
-//! Base the type on a string
+//! Base the category on a string
 //!
 //! Token IDs are stored rather than the actual string tokens.
-//! This improves performance.  The CTokenListDataTyper object
+//! This improves performance.  The CTokenListDataCategorizer object
 //! that created this object knows the mappings between the
 //! token IDs and string tokens.
 //!
-class API_EXPORT CTokenListType {
+class MODEL_EXPORT CTokenListCategory {
 public:
     //! Used to associate tokens with weightings:
     //! first -> token ID
@@ -52,18 +52,18 @@ public:
     using TSizeSizeMapCItr = TSizeSizeMap::const_iterator;
 
 public:
-    //! Create a new type
-    CTokenListType(bool isDryRun,
-                   const std::string& baseString,
-                   size_t rawStringLen,
-                   const TSizeSizePrVec& baseTokenIds,
-                   size_t baseWeight,
-                   const TSizeSizeMap& uniqueTokenIds);
+    //! Create a new category
+    CTokenListCategory(bool isDryRun,
+                       const std::string& baseString,
+                       size_t rawStringLen,
+                       const TSizeSizePrVec& baseTokenIds,
+                       size_t baseWeight,
+                       const TSizeSizeMap& uniqueTokenIds);
 
     //! Constructor used when restoring from XML
-    CTokenListType(core::CStateRestoreTraverser& traverser);
+    CTokenListCategory(core::CStateRestoreTraverser& traverser);
 
-    //! Add string to this type with a double indicating
+    //! Add string to this category with a double indicating
     //! how well matched the string is
     bool addString(bool isDryRun,
                    const std::string& str,
@@ -82,17 +82,17 @@ public:
     size_t maxStringLen() const;
     size_t outOfOrderCommonTokenIndex() const;
 
-    //! What's the longest string we'll consider a match for this type?
+    //! What's the longest string we'll consider a match for this category?
     //! Currently simply 10% longer than the longest string we've seen.
     size_t maxMatchingStringLen() const;
 
     //! What is the weight of tokens in a given map that are missing from
-    //! this type's common unique tokens?
+    //! this category's common unique tokens?
     size_t missingCommonTokenWeight(const TSizeSizeMap& uniqueTokenIds) const;
 
     //! Is the weight of tokens in a given map that are missing from this
-    //! type's common unique tokens equal to zero?  It is possible to test:
-    //!     if (type.missingCommonTokenWeight(uniqueTokenIds) == 0)
+    //! category's common unique tokens equal to zero?  It is possible to test:
+    //!     if (category.missingCommonTokenWeight(uniqueTokenIds) == 0)
     //! instead of calling this method.  However, this method is much faster
     //! as it can return false as soon as a mismatch occurs.
     bool isMissingCommonTokenWeightZero(const TSizeSizeMap& uniqueTokenIds) const;
@@ -117,7 +117,7 @@ private:
     bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
 
 private:
-    //! The string and tokens we base this type on
+    //! The string and tokens we base this category on
     std::string m_BaseString;
     TSizeSizePrVec m_BaseTokenIds;
 
@@ -125,27 +125,27 @@ private:
     size_t m_BaseWeight;
 
     //! The maximum original length of all the strings that have been
-    //! classified as this type.  The original length may be longer than the
+    //! classified as this category.  The original length may be longer than the
     //! length of the strings in passed to the addString() method, because
     //! it will include the date.
     size_t m_MaxStringLen;
 
     //! The index into the base token IDs that we should stop at when
     //! generating an ordered regex, because subsequent common token IDs are
-    //! not in the same order for all strings of this type.
+    //! not in the same order for all strings of this category.
     size_t m_OutOfOrderCommonTokenIndex;
 
-    //! The unique token IDs that all strings classified to be this type
+    //! The unique token IDs that all strings classified to be this category
     //! contain.  This vector must always be sorted into ascending order.
     TSizeSizePrVec m_CommonUniqueTokenIds;
 
     //! Cache the weight of the common unique tokens
     size_t m_CommonUniqueTokenWeight;
 
-    //! What was the weight of the original unique tokens (i.e. when the type
+    //! What was the weight of the original unique tokens (i.e. when the category
     //! only represented one string)?  Remembering this means we can ensure
     //! that the degree of commonality doesn't fall below a certain level as
-    //! the number of strings classified as this type grows.
+    //! the number of strings classified as this category grows.
     size_t m_OrigUniqueTokenWeight;
 
     //! Number of matched strings
@@ -158,4 +158,4 @@ private:
 }
 }
 
-#endif // INCLUDED_ml_api_CTokenListType_h
+#endif // INCLUDED_ml_model_CTokenListCategory_h

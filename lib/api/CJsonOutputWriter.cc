@@ -848,7 +848,7 @@ void CJsonOutputWriter::writeCategoryDefinition(int categoryId,
                                                 const std::string& terms,
                                                 const std::string& regex,
                                                 std::size_t maxMatchingFieldLength,
-                                                const TStrSet& examples) {
+                                                const TStrFSet& examples) {
     m_Writer.StartObject();
     m_Writer.String(CATEGORY_DEFINITION);
     m_Writer.StartObject();
@@ -864,7 +864,7 @@ void CJsonOutputWriter::writeCategoryDefinition(int categoryId,
     m_Writer.Uint64(maxMatchingFieldLength);
     m_Writer.String(EXAMPLES);
     m_Writer.StartArray();
-    for (TStrSetCItr itr = examples.begin(); itr != examples.end(); ++itr) {
+    for (TStrFSetCItr itr = examples.begin(); itr != examples.end(); ++itr) {
         const std::string& example = *itr;
         m_Writer.String(example);
     }
