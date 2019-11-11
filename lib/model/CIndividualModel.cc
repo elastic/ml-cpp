@@ -35,6 +35,7 @@ namespace model {
 
 namespace {
 
+using TDouble2Vec = core::CSmallVector<double, 2>;
 using TStrCRef = std::reference_wrapper<const std::string>;
 using TStrCRefUInt64Map = std::map<TStrCRef, uint64_t, maths::COrderings::SLess>;
 using TStrCRefStrCRefPr = std::pair<TStrCRef, TStrCRef>;
@@ -68,6 +69,7 @@ const std::string FEATURE_CORRELATE_MODELS_TAG("f");
 //const std::string EXTRA_DATA_TAG("g");
 //const std::string INTERIM_BUCKET_CORRECTOR_TAG("h");
 const std::string MEMORY_ESTIMATOR_TAG("i");
+const std::string UPGRADING_PRE_7_5_STATE("j");
 }
 
 CIndividualModel::CIndividualModel(const SModelParams& params,
@@ -350,10 +352,12 @@ void CIndividualModel::doAcceptPersistInserter(core::CStatePersistInserter& inse
                                        &feature, std::placeholders::_1));
     }
     core::CPersistUtils::persist(MEMORY_ESTIMATOR_TAG, m_MemoryEstimator, inserter);
+    inserter.insertValue(UPGRADING_PRE_7_5_STATE, false);
 }
 
 bool CIndividualModel::doAcceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
-    std::size_t i = 0u, j = 0u;
+    std::size_t i{0}, j{0};
+    bool upgradingPre7p5State{true};
     do {
         const std::string& name = traverser.name();
         RESTORE_SETUP_TEARDOWN(WINDOW_BUCKET_COUNT_TAG, double count,
@@ -378,13 +382,35 @@ bool CIndividualModel::doAcceptRestoreTraverser(core::CStateRestoreTraverser& tr
                         std::cref(this->params()), std::placeholders::_1)))
         RESTORE(MEMORY_ESTIMATOR_TAG,
                 core::CPersistUtils::restore(MEMORY_ESTIMATOR_TAG, m_MemoryEstimator, traverser))
+        RESTORE_BUILT_IN(UPGRADING_PRE_7_5_STATE, upgradingPre7p5State)
     } while (traverser.next());
 
+    const double DEFAULT_CUTOFF_TO_MODEL_EMPTY_BUCKETS{0.2};
+
     for (auto& feature : m_FeatureModels) {
-        for (auto& model : feature.s_Models) {
+
+        std::size_t dimension{model_t::dimension(feature.s_Feature)};
+        maths::CModelAddSamplesParams::TDouble2VecWeightsAryVec weights{
+            maths_t::CUnitWeights::unit<TDouble2Vec>(dimension)};
+        maths_t::setCount(TDouble2Vec(dimension, 50.0), weights[0]);
+        maths::CModelAddSamplesParams params;
+        params.integer(true)
+            .nonNegative(true)
+            .propagationInterval(1.0)
+            .trendWeights(weights)
+            .priorWeights(weights);
+
+        for (std::size_t pid = 0; pid < feature.s_Models.size(); ++pid) {
+            if (upgradingPre7p5State &&
+                this->personFrequency(pid) < DEFAULT_CUTOFF_TO_MODEL_EMPTY_BUCKETS) {
+                maths::CModel::TTimeDouble2VecSizeTrVec value{core::make_triple(
+                    this->lastBucketTimes()[pid], TDouble2Vec(dimension, 0.0),
+                    model_t::INDIVIDUAL_ANALYSIS_ATTRIBUTE_ID)};
+                feature.s_Models[pid]->addSamples(params, value);
+            }
             for (const auto& correlates : m_FeatureCorrelatesModels) {
                 if (feature.s_Feature == correlates.s_Feature) {
-                    model->modelCorrelations(*correlates.s_Models);
+                    feature.s_Models[pid]->modelCorrelations(*correlates.s_Models);
                 }
             }
         }
