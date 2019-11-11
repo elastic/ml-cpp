@@ -135,8 +135,8 @@ void CBenchMarker::dumpResults() const {
              << counts.size() << core_t::LINE_ENDING;
 
         if (counts.size() == 1) {
-            size_t count(counts.begin()->second.first);
-            int categoryId(counts.begin()->first);
+            size_t count{counts.begin()->second.first};
+            int categoryId{counts.begin()->first};
             if (usedCategories.find(categoryId) != usedCategories.end()) {
                 strm << "\t\t" << count << "\t(CATEGORY ALREADY USED)\t"
                      << counts.begin()->second.second << core_t::LINE_ENDING;
@@ -150,11 +150,11 @@ void CBenchMarker::dumpResults() const {
             // Assume the category with the count closest to the actual count is
             // good (as long as it's not already used), and all other categories
             // are bad.
-            size_t max(0);
-            int maxCategoryId(-1);
+            size_t max{0};
+            int maxCategoryId{-1};
             for (TIntSizeStrPrMapCItr mapIter = counts.begin();
                  mapIter != counts.end(); ++mapIter) {
-                int categoryId(mapIter->first);
+                int categoryId{mapIter->first};
 
                 size_t count(mapIter->second.first);
                 const std::string& example = mapIter->second.second;
