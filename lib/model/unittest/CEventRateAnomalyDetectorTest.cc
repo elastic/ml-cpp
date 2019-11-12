@@ -271,7 +271,7 @@ BOOST_AUTO_TEST_CASE(testPersist) {
                       &restoredDetector, EMPTY_STRING, std::placeholders::_1)));
     }
 
-    // The XML representation of the new typer should be the same as the original
+    // The XML representation of the new detector should be the same as the original
     std::string newXml;
     {
         ml::core::CRapidXmlStatePersistInserter inserter("root");

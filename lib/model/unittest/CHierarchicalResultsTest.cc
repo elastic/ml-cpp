@@ -1571,7 +1571,7 @@ BOOST_AUTO_TEST_CASE(testNormalizer) {
         CNodeExtractor extract;
         results.bottomUpBreadthFirst(extract);
 
-        LOG_DEBUG(<< "** Iteration = " << i << " **");
+        LOG_TRACE(<< "** Iteration = " << i << " **");
         TNodeCPtrSet nodes;
 
         TDoubleVec normalized;
@@ -1623,10 +1623,10 @@ BOOST_AUTO_TEST_CASE(testNormalizer) {
                 expectedNormalized.push_back(score);
             }
         }
-        LOG_DEBUG(<< "* leaf *");
-        LOG_DEBUG(<< "expectedNormalized = "
+        LOG_TRACE(<< "* leaf *");
+        LOG_TRACE(<< "expectedNormalized = "
                   << core::CContainerPrinter::print(expectedNormalized));
-        LOG_DEBUG(<< "normalized         = " << core::CContainerPrinter::print(normalized));
+        LOG_TRACE(<< "normalized         = " << core::CContainerPrinter::print(normalized));
         BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(expectedNormalized),
                             core::CContainerPrinter::print(normalized));
 
@@ -1656,10 +1656,10 @@ BOOST_AUTO_TEST_CASE(testNormalizer) {
                 expectedNormalized.push_back(score);
             }
         }
-        LOG_DEBUG(<< "* person *");
-        LOG_DEBUG(<< "expectedNormalized = "
+        LOG_TRACE(<< "* person *");
+        LOG_TRACE(<< "expectedNormalized = "
                   << core::CContainerPrinter::print(expectedNormalized));
-        LOG_DEBUG(<< "normalized         = " << core::CContainerPrinter::print(normalized));
+        LOG_TRACE(<< "normalized         = " << core::CContainerPrinter::print(normalized));
         BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(expectedNormalized),
                             core::CContainerPrinter::print(normalized));
 
@@ -1689,10 +1689,10 @@ BOOST_AUTO_TEST_CASE(testNormalizer) {
                 expectedNormalized.push_back(score);
             }
         }
-        LOG_DEBUG(<< "* partition *");
-        LOG_DEBUG(<< "expectedNormalized = "
+        LOG_TRACE(<< "* partition *");
+        LOG_TRACE(<< "expectedNormalized = "
                   << core::CContainerPrinter::print(expectedNormalized));
-        LOG_DEBUG(<< "normalized         = " << core::CContainerPrinter::print(normalized));
+        LOG_TRACE(<< "normalized         = " << core::CContainerPrinter::print(normalized));
         BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(expectedNormalized),
                             core::CContainerPrinter::print(normalized));
 
@@ -1706,9 +1706,9 @@ BOOST_AUTO_TEST_CASE(testNormalizer) {
         expectedNormalizers.find(std::string("r"))->second->isForMembersOfPopulation(false);
         expectedNormalizers.find(std::string("r"))->second->updateQuantiles({"", "", "", ""}, score);
         expectedNormalizers.find(std::string("r"))->second->normalize({"", "", "bucket_time", ""}, score);
-        LOG_DEBUG(<< "* root *");
-        LOG_DEBUG(<< "expectedNormalized = " << results.root()->s_NormalizedAnomalyScore);
-        LOG_DEBUG(<< "normalized         = " << score);
+        LOG_TRACE(<< "* root *");
+        LOG_TRACE(<< "expectedNormalized = " << results.root()->s_NormalizedAnomalyScore);
+        LOG_TRACE(<< "normalized         = " << score);
         BOOST_REQUIRE_CLOSE_ABSOLUTE(results.root()->s_NormalizedAnomalyScore, score, 1e-10);
     }
 

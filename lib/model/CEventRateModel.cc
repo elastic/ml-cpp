@@ -113,17 +113,13 @@ void CEventRateModel::acceptPersistInserter(core::CStatePersistInserter& inserte
 bool CEventRateModel::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
     do {
         const std::string& name = traverser.name();
-        if (name == INDIVIDUAL_STATE_TAG) {
-            if (traverser.traverseSubLevel(std::bind(&CEventRateModel::doAcceptRestoreTraverser,
-                                                     this, std::placeholders::_1)) == false) {
-                // Logging handled already.
-                return false;
-            }
-        } else if (name == PROBABILITY_PRIOR_TAG) {
-            maths::CMultinomialConjugate prior(
-                this->params().distributionRestoreParams(maths_t::E_DiscreteData), traverser);
-            m_ProbabilityPrior.swap(prior);
-        }
+        RESTORE(INDIVIDUAL_STATE_TAG,
+                traverser.traverseSubLevel(std::bind(&CEventRateModel::doAcceptRestoreTraverser,
+                                                     this, std::placeholders::_1)))
+        RESTORE_NO_ERROR(
+            PROBABILITY_PRIOR_TAG,
+            m_ProbabilityPrior = maths::CMultinomialConjugate(
+                this->params().distributionRestoreParams(maths_t::E_DiscreteData), traverser))
     } while (traverser.next());
 
     return true;

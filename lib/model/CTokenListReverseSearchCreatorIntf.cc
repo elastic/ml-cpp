@@ -3,10 +3,10 @@
  * or more contributor license agreements. Licensed under the Elastic License;
  * you may not use this file except in compliance with the Elastic License.
  */
-#include <api/CTokenListReverseSearchCreatorIntf.h>
+#include <model/CTokenListReverseSearchCreatorIntf.h>
 
 namespace ml {
-namespace api {
+namespace model {
 
 CTokenListReverseSearchCreatorIntf::CTokenListReverseSearchCreatorIntf(const std::string& fieldName)
     : m_FieldName(fieldName) {

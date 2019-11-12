@@ -13,6 +13,7 @@
 #include <model/CHierarchicalResultsNormalizer.h>
 #include <model/ModelTypes.h>
 
+#include <api/CFieldConfig.h>
 #include <api/CModelSizeStatsJsonWriter.h>
 #include <api/CModelSnapshotJsonWriter.h>
 
@@ -73,6 +74,9 @@ const std::string PROCESSING_TIME("processing_time_ms");
 const std::string TIME_INFLUENCER("bucket_time");
 const std::string SCHEDULED_EVENTS("scheduled_events");
 const std::string QUANTILES("quantiles");
+const std::string GEO_RESULTS("geo_results");
+const std::string ACTUAL_POINT("actual_point");
+const std::string TYPICAL_POINT("typical_point");
 
 //! Get a numeric field from a JSON document.
 //! Assumes the document contains the field.
@@ -553,6 +557,24 @@ void CJsonOutputWriter::addMetricFields(const CHierarchicalResultsWriter::TResul
                                      results.s_FunctionDescription, *docPtr);
     m_Writer.addDoubleArrayFieldToObj(TYPICAL, results.s_BaselineMean, *docPtr);
     m_Writer.addDoubleArrayFieldToObj(ACTUAL, results.s_CurrentMean, *docPtr);
+    if (results.s_FunctionName == CFieldConfig::FUNCTION_LAT_LONG) {
+        rapidjson::Value geoResults = m_Writer.makeObject();
+        auto geoPointToString = [](const auto& point) -> std::string {
+            std::ostringstream result;
+            // We don't want scientific notation and geo points only have precision up to 12 digits
+            result << std::fixed << std::setprecision(12) << point[0] << "," << point[1];
+            return result.str();
+        };
+        if (results.s_BaselineMean.size() == 2) {
+            m_Writer.addStringFieldCopyToObj(
+                TYPICAL_POINT, geoPointToString(results.s_BaselineMean), geoResults);
+        }
+        if (results.s_CurrentMean.size() == 2) {
+            m_Writer.addStringFieldCopyToObj(
+                ACTUAL_POINT, geoPointToString(results.s_CurrentMean), geoResults);
+        }
+        m_Writer.addMember(GEO_RESULTS, geoResults, *docPtr);
+    }
 }
 
 void CJsonOutputWriter::addPopulationFields(const CHierarchicalResultsWriter::TResults& results,
@@ -653,6 +675,24 @@ void CJsonOutputWriter::addPopulationCauseFields(const CHierarchicalResultsWrite
                                      results.s_FunctionDescription, *docPtr);
     m_Writer.addDoubleArrayFieldToObj(TYPICAL, results.s_PopulationAverage, *docPtr);
     m_Writer.addDoubleArrayFieldToObj(ACTUAL, results.s_FunctionValue, *docPtr);
+    if (results.s_FunctionName == CFieldConfig::FUNCTION_LAT_LONG) {
+        rapidjson::Value geoResults = m_Writer.makeObject();
+        auto geoPointToString = [](const auto& point) -> std::string {
+            std::ostringstream result;
+            // We don't want scientific notation and geo points only have precision up to 12 digits
+            result << std::fixed << std::setprecision(12) << point[0] << "," << point[1];
+            return result.str();
+        };
+        if (results.s_BaselineMean.size() == 2) {
+            m_Writer.addStringFieldCopyToObj(
+                TYPICAL_POINT, geoPointToString(results.s_PopulationAverage), geoResults);
+        }
+        if (results.s_FunctionValue.size() == 2) {
+            m_Writer.addStringFieldCopyToObj(
+                ACTUAL_POINT, geoPointToString(results.s_FunctionValue), geoResults);
+        }
+        m_Writer.addMember(GEO_RESULTS, geoResults, *docPtr);
+    }
 }
 
 void CJsonOutputWriter::addInfluences(const CHierarchicalResultsWriter::TStoredStringPtrStoredStringPtrPrDoublePrVec& influenceResults,
@@ -848,7 +888,7 @@ void CJsonOutputWriter::writeCategoryDefinition(int categoryId,
                                                 const std::string& terms,
                                                 const std::string& regex,
                                                 std::size_t maxMatchingFieldLength,
-                                                const TStrSet& examples) {
+                                                const TStrFSet& examples) {
     m_Writer.StartObject();
     m_Writer.String(CATEGORY_DEFINITION);
     m_Writer.StartObject();
@@ -864,7 +904,7 @@ void CJsonOutputWriter::writeCategoryDefinition(int categoryId,
     m_Writer.Uint64(maxMatchingFieldLength);
     m_Writer.String(EXAMPLES);
     m_Writer.StartArray();
-    for (TStrSetCItr itr = examples.begin(); itr != examples.end(); ++itr) {
+    for (TStrFSetCItr itr = examples.begin(); itr != examples.end(); ++itr) {
         const std::string& example = *itr;
         m_Writer.String(example);
     }

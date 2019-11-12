@@ -186,7 +186,6 @@ BOOST_AUTO_TEST_CASE(testDataPropagation) {
     test::CRandomNumbers rng;
 
     for (std::size_t i = 1u; i <= 100; ++i) {
-        LOG_DEBUG(<< "Test " << i);
         TDoubleVec samples;
         rng.generateUniformSamples(-400.0, 400.0, 1000, samples);
         {
@@ -220,14 +219,13 @@ BOOST_AUTO_TEST_CASE(testFilter) {
     test::CRandomNumbers rng;
 
     for (std::size_t i = 1u; i <= 100; ++i) {
-        LOG_DEBUG(<< "Test " << i);
         TDoubleVec samples1;
         rng.generateUniformSamples(-400.0, 400.0, 4000, samples1);
         TDoubleVec samples2;
         rng.generateUniformSamples(-500.0, 500.0, 40, samples2);
 
         {
-            LOG_DEBUG(<< "Vector2");
+            LOG_TRACE(<< "Vector2");
             maths::CKdTree<TVector2, CKMeansForTest<TVector2>::TKdTreeNodeData> tree;
 
             TVector2Vec points;
@@ -239,7 +237,7 @@ BOOST_AUTO_TEST_CASE(testFilter) {
             for (std::size_t j = 0u; j < samples2.size(); j += 2) {
                 centres.push_back(TVector2(&samples2[j], &samples2[j + 2]));
             }
-            LOG_DEBUG(<< "  centres = " << core::CContainerPrinter::print(centres));
+            LOG_TRACE(<< "centres = " << core::CContainerPrinter::print(centres));
             tree.postorderDepthFirst(CKMeansForTest<TVector2>::TDataPropagator());
 
             std::size_t numberAdmitted = 0;
@@ -248,12 +246,12 @@ BOOST_AUTO_TEST_CASE(testFilter) {
             double speedup = static_cast<double>(points.size()) *
                              static_cast<double>(centres.size()) /
                              static_cast<double>(numberAdmitted);
-            LOG_DEBUG(<< "  speedup = " << speedup);
+            LOG_TRACE(<< "speedup = " << speedup);
             BOOST_TEST_REQUIRE(speedup > 30.0);
         }
 
         {
-            LOG_DEBUG(<< "Vector4");
+            LOG_TRACE(<< "Vector4");
             maths::CKdTree<TVector4, CKMeansForTest<TVector4>::TKdTreeNodeData> tree;
 
             TVector4Vec points;
@@ -265,7 +263,7 @@ BOOST_AUTO_TEST_CASE(testFilter) {
             for (std::size_t j = 0u; j < samples2.size(); j += 4) {
                 centres.push_back(TVector4(&samples2[j], &samples2[j + 4]));
             }
-            LOG_DEBUG(<< "  centres = " << core::CContainerPrinter::print(centres));
+            LOG_TRACE(<< "centres = " << core::CContainerPrinter::print(centres));
             tree.postorderDepthFirst(CKMeansForTest<TVector4>::TDataPropagator());
 
             std::size_t numberAdmitted = 0;
@@ -274,7 +272,7 @@ BOOST_AUTO_TEST_CASE(testFilter) {
             double speedup = static_cast<double>(points.size()) *
                              static_cast<double>(centres.size()) /
                              static_cast<double>(numberAdmitted);
-            LOG_DEBUG(<< "  speedup = " << speedup);
+            LOG_TRACE(<< "speedup = " << speedup);
             BOOST_TEST_REQUIRE(speedup > 5.5);
         }
     }
@@ -288,7 +286,6 @@ BOOST_AUTO_TEST_CASE(testCentroids) {
     test::CRandomNumbers rng;
 
     for (std::size_t i = 1u; i <= 100; ++i) {
-        LOG_DEBUG(<< "Test " << i);
         TDoubleVec samples1;
         rng.generateUniformSamples(-400.0, 400.0, 4000, samples1);
         TDoubleVec samples2;
@@ -317,15 +314,15 @@ BOOST_AUTO_TEST_CASE(testCentroids) {
             for (std::size_t j = 0u; j < points.size(); ++j) {
                 expectedCentroids[closest(centres, points[j]).first].add(points[j]);
             }
-            LOG_DEBUG(<< "  expected centroids = "
+            LOG_TRACE(<< "expected centroids = "
                       << core::CContainerPrinter::print(expectedCentroids));
-            LOG_DEBUG(<< "  centroids          = "
+            LOG_TRACE(<< "centroids          = "
                       << core::CContainerPrinter::print(centroids));
             BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(expectedCentroids),
                                 core::CContainerPrinter::print(centroids));
         }
         {
-            LOG_DEBUG(<< "Vector4");
+            LOG_TRACE(<< "Vector4");
             maths::CKdTree<TVector4, CKMeansForTest<TVector4>::TKdTreeNodeData> tree;
 
             TVector4Vec points;
@@ -347,9 +344,9 @@ BOOST_AUTO_TEST_CASE(testCentroids) {
             for (std::size_t j = 0u; j < points.size(); ++j) {
                 expectedCentroids[closest(centres, points[j]).first].add(points[j]);
             }
-            LOG_DEBUG(<< "  expected centroids = "
+            LOG_TRACE(<< "expected centroids = "
                       << core::CContainerPrinter::print(expectedCentroids));
-            LOG_DEBUG(<< "  centroids          = "
+            LOG_TRACE(<< "centroids          = "
                       << core::CContainerPrinter::print(centroids));
             BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(expectedCentroids),
                                 core::CContainerPrinter::print(centroids));
@@ -366,7 +363,6 @@ BOOST_AUTO_TEST_CASE(testClosestPoints) {
     test::CRandomNumbers rng;
 
     for (std::size_t i = 1u; i <= 100; ++i) {
-        LOG_DEBUG(<< "Test " << i);
         TDoubleVec samples1;
         rng.generateUniformSamples(-400.0, 400.0, 4000, samples1);
         TDoubleVec samples2;
@@ -432,8 +428,6 @@ BOOST_AUTO_TEST_CASE(testRun) {
     test::CRandomNumbers rng;
 
     for (std::size_t t = 1u; t <= 100; ++t) {
-        LOG_DEBUG(<< "Test " << t);
-
         TDoubleVec samples1;
         rng.generateUniformSamples(-400.0, 400.0, 4000, samples1);
         TDoubleVec samples2;
@@ -458,10 +452,10 @@ BOOST_AUTO_TEST_CASE(testRun) {
             bool fastConverged = kmeansFast.run(25);
             bool converged = kmeans(points, 25, centres);
 
-            LOG_DEBUG(<< "converged      = " << converged);
-            LOG_DEBUG(<< "fast converged = " << fastConverged);
-            LOG_DEBUG(<< "centres      = " << core::CContainerPrinter::print(centres));
-            LOG_DEBUG(<< "fast centres = "
+            LOG_TRACE(<< "converged      = " << converged);
+            LOG_TRACE(<< "fast converged = " << fastConverged);
+            LOG_TRACE(<< "centres      = " << core::CContainerPrinter::print(centres));
+            LOG_TRACE(<< "fast centres = "
                       << core::CContainerPrinter::print(kmeansFast.centres()));
             BOOST_REQUIRE_EQUAL(converged, fastConverged);
             BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(centres),
@@ -488,8 +482,6 @@ BOOST_AUTO_TEST_CASE(testRunWithSphericalClusters) {
     test::CRandomNumbers rng;
 
     for (std::size_t t = 0u; t < 50; ++t) {
-        LOG_DEBUG(<< "*** trial = " << t + 1 << " ***");
-
         TVector2Vec points;
         TSphericalCluster2Vec clusters;
 
@@ -517,7 +509,7 @@ BOOST_AUTO_TEST_CASE(testRunWithSphericalClusters) {
         TSphericalCluster2Vec centresClusters;
         centresClusters.push_back(TVector2(&coordinates[0], &coordinates[2]));
         centresClusters.push_back(TVector2(&coordinates[2], &coordinates[4]));
-        LOG_DEBUG(<< "centres = " << core::CContainerPrinter::print(centresClusters));
+        LOG_TRACE(<< "centres = " << core::CContainerPrinter::print(centresClusters));
 
         maths::CKMeans<TVector2> kmeansPoints;
         kmeansPoints.setPoints(points);
@@ -536,9 +528,9 @@ BOOST_AUTO_TEST_CASE(testRunWithSphericalClusters) {
         std::sort(kmeansPointsCentres.begin(), kmeansPointsCentres.end());
         std::sort(kmeansClustersCentres.begin(), kmeansClustersCentres.end());
 
-        LOG_DEBUG(<< "k-means points   = "
+        LOG_TRACE(<< "k-means points   = "
                   << core::CContainerPrinter::print(kmeansPointsCentres));
-        LOG_DEBUG(<< "k-means clusters = "
+        LOG_TRACE(<< "k-means clusters = "
                   << core::CContainerPrinter::print(kmeansClustersCentres));
         BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(kmeansPointsCentres),
                             core::CContainerPrinter::print(kmeansClustersCentres));
@@ -587,7 +579,7 @@ BOOST_AUTO_TEST_CASE(testPlusPlus) {
         TVector2Vec randomCentres;
         TSizeVec random;
         rng.generateUniformSamples(0, flatPoints.size(), k, random);
-        LOG_DEBUG(<< "random = " << core::CContainerPrinter::print(random));
+        LOG_TRACE(<< "random = " << core::CContainerPrinter::print(random));
         for (std::size_t i = 0u; i < k; ++i) {
             randomCentres.push_back(flatPoints[random[i]]);
         }
@@ -638,8 +630,8 @@ BOOST_AUTO_TEST_CASE(testPlusPlus) {
             ssrPlusPlus = sumSquareResiduals(clusters);
         }
 
-        LOG_DEBUG(<< "S.S.R. random    = " << ssrRandom);
-        LOG_DEBUG(<< "S.S.R. plus plus = " << ssrPlusPlus);
+        LOG_TRACE(<< "S.S.R. random    = " << ssrRandom);
+        LOG_TRACE(<< "S.S.R. plus plus = " << ssrPlusPlus);
 
         minSSRRatio = std::min(minSSRRatio, ssrPlusPlus / ssrRandom);
         meanSSRRatio.add(ssrPlusPlus / ssrRandom);

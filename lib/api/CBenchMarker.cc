@@ -48,7 +48,7 @@ bool CBenchMarker::init(const std::string& regexFilename) {
     return (m_Measures.size() > 0);
 }
 
-void CBenchMarker::addResult(const std::string& message, int type) {
+void CBenchMarker::addResult(const std::string& message, int categoryId) {
     bool scored(false);
     size_t position(0);
     for (TRegexIntSizeStrPrMapPrVecItr measureVecIter = m_Measures.begin();
@@ -56,9 +56,9 @@ void CBenchMarker::addResult(const std::string& message, int type) {
         const core::CRegex& regex = measureVecIter->first;
         if (regex.search(message, position) == true) {
             TIntSizeStrPrMap& counts = measureVecIter->second;
-            TIntSizeStrPrMapItr mapIter = counts.find(type);
+            TIntSizeStrPrMapItr mapIter = counts.find(categoryId);
             if (mapIter == counts.end()) {
-                counts.insert(TIntSizeStrPrMap::value_type(type, TSizeStrPr(1, message)));
+                counts.insert(TIntSizeStrPrMap::value_type(categoryId, TSizeStrPr(1, message)));
             } else {
                 ++(mapIter->second.first);
             }
@@ -76,7 +76,7 @@ void CBenchMarker::addResult(const std::string& message, int type) {
 }
 
 void CBenchMarker::dumpResults() const {
-    // Sort the results in descending order of actual type occurrence
+    // Sort the results in descending order of actual category occurrence
     using TSizeRegexIntSizeStrPrMapPrVecCItrPr = std::pair<size_t, TRegexIntSizeStrPrMapPrVecCItr>;
     using TSizeRegexIntSizeStrPrMapPrVecCItrPrVec =
         std::vector<TSizeRegexIntSizeStrPrMapPrVecCItrPr>;
@@ -110,12 +110,12 @@ void CBenchMarker::dumpResults() const {
 
     using TIntSet = std::set<int>;
 
-    TIntSet usedTypes;
+    TIntSet usedCategories;
     size_t observedActuals(0);
     size_t good(0);
 
     // Iterate backwards through the sorted vector, so that the most common
-    // actual types are looked at first
+    // actual categories are looked at first
     for (TSizeRegexIntSizeStrPrMapPrVecCItrPrVecCItr sortedVecIter = sortVec.begin();
          sortedVecIter != sortVec.end(); ++sortedVecIter) {
         size_t total(sortedVecIter->first);
@@ -135,14 +135,14 @@ void CBenchMarker::dumpResults() const {
              << counts.size() << core_t::LINE_ENDING;
 
         if (counts.size() == 1) {
-            size_t count(counts.begin()->second.first);
-            int type(counts.begin()->first);
-            if (usedTypes.find(type) != usedTypes.end()) {
+            size_t count{counts.begin()->second.first};
+            int categoryId{counts.begin()->first};
+            if (usedCategories.find(categoryId) != usedCategories.end()) {
                 strm << "\t\t" << count << "\t(CATEGORY ALREADY USED)\t"
                      << counts.begin()->second.second << core_t::LINE_ENDING;
             } else {
                 good += count;
-                usedTypes.insert(type);
+                usedCategories.insert(categoryId);
             }
         } else if (counts.size() > 1) {
             strm << "\tBreakdown:" << core_t::LINE_ENDING;
@@ -150,28 +150,28 @@ void CBenchMarker::dumpResults() const {
             // Assume the category with the count closest to the actual count is
             // good (as long as it's not already used), and all other categories
             // are bad.
-            size_t max(0);
-            int maxType(-1);
+            size_t max{0};
+            int maxCategoryId{-1};
             for (TIntSizeStrPrMapCItr mapIter = counts.begin();
                  mapIter != counts.end(); ++mapIter) {
-                int type(mapIter->first);
+                int categoryId{mapIter->first};
 
                 size_t count(mapIter->second.first);
                 const std::string& example = mapIter->second.second;
                 strm << "\t\t" << count;
-                if (usedTypes.find(type) != usedTypes.end()) {
+                if (usedCategories.find(categoryId) != usedCategories.end()) {
                     strm << "\t(CATEGORY ALREADY USED)";
                 } else {
                     if (count > max) {
                         max = count;
-                        maxType = type;
+                        maxCategoryId = categoryId;
                     }
                 }
                 strm << '\t' << example << core_t::LINE_ENDING;
             }
-            if (maxType > -1) {
+            if (maxCategoryId > -1) {
                 good += max;
-                usedTypes.insert(maxType);
+                usedCategories.insert(maxCategoryId);
             }
         }
     }
@@ -182,7 +182,7 @@ void CBenchMarker::dumpResults() const {
          << good << core_t::LINE_ENDING << "Overall accuracy for scored messages "
          << (double(good) / double(m_ScoredMessages)) * 100.0 << '%'
          << core_t::LINE_ENDING << "Percentage of manual categories detected at all "
-         << (double(usedTypes.size()) / double(observedActuals)) * 100.0 << '%';
+         << (double(usedCategories.size()) / double(observedActuals)) * 100.0 << '%';
 
     LOG_DEBUG(<< strm.str());
 }

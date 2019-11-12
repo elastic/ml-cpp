@@ -183,7 +183,7 @@ BOOST_FIXTURE_TEST_CASE(testSuperpositionOfSines, CTestFixture) {
         debug.addValue(time, value);
 
         if (time >= lastWeek + WEEK) {
-            LOG_DEBUG(<< "Processing week");
+            LOG_TRACE(<< "Processing week");
 
             double sumResidual = 0.0;
             double maxResidual = 0.0;
@@ -205,9 +205,9 @@ BOOST_FIXTURE_TEST_CASE(testSuperpositionOfSines, CTestFixture) {
                 debug.addPrediction(t, mean(prediction), residual);
             }
 
-            LOG_DEBUG(<< "'sum residual' / 'sum value' = " << sumResidual / sumValue);
-            LOG_DEBUG(<< "'max residual' / 'max value' = " << maxResidual / maxValue);
-            LOG_DEBUG(<< "70% error = " << percentileError / sumValue);
+            LOG_TRACE(<< "'sum residual' / 'sum value' = " << sumResidual / sumValue);
+            LOG_TRACE(<< "'max residual' / 'max value' = " << maxResidual / maxValue);
+            LOG_TRACE(<< "70% error = " << percentileError / sumValue);
 
             if (time >= 2 * WEEK) {
                 BOOST_TEST_REQUIRE(sumResidual < 0.055 * sumValue);
@@ -234,105 +234,20 @@ BOOST_FIXTURE_TEST_CASE(testSuperpositionOfSines, CTestFixture) {
 }
 
 BOOST_FIXTURE_TEST_CASE(testDistortedPeriodic, CTestFixture) {
-    const core_t::TTime bucketLength = HOUR;
-    const core_t::TTime startTime = 0;
-    const TDoubleVec timeseries{
-        323444,  960510,  880176,  844190,  823993,  814251,  857187,  856791,
-        862060,  919632,  1083704, 2904437, 4601750, 5447896, 5827498, 5924161,
-        5851895, 5768661, 5927840, 5326236, 4037245, 1958521, 1360753, 1005194,
-        901930,  856605,  838370,  810396,  776815,  751163,  793055,  823974,
-        820458,  840647,  878594,  1192154, 2321550, 2646460, 2760957, 2838611,
-        2784696, 2798327, 2643123, 2028970, 1331199, 1098105, 930971,  907562,
-        903603,  873554,  879375,  852853,  828554,  819726,  872418,  856365,
-        860880,  867119,  873912,  885405,  1053530, 1487664, 1555301, 1637137,
-        1672030, 1659346, 1514673, 1228543, 1011740, 928749,  809702,  838931,
-        847904,  829188,  822558,  798517,  767446,  750486,  783165,  815612,
-        825365,  873486,  1165250, 2977382, 4868975, 6050263, 6470794, 6271899,
-        6449326, 6352992, 6162712, 6257295, 4570133, 1781374, 1182546, 665858,
-        522585,  481588,  395139,  380770,  379182,  356068,  353498,  347707,
-        350931,  417253,  989129,  2884728, 4640841, 5423474, 6246182, 6432793,
-        6338419, 6312346, 6294323, 6102676, 4505021, 2168289, 1411233, 1055797,
-        954338,  918498,  904236,  870193,  843259,  682538,  895407,  883550,
-        897026,  918838,  1262303, 3208919, 5193013, 5787263, 6255837, 6337684,
-        6335017, 6278740, 6191046, 6183259, 4455055, 2004058, 1425910, 1069949,
-        942839,  899157,  895133,  858268,  837338,  820983,  870863,  871873,
-        881182,  918795,  1237336, 3069272, 4708229, 5672066, 6291124, 6407806,
-        6479889, 6533138, 3473382, 6534838, 4800911, 2668073, 1644350, 1282450,
-        1131734, 1009042, 891099,  857339,  842849,  816513,  879200,  848292,
-        858014,  906642,  1208147, 2964568, 5215885, 5777105, 6332104, 6130733,
-        6284960, 6157055, 6165520, 5771121, 4309930, 2150044, 1475275, 1065030,
-        967267,  890413,  887174,  835741,  814749,  817443,  853085,  851040,
-        866029,  867612,  917833,  1225383, 2326451, 2837337, 2975288, 3034415,
-        3056379, 3181951, 2938511, 2400202, 1444952, 1058781, 845703,  810419,
-        805781,  789438,  799674,  775703,  756145,  727587,  756489,  789886,
-        784948,  788247,  802013,  832272,  845033,  873396,  1018788, 1013089,
-        1095001, 1022910, 798183,  519186,  320507,  247320,  139372,  129477,
-        145576,  122348,  120286,  89370,   95583,   88985,   89009,   97425,
-        103628,  153229,  675828,  2807240, 4652249, 5170466, 5642965, 5608709,
-        5697374, 5546758, 5368913, 5161602, 3793675, 1375703, 593920,  340764,
-        197075,  174981,  158274,  130148,  125235,  122526,  113896,  116249,
-        126881,  213814,  816723,  2690434, 4827493, 5723621, 6219650, 6492638,
-        6570160, 6493706, 6495303, 6301872, 4300612, 1543551, 785562,  390012,
-        234939,  202190,  142855,  135218,  124238,  111981,  104807,  107687,
-        129438,  190294,  779698,  2864053, 5079395, 5912629, 6481437, 6284107,
-        6451007, 6177724, 5993932, 6075918, 4140658, 1481179, 682711,  328387,
-        233915,  182721,  170860,  139540,  137613,  121669,  116906,  121780,
-        127887,  199762,  783099,  2890355, 4658524, 5535842, 6117719, 6322938,
-        6570422, 6396874, 6586615, 6332100, 4715160, 2604366, 1525620, 906137,
-        499019,  358856,  225543,  171388,  153826,  149910,  141092,  136459,
-        161202,  240704,  766755,  3011958, 5024254, 5901640, 6244757, 6257553,
-        6380236, 6394732, 6385424, 5876960, 4182127, 1868461, 883771,  377159,
-        264435,  196674,  181845,  138307,  136055,  133143,  129791,  133694,
-        127502,  136351,  212305,  777873,  2219051, 2732315, 2965287, 2895288,
-        2829988, 2818268, 2513817, 1866217, 985099,  561287,  205195,  173997,
-        166428,  165294,  130072,  113917,  113282,  112466,  103406,  115687,
-        159863,  158310,  225454,  516925,  1268760, 1523357, 1607510, 1560200,
-        1483823, 1401526, 999236,  495292,  299905,  286900,  209697,  169881,
-        157560,  139030,  132342,  187941,  126162,  106587,  108759,  109495,
-        116386,  208504,  676794,  1549362, 2080332, 2488707, 2699237, 2862970,
-        2602994, 2554047, 2364456, 1997686, 1192434, 891293,  697769,  391385,
-        234311,  231839,  160520,  155870,  142220,  139360,  142885,  141589,
-        166792,  443202,  2019645, 4558828, 5982111, 6408009, 6514598, 6567566,
-        6686935, 6532886, 6473927, 5475257, 2889913, 1524673, 938262,  557410,
-        325965,  186484,  174831,  211765,  145477,  148318,  130425,  136431,
-        182002,  442272,  2078908, 4628945, 5767034, 6212302, 6566196, 6527687,
-        6365204, 6226173, 6401203, 5629733, 3004625, 1555528, 1025549, 492910,
-        347948,  298725,  272955,  238279,  209290,  188551,  175447,  173960,
-        190875,  468340,  1885268, 4133457, 5350137, 5885807, 6331254, 6420279,
-        6589448, 6483637, 6557769, 5543938, 3482732, 2010293, 1278681, 735111,
-        406042,  283694,  181213,  160207,  136347,  113484,  118521,  127725,
-        151408,  396552,  1900747, 4400918, 5546984, 6213423, 6464686, 6442904,
-        6385002, 6248314, 5880523, 4816342, 2597450, 1374071, 751391,  362615,
-        215644,  175158,  116896,  127935,  110407,  113054,  105841,  113717,
-        177240,  206515,  616005,  1718878, 2391747, 2450915, 2653897, 2922320,
-        2808467, 2490078, 1829760, 1219997, 643936,  400743,  208976,  119623,
-        110170,  99338,   93661,   100187,  90803,   83980,   75950,   78805,
-        95664,   108467,  128293,  294080,  720811,  965705,  1048021, 1125912,
-        1194746, 1114704, 799721,  512542,  353694,  291046,  229723,  206109,
-        183482,  192225,  191906,  176942,  148163,  145405,  145728,  159016,
-        181991,  436297,  1983374, 4688246, 5853284, 6243628, 6730707, 6660743,
-        6476024, 6422004, 6335113, 5386230, 2761698, 1230646, 763506,  359071,
-        223956,  189020,  158090,  145730,  135338,  114941,  108313,  120023,
-        167161,  440103,  1781778, 4428615, 5701824, 6296598, 6541586, 6809286,
-        6716690, 6488941, 6567385, 5633685, 2760255, 1316495, 732572,  316496,
-        225013,  202664,  171295,  143195,  123555,  125327,  123357,  135419,
-        194933,  428197,  2181096, 4672692, 5854393, 6553263, 6653127, 6772664,
-        6899086, 6794041, 6900871, 6087645, 2814928, 1393906, 894417,  413459,
-        280839,  237468,  184947,  214658,  180059,  145215,  134793,  133423,
-        191388,  417885,  2081899, 4836758, 5803495, 6451696, 7270708, 7628500,
-        7208066, 7403079, 7548585, 6323024, 3763029, 2197174, 1359687, 857604,
-        471729,  338888,  177156,  150619,  145775,  132845,  110888,  121863,
-        141321,  440528,  2020529, 4615833, 5772372, 6318037, 6481658, 6454979,
-        6489447, 6558612, 6114653, 5009113, 2541519, 1329520, 663124,  311088,
-        200332,  141768,  120845,  120603,  114688,  111340,  95757,   91444,
-        103287,  130905,  551108,  1988083, 2885196, 2962413, 3070689, 3061746,
-        2999362, 2993871, 2287683, 1539262, 763592,  393769,  193094,  126535,
-        131721,  125761,  105550,  89077,   90295,   93853,   84496,   77731,
-        89389,   101269,  153379,  443022,  1114121, 1556021, 1607693, 1589743,
-        1746231, 1432261, 1022052};
+    TTimeDoublePrVec timeseries;
+    core_t::TTime startTime;
+    core_t::TTime endTime;
+    BOOST_TEST_REQUIRE(test::CTimeSeriesTestData::parse(
+        "testfiles/distorted_periodic.csv", timeseries, startTime, endTime,
+        "^([0-9]+), ([0-9\\.]+)"));
+    BOOST_TEST_REQUIRE(!timeseries.empty());
 
-    core_t::TTime time = startTime;
+    LOG_DEBUG(<< "timeseries = "
+              << core::CContainerPrinter::print(timeseries.begin(), timeseries.begin() + 10)
+              << " ...");
+
     core_t::TTime lastWeek = startTime;
+    const core_t::TTime bucketLength = HOUR;
     maths::CTimeSeriesDecomposition decomposition(0.01, bucketLength);
     CDebugGenerator debug;
 
@@ -342,12 +257,15 @@ BOOST_FIXTURE_TEST_CASE(testDistortedPeriodic, CTestFixture) {
     double totalMaxValue = 0.0;
     double totalPercentileError = 0.0;
 
-    for (std::size_t i = 0u; i < timeseries.size(); ++i, time += bucketLength) {
-        decomposition.addPoint(time, timeseries[i]);
-        debug.addValue(time, timeseries[i]);
+    for (std::size_t i = 0u; i < timeseries.size(); ++i) {
+        core_t::TTime time;
+        double value;
+        std::tie(time, value) = timeseries[i];
+        decomposition.addPoint(time, value);
+        debug.addValue(time, value);
 
-        if (time >= lastWeek + WEEK || i == boost::size(timeseries) - 1) {
-            LOG_DEBUG(<< "Processing week");
+        if (time >= lastWeek + WEEK || i == timeseries.size() - 1) {
+            LOG_TRACE(<< "Processing week");
 
             double sumResidual = 0.0;
             double maxResidual = 0.0;
@@ -357,24 +275,23 @@ BOOST_FIXTURE_TEST_CASE(testDistortedPeriodic, CTestFixture) {
 
             for (core_t::TTime t = lastWeek;
                  t < lastWeek + WEEK &&
-                 static_cast<std::size_t>(t / HOUR) < boost::size(timeseries);
+                 static_cast<std::size_t>(t / HOUR) < timeseries.size();
                  t += HOUR) {
+                double actual = timeseries[t / HOUR].second;
                 TDoubleDoublePr prediction = decomposition.value(t, 70.0);
-                double residual = std::fabs(timeseries[t / HOUR] - mean(prediction));
+                double residual = std::fabs(actual - mean(prediction));
                 sumResidual += residual;
                 maxResidual = std::max(maxResidual, residual);
-                sumValue += std::fabs(timeseries[t / HOUR]);
-                maxValue = std::max(maxValue, std::fabs(timeseries[t / HOUR]));
-                percentileError +=
-                    std::max(std::max(prediction.first - timeseries[t / HOUR],
-                                      timeseries[t / HOUR] - prediction.second),
-                             0.0);
+                sumValue += std::fabs(actual);
+                maxValue = std::max(maxValue, std::fabs(actual));
+                percentileError += std::max(
+                    std::max(prediction.first - actual, actual - prediction.second), 0.0);
                 debug.addPrediction(t, mean(prediction), residual);
             }
 
-            LOG_DEBUG(<< "'sum residual' / 'sum value' = " << sumResidual / sumValue);
-            LOG_DEBUG(<< "'max residual' / 'max value' = " << maxResidual / maxValue);
-            LOG_DEBUG(<< "70% error = " << percentileError / sumValue);
+            LOG_TRACE(<< "'sum residual' / 'sum value' = " << sumResidual / sumValue);
+            LOG_TRACE(<< "'max residual' / 'max value' = " << maxResidual / maxValue);
+            LOG_TRACE(<< "70% error = " << percentileError / sumValue);
 
             if (time >= 2 * WEEK) {
                 BOOST_TEST_REQUIRE(sumResidual < 0.27 * sumValue);
@@ -439,7 +356,7 @@ BOOST_FIXTURE_TEST_CASE(testMinimizeLongComponents, CTestFixture) {
         debug.addValue(time, value);
 
         if (time >= lastWeek + WEEK) {
-            LOG_DEBUG(<< "Processing week");
+            LOG_TRACE(<< "Processing week");
 
             double sumResidual = 0.0;
             double maxResidual = 0.0;
@@ -461,9 +378,9 @@ BOOST_FIXTURE_TEST_CASE(testMinimizeLongComponents, CTestFixture) {
                 debug.addPrediction(t, mean(prediction), residual);
             }
 
-            LOG_DEBUG(<< "'sum residual' / 'sum value' = " << sumResidual / sumValue);
-            LOG_DEBUG(<< "'max residual' / 'max value' = " << maxResidual / maxValue);
-            LOG_DEBUG(<< "70% error = " << percentileError / sumValue);
+            LOG_TRACE(<< "'sum residual' / 'sum value' = " << sumResidual / sumValue);
+            LOG_TRACE(<< "'max residual' / 'max value' = " << maxResidual / maxValue);
+            LOG_TRACE(<< "70% error = " << percentileError / sumValue);
 
             if (time >= 2 * WEEK) {
                 BOOST_TEST_REQUIRE(sumResidual < 0.15 * sumValue);
@@ -480,7 +397,7 @@ BOOST_FIXTURE_TEST_CASE(testMinimizeLongComponents, CTestFixture) {
                     if (component.initialized() && component.time().period() == WEEK) {
                         double slope = component.valueSpline().absSlope();
                         meanSlope += slope;
-                        LOG_DEBUG(<< "weekly |slope| = " << slope);
+                        LOG_TRACE(<< "weekly |slope| = " << slope);
                         BOOST_TEST_REQUIRE(slope < 0.0014);
                         refinements += 1.0;
                     }
@@ -541,7 +458,7 @@ BOOST_FIXTURE_TEST_CASE(testWeekend, CTestFixture) {
             debug.addValue(time, value);
 
             if (time >= lastWeek + WEEK) {
-                LOG_DEBUG(<< "Processing week");
+                LOG_TRACE(<< "Processing week");
 
                 double sumResidual = 0.0;
                 double maxResidual = 0.0;
@@ -562,9 +479,9 @@ BOOST_FIXTURE_TEST_CASE(testWeekend, CTestFixture) {
                     debug.addPrediction(t, mean(prediction), residual);
                 }
 
-                LOG_DEBUG(<< "'sum residual' / 'sum value' = " << sumResidual / sumValue);
-                LOG_DEBUG(<< "'max residual' / 'max value' = " << maxResidual / maxValue);
-                LOG_DEBUG(<< "70% error = " << percentileError / sumValue);
+                LOG_TRACE(<< "'sum residual' / 'sum value' = " << sumResidual / sumValue);
+                LOG_TRACE(<< "'max residual' / 'max value' = " << maxResidual / maxValue);
+                LOG_TRACE(<< "70% error = " << percentileError / sumValue);
 
                 if (time >= 3 * WEEK) {
                     BOOST_TEST_REQUIRE(sumResidual < 0.07 * sumValue);
@@ -689,7 +606,7 @@ BOOST_FIXTURE_TEST_CASE(testSinglePeriodicity, CTestFixture) {
         debug.addValue(time, value);
 
         if (time >= lastWeek + WEEK) {
-            LOG_DEBUG(<< "Processing week");
+            LOG_TRACE(<< "Processing week");
 
             double sumResidual = 0.0;
             double maxResidual = 0.0;
@@ -712,9 +629,9 @@ BOOST_FIXTURE_TEST_CASE(testSinglePeriodicity, CTestFixture) {
                 debug.addPrediction(t, mean(prediction), residual);
             }
 
-            LOG_DEBUG(<< "'sum residual' / 'sum value' = " << sumResidual / sumValue);
-            LOG_DEBUG(<< "'max residual' / 'max value' = " << maxResidual / maxValue);
-            LOG_DEBUG(<< "70% error = " << percentileError / sumValue);
+            LOG_TRACE(<< "'sum residual' / 'sum value' = " << sumResidual / sumValue);
+            LOG_TRACE(<< "'max residual' / 'max value' = " << maxResidual / maxValue);
+            LOG_TRACE(<< "70% error = " << percentileError / sumValue);
 
             if (time >= 1 * WEEK) {
                 BOOST_TEST_REQUIRE(sumResidual < 0.025 * sumValue);
@@ -792,7 +709,7 @@ BOOST_FIXTURE_TEST_CASE(testSeasonalOnset, CTestFixture) {
         debug.addValue(time, value);
 
         if (time >= lastWeek + WEEK) {
-            LOG_DEBUG(<< "Processing week");
+            LOG_TRACE(<< "Processing week");
 
             double sumResidual = 0.0;
             double maxResidual = 0.0;
@@ -813,11 +730,11 @@ BOOST_FIXTURE_TEST_CASE(testSeasonalOnset, CTestFixture) {
                 debug.addPrediction(t, mean(prediction), residual);
             }
 
-            LOG_DEBUG(<< "'sum residual' / 'sum value' = "
+            LOG_TRACE(<< "'sum residual' / 'sum value' = "
                       << (sumResidual == 0.0 ? 0.0 : sumResidual / sumValue));
-            LOG_DEBUG(<< "'max residual' / 'max value' = "
+            LOG_TRACE(<< "'max residual' / 'max value' = "
                       << (maxResidual == 0.0 ? 0.0 : maxResidual / maxValue));
-            LOG_DEBUG(<< "70% error = "
+            LOG_TRACE(<< "70% error = "
                       << (percentileError == 0.0 ? 0.0 : percentileError / sumValue));
 
             totalSumResidual += sumResidual;
@@ -889,7 +806,7 @@ BOOST_FIXTURE_TEST_CASE(testVarianceScale, CTestFixture) {
             }
             double expectedScale = variance / meanVariance;
             TDoubleDoublePr interval = decomposition.scale(time + t, meanVariance, 70.0);
-            LOG_DEBUG(<< "time = " << t << ", expectedScale = " << expectedScale
+            LOG_TRACE(<< "time = " << t << ", expectedScale = " << expectedScale
                       << ", scale = " << core::CContainerPrinter::print(interval));
             double scale = (interval.first + interval.second) / 2.0;
             error.add(std::fabs(scale - expectedScale));
@@ -939,7 +856,7 @@ BOOST_FIXTURE_TEST_CASE(testVarianceScale, CTestFixture) {
             }
             double expectedScale = variance / meanVariance;
             TDoubleDoublePr interval = decomposition.scale(time + t, meanVariance, 70.0);
-            LOG_DEBUG(<< "time = " << t << ", expectedScale = " << expectedScale
+            LOG_TRACE(<< "time = " << t << ", expectedScale = " << expectedScale
                       << ", scale = " << core::CContainerPrinter::print(interval));
             double scale = (interval.first + interval.second) / 2.0;
             error.add(std::fabs(scale - expectedScale));
@@ -986,7 +903,7 @@ BOOST_FIXTURE_TEST_CASE(testVarianceScale, CTestFixture) {
         for (core_t::TTime t = 0; t < DAY; t += TEN_MINS) {
             TDoubleDoublePr interval =
                 decomposition.scale(times.back() + t, meanVariance, 70.0);
-            LOG_DEBUG(<< "time = " << t
+            LOG_TRACE(<< "time = " << t
                       << ", scale = " << core::CContainerPrinter::print(interval));
             double scale = (interval.first + interval.second) / 2.0;
             meanScale.add(scale);
@@ -1027,7 +944,7 @@ BOOST_FIXTURE_TEST_CASE(testSpikeyDataProblemCase, CTestFixture) {
         double value = timeseries[i].second;
 
         if (time > lastWeek + WEEK) {
-            LOG_DEBUG(<< "Processing week");
+            LOG_TRACE(<< "Processing week");
 
             double sumResidual = 0.0;
             double maxResidual = 0.0;
@@ -1050,11 +967,11 @@ BOOST_FIXTURE_TEST_CASE(testSpikeyDataProblemCase, CTestFixture) {
                 debug.addPrediction(lastWeekTimeseries[j].first, mean(prediction), residual);
             }
 
-            LOG_DEBUG(<< "'sum residual' / 'sum value' = "
+            LOG_TRACE(<< "'sum residual' / 'sum value' = "
                       << (sumResidual == 0.0 ? 0.0 : sumResidual / sumValue));
-            LOG_DEBUG(<< "'max residual' / 'max value' = "
+            LOG_TRACE(<< "'max residual' / 'max value' = "
                       << (maxResidual == 0.0 ? 0.0 : maxResidual / maxValue));
-            LOG_DEBUG(<< "70% error = " << percentileError / sumValue);
+            LOG_TRACE(<< "70% error = " << percentileError / sumValue);
 
             if (time >= startTime + WEEK) {
                 totalSumResidual += sumResidual;
@@ -1176,7 +1093,7 @@ BOOST_FIXTURE_TEST_CASE(testVeryLargeValuesProblemCase, CTestFixture) {
         double value = timeseries[i].second;
 
         if (time > lastWeek + WEEK) {
-            LOG_DEBUG(<< "Processing week");
+            LOG_TRACE(<< "Processing week");
 
             double sumResidual = 0.0;
             double maxResidual = 0.0;
@@ -1199,9 +1116,9 @@ BOOST_FIXTURE_TEST_CASE(testVeryLargeValuesProblemCase, CTestFixture) {
                 debug.addPrediction(lastWeekTimeseries[j].first, mean(prediction), residual);
             }
 
-            LOG_DEBUG(<< "'sum residual' / 'sum value' = " << sumResidual / sumValue);
-            LOG_DEBUG(<< "'max residual' / 'max value' = " << maxResidual / maxValue);
-            LOG_DEBUG(<< "70% error = " << percentileError / sumValue);
+            LOG_TRACE(<< "'sum residual' / 'sum value' = " << sumResidual / sumValue);
+            LOG_TRACE(<< "'max residual' / 'max value' = " << maxResidual / maxValue);
+            LOG_TRACE(<< "70% error = " << percentileError / sumValue);
 
             if (time >= startTime + 2 * WEEK) {
                 totalSumResidual += sumResidual;
@@ -1271,7 +1188,7 @@ BOOST_FIXTURE_TEST_CASE(testMixedSmoothAndSpikeyDataProblemCase, CTestFixture) {
         double value = timeseries[i].second;
 
         if (time > lastWeek + WEEK) {
-            LOG_DEBUG(<< "Processing week");
+            LOG_TRACE(<< "Processing week");
 
             double sumResidual = 0.0;
             double maxResidual = 0.0;
@@ -1294,11 +1211,11 @@ BOOST_FIXTURE_TEST_CASE(testMixedSmoothAndSpikeyDataProblemCase, CTestFixture) {
                 debug.addPrediction(lastWeekTimeseries[j].first, mean(prediction), residual);
             }
 
-            LOG_DEBUG(<< "'sum residual' / 'sum value' = "
+            LOG_TRACE(<< "'sum residual' / 'sum value' = "
                       << (sumResidual == 0.0 ? 0.0 : sumResidual / sumValue));
-            LOG_DEBUG(<< "'max residual' / 'max value' = "
+            LOG_TRACE(<< "'max residual' / 'max value' = "
                       << (maxResidual == 0.0 ? 0.0 : maxResidual / maxValue));
-            LOG_DEBUG(<< "70% error = " << percentileError / sumValue);
+            LOG_TRACE(<< "70% error = " << percentileError / sumValue);
 
             if (time >= startTime + 2 * WEEK) {
                 totalSumResidual += sumResidual;
@@ -1450,7 +1367,7 @@ BOOST_FIXTURE_TEST_CASE(testLongTermTrend, CTestFixture) {
             debug.addValue(times[i], trend[i] + noise[i]);
 
             if (times[i] > lastDay + DAY) {
-                LOG_DEBUG(<< "Processing day " << times[i] / DAY);
+                LOG_TRACE(<< "Processing day " << times[i] / DAY);
 
                 if (decomposition.initialized()) {
                     double sumResidual = 0.0;
@@ -1468,9 +1385,9 @@ BOOST_FIXTURE_TEST_CASE(testLongTermTrend, CTestFixture) {
                         debug.addPrediction(times[j], mean(prediction), residual);
                     }
 
-                    LOG_DEBUG(<< "'sum residual' / 'sum value' = "
+                    LOG_TRACE(<< "'sum residual' / 'sum value' = "
                               << (sumResidual == 0.0 ? 0.0 : sumResidual / sumValue));
-                    LOG_DEBUG(<< "'max residual' / 'max value' = "
+                    LOG_TRACE(<< "'max residual' / 'max value' = "
                               << (maxResidual == 0.0 ? 0.0 : maxResidual / maxValue));
 
                     totalSumResidual += sumResidual;
@@ -1524,7 +1441,7 @@ BOOST_FIXTURE_TEST_CASE(testLongTermTrend, CTestFixture) {
             debug.addValue(times[i], trend[i] + 0.3 * noise[i]);
 
             if (times[i] > lastDay + DAY) {
-                LOG_DEBUG(<< "Processing day " << times[i] / DAY);
+                LOG_TRACE(<< "Processing day " << times[i] / DAY);
 
                 if (decomposition.initialized()) {
                     double sumResidual = 0.0;
@@ -1542,9 +1459,9 @@ BOOST_FIXTURE_TEST_CASE(testLongTermTrend, CTestFixture) {
                         debug.addPrediction(times[j], mean(prediction), residual);
                     }
 
-                    LOG_DEBUG(<< "'sum residual' / 'sum value' = "
+                    LOG_TRACE(<< "'sum residual' / 'sum value' = "
                               << (sumResidual == 0.0 ? 0.0 : sumResidual / sumValue));
-                    LOG_DEBUG(<< "'max residual' / 'max value' = "
+                    LOG_TRACE(<< "'max residual' / 'max value' = "
                               << (maxResidual == 0.0 ? 0.0 : maxResidual / maxValue));
 
                     totalSumResidual += sumResidual;
@@ -1599,7 +1516,7 @@ BOOST_FIXTURE_TEST_CASE(testLongTermTrendAndPeriodicity, CTestFixture) {
         debug.addValue(times[i], trend[i] + 0.3 * noise[i]);
 
         if (times[i] > lastDay + DAY) {
-            LOG_DEBUG(<< "Processing day " << times[i] / DAY);
+            LOG_TRACE(<< "Processing day " << times[i] / DAY);
 
             if (decomposition.initialized()) {
                 double sumResidual = 0.0;
@@ -1617,9 +1534,9 @@ BOOST_FIXTURE_TEST_CASE(testLongTermTrendAndPeriodicity, CTestFixture) {
                     debug.addPrediction(times[j], mean(prediction), residual);
                 }
 
-                LOG_DEBUG(<< "'sum residual' / 'sum value' = "
+                LOG_TRACE(<< "'sum residual' / 'sum value' = "
                           << (sumResidual == 0.0 ? 0.0 : sumResidual / sumValue));
-                LOG_DEBUG(<< "'max residual' / 'max value' = "
+                LOG_TRACE(<< "'max residual' / 'max value' = "
                           << (maxResidual == 0.0 ? 0.0 : maxResidual / maxValue));
 
                 totalSumResidual += sumResidual;
@@ -1678,7 +1595,7 @@ BOOST_FIXTURE_TEST_CASE(testNonDiurnal, CTestFixture) {
             debug.addValue(times[i], trend[i] + noise[i]);
 
             if (times[i] > lastHour + HOUR) {
-                LOG_DEBUG(<< "Processing hour " << times[i] / HOUR);
+                LOG_TRACE(<< "Processing hour " << times[i] / HOUR);
 
                 if (times[i] > startTesting) {
                     double sumResidual = 0.0;
@@ -1696,9 +1613,9 @@ BOOST_FIXTURE_TEST_CASE(testNonDiurnal, CTestFixture) {
                         debug.addPrediction(times[j], mean(prediction), residual);
                     }
 
-                    LOG_DEBUG(<< "'sum residual' / 'sum value' = "
+                    LOG_TRACE(<< "'sum residual' / 'sum value' = "
                               << (sumResidual == 0.0 ? 0.0 : sumResidual / sumValue));
-                    LOG_DEBUG(<< "'max residual' / 'max value' = "
+                    LOG_TRACE(<< "'max residual' / 'max value' = "
                               << (maxResidual == 0.0 ? 0.0 : maxResidual / maxValue));
 
                     totalSumResidual += sumResidual;
@@ -1752,7 +1669,7 @@ BOOST_FIXTURE_TEST_CASE(testNonDiurnal, CTestFixture) {
             debug.addValue(times[i], trend[i] + noise[i]);
 
             if (times[i] > lastTwoDay + 2 * DAY) {
-                LOG_DEBUG(<< "Processing two days " << times[i] / 2 * DAY);
+                LOG_TRACE(<< "Processing two days " << times[i] / 2 * DAY);
 
                 if (times[i] > startTesting) {
                     double sumResidual = 0.0;
@@ -1770,9 +1687,9 @@ BOOST_FIXTURE_TEST_CASE(testNonDiurnal, CTestFixture) {
                         debug.addPrediction(times[j], mean(prediction), residual);
                     }
 
-                    LOG_DEBUG(<< "'sum residual' / 'sum value' = "
+                    LOG_TRACE(<< "'sum residual' / 'sum value' = "
                               << (sumResidual == 0.0 ? 0.0 : sumResidual / sumValue));
-                    LOG_DEBUG(<< "'max residual' / 'max value' = "
+                    LOG_TRACE(<< "'max residual' / 'max value' = "
                               << (maxResidual == 0.0 ? 0.0 : maxResidual / maxValue));
 
                     totalSumResidual += sumResidual;
@@ -1838,9 +1755,7 @@ BOOST_FIXTURE_TEST_CASE(testYearly, CTestFixture) {
         meanError.add(error);
         debug.addValue(time, trend);
         debug.addPrediction(time, prediction, trend - prediction);
-        if (time / HOUR % 40 == 0 || error > 0.19) {
-            LOG_DEBUG(<< "error = " << error);
-        }
+        LOG_TRACE(<< "error = " << error);
         BOOST_TEST_REQUIRE(error < 0.19);
     }
 
@@ -1948,7 +1863,7 @@ BOOST_FIXTURE_TEST_CASE(testCalendar, CTestFixture) {
         debug.addValue(time, trend(time) + noise[0]);
 
         if (time - DAY == *std::lower_bound(months.begin(), months.end(), time - DAY)) {
-            LOG_DEBUG(<< "*** time = " << time << " ***");
+            LOG_TRACE(<< "*** time = " << time << " ***");
 
             std::size_t largeErrorCount = 0u;
 
@@ -1959,15 +1874,15 @@ BOOST_FIXTURE_TEST_CASE(testCalendar, CTestFixture) {
                                             decomposition.scale(time_, 4.0, 0.0));
                 double actual = trend(time_);
                 if (std::fabs(prediction - actual) / std::sqrt(variance) > 3.0) {
-                    LOG_DEBUG(<< "  prediction = " << prediction);
-                    LOG_DEBUG(<< "  variance   = " << variance);
-                    LOG_DEBUG(<< "  trend      = " << trend(time_));
+                    LOG_TRACE(<< "  prediction = " << prediction);
+                    LOG_TRACE(<< "  variance   = " << variance);
+                    LOG_TRACE(<< "  trend      = " << trend(time_));
                     ++largeErrorCount;
                 }
                 debug.addPrediction(time_, prediction, actual - prediction);
             }
 
-            LOG_DEBUG(<< "large error count = " << largeErrorCount);
+            LOG_TRACE(<< "large error count = " << largeErrorCount);
             if (++count <= 4) {
                 BOOST_TEST_REQUIRE(largeErrorCount > 15);
             }

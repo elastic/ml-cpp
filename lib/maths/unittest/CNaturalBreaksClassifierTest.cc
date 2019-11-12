@@ -165,9 +165,7 @@ BOOST_AUTO_TEST_CASE(testCategories) {
             classifier.add(samples[i]);
             if (i > 0 && i % 50 == 0) {
                 for (std::size_t j = 3u; j < 7; ++j) {
-                    if (i % 100) {
-                        LOG_DEBUG(<< "# samples = " << i << ", # splits = " << j);
-                    }
+                    LOG_TRACE(<< "# samples = " << i << ", # splits = " << j);
 
                     TTupleVec split;
                     classifier.categories(j, 0, split);
@@ -177,11 +175,9 @@ BOOST_AUTO_TEST_CASE(testCategories) {
                     TTupleVec expectedSplit;
                     naturalBreaksBranchAndBound(all, j, 0, expectedSplit);
 
-                    if (i % 100) {
-                        LOG_DEBUG(<< "expected = "
-                                  << core::CContainerPrinter::print(expectedSplit));
-                        LOG_DEBUG(<< "actual =   " << core::CContainerPrinter::print(split));
-                    }
+                    LOG_TRACE(<< "expected = "
+                              << core::CContainerPrinter::print(expectedSplit));
+                    LOG_TRACE(<< "actual =   " << core::CContainerPrinter::print(split));
 
                     BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(expectedSplit),
                                         core::CContainerPrinter::print(split));
@@ -207,11 +203,8 @@ BOOST_AUTO_TEST_CASE(testCategories) {
                     std::size_t k = 1u;
                     do {
                         k *= 2;
-
-                        if (i % 20 == 0) {
-                            LOG_DEBUG(<< "# samples = " << i << ", # splits = " << j
-                                      << ", minimum cluster size = " << k);
-                        }
+                        LOG_TRACE(<< "# samples = " << i << ", # splits = " << j
+                                  << ", minimum cluster size = " << k);
 
                         TTupleVec split;
                         bool haveSplit = classifier.categories(j, k, split);
@@ -224,12 +217,10 @@ BOOST_AUTO_TEST_CASE(testCategories) {
                         BOOST_REQUIRE_EQUAL(expectSplit, haveSplit);
 
                         if (expectSplit && haveSplit) {
-                            if (i % 20 == 0) {
-                                LOG_DEBUG(<< "expected = "
-                                          << core::CContainerPrinter::print(expectedSplit));
-                                LOG_DEBUG(<< "actual =   "
-                                          << core::CContainerPrinter::print(split));
-                            }
+                            LOG_TRACE(<< "expected = "
+                                      << core::CContainerPrinter::print(expectedSplit));
+                            LOG_TRACE(<< "actual =   "
+                                      << core::CContainerPrinter::print(split));
                             BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(expectedSplit),
                                                 core::CContainerPrinter::print(split));
                         }
@@ -300,32 +291,27 @@ BOOST_AUTO_TEST_CASE(testCategories) {
             for (std::size_t i = 0u; i < samples.size(); ++i) {
                 classifier.add(samples[i]);
             }
-            {
-                TTupleVec twoSplit;
-                classifier.categories(2u, 0, twoSplit);
 
-                LOG_DEBUG(<< "split 1 = " << CBasicStatistics::print(twoSplit[0])
-                          << ", split 2 = " << CBasicStatistics::print(twoSplit[1])
-                          << ", (mean1,var1) = (" << mean1 << "," << var1 << ")"
-                          << ", (mean2,var2) = (" << mean2 << "," << var2 << ")");
+            TTupleVec twoSplit;
+            classifier.categories(2u, 0, twoSplit);
 
-                BOOST_TEST_REQUIRE(
-                    std::fabs(CBasicStatistics::mean(twoSplit[0]) - mean1) < 0.5);
-                BOOST_TEST_REQUIRE(
-                    std::fabs(CBasicStatistics::variance(twoSplit[0]) - var1) < 0.6);
-                BOOST_TEST_REQUIRE(std::fabs(CBasicStatistics::count(twoSplit[0]) -
-                                             static_cast<double>(n1)) /
-                                       static_cast<double>(n1) <
-                                   0.33);
-                BOOST_TEST_REQUIRE(
-                    std::fabs(CBasicStatistics::mean(twoSplit[1]) - mean2) < 0.4);
-                BOOST_TEST_REQUIRE(
-                    std::fabs(CBasicStatistics::variance(twoSplit[1]) - var2) < 0.63);
-                BOOST_TEST_REQUIRE(std::fabs(CBasicStatistics::count(twoSplit[1]) -
-                                             static_cast<double>(n2)) /
-                                       static_cast<double>(n2) <
-                                   0.11);
-            }
+            LOG_DEBUG(<< "split 1 = " << CBasicStatistics::print(twoSplit[0])
+                      << ", split 2 = " << CBasicStatistics::print(twoSplit[1])
+                      << ", (mean1,var1) = (" << mean1 << "," << var1 << ")"
+                      << ", (mean2,var2) = (" << mean2 << "," << var2 << ")");
+
+            BOOST_TEST_REQUIRE(std::fabs(CBasicStatistics::mean(twoSplit[0]) - mean1) < 0.5);
+            BOOST_TEST_REQUIRE(std::fabs(CBasicStatistics::variance(twoSplit[0]) - var1) < 0.6);
+            BOOST_TEST_REQUIRE(std::fabs(CBasicStatistics::count(twoSplit[0]) -
+                                         static_cast<double>(n1)) /
+                                   static_cast<double>(n1) <
+                               0.33);
+            BOOST_TEST_REQUIRE(std::fabs(CBasicStatistics::mean(twoSplit[1]) - mean2) < 0.4);
+            BOOST_TEST_REQUIRE(std::fabs(CBasicStatistics::variance(twoSplit[1]) - var2) < 0.63);
+            BOOST_TEST_REQUIRE(std::fabs(CBasicStatistics::count(twoSplit[1]) -
+                                         static_cast<double>(n2)) /
+                                   static_cast<double>(n2) <
+                               0.11);
         }
 
         double totalMeanError1 = 0.0;
@@ -348,10 +334,8 @@ BOOST_AUTO_TEST_CASE(testCategories) {
             TTupleVec twoSplit;
             classifier.categories(2u, 0, twoSplit);
 
-            if (i % 10 == 0) {
-                LOG_DEBUG(<< "split 1 = " << CBasicStatistics::print(twoSplit[0])
-                          << ", split 2 = " << CBasicStatistics::print(twoSplit[1]));
-            }
+            LOG_TRACE(<< "split 1 = " << CBasicStatistics::print(twoSplit[0])
+                      << ", split 2 = " << CBasicStatistics::print(twoSplit[1]));
 
             BOOST_TEST_REQUIRE(std::fabs(CBasicStatistics::mean(twoSplit[0]) - mean1) < 0.7);
             BOOST_TEST_REQUIRE(std::fabs(CBasicStatistics::variance(twoSplit[0]) - var1) < 0.4);
@@ -449,11 +433,9 @@ BOOST_AUTO_TEST_CASE(testCategories) {
             TTupleVec twoSplit;
             classifier.categories(3u, 0, twoSplit);
 
-            if (i % 10 == 0) {
-                LOG_DEBUG(<< "split 1 = " << CBasicStatistics::print(twoSplit[0])
-                          << ", split 2 = " << CBasicStatistics::print(twoSplit[1])
-                          << ", split 3 = " << CBasicStatistics::print(twoSplit[2]));
-            }
+            LOG_TRACE(<< "split 1 = " << CBasicStatistics::print(twoSplit[0])
+                      << ", split 2 = " << CBasicStatistics::print(twoSplit[1])
+                      << ", split 3 = " << CBasicStatistics::print(twoSplit[2]));
 
             BOOST_TEST_REQUIRE(std::fabs(CBasicStatistics::mean(twoSplit[0]) - mean1) < 0.15);
             BOOST_TEST_REQUIRE(std::fabs(CBasicStatistics::variance(twoSplit[0]) - var1) < 0.4);

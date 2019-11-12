@@ -72,6 +72,7 @@ CBase64Filter.cc \
 CCompressedDictionary.cc \
 CCompressOStream.cc \
 CContainerPrinter.cc \
+CCsvLineParser.cc \
 CDataAdder.cc \
 CDataFrame.cc \
 CDataFrameRowSlice.cc \

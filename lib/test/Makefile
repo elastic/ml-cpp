@@ -25,6 +25,8 @@ SRCS= \
     CMultiFileSearcher.cc \
     CRandomNumbers.cc \
     CTestObserver.cc \
+    CThreadDataReader.cc \
+    CThreadDataWriter.cc \
     CTimeSeriesTestData.cc \
 
 TARGET=$(OBJS_DIR)/libMlTest$(DYNAMIC_LIB_EXT)

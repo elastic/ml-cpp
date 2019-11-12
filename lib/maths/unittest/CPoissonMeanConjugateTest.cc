@@ -88,9 +88,7 @@ BOOST_AUTO_TEST_CASE(testMultipleUpdate) {
         }
         filter2.addSamples(samples, weights);
 
-        LOG_DEBUG(<< filter1.print());
-        LOG_DEBUG(<< "vs");
-        LOG_DEBUG(<< filter2.print());
+        LOG_DEBUG(<< filter1.print() << "\nvs" << filter2.print());
         TEqual equal(maths::CToleranceTypes::E_AbsoluteTolerance, 1e-5);
         BOOST_TEST_REQUIRE(filter1.equalTolerance(filter2, equal));
     }
@@ -108,9 +106,7 @@ BOOST_AUTO_TEST_CASE(testMultipleUpdate) {
         }
         filter2.addSamples({x}, {maths_t::countWeight(10.0)});
 
-        LOG_DEBUG(<< filter1.print());
-        LOG_DEBUG(<< "vs");
-        LOG_DEBUG(<< filter2.print());
+        LOG_DEBUG(<< filter1.print() << "\nvs" << filter2.print());
         TEqual equal(maths::CToleranceTypes::E_AbsoluteTolerance, 1e-5);
         BOOST_TEST_REQUIRE(filter1.equalTolerance(filter2, equal));
     }
@@ -237,7 +233,7 @@ BOOST_AUTO_TEST_CASE(testMarginalLikelihood) {
                 BOOST_REQUIRE_EQUAL(lb, ub);
                 double minusLogCdf = (lb + ub) / 2.0;
 
-                LOG_DEBUG(<< "sample = " << x << ", -log(cdf) = " << (-std::log(cdf))
+                LOG_TRACE(<< "sample = " << x << ", -log(cdf) = " << (-std::log(cdf))
                           << ", minusLogCdf = " << minusLogCdf);
 
                 BOOST_REQUIRE_CLOSE_ABSOLUTE(minusLogCdf, -std::log(cdf), epsilon);
@@ -282,7 +278,7 @@ BOOST_AUTO_TEST_CASE(testMarginalLikelihood) {
                     cdf = std::min(cdf, 1.0);
                 }
 
-                LOG_DEBUG(<< "-log(cdf) = " << -std::log(cdf)
+                LOG_TRACE(<< "-log(cdf) = " << -std::log(cdf)
                           << ", minusLogCdf = " << minusLogCdf);
 
                 // We'll tolerate a 5% error in the -log(c.d.f.) since
@@ -396,10 +392,8 @@ BOOST_AUTO_TEST_CASE(testMarginalLikelihoodVariance) {
             filter.addSamples(TDouble1Vec(1, static_cast<double>(samples[j])));
             double expectedVariance;
             BOOST_TEST_REQUIRE(filter.marginalLikelihoodVarianceForTest(expectedVariance));
-            if (j % 10 == 0) {
-                LOG_DEBUG(<< "marginalLikelihoodVariance = " << filter.marginalLikelihoodVariance()
-                          << ", expectedVariance = " << expectedVariance);
-            }
+            LOG_TRACE(<< "marginalLikelihoodVariance = " << filter.marginalLikelihoodVariance()
+                      << ", expectedVariance = " << expectedVariance);
 
             // The error is at the precision of the numerical integration.
             BOOST_REQUIRE_CLOSE_ABSOLUTE(expectedVariance,
@@ -474,7 +468,7 @@ BOOST_AUTO_TEST_CASE(testSampleMarginalLikelihood) {
                 BOOST_TEST_REQUIRE(filter.marginalLikelihoodQuantileForTest(
                     q, eps, expectedQuantile));
 
-                LOG_DEBUG(<< "quantile = " << q << ", x_quantile = " << expectedQuantile
+                LOG_TRACE(<< "quantile = " << q << ", x_quantile = " << expectedQuantile
                           << ", quantile range = [" << sampled[k - 3] << ","
                           << sampled[k] << "]");
 
@@ -590,7 +584,7 @@ BOOST_AUTO_TEST_CASE(testCdf) {
             BOOST_TEST_REQUIRE(filter.minusLogJointCdfComplement(TDouble1Vec(1, x), lb, ub));
             fComplement = (lb + ub) / 2.0;
 
-            LOG_DEBUG(<< "log(F(x)) = " << (f == 0.0 ? f : -f) << ", log(1 - F(x)) = "
+            LOG_TRACE(<< "log(F(x)) = " << (f == 0.0 ? f : -f) << ", log(1 - F(x)) = "
                       << (fComplement == 0.0 ? fComplement : -fComplement));
             BOOST_REQUIRE_CLOSE_ABSOLUTE(1.0, std::exp(-f) + std::exp(-fComplement), 1e-10);
         }
@@ -651,7 +645,7 @@ BOOST_AUTO_TEST_CASE(testProbabilityOfLessLikelySamples) {
 
             double ssd = std::sqrt(px * (1.0 - px) / static_cast<double>(samples.size()));
 
-            LOG_DEBUG(<< "x = " << x << ", expected P(x) = " << px << ", actual P(x) = "
+            LOG_TRACE(<< "x = " << x << ", expected P(x) = " << px << ", actual P(x) = "
                       << (lb + ub) / 2.0 << " sample sd = " << ssd);
 
             BOOST_REQUIRE_CLOSE_ABSOLUTE(px, (lb + ub) / 2.0, 8.0 * ssd);

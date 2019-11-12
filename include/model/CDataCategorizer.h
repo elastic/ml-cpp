@@ -3,12 +3,12 @@
  * or more contributor license agreements. Licensed under the Elastic License;
  * you may not use this file except in compliance with the Elastic License.
  */
-#ifndef INCLUDED_ml_api_CDataTyper_h
-#define INCLUDED_ml_api_CDataTyper_h
+#ifndef INCLUDED_ml_model_CDataCategorizer_h
+#define INCLUDED_ml_model_CDataCategorizer_h
 
 #include <core/CoreTypes.h>
 
-#include <api/ImportExport.h>
+#include <model/ImportExport.h>
 
 #include <boost/unordered_map.hpp>
 
@@ -21,65 +21,65 @@ namespace core {
 class CStatePersistInserter;
 class CStateRestoreTraverser;
 }
-namespace api {
+namespace model {
 
 //! \brief
-//! Interface for classes that convert a raw event string to a type.
+//! Interface for classes that convert a raw event string to a category.
 //!
 //! DESCRIPTION:\n
 //! Abstract interface for classes that convert a raw event string
-//! to a type.
+//! to a category.
 //!
 //! IMPLEMENTATION DECISIONS:\n
-//! At the time of writing, only the token list data typer implements
+//! At the time of writing, only the token list data categorizer implements
 //! this interface.  However, it is not hard to imagine a time when
-//! there are specialist data typers for XML, JSON or delimited files,
+//! there are specialist data categorizers for XML, JSON or delimited files,
 //! so it is good to have an abstract interface that they can all use.
 //!
-class API_EXPORT CDataTyper {
+class MODEL_EXPORT CDataCategorizer {
 public:
     //! Used for storing distinct token IDs
     using TStrStrUMap = boost::unordered_map<std::string, std::string>;
     using TStrStrUMapCItr = TStrStrUMap::const_iterator;
 
     //! Shared pointer to an instance of this class
-    using TDataTyperP = std::shared_ptr<CDataTyper>;
+    using TDataCategorizerP = std::shared_ptr<CDataCategorizer>;
 
     //! Shared pointer to an instance of this class
     using TPersistFunc = std::function<void(core::CStatePersistInserter&)>;
 
 public:
-    CDataTyper(const std::string& fieldName);
+    CDataCategorizer(const std::string& fieldName);
 
     //! Virtual destructor for an abstract base class
-    virtual ~CDataTyper();
+    virtual ~CDataCategorizer();
 
     //! Dump stats
     virtual void dumpStats() const = 0;
 
-    //! Compute a type from a string.  The raw string length may be longer
+    //! Compute a category from a string.  The raw string length may be longer
     //! than the length of the passed string, because the passed string may
     //! have the date stripped out of it.
-    int computeType(bool isDryRun, const std::string& str, size_t rawStringLen);
+    int computeCategory(bool isDryRun, const std::string& str, size_t rawStringLen);
 
     //! As above, but also take into account field names/values.
-    virtual int computeType(bool isDryRun,
-                            const TStrStrUMap& fields,
-                            const std::string& str,
-                            size_t rawStringLen) = 0;
+    virtual int computeCategory(bool isDryRun,
+                                const TStrStrUMap& fields,
+                                const std::string& str,
+                                size_t rawStringLen) = 0;
 
     //! Create reverse search commands that will (more or less) just
-    //! select the records that are classified as the given type when
+    //! select the records that are classified as the given category when
     //! combined with the original search.  Note that the reverse search is
     //! only approximate - it may select more records than have actually
-    //! been classified as the returned type.
-    virtual bool createReverseSearch(int type,
+    //! been classified as the returned category.
+    virtual bool createReverseSearch(int categoryId,
                                      std::string& part1,
                                      std::string& part2,
                                      size_t& maxMatchingLength,
                                      bool& wasCached) = 0;
 
-    //! Has the data typer's state changed?
+    //! Has the data categorizer's state changed?
     virtual bool hasChanged() const = 0;
 
     //! Populate the object from part of a state document
@@ -101,17 +101,17 @@ public:
     void lastPersistTime(core_t::TTime lastPersistTime);
 
 protected:
-    //! Used if no fields are supplied to the computeType() method.
+    //! Used if no fields are supplied to the computeCategory() method.
     static const TStrStrUMap EMPTY_FIELDS;
 
 private:
     //! Which field name are we working on?
     std::string m_FieldName;
 
-    //! When was data last persisted for this typer?  (0 means never.)
+    //! When was data last persisted for this categorizer?  (0 means never.)
     core_t::TTime m_LastPersistTime;
 };
 }
 }
 
-#endif // INCLUDED_ml_api_CDataTyper_h
+#endif // INCLUDED_ml_model_CDataCategorizer_h

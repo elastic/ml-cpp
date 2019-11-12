@@ -14,7 +14,7 @@
 #include <api/CAnomalyJob.h>
 #include <api/CCsvOutputWriter.h>
 #include <api/CFieldConfig.h>
-#include <api/CFieldDataTyper.h>
+#include <api/CFieldDataCategorizer.h>
 #include <api/CJsonOutputWriter.h>
 #include <api/CResultNormalizer.h>
 #include <api/CSingleStreamDataAdder.h>
@@ -82,7 +82,7 @@ void categorizerRestoreHelper(const std::string& stateFile, bool isSymmetric) {
     std::ostringstream outputStrm;
     ml::core::CJsonOutputStreamWrapper wrappedOutputStream(outputStrm);
     ml::api::CJsonOutputWriter writer("job", wrappedOutputStream);
-    ml::api::CFieldDataTyper restoredTyper("job", config, limits, writer, writer);
+    ml::api::CFieldDataCategorizer restoredCategorizer("job", config, limits, writer, writer);
 
     std::ifstream inputStrm(stateFile.c_str());
     BOOST_TEST_REQUIRE(inputStrm.is_open());
@@ -99,7 +99,7 @@ void categorizerRestoreHelper(const std::string& stateFile, bool isSymmetric) {
         inputStrm.seekg(0);
         strm->push(inputStrm);
         ml::api::CSingleStreamSearcher retriever(strm);
-        BOOST_TEST_REQUIRE(restoredTyper.restoreState(retriever, completeToTime));
+        BOOST_TEST_REQUIRE(restoredCategorizer.restoreState(retriever, completeToTime));
     }
 
     if (isSymmetric) {
@@ -110,7 +110,7 @@ void categorizerRestoreHelper(const std::string& stateFile, bool isSymmetric) {
             std::ostringstream* strm(nullptr);
             ml::api::CSingleStreamDataAdder::TOStreamP ptr(strm = new std::ostringstream());
             ml::api::CSingleStreamDataAdder persister(ptr);
-            BOOST_TEST_REQUIRE(restoredTyper.persistState(persister, ""));
+            BOOST_TEST_REQUIRE(restoredCategorizer.persistState(persister, ""));
             newPersistedState = strm->str();
         }
         BOOST_REQUIRE_EQUAL(stripDocIds(origPersistedState), stripDocIds(newPersistedState));

@@ -3,7 +3,7 @@
  * or more contributor license agreements. Licensed under the Elastic License;
  * you may not use this file except in compliance with the Elastic License.
  */
-#include <api/CFieldDataTyper.h>
+#include <api/CFieldDataCategorizer.h>
 
 #include <core/CDataAdder.h>
 #include <core/CDataSearcher.h>
@@ -15,11 +15,12 @@
 #include <core/CStateRestoreTraverser.h>
 #include <core/CStringUtils.h>
 
+#include <model/CTokenListReverseSearchCreator.h>
+
 #include <api/CFieldConfig.h>
 #include <api/CJsonOutputWriter.h>
 #include <api/COutputHandler.h>
 #include <api/CPersistenceManager.h>
-#include <api/CTokenListReverseSearchCreator.h>
 
 #include <sstream>
 
@@ -29,23 +30,23 @@ namespace api {
 namespace {
 
 const std::string VERSION_TAG("a");
-const std::string TYPER_TAG("b");
+const std::string CATEGORIZER_TAG("b");
 const std::string EXAMPLES_COLLECTOR_TAG("c");
 } // unnamed
 
 // Initialise statics
-const std::string CFieldDataTyper::ML_STATE_INDEX(".ml-state");
-const std::string CFieldDataTyper::MLCATEGORY_NAME("mlcategory");
-const double CFieldDataTyper::SIMILARITY_THRESHOLD(0.7);
-const std::string CFieldDataTyper::STATE_TYPE("categorizer_state");
-const std::string CFieldDataTyper::STATE_VERSION("1");
+const std::string CFieldDataCategorizer::ML_STATE_INDEX(".ml-state");
+const std::string CFieldDataCategorizer::MLCATEGORY_NAME("mlcategory");
+const double CFieldDataCategorizer::SIMILARITY_THRESHOLD(0.7);
+const std::string CFieldDataCategorizer::STATE_TYPE("categorizer_state");
+const std::string CFieldDataCategorizer::STATE_VERSION("1");
 
-CFieldDataTyper::CFieldDataTyper(const std::string& jobId,
-                                 const CFieldConfig& config,
-                                 const model::CLimits& limits,
-                                 COutputHandler& outputHandler,
-                                 CJsonOutputWriter& jsonOutputWriter,
-                                 CPersistenceManager* periodicPersister)
+CFieldDataCategorizer::CFieldDataCategorizer(const std::string& jobId,
+                                             const CFieldConfig& config,
+                                             const model::CLimits& limits,
+                                             COutputHandler& outputHandler,
+                                             CJsonOutputWriter& jsonOutputWriter,
+                                             CPersistenceManager* periodicPersister)
     : m_JobId(jobId), m_OutputHandler(outputHandler),
       m_ExtraFieldNames(1, MLCATEGORY_NAME), m_WriteFieldNames(true),
       m_NumRecordsHandled(0), m_OutputFieldCategory(m_Overrides[MLCATEGORY_NAME]),
@@ -53,22 +54,22 @@ CFieldDataTyper::CFieldDataTyper(const std::string& jobId,
       m_ExamplesCollector(limits.maxExamples()),
       m_CategorizationFieldName(config.categorizationFieldName()),
       m_CategorizationFilter(), m_PeriodicPersister(periodicPersister) {
-    this->createTyper(m_CategorizationFieldName);
+    this->createCategorizer(m_CategorizationFieldName);
 
     LOG_DEBUG(<< "Configuring categorization filtering");
     m_CategorizationFilter.configure(config.categorizationFilters());
 }
 
-CFieldDataTyper::~CFieldDataTyper() {
-    m_DataTyper->dumpStats();
+CFieldDataCategorizer::~CFieldDataCategorizer() {
+    m_DataCategorizer->dumpStats();
 }
 
-void CFieldDataTyper::newOutputStream() {
+void CFieldDataCategorizer::newOutputStream() {
     m_WriteFieldNames = true;
     m_OutputHandler.newOutputStream();
 }
 
-bool CFieldDataTyper::handleRecord(const TStrStrUMap& dataRowFields) {
+bool CFieldDataCategorizer::handleRecord(const TStrStrUMap& dataRowFields) {
     // First time through we output the field names
     if (m_WriteFieldNames) {
         TStrVec fieldNames;
@@ -94,7 +95,8 @@ bool CFieldDataTyper::handleRecord(const TStrStrUMap& dataRowFields) {
         return this->handleControlMessage(iter->second);
     }
 
-    m_OutputFieldCategory = core::CStringUtils::typeToString(this->computeType(dataRowFields));
+    m_OutputFieldCategory =
+        core::CStringUtils::typeToString(this->computeCategory(dataRowFields));
 
     if (m_OutputHandler.writeRow(dataRowFields, m_Overrides) == false) {
         LOG_ERROR(<< "Unable to write output with type " << m_OutputFieldCategory
@@ -106,7 +108,7 @@ bool CFieldDataTyper::handleRecord(const TStrStrUMap& dataRowFields) {
     return true;
 }
 
-void CFieldDataTyper::finalise() {
+void CFieldDataCategorizer::finalise() {
     // Pass on the request in case we're chained
     m_OutputHandler.finalise();
 
@@ -118,19 +120,19 @@ void CFieldDataTyper::finalise() {
     }
 }
 
-uint64_t CFieldDataTyper::numRecordsHandled() const {
+uint64_t CFieldDataCategorizer::numRecordsHandled() const {
     return m_NumRecordsHandled;
 }
 
-COutputHandler& CFieldDataTyper::outputHandler() {
+COutputHandler& CFieldDataCategorizer::outputHandler() {
     return m_OutputHandler;
 }
 
-int CFieldDataTyper::computeType(const TStrStrUMap& dataRowFields) {
-    const std::string& categorizationFieldName = m_DataTyper->fieldName();
+int CFieldDataCategorizer::computeCategory(const TStrStrUMap& dataRowFields) {
+    const std::string& categorizationFieldName = m_DataCategorizer->fieldName();
     TStrStrUMapCItr fieldIter = dataRowFields.find(categorizationFieldName);
     if (fieldIter == dataRowFields.end()) {
-        LOG_WARN(<< "Assigning type -1 to record with no "
+        LOG_WARN(<< "Assigning ML category -1 to record with no "
                  << categorizationFieldName << " field:" << core_t::LINE_ENDING
                  << this->debugPrintRecord(dataRowFields));
         return -1;
@@ -138,32 +140,31 @@ int CFieldDataTyper::computeType(const TStrStrUMap& dataRowFields) {
 
     const std::string& fieldValue = fieldIter->second;
     if (fieldValue.empty()) {
-        LOG_WARN(<< "Assigning type -1 to record with blank "
+        LOG_WARN(<< "Assigning ML category -1 to record with blank "
                  << categorizationFieldName << " field:" << core_t::LINE_ENDING
                  << this->debugPrintRecord(dataRowFields));
         return -1;
     }
 
-    int type = -1;
+    int categoryId = -1;
     if (m_CategorizationFilter.empty()) {
-        type = m_DataTyper->computeType(false, dataRowFields, fieldValue,
-                                        fieldValue.length());
+        categoryId = m_DataCategorizer->computeCategory(
+            false, dataRowFields, fieldValue, fieldValue.length());
     } else {
         std::string filtered = m_CategorizationFilter.apply(fieldValue);
-        type = m_DataTyper->computeType(false, dataRowFields, filtered,
-                                        fieldValue.length());
+        categoryId = m_DataCategorizer->computeCategory(false, dataRowFields, filtered,
+                                                        fieldValue.length());
     }
-    if (type < 1) {
+    if (categoryId < 1) {
         return -1;
     }
 
-    bool exampleAdded = m_ExamplesCollector.add(static_cast<std::size_t>(type), fieldValue);
-    bool searchTermsChanged = this->createReverseSearch(type);
+    bool exampleAdded = m_ExamplesCollector.add(categoryId, fieldValue);
+    bool searchTermsChanged = this->createReverseSearch(categoryId);
     if (exampleAdded || searchTermsChanged) {
-        const TStrSet& examples =
-            m_ExamplesCollector.examples(static_cast<std::size_t>(type));
         m_JsonOutputWriter.writeCategoryDefinition(
-            type, m_SearchTerms, m_SearchTermsRegex, m_MaxMatchingLength, examples);
+            categoryId, m_SearchTerms, m_SearchTermsRegex, m_MaxMatchingLength,
+            m_ExamplesCollector.examples(categoryId));
     }
 
     // Check if a periodic persist is due.
@@ -171,38 +172,38 @@ int CFieldDataTyper::computeType(const TStrStrUMap& dataRowFields) {
         m_PeriodicPersister->startPersistIfAppropriate();
     }
 
-    return type;
+    return categoryId;
 }
 
-void CFieldDataTyper::createTyper(const std::string& fieldName) {
-    // TODO - if we ever have more than one data typer class, this should be
+void CFieldDataCategorizer::createCategorizer(const std::string& fieldName) {
+    // TODO - if we ever have more than one data categorizer class, this should be
     // replaced with a factory
-    TTokenListDataTyperKeepsFields::TTokenListReverseSearchCreatorIntfCPtr reverseSearchCreator(
-        new CTokenListReverseSearchCreator(fieldName));
-    m_DataTyper.reset(new TTokenListDataTyperKeepsFields(
+    TTokenListDataCategorizerKeepsFields::TTokenListReverseSearchCreatorIntfCPtr reverseSearchCreator(
+        new model::CTokenListReverseSearchCreator(fieldName));
+    m_DataCategorizer.reset(new TTokenListDataCategorizerKeepsFields(
         reverseSearchCreator, SIMILARITY_THRESHOLD, fieldName));
 
     LOG_TRACE(<< "Created new categorizer for field '" << fieldName << "'");
 }
 
-bool CFieldDataTyper::createReverseSearch(int type) {
+bool CFieldDataCategorizer::createReverseSearch(int categoryId) {
     bool wasCached(false);
-    if (m_DataTyper->createReverseSearch(type, m_SearchTerms, m_SearchTermsRegex,
-                                         m_MaxMatchingLength, wasCached) == false) {
+    if (m_DataCategorizer->createReverseSearch(categoryId, m_SearchTerms, m_SearchTermsRegex,
+                                               m_MaxMatchingLength, wasCached) == false) {
         m_SearchTerms.clear();
         m_SearchTermsRegex.clear();
     }
     return !wasCached;
 }
 
-bool CFieldDataTyper::restoreState(core::CDataSearcher& restoreSearcher,
-                                   core_t::TTime& completeToTime) {
+bool CFieldDataCategorizer::restoreState(core::CDataSearcher& restoreSearcher,
+                                         core_t::TTime& completeToTime) {
     // Pass on the request in case we're chained
     if (m_OutputHandler.restoreState(restoreSearcher, completeToTime) == false) {
         return false;
     }
 
-    LOG_DEBUG(<< "Restore typer state");
+    LOG_DEBUG(<< "Restore categorizer state");
 
     try {
         // Restore from Elasticsearch compressed data
@@ -246,7 +247,7 @@ bool CFieldDataTyper::restoreState(core::CDataSearcher& restoreSearcher,
     return true;
 }
 
-bool CFieldDataTyper::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
+bool CFieldDataCategorizer::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
     const std::string& firstFieldName = traverser.name();
     if (traverser.isEof()) {
         LOG_ERROR(<< "Expected categorizer persisted state but no state exists");
@@ -272,19 +273,20 @@ bool CFieldDataTyper::acceptRestoreTraverser(core::CStateRestoreTraverser& trave
 
     if (traverser.next() == false) {
         LOG_ERROR(<< "Cannot restore categorizer - end of object reached when "
-                  << TYPER_TAG << " was expected");
+                  << CATEGORIZER_TAG << " was expected");
         return false;
     }
 
-    if (traverser.name() == TYPER_TAG) {
-        if (traverser.traverseSubLevel(std::bind(&CDataTyper::acceptRestoreTraverser, m_DataTyper,
-                                                 std::placeholders::_1)) == false) {
+    if (traverser.name() == CATEGORIZER_TAG) {
+        if (traverser.traverseSubLevel(
+                std::bind(&model::CDataCategorizer::acceptRestoreTraverser,
+                          m_DataCategorizer, std::placeholders::_1)) == false) {
             LOG_ERROR(<< "Cannot restore categorizer, unexpected element: "
                       << traverser.value());
             return false;
         }
     } else {
-        LOG_ERROR(<< "Cannot restore categorizer - " << TYPER_TAG << " element expected but found "
+        LOG_ERROR(<< "Cannot restore categorizer - " << CATEGORIZER_TAG << " element expected but found "
                   << traverser.name() << '=' << traverser.value());
         return false;
     }
@@ -297,7 +299,7 @@ bool CFieldDataTyper::acceptRestoreTraverser(core::CStateRestoreTraverser& trave
 
     if (traverser.name() == EXAMPLES_COLLECTOR_TAG) {
         if (traverser.traverseSubLevel(std::bind(
-                &CCategoryExamplesCollector::acceptRestoreTraverser,
+                &model::CCategoryExamplesCollector::acceptRestoreTraverser,
                 std::ref(m_ExamplesCollector), std::placeholders::_1)) == false ||
             traverser.haveBadState()) {
             LOG_ERROR(<< "Cannot restore categorizer, unexpected element: "
@@ -313,8 +315,8 @@ bool CFieldDataTyper::acceptRestoreTraverser(core::CStateRestoreTraverser& trave
     return true;
 }
 
-bool CFieldDataTyper::persistState(core::CDataAdder& persister,
-                                   const std::string& descriptionPrefix) {
+bool CFieldDataCategorizer::persistState(core::CDataAdder& persister,
+                                         const std::string& descriptionPrefix) {
     if (m_PeriodicPersister != nullptr) {
         // This will not happen if finalise() was called before persisting state
         if (m_PeriodicPersister->isBusy()) {
@@ -329,12 +331,13 @@ bool CFieldDataTyper::persistState(core::CDataAdder& persister,
         return false;
     }
 
-    LOG_DEBUG(<< "Persist typer state");
+    LOG_DEBUG(<< "Persist categorizer state");
 
-    return this->doPersistState(m_DataTyper->makePersistFunc(), m_ExamplesCollector, persister);
+    return this->doPersistState(m_DataCategorizer->makePersistFunc(),
+                                m_ExamplesCollector, persister);
 }
 
-bool CFieldDataTyper::isPersistenceNeeded(const std::string& description) const {
+bool CFieldDataCategorizer::isPersistenceNeeded(const std::string& description) const {
     // Pass on the request in case we're chained
     if (m_OutputHandler.isPersistenceNeeded(description)) {
         return true;
@@ -348,9 +351,9 @@ bool CFieldDataTyper::isPersistenceNeeded(const std::string& description) const 
     return true;
 }
 
-bool CFieldDataTyper::doPersistState(const CDataTyper::TPersistFunc& dataTyperPersistFunc,
-                                     const CCategoryExamplesCollector& examplesCollector,
-                                     core::CDataAdder& persister) {
+bool CFieldDataCategorizer::doPersistState(const model::CDataCategorizer::TPersistFunc& dataCategorizerPersistFunc,
+                                           const model::CCategoryExamplesCollector& examplesCollector,
+                                           core::CDataAdder& persister) {
     try {
         core::CStateCompressor compressor(persister);
 
@@ -372,7 +375,8 @@ bool CFieldDataTyper::doPersistState(const CDataTyper::TPersistFunc& dataTyperPe
             // Keep the JSON inserter scoped as it only finishes the stream
             // when it is destructed
             core::CJsonStatePersistInserter inserter(*strm);
-            this->acceptPersistInserter(dataTyperPersistFunc, examplesCollector, inserter);
+            this->acceptPersistInserter(dataCategorizerPersistFunc,
+                                        examplesCollector, inserter);
         }
 
         if (strm->bad()) {
@@ -392,18 +396,19 @@ bool CFieldDataTyper::doPersistState(const CDataTyper::TPersistFunc& dataTyperPe
     return true;
 }
 
-void CFieldDataTyper::acceptPersistInserter(const CDataTyper::TPersistFunc& dataTyperPersistFunc,
-                                            const CCategoryExamplesCollector& examplesCollector,
-                                            core::CStatePersistInserter& inserter) const {
+void CFieldDataCategorizer::acceptPersistInserter(
+    const model::CDataCategorizer::TPersistFunc& dataCategorizerPersistFunc,
+    const model::CCategoryExamplesCollector& examplesCollector,
+    core::CStatePersistInserter& inserter) const {
     inserter.insertValue(VERSION_TAG, STATE_VERSION);
-    inserter.insertLevel(TYPER_TAG, dataTyperPersistFunc);
+    inserter.insertLevel(CATEGORIZER_TAG, dataCategorizerPersistFunc);
     inserter.insertLevel(EXAMPLES_COLLECTOR_TAG,
-                         std::bind(&CCategoryExamplesCollector::acceptPersistInserter,
+                         std::bind(&model::CCategoryExamplesCollector::acceptPersistInserter,
                                    &examplesCollector, std::placeholders::_1));
 }
 
-bool CFieldDataTyper::periodicPersistStateInBackground() {
-    LOG_DEBUG(<< "Periodic persist typer state");
+bool CFieldDataCategorizer::periodicPersistStateInBackground() {
+    LOG_DEBUG(<< "Periodic persist categorizer state");
 
     // Pass on the request in case we're chained
     if (m_OutputHandler.periodicPersistStateInBackground() == false) {
@@ -416,11 +421,11 @@ bool CFieldDataTyper::periodicPersistStateInBackground() {
     }
 
     if (m_PeriodicPersister->addPersistFunc(
-            std::bind(&CFieldDataTyper::doPersistState, this,
+            std::bind(&CFieldDataCategorizer::doPersistState, this,
                       // Do NOT add std::ref wrappers
                       // around these arguments - they
                       // MUST be copied for thread safety
-                      m_DataTyper->makePersistFunc(), m_ExamplesCollector,
+                      m_DataCategorizer->makePersistFunc(), m_ExamplesCollector,
                       std::placeholders::_1)) == false) {
         LOG_ERROR(<< "Failed to add categorizer background persistence function");
         return false;
@@ -431,8 +436,8 @@ bool CFieldDataTyper::periodicPersistStateInBackground() {
     return true;
 }
 
-bool CFieldDataTyper::periodicPersistStateInForeground() {
-    LOG_DEBUG(<< "Periodic persist typer state");
+bool CFieldDataCategorizer::periodicPersistStateInForeground() {
+    LOG_DEBUG(<< "Periodic persist categorizer state");
 
     if (m_PeriodicPersister == nullptr) {
         return false;
@@ -451,16 +456,16 @@ bool CFieldDataTyper::periodicPersistStateInForeground() {
     return true;
 }
 
-void CFieldDataTyper::resetAfterCorruptRestore() {
+void CFieldDataCategorizer::resetAfterCorruptRestore() {
     LOG_WARN(<< "Discarding corrupt categorizer state - will re-categorize from scratch");
 
     m_SearchTerms.clear();
     m_SearchTermsRegex.clear();
-    this->createTyper(m_CategorizationFieldName);
+    this->createCategorizer(m_CategorizationFieldName);
     m_ExamplesCollector.clear();
 }
 
-bool CFieldDataTyper::handleControlMessage(const std::string& controlMessage) {
+bool CFieldDataCategorizer::handleControlMessage(const std::string& controlMessage) {
     if (controlMessage.empty()) {
         LOG_ERROR(<< "Programmatic error - handleControlMessage should only be "
                      "called with non-empty control messages");
@@ -494,7 +499,7 @@ bool CFieldDataTyper::handleControlMessage(const std::string& controlMessage) {
     return true;
 }
 
-void CFieldDataTyper::acknowledgeFlush(const std::string& flushId) {
+void CFieldDataCategorizer::acknowledgeFlush(const std::string& flushId) {
     if (flushId.empty()) {
         LOG_ERROR(<< "Received flush control message with no ID");
     } else {

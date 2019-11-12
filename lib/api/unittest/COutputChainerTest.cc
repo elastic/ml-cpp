@@ -39,7 +39,7 @@ BOOST_AUTO_TEST_CASE(testChaining) {
         BOOST_TEST_REQUIRE(outputStrm.is_open());
         ml::core::CJsonOutputStreamWrapper wrappedOutputStream(outputStrm);
         // Set up the processing chain as:
-        // big.txt -> typer -> chainer -> detector -> chainerOutput.txt
+        // big.txt -> categorizer -> chainer -> detector -> chainerOutput.txt
 
         ml::model::CLimits limits;
         ml::api::CFieldConfig fieldConfig;

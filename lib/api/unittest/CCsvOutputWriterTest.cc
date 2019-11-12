@@ -53,7 +53,7 @@ BOOST_AUTO_TEST_CASE(testAdd) {
     fieldNames.push_back("timestartpos");
 
     ml::api::CCsvOutputWriter::TStrVec mlFieldNames;
-    mlFieldNames.push_back("ml_type");
+    mlFieldNames.push_back("mlcategory");
 
     BOOST_TEST_REQUIRE(writer.fieldNames(fieldNames, mlFieldNames));
 
@@ -86,7 +86,7 @@ BOOST_AUTO_TEST_CASE(testAdd) {
     originalFields["timestartpos"] = "0";
 
     ml::api::CCsvOutputWriter::TStrStrUMap mlFields;
-    mlFields["ml_type"] = "75";
+    mlFields["mlcategory"] = "75";
 
     BOOST_TEST_REQUIRE(writer.writeRow(originalFields, mlFields));
 
@@ -154,7 +154,7 @@ BOOST_AUTO_TEST_CASE(testOverwrite) {
 
     ml::api::CCsvOutputWriter::TStrVec mlFieldNames;
     mlFieldNames.push_back("eventtype");
-    mlFieldNames.push_back("ml_type");
+    mlFieldNames.push_back("mlcategory");
 
     BOOST_TEST_REQUIRE(writer.fieldNames(fieldNames, mlFieldNames));
 
@@ -189,7 +189,7 @@ BOOST_AUTO_TEST_CASE(testOverwrite) {
     ml::api::CCsvOutputWriter::TStrStrUMap mlFields;
     mlFields["_cd"] = "2:8934689";
     mlFields["date_zone"] = "GMT";
-    mlFields["ml_type"] = "42";
+    mlFields["mlcategory"] = "42";
 
     BOOST_TEST_REQUIRE(writer.writeRow(originalFields, mlFields));
 
@@ -267,7 +267,7 @@ BOOST_AUTO_TEST_CASE(testThroughput) {
 
     ml::api::CCsvOutputWriter::TStrVec mlFieldNames;
     mlFieldNames.push_back("eventtype");
-    mlFieldNames.push_back("ml_type");
+    mlFieldNames.push_back("mlcategory");
 
     ml::api::CCsvOutputWriter::TStrStrUMap originalFields;
     originalFields["_cd"] = "0:3933689";
@@ -300,7 +300,7 @@ BOOST_AUTO_TEST_CASE(testThroughput) {
     ml::api::CCsvOutputWriter::TStrStrUMap mlFields;
     mlFields["_cd"] = "2:8934689";
     mlFields["date_zone"] = "GMT";
-    mlFields["ml_type"] = "42";
+    mlFields["mlcategory"] = "42";
 
     // Write the record this many times
     static const size_t TEST_SIZE(75000);
