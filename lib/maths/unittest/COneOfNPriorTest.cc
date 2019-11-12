@@ -601,7 +601,7 @@ BOOST_AUTO_TEST_CASE(testMarginalLikelihood) {
 
             double dFdx = (FxPlusEps - FxMinusEps) / (2.0 * EPS);
 
-            LOG_DEBUG(<< "x = " << x << ", f(x) = " << fx << ", dF(x)/dx = " << dFdx);
+            LOG_TRACE(<< "x = " << x << ", f(x) = " << fx << ", dF(x)/dx = " << dFdx);
             BOOST_REQUIRE_CLOSE_ABSOLUTE(fx, dFdx, std::max(1e-5, 1e-3 * FxPlusEps));
 
             BOOST_TEST_REQUIRE(filter.minusLogJointCdf(TDouble1Vec(1, x), lb, ub));
@@ -609,7 +609,7 @@ BOOST_AUTO_TEST_CASE(testMarginalLikelihood) {
 
             BOOST_TEST_REQUIRE(filter.minusLogJointCdfComplement(TDouble1Vec(1, x), lb, ub));
             double FxComplement = std::exp(-(lb + ub) / 2.0);
-            LOG_DEBUG(<< "F(x) = " << Fx << " 1 - F(x) = " << FxComplement);
+            LOG_TRACE(<< "F(x) = " << Fx << " 1 - F(x) = " << FxComplement);
 
             BOOST_REQUIRE_CLOSE_ABSOLUTE(1.0, Fx + FxComplement, 1e-3);
         }
@@ -654,10 +654,8 @@ BOOST_AUTO_TEST_CASE(testMarginalLikelihoodMean) {
                     double expectedMean;
                     BOOST_TEST_REQUIRE(filter.marginalLikelihoodMeanForTest(expectedMean));
 
-                    if (k % 10 == 0) {
-                        LOG_DEBUG(<< "marginalLikelihoodMean = " << filter.marginalLikelihoodMean()
-                                  << ", expectedMean = " << expectedMean);
-                    }
+                    LOG_TRACE(<< "marginalLikelihoodMean = " << filter.marginalLikelihoodMean()
+                              << ", expectedMean = " << expectedMean);
 
                     // The error is at the precision of the numerical integration.
                     BOOST_REQUIRE_CLOSE_ABSOLUTE(expectedMean,
@@ -702,10 +700,8 @@ BOOST_AUTO_TEST_CASE(testMarginalLikelihoodMean) {
                     double expectedMean;
                     BOOST_TEST_REQUIRE(filter.marginalLikelihoodMeanForTest(expectedMean));
 
-                    if (k % 10 == 0) {
-                        LOG_DEBUG(<< "marginalLikelihoodMean = " << filter.marginalLikelihoodMean()
-                                  << ", expectedMean = " << expectedMean);
-                    }
+                    LOG_TRACE(<< "marginalLikelihoodMean = " << filter.marginalLikelihoodMean()
+                              << ", expectedMean = " << expectedMean);
 
                     BOOST_REQUIRE_CLOSE_ABSOLUTE(expectedMean,
                                                  filter.marginalLikelihoodMean(),
@@ -861,11 +857,10 @@ BOOST_AUTO_TEST_CASE(testMarginalLikelihoodVariance) {
                     filter.addSamples(TDouble1Vec(1, samples[k]));
                     double expectedVariance;
                     BOOST_TEST_REQUIRE(filter.marginalLikelihoodVarianceForTest(expectedVariance));
-                    if (k % 10 == 0) {
-                        LOG_DEBUG(<< "marginalLikelihoodVariance = "
-                                  << filter.marginalLikelihoodVariance()
-                                  << ", expectedVariance = " << expectedVariance);
-                    }
+
+                    LOG_TRACE(<< "marginalLikelihoodVariance = "
+                              << filter.marginalLikelihoodVariance()
+                              << ", expectedVariance = " << expectedVariance);
 
                     // The error is at the precision of the numerical integration.
                     BOOST_REQUIRE_CLOSE_ABSOLUTE(expectedVariance,
@@ -918,11 +913,9 @@ BOOST_AUTO_TEST_CASE(testMarginalLikelihoodVariance) {
                     double expectedVariance;
                     BOOST_TEST_REQUIRE(filter.marginalLikelihoodVarianceForTest(expectedVariance));
 
-                    if (k % 10 == 0) {
-                        LOG_DEBUG(<< "marginalLikelihoodVariance = "
-                                  << filter.marginalLikelihoodVariance()
-                                  << ", expectedVariance = " << expectedVariance);
-                    }
+                    LOG_TRACE(<< "marginalLikelihoodVariance = "
+                              << filter.marginalLikelihoodVariance()
+                              << ", expectedVariance = " << expectedVariance);
 
                     // The error is mainly due to the truncation in the
                     // integration range used to compute the expected mean.
@@ -1054,7 +1047,7 @@ BOOST_AUTO_TEST_CASE(testCdf) {
             BOOST_TEST_REQUIRE(filter.minusLogJointCdfComplement(TDouble1Vec(1, x), lb, ub));
             double fComplement = (lb + ub) / 2.0;
 
-            LOG_DEBUG(<< "log(F(x)) = " << (f == 0.0 ? f : -f) << ", log(1 - F(x)) = "
+            LOG_TRACE(<< "log(F(x)) = " << (f == 0.0 ? f : -f) << ", log(1 - F(x)) = "
                       << (fComplement == 0.0 ? fComplement : -fComplement));
             BOOST_REQUIRE_CLOSE_ABSOLUTE(1.0, std::exp(-f) + std::exp(-fComplement), 1e-10);
         }
@@ -1109,7 +1102,7 @@ BOOST_AUTO_TEST_CASE(testProbabilityOfLessLikelySamples) {
             expectedProbability += weight * modelProbability;
         }
 
-        LOG_DEBUG(<< "weights = " << core::CContainerPrinter::print(weights)
+        LOG_TRACE(<< "weights = " << core::CContainerPrinter::print(weights)
                   << ", expectedProbability = " << expectedProbability
                   << ", probability = " << probability);
         BOOST_REQUIRE_CLOSE_ABSOLUTE(expectedProbability, probability,
@@ -1120,7 +1113,7 @@ BOOST_AUTO_TEST_CASE(testProbabilityOfLessLikelySamples) {
                 maths_t::countVarianceScaleWeight(vs[k]));
             double ss[] = {0.9 * mode, 1.1 * mode};
 
-            LOG_DEBUG(<< "vs = " << vs[k] << ", mode = " << mode);
+            LOG_TRACE(<< "vs = " << vs[k] << ", mode = " << mode);
 
             if (mode > 0.0) {
                 filter.probabilityOfLessLikelySamples(

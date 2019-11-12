@@ -109,9 +109,7 @@ BOOST_AUTO_TEST_CASE(testMultipleUpdate) {
         }
         filter2.addSamples(scaledSamples, weights);
 
-        LOG_DEBUG(<< filter1.print());
-        LOG_DEBUG(<< "vs");
-        LOG_DEBUG(<< filter2.print());
+        LOG_DEBUG(<< filter1.print() << "\nvs" << filter2.print());
         TEqual equal(maths::CToleranceTypes::E_RelativeTolerance, 0.015);
         BOOST_TEST_REQUIRE(filter1.equalTolerance(filter2, equal));
     }
@@ -129,9 +127,7 @@ BOOST_AUTO_TEST_CASE(testMultipleUpdate) {
         }
         filter2.addSamples({x}, {maths_t::countWeight(static_cast<double>(count))});
 
-        LOG_DEBUG(<< filter1.print());
-        LOG_DEBUG(<< "vs");
-        LOG_DEBUG(<< filter2.print());
+        LOG_DEBUG(<< filter1.print() << "\nvs" << filter2.print());
         TEqual equal(maths::CToleranceTypes::E_AbsoluteTolerance, 1e-3);
         BOOST_TEST_REQUIRE(filter1.equalTolerance(filter2, equal));
     }
@@ -215,7 +211,7 @@ BOOST_AUTO_TEST_CASE(testMeanEstimation) {
         for (size_t j = 0; j < boost::size(testIntervals); ++j) {
             double interval = 100.0 * errors[j] / static_cast<double>(nTests);
 
-            LOG_DEBUG(<< "interval = " << interval
+            LOG_TRACE(<< "interval = " << interval
                       << ", expectedInterval = " << (100.0 - testIntervals[j]));
 
             // If the decay rate is zero the intervals should be accurate.
@@ -276,7 +272,7 @@ BOOST_AUTO_TEST_CASE(testPrecisionEstimation) {
         for (size_t j = 0; j < boost::size(testIntervals); ++j) {
             double interval = 100.0 * errors[j] / static_cast<double>(nTests);
 
-            LOG_DEBUG(<< "interval = " << interval
+            LOG_TRACE(<< "interval = " << interval
                       << ", expectedInterval = " << (100.0 - testIntervals[j]));
 
             // If the decay rate is zero the intervals should be accurate.
@@ -452,7 +448,7 @@ BOOST_AUTO_TEST_CASE(testMarginalLikelihood) {
                                                          1e-3, q2);
                 TDoubleDoublePr interval =
                     filter.marginalLikelihoodConfidenceInterval(percentages[i]);
-                LOG_DEBUG(<< "[q1, q2] = [" << q1 << ", " << q2 << "]"
+                LOG_TRACE(<< "[q1, q2] = [" << q1 << ", " << q2 << "]"
                           << ", interval = " << core::CContainerPrinter::print(interval));
                 BOOST_REQUIRE_CLOSE_ABSOLUTE(q1, interval.first, 1e-3);
                 BOOST_REQUIRE_CLOSE_ABSOLUTE(q2, interval.second, 1e-3);
@@ -483,7 +479,7 @@ BOOST_AUTO_TEST_CASE(testMarginalLikelihood) {
                         scaledLogNormal, (50.0 + percentages[j] / 2.0) / 100.0);
                     TDoubleDoublePr interval = filter.marginalLikelihoodConfidenceInterval(
                         percentages[j], maths_t::countVarianceScaleWeight(vs));
-                    LOG_DEBUG(<< "[q1, q2] = [" << q1 << ", " << q2 << "]"
+                    LOG_TRACE(<< "[q1, q2] = [" << q1 << ", " << q2 << "]"
                               << ", interval = " << core::CContainerPrinter::print(interval));
                     BOOST_REQUIRE_CLOSE_ABSOLUTE(q1, interval.first,
                                                  std::max(0.5, 0.2 * q1));
@@ -532,10 +528,8 @@ BOOST_AUTO_TEST_CASE(testMarginalLikelihoodMean) {
                 double expectedMean;
                 BOOST_TEST_REQUIRE(filter.marginalLikelihoodMeanForTest(expectedMean));
 
-                if (k % 10 == 0) {
-                    LOG_DEBUG(<< "marginalLikelihoodMean = " << filter.marginalLikelihoodMean()
-                              << ", expectedMean = " << expectedMean);
-                }
+                LOG_TRACE(<< "marginalLikelihoodMean = " << filter.marginalLikelihoodMean()
+                          << ", expectedMean = " << expectedMean);
 
                 BOOST_REQUIRE_CLOSE_ABSOLUTE(
                     expectedMean, filter.marginalLikelihoodMean(), 0.35 * expectedMean);
@@ -635,11 +629,8 @@ BOOST_AUTO_TEST_CASE(testMarginalLikelihoodVariance) {
                 double expectedVariance;
                 BOOST_TEST_REQUIRE(filter.marginalLikelihoodVarianceForTest(expectedVariance));
 
-                if (k % 10 == 0) {
-                    LOG_DEBUG(<< "marginalLikelihoodVariance = "
-                              << filter.marginalLikelihoodVariance()
-                              << ", expectedVariance = " << expectedVariance);
-                }
+                LOG_TRACE(<< "marginalLikelihoodVariance = " << filter.marginalLikelihoodVariance()
+                          << ", expectedVariance = " << expectedVariance);
 
                 relativeError.add(std::fabs(filter.marginalLikelihoodVariance() - expectedVariance) /
                                   expectedVariance);
@@ -699,9 +690,9 @@ BOOST_AUTO_TEST_CASE(testSampleMarginalLikelihood) {
             sampledMoments = std::for_each(sampled.begin(), sampled.end(), sampledMoments);
             BOOST_REQUIRE_EQUAL(numberSampled, sampled.size());
 
-            LOG_DEBUG(<< "expectedMean = " << filter.marginalLikelihoodMean() << ", sampledMean = "
+            LOG_TRACE(<< "expectedMean = " << filter.marginalLikelihoodMean() << ", sampledMean = "
                       << maths::CBasicStatistics::mean(sampledMoments));
-            LOG_DEBUG(<< "expectedVar = " << filter.marginalLikelihoodVariance() << ", sampledVar = "
+            LOG_TRACE(<< "expectedVar = " << filter.marginalLikelihoodVariance() << ", sampledVar = "
                       << maths::CBasicStatistics::variance(sampledMoments));
 
             BOOST_REQUIRE_CLOSE_ABSOLUTE(filter.marginalLikelihoodMean(),
@@ -717,7 +708,7 @@ BOOST_AUTO_TEST_CASE(testSampleMarginalLikelihood) {
             double expectedQuantile;
             BOOST_TEST_REQUIRE(filter.marginalLikelihoodQuantileForTest(q, eps, expectedQuantile));
 
-            LOG_DEBUG(<< "quantile = " << q << ", x_quantile = " << expectedQuantile << ", quantile range = ["
+            LOG_TRACE(<< "quantile = " << q << ", x_quantile = " << expectedQuantile << ", quantile range = ["
                       << sampled[j - 1] << "," << sampled[j] << "]");
             BOOST_TEST_REQUIRE(
                 expectedQuantile >=
@@ -778,7 +769,7 @@ BOOST_AUTO_TEST_CASE(testCdf) {
             BOOST_TEST_REQUIRE(filter.minusLogJointCdfComplement(
                 TDouble1Vec(1, x), lowerBound, upperBound));
             fComplement = (lowerBound + upperBound) / 2.0;
-            LOG_DEBUG(<< "log(F(x)) = " << (f == 0.0 ? f : -f) << ", log(1 - F(x)) = "
+            LOG_TRACE(<< "log(F(x)) = " << (f == 0.0 ? f : -f) << ", log(1 - F(x)) = "
                       << (fComplement == 0.0 ? fComplement : -fComplement));
             BOOST_REQUIRE_CLOSE_ABSOLUTE(1.0, std::exp(-f) + std::exp(-fComplement), 1e-10);
         }
@@ -1400,14 +1391,14 @@ BOOST_AUTO_TEST_CASE(testVarianceScale) {
             }
 
             for (size_t j = 0; j < boost::size(varianceScales); ++j) {
-                LOG_DEBUG(<< "**** variance scale = " << varianceScales[j] << " ****");
+                LOG_TRACE(<< "**** variance scale = " << varianceScales[j] << " ****");
 
                 double ss = std::log(1.0 + varianceScales[j] * (std::exp(squareScale) - 1.0));
                 double shiftedLocation = location + (squareScale - ss) / 2.0;
                 {
                     boost::math::lognormal_distribution<> logNormal(shiftedLocation,
                                                                     std::sqrt(ss));
-                    LOG_DEBUG(<< "mean = " << boost::math::mean(logNormal)
+                    LOG_TRACE(<< "mean = " << boost::math::mean(logNormal)
                               << ", variance = " << boost::math::variance(logNormal));
                 }
 
@@ -1437,7 +1428,7 @@ BOOST_AUTO_TEST_CASE(testVarianceScale) {
                     double threshold = percentileErrorTolerance +
                                        unscaledPercentileErrors[k];
 
-                    LOG_DEBUG(<< "percentile = " << percentiles[k] << ", probability = "
+                    LOG_TRACE(<< "percentile = " << percentiles[k] << ", probability = "
                               << probabilities[index] << ", error = " << error
                               << ", error threshold = " << threshold);
 
@@ -1447,7 +1438,7 @@ BOOST_AUTO_TEST_CASE(testVarianceScale) {
 
                 double threshold = meanPercentileErrorTolerance + unscaledMeanPercentileError;
 
-                LOG_DEBUG(<< "mean error = " << meanPercentileError
+                LOG_TRACE(<< "mean error = " << meanPercentileError
                           << ", mean error threshold = " << threshold);
 
                 BOOST_TEST_REQUIRE(meanPercentileError < threshold);
@@ -1468,7 +1459,6 @@ BOOST_AUTO_TEST_CASE(testVarianceScale) {
             BOOST_TEST_REQUIRE(totalMeanPercentileError < threshold);
         }
 
-        LOG_DEBUG(<< "");
         LOG_DEBUG(<< "****** jointLogMarginalLikelihood ******");
 
         test::CRandomNumbers rng;
@@ -1480,10 +1470,8 @@ BOOST_AUTO_TEST_CASE(testVarianceScale) {
             double shiftedLocation = location + (squareScale - ss) / 2.0;
             boost::math::lognormal_distribution<> logNormal(shiftedLocation,
                                                             std::sqrt(ss));
-            {
-                LOG_DEBUG(<< "mean = " << boost::math::mean(logNormal)
-                          << ", variance = " << boost::math::variance(logNormal));
-            }
+            LOG_DEBUG(<< "mean = " << boost::math::mean(logNormal)
+                      << ", variance = " << boost::math::variance(logNormal));
             double expectedDifferentialEntropy = maths::CTools::differentialEntropy(logNormal);
 
             CLogNormalMeanPrecConjugate filter(makePrior());
@@ -1562,11 +1550,10 @@ BOOST_AUTO_TEST_CASE(testVarianceScale) {
                     {
                         boost::math::lognormal_distribution<> logNormal(
                             location, std::sqrt(squareScale));
-                        LOG_DEBUG(<< "");
-                        LOG_DEBUG(<< "****** mean = " << boost::math::mean(logNormal)
+                        LOG_TRACE(<< "****** mean = " << boost::math::mean(logNormal)
                                   << ", variance = " << boost::math::variance(logNormal)
                                   << " ******");
-                        LOG_DEBUG(<< "location = " << location << ", precision = " << precision);
+                        LOG_TRACE(<< "location = " << location << ", precision = " << precision);
                     }
 
                     for (std::size_t k = 0u; k < boost::size(varianceScales); ++k) {
@@ -1574,7 +1561,7 @@ BOOST_AUTO_TEST_CASE(testVarianceScale) {
                         if (scale * variance >= 100.0 * mean) {
                             continue;
                         }
-                        LOG_DEBUG(<< "*** scale = " << scale << " ***");
+                        LOG_TRACE(<< "*** scale = " << scale << " ***");
 
                         double scaledSquareScale =
                             std::log(1.0 + variance * scale / (mean * mean));
@@ -1583,10 +1570,10 @@ BOOST_AUTO_TEST_CASE(testVarianceScale) {
                         {
                             boost::math::lognormal_distribution<> logNormal(
                                 scaledLocation, std::sqrt(scaledSquareScale));
-                            LOG_DEBUG(<< "scaled mean = " << boost::math::mean(logNormal)
+                            LOG_TRACE(<< "scaled mean = " << boost::math::mean(logNormal)
                                       << ", scaled variance = "
                                       << boost::math::variance(logNormal));
-                            LOG_DEBUG(<< "scaled location = " << scaledLocation
+                            LOG_TRACE(<< "scaled location = " << scaledLocation
                                       << ", scaled precision = " << scaledPrecision);
                         }
 
@@ -1617,16 +1604,16 @@ BOOST_AUTO_TEST_CASE(testVarianceScale) {
                                 std::fabs(boost::math::variance(logNormal) - (variance + dv)) /
                                 std::max(1.0, variance);
 
-                            LOG_DEBUG(<< "trial mean error = " << trialMeanError);
-                            LOG_DEBUG(<< "trial variance error = " << trialVarianceError);
+                            LOG_TRACE(<< "trial mean error = " << trialMeanError);
+                            LOG_TRACE(<< "trial variance error = " << trialVarianceError);
 
                             meanError.add(trialMeanError);
                             varianceError.add(trialVarianceError);
                         }
 
-                        LOG_DEBUG(<< "mean error = "
+                        LOG_TRACE(<< "mean error = "
                                   << maths::CBasicStatistics::mean(meanError));
-                        LOG_DEBUG(<< "variance error = "
+                        LOG_TRACE(<< "variance error = "
                                   << maths::CBasicStatistics::mean(varianceError));
 
                         BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(meanError) <

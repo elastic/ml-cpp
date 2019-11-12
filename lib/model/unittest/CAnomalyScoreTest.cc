@@ -240,7 +240,7 @@ BOOST_AUTO_TEST_CASE(testNormalizeScoresQuantiles) {
             totalError += error;
             numberSamples += 1.0;
 
-            LOG_DEBUG(<< "trueQuantile = " << trueQuantile << ", lowerBound = " << lowerBound
+            LOG_TRACE(<< "trueQuantile = " << trueQuantile << ", lowerBound = " << lowerBound
                       << ", upperBound = " << upperBound);
             BOOST_TEST_REQUIRE(error < 0.02);
         }
@@ -311,7 +311,7 @@ BOOST_AUTO_TEST_CASE(testNormalizeScoresQuantilesMultiplePartitions) {
             totalError += error;
             numberSamples += 1.0;
 
-            LOG_DEBUG(<< "trueQuantile = " << trueQuantile << ", lowerBound = " << lowerBound
+            LOG_TRACE(<< "trueQuantile = " << trueQuantile << ", lowerBound = " << lowerBound
                       << ", upperBound = " << upperBound);
             BOOST_TEST_REQUIRE(error < 0.02);
         }
@@ -366,7 +366,7 @@ BOOST_AUTO_TEST_CASE(testNormalizeScoresNoisy) {
     for (std::size_t i = 0u; i < samples.size(); ++i) {
         double sample = samples[i];
         normalizer.normalize({"", "", "bucket_time", ""}, sample);
-        LOG_DEBUG(<< i << ") raw = " << samples[i] << ", normalized = " << sample);
+        LOG_TRACE(<< i << ") raw = " << samples[i] << ", normalized = " << sample);
 
         //raw << " " << samples[i];
         //normalized << " " << sample;
@@ -374,7 +374,7 @@ BOOST_AUTO_TEST_CASE(testNormalizeScoresNoisy) {
         if (maxScores.size() < boost::size(largeAnomalyTimes)) {
             maxScores.insert(TDoubleSizeMap::value_type(sample, i));
         } else if (sample > maxScores.begin()->first) {
-            LOG_DEBUG(<< "normalized = " << sample << " removing "
+            LOG_TRACE(<< "normalized = " << sample << " removing "
                       << maxScores.begin()->first);
             maxScores.erase(maxScores.begin());
             maxScores.insert(TDoubleSizeMap::value_type(sample, i));
