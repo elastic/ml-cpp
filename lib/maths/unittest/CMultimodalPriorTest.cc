@@ -924,7 +924,7 @@ BOOST_AUTO_TEST_CASE(testMarginalLikelihoodMode) {
             filter.jointLogMarginalLikelihood({trials[j]}, {weight}, fTrial);
             fTrial = std::exp(fTrial);
             if (fTrial > fMode) {
-                LOG_DEBUG(<< "f(" << trials[j] << ") = " << fTrial << " > " << fMode);
+                LOG_TRACE(<< "f(" << trials[j] << ") = " << fTrial << " > " << fMode);
                 ++count;
             }
             fTrials.push_back(fTrial);
@@ -1190,7 +1190,7 @@ BOOST_AUTO_TEST_CASE(testSampleMarginalLikelihood) {
             double expectedQuantile;
             BOOST_TEST_REQUIRE(filter.marginalLikelihoodQuantileForTest(q, eps, expectedQuantile));
 
-            LOG_DEBUG(<< "quantile = " << q << ", x_quantile = " << expectedQuantile << ", quantile range = ["
+            LOG_TRACE(<< "quantile = " << q << ", x_quantile = " << expectedQuantile << ", quantile range = ["
                       << sampled[j - 1] << "," << sampled[j] << "]");
 
             BOOST_TEST_REQUIRE(expectedQuantile >= 0.98 * sampled[j - 1]);
@@ -1274,7 +1274,7 @@ BOOST_AUTO_TEST_CASE(testCdf) {
             TDouble1Vec(1, x), lowerBound, upperBound));
         fComplement = (lowerBound + upperBound) / 2.0;
 
-        LOG_DEBUG(<< "log(F(x)) = " << (f == 0.0 ? f : -f) << ", log(1 - F(x)) = "
+        LOG_TRACE(<< "log(F(x)) = " << (f == 0.0 ? f : -f) << ", log(1 - F(x)) = "
                   << (fComplement == 0.0 ? fComplement : -fComplement));
         BOOST_REQUIRE_CLOSE_ABSOLUTE(1.0, std::exp(-f) + std::exp(-fComplement), 1e-8);
     }
