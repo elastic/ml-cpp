@@ -168,12 +168,12 @@ BOOST_AUTO_TEST_CASE(testSphericalGaussian) {
             aic2.add(samples1);
             aic2.add(samples2);
 
-            LOG_DEBUG(<< "1 cluster BIC = " << bic1.calculate());
-            LOG_DEBUG(<< "2 cluster BIC = " << bic2.calculate());
+            LOG_TRACE(<< "1 cluster BIC = " << bic1.calculate());
+            LOG_TRACE(<< "2 cluster BIC = " << bic2.calculate());
             BOOST_TEST_REQUIRE(bic1.calculate() < bic2.calculate());
 
-            LOG_DEBUG(<< "1 cluster AIC = " << aic1.calculate());
-            LOG_DEBUG(<< "2 cluster AIC = " << aic2.calculate());
+            LOG_TRACE(<< "1 cluster AIC = " << aic1.calculate());
+            LOG_TRACE(<< "2 cluster AIC = " << aic2.calculate());
             BOOST_TEST_REQUIRE(aic1.calculate() < aic2.calculate());
         }
 
@@ -193,12 +193,12 @@ BOOST_AUTO_TEST_CASE(testSphericalGaussian) {
             maths::CSphericalGaussianInfoCriterion<TVector2, maths::E_BIC> bic2(clusters);
             maths::CSphericalGaussianInfoCriterion<TVector2, maths::E_AICc> aic2(clusters);
 
-            LOG_DEBUG(<< "1 cluster BIC = " << bic1.calculate());
-            LOG_DEBUG(<< "2 cluster BIC = " << bic2.calculate());
+            LOG_TRACE(<< "1 cluster BIC = " << bic1.calculate());
+            LOG_TRACE(<< "2 cluster BIC = " << bic2.calculate());
             BOOST_TEST_REQUIRE(bic1.calculate() < bic2.calculate());
 
-            LOG_DEBUG(<< "1 cluster AIC = " << aic1.calculate());
-            LOG_DEBUG(<< "2 cluster AIC = " << aic2.calculate());
+            LOG_TRACE(<< "1 cluster AIC = " << aic1.calculate());
+            LOG_TRACE(<< "2 cluster AIC = " << aic2.calculate());
             BOOST_TEST_REQUIRE(aic1.calculate() < aic2.calculate());
         }
     }
@@ -375,12 +375,12 @@ BOOST_AUTO_TEST_CASE(testGaussian) {
             aic2.add(samples1);
             aic2.add(samples2);
 
-            LOG_DEBUG(<< "1 cluster BIC = " << bic1.calculate());
-            LOG_DEBUG(<< "2 cluster BIC = " << bic2.calculate());
+            LOG_TRACE(<< "1 cluster BIC = " << bic1.calculate());
+            LOG_TRACE(<< "2 cluster BIC = " << bic2.calculate());
             BOOST_TEST_REQUIRE(bic1.calculate() < bic2.calculate());
 
-            LOG_DEBUG(<< "1 cluster AIC = " << aic1.calculate());
-            LOG_DEBUG(<< "2 cluster AIC = " << aic2.calculate());
+            LOG_TRACE(<< "1 cluster AIC = " << aic1.calculate());
+            LOG_TRACE(<< "2 cluster AIC = " << aic2.calculate());
             BOOST_TEST_REQUIRE(aic1.calculate() < aic2.calculate());
         }
 
@@ -400,12 +400,12 @@ BOOST_AUTO_TEST_CASE(testGaussian) {
             maths::CSphericalGaussianInfoCriterion<TVector2, maths::E_BIC> bic2(clusters);
             maths::CSphericalGaussianInfoCriterion<TVector2, maths::E_AICc> aic2(clusters);
 
-            LOG_DEBUG(<< "1 cluster BIC = " << bic1.calculate());
-            LOG_DEBUG(<< "2 cluster BIC = " << bic2.calculate());
+            LOG_TRACE(<< "1 cluster BIC = " << bic1.calculate());
+            LOG_TRACE(<< "2 cluster BIC = " << bic2.calculate());
             BOOST_TEST_REQUIRE(bic1.calculate() < bic2.calculate());
 
-            LOG_DEBUG(<< "1 cluster AIC = " << aic1.calculate());
-            LOG_DEBUG(<< "2 cluster AIC = " << aic2.calculate());
+            LOG_TRACE(<< "1 cluster AIC = " << aic1.calculate());
+            LOG_TRACE(<< "2 cluster AIC = " << aic2.calculate());
             BOOST_TEST_REQUIRE(aic1.calculate() < aic2.calculate());
         }
     }

@@ -1029,7 +1029,7 @@ BOOST_AUTO_TEST_CASE(testStringMemory) {
             trackingString.push_back(static_cast<char>('a' + j));
             normalString.push_back(static_cast<char>('a' + j));
         }
-        LOG_DEBUG(<< "String size " << core::CMemory::dynamicSize(normalString)
+        LOG_TRACE(<< "String size " << core::CMemory::dynamicSize(normalString)
                   << ", allocated " << TAllocator::usage());
         BOOST_REQUIRE_EQUAL(core::CMemory::dynamicSize(normalString), TAllocator::usage());
     }
