@@ -30,6 +30,7 @@ SRCS=\
 	CDataFrameAnalysisSpecificationTest.cc \
 	CDataFrameAnalyzerOutlierTest.cc \
 	CDataFrameAnalyzerTrainingTest.cc \
+	CDataFrameTrainBoostedTreeClassifierRunnerTest.cc \
 	CDataFrameMockAnalysisRunner.cc \
 	CDetectionRulesJsonParserTest.cc \
 	CFieldConfigTest.cc \
