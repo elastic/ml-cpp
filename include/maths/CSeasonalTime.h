@@ -41,7 +41,7 @@ public:
     virtual CSeasonalTime* clone() const = 0;
 
     //! Initialize from a string created by persist.
-    virtual bool fromString(const std::string& value) = 0;
+    virtual bool fromString(std::string value) = 0;
 
     //! Convert to a string.
     virtual std::string toString() const = 0;
@@ -121,7 +121,11 @@ public:
     virtual bool hasWeekend() const = 0;
 
     //! Get a checksum for this object.
-    virtual uint64_t checksum(uint64_t seed = 0) const = 0;
+    virtual std::uint64_t checksum(std::uint64_t seed = 0) const = 0;
+
+protected:
+    double precedence() const;
+    void precedence(double precedence);
 
 private:
     //! Get the start of the repeat interval beginning at
@@ -161,7 +165,7 @@ public:
     CDiurnalTime* clone() const;
 
     //! Initialize from a string created by persist.
-    virtual bool fromString(const std::string& value);
+    virtual bool fromString(std::string value);
 
     //! Convert to a string.
     virtual std::string toString() const;
@@ -182,7 +186,7 @@ public:
     virtual bool hasWeekend() const;
 
     //! Get a checksum for this object.
-    virtual uint64_t checksum(uint64_t seed = 0) const;
+    virtual std::uint64_t checksum(std::uint64_t seed = 0) const;
 
 private:
     //! Get the scale to apply when computing the regression time.
@@ -208,7 +212,7 @@ public:
     CGeneralPeriodTime* clone() const;
 
     //! Initialize from a string created by persist.
-    virtual bool fromString(const std::string& value);
+    virtual bool fromString(std::string value);
 
     //! Convert to a string.
     virtual std::string toString() const;
@@ -229,7 +233,7 @@ public:
     virtual bool hasWeekend() const;
 
     //! Get a checksum for this object.
-    virtual uint64_t checksum(uint64_t seed = 0) const;
+    virtual std::uint64_t checksum(std::uint64_t seed = 0) const;
 
 private:
     //! Get the scale to apply when computing the regression time.
