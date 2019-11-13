@@ -436,7 +436,7 @@ BOOST_AUTO_TEST_CASE(testProbabilityOfLessLikelySample) {
                         p1 = CTools::safeCdfComplement(negativeBinomial, x) +
                              CTools::safePdf(negativeBinomial, x);
                         p2 = probabilityOfLessLikelySample(negativeBinomial, x, tail);
-                        LOG_DEBUG(<< "x = " << x << ", p1 = " << p1 << ", p2 = " << p2);
+                        LOG_TRACE(<< "x = " << x << ", p1 = " << p1 << ", p2 = " << p2);
                         BOOST_REQUIRE_CLOSE_ABSOLUTE(p1, p2, 1e-3 * std::max(p1, p2));
                         BOOST_REQUIRE_EQUAL(maths_t::E_RightTail, tail);
                     }
@@ -457,7 +457,7 @@ BOOST_AUTO_TEST_CASE(testProbabilityOfLessLikelySample) {
                     tail = maths_t::E_UndeterminedTail;
                     p1 = numericalProbabilityOfLessLikelySample(negativeBinomial, x);
                     p2 = probabilityOfLessLikelySample(negativeBinomial, x, tail);
-                    LOG_DEBUG(<< "x = " << x << ", p1 = " << p1 << ", p2 = " << p2
+                    LOG_TRACE(<< "x = " << x << ", p1 = " << p1 << ", p2 = " << p2
                               << ", log(p1) = " << std::log(p1)
                               << ", log(p2) = " << std::log(p2));
                     BOOST_TEST_REQUIRE(
@@ -473,7 +473,7 @@ BOOST_AUTO_TEST_CASE(testProbabilityOfLessLikelySample) {
                     tail = maths_t::E_UndeterminedTail;
                     p1 = numericalProbabilityOfLessLikelySample(negativeBinomial, x);
                     p2 = probabilityOfLessLikelySample(negativeBinomial, x, tail);
-                    LOG_DEBUG(<< "x = " << x << ", p1 = " << p1 << ", p2 = " << p2);
+                    LOG_TRACE(<< "x = " << x << ", p1 = " << p1 << ", p2 = " << p2);
                     BOOST_REQUIRE_CLOSE_ABSOLUTE(p1, p2, 0.02 * std::max(p1, p2));
                     if (offset > 0.0)
                         BOOST_REQUIRE_EQUAL(maths_t::E_RightTail, tail);
@@ -489,7 +489,7 @@ BOOST_AUTO_TEST_CASE(testProbabilityOfLessLikelySample) {
                     tail = maths_t::E_UndeterminedTail;
                     p1 = numericalProbabilityOfLessLikelySample(negativeBinomial, x);
                     p2 = probabilityOfLessLikelySample(negativeBinomial, x, tail);
-                    LOG_DEBUG(<< "x = " << x << ", p1 = " << p1 << ", p2 = " << p2
+                    LOG_TRACE(<< "x = " << x << ", p1 = " << p1 << ", p2 = " << p2
                               << ", log(p1) = " << std::log(p1)
                               << ", log(p2) = " << std::log(p2));
                     BOOST_TEST_REQUIRE(
@@ -505,7 +505,7 @@ BOOST_AUTO_TEST_CASE(testProbabilityOfLessLikelySample) {
                     tail = maths_t::E_UndeterminedTail;
                     p1 = numericalProbabilityOfLessLikelySample(negativeBinomial, x);
                     p2 = probabilityOfLessLikelySample(negativeBinomial, x, tail);
-                    LOG_DEBUG(<< "x = " << x << ", p1 = " << p1 << ", p2 = " << p2
+                    LOG_TRACE(<< "x = " << x << ", p1 = " << p1 << ", p2 = " << p2
                               << ", log(p1) = " << std::log(p1)
                               << ", log(p2) = " << std::log(p2));
                     BOOST_TEST_REQUIRE(
@@ -574,7 +574,7 @@ BOOST_AUTO_TEST_CASE(testProbabilityOfLessLikelySample) {
                             x *= 2.0;
                             p1 = cdfComplement(logt, x);
                             p2 = probabilityOfLessLikelySample(logt, x, tail);
-                            LOG_DEBUG(<< "x = " << x << ", p1 = " << p1 << ", p2 = " << p2);
+                            LOG_TRACE(<< "x = " << x << ", p1 = " << p1 << ", p2 = " << p2);
                             BOOST_REQUIRE_CLOSE_ABSOLUTE(p1, p2, 1e-3 * std::max(p1, p2));
                         }
                         BOOST_REQUIRE_EQUAL(maths_t::E_RightTail, tail);
@@ -589,7 +589,7 @@ BOOST_AUTO_TEST_CASE(testProbabilityOfLessLikelySample) {
                         tail = maths_t::E_UndeterminedTail;
                         p1 = numericalProbabilityOfLessLikelySample(logt, x);
                         p2 = probabilityOfLessLikelySample(logt, x, tail);
-                        LOG_DEBUG(<< "x = " << x << ", p1 = " << p1 << ", p2 = " << p2);
+                        LOG_TRACE(<< "x = " << x << ", p1 = " << p1 << ", p2 = " << p2);
                         BOOST_REQUIRE_CLOSE_ABSOLUTE(p1, p2, 0.02 * std::max(p1, p2));
                         BOOST_REQUIRE_EQUAL(maths_t::E_LeftTail, tail);
 
@@ -597,7 +597,7 @@ BOOST_AUTO_TEST_CASE(testProbabilityOfLessLikelySample) {
                         tail = maths_t::E_UndeterminedTail;
                         p1 = numericalProbabilityOfLessLikelySample(logt, x);
                         p2 = probabilityOfLessLikelySample(logt, x, tail);
-                        LOG_DEBUG(<< "x = " << x << ", p1 = " << p1 << ", p2 = " << p2);
+                        LOG_TRACE(<< "x = " << x << ", p1 = " << p1 << ", p2 = " << p2);
                         BOOST_REQUIRE_CLOSE_ABSOLUTE(p1, p2, 0.02 * std::max(p1, p2));
                         BOOST_REQUIRE_EQUAL(maths_t::E_RightTail, tail);
                     }
@@ -610,7 +610,7 @@ BOOST_AUTO_TEST_CASE(testProbabilityOfLessLikelySample) {
                         tail = maths_t::E_UndeterminedTail;
                         p1 = numericalProbabilityOfLessLikelySample(logt, x);
                         p2 = probabilityOfLessLikelySample(logt, x, tail);
-                        LOG_DEBUG(<< "x = " << x << ", p1 = " << p1 << ", p2 = " << p2
+                        LOG_TRACE(<< "x = " << x << ", p1 = " << p1 << ", p2 = " << p2
                                   << ", log(p1) = " << std::log(p1)
                                   << ", log(p2) = " << std::log(p2));
                         BOOST_TEST_REQUIRE(
@@ -623,7 +623,7 @@ BOOST_AUTO_TEST_CASE(testProbabilityOfLessLikelySample) {
                         tail = maths_t::E_UndeterminedTail;
                         p1 = numericalProbabilityOfLessLikelySample(logt, x);
                         p2 = probabilityOfLessLikelySample(logt, x, tail);
-                        LOG_DEBUG(<< "x = " << x << ", p1 = " << p1 << ", p2 = " << p2
+                        LOG_TRACE(<< "x = " << x << ", p1 = " << p1 << ", p2 = " << p2
                                   << ", log(p1) = " << std::log(p1)
                                   << ", log(p2) = " << std::log(p2));
 
@@ -658,7 +658,7 @@ BOOST_AUTO_TEST_CASE(testProbabilityOfLessLikelySample) {
                         x *= 2.0;
                         p1 = CTools::safeCdfComplement(gamma, x);
                         p2 = probabilityOfLessLikelySample(gamma, x, tail);
-                        LOG_DEBUG(<< "x = " << x << ", p1 = " << p1 << ", p2 = " << p2);
+                        LOG_TRACE(<< "x = " << x << ", p1 = " << p1 << ", p2 = " << p2);
                         BOOST_REQUIRE_CLOSE_ABSOLUTE(p1, p2, 1e-3 * std::max(p1, p2));
                         BOOST_REQUIRE_EQUAL(maths_t::E_RightTail, tail);
                     }
@@ -676,7 +676,7 @@ BOOST_AUTO_TEST_CASE(testProbabilityOfLessLikelySample) {
                     tail = maths_t::E_UndeterminedTail;
                     p1 = numericalProbabilityOfLessLikelySample(gamma, x);
                     p2 = probabilityOfLessLikelySample(gamma, x, tail);
-                    LOG_DEBUG(<< "x = " << x << ", p1 = " << p1 << ", p2 = " << p2
+                    LOG_TRACE(<< "x = " << x << ", p1 = " << p1 << ", p2 = " << p2
                               << ", log(p1) = " << std::log(p1)
                               << ", log(p2) = " << std::log(p2));
                     BOOST_TEST_REQUIRE(
@@ -689,7 +689,7 @@ BOOST_AUTO_TEST_CASE(testProbabilityOfLessLikelySample) {
                     tail = maths_t::E_UndeterminedTail;
                     p1 = numericalProbabilityOfLessLikelySample(gamma, y);
                     p2 = probabilityOfLessLikelySample(gamma, y, tail);
-                    LOG_DEBUG(<< "y = " << y << ", p1 = " << p1 << ", p2 = " << p2
+                    LOG_TRACE(<< "y = " << y << ", p1 = " << p1 << ", p2 = " << p2
                               << ", log(p1) = " << std::log(p1)
                               << ", log(p2) = " << std::log(p2));
                     BOOST_TEST_REQUIRE(
@@ -707,7 +707,7 @@ BOOST_AUTO_TEST_CASE(testProbabilityOfLessLikelySample) {
                     tail = maths_t::E_UndeterminedTail;
                     p1 = numericalProbabilityOfLessLikelySample(gamma, x);
                     p2 = probabilityOfLessLikelySample(gamma, x, tail);
-                    LOG_DEBUG(<< "x = " << x << ", p1 = " << p1 << ", p2 = " << p2
+                    LOG_TRACE(<< "x = " << x << ", p1 = " << p1 << ", p2 = " << p2
                               << ", log(p1) = " << std::log(p1)
                               << ", log(p2) = " << std::log(p2));
                     BOOST_TEST_REQUIRE(
@@ -720,7 +720,7 @@ BOOST_AUTO_TEST_CASE(testProbabilityOfLessLikelySample) {
                     tail = maths_t::E_UndeterminedTail;
                     p1 = numericalProbabilityOfLessLikelySample(gamma, y);
                     p2 = probabilityOfLessLikelySample(gamma, y, tail);
-                    LOG_DEBUG(<< "y = " << y << ", p1 = " << p1 << ", p2 = " << p2
+                    LOG_TRACE(<< "y = " << y << ", p1 = " << p1 << ", p2 = " << p2
                               << ", log(p1) = " << std::log(p1)
                               << ", log(p2) = " << std::log(p2));
                     BOOST_TEST_REQUIRE(
@@ -753,7 +753,7 @@ BOOST_AUTO_TEST_CASE(testProbabilityOfLessLikelySample) {
                         tail = maths_t::E_UndeterminedTail;
                         p1 = 1.0;
                         p2 = probabilityOfLessLikelySample(beta, x, tail);
-                        LOG_DEBUG(<< "x = " << x << ", f(x) = " << CTools::safePdf(beta, x)
+                        LOG_TRACE(<< "x = " << x << ", f(x) = " << CTools::safePdf(beta, x)
                                   << ", p1 = " << p1 << ", p2 = " << p2);
                         BOOST_REQUIRE_EQUAL(p1, p2);
                         BOOST_REQUIRE_EQUAL(maths_t::E_MixedOrNeitherTail, tail);
@@ -765,7 +765,7 @@ BOOST_AUTO_TEST_CASE(testProbabilityOfLessLikelySample) {
                         tail = maths_t::E_UndeterminedTail;
                         p1 = CTools::safeCdfComplement(beta, x);
                         p2 = probabilityOfLessLikelySample(beta, x, tail);
-                        LOG_DEBUG(<< "x = " << x << ", f(x) = " << CTools::safePdf(beta, x)
+                        LOG_TRACE(<< "x = " << x << ", f(x) = " << CTools::safePdf(beta, x)
                                   << ", p1 = " << p1 << ", p2 = " << p2);
                         BOOST_REQUIRE_CLOSE_ABSOLUTE(p1, p2, 1e-3 * std::max(p1, p2));
                         BOOST_REQUIRE_EQUAL(maths_t::E_RightTail, tail);
@@ -777,7 +777,7 @@ BOOST_AUTO_TEST_CASE(testProbabilityOfLessLikelySample) {
                         tail = maths_t::E_UndeterminedTail;
                         p1 = CTools::safeCdf(beta, x);
                         p2 = probabilityOfLessLikelySample(beta, x, tail);
-                        LOG_DEBUG(<< "x = " << x << ", f(x) = " << CTools::safePdf(beta, x)
+                        LOG_TRACE(<< "x = " << x << ", f(x) = " << CTools::safePdf(beta, x)
                                   << ", p1 = " << p1 << ", p2 = " << p2);
                         BOOST_REQUIRE_CLOSE_ABSOLUTE(p1, p2, 1e-3 * std::max(p1, p2));
                         BOOST_REQUIRE_EQUAL(maths_t::E_LeftTail, tail);
@@ -795,7 +795,7 @@ BOOST_AUTO_TEST_CASE(testProbabilityOfLessLikelySample) {
                         tail = maths_t::E_UndeterminedTail;
                         p1 = numericalProbabilityOfLessLikelySample(beta, xMinus);
                         p2 = probabilityOfLessLikelySample(beta, xMinus, tail);
-                        LOG_DEBUG(<< "x- = " << xMinus << ", p1 = " << p1
+                        LOG_TRACE(<< "x- = " << xMinus << ", p1 = " << p1
                                   << ", p2 = " << p2 << ", log(p1) = " << log(p1)
                                   << ", log(p2) = " << std::log(p2));
                         BOOST_TEST_REQUIRE(
@@ -812,7 +812,7 @@ BOOST_AUTO_TEST_CASE(testProbabilityOfLessLikelySample) {
                         tail = maths_t::E_UndeterminedTail;
                         p1 = numericalProbabilityOfLessLikelySample(beta, xPlus);
                         p2 = probabilityOfLessLikelySample(beta, xPlus, tail);
-                        LOG_DEBUG(<< "x+ = " << xPlus << ", p1 = " << p1 << ", p2 = " << p2);
+                        LOG_TRACE(<< "x+ = " << xPlus << ", p1 = " << p1 << ", p2 = " << p2);
                         BOOST_REQUIRE_CLOSE_ABSOLUTE(p1, p2, 0.05 * std::max(p1, p2));
                         if (maximum)
                             BOOST_REQUIRE_EQUAL(maths_t::E_RightTail, tail);
@@ -1009,11 +1009,9 @@ BOOST_AUTO_TEST_CASE(testMixtureProbabilityOfLessLikelySample) {
                     pExpected += pi;
                 }
 
-                if (j % 50 == 0) {
-                    LOG_DEBUG(<< "pTails = " << pTails);
-                    LOG_DEBUG(<< "x = " << x[k] << ", log(f(x)) = " << logFx
-                              << ", P(x) = " << p << ", expected P(x) = " << pExpected);
-                }
+                LOG_TRACE(<< "pTails = " << pTails);
+                LOG_TRACE(<< "x = " << x[k] << ", log(f(x)) = " << logFx
+                          << ", P(x) = " << p << ", expected P(x) = " << pExpected);
 
                 BOOST_TEST_REQUIRE(pExpected > 0.0);
                 if (pExpected > 0.1) {
@@ -1113,10 +1111,8 @@ BOOST_AUTO_TEST_CASE(testFastLog) {
         TDoubleVec x;
         rng.generateUniformSamples(-100.0, 0.0, 10000, x);
         for (std::size_t i = 0u; i < x.size(); ++i) {
-            if (i % 100 == 0) {
-                LOG_DEBUG(<< "x = " << std::exp(x[i]) << ", log(x) = " << x[i] << ", fast log(x) = "
-                          << maths::CTools::fastLog(std::exp(x[i])));
-            }
+            LOG_TRACE(<< "x = " << std::exp(x[i]) << ", log(x) = " << x[i]
+                      << ", fast log(x) = " << maths::CTools::fastLog(std::exp(x[i])));
             BOOST_REQUIRE_CLOSE_ABSOLUTE(x[i], maths::CTools::fastLog(std::exp(x[i])), 5e-5);
         }
     }
@@ -1125,10 +1121,8 @@ BOOST_AUTO_TEST_CASE(testFastLog) {
         TDoubleVec x;
         rng.generateUniformSamples(1.0, 1e6, 10000, x);
         for (std::size_t i = 0u; i < x.size(); ++i) {
-            if (i % 100 == 0) {
-                LOG_DEBUG(<< "x = " << x[i] << ", log(x) = " << std::log(x[i])
-                          << ", fast log(x) = " << maths::CTools::fastLog(x[i]));
-            }
+            LOG_TRACE(<< "x = " << x[i] << ", log(x) = " << std::log(x[i])
+                      << ", fast log(x) = " << maths::CTools::fastLog(x[i]));
             BOOST_REQUIRE_CLOSE_ABSOLUTE(std::log(x[i]),
                                          maths::CTools::fastLog(x[i]), 5e-5);
         }
@@ -1138,10 +1132,8 @@ BOOST_AUTO_TEST_CASE(testFastLog) {
         TDoubleVec x;
         rng.generateUniformSamples(20.0, 80.0, 10000, x);
         for (std::size_t i = 0u; i < x.size(); ++i) {
-            if (i % 100 == 0) {
-                LOG_DEBUG(<< "x = " << std::exp(x[i]) << ", log(x) = " << x[i] << ", fast log(x) = "
-                          << maths::CTools::fastLog(std::exp(x[i])));
-            }
+            LOG_TRACE(<< "x = " << std::exp(x[i]) << ", log(x) = " << x[i]
+                      << ", fast log(x) = " << maths::CTools::fastLog(std::exp(x[i])));
             BOOST_REQUIRE_CLOSE_ABSOLUTE(x[i], maths::CTools::fastLog(std::exp(x[i])), 5e-5);
         }
     }
@@ -1164,7 +1156,6 @@ BOOST_AUTO_TEST_CASE(testMiscellaneous) {
         maths::CVectorNx1<double, 5> expect(expected[i]);
         maths::CVectorNx1<double, 5> actual = maths::CTools::truncate(x, a, b);
 
-        LOG_DEBUG(<< "truncated = " << actual);
         BOOST_REQUIRE_EQUAL(expect, actual);
 
         a = a + maths::CVectorNx1<double, 5>(0.5);

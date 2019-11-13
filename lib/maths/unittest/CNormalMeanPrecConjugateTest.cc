@@ -77,9 +77,7 @@ BOOST_AUTO_TEST_CASE(testMultipleUpdate) {
         }
         filter2.addSamples(samples);
 
-        LOG_DEBUG(<< filter1.print());
-        LOG_DEBUG(<< "vs");
-        LOG_DEBUG(<< filter2.print());
+        LOG_DEBUG(<< filter1.print() << "\nvs" << filter2.print());
         TEqual equal(maths::CToleranceTypes::E_AbsoluteTolerance, 1e-4);
         BOOST_TEST_REQUIRE(filter1.equalTolerance(filter2, equal));
     }
@@ -97,9 +95,7 @@ BOOST_AUTO_TEST_CASE(testMultipleUpdate) {
         }
         filter2.addSamples(samples, weights);
 
-        LOG_DEBUG(<< filter1.print());
-        LOG_DEBUG(<< "vs");
-        LOG_DEBUG(<< filter2.print());
+        LOG_DEBUG(<< filter1.print() << "\nvs" << filter2.print());
         TEqual equal(maths::CToleranceTypes::E_AbsoluteTolerance, 1e-5);
         BOOST_TEST_REQUIRE(filter1.equalTolerance(filter2, equal));
     }
@@ -200,7 +196,7 @@ BOOST_AUTO_TEST_CASE(testMeanEstimation) {
         for (std::size_t j = 0; j < boost::size(testIntervals); ++j) {
             double interval = 100.0 * errors[j] / static_cast<double>(nTests);
 
-            LOG_DEBUG(<< "interval = " << interval
+            LOG_TRACE(<< "interval = " << interval
                       << ", expectedInterval = " << (100.0 - testIntervals[j]));
 
             // If the decay rate is zero the intervals should be accurate.
@@ -261,7 +257,7 @@ BOOST_AUTO_TEST_CASE(testPrecisionEstimation) {
         for (std::size_t j = 0; j < boost::size(testIntervals); ++j) {
             double interval = 100.0 * errors[j] / static_cast<double>(nTests);
 
-            LOG_DEBUG(<< "interval = " << interval
+            LOG_TRACE(<< "interval = " << interval
                       << ", expectedInterval = " << (100.0 - testIntervals[j]));
 
             // If the decay rate is zero the intervals should be accurate.
@@ -341,7 +337,7 @@ BOOST_AUTO_TEST_CASE(testMarginalLikelihood) {
                 double x = mean + deltas[k] * std::sqrt(variance);
                 TDouble1Vec sample(1, x);
 
-                LOG_DEBUG(<< "number = " << numberSamples[i] << ", sample = " << sample[0]);
+                LOG_TRACE(<< "number = " << numberSamples[i] << ", sample = " << sample[0]);
 
                 double logLikelihood = 0.0;
                 BOOST_REQUIRE_EQUAL(maths_t::E_FpNoErrors,
@@ -365,7 +361,7 @@ BOOST_AUTO_TEST_CASE(testMarginalLikelihood) {
 
                 double dcdfdx = (cdfAtPlusEps - cdfAtMinusEps) / 2.0 / eps;
 
-                LOG_DEBUG(<< "pdf(x) = " << pdf << ", d(cdf)/dx = " << dcdfdx);
+                LOG_TRACE(<< "pdf(x) = " << pdf << ", d(cdf)/dx = " << dcdfdx);
 
                 BOOST_REQUIRE_CLOSE_ABSOLUTE(pdf, dcdfdx, tolerance);
             }
@@ -435,7 +431,7 @@ BOOST_AUTO_TEST_CASE(testMarginalLikelihood) {
                                                          1e-3, q2);
                 TDoubleDoublePr interval =
                     filter.marginalLikelihoodConfidenceInterval(percentages[i]);
-                LOG_DEBUG(<< "[q1, q2] = [" << q1 << ", " << q2 << "]"
+                LOG_TRACE(<< "[q1, q2] = [" << q1 << ", " << q2 << "]"
                           << ", interval = " << core::CContainerPrinter::print(interval));
                 BOOST_REQUIRE_CLOSE_ABSOLUTE(q1, interval.first, 0.005);
                 BOOST_REQUIRE_CLOSE_ABSOLUTE(q2, interval.second, 0.005);
@@ -459,7 +455,7 @@ BOOST_AUTO_TEST_CASE(testMarginalLikelihood) {
                         scaledNormal, (50.0 + percentages[j] / 2.0) / 100.0);
                     TDoubleDoublePr interval = filter.marginalLikelihoodConfidenceInterval(
                         percentages[j], maths_t::countVarianceScaleWeight(vs));
-                    LOG_DEBUG(<< "[q1, q2] = [" << q1 << ", " << q2 << "]"
+                    LOG_TRACE(<< "[q1, q2] = [" << q1 << ", " << q2 << "]"
                               << ", interval = " << core::CContainerPrinter::print(interval));
                     BOOST_REQUIRE_CLOSE_ABSOLUTE(q1, interval.first, 0.3);
                     BOOST_REQUIRE_CLOSE_ABSOLUTE(q2, interval.second, 0.3);
@@ -506,10 +502,8 @@ BOOST_AUTO_TEST_CASE(testMarginalLikelihoodMean) {
                 double expectedMean;
                 BOOST_TEST_REQUIRE(filter.marginalLikelihoodMeanForTest(expectedMean));
 
-                if (k % 10 == 0) {
-                    LOG_DEBUG(<< "marginalLikelihoodMean = " << filter.marginalLikelihoodMean()
-                              << ", expectedMean = " << expectedMean);
-                }
+                LOG_TRACE(<< "marginalLikelihoodMean = " << filter.marginalLikelihoodMean()
+                          << ", expectedMean = " << expectedMean);
 
                 // The error is at the precision of the numerical integration.
                 BOOST_REQUIRE_CLOSE_ABSOLUTE(expectedMean,
@@ -595,11 +589,8 @@ BOOST_AUTO_TEST_CASE(testMarginalLikelihoodVariance) {
                 filter.addSamples(TDouble1Vec(1, samples[k]));
                 double expectedVariance;
                 BOOST_TEST_REQUIRE(filter.marginalLikelihoodVarianceForTest(expectedVariance));
-                if (k % 10 == 0) {
-                    LOG_DEBUG(<< "marginalLikelihoodVariance = "
-                              << filter.marginalLikelihoodVariance()
-                              << ", expectedVariance = " << expectedVariance);
-                }
+                LOG_TRACE(<< "marginalLikelihoodVariance = " << filter.marginalLikelihoodVariance()
+                          << ", expectedVariance = " << expectedVariance);
 
                 // The error is at the precision of the numerical integration.
                 BOOST_REQUIRE_CLOSE_ABSOLUTE(
@@ -684,7 +675,7 @@ BOOST_AUTO_TEST_CASE(testSampleMarginalLikelihood) {
             double expectedQuantile;
             BOOST_TEST_REQUIRE(filter.marginalLikelihoodQuantileForTest(q, eps, expectedQuantile));
 
-            LOG_DEBUG(<< "quantile = " << q << ", x_quantile = " << expectedQuantile << ", quantile range = ["
+            LOG_TRACE(<< "quantile = " << q << ", x_quantile = " << expectedQuantile << ", quantile range = ["
                       << sampled[j - 1] << "," << sampled[j] << "]");
 
             BOOST_TEST_REQUIRE(expectedQuantile >= sampled[j - 1]);
@@ -732,7 +723,7 @@ BOOST_AUTO_TEST_CASE(testCdf) {
                 TDouble1Vec(1, x), lowerBound, upperBound));
             double fComplement = (lowerBound + upperBound) / 2.0;
 
-            LOG_DEBUG(<< "log(F(x)) = " << (f == 0.0 ? f : -f) << ", log(1 - F(x)) = "
+            LOG_TRACE(<< "log(F(x)) = " << (f == 0.0 ? f : -f) << ", log(1 - F(x)) = "
                       << (fComplement == 0.0 ? fComplement : -fComplement));
             BOOST_REQUIRE_CLOSE_ABSOLUTE(1.0, std::exp(-f) + std::exp(-fComplement), 1e-10);
         }
@@ -795,7 +786,7 @@ BOOST_AUTO_TEST_CASE(testProbabilityOfLessLikelySamples) {
                 double ssd = std::sqrt(px * (1.0 - px) /
                                        static_cast<double>(samples.size()));
 
-                LOG_DEBUG(<< "expected P(x) = " << px << ", actual P(x) = "
+                LOG_TRACE(<< "expected P(x) = " << px << ", actual P(x) = "
                           << (lb + ub) / 2.0 << " sample sd = " << ssd);
 
                 BOOST_REQUIRE_CLOSE_ABSOLUTE(px, (lb + ub) / 2.0, 3.0 * ssd);
@@ -1266,7 +1257,7 @@ BOOST_AUTO_TEST_CASE(testSeasonalVarianceScale) {
                         double FxPlusEps = std::exp(-(lb + ub) / 2.0);
                         filter.minusLogJointCdf(xMinusEps, {weight}, lb, ub);
                         double FxMinusEps = std::exp(-(lb + ub) / 2.0);
-                        LOG_DEBUG(<< "x = " << points[l] << ", log(f(x)) = " << fx
+                        LOG_TRACE(<< "x = " << points[l] << ", log(f(x)) = " << fx
                                   << ", F(x - eps) = " << FxMinusEps
                                   << ", F(x + eps) = " << FxPlusEps << ", log(dF/dx)) = "
                                   << std::log((FxPlusEps - FxMinusEps) / 2e-3));
@@ -1292,12 +1283,12 @@ BOOST_AUTO_TEST_CASE(testSeasonalVarianceScale) {
                                                               sample, {weight}, lowerBound,
                                                               upperBound, tail);
 
-                        LOG_DEBUG(<< "expectedLowerBound = " << expectedLowerBound);
-                        LOG_DEBUG(<< "lowerBound         = " << lowerBound);
-                        LOG_DEBUG(<< "expectedUpperBound = " << expectedUpperBound);
-                        LOG_DEBUG(<< "upperBound         = " << upperBound);
-                        LOG_DEBUG(<< "expectedTail       = " << expectedTail);
-                        LOG_DEBUG(<< "tail               = " << tail);
+                        LOG_TRACE(<< "expectedLowerBound = " << expectedLowerBound);
+                        LOG_TRACE(<< "lowerBound         = " << lowerBound);
+                        LOG_TRACE(<< "expectedUpperBound = " << expectedUpperBound);
+                        LOG_TRACE(<< "upperBound         = " << upperBound);
+                        LOG_TRACE(<< "expectedTail       = " << expectedTail);
+                        LOG_TRACE(<< "tail               = " << tail);
 
                         if ((expectedLowerBound + expectedUpperBound) < 0.02) {
                             BOOST_REQUIRE_CLOSE_ABSOLUTE(
@@ -1363,7 +1354,6 @@ BOOST_AUTO_TEST_CASE(testCountVarianceScale) {
 
     const double varianceScales[] = {0.20, 0.50, 0.75, 1.50, 2.00, 5.00};
 
-    LOG_DEBUG(<< "");
     LOG_DEBUG(<< "****** probabilityOfLessLikelySamples ******");
 
     const double percentiles[] = {10.0, 20.0, 30.0, 40.0, 50.0,
@@ -1447,7 +1437,7 @@ BOOST_AUTO_TEST_CASE(testCountVarianceScale) {
                 double errorThreshold = percentileErrorTolerances[i] +
                                         expectedPercentileErrors[k];
 
-                LOG_DEBUG(<< "percentile = " << percentiles[k] << ", probability = "
+                LOG_TRACE(<< "percentile = " << percentiles[k] << ", probability = "
                           << probabilities[index] << ", error = " << error
                           << ", error threshold = " << errorThreshold);
 
@@ -1467,7 +1457,6 @@ BOOST_AUTO_TEST_CASE(testCountVarianceScale) {
     LOG_DEBUG(<< "total totalError = " << totalTotalError);
     BOOST_TEST_REQUIRE(totalTotalError < 3.5);
 
-    LOG_DEBUG(<< "");
     LOG_DEBUG(<< "****** jointLogMarginalLikelihood ******");
 
     test::CRandomNumbers rng;
@@ -1507,7 +1496,6 @@ BOOST_AUTO_TEST_CASE(testCountVarianceScale) {
         BOOST_REQUIRE_CLOSE_ABSOLUTE(expectedDifferentialEntropy, differentialEntropy, 0.03);
     }
 
-    LOG_DEBUG(<< "");
     LOG_DEBUG(<< "****** addSamples ******");
 
     // This tests update with variable variance scale. In particular,
