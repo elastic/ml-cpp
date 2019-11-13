@@ -88,6 +88,7 @@ SRCS=\
 	CSamplingTest.cc \
 	CSeasonalComponentTest.cc \
 	CSeasonalComponentAdaptiveBucketingTest.cc \
+    CSeasonalTimeTest.cc \
 	CSetToolsTest.cc \
 	CSignalTest.cc \
 	CSolversTest.cc \
