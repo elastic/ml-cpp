@@ -75,6 +75,7 @@
 #include "CSamplingTest.h"
 #include "CSeasonalComponentAdaptiveBucketingTest.h"
 #include "CSeasonalComponentTest.h"
+#include "CSeasonalTimeTest.h"
 #include "CSetToolsTest.h"
 #include "CSignalTest.h"
 #include "CSolversTest.h"
@@ -163,6 +164,7 @@ int main(int argc, const char** argv) {
     runner.addTest(CSamplingTest::suite());
     runner.addTest(CSeasonalComponentTest::suite());
     runner.addTest(CSeasonalComponentAdaptiveBucketingTest::suite());
+    runner.addTest(CSeasonalTimeTest::suite());
     runner.addTest(CSetToolsTest::suite());
     runner.addTest(CSignalTest::suite());
     runner.addTest(CSolversTest::suite());
