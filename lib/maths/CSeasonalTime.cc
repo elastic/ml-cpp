@@ -11,6 +11,7 @@
 #include <core/CPersistUtils.h>
 #include <core/CStatePersistInserter.h>
 #include <core/CStateRestoreTraverser.h>
+#include <core/CStringUtils.h>
 #include <core/Constants.h>
 
 #include <maths/CChecksum.h>
@@ -143,7 +144,7 @@ CDiurnalTime* CDiurnalTime::clone() const {
 }
 
 bool CDiurnalTime::fromString(std::string value) {
-    std::size_t delimiter{value.find(DELIMITER)};
+    std::size_t delimiter{value.rfind(DELIMITER)};
     if (delimiter != std::string::npos) {
         double precedence{0.0};
         if (core::CStringUtils::stringToType(value.substr(delimiter + 1), precedence) == false) {
@@ -223,7 +224,7 @@ CGeneralPeriodTime* CGeneralPeriodTime::clone() const {
 }
 
 bool CGeneralPeriodTime::fromString(std::string value) {
-    std::size_t delimiter{value.find(DELIMITER)};
+    std::size_t delimiter{value.rfind(DELIMITER)};
     if (delimiter != std::string::npos) {
         double precedence{0.0};
         if (core::CStringUtils::stringToType(value.substr(delimiter + 1), precedence) == false) {

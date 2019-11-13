@@ -63,7 +63,7 @@ errors to be logged during boosted tree training. (See {ml-pull}732[#732].)
 
 === Bug Fixes
 
-* Restore from checkpoint could damage seasonality modelling. For example, it could
+* Restore from checkpoint could damage seasonality modeling. For example, it could
 cause seasonal components to be overwritten in error. (See {ml-pull}821[#821].)
 
 == {es} version 7.4.1
