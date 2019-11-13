@@ -6,6 +6,7 @@
 
 #include <maths/CSeasonalTime.h>
 
+#include <core/CIEEE754.h>
 #include <core/CLogger.h>
 #include <core/CPersistUtils.h>
 #include <core/CStatePersistInserter.h>
@@ -17,9 +18,9 @@
 
 #include <boost/array.hpp>
 #include <boost/make_unique.hpp>
-#include <boost/numeric/conversion/bounds.hpp>
 
 #include <cstddef>
+#include <memory>
 #include <string>
 
 namespace ml {
@@ -28,6 +29,7 @@ namespace {
 // DO NOT change the existing tags if new sub-classes are added.
 const std::string DIURNAL_TIME_TAG("a");
 const std::string ARBITRARY_PERIOD_TIME_TAG("b");
+const std::string DELIMITER(",");
 }
 
 //////// CSeasonalTime ////////
@@ -110,6 +112,14 @@ bool CSeasonalTime::excludes(const CSeasonalTime& other) const {
            m_Precedence >= other.m_Precedence;
 }
 
+double CSeasonalTime::precedence() const {
+    return m_Precedence;
+}
+
+void CSeasonalTime::precedence(double precedence) {
+    m_Precedence = precedence;
+}
+
 core_t::TTime CSeasonalTime::startOfWindowRepeat(core_t::TTime offset,
                                                  core_t::TTime time) const {
     return offset + CIntegerTools::floor(time - offset, this->windowRepeat());
@@ -134,7 +144,17 @@ CDiurnalTime* CDiurnalTime::clone() const {
     return new CDiurnalTime(*this);
 }
 
-bool CDiurnalTime::fromString(const std::string& value) {
+bool CDiurnalTime::fromString(std::string value) {
+    std::size_t delimiter = value.rfind(DELIMITER);
+    if (delimiter != std::string::npos) {
+        double precedence{0.0};
+        if (core::CStringUtils::stringToType(value.substr(delimiter + 1), precedence) == false) {
+            return false;
+        }
+        this->precedence(precedence);
+        value = value.substr(0, delimiter);
+    }
+
     boost::array<core_t::TTime, 5> times;
     if (core::CPersistUtils::fromString(value, times)) {
         m_StartOfWeek = times[0];
@@ -154,7 +174,9 @@ std::string CDiurnalTime::toString() const {
     times[2] = m_WindowEnd;
     times[3] = this->period();
     times[4] = this->regressionOrigin();
-    return core::CPersistUtils::toString(times);
+    return core::CPersistUtils::toString(times) + DELIMITER +
+           core::CStringUtils::typeToStringPrecise(
+               this->precedence(), core::CIEEE754::E_DoublePrecision);
 }
 
 core_t::TTime CDiurnalTime::windowRepeat() const {
@@ -178,11 +200,13 @@ bool CDiurnalTime::hasWeekend() const {
            this->windowLength() == core::constants::WEEKDAYS;
 }
 
-uint64_t CDiurnalTime::checksum(uint64_t seed) const {
+std::uint64_t CDiurnalTime::checksum(std::uint64_t seed) const {
     seed = CChecksum::calculate(seed, m_StartOfWeek);
     seed = CChecksum::calculate(seed, m_WindowStart);
     seed = CChecksum::calculate(seed, m_WindowEnd);
-    return CChecksum::calculate(seed, this->period());
+    seed = CChecksum::calculate(seed, this->period());
+    seed = CChecksum::calculate(seed, this->regressionOrigin());
+    return CChecksum::calculate(seed, this->precedence());
 }
 
 core_t::TTime CDiurnalTime::regressionTimeScale() const {
@@ -199,7 +223,17 @@ CGeneralPeriodTime* CGeneralPeriodTime::clone() const {
     return new CGeneralPeriodTime(*this);
 }
 
-bool CGeneralPeriodTime::fromString(const std::string& value) {
+bool CGeneralPeriodTime::fromString(std::string value) {
+    std::size_t delimiter = value.rfind(DELIMITER);
+    if (delimiter != std::string::npos) {
+        double precedence{0.0};
+        if (core::CStringUtils::stringToType(value.substr(delimiter + 1), precedence) == false) {
+            return false;
+        }
+        this->precedence(precedence);
+        value = value.substr(0, delimiter);
+    }
+
     boost::array<core_t::TTime, 2> times;
     if (core::CPersistUtils::fromString(value, times)) {
         this->period(times[0]);
@@ -213,7 +247,9 @@ std::string CGeneralPeriodTime::toString() const {
     boost::array<core_t::TTime, 2> times;
     times[0] = this->period();
     times[1] = this->regressionOrigin();
-    return core::CPersistUtils::toString(times);
+    return core::CPersistUtils::toString(times) + DELIMITER +
+           core::CStringUtils::typeToStringPrecise(
+               this->precedence(), core::CIEEE754::E_DoublePrecision);
 }
 
 core_t::TTime CGeneralPeriodTime::windowRepeat() const {
@@ -236,8 +272,10 @@ bool CGeneralPeriodTime::hasWeekend() const {
     return false;
 }
 
-uint64_t CGeneralPeriodTime::checksum(uint64_t seed) const {
-    return CChecksum::calculate(seed, this->period());
+std::uint64_t CGeneralPeriodTime::checksum(std::uint64_t seed) const {
+    seed = CChecksum::calculate(seed, this->period());
+    seed = CChecksum::calculate(seed, this->regressionOrigin());
+    return CChecksum::calculate(seed, this->precedence());
 }
 
 core_t::TTime CGeneralPeriodTime::regressionTimeScale() const {

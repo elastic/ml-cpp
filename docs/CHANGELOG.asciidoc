@@ -91,6 +91,9 @@ Adjust seccomp filter for Fedora 29. {ml-pull}354[#354]
 
 Fix cause of "Sample out of bounds" error message (See {ml-pull}355[355].}
 
+Restore from checkpoint could damage seasonality modeling. For example, it could
+cause seasonal components to be overwritten in error. (See {ml-pull}821[#821].)
+
 === Regressions
 
  == {es} version 6.5.5
