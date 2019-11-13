@@ -11,6 +11,7 @@
 
 #include <maths/ImportExport.h>
 
+#include <cstdint>
 #include <memory>
 #include <string>
 
@@ -121,7 +122,7 @@ public:
     virtual bool hasWeekend() const = 0;
 
     //! Get a checksum for this object.
-    virtual uint64_t checksum(uint64_t seed = 0) const = 0;
+    virtual std::uint64_t checksum(std::uint64_t seed = 0) const = 0;
 
 protected:
     double precedence() const;
@@ -186,7 +187,7 @@ public:
     virtual bool hasWeekend() const;
 
     //! Get a checksum for this object.
-    virtual uint64_t checksum(uint64_t seed = 0) const;
+    virtual std::uint64_t checksum(std::uint64_t seed = 0) const;
 
 private:
     //! Get the scale to apply when computing the regression time.
