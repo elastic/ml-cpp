@@ -657,11 +657,20 @@ CBoostedTreeImpl::trainForest(core::CDataFrame& frame,
 
     // For each iteration:
     //  1. Compute weighted quantiles for features F
-    //  2. Compute candidate split set S from quantiles of F
+    //  2. Periodically compute candidate split set S from quantiles of F
     //  3. Build one tree on (F, S)
     //  4. Update predictions and loss derivatives
 
     double eta{m_Eta};
+
+    // Computing feature quantiles is surprisingly runtime expensive and there may
+    // be mileage in seeing if we can make the sketch more efficient. However, we
+    // should easily be able to build multiple trees on the same set of candidate
+    // splits and decrease the loss function since the space of candidate trees for
+    // a fixed set of candidate splits is very large. Furthermore, we use a greedy
+    // heuristic to search this space and so don't expect to find the tree to add
+    // which minimises total loss. As a result, we choose to amortise the cost of
+    // computing feature quantiles by only refreshing candidate splits periodically.
     std::size_t nextTreeCountToRefreshSplits{
         forest.size() + static_cast<std::size_t>(std::max(0.5 / eta, 1.0))};
 
@@ -688,6 +697,7 @@ CBoostedTreeImpl::trainForest(core::CDataFrame& frame,
             retries = 0;
             m_TrainingProgress.increment();
         } else {
+            // Refresh splits in case it allows us to find tree which can reduce loss.
             candidateSplits = this->candidateSplits(frame, downsampledRowMask);
             nextTreeCountToRefreshSplits +=
                 static_cast<std::size_t>(std::max(0.5 / eta, 2.0));
