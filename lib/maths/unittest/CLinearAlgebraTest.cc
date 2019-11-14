@@ -1136,10 +1136,8 @@ BOOST_AUTO_TEST_CASE(testShims) {
     {
         BOOST_TEST_REQUIRE(TMatrix4(0.0) == maths::las::conformableZeroMatrix(vector1));
         BOOST_TEST_REQUIRE(TMatrix(4, 0.0) == maths::las::conformableZeroMatrix(vector2));
-        BOOST_TEST_REQUIRE(TDenseMatrix::Zero(4, 4) ==
-                           maths::las::conformableZeroMatrix(vector3));
-        BOOST_TEST_REQUIRE(TDenseMatrix::Zero(4, 4) ==
-                           maths::las::conformableZeroMatrix(vector4));
+        BOOST_REQUIRE(TDenseMatrix::Zero(4, 4) == maths::las::conformableZeroMatrix(vector3));
+        BOOST_REQUIRE(TDenseMatrix::Zero(4, 4) == maths::las::conformableZeroMatrix(vector4));
     }
     LOG_DEBUG(<< "Test isZero");
     {
@@ -1163,8 +1161,9 @@ BOOST_AUTO_TEST_CASE(testShims) {
     {
         BOOST_TEST_REQUIRE(TVector4(5.1) == maths::las::constant(vector1, 5.1));
         BOOST_TEST_REQUIRE(TVector(4, 5.1) == maths::las::constant(vector2, 5.1));
-        BOOST_TEST_REQUIRE(5.1 * TDenseVector::Ones(4) == maths::las::constant(vector3, 5.1));
-        BOOST_TEST_REQUIRE(5.1 * TDenseVector::Ones(4) == maths::las::constant(vector4, 5.1));
+        const auto expected = 5.1 * TDenseVector::Ones(4);
+        BOOST_TEST_REQUIRE(expected == maths::las::constant(vector3, 5.1));
+        BOOST_TEST_REQUIRE(expected == maths::las::constant(vector4, 5.1));
     }
     LOG_DEBUG(<< "Test min");
     {

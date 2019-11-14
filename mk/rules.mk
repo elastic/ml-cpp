@@ -69,7 +69,7 @@ $(OBJS_DIR)/%.d: %.cc
 	@set -e; \
 	rm -f $@; \
 	echo "Finding dependencies of" $<; \
-	$(CXX) $(CDEPFLAGS) $(CPPFLAGS) $< $(DEP_FILTER) > $@.$$$$; \
+	$(CXX) $(CDEPFLAGS) $(INCLUDE_PATH) $(CPPFLAGS) $< $(DEP_FILTER) > $@.$$$$; \
 	$(DEP_REFORMAT) < $@.$$$$ | sed 's/: /: $$(wildcard /' | sed 's~\([A-Za-z]\)$$~\1)~' > $@; \
 	rm -f $@.$$$$
 
@@ -77,7 +77,7 @@ $(OBJS_DIR)/%.d: %.c
 	@set -e; \
 	rm -f $@; \
 	echo "Finding dependencies of" $<; \
-	$(CC) $(CDEPFLAGS) $(CPPFLAGS) $< $(DEP_FILTER) > $@.$$$$; \
+	$(CC) $(CDEPFLAGS) $(INCLUDE_PATH) $(CPPFLAGS) $< $(DEP_FILTER) > $@.$$$$; \
 	$(DEP_REFORMAT) < $@.$$$$ | sed 's/: /: $$(wildcard /' | sed 's~\([A-Za-z]\)$$~\1)~' > $@; \
 	rm -f $@.$$$$
 
@@ -170,6 +170,7 @@ CPPFLAGS+=$(RAPIDJSONCPPFLAGS)
 endif
 
 ifdef USE_EIGEN
+INCLUDE_PATH+=$(EIGENINCLUDES)
 CPPFLAGS+=$(EIGENCPPFLAGS)
 endif
 

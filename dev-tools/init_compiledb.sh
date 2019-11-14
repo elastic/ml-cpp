@@ -20,5 +20,5 @@ do
     echo "$DIR"
     (cd "$DIR" && "$CPP_SRC_HOME/dev-tools/compiledb.sh" "$CPP_SRC_HOME/compile_commands.json")
 done
-cd devbin && ../dev-tools/compiledb.sh ../compile_commands.json
-
+(cd devbin && ../dev-tools/compiledb.sh ../compile_commands.json)
+(cd 3rd_party && ../dev-tools/compiledb.sh ../compile_commands.json)

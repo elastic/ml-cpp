@@ -9,7 +9,7 @@
 
 #include <maths/ImportExport.h>
 
-#include <Eigen/src/Core/util/Constants.h>
+#include <Eigen/Core>
 
 #include <cstddef>
 

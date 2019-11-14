@@ -505,8 +505,9 @@ BOOST_AUTO_TEST_CASE(testPrecisionMatrixEstimation) {
             std::sort(elementSamples[2].begin(), elementSamples[2].end());
 
             TMatrix2 covarianceMatrix(covariances_, covariances_ + 3);
-            TMatrix2 precisionMatrix(maths::fromDenseMatrix(
-                maths::toDenseMatrix(covarianceMatrix).inverse()));
+            auto denseCovarianceMatrix = maths::toDenseMatrix(covarianceMatrix);
+            auto denseCovarianceMatrixInverse = denseCovarianceMatrix.inverse();
+            TMatrix2 precisionMatrix(maths::fromDenseMatrix(denseCovarianceMatrixInverse));
 
             for (std::size_t j = 0; j < boost::size(testIntervals); ++j) {
                 std::size_t l = static_cast<std::size_t>(
