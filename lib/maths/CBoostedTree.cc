@@ -420,10 +420,6 @@ void CBoostedTree::predict() const {
     m_Impl->predict(this->frame(), this->progressRecorder());
 }
 
-void CBoostedTree::write(core::CRapidJsonConcurrentLineWriter& writer) const {
-    m_Impl->write(writer);
-}
-
 const CBoostedTree::TDoubleVec& CBoostedTree::featureWeights() const {
     return m_Impl->featureWeights();
 }

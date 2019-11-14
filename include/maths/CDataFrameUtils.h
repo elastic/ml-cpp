@@ -222,20 +222,20 @@ public:
     //! \param[in] frame The data frame for which to compute the column quantiles.
     //! \param[in] rowMask A mask of the rows from which to compute quantiles.
     //! \param[in] columnMask A mask of the columns for which to compute quantiles.
-    //! \param[in] sketch The sketch to be used to estimate column quantiles.
-    //! \param[out] result Filled in with the column quantile estimates.
+    //! \param[in] quantileEstimator Estimates the quantiles of a collection of
+    //! weighted samples.
     //! \param[in] encoder If non-null used to encode the rows for which to compute
     //! quantiles.
     //! \param[in] weight The weight to assign each row. The default is unity for
     //! all rows.
-    static bool columnQuantiles(std::size_t numberThreads,
-                                const core::CDataFrame& frame,
-                                const core::CPackedBitVector& rowMask,
-                                const TSizeVec& columnMask,
-                                const CQuantileSketch& sketch,
-                                TQuantileSketchVec& result,
-                                const CDataFrameCategoryEncoder* encoder = nullptr,
-                                TWeightFunction weight = unitWeight);
+    static std::pair<TQuantileSketchVec, bool>
+    columnQuantiles(std::size_t numberThreads,
+                    const core::CDataFrame& frame,
+                    const core::CPackedBitVector& rowMask,
+                    const TSizeVec& columnMask,
+                    CQuantileSketch quantileEstimator,
+                    const CDataFrameCategoryEncoder* encoder = nullptr,
+                    TWeightFunction weight = unitWeight);
 
     //! \brief Compute disjoint stratified random train/test row masks suitable
     //! for cross-validation.
