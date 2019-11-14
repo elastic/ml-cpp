@@ -623,7 +623,7 @@ void CBoostedTreeFactory::initializeUnsetDownsampleFactor(core::CDataFrame& fram
                                                std::log(MAX_DOWNSAMPLE_FACTOR_SCALE), stepSize)
                           .value_or(fallback - initial);
 
-        // Truncate the scale to be less than or equal to 1.0.
+        // Truncate the log(scale) to be less than or equal to log(1.0).
         m_LogDownsampleFactorSearchInterval =
             min(m_LogDownsampleFactorSearchInterval, TVector{0.0});
         LOG_TRACE(<< "log down sample factor search interval = ["
