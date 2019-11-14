@@ -32,6 +32,7 @@ class API_EXPORT CDataFrameTrainBoostedTreeRunner : public CDataFrameAnalysisRun
 public:
     static const std::string DEPENDENT_VARIABLE_NAME;
     static const std::string PREDICTION_FIELD_NAME;
+    static const std::string DOWNSAMPLE_ROWS_PER_FEATURE;
     static const std::string ALPHA;
     static const std::string LAMBDA;
     static const std::string GAMMA;

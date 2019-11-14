@@ -333,7 +333,7 @@ void CBoostedTreeFactory::initializeHyperparameters(core::CDataFrame& frame) {
     }
 
     double numberFeatures{static_cast<double>(m_TreeImpl->m_Encoder->numberEncodedColumns())};
-    double downSampleFactor{200.0 * numberFeatures /
+    double downSampleFactor{m_InitialDownsampleRowsPerFeature * numberFeatures /
                             m_TreeImpl->m_TrainingRowMasks[0].manhattan()};
     m_TreeImpl->m_DownsampleFactor = m_TreeImpl->m_DownsampleFactorOverride.value_or(
         CTools::truncate(downSampleFactor, 0.05, 0.5));
@@ -806,6 +806,11 @@ CBoostedTreeFactory& CBoostedTreeFactory::numberFolds(std::size_t numberFolds) {
 
 CBoostedTreeFactory& CBoostedTreeFactory::stratifyRegressionCrossValidation(bool stratify) {
     m_StratifyRegressionCrossValidation = stratify;
+    return *this;
+}
+
+CBoostedTreeFactory& CBoostedTreeFactory::initialDownsampleRowsPerFeature(double rowsPerFeature) {
+    m_InitialDownsampleRowsPerFeature = rowsPerFeature;
     return *this;
 }
 

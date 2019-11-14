@@ -59,6 +59,8 @@ public:
     CBoostedTreeFactory& numberFolds(std::size_t numberFolds);
     //! Stratify the cross validation we do for regression.
     CBoostedTreeFactory& stratifyRegressionCrossValidation(bool stratify);
+    //! The number of rows per feature to sample in the initial downsample.
+    CBoostedTreeFactory& initialDownsampleRowsPerFeature(double rowsPerFeature);
     //! Set the sum of leaf depth penalties multiplier.
     CBoostedTreeFactory& depthPenaltyMultiplier(double depthPenaltyMultiplier);
     //! Set the tree size penalty multiplier.
@@ -192,6 +194,7 @@ private:
     TOptionalSize m_BayesianOptimisationRestarts;
     bool m_BalanceClassTrainingLoss = true;
     bool m_StratifyRegressionCrossValidation = true;
+    double m_InitialDownsampleRowsPerFeature = 200.0;
     std::size_t m_NumberThreads;
     TBoostedTreeImplUPtr m_TreeImpl;
     TVector m_LogDownsampleFactorSearchInterval;
