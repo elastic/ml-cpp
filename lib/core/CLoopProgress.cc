@@ -17,7 +17,6 @@
 namespace ml {
 namespace core {
 namespace {
-const std::size_t STEPS{32};
 const std::string LOOP_SIZE_TAG{"loop_size_tag"};
 const std::string PROGRESS_STEPS_TAG{"progress_steps_tag"};
 const std::string CURRENT_STEP_PROGRESS_TAG{"current_step_progress_tag"};
@@ -29,8 +28,11 @@ CLoopProgress::CLoopProgress()
       m_StepProgress{1.0}, m_RecordProgress{noop} {
 }
 
-CLoopProgress::CLoopProgress(std::size_t size, const TProgressCallback& recordProgress, double scale)
-    : m_Size{size}, m_Steps{std::min(size, STEPS)},
+CLoopProgress::CLoopProgress(std::size_t size,
+                             const TProgressCallback& recordProgress,
+                             double scale,
+                             std::size_t steps)
+    : m_Size{size}, m_Steps{std::min(size, steps)},
       m_StepProgress{scale / static_cast<double>(m_Steps)}, m_RecordProgress{recordProgress} {
 }
 

@@ -37,7 +37,10 @@
 * Reduce the peak memory used by boosted tree training and fix an overcounting bug
 estimating maximum memory usage. (See {ml-pull}781[#781].)
 * Stratified fractional cross validation for regression. (See {ml-pull}784[#784].)
-* Added `geo_point` supported output for `lat_long` function records. (See {ml-pull}809[#809], {pull}47050[#47050].)
+* Added `geo_point` supported output for `lat_long` function records. (See {ml-pull}809[#809]
+and {pull}47050[#47050].)
+* Use a random bag of the data to compute the loss function derivatives for each new
+tree which is trained for both regression and classification. (See {ml-pull}811[#811].)
 
 == {es} version 7.5.0
 

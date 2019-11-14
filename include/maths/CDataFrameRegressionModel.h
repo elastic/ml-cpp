@@ -44,11 +44,6 @@ public:
     //! \warning This can only be called after train.
     virtual void predict() const = 0;
 
-    //! Write this model to \p writer.
-    //!
-    //! \warning This can only be called after train.
-    virtual void write(core::CRapidJsonConcurrentLineWriter& writer) const = 0;
-
     //! Get the feature weights the model has chosen.
     virtual const TDoubleVec& featureWeights() const = 0;
 
