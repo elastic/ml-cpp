@@ -69,7 +69,7 @@ $(OBJS_DIR)/%.d: %.cc
 	@set -e; \
 	rm -f $@; \
 	echo "Finding dependencies of" $<; \
-	$(CXX) $(CDEPFLAGS) $(INCLUDE_PATH) $(CPPFLAGS) $< $(DEP_FILTER) > $@.$$$$; \
+	$(CXX) $(CDEPFLAGS) $(CPPFLAGS) $< $(DEP_FILTER) > $@.$$$$; \
 	$(DEP_REFORMAT) < $@.$$$$ | sed 's/: /: $$(wildcard /' | sed 's~\([A-Za-z]\)$$~\1)~' > $@; \
 	rm -f $@.$$$$
 
@@ -77,7 +77,7 @@ $(OBJS_DIR)/%.d: %.c
 	@set -e; \
 	rm -f $@; \
 	echo "Finding dependencies of" $<; \
-	$(CC) $(CDEPFLAGS) $(INCLUDE_PATH) $(CPPFLAGS) $< $(DEP_FILTER) > $@.$$$$; \
+	$(CC) $(CDEPFLAGS) $(CPPFLAGS) $< $(DEP_FILTER) > $@.$$$$; \
 	$(DEP_REFORMAT) < $@.$$$$ | sed 's/: /: $$(wildcard /' | sed 's~\([A-Za-z]\)$$~\1)~' > $@; \
 	rm -f $@.$$$$
 
