@@ -1394,6 +1394,11 @@ bool CBoostedTreeImpl::acceptRestoreTraverser(core::CStateRestoreTraverser& trav
         m_DownsampleFactorOverride = 1.0;
         m_DownsampleFactor = 1.0;
         m_BestHyperparameters.s_DownsampleFactor = 1.0;
+    } else if (traverser.name() != VERSION_7_6_TAG) {
+        LOG_ERROR(<< "Input error: unsupported state serialization version. "
+                  << "Currently supported versions: " << VERSION_7_5_TAG
+                  << " and " << VERSION_7_6_TAG << ".");
+        return false;
     }
 
     do {
