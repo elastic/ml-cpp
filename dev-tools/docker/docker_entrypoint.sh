@@ -23,7 +23,7 @@ cd "$MY_DIR/../.."
 # Note: no need to clean due to the .dockerignore file
 
 # Build the code
-make -j`grep -c '^processor' /proc/cpuinfo`
+make -j`grep -c '^processor.*[1-6]$' /proc/cpuinfo` # TODO remove the processor hack
 
 # Strip the binaries
 dev-tools/strip_binaries.sh
