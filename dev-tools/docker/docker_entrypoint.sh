@@ -23,7 +23,7 @@ cd "$MY_DIR/../.."
 # Note: no need to clean due to the .dockerignore file
 
 # Build the code
-make -j`grep -c '^processor.*[1-6]$' /proc/cpuinfo` # TODO remove the processor hack
+make -j`grep -c '^processor' /proc/cpuinfo`
 
 # Strip the binaries
 dev-tools/strip_binaries.sh
@@ -54,8 +54,6 @@ if [ "x$1" = "x--test" ] ; then
     # failure is the unit tests, and then the detailed test results can be
     # copied from the image
     echo passed > build/test_status.txt
-    # 1-6 reduces parallelism - workaround for running out of memory on
-    # n1-highcpu-16 GCE nodes with 16 CPUs but only 14.4GB RAM
-    make -j`grep -c '^processor.*[1-6]$' /proc/cpuinfo` ML_KEEP_GOING=1 test || echo failed > build/test_status.txt
+    make -j`grep -c '^processor' /proc/cpuinfo` ML_KEEP_GOING=1 test || echo failed > build/test_status.txt
 fi
 
