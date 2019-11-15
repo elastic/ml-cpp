@@ -152,7 +152,7 @@ BOOST_AUTO_TEST_CASE(testSingularHessian) {
         TVector eps{10};
         eps.setZero();
         for (std::size_t j = 0; j < 10; ++j) {
-            eps(j) = 0.2;
+            eps(j) = 0.22;
             BOOST_TEST_REQUIRE(f(x - eps) > fx);
             BOOST_TEST_REQUIRE(f(x + eps) > fx);
             eps(j) = 0.0;
