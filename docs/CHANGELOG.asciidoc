@@ -36,6 +36,11 @@
 (See {ml-pull}775[#775].)
 * Reduce the peak memory used by boosted tree training and fix an overcounting bug
 estimating maximum memory usage. (See {ml-pull}781[#781].)
+* Stratified fractional cross validation for regression. (See {ml-pull}784[#784].)
+* Added `geo_point` supported output for `lat_long` function records. (See {ml-pull}809[#809]
+and {pull}47050[#47050].)
+* Use a random bag of the data to compute the loss function derivatives for each new
+tree which is trained for both regression and classification. (See {ml-pull}811[#811].)
 
 == {es} version 7.5.0
 
@@ -58,6 +63,11 @@ aims to improve handling of data which are predictably present: detecting when t
 are unexpectedly missing. (See {ml-pull}721[#721].)
 * Trap numeric errors causing bad hyperparameter search initialisation and repeated
 errors to be logged during boosted tree training. (See {ml-pull}732[#732].)
+
+=== Bug Fixes
+
+* Restore from checkpoint could damage seasonality modeling. For example, it could
+cause seasonal components to be overwritten in error. (See {ml-pull}821[#821].)
 
 == {es} version 7.4.1
 

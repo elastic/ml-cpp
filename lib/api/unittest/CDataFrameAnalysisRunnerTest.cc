@@ -83,8 +83,8 @@ BOOST_AUTO_TEST_CASE(testComputeAndSaveExecutionStrategyDiskUsageFlag) {
     // Test large memory requirement without disk usage
     {
         errors.clear();
-        auto spec = test::CDataFrameAnalysisSpecificationFactory::diskUsageTestSpec(
-            1000, 100, false);
+        auto spec = test::CDataFrameAnalysisSpecificationFactory::outlierSpec(
+            1000, 100, 500000, "", 0, true, false);
 
         // single error is registered that the memory limit is to low
         LOG_DEBUG(<< "errors = " << core::CContainerPrinter::print(errors));
@@ -97,8 +97,8 @@ BOOST_AUTO_TEST_CASE(testComputeAndSaveExecutionStrategyDiskUsageFlag) {
     // Test large memory requirement with disk usage
     {
         errors.clear();
-        auto spec = test::CDataFrameAnalysisSpecificationFactory::diskUsageTestSpec(
-            1000, 100, true);
+        auto spec = test::CDataFrameAnalysisSpecificationFactory::outlierSpec(
+            1000, 100, 500000, "", 0, true, true);
 
         // no error should be registered
         BOOST_REQUIRE_EQUAL(0, static_cast<int>(errors.size()));
@@ -107,8 +107,8 @@ BOOST_AUTO_TEST_CASE(testComputeAndSaveExecutionStrategyDiskUsageFlag) {
     // Test low memory requirement without disk usage
     {
         errors.clear();
-        auto spec = test::CDataFrameAnalysisSpecificationFactory::diskUsageTestSpec(
-            10, 10, false);
+        auto spec = test::CDataFrameAnalysisSpecificationFactory::outlierSpec(
+            10, 10, 500000, "", 0, true, false);
 
         // no error should be registered
         BOOST_REQUIRE_EQUAL(0, static_cast<int>(errors.size()));

@@ -39,18 +39,21 @@ fi
 set -e
 
 # Change directory to the directory containing this script
-cd $(dirname $0)
+cd "$(dirname $0)"
 
 # Default to a snapshot build
 if [ -z "$BUILD_SNAPSHOT" ] ; then
     BUILD_SNAPSHOT=true
 fi
 
+VERSION=$(cat ../gradle.properties | grep '^elasticsearchVersion' | awk -F= '{ print $2 }' | xargs echo)
+
 # Jenkins sets BUILD_SNAPSHOT, but our Docker scripts require SNAPSHOT
 if [ "$BUILD_SNAPSHOT" = false ] ; then
     export SNAPSHOT=no
 else
     export SNAPSHOT=yes
+    VERSION=${VERSION}-SNAPSHOT
 fi
 
 # Remove any old builds
@@ -68,6 +71,18 @@ fi
 
 # Build and test Linux
 ./docker_test.sh linux
+
+# If this is a PR build then run some Java integration tests
+if [ -n "$PR_AUTHOR" ] ; then
+    if [ "$(uname -s)" = Linux ] ; then
+        IVY_REPO="${GIT_TOPLEVEL}/../ivy"
+        mkdir -p "${IVY_REPO}/maven/org/elasticsearch/ml/ml-cpp/$VERSION"
+        cp "../build/distributions/ml-cpp-$VERSION-linux-x86_64.zip" "${IVY_REPO}/maven/org/elasticsearch/ml/ml-cpp/$VERSION/ml-cpp-$VERSION.zip"
+        ./run_es_tests.sh "${GIT_TOPLEVEL}/.." "$(cd "${IVY_REPO}" && pwd)"
+    else
+        echo 'Not running ES integration tests on non-Linux platform:' $(uname -a)
+    fi
+fi
 
 # Build macOS
 ./docker_build.sh macosx

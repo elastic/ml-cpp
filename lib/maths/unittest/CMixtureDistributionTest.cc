@@ -179,7 +179,7 @@ BOOST_AUTO_TEST_CASE(testPdf) {
         BOOST_REQUIRE_EQUAL(boost::size(means), boost::size(variances));
 
         for (size_t i = 0u; i < boost::size(weights); ++i) {
-            LOG_DEBUG(<< "*** Test Case " << i << " ***");
+            LOG_TRACE(<< "*** Test Case " << i << " ***");
 
             TDoubleVec w;
             w.push_back(weights[i][0]);
@@ -198,7 +198,7 @@ BOOST_AUTO_TEST_CASE(testPdf) {
                 double f = pdf(mixture, x);
                 double dFdx = (cdf(mixture, x + eps) - cdf(mixture, x - eps)) / 2.0 / eps;
 
-                LOG_DEBUG(<< "percentile = " << p << "%"
+                LOG_TRACE(<< "percentile = " << p << "%"
                           << ", f = " << f << ", dF/dx = " << dFdx);
 
                 BOOST_REQUIRE_CLOSE_ABSOLUTE(f, dFdx, tolerance);
@@ -225,7 +225,7 @@ BOOST_AUTO_TEST_CASE(testCdf) {
     CRandomNumbers rng;
 
     for (std::size_t i = 0u; i < boost::size(weights); ++i) {
-        LOG_DEBUG(<< "*** Test Case " << i << " ***");
+        LOG_TRACE(<< "*** Test Case " << i << " ***");
 
         TDoubleVec samples1;
         rng.generateGammaSamples(
@@ -259,7 +259,7 @@ BOOST_AUTO_TEST_CASE(testCdf) {
             double actualCdf = cdf(mixture, x);
             double expectedCdf = static_cast<double>(p) / 100;
 
-            LOG_DEBUG(<< "percentile = " << p << "%"
+            LOG_TRACE(<< "percentile = " << p << "%"
                       << ", actual cdf = " << actualCdf
                       << ", expected cdf = " << expectedCdf);
 
@@ -283,7 +283,7 @@ BOOST_AUTO_TEST_CASE(testQuantile) {
     BOOST_REQUIRE_EQUAL(boost::size(locations), boost::size(scales));
 
     for (std::size_t i = 0u; i < boost::size(weights); ++i) {
-        LOG_DEBUG(<< "*** Test " << i << " ***");
+        LOG_TRACE(<< "*** Test " << i << " ***");
 
         TDoubleVec w;
         w.push_back(weights[i][0]);
@@ -301,7 +301,7 @@ BOOST_AUTO_TEST_CASE(testQuantile) {
         for (unsigned int p = 1; p < 100; ++p) {
             double q = static_cast<double>(p) / 100.0;
             double f = cdf(mixture, quantile(mixture, q));
-            LOG_DEBUG(<< "Error = " << std::fabs(q - f));
+            LOG_TRACE(<< "Error = " << std::fabs(q - f));
             BOOST_REQUIRE_CLOSE_ABSOLUTE(q, f, 1e-10);
         }
     }

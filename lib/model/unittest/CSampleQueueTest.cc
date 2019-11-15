@@ -1035,12 +1035,12 @@ BOOST_AUTO_TEST_CASE(testQualityOfSamplesGivenConstantRate) {
         meanMinVariance.add(varianceMin[0]);
         meanMaxVariance.add(varianceMax[0]);
 
-        LOG_DEBUG(<< "Results for run: " << runId);
-        LOG_DEBUG(<< "Mean variance scale = " << maths::CBasicStatistics::mean(varianceStat));
-        LOG_DEBUG(<< "Variance of variance scale = "
+        LOG_TRACE(<< "Results for run: " << runId);
+        LOG_TRACE(<< "Mean variance scale = " << maths::CBasicStatistics::mean(varianceStat));
+        LOG_TRACE(<< "Variance of variance scale = "
                   << maths::CBasicStatistics::variance(varianceStat));
-        LOG_DEBUG(<< "Top min variance scale = " << varianceMin.print());
-        LOG_DEBUG(<< "Top max variance scale = " << varianceMax.print());
+        LOG_TRACE(<< "Top min variance scale = " << varianceMin.print());
+        LOG_TRACE(<< "Top max variance scale = " << varianceMax.print());
         BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(varianceStat) > 0.98);
         BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(varianceStat) < 1.01);
         BOOST_TEST_REQUIRE(maths::CBasicStatistics::variance(varianceStat) < 0.0025);
@@ -1103,12 +1103,12 @@ BOOST_AUTO_TEST_CASE(testQualityOfSamplesGivenVariableRate) {
         meanMinVariance.add(varianceMin[0]);
         meanMaxVariance.add(varianceMax[0]);
 
-        LOG_DEBUG(<< "Results for run: " << runId);
-        LOG_DEBUG(<< "Mean variance scale = " << maths::CBasicStatistics::mean(varianceStat));
-        LOG_DEBUG(<< "Variance of variance scale = "
+        LOG_TRACE(<< "Results for run: " << runId);
+        LOG_TRACE(<< "Mean variance scale = " << maths::CBasicStatistics::mean(varianceStat));
+        LOG_TRACE(<< "Variance of variance scale = "
                   << maths::CBasicStatistics::variance(varianceStat));
-        LOG_DEBUG(<< "Top min variance scale = " << varianceMin.print());
-        LOG_DEBUG(<< "Top max variance scale = " << varianceMax.print());
+        LOG_TRACE(<< "Top min variance scale = " << varianceMin.print());
+        LOG_TRACE(<< "Top max variance scale = " << varianceMax.print());
         BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(varianceStat) > 0.97);
         BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(varianceStat) < 1.01);
         BOOST_TEST_REQUIRE(maths::CBasicStatistics::variance(varianceStat) < 0.0065);

@@ -126,7 +126,7 @@ BOOST_AUTO_TEST_CASE(testGcd) {
         for (std::size_t j = split[0]; j < indices.size(); ++j) {
             big2 *= primes[indices[j]];
         }
-        LOG_DEBUG(<< "big1 = " << big1 << ", big2 = " << big2 << " - expected gcd = " << bigGcd
+        LOG_TRACE(<< "big1 = " << big1 << ", big2 = " << big2 << " - expected gcd = " << bigGcd
                   << ", gcd = " << maths::CIntegerTools::gcd(big1, big2));
         BOOST_REQUIRE_EQUAL(bigGcd, maths::CIntegerTools::gcd(big1, big2));
     }
@@ -161,7 +161,7 @@ BOOST_AUTO_TEST_CASE(testGcd) {
         for (std::size_t j = 6; j < indices.size(); ++j) {
             n[2] *= primes[indices[j]];
         }
-        LOG_DEBUG(<< "n = " << core::CContainerPrinter::print(n) << " - expected gcd = "
+        LOG_TRACE(<< "n = " << core::CContainerPrinter::print(n) << " - expected gcd = "
                   << gcd << ", gcd = " << maths::CIntegerTools::gcd(n));
     }
 

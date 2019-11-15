@@ -139,7 +139,7 @@ BOOST_AUTO_TEST_CASE(testAdd) {
     }
 }
 
-BOOST_AUTO_TEST_CASE(testMerge) {
+BOOST_AUTO_TEST_CASE(testMerge, *boost::unit_test::disabled()) {
     // TODO
 }
 

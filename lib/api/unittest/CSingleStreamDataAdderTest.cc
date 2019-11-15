@@ -17,7 +17,7 @@
 #include <api/CAnomalyJob.h>
 #include <api/CCsvInputParser.h>
 #include <api/CFieldConfig.h>
-#include <api/CFieldDataTyper.h>
+#include <api/CFieldDataCategorizer.h>
 #include <api/CJsonOutputWriter.h>
 #include <api/CNdJsonInputParser.h>
 #include <api/COutputChainer.h>
@@ -84,12 +84,14 @@ void detectorPersistHelper(const std::string& configFileName,
     // Chain the detector's input
     ml::api::COutputChainer outputChainer(origJob);
 
-    // The typer knows how to assign categories to records
-    ml::api::CFieldDataTyper typer(JOB_ID, fieldConfig, limits, outputChainer, outputWriter);
+    // The categorizer knows how to assign categories to records
+    ml::api::CFieldDataCategorizer categorizer(JOB_ID, fieldConfig, limits,
+                                               outputChainer, outputWriter);
 
-    if (fieldConfig.fieldNameSuperset().count(ml::api::CFieldDataTyper::MLCATEGORY_NAME) > 0) {
-        LOG_DEBUG(<< "Applying the categorization typer for anomaly detection");
-        firstProcessor = &typer;
+    if (fieldConfig.fieldNameSuperset().count(
+            ml::api::CFieldDataCategorizer::MLCATEGORY_NAME) > 0) {
+        LOG_DEBUG(<< "Applying the categorization categorizer for anomaly detection");
+        firstProcessor = &categorizer;
     }
 
     using TInputParserUPtr = std::unique_ptr<ml::api::CInputParser>;
@@ -128,16 +130,17 @@ void detectorPersistHelper(const std::string& configFileName,
     // Chain the detector's input
     ml::api::COutputChainer restoredOutputChainer(restoredJob);
 
-    // The typer knows how to assign categories to records
-    ml::api::CFieldDataTyper restoredTyper(JOB_ID, fieldConfig, limits,
-                                           restoredOutputChainer, outputWriter);
+    // The categorizer knows how to assign categories to records
+    ml::api::CFieldDataCategorizer restoredCategorizer(
+        JOB_ID, fieldConfig, limits, restoredOutputChainer, outputWriter);
 
     size_t numCategorizerDocs(0);
 
-    if (fieldConfig.fieldNameSuperset().count(ml::api::CFieldDataTyper::MLCATEGORY_NAME) > 0) {
-        LOG_DEBUG(<< "Applying the categorization typer for anomaly detection");
+    if (fieldConfig.fieldNameSuperset().count(
+            ml::api::CFieldDataCategorizer::MLCATEGORY_NAME) > 0) {
+        LOG_DEBUG(<< "Applying the categorization categorizer for anomaly detection");
         numCategorizerDocs = 1;
-        restoredFirstProcessor = &restoredTyper;
+        restoredFirstProcessor = &restoredCategorizer;
     }
 
     {

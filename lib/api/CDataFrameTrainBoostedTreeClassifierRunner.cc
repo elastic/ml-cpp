@@ -42,9 +42,9 @@ const std::string CLASS_PROBABILITY_FIELD_NAME{"class_probability"};
 }
 
 const CDataFrameAnalysisConfigReader&
-CDataFrameTrainBoostedTreeClassifierRunner::getParameterReader() {
+CDataFrameTrainBoostedTreeClassifierRunner::parameterReader() {
     static const CDataFrameAnalysisConfigReader PARAMETER_READER{[] {
-        auto theReader = CDataFrameTrainBoostedTreeRunner::getParameterReader();
+        auto theReader = CDataFrameTrainBoostedTreeRunner::parameterReader();
         theReader.addParameter(NUM_TOP_CLASSES, CDataFrameAnalysisConfigReader::E_OptionalParameter);
         theReader.addParameter(BALANCED_CLASS_LOSS,
                                CDataFrameAnalysisConfigReader::E_OptionalParameter);
@@ -156,7 +156,6 @@ CDataFrameTrainBoostedTreeClassifierRunner::inferenceModelDefinition(
     CClassificationInferenceModelBuilder builder(
         fieldNames, this->boostedTree().columnHoldingDependentVariable(), categoryNames);
     this->boostedTree().accept(builder);
-
     return std::make_unique<CInferenceModelDefinition>(builder.build());
 }
 
@@ -173,8 +172,8 @@ CDataFrameTrainBoostedTreeClassifierRunnerFactory::TRunnerUPtr
 CDataFrameTrainBoostedTreeClassifierRunnerFactory::makeImpl(
     const CDataFrameAnalysisSpecification& spec,
     const rapidjson::Value& jsonParameters) const {
-    CDataFrameAnalysisConfigReader parameterReader =
-        CDataFrameTrainBoostedTreeClassifierRunner::getParameterReader();
+    const CDataFrameAnalysisConfigReader& parameterReader{
+        CDataFrameTrainBoostedTreeClassifierRunner::parameterReader()};
     auto parameters = parameterReader.read(jsonParameters);
     return std::make_unique<CDataFrameTrainBoostedTreeClassifierRunner>(spec, parameters);
 }

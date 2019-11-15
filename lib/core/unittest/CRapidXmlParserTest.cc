@@ -277,8 +277,8 @@ BOOST_AUTO_TEST_CASE(testConvert) {
     BOOST_TEST_REQUIRE(converted.find("</child>") != std::string::npos);
     BOOST_TEST_REQUIRE(converted.find("<child ") != std::string::npos);
     BOOST_TEST_REQUIRE(converted.find("&amp; ") != std::string::npos);
-    BOOST_TEST_REQUIRE((converted.find("<empty/>") != std::string::npos ||
-                        converted.find("<empty></empty>") != std::string::npos));
+    BOOST_REQUIRE(converted.find("<empty/>") != std::string::npos ||
+                  converted.find("<empty></empty>") != std::string::npos);
     BOOST_TEST_REQUIRE(converted.find("<dual ") != std::string::npos);
     BOOST_TEST_REQUIRE(converted.find("first") != std::string::npos);
     BOOST_TEST_REQUIRE(converted.find("second") != std::string::npos);
@@ -332,7 +332,9 @@ BOOST_AUTO_TEST_CASE(testParseSpeed) {
     LOG_INFO(<< "Parsing " << TEST_SIZE << " documents took " << (end - start) << " seconds");
 }
 
-BOOST_AUTO_TEST_CASE(testConvertSpeed) {
+// Disabled because it doesn't assert anything
+// Can be run on an ad hoc basis if performance is of interest
+BOOST_AUTO_TEST_CASE(testConvertSpeed, *boost::unit_test::disabled()) {
     static const size_t TEST_SIZE(100000);
 
     // Use a standard node hierarchy to allow for comparison with the

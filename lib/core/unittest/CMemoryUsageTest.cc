@@ -858,15 +858,15 @@ BOOST_AUTO_TEST_CASE(testCompress) {
     }
 }
 
-BOOST_AUTO_TEST_CASE(testStringBehaviour) {
-    // This "test" highlights the way the std::string class behaves on each
-    // platform we support.  Experience shows that methods like reserve(),
-    // clear() and operator=() don't always work the way the books suggest...
-    //
-    // There are no assertions, but the idea is that a developer should go
-    // through the output after switching to a new standard library
-    // implementation to ensure that the quirks of std::string are in that
-    // implementation are understood.
+// This "test" highlights the way the std::string class behaves on each
+// platform we support.  Experience shows that methods like reserve(),
+// clear() and operator=() don't always work the way the books suggest...
+//
+// There are no assertions, but the idea is that a developer should go
+// through the output after switching to a new standard library
+// implementation to ensure that the quirks of std::string are in that
+// implementation are understood.
+BOOST_AUTO_TEST_CASE(testStringBehaviour, *boost::unit_test::disabled()) {
 
     LOG_INFO(<< "Size of std::string is " << sizeof(std::string));
 
@@ -1029,7 +1029,7 @@ BOOST_AUTO_TEST_CASE(testStringMemory) {
             trackingString.push_back(static_cast<char>('a' + j));
             normalString.push_back(static_cast<char>('a' + j));
         }
-        LOG_DEBUG(<< "String size " << core::CMemory::dynamicSize(normalString)
+        LOG_TRACE(<< "String size " << core::CMemory::dynamicSize(normalString)
                   << ", allocated " << TAllocator::usage());
         BOOST_REQUIRE_EQUAL(core::CMemory::dynamicSize(normalString), TAllocator::usage());
     }
@@ -1167,15 +1167,15 @@ BOOST_AUTO_TEST_CASE(testSmallVector) {
         if (size <= 2) {
             BOOST_TEST_REQUIRE(memory[0] == 0);
         }
-        BOOST_TEST_REQUIRE((memory[0] == 0 || memory[0] == vec1.capacity() * sizeof(double)));
+        BOOST_REQUIRE(memory[0] == 0 || memory[0] == vec1.capacity() * sizeof(double));
         if (size <= 6) {
             BOOST_TEST_REQUIRE(memory[1] == 0);
         }
-        BOOST_TEST_REQUIRE((memory[1] == 0 || memory[1] == vec2.capacity() * sizeof(double)));
+        BOOST_REQUIRE(memory[1] == 0 || memory[1] == vec2.capacity() * sizeof(double));
         if (size <= 8) {
             BOOST_TEST_REQUIRE(memory[2] == 0);
         }
-        BOOST_TEST_REQUIRE((memory[2] == 0 || memory[2] == vec3.capacity() * sizeof(double)));
+        BOOST_REQUIRE(memory[2] == 0 || memory[2] == vec3.capacity() * sizeof(double));
     }
 
     // Test growing and shrinking

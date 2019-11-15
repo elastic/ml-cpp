@@ -537,7 +537,8 @@ BOOST_AUTO_TEST_CASE(testClusterNeighbourhoods) {
     }
 }
 
-BOOST_AUTO_TEST_CASE(testAccuracy) {
+BOOST_AUTO_TEST_CASE(testAccuracy, *boost::unit_test::disabled()) {
+    // TODO
 }
 
 BOOST_AUTO_TEST_SUITE_END()

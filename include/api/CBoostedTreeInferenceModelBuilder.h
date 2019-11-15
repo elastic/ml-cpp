@@ -46,7 +46,7 @@ public:
                                const TDoubleVec& map,
                                double fallback) override;
     void addFrequencyEncoding(std::size_t inputColumnIndex, const TDoubleVec& map) override;
-    CInferenceModelDefinition&& build();
+    virtual CInferenceModelDefinition&& build();
 
 protected:
     CInferenceModelDefinition& definition();
@@ -89,10 +89,15 @@ public:
     CClassificationInferenceModelBuilder(TStrVec fieldNames,
                                          std::size_t dependentVariableColumnIndex,
                                          const TStrVecVec& categoryNames);
+    ~CClassificationInferenceModelBuilder() override = default;
+    CInferenceModelDefinition&& build() override;
 
 protected:
     void setTargetType() override;
     void setAggregateOutput(CEnsemble* ensemble) const override;
+
+private:
+    TStrVec m_ClassificationLabels;
 };
 }
 }

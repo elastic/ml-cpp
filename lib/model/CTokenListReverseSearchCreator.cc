@@ -3,12 +3,12 @@
  * or more contributor license agreements. Licensed under the Elastic License;
  * you may not use this file except in compliance with the Elastic License.
  */
-#include <api/CTokenListReverseSearchCreator.h>
+#include <model/CTokenListReverseSearchCreator.h>
 
 #include <core/CRegex.h>
 
 namespace ml {
-namespace api {
+namespace model {
 
 CTokenListReverseSearchCreator::CTokenListReverseSearchCreator(const std::string& fieldName)
     : CTokenListReverseSearchCreatorIntf(fieldName) {
@@ -37,7 +37,7 @@ bool CTokenListReverseSearchCreator::createNullSearch(std::string& part1,
     return true;
 }
 
-bool CTokenListReverseSearchCreator::createNoUniqueTokenSearch(int /*type*/,
+bool CTokenListReverseSearchCreator::createNoUniqueTokenSearch(int /*categoryId*/,
                                                                const std::string& /*example*/,
                                                                size_t /*maxMatchingStringLen*/,
                                                                std::string& part1,
@@ -47,7 +47,7 @@ bool CTokenListReverseSearchCreator::createNoUniqueTokenSearch(int /*type*/,
     return true;
 }
 
-void CTokenListReverseSearchCreator::initStandardSearch(int /*type*/,
+void CTokenListReverseSearchCreator::initStandardSearch(int /*categoryId*/,
                                                         const std::string& /*example*/,
                                                         size_t /*maxMatchingStringLen*/,
                                                         std::string& part1,

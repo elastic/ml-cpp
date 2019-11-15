@@ -186,21 +186,17 @@ BOOST_AUTO_TEST_CASE(testNearestNeighbour) {
             tests.emplace_back(&samples[j], &samples[j + 2]);
         }
 
-        if (i % 10 == 0) {
-            LOG_DEBUG(<< "*** Test " << i << " ***");
-        }
+        LOG_TRACE(<< "*** Test " << i << " ***");
         for (std::size_t j = 0u; j < tests.size(); ++j) {
             TDoubleVector2PrVec expectedNearest;
             nearestNeightbours(1, points, tests[j], expectedNearest);
 
             const TVector2* nearest = kdTree.nearestNeighbour(tests[j]);
             BOOST_TEST_REQUIRE(nearest);
-            if (i % 10 == 0) {
-                LOG_DEBUG(<< "Expected nearest = " << expectedNearest[0].second
-                          << ", expected distance = " << expectedNearest[0].first);
-                LOG_DEBUG(<< "Nearest          = " << *nearest << ", actual distance   = "
-                          << (tests[j] - *nearest).euclidean());
-            }
+            LOG_TRACE(<< "Expected nearest = " << expectedNearest[0].second
+                      << ", expected distance = " << expectedNearest[0].first);
+            LOG_TRACE(<< "Nearest          = " << *nearest << ", actual distance   = "
+                      << (tests[j] - *nearest).euclidean());
             BOOST_REQUIRE_EQUAL(print(expectedNearest[0].second), print(*nearest));
         }
     }
@@ -232,9 +228,7 @@ BOOST_AUTO_TEST_CASE(testNearestNeighbours) {
             tests.emplace_back(&samples[j], &samples[j + 5]);
         }
 
-        if (i % 10 == 0) {
-            LOG_DEBUG(<< "*** Test " << i << " ***");
-        }
+        LOG_TRACE(<< "*** Test " << i << " ***");
         for (std::size_t j = 0u; j < tests.size(); ++j) {
             TDoubleVector5PrVec expectedNeighbours;
             nearestNeightbours(2 * j, points, tests[j], expectedNeighbours);
@@ -243,13 +237,10 @@ BOOST_AUTO_TEST_CASE(testNearestNeighbours) {
             kdTree.nearestNeighbours(2 * j, tests[j], neighbours);
             BOOST_REQUIRE_EQUAL(expectedNeighbours.size(), neighbours.size());
             for (std::size_t k = 0u; k < expectedNeighbours.size(); ++k) {
-                if (i % 10 == 0) {
-                    LOG_DEBUG(<< "Expected nearest = " << expectedNeighbours[k].second
-                              << ", expected distance = "
-                              << expectedNeighbours[k].first);
-                    LOG_DEBUG(<< "Nearest          = " << neighbours[k] << ", actual distance   = "
-                              << (tests[j] - neighbours[k]).euclidean());
-                }
+                LOG_TRACE(<< "Expected nearest = " << expectedNeighbours[k].second
+                          << ", expected distance = " << expectedNeighbours[k].first);
+                LOG_TRACE(<< "Nearest          = " << neighbours[k] << ", actual distance   = "
+                          << (tests[j] - neighbours[k]).euclidean());
                 BOOST_REQUIRE_EQUAL(print(expectedNeighbours[k].second),
                                     print(neighbours[k]));
             }

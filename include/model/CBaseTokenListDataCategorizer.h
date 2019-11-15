@@ -3,15 +3,15 @@
  * or more contributor license agreements. Licensed under the Elastic License;
  * you may not use this file except in compliance with the Elastic License.
  */
-#ifndef INCLUDED_ml_api_CBaseTokenListDataTyper_h
-#define INCLUDED_ml_api_CBaseTokenListDataTyper_h
+#ifndef INCLUDED_ml_model_CBaseTokenListDataCategorizer_h
+#define INCLUDED_ml_model_CBaseTokenListDataCategorizer_h
 
 #include <core/BoostMultiIndex.h>
+#include <core/CCsvLineParser.h>
 
-#include <api/CCsvInputParser.h>
-#include <api/CDataTyper.h>
-#include <api/CTokenListType.h>
-#include <api/ImportExport.h>
+#include <model/CDataCategorizer.h>
+#include <model/CTokenListCategory.h>
+#include <model/ImportExport.h>
 
 #include <iosfwd>
 #include <list>
@@ -21,7 +21,7 @@
 #include <utility>
 #include <vector>
 
-namespace CBaseTokenListDataTyperTest {
+namespace CBaseTokenListDataCategorizerTest {
 struct testMaxMatchingWeights;
 struct testMinMatchingWeights;
 }
@@ -31,7 +31,7 @@ namespace core {
 class CStatePersistInserter;
 class CStateRestoreTraverser;
 }
-namespace api {
+namespace model {
 class CTokenListReverseSearchCreatorIntf;
 
 //! \brief
@@ -58,7 +58,7 @@ class CTokenListReverseSearchCreatorIntf;
 //! correct setting of reverse search creator state needs to be added to
 //! the copy constructor and assignment operator of this class.)
 //!
-class API_EXPORT CBaseTokenListDataTyper : public CDataTyper {
+class MODEL_EXPORT CBaseTokenListDataCategorizer : public CDataCategorizer {
 public:
     //! Name of the field that contains pre-tokenised tokens (in CSV format)
     //! if available
@@ -83,48 +83,50 @@ public:
 
     //! Used for stream output of token IDs translated back to the original
     //! tokens
-    struct API_EXPORT SIdTranslater {
-        SIdTranslater(const CBaseTokenListDataTyper& typer,
+    struct MODEL_EXPORT SIdTranslater {
+        SIdTranslater(const CBaseTokenListDataCategorizer& categorizer,
                       const TSizeSizePrVec& tokenIds,
                       char separator);
 
-        const CBaseTokenListDataTyper& s_Typer;
+        const CBaseTokenListDataCategorizer& s_Categorizer;
         const TSizeSizePrVec& s_TokenIds;
         char s_Separator;
     };
 
 public:
-    //! Create a data typer with threshold for how comparable types are
-    //! 0.0 means everything is the same type
-    //! 1.0 means things have to match exactly to be the same type
-    CBaseTokenListDataTyper(const TTokenListReverseSearchCreatorIntfCPtr& reverseSearchCreator,
-                            double threshold,
-                            const std::string& fieldName);
+    //! Create a data categorizer with threshold for how comparable categories are
+    //! 0.0 means everything is the same category
+    //! 1.0 means things have to match exactly to be the same category
+    CBaseTokenListDataCategorizer(const TTokenListReverseSearchCreatorIntfCPtr& reverseSearchCreator,
+                                  double threshold,
+                                  const std::string& fieldName);
 
     //! Dump stats
     virtual void dumpStats() const;
 
-    //! Compute a type from a string.  The raw string length may be longer
+    //! Compute a category from a string.  The raw string length may be longer
     //! than the length of the passed string, because the passed string may
     //! have the date stripped out of it.  Field names/values are available
-    //! to the type computation.
-    virtual int
-    computeType(bool dryRun, const TStrStrUMap& fields, const std::string& str, size_t rawStringLen);
+    //! to the category computation.
+    virtual int computeCategory(bool dryRun,
+                                const TStrStrUMap& fields,
+                                const std::string& str,
+                                size_t rawStringLen);
 
-    // Bring the other overload of computeType() into scope
-    using CDataTyper::computeType;
+    // Bring the other overload of computeCategory() into scope
+    using CDataCategorizer::computeCategory;
 
     //! Create a search that will (more or less) just select the records
-    //! that are classified as the given type.  Note that the reverse search
+    //! that are classified as the given category.  Note that the reverse search
     //! is only approximate - it may select more records than have actually
-    //! been classified as the returned type.
-    virtual bool createReverseSearch(int type,
+    //! been classified as the returned category.
+    virtual bool createReverseSearch(int categoryId,
                                      std::string& part1,
                                      std::string& part2,
                                      size_t& maxMatchingLength,
                                      bool& wasCached);
 
-    //! Has the data typer's state changed?
+    //! Has the data categorizer's state changed?
     virtual bool hasChanged() const;
 
     //! Populate the object from part of a state document
@@ -159,20 +161,20 @@ protected:
                               const TSizeSizePrVec& right,
                               size_t rightWeight) const = 0;
 
-    //! Used to hold statistics about the types we compute:
+    //! Used to hold statistics about the categories we compute:
     //! first -> count of matches
-    //! second -> type vector index
+    //! second -> category vector index
     using TSizeSizePrList = std::list<TSizeSizePr>;
     using TSizeSizePrListItr = TSizeSizePrList::iterator;
 
-    //! Add a match to an existing type
-    void addTypeMatch(bool isDryRun,
-                      const std::string& str,
-                      size_t rawStringLen,
-                      const TSizeSizePrVec& tokenIds,
-                      const TSizeSizeMap& tokenUniqueIds,
-                      double similarity,
-                      TSizeSizePrListItr& iter);
+    //! Add a match to an existing category
+    void addCategoryMatch(bool isDryRun,
+                          const std::string& str,
+                          size_t rawStringLen,
+                          const TSizeSizePrVec& tokenIds,
+                          const TSizeSizeMap& tokenUniqueIds,
+                          double similarity,
+                          TSizeSizePrListItr& iter);
 
     //! Given the total token weight in a vector and a threshold, what is
     //! the minimum possible token weight in a different vector that could
@@ -189,7 +191,7 @@ protected:
     size_t idForToken(const std::string& token);
 
 private:
-    //! Value type for the TTokenMIndex below
+    //! Value category for the TTokenMIndex below
     class CTokenInfoItem {
     public:
         CTokenInfoItem(const std::string& str, size_t index);
@@ -197,11 +199,11 @@ private:
         //! Accessors
         const std::string& str() const;
         size_t index() const;
-        size_t typeCount() const;
-        void typeCount(size_t typeCount);
+        size_t categoryCount() const;
+        void categoryCount(size_t categoryCount);
 
-        //! Increment the type count
-        void incTypeCount();
+        //! Increment the category count
+        void incCategoryCount();
 
     private:
         //! String value of the token
@@ -210,8 +212,8 @@ private:
         //! Index of the token
         size_t m_Index;
 
-        //! How many types use this token?
-        size_t m_TypeCount;
+        //! How many categories use this token?
+        size_t m_CategoryCount;
     };
 
     //! Compute equality based on the first element of a pair only
@@ -230,9 +232,9 @@ private:
         size_t m_Value;
     };
 
-    //! Used to hold the distinct types we compute (vector reallocations are
-    //! not expensive because CTokenListType is movable)
-    using TTokenListTypeVec = std::vector<CTokenListType>;
+    //! Used to hold the distinct categories we compute (vector reallocations are
+    //! not expensive because CTokenListCategory is movable)
+    using TTokenListCategoryVec = std::vector<CTokenListCategory>;
 
     //! Tag for the token index
     struct SToken {};
@@ -245,7 +247,7 @@ private:
 private:
     //! Used by deferred persistence functions
     static void acceptPersistInserter(const TTokenMIndex& tokenIdLookup,
-                                      const TTokenListTypeVec& types,
+                                      const TTokenListCategoryVec& categories,
                                       core::CStatePersistInserter& inserter);
 
     //! Given a string containing comma separated pre-tokenised input, add
@@ -262,23 +264,23 @@ private:
     //! Reference to the object we'll use to create reverse searches
     const TTokenListReverseSearchCreatorIntfCPtr m_ReverseSearchCreator;
 
-    //! The lower threshold for comparison.  If another type matches this
+    //! The lower threshold for comparison.  If another category matches this
     //! closely, we'll take it providing there's no other better match.
     double m_LowerThreshold;
 
-    //! The upper threshold for comparison.  If another type matches this
+    //! The upper threshold for comparison.  If another category matches this
     //! closely, we accept it immediately (i.e. don't look for a better one).
     double m_UpperThreshold;
 
-    //! Has the data typer's state changed?
+    //! Has the data categorizer's state changed?
     bool m_HasChanged;
 
-    //! The types
-    TTokenListTypeVec m_Types;
+    //! The categories
+    TTokenListCategoryVec m_Categories;
 
-    //! List of match count/index into type vector in descending order of
+    //! List of match count/index into category vector in descending order of
     //! match count
-    TSizeSizePrList m_TypesByCount;
+    TSizeSizePrList m_CategoriesByCount;
 
     //! Used for looking up tokens to a unique ID
     TTokenMIndex m_TokenIdLookup;
@@ -292,19 +294,19 @@ private:
     TSizeSizeMap m_WorkTokenUniqueIds;
 
     //! Used to parse pre-tokenised input supplied as CSV.
-    CCsvInputParser::CCsvLineParser m_CsvLineParser;
+    core::CCsvLineParser m_CsvLineParser;
 
     // For unit testing
-    friend struct CBaseTokenListDataTyperTest::testMaxMatchingWeights;
-    friend struct CBaseTokenListDataTyperTest::testMinMatchingWeights;
+    friend struct CBaseTokenListDataCategorizerTest::testMaxMatchingWeights;
+    friend struct CBaseTokenListDataCategorizerTest::testMinMatchingWeights;
 
     // For ostream output
-    friend API_EXPORT std::ostream& operator<<(std::ostream&, const SIdTranslater&);
+    friend MODEL_EXPORT std::ostream& operator<<(std::ostream&, const SIdTranslater&);
 };
 
-API_EXPORT std::ostream&
-operator<<(std::ostream& strm, const CBaseTokenListDataTyper::SIdTranslater& translator);
+MODEL_EXPORT std::ostream&
+operator<<(std::ostream& strm, const CBaseTokenListDataCategorizer::SIdTranslater& translator);
 }
 }
 
-#endif // INCLUDED_ml_api_CBaseTokenListDataTyper_h
+#endif // INCLUDED_ml_model_CBaseTokenListDataCategorizer_h

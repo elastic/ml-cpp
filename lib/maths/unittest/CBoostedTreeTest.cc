@@ -244,7 +244,7 @@ BOOST_AUTO_TEST_CASE(testPiecewiseConstant) {
             0.0, modelBias[i][0],
             4.0 * std::sqrt(noiseVariance / static_cast<double>(trainRows)));
         // Good R^2...
-        BOOST_TEST_REQUIRE(modelRSquared[i][0] > 0.95);
+        BOOST_TEST_REQUIRE(modelRSquared[i][0] > 0.96);
 
         meanModelRSquared.add(modelRSquared[i][0]);
     }
@@ -367,7 +367,7 @@ BOOST_AUTO_TEST_CASE(testNonLinear) {
             0.0, modelBias[i][0],
             5.0 * std::sqrt(noiseVariance / static_cast<double>(trainRows)));
         // Good R^2...
-        BOOST_TEST_REQUIRE(modelRSquared[i][0] > 0.95);
+        BOOST_TEST_REQUIRE(modelRSquared[i][0] > 0.96);
 
         meanModelRSquared.add(modelRSquared[i][0]);
     }
@@ -608,8 +608,8 @@ BOOST_AUTO_TEST_CASE(testCategoricalRegressors) {
 
     LOG_DEBUG(<< "bias = " << modelBias);
     LOG_DEBUG(<< " R^2 = " << modelRSquared);
-    BOOST_REQUIRE_CLOSE_ABSOLUTE(0.0, modelBias, 0.1);
-    BOOST_TEST_REQUIRE(modelRSquared > 0.91);
+    BOOST_REQUIRE_CLOSE_ABSOLUTE(0.0, modelBias, 0.05);
+    BOOST_TEST_REQUIRE(modelRSquared > 0.98);
 }
 
 BOOST_AUTO_TEST_CASE(testIntegerRegressor) {
@@ -651,8 +651,8 @@ BOOST_AUTO_TEST_CASE(testIntegerRegressor) {
 
     LOG_DEBUG(<< "bias = " << modelBias);
     LOG_DEBUG(<< " R^2 = " << modelRSquared);
-    BOOST_REQUIRE_CLOSE_ABSOLUTE(0.0, modelBias, 0.05);
-    BOOST_TEST_REQUIRE(modelRSquared > 0.99);
+    BOOST_REQUIRE_CLOSE_ABSOLUTE(0.0, modelBias, 0.06);
+    BOOST_TEST_REQUIRE(modelRSquared > 0.98);
 }
 
 BOOST_AUTO_TEST_CASE(testSingleSplit) {
@@ -695,7 +695,8 @@ BOOST_AUTO_TEST_CASE(testSingleSplit) {
 
     LOG_DEBUG(<< "bias = " << modelBias);
     LOG_DEBUG(<< " R^2 = " << modelRSquared);
-    BOOST_TEST_REQUIRE(modelRSquared > 0.99);
+    BOOST_REQUIRE_CLOSE_ABSOLUTE(0.0, modelBias, 0.05);
+    BOOST_TEST_REQUIRE(modelRSquared > 0.94);
 }
 
 BOOST_AUTO_TEST_CASE(testTranslationInvariance) {
@@ -816,7 +817,7 @@ BOOST_AUTO_TEST_CASE(testDepthBasedRegularization) {
                 .treeSizePenaltyMultiplier(0.0)
                 .leafWeightPenaltyMultiplier(0.0)
                 .softTreeDepthLimit(targetDepth)
-                .softTreeDepthTolerance(0.05)
+                .softTreeDepthTolerance(0.01)
                 .buildFor(*frame, std::make_unique<maths::boosted_tree::CMse>(), cols - 1);
 
         regression->train();
@@ -1071,6 +1072,8 @@ BOOST_AUTO_TEST_CASE(testLogisticRegression) {
     std::size_t cols{4};
     std::size_t capacity{600};
 
+    TMeanAccumulator meanLogRelativeError;
+
     for (std::size_t test = 0; test < 3; ++test) {
         TDoubleVec weights;
         rng.generateUniformSamples(-2.0, 2.0, cols - 1, weights);
@@ -1127,8 +1130,13 @@ BOOST_AUTO_TEST_CASE(testLogisticRegression) {
         LOG_DEBUG(<< "log relative error = "
                   << maths::CBasicStatistics::mean(logRelativeError));
 
-        BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(logRelativeError) < 0.7);
+        BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(logRelativeError) < 0.8);
+        meanLogRelativeError.add(maths::CBasicStatistics::mean(logRelativeError));
     }
+
+    LOG_DEBUG(<< "mean log relative error = "
+              << maths::CBasicStatistics::mean(meanLogRelativeError));
+    BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(meanLogRelativeError) < 0.6);
 }
 
 BOOST_AUTO_TEST_CASE(testUnbalancedClasses) {
@@ -1358,7 +1366,8 @@ BOOST_AUTO_TEST_CASE(testProgressMonitoring) {
     core::stopDefaultAsyncExecutor();
 }
 
-BOOST_AUTO_TEST_CASE(testMissingData) {
+BOOST_AUTO_TEST_CASE(testMissingData, *boost::unit_test::disabled()) {
+    // TODO
 }
 
 BOOST_AUTO_TEST_CASE(testPersistRestore) {

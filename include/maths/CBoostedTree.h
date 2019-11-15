@@ -381,11 +381,6 @@ public:
     //! \warning This can only be called after train.
     void predict() const override;
 
-    //! Write the trained model to \p writer.
-    //!
-    //! \warning This can only be called after train.
-    void write(core::CRapidJsonConcurrentLineWriter& writer) const override;
-
     //! Get the feature weights the model has chosen.
     const TDoubleVec& featureWeights() const override;
 
@@ -414,6 +409,7 @@ public:
     //! Populate the object from serialized data.
     bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
 
+    //! Visit this tree trainer.
     void accept(CVisitor& visitor) const;
 
 private:

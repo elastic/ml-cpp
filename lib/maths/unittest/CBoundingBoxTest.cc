@@ -119,13 +119,13 @@ BOOST_AUTO_TEST_CASE(testCloserTo) {
             TVector2 y2(&probes[j + 2], &probes[j + 4]);
             bool closer = closerToX(bb, y1, y2);
             if (closer) {
-                LOG_DEBUG(<< "bb = " << bb.print() << " is closer to " << y1
+                LOG_TRACE(<< "bb = " << bb.print() << " is closer to " << y1
                           << " than " << y2);
             }
             BOOST_REQUIRE_EQUAL(closer, bb.closerToX(y1, y2));
             closer = closerToX(bb, y2, y1);
             if (closer) {
-                LOG_DEBUG(<< "bb = " << bb.print() << " is closer to " << y2
+                LOG_TRACE(<< "bb = " << bb.print() << " is closer to " << y2
                           << " than " << y1);
             }
             BOOST_REQUIRE_EQUAL(closer, bb.closerToX(y2, y1));
@@ -144,13 +144,13 @@ BOOST_AUTO_TEST_CASE(testCloserTo) {
             TVector4 y2(&probes[j + 4], &probes[j + 8]);
             bool closer = closerToX(bb, y1, y2);
             if (closer) {
-                LOG_DEBUG(<< "bb = " << bb.print() << " is closer to " << y1
+                LOG_TRACE(<< "bb = " << bb.print() << " is closer to " << y1
                           << " than " << y2);
             }
             BOOST_REQUIRE_EQUAL(closer, bb.closerToX(y1, y2));
             closer = closerToX(bb, y2, y1);
             if (closer) {
-                LOG_DEBUG(<< "bb = " << bb.print() << " is closer to " << y2
+                LOG_TRACE(<< "bb = " << bb.print() << " is closer to " << y2
                           << " than " << y1);
             }
             BOOST_REQUIRE_EQUAL(closer, bb.closerToX(y2, y1));

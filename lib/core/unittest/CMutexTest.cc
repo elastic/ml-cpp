@@ -17,7 +17,11 @@ BOOST_AUTO_TEST_CASE(testRecursive) {
     mutex.unlock();
 
     mutex.lock();
-    mutex.lock();
+    // If the mutex isn't recursive as expected then this test
+    // will deadlock rather than fail :-(
+    // The assertion here is just to stop Boost.Test complaining
+    // that there are no assertions
+    BOOST_REQUIRE_NO_THROW(mutex.lock());
     mutex.unlock();
     mutex.unlock();
 }
