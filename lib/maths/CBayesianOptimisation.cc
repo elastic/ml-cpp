@@ -129,7 +129,7 @@ CBayesianOptimisation::TVector CBayesianOptimisation::maximumExpectedImprovement
             LOG_TRACE(<< "x = " << x.transpose() << " EI(x) = " << fx);
 
             if (-fx > fmax) {
-                xmax = std::move(x);
+                xmax = x;
                 fmax = -fx;
             }
             rho_.add(std::fabs(fx));
@@ -145,12 +145,12 @@ CBayesianOptimisation::TVector CBayesianOptimisation::maximumExpectedImprovement
 
         for (auto& x0 : seeds) {
 
+            LOG_TRACE(<< "x0 = " << x0.second.transpose());
             TVector xcand;
             double fcand;
             std::tie(xcand, fcand) = lbfgs.constrainedMinimize(
                 minusEI, minusEIGradient, a, b, std::move(x0.second), rho);
-            LOG_TRACE(<< "x0 = " << x0.second.transpose()
-                      << " xcand = " << xcand.transpose() << " EI(cand) = " << fcand);
+            LOG_TRACE(<< " xcand = " << xcand.transpose() << " EI(cand) = " << fcand);
 
             if (-fcand > fmax) {
                 std::tie(xmax, fmax) = std::make_pair(std::move(xcand), -fcand);

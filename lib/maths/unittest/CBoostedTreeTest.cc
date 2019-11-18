@@ -695,6 +695,7 @@ BOOST_AUTO_TEST_CASE(testSingleSplit) {
 
     LOG_DEBUG(<< "bias = " << modelBias);
     LOG_DEBUG(<< " R^2 = " << modelRSquared);
+    BOOST_REQUIRE_CLOSE_ABSOLUTE(0.0, modelBias, 0.09);
     BOOST_TEST_REQUIRE(modelRSquared > 0.99);
 }
 
@@ -1071,6 +1072,8 @@ BOOST_AUTO_TEST_CASE(testLogisticRegression) {
     std::size_t cols{4};
     std::size_t capacity{600};
 
+    TMeanAccumulator meanLogRelativeError;
+
     for (std::size_t test = 0; test < 3; ++test) {
         TDoubleVec weights;
         rng.generateUniformSamples(-2.0, 2.0, cols - 1, weights);
@@ -1128,7 +1131,12 @@ BOOST_AUTO_TEST_CASE(testLogisticRegression) {
                   << maths::CBasicStatistics::mean(logRelativeError));
 
         BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(logRelativeError) < 0.7);
+        meanLogRelativeError.add(maths::CBasicStatistics::mean(logRelativeError));
     }
+
+    LOG_DEBUG(<< "mean log relative error = "
+              << maths::CBasicStatistics::mean(meanLogRelativeError));
+    BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(meanLogRelativeError) < 0.6);
 }
 
 BOOST_AUTO_TEST_CASE(testUnbalancedClasses) {

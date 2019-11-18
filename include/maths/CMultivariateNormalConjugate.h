@@ -849,7 +849,10 @@ public:
                     A(i, j) = normal[(s * rank * (rank - 1)) / 2 + k];
                 }
             }
-            result.emplace_back(fromDenseMatrix(L * A * A.transpose() * L.transpose()));
+
+            TDenseMatrix denseMatrix = L * A * A.transpose() * L.transpose();
+            TMatrix resultMatrix{fromDenseMatrix(denseMatrix)};
+            result.emplace_back(resultMatrix);
         }
     }
 
@@ -952,7 +955,13 @@ public:
             return TMatrix(0.0);
         }
         TMatrix result(m_WishartScaleMatrix / m_WishartDegreesFreedom);
-        return TMatrix(fromDenseMatrix(toDenseMatrix(result).inverse()));
+
+        TDenseMatrix denseResult = toDenseMatrix(result);
+        TDenseMatrix denseResultInverse = denseResult.inverse();
+
+        TMatrix resultInverse = fromDenseMatrix(denseResultInverse);
+
+        return resultInverse;
     }
 
     //! Check if two priors are equal to the specified tolerance.
