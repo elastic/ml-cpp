@@ -79,10 +79,11 @@ protected:
 
         ml::api::CSingleStreamDataAdder foregroundDataAdder(foregroundStreamPtr);
 
-        // The 300 second persist interval is irrelevant here - we bypass the timer
-        // in this test and kick off the background persistence chain explicitly
+        // The 30000 second persist interval is set large enough that the timer will
+        // will not trigger during the test - we bypass the timer in this test
+        // and kick off the background persistence chain explicitly
         ml::api::CPersistenceManager persistenceManager(
-            300, false, backgroundDataAdder, foregroundDataAdder);
+            30000, false, backgroundDataAdder, foregroundDataAdder);
 
         std::string snapshotId;
         std::size_t numDocs(0);
@@ -206,10 +207,11 @@ protected:
         // Persist the processors' state in the foreground
         ml::api::CSingleStreamDataAdder foregroundDataAdder(foregroundStreamPtr);
 
-        // The 300 second persist interval is irrelevant here - we bypass the timer
-        // in this test and kick off the background persistence chain explicitly
+        // The 30000 second persist interval is set large enough that the timer
+        // will not trigger during the test - we bypass the timer in this test
+        // and kick off the background persistence chain explicitly
         ml::api::CPersistenceManager persistenceManager(
-            300, false, backgroundDataAdder, foregroundDataAdder);
+            30000, false, backgroundDataAdder, foregroundDataAdder);
 
         std::string snapshotId;
         std::size_t numDocs(0);
@@ -319,9 +321,10 @@ BOOST_FIXTURE_TEST_CASE(testCategorizationOnlyPersist, CTestFixture) {
         foregroundStream = new std::ostringstream());
     ml::api::CSingleStreamDataAdder foregroundDataAdder(foregroundStreamPtr);
 
-    // The 300 second persist interval is irrelevant here - we bypass the timer
-    // in this test and kick off the background persistence chain explicitly
-    ml::api::CPersistenceManager persistenceManager(300, false, backgroundDataAdder,
+    // The 30000 second persist interval is set large enough that the timer will
+    // not trigger during the test - we bypass the timer in this test and kick
+    // off the background persistence chain explicitly
+    ml::api::CPersistenceManager persistenceManager(30000, false, backgroundDataAdder,
                                                     foregroundDataAdder);
 
     {
