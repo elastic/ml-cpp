@@ -202,7 +202,9 @@ void CPrior::adjustOffsetResamples(double minimumSample,
     this->sampleMarginalLikelihood(ADJUST_OFFSET_SAMPLE_SIZE, resamples);
     std::size_t n = resamples.size();
     resamples.erase(std::remove_if(resamples.begin(), resamples.end(),
-                                   [](double d) { return CMathsFuncs::SIsFinite()(d) == false; }),
+                                   [](double d) {
+                                       return CMathsFuncs::SIsFinite()(d) == false;
+                                   }),
                     resamples.end());
     if (resamples.size() != n) {
         LOG_ERROR(<< "Bad samples (" << this->debug() << ")");
