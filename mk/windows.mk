@@ -9,7 +9,7 @@ OS=Windows
 CPP_PLATFORM_HOME=$(CPP_DISTRIBUTION_HOME)/platform/windows-x86_64
 
 CC=cl
-CXX=cl
+CXX=cl -std:c++17
 
 # Generally we'll want to build with a DLL version of the C runtime library, but
 # occasionally we may need to override this
@@ -23,16 +23,16 @@ OPTCPPFLAGS=-DNDEBUG -DEXCLUDE_TRACE_LOGGING
 endif
 
 SHELL:=$(LOCAL_DRIVE):/PROGRA~1/Git/bin/bash.exe
-# On 64 bit Windows Visual Studio 2017 is in C:\Program Files (x86) aka C:\PROGRA~2
+# On 64 bit Windows Visual Studio 2019 is in C:\Program Files (x86) aka C:\PROGRA~2
 
 # compiler and sdk are dependent on your local install, tweak them with overwriting VCBASE and WINSDKBASE in your .bashrc
 # do not override them here
-# default: VS Professional 2017
-VCBASE?=$(shell cd /$(LOCAL_DRIVE) && cygpath -m -s "Program Files (x86)/Microsoft Visual Studio/2017/Professional")
+# default: VS Professional 2019
+VCBASE?=$(shell cd /$(LOCAL_DRIVE) && cygpath -m -s "Program Files (x86)/Microsoft Visual Studio/2019/Professional")
 WINSDKBASE?=$(shell cd /$(LOCAL_DRIVE) && cygpath -m -s "Program Files (x86)/Windows Kits")
 
-# example compiler defaults for VS Build Tools 2017, c&p into your .bashrc, note 8.3 paths might be different on your install
-# export VCBASE=PROGRA~2/MICROS~2/2017/BUILDT~1
+# example compiler defaults for VS Build Tools 2019, c&p into your .bashrc, note 8.3 paths might be different on your install
+# export VCBASE=PROGRA~2/MICROS~2/2019/BUILDT~1
 # export WINSDKBASE=PROGRA~2/WI3CF2~1
 
 VCVER:=$(shell ls -1 /$(LOCAL_DRIVE)/$(VCBASE)/VC/Tools/MSVC | tail -1)

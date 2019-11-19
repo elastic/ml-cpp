@@ -87,7 +87,7 @@ public:
     static maths_t::EFloatingPointErrorStatus fpStatus(double val);
 
     //! Unary function object to check if a value is finite.
-    struct SIsFinite : std::unary_function<double, bool> {
+    struct SIsFinite {
         bool operator()(double val) const { return isFinite(val); }
     };
 

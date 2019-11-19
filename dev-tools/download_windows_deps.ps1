@@ -4,7 +4,7 @@
 # you may not use this file except in compliance with the Elastic License.
 #
 $ErrorActionPreference="Stop"
-$Archive="usr-x86_64-windows-2012_r2-9.zip"
+$Archive="usr-x86_64-windows-2016-1.zip"
 $Destination="C:\"
 if (!(Test-Path "$Destination\usr\local\lib\boost_system-vc141-mt-x64-1_71.dll")) {
     Remove-Item "$Destination\usr" -Recurse -Force -ErrorAction Ignore

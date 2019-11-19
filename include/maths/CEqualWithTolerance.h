@@ -78,8 +78,7 @@ public:
 //! have has_multiplies and so, short of writing this functionality
 //! ourselves, we can't implement this.
 template<typename T>
-class CEqualWithTolerance : public std::binary_function<T, T, bool>,
-                            public CToleranceTypes {
+class CEqualWithTolerance : public CToleranceTypes {
 public:
     CEqualWithTolerance(unsigned int toleranceType, const T& eps)
         : m_ToleranceType(toleranceType), m_AbsoluteEps(abs(norm(eps))),

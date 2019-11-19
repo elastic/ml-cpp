@@ -9,6 +9,7 @@
 #include <core/WindowsSafe.h>
 
 #include <cmath>
+#include <ostream>
 
 namespace {
 const size_t BUFFER_SIZE(1024);

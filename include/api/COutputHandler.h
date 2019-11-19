@@ -100,7 +100,7 @@ public:
 protected:
     //! Class to cache a hash value so that it doesn't have to be repeatedly
     //! recomputed
-    class API_EXPORT CPreComputedHash : public std::unary_function<std::string, size_t> {
+    class API_EXPORT CPreComputedHash {
     public:
         //! Store the given hash
         CPreComputedHash(size_t hash);
