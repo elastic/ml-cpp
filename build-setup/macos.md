@@ -44,7 +44,7 @@ The above environment variables only need to be set when building tools on macOS
 
 ### Xcode
 
-The first major piece of development software to install is Apple's development environment, Xcode, which can be downloaded from <http://developer.apple.com/technologies/xcode.html> . You will need to register as a developer with Apple. Alternatively, you can get the latest version of Xcode from the App Store.
+The first major piece of development software to install is Apple's development environment, Xcode, which can be downloaded from <https://developer.apple.com/download/> . You will need to register as a developer with Apple. Alternatively, you can get the latest version of Xcode from the App Store.
 
 - If you are using Yosemite, you must install Xcode 7.2.x
 - If you are using El Capitan, you must install Xcode 8.2.x
@@ -53,6 +53,7 @@ The first major piece of development software to install is Apple's development 
 - If you are using Mojave, you must install Xcode 10.3.x
 
 Older versions of Xcode are installed by dragging the app from the `.dmg` file to the `/Applications` directory on your Mac (or if you got it from the App Store it will already be in the `/Applications` directory). More modern versions of Xcode are distributed as a `.xip` file; simply double click the `.xip` file to expand it, then drag `Xcode.app` to your `/Applications` directory.
+(Older versions of Xcode can be downloaded from [here](https://developer.apple.com/download/more/), provided you are signed in with your Apple ID.)
 
 There are no command line tools out-of-the-box, so you'll need to install them following installation of Xcode. You can do this by running:
 
@@ -61,6 +62,14 @@ xcode-select --install
 ```
 
 at the command prompt.
+
+If (and only if) you are using Mojave, you must install the SDK headers from `/Library/Developer/CommandLineTools/Packages/macOS_SDK_headers_for_macOS_10.14.pkg`. You can do this by running:
+
+```
+sudo installer -pkg /Library/Developer/CommandLineTools/Packages/macOS_SDK_headers_for_macOS_10.14.pkg -target /
+```
+
+at the command prompt. This will need to be repeated every time that Xcode is updated.
 
 ### Boost 1.71.0
 
