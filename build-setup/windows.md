@@ -14,12 +14,12 @@ If you use Gradle to build Machine Learning you do not need to work in Git Bash,
 
 You will also need to add several directories to your `PATH` environment variable. These need to be in the MinGW format, i.e. beginning with /drive letter/ followed by the directory path using forward slashes instead of backslashes, and with no spaces in the directory names. Where a Windows directory name contains a space, you must use the 8.3 version of that directory name (which you can find using `dir /x` at a command prompt). The directories that need to be added are:
 
-- `/c/PROGRA~2/MICROS~2/2017/Professional/VC/Tools/MSVC/14.11.25503/bin/HostX64/x64`
-- `/c/PROGRA~2/MICROS~2/2017/Professional/Common7/IDE`
-- `/c/PROGRA~2/WINDOW~4/8.0/bin/x64`
-- `/c/PROGRA~2/WINDOW~4/8.0/bin/x86`
-- `/c/PROGRA~2/MICROS~2/2017/Professional/TEAMTO~1/PERFOR~1/x64`
-- `/c/PROGRA~2/MICROS~2/2017/Professional/TEAMTO~1/PERFOR~1`
+- `/c/PROGRA~2/MICROS~2/2019/Professional/VC/Tools/MSVC/14.23.28105/bin/Hostx64/x64`
+- `/c/PROGRA~2/MICROS~2/2019/Professional/Common7/IDE`
+- `/c/PROGRA~2/WI3CF2~1/8.0/bin/x64`
+- `/c/PROGRA~2/WI3CF2~1/8.0/bin/x86`
+- `/c/PROGRA~2/MICROS~2/2019/Professional/TEAMTO~1/PERFOR~1/x64`
+- `/c/PROGRA~2/MICROS~2/2019/Professional/TEAMTO~1/PERFOR~1`
 - `/c/PROGRA~1/Java/jdk1.8.0_121/bin`
 - `/c/usr/local/bin`
 - `/c/usr/local/lib`
@@ -30,8 +30,8 @@ For example, you might create a `.bashrc` file in your home directory containing
 
 ```
 export CPP_SRC_HOME=$HOME/ml-cpp
-VCVER=`/bin/ls -1 /c/PROGRA~2/MICROS~2/2017/Professional/VC/Tools/MSVC | tail -1`
-VCBINDIR=/c/PROGRA~2/MICROS~2/2017/Professional/VC/Tools/MSVC/$VCVER/bin/HostX64/x64:/c/PROGRA~2/MICROS~2/2017/Professional/Common7/IDE:/c/PROGRA~2/WINDOW~4/8.0/bin/x64:/c/PROGRA~2/WINDOW~4/8.0/bin/x86:/c/PROGRA~2/MICROS~2/2017/Professional/TEAMTO~1/PERFOR~1/x64:/c/PROGRA~2/MICROS~2/2017/Professional/TEAMTO~1/PERFOR~1
+VCVER=`/bin/ls -1 /c/PROGRA~2/MICROS~2/2019/Professional/VC/Tools/MSVC | tail -1`
+VCBINDIR=/c/PROGRA~2/MICROS~2/2019/Professional/VC/Tools/MSVC/$VCVER/bin/Hostx64/x64:/c/PROGRA~2/MICROS~2/2019/Professional/Common7/IDE:/c/PROGRA~2/WI3CF2~1/8.0/bin/x64:/c/PROGRA~2/WI3CF2~1/8.0/bin/x86:/c/PROGRA~2/MICROS~2/2019/Professional/TEAMTO~1/PERFOR~1/x64:/c/PROGRA~2/MICROS~2/2019/Professional/TEAMTO~1/PERFOR~1
 export JAVA_HOME=/c/PROGRA~1/Java/jdk1.8.0_121
 export PATH="$CPP_SRC_HOME/build/distribution/platform/windows-x86_64/bin:$VCBINDIR:/mingw64/bin:$JAVA_HOME/bin:/c/usr/local/bin:/c/usr/local/lib:/bin:/c/Windows/System32:/c/Windows"
 alias make=gnumake
@@ -47,17 +47,17 @@ It is possible to build on Windows Server 2012r2, Windows Server 2016 and Window
 
 Download `sdksetup.exe` from https://developer.microsoft.com/en-us/windows/downloads/windows-8-sdk and run it.  Accept the default installation location, opt out of the customer experience improvement program and accept the license agreement.  Then install with all features selected.
 
-### Microsoft Visual Studio 2017 Professional
+### Microsoft Visual Studio 2019 Professional
 
 _Make sure you install the Windows 8 SDK before this, as it cannot be installed afterwards._
 
-The Professional edition requires an MSDN subscription. Download the installer, `vs_Professional.exe`, from <https://my.visualstudio.com/downloads>, and run it.
+The Professional edition requires an MSDN subscription. Download the installer, `vs_professional__904165217.1561988349.exe`, from <https://my.visualstudio.com/downloads>, and run it.
 
 On the "Workloads" page that is displayed after a short while, check "Desktop development with C++".  Then click on the "Individual Components" tab and check "Windows Universal CRT SDK" (about half way down the list).  Then click "Install".
 
 ### Git for Windows
 
-Download `Git-2.14.1-64-bit.exe` from <https://github.com/git-for-windows/git/releases/tag/v2.14.1.windows.1>.
+Download `Git-2.24.0.2-64-bit.exe` from <https://github.com/git-for-windows/git/releases/download/v2.24.0.windows.2>.
 
 Install it using mainly the default options suggested by the installer, but on the feature selection dialog also check "On the desktop" in the "Additional icons" section.
 
@@ -74,7 +74,7 @@ cd /c/tools
 tar jxvf /z/cpp_src/make-4.2.1.tar.bz2
 ```
 
-Start a command prompt using Start Menu -&gt; Apps -&gt; Visual Studio 2017 -&gt; x64 Native Tools Command Prompt for VS 2017, then in it type:
+Start a command prompt using Start Menu -&gt; Apps -&gt; Visual Studio 2019 -&gt; x64 Native Tools Command Prompt for VS 2019, then in it type:
 
 ```
 cd \tools\make-4.2.1
@@ -85,11 +85,11 @@ Finally, copy the file `gnumake.exe` from `C:\tools\make-4.2.1\WinRel` to `C:\us
 
 ### zlib
 
-Whilst it is possible to download a pre-built version of `zlib1.dll`, for consistency we want one that links against the Visual Studio 2017 C runtime library. Therefore it is necessary to build zlib from source.
+Whilst it is possible to download a pre-built version of `zlib1.dll`, for consistency we want one that links against the Visual Studio 2019 C runtime library. Therefore it is necessary to build zlib from source.
 
 Download the source code from <http://zlib.net/> - the file is called `zlib1211.zip`. Unzip this file under `C:\tools`, so that you end up with a directory called `C:\tools\zlib-1.2.11`.
 
-To build, start a command prompt using Start Menu -&gt; Apps -&gt; Visual Studio 2017 -&gt; x64 Native Tools Command Prompt for VS 2017, then in it type:
+To build, start a command prompt using Start Menu -&gt; Apps -&gt; Visual Studio 2019 -&gt; x64 Native Tools Command Prompt for VS 2019, then in it type:
 
 ```
 cd \tools\zlib-1.2.11
@@ -101,16 +101,16 @@ All the build output will end up in the top level `C:\tools\zlib-1.2.11` directo
 
 ### libxml2
 
-Download `libxml2-2.9.4.tar.bz2` from <ftp://xmlsoft.org/libxml2/> .
+Download `libxml2-2.9.7.tar.bz2` from <ftp://xmlsoft.org/libxml2/> .
 
 Extract it in a Git bash shell using the GNU tar that comes with Git for Windows, e.g.:
 
 ```
 cd /c/tools
-tar jxvf /z/cpp_src/libxml2-2.9.4.tar.bz2
+tar jxvf /z/cpp_src/libxml2-2.9.7.tar.bz2
 ```
 
-Edit `C:\tools\libxml2-2.9.4\win32\Makefile.msvc` and change the following lines:
+Edit `C:\tools\libxml2-2.9.7\win32\Makefile.msvc` and change the following lines:
 
 ```
 CFLAGS = $(CFLAGS) /D "NDEBUG" /O2
@@ -124,10 +124,10 @@ CFLAGS = $(CFLAGS) /D "NDEBUG" /O2 /Zi /D_WIN32_WINNT=0x0601
 
 (because we might as well generate a PDB file and we want to limit Windows API functions to those that exist in Windows Server 2008r2).
 
-Start a command prompt using Start Menu -&gt; Apps -&gt; Visual Studio 2017 -&gt; x64 Native Tools Command Prompt for VS 2017, then in it type:
+Start a command prompt using Start Menu -&gt; Apps -&gt; Visual Studio 2019 -&gt; x64 Native Tools Command Prompt for VS 2019, then in it type:
 
 ```
-cd \tools\libxml2-2.9.4\win32
+cd \tools\libxml2-2.9.7\win32
 cscript configure.js iconv=no prefix=C:\usr\local
 nmake
 nmake install
@@ -156,7 +156,7 @@ to:
     (3ul)(17ul)(29ul)(37ul)(53ul)(67ul)(79ul) \
 ```
 
-Start a command prompt using Start Menu -&gt; Apps -&gt; Visual Studio 2017 -&gt; x64 Native Tools Command Prompt for VS 2017, then in it type:
+Start a command prompt using Start Menu -&gt; Apps -&gt; Visual Studio 2019 -&gt; x64 Native Tools Command Prompt for VS 2019, then in it type:
 
 ```
 cd \tools\boost_1_71_0
@@ -182,7 +182,7 @@ patch -i strptime.ucrt.patch
 patch -i private.patch
 ```
 
-Start a command prompt using Start Menu -&gt; Apps -&gt; Visual Studio 2017 -&gt; x64 Native Tools Command Prompt for VS 2017, then in it type:
+Start a command prompt using Start Menu -&gt; Apps -&gt; Visual Studio 2019 -&gt; x64 Native Tools Command Prompt for VS 2019, then in it type:
 
 ```
 cd C:\tools\strptime
