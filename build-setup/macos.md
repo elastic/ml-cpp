@@ -50,7 +50,7 @@ The first major piece of development software to install is Apple's development 
 - If you are using El Capitan, you must install Xcode 8.2.x
 - If you are using Sierra, you must install Xcode 9.2.x
 - If you are using High Sierra, you must install Xcode 10.1.x
-- If you are using Mojave, you must install Xcode 10.3.x
+- If you are using Mojave or Catalina, you must install Xcode 11.2.x
 
 Older versions of Xcode are installed by dragging the app from the `.dmg` file to the `/Applications` directory on your Mac (or if you got it from the App Store it will already be in the `/Applications` directory). More modern versions of Xcode are distributed as a `.xip` file; simply double click the `.xip` file to expand it, then drag `Xcode.app` to your `/Applications` directory.
 (Older versions of Xcode can be downloaded from [here](https://developer.apple.com/download/more/), provided you are signed in with your Apple ID.)
@@ -62,14 +62,6 @@ xcode-select --install
 ```
 
 at the command prompt.
-
-If (and only if) you are using Mojave, you must install the SDK headers from `/Library/Developer/CommandLineTools/Packages/macOS_SDK_headers_for_macOS_10.14.pkg`. You can do this by running:
-
-```
-sudo installer -pkg /Library/Developer/CommandLineTools/Packages/macOS_SDK_headers_for_macOS_10.14.pkg -target /
-```
-
-at the command prompt. This will need to be repeated every time that Xcode is updated.
 
 ### Boost 1.71.0
 
