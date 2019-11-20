@@ -36,6 +36,14 @@ public:
                      const TRowRef& row,
                      core::CRapidJsonConcurrentLineWriter& writer) const override;
 
+    //! Write the prediction for \p row to \p writer.
+    //! This is not intended to be called in production. Should only be used in tests.
+    void writeOneRow(const core::CDataFrame& frame,
+                     const std::size_t columnHoldingDependentVariable,
+                     const std::size_t columnHoldingPrediction,
+                     const TRowRef& row,
+                     core::CRapidJsonConcurrentLineWriter& writer) const;
+
     //! \return A serialisable definition of the trained classification model.
     TInferenceModelDefinitionUPtr
     inferenceModelDefinition(const TStrVec& fieldNames,
