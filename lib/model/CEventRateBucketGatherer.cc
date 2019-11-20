@@ -964,14 +964,14 @@ void CEventRateBucketGatherer::recyclePeople(const TSizeVec& peopleToRemove) {
     }
 
     applyFunc(m_FeatureData, std::bind<void>(SRemovePeople(), std::placeholders::_1,
-                                         std::cref(peopleToRemove)));
+                                             std::cref(peopleToRemove)));
 
     this->CBucketGatherer::recyclePeople(peopleToRemove);
 }
 
 void CEventRateBucketGatherer::removePeople(std::size_t lowestPersonToRemove) {
     applyFunc(m_FeatureData, std::bind<void>(SRemovePeople(), std::placeholders::_1, lowestPersonToRemove,
-                                         m_DataGatherer.numberPeople()));
+                                             m_DataGatherer.numberPeople()));
     this->CBucketGatherer::removePeople(lowestPersonToRemove);
 }
 
@@ -981,14 +981,14 @@ void CEventRateBucketGatherer::recycleAttributes(const TSizeVec& attributesToRem
     }
 
     applyFunc(m_FeatureData, std::bind<void>(SRemoveAttributes(), std::placeholders::_1,
-                                         std::cref(attributesToRemove)));
+                                             std::cref(attributesToRemove)));
 
     this->CBucketGatherer::recycleAttributes(attributesToRemove);
 }
 
 void CEventRateBucketGatherer::removeAttributes(std::size_t lowestAttributeToRemove) {
     applyFunc(m_FeatureData, std::bind<void>(SRemoveAttributes(), std::placeholders::_1,
-                                         lowestAttributeToRemove));
+                                             lowestAttributeToRemove));
     this->CBucketGatherer::removeAttributes(lowestAttributeToRemove);
 }
 
@@ -997,7 +997,7 @@ uint64_t CEventRateBucketGatherer::checksum() const {
 
     TStrUInt64Map hashes;
     applyFunc(m_FeatureData, std::bind<void>(SChecksum(), std::placeholders::_1,
-                                         std::cref(m_DataGatherer), std::ref(hashes)));
+                                             std::cref(m_DataGatherer), std::ref(hashes)));
     LOG_TRACE(<< "seed = " << seed);
     LOG_TRACE(<< "hashes = " << core::CContainerPrinter::print(hashes));
     core::CHashing::CSafeMurmurHash2String64 hasher;
@@ -1525,9 +1525,10 @@ void CEventRateBucketGatherer::addValue(std::size_t pid,
                                         const TStoredStringPtrVec& influences) {
     // Check that we are correctly sized - a person/attribute might have been added
     this->resize(pid, cid);
-    applyFunc(m_FeatureData, std::bind<void>(SAddValue(), std::placeholders::_1, pid,
-                                         cid, time, count, std::cref(values),
-                                         std::cref(stringValue), std::cref(influences)));
+    applyFunc(m_FeatureData,
+              std::bind<void>(SAddValue(), std::placeholders::_1, pid, cid,
+                              time, count, std::cref(values),
+                              std::cref(stringValue), std::cref(influences)));
 }
 
 void CEventRateBucketGatherer::startNewBucket(core_t::TTime time, bool /*skipUpdates*/) {
