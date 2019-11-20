@@ -36,6 +36,7 @@ const std::string BALANCED_CLASS_LOSS{"balanced_class_loss"};
 
 // Output
 const std::string IS_TRAINING_FIELD_NAME{"is_training"};
+const std::string PREDICTION_PROBABILITY_FIELD_NAME{"prediction_probability"};
 const std::string TOP_CLASSES_FIELD_NAME{"top_classes"};
 const std::string CLASS_NAME_FIELD_NAME{"class_name"};
 const std::string CLASS_PROBABILITY_FIELD_NAME{"class_probability"};
@@ -89,18 +90,19 @@ TBoolVec CDataFrameTrainBoostedTreeClassifierRunner::columnsForWhichEmptyIsMissi
 
 void CDataFrameTrainBoostedTreeClassifierRunner::writeOneRow(
     const core::CDataFrame& frame,
+    const std::size_t columnHoldingDependentVariable,
+    const std::size_t columnHoldingPrediction,
     const TRowRef& row,
     core::CRapidJsonConcurrentLineWriter& writer) const {
-    const auto& tree = this->boostedTree();
-    const std::size_t columnHoldingDependentVariable{tree.columnHoldingDependentVariable()};
-    const std::size_t columnHoldingPrediction{
-        tree.columnHoldingPrediction(row.numberColumns())};
-    const TStrVec& categoryValues{frame.categoricalColumnValues()[columnHoldingDependentVariable]};
 
+    const TStrVec& categoryValues{frame.categoricalColumnValues()[columnHoldingDependentVariable]};
     // TODO generalise when supporting multiple categories.
 
+    // Fetch log odds of category encoded as "1" (the categories are encoded as "0" and "1").
     double predictedLogOddsOfCategory1{row[columnHoldingPrediction]};
     double probabilityOfCategory1{maths::CTools::logisticFunction(predictedLogOddsOfCategory1)};
+    // Since currently we only support two categories, we can calculate probability of category "0"
+    // as (1.0 - probabilityOfCategory1).
     TDoubleVec probabilityOfCategory{1.0 - probabilityOfCategory1, probabilityOfCategory1};
 
     double actualCategoryId{row[columnHoldingDependentVariable]};
@@ -111,6 +113,8 @@ void CDataFrameTrainBoostedTreeClassifierRunner::writeOneRow(
     writer.StartObject();
     writer.Key(this->predictionFieldName());
     writer.String(categoryValues[predictedCategoryId]);
+    writer.Key(PREDICTION_PROBABILITY_FIELD_NAME);
+    writer.Double(probabilityOfCategory[predictedCategoryId]);
     writer.Key(IS_TRAINING_FIELD_NAME);
     writer.Bool(maths::CDataFrameUtils::isMissing(actualCategoryId) == false);
 
@@ -132,6 +136,19 @@ void CDataFrameTrainBoostedTreeClassifierRunner::writeOneRow(
         writer.EndArray();
     }
     writer.EndObject();
+}
+
+void CDataFrameTrainBoostedTreeClassifierRunner::writeOneRow(
+    const core::CDataFrame& frame,
+    const TRowRef& row,
+    core::CRapidJsonConcurrentLineWriter& writer) const {
+
+    const auto& tree = this->boostedTree();
+    const std::size_t columnHoldingDependentVariable{tree.columnHoldingDependentVariable()};
+    const std::size_t columnHoldingPrediction{
+        tree.columnHoldingPrediction(row.numberColumns())};
+    this->writeOneRow(frame, columnHoldingDependentVariable,
+                      columnHoldingPrediction, row, writer);
 }
 
 CDataFrameTrainBoostedTreeClassifierRunner::TLossFunctionUPtr
