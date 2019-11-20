@@ -6,7 +6,7 @@
 $ErrorActionPreference="Stop"
 $Archive="usr-x86_64-windows-2016-1.zip"
 $Destination="C:\"
-if (!(Test-Path "$Destination\usr\local\lib\boost_system-vc141-mt-x64-1_71.dll")) {
+if (!(Test-Path "$Destination\usr\local\lib\boost_system-vc142-mt-x64-1_71.dll")) {
     Remove-Item "$Destination\usr" -Recurse -Force -ErrorAction Ignore
     $ZipSource="https://s3-eu-west-1.amazonaws.com/prelert-artifacts/dependencies/$Archive"
     $ZipDestination="$Env:TEMP\$Archive"
