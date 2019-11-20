@@ -21,7 +21,6 @@
 #include <algorithm>
 #include <cmath>
 #include <fstream>
-#include <functional>
 #include <numeric>
 
 BOOST_AUTO_TEST_SUITE(CIntegrationTest)
@@ -32,7 +31,7 @@ using namespace maths;
 namespace {
 
 template<unsigned int ORDER>
-class CPolynomialFunction : public std::unary_function<double, double> {
+class CPolynomialFunction {
 public:
     CPolynomialFunction(const double (&coefficients)[ORDER + 1]) {
         std::copy(coefficients, coefficients + ORDER + 1, m_Coefficients);
