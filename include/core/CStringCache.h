@@ -77,7 +77,7 @@ private:
     //! Boost's hash function applied to an empty string returns a non-zero
     //! hash, which would be hard to reproduce for a range of characters,
     //! hence using a hand coded hash functor.
-    class CStrHash : public std::unary_function<std::string, size_t> {
+    class CStrHash {
     public:
         size_t operator()(const std::string& str) const;
     };
@@ -85,7 +85,7 @@ private:
     //! Class to hash a range of characters on construction to save
     //! calculating the length in operator().  Does NOT construct a
     //! temporary string object to create the hash.
-    class CCharPHash : public std::unary_function<const char*, size_t> {
+    class CCharPHash {
     public:
         //! Store the given hash
         CCharPHash(const char* str, const char* end);
@@ -100,7 +100,7 @@ private:
 
     //! Check for equality between a char pointer and a string without
     //! constructing a temporary string
-    class CCharPStrEqual : public std::binary_function<const char*, std::string, bool> {
+    class CCharPStrEqual {
     public:
         //! Cache the char pointer length to speed comparisons
         CCharPStrEqual(size_t length);

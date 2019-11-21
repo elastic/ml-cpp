@@ -125,7 +125,7 @@ public:
     };
 
     //! \brief A fast hash of a dictionary word.
-    class CHash : public std::unary_function<CWord, uint64_t> {
+    class CHash {
     public:
         inline std::size_t operator()(const CWord& word) const {
             return word.hash();
