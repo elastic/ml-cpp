@@ -95,7 +95,7 @@ enum EEncoding {
 //! metric features to use by minimising a MICe based measure of their relevency for
 //! prediction and redundancy. The total number of features we select is based on the
 //! quantity of training data.
-class MATHS_EXPORT CDataFrameCategoryEncoder final {
+class MATHS_EXPORT CDataFrameCategoryEncoder {
 public:
     using TDoubleVec = std::vector<double>;
     using TSizeVec = std::vector<std::size_t>;
@@ -213,6 +213,8 @@ public:
 public:
     CDataFrameCategoryEncoder(CMakeDataFrameCategoryEncoder parameters);
 
+    CDataFrameCategoryEncoder(CMakeDataFrameCategoryEncoder* parameters);
+
     //! Initialize from serialized data.
     CDataFrameCategoryEncoder(core::CStateRestoreTraverser& traverser);
 
@@ -288,6 +290,8 @@ public:
                                   const core::CDataFrame& frame,
                                   std::size_t targetColumn);
 
+    virtual ~CMakeDataFrameCategoryEncoder() = default;
+
     //! Set the minimum number of training rows needed per feature used.
     CMakeDataFrameCategoryEncoder& minimumRowsPerFeature(std::size_t minimumRowsPerFeature);
 
@@ -313,7 +317,7 @@ public:
     CMakeDataFrameCategoryEncoder& columnMask(TSizeVec columnMask);
 
     //! Make the encoding.
-    TEncodingUPtrVec makeEncodings();
+    virtual TEncodingUPtrVec makeEncodings();
 
     //! \name Test Methods
     //@{

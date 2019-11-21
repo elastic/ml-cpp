@@ -231,8 +231,12 @@ std::size_t CEncodedDataFrameRowRef::numberColumns() const {
     return m_Encoder->numberEncodedColumns();
 }
 
-CDataFrameCategoryEncoder::CDataFrameCategoryEncoder(CMakeDataFrameCategoryEncoder builder) {
-    m_Encodings = builder.makeEncodings();
+CDataFrameCategoryEncoder::CDataFrameCategoryEncoder(CMakeDataFrameCategoryEncoder builder)
+: CDataFrameCategoryEncoder(&builder) {
+}
+
+CDataFrameCategoryEncoder::CDataFrameCategoryEncoder(CMakeDataFrameCategoryEncoder* builder) {
+    m_Encodings = builder->makeEncodings();
 }
 
 CDataFrameCategoryEncoder::CDataFrameCategoryEncoder(core::CStateRestoreTraverser& traverser) {
