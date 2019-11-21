@@ -13,6 +13,7 @@
 #include <core/CStateRestoreTraverser.h>
 #include <core/RestoreMacros.h>
 
+#include <maths/CAnnotatedVector.h>
 #include <maths/CChecksum.h>
 #include <maths/CLinearAlgebra.h>
 #include <maths/CLinearAlgebraFwd.h>
@@ -425,7 +426,8 @@ template<typename SCALAR>
 class CMemoryMappedDenseVector
     : public Eigen::Map<typename CDenseVector<SCALAR>::TBase> {
 public:
-    using TBase = Eigen::Map<typename CDenseVector<SCALAR>::TBase>;
+    using TDenseVector = CDenseVector<SCALAR>;
+    using TBase = Eigen::Map<typename TDenseVector::TBase>;
 
     //! See core::CMemory.
     static bool dynamicSizeAlwaysZero() { return true; }
@@ -435,6 +437,12 @@ public:
     template<typename... ARGS>
     CMemoryMappedDenseVector(ARGS&&... args)
         : TBase{std::forward<ARGS>(args)...} {}
+
+    //! Added because the forwarding constructor above doesn't work with
+    //! annotated vector arguments with Visual Studio 2019 in C++17 mode.
+    template<typename ANNOTATION>
+    CMemoryMappedDenseVector(CAnnotatedVector<TDenseVector, ANNOTATION>& annotatedDense)
+        : TBase{annotatedDense.data(), annotatedDense.size()} {}
 
     //! \name Copy and Move Semantics
     //@{
