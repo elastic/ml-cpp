@@ -41,6 +41,8 @@ estimating maximum memory usage. (See {ml-pull}781[#781].)
 and {pull}47050[#47050].)
 * Use a random bag of the data to compute the loss function derivatives for each new
 tree which is trained for both regression and classification. (See {ml-pull}811[#811].)
+* Emit `prediction_probability` field alongside prediction field in ml results.
+(See {ml-pull}818[#818].)
 
 == {es} version 7.5.0
 

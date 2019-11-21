@@ -11,8 +11,6 @@
 
 #include <maths/CLinearAlgebraFwd.h>
 
-#include <functional>
-
 namespace ml {
 namespace maths {
 

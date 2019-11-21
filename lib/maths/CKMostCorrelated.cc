@@ -29,7 +29,6 @@
 
 #include <array>
 #include <cmath>
-#include <functional>
 
 namespace bg = boost::geometry;
 namespace bgi = boost::geometry::index;

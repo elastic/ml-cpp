@@ -13,7 +13,6 @@
 #include <maths/ImportExport.h>
 #include <maths/MathsTypes.h>
 
-#include <functional>
 #include <iterator>
 
 namespace ml {
