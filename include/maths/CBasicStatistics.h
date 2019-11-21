@@ -138,7 +138,7 @@ public:
     //! \tparam T The "floating point" type.
     //! \tparam ORDER The highest order moment to gather.
     template<typename T, unsigned int ORDER>
-    struct SSampleCentralMoments : public std::unary_function<T, void> {
+    struct SSampleCentralMoments {
         using TCoordinate = typename SCoordinate<T>::Type;
         using TValue = T;
 
@@ -718,7 +718,7 @@ public:
     //!
     //! \tparam POINT The "floating point" vector type.
     template<typename POINT>
-    struct SSampleCovariances : public std::unary_function<POINT, void> {
+    struct SSampleCovariances {
         //! See core::CMemory.
         static bool dynamicSizeAlwaysZero() {
             return core::memory_detail::SDynamicSizeAlwaysZero<POINT>::value();
@@ -916,7 +916,7 @@ private:
     //! function is supplied so that T can be any type which supports a
     //! partial ordering. (T must also have a default constructor.)
     template<typename T, typename CONTAINER, typename LESS>
-    class COrderStatisticsImpl : public std::unary_function<T, void> {
+    class COrderStatisticsImpl {
     public:
         using iterator = typename CONTAINER::iterator;
         using const_iterator = typename CONTAINER::const_iterator;

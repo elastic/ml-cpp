@@ -18,7 +18,7 @@ namespace memory_detail {
 
 //! Comparison function class to compare CMemoryUsage objects by
 //! their description
-class CMemoryUsageComparison : public std::unary_function<std::string, bool> {
+class CMemoryUsageComparison {
 public:
     explicit CMemoryUsageComparison(const std::string& baseline)
         : m_Baseline(baseline) {}
@@ -33,8 +33,7 @@ private:
 
 //! Comparison function class to compare CMemoryUsage objects by
 //! their description, but ignoring the first in the collection
-class CMemoryUsageComparisonTwo
-    : public std::binary_function<std::string, CMemoryUsage*, bool> {
+class CMemoryUsageComparisonTwo {
 public:
     explicit CMemoryUsageComparisonTwo(const std::string& baseline, const CMemoryUsage* firstItem)
         : m_Baseline(baseline), m_FirstItem(firstItem) {}

@@ -12,7 +12,6 @@
 
 #include <boost/unordered_map.hpp>
 
-#include <functional>
 #include <string>
 
 namespace ml {
@@ -137,12 +136,12 @@ private:
     ~CWordDictionary();
 
 private:
-    class CStrHashIgnoreCase : std::unary_function<std::string, bool> {
+    class CStrHashIgnoreCase {
     public:
         size_t operator()(const std::string& str) const;
     };
 
-    class CStrEqualIgnoreCase : std::binary_function<std::string, std::string, bool> {
+    class CStrEqualIgnoreCase {
     public:
         bool operator()(const std::string& lhs, const std::string& rhs) const;
     };
