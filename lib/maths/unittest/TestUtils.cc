@@ -25,7 +25,7 @@ const core_t::TTime WEEK{core::constants::WEEK};
 
 //! \brief Computes the c.d.f. of the prior minus the target supplied
 //! to its constructor at specific locations.
-class CCdf : public std::unary_function<double, double> {
+class CCdf {
 public:
     enum EStyle { E_Lower, E_Upper, E_GeometricMean };
 
