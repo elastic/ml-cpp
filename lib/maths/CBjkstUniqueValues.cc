@@ -50,7 +50,7 @@ using TUInt8UInt8Pr = std::pair<uint8_t, uint8_t>;
 //!   |(g(x) >> 8) % 256|    g(x) % 256   |    zeros(x)     |
 //! \endcode
 // clang-format off
-class CHashIterator : public std::iterator<std::random_access_iterator_tag, uint16_t>,
+class EMPTY_BASE_OPT CHashIterator : public std::iterator<std::random_access_iterator_tag, uint16_t>,
                       private boost::less_than_comparable<CHashIterator,
                               boost::addable<CHashIterator, ptrdiff_t,
                               boost::subtractable<CHashIterator, ptrdiff_t>> > {

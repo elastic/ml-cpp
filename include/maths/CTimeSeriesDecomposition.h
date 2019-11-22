@@ -50,8 +50,9 @@ struct STimeSeriesDecompositionRestoreParams;
 //!
 //! By default this assumes the data has one day and one week
 //! periodicity, i.e. \f${ T_i } = { 86400, 604800 }\f$.
-class MATHS_EXPORT CTimeSeriesDecomposition : public CTimeSeriesDecompositionInterface,
-                                              private CTimeSeriesDecompositionDetail {
+class MATHS_EXPORT EMPTY_BASE_OPT CTimeSeriesDecomposition
+    : public CTimeSeriesDecompositionInterface,
+      private CTimeSeriesDecompositionDetail {
 public:
     //! \param[in] decayRate The rate at which information is lost.
     //! \param[in] bucketLength The data bucketing length.
