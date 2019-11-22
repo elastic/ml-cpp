@@ -441,7 +441,7 @@ public:
     //! Added because the forwarding constructor above doesn't work with
     //! annotated vector arguments with Visual Studio 2019 in C++17 mode.
     template<typename ANNOTATION>
-    CMemoryMappedDenseVector(CAnnotatedVector<TDenseVector, ANNOTATION>& annotatedDense)
+    CMemoryMappedDenseVector(CAnnotatedVector<TDenseVector, ANNOTATION>&& annotatedDense)
         : TBase{annotatedDense.data(), annotatedDense.size()} {}
 
     //! \name Copy and Move Semantics

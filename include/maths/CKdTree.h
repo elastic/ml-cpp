@@ -244,8 +244,8 @@ public:
             // we must convert it to POINT, but also must be careful that the POINT
             // doesn't then end up referencing data owned by a temporary that has
             // been destroyed.
-            decltype(las::zero(point)) temp{las::zero(point)};
-            POINT distancesToHyperplanes{temp};
+            auto temp{las::zero(point)};
+            POINT distancesToHyperplanes{std::move(temp)};
             return this->nearestNeighbour(point, m_Nodes[0], distancesToHyperplanes,
                                           0 /*split coordinate*/, nearest, inf);
         }
@@ -269,8 +269,8 @@ public:
             // we must convert it to POINT, but also must be careful that the POINT
             // doesn't then end up referencing data owned by a temporary that has
             // been destroyed.
-            decltype(las::zero(point)) temp{las::zero(point)};
-            POINT distancesToHyperplanes{temp};
+            auto temp{las::zero(point)};
+            POINT distancesToHyperplanes{std::move(temp)};
             TCoordinatePrecisePointCRefPrVec neighbours(
                 n, {inf, std::cref(m_Nodes[0].s_Point)});
             this->nearestNeighbours(point, less, m_Nodes[0], distancesToHyperplanes,
