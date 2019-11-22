@@ -14,6 +14,7 @@
 BOOST_AUTO_TEST_SUITE(CTreeShapFeatureImportanceTest)
 
 using namespace ml;
+namespace tt = boost::test_tools;
 
 using TDoubleVec = std::vector<double>;
 using TDoubleVecVec = std::vector<TDoubleVec>;
@@ -114,7 +115,7 @@ struct SFixtureMultipleTrees {
         TTree tree1;
         tree1.emplace_back();
         tree1[0].split(0, 0.55, true, 0.0, 0.0, tree1);
-        tree1[1].split(0, 0.4, true, 0.0, 0.0, tree1);
+        tree1[1].split(0, 0.41, true, 0.0, 0.0, tree1);
         tree1[2].split(1, 0.25, true, 0.0, 0.0, tree1);
         tree1[3].value(1.18230136);
         tree1[4].value(1.98006658);
@@ -123,9 +124,9 @@ struct SFixtureMultipleTrees {
 
         TTree tree2;
         tree2.emplace_back();
-        tree2[0].split(0, 0.45, true, 0.0, 0.0, tree1);
-        tree2[1].split(0, 0.25, true, 0.0, 0.0, tree1);
-        tree2[2].split(0, 0.6, true, 0.0, 0.0, tree1);
+        tree2[0].split(0, 0.45, true, 0.0, 0.0, tree2);
+        tree2[1].split(0, 0.25, true, 0.0, 0.0, tree2);
+        tree2[2].split(0, 0.59, true, 0.0, 0.0, tree2);
         tree2[3].value(1.04476388);
         tree2[4].value(1.52799228);
         tree2[5].value(1.98006658);
@@ -178,6 +179,28 @@ BOOST_FIXTURE_TEST_CASE(testSingleTreeShapNotNormalized, SFixtureSingleTree) {
             {5.,  -2.5, 10.5},
             {5.,  2.5,  10.5}};
     BOOST_TEST_REQUIRE(actualPhi == expectedPhi);
+}
+
+BOOST_FIXTURE_TEST_CASE(testMultipleTreesShapNotNormalized, SFixtureMultipleTrees) {
+    TDoubleVecVec actualPhi = treeFeatureImportance->shap(*frame, *encoder);
+    TDoubleVecVec expectedPhi{
+            {-0.82660001, -0.06222489, 2.00235752},
+            {-0.82660001, -0.06222489, 2.00235752},
+            {-0.82660001, -0.06222489, 2.00235752},
+            {-0.58498581, -0.06222489, 2.00235752},
+            {-0.58498581, -0.06222489, 2.00235752},
+            {0.03993395,  -0.06222489, 2.00235752},
+            {0.90245943,  -0.2177871,  2.00235752},
+            {1.0269092,   0.0725957,   2.00235752},
+            {1.0269092,   0.0725957,   2.00235752},
+            {1.0269092,   0.0725957,   2.00235752}};
+    BOOST_TEST_REQUIRE(actualPhi.size() == expectedPhi.size());
+    for (int i = 0; i < actualPhi.size(); ++i) {
+        BOOST_TEST_REQUIRE(actualPhi[i].size() == expectedPhi[i].size());
+        for (int j = 0; j < actualPhi[i].size(); ++j) {
+            BOOST_TEST_REQUIRE(actualPhi[i][j] == expectedPhi[i][j], tt::tolerance(0.000001));
+        }
+    }
 }
 
 BOOST_AUTO_TEST_SUITE_END()

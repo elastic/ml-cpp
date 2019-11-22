@@ -36,9 +36,11 @@ CTreeShapFeatureImportance::shap(const core::CDataFrame &frame, const CDataFrame
                     TDoubleVec phi(frame.numberColumns() + 1, 0);
                     for (int i = 0; i < m_Trees.size(); ++i) {
                         phi[frame.numberColumns()] += m_Trees[i][0].value();
-                        this->shapRecursive(m_Trees[i], m_SamplesPerNode[i], encodedRow, phi, SPath(maxDepthVec[i] + 1), 0,
+                        SPath path(maxDepthVec[i] + 1);
+                        this->shapRecursive(m_Trees[i], m_SamplesPerNode[i], encodedRow, phi, path, 0,
                                             1.0, 1.0,
-                                            -1, 0);
+                                            -1);
+                        i += 0;
                     }
                     for (int j = 0; j < phi.size(); ++j) {
                         phi[j] /= m_Trees.size();
@@ -120,15 +122,17 @@ void CTreeShapFeatureImportance::shapRecursive(const TTree &tree, const TDoubleV
                                                const CEncodedDataFrameRowRef &encodedRow,
                                                CTreeShapFeatureImportance::TDoubleVec &phi, SPath splitPath,
                                                std::size_t nodeIndex, double parentFractionZero,
-                                               double parentFractionOne, int parentFeatureIndex, int uniqueDepth) {
+                                               double parentFractionOne, int parentFeatureIndex) {
+
     this->extendPath(splitPath, parentFractionZero, parentFractionOne, parentFeatureIndex);
     if (tree[nodeIndex].isLeaf()) {
         double leafValue = tree[nodeIndex].value();
-        for (int i = 1; i <= uniqueDepth; ++i) {
+        for (int i = 1; i <= splitPath.depth(); ++i) {
             double scale = this->sumUnwoundPath(splitPath, i);
             phi[splitPath.featureIndex(i)] +=
                     scale * (splitPath.fractionOnes(i) - splitPath.fractionZeros(i)) * leafValue;
         }
+
     } else {
         maths::CBoostedTreeNode::TNodeIndex hotIndex, coldIndex;
         if (tree[nodeIndex].assignToLeft(encodedRow)) {
@@ -147,18 +151,17 @@ void CTreeShapFeatureImportance::shapRecursive(const TTree &tree, const TDoubleV
             auto pathIndex = std::distance(splitPath.s_FeatureIndex.begin(), it);
             incomingFractionZero = splitPath.fractionZeros(pathIndex);
             incomingFractionOne = splitPath.fractionOnes(pathIndex);
-            this->unwindPath(splitPath, pathIndex, uniqueDepth);
+            this->unwindPath(splitPath, pathIndex);
         }
 
         double hotFractionZero = samplesPerNode[hotIndex] / samplesPerNode[nodeIndex];
         double coldFractionZero = samplesPerNode[coldIndex] / samplesPerNode[nodeIndex];
-
         this->shapRecursive(tree, samplesPerNode, encodedRow, phi, splitPath, hotIndex,
                             incomingFractionZero * hotFractionZero,
-                            incomingFractionOne, splitFeature, uniqueDepth + 1);
+                            incomingFractionOne, splitFeature);
         this->shapRecursive(tree, samplesPerNode, encodedRow, phi, splitPath, coldIndex,
                             incomingFractionZero * coldFractionZero, 0.0,
-                            splitFeature, uniqueDepth + 1);
+                            splitFeature);
     }
 
 }
@@ -196,7 +199,7 @@ double CTreeShapFeatureImportance::sumUnwoundPath(const CTreeShapFeatureImportan
     return total;
 }
 
-void CTreeShapFeatureImportance::unwindPath(CTreeShapFeatureImportance::SPath &path, int pathIndex, int uniqueDepth) {
+void CTreeShapFeatureImportance::unwindPath(CTreeShapFeatureImportance::SPath &path, int pathIndex) {
     double pathDepth = path.depth();
     double nextFractionOne{path.scale(pathDepth)};
     double fractionOne{path.fractionOnes(pathIndex)};
@@ -213,13 +216,7 @@ void CTreeShapFeatureImportance::unwindPath(CTreeShapFeatureImportance::SPath &p
             path.s_Scale[i] = path.scale(i) * (pathDepth + 1) / (fractionZero * (pathDepth - i));
         }
     }
-
-    for (int i = pathIndex; i < pathDepth; ++i) {
-        path.s_FeatureIndex[i] = path.s_FeatureIndex[i + 1];
-        path.s_FractionOnes[i] = path.s_FractionOnes[i + 1];
-        path.s_FractionZeros[i] = path.s_FractionZeros[i + 1];
-    }
-
+    path.reduce(pathIndex);
 }
 
 }
