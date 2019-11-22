@@ -1145,7 +1145,7 @@ public:
     //! \tparam LESS The comparison function object type used to test
     //! if one object of type T is less than another.
     template<typename T, std::size_t N, typename LESS = std::less<T>>
-    class COrderStatisticsStack
+    class EMPTY_BASE_OPT COrderStatisticsStack
         : public COrderStatisticsImpl<T, std::array<T, N>, LESS>,
           private boost::addable<COrderStatisticsStack<T, N, LESS>> {
 
@@ -1238,7 +1238,7 @@ public:
     //! \tparam LESS The comparison function object type used to test
     //! if one object of type T is less than another.
     template<typename T, typename LESS = std::less<T>>
-    class COrderStatisticsHeap
+    class EMPTY_BASE_OPT COrderStatisticsHeap
         : public COrderStatisticsImpl<T, std::vector<T>, LESS>,
           private boost::addable<COrderStatisticsHeap<T, LESS>> {
     private:

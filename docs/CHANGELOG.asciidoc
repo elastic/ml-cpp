@@ -38,6 +38,7 @@
 estimating maximum memory usage. (See {ml-pull}781[#781].)
 * Stratified fractional cross validation for regression. (See {ml-pull}784[#784].)
 * Added `geo_point` supported output for `lat_long` function records. (See {ml-pull}809[#809], {pull}47050[#47050].)
+* Reduce memory usage of {ml} native processes on Windows. (See {ml-pull}844[#844].)
 
 == {es} version 7.5.0
 
