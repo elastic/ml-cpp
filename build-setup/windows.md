@@ -57,7 +57,7 @@ On the "Workloads" page that is displayed after a short while, check "Desktop de
 
 ### Git for Windows
 
-Download `Git-2.24.0.2-64-bit.exe` from <https://github.com/git-for-windows/git/releases/download/v2.24.0.windows.2>.
+Download `Git-2.16.3-64-bit.exe` from <https://github.com/git-for-windows/git/releases/download/v2.16.3.windows.1>.
 
 Install it using mainly the default options suggested by the installer, but on the feature selection dialog also check "On the desktop" in the "Additional icons" section.
 
