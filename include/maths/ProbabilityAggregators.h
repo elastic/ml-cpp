@@ -125,7 +125,7 @@ std::ostream& operator<<(std::ostream& o,
 //! joint probabilities, which should respect the error in the bounds.
 //! For example, two probabilities should be treated as equal if the
 //! intervals defined by their upper and lower bounds intersect.
-class MATHS_EXPORT CLogJointProbabilityOfLessLikelySamples
+class MATHS_EXPORT EMPTY_BASE_OPT CLogJointProbabilityOfLessLikelySamples
     : protected CJointProbabilityOfLessLikelySamples,
       private boost::addable<CLogJointProbabilityOfLessLikelySamples> {
 public:
