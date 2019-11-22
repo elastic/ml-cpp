@@ -43,6 +43,7 @@ and {pull}47050[#47050].)
 tree which is trained for both regression and classification. (See {ml-pull}811[#811].)
 * Emit `prediction_probability` field alongside prediction field in ml results.
 (See {ml-pull}818[#818].)
+* Reduce memory usage of {ml} native processes on Windows. (See {ml-pull}844[#844].)
 
 == {es} version 7.5.0
 
