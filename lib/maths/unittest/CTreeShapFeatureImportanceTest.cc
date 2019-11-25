@@ -77,9 +77,6 @@ struct SFixtureSingleTree {
 
     TDataFrameUPtr frame;
     std::size_t numberFeatures{2};
-    std::size_t numberOutputs{1};
-    std::size_t treeDepth{3};
-    std::size_t numNodes{7}; // 2^treeDepth - 1
     std::size_t numberRows{4};
     TTreeShapFeatureImportanceUPtr treeFeatureImportance;
     TEncoderUPtr encoder;
@@ -142,9 +139,6 @@ struct SFixtureMultipleTrees {
 
     TDataFrameUPtr frame;
     std::size_t numberFeatures{2};
-    std::size_t numberOutputs{1};
-    std::size_t treeDepth{3};
-    std::size_t numNodes{7}; // 2^treeDepth - 1
     std::size_t numberRows{10};
     TTreeShapFeatureImportanceUPtr treeFeatureImportance;
     TEncoderUPtr encoder;
