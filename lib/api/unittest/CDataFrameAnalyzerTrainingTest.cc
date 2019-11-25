@@ -797,4 +797,71 @@ BOOST_AUTO_TEST_CASE(testCategoricalFieldsEmptyAsMissing) {
     });
 }
 
+BOOST_AUTO_TEST_CASE(testRunBoostedTreeRegressionTrainingWithFeatureImportance) {
+
+    // Test the regression hyperparameter settings are correctly propagated to the
+    // analysis runner.
+
+    double alpha{2.0};
+    double lambda{1.0};
+    double gamma{10.0};
+    double softTreeDepthLimit{3.0};
+    double softTreeDepthTolerance{0.1};
+    double eta{0.9};
+    std::size_t maximumNumberTrees{1};
+    double featureBagFraction{0.3};
+
+    int rows = 100;
+
+    std::stringstream output;
+    auto outputWriterFactory = [&output]() {
+        return std::make_unique<core::CJsonOutputStreamWrapper>(output);
+    };
+
+    api::CDataFrameAnalyzer analyzer{
+        test::CDataFrameAnalysisSpecificationFactory::predictionSpec(
+            "regression", "c5", 100, 5, 4000000, 0, 0, {}, alpha, lambda, gamma,
+            softTreeDepthLimit, softTreeDepthTolerance, eta, maximumNumberTrees,
+            featureBagFraction, false, nullptr, nullptr),
+        outputWriterFactory};
+
+    TDoubleVec expectedPredictions;
+
+    TStrVec fieldNames{"c1", "c2", "c3", "c4", "c5", ".", "."};
+    TStrVec fieldValues{"", "", "", "", "", "0", ""};
+    test::CRandomNumbers rng;
+    TDoubleVec weights{100, 80, 40, -60};
+
+    TDoubleVec values;
+    rng.generateUniformSamples(-10.0, 10.0, weights.size() * rows, values);
+
+    auto frame = setupLinearRegressionData(fieldNames, fieldValues, analyzer, weights, values);
+    analyzer.handleRecord(fieldNames, {"", "", "", "", "", "", "$"});
+
+    rapidjson::Document results;
+    rapidjson::ParseResult ok(results.Parse(output.str()));
+    BOOST_TEST_REQUIRE(static_cast<bool>(ok) == true);
+
+    //    auto expectedPrediction = expectedPredictions.begin();
+    //    bool progressCompleted{false};
+    //    for (const auto& result : results.GetArray()) {
+    //        if (result.HasMember("row_results")) {
+    //            BOOST_TEST_REQUIRE(expectedPrediction != expectedPredictions.end());
+    //            BOOST_REQUIRE_CLOSE_ABSOLUTE(
+    //                    *expectedPrediction,
+    //                    result["row_results"]["results"]["ml"]["c5_prediction"].GetDouble(),
+    //                    1e-4 * std::fabs(*expectedPrediction));
+    //            ++expectedPrediction;
+    //            BOOST_TEST_REQUIRE(result.HasMember("progress_percent") == false);
+    //        } else if (result.HasMember("progress_percent")) {
+    //            BOOST_TEST_REQUIRE(result["progress_percent"].GetInt() >= 0);
+    //            BOOST_TEST_REQUIRE(result["progress_percent"].GetInt() <= 100);
+    //            BOOST_TEST_REQUIRE(result.HasMember("row_results") == false);
+    //            progressCompleted = result["progress_percent"].GetInt() == 100;
+    //        }
+    //    }
+    //    BOOST_TEST_REQUIRE(expectedPrediction == expectedPredictions.end());
+    //    BOOST_TEST_REQUIRE(progressCompleted);
+}
+
 BOOST_AUTO_TEST_SUITE_END()

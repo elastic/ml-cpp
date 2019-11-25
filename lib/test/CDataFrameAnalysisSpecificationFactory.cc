@@ -62,8 +62,7 @@ CDataFrameAnalysisSpecificationFactory::outlierSpec(std::size_t rows,
     return std::make_unique<api::CDataFrameAnalysisSpecification>(spec);
 }
 
-CDataFrameAnalysisSpecificationFactory::TSpecificationUPtr
-CDataFrameAnalysisSpecificationFactory::predictionSpec(
+TSpecificationUPtr CDataFrameAnalysisSpecificationFactory::predictionSpec(
     const std::string& analysis,
     const std::string& dependentVariable,
     std::size_t rows,
@@ -80,6 +79,7 @@ CDataFrameAnalysisSpecificationFactory::predictionSpec(
     double eta,
     std::size_t maximumNumberTrees,
     double featureBagFraction,
+    bool shapValues,
     TPersisterSupplier* persisterSupplier,
     TRestoreSearcherSupplier* restoreSearcherSupplier) {
 
@@ -129,6 +129,10 @@ CDataFrameAnalysisSpecificationFactory::predictionSpec(
     if (bayesianOptimisationRestarts > 0) {
         writer.Key(api::CDataFrameTrainBoostedTreeRunner::BAYESIAN_OPTIMISATION_RESTARTS);
         writer.Uint64(bayesianOptimisationRestarts);
+    }
+    if (shapValues == true) {
+        writer.Key(api::CDataFrameTrainBoostedTreeRunner::SHAP_VALUES);
+        writer.Bool(true);
     }
     writer.EndObject();
 

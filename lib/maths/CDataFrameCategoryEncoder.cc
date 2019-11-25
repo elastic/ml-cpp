@@ -232,7 +232,7 @@ std::size_t CEncodedDataFrameRowRef::numberColumns() const {
 }
 
 CDataFrameCategoryEncoder::CDataFrameCategoryEncoder(CMakeDataFrameCategoryEncoder builder)
-: CDataFrameCategoryEncoder(&builder) {
+    : CDataFrameCategoryEncoder(&builder) {
 }
 
 CDataFrameCategoryEncoder::CDataFrameCategoryEncoder(CMakeDataFrameCategoryEncoder* builder) {

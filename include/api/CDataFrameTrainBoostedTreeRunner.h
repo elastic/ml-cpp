@@ -44,6 +44,7 @@ public:
     static const std::string NUMBER_FOLDS;
     static const std::string NUMBER_ROUNDS_PER_HYPERPARAMETER;
     static const std::string BAYESIAN_OPTIMISATION_RESTARTS;
+    static const std::string SHAP_VALUES;
 
 public:
     ~CDataFrameTrainBoostedTreeRunner() override;
