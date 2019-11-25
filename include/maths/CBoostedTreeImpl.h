@@ -642,6 +642,7 @@ private:
     std::size_t m_NumberRounds = 1;
     std::size_t m_CurrentRound = 0;
     mutable core::CLoopProgress m_TrainingProgress;
+    bool m_ShapValues = false;
 
     friend class CBoostedTreeFactory;
 };

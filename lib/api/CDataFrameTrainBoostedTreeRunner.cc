@@ -88,6 +88,7 @@ CDataFrameTrainBoostedTreeRunner::CDataFrameTrainBoostedTreeRunner(
     double softTreeDepthLimit{parameters[SOFT_TREE_DEPTH_LIMIT].fallback(-1.0)};
     double softTreeDepthTolerance{parameters[SOFT_TREE_DEPTH_TOLERANCE].fallback(-1.0)};
     double featureBagFraction{parameters[FEATURE_BAG_FRACTION].fallback(-1.0)};
+    bool shapValues{parameters[SHAP_VALUES].fallback(false)};
     if (alpha != -1.0 && alpha < 0.0) {
         HANDLE_FATAL(<< "Input error: bad alpha value. It should be non-negative.");
     }
@@ -156,6 +157,9 @@ CDataFrameTrainBoostedTreeRunner::CDataFrameTrainBoostedTreeRunner(
     }
     if (bayesianOptimisationRestarts > 0) {
         m_BoostedTreeFactory->bayesianOptimisationRestarts(bayesianOptimisationRestarts);
+    }
+    if (shapValues == true) {
+        m_BoostedTreeFactory->shapValues(shapValues);
     }
 }
 

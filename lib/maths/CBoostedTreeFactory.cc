@@ -1013,5 +1013,10 @@ void CBoostedTreeFactory::noopRecordProgress(double) {
 
 void CBoostedTreeFactory::noopRecordMemoryUsage(std::int64_t) {
 }
+
+CBoostedTreeFactory &CBoostedTreeFactory::shapValues(bool shapValues) {
+    m_TreeImpl->m_ShapValues = shapValues;
+    return *this;
+}
 }
 }
