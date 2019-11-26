@@ -822,7 +822,7 @@ BOOST_AUTO_TEST_CASE(testRunBoostedTreeRegressionTrainingWithFeatureImportance) 
         test::CDataFrameAnalysisSpecificationFactory::predictionSpec(
             "regression", "c5", 100, 5, 4000000, 0, 0, {}, alpha, lambda, gamma,
             softTreeDepthLimit, softTreeDepthTolerance, eta, maximumNumberTrees,
-            featureBagFraction, false, nullptr, nullptr),
+            featureBagFraction, 4),
         outputWriterFactory};
 
     TDoubleVec expectedPredictions;

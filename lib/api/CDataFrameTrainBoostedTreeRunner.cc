@@ -55,6 +55,7 @@ const CDataFrameAnalysisConfigReader& CDataFrameTrainBoostedTreeRunner::paramete
                                CDataFrameAnalysisConfigReader::E_OptionalParameter);
         theReader.addParameter(BAYESIAN_OPTIMISATION_RESTARTS,
                                CDataFrameAnalysisConfigReader::E_OptionalParameter);
+        theReader.addParameter(TOP_SHAP_VALUES, CDataFrameAnalysisConfigReader::E_OptionalParameter);
         return theReader;
     }()};
     return PARAMETER_READER;
@@ -88,7 +89,7 @@ CDataFrameTrainBoostedTreeRunner::CDataFrameTrainBoostedTreeRunner(
     double softTreeDepthLimit{parameters[SOFT_TREE_DEPTH_LIMIT].fallback(-1.0)};
     double softTreeDepthTolerance{parameters[SOFT_TREE_DEPTH_TOLERANCE].fallback(-1.0)};
     double featureBagFraction{parameters[FEATURE_BAG_FRACTION].fallback(-1.0)};
-    bool shapValues{parameters[SHAP_VALUES].fallback(false)};
+    std::size_t topShapValues{parameters[TOP_SHAP_VALUES].fallback(0ul)};
     if (alpha != -1.0 && alpha < 0.0) {
         HANDLE_FATAL(<< "Input error: bad alpha value. It should be non-negative.");
     }
@@ -158,8 +159,8 @@ CDataFrameTrainBoostedTreeRunner::CDataFrameTrainBoostedTreeRunner(
     if (bayesianOptimisationRestarts > 0) {
         m_BoostedTreeFactory->bayesianOptimisationRestarts(bayesianOptimisationRestarts);
     }
-    if (shapValues == true) {
-        m_BoostedTreeFactory->shapValues(shapValues);
+    if (topShapValues == true) {
+        m_TopShapValues = topShapValues;
     }
 }
 
@@ -230,6 +231,10 @@ void CDataFrameTrainBoostedTreeRunner::runImpl(core::CDataFrame& frame) {
     m_BoostedTree->train();
     m_BoostedTree->predict();
 
+    if (m_TopShapValues > 0) {
+        m_BoostedTree->computeShapValues(m_TopShapValues);
+    }
+
     core::CProgramCounters::counter(counter_t::E_DFTPMTimeToTrain) = watch.stop();
 }
 
@@ -293,6 +298,7 @@ const std::string CDataFrameTrainBoostedTreeRunner::FEATURE_BAG_FRACTION{"featur
 const std::string CDataFrameTrainBoostedTreeRunner::NUMBER_FOLDS{"number_folds"};
 const std::string CDataFrameTrainBoostedTreeRunner::NUMBER_ROUNDS_PER_HYPERPARAMETER{"number_rounds_per_hyperparameter"};
 const std::string CDataFrameTrainBoostedTreeRunner::BAYESIAN_OPTIMISATION_RESTARTS{"bayesian_optimisation_restarts"};
+const std::string CDataFrameTrainBoostedTreeRunner::TOP_SHAP_VALUES{"top_shap_values"};
 // clang-format on
 }
 }

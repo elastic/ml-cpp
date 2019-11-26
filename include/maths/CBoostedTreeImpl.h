@@ -74,6 +74,11 @@ public:
     //! \note Must be called only if a trained model is available.
     void predict(core::CDataFrame& frame, const TProgressCallback& /*recordProgress*/) const;
 
+    //! Compute SHAP values using the best trained model to \p frame.
+    //!
+    //! \note Must be called only if a trained model is available.
+    void computeShapValues(int topShapValues, core::CDataFrame &frame, const TProgressCallback &);
+
     //! Get the feature sample probabilities.
     const TDoubleVec& featureWeights() const;
 

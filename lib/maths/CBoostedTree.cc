@@ -420,6 +420,10 @@ void CBoostedTree::predict() const {
     m_Impl->predict(this->frame(), this->progressRecorder());
 }
 
+void CBoostedTree::computeShapValues(int topShapValues) {
+    m_Impl->computeShapValues(topShapValues, this->frame(), this->progressRecorder());
+}
+
 const CBoostedTree::TDoubleVec& CBoostedTree::featureWeights() const {
     return m_Impl->featureWeights();
 }

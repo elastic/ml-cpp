@@ -384,6 +384,11 @@ public:
     //! \warning This can only be called after train.
     void predict() const override;
 
+    //! Write SHAP values to the data frame supplied to the contructor.
+    //!
+    //! \warning This can only be called after train.
+    void computeShapValues(int topShapValues) override;
+
     //! Get the feature weights the model has chosen.
     const TDoubleVec& featureWeights() const override;
 

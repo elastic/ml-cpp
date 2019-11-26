@@ -44,6 +44,11 @@ public:
     //! \warning This can only be called after train.
     virtual void predict() const = 0;
 
+    //! Write SHAP values to the data frame supplied to the contructor.
+    //!
+    //! \warning This can only be called after train.
+    virtual void computeShapValues(int topShapValues) = 0;
+
     //! Get the feature weights the model has chosen.
     virtual const TDoubleVec& featureWeights() const = 0;
 

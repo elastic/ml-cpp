@@ -62,26 +62,26 @@ CDataFrameAnalysisSpecificationFactory::outlierSpec(std::size_t rows,
     return std::make_unique<api::CDataFrameAnalysisSpecification>(spec);
 }
 
-TSpecificationUPtr CDataFrameAnalysisSpecificationFactory::predictionSpec(
-    const std::string& analysis,
-    const std::string& dependentVariable,
-    std::size_t rows,
-    std::size_t cols,
-    std::size_t memoryLimit,
-    std::size_t numberRoundsPerHyperparameter,
-    std::size_t bayesianOptimisationRestarts,
-    const TStrVec& categoricalFieldNames,
-    double alpha,
-    double lambda,
-    double gamma,
-    double softTreeDepthLimit,
-    double softTreeDepthTolerance,
-    double eta,
-    std::size_t maximumNumberTrees,
-    double featureBagFraction,
-    bool shapValues,
-    TPersisterSupplier* persisterSupplier,
-    TRestoreSearcherSupplier* restoreSearcherSupplier) {
+CDataFrameAnalysisSpecificationFactory::TSpecificationUPtr CDataFrameAnalysisSpecificationFactory::predictionSpec(
+        const std::string& analysis,
+        const std::string& dependentVariable,
+        std::size_t rows,
+        std::size_t cols,
+        std::size_t memoryLimit,
+        std::size_t numberRoundsPerHyperparameter,
+        std::size_t bayesianOptimisationRestarts,
+        const TStrVec& categoricalFieldNames,
+        double alpha,
+        double lambda,
+        double gamma,
+        double softTreeDepthLimit,
+        double softTreeDepthTolerance,
+        double eta,
+        std::size_t maximumNumberTrees,
+        double featureBagFraction,
+        size_t topShapValues,
+        TPersisterSupplier* persisterSupplier,
+        TRestoreSearcherSupplier* restoreSearcherSupplier) {
 
     rapidjson::StringBuffer parameters;
     TRapidJsonLineWriter writer;
@@ -130,9 +130,9 @@ TSpecificationUPtr CDataFrameAnalysisSpecificationFactory::predictionSpec(
         writer.Key(api::CDataFrameTrainBoostedTreeRunner::BAYESIAN_OPTIMISATION_RESTARTS);
         writer.Uint64(bayesianOptimisationRestarts);
     }
-    if (shapValues == true) {
-        writer.Key(api::CDataFrameTrainBoostedTreeRunner::SHAP_VALUES);
-        writer.Bool(true);
+    if (topShapValues > 0) {
+        writer.Key(api::CDataFrameTrainBoostedTreeRunner::TOP_SHAP_VALUES);
+        writer.Uint64(topShapValues);
     }
     writer.EndObject();
 
