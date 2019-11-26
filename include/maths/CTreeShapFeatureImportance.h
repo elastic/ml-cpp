@@ -81,8 +81,13 @@ public:
 public:
     explicit CTreeShapFeatureImportance(TTreeVec trees);
 
-    CTreeShapFeatureImportance::TDoubleVecVec
-    shap(const core::CDataFrame& frame, const CDataFrameCategoryEncoder& encoder);
+    //! Compute SHAP values for the data in \p frame using the specified \p encoder.
+    //!
+    //!\param[in] numberFeatures number of features. If set to -1, it's assument that the number of feature is equal to the
+    //! number of columns in the \p frame.
+    //!\return pair shap values for all points, sum of magnitues of shap values for every feature.
+    std::pair<CTreeShapFeatureImportance::TDoubleVecVec, CTreeShapFeatureImportance::TDoubleVec>
+    shap(const core::CDataFrame &frame, const CDataFrameCategoryEncoder &encoder, int numberFeatures = -1);
 
     CTreeShapFeatureImportance::TDoubleVec
     samplesPerNode(const TTree& tree,

@@ -14,10 +14,9 @@ namespace maths {
 
 using TRowItr = core::CDataFrame::TRowItr;
 
-CTreeShapFeatureImportance::TDoubleVecVec
-CTreeShapFeatureImportance::shap(const core::CDataFrame& frame,
-                                 const CDataFrameCategoryEncoder& encoder) {
-
+std::pair<CTreeShapFeatureImportance::TDoubleVecVec, CTreeShapFeatureImportance::TDoubleVec>
+CTreeShapFeatureImportance::shap(const core::CDataFrame &frame, const CDataFrameCategoryEncoder &encoder, int numberFeatures) {
+    numberFeatures = (numberFeatures != -1) ? numberFeatures : frame.numberColumns();
     std::vector<std::size_t> maxDepthVec;
     maxDepthVec.reserve(m_Trees.size());
     for (auto& tree : m_Trees) {
@@ -30,12 +29,14 @@ CTreeShapFeatureImportance::shap(const core::CDataFrame& frame,
     auto result = frame.readRows(
         1, 0, frame.numberRows(),
         core::bindRetrievableState(
-            [&](auto& phiVec, TRowItr beginRows, TRowItr endRows) {
+            [&](auto& state, TRowItr beginRows, TRowItr endRows) {
                 for (auto row = beginRows; row != endRows; ++row) {
                     auto encodedRow{encoder.encode(*row)};
-                    TDoubleVec phi(frame.numberColumns() + 1, 0);
+                    auto& phiVec = state.first;
+                    auto& phiSum = state.second;
+                    TDoubleVec phi(numberFeatures, 0);
                     for (int i = 0; i < m_Trees.size(); ++i) {
-                        phi[frame.numberColumns()] += m_Trees[i][0].value();
+//                        phi[frame.numberColumns()] += m_Trees[i][0].value();
                         SPath path(maxDepthVec[i] + 1);
                         this->shapRecursive(m_Trees[i], m_SamplesPerNode[i],
                                             encodedRow, phi, path, 0, 1.0, 1.0, -1);
@@ -43,20 +44,25 @@ CTreeShapFeatureImportance::shap(const core::CDataFrame& frame,
                     }
                     for (int j = 0; j < phi.size(); ++j) {
                         phi[j] /= m_Trees.size();
+                        phiSum[j] += std::fabs(phi[j]);
                     }
+
                     phiVec.emplace_back(std::move(phi));
                 }
             },
-            TDoubleVecVec()));
+            std::make_pair(TDoubleVecVec(), TDoubleVec(numberFeatures, 0))));
 
     auto& state = result.first;
-    TDoubleVecVec phiVec{std::move(state[0].s_FunctionState)};
+    TDoubleVecVec phiVec{std::move(state[0].s_FunctionState.first)};
+    TDoubleVec phiSum{std::move(state[0].s_FunctionState.second)};
     for (int i = 1; i < state.size(); ++i) {
-        auto& otherPhiVec = state[i].s_FunctionState;
+        auto& otherPhiVec = state[i].s_FunctionState.first;
+        auto& otherPhiSum = state[i].s_FunctionState.second;
         phiVec.insert(phiVec.end(), otherPhiVec.begin(), otherPhiVec.end());
+        std::transform(phiSum.begin(), phiSum.end(), otherPhiSum.begin(), phiSum.begin(),std::plus<double>());
     }
 
-    return phiVec;
+    return std::make_pair(phiVec, phiSum);
 }
 
 CTreeShapFeatureImportance::TDoubleVec
