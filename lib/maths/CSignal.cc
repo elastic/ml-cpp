@@ -53,7 +53,7 @@ void radix2fft(TComplexVec& f) {
             double t = boost::math::double_constants::pi *
                        static_cast<double>(k) / static_cast<double>(stride);
             TComplex w(std::cos(t), std::sin(t));
-            for (std::size_t start = k; start < f.size(); start += 2 * stride) {
+            for (std::size_t start = k; start + stride < f.size(); start += 2 * stride) {
                 TComplex fs = f[start];
                 TComplex tw = w * f[start + stride];
                 f[start] = fs + tw;
@@ -82,8 +82,6 @@ void CSignal::fft(TComplexVec& f) {
     std::size_t n = f.size();
     std::size_t p = CIntegerTools::nextPow2(n);
     std::size_t m = std::size_t{1} << p;
-
-    LOG_TRACE(<< "n = " << n << ", m = " << m);
 
     if ((m >> 1) == n) {
         radix2fft(f);
@@ -182,12 +180,12 @@ void CSignal::autocorrelations(const TFloatMeanAccumulatorVec& values, TDoubleVe
     double mean = CBasicStatistics::mean(moments);
     double variance = CBasicStatistics::maximumLikelihoodVariance(moments);
 
-    TComplexVec f;
-    f.reserve(n);
+    TComplexVec f(n, TComplex{});
     for (std::size_t i = 0u; i < n; ++i) {
         std::size_t j = i;
-        for (/**/; j < n && CBasicStatistics::count(values[j]) == 0; ++j)
-            ;
+        for (/**/; j < n && CBasicStatistics::count(values[j]) == 0; ++j) {
+            ; // NO-OP
+        }
         if (i != j) {
             // Infer missing values by linearly interpolating.
             if (j == n) {
