@@ -243,7 +243,7 @@ public:
             // Sometimes the return type of las::zero() is not POINT. In this case
             // we must convert it to POINT, but also must be careful that the POINT
             // doesn't then end up referencing data owned by a temporary that has
-            // been destroyed.  (Some classes used for POINT do shallow copies.) 
+            // been destroyed.  (Some classes used for POINT do shallow copies.)
             auto temp = las::zero(point);
             POINT distancesToHyperplanes{std::move(temp)};
             return this->nearestNeighbour(point, m_Nodes[0], distancesToHyperplanes,
@@ -268,7 +268,7 @@ public:
             // Sometimes the return type of las::zero() is not POINT. In this case
             // we must convert it to POINT, but also must be careful that the POINT
             // doesn't then end up referencing data owned by a temporary that has
-            // been destroyed.  (Some classes used for POINT do shallow copies.) 
+            // been destroyed.  (Some classes used for POINT do shallow copies.)
             auto temp = las::zero(point);
             POINT distancesToHyperplanes{std::move(temp)};
             TCoordinatePrecisePointCRefPrVec neighbours(
