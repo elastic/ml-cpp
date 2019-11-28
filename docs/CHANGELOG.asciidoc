@@ -7,7 +7,7 @@
 
 = Elasticsearch Release Notes
 
-////
+//
 // To add a release, copy and paste the following text,  uncomment the relevant
 // sections, and add a link to the new section in the list of releases at the
 // top of the page. Note that release subheads must be floated and sections
@@ -44,6 +44,10 @@ tree which is trained for both regression and classification. (See {ml-pull}811[
 * Emit `prediction_probability` field alongside prediction field in ml results.
 (See {ml-pull}818[#818].)
 * Reduce memory usage of {ml} native processes on Windows. (See {ml-pull}844[#844].)
+
+=== Bug Fixes
+* Fixes potential memory corruption when determining seasonality. (See {ml-pull}852[#852].)
+
 
 == {es} version 7.5.0
 

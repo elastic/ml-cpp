@@ -177,7 +177,7 @@ public:
     CJsonOutputWriter(const std::string& jobId, core::CJsonOutputStreamWrapper& strmOut);
 
     //! Destructor flushes the stream
-    virtual ~CJsonOutputWriter();
+    ~CJsonOutputWriter() override;
 
     // Bring the other overload of fieldNames() into scope
     using COutputHandler::fieldNames;
