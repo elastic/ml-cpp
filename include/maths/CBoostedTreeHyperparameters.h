@@ -174,7 +174,7 @@ const std::string CBoostedTreeRegularization<T>::REGULARIZATION_SOFT_TREE_DEPTH_
     "regularization_soft_tree_depth_tolerance"};
 
 //! \brief The algorithm parameters we'll directly optimise to improve test error.
-class CBoostedTreeHyperparameters {
+class MATHS_EXPORT CBoostedTreeHyperparameters {
 public:
     using TRegularization = CBoostedTreeRegularization<double>;
 
