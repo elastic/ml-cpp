@@ -403,6 +403,7 @@ public:
     //! A list of the names of the best individual hyperparameters in the state document.
     static TStrVec bestHyperparameterNames();
 
+
     //! Persist by passing information to \p inserter.
     void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
 

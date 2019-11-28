@@ -18,6 +18,7 @@
 #include <api/CDataFrameAnalyzer.h>
 #include <api/CSingleStreamDataAdder.h>
 #include <api/ElasticsearchStateIndex.h>
+#include <api/CDataFrameTrainBoostedTreeRegressionRunner.h>
 
 #include <test/CDataFrameAnalysisSpecificationFactory.h>
 #include <test/CRandomNumbers.h>
@@ -320,7 +321,7 @@ void testOneRunOfBoostedTreeTrainingWithStateRecovery(F makeSpec, std::size_t it
     persistedStates = splitOnNull(std::stringstream{std::move(persistenceStream->str())});
     auto actualTree = restoreTree(std::move(persistedStates.back()), frame, dependentVariable);
 
-    // Compare hyperparameters.
+    // Compare bestHyperparameters.
 
     rapidjson::Document expectedResults{treeToJsonDocument(*expectedTree)};
     const auto& expectedHyperparameters =
@@ -436,15 +437,24 @@ BOOST_AUTO_TEST_CASE(testRunBoostedTreeRegressionTrainingWithParams) {
             softTreeDepthTolerance, eta, maximumNumberTrees, featureBagFraction),
         outputWriterFactory};
 
+
+
     TDoubleVec expectedPredictions;
 
     TStrVec fieldNames{"c1", "c2", "c3", "c4", "c5", ".", "."};
     TStrVec fieldValues{"", "", "", "", "", "0", ""};
+
     addPredictionTestData(E_Regression, fieldNames, fieldValues, analyzer,
                           expectedPredictions, 100, alpha, lambda, gamma,
                           softTreeDepthLimit, softTreeDepthTolerance, eta,
                           maximumNumberTrees, featureBagFraction);
     analyzer.handleRecord(fieldNames, {"", "", "", "", "", "", "$"});
+
+    const auto* runner =  dynamic_cast<const api::CDataFrameTrainBoostedTreeRegressionRunner*>(analyzer.runner());
+    const auto& boostedTree = runner->boostedTree();
+    BOOST_TEST_REQUIRE(boostedTree.eta() == eta);
+    BOOST_TEST_REQUIRE(boostedTree.bestHyperparameters().eta() == eta);
+
 
     rapidjson::Document results;
     rapidjson::ParseResult ok(results.Parse(output.str()));
