@@ -573,7 +573,7 @@ BOOST_AUTO_TEST_CASE(testRunBoostedTreeRegressionTrainingWithStateRecovery) {
                 numberRoundsPerHyperparameter, 12, {}, params.s_Alpha,
                 params.s_Lambda, params.s_Gamma, params.s_SoftTreeDepthLimit,
                 params.s_SoftTreeDepthTolerance, params.s_Eta, params.s_MaximumNumberTrees,
-                params.s_FeatureBagFraction, &persisterSupplier);
+                params.s_FeatureBagFraction, 0, &persisterSupplier);
         };
 
         finalIteration = params.numberUnset() * numberRoundsPerHyperparameter;
@@ -809,9 +809,9 @@ BOOST_AUTO_TEST_CASE(testRunBoostedTreeRegressionTrainingWithFeatureImportance) 
     double softTreeDepthTolerance{0.1};
     double eta{0.9};
     std::size_t maximumNumberTrees{1};
-    double featureBagFraction{0.3};
+    double featureBagFraction{1.0};
 
-    int rows = 100;
+    int rows = 200;
 
     std::stringstream output;
     auto outputWriterFactory = [&output]() {
@@ -820,9 +820,8 @@ BOOST_AUTO_TEST_CASE(testRunBoostedTreeRegressionTrainingWithFeatureImportance) 
 
     api::CDataFrameAnalyzer analyzer{
         test::CDataFrameAnalysisSpecificationFactory::predictionSpec(
-            "regression", "c5", 100, 5, 4000000, 0, 0, {}, alpha, lambda, gamma,
-            softTreeDepthLimit, softTreeDepthTolerance, eta, maximumNumberTrees,
-            featureBagFraction, 4),
+            "regression", "c5", rows, 5, 4000000, 0, 0, {}, alpha, lambda, gamma, softTreeDepthLimit,
+            softTreeDepthTolerance, eta, maximumNumberTrees, featureBagFraction, 4),
         outputWriterFactory};
 
     TDoubleVec expectedPredictions;
@@ -841,6 +840,27 @@ BOOST_AUTO_TEST_CASE(testRunBoostedTreeRegressionTrainingWithFeatureImportance) 
     rapidjson::Document results;
     rapidjson::ParseResult ok(results.Parse(output.str()));
     BOOST_TEST_REQUIRE(static_cast<bool>(ok) == true);
+    std::ostringstream stream;
+    {
+        core::CJsonOutputStreamWrapper wrapper{stream};
+        api::CSerializableToJson::TRapidJsonWriter writer{wrapper};
+        writer.write(results);
+        stream.flush();
+    }
+    // string writer puts the json object in an array, so we strip the external brackets
+    std::string jsonStr{stream.str()};
+    LOG_DEBUG(<< jsonStr);
+    for (const auto& result : results.GetArray()) {
+        if (result.HasMember("row_results")) {
+            double c1 = result["row_results"]["results"]["ml"]["shap_c1"].GetDouble();
+            double c2 = result["row_results"]["results"]["ml"]["shap_c2"].GetDouble();
+            double c3 = result["row_results"]["results"]["ml"]["shap_c3"].GetDouble();
+            double c4 = result["row_results"]["results"]["ml"]["shap_c4"].GetDouble();
+            BOOST_TEST_REQUIRE(c1 > c2);
+            BOOST_TEST_REQUIRE(c2 > c4);
+            BOOST_TEST_REQUIRE(c4 > c3);
+        }
+    }
 
     //    auto expectedPrediction = expectedPredictions.begin();
     //    bool progressCompleted{false};

@@ -15,7 +15,9 @@ namespace maths {
 using TRowItr = core::CDataFrame::TRowItr;
 
 std::pair<CTreeShapFeatureImportance::TDoubleVecVec, CTreeShapFeatureImportance::TDoubleVec>
-CTreeShapFeatureImportance::shap(const core::CDataFrame &frame, const CDataFrameCategoryEncoder &encoder, int numberFeatures) {
+CTreeShapFeatureImportance::shap(const core::CDataFrame& frame,
+                                 const CDataFrameCategoryEncoder& encoder,
+                                 int numberFeatures) {
     numberFeatures = (numberFeatures != -1) ? numberFeatures : frame.numberColumns();
     std::vector<std::size_t> maxDepthVec;
     maxDepthVec.reserve(m_Trees.size());
@@ -36,7 +38,7 @@ CTreeShapFeatureImportance::shap(const core::CDataFrame &frame, const CDataFrame
                     auto& phiSum = state.second;
                     TDoubleVec phi(numberFeatures, 0);
                     for (int i = 0; i < m_Trees.size(); ++i) {
-//                        phi[frame.numberColumns()] += m_Trees[i][0].value();
+                        //                        phi[frame.numberColumns()] += m_Trees[i][0].value();
                         SPath path(maxDepthVec[i] + 1);
                         this->shapRecursive(m_Trees[i], m_SamplesPerNode[i],
                                             encodedRow, phi, path, 0, 1.0, 1.0, -1);
@@ -59,7 +61,8 @@ CTreeShapFeatureImportance::shap(const core::CDataFrame &frame, const CDataFrame
         auto& otherPhiVec = state[i].s_FunctionState.first;
         auto& otherPhiSum = state[i].s_FunctionState.second;
         phiVec.insert(phiVec.end(), otherPhiVec.begin(), otherPhiVec.end());
-        std::transform(phiSum.begin(), phiSum.end(), otherPhiSum.begin(), phiSum.begin(),std::plus<double>());
+        std::transform(phiSum.begin(), phiSum.end(), otherPhiSum.begin(),
+                       phiSum.begin(), std::plus<double>());
     }
 
     return std::make_pair(phiVec, phiSum);
@@ -210,7 +213,11 @@ double CTreeShapFeatureImportance::sumUnwoundPath(const CTreeShapFeatureImportan
         }
     } else {
         for (int i = pathDepth - 1; i >= 0; --i) {
-            total += path.scale(i) * (pathDepth + 1) / (fractionZero * (pathDepth - i));
+            // Add epsilon to the denominator to avoid division by zero
+            // This shouldn't be necessary once issue #849 is solved
+            total += path.scale(i) * (pathDepth + 1) /
+                     (fractionZero * (pathDepth - i) +
+                      std::numeric_limits<double>::epsilon());
         }
     }
 

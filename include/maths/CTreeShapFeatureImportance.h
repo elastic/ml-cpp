@@ -87,7 +87,9 @@ public:
     //! number of columns in the \p frame.
     //!\return pair shap values for all points, sum of magnitues of shap values for every feature.
     std::pair<CTreeShapFeatureImportance::TDoubleVecVec, CTreeShapFeatureImportance::TDoubleVec>
-    shap(const core::CDataFrame &frame, const CDataFrameCategoryEncoder &encoder, int numberFeatures = -1);
+    shap(const core::CDataFrame& frame,
+         const CDataFrameCategoryEncoder& encoder,
+         int numberFeatures = -1);
 
     CTreeShapFeatureImportance::TDoubleVec
     samplesPerNode(const TTree& tree,

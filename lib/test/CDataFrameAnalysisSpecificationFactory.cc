@@ -62,26 +62,27 @@ CDataFrameAnalysisSpecificationFactory::outlierSpec(std::size_t rows,
     return std::make_unique<api::CDataFrameAnalysisSpecification>(spec);
 }
 
-CDataFrameAnalysisSpecificationFactory::TSpecificationUPtr CDataFrameAnalysisSpecificationFactory::predictionSpec(
-        const std::string& analysis,
-        const std::string& dependentVariable,
-        std::size_t rows,
-        std::size_t cols,
-        std::size_t memoryLimit,
-        std::size_t numberRoundsPerHyperparameter,
-        std::size_t bayesianOptimisationRestarts,
-        const TStrVec& categoricalFieldNames,
-        double alpha,
-        double lambda,
-        double gamma,
-        double softTreeDepthLimit,
-        double softTreeDepthTolerance,
-        double eta,
-        std::size_t maximumNumberTrees,
-        double featureBagFraction,
-        size_t topShapValues,
-        TPersisterSupplier* persisterSupplier,
-        TRestoreSearcherSupplier* restoreSearcherSupplier) {
+CDataFrameAnalysisSpecificationFactory::TSpecificationUPtr
+CDataFrameAnalysisSpecificationFactory::predictionSpec(
+    const std::string& analysis,
+    const std::string& dependentVariable,
+    std::size_t rows,
+    std::size_t cols,
+    std::size_t memoryLimit,
+    std::size_t numberRoundsPerHyperparameter,
+    std::size_t bayesianOptimisationRestarts,
+    const TStrVec& categoricalFieldNames,
+    double alpha,
+    double lambda,
+    double gamma,
+    double softTreeDepthLimit,
+    double softTreeDepthTolerance,
+    double eta,
+    std::size_t maximumNumberTrees,
+    double featureBagFraction,
+    size_t topShapValues,
+    TPersisterSupplier* persisterSupplier,
+    TRestoreSearcherSupplier* restoreSearcherSupplier) {
 
     rapidjson::StringBuffer parameters;
     TRapidJsonLineWriter writer;

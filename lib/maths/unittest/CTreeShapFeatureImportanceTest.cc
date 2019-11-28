@@ -157,29 +157,21 @@ BOOST_FIXTURE_TEST_CASE(testSingleTreeExpectedNodeValues, SFixtureSingleTree) {
 BOOST_FIXTURE_TEST_CASE(testSingleTreeShapNotNormalized, SFixtureSingleTree) {
     TDoubleVecVec actualPhi;
     TDoubleVec totalPhi;
-    std::tie(actualPhi, totalPhi)= treeFeatureImportance->shap(*frame, *encoder);
-    TDoubleVecVec expectedPhi{
-        {-5., -2.5},
-        {-5., 2.5},
-        {5., -2.5},
-        {5., 2.5}};
+    std::tie(actualPhi, totalPhi) = treeFeatureImportance->shap(*frame, *encoder);
+    TDoubleVecVec expectedPhi{{-5., -2.5}, {-5., 2.5}, {5., -2.5}, {5., 2.5}};
     BOOST_TEST_REQUIRE(actualPhi == expectedPhi);
 }
 
 BOOST_FIXTURE_TEST_CASE(testMultipleTreesShapNotNormalized, SFixtureMultipleTrees) {
     TDoubleVecVec actualPhi;
     TDoubleVec totalPhi;
-    std::tie(actualPhi, totalPhi)= treeFeatureImportance->shap(*frame, *encoder);
-    TDoubleVecVec expectedPhi{{-0.82660001, -0.06222489},
-                              {-0.82660001, -0.06222489},
-                              {-0.82660001, -0.06222489},
-                              {-0.58498581, -0.06222489},
-                              {-0.58498581, -0.06222489},
-                              {0.03993395, -0.06222489},
-                              {0.90245943, -0.2177871},
-                              {1.0269092, 0.0725957},
-                              {1.0269092, 0.0725957},
-                              {1.0269092, 0.0725957}};
+    std::tie(actualPhi, totalPhi) = treeFeatureImportance->shap(*frame, *encoder);
+    TDoubleVecVec expectedPhi{
+        {-0.82660001, -0.06222489}, {-0.82660001, -0.06222489},
+        {-0.82660001, -0.06222489}, {-0.58498581, -0.06222489},
+        {-0.58498581, -0.06222489}, {0.03993395, -0.06222489},
+        {0.90245943, -0.2177871},   {1.0269092, 0.0725957},
+        {1.0269092, 0.0725957},     {1.0269092, 0.0725957}};
     BOOST_TEST_REQUIRE(actualPhi.size() == expectedPhi.size());
     for (int i = 0; i < actualPhi.size(); ++i) {
         BOOST_TEST_REQUIRE(actualPhi[i].size() == expectedPhi[i].size());

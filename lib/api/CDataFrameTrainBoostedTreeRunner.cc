@@ -159,7 +159,7 @@ CDataFrameTrainBoostedTreeRunner::CDataFrameTrainBoostedTreeRunner(
     if (bayesianOptimisationRestarts > 0) {
         m_BoostedTreeFactory->bayesianOptimisationRestarts(bayesianOptimisationRestarts);
     }
-    if (topShapValues == true) {
+    if (topShapValues > 0) {
         m_TopShapValues = topShapValues;
     }
 }
