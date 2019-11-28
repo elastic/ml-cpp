@@ -344,7 +344,11 @@ void CBoostedTreeFactory::initializeHyperparameters(core::CDataFrame& frame) {
         .treeSizePenaltyMultiplier(
             m_TreeImpl->m_RegularizationOverride.treeSizePenaltyMultiplier().value_or(0.0))
         .leafWeightPenaltyMultiplier(
-            m_TreeImpl->m_RegularizationOverride.leafWeightPenaltyMultiplier().value_or(0.0));
+            m_TreeImpl->m_RegularizationOverride.leafWeightPenaltyMultiplier().value_or(0.0))
+        .softTreeDepthLimit(
+            m_TreeImpl->m_RegularizationOverride.softTreeDepthLimit().value_or(0.0))
+        .softTreeDepthTolerance(
+            m_TreeImpl->m_RegularizationOverride.softTreeDepthTolerance().value_or(0.0));
 
     if (m_TreeImpl->m_RegularizationOverride.countNotSet() > 0) {
         this->initializeUnsetRegularizationHyperparameters(frame);
