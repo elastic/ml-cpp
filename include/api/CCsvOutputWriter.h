@@ -68,7 +68,7 @@ public:
                      char separator = COMMA);
 
     //! Destructor flushes the stream
-    virtual ~CCsvOutputWriter();
+    ~CCsvOutputWriter() override;
 
     // Bring the other overload of fieldNames() into scope
     using COutputHandler::fieldNames;

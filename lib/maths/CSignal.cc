@@ -53,7 +53,7 @@ void radix2fft(TComplexVec& f) {
             double t = boost::math::double_constants::pi *
                        static_cast<double>(k) / static_cast<double>(stride);
             TComplex w(std::cos(t), std::sin(t));
-            for (std::size_t start = k; start < f.size(); start += 2 * stride) {
+            for (std::size_t start = k; start + stride < f.size(); start += 2 * stride) {
                 TComplex fs = f[start];
                 TComplex tw = w * f[start + stride];
                 f[start] = fs + tw;
@@ -83,8 +83,6 @@ void CSignal::fft(TComplexVec& f) {
     std::size_t p = CIntegerTools::nextPow2(n);
     std::size_t m = std::size_t{1} << p;
 
-    LOG_TRACE(<< "n = " << n << ", m = " << m);
-
     if ((m >> 1) == n) {
         radix2fft(f);
     } else {
@@ -99,8 +97,8 @@ void CSignal::fft(TComplexVec& f) {
 
         TComplexVec chirp;
         chirp.reserve(n);
-        TComplexVec a(m, TComplex(0.0));
-        TComplexVec b(m, TComplex(0.0));
+        TComplexVec a(m, TComplex(0.0, 0.0));
+        TComplexVec b(m, TComplex(0.0, 0.0));
 
         chirp.emplace_back(1.0, 0.0);
         a[0] = f[0] * chirp[0];
@@ -182,30 +180,27 @@ void CSignal::autocorrelations(const TFloatMeanAccumulatorVec& values, TDoubleVe
     double mean = CBasicStatistics::mean(moments);
     double variance = CBasicStatistics::maximumLikelihoodVariance(moments);
 
-    TComplexVec f;
-    f.reserve(n);
-    for (std::size_t i = 0u; i < n; ++i) {
+    TComplexVec f(n, TComplex{0.0, 0.0});
+    for (std::size_t i = 0; i < n; ++i) {
         std::size_t j = i;
-        for (/**/; j < n && CBasicStatistics::count(values[j]) == 0; ++j)
-            ;
-        if (i != j) {
+        while (j < n && CBasicStatistics::count(values[j]) == 0) {
+            ++j;
+        }
+        if (i < j) {
             // Infer missing values by linearly interpolating.
             if (j == n) {
-                f.resize(n, TComplex(0.0, 0.0));
                 break;
-            } else if (i == 0) {
-                f.resize(j - 1, TComplex(0.0, 0.0));
-            } else {
+            } else if (i > 0) {
                 for (std::size_t k = i; k < j; ++k) {
-                    double alpha = static_cast<double>(k - i + 1) /
-                                   static_cast<double>(j - i + 1);
-                    double real = CBasicStatistics::mean(values[j]) - mean;
-                    f.push_back((1.0 - alpha) * f[i - 1] + alpha * TComplex(real, 0.0));
+                    double alpha{static_cast<double>(k - i + 1) /
+                                 static_cast<double>(j - i + 1)};
+                    double real{CBasicStatistics::mean(values[j]) - mean};
+                    f[k] = (1.0 - alpha) * f[i - 1] + alpha * TComplex{real, 0.0};
                 }
             }
             i = j;
         }
-        f.emplace_back(CBasicStatistics::mean(values[i]) - mean, 0.0);
+        f[i] = TComplex{CBasicStatistics::mean(values[i]) - mean, 0.0};
     }
 
     fft(f);
