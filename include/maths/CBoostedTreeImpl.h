@@ -74,9 +74,6 @@ public:
     //! \note Must be called only if a trained model is available.
     void predict(core::CDataFrame& frame, const TProgressCallback& /*recordProgress*/) const;
 
-    //! Write this model to \p writer.
-    void write(core::CRapidJsonConcurrentLineWriter& /*writer*/) const;
-
     //! Get the feature sample probabilities.
     const TDoubleVec& featureWeights() const;
 
@@ -120,6 +117,7 @@ public:
     //! Populate the object from serialized data.
     bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
 
+    //! Visit this tree trainer implementation.
     void accept(CBoostedTree::CVisitor& visitor);
 
 private:
@@ -243,6 +241,9 @@ private:
         //! The regularisation parameters.
         TRegularization s_Regularization;
 
+        //! The downsample factor.
+        double s_DownsampleFactor;
+
         //! Shrinkage.
         double s_Eta;
 
@@ -328,7 +329,8 @@ private:
         //! Get the gain in loss of the best split of this leaf.
         double gain() const { return m_BestSplit.s_Gain; }
 
-        double curvature() const { return this->m_BestSplit.s_Curvature; }
+        //! Get the total curvature of node.
+        double curvature() const { return m_BestSplit.s_Curvature; }
 
         //! Get the best (feature, feature value) split.
         TSizeDoublePr bestSplit() const {
@@ -527,6 +529,9 @@ private:
                             const core::CPackedBitVector& trainingRowMask,
                             const TMemoryUsageCallback& recordMemoryUsage) const;
 
+    //! Randomly downsamples the training row mask by the downsample factor.
+    core::CPackedBitVector downsample(const core::CPackedBitVector& trainingRowMask) const;
+
     //! Get the candidate splits values for each feature.
     TDoubleVecVec candidateSplits(const core::CDataFrame& frame,
                                   const core::CPackedBitVector& trainingRowMask) const;
@@ -609,20 +614,21 @@ private:
     std::size_t m_DependentVariable = std::numeric_limits<std::size_t>::max();
     CBoostedTree::TLossFunctionUPtr m_Loss;
     TRegularizationOverride m_RegularizationOverride;
+    TOptionalDouble m_DownsampleFactorOverride;
     TOptionalDouble m_EtaOverride;
     TOptionalSize m_MaximumNumberTreesOverride;
     TOptionalDouble m_FeatureBagFractionOverride;
     TRegularization m_Regularization;
+    double m_DownsampleFactor = 0.5;
     double m_Eta = 0.1;
     double m_EtaGrowthRatePerTree = 1.05;
     std::size_t m_NumberFolds = 4;
     std::size_t m_MaximumNumberTrees = 20;
     std::size_t m_MaximumAttemptsToAddTree = 3;
     std::size_t m_NumberSplitsPerFeature = 75;
-    std::size_t m_MaximumOptimisationRoundsPerHyperparameter = 3;
+    std::size_t m_MaximumOptimisationRoundsPerHyperparameter = 2;
     std::size_t m_RowsPerFeature = 50;
     double m_FeatureBagFraction = 0.5;
-    double m_MaximumTreeSizeMultiplier = 1.0;
     TDataTypeVec m_FeatureDataTypes;
     TDataFrameCategoryEncoderUPtr m_Encoder;
     TDoubleVec m_FeatureSampleProbabilities;

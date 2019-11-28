@@ -59,6 +59,8 @@ public:
     CBoostedTreeFactory& numberFolds(std::size_t numberFolds);
     //! Stratify the cross validation we do for regression.
     CBoostedTreeFactory& stratifyRegressionCrossValidation(bool stratify);
+    //! The number of rows per feature to sample in the initial downsample.
+    CBoostedTreeFactory& initialDownsampleRowsPerFeature(double rowsPerFeature);
     //! Set the sum of leaf depth penalties multiplier.
     CBoostedTreeFactory& depthPenaltyMultiplier(double depthPenaltyMultiplier);
     //! Set the tree size penalty multiplier.
@@ -110,7 +112,9 @@ public:
     TBoostedTreeUPtr restoreFor(core::CDataFrame& frame, std::size_t dependentVariable);
 
 private:
+    using TDoubleVec = std::vector<double>;
     using TDoubleDoublePr = std::pair<double, double>;
+    using TDoubleDoublePrVec = std::vector<TDoubleDoublePr>;
     using TOptionalDouble = boost::optional<double>;
     using TOptionalSize = boost::optional<std::size_t>;
     using TVector = CVectorNx1<double, 3>;
@@ -118,11 +122,7 @@ private:
     using TPackedBitVectorVec = std::vector<core::CPackedBitVector>;
     using TBoostedTreeImplUPtr = std::unique_ptr<CBoostedTreeImpl>;
     using TApplyRegularizerStep =
-        std::function<void(CBoostedTreeImpl&, double, std::size_t)>;
-
-private:
-    static const double MINIMUM_ETA;
-    static const std::size_t MAXIMUM_NUMBER_TREES;
+        std::function<bool(CBoostedTreeImpl&, double, std::size_t)>;
 
 private:
     CBoostedTreeFactory(std::size_t numberThreads);
@@ -150,10 +150,13 @@ private:
     //! search bounding box.
     void initializeUnsetRegularizationHyperparameters(core::CDataFrame& frame);
 
+    //! Estimates a good central value for the downsample factor search interval.
+    void initializeUnsetDownsampleFactor(core::CDataFrame& frame);
+
     //! Estimate the reduction in gain from a split and the total curvature of
     //! the loss function at a split.
-    TDoubleDoublePr estimateTreeGainAndCurvature(core::CDataFrame& frame,
-                                                 const core::CPackedBitVector& trainingRowMask) const;
+    TDoubleDoublePrVec estimateTreeGainAndCurvature(core::CDataFrame& frame,
+                                                    const TDoubleVec& percentiles) const;
 
     //! Perform a line search for the test loss w.r.t. a single regularization
     //! hyperparameter and apply Newton's method to find the minimum. The plan
@@ -162,10 +165,10 @@ private:
     //! \return The interval to search during the main hyperparameter optimisation
     //! loop or null if this couldn't be found.
     TOptionalVector testLossLineSearch(core::CDataFrame& frame,
-                                       core::CPackedBitVector trainingRowMask,
                                        const TApplyRegularizerStep& applyRegularizerStep,
                                        double returnedIntervalLeftEndOffset,
-                                       double returnedIntervalRightEndOffset) const;
+                                       double returnedIntervalRightEndOffset,
+                                       double stepSize) const;
 
     //! Initialize the state for hyperparameter optimisation.
     void initializeHyperparameterOptimisation() const;
@@ -179,6 +182,9 @@ private:
     //! Refresh progress monitoring after restoring from saved training state.
     void resumeRestoredTrainingProgressMonitoring();
 
+    //! The maximum number of trees to use in the hyperparameter optimisation loop.
+    std::size_t mainLoopMaximumNumberTrees() const;
+
     static void noopRecordProgress(double);
     static void noopRecordMemoryUsage(std::int64_t);
     static void noopRecordTrainingState(CDataFrameRegressionModel::TPersistFunc);
@@ -188,11 +194,14 @@ private:
     TOptionalSize m_BayesianOptimisationRestarts;
     bool m_BalanceClassTrainingLoss = true;
     bool m_StratifyRegressionCrossValidation = true;
+    double m_InitialDownsampleRowsPerFeature = 200.0;
     std::size_t m_NumberThreads;
     TBoostedTreeImplUPtr m_TreeImpl;
+    TVector m_LogDownsampleFactorSearchInterval;
     TVector m_LogDepthPenaltyMultiplierSearchInterval;
     TVector m_LogTreeSizePenaltyMultiplierSearchInterval;
     TVector m_LogLeafWeightPenaltyMultiplierSearchInterval;
+    TVector m_SoftDepthLimitSearchInterval;
     TProgressCallback m_RecordProgress = noopRecordProgress;
     TMemoryUsageCallback m_RecordMemoryUsage = noopRecordMemoryUsage;
     TTrainingStateCallback m_RecordTrainingState = noopRecordTrainingState;
