@@ -123,7 +123,7 @@ public:
     //! Visit this tree trainer implementation.
     void accept(CBoostedTree::CVisitor& visitor);
 
-    //! \return Class containing best hyperparameters.
+    //! \return The best hyperparameters for validation error found so far.
     const CBoostedTreeHyperparameters& bestHyperparameters() const;
 
 private:
