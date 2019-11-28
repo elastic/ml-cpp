@@ -68,14 +68,14 @@ public:
                      char separator = COMMA);
 
     //! Destructor flushes the stream
-    virtual ~CCsvOutputWriter();
+    ~CCsvOutputWriter() override;
 
     // Bring the other overload of fieldNames() into scope
     using COutputHandler::fieldNames;
 
     //! Set field names, adding extra field names if they're not already
     //! present - this is only allowed once
-    virtual bool fieldNames(const TStrVec& fieldNames, const TStrVec& extraFieldNames);
+    bool fieldNames(const TStrVec& fieldNames, const TStrVec& extraFieldNames) override;
 
     // Bring the other overload of writeRow() into scope
     using COutputHandler::writeRow;
@@ -84,8 +84,8 @@ public:
     //! original field values.  Where the same field is present in both
     //! overrideDataRowFields and dataRowFields, the value in
     //! overrideDataRowFields will be written.
-    virtual bool writeRow(const TStrStrUMap& dataRowFields,
-                          const TStrStrUMap& overrideDataRowFields);
+    bool writeRow(const TStrStrUMap& dataRowFields,
+                  const TStrStrUMap& overrideDataRowFields) override;
 
     //! Get the contents of the internal string stream - for use with the
     //! zero argument constructor

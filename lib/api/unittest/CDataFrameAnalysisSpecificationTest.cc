@@ -392,7 +392,7 @@ BOOST_AUTO_TEST_CASE(testRunAnalysis) {
             BOOST_TEST_REQUIRE(runner->progress() <= 1.0);
         }
 
-        LOG_DEBUG(<< "progress = " << lastProgress);
+        LOG_DEBUG(<< "final progress = " << lastProgress);
         BOOST_REQUIRE_EQUAL(1.0, runner->progress());
     }
 }

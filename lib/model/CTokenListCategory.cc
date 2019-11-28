@@ -31,8 +31,7 @@ const std::string NUM_MATCHES("i");
 const std::string EMPTY_STRING;
 
 //! Functor for comparing just the first element of a pair of sizes
-class CSizePairFirstElementLess
-    : public std::binary_function<CTokenListCategory::TSizeSizePr, CTokenListCategory::TSizeSizePr, bool> {
+class CSizePairFirstElementLess {
 public:
     bool operator()(CTokenListCategory::TSizeSizePr lhs, CTokenListCategory::TSizeSizePr rhs) {
         return lhs.first < rhs.first;

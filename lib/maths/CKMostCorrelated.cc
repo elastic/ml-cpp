@@ -29,7 +29,6 @@
 
 #include <array>
 #include <cmath>
-#include <functional>
 
 namespace bg = boost::geometry;
 namespace bgi = boost::geometry::index;
@@ -48,7 +47,7 @@ using TPointSizePrVec = std::vector<TPointSizePr>;
 
 //! \brief Unary predicate to check variables, corresponding
 //! to labeled points, are not equal to a specified variable.
-class CNotEqual : public std::unary_function<TPointSizePr, bool> {
+class CNotEqual {
 public:
     CNotEqual(std::size_t X) : m_X(X) {}
 
@@ -64,7 +63,7 @@ private:
 //! \brief Unary predicate to check if one specified variable
 //! and others, corresponding to labeled points, are in a
 //! specified collection pairs of variables.
-class CPairNotIn : public std::unary_function<TPointSizePr, bool> {
+class CPairNotIn {
 public:
     CPairNotIn(const TSizeSizePrUSet& lookup, std::size_t X)
         : m_Lookup(&lookup), m_X(X) {}
@@ -82,7 +81,7 @@ private:
 //! \brief Unary predicate to check if a point is closer,
 //! in square Euclidean distance, to a specified point than
 //! a specified threshold.
-class CCloserThan : public std::unary_function<TPointSizePr, bool> {
+class CCloserThan {
 public:
     CCloserThan(double threshold, const TPoint& x)
         : m_Threshold(threshold), m_X(x) {}

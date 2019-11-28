@@ -114,7 +114,7 @@ void truncateVariance(bool isInteger, TMeanAccumulator& logMean, TMeanVarAccumul
 
 //! Computes the derivative w.r.t. the shape of the marginal likelihood
 //! function for gamma distributed data with known prior for the rate.
-class CLikelihoodDerivativeFunction : public std::unary_function<double, double> {
+class CLikelihoodDerivativeFunction {
 public:
     CLikelihoodDerivativeFunction(double numberSamples, double target)
         : m_NumberSamples(numberSamples), m_Target(target) {}

@@ -177,18 +177,18 @@ public:
     CJsonOutputWriter(const std::string& jobId, core::CJsonOutputStreamWrapper& strmOut);
 
     //! Destructor flushes the stream
-    virtual ~CJsonOutputWriter();
+    ~CJsonOutputWriter() override;
 
     // Bring the other overload of fieldNames() into scope
     using COutputHandler::fieldNames;
 
     //! Set field names.  In this class this function has no effect and it
     //! always returns true
-    virtual bool fieldNames(const TStrVec& fieldNames, const TStrVec& extraFieldNames);
+    bool fieldNames(const TStrVec& fieldNames, const TStrVec& extraFieldNames) override;
 
     //! Write the data row fields as a JSON object
-    virtual bool writeRow(const TStrStrUMap& dataRowFields,
-                          const TStrStrUMap& overrideDataRowFields);
+    bool writeRow(const TStrStrUMap& dataRowFields,
+                  const TStrStrUMap& overrideDataRowFields) override;
 
     //! Limit the output to the top count anomalous records and influencers.
     //! Each detector will write no more than count records and influencers
@@ -204,10 +204,7 @@ public:
     //! Close the JSON structures and flush output.
     //! This method should only be called once and will have no affect
     //! on subsequent invocations
-    virtual void finalise();
-
-    //! Receive a count of possible results
-    void possibleResultCount(core_t::TTime time, size_t count);
+    void finalise() override;
 
     //! Accept a result from the anomaly detector
     //! Virtual for testing mocks

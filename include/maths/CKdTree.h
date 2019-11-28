@@ -240,7 +240,12 @@ public:
         const POINT* nearest{nullptr};
         if (m_Nodes.size() > 0) {
             auto inf = std::numeric_limits<TCoordinatePrecise>::max();
-            POINT distancesToHyperplanes{las::zero(point)};
+            // Sometimes the return type of las::zero() is not POINT. In this case
+            // we must convert it to POINT, but also must be careful that the POINT
+            // doesn't then end up referencing data owned by a temporary that has
+            // been destroyed.  (Some classes used for POINT do shallow copies.)
+            auto temp = las::zero(point);
+            POINT distancesToHyperplanes{std::move(temp)};
             return this->nearestNeighbour(point, m_Nodes[0], distancesToHyperplanes,
                                           0 /*split coordinate*/, nearest, inf);
         }
@@ -260,7 +265,12 @@ public:
             // with infinite distances so we get the correct value for the furthest
             // nearest neighbour at the start of the branch and bound search.
             COrderings::SLess less;
-            POINT distancesToHyperplanes{las::zero(point)};
+            // Sometimes the return type of las::zero() is not POINT. In this case
+            // we must convert it to POINT, but also must be careful that the POINT
+            // doesn't then end up referencing data owned by a temporary that has
+            // been destroyed.  (Some classes used for POINT do shallow copies.)
+            auto temp = las::zero(point);
+            POINT distancesToHyperplanes{std::move(temp)};
             TCoordinatePrecisePointCRefPrVec neighbours(
                 n, {inf, std::cref(m_Nodes[0].s_Point)});
             this->nearestNeighbours(point, less, m_Nodes[0], distancesToHyperplanes,

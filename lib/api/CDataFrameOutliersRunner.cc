@@ -26,35 +26,33 @@
 namespace ml {
 namespace api {
 namespace {
-// Configuration
-const std::string STANDARDIZATION_ENABLED{"standardization_enabled"};
-const std::string N_NEIGHBORS{"n_neighbors"};
-const std::string METHOD{"method"};
-const std::string COMPUTE_FEATURE_INFLUENCE{"compute_feature_influence"};
-const std::string FEATURE_INFLUENCE_THRESHOLD{"feature_influence_threshold"};
-const std::string OUTLIER_FRACTION{"outlier_fraction"};
-
-const CDataFrameAnalysisConfigReader PARAMETER_READER{[] {
-    const std::string lof{"lof"};
-    const std::string ldof{"ldof"};
-    const std::string knn{"distance_kth_nn"};
-    const std::string tnn{"distance_knn"};
-    CDataFrameAnalysisConfigReader theReader;
-    theReader.addParameter(STANDARDIZATION_ENABLED,
-                           CDataFrameAnalysisConfigReader::E_OptionalParameter);
-    theReader.addParameter(N_NEIGHBORS, CDataFrameAnalysisConfigReader::E_OptionalParameter);
-    theReader.addParameter(METHOD, CDataFrameAnalysisConfigReader::E_OptionalParameter,
-                           {{lof, int{maths::COutliers::E_Lof}},
-                            {ldof, int{maths::COutliers::E_Ldof}},
-                            {knn, int{maths::COutliers::E_DistancekNN}},
-                            {tnn, int{maths::COutliers::E_TotalDistancekNN}}});
-    theReader.addParameter(COMPUTE_FEATURE_INFLUENCE,
-                           CDataFrameAnalysisConfigReader::E_OptionalParameter);
-    theReader.addParameter(FEATURE_INFLUENCE_THRESHOLD,
-                           CDataFrameAnalysisConfigReader::E_OptionalParameter);
-    theReader.addParameter(OUTLIER_FRACTION, CDataFrameAnalysisConfigReader::E_OptionalParameter);
-    return theReader;
-}()};
+const CDataFrameAnalysisConfigReader& parameterReader() {
+    static const CDataFrameAnalysisConfigReader PARAMETER_READER{[] {
+        const std::string lof{"lof"};
+        const std::string ldof{"ldof"};
+        const std::string knn{"distance_kth_nn"};
+        const std::string tnn{"distance_knn"};
+        CDataFrameAnalysisConfigReader theReader;
+        theReader.addParameter(CDataFrameOutliersRunner::STANDARDIZATION_ENABLED,
+                               CDataFrameAnalysisConfigReader::E_OptionalParameter);
+        theReader.addParameter(CDataFrameOutliersRunner::N_NEIGHBORS,
+                               CDataFrameAnalysisConfigReader::E_OptionalParameter);
+        theReader.addParameter(CDataFrameOutliersRunner::METHOD,
+                               CDataFrameAnalysisConfigReader::E_OptionalParameter,
+                               {{lof, int{maths::COutliers::E_Lof}},
+                                {ldof, int{maths::COutliers::E_Ldof}},
+                                {knn, int{maths::COutliers::E_DistancekNN}},
+                                {tnn, int{maths::COutliers::E_TotalDistancekNN}}});
+        theReader.addParameter(CDataFrameOutliersRunner::COMPUTE_FEATURE_INFLUENCE,
+                               CDataFrameAnalysisConfigReader::E_OptionalParameter);
+        theReader.addParameter(CDataFrameOutliersRunner::FEATURE_INFLUENCE_THRESHOLD,
+                               CDataFrameAnalysisConfigReader::E_OptionalParameter);
+        theReader.addParameter(CDataFrameOutliersRunner::OUTLIER_FRACTION,
+                               CDataFrameAnalysisConfigReader::E_OptionalParameter);
+        return theReader;
+    }()};
+    return PARAMETER_READER;
+}
 
 // Output
 const std::string OUTLIER_SCORE_FIELD_NAME{"outlier_score"};
@@ -136,6 +134,13 @@ CDataFrameOutliersRunner::estimateBookkeepingMemoryUsage(std::size_t numberParti
         params, totalNumberRows, partitionNumberRows, numberColumns);
 }
 
+const std::string CDataFrameOutliersRunner::STANDARDIZATION_ENABLED{"standardization_enabled"};
+const std::string CDataFrameOutliersRunner::N_NEIGHBORS{"n_neighbors"};
+const std::string CDataFrameOutliersRunner::METHOD{"method"};
+const std::string CDataFrameOutliersRunner::COMPUTE_FEATURE_INFLUENCE{"compute_feature_influence"};
+const std::string CDataFrameOutliersRunner::FEATURE_INFLUENCE_THRESHOLD{"feature_influence_threshold"};
+const std::string CDataFrameOutliersRunner::OUTLIER_FRACTION{"outlier_fraction"};
+
 const std::string& CDataFrameOutliersRunnerFactory::name() const {
     return NAME;
 }
@@ -148,7 +153,7 @@ CDataFrameOutliersRunnerFactory::makeImpl(const CDataFrameAnalysisSpecification&
 CDataFrameOutliersRunnerFactory::TRunnerUPtr
 CDataFrameOutliersRunnerFactory::makeImpl(const CDataFrameAnalysisSpecification& spec,
                                           const rapidjson::Value& jsonParameters) const {
-    auto parameters = PARAMETER_READER.read(jsonParameters);
+    auto parameters = parameterReader().read(jsonParameters);
     return std::make_unique<CDataFrameOutliersRunner>(spec, parameters);
 }
 

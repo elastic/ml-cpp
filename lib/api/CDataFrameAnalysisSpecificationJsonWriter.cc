@@ -118,7 +118,7 @@ CDataFrameAnalysisSpecificationJsonWriter::jsonString(const std::string& jobId,
                                                       const std::string& analysisName,
                                                       const std::string& analysisParameters) {
     rapidjson::StringBuffer stringBuffer;
-    api::CDataFrameAnalysisSpecificationJsonWriter::TRapidJsonLineWriter writer;
+    TRapidJsonLineWriter writer;
     writer.Reset(stringBuffer);
 
     write(jobId, rows, cols, memoryLimit, numberThreads, tempDir, resultField,
