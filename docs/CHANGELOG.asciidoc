@@ -46,7 +46,7 @@ tree which is trained for both regression and classification. (See {ml-pull}811[
 * Reduce memory usage of {ml} native processes on Windows. (See {ml-pull}844[#844].)
 
 === Bug Fixes
-* Fixes memory errors picked up by Valgrind. (See {ml-pull}852[#852].)
+* Fixes potential memory corruption when determining seasonality. (See {ml-pull}852[#852].)
 
 
 == {es} version 7.5.0
