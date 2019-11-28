@@ -64,7 +64,7 @@ CRowIterator::CRowIterator(std::size_t numberColumns,
                            std::size_t index,
                            TFloatVecItr rowItr,
                            TInt32VecCItr docHashItr,
-                           TPopMaskedRowFunc popMaskedRow)
+                           const TOptionalPopMaskedRow& popMaskedRow)
     : m_NumberColumns{numberColumns}, m_RowCapacity{rowCapacity}, m_Index{index},
       m_RowItr{rowItr}, m_DocHashItr{docHashItr}, m_PopMaskedRow{popMaskedRow} {
 }
@@ -86,8 +86,8 @@ CRowPtr CRowIterator::operator->() const {
 }
 
 CRowIterator& CRowIterator::operator++() {
-    if (m_PopMaskedRow != nullptr) {
-        std::size_t nextIndex{m_PopMaskedRow()};
+    if (m_PopMaskedRow != boost::none) {
+        std::size_t nextIndex{(*m_PopMaskedRow)()};
         m_RowItr += m_RowCapacity * (nextIndex - m_Index);
         m_DocHashItr += nextIndex - m_Index;
         m_Index = nextIndex;
@@ -188,9 +188,8 @@ CDataFrame::TRowFuncVecBoolPr CDataFrame::readRows(std::size_t numberThreads,
 
     return numberThreads > 1
                ? this->parallelApplyToAllRows(numberThreads, beginRows, endRows,
-                                              std::move(reader), rowMask, false)
-               : this->sequentialApplyToAllRows(beginRows, endRows,
-                                                std::move(reader), rowMask, false);
+                                              reader, rowMask, false)
+               : this->sequentialApplyToAllRows(beginRows, endRows, reader, rowMask, false);
 }
 
 CDataFrame::TRowFuncVecBoolPr CDataFrame::writeColumns(std::size_t numberThreads,
@@ -208,9 +207,8 @@ CDataFrame::TRowFuncVecBoolPr CDataFrame::writeColumns(std::size_t numberThreads
 
     return numberThreads > 1
                ? this->parallelApplyToAllRows(numberThreads, beginRows, endRows,
-                                              std::move(writer), rowMask, true)
-               : this->sequentialApplyToAllRows(beginRows, endRows,
-                                                std::move(writer), rowMask, true);
+                                              writer, rowMask, true)
+               : this->sequentialApplyToAllRows(beginRows, endRows, writer, rowMask, true);
 }
 
 void CDataFrame::parseAndWriteRow(const TStrCRng& columnValues, const std::string* hash) {
@@ -410,7 +408,7 @@ CDataFrame::TRowFuncVecBoolPr
 CDataFrame::parallelApplyToAllRows(std::size_t numberThreads,
                                    std::size_t beginRows,
                                    std::size_t endRows,
-                                   TRowFunc func,
+                                   TRowFunc& func,
                                    const CPackedBitVector* rowMask,
                                    bool commitResult) const {
 
@@ -452,14 +450,10 @@ CDataFrame::parallelApplyToAllRows(std::size_t numberThreads,
                     return;
                 }
 
-                TPopMaskedRowFunc popMaskedRow;
+                TOptionalPopMaskedRow popMaskedRow;
                 if (rowMask != nullptr) {
                     beginSliceRows = *maskedRow;
-                    popMaskedRow = [endSliceRows, &maskedRow, endMaskedRows]() mutable {
-                        return ++maskedRow == endMaskedRows
-                                   ? endSliceRows
-                                   : std::min(*maskedRow, endSliceRows);
-                    };
+                    popMaskedRow = CPopMaskedRow{endSliceRows, maskedRow, endMaskedRows};
                 }
 
                 this->applyToRowsOfOneSlice(func_, beginSliceRows, endSliceRows,
@@ -482,7 +476,7 @@ CDataFrame::parallelApplyToAllRows(std::size_t numberThreads,
 CDataFrame::TRowFuncVecBoolPr
 CDataFrame::sequentialApplyToAllRows(std::size_t beginRows,
                                      std::size_t endRows,
-                                     TRowFunc func,
+                                     TRowFunc& func,
                                      const CPackedBitVector* rowMask,
                                      bool commitResult) const {
 
@@ -531,14 +525,10 @@ CDataFrame::sequentialApplyToAllRows(std::size_t beginRows,
                 defaultAsyncExecutor(),
                 [ =, &func, readSlice_ = std::move(readSlice) ]() mutable {
 
-                    TPopMaskedRowFunc popMaskedRow;
+                    TOptionalPopMaskedRow popMaskedRow;
                     if (rowMask != nullptr) {
                         beginSliceRows = *maskedRow;
-                        popMaskedRow = [endSliceRows, maskedRow, endMaskedRows]() mutable {
-                            return ++maskedRow == endMaskedRows
-                                       ? endSliceRows
-                                       : std::min(*maskedRow, endSliceRows);
-                        };
+                        popMaskedRow = CPopMaskedRow{endSliceRows, maskedRow, endMaskedRows};
                     }
 
                     this->applyToRowsOfOneSlice(func, beginSliceRows, endSliceRows,
@@ -570,14 +560,10 @@ CDataFrame::sequentialApplyToAllRows(std::size_t beginRows,
                 return {{std::move(func)}, false};
             }
 
-            TPopMaskedRowFunc popMaskedRow;
+            TOptionalPopMaskedRow popMaskedRow;
             if (rowMask != nullptr) {
                 beginSliceRows = *maskedRow;
-                popMaskedRow = [endSliceRows, &maskedRow, endMaskedRows]() mutable {
-                    return ++maskedRow == endMaskedRows
-                               ? endSliceRows
-                               : std::min(*maskedRow, endSliceRows);
-                };
+                popMaskedRow = CPopMaskedRow{endSliceRows, maskedRow, endMaskedRows};
             }
 
             this->applyToRowsOfOneSlice(func, beginSliceRows, endSliceRows,
@@ -596,7 +582,7 @@ CDataFrame::sequentialApplyToAllRows(std::size_t beginRows,
 void CDataFrame::applyToRowsOfOneSlice(TRowFunc& func,
                                        std::size_t firstRowToRead,
                                        std::size_t endRowsToRead,
-                                       TPopMaskedRowFunc popMaskedRow,
+                                       const TOptionalPopMaskedRow& popMaskedRow,
                                        const CDataFrameRowSliceHandle& slice) const {
 
     LOG_TRACE(<< "Applying function to rows [" << firstRowToRead << ","
