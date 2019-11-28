@@ -321,7 +321,7 @@ void testOneRunOfBoostedTreeTrainingWithStateRecovery(F makeSpec, std::size_t it
     persistedStates = splitOnNull(std::stringstream{std::move(persistenceStream->str())});
     auto actualTree = restoreTree(std::move(persistedStates.back()), frame, dependentVariable);
 
-    // Compare bestHyperparameters.
+    // Compare hyperparameters.
 
     rapidjson::Document expectedResults{treeToJsonDocument(*expectedTree)};
     const auto& expectedHyperparameters =
@@ -441,7 +441,6 @@ BOOST_AUTO_TEST_CASE(testRunBoostedTreeRegressionTrainingWithParams) {
 
     TStrVec fieldNames{"c1", "c2", "c3", "c4", "c5", ".", "."};
     TStrVec fieldValues{"", "", "", "", "", "0", ""};
-
     addPredictionTestData(E_Regression, fieldNames, fieldValues, analyzer,
                           expectedPredictions, 100, alpha, lambda, gamma,
                           softTreeDepthLimit, softTreeDepthTolerance, eta,

@@ -123,21 +123,8 @@ public:
     //! Visit this tree trainer implementation.
     void accept(CBoostedTree::CVisitor& visitor);
 
+    //! \return Class containing best hyperparameters.
     const CBoostedTreeHyperparameters& bestHyperparameters() const;
-
-    const TRegularization& regularization() const;
-
-    double downsampleFactor() const;
-
-    double eta() const;
-
-    double etaGrowthRatePerTree() const;
-
-    std::size_t numberFolds() const;
-
-    std::size_t maximumNumberTrees() const;
-
-    double featureBagFraction() const;
 
 private:
     using TSizeDoublePr = std::pair<std::size_t, double>;

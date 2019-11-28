@@ -456,7 +456,7 @@ void CBoostedTreeImpl::train(core::CDataFrame& frame,
             this->captureBestHyperparameters(lossMoments);
 
             // Trap the case that the dependent variable is (effectively) constant.
-            // There is no point adjusting bestHyperparameters in this case - and we run
+            // There is no point adjusting hyperparameters in this case - and we run
             // into numerical issues trying - since any forest will do.
             if (std::sqrt(CBasicStatistics::variance(lossMoments)) <
                 1e-10 * std::fabs(CBasicStatistics::mean(lossMoments))) {
@@ -1442,36 +1442,8 @@ void CBoostedTreeImpl::accept(CBoostedTree::CVisitor& visitor) {
 const double CBoostedTreeImpl::MINIMUM_RELATIVE_GAIN_PER_SPLIT{1e-7};
 const double CBoostedTreeImpl::INF{std::numeric_limits<double>::max()};
 
-double CBoostedTreeImpl::downsampleFactor() const {
-    return m_DownsampleFactor;
-}
-
-double CBoostedTreeImpl::eta() const {
-    return m_Eta;
-}
-
-double CBoostedTreeImpl::etaGrowthRatePerTree() const {
-    return m_EtaGrowthRatePerTree;
-}
-
-std::size_t CBoostedTreeImpl::numberFolds() const {
-    return m_NumberFolds;
-}
-
-std::size_t CBoostedTreeImpl::maximumNumberTrees() const {
-    return m_MaximumNumberTrees;
-}
-
-double CBoostedTreeImpl::featureBagFraction() const {
-    return m_FeatureBagFraction;
-}
-
 const CBoostedTreeHyperparameters& CBoostedTreeImpl::bestHyperparameters() const {
     return m_BestHyperparameters;
-}
-
-const CBoostedTreeImpl::TRegularization& CBoostedTreeImpl::regularization() const {
-    return m_Regularization;
 }
 }
 }

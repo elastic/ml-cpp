@@ -404,6 +404,7 @@ public:
     //! A list of the names of the best individual hyperparameters in the state document.
     static TStrVec bestHyperparameterNames();
 
+    //! \return Class containing best hyperparameters.
     const CBoostedTreeHyperparameters& bestHyperparameters() const;
 
     //! Persist by passing information to \p inserter.
