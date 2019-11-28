@@ -5,6 +5,8 @@
  */
 #include <core/CStringSimilarityTester.h>
 
+#include <core/CMemory.h>
+
 #include <limits>
 
 namespace ml {
@@ -130,6 +132,17 @@ int** CStringSimilarityTester::setupBerghelRoachMatrix(int maxDist,
     }
 
     return matrix;
+}
+
+void CStringSimilarityTester::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const {
+    mem->setName("CStringSimilarityTester");
+    core::CMemoryDebug::dynamicSize("m_Compressor", m_Compressor, mem);
+}
+
+std::size_t CStringSimilarityTester::memoryUsage() const {
+    std::size_t mem = 0;
+    mem += core::CMemory::dynamicSize(m_Compressor);
+    return mem;
 }
 }
 }

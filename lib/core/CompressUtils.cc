@@ -6,6 +6,7 @@
 #include <core/CompressUtils.h>
 
 #include <core/CLogger.h>
+#include <core/CMemory.h>
 
 #include <string.h>
 
@@ -115,6 +116,37 @@ bool CCompressUtil::prepareToReturnData(bool finish) {
         }
     }
     return true;
+}
+
+void CCompressUtil::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const {
+    mem->setName("CCompressUtil");
+    core::CMemoryDebug::dynamicSize("m_FullResult", m_FullResult, mem);
+    if (m_ZlibStrm.state != nullptr) {
+        mem->addItem("m_ZlibStrm", 5952); // See below for where 5952 came from
+    }
+}
+
+std::size_t CCompressUtil::memoryUsage() const {
+    std::size_t mem = 0;
+    mem += core::CMemory::dynamicSize(m_FullResult);
+    if (m_ZlibStrm.state != nullptr) {
+        // The value of 5952 was found using this program compiled in the zlib
+        // 1.2.11 source directory:
+        //
+        // #include "deflate.h"
+        // #include <iostream>
+        // int main(int, char**) {
+        //     std::cout << sizeof(internal_state) << '\n';
+        //     return 0;
+        // }
+        //
+        // There is no way to find this number dynamically in the ML code, as
+        // it is a hidden implementation detail protected by an opaque pointer.
+        // The size may vary between zlib versions, but probably not by enough
+        // to be worth worrying about.
+        mem += 5952;
+    }
+    return mem;
 }
 
 CDeflator::CDeflator(bool lengthOnly, int level) : CCompressUtil{lengthOnly} {

@@ -102,16 +102,16 @@ public:
                                   const std::string& fieldName);
 
     //! Dump stats
-    virtual void dumpStats() const;
+    void dumpStats() const override;
 
     //! Compute a category from a string.  The raw string length may be longer
     //! than the length of the passed string, because the passed string may
     //! have the date stripped out of it.  Field names/values are available
     //! to the category computation.
-    virtual int computeCategory(bool dryRun,
-                                const TStrStrUMap& fields,
-                                const std::string& str,
-                                size_t rawStringLen);
+    int computeCategory(bool dryRun,
+                        const TStrStrUMap& fields,
+                        const std::string& str,
+                        size_t rawStringLen) override;
 
     // Bring the other overload of computeCategory() into scope
     using CDataCategorizer::computeCategory;
@@ -120,23 +120,29 @@ public:
     //! that are classified as the given category.  Note that the reverse search
     //! is only approximate - it may select more records than have actually
     //! been classified as the returned category.
-    virtual bool createReverseSearch(int categoryId,
-                                     std::string& part1,
-                                     std::string& part2,
-                                     size_t& maxMatchingLength,
-                                     bool& wasCached);
+    bool createReverseSearch(int categoryId,
+                             std::string& part1,
+                             std::string& part2,
+                             size_t& maxMatchingLength,
+                             bool& wasCached) override;
 
     //! Has the data categorizer's state changed?
-    virtual bool hasChanged() const;
+    bool hasChanged() const override;
 
     //! Populate the object from part of a state document
-    virtual bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
+    bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) override;
 
     //! Persist state by passing information to the supplied inserter
-    virtual void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
+    void acceptPersistInserter(core::CStatePersistInserter& inserter) const override;
 
     //! Make a function that can be called later to persist state
-    virtual TPersistFunc makePersistFunc() const;
+    TPersistFunc makePersistFunc() const override;
+
+    //! Debug the memory used by this categorizer.
+    void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const override;
+
+    //! Get the memory used by this categorizer.
+    std::size_t memoryUsage() const override;
 
 protected:
     //! Split the string into a list of tokens.  The result of the
@@ -204,6 +210,12 @@ private:
 
         //! Increment the category count
         void incCategoryCount();
+
+        //! Debug the memory used by this item.
+        void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const;
+
+        //! Get the memory used by this item.
+        std::size_t memoryUsage() const;
 
     private:
         //! String value of the token

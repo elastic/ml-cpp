@@ -16,6 +16,8 @@
 
 #include <boost/test/unit_test.hpp>
 
+#include <sstream>
+
 BOOST_AUTO_TEST_SUITE(CTokenListDataCategorizerTest)
 
 namespace {
@@ -33,6 +35,24 @@ using TTokenListDataCategorizerKeepsFields =
                                          ml::core::CWordDictionary::TWeightVerbs5Other2>;
 
 const TTokenListDataCategorizerKeepsFields::TTokenListReverseSearchCreatorIntfCPtr NO_REVERSE_SEARCH_CREATOR;
+
+void checkMemoryUsageInstrumentation(const TTokenListDataCategorizerKeepsFields& categorizer) {
+    std::size_t memoryUsage{categorizer.memoryUsage()};
+    ml::core::CMemoryUsage::TMemoryUsagePtr mem{new ml::core::CMemoryUsage};
+    categorizer.debugMemoryUsage(mem);
+
+    LOG_DEBUG(<< "Memory usage = " << memoryUsage);
+    BOOST_REQUIRE_EQUAL(memoryUsage, mem->usage());
+
+    std::ostringstream strm;
+    mem->compress();
+    mem->print(strm);
+    LOG_DEBUG(<< "Debug memory report = " << strm.str());
+
+    LOG_DEBUG(<< "Dynamic size = " << ml::core::CMemory::dynamicSize(categorizer));
+    BOOST_REQUIRE_EQUAL(memoryUsage + sizeof(TTokenListDataCategorizerKeepsFields),
+                        ml::core::CMemory::dynamicSize(&categorizer));
+}
 }
 
 class CTestFixture {
@@ -56,6 +76,8 @@ BOOST_FIXTURE_TEST_CASE(testHexData, CTestFixture) {
     BOOST_REQUIRE_EQUAL(1, categorizer.computeCategory(false, " 0x0000000800000000,", 500));
     BOOST_REQUIRE_EQUAL(1, categorizer.computeCategory(false, "0x0000000800000000)", 500));
     BOOST_REQUIRE_EQUAL(1, categorizer.computeCategory(false, " 0x0000000800000000,", 500));
+
+    checkMemoryUsageInstrumentation(categorizer);
 }
 
 BOOST_FIXTURE_TEST_CASE(testRmdsData, CTestFixture) {
@@ -81,6 +103,8 @@ BOOST_FIXTURE_TEST_CASE(testRmdsData, CTestFixture) {
                                                        500));
     BOOST_REQUIRE_EQUAL(4, categorizer.computeCategory(false, "<ml00-4201.1.p2ps: Info: > Service CUBE_CHIX has shut down.",
                                                        500));
+
+    checkMemoryUsageInstrumentation(categorizer);
 }
 
 BOOST_FIXTURE_TEST_CASE(testProxyData, CTestFixture) {
@@ -110,6 +134,8 @@ BOOST_FIXTURE_TEST_CASE(testProxyData, CTestFixture) {
                                                        " [1094662464] INFO  session <ch6z1bho8xeprb3z4ty604iktl6c@dave.proxy.uk> - ----------------- "
                                                        "PROXY Session DESTROYED --------------------",
                                                        500));
+
+    checkMemoryUsageInstrumentation(categorizer);
 }
 
 BOOST_FIXTURE_TEST_CASE(testFxData, CTestFixture) {
@@ -125,6 +151,8 @@ BOOST_FIXTURE_TEST_CASE(testFxData, CTestFixture) {
                                                        "SN=\"\" SR=\"co.elastic.session.ejb.FxCoverSessionBean\">javax.ejb.FinderException - findFxCover([]): "
                                                        "null</L_MSG>",
                                                        500));
+
+    checkMemoryUsageInstrumentation(categorizer);
 }
 
 BOOST_FIXTURE_TEST_CASE(testApacheData, CTestFixture) {
@@ -138,6 +166,8 @@ BOOST_FIXTURE_TEST_CASE(testApacheData, CTestFixture) {
                                                        500));
     BOOST_REQUIRE_EQUAL(4, categorizer.computeCategory(false, " org.apache.coyote.http11.Http11BaseProtocol stop",
                                                        500));
+
+    checkMemoryUsageInstrumentation(categorizer);
 }
 
 BOOST_FIXTURE_TEST_CASE(testBrokerageData, CTestFixture) {
@@ -162,6 +192,8 @@ BOOST_FIXTURE_TEST_CASE(testBrokerageData, CTestFixture) {
                                "applnx711.elastic.co; ; Request Complete: /mlgw/mlb/ofpositions/brokerageAccountPositionsIframe "
                                "[T=90ms,CacheStore-GetAttribute=5,MAUI-ECAPPOS=50,RR-QUOTE_TRANSACTION=11]",
                                500));
+
+    checkMemoryUsageInstrumentation(categorizer);
 }
 
 BOOST_FIXTURE_TEST_CASE(testVmwareData, CTestFixture) {
@@ -179,6 +211,8 @@ BOOST_FIXTURE_TEST_CASE(testVmwareData, CTestFixture) {
                                                        107));
     BOOST_REQUIRE_EQUAL(3, categorizer.computeCategory(false, "Vpxa: [49EC0B90 verbose 'VpxaHalCnxHostagent' opID=WFU-35689729] [WaitForUpdatesDone] Completed callback",
                                                        104));
+
+    checkMemoryUsageInstrumentation(categorizer);
 }
 
 BOOST_FIXTURE_TEST_CASE(testBankData, CTestFixture) {
@@ -199,6 +233,8 @@ BOOST_FIXTURE_TEST_CASE(testBankData, CTestFixture) {
                                                        "INFO  [co.elastic.settlement.synchronization.PaymentFlowProcessorImpl] Synchronize payment "
                                                        "flow for tradeId=80894721 and backOfficeId=9354469",
                                                        500));
+
+    checkMemoryUsageInstrumentation(categorizer);
 }
 
 BOOST_FIXTURE_TEST_CASE(testJavaGcData, CTestFixture) {
@@ -245,6 +281,8 @@ BOOST_FIXTURE_TEST_CASE(testJavaGcData, CTestFixture) {
                                                        106));
     BOOST_REQUIRE_EQUAL(2, categorizer.computeCategory(false, "PSYoungGen      total 2572803K, used 1759355K [0x0000000759800000, 0x0000000800000000, 0x0000000800000000)",
                                                        106));
+
+    checkMemoryUsageInstrumentation(categorizer);
 }
 
 BOOST_FIXTURE_TEST_CASE(testPersist, CTestFixture) {
@@ -301,6 +339,9 @@ BOOST_FIXTURE_TEST_CASE(testPersist, CTestFixture) {
         inserter.toXml(newXml);
     }
     BOOST_REQUIRE_EQUAL(origXml, newXml);
+
+    checkMemoryUsageInstrumentation(origCategorizer);
+    checkMemoryUsageInstrumentation(restoredCategorizer);
 }
 
 BOOST_FIXTURE_TEST_CASE(testLongReverseSearch, CTestFixture) {
@@ -349,6 +390,8 @@ BOOST_FIXTURE_TEST_CASE(testLongReverseSearch, CTestFixture) {
     BOOST_TEST_REQUIRE(terms.find("to") != std::string::npos);
     BOOST_TEST_REQUIRE(terms.find("start") != std::string::npos);
     BOOST_TEST_REQUIRE(terms.find("off") != std::string::npos);
+
+    checkMemoryUsageInstrumentation(categorizer);
 }
 
 BOOST_FIXTURE_TEST_CASE(testPreTokenised, CTestFixture) {
@@ -401,6 +444,8 @@ BOOST_FIXTURE_TEST_CASE(testPreTokenised, CTestFixture) {
     fields[TTokenListDataCategorizerKeepsFields::PRETOKENISED_TOKEN_FIELD] = "编码,コーディング,코딩";
     BOOST_REQUIRE_EQUAL(5, categorizer.computeCategory(false, fields, "<ml00-4201.1.p2ps: Info: > Service CUBE_CHIX has shut down.",
                                                        500));
+
+    checkMemoryUsageInstrumentation(categorizer);
 }
 
 BOOST_FIXTURE_TEST_CASE(testPreTokenisedPerformance, CTestFixture) {

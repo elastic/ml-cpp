@@ -8,6 +8,8 @@
 
 #include <core/ImportExport.h>
 
+#include <core/CMemoryUsage.h>
+
 #include <boost/scoped_array.hpp>
 
 #include <string>
@@ -59,6 +61,12 @@ public:
 
     //! Are we at the end of the current line?
     bool atEnd() const;
+
+    //! Debug the memory used by this parser.
+    void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const;
+
+    //! Get the memory used by this parser.
+    std::size_t memoryUsage() const;
 
 private:
     //! Attempt to parse the next token from the working record
