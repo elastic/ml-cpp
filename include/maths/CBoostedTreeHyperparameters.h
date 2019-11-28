@@ -7,8 +7,10 @@
 #ifndef INCLUDED_ml_maths_CBoostedTreeHyperparameters_h
 #define INCLUDED_ml_maths_CBoostedTreeHyperparameters_h
 
+#include <core/CPersistUtils.h>
 #include <core/CStatePersistInserter.h>
 #include <core/CStateRestoreTraverser.h>
+#include <core/RestoreMacros.h>
 
 #include <boost/optional.hpp>
 
@@ -20,34 +22,34 @@ namespace maths {
 //! \brief Holds the parameters associated with the different types of regularizer
 //! terms available.
 template<typename T>
-class CRegularization final {
+class CBoostedTreeRegularization final {
 public:
     //! Set the multiplier of the tree depth penalty.
-    CRegularization& depthPenaltyMultiplier(double depthPenaltyMultiplier) {
+    CBoostedTreeRegularization& depthPenaltyMultiplier(double depthPenaltyMultiplier) {
         m_DepthPenaltyMultiplier = depthPenaltyMultiplier;
         return *this;
     }
 
     //! Set the multiplier of the tree size penalty.
-    CRegularization& treeSizePenaltyMultiplier(double treeSizePenaltyMultiplier) {
+    CBoostedTreeRegularization& treeSizePenaltyMultiplier(double treeSizePenaltyMultiplier) {
         m_TreeSizePenaltyMultiplier = treeSizePenaltyMultiplier;
         return *this;
     }
 
     //! Set the multiplier of the square leaf weight penalty.
-    CRegularization& leafWeightPenaltyMultiplier(double leafWeightPenaltyMultiplier) {
+    CBoostedTreeRegularization& leafWeightPenaltyMultiplier(double leafWeightPenaltyMultiplier) {
         m_LeafWeightPenaltyMultiplier = leafWeightPenaltyMultiplier;
         return *this;
     }
 
     //! Set the soft depth tree depth limit.
-    CRegularization& softTreeDepthLimit(double softTreeDepthLimit) {
+    CBoostedTreeRegularization& softTreeDepthLimit(double softTreeDepthLimit) {
         m_SoftTreeDepthLimit = softTreeDepthLimit;
         return *this;
     }
 
     //! Set the tolerance in the depth tree depth limit.
-    CRegularization& softTreeDepthTolerance(double softTreeDepthTolerance) {
+    CBoostedTreeRegularization& softTreeDepthTolerance(double softTreeDepthTolerance) {
         m_SoftTreeDepthTolerance = softTreeDepthTolerance;
         return *this;
     }
@@ -65,9 +67,7 @@ public:
     T depthPenaltyMultiplier() const { return m_DepthPenaltyMultiplier; }
 
     //! Multiplier of the tree size penalty.
-    T treeSizePenaltyMultiplier() const {
-        return m_TreeSizePenaltyMultiplier;
-    }
+    T treeSizePenaltyMultiplier() const { return m_TreeSizePenaltyMultiplier; }
 
     //! Multiplier of the square leaf weight penalty.
     T leafWeightPenaltyMultiplier() const {
@@ -97,10 +97,41 @@ public:
     }
 
     //! Persist by passing information to \p inserter.
-    void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
+    void acceptPersistInserter(core::CStatePersistInserter& inserter) const {
+        core::CPersistUtils::persist(REGULARIZATION_DEPTH_PENALTY_MULTIPLIER_TAG,
+                                     m_DepthPenaltyMultiplier, inserter);
+        core::CPersistUtils::persist(REGULARIZATION_TREE_SIZE_PENALTY_MULTIPLIER_TAG,
+                                     m_TreeSizePenaltyMultiplier, inserter);
+        core::CPersistUtils::persist(REGULARIZATION_LEAF_WEIGHT_PENALTY_MULTIPLIER_TAG,
+                                     m_LeafWeightPenaltyMultiplier, inserter);
+        core::CPersistUtils::persist(REGULARIZATION_SOFT_TREE_DEPTH_LIMIT_TAG,
+                                     m_SoftTreeDepthLimit, inserter);
+        core::CPersistUtils::persist(REGULARIZATION_SOFT_TREE_DEPTH_TOLERANCE_TAG,
+                                     m_SoftTreeDepthTolerance, inserter);
+    };
 
     //! Populate the object from serialized data.
-    bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
+    bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
+        do {
+            const std::string& name = traverser.name();
+            RESTORE(REGULARIZATION_DEPTH_PENALTY_MULTIPLIER_TAG,
+                    core::CPersistUtils::restore(REGULARIZATION_DEPTH_PENALTY_MULTIPLIER_TAG,
+                                                 m_DepthPenaltyMultiplier, traverser))
+            RESTORE(REGULARIZATION_TREE_SIZE_PENALTY_MULTIPLIER_TAG,
+                    core::CPersistUtils::restore(REGULARIZATION_TREE_SIZE_PENALTY_MULTIPLIER_TAG,
+                                                 m_TreeSizePenaltyMultiplier, traverser))
+            RESTORE(REGULARIZATION_LEAF_WEIGHT_PENALTY_MULTIPLIER_TAG,
+                    core::CPersistUtils::restore(REGULARIZATION_LEAF_WEIGHT_PENALTY_MULTIPLIER_TAG,
+                                                 m_LeafWeightPenaltyMultiplier, traverser))
+            RESTORE(REGULARIZATION_SOFT_TREE_DEPTH_LIMIT_TAG,
+                    core::CPersistUtils::restore(REGULARIZATION_SOFT_TREE_DEPTH_LIMIT_TAG,
+                                                 m_SoftTreeDepthLimit, traverser))
+            RESTORE(REGULARIZATION_SOFT_TREE_DEPTH_TOLERANCE_TAG,
+                    core::CPersistUtils::restore(REGULARIZATION_SOFT_TREE_DEPTH_TOLERANCE_TAG,
+                                                 m_SoftTreeDepthTolerance, traverser))
+        } while (traverser.next());
+        return true;
+    };
 
 public:
     static const std::string REGULARIZATION_DEPTH_PENALTY_MULTIPLIER_TAG;
@@ -127,48 +158,53 @@ private:
 };
 
 template<typename T>
-const std::string CRegularization<T>::REGULARIZATION_DEPTH_PENALTY_MULTIPLIER_TAG{"regularization_depth_penalty_multiplier"};
+const std::string CBoostedTreeRegularization<T>::REGULARIZATION_DEPTH_PENALTY_MULTIPLIER_TAG{
+    "regularization_depth_penalty_multiplier"};
 template<typename T>
-const std::string CRegularization<T>::REGULARIZATION_TREE_SIZE_PENALTY_MULTIPLIER_TAG{
-        "regularization_tree_size_penalty_multiplier"};
+const std::string CBoostedTreeRegularization<T>::REGULARIZATION_TREE_SIZE_PENALTY_MULTIPLIER_TAG{
+    "regularization_tree_size_penalty_multiplier"};
 template<typename T>
-const std::string CRegularization<T>::REGULARIZATION_LEAF_WEIGHT_PENALTY_MULTIPLIER_TAG{
-        "regularization_leaf_weight_penalty_multiplier"};
+const std::string CBoostedTreeRegularization<T>::REGULARIZATION_LEAF_WEIGHT_PENALTY_MULTIPLIER_TAG{
+    "regularization_leaf_weight_penalty_multiplier"};
 template<typename T>
-const std::string CRegularization<T>::REGULARIZATION_SOFT_TREE_DEPTH_LIMIT_TAG{"regularization_soft_tree_depth_limit"};
+const std::string CBoostedTreeRegularization<T>::REGULARIZATION_SOFT_TREE_DEPTH_LIMIT_TAG{
+    "regularization_soft_tree_depth_limit"};
 template<typename T>
-const std::string CRegularization<T>::REGULARIZATION_SOFT_TREE_DEPTH_TOLERANCE_TAG{
-        "regularization_soft_tree_depth_tolerance"};
+const std::string CBoostedTreeRegularization<T>::REGULARIZATION_SOFT_TREE_DEPTH_TOLERANCE_TAG{
+    "regularization_soft_tree_depth_tolerance"};
 
 //! \brief The algorithm parameters we'll directly optimise to improve test error.
 class CBoostedTreeHyperparameters {
 public:
-    using TRegularization = CRegularization<double>;
+    using TRegularization = CBoostedTreeRegularization<double>;
 
 public:
     CBoostedTreeHyperparameters() = default;
 
-    CBoostedTreeHyperparameters(const TRegularization& regularization, double downsampleFactor, double eta,
-                                double etaGrowthRatePerTree, double featureBagFraction);
-
-    void regularization(const TRegularization &regularization);
-
+    CBoostedTreeHyperparameters(const TRegularization& regularization,
+                                double downsampleFactor,
+                                double eta,
+                                double etaGrowthRatePerTree,
+                                double featureBagFraction);
+    //! The regularisation parameters.
+    void regularization(const TRegularization& regularization);
+    //! The regularisation parameters.
+    const TRegularization& regularization() const;
+    //! The downsample factor.
     void downsampleFactor(double downsampleFactor);
-
-    void eta(double eta);
-
-    void etaGrowthRatePerTree(double etaGrowthRatePerTree);
-
-    void featureBagFraction(double featureBagFraction);
-
-    const TRegularization &regularization() const;
-
+    //! The downsample factor.
     double downsampleFactor() const;
-
+    //! Shrinkage.
+    void eta(double eta);
+    //! Shrinkage.
     double eta() const;
-
+    //! Rate of growth of shrinkage in the training loop.
+    void etaGrowthRatePerTree(double etaGrowthRatePerTree);
+    //! Rate of growth of shrinkage in the training loop.
     double etaGrowthRatePerTree() const;
-
+    //! The fraction of features we use per bag.
+    void featureBagFraction(double featureBagFraction);
+    //! The fraction of features we use per bag.
     double featureBagFraction() const;
 
     //! Persist by passing information to \p inserter.
@@ -186,19 +222,19 @@ public:
 
 private:
     //! The regularisation parameters.
-    TRegularization m_BestRegularization;
+    TRegularization m_Regularization;
 
     //! The downsample factor.
-    double m_BestDownsampleFactor;
+    double m_downsampleFactor;
 
     //! Shrinkage.
-    double m_BestEta;
+    double m_eta;
 
     //! Rate of growth of shrinkage in the training loop.
-    double m_BestEtaGrowthRatePerTree;
+    double m_etaGrowthRatePerTree;
 
     //! The fraction of features we use per bag.
-    double m_BestFeatureBagFraction;
+    double m_featureBagFraction;
 };
 }
 }

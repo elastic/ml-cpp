@@ -24,7 +24,6 @@
 #include <maths/CPRNG.h>
 #include <maths/CTools.h>
 #include <maths/ImportExport.h>
-#include <maths/CBoostedTreeHyperparameters.h>
 
 #include <boost/operators.hpp>
 #include <boost/optional.hpp>
@@ -54,7 +53,7 @@ public:
     using TMemoryUsageCallback = CBoostedTree::TMemoryUsageCallback;
     using TTrainingStateCallback = CBoostedTree::TTrainingStateCallback;
     using TOptionalDouble = boost::optional<double>;
-    using TRegularization = CRegularization<double>;
+    using TRegularization = CBoostedTreeRegularization<double>;
 
 public:
     static const double MINIMUM_RELATIVE_GAIN_PER_SPLIT;
@@ -126,7 +125,7 @@ public:
 
     const CBoostedTreeHyperparameters& bestHyperparameters() const;
 
-    const TRegularization &regularization() const;
+    const TRegularization& regularization() const;
 
     double downsampleFactor() const;
 
@@ -140,7 +139,6 @@ public:
 
     double featureBagFraction() const;
 
-
 private:
     using TSizeDoublePr = std::pair<std::size_t, double>;
     using TDoubleDoublePr = std::pair<double, double>;
@@ -153,12 +151,7 @@ private:
     using TPackedBitVectorVec = std::vector<core::CPackedBitVector>;
     using TDataFrameCategoryEncoderUPtr = std::unique_ptr<CDataFrameCategoryEncoder>;
     using TDataTypeVec = CDataFrameUtils::TDataTypeVec;
-
-
-
-    using TRegularizationOverride = CRegularization<TOptionalDouble>;
-
-
+    using TRegularizationOverride = CBoostedTreeRegularization<TOptionalDouble>;
 
     //! \brief Maintains a collection of statistics about a leaf of the regression
     //! tree as it is built.

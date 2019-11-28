@@ -57,7 +57,6 @@ public:
     //! The boosted tree factory.
     const maths::CBoostedTreeFactory& boostedTreeFactory() const;
 
-
 protected:
     using TBoostedTreeUPtr = std::unique_ptr<maths::CBoostedTree>;
     using TLossFunctionUPtr = std::unique_ptr<maths::boosted_tree::CLoss>;

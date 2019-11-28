@@ -12,128 +12,94 @@
 namespace ml {
 namespace maths {
 
+const std::string CBoostedTreeHyperparameters::HYPERPARAM_DOWNSAMPLE_FACTOR_TAG{
+    "hyperparam_downsample_factor"};
+const std::string CBoostedTreeHyperparameters::HYPERPARAM_ETA_TAG{"hyperparam_eta"};
+const std::string CBoostedTreeHyperparameters::HYPERPARAM_ETA_GROWTH_RATE_PER_TREE_TAG{
+    "hyperparam_eta_growth_rate_per_tree"};
+const std::string CBoostedTreeHyperparameters::HYPERPARAM_FEATURE_BAG_FRACTION_TAG{
+    "hyperparam_feature_bag_fraction"};
+const std::string CBoostedTreeHyperparameters::HYPERPARAM_REGULARIZATION_TAG{
+    "hyperparam_regularization"};
 
-
-
-const std::string  CBoostedTreeHyperparameters::HYPERPARAM_DOWNSAMPLE_FACTOR_TAG{"hyperparam_downsample_factor"};
-const std::string  CBoostedTreeHyperparameters::HYPERPARAM_ETA_TAG{"hyperparam_eta"};
-const std::string  CBoostedTreeHyperparameters::HYPERPARAM_ETA_GROWTH_RATE_PER_TREE_TAG{"hyperparam_eta_growth_rate_per_tree"};
-const std::string  CBoostedTreeHyperparameters::HYPERPARAM_FEATURE_BAG_FRACTION_TAG{"hyperparam_feature_bag_fraction"};
-const std::string  CBoostedTreeHyperparameters::HYPERPARAM_REGULARIZATION_TAG{"hyperparam_regularization"};
-
-void CBoostedTreeHyperparameters::acceptPersistInserter(core::CStatePersistInserter &inserter) const {
+void CBoostedTreeHyperparameters::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
     core::CPersistUtils::persist(HYPERPARAM_DOWNSAMPLE_FACTOR_TAG,
-                                 m_BestDownsampleFactor, inserter);
-    core::CPersistUtils::persist(HYPERPARAM_ETA_TAG, m_BestEta, inserter);
+                                 m_downsampleFactor, inserter);
+    core::CPersistUtils::persist(HYPERPARAM_ETA_TAG, m_eta, inserter);
     core::CPersistUtils::persist(HYPERPARAM_ETA_GROWTH_RATE_PER_TREE_TAG,
-                                 m_BestEtaGrowthRatePerTree, inserter);
+                                 m_etaGrowthRatePerTree, inserter);
     core::CPersistUtils::persist(HYPERPARAM_FEATURE_BAG_FRACTION_TAG,
-                                 m_BestFeatureBagFraction, inserter);
-    core::CPersistUtils::persist(HYPERPARAM_REGULARIZATION_TAG, m_BestRegularization, inserter);
+                                 m_featureBagFraction, inserter);
+    core::CPersistUtils::persist(HYPERPARAM_REGULARIZATION_TAG, m_Regularization, inserter);
 }
 
 bool CBoostedTreeHyperparameters::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
     do {
         const std::string& name = traverser.name();
         RESTORE(HYPERPARAM_ETA_TAG,
-                core::CPersistUtils::restore(HYPERPARAM_ETA_TAG, m_BestEta, traverser))
+                core::CPersistUtils::restore(HYPERPARAM_ETA_TAG, m_eta, traverser))
         RESTORE(HYPERPARAM_ETA_GROWTH_RATE_PER_TREE_TAG,
                 core::CPersistUtils::restore(HYPERPARAM_ETA_GROWTH_RATE_PER_TREE_TAG,
-                                             m_BestEtaGrowthRatePerTree, traverser))
+                                             m_etaGrowthRatePerTree, traverser))
         RESTORE(HYPERPARAM_FEATURE_BAG_FRACTION_TAG,
                 core::CPersistUtils::restore(HYPERPARAM_FEATURE_BAG_FRACTION_TAG,
-                                             m_BestFeatureBagFraction, traverser))
+                                             m_featureBagFraction, traverser))
         RESTORE(HYPERPARAM_REGULARIZATION_TAG,
                 core::CPersistUtils::restore(HYPERPARAM_REGULARIZATION_TAG,
-                                             m_BestRegularization, traverser))
+                                             m_Regularization, traverser))
     } while (traverser.next());
     return true;
 }
 
-const CBoostedTreeHyperparameters::TRegularization &CBoostedTreeHyperparameters::regularization() const {
-    return m_BestRegularization;
+const CBoostedTreeHyperparameters::TRegularization&
+CBoostedTreeHyperparameters::regularization() const {
+    return m_Regularization;
 }
 
 double CBoostedTreeHyperparameters::downsampleFactor() const {
-    return m_BestDownsampleFactor;
+    return m_downsampleFactor;
 }
 
 double CBoostedTreeHyperparameters::eta() const {
-    return m_BestEta;
+    return m_eta;
 }
 
 double CBoostedTreeHyperparameters::etaGrowthRatePerTree() const {
-    return m_BestEtaGrowthRatePerTree;
+    return m_etaGrowthRatePerTree;
 }
 
 double CBoostedTreeHyperparameters::featureBagFraction() const {
-    return m_BestFeatureBagFraction;
+    return m_featureBagFraction;
 }
 
-void
-CBoostedTreeHyperparameters::regularization(const TRegularization &regularization) {
-    m_BestRegularization = regularization;
+void CBoostedTreeHyperparameters::regularization(const TRegularization& regularization) {
+    m_Regularization = regularization;
 }
 
 void CBoostedTreeHyperparameters::downsampleFactor(double downsampleFactor) {
-    m_BestDownsampleFactor = downsampleFactor;
+    m_downsampleFactor = downsampleFactor;
 }
 
 void CBoostedTreeHyperparameters::eta(double eta) {
-    m_BestEta = eta;
+    m_eta = eta;
 }
 
 void CBoostedTreeHyperparameters::etaGrowthRatePerTree(double etaGrowthRatePerTree) {
-    m_BestEtaGrowthRatePerTree = etaGrowthRatePerTree;
+    m_etaGrowthRatePerTree = etaGrowthRatePerTree;
 }
 
 void CBoostedTreeHyperparameters::featureBagFraction(double featureBagFraction) {
-    m_BestFeatureBagFraction = featureBagFraction;
+    m_featureBagFraction = featureBagFraction;
 }
 
-CBoostedTreeHyperparameters::CBoostedTreeHyperparameters(const TRegularization &regularization,
-                                                     double downsampleFactor, double eta, double etaGrowthRatePerTree,
-                                                     double featureBagFraction): m_BestRegularization{regularization}, m_BestDownsampleFactor{downsampleFactor},
-                                                                                 m_BestEta{eta}, m_BestEtaGrowthRatePerTree{etaGrowthRatePerTree}{
-
+CBoostedTreeHyperparameters::CBoostedTreeHyperparameters(
+    const CBoostedTreeHyperparameters::TRegularization& regularization,
+    double downsampleFactor,
+    double eta,
+    double etaGrowthRatePerTree,
+    double featureBagFraction)
+    : m_Regularization{regularization}, m_downsampleFactor{downsampleFactor}, m_eta{eta},
+      m_etaGrowthRatePerTree{etaGrowthRatePerTree}, m_featureBagFraction{featureBagFraction} {
 }
-
-template<typename T>
-void CRegularization<T>::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
-    core::CPersistUtils::persist(REGULARIZATION_DEPTH_PENALTY_MULTIPLIER_TAG,
-                                 m_DepthPenaltyMultiplier, inserter);
-    core::CPersistUtils::persist(REGULARIZATION_TREE_SIZE_PENALTY_MULTIPLIER_TAG,
-                                 m_TreeSizePenaltyMultiplier, inserter);
-    core::CPersistUtils::persist(REGULARIZATION_LEAF_WEIGHT_PENALTY_MULTIPLIER_TAG,
-                                 m_LeafWeightPenaltyMultiplier, inserter);
-    core::CPersistUtils::persist(REGULARIZATION_SOFT_TREE_DEPTH_LIMIT_TAG,
-                                 m_SoftTreeDepthLimit, inserter);
-    core::CPersistUtils::persist(REGULARIZATION_SOFT_TREE_DEPTH_TOLERANCE_TAG,
-                                 m_SoftTreeDepthTolerance, inserter);
-}
-
-template<typename T>
-bool CRegularization<T>::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
-    do {
-        const std::string& name = traverser.name();
-        RESTORE(REGULARIZATION_DEPTH_PENALTY_MULTIPLIER_TAG,
-                core::CPersistUtils::restore(REGULARIZATION_DEPTH_PENALTY_MULTIPLIER_TAG,
-                                             m_DepthPenaltyMultiplier, traverser))
-        RESTORE(REGULARIZATION_TREE_SIZE_PENALTY_MULTIPLIER_TAG,
-                core::CPersistUtils::restore(REGULARIZATION_TREE_SIZE_PENALTY_MULTIPLIER_TAG,
-                                             m_TreeSizePenaltyMultiplier, traverser))
-        RESTORE(REGULARIZATION_LEAF_WEIGHT_PENALTY_MULTIPLIER_TAG,
-                core::CPersistUtils::restore(REGULARIZATION_LEAF_WEIGHT_PENALTY_MULTIPLIER_TAG,
-                                             m_LeafWeightPenaltyMultiplier, traverser))
-        RESTORE(REGULARIZATION_SOFT_TREE_DEPTH_LIMIT_TAG,
-                core::CPersistUtils::restore(REGULARIZATION_SOFT_TREE_DEPTH_LIMIT_TAG,
-                                             m_SoftTreeDepthLimit, traverser))
-        RESTORE(REGULARIZATION_SOFT_TREE_DEPTH_TOLERANCE_TAG,
-                core::CPersistUtils::restore(REGULARIZATION_SOFT_TREE_DEPTH_TOLERANCE_TAG,
-                                             m_SoftTreeDepthTolerance, traverser))
-    } while (traverser.next());
-    return true;
-}
-
 }
 }

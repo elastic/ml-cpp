@@ -1167,9 +1167,9 @@ void CBoostedTreeImpl::captureBestHyperparameters(const TMeanVarAccumulator& los
                 std::sqrt(CBasicStatistics::variance(lossMoments))};
     if (loss < m_BestForestTestLoss) {
         m_BestForestTestLoss = loss;
-        m_BestHyperparameters = CBoostedTreeHyperparameters{m_Regularization, m_DownsampleFactor,
-                                                            m_Eta, m_EtaGrowthRatePerTree,
-                                                            m_FeatureBagFraction};
+        m_BestHyperparameters = CBoostedTreeHyperparameters{
+            m_Regularization, m_DownsampleFactor, m_Eta, m_EtaGrowthRatePerTree,
+            m_FeatureBagFraction};
     }
 }
 
@@ -1240,9 +1240,6 @@ const std::string ROWS_PER_FEATURE_TAG{"rows_per_feature"};
 const std::string TESTING_ROW_MASKS_TAG{"testing_row_masks"};
 const std::string TRAINING_ROW_MASKS_TAG{"training_row_masks"};
 const std::string TRAINING_PROGRESS_TAG{"training_progress"};
-
-
-
 }
 
 const std::string& CBoostedTreeImpl::bestHyperparametersName() {
@@ -1264,10 +1261,6 @@ CBoostedTreeImpl::TStrVec CBoostedTreeImpl::bestHyperparameterNames() {
             TRegularization::REGULARIZATION_SOFT_TREE_DEPTH_LIMIT_TAG,
             TRegularization::REGULARIZATION_SOFT_TREE_DEPTH_TOLERANCE_TAG};
 }
-
-
-
-
 
 void CBoostedTreeImpl::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
     core::CPersistUtils::persist(VERSION_7_6_TAG, "", inserter);
@@ -1313,10 +1306,6 @@ void CBoostedTreeImpl::acceptPersistInserter(core::CStatePersistInserter& insert
                                  m_MaximumNumberTreesOverride, inserter);
     inserter.insertValue(LOSS_TAG, m_Loss->name());
 }
-
-
-
-
 
 bool CBoostedTreeImpl::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
     if (traverser.name() == VERSION_7_5_TAG) {
@@ -1453,8 +1442,6 @@ void CBoostedTreeImpl::accept(CBoostedTree::CVisitor& visitor) {
 const double CBoostedTreeImpl::MINIMUM_RELATIVE_GAIN_PER_SPLIT{1e-7};
 const double CBoostedTreeImpl::INF{std::numeric_limits<double>::max()};
 
-
-
 double CBoostedTreeImpl::downsampleFactor() const {
     return m_DownsampleFactor;
 }
@@ -1479,11 +1466,11 @@ double CBoostedTreeImpl::featureBagFraction() const {
     return m_FeatureBagFraction;
 }
 
-const CBoostedTreeHyperparameters &CBoostedTreeImpl::bestHyperparameters() const {
+const CBoostedTreeHyperparameters& CBoostedTreeImpl::bestHyperparameters() const {
     return m_BestHyperparameters;
 }
 
-const CBoostedTreeImpl::TRegularization &CBoostedTreeImpl::regularization() const {
+const CBoostedTreeImpl::TRegularization& CBoostedTreeImpl::regularization() const {
     return m_Regularization;
 }
 }
