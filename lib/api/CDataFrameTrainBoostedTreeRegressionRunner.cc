@@ -18,6 +18,8 @@
 #include <api/CDataFrameAnalysisSpecification.h>
 #include <api/ElasticsearchStateIndex.h>
 
+#include <numeric>
+
 namespace ml {
 namespace api {
 namespace {
@@ -60,7 +62,7 @@ CDataFrameTrainBoostedTreeRegressionRunner::CDataFrameTrainBoostedTreeRegression
 }
 
 void CDataFrameTrainBoostedTreeRegressionRunner::writeOneRow(
-    const core::CDataFrame&,
+    const core::CDataFrame& frame,
     const TRowRef& row,
     core::CRapidJsonConcurrentLineWriter& writer) const {
     const auto& tree = this->boostedTree();
@@ -73,6 +75,19 @@ void CDataFrameTrainBoostedTreeRegressionRunner::writeOneRow(
     writer.Double(row[columnHoldingPrediction]);
     writer.Key(IS_TRAINING_FIELD_NAME);
     writer.Bool(maths::CDataFrameUtils::isMissing(row[columnHoldingDependentVariable]) == false);
+    if (this->topShapValues() > 0) {
+
+        for (int i = 0; i < row.numberColumns(); ++i) {
+            const std::string& columnName{frame.columnNames()[i]};
+            auto res = std::mismatch(
+                CDataFrameTrainBoostedTreeRunner::SHAP_PREFIX.begin(),
+                CDataFrameTrainBoostedTreeRunner::SHAP_PREFIX.end(), columnName.begin());
+            if (res.first == CDataFrameTrainBoostedTreeRunner::SHAP_PREFIX.end()) {
+                writer.Key(columnName);
+                writer.Double(row[i]);
+            }
+        }
+    }
     writer.EndObject();
 }
 

@@ -45,6 +45,7 @@ public:
     static const std::string NUMBER_ROUNDS_PER_HYPERPARAMETER;
     static const std::string BAYESIAN_OPTIMISATION_RESTARTS;
     static const std::string TOP_SHAP_VALUES;
+    static const std::string SHAP_PREFIX;
 
 public:
     ~CDataFrameTrainBoostedTreeRunner() override;
@@ -98,6 +99,9 @@ private:
     TBoostedTreeFactoryUPtr m_BoostedTreeFactory;
     TBoostedTreeUPtr m_BoostedTree;
     std::size_t m_TopShapValues = 0;
+
+public:
+    size_t topShapValues() const;
 };
 }
 }

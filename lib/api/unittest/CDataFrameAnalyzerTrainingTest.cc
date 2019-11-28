@@ -799,8 +799,7 @@ BOOST_AUTO_TEST_CASE(testCategoricalFieldsEmptyAsMissing) {
 
 BOOST_AUTO_TEST_CASE(testRunBoostedTreeRegressionTrainingWithFeatureImportance) {
 
-    // Test the regression hyperparameter settings are correctly propagated to the
-    // analysis runner.
+    // Test that feature importance correctly recognize the impact of regressors in a linear model.
 
     double alpha{2.0};
     double lambda{1.0};
@@ -829,7 +828,7 @@ BOOST_AUTO_TEST_CASE(testRunBoostedTreeRegressionTrainingWithFeatureImportance) 
     TStrVec fieldNames{"c1", "c2", "c3", "c4", "c5", ".", "."};
     TStrVec fieldValues{"", "", "", "", "", "0", ""};
     test::CRandomNumbers rng;
-    TDoubleVec weights{100, 80, 40, -60};
+    TDoubleVec weights{200, 100, 10, -50};
 
     TDoubleVec values;
     rng.generateUniformSamples(-10.0, 10.0, weights.size() * rows, values);
@@ -840,48 +839,23 @@ BOOST_AUTO_TEST_CASE(testRunBoostedTreeRegressionTrainingWithFeatureImportance) 
     rapidjson::Document results;
     rapidjson::ParseResult ok(results.Parse(output.str()));
     BOOST_TEST_REQUIRE(static_cast<bool>(ok) == true);
-    std::ostringstream stream;
-    {
-        core::CJsonOutputStreamWrapper wrapper{stream};
-        api::CSerializableToJson::TRapidJsonWriter writer{wrapper};
-        writer.write(results);
-        stream.flush();
-    }
-    // string writer puts the json object in an array, so we strip the external brackets
-    std::string jsonStr{stream.str()};
-    LOG_DEBUG(<< jsonStr);
+
+    double c1_sum, c2_sum, c3_sum, c4_sum;
     for (const auto& result : results.GetArray()) {
         if (result.HasMember("row_results")) {
-            double c1 = result["row_results"]["results"]["ml"]["shap_c1"].GetDouble();
-            double c2 = result["row_results"]["results"]["ml"]["shap_c2"].GetDouble();
-            double c3 = result["row_results"]["results"]["ml"]["shap_c3"].GetDouble();
-            double c4 = result["row_results"]["results"]["ml"]["shap_c4"].GetDouble();
-            BOOST_TEST_REQUIRE(c1 > c2);
-            BOOST_TEST_REQUIRE(c2 > c4);
-            BOOST_TEST_REQUIRE(c4 > c3);
+            c1_sum += std::fabs(
+                result["row_results"]["results"]["ml"]["shap_c1"].GetDouble());
+            c2_sum += std::fabs(
+                result["row_results"]["results"]["ml"]["shap_c2"].GetDouble());
+            c3_sum += std::fabs(
+                result["row_results"]["results"]["ml"]["shap_c3"].GetDouble());
+            c4_sum += std::fabs(
+                result["row_results"]["results"]["ml"]["shap_c4"].GetDouble());
         }
     }
-
-    //    auto expectedPrediction = expectedPredictions.begin();
-    //    bool progressCompleted{false};
-    //    for (const auto& result : results.GetArray()) {
-    //        if (result.HasMember("row_results")) {
-    //            BOOST_TEST_REQUIRE(expectedPrediction != expectedPredictions.end());
-    //            BOOST_REQUIRE_CLOSE_ABSOLUTE(
-    //                    *expectedPrediction,
-    //                    result["row_results"]["results"]["ml"]["c5_prediction"].GetDouble(),
-    //                    1e-4 * std::fabs(*expectedPrediction));
-    //            ++expectedPrediction;
-    //            BOOST_TEST_REQUIRE(result.HasMember("progress_percent") == false);
-    //        } else if (result.HasMember("progress_percent")) {
-    //            BOOST_TEST_REQUIRE(result["progress_percent"].GetInt() >= 0);
-    //            BOOST_TEST_REQUIRE(result["progress_percent"].GetInt() <= 100);
-    //            BOOST_TEST_REQUIRE(result.HasMember("row_results") == false);
-    //            progressCompleted = result["progress_percent"].GetInt() == 100;
-    //        }
-    //    }
-    //    BOOST_TEST_REQUIRE(expectedPrediction == expectedPredictions.end());
-    //    BOOST_TEST_REQUIRE(progressCompleted);
+    BOOST_TEST_REQUIRE(c1_sum > c2_sum);
+    BOOST_TEST_REQUIRE(c2_sum > c4_sum);
+    BOOST_TEST_REQUIRE(c4_sum > c3_sum);
 }
 
 BOOST_AUTO_TEST_SUITE_END()
