@@ -446,7 +446,7 @@ void CBoostedTreeImpl::train(core::CDataFrame& frame,
 
     } else if (m_CurrentRound < m_NumberRounds || m_BestForest.empty()) {
         using TUIntMeanVarAccumulator =
-            CBasicStatistics::SSampleMeanVar<std::uint64_t>::TAccumulator;
+            CBasicStatistics::SSampleMeanVar<CFloatStorage>::TAccumulator;
         TUIntMeanVarAccumulator timeAccumulator;
         core::CStopWatch stopWatch;
         stopWatch.start();
@@ -483,7 +483,7 @@ void CBoostedTreeImpl::train(core::CDataFrame& frame,
             this->recordState(recordTrainStateCallback);
             LOG_TRACE(<< "Round " << m_CurrentRound << " state recording finished");
 
-            timeAccumulator.add(stopWatch.lap());
+            timeAccumulator.add(static_cast<float>(stopWatch.lap()));
         }
 
         LOG_TRACE(<< "Test loss = " << m_BestForestTestLoss);
@@ -493,7 +493,7 @@ void CBoostedTreeImpl::train(core::CDataFrame& frame,
         m_BestForest = this->trainForest(frame, this->allTrainingRowsMask(), recordMemoryUsage);
         this->recordState(recordTrainStateCallback);
 
-        timeAccumulator.add(stopWatch.stop());
+        timeAccumulator.add(static_cast<float>(stopWatch.stop()));
 
         LOG_INFO(<< "Training finished after " << m_CurrentRound << " iterations. Time per iteration in ms mean: "
                  << timeAccumulator.s_Moments[0]
