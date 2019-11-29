@@ -46,6 +46,8 @@ tree which is trained for both regression and classification. (See {ml-pull}811[
 
 === Bug Fixes
 * Fixes potential memory corruption when determining seasonality. (See {ml-pull}852[#852].)
+* Prevent prediction_field_name clashing with other fields in ml results.
+(See {ml-pull}861[#861].)
 
 
 == {es} version 7.5.0
