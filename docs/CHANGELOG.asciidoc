@@ -42,6 +42,7 @@ and {pull}47050[#47050].)
 * Reduce memory usage of {ml} native processes on Windows. (See {ml-pull}844[#844].)
 * Use a random bag of the data to compute the loss function derivatives for each new
 tree which is trained for both regression and classification. (See {ml-pull}811[#811].)
+* Emit `prediction_probability` field alongside prediction field in ml results. (See {ml-pull}818[#818].)
 
 === Bug Fixes
 * Fixes potential memory corruption when determining seasonality. (See {ml-pull}852[#852].)
