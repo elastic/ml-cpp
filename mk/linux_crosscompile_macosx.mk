@@ -10,9 +10,9 @@ CPP_PLATFORM_HOME=$(CPP_DISTRIBUTION_HOME)/platform/darwin-x86_64
 ML_APP_NAME=controller
 APP_CONTENTS=$(ML_APP_NAME).app/Contents
 
-CROSS_TARGET_PLATFORM=x86_64-apple-macosx10.11
+CROSS_TARGET_PLATFORM=x86_64-apple-macosx10.13
 SYSROOT=/usr/local/sysroot-$(CROSS_TARGET_PLATFORM)
-CLANGVER=3.9
+CLANGVER=6.0
 # We use a natively compiled Boost even when cross compiling our own source
 # code, and Apple's clang versions are different to LLVM's clang versions, so
 # the natively built library file names will contain different versions.  Then
@@ -20,10 +20,10 @@ CLANGVER=3.9
 # 3.8 -> 70 (Xcode 7.2)
 # 3.9 -> 80 (Xcode 8.2)
 # 6.0 -> 100 (Xcode 10.1)
-BOOSTCLANGVER=80
+BOOSTCLANGVER=100
 CROSS_FLAGS=--sysroot=$(SYSROOT) -B /usr/local/bin -target $(CROSS_TARGET_PLATFORM)
 CC=clang-$(CLANGVER) $(CROSS_FLAGS)
-CXX=clang++-$(CLANGVER) $(CROSS_FLAGS) -std=c++14 -stdlib=libc++
+CXX=clang++-$(CLANGVER) $(CROSS_FLAGS) -std=c++17 -stdlib=libc++
 
 ifndef ML_DEBUG
 OPTCFLAGS=-O3

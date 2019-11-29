@@ -11,7 +11,7 @@ ML_APP_NAME=controller
 APP_CONTENTS=$(ML_APP_NAME).app/Contents
 
 CC=clang
-CXX=clang++ -std=c++14 -stdlib=libc++
+CXX=clang++ -std=c++17 -stdlib=libc++
 
 ifndef ML_DEBUG
 OPTCFLAGS=-O3

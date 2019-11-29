@@ -17,7 +17,7 @@
 HOST=push.docker.elastic.co
 ACCOUNT=ml-dev
 REPOSITORY=ml-macosx-build
-VERSION=7
+VERSION=8
 
 set -e
 
