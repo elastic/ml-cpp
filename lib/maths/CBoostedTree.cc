@@ -459,5 +459,9 @@ void CBoostedTree::acceptPersistInserter(core::CStatePersistInserter& inserter) 
 void CBoostedTree::accept(CBoostedTree::CVisitor& visitor) const {
     m_Impl->accept(visitor);
 }
+
+const CBoostedTreeHyperparameters& CBoostedTree::bestHyperparameters() const {
+    return m_Impl->bestHyperparameters();
+}
 }
 }
