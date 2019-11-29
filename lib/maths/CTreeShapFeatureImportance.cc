@@ -196,8 +196,7 @@ void CTreeShapFeatureImportance::extendPath(SPath& path,
     }
 }
 
-double CTreeShapFeatureImportance::sumUnwoundPath(const SPath& path,
-                                                  int pathIndex) const {
+double CTreeShapFeatureImportance::sumUnwoundPath(const SPath& path, int pathIndex) const {
     double total{0.0};
     std::size_t pathDepth{path.depth()};
     double nextFractionOne{path.scale(pathDepth)};
@@ -224,8 +223,7 @@ double CTreeShapFeatureImportance::sumUnwoundPath(const SPath& path,
     return total;
 }
 
-void CTreeShapFeatureImportance::unwindPath(SPath& path,
-                                            int pathIndex) {
+void CTreeShapFeatureImportance::unwindPath(SPath& path, int pathIndex) {
     double pathDepth = path.depth();
     double nextFractionOne{path.scale(pathDepth)};
     double fractionOne{path.fractionOnes(pathIndex)};
