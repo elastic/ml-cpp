@@ -44,6 +44,7 @@ tree which is trained for both regression and classification. (See {ml-pull}811[
 * Emit `prediction_probability` field alongside prediction field in ml results.
 (See {ml-pull}818[#818].)
 * Reduce memory usage of {ml} native processes on Windows. (See {ml-pull}844[#844].)
+* Reduce runtime of classification and regression. (See {ml-pull}863[#863].)
 
 === Bug Fixes
 * Fixes potential memory corruption when determining seasonality. (See {ml-pull}852[#852].)
