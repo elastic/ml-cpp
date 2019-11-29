@@ -70,7 +70,7 @@ CDataFrameTrainBoostedTreeClassifierRunner::CDataFrameTrainBoostedTreeClassifier
     }
     const std::set<std::string> predictionFieldNameBlacklist{
         IS_TRAINING_FIELD_NAME, PREDICTION_PROBABILITY_FIELD_NAME, TOP_CLASSES_FIELD_NAME};
-    if (predictionFieldNameBlacklist.count(this->predictionFieldName())) {
+    if (predictionFieldNameBlacklist.count(this->predictionFieldName()) > 0) {
         HANDLE_FATAL(<< "Input error: prediction_field_name must not be equal to any of "
                      << core::CContainerPrinter::print(predictionFieldNameBlacklist)
                      << ".");
