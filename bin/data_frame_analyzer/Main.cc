@@ -184,9 +184,7 @@ int main(int argc, char** argv) {
         std::move(restoreSearcherSupplier));
 
     if (memoryUsageEstimationOnly) {
-        auto outStream = [&ioMgr]() {
-            return std::make_unique<ml::core::CJsonOutputStreamWrapper>(ioMgr.outputStream());
-        }();
+        auto outStream = resultsStreamSupplier();
         ml::api::CMemoryUsageEstimationResultJsonWriter writer(*outStream);
         analysisSpecification->estimateMemoryUsage(writer);
         return EXIT_SUCCESS;

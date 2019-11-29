@@ -53,6 +53,12 @@ public:
     //! \return The number of columns this adds to the data frame.
     std::size_t numberExtraColumns() const override;
 
+    //! The boosted tree.
+    const maths::CBoostedTree& boostedTree() const;
+
+    //! The boosted tree factory.
+    const maths::CBoostedTreeFactory& boostedTreeFactory() const;
+
 protected:
     using TBoostedTreeUPtr = std::unique_ptr<maths::CBoostedTree>;
     using TLossFunctionUPtr = std::unique_ptr<maths::boosted_tree::CLoss>;
@@ -68,8 +74,6 @@ protected:
     const std::string& dependentVariableFieldName() const;
     //! Name of prediction field.
     const std::string& predictionFieldName() const;
-    //! The boosted tree.
-    const maths::CBoostedTree& boostedTree() const;
 
     //! The boosted tree factory.
     maths::CBoostedTreeFactory& boostedTreeFactory();

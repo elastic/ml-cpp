@@ -196,6 +196,13 @@ maths::CBoostedTreeFactory& CDataFrameTrainBoostedTreeRunner::boostedTreeFactory
     return *m_BoostedTreeFactory;
 }
 
+const maths::CBoostedTreeFactory& CDataFrameTrainBoostedTreeRunner::boostedTreeFactory() const {
+    if (m_BoostedTreeFactory == nullptr) {
+        HANDLE_FATAL(<< "Internal error: boosted tree factory missing. Please report this problem.");
+    }
+    return *m_BoostedTreeFactory;
+}
+
 void CDataFrameTrainBoostedTreeRunner::runImpl(core::CDataFrame& frame) {
     auto dependentVariablePos = std::find(frame.columnNames().begin(),
                                           frame.columnNames().end(),

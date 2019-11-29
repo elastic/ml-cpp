@@ -16,6 +16,7 @@
 #include <maths/CTools.h>
 
 #include <api/CDataFrameAnalyzer.h>
+#include <api/CDataFrameTrainBoostedTreeRegressionRunner.h>
 #include <api/CSingleStreamDataAdder.h>
 #include <api/ElasticsearchStateIndex.h>
 
@@ -445,6 +446,25 @@ BOOST_AUTO_TEST_CASE(testRunBoostedTreeRegressionTrainingWithParams) {
                           softTreeDepthLimit, softTreeDepthTolerance, eta,
                           maximumNumberTrees, featureBagFraction);
     analyzer.handleRecord(fieldNames, {"", "", "", "", "", "", "$"});
+
+    // Check best hyperparameters
+    const auto* runner{dynamic_cast<const api::CDataFrameTrainBoostedTreeRegressionRunner*>(
+        analyzer.runner())};
+    const auto& boostedTree{runner->boostedTree()};
+    const auto& bestHyperparameters{boostedTree.bestHyperparameters()};
+    BOOST_TEST_REQUIRE(bestHyperparameters.eta() == eta);
+    BOOST_TEST_REQUIRE(bestHyperparameters.featureBagFraction() == featureBagFraction);
+    // TODO extend the test to add the checks for downsampleFactor and etaGrowthRatePerTree
+    //    BOOST_TEST_REQUIRE(bestHyperparameters.downsampleFactor() == downsampleFactor);
+    //    BOOST_TEST_REQUIRE(bestHyperparameters.etaGrowthRatePerTree() == etaGrowthRatePerTree);
+    BOOST_TEST_REQUIRE(bestHyperparameters.regularization().depthPenaltyMultiplier() == alpha);
+    BOOST_TEST_REQUIRE(
+        bestHyperparameters.regularization().leafWeightPenaltyMultiplier() == lambda);
+    BOOST_TEST_REQUIRE(bestHyperparameters.regularization().treeSizePenaltyMultiplier() == gamma);
+    BOOST_TEST_REQUIRE(bestHyperparameters.regularization().softTreeDepthLimit() ==
+                       softTreeDepthLimit);
+    BOOST_TEST_REQUIRE(bestHyperparameters.regularization().softTreeDepthTolerance() ==
+                       softTreeDepthTolerance);
 
     rapidjson::Document results;
     rapidjson::ParseResult ok(results.Parse(output.str()));

@@ -362,7 +362,7 @@ public:
     //! \warning This is slower than boost::hash for the types I tested
     //! std::size_t, int, uint64_t, but does have better distributions.
     template<typename T>
-    class CMurmurHash2BT : public std::unary_function<T, std::size_t> {
+    class CMurmurHash2BT {
     public:
         //! See CMemory.
         static bool dynamicSizeAlwaysZero() { return true; }
@@ -380,8 +380,7 @@ public:
     //!
     //! \note This is significantly faster than boost::hash<std::string>
     //! and has better distributions.
-    class CORE_EXPORT CMurmurHash2String
-        : public std::unary_function<std::string, std::size_t> {
+    class CORE_EXPORT CMurmurHash2String {
     public:
         //! See CMemory.
         static bool dynamicSizeAlwaysZero() { return true; }
@@ -410,8 +409,7 @@ public:
     //! example would be where the hash value somehow affects data that is
     //! visible outside the program, such as state persisted to a data
     //! store.  This is also immune to endianness issues.
-    class CORE_EXPORT CSafeMurmurHash2String64
-        : public std::unary_function<std::string, uint64_t> {
+    class CORE_EXPORT CSafeMurmurHash2String64 {
     public:
         //! See CMemory.
         static bool dynamicSizeAlwaysZero() { return true; }
