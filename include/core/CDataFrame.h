@@ -526,7 +526,7 @@ private:
     TRowFuncVecBoolPr parallelApplyToAllRows(std::size_t numberThreads,
                                              std::size_t beginRows,
                                              std::size_t endRows,
-                                             TRowFunc& func,
+                                             TRowFunc&& func,
                                              const CPackedBitVector* rowMask,
                                              bool commitResult) const;
     TRowFuncVecBoolPr sequentialApplyToAllRows(std::size_t beginRows,

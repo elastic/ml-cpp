@@ -188,7 +188,7 @@ CDataFrame::TRowFuncVecBoolPr CDataFrame::readRows(std::size_t numberThreads,
 
     return numberThreads > 1
                ? this->parallelApplyToAllRows(numberThreads, beginRows, endRows,
-                                              reader, rowMask, false)
+                                              std::move(reader), rowMask, false)
                : this->sequentialApplyToAllRows(beginRows, endRows, reader, rowMask, false);
 }
 
@@ -207,7 +207,7 @@ CDataFrame::TRowFuncVecBoolPr CDataFrame::writeColumns(std::size_t numberThreads
 
     return numberThreads > 1
                ? this->parallelApplyToAllRows(numberThreads, beginRows, endRows,
-                                              writer, rowMask, true)
+                                              std::move(writer), rowMask, true)
                : this->sequentialApplyToAllRows(beginRows, endRows, writer, rowMask, true);
 }
 
@@ -408,7 +408,7 @@ CDataFrame::TRowFuncVecBoolPr
 CDataFrame::parallelApplyToAllRows(std::size_t numberThreads,
                                    std::size_t beginRows,
                                    std::size_t endRows,
-                                   TRowFunc& func,
+                                   TRowFunc&& func,
                                    const CPackedBitVector* rowMask,
                                    bool commitResult) const {
 
