@@ -7,6 +7,7 @@
 include $(CPP_SRC_HOME)/mk/defines.mk
 
 .PHONY: test
+.PHONY: memcheck
 .PHONY: build
 .PHONY: install
 

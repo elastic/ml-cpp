@@ -15,6 +15,9 @@ USE_EIGEN=1
 
 LIBS:=$(LIB_ML_MATHS)
 
+.PHONY: memcheck
+
+
 all: build
 
 SRCS=\

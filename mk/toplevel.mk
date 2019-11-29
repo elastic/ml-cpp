@@ -122,6 +122,32 @@ ifdef TOP_DIR_MKF_LAST
 	@ $(MAKE) test -f $(TOP_DIR_MKF_LAST)
 endif
 
+ifdef TOP_DIR_MKF_FIRST
+FIRST_TEST_CMD=$(MAKE) memcheck -f $(TOP_DIR_MKF_FIRST)
+else
+FIRST_TEST_CMD=true
+endif
+memcheck:
+	FAILED=0; \
+	 $(FIRST_TEST_CMD) ; \
+	 if [ $$? -ne 0 ] ; then \
+	   FAILED=1; \
+	   if [ -z "$(ML_KEEP_GOING)" ]; then exit 1; fi; \
+	 fi; \
+	 for i in $(COMPONENTS) ; \
+	 do \
+	 echo "$(notdir $(MAKE)): Component=$$i, Target=$@, Time=`date`"; \
+	 (cd $$i && $(MAKE) memcheck ); \
+	 if [ $$? -ne 0 ] ; then \
+	   FAILED=1; \
+	   if [ -z "$(ML_KEEP_GOING)" ]; then exit 1; fi; \
+	 fi; \
+	 done; \
+	 exit $$FAILED
+ifdef TOP_DIR_MKF_LAST
+	@ $(MAKE) memcheck -f $(TOP_DIR_MKF_LAST)
+endif
+
 relink:
 ifdef TOP_DIR_MKF_FIRST
 	@ $(MAKE) relink -f $(TOP_DIR_MKF_FIRST)

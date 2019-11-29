@@ -42,6 +42,23 @@ done; \
 exit $$FAILED
 endif
 
+ifndef VALGRIND_MEMCHECK_CMD
+VALGRIND_MEMCHECK_CMD=\
+@ FAILED=0; \
+for i in $(TEST_DIRS) ; \
+do \
+	(cd $$i && $(MAKE) memcheck ); \
+	if [ $$? -ne 0 ]; then \
+		FAILED=1; \
+		echo "`pwd` make test FAILURE!!!"; \
+		if [ -z "$$ML_KEEP_GOING" ] ; then \
+			exit 1; \
+		fi; \
+	fi; \
+done; \
+exit $$FAILED
+endif
+
 ifndef TEST_OBJ_COMPILE_CMDS
 TEST_OBJ_COMPILE_CMDS:= \
 @for i in $(TEST_DIRS) ; \

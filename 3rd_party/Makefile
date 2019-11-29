@@ -25,3 +25,5 @@ clean:
 test:
 	echo No tests at present
 
+memcheck:
+	echo No tests at present

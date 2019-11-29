@@ -41,6 +41,10 @@ objcompile: $(OBJS) testobjcompile
 
 analyze: $(ANALYZEOBJS)
 
+memcheck:
+	echo $(VALGRIND_MEMCHECK_CMD)
+	+$(VALGRIND_MEMCHECK_CMD)
+
 relink:
 	$(RM) $(TARGET)
 	$(RM) $(INSTALL_DIR)/$(notdir $(TARGET))

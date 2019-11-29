@@ -82,6 +82,8 @@ LIB_ML_TEST=-lMlTest
 
 LIB_PATH+=-L/usr/local/gcc73/lib
 
+VALGRIND_CMD=valgrind --tool=memcheck --xml=yes --xml-file=$(CPP_SRC_HOME)/valgrind.xml --leak-check=full --leak-resolution=med --track-origins=yes --vgdb=no
+
 # Using cp instead of install here, to avoid every file being given execute
 # permissions
 INSTALL=cp

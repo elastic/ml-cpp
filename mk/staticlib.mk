@@ -20,6 +20,9 @@ testobjcompile:
 
 objcompile: $(OBJS) testobjcompile
 
+memcheck:
+	+$(VALGRIND_MEMCHECK)
+
 analyze: $(ANALYZEOBJS)
 
 relink:
