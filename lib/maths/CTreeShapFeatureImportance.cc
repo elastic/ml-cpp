@@ -183,7 +183,7 @@ void CTreeShapFeatureImportance::shapRecursive(const TTree& tree,
     }
 }
 
-void CTreeShapFeatureImportance::extendPath(CTreeShapFeatureImportance::SPath& path,
+void CTreeShapFeatureImportance::extendPath(SPath& path,
                                             double fractionZero,
                                             double fractionOne,
                                             int featureIndex) {
@@ -196,7 +196,7 @@ void CTreeShapFeatureImportance::extendPath(CTreeShapFeatureImportance::SPath& p
     }
 }
 
-double CTreeShapFeatureImportance::sumUnwoundPath(const CTreeShapFeatureImportance::SPath& path,
+double CTreeShapFeatureImportance::sumUnwoundPath(const SPath& path,
                                                   int pathIndex) const {
     double total{0.0};
     std::size_t pathDepth{path.depth()};
@@ -224,7 +224,7 @@ double CTreeShapFeatureImportance::sumUnwoundPath(const CTreeShapFeatureImportan
     return total;
 }
 
-void CTreeShapFeatureImportance::unwindPath(CTreeShapFeatureImportance::SPath& path,
+void CTreeShapFeatureImportance::unwindPath(SPath& path,
                                             int pathIndex) {
     double pathDepth = path.depth();
     double nextFractionOne{path.scale(pathDepth)};
