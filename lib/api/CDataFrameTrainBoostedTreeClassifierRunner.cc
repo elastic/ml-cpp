@@ -68,6 +68,13 @@ CDataFrameTrainBoostedTreeClassifierRunner::CDataFrameTrainBoostedTreeClassifier
                   this->dependentVariableFieldName()) == categoricalFieldNames.end()) {
         HANDLE_FATAL(<< "Input error: trying to perform classification with numeric target.");
     }
+    const std::set<std::string> predictionFieldNameBlacklist{
+        IS_TRAINING_FIELD_NAME, PREDICTION_PROBABILITY_FIELD_NAME, TOP_CLASSES_FIELD_NAME};
+    if (predictionFieldNameBlacklist.count(this->predictionFieldName())) {
+        HANDLE_FATAL(<< "Input error: prediction_field_name must not be equal to any of "
+                     << core::CContainerPrinter::print(predictionFieldNameBlacklist)
+                     << ".");
+    }
 }
 
 CDataFrameTrainBoostedTreeClassifierRunner::CDataFrameTrainBoostedTreeClassifierRunner(
