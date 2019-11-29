@@ -59,6 +59,9 @@ public:
     //! The boosted tree factory.
     const maths::CBoostedTreeFactory& boostedTreeFactory() const;
 
+    //! Specified number of SHAP values to return
+    size_t topShapValues() const;
+
 protected:
     using TBoostedTreeUPtr = std::unique_ptr<maths::CBoostedTree>;
     using TLossFunctionUPtr = std::unique_ptr<maths::boosted_tree::CLoss>;
@@ -103,9 +106,6 @@ private:
     TBoostedTreeFactoryUPtr m_BoostedTreeFactory;
     TBoostedTreeUPtr m_BoostedTree;
     std::size_t m_TopShapValues = 0;
-
-public:
-    size_t topShapValues() const;
 };
 }
 }

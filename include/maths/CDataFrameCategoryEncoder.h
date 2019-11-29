@@ -95,7 +95,7 @@ enum EEncoding {
 //! metric features to use by minimising a MICe based measure of their relevency for
 //! prediction and redundancy. The total number of features we select is based on the
 //! quantity of training data.
-class MATHS_EXPORT CDataFrameCategoryEncoder {
+class MATHS_EXPORT CDataFrameCategoryEncoder final {
 public:
     using TDoubleVec = std::vector<double>;
     using TSizeVec = std::vector<std::size_t>;
@@ -317,7 +317,7 @@ public:
     CMakeDataFrameCategoryEncoder& columnMask(TSizeVec columnMask);
 
     //! Make the encoding.
-    virtual TEncodingUPtrVec makeEncodings();
+    TEncodingUPtrVec makeEncodings();
 
     //! \name Test Methods
     //@{

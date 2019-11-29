@@ -136,12 +136,11 @@ void CDataFrameTrainBoostedTreeClassifierRunner::writeOneRow(
         writer.EndArray();
     }
     if (this->topShapValues() > 0) {
-
         for (int i = 0; i < row.numberColumns(); ++i) {
             const std::string& columnName{frame.columnNames()[i]};
             auto res = std::mismatch(
-                    CDataFrameTrainBoostedTreeRunner::SHAP_PREFIX.begin(),
-                    CDataFrameTrainBoostedTreeRunner::SHAP_PREFIX.end(), columnName.begin());
+                CDataFrameTrainBoostedTreeRunner::SHAP_PREFIX.begin(),
+                CDataFrameTrainBoostedTreeRunner::SHAP_PREFIX.end(), columnName.begin());
             if (res.first == CDataFrameTrainBoostedTreeRunner::SHAP_PREFIX.end()) {
                 writer.Key(columnName);
                 writer.Double(row[i]);

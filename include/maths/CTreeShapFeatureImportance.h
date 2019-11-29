@@ -15,6 +15,8 @@
 namespace ml {
 namespace maths {
 
+// TODO add extensive comments
+
 class MATHS_EXPORT CTreeShapFeatureImportance {
 public:
     using TTree = std::vector<CBoostedTreeNode>;
@@ -119,14 +121,11 @@ private:
                     double fractionZero,
                     double fractionOne,
                     int featureIndex);
-
     double sumUnwoundPath(const CTreeShapFeatureImportance::SPath& path, int pathIndex) const;
-
     void unwindPath(CTreeShapFeatureImportance::SPath& path, int pathIndex);
 
 private:
     TTreeVec m_Trees;
-
     TDoubleVecVec m_SamplesPerNode;
 };
 }

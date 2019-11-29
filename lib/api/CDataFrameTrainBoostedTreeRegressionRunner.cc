@@ -76,7 +76,6 @@ void CDataFrameTrainBoostedTreeRegressionRunner::writeOneRow(
     writer.Key(IS_TRAINING_FIELD_NAME);
     writer.Bool(maths::CDataFrameUtils::isMissing(row[columnHoldingDependentVariable]) == false);
     if (this->topShapValues() > 0) {
-
         for (int i = 0; i < row.numberColumns(); ++i) {
             const std::string& columnName{frame.columnNames()[i]};
             auto res = std::mismatch(

@@ -16,9 +16,9 @@
 #include <maths/CQuantileSketch.h>
 #include <maths/CSampling.h>
 #include <maths/CSetTools.h>
+#include <maths/CTreeShapFeatureImportance.h>
 
 #include <limits>
-#include <maths/CTreeShapFeatureImportance.h>
 
 namespace ml {
 namespace maths {
@@ -1452,18 +1452,18 @@ void CBoostedTreeImpl::computeShapValues(int topShapValues,
                                          const TProgressCallback&) {
     if (m_BestForestTestLoss == INF) {
         HANDLE_FATAL(<< "Internal error: no model available for prediction. "
-                             << "Please report this problem.");
+                     << "Please report this problem.");
         return;
     }
     bool successful;
     auto treeFeatureImportance =
-            std::make_unique<maths::CTreeShapFeatureImportance>(m_BestForest);
+        std::make_unique<maths::CTreeShapFeatureImportance>(m_BestForest);
     TDoubleVecVec shapValues;
     TDoubleVec shapTotal;
     size_t numberInputFields = predictionColumn(frame.numberColumns()) - 1;
     topShapValues = (topShapValues < numberInputFields) ? topShapValues : numberInputFields;
     std::tie(shapValues, shapTotal) =
-            treeFeatureImportance->shap(frame, *m_Encoder, numberInputFields);
+        treeFeatureImportance->shap(frame, *m_Encoder, numberInputFields);
 
     // get indices of the top elements
     std::vector<std::size_t> indices(shapTotal.size());
@@ -1483,16 +1483,16 @@ void CBoostedTreeImpl::computeShapValues(int topShapValues,
     frame.columnNames(columnNames);
 
     std::tie(std::ignore, successful) = frame.writeColumns(
-            m_NumberThreads, 0, frame.numberRows(), [&](TRowItr beginRows, TRowItr endRows) {
-                for (auto row = beginRows; row != endRows; ++row) {
-                    for (int i = 0; i < topShapValues; ++i) {
-                        row->writeColumn(offset + i, shapValues[row->index()][indices[i]]);
-                    }
+        m_NumberThreads, 0, frame.numberRows(), [&](TRowItr beginRows, TRowItr endRows) {
+            for (auto row = beginRows; row != endRows; ++row) {
+                for (int i = 0; i < topShapValues; ++i) {
+                    row->writeColumn(offset + i, shapValues[row->index()][indices[i]]);
                 }
-            });
+            }
+        });
     if (successful == false) {
         HANDLE_FATAL(<< "Internal error: failed to write SHAP values. "
-                             << "Please report this problem.");
+                     << "Please report this problem.");
     }
 }
 }
