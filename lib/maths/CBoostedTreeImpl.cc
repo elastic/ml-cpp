@@ -496,8 +496,8 @@ void CBoostedTreeImpl::train(core::CDataFrame& frame,
         timeAccumulator.add(static_cast<float>(stopWatch.stop()));
 
         LOG_INFO(<< "Training finished after " << m_CurrentRound << " iterations. Time per iteration in ms mean: "
-                 << timeAccumulator.s_Moments[0]
-                 << " std. dev:  " << std::sqrt(timeAccumulator.s_Moments[1]));
+                 << CBasicStatistics::mean(timeAccumulator)
+                 << " std. dev:  " << std::sqrt(CBasicStatistics::variance(timeAccumulator)));
 
         core::CProgramCounters::counter(counter_t::E_DFTPMTrainedForestNumberTrees) =
             m_BestForest.size();
