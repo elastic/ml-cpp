@@ -126,7 +126,7 @@ bool CCsvLineParser::parseNextToken(const char* end, const char*& current) {
 }
 
 void CCsvLineParser::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const {
-    mem->setName("CStringSimilarityTester");
+    mem->setName("CCsvLineParser");
     mem->addItem("m_WorkField", m_WorkFieldCapacity);
 }
 

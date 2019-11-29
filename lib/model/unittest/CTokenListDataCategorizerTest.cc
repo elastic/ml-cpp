@@ -41,15 +41,13 @@ void checkMemoryUsageInstrumentation(const TTokenListDataCategorizerKeepsFields&
     ml::core::CMemoryUsage::TMemoryUsagePtr mem{new ml::core::CMemoryUsage};
     categorizer.debugMemoryUsage(mem);
 
-    LOG_DEBUG(<< "Memory usage = " << memoryUsage);
-    BOOST_REQUIRE_EQUAL(memoryUsage, mem->usage());
-
     std::ostringstream strm;
     mem->compress();
     mem->print(strm);
     LOG_DEBUG(<< "Debug memory report = " << strm.str());
+    BOOST_REQUIRE_EQUAL(memoryUsage, mem->usage());
 
-    LOG_DEBUG(<< "Dynamic size = " << ml::core::CMemory::dynamicSize(categorizer));
+    LOG_TRACE(<< "Dynamic size = " << ml::core::CMemory::dynamicSize(&categorizer));
     BOOST_REQUIRE_EQUAL(memoryUsage + sizeof(TTokenListDataCategorizerKeepsFields),
                         ml::core::CMemory::dynamicSize(&categorizer));
 }

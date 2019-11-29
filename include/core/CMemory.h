@@ -996,7 +996,7 @@ public:
         componentName += "_list";
 
         std::size_t listSize = (memory_detail::EXTRA_NODES + t.size()) *
-                               (sizeof(T) + 4 * sizeof(std::size_t));
+                               (sizeof(T) + 2 * sizeof(std::size_t));
 
         CMemoryUsage::SMemoryUsage usage(componentName, listSize);
         CMemoryUsage::TMemoryUsagePtr ptr = mem->addChild();

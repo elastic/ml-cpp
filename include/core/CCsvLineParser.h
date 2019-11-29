@@ -6,9 +6,8 @@
 #ifndef INCLUDED_ml_core_CCsvLineParser_h
 #define INCLUDED_ml_core_CCsvLineParser_h
 
-#include <core/ImportExport.h>
-
 #include <core/CMemoryUsage.h>
+#include <core/ImportExport.h>
 
 #include <boost/scoped_array.hpp>
 
