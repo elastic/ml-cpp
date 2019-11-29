@@ -9,6 +9,7 @@
 #include <core/CLoopProgress.h>
 #include <core/CPersistUtils.h>
 #include <core/CProgramCounters.h>
+#include <core/CStopWatch.h>
 
 #include <maths/CBasicStatisticsPersist.h>
 #include <maths/CBayesianOptimisation.h>
@@ -444,6 +445,11 @@ void CBoostedTreeImpl::train(core::CDataFrame& frame,
         LOG_TRACE(<< "Test loss = " << m_BestForestTestLoss);
 
     } else if (m_CurrentRound < m_NumberRounds || m_BestForest.empty()) {
+        using TUIntMeanVarAccumulator =
+            CBasicStatistics::SSampleMeanVar<std::uint64_t>::TAccumulator;
+        TUIntMeanVarAccumulator timeAccumulator;
+        core::CStopWatch stopWatch;
+        stopWatch.start();
 
         // Hyperparameter optimisation loop.
 
@@ -476,6 +482,8 @@ void CBoostedTreeImpl::train(core::CDataFrame& frame,
             LOG_TRACE(<< "Round " << m_CurrentRound << " state recording started");
             this->recordState(recordTrainStateCallback);
             LOG_TRACE(<< "Round " << m_CurrentRound << " state recording finished");
+
+            timeAccumulator.add(stopWatch.lap());
         }
 
         LOG_TRACE(<< "Test loss = " << m_BestForestTestLoss);
@@ -484,6 +492,11 @@ void CBoostedTreeImpl::train(core::CDataFrame& frame,
 
         m_BestForest = this->trainForest(frame, this->allTrainingRowsMask(), recordMemoryUsage);
         this->recordState(recordTrainStateCallback);
+
+        timeAccumulator.add(stopWatch.stop());
+
+        LOG_INFO(<< "Training finished after " << m_CurrentRound << " iteration, time in ms mean and var: "
+                 << timeAccumulator.toDelimited());
 
         core::CProgramCounters::counter(counter_t::E_DFTPMTrainedForestNumberTrees) =
             m_BestForest.size();
@@ -1179,10 +1192,10 @@ void CBoostedTreeImpl::restoreBestHyperparameters() {
     m_Eta = m_BestHyperparameters.eta();
     m_EtaGrowthRatePerTree = m_BestHyperparameters.etaGrowthRatePerTree();
     m_FeatureBagFraction = m_BestHyperparameters.featureBagFraction();
-    LOG_TRACE(<< "regularization* = " << m_Regularization.print()
-              << ", downsample factor* = " << m_DownsampleFactor << ", eta* = " << m_Eta
-              << ", eta growth rate per tree* = " << m_EtaGrowthRatePerTree
-              << ", feature bag fraction* = " << m_FeatureBagFraction);
+    LOG_INFO(<< "Best hyperparameters: regularization* = " << m_Regularization.print()
+             << ", downsample factor* = " << m_DownsampleFactor << ", eta* = " << m_Eta
+             << ", eta growth rate per tree* = " << m_EtaGrowthRatePerTree
+             << ", feature bag fraction* = " << m_FeatureBagFraction);
 }
 
 std::size_t CBoostedTreeImpl::numberHyperparametersToTune() const {
