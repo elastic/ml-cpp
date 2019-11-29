@@ -66,7 +66,8 @@ BOOST_AUTO_TEST_CASE(testUpperBound) {
         rng.generateUniformSamples(0, 100, 500, probes);
 
         for (auto probe : probes) {
-            BOOST_REQUIRE_EQUAL(std::upper_bound(values.begin(), values.end(), probe) - values.begin(),
+            BOOST_REQUIRE_EQUAL(std::upper_bound(values.begin(), values.end(), probe) -
+                                    values.begin(),
                                 set.upperBound(probe));
         }
     }
@@ -83,7 +84,8 @@ BOOST_AUTO_TEST_CASE(testUpperBound) {
         rng.generateNormalSamples(0.0, 20.0, 500, probes);
 
         for (auto probe : probes) {
-            BOOST_REQUIRE_EQUAL(std::upper_bound(values.begin(), values.end(), probe) - values.begin(),
+            BOOST_REQUIRE_EQUAL(std::upper_bound(values.begin(), values.end(), probe) -
+                                    values.begin(),
                                 set.upperBound(probe));
         }
     }
