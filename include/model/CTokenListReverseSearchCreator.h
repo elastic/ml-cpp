@@ -34,51 +34,57 @@ public:
     //! What's the maximum cost of tokens we can include in the reverse
     //! search?  This cost is loosely based on the maximum length of an
     //! Internet Explorer URL.
-    virtual size_t availableCost() const;
+    size_t availableCost() const override;
 
     //! What would be the cost of adding the specified token occurring the
     //! specified number of times to the reverse search?
-    virtual size_t costOfToken(const std::string& token, size_t numOccurrences) const;
+    size_t costOfToken(const std::string& token, size_t numOccurrences) const override;
 
     //! Create a reverse search for a NULL field value.
-    virtual bool createNullSearch(std::string& part1, std::string& part2) const;
+    bool createNullSearch(std::string& part1, std::string& part2) const override;
 
     //! If possible, create a reverse search for the case where there are no
     //! unique tokens identifying the type.  (If this is not possible return
     //! false.)
-    virtual bool createNoUniqueTokenSearch(int type,
-                                           const std::string& example,
-                                           size_t maxMatchingStringLen,
-                                           std::string& part1,
-                                           std::string& part2) const;
+    bool createNoUniqueTokenSearch(int type,
+                                   const std::string& example,
+                                   size_t maxMatchingStringLen,
+                                   std::string& part1,
+                                   std::string& part2) const override;
 
     //! Initialise the two strings that form a reverse search.  For example,
     //! this could be as simple as clearing the strings or setting them to
     //! some sort of one-off preamble.
-    virtual void initStandardSearch(int type,
-                                    const std::string& example,
-                                    size_t maxMatchingStringLen,
-                                    std::string& part1,
-                                    std::string& part2) const;
+    void initStandardSearch(int type,
+                            const std::string& example,
+                            size_t maxMatchingStringLen,
+                            std::string& part1,
+                            std::string& part2) const override;
 
     //! Modify the two strings that form a reverse search to account for the
     //! specified token, which may occur anywhere within the original
     //! message, but has been determined to be a good thing to distinguish
     //! this type of messages from other types.
-    virtual void addCommonUniqueToken(const std::string& token,
-                                      std::string& part1,
-                                      std::string& part2) const;
+    void addCommonUniqueToken(const std::string& token,
+                              std::string& part1,
+                              std::string& part2) const override;
 
     //! Modify the two strings that form a reverse search to account for the
     //! specified token.
-    virtual void addInOrderCommonToken(const std::string& token,
-                                       bool first,
-                                       std::string& part1,
-                                       std::string& part2) const;
+    void addInOrderCommonToken(const std::string& token,
+                               bool first,
+                               std::string& part1,
+                               std::string& part2) const override;
 
     //! Close off the two strings that form a reverse search.  For example,
     //! this may be when closing brackets need to be appended.
-    virtual void closeStandardSearch(std::string& part1, std::string& part2) const;
+    void closeStandardSearch(std::string& part1, std::string& part2) const override;
+
+    //! Debug the memory used by this reverse search creator.
+    void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const override;
+
+    //! Get the memory used by this reverse search creator.
+    std::size_t memoryUsage() const override;
 };
 }
 }
