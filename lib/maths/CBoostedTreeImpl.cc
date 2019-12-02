@@ -445,9 +445,8 @@ void CBoostedTreeImpl::train(core::CDataFrame& frame,
         LOG_TRACE(<< "Test loss = " << m_BestForestTestLoss);
 
     } else if (m_CurrentRound < m_NumberRounds || m_BestForest.empty()) {
-        using TUIntMeanVarAccumulator =
-            CBasicStatistics::SSampleMeanVar<CFloatStorage>::TAccumulator;
-        TUIntMeanVarAccumulator timeAccumulator;
+        using TMeanVarAccumulator = CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
+        TMeanVarAccumulator timeAccumulator;
         core::CStopWatch stopWatch;
         stopWatch.start();
 
