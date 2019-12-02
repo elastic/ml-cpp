@@ -6,6 +6,7 @@
 #include <model/CTokenListCategory.h>
 
 #include <core/CLogger.h>
+#include <core/CMemory.h>
 #include <core/CStatePersistInserter.h>
 #include <core/CStateRestoreTraverser.h>
 #include <core/CStringUtils.h>
@@ -397,6 +398,25 @@ void CTokenListCategory::cacheReverseSearch(const std::string& part1,
                                             const std::string& part2) {
     m_ReverseSearchPart1 = part1;
     m_ReverseSearchPart2 = part2;
+}
+
+void CTokenListCategory::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const {
+    mem->setName("CTokenListCategory");
+    core::CMemoryDebug::dynamicSize("m_BaseString", m_BaseString, mem);
+    core::CMemoryDebug::dynamicSize("m_BaseTokenIds", m_BaseTokenIds, mem);
+    core::CMemoryDebug::dynamicSize("m_CommonUniqueTokenIds", m_CommonUniqueTokenIds, mem);
+    core::CMemoryDebug::dynamicSize("m_ReverseSearchPart1", m_ReverseSearchPart1, mem);
+    core::CMemoryDebug::dynamicSize("m_ReverseSearchPart2", m_ReverseSearchPart2, mem);
+}
+
+std::size_t CTokenListCategory::memoryUsage() const {
+    std::size_t mem = 0;
+    mem += core::CMemory::dynamicSize(m_BaseString);
+    mem += core::CMemory::dynamicSize(m_BaseTokenIds);
+    mem += core::CMemory::dynamicSize(m_CommonUniqueTokenIds);
+    mem += core::CMemory::dynamicSize(m_ReverseSearchPart1);
+    mem += core::CMemory::dynamicSize(m_ReverseSearchPart2);
+    return mem;
 }
 }
 }

@@ -6,6 +6,7 @@
 #ifndef INCLUDED_ml_core_CCompressUtils_h
 #define INCLUDED_ml_core_CCompressUtils_h
 
+#include <core/CMemoryUsage.h>
 #include <core/CNonCopyable.h>
 #include <core/ImportExport.h>
 
@@ -97,6 +98,12 @@ public:
     //! round, but sometimes, for example when recovering from an
     //! error, it may be desirable to explicitly reset the state.
     void reset();
+
+    //! Debug the memory used by these compression utils.
+    void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const;
+
+    //! Get the memory used by these compression utils.
+    std::size_t memoryUsage() const;
 
 protected:
     //! Get the underlying stream.
@@ -191,26 +198,26 @@ private:
 class CORE_EXPORT CDeflator final : public CCompressUtil {
 public:
     CDeflator(bool lengthOnly, int level = Z_DEFAULT_COMPRESSION);
-    ~CDeflator();
+    ~CDeflator() override;
 
 private:
     //! Process a chunk of state (optionally flushing).
-    virtual int streamProcessChunk(int flush);
+    int streamProcessChunk(int flush) override;
     //! Reset the underlying stream.
-    virtual int resetStream();
+    int resetStream() override;
 };
 
 //! \brief Implementation of CompressUtil for inflating data.
 class CORE_EXPORT CInflator final : public CCompressUtil {
 public:
     CInflator(bool lengthOnly);
-    ~CInflator();
+    ~CInflator() override;
 
 private:
     //! Process a chunk of state (optionally flushing).
-    virtual int streamProcessChunk(int flush);
+    int streamProcessChunk(int flush) override;
     //! Reset the underlying stream.
-    virtual int resetStream();
+    int resetStream() override;
 };
 }
 }

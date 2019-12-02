@@ -6,6 +6,7 @@
 #include <model/CBaseTokenListDataCategorizer.h>
 
 #include <core/CLogger.h>
+#include <core/CMemory.h>
 #include <core/CStatePersistInserter.h>
 #include <core/CStateRestoreTraverser.h>
 #include <core/CStringUtils.h>
@@ -508,12 +509,49 @@ bool CBaseTokenListDataCategorizer::addPretokenisedTokens(const std::string& tok
     return true;
 }
 
+void CBaseTokenListDataCategorizer::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const {
+    mem->setName("CBaseTokenListDataCategorizer");
+    this->CDataCategorizer::debugMemoryUsage(mem->addChild());
+    core::CMemoryDebug::dynamicSize("m_ReverseSearchCreator", m_ReverseSearchCreator, mem);
+    core::CMemoryDebug::dynamicSize("m_Categories", m_Categories, mem);
+    core::CMemoryDebug::dynamicSize("m_CategoriesByCount", m_CategoriesByCount, mem);
+    core::CMemoryDebug::dynamicSize("m_TokenIdLookup", m_TokenIdLookup, mem);
+    core::CMemoryDebug::dynamicSize("m_WorkTokenIds", m_WorkTokenIds, mem);
+    core::CMemoryDebug::dynamicSize("m_WorkTokenUniqueIds", m_WorkTokenUniqueIds, mem);
+    core::CMemoryDebug::dynamicSize("m_CsvLineParser", m_CsvLineParser, mem);
+}
+
+std::size_t CBaseTokenListDataCategorizer::memoryUsage() const {
+    std::size_t mem = 0;
+    mem += this->CDataCategorizer::memoryUsage();
+    mem += core::CMemory::dynamicSize(m_ReverseSearchCreator);
+    mem += core::CMemory::dynamicSize(m_Categories);
+    mem += core::CMemory::dynamicSize(m_CategoriesByCount);
+    mem += core::CMemory::dynamicSize(m_TokenIdLookup);
+    mem += core::CMemory::dynamicSize(m_WorkTokenIds);
+    mem += core::CMemory::dynamicSize(m_WorkTokenUniqueIds);
+    mem += core::CMemory::dynamicSize(m_CsvLineParser);
+    return mem;
+}
+
 CBaseTokenListDataCategorizer::CTokenInfoItem::CTokenInfoItem(const std::string& str, size_t index)
     : m_Str(str), m_Index(index), m_CategoryCount(0) {
 }
 
 const std::string& CBaseTokenListDataCategorizer::CTokenInfoItem::str() const {
     return m_Str;
+}
+
+void CBaseTokenListDataCategorizer::CTokenInfoItem::debugMemoryUsage(
+    core::CMemoryUsage::TMemoryUsagePtr mem) const {
+    mem->setName("CTokenInfoItem");
+    core::CMemoryDebug::dynamicSize("m_Str", m_Str, mem);
+}
+
+std::size_t CBaseTokenListDataCategorizer::CTokenInfoItem::memoryUsage() const {
+    std::size_t mem = 0;
+    mem += core::CMemory::dynamicSize(m_Str);
+    return mem;
 }
 
 size_t CBaseTokenListDataCategorizer::CTokenInfoItem::index() const {
