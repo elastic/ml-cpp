@@ -79,5 +79,14 @@ void CTokenListReverseSearchCreator::closeStandardSearch(std::string& /*part1*/,
                                                          std::string& part2) const {
     part2 += ".*";
 }
+
+void CTokenListReverseSearchCreator::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const {
+    mem->setName("CTokenListReverseSearchCreator");
+    this->CTokenListReverseSearchCreatorIntf::debugMemoryUsage(mem->addChild());
+}
+
+std::size_t CTokenListReverseSearchCreator::memoryUsage() const {
+    return this->CTokenListReverseSearchCreatorIntf::memoryUsage();
+}
 }
 }
