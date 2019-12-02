@@ -139,9 +139,9 @@ void CDataFrameTrainBoostedTreeClassifierRunner::writeOneRow(
         for (int i = 0; i < row.numberColumns(); ++i) {
             const std::string& columnName{frame.columnNames()[i]};
             auto res = std::mismatch(
-                CDataFrameTrainBoostedTreeRunner::SHAP_PREFIX.begin(),
-                CDataFrameTrainBoostedTreeRunner::SHAP_PREFIX.end(), columnName.begin());
-            if (res.first == CDataFrameTrainBoostedTreeRunner::SHAP_PREFIX.end()) {
+                maths::CDataFrameRegressionModel::SHAP_PREFIX.begin(),
+                maths::CDataFrameRegressionModel::SHAP_PREFIX.end(), columnName.begin());
+            if (res.first == maths::CDataFrameRegressionModel::SHAP_PREFIX.end()) {
                 writer.Key(columnName);
                 writer.Double(row[i]);
             }

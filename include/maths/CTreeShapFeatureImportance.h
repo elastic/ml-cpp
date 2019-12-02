@@ -110,6 +110,7 @@ public:
 private:
     void shapRecursive(const TTree& tree,
                        const TDoubleVec& samplesPerNode,
+                       const CDataFrameCategoryEncoder& encoder,
                        const CEncodedDataFrameRowRef& encodedRow,
                        CTreeShapFeatureImportance::TDoubleVec& phi,
                        SPath splitPath,

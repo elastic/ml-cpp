@@ -40,7 +40,7 @@ CTreeShapFeatureImportance::shap(const core::CDataFrame& frame,
                     for (int i = 0; i < m_Trees.size(); ++i) {
                         //                        phi[frame.numberColumns()] += m_Trees[i][0].value();
                         SPath path(maxDepthVec[i] + 1);
-                        this->shapRecursive(m_Trees[i], m_SamplesPerNode[i],
+                        this->shapRecursive(m_Trees[i], m_SamplesPerNode[i], encoder,
                                             encodedRow, phi, path, 0, 1.0, 1.0, -1);
                         i += 0;
                     }
@@ -135,6 +135,7 @@ std::size_t CTreeShapFeatureImportance::updateNodeValues(TTree& tree,
 
 void CTreeShapFeatureImportance::shapRecursive(const TTree& tree,
                                                const TDoubleVec& samplesPerNode,
+                                               const CDataFrameCategoryEncoder& encoder,
                                                const CEncodedDataFrameRowRef& encodedRow,
                                                CTreeShapFeatureImportance::TDoubleVec& phi,
                                                SPath splitPath,
@@ -148,7 +149,9 @@ void CTreeShapFeatureImportance::shapRecursive(const TTree& tree,
         double leafValue = tree[nodeIndex].value();
         for (int i = 1; i <= splitPath.depth(); ++i) {
             double scale = this->sumUnwoundPath(splitPath, i);
-            phi[splitPath.featureIndex(i)] +=
+            std::size_t inputColumnIndex{
+                encoder.encoding(splitPath.featureIndex(i)).inputColumnIndex()};
+            phi[inputColumnIndex] +=
                 scale * (splitPath.fractionOnes(i) - splitPath.fractionZeros(i)) * leafValue;
         }
 
@@ -175,11 +178,12 @@ void CTreeShapFeatureImportance::shapRecursive(const TTree& tree,
 
         double hotFractionZero = samplesPerNode[hotIndex] / samplesPerNode[nodeIndex];
         double coldFractionZero = samplesPerNode[coldIndex] / samplesPerNode[nodeIndex];
-        this->shapRecursive(tree, samplesPerNode, encodedRow, phi, splitPath,
+        this->shapRecursive(tree, samplesPerNode, encoder, encodedRow, phi, splitPath,
                             hotIndex, incomingFractionZero * hotFractionZero,
                             incomingFractionOne, splitFeature);
-        this->shapRecursive(tree, samplesPerNode, encodedRow, phi, splitPath, coldIndex,
-                            incomingFractionZero * coldFractionZero, 0.0, splitFeature);
+        this->shapRecursive(tree, samplesPerNode, encoder, encodedRow, phi, splitPath,
+                            coldIndex, incomingFractionZero * coldFractionZero,
+                            0.0, splitFeature);
     }
 }
 

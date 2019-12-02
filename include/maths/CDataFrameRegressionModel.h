@@ -58,6 +58,9 @@ public:
     //! Get the column containing the model's prediction for the dependent variable.
     virtual std::size_t columnHoldingPrediction(std::size_t numberColumns) const = 0;
 
+public:
+    static const std::string SHAP_PREFIX;
+
 protected:
     CDataFrameRegressionModel(core::CDataFrame& frame,
                               TProgressCallback recordProgress,

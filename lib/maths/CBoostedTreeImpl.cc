@@ -1478,7 +1478,8 @@ void CBoostedTreeImpl::computeShapValues(int topShapValues,
     frame.resizeColumns(m_NumberThreads, frame.numberColumns() + topShapValues);
     TStrVec columnNames(frame.columnNames());
     for (int i = 0; i < topShapValues; ++i) {
-        columnNames[offset + i] = SHAP_PREFIX + frame.columnNames()[indices[i]];
+        columnNames[offset + i] = CDataFrameRegressionModel::SHAP_PREFIX +
+                                  frame.columnNames()[indices[i]];
     }
     frame.columnNames(columnNames);
 

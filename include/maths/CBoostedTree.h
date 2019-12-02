@@ -385,7 +385,7 @@ public:
     //! \warning This can only be called after train.
     void predict() const override;
 
-    //! Write SHAP values to the data frame supplied to the contructor.
+    //! Write SHAP values to the data frame supplied to the constructor.
     //!
     //! \warning This can only be called after train.
     void computeShapValues(int topShapValues) override;
