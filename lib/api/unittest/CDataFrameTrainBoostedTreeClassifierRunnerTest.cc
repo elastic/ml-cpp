@@ -25,6 +25,26 @@ using TStrVec = std::vector<std::string>;
 using TStrVecVec = std::vector<TStrVec>;
 }
 
+BOOST_AUTO_TEST_CASE(testPredictionFieldNameClash) {
+    TStrVec errors;
+    auto errorHandler = [&errors](std::string error) { errors.push_back(error); };
+    core::CLogger::CScopeSetFatalErrorHandler scope{errorHandler};
+
+    const auto spec{test::CDataFrameAnalysisSpecificationFactory::predictionSpec(
+        "classification", "dep_var", 5, 6, 13000000, 0, 0, {"dep_var"})};
+    rapidjson::Document jsonParameters;
+    jsonParameters.Parse("{"
+                         "  \"dependent_variable\": \"dep_var\","
+                         "  \"prediction_field_name\": \"is_training\""
+                         "}");
+    const auto parameters{
+        api::CDataFrameTrainBoostedTreeClassifierRunner::parameterReader().read(jsonParameters)};
+    api::CDataFrameTrainBoostedTreeClassifierRunner runner(*spec, parameters);
+
+    BOOST_TEST_REQUIRE(errors.size() == 1);
+    BOOST_TEST_REQUIRE(errors[0] == "Input error: prediction_field_name must not be equal to any of [is_training, prediction_probability, top_classes].");
+}
+
 BOOST_AUTO_TEST_CASE(testWriteOneRow) {
     // Prepare input data frame
     const TStrVec columnNames{"x1", "x2", "x3", "x4", "x5", "x5_prediction"};

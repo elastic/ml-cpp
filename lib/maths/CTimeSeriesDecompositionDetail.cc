@@ -1728,7 +1728,7 @@ void CTimeSeriesDecompositionDetail::CComponents::adjustValuesForPiecewiseConsta
         std::size_t a{segmentation[i - 1]};
         std::size_t b{segmentation[i]};
         for (std::size_t k = a; k < b && j > 0; --j, ++k) {
-            if (CBasicStatistics::count(values[k]) > 0) {
+            if (CBasicStatistics::count(values[k]) > 0.0) {
                 scale.add(scales[i - 1]);
             }
         }
