@@ -42,5 +42,4 @@ test:$(TARGET)
 	$(POST_TEST_CMDS)
 
 memcheck:$(TARGET)
-	echo $(VALGRIND_CMD) $(TEST_CMDS)
 	$(VALGRIND_CMD) $(TEST_CMDS)

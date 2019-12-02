@@ -21,14 +21,12 @@ else
 #if we haven't defined a specific test just run it
 ifndef TEST_CMDS
 TEST_CMDS=$(DEFAULT_TEST_CMDS)
-endif
+endif # ifndef TEST_CMDS
+endif # ifdef CPP_CROSS_COMPILE
 
 ifndef VALGRIND_CMD
 VALGRIND_CMD+=$(TEST_CMDS)
-endif
-
-endif
-
+endif # ifndef VALGRIND_CMD
 
 ifndef PRE_TEST_CMDS
 PRE_TEST_CMDS=
