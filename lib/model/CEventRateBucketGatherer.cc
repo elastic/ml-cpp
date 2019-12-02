@@ -320,7 +320,7 @@ struct SMaybeConst<TCategoryAnyMap::const_iterator, T> {
 
 //! Apply a function \p f to all the data held in [\p begin, \p end).
 template<typename ITR, typename F>
-void apply(ITR begin, ITR end, const F& f) {
+void applyFunc(ITR begin, ITR end, const F& f) {
     for (ITR itr = begin; itr != end; ++itr) {
         model_t::EEventRateCategory category = itr->first;
         try {
@@ -351,8 +351,8 @@ void apply(ITR begin, ITR end, const F& f) {
 
 //! Apply a function \p f to all the data held in \p featureData.
 template<typename T, typename F>
-void apply(T& featureData, const F& f) {
-    apply(featureData.begin(), featureData.end(), f);
+void applyFunc(T& featureData, const F& f) {
+    applyFunc(featureData.begin(), featureData.end(), f);
 }
 
 //! \brief Removes people from the feature data.
@@ -960,15 +960,15 @@ void CEventRateBucketGatherer::recyclePeople(const TSizeVec& peopleToRemove) {
         return;
     }
 
-    apply(m_FeatureData, std::bind<void>(SRemovePeople(), std::placeholders::_1,
-                                         std::cref(peopleToRemove)));
+    applyFunc(m_FeatureData, std::bind<void>(SRemovePeople(), std::placeholders::_1,
+                                             std::cref(peopleToRemove)));
 
     this->CBucketGatherer::recyclePeople(peopleToRemove);
 }
 
 void CEventRateBucketGatherer::removePeople(std::size_t lowestPersonToRemove) {
-    apply(m_FeatureData, std::bind<void>(SRemovePeople(), std::placeholders::_1, lowestPersonToRemove,
-                                         m_DataGatherer.numberPeople()));
+    applyFunc(m_FeatureData, std::bind<void>(SRemovePeople(), std::placeholders::_1, lowestPersonToRemove,
+                                             m_DataGatherer.numberPeople()));
     this->CBucketGatherer::removePeople(lowestPersonToRemove);
 }
 
@@ -977,15 +977,15 @@ void CEventRateBucketGatherer::recycleAttributes(const TSizeVec& attributesToRem
         return;
     }
 
-    apply(m_FeatureData, std::bind<void>(SRemoveAttributes(), std::placeholders::_1,
-                                         std::cref(attributesToRemove)));
+    applyFunc(m_FeatureData, std::bind<void>(SRemoveAttributes(), std::placeholders::_1,
+                                             std::cref(attributesToRemove)));
 
     this->CBucketGatherer::recycleAttributes(attributesToRemove);
 }
 
 void CEventRateBucketGatherer::removeAttributes(std::size_t lowestAttributeToRemove) {
-    apply(m_FeatureData, std::bind<void>(SRemoveAttributes(), std::placeholders::_1,
-                                         lowestAttributeToRemove));
+    applyFunc(m_FeatureData, std::bind<void>(SRemoveAttributes(), std::placeholders::_1,
+                                             lowestAttributeToRemove));
     this->CBucketGatherer::removeAttributes(lowestAttributeToRemove);
 }
 
@@ -993,8 +993,8 @@ uint64_t CEventRateBucketGatherer::checksum() const {
     uint64_t seed = this->CBucketGatherer::checksum();
 
     TStrUInt64Map hashes;
-    apply(m_FeatureData, std::bind<void>(SChecksum(), std::placeholders::_1,
-                                         std::cref(m_DataGatherer), std::ref(hashes)));
+    applyFunc(m_FeatureData, std::bind<void>(SChecksum(), std::placeholders::_1,
+                                             std::cref(m_DataGatherer), std::ref(hashes)));
     LOG_TRACE(<< "seed = " << seed);
     LOG_TRACE(<< "hashes = " << core::CContainerPrinter::print(hashes));
     core::CHashing::CSafeMurmurHash2String64 hasher;
@@ -1510,7 +1510,7 @@ void CEventRateBucketGatherer::bucketMeanTimesPerPersonAttribute(model_t::EFeatu
 }
 
 void CEventRateBucketGatherer::resize(std::size_t pid, std::size_t cid) {
-    apply(m_FeatureData, std::bind<void>(SResize(), std::placeholders::_1, pid, cid));
+    applyFunc(m_FeatureData, std::bind<void>(SResize(), std::placeholders::_1, pid, cid));
 }
 
 void CEventRateBucketGatherer::addValue(std::size_t pid,
@@ -1522,13 +1522,14 @@ void CEventRateBucketGatherer::addValue(std::size_t pid,
                                         const TStoredStringPtrVec& influences) {
     // Check that we are correctly sized - a person/attribute might have been added
     this->resize(pid, cid);
-    apply(m_FeatureData, std::bind<void>(SAddValue(), std::placeholders::_1, pid,
-                                         cid, time, count, std::cref(values),
-                                         std::cref(stringValue), std::cref(influences)));
+    applyFunc(m_FeatureData,
+              std::bind<void>(SAddValue(), std::placeholders::_1, pid, cid,
+                              time, count, std::cref(values),
+                              std::cref(stringValue), std::cref(influences)));
 }
 
 void CEventRateBucketGatherer::startNewBucket(core_t::TTime time, bool /*skipUpdates*/) {
-    apply(m_FeatureData, std::bind<void>(SNewBucket(), std::placeholders::_1, time));
+    applyFunc(m_FeatureData, std::bind<void>(SNewBucket(), std::placeholders::_1, time));
 }
 
 void CEventRateBucketGatherer::initializeFieldNames(const std::string& personFieldName,
