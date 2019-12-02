@@ -183,7 +183,7 @@ void CSignal::autocorrelations(const TFloatMeanAccumulatorVec& values, TDoubleVe
     TComplexVec f(n, TComplex{0.0, 0.0});
     for (std::size_t i = 0; i < n; ++i) {
         std::size_t j = i;
-        while (j < n && CBasicStatistics::count(values[j]) == 0) {
+        while (j < n && CBasicStatistics::count(values[j]) == 0.0) {
             ++j;
         }
         if (i < j) {
