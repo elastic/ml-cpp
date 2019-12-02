@@ -20,10 +20,10 @@ namespace core {
 //! \brief An immutable sorted set which provides very fast lookup.
 //!
 //! DESCRIPTION:\n
-//! This supports lower bound and look up by index as well as a subset of the non
+//! This supports upper bound and look up by index as well as a subset of the non
 //! modifying interface of std::set. Its main purpose is to provide much faster
 //! lookup. To this end it subdivides the range of sorted values into buckets.
-//! In the case that the values are uniformly distributed lowerBound will be O(1)
+//! In the case that the values are uniformly distributed upperBound will be O(1)
 //! with low constant. Otherwise, it is worst case O(log(n)).
 template<typename T>
 class CImmutableRadixSet {
