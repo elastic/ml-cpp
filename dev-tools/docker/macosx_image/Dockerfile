@@ -38,6 +38,8 @@ RUN \
   cd cctools-port/cctools && \
   git checkout 921-ld64-409.12 && \
   sed -i -e 's/autoconf/autoreconf -fi/' autogen.sh && \
+  export CC=clang-6.0 && \
+  export CXX=clang++-6.0 && \
   ./autogen.sh && \
   ./configure --target=x86_64-apple-macosx10.13 --with-llvm-config=/usr/bin/llvm-config-6.0 && \
   make -j`nproc` && \
