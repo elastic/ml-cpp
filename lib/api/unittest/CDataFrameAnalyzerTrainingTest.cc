@@ -817,14 +817,14 @@ BOOST_AUTO_TEST_CASE(testCategoricalFieldsEmptyAsMissing) {
     });
 }
 
-BOOST_AUTO_TEST_CASE(testRunBoostedTreeRegressionTrainingWithFeatureImportance) {
+BOOST_AUTO_TEST_CASE(testRunBoostedTreeRegressionFeatureImportance) {
 
     // Test that feature importance correctly recognize the impact of regressors in a linear model.
 
     double alpha{2.0};
     double lambda{1.0};
     double gamma{10.0};
-    double softTreeDepthLimit{3.0};
+    double softTreeDepthLimit{5.0};
     double softTreeDepthTolerance{0.1};
     double eta{0.9};
     std::size_t maximumNumberTrees{1};
@@ -839,8 +839,9 @@ BOOST_AUTO_TEST_CASE(testRunBoostedTreeRegressionTrainingWithFeatureImportance) 
 
     api::CDataFrameAnalyzer analyzer{
         test::CDataFrameAnalysisSpecificationFactory::predictionSpec(
-            "regression", "c5", rows, 5, 4000000, 0, 0, {}, alpha, lambda, gamma, softTreeDepthLimit,
-            softTreeDepthTolerance, eta, maximumNumberTrees, featureBagFraction, 4),
+            "regression", "c5", rows, 5, 4000000, 0, 0, {"c1"}, alpha, lambda,
+            gamma, softTreeDepthLimit, softTreeDepthTolerance, eta,
+            maximumNumberTrees, featureBagFraction, 4),
         outputWriterFactory};
 
     TDoubleVec expectedPredictions;
@@ -848,10 +849,15 @@ BOOST_AUTO_TEST_CASE(testRunBoostedTreeRegressionTrainingWithFeatureImportance) 
     TStrVec fieldNames{"c1", "c2", "c3", "c4", "c5", ".", "."};
     TStrVec fieldValues{"", "", "", "", "", "0", ""};
     test::CRandomNumbers rng;
-    TDoubleVec weights{200, 100, 10, -50};
+    TDoubleVec weights{50, 150, 50, -50};
 
     TDoubleVec values;
     rng.generateUniformSamples(-10.0, 10.0, weights.size() * rows, values);
+
+    // make last column categorical
+    for (auto it = values.begin(); it < values.end(); it += 4) {
+        *it = (*it < 0) ? -10 : 10;
+    }
 
     auto frame = setupLinearRegressionData(fieldNames, fieldValues, analyzer, weights, values);
     analyzer.handleRecord(fieldNames, {"", "", "", "", "", "", "$"});
@@ -873,9 +879,10 @@ BOOST_AUTO_TEST_CASE(testRunBoostedTreeRegressionTrainingWithFeatureImportance) 
                 result["row_results"]["results"]["ml"]["shap_c4"].GetDouble());
         }
     }
-    BOOST_TEST_REQUIRE(c1_sum > c2_sum);
-    BOOST_TEST_REQUIRE(c2_sum > c4_sum);
-    BOOST_TEST_REQUIRE(c4_sum > c3_sum);
+    BOOST_TEST_REQUIRE(c2_sum > c1_sum);
+    BOOST_TEST_REQUIRE(c1_sum > c3_sum);
+    BOOST_TEST_REQUIRE(c1_sum > c4_sum);
+    BOOST_REQUIRE_CLOSE(c3_sum, c4_sum, 80); // c3 and c4 within 80% of each other
 }
 
 BOOST_AUTO_TEST_SUITE_END()
