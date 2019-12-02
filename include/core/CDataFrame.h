@@ -8,6 +8,7 @@
 #define INCLUDED_ml_core_CDataFrame_h
 
 #include <core/CFloatStorage.h>
+#include <core/CPackedBitVector.h>
 #include <core/CVectorRange.h>
 #include <core/Concurrency.h>
 #include <core/ImportExport.h>
@@ -26,7 +27,6 @@ namespace ml {
 namespace core {
 class CDataFrameRowSlice;
 class CDataFrameRowSliceHandle;
-class CPackedBitVector;
 class CTemporaryDirectory;
 
 namespace data_frame_detail {
@@ -35,7 +35,29 @@ using TFloatVec = std::vector<CFloatStorage>;
 using TFloatVecItr = TFloatVec::iterator;
 using TInt32Vec = std::vector<std::int32_t>;
 using TInt32VecCItr = TInt32Vec::const_iterator;
-using TPopMaskedRowFunc = std::function<std::size_t()>;
+
+//! \brief A callback used to iterate over only the masked rows.
+class CORE_EXPORT CPopMaskedRow {
+public:
+    CPopMaskedRow(std::size_t endSliceRows,
+                  CPackedBitVector::COneBitIndexConstIterator& maskedRow,
+                  const CPackedBitVector::COneBitIndexConstIterator& endMaskedRows)
+        : m_EndSliceRows{endSliceRows}, m_MaskedRow{&maskedRow}, m_EndMaskedRows{&endMaskedRows} {
+    }
+
+    std::size_t operator()() const {
+        return ++(*m_MaskedRow) == *m_EndMaskedRows
+                   ? m_EndSliceRows
+                   : std::min(**m_MaskedRow, m_EndSliceRows);
+    }
+
+private:
+    std::size_t m_EndSliceRows;
+    CPackedBitVector::COneBitIndexConstIterator* m_MaskedRow;
+    const CPackedBitVector::COneBitIndexConstIterator* m_EndMaskedRows;
+};
+
+using TOptionalPopMaskedRow = boost::optional<CPopMaskedRow>;
 
 //! \brief A lightweight wrapper around a single row of the data frame.
 //!
@@ -123,7 +145,7 @@ public:
                  std::size_t index,
                  TFloatVecItr rowItr,
                  TInt32VecCItr docHashItr,
-                 TPopMaskedRowFunc popMaskedRow = nullptr);
+                 const TOptionalPopMaskedRow& popMaskedRow);
 
     //! \name Forward Iterator Contract
     //@{
@@ -141,7 +163,7 @@ private:
     std::size_t m_Index = 0;
     TFloatVecItr m_RowItr;
     TInt32VecCItr m_DocHashItr;
-    TPopMaskedRowFunc m_PopMaskedRow;
+    TOptionalPopMaskedRow m_PopMaskedRow;
 };
 }
 
@@ -469,7 +491,7 @@ private:
     using TStrSizeUMapVec = std::vector<TStrSizeUMap>;
     using TSizeSizePr = std::pair<std::size_t, std::size_t>;
     using TSizeDataFrameRowSlicePtrVecPr = std::pair<std::size_t, TRowSlicePtrVec>;
-    using TPopMaskedRowFunc = data_frame_detail::TPopMaskedRowFunc;
+    using TOptionalPopMaskedRow = data_frame_detail::TOptionalPopMaskedRow;
 
     //! \brief Writes rows to the data frame.
     class CDataFrameRowSliceWriter final {
@@ -504,19 +526,19 @@ private:
     TRowFuncVecBoolPr parallelApplyToAllRows(std::size_t numberThreads,
                                              std::size_t beginRows,
                                              std::size_t endRows,
-                                             TRowFunc func,
+                                             TRowFunc&& func,
                                              const CPackedBitVector* rowMask,
                                              bool commitResult) const;
     TRowFuncVecBoolPr sequentialApplyToAllRows(std::size_t beginRows,
                                                std::size_t endRows,
-                                               TRowFunc func,
+                                               TRowFunc& func,
                                                const CPackedBitVector* rowMask,
                                                bool commitResult) const;
 
     void applyToRowsOfOneSlice(TRowFunc& func,
                                std::size_t firstRowToRead,
                                std::size_t endRowsToRead,
-                               TPopMaskedRowFunc popMaskedRow,
+                               const TOptionalPopMaskedRow& popMaskedRow,
                                const CDataFrameRowSliceHandle& slice) const;
 
     TRowSlicePtrVecCItr beginSlices(std::size_t beginRows) const;

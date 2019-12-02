@@ -322,7 +322,7 @@ double CQuantileSketch::count() const {
     return m_Count;
 }
 
-uint64_t CQuantileSketch::checksum(uint64_t seed) const {
+std::uint64_t CQuantileSketch::checksum(std::uint64_t seed) const {
     seed = CChecksum::calculate(seed, m_MaxSize);
     seed = CChecksum::calculate(seed, m_Knots);
     return CChecksum::calculate(seed, m_Count);
@@ -418,17 +418,18 @@ void CQuantileSketch::quantile(EInterpolation interpolation,
 void CQuantileSketch::reduce() {
     using TSizeVec = std::vector<std::size_t>;
 
-    CPRNG::CXorOShiro128Plus rng(static_cast<uint64_t>(m_Count));
-    boost::random::uniform_01<double> u01;
-
     std::size_t target = this->target();
     this->orderAndDeduplicate();
 
     if (m_Knots.size() > target) {
         TDoubleDoublePrVec costs;
         TSizeVec indexing;
+        TSizeVec stale;
         costs.reserve(m_Knots.size());
         indexing.reserve(m_Knots.size());
+        stale.reserve(m_Knots.size());
+        CPRNG::CXorOShiro128Plus rng(static_cast<std::uint64_t>(m_Count));
+        boost::random::uniform_01<double> u01;
         for (std::size_t i = 1u; i + 2 < m_Knots.size(); ++i) {
             costs.emplace_back(this->cost(m_Knots[i], m_Knots[i + 1]), u01(rng));
             indexing.push_back(i - 1);
@@ -438,7 +439,7 @@ void CQuantileSketch::reduce() {
         std::size_t merged = 0u;
 
         std::make_heap(indexing.begin(), indexing.end(), CIndexingGreater(costs));
-        for (TSizeVec stale; m_Knots.size() > target + merged; /**/) {
+        while (m_Knots.size() > target + merged) {
             LOG_TRACE(<< "indexing = " << core::CContainerPrinter::print(indexing));
 
             std::size_t l = indexing[0] + 1;

@@ -401,7 +401,7 @@ private:
         if (primary != nullptr && secondary != nullptr) {
             TCoordinate distanceToHyperplane{point(coordinate) - node.s_Point(coordinate)};
 
-            if (distanceToHyperplane > 0) {
+            if (distanceToHyperplane > TCoordinate{0}) {
                 std::swap(primary, secondary);
             } else {
                 distanceToHyperplane = std::fabs(distanceToHyperplane);
@@ -454,7 +454,7 @@ private:
         if (primary != nullptr && secondary != nullptr) {
             TCoordinate distanceToHyperplane{point(coordinate) - node.s_Point(coordinate)};
 
-            if (distanceToHyperplane > 0) {
+            if (distanceToHyperplane > TCoordinate{0}) {
                 std::swap(primary, secondary);
             } else {
                 distanceToHyperplane = std::fabs(distanceToHyperplane);
