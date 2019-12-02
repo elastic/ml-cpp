@@ -185,11 +185,9 @@ private:
 
         CLeafNodeStatistics(const CLeafNodeStatistics&) = delete;
 
-        CLeafNodeStatistics(CLeafNodeStatistics&&) = default;
+        // Move construction/assignment not possible due to const reference member
 
         CLeafNodeStatistics& operator=(const CLeafNodeStatistics&) = delete;
-
-        CLeafNodeStatistics& operator=(CLeafNodeStatistics&&) = default;
 
         //! Apply the split defined by \p split.
         //!
