@@ -317,7 +317,7 @@ public:
     CMakeDataFrameCategoryEncoder& columnMask(TSizeVec columnMask);
 
     //! Make the encoding.
-    TEncodingUPtrVec makeEncodings();
+    virtual TEncodingUPtrVec makeEncodings();
 
     //! \name Test Methods
     //@{

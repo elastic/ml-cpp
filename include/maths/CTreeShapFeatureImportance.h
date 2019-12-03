@@ -81,7 +81,7 @@ public:
     };
 
 public:
-    explicit CTreeShapFeatureImportance(TTreeVec trees, std::size_t threads);
+    explicit CTreeShapFeatureImportance(TTreeVec trees, std::size_t threads = 1);
 
     //! Compute SHAP values for the data in \p frame using the specified \p encoder.
     //!
@@ -93,38 +93,39 @@ public:
                                                 std::size_t numberFeatures,
                                                 std::size_t offset);
 
-    CTreeShapFeatureImportance::TDoubleVec
+    static CTreeShapFeatureImportance::TDoubleVec
     samplesPerNode(const TTree& tree,
                    const core::CDataFrame& frame,
-                   const CDataFrameCategoryEncoder& encoder) const;
+                   const CDataFrameCategoryEncoder& encoder,
+                   std::size_t numThreads);
 
     //! Recursively computes inner node values as weighted average of the children (leaf) values
     //! Returns maximum depth the the tree
-    std::size_t updateNodeValues(TTree& tree,
-                                 std::size_t nodeIndex,
-                                 const TDoubleVec& samplesPerNode,
-                                 std::size_t depth);
+    static std::size_t updateNodeValues(TTree& tree,
+                                        std::size_t nodeIndex,
+                                        const TDoubleVec& samplesPerNode,
+                                        std::size_t depth);
 
     TTreeVec& trees() { return m_Trees; };
 
 private:
-    void shapRecursive(const TTree& tree,
-                       const TDoubleVec& samplesPerNode,
-                       const CDataFrameCategoryEncoder& encoder,
-                       const CEncodedDataFrameRowRef& encodedRow,
-                       SPath splitPath,
-                       std::size_t nodeIndex,
-                       double parentFractionZero,
-                       double parentFractionOne,
-                       int parentFeatureIndex,
-                       std::size_t offset,
-                       core::CDataFrame::TRowItr& row);
-    void extendPath(CTreeShapFeatureImportance::SPath& path,
-                    double fractionZero,
-                    double fractionOne,
-                    int featureIndex);
-    double sumUnwoundPath(const CTreeShapFeatureImportance::SPath& path, int pathIndex) const;
-    void unwindPath(CTreeShapFeatureImportance::SPath& path, int pathIndex);
+    static void shapRecursive(const TTree& tree,
+                              const TDoubleVec& samplesPerNode,
+                              const CDataFrameCategoryEncoder& encoder,
+                              const CEncodedDataFrameRowRef& encodedRow,
+                              SPath splitPath,
+                              std::size_t nodeIndex,
+                              double parentFractionZero,
+                              double parentFractionOne,
+                              int parentFeatureIndex,
+                              std::size_t offset,
+                              core::CDataFrame::TRowItr& row);
+    static void extendPath(CTreeShapFeatureImportance::SPath& path,
+                           double fractionZero,
+                           double fractionOne,
+                           int featureIndex);
+    static double sumUnwoundPath(const CTreeShapFeatureImportance::SPath& path, int pathIndex);
+    static void unwindPath(CTreeShapFeatureImportance::SPath& path, int pathIndex);
 
 private:
     TTreeVec m_Trees;

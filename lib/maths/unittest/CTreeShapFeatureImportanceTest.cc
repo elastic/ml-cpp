@@ -22,6 +22,7 @@ using TTree = std::vector<maths::CBoostedTreeNode>;
 using TDataFrameUPtr = std::unique_ptr<core::CDataFrame>;
 using TTreeShapFeatureImportanceUPtr = std::unique_ptr<maths::CTreeShapFeatureImportance>;
 using TEncoderUPtr = std::unique_ptr<maths::CDataFrameCategoryEncoder>;
+using TRowItr = core::CDataFrame::TRowItr;
 
 class CStubMakeDataFrameCategoryEncoder final : public maths::CMakeDataFrameCategoryEncoder {
 public:
@@ -30,7 +31,7 @@ public:
                                       size_t targetColumn)
         : CMakeDataFrameCategoryEncoder(numberThreads, frame, targetColumn) {}
 
-    TEncodingUPtrVec makeEncodings() {
+    CMakeDataFrameCategoryEncoder::TEncodingUPtrVec makeEncodings() override {
         TEncodingUPtrVec result;
         result.push_back(
             std::make_unique<maths::CDataFrameCategoryEncoder::CIdentityEncoding>(0, 1.0));
@@ -135,8 +136,8 @@ struct SFixtureMultipleTrees {
 
 BOOST_FIXTURE_TEST_CASE(testSingleTreeSamplesPerNode, SFixtureSingleTree) {
 
-    auto samplesPerNode = treeFeatureImportance->samplesPerNode(
-        treeFeatureImportance->trees()[0], *frame, *encoder);
+    auto samplesPerNode = maths::CTreeShapFeatureImportance::samplesPerNode(
+        treeFeatureImportance->trees()[0], *frame, *encoder, 1);
     TDoubleVec expectedSamplesPerNode{4, 2, 2, 1, 1, 1, 1};
     BOOST_TEST_REQUIRE(samplesPerNode == expectedSamplesPerNode);
 }
@@ -144,7 +145,7 @@ BOOST_FIXTURE_TEST_CASE(testSingleTreeSamplesPerNode, SFixtureSingleTree) {
 BOOST_FIXTURE_TEST_CASE(testSingleTreeExpectedNodeValues, SFixtureSingleTree) {
 
     TDoubleVec samplesPerNode{4, 2, 2, 1, 1, 1, 1};
-    std::size_t depth = treeFeatureImportance->updateNodeValues(
+    std::size_t depth = maths::CTreeShapFeatureImportance::updateNodeValues(
         treeFeatureImportance->trees()[0], 0, samplesPerNode, 0);
     BOOST_TEST_REQUIRE(depth == 2);
     TDoubleVec expectedValues{10.5, 5.5, 15.5, 3.0, 8.0, 13.0, 18.0};
@@ -155,30 +156,34 @@ BOOST_FIXTURE_TEST_CASE(testSingleTreeExpectedNodeValues, SFixtureSingleTree) {
 }
 
 BOOST_FIXTURE_TEST_CASE(testSingleTreeShapNotNormalized, SFixtureSingleTree) {
-    TDoubleVecVec actualPhi;
-    TDoubleVec totalPhi;
-    std::tie(actualPhi, totalPhi) = treeFeatureImportance->shap(*frame, *encoder, 0, 0);
+    std::size_t offset{frame->numberColumns()};
+    treeFeatureImportance->shap(*frame, *encoder, frame->numberColumns(), offset);
     TDoubleVecVec expectedPhi{{-5., -2.5}, {-5., 2.5}, {5., -2.5}, {5., 2.5}};
-    BOOST_TEST_REQUIRE(actualPhi == expectedPhi);
+    frame->readRows(1, [&](TRowItr beginRows, TRowItr endRows) {
+        for (auto row = beginRows; row != endRows; ++row) {
+            for (std::size_t col = 0; col < 2; ++col) {
+                BOOST_TEST_REQUIRE((*row)[offset + col] == expectedPhi[row->index()][col]);
+            }
+        }
+    });
 }
 
 BOOST_FIXTURE_TEST_CASE(testMultipleTreesShapNotNormalized, SFixtureMultipleTrees) {
-    TDoubleVecVec actualPhi;
-    TDoubleVec totalPhi;
-    std::tie(actualPhi, totalPhi) = treeFeatureImportance->shap(*frame, *encoder, 0, 0);
     TDoubleVecVec expectedPhi{
         {-0.82660001, -0.06222489}, {-0.82660001, -0.06222489},
         {-0.82660001, -0.06222489}, {-0.58498581, -0.06222489},
         {-0.58498581, -0.06222489}, {0.03993395, -0.06222489},
         {0.90245943, -0.2177871},   {1.0269092, 0.0725957},
         {1.0269092, 0.0725957},     {1.0269092, 0.0725957}};
-    BOOST_TEST_REQUIRE(actualPhi.size() == expectedPhi.size());
-    for (int i = 0; i < actualPhi.size(); ++i) {
-        BOOST_TEST_REQUIRE(actualPhi[i].size() == expectedPhi[i].size());
-        for (int j = 0; j < actualPhi[i].size(); ++j) {
-            BOOST_TEST_REQUIRE(actualPhi[i][j] == expectedPhi[i][j], tt::tolerance(0.000001));
+    std::size_t offset{frame->numberColumns()};
+    treeFeatureImportance->shap(*frame, *encoder, frame->numberColumns(), offset);
+    frame->readRows(1, [&](TRowItr beginRows, TRowItr endRows) {
+        for (auto row = beginRows; row != endRows; ++row) {
+            for (std::size_t col = 0; col < 2; ++col) {
+                BOOST_TEST_REQUIRE((*row)[offset + col] == expectedPhi[row->index()][col]);
+            }
         }
-    }
+    });
 }
 
 BOOST_AUTO_TEST_SUITE_END()
