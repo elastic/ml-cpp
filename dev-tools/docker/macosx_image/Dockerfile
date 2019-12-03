@@ -17,7 +17,7 @@ RUN \
 
 # Install clang
 RUN \
-  wget -O - http://apt.llvm.org/llvm-snapshot.gpg.key | apt-key add - && \
+  wget --quiet -O - http://apt.llvm.org/llvm-snapshot.gpg.key | apt-key add - && \
   apt-add-repository "deb http://apt.llvm.org/bionic/ llvm-toolchain-bionic main" && \
   apt-get install --no-install-recommends -y clang-6.0 libclang1-6.0 libllvm6.0 llvm-6.0 llvm-6.0-runtime
 
