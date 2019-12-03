@@ -28,6 +28,10 @@ ifndef VALGRIND_CMD
 VALGRIND_CMD+=$(TEST_CMDS)
 endif # ifndef VALGRIND_CMD
 
+ifndef VALGRIND_SUPPRESSIONS
+VALGRIND_SUPPRESSIONS=--suppressions=valgrind.supp
+endif
+
 ifndef PRE_TEST_CMDS
 PRE_TEST_CMDS=
 endif

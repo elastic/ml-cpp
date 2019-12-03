@@ -16,6 +16,8 @@ USE_BOOST_TEST_LIBS=1
 USE_RAPIDJSON=1
 USE_EIGEN=1
 
+VALGRIND_SUPPRESSIONS+=--suppressions=valgrind.supp
+
 LIBS:=$(LIB_ML_MATHS)
 
 all: build
