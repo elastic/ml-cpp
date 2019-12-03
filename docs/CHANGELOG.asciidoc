@@ -28,6 +28,13 @@
 
 //=== Regressions
 
+== {es} version 8.0.0
+
+=== Enhancements
+
+* The macOS build platform for the {ml} C++ code is now High Sierra running Xcode 10.1,
+  or Ubuntu 18.04 running clang 6.0 for cross compilation. (See {ml-pull}867[#867].)
+
 == {es} version 7.6.0
 
 === Enhancements
