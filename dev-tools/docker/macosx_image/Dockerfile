@@ -13,15 +13,11 @@ MAINTAINER David Roberts <dave.roberts@elastic.co>
 # Make sure apt-get is up to date and required packages are installed
 RUN \
   apt-get update && \
-  apt-get install --no-install-recommends -y apt-utils automake autogen build-essential bzip2 git gobjc libtool software-properties-common unzip wget zip
+  apt-get install --no-install-recommends -y apt-utils automake autogen build-essential bzip2 git gobjc gpg-agent libtool software-properties-common unzip wget zip
 
 # Install clang
-# Note: apt-key cannot update /etc/apt/trusted.gpg on the Ubuntu 18.04 Docker image, so it's updated in /tmp
 RUN \
-  cp /etc/apt/trusted.gpg /tmp && \
-  wget --quiet -O - http://apt.llvm.org/llvm-snapshot.gpg.key | apt-key --keyring /tmp/trusted.gpg add - && \
-  mv /tmp/trusted.gpg /etc/apt && \
-  rm /tmp/trusted.gpg~ && \
+  wget -O - http://apt.llvm.org/llvm-snapshot.gpg.key | apt-key add - && \
   apt-add-repository "deb http://apt.llvm.org/bionic/ llvm-toolchain-bionic main" && \
   apt-get install --no-install-recommends -y clang-6.0 libclang1-6.0 libllvm6.0 llvm-6.0 llvm-6.0-runtime
 

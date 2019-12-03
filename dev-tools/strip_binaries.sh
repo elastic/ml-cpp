@@ -103,7 +103,7 @@ case `uname` in
                     *Ml*)
                         llvm-dsymutil-6.0 $LIBRARY
                 esac
-                /usr/local/bin/x86_64-apple-macosx10.11-strip -x $LIBRARY
+                /usr/local/bin/x86_64-apple-macosx10.13-strip -x $LIBRARY
             done
         else
             echo "Cannot cross compile to $CPP_CROSS_COMPILE"
