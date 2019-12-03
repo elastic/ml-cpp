@@ -24,15 +24,15 @@ Note, that bash doesn't read `~/.bashrc` for login shells (which is what you get
 
 ### General settings for building the tools
 
-Most of the tools are built via a GNU "configure" script. There are some environment variables that affect the behaviour of this. Therefore, when building ANY tool on macOS, set the following environment variables:
+Some tools may be built via a GNU "configure" script. There are some environment variables that affect the behaviour of this. Therefore, when building ANY tool on macOS, set the following environment variables:
 
 ```
 export CPP='clang -E'
 export CC=clang
 export CFLAGS='-O3 -msse4.2'
-export CXX='clang++ -std=c++14 -stdlib=libc++'
+export CXX='clang++ -std=c++17 -stdlib=libc++'
 export CXXFLAGS='-O3 -msse4.2'
-export CXXCPP='clang++ -std=c++14 -E'
+export CXXCPP='clang++ -std=c++17 -E'
 export LDFLAGS=-Wl,-headerpad_max_install_names
 unset CPATH
 unset C_INCLUDE_PATH
@@ -46,13 +46,12 @@ The above environment variables only need to be set when building tools on macOS
 
 The first major piece of development software to install is Apple's development environment, Xcode, which can be downloaded from <https://developer.apple.com/download/> . You will need to register as a developer with Apple. Alternatively, you can get the latest version of Xcode from the App Store.
 
-- If you are using Yosemite, you must install Xcode 7.2.x
-- If you are using El Capitan, you must install Xcode 8.2.x
-- If you are using Sierra, you must install Xcode 9.2.x
+For C++17 Xcode 10 is required, and this requires macOS High Sierra or above. Therefore you must be running macOS High Sierra (10.13) or above to build the Machine Learning C++ code.
+
 - If you are using High Sierra, you must install Xcode 10.1.x
 - If you are using Mojave or Catalina, you must install Xcode 11.2.x
 
-Older versions of Xcode are installed by dragging the app from the `.dmg` file to the `/Applications` directory on your Mac (or if you got it from the App Store it will already be in the `/Applications` directory). More modern versions of Xcode are distributed as a `.xip` file; simply double click the `.xip` file to expand it, then drag `Xcode.app` to your `/Applications` directory.
+Xcode is distributed as a `.xip` file; simply double click the `.xip` file to expand it, then drag `Xcode.app` to your `/Applications` directory.
 (Older versions of Xcode can be downloaded from [here](https://developer.apple.com/download/more/), provided you are signed in with your Apple ID.)
 
 There are no command line tools out-of-the-box, so you'll need to install them following installation of Xcode. You can do this by running:
@@ -96,8 +95,8 @@ to:
 To complete the build, type:
 
 ```
-./b2 -j8 --layout=versioned --disable-icu cxxflags="-std=c++14 -stdlib=libc++" linkflags="-std=c++14 -stdlib=libc++ -Wl,-headerpad_max_install_names" optimization=speed inlining=full define=BOOST_MATH_NO_LONG_DOUBLE_MATH_FUNCTIONS define=BOOST_LOG_WITHOUT_DEBUG_OUTPUT define=BOOST_LOG_WITHOUT_EVENT_LOG define=BOOST_LOG_WITHOUT_SYSLOG define=BOOST_LOG_WITHOUT_IPC
-sudo ./b2 install --layout=versioned --disable-icu cxxflags="-std=c++14 -stdlib=libc++" linkflags="-std=c++14 -stdlib=libc++ -Wl,-headerpad_max_install_names" optimization=speed inlining=full define=BOOST_MATH_NO_LONG_DOUBLE_MATH_FUNCTIONS define=BOOST_LOG_WITHOUT_DEBUG_OUTPUT define=BOOST_LOG_WITHOUT_EVENT_LOG define=BOOST_LOG_WITHOUT_SYSLOG define=BOOST_LOG_WITHOUT_IPC
+./b2 -j8 --layout=versioned --disable-icu cxxflags="-std=c++17 -stdlib=libc++ -msse4.2" linkflags="-std=c++17 -stdlib=libc++ -Wl,-headerpad_max_install_names" optimization=speed inlining=full define=BOOST_MATH_NO_LONG_DOUBLE_MATH_FUNCTIONS define=BOOST_LOG_WITHOUT_DEBUG_OUTPUT define=BOOST_LOG_WITHOUT_EVENT_LOG define=BOOST_LOG_WITHOUT_SYSLOG define=BOOST_LOG_WITHOUT_IPC
+sudo ./b2 install --layout=versioned --disable-icu cxxflags="-std=c++17 -stdlib=libc++ -msse4.2" linkflags="-std=c++17 -stdlib=libc++ -Wl,-headerpad_max_install_names" optimization=speed inlining=full define=BOOST_MATH_NO_LONG_DOUBLE_MATH_FUNCTIONS define=BOOST_LOG_WITHOUT_DEBUG_OUTPUT define=BOOST_LOG_WITHOUT_EVENT_LOG define=BOOST_LOG_WITHOUT_SYSLOG define=BOOST_LOG_WITHOUT_IPC
 ```
 
 to install the Boost headers and libraries.

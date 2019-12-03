@@ -5,7 +5,7 @@
 #
 
 # Increment the version here when a new tools/3rd party components image is built
-FROM docker.elastic.co/ml-dev/ml-macosx-build:7
+FROM docker.elastic.co/ml-dev/ml-macosx-build:8
 
 MAINTAINER David Roberts <dave.roberts@elastic.co>
 
