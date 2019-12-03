@@ -593,7 +593,7 @@ BOOST_AUTO_TEST_CASE(testRunBoostedTreeRegressionTrainingWithStateRecovery) {
                 numberRoundsPerHyperparameter, 12, {}, params.s_Alpha,
                 params.s_Lambda, params.s_Gamma, params.s_SoftTreeDepthLimit,
                 params.s_SoftTreeDepthTolerance, params.s_Eta, params.s_MaximumNumberTrees,
-                params.s_FeatureBagFraction, 0, &persisterSupplier);
+                params.s_FeatureBagFraction, 0 /*topShapValues*/, &persisterSupplier);
         };
 
         finalIteration = params.numberUnset() * numberRoundsPerHyperparameter;
@@ -870,13 +870,13 @@ BOOST_AUTO_TEST_CASE(testRunBoostedTreeRegressionFeatureImportance) {
     for (const auto& result : results.GetArray()) {
         if (result.HasMember("row_results")) {
             c1_sum += std::fabs(
-                result["row_results"]["results"]["ml"]["shap_c1"].GetDouble());
+                result["row_results"]["results"]["ml"]["shap.c1"].GetDouble());
             c2_sum += std::fabs(
-                result["row_results"]["results"]["ml"]["shap_c2"].GetDouble());
+                result["row_results"]["results"]["ml"]["shap.c2"].GetDouble());
             c3_sum += std::fabs(
-                result["row_results"]["results"]["ml"]["shap_c3"].GetDouble());
+                result["row_results"]["results"]["ml"]["shap.c3"].GetDouble());
             c4_sum += std::fabs(
-                result["row_results"]["results"]["ml"]["shap_c4"].GetDouble());
+                result["row_results"]["results"]["ml"]["shap.c4"].GetDouble());
         }
     }
     BOOST_TEST_REQUIRE(c2_sum > c1_sum);

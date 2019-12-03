@@ -73,7 +73,7 @@ CTreeShapFeatureImportance::samplesPerNode(const TTree& tree,
     auto result = frame.readRows(
         m_NumberThreads, 0, frame.numberRows(),
         core::bindRetrievableState(
-            [&](std::vector<double>& state, TRowItr beginRows, TRowItr endRows) {
+            [&](TDoubleVec& state, TRowItr beginRows, TRowItr endRows) {
                 for (auto row = beginRows; row != endRows; ++row) {
                     auto encodedRow{encoder.encode(*row)};
                     auto node{tree[0]};
@@ -103,8 +103,7 @@ CTreeShapFeatureImportance::samplesPerNode(const TTree& tree,
     return totalSamplesPerNode;
 }
 
-ml::maths::CTreeShapFeatureImportance::CTreeShapFeatureImportance(TTreeVec trees,
-                                                                  std::size_t threads)
+CTreeShapFeatureImportance::CTreeShapFeatureImportance(TTreeVec trees, std::size_t threads)
     : m_Trees{std::move(trees)}, m_NumberThreads{threads}, m_SamplesPerNode() {
     m_SamplesPerNode.reserve(m_Trees.size());
 }

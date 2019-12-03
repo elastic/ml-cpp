@@ -9,7 +9,7 @@
 namespace ml {
 namespace maths {
 
-const std::string CDataFrameRegressionModel::SHAP_PREFIX{"shap_"};
+const std::string CDataFrameRegressionModel::SHAP_PREFIX{"shap."};
 
 CDataFrameRegressionModel::CDataFrameRegressionModel(core::CDataFrame& frame,
                                                      TProgressCallback recordProgress,

@@ -1456,10 +1456,10 @@ void CBoostedTreeImpl::computeShapValues(std::size_t topShapValues,
         return;
     }
     bool successful;
-    auto treeFeatureImportance = std::make_unique<maths::CTreeShapFeatureImportance>(
-        m_BestForest, m_NumberThreads);
+    auto treeFeatureImportance =
+        std::make_unique<CTreeShapFeatureImportance>(m_BestForest, m_NumberThreads);
     TDoubleVec shapTotal;
-    size_t numberInputFields = predictionColumn(frame.numberColumns()) - 1;
+    std::size_t numberInputFields = m_Encoder->numberEncodedColumns() - 1;
     // resize data frame to write SHAP values
     std::size_t offset{frame.numberColumns()};
     frame.resizeColumns(m_NumberThreads, frame.numberColumns() + numberInputFields);
@@ -1474,7 +1474,7 @@ void CBoostedTreeImpl::computeShapValues(std::size_t topShapValues,
     shapTotal = treeFeatureImportance->shap(frame, *m_Encoder, numberInputFields, offset);
 
     // get indices of the top elements
-    std::vector<std::size_t> indices(shapTotal.size());
+    TSizeVec indices(shapTotal.size());
     std::iota(indices.begin(), indices.end(), offset);
     std::nth_element(indices.begin(), indices.end(), indices.begin() + topShapValues - 1,
                      [&shapTotal](std::size_t a, std::size_t b) {
