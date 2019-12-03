@@ -157,7 +157,7 @@ BOOST_FIXTURE_TEST_CASE(testSingleTreeExpectedNodeValues, SFixtureSingleTree) {
 BOOST_FIXTURE_TEST_CASE(testSingleTreeShapNotNormalized, SFixtureSingleTree) {
     TDoubleVecVec actualPhi;
     TDoubleVec totalPhi;
-    std::tie(actualPhi, totalPhi) = treeFeatureImportance->shap(*frame, *encoder);
+    std::tie(actualPhi, totalPhi) = treeFeatureImportance->shap(*frame, *encoder, 0, 0);
     TDoubleVecVec expectedPhi{{-5., -2.5}, {-5., 2.5}, {5., -2.5}, {5., 2.5}};
     BOOST_TEST_REQUIRE(actualPhi == expectedPhi);
 }
@@ -165,7 +165,7 @@ BOOST_FIXTURE_TEST_CASE(testSingleTreeShapNotNormalized, SFixtureSingleTree) {
 BOOST_FIXTURE_TEST_CASE(testMultipleTreesShapNotNormalized, SFixtureMultipleTrees) {
     TDoubleVecVec actualPhi;
     TDoubleVec totalPhi;
-    std::tie(actualPhi, totalPhi) = treeFeatureImportance->shap(*frame, *encoder);
+    std::tie(actualPhi, totalPhi) = treeFeatureImportance->shap(*frame, *encoder, 0, 0);
     TDoubleVecVec expectedPhi{
         {-0.82660001, -0.06222489}, {-0.82660001, -0.06222489},
         {-0.82660001, -0.06222489}, {-0.58498581, -0.06222489},

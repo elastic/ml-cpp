@@ -81,17 +81,17 @@ public:
     };
 
 public:
-    explicit CTreeShapFeatureImportance(TTreeVec trees);
+    explicit CTreeShapFeatureImportance(TTreeVec trees, std::size_t threads);
 
     //! Compute SHAP values for the data in \p frame using the specified \p encoder.
     //!
     //!\param[in] numberFeatures number of features. If set to -1, it's assument that the number of feature is equal to the
     //! number of columns in the \p frame.
     //!\return pair shap values for all points, sum of magnitues of shap values for every feature.
-    std::pair<CTreeShapFeatureImportance::TDoubleVecVec, CTreeShapFeatureImportance::TDoubleVec>
-    shap(const core::CDataFrame& frame,
-         const CDataFrameCategoryEncoder& encoder,
-         int numberFeatures = -1);
+    CTreeShapFeatureImportance::TDoubleVec shap(core::CDataFrame& frame,
+                                                const CDataFrameCategoryEncoder& encoder,
+                                                std::size_t numberFeatures,
+                                                std::size_t offset);
 
     CTreeShapFeatureImportance::TDoubleVec
     samplesPerNode(const TTree& tree,
@@ -112,12 +112,13 @@ private:
                        const TDoubleVec& samplesPerNode,
                        const CDataFrameCategoryEncoder& encoder,
                        const CEncodedDataFrameRowRef& encodedRow,
-                       CTreeShapFeatureImportance::TDoubleVec& phi,
                        SPath splitPath,
                        std::size_t nodeIndex,
                        double parentFractionZero,
                        double parentFractionOne,
-                       int parentFeatureIndex);
+                       int parentFeatureIndex,
+                       std::size_t offset,
+                       core::CDataFrame::TRowItr& row);
     void extendPath(CTreeShapFeatureImportance::SPath& path,
                     double fractionZero,
                     double fractionOne,
@@ -127,6 +128,7 @@ private:
 
 private:
     TTreeVec m_Trees;
+    std::size_t m_NumberThreads;
     TDoubleVecVec m_SamplesPerNode;
 };
 }

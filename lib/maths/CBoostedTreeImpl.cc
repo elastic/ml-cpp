@@ -1447,7 +1447,7 @@ const CBoostedTreeHyperparameters& CBoostedTreeImpl::bestHyperparameters() const
     return m_BestHyperparameters;
 }
 
-void CBoostedTreeImpl::computeShapValues(int topShapValues,
+void CBoostedTreeImpl::computeShapValues(std::size_t topShapValues,
                                          core::CDataFrame& frame,
                                          const TProgressCallback&) {
     if (m_BestForestTestLoss == INF) {
@@ -1456,45 +1456,37 @@ void CBoostedTreeImpl::computeShapValues(int topShapValues,
         return;
     }
     bool successful;
-    auto treeFeatureImportance =
-        std::make_unique<maths::CTreeShapFeatureImportance>(m_BestForest);
-    TDoubleVecVec shapValues;
+    auto treeFeatureImportance = std::make_unique<maths::CTreeShapFeatureImportance>(
+        m_BestForest, m_NumberThreads);
     TDoubleVec shapTotal;
     size_t numberInputFields = predictionColumn(frame.numberColumns()) - 1;
+    // resize data frame to write SHAP values
+    std::size_t offset{frame.numberColumns()};
+    frame.resizeColumns(m_NumberThreads, frame.numberColumns() + numberInputFields);
+    TStrVec columnNames(frame.columnNames());
+    for (std::size_t i = 0; i < numberInputFields; ++i) {
+        columnNames[offset + i] = CDataFrameRegressionModel::SHAP_PREFIX +
+                                  frame.columnNames()[i];
+    }
+    frame.columnNames(columnNames);
+
     topShapValues = (topShapValues < numberInputFields) ? topShapValues : numberInputFields;
-    std::tie(shapValues, shapTotal) =
-        treeFeatureImportance->shap(frame, *m_Encoder, numberInputFields);
+    shapTotal = treeFeatureImportance->shap(frame, *m_Encoder, numberInputFields, offset);
 
     // get indices of the top elements
     std::vector<std::size_t> indices(shapTotal.size());
-    std::iota(indices.begin(), indices.end(), 0);
+    std::iota(indices.begin(), indices.end(), offset);
     std::nth_element(indices.begin(), indices.end(), indices.begin() + topShapValues - 1,
                      [&shapTotal](std::size_t a, std::size_t b) {
                          return shapTotal[a] > shapTotal[b];
                      });
+    m_TopShapIndices = TSizeVec(topShapValues);
+    std::copy(indices.begin(), indices.begin() + topShapValues,
+              m_TopShapIndices.get().begin());
+}
 
-    // write top columns to the result
-    std::size_t offset{frame.numberColumns()};
-    frame.resizeColumns(m_NumberThreads, frame.numberColumns() + topShapValues);
-    TStrVec columnNames(frame.columnNames());
-    for (int i = 0; i < topShapValues; ++i) {
-        columnNames[offset + i] = CDataFrameRegressionModel::SHAP_PREFIX +
-                                  frame.columnNames()[indices[i]];
-    }
-    frame.columnNames(columnNames);
-
-    std::tie(std::ignore, successful) = frame.writeColumns(
-        m_NumberThreads, 0, frame.numberRows(), [&](TRowItr beginRows, TRowItr endRows) {
-            for (auto row = beginRows; row != endRows; ++row) {
-                for (int i = 0; i < topShapValues; ++i) {
-                    row->writeColumn(offset + i, shapValues[row->index()][indices[i]]);
-                }
-            }
-        });
-    if (successful == false) {
-        HANDLE_FATAL(<< "Internal error: failed to write SHAP values. "
-                     << "Please report this problem.");
-    }
+const CBoostedTreeImpl::TOptionalSizeVec& CBoostedTreeImpl::topShapIndices() const {
+    return m_TopShapIndices;
 }
 }
 }

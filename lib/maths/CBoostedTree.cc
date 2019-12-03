@@ -467,5 +467,10 @@ void CBoostedTree::accept(CBoostedTree::CVisitor& visitor) const {
 const CBoostedTreeHyperparameters& CBoostedTree::bestHyperparameters() const {
     return m_Impl->bestHyperparameters();
 }
+
+const CDataFrameRegressionModel::TOptionalSizeVec&
+CBoostedTree::columnsHoldingShapValues() const {
+    return m_Impl->topShapIndices();
+}
 }
 }

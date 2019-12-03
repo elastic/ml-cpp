@@ -399,6 +399,8 @@ public:
     //! Get the column containing the model's prediction for the dependent variable.
     std::size_t columnHoldingPrediction(std::size_t numberColumns) const override;
 
+    const TOptionalSizeVec& columnsHoldingShapValues() const override;
+
     //! Get the model produced by training if it has been run.
     const TNodeVecVec& trainedModel() const;
 

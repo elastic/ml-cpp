@@ -14,10 +14,11 @@ namespace maths {
 
 using TRowItr = core::CDataFrame::TRowItr;
 
-std::pair<CTreeShapFeatureImportance::TDoubleVecVec, CTreeShapFeatureImportance::TDoubleVec>
-CTreeShapFeatureImportance::shap(const core::CDataFrame& frame,
+CTreeShapFeatureImportance::TDoubleVec
+CTreeShapFeatureImportance::shap(core::CDataFrame& frame,
                                  const CDataFrameCategoryEncoder& encoder,
-                                 int numberFeatures) {
+                                 std::size_t numberFeatures,
+                                 std::size_t offset) {
     numberFeatures = (numberFeatures != -1) ? numberFeatures : frame.numberColumns();
     std::vector<std::size_t> maxDepthVec;
     maxDepthVec.reserve(m_Trees.size());
@@ -28,44 +29,41 @@ CTreeShapFeatureImportance::shap(const core::CDataFrame& frame,
         m_SamplesPerNode.emplace_back(std::move(samplesPerNode));
     }
 
-    auto result = frame.readRows(
-        1, 0, frame.numberRows(),
+    auto result = frame.writeColumns(
+        m_NumberThreads, 0, frame.numberRows(),
         core::bindRetrievableState(
             [&](auto& state, TRowItr beginRows, TRowItr endRows) {
                 for (auto row = beginRows; row != endRows; ++row) {
                     auto encodedRow{encoder.encode(*row)};
-                    auto& phiVec = state.first;
-                    auto& phiSum = state.second;
-                    TDoubleVec phi(numberFeatures, 0);
+                    auto& phiSum = state;
                     for (int i = 0; i < m_Trees.size(); ++i) {
                         //                        phi[frame.numberColumns()] += m_Trees[i][0].value();
                         SPath path(maxDepthVec[i] + 1);
-                        this->shapRecursive(m_Trees[i], m_SamplesPerNode[i], encoder,
-                                            encodedRow, phi, path, 0, 1.0, 1.0, -1);
+                        this->shapRecursive(m_Trees[i], m_SamplesPerNode[i],
+                                            encoder, encodedRow, path, 0, 1.0,
+                                            1.0, -1, offset, row);
                         i += 0;
                     }
-                    for (int j = 0; j < phi.size(); ++j) {
-                        phi[j] /= m_Trees.size();
-                        phiSum[j] += std::fabs(phi[j]);
+                    for (int j = 0; j < numberFeatures; ++j) {
+                        row->writeColumn(offset + j,
+                                         (*row)[offset + j] / m_Trees.size());
+                        phiSum[j] += std::fabs((*row)[offset + j]);
                     }
 
-                    phiVec.emplace_back(std::move(phi));
+                    //                    phiVec.emplace_back(std::move(phi));
                 }
             },
-            std::make_pair(TDoubleVecVec(), TDoubleVec(numberFeatures, 0))));
+            TDoubleVec(numberFeatures, 0)));
 
     auto& state = result.first;
-    TDoubleVecVec phiVec{std::move(state[0].s_FunctionState.first)};
-    TDoubleVec phiSum{std::move(state[0].s_FunctionState.second)};
+    TDoubleVec phiSum{std::move(state[0].s_FunctionState)};
     for (int i = 1; i < state.size(); ++i) {
-        auto& otherPhiVec = state[i].s_FunctionState.first;
-        auto& otherPhiSum = state[i].s_FunctionState.second;
-        phiVec.insert(phiVec.end(), otherPhiVec.begin(), otherPhiVec.end());
+        auto& otherPhiSum = state[i].s_FunctionState;
         std::transform(phiSum.begin(), phiSum.end(), otherPhiSum.begin(),
                        phiSum.begin(), std::plus<double>());
     }
 
-    return std::make_pair(phiVec, phiSum);
+    return phiSum;
 }
 
 CTreeShapFeatureImportance::TDoubleVec
@@ -73,7 +71,7 @@ CTreeShapFeatureImportance::samplesPerNode(const TTree& tree,
                                            const core::CDataFrame& frame,
                                            const CDataFrameCategoryEncoder& encoder) const {
     auto result = frame.readRows(
-        1, 0, frame.numberRows(),
+        m_NumberThreads, 0, frame.numberRows(),
         core::bindRetrievableState(
             [&](std::vector<double>& state, TRowItr beginRows, TRowItr endRows) {
                 for (auto row = beginRows; row != endRows; ++row) {
@@ -105,8 +103,9 @@ CTreeShapFeatureImportance::samplesPerNode(const TTree& tree,
     return totalSamplesPerNode;
 }
 
-ml::maths::CTreeShapFeatureImportance::CTreeShapFeatureImportance(TTreeVec trees)
-    : m_Trees{std::move(trees)}, m_SamplesPerNode() {
+ml::maths::CTreeShapFeatureImportance::CTreeShapFeatureImportance(TTreeVec trees,
+                                                                  std::size_t threads)
+    : m_Trees{std::move(trees)}, m_NumberThreads{threads}, m_SamplesPerNode() {
     m_SamplesPerNode.reserve(m_Trees.size());
 }
 
@@ -137,12 +136,13 @@ void CTreeShapFeatureImportance::shapRecursive(const TTree& tree,
                                                const TDoubleVec& samplesPerNode,
                                                const CDataFrameCategoryEncoder& encoder,
                                                const CEncodedDataFrameRowRef& encodedRow,
-                                               CTreeShapFeatureImportance::TDoubleVec& phi,
                                                SPath splitPath,
                                                std::size_t nodeIndex,
                                                double parentFractionZero,
                                                double parentFractionOne,
-                                               int parentFeatureIndex) {
+                                               int parentFeatureIndex,
+                                               std::size_t offset,
+                                               core::CDataFrame::TRowItr& row) {
 
     this->extendPath(splitPath, parentFractionZero, parentFractionOne, parentFeatureIndex);
     if (tree[nodeIndex].isLeaf()) {
@@ -151,8 +151,10 @@ void CTreeShapFeatureImportance::shapRecursive(const TTree& tree,
             double scale = this->sumUnwoundPath(splitPath, i);
             std::size_t inputColumnIndex{
                 encoder.encoding(splitPath.featureIndex(i)).inputColumnIndex()};
-            phi[inputColumnIndex] +=
-                scale * (splitPath.fractionOnes(i) - splitPath.fractionZeros(i)) * leafValue;
+            row->writeColumn(
+                offset + inputColumnIndex,
+                (*row)[offset + inputColumnIndex] +
+                    scale * (splitPath.fractionOnes(i) - splitPath.fractionZeros(i)) * leafValue);
         }
 
     } else {
@@ -178,12 +180,12 @@ void CTreeShapFeatureImportance::shapRecursive(const TTree& tree,
 
         double hotFractionZero = samplesPerNode[hotIndex] / samplesPerNode[nodeIndex];
         double coldFractionZero = samplesPerNode[coldIndex] / samplesPerNode[nodeIndex];
-        this->shapRecursive(tree, samplesPerNode, encoder, encodedRow, phi, splitPath,
+        this->shapRecursive(tree, samplesPerNode, encoder, encodedRow, splitPath,
                             hotIndex, incomingFractionZero * hotFractionZero,
-                            incomingFractionOne, splitFeature);
-        this->shapRecursive(tree, samplesPerNode, encoder, encodedRow, phi, splitPath,
+                            incomingFractionOne, splitFeature, offset, row);
+        this->shapRecursive(tree, samplesPerNode, encoder, encodedRow, splitPath,
                             coldIndex, incomingFractionZero * coldFractionZero,
-                            0.0, splitFeature);
+                            0.0, splitFeature, offset, row);
     }
 }
 

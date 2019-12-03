@@ -87,8 +87,7 @@ public:
     CBoostedTreeFactory& bayesianOptimisationRestarts(std::size_t restarts);
     //! Set the number of training examples we need per feature we'll include.
     CBoostedTreeFactory& rowsPerFeature(std::size_t rowsPerFeature);
-    //! Set true to compute SHAP values for feature importance after training
-    CBoostedTreeFactory& shapValues(bool shapValues);
+
     //! Set whether to try and balance within class accuracy. For classification
     //! this reweights examples so approximately the same total loss is assigned
     //! to every class.

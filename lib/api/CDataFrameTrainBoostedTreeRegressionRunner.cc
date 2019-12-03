@@ -75,16 +75,12 @@ void CDataFrameTrainBoostedTreeRegressionRunner::writeOneRow(
     writer.Double(row[columnHoldingPrediction]);
     writer.Key(IS_TRAINING_FIELD_NAME);
     writer.Bool(maths::CDataFrameUtils::isMissing(row[columnHoldingDependentVariable]) == false);
-    if (this->topShapValues() > 0) {
-        for (int i = 0; i < row.numberColumns(); ++i) {
+    if (this->topShapValues() > 0 &&
+        this->boostedTree().columnsHoldingShapValues().is_initialized()) {
+        for (std::size_t i : this->boostedTree().columnsHoldingShapValues().get()) {
             const std::string& columnName{frame.columnNames()[i]};
-            auto res = std::mismatch(
-                maths::CDataFrameRegressionModel::SHAP_PREFIX.begin(),
-                maths::CDataFrameRegressionModel::SHAP_PREFIX.end(), columnName.begin());
-            if (res.first == maths::CDataFrameRegressionModel::SHAP_PREFIX.end()) {
-                writer.Key(columnName);
-                writer.Double(row[i]);
-            }
+            writer.Key(columnName);
+            writer.Double(row[i]);
         }
     }
     writer.EndObject();
