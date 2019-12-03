@@ -1,3 +1,2 @@
 # Ignore temporary test files
 test.log
-valgrind.supp

@@ -1,3 +1,2 @@
 *.m
 *.m.[0-9]
-valgrind.supp
