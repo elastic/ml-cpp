@@ -78,11 +78,6 @@ private:
 //! discard the extra trees at the end of training.
 class CTrainForestStoppingCondition {
 public:
-    //! This is the number of trees between sampling the test error. It is used
-    //! to amortise the cost of computing test error which is non-negligible.
-    static const std::size_t TEST_ERROR_SAMPLE_INTERVAL{2};
-
-public:
     CTrainForestStoppingCondition(std::size_t maximumNumberTrees)
         : m_MaximumNumberTrees{maximumNumberTrees},
           m_MaximumNumberTreesWithoutImprovement{std::max(
@@ -95,13 +90,11 @@ public:
 
     template<typename FUNC>
     bool shouldStop(std::size_t numberTrees, FUNC computeLoss) {
-        if (m_BestTestLoss.count() == 0 || (numberTrees % TEST_ERROR_SAMPLE_INTERVAL) == 0) {
-            double loss{computeLoss()};
-            m_BestTestLoss.add({loss, numberTrees});
-            LOG_TRACE(<< "test loss = " << loss);
-            if (numberTrees - m_BestTestLoss[0].second > m_MaximumNumberTreesWithoutImprovement) {
-                return true;
-            }
+        double loss{computeLoss()};
+        m_BestTestLoss.add({loss, numberTrees});
+        LOG_TRACE(<< "test loss = " << loss);
+        if (numberTrees - m_BestTestLoss[0].second > m_MaximumNumberTreesWithoutImprovement) {
+            return true;
         }
         return numberTrees > m_MaximumNumberTrees;
     }

@@ -18,6 +18,8 @@
 #include <api/CDataFrameAnalysisSpecification.h>
 #include <api/ElasticsearchStateIndex.h>
 
+#include <set>
+
 namespace ml {
 namespace api {
 namespace {
@@ -26,6 +28,8 @@ const std::string STRATIFIED_CROSS_VALIDATION{"stratified_cross_validation"};
 
 // Output
 const std::string IS_TRAINING_FIELD_NAME{"is_training"};
+
+const std::set<std::string> PREDICTION_FIELD_NAME_BLACKLIST{IS_TRAINING_FIELD_NAME};
 }
 
 const CDataFrameAnalysisConfigReader&
@@ -52,10 +56,9 @@ CDataFrameTrainBoostedTreeRegressionRunner::CDataFrameTrainBoostedTreeRegression
                   this->dependentVariableFieldName()) != categoricalFieldNames.end()) {
         HANDLE_FATAL(<< "Input error: trying to perform regression with categorical target.");
     }
-    const std::set<std::string> predictionFieldNameBlacklist{IS_TRAINING_FIELD_NAME};
-    if (predictionFieldNameBlacklist.count(this->predictionFieldName()) > 0) {
-        HANDLE_FATAL(<< "Input error: prediction_field_name must not be equal to any of "
-                     << core::CContainerPrinter::print(predictionFieldNameBlacklist)
+    if (PREDICTION_FIELD_NAME_BLACKLIST.count(this->predictionFieldName()) > 0) {
+        HANDLE_FATAL(<< "Input error: " << PREDICTION_FIELD_NAME << " must not be equal to any of "
+                     << core::CContainerPrinter::print(PREDICTION_FIELD_NAME_BLACKLIST)
                      << ".");
     }
 }

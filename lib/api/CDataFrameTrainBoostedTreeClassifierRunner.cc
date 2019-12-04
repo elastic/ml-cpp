@@ -22,6 +22,7 @@
 #include <api/ElasticsearchStateIndex.h>
 
 #include <numeric>
+#include <set>
 
 namespace ml {
 namespace api {
@@ -40,6 +41,9 @@ const std::string PREDICTION_PROBABILITY_FIELD_NAME{"prediction_probability"};
 const std::string TOP_CLASSES_FIELD_NAME{"top_classes"};
 const std::string CLASS_NAME_FIELD_NAME{"class_name"};
 const std::string CLASS_PROBABILITY_FIELD_NAME{"class_probability"};
+
+const std::set<std::string> PREDICTION_FIELD_NAME_BLACKLIST{
+    IS_TRAINING_FIELD_NAME, PREDICTION_PROBABILITY_FIELD_NAME, TOP_CLASSES_FIELD_NAME};
 }
 
 const CDataFrameAnalysisConfigReader&
@@ -68,11 +72,9 @@ CDataFrameTrainBoostedTreeClassifierRunner::CDataFrameTrainBoostedTreeClassifier
                   this->dependentVariableFieldName()) == categoricalFieldNames.end()) {
         HANDLE_FATAL(<< "Input error: trying to perform classification with numeric target.");
     }
-    const std::set<std::string> predictionFieldNameBlacklist{
-        IS_TRAINING_FIELD_NAME, PREDICTION_PROBABILITY_FIELD_NAME, TOP_CLASSES_FIELD_NAME};
-    if (predictionFieldNameBlacklist.count(this->predictionFieldName()) > 0) {
-        HANDLE_FATAL(<< "Input error: prediction_field_name must not be equal to any of "
-                     << core::CContainerPrinter::print(predictionFieldNameBlacklist)
+    if (PREDICTION_FIELD_NAME_BLACKLIST.count(this->predictionFieldName()) > 0) {
+        HANDLE_FATAL(<< "Input error: " << PREDICTION_FIELD_NAME << " must not be equal to any of "
+                     << core::CContainerPrinter::print(PREDICTION_FIELD_NAME_BLACKLIST)
                      << ".");
     }
 }
