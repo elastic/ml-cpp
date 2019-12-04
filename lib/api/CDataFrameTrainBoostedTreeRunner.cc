@@ -161,6 +161,7 @@ CDataFrameTrainBoostedTreeRunner::CDataFrameTrainBoostedTreeRunner(
     }
     if (topShapValues > 0) {
         m_TopShapValues = topShapValues;
+        m_BoostedTreeFactory->topShapValues(topShapValues);
     }
 }
 

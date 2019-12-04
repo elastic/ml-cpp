@@ -781,7 +781,7 @@ CBoostedTreeFactory::CBoostedTreeFactory(std::size_t numberThreads)
     : m_NumberThreads{numberThreads},
       m_TreeImpl{std::make_unique<CBoostedTreeImpl>(numberThreads, nullptr)},
       m_LogDepthPenaltyMultiplierSearchInterval{0.0}, m_LogTreeSizePenaltyMultiplierSearchInterval{0.0},
-      m_LogLeafWeightPenaltyMultiplierSearchInterval{0.0} {
+      m_LogLeafWeightPenaltyMultiplierSearchInterval{0.0}, m_TopShapValues{0} {
 }
 
 CBoostedTreeFactory::CBoostedTreeFactory(CBoostedTreeFactory&&) = default;
@@ -943,9 +943,12 @@ CBoostedTreeFactory& CBoostedTreeFactory::trainingStateCallback(TTrainingStateCa
 
 std::size_t CBoostedTreeFactory::estimateMemoryUsage(std::size_t numberRows,
                                                      std::size_t numberColumns) const {
+    std::size_t shapValuesExtraColumns =
+        (m_TopShapValues > 0) ? numberRows * numberColumns * sizeof(CFloatStorage) : 0;
     std::size_t maximumNumberTrees{this->mainLoopMaximumNumberTrees()};
     std::swap(maximumNumberTrees, m_TreeImpl->m_MaximumNumberTrees);
-    std::size_t result{m_TreeImpl->estimateMemoryUsage(numberRows, numberColumns)};
+    std::size_t result{m_TreeImpl->estimateMemoryUsage(numberRows, numberColumns) +
+                       shapValuesExtraColumns};
     std::swap(maximumNumberTrees, m_TreeImpl->m_MaximumNumberTrees);
     return result;
 }
@@ -1016,6 +1019,11 @@ void CBoostedTreeFactory::noopRecordProgress(double) {
 }
 
 void CBoostedTreeFactory::noopRecordMemoryUsage(std::int64_t) {
+}
+
+CBoostedTreeFactory& CBoostedTreeFactory::topShapValues(std::size_t topShapValues) {
+    m_TopShapValues = topShapValues;
+    return *this;
 }
 }
 }
