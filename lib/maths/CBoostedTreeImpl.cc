@@ -1241,6 +1241,7 @@ const std::string ROWS_PER_FEATURE_TAG{"rows_per_feature"};
 const std::string TESTING_ROW_MASKS_TAG{"testing_row_masks"};
 const std::string TRAINING_ROW_MASKS_TAG{"training_row_masks"};
 const std::string TRAINING_PROGRESS_TAG{"training_progress"};
+const std::string TOP_SHAP_VALUES_TAG{"top_shap_values"};
 }
 
 const std::string& CBoostedTreeImpl::bestHyperparametersName() {
@@ -1306,6 +1307,7 @@ void CBoostedTreeImpl::acceptPersistInserter(core::CStatePersistInserter& insert
     core::CPersistUtils::persist(MAXIMUM_NUMBER_TREES_OVERRIDE_TAG,
                                  m_MaximumNumberTreesOverride, inserter);
     inserter.insertValue(LOSS_TAG, m_Loss->name());
+    core::CPersistUtils::persist(TOP_SHAP_VALUES_TAG, m_TopShapValues, inserter);
 }
 
 bool CBoostedTreeImpl::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
@@ -1401,6 +1403,9 @@ bool CBoostedTreeImpl::acceptRestoreTraverser(core::CStateRestoreTraverser& trav
                 core::CPersistUtils::restore(MAXIMUM_NUMBER_TREES_OVERRIDE_TAG,
                                              m_MaximumNumberTreesOverride, traverser))
         RESTORE(LOSS_TAG, restoreLoss(m_Loss, traverser))
+        RESTORE(TOP_SHAP_VALUES_TAG,
+                core::CPersistUtils::restore(TOP_SHAP_VALUES_TAG,
+                                             m_TopShapValues, traverser))
     } while (traverser.next());
 
     return true;
