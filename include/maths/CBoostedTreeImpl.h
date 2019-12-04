@@ -82,9 +82,7 @@ public:
     //! Compute SHAP values using the best trained model to \p frame.
     //!
     //! \note Must be called only if a trained model is available.
-    void computeShapValues(std::size_t topShapValues,
-                           core::CDataFrame& frame,
-                           const TProgressCallback&);
+    void computeShapValues(core::CDataFrame& frame, const TProgressCallback&);
 
     //! Get the feature sample probabilities.
     const TDoubleVec& featureWeights() const;
@@ -530,8 +528,10 @@ private:
     std::size_t m_NumberRounds = 1;
     std::size_t m_CurrentRound = 0;
     mutable core::CLoopProgress m_TrainingProgress;
+    std::size_t m_TopShapValues;
     TOptionalSizeVec m_TopShapIndices;
 
+private:
     friend class CBoostedTreeFactory;
 };
 

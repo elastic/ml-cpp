@@ -388,7 +388,7 @@ public:
     //! Write SHAP values to the data frame supplied to the constructor.
     //!
     //! \warning This can only be called after train.
-    void computeShapValues(int topShapValues) override;
+    void computeShapValues() override;
 
     //! Get the feature weights the model has chosen.
     const TDoubleVec& featureWeights() const override;

@@ -1447,42 +1447,45 @@ const CBoostedTreeHyperparameters& CBoostedTreeImpl::bestHyperparameters() const
     return m_BestHyperparameters;
 }
 
-void CBoostedTreeImpl::computeShapValues(std::size_t topShapValues,
-                                         core::CDataFrame& frame,
-                                         const TProgressCallback&) {
-    if (m_BestForestTestLoss == INF) {
-        HANDLE_FATAL(<< "Internal error: no model available for prediction. "
-                     << "Please report this problem.");
-        return;
-    }
-    bool successful;
-    auto treeFeatureImportance =
-        std::make_unique<CTreeShapFeatureImportance>(m_BestForest, m_NumberThreads);
-    TDoubleVec shapTotal;
-    std::size_t numberInputFields = m_Encoder->numberEncodedColumns() - 1;
-    // resize data frame to write SHAP values
-    std::size_t offset{frame.numberColumns()};
-    frame.resizeColumns(m_NumberThreads, frame.numberColumns() + numberInputFields);
-    TStrVec columnNames(frame.columnNames());
-    for (std::size_t i = 0; i < numberInputFields; ++i) {
-        columnNames[offset + i] = CDataFrameRegressionModel::SHAP_PREFIX +
-                                  frame.columnNames()[i];
-    }
-    frame.columnNames(columnNames);
+void CBoostedTreeImpl::computeShapValues(core::CDataFrame& frame, const TProgressCallback&) {
+    if (m_TopShapValues > 0) {
+        if (m_BestForestTestLoss == INF) {
+            HANDLE_FATAL(<< "Internal error: no model available for prediction. "
+                         << "Please report this problem.");
+            return;
+        }
+        bool successful;
+        auto treeFeatureImportance = std::make_unique<CTreeShapFeatureImportance>(
+            m_BestForest, m_NumberThreads);
+        TDoubleVec shapTotal;
+        std::size_t numberInputFields = m_Encoder->numberEncodedColumns() - 1;
+        // resize data frame to write SHAP values
+        std::size_t offset{frame.numberColumns()};
+        frame.resizeColumns(m_NumberThreads, frame.numberColumns() + numberInputFields);
+        TStrVec columnNames(frame.columnNames());
+        for (std::size_t i = 0; i < numberInputFields; ++i) {
+            columnNames[offset + i] = CDataFrameRegressionModel::SHAP_PREFIX +
+                                      frame.columnNames()[i];
+        }
+        frame.columnNames(columnNames);
 
-    topShapValues = (topShapValues < numberInputFields) ? topShapValues : numberInputFields;
-    shapTotal = treeFeatureImportance->shap(frame, *m_Encoder, numberInputFields, offset);
+        std::size_t topShapValues = (m_TopShapValues < numberInputFields)
+                                        ? m_TopShapValues
+                                        : numberInputFields;
+        shapTotal = treeFeatureImportance->shap(frame, *m_Encoder, numberInputFields, offset);
 
-    // get indices of the top elements
-    TSizeVec indices(shapTotal.size());
-    std::iota(indices.begin(), indices.end(), offset);
-    std::nth_element(indices.begin(), indices.end(), indices.begin() + topShapValues - 1,
-                     [&shapTotal](std::size_t a, std::size_t b) {
-                         return shapTotal[a] > shapTotal[b];
-                     });
-    m_TopShapIndices = TSizeVec(topShapValues);
-    std::copy(indices.begin(), indices.begin() + topShapValues,
-              m_TopShapIndices.get().begin());
+        // get indices of the top elements
+        TSizeVec indices(shapTotal.size());
+        std::iota(indices.begin(), indices.end(), offset);
+        std::nth_element(indices.begin(), indices.end(),
+                         indices.begin() + topShapValues - 1,
+                         [&shapTotal](std::size_t a, std::size_t b) {
+                             return shapTotal[a] > shapTotal[b];
+                         });
+        m_TopShapIndices = TSizeVec(topShapValues);
+        std::copy(indices.begin(), indices.begin() + topShapValues,
+                  m_TopShapIndices.get().begin());
+    }
 }
 
 const CBoostedTreeImpl::TOptionalSizeVec& CBoostedTreeImpl::topShapIndices() const {

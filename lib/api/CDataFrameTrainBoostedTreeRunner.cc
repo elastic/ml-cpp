@@ -160,7 +160,6 @@ CDataFrameTrainBoostedTreeRunner::CDataFrameTrainBoostedTreeRunner(
         m_BoostedTreeFactory->bayesianOptimisationRestarts(bayesianOptimisationRestarts);
     }
     if (topShapValues > 0) {
-        m_TopShapValues = topShapValues;
         m_BoostedTreeFactory->topShapValues(topShapValues);
     }
 }
@@ -238,10 +237,7 @@ void CDataFrameTrainBoostedTreeRunner::runImpl(core::CDataFrame& frame) {
 
     m_BoostedTree->train();
     m_BoostedTree->predict();
-
-    if (m_TopShapValues > 0) {
-        m_BoostedTree->computeShapValues(m_TopShapValues);
-    }
+    m_BoostedTree->computeShapValues();
 
     core::CProgramCounters::counter(counter_t::E_DFTPMTimeToTrain) = watch.stop();
 }
@@ -307,10 +303,6 @@ const std::string CDataFrameTrainBoostedTreeRunner::NUMBER_FOLDS{"number_folds"}
 const std::string CDataFrameTrainBoostedTreeRunner::NUMBER_ROUNDS_PER_HYPERPARAMETER{"number_rounds_per_hyperparameter"};
 const std::string CDataFrameTrainBoostedTreeRunner::BAYESIAN_OPTIMISATION_RESTARTS{"bayesian_optimisation_restarts"};
 const std::string CDataFrameTrainBoostedTreeRunner::TOP_SHAP_VALUES{"top_shap_values"};
-
-size_t CDataFrameTrainBoostedTreeRunner::topShapValues() const {
-    return m_TopShapValues;
-}
 // clang-format on
 }
 }

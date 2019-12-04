@@ -1023,6 +1023,7 @@ void CBoostedTreeFactory::noopRecordMemoryUsage(std::int64_t) {
 
 CBoostedTreeFactory& CBoostedTreeFactory::topShapValues(std::size_t topShapValues) {
     m_TopShapValues = topShapValues;
+    m_TreeImpl->m_TopShapValues = topShapValues;
     return *this;
 }
 }

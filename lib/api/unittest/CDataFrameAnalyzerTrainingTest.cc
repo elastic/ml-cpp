@@ -832,57 +832,113 @@ BOOST_AUTO_TEST_CASE(testRunBoostedTreeRegressionFeatureImportance) {
 
     int rows = 200;
 
-    std::stringstream output;
-    auto outputWriterFactory = [&output]() {
-        return std::make_unique<core::CJsonOutputStreamWrapper>(output);
-    };
+    // test with all  shap values
+    {
+        std::stringstream output;
+        auto outputWriterFactory = [&output]() {
+            return std::make_unique<core::CJsonOutputStreamWrapper>(output);
+        };
 
-    api::CDataFrameAnalyzer analyzer{
-        test::CDataFrameAnalysisSpecificationFactory::predictionSpec(
-            "regression", "c5", rows, 5, 4000000, 0, 0, {"c1"}, alpha, lambda,
-            gamma, softTreeDepthLimit, softTreeDepthTolerance, eta,
-            maximumNumberTrees, featureBagFraction, 4),
-        outputWriterFactory};
+        api::CDataFrameAnalyzer analyzer{
+            test::CDataFrameAnalysisSpecificationFactory::predictionSpec(
+                "regression", "c5", rows, 5, 4000000, 0, 0, {"c1"}, alpha,
+                lambda, gamma, softTreeDepthLimit, softTreeDepthTolerance, eta,
+                maximumNumberTrees, featureBagFraction, 4),
+            outputWriterFactory};
 
-    TDoubleVec expectedPredictions;
+        TDoubleVec expectedPredictions;
 
-    TStrVec fieldNames{"c1", "c2", "c3", "c4", "c5", ".", "."};
-    TStrVec fieldValues{"", "", "", "", "", "0", ""};
-    test::CRandomNumbers rng;
-    TDoubleVec weights{50, 150, 50, -50};
+        TStrVec fieldNames{"c1", "c2", "c3", "c4", "c5", ".", "."};
+        TStrVec fieldValues{"", "", "", "", "", "0", ""};
+        test::CRandomNumbers rng;
+        TDoubleVec weights{50, 150, 50, -50};
 
-    TDoubleVec values;
-    rng.generateUniformSamples(-10.0, 10.0, weights.size() * rows, values);
+        TDoubleVec values;
+        rng.generateUniformSamples(-10.0, 10.0, weights.size() * rows, values);
 
-    // make last column categorical
-    for (auto it = values.begin(); it < values.end(); it += 4) {
-        *it = (*it < 0) ? -10 : 10;
+        // make last column categorical
+        for (auto it = values.begin(); it < values.end(); it += 4) {
+            *it = (*it < 0) ? -10 : 10;
+        }
+
+        auto frame = setupLinearRegressionData(fieldNames, fieldValues,
+                                               analyzer, weights, values);
+        analyzer.handleRecord(fieldNames, {"", "", "", "", "", "", "$"});
+
+        rapidjson::Document results;
+        rapidjson::ParseResult ok(results.Parse(output.str()));
+        BOOST_TEST_REQUIRE(static_cast<bool>(ok) == true);
+
+        double c1_sum, c2_sum, c3_sum, c4_sum;
+        for (const auto& result : results.GetArray()) {
+            if (result.HasMember("row_results")) {
+                c1_sum += std::fabs(
+                    result["row_results"]["results"]["ml"]["shap.c1"].GetDouble());
+                c2_sum += std::fabs(
+                    result["row_results"]["results"]["ml"]["shap.c2"].GetDouble());
+                c3_sum += std::fabs(
+                    result["row_results"]["results"]["ml"]["shap.c3"].GetDouble());
+                c4_sum += std::fabs(
+                    result["row_results"]["results"]["ml"]["shap.c4"].GetDouble());
+            }
+        }
+        BOOST_TEST_REQUIRE(c2_sum > c1_sum);
+        BOOST_TEST_REQUIRE(c1_sum > c3_sum);
+        BOOST_TEST_REQUIRE(c1_sum > c4_sum);
+        BOOST_REQUIRE_CLOSE(c3_sum, c4_sum, 80); // c3 and c4 within 80% of each other
     }
 
-    auto frame = setupLinearRegressionData(fieldNames, fieldValues, analyzer, weights, values);
-    analyzer.handleRecord(fieldNames, {"", "", "", "", "", "", "$"});
+    // test with 0 shap values
+    {
+        std::stringstream output;
+        auto outputWriterFactory = [&output]() {
+            return std::make_unique<core::CJsonOutputStreamWrapper>(output);
+        };
 
-    rapidjson::Document results;
-    rapidjson::ParseResult ok(results.Parse(output.str()));
-    BOOST_TEST_REQUIRE(static_cast<bool>(ok) == true);
+        api::CDataFrameAnalyzer analyzer{
+            test::CDataFrameAnalysisSpecificationFactory::predictionSpec(
+                "regression", "c5", rows, 5, 4000000, 0, 0, {"c1"}, alpha,
+                lambda, gamma, softTreeDepthLimit, softTreeDepthTolerance, eta,
+                maximumNumberTrees, featureBagFraction, 0),
+            outputWriterFactory};
 
-    double c1_sum, c2_sum, c3_sum, c4_sum;
-    for (const auto& result : results.GetArray()) {
-        if (result.HasMember("row_results")) {
-            c1_sum += std::fabs(
-                result["row_results"]["results"]["ml"]["shap.c1"].GetDouble());
-            c2_sum += std::fabs(
-                result["row_results"]["results"]["ml"]["shap.c2"].GetDouble());
-            c3_sum += std::fabs(
-                result["row_results"]["results"]["ml"]["shap.c3"].GetDouble());
-            c4_sum += std::fabs(
-                result["row_results"]["results"]["ml"]["shap.c4"].GetDouble());
+        TDoubleVec expectedPredictions;
+
+        TStrVec fieldNames{"c1", "c2", "c3", "c4", "c5", ".", "."};
+        TStrVec fieldValues{"", "", "", "", "", "0", ""};
+        test::CRandomNumbers rng;
+        TDoubleVec weights{50, 150, 50, -50};
+
+        TDoubleVec values;
+        rng.generateUniformSamples(-10.0, 10.0, weights.size() * rows, values);
+
+        // make last column categorical
+        for (auto it = values.begin(); it < values.end(); it += 4) {
+            *it = (*it < 0) ? -10 : 10;
+        }
+
+        auto frame = setupLinearRegressionData(fieldNames, fieldValues,
+                                               analyzer, weights, values);
+        analyzer.handleRecord(fieldNames, {"", "", "", "", "", "", "$"});
+
+        rapidjson::Document results;
+        rapidjson::ParseResult ok(results.Parse(output.str()));
+        BOOST_TEST_REQUIRE(static_cast<bool>(ok) == true);
+
+        double c1_sum, c2_sum, c3_sum, c4_sum;
+        for (const auto& result : results.GetArray()) {
+            if (result.HasMember("row_results")) {
+                BOOST_TEST_REQUIRE(
+                    result["row_results"]["results"]["ml"].HasMember("shap.c1") == false)
+                BOOST_TEST_REQUIRE(
+                    result["row_results"]["results"]["ml"].HasMember("shap.c2") == false)
+                BOOST_TEST_REQUIRE(
+                    result["row_results"]["results"]["ml"].HasMember("shap.c3") == false)
+                BOOST_TEST_REQUIRE(
+                    result["row_results"]["results"]["ml"].HasMember("shap.c4") == false)
+            }
         }
     }
-    BOOST_TEST_REQUIRE(c2_sum > c1_sum);
-    BOOST_TEST_REQUIRE(c1_sum > c3_sum);
-    BOOST_TEST_REQUIRE(c1_sum > c4_sum);
-    BOOST_REQUIRE_CLOSE(c3_sum, c4_sum, 80); // c3 and c4 within 80% of each other
 }
 
 BOOST_AUTO_TEST_SUITE_END()
