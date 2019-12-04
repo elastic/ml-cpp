@@ -63,7 +63,7 @@ double computeEta(std::size_t numberRegressors) {
 }
 
 std::size_t computeMaximumNumberTrees(double eta) {
-    return static_cast<std::size_t>(4.0 / eta / MIN_DOWNSAMPLE_FACTOR_SCALE + 0.5);
+    return static_cast<std::size_t>(3.0 / eta / MIN_DOWNSAMPLE_FACTOR_SCALE + 0.5);
 }
 
 std::size_t scaleMaximumNumberTrees(std::size_t maximumNumberTrees) {

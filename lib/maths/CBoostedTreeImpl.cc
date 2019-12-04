@@ -86,7 +86,7 @@ public:
     CTrainForestStoppingCondition(std::size_t maximumNumberTrees)
         : m_MaximumNumberTrees{maximumNumberTrees},
           m_MaximumNumberTreesWithoutImprovement{std::max(
-              static_cast<std::size_t>(0.05 * static_cast<double>(maximumNumberTrees) + 0.5),
+              static_cast<std::size_t>(0.075 * static_cast<double>(maximumNumberTrees) + 0.5),
               std::size_t{1})} {}
 
     std::size_t bestSize() const { return m_BestTestLoss[0].second; }
@@ -514,13 +514,6 @@ void CBoostedTreeImpl::train(core::CDataFrame& frame,
 
             this->captureBestHyperparameters(lossMoments, maximumNumberTrees);
 
-            // Trap the case that the dependent variable is (effectively) constant.
-            // There is no point adjusting hyperparameters in this case - and we run
-            // into numerical issues trying - since any forest will do.
-            if (std::sqrt(CBasicStatistics::variance(lossMoments)) <
-                1e-10 * std::fabs(CBasicStatistics::mean(lossMoments))) {
-                break;
-            }
             if (this->selectNextHyperparameters(lossMoments, *m_BayesianOptimization) == false) {
                 LOG_WARN(<< "Hyperparameter selection failed: exiting loop early");
                 break;

@@ -365,7 +365,7 @@ BOOST_AUTO_TEST_CASE(testNonLinear) {
         // Unbiased...
         BOOST_REQUIRE_CLOSE_ABSOLUTE(
             0.0, modelBias[i][0],
-            5.0 * std::sqrt(noiseVariance / static_cast<double>(trainRows)));
+            4.0 * std::sqrt(noiseVariance / static_cast<double>(trainRows)));
         // Good R^2...
         BOOST_TEST_REQUIRE(modelRSquared[i][0] > 0.955);
 
@@ -651,7 +651,7 @@ BOOST_AUTO_TEST_CASE(testIntegerRegressor) {
 
     LOG_DEBUG(<< "bias = " << modelBias);
     LOG_DEBUG(<< " R^2 = " << modelRSquared);
-    BOOST_REQUIRE_CLOSE_ABSOLUTE(0.0, modelBias, 0.06);
+    BOOST_REQUIRE_CLOSE_ABSOLUTE(0.0, modelBias, 0.08);
     BOOST_TEST_REQUIRE(modelRSquared > 0.98);
 }
 
@@ -1130,13 +1130,13 @@ BOOST_AUTO_TEST_CASE(testLogisticRegression) {
         LOG_DEBUG(<< "log relative error = "
                   << maths::CBasicStatistics::mean(logRelativeError));
 
-        BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(logRelativeError) < 0.8);
+        BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(logRelativeError) < 0.7);
         meanLogRelativeError.add(maths::CBasicStatistics::mean(logRelativeError));
     }
 
     LOG_DEBUG(<< "mean log relative error = "
               << maths::CBasicStatistics::mean(meanLogRelativeError));
-    BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(meanLogRelativeError) < 0.6);
+    BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(meanLogRelativeError) < 0.5);
 }
 
 BOOST_AUTO_TEST_CASE(testUnbalancedClasses) {
@@ -1146,9 +1146,9 @@ BOOST_AUTO_TEST_CASE(testUnbalancedClasses) {
 
     test::CRandomNumbers rng;
 
-    std::size_t trainRows{1000};
+    std::size_t trainRows{2000};
     std::size_t classes[]{1, 0, 1, 0};
-    std::size_t classesRowCounts[]{800, 200, 100, 100};
+    std::size_t classesRowCounts[]{1600, 400, 100, 100};
     std::size_t cols{3};
 
     TDoubleVecVec x;
@@ -1226,9 +1226,9 @@ BOOST_AUTO_TEST_CASE(testUnbalancedClasses) {
 
     // We expect more similar precision and recall when balancing training loss.
     BOOST_TEST_REQUIRE(std::fabs(precisions[1][0] - precisions[1][1]) <
-                       0.4 * std::fabs(precisions[0][0] - precisions[0][1]));
+                       0.25 * std::fabs(precisions[0][0] - precisions[0][1]));
     BOOST_TEST_REQUIRE(std::fabs(recalls[1][0] - recalls[1][1]) <
-                       0.4 * std::fabs(recalls[0][0] - recalls[0][1]));
+                       0.25 * std::fabs(recalls[0][0] - recalls[0][1]));
 }
 
 BOOST_AUTO_TEST_CASE(testEstimateMemoryUsedByTrain) {
