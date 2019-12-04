@@ -39,10 +39,12 @@ estimating maximum memory usage. (See {ml-pull}781[#781].)
 * Stratified fractional cross validation for regression. (See {ml-pull}784[#784].)
 * Added `geo_point` supported output for `lat_long` function records. (See {ml-pull}809[#809]
 and {pull}47050[#47050].)
-* Reduce memory usage of {ml} native processes on Windows. (See {ml-pull}844[#844].)
 * Use a random bag of the data to compute the loss function derivatives for each new
 tree which is trained for both regression and classification. (See {ml-pull}811[#811].)
-* Emit `prediction_probability` field alongside prediction field in ml results. (See {ml-pull}818[#818].)
+* Emit `prediction_probability` field alongside prediction field in ml results.
+(See {ml-pull}818[#818].)
+* Reduce memory usage of {ml} native processes on Windows. (See {ml-pull}844[#844].)
+* Reduce runtime of classification and regression. (See {ml-pull}863[#863].)
 
 === Bug Fixes
 * Fixes potential memory corruption when determining seasonality. (See {ml-pull}852[#852].)

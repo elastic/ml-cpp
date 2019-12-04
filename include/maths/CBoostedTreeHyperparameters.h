@@ -108,7 +108,7 @@ public:
                                      m_SoftTreeDepthLimit, inserter);
         core::CPersistUtils::persist(REGULARIZATION_SOFT_TREE_DEPTH_TOLERANCE_TAG,
                                      m_SoftTreeDepthTolerance, inserter);
-    };
+    }
 
     //! Populate the object from serialized data.
     bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
@@ -131,7 +131,7 @@ public:
                                                  m_SoftTreeDepthTolerance, traverser))
         } while (traverser.next());
         return true;
-    };
+    }
 
 public:
     static const std::string REGULARIZATION_DEPTH_PENALTY_MULTIPLIER_TAG;

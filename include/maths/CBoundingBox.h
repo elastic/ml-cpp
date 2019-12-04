@@ -31,6 +31,7 @@ public:
     static bool dynamicSizeAlwaysZero() {
         return core::memory_detail::SDynamicSizeAlwaysZero<POINT>::value();
     }
+    using TCoordinate = typename SCoordinate<POINT>::Type;
     using TPointPrecise = typename SFloatingPoint<POINT, double>::Type;
 
 public:
@@ -90,7 +91,7 @@ public:
         POINT xy = y - x;
         POINT f(m_B);
         for (std::size_t i = 0u; i < las::dimension(x); ++i) {
-            if (xy(i) < 0) {
+            if (xy(i) < TCoordinate{0}) {
                 f(i) = m_A(i);
             }
         }
