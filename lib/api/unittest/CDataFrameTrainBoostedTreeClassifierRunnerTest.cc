@@ -75,10 +75,14 @@ void testWriteOneRow(const std::string& dependentVariableField,
         "classification", dependentVariableField, rows.size(),
         columnNames.size(), 13000000, 0, 0, categoricalColumns)};
     rapidjson::Document jsonParameters;
-    jsonParameters.Parse("{"
-                         "  \"dependent_variable\": \"" + dependentVariableField + "\","
-                         "  \"prediction_field_type\": \"" + predictionFieldType + "\""
-                         "}");
+    if (predictionFieldType.empty()) {
+        jsonParameters.Parse("{\"dependent_variable\": \"" + dependentVariableField + "\"}");
+    } else {
+        jsonParameters.Parse("{"
+                             "  \"dependent_variable\": \"" + dependentVariableField + "\","
+                             "  \"prediction_field_type\": \"" + predictionFieldType + "\""
+                             "}");
+    }
     const auto parameters{
         api::CDataFrameTrainBoostedTreeClassifierRunner::parameterReader().read(jsonParameters)};
     api::CDataFrameTrainBoostedTreeClassifierRunner runner(*spec, parameters);

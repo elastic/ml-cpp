@@ -19,6 +19,12 @@ namespace api {
 class API_EXPORT CDataFrameTrainBoostedTreeClassifierRunner final
     : public CDataFrameTrainBoostedTreeRunner {
 public:
+    enum EPredictionFieldType {
+        E_PredictionFieldTypeString,
+        E_PredictionFieldTypeInt,
+        E_PredictionFieldTypeBool
+    };
+
     static const CDataFrameAnalysisConfigReader& parameterReader();
 
     //! This is not intended to be called directly: use CDataFrameTrainBoostedTreeClassifierRunnerFactory.
@@ -59,7 +65,7 @@ private:
 
 private:
     std::size_t m_NumTopClasses;
-    std::string m_PredictionFieldType;
+    EPredictionFieldType m_PredictionFieldType;
 };
 
 //! \brief Makes a core::CDataFrame boosted tree classification runner.
