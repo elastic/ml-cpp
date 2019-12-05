@@ -44,6 +44,10 @@ public:
                      const TRowRef& row,
                      core::CRapidJsonConcurrentLineWriter& writer) const;
 
+    //! Write the predicted category value as string, int or bool.
+    void writePredictedCategoryValue(const std::string& categoryValue,
+                                     core::CRapidJsonConcurrentLineWriter& writer) const;
+
     //! \return A serialisable definition of the trained classification model.
     TInferenceModelDefinitionUPtr
     inferenceModelDefinition(const TStrVec& fieldNames,
@@ -55,6 +59,7 @@ private:
 
 private:
     std::size_t m_NumTopClasses;
+    std::string m_DependentVariableType;
 };
 
 //! \brief Makes a core::CDataFrame boosted tree classification runner.

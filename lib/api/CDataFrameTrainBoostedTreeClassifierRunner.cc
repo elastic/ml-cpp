@@ -32,6 +32,7 @@ using TSizeVec = std::vector<std::size_t>;
 
 // Configuration
 const std::string NUM_TOP_CLASSES{"num_top_classes"};
+const std::string DEPENDENT_VARIABLE_TYPE{"dependent_variable_type"};
 const std::string BALANCED_CLASS_LOSS{"balanced_class_loss"};
 
 // Output
@@ -47,6 +48,8 @@ CDataFrameTrainBoostedTreeClassifierRunner::parameterReader() {
     static const CDataFrameAnalysisConfigReader PARAMETER_READER{[] {
         auto theReader = CDataFrameTrainBoostedTreeRunner::parameterReader();
         theReader.addParameter(NUM_TOP_CLASSES, CDataFrameAnalysisConfigReader::E_OptionalParameter);
+        theReader.addParameter(DEPENDENT_VARIABLE_TYPE,
+                               CDataFrameAnalysisConfigReader::E_OptionalParameter);
         theReader.addParameter(BALANCED_CLASS_LOSS,
                                CDataFrameAnalysisConfigReader::E_OptionalParameter);
         return theReader;
@@ -60,6 +63,8 @@ CDataFrameTrainBoostedTreeClassifierRunner::CDataFrameTrainBoostedTreeClassifier
     : CDataFrameTrainBoostedTreeRunner{spec, parameters} {
 
     m_NumTopClasses = parameters[NUM_TOP_CLASSES].fallback(std::size_t{0});
+    m_DependentVariableType =
+        parameters[DEPENDENT_VARIABLE_TYPE].fallback(std::string("string"));
     this->boostedTreeFactory().balanceClassTrainingLoss(
         parameters[BALANCED_CLASS_LOSS].fallback(true));
 
@@ -119,7 +124,7 @@ void CDataFrameTrainBoostedTreeClassifierRunner::writeOneRow(
 
     writer.StartObject();
     writer.Key(this->predictionFieldName());
-    writer.String(categoryValues[predictedCategoryId]);
+    writePredictedCategoryValue(categoryValues[predictedCategoryId], writer);
     writer.Key(PREDICTION_PROBABILITY_FIELD_NAME);
     writer.Double(probabilityOfCategory[predictedCategoryId]);
     writer.Key(IS_TRAINING_FIELD_NAME);
@@ -135,7 +140,7 @@ void CDataFrameTrainBoostedTreeClassifierRunner::writeOneRow(
         for (std::size_t i = 0; i < std::min(categoryIds.size(), m_NumTopClasses); ++i) {
             writer.StartObject();
             writer.Key(CLASS_NAME_FIELD_NAME);
-            writer.String(categoryValues[categoryIds[i]]);
+            writePredictedCategoryValue(categoryValues[categoryIds[i]], writer);
             writer.Key(CLASS_PROBABILITY_FIELD_NAME);
             writer.Double(probabilityOfCategory[i]);
             writer.EndObject();
@@ -156,6 +161,19 @@ void CDataFrameTrainBoostedTreeClassifierRunner::writeOneRow(
         tree.columnHoldingPrediction(row.numberColumns())};
     this->writeOneRow(frame, columnHoldingDependentVariable,
                       columnHoldingPrediction, row, writer);
+}
+
+void CDataFrameTrainBoostedTreeClassifierRunner::writePredictedCategoryValue(
+    const std::string& categoryValue,
+    core::CRapidJsonConcurrentLineWriter& writer) const {
+
+    if (m_DependentVariableType == "int") {
+        writer.Int(std::stoi(categoryValue));
+    } else if (m_DependentVariableType == "bool") {
+        writer.Bool(std::stoi(categoryValue) == 1);
+    } else {
+        writer.String(categoryValue);
+    }
 }
 
 CDataFrameTrainBoostedTreeClassifierRunner::TLossFunctionUPtr
