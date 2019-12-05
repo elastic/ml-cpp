@@ -47,7 +47,7 @@ BOOST_AUTO_TEST_CASE(testPredictionFieldNameClash) {
 
 template<typename T>
 void testWriteOneRow(const std::string& dependentVariableField,
-                     const std::string& dependentVariableType,
+                     const std::string& predictionFieldType,
                      T (rapidjson::Value::*extract)() const,
                      const std::vector<T>& expectedPredictions) {
     // Prepare input data frame
@@ -77,7 +77,7 @@ void testWriteOneRow(const std::string& dependentVariableField,
     rapidjson::Document jsonParameters;
     jsonParameters.Parse("{"
                          "  \"dependent_variable\": \"" + dependentVariableField + "\","
-                         "  \"dependent_variable_type\": \"" + dependentVariableType + "\""
+                         "  \"prediction_field_type\": \"" + predictionFieldType + "\""
                          "}");
     const auto parameters{
         api::CDataFrameTrainBoostedTreeClassifierRunner::parameterReader().read(jsonParameters)};
@@ -123,21 +123,21 @@ void testWriteOneRow(const std::string& dependentVariableField,
     }
 }
 
-BOOST_AUTO_TEST_CASE(testWriteOneRowDependentVariableIsInt) {
+BOOST_AUTO_TEST_CASE(testWriteOneRowPredictionFieldTypeIsInt) {
     testWriteOneRow("x3", "int", &rapidjson::Value::GetInt, {1, 1, 1, 5, 5});
 }
 
-BOOST_AUTO_TEST_CASE(testWriteOneRowDependentVariableIsBool) {
+BOOST_AUTO_TEST_CASE(testWriteOneRowPredictionFieldTypeIsBool) {
     testWriteOneRow("x4", "bool", &rapidjson::Value::GetBool,
                     {true, true, true, false, false});
 }
 
-BOOST_AUTO_TEST_CASE(testWriteOneRowDependentVariableIsString) {
+BOOST_AUTO_TEST_CASE(testWriteOneRowPredictionFieldTypeIsString) {
     testWriteOneRow("x5", "string", &rapidjson::Value::GetString,
                     {"cat", "cat", "cat", "dog", "dog"});
 }
 
-BOOST_AUTO_TEST_CASE(testWriteOneRowDependentVariableTypeIsMissing) {
+BOOST_AUTO_TEST_CASE(testWriteOneRowPredictionFieldTypeIsMissing) {
     testWriteOneRow("x5", "", &rapidjson::Value::GetString,
                     {"cat", "cat", "cat", "dog", "dog"});
 }

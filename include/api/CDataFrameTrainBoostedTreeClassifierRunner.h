@@ -59,7 +59,7 @@ private:
 
 private:
     std::size_t m_NumTopClasses;
-    std::string m_DependentVariableType;
+    std::string m_PredictionFieldType;
 };
 
 //! \brief Makes a core::CDataFrame boosted tree classification runner.
