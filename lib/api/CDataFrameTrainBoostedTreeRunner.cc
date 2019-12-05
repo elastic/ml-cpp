@@ -287,6 +287,10 @@ std::size_t CDataFrameTrainBoostedTreeRunner::estimateBookkeepingMemoryUsage(
     return m_BoostedTreeFactory->estimateMemoryUsage(totalNumberRows, numberColumns);
 }
 
+std::size_t CDataFrameTrainBoostedTreeRunner::topShapValues() const {
+    return m_BoostedTree->topShapValues();
+}
+
 // clang-format off
 const std::string CDataFrameTrainBoostedTreeRunner::DEPENDENT_VARIABLE_NAME{"dependent_variable"};
 const std::string CDataFrameTrainBoostedTreeRunner::PREDICTION_FIELD_NAME{"prediction_field_name"};

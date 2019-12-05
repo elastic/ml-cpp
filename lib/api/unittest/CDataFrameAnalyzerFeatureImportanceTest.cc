@@ -306,7 +306,7 @@ BOOST_AUTO_TEST_CASE(testRunBoostedTreeRegressionFeatureImportanceAllShap) {
     TDoubleVec values;
     rng.generateUniformSamples(-10.0, 10.0, weights.size() * rows, values);
 
-    // make last column categorical
+    // make the first column categorical
     for (auto it = values.begin(); it < values.end(); it += 4) {
         *it = (*it < 0) ? -10 : 10;
     }

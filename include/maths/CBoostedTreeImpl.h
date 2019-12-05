@@ -55,7 +55,7 @@ public:
     using TOptionalDouble = boost::optional<double>;
     using TRegularization = CBoostedTreeRegularization<double>;
     using TSizeVec = std::vector<std::size_t>;
-    using TOptionalSizeVec = boost::optional<TSizeVec>;
+    using TSizeIntegerRange = boost::integer_range<std::size_t>;
 
 public:
     static const double MINIMUM_RELATIVE_GAIN_PER_SPLIT;
@@ -133,7 +133,9 @@ public:
     //! \return The best hyperparameters for validation error found so far.
     const CBoostedTreeHyperparameters& bestHyperparameters() const;
 
-    const TOptionalSizeVec& topShapIndices() const;
+    TSizeVec columnsHoldingShapValues() const;
+
+    std::size_t topShapValues() const;
 
 private:
     using TSizeDoublePr = std::pair<std::size_t, double>;
@@ -529,7 +531,8 @@ private:
     std::size_t m_CurrentRound = 0;
     mutable core::CLoopProgress m_TrainingProgress;
     std::size_t m_TopShapValues = 0;
-    TOptionalSizeVec m_TopShapIndices;
+    std::size_t m_FirstShapColumnIndex = 0;
+    std::size_t m_LastShapColumnIndex = 0;
 
 private:
     friend class CBoostedTreeFactory;

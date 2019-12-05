@@ -62,8 +62,10 @@ public:
     //! Get the column containing the model's prediction for the dependent variable.
     virtual std::size_t columnHoldingPrediction(std::size_t numberColumns) const = 0;
 
+    virtual std::size_t topShapValues() const = 0;
+
     //! Get the optional vector of column indices with SHAP values
-    virtual const TOptionalSizeVec& columnsHoldingShapValues() const = 0;
+    virtual TSizeVec columnsHoldingShapValues() const = 0;
 
 public:
     static const std::string SHAP_PREFIX;

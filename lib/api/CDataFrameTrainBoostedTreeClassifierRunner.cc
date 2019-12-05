@@ -135,10 +135,21 @@ void CDataFrameTrainBoostedTreeClassifierRunner::writeOneRow(
         }
         writer.EndArray();
     }
-    if (this->boostedTree().columnsHoldingShapValues().is_initialized()) {
-        for (std::size_t i : this->boostedTree().columnsHoldingShapValues().get()) {
-            const std::string& columnName{frame.columnNames()[i]};
-            writer.Key(columnName);
+
+    if (this->topShapValues() > 0) {
+        auto shapColumnsRange{this->boostedTree().columnsHoldingShapValues()};
+        std::vector<double> shapValues;
+        shapValues.reserve(shapColumnsRange.size());
+        std::copy(row.data() + shapColumnsRange.front(),
+                  row.data() + shapColumnsRange.front() + shapColumnsRange.size(),
+                  shapValues.begin());
+        std::nth_element(shapColumnsRange.begin(),
+                         shapColumnsRange.begin() + this->topShapValues() - 1,
+                         shapColumnsRange.end(), [&row](std::size_t a, std::size_t b) {
+                             return row[a] > row[b];
+                         });
+        for (std::size_t i : shapColumnsRange) {
+            writer.Key(frame.columnNames()[i]);
             writer.Double(row[i]);
         }
     }

@@ -400,7 +400,9 @@ public:
     std::size_t columnHoldingPrediction(std::size_t numberColumns) const override;
 
     //! Get the optional vector of column indices with SHAP values
-    const TOptionalSizeVec& columnsHoldingShapValues() const override;
+    TSizeVec columnsHoldingShapValues() const override;
+
+    std::size_t topShapValues() const override;
 
     //! Get the model produced by training if it has been run.
     const TNodeVecVec& trainedModel() const;

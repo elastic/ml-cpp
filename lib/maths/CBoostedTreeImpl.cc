@@ -1461,39 +1461,30 @@ void CBoostedTreeImpl::computeShapValues(core::CDataFrame& frame, const TProgres
         bool successful;
         auto treeFeatureImportance = std::make_unique<CTreeShapFeatureImportance>(
             m_BestForest, m_NumberThreads);
-        TDoubleVec shapTotal;
         std::size_t numberInputFields = m_Encoder->numberEncodedColumns() - 1;
         // resize data frame to write SHAP values
         std::size_t offset{frame.numberColumns()};
         frame.resizeColumns(m_NumberThreads, frame.numberColumns() + numberInputFields);
+        m_FirstShapColumnIndex = offset;
+        m_LastShapColumnIndex = frame.numberColumns() - 1;
         TStrVec columnNames(frame.columnNames());
         for (std::size_t i = 0; i < numberInputFields; ++i) {
             columnNames[offset + i] = CDataFrameRegressionModel::SHAP_PREFIX +
                                       frame.columnNames()[i];
         }
         frame.columnNames(columnNames);
-
-        std::size_t topShapValues = (m_TopShapValues < numberInputFields)
-                                        ? m_TopShapValues
-                                        : numberInputFields;
-        shapTotal = treeFeatureImportance->shap(frame, *m_Encoder, numberInputFields, offset);
-
-        // get indices of the top elements
-        TSizeVec indices(shapTotal.size());
-        std::iota(indices.begin(), indices.end(), offset);
-        std::nth_element(indices.begin(), indices.end(),
-                         indices.begin() + topShapValues - 1,
-                         [&shapTotal](std::size_t a, std::size_t b) {
-                             return shapTotal[a] > shapTotal[b];
-                         });
-        m_TopShapIndices = TSizeVec(topShapValues);
-        std::copy(indices.begin(), indices.begin() + topShapValues,
-                  m_TopShapIndices.get().begin());
+        treeFeatureImportance->shap(frame, *m_Encoder, numberInputFields, offset);
     }
 }
 
-const CBoostedTreeImpl::TOptionalSizeVec& CBoostedTreeImpl::topShapIndices() const {
-    return m_TopShapIndices;
+CBoostedTreeImpl::TSizeVec CBoostedTreeImpl::columnsHoldingShapValues() const {
+    TSizeVec result(m_LastShapColumnIndex - m_FirstShapColumnIndex + 1);
+    std::iota(result.begin(), result.end(), m_FirstShapColumnIndex);
+    return result;
+}
+
+std::size_t CBoostedTreeImpl::topShapValues() const {
+    return m_TopShapValues;
 }
 }
 }
