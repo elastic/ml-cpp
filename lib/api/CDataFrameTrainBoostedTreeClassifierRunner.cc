@@ -33,6 +33,9 @@ using TSizeVec = std::vector<std::size_t>;
 // Configuration
 const std::string NUM_TOP_CLASSES{"num_top_classes"};
 const std::string DEPENDENT_VARIABLE_TYPE{"dependent_variable_type"};
+const std::string DEPENDENT_VARIABLE_TYPE_STRING{"string"};
+const std::string DEPENDENT_VARIABLE_TYPE_INT{"int"};
+const std::string DEPENDENT_VARIABLE_TYPE_BOOL{"bool"};
 const std::string BALANCED_CLASS_LOSS{"balanced_class_loss"};
 
 // Output
@@ -64,7 +67,7 @@ CDataFrameTrainBoostedTreeClassifierRunner::CDataFrameTrainBoostedTreeClassifier
 
     m_NumTopClasses = parameters[NUM_TOP_CLASSES].fallback(std::size_t{0});
     m_DependentVariableType =
-        parameters[DEPENDENT_VARIABLE_TYPE].fallback(std::string("string"));
+        parameters[DEPENDENT_VARIABLE_TYPE].fallback(DEPENDENT_VARIABLE_TYPE_STRING);
     this->boostedTreeFactory().balanceClassTrainingLoss(
         parameters[BALANCED_CLASS_LOSS].fallback(true));
 
@@ -167,13 +170,20 @@ void CDataFrameTrainBoostedTreeClassifierRunner::writePredictedCategoryValue(
     const std::string& categoryValue,
     core::CRapidJsonConcurrentLineWriter& writer) const {
 
-    if (m_DependentVariableType == "int") {
-        writer.Int(std::stoi(categoryValue));
-    } else if (m_DependentVariableType == "bool") {
-        writer.Bool(std::stoi(categoryValue) == 1);
-    } else {
-        writer.String(categoryValue);
+    if (m_DependentVariableType == DEPENDENT_VARIABLE_TYPE_INT) {
+        double doubleValue;
+        if (core::CStringUtils::stringToType(categoryValue, doubleValue)) {
+            writer.Int64(static_cast<std::int64_t>(doubleValue));
+            return;
+        }
+    } else if (m_DependentVariableType == DEPENDENT_VARIABLE_TYPE_BOOL) {
+        double doubleValue;
+        if (core::CStringUtils::stringToType(categoryValue, doubleValue)) {
+            writer.Bool(static_cast<std::int64_t>(doubleValue) == 1);
+            return;
+        }
     }
+    writer.String(categoryValue);
 }
 
 CDataFrameTrainBoostedTreeClassifierRunner::TLossFunctionUPtr

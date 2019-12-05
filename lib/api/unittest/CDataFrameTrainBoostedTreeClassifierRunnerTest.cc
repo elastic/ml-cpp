@@ -123,21 +123,21 @@ void testWriteOneRow(const std::string& dependentVariableField,
     }
 }
 
-BOOST_AUTO_TEST_CASE(testWriteOneRow_DependentVariableIsInt) {
+BOOST_AUTO_TEST_CASE(testWriteOneRowDependentVariableIsInt) {
     testWriteOneRow("x3", "int", &rapidjson::Value::GetInt, {1, 1, 1, 5, 5});
 }
 
-BOOST_AUTO_TEST_CASE(testWriteOneRow_DependentVariableIsBool) {
+BOOST_AUTO_TEST_CASE(testWriteOneRowDependentVariableIsBool) {
     testWriteOneRow("x4", "bool", &rapidjson::Value::GetBool,
                     {true, true, true, false, false});
 }
 
-BOOST_AUTO_TEST_CASE(testWriteOneRow_DependentVariableIsString) {
+BOOST_AUTO_TEST_CASE(testWriteOneRowDependentVariableIsString) {
     testWriteOneRow("x5", "string", &rapidjson::Value::GetString,
                     {"cat", "cat", "cat", "dog", "dog"});
 }
 
-BOOST_AUTO_TEST_CASE(testWriteOneRow_DependentVariableTypeMissing) {
+BOOST_AUTO_TEST_CASE(testWriteOneRowDependentVariableTypeIsMissing) {
     testWriteOneRow("x5", "", &rapidjson::Value::GetString,
                     {"cat", "cat", "cat", "dog", "dog"});
 }
