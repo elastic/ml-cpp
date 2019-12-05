@@ -71,7 +71,7 @@ struct SFixtureSingleTree {
             std::make_unique<maths::CTreeShapFeatureImportance, std::initializer_list<TTree>>(
                 {tree});
         CStubMakeDataFrameCategoryEncoder stubParameters{1, *frame, 0};
-        encoder = std::make_unique<maths::CDataFrameCategoryEncoder>(&stubParameters);
+        encoder = std::make_unique<maths::CDataFrameCategoryEncoder>(stubParameters);
     }
 
     ~SFixtureSingleTree() {}
@@ -124,7 +124,7 @@ struct SFixtureMultipleTrees {
             std::make_unique<maths::CTreeShapFeatureImportance, std::initializer_list<TTree>>(
                 {tree1, tree2});
         CStubMakeDataFrameCategoryEncoder stubParameters{1, *frame, 0};
-        encoder = std::make_unique<maths::CDataFrameCategoryEncoder>(&stubParameters);
+        encoder = std::make_unique<maths::CDataFrameCategoryEncoder>(stubParameters);
     }
 
     ~SFixtureMultipleTrees() {}

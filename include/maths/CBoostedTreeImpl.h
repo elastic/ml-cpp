@@ -528,7 +528,7 @@ private:
     std::size_t m_NumberRounds = 1;
     std::size_t m_CurrentRound = 0;
     mutable core::CLoopProgress m_TrainingProgress;
-    std::size_t m_TopShapValues;
+    std::size_t m_TopShapValues = 0;
     TOptionalSizeVec m_TopShapIndices;
 
 private:

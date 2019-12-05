@@ -211,9 +211,8 @@ public:
     };
 
 public:
-    CDataFrameCategoryEncoder(CMakeDataFrameCategoryEncoder parameters);
-
-    CDataFrameCategoryEncoder(CMakeDataFrameCategoryEncoder* parameters);
+    CDataFrameCategoryEncoder(CMakeDataFrameCategoryEncoder& parameters);
+    CDataFrameCategoryEncoder(CMakeDataFrameCategoryEncoder&& parameters);
 
     //! Initialize from serialized data.
     CDataFrameCategoryEncoder(core::CStateRestoreTraverser& traverser);
