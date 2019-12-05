@@ -20,7 +20,7 @@ CTreeShapFeatureImportance::shap(core::CDataFrame& frame,
                                  std::size_t numberFeatures,
                                  std::size_t offset) {
     numberFeatures = (numberFeatures != -1) ? numberFeatures : frame.numberColumns();
-    std::vector<std::size_t> maxDepthVec;
+    TSizeVec maxDepthVec;
     maxDepthVec.reserve(m_Trees.size());
     for (auto& tree : m_Trees) {
         auto samplesPerNode =
@@ -32,23 +32,20 @@ CTreeShapFeatureImportance::shap(core::CDataFrame& frame,
     }
 
     auto result = frame.writeColumns(
-        m_NumberThreads, 0, frame.numberRows(),
+        m_NumberThreads,
         core::bindRetrievableState(
-            [&](auto& state, TRowItr beginRows, TRowItr endRows) {
+            [&](auto& phiSum, TRowItr beginRows, TRowItr endRows) {
                 for (auto row = beginRows; row != endRows; ++row) {
                     auto encodedRow{encoder.encode(*row)};
-                    auto& phiSum = state;
                     for (int i = 0; i < m_Trees.size(); ++i) {
                         //                        phi[frame.numberColumns()] += m_Trees[i][0].value();
                         SPath path(maxDepthVec[i] + 1);
                         CTreeShapFeatureImportance::shapRecursive(
                             m_Trees[i], m_SamplesPerNode[i], encoder,
                             encodedRow, path, 0, 1.0, 1.0, -1, offset, row);
-                        i += 0;
                     }
                     for (int j = 0; j < numberFeatures; ++j) {
-                        row->writeColumn(offset + j,
-                                         (*row)[offset + j] / m_Trees.size());
+                        row->writeColumn(offset + j, (*row)[offset + j]);
                         phiSum[j] += std::fabs((*row)[offset + j]);
                     }
 
@@ -74,26 +71,25 @@ CTreeShapFeatureImportance::samplesPerNode(const TTree& tree,
                                            const CDataFrameCategoryEncoder& encoder,
                                            std::size_t numThreads) {
     auto result = frame.readRows(
-        numThreads, 0, frame.numberRows(),
-        core::bindRetrievableState(
-            [&](TDoubleVec& state, TRowItr beginRows, TRowItr endRows) {
-                for (auto row = beginRows; row != endRows; ++row) {
-                    auto encodedRow{encoder.encode(*row)};
-                    auto node{tree[0]};
-                    state[0] += 1;
-                    std::size_t nextIndex;
-                    while (node.isLeaf() == false) {
-                        if (node.assignToLeft(encodedRow)) {
-                            nextIndex = node.leftChildIndex();
-                        } else {
-                            nextIndex = node.rightChildIndex();
-                        }
-                        state[nextIndex] += 1.0;
-                        node = tree[nextIndex];
-                    }
-                }
-            },
-            TDoubleVec(tree.size())));
+        numThreads, core::bindRetrievableState(
+                        [&](TDoubleVec& samplesPerNode, TRowItr beginRows, TRowItr endRows) {
+                            for (auto row = beginRows; row != endRows; ++row) {
+                                auto encodedRow{encoder.encode(*row)};
+                                const CBoostedTreeNode* node{&tree[0]};
+                                samplesPerNode[0] += 1.0;
+                                std::size_t nextIndex;
+                                while (node->isLeaf() == false) {
+                                    if (node->assignToLeft(encodedRow)) {
+                                        nextIndex = node->leftChildIndex();
+                                    } else {
+                                        nextIndex = node->rightChildIndex();
+                                    }
+                                    samplesPerNode[nextIndex] += 1.0;
+                                    node = &(tree[nextIndex]);
+                                }
+                            }
+                        },
+                        TDoubleVec(tree.size())));
 
     auto& state = result.first;
     TDoubleVec totalSamplesPerNode{std::move(state[0].s_FunctionState)};
@@ -120,16 +116,16 @@ std::size_t CTreeShapFeatureImportance::updateNodeValues(TTree& tree,
         return 0;
     }
 
-    std::size_t depthLeft = CTreeShapFeatureImportance::updateNodeValues(
-        tree, node.leftChildIndex(), samplesPerNode, depth + 1);
-    std::size_t depthRight = CTreeShapFeatureImportance::updateNodeValues(
-        tree, node.rightChildIndex(), samplesPerNode, depth + 1);
+    std::size_t depthLeft{CTreeShapFeatureImportance::updateNodeValues(
+        tree, node.leftChildIndex(), samplesPerNode, depth + 1)};
+    std::size_t depthRight{CTreeShapFeatureImportance::updateNodeValues(
+        tree, node.rightChildIndex(), samplesPerNode, depth + 1)};
 
-    double leftWeight = samplesPerNode[node.leftChildIndex()];
-    double rightWeight = samplesPerNode[node.rightChildIndex()];
-    double averageValue = (leftWeight * tree[node.leftChildIndex()].value() +
-                           rightWeight * tree[node.rightChildIndex()].value()) /
-                          (leftWeight + rightWeight);
+    double leftWeight{samplesPerNode[node.leftChildIndex()]};
+    double rightWeight{samplesPerNode[node.rightChildIndex()]};
+    double averageValue{(leftWeight * tree[node.leftChildIndex()].value() +
+                         rightWeight * tree[node.rightChildIndex()].value()) /
+                        (leftWeight + rightWeight)};
     node.value(averageValue);
     return std::max(depthLeft, depthRight) + 1;
 }
@@ -144,7 +140,7 @@ void CTreeShapFeatureImportance::shapRecursive(const TTree& tree,
                                                double parentFractionOne,
                                                int parentFeatureIndex,
                                                std::size_t offset,
-                                               core::CDataFrame::TRowItr& row) {
+                                               core::CDataFrame::TRowItr& row) const {
 
     CTreeShapFeatureImportance::extendPath(splitPath, parentFractionZero,
                                            parentFractionOne, parentFeatureIndex);
@@ -157,7 +153,8 @@ void CTreeShapFeatureImportance::shapRecursive(const TTree& tree,
             row->writeColumn(
                 offset + inputColumnIndex,
                 (*row)[offset + inputColumnIndex] +
-                    scale * (splitPath.fractionOnes(i) - splitPath.fractionZeros(i)) * leafValue);
+                    scale * (splitPath.fractionOnes(i) - splitPath.fractionZeros(i)) *
+                        leafValue / m_Trees.size());
         }
 
     } else {

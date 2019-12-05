@@ -108,17 +108,20 @@ public:
     TTreeVec& trees() { return m_Trees; };
 
 private:
-    static void shapRecursive(const TTree& tree,
-                              const TDoubleVec& samplesPerNode,
-                              const CDataFrameCategoryEncoder& encoder,
-                              const CEncodedDataFrameRowRef& encodedRow,
-                              SPath splitPath,
-                              std::size_t nodeIndex,
-                              double parentFractionZero,
-                              double parentFractionOne,
-                              int parentFeatureIndex,
-                              std::size_t offset,
-                              core::CDataFrame::TRowItr& row);
+    using TSizeVec = std::vector<std::size_t>;
+
+private:
+    void shapRecursive(const TTree& tree,
+                       const TDoubleVec& samplesPerNode,
+                       const CDataFrameCategoryEncoder& encoder,
+                       const CEncodedDataFrameRowRef& encodedRow,
+                       SPath splitPath,
+                       std::size_t nodeIndex,
+                       double parentFractionZero,
+                       double parentFractionOne,
+                       int parentFeatureIndex,
+                       std::size_t offset,
+                       core::CDataFrame::TRowItr& row) const;
     static void extendPath(SPath& path, double fractionZero, double fractionOne, int featureIndex);
     static double sumUnwoundPath(const SPath& path, int pathIndex);
     static void unwindPath(SPath& path, int pathIndex);
