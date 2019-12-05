@@ -9,6 +9,8 @@
 #include <maths/CBoostedTree.h>
 #include <maths/CTreeShapFeatureImportance.h>
 
+#include <test/BoostTestCloseAbsolute.h>
+
 #include <boost/test/unit_test.hpp>
 
 BOOST_AUTO_TEST_SUITE(CTreeShapFeatureImportanceTest)
@@ -157,12 +159,15 @@ BOOST_FIXTURE_TEST_CASE(testSingleTreeExpectedNodeValues, SFixtureSingleTree) {
 
 BOOST_FIXTURE_TEST_CASE(testSingleTreeShapNotNormalized, SFixtureSingleTree) {
     std::size_t offset{frame->numberColumns()};
-    treeFeatureImportance->shap(*frame, *encoder, frame->numberColumns(), offset);
+    std::size_t numberFeatures{frame->numberColumns()};
+    frame->resizeColumns(1, offset * 2);
+    treeFeatureImportance->shap(*frame, *encoder, numberFeatures, offset);
     TDoubleVecVec expectedPhi{{-5., -2.5}, {-5., 2.5}, {5., -2.5}, {5., 2.5}};
     frame->readRows(1, [&](TRowItr beginRows, TRowItr endRows) {
         for (auto row = beginRows; row != endRows; ++row) {
             for (std::size_t col = 0; col < 2; ++col) {
-                BOOST_TEST_REQUIRE((*row)[offset + col] == expectedPhi[row->index()][col]);
+                BOOST_REQUIRE_CLOSE_ABSOLUTE(expectedPhi[row->index()][col],
+                                             static_cast<double>((*row)[offset + col]), 1e-7);
             }
         }
     });
@@ -176,11 +181,14 @@ BOOST_FIXTURE_TEST_CASE(testMultipleTreesShapNotNormalized, SFixtureMultipleTree
         {0.90245943, -0.2177871},   {1.0269092, 0.0725957},
         {1.0269092, 0.0725957},     {1.0269092, 0.0725957}};
     std::size_t offset{frame->numberColumns()};
-    treeFeatureImportance->shap(*frame, *encoder, frame->numberColumns(), offset);
+    std::size_t numberFeatures{frame->numberColumns()};
+    frame->resizeColumns(1, offset * 2);
+    treeFeatureImportance->shap(*frame, *encoder, numberFeatures, offset);
     frame->readRows(1, [&](TRowItr beginRows, TRowItr endRows) {
         for (auto row = beginRows; row != endRows; ++row) {
             for (std::size_t col = 0; col < 2; ++col) {
-                BOOST_TEST_REQUIRE((*row)[offset + col] == expectedPhi[row->index()][col]);
+                BOOST_REQUIRE_CLOSE_ABSOLUTE(expectedPhi[row->index()][col],
+                                             static_cast<double>((*row)[offset + col]), 1e-7);
             }
         }
     });

@@ -1404,8 +1404,7 @@ bool CBoostedTreeImpl::acceptRestoreTraverser(core::CStateRestoreTraverser& trav
                                              m_MaximumNumberTreesOverride, traverser))
         RESTORE(LOSS_TAG, restoreLoss(m_Loss, traverser))
         RESTORE(TOP_SHAP_VALUES_TAG,
-                core::CPersistUtils::restore(TOP_SHAP_VALUES_TAG,
-                                             m_TopShapValues, traverser))
+                core::CPersistUtils::restore(TOP_SHAP_VALUES_TAG, m_TopShapValues, traverser))
     } while (traverser.next());
 
     return true;
