@@ -62,9 +62,7 @@ public:
     //! Get the column containing the model's prediction for the dependent variable.
     virtual std::size_t columnHoldingPrediction(std::size_t numberColumns) const = 0;
 
-    //! Get the range of column indices with SHAP values
-    //!
-    //! \note The boost::irange can be sustituted by ranges::views::iota once this becomes available in C++20
+    //! Get the optional vector of column indices with SHAP values
     virtual const TOptionalSizeVec& columnsHoldingShapValues() const = 0;
 
 public:

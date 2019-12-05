@@ -318,23 +318,19 @@ BOOST_AUTO_TEST_CASE(testRunBoostedTreeRegressionFeatureImportanceAllShap) {
     rapidjson::ParseResult ok(results.Parse(output.str()));
     BOOST_TEST_REQUIRE(static_cast<bool>(ok) == true);
 
-    double c1_sum, c2_sum, c3_sum, c4_sum;
+    double c1Sum, c2Sum, c3Sum, c4Sum;
     for (const auto& result : results.GetArray()) {
         if (result.HasMember("row_results")) {
-            c1_sum += std::fabs(
-                result["row_results"]["results"]["ml"]["shap.c1"].GetDouble());
-            c2_sum += std::fabs(
-                result["row_results"]["results"]["ml"]["shap.c2"].GetDouble());
-            c3_sum += std::fabs(
-                result["row_results"]["results"]["ml"]["shap.c3"].GetDouble());
-            c4_sum += std::fabs(
-                result["row_results"]["results"]["ml"]["shap.c4"].GetDouble());
+            c1Sum += std::fabs(result["row_results"]["results"]["ml"]["shap.c1"].GetDouble());
+            c2Sum += std::fabs(result["row_results"]["results"]["ml"]["shap.c2"].GetDouble());
+            c3Sum += std::fabs(result["row_results"]["results"]["ml"]["shap.c3"].GetDouble());
+            c4Sum += std::fabs(result["row_results"]["results"]["ml"]["shap.c4"].GetDouble());
         }
     }
-    BOOST_TEST_REQUIRE(c2_sum > c1_sum);
-    BOOST_TEST_REQUIRE(c1_sum > c3_sum);
-    BOOST_TEST_REQUIRE(c1_sum > c4_sum);
-    BOOST_REQUIRE_CLOSE(c3_sum, c4_sum, 80); // c3 and c4 within 80% of each other
+    BOOST_TEST_REQUIRE(c2Sum > c1Sum);
+    BOOST_TEST_REQUIRE(c1Sum > c3Sum);
+    BOOST_TEST_REQUIRE(c1Sum > c4Sum);
+    BOOST_REQUIRE_CLOSE(c3Sum, c4Sum, 80); // c3 and c4 within 80% of each other
 }
 
 BOOST_AUTO_TEST_CASE(testRunBoostedTreeRegressionFeatureImportanceNoShap) {

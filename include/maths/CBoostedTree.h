@@ -399,6 +399,7 @@ public:
     //! Get the column containing the model's prediction for the dependent variable.
     std::size_t columnHoldingPrediction(std::size_t numberColumns) const override;
 
+    //! Get the optional vector of column indices with SHAP values
     const TOptionalSizeVec& columnsHoldingShapValues() const override;
 
     //! Get the model produced by training if it has been run.

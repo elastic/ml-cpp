@@ -26,11 +26,10 @@ public:
     using TDoubleVecVec = std::vector<TDoubleVec>;
 
     struct SPath {
-        SPath(std::size_t length)
+        explicit SPath(std::size_t length)
             : s_FractionOnes(length), s_FractionZeros(length),
               s_FeatureIndex(length, -1), s_Scale(length), s_NextIndex(0),
               s_MaxLength(length) {}
-        ~SPath() = default;
 
         void extend(int featureIndex, double fractionZero, double fractionOne) {
             if (s_NextIndex < s_MaxLength) {
@@ -85,13 +84,13 @@ public:
 
     //! Compute SHAP values for the data in \p frame using the specified \p encoder.
     //!
-    //!\param[in] numberFeatures number of features. If set to -1, it's assument that the number of feature is equal to the
+    //!\param[in] numberFeatures number of features. If set to -1, it's assumed that the number of feature is equal to the
     //! number of columns in the \p frame.
-    //!\return pair shap values for all points, sum of magnitues of shap values for every feature.
-    CTreeShapFeatureImportance::TDoubleVec shap(core::CDataFrame& frame,
-                                                const CDataFrameCategoryEncoder& encoder,
-                                                std::size_t numberFeatures,
-                                                std::size_t offset);
+    //!\return The sum of magnitudes of SHAP values for every feature.
+    TDoubleVec shap(core::CDataFrame& frame,
+                    const CDataFrameCategoryEncoder& encoder,
+                    std::size_t numberFeatures,
+                    std::size_t offset);
 
     static CTreeShapFeatureImportance::TDoubleVec
     samplesPerNode(const TTree& tree,
@@ -100,7 +99,7 @@ public:
                    std::size_t numThreads);
 
     //! Recursively computes inner node values as weighted average of the children (leaf) values
-    //! Returns maximum depth the the tree
+    //! \returns The maximum depth the the tree.
     static std::size_t updateNodeValues(TTree& tree,
                                         std::size_t nodeIndex,
                                         const TDoubleVec& samplesPerNode,
@@ -120,12 +119,9 @@ private:
                               int parentFeatureIndex,
                               std::size_t offset,
                               core::CDataFrame::TRowItr& row);
-    static void extendPath(CTreeShapFeatureImportance::SPath& path,
-                           double fractionZero,
-                           double fractionOne,
-                           int featureIndex);
-    static double sumUnwoundPath(const CTreeShapFeatureImportance::SPath& path, int pathIndex);
-    static void unwindPath(CTreeShapFeatureImportance::SPath& path, int pathIndex);
+    static void extendPath(SPath& path, double fractionZero, double fractionOne, int featureIndex);
+    static double sumUnwoundPath(const SPath& path, int pathIndex);
+    static void unwindPath(SPath& path, int pathIndex);
 
 private:
     TTreeVec m_Trees;
