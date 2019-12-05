@@ -608,7 +608,7 @@ BOOST_AUTO_TEST_CASE(testCategoricalRegressors) {
 
     LOG_DEBUG(<< "bias = " << modelBias);
     LOG_DEBUG(<< " R^2 = " << modelRSquared);
-    BOOST_REQUIRE_CLOSE_ABSOLUTE(0.0, modelBias, 0.075);
+    BOOST_REQUIRE_CLOSE_ABSOLUTE(0.0, modelBias, 0.09);
     BOOST_TEST_REQUIRE(modelRSquared > 0.97);
 }
 
@@ -829,7 +829,7 @@ BOOST_AUTO_TEST_CASE(testDepthBasedRegularization) {
             meanDepth.add(static_cast<double>(maxDepth(tree, tree[0], 0)));
         }
         LOG_DEBUG(<< "mean depth = " << maths::CBasicStatistics::mean(meanDepth));
-        BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(meanDepth) > targetDepth - 1.0);
+        BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(meanDepth) > targetDepth - 1.1);
     }
 }
 
