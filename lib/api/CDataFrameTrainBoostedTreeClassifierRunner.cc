@@ -187,7 +187,7 @@ void CDataFrameTrainBoostedTreeClassifierRunner::writePredictedCategoryValue(
         break;
     case E_PredictionFieldTypeBool:
         if (core::CStringUtils::stringToType(categoryValue, doubleValue)) {
-            writer.Bool(static_cast<std::int64_t>(doubleValue) == 1.0);
+            writer.Bool(doubleValue != 0.0);
         } else {
             writer.String(categoryValue);
         }
