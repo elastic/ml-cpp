@@ -1486,5 +1486,9 @@ CBoostedTreeImpl::TSizeVec CBoostedTreeImpl::columnsHoldingShapValues() const {
 std::size_t CBoostedTreeImpl::topShapValues() const {
     return m_TopShapValues;
 }
+
+std::size_t CBoostedTreeImpl::numberInputColumns() const {
+    return m_Encoder->numberEncodedColumns();
+}
 }
 }

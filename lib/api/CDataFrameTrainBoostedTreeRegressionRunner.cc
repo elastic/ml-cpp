@@ -18,6 +18,7 @@
 #include <api/CDataFrameAnalysisSpecification.h>
 #include <api/ElasticsearchStateIndex.h>
 
+#include <cmath>
 #include <numeric>
 
 namespace ml {
@@ -77,15 +78,10 @@ void CDataFrameTrainBoostedTreeRegressionRunner::writeOneRow(
     writer.Bool(maths::CDataFrameUtils::isMissing(row[columnHoldingDependentVariable]) == false);
     if (this->topShapValues() > 0) {
         auto shapColumnsRange{this->boostedTree().columnsHoldingShapValues()};
-        std::vector<double> shapValues;
-        shapValues.reserve(shapColumnsRange.size());
-        std::copy(row.data() + shapColumnsRange.front(),
-                  row.data() + shapColumnsRange.front() + shapColumnsRange.size(),
-                  shapValues.begin());
         std::nth_element(shapColumnsRange.begin(),
                          shapColumnsRange.begin() + this->topShapValues() - 1,
                          shapColumnsRange.end(), [&row](std::size_t a, std::size_t b) {
-                             return row[a] > row[b];
+                             return std::fabs(row[a]) > std::fabs(row[b]);
                          });
         for (std::size_t i : shapColumnsRange) {
             writer.Key(frame.columnNames()[i]);

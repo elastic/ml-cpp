@@ -55,7 +55,6 @@ public:
     using TOptionalDouble = boost::optional<double>;
     using TRegularization = CBoostedTreeRegularization<double>;
     using TSizeVec = std::vector<std::size_t>;
-    using TSizeIntegerRange = boost::integer_range<std::size_t>;
 
 public:
     static const double MINIMUM_RELATIVE_GAIN_PER_SPLIT;
@@ -136,6 +135,8 @@ public:
     TSizeVec columnsHoldingShapValues() const;
 
     std::size_t topShapValues() const;
+
+    std::size_t numberInputColumns() const;
 
 private:
     using TSizeDoublePr = std::pair<std::size_t, double>;
