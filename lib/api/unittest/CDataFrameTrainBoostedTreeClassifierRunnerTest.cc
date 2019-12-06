@@ -79,8 +79,12 @@ void testWriteOneRow(const std::string& dependentVariableField,
         jsonParameters.Parse("{\"dependent_variable\": \"" + dependentVariableField + "\"}");
     } else {
         jsonParameters.Parse("{"
-                             "  \"dependent_variable\": \"" + dependentVariableField + "\","
-                             "  \"prediction_field_type\": \"" + predictionFieldType + "\""
+                             "  \"dependent_variable\": \"" +
+                             dependentVariableField +
+                             "\","
+                             "  \"prediction_field_type\": \"" +
+                             predictionFieldType +
+                             "\""
                              "}");
     }
     const auto parameters{
