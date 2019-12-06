@@ -38,18 +38,14 @@ CTreeShapFeatureImportance::shap(core::CDataFrame& frame,
                 for (auto row = beginRows; row != endRows; ++row) {
                     auto encodedRow{encoder.encode(*row)};
                     for (int i = 0; i < m_Trees.size(); ++i) {
-                        //                        phi[frame.numberColumns()] += m_Trees[i][0].value();
                         SPath path(maxDepthVec[i] + 1);
                         CTreeShapFeatureImportance::shapRecursive(
                             m_Trees[i], m_SamplesPerNode[i], encoder,
                             encodedRow, path, 0, 1.0, 1.0, -1, offset, row);
                     }
                     for (int j = 0; j < numberFeatures; ++j) {
-                        row->writeColumn(offset + j, (*row)[offset + j]);
                         phiSum[j] += std::fabs((*row)[offset + j]);
                     }
-
-                    //                    phiVec.emplace_back(std::move(phi));
                 }
             },
             TDoubleVec(numberFeatures, 0)));
@@ -153,8 +149,7 @@ void CTreeShapFeatureImportance::shapRecursive(const TTree& tree,
             row->writeColumn(
                 offset + inputColumnIndex,
                 (*row)[offset + inputColumnIndex] +
-                    scale * (splitPath.fractionOnes(i) - splitPath.fractionZeros(i)) *
-                        leafValue / m_Trees.size());
+                    scale * (splitPath.fractionOnes(i) - splitPath.fractionZeros(i)) * leafValue);
         }
 
     } else {
@@ -180,13 +175,12 @@ void CTreeShapFeatureImportance::shapRecursive(const TTree& tree,
 
         double hotFractionZero = samplesPerNode[hotIndex] / samplesPerNode[nodeIndex];
         double coldFractionZero = samplesPerNode[coldIndex] / samplesPerNode[nodeIndex];
-        CTreeShapFeatureImportance::shapRecursive(
-            tree, samplesPerNode, encoder, encodedRow, splitPath, hotIndex,
-            incomingFractionZero * hotFractionZero, incomingFractionOne,
-            splitFeature, offset, row);
-        CTreeShapFeatureImportance::shapRecursive(
-            tree, samplesPerNode, encoder, encodedRow, splitPath, coldIndex,
-            incomingFractionZero * coldFractionZero, 0.0, splitFeature, offset, row);
+        this->shapRecursive(tree, samplesPerNode, encoder, encodedRow, splitPath,
+                            hotIndex, incomingFractionZero * hotFractionZero,
+                            incomingFractionOne, splitFeature, offset, row);
+        this->shapRecursive(tree, samplesPerNode, encoder, encodedRow, splitPath,
+                            coldIndex, incomingFractionZero * coldFractionZero,
+                            0.0, splitFeature, offset, row);
     }
 }
 
@@ -219,11 +213,7 @@ double CTreeShapFeatureImportance::sumUnwoundPath(const SPath& path, int pathInd
         }
     } else {
         for (int i = pathDepth - 1; i >= 0; --i) {
-            // Add epsilon to the denominator to avoid division by zero
-            // This shouldn't be necessary once issue #849 is solved
-            total += path.scale(i) * (pathDepth + 1) /
-                     (fractionZero * (pathDepth - i) +
-                      std::numeric_limits<double>::epsilon());
+            total += path.scale(i) * (pathDepth + 1) / (fractionZero * (pathDepth - i));
         }
     }
 

@@ -432,8 +432,8 @@ std::size_t CBoostedTree::columnHoldingDependentVariable() const {
     return m_Impl->columnHoldingDependentVariable();
 }
 
-std::size_t CBoostedTree::columnHoldingPrediction(std::size_t numberColumns) const {
-    return m_Impl->numberInputColumns() + 1;
+std::size_t CBoostedTree::columnHoldingPrediction(std::size_t /*numberColumns*/) const {
+    return m_Impl->numberInputColumns();
     //    return predictionColumn(numberColumns);
 }
 

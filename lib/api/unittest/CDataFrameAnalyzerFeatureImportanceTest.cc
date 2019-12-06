@@ -5,34 +5,18 @@
  */
 
 #include <core/CDataFrame.h>
-#include <core/CDataSearcher.h>
-#include <core/CJsonStatePersistInserter.h>
-#include <core/CProgramCounters.h>
-#include <core/CStateDecompressor.h>
-#include <core/CStopWatch.h>
 
-#include <maths/CBoostedTree.h>
-#include <maths/CBoostedTreeFactory.h>
-#include <maths/CTools.h>
+#include <maths/CBasicStatistics.h>
 
 #include <api/CDataFrameAnalyzer.h>
-#include <api/CDataFrameTrainBoostedTreeRegressionRunner.h>
-#include <api/CSingleStreamDataAdder.h>
-#include <api/ElasticsearchStateIndex.h>
-
-#include <test/CDataFrameAnalysisSpecificationFactory.h>
-#include <test/CRandomNumbers.h>
 
 #include <test/BoostTestCloseAbsolute.h>
+#include <test/CDataFrameAnalysisSpecificationFactory.h>
+#include <test/CRandomNumbers.h>
 
 #include <boost/test/unit_test.hpp>
 
 #include <memory>
-
-using TDoubleVec = std::vector<double>;
-using TStrVec = std::vector<std::string>;
-BOOST_TEST_DONT_PRINT_LOG_VALUE(TDoubleVec::iterator)
-BOOST_TEST_DONT_PRINT_LOG_VALUE(TStrVec::iterator)
 
 BOOST_AUTO_TEST_SUITE(CDataFrameAnalyzerFeatureImportanceTest)
 
@@ -48,6 +32,8 @@ using TDataAdderUPtr = std::unique_ptr<core::CDataAdder>;
 using TPersisterSupplier = std::function<TDataAdderUPtr()>;
 using TDataSearcherUPtr = std::unique_ptr<core::CDataSearcher>;
 using TRestoreSearcherSupplier = std::function<TDataSearcherUPtr()>;
+using TDoubleVec = std::vector<double>;
+using TStrVec = std::vector<std::string>;
 
 TDataFrameUPtr setupLinearRegressionData(const TStrVec& fieldNames,
                                          TStrVec& fieldValues,
@@ -122,15 +108,11 @@ TDataFrameUPtr setupBinaryClassificationData(const TStrVec& fieldNames,
         frame->parseAndWriteRow(
             core::CVectorRange<const TStrVec>(fieldValues, 0, weights.size() + 1));
     }
-
     frame->finishWritingRows();
-
     return frame;
 }
 
 struct SFixture {
-    SFixture() {}
-
     rapidjson::Document runRegression(std::size_t shapValues) {
         auto outputWriterFactory = [&]() {
             return std::make_unique<core::CJsonOutputStreamWrapper>(this->output);
@@ -157,13 +139,6 @@ struct SFixture {
         auto frame = setupLinearRegressionData(fieldNames, fieldValues,
                                                analyzer, weights, values);
 
-        frame->readRows(1, [&](TRowItr beginRows, TRowItr endRows) {
-            for (auto row = beginRows; row != endRows; ++row) {
-                bias += (*row)[4];
-            }
-        });
-        bias /= frame->numberRows();
-
         analyzer.handleRecord(fieldNames, {"", "", "", "", "", "", "$"});
 
         rapidjson::Document results;
@@ -183,26 +158,17 @@ struct SFixture {
 
     int rows{200};
     std::stringstream output;
-    double bias{0};
 };
 }
 
 BOOST_FIXTURE_TEST_CASE(testRunBoostedTreeRegressionFeatureImportanceAllShap, SFixture) {
-
     // Test that feature importance statistically correctly recognize the impact of regressors
-    // in a linear model. Test for all regressors in the model.
+    // in a linear model. Test for all regressors in the model. We also make sure that the SHAP values are
+    // indeed a local approximation of the prediction up to the constant bias term.
+    using TMeanVarAccumulator = ml::maths::CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
     std::size_t topShapValues{4};
+    TMeanVarAccumulator bias;
     auto results{runRegression(topShapValues)};
-
-    std::ostringstream stream;
-    {
-        core::CJsonOutputStreamWrapper wrapper{stream};
-        api::CSerializableToJson::TRapidJsonWriter writer{wrapper};
-        writer.write(results);
-        stream.flush();
-    }
-    // string writer puts the json object in an array, so we strip the external brackets
-    LOG_DEBUG(<< stream.str());
 
     double c1, c2, c3, c4;
     double c1Sum, c2Sum, c3Sum, c4Sum;
@@ -214,7 +180,8 @@ BOOST_FIXTURE_TEST_CASE(testRunBoostedTreeRegressionFeatureImportanceAllShap, SF
             c3 = result["row_results"]["results"]["ml"]["shap.c3"].GetDouble();
             c4 = result["row_results"]["results"]["ml"]["shap.c4"].GetDouble();
             prediction = result["row_results"]["results"]["ml"]["c5_prediction"].GetDouble();
-            //            BOOST_REQUIRE_CLOSE(prediction-bias, c1+c2+c3+c4, 95);
+            // the difference between the prediction and the sum of all SHAP values constitutes bias
+            bias.add(prediction - (c1 + c2 + c3 + c4));
             c1Sum += std::fabs(c1);
             c2Sum += std::fabs(c2);
             c3Sum += std::fabs(c3);
@@ -222,9 +189,13 @@ BOOST_FIXTURE_TEST_CASE(testRunBoostedTreeRegressionFeatureImportanceAllShap, SF
         }
     }
     BOOST_TEST_REQUIRE(c2Sum > c1Sum);
+    // since c1 is categorical -10 or 10, it's influence is generally higher than that of c3 and c4 which are sampled
+    // randomly on [-10, 10].
     BOOST_TEST_REQUIRE(c1Sum > c3Sum);
     BOOST_TEST_REQUIRE(c1Sum > c4Sum);
     BOOST_REQUIRE_CLOSE(c3Sum, c4Sum, 80); // c3 and c4 within 80% of each other
+    // make sure the local approximation differs from the prediction always by the same bias (up to a numeric error)
+    BOOST_REQUIRE_SMALL(ml::maths::CBasicStatistics::variance(bias), 1e-7);
 }
 
 BOOST_FIXTURE_TEST_CASE(testRunBoostedTreeRegressionFeatureImportanceNoShap, SFixture) {

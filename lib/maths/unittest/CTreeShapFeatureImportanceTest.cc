@@ -175,11 +175,11 @@ BOOST_FIXTURE_TEST_CASE(testSingleTreeShapNotNormalized, SFixtureSingleTree) {
 
 BOOST_FIXTURE_TEST_CASE(testMultipleTreesShapNotNormalized, SFixtureMultipleTrees) {
     TDoubleVecVec expectedPhi{
-        {-0.82660001, -0.06222489}, {-0.82660001, -0.06222489},
-        {-0.82660001, -0.06222489}, {-0.58498581, -0.06222489},
-        {-0.58498581, -0.06222489}, {0.03993395, -0.06222489},
-        {0.90245943, -0.2177871},   {1.0269092, 0.0725957},
-        {1.0269092, 0.0725957},     {1.0269092, 0.0725957}};
+        {-1.65320002, -0.12444978}, {-1.65320002, -0.12444978},
+        {-1.65320002, -0.12444978}, {-1.16997162, -0.12444978},
+        {-1.16997162, -0.12444978}, {0.0798679, -0.12444978},
+        {1.80491886, -0.4355742},   {2.0538184, 0.1451914},
+        {2.0538184, 0.1451914},     {2.0538184, 0.1451914}};
     std::size_t offset{frame->numberColumns()};
     std::size_t numberFeatures{frame->numberColumns()};
     frame->resizeColumns(1, offset * 2);
