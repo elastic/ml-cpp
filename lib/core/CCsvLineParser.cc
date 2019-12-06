@@ -6,6 +6,7 @@
 #include <core/CCsvLineParser.h>
 
 #include <core/CLogger.h>
+#include <core/CMemory.h>
 #include <core/CoreTypes.h>
 
 namespace ml {
@@ -122,6 +123,17 @@ bool CCsvLineParser::parseNextToken(const char* end, const char*& current) {
     }
 
     return true;
+}
+
+void CCsvLineParser::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const {
+    mem->setName("CCsvLineParser");
+    mem->addItem("m_WorkField", m_WorkFieldCapacity);
+}
+
+std::size_t CCsvLineParser::memoryUsage() const {
+    std::size_t mem = 0;
+    mem += m_WorkFieldCapacity;
+    return mem;
 }
 }
 }

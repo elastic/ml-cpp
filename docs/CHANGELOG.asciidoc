@@ -28,6 +28,13 @@
 
 //=== Regressions
 
+== {es} version 8.0.0
+
+=== Enhancements
+
+* The macOS build platform for the {ml} C++ code is now High Sierra running Xcode 10.1,
+  or Ubuntu 18.04 running clang 6.0 for cross compilation. (See {ml-pull}867[#867].)
+
 == {es} version 7.6.0
 
 === Enhancements
@@ -47,6 +54,8 @@ tree which is trained for both regression and classification. (See {ml-pull}811[
 * Reduce runtime of classification and regression. (See {ml-pull}863[#863].)
 * Stop early training a classification and regression forest when the validation error
 is no longer decreasing. (See {ml-pull}875[#875].)
+* Emit `prediction_field_name` in ml results using the type provided as
+`prediction_field_type` parameter. (See {ml-pull}877[#877].)
 
 === Bug Fixes
 * Fixes potential memory corruption when determining seasonality. (See {ml-pull}852[#852].)

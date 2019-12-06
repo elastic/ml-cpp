@@ -7,6 +7,7 @@
 #define INCLUDED_ml_core_CStringSimilarityTester_h
 
 #include <core/CLogger.h>
+#include <core/CMemoryUsage.h>
 #include <core/CNonCopyable.h>
 #include <core/CompressUtils.h>
 #include <core/ImportExport.h>
@@ -285,6 +286,12 @@ public:
         // Result is the value in the bottom right hand corner of the matrix
         return currentCol[secondLen];
     }
+
+    //! Debug the memory used by this similarity tester.
+    void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const;
+
+    //! Get the memory used by this similarity tester.
+    std::size_t memoryUsage() const;
 
 private:
     //! Calculate the Levenshtein distance using the naive method of
