@@ -23,8 +23,8 @@ CTreeShapFeatureImportance::shap(core::CDataFrame& frame,
     TSizeVec maxDepthVec;
     maxDepthVec.reserve(m_Trees.size());
     for (auto& tree : m_Trees) {
-        auto samplesPerNode =
-            CTreeShapFeatureImportance::samplesPerNode(tree, frame, encoder, 0);
+        auto samplesPerNode = CTreeShapFeatureImportance::samplesPerNode(
+            tree, frame, encoder, m_NumberThreads);
         std::size_t maxDepth =
             CTreeShapFeatureImportance::updateNodeValues(tree, 0, samplesPerNode, 0);
         maxDepthVec.push_back(maxDepth);
@@ -34,7 +34,7 @@ CTreeShapFeatureImportance::shap(core::CDataFrame& frame,
     auto result = frame.writeColumns(
         m_NumberThreads,
         core::bindRetrievableState(
-            [&](auto& phiSum, TRowItr beginRows, TRowItr endRows) {
+            [&](TDoubleVec& phiSum, TRowItr beginRows, TRowItr endRows) {
                 for (auto row = beginRows; row != endRows; ++row) {
                     auto encodedRow{encoder.encode(*row)};
                     for (int i = 0; i < m_Trees.size(); ++i) {

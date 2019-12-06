@@ -19,7 +19,6 @@
 #include <api/ElasticsearchStateIndex.h>
 
 #include <cmath>
-#include <numeric>
 
 namespace ml {
 namespace api {

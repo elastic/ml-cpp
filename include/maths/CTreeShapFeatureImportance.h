@@ -92,11 +92,10 @@ public:
                     std::size_t numberFeatures,
                     std::size_t offset);
 
-    static CTreeShapFeatureImportance::TDoubleVec
-    samplesPerNode(const TTree& tree,
-                   const core::CDataFrame& frame,
-                   const CDataFrameCategoryEncoder& encoder,
-                   std::size_t numThreads);
+    static TDoubleVec samplesPerNode(const TTree& tree,
+                                     const core::CDataFrame& frame,
+                                     const CDataFrameCategoryEncoder& encoder,
+                                     std::size_t numThreads);
 
     //! Recursively computes inner node values as weighted average of the children (leaf) values
     //! \returns The maximum depth the the tree.
