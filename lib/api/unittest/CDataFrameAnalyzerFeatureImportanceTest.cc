@@ -10,7 +10,6 @@
 
 #include <api/CDataFrameAnalyzer.h>
 
-#include <test/BoostTestCloseAbsolute.h>
 #include <test/CDataFrameAnalysisSpecificationFactory.h>
 #include <test/CRandomNumbers.h>
 
@@ -35,14 +34,16 @@ TDataFrameUPtr setupLinearRegressionData(const TStrVec& fieldNames,
                                          TStrVec& fieldValues,
                                          api::CDataFrameAnalyzer& analyzer,
                                          const TDoubleVec& weights,
-                                         const TDoubleVec& values) {
-
-    auto target = [&weights](const TDoubleVec& regressors) {
-        double result{0.0};
+                                         const TDoubleVec& values,
+                                         double noiseVar = 0.0) {
+    test::CRandomNumbers rng;
+    auto target = [&weights, &rng, noiseVar](const TDoubleVec& regressors) {
+        TDoubleVec result(1);
+        rng.generateNormalSamples(0, noiseVar, 1, result);
         for (std::size_t i = 0; i < weights.size(); ++i) {
-            result += weights[i] * regressors[i];
+            result[0] += weights[i] * regressors[i];
         }
-        return core::CStringUtils::typeToStringPrecise(result, core::CIEEE754::E_DoublePrecision);
+        return core::CStringUtils::typeToStringPrecise(result[0], core::CIEEE754::E_DoublePrecision);
     };
 
     auto frame = core::makeMainStorageDataFrame(weights.size() + 1).first;
@@ -109,7 +110,8 @@ TDataFrameUPtr setupBinaryClassificationData(const TStrVec& fieldNames,
 }
 
 struct SFixture {
-    rapidjson::Document runRegression(std::size_t shapValues) {
+    rapidjson::Document
+    runRegression(std::size_t shapValues, TDoubleVec&& weights, double noiseVar = 0.0) {
         auto outputWriterFactory = [&]() {
             return std::make_unique<core::CJsonOutputStreamWrapper>(output);
         };
@@ -122,7 +124,6 @@ struct SFixture {
         TStrVec fieldNames{"c1", "c2", "c3", "c4", "c5", ".", "."};
         TStrVec fieldValues{"", "", "", "", "", "0", ""};
         test::CRandomNumbers rng;
-        TDoubleVec weights{50, 150, 50, -50};
 
         TDoubleVec values;
         rng.generateUniformSamples(-10.0, 10.0, weights.size() * rows, values);
@@ -132,8 +133,8 @@ struct SFixture {
             *it = (*it < 0) ? -10 : 10;
         }
 
-        auto frame = setupLinearRegressionData(fieldNames, fieldValues,
-                                               analyzer, weights, values);
+        auto frame = setupLinearRegressionData(fieldNames, fieldValues, analyzer,
+                                               weights, values, noiseVar);
 
         analyzer.handleRecord(fieldNames, {"", "", "", "", "", "", "$"});
 
@@ -143,7 +144,7 @@ struct SFixture {
         return results;
     }
 
-    rapidjson::Document runClassification(std::size_t shapValues) {
+    rapidjson::Document runClassification(std::size_t shapValues, TDoubleVec&& weights) {
         auto outputWriterFactory = [&]() {
             return std::make_unique<core::CJsonOutputStreamWrapper>(output);
         };
@@ -156,7 +157,6 @@ struct SFixture {
         TStrVec fieldNames{"c1", "c2", "c3", "c4", "c5", ".", "."};
         TStrVec fieldValues{"", "", "", "", "", "0", ""};
         test::CRandomNumbers rng;
-        TDoubleVec weights{50, 70, 50, -50};
 
         TDoubleVec values;
         rng.generateUniformSamples(-10.0, 10.0, weights.size() * rows, values);
@@ -193,7 +193,7 @@ BOOST_FIXTURE_TEST_CASE(testRunBoostedTreeRegressionFeatureImportanceAllShap, SF
     using TMeanVarAccumulator = ml::maths::CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
     std::size_t topShapValues{4};
     TMeanVarAccumulator bias;
-    auto results{runRegression(topShapValues)};
+    auto results{runRegression(topShapValues, {50, 150, 50, -50})};
 
     double c1, c2, c3, c4;
     double c1Sum{0.0}, c2Sum{0.0}, c3Sum{0.0}, c4Sum{0.0};
@@ -223,13 +223,38 @@ BOOST_FIXTURE_TEST_CASE(testRunBoostedTreeRegressionFeatureImportanceAllShap, SF
     BOOST_REQUIRE_SMALL(ml::maths::CBasicStatistics::variance(bias), 1e-7);
 }
 
+BOOST_FIXTURE_TEST_CASE(testRunBoostedTreeRegressionFeatureImportanceNoImportance, SFixture) {
+    // Test that feature importance calculates low SHAP values if regressors have no weight.
+    // We also add high noise variance.
+    using TMeanVarAccumulator = ml::maths::CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
+    std::size_t topShapValues{4};
+    TMeanVarAccumulator bias;
+    auto results{runRegression(topShapValues, {10.0, 0.0, 0.0, 0.0}, 10.0)};
+
+    double c1, c2, c3, c4;
+    double prediction;
+    for (const auto& result : results.GetArray()) {
+        if (result.HasMember("row_results")) {
+            c1 = result["row_results"]["results"]["ml"]["shap.c1"].GetDouble();
+            c2 = result["row_results"]["results"]["ml"]["shap.c2"].GetDouble();
+            c3 = result["row_results"]["results"]["ml"]["shap.c3"].GetDouble();
+            c4 = result["row_results"]["results"]["ml"]["shap.c4"].GetDouble();
+            prediction = result["row_results"]["results"]["ml"]["c5_prediction"].GetDouble();
+            BOOST_REQUIRE_CLOSE(c1, prediction, 99); //c1 explain 99% of the prediction value
+            BOOST_REQUIRE_SMALL(c2, 1e-8);
+            BOOST_REQUIRE_SMALL(c3, 1e-8);
+            BOOST_REQUIRE_SMALL(c4, 1e-8);
+        }
+    }
+}
+
 BOOST_FIXTURE_TEST_CASE(testRunBoostedTreeClassificationFeatureImportanceAllShap, SFixture) {
     // Test that feature importance works correctly for classification. We make sure that the SHAP values are
     // indeed a local approximation of the log-odds up to the constant bias term.
     using TMeanVarAccumulator = ml::maths::CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
     std::size_t topShapValues{4};
     TMeanVarAccumulator bias;
-    auto results{runClassification(topShapValues)};
+    auto results{runClassification(topShapValues, {50, 70, 50, -50})};
 
     double c1, c2, c3, c4;
     double c1Sum{0.0}, c2Sum{0.0}, c3Sum{0.0}, c4Sum{0.0};
@@ -270,7 +295,7 @@ BOOST_FIXTURE_TEST_CASE(testRunBoostedTreeClassificationFeatureImportanceAllShap
 BOOST_FIXTURE_TEST_CASE(testRunBoostedTreeRegressionFeatureImportanceNoShap, SFixture) {
     // Test that if topShapValue is set to 0, no feature importance values are returned.
     std::size_t topShapValues{0};
-    auto results{runRegression(topShapValues)};
+    auto results{runRegression(topShapValues, {50, 150, 50, -50})};
 
     for (const auto& result : results.GetArray()) {
         if (result.HasMember("row_results")) {
