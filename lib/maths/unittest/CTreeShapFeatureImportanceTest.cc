@@ -161,7 +161,7 @@ BOOST_FIXTURE_TEST_CASE(testSingleTreeShapNotNormalized, SFixtureSingleTree) {
     std::size_t offset{frame->numberColumns()};
     std::size_t numberFeatures{frame->numberColumns()};
     frame->resizeColumns(1, offset * 2);
-    treeFeatureImportance->shap(*frame, *encoder, numberFeatures, offset);
+    treeFeatureImportance->shap(*frame, *encoder, offset);
     TDoubleVecVec expectedPhi{{-5., -2.5}, {-5., 2.5}, {5., -2.5}, {5., 2.5}};
     frame->readRows(1, [&](TRowItr beginRows, TRowItr endRows) {
         for (auto row = beginRows; row != endRows; ++row) {
@@ -183,7 +183,7 @@ BOOST_FIXTURE_TEST_CASE(testMultipleTreesShapNotNormalized, SFixtureMultipleTree
     std::size_t offset{frame->numberColumns()};
     std::size_t numberFeatures{frame->numberColumns()};
     frame->resizeColumns(1, offset * 2);
-    treeFeatureImportance->shap(*frame, *encoder, numberFeatures, offset);
+    treeFeatureImportance->shap(*frame, *encoder, offset);
     frame->readRows(1, [&](TRowItr beginRows, TRowItr endRows) {
         for (auto row = beginRows; row != endRows; ++row) {
             for (std::size_t col = 0; col < 2; ++col) {

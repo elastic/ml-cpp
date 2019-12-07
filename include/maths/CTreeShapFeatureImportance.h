@@ -40,14 +40,7 @@ public:
     //! Compute SHAP values for the data in \p frame using the specified \p encoder.
     //! The results are written directly back into the \p frame, the index of the first result column is controller
     //! by \p offset.
-    //!
-    //!\param[in] numberFeatures number of features. If set to 0, it's assumed that the number of feature is equal to the
-    //! number of columns in the \p frame.
-    //!\param[in] offset The index of the first result column in every row.
-    void shap(core::CDataFrame& frame,
-                    const CDataFrameCategoryEncoder& encoder,
-                    std::size_t numberFeatures,
-                    std::size_t offset);
+    void shap(core::CDataFrame &frame, const CDataFrameCategoryEncoder &encoder, std::size_t offset);
 
     static TDoubleVec samplesPerNode(const TTree& tree,
                                      const core::CDataFrame& frame,

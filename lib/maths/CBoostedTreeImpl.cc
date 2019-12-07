@@ -1473,7 +1473,7 @@ void CBoostedTreeImpl::computeShapValues(core::CDataFrame& frame, const TProgres
                                       frame.columnNames()[i];
         }
         frame.columnNames(columnNames);
-        treeFeatureImportance->shap(frame, *m_Encoder, numberInputFields, offset);
+        treeFeatureImportance->shap(frame, *m_Encoder, offset);
     }
 }
 

@@ -15,11 +15,8 @@ namespace maths {
 using TRowItr = core::CDataFrame::TRowItr;
 
 void
-CTreeShapFeatureImportance::shap(core::CDataFrame& frame,
-                                 const CDataFrameCategoryEncoder& encoder,
-                                 std::size_t numberFeatures,
+CTreeShapFeatureImportance::shap(core::CDataFrame &frame, const CDataFrameCategoryEncoder &encoder,
                                  std::size_t offset) {
-    numberFeatures = (numberFeatures != 0) ? numberFeatures : frame.numberColumns();
     TSizeVec maxDepthVec;
     maxDepthVec.reserve(m_Trees.size());
     for (auto& tree : m_Trees) {
@@ -45,7 +42,6 @@ CTreeShapFeatureImportance::shap(core::CDataFrame& frame,
 
                 }
             });
-
 }
 
 CTreeShapFeatureImportance::TDoubleVec
