@@ -213,6 +213,10 @@ BOOST_FIXTURE_TEST_CASE(testRunBoostedTreeRegressionFeatureImportanceAllShap, SF
             c4Sum += std::fabs(c4);
         }
     }
+
+    // since target is generated using the linear model
+    // 50 c1 + 150 c2 + 50 c3 - 50 c4, with c1 categorical {-10,10}
+    // we expect c2 > c1 > c3 \approx c4
     BOOST_TEST_REQUIRE(c2Sum > c1Sum);
     // since c1 is categorical -10 or 10, it's influence is generally higher than that of c3 and c4 which are sampled
     // randomly on [-10, 10].
