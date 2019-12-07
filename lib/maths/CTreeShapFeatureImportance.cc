@@ -129,6 +129,16 @@ void CTreeShapFeatureImportance::shapRecursive(const TTree& tree,
             double scale = CTreeShapFeatureImportance::sumUnwoundPath(splitPath, i);
             std::size_t inputColumnIndex{
                 encoder.encoding(splitPath.featureIndex(i)).inputColumnIndex()};
+            // inputColumnIndex is read by seeing what the feature at position i is on the path to this leaf.
+            // fractionOnes(i) is an indicator variable which tells us if we condition on this variable
+            // do we visit this path from that node or not, fractionZeros(i) tells us what proportion of
+            // all training data which reaches that node visits this path, i.e. the case we're averaging
+            // over that feature. So this is telling us exactly about the difference in E[f | S U {i}] -
+            // E[f | S] given we're examining only that part of the sample space concerned with this leaf.
+            //
+            // The key observation is that the leaves form a disjoint partition of the
+            // sample space (set of all training data) so we can compute the full
+            // expectation as a simple sum over the contributions of the individual leaves.
             row->writeColumn(
                 offset + inputColumnIndex,
                 (*row)[offset + inputColumnIndex] +
@@ -171,6 +181,14 @@ void CTreeShapFeatureImportance::extendPath(SPath& path,
                                             double fractionZero,
                                             double fractionOne,
                                             int featureIndex) {
+    // Update binomial coefficients to be able to compute Equation (2) from the paper.  In particular,
+    // we have in the line path.s_Scale[i + 1] += fractionOne * path.s_Scale[i] * (i + 1.0) / (pathDepth +
+    // 1.0) that if we're on the "one" path, i.e. if the last feature selects this path if we include that
+    // feature in S (then fractionOne is 1), and we need to consider all the additional ways we now have of
+    // constructing each S of each given cardinality i + 1. Each of these come by adding the last feature
+    // to sets of size i and we **also** need to scale by the difference in binomial coefficients as both M
+    // increases by one and i increases by one. So we get additive term 1{last feature selects path if in S}
+    // * scale(i) * (i+1)! (M+1-(i+1)-1)!/(M+1)! / (i! (M-i-1)!/ M!), whence += scale(i) * (i+1) / (M+1).
     path.extend(featureIndex, fractionZero, fractionOne);
     std::size_t pathDepth{path.depth()};
     for (int i = pathDepth - 1; i >= 0; --i) {
