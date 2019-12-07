@@ -28,10 +28,6 @@ using TSizeVec = std::vector<std::size_t>;
 using TRowItr = core::CDataFrame::TRowItr;
 using TRowRef = core::CDataFrame::TRowRef;
 using TDataFrameUPtr = std::unique_ptr<core::CDataFrame>;
-using TDataAdderUPtr = std::unique_ptr<core::CDataAdder>;
-using TPersisterSupplier = std::function<TDataAdderUPtr()>;
-using TDataSearcherUPtr = std::unique_ptr<core::CDataSearcher>;
-using TRestoreSearcherSupplier = std::function<TDataSearcherUPtr()>;
 using TDoubleVec = std::vector<double>;
 using TStrVec = std::vector<std::string>;
 
@@ -115,7 +111,7 @@ TDataFrameUPtr setupBinaryClassificationData(const TStrVec& fieldNames,
 struct SFixture {
     rapidjson::Document runRegression(std::size_t shapValues) {
         auto outputWriterFactory = [&]() {
-            return std::make_unique<core::CJsonOutputStreamWrapper>(this->output);
+            return std::make_unique<core::CJsonOutputStreamWrapper>(output);
         };
         api::CDataFrameAnalyzer analyzer{
             test::CDataFrameAnalysisSpecificationFactory::predictionSpec(
@@ -138,6 +134,35 @@ struct SFixture {
 
         auto frame = setupLinearRegressionData(fieldNames, fieldValues,
                                                analyzer, weights, values);
+
+        analyzer.handleRecord(fieldNames, {"", "", "", "", "", "", "$"});
+
+        rapidjson::Document results;
+        rapidjson::ParseResult ok(results.Parse(output.str()));
+        BOOST_TEST_REQUIRE(static_cast<bool>(ok) == true);
+        return results;
+    }
+
+    rapidjson::Document runClassification(std::size_t shapValues) {
+        auto outputWriterFactory = [&]() {
+            return std::make_unique<core::CJsonOutputStreamWrapper>(output);
+        };
+        api::CDataFrameAnalyzer analyzer{
+            test::CDataFrameAnalysisSpecificationFactory::predictionSpec(
+                "classification", "c5", rows, 5, 4000000, 0, 0, {"c5"}, alpha,
+                lambda, gamma, softTreeDepthLimit, softTreeDepthTolerance, eta,
+                maximumNumberTrees, featureBagFraction, shapValues),
+            outputWriterFactory};
+        TStrVec fieldNames{"c1", "c2", "c3", "c4", "c5", ".", "."};
+        TStrVec fieldValues{"", "", "", "", "", "0", ""};
+        test::CRandomNumbers rng;
+        TDoubleVec weights{50, 70, 50, -50};
+
+        TDoubleVec values;
+        rng.generateUniformSamples(-10.0, 10.0, weights.size() * rows, values);
+
+        auto frame = setupBinaryClassificationData(fieldNames, fieldValues,
+                                                   analyzer, weights, values);
 
         analyzer.handleRecord(fieldNames, {"", "", "", "", "", "", "$"});
 
@@ -171,7 +196,7 @@ BOOST_FIXTURE_TEST_CASE(testRunBoostedTreeRegressionFeatureImportanceAllShap, SF
     auto results{runRegression(topShapValues)};
 
     double c1, c2, c3, c4;
-    double c1Sum, c2Sum, c3Sum, c4Sum;
+    double c1Sum{0.0}, c2Sum{0.0}, c3Sum{0.0}, c4Sum{0.0};
     double prediction;
     for (const auto& result : results.GetArray()) {
         if (result.HasMember("row_results")) {
@@ -194,6 +219,50 @@ BOOST_FIXTURE_TEST_CASE(testRunBoostedTreeRegressionFeatureImportanceAllShap, SF
     BOOST_TEST_REQUIRE(c1Sum > c3Sum);
     BOOST_TEST_REQUIRE(c1Sum > c4Sum);
     BOOST_REQUIRE_CLOSE(c3Sum, c4Sum, 80); // c3 and c4 within 80% of each other
+    // make sure the local approximation differs from the prediction always by the same bias (up to a numeric error)
+    BOOST_REQUIRE_SMALL(ml::maths::CBasicStatistics::variance(bias), 1e-7);
+}
+
+BOOST_FIXTURE_TEST_CASE(testRunBoostedTreeClassificationFeatureImportanceAllShap, SFixture) {
+    // Test that feature importance works correctly for classification. We make sure that the SHAP values are
+    // indeed a local approximation of the log-odds up to the constant bias term.
+    using TMeanVarAccumulator = ml::maths::CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
+    std::size_t topShapValues{4};
+    TMeanVarAccumulator bias;
+    auto results{runClassification(topShapValues)};
+
+    double c1, c2, c3, c4;
+    double c1Sum{0.0}, c2Sum{0.0}, c3Sum{0.0}, c4Sum{0.0};
+    double prediction_probability, logOdds{0.0};
+    std::string c5_prediction;
+    for (const auto& result : results.GetArray()) {
+        if (result.HasMember("row_results")) {
+            c1 = result["row_results"]["results"]["ml"]["shap.c1"].GetDouble();
+            c2 = result["row_results"]["results"]["ml"]["shap.c2"].GetDouble();
+            c3 = result["row_results"]["results"]["ml"]["shap.c3"].GetDouble();
+            c4 = result["row_results"]["results"]["ml"]["shap.c4"].GetDouble();
+            prediction_probability =
+                result["row_results"]["results"]["ml"]["prediction_probability"].GetDouble();
+            c5_prediction =
+                result["row_results"]["results"]["ml"]["c5_prediction"].GetString();
+            if (c5_prediction == "bar") {
+                logOdds = std::log(prediction_probability /
+                                   (1 - prediction_probability + 1e-10));
+            } else if (c5_prediction == "foo") {
+                logOdds = std::log((1 - prediction_probability) /
+                                   (prediction_probability + 1e-10));
+            } else {
+                BOOST_TEST_FAIL("Unknown predicted class " + c5_prediction);
+            }
+            // the difference between the prediction and the sum of all SHAP values constitutes bias
+            bias.add(logOdds - (c1 + c2 + c3 + c4));
+            c1Sum += std::fabs(c1);
+            c2Sum += std::fabs(c2);
+            c3Sum += std::fabs(c3);
+            c4Sum += std::fabs(c4);
+        }
+    }
+
     // make sure the local approximation differs from the prediction always by the same bias (up to a numeric error)
     BOOST_REQUIRE_SMALL(ml::maths::CBasicStatistics::variance(bias), 1e-7);
 }

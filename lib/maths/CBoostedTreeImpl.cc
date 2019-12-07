@@ -1461,7 +1461,7 @@ void CBoostedTreeImpl::computeShapValues(core::CDataFrame& frame, const TProgres
         bool successful;
         auto treeFeatureImportance = std::make_unique<CTreeShapFeatureImportance>(
             m_BestForest, m_NumberThreads);
-        std::size_t numberInputFields = m_Encoder->numberEncodedColumns() - 1;
+        std::size_t numberInputFields = m_NumberInputColumns - 1;
         // resize data frame to write SHAP values
         std::size_t offset{frame.numberColumns()};
         frame.resizeColumns(m_NumberThreads, frame.numberColumns() + numberInputFields);
@@ -1488,7 +1488,7 @@ std::size_t CBoostedTreeImpl::topShapValues() const {
 }
 
 std::size_t CBoostedTreeImpl::numberInputColumns() const {
-    return m_Encoder->numberEncodedColumns();
+    return m_NumberInputColumns;
 }
 }
 }

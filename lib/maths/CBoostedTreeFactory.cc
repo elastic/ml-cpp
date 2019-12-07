@@ -76,6 +76,7 @@ CBoostedTreeFactory::buildFor(core::CDataFrame& frame,
 
     this->initializeMissingFeatureMasks(frame);
 
+    m_TreeImpl->m_NumberInputColumns = frame.numberColumns();
     frame.resizeColumns(m_TreeImpl->m_NumberThreads,
                         frame.numberColumns() + this->numberExtraColumnsForTrain());
 
@@ -106,6 +107,7 @@ CBoostedTreeFactory::restoreFor(core::CDataFrame& frame, std::size_t dependentVa
 
     this->resumeRestoredTrainingProgressMonitoring();
 
+    m_TreeImpl->m_NumberInputColumns = frame.numberColumns();
     frame.resizeColumns(m_TreeImpl->m_NumberThreads,
                         frame.numberColumns() + this->numberExtraColumnsForTrain());
 

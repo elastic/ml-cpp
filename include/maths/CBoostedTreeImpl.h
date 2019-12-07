@@ -534,6 +534,7 @@ private:
     std::size_t m_TopShapValues = 0;
     std::size_t m_FirstShapColumnIndex = 0;
     std::size_t m_LastShapColumnIndex = 0;
+    std::size_t m_NumberInputColumns = 0;
 
 private:
     friend class CBoostedTreeFactory;

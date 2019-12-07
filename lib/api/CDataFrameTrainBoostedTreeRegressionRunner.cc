@@ -78,7 +78,8 @@ void CDataFrameTrainBoostedTreeRegressionRunner::writeOneRow(
     if (this->topShapValues() > 0) {
         auto shapColumnsRange{this->boostedTree().columnsHoldingShapValues()};
         std::nth_element(shapColumnsRange.begin(),
-                         shapColumnsRange.begin() + this->topShapValues() - 1,
+                         shapColumnsRange.begin() +
+                             static_cast<std::ptrdiff_t>(this->topShapValues()) - 1,
                          shapColumnsRange.end(), [&row](std::size_t a, std::size_t b) {
                              return std::fabs(row[a]) > std::fabs(row[b]);
                          });
