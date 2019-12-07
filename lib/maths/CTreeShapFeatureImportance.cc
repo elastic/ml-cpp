@@ -14,12 +14,12 @@ namespace maths {
 
 using TRowItr = core::CDataFrame::TRowItr;
 
-CTreeShapFeatureImportance::TDoubleVec
+void
 CTreeShapFeatureImportance::shap(core::CDataFrame& frame,
                                  const CDataFrameCategoryEncoder& encoder,
                                  std::size_t numberFeatures,
                                  std::size_t offset) {
-    numberFeatures = (numberFeatures != -1) ? numberFeatures : frame.numberColumns();
+    numberFeatures = (numberFeatures != 0) ? numberFeatures : frame.numberColumns();
     TSizeVec maxDepthVec;
     maxDepthVec.reserve(m_Trees.size());
     for (auto& tree : m_Trees) {
@@ -33,8 +33,7 @@ CTreeShapFeatureImportance::shap(core::CDataFrame& frame,
 
     auto result = frame.writeColumns(
         m_NumberThreads,
-        core::bindRetrievableState(
-            [&](TDoubleVec& phiSum, TRowItr beginRows, TRowItr endRows) {
+            [&](TRowItr beginRows, TRowItr endRows) {
                 for (auto row = beginRows; row != endRows; ++row) {
                     auto encodedRow{encoder.encode(*row)};
                     for (int i = 0; i < m_Trees.size(); ++i) {
@@ -43,22 +42,10 @@ CTreeShapFeatureImportance::shap(core::CDataFrame& frame,
                             m_Trees[i], m_SamplesPerNode[i], encoder,
                             encodedRow, path, 0, 1.0, 1.0, -1, offset, row);
                     }
-                    for (int j = 0; j < numberFeatures; ++j) {
-                        phiSum[j] += std::fabs((*row)[offset + j]);
-                    }
+
                 }
-            },
-            TDoubleVec(numberFeatures, 0)));
+            });
 
-    auto& state = result.first;
-    TDoubleVec phiSum{std::move(state[0].s_FunctionState)};
-    for (int i = 1; i < state.size(); ++i) {
-        auto& otherPhiSum = state[i].s_FunctionState;
-        std::transform(phiSum.begin(), phiSum.end(), otherPhiSum.begin(),
-                       phiSum.begin(), std::plus<double>());
-    }
-
-    return phiSum;
 }
 
 CTreeShapFeatureImportance::TDoubleVec
