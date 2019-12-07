@@ -32,15 +32,13 @@ public:
     using TDoubleVec = std::vector<double>;
     using TDoubleVecVec = std::vector<TDoubleVec>;
 
-
-
 public:
     explicit CTreeShapFeatureImportance(TTreeVec trees, std::size_t threads = 1);
 
     //! Compute SHAP values for the data in \p frame using the specified \p encoder.
     //! The results are written directly back into the \p frame, the index of the first result column is controller
     //! by \p offset.
-    void shap(core::CDataFrame &frame, const CDataFrameCategoryEncoder &encoder, std::size_t offset);
+    void shap(core::CDataFrame& frame, const CDataFrameCategoryEncoder& encoder, std::size_t offset);
 
     //! Compute number of training samples from \p frame that pass every node in the \p tree.
     static TDoubleVec samplesPerNode(const TTree& tree,
@@ -63,9 +61,9 @@ private:
     //! Manages variables for the current path through the tree as the main algorithm proceeds.
     struct SPath {
         explicit SPath(std::size_t length)
-                : s_FractionOnes(length), s_FractionZeros(length),
-                  s_FeatureIndex(length, -1), s_Scale(length), s_NextIndex(0),
-                  s_MaxLength(length) {}
+            : s_FractionOnes(length), s_FractionZeros(length),
+              s_FeatureIndex(length, -1), s_Scale(length), s_NextIndex(0),
+              s_MaxLength(length) {}
 
         void extend(int featureIndex, double fractionZero, double fractionOne) {
             if (s_NextIndex < s_MaxLength) {
@@ -135,9 +133,9 @@ private:
     //! Extend the \p path object, update the variables and factorial scaling coefficients.
     static void extendPath(SPath& path, double fractionZero, double fractionOne, int featureIndex);
     //! Sum the scaling coefficients for the \p path without the feature defined in \p pathIndex.
-    static double sumUnwoundPath(const SPath& path, int pathIndex);
+    static double sumUnwoundPath(const SPath& path, std::size_t pathIndex);
     //! Updated the scaling coefficients in the \p path if the feature defined in \p pathIndex was seen again.
-    static void unwindPath(SPath& path, int pathIndex);
+    static void unwindPath(SPath& path, std::size_t pathIndex);
 
 private:
     TTreeVec m_Trees;
