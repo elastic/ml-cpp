@@ -42,6 +42,7 @@ public:
     //! by \p offset.
     void shap(core::CDataFrame &frame, const CDataFrameCategoryEncoder &encoder, std::size_t offset);
 
+    //! Compute number of training samples from \p frame that pass every node in the \p tree.
     static TDoubleVec samplesPerNode(const TTree& tree,
                                      const core::CDataFrame& frame,
                                      const CDataFrameCategoryEncoder& encoder,
@@ -118,6 +119,8 @@ private:
     };
 
 private:
+    //! Recursively traverses all pathes in the \p tree and updated SHAP values once it hits a leaf.
+    //! Ref. Algorithm 2 in the paper by Lundberg et al.
     void shapRecursive(const TTree& tree,
                        const TDoubleVec& samplesPerNode,
                        const CDataFrameCategoryEncoder& encoder,
@@ -129,8 +132,11 @@ private:
                        int parentFeatureIndex,
                        std::size_t offset,
                        core::CDataFrame::TRowItr& row) const;
+    //! Extend the \p path object, update the variables and factorial scaling coefficients.
     static void extendPath(SPath& path, double fractionZero, double fractionOne, int featureIndex);
+    //! Sum the scaling coefficients for the \p path without the feature defined in \p pathIndex.
     static double sumUnwoundPath(const SPath& path, int pathIndex);
+    //! Updated the scaling coefficients in the \p path if the feature defined in \p pathIndex was seen again.
     static void unwindPath(SPath& path, int pathIndex);
 
 private:
