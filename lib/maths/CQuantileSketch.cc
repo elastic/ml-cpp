@@ -418,7 +418,7 @@ void CQuantileSketch::reduce() {
     this->orderAndDeduplicate();
 
     if (m_Knots.size() > this->target()) {
-        TDoubleDoublePrVec mergeCosts;
+        TFloatFloatPrVec mergeCosts;
         TSizeVec mergeCandidates;
         TBoolVec stale(m_Knots.size(), false);
         mergeCosts.reserve(m_Knots.size());
@@ -440,7 +440,7 @@ std::size_t CQuantileSketch::target() const {
 }
 
 void CQuantileSketch::reduce(CPRNG::CXorOShiro128Plus& rng,
-                             TDoubleDoublePrVec& mergeCosts,
+                             TFloatFloatPrVec& mergeCosts,
                              TSizeVec& mergeCandidates,
                              TBoolVec& stale) {
 
@@ -452,7 +452,9 @@ void CQuantileSketch::reduce(CPRNG::CXorOShiro128Plus& rng,
     std::make_heap(mergeCandidates.begin(), mergeCandidates.end(), mergeCostGreater);
 
     std::size_t merged{this->target()};
+    std::ptrdiff_t numberMergeCandidates{static_cast<std::ptrdiff_t>(m_Knots.size()) - 3};
     boost::random::uniform_01<double> u01;
+
     while (m_Knots.size() > merged) {
         LOG_TRACE(<< "merge candidates = " << core::CContainerPrinter::print(mergeCandidates));
 
@@ -467,40 +469,36 @@ void CQuantileSketch::reduce(CPRNG::CXorOShiro128Plus& rng,
                       << ", cost = " << mergeCosts[l - 1].first);
 
             double xl{m_Knots[l].first};
-            double xr{m_Knots[r].first};
             double nl{m_Knots[l].second};
+            double xr{m_Knots[r].first};
             double nr{m_Knots[r].second};
-            LOG_TRACE(<< "xl = " << xl << ", nl = " << nl << ", xr = " << xr
-                      << ", nr = " << nr);
+            LOG_TRACE(<< "(xl,nl) = (" << xl << "," << nl << "), (xr,nr) = ("
+                      << xr << "," << nr << ")");
 
             // Find the points that have been merged with xl and xr if any.
             std::ptrdiff_t ll{previousDifferent(m_Knots, l)};
-            std::ptrdiff_t rr{nextDifferent(m_Knots, r)};
+            std::ptrdiff_t rr{nextDifferent(m_Knots, r) - 1};
 
-            double xm{0.0}, nm{0.0};
+            TFloatFloatPr mergedKnot;
             switch (m_Interpolation) {
             case E_Linear:
-                xm = (nl * xl + nr * xr) / (nl + nr);
-                nm = nl + nr;
+                mergedKnot.first = (nl * xl + nr * xr) / (nl + nr);
+                mergedKnot.second = nl + nr;
                 break;
             case E_PiecewiseConstant:
-                xm = nl < nr ? xr : (nl > nr ? xl : u01(rng) < 0.5 ? xl : xr);
-                nm = nl + nr;
+                mergedKnot.first = nl < nr ? xr : (nl > nr ? xl : u01(rng) < 0.5 ? xl : xr);
+                mergedKnot.second = nl + nr;
                 break;
             }
-            for (std::ptrdiff_t i = ll + 1; i < rr; ++i) {
-                m_Knots[i].first = xm;
-                m_Knots[i].second = nm;
-            }
-            LOG_TRACE(<< "merged = "
-                      << core::CContainerPrinter::print(&m_Knots[ll + 1], &m_Knots[rr]));
-            LOG_TRACE(<< "right  = " << core::CContainerPrinter::print(m_Knots[rr]));
+            std::fill_n(m_Knots.begin() + ll + 1, rr - ll, mergedKnot);
+            LOG_TRACE(<< "merged = " << core::CContainerPrinter::print(mergedKnot));
+            LOG_TRACE(<< "right  = " << core::CContainerPrinter::print(m_Knots[rr + 1]));
 
             if (ll > 0) {
                 stale[ll] = true;
             }
-            if (rr < static_cast<std::ptrdiff_t>(m_Knots.size()) - 2) {
-                stale[rr - 1] = true;
+            if (rr < numberMergeCandidates) {
+                stale[rr] = true;
             }
             ++merged;
         } else {
@@ -526,16 +524,16 @@ void CQuantileSketch::orderAndDeduplicate() {
     LOG_TRACE(<< "sorted = " << core::CContainerPrinter::print(m_Knots));
 
     // Combine any duplicate points.
-    std::size_t end = 0u;
-    for (std::size_t i = 1u; i <= m_Knots.size(); ++end, ++i) {
-        TFloatFloatPr& knot = m_Knots[end];
+    auto end = m_Knots.begin();
+    for (std::size_t i = 1; i <= m_Knots.size(); ++end, ++i) {
+        TFloatFloatPr& knot = *end;
         knot = m_Knots[i - 1];
-        double x = knot.first;
+        CFloatStorage x{knot.first};
         for (/**/; i < m_Knots.size() && m_Knots[i].first == x; ++i) {
             knot.second += m_Knots[i].second;
         }
     }
-    m_Knots.erase(m_Knots.begin() + end, m_Knots.end());
+    m_Knots.erase(end, m_Knots.end());
     LOG_TRACE(<< "de-duplicated = " << core::CContainerPrinter::print(m_Knots));
 
     m_Unsorted = 0;
@@ -584,18 +582,22 @@ void CFastQuantileSketch::reduce() {
 
     const TFloatFloatPrVec& knots{this->knots()};
     if (knots.size() > this->target()) {
-        m_MergeCosts.resize(knots.size() - 3);
-        m_MergeCandidates.resize(knots.size() - 3);
-        m_Stale.assign(knots.size(), false);
-        CPRNG::CXorOShiro128Plus rng{static_cast<std::uint64_t>(this->count())};
+        std::size_t m{knots.size() - 3};
+        std::size_t n{m_MergeCosts.size()};
+        m_MergeCosts.resize(m);
         boost::random::uniform_01<double> u01;
-        for (std::size_t i = 1; i + 2 < knots.size(); ++i) {
-            m_MergeCosts[i - 1] = TDoubleDoublePr{cost(knots[i], knots[i + 1]), u01(rng)};
-            m_MergeCandidates[i - 1] = i - 1;
+        for (std::size_t i = n; i < m_MergeCosts.size(); ++i) {
+            m_MergeCosts[i].second = u01(m_Rng);
+        }
+        m_MergeCandidates.resize(m);
+        m_Stale.assign(knots.size(), false);
+        for (std::size_t i = 0; i < m; ++i) {
+            m_MergeCosts[i].first = cost(knots[i + 1], knots[i + 2]);
+            m_MergeCandidates[i] = i;
         }
         LOG_TRACE(<< "merge costs = " << core::CContainerPrinter::print(m_MergeCosts));
 
-        this->reduce(rng, m_MergeCosts, m_MergeCandidates, m_Stale);
+        this->reduce(m_Rng, m_MergeCosts, m_MergeCandidates, m_Stale);
     }
 }
 

@@ -38,7 +38,8 @@ void testSketch(maths::CQuantileSketch::EInterpolation interpolation,
                 TMeanAccumulator& meanBias,
                 TMeanAccumulator& meanError) {
     maths::CQuantileSketch sketch(interpolation, n);
-    maths::CFastQuantileSketch fastSketch(interpolation, n, 0.9);
+    maths::CFastQuantileSketch fastSketch(interpolation, n,
+                                          maths::CPRNG::CXorOShiro128Plus{}, 0.9);
     sketch = std::for_each(samples.begin(), samples.end(), sketch);
     fastSketch = std::for_each(samples.begin(), samples.end(), fastSketch);
     LOG_DEBUG(<< "sketch = " << core::CContainerPrinter::print(sketch.knots()));

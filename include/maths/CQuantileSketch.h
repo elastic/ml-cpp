@@ -116,8 +116,6 @@ public:
 protected:
     using TBoolVec = std::vector<bool>;
     using TSizeVec = std::vector<std::size_t>;
-    using TDoubleDoublePr = std::pair<double, double>;
-    using TDoubleDoublePrVec = std::vector<TDoubleDoublePr>;
 
 protected:
     //! Reduce to the maximum permitted size.
@@ -128,7 +126,7 @@ protected:
 
     //! Reduce to the maximum permitted size.
     void reduce(CPRNG::CXorOShiro128Plus& rng,
-                TDoubleDoublePrVec& mergeCosts,
+                TFloatFloatPrVec& mergeCosts,
                 TSizeVec& mergeCandidates,
                 TBoolVec& stale);
 
@@ -196,12 +194,16 @@ public:
 //! \brief This tunes the quantile sketch for performance when space is less important.
 //!
 //! DESCRIPTION:\n
-//! This uses around 3.5x the memory than `CQuantileSketch` but updating is around 2.5x
+//! This uses around 2.5x the memory than `CQuantileSketch` but updating is around 2.0x
 //! faster when using its default reduction factor.
 class MATHS_EXPORT CFastQuantileSketch final : public CQuantileSketch {
 public:
-    CFastQuantileSketch(EInterpolation interpolation, std::size_t size, double reductionFraction = 0.8)
-        : CQuantileSketch{interpolation, size}, m_ReductionFraction{reductionFraction} {}
+    CFastQuantileSketch(EInterpolation interpolation,
+                        std::size_t size,
+                        CPRNG::CXorOShiro128Plus rng = CPRNG::CXorOShiro128Plus{},
+                        double reductionFraction = 0.8)
+        : CQuantileSketch{interpolation, size}, m_Rng{rng}, m_ReductionFraction{reductionFraction} {
+    }
 
     // We don't bother to checksum or persist and restore the bookkeeping state because
     // it is reinitialised at the start of each reduce.
@@ -235,7 +237,8 @@ private:
     std::size_t target() const override;
 
 private:
-    TDoubleDoublePrVec m_MergeCosts;
+    CPRNG::CXorOShiro128Plus m_Rng;
+    TFloatFloatPrVec m_MergeCosts;
     TSizeVec m_MergeCandidates;
     TBoolVec m_Stale;
     double m_ReductionFraction;
