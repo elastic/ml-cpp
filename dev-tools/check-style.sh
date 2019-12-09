@@ -65,8 +65,13 @@ fi
 
 RC=0
 
+# These escape sequences allow printing an error message in red color making it
+# stand out in the console output
+RED='\033[0;31m'
+NC='\033[0m' # No Color
+
 if [ -n "${WRONG_FORMAT_FILES}" ] ; then
-    echo "A format error has been detected within the following files:"
+    echo -e "${RED}A format error has been detected within the following files${NC}:"
     printf "%s\n" "${WRONG_FORMAT_FILES[@]}"
     RC=4
 else
@@ -74,7 +79,7 @@ else
 fi
 
 if [ -n "${WRONG_COPYRIGHT_HEADER_FILES}" ] ; then
-    echo "The following files do not contain the correct copyright header:"
+    echo "${RED}The following files do not contain the correct copyright header${NC}:"
     printf "%s\n" "${WRONG_COPYRIGHT_HEADER_FILES[@]}"
     RC=5
 else
