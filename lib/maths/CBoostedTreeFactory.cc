@@ -45,8 +45,25 @@ const double MIN_DOWNSAMPLE_FACTOR_SCALE{0.3};
 const double MAX_DOWNSAMPLE_FACTOR_SCALE{3.0};
 const std::size_t MAX_NUMBER_TREES{static_cast<std::size_t>(2.0 / MIN_ETA + 0.5)};
 
+double computeEta(std::size_t numberRegressors) {
+    // eta is the learning rate. There is a lot of empirical evidence that
+    // this should not be much larger than 0.1. Conceptually, we're making
+    // random choices regarding which features we'll use to split when
+    // fitting a single tree and we only observe a random sample from the
+    // function we're trying to learn. Using more trees with a smaller learning
+    // rate reduces the variance that the decisions or particular sample we
+    // train with introduces to predictions. The scope for variation increases
+    // with the number of features so we use a lower learning rate with more
+    // features. Furthermore, the leaf weights naturally decrease as we add
+    // more trees, since the prediction errors decrease, so we slowly increase
+    // the learning rate to maintain more equal tree weights. This tends to
+    // produce forests which generalise as well but are much smaller and so
+    // train faster.
+    return 1.0 / std::max(10.0, std::sqrt(static_cast<double>(numberRegressors)));
+}
+
 std::size_t computeMaximumNumberTrees(double eta) {
-    return static_cast<std::size_t>(2.0 / eta / MIN_DOWNSAMPLE_FACTOR_SCALE + 0.5);
+    return static_cast<std::size_t>(3.0 / eta / MIN_DOWNSAMPLE_FACTOR_SCALE + 0.5);
 }
 
 std::size_t scaleMaximumNumberTrees(std::size_t maximumNumberTrees) {
@@ -69,7 +86,7 @@ CBoostedTreeFactory::buildFor(core::CDataFrame& frame,
         return nullptr;
     }
 
-    this->initializeTrainingProgressMonitoring();
+    this->initializeTrainingProgressMonitoring(frame);
 
     m_TreeImpl->m_DependentVariable = dependentVariable;
     m_TreeImpl->m_Loss = std::move(loss);
@@ -303,21 +320,8 @@ void CBoostedTreeFactory::initializeHyperparameters(core::CDataFrame& frame) {
     if (m_TreeImpl->m_EtaOverride != boost::none) {
         m_TreeImpl->m_Eta = *(m_TreeImpl->m_EtaOverride);
     } else {
-        // Eta is the learning rate. There is a lot of empirical evidence that
-        // this should not be much larger than 0.1. Conceptually, we're making
-        // random choices regarding which features we'll use to split when
-        // fitting a single tree and we only observe a random sample from the
-        // function we're trying to learn. Using more trees with a smaller learning
-        // rate reduces the variance that the decisions or particular sample we
-        // train with introduces to predictions. The scope for variation increases
-        // with the number of features so we use a lower learning rate with more
-        // features. Furthermore, the leaf weights naturally decrease as we add
-        // more trees, since the prediction errors decrease, so we slowly increase
-        // the learning rate to maintain more equal tree weights. This tends to
-        // produce forests which generalise as well but are much smaller and so
-        // train faster.
-        m_TreeImpl->m_Eta = 1.0 / std::max(10.0, std::sqrt(static_cast<double>(
-                                                     frame.numberColumns() - 4)));
+        m_TreeImpl->m_Eta =
+            computeEta(frame.numberColumns() - this->numberExtraColumnsForTrain());
         m_TreeImpl->m_EtaGrowthRatePerTree = 1.0 + m_TreeImpl->m_Eta / 2.0;
     }
 
@@ -648,8 +652,10 @@ CBoostedTreeFactory::estimateTreeGainAndCurvature(core::CDataFrame& frame,
 
     std::size_t maximumNumberOfTrees{1};
     std::swap(maximumNumberOfTrees, m_TreeImpl->m_MaximumNumberTrees);
-    auto forest = m_TreeImpl->trainForest(frame, m_TreeImpl->m_TrainingRowMasks[0],
-                                          m_RecordMemoryUsage);
+    CBoostedTreeImpl::TNodeVecVec forest;
+    std::tie(forest, std::ignore) = m_TreeImpl->trainForest(
+        frame, m_TreeImpl->m_TrainingRowMasks[0], m_TreeImpl->m_TestingRowMasks[0],
+        m_TreeImpl->m_TrainingProgress, m_RecordMemoryUsage);
     std::swap(maximumNumberOfTrees, m_TreeImpl->m_MaximumNumberTrees);
 
     TDoubleDoublePrVec result;
@@ -695,9 +701,11 @@ CBoostedTreeFactory::testLossLineSearch(core::CDataFrame& frame,
                 (LINE_SEARCH_ITERATIONS - i - 1) * m_TreeImpl->m_MaximumNumberTrees);
             break;
         }
-        auto forest = m_TreeImpl->trainForest(
-            frame, m_TreeImpl->m_TrainingRowMasks[0], m_RecordMemoryUsage);
-        double testLoss{m_TreeImpl->meanLoss(frame, m_TreeImpl->m_TestingRowMasks[0], forest)};
+        CBoostedTreeImpl::TNodeVecVec forest;
+        double testLoss;
+        std::tie(forest, testLoss) = m_TreeImpl->trainForest(
+            frame, m_TreeImpl->m_TrainingRowMasks[0], m_TreeImpl->m_TestingRowMasks[0],
+            m_TreeImpl->m_TrainingProgress, m_RecordMemoryUsage);
         leastSquaresQuadraticTestLoss.add(static_cast<double>(i) * stepSize, testLoss);
         testLosses.push_back(testLoss);
     }
@@ -954,7 +962,7 @@ std::size_t CBoostedTreeFactory::numberExtraColumnsForTrain() const {
     return CBoostedTreeImpl::numberExtraColumnsForTrain();
 }
 
-void CBoostedTreeFactory::initializeTrainingProgressMonitoring() {
+void CBoostedTreeFactory::initializeTrainingProgressMonitoring(const core::CDataFrame& frame) {
 
     // The base unit is the cost of training on one tree.
     //
@@ -971,8 +979,10 @@ void CBoostedTreeFactory::initializeTrainingProgressMonitoring() {
     //  - The cost of the final train which we count as an extra loop.
 
     std::size_t totalNumberSteps{2};
-    std::size_t lineSearchMaximumNumberTrees{
-        computeMaximumNumberTrees(m_TreeImpl->m_Eta)};
+    double eta{m_TreeImpl->m_EtaOverride != boost::none
+                   ? *m_TreeImpl->m_EtaOverride
+                   : computeEta(frame.numberColumns())};
+    std::size_t lineSearchMaximumNumberTrees{computeMaximumNumberTrees(eta)};
     if (m_TreeImpl->m_RegularizationOverride.softTreeDepthLimit() == boost::none) {
         totalNumberSteps += LINE_SEARCH_ITERATIONS * lineSearchMaximumNumberTrees;
     }
