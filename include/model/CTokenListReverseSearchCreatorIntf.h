@@ -6,6 +6,8 @@
 #ifndef INCLUDED_ml_model_CTokenListReverseSearchCreatorIntf_h
 #define INCLUDED_ml_model_CTokenListReverseSearchCreatorIntf_h
 
+#include <core/CMemoryUsage.h>
+
 #include <model/ImportExport.h>
 
 #include <string>
@@ -90,6 +92,12 @@ public:
 
     //! Access to the field name
     const std::string& fieldName() const;
+
+    //! Debug the memory used by this reverse search creator.
+    virtual void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const;
+
+    //! Get the memory used by this reverse search creator.
+    virtual std::size_t memoryUsage() const;
 
 private:
     //! Which field name is being used for categorisation?

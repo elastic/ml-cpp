@@ -5,6 +5,8 @@
  */
 #include <model/CDataCategorizer.h>
 
+#include <core/CMemory.h>
+
 namespace ml {
 namespace model {
 
@@ -32,6 +34,17 @@ core_t::TTime CDataCategorizer::lastPersistTime() const {
 
 void CDataCategorizer::lastPersistTime(core_t::TTime lastPersistTime) {
     m_LastPersistTime = lastPersistTime;
+}
+
+void CDataCategorizer::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const {
+    mem->setName("CDataCategorizer");
+    core::CMemoryDebug::dynamicSize("m_FieldName", m_FieldName, mem);
+}
+
+std::size_t CDataCategorizer::memoryUsage() const {
+    std::size_t mem = 0;
+    mem += core::CMemory::dynamicSize(m_FieldName);
+    return mem;
 }
 }
 }

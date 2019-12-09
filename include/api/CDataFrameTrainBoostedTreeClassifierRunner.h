@@ -19,6 +19,12 @@ namespace api {
 class API_EXPORT CDataFrameTrainBoostedTreeClassifierRunner final
     : public CDataFrameTrainBoostedTreeRunner {
 public:
+    enum EPredictionFieldType {
+        E_PredictionFieldTypeString,
+        E_PredictionFieldTypeInt,
+        E_PredictionFieldTypeBool
+    };
+
     static const CDataFrameAnalysisConfigReader& parameterReader();
 
     //! This is not intended to be called directly: use CDataFrameTrainBoostedTreeClassifierRunnerFactory.
@@ -44,6 +50,10 @@ public:
                      const TRowRef& row,
                      core::CRapidJsonConcurrentLineWriter& writer) const;
 
+    //! Write the predicted category value as string, int or bool.
+    void writePredictedCategoryValue(const std::string& categoryValue,
+                                     core::CRapidJsonConcurrentLineWriter& writer) const;
+
     //! \return A serialisable definition of the trained classification model.
     TInferenceModelDefinitionUPtr
     inferenceModelDefinition(const TStrVec& fieldNames,
@@ -55,6 +65,7 @@ private:
 
 private:
     std::size_t m_NumTopClasses;
+    EPredictionFieldType m_PredictionFieldType;
 };
 
 //! \brief Makes a core::CDataFrame boosted tree classification runner.

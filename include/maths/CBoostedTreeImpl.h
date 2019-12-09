@@ -51,6 +51,7 @@ public:
     using TStrVec = std::vector<std::string>;
     using TMeanAccumulator = CBasicStatistics::SSampleMean<double>::TAccumulator;
     using TMeanVarAccumulator = CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
+    using TMeanVarAccumulatorSizePr = std::pair<TMeanVarAccumulator, std::size_t>;
     using TBayesinOptimizationUPtr = std::unique_ptr<maths::CBayesianOptimisation>;
     using TNodeVec = CBoostedTree::TNodeVec;
     using TNodeVecVec = CBoostedTree::TNodeVecVec;
@@ -140,6 +141,7 @@ private:
     using TVector = CDenseVector<double>;
     using TRowItr = core::CDataFrame::TRowItr;
     using TPackedBitVectorVec = std::vector<core::CPackedBitVector>;
+    using TNodeVecVecDoublePr = std::pair<TNodeVecVec, double>;
     using TDataFrameCategoryEncoderUPtr = std::unique_ptr<CDataFrameCategoryEncoder>;
     using TDataTypeVec = CDataFrameUtils::TDataTypeVec;
     using TRegularizationOverride = CBoostedTreeRegularization<TOptionalDouble>;
@@ -185,11 +187,9 @@ private:
 
         CLeafNodeStatistics(const CLeafNodeStatistics&) = delete;
 
-        CLeafNodeStatistics(CLeafNodeStatistics&&) = default;
+        // Move construction/assignment not possible due to const reference member
 
         CLeafNodeStatistics& operator=(const CLeafNodeStatistics&) = delete;
-
-        CLeafNodeStatistics& operator=(CLeafNodeStatistics&&) = default;
 
         //! Apply the split defined by \p split.
         //!
@@ -400,18 +400,21 @@ private:
                                                  const TNodeVecVec& forest) const;
 
     //! Train the forest and compute loss moments on each fold.
-    TMeanVarAccumulator crossValidateForest(core::CDataFrame& frame,
-                                            const TMemoryUsageCallback& recordMemoryUsage) const;
+    TMeanVarAccumulatorSizePr crossValidateForest(core::CDataFrame& frame,
+                                                  const TMemoryUsageCallback& recordMemoryUsage);
 
     //! Initialize the predictions and loss function derivatives for the masked
     //! rows in \p frame.
     TNodeVec initializePredictionsAndLossDerivatives(core::CDataFrame& frame,
-                                                     const core::CPackedBitVector& trainingRowMask) const;
+                                                     const core::CPackedBitVector& trainingRowMask,
+                                                     const core::CPackedBitVector& testingRowMask) const;
 
     //! Train one forest on the rows of \p frame in the mask \p trainingRowMask.
-    TNodeVecVec trainForest(core::CDataFrame& frame,
-                            const core::CPackedBitVector& trainingRowMask,
-                            const TMemoryUsageCallback& recordMemoryUsage) const;
+    TNodeVecVecDoublePr trainForest(core::CDataFrame& frame,
+                                    const core::CPackedBitVector& trainingRowMask,
+                                    const core::CPackedBitVector& testingRowMask,
+                                    core::CLoopProgress& trainingProgress,
+                                    const TMemoryUsageCallback& recordMemoryUsage) const;
 
     //! Randomly downsamples the training row mask by the downsample factor.
     core::CPackedBitVector downsample(const core::CPackedBitVector& trainingRowMask) const;
@@ -440,13 +443,12 @@ private:
     //! rows in \p frame with predictions of \p tree.
     void refreshPredictionsAndLossDerivatives(core::CDataFrame& frame,
                                               const core::CPackedBitVector& trainingRowMask,
+                                              const core::CPackedBitVector& testingRowMask,
                                               double eta,
                                               TNodeVec& tree) const;
 
     //! Compute the mean of the loss function on the masked rows of \p frame.
-    double meanLoss(const core::CDataFrame& frame,
-                    const core::CPackedBitVector& rowMask,
-                    const TNodeVecVec& forest) const;
+    double meanLoss(const core::CDataFrame& frame, const core::CPackedBitVector& rowMask) const;
 
     //! Get a column mask of the suitable regressor features.
     TSizeVec candidateRegressorFeatures() const;
@@ -462,7 +464,8 @@ private:
                                    CBayesianOptimisation& bopt);
 
     //! Capture the current hyperparameter values.
-    void captureBestHyperparameters(const TMeanVarAccumulator& lossMoments);
+    void captureBestHyperparameters(const TMeanVarAccumulator& lossMoments,
+                                    std::size_t maximumNumberTrees);
 
     //! Set the hyperparamaters from the best recorded.
     void restoreBestHyperparameters();
@@ -525,7 +528,7 @@ private:
     TBayesinOptimizationUPtr m_BayesianOptimization;
     std::size_t m_NumberRounds = 1;
     std::size_t m_CurrentRound = 0;
-    mutable core::CLoopProgress m_TrainingProgress;
+    core::CLoopProgress m_TrainingProgress;
 
     friend class CBoostedTreeFactory;
 };

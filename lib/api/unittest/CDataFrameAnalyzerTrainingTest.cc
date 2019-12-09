@@ -406,7 +406,7 @@ BOOST_AUTO_TEST_CASE(testRunBoostedTreeRegressionTraining) {
               << "ms");
 
     BOOST_TEST_REQUIRE(core::CProgramCounters::counter(
-                           counter_t::E_DFTPMEstimatedPeakMemoryUsage) < 4500000);
+                           counter_t::E_DFTPMEstimatedPeakMemoryUsage) < 6000000);
     BOOST_TEST_REQUIRE(core::CProgramCounters::counter(counter_t::E_DFTPMPeakMemoryUsage) < 300000);
     BOOST_TEST_REQUIRE(core::CProgramCounters::counter(counter_t::E_DFTPMTimeToTrain) > 0);
     BOOST_TEST_REQUIRE(core::CProgramCounters::counter(counter_t::E_DFTPMTimeToTrain) <= duration);
@@ -663,7 +663,7 @@ BOOST_AUTO_TEST_CASE(testRunBoostedTreeClassifierTraining) {
     LOG_DEBUG(<< "time to train = " << core::CProgramCounters::counter(counter_t::E_DFTPMTimeToTrain)
               << "ms");
     BOOST_TEST_REQUIRE(core::CProgramCounters::counter(
-                           counter_t::E_DFTPMEstimatedPeakMemoryUsage) < 4500000);
+                           counter_t::E_DFTPMEstimatedPeakMemoryUsage) < 6000000);
     BOOST_TEST_REQUIRE(core::CProgramCounters::counter(counter_t::E_DFTPMPeakMemoryUsage) < 1200000);
     BOOST_TEST_REQUIRE(core::CProgramCounters::counter(counter_t::E_DFTPMTimeToTrain) > 0);
     BOOST_TEST_REQUIRE(core::CProgramCounters::counter(counter_t::E_DFTPMTimeToTrain) <= duration);
@@ -679,7 +679,7 @@ BOOST_AUTO_TEST_CASE(testCategoricalFields) {
     {
         api::CDataFrameAnalyzer analyzer{
             test::CDataFrameAnalysisSpecificationFactory::predictionSpec(
-                "regression", "x5", 1000, 5, 16000000, 0, 0, {"x1", "x2"}),
+                "regression", "x5", 1000, 5, 19000000, 0, 0, {"x1", "x2"}),
             outputWriterFactory};
 
         TStrVec x[]{{"x11", "x12", "x13", "x14", "x15"},
@@ -783,7 +783,7 @@ BOOST_AUTO_TEST_CASE(testCategoricalFieldsEmptyAsMissing) {
 
     api::CDataFrameAnalyzer analyzer{
         test::CDataFrameAnalysisSpecificationFactory::predictionSpec(
-            "classification", "x5", 1000, 5, 15000000, 0, 0, {"x1", "x2", "x5"}),
+            "classification", "x5", 1000, 5, 19000000, 0, 0, {"x1", "x2", "x5"}),
         outputWriterFactory};
 
     TStrVec fieldNames{"x1", "x2", "x3", "x4", "x5", ".", "."};
