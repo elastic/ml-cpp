@@ -33,7 +33,8 @@ BOOST_AUTO_TEST_CASE(testPredictionFieldNameClash) {
     const auto spec{test::CDataFrameAnalysisSpecificationFactory::predictionSpec(
         "classification", "dep_var", 5, 6, 13000000, 0, 0, {"dep_var"})};
     rapidjson::Document jsonParameters;
-    jsonParameters.Parse("{"
+    jsonParameters.Parse(
+        "{"
                          "  \"dependent_variable\": \"dep_var\","
                          "  \"prediction_field_name\": \"is_training\""
                          "}");
@@ -46,7 +47,9 @@ BOOST_AUTO_TEST_CASE(testPredictionFieldNameClash) {
 }
 
 template<typename T>
-void testWriteOneRow(const std::string& dependentVariableField,
+void testWriteOneRow(
+    const std::string& dependentVariableField,
+
                      const std::string& predictionFieldType,
                      T (rapidjson::Value::*extract)() const,
                      const std::vector<T>& expectedPredictions) {
@@ -54,9 +57,12 @@ void testWriteOneRow(const std::string& dependentVariableField,
     const std::string predictionField = dependentVariableField + "_prediction";
     const TStrVec columnNames{"x1", "x2", "x3", "x4", "x5", predictionField};
     const TStrVec categoricalColumns{"x1", "x2", "x3", "x4", "x5"};
-    const TStrVecVec rows{{"a", "b", "1.0", "1.0", "cat", "-1.0"},
-                          {"a", "b", "1.0", "1.0", "cat", "-0.5"},
-                          {"a", "b", "5.0", "0.0", "dog", "-0.1"},
+    const TStrVecVec rows{{"a", "b", 
+    "1.0", "1.0", "cat", "-1.0"},
+                          {"a",
+                           "b", "1.0", "1.0", "cat", "-0.5"},
+                          {"a", "b", "5.0", "0.0", "dog", 
+                          "-0.1"},
                           {"c", "d", "5.0", "0.0", "dog", "1.0"},
                           {"e", "f", "5.0", "0.0", "dog", "1.5"}};
     std::unique_ptr<core::CDataFrame> frame =
