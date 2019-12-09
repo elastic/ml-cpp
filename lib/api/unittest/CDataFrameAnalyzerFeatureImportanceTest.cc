@@ -230,9 +230,7 @@ BOOST_FIXTURE_TEST_CASE(testRunBoostedTreeRegressionFeatureImportanceAllShap, SF
 BOOST_FIXTURE_TEST_CASE(testRunBoostedTreeRegressionFeatureImportanceNoImportance, SFixture) {
     // Test that feature importance calculates low SHAP values if regressors have no weight.
     // We also add high noise variance.
-    using TMeanVarAccumulator = ml::maths::CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
     std::size_t topShapValues{4};
-    TMeanVarAccumulator bias;
     auto results{runRegression(topShapValues, {10.0, 0.0, 0.0, 0.0}, 10.0)};
 
     double c1, c2, c3, c4;

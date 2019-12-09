@@ -1458,7 +1458,6 @@ void CBoostedTreeImpl::computeShapValues(core::CDataFrame& frame, const TProgres
                          << "Please report this problem.");
             return;
         }
-        bool successful;
         auto treeFeatureImportance = std::make_unique<CTreeShapFeatureImportance>(
             m_BestForest, m_NumberThreads);
         std::size_t numberInputFields = m_NumberInputColumns - 1;

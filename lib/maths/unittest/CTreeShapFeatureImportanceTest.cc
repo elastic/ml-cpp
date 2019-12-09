@@ -44,7 +44,7 @@ public:
 };
 
 struct SFixtureSingleTree {
-    SFixtureSingleTree() {
+    SFixtureSingleTree() : frame{}, treeFeatureImportance{}, encoder{} {
         TDoubleVecVec data{{0.25, 0.25}, {0.25, 0.75}, {0.75, 0.25}, {0.75, 0.75}};
 
         frame = core::makeMainStorageDataFrame(numberFeatures, numberRows).first;
@@ -74,8 +74,6 @@ struct SFixtureSingleTree {
         encoder = std::make_unique<maths::CDataFrameCategoryEncoder>(stubParameters);
     }
 
-    ~SFixtureSingleTree() {}
-
     TDataFrameUPtr frame;
     std::size_t numberFeatures{2};
     std::size_t numberRows{4};
@@ -84,7 +82,7 @@ struct SFixtureSingleTree {
 };
 
 struct SFixtureMultipleTrees {
-    SFixtureMultipleTrees() {
+    SFixtureMultipleTrees() : frame{}, treeFeatureImportance{}, encoder{} {
         TDoubleVecVec data{
             {0.0, 0.9}, {0.1, 0.8}, {0.2, 0.7}, {0.3, 0.6}, {0.4, 0.5},
             {0.5, 0.4}, {0.6, 0.3}, {0.7, 0.2}, {0.8, 0.1}, {0.9, 0.0},
@@ -127,8 +125,6 @@ struct SFixtureMultipleTrees {
         encoder = std::make_unique<maths::CDataFrameCategoryEncoder>(stubParameters);
     }
 
-    ~SFixtureMultipleTrees() {}
-
     TDataFrameUPtr frame;
     std::size_t numberFeatures{2};
     std::size_t numberRows{10};
@@ -152,14 +148,13 @@ BOOST_FIXTURE_TEST_CASE(testSingleTreeExpectedNodeValues, SFixtureSingleTree) {
     BOOST_TEST_REQUIRE(depth == 2);
     TDoubleVec expectedValues{10.5, 5.5, 15.5, 3.0, 8.0, 13.0, 18.0};
     auto& tree{treeFeatureImportance->trees()[0]};
-    for (int i = 0; i < tree.size(); ++i) {
+    for (std::size_t i = 0; i < tree.size(); ++i) {
         BOOST_TEST_REQUIRE(tree[i].value() == expectedValues[i]);
     }
 }
 
 BOOST_FIXTURE_TEST_CASE(testSingleTreeShapNotNormalized, SFixtureSingleTree) {
     std::size_t offset{frame->numberColumns()};
-    std::size_t numberFeatures{frame->numberColumns()};
     frame->resizeColumns(1, offset * 2);
     treeFeatureImportance->shap(*frame, *encoder, offset);
     TDoubleVecVec expectedPhi{{-5., -2.5}, {-5., 2.5}, {5., -2.5}, {5., 2.5}};
@@ -181,7 +176,6 @@ BOOST_FIXTURE_TEST_CASE(testMultipleTreesShapNotNormalized, SFixtureMultipleTree
         {1.80491886, -0.4355742},   {2.0538184, 0.1451914},
         {2.0538184, 0.1451914},     {2.0538184, 0.1451914}};
     std::size_t offset{frame->numberColumns()};
-    std::size_t numberFeatures{frame->numberColumns()};
     frame->resizeColumns(1, offset * 2);
     treeFeatureImportance->shap(*frame, *encoder, offset);
     frame->readRows(1, [&](TRowItr beginRows, TRowItr endRows) {
