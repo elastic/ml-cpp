@@ -7,7 +7,7 @@
 #include <maths/CTreeShapFeatureImportance.h>
 
 #include <algorithm>
-#include <tuple>
+#include <limits>
 
 namespace ml {
 namespace maths {
@@ -213,7 +213,8 @@ double CTreeShapFeatureImportance::sumUnwoundPath(const SPath& path, std::size_t
     if (fractionOne != 0) {
         for (int i = pathDepth - 1; i >= 0; --i) {
             double tmp = nextFractionOne * static_cast<double>(pathDepth + 1) /
-                         (static_cast<double>(i + 1) * fractionOne);
+                         (static_cast<double>(i + 1) * fractionOne +
+                          std::numeric_limits<double>::epsilon());
             nextFractionOne = path.scale(i) - tmp * fractionZero *
                                                   static_cast<double>(pathDepth - i) /
                                                   static_cast<double>(pathDepth + 1);
@@ -222,7 +223,8 @@ double CTreeShapFeatureImportance::sumUnwoundPath(const SPath& path, std::size_t
     } else {
         for (int i = pathDepth - 1; i >= 0; --i) {
             total += path.scale(i) * static_cast<double>(pathDepth + 1) /
-                     (fractionZero * static_cast<double>(pathDepth - i));
+                     (fractionZero * static_cast<double>(pathDepth - i) +
+                      std::numeric_limits<double>::epsilon());
         }
     }
 
