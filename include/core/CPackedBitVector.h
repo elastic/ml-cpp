@@ -178,7 +178,9 @@ public:
     double euclidean() const { return std::sqrt(this->inner(*this)); }
 
     //! Manhattan norm.
-    double manhattan() const { return this->inner(*this); }
+    double manhattan() const {
+        return this->size() == 0 ? 0 : this->inner(*this);
+    }
     //@}
 
     //! Convert to a bit vector.
