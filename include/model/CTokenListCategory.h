@@ -6,6 +6,8 @@
 #ifndef INCLUDED_ml_model_CTokenListCategory_h
 #define INCLUDED_ml_model_CTokenListCategory_h
 
+#include <core/CMemoryUsage.h>
+
 #include <model/ImportExport.h>
 
 #include <map>
@@ -112,6 +114,12 @@ public:
 
     //! Set the cached reverse search
     void cacheReverseSearch(const std::string& part1, const std::string& part2);
+
+    //! Debug the memory used by this category.
+    void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const;
+
+    //! Get the memory used by this category.
+    std::size_t memoryUsage() const;
 
 private:
     bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);

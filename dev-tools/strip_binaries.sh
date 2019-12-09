@@ -93,17 +93,17 @@ case `uname` in
             for PROGRAM in `ls -1d "$EXE_DIR"/* | grep -v '\.dSYM$'`
             do
                 echo "Stripping $PROGRAM"
-                llvm-dsymutil-3.9 $PROGRAM
-                /usr/local/bin/x86_64-apple-macosx10.11-strip -u -r $PROGRAM
+                llvm-dsymutil-6.0 $PROGRAM
+                /usr/local/bin/x86_64-apple-macosx10.13-strip -u -r $PROGRAM
             done
             for LIBRARY in `ls -1d "$DYNAMIC_LIB_DIR"/* | grep -v '\.dSYM$'`
             do
                 echo "Stripping $LIBRARY"
                 case $LIBRARY in
                     *Ml*)
-                        llvm-dsymutil-3.9 $LIBRARY
+                        llvm-dsymutil-6.0 $LIBRARY
                 esac
-                /usr/local/bin/x86_64-apple-macosx10.11-strip -x $LIBRARY
+                /usr/local/bin/x86_64-apple-macosx10.13-strip -x $LIBRARY
             done
         else
             echo "Cannot cross compile to $CPP_CROSS_COMPILE"

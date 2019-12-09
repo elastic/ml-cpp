@@ -32,7 +32,6 @@ namespace model {
 
 class CAnomalyDetector;
 class CAnomalyDetectorModel;
-class CResourcePruner;
 
 //! \brief Assess memory used by models and decide on further memory allocations.
 //!

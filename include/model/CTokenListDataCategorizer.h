@@ -7,6 +7,7 @@
 #define INCLUDED_ml_model_CTokenListDataCategorizer_h
 
 #include <core/CLogger.h>
+#include <core/CMemory.h>
 #include <core/CStringSimilarityTester.h>
 #include <core/CTimeUtils.h>
 #include <core/CWordDictionary.h>
@@ -58,15 +59,30 @@ public:
         : CBaseTokenListDataCategorizer(reverseSearchCreator, threshold, fieldName),
           m_Dict(core::CWordDictionary::instance()) {}
 
+    //! Debug the memory used by this categorizer.
+    void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const override {
+        mem->setName("CTokenListDataCategorizer");
+        this->CBaseTokenListDataCategorizer::debugMemoryUsage(mem->addChild());
+        core::CMemoryDebug::dynamicSize("m_SimilarityTester", m_SimilarityTester, mem);
+    }
+
+    //! Get the memory used by this categorizer.
+    std::size_t memoryUsage() const override {
+        std::size_t mem = 0;
+        mem += this->CBaseTokenListDataCategorizer::memoryUsage();
+        mem += core::CMemory::dynamicSize(m_SimilarityTester);
+        return mem;
+    }
+
 protected:
     //! Split the string into a list of tokens.  The result of the
     //! tokenisation is returned in \p tokenIds, \p tokenUniqueIds and
     //! \p totalWeight.  Any previous content of these variables is wiped.
-    virtual void tokeniseString(const TStrStrUMap& fields,
-                                const std::string& str,
-                                TSizeSizePrVec& tokenIds,
-                                TSizeSizeMap& tokenUniqueIds,
-                                size_t& totalWeight) {
+    void tokeniseString(const TStrStrUMap& fields,
+                        const std::string& str,
+                        TSizeSizePrVec& tokenIds,
+                        TSizeSizeMap& tokenUniqueIds,
+                        size_t& totalWeight) override {
         tokenIds.clear();
         tokenUniqueIds.clear();
         totalWeight = 0;
@@ -115,10 +131,10 @@ protected:
 
     //! Take a string token, convert it to a numeric ID and a weighting and
     //! add these to the provided data structures.
-    virtual void tokenToIdAndWeight(const std::string& token,
-                                    TSizeSizePrVec& tokenIds,
-                                    TSizeSizeMap& tokenUniqueIds,
-                                    size_t& totalWeight) {
+    void tokenToIdAndWeight(const std::string& token,
+                            TSizeSizePrVec& tokenIds,
+                            TSizeSizeMap& tokenUniqueIds,
+                            size_t& totalWeight) override {
         TSizeSizePr idWithWeight(this->idForToken(token), 1);
 
         if (token.length() >= MIN_DICTIONARY_LENGTH) {
@@ -131,10 +147,10 @@ protected:
     }
 
     //! Compute similarity between two vectors
-    virtual double similarity(const TSizeSizePrVec& left,
-                              size_t leftWeight,
-                              const TSizeSizePrVec& right,
-                              size_t rightWeight) const {
+    double similarity(const TSizeSizePrVec& left,
+                      size_t leftWeight,
+                      const TSizeSizePrVec& right,
+                      size_t rightWeight) const override {
         double similarity(1.0);
 
         size_t maxWeight(std::max(leftWeight, rightWeight));

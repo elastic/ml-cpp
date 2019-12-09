@@ -5,6 +5,8 @@
  */
 #include <model/CTokenListReverseSearchCreatorIntf.h>
 
+#include <core/CMemory.h>
+
 namespace ml {
 namespace model {
 
@@ -22,6 +24,17 @@ void CTokenListReverseSearchCreatorIntf::closeStandardSearch(std::string& /*part
 
 const std::string& CTokenListReverseSearchCreatorIntf::fieldName() const {
     return m_FieldName;
+}
+
+void CTokenListReverseSearchCreatorIntf::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const {
+    mem->setName("CTokenListReverseSearchCreatorIntf");
+    core::CMemoryDebug::dynamicSize("m_FieldName", m_FieldName, mem);
+}
+
+std::size_t CTokenListReverseSearchCreatorIntf::memoryUsage() const {
+    std::size_t mem = 0;
+    mem += core::CMemory::dynamicSize(m_FieldName);
+    return mem;
 }
 }
 }

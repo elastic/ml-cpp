@@ -6,9 +6,11 @@
 
 #include <maths/CBoostedTreeImpl.h>
 
+#include <core/CImmutableRadixSet.h>
 #include <core/CLoopProgress.h>
 #include <core/CPersistUtils.h>
 #include <core/CProgramCounters.h>
+#include <core/CStopWatch.h>
 
 #include <maths/CBasicStatisticsPersist.h>
 #include <maths/CBayesianOptimisation.h>
@@ -96,7 +98,7 @@ CBoostedTreeImpl::CLeafNodeStatistics::CLeafNodeStatistics(
     const core::CDataFrame& frame,
     const CDataFrameCategoryEncoder& encoder,
     const TRegularization& regularization,
-    const TDoubleVecVec& candidateSplits,
+    const TImmutableRadixSetVec& candidateSplits,
     const TSizeVec& featureBag,
     std::size_t depth,
     const core::CPackedBitVector& rowMask)
@@ -113,7 +115,7 @@ CBoostedTreeImpl::CLeafNodeStatistics::CLeafNodeStatistics(
     const core::CDataFrame& frame,
     const CDataFrameCategoryEncoder& encoder,
     const TRegularization& regularization,
-    const TDoubleVecVec& candidateSplits,
+    const TImmutableRadixSetVec& candidateSplits,
     const TSizeVec& featureBag,
     bool isLeftChild,
     std::size_t depth,
@@ -189,7 +191,7 @@ auto CBoostedTreeImpl::CLeafNodeStatistics::split(std::size_t leftChildId,
                                                   const core::CDataFrame& frame,
                                                   const CDataFrameCategoryEncoder& encoder,
                                                   const TRegularization& regularization,
-                                                  const TDoubleVecVec& candidateSplits,
+                                                  const TImmutableRadixSetVec& candidateSplits,
                                                   const TSizeVec& featureBag,
                                                   const CBoostedTreeNode& split,
                                                   bool leftChildHasFewerRows) {
@@ -311,10 +313,7 @@ void CBoostedTreeImpl::CLeafNodeStatistics::addRowDerivatives(
         if (CDataFrameUtils::isMissing(featureValue)) {
             splitAggregateDerivatives.s_MissingDerivatives[i].add(1, gradient, curvature);
         } else {
-            const auto& featureCandidateSplits = m_CandidateSplits[i];
-            auto j = std::upper_bound(featureCandidateSplits.begin(),
-                                      featureCandidateSplits.end(), featureValue) -
-                     featureCandidateSplits.begin();
+            std::ptrdiff_t j{m_CandidateSplits[i].upperBound(featureValue)};
             splitAggregateDerivatives.s_Derivatives[i][j].add(1, gradient, curvature);
         }
     }
@@ -445,6 +444,10 @@ void CBoostedTreeImpl::train(core::CDataFrame& frame,
         LOG_TRACE(<< "Test loss = " << m_BestForestTestLoss);
 
     } else if (m_CurrentRound < m_NumberRounds || m_BestForest.empty()) {
+        using TMeanVarAccumulator = CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
+        TMeanVarAccumulator timeAccumulator;
+        core::CStopWatch stopWatch;
+        stopWatch.start();
 
         // Hyperparameter optimisation loop.
 
@@ -477,6 +480,8 @@ void CBoostedTreeImpl::train(core::CDataFrame& frame,
             LOG_TRACE(<< "Round " << m_CurrentRound << " state recording started");
             this->recordState(recordTrainStateCallback);
             LOG_TRACE(<< "Round " << m_CurrentRound << " state recording finished");
+
+            timeAccumulator.add(static_cast<float>(stopWatch.lap()));
         }
 
         LOG_TRACE(<< "Test loss = " << m_BestForestTestLoss);
@@ -485,6 +490,12 @@ void CBoostedTreeImpl::train(core::CDataFrame& frame,
 
         m_BestForest = this->trainForest(frame, this->allTrainingRowsMask(), recordMemoryUsage);
         this->recordState(recordTrainStateCallback);
+
+        timeAccumulator.add(static_cast<float>(stopWatch.stop()));
+
+        LOG_INFO(<< "Training finished after " << m_CurrentRound << " iterations. Time per iteration in ms mean: "
+                 << CBasicStatistics::mean(timeAccumulator) << " std. dev:  "
+                 << std::sqrt(CBasicStatistics::variance(timeAccumulator)));
 
         core::CProgramCounters::counter(counter_t::E_DFTPMTrainedForestNumberTrees) =
             m_BestForest.size();
@@ -676,7 +687,7 @@ CBoostedTreeImpl::trainForest(core::CDataFrame& frame,
         forest.size() + static_cast<std::size_t>(std::max(0.5 / eta, 1.0))};
 
     auto downsampledRowMask = this->downsample(trainingRowMask);
-    TDoubleVecVec candidateSplits(this->candidateSplits(frame, downsampledRowMask));
+    auto candidateSplits = this->candidateSplits(frame, downsampledRowMask);
     scopeMemoryUsage.add(candidateSplits);
 
     std::size_t retries{0};
@@ -743,7 +754,7 @@ CBoostedTreeImpl::downsample(const core::CPackedBitVector& trainingRowMask) cons
     return result;
 }
 
-CBoostedTreeImpl::TDoubleVecVec
+CBoostedTreeImpl::TImmutableRadixSetVec
 CBoostedTreeImpl::candidateSplits(const core::CDataFrame& frame,
                                   const core::CPackedBitVector& trainingRowMask) const {
 
@@ -769,12 +780,11 @@ CBoostedTreeImpl::candidateSplits(const core::CDataFrame& frame,
             m_Encoder.get(), readLossCurvature)
             .first;
 
-    TDoubleVecVec candidateSplits(this->numberFeatures());
+    TImmutableRadixSetVec candidateSplits(this->numberFeatures());
 
     for (auto i : binaryFeatures) {
-        candidateSplits[i] = TDoubleVec{0.5};
-        LOG_TRACE(<< "feature '" << i << "' splits = "
-                  << core::CContainerPrinter::print(candidateSplits[i]));
+        candidateSplits[i] = core::CImmutableRadixSet<double>{0.5};
+        LOG_TRACE(<< "feature '" << i << "' splits = " << candidateSplits[i].print());
     }
     for (std::size_t i = 0; i < features.size(); ++i) {
 
@@ -811,13 +821,12 @@ CBoostedTreeImpl::candidateSplits(const core::CDataFrame& frame,
                                                       split > dataType.s_Max;
                                            }),
                             featureSplits.end());
-        candidateSplits[features[i]] = std::move(featureSplits);
+        candidateSplits[features[i]] =
+            core::CImmutableRadixSet<double>{std::move(featureSplits)};
 
-        LOG_TRACE(<< "feature '" << features[i] << "' splits = "
-                  << core::CContainerPrinter::print(candidateSplits[features[i]]));
+        LOG_TRACE(<< "feature '" << features[i]
+                  << "' splits = " << candidateSplits[features[i]].print());
     }
-
-    LOG_TRACE(<< "candidate splits = " << core::CContainerPrinter::print(candidateSplits));
 
     return candidateSplits;
 }
@@ -825,7 +834,7 @@ CBoostedTreeImpl::candidateSplits(const core::CDataFrame& frame,
 CBoostedTreeImpl::TNodeVec
 CBoostedTreeImpl::trainTree(core::CDataFrame& frame,
                             const core::CPackedBitVector& trainingRowMask,
-                            const TDoubleVecVec& candidateSplits,
+                            const TImmutableRadixSetVec& candidateSplits,
                             const std::size_t maximumTreeSize,
                             const TMemoryUsageCallback& recordMemoryUsage) const {
 
@@ -1180,10 +1189,10 @@ void CBoostedTreeImpl::restoreBestHyperparameters() {
     m_Eta = m_BestHyperparameters.eta();
     m_EtaGrowthRatePerTree = m_BestHyperparameters.etaGrowthRatePerTree();
     m_FeatureBagFraction = m_BestHyperparameters.featureBagFraction();
-    LOG_TRACE(<< "regularization* = " << m_Regularization.print()
-              << ", downsample factor* = " << m_DownsampleFactor << ", eta* = " << m_Eta
-              << ", eta growth rate per tree* = " << m_EtaGrowthRatePerTree
-              << ", feature bag fraction* = " << m_FeatureBagFraction);
+    LOG_INFO(<< "Best hyperparameters: regularization* = " << m_Regularization.print()
+             << ", downsample factor* = " << m_DownsampleFactor << ", eta* = " << m_Eta
+             << ", eta growth rate per tree* = " << m_EtaGrowthRatePerTree
+             << ", feature bag fraction* = " << m_FeatureBagFraction);
 }
 
 std::size_t CBoostedTreeImpl::numberHyperparametersToTune() const {

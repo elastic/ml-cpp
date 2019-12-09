@@ -9,6 +9,7 @@
 
 #include <core/CContainerPrinter.h>
 #include <core/CDataFrame.h>
+#include <core/CImmutableRadixSet.h>
 #include <core/CLogger.h>
 #include <core/CMemory.h>
 #include <core/CPackedBitVector.h>
@@ -36,6 +37,10 @@
 #include <vector>
 
 namespace ml {
+namespace core {
+template<typename>
+class CImmutableRadixSet;
+}
 namespace maths {
 class CBayesianOptimisation;
 
@@ -141,9 +146,8 @@ public:
 private:
     using TSizeDoublePr = std::pair<std::size_t, double>;
     using TDoubleDoublePr = std::pair<double, double>;
-    using TDoubleDoublePrVec = std::vector<TDoubleDoublePr>;
     using TOptionalSize = boost::optional<std::size_t>;
-    using TDoubleVecVec = std::vector<TDoubleVec>;
+    using TImmutableRadixSetVec = std::vector<core::CImmutableRadixSet<double>>;
     using TVector = CDenseVector<double>;
     using TRowItr = core::CDataFrame::TRowItr;
     using TPackedBitVectorVec = std::vector<core::CPackedBitVector>;
@@ -165,7 +169,7 @@ private:
                             const core::CDataFrame& frame,
                             const CDataFrameCategoryEncoder& encoder,
                             const TRegularization& regularization,
-                            const TDoubleVecVec& candidateSplits,
+                            const TImmutableRadixSetVec& candidateSplits,
                             const TSizeVec& featureBag,
                             std::size_t depth,
                             const core::CPackedBitVector& rowMask);
@@ -176,7 +180,7 @@ private:
                             const core::CDataFrame& frame,
                             const CDataFrameCategoryEncoder& encoder,
                             const TRegularization& regularization,
-                            const TDoubleVecVec& candidateSplits,
+                            const TImmutableRadixSetVec& candidateSplits,
                             const TSizeVec& featureBag,
                             bool isLeftChild,
                             std::size_t depth,
@@ -192,11 +196,9 @@ private:
 
         CLeafNodeStatistics(const CLeafNodeStatistics&) = delete;
 
-        CLeafNodeStatistics(CLeafNodeStatistics&&) = default;
+        // Move construction/assignment not possible due to const reference member
 
         CLeafNodeStatistics& operator=(const CLeafNodeStatistics&) = delete;
-
-        CLeafNodeStatistics& operator=(CLeafNodeStatistics&&) = default;
 
         //! Apply the split defined by \p split.
         //!
@@ -207,7 +209,7 @@ private:
                    const core::CDataFrame& frame,
                    const CDataFrameCategoryEncoder& encoder,
                    const TRegularization& regularization,
-                   const TDoubleVecVec& candidateSplits,
+                   const TImmutableRadixSetVec& candidateSplits,
                    const TSizeVec& featureBag,
                    const CBoostedTreeNode& split,
                    bool leftChildHasFewerRows);
@@ -333,7 +335,7 @@ private:
 
         //! \brief A collection of aggregate derivatives for candidate feature splits.
         struct SSplitAggregateDerivatives {
-            SSplitAggregateDerivatives(const TDoubleVecVec& candidateSplits)
+            SSplitAggregateDerivatives(const TImmutableRadixSetVec& candidateSplits)
                 : s_Derivatives(candidateSplits.size()),
                   s_MissingDerivatives(candidateSplits.size()) {
                 for (std::size_t i = 0; i < candidateSplits.size(); ++i) {
@@ -378,7 +380,7 @@ private:
 
     private:
         std::size_t m_Id;
-        const TDoubleVecVec& m_CandidateSplits;
+        const TImmutableRadixSetVec& m_CandidateSplits;
         std::size_t m_Depth;
         core::CPackedBitVector m_RowMask;
         TAggregateDerivativesVecVec m_Derivatives;
@@ -425,13 +427,13 @@ private:
     core::CPackedBitVector downsample(const core::CPackedBitVector& trainingRowMask) const;
 
     //! Get the candidate splits values for each feature.
-    TDoubleVecVec candidateSplits(const core::CDataFrame& frame,
-                                  const core::CPackedBitVector& trainingRowMask) const;
+    TImmutableRadixSetVec candidateSplits(const core::CDataFrame& frame,
+                                          const core::CPackedBitVector& trainingRowMask) const;
 
     //! Train one tree on the rows of \p frame in the mask \p trainingRowMask.
     TNodeVec trainTree(core::CDataFrame& frame,
                        const core::CPackedBitVector& trainingRowMask,
-                       const TDoubleVecVec& candidateSplits,
+                       const TImmutableRadixSetVec& candidateSplits,
                        const std::size_t maximumTreeSize,
                        const TMemoryUsageCallback& recordMemoryUsage) const;
 
