@@ -30,6 +30,7 @@ namespace {
 using TBoolVec = std::vector<bool>;
 using TDoubleVec = std::vector<double>;
 using TSizeVec = std::vector<std::size_t>;
+using TStrSet = std::set<std::string>;
 
 // Configuration
 const std::string NUM_TOP_CLASSES{"num_top_classes"};
@@ -43,7 +44,7 @@ const std::string TOP_CLASSES_FIELD_NAME{"top_classes"};
 const std::string CLASS_NAME_FIELD_NAME{"class_name"};
 const std::string CLASS_PROBABILITY_FIELD_NAME{"class_probability"};
 
-const std::set<std::string> PREDICTION_FIELD_NAME_BLACKLIST{
+const TStrSet PREDICTION_FIELD_NAME_BLACKLIST{
     IS_TRAINING_FIELD_NAME, PREDICTION_PROBABILITY_FIELD_NAME, TOP_CLASSES_FIELD_NAME};
 }
 
