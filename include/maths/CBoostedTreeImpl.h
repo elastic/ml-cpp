@@ -138,10 +138,13 @@ public:
     //! \return The best hyperparameters for validation error found so far.
     const CBoostedTreeHyperparameters& bestHyperparameters() const;
 
+    //! Get the indices of the columns containing SHAP values.
     TSizeVec columnsHoldingShapValues() const;
 
+    //! Get the number of largest SHAP values that will be returned for every row.
     std::size_t topShapValues() const;
 
+    //! Get the number of input columns.
     std::size_t numberInputColumns() const;
 
 private:

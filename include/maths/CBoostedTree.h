@@ -402,6 +402,7 @@ public:
     //! Get the optional vector of column indices with SHAP values
     TSizeVec columnsHoldingShapValues() const override;
 
+    //! Get the number of largest SHAP values that will be returned for every row.
     std::size_t topShapValues() const override;
 
     //! Get the model produced by training if it has been run.
