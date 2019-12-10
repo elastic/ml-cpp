@@ -103,23 +103,23 @@ struct SFixtureSingleTreeRandom {
         treeFeatureImportance =
             std::make_unique<maths::CTreeShapFeatureImportance, std::initializer_list<TTree>>(
                 {tree});
-        CStubMakeDataFrameCategoryEncoder stubParameters{1, *frame, 0, numberFeatures};
+        CStubMakeDataFrameCategoryEncoder stubParameters{1, *s_Frame, 0, s_NumberFeatures};
         encoder = std::make_unique<maths::CDataFrameCategoryEncoder>(stubParameters);
     }
 
     void initFrame(test::CRandomNumbers& rng) {
         TDoubleVec values;
-        rng.generateUniformSamples(-10.0, 10.0, numberRows * numberFeatures, values);
+        rng.generateUniformSamples(-10.0, 10.0, numberRows * s_NumberFeatures, values);
 
-        frame = core::makeMainStorageDataFrame(numberFeatures, numberRows).first;
+        s_Frame = core::makeMainStorageDataFrame(s_NumberFeatures, numberRows).first;
         for (std::size_t i = 0; i < numberRows; ++i) {
-            frame->writeRow([&](core::CDataFrame::TFloatVecItr column, int32_t&) {
-                for (std::size_t j = 0; j < numberFeatures; ++j, ++column) {
-                    *column = values[i * numberFeatures + j];
+            s_Frame->writeRow([&](core::CDataFrame::TFloatVecItr column, int32_t&) {
+                for (std::size_t j = 0; j < s_NumberFeatures; ++j, ++column) {
+                    *column = values[i * s_NumberFeatures + j];
                 }
             });
         }
-        frame->finishWritingRows();
+        s_Frame->finishWritingRows();
     }
 
     void initTree(test::CRandomNumbers& rng) {
@@ -132,10 +132,10 @@ struct SFixtureSingleTreeRandom {
         TDoubleVec splitThreshold(1);
 
         tree.emplace_back();
-        bottom.emplace_back(numberFeatures, -10);
-        top.emplace_back(numberFeatures, 10);
+        bottom.emplace_back(s_NumberFeatures, -10);
+        top.emplace_back(s_NumberFeatures, 10);
         for (std::size_t nodeIndex = 0; nodeIndex < numberInnerNodes; ++nodeIndex) {
-            rng.generateUniformSamples(0, numberFeatures, 1, splitFeature);
+            rng.generateUniformSamples(0, s_NumberFeatures, 1, splitFeature);
             rng.generateUniformSamples(bottom[nodeIndex][splitFeature[0]],
                                        top[nodeIndex][splitFeature[0]], 1, splitThreshold);
             tree[nodeIndex].split(splitFeature[0], splitThreshold[0], true, 0.0, 0.0, tree);
@@ -160,8 +160,8 @@ struct SFixtureSingleTreeRandom {
         }
     }
 
-    TDataFrameUPtr frame;
-    std::size_t numberFeatures{5};
+    TDataFrameUPtr s_Frame;
+    std::size_t s_NumberFeatures{5};
     std::size_t numberRows{1000};
     std::size_t numberInnerNodes{15};
     TTreeShapFeatureImportanceUPtr treeFeatureImportance;
@@ -326,7 +326,7 @@ private:
 BOOST_FIXTURE_TEST_CASE(testSingleTreeSamplesPerNode, SFixtureSingleTree) {
 
     auto samplesPerNode = maths::CTreeShapFeatureImportance::samplesPerNode(
-        treeFeatureImportance->trees()[0], *frame, *encoder, 1);
+        s_TreeFeatureImportance->trees()[0], *s_Frame, *s_Encoder, 1);
     TDoubleVec expectedSamplesPerNode{4, 2, 2, 1, 1, 1, 1};
     BOOST_TEST_REQUIRE(samplesPerNode == expectedSamplesPerNode);
 }
@@ -335,21 +335,21 @@ BOOST_FIXTURE_TEST_CASE(testSingleTreeExpectedNodeValues, SFixtureSingleTree) {
 
     TDoubleVec samplesPerNode{4, 2, 2, 1, 1, 1, 1};
     std::size_t depth = maths::CTreeShapFeatureImportance::updateNodeValues(
-        treeFeatureImportance->trees()[0], 0, samplesPerNode, 0);
+        s_TreeFeatureImportance->trees()[0], 0, samplesPerNode, 0);
     BOOST_TEST_REQUIRE(depth == 2);
     TDoubleVec expectedValues{10.5, 5.5, 15.5, 3.0, 8.0, 13.0, 18.0};
-    auto& tree{treeFeatureImportance->trees()[0]};
+    auto& tree{s_TreeFeatureImportance->trees()[0]};
     for (std::size_t i = 0; i < tree.size(); ++i) {
         BOOST_TEST_REQUIRE(tree[i].value() == expectedValues[i]);
     }
 }
 
 BOOST_FIXTURE_TEST_CASE(testSingleTreeShapNotNormalized, SFixtureSingleTree) {
-    std::size_t offset{frame->numberColumns()};
-    frame->resizeColumns(1, offset * 2);
-    treeFeatureImportance->shap(*frame, *encoder, offset);
+    std::size_t offset{s_Frame->numberColumns()};
+    s_Frame->resizeColumns(1, offset * 2);
+    s_TreeFeatureImportance->shap(*s_Frame, *s_Encoder, offset);
     TDoubleVecVec expectedPhi{{-5., -2.5}, {-5., 2.5}, {5., -2.5}, {5., 2.5}};
-    frame->readRows(1, [&](TRowItr beginRows, TRowItr endRows) {
+    s_Frame->readRows(1, [&](TRowItr beginRows, TRowItr endRows) {
         for (auto row = beginRows; row != endRows; ++row) {
             for (std::size_t col = 0; col < 2; ++col) {
                 BOOST_REQUIRE_CLOSE_ABSOLUTE(expectedPhi[row->index()][col],
@@ -381,12 +381,13 @@ BOOST_FIXTURE_TEST_CASE(testMultipleTreesShapNotNormalized, SFixtureMultipleTree
 
 BOOST_FIXTURE_TEST_CASE(testSingleTreeBruteForceShap, SFixtureSingleTree) {
     auto samplesPerNode = maths::CTreeShapFeatureImportance::samplesPerNode(
-        treeFeatureImportance->trees()[0], *frame, *encoder, 1);
-    BruteForceTreeShap bfShap(treeFeatureImportance->trees()[0], samplesPerNode, numberFeatures);
-    auto actualPhi = bfShap.shap(*frame, *encoder, 1);
+        s_TreeFeatureImportance->trees()[0], *s_Frame, *s_Encoder, 1);
+    BruteForceTreeShap bfShap(s_TreeFeatureImportance->trees()[0],
+                              samplesPerNode, s_NumberFeatures);
+    auto actualPhi = bfShap.shap(*s_Frame, *s_Encoder, 1);
     TDoubleVecVec expectedPhi{{-5., -2.5}, {-5., 2.5}, {5., -2.5}, {5., 2.5}};
-    for (std::size_t i = 0; i < numberRows; ++i) {
-        for (std::size_t j = 0; j < numberFeatures; ++j) {
+    for (std::size_t i = 0; i < s_NumberRows; ++i) {
+        for (std::size_t j = 0; j < s_NumberFeatures; ++j) {
             BOOST_TEST_REQUIRE(expectedPhi[i][j], actualPhi[i][j]);
         }
     }
@@ -396,15 +397,15 @@ BOOST_FIXTURE_TEST_CASE(testSingleTreeShapRandomDataFrame, SFixtureSingleTreeRan
     // Compare tree shap algorithm with the brute force approach (Algorithm
     // 1 in paper by Lundberg et al.) on a random data set with a random tree.
     auto samplesPerNode = maths::CTreeShapFeatureImportance::samplesPerNode(
-        treeFeatureImportance->trees()[0], *frame, *encoder, 1);
-    BruteForceTreeShap bfShap(this->tree, samplesPerNode, numberFeatures);
-    auto expectedPhi = bfShap.shap(*frame, *encoder, 1);
-    std::size_t offset{frame->numberColumns()};
-    frame->resizeColumns(1, offset * 2);
-    treeFeatureImportance->shap(*frame, *encoder, offset);
-    frame->readRows(1, [&](TRowItr beginRows, TRowItr endRows) {
+        treeFeatureImportance->trees()[0], *s_Frame, *encoder, 1);
+    BruteForceTreeShap bfShap(this->tree, samplesPerNode, s_NumberFeatures);
+    auto expectedPhi = bfShap.shap(*s_Frame, *encoder, 1);
+    std::size_t offset{s_Frame->numberColumns()};
+    s_Frame->resizeColumns(1, offset * 2);
+    treeFeatureImportance->shap(*s_Frame, *encoder, offset);
+    s_Frame->readRows(1, [&](TRowItr beginRows, TRowItr endRows) {
         for (auto row = beginRows; row != endRows; ++row) {
-            for (std::size_t col = 0; col < numberFeatures; ++col) {
+            for (std::size_t col = 0; col < s_NumberFeatures; ++col) {
                 BOOST_REQUIRE_CLOSE_ABSOLUTE(expectedPhi[row->index()][col],
                                              static_cast<double>((*row)[offset + col]), 1e-5);
             }
