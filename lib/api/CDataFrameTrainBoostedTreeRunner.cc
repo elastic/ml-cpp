@@ -81,6 +81,7 @@ CDataFrameTrainBoostedTreeRunner::CDataFrameTrainBoostedTreeRunner(
         parameters[NUMBER_ROUNDS_PER_HYPERPARAMETER].fallback(std::size_t{0})};
     std::size_t bayesianOptimisationRestarts{
         parameters[BAYESIAN_OPTIMISATION_RESTARTS].fallback(std::size_t{0})};
+    std::size_t topShapValues{parameters[TOP_SHAP_VALUES].fallback(std::size_t{0})};
 
     double alpha{parameters[ALPHA].fallback(-1.0)};
     double lambda{parameters[LAMBDA].fallback(-1.0)};
@@ -89,7 +90,6 @@ CDataFrameTrainBoostedTreeRunner::CDataFrameTrainBoostedTreeRunner(
     double softTreeDepthLimit{parameters[SOFT_TREE_DEPTH_LIMIT].fallback(-1.0)};
     double softTreeDepthTolerance{parameters[SOFT_TREE_DEPTH_TOLERANCE].fallback(-1.0)};
     double featureBagFraction{parameters[FEATURE_BAG_FRACTION].fallback(-1.0)};
-    std::size_t topShapValues{parameters[TOP_SHAP_VALUES].fallback(0ul)};
     if (alpha != -1.0 && alpha < 0.0) {
         HANDLE_FATAL(<< "Input error: bad alpha value. It should be non-negative.");
     }
