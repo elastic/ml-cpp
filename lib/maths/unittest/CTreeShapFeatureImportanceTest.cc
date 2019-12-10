@@ -57,18 +57,18 @@ private:
 };
 
 struct SFixtureSingleTree {
-    SFixtureSingleTree() : frame{}, treeFeatureImportance{}, encoder{} {
+    SFixtureSingleTree() : s_Frame{}, s_TreeFeatureImportance{}, s_Encoder{} {
         TDoubleVecVec data{{0.25, 0.25}, {0.25, 0.75}, {0.75, 0.25}, {0.75, 0.75}};
 
-        frame = core::makeMainStorageDataFrame(numberFeatures, numberRows).first;
-        for (std::size_t i = 0; i < numberRows; ++i) {
-            frame->writeRow([&](core::CDataFrame::TFloatVecItr column, std::int32_t&) {
-                for (std::size_t j = 0; j < numberFeatures; ++j, ++column) {
+        s_Frame = core::makeMainStorageDataFrame(s_NumberFeatures, s_NumberRows).first;
+        for (std::size_t i = 0; i < s_NumberRows; ++i) {
+            s_Frame->writeRow([&](core::CDataFrame::TFloatVecItr column, std::int32_t&) {
+                for (std::size_t j = 0; j < s_NumberFeatures; ++j, ++column) {
                     *column = data[i][j];
                 }
             });
         }
-        frame->finishWritingRows();
+        s_Frame->finishWritingRows();
 
         TTree tree;
         tree.emplace_back();
@@ -80,18 +80,18 @@ struct SFixtureSingleTree {
         tree[5].value(13);
         tree[6].value(18);
 
-        treeFeatureImportance =
+        s_TreeFeatureImportance =
             std::make_unique<maths::CTreeShapFeatureImportance, std::initializer_list<TTree>>(
                 {tree});
-        CStubMakeDataFrameCategoryEncoder stubParameters{1, *frame, 0};
-        encoder = std::make_unique<maths::CDataFrameCategoryEncoder>(stubParameters);
+        CStubMakeDataFrameCategoryEncoder stubParameters{1, *s_Frame, 0};
+        s_Encoder = std::make_unique<maths::CDataFrameCategoryEncoder>(stubParameters);
     }
 
-    TDataFrameUPtr frame;
-    std::size_t numberFeatures{2};
-    std::size_t numberRows{4};
-    TTreeShapFeatureImportanceUPtr treeFeatureImportance;
-    TEncoderUPtr encoder;
+    TDataFrameUPtr s_Frame;
+    std::size_t s_NumberFeatures{2};
+    std::size_t s_NumberRows{4};
+    TTreeShapFeatureImportanceUPtr s_TreeFeatureImportance;
+    TEncoderUPtr s_Encoder;
 };
 
 struct SFixtureSingleTreeRandom {
