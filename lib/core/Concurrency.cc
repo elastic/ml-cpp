@@ -39,22 +39,11 @@ private:
     CStaticThreadPool m_ThreadPool;
 };
 
-//! Older versions of clang of clang have problems resolving the correct
-//! constructor for std::unique_ptr because of a standard defect.
-//!
-//! \see http://www.open-std.org/jtc1/sc22/wg21/docs/cwg_defects.html#1579
-template<typename EXECUTOR, typename... ARGS>
-std::unique_ptr<CExecutor> makeUniqueWorkaroundCwg1579(ARGS&&... args) {
-    std::unique_ptr<CExecutor> result =
-        std::make_unique<EXECUTOR>(std::forward<ARGS>(args)...);
-    return result;
-}
-
 class CExecutorHolder {
 public:
     CExecutorHolder()
         : m_ThreadPoolSize{0},
-          m_Executor(makeUniqueWorkaroundCwg1579<CImmediateExecutor>()) {}
+          m_Executor(std::make_unique<CImmediateExecutor>()) {}
 
     static CExecutorHolder makeThreadPool(std::size_t threadPoolSize) {
         if (threadPoolSize == 0) {
@@ -84,7 +73,7 @@ public:
 private:
     CExecutorHolder(std::size_t threadPoolSize)
         : m_ThreadPoolSize{threadPoolSize},
-          m_Executor(makeUniqueWorkaroundCwg1579<CThreadPoolExecutor>(threadPoolSize)) {}
+          m_Executor(std::make_unique<CThreadPoolExecutor>(threadPoolSize)) {}
 
 private:
     std::size_t m_ThreadPoolSize;
