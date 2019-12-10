@@ -181,7 +181,7 @@ private:
     std::size_t numberHyperparameterTuningRounds() const;
 
     //! Setup monitoring for training progress.
-    void initializeTrainingProgressMonitoring();
+    void initializeTrainingProgressMonitoring(const core::CDataFrame& frame);
 
     //! Refresh progress monitoring after restoring from saved training state.
     void resumeRestoredTrainingProgressMonitoring();
