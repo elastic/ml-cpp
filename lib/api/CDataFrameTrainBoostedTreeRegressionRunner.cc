@@ -82,14 +82,13 @@ void CDataFrameTrainBoostedTreeRegressionRunner::writeOneRow(
     writer.Key(IS_TRAINING_FIELD_NAME);
     writer.Bool(maths::CDataFrameUtils::isMissing(row[columnHoldingDependentVariable]) == false);
     if (this->topShapValues() > 0) {
-        auto shapColumnsRange{this->boostedTree().columnsHoldingShapValues()};
-        std::nth_element(shapColumnsRange.begin(),
-                         shapColumnsRange.begin() +
-                             static_cast<std::ptrdiff_t>(this->topShapValues()) - 1,
-                         shapColumnsRange.end(), [&row](std::size_t a, std::size_t b) {
-                             return std::fabs(row[a]) > std::fabs(row[b]);
-                         });
-        for (std::size_t i : shapColumnsRange) {
+        auto largestShapValues = this->makeLargestShapAccumulator(
+            this->topShapValues(), [&row](std::size_t lhs, std::size_t rhs) {
+                return std::fabs(row[lhs]) > std::fabs(row[rhs]);
+            });
+        largestShapValues.add(this->boostedTree().columnsHoldingShapValues());
+        largestShapValues.sort();
+        for (auto i : largestShapValues) {
             writer.Key(frame.columnNames()[i]);
             writer.Double(row[i]);
         }
