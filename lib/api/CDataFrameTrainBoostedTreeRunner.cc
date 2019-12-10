@@ -288,7 +288,10 @@ std::size_t CDataFrameTrainBoostedTreeRunner::estimateBookkeepingMemoryUsage(
 }
 
 std::size_t CDataFrameTrainBoostedTreeRunner::topShapValues() const {
-    return m_BoostedTree->topShapValues();
+    if (m_BoostedTree) {
+        return m_BoostedTree->topShapValues();
+    }
+    return 0;
 }
 
 // clang-format off

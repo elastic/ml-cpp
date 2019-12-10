@@ -474,7 +474,10 @@ CDataFrameRegressionModel::TSizeVec CBoostedTree::columnsHoldingShapValues() con
 }
 
 std::size_t CBoostedTree::topShapValues() const {
-    return m_Impl->topShapValues();
+    if (m_Impl) {
+        return m_Impl->topShapValues();
+    }
+    return 0;
 }
 }
 }

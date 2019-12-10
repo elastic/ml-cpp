@@ -1479,9 +1479,11 @@ bool CBoostedTreeImpl::acceptRestoreTraverser(core::CStateRestoreTraverser& trav
         RESTORE(TOP_SHAP_VALUES_TAG,
                 core::CPersistUtils::restore(TOP_SHAP_VALUES_TAG, m_TopShapValues, traverser))
         RESTORE(FIRST_SHAP_COLUMN_INDEX,
-                core::CPersistUtils::restore(FIRST_SHAP_COLUMN_INDEX, m_FirstShapColumnIndex, traverser))
+                core::CPersistUtils::restore(FIRST_SHAP_COLUMN_INDEX,
+                                             m_FirstShapColumnIndex, traverser))
         RESTORE(LAST_SHAP_COLUMN_INDEX,
-                core::CPersistUtils::restore(LAST_SHAP_COLUMN_INDEX, m_LastShapColumnIndex, traverser))
+                core::CPersistUtils::restore(LAST_SHAP_COLUMN_INDEX,
+                                             m_LastShapColumnIndex, traverser))
         RESTORE(NUMBER_INPUT_COLUMNS,
                 core::CPersistUtils::restore(NUMBER_INPUT_COLUMNS, m_NumberInputColumns, traverser))
     } while (traverser.next());
