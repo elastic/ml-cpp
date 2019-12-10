@@ -42,8 +42,7 @@ private:
 class CExecutorHolder {
 public:
     CExecutorHolder()
-        : m_ThreadPoolSize{0},
-          m_Executor(std::make_unique<CImmediateExecutor>()) {}
+        : m_ThreadPoolSize{0}, m_Executor(std::make_unique<CImmediateExecutor>()) {}
 
     static CExecutorHolder makeThreadPool(std::size_t threadPoolSize) {
         if (threadPoolSize == 0) {
