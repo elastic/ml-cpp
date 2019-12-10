@@ -1251,6 +1251,9 @@ const std::string TESTING_ROW_MASKS_TAG{"testing_row_masks"};
 const std::string TRAINING_ROW_MASKS_TAG{"training_row_masks"};
 const std::string TRAINING_PROGRESS_TAG{"training_progress"};
 const std::string TOP_SHAP_VALUES_TAG{"top_shap_values"};
+const std::string FIRST_SHAP_COLUMN_INDEX{"first_shap_column_index"};
+const std::string LAST_SHAP_COLUMN_INDEX{"last_shap_column_index"};
+const std::string NUMBER_INPUT_COLUMNS{"number_input_columns"};
 }
 
 const std::string& CBoostedTreeImpl::bestHyperparametersName() {
@@ -1317,6 +1320,9 @@ void CBoostedTreeImpl::acceptPersistInserter(core::CStatePersistInserter& insert
                                  m_MaximumNumberTreesOverride, inserter);
     inserter.insertValue(LOSS_TAG, m_Loss->name());
     core::CPersistUtils::persist(TOP_SHAP_VALUES_TAG, m_TopShapValues, inserter);
+    core::CPersistUtils::persist(FIRST_SHAP_COLUMN_INDEX, m_FirstShapColumnIndex, inserter);
+    core::CPersistUtils::persist(LAST_SHAP_COLUMN_INDEX, m_LastShapColumnIndex, inserter);
+    core::CPersistUtils::persist(NUMBER_INPUT_COLUMNS, m_NumberInputColumns, inserter);
 }
 
 bool CBoostedTreeImpl::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
@@ -1414,6 +1420,12 @@ bool CBoostedTreeImpl::acceptRestoreTraverser(core::CStateRestoreTraverser& trav
         RESTORE(LOSS_TAG, restoreLoss(m_Loss, traverser))
         RESTORE(TOP_SHAP_VALUES_TAG,
                 core::CPersistUtils::restore(TOP_SHAP_VALUES_TAG, m_TopShapValues, traverser))
+        RESTORE(FIRST_SHAP_COLUMN_INDEX,
+                core::CPersistUtils::restore(FIRST_SHAP_COLUMN_INDEX, m_FirstShapColumnIndex, traverser))
+        RESTORE(LAST_SHAP_COLUMN_INDEX,
+                core::CPersistUtils::restore(LAST_SHAP_COLUMN_INDEX, m_LastShapColumnIndex, traverser))
+        RESTORE(NUMBER_INPUT_COLUMNS,
+                core::CPersistUtils::restore(NUMBER_INPUT_COLUMNS, m_NumberInputColumns, traverser))
     } while (traverser.next());
 
     return true;
