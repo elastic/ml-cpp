@@ -156,6 +156,19 @@ void CDataFrameTrainBoostedTreeClassifierRunner::writeOneRow(
         }
         writer.EndArray();
     }
+
+    if (this->topShapValues() > 0) {
+        auto largestShapValues = this->makeLargestShapAccumulator(
+            this->topShapValues(), [&row](std::size_t lhs, std::size_t rhs) {
+                return std::fabs(row[lhs]) > std::fabs(row[rhs]);
+            });
+        largestShapValues.add(this->boostedTree().columnsHoldingShapValues());
+        largestShapValues.sort();
+        for (auto i : largestShapValues) {
+            writer.Key(frame.columnNames()[i]);
+            writer.Double(row[i]);
+        }
+    }
     writer.EndObject();
 }
 

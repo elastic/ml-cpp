@@ -18,6 +18,7 @@
 #include <maths/CQuantileSketch.h>
 #include <maths/CSampling.h>
 #include <maths/CSetTools.h>
+#include <maths/CTreeShapFeatureImportance.h>
 
 #include <limits>
 
@@ -1307,6 +1308,9 @@ const std::string ROWS_PER_FEATURE_TAG{"rows_per_feature"};
 const std::string TESTING_ROW_MASKS_TAG{"testing_row_masks"};
 const std::string TRAINING_ROW_MASKS_TAG{"training_row_masks"};
 const std::string TRAINING_PROGRESS_TAG{"training_progress"};
+const std::string TOP_SHAP_VALUES_TAG{"top_shap_values"};
+const std::string FIRST_SHAP_COLUMN_INDEX{"first_shap_column_index"};
+const std::string LAST_SHAP_COLUMN_INDEX{"last_shap_column_index"};
 }
 
 const std::string& CBoostedTreeImpl::bestHyperparametersName() {
@@ -1372,6 +1376,9 @@ void CBoostedTreeImpl::acceptPersistInserter(core::CStatePersistInserter& insert
     core::CPersistUtils::persist(MAXIMUM_NUMBER_TREES_OVERRIDE_TAG,
                                  m_MaximumNumberTreesOverride, inserter);
     inserter.insertValue(LOSS_TAG, m_Loss->name());
+    core::CPersistUtils::persist(TOP_SHAP_VALUES_TAG, m_TopShapValues, inserter);
+    core::CPersistUtils::persist(FIRST_SHAP_COLUMN_INDEX, m_FirstShapColumnIndex, inserter);
+    core::CPersistUtils::persist(LAST_SHAP_COLUMN_INDEX, m_LastShapColumnIndex, inserter);
 }
 
 bool CBoostedTreeImpl::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
@@ -1467,6 +1474,14 @@ bool CBoostedTreeImpl::acceptRestoreTraverser(core::CStateRestoreTraverser& trav
                 core::CPersistUtils::restore(MAXIMUM_NUMBER_TREES_OVERRIDE_TAG,
                                              m_MaximumNumberTreesOverride, traverser))
         RESTORE(LOSS_TAG, restoreLoss(m_Loss, traverser))
+        RESTORE(TOP_SHAP_VALUES_TAG,
+                core::CPersistUtils::restore(TOP_SHAP_VALUES_TAG, m_TopShapValues, traverser))
+        RESTORE(FIRST_SHAP_COLUMN_INDEX,
+                core::CPersistUtils::restore(FIRST_SHAP_COLUMN_INDEX,
+                                             m_FirstShapColumnIndex, traverser))
+        RESTORE(LAST_SHAP_COLUMN_INDEX,
+                core::CPersistUtils::restore(LAST_SHAP_COLUMN_INDEX,
+                                             m_LastShapColumnIndex, traverser))
     } while (traverser.next());
 
     return true;
@@ -1511,6 +1526,45 @@ const double CBoostedTreeImpl::INF{std::numeric_limits<double>::max()};
 
 const CBoostedTreeHyperparameters& CBoostedTreeImpl::bestHyperparameters() const {
     return m_BestHyperparameters;
+}
+
+void CBoostedTreeImpl::computeShapValues(core::CDataFrame& frame, const TProgressCallback&) {
+    if (m_TopShapValues > 0) {
+        if (m_BestForestTestLoss == INF) {
+            HANDLE_FATAL(<< "Internal error: no model available for prediction. "
+                         << "Please report this problem.");
+            return;
+        }
+        auto treeFeatureImportance = std::make_unique<CTreeShapFeatureImportance>(
+            m_BestForest, m_NumberThreads);
+        std::size_t numberInputFields = m_NumberInputColumns - 1;
+        // resize data frame to write SHAP values
+        std::size_t offset{frame.numberColumns()};
+        frame.resizeColumns(m_NumberThreads, frame.numberColumns() + numberInputFields);
+        m_FirstShapColumnIndex = offset;
+        m_LastShapColumnIndex = frame.numberColumns() - 1;
+        TStrVec columnNames(frame.columnNames());
+        for (std::size_t i = 0; i < numberInputFields; ++i) {
+            columnNames[offset + i] = CDataFrameRegressionModel::SHAP_PREFIX +
+                                      frame.columnNames()[i];
+        }
+        frame.columnNames(columnNames);
+        treeFeatureImportance->shap(frame, *m_Encoder, offset);
+    }
+}
+
+CBoostedTreeImpl::TSizeVec CBoostedTreeImpl::columnsHoldingShapValues() const {
+    TSizeVec result(m_LastShapColumnIndex - m_FirstShapColumnIndex + 1);
+    std::iota(result.begin(), result.end(), m_FirstShapColumnIndex);
+    return result;
+}
+
+std::size_t CBoostedTreeImpl::topShapValues() const {
+    return m_TopShapValues;
+}
+
+std::size_t CBoostedTreeImpl::numberInputColumns() const {
+    return m_NumberInputColumns;
 }
 }
 }

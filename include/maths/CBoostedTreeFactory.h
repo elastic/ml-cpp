@@ -87,6 +87,10 @@ public:
     CBoostedTreeFactory& bayesianOptimisationRestarts(std::size_t restarts);
     //! Set the number of training examples we need per feature we'll include.
     CBoostedTreeFactory& rowsPerFeature(std::size_t rowsPerFeature);
+
+    //! Set the number of training examples we need per feature we'll include.
+    CBoostedTreeFactory& topShapValues(std::size_t topShapValues);
+
     //! Set whether to try and balance within class accuracy. For classification
     //! this reweights examples so approximately the same total loss is assigned
     //! to every class.
@@ -205,6 +209,7 @@ private:
     TProgressCallback m_RecordProgress = noopRecordProgress;
     TMemoryUsageCallback m_RecordMemoryUsage = noopRecordMemoryUsage;
     TTrainingStateCallback m_RecordTrainingState = noopRecordTrainingState;
+    std::size_t m_TopShapValues = 0;
 };
 }
 }
