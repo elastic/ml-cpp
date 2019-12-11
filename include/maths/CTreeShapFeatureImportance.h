@@ -53,6 +53,7 @@ public:
                                         const TDoubleVec& samplesPerNode,
                                         std::size_t depth);
 
+    //! Get the reference to the trees.
     TTreeVec& trees() { return m_Trees; };
 
 private:

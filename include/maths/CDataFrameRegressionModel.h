@@ -30,7 +30,6 @@ class MATHS_EXPORT CDataFrameRegressionModel {
 public:
     using TDoubleVec = std::vector<double>;
     using TSizeVec = std::vector<std::size_t>;
-    using TOptionalSizeVec = boost::optional<TSizeVec>;
     using TProgressCallback = std::function<void(double)>;
     using TMemoryUsageCallback = std::function<void(std::uint64_t)>;
     using TPersistFunc = std::function<void(core::CStatePersistInserter&)>;
