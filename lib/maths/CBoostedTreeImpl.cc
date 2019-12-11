@@ -430,7 +430,7 @@ void CBoostedTreeImpl::train(core::CDataFrame& frame,
 
     m_TrainingProgress.progressCallback(recordProgress);
 
-    std::uint64_t lastMemoryUsage(this->memoryUsage());
+    std::int64_t lastMemoryUsage(this->memoryUsage());
     recordMemoryUsage(lastMemoryUsage);
 
     if (this->canTrain() == false) {
