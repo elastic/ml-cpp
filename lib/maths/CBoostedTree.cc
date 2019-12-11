@@ -420,6 +420,10 @@ void CBoostedTree::predict() const {
     m_Impl->predict(this->frame(), this->progressRecorder());
 }
 
+void CBoostedTree::computeShapValues() {
+    m_Impl->computeShapValues(this->frame(), this->progressRecorder());
+}
+
 const CBoostedTree::TDoubleVec& CBoostedTree::featureWeights() const {
     return m_Impl->featureWeights();
 }
@@ -428,8 +432,9 @@ std::size_t CBoostedTree::columnHoldingDependentVariable() const {
     return m_Impl->columnHoldingDependentVariable();
 }
 
-std::size_t CBoostedTree::columnHoldingPrediction(std::size_t numberColumns) const {
-    return predictionColumn(numberColumns);
+std::size_t CBoostedTree::columnHoldingPrediction(std::size_t /*numberColumns*/) const {
+    return m_Impl->numberInputColumns();
+    //    return predictionColumn(numberColumns);
 }
 
 const CBoostedTree::TNodeVecVec& CBoostedTree::trainedModel() const {
@@ -462,6 +467,17 @@ void CBoostedTree::accept(CBoostedTree::CVisitor& visitor) const {
 
 const CBoostedTreeHyperparameters& CBoostedTree::bestHyperparameters() const {
     return m_Impl->bestHyperparameters();
+}
+
+CDataFrameRegressionModel::TSizeVec CBoostedTree::columnsHoldingShapValues() const {
+    return m_Impl->columnsHoldingShapValues();
+}
+
+std::size_t CBoostedTree::topShapValues() const {
+    if (m_Impl) {
+        return m_Impl->topShapValues();
+    }
+    return 0;
 }
 }
 }

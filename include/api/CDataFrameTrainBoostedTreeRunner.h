@@ -7,6 +7,8 @@
 #ifndef INCLUDED_ml_api_CDataFrameTrainBoostedTreeRunner_h
 #define INCLUDED_ml_api_CDataFrameTrainBoostedTreeRunner_h
 
+#include <maths/CBasicStatistics.h>
+
 #include <api/CDataFrameAnalysisRunner.h>
 #include <api/CDataFrameAnalysisSpecification.h>
 #include <api/ImportExport.h>
@@ -44,6 +46,7 @@ public:
     static const std::string NUMBER_FOLDS;
     static const std::string NUMBER_ROUNDS_PER_HYPERPARAMETER;
     static const std::string BAYESIAN_OPTIMISATION_RESTARTS;
+    static const std::string TOP_SHAP_VALUES;
 
 public:
     ~CDataFrameTrainBoostedTreeRunner() override;
@@ -56,6 +59,8 @@ public:
 
     //! The boosted tree factory.
     const maths::CBoostedTreeFactory& boostedTreeFactory() const;
+
+    std::size_t topShapValues() const;
 
 protected:
     using TBoostedTreeUPtr = std::unique_ptr<maths::CBoostedTree>;
@@ -75,6 +80,14 @@ protected:
 
     //! The boosted tree factory.
     maths::CBoostedTreeFactory& boostedTreeFactory();
+
+    //! Factory for the largest SHAP value accumulator.
+    template<typename LESS>
+    maths::CBasicStatistics::COrderStatisticsHeap<std::size_t, LESS>
+    makeLargestShapAccumulator(std::size_t n, LESS less) const {
+        return maths::CBasicStatistics::COrderStatisticsHeap<std::size_t, LESS>{
+            n, std::size_t{}, less};
+    };
 
 private:
     using TBoostedTreeFactoryUPtr = std::unique_ptr<maths::CBoostedTreeFactory>;

@@ -57,6 +57,7 @@ public:
                    double eta = -1.0,
                    std::size_t maximumNumberTrees = 0,
                    double featureBagFraction = -1.0,
+                   size_t topShapValues = 0,
                    TPersisterSupplier* persisterSupplier = nullptr,
                    TRestoreSearcherSupplier* restoreSearcherSupplier = nullptr);
 };

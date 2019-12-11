@@ -11,6 +11,8 @@
 
 #include <maths/ImportExport.h>
 
+#include <boost/optional.hpp>
+
 #include <functional>
 #include <utility>
 #include <vector>
@@ -27,6 +29,7 @@ namespace maths {
 class MATHS_EXPORT CDataFrameRegressionModel {
 public:
     using TDoubleVec = std::vector<double>;
+    using TSizeVec = std::vector<std::size_t>;
     using TProgressCallback = std::function<void(double)>;
     using TMemoryUsageCallback = std::function<void(std::uint64_t)>;
     using TPersistFunc = std::function<void(core::CStatePersistInserter&)>;
@@ -44,6 +47,11 @@ public:
     //! \warning This can only be called after train.
     virtual void predict() const = 0;
 
+    //! Write SHAP values to the data frame supplied to the contructor.
+    //!
+    //! \warning This can only be called after train.
+    virtual void computeShapValues() = 0;
+
     //! Get the feature weights the model has chosen.
     virtual const TDoubleVec& featureWeights() const = 0;
 
@@ -52,6 +60,15 @@ public:
 
     //! Get the column containing the model's prediction for the dependent variable.
     virtual std::size_t columnHoldingPrediction(std::size_t numberColumns) const = 0;
+
+    //! Get the number of largest SHAP values that will be returned for every row.
+    virtual std::size_t topShapValues() const = 0;
+
+    //! Get the optional vector of column indices with SHAP values
+    virtual TSizeVec columnsHoldingShapValues() const = 0;
+
+public:
+    static const std::string SHAP_PREFIX;
 
 protected:
     CDataFrameRegressionModel(core::CDataFrame& frame,
