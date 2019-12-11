@@ -494,6 +494,7 @@ void CBoostedTreeImpl::train(core::CDataFrame& frame,
         TMeanVarAccumulator timeAccumulator;
         core::CStopWatch stopWatch;
         stopWatch.start();
+        std::uint64_t lastLap{stopWatch.lap()};
 
         // Hyperparameter optimisation loop.
 
@@ -523,7 +524,9 @@ void CBoostedTreeImpl::train(core::CDataFrame& frame,
             this->recordState(recordTrainStateCallback);
             LOG_TRACE(<< "Round " << m_CurrentRound << " state recording finished");
 
-            timeAccumulator.add(static_cast<double>(stopWatch.lap()));
+            std::uint64_t currentLap{stopWatch.lap()};
+            timeAccumulator.add(static_cast<double>(currentLap - lastLap));
+            lastLap = currentLap;
         }
 
         LOG_TRACE(<< "Test loss = " << m_BestForestTestLoss);
