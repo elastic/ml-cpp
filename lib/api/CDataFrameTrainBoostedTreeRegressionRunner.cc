@@ -18,6 +18,7 @@
 #include <api/CDataFrameAnalysisSpecification.h>
 #include <api/ElasticsearchStateIndex.h>
 
+#include <cmath>
 #include <set>
 
 namespace ml {
@@ -69,7 +70,7 @@ CDataFrameTrainBoostedTreeRegressionRunner::CDataFrameTrainBoostedTreeRegression
 }
 
 void CDataFrameTrainBoostedTreeRegressionRunner::writeOneRow(
-    const core::CDataFrame&,
+    const core::CDataFrame& frame,
     const TRowRef& row,
     core::CRapidJsonConcurrentLineWriter& writer) const {
     const auto& tree = this->boostedTree();
@@ -82,6 +83,18 @@ void CDataFrameTrainBoostedTreeRegressionRunner::writeOneRow(
     writer.Double(row[columnHoldingPrediction]);
     writer.Key(IS_TRAINING_FIELD_NAME);
     writer.Bool(maths::CDataFrameUtils::isMissing(row[columnHoldingDependentVariable]) == false);
+    if (this->topShapValues() > 0) {
+        auto largestShapValues = this->makeLargestShapAccumulator(
+            this->topShapValues(), [&row](std::size_t lhs, std::size_t rhs) {
+                return std::fabs(row[lhs]) > std::fabs(row[rhs]);
+            });
+        largestShapValues.add(this->boostedTree().columnsHoldingShapValues());
+        largestShapValues.sort();
+        for (auto i : largestShapValues) {
+            writer.Key(frame.columnNames()[i]);
+            writer.Double(row[i]);
+        }
+    }
     writer.EndObject();
 }
 

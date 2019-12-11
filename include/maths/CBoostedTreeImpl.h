@@ -60,6 +60,7 @@ public:
     using TTrainingStateCallback = CBoostedTree::TTrainingStateCallback;
     using TOptionalDouble = boost::optional<double>;
     using TRegularization = CBoostedTreeRegularization<double>;
+    using TSizeVec = std::vector<std::size_t>;
 
 public:
     static const double MINIMUM_RELATIVE_GAIN_PER_SPLIT;
@@ -82,6 +83,11 @@ public:
     //!
     //! \note Must be called only if a trained model is available.
     void predict(core::CDataFrame& frame, const TProgressCallback& /*recordProgress*/) const;
+
+    //! Compute SHAP values using the best trained model to \p frame.
+    //!
+    //! \note Must be called only if a trained model is available.
+    void computeShapValues(core::CDataFrame& frame, const TProgressCallback&);
 
     //! Get the feature sample probabilities.
     const TDoubleVec& featureWeights() const;
@@ -132,12 +138,20 @@ public:
     //! \return The best hyperparameters for validation error found so far.
     const CBoostedTreeHyperparameters& bestHyperparameters() const;
 
+    //! Get the indices of the columns containing SHAP values.
+    TSizeVec columnsHoldingShapValues() const;
+
+    //! Get the number of largest SHAP values that will be returned for every row.
+    std::size_t topShapValues() const;
+
+    //! Get the number of input columns.
+    std::size_t numberInputColumns() const;
+
 private:
     using TSizeDoublePr = std::pair<std::size_t, double>;
     using TDoubleDoublePr = std::pair<double, double>;
     using TOptionalSize = boost::optional<std::size_t>;
     using TImmutableRadixSetVec = std::vector<core::CImmutableRadixSet<double>>;
-    using TSizeVec = std::vector<std::size_t>;
     using TVector = CDenseVector<double>;
     using TRowItr = core::CDataFrame::TRowItr;
     using TPackedBitVectorVec = std::vector<core::CPackedBitVector>;
@@ -383,6 +397,7 @@ private:
     // The maximum number of rows encoded by a single byte in the packed bit
     // vector assuming best compression.
     static const std::size_t PACKED_BIT_VECTOR_MAXIMUM_ROWS_PER_BYTE;
+    static const double INF;
 
 private:
     CBoostedTreeImpl();
@@ -493,9 +508,6 @@ private:
     void recordState(const TTrainingStateCallback& recordTrainState) const;
 
 private:
-    static const double INF;
-
-private:
     mutable CPRNG::CXorOShiro128Plus m_Rng;
     std::size_t m_NumberThreads;
     std::size_t m_DependentVariable = std::numeric_limits<std::size_t>::max();
@@ -529,7 +541,12 @@ private:
     std::size_t m_NumberRounds = 1;
     std::size_t m_CurrentRound = 0;
     core::CLoopProgress m_TrainingProgress;
+    std::size_t m_TopShapValues = 0;
+    std::size_t m_FirstShapColumnIndex = 0;
+    std::size_t m_LastShapColumnIndex = 0;
+    std::size_t m_NumberInputColumns = 0;
 
+private:
     friend class CBoostedTreeFactory;
 };
 

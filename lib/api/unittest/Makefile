@@ -28,6 +28,7 @@ SRCS=\
 	CCsvOutputWriterTest.cc \
 	CDataFrameAnalysisRunnerTest.cc \
 	CDataFrameAnalysisSpecificationTest.cc \
+	CDataFrameAnalyzerFeatureImportanceTest.cc \
 	CDataFrameAnalyzerOutlierTest.cc \
 	CDataFrameAnalyzerTrainingTest.cc \
 	CDataFrameTrainBoostedTreeClassifierRunnerTest.cc \

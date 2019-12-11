@@ -107,6 +107,7 @@ CTimeSeriesModel.cc \
 CTimeSeriesMultibucketFeatureSerialiser.cc \
 CTimeSeriesSegmentation.cc \
 CTools.cc \
+CTreeShapFeatureImportance.cc \
 CTrendComponent.cc \
 CXMeansOnline1d.cc \
 CXMeansOnlineFactory.cc \
