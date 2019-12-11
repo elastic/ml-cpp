@@ -300,6 +300,9 @@ public:
                       double curvature,
                       TNodeVec& tree);
 
+    //! Get the feature index of the split.
+    std::size_t splitFeature() const { return m_SplitFeature; };
+
     //! Persist by passing information to \p inserter.
     void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
 
@@ -382,6 +385,11 @@ public:
     //! \warning This can only be called after train.
     void predict() const override;
 
+    //! Write SHAP values to the data frame supplied to the constructor.
+    //!
+    //! \warning This can only be called after train.
+    void computeShapValues() override;
+
     //! Get the feature weights the model has chosen.
     const TDoubleVec& featureWeights() const override;
 
@@ -390,6 +398,12 @@ public:
 
     //! Get the column containing the model's prediction for the dependent variable.
     std::size_t columnHoldingPrediction(std::size_t numberColumns) const override;
+
+    //! Get the optional vector of column indices with SHAP values
+    TSizeVec columnsHoldingShapValues() const override;
+
+    //! Get the number of largest SHAP values that will be returned for every row.
+    std::size_t topShapValues() const override;
 
     //! Get the model produced by training if it has been run.
     const TNodeVecVec& trainedModel() const;

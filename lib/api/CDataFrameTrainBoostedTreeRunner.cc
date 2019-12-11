@@ -55,6 +55,7 @@ const CDataFrameAnalysisConfigReader& CDataFrameTrainBoostedTreeRunner::paramete
                                CDataFrameAnalysisConfigReader::E_OptionalParameter);
         theReader.addParameter(BAYESIAN_OPTIMISATION_RESTARTS,
                                CDataFrameAnalysisConfigReader::E_OptionalParameter);
+        theReader.addParameter(TOP_SHAP_VALUES, CDataFrameAnalysisConfigReader::E_OptionalParameter);
         return theReader;
     }()};
     return PARAMETER_READER;
@@ -80,6 +81,7 @@ CDataFrameTrainBoostedTreeRunner::CDataFrameTrainBoostedTreeRunner(
         parameters[NUMBER_ROUNDS_PER_HYPERPARAMETER].fallback(std::size_t{0})};
     std::size_t bayesianOptimisationRestarts{
         parameters[BAYESIAN_OPTIMISATION_RESTARTS].fallback(std::size_t{0})};
+    std::size_t topShapValues{parameters[TOP_SHAP_VALUES].fallback(std::size_t{0})};
 
     double alpha{parameters[ALPHA].fallback(-1.0)};
     double lambda{parameters[LAMBDA].fallback(-1.0)};
@@ -157,6 +159,9 @@ CDataFrameTrainBoostedTreeRunner::CDataFrameTrainBoostedTreeRunner(
     if (bayesianOptimisationRestarts > 0) {
         m_BoostedTreeFactory->bayesianOptimisationRestarts(bayesianOptimisationRestarts);
     }
+    if (topShapValues > 0) {
+        m_BoostedTreeFactory->topShapValues(topShapValues);
+    }
 }
 
 CDataFrameTrainBoostedTreeRunner::CDataFrameTrainBoostedTreeRunner(const CDataFrameAnalysisSpecification& spec)
@@ -232,6 +237,7 @@ void CDataFrameTrainBoostedTreeRunner::runImpl(core::CDataFrame& frame) {
 
     m_BoostedTree->train();
     m_BoostedTree->predict();
+    m_BoostedTree->computeShapValues();
 
     core::CProgramCounters::counter(counter_t::E_DFTPMTimeToTrain) = watch.stop();
 }
@@ -281,6 +287,13 @@ std::size_t CDataFrameTrainBoostedTreeRunner::estimateBookkeepingMemoryUsage(
     return m_BoostedTreeFactory->estimateMemoryUsage(totalNumberRows, numberColumns);
 }
 
+std::size_t CDataFrameTrainBoostedTreeRunner::topShapValues() const {
+    if (m_BoostedTree) {
+        return m_BoostedTree->topShapValues();
+    }
+    return 0;
+}
+
 // clang-format off
 const std::string CDataFrameTrainBoostedTreeRunner::DEPENDENT_VARIABLE_NAME{"dependent_variable"};
 const std::string CDataFrameTrainBoostedTreeRunner::PREDICTION_FIELD_NAME{"prediction_field_name"};
@@ -296,6 +309,8 @@ const std::string CDataFrameTrainBoostedTreeRunner::FEATURE_BAG_FRACTION{"featur
 const std::string CDataFrameTrainBoostedTreeRunner::NUMBER_FOLDS{"number_folds"};
 const std::string CDataFrameTrainBoostedTreeRunner::NUMBER_ROUNDS_PER_HYPERPARAMETER{"number_rounds_per_hyperparameter"};
 const std::string CDataFrameTrainBoostedTreeRunner::BAYESIAN_OPTIMISATION_RESTARTS{"bayesian_optimisation_restarts"};
+const std::string CDataFrameTrainBoostedTreeRunner::TOP_SHAP_VALUES{"top_shap_values"};
+
 // clang-format on
 }
 }
