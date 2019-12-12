@@ -1,10 +1,6 @@
 description = 'Uploads the Machine Learning native binaries to s3'
 
 import org.elastic.gradle.UploadS3Task
-import org.gradle.util.GradleVersion
-import org.gradle.util.DistributionLocator
-
-import static org.gradle.api.tasks.wrapper.Wrapper.DistributionType
 
 String versionQualifier = System.getProperty("build.version_qualifier", "")
 boolean isSnapshot = "true".equals(System.getProperty("build.snapshot", "true"))
