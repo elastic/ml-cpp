@@ -16,11 +16,11 @@
 #include <maths/COrderings.h>
 
 #include <boost/operators.hpp>
+#include <boost/random/uniform_01.hpp>
 
 #include <algorithm>
 #include <cmath>
 #include <limits>
-#include <random>
 
 namespace ml {
 namespace maths {
@@ -424,7 +424,7 @@ void CQuantileSketch::reduce() {
         mergeCosts.reserve(m_Knots.size());
         mergeCandidates.reserve(m_Knots.size());
         CPRNG::CXorOShiro128Plus rng(static_cast<std::uint64_t>(m_Count));
-        std::uniform_real_distribution<double> u01{0.0, 1.0};
+        boost::random::uniform_01<double> u01;
         for (std::size_t i = 1; i + 2 < m_Knots.size(); ++i) {
             mergeCosts.emplace_back(cost(m_Knots[i], m_Knots[i + 1]), u01(rng));
             mergeCandidates.push_back(i - 1);
@@ -453,7 +453,7 @@ void CQuantileSketch::reduce(CPRNG::CXorOShiro128Plus& rng,
 
     std::size_t merged{this->target()};
     std::ptrdiff_t numberMergeCandidates{static_cast<std::ptrdiff_t>(m_Knots.size()) - 3};
-    std::uniform_real_distribution<double> u01{0.0, 1.0};
+    boost::random::uniform_01<double> u01;
 
     while (m_Knots.size() > merged) {
         LOG_TRACE(<< "merge candidates = " << core::CContainerPrinter::print(mergeCandidates));
@@ -590,7 +590,7 @@ void CFastQuantileSketch::reduce() {
         std::size_t m{knots.size() - 3};
         std::size_t n{m_MergeCosts.size()};
         m_MergeCosts.resize(m);
-        std::uniform_real_distribution<double> u01{0.0, 1.0};
+        boost::random::uniform_01<double> u01;
         for (std::size_t i = n; i < m_MergeCosts.size(); ++i) {
             m_MergeCosts[i].second = u01(m_Rng);
         }
