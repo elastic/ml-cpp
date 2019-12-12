@@ -34,10 +34,10 @@ void CTreeShapFeatureImportance::shap(core::CDataFrame& frame,
                 auto encodedRow{encoder.encode(*row)};
                 for (std::size_t i = 0; i < m_Trees.size(); ++i) {
                     SPath path(maxDepthVec[i] + 1);
-                    auto pathUPTr= std::make_unique<SPath>(path);
+                    auto pathUPTr = std::make_unique<SPath>(path);
                     CTreeShapFeatureImportance::shapRecursive(
-                        m_Trees[i], m_SamplesPerNode[i], encoder, encodedRow, pathUPTr,
-                        0, 1.0, 1.0, -1, offset, row);
+                        m_Trees[i], m_SamplesPerNode[i], encoder, encodedRow,
+                        pathUPTr, 0, 1.0, 1.0, -1, offset, row);
                 }
             }
         });
@@ -113,7 +113,7 @@ void CTreeShapFeatureImportance::shapRecursive(const TTree& tree,
                                                const TDoubleVec& samplesPerNode,
                                                const CDataFrameCategoryEncoder& encoder,
                                                const CEncodedDataFrameRowRef& encodedRow,
-                                               std::unique_ptr<SPath> &splitPath,
+                                               std::unique_ptr<SPath>& splitPath,
                                                std::size_t nodeIndex,
                                                double parentFractionZero,
                                                double parentFractionOne,
@@ -158,11 +158,9 @@ void CTreeShapFeatureImportance::shapRecursive(const TTree& tree,
         }
         double incomingFractionZero{1.0};
         double incomingFractionOne{1.0};
-        int splitFeature {static_cast<int>(tree[nodeIndex].splitFeature())};
-        auto featureIndexEnd{
-                (splitPath->s_FeatureIndex.begin() + splitPath->nextIndex())};
-        auto it = std::find(splitPath->s_FeatureIndex.begin(),
-                            featureIndexEnd, splitFeature);
+        int splitFeature{static_cast<int>(tree[nodeIndex].splitFeature())};
+        auto featureIndexEnd{(splitPath->s_FeatureIndex.begin() + splitPath->nextIndex())};
+        auto it = std::find(splitPath->s_FeatureIndex.begin(), featureIndexEnd, splitFeature);
         if (it != featureIndexEnd) {
             // since we path splitPath by reference, we need ot backup the object before unwinding it
             backupPath = std::make_unique<SPath>(*splitPath);
@@ -179,11 +177,11 @@ void CTreeShapFeatureImportance::shapRecursive(const TTree& tree,
         this->shapRecursive(tree, samplesPerNode, encoder, encodedRow, splitPath,
                             hotIndex, incomingFractionZero * hotFractionZero,
                             incomingFractionOne, splitFeature, offset, row);
-            this->unwindPath(*splitPath, nextIndex);
+        this->unwindPath(*splitPath, nextIndex);
         this->shapRecursive(tree, samplesPerNode, encoder, encodedRow, splitPath,
                             coldIndex, incomingFractionZero * coldFractionZero,
                             0.0, splitFeature, offset, row);
-            this->unwindPath(*splitPath, nextIndex);
+        this->unwindPath(*splitPath, nextIndex);
         if (backupPath) {
             // now we swap to restore the data before unwinding
             backupPath.swap(splitPath);

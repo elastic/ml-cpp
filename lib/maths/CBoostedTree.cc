@@ -468,7 +468,7 @@ const CBoostedTreeHyperparameters& CBoostedTree::bestHyperparameters() const {
     return m_Impl->bestHyperparameters();
 }
 
-CDataFrameRegressionModel::TSizeVec CBoostedTree::columnsHoldingShapValues() const {
+CDataFrameRegressionModel::TSizeRange CBoostedTree::columnsHoldingShapValues() const {
     return m_Impl->columnsHoldingShapValues();
 }
 
