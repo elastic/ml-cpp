@@ -11,10 +11,10 @@ namespace api {
 
 const std::string ML_STATE_INDEX{".ml-state"};
 const std::string MODEL_STATE_TYPE{"model_state"};
-const std::string REGRESSION_TRAIN_STATE_TYPE{"regression_state"};
+const std::string STATE_ID_SUFFIX{"_state"};
 
-std::string getRegressionStateId(const std::string& jobId) {
-    return jobId + '_' + REGRESSION_TRAIN_STATE_TYPE;
+std::string getStateId(const std::string& jobId, const std::string& analysisName) {
+    return jobId + '_' + analysisName + STATE_ID_SUFFIX;
 }
 }
 }
