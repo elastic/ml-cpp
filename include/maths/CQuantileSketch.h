@@ -96,7 +96,7 @@ public:
     double count() const;
 
     //! Get a checksum of this object.
-    std::uint64_t checksum(std::uint64_t seed = 0) const;
+    virtual std::uint64_t checksum(std::uint64_t seed = 0) const;
 
     //! Debug the memory used by this object.
     virtual void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const;
@@ -170,9 +170,7 @@ public:
     //! Get a checksum of this object.
     //!
     //! \note Needs to be redeclared to work with CChecksum.
-    //! \note This method is not currently virtual and needs changing if any of the
-    //! methods of this class ever do anything other than forward to the base class.
-    std::uint64_t checksum(std::uint64_t seed = 0) const {
+    std::uint64_t checksum(std::uint64_t seed = 0) const override {
         return this->CQuantileSketch::checksum(seed);
     }
 
@@ -209,13 +207,7 @@ public:
     // it is reinitialised at the start of each reduce.
 
     //! Get a checksum of this object.
-    //!
-    //! \note Needs to be redeclared to work with CChecksum.
-    //! \note This method is not currently virtual and needs changing if any of the
-    //! methods of this class ever do anything other than forward to the base class.
-    std::uint64_t checksum(std::uint64_t seed = 0) const {
-        return this->CQuantileSketch::checksum(seed);
-    }
+    std::uint64_t checksum(std::uint64_t seed = 0) const override;
 
     //! Debug the memory used by this object.
     void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const override;

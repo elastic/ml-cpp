@@ -556,6 +556,11 @@ double CQuantileSketch::cost(const TFloatFloatPr& vl, const TFloatFloatPr& vr) {
     return std::min(nl, nr) * (xr - xl);
 }
 
+std::uint64_t CFastQuantileSketch::checksum(std::uint64_t seed) const {
+    std::uint64_t seed{this->CQuantileSketch::checksum(seed)};
+    return CChecksum::calculate(seed, m_ReductionFraction);
+}
+
 void CFastQuantileSketch::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const {
     mem->setName("CFastQuantileSketch");
     core::CMemoryDebug::dynamicSize("m_Knots", this->knots(), mem);
