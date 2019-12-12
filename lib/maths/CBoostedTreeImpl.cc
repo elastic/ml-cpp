@@ -1554,9 +1554,6 @@ void CBoostedTreeImpl::computeShapValues(core::CDataFrame& frame, const TProgres
 }
 
 CBoostedTreeImpl::TSizeRange CBoostedTreeImpl::columnsHoldingShapValues() const {
-    //    TSizeVec result(m_LastShapColumnIndex - m_FirstShapColumnIndex + 1);
-    //    std::iota(result.begin(), result.end(), m_FirstShapColumnIndex);
-    //    return result;
     return boost::irange<std::size_t>(m_FirstShapColumnIndex, m_LastShapColumnIndex + 1);
 }
 
