@@ -94,7 +94,7 @@ auto restoreTree(std::string persistedState, TDataFrameUPtr& frame, std::size_t 
     CTestDataSearcher dataSearcher(persistedState);
     auto decompressor = std::make_unique<core::CStateDecompressor>(dataSearcher);
     decompressor->setStateRestoreSearch(api::ML_STATE_INDEX,
-                                        api::getRegressionStateId("testJob"));
+                                        api::getStateId("testJob", "regression"));
     auto stream = decompressor->search(1, 1);
     return maths::CBoostedTreeFactory::constructFromString(*stream).restoreFor(
         *frame, dependentVariable);
