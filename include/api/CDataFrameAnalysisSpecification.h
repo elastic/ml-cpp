@@ -143,6 +143,9 @@ public:
     //! \return The jobId.
     const std::string& jobId() const;
 
+    //! \return The analysis name.
+    const std::string& analysisName() const;
+
     //! \return The names of the categorical fields.
     const TStrVec& categoricalFieldNames() const;
 
@@ -199,6 +202,7 @@ private:
     std::string m_TemporaryDirectory;
     std::string m_ResultsField;
     std::string m_JobId;
+    std::string m_AnalysisName;
     TStrVec m_CategoricalFieldNames;
     bool m_DiskUsageAllowed;
     // TODO Sparse table support
