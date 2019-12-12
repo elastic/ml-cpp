@@ -333,6 +333,12 @@ void CDataFrameAnalyzer::writeResultsOf(const CDataFrameAnalysisRunner& analysis
     writer.flush();
 }
 
+void CDataFrameAnalyzer::writeInstrumentalizationObjects(core::CRapidJsonConcurrentLineWriter &writer) const {
+    this->writeMemoryUsage(core::CRapidJsonConcurrentLineWriter &writer);
+    this->writeProgress(core::CRapidJsonConcurrentLineWriter &writer);
+    this->writeParameters(core::CRapidJsonConcurrentLineWriter &writer);
+}
+
 const CDataFrameAnalysisRunner* CDataFrameAnalyzer::runner() const {
     return m_AnalysisSpecification->runner();
 }
