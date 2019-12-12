@@ -557,7 +557,7 @@ double CQuantileSketch::cost(const TFloatFloatPr& vl, const TFloatFloatPr& vr) {
 }
 
 std::uint64_t CFastQuantileSketch::checksum(std::uint64_t seed) const {
-    std::uint64_t seed{this->CQuantileSketch::checksum(seed)};
+    seed = this->CQuantileSketch::checksum(seed);
     return CChecksum::calculate(seed, m_ReductionFraction);
 }
 
