@@ -107,13 +107,24 @@ private:
         double scale(std::size_t pathIndex) const { return s_Scale[pathIndex]; }
 
         //! Current depth in the tree
-        std::size_t depth() const { return s_NextIndex - 1; };
+        int depth() const { return static_cast<int>(s_NextIndex) - 1; };
+
+        size_t nextIndex() const {
+            return s_NextIndex;
+        }
+
+        void nextIndex(size_t sNextIndex) {
+            s_NextIndex = sNextIndex;
+        }
 
         TDoubleVec s_FractionOnes;
         TDoubleVec s_FractionZeros;
         TIntVec s_FeatureIndex;
         TDoubleVec s_Scale;
         std::size_t s_NextIndex;
+
+
+
         std::size_t s_MaxLength;
     };
 
@@ -124,7 +135,7 @@ private:
                        const TDoubleVec& samplesPerNode,
                        const CDataFrameCategoryEncoder& encoder,
                        const CEncodedDataFrameRowRef& encodedRow,
-                       SPath splitPath,
+                       std::unique_ptr<SPath> &splitPath,
                        std::size_t nodeIndex,
                        double parentFractionZero,
                        double parentFractionOne,
