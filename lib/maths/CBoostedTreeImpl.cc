@@ -133,6 +133,11 @@ double readActual(const TRowRef& row, std::size_t dependentVariable) {
 const std::size_t ASSIGN_MISSING_TO_LEFT{0};
 const std::size_t ASSIGN_MISSING_TO_RIGHT{1};
 const double SMALLEST_RELATIVE_CURVATURE{1e-20};
+// It isn't critical to recompute splits every tree we add because random
+// downsampling means they're only approximate estimates of the full data
+// quantiles anyway. So we amortise their compute cost w.r.t. training trees
+// by only refreshing once every MINIMUM_SPLIT_REFRESH_INTERVAL trees we add.
+const double MINIMUM_SPLIT_REFRESH_INTERVAL{3.0};
 }
 
 CBoostedTreeImpl::CLeafNodeStatistics::CLeafNodeStatistics(
@@ -770,16 +775,16 @@ CBoostedTreeImpl::trainForest(core::CDataFrame& frame,
         } else {
             // Refresh splits in case it allows us to find tree which can reduce loss.
             candidateSplits = this->candidateSplits(frame, downsampledRowMask);
-            nextTreeCountToRefreshSplits +=
-                static_cast<std::size_t>(std::max(0.5 / eta, 3.0));
+            nextTreeCountToRefreshSplits += static_cast<std::size_t>(
+                std::max(0.5 / eta, MINIMUM_SPLIT_REFRESH_INTERVAL));
         }
 
         downsampledRowMask = this->downsample(trainingRowMask);
 
         if (forest.size() == nextTreeCountToRefreshSplits) {
             candidateSplits = this->candidateSplits(frame, downsampledRowMask);
-            nextTreeCountToRefreshSplits +=
-                static_cast<std::size_t>(std::max(0.5 / eta, 3.0));
+            nextTreeCountToRefreshSplits += static_cast<std::size_t>(
+                std::max(0.5 / eta, MINIMUM_SPLIT_REFRESH_INTERVAL));
         }
     } while (stoppingCondition.shouldStop(forest.size(), [&]() {
         return this->meanLoss(frame, testingRowMask);
