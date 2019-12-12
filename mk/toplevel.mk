@@ -127,6 +127,7 @@ FIRST_TEST_CMD=$(MAKE) memcheck -f $(TOP_DIR_MKF_FIRST)
 else
 FIRST_TEST_CMD=true
 endif
+VG_COMPONENTS=$(filter-out seccomp, $(COMPONENTS))
 memcheck:
 	FAILED=0; \
 	 $(FIRST_TEST_CMD) ; \
@@ -134,7 +135,7 @@ memcheck:
 	   FAILED=1; \
 	   if [ -z "$(ML_KEEP_GOING)" ]; then exit 1; fi; \
 	 fi; \
-	 for i in $(COMPONENTS) ; \
+	 for i in $(VG_COMPONENTS) ; \
 	 do \
 	 echo "$(notdir $(MAKE)): Component=$$i, Target=$@, Time=`date`"; \
 	 (cd $$i && $(MAKE) memcheck ); \
