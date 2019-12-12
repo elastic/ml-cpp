@@ -56,6 +56,8 @@ tree which is trained for both regression and classification. (See {ml-pull}811[
 is no longer decreasing. (See {ml-pull}875[#875].)
 * Emit `prediction_field_name` in ml results using the type provided as
 `prediction_field_type` parameter. (See {ml-pull}877[#877].)
+* Add the ability to compute SHAP values (SHapley Additive exPlanation) for feature importance by
+specifying the parameter `top_shap_values`. (See {ml-pull}857[#857].)
 
 === Bug Fixes
 * Fixes potential memory corruption when determining seasonality. (See {ml-pull}852[#852].)
