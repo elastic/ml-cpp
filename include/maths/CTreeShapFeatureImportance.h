@@ -109,8 +109,10 @@ private:
         //! Current depth in the tree
         int depth() const { return static_cast<int>(s_NextIndex) - 1; };
 
+        //! Get next index.
         size_t nextIndex() const { return s_NextIndex; }
 
+        //! Set next index.
         void nextIndex(std::size_t nextIndex) { s_NextIndex = nextIndex; }
 
         TDoubleVec s_FractionOnes;
@@ -129,7 +131,7 @@ private:
                        const TDoubleVec& samplesPerNode,
                        const CDataFrameCategoryEncoder& encoder,
                        const CEncodedDataFrameRowRef& encodedRow,
-                       std::unique_ptr<SPath>& splitPath,
+                       SPath& splitPath,
                        std::size_t nodeIndex,
                        double parentFractionZero,
                        double parentFractionOne,
