@@ -1370,7 +1370,7 @@ BOOST_AUTO_TEST_CASE(testMissingFeatures) {
 
     auto frame = core::makeMainStorageDataFrame(cols).first;
 
-    frame->categoricalColumns({false, false, false, false});
+    frame->categoricalColumns(TBoolVec{false, false, false, false});
     for (std::size_t i = 0; i < rows - 4; ++i) {
         frame->writeRow([&](core::CDataFrame::TFloatVecItr column, std::int32_t&) {
             TDoubleVec regressors;
