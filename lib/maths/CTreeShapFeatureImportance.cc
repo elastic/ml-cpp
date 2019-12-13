@@ -162,7 +162,7 @@ void CTreeShapFeatureImportance::shapRecursive(const TTree& tree,
         auto featureIndexEnd{(splitPath->s_FeatureIndex.begin() + splitPath->nextIndex())};
         auto it = std::find(splitPath->s_FeatureIndex.begin(), featureIndexEnd, splitFeature);
         if (it != featureIndexEnd) {
-            // since we path splitPath by reference, we need ot backup the object before unwinding it
+            // Since we pass splitPath by reference, we need to backup the object before unwinding it.
             backupPath = std::make_unique<SPath>(*splitPath);
             auto pathIndex = static_cast<std::size_t>(
                 std::distance(splitPath->s_FeatureIndex.begin(), it));
