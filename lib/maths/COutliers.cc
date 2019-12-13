@@ -34,6 +34,11 @@ double shift(double score) {
     return std::exp(-2.0) + score;
 }
 
+template<typename T>
+std::int64_t signedMemoryUsage(const T& obj) {
+    return static_cast<std::int64_t>(core::CMemory::dynamicSize(obj));
+}
+
 //! \brief This encapsulates creating a collection of models used for outlier
 //! detection.
 //!
@@ -759,21 +764,21 @@ void CEnsemble<POINT>::CModel::addOutlierScores(const std::vector<POINT>& points
         points_.emplace_back(m_Projection * points[i], index);
     }
 
-    std::int64_t pointsMemory(core::CMemory::dynamicSize(points_));
+    std::int64_t pointsMemory{signedMemoryUsage(points_)};
     recordMemoryUsage(pointsMemory);
-    std::int64_t methodMemoryBeforeRun(core::CMemory::dynamicSize(m_Method));
+    std::int64_t methodMemoryBeforeRun{signedMemoryUsage(m_Method)};
 
     // Run the method.
     TDouble1VecVec2Vec methodScores(m_Method->run(points_, index));
 
-    std::int64_t methodMemoryAfterRun(core::CMemory::dynamicSize(m_Method));
+    std::int64_t methodMemoryAfterRun{signedMemoryUsage(m_Method)};
     recordMemoryUsage(methodMemoryAfterRun - methodMemoryBeforeRun);
 
     // Recover temporary memory.
     m_Method->recoverMemory();
 
-    recordMemoryUsage(std::int64_t(core::CMemory::dynamicSize(m_Method)) - methodMemoryAfterRun);
-    std::int64_t scoresMemoryBeforeAdd(core::CMemory::dynamicSize(scores));
+    recordMemoryUsage(signedMemoryUsage(m_Method) - methodMemoryAfterRun);
+    std::int64_t scoresMemoryBeforeAdd{signedMemoryUsage(scores)};
 
     // Update the scores.
     TDouble1Vec2Vec pointScores(methodScores.size());
@@ -785,8 +790,7 @@ void CEnsemble<POINT>::CModel::addOutlierScores(const std::vector<POINT>& points
         scores[i].add(m_LogScoreMoments, m_RowNormalizedProjection, pointScores);
     }
 
-    recordMemoryUsage(std::int64_t(core::CMemory::dynamicSize(scores)) -
-                      scoresMemoryBeforeAdd - pointsMemory);
+    recordMemoryUsage(signedMemoryUsage(scores) - scoresMemoryBeforeAdd - pointsMemory);
 }
 
 template<typename POINT>
@@ -885,7 +889,7 @@ bool computeOutliersNoPartitions(const COutliers::SComputeParameters& params,
     using TPoint = CMemoryMappedDenseVector<CFloatStorage>;
     using TPointVec = std::vector<TPoint>;
 
-    std::uint64_t frameMemory(frame.memoryUsage());
+    std::int64_t frameMemory{signedMemoryUsage(frame)};
     recordMemoryUsage(frameMemory);
 
     CEnsemble<TPoint>::TScorerVec scores;
@@ -904,7 +908,7 @@ bool computeOutliersNoPartitions(const COutliers::SComputeParameters& params,
         // access and write to each element. Since it does this once per element it
         // is thread safe.
         TPointVec points(frame.numberRows(), TPoint{nullptr, 1});
-        std::uint64_t pointsMemory(core::CMemory::dynamicSize(points));
+        std::int64_t pointsMemory{signedMemoryUsage(points)};
         recordMemoryUsage(pointsMemory);
 
         auto rowsToPoints = [&points](TRowItr beginRows, TRowItr endRows) {
@@ -952,7 +956,7 @@ bool computeOutliersNoPartitions(const COutliers::SComputeParameters& params,
 
     frame.resizeColumns(params.s_NumberThreads,
                         (params.s_ComputeFeatureInfluence ? 2 : 1) * dimension + 1);
-    recordMemoryUsage(frame.memoryUsage() - frameMemory);
+    recordMemoryUsage(signedMemoryUsage(frame) - frameMemory);
 
     bool successful;
     std::tie(std::ignore, successful) = frame.writeColumns(params.s_NumberThreads, writeScores);
@@ -986,7 +990,7 @@ bool computeOutliersPartitioned(const COutliers::SComputeParameters& params,
 
     frame.resizeColumns(params.s_NumberThreads,
                         (params.s_ComputeFeatureInfluence ? 2 : 1) * dimension + 1);
-    recordMemoryUsage(frame.memoryUsage());
+    recordMemoryUsage(signedMemoryUsage(frame));
 
     std::size_t rowsPerPartition{(frame.numberRows() + params.s_NumberPartitions - 1) /
                                  params.s_NumberPartitions};
@@ -997,7 +1001,7 @@ bool computeOutliersPartitioned(const COutliers::SComputeParameters& params,
     // This is presized so that rowsToPoints only needs to access and write to
     // each element. Since it does this once per element it is thread safe.
     TPointVec points(rowsPerPartition, SConstant<TPoint>::get(dimension, 0.0));
-    recordMemoryUsage(core::CMemory::dynamicSize(points));
+    recordMemoryUsage(signedMemoryUsage(points));
 
     for (std::size_t i = 0, beginPartitionRows = 0; i < params.s_NumberPartitions;
          ++i, beginPartitionRows += rowsPerPartition) {
@@ -1046,7 +1050,7 @@ bool computeOutliersPartitioned(const COutliers::SComputeParameters& params,
             return false;
         }
 
-        recordMemoryUsage(-std::int64_t(core::CMemory::dynamicSize(scores)));
+        recordMemoryUsage(-signedMemoryUsage(scores));
     }
 
     return true;

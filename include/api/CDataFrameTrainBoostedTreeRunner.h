@@ -92,7 +92,7 @@ protected:
     makeLargestShapAccumulator(std::size_t n, LESS less) const {
         return maths::CBasicStatistics::COrderStatisticsHeap<std::size_t, LESS>{
             n, std::size_t{}, less};
-    };
+    }
 
 private:
     using TBoostedTreeFactoryUPtr = std::unique_ptr<maths::CBoostedTreeFactory>;

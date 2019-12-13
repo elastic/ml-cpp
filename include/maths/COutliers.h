@@ -42,7 +42,7 @@ using TDouble1VecVec = std::vector<TDouble1Vec>;
 using TDouble1VecVec2Vec = core::CSmallVector<TDouble1VecVec, 2>;
 using TDouble1Vec2Vec = core::CSmallVector<TDouble1Vec, 2>;
 using TProgressCallback = std::function<void(double)>;
-using TMemoryUsageCallback = std::function<void(std::uint64_t)>;
+using TMemoryUsageCallback = std::function<void(std::int64_t)>;
 using TMeanAccumulator = CBasicStatistics::SSampleMean<double>::TAccumulator;
 
 //! Get the distance in the complement space of the projection.
