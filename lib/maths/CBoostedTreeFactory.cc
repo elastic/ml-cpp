@@ -459,7 +459,8 @@ void CBoostedTreeFactory::initializeUnsetRegularizationHyperparameters(core::CDa
         if (gainPerNode90thPercentile > 0.0) {
             double searchIntervalSize{2.0 * gainPerNode90thPercentile / gainPerNode1stPercentile};
             double logMaxDepthPenaltyMultiplier{std::log(gainPerNode90thPercentile)};
-            double logMinDepthPenaltyMultiplier{logMaxDepthPenaltyMultiplier - std::log(searchIntervalSize)};
+            double logMinDepthPenaltyMultiplier{logMaxDepthPenaltyMultiplier -
+                                                std::log(searchIntervalSize)};
             double meanLogDepthPenaltyMultiplier{
                 (logMinDepthPenaltyMultiplier + logMaxDepthPenaltyMultiplier) / 2.0};
             double mainLoopSearchInterval{std::log(searchIntervalSize) / 2.0};
@@ -485,7 +486,7 @@ void CBoostedTreeFactory::initializeUnsetRegularizationHyperparameters(core::CDa
                       << m_LogDepthPenaltyMultiplierSearchInterval.toDelimited() << "]");
 
             m_TreeImpl->m_Regularization.depthPenaltyMultiplier(std::exp(
-                m_LogDepthPenaltyMultiplierSearchInterval(BEST_REGULARIZER_INDEX))); // ?
+                m_LogDepthPenaltyMultiplierSearchInterval(BEST_REGULARIZER_INDEX)));
         }
         if (gainPerNode90thPercentile <= 0.0 ||
             intervalIsEmpty(m_LogDepthPenaltyMultiplierSearchInterval)) {
@@ -500,7 +501,8 @@ void CBoostedTreeFactory::initializeUnsetRegularizationHyperparameters(core::CDa
         if (gainPerNode90thPercentile > 0.0) {
             double searchIntervalSize{2.0 * gainPerNode90thPercentile / gainPerNode1stPercentile};
             double logMaxTreeSizePenaltyMultiplier{std::log(gainPerNode90thPercentile)};
-            double logMinTreeSizePenaltyMultiplier{logMaxTreeSizePenaltyMultiplier - std::log(searchIntervalSize)};
+            double logMinTreeSizePenaltyMultiplier{logMaxTreeSizePenaltyMultiplier -
+                                                   std::log(searchIntervalSize)};
             double meanLogTreeSizePenaltyMultiplier{
                 (logMinTreeSizePenaltyMultiplier + logMaxTreeSizePenaltyMultiplier) / 2.0};
             double mainLoopSearchInterval{0.5 * std::log(searchIntervalSize)};
@@ -529,7 +531,7 @@ void CBoostedTreeFactory::initializeUnsetRegularizationHyperparameters(core::CDa
                       << m_LogTreeSizePenaltyMultiplierSearchInterval.toDelimited() << "]");
 
             m_TreeImpl->m_Regularization.treeSizePenaltyMultiplier(std::exp(
-                m_LogTreeSizePenaltyMultiplierSearchInterval(BEST_REGULARIZER_INDEX))); // ?
+                m_LogTreeSizePenaltyMultiplierSearchInterval(BEST_REGULARIZER_INDEX)));
         }
         if (gainPerNode90thPercentile <= 0.0 ||
             intervalIsEmpty(m_LogTreeSizePenaltyMultiplierSearchInterval)) {
@@ -545,7 +547,8 @@ void CBoostedTreeFactory::initializeUnsetRegularizationHyperparameters(core::CDa
             double searchIntervalSize{2.0 * totalCurvaturePerNode90thPercentile /
                                       totalCurvaturePerNode1stPercentile};
             double logMaxLeafWeightPenaltyMultiplier{std::log(totalCurvaturePerNode90thPercentile)};
-            double logMinLeafWeightPenaltyMultiplier{logMaxLeafWeightPenaltyMultiplier - std::log(searchIntervalSize)};
+            double logMinLeafWeightPenaltyMultiplier{
+                logMaxLeafWeightPenaltyMultiplier - std::log(searchIntervalSize)};
             double meanLogLeafWeightPenaltyMultiplier{
                 (logMinLeafWeightPenaltyMultiplier + logMaxLeafWeightPenaltyMultiplier) / 2.0};
             double mainLoopSearchInterval{0.5 * std::log(searchIntervalSize)};
@@ -649,8 +652,9 @@ void CBoostedTreeFactory::initializeUnsetDownsampleFactor(core::CDataFrame& fram
         // Truncate the log(scale) to be less than or equal to log(1.0) and the down
         // sampled set contains at least ten examples on average.
         m_LogDownsampleFactorSearchInterval =
-            max(min(m_LogDownsampleFactorSearchInterval, TVector{0.0}),
-                TVector{std::log(10.0 / numberTrainingRows)});
+            min(max(m_LogDownsampleFactorSearchInterval,
+                    TVector{std::log(10.0 / numberTrainingRows)}),
+                TVector{0.0});
         LOG_TRACE(<< "log down sample factor search interval = ["
                   << m_LogDownsampleFactorSearchInterval.toDelimited() << "]");
 
@@ -721,7 +725,8 @@ CBoostedTreeFactory::testLossLineSearch(core::CDataFrame& frame,
     TMinAccumulator minTestLoss;
     TDoubleDoublePrVec testLosses;
     testLosses.reserve(MAX_LINE_SEARCH_ITERATIONS);
-    std::size_t minNumberTestLosses{MAX_LINE_SEARCH_ITERATIONS / 2};
+    // Ensure we choose one value based on expected improvement.
+    std::size_t minNumberTestLosses{5};
 
     CBayesianOptimisation bopt{{{intervalLeftEnd, intervalRightEnd}}};
     for (auto regularizer :
@@ -742,7 +747,7 @@ CBoostedTreeFactory::testLossLineSearch(core::CDataFrame& frame,
         minTestLoss.add(testLoss);
         testLosses.emplace_back(regularizer, testLoss);
     }
-    while (testLosses.size() < MAX_LINE_SEARCH_ITERATIONS) {
+    while (testLosses.size() > 0 && testLosses.size() < MAX_LINE_SEARCH_ITERATIONS) {
         CBayesianOptimisation::TVector regularizer;
         TOptionalDouble EI;
         std::tie(regularizer, EI) = bopt.maximumExpectedImprovement();
@@ -772,26 +777,33 @@ CBoostedTreeFactory::testLossLineSearch(core::CDataFrame& frame,
     }
 
     // Find the smallest test losses and the corresponding regularizer span.
-    auto minimumTestLosses = CBasicStatistics::makeOrderStatistics<TDoubleDoublePr>(
+    auto minimumTestLosses = CBasicStatistics::orderStatisticsAccumulator<TDoubleDoublePr>(
         minNumberTestLosses - 1, COrderings::SSecondLess{});
     minimumTestLosses.add(testLosses);
-    double a{std::min_element(minimumTestLosses.begin(),
-                              minimumTestLosses.end(), COrderings::SFirstLess{})
-                 ->first};
-    double b{std::max_element(minimumTestLosses.begin(),
-                              minimumTestLosses.end(), COrderings::SFirstLess{})
-                 ->first};
-    auto begin =
+    double minGoodRegularizer{std::min_element(minimumTestLosses.begin(),
+                                               minimumTestLosses.end(),
+                                               COrderings::SFirstLess{})
+                                  ->first};
+    double maxGoodRegularizer{std::max_element(minimumTestLosses.begin(),
+                                               minimumTestLosses.end(),
+                                               COrderings::SFirstLess{})
+                                  ->first};
+    auto beginGoodRegularizerLosses =
         std::find_if(testLosses.begin(), testLosses.end(),
-                     [a](const TDoubleDoublePr& loss) { return loss.first == a; });
-    auto end =
+                     [minGoodRegularizer](const TDoubleDoublePr& loss) {
+                         return loss.first == minGoodRegularizer;
+                     });
+    auto endGoodRegularizerLosses =
         std::find_if(testLosses.begin(), testLosses.end(),
-                     [b](const TDoubleDoublePr& loss) { return loss.first == b; }) +
+                     [maxGoodRegularizer](const TDoubleDoublePr& loss) {
+                         return loss.first == maxGoodRegularizer;
+                     }) +
         1;
-    LOG_TRACE(<< "range = [" << a << "," << b << "]");
+    LOG_TRACE(<< "good regularizer range = [" << minGoodRegularizer << ","
+              << maxGoodRegularizer << "]");
 
     CLeastSquaresOnlineRegression<2, double> leastSquaresQuadraticTestLoss;
-    for (auto loss = begin; loss != end; ++loss) {
+    for (auto loss = beginGoodRegularizerLosses; loss != endGoodRegularizerLosses; ++loss) {
         leastSquaresQuadraticTestLoss.add(loss->first, loss->second);
     }
     CLeastSquaresOnlineRegression<2, double>::TArray params;
@@ -810,23 +822,25 @@ CBoostedTreeFactory::testLossLineSearch(core::CDataFrame& frame,
     double bestRegularizer{[&] {
         if (curvature < 0.0) {
             // Stationary point is a maximum so use furthest point in interval.
-            double distanceToLeftEndpoint{std::fabs(a - stationaryPoint)};
-            double distanceToRightEndpoint{std::fabs(b - stationaryPoint)};
-            return distanceToLeftEndpoint > distanceToRightEndpoint ? a : b;
+            double distanceToLeftEndpoint{std::fabs(minGoodRegularizer - stationaryPoint)};
+            double distanceToRightEndpoint{std::fabs(maxGoodRegularizer - stationaryPoint)};
+            return distanceToLeftEndpoint > distanceToRightEndpoint
+                       ? minGoodRegularizer
+                       : maxGoodRegularizer;
         }
         // Stationary point is a minimum so use nearest point in the interval.
-        return CTools::truncate(stationaryPoint, a, b);
+        return CTools::truncate(stationaryPoint, minGoodRegularizer, maxGoodRegularizer);
     }()};
     LOG_TRACE(<< "best regularizer = " << bestRegularizer);
 
     TVector interval{{returnedIntervalLeftEndOffset, 0.0, returnedIntervalRightEndOffset}};
-    if (a > intervalLeftEnd) {
-        interval(MIN_REGULARIZER_INDEX) =
-            std::max(a - bestRegularizer, interval(MIN_REGULARIZER_INDEX));
+    if (minGoodRegularizer > intervalLeftEnd) {
+        interval(MIN_REGULARIZER_INDEX) = std::max(
+            maxGoodRegularizer - bestRegularizer, interval(MIN_REGULARIZER_INDEX));
     }
-    if (b < intervalRightEnd) {
-        interval(MAX_REGULARIZER_INDEX) =
-            std::min(b - bestRegularizer, interval(MAX_REGULARIZER_INDEX));
+    if (maxGoodRegularizer < intervalRightEnd) {
+        interval(MAX_REGULARIZER_INDEX) = std::min(
+            maxGoodRegularizer - bestRegularizer, interval(MAX_REGULARIZER_INDEX));
     }
     if (curvature > 0.0) {
         // Find a short interval with a high probability of containing the optimal
@@ -836,17 +850,18 @@ CBoostedTreeFactory::testLossLineSearch(core::CDataFrame& frame,
         // extrapolate the loss function outside the line segment we searched so
         // don't truncate if an endpoint lies outside the searched interval.
         TMeanVarAccumulator residualMoments;
-        for (auto loss = begin; loss != end; ++loss) {
+        for (auto loss = beginGoodRegularizerLosses;
+             loss != endGoodRegularizerLosses; ++loss) {
             residualMoments.add(loss->second -
                                 leastSquaresQuadraticTestLoss.predict(loss->first));
         }
         double sigma{std::sqrt(CBasicStatistics::variance(residualMoments))};
         double threeSigmaInterval{std::sqrt(3.0 * sigma / curvature)};
-        if (bestRegularizer - threeSigmaInterval >= a) {
+        if (bestRegularizer - threeSigmaInterval >= minGoodRegularizer) {
             interval(MIN_REGULARIZER_INDEX) =
                 std::max(-threeSigmaInterval, returnedIntervalLeftEndOffset);
         }
-        if (bestRegularizer + threeSigmaInterval <= b) {
+        if (bestRegularizer + threeSigmaInterval <= maxGoodRegularizer) {
             interval(MAX_REGULARIZER_INDEX) =
                 std::min(threeSigmaInterval, returnedIntervalRightEndOffset);
         }

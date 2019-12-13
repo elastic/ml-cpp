@@ -1207,7 +1207,7 @@ public:
 
     //! Make a stack based order statistics accumulator from \p less.
     template<typename T, std::size_t N, typename LESS>
-    static COrderStatisticsStack<T, N, LESS> makeOrderStatistics(LESS less) {
+    static COrderStatisticsStack<T, N, LESS> orderStatisticsAccumulator(LESS less) {
         return COrderStatisticsStack<T, N, LESS>{less};
     }
 
@@ -1306,7 +1306,7 @@ public:
 
     //! Make a heap based order statistics accumulator from \p less.
     template<typename T, typename LESS>
-    static COrderStatisticsHeap<T, LESS> makeOrderStatistics(std::size_t n, LESS less) {
+    static COrderStatisticsHeap<T, LESS> orderStatisticsAccumulator(std::size_t n, LESS less) {
         return COrderStatisticsHeap<T, LESS>{n, T{}, less};
     }
 
