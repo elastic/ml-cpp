@@ -111,7 +111,7 @@ private:
 
         size_t nextIndex() const { return s_NextIndex; }
 
-        void nextIndex(size_t sNextIndex) { s_NextIndex = sNextIndex; }
+        void nextIndex(std::size_t nextIndex) { s_NextIndex = nextIndex; }
 
         TDoubleVec s_FractionOnes;
         TDoubleVec s_FractionZeros;
