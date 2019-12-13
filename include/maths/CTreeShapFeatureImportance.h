@@ -54,7 +54,7 @@ public:
                                         std::size_t depth);
 
     //! Get the reference to the trees.
-    TTreeVec& trees() { return m_Trees; };
+    TTreeVec& trees() { return m_Trees; }
 
 private:
     using TSizeVec = std::vector<std::size_t>;
@@ -107,7 +107,7 @@ private:
         double scale(std::size_t pathIndex) const { return s_Scale[pathIndex]; }
 
         //! Current depth in the tree
-        std::size_t depth() const { return s_NextIndex - 1; };
+        std::size_t depth() const { return s_NextIndex - 1; }
 
         TDoubleVec s_FractionOnes;
         TDoubleVec s_FractionZeros;

@@ -94,7 +94,7 @@ BOOST_AUTO_TEST_CASE(testTruePositives) {
                          : falsePositive) += 1.0;
                 }
             }
-            BOOST_TEST_REQUIRE(core::CMemory::dynamicSize(&cyclic) < 700);
+            BOOST_TEST_REQUIRE(core::CMemory::dynamicSize(&cyclic) < 710);
         }
     }
     LOG_DEBUG(<< "true positive = " << truePositive);
@@ -140,7 +140,7 @@ BOOST_AUTO_TEST_CASE(testTruePositives) {
                          : falsePositive) += 1.0;
                 }
             }
-            BOOST_TEST_REQUIRE(core::CMemory::dynamicSize(&cyclic) < 700);
+            BOOST_TEST_REQUIRE(core::CMemory::dynamicSize(&cyclic) < 710);
         }
     }
     LOG_DEBUG(<< "true positive = " << truePositive);
@@ -184,7 +184,7 @@ BOOST_AUTO_TEST_CASE(testTruePositives) {
                          : falsePositive) += 1.0;
                 }
             }
-            BOOST_TEST_REQUIRE(core::CMemory::dynamicSize(&cyclic) < 700);
+            BOOST_TEST_REQUIRE(core::CMemory::dynamicSize(&cyclic) < 710);
         }
     }
     LOG_DEBUG(<< "true positive = " << truePositive);
@@ -228,7 +228,7 @@ BOOST_AUTO_TEST_CASE(testTruePositives) {
                          : falsePositive) += 1.0;
                 }
             }
-            BOOST_TEST_REQUIRE(core::CMemory::dynamicSize(&cyclic) < 700);
+            BOOST_TEST_REQUIRE(core::CMemory::dynamicSize(&cyclic) < 710);
         }
     }
     LOG_DEBUG(<< "true positive = " << truePositive);
@@ -265,7 +265,7 @@ BOOST_AUTO_TEST_CASE(testFalsePositives) {
                 if (feature != boost::none) {
                     LOG_DEBUG(<< "Detected = " << feature->print());
                 }
-                BOOST_TEST_REQUIRE(core::CMemory::dynamicSize(&cyclic) < 820);
+                BOOST_TEST_REQUIRE(core::CMemory::dynamicSize(&cyclic) < 840);
             }
         }
     }
@@ -289,7 +289,7 @@ BOOST_AUTO_TEST_CASE(testFalsePositives) {
                 if (feature != boost::none) {
                     LOG_DEBUG(<< "Detected = " << feature->print());
                 }
-                BOOST_TEST_REQUIRE(core::CMemory::dynamicSize(&cyclic) < 830);
+                BOOST_TEST_REQUIRE(core::CMemory::dynamicSize(&cyclic) < 840);
             }
         }
     }
@@ -315,7 +315,7 @@ BOOST_AUTO_TEST_CASE(testFalsePositives) {
                 if (feature != boost::none) {
                     LOG_DEBUG(<< "Detected = " << feature->print());
                 }
-                BOOST_TEST_REQUIRE(core::CMemory::dynamicSize(&cyclic) < 830);
+                BOOST_TEST_REQUIRE(core::CMemory::dynamicSize(&cyclic) < 840);
             }
         }
     }
