@@ -271,9 +271,10 @@ void CDataFrameAnalyzer::monitorProgress(const CDataFrameAnalysisRunner& analysi
                                          core::CRapidJsonConcurrentLineWriter& writer) const {
     // Progress as percentage
     int progress{0};
-    while (analysis.finished() == false) {
+    while (analysis.state().finished() == false) {
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
-        int latestProgress{static_cast<int>(std::floor(100.0 * analysis.progress()))};
+        int latestProgress{
+            static_cast<int>(std::floor(100.0 * analysis.state().progress()))};
         if (latestProgress > progress) {
             progress = latestProgress;
             this->writeProgress(progress, writer);
@@ -331,12 +332,6 @@ void CDataFrameAnalyzer::writeResultsOf(const CDataFrameAnalysisRunner& analysis
     }
 
     writer.flush();
-}
-
-void CDataFrameAnalyzer::writeInstrumentalizationObjects(core::CRapidJsonConcurrentLineWriter &writer) const {
-    this->writeMemoryUsage(core::CRapidJsonConcurrentLineWriter &writer);
-    this->writeProgress(core::CRapidJsonConcurrentLineWriter &writer);
-    this->writeParameters(core::CRapidJsonConcurrentLineWriter &writer);
 }
 
 const CDataFrameAnalysisRunner* CDataFrameAnalyzer::runner() const {

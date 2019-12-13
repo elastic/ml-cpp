@@ -117,10 +117,16 @@ CDataFrameTrainBoostedTreeRunner::CDataFrameTrainBoostedTreeRunner(
     m_BoostedTreeFactory = std::make_unique<maths::CBoostedTreeFactory>(
         maths::CBoostedTreeFactory::constructFromParameters(this->spec().numberThreads()));
 
+    auto progressRecorder = [&](double fractionalProgress) {
+        this->state().updateProgress(fractionalProgress);
+    };
+    auto memoryMonitor = [&](std::int64_t delta) {
+        this->state().updateMemoryUsage(delta);
+    };
     (*m_BoostedTreeFactory)
-        .progressCallback(this->progressRecorder())
+        .progressCallback(progressRecorder)
         .trainingStateCallback(this->statePersister())
-        .memoryUsageCallback(this->memoryMonitor(counter_t::E_DFTPMPeakMemoryUsage));
+        .memoryUsageCallback(memoryMonitor);
 
     if (downsampleRowsPerFeature > 0) {
         m_BoostedTreeFactory->initialDownsampleRowsPerFeature(
@@ -266,11 +272,16 @@ bool CDataFrameTrainBoostedTreeRunner::restoreBoostedTree(core::CDataFrame& fram
             LOG_ERROR(<< "State restoration search returned failed stream");
             return false;
         }
-
+        auto progressRecorder = [&](double fractionalProgress) {
+            this->state().updateProgress(fractionalProgress);
+        };
+        auto memoryMonitor = [&](std::int64_t delta) {
+            this->state().updateMemoryUsage(delta);
+        };
         m_BoostedTree = maths::CBoostedTreeFactory::constructFromString(*inputStream)
-                            .progressCallback(this->progressRecorder())
+                            .progressCallback(progressRecorder)
                             .trainingStateCallback(this->statePersister())
-                            .memoryUsageCallback(this->memoryMonitor(counter_t::E_DFTPMPeakMemoryUsage))
+                            .memoryUsageCallback(memoryMonitor)
                             .restoreFor(frame, dependentVariableColumn);
     } catch (std::exception& e) {
         LOG_ERROR(<< "Failed to restore state! " << e.what());
@@ -310,6 +321,14 @@ const std::string CDataFrameTrainBoostedTreeRunner::NUMBER_FOLDS{"number_folds"}
 const std::string CDataFrameTrainBoostedTreeRunner::NUMBER_ROUNDS_PER_HYPERPARAMETER{"number_rounds_per_hyperparameter"};
 const std::string CDataFrameTrainBoostedTreeRunner::BAYESIAN_OPTIMISATION_RESTARTS{"bayesian_optimisation_restarts"};
 const std::string CDataFrameTrainBoostedTreeRunner::TOP_SHAP_VALUES{"top_shap_values"};
+
+const CDataFrameAnalysisState &CDataFrameTrainBoostedTreeRunner::state() const {
+    return m_State;
+}
+
+CDataFrameAnalysisState &CDataFrameTrainBoostedTreeRunner::state() {
+    return m_State;
+}
 
 // clang-format on
 }

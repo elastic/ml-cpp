@@ -23,7 +23,10 @@ void CDataFrameMockAnalysisRunner::writeOneRow(const ml::core::CDataFrame&,
 }
 
 void CDataFrameMockAnalysisRunner::runImpl(ml::core::CDataFrame&) {
-    ml::core::CLoopProgress progress{31, this->progressRecorder()};
+    auto progressRecorder = [&](double fractionalProgress) {
+        this->state().updateProgress(fractionalProgress);
+    };
+    ml::core::CLoopProgress progress{31, progressRecorder};
     for (std::size_t i = 0; i < 31; ++i, progress.increment()) {
         std::vector<std::size_t> wait;
         ms_Rng.generateUniformSamples(1, 20, 1, wait);

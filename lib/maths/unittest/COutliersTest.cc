@@ -126,7 +126,7 @@ void outlierErrorStatisticsForEnsemble(std::size_t numberThreads,
                                                     0, // Compute number neighbours
                                                     false, // Compute feature influences
                                                     0.05}; // Outlier fraction
-        maths::COutliers::compute(params, *frame);
+        maths::COutliers::compute(params, *frame, <#initializer #>);
 
         frame->readRows(1, [&scores](core::CDataFrame::TRowItr beginRows,
                                      core::CDataFrame::TRowItr endRows) {
@@ -471,7 +471,7 @@ BOOST_AUTO_TEST_CASE(testFeatureInfluences) {
                                                         0, // Compute number neighbours
                                                         true, // Compute feature influences
                                                         0.05}; // Outlier fraction
-            maths::COutliers::compute(params, *frame);
+            maths::COutliers::compute(params, *frame, <#initializer #>);
 
             bool passed{true};
             TMeanAccumulator averageSignificances[2];
@@ -565,19 +565,7 @@ BOOST_AUTO_TEST_CASE(testEstimateMemoryUsedByCompute) {
         std::atomic<std::int64_t> memoryUsage{0};
         std::atomic<std::int64_t> maxMemoryUsage{0};
 
-        maths::COutliers::compute(
-            params, *frame, [](double) {},
-            [&](std::int64_t delta) {
-                std::int64_t memoryUsage_{memoryUsage.fetch_add(delta)};
-
-                std::int64_t prevMaxMemoryUsage{maxMemoryUsage};
-                while (prevMaxMemoryUsage < memoryUsage_ &&
-                       maxMemoryUsage.compare_exchange_weak(prevMaxMemoryUsage,
-                                                            memoryUsage_) == false) {
-                }
-                LOG_TRACE(<< "current memory = " << memoryUsage_
-                          << ", high water mark = " << maxMemoryUsage.load());
-            });
+        maths::COutliers::compute(params, *frame, <#initializer #>);
 
         LOG_DEBUG(<< "estimated peak memory = " << estimatedMemoryUsage);
         LOG_DEBUG(<< "high water mark = " << maxMemoryUsage);
@@ -633,7 +621,7 @@ BOOST_AUTO_TEST_CASE(testProgressMonitoring) {
                                                         0, // Compute number neighbours
                                                         false, // Compute feature influences
                                                         0.05}; // Outlier fraction
-            maths::COutliers::compute(params, *frame, reportProgress);
+            maths::COutliers::compute(params, *frame, <#initializer #>);
             finished.store(true);
         }};
 
@@ -689,7 +677,7 @@ BOOST_AUTO_TEST_CASE(testMostlyDuplicate) {
                                                     0, // Compute number neighbours
                                                     false, // Compute feature influences
                                                     0.05}; // Outlier fraction
-        maths::COutliers::compute(params, *frame);
+        maths::COutliers::compute(params, *frame, <#initializer #>);
 
         TDoubleVec outlierScores(outliers.size());
         frame->readRows(1, [&](core::CDataFrame::TRowItr beginRows,
@@ -744,7 +732,7 @@ BOOST_AUTO_TEST_CASE(testFewPoints) {
                                                     0, // Compute number neighbours
                                                     true, // Compute feature influences
                                                     0.05}; // Outlier fraction
-        maths::COutliers::compute(params, *frame);
+        maths::COutliers::compute(params, *frame, <#initializer #>);
 
         bool passed{true};
 

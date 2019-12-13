@@ -87,7 +87,8 @@ void addOutlierTestData(TStrVec fieldNames,
     frame->finishWritingRows();
 
     maths::COutliers::compute(
-        {1, 1, true, method, numberNeighbours, computeFeatureInfluence, 0.05}, *frame);
+        {1, 1, true, method, numberNeighbours, computeFeatureInfluence, 0.05},
+        *frame, <#initializer #>);
 
     expectedScores.resize(numberInliers + numberOutliers);
     expectedFeatureInfluences.resize(numberInliers + numberOutliers, TDoubleVec(5));

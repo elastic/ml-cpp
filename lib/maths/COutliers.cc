@@ -1055,12 +1055,18 @@ bool computeOutliersPartitioned(const COutliers::SComputeParameters& params,
 
 void COutliers::compute(const SComputeParameters& params,
                         core::CDataFrame& frame,
-                        TProgressCallback recordProgress,
-                        TMemoryUsageCallback recordMemoryUsage) {
+                        CDataFrameAnalysisStateInterface& state) {
 
     if (params.s_StandardizeColumns) {
         CDataFrameUtils::standardizeColumns(params.s_NumberThreads, frame);
     }
+
+    auto recordProgress = [&state](double fractionalProgress) {
+        state.updateProgress(fractionalProgress);
+    };
+    auto recordMemoryUsage = [&state](std::int64_t delta) {
+        state.updateMemoryUsage(delta);
+    };
 
     bool successful{
         frame.inMainMemory() && params.s_NumberPartitions == 1

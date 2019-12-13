@@ -16,6 +16,7 @@
 
 #include <rapidjson/fwd.h>
 
+#include "CDataFrameAnalysisState.h"
 #include <atomic>
 #include <cstddef>
 #include <functional>
@@ -135,32 +136,30 @@ public:
     //! This waits to until the analysis has finished and joins the thread.
     void waitToFinish();
 
-    //! \return True if the running analysis has finished.
-    bool finished() const;
-
-    //! \return The progress of the analysis in the range [0,1] being an estimate
-    //! of the proportion of total work complete for a single run.
-    double progress() const;
-
     //! \return A serialisable definition of the trained model.
     virtual TInferenceModelDefinitionUPtr
     inferenceModelDefinition(const TStrVec& fieldNames, const TStrVecVec& categoryNames) const;
+
+    virtual const CDataFrameAnalysisState& state() const = 0;
+    virtual CDataFrameAnalysisState& state() = 0;
 
 protected:
     using TMemoryMonitor = std::function<void(std::int64_t)>;
     using TStatePersister =
         std::function<void(std::function<void(core::CStatePersistInserter&)>)>;
+    //    using TStateUPtr = std::unique_ptr<CDataFrameAnalysisState>;
 
 protected:
     const CDataFrameAnalysisSpecification& spec() const;
-    TProgressRecorder progressRecorder();
-    TMemoryMonitor memoryMonitor(counter_t::ECounterTypes counter);
+
     std::size_t estimateMemoryUsage(std::size_t totalNumberRows,
                                     std::size_t partitionNumberRows,
                                     std::size_t numberColumns) const;
 
     //! \return Callback function for writing state using given persist inserter
     TStatePersister statePersister();
+
+    //    virtual TStateUPtr analysisState() = 0;
 
 private:
     virtual void runImpl(core::CDataFrame& frame) = 0;
@@ -169,25 +168,12 @@ private:
                                                        std::size_t partitionNumberRows,
                                                        std::size_t numberColumns) const = 0;
 
-    //! This adds \p fractionalProgess to the current progress.
-    //!
-    //! \note The caller should try to ensure that the sum of the values added
-    //! at the end of the analysis is equal to one.
-    //! \note This is converted to an integer - so we can atomically add - by
-    //! scaling by 1024. Therefore, this shouldn't be called with values less
-    //! than 0.001. In fact, it is unlikely that such high resolution is needed
-    //! and typically this would be called significantly less frequently.
-    void recordProgress(double fractionalProgress);
-    void setToFinished();
-
 private:
     const CDataFrameAnalysisSpecification& m_Spec;
 
     std::size_t m_NumberPartitions = 0;
     std::size_t m_MaximumNumberRowsPerPartition = 0;
 
-    std::atomic_bool m_Finished;
-    std::atomic_size_t m_FractionalProgress;
     std::atomic<std::int64_t> m_Memory;
 
     std::thread m_Runner;

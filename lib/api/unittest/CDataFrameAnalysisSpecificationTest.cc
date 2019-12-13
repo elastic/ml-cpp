@@ -383,17 +383,17 @@ BOOST_AUTO_TEST_CASE(testRunAnalysis) {
         api::CDataFrameAnalysisRunner* runner{spec.run(*frame)};
         BOOST_TEST_REQUIRE(runner != nullptr);
 
-        double lastProgress{runner->progress()};
-        while (runner->finished() == false) {
+        double lastProgress{runner->state().progress()};
+        while (runner->state().finished() == false) {
             std::this_thread::sleep_for(std::chrono::milliseconds(20));
             LOG_TRACE(<< "progress = " << lastProgress);
-            BOOST_TEST_REQUIRE(runner->progress() >= lastProgress);
-            lastProgress = runner->progress();
-            BOOST_TEST_REQUIRE(runner->progress() <= 1.0);
+            BOOST_TEST_REQUIRE(runner->state().progress() >= lastProgress);
+            lastProgress = runner->state().progress();
+            BOOST_TEST_REQUIRE(runner->state().progress() <= 1.0);
         }
 
         LOG_DEBUG(<< "final progress = " << lastProgress);
-        BOOST_REQUIRE_EQUAL(1.0, runner->progress());
+        BOOST_REQUIRE_EQUAL(1.0, runner->state().progress());
     }
 }
 

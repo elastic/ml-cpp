@@ -8,8 +8,8 @@
 #define INCLUDED_ml_api_CDataFrameOutliersRunner_h
 
 #include <api/CDataFrameAnalysisConfigReader.h>
+#include <api/CDataFrameAnalysisOutliersState.h>
 #include <api/CDataFrameAnalysisRunner.h>
-
 #include <api/ImportExport.h>
 
 #include <rapidjson/fwd.h>
@@ -31,6 +31,10 @@ public:
     //! This is not intended to be called directly: use CDataFrameOutliersRunnerFactory.
     CDataFrameOutliersRunner(const CDataFrameAnalysisSpecification& spec,
                              const CDataFrameAnalysisParameters& parameters);
+
+    const CDataFrameAnalysisState& state() const override;
+
+    CDataFrameAnalysisState& state() override;
 
     //! This is not intended to be called directly: use CDataFrameOutliersRunnerFactory.
     CDataFrameOutliersRunner(const CDataFrameAnalysisSpecification& spec);
@@ -75,6 +79,8 @@ private:
     //! The fraction of true outliers amoung the points.
     double m_OutlierFraction = 0.05;
     //@}
+
+    CDataFrameAnalysisOutliersState m_State;
 };
 
 //! \brief Makes a core::CDataFrame outlier analysis runner.

@@ -11,6 +11,7 @@
 
 #include <api/CDataFrameAnalysisRunner.h>
 #include <api/CDataFrameAnalysisSpecification.h>
+#include <api/CDataFrameTrainBoostedTreeState.h>
 #include <api/ImportExport.h>
 
 #include <rapidjson/fwd.h>
@@ -61,6 +62,10 @@ public:
     const maths::CBoostedTreeFactory& boostedTreeFactory() const;
 
     std::size_t topShapValues() const;
+
+    const CDataFrameAnalysisState& state() const override;
+
+    CDataFrameAnalysisState& state() override;
 
 protected:
     using TBoostedTreeUPtr = std::unique_ptr<maths::CBoostedTree>;
@@ -113,6 +118,7 @@ private:
     std::string m_PredictionFieldName;
     TBoostedTreeFactoryUPtr m_BoostedTreeFactory;
     TBoostedTreeUPtr m_BoostedTree;
+    CDataFrameTrainBoostedTreeState m_State;
 };
 }
 }

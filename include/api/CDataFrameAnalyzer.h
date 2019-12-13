@@ -85,7 +85,7 @@ private:
     void writeProgress(int progress, core::CRapidJsonConcurrentLineWriter& writer) const;
     void writeResultsOf(const CDataFrameAnalysisRunner& analysis,
                         core::CRapidJsonConcurrentLineWriter& writer) const;
-    void writeInstrumentalizationObjects(core::CRapidJsonConcurrentLineWriter& writer) const;
+
     void writeMemoryUsage(core::CRapidJsonConcurrentLineWriter& writer) const;
     void writeParameters(core::CRapidJsonConcurrentLineWriter& writer) const;
 
