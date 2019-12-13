@@ -301,7 +301,7 @@ public:
                       TNodeVec& tree);
 
     //! Get the feature index of the split.
-    std::size_t splitFeature() const { return m_SplitFeature; };
+    std::size_t splitFeature() const { return m_SplitFeature; }
 
     //! Persist by passing information to \p inserter.
     void acceptPersistInserter(core::CStatePersistInserter& inserter) const;

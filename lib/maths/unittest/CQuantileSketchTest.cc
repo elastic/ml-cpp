@@ -38,8 +38,10 @@ void testSketch(maths::CQuantileSketch::EInterpolation interpolation,
                 TMeanAccumulator& meanBias,
                 TMeanAccumulator& meanError) {
     maths::CQuantileSketch sketch(interpolation, n);
+    maths::CFastQuantileSketch fastSketch(interpolation, n,
+                                          maths::CPRNG::CXorOShiro128Plus{}, 0.9);
     sketch = std::for_each(samples.begin(), samples.end(), sketch);
-
+    fastSketch = std::for_each(samples.begin(), samples.end(), fastSketch);
     LOG_DEBUG(<< "sketch = " << core::CContainerPrinter::print(sketch.knots()));
 
     std::size_t N = samples.size();
@@ -51,6 +53,8 @@ void testSketch(maths::CQuantileSketch::EInterpolation interpolation,
         double q = static_cast<double>(i) / 20.0;
         double xq = samples[static_cast<std::size_t>(static_cast<double>(N) * q)];
         double sq;
+        BOOST_REQUIRE_EQUAL(sketch.quantile(100.0 * q, sq),
+                            fastSketch.quantile(100.0 * q, sq));
         BOOST_TEST_REQUIRE(sketch.quantile(100.0 * q, sq));
         bias.add(xq - sq);
         error.add(std::fabs(xq - sq));
