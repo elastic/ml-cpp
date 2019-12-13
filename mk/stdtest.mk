@@ -6,6 +6,10 @@
 
 include $(CPP_SRC_HOME)/mk/rules.mk
 
+ifndef TEST_ARGS
+TEST_ARGS=--catch_system_errors=yes
+endif # TEST_ARGS
+
 ifndef DEFAULT_TEST_CMDS
 DEFAULT_TEST_CMDS=./$(TARGET) $(TEST_ARGS)
 

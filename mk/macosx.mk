@@ -90,7 +90,7 @@ LIB_ML_TEST=-lMlTest
 LIB_PATH+=-L/usr/local/lib
 
 VALGRIND_SUPPRESSIONS=--suppressions=$(CPP_SRC_HOME)/valgrind.supp
-VALGRIND_CMD=valgrind --tool=memcheck --xml=yes --xml-file=valgrind.xml --leak-check=full --leak-resolution=med --track-origins=yes --trace-children=yes --vgdb=no --catch_system_errors=yes $(VALGRIND_SUPPRESSIONS)
+VALGRIND_CMD=valgrind --tool=memcheck --xml=yes --xml-file=valgrind.xml --leak-check=full --leak-resolution=med --track-origins=yes --trace-children=yes --vgdb=no --error-exitcode=13 $(VALGRIND_SUPPRESSIONS)
 
 # Using cp instead of install here, to avoid every file being given execute
 # permissions
