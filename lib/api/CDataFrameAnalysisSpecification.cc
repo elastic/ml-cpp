@@ -225,10 +225,11 @@ void CDataFrameAnalysisSpecification::initializeRunner(const rapidjson::Value& j
 
     auto analysis = ANALYSIS_READER.read(jsonAnalysis);
 
-    std::string name{analysis[NAME].as<std::string>()};
+    m_AnalysisName = analysis[NAME].as<std::string>();
+    LOG_INFO(<< "Parsed analysis with name '" << m_AnalysisName << "'");
 
     for (const auto& factory : m_RunnerFactories) {
-        if (name == factory->name()) {
+        if (m_AnalysisName == factory->name()) {
             auto parameters = analysis[PARAMETERS].jsonObject();
             m_Runner = parameters != nullptr ? factory->make(*this, *parameters)
                                              : factory->make(*this);
@@ -236,7 +237,7 @@ void CDataFrameAnalysisSpecification::initializeRunner(const rapidjson::Value& j
         }
     }
 
-    HANDLE_FATAL(<< "Input error: unexpected analysis name '" << name
+    HANDLE_FATAL(<< "Input error: unexpected analysis name '" << m_AnalysisName
                  << "'. Please report this problem.");
 }
 
@@ -262,6 +263,10 @@ CDataFrameAnalysisSpecification::noopRestoreSearcherSupplier() {
 
 const std::string& CDataFrameAnalysisSpecification::jobId() const {
     return m_JobId;
+}
+
+const std::string& CDataFrameAnalysisSpecification::analysisName() const {
+    return m_AnalysisName;
 }
 
 const CDataFrameAnalysisRunner* CDataFrameAnalysisSpecification::runner() {

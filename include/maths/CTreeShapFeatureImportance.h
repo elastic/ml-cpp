@@ -54,7 +54,7 @@ public:
                                         std::size_t depth);
 
     //! Get the reference to the trees.
-    TTreeVec& trees() { return m_Trees; };
+    TTreeVec& trees() { return m_Trees; }
 
 private:
     using TSizeVec = std::vector<std::size_t>;

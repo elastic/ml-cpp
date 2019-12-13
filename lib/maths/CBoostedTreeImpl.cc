@@ -133,6 +133,11 @@ double readActual(const TRowRef& row, std::size_t dependentVariable) {
 const std::size_t ASSIGN_MISSING_TO_LEFT{0};
 const std::size_t ASSIGN_MISSING_TO_RIGHT{1};
 const double SMALLEST_RELATIVE_CURVATURE{1e-20};
+// It isn't critical to recompute splits every tree we add because random
+// downsampling means they're only approximate estimates of the full data
+// quantiles anyway. So we amortise their compute cost w.r.t. training trees
+// by only refreshing once every MINIMUM_SPLIT_REFRESH_INTERVAL trees we add.
+const double MINIMUM_SPLIT_REFRESH_INTERVAL{3.0};
 }
 
 CBoostedTreeImpl::CLeafNodeStatistics::CLeafNodeStatistics(
@@ -475,7 +480,7 @@ void CBoostedTreeImpl::train(core::CDataFrame& frame,
 
     m_TrainingProgress.progressCallback(recordProgress);
 
-    std::uint64_t lastMemoryUsage(this->memoryUsage());
+    std::int64_t lastMemoryUsage(this->memoryUsage());
     recordMemoryUsage(lastMemoryUsage);
 
     core::CPackedBitVector allTrainingRowsMask{this->allTrainingRowsMask()};
@@ -494,6 +499,7 @@ void CBoostedTreeImpl::train(core::CDataFrame& frame,
         TMeanVarAccumulator timeAccumulator;
         core::CStopWatch stopWatch;
         stopWatch.start();
+        std::uint64_t lastLap{stopWatch.lap()};
 
         // Hyperparameter optimisation loop.
 
@@ -523,7 +529,9 @@ void CBoostedTreeImpl::train(core::CDataFrame& frame,
             this->recordState(recordTrainStateCallback);
             LOG_TRACE(<< "Round " << m_CurrentRound << " state recording finished");
 
-            timeAccumulator.add(static_cast<double>(stopWatch.lap()));
+            std::uint64_t currentLap{stopWatch.lap()};
+            timeAccumulator.add(static_cast<double>(currentLap - lastLap));
+            lastLap = currentLap;
         }
 
         LOG_TRACE(<< "Test loss = " << m_BestForestTestLoss);
@@ -537,7 +545,8 @@ void CBoostedTreeImpl::train(core::CDataFrame& frame,
 
         timeAccumulator.add(static_cast<double>(stopWatch.stop()));
 
-        LOG_INFO(<< "Training finished after " << m_CurrentRound << " iterations. Time per iteration in ms mean: "
+        LOG_INFO(<< "Training finished after " << m_CurrentRound << " iterations. "
+                 << "Time per iteration in ms mean: "
                  << CBasicStatistics::mean(timeAccumulator) << " std. dev:  "
                  << std::sqrt(CBasicStatistics::variance(timeAccumulator)));
 
@@ -769,16 +778,16 @@ CBoostedTreeImpl::trainForest(core::CDataFrame& frame,
         } else {
             // Refresh splits in case it allows us to find tree which can reduce loss.
             candidateSplits = this->candidateSplits(frame, downsampledRowMask);
-            nextTreeCountToRefreshSplits +=
-                static_cast<std::size_t>(std::max(0.5 / eta, 2.0));
+            nextTreeCountToRefreshSplits += static_cast<std::size_t>(
+                std::max(0.5 / eta, MINIMUM_SPLIT_REFRESH_INTERVAL));
         }
 
         downsampledRowMask = this->downsample(trainingRowMask);
 
         if (forest.size() == nextTreeCountToRefreshSplits) {
             candidateSplits = this->candidateSplits(frame, downsampledRowMask);
-            nextTreeCountToRefreshSplits +=
-                static_cast<std::size_t>(std::max(0.5 / eta, 2.0));
+            nextTreeCountToRefreshSplits += static_cast<std::size_t>(
+                std::max(0.5 / eta, MINIMUM_SPLIT_REFRESH_INTERVAL));
         }
     } while (stoppingCondition.shouldStop(forest.size(), [&]() {
         return this->meanLoss(frame, testingRowMask);
@@ -792,7 +801,6 @@ CBoostedTreeImpl::trainForest(core::CDataFrame& frame,
     forest.resize(stoppingCondition.bestSize());
 
     LOG_TRACE(<< "Trained one forest");
-    LOG_TRACE(<< "number trees = " << forest.size());
 
     return {forest, stoppingCondition.bestLoss()};
 }
@@ -839,8 +847,8 @@ CBoostedTreeImpl::candidateSplits(const core::CDataFrame& frame,
     auto featureQuantiles =
         CDataFrameUtils::columnQuantiles(
             m_NumberThreads, frame, trainingRowMask, features,
-            CQuantileSketch{CQuantileSketch::E_Linear,
-                            std::max(m_NumberSplitsPerFeature, std::size_t{50})},
+            CFastQuantileSketch{CFastQuantileSketch::E_Linear,
+                                std::max(m_NumberSplitsPerFeature, std::size_t{50}), m_Rng},
             m_Encoder.get(), readLossCurvature)
             .first;
 

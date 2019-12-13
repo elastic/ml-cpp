@@ -32,7 +32,7 @@ public:
     using TDoubleVec = std::vector<double>;
     using TSizeRange = boost::integer_range<std::size_t>;
     using TProgressCallback = std::function<void(double)>;
-    using TMemoryUsageCallback = std::function<void(std::uint64_t)>;
+    using TMemoryUsageCallback = std::function<void(std::int64_t)>;
     using TPersistFunc = std::function<void(core::CStatePersistInserter&)>;
     using TTrainingStateCallback = std::function<void(TPersistFunc)>;
 
