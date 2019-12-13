@@ -397,7 +397,7 @@ public:
     std::size_t columnHoldingDependentVariable() const override;
 
     //! Get the column containing the model's prediction for the dependent variable.
-    std::size_t columnHoldingPrediction(std::size_t numberColumns) const override;
+    std::size_t columnHoldingPrediction() const override;
 
     //! Get the optional vector of column indices with SHAP values
     TSizeVec columnsHoldingShapValues() const override;
