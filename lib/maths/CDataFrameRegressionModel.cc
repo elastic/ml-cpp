@@ -12,26 +12,12 @@ namespace maths {
 const std::string CDataFrameRegressionModel::SHAP_PREFIX{"shap."};
 
 CDataFrameRegressionModel::CDataFrameRegressionModel(core::CDataFrame& frame,
-                                                     TProgressCallback recordProgress,
-                                                     TMemoryUsageCallback recordMemoryUsage,
                                                      TTrainingStateCallback recordTrainingState)
-    : m_Frame{frame}, m_RecordProgress{std::move(recordProgress)},
-      m_RecordMemoryUsage{std::move(recordMemoryUsage)},
-      m_RecordTrainingState(std::move(recordTrainingState)) {
+    : m_Frame{frame}, m_RecordTrainingState(std::move(recordTrainingState)) {
 }
 
 core::CDataFrame& CDataFrameRegressionModel::frame() const {
     return m_Frame;
-}
-
-const CDataFrameRegressionModel::TProgressCallback&
-CDataFrameRegressionModel::progressRecorder() const {
-    return m_RecordProgress;
-}
-
-const CDataFrameRegressionModel::TMemoryUsageCallback&
-CDataFrameRegressionModel::memoryUsageRecorder() const {
-    return m_RecordMemoryUsage;
 }
 
 const CDataFrameRegressionModel::TTrainingStateCallback&

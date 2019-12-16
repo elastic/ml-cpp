@@ -399,14 +399,9 @@ void CBoostedTreeNode::accept(CVisitor& visitor) const {
 }
 
 CBoostedTree::CBoostedTree(core::CDataFrame& frame,
-                           TProgressCallback recordProgress,
-                           TMemoryUsageCallback recordMemoryUsage,
                            TTrainingStateCallback recordTrainingState,
                            TImplUPtr&& impl)
-    : CDataFrameRegressionModel{frame, std::move(recordProgress),
-                                std::move(recordMemoryUsage),
-                                std::move(recordTrainingState)},
-      m_Impl{std::move(impl)} {
+    : CDataFrameRegressionModel{frame, std::move(recordTrainingState)}, m_Impl{std::move(impl)} {
 }
 
 CBoostedTree::~CBoostedTree() = default;

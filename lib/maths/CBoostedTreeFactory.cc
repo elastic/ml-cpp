@@ -109,8 +109,8 @@ CBoostedTreeFactory::buildFor(core::CDataFrame& frame,
     auto treeImpl = std::make_unique<CBoostedTreeImpl>(
         m_NumberThreads, m_TreeImpl->m_Loss->clone(), nullptr);
     std::swap(m_TreeImpl, treeImpl);
-    return TBoostedTreeUPtr{new CBoostedTree{frame, m_RecordProgress, m_RecordMemoryUsage,
-                                             m_RecordTrainingState, std::move(treeImpl)}};
+    return TBoostedTreeUPtr{
+        new CBoostedTree{frame, m_RecordTrainingState, std::move(treeImpl)}};
 }
 
 CBoostedTreeFactory::TBoostedTreeUPtr
@@ -129,8 +129,8 @@ CBoostedTreeFactory::restoreFor(core::CDataFrame& frame, std::size_t dependentVa
     frame.resizeColumns(m_TreeImpl->m_NumberThreads,
                         frame.numberColumns() + this->numberExtraColumnsForTrain());
 
-    return TBoostedTreeUPtr{new CBoostedTree{frame, m_RecordProgress, m_RecordMemoryUsage,
-                                             m_RecordTrainingState, std::move(m_TreeImpl)}};
+    return TBoostedTreeUPtr{
+        new CBoostedTree{frame, m_RecordTrainingState, std::move(m_TreeImpl)}};
 }
 
 std::size_t CBoostedTreeFactory::numberHyperparameterTuningRounds() const {

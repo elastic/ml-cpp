@@ -123,9 +123,7 @@ CDataFrameTrainBoostedTreeRunner::CDataFrameTrainBoostedTreeRunner(
     auto memoryMonitor = [&](std::int64_t delta) {
         this->state().updateMemoryUsage(delta);
     };
-    (*m_BoostedTreeFactory)
-        .analysisState(&m_State)
-        .trainingStateCallback(this->statePersister());
+    (*m_BoostedTreeFactory).analysisState(&m_State).trainingStateCallback(this->statePersister());
 
     if (downsampleRowsPerFeature > 0) {
         m_BoostedTreeFactory->initialDownsampleRowsPerFeature(
