@@ -8,6 +8,7 @@
 #include <core/CDataFrame.h>
 #include <core/CLogger.h>
 
+#include <maths/CDataFrameAnalysisStateInterface.h>
 #include <maths/CLinearAlgebraEigen.h>
 #include <maths/CLinearAlgebraShims.h>
 #include <maths/COutliers.h>
@@ -114,6 +115,8 @@ void outlierErrorStatisticsForEnsemble(std::size_t numberThreads,
     TPointVec points;
     TDoubleVec scores(numberInliers + numberOutliers);
 
+    maths::CDataFrameAnalysisStateInterface state;
+
     for (std::size_t t = 0; t < 100; ++t) {
         gaussianWithUniformNoise(rng, numberInliers, numberOutliers, points);
 
@@ -126,7 +129,7 @@ void outlierErrorStatisticsForEnsemble(std::size_t numberThreads,
                                                     0, // Compute number neighbours
                                                     false, // Compute feature influences
                                                     0.05}; // Outlier fraction
-        maths::COutliers::compute(params, *frame, <#initializer #>);
+        maths::COutliers::compute(params, *frame, state);
 
         frame->readRows(1, [&scores](core::CDataFrame::TRowItr beginRows,
                                      core::CDataFrame::TRowItr endRows) {
@@ -456,6 +459,8 @@ BOOST_AUTO_TEST_CASE(testFeatureInfluences) {
 
     std::string tags[]{"sequential", "parallel"};
 
+    maths::CDataFrameAnalysisStateInterface state;
+
     // Test in/out of core.
     for (std::size_t i = 0; i < 2; ++i) {
 
@@ -471,7 +476,7 @@ BOOST_AUTO_TEST_CASE(testFeatureInfluences) {
                                                         0, // Compute number neighbours
                                                         true, // Compute feature influences
                                                         0.05}; // Outlier fraction
-            maths::COutliers::compute(params, *frame, <#initializer #>);
+            maths::COutliers::compute(params, *frame, state);
 
             bool passed{true};
             TMeanAccumulator averageSignificances[2];
@@ -541,6 +546,8 @@ BOOST_AUTO_TEST_CASE(testEstimateMemoryUsedByCompute) {
 
     core::startDefaultAsyncExecutor(3);
 
+    maths::CDataFrameAnalysisStateInterface state;
+
     for (std::size_t i = 0; i < 2; ++i) {
 
         LOG_DEBUG(<< "# partitions = " << numberPartitions[i]);
@@ -565,7 +572,7 @@ BOOST_AUTO_TEST_CASE(testEstimateMemoryUsedByCompute) {
         std::atomic<std::int64_t> memoryUsage{0};
         std::atomic<std::int64_t> maxMemoryUsage{0};
 
-        maths::COutliers::compute(params, *frame, <#initializer #>);
+        maths::COutliers::compute(params, *frame, state);
 
         LOG_DEBUG(<< "estimated peak memory = " << estimatedMemoryUsage);
         LOG_DEBUG(<< "high water mark = " << maxMemoryUsage);
@@ -598,6 +605,8 @@ BOOST_AUTO_TEST_CASE(testProgressMonitoring) {
 
     core::startDefaultAsyncExecutor(2);
 
+    maths::CDataFrameAnalysisStateInterface state;
+
     for (std::size_t i = 0; i < 2; ++i) {
 
         LOG_DEBUG(<< "# partitions = " << numberPartitions[i]);
@@ -621,7 +630,7 @@ BOOST_AUTO_TEST_CASE(testProgressMonitoring) {
                                                         0, // Compute number neighbours
                                                         false, // Compute feature influences
                                                         0.05}; // Outlier fraction
-            maths::COutliers::compute(params, *frame, <#initializer #>);
+            maths::COutliers::compute(params, *frame, state);
             finished.store(true);
         }};
 
@@ -667,6 +676,8 @@ BOOST_AUTO_TEST_CASE(testMostlyDuplicate) {
         points.push_back(std::move(point));
     }
 
+    maths::CDataFrameAnalysisStateInterface state;
+
     for (std::size_t numberPartitions : {1, 3}) {
         auto frame = test::CDataFrameTestUtils::toMainMemoryDataFrame(points);
 
@@ -677,7 +688,7 @@ BOOST_AUTO_TEST_CASE(testMostlyDuplicate) {
                                                     0, // Compute number neighbours
                                                     false, // Compute feature influences
                                                     0.05}; // Outlier fraction
-        maths::COutliers::compute(params, *frame, <#initializer #>);
+        maths::COutliers::compute(params, *frame, state);
 
         TDoubleVec outlierScores(outliers.size());
         frame->readRows(1, [&](core::CDataFrame::TRowItr beginRows,
@@ -708,6 +719,8 @@ BOOST_AUTO_TEST_CASE(testFewPoints) {
     std::size_t rows{101};
     test::CRandomNumbers rng;
 
+    maths::CDataFrameAnalysisStateInterface state;
+
     for (std::size_t numberPoints : {1, 2, 5}) {
 
         LOG_DEBUG(<< "# points = " << numberPoints);
@@ -732,7 +745,7 @@ BOOST_AUTO_TEST_CASE(testFewPoints) {
                                                     0, // Compute number neighbours
                                                     true, // Compute feature influences
                                                     0.05}; // Outlier fraction
-        maths::COutliers::compute(params, *frame, <#initializer #>);
+        maths::COutliers::compute(params, *frame, state);
 
         bool passed{true};
 
