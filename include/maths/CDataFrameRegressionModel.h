@@ -12,6 +12,7 @@
 #include <maths/ImportExport.h>
 
 #include <boost/optional.hpp>
+#include <boost/range/irange.hpp>
 
 #include <functional>
 #include <utility>
@@ -29,7 +30,7 @@ namespace maths {
 class MATHS_EXPORT CDataFrameRegressionModel {
 public:
     using TDoubleVec = std::vector<double>;
-    using TSizeVec = std::vector<std::size_t>;
+    using TSizeRange = boost::integer_range<std::size_t>;
     using TProgressCallback = std::function<void(double)>;
     using TMemoryUsageCallback = std::function<void(std::int64_t)>;
     using TPersistFunc = std::function<void(core::CStatePersistInserter&)>;
@@ -65,7 +66,7 @@ public:
     virtual std::size_t topShapValues() const = 0;
 
     //! Get the optional vector of column indices with SHAP values
-    virtual TSizeVec columnsHoldingShapValues() const = 0;
+    virtual TSizeRange columnsHoldingShapValues() const = 0;
 
 public:
     static const std::string SHAP_PREFIX;
