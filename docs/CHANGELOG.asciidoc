@@ -57,8 +57,8 @@ is no longer decreasing. (See {ml-pull}875[#875].)
 * Emit `prediction_field_name` in ml results using the type provided as
 `prediction_field_type` parameter. (See {ml-pull}877[#877].)
 * Improve performance updating quantile estimates. (See {ml-pull}881[#881].)
-* Migrate to BO for initial hyperparameter value line searches and stop early if the
-expected improvement is too small. (See {ml-pull}903[#903].)
+* Migrate to use Bayesian Optimisation for initial hyperparameter value line searches and
+stop early if the expected improvement is too small. (See {ml-pull}903[#903].)
 
 === Bug Fixes
 * Fixes potential memory corruption when determining seasonality. (See {ml-pull}852[#852].)
