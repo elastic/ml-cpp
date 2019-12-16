@@ -28,6 +28,7 @@
 
 #include <boost/operators.hpp>
 #include <boost/optional.hpp>
+#include <boost/range/irange.hpp>
 
 #include <limits>
 #include <memory>
@@ -61,6 +62,7 @@ public:
     using TOptionalDouble = boost::optional<double>;
     using TRegularization = CBoostedTreeRegularization<double>;
     using TSizeVec = std::vector<std::size_t>;
+    using TSizeRange = boost::integer_range<std::size_t>;
 
 public:
     static const double MINIMUM_RELATIVE_GAIN_PER_SPLIT;
@@ -139,7 +141,7 @@ public:
     const CBoostedTreeHyperparameters& bestHyperparameters() const;
 
     //! Get the indices of the columns containing SHAP values.
-    TSizeVec columnsHoldingShapValues() const;
+    TSizeRange columnsHoldingShapValues() const;
 
     //! Get the number of largest SHAP values that will be returned for every row.
     std::size_t topShapValues() const;
