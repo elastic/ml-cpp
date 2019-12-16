@@ -101,20 +101,20 @@ struct SFixture {
     rapidjson::Document
     runRegression(std::size_t shapValues, TDoubleVec weights, double noiseVar = 0.0) {
         auto outputWriterFactory = [&]() {
-            return std::make_unique<core::CJsonOutputStreamWrapper>(output);
+            return std::make_unique<core::CJsonOutputStreamWrapper>(s_Output);
         };
         api::CDataFrameAnalyzer analyzer{
             test::CDataFrameAnalysisSpecificationFactory::predictionSpec(
-                "regression", "c5", rows, 5, 8000000, 0, 0, {"c1"}, alpha,
-                lambda, gamma, softTreeDepthLimit, softTreeDepthTolerance, eta,
-                maximumNumberTrees, featureBagFraction, shapValues),
+                "regression", "c5", s_Rows, 5, 8000000, 0, 0, {"c1"}, s_Alpha,
+                s_Lambda, s_Gamma, s_SoftTreeDepthLimit, s_SoftTreeDepthTolerance,
+                s_Eta, s_MaximumNumberTrees, s_FeatureBagFraction, s_ShapValues),
             outputWriterFactory};
         TStrVec fieldNames{"c1", "c2", "c3", "c4", "c5", ".", "."};
         TStrVec fieldValues{"", "", "", "", "", "0", ""};
         test::CRandomNumbers rng;
 
         TDoubleVec values;
-        rng.generateUniformSamples(-10.0, 10.0, weights.size() * rows, values);
+        rng.generateUniformSamples(-10.0, 10.0, weights.size() * s_Rows, values);
 
         // make the first column categorical
         for (auto it = values.begin(); it < values.end(); it += 4) {
@@ -126,49 +126,49 @@ struct SFixture {
         analyzer.handleRecord(fieldNames, {"", "", "", "", "", "", "$"});
 
         rapidjson::Document results;
-        rapidjson::ParseResult ok(results.Parse(output.str()));
+        rapidjson::ParseResult ok(results.Parse(s_Output.str()));
         BOOST_TEST_REQUIRE(static_cast<bool>(ok) == true);
         return results;
     }
 
     rapidjson::Document runClassification(std::size_t shapValues, TDoubleVec&& weights) {
         auto outputWriterFactory = [&]() {
-            return std::make_unique<core::CJsonOutputStreamWrapper>(output);
+            return std::make_unique<core::CJsonOutputStreamWrapper>(s_Output);
         };
         api::CDataFrameAnalyzer analyzer{
             test::CDataFrameAnalysisSpecificationFactory::predictionSpec(
-                "classification", "c5", rows, 5, 8000000, 0, 0, {"c5"}, alpha,
-                lambda, gamma, softTreeDepthLimit, softTreeDepthTolerance, eta,
-                maximumNumberTrees, featureBagFraction, shapValues),
+                "classification", "c5", s_Rows, 5, 8000000, 0, 0, {"c5"}, s_Alpha,
+                s_Lambda, s_Gamma, s_SoftTreeDepthLimit, s_SoftTreeDepthTolerance,
+                s_Eta, s_MaximumNumberTrees, s_FeatureBagFraction, shapValues),
             outputWriterFactory};
         TStrVec fieldNames{"c1", "c2", "c3", "c4", "c5", ".", "."};
         TStrVec fieldValues{"", "", "", "", "", "0", ""};
         test::CRandomNumbers rng;
 
         TDoubleVec values;
-        rng.generateUniformSamples(-10.0, 10.0, weights.size() * rows, values);
+        rng.generateUniformSamples(-10.0, 10.0, weights.size() * s_Rows, values);
 
         setupBinaryClassificationData(fieldNames, fieldValues, analyzer, weights, values);
 
         analyzer.handleRecord(fieldNames, {"", "", "", "", "", "", "$"});
 
         rapidjson::Document results;
-        rapidjson::ParseResult ok(results.Parse(output.str()));
+        rapidjson::ParseResult ok(results.Parse(s_Output.str()));
         BOOST_TEST_REQUIRE(static_cast<bool>(ok) == true);
         return results;
     }
 
-    double alpha{2.0};
-    double lambda{1.0};
-    double gamma{10.0};
-    double softTreeDepthLimit{5.0};
-    double softTreeDepthTolerance{0.1};
-    double eta{0.9};
-    std::size_t maximumNumberTrees{1};
-    double featureBagFraction{1.0};
+    double s_Alpha{2.0};
+    double s_Lambda{1.0};
+    double s_Gamma{10.0};
+    double s_SoftTreeDepthLimit{5.0};
+    double s_SoftTreeDepthTolerance{0.1};
+    double s_Eta{0.9};
+    std::size_t s_MaximumNumberTrees{1};
+    double s_FeatureBagFraction{1.0};
 
-    int rows{2000};
-    std::stringstream output;
+    int s_Rows{2000};
+    std::stringstream s_Output;
 };
 }
 

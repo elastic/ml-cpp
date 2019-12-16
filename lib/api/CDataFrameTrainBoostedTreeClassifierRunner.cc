@@ -163,7 +163,9 @@ void CDataFrameTrainBoostedTreeClassifierRunner::writeOneRow(
                 this->topShapValues(), [&row](std::size_t lhs, std::size_t rhs) {
                     return std::fabs(row[lhs]) > std::fabs(row[rhs]);
                 });
-        largestShapValues.add(this->boostedTree().columnsHoldingShapValues());
+        for (auto col : this->boostedTree().columnsHoldingShapValues()) {
+            largestShapValues.add(col);
+        }
         largestShapValues.sort();
         for (auto i : largestShapValues) {
             writer.Key(frame.columnNames()[i]);

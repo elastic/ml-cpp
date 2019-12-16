@@ -6,6 +6,8 @@
 
 #include <maths/CTreeShapFeatureImportance.h>
 
+#include <boost/optional.hpp>
+
 #include <algorithm>
 #include <limits>
 
@@ -112,14 +114,14 @@ void CTreeShapFeatureImportance::shapRecursive(const TTree& tree,
                                                const TDoubleVec& samplesPerNode,
                                                const CDataFrameCategoryEncoder& encoder,
                                                const CEncodedDataFrameRowRef& encodedRow,
-                                               SPath splitPath,
+                                               SPath& splitPath,
                                                std::size_t nodeIndex,
                                                double parentFractionZero,
                                                double parentFractionOne,
                                                int parentFeatureIndex,
                                                std::size_t offset,
                                                core::CDataFrame::TRowItr& row) const {
-
+    boost::optional<SPath> backupPath;
     CTreeShapFeatureImportance::extendPath(splitPath, parentFractionZero,
                                            parentFractionOne, parentFeatureIndex);
     if (tree[nodeIndex].isLeaf()) {
@@ -157,10 +159,12 @@ void CTreeShapFeatureImportance::shapRecursive(const TTree& tree,
         }
         double incomingFractionZero{1.0};
         double incomingFractionOne{1.0};
-        int splitFeature = static_cast<int>(tree[nodeIndex].splitFeature());
-        auto it = std::find(splitPath.s_FeatureIndex.begin(),
-                            splitPath.s_FeatureIndex.end(), splitFeature);
-        if (it != splitPath.s_FeatureIndex.end()) {
+        int splitFeature{static_cast<int>(tree[nodeIndex].splitFeature())};
+        auto featureIndexEnd{(splitPath.s_FeatureIndex.begin() + splitPath.nextIndex())};
+        auto it = std::find(splitPath.s_FeatureIndex.begin(), featureIndexEnd, splitFeature);
+        if (it != featureIndexEnd) {
+            // Since we pass splitPath by reference, we need to backup the object before unwinding it.
+            backupPath = splitPath;
             auto pathIndex = static_cast<std::size_t>(
                 std::distance(splitPath.s_FeatureIndex.begin(), it));
             incomingFractionZero = splitPath.fractionZeros(pathIndex);
@@ -170,12 +174,19 @@ void CTreeShapFeatureImportance::shapRecursive(const TTree& tree,
 
         double hotFractionZero = samplesPerNode[hotIndex] / samplesPerNode[nodeIndex];
         double coldFractionZero = samplesPerNode[coldIndex] / samplesPerNode[nodeIndex];
+        std::size_t nextIndex = splitPath.nextIndex();
         this->shapRecursive(tree, samplesPerNode, encoder, encodedRow, splitPath,
                             hotIndex, incomingFractionZero * hotFractionZero,
                             incomingFractionOne, splitFeature, offset, row);
+        this->unwindPath(splitPath, nextIndex);
         this->shapRecursive(tree, samplesPerNode, encoder, encodedRow, splitPath,
                             coldIndex, incomingFractionZero * coldFractionZero,
                             0.0, splitFeature, offset, row);
+        this->unwindPath(splitPath, nextIndex);
+        if (backupPath) {
+            // now we swap to restore the data before unwinding
+            splitPath = std::move(backupPath.get());
+        }
     }
 }
 

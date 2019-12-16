@@ -346,7 +346,7 @@ BOOST_FIXTURE_TEST_CASE(testSingleTreeExpectedNodeValues, SFixtureSingleTree) {
     }
 }
 
-BOOST_FIXTURE_TEST_CASE(testSingleTreeShapNotNormalized, SFixtureSingleTree) {
+BOOST_FIXTURE_TEST_CASE(testSingleTreeShap, SFixtureSingleTree) {
     std::size_t offset{s_Frame->numberColumns()};
     s_Frame->resizeColumns(1, offset * 2);
     s_TreeFeatureImportance->shap(*s_Frame, *s_Encoder, offset);
@@ -361,7 +361,7 @@ BOOST_FIXTURE_TEST_CASE(testSingleTreeShapNotNormalized, SFixtureSingleTree) {
     });
 }
 
-BOOST_FIXTURE_TEST_CASE(testMultipleTreesShapNotNormalized, SFixtureMultipleTrees) {
+BOOST_FIXTURE_TEST_CASE(testMultipleTreesShap, SFixtureMultipleTrees) {
     TDoubleVecVec expectedPhi{
         {-1.65320002, -0.12444978}, {-1.65320002, -0.12444978},
         {-1.65320002, -0.12444978}, {-1.16997162, -0.12444978},
