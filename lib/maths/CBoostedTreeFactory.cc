@@ -782,7 +782,7 @@ CBoostedTreeFactory::testLossLineSearch(core::CDataFrame& frame,
         return TOptionalVector{};
     }
 
-    // Find the smallest test losses and the corresponding regularizer span.
+    // Find the smallest test losses and the corresponding regularizer interval.
     auto minimumTestLosses = CBasicStatistics::orderStatisticsAccumulator<TDoubleDoublePr>(
         minNumberTestLosses - 1, COrderings::SSecondLess{});
     minimumTestLosses.add(testLosses);

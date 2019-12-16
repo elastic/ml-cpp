@@ -107,7 +107,7 @@ struct SFixture {
             test::CDataFrameAnalysisSpecificationFactory::predictionSpec(
                 "regression", "c5", s_Rows, 5, 8000000, 0, 0, {"c1"}, s_Alpha,
                 s_Lambda, s_Gamma, s_SoftTreeDepthLimit, s_SoftTreeDepthTolerance,
-                s_Eta, s_MaximumNumberTrees, s_FeatureBagFraction, s_ShapValues),
+                s_Eta, s_MaximumNumberTrees, s_FeatureBagFraction, shapValues),
             outputWriterFactory};
         TStrVec fieldNames{"c1", "c2", "c3", "c4", "c5", ".", "."};
         TStrVec fieldValues{"", "", "", "", "", "0", ""};
