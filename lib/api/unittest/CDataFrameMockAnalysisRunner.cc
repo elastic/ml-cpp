@@ -41,6 +41,14 @@ std::size_t CDataFrameMockAnalysisRunner::estimateBookkeepingMemoryUsage(std::si
     return 0;
 }
 
+const ml::api::CDataFrameAnalysisState& CDataFrameMockAnalysisRunner::state() const {
+    return m_State;
+}
+
+ml::api::CDataFrameAnalysisState& CDataFrameMockAnalysisRunner::state() {
+    return m_State;
+}
+
 ml::test::CRandomNumbers CDataFrameMockAnalysisRunner::ms_Rng;
 
 const std::string& CDataFrameMockAnalysisRunnerFactory::name() const {
@@ -59,3 +67,7 @@ CDataFrameMockAnalysisRunnerFactory::makeImpl(const ml::api::CDataFrameAnalysisS
 }
 
 const std::string CDataFrameMockAnalysisRunnerFactory::NAME{"test"};
+
+ml::counter_t::ECounterTypes CDataFrameMockAnalysisState::memoryCounterType() {
+    return ml::counter_t::E_DFOPeakMemoryUsage;
+}

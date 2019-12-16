@@ -4,6 +4,8 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
+#include "CDataFrameMockAnalysisRunner.h"
+
 #include <core/CContainerPrinter.h>
 #include <core/CJsonOutputStreamWrapper.h>
 #include <core/CProgramCounters.h>
@@ -85,10 +87,9 @@ void addOutlierTestData(TStrVec fieldNames,
     }
 
     frame->finishWritingRows();
-
+    CDataFrameMockAnalysisState state;
     maths::COutliers::compute(
-        {1, 1, true, method, numberNeighbours, computeFeatureInfluence, 0.05},
-        *frame, <#initializer #>);
+        {1, 1, true, method, numberNeighbours, computeFeatureInfluence, 0.05}, *frame, state);
 
     expectedScores.resize(numberInliers + numberOutliers);
     expectedFeatureInfluences.resize(numberInliers + numberOutliers, TDoubleVec(5));
