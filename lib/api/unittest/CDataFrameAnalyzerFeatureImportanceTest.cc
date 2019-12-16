@@ -201,7 +201,6 @@ BOOST_FIXTURE_TEST_CASE(testRunBoostedTreeRegressionFeatureImportanceAllShap, SF
         }
     }
 
-
     // since target is generated using the linear model
     // 50 c1 + 150 c2 + 50 c3 - 50 c4, with c1 categorical {-10,10}
     // we expect c2 > c1 > c3 \approx c4
