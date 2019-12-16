@@ -707,13 +707,19 @@ CBoostedTreeFactory::testLossLineSearch(core::CDataFrame& frame,
                                         double returnedIntervalLeftEndOffset,
                                         double returnedIntervalRightEndOffset) const {
 
-    // This uses a quadratic approximation to the test loss function w.r.t.
-    // the scaled regularization hyperparameter from which it estimates the
-    // minimum error point in the interval we search here. Separately, it
-    // examines size of the residual errors w.r.t. to the variation in the
-    // best fit curve over the interval. We truncate the interval the main
-    // hyperparameter optimisation loop searches if we determine there is a
-    // low chance of missing the best solution by doing so.
+    // This has the following steps:
+    //   1. Coarse search the interval [intervalLeftEnd, intervalRightEnd] using
+    //      fixed steps,
+    //   2. Fine tune, via Bayesian Optimisation targeting expected improvement,
+    //      and stop if the expected improvement small compared to the current
+    //      minimum test loss,
+    //   3. Calculate the parameter interval which gives the lowest test losses,
+    //   4. Fit an OLS quadratic approximation to the test losses in the interval
+    //      from step 3 and use it to estimate the best parameter value,
+    //   5. Compare the size of the residual errors w.r.t. to the OLS curve from
+    //      step 4 with its variation over the interval from step 3 and truncate
+    //      the returned interval if we can determine there is a low chance of
+    //      missing the best solution by doing so.
 
     using TMeanVarAccumulator = CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
     using TMinAccumulator = CBasicStatistics::SMin<double>::TAccumulator;
