@@ -9,10 +9,12 @@
 
 #include <api/CDataFrameAnalysisState.h>
 
+#include <api/ImportExport.h>
+
 namespace ml {
 namespace api {
 
-class CDataFrameTrainBoostedTreeState : public CDataFrameAnalysisState {
+class API_EXPORT CDataFrameTrainBoostedTreeState : public CDataFrameAnalysisState {
 protected:
     counter_t::ECounterTypes memoryCounterType() override;
 };

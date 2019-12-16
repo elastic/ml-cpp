@@ -8,11 +8,12 @@
 #define INCLUDED_ml_api_CDataFrameAnalysisOutliersState_h
 
 #include <api/CDataFrameAnalysisState.h>
+#include <api/ImportExport.h>
 
 namespace ml {
 namespace api {
 // TODO rename to CDataFrameOutliersState
-class CDataFrameAnalysisOutliersState : public CDataFrameAnalysisState {
+class API_EXPORT CDataFrameAnalysisOutliersState : public CDataFrameAnalysisState {
 protected:
     counter_t::ECounterTypes memoryCounterType() override;
 };

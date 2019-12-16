@@ -7,16 +7,19 @@
 #ifndef INCLUDED_ml_maths_CDataFrameAnalysisInterface_h
 #define INCLUDED_ml_maths_CDataFrameAnalysisInterface_h
 
+#include <maths/ImportExport.h>
+
 #include <cstdint>
 
 namespace ml {
 namespace maths {
 
-class CDataFrameAnalysisStateInterface {
+class MATHS_EXPORT CDataFrameAnalysisStateInterface {
 public:
     virtual ~CDataFrameAnalysisStateInterface() = default;
     virtual void updateMemoryUsage(std::int64_t /*delta*/){};
     virtual void updateProgress(double /*fractionalProgress*/){};
+    virtual void nextStep(std::size_t /*step*/){};
 };
 }
 }
