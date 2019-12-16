@@ -412,16 +412,15 @@ CBoostedTree::CBoostedTree(core::CDataFrame& frame,
 CBoostedTree::~CBoostedTree() = default;
 
 void CBoostedTree::train() {
-    m_Impl->train(this->frame(), this->progressRecorder(),
-                  this->memoryUsageRecorder(), this->trainingStateRecorder());
+    m_Impl->train(this->frame(), this->trainingStateRecorder());
 }
 
 void CBoostedTree::predict() const {
-    m_Impl->predict(this->frame(), this->progressRecorder());
+    m_Impl->predict(this->frame());
 }
 
 void CBoostedTree::computeShapValues() {
-    m_Impl->computeShapValues(this->frame(), this->progressRecorder());
+    m_Impl->computeShapValues(this->frame());
 }
 
 const CBoostedTree::TDoubleVec& CBoostedTree::featureWeights() const {

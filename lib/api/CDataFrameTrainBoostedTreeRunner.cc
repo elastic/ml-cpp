@@ -124,9 +124,8 @@ CDataFrameTrainBoostedTreeRunner::CDataFrameTrainBoostedTreeRunner(
         this->state().updateMemoryUsage(delta);
     };
     (*m_BoostedTreeFactory)
-        .progressCallback(progressRecorder)
-        .trainingStateCallback(this->statePersister())
-        .memoryUsageCallback(memoryMonitor);
+        .analysisState(&m_State)
+        .trainingStateCallback(this->statePersister());
 
     if (downsampleRowsPerFeature > 0) {
         m_BoostedTreeFactory->initialDownsampleRowsPerFeature(
@@ -279,9 +278,8 @@ bool CDataFrameTrainBoostedTreeRunner::restoreBoostedTree(core::CDataFrame& fram
             this->state().updateMemoryUsage(delta);
         };
         m_BoostedTree = maths::CBoostedTreeFactory::constructFromString(*inputStream)
-                            .progressCallback(progressRecorder)
+                            .analysisState(&m_State)
                             .trainingStateCallback(this->statePersister())
-                            .memoryUsageCallback(memoryMonitor)
                             .restoreFor(frame, dependentVariableColumn);
     } catch (std::exception& e) {
         LOG_ERROR(<< "Failed to restore state! " << e.what());

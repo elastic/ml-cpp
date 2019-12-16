@@ -452,11 +452,14 @@ CBoostedTreeImpl::CLeafNodeStatistics::computeBestSplitStatistics(const TRegular
     return result;
 }
 
-CBoostedTreeImpl::CBoostedTreeImpl(std::size_t numberThreads, CBoostedTree::TLossFunctionUPtr loss)
+CBoostedTreeImpl::CBoostedTreeImpl(std::size_t numberThreads,
+                                   CBoostedTree::TLossFunctionUPtr loss,
+                                   TAnalysisStatePtr state)
     : m_NumberThreads{numberThreads}, m_Loss{std::move(loss)},
       m_BestHyperparameters{
           m_Regularization,       m_DownsampleFactor,   m_Eta,
-          m_EtaGrowthRatePerTree, m_MaximumNumberTrees, m_FeatureBagFraction} {
+          m_EtaGrowthRatePerTree, m_MaximumNumberTrees, m_FeatureBagFraction},
+      m_AnalysisState{state} {
 }
 
 CBoostedTreeImpl::CBoostedTreeImpl() = default;
@@ -466,9 +469,17 @@ CBoostedTreeImpl::~CBoostedTreeImpl() = default;
 CBoostedTreeImpl& CBoostedTreeImpl::operator=(CBoostedTreeImpl&&) = default;
 
 void CBoostedTreeImpl::train(core::CDataFrame& frame,
-                             const TProgressCallback& recordProgress,
-                             const TMemoryUsageCallback& recordMemoryUsage,
                              const TTrainingStateCallback& recordTrainStateCallback) {
+    if (m_AnalysisState == nullptr) {
+        HANDLE_FATAL(<< "Internal error: analysis state was not initialize. Please report this problem.");
+        return;
+    }
+    auto recordProgress = [&](double fractionalProgress) {
+        this->m_AnalysisState->updateProgress(fractionalProgress);
+    };
+    auto recordMemoryUsage = [&](std::int64_t delta) {
+        this->m_AnalysisState->updateMemoryUsage(delta);
+    };
 
     if (m_DependentVariable >= frame.numberColumns()) {
         HANDLE_FATAL(<< "Internal error: dependent variable '" << m_DependentVariable
@@ -568,8 +579,7 @@ void CBoostedTreeImpl::recordState(const TTrainingStateCallback& recordTrainStat
     });
 }
 
-void CBoostedTreeImpl::predict(core::CDataFrame& frame,
-                               const TProgressCallback& /*recordProgress*/) const {
+void CBoostedTreeImpl::predict(core::CDataFrame& frame) const {
     if (m_BestForestTestLoss == INF) {
         HANDLE_FATAL(<< "Internal error: no model available for prediction. "
                      << "Please report this problem.");
@@ -1536,7 +1546,7 @@ const CBoostedTreeHyperparameters& CBoostedTreeImpl::bestHyperparameters() const
     return m_BestHyperparameters;
 }
 
-void CBoostedTreeImpl::computeShapValues(core::CDataFrame& frame, const TProgressCallback&) {
+void CBoostedTreeImpl::computeShapValues(core::CDataFrame& frame) {
     if (m_TopShapValues > 0) {
         if (m_BestForestTestLoss == INF) {
             HANDLE_FATAL(<< "Internal error: no model available for prediction. "

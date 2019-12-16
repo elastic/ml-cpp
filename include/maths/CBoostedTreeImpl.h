@@ -19,6 +19,7 @@
 #include <maths/CBasicStatistics.h>
 #include <maths/CBoostedTree.h>
 #include <maths/CBoostedTreeHyperparameters.h>
+#include <maths/CDataFrameAnalysisStateInterface.h>
 #include <maths/CDataFrameCategoryEncoder.h>
 #include <maths/CDataFrameUtils.h>
 #include <maths/CLinearAlgebraEigen.h>
@@ -61,12 +62,15 @@ public:
     using TOptionalDouble = boost::optional<double>;
     using TRegularization = CBoostedTreeRegularization<double>;
     using TSizeVec = std::vector<std::size_t>;
+    using TAnalysisStatePtr = CDataFrameAnalysisStateInterface*;
 
 public:
     static const double MINIMUM_RELATIVE_GAIN_PER_SPLIT;
 
 public:
-    CBoostedTreeImpl(std::size_t numberThreads, CBoostedTree::TLossFunctionUPtr loss);
+    CBoostedTreeImpl(std::size_t numberThreads,
+                     CBoostedTree::TLossFunctionUPtr loss,
+                     TAnalysisStatePtr state);
 
     ~CBoostedTreeImpl();
 
@@ -74,20 +78,17 @@ public:
     CBoostedTreeImpl& operator=(CBoostedTreeImpl&&);
 
     //! Train the model on the values in \p frame.
-    void train(core::CDataFrame& frame,
-               const TProgressCallback& recordProgress,
-               const TMemoryUsageCallback& recordMemoryUsage,
-               const TTrainingStateCallback& recordTrainStateCallback);
+    void train(core::CDataFrame& frame, const TTrainingStateCallback& recordTrainStateCallback);
 
     //! Write the predictions of the best trained model to \p frame.
     //!
     //! \note Must be called only if a trained model is available.
-    void predict(core::CDataFrame& frame, const TProgressCallback& /*recordProgress*/) const;
+    void predict(core::CDataFrame& frame) const;
 
     //! Compute SHAP values using the best trained model to \p frame.
     //!
     //! \note Must be called only if a trained model is available.
-    void computeShapValues(core::CDataFrame& frame, const TProgressCallback&);
+    void computeShapValues(core::CDataFrame& frame);
 
     //! Get the feature sample probabilities.
     const TDoubleVec& featureWeights() const;
@@ -545,6 +546,7 @@ private:
     std::size_t m_FirstShapColumnIndex = 0;
     std::size_t m_LastShapColumnIndex = 0;
     std::size_t m_NumberInputColumns = 0;
+    TAnalysisStatePtr m_AnalysisState; // no persist/restore
 
 private:
     friend class CBoostedTreeFactory;
