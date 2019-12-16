@@ -1571,10 +1571,8 @@ void CBoostedTreeImpl::computeShapValues(core::CDataFrame& frame) {
     }
 }
 
-CBoostedTreeImpl::TSizeVec CBoostedTreeImpl::columnsHoldingShapValues() const {
-    TSizeVec result(m_LastShapColumnIndex - m_FirstShapColumnIndex + 1);
-    std::iota(result.begin(), result.end(), m_FirstShapColumnIndex);
-    return result;
+CBoostedTreeImpl::TSizeRange CBoostedTreeImpl::columnsHoldingShapValues() const {
+    return TSizeRange{m_FirstShapColumnIndex, m_LastShapColumnIndex + 1};
 }
 
 std::size_t CBoostedTreeImpl::topShapValues() const {
