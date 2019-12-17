@@ -20,6 +20,7 @@
 #include <test/CTestTmpDir.h>
 
 #include <boost/filesystem.hpp>
+#include <boost/optional.hpp>
 #include <boost/test/unit_test.hpp>
 
 #include <atomic>
@@ -179,6 +180,37 @@ void outlierErrorStatisticsForEnsemble(std::size_t numberThreads,
     LOG_DEBUG(<< "At 0.9: TP = " << TP[2] << " TN = " << TN[2]
               << " FP = " << FP[2] << " FN = " << FN[2]);
 }
+
+class CStubAnalysisState : public maths::CDataFrameAnalysisStateInterface {
+public:
+    using TProgressCallback = boost::optional<std::function<void(double)>>;
+    using TMemoryUsageCallback = boost::optional<std::function<void(std::int64_t)>>;
+
+public:
+    void updateMemoryUsage(std::int64_t delta) override {
+        if (m_MemoryUsageCallback) {
+            m_MemoryUsageCallback.get()(delta);
+        }
+    }
+
+    void updateProgress(double d) override {
+        if (m_ProgressCallback) {
+            m_ProgressCallback.get()(d);
+        }
+    }
+
+    void progressCallback(const std::function<void(double)>& progressCallback) {
+        m_ProgressCallback = progressCallback;
+    }
+
+    void memoryUsageCallback(const std::function<void(std::int64_t)>& memoryUsageCallback) {
+        m_MemoryUsageCallback = memoryUsageCallback;
+    }
+
+private:
+    TProgressCallback m_ProgressCallback;
+    TMemoryUsageCallback m_MemoryUsageCallback;
+};
 }
 
 BOOST_AUTO_TEST_CASE(testLof) {
@@ -546,8 +578,6 @@ BOOST_AUTO_TEST_CASE(testEstimateMemoryUsedByCompute) {
 
     core::startDefaultAsyncExecutor(3);
 
-    maths::CDataFrameAnalysisStateInterface state;
-
     for (std::size_t i = 0; i < 2; ++i) {
 
         LOG_DEBUG(<< "# partitions = " << numberPartitions[i]);
@@ -571,6 +601,21 @@ BOOST_AUTO_TEST_CASE(testEstimateMemoryUsedByCompute) {
 
         std::atomic<std::int64_t> memoryUsage{0};
         std::atomic<std::int64_t> maxMemoryUsage{0};
+
+        CStubAnalysisState state;
+
+        auto memoryUsageCallback = [&](std::int64_t delta) {
+            std::int64_t memoryUsage_{memoryUsage.fetch_add(delta)};
+
+            std::int64_t prevMaxMemoryUsage{maxMemoryUsage};
+            while (prevMaxMemoryUsage < memoryUsage_ &&
+                   maxMemoryUsage.compare_exchange_weak(prevMaxMemoryUsage,
+                                                        memoryUsage_) == false) {
+            }
+            LOG_TRACE(<< "current memory = " << memoryUsage_
+                      << ", high water mark = " << maxMemoryUsage.load());
+        };
+        state.memoryUsageCallback(memoryUsageCallback);
 
         maths::COutliers::compute(params, *frame, state);
 
@@ -605,8 +650,6 @@ BOOST_AUTO_TEST_CASE(testProgressMonitoring) {
 
     core::startDefaultAsyncExecutor(2);
 
-    maths::CDataFrameAnalysisStateInterface state;
-
     for (std::size_t i = 0; i < 2; ++i) {
 
         LOG_DEBUG(<< "# partitions = " << numberPartitions[i]);
@@ -615,10 +658,12 @@ BOOST_AUTO_TEST_CASE(testProgressMonitoring) {
 
         std::atomic_int totalFractionalProgress{0};
 
+        CStubAnalysisState state;
         auto reportProgress = [&totalFractionalProgress](double fractionalProgress) {
             totalFractionalProgress.fetch_add(
                 static_cast<int>(65536.0 * fractionalProgress + 0.5));
         };
+        state.progressCallback(std::move(reportProgress));
 
         std::atomic_bool finished{false};
 
