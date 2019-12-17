@@ -81,14 +81,6 @@ protected:
     //! The boosted tree factory.
     maths::CBoostedTreeFactory& boostedTreeFactory();
 
-    //! Factory for the largest SHAP value accumulator.
-    template<typename LESS>
-    maths::CBasicStatistics::COrderStatisticsHeap<std::size_t, LESS>
-    makeLargestShapAccumulator(std::size_t n, LESS less) const {
-        return maths::CBasicStatistics::COrderStatisticsHeap<std::size_t, LESS>{
-            n, std::size_t{}, less};
-    }
-
 private:
     using TBoostedTreeFactoryUPtr = std::unique_ptr<maths::CBoostedTreeFactory>;
     using TDataSearcherUPtr = CDataFrameAnalysisSpecification::TDataSearcherUPtr;
