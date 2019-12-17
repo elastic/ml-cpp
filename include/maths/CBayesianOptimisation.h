@@ -16,6 +16,8 @@
 #include <maths/CPRNG.h>
 #include <maths/ImportExport.h>
 
+#include <boost/optional.hpp>
+
 #include <functional>
 #include <utility>
 #include <vector>
@@ -52,6 +54,7 @@ class MATHS_EXPORT CBayesianOptimisation {
 public:
     using TDoubleDoublePr = std::pair<double, double>;
     using TDoubleDoublePrVec = std::vector<TDoubleDoublePr>;
+    using TOptionalDouble = boost::optional<double>;
     using TVector = CDenseVector<double>;
     using TLikelihoodFunc = std::function<double(const TVector&)>;
     using TLikelihoodGradientFunc = std::function<TVector(const TVector&)>;
@@ -74,7 +77,7 @@ public:
 
     //! Compute the location which maximizes the expected improvement given the
     //! function evaluations added so far.
-    TVector maximumExpectedImprovement();
+    std::pair<TVector, TOptionalDouble> maximumExpectedImprovement();
 
     //! Persist by passing information to \p inserter.
     void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
