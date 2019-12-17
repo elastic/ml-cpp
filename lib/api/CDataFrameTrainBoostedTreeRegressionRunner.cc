@@ -73,10 +73,10 @@ void CDataFrameTrainBoostedTreeRegressionRunner::writeOneRow(
     const core::CDataFrame& frame,
     const TRowRef& row,
     core::CRapidJsonConcurrentLineWriter& writer) const {
+
     const auto& tree = this->boostedTree();
-    const std::size_t columnHoldingDependentVariable = tree.columnHoldingDependentVariable();
-    const std::size_t columnHoldingPrediction =
-        tree.columnHoldingPrediction(row.numberColumns());
+    const std::size_t columnHoldingDependentVariable{tree.columnHoldingDependentVariable()};
+    const std::size_t columnHoldingPrediction{tree.columnHoldingPrediction()};
 
     writer.StartObject();
     writer.Key(this->predictionFieldName());
