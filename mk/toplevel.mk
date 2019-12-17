@@ -123,14 +123,15 @@ ifdef TOP_DIR_MKF_LAST
 endif
 
 ifdef TOP_DIR_MKF_FIRST
-FIRST_TEST_CMD=$(MAKE) memcheck -f $(TOP_DIR_MKF_FIRST)
+FIRST_VALGRIND_CMD=$(MAKE) memcheck -f $(TOP_DIR_MKF_FIRST)
 else
-FIRST_TEST_CMD=true
+FIRST_VALGRIND_CMD=true
 endif
+
 VG_COMPONENTS=$(filter-out seccomp, $(COMPONENTS))
 memcheck:
-	FAILED=0; \
-	 $(FIRST_TEST_CMD) ; \
+	@+ FAILED=0; \
+	 $(FIRST_VALGRIND_CMD) ; \
 	 if [ $$? -ne 0 ] ; then \
 	   FAILED=1; \
 	   if [ -z "$(ML_KEEP_GOING)" ]; then exit 1; fi; \
@@ -138,15 +139,16 @@ memcheck:
 	 for i in $(VG_COMPONENTS) ; \
 	 do \
 	 echo "$(notdir $(MAKE)): Component=$$i, Target=$@, Time=`date`"; \
-	 (cd $$i && $(MAKE) memcheck ); \
+	 ($(MAKE) -C $$i memcheck); \
 	 if [ $$? -ne 0 ] ; then \
 	   FAILED=1; \
 	   if [ -z "$(ML_KEEP_GOING)" ]; then exit 1; fi; \
 	 fi; \
 	 done; \
 	 exit $$FAILED
+
 ifdef TOP_DIR_MKF_LAST
-	@ $(MAKE) memcheck -f $(TOP_DIR_MKF_LAST)
+	@+ $(MAKE) -f $(TOP_DIR_MKF_LAST) memcheck
 endif
 
 relink:

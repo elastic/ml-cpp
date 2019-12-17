@@ -19,7 +19,7 @@ else
 endif
 
 ifdef TEST_DIRS
-CLEAN_CMDS=@ for i in $(TEST_DIRS) ; \
+CLEAN_CMDS=@+ for i in $(TEST_DIRS) ; \
 do \
 (cd $$i && $(MAKE) clean ); \
 done
@@ -27,7 +27,7 @@ endif
 
 ifndef TEST_CMDS
 TEST_CMDS=\
-@ FAILED=0; \
+@+ FAILED=0; \
 for i in $(TEST_DIRS) ; \
 do \
 	(cd $$i && $(MAKE) test ); \
@@ -44,7 +44,7 @@ endif
 
 ifndef VALGRIND_MEMCHECK_CMD
 VALGRIND_MEMCHECK_CMD=\
-@ FAILED=0; \
+@+ FAILED=0; \
 for i in $(TEST_DIRS) ; \
 do \
 	(cd $$i && $(MAKE) memcheck ); \
@@ -61,7 +61,7 @@ endif
 
 ifndef TEST_OBJ_COMPILE_CMDS
 TEST_OBJ_COMPILE_CMDS:= \
-@for i in $(TEST_DIRS) ; \
+@+ for i in $(TEST_DIRS) ; \
 do \
 	(cd $$i && $(MAKE) objcompile ); \
 done;
@@ -69,7 +69,7 @@ endif
 
 ifndef RELINK_CMDS
 RELINK_CMDS=\
-for i in $(TEST_DIRS) ; \
+@+ for i in $(TEST_DIRS) ; \
 do \
 	(cd $$i && $(MAKE) relink ); \
 done
