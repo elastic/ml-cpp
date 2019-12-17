@@ -169,8 +169,7 @@ auto predictAndComputeEvaluationMetrics(const F& generateFunction,
             double bias;
             double rSquared;
             std::tie(bias, rSquared) = computeEvaluationMetrics(
-                *frame, trainRows, rows,
-                regression->columnHoldingPrediction(frame->numberColumns()),
+                *frame, trainRows, rows, regression->columnHoldingPrediction(),
                 target, noiseVariance / static_cast<double>(rows));
             modelBias[test].push_back(bias);
             modelRSquared[test].push_back(rSquared);
@@ -437,7 +436,7 @@ BOOST_AUTO_TEST_CASE(testThreading) {
 
         frame->readRows(1, [&](TRowItr beginRows, TRowItr endRows) {
             for (auto row = beginRows; row != endRows; ++row) {
-                std::size_t index{regression->columnHoldingPrediction(row->numberColumns())};
+                std::size_t index{regression->columnHoldingPrediction()};
                 modelPredictionErrorMoments.add(target(*row) - (*row)[index]);
             }
         });
@@ -530,7 +529,7 @@ BOOST_AUTO_TEST_CASE(testConstantTarget) {
 
     frame->readRows(1, [&](TRowItr beginRows, TRowItr endRows) {
         for (auto row = beginRows; row != endRows; ++row) {
-            std::size_t index{regression->columnHoldingPrediction(row->numberColumns())};
+            std::size_t index{regression->columnHoldingPrediction()};
             modelPredictionError.add(1.0 - (*row)[index]);
         }
     });
@@ -603,8 +602,7 @@ BOOST_AUTO_TEST_CASE(testCategoricalRegressors) {
     double modelBias;
     double modelRSquared;
     std::tie(modelBias, modelRSquared) = computeEvaluationMetrics(
-        *frame, trainRows, rows,
-        regression->columnHoldingPrediction(frame->numberColumns()), target, 0.0);
+        *frame, trainRows, rows, regression->columnHoldingPrediction(), target, 0.0);
 
     LOG_DEBUG(<< "bias = " << modelBias);
     LOG_DEBUG(<< " R^2 = " << modelRSquared);
@@ -645,8 +643,7 @@ BOOST_AUTO_TEST_CASE(testIntegerRegressor) {
     double modelBias;
     double modelRSquared;
     std::tie(modelBias, modelRSquared) = computeEvaluationMetrics(
-        *frame, trainRows, rows,
-        regression->columnHoldingPrediction(frame->numberColumns()),
+        *frame, trainRows, rows, regression->columnHoldingPrediction(),
         [&](const TRowRef& x) { return 10.0 * x[0]; }, 0.0);
 
     LOG_DEBUG(<< "bias = " << modelBias);
@@ -690,7 +687,7 @@ BOOST_AUTO_TEST_CASE(testSingleSplit) {
     double modelBias;
     double modelRSquared;
     std::tie(modelBias, modelRSquared) = computeEvaluationMetrics(
-        *frame, 0, rows, regression->columnHoldingPrediction(frame->numberColumns()),
+        *frame, 0, rows, regression->columnHoldingPrediction(),
         [](const TRowRef& row) { return 10.0 * row[0]; }, 0.0);
 
     LOG_DEBUG(<< "bias = " << modelBias);
@@ -750,8 +747,7 @@ BOOST_AUTO_TEST_CASE(testTranslationInvariance) {
         double modelBias;
         double modelRSquared;
         std::tie(modelBias, modelRSquared) = computeEvaluationMetrics(
-            *frame, trainRows, rows,
-            regression->columnHoldingPrediction(frame->numberColumns()), target_, 0.0);
+            *frame, trainRows, rows, regression->columnHoldingPrediction(), target_, 0.0);
 
         LOG_DEBUG(<< "bias = " << modelBias);
         LOG_DEBUG(<< " R^2 = " << modelRSquared);
@@ -1117,8 +1113,7 @@ BOOST_AUTO_TEST_CASE(testLogisticRegression) {
         frame->readRows(1, [&](TRowItr beginRows, TRowItr endRows) {
             for (auto row = beginRows; row != endRows; ++row) {
                 if (row->index() >= trainRows) {
-                    std::size_t index{
-                        regression->columnHoldingPrediction(row->numberColumns())};
+                    std::size_t index{regression->columnHoldingPrediction()};
                     double expectedProbability{probability(*row)};
                     double actualProbability{maths::CTools::logisticFunction((*row)[index])};
                     logRelativeError.add(
@@ -1197,8 +1192,7 @@ BOOST_AUTO_TEST_CASE(testUnbalancedClasses) {
         TDoubleVec falseNegatives(2, 0.0);
         frame->readRows(1, [&](TRowItr beginRows, TRowItr endRows) {
             for (auto row = beginRows; row != endRows; ++row) {
-                double logOddsClassOne{
-                    (*row)[regression->columnHoldingPrediction(row->numberColumns())]};
+                double logOddsClassOne{(*row)[regression->columnHoldingPrediction()]};
                 double prediction{
                     maths::CTools::logisticFunction(logOddsClassOne) < 0.5 ? 0.0 : 1.0};
                 if (row->index() >= trainRows &&
@@ -1366,8 +1360,80 @@ BOOST_AUTO_TEST_CASE(testProgressMonitoring) {
     core::stopDefaultAsyncExecutor();
 }
 
-BOOST_AUTO_TEST_CASE(testMissingData, *boost::unit_test::disabled()) {
-    // TODO
+BOOST_AUTO_TEST_CASE(testMissingFeatures) {
+
+    // Test censoring, i.e. data missing is correlated with the target variable.
+
+    std::size_t rows{1000};
+    std::size_t cols{4};
+    test::CRandomNumbers rng;
+
+    auto frame = core::makeMainStorageDataFrame(cols).first;
+
+    frame->categoricalColumns(TBoolVec{false, false, false, false});
+    for (std::size_t i = 0; i < rows - 4; ++i) {
+        frame->writeRow([&](core::CDataFrame::TFloatVecItr column, std::int32_t&) {
+            TDoubleVec regressors;
+            rng.generateUniformSamples(0.0, 10.0, cols - 1, regressors);
+            double target{0.0};
+            for (auto regressor : regressors) {
+                *(column++) = regressor > 9.0 ? core::CDataFrame::valueOfMissing() : regressor;
+                target += regressor;
+            }
+            *column = target;
+        });
+    }
+    frame->writeRow([&](core::CDataFrame::TFloatVecItr column, std::int32_t&) {
+        *(column++) = core::CDataFrame::valueOfMissing();
+        *(column++) = 2.0;
+        *(column++) = 6.0;
+        *column = core::CDataFrame::valueOfMissing();
+    });
+    frame->writeRow([&](core::CDataFrame::TFloatVecItr column, std::int32_t&) {
+        *(column++) = 2.0;
+        *(column++) = core::CDataFrame::valueOfMissing();
+        *(column++) = 6.0;
+        *column = core::CDataFrame::valueOfMissing();
+    });
+    frame->writeRow([&](core::CDataFrame::TFloatVecItr column, std::int32_t&) {
+        *(column++) = 2.0;
+        *(column++) = 6.0;
+        *(column++) = core::CDataFrame::valueOfMissing();
+        *column = core::CDataFrame::valueOfMissing();
+    });
+    frame->writeRow([&](core::CDataFrame::TFloatVecItr column, std::int32_t&) {
+        *(column++) = core::CDataFrame::valueOfMissing();
+        *(column++) = 3.0;
+        *(column++) = core::CDataFrame::valueOfMissing();
+        *column = core::CDataFrame::valueOfMissing();
+    });
+    frame->finishWritingRows();
+
+    auto regression = maths::CBoostedTreeFactory::constructFromParameters(1).buildFor(
+        *frame, std::make_unique<maths::boosted_tree::CMse>(), cols - 1);
+
+    regression->train();
+    regression->predict();
+
+    // For each missing value given we censor for regression variables greater
+    // than 9.0, target = sum_i{R_i} for regressors R_i and R_i ~ U([0,10]) so
+    // we expect a n * E[U([0, 10]) | U([0, 10]) > 9.0] = 9.5 * n contribution
+    // to the target for n equal to the number of missing variables.
+    TDoubleVec expectedPredictions{17.5, 17.5, 17.5, 22.0};
+    TDoubleVec actualPredictions;
+
+    frame->readRows(1, [&](TRowItr beginRows, TRowItr endRows) {
+        for (auto row = beginRows; row != endRows; ++row) {
+            if (maths::CDataFrameUtils::isMissing((*row)[cols - 1])) {
+                actualPredictions.push_back((*row)[regression->columnHoldingPrediction()]);
+            }
+        }
+    });
+
+    BOOST_REQUIRE_EQUAL(expectedPredictions.size(), actualPredictions.size());
+    for (std::size_t i = 0; i < expectedPredictions.size(); ++i) {
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(expectedPredictions[i], actualPredictions[i], 0.8);
+    }
 }
 
 BOOST_AUTO_TEST_CASE(testPersistRestore) {

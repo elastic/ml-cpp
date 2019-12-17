@@ -262,7 +262,7 @@ void addPredictionTestData(EPredictionType type,
 
     frame->readRows(1, [&](TRowItr beginRows, TRowItr endRows) {
         for (auto row = beginRows; row != endRows; ++row) {
-            double prediction{(*row)[tree->columnHoldingPrediction(row->numberColumns())]};
+            double prediction{(*row)[tree->columnHoldingPrediction()]};
             appendPrediction(*frame, weights.size(), prediction, expectedPredictions);
         }
     });
