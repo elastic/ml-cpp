@@ -253,7 +253,7 @@ BOOST_AUTO_TEST_CASE(testRunOutlierDetectionPartitioned) {
               << core::CProgramCounters::counter(counter_t::E_DFOPeakMemoryUsage));
     BOOST_TEST_REQUIRE(core::CProgramCounters::counter(counter_t::E_DFONumberPartitions) > 1);
     BOOST_TEST_REQUIRE(core::CProgramCounters::counter(counter_t::E_DFOPeakMemoryUsage) <
-                       116000); // + 16%
+                       300000); // + 16%
 }
 
 BOOST_AUTO_TEST_CASE(testRunOutlierFeatureInfluences) {

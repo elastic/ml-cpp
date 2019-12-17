@@ -30,30 +30,42 @@ void CDataFrameAnalysisState::updateProgress(double fractionalProgress) {
         static_cast<double>(MAXIMUM_FRACTIONAL_PROGRESS) * fractionalProgress + 0.5, 1.0)));
 }
 
+void CDataFrameAnalysisState::SInternalState::setToFinished() {
+    s_Finished.store(true);
+    s_FractionalProgress.store(MAXIMUM_FRACTIONAL_PROGRESS);
+}
+
+bool CDataFrameAnalysisState::SInternalState::finished() const {
+    return s_Finished.load();
+}
+
 void CDataFrameAnalysisState::setToFinished() {
-    m_Finished.store(true);
-    m_InternalState.s_FractionalProgress.store(MAXIMUM_FRACTIONAL_PROGRESS);
+    this->m_InternalState.setToFinished();
 }
 
 bool CDataFrameAnalysisState::finished() const {
-    return m_Finished.load();
+    return this->m_InternalState.finished();
 }
 
 double CDataFrameAnalysisState::progress() const {
-    return this->finished() ? 1.0
-                            : static_cast<double>(std::min(
-                                  m_InternalState.s_FractionalProgress.load(),
-                                  MAXIMUM_FRACTIONAL_PROGRESS - 1)) /
-                                  static_cast<double>(MAXIMUM_FRACTIONAL_PROGRESS);
+    return this->m_InternalState.progress();
+}
+
+double CDataFrameAnalysisState::SInternalState::progress() const {
+    return this->finished()
+               ? 1.0
+               : static_cast<double>(std::min(s_FractionalProgress.load(),
+                                              MAXIMUM_FRACTIONAL_PROGRESS - 1)) /
+                     static_cast<double>(MAXIMUM_FRACTIONAL_PROGRESS);
 }
 
 CDataFrameAnalysisState::CDataFrameAnalysisState()
-    : m_InternalState(), m_Finished(false) {
+    : m_InternalState(), m_Writer{nullptr} {
 }
 
 void CDataFrameAnalysisState::resetProgress() {
     m_InternalState.s_FractionalProgress.store(0.0);
-    m_Finished.store(false);
+    m_InternalState.s_Finished.store(false);
 }
 
 void CDataFrameAnalysisState::writer(core::CRapidJsonConcurrentLineWriter* writer) {
@@ -86,7 +98,7 @@ void CDataFrameAnalysisState::SInternalState::writeProgress(std::uint32_t step,
     writer.Key(STEP_TAG);
     writer.Uint(step);
     writer.Key(PROGRESS_TAG);
-    writer.Double(s_FractionalProgress.load());
+    writer.Double(this->progress());
     writer.EndObject();
 }
 
@@ -104,13 +116,15 @@ void CDataFrameAnalysisState::SInternalState::writeMemory(std::uint32_t step,
 
 CDataFrameAnalysisState::SInternalState::SInternalState(const CDataFrameAnalysisState::SInternalState& other)
     : s_Memory(other.s_Memory.load()),
-      s_FractionalProgress(other.s_FractionalProgress.load()) {
+      s_FractionalProgress(other.s_FractionalProgress.load()),
+      s_Finished(other.s_Finished.load()) {
 }
 
 CDataFrameAnalysisState::SInternalState& CDataFrameAnalysisState::SInternalState::
 operator=(const CDataFrameAnalysisState::SInternalState& other) {
     s_Memory.store(other.s_Memory.load());
     s_FractionalProgress.store(other.s_FractionalProgress.load());
+    s_Finished.store(other.s_Finished.load());
     return *this;
 }
 }

@@ -64,8 +64,16 @@ private:
         void writeProgress(uint32_t step, core::CRapidJsonConcurrentLineWriter& writer);
         void writeMemory(uint32_t step, core::CRapidJsonConcurrentLineWriter& writer);
 
+        //! \return The progress of the analysis in the range [0,1] being an estimate
+        //! of the proportion of total work complete for a single run.
+        double progress() const;
+        void setToFinished();
+        //! \return True if the running analysis has finished.
+        bool finished() const;
+
         std::atomic<std::int64_t> s_Memory;
         std::atomic_size_t s_FractionalProgress;
+        std::atomic_bool s_Finished;
     };
 
 private:
@@ -73,7 +81,6 @@ private:
 
 private:
     SInternalState m_InternalState;
-    std::atomic_bool m_Finished;
     core::CConcurrentQueue<SInternalState, 10> m_StateQueue;
     core::CRapidJsonConcurrentLineWriter* m_Writer;
 };
