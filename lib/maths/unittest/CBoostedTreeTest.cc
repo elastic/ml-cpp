@@ -1441,10 +1441,10 @@ BOOST_AUTO_TEST_CASE(testPersistRestore) {
     }
     frame->finishWritingRows();
 
+    maths::CDataFrameAnalysisStateInterface state;
+
     // persist
     {
-        maths::CDataFrameAnalysisStateInterface state;
-
         auto boostedTree =
             maths::CBoostedTreeFactory::constructFromParameters(1)
                 .analysisState(&state)
@@ -1458,6 +1458,7 @@ BOOST_AUTO_TEST_CASE(testPersistRestore) {
     }
     // restore
     auto boostedTree = maths::CBoostedTreeFactory::constructFromString(persistOnceSStream)
+                           .analysisState(&state)
                            .restoreFor(*frame, cols - 1);
     {
         core::CJsonStatePersistInserter inserter(persistTwiceSStream);
