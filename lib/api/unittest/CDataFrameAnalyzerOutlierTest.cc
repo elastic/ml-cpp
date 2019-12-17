@@ -389,9 +389,6 @@ BOOST_AUTO_TEST_CASE(testOutlierDetectionStateReport) {
     }
     LOG_DEBUG(<< stream.str());
 
-    bool progressCompleted{false};
-    for (const auto& result : results.GetArray()) {
-    }
 }
 
 BOOST_AUTO_TEST_CASE(testFlushMessage) {

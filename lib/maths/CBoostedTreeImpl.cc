@@ -543,6 +543,8 @@ void CBoostedTreeImpl::train(core::CDataFrame& frame,
             std::uint64_t currentLap{stopWatch.lap()};
             timeAccumulator.add(static_cast<double>(currentLap - lastLap));
             lastLap = currentLap;
+
+            this->m_AnalysisState->nextStep(m_CurrentRound);
         }
 
         LOG_TRACE(<< "Test loss = " << m_BestForestTestLoss);
@@ -551,7 +553,7 @@ void CBoostedTreeImpl::train(core::CDataFrame& frame,
         std::tie(m_BestForest, std::ignore) =
             this->trainForest(frame, allTrainingRowsMask, allTrainingRowsMask,
                               m_TrainingProgress, recordMemoryUsage);
-
+        this->m_AnalysisState->nextStep(m_CurrentRound);
         this->recordState(recordTrainStateCallback);
 
         timeAccumulator.add(static_cast<double>(stopWatch.stop()));

@@ -415,6 +415,44 @@ BOOST_AUTO_TEST_CASE(testRunBoostedTreeRegressionTraining) {
     BOOST_TEST_REQUIRE(core::CProgramCounters::counter(counter_t::E_DFTPMTimeToTrain) <= duration);
 }
 
+BOOST_AUTO_TEST_CASE(testRunBoostedTreeRegressionTrainingStateReport) {
+
+    // Test the results the analyzer produces match running the regression directly.
+
+    std::stringstream output;
+    auto outputWriterFactory = [&output]() {
+        return std::make_unique<core::CJsonOutputStreamWrapper>(output);
+    };
+
+    TDoubleVec expectedPredictions;
+
+    TStrVec fieldNames{"c1", "c2", "c3", "c4", "c5", ".", "."};
+    TStrVec fieldValues{"", "", "", "", "", "0", ""};
+    api::CDataFrameAnalyzer analyzer{
+            test::CDataFrameAnalysisSpecificationFactory::predictionSpec("regression", "c5"),
+            outputWriterFactory};
+    addPredictionTestData(E_Regression, fieldNames, fieldValues, analyzer, expectedPredictions);
+
+    core::CStopWatch watch{true};
+    analyzer.handleRecord(fieldNames, {"", "", "", "", "", "", "$"});
+    std::uint64_t duration{watch.stop()};
+
+    rapidjson::Document results;
+    rapidjson::ParseResult ok(results.Parse(output.str()));
+    BOOST_TEST_REQUIRE(static_cast<bool>(ok) == true);
+
+    std::ostringstream stream;
+    {
+        core::CJsonOutputStreamWrapper wrapper{stream};
+        core::CRapidJsonConcurrentLineWriter writer{wrapper};
+        writer.write(results);
+        stream.flush();
+    }
+    LOG_DEBUG(<< stream.str());
+
+}
+
+
 BOOST_AUTO_TEST_CASE(testRunBoostedTreeRegressionTrainingWithParams) {
 
     // Test the regression hyperparameter settings are correctly propagated to the
