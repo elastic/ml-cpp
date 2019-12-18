@@ -432,10 +432,7 @@ BOOST_AUTO_TEST_CASE(testRunBoostedTreeRegressionTrainingStateReport) {
         test::CDataFrameAnalysisSpecificationFactory::predictionSpec("regression", "c5"),
         outputWriterFactory};
     addPredictionTestData(E_Regression, fieldNames, fieldValues, analyzer, expectedPredictions);
-
-    core::CStopWatch watch{true};
     analyzer.handleRecord(fieldNames, {"", "", "", "", "", "", "$"});
-    std::uint64_t duration{watch.stop()};
 
     rapidjson::Document results;
     rapidjson::ParseResult ok(results.Parse(output.str()));

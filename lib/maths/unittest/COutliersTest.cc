@@ -183,8 +183,8 @@ void outlierErrorStatisticsForEnsemble(std::size_t numberThreads,
 
 class CStubAnalysisState : public maths::CDataFrameAnalysisStateInterface {
 public:
-    using TProgressCallback = boost::optional<std::function<void(double)>>;
-    using TMemoryUsageCallback = boost::optional<std::function<void(std::int64_t)>>;
+    using TProgressCallbackOpt = boost::optional<TProgressCallback>;
+    using TMemoryUsageCallbackOpt = boost::optional<TMemoryUsageCallback>;
 
 public:
     void updateMemoryUsage(std::int64_t delta) override {
@@ -208,8 +208,8 @@ public:
     }
 
 private:
-    TProgressCallback m_ProgressCallback;
-    TMemoryUsageCallback m_MemoryUsageCallback;
+    TProgressCallbackOpt m_ProgressCallback;
+    TMemoryUsageCallbackOpt m_MemoryUsageCallback;
 };
 }
 
