@@ -388,7 +388,6 @@ BOOST_AUTO_TEST_CASE(testOutlierDetectionStateReport) {
         stream.flush();
     }
     LOG_DEBUG(<< stream.str());
-
 }
 
 BOOST_AUTO_TEST_CASE(testFlushMessage) {

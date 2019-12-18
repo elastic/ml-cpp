@@ -429,8 +429,8 @@ BOOST_AUTO_TEST_CASE(testRunBoostedTreeRegressionTrainingStateReport) {
     TStrVec fieldNames{"c1", "c2", "c3", "c4", "c5", ".", "."};
     TStrVec fieldValues{"", "", "", "", "", "0", ""};
     api::CDataFrameAnalyzer analyzer{
-            test::CDataFrameAnalysisSpecificationFactory::predictionSpec("regression", "c5"),
-            outputWriterFactory};
+        test::CDataFrameAnalysisSpecificationFactory::predictionSpec("regression", "c5"),
+        outputWriterFactory};
     addPredictionTestData(E_Regression, fieldNames, fieldValues, analyzer, expectedPredictions);
 
     core::CStopWatch watch{true};
@@ -449,9 +449,7 @@ BOOST_AUTO_TEST_CASE(testRunBoostedTreeRegressionTrainingStateReport) {
         stream.flush();
     }
     LOG_DEBUG(<< stream.str());
-
 }
-
 
 BOOST_AUTO_TEST_CASE(testRunBoostedTreeRegressionTrainingWithParams) {
 
