@@ -44,6 +44,7 @@ public:
     static const std::string MAXIMUM_NUMBER_TREES;
     static const std::string FEATURE_BAG_FRACTION;
     static const std::string NUMBER_FOLDS;
+    static const std::string STOP_CROSS_VALIDATION_EARLY;
     static const std::string NUMBER_ROUNDS_PER_HYPERPARAMETER;
     static const std::string BAYESIAN_OPTIMISATION_RESTARTS;
     static const std::string TOP_SHAP_VALUES;
