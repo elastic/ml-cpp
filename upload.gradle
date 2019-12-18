@@ -76,9 +76,9 @@ class DownloadPlatformSpecific extends DefaultTask {
     platforms.each {
       File zipFile = new File(downloadDirectory, "${baseName}-${version}-${it}.zip")
       zipFile.parentFile.mkdirs()
-      new URL("https://prelert-artifacts.s3.amazonaws.com/maven/${artifactGroupPath}/${baseName}/${version}/${zipFile.name}").withInputStream {
-        i -> zipFile.withOutputStream {
-          o -> o << i
+      new URL("https://prelert-artifacts.s3.amazonaws.com/maven/${artifactGroupPath}/${baseName}/${version}/${zipFile.name}").withInputStream { i ->
+        zipFile.withOutputStream { o ->
+          o << i
         }
       }
       ZipFile zip = new ZipFile(zipFile)
@@ -90,8 +90,8 @@ class DownloadPlatformSpecific extends DefaultTask {
             target.mkdirs()
           } else {
             target.parentFile.mkdirs()
-            target.withOutputStream {
-              o -> o << zip.getInputStream(it)
+            target.withOutputStream { o ->
+              o << zip.getInputStream(it)
             }
             target.setLastModified(it.getTime())
           }
