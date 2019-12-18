@@ -92,7 +92,7 @@ task format(type: Exec) {
 }
 
 def zipSpec = copySpec {
-  from("${projectDir}/build/distribution") {
+  from("${buildDir}/distribution") {
     // Don't copy Windows import libraries
     exclude "**/*.lib"
     // Don't copy the test support library
@@ -117,7 +117,7 @@ task buildZip(type: Zip) {
 }
 
 def zipSpecSymbols = copySpec {
-  from("${projectDir}/build/distribution") {
+  from("${buildDir}/distribution") {
     // only take debug files
     include "**/*-debug"
     include "**/*.pdb"
@@ -140,7 +140,7 @@ def uberZipSpec = copySpec {
   // We know we'll have binaries from the current build
   from(zipTree(buildZip.outputs.files.singleFile))
   // We might also have binaries for other platforms (e.g. if they've been built in Docker)
-  def localZips = fileTree("${projectDir}/build/distributions").matching {
+  def localZips = fileTree("${buildDir}/distributions").matching {
       include "${artifactName}-${project.version}-darwin-*.zip"
       include "${artifactName}-${project.version}-linux-*.zip"
       include "${artifactName}-${project.version}-windows-*.zip"
