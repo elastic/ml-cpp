@@ -12,8 +12,7 @@
 
 namespace ml {
 namespace api {
-// TODO rename to CDataFrameOutliersState
-class API_EXPORT CDataFrameAnalysisOutliersState : public CDataFrameAnalysisState {
+class API_EXPORT CDataFrameOutliersState : public CDataFrameAnalysisState {
 protected:
     counter_t::ECounterTypes memoryCounterType() override;
 };

@@ -53,27 +53,19 @@ public:
 
     void nextStep(std::size_t step) override;
 
+    std::int64_t memory() const;
+
 protected:
     virtual counter_t::ECounterTypes memoryCounterType() = 0;
 
 private:
     struct SInternalState {
         SInternalState() = default;
-        SInternalState(const SInternalState& other);
-        SInternalState& operator=(const SInternalState& other);
+        SInternalState(const CDataFrameAnalysisState& state);
         void writeProgress(uint32_t step, core::CRapidJsonConcurrentLineWriter& writer);
         void writeMemory(uint32_t step, core::CRapidJsonConcurrentLineWriter& writer);
-
-        //! \return The progress of the analysis in the range [0,1] being an estimate
-        //! of the proportion of total work complete for a single run.
-        double progress() const;
-        void setToFinished();
-        //! \return True if the running analysis has finished.
-        bool finished() const;
-
-        std::atomic<std::int64_t> s_Memory;
-        std::atomic_size_t s_FractionalProgress;
-        std::atomic_bool s_Finished;
+        std::int64_t s_Memory;
+        double s_Progress;
     };
 
 private:
@@ -83,6 +75,9 @@ private:
     SInternalState m_InternalState;
     core::CConcurrentQueue<SInternalState, 10> m_StateQueue;
     core::CRapidJsonConcurrentLineWriter* m_Writer;
+    std::atomic<std::int64_t> m_Memory;
+    std::atomic_size_t m_FractionalProgress;
+    std::atomic_bool m_Finished;
 };
 }
 }

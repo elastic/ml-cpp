@@ -25,16 +25,16 @@ CConfigUpdater.cc \
 CCsvInputParser.cc \
 CCsvOutputWriter.cc \
 CDataFrameAnalysisConfigReader.cc \
-CDataFrameAnalysisOutliersState.cc \
 CDataFrameAnalysisRunner.cc \
 CDataFrameAnalysisSpecification.cc \
 CDataFrameAnalysisSpecificationJsonWriter.cc \
 CDataFrameAnalysisState.cc\
 CDataFrameAnalyzer.cc \
 CDataFrameOutliersRunner.cc \
-CDataFrameTrainBoostedTreeRunner.cc \
+CDataFrameOutliersState.cc \
 CDataFrameTrainBoostedTreeClassifierRunner.cc \
 CDataFrameTrainBoostedTreeRegressionRunner.cc \
+CDataFrameTrainBoostedTreeRunner.cc \
 CDataFrameTrainBoostedTreeState.cc \
 CDataProcessor.cc \
 CDetectionRulesJsonParser.cc \

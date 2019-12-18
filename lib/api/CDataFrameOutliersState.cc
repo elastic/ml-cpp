@@ -4,12 +4,12 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
-#include <api/CDataFrameAnalysisOutliersState.h>
+#include <api/CDataFrameOutliersState.h>
 
 namespace ml {
 namespace api {
 
-counter_t::ECounterTypes CDataFrameAnalysisOutliersState::memoryCounterType() {
+counter_t::ECounterTypes CDataFrameOutliersState::memoryCounterType() {
     return counter_t::E_DFOPeakMemoryUsage;
 }
 }

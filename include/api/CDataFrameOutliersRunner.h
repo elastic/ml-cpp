@@ -8,8 +8,8 @@
 #define INCLUDED_ml_api_CDataFrameOutliersRunner_h
 
 #include <api/CDataFrameAnalysisConfigReader.h>
-#include <api/CDataFrameAnalysisOutliersState.h>
 #include <api/CDataFrameAnalysisRunner.h>
+#include <api/CDataFrameOutliersState.h>
 #include <api/ImportExport.h>
 
 #include <rapidjson/fwd.h>
@@ -80,7 +80,7 @@ private:
     double m_OutlierFraction = 0.05;
     //@}
 
-    CDataFrameAnalysisOutliersState m_State;
+    CDataFrameOutliersState m_State;
 };
 
 //! \brief Makes a core::CDataFrame outlier analysis runner.
