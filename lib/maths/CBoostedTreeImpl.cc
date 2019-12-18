@@ -474,8 +474,8 @@ void CBoostedTreeImpl::train(core::CDataFrame& frame,
         HANDLE_FATAL(<< "Internal error: analysis state was not initialize. Please report this problem.");
         return;
     }
-    auto recordProgress = this->m_AnalysisState->progressCallback();
-    auto recordMemoryUsage = this->m_AnalysisState->memoryUsageCallback();
+    auto recordProgress{this->m_AnalysisState->progressCallback()};
+    auto recordMemoryUsage{this->m_AnalysisState->memoryUsageCallback()};
 
     if (m_DependentVariable >= frame.numberColumns()) {
         HANDLE_FATAL(<< "Internal error: dependent variable '" << m_DependentVariable

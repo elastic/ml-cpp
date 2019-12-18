@@ -172,9 +172,6 @@ private:
 
     std::size_t m_NumberPartitions = 0;
     std::size_t m_MaximumNumberRowsPerPartition = 0;
-
-    std::atomic<std::int64_t> m_Memory;
-
     std::thread m_Runner;
 };
 

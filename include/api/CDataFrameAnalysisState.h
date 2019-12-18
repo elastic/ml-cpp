@@ -12,14 +12,17 @@
 
 #include <maths/CDataFrameAnalysisStateInterface.h>
 
+#include <api/CDataFrameAnalysisState.h>
 #include <api/ImportExport.h>
 
-#include <api/CDataFrameAnalysisState.h>
 #include <cstdint>
 
 namespace ml {
 namespace api {
 
+//! \brief Responsible for collecting data frame analysis job statistics, i.e. memory usage,
+//! progress, parameters, quality of results. The class also implements the functionality to
+//! write the state at different iteration into the results pipe.
 class API_EXPORT CDataFrameAnalysisState : public maths::CDataFrameAnalysisStateInterface {
 
 public:
@@ -27,6 +30,7 @@ public:
 
     virtual ~CDataFrameAnalysisState() = default;
 
+    //! Adds \p delta to the memory usage statistics.
     void updateMemoryUsage(std::int64_t delta) override;
 
     //! This adds \p fractionalProgess to the current progress.
@@ -39,8 +43,6 @@ public:
     //! and typically this would be called significantly less frequently.
     void updateProgress(double fractionalProgress) override;
     void setToFinished();
-    //    virtual void updateQualityOfResults() = 0;
-    //    virtual void updateParameters() = 0;
 
     //! \return True if the running analysis has finished.
     bool finished() const;
@@ -49,12 +51,17 @@ public:
     //! of the proportion of total work complete for a single run.
     double progress() const;
 
+    //! Reset variables related to the job progress.
     void resetProgress();
 
+    //! Set pointer to the writer object.
     void writer(core::CRapidJsonConcurrentLineWriter* writer);
 
+    //! Trigger the next step of the job. This will initiate writing the job state
+    //! to the results pipe.
     void nextStep(uint32_t step) override;
 
+    //! \return The peak memory usage.
     std::int64_t memory() const;
 
 protected:

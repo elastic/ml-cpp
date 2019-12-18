@@ -12,7 +12,6 @@
 #include <api/CDataFrameAnalysisState.h>
 #include <api/ImportExport.h>
 
-#include "CDataFrameAnalysisState.h"
 #include <rapidjson/fwd.h>
 
 namespace ml {
