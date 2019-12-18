@@ -11,12 +11,12 @@
 #include <core/CProgramCounters.h>
 #include <core/CStatePersistInserter.h>
 
+#include <api/CDataFrameAnalysisState.h>
 #include <api/CInferenceModelDefinition.h>
 #include <api/ImportExport.h>
 
 #include <rapidjson/fwd.h>
 
-#include "CDataFrameAnalysisState.h"
 #include <atomic>
 #include <cstddef>
 #include <functional>
@@ -140,14 +140,15 @@ public:
     virtual TInferenceModelDefinitionUPtr
     inferenceModelDefinition(const TStrVec& fieldNames, const TStrVecVec& categoryNames) const;
 
+    //! \return Reference to the analysis state.
     virtual const CDataFrameAnalysisState& state() const = 0;
+    //! \return Reference to the analysis state.
     virtual CDataFrameAnalysisState& state() = 0;
 
 protected:
     using TMemoryMonitor = std::function<void(std::int64_t)>;
     using TStatePersister =
         std::function<void(std::function<void(core::CStatePersistInserter&)>)>;
-    //    using TStateUPtr = std::unique_ptr<CDataFrameAnalysisState>;
 
 protected:
     const CDataFrameAnalysisSpecification& spec() const;
@@ -158,8 +159,6 @@ protected:
 
     //! \return Callback function for writing state using given persist inserter
     TStatePersister statePersister();
-
-    //    virtual TStateUPtr analysisState() = 0;
 
 private:
     virtual void runImpl(core::CDataFrame& frame) = 0;

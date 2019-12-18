@@ -14,12 +14,14 @@
 
 #include <api/ImportExport.h>
 
+#include <api/CDataFrameAnalysisState.h>
 #include <cstdint>
 
 namespace ml {
 namespace api {
 
 class API_EXPORT CDataFrameAnalysisState : public maths::CDataFrameAnalysisStateInterface {
+
 public:
     CDataFrameAnalysisState();
 
@@ -51,7 +53,7 @@ public:
 
     void writer(core::CRapidJsonConcurrentLineWriter* writer);
 
-    void nextStep(std::size_t step) override;
+    void nextStep(uint32_t step) override;
 
     std::int64_t memory() const;
 
@@ -64,20 +66,30 @@ private:
         SInternalState(const CDataFrameAnalysisState& state);
         void writeProgress(uint32_t step, core::CRapidJsonConcurrentLineWriter& writer);
         void writeMemory(uint32_t step, core::CRapidJsonConcurrentLineWriter& writer);
-        std::int64_t s_Memory;
         double s_Progress;
+        std::int64_t s_Memory;
     };
 
 private:
-    void writeState(std::size_t step, CDataFrameAnalysisState::SInternalState&& state);
+    void writeState(uint32_t step, CDataFrameAnalysisState::SInternalState&& state);
 
 private:
     SInternalState m_InternalState;
     core::CConcurrentQueue<SInternalState, 10> m_StateQueue;
-    core::CRapidJsonConcurrentLineWriter* m_Writer;
-    std::atomic<std::int64_t> m_Memory;
-    std::atomic_size_t m_FractionalProgress;
     std::atomic_bool m_Finished;
+    std::atomic_size_t m_FractionalProgress;
+    std::atomic<std::int64_t> m_Memory;
+    core::CRapidJsonConcurrentLineWriter* m_Writer;
+};
+
+class API_EXPORT CDataFrameOutliersState : public CDataFrameAnalysisState {
+protected:
+    counter_t::ECounterTypes memoryCounterType() override;
+};
+
+class API_EXPORT CDataFrameTrainBoostedTreeState : public CDataFrameAnalysisState {
+protected:
+    counter_t::ECounterTypes memoryCounterType() override;
 };
 }
 }

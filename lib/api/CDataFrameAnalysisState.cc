@@ -10,6 +10,10 @@ namespace ml {
 namespace api {
 
 namespace {
+const std::string STEP_TAG{"step"};
+const std::string PROGRESS_TAG{"progress"};
+const std::string PEAK_MEMORY_USAGE_TAG{"peak_memory_usage"};
+
 const std::size_t MAXIMUM_FRACTIONAL_PROGRESS{std::size_t{1}
                                               << ((sizeof(std::size_t) - 2) * 8)};
 }
@@ -48,7 +52,7 @@ double CDataFrameAnalysisState::progress() const {
 }
 
 CDataFrameAnalysisState::CDataFrameAnalysisState()
-    : m_FractionalProgress(0), m_Memory(0), m_Finished(false), m_Writer{nullptr} {
+    : m_Finished{false}, m_FractionalProgress{0}, m_Memory{0}, m_Writer{nullptr} {
 }
 
 void CDataFrameAnalysisState::resetProgress() {
@@ -60,8 +64,7 @@ void CDataFrameAnalysisState::writer(core::CRapidJsonConcurrentLineWriter* write
     m_Writer = writer;
 }
 
-void CDataFrameAnalysisState::nextStep(std::size_t step) {
-    //    CDataFrameAnalysisStateInterface::nextStep(size);
+void CDataFrameAnalysisState::nextStep(uint32_t step) {
     m_StateQueue.tryPush(SInternalState(*this));
     if (m_Writer != nullptr) {
         while (m_StateQueue.size() > 0) {
@@ -70,8 +73,7 @@ void CDataFrameAnalysisState::nextStep(std::size_t step) {
     }
 }
 
-void CDataFrameAnalysisState::writeState(std::size_t step,
-                                         CDataFrameAnalysisState::SInternalState&& state) {
+void CDataFrameAnalysisState::writeState(uint32_t step, SInternalState&& state) {
     state.writeProgress(step, *m_Writer);
     state.writeMemory(step, *m_Writer);
 }
@@ -79,10 +81,6 @@ void CDataFrameAnalysisState::writeState(std::size_t step,
 std::int64_t CDataFrameAnalysisState::memory() const {
     return m_Memory.load();
 }
-
-static const char* const STEP_TAG = "step";
-
-static const char* const PROGRESS_TAG = "progress";
 
 void CDataFrameAnalysisState::SInternalState::writeProgress(std::uint32_t step,
                                                             core::CRapidJsonConcurrentLineWriter& writer) {
@@ -93,8 +91,6 @@ void CDataFrameAnalysisState::SInternalState::writeProgress(std::uint32_t step,
     writer.Double(s_Progress);
     writer.EndObject();
 }
-
-static const char* const PEAK_MEMORY_USAGE_TAG = "peak_memory_usage";
 
 void CDataFrameAnalysisState::SInternalState::writeMemory(std::uint32_t step,
                                                           core::CRapidJsonConcurrentLineWriter& writer) {
@@ -108,6 +104,14 @@ void CDataFrameAnalysisState::SInternalState::writeMemory(std::uint32_t step,
 
 CDataFrameAnalysisState::SInternalState::SInternalState(const CDataFrameAnalysisState& state)
     : s_Progress{state.progress()}, s_Memory{state.memory()} {
+}
+
+counter_t::ECounterTypes CDataFrameOutliersState::memoryCounterType() {
+    return counter_t::E_DFOPeakMemoryUsage;
+}
+
+counter_t::ECounterTypes CDataFrameTrainBoostedTreeState::memoryCounterType() {
+    return counter_t::E_DFTPMPeakMemoryUsage;
 }
 }
 }

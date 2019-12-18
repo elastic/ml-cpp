@@ -16,10 +16,22 @@ namespace maths {
 
 class MATHS_EXPORT CDataFrameAnalysisStateInterface {
 public:
+    using TProgressCallback = std::function<void(double)>;
+    using TMemoryUsageCallback = std::function<void(std::int64_t)>;
+
+public:
     virtual ~CDataFrameAnalysisStateInterface() = default;
     virtual void updateMemoryUsage(std::int64_t /*delta*/){};
     virtual void updateProgress(double /*fractionalProgress*/){};
-    virtual void nextStep(std::size_t /*step*/){};
+    virtual void nextStep(uint32_t /*step*/){};
+    TProgressCallback progressCallback() {
+        return [&](double fractionalProgress) {
+            this->updateProgress(fractionalProgress);
+        };
+    };
+    TMemoryUsageCallback memoryUsageCallback() {
+        return [&](std::int64_t delta) { this->updateMemoryUsage(delta); };
+    };
 };
 }
 }

@@ -86,9 +86,6 @@ private:
     void writeResultsOf(const CDataFrameAnalysisRunner& analysis,
                         core::CRapidJsonConcurrentLineWriter& writer) const;
 
-    void writeMemoryUsage(core::CRapidJsonConcurrentLineWriter& writer) const;
-    void writeParameters(core::CRapidJsonConcurrentLineWriter& writer) const;
-
 private:
     // This has values: -2 (unset), -1 (missing), >= 0 (control field index).
     std::ptrdiff_t m_ControlFieldIndex = FIELD_UNSET;

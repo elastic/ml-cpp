@@ -72,7 +72,7 @@ public:
 public:
     CBoostedTreeImpl(std::size_t numberThreads,
                      CBoostedTree::TLossFunctionUPtr loss,
-                     TAnalysisStatePtr state);
+                     TAnalysisStatePtr state = nullptr);
 
     ~CBoostedTreeImpl();
 

@@ -11,7 +11,7 @@
 
 #include <api/CDataFrameAnalysisRunner.h>
 #include <api/CDataFrameAnalysisSpecification.h>
-#include <api/CDataFrameTrainBoostedTreeState.h>
+#include <api/CDataFrameAnalysisState.h>
 #include <api/ImportExport.h>
 
 #include <rapidjson/fwd.h>
@@ -63,8 +63,9 @@ public:
 
     std::size_t topShapValues() const;
 
+    //! \return Reference to the analysis state.
     const CDataFrameAnalysisState& state() const override;
-
+    //! \return Reference to the analysis state.
     CDataFrameAnalysisState& state() override;
 
 protected:

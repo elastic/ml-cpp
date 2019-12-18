@@ -474,12 +474,8 @@ void CBoostedTreeImpl::train(core::CDataFrame& frame,
         HANDLE_FATAL(<< "Internal error: analysis state was not initialize. Please report this problem.");
         return;
     }
-    auto recordProgress = [&](double fractionalProgress) {
-        this->m_AnalysisState->updateProgress(fractionalProgress);
-    };
-    auto recordMemoryUsage = [&](std::int64_t delta) {
-        this->m_AnalysisState->updateMemoryUsage(delta);
-    };
+    auto recordProgress = this->m_AnalysisState->progressCallback();
+    auto recordMemoryUsage = this->m_AnalysisState->memoryUsageCallback();
 
     if (m_DependentVariable >= frame.numberColumns()) {
         HANDLE_FATAL(<< "Internal error: dependent variable '" << m_DependentVariable
@@ -543,8 +539,7 @@ void CBoostedTreeImpl::train(core::CDataFrame& frame,
             std::uint64_t currentLap{stopWatch.lap()};
             timeAccumulator.add(static_cast<double>(currentLap - lastLap));
             lastLap = currentLap;
-
-            this->m_AnalysisState->nextStep(m_CurrentRound);
+            this->m_AnalysisState->nextStep(static_cast<std::uint32_t>(m_CurrentRound));
         }
 
         LOG_TRACE(<< "Test loss = " << m_BestForestTestLoss);
@@ -553,7 +548,7 @@ void CBoostedTreeImpl::train(core::CDataFrame& frame,
         std::tie(m_BestForest, std::ignore) =
             this->trainForest(frame, allTrainingRowsMask, allTrainingRowsMask,
                               m_TrainingProgress, recordMemoryUsage);
-        this->m_AnalysisState->nextStep(m_CurrentRound);
+        this->m_AnalysisState->nextStep(static_cast<std::uint32_t>(m_CurrentRound));
         this->recordState(recordTrainStateCallback);
 
         timeAccumulator.add(static_cast<double>(stopWatch.stop()));

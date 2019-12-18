@@ -117,12 +117,6 @@ CDataFrameTrainBoostedTreeRunner::CDataFrameTrainBoostedTreeRunner(
     m_BoostedTreeFactory = std::make_unique<maths::CBoostedTreeFactory>(
         maths::CBoostedTreeFactory::constructFromParameters(this->spec().numberThreads()));
 
-    auto progressRecorder = [&](double fractionalProgress) {
-        this->state().updateProgress(fractionalProgress);
-    };
-    auto memoryMonitor = [&](std::int64_t delta) {
-        this->state().updateMemoryUsage(delta);
-    };
     (*m_BoostedTreeFactory).analysisState(&m_State).trainingStateCallback(this->statePersister());
 
     if (downsampleRowsPerFeature > 0) {
@@ -269,12 +263,6 @@ bool CDataFrameTrainBoostedTreeRunner::restoreBoostedTree(core::CDataFrame& fram
             LOG_ERROR(<< "State restoration search returned failed stream");
             return false;
         }
-        auto progressRecorder = [&](double fractionalProgress) {
-            this->state().updateProgress(fractionalProgress);
-        };
-        auto memoryMonitor = [&](std::int64_t delta) {
-            this->state().updateMemoryUsage(delta);
-        };
         m_BoostedTree = maths::CBoostedTreeFactory::constructFromString(*inputStream)
                             .analysisState(&m_State)
                             .trainingStateCallback(this->statePersister())
@@ -301,6 +289,14 @@ std::size_t CDataFrameTrainBoostedTreeRunner::topShapValues() const {
     return 0;
 }
 
+const CDataFrameAnalysisState& CDataFrameTrainBoostedTreeRunner::state() const {
+    return m_State;
+}
+
+CDataFrameAnalysisState& CDataFrameTrainBoostedTreeRunner::state() {
+    return m_State;
+}
+
 // clang-format off
 const std::string CDataFrameTrainBoostedTreeRunner::DEPENDENT_VARIABLE_NAME{"dependent_variable"};
 const std::string CDataFrameTrainBoostedTreeRunner::PREDICTION_FIELD_NAME{"prediction_field_name"};
@@ -317,15 +313,6 @@ const std::string CDataFrameTrainBoostedTreeRunner::NUMBER_FOLDS{"number_folds"}
 const std::string CDataFrameTrainBoostedTreeRunner::NUMBER_ROUNDS_PER_HYPERPARAMETER{"number_rounds_per_hyperparameter"};
 const std::string CDataFrameTrainBoostedTreeRunner::BAYESIAN_OPTIMISATION_RESTARTS{"bayesian_optimisation_restarts"};
 const std::string CDataFrameTrainBoostedTreeRunner::TOP_SHAP_VALUES{"top_shap_values"};
-
-const CDataFrameAnalysisState &CDataFrameTrainBoostedTreeRunner::state() const {
-    return m_State;
-}
-
-CDataFrameAnalysisState &CDataFrameTrainBoostedTreeRunner::state() {
-    return m_State;
-}
-
 // clang-format on
 }
 }

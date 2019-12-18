@@ -9,9 +9,10 @@
 
 #include <api/CDataFrameAnalysisConfigReader.h>
 #include <api/CDataFrameAnalysisRunner.h>
-#include <api/CDataFrameOutliersState.h>
+#include <api/CDataFrameAnalysisState.h>
 #include <api/ImportExport.h>
 
+#include "CDataFrameAnalysisState.h"
 #include <rapidjson/fwd.h>
 
 namespace ml {
@@ -32,8 +33,9 @@ public:
     CDataFrameOutliersRunner(const CDataFrameAnalysisSpecification& spec,
                              const CDataFrameAnalysisParameters& parameters);
 
+    //! \return Reference to the analysis state.
     const CDataFrameAnalysisState& state() const override;
-
+    //! \return Reference to the analysis state.
     CDataFrameAnalysisState& state() override;
 
     //! This is not intended to be called directly: use CDataFrameOutliersRunnerFactory.

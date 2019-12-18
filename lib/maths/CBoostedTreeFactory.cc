@@ -106,8 +106,8 @@ CBoostedTreeFactory::buildFor(core::CDataFrame& frame,
         this->initializeHyperparameterOptimisation();
     }
 
-    auto treeImpl = std::make_unique<CBoostedTreeImpl>(
-        m_NumberThreads, m_TreeImpl->m_Loss->clone(), nullptr);
+    auto treeImpl = std::make_unique<CBoostedTreeImpl>(m_NumberThreads,
+                                                       m_TreeImpl->m_Loss->clone());
     std::swap(m_TreeImpl, treeImpl);
     return TBoostedTreeUPtr{
         new CBoostedTree{frame, m_RecordTrainingState, std::move(treeImpl)}};
@@ -790,7 +790,7 @@ CBoostedTreeFactory CBoostedTreeFactory::constructFromString(std::istream& jsonS
 
 CBoostedTreeFactory::CBoostedTreeFactory(std::size_t numberThreads)
     : m_NumberThreads{numberThreads},
-      m_TreeImpl{std::make_unique<CBoostedTreeImpl>(numberThreads, nullptr, nullptr)},
+      m_TreeImpl{std::make_unique<CBoostedTreeImpl>(numberThreads, nullptr)},
       m_LogDepthPenaltyMultiplierSearchInterval{0.0}, m_LogTreeSizePenaltyMultiplierSearchInterval{0.0},
       m_LogLeafWeightPenaltyMultiplierSearchInterval{0.0}, m_TopShapValues{0} {
 }
@@ -1044,14 +1044,8 @@ CBoostedTreeFactory& CBoostedTreeFactory::analysisState(TAnalysisStatePtr state)
     m_AnalysisState = state;
     if (m_AnalysisState != nullptr) {
         m_TreeImpl->m_AnalysisState = m_AnalysisState;
-        auto progressRecorder = [&](double fractionalProgress) {
-            this->m_AnalysisState->updateProgress(fractionalProgress);
-        };
-        auto memoryMonitor = [&](std::int64_t delta) {
-            this->m_AnalysisState->updateMemoryUsage(delta);
-        };
-        this->progressCallback(progressRecorder);
-        this->memoryUsageCallback(memoryMonitor);
+        this->progressCallback(m_AnalysisState->progressCallback());
+        this->memoryUsageCallback(m_AnalysisState->memoryUsageCallback());
     }
     return *this;
 }

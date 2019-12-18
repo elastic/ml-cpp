@@ -31,11 +31,9 @@ CDataFrameAnalysisSpecificationJsonWriter.cc \
 CDataFrameAnalysisState.cc\
 CDataFrameAnalyzer.cc \
 CDataFrameOutliersRunner.cc \
-CDataFrameOutliersState.cc \
 CDataFrameTrainBoostedTreeClassifierRunner.cc \
 CDataFrameTrainBoostedTreeRegressionRunner.cc \
 CDataFrameTrainBoostedTreeRunner.cc \
-CDataFrameTrainBoostedTreeState.cc \
 CDataProcessor.cc \
 CDetectionRulesJsonParser.cc \
 CFieldConfig.cc \

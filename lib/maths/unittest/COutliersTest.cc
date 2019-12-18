@@ -199,11 +199,11 @@ public:
         }
     }
 
-    void progressCallback(const std::function<void(double)>& progressCallback) {
+    void progressCallback(const TProgressCallback& progressCallback) {
         m_ProgressCallback = progressCallback;
     }
 
-    void memoryUsageCallback(const std::function<void(std::int64_t)>& memoryUsageCallback) {
+    void memoryUsageCallback(const TMemoryUsageCallback& memoryUsageCallback) {
         m_MemoryUsageCallback = memoryUsageCallback;
     }
 

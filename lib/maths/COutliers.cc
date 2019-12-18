@@ -176,7 +176,7 @@ public:
 
     //! Compute the outlier scores for \p points.
     TScorerVec computeOutlierScores(const std::vector<POINT>& points,
-                                    maths::CDataFrameAnalysisStateInterface& state) const;
+                                    CDataFrameAnalysisStateInterface& state) const;
 
     //! Estimate the amount of memory that will be used by the ensemble.
     static std::size_t
@@ -369,7 +369,7 @@ CEnsemble<POINT>::makeBuilders(const TSizeVecVec& methods,
 template<typename POINT>
 typename CEnsemble<POINT>::TScorerVec
 CEnsemble<POINT>::computeOutlierScores(const std::vector<POINT>& points,
-                                       maths::CDataFrameAnalysisStateInterface& state) const {
+                                       CDataFrameAnalysisStateInterface& state) const {
     if (points.empty()) {
         return {};
     }
@@ -379,7 +379,7 @@ CEnsemble<POINT>::computeOutlierScores(const std::vector<POINT>& points,
     TScorerVec scores(points.size());
     m_RecordMemoryUsage(core::CMemory::dynamicSize(scores));
 
-    std::size_t step{0ul};
+    std::uint32_t step{0ul};
     for (const auto& model : m_Models) {
         model.addOutlierScores(points, scores, m_RecordMemoryUsage);
         state.nextStep(step++);
@@ -887,7 +887,7 @@ CEnsemble<POINT> buildEnsemble(const COutliers::SComputeParameters& params,
 
 bool computeOutliersNoPartitions(const COutliers::SComputeParameters& params,
                                  core::CDataFrame& frame,
-                                 maths::CDataFrameAnalysisStateInterface& state,
+                                 CDataFrameAnalysisStateInterface& state,
                                  TProgressCallback recordProgress,
                                  TMemoryUsageCallback recordMemoryUsage) {
 
@@ -974,7 +974,7 @@ bool computeOutliersNoPartitions(const COutliers::SComputeParameters& params,
 
 bool computeOutliersPartitioned(const COutliers::SComputeParameters& params,
                                 core::CDataFrame& frame,
-                                maths::CDataFrameAnalysisStateInterface& state,
+                                CDataFrameAnalysisStateInterface& state,
                                 TProgressCallback recordProgress,
                                 TMemoryUsageCallback recordMemoryUsage) {
 
@@ -1071,12 +1071,8 @@ void COutliers::compute(const SComputeParameters& params,
         CDataFrameUtils::standardizeColumns(params.s_NumberThreads, frame);
     }
 
-    auto recordProgress = [&state](double fractionalProgress) {
-        state.updateProgress(fractionalProgress);
-    };
-    auto recordMemoryUsage = [&state](std::int64_t delta) {
-        state.updateMemoryUsage(delta);
-    };
+    auto recordProgress{state.progressCallback()};
+    auto recordMemoryUsage{state.memoryUsageCallback()};
 
     bool successful{
         frame.inMainMemory() && params.s_NumberPartitions == 1
