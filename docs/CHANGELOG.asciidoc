@@ -39,8 +39,8 @@
 
 === New Features
 
-* Add computation of tree SHAP feature importance values (SHapley Additive
-exPlanation) for classification and regression. (See {ml-pull}857[#857].)
+* Add feature importance values to classification and regression results (using tree 
+SHapley Additive exPlanation, or SHAP). (See {ml-pull}857[#857].)
 
 === Enhancements
 
