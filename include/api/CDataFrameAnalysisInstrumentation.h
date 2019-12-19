@@ -10,9 +10,9 @@
 #include <core/CProgramCounters.h>
 #include <core/CRapidJsonConcurrentLineWriter.h>
 
-#include <maths/CDataFrameAnalysisStateInterface.h>
+#include <maths/CDataFrameAnalysisInstrumentationInterface.h>
 
-#include <api/CDataFrameAnalysisState.h>
+#include <api/CDataFrameAnalysisInstrumentation.h>
 #include <api/ImportExport.h>
 
 #include <cstdint>
@@ -23,12 +23,12 @@ namespace api {
 //! \brief Responsible for collecting data frame analysis job statistics, i.e. memory usage,
 //! progress, parameters, quality of results. The class also implements the functionality to
 //! write the state at different iteration into the results pipe.
-class API_EXPORT CDataFrameAnalysisState : public maths::CDataFrameAnalysisStateInterface {
+class API_EXPORT CDataFrameAnalysisInstrumentation : public maths::CDataFrameAnalysisInstrumentationInterface {
 
 public:
-    CDataFrameAnalysisState();
+    CDataFrameAnalysisInstrumentation();
 
-    virtual ~CDataFrameAnalysisState() = default;
+    virtual ~CDataFrameAnalysisInstrumentation() = default;
 
     //! Adds \p delta to the memory usage statistics.
     void updateMemoryUsage(std::int64_t delta) override;
@@ -70,7 +70,7 @@ protected:
 private:
     struct SInternalState {
         SInternalState() = default;
-        SInternalState(const CDataFrameAnalysisState& state);
+        SInternalState(const CDataFrameAnalysisInstrumentation& state);
         void writeProgress(uint32_t step, core::CRapidJsonConcurrentLineWriter& writer);
         void writeMemory(uint32_t step, core::CRapidJsonConcurrentLineWriter& writer);
         double s_Progress;
@@ -78,7 +78,7 @@ private:
     };
 
 private:
-    void writeState(uint32_t step, CDataFrameAnalysisState::SInternalState&& state);
+    void writeState(uint32_t step, CDataFrameAnalysisInstrumentation::SInternalState&& state);
 
 private:
     SInternalState m_InternalState;
@@ -89,12 +89,12 @@ private:
     core::CRapidJsonConcurrentLineWriter* m_Writer;
 };
 
-class API_EXPORT CDataFrameOutliersState : public CDataFrameAnalysisState {
+class API_EXPORT CDataFrameOutliersInstrumentation : public CDataFrameAnalysisInstrumentation {
 protected:
     counter_t::ECounterTypes memoryCounterType() override;
 };
 
-class API_EXPORT CDataFrameTrainBoostedTreeState : public CDataFrameAnalysisState {
+class API_EXPORT CDataFrameTrainBoostedTreeInstrumentation : public CDataFrameAnalysisInstrumentation {
 protected:
     counter_t::ECounterTypes memoryCounterType() override;
 };

@@ -38,11 +38,11 @@ std::size_t CDataFrameMockAnalysisRunner::estimateBookkeepingMemoryUsage(std::si
     return 0;
 }
 
-const ml::api::CDataFrameAnalysisState& CDataFrameMockAnalysisRunner::state() const {
+const ml::api::CDataFrameAnalysisInstrumentation& CDataFrameMockAnalysisRunner::state() const {
     return m_State;
 }
 
-ml::api::CDataFrameAnalysisState& CDataFrameMockAnalysisRunner::state() {
+ml::api::CDataFrameAnalysisInstrumentation& CDataFrameMockAnalysisRunner::state() {
     return m_State;
 }
 

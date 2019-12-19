@@ -28,7 +28,7 @@ CDataFrameAnalysisConfigReader.cc \
 CDataFrameAnalysisRunner.cc \
 CDataFrameAnalysisSpecification.cc \
 CDataFrameAnalysisSpecificationJsonWriter.cc \
-CDataFrameAnalysisState.cc\
+CDataFrameAnalysisInstrumentation.cc\
 CDataFrameAnalyzer.cc \
 CDataFrameOutliersRunner.cc \
 CDataFrameTrainBoostedTreeClassifierRunner.cc \

@@ -9,13 +9,13 @@
 
 #include <api/CDataFrameAnalysisRunner.h>
 #include <api/CDataFrameAnalysisSpecification.h>
-#include <api/CDataFrameAnalysisState.h>
+#include <api/CDataFrameAnalysisInstrumentation.h>
 
 #include <test/CRandomNumbers.h>
 
 #include <functional>
 
-class CDataFrameMockAnalysisState final : public ml::api::CDataFrameAnalysisState {
+class CDataFrameMockAnalysisState final : public ml::api::CDataFrameAnalysisInstrumentation {
 protected:
     ml::counter_t::ECounterTypes memoryCounterType() override;
 };
@@ -29,9 +29,9 @@ public:
                      const TRowRef&,
                      ml::core::CRapidJsonConcurrentLineWriter&) const override;
 
-    const ml::api::CDataFrameAnalysisState& state() const override;
+    const ml::api::CDataFrameAnalysisInstrumentation& state() const override;
 
-    ml::api::CDataFrameAnalysisState& state() override;
+    ml::api::CDataFrameAnalysisInstrumentation& state() override;
 
 private:
     void runImpl(ml::core::CDataFrame&) override;

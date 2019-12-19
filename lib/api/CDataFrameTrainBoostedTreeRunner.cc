@@ -117,7 +117,7 @@ CDataFrameTrainBoostedTreeRunner::CDataFrameTrainBoostedTreeRunner(
     m_BoostedTreeFactory = std::make_unique<maths::CBoostedTreeFactory>(
         maths::CBoostedTreeFactory::constructFromParameters(this->spec().numberThreads()));
 
-    (*m_BoostedTreeFactory).analysisState(&m_State).trainingStateCallback(this->statePersister());
+    (*m_BoostedTreeFactory).analysisInstrumentation(&m_State).trainingStateCallback(this->statePersister());
 
     if (downsampleRowsPerFeature > 0) {
         m_BoostedTreeFactory->initialDownsampleRowsPerFeature(
@@ -264,7 +264,7 @@ bool CDataFrameTrainBoostedTreeRunner::restoreBoostedTree(core::CDataFrame& fram
             return false;
         }
         m_BoostedTree = maths::CBoostedTreeFactory::constructFromString(*inputStream)
-                            .analysisState(&m_State)
+                            .analysisInstrumentation(&m_State)
                             .trainingStateCallback(this->statePersister())
                             .restoreFor(frame, dependentVariableColumn);
     } catch (std::exception& e) {
@@ -289,11 +289,11 @@ std::size_t CDataFrameTrainBoostedTreeRunner::topShapValues() const {
     return 0;
 }
 
-const CDataFrameAnalysisState& CDataFrameTrainBoostedTreeRunner::state() const {
+const CDataFrameAnalysisInstrumentation& CDataFrameTrainBoostedTreeRunner::state() const {
     return m_State;
 }
 
-CDataFrameAnalysisState& CDataFrameTrainBoostedTreeRunner::state() {
+CDataFrameAnalysisInstrumentation& CDataFrameTrainBoostedTreeRunner::state() {
     return m_State;
 }
 

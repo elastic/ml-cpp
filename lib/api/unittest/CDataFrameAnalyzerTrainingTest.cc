@@ -250,8 +250,8 @@ void addPredictionTestData(EPredictionType type,
         treeFactory.featureBagFraction(featureBagFraction);
     }
 
-    ml::api::CDataFrameTrainBoostedTreeState state;
-    treeFactory.analysisState(&state);
+    ml::api::CDataFrameTrainBoostedTreeInstrumentation state;
+    treeFactory.analysisInstrumentation(&state);
 
     std::unique_ptr<maths::boosted_tree::CLoss> loss;
     if (type == E_Regression) {

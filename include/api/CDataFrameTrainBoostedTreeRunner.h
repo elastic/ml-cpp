@@ -11,7 +11,7 @@
 
 #include <api/CDataFrameAnalysisRunner.h>
 #include <api/CDataFrameAnalysisSpecification.h>
-#include <api/CDataFrameAnalysisState.h>
+#include <api/CDataFrameAnalysisInstrumentation.h>
 #include <api/ImportExport.h>
 
 #include <rapidjson/fwd.h>
@@ -64,9 +64,9 @@ public:
     std::size_t topShapValues() const;
 
     //! \return Reference to the analysis state.
-    const CDataFrameAnalysisState& state() const override;
+    const CDataFrameAnalysisInstrumentation& state() const override;
     //! \return Reference to the analysis state.
-    CDataFrameAnalysisState& state() override;
+    CDataFrameAnalysisInstrumentation& state() override;
 
 protected:
     using TBoostedTreeUPtr = std::unique_ptr<maths::CBoostedTree>;
@@ -119,7 +119,7 @@ private:
     std::string m_PredictionFieldName;
     TBoostedTreeFactoryUPtr m_BoostedTreeFactory;
     TBoostedTreeUPtr m_BoostedTree;
-    CDataFrameTrainBoostedTreeState m_State;
+    CDataFrameTrainBoostedTreeInstrumentation m_State;
 };
 }
 }

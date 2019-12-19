@@ -9,7 +9,7 @@
 
 #include <api/CDataFrameAnalysisConfigReader.h>
 #include <api/CDataFrameAnalysisRunner.h>
-#include <api/CDataFrameAnalysisState.h>
+#include <api/CDataFrameAnalysisInstrumentation.h>
 #include <api/ImportExport.h>
 
 #include <rapidjson/fwd.h>
@@ -33,9 +33,9 @@ public:
                              const CDataFrameAnalysisParameters& parameters);
 
     //! \return Reference to the analysis state.
-    const CDataFrameAnalysisState& state() const override;
+    const CDataFrameAnalysisInstrumentation& state() const override;
     //! \return Reference to the analysis state.
-    CDataFrameAnalysisState& state() override;
+    CDataFrameAnalysisInstrumentation& state() override;
 
     //! This is not intended to be called directly: use CDataFrameOutliersRunnerFactory.
     CDataFrameOutliersRunner(const CDataFrameAnalysisSpecification& spec);
@@ -81,7 +81,7 @@ private:
     double m_OutlierFraction = 0.05;
     //@}
 
-    CDataFrameOutliersState m_State;
+    CDataFrameOutliersInstrumentation m_State;
 };
 
 //! \brief Makes a core::CDataFrame outlier analysis runner.

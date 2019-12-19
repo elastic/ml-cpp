@@ -140,11 +140,11 @@ const std::string CDataFrameOutliersRunner::COMPUTE_FEATURE_INFLUENCE{"compute_f
 const std::string CDataFrameOutliersRunner::FEATURE_INFLUENCE_THRESHOLD{"feature_influence_threshold"};
 const std::string CDataFrameOutliersRunner::OUTLIER_FRACTION{"outlier_fraction"};
 
-const CDataFrameAnalysisState& CDataFrameOutliersRunner::state() const {
+const CDataFrameAnalysisInstrumentation& CDataFrameOutliersRunner::state() const {
     return m_State;
 }
 
-CDataFrameAnalysisState& CDataFrameOutliersRunner::state() {
+CDataFrameAnalysisInstrumentation& CDataFrameOutliersRunner::state() {
     return m_State;
 }
 

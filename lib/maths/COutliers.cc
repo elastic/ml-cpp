@@ -176,7 +176,7 @@ public:
 
     //! Compute the outlier scores for \p points.
     TScorerVec computeOutlierScores(const std::vector<POINT>& points,
-                                    CDataFrameAnalysisStateInterface& state) const;
+                                    CDataFrameAnalysisInstrumentationInterface& state) const;
 
     //! Estimate the amount of memory that will be used by the ensemble.
     static std::size_t
@@ -369,7 +369,7 @@ CEnsemble<POINT>::makeBuilders(const TSizeVecVec& methods,
 template<typename POINT>
 typename CEnsemble<POINT>::TScorerVec
 CEnsemble<POINT>::computeOutlierScores(const std::vector<POINT>& points,
-                                       CDataFrameAnalysisStateInterface& state) const {
+                                       CDataFrameAnalysisInstrumentationInterface& state) const {
     if (points.empty()) {
         return {};
     }
@@ -887,7 +887,7 @@ CEnsemble<POINT> buildEnsemble(const COutliers::SComputeParameters& params,
 
 bool computeOutliersNoPartitions(const COutliers::SComputeParameters& params,
                                  core::CDataFrame& frame,
-                                 CDataFrameAnalysisStateInterface& state,
+                                 CDataFrameAnalysisInstrumentationInterface& state,
                                  TProgressCallback recordProgress,
                                  TMemoryUsageCallback recordMemoryUsage) {
 
@@ -974,7 +974,7 @@ bool computeOutliersNoPartitions(const COutliers::SComputeParameters& params,
 
 bool computeOutliersPartitioned(const COutliers::SComputeParameters& params,
                                 core::CDataFrame& frame,
-                                CDataFrameAnalysisStateInterface& state,
+                                CDataFrameAnalysisInstrumentationInterface& state,
                                 TProgressCallback recordProgress,
                                 TMemoryUsageCallback recordMemoryUsage) {
 
@@ -1065,7 +1065,7 @@ bool computeOutliersPartitioned(const COutliers::SComputeParameters& params,
 
 void COutliers::compute(const SComputeParameters& params,
                         core::CDataFrame& frame,
-                        CDataFrameAnalysisStateInterface& state) {
+                        CDataFrameAnalysisInstrumentationInterface& state) {
 
     if (params.s_StandardizeColumns) {
         CDataFrameUtils::standardizeColumns(params.s_NumberThreads, frame);

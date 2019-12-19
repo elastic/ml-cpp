@@ -11,7 +11,7 @@
 #include <core/CProgramCounters.h>
 #include <core/CStatePersistInserter.h>
 
-#include <api/CDataFrameAnalysisState.h>
+#include <api/CDataFrameAnalysisInstrumentation.h>
 #include <api/CInferenceModelDefinition.h>
 #include <api/ImportExport.h>
 
@@ -141,9 +141,9 @@ public:
     inferenceModelDefinition(const TStrVec& fieldNames, const TStrVecVec& categoryNames) const;
 
     //! \return Reference to the analysis state.
-    virtual const CDataFrameAnalysisState& state() const = 0;
+    virtual const CDataFrameAnalysisInstrumentation& state() const = 0;
     //! \return Reference to the analysis state.
-    virtual CDataFrameAnalysisState& state() = 0;
+    virtual CDataFrameAnalysisInstrumentation& state() = 0;
 
 protected:
     using TMemoryMonitor = std::function<void(std::int64_t)>;

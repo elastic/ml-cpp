@@ -4,7 +4,7 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
-#include <api/CDataFrameAnalysisState.h>
+#include <api/CDataFrameAnalysisInstrumentation.h>
 
 namespace ml {
 namespace api {
@@ -18,7 +18,7 @@ const std::size_t MAXIMUM_FRACTIONAL_PROGRESS{std::size_t{1}
                                               << ((sizeof(std::size_t) - 2) * 8)};
 }
 
-void CDataFrameAnalysisState::updateMemoryUsage(std::int64_t delta) {
+void CDataFrameAnalysisInstrumentation::updateMemoryUsage(std::int64_t delta) {
     std::int64_t memory{m_Memory.fetch_add(delta)};
     if (memory >= 0) {
         core::CProgramCounters::counter(this->memoryCounterType()).max(memory);
@@ -29,21 +29,21 @@ void CDataFrameAnalysisState::updateMemoryUsage(std::int64_t delta) {
     }
 }
 
-void CDataFrameAnalysisState::updateProgress(double fractionalProgress) {
+void CDataFrameAnalysisInstrumentation::updateProgress(double fractionalProgress) {
     m_FractionalProgress.fetch_add(static_cast<std::size_t>(std::max(
         static_cast<double>(MAXIMUM_FRACTIONAL_PROGRESS) * fractionalProgress + 0.5, 1.0)));
 }
 
-void CDataFrameAnalysisState::setToFinished() {
+void CDataFrameAnalysisInstrumentation::setToFinished() {
     m_Finished.store(true);
     m_FractionalProgress.store(MAXIMUM_FRACTIONAL_PROGRESS);
 }
 
-bool CDataFrameAnalysisState::finished() const {
+bool CDataFrameAnalysisInstrumentation::finished() const {
     return m_Finished.load();
 }
 
-double CDataFrameAnalysisState::progress() const {
+double CDataFrameAnalysisInstrumentation::progress() const {
     return this->finished()
                ? 1.0
                : static_cast<double>(std::min(m_FractionalProgress.load(),
@@ -51,20 +51,20 @@ double CDataFrameAnalysisState::progress() const {
                      static_cast<double>(MAXIMUM_FRACTIONAL_PROGRESS);
 }
 
-CDataFrameAnalysisState::CDataFrameAnalysisState()
+CDataFrameAnalysisInstrumentation::CDataFrameAnalysisInstrumentation()
     : m_Finished{false}, m_FractionalProgress{0}, m_Memory{0}, m_Writer{nullptr} {
 }
 
-void CDataFrameAnalysisState::resetProgress() {
+void CDataFrameAnalysisInstrumentation::resetProgress() {
     m_FractionalProgress.store(0.0);
     m_Finished.store(false);
 }
 
-void CDataFrameAnalysisState::writer(core::CRapidJsonConcurrentLineWriter* writer) {
+void CDataFrameAnalysisInstrumentation::writer(core::CRapidJsonConcurrentLineWriter* writer) {
     m_Writer = writer;
 }
 
-void CDataFrameAnalysisState::nextStep(uint32_t step) {
+void CDataFrameAnalysisInstrumentation::nextStep(uint32_t step) {
     m_StateQueue.tryPush(SInternalState(*this));
     if (m_Writer != nullptr) {
         while (m_StateQueue.size() > 0) {
@@ -73,17 +73,17 @@ void CDataFrameAnalysisState::nextStep(uint32_t step) {
     }
 }
 
-void CDataFrameAnalysisState::writeState(uint32_t step, SInternalState&& state) {
+void CDataFrameAnalysisInstrumentation::writeState(uint32_t step, SInternalState&& state) {
     state.writeProgress(step, *m_Writer);
     state.writeMemory(step, *m_Writer);
 }
 
-std::int64_t CDataFrameAnalysisState::memory() const {
+std::int64_t CDataFrameAnalysisInstrumentation::memory() const {
     return m_Memory.load();
 }
 
-void CDataFrameAnalysisState::SInternalState::writeProgress(std::uint32_t step,
-                                                            core::CRapidJsonConcurrentLineWriter& writer) {
+void CDataFrameAnalysisInstrumentation::SInternalState::writeProgress(std::uint32_t step,
+                                                                      core::CRapidJsonConcurrentLineWriter& writer) {
     writer.StartObject();
     writer.Key(STEP_TAG);
     writer.Uint(step);
@@ -92,8 +92,8 @@ void CDataFrameAnalysisState::SInternalState::writeProgress(std::uint32_t step,
     writer.EndObject();
 }
 
-void CDataFrameAnalysisState::SInternalState::writeMemory(std::uint32_t step,
-                                                          core::CRapidJsonConcurrentLineWriter& writer) {
+void CDataFrameAnalysisInstrumentation::SInternalState::writeMemory(std::uint32_t step,
+                                                                    core::CRapidJsonConcurrentLineWriter& writer) {
     writer.StartObject();
     writer.Key(STEP_TAG);
     writer.Uint(step);
@@ -102,15 +102,15 @@ void CDataFrameAnalysisState::SInternalState::writeMemory(std::uint32_t step,
     writer.EndObject();
 }
 
-CDataFrameAnalysisState::SInternalState::SInternalState(const CDataFrameAnalysisState& state)
+CDataFrameAnalysisInstrumentation::SInternalState::SInternalState(const CDataFrameAnalysisInstrumentation& state)
     : s_Progress{state.progress()}, s_Memory{state.memory()} {
 }
 
-counter_t::ECounterTypes CDataFrameOutliersState::memoryCounterType() {
+counter_t::ECounterTypes CDataFrameOutliersInstrumentation::memoryCounterType() {
     return counter_t::E_DFOPeakMemoryUsage;
 }
 
-counter_t::ECounterTypes CDataFrameTrainBoostedTreeState::memoryCounterType() {
+counter_t::ECounterTypes CDataFrameTrainBoostedTreeInstrumentation::memoryCounterType() {
     return counter_t::E_DFTPMPeakMemoryUsage;
 }
 }

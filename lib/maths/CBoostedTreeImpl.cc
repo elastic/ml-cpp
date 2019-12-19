@@ -454,12 +454,12 @@ CBoostedTreeImpl::CLeafNodeStatistics::computeBestSplitStatistics(const TRegular
 
 CBoostedTreeImpl::CBoostedTreeImpl(std::size_t numberThreads,
                                    CBoostedTree::TLossFunctionUPtr loss,
-                                   TAnalysisStatePtr state)
+                                   TAnalysisInstrumentationPtr instrumentation)
     : m_NumberThreads{numberThreads}, m_Loss{std::move(loss)},
       m_BestHyperparameters{
           m_Regularization,       m_DownsampleFactor,   m_Eta,
           m_EtaGrowthRatePerTree, m_MaximumNumberTrees, m_FeatureBagFraction},
-      m_AnalysisState{state} {
+      m_AnalysisInstrumentation{instrumentation} {
 }
 
 CBoostedTreeImpl::CBoostedTreeImpl() = default;
@@ -470,12 +470,12 @@ CBoostedTreeImpl& CBoostedTreeImpl::operator=(CBoostedTreeImpl&&) = default;
 
 void CBoostedTreeImpl::train(core::CDataFrame& frame,
                              const TTrainingStateCallback& recordTrainStateCallback) {
-    if (m_AnalysisState == nullptr) {
+    if (m_AnalysisInstrumentation == nullptr) {
         HANDLE_FATAL(<< "Internal error: analysis state was not initialize. Please report this problem.");
         return;
     }
-    auto recordProgress{this->m_AnalysisState->progressCallback()};
-    auto recordMemoryUsage{this->m_AnalysisState->memoryUsageCallback()};
+    auto recordProgress{this->m_AnalysisInstrumentation->progressCallback()};
+    auto recordMemoryUsage{this->m_AnalysisInstrumentation->memoryUsageCallback()};
 
     if (m_DependentVariable >= frame.numberColumns()) {
         HANDLE_FATAL(<< "Internal error: dependent variable '" << m_DependentVariable
@@ -539,7 +539,7 @@ void CBoostedTreeImpl::train(core::CDataFrame& frame,
             std::uint64_t currentLap{stopWatch.lap()};
             timeAccumulator.add(static_cast<double>(currentLap - lastLap));
             lastLap = currentLap;
-            this->m_AnalysisState->nextStep(static_cast<std::uint32_t>(m_CurrentRound));
+            this->m_AnalysisInstrumentation->nextStep(static_cast<std::uint32_t>(m_CurrentRound));
         }
 
         LOG_TRACE(<< "Test loss = " << m_BestForestTestLoss);
@@ -548,7 +548,7 @@ void CBoostedTreeImpl::train(core::CDataFrame& frame,
         std::tie(m_BestForest, std::ignore) =
             this->trainForest(frame, allTrainingRowsMask, allTrainingRowsMask,
                               m_TrainingProgress, recordMemoryUsage);
-        this->m_AnalysisState->nextStep(static_cast<std::uint32_t>(m_CurrentRound));
+        this->m_AnalysisInstrumentation->nextStep(static_cast<std::uint32_t>(m_CurrentRound));
         this->recordState(recordTrainStateCallback);
 
         timeAccumulator.add(static_cast<double>(stopWatch.stop()));

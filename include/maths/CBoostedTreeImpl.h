@@ -19,7 +19,7 @@
 #include <maths/CBasicStatistics.h>
 #include <maths/CBoostedTree.h>
 #include <maths/CBoostedTreeHyperparameters.h>
-#include <maths/CDataFrameAnalysisStateInterface.h>
+#include <maths/CDataFrameAnalysisInstrumentationInterface.h>
 #include <maths/CDataFrameCategoryEncoder.h>
 #include <maths/CDataFrameUtils.h>
 #include <maths/CLinearAlgebraEigen.h>
@@ -64,7 +64,7 @@ public:
     using TRegularization = CBoostedTreeRegularization<double>;
     using TSizeVec = std::vector<std::size_t>;
     using TSizeRange = boost::integer_range<std::size_t>;
-    using TAnalysisStatePtr = CDataFrameAnalysisStateInterface*;
+    using TAnalysisInstrumentationPtr = CDataFrameAnalysisInstrumentationInterface*;
 
 public:
     static const double MINIMUM_RELATIVE_GAIN_PER_SPLIT;
@@ -72,7 +72,7 @@ public:
 public:
     CBoostedTreeImpl(std::size_t numberThreads,
                      CBoostedTree::TLossFunctionUPtr loss,
-                     TAnalysisStatePtr state = nullptr);
+                     TAnalysisInstrumentationPtr instrumentation = nullptr);
 
     ~CBoostedTreeImpl();
 
@@ -548,7 +548,7 @@ private:
     std::size_t m_FirstShapColumnIndex = 0;
     std::size_t m_LastShapColumnIndex = 0;
     std::size_t m_NumberInputColumns = 0;
-    TAnalysisStatePtr m_AnalysisState; // no persist/restore
+    TAnalysisInstrumentationPtr m_AnalysisInstrumentation; // no persist/restore
 
 private:
     friend class CBoostedTreeFactory;

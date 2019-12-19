@@ -10,7 +10,7 @@
 #include <core/CDataFrame.h>
 
 #include <maths/CBoostedTree.h>
-#include <maths/CDataFrameAnalysisStateInterface.h>
+#include <maths/CDataFrameAnalysisInstrumentationInterface.h>
 #include <maths/CLinearAlgebra.h>
 #include <maths/ImportExport.h>
 
@@ -38,7 +38,7 @@ public:
     using TMemoryUsageCallback = CBoostedTree::TMemoryUsageCallback;
     using TTrainingStateCallback = CBoostedTree::TTrainingStateCallback;
     using TLossFunctionUPtr = CBoostedTree::TLossFunctionUPtr;
-    using TAnalysisStatePtr = CDataFrameAnalysisStateInterface*;
+    using TAnalysisInstrumentationPtr = CDataFrameAnalysisInstrumentationInterface*;
 
 public:
     //! Construct a boosted tree object from parameters.
@@ -97,8 +97,8 @@ public:
     //! this reweights examples so approximately the same total loss is assigned
     //! to every class.
     CBoostedTreeFactory& balanceClassTrainingLoss(bool balance);
-    //! Set pointer to the analysis state.
-    CBoostedTreeFactory& analysisState(TAnalysisStatePtr state);
+    //! Set pointer to the analysis instrumentation.
+    CBoostedTreeFactory& analysisInstrumentation(TAnalysisInstrumentationPtr instrumentation);
     //! Set the callback function for progress monitoring.
     CBoostedTreeFactory& progressCallback(TProgressCallback callback);
     //! Set the callback function for memory monitoring.
@@ -210,7 +210,7 @@ private:
     TVector m_LogTreeSizePenaltyMultiplierSearchInterval;
     TVector m_LogLeafWeightPenaltyMultiplierSearchInterval;
     TVector m_SoftDepthLimitSearchInterval;
-    TAnalysisStatePtr m_AnalysisState;
+    TAnalysisInstrumentationPtr m_AnalysisState;
     TProgressCallback m_RecordProgress = noopRecordProgress;
     TMemoryUsageCallback m_RecordMemoryUsage = noopRecordMemoryUsage;
     TTrainingStateCallback m_RecordTrainingState = noopRecordTrainingState;
