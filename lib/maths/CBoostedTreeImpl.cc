@@ -694,10 +694,11 @@ CBoostedTreeImpl::crossValidateForest(core::CDataFrame& frame,
     CSampling::random_shuffle(m_Rng, folds.begin(), folds.end());
 
     auto stopCrossValidationEarly = [&](TMeanVarAccumulator testLossMoments) {
-        // Always train on every folds for the first number folds rounds. Exit
-        // cross-validation early if it's clear that the test error is not close
-        // to the minimum test error. We use the estimated test error for each
-        // remaining fold at two standard deviations below the mean for this.
+        // Always train on at least one fold and every fold for the first
+        // "number folds" rounds. Exit cross-validation early if it's clear
+        // that the test error is not close to the minimum test error. We use
+        // the estimated test error for each remaining fold at two standard
+        // deviations below the mean for this.
         if (m_StopCrossValidationEarly && m_CurrentRound >= m_NumberFolds &&
             folds.size() < m_NumberFolds) {
             for (const auto& testLoss : this->estimateMissingTestLosses(folds)) {
@@ -728,15 +729,17 @@ CBoostedTreeImpl::crossValidateForest(core::CDataFrame& frame,
         m_FoldRoundTestLosses[fold][m_CurrentRound] = loss;
         numberTrees.push_back(static_cast<double>(forest.size()));
     }
-    std::sort(numberTrees.begin(), numberTrees.end());
-    LOG_TRACE(<< "test mean loss = " << CBasicStatistics::mean(lossMoments)
-              << ", sigma = " << std::sqrt(CBasicStatistics::mean(lossMoments)));
-
     m_TrainingProgress.increment(m_MaximumNumberTrees * folds.size());
     LOG_TRACE(<< "skipped " << folds.size() << " folds");
 
-    return {this->correctTestLossMoments(std::move(folds), lossMoments),
-            static_cast<std::size_t>(CBasicStatistics::median(numberTrees))};
+    std::sort(numberTrees.begin(), numberTrees.end());
+    std::size_t medianNumberTrees{
+        static_cast<std::size_t>(CBasicStatistics::median(numberTrees))};
+    lossMoments = this->correctTestLossMoments(std::move(folds), lossMoments);
+    LOG_TRACE(<< "test mean loss = " << CBasicStatistics::mean(lossMoments)
+              << ", sigma = " << std::sqrt(CBasicStatistics::mean(lossMoments)));
+
+    return {lossMoments, medianNumberTrees};
 }
 
 CBoostedTreeImpl::TNodeVec CBoostedTreeImpl::initializePredictionsAndLossDerivatives(

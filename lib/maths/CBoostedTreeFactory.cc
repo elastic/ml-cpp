@@ -1109,7 +1109,9 @@ std::size_t CBoostedTreeFactory::estimateMemoryUsage(std::size_t numberRows,
                                                      std::size_t numberColumns) const {
     std::size_t shapValuesExtraColumns =
         (m_TopShapValues > 0) ? numberRows * numberColumns * sizeof(CFloatStorage) : 0;
-    std::size_t maximumNumberTrees{this->mainLoopMaximumNumberTrees()};
+    std::size_t maximumNumberTrees{this->mainLoopMaximumNumberTrees(
+        m_TreeImpl->m_EtaOverride != boost::none ? *m_TreeImpl->m_EtaOverride
+                                                 : computeEta(numberColumns))};
     std::swap(maximumNumberTrees, m_TreeImpl->m_MaximumNumberTrees);
     std::size_t result{m_TreeImpl->estimateMemoryUsage(numberRows, numberColumns) +
                        shapValuesExtraColumns};
@@ -1158,7 +1160,7 @@ void CBoostedTreeFactory::initializeTrainingProgressMonitoring(const core::CData
         totalNumberSteps += MAX_LINE_SEARCH_ITERATIONS * lineSearchMaximumNumberTrees;
     }
     totalNumberSteps += (this->numberHyperparameterTuningRounds() + 1) *
-                        this->mainLoopMaximumNumberTrees() * m_TreeImpl->m_NumberFolds;
+                        this->mainLoopMaximumNumberTrees(eta) * m_TreeImpl->m_NumberFolds;
     LOG_TRACE(<< "total number steps = " << totalNumberSteps);
     m_TreeImpl->m_TrainingProgress =
         core::CLoopProgress{totalNumberSteps, m_RecordProgress, 1.0, 1024};
@@ -1169,9 +1171,9 @@ void CBoostedTreeFactory::resumeRestoredTrainingProgressMonitoring() {
     m_TreeImpl->m_TrainingProgress.resumeRestored();
 }
 
-std::size_t CBoostedTreeFactory::mainLoopMaximumNumberTrees() const {
+std::size_t CBoostedTreeFactory::mainLoopMaximumNumberTrees(double eta) const {
     if (m_TreeImpl->m_MaximumNumberTreesOverride == boost::none) {
-        std::size_t maximumNumberTrees{computeMaximumNumberTrees(m_TreeImpl->m_Eta)};
+        std::size_t maximumNumberTrees{computeMaximumNumberTrees(eta)};
         maximumNumberTrees = scaleMaximumNumberTrees(maximumNumberTrees);
         return maximumNumberTrees;
     }

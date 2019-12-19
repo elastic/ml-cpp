@@ -192,7 +192,7 @@ private:
     void resumeRestoredTrainingProgressMonitoring();
 
     //! The maximum number of trees to use in the hyperparameter optimisation loop.
-    std::size_t mainLoopMaximumNumberTrees() const;
+    std::size_t mainLoopMaximumNumberTrees(double eta) const;
 
     static void noopRecordProgress(double);
     static void noopRecordMemoryUsage(std::int64_t);
