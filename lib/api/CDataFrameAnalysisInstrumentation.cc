@@ -65,47 +65,38 @@ void CDataFrameAnalysisInstrumentation::writer(core::CRapidJsonConcurrentLineWri
 }
 
 void CDataFrameAnalysisInstrumentation::nextStep(std::uint32_t step) {
-    m_StateQueue.tryPush(SInternalState(*this));
-    if (m_Writer != nullptr) {
-        while (m_StateQueue.size() > 0) {
-            this->writeState(step, m_StateQueue.pop());
-        }
-    }
+    this->writeState(step);
 }
 
-void CDataFrameAnalysisInstrumentation::writeState(std::uint32_t step, SInternalState&& state) {
-    state.writeProgress(step, *m_Writer);
-    state.writeMemory(step, *m_Writer);
+void CDataFrameAnalysisInstrumentation::writeState(std::uint32_t step) {
+    this->writeProgress(step);
+    this->writeMemory(step);
 }
 
 std::int64_t CDataFrameAnalysisInstrumentation::memory() const {
     return m_Memory.load();
 }
 
-void CDataFrameAnalysisInstrumentation::SInternalState::writeProgress(
-    std::uint32_t step,
-    core::CRapidJsonConcurrentLineWriter& writer) {
-    writer.StartObject();
-    writer.Key(STEP_TAG);
-    writer.Uint(step);
-    writer.Key(PROGRESS_TAG);
-    writer.Double(s_Progress);
-    writer.EndObject();
+void CDataFrameAnalysisInstrumentation::writeProgress(std::uint32_t step) {
+    if (m_Writer != nullptr) {
+        m_Writer->StartObject();
+        m_Writer->Key(STEP_TAG);
+        m_Writer->Uint(step);
+        m_Writer->Key(PROGRESS_TAG);
+        m_Writer->Double(this->progress());
+        m_Writer->EndObject();
+    }
 }
 
-void CDataFrameAnalysisInstrumentation::SInternalState::writeMemory(
-    std::uint32_t step,
-    core::CRapidJsonConcurrentLineWriter& writer) {
-    writer.StartObject();
-    writer.Key(STEP_TAG);
-    writer.Uint(step);
-    writer.Key(PEAK_MEMORY_USAGE_TAG);
-    writer.Uint64(s_Memory);
-    writer.EndObject();
-}
-
-CDataFrameAnalysisInstrumentation::SInternalState::SInternalState(const CDataFrameAnalysisInstrumentation& state)
-    : s_Progress{state.progress()}, s_Memory{state.memory()} {
+void CDataFrameAnalysisInstrumentation::writeMemory(std::uint32_t step) {
+    if (m_Writer != nullptr) {
+        m_Writer->StartObject();
+        m_Writer->Key(STEP_TAG);
+        m_Writer->Uint(step);
+        m_Writer->Key(PEAK_MEMORY_USAGE_TAG);
+        m_Writer->Uint64(m_Memory.load());
+        m_Writer->EndObject();
+    }
 }
 
 counter_t::ECounterTypes CDataFrameOutliersInstrumentation::memoryCounterType() {

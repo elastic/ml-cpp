@@ -269,7 +269,7 @@ const std::string& CDataFrameAnalysisSpecification::analysisName() const {
     return m_AnalysisName;
 }
 
-const CDataFrameAnalysisRunner* CDataFrameAnalysisSpecification::runner() {
+CDataFrameAnalysisRunner* CDataFrameAnalysisSpecification::runner() {
     return m_Runner.get();
 }
 }

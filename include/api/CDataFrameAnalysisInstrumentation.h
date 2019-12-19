@@ -26,10 +26,6 @@ namespace api {
 //! Responsible for collecting data frame analysis job statistics, i.e. memory usage,
 //! progress, parameters, quality of results. The class also implements the functionality to
 //! write the state at different iteration into the results pipe.
-//!
-//! The implementation is based on a queue that can contain max. 10 element. This is needed since  the
-//! analysis starts asynchronously before the result writer (consumer) is created. The time difference
-//! between the two events is negligible, nevertheless, if the queue is full, new elements will be dropped.
 class API_EXPORT CDataFrameAnalysisInstrumentation
     : public maths::CDataFrameAnalysisInstrumentationInterface {
 
@@ -76,21 +72,11 @@ protected:
     virtual counter_t::ECounterTypes memoryCounterType() = 0;
 
 private:
-    struct SInternalState {
-        SInternalState() = default;
-        SInternalState(const CDataFrameAnalysisInstrumentation& state);
-        void writeProgress(uint32_t step, core::CRapidJsonConcurrentLineWriter& writer);
-        void writeMemory(uint32_t step, core::CRapidJsonConcurrentLineWriter& writer);
-        double s_Progress;
-        std::int64_t s_Memory;
-    };
+    void writeProgress(std::uint32_t step);
+    void writeMemory(std::uint32_t step);
+    void writeState(uint32_t step);
 
 private:
-    void writeState(uint32_t step, CDataFrameAnalysisInstrumentation::SInternalState&& state);
-
-private:
-    SInternalState m_InternalState;
-    core::CConcurrentQueue<SInternalState, 10> m_StateQueue;
     std::atomic_bool m_Finished;
     std::atomic_size_t m_FractionalProgress;
     std::atomic<std::int64_t> m_Memory;

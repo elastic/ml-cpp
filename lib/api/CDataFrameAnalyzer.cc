@@ -129,17 +129,15 @@ void CDataFrameAnalyzer::run() {
     // We create the writer in run so that when it is finished destructors
     // get called and the wrapped stream does its job to close the array.
 
-    // TODO Revisit this can probably be core::CRapidJsonLineWriter.
     auto outStream = m_ResultsStreamSupplier();
     core::CRapidJsonConcurrentLineWriter outputWriter{*outStream};
 
-    CDataFrameAnalysisRunner* analysis{m_AnalysisSpecification->run(*m_DataFrame)};
+    CDataFrameAnalysisRunner* analysis{m_AnalysisSpecification->runner()};
     if (analysis == nullptr) {
         return;
     }
-
     analysis->instrumentation().writer(&outputWriter);
-
+    m_AnalysisSpecification->run(*m_DataFrame);
     this->monitorProgress(*analysis, outputWriter);
     analysis->waitToFinish();
     this->writeResultsOf(*analysis, outputWriter);

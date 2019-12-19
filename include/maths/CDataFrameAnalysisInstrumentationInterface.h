@@ -24,7 +24,7 @@ public:
 public:
     virtual ~CDataFrameAnalysisInstrumentationInterface() = default;
     //! Adds \p delta to the memory usage statistics.
-    virtual void updateMemoryUsage(std::int64_t /*delta*/) = 0;
+    virtual void updateMemoryUsage(std::int64_t delta) = 0;
     //! This adds \p fractionalProgess to the current progress.
     //!
     //! \note The caller should try to ensure that the sum of the values added
@@ -33,10 +33,10 @@ public:
     //! scaling by 1024. Therefore, this shouldn't be called with values less
     //! than 0.001. In fact, it is unlikely that such high resolution is needed
     //! and typically this would be called significantly less frequently.
-    virtual void updateProgress(double /*fractionalProgress*/) = 0;
+    virtual void updateProgress(double fractionalProgress) = 0;
     //! Trigger the next step of the job. This will initiate writing the job state
     //! to the results pipe.
-    virtual void nextStep(std::uint32_t /*step*/) = 0;
+    virtual void nextStep(std::uint32_t step) = 0;
     //! Factory for the updateProgress() callback function object.
     TProgressCallback progressCallback() {
         return [this](double fractionalProgress) {
