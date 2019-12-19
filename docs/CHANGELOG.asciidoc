@@ -37,6 +37,11 @@
 
 == {es} version 7.6.0
 
+=== New Features
+
+* Add computation of tree SHAP feature importance values (SHapley Additive
+exPlanation) for classification and regression. (See {ml-pull}857[#857].)
+
 === Enhancements
 
 * Improve performance of boosted tree training for both classification and regression.
