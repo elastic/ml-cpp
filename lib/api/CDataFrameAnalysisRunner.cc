@@ -145,10 +145,10 @@ void CDataFrameAnalysisRunner::run(core::CDataFrame& frame) {
     if (m_Runner.joinable()) {
         LOG_INFO(<< "Already running analysis");
     } else {
-        this->state().resetProgress();
+        this->instrumentation().resetProgress();
         m_Runner = std::thread([&frame, this]() {
             this->runImpl(frame);
-            this->state().setToFinished();
+            this->instrumentation().setToFinished();
         });
     }
 }

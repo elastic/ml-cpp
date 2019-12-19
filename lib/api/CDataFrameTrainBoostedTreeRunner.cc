@@ -289,11 +289,12 @@ std::size_t CDataFrameTrainBoostedTreeRunner::topShapValues() const {
     return 0;
 }
 
-const CDataFrameAnalysisInstrumentation& CDataFrameTrainBoostedTreeRunner::state() const {
+const CDataFrameAnalysisInstrumentation&
+CDataFrameTrainBoostedTreeRunner::instrumentation() const {
     return m_State;
 }
 
-CDataFrameAnalysisInstrumentation& CDataFrameTrainBoostedTreeRunner::state() {
+CDataFrameAnalysisInstrumentation& CDataFrameTrainBoostedTreeRunner::instrumentation() {
     return m_State;
 }
 

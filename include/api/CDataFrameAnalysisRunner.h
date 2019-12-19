@@ -17,7 +17,6 @@
 
 #include <rapidjson/fwd.h>
 
-#include <atomic>
 #include <cstddef>
 #include <functional>
 #include <memory>
@@ -140,10 +139,10 @@ public:
     virtual TInferenceModelDefinitionUPtr
     inferenceModelDefinition(const TStrVec& fieldNames, const TStrVecVec& categoryNames) const;
 
-    //! \return Reference to the analysis state.
-    virtual const CDataFrameAnalysisInstrumentation& state() const = 0;
-    //! \return Reference to the analysis state.
-    virtual CDataFrameAnalysisInstrumentation& state() = 0;
+    //! \return Reference to the analysis instrumentation.
+    virtual const CDataFrameAnalysisInstrumentation& instrumentation() const = 0;
+    //! \return Reference to the analysis instrumentation.
+    virtual CDataFrameAnalysisInstrumentation& instrumentation() = 0;
 
 protected:
     using TMemoryMonitor = std::function<void(std::int64_t)>;

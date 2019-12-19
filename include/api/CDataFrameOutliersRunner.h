@@ -8,8 +8,8 @@
 #define INCLUDED_ml_api_CDataFrameOutliersRunner_h
 
 #include <api/CDataFrameAnalysisConfigReader.h>
-#include <api/CDataFrameAnalysisRunner.h>
 #include <api/CDataFrameAnalysisInstrumentation.h>
+#include <api/CDataFrameAnalysisRunner.h>
 #include <api/ImportExport.h>
 
 #include <rapidjson/fwd.h>
@@ -33,9 +33,9 @@ public:
                              const CDataFrameAnalysisParameters& parameters);
 
     //! \return Reference to the analysis state.
-    const CDataFrameAnalysisInstrumentation& state() const override;
+    const CDataFrameAnalysisInstrumentation& instrumentation() const override;
     //! \return Reference to the analysis state.
-    CDataFrameAnalysisInstrumentation& state() override;
+    CDataFrameAnalysisInstrumentation& instrumentation() override;
 
     //! This is not intended to be called directly: use CDataFrameOutliersRunnerFactory.
     CDataFrameOutliersRunner(const CDataFrameAnalysisSpecification& spec);

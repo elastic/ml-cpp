@@ -1040,7 +1040,8 @@ CBoostedTreeFactory& CBoostedTreeFactory::topShapValues(std::size_t topShapValue
     return *this;
 }
 
-CBoostedTreeFactory& CBoostedTreeFactory::analysisInstrumentation(TAnalysisInstrumentationPtr instrumentation) {
+CBoostedTreeFactory&
+CBoostedTreeFactory::analysisInstrumentation(TAnalysisInstrumentationPtr instrumentation) {
     m_AnalysisState = instrumentation;
     if (m_AnalysisState != nullptr) {
         m_TreeImpl->m_AnalysisInstrumentation = m_AnalysisState;

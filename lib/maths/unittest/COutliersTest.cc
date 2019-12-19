@@ -42,6 +42,39 @@ using TPoint = maths::CDenseVector<double>;
 using TPointVec = std::vector<TPoint>;
 using TFactoryFunc = std::function<std::unique_ptr<core::CDataFrame>(const TPointVec&)>;
 
+class CStubInstrumentation final : public maths::CDataFrameAnalysisInstrumentationInterface {
+public:
+    using TProgressCallbackOpt = boost::optional<TProgressCallback>;
+    using TMemoryUsageCallbackOpt = boost::optional<TMemoryUsageCallback>;
+
+public:
+    void updateMemoryUsage(std::int64_t delta) override {
+        if (m_MemoryUsageCallback) {
+            m_MemoryUsageCallback.get()(delta);
+        }
+    }
+
+    void updateProgress(double d) override {
+        if (m_ProgressCallback) {
+            m_ProgressCallback.get()(d);
+        }
+    }
+
+    void progressCallback(const TProgressCallback& progressCallback) {
+        m_ProgressCallback = progressCallback;
+    }
+
+    void memoryUsageCallback(const TMemoryUsageCallback& memoryUsageCallback) {
+        m_MemoryUsageCallback = memoryUsageCallback;
+    }
+
+    void nextStep(std::uint32_t /*uint32*/) override {}
+
+private:
+    TProgressCallbackOpt m_ProgressCallback;
+    TMemoryUsageCallbackOpt m_MemoryUsageCallback;
+};
+
 void nearestNeightbours(std::size_t k, const TPointVec& points, const TPoint& point, TPointVec& result) {
     using TDoubleVectorPr = std::pair<double, TPoint>;
     using TMinDoubleVectorPrAccumulator =
@@ -180,39 +213,6 @@ void outlierErrorStatisticsForEnsemble(std::size_t numberThreads,
     LOG_DEBUG(<< "At 0.9: TP = " << TP[2] << " TN = " << TN[2]
               << " FP = " << FP[2] << " FN = " << FN[2]);
 }
-
-class CStubInstrumentation final : public maths::CDataFrameAnalysisInstrumentationInterface {
-public:
-    using TProgressCallbackOpt = boost::optional<TProgressCallback>;
-    using TMemoryUsageCallbackOpt = boost::optional<TMemoryUsageCallback>;
-
-public:
-    void updateMemoryUsage(std::int64_t delta) override {
-        if (m_MemoryUsageCallback) {
-            m_MemoryUsageCallback.get()(delta);
-        }
-    }
-
-    void updateProgress(double d) override {
-        if (m_ProgressCallback) {
-            m_ProgressCallback.get()(d);
-        }
-    }
-
-    void progressCallback(const TProgressCallback& progressCallback) {
-        m_ProgressCallback = progressCallback;
-    }
-
-    void memoryUsageCallback(const TMemoryUsageCallback& memoryUsageCallback) {
-        m_MemoryUsageCallback = memoryUsageCallback;
-    }
-
-    void nextStep(uint32_t uint32) override { }
-
-private:
-    TProgressCallbackOpt m_ProgressCallback;
-    TMemoryUsageCallbackOpt m_MemoryUsageCallback;
-};
 }
 
 BOOST_AUTO_TEST_CASE(testLof) {

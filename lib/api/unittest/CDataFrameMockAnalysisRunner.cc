@@ -23,7 +23,7 @@ void CDataFrameMockAnalysisRunner::writeOneRow(const ml::core::CDataFrame&,
 }
 
 void CDataFrameMockAnalysisRunner::runImpl(ml::core::CDataFrame&) {
-    ml::core::CLoopProgress progress{31, this->state().progressCallback()};
+    ml::core::CLoopProgress progress{31, this->instrumentation().progressCallback()};
     for (std::size_t i = 0; i < 31; ++i, progress.increment()) {
         std::vector<std::size_t> wait;
         ms_Rng.generateUniformSamples(1, 20, 1, wait);
@@ -38,11 +38,12 @@ std::size_t CDataFrameMockAnalysisRunner::estimateBookkeepingMemoryUsage(std::si
     return 0;
 }
 
-const ml::api::CDataFrameAnalysisInstrumentation& CDataFrameMockAnalysisRunner::state() const {
+const ml::api::CDataFrameAnalysisInstrumentation&
+CDataFrameMockAnalysisRunner::instrumentation() const {
     return m_State;
 }
 
-ml::api::CDataFrameAnalysisInstrumentation& CDataFrameMockAnalysisRunner::state() {
+ml::api::CDataFrameAnalysisInstrumentation& CDataFrameMockAnalysisRunner::instrumentation() {
     return m_State;
 }
 

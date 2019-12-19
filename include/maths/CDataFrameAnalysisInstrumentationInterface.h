@@ -4,8 +4,8 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
-#ifndef INCLUDED_ml_maths_CDataFrameAnalysisInterface_h
-#define INCLUDED_ml_maths_CDataFrameAnalysisInterface_h
+#ifndef INCLUDED_ml_maths_CDataFrameAnalysisInstrumentationInterface_h
+#define INCLUDED_ml_maths_CDataFrameAnalysisInstrumentationInterface_h
 
 #include <maths/ImportExport.h>
 
@@ -36,19 +36,19 @@ public:
     virtual void updateProgress(double /*fractionalProgress*/) = 0;
     //! Trigger the next step of the job. This will initiate writing the job state
     //! to the results pipe.
-    virtual void nextStep(uint32_t /*step*/) = 0;
+    virtual void nextStep(std::uint32_t /*step*/) = 0;
     //! Factory for the updateProgress() callback function object.
     TProgressCallback progressCallback() {
-        return [&](double fractionalProgress) {
+        return [this](double fractionalProgress) {
             this->updateProgress(fractionalProgress);
         };
     };
     //! Factory for the updateMemoryUsage() callback function object.
     TMemoryUsageCallback memoryUsageCallback() {
-        return [&](std::int64_t delta) { this->updateMemoryUsage(delta); };
+        return [this](std::int64_t delta) { this->updateMemoryUsage(delta); };
     };
 };
 }
 }
 
-#endif //INCLUDED_ml_maths_CDataFrameAnalysisInterface_h
+#endif //INCLUDED_ml_maths_CDataFrameAnalysisInstrumentationInterface_h

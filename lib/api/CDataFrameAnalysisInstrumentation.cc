@@ -64,7 +64,7 @@ void CDataFrameAnalysisInstrumentation::writer(core::CRapidJsonConcurrentLineWri
     m_Writer = writer;
 }
 
-void CDataFrameAnalysisInstrumentation::nextStep(uint32_t step) {
+void CDataFrameAnalysisInstrumentation::nextStep(std::uint32_t step) {
     m_StateQueue.tryPush(SInternalState(*this));
     if (m_Writer != nullptr) {
         while (m_StateQueue.size() > 0) {
@@ -73,7 +73,7 @@ void CDataFrameAnalysisInstrumentation::nextStep(uint32_t step) {
     }
 }
 
-void CDataFrameAnalysisInstrumentation::writeState(uint32_t step, SInternalState&& state) {
+void CDataFrameAnalysisInstrumentation::writeState(std::uint32_t step, SInternalState&& state) {
     state.writeProgress(step, *m_Writer);
     state.writeMemory(step, *m_Writer);
 }
@@ -82,8 +82,9 @@ std::int64_t CDataFrameAnalysisInstrumentation::memory() const {
     return m_Memory.load();
 }
 
-void CDataFrameAnalysisInstrumentation::SInternalState::writeProgress(std::uint32_t step,
-                                                                      core::CRapidJsonConcurrentLineWriter& writer) {
+void CDataFrameAnalysisInstrumentation::SInternalState::writeProgress(
+    std::uint32_t step,
+    core::CRapidJsonConcurrentLineWriter& writer) {
     writer.StartObject();
     writer.Key(STEP_TAG);
     writer.Uint(step);
@@ -92,8 +93,9 @@ void CDataFrameAnalysisInstrumentation::SInternalState::writeProgress(std::uint3
     writer.EndObject();
 }
 
-void CDataFrameAnalysisInstrumentation::SInternalState::writeMemory(std::uint32_t step,
-                                                                    core::CRapidJsonConcurrentLineWriter& writer) {
+void CDataFrameAnalysisInstrumentation::SInternalState::writeMemory(
+    std::uint32_t step,
+    core::CRapidJsonConcurrentLineWriter& writer) {
     writer.StartObject();
     writer.Key(STEP_TAG);
     writer.Uint(step);

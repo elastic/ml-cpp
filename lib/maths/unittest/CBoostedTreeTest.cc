@@ -45,15 +45,14 @@ using TMeanVarAccumulator = maths::CBasicStatistics::SSampleMeanVar<double>::TAc
 
 namespace {
 
-class CStubInstrumentation final: public maths::CDataFrameAnalysisInstrumentationInterface {
+class CStubInstrumentation final : public maths::CDataFrameAnalysisInstrumentationInterface {
 public:
     void updateMemoryUsage(std::int64_t /*int64*/) override {}
 
     void updateProgress(double /*d*/) override {}
 
-    void nextStep(uint32_t /*uint32*/) override {}
-}
-
+    void nextStep(std::uint32_t /*uint32*/) override {}
+};
 
 template<typename F>
 auto computeEvaluationMetrics(const core::CDataFrame& frame,
@@ -204,7 +203,6 @@ void readFileToStream(const std::string& filename, std::stringstream& stream) {
     stream << str;
     stream.flush();
 }
-
 }
 
 BOOST_AUTO_TEST_CASE(testPiecewiseConstant) {

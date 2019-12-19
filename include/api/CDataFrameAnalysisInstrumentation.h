@@ -4,8 +4,8 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
-#ifndef INCLUDED_ml_api_CDataFrameAnalysisState_h
-#define INCLUDED_ml_api_CDataFrameAnalysisState_h
+#ifndef INCLUDED_ml_api_CDataFrameAnalysisInstrumentation_h
+#define INCLUDED_ml_api_CDataFrameAnalysisInstrumentation_h
 
 #include <core/CProgramCounters.h>
 #include <core/CRapidJsonConcurrentLineWriter.h>
@@ -15,15 +15,24 @@
 #include <api/CDataFrameAnalysisInstrumentation.h>
 #include <api/ImportExport.h>
 
+#include <atomic>
 #include <cstdint>
 
 namespace ml {
 namespace api {
 
-//! \brief Responsible for collecting data frame analysis job statistics, i.e. memory usage,
+//! \brief Instrumentation class for collecting data frame analysis job statistics.
+//!
+//! DESCRIPTION:\n
+//! Responsible for collecting data frame analysis job statistics, i.e. memory usage,
 //! progress, parameters, quality of results. The class also implements the functionality to
 //! write the state at different iteration into the results pipe.
-class API_EXPORT CDataFrameAnalysisInstrumentation : public maths::CDataFrameAnalysisInstrumentationInterface {
+//!
+//! The implementation is based on a queue that can contain max. 10 element. This is needed since  the
+//! analysis starts asynchronously before the result writer (consumer) is created. The time difference
+//! between the two events is negligible, nevertheless, if the queue is full, new elements will be dropped.
+class API_EXPORT CDataFrameAnalysisInstrumentation
+    : public maths::CDataFrameAnalysisInstrumentationInterface {
 
 public:
     CDataFrameAnalysisInstrumentation();
@@ -59,7 +68,7 @@ public:
 
     //! Trigger the next step of the job. This will initiate writing the job state
     //! to the results pipe.
-    void nextStep(uint32_t step) override;
+    void nextStep(std::uint32_t step) override;
 
     //! \return The peak memory usage.
     std::int64_t memory() const;
@@ -89,16 +98,18 @@ private:
     core::CRapidJsonConcurrentLineWriter* m_Writer;
 };
 
-class API_EXPORT CDataFrameOutliersInstrumentation : public CDataFrameAnalysisInstrumentation {
+class API_EXPORT CDataFrameOutliersInstrumentation final
+    : public CDataFrameAnalysisInstrumentation {
 protected:
     counter_t::ECounterTypes memoryCounterType() override;
 };
 
-class API_EXPORT CDataFrameTrainBoostedTreeInstrumentation : public CDataFrameAnalysisInstrumentation {
+class API_EXPORT CDataFrameTrainBoostedTreeInstrumentation final
+    : public CDataFrameAnalysisInstrumentation {
 protected:
     counter_t::ECounterTypes memoryCounterType() override;
 };
 }
 }
 
-#endif // INCLUDED_ml_api_CDataFrameAnalysisState_h
+#endif // INCLUDED_ml_api_CDataFrameAnalysisInstrumentation_h

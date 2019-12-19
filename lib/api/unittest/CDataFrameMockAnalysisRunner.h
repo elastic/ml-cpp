@@ -7,9 +7,9 @@
 #ifndef INCLUDED_CDataFrameMockAnalysisRunner_h
 #define INCLUDED_CDataFrameMockAnalysisRunner_h
 
+#include <api/CDataFrameAnalysisInstrumentation.h>
 #include <api/CDataFrameAnalysisRunner.h>
 #include <api/CDataFrameAnalysisSpecification.h>
-#include <api/CDataFrameAnalysisInstrumentation.h>
 
 #include <test/CRandomNumbers.h>
 
@@ -29,9 +29,9 @@ public:
                      const TRowRef&,
                      ml::core::CRapidJsonConcurrentLineWriter&) const override;
 
-    const ml::api::CDataFrameAnalysisInstrumentation& state() const override;
+    const ml::api::CDataFrameAnalysisInstrumentation& instrumentation() const override;
 
-    ml::api::CDataFrameAnalysisInstrumentation& state() override;
+    ml::api::CDataFrameAnalysisInstrumentation& instrumentation() override;
 
 private:
     void runImpl(ml::core::CDataFrame&) override;

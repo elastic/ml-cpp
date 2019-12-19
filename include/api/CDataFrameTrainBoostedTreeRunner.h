@@ -9,9 +9,9 @@
 
 #include <maths/CBasicStatistics.h>
 
+#include <api/CDataFrameAnalysisInstrumentation.h>
 #include <api/CDataFrameAnalysisRunner.h>
 #include <api/CDataFrameAnalysisSpecification.h>
-#include <api/CDataFrameAnalysisInstrumentation.h>
 #include <api/ImportExport.h>
 
 #include <rapidjson/fwd.h>
@@ -64,9 +64,9 @@ public:
     std::size_t topShapValues() const;
 
     //! \return Reference to the analysis state.
-    const CDataFrameAnalysisInstrumentation& state() const override;
+    const CDataFrameAnalysisInstrumentation& instrumentation() const override;
     //! \return Reference to the analysis state.
-    CDataFrameAnalysisInstrumentation& state() override;
+    CDataFrameAnalysisInstrumentation& instrumentation() override;
 
 protected:
     using TBoostedTreeUPtr = std::unique_ptr<maths::CBoostedTree>;
