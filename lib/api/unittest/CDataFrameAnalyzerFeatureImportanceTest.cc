@@ -7,6 +7,7 @@
 #include <core/CDataFrame.h>
 
 #include <maths/CBasicStatistics.h>
+#include <maths/CDataFrameRegressionModel.h>
 #include <maths/CTools.h>
 
 #include <api/CDataFrameAnalyzer.h>
@@ -186,10 +187,14 @@ BOOST_FIXTURE_TEST_CASE(testRunBoostedTreeRegressionFeatureImportanceAllShap, SF
     double c1Sum{0.0}, c2Sum{0.0}, c3Sum{0.0}, c4Sum{0.0};
     for (const auto& result : results.GetArray()) {
         if (result.HasMember("row_results")) {
-            double c1{result["row_results"]["results"]["ml"]["shap.c1"].GetDouble()};
-            double c2{result["row_results"]["results"]["ml"]["shap.c2"].GetDouble()};
-            double c3{result["row_results"]["results"]["ml"]["shap.c3"].GetDouble()};
-            double c4{result["row_results"]["results"]["ml"]["shap.c4"].GetDouble()};
+            double c1{result["row_results"]["results"]["ml"][maths::CDataFrameRegressionModel::SHAP_PREFIX + "c1"]
+                          .GetDouble()};
+            double c2{result["row_results"]["results"]["ml"][maths::CDataFrameRegressionModel::SHAP_PREFIX + "c2"]
+                          .GetDouble()};
+            double c3{result["row_results"]["results"]["ml"][maths::CDataFrameRegressionModel::SHAP_PREFIX + "c3"]
+                          .GetDouble()};
+            double c4{result["row_results"]["results"]["ml"][maths::CDataFrameRegressionModel::SHAP_PREFIX + "c4"]
+                          .GetDouble()};
             double prediction{
                 result["row_results"]["results"]["ml"]["c5_prediction"].GetDouble()};
             // the difference between the prediction and the sum of all SHAP values constitutes bias
@@ -223,10 +228,14 @@ BOOST_FIXTURE_TEST_CASE(testRunBoostedTreeRegressionFeatureImportanceNoImportanc
 
     for (const auto& result : results.GetArray()) {
         if (result.HasMember("row_results")) {
-            double c1{result["row_results"]["results"]["ml"]["shap.c1"].GetDouble()};
-            double c2{result["row_results"]["results"]["ml"]["shap.c2"].GetDouble()};
-            double c3{result["row_results"]["results"]["ml"]["shap.c3"].GetDouble()};
-            double c4{result["row_results"]["results"]["ml"]["shap.c4"].GetDouble()};
+            double c1{result["row_results"]["results"]["ml"][maths::CDataFrameRegressionModel::SHAP_PREFIX + "c1"]
+                          .GetDouble()};
+            double c2{result["row_results"]["results"]["ml"][maths::CDataFrameRegressionModel::SHAP_PREFIX + "c2"]
+                          .GetDouble()};
+            double c3{result["row_results"]["results"]["ml"][maths::CDataFrameRegressionModel::SHAP_PREFIX + "c3"]
+                          .GetDouble()};
+            double c4{result["row_results"]["results"]["ml"][maths::CDataFrameRegressionModel::SHAP_PREFIX + "c4"]
+                          .GetDouble()};
             double prediction{
                 result["row_results"]["results"]["ml"]["c5_prediction"].GetDouble()};
             // c1 explain 97% of the prediction value, i.e. the difference from the prediction is less than 1%.
@@ -252,10 +261,14 @@ BOOST_FIXTURE_TEST_CASE(testRunBoostedTreeClassificationFeatureImportanceAllShap
     double c1Sum{0.0}, c2Sum{0.0}, c3Sum{0.0}, c4Sum{0.0};
     for (const auto& result : results.GetArray()) {
         if (result.HasMember("row_results")) {
-            double c1{result["row_results"]["results"]["ml"]["shap.c1"].GetDouble()};
-            double c2{result["row_results"]["results"]["ml"]["shap.c2"].GetDouble()};
-            double c3{result["row_results"]["results"]["ml"]["shap.c3"].GetDouble()};
-            double c4{result["row_results"]["results"]["ml"]["shap.c4"].GetDouble()};
+            double c1{result["row_results"]["results"]["ml"][maths::CDataFrameRegressionModel::SHAP_PREFIX + "c1"]
+                          .GetDouble()};
+            double c2{result["row_results"]["results"]["ml"][maths::CDataFrameRegressionModel::SHAP_PREFIX + "c2"]
+                          .GetDouble()};
+            double c3{result["row_results"]["results"]["ml"][maths::CDataFrameRegressionModel::SHAP_PREFIX + "c3"]
+                          .GetDouble()};
+            double c4{result["row_results"]["results"]["ml"][maths::CDataFrameRegressionModel::SHAP_PREFIX + "c4"]
+                          .GetDouble()};
             double predictionProbability{
                 result["row_results"]["results"]["ml"]["prediction_probability"].GetDouble()};
             std::string c5Prediction{
@@ -297,14 +310,14 @@ BOOST_FIXTURE_TEST_CASE(testRunBoostedTreeRegressionFeatureImportanceNoShap, SFi
 
     for (const auto& result : results.GetArray()) {
         if (result.HasMember("row_results")) {
-            BOOST_TEST_REQUIRE(
-                result["row_results"]["results"]["ml"].HasMember("shap.c1") == false);
-            BOOST_TEST_REQUIRE(
-                result["row_results"]["results"]["ml"].HasMember("shap.c2") == false);
-            BOOST_TEST_REQUIRE(
-                result["row_results"]["results"]["ml"].HasMember("shap.c3") == false);
-            BOOST_TEST_REQUIRE(
-                result["row_results"]["results"]["ml"].HasMember("shap.c4") == false);
+            BOOST_TEST_REQUIRE(result["row_results"]["results"]["ml"].HasMember(
+                                   maths::CDataFrameRegressionModel::SHAP_PREFIX + "c1") == false);
+            BOOST_TEST_REQUIRE(result["row_results"]["results"]["ml"].HasMember(
+                                   maths::CDataFrameRegressionModel::SHAP_PREFIX + "c2") == false);
+            BOOST_TEST_REQUIRE(result["row_results"]["results"]["ml"].HasMember(
+                                   maths::CDataFrameRegressionModel::SHAP_PREFIX + "c3") == false);
+            BOOST_TEST_REQUIRE(result["row_results"]["results"]["ml"].HasMember(
+                                   maths::CDataFrameRegressionModel::SHAP_PREFIX + "c4") == false);
         }
     }
 }
