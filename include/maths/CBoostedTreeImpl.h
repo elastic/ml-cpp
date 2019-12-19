@@ -146,7 +146,7 @@ public:
     //! Get the number of largest SHAP values that will be returned for every row.
     std::size_t topShapValues() const;
 
-    //! Get the number of input columns.
+    //! Get the number of columns in the original data frame.
     std::size_t numberInputColumns() const;
 
 private:

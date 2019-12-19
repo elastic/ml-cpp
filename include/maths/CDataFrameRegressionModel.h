@@ -60,7 +60,7 @@ public:
     virtual std::size_t columnHoldingDependentVariable() const = 0;
 
     //! Get the column containing the model's prediction for the dependent variable.
-    virtual std::size_t columnHoldingPrediction(std::size_t numberColumns) const = 0;
+    virtual std::size_t columnHoldingPrediction() const = 0;
 
     //! Get the number of largest SHAP values that will be returned for every row.
     virtual std::size_t topShapValues() const = 0;

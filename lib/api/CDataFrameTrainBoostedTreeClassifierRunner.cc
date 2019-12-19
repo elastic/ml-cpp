@@ -182,8 +182,7 @@ void CDataFrameTrainBoostedTreeClassifierRunner::writeOneRow(
 
     const auto& tree = this->boostedTree();
     const std::size_t columnHoldingDependentVariable{tree.columnHoldingDependentVariable()};
-    const std::size_t columnHoldingPrediction{
-        tree.columnHoldingPrediction(row.numberColumns())};
+    const std::size_t columnHoldingPrediction{tree.columnHoldingPrediction()};
     this->writeOneRow(frame, columnHoldingDependentVariable,
                       columnHoldingPrediction, row, writer);
 }
