@@ -34,8 +34,6 @@ using TDoubleVec = std::vector<double>;
 using TStrVec = std::vector<std::string>;
 using TMeanVarAccumulator = ml::maths::CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
 
-const std::string SHAP_PREFIX{"feature_importance."};
-
 void setupLinearRegressionData(const TStrVec& fieldNames,
                                TStrVec& fieldValues,
                                api::CDataFrameAnalyzer& analyzer,
