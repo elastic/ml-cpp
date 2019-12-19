@@ -16,10 +16,12 @@
 #include <maths/CLbfgs.h>
 #include <maths/CLinearAlgebraEigen.h>
 #include <maths/CLinearAlgebraShims.h>
+#include <maths/CMathsFuncs.h>
 #include <maths/CSampling.h>
 #include <maths/CTools.h>
 
 #include <boost/math/distributions/normal.hpp>
+#include <boost/optional/optional_io.hpp>
 
 #include <exception>
 
@@ -83,7 +85,8 @@ CBayesianOptimisation::boundingBox() const {
     return {m_MinBoundary, m_MaxBoundary};
 }
 
-CBayesianOptimisation::TVector CBayesianOptimisation::maximumExpectedImprovement() {
+std::pair<CBayesianOptimisation::TVector, CBayesianOptimisation::TOptionalDouble>
+CBayesianOptimisation::maximumExpectedImprovement() {
 
     using TMeanAccumulator = CBasicStatistics::SSampleMean<double>::TAccumulator;
     using TMinAccumulator =
@@ -160,14 +163,20 @@ CBayesianOptimisation::TVector CBayesianOptimisation::maximumExpectedImprovement
 
     // fmax was probably NaN, in anycase xmax wasn't initialised so fallback to
     // random search.
+    TOptionalDouble expectedImprovement;
     if (xmax.size() == 0) {
         xmax = a + interpolate.cwiseProduct(b - a);
+        expectedImprovement = TOptionalDouble{};
+    } else if (fmax < 0.0 || CMathsFuncs::isFinite(fmax) == false) {
+        expectedImprovement = TOptionalDouble{};
+    } else {
+        expectedImprovement = fmax / m_RangeScale;
     }
 
     LOG_TRACE(<< "best = " << xmax.cwiseProduct(m_MaxBoundary - m_MinBoundary).transpose()
-              << " EI(best) = " << fmax);
+              << " EI(best) = " << expectedImprovement);
 
-    return xmax.cwiseProduct(m_MaxBoundary - m_MinBoundary);
+    return {xmax.cwiseProduct(m_MaxBoundary - m_MinBoundary), expectedImprovement};
 }
 
 std::pair<CBayesianOptimisation::TLikelihoodFunc, CBayesianOptimisation::TLikelihoodGradientFunc>
