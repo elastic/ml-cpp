@@ -125,7 +125,7 @@ CBoostedTreeFactory::restoreFor(core::CDataFrame& frame, std::size_t dependentVa
     this->resumeRestoredTrainingProgressMonitoring();
 
     m_TreeImpl->m_NumberInputColumns = frame.numberColumns();
-    m_TreeImpl->m_AnalysisInstrumentation = m_AnalysisState;
+    m_TreeImpl->m_Instrumentation = m_Instrumentation;
     frame.resizeColumns(m_TreeImpl->m_NumberThreads,
                         frame.numberColumns() + this->numberExtraColumnsForTrain());
 
@@ -1042,11 +1042,11 @@ CBoostedTreeFactory& CBoostedTreeFactory::topShapValues(std::size_t topShapValue
 
 CBoostedTreeFactory&
 CBoostedTreeFactory::analysisInstrumentation(TAnalysisInstrumentationPtr instrumentation) {
-    m_AnalysisState = instrumentation;
-    if (m_AnalysisState != nullptr) {
-        m_TreeImpl->m_AnalysisInstrumentation = m_AnalysisState;
-        this->progressCallback(m_AnalysisState->progressCallback());
-        this->memoryUsageCallback(m_AnalysisState->memoryUsageCallback());
+    m_Instrumentation = instrumentation;
+    if (m_Instrumentation != nullptr) {
+        m_TreeImpl->m_Instrumentation = m_Instrumentation;
+        this->progressCallback(m_Instrumentation->progressCallback());
+        this->memoryUsageCallback(m_Instrumentation->memoryUsageCallback());
     }
     return *this;
 }

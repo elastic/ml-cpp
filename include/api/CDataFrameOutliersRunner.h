@@ -81,7 +81,7 @@ private:
     double m_OutlierFraction = 0.05;
     //@}
 
-    CDataFrameOutliersInstrumentation m_State;
+    CDataFrameOutliersInstrumentation m_Instrumentation;
 };
 
 //! \brief Makes a core::CDataFrame outlier analysis runner.

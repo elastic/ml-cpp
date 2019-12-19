@@ -114,7 +114,7 @@ void CDataFrameOutliersRunner::runImpl(core::CDataFrame& frame) {
                                                 m_NumberNeighbours,
                                                 m_ComputeFeatureInfluence,
                                                 m_OutlierFraction};
-    maths::COutliers::compute(params, frame, m_State);
+    maths::COutliers::compute(params, frame, m_Instrumentation);
 }
 
 std::size_t
@@ -141,11 +141,11 @@ const std::string CDataFrameOutliersRunner::FEATURE_INFLUENCE_THRESHOLD{"feature
 const std::string CDataFrameOutliersRunner::OUTLIER_FRACTION{"outlier_fraction"};
 
 const CDataFrameAnalysisInstrumentation& CDataFrameOutliersRunner::instrumentation() const {
-    return m_State;
+    return m_Instrumentation;
 }
 
 CDataFrameAnalysisInstrumentation& CDataFrameOutliersRunner::instrumentation() {
-    return m_State;
+    return m_Instrumentation;
 }
 
 const std::string& CDataFrameOutliersRunnerFactory::name() const {

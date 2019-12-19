@@ -548,7 +548,7 @@ private:
     std::size_t m_FirstShapColumnIndex = 0;
     std::size_t m_LastShapColumnIndex = 0;
     std::size_t m_NumberInputColumns = 0;
-    TAnalysisInstrumentationPtr m_AnalysisInstrumentation; // no persist/restore
+    TAnalysisInstrumentationPtr m_Instrumentation; // no persist/restore
 
 private:
     friend class CBoostedTreeFactory;

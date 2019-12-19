@@ -12,7 +12,6 @@
 
 #include <maths/CDataFrameAnalysisInstrumentationInterface.h>
 
-#include <api/CDataFrameAnalysisInstrumentation.h>
 #include <api/ImportExport.h>
 
 #include <atomic>

@@ -119,7 +119,7 @@ private:
     std::string m_PredictionFieldName;
     TBoostedTreeFactoryUPtr m_BoostedTreeFactory;
     TBoostedTreeUPtr m_BoostedTree;
-    CDataFrameTrainBoostedTreeInstrumentation m_State;
+    CDataFrameTrainBoostedTreeInstrumentation m_Instrumentation;
 };
 }
 }

@@ -1065,21 +1065,22 @@ bool computeOutliersPartitioned(const COutliers::SComputeParameters& params,
 
 void COutliers::compute(const SComputeParameters& params,
                         core::CDataFrame& frame,
-                        CDataFrameAnalysisInstrumentationInterface& state) {
+                        CDataFrameAnalysisInstrumentationInterface& instrumentation) {
 
     if (params.s_StandardizeColumns) {
         CDataFrameUtils::standardizeColumns(params.s_NumberThreads, frame);
     }
 
-    auto recordProgress{state.progressCallback()};
-    auto recordMemoryUsage{state.memoryUsageCallback()};
+    auto recordProgress{instrumentation.progressCallback()};
+    auto recordMemoryUsage{instrumentation.memoryUsageCallback()};
 
-    bool successful{
-        frame.inMainMemory() && params.s_NumberPartitions == 1
-            ? computeOutliersNoPartitions(params, frame, state, std::move(recordProgress),
-                                          std::move(recordMemoryUsage))
-            : computeOutliersPartitioned(params, frame, state, std::move(recordProgress),
-                                         std::move(recordMemoryUsage))};
+    bool successful{frame.inMainMemory() && params.s_NumberPartitions == 1
+                        ? computeOutliersNoPartitions(params, frame, instrumentation,
+                                                      std::move(recordProgress),
+                                                      std::move(recordMemoryUsage))
+                        : computeOutliersPartitioned(params, frame, instrumentation,
+                                                     std::move(recordProgress),
+                                                     std::move(recordMemoryUsage))};
 
     if (successful == false) {
         HANDLE_FATAL(<< "Internal error: computing outliers for data frame. There "
