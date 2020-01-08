@@ -57,8 +57,8 @@ void setupLinearRegressionData(const TStrVec& fieldNames,
         }
 
         fieldValues[0] = target(row);
-        for (std::size_t j = 1; j < row.size() + 1; ++j) {
-            fieldValues[j] = core::CStringUtils::typeToStringPrecise(
+        for (std::size_t j = 0; j < row.size(); ++j) {
+            fieldValues[j + 1] = core::CStringUtils::typeToStringPrecise(
                 row[j], core::CIEEE754::E_DoublePrecision);
         }
 
@@ -89,8 +89,8 @@ void setupBinaryClassificationData(const TStrVec& fieldNames,
         }
 
         fieldValues[0] = target(row);
-        for (std::size_t j = 1; j < row.size() + 1; ++j) {
-            fieldValues[j] = core::CStringUtils::typeToStringPrecise(
+        for (std::size_t j = 0; j < row.size(); ++j) {
+            fieldValues[j + 1] = core::CStringUtils::typeToStringPrecise(
                 row[j], core::CIEEE754::E_DoublePrecision);
         }
 
@@ -179,7 +179,7 @@ BOOST_FIXTURE_TEST_CASE(testRunBoostedTreeRegressionFeatureImportanceAllShap, SF
     // the significance is proportional to the multiplier. Also make sure that the SHAP values
     // are indeed a local approximation of the prediction up to the constant bias term.
 
-    std::size_t topShapValues{5};
+    std::size_t topShapValues{5}; //Note, number of requested shap values is larger than the number of regressors
     TDoubleVec weights{50, 150, 50, -50};
     auto results{runRegression(topShapValues, weights)};
 
@@ -213,6 +213,10 @@ BOOST_FIXTURE_TEST_CASE(testRunBoostedTreeRegressionFeatureImportanceAllShap, SF
             c2Sum += std::fabs(c2);
             c3Sum += std::fabs(c3);
             c4Sum += std::fabs(c4);
+            // assert that no SHAP value for the dependent variable is returned
+            BOOST_TEST_REQUIRE(result["row_results"]["results"]["ml"].HasMember(
+                                   maths::CDataFrameRegressionModel::SHAP_PREFIX +
+                                   "target") == false);
         }
     }
 
