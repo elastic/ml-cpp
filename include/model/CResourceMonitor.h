@@ -30,8 +30,7 @@ struct testLimit;
 namespace ml {
 namespace model {
 
-class CAnomalyDetector;
-class CAnomalyDetectorModel;
+class CMonitoredResource;
 
 //! \brief Assess memory used by models and decide on further memory allocations.
 //!
@@ -53,8 +52,8 @@ public:
     };
 
 public:
-    using TDetectorPtrSizePr = std::pair<CAnomalyDetector*, std::size_t>;
-    using TDetectorPtrSizeUMap = boost::unordered_map<CAnomalyDetector*, std::size_t>;
+    using TResourcePtrSizePr = std::pair<CMonitoredResource*, std::size_t>;
+    using TResourcePtrSizeUMap = boost::unordered_map<CMonitoredResource*, std::size_t>;
     using TMemoryUsageReporterFunc = std::function<void(const CResourceMonitor::SResults&)>;
     using TTimeSizeMap = std::map<core_t::TTime, std::size_t>;
 
@@ -79,23 +78,23 @@ public:
     //! Return the amount of remaining space for allocations
     std::size_t allocationLimit() const;
 
-    //! Tell this resource monitor about a CAnomalyDetector class -
+    //! Tell this resource monitor about a resource to monitor -
     //! these classes contain all the model memory and are used
     //! to query the current overall usage
-    void registerComponent(CAnomalyDetector& detector);
+    void registerComponent(CMonitoredResource& resource);
 
-    //! Tell this resource monitor that a CAnomalyDetector class is
+    //! Tell this resource monitor that monitored resource is
     //! going to be deleted.
-    void unRegisterComponent(CAnomalyDetector& detector);
+    void unRegisterComponent(CMonitoredResource& resource);
 
     //! Set a callback used when the memory usage grows
     void memoryUsageReporter(const TMemoryUsageReporterFunc& reporter);
 
     //! Recalculate the memory usage if there is a memory limit
-    void refresh(CAnomalyDetector& detector);
+    void refresh(CMonitoredResource& resource);
 
     //! Recalculate the memory usage regardless of whether there is a memory limit
-    void forceRefresh(CAnomalyDetector& detector);
+    void forceRefresh(CMonitoredResource& resource);
 
     //! Set the internal memory limit, as specified in a limits config file
     void memoryLimit(std::size_t limitMBs);
@@ -152,7 +151,7 @@ private:
     void updateMemoryLimitsAndPruneThreshold(std::size_t limitMBs);
 
     //! Update the given model and recalculate the total usage
-    void memUsage(CAnomalyDetector* detector);
+    void memUsage(CMonitoredResource* resource);
 
     //! Determine if we need to send a usage report, based on
     //! increased usage, or increased errors
@@ -181,7 +180,7 @@ private:
 
 private:
     //! The registered collection of components
-    TDetectorPtrSizeUMap m_Detectors;
+    TResourcePtrSizeUMap m_Resources;
 
     //! Is there enough free memory to allow creating new components
     bool m_AllowAllocations;
@@ -195,8 +194,8 @@ private:
     //! The lower limit for memory usage, checked on decreasing values
     std::size_t m_ByteLimitLow;
 
-    //! Memory usage by anomaly detectors on the most recent calculation
-    std::size_t m_CurrentAnomalyDetectorMemory;
+    //! Memory usage by monitored resources on the most recent calculation
+    std::size_t m_CurrentMonitoredResourceMemory;
 
     //! Extra memory to enable accounting of soon to be allocated memory
     std::size_t m_ExtraMemory;
@@ -256,7 +255,6 @@ private:
 };
 
 } // model
-
 } // ml
 
 #endif // INCLUDED_ml_model_CResourceMonitor_h

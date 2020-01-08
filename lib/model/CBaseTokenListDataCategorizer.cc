@@ -31,19 +31,18 @@ const std::string TOKEN_TAG("a");
 const std::string TOKEN_CATEGORY_COUNT_TAG("b");
 const std::string CATEGORY_TAG("c");
 
-const std::string TIME_ATTRIBUTE("time");
-
 const std::string EMPTY_STRING;
 }
 
 CBaseTokenListDataCategorizer::CBaseTokenListDataCategorizer(
+    CLimits& limits,
     const TTokenListReverseSearchCreatorIntfCPtr& reverseSearchCreator,
     double threshold,
     const std::string& fieldName)
-    : CDataCategorizer(fieldName), m_ReverseSearchCreator(reverseSearchCreator),
-      m_LowerThreshold(std::min(0.99, std::max(0.01, threshold))),
+    : CDataCategorizer{limits, fieldName}, m_ReverseSearchCreator{reverseSearchCreator},
+      m_LowerThreshold{std::min(0.99, std::max(0.01, threshold))},
       // Upper threshold is half way between the lower threshold and 1
-      m_UpperThreshold((1.0 + m_LowerThreshold) / 2.0), m_HasChanged(false) {
+      m_UpperThreshold{(1.0 + m_LowerThreshold) / 2.0}, m_HasChanged{false} {
 }
 
 void CBaseTokenListDataCategorizer::dumpStats() const {
@@ -370,9 +369,8 @@ bool CBaseTokenListDataCategorizer::acceptRestoreTraverser(core::CStateRestoreTr
             const_cast<CTokenInfoItem&>(m_TokenIdLookup.back()).categoryCount(categoryCount);
         } else if (name == CATEGORY_TAG) {
             CTokenListCategory category(traverser);
-            TSizeSizePr countAndIndex(category.numMatches(), m_Categories.size());
+            m_CategoriesByCount.emplace_back(category.numMatches(), m_Categories.size());
             m_Categories.push_back(category);
-            m_CategoriesByCount.push_back(countAndIndex);
         }
     } while (traverser.next());
 

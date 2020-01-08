@@ -63,6 +63,7 @@ CModelFactory.cc \
 CModelParams.cc \
 CModelPlotData.cc \
 CModelTools.cc \
+CMonitoredResource.cc \
 CPartitioningFields.cc \
 CPopulationModel.cc \
 CProbabilityAndInfluenceCalculator.cc \

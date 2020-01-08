@@ -43,15 +43,14 @@ const std::string CFieldDataCategorizer::STATE_VERSION("1");
 
 CFieldDataCategorizer::CFieldDataCategorizer(const std::string& jobId,
                                              const CFieldConfig& config,
-                                             const model::CLimits& limits,
+                                             model::CLimits& limits,
                                              COutputHandler& outputHandler,
                                              CJsonOutputWriter& jsonOutputWriter,
                                              CPersistenceManager* periodicPersister)
-    : m_JobId(jobId), m_OutputHandler(outputHandler),
+    : m_JobId(jobId), m_Limits(limits), m_OutputHandler(outputHandler),
       m_ExtraFieldNames(1, MLCATEGORY_NAME), m_WriteFieldNames(true),
       m_NumRecordsHandled(0), m_OutputFieldCategory(m_Overrides[MLCATEGORY_NAME]),
       m_MaxMatchingLength(0), m_JsonOutputWriter(jsonOutputWriter),
-      m_ExamplesCollector(limits.maxExamples()),
       m_CategorizationFieldName(config.categorizationFieldName()),
       m_CategorizationFilter(), m_PeriodicPersister(periodicPersister) {
     this->createCategorizer(m_CategorizationFieldName);
@@ -109,6 +108,10 @@ bool CFieldDataCategorizer::handleRecord(const TStrStrUMap& dataRowFields) {
 }
 
 void CFieldDataCategorizer::finalise() {
+
+    // Make sure model size stats are up to date
+    m_Limits.resourceMonitor().forceRefresh(*m_DataCategorizer);
+
     // Pass on the request in case we're chained
     m_OutputHandler.finalise();
 
@@ -159,12 +162,19 @@ int CFieldDataCategorizer::computeCategory(const TStrStrUMap& dataRowFields) {
         return -1;
     }
 
-    bool exampleAdded = m_ExamplesCollector.add(categoryId, fieldValue);
-    bool searchTermsChanged = this->createReverseSearch(categoryId);
+    bool exampleAdded{m_DataCategorizer->addExample(categoryId, fieldValue)};
+    bool searchTermsChanged{this->createReverseSearch(categoryId)};
     if (exampleAdded || searchTermsChanged) {
         m_JsonOutputWriter.writeCategoryDefinition(
             categoryId, m_SearchTerms, m_SearchTermsRegex, m_MaxMatchingLength,
-            m_ExamplesCollector.examples(categoryId));
+            m_DataCategorizer->examplesCollector().examples(categoryId));
+        if (categoryId % 10 == 0) {
+            // Even if memory limiting is disabled, force a refresh occasionally
+            // so the user has some idea what's going on with memory.
+            m_Limits.resourceMonitor().forceRefresh(*m_DataCategorizer);
+        } else {
+            m_Limits.resourceMonitor().refresh(*m_DataCategorizer);
+        }
     }
 
     // Check if a periodic persist is due.
@@ -181,7 +191,7 @@ void CFieldDataCategorizer::createCategorizer(const std::string& fieldName) {
     TTokenListDataCategorizerKeepsFields::TTokenListReverseSearchCreatorIntfCPtr reverseSearchCreator(
         new model::CTokenListReverseSearchCreator(fieldName));
     m_DataCategorizer.reset(new TTokenListDataCategorizerKeepsFields(
-        reverseSearchCreator, SIMILARITY_THRESHOLD, fieldName));
+        m_Limits, reverseSearchCreator, SIMILARITY_THRESHOLD, fieldName));
 
     LOG_TRACE(<< "Created new categorizer for field '" << fieldName << "'");
 }
@@ -298,12 +308,7 @@ bool CFieldDataCategorizer::acceptRestoreTraverser(core::CStateRestoreTraverser&
     }
 
     if (traverser.name() == EXAMPLES_COLLECTOR_TAG) {
-        if (traverser.traverseSubLevel(std::bind(
-                &model::CCategoryExamplesCollector::acceptRestoreTraverser,
-                std::ref(m_ExamplesCollector), std::placeholders::_1)) == false ||
-            traverser.haveBadState()) {
-            LOG_ERROR(<< "Cannot restore categorizer, unexpected element: "
-                      << traverser.value());
+        if (m_DataCategorizer->restoreExamplesCollector(traverser) == false) {
             return false;
         }
     } else {
@@ -334,7 +339,7 @@ bool CFieldDataCategorizer::persistState(core::CDataAdder& persister,
     LOG_DEBUG(<< "Persist categorizer state");
 
     return this->doPersistState(m_DataCategorizer->makeForegroundPersistFunc(),
-                                m_ExamplesCollector, persister);
+                                m_DataCategorizer->examplesCollector(), persister);
 }
 
 bool CFieldDataCategorizer::isPersistenceNeeded(const std::string& description) const {
@@ -410,6 +415,9 @@ void CFieldDataCategorizer::acceptPersistInserter(
 bool CFieldDataCategorizer::periodicPersistStateInBackground() {
     LOG_DEBUG(<< "Periodic persist categorizer state");
 
+    // Make sure model size stats are up to date
+    m_Limits.resourceMonitor().forceRefresh(*m_DataCategorizer);
+
     // Pass on the request in case we're chained
     if (m_OutputHandler.periodicPersistStateInBackground() == false) {
         return false;
@@ -420,13 +428,13 @@ bool CFieldDataCategorizer::periodicPersistStateInBackground() {
         return false;
     }
 
-    if (m_PeriodicPersister->addPersistFunc(
-            std::bind(&CFieldDataCategorizer::doPersistState, this,
-                      // Do NOT add std::ref wrappers
-                      // around these arguments - they
-                      // MUST be copied for thread safety
-                      m_DataCategorizer->makeBackgroundPersistFunc(),
-                      m_ExamplesCollector, std::placeholders::_1)) == false) {
+    if (m_PeriodicPersister->addPersistFunc(std::bind(
+            &CFieldDataCategorizer::doPersistState, this,
+            // Do NOT add std::ref wrappers
+            // around these arguments - they
+            // MUST be copied for thread safety
+            m_DataCategorizer->makeBackgroundPersistFunc(),
+            m_DataCategorizer->examplesCollector(), std::placeholders::_1)) == false) {
         LOG_ERROR(<< "Failed to add categorizer background persistence function");
         return false;
     }
@@ -462,7 +470,6 @@ void CFieldDataCategorizer::resetAfterCorruptRestore() {
     m_SearchTerms.clear();
     m_SearchTermsRegex.clear();
     this->createCategorizer(m_CategorizationFieldName);
-    m_ExamplesCollector.clear();
 }
 
 bool CFieldDataCategorizer::handleControlMessage(const std::string& controlMessage) {

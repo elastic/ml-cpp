@@ -97,9 +97,14 @@ public:
     //! Create a data categorizer with threshold for how comparable categories are
     //! 0.0 means everything is the same category
     //! 1.0 means things have to match exactly to be the same category
-    CBaseTokenListDataCategorizer(const TTokenListReverseSearchCreatorIntfCPtr& reverseSearchCreator,
+    CBaseTokenListDataCategorizer(CLimits& limits,
+                                  const TTokenListReverseSearchCreatorIntfCPtr& reverseSearchCreator,
                                   double threshold,
                                   const std::string& fieldName);
+
+    //! No copying allowed (because it would complicate the resource monitoring).
+    CBaseTokenListDataCategorizer(const CBaseTokenListDataCategorizer&) = delete;
+    CBaseTokenListDataCategorizer& operator=(const CBaseTokenListDataCategorizer&) = delete;
 
     //! Dump stats
     void dumpStats() const override;

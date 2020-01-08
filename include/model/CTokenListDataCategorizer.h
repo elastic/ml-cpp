@@ -15,9 +15,8 @@
 #include <model/CBaseTokenListDataCategorizer.h>
 
 #include <algorithm>
+#include <cctype>
 #include <string>
-
-#include <ctype.h>
 
 namespace ml {
 namespace model {
@@ -53,11 +52,16 @@ public:
     //! Create a data categorizer with threshold for how comparable categories are
     //! 0.0 means everything is the same category
     //! 1.0 means things have to match exactly to be the same category
-    CTokenListDataCategorizer(const TTokenListReverseSearchCreatorIntfCPtr& reverseSearchCreator,
+    CTokenListDataCategorizer(CLimits& limits,
+                              const TTokenListReverseSearchCreatorIntfCPtr& reverseSearchCreator,
                               double threshold,
                               const std::string& fieldName)
-        : CBaseTokenListDataCategorizer(reverseSearchCreator, threshold, fieldName),
-          m_Dict(core::CWordDictionary::instance()) {}
+        : CBaseTokenListDataCategorizer{limits, reverseSearchCreator, threshold, fieldName},
+          m_Dict{core::CWordDictionary::instance()} {}
+
+    //! No copying allowed (because it would complicate the resource monitoring).
+    CTokenListDataCategorizer(const CTokenListDataCategorizer&) = delete;
+    CTokenListDataCategorizer& operator=(const CTokenListDataCategorizer&) = delete;
 
     //! Debug the memory used by this categorizer.
     void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const override {
@@ -72,6 +76,15 @@ public:
         mem += this->CBaseTokenListDataCategorizer::memoryUsage();
         mem += core::CMemory::dynamicSize(m_SimilarityTester);
         return mem;
+    }
+
+    //! Get the static size of this object - used for virtual hierarchies
+    std::size_t staticSize() const override { return sizeof(*this); }
+
+    //! Currently the overall model memory stats do not contain any categorizer
+    //! stats fields.
+    void updateMemoryResults(CResourceMonitor::SResults& /*results*/) const override {
+        // NO-OP
     }
 
 protected:
@@ -91,19 +104,18 @@ protected:
 
         // TODO - make more efficient
         std::string::size_type nonHexPos(std::string::npos);
-        for (std::string::size_type i = 0; i < str.size(); ++i) {
-            const char curChar(str[i]);
+        for (const char curChar : str) {
 
             // Basically tokenise into [a-zA-Z0-9]+ strings, possibly
             // allowing underscores, dots and dashes in the middle
-            if (::isalnum(static_cast<unsigned char>(curChar)) ||
+            if (std::isalnum(static_cast<unsigned char>(curChar)) ||
                 (!temp.empty() && ((ALLOW_UNDERSCORE && curChar == '_') ||
                                    (ALLOW_DOT && curChar == '.') ||
                                    (ALLOW_DASH && curChar == '-')))) {
                 temp += curChar;
                 if (IGNORE_HEX) {
                     // Count dots and dashes as numeric
-                    if (!::isxdigit(static_cast<unsigned char>(curChar)) &&
+                    if (!std::isxdigit(static_cast<unsigned char>(curChar)) &&
                         curChar != '.' && curChar != '-') {
                         nonHexPos = temp.length() - 1;
                     }
@@ -203,7 +215,7 @@ private:
                        TSizeSizePrVec& tokenIds,
                        TSizeSizeMap& tokenUniqueIds,
                        size_t& totalWeight) {
-        if (IGNORE_LEADING_DIGIT && ::isdigit(static_cast<unsigned char>(token[0]))) {
+        if (IGNORE_LEADING_DIGIT && std::isdigit(static_cast<unsigned char>(token[0]))) {
             return;
         }
 
@@ -227,7 +239,7 @@ private:
         }
 
         // If the last character is not alphanumeric, strip it.
-        while (!::isalnum(static_cast<unsigned char>(token[token.length() - 1]))) {
+        while (!std::isalnum(static_cast<unsigned char>(token[token.length() - 1]))) {
             token.erase(token.length() - 1);
         }
 
