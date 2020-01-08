@@ -398,11 +398,20 @@ void CBaseTokenListDataTyper::acceptPersistInserter(const TTokenMIndex& tokenIdL
     }
 }
 
-CDataTyper::TPersistFunc CBaseTokenListDataTyper::makePersistFunc() const {
+CDataTyper::TPersistFunc CBaseTokenListDataTyper::makeForegroundPersistFunc() const {
     return std::bind(
         static_cast<void (*)(const TTokenMIndex&, const TTokenListTypeVec&, core::CStatePersistInserter&)>(
             &CBaseTokenListDataTyper::acceptPersistInserter),
         std::cref(m_TokenIdLookup), std::cref(m_Types), std::placeholders::_1);
+}
+
+CDataTyper::TPersistFunc CBaseTokenListDataTyper::makeBackgroundPersistFunc() const {
+    return std::bind(
+        static_cast<void (*)(const TTokenMIndex&, const TTokenListTypeVec&, core::CStatePersistInserter&)>(
+            &CBaseTokenListDataTyper::acceptPersistInserter),
+        // Do NOT add std::ref wrappers around these arguments - they MUST be
+        // copied for thread safety
+        m_TokenIdLookup, m_Types, std::placeholders::_1);
 }
 
 void CBaseTokenListDataTyper::addTypeMatch(bool isDryRun,

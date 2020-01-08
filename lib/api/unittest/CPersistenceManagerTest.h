@@ -15,6 +15,7 @@ public:
     void testDetectorPersistBy();
     void testDetectorPersistOver();
     void testDetectorPersistPartition();
+    void testBackgroundPersistCategorizationConsistency();
     void testCategorizationOnlyPersist();
     void testDetectorBackgroundPersistStaticsConsistency();
 

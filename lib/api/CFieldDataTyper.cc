@@ -331,7 +331,8 @@ bool CFieldDataTyper::persistState(core::CDataAdder& persister,
 
     LOG_DEBUG(<< "Persist typer state");
 
-    return this->doPersistState(m_DataTyper->makePersistFunc(), m_ExamplesCollector, persister);
+    return this->doPersistState(m_DataTyper->makeForegroundPersistFunc(),
+                                m_ExamplesCollector, persister);
 }
 
 bool CFieldDataTyper::isPersistenceNeeded(const std::string& description) const {
@@ -420,8 +421,8 @@ bool CFieldDataTyper::periodicPersistStateInBackground() {
                       // Do NOT add std::ref wrappers
                       // around these arguments - they
                       // MUST be copied for thread safety
-                      m_DataTyper->makePersistFunc(), m_ExamplesCollector,
-                      std::placeholders::_1)) == false) {
+                      m_DataTyper->makeBackgroundPersistFunc(),
+                      m_ExamplesCollector, std::placeholders::_1)) == false) {
         LOG_ERROR(<< "Failed to add categorizer background persistence function");
         return false;
     }
