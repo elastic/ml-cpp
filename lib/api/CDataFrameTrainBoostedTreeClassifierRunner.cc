@@ -158,10 +158,11 @@ void CDataFrameTrainBoostedTreeClassifierRunner::writeOneRow(
     }
 
     if (this->topShapValues() > 0) {
-        auto largestShapValues = this->makeLargestShapAccumulator(
-            this->topShapValues(), [&row](std::size_t lhs, std::size_t rhs) {
-                return std::fabs(row[lhs]) > std::fabs(row[rhs]);
-            });
+        auto largestShapValues =
+            maths::CBasicStatistics::orderStatisticsAccumulator<std::size_t>(
+                this->topShapValues(), [&row](std::size_t lhs, std::size_t rhs) {
+                    return std::fabs(row[lhs]) > std::fabs(row[rhs]);
+                });
         for (auto col : this->boostedTree().columnsHoldingShapValues()) {
             largestShapValues.add(col);
         }
@@ -181,8 +182,7 @@ void CDataFrameTrainBoostedTreeClassifierRunner::writeOneRow(
 
     const auto& tree = this->boostedTree();
     const std::size_t columnHoldingDependentVariable{tree.columnHoldingDependentVariable()};
-    const std::size_t columnHoldingPrediction{
-        tree.columnHoldingPrediction(row.numberColumns())};
+    const std::size_t columnHoldingPrediction{tree.columnHoldingPrediction()};
     this->writeOneRow(frame, columnHoldingDependentVariable,
                       columnHoldingPrediction, row, writer);
 }

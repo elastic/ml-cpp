@@ -33,6 +33,7 @@ class CBoostedTreeImpl;
 //! Factory for CBoostedTree objects.
 class MATHS_EXPORT CBoostedTreeFactory final {
 public:
+    using TVector = CVectorNx1<double, 3>;
     using TBoostedTreeUPtr = std::unique_ptr<CBoostedTree>;
     using TProgressCallback = CBoostedTree::TProgressCallback;
     using TMemoryUsageCallback = CBoostedTree::TMemoryUsageCallback;
@@ -125,12 +126,10 @@ private:
     using TDoubleDoublePrVec = std::vector<TDoubleDoublePr>;
     using TOptionalDouble = boost::optional<double>;
     using TOptionalSize = boost::optional<std::size_t>;
-    using TVector = CVectorNx1<double, 3>;
     using TOptionalVector = boost::optional<TVector>;
     using TPackedBitVectorVec = std::vector<core::CPackedBitVector>;
     using TBoostedTreeImplUPtr = std::unique_ptr<CBoostedTreeImpl>;
-    using TApplyRegularizerStep =
-        std::function<bool(CBoostedTreeImpl&, double, std::size_t)>;
+    using TApplyRegularizer = std::function<bool(CBoostedTreeImpl&, double)>;
 
 private:
     CBoostedTreeFactory(std::size_t numberThreads);
@@ -173,10 +172,11 @@ private:
     //! \return The interval to search during the main hyperparameter optimisation
     //! loop or null if this couldn't be found.
     TOptionalVector testLossLineSearch(core::CDataFrame& frame,
-                                       const TApplyRegularizerStep& applyRegularizerStep,
+                                       const TApplyRegularizer& applyRegularizerStep,
+                                       double intervalLeftEnd,
+                                       double intervalRightEnd,
                                        double returnedIntervalLeftEndOffset,
-                                       double returnedIntervalRightEndOffset,
-                                       double stepSize) const;
+                                       double returnedIntervalRightEndOffset) const;
 
     //! Initialize the state for hyperparameter optimisation.
     void initializeHyperparameterOptimisation() const;

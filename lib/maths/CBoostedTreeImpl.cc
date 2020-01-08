@@ -1195,7 +1195,7 @@ bool CBoostedTreeImpl::selectNextHyperparameters(const TMeanVarAccumulator& loss
         std::tie(minBoundary, maxBoundary) = bopt.boundingBox();
         parameters = minBoundary + parameters.cwiseProduct(maxBoundary - minBoundary);
     } else {
-        parameters = bopt.maximumExpectedImprovement();
+        std::tie(parameters, std::ignore) = bopt.maximumExpectedImprovement();
     }
 
     // Downsampling acts as a regularisation and also increases the variance

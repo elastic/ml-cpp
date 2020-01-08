@@ -38,8 +38,11 @@
 == {es} version 7.6.0
 
 === New Features
+
 * Add instrumentation to report statistics related to data frame analytics jobs, i.e.
 progress, memory usage, etc. (See {ml-pull}906[#906].)
+* Add feature importance values to classification and regression results (using tree
+SHapley Additive exPlanation, or SHAP). (See {ml-pull}857[#857].)
 
 === Enhancements
 
@@ -61,6 +64,8 @@ is no longer decreasing. (See {ml-pull}875[#875].)
 * Emit `prediction_field_name` in ml results using the type provided as
 `prediction_field_type` parameter. (See {ml-pull}877[#877].)
 * Improve performance updating quantile estimates. (See {ml-pull}881[#881].)
+* Migrate to use Bayesian Optimisation for initial hyperparameter value line searches and
+stop early if the expected improvement is too small. (See {ml-pull}903[#903].)
 
 === Bug Fixes
 * Fixes potential memory corruption when determining seasonality. (See {ml-pull}852[#852].)
