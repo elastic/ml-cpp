@@ -56,11 +56,11 @@ void setupLinearRegressionData(const TStrVec& fieldNames,
             row[j] = values[i + j];
         }
 
-        for (std::size_t j = 0; j < row.size(); ++j) {
+        fieldValues[0] = target(row);
+        for (std::size_t j = 1; j < row.size() + 1; ++j) {
             fieldValues[j] = core::CStringUtils::typeToStringPrecise(
                 row[j], core::CIEEE754::E_DoublePrecision);
         }
-        fieldValues[weights.size()] = target(row);
 
         analyzer.handleRecord(fieldNames, fieldValues);
     }
@@ -88,11 +88,11 @@ void setupBinaryClassificationData(const TStrVec& fieldNames,
             row[j] = values[i + j];
         }
 
-        for (std::size_t j = 0; j < row.size(); ++j) {
+        fieldValues[0] = target(row);
+        for (std::size_t j = 1; j < row.size() + 1; ++j) {
             fieldValues[j] = core::CStringUtils::typeToStringPrecise(
                 row[j], core::CIEEE754::E_DoublePrecision);
         }
-        fieldValues[weights.size()] = target(row);
 
         analyzer.handleRecord(fieldNames, fieldValues);
     }
@@ -106,11 +106,11 @@ struct SFixture {
         };
         api::CDataFrameAnalyzer analyzer{
             test::CDataFrameAnalysisSpecificationFactory::predictionSpec(
-                "regression", "c5", s_Rows, 5, 8000000, 0, 0, {"c1"}, s_Alpha,
+                "regression", "target", s_Rows, 5, 8000000, 0, 0, {"c1"}, s_Alpha,
                 s_Lambda, s_Gamma, s_SoftTreeDepthLimit, s_SoftTreeDepthTolerance,
                 s_Eta, s_MaximumNumberTrees, s_FeatureBagFraction, shapValues),
             outputWriterFactory};
-        TStrVec fieldNames{"c1", "c2", "c3", "c4", "c5", ".", "."};
+        TStrVec fieldNames{"target", "c1", "c2", "c3", "c4", ".", "."};
         TStrVec fieldValues{"", "", "", "", "", "0", ""};
         test::CRandomNumbers rng;
 
@@ -138,11 +138,11 @@ struct SFixture {
         };
         api::CDataFrameAnalyzer analyzer{
             test::CDataFrameAnalysisSpecificationFactory::predictionSpec(
-                "classification", "c5", s_Rows, 5, 8000000, 0, 0, {"c5"}, s_Alpha,
-                s_Lambda, s_Gamma, s_SoftTreeDepthLimit, s_SoftTreeDepthTolerance,
+                "classification", "target", s_Rows, 5, 8000000, 0, 0, {"target"},
+                s_Alpha, s_Lambda, s_Gamma, s_SoftTreeDepthLimit, s_SoftTreeDepthTolerance,
                 s_Eta, s_MaximumNumberTrees, s_FeatureBagFraction, shapValues),
             outputWriterFactory};
-        TStrVec fieldNames{"c1", "c2", "c3", "c4", "c5", ".", "."};
+        TStrVec fieldNames{"target", "c1", "c2", "c3", "c4", ".", "."};
         TStrVec fieldValues{"", "", "", "", "", "0", ""};
         test::CRandomNumbers rng;
 
@@ -179,9 +179,19 @@ BOOST_FIXTURE_TEST_CASE(testRunBoostedTreeRegressionFeatureImportanceAllShap, SF
     // the significance is proportional to the multiplier. Also make sure that the SHAP values
     // are indeed a local approximation of the prediction up to the constant bias term.
 
-    std::size_t topShapValues{4};
+    std::size_t topShapValues{5};
     TDoubleVec weights{50, 150, 50, -50};
     auto results{runRegression(topShapValues, weights)};
+
+    std::ostringstream stream;
+    {
+        core::CJsonOutputStreamWrapper wrapper{stream};
+        core::CRapidJsonConcurrentLineWriter writer{wrapper};
+        writer.write(results);
+        stream.flush();
+    }
+    // string writer puts the json object in an array, so we strip the external brackets
+    LOG_DEBUG(<< stream.str());
 
     TMeanVarAccumulator bias;
     double c1Sum{0.0}, c2Sum{0.0}, c3Sum{0.0}, c4Sum{0.0};
@@ -196,7 +206,7 @@ BOOST_FIXTURE_TEST_CASE(testRunBoostedTreeRegressionFeatureImportanceAllShap, SF
             double c4{result["row_results"]["results"]["ml"][maths::CDataFrameRegressionModel::SHAP_PREFIX + "c4"]
                           .GetDouble()};
             double prediction{
-                result["row_results"]["results"]["ml"]["c5_prediction"].GetDouble()};
+                result["row_results"]["results"]["ml"]["target_prediction"].GetDouble()};
             // the difference between the prediction and the sum of all SHAP values constitutes bias
             bias.add(prediction - (c1 + c2 + c3 + c4));
             c1Sum += std::fabs(c1);
@@ -237,7 +247,7 @@ BOOST_FIXTURE_TEST_CASE(testRunBoostedTreeRegressionFeatureImportanceNoImportanc
             double c4{result["row_results"]["results"]["ml"][maths::CDataFrameRegressionModel::SHAP_PREFIX + "c4"]
                           .GetDouble()};
             double prediction{
-                result["row_results"]["results"]["ml"]["c5_prediction"].GetDouble()};
+                result["row_results"]["results"]["ml"]["target_prediction"].GetDouble()};
             // c1 explain 97% of the prediction value, i.e. the difference from the prediction is less than 1%.
             BOOST_REQUIRE_CLOSE(c1, prediction, 3.0);
             BOOST_REQUIRE_SMALL(c2, 0.25);
@@ -271,17 +281,17 @@ BOOST_FIXTURE_TEST_CASE(testRunBoostedTreeClassificationFeatureImportanceAllShap
                           .GetDouble()};
             double predictionProbability{
                 result["row_results"]["results"]["ml"]["prediction_probability"].GetDouble()};
-            std::string c5Prediction{
-                result["row_results"]["results"]["ml"]["c5_prediction"].GetString()};
+            std::string targetPrediction{
+                result["row_results"]["results"]["ml"]["target_prediction"].GetString()};
             double logOdds{0.0};
-            if (c5Prediction == "bar") {
+            if (targetPrediction == "bar") {
                 logOdds = std::log(predictionProbability /
                                    (1.0 - predictionProbability + 1e-10));
-            } else if (c5Prediction == "foo") {
+            } else if (targetPrediction == "foo") {
                 logOdds = std::log((1.0 - predictionProbability) /
                                    (predictionProbability + 1e-10));
             } else {
-                BOOST_TEST_FAIL("Unknown predicted class " + c5Prediction);
+                BOOST_TEST_FAIL("Unknown predicted class " + targetPrediction);
             }
             // the difference between the prediction and the sum of all SHAP values constitutes bias
             bias.add(logOdds - (c1 + c2 + c3 + c4));
