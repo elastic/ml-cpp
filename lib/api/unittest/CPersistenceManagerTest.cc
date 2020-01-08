@@ -294,6 +294,80 @@ BOOST_FIXTURE_TEST_CASE(testDetectorBackgroundPersistStaticsConsistency, CTestFi
     this->foregroundBackgroundCompAnomalyDetectionAfterStaticsUpdate("testfiles/new_mlfields_over.conf");
 }
 
+BOOST_FIXTURE_TEST_CASE(testBackgroundPersistCategorizationConsistency, CTestFixture) {
+
+    static const std::string JOB_ID{"job"};
+    static const std::string FIRST_INPUT{
+        "{ \"message\": \"the quick brown fox jumped over the lazy dog\" }\n"};
+    static const std::string SECOND_INPUT{"{ \"message\": \"she sells sea shells on the seashore\" }\n"};
+
+    std::ofstream outputStrm{ml::core::COsFileFuncs::NULL_FILENAME};
+    BOOST_TEST_REQUIRE(outputStrm.is_open());
+
+    ml::model::CLimits limits;
+    ml::api::CFieldConfig fieldConfig{"message"};
+
+    std::ostringstream* backgroundStream{nullptr};
+    ml::api::CSingleStreamDataAdder::TOStreamP backgroundStreamPtr(
+        backgroundStream = new std::ostringstream());
+    ml::api::CSingleStreamDataAdder backgroundDataAdder(backgroundStreamPtr);
+
+    // The 30000 second persist interval is set large enough that the timer
+    // will not trigger during the test - we bypass the timer in this test
+    // and kick off the background persistence chain explicitly
+    ml::api::CPersistenceManager persistenceManager{30000, false, backgroundDataAdder};
+
+    std::string backgroundState1;
+    std::string backgroundState2;
+
+    {
+        ml::core::CJsonOutputStreamWrapper wrappedOutputStream(outputStrm);
+        ml::api::CJsonOutputWriter outputWriter(JOB_ID, wrappedOutputStream);
+
+        ml::api::CFieldDataCategorizer categorizer(JOB_ID, fieldConfig, limits, outputWriter,
+                                                   outputWriter, &persistenceManager);
+
+        std::istringstream inputStrm1{FIRST_INPUT};
+        ml::api::CNdJsonInputParser parser1{inputStrm1};
+
+        BOOST_TEST_REQUIRE(parser1.readStreamIntoMaps(std::bind(
+            &ml::api::CDataProcessor::handleRecord, &categorizer, std::placeholders::_1)));
+
+        // Now persist the categorizer's state in the background
+        BOOST_TEST_REQUIRE(categorizer.periodicPersistStateInBackground());
+        BOOST_TEST_REQUIRE(persistenceManager.startPersistInBackground());
+        BOOST_TEST_REQUIRE(persistenceManager.waitForIdle());
+
+        backgroundState1 = backgroundStream->str();
+
+        std::istringstream inputStrm2{SECOND_INPUT};
+        ml::api::CNdJsonInputParser parser2{inputStrm2};
+
+        BOOST_TEST_REQUIRE(categorizer.periodicPersistStateInBackground());
+        BOOST_TEST_REQUIRE(persistenceManager.startPersistInBackground());
+
+        // This time handle another record during background persistence.
+        // Due to thread scheduling, sometimes this will happen before the
+        // persistence is complete.  This shouldn't be a problem if the
+        // background persistence copied the state, but if it didn't then
+        // it should fail the test.
+        BOOST_TEST_REQUIRE(parser2.readStreamIntoMaps(std::bind(
+            &ml::api::CDataProcessor::handleRecord, &categorizer, std::placeholders::_1)));
+
+        BOOST_TEST_REQUIRE(persistenceManager.waitForIdle());
+
+        backgroundState2 = backgroundStream->str();
+        backgroundState2.erase(0, backgroundState1.length());
+    }
+
+    // Replace the zero byte separators to avoid '\0's in the output if the
+    // test fails
+    std::replace(backgroundState1.begin(), backgroundState1.end(), '\0', ',');
+    std::replace(backgroundState2.begin(), backgroundState2.end(), '\0', ',');
+
+    BOOST_REQUIRE_EQUAL(backgroundState1, backgroundState2);
+}
+
 BOOST_FIXTURE_TEST_CASE(testCategorizationOnlyPersist, CTestFixture) {
     // Start by creating a categorizer with non-trivial state
 

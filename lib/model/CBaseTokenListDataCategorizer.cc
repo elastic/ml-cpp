@@ -403,11 +403,20 @@ void CBaseTokenListDataCategorizer::acceptPersistInserter(const TTokenMIndex& to
     }
 }
 
-CDataCategorizer::TPersistFunc CBaseTokenListDataCategorizer::makePersistFunc() const {
+CDataCategorizer::TPersistFunc CBaseTokenListDataCategorizer::makeForegroundPersistFunc() const {
     return std::bind(
         static_cast<void (*)(const TTokenMIndex&, const TTokenListCategoryVec&, core::CStatePersistInserter&)>(
             &CBaseTokenListDataCategorizer::acceptPersistInserter),
         std::cref(m_TokenIdLookup), std::cref(m_Categories), std::placeholders::_1);
+}
+
+CDataCategorizer::TPersistFunc CBaseTokenListDataCategorizer::makeBackgroundPersistFunc() const {
+    return std::bind(
+        static_cast<void (*)(const TTokenMIndex&, const TTokenListCategoryVec&, core::CStatePersistInserter&)>(
+            &CBaseTokenListDataCategorizer::acceptPersistInserter),
+        // Do NOT add std::ref wrappers around these arguments - they MUST be
+        // copied for thread safety
+        m_TokenIdLookup, m_Categories, std::placeholders::_1);
 }
 
 void CBaseTokenListDataCategorizer::addCategoryMatch(bool isDryRun,
