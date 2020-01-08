@@ -64,6 +64,12 @@ stop early if the expected improvement is too small. (See {ml-pull}903[#903].)
 (See {ml-pull}861[#861].)
 
 
+== {es} version 7.5.2
+
+=== Bug Fixes
+* Fixes potential memory corruption or inconsistent state when background persisting
+categorizer state. (See {ml-pull}921[#921].)
+
 == {es} version 7.5.0
 
 === Enhancements
