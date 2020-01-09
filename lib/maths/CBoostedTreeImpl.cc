@@ -1080,7 +1080,7 @@ CBoostedTreeImpl::estimateMissingTestLosses(const TSizeVec& missing) const {
     // estimate the test loss we'll see for the remaining folds to decide if it
     // is worthwhile to continue training with these parameters and to correct
     // the loss value supplied to Bayesian Optimisation to account for the folds
-    // we haven't trained on. We achieve this by for each missing fold fitting an
+    // we haven't trained on. To this end, for each missing fold fitting an
     // OLS to the data (x_i, loss(m_i)) where i ranges over the previous rounds
     // and x_i is the i'th vector whose components comprise the losses for which
     // we have values in the current round and indicators for whether they were
