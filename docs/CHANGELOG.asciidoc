@@ -37,6 +37,11 @@
 
 == {es} version 7.6.0
 
+=== New Features
+
+* Add feature importance values to classification and regression results (using tree 
+SHapley Additive exPlanation, or SHAP). (See {ml-pull}857[#857].)
+
 === Enhancements
 
 * Improve performance of boosted tree training for both classification and regression.
@@ -67,6 +72,12 @@ smaller than for the best parameter values found so far. (See {ml-pull}915[#915]
 * Prevent prediction_field_name clashing with other fields in ml results.
 (See {ml-pull}861[#861].)
 
+
+== {es} version 7.5.2
+
+=== Bug Fixes
+* Fixes potential memory corruption or inconsistent state when background persisting
+categorizer state. (See {ml-pull}921[#921].)
 
 == {es} version 7.5.0
 
