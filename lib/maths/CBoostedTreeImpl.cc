@@ -1110,7 +1110,7 @@ CBoostedTreeImpl::estimateMissingTestLosses(const TSizeVec& missing) const {
     CSetTools::inplace_set_difference(present, ordered.begin(), ordered.end());
     LOG_TRACE(<< "present = " << core::CContainerPrinter::print(present));
 
-    // Get the current round feature vector.
+    // Get the current round feature vector. Fixed so computed outside the loop.
     TVector x(2 * present.size());
     for (std::size_t col = 0; col < present.size(); ++col) {
         x(col) = *m_FoldRoundTestLosses[present[col]][m_CurrentRound];
@@ -1158,11 +1158,12 @@ CBoostedTreeImpl::estimateMissingTestLosses(const TSizeVec& missing) const {
         double predictedTestLoss{params.transpose() * x};
         double predictedTestLossVariance{
             CBasicStatistics::maximumLikelihoodVariance(residualMoments)};
-        predictedTestLosses.push_back(CBasicStatistics::momentsAccumulator(
-            1.0, predictedTestLoss, predictedTestLossVariance));
         LOG_TRACE(<< "prediction(x = " << x.transpose() << ", fold = " << target
                   << ") = (mean = " << predictedTestLoss
                   << ", variance = " << predictedTestLossVariance << ")");
+
+        predictedTestLosses.push_back(CBasicStatistics::momentsAccumulator(
+            1.0, predictedTestLoss, predictedTestLossVariance));
     }
 
     return predictedTestLosses;
