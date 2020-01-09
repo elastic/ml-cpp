@@ -274,10 +274,11 @@ void CBoostedTreeFactory::initializeNumberFolds(core::CDataFrame& frame) const {
         double initialDownsampleFraction{(m_InitialDownsampleRowsPerFeature *
                                           static_cast<double>(frame.numberColumns() - 1)) /
                                          static_cast<double>(totalNumberTrainingRows)};
-        m_TreeImpl->m_NumberFolds = static_cast<std::size_t>(std::min(
-            std::ceil(1.0 / (1.0 - initialDownsampleFraction / MAX_DESIRED_INITIAL_DOWNSAMPLE_FRACTION)),
-            MAX_NUMBER_FOLDS));
-        LOG_TRACE(<< "desired downsample fraction = " << initialDownsampleFraction
+
+        m_TreeImpl->m_NumberFolds = static_cast<std::size_t>(
+            std::ceil(1.0 / std::max(1.0 - initialDownsampleFraction / MAX_DESIRED_INITIAL_DOWNSAMPLE_FRACTION,
+                                     1.0 / MAX_NUMBER_FOLDS)));
+        LOG_TRACE(<< "initial downsample fraction = " << initialDownsampleFraction
                   << " # folds = " << m_TreeImpl->m_NumberFolds);
     } else {
         m_TreeImpl->m_NumberFolds = *m_TreeImpl->m_NumberFoldsOverride;
