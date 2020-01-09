@@ -250,19 +250,29 @@ void CBoostedTreeFactory::initializeNumberFolds(core::CDataFrame& frame) const {
         }
         LOG_TRACE(<< "total number training rows = " << totalNumberTrainingRows);
 
-        // We require at least twice the number of rows we'll sample in a bag per
-        // fold if possible. In order to estimate this we use the number of input
-        // features as a proxy for the number of features we'll actually use after
-        // feature selection.
+        // We want to choose the number of folds so we'll have enough training data
+        // after leaving out one fold. We choose the initial downsample size based
+        // on the same sort of criterion. So we require that leaving out one fold
+        // shouldn't mean than we have fewer rows than constant * desired downsample
+        // # rows if possible. We choose the constant to be two for no particularly
+        // good reason except that:
+        //   1. it isn't too large
+        //   2. it still means we'll have plenty of variation between random bags.
+        //
+        // In order to estimate this we use the number of input features as a proxy
+        // for the number of features we'll actually use after feature selection.
+        //
+        // So how does the following work: we'd like "2 * f * # rows" training rows.
+        // For k folds we'll have "(1 - 1 / k) * # rows" training rows. So we want
+        // to find the smallest integer k s.t. 2 * f * # rows <= (1 - 1 / k) * # rows.
+        // This gives k = ceil(1 / (1 - 2 * f)). However, we also upper bound this
+        // by MAX_NUMBER_FOLDS.
+
         double desiredTrainingFraction{(m_InitialDownsampleRowsPerFeature *
                                         static_cast<double>(frame.numberColumns() - 1)) /
                                        static_cast<double>(totalNumberTrainingRows)};
-        if (2.0 * desiredTrainingFraction >= 1.0 - 1.0 / static_cast<double>(MAX_NUMBER_FOLDS)) {
-            m_TreeImpl->m_NumberFolds = MAX_NUMBER_FOLDS;
-        } else {
-            m_TreeImpl->m_NumberFolds = static_cast<std::size_t>(
-                std::ceil(1.0 / (1.0 - 2.0 * desiredTrainingFraction)));
-        }
+        m_TreeImpl->m_NumberFolds = static_cast<std::size_t>(std::min(
+            std::ceil(1.0 / (1.0 - 2.0 * desiredTrainingFraction)), MAX_NUMBER_FOLDS));
         LOG_TRACE(<< "desired training fraction = " << desiredTrainingFraction
                   << " # folds = " << m_TreeImpl->m_NumberFolds);
     } else {
