@@ -18,6 +18,8 @@
 #include <maths/COrderings.h>
 #include <maths/CQuantileSketch.h>
 #include <maths/CSampling.h>
+#include <maths/CSolvers.h>
+#include <maths/CTools.h>
 
 #include <boost/unordered_map.hpp>
 
@@ -727,6 +729,66 @@ CDataFrameUtils::metricMicWithColumn(const CColumnValue& target,
 
     return method(target, frame, rowMask, columnMask,
                   std::min(NUMBER_SAMPLES_TO_COMPUTE_MIC, frame.numberRows()));
+}
+
+double
+CDataFrameUtils::maximumAverageRecallDecisionThreshold(std::size_t numberThreads,
+                                                       const core::CDataFrame& frame,
+                                                       const core::CPackedBitVector& rowMask,
+                                                       std::size_t targetColumn,
+                                                       std::size_t predictionColumn) {
+
+    using TMaxAccumulator = CBasicStatistics::SMax<std::pair<double, double>>::TAccumulator;
+
+    auto readQuantiles = core::bindRetrievableState(
+        [&](TQuantileSketchVec& quantiles, TRowItr beginRows, TRowItr endRows) {
+            for (auto row = beginRows; row != endRows; ++row) {
+                if (isMissing((*row)[targetColumn]) == false) {
+                    quantiles[static_cast<std::size_t>((*row)[targetColumn])].add(
+                        CTools::logisticFunction((*row)[predictionColumn]));
+                }
+            }
+        },
+        TQuantileSketchVec(2, CQuantileSketch{CQuantileSketch::E_Linear, 100}));
+    auto copyQuantiles = [](TQuantileSketchVec quantiles, TQuantileSketchVec& result) {
+        result = std::move(quantiles);
+    };
+    auto reduceQuantiles = [&](TQuantileSketchVec quantiles, TQuantileSketchVec& result) {
+        for (std::size_t i = 0; i < 2; ++i) {
+            result[i] += quantiles[i];
+        }
+    };
+
+    TQuantileSketchVec classProbabilityClassOneQuantiles;
+    if (doReduce(frame.readRows(numberThreads, 0, frame.numberRows(), readQuantiles, &rowMask),
+                 copyQuantiles, reduceQuantiles, classProbabilityClassOneQuantiles) == false) {
+        HANDLE_FATAL(<< "Failed to compute category quantiles");
+        return 0.5;
+    }
+
+    auto meanRecall = [&](double threshold) {
+        double cdf[2];
+        classProbabilityClassOneQuantiles[0].cdf(threshold, cdf[0]);
+        classProbabilityClassOneQuantiles[1].cdf(threshold, cdf[1]);
+        double recalls[]{cdf[0], 1.0 - cdf[1]};
+        return recalls[0] + recalls[1];
+    };
+
+    TMaxAccumulator result;
+    for (std::size_t x = 1; x <= 20; ++x) {
+        double threshold;
+        double meanRecallAtThreshold;
+        std::size_t maxIterations{10};
+        double min{0.05 * static_cast<double>(x - 1)};
+        double max{0.05 * static_cast<double>(x)};
+        CSolvers::maximize(min, max, meanRecall(min), meanRecall(max), meanRecall,
+                           1e-3, maxIterations, threshold, meanRecallAtThreshold);
+        double cdf[2];
+        classProbabilityClassOneQuantiles[0].cdf(threshold, cdf[0]);
+        classProbabilityClassOneQuantiles[1].cdf(threshold, cdf[1]);
+        result.add({meanRecallAtThreshold, threshold});
+    }
+    return result[0].second;
 }
 
 bool CDataFrameUtils::isMissing(double x) {

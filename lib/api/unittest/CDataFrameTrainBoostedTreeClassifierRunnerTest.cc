@@ -59,8 +59,8 @@ void testWriteOneRow(const std::string& dependentVariableField,
                           {"a", "b", "5.0", "0.0", "dog", "-0.1"},
                           {"c", "d", "5.0", "0.0", "dog", "1.0"},
                           {"e", "f", "5.0", "0.0", "dog", "1.5"}};
-    std::unique_ptr<core::CDataFrame> frame =
-        core::makeMainStorageDataFrame(columnNames.size()).first;
+    std::unique_ptr<core::CDataFrame> frame{
+        core::makeMainStorageDataFrame(columnNames.size()).first};
     frame->columnNames(columnNames);
     frame->categoricalColumns(categoricalColumns);
     for (std::size_t i = 0; i < rows.size(); ++i) {
@@ -89,7 +89,7 @@ void testWriteOneRow(const std::string& dependentVariableField,
     }
     const auto parameters{
         api::CDataFrameTrainBoostedTreeClassifierRunner::parameterReader().read(jsonParameters)};
-    api::CDataFrameTrainBoostedTreeClassifierRunner runner(*spec, parameters);
+    api::CDataFrameTrainBoostedTreeClassifierRunner runner{*spec, parameters};
 
     // Write results to the output stream
     std::stringstream output;
@@ -106,7 +106,7 @@ void testWriteOneRow(const std::string& dependentVariableField,
                 columnNames.begin()};
             for (auto row = beginRows; row != endRows; ++row) {
                 runner.writeOneRow(*frame, columnHoldingDependentVariable,
-                                   columnHoldingPrediction, *row, writer);
+                                   columnHoldingPrediction, 0.5, *row, writer);
             }
         });
     }

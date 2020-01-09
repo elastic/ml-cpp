@@ -589,7 +589,15 @@ void CBoostedTreeImpl::predict(core::CDataFrame& frame,
     }
 }
 
-const CBoostedTreeImpl::TDoubleVec& CBoostedTreeImpl::featureWeights() const {
+double CBoostedTreeImpl::decisionThreshold(const core::CDataFrame& frame) const {
+    return m_Loss->name() == boosted_tree::CLogistic::NAME
+               ? CDataFrameUtils::maximumAverageRecallDecisionThreshold(
+                     m_NumberThreads, frame, this->allTrainingRowsMask(),
+                     m_DependentVariable, predictionColumn(frame.numberColumns()))
+               : 0.5;
+}
+
+const CBoostedTreeImpl::TDoubleVec& CBoostedTreeImpl::featureSampleProbabilities() const {
     return m_FeatureSampleProbabilities;
 }
 

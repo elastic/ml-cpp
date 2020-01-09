@@ -165,6 +165,8 @@ public:
     virtual double curvature(double prediction, double actual, double weight = 1.0) const = 0;
     //! Returns true if the loss curvature is constant.
     virtual bool isCurvatureConstant() const = 0;
+    //! Transforms a prediction from the forest to the target space.
+    virtual double transform(double prediction) const = 0;
     //! Get an object which computes the leaf value that minimises loss.
     virtual CArgMinLoss minimizer(double lambda) const = 0;
     //! Get the name of the loss function
@@ -177,16 +179,17 @@ protected:
 //! \brief The MSE loss function.
 class MATHS_EXPORT CMse final : public CLoss {
 public:
+    static const std::string NAME;
+
+public:
     std::unique_ptr<CLoss> clone() const override;
     double value(double prediction, double actual, double weight = 1.0) const override;
     double gradient(double prediction, double actual, double weight = 1.0) const override;
     double curvature(double prediction, double actual, double weight = 1.0) const override;
     bool isCurvatureConstant() const override;
+    double transform(double prediction) const override;
     CArgMinLoss minimizer(double lambda) const override;
     const std::string& name() const override;
-
-public:
-    static const std::string NAME;
 };
 
 //! \brief Implements loss for binomial logistic regression.
@@ -200,16 +203,17 @@ public:
 //! prediction and \f$S(\cdot)\f$ denotes the logistic function.
 class MATHS_EXPORT CLogistic final : public CLoss {
 public:
+    static const std::string NAME;
+
+public:
     std::unique_ptr<CLoss> clone() const override;
     double value(double prediction, double actual, double weight = 1.0) const override;
     double gradient(double prediction, double actual, double weight = 1.0) const override;
     double curvature(double prediction, double actual, double weight = 1.0) const override;
     bool isCurvatureConstant() const override;
+    double transform(double prediction) const override;
     CArgMinLoss minimizer(double lambda) const override;
     const std::string& name() const override;
-
-public:
-    static const std::string NAME;
 };
 }
 
@@ -390,8 +394,8 @@ public:
     //! \warning This can only be called after train.
     void computeShapValues() override;
 
-    //! Get the feature weights the model has chosen.
-    const TDoubleVec& featureWeights() const override;
+    //! Compute the probability threshold at which to classify a row as class one.
+    void computeDecisionThreshold() override;
 
     //! Get the column containing the dependent variable.
     std::size_t columnHoldingDependentVariable() const override;
@@ -405,8 +409,25 @@ public:
     //! Get the number of largest SHAP values that will be returned for every row.
     std::size_t topShapValues() const override;
 
+    //! Get the probability threshold at which to classify a row as class one.
+    double decisionThreshold() const override;
+
     //! Get the model produced by training if it has been run.
     const TNodeVecVec& trainedModel() const;
+
+    //! Persist by passing information to \p inserter.
+    void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
+
+    //! Populate the object from serialized data.
+    bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
+
+    //! Visit this tree trainer.
+    void accept(CVisitor& visitor) const;
+
+    //! \name Test Only
+    //@{
+    //! Get the weight that has been chosen for each feature for training.
+    const TDoubleVec& featureWeightsForTraining() const override;
 
     //! The name of the object holding the best hyperaparameters in the state document.
     static const std::string& bestHyperparametersName();
@@ -420,15 +441,7 @@ public:
 
     //! \return Class containing best hyperparameters.
     const CBoostedTreeHyperparameters& bestHyperparameters() const;
-
-    //! Persist by passing information to \p inserter.
-    void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
-
-    //! Populate the object from serialized data.
-    bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
-
-    //! Visit this tree trainer.
-    void accept(CVisitor& visitor) const;
+    //@}
 
 private:
     using TImplUPtr = std::unique_ptr<CBoostedTreeImpl>;
@@ -442,6 +455,7 @@ private:
 
 private:
     TImplUPtr m_Impl;
+    double m_DecisionThreshold = 0.5;
 
     friend class CBoostedTreeFactory;
 };

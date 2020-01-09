@@ -91,8 +91,12 @@ public:
     //! \note Must be called only if a trained model is available.
     void computeShapValues(core::CDataFrame& frame, const TProgressCallback&);
 
+    //! Get the threshold on the predicted probability of class one at which to assign
+    //! the row to class one.
+    double decisionThreshold(const core::CDataFrame& frame) const;
+
     //! Get the feature sample probabilities.
-    const TDoubleVec& featureWeights() const;
+    const TDoubleVec& featureSampleProbabilities() const;
 
     //! Get the model produced by training if it has been run.
     const TNodeVecVec& trainedModel() const;

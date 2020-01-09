@@ -264,6 +264,10 @@ bool CMse::isCurvatureConstant() const {
     return true;
 }
 
+double CMse::transform(double prediction) const {
+    return prediction;
+}
+
 CArgMinLoss CMse::minimizer(double lambda) const {
     return this->makeMinimizer(CArgMinMseImpl{lambda});
 }
@@ -302,6 +306,10 @@ double CLogistic::curvature(double prediction, double /*actual*/, double weight)
 
 bool CLogistic::isCurvatureConstant() const {
     return false;
+}
+
+double CLogistic::transform(double prediction) const {
+    return CTools::logisticFunction(prediction);
 }
 
 CArgMinLoss CLogistic::minimizer(double lambda) const {
@@ -424,8 +432,8 @@ void CBoostedTree::computeShapValues() {
     m_Impl->computeShapValues(this->frame(), this->progressRecorder());
 }
 
-const CBoostedTree::TDoubleVec& CBoostedTree::featureWeights() const {
-    return m_Impl->featureWeights();
+void CBoostedTree::computeDecisionThreshold() {
+    m_DecisionThreshold = m_Impl->decisionThreshold(this->frame());
 }
 
 std::size_t CBoostedTree::columnHoldingDependentVariable() const {
@@ -436,8 +444,16 @@ std::size_t CBoostedTree::columnHoldingPrediction() const {
     return m_Impl->numberInputColumns();
 }
 
+double CBoostedTree::decisionThreshold() const {
+    return m_DecisionThreshold;
+}
+
 const CBoostedTree::TNodeVecVec& CBoostedTree::trainedModel() const {
     return m_Impl->trainedModel();
+}
+
+const CBoostedTree::TDoubleVec& CBoostedTree::featureWeightsForTraining() const {
+    return m_Impl->featureSampleProbabilities();
 }
 
 const std::string& CBoostedTree::bestHyperparametersName() {

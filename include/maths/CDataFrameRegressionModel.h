@@ -25,8 +25,8 @@ class CRapidJsonConcurrentLineWriter;
 }
 namespace maths {
 
-//! \brief Defines the interface for fitting and evaluating a regression model
-//! on a data frame.
+//! \brief Defines the interface for fitting and inferring a predictive model
+//! with a data frame.
 class MATHS_EXPORT CDataFrameRegressionModel {
 public:
     using TDoubleVec = std::vector<double>;
@@ -53,8 +53,8 @@ public:
     //! \warning This can only be called after train.
     virtual void computeShapValues() = 0;
 
-    //! Get the feature weights the model has chosen.
-    virtual const TDoubleVec& featureWeights() const = 0;
+    //! Compute the probability threshold at which to classify a row as class one.
+    virtual void computeDecisionThreshold() = 0;
 
     //! Get the column containing the dependent variable.
     virtual std::size_t columnHoldingDependentVariable() const = 0;
@@ -67,6 +67,15 @@ public:
 
     //! Get the optional vector of column indices with SHAP values
     virtual TSizeRange columnsHoldingShapValues() const = 0;
+
+    //! Get the probability threshold at which to classify a row as class one.
+    virtual double decisionThreshold() const = 0;
+
+    //! \name Test Only
+    //@{
+    //! Get the weight that has been chosen for each feature for training.
+    virtual const TDoubleVec& featureWeightsForTraining() const = 0;
+    //@}
 
 public:
     static const std::string SHAP_PREFIX;
