@@ -135,8 +135,16 @@ public:
     //! Persist state by passing information to the supplied inserter
     void acceptPersistInserter(core::CStatePersistInserter& inserter) const override;
 
-    //! Make a function that can be called later to persist state
-    TPersistFunc makePersistFunc() const override;
+    //! Make a function that can be called later to persist state in the
+    //! foreground, i.e. in the knowledge that no other thread will be
+    //! accessing the data structures this method accesses.
+    TPersistFunc makeForegroundPersistFunc() const override;
+
+    //! Make a function that can be called later to persist state in the
+    //! background, i.e. copying any required data such that other threads
+    //! may modify the original data structures while persistence is taking
+    //! place.
+    TPersistFunc makeBackgroundPersistFunc() const override;
 
     //! Debug the memory used by this categorizer.
     void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const override;
