@@ -1080,12 +1080,28 @@ CBoostedTreeImpl::estimateMissingTestLosses(const TSizeVec& missing) const {
     // estimate the test loss we'll see for the remaining folds to decide if it
     // is worthwhile to continue training with these parameters and to correct
     // the loss value supplied to Bayesian Optimisation to account for the folds
-    // we haven't trained on. To this end, for each missing fold fitting an
-    // OLS to the data (x_i, loss(m_i)) where i ranges over the previous rounds
-    // and x_i is the i'th vector whose components comprise the losses for which
-    // we have values in the current round and indicators for whether they were
-    // missing in the i'th round. We only include a round if we've trained for at
-    // least one of the same folds in the current round.
+    // we haven't trained on. We tackle this problem as follows:
+    //   1. Find all previous rounds R which share at least one fold with the
+    //      current round, i.e. one fold for which we've computed the actual
+    //      loss for the current round parameters
+    //   2. For each fold f_i for which we haven't estimated the loss in this
+    //      round fit an OLS model m_i to R to predict the loss of f_i.
+    //   3. Compute l_i^ the predicted value for the test loss on each f_i given
+    //      the test losses we've computed so far this round using m_i.
+    //   4. Estimate its uncertainty from the variance of the residuals from
+    //      fitting the model m_i to R.
+    //
+    // The feature vector we use is defined as:
+    //
+    //   |   calculated fold error 1  |
+    //   |   calculated fold error 2  |
+    //   |             ...            |
+    //   | 1{fold error 1 is present} |
+    //   | 1{fold error 2 is present} |
+    //   |             ...            |
+    //
+    // where the indices range over the folds for which we have errors in the
+    // current round.
 
     TSizeVec present(m_NumberFolds);
     std::iota(present.begin(), present.end(), 0);
