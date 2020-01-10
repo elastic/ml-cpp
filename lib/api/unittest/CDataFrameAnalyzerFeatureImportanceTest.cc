@@ -183,16 +183,6 @@ BOOST_FIXTURE_TEST_CASE(testRunBoostedTreeRegressionFeatureImportanceAllShap, SF
     TDoubleVec weights{50, 150, 50, -50};
     auto results{runRegression(topShapValues, weights)};
 
-    std::ostringstream stream;
-    {
-        core::CJsonOutputStreamWrapper wrapper{stream};
-        core::CRapidJsonConcurrentLineWriter writer{wrapper};
-        writer.write(results);
-        stream.flush();
-    }
-    // string writer puts the json object in an array, so we strip the external brackets
-    LOG_DEBUG(<< stream.str());
-
     TMeanVarAccumulator bias;
     double c1Sum{0.0}, c2Sum{0.0}, c3Sum{0.0}, c4Sum{0.0};
     for (const auto& result : results.GetArray()) {
@@ -244,19 +234,20 @@ BOOST_FIXTURE_TEST_CASE(testRunBoostedTreeRegressionFeatureImportanceNoImportanc
         if (result.HasMember("row_results")) {
             double c1{result["row_results"]["results"]["ml"][maths::CDataFrameRegressionModel::SHAP_PREFIX + "c1"]
                           .GetDouble()};
-            double c2{result["row_results"]["results"]["ml"][maths::CDataFrameRegressionModel::SHAP_PREFIX + "c2"]
-                          .GetDouble()};
-            double c3{result["row_results"]["results"]["ml"][maths::CDataFrameRegressionModel::SHAP_PREFIX + "c3"]
-                          .GetDouble()};
-            double c4{result["row_results"]["results"]["ml"][maths::CDataFrameRegressionModel::SHAP_PREFIX + "c4"]
-                          .GetDouble()};
             double prediction{
                 result["row_results"]["results"]["ml"]["target_prediction"].GetDouble()};
             // c1 explain 97% of the prediction value, i.e. the difference from the prediction is less than 1%.
             BOOST_REQUIRE_CLOSE(c1, prediction, 3.0);
-            BOOST_REQUIRE_SMALL(c2, 0.25);
-            BOOST_REQUIRE_SMALL(c3, 0.25);
-            BOOST_REQUIRE_SMALL(c4, 0.25);
+
+            for (const auto& feature : {"c2", "c3", "c4"}) {
+                if (result["row_results"]["results"]["ml"].HasMember(
+                        maths::CDataFrameRegressionModel::SHAP_PREFIX + feature)) {
+                    double shap_value{
+                        result["row_results"]["results"]["ml"][maths::CDataFrameRegressionModel::SHAP_PREFIX + feature]
+                            .GetDouble()};
+                    BOOST_REQUIRE_SMALL(shap_value, 0.25);
+                }
+            }
         }
     }
 }
