@@ -4,13 +4,15 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
+#include <core/CWordDictionary.h>
+
 #include <model/CAnomalyDetector.h>
 #include <model/CAnomalyDetectorModelConfig.h>
 #include <model/CHierarchicalResults.h>
 #include <model/CLimits.h>
-#include <model/CMetricModelFactory.h>
 #include <model/CResourceMonitor.h>
 #include <model/CStringStore.h>
+#include <model/CTokenListDataCategorizer.h>
 
 #include <boost/test/unit_test.hpp>
 
@@ -20,6 +22,22 @@ BOOST_AUTO_TEST_SUITE(CResourceMonitorTest)
 
 using namespace ml;
 using namespace model;
+
+namespace {
+using TTokenListDataCategorizerKeepsFields =
+    model::CTokenListDataCategorizer<true,  // Warping
+                                     true,  // Underscores
+                                     true,  // Dots
+                                     true,  // Dashes
+                                     true,  // Ignore leading digit
+                                     true,  // Ignore hex
+                                     true,  // Ignore date words
+                                     false, // Ignore field names
+                                     2,     // Min dictionary word length
+                                     core::CWordDictionary::TWeightVerbs5Other2>;
+
+const TTokenListDataCategorizerKeepsFields::TTokenListReverseSearchCreatorIntfCPtr NO_REVERSE_SEARCH_CREATOR;
+}
 
 class CTestFixture {
 public:
@@ -93,6 +111,9 @@ BOOST_FIXTURE_TEST_CASE(testMonitor, CTestFixture) {
         CAnomalyDetectorModelConfig::defaultConfig(BUCKET_LENGTH);
     CLimits limits;
 
+    TTokenListDataCategorizerKeepsFields categorizer(limits, NO_REVERSE_SEARCH_CREATOR,
+                                                     0.7, "whatever");
+
     CSearchKey key(1, // identifier
                    function_t::E_IndividualMetric, false, model_t::E_XF_None,
                    "value", "colour");
@@ -105,7 +126,8 @@ BOOST_FIXTURE_TEST_CASE(testMonitor, CTestFixture) {
                                limits, modelConfig, EMPTY_STRING, FIRST_TIME,
                                modelConfig.factory(key));
 
-    std::size_t mem = core::CMemory::dynamicSize(&detector1) +
+    std::size_t mem = core::CMemory::dynamicSize(&categorizer) +
+                      core::CMemory::dynamicSize(&detector1) +
                       core::CMemory::dynamicSize(&detector2) +
                       CStringStore::names().memoryUsage() +
                       CStringStore::influencers().memoryUsage();
@@ -163,12 +185,16 @@ BOOST_FIXTURE_TEST_CASE(testMonitor, CTestFixture) {
         BOOST_REQUIRE_EQUAL(std::size_t(0), mon.m_CurrentMonitoredResourceMemory);
         BOOST_TEST_REQUIRE(mon.m_PreviousTotal > 0); // because it includes string store memory
 
-        mon.registerComponent(detector1);
+        mon.registerComponent(categorizer);
         BOOST_REQUIRE_EQUAL(std::size_t(1), mon.m_Resources.size());
 
-        mon.registerComponent(detector2);
+        mon.registerComponent(detector1);
         BOOST_REQUIRE_EQUAL(std::size_t(2), mon.m_Resources.size());
 
+        mon.registerComponent(detector2);
+        BOOST_REQUIRE_EQUAL(std::size_t(3), mon.m_Resources.size());
+
+        mon.refresh(categorizer);
         mon.refresh(detector1);
         mon.refresh(detector2);
         mon.sendMemoryUsageReportIfSignificantlyChanged(0);
@@ -176,9 +202,12 @@ BOOST_FIXTURE_TEST_CASE(testMonitor, CTestFixture) {
         BOOST_REQUIRE_EQUAL(mem, mon.m_PreviousTotal);
 
         mon.unRegisterComponent(detector2);
-        BOOST_REQUIRE_EQUAL(std::size_t(1), mon.m_Resources.size());
+        BOOST_REQUIRE_EQUAL(std::size_t(2), mon.m_Resources.size());
 
         mon.unRegisterComponent(detector1);
+        BOOST_REQUIRE_EQUAL(std::size_t(1), mon.m_Resources.size());
+
+        mon.unRegisterComponent(categorizer);
         BOOST_REQUIRE_EQUAL(std::size_t(0), mon.m_Resources.size());
     }
     {
@@ -190,8 +219,10 @@ BOOST_FIXTURE_TEST_CASE(testMonitor, CTestFixture) {
         mon.m_ByteLimitHigh = mem + 1;
         mon.m_ByteLimitLow = mem - 1;
 
+        mon.registerComponent(categorizer);
         mon.registerComponent(detector1);
         mon.registerComponent(detector2);
+        mon.refresh(categorizer);
         mon.refresh(detector1);
         mon.refresh(detector2);
         BOOST_REQUIRE_EQUAL(mem, mon.totalMemory());
@@ -202,6 +233,7 @@ BOOST_FIXTURE_TEST_CASE(testMonitor, CTestFixture) {
         mon.m_ByteLimitHigh = mem - 1;
         mon.m_ByteLimitLow = mem - 2;
 
+        mon.refresh(categorizer);
         mon.refresh(detector1);
         mon.refresh(detector2);
         BOOST_REQUIRE_EQUAL(mem, mon.totalMemory());
@@ -212,6 +244,7 @@ BOOST_FIXTURE_TEST_CASE(testMonitor, CTestFixture) {
         mon.m_ByteLimitHigh = mem + 1;
         mon.m_ByteLimitLow = mem - 1;
 
+        mon.refresh(categorizer);
         mon.refresh(detector1);
         mon.refresh(detector2);
         BOOST_REQUIRE_EQUAL(mem, mon.totalMemory());
@@ -221,6 +254,7 @@ BOOST_FIXTURE_TEST_CASE(testMonitor, CTestFixture) {
         mon.m_ByteLimitHigh = mem + 2;
         mon.m_ByteLimitLow = mem + 1;
 
+        mon.refresh(categorizer);
         mon.refresh(detector1);
         mon.refresh(detector2);
         BOOST_REQUIRE_EQUAL(mem, mon.totalMemory());
@@ -229,6 +263,7 @@ BOOST_FIXTURE_TEST_CASE(testMonitor, CTestFixture) {
     {
         // Test the report callback
         CResourceMonitor mon;
+        mon.registerComponent(categorizer);
         mon.registerComponent(detector1);
         mon.registerComponent(detector2);
 
@@ -237,6 +272,7 @@ BOOST_FIXTURE_TEST_CASE(testMonitor, CTestFixture) {
         m_CallbackResults.s_Usage = 0;
         BOOST_REQUIRE_EQUAL(std::size_t(0), m_CallbackResults.s_Usage);
 
+        mon.refresh(categorizer);
         mon.refresh(detector1);
         mon.refresh(detector2);
         mon.sendMemoryUsageReportIfSignificantlyChanged(0);
@@ -246,6 +282,7 @@ BOOST_FIXTURE_TEST_CASE(testMonitor, CTestFixture) {
     {
         // Test the report callback for allocation failures
         CResourceMonitor mon;
+        mon.registerComponent(categorizer);
         mon.registerComponent(detector1);
         mon.registerComponent(detector2);
 
@@ -258,6 +295,7 @@ BOOST_FIXTURE_TEST_CASE(testMonitor, CTestFixture) {
         mon.acceptPruningResult();
 
         // This refresh should trigger a report
+        mon.refresh(categorizer);
         mon.refresh(detector1);
         mon.refresh(detector2);
         mon.sendMemoryUsageReportIfSignificantlyChanged(0);
@@ -273,6 +311,7 @@ BOOST_FIXTURE_TEST_CASE(testMonitor, CTestFixture) {
         m_CallbackResults.s_Usage = 1357924;
 
         // This should not trigger a report
+        mon.refresh(categorizer);
         mon.refresh(detector1);
         mon.refresh(detector2);
         mon.sendMemoryUsageReportIfSignificantlyChanged(0);
@@ -290,6 +329,7 @@ BOOST_FIXTURE_TEST_CASE(testMonitor, CTestFixture) {
 
         BOOST_REQUIRE_EQUAL(std::size_t(3), mon.m_AllocationFailures.size());
         BOOST_REQUIRE_EQUAL(core_t::TTime(0), mon.m_LastAllocationFailureReport);
+        mon.refresh(categorizer);
         mon.refresh(detector1);
         mon.refresh(detector2);
         mon.sendMemoryUsageReportIfSignificantlyChanged(0);
@@ -306,6 +346,7 @@ BOOST_FIXTURE_TEST_CASE(testMonitor, CTestFixture) {
         m_CallbackResults.s_Usage = 1357924;
 
         // As nothing has changed, nothing should be reported
+        mon.refresh(categorizer);
         mon.refresh(detector1);
         mon.refresh(detector2);
         mon.sendMemoryUsageReportIfSignificantlyChanged(0);
