@@ -1083,12 +1083,12 @@ CBoostedTreeImpl::estimateMissingTestLosses(const TSizeVec& missing) const {
     // we haven't trained on. We tackle this problem as follows:
     //   1. Find all previous rounds R which share at least one fold with the
     //      current round, i.e. one fold for which we've computed the actual
-    //      loss for the current round parameters
-    //   2. For each fold f_i for which we haven't estimated the loss in this
-    //      round fit an OLS model m_i to R to predict the loss of f_i.
-    //   3. Compute l_i^ the predicted value for the test loss on each f_i given
-    //      the test losses we've computed so far this round using m_i.
-    //   4. Estimate its uncertainty from the variance of the residuals from
+    //      loss for the current round parameters.
+    //   2. For each fold f_i for which we haven't estimated the loss in the
+    //      current round fit an OLS model m_i to R to predict the loss of f_i.
+    //   3. Compute the predicted value for the test loss on each f_i given
+    //      the test losses we've computed so far the current round using m_i.
+    //   4. Estimate the uncertainty from the variance of the residuals from
     //      fitting the model m_i to R.
     //
     // The feature vector we use is defined as:
