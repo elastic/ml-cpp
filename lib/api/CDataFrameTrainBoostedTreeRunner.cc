@@ -55,7 +55,8 @@ const CDataFrameAnalysisConfigReader& CDataFrameTrainBoostedTreeRunner::paramete
                                CDataFrameAnalysisConfigReader::E_OptionalParameter);
         theReader.addParameter(BAYESIAN_OPTIMISATION_RESTARTS,
                                CDataFrameAnalysisConfigReader::E_OptionalParameter);
-        theReader.addParameter(TOP_SHAP_VALUES, CDataFrameAnalysisConfigReader::E_OptionalParameter);
+        theReader.addParameter(TOP_FEATURE_IMPORTANCE_VALUES,
+                               CDataFrameAnalysisConfigReader::E_OptionalParameter);
         return theReader;
     }()};
     return PARAMETER_READER;
@@ -81,7 +82,8 @@ CDataFrameTrainBoostedTreeRunner::CDataFrameTrainBoostedTreeRunner(
         parameters[NUMBER_ROUNDS_PER_HYPERPARAMETER].fallback(std::size_t{0})};
     std::size_t bayesianOptimisationRestarts{
         parameters[BAYESIAN_OPTIMISATION_RESTARTS].fallback(std::size_t{0})};
-    std::size_t topShapValues{parameters[TOP_SHAP_VALUES].fallback(std::size_t{0})};
+    std::size_t topFeatureImportanceValues{
+        parameters[TOP_FEATURE_IMPORTANCE_VALUES].fallback(std::size_t{0})};
 
     double alpha{parameters[ALPHA].fallback(-1.0)};
     double lambda{parameters[LAMBDA].fallback(-1.0)};
@@ -159,8 +161,8 @@ CDataFrameTrainBoostedTreeRunner::CDataFrameTrainBoostedTreeRunner(
     if (bayesianOptimisationRestarts > 0) {
         m_BoostedTreeFactory->bayesianOptimisationRestarts(bayesianOptimisationRestarts);
     }
-    if (topShapValues > 0) {
-        m_BoostedTreeFactory->topShapValues(topShapValues);
+    if (topFeatureImportanceValues > 0) {
+        m_BoostedTreeFactory->topShapValues(topFeatureImportanceValues);
     }
 }
 
@@ -309,7 +311,7 @@ const std::string CDataFrameTrainBoostedTreeRunner::FEATURE_BAG_FRACTION{"featur
 const std::string CDataFrameTrainBoostedTreeRunner::NUMBER_FOLDS{"number_folds"};
 const std::string CDataFrameTrainBoostedTreeRunner::NUMBER_ROUNDS_PER_HYPERPARAMETER{"number_rounds_per_hyperparameter"};
 const std::string CDataFrameTrainBoostedTreeRunner::BAYESIAN_OPTIMISATION_RESTARTS{"bayesian_optimisation_restarts"};
-const std::string CDataFrameTrainBoostedTreeRunner::TOP_SHAP_VALUES{"top_shap_values"};
+const std::string CDataFrameTrainBoostedTreeRunner::TOP_FEATURE_IMPORTANCE_VALUES{"top_feature_importance_values"};
 
 // clang-format on
 }
