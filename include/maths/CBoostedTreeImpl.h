@@ -53,9 +53,11 @@ public:
     using TMeanAccumulator = CBasicStatistics::SSampleMean<double>::TAccumulator;
     using TMeanVarAccumulator = CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
     using TMeanVarAccumulatorSizePr = std::pair<TMeanVarAccumulator, std::size_t>;
+    using TMeanVarAccumulatorVec = std::vector<TMeanVarAccumulator>;
     using TBayesinOptimizationUPtr = std::unique_ptr<maths::CBayesianOptimisation>;
     using TNodeVec = CBoostedTree::TNodeVec;
     using TNodeVecVec = CBoostedTree::TNodeVecVec;
+    using TLossFunctionUPtr = CBoostedTree::TLossFunctionUPtr;
     using TProgressCallback = CBoostedTree::TProgressCallback;
     using TMemoryUsageCallback = CBoostedTree::TMemoryUsageCallback;
     using TTrainingStateCallback = CBoostedTree::TTrainingStateCallback;
@@ -68,7 +70,7 @@ public:
     static const double MINIMUM_RELATIVE_GAIN_PER_SPLIT;
 
 public:
-    CBoostedTreeImpl(std::size_t numberThreads, CBoostedTree::TLossFunctionUPtr loss);
+    CBoostedTreeImpl(std::size_t numberThreads, TLossFunctionUPtr loss);
 
     ~CBoostedTreeImpl();
 
@@ -152,6 +154,8 @@ public:
 private:
     using TSizeDoublePr = std::pair<std::size_t, double>;
     using TDoubleDoublePr = std::pair<double, double>;
+    using TOptionalDoubleVec = std::vector<TOptionalDouble>;
+    using TOptionalDoubleVecVec = std::vector<TOptionalDoubleVec>;
     using TOptionalSize = boost::optional<std::size_t>;
     using TImmutableRadixSetVec = std::vector<core::CImmutableRadixSet<double>>;
     using TVector = CDenseVector<double>;
@@ -416,6 +420,9 @@ private:
     TDoubleDoublePr gainAndCurvatureAtPercentile(double percentile,
                                                  const TNodeVecVec& forest) const;
 
+    //! Presize the collection to hold the per fold test errors.
+    void initializePerFoldTestLosses();
+
     //! Train the forest and compute loss moments on each fold.
     TMeanVarAccumulatorSizePr crossValidateForest(core::CDataFrame& frame,
                                                   const TMemoryUsageCallback& recordMemoryUsage);
@@ -446,6 +453,16 @@ private:
                        const TImmutableRadixSetVec& candidateSplits,
                        const std::size_t maximumTreeSize,
                        const TMemoryUsageCallback& recordMemoryUsage) const;
+
+    //! Compute the minimum mean test loss per fold for any round.
+    double minimumTestLoss() const;
+
+    //! Estimate the loss we'll get including the missing folds.
+    TMeanVarAccumulator correctTestLossMoments(const TSizeVec& missing,
+                                               TMeanVarAccumulator lossMoments) const;
+
+    //! Estimate test losses for the \p missing folds.
+    TMeanVarAccumulatorVec estimateMissingTestLosses(const TSizeVec& missing) const;
 
     //! Get the number of features including category encoding.
     std::size_t numberFeatures() const;
@@ -503,8 +520,7 @@ private:
     std::size_t maximumTreeSize(std::size_t numberRows) const;
 
     //! Restore \p loss function pointer from the \p traverser.
-    static bool restoreLoss(CBoostedTree::TLossFunctionUPtr& loss,
-                            core::CStateRestoreTraverser& traverser);
+    static bool restoreLoss(TLossFunctionUPtr& loss, core::CStateRestoreTraverser& traverser);
 
     //! Record the training state using the \p recordTrainState callback function
     void recordState(const TTrainingStateCallback& recordTrainState) const;
@@ -513,10 +529,12 @@ private:
     mutable CPRNG::CXorOShiro128Plus m_Rng;
     std::size_t m_NumberThreads;
     std::size_t m_DependentVariable = std::numeric_limits<std::size_t>::max();
-    CBoostedTree::TLossFunctionUPtr m_Loss;
+    TLossFunctionUPtr m_Loss;
+    bool m_StopCrossValidationEarly = true;
     TRegularizationOverride m_RegularizationOverride;
     TOptionalDouble m_DownsampleFactorOverride;
     TOptionalDouble m_EtaOverride;
+    TOptionalSize m_NumberFoldsOverride;
     TOptionalSize m_MaximumNumberTreesOverride;
     TOptionalDouble m_FeatureBagFractionOverride;
     TRegularization m_Regularization;
@@ -537,6 +555,7 @@ private:
     TPackedBitVectorVec m_TrainingRowMasks;
     TPackedBitVectorVec m_TestingRowMasks;
     double m_BestForestTestLoss = INF;
+    TOptionalDoubleVecVec m_FoldRoundTestLosses;
     CBoostedTreeHyperparameters m_BestHyperparameters;
     TNodeVecVec m_BestForest;
     TBayesinOptimizationUPtr m_BayesianOptimization;

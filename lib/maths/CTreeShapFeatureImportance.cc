@@ -126,12 +126,10 @@ void CTreeShapFeatureImportance::shapRecursive(const TTree& tree,
                                            parentFractionOne, parentFeatureIndex);
     if (tree[nodeIndex].isLeaf()) {
         double leafValue = tree[nodeIndex].value();
-        for (std::size_t i = 1; i <= splitPath.depth(); ++i) {
+        for (int i = 1; i <= splitPath.depth(); ++i) {
             double scale = CTreeShapFeatureImportance::sumUnwoundPath(splitPath, i);
             std::size_t inputColumnIndex{
-                encoder
-                    .encoding(static_cast<std::size_t>(splitPath.featureIndex(i)))
-                    .inputColumnIndex()};
+                encoder.encoding(splitPath.featureIndex(i)).inputColumnIndex()};
             // inputColumnIndex is read by seeing what the feature at position i is on the path to this leaf.
             // fractionOnes(i) is an indicator variable which tells us if we condition on this variable
             // do we visit this path from that node or not, fractionZeros(i) tells us what proportion of
