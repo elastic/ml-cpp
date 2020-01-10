@@ -47,7 +47,7 @@ public:
     static const std::string STOP_CROSS_VALIDATION_EARLY;
     static const std::string NUMBER_ROUNDS_PER_HYPERPARAMETER;
     static const std::string BAYESIAN_OPTIMISATION_RESTARTS;
-    static const std::string TOP_SHAP_VALUES;
+    static const std::string TOP_FEATURE_IMPORTANCE_VALUES;
 
 public:
     ~CDataFrameTrainBoostedTreeRunner() override;
