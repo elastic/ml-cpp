@@ -10,6 +10,7 @@
 #include <api/CDataFrameTrainBoostedTreeClassifierRunner.h>
 
 #include <test/CDataFrameAnalysisSpecificationFactory.h>
+#include <test/CRandomNumbers.h>
 
 #include <boost/test/unit_test.hpp>
 
@@ -19,11 +20,9 @@
 BOOST_AUTO_TEST_SUITE(CDataFrameTrainBoostedTreeClassifierRunnerTest)
 
 using namespace ml;
-namespace {
 using TRowItr = core::CDataFrame::TRowItr;
 using TStrVec = std::vector<std::string>;
 using TStrVecVec = std::vector<TStrVec>;
-}
 
 BOOST_AUTO_TEST_CASE(testPredictionFieldNameClash) {
     TStrVec errors;
@@ -42,9 +41,12 @@ BOOST_AUTO_TEST_CASE(testPredictionFieldNameClash) {
     api::CDataFrameTrainBoostedTreeClassifierRunner runner(*spec, parameters);
 
     BOOST_TEST_REQUIRE(errors.size() == 1);
-    BOOST_TEST_REQUIRE(errors[0] == "Input error: prediction_field_name must not be equal to any of [is_training, prediction_probability, top_classes].");
+    BOOST_TEST_REQUIRE(errors[0] ==
+                       "Input error: prediction_field_name must not be equal to any "
+                       "of [is_training, prediction_probability, top_classes].");
 }
 
+namespace {
 template<typename T>
 void testWriteOneRow(const std::string& dependentVariableField,
                      const std::string& predictionFieldType,
@@ -129,6 +131,7 @@ void testWriteOneRow(const std::string& dependentVariableField,
             BOOST_TEST_REQUIRE(object["is_training"].GetBool());
         }
     }
+}
 }
 
 BOOST_AUTO_TEST_CASE(testWriteOneRowPredictionFieldTypeIsInt) {

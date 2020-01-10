@@ -1132,7 +1132,7 @@ BOOST_AUTO_TEST_CASE(testLogisticRegression) {
     BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(meanLogRelativeError) < 0.52);
 }
 
-BOOST_AUTO_TEST_CASE(testUnbalancedClasses) {
+BOOST_AUTO_TEST_CASE(testImbalancedClasses) {
 
     // Test we get similar per class precision and recall with unbalanced training
     // data when using the calculated decision threshold to assign to class one.

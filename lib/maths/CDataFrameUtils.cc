@@ -766,27 +766,24 @@ CDataFrameUtils::maximumAverageRecallDecisionThreshold(std::size_t numberThreads
         return 0.5;
     }
 
-    auto meanRecall = [&](double threshold) {
+    auto minRecall = [&](double threshold) {
         double cdf[2];
         classProbabilityClassOneQuantiles[0].cdf(threshold, cdf[0]);
         classProbabilityClassOneQuantiles[1].cdf(threshold, cdf[1]);
         double recalls[]{cdf[0], 1.0 - cdf[1]};
-        return recalls[0] + recalls[1];
+        return std::min(recalls[0], recalls[1]);
     };
 
     TMaxAccumulator result;
     for (std::size_t x = 1; x <= 20; ++x) {
         double threshold;
-        double meanRecallAtThreshold;
+        double minRecallAtThreshold;
         std::size_t maxIterations{10};
         double min{0.05 * static_cast<double>(x - 1)};
         double max{0.05 * static_cast<double>(x)};
-        CSolvers::maximize(min, max, meanRecall(min), meanRecall(max), meanRecall,
-                           1e-3, maxIterations, threshold, meanRecallAtThreshold);
-        double cdf[2];
-        classProbabilityClassOneQuantiles[0].cdf(threshold, cdf[0]);
-        classProbabilityClassOneQuantiles[1].cdf(threshold, cdf[1]);
-        result.add({meanRecallAtThreshold, threshold});
+        CSolvers::maximize(min, max, minRecall(min), minRecall(max), minRecall,
+                           1e-3, maxIterations, threshold, minRecallAtThreshold);
+        result.add({minRecallAtThreshold, threshold});
     }
     return result[0].second;
 }

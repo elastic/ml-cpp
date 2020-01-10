@@ -238,7 +238,7 @@ void CDataFrameTrainBoostedTreeRunner::runImpl(core::CDataFrame& frame) {
     m_BoostedTree->train();
     m_BoostedTree->predict();
     m_BoostedTree->computeShapValues();
-    m_BoostedTree->decisionThreshold();
+    m_BoostedTree->computeDecisionThreshold();
 
     core::CProgramCounters::counter(counter_t::E_DFTPMTimeToTrain) = watch.stop();
 }
