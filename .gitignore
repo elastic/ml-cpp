@@ -63,3 +63,4 @@ cppunit_results.xml
 boost_test_results.xml
 **/.objs/*.*
 !**/.objs/.gitignore
+!.idea/
