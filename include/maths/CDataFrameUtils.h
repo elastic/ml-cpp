@@ -339,7 +339,7 @@ public:
                                           TSizeVec columnMask);
 
     //! Compute the decision threshold to apply to the predicted probability a row
-    //! is class one which maximizes the average recall.
+    //! is class one which maximizes the minimum per class recall.
     //!
     //! \param[in] numberThreads The number of threads available.
     //! \param[in] frame The data frame for which to compute the threshold.
@@ -347,7 +347,7 @@ public:
     //! \param[in] targetColumn The index of the column to predict.
     //! \param[in] predictionColumn The index of the column containing the prediction.
     static double
-    maximumAverageRecallDecisionThreshold(std::size_t numberThreads,
+    maximumMinimumRecallDecisionThreshold(std::size_t numberThreads,
                                           const core::CDataFrame& frame,
                                           const core::CPackedBitVector& rowMask,
                                           std::size_t targetColumn,

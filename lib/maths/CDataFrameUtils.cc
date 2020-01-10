@@ -732,7 +732,7 @@ CDataFrameUtils::metricMicWithColumn(const CColumnValue& target,
 }
 
 double
-CDataFrameUtils::maximumAverageRecallDecisionThreshold(std::size_t numberThreads,
+CDataFrameUtils::maximumMinimumRecallDecisionThreshold(std::size_t numberThreads,
                                                        const core::CDataFrame& frame,
                                                        const core::CPackedBitVector& rowMask,
                                                        std::size_t targetColumn,
