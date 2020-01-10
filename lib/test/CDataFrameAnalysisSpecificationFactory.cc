@@ -80,7 +80,7 @@ CDataFrameAnalysisSpecificationFactory::predictionSpec(
     double eta,
     std::size_t maximumNumberTrees,
     double featureBagFraction,
-    size_t topShapValues,
+    size_t topFeatureImportanceValues,
     TPersisterSupplier* persisterSupplier,
     TRestoreSearcherSupplier* restoreSearcherSupplier) {
 
@@ -131,9 +131,9 @@ CDataFrameAnalysisSpecificationFactory::predictionSpec(
         writer.Key(api::CDataFrameTrainBoostedTreeRunner::BAYESIAN_OPTIMISATION_RESTARTS);
         writer.Uint64(bayesianOptimisationRestarts);
     }
-    if (topShapValues > 0) {
-        writer.Key(api::CDataFrameTrainBoostedTreeRunner::TOP_SHAP_VALUES);
-        writer.Uint64(topShapValues);
+    if (topFeatureImportanceValues > 0) {
+        writer.Key(api::CDataFrameTrainBoostedTreeRunner::TOP_FEATURE_IMPORTANCE_VALUES);
+        writer.Uint64(topFeatureImportanceValues);
     }
     writer.EndObject();
 
