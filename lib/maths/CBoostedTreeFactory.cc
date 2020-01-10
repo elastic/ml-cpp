@@ -46,7 +46,7 @@ const double MIN_DOWNSAMPLE_LINE_SEARCH_RANGE{2.0};
 const double MAX_DOWNSAMPLE_LINE_SEARCH_RANGE{144.0};
 const double MIN_DOWNSAMPLE_FACTOR_SCALE{0.3};
 const double MAX_DOWNSAMPLE_FACTOR_SCALE{3.0};
-// This isn't a hard limit be we increase the number of default training folds
+// This isn't a hard limit but we increase the number of default training folds
 // if the initial downsample fraction would be larger than this.
 const double MAX_DESIRED_INITIAL_DOWNSAMPLE_FRACTION{0.5};
 const double MAX_NUMBER_FOLDS{5.0};
