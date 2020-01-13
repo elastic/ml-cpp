@@ -415,7 +415,7 @@ void CFieldDataCategorizer::acceptPersistInserter(
 bool CFieldDataCategorizer::periodicPersistStateInBackground() {
     LOG_DEBUG(<< "Periodic persist categorizer state");
 
-    // Make sure model size stats are up to date
+    // Make sure that the model size stats are up to date
     m_Limits.resourceMonitor().forceRefresh(*m_DataCategorizer);
 
     // Pass on the request in case we're chained

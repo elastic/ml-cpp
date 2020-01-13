@@ -28,7 +28,7 @@ const core_t::TTime
 
 CResourceMonitor::CResourceMonitor(bool persistenceInForeground, double byteLimitMargin)
     : m_AllowAllocations(true), m_ByteLimitMargin{byteLimitMargin},
-      m_ByteLimitHigh(0), m_ByteLimitLow(0), m_CurrentMonitoredResourceMemory(0),
+      m_ByteLimitHigh(0), m_ByteLimitLow(0), m_MonitoredResourceCurrentMemory(0),
       m_ExtraMemory(0), m_PreviousTotal(this->totalMemory()), m_Peak(m_PreviousTotal),
       m_LastAllocationFailureReport(0), m_MemoryStatus(model_t::E_MemoryStatusOk),
       m_HasPruningStarted(false), m_PruneThreshold(0), m_LastPruneTime(0),
@@ -50,14 +50,14 @@ void CResourceMonitor::registerComponent(CMonitoredResource& resource) {
 }
 
 void CResourceMonitor::unRegisterComponent(CMonitoredResource& resource) {
+    LOG_TRACE(<< "Unregistering component: " << &resource);
     auto itr = m_Resources.find(&resource);
     if (itr == m_Resources.end()) {
         LOG_ERROR(<< "Inconsistency - component has not been registered: " << &resource);
         return;
     }
 
-    LOG_TRACE(<< "Unregistering component: " << &resource);
-    m_CurrentMonitoredResourceMemory -= itr->second;
+    m_MonitoredResourceCurrentMemory -= itr->second;
     m_Resources.erase(itr);
     core::CProgramCounters::counter(counter_t::E_TSADMemoryUsage) = this->totalMemory();
 }
@@ -175,7 +175,7 @@ bool CResourceMonitor::pruneIfRequired(core_t::TTime endTime) {
             }
             usageAfter += resource.second;
         }
-        m_CurrentMonitoredResourceMemory = usageAfter;
+        m_MonitoredResourceCurrentMemory = usageAfter;
         total = this->totalMemory();
         this->updateAllowAllocations();
     }
@@ -222,7 +222,7 @@ void CResourceMonitor::memUsage(CMonitoredResource* resource) {
     std::size_t modelPreviousUsage = itr->second;
     std::size_t modelCurrentUsage = core::CMemory::dynamicSize(itr->first);
     itr->second = modelCurrentUsage;
-    m_CurrentMonitoredResourceMemory += (modelCurrentUsage - modelPreviousUsage);
+    m_MonitoredResourceCurrentMemory += (modelCurrentUsage - modelPreviousUsage);
 }
 
 void CResourceMonitor::sendMemoryUsageReportIfSignificantlyChanged(core_t::TTime bucketStartTime) {
@@ -240,7 +240,7 @@ bool CResourceMonitor::needToSendReport() {
     }
 
     if (!m_AllocationFailures.empty()) {
-        core_t::TTime latestAllocationError = (--m_AllocationFailures.end())->first;
+        core_t::TTime latestAllocationError{(--m_AllocationFailures.end())->first};
         if (latestAllocationError > m_LastAllocationFailureReport) {
             return true;
         }
@@ -351,7 +351,7 @@ std::size_t CResourceMonitor::lowLimit() const {
 }
 
 std::size_t CResourceMonitor::totalMemory() const {
-    return m_CurrentMonitoredResourceMemory + m_ExtraMemory +
+    return m_MonitoredResourceCurrentMemory + m_ExtraMemory +
            CStringStore::names().memoryUsage() +
            CStringStore::influencers().memoryUsage();
 }

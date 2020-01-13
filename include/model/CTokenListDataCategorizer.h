@@ -12,7 +12,7 @@
 #include <core/CTimeUtils.h>
 #include <core/CWordDictionary.h>
 
-#include <model/CBaseTokenListDataCategorizer.h>
+#include <model/CTokenListDataCategorizerBase.h>
 
 #include <algorithm>
 #include <cctype>
@@ -47,7 +47,7 @@ template<bool DO_WARPING = true,
          bool IGNORE_FIELD_NAMES = true,
          size_t MIN_DICTIONARY_LENGTH = 2,
          typename DICTIONARY_WEIGHT_FUNC = core::CWordDictionary::TWeightAll2>
-class CTokenListDataCategorizer : public CBaseTokenListDataCategorizer {
+class CTokenListDataCategorizer : public CTokenListDataCategorizerBase {
 public:
     //! Create a data categorizer with threshold for how comparable categories are
     //! 0.0 means everything is the same category
@@ -56,7 +56,7 @@ public:
                               const TTokenListReverseSearchCreatorIntfCPtr& reverseSearchCreator,
                               double threshold,
                               const std::string& fieldName)
-        : CBaseTokenListDataCategorizer{limits, reverseSearchCreator, threshold, fieldName},
+        : CTokenListDataCategorizerBase{limits, reverseSearchCreator, threshold, fieldName},
           m_Dict{core::CWordDictionary::instance()} {}
 
     //! No copying allowed (because it would complicate the resource monitoring).
@@ -66,14 +66,14 @@ public:
     //! Debug the memory used by this categorizer.
     void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const override {
         mem->setName("CTokenListDataCategorizer");
-        this->CBaseTokenListDataCategorizer::debugMemoryUsage(mem->addChild());
+        this->CTokenListDataCategorizerBase::debugMemoryUsage(mem->addChild());
         core::CMemoryDebug::dynamicSize("m_SimilarityTester", m_SimilarityTester, mem);
     }
 
     //! Get the memory used by this categorizer.
     std::size_t memoryUsage() const override {
         std::size_t mem = 0;
-        mem += this->CBaseTokenListDataCategorizer::memoryUsage();
+        mem += this->CTokenListDataCategorizerBase::memoryUsage();
         mem += core::CMemory::dynamicSize(m_SimilarityTester);
         return mem;
     }

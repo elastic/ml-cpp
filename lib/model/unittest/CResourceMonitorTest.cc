@@ -23,22 +23,6 @@ BOOST_AUTO_TEST_SUITE(CResourceMonitorTest)
 using namespace ml;
 using namespace model;
 
-namespace {
-using TTokenListDataCategorizerKeepsFields =
-    model::CTokenListDataCategorizer<true,  // Warping
-                                     true,  // Underscores
-                                     true,  // Dots
-                                     true,  // Dashes
-                                     true,  // Ignore leading digit
-                                     true,  // Ignore hex
-                                     true,  // Ignore date words
-                                     false, // Ignore field names
-                                     2,     // Min dictionary word length
-                                     core::CWordDictionary::TWeightVerbs5Other2>;
-
-const TTokenListDataCategorizerKeepsFields::TTokenListReverseSearchCreatorIntfCPtr NO_REVERSE_SEARCH_CREATOR;
-}
-
 class CTestFixture {
 public:
     CTestFixture() {
@@ -111,8 +95,7 @@ BOOST_FIXTURE_TEST_CASE(testMonitor, CTestFixture) {
         CAnomalyDetectorModelConfig::defaultConfig(BUCKET_LENGTH);
     CLimits limits;
 
-    TTokenListDataCategorizerKeepsFields categorizer(limits, NO_REVERSE_SEARCH_CREATOR,
-                                                     0.7, "whatever");
+    model::CTokenListDataCategorizer<> categorizer(limits, nullptr, 0.7, "whatever");
 
     CSearchKey key(1, // identifier
                    function_t::E_IndividualMetric, false, model_t::E_XF_None,
@@ -182,7 +165,7 @@ BOOST_FIXTURE_TEST_CASE(testMonitor, CTestFixture) {
         CResourceMonitor mon;
 
         BOOST_REQUIRE_EQUAL(std::size_t(0), mon.m_Resources.size());
-        BOOST_REQUIRE_EQUAL(std::size_t(0), mon.m_CurrentMonitoredResourceMemory);
+        BOOST_REQUIRE_EQUAL(std::size_t(0), mon.m_MonitoredResourceCurrentMemory);
         BOOST_TEST_REQUIRE(mon.m_PreviousTotal > 0); // because it includes string store memory
 
         mon.registerComponent(categorizer);
@@ -366,7 +349,7 @@ BOOST_FIXTURE_TEST_CASE(testMonitor, CTestFixture) {
         std::size_t origTotalMemory = mon.totalMemory();
 
         // Go up to 10 bytes, triggering a need
-        mon.m_CurrentMonitoredResourceMemory = 10;
+        mon.m_MonitoredResourceCurrentMemory = 10;
         BOOST_TEST_REQUIRE(mon.needToSendReport());
         mon.sendMemoryUsageReport(0);
         BOOST_REQUIRE_EQUAL(origTotalMemory + 10, m_CallbackResults.s_Usage);
@@ -375,30 +358,30 @@ BOOST_FIXTURE_TEST_CASE(testMonitor, CTestFixture) {
         BOOST_TEST_REQUIRE(!mon.needToSendReport());
 
         // 10% increase should trigger a need
-        mon.m_CurrentMonitoredResourceMemory += 1 + (origTotalMemory + 9) / 10;
+        mon.m_MonitoredResourceCurrentMemory += 1 + (origTotalMemory + 9) / 10;
         BOOST_TEST_REQUIRE(mon.needToSendReport());
         mon.sendMemoryUsageReport(0);
         BOOST_REQUIRE_EQUAL(origTotalMemory + 11 + (origTotalMemory + 9) / 10,
                             m_CallbackResults.s_Usage);
 
         // Huge increase should trigger a need
-        mon.m_CurrentMonitoredResourceMemory = 1000;
+        mon.m_MonitoredResourceCurrentMemory = 1000;
         BOOST_TEST_REQUIRE(mon.needToSendReport());
         mon.sendMemoryUsageReport(0);
         BOOST_REQUIRE_EQUAL(origTotalMemory + 1000, m_CallbackResults.s_Usage);
 
         // 0.1% increase should not trigger a need
-        mon.m_CurrentMonitoredResourceMemory += 1 + (origTotalMemory + 999) / 1000;
+        mon.m_MonitoredResourceCurrentMemory += 1 + (origTotalMemory + 999) / 1000;
         BOOST_TEST_REQUIRE(!mon.needToSendReport());
 
         // A decrease should trigger a need
-        mon.m_CurrentMonitoredResourceMemory = 900;
+        mon.m_MonitoredResourceCurrentMemory = 900;
         BOOST_TEST_REQUIRE(mon.needToSendReport());
         mon.sendMemoryUsageReport(0);
         BOOST_REQUIRE_EQUAL(origTotalMemory + 900, m_CallbackResults.s_Usage);
 
         // A tiny decrease should not trigger a need
-        mon.m_CurrentMonitoredResourceMemory = 899;
+        mon.m_MonitoredResourceCurrentMemory = 899;
         BOOST_TEST_REQUIRE(!mon.needToSendReport());
     }
 }

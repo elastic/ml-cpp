@@ -3,7 +3,7 @@
  * or more contributor license agreements. Licensed under the Elastic License;
  * you may not use this file except in compliance with the Elastic License.
  */
-#include <model/CBaseTokenListDataCategorizer.h>
+#include <model/CTokenListDataCategorizerBase.h>
 
 #include <core/CLogger.h>
 #include <core/CMemory.h>
@@ -23,7 +23,7 @@ namespace ml {
 namespace model {
 
 // Initialise statics
-const std::string CBaseTokenListDataCategorizer::PRETOKENISED_TOKEN_FIELD("...");
+const std::string CTokenListDataCategorizerBase::PRETOKENISED_TOKEN_FIELD("...");
 
 // We use short field names to reduce the state size
 namespace {
@@ -34,7 +34,7 @@ const std::string CATEGORY_TAG("c");
 const std::string EMPTY_STRING;
 }
 
-CBaseTokenListDataCategorizer::CBaseTokenListDataCategorizer(
+CTokenListDataCategorizerBase::CTokenListDataCategorizerBase(
     CLimits& limits,
     const TTokenListReverseSearchCreatorIntfCPtr& reverseSearchCreator,
     double threshold,
@@ -45,7 +45,7 @@ CBaseTokenListDataCategorizer::CBaseTokenListDataCategorizer(
       m_UpperThreshold{(1.0 + m_LowerThreshold) / 2.0}, m_HasChanged{false} {
 }
 
-void CBaseTokenListDataCategorizer::dumpStats() const {
+void CTokenListDataCategorizerBase::dumpStats() const {
     // ML category number is vector index plus one
     int categoryId(1);
     for (const auto& category : m_Categories) {
@@ -55,7 +55,7 @@ void CBaseTokenListDataCategorizer::dumpStats() const {
     }
 }
 
-int CBaseTokenListDataCategorizer::computeCategory(bool isDryRun,
+int CTokenListDataCategorizerBase::computeCategory(bool isDryRun,
                                                    const TStrStrUMap& fields,
                                                    const std::string& str,
                                                    size_t rawStringLen) {
@@ -73,8 +73,8 @@ int CBaseTokenListDataCategorizer::computeCategory(bool isDryRun,
 
     // Determine the minimum and maximum token weight that could possibly
     // match the weight we've got
-    size_t minWeight(CBaseTokenListDataCategorizer::minMatchingWeight(workWeight, m_LowerThreshold));
-    size_t maxWeight(CBaseTokenListDataCategorizer::maxMatchingWeight(workWeight, m_LowerThreshold));
+    size_t minWeight(CTokenListDataCategorizerBase::minMatchingWeight(workWeight, m_LowerThreshold));
+    size_t maxWeight(CTokenListDataCategorizerBase::maxMatchingWeight(workWeight, m_LowerThreshold));
 
     // We search previous categories in descending order of the number of matches
     // we've seen for them
@@ -143,8 +143,8 @@ int CBaseTokenListDataCategorizer::computeCategory(bool isDryRun,
 
             // Recalculate the minimum and maximum token counts that might
             // produce a better match
-            minWeight = CBaseTokenListDataCategorizer::minMatchingWeight(workWeight, similarity);
-            maxWeight = CBaseTokenListDataCategorizer::maxMatchingWeight(workWeight, similarity);
+            minWeight = CTokenListDataCategorizerBase::minMatchingWeight(workWeight, similarity);
+            maxWeight = CTokenListDataCategorizerBase::maxMatchingWeight(workWeight, similarity);
         }
     }
 
@@ -174,7 +174,7 @@ int CBaseTokenListDataCategorizer::computeCategory(bool isDryRun,
     return int(m_Categories.size());
 }
 
-bool CBaseTokenListDataCategorizer::createReverseSearch(int categoryId,
+bool CTokenListDataCategorizerBase::createReverseSearch(int categoryId,
                                                         std::string& part1,
                                                         std::string& part2,
                                                         size_t& maxMatchingLength,
@@ -334,11 +334,11 @@ public:
 };
 }
 
-bool CBaseTokenListDataCategorizer::hasChanged() const {
+bool CTokenListDataCategorizerBase::hasChanged() const {
     return m_HasChanged;
 }
 
-bool CBaseTokenListDataCategorizer::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
+bool CTokenListDataCategorizerBase::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
     m_Categories.clear();
     m_CategoriesByCount.clear();
     m_TokenIdLookup.clear();
@@ -381,12 +381,12 @@ bool CBaseTokenListDataCategorizer::acceptRestoreTraverser(core::CStateRestoreTr
     return true;
 }
 
-void CBaseTokenListDataCategorizer::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
-    CBaseTokenListDataCategorizer::acceptPersistInserter(m_TokenIdLookup,
+void CTokenListDataCategorizerBase::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
+    CTokenListDataCategorizerBase::acceptPersistInserter(m_TokenIdLookup,
                                                          m_Categories, inserter);
 }
 
-void CBaseTokenListDataCategorizer::acceptPersistInserter(const TTokenMIndex& tokenIdLookup,
+void CTokenListDataCategorizerBase::acceptPersistInserter(const TTokenMIndex& tokenIdLookup,
                                                           const TTokenListCategoryVec& categories,
                                                           core::CStatePersistInserter& inserter) {
     for (const CTokenInfoItem& item : tokenIdLookup) {
@@ -401,23 +401,23 @@ void CBaseTokenListDataCategorizer::acceptPersistInserter(const TTokenMIndex& to
     }
 }
 
-CDataCategorizer::TPersistFunc CBaseTokenListDataCategorizer::makeForegroundPersistFunc() const {
+CDataCategorizer::TPersistFunc CTokenListDataCategorizerBase::makeForegroundPersistFunc() const {
     return std::bind(
         static_cast<void (*)(const TTokenMIndex&, const TTokenListCategoryVec&, core::CStatePersistInserter&)>(
-            &CBaseTokenListDataCategorizer::acceptPersistInserter),
+            &CTokenListDataCategorizerBase::acceptPersistInserter),
         std::cref(m_TokenIdLookup), std::cref(m_Categories), std::placeholders::_1);
 }
 
-CDataCategorizer::TPersistFunc CBaseTokenListDataCategorizer::makeBackgroundPersistFunc() const {
+CDataCategorizer::TPersistFunc CTokenListDataCategorizerBase::makeBackgroundPersistFunc() const {
     return std::bind(
         static_cast<void (*)(const TTokenMIndex&, const TTokenListCategoryVec&, core::CStatePersistInserter&)>(
-            &CBaseTokenListDataCategorizer::acceptPersistInserter),
+            &CTokenListDataCategorizerBase::acceptPersistInserter),
         // Do NOT add std::ref wrappers around these arguments - they MUST be
         // copied for thread safety
         m_TokenIdLookup, m_Categories, std::placeholders::_1);
 }
 
-void CBaseTokenListDataCategorizer::addCategoryMatch(bool isDryRun,
+void CTokenListDataCategorizerBase::addCategoryMatch(bool isDryRun,
                                                      const std::string& str,
                                                      size_t rawStringLen,
                                                      const TSizeSizePrVec& tokenIds,
@@ -450,7 +450,7 @@ void CBaseTokenListDataCategorizer::addCategoryMatch(bool isDryRun,
     }
 }
 
-size_t CBaseTokenListDataCategorizer::minMatchingWeight(size_t weight, double threshold) {
+size_t CTokenListDataCategorizerBase::minMatchingWeight(size_t weight, double threshold) {
     if (weight == 0) {
         return 0;
     }
@@ -467,7 +467,7 @@ size_t CBaseTokenListDataCategorizer::minMatchingWeight(size_t weight, double th
     return static_cast<size_t>(std::floor(double(weight) * threshold + EPSILON)) + 1;
 }
 
-size_t CBaseTokenListDataCategorizer::maxMatchingWeight(size_t weight, double threshold) {
+size_t CTokenListDataCategorizerBase::maxMatchingWeight(size_t weight, double threshold) {
     if (weight == 0) {
         return 0;
     }
@@ -484,7 +484,7 @@ size_t CBaseTokenListDataCategorizer::maxMatchingWeight(size_t weight, double th
     return static_cast<size_t>(std::ceil(double(weight) / threshold - EPSILON)) - 1;
 }
 
-size_t CBaseTokenListDataCategorizer::idForToken(const std::string& token) {
+size_t CTokenListDataCategorizerBase::idForToken(const std::string& token) {
     auto iter = boost::multi_index::get<SToken>(m_TokenIdLookup).find(token);
     if (iter != boost::multi_index::get<SToken>(m_TokenIdLookup).end()) {
         return iter->index();
@@ -495,7 +495,7 @@ size_t CBaseTokenListDataCategorizer::idForToken(const std::string& token) {
     return nextIndex;
 }
 
-bool CBaseTokenListDataCategorizer::addPretokenisedTokens(const std::string& tokensCsv,
+bool CTokenListDataCategorizerBase::addPretokenisedTokens(const std::string& tokensCsv,
                                                           TSizeSizePrVec& tokenIds,
                                                           TSizeSizeMap& tokenUniqueIds,
                                                           size_t& totalWeight) {
@@ -516,8 +516,8 @@ bool CBaseTokenListDataCategorizer::addPretokenisedTokens(const std::string& tok
     return true;
 }
 
-void CBaseTokenListDataCategorizer::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const {
-    mem->setName("CBaseTokenListDataCategorizer");
+void CTokenListDataCategorizerBase::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const {
+    mem->setName("CTokenListDataCategorizerBase");
     this->CDataCategorizer::debugMemoryUsage(mem->addChild());
     core::CMemoryDebug::dynamicSize("m_ReverseSearchCreator", m_ReverseSearchCreator, mem);
     core::CMemoryDebug::dynamicSize("m_Categories", m_Categories, mem);
@@ -528,7 +528,7 @@ void CBaseTokenListDataCategorizer::debugMemoryUsage(core::CMemoryUsage::TMemory
     core::CMemoryDebug::dynamicSize("m_CsvLineParser", m_CsvLineParser, mem);
 }
 
-std::size_t CBaseTokenListDataCategorizer::memoryUsage() const {
+std::size_t CTokenListDataCategorizerBase::memoryUsage() const {
     std::size_t mem = 0;
     mem += this->CDataCategorizer::memoryUsage();
     mem += core::CMemory::dynamicSize(m_ReverseSearchCreator);
@@ -541,54 +541,54 @@ std::size_t CBaseTokenListDataCategorizer::memoryUsage() const {
     return mem;
 }
 
-CBaseTokenListDataCategorizer::CTokenInfoItem::CTokenInfoItem(const std::string& str, size_t index)
+CTokenListDataCategorizerBase::CTokenInfoItem::CTokenInfoItem(const std::string& str, size_t index)
     : m_Str(str), m_Index(index), m_CategoryCount(0) {
 }
 
-const std::string& CBaseTokenListDataCategorizer::CTokenInfoItem::str() const {
+const std::string& CTokenListDataCategorizerBase::CTokenInfoItem::str() const {
     return m_Str;
 }
 
-void CBaseTokenListDataCategorizer::CTokenInfoItem::debugMemoryUsage(
+void CTokenListDataCategorizerBase::CTokenInfoItem::debugMemoryUsage(
     core::CMemoryUsage::TMemoryUsagePtr mem) const {
     mem->setName("CTokenInfoItem");
     core::CMemoryDebug::dynamicSize("m_Str", m_Str, mem);
 }
 
-std::size_t CBaseTokenListDataCategorizer::CTokenInfoItem::memoryUsage() const {
+std::size_t CTokenListDataCategorizerBase::CTokenInfoItem::memoryUsage() const {
     std::size_t mem = 0;
     mem += core::CMemory::dynamicSize(m_Str);
     return mem;
 }
 
-size_t CBaseTokenListDataCategorizer::CTokenInfoItem::index() const {
+size_t CTokenListDataCategorizerBase::CTokenInfoItem::index() const {
     return m_Index;
 }
 
-size_t CBaseTokenListDataCategorizer::CTokenInfoItem::categoryCount() const {
+size_t CTokenListDataCategorizerBase::CTokenInfoItem::categoryCount() const {
     return m_CategoryCount;
 }
 
-void CBaseTokenListDataCategorizer::CTokenInfoItem::categoryCount(size_t categoryCount) {
+void CTokenListDataCategorizerBase::CTokenInfoItem::categoryCount(size_t categoryCount) {
     m_CategoryCount = categoryCount;
 }
 
-void CBaseTokenListDataCategorizer::CTokenInfoItem::incCategoryCount() {
+void CTokenListDataCategorizerBase::CTokenInfoItem::incCategoryCount() {
     ++m_CategoryCount;
 }
 
-CBaseTokenListDataCategorizer::CSizePairFirstElementEquals::CSizePairFirstElementEquals(size_t value)
+CTokenListDataCategorizerBase::CSizePairFirstElementEquals::CSizePairFirstElementEquals(size_t value)
     : m_Value(value) {
 }
 
-CBaseTokenListDataCategorizer::SIdTranslater::SIdTranslater(const CBaseTokenListDataCategorizer& categorizer,
+CTokenListDataCategorizerBase::SIdTranslater::SIdTranslater(const CTokenListDataCategorizerBase& categorizer,
                                                             const TSizeSizePrVec& tokenIds,
                                                             char separator)
     : s_Categorizer(categorizer), s_TokenIds(tokenIds), s_Separator(separator) {
 }
 
 std::ostream& operator<<(std::ostream& strm,
-                         const CBaseTokenListDataCategorizer::SIdTranslater& translator) {
+                         const CTokenListDataCategorizerBase::SIdTranslater& translator) {
     for (auto iter = translator.s_TokenIds.begin();
          iter != translator.s_TokenIds.end(); ++iter) {
         if (iter != translator.s_TokenIds.begin()) {

@@ -52,8 +52,8 @@ public:
     };
 
 public:
-    using TResourcePtrSizePr = std::pair<CMonitoredResource*, std::size_t>;
-    using TResourcePtrSizeUMap = boost::unordered_map<CMonitoredResource*, std::size_t>;
+    using TMonitoredResourcePtrSizeUMap =
+        boost::unordered_map<CMonitoredResource*, std::size_t>;
     using TMemoryUsageReporterFunc = std::function<void(const CResourceMonitor::SResults&)>;
     using TTimeSizeMap = std::map<core_t::TTime, std::size_t>;
 
@@ -78,16 +78,16 @@ public:
     //! Return the amount of remaining space for allocations
     std::size_t allocationLimit() const;
 
-    //! Tell this resource monitor about a resource to monitor -
-    //! these classes contain all the model memory and are used
-    //! to query the current overall usage
+    //! Register a resource with the monitor - these classes
+    //! contain all the model memory and are used to query
+    //! the current overall usage
     void registerComponent(CMonitoredResource& resource);
 
-    //! Tell this resource monitor that monitored resource is
+    //! Inform this resource monitor instance that a monitored resource is
     //! going to be deleted.
     void unRegisterComponent(CMonitoredResource& resource);
 
-    //! Set a callback used when the memory usage grows
+    //! Register a callback to be used when the memory usage grows
     void memoryUsageReporter(const TMemoryUsageReporterFunc& reporter);
 
     //! Recalculate the memory usage if there is a memory limit
@@ -180,7 +180,7 @@ private:
 
 private:
     //! The registered collection of components
-    TResourcePtrSizeUMap m_Resources;
+    TMonitoredResourcePtrSizeUMap m_Resources;
 
     //! Is there enough free memory to allow creating new components
     bool m_AllowAllocations;
@@ -194,8 +194,9 @@ private:
     //! The lower limit for memory usage, checked on decreasing values
     std::size_t m_ByteLimitLow;
 
-    //! Memory usage by monitored resources on the most recent calculation
-    std::size_t m_CurrentMonitoredResourceMemory;
+    //! The memory usage of the monitored resources based on the most recent
+    //! calculation
+    std::size_t m_MonitoredResourceCurrentMemory;
 
     //! Extra memory to enable accounting of soon to be allocated memory
     std::size_t m_ExtraMemory;

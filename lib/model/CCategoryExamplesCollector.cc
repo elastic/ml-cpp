@@ -149,7 +149,6 @@ void CCategoryExamplesCollector::debugMemoryUsage(core::CMemoryUsage::TMemoryUsa
     core::CMemoryDebug::dynamicSize("m_ExamplesByCategory", m_ExamplesByCategory, mem);
 }
 
-//! Get the memory used by this examples collector.
 std::size_t CCategoryExamplesCollector::memoryUsage() const {
     std::size_t mem = 0;
     mem += core::CMemory::dynamicSize(m_ExamplesByCategory);
