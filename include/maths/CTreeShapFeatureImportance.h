@@ -63,8 +63,7 @@ private:
     struct SPath {
         explicit SPath(std::size_t length)
             : s_FractionOnes(length), s_FractionZeros(length),
-              s_FeatureIndex(length, -1), s_Scale(length), s_NextIndex(0),
-              s_MaxLength(length) {}
+              s_FeatureIndex(length, -1), s_Scale(length), s_MaxLength(length) {}
 
         void extend(int featureIndex, double fractionZero, double fractionOne) {
             if (s_NextIndex < s_MaxLength) {
@@ -81,7 +80,7 @@ private:
         }
 
         void reduce(std::size_t pathIndex) {
-            for (std::size_t i = pathIndex; i < this->depth(); ++i) {
+            for (int i = static_cast<int>(pathIndex); i < this->depth(); ++i) {
                 s_FeatureIndex[i] = s_FeatureIndex[i + 1];
                 s_FractionZeros[i] = s_FractionZeros[i + 1];
                 s_FractionOnes[i] = s_FractionOnes[i + 1];
@@ -107,10 +106,10 @@ private:
         double scale(std::size_t pathIndex) const { return s_Scale[pathIndex]; }
 
         //! Current depth in the tree
-        int depth() const { return static_cast<int>(s_NextIndex) - 1; };
+        int depth() const { return static_cast<int>(s_NextIndex) - 1; }
 
         //! Get next index.
-        size_t nextIndex() const { return s_NextIndex; }
+        std::size_t nextIndex() const { return s_NextIndex; }
 
         //! Set next index.
         void nextIndex(std::size_t nextIndex) { s_NextIndex = nextIndex; }
@@ -119,9 +118,8 @@ private:
         TDoubleVec s_FractionZeros;
         TIntVec s_FeatureIndex;
         TDoubleVec s_Scale;
-        std::size_t s_NextIndex;
-
-        std::size_t s_MaxLength;
+        std::size_t s_NextIndex = 0;
+        std::size_t s_MaxLength = 0;
     };
 
 private:
