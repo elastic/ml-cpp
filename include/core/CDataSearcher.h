@@ -6,7 +6,6 @@
 #ifndef INCLUDED_ml_core_CDataSearcher_h
 #define INCLUDED_ml_core_CDataSearcher_h
 
-#include <core/CDataAdder.h>
 #include <core/CNonCopyable.h>
 #include <core/ImportExport.h>
 
