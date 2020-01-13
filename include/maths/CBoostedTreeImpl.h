@@ -534,7 +534,8 @@ private:
     std::size_t m_NumberThreads;
     std::size_t m_DependentVariable = std::numeric_limits<std::size_t>::max();
     TLossFunctionUPtr m_Loss;
-    CBoostedTree::EClassAssignmentObjective m_ClassAssignmentObjective;
+    CBoostedTree::EClassAssignmentObjective m_ClassAssignmentObjective =
+        CBoostedTree::E_MinimumRecall;
     bool m_StopCrossValidationEarly = true;
     TRegularizationOverride m_RegularizationOverride;
     TOptionalDouble m_DownsampleFactorOverride;
