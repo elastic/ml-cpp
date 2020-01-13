@@ -738,8 +738,6 @@ CDataFrameUtils::maximumMinimumRecallDecisionThreshold(std::size_t numberThreads
                                                        std::size_t targetColumn,
                                                        std::size_t predictionColumn) {
 
-    using TMaxAccumulator = CBasicStatistics::SMax<std::pair<double, double>>::TAccumulator;
-
     auto readQuantiles = core::bindRetrievableState(
         [&](TQuantileSketchVec& quantiles, TRowItr beginRows, TRowItr endRows) {
             for (auto row = beginRows; row != endRows; ++row) {
@@ -774,18 +772,14 @@ CDataFrameUtils::maximumMinimumRecallDecisionThreshold(std::size_t numberThreads
         return std::min(recalls[0], recalls[1]);
     };
 
-    TMaxAccumulator result;
-    for (std::size_t x = 1; x <= 20; ++x) {
-        double threshold;
-        double minRecallAtThreshold;
-        std::size_t maxIterations{10};
-        double min{0.05 * static_cast<double>(x - 1)};
-        double max{0.05 * static_cast<double>(x)};
-        CSolvers::maximize(min, max, minRecall(min), minRecall(max), minRecall,
-                           1e-3, maxIterations, threshold, minRecallAtThreshold);
-        result.add({minRecallAtThreshold, threshold});
-    }
-    return result[0].second;
+    double threshold;
+    double minRecallAtThreshold;
+    std::size_t maxIterations{20};
+    CSolvers::maximize(0.0, 1.0, minRecall(0.0), minRecall(1.0), minRecall,
+                       1e-3, maxIterations, threshold, minRecallAtThreshold);
+    LOG_TRACE(<< "threshold = " << threshold
+              << ", min recall at threshold = " << minRecallAtThreshold);
+    return threshold;
 }
 
 bool CDataFrameUtils::isMissing(double x) {
