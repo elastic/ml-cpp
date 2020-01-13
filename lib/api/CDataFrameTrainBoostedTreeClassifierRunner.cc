@@ -35,7 +35,6 @@ using TStrSet = std::set<std::string>;
 // Configuration
 const std::string NUM_TOP_CLASSES{"num_top_classes"};
 const std::string PREDICTION_FIELD_TYPE{"prediction_field_type"};
-const std::string BALANCED_CLASS_LOSS{"balanced_class_loss"};
 
 // Output
 const std::string IS_TRAINING_FIELD_NAME{"is_training"};
@@ -122,7 +121,7 @@ void CDataFrameTrainBoostedTreeClassifierRunner::writeOneRow(
     const core::CDataFrame& frame,
     std::size_t columnHoldingDependentVariable,
     std::size_t columnHoldingPrediction,
-    double thresholdAtWhichToAssignToClassOne,
+    double probabilityAtWhichToAssignToClassOne,
     const TRowRef& row,
     core::CRapidJsonConcurrentLineWriter& writer) const {
 
@@ -135,8 +134,8 @@ void CDataFrameTrainBoostedTreeClassifierRunner::writeOneRow(
     // We adjust the probabilities to account for the threshold for choosing class 1.
 
     TDoubleVec probabilities{1.0 - probabilityOfClass1, probabilityOfClass1};
-    TDoubleVec scores{probabilities[0] + (thresholdAtWhichToAssignToClassOne - 0.5),
-                      probabilities[1] + (0.5 - thresholdAtWhichToAssignToClassOne)};
+    TDoubleVec scores{0.5 / (1.0 - probabilityAtWhichToAssignToClassOne) * probabilities[0],
+                      0.5 / probabilityAtWhichToAssignToClassOne * probabilities[1]};
 
     double actualClassId{row[columnHoldingDependentVariable]};
     std::size_t predictedClassId(std::max_element(scores.begin(), scores.end()) -
