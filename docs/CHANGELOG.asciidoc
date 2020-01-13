@@ -64,6 +64,8 @@ is no longer decreasing. (See {ml-pull}875[#875].)
 * Improve performance updating quantile estimates. (See {ml-pull}881[#881].)
 * Migrate to use Bayesian Optimisation for initial hyperparameter value line searches and
 stop early if the expected improvement is too small. (See {ml-pull}903[#903].)
+* Stop cross-validation early if the predicted test loss has a small chance of being
+smaller than for the best parameter values found so far. (See {ml-pull}915[#915].)
 * Include categorization memory usage in the `model_bytes` field in `model_size_stats`,
 so that it is taken into account in node assignment decisions. (See {ml-pull}927[#927],
 issue: {ml-issue}724[#724].)

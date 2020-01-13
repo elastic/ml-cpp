@@ -28,6 +28,8 @@ using namespace boosted_tree;
 using namespace boosted_tree_detail;
 
 namespace {
+using TStrVec = CBoostedTreeImpl::TStrVec;
+using TMeanVarAccumulator = CBoostedTreeImpl::TMeanVarAccumulator;
 using TRowRef = core::CDataFrame::TRowRef;
 
 class CScopeRecordMemoryUsage {
@@ -128,6 +130,11 @@ double readExampleWeight(const TRowRef& row) {
 
 double readActual(const TRowRef& row, std::size_t dependentVariable) {
     return row[dependentVariable];
+}
+
+double lossAtNSigma(double n, const TMeanVarAccumulator& lossMoments) {
+    return CBasicStatistics::mean(lossMoments) +
+           n * std::sqrt(CBasicStatistics::variance(lossMoments));
 }
 
 const std::size_t ASSIGN_MISSING_TO_LEFT{0};
@@ -503,6 +510,8 @@ void CBoostedTreeImpl::train(core::CDataFrame& frame,
 
         // Hyperparameter optimisation loop.
 
+        this->initializePerFoldTestLosses();
+
         while (m_CurrentRound < m_NumberRounds) {
 
             LOG_TRACE(<< "Optimisation round = " << m_CurrentRound + 1);
@@ -668,26 +677,69 @@ CBoostedTreeImpl::gainAndCurvatureAtPercentile(double percentile,
     return {gains[index], curvatures[index]};
 }
 
+void CBoostedTreeImpl::initializePerFoldTestLosses() {
+    m_FoldRoundTestLosses.resize(m_NumberFolds);
+    for (auto& losses : m_FoldRoundTestLosses) {
+        losses.resize(m_NumberRounds);
+    }
+}
+
 CBoostedTreeImpl::TMeanVarAccumulatorSizePr
 CBoostedTreeImpl::crossValidateForest(core::CDataFrame& frame,
                                       const TMemoryUsageCallback& recordMemoryUsage) {
+
+    // We want to ensure we evaluate on equal proportions for each fold.
+    TSizeVec folds(m_NumberFolds);
+    std::iota(folds.begin(), folds.end(), 0);
+    CSampling::random_shuffle(m_Rng, folds.begin(), folds.end());
+
+    auto stopCrossValidationEarly = [&](TMeanVarAccumulator testLossMoments) {
+        // Always train on at least one fold and every fold for the first
+        // "number folds" rounds. Exit cross-validation early if it's clear
+        // that the test error is not close to the minimum test error. We use
+        // the estimated test error for each remaining fold at two standard
+        // deviations below the mean for this.
+        if (m_StopCrossValidationEarly && m_CurrentRound >= m_NumberFolds &&
+            folds.size() < m_NumberFolds) {
+            for (const auto& testLoss : this->estimateMissingTestLosses(folds)) {
+                testLossMoments.add(
+                    CBasicStatistics::mean(testLoss) -
+                    2.0 * std::sqrt(CBasicStatistics::maximumLikelihoodVariance(testLoss)));
+            }
+            return CBasicStatistics::mean(testLossMoments) > this->minimumTestLoss();
+        }
+        return false;
+    };
+
     TMeanVarAccumulator lossMoments;
-    TDoubleVec numberTrees(m_NumberFolds);
-    for (std::size_t i = 0; i < m_NumberFolds; ++i) {
+    TDoubleVec numberTrees;
+    numberTrees.reserve(m_NumberFolds);
+
+    while (folds.size() > 0 && stopCrossValidationEarly(lossMoments) == false) {
+        std::size_t fold{folds.back()};
+        folds.pop_back();
         TNodeVecVec forest;
         double loss;
-        std::tie(forest, loss) =
-            this->trainForest(frame, m_TrainingRowMasks[i], m_TestingRowMasks[i],
-                              m_TrainingProgress, recordMemoryUsage);
-        LOG_TRACE(<< "fold = " << i << " forest size = " << forest.size()
+        std::tie(forest, loss) = this->trainForest(
+            frame, m_TrainingRowMasks[fold], m_TestingRowMasks[fold],
+            m_TrainingProgress, recordMemoryUsage);
+        LOG_TRACE(<< "fold = " << fold << " forest size = " << forest.size()
                   << " test set loss = " << loss);
         lossMoments.add(loss);
-        numberTrees[i] = static_cast<double>(forest.size());
+        m_FoldRoundTestLosses[fold][m_CurrentRound] = loss;
+        numberTrees.push_back(static_cast<double>(forest.size()));
     }
+    m_TrainingProgress.increment(m_MaximumNumberTrees * folds.size());
+    LOG_TRACE(<< "skipped " << folds.size() << " folds");
+
     std::sort(numberTrees.begin(), numberTrees.end());
+    std::size_t medianNumberTrees{
+        static_cast<std::size_t>(CBasicStatistics::median(numberTrees))};
+    lossMoments = this->correctTestLossMoments(std::move(folds), lossMoments);
     LOG_TRACE(<< "test mean loss = " << CBasicStatistics::mean(lossMoments)
               << ", sigma = " << std::sqrt(CBasicStatistics::mean(lossMoments)));
-    return {lossMoments, static_cast<std::size_t>(CBasicStatistics::median(numberTrees))};
+
+    return {lossMoments, medianNumberTrees};
 }
 
 CBoostedTreeImpl::TNodeVec CBoostedTreeImpl::initializePredictionsAndLossDerivatives(
@@ -992,6 +1044,131 @@ CBoostedTreeImpl::trainTree(core::CDataFrame& frame,
     return tree;
 }
 
+double CBoostedTreeImpl::minimumTestLoss() const {
+    using TMinAccumulator = CBasicStatistics::SMin<double>::TAccumulator;
+    TMinAccumulator minimumTestLoss;
+    for (std::size_t round = 0; round < m_CurrentRound - 1; ++round) {
+        TMeanVarAccumulator roundLossMoments;
+        for (std::size_t fold = 0; fold < m_NumberFolds; ++fold) {
+            if (m_FoldRoundTestLosses[fold][round] != boost::none) {
+                roundLossMoments.add(*m_FoldRoundTestLosses[fold][round]);
+            }
+        }
+        if (static_cast<std::size_t>(CBasicStatistics::count(roundLossMoments)) == m_NumberFolds) {
+            minimumTestLoss.add(CBasicStatistics::mean(roundLossMoments));
+        }
+    }
+    return minimumTestLoss[0];
+}
+
+TMeanVarAccumulator
+CBoostedTreeImpl::correctTestLossMoments(const TSizeVec& missing,
+                                         TMeanVarAccumulator lossMoments) const {
+    if (missing.empty()) {
+        return lossMoments;
+    }
+    for (const auto& loss : this->estimateMissingTestLosses(missing)) {
+        lossMoments += loss;
+    }
+    return lossMoments;
+}
+
+CBoostedTreeImpl::TMeanVarAccumulatorVec
+CBoostedTreeImpl::estimateMissingTestLosses(const TSizeVec& missing) const {
+
+    // We have a subset of folds for which we've computed test loss. We want to
+    // estimate the test loss we'll see for the remaining folds to decide if it
+    // is worthwhile to continue training with these parameters and to correct
+    // the loss value supplied to Bayesian Optimisation to account for the folds
+    // we haven't trained on. We tackle this problem as follows:
+    //   1. Find all previous rounds R which share at least one fold with the
+    //      current round, i.e. one fold for which we've computed the actual
+    //      loss for the current round parameters.
+    //   2. For each fold f_i for which we haven't estimated the loss in the
+    //      current round fit an OLS model m_i to R to predict the loss of f_i.
+    //   3. Compute the predicted value for the test loss on each f_i given
+    //      the test losses we've computed so far the current round using m_i.
+    //   4. Estimate the uncertainty from the variance of the residuals from
+    //      fitting the model m_i to R.
+    //
+    // The feature vector we use is defined as:
+    //
+    //   |   calculated fold error 1  |
+    //   |   calculated fold error 2  |
+    //   |             ...            |
+    //   | 1{fold error 1 is present} |
+    //   | 1{fold error 2 is present} |
+    //   |             ...            |
+    //
+    // where the indices range over the folds for which we have errors in the
+    // current round.
+
+    TSizeVec present(m_NumberFolds);
+    std::iota(present.begin(), present.end(), 0);
+    TSizeVec ordered{missing};
+    std::sort(ordered.begin(), ordered.end());
+    CSetTools::inplace_set_difference(present, ordered.begin(), ordered.end());
+    LOG_TRACE(<< "present = " << core::CContainerPrinter::print(present));
+
+    // Get the current round feature vector. Fixed so computed outside the loop.
+    TVector x(2 * present.size());
+    for (std::size_t col = 0; col < present.size(); ++col) {
+        x(col) = *m_FoldRoundTestLosses[present[col]][m_CurrentRound];
+        x(present.size() + col) = 0.0;
+    }
+
+    TMeanVarAccumulatorVec predictedTestLosses;
+    predictedTestLosses.reserve(missing.size());
+
+    for (std::size_t target : missing) {
+        // Extract the training mask.
+        TSizeVec trainingMask;
+        trainingMask.reserve(m_CurrentRound);
+        for (std::size_t round = 0; round < m_CurrentRound; ++round) {
+            if (m_FoldRoundTestLosses[target][round] &&
+                std::find_if(present.begin(), present.end(), [&](std::size_t fold) {
+                    return m_FoldRoundTestLosses[fold][round];
+                }) != present.end()) {
+                trainingMask.push_back(round);
+            }
+        }
+
+        // Fit the OLS regression.
+        CDenseMatrix<double> A(trainingMask.size(), 2 * present.size());
+        TVector b(trainingMask.size());
+        for (std::size_t row = 0; row < trainingMask.size(); ++row) {
+            for (std::size_t col = 0; col < present.size(); ++col) {
+                if (m_FoldRoundTestLosses[present[col]][trainingMask[row]]) {
+                    A(row, col) = *m_FoldRoundTestLosses[present[col]][trainingMask[row]];
+                    A(row, present.size() + col) = 0.0;
+                } else {
+                    A(row, col) = 0.0;
+                    A(row, present.size() + col) = 1.0;
+                }
+            }
+            b(row) = *m_FoldRoundTestLosses[target][trainingMask[row]];
+        }
+        TVector params{A.colPivHouseholderQr().solve(b)};
+
+        TMeanVarAccumulator residualMoments;
+        for (int row = 0; row < A.rows(); ++row) {
+            residualMoments.add(b(row) - A.row(row) * params);
+        }
+
+        double predictedTestLoss{params.transpose() * x};
+        double predictedTestLossVariance{
+            CBasicStatistics::maximumLikelihoodVariance(residualMoments)};
+        LOG_TRACE(<< "prediction(x = " << x.transpose() << ", fold = " << target
+                  << ") = (mean = " << predictedTestLoss
+                  << ", variance = " << predictedTestLossVariance << ")");
+
+        predictedTestLosses.push_back(CBasicStatistics::momentsAccumulator(
+            1.0, predictedTestLoss, predictedTestLossVariance));
+    }
+
+    return predictedTestLosses;
+}
+
 std::size_t CBoostedTreeImpl::numberFeatures() const {
     return m_Encoder->numberEncodedColumns();
 }
@@ -1237,8 +1414,7 @@ void CBoostedTreeImpl::captureBestHyperparameters(const TMeanVarAccumulator& los
     // We capture the parameters with the lowest error at one standard
     // deviation above the mean. If the mean error improvement is marginal
     // we prefer the solution with the least variation across the folds.
-    double loss{CBasicStatistics::mean(lossMoments) +
-                std::sqrt(CBasicStatistics::variance(lossMoments))};
+    double loss{lossAtNSigma(1.0, lossMoments)};
     if (loss < m_BestForestTestLoss) {
         m_BestForestTestLoss = loss;
         m_BestHyperparameters = CBoostedTreeHyperparameters{
@@ -1282,6 +1458,7 @@ const std::size_t CBoostedTreeImpl::PACKED_BIT_VECTOR_MAXIMUM_ROWS_PER_BYTE{256}
 namespace {
 const std::string VERSION_7_5_TAG{"7.5"};
 const std::string VERSION_7_6_TAG{"7.6"};
+const TStrVec SUPPORTED_VERSIONS{VERSION_7_5_TAG, VERSION_7_6_TAG};
 
 const std::string BAYESIAN_OPTIMIZATION_TAG{"bayesian_optimization"};
 const std::string BEST_FOREST_TAG{"best_forest"};
@@ -1298,6 +1475,7 @@ const std::string FEATURE_BAG_FRACTION_OVERRIDE_TAG{"feature_bag_fraction_overri
 const std::string FEATURE_BAG_FRACTION_TAG{"feature_bag_fraction"};
 const std::string FEATURE_DATA_TYPES_TAG{"feature_data_types"};
 const std::string FEATURE_SAMPLE_PROBABILITIES_TAG{"feature_sample_probabilities"};
+const std::string FOLD_ROUND_TEST_LOSSES_TAG{"fold_round_test_losses"};
 const std::string LOSS_TAG{"loss"};
 const std::string MAXIMUM_ATTEMPTS_TO_ADD_TREE_TAG{"maximum_attempts_to_add_tree"};
 const std::string MAXIMUM_NUMBER_TREES_OVERRIDE_TAG{"maximum_number_trees_override"};
@@ -1306,6 +1484,7 @@ const std::string MAXIMUM_OPTIMISATION_ROUNDS_PER_HYPERPARAMETER_TAG{
     "maximum_optimisation_rounds_per_hyperparameter"};
 const std::string MISSING_FEATURE_ROW_MASKS_TAG{"missing_feature_row_masks"};
 const std::string NUMBER_FOLDS_TAG{"number_folds"};
+const std::string NUMBER_FOLDS_OVERRIDE_TAG{"number_folds_override"};
 const std::string NUMBER_ROUNDS_TAG{"number_rounds"};
 const std::string NUMBER_SPLITS_PER_FEATURE_TAG{"number_splits_per_feature"};
 const std::string NUMBER_THREADS_TAG{"number_threads"};
@@ -1313,6 +1492,7 @@ const std::string RANDOM_NUMBER_GENERATOR_TAG{"random_number_generator"};
 const std::string REGULARIZATION_TAG{"regularization"};
 const std::string REGULARIZATION_OVERRIDE_TAG{"regularization_override"};
 const std::string ROWS_PER_FEATURE_TAG{"rows_per_feature"};
+const std::string STOP_CROSS_VALIDATION_EARLY_TAG{"stop_cross_validation_eraly"};
 const std::string TESTING_ROW_MASKS_TAG{"testing_row_masks"};
 const std::string TRAINING_ROW_MASKS_TAG{"training_row_masks"};
 const std::string TRAINING_PROGRESS_TAG{"training_progress"};
@@ -1356,6 +1536,7 @@ void CBoostedTreeImpl::acceptPersistInserter(core::CStatePersistInserter& insert
     core::CPersistUtils::persist(FEATURE_DATA_TYPES_TAG, m_FeatureDataTypes, inserter);
     core::CPersistUtils::persist(FEATURE_SAMPLE_PROBABILITIES_TAG,
                                  m_FeatureSampleProbabilities, inserter);
+    core::CPersistUtils::persist(FOLD_ROUND_TEST_LOSSES_TAG, m_FoldRoundTestLosses, inserter);
     core::CPersistUtils::persist(MAXIMUM_ATTEMPTS_TO_ADD_TREE_TAG,
                                  m_MaximumAttemptsToAddTree, inserter);
     core::CPersistUtils::persist(MAXIMUM_OPTIMISATION_ROUNDS_PER_HYPERPARAMETER_TAG,
@@ -1363,6 +1544,7 @@ void CBoostedTreeImpl::acceptPersistInserter(core::CStatePersistInserter& insert
     core::CPersistUtils::persist(MISSING_FEATURE_ROW_MASKS_TAG,
                                  m_MissingFeatureRowMasks, inserter);
     core::CPersistUtils::persist(NUMBER_FOLDS_TAG, m_NumberFolds, inserter);
+    core::CPersistUtils::persist(NUMBER_FOLDS_OVERRIDE_TAG, m_NumberFoldsOverride, inserter);
     core::CPersistUtils::persist(NUMBER_ROUNDS_TAG, m_NumberRounds, inserter);
     core::CPersistUtils::persist(NUMBER_SPLITS_PER_FEATURE_TAG,
                                  m_NumberSplitsPerFeature, inserter);
@@ -1372,6 +1554,8 @@ void CBoostedTreeImpl::acceptPersistInserter(core::CStatePersistInserter& insert
                                  m_RegularizationOverride, inserter);
     core::CPersistUtils::persist(REGULARIZATION_TAG, m_Regularization, inserter);
     core::CPersistUtils::persist(ROWS_PER_FEATURE_TAG, m_RowsPerFeature, inserter);
+    core::CPersistUtils::persist(STOP_CROSS_VALIDATION_EARLY_TAG,
+                                 m_StopCrossValidationEarly, inserter);
     core::CPersistUtils::persist(TESTING_ROW_MASKS_TAG, m_TestingRowMasks, inserter);
     core::CPersistUtils::persist(MAXIMUM_NUMBER_TREES_TAG, m_MaximumNumberTrees, inserter);
     core::CPersistUtils::persist(TRAINING_ROW_MASKS_TAG, m_TrainingRowMasks, inserter);
@@ -1395,10 +1579,13 @@ bool CBoostedTreeImpl::acceptRestoreTraverser(core::CStateRestoreTraverser& trav
         m_DownsampleFactorOverride = 1.0;
         m_DownsampleFactor = 1.0;
         m_BestHyperparameters.downsampleFactor(1.0);
+        // We can't stop cross-validation early because we haven't gathered the
+        // per fold test losses.
+        m_StopCrossValidationEarly = false;
     } else if (traverser.name() != VERSION_7_6_TAG) {
         LOG_ERROR(<< "Input error: unsupported state serialization version. "
-                  << "Currently supported versions: " << VERSION_7_5_TAG
-                  << " and " << VERSION_7_6_TAG << ".");
+                  << "Currently supported versions: "
+                  << core::CContainerPrinter::print(SUPPORTED_VERSIONS) << ".");
         return false;
     }
 
@@ -1444,6 +1631,9 @@ bool CBoostedTreeImpl::acceptRestoreTraverser(core::CStateRestoreTraverser& trav
                                              m_MissingFeatureRowMasks, traverser))
         RESTORE(NUMBER_FOLDS_TAG,
                 core::CPersistUtils::restore(NUMBER_FOLDS_TAG, m_NumberFolds, traverser))
+        RESTORE(NUMBER_FOLDS_OVERRIDE_TAG,
+                core::CPersistUtils::restore(NUMBER_FOLDS_OVERRIDE_TAG,
+                                             m_NumberFoldsOverride, traverser))
         RESTORE(NUMBER_ROUNDS_TAG,
                 core::CPersistUtils::restore(NUMBER_ROUNDS_TAG, m_NumberRounds, traverser))
         RESTORE(NUMBER_SPLITS_PER_FEATURE_TAG,
@@ -1459,6 +1649,9 @@ bool CBoostedTreeImpl::acceptRestoreTraverser(core::CStateRestoreTraverser& trav
                                              m_RegularizationOverride, traverser))
         RESTORE(ROWS_PER_FEATURE_TAG,
                 core::CPersistUtils::restore(ROWS_PER_FEATURE_TAG, m_RowsPerFeature, traverser))
+        RESTORE(STOP_CROSS_VALIDATION_EARLY_TAG,
+                core::CPersistUtils::restore(STOP_CROSS_VALIDATION_EARLY_TAG,
+                                             m_StopCrossValidationEarly, traverser))
         RESTORE(TESTING_ROW_MASKS_TAG,
                 core::CPersistUtils::restore(TESTING_ROW_MASKS_TAG, m_TestingRowMasks, traverser))
         RESTORE(MAXIMUM_NUMBER_TREES_TAG,
@@ -1514,6 +1707,7 @@ std::size_t CBoostedTreeImpl::memoryUsage() const {
     mem += core::CMemory::dynamicSize(m_MissingFeatureRowMasks);
     mem += core::CMemory::dynamicSize(m_TrainingRowMasks);
     mem += core::CMemory::dynamicSize(m_TestingRowMasks);
+    mem += core::CMemory::dynamicSize(m_FoldRoundTestLosses);
     mem += core::CMemory::dynamicSize(m_BestForest);
     mem += core::CMemory::dynamicSize(m_BayesianOptimization);
     return mem;
@@ -1545,7 +1739,7 @@ void CBoostedTreeImpl::computeShapValues(core::CDataFrame& frame, const TProgres
         }
         auto treeFeatureImportance = std::make_unique<CTreeShapFeatureImportance>(
             m_BestForest, m_NumberThreads);
-        std::size_t numberInputFields = m_NumberInputColumns - 1;
+        std::size_t numberInputFields = m_NumberInputColumns;
         // resize data frame to write SHAP values
         std::size_t offset{frame.numberColumns()};
         frame.resizeColumns(m_NumberThreads, frame.numberColumns() + numberInputFields);
