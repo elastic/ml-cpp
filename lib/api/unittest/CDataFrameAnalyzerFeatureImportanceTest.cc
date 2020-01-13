@@ -25,14 +25,13 @@ BOOST_AUTO_TEST_SUITE(CDataFrameAnalyzerFeatureImportanceTest)
 using namespace ml;
 
 namespace {
-using TBoolVec = std::vector<bool>;
-using TSizeVec = std::vector<std::size_t>;
-using TRowItr = core::CDataFrame::TRowItr;
-using TRowRef = core::CDataFrame::TRowRef;
-using TDataFrameUPtr = std::unique_ptr<core::CDataFrame>;
 using TDoubleVec = std::vector<double>;
 using TStrVec = std::vector<std::string>;
-using TMeanVarAccumulator = ml::maths::CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
+using TRowItr = core::CDataFrame::TRowItr;
+using TRowRef = core::CDataFrame::TRowRef;
+using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
+using TMeanAccumulatorVec = std::vector<TMeanAccumulator>;
+using TMeanVarAccumulator = maths::CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
 
 void setupLinearRegressionData(const TStrVec& fieldNames,
                                TStrVec& fieldValues,
@@ -228,18 +227,19 @@ BOOST_FIXTURE_TEST_CASE(testRunBoostedTreeRegressionFeatureImportanceAllShap, SF
     // randomly on [-10, 10].
     BOOST_TEST_REQUIRE(c1Sum > c3Sum);
     BOOST_TEST_REQUIRE(c1Sum > c4Sum);
-    BOOST_REQUIRE_CLOSE(weights[1] / weights[2], c2Sum / c3Sum, 5.0); // ratio within 5% of ratio of coefficients
+    BOOST_REQUIRE_CLOSE(weights[1] / weights[2], c2Sum / c3Sum, 10.0); // ratio within 10% of ratio of coefficients
     BOOST_REQUIRE_CLOSE(c3Sum, c4Sum, 5.0); // c3 and c4 within 5% of each other
     // make sure the local approximation differs from the prediction always by the same bias (up to a numeric error)
-    BOOST_REQUIRE_SMALL(ml::maths::CBasicStatistics::variance(bias), 1e-6);
+    BOOST_REQUIRE_SMALL(maths::CBasicStatistics::variance(bias), 1e-6);
 }
 
 BOOST_FIXTURE_TEST_CASE(testRunBoostedTreeRegressionFeatureImportanceNoImportance, SFixture) {
     // Test that feature importance calculates low SHAP values if regressors have no weight.
     // We also add high noise variance.
     std::size_t topShapValues{4};
-    auto results{runRegression(topShapValues, {10.0, 0.0, 0.0, 0.0}, 10.0)};
+    auto results = runRegression(topShapValues, {10.0, 0.0, 0.0, 0.0}, 10.0);
 
+    TMeanAccumulator c2Mean, c3Mean, c4Mean;
     for (const auto& result : results.GetArray()) {
         if (result.HasMember("row_results")) {
             double c1{result["row_results"]["results"]["ml"][maths::CDataFrameRegressionModel::SHAP_PREFIX + "c1"]
@@ -252,13 +252,20 @@ BOOST_FIXTURE_TEST_CASE(testRunBoostedTreeRegressionFeatureImportanceNoImportanc
                           .GetDouble()};
             double prediction{
                 result["row_results"]["results"]["ml"]["target_prediction"].GetDouble()};
-            // c1 explain 97% of the prediction value, i.e. the difference from the prediction is less than 1%.
-            BOOST_REQUIRE_CLOSE(c1, prediction, 3.0);
-            BOOST_REQUIRE_SMALL(c2, 0.25);
-            BOOST_REQUIRE_SMALL(c3, 0.25);
-            BOOST_REQUIRE_SMALL(c4, 0.25);
+            // c1 explains 95% of the prediction value.
+            BOOST_REQUIRE_CLOSE(c1, prediction, 5.0);
+            BOOST_REQUIRE_SMALL(c2, 2.0);
+            BOOST_REQUIRE_SMALL(c3, 2.0);
+            BOOST_REQUIRE_SMALL(c4, 2.0);
+            c2Mean.add(std::fabs(c2));
+            c3Mean.add(std::fabs(c3));
+            c4Mean.add(std::fabs(c4));
         }
     }
+
+    BOOST_REQUIRE_SMALL(maths::CBasicStatistics::mean(c2Mean), 0.1);
+    BOOST_REQUIRE_SMALL(maths::CBasicStatistics::mean(c3Mean), 0.1);
+    BOOST_REQUIRE_SMALL(maths::CBasicStatistics::mean(c4Mean), 0.1);
 }
 
 BOOST_FIXTURE_TEST_CASE(testRunBoostedTreeClassificationFeatureImportanceAllShap, SFixture) {
@@ -314,7 +321,7 @@ BOOST_FIXTURE_TEST_CASE(testRunBoostedTreeClassificationFeatureImportanceAllShap
     BOOST_TEST_REQUIRE(c1Sum > c4Sum);
     BOOST_REQUIRE_CLOSE(c3Sum, c4Sum, 40.0); // c3 and c4 within 40% of each other
     // make sure the local approximation differs from the prediction always by the same bias (up to a numeric error)
-    BOOST_REQUIRE_SMALL(ml::maths::CBasicStatistics::variance(bias), 1e-6);
+    BOOST_REQUIRE_SMALL(maths::CBasicStatistics::variance(bias), 1e-6);
 }
 
 BOOST_FIXTURE_TEST_CASE(testRunBoostedTreeRegressionFeatureImportanceNoShap, SFixture) {

@@ -46,6 +46,10 @@ const double MIN_DOWNSAMPLE_LINE_SEARCH_RANGE{2.0};
 const double MAX_DOWNSAMPLE_LINE_SEARCH_RANGE{144.0};
 const double MIN_DOWNSAMPLE_FACTOR_SCALE{0.3};
 const double MAX_DOWNSAMPLE_FACTOR_SCALE{3.0};
+// This isn't a hard limit but we increase the number of default training folds
+// if the initial downsample fraction would be larger than this.
+const double MAX_DESIRED_INITIAL_DOWNSAMPLE_FRACTION{0.5};
+const double MAX_NUMBER_FOLDS{5.0};
 const std::size_t MAX_NUMBER_TREES{static_cast<std::size_t>(2.0 / MIN_ETA + 0.5)};
 
 double computeEta(std::size_t numberRegressors) {
@@ -93,11 +97,11 @@ CBoostedTreeFactory::buildFor(core::CDataFrame& frame,
         return nullptr;
     }
 
-    this->initializeTrainingProgressMonitoring(frame);
-
     m_TreeImpl->m_DependentVariable = dependentVariable;
     m_TreeImpl->m_Loss = std::move(loss);
 
+    this->initializeNumberFolds(frame);
+    this->initializeTrainingProgressMonitoring(frame);
     this->initializeMissingFeatureMasks(frame);
 
     m_TreeImpl->m_NumberInputColumns = frame.numberColumns();
@@ -229,6 +233,58 @@ void CBoostedTreeFactory::initializeMissingFeatureMasks(const core::CDataFrame& 
     }
 }
 
+void CBoostedTreeFactory::initializeNumberFolds(core::CDataFrame& frame) const {
+    if (m_TreeImpl->m_NumberFoldsOverride == boost::none) {
+        auto result = frame.readRows(
+            m_NumberThreads,
+            core::bindRetrievableState(
+                [this](std::size_t& numberTrainingRows, TRowItr beginRows, TRowItr endRows) {
+                    for (auto row = beginRows; row != endRows; ++row) {
+                        double target{(*row)[m_TreeImpl->m_DependentVariable]};
+                        if (CDataFrameUtils::isMissing(target) == false) {
+                            ++numberTrainingRows;
+                        }
+                    }
+                },
+                std::size_t{0}));
+        std::size_t totalNumberTrainingRows{0};
+        for (const auto& numberTrainingRows : result.first) {
+            totalNumberTrainingRows += numberTrainingRows.s_FunctionState;
+        }
+        LOG_TRACE(<< "total number training rows = " << totalNumberTrainingRows);
+
+        // We want to choose the number of folds so we'll have enough training data
+        // after leaving out one fold. We choose the initial downsample size based
+        // on the same sort of criterion. So we require that leaving out one fold
+        // shouldn't mean than we have fewer rows than constant * desired downsample
+        // # rows if possible. We choose the constant to be two for no particularly
+        // good reason except that:
+        //   1. it isn't too large
+        //   2. it still means we'll have plenty of variation between random bags.
+        //
+        // In order to estimate this we use the number of input features as a proxy
+        // for the number of features we'll actually use after feature selection.
+        //
+        // So how does the following work: we'd like "c * f * # rows" training rows.
+        // For k folds we'll have "(1 - 1 / k) * # rows" training rows. So we want
+        // to find the smallest integer k s.t. c * f * # rows <= (1 - 1 / k) * # rows.
+        // This gives k = ceil(1 / (1 - c * f)). However, we also upper bound this
+        // by MAX_NUMBER_FOLDS.
+
+        double initialDownsampleFraction{(m_InitialDownsampleRowsPerFeature *
+                                          static_cast<double>(frame.numberColumns() - 1)) /
+                                         static_cast<double>(totalNumberTrainingRows)};
+
+        m_TreeImpl->m_NumberFolds = static_cast<std::size_t>(
+            std::ceil(1.0 / std::max(1.0 - initialDownsampleFraction / MAX_DESIRED_INITIAL_DOWNSAMPLE_FRACTION,
+                                     1.0 / MAX_NUMBER_FOLDS)));
+        LOG_TRACE(<< "initial downsample fraction = " << initialDownsampleFraction
+                  << " # folds = " << m_TreeImpl->m_NumberFolds);
+    } else {
+        m_TreeImpl->m_NumberFolds = *m_TreeImpl->m_NumberFoldsOverride;
+    }
+}
+
 void CBoostedTreeFactory::initializeCrossValidation(core::CDataFrame& frame) const {
 
     core::CPackedBitVector allTrainingRowsMask{m_TreeImpl->allTrainingRowsMask()};
@@ -346,10 +402,10 @@ void CBoostedTreeFactory::initializeHyperparameters(core::CDataFrame& frame) {
     }
 
     double numberFeatures{static_cast<double>(m_TreeImpl->m_Encoder->numberEncodedColumns())};
-    double downSampleFactor{m_InitialDownsampleRowsPerFeature * numberFeatures /
+    double downsampleFactor{m_InitialDownsampleRowsPerFeature * numberFeatures /
                             m_TreeImpl->m_TrainingRowMasks[0].manhattan()};
     m_TreeImpl->m_DownsampleFactor = m_TreeImpl->m_DownsampleFactorOverride.value_or(
-        CTools::truncate(downSampleFactor, 0.05, 0.5));
+        CTools::truncate(downsampleFactor, 0.05, 0.5));
 
     m_TreeImpl->m_Regularization
         .depthPenaltyMultiplier(
@@ -922,12 +978,17 @@ CBoostedTreeFactory& CBoostedTreeFactory::numberFolds(std::size_t numberFolds) {
         LOG_WARN(<< "Must use at least two-folds for cross validation");
         numberFolds = 2;
     }
-    m_TreeImpl->m_NumberFolds = numberFolds;
+    m_TreeImpl->m_NumberFoldsOverride = numberFolds;
     return *this;
 }
 
 CBoostedTreeFactory& CBoostedTreeFactory::stratifyRegressionCrossValidation(bool stratify) {
     m_StratifyRegressionCrossValidation = stratify;
+    return *this;
+}
+
+CBoostedTreeFactory& CBoostedTreeFactory::stopCrossValidationEarly(bool stopEarly) {
+    m_TreeImpl->m_StopCrossValidationEarly = stopEarly;
     return *this;
 }
 
@@ -1063,7 +1124,9 @@ std::size_t CBoostedTreeFactory::estimateMemoryUsage(std::size_t numberRows,
                                                      std::size_t numberColumns) const {
     std::size_t shapValuesExtraColumns =
         (m_TopShapValues > 0) ? numberRows * numberColumns * sizeof(CFloatStorage) : 0;
-    std::size_t maximumNumberTrees{this->mainLoopMaximumNumberTrees()};
+    std::size_t maximumNumberTrees{this->mainLoopMaximumNumberTrees(
+        m_TreeImpl->m_EtaOverride != boost::none ? *m_TreeImpl->m_EtaOverride
+                                                 : computeEta(numberColumns))};
     std::swap(maximumNumberTrees, m_TreeImpl->m_MaximumNumberTrees);
     std::size_t result{m_TreeImpl->estimateMemoryUsage(numberRows, numberColumns) +
                        shapValuesExtraColumns};
@@ -1112,7 +1175,7 @@ void CBoostedTreeFactory::initializeTrainingProgressMonitoring(const core::CData
         totalNumberSteps += MAX_LINE_SEARCH_ITERATIONS * lineSearchMaximumNumberTrees;
     }
     totalNumberSteps += (this->numberHyperparameterTuningRounds() + 1) *
-                        this->mainLoopMaximumNumberTrees() * m_TreeImpl->m_NumberFolds;
+                        this->mainLoopMaximumNumberTrees(eta) * m_TreeImpl->m_NumberFolds;
     LOG_TRACE(<< "total number steps = " << totalNumberSteps);
     m_TreeImpl->m_TrainingProgress =
         core::CLoopProgress{totalNumberSteps, m_RecordProgress, 1.0, 1024};
@@ -1123,9 +1186,9 @@ void CBoostedTreeFactory::resumeRestoredTrainingProgressMonitoring() {
     m_TreeImpl->m_TrainingProgress.resumeRestored();
 }
 
-std::size_t CBoostedTreeFactory::mainLoopMaximumNumberTrees() const {
+std::size_t CBoostedTreeFactory::mainLoopMaximumNumberTrees(double eta) const {
     if (m_TreeImpl->m_MaximumNumberTreesOverride == boost::none) {
-        std::size_t maximumNumberTrees{computeMaximumNumberTrees(m_TreeImpl->m_Eta)};
+        std::size_t maximumNumberTrees{computeMaximumNumberTrees(eta)};
         maximumNumberTrees = scaleMaximumNumberTrees(maximumNumberTrees);
         return maximumNumberTrees;
     }
