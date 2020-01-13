@@ -4,14 +4,14 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
-#include <maths/CDataFrameRegressionModel.h>
+#include <maths/CDataFramePredictiveModel.h>
 
 namespace ml {
 namespace maths {
 
-const std::string CDataFrameRegressionModel::SHAP_PREFIX{"feature_importance."};
+const std::string CDataFramePredictiveModel::SHAP_PREFIX{"feature_importance."};
 
-CDataFrameRegressionModel::CDataFrameRegressionModel(core::CDataFrame& frame,
+CDataFramePredictiveModel::CDataFramePredictiveModel(core::CDataFrame& frame,
                                                      TProgressCallback recordProgress,
                                                      TMemoryUsageCallback recordMemoryUsage,
                                                      TTrainingStateCallback recordTrainingState)
@@ -20,22 +20,22 @@ CDataFrameRegressionModel::CDataFrameRegressionModel(core::CDataFrame& frame,
       m_RecordTrainingState(std::move(recordTrainingState)) {
 }
 
-core::CDataFrame& CDataFrameRegressionModel::frame() const {
+core::CDataFrame& CDataFramePredictiveModel::frame() const {
     return m_Frame;
 }
 
-const CDataFrameRegressionModel::TProgressCallback&
-CDataFrameRegressionModel::progressRecorder() const {
+const CDataFramePredictiveModel::TProgressCallback&
+CDataFramePredictiveModel::progressRecorder() const {
     return m_RecordProgress;
 }
 
-const CDataFrameRegressionModel::TMemoryUsageCallback&
-CDataFrameRegressionModel::memoryUsageRecorder() const {
+const CDataFramePredictiveModel::TMemoryUsageCallback&
+CDataFramePredictiveModel::memoryUsageRecorder() const {
     return m_RecordMemoryUsage;
 }
 
-const CDataFrameRegressionModel::TTrainingStateCallback&
-CDataFrameRegressionModel::trainingStateRecorder() const {
+const CDataFramePredictiveModel::TTrainingStateCallback&
+CDataFramePredictiveModel::trainingStateRecorder() const {
     return m_RecordTrainingState;
 }
 }

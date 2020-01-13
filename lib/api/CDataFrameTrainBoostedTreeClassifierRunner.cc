@@ -12,6 +12,7 @@
 
 #include <maths/CBoostedTree.h>
 #include <maths/CBoostedTreeFactory.h>
+#include <maths/CDataFramePredictiveModel.h>
 #include <maths/CDataFrameUtils.h>
 #include <maths/COrderings.h>
 #include <maths/CTools.h>
@@ -35,6 +36,7 @@ using TStrSet = std::set<std::string>;
 // Configuration
 const std::string NUM_TOP_CLASSES{"num_top_classes"};
 const std::string PREDICTION_FIELD_TYPE{"prediction_field_type"};
+const std::string CLASS_ASSIGNMENT_OBJECTIVE{"class_assignment_objective"};
 
 // Output
 const std::string IS_TRAINING_FIELD_NAME{"is_training"};
@@ -46,22 +48,29 @@ const std::string CLASS_PROBABILITY_FIELD_NAME{"class_probability"};
 const std::string CLASS_SCORE_FIELD_NAME{"class_score"};
 
 const TStrSet PREDICTION_FIELD_NAME_BLACKLIST{
-    IS_TRAINING_FIELD_NAME, PREDICTION_PROBABILITY_FIELD_NAME, TOP_CLASSES_FIELD_NAME};
+    IS_TRAINING_FIELD_NAME, PREDICTION_PROBABILITY_FIELD_NAME,
+    PREDICTION_SCORE_FIELD_NAME, TOP_CLASSES_FIELD_NAME};
 }
 
 const CDataFrameAnalysisConfigReader&
 CDataFrameTrainBoostedTreeClassifierRunner::parameterReader() {
     static const CDataFrameAnalysisConfigReader PARAMETER_READER{[] {
+        auto theReader = CDataFrameTrainBoostedTreeRunner::parameterReader();
+        theReader.addParameter(NUM_TOP_CLASSES, CDataFrameAnalysisConfigReader::E_OptionalParameter);
         const std::string typeString{"string"};
         const std::string typeInt{"int"};
         const std::string typeBool{"bool"};
-        auto theReader = CDataFrameTrainBoostedTreeRunner::parameterReader();
-        theReader.addParameter(NUM_TOP_CLASSES, CDataFrameAnalysisConfigReader::E_OptionalParameter);
         theReader.addParameter(PREDICTION_FIELD_TYPE,
                                CDataFrameAnalysisConfigReader::E_OptionalParameter,
                                {{typeString, int{E_PredictionFieldTypeString}},
                                 {typeInt, int{E_PredictionFieldTypeInt}},
                                 {typeBool, int{E_PredictionFieldTypeBool}}});
+        const std::string accuracy{"maximize_accuracy"};
+        const std::string minRecall{"maximize_minimum_recall"};
+        theReader.addParameter(
+            CLASS_ASSIGNMENT_OBJECTIVE, CDataFrameAnalysisConfigReader::E_OptionalParameter,
+            {{accuracy, int{maths::CDataFramePredictiveModel::E_Accuracy}},
+             {minRecall, int{maths::CDataFramePredictiveModel::E_MinimumRecall}}});
         return theReader;
     }()};
     return PARAMETER_READER;
@@ -75,6 +84,8 @@ CDataFrameTrainBoostedTreeClassifierRunner::CDataFrameTrainBoostedTreeClassifier
     m_NumTopClasses = parameters[NUM_TOP_CLASSES].fallback(std::size_t{0});
     m_PredictionFieldType =
         parameters[PREDICTION_FIELD_TYPE].fallback(E_PredictionFieldTypeString);
+    this->boostedTreeFactory().classAssignmentObjective(
+        parameters[CLASS_ASSIGNMENT_OBJECTIVE].fallback(maths::CBoostedTree::E_MinimumRecall));
 
     const TStrVec& categoricalFieldNames{spec.categoricalFieldNames()};
     if (std::find(categoricalFieldNames.begin(), categoricalFieldNames.end(),

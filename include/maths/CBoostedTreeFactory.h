@@ -54,6 +54,9 @@ public:
     CBoostedTreeFactory(CBoostedTreeFactory&&);
     CBoostedTreeFactory& operator=(CBoostedTreeFactory&&);
 
+    //! Set the objective to use when choosing the class assignments.
+    CBoostedTreeFactory&
+    classAssignmentObjective(CBoostedTree::EClassAssignmentObjective objective);
     //! Set the minimum fraction with a category value to one-hot encode.
     CBoostedTreeFactory& minimumFrequencyToOneHotEncode(double frequency);
     //! Set the number of folds to use for estimating the generalisation error.
@@ -191,7 +194,7 @@ private:
 
     static void noopRecordProgress(double);
     static void noopRecordMemoryUsage(std::int64_t);
-    static void noopRecordTrainingState(CDataFrameRegressionModel::TPersistFunc);
+    static void noopRecordTrainingState(CBoostedTree::TPersistFunc);
 
 private:
     TOptionalDouble m_MinimumFrequencyToOneHotEncode;

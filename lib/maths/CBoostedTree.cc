@@ -411,7 +411,7 @@ CBoostedTree::CBoostedTree(core::CDataFrame& frame,
                            TMemoryUsageCallback recordMemoryUsage,
                            TTrainingStateCallback recordTrainingState,
                            TImplUPtr&& impl)
-    : CDataFrameRegressionModel{frame, std::move(recordProgress),
+    : CDataFramePredictiveModel{frame, std::move(recordProgress),
                                 std::move(recordMemoryUsage),
                                 std::move(recordTrainingState)},
       m_Impl{std::move(impl)} {
@@ -484,7 +484,7 @@ const CBoostedTreeHyperparameters& CBoostedTree::bestHyperparameters() const {
     return m_Impl->bestHyperparameters();
 }
 
-CDataFrameRegressionModel::TSizeRange CBoostedTree::columnsHoldingShapValues() const {
+CBoostedTree::TSizeRange CBoostedTree::columnsHoldingShapValues() const {
     return m_Impl->columnsHoldingShapValues();
 }
 

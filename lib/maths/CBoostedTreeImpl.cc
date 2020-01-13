@@ -599,11 +599,17 @@ void CBoostedTreeImpl::predict(core::CDataFrame& frame,
 }
 
 double CBoostedTreeImpl::decisionThreshold(const core::CDataFrame& frame) const {
-    return m_Loss->name() == boosted_tree::CLogistic::NAME
-               ? CDataFrameUtils::maximumMinimumRecallDecisionThreshold(
-                     m_NumberThreads, frame, this->allTrainingRowsMask(),
-                     m_DependentVariable, predictionColumn(frame.numberColumns()))
-               : 0.5;
+    if (m_Loss->name() == boosted_tree::CLogistic::NAME) {
+        switch (m_ClassAssignmentObjective) {
+        case CBoostedTree::E_Accuracy:
+            return 0.5;
+        case CBoostedTree::E_MinimumRecall:
+            return CDataFrameUtils::maximumMinimumRecallDecisionThreshold(
+                m_NumberThreads, frame, this->allTrainingRowsMask(),
+                m_DependentVariable, predictionColumn(frame.numberColumns()));
+        }
+    }
+    return 0.5;
 }
 
 const CBoostedTreeImpl::TDoubleVec& CBoostedTreeImpl::featureSampleProbabilities() const {
@@ -1755,7 +1761,7 @@ void CBoostedTreeImpl::computeShapValues(core::CDataFrame& frame, const TProgres
         m_LastShapColumnIndex = frame.numberColumns() - 1;
         TStrVec columnNames(frame.columnNames());
         for (std::size_t i = 0; i < numberInputFields; ++i) {
-            columnNames[offset + i] = CDataFrameRegressionModel::SHAP_PREFIX +
+            columnNames[offset + i] = CDataFramePredictiveModel::SHAP_PREFIX +
                                       frame.columnNames()[i];
         }
         frame.columnNames(columnNames);

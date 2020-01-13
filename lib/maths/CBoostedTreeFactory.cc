@@ -945,6 +945,12 @@ CBoostedTreeFactory& CBoostedTreeFactory::operator=(CBoostedTreeFactory&&) = def
 
 CBoostedTreeFactory::~CBoostedTreeFactory() = default;
 
+CBoostedTreeFactory&
+CBoostedTreeFactory::classAssignmentObjective(CBoostedTree::EClassAssignmentObjective objective) {
+    m_TreeImpl->m_ClassAssignmentObjective = objective;
+    return *this;
+}
+
 CBoostedTreeFactory& CBoostedTreeFactory::minimumFrequencyToOneHotEncode(double frequency) {
     if (frequency >= 1.0) {
         LOG_WARN(<< "Frequency to one-hot encode must be less than one");
@@ -1177,13 +1183,13 @@ std::size_t CBoostedTreeFactory::mainLoopMaximumNumberTrees(double eta) const {
     return *m_TreeImpl->m_MaximumNumberTreesOverride;
 }
 
-void CBoostedTreeFactory::noopRecordTrainingState(std::function<void(core::CStatePersistInserter&)>) {
-}
-
 void CBoostedTreeFactory::noopRecordProgress(double) {
 }
 
 void CBoostedTreeFactory::noopRecordMemoryUsage(std::int64_t) {
+}
+
+void CBoostedTreeFactory::noopRecordTrainingState(CBoostedTree::TPersistFunc) {
 }
 }
 }

@@ -14,7 +14,7 @@
 #include <maths/CBasicStatistics.h>
 #include <maths/CBoostedTreeHyperparameters.h>
 #include <maths/CDataFrameCategoryEncoder.h>
-#include <maths/CDataFrameRegressionModel.h>
+#include <maths/CDataFramePredictiveModel.h>
 #include <maths/CLinearAlgebra.h>
 #include <maths/ImportExport.h>
 
@@ -359,7 +359,7 @@ private:
 //! encoding. We choose the "best" strategy based on simultaneously maximising measures
 //! of relevancy and redundancy in the feature set as a whole. We use the MICe statistic
 //! proposed by Reshef for this purpose. See CDataFrameCategoryEncoder for more details.
-class MATHS_EXPORT CBoostedTree final : public CDataFrameRegressionModel {
+class MATHS_EXPORT CBoostedTree final : public CDataFramePredictiveModel {
 public:
     using TStrVec = std::vector<std::string>;
     using TRowRef = core::CDataFrame::TRowRef;
