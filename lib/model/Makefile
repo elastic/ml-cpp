@@ -23,7 +23,6 @@ CAnomalyDetector.cc \
 CAnomalyDetectorModel.cc \
 CAnomalyDetectorModelConfig.cc \
 CAnomalyScore.cc \
-CBaseTokenListDataCategorizer.cc \
 CBucketGatherer.cc \
 CCategoryExamplesCollector.cc \
 CCountingModel.cc \
@@ -63,6 +62,7 @@ CModelFactory.cc \
 CModelParams.cc \
 CModelPlotData.cc \
 CModelTools.cc \
+CMonitoredResource.cc \
 CPartitioningFields.cc \
 CPopulationModel.cc \
 CProbabilityAndInfluenceCalculator.cc \
@@ -75,6 +75,7 @@ CSearchKey.cc \
 CSimpleCountDetector.cc \
 CStringStore.cc \
 CTokenListCategory.cc \
+CTokenListDataCategorizerBase.cc \
 CTokenListReverseSearchCreator.cc \
 CTokenListReverseSearchCreatorIntf.cc \
 FrequencyPredicates.cc \
