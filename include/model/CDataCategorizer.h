@@ -89,8 +89,16 @@ public:
     //! Persist state by passing information to the supplied inserter
     virtual void acceptPersistInserter(core::CStatePersistInserter& inserter) const = 0;
 
-    //! Make a function that can be called later to persist state
-    virtual TPersistFunc makePersistFunc() const = 0;
+    //! Make a function that can be called later to persist state in the
+    //! foreground, i.e. in the knowledge that no other thread will be
+    //! accessing the data structures this method accesses.
+    virtual TPersistFunc makeForegroundPersistFunc() const = 0;
+
+    //! Make a function that can be called later to persist state in the
+    //! background, i.e. copying any required data such that other threads
+    //! may modify the original data structures while persistence is taking
+    //! place.
+    virtual TPersistFunc makeBackgroundPersistFunc() const = 0;
 
     //! Access to the field name
     const std::string& fieldName() const;

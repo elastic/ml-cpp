@@ -64,6 +64,8 @@ is no longer decreasing. (See {ml-pull}875[#875].)
 * Improve performance updating quantile estimates. (See {ml-pull}881[#881].)
 * Migrate to use Bayesian Optimisation for initial hyperparameter value line searches and
 stop early if the expected improvement is too small. (See {ml-pull}903[#903].)
+* Stop cross-validation early if the predicted test loss has a small chance of being
+smaller than for the best parameter values found so far. (See {ml-pull}915[#915].)
 * Optimize decision threshold for classification to maximize minimum class recall.
 (See {ml-pull}926[#926].)
 
@@ -72,6 +74,12 @@ stop early if the expected improvement is too small. (See {ml-pull}903[#903].)
 * Prevent prediction_field_name clashing with other fields in ml results.
 (See {ml-pull}861[#861].)
 
+
+== {es} version 7.5.2
+
+=== Bug Fixes
+* Fixes potential memory corruption or inconsistent state when background persisting
+categorizer state. (See {ml-pull}921[#921].)
 
 == {es} version 7.5.0
 

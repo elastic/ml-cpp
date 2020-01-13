@@ -183,8 +183,10 @@ void CDataFrameTrainBoostedTreeClassifierRunner::writeOneRow(
         }
         largestShapValues.sort();
         for (auto i : largestShapValues) {
-            writer.Key(frame.columnNames()[i]);
-            writer.Double(row[i]);
+            if (row[i] != 0.0) {
+                writer.Key(frame.columnNames()[i]);
+                writer.Double(row[i]);
+            }
         }
     }
     writer.EndObject();
