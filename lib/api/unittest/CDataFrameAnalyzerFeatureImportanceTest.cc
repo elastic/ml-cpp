@@ -182,16 +182,6 @@ BOOST_FIXTURE_TEST_CASE(testRunBoostedTreeRegressionFeatureImportanceAllShap, SF
     TDoubleVec weights{50, 150, 50, -50};
     auto results{runRegression(topShapValues, weights)};
 
-    std::ostringstream stream;
-    {
-        core::CJsonOutputStreamWrapper wrapper{stream};
-        core::CRapidJsonConcurrentLineWriter writer{wrapper};
-        writer.write(results);
-        stream.flush();
-    }
-    // string writer puts the json object in an array, so we strip the external brackets
-    LOG_DEBUG(<< stream.str());
-
     TMeanVarAccumulator bias;
     double c1Sum{0.0}, c2Sum{0.0}, c3Sum{0.0}, c4Sum{0.0};
     for (const auto& result : results.GetArray()) {
@@ -239,33 +229,30 @@ BOOST_FIXTURE_TEST_CASE(testRunBoostedTreeRegressionFeatureImportanceNoImportanc
     std::size_t topShapValues{4};
     auto results = runRegression(topShapValues, {10.0, 0.0, 0.0, 0.0}, 10.0);
 
-    TMeanAccumulator c2Mean, c3Mean, c4Mean;
+    TMeanAccumulator cNoImportanceMean;
     for (const auto& result : results.GetArray()) {
         if (result.HasMember("row_results")) {
             double c1{result["row_results"]["results"]["ml"][maths::CDataFramePredictiveModel::SHAP_PREFIX + "c1"]
                           .GetDouble()};
-            double c2{result["row_results"]["results"]["ml"][maths::CDataFramePredictiveModel::SHAP_PREFIX + "c2"]
-                          .GetDouble()};
-            double c3{result["row_results"]["results"]["ml"][maths::CDataFramePredictiveModel::SHAP_PREFIX + "c3"]
-                          .GetDouble()};
-            double c4{result["row_results"]["results"]["ml"][maths::CDataFramePredictiveModel::SHAP_PREFIX + "c4"]
-                          .GetDouble()};
             double prediction{
                 result["row_results"]["results"]["ml"]["target_prediction"].GetDouble()};
-            // c1 explains 95% of the prediction value.
+            // c1 explains 95% of the prediction value, i.e. the difference from the prediction is less than 2%.
             BOOST_REQUIRE_CLOSE(c1, prediction, 5.0);
-            BOOST_REQUIRE_SMALL(c2, 2.0);
-            BOOST_REQUIRE_SMALL(c3, 2.0);
-            BOOST_REQUIRE_SMALL(c4, 2.0);
-            c2Mean.add(std::fabs(c2));
-            c3Mean.add(std::fabs(c3));
-            c4Mean.add(std::fabs(c4));
+
+            for (const auto& feature : {"c2", "c3", "c4"}) {
+                if (result["row_results"]["results"]["ml"].HasMember(
+                        maths::CDataFramePredictiveModel::SHAP_PREFIX + feature)) {
+                    double shap_value{
+                        result["row_results"]["results"]["ml"][maths::CDataFramePredictiveModel::SHAP_PREFIX + feature]
+                            .GetDouble()};
+                    BOOST_REQUIRE_SMALL(shap_value, 2.0);
+                    cNoImportanceMean.add(std::fabs(shap_value));
+                }
+            }
         }
     }
 
-    BOOST_REQUIRE_SMALL(maths::CBasicStatistics::mean(c2Mean), 0.1);
-    BOOST_REQUIRE_SMALL(maths::CBasicStatistics::mean(c3Mean), 0.1);
-    BOOST_REQUIRE_SMALL(maths::CBasicStatistics::mean(c4Mean), 0.1);
+    BOOST_REQUIRE_SMALL(maths::CBasicStatistics::mean(cNoImportanceMean), 0.1);
 }
 
 BOOST_FIXTURE_TEST_CASE(testRunBoostedTreeClassificationFeatureImportanceAllShap, SFixture) {

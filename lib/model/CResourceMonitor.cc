@@ -9,8 +9,7 @@
 #include <core/CProgramCounters.h>
 #include <core/Constants.h>
 
-#include <model/CAnomalyDetector.h>
-#include <model/CDataGatherer.h>
+#include <model/CMonitoredResource.h>
 #include <model/CStringStore.h>
 
 #include <algorithm>
@@ -29,7 +28,7 @@ const core_t::TTime
 
 CResourceMonitor::CResourceMonitor(bool persistenceInForeground, double byteLimitMargin)
     : m_AllowAllocations(true), m_ByteLimitMargin{byteLimitMargin},
-      m_ByteLimitHigh(0), m_ByteLimitLow(0), m_CurrentAnomalyDetectorMemory(0),
+      m_ByteLimitHigh(0), m_ByteLimitLow(0), m_MonitoredResourceCurrentMemory(0),
       m_ExtraMemory(0), m_PreviousTotal(this->totalMemory()), m_Peak(m_PreviousTotal),
       m_LastAllocationFailureReport(0), m_MemoryStatus(model_t::E_MemoryStatusOk),
       m_HasPruningStarted(false), m_PruneThreshold(0), m_LastPruneTime(0),
@@ -45,20 +44,22 @@ void CResourceMonitor::memoryUsageReporter(const TMemoryUsageReporterFunc& repor
     m_MemoryUsageReporter = reporter;
 }
 
-void CResourceMonitor::registerComponent(CAnomalyDetector& detector) {
-    LOG_TRACE(<< "Registering component: " << &detector);
-    m_Detectors.emplace(&detector, std::size_t(0));
+void CResourceMonitor::registerComponent(CMonitoredResource& resource) {
+    LOG_TRACE(<< "Registering component: " << &resource);
+    m_Resources.emplace(&resource, std::size_t(0));
 }
 
-void CResourceMonitor::unRegisterComponent(CAnomalyDetector& detector) {
-    auto itr = m_Detectors.find(&detector);
-    if (itr == m_Detectors.end()) {
-        LOG_ERROR(<< "Inconsistency - component has not been registered: " << &detector);
+void CResourceMonitor::unRegisterComponent(CMonitoredResource& resource) {
+    LOG_TRACE(<< "Unregistering component: " << &resource);
+    auto itr = m_Resources.find(&resource);
+    if (itr == m_Resources.end()) {
+        LOG_ERROR(<< "Inconsistency - component has not been registered: " << &resource);
         return;
     }
 
-    LOG_TRACE(<< "Unregistering component: " << &detector);
-    m_Detectors.erase(itr);
+    m_MonitoredResourceCurrentMemory -= itr->second;
+    m_Resources.erase(itr);
+    core::CProgramCounters::counter(counter_t::E_TSADMemoryUsage) = this->totalMemory();
 }
 
 void CResourceMonitor::memoryLimit(std::size_t limitMBs) {
@@ -93,15 +94,15 @@ model_t::EMemoryStatus CResourceMonitor::getMemoryStatus() {
     return m_MemoryStatus;
 }
 
-void CResourceMonitor::refresh(CAnomalyDetector& detector) {
+void CResourceMonitor::refresh(CMonitoredResource& resource) {
     if (m_NoLimit) {
         return;
     }
-    this->forceRefresh(detector);
+    this->forceRefresh(resource);
 }
 
-void CResourceMonitor::forceRefresh(CAnomalyDetector& detector) {
-    this->memUsage(&detector);
+void CResourceMonitor::forceRefresh(CMonitoredResource& resource) {
+    this->memUsage(&resource);
 
     this->updateAllowAllocations();
 }
@@ -143,20 +144,22 @@ bool CResourceMonitor::pruneIfRequired(core_t::TTime endTime) {
         return false;
     }
 
-    if (m_Detectors.empty()) {
+    if (m_Resources.empty()) {
         return false;
     }
 
     if (m_HasPruningStarted == false) {
-        // The longest we'll consider keeping priors for is 1M buckets.
-        CAnomalyDetector* detector = m_Detectors.begin()->first;
-        if (detector == nullptr) {
+        for (const auto& resource : m_Resources) {
+            if (resource.first->supportsPruning() &&
+                resource.first->initPruneWindow(m_PruneWindowMaximum, m_PruneWindowMinimum)) {
+                m_PruneWindow = m_PruneWindowMaximum;
+                m_HasPruningStarted = true;
+                break;
+            }
+        }
+        if (m_HasPruningStarted == false) {
             return false;
         }
-        m_PruneWindowMaximum = detector->model()->defaultPruneWindow();
-        m_PruneWindow = m_PruneWindowMaximum;
-        m_PruneWindowMinimum = detector->model()->minimumPruneWindow();
-        m_HasPruningStarted = true;
         this->acceptPruningResult();
         LOG_DEBUG(<< "Pruning started. Window (buckets): " << m_PruneWindow);
     }
@@ -165,13 +168,14 @@ bool CResourceMonitor::pruneIfRequired(core_t::TTime endTime) {
         // Do a prune and see how much we got back
         // These are the expensive operations
         std::size_t usageAfter = 0;
-        for (auto& detector : m_Detectors) {
-            const auto& model = detector.first->model();
-            model->prune(m_PruneWindow);
-            detector.second = core::CMemory::dynamicSize(detector.first);
-            usageAfter += detector.second;
+        for (auto& resource : m_Resources) {
+            if (resource.first->supportsPruning()) {
+                resource.first->prune(m_PruneWindow);
+                resource.second = core::CMemory::dynamicSize(resource.first);
+            }
+            usageAfter += resource.second;
         }
-        m_CurrentAnomalyDetectorMemory = usageAfter;
+        m_MonitoredResourceCurrentMemory = usageAfter;
         total = this->totalMemory();
         this->updateAllowAllocations();
     }
@@ -181,15 +185,19 @@ bool CResourceMonitor::pruneIfRequired(core_t::TTime endTime) {
 
     if (total < m_PruneThreshold) {
         // Expand the window
-        const auto& model = m_Detectors.begin()->first->model();
-        m_PruneWindow = std::min(m_PruneWindow + std::size_t((endTime - m_LastPruneTime) /
-                                                             model->bucketLength()),
-                                 m_PruneWindowMaximum);
-        LOG_TRACE(<< "Expanding window, to " << m_PruneWindow);
+        for (const auto& resource : m_Resources) {
+            if (resource.first->supportsPruning()) {
+                m_PruneWindow = std::min(
+                    m_PruneWindow + std::size_t((endTime - m_LastPruneTime) /
+                                                resource.first->bucketLength()),
+                    m_PruneWindowMaximum);
+                LOG_TRACE(<< "Expanding window, to " << m_PruneWindow);
+                break;
+            }
+        }
     } else {
         // Shrink the window
-        m_PruneWindow = std::max(static_cast<std::size_t>(m_PruneWindow * 99 / 100),
-                                 m_PruneWindowMinimum);
+        m_PruneWindow = std::max(m_PruneWindow * 99 / 100, m_PruneWindowMinimum);
         LOG_TRACE(<< "Shrinking window, to " << m_PruneWindow);
     }
 
@@ -205,16 +213,16 @@ std::size_t CResourceMonitor::allocationLimit() const {
     return this->highLimit() - std::min(this->highLimit(), this->totalMemory());
 }
 
-void CResourceMonitor::memUsage(CAnomalyDetector* detector) {
-    auto itr = m_Detectors.find(detector);
-    if (itr == m_Detectors.end()) {
-        LOG_ERROR(<< "Inconsistency - component has not been registered: " << detector);
+void CResourceMonitor::memUsage(CMonitoredResource* resource) {
+    auto itr = m_Resources.find(resource);
+    if (itr == m_Resources.end()) {
+        LOG_ERROR(<< "Inconsistency - component has not been registered: " << resource);
         return;
     }
     std::size_t modelPreviousUsage = itr->second;
     std::size_t modelCurrentUsage = core::CMemory::dynamicSize(itr->first);
     itr->second = modelCurrentUsage;
-    m_CurrentAnomalyDetectorMemory += (modelCurrentUsage - modelPreviousUsage);
+    m_MonitoredResourceCurrentMemory += (modelCurrentUsage - modelPreviousUsage);
 }
 
 void CResourceMonitor::sendMemoryUsageReportIfSignificantlyChanged(core_t::TTime bucketStartTime) {
@@ -232,8 +240,8 @@ bool CResourceMonitor::needToSendReport() {
     }
 
     if (!m_AllocationFailures.empty()) {
-        core_t::TTime lastestAllocationError = (--m_AllocationFailures.end())->first;
-        if (lastestAllocationError > m_LastAllocationFailureReport) {
+        core_t::TTime latestAllocationError{(--m_AllocationFailures.end())->first};
+        if (latestAllocationError > m_LastAllocationFailureReport) {
             return true;
         }
     }
@@ -264,11 +272,8 @@ CResourceMonitor::SResults CResourceMonitor::createMemoryUsageReport(core_t::TTi
     res.s_AllocationFailures = 0;
     res.s_MemoryStatus = m_MemoryStatus;
     res.s_BucketStartTime = bucketStartTime;
-    for (const auto& detector : m_Detectors) {
-        ++res.s_PartitionFields;
-        const auto& dataGatherer = detector.first->model()->dataGatherer();
-        res.s_OverFields += dataGatherer.numberOverFieldValues();
-        res.s_ByFields += dataGatherer.numberByFieldValues();
+    for (const auto& resource : m_Resources) {
+        resource.first->updateMemoryResults(res);
     }
     res.s_AllocationFailures += m_AllocationFailures.size();
     return res;
@@ -346,7 +351,7 @@ std::size_t CResourceMonitor::lowLimit() const {
 }
 
 std::size_t CResourceMonitor::totalMemory() const {
-    return m_CurrentAnomalyDetectorMemory + m_ExtraMemory +
+    return m_MonitoredResourceCurrentMemory + m_ExtraMemory +
            CStringStore::names().memoryUsage() +
            CStringStore::influencers().memoryUsage();
 }

@@ -3,8 +3,8 @@
  * or more contributor license agreements. Licensed under the Elastic License;
  * you may not use this file except in compliance with the Elastic License.
  */
-#ifndef INCLUDED_ml_model_CBaseTokenListDataCategorizer_h
-#define INCLUDED_ml_model_CBaseTokenListDataCategorizer_h
+#ifndef INCLUDED_ml_model_CTokenListDataCategorizerBase_h
+#define INCLUDED_ml_model_CTokenListDataCategorizerBase_h
 
 #include <core/BoostMultiIndex.h>
 #include <core/CCsvLineParser.h>
@@ -21,7 +21,7 @@
 #include <utility>
 #include <vector>
 
-namespace CBaseTokenListDataCategorizerTest {
+namespace CTokenListDataCategorizerBaseTest {
 struct testMaxMatchingWeights;
 struct testMinMatchingWeights;
 }
@@ -58,7 +58,7 @@ class CTokenListReverseSearchCreatorIntf;
 //! correct setting of reverse search creator state needs to be added to
 //! the copy constructor and assignment operator of this class.)
 //!
-class MODEL_EXPORT CBaseTokenListDataCategorizer : public CDataCategorizer {
+class MODEL_EXPORT CTokenListDataCategorizerBase : public CDataCategorizer {
 public:
     //! Name of the field that contains pre-tokenised tokens (in CSV format)
     //! if available
@@ -84,11 +84,11 @@ public:
     //! Used for stream output of token IDs translated back to the original
     //! tokens
     struct MODEL_EXPORT SIdTranslater {
-        SIdTranslater(const CBaseTokenListDataCategorizer& categorizer,
+        SIdTranslater(const CTokenListDataCategorizerBase& categorizer,
                       const TSizeSizePrVec& tokenIds,
                       char separator);
 
-        const CBaseTokenListDataCategorizer& s_Categorizer;
+        const CTokenListDataCategorizerBase& s_Categorizer;
         const TSizeSizePrVec& s_TokenIds;
         char s_Separator;
     };
@@ -97,9 +97,14 @@ public:
     //! Create a data categorizer with threshold for how comparable categories are
     //! 0.0 means everything is the same category
     //! 1.0 means things have to match exactly to be the same category
-    CBaseTokenListDataCategorizer(const TTokenListReverseSearchCreatorIntfCPtr& reverseSearchCreator,
+    CTokenListDataCategorizerBase(CLimits& limits,
+                                  const TTokenListReverseSearchCreatorIntfCPtr& reverseSearchCreator,
                                   double threshold,
                                   const std::string& fieldName);
+
+    //! No copying allowed (because it would complicate the resource monitoring).
+    CTokenListDataCategorizerBase(const CTokenListDataCategorizerBase&) = delete;
+    CTokenListDataCategorizerBase& operator=(const CTokenListDataCategorizerBase&) = delete;
 
     //! Dump stats
     void dumpStats() const override;
@@ -317,16 +322,16 @@ private:
     core::CCsvLineParser m_CsvLineParser;
 
     // For unit testing
-    friend struct CBaseTokenListDataCategorizerTest::testMaxMatchingWeights;
-    friend struct CBaseTokenListDataCategorizerTest::testMinMatchingWeights;
+    friend struct CTokenListDataCategorizerBaseTest::testMaxMatchingWeights;
+    friend struct CTokenListDataCategorizerBaseTest::testMinMatchingWeights;
 
     // For ostream output
     friend MODEL_EXPORT std::ostream& operator<<(std::ostream&, const SIdTranslater&);
 };
 
 MODEL_EXPORT std::ostream&
-operator<<(std::ostream& strm, const CBaseTokenListDataCategorizer::SIdTranslater& translator);
+operator<<(std::ostream& strm, const CTokenListDataCategorizerBase::SIdTranslater& translator);
 }
 }
 
-#endif // INCLUDED_ml_model_CBaseTokenListDataCategorizer_h
+#endif // INCLUDED_ml_model_CTokenListDataCategorizerBase_h

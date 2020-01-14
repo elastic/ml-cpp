@@ -68,6 +68,9 @@ stop early if the expected improvement is too small. (See {ml-pull}903[#903].)
 smaller than for the best parameter values found so far. (See {ml-pull}915[#915].)
 * Optimize decision threshold for classification to maximize minimum class recall.
 (See {ml-pull}926[#926].)
+* Include categorization memory usage in the `model_bytes` field in `model_size_stats`,
+so that it is taken into account in node assignment decisions. (See {ml-pull}927[#927],
+issue: {ml-issue}724[#724].)
 
 === Bug Fixes
 * Fixes potential memory corruption when determining seasonality. (See {ml-pull}852[#852].)

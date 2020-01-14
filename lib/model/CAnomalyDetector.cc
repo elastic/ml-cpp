@@ -18,7 +18,6 @@
 #include <maths/CSampling.h>
 
 #include <model/CAnomalyDetectorModel.h>
-#include <model/CAnomalyScore.h>
 #include <model/CDataGatherer.h>
 #include <model/CForecastModelPersist.h>
 #include <model/CModelDetailsView.h>
@@ -26,7 +25,6 @@
 #include <model/CSampleCounts.h>
 #include <model/CSearchKey.h>
 
-#include <limits>
 #include <sstream>
 #include <vector>
 
@@ -173,11 +171,6 @@ void CAnomalyDetector::zeroModelsToTime(core_t::TTime time) {
 
 bool CAnomalyDetector::acceptRestoreTraverser(const std::string& partitionFieldValue,
                                               core::CStateRestoreTraverser& traverser) {
-    // As the model pointer will change during restore, we unregister
-    // the detector from the resource monitor. We can register it
-    // again at the end of restore.
-    m_Limits.resourceMonitor().unRegisterComponent(*this);
-
     m_DataGatherer->clear();
     m_Model.reset();
 
@@ -201,8 +194,6 @@ bool CAnomalyDetector::acceptRestoreTraverser(const std::string& partitionFieldV
             }
         }
     } while (traverser.next());
-
-    m_Limits.resourceMonitor().registerComponent(*this);
 
     return true;
 }
@@ -610,6 +601,37 @@ void CAnomalyDetector::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem)
 
 std::size_t CAnomalyDetector::memoryUsage() const {
     return core::CMemory::dynamicSize(m_DataGatherer) + core::CMemory::dynamicSize(m_Model);
+}
+
+std::size_t CAnomalyDetector::staticSize() const {
+    return sizeof(*this);
+}
+
+bool CAnomalyDetector::supportsPruning() const {
+    return true;
+}
+
+bool CAnomalyDetector::initPruneWindow(std::size_t& defaultPruneWindow,
+                                       std::size_t& minimumPruneWindow) const {
+    // The longest we'll consider keeping priors for is 1M buckets.
+    defaultPruneWindow = m_Model->defaultPruneWindow();
+    minimumPruneWindow = m_Model->minimumPruneWindow();
+    return true;
+}
+
+core_t::TTime CAnomalyDetector::bucketLength() const {
+    return m_Model->bucketLength();
+}
+
+void CAnomalyDetector::prune(std::size_t maximumAge) {
+    m_Model->prune(maximumAge);
+}
+
+void CAnomalyDetector::updateMemoryResults(CResourceMonitor::SResults& results) const {
+    ++results.s_PartitionFields;
+    const auto& dataGatherer = m_Model->dataGatherer();
+    results.s_OverFields += dataGatherer.numberOverFieldValues();
+    results.s_ByFields += dataGatherer.numberByFieldValues();
 }
 
 const core_t::TTime& CAnomalyDetector::lastBucketEndTime() const {

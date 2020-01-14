@@ -609,7 +609,7 @@ BOOST_AUTO_TEST_CASE(testRunBoostedTreeRegressionTrainingWithStateRecovery) {
                 params.s_Lambda, params.s_Gamma, params.s_SoftTreeDepthLimit,
                 params.s_SoftTreeDepthTolerance, params.s_Eta,
                 params.s_MaximumNumberTrees, params.s_FeatureBagFraction,
-                0 /*topFeatureImportanceValues*/, &persisterSupplier);
+                0 /*numTopFeatureImportanceValues*/, &persisterSupplier);
         };
 
         finalIteration = params.numberUnset() * numberRoundsPerHyperparameter;

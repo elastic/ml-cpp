@@ -141,9 +141,6 @@ private:
     //! The chunking part of the iostreams filter chain
     CChunkFilter m_FilterSink;
 
-    //! The iostreams filter chain that handles compression/chunking
-    TFilteredOutputP m_OutFilter;
-
     TCompressOStreamP m_OutStream;
 };
 }
