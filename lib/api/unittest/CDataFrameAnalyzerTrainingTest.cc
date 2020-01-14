@@ -268,13 +268,13 @@ void addPredictionTestData(EPredictionType type,
 
     tree->train();
     tree->predict();
-    tree->computeDecisionThreshold();
+    tree->computeProbabilityAtWhichToAssignClassOne();
 
     frame->readRows(1, [&](TRowItr beginRows, TRowItr endRows) {
         for (auto row = beginRows; row != endRows; ++row) {
             double prediction{(*row)[tree->columnHoldingPrediction()]};
             appendPrediction(*frame, weights.size(), prediction,
-                             tree->decisionThreshold(), expectedPredictions);
+                             tree->probabilityAtWhichToAssignClassOne(), expectedPredictions);
         }
     });
 }

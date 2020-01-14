@@ -95,7 +95,7 @@ public:
 
     //! Get the threshold on the predicted probability of class one at which to assign
     //! the row to class one.
-    double decisionThreshold(const core::CDataFrame& frame) const;
+    double probabilityAtWhichToAssignClassOne(const core::CDataFrame& frame) const;
 
     //! Get the feature sample probabilities.
     const TDoubleVec& featureSampleProbabilities() const;

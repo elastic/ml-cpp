@@ -1176,8 +1176,9 @@ BOOST_AUTO_TEST_CASE(testImbalancedClasses) {
 
     regression->train();
     regression->predict();
-    regression->computeDecisionThreshold();
-    LOG_DEBUG(<< "Decision threshold = " << regression->decisionThreshold());
+    regression->computeProbabilityAtWhichToAssignClassOne();
+    LOG_DEBUG(<< "P(class 1) threshold = "
+              << regression->probabilityAtWhichToAssignClassOne());
 
     TDoubleVec precisions;
     TDoubleVec recalls;
@@ -1190,7 +1191,7 @@ BOOST_AUTO_TEST_CASE(testImbalancedClasses) {
             for (auto row = beginRows; row != endRows; ++row) {
                 double logOddsClassOne{(*row)[regression->columnHoldingPrediction()]};
                 double prediction{maths::CTools::logisticFunction(logOddsClassOne) <
-                                          regression->decisionThreshold()
+                                          regression->probabilityAtWhichToAssignClassOne()
                                       ? 0.0
                                       : 1.0};
                 if (row->index() >= trainRows &&

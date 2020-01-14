@@ -124,15 +124,15 @@ void CDataFrameTrainBoostedTreeClassifierRunner::writeOneRow(
 
     const auto& tree = this->boostedTree();
     this->writeOneRow(frame, tree.columnHoldingDependentVariable(),
-                      tree.columnHoldingPrediction(), tree.decisionThreshold(),
-                      row, writer);
+                      tree.columnHoldingPrediction(),
+                      tree.probabilityAtWhichToAssignClassOne(), row, writer);
 }
 
 void CDataFrameTrainBoostedTreeClassifierRunner::writeOneRow(
     const core::CDataFrame& frame,
     std::size_t columnHoldingDependentVariable,
     std::size_t columnHoldingPrediction,
-    double probabilityAtWhichToAssignToClassOne,
+    double probabilityAtWhichToAssignClassOne,
     const TRowRef& row,
     core::CRapidJsonConcurrentLineWriter& writer) const {
 
@@ -145,8 +145,8 @@ void CDataFrameTrainBoostedTreeClassifierRunner::writeOneRow(
     // We adjust the probabilities to account for the threshold for choosing class 1.
 
     TDoubleVec probabilities{1.0 - probabilityOfClass1, probabilityOfClass1};
-    TDoubleVec scores{0.5 / (1.0 - probabilityAtWhichToAssignToClassOne) * probabilities[0],
-                      0.5 / probabilityAtWhichToAssignToClassOne * probabilities[1]};
+    TDoubleVec scores{0.5 / (1.0 - probabilityAtWhichToAssignClassOne) * probabilities[0],
+                      0.5 / probabilityAtWhichToAssignClassOne * probabilities[1]};
 
     double actualClassId{row[columnHoldingDependentVariable]};
     std::size_t predictedClassId(std::max_element(scores.begin(), scores.end()) -

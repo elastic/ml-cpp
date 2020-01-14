@@ -598,7 +598,7 @@ void CBoostedTreeImpl::predict(core::CDataFrame& frame,
     }
 }
 
-double CBoostedTreeImpl::decisionThreshold(const core::CDataFrame& frame) const {
+double CBoostedTreeImpl::probabilityAtWhichToAssignClassOne(const core::CDataFrame& frame) const {
     if (m_Loss->name() == boosted_tree::CLogistic::NAME) {
         switch (m_ClassAssignmentObjective) {
         case CBoostedTree::E_Accuracy:

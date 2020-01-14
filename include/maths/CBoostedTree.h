@@ -395,7 +395,7 @@ public:
     void computeShapValues() override;
 
     //! Compute the probability threshold at which to classify a row as class one.
-    void computeDecisionThreshold() override;
+    void computeProbabilityAtWhichToAssignClassOne() override;
 
     //! Get the column containing the dependent variable.
     std::size_t columnHoldingDependentVariable() const override;
@@ -410,7 +410,7 @@ public:
     std::size_t topShapValues() const override;
 
     //! Get the probability threshold at which to classify a row as class one.
-    double decisionThreshold() const override;
+    double probabilityAtWhichToAssignClassOne() const override;
 
     //! Get the model produced by training if it has been run.
     const TNodeVecVec& trainedModel() const;
@@ -455,7 +455,7 @@ private:
 
 private:
     TImplUPtr m_Impl;
-    double m_DecisionThreshold = 0.5;
+    double m_ProbabilityAtWhichToAssignClassOne = 0.5;
 
     friend class CBoostedTreeFactory;
 };

@@ -47,7 +47,7 @@ public:
     void writeOneRow(const core::CDataFrame& frame,
                      std::size_t columnHoldingDependentVariable,
                      std::size_t columnHoldingPrediction,
-                     double probabilityAtWhichToAssignToClassOne,
+                     double probabilityAtWhichToAssignClassOne,
                      const TRowRef& row,
                      core::CRapidJsonConcurrentLineWriter& writer) const;
 

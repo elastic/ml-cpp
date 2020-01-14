@@ -63,7 +63,7 @@ public:
     virtual void computeShapValues() = 0;
 
     //! Compute the probability threshold at which to classify a row as class one.
-    virtual void computeDecisionThreshold() = 0;
+    virtual void computeProbabilityAtWhichToAssignClassOne() = 0;
 
     //! Get the column containing the dependent variable.
     virtual std::size_t columnHoldingDependentVariable() const = 0;
@@ -78,7 +78,7 @@ public:
     virtual TSizeRange columnsHoldingShapValues() const = 0;
 
     //! Get the probability threshold at which to classify a row as class one.
-    virtual double decisionThreshold() const = 0;
+    virtual double probabilityAtWhichToAssignClassOne() const = 0;
 
     //! \name Test Only
     //@{
