@@ -740,7 +740,7 @@ BOOST_AUTO_TEST_CASE(testRunBoostedTreeClassifierImbalanced) {
     for (const auto& label : {"foo", "bar"}) {
         double recall{static_cast<double>(correct[label]) /
                       static_cast<double>(counts[label])};
-        BOOST_TEST_REQUIRE(recall > 0.9);
+        BOOST_TEST_REQUIRE(recall > 0.85);
     }
 }
 
