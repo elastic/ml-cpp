@@ -5,6 +5,7 @@
  */
 
 #include <core/CDataFrame.h>
+#include <core/CRegex.h>
 
 #include <api/CDataFrameAnalysisConfigReader.h>
 #include <api/CDataFrameTrainBoostedTreeClassifierRunner.h>
@@ -41,9 +42,10 @@ BOOST_AUTO_TEST_CASE(testPredictionFieldNameClash) {
     api::CDataFrameTrainBoostedTreeClassifierRunner runner(*spec, parameters);
 
     BOOST_TEST_REQUIRE(errors.size() == 1);
-    BOOST_TEST_REQUIRE(errors[0] ==
-                       "Input error: prediction_field_name must not be equal to any "
-                       "of [is_training, prediction_probability, top_classes].");
+
+    core::CRegex regex;
+    regex.init("Input error: prediction_field_name must not be equal to.*");
+    BOOST_TEST_REQUIRE(regex.matches(errors[0]));
 }
 
 namespace {
