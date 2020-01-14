@@ -62,9 +62,6 @@ public:
     //! \warning This can only be called after train.
     virtual void computeShapValues() = 0;
 
-    //! Compute the probability threshold at which to classify a row as class one.
-    virtual void computeProbabilityAtWhichToAssignClassOne() = 0;
-
     //! Get the column containing the dependent variable.
     virtual std::size_t columnHoldingDependentVariable() const = 0;
 

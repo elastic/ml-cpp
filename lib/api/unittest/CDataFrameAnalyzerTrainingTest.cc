@@ -268,7 +268,6 @@ void addPredictionTestData(EPredictionType type,
 
     tree->train();
     tree->predict();
-    tree->computeProbabilityAtWhichToAssignClassOne();
 
     frame->readRows(1, [&](TRowItr beginRows, TRowItr endRows) {
         for (auto row = beginRows; row != endRows; ++row) {

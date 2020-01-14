@@ -432,11 +432,6 @@ void CBoostedTree::computeShapValues() {
     m_Impl->computeShapValues(this->frame(), this->progressRecorder());
 }
 
-void CBoostedTree::computeProbabilityAtWhichToAssignClassOne() {
-    m_ProbabilityAtWhichToAssignClassOne =
-        m_Impl->probabilityAtWhichToAssignClassOne(this->frame());
-}
-
 std::size_t CBoostedTree::columnHoldingDependentVariable() const {
     return m_Impl->columnHoldingDependentVariable();
 }
@@ -446,7 +441,7 @@ std::size_t CBoostedTree::columnHoldingPrediction() const {
 }
 
 double CBoostedTree::probabilityAtWhichToAssignClassOne() const {
-    return m_ProbabilityAtWhichToAssignClassOne;
+    return m_Impl->probabilityAtWhichToAssignClassOne();
 }
 
 const CBoostedTree::TNodeVecVec& CBoostedTree::trainedModel() const {

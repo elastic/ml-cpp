@@ -1176,7 +1176,6 @@ BOOST_AUTO_TEST_CASE(testImbalancedClasses) {
 
     regression->train();
     regression->predict();
-    regression->computeProbabilityAtWhichToAssignClassOne();
     LOG_DEBUG(<< "P(class 1) threshold = "
               << regression->probabilityAtWhichToAssignClassOne());
 

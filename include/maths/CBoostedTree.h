@@ -394,9 +394,6 @@ public:
     //! \warning This can only be called after train.
     void computeShapValues() override;
 
-    //! Compute the probability threshold at which to classify a row as class one.
-    void computeProbabilityAtWhichToAssignClassOne() override;
-
     //! Get the column containing the dependent variable.
     std::size_t columnHoldingDependentVariable() const override;
 
@@ -455,7 +452,6 @@ private:
 
 private:
     TImplUPtr m_Impl;
-    double m_ProbabilityAtWhichToAssignClassOne = 0.5;
 
     friend class CBoostedTreeFactory;
 };
