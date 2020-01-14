@@ -277,7 +277,7 @@ BOOST_FIXTURE_TEST_CASE(testRunBoostedTreeClassificationFeatureImportanceAllShap
 
     std::size_t topShapValues{4};
     TMeanVarAccumulator bias;
-    auto results{runClassification(topShapValues, {0.5, -0.7, 0.25, -0.25})};
+    auto results{runClassification(topShapValues, {0.5, -0.7, 0.2, -0.2})};
 
     double c1Sum{0.0}, c2Sum{0.0}, c3Sum{0.0}, c4Sum{0.0};
     for (const auto& result : results.GetArray()) {
