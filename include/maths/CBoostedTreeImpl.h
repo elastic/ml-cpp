@@ -93,9 +93,6 @@ public:
     //! \note Must be called only if a trained model is available.
     void computeShapValues(core::CDataFrame& frame, const TProgressCallback&);
 
-    //! Get the feature sample probabilities.
-    const TDoubleVec& featureWeights() const;
-
     //! Get the model produced by training if it has been run.
     const TNodeVecVec& trainedModel() const;
 
@@ -120,16 +117,6 @@ public:
     //! frame with \p numberRows row and \p numberColumns columns will use.
     std::size_t estimateMemoryUsage(std::size_t numberRows, std::size_t numberColumns) const;
 
-    //! The name of the object holding the best hyperaparameters in the state document.
-    static const std::string& bestHyperparametersName();
-
-    //! The name of the object holding the best regularisation hyperparameters in the
-    //! state document.
-    static const std::string& bestRegularizationHyperparametersName();
-
-    //! A list of the names of the best individual hyperparameters in the state document.
-    static TStrVec bestHyperparameterNames();
-
     //! Persist by passing information to \p inserter.
     void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
 
@@ -142,6 +129,9 @@ public:
     //! \return The best hyperparameters for validation error found so far.
     const CBoostedTreeHyperparameters& bestHyperparameters() const;
 
+    //! Get the probability threshold at which to classify a row as class one.
+    double probabilityAtWhichToAssignClassOne() const;
+
     //! Get the indices of the columns containing SHAP values.
     TSizeRange columnsHoldingShapValues() const;
 
@@ -150,6 +140,24 @@ public:
 
     //! Get the number of columns in the original data frame.
     std::size_t numberInputColumns() const;
+
+    //!\ name Test Only
+    //@{
+    //! The name of the object holding the best hyperaparameters in the state document.
+    static const std::string& bestHyperparametersName();
+
+    //! The name of the object holding the best regularisation hyperparameters in the
+    //! state document.
+    static const std::string& bestRegularizationHyperparametersName();
+
+    //! A list of the names of the best individual hyperparameters in the state document.
+    static TStrVec bestHyperparameterNames();
+
+    //! Get the threshold on the predicted probability of class one at which to
+    //!
+    //! Get the feature sample probabilities.
+    const TDoubleVec& featureSampleProbabilities() const;
+    //@}
 
 private:
     using TSizeDoublePr = std::pair<std::size_t, double>;
@@ -423,6 +431,9 @@ private:
     //! Presize the collection to hold the per fold test errors.
     void initializePerFoldTestLosses();
 
+    //! Compute the probability threshold at which to classify a row as class one.
+    void computeProbabilityAtWhichToAssignClassOne(const core::CDataFrame& frame);
+
     //! Train the forest and compute loss moments on each fold.
     TMeanVarAccumulatorSizePr crossValidateForest(core::CDataFrame& frame,
                                                   const TMemoryUsageCallback& recordMemoryUsage);
@@ -530,6 +541,8 @@ private:
     std::size_t m_NumberThreads;
     std::size_t m_DependentVariable = std::numeric_limits<std::size_t>::max();
     TLossFunctionUPtr m_Loss;
+    CBoostedTree::EClassAssignmentObjective m_ClassAssignmentObjective =
+        CBoostedTree::E_MinimumRecall;
     bool m_StopCrossValidationEarly = true;
     TRegularizationOverride m_RegularizationOverride;
     TOptionalDouble m_DownsampleFactorOverride;
@@ -538,6 +551,7 @@ private:
     TOptionalSize m_MaximumNumberTreesOverride;
     TOptionalDouble m_FeatureBagFractionOverride;
     TRegularization m_Regularization;
+    double m_ProbabilityAtWhichToAssignClassOne = 0.5;
     double m_DownsampleFactor = 0.5;
     double m_Eta = 0.1;
     double m_EtaGrowthRatePerTree = 1.05;

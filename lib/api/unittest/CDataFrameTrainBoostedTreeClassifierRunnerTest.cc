@@ -5,11 +5,13 @@
  */
 
 #include <core/CDataFrame.h>
+#include <core/CRegex.h>
 
 #include <api/CDataFrameAnalysisConfigReader.h>
 #include <api/CDataFrameTrainBoostedTreeClassifierRunner.h>
 
 #include <test/CDataFrameAnalysisSpecificationFactory.h>
+#include <test/CRandomNumbers.h>
 
 #include <boost/test/unit_test.hpp>
 
@@ -19,11 +21,9 @@
 BOOST_AUTO_TEST_SUITE(CDataFrameTrainBoostedTreeClassifierRunnerTest)
 
 using namespace ml;
-namespace {
 using TRowItr = core::CDataFrame::TRowItr;
 using TStrVec = std::vector<std::string>;
 using TStrVecVec = std::vector<TStrVec>;
-}
 
 BOOST_AUTO_TEST_CASE(testPredictionFieldNameClash) {
     TStrVec errors;
@@ -42,9 +42,13 @@ BOOST_AUTO_TEST_CASE(testPredictionFieldNameClash) {
     api::CDataFrameTrainBoostedTreeClassifierRunner runner(*spec, parameters);
 
     BOOST_TEST_REQUIRE(errors.size() == 1);
-    BOOST_TEST_REQUIRE(errors[0] == "Input error: prediction_field_name must not be equal to any of [is_training, prediction_probability, top_classes].");
+
+    core::CRegex regex;
+    regex.init("Input error: prediction_field_name must not be equal to.*");
+    BOOST_TEST_REQUIRE(regex.matches(errors[0]));
 }
 
+namespace {
 template<typename T>
 void testWriteOneRow(const std::string& dependentVariableField,
                      const std::string& predictionFieldType,
@@ -59,8 +63,8 @@ void testWriteOneRow(const std::string& dependentVariableField,
                           {"a", "b", "5.0", "0.0", "dog", "-0.1"},
                           {"c", "d", "5.0", "0.0", "dog", "1.0"},
                           {"e", "f", "5.0", "0.0", "dog", "1.5"}};
-    std::unique_ptr<core::CDataFrame> frame =
-        core::makeMainStorageDataFrame(columnNames.size()).first;
+    std::unique_ptr<core::CDataFrame> frame{
+        core::makeMainStorageDataFrame(columnNames.size()).first};
     frame->columnNames(columnNames);
     frame->categoricalColumns(categoricalColumns);
     for (std::size_t i = 0; i < rows.size(); ++i) {
@@ -89,7 +93,7 @@ void testWriteOneRow(const std::string& dependentVariableField,
     }
     const auto parameters{
         api::CDataFrameTrainBoostedTreeClassifierRunner::parameterReader().read(jsonParameters)};
-    api::CDataFrameTrainBoostedTreeClassifierRunner runner(*spec, parameters);
+    api::CDataFrameTrainBoostedTreeClassifierRunner runner{*spec, parameters};
 
     // Write results to the output stream
     std::stringstream output;
@@ -106,7 +110,7 @@ void testWriteOneRow(const std::string& dependentVariableField,
                 columnNames.begin()};
             for (auto row = beginRows; row != endRows; ++row) {
                 runner.writeOneRow(*frame, columnHoldingDependentVariable,
-                                   columnHoldingPrediction, *row, writer);
+                                   columnHoldingPrediction, 0.5, *row, writer);
             }
         });
     }
@@ -129,6 +133,7 @@ void testWriteOneRow(const std::string& dependentVariableField,
             BOOST_TEST_REQUIRE(object["is_training"].GetBool());
         }
     }
+}
 }
 
 BOOST_AUTO_TEST_CASE(testWriteOneRowPredictionFieldTypeIsInt) {

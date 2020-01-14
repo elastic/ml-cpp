@@ -563,6 +563,8 @@ void CBoostedTreeImpl::train(core::CDataFrame& frame,
             m_BestForest.size();
     }
 
+    this->computeProbabilityAtWhichToAssignClassOne(frame);
+
     // Force to at least one here because we can have early exit from loop or take
     // a different path.
     recordProgress(1.0);
@@ -596,18 +598,6 @@ void CBoostedTreeImpl::predict(core::CDataFrame& frame,
         HANDLE_FATAL(<< "Internal error: failed model inference. "
                      << "Please report this problem.");
     }
-}
-
-const CBoostedTreeImpl::TDoubleVec& CBoostedTreeImpl::featureWeights() const {
-    return m_FeatureSampleProbabilities;
-}
-
-const CBoostedTreeImpl::TNodeVecVec& CBoostedTreeImpl::trainedModel() const {
-    return m_BestForest;
-}
-
-std::size_t CBoostedTreeImpl::columnHoldingDependentVariable() const {
-    return m_DependentVariable;
 }
 
 std::size_t CBoostedTreeImpl::estimateMemoryUsage(std::size_t numberRows,
@@ -681,6 +671,20 @@ void CBoostedTreeImpl::initializePerFoldTestLosses() {
     m_FoldRoundTestLosses.resize(m_NumberFolds);
     for (auto& losses : m_FoldRoundTestLosses) {
         losses.resize(m_NumberRounds);
+    }
+}
+
+void CBoostedTreeImpl::computeProbabilityAtWhichToAssignClassOne(const core::CDataFrame& frame) {
+    if (m_Loss->name() == boosted_tree::CLogistic::NAME) {
+        switch (m_ClassAssignmentObjective) {
+        case CBoostedTree::E_Accuracy:
+            break;
+        case CBoostedTree::E_MinimumRecall:
+            m_ProbabilityAtWhichToAssignClassOne = CDataFrameUtils::maximumMinimumRecallDecisionThreshold(
+                m_NumberThreads, frame, this->allTrainingRowsMask(),
+                m_DependentVariable, predictionColumn(frame.numberColumns()));
+            break;
+        }
     }
 }
 
@@ -1453,8 +1457,6 @@ std::size_t CBoostedTreeImpl::maximumTreeSize(std::size_t numberRows) const {
         std::ceil(10.0 * std::sqrt(static_cast<double>(numberRows))));
 }
 
-const std::size_t CBoostedTreeImpl::PACKED_BIT_VECTOR_MAXIMUM_ROWS_PER_BYTE{256};
-
 namespace {
 const std::string VERSION_7_5_TAG{"7.5"};
 const std::string VERSION_7_6_TAG{"7.6"};
@@ -1723,9 +1725,6 @@ void CBoostedTreeImpl::accept(CBoostedTree::CVisitor& visitor) {
     }
 }
 
-const double CBoostedTreeImpl::MINIMUM_RELATIVE_GAIN_PER_SPLIT{1e-7};
-const double CBoostedTreeImpl::INF{std::numeric_limits<double>::max()};
-
 const CBoostedTreeHyperparameters& CBoostedTreeImpl::bestHyperparameters() const {
     return m_BestHyperparameters;
 }
@@ -1747,12 +1746,28 @@ void CBoostedTreeImpl::computeShapValues(core::CDataFrame& frame, const TProgres
         m_LastShapColumnIndex = frame.numberColumns() - 1;
         TStrVec columnNames(frame.columnNames());
         for (std::size_t i = 0; i < numberInputFields; ++i) {
-            columnNames[offset + i] = CDataFrameRegressionModel::SHAP_PREFIX +
+            columnNames[offset + i] = CDataFramePredictiveModel::SHAP_PREFIX +
                                       frame.columnNames()[i];
         }
         frame.columnNames(columnNames);
         treeFeatureImportance->shap(frame, *m_Encoder, offset);
     }
+}
+
+const CBoostedTreeImpl::TDoubleVec& CBoostedTreeImpl::featureSampleProbabilities() const {
+    return m_FeatureSampleProbabilities;
+}
+
+const CBoostedTreeImpl::TNodeVecVec& CBoostedTreeImpl::trainedModel() const {
+    return m_BestForest;
+}
+
+std::size_t CBoostedTreeImpl::columnHoldingDependentVariable() const {
+    return m_DependentVariable;
+}
+
+double CBoostedTreeImpl::probabilityAtWhichToAssignClassOne() const {
+    return m_ProbabilityAtWhichToAssignClassOne;
 }
 
 CBoostedTreeImpl::TSizeRange CBoostedTreeImpl::columnsHoldingShapValues() const {
@@ -1766,5 +1781,9 @@ std::size_t CBoostedTreeImpl::topShapValues() const {
 std::size_t CBoostedTreeImpl::numberInputColumns() const {
     return m_NumberInputColumns;
 }
+
+const std::size_t CBoostedTreeImpl::PACKED_BIT_VECTOR_MAXIMUM_ROWS_PER_BYTE{256};
+const double CBoostedTreeImpl::MINIMUM_RELATIVE_GAIN_PER_SPLIT{1e-7};
+const double CBoostedTreeImpl::INF{std::numeric_limits<double>::max()};
 }
 }
