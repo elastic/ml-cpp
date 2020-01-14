@@ -162,8 +162,8 @@ protected:
         BOOST_REQUIRE_EQUAL(size_t(1), ml::core::CStringUtils::replaceFirst(
                                            foregroundSnapshotId2, "snap", foregroundState2));
 
-        // Replace the zero byte separators so the expected/actual strings don't get
-        // truncated by CppUnit if the test fails
+        // Replace the zero byte separators to avoid '\0's in the output if the
+        // test fails
         std::replace(backgroundState.begin(), backgroundState.end(), '\0', ',');
         std::replace(foregroundState.begin(), foregroundState.end(), '\0', ',');
         std::replace(foregroundState2.begin(), foregroundState2.end(), '\0', ',');

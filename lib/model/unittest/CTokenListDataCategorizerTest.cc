@@ -11,6 +11,7 @@
 #include <core/CStopWatch.h>
 #include <core/CWordDictionary.h>
 
+#include <model/CLimits.h>
 #include <model/CTokenListDataCategorizer.h>
 #include <model/CTokenListReverseSearchCreator.h>
 
@@ -64,10 +65,14 @@ public:
         // Revert to debug level logging for any subsequent unit tests
         ml::core::CLogger::instance().setLoggingLevel(ml::core::CLogger::E_Debug);
     }
+
+protected:
+    ml::model::CLimits m_Limits;
 };
 
 BOOST_FIXTURE_TEST_CASE(testHexData, CTestFixture) {
-    TTokenListDataCategorizerKeepsFields categorizer(NO_REVERSE_SEARCH_CREATOR, 0.7, "whatever");
+    TTokenListDataCategorizerKeepsFields categorizer(
+        m_Limits, NO_REVERSE_SEARCH_CREATOR, 0.7, "whatever");
 
     BOOST_REQUIRE_EQUAL(1, categorizer.computeCategory(false, "[0x0000000800000000 ", 500));
     BOOST_REQUIRE_EQUAL(1, categorizer.computeCategory(false, "0x0000000800000000", 500));
@@ -79,7 +84,8 @@ BOOST_FIXTURE_TEST_CASE(testHexData, CTestFixture) {
 }
 
 BOOST_FIXTURE_TEST_CASE(testRmdsData, CTestFixture) {
-    TTokenListDataCategorizerKeepsFields categorizer(NO_REVERSE_SEARCH_CREATOR, 0.7, "whatever");
+    TTokenListDataCategorizerKeepsFields categorizer(
+        m_Limits, NO_REVERSE_SEARCH_CREATOR, 0.7, "whatever");
 
     BOOST_REQUIRE_EQUAL(1, categorizer.computeCategory(false, "<ml13-4608.1.p2ps: Info: > Source ML_SERVICE2 on 13122:867 has shut down.",
                                                        500));
@@ -106,7 +112,8 @@ BOOST_FIXTURE_TEST_CASE(testRmdsData, CTestFixture) {
 }
 
 BOOST_FIXTURE_TEST_CASE(testProxyData, CTestFixture) {
-    TTokenListDataCategorizerKeepsFields categorizer(NO_REVERSE_SEARCH_CREATOR, 0.7, "whatever");
+    TTokenListDataCategorizerKeepsFields categorizer(
+        m_Limits, NO_REVERSE_SEARCH_CREATOR, 0.7, "whatever");
 
     BOOST_REQUIRE_EQUAL(1, categorizer.computeCategory(false,
                                                        " [1094662464] INFO  transaction <3c26701d3140-kn8n1c8f5d2o> - Transaction TID: "
@@ -137,7 +144,8 @@ BOOST_FIXTURE_TEST_CASE(testProxyData, CTestFixture) {
 }
 
 BOOST_FIXTURE_TEST_CASE(testFxData, CTestFixture) {
-    TTokenListDataCategorizerKeepsFields categorizer(NO_REVERSE_SEARCH_CREATOR, 0.7, "whatever");
+    TTokenListDataCategorizerKeepsFields categorizer(
+        m_Limits, NO_REVERSE_SEARCH_CREATOR, 0.7, "whatever");
 
     BOOST_REQUIRE_EQUAL(1, categorizer.computeCategory(false,
                                                        "<L_MSG MN=\"ml12220\" PID=\"ml010_managed4\" TID=\"asyncDelivery41\" DT=\"\" PT=\"ERROR\" AP=\"wts\" DN=\"\" "
@@ -154,7 +162,8 @@ BOOST_FIXTURE_TEST_CASE(testFxData, CTestFixture) {
 }
 
 BOOST_FIXTURE_TEST_CASE(testApacheData, CTestFixture) {
-    TTokenListDataCategorizerKeepsFields categorizer(NO_REVERSE_SEARCH_CREATOR, 0.7, "whatever");
+    TTokenListDataCategorizerKeepsFields categorizer(
+        m_Limits, NO_REVERSE_SEARCH_CREATOR, 0.7, "whatever");
 
     BOOST_REQUIRE_EQUAL(1, categorizer.computeCategory(false, " org.apache.coyote.http11.Http11BaseProtocol destroy",
                                                        500));
@@ -169,7 +178,8 @@ BOOST_FIXTURE_TEST_CASE(testApacheData, CTestFixture) {
 }
 
 BOOST_FIXTURE_TEST_CASE(testBrokerageData, CTestFixture) {
-    TTokenListDataCategorizerKeepsFields categorizer(NO_REVERSE_SEARCH_CREATOR, 0.7, "whatever");
+    TTokenListDataCategorizerKeepsFields categorizer(
+        m_Limits, NO_REVERSE_SEARCH_CREATOR, 0.7, "whatever");
 
     BOOST_REQUIRE_EQUAL(1, categorizer.computeCategory(
                                false,
@@ -195,7 +205,8 @@ BOOST_FIXTURE_TEST_CASE(testBrokerageData, CTestFixture) {
 }
 
 BOOST_FIXTURE_TEST_CASE(testVmwareData, CTestFixture) {
-    TTokenListDataCategorizerKeepsFields categorizer(NO_REVERSE_SEARCH_CREATOR, 0.7, "whatever");
+    TTokenListDataCategorizerKeepsFields categorizer(
+        m_Limits, NO_REVERSE_SEARCH_CREATOR, 0.7, "whatever");
 
     BOOST_REQUIRE_EQUAL(1, categorizer.computeCategory(false, "Vpxa: [49EC0B90 verbose 'VpxaHalCnxHostagent' opID=WFU-ddeadb59] [WaitForUpdatesDone] Received callback",
                                                        103));
@@ -214,7 +225,8 @@ BOOST_FIXTURE_TEST_CASE(testVmwareData, CTestFixture) {
 }
 
 BOOST_FIXTURE_TEST_CASE(testBankData, CTestFixture) {
-    TTokenListDataCategorizerKeepsFields categorizer(NO_REVERSE_SEARCH_CREATOR, 0.7, "whatever");
+    TTokenListDataCategorizerKeepsFields categorizer(
+        m_Limits, NO_REVERSE_SEARCH_CREATOR, 0.7, "whatever");
 
     BOOST_REQUIRE_EQUAL(1, categorizer.computeCategory(false,
                                                        "INFO  [co.elastic.settlement.synchronization.PaymentFlowProcessorImpl] Process payment flow "
@@ -236,7 +248,8 @@ BOOST_FIXTURE_TEST_CASE(testBankData, CTestFixture) {
 }
 
 BOOST_FIXTURE_TEST_CASE(testJavaGcData, CTestFixture) {
-    TTokenListDataCategorizerKeepsFields categorizer(NO_REVERSE_SEARCH_CREATOR, 0.7, "whatever");
+    TTokenListDataCategorizerKeepsFields categorizer(
+        m_Limits, NO_REVERSE_SEARCH_CREATOR, 0.7, "whatever");
 
     BOOST_REQUIRE_EQUAL(1, categorizer.computeCategory(false, "2016-04-27T19:57:43.644-0700: 1922084.903: [GC",
                                                        46));
@@ -284,8 +297,8 @@ BOOST_FIXTURE_TEST_CASE(testJavaGcData, CTestFixture) {
 }
 
 BOOST_FIXTURE_TEST_CASE(testPersist, CTestFixture) {
-    TTokenListDataCategorizerKeepsFields origCategorizer(NO_REVERSE_SEARCH_CREATOR,
-                                                         0.7, "whatever");
+    TTokenListDataCategorizerKeepsFields origCategorizer(
+        m_Limits, NO_REVERSE_SEARCH_CREATOR, 0.7, "whatever");
 
     origCategorizer.computeCategory(false, "<ml13-4608.1.p2ps: Info: > Source ML_SERVICE2 on 13122:867 has shut down.",
                                     500);
@@ -318,8 +331,8 @@ BOOST_FIXTURE_TEST_CASE(testPersist, CTestFixture) {
     LOG_DEBUG(<< "Categorizer XML representation:\n" << origXml);
 
     // Restore the XML into a new categorizer
-    TTokenListDataCategorizerKeepsFields restoredCategorizer(NO_REVERSE_SEARCH_CREATOR,
-                                                             0.7, "whatever");
+    TTokenListDataCategorizerKeepsFields restoredCategorizer(
+        m_Limits, NO_REVERSE_SEARCH_CREATOR, 0.7, "whatever");
     {
         ml::core::CRapidXmlParser parser;
         BOOST_TEST_REQUIRE(parser.parseStringIgnoreCdata(origXml));
@@ -345,7 +358,8 @@ BOOST_FIXTURE_TEST_CASE(testPersist, CTestFixture) {
 BOOST_FIXTURE_TEST_CASE(testLongReverseSearch, CTestFixture) {
     TTokenListDataCategorizerKeepsFields::TTokenListReverseSearchCreatorIntfCPtr reverseSearchCreator(
         new ml::model::CTokenListReverseSearchCreator("_raw"));
-    TTokenListDataCategorizerKeepsFields categorizer(reverseSearchCreator, 0.7, "_raw");
+    TTokenListDataCategorizerKeepsFields categorizer(m_Limits, reverseSearchCreator,
+                                                     0.7, "_raw");
 
     // Create a long message with lots of junk that will create a ridiculous
     // reverse search if not constrained
@@ -393,7 +407,8 @@ BOOST_FIXTURE_TEST_CASE(testLongReverseSearch, CTestFixture) {
 }
 
 BOOST_FIXTURE_TEST_CASE(testPreTokenised, CTestFixture) {
-    TTokenListDataCategorizerKeepsFields categorizer(NO_REVERSE_SEARCH_CREATOR, 0.7, "whatever");
+    TTokenListDataCategorizerKeepsFields categorizer(
+        m_Limits, NO_REVERSE_SEARCH_CREATOR, 0.7, "whatever");
 
     BOOST_REQUIRE_EQUAL(1, categorizer.computeCategory(false, "<ml13-4608.1.p2ps: Info: > Source ML_SERVICE2 on 13122:867 has shut down.",
                                                        500));
@@ -452,8 +467,8 @@ BOOST_FIXTURE_TEST_CASE(testPreTokenisedPerformance, CTestFixture) {
 
     uint64_t inlineTokenisationTime(0);
     {
-        TTokenListDataCategorizerKeepsFields categorizer(NO_REVERSE_SEARCH_CREATOR,
-                                                         0.7, "whatever");
+        TTokenListDataCategorizerKeepsFields categorizer(
+            m_Limits, NO_REVERSE_SEARCH_CREATOR, 0.7, "whatever");
 
         LOG_DEBUG(<< "Before test with inline tokenisation");
 
@@ -476,8 +491,8 @@ BOOST_FIXTURE_TEST_CASE(testPreTokenisedPerformance, CTestFixture) {
 
     uint64_t preTokenisationTime(0);
     {
-        TTokenListDataCategorizerKeepsFields categorizer(NO_REVERSE_SEARCH_CREATOR,
-                                                         0.7, "whatever");
+        TTokenListDataCategorizerKeepsFields categorizer(
+            m_Limits, NO_REVERSE_SEARCH_CREATOR, 0.7, "whatever");
 
         LOG_DEBUG(<< "Before test with pre-tokenisation");
 

@@ -7,6 +7,7 @@
 
 #include <core/CContainerPrinter.h>
 #include <core/CLogger.h>
+#include <core/CMemory.h>
 #include <core/CStatePersistInserter.h>
 #include <core/CStateRestoreTraverser.h>
 #include <core/CStringUtils.h>
@@ -141,6 +142,17 @@ bool CCategoryExamplesCollector::restoreExamples(core::CStateRestoreTraverser& t
 
 void CCategoryExamplesCollector::clear() {
     m_ExamplesByCategory.clear();
+}
+
+void CCategoryExamplesCollector::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const {
+    mem->setName("CCategoryExamplesCollector");
+    core::CMemoryDebug::dynamicSize("m_ExamplesByCategory", m_ExamplesByCategory, mem);
+}
+
+std::size_t CCategoryExamplesCollector::memoryUsage() const {
+    std::size_t mem = 0;
+    mem += core::CMemory::dynamicSize(m_ExamplesByCategory);
+    return mem;
 }
 
 std::string CCategoryExamplesCollector::truncateExample(std::string example) {

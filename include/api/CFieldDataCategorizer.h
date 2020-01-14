@@ -10,16 +10,14 @@
 #include <core/CWordDictionary.h>
 #include <core/CoreTypes.h>
 
-#include <model/CCategoryExamplesCollector.h>
 #include <model/CDataCategorizer.h>
 #include <model/CTokenListDataCategorizer.h>
 
 #include <api/CDataProcessor.h>
 #include <api/ImportExport.h>
 
+#include <cstdint>
 #include <string>
-
-#include <stdint.h>
 
 namespace ml {
 namespace core {
@@ -78,7 +76,7 @@ public:
     //! Construct without persistence capability
     CFieldDataCategorizer(const std::string& jobId,
                           const CFieldConfig& config,
-                          const model::CLimits& limits,
+                          model::CLimits& limits,
                           COutputHandler& outputHandler,
                           CJsonOutputWriter& jsonOutputWriter,
                           CPersistenceManager* periodicPersister = nullptr);
@@ -110,7 +108,7 @@ public:
     bool periodicPersistStateInForeground() override;
 
     //! How many records did we handle?
-    uint64_t numRecordsHandled() const override;
+    std::uint64_t numRecordsHandled() const override;
 
     //! Access the output handler
     COutputHandler& outputHandler() override;
@@ -152,6 +150,9 @@ private:
     //! The job ID
     std::string m_JobId;
 
+    //! Configurable limits
+    model::CLimits& m_Limits;
+
     //! Object to which the output is passed
     COutputHandler& m_OutputHandler;
 
@@ -162,7 +163,7 @@ private:
     bool m_WriteFieldNames;
 
     //! Keep count of how many records we've handled
-    uint64_t m_NumRecordsHandled;
+    std::uint64_t m_NumRecordsHandled;
 
     //! Map holding fields to add/change in the output compared to the input
     TStrStrUMap m_Overrides;
@@ -185,9 +186,6 @@ private:
 
     //! Reference to the json output writer so that examples can be written
     CJsonOutputWriter& m_JsonOutputWriter;
-
-    //! Collects up to a configurable number of examples per category
-    model::CCategoryExamplesCollector m_ExamplesCollector;
 
     //! Which field name are we categorizing?
     std::string m_CategorizationFieldName;
