@@ -4,8 +4,8 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
-#ifndef INCLUDED_ml_maths_CDataFrameRegressionModel_h
-#define INCLUDED_ml_maths_CDataFrameRegressionModel_h
+#ifndef INCLUDED_ml_maths_CDataFramePredictiveModel_h
+#define INCLUDED_ml_maths_CDataFramePredictiveModel_h
 
 #include <core/CStatePersistInserter.h>
 
@@ -25,9 +25,9 @@ class CRapidJsonConcurrentLineWriter;
 }
 namespace maths {
 
-//! \brief Defines the interface for fitting and evaluating a regression model
-//! on a data frame.
-class MATHS_EXPORT CDataFrameRegressionModel {
+//! \brief Defines the interface for fitting and inferring a predictive model
+//! with a data frame.
+class MATHS_EXPORT CDataFramePredictiveModel {
 public:
     using TDoubleVec = std::vector<double>;
     using TSizeRange = boost::integer_range<std::size_t>;
@@ -36,9 +36,18 @@ public:
     using TPersistFunc = std::function<void(core::CStatePersistInserter&)>;
     using TTrainingStateCallback = std::function<void(TPersistFunc)>;
 
+    //! The objective for the classification decision (given predicted class probabilities).
+    enum EClassAssignmentObjective {
+        E_Accuracy,     //!< Maximize prediction accuracy.
+        E_MinimumRecall //!< Maximize the minimum per class recall.
+    };
+
 public:
-    virtual ~CDataFrameRegressionModel() = default;
-    CDataFrameRegressionModel& operator=(const CDataFrameRegressionModel&) = delete;
+    static const std::string SHAP_PREFIX;
+
+public:
+    virtual ~CDataFramePredictiveModel() = default;
+    CDataFramePredictiveModel& operator=(const CDataFramePredictiveModel&) = delete;
 
     //! Train on the examples in the data frame supplied to the constructor.
     virtual void train() = 0;
@@ -53,9 +62,6 @@ public:
     //! \warning This can only be called after train.
     virtual void computeShapValues() = 0;
 
-    //! Get the feature weights the model has chosen.
-    virtual const TDoubleVec& featureWeights() const = 0;
-
     //! Get the column containing the dependent variable.
     virtual std::size_t columnHoldingDependentVariable() const = 0;
 
@@ -68,11 +74,17 @@ public:
     //! Get the optional vector of column indices with SHAP values
     virtual TSizeRange columnsHoldingShapValues() const = 0;
 
-public:
-    static const std::string SHAP_PREFIX;
+    //! Get the probability threshold at which to classify a row as class one.
+    virtual double probabilityAtWhichToAssignClassOne() const = 0;
+
+    //! \name Test Only
+    //@{
+    //! Get the weight that has been chosen for each feature for training.
+    virtual const TDoubleVec& featureWeightsForTraining() const = 0;
+    //@}
 
 protected:
-    CDataFrameRegressionModel(core::CDataFrame& frame,
+    CDataFramePredictiveModel(core::CDataFrame& frame,
                               TProgressCallback recordProgress,
                               TMemoryUsageCallback recordMemoryUsage,
                               TTrainingStateCallback recordTrainingState);
@@ -90,4 +102,4 @@ private:
 }
 }
 
-#endif // INCLUDED_ml_maths_CDataFrameRegressionModel_h
+#endif // INCLUDED_ml_maths_CDataFramePredictiveModel_h

@@ -54,6 +54,9 @@ public:
     CBoostedTreeFactory(CBoostedTreeFactory&&);
     CBoostedTreeFactory& operator=(CBoostedTreeFactory&&);
 
+    //! Set the objective to use when choosing the class assignments.
+    CBoostedTreeFactory&
+    classAssignmentObjective(CBoostedTree::EClassAssignmentObjective objective);
     //! Set the minimum fraction with a category value to one-hot encode.
     CBoostedTreeFactory& minimumFrequencyToOneHotEncode(double frequency);
     //! Set the number of folds to use for estimating the generalisation error.
@@ -90,14 +93,9 @@ public:
     CBoostedTreeFactory& bayesianOptimisationRestarts(std::size_t restarts);
     //! Set the number of training examples we need per feature we'll include.
     CBoostedTreeFactory& rowsPerFeature(std::size_t rowsPerFeature);
-
     //! Set the number of training examples we need per feature we'll include.
     CBoostedTreeFactory& topShapValues(std::size_t topShapValues);
 
-    //! Set whether to try and balance within class accuracy. For classification
-    //! this reweights examples so approximately the same total loss is assigned
-    //! to every class.
-    CBoostedTreeFactory& balanceClassTrainingLoss(bool balance);
     //! Set the callback function for progress monitoring.
     CBoostedTreeFactory& progressCallback(TProgressCallback callback);
     //! Set the callback function for memory monitoring.
@@ -196,12 +194,11 @@ private:
 
     static void noopRecordProgress(double);
     static void noopRecordMemoryUsage(std::int64_t);
-    static void noopRecordTrainingState(CDataFrameRegressionModel::TPersistFunc);
+    static void noopRecordTrainingState(CBoostedTree::TPersistFunc);
 
 private:
     TOptionalDouble m_MinimumFrequencyToOneHotEncode;
     TOptionalSize m_BayesianOptimisationRestarts;
-    bool m_BalanceClassTrainingLoss = true;
     bool m_StratifyRegressionCrossValidation = true;
     double m_InitialDownsampleRowsPerFeature = 200.0;
     std::size_t m_NumberThreads;

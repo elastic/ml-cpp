@@ -45,14 +45,11 @@ public:
     //! Write the prediction for \p row to \p writer.
     //! This is not intended to be called in production. Should only be used in tests.
     void writeOneRow(const core::CDataFrame& frame,
-                     const std::size_t columnHoldingDependentVariable,
-                     const std::size_t columnHoldingPrediction,
+                     std::size_t columnHoldingDependentVariable,
+                     std::size_t columnHoldingPrediction,
+                     double probabilityAtWhichToAssignClassOne,
                      const TRowRef& row,
                      core::CRapidJsonConcurrentLineWriter& writer) const;
-
-    //! Write the predicted category value as string, int or bool.
-    void writePredictedCategoryValue(const std::string& categoryValue,
-                                     core::CRapidJsonConcurrentLineWriter& writer) const;
 
     //! \return A serialisable definition of the trained classification model.
     TInferenceModelDefinitionUPtr
@@ -62,6 +59,9 @@ public:
 private:
     TLossFunctionUPtr chooseLossFunction(const core::CDataFrame& frame,
                                          std::size_t dependentVariableColumn) const override;
+
+    void writePredictedCategoryValue(const std::string& categoryValue,
+                                     core::CRapidJsonConcurrentLineWriter& writer) const;
 
 private:
     std::size_t m_NumTopClasses;

@@ -789,8 +789,8 @@ public:
                                 std::size_t& maxIterations,
                                 double& x,
                                 double& fx) {
-        CCompositeFunctions::CMinus<F> f_(f);
-        minimize(a, b, -fa, -fb, f_, tolerance, maxIterations, x, fx);
+        minimize(a, b, -fa, -fb, [f](double y) { return -f(y); }, tolerance,
+                 maxIterations, x, fx);
         fx = -fx;
     }
 

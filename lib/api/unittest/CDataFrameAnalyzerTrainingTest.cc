@@ -26,6 +26,7 @@
 #include <test/BoostTestCloseAbsolute.h>
 
 #include <boost/test/unit_test.hpp>
+#include <boost/unordered_map.hpp>
 
 #include <memory>
 
@@ -104,22 +105,23 @@ TDataFrameUPtr setupLinearRegressionData(const TStrVec& fieldNames,
                                          TStrVec& fieldValues,
                                          api::CDataFrameAnalyzer& analyzer,
                                          const TDoubleVec& weights,
-                                         const TDoubleVec& values) {
+                                         const TDoubleVec& regressors,
+                                         TStrVec& targets) {
 
-    auto target = [&weights](const TDoubleVec& regressors) {
+    auto target = [&weights](const TDoubleVec& regressors_) {
         double result{0.0};
         for (std::size_t i = 0; i < weights.size(); ++i) {
-            result += weights[i] * regressors[i];
+            result += weights[i] * regressors_[i];
         }
         return core::CStringUtils::typeToStringPrecise(result, core::CIEEE754::E_DoublePrecision);
     };
 
     auto frame = core::makeMainStorageDataFrame(weights.size() + 1).first;
 
-    for (std::size_t i = 0; i < values.size(); i += weights.size()) {
+    for (std::size_t i = 0; i < regressors.size(); i += weights.size()) {
         TDoubleVec row(weights.size());
         for (std::size_t j = 0; j < weights.size(); ++j) {
-            row[j] = values[i + j];
+            row[j] = regressors[i + j];
         }
 
         for (std::size_t j = 0; j < row.size(); ++j) {
@@ -127,6 +129,7 @@ TDataFrameUPtr setupLinearRegressionData(const TStrVec& fieldNames,
                 row[j], core::CIEEE754::E_DoublePrecision);
         }
         fieldValues[weights.size()] = target(row);
+        targets.push_back(fieldValues[weights.size()]);
 
         analyzer.handleRecord(fieldNames, fieldValues);
         frame->parseAndWriteRow(
@@ -142,12 +145,13 @@ TDataFrameUPtr setupBinaryClassificationData(const TStrVec& fieldNames,
                                              TStrVec& fieldValues,
                                              api::CDataFrameAnalyzer& analyzer,
                                              const TDoubleVec& weights,
-                                             const TDoubleVec& values) {
+                                             const TDoubleVec& regressors,
+                                             TStrVec& targets) {
     TStrVec classes{"foo", "bar"};
-    auto target = [&weights, &classes](const TDoubleVec& regressors) {
+    auto target = [&weights, &classes](const TDoubleVec& regressors_) {
         double result{0.0};
         for (std::size_t i = 0; i < weights.size(); ++i) {
-            result += weights[i] * regressors[i];
+            result += weights[i] * regressors_[i];
         }
         return classes[result < 0.0 ? 0 : 1];
     };
@@ -157,10 +161,10 @@ TDataFrameUPtr setupBinaryClassificationData(const TStrVec& fieldNames,
     categoricalFields.push_back(true);
     frame->categoricalColumns(std::move(categoricalFields));
 
-    for (std::size_t i = 0; i < values.size(); i += weights.size()) {
+    for (std::size_t i = 0; i < regressors.size(); i += weights.size()) {
         TDoubleVec row(weights.size());
         for (std::size_t j = 0; j < weights.size(); ++j) {
-            row[j] = values[i + j];
+            row[j] = regressors[i + j];
         }
 
         for (std::size_t j = 0; j < row.size() - 1; ++j) {
@@ -168,6 +172,7 @@ TDataFrameUPtr setupBinaryClassificationData(const TStrVec& fieldNames,
                 row[j], core::CIEEE754::E_DoublePrecision);
         }
         fieldValues[weights.size()] = target(row);
+        targets.push_back(fieldValues[weights.size()]);
 
         analyzer.handleRecord(fieldNames, fieldValues);
         frame->parseAndWriteRow(
@@ -181,16 +186,17 @@ TDataFrameUPtr setupBinaryClassificationData(const TStrVec& fieldNames,
 
 enum EPredictionType { E_Regression, E_BinaryClassification };
 
-void appendPrediction(core::CDataFrame&, std::size_t, double prediction, TDoubleVec& predictions) {
+void appendPrediction(core::CDataFrame&, std::size_t, double prediction, double, TDoubleVec& predictions) {
     predictions.push_back(prediction);
 }
 
 void appendPrediction(core::CDataFrame& frame,
                       std::size_t columnHoldingPrediction,
                       double logOddsClass1,
+                      double threshold,
                       TStrVec& predictions) {
     predictions.push_back(
-        maths::CTools::logisticFunction(logOddsClass1) < 0.5
+        maths::CTools::logisticFunction(logOddsClass1) < threshold
             ? frame.categoricalColumnValues()[columnHoldingPrediction][0]
             : frame.categoricalColumnValues()[columnHoldingPrediction][1]);
 }
@@ -212,16 +218,18 @@ void addPredictionTestData(EPredictionType type,
                            double featureBagFraction = 0.0) {
 
     test::CRandomNumbers rng;
-    TDoubleVec weights{0.1, 2.0, 0.4, -0.5};
 
-    TDoubleVec values;
-    rng.generateUniformSamples(-10.0, 10.0, weights.size() * numberExamples, values);
+    TDoubleVec weights;
+    rng.generateUniformSamples(-1.0, 1.0, fieldNames.size() - 3, weights);
+    TDoubleVec regressors;
+    rng.generateUniformSamples(-10.0, 10.0, weights.size() * numberExamples, regressors);
 
+    TStrVec targets;
     auto frame = type == E_Regression
-                     ? setupLinearRegressionData(fieldNames, fieldValues,
-                                                 analyzer, weights, values)
-                     : setupBinaryClassificationData(fieldNames, fieldValues,
-                                                     analyzer, weights, values);
+                     ? setupLinearRegressionData(fieldNames, fieldValues, analyzer,
+                                                 weights, regressors, targets)
+                     : setupBinaryClassificationData(fieldNames, fieldValues, analyzer,
+                                                     weights, regressors, targets);
 
     maths::CBoostedTreeFactory treeFactory{
         maths::CBoostedTreeFactory::constructFromParameters(1)};
@@ -259,11 +267,13 @@ void addPredictionTestData(EPredictionType type,
     auto tree = treeFactory.buildFor(*frame, std::move(loss), weights.size());
 
     tree->train();
+    tree->predict();
 
     frame->readRows(1, [&](TRowItr beginRows, TRowItr endRows) {
         for (auto row = beginRows; row != endRows; ++row) {
             double prediction{(*row)[tree->columnHoldingPrediction()]};
-            appendPrediction(*frame, weights.size(), prediction, expectedPredictions);
+            appendPrediction(*frame, weights.size(), prediction,
+                             tree->probabilityAtWhichToAssignClassOne(), expectedPredictions);
         }
     });
 }
@@ -277,12 +287,12 @@ void testOneRunOfBoostedTreeTrainingWithStateRecovery(F makeSpec, std::size_t it
     };
 
     std::size_t numberExamples{200};
-    TStrVec fieldNames{"c1", "c2", "c3", "c4", "c5", ".", "."};
+    TStrVec fieldNames{"c1", "c2", "c3", "c4", "target", ".", "."};
     TStrVec fieldValues{"", "", "", "", "", "0", ""};
     TDoubleVec weights{0.1, 2.0, 0.4, -0.5};
-    TDoubleVec values;
+    TDoubleVec regressors;
     test::CRandomNumbers rng;
-    rng.generateUniformSamples(-10.0, 10.0, weights.size() * numberExamples, values);
+    rng.generateUniformSamples(-10.0, 10.0, weights.size() * numberExamples, regressors);
 
     auto persistenceStream = std::make_shared<std::ostringstream>();
     TPersisterSupplier persisterSupplier = [&persistenceStream]() -> TDataAdderUPtr {
@@ -292,11 +302,13 @@ void testOneRunOfBoostedTreeTrainingWithStateRecovery(F makeSpec, std::size_t it
     // Compute expected tree.
 
     api::CDataFrameAnalyzer analyzer{
-        makeSpec("c5", numberExamples, persisterSupplier), outputWriterFactory};
-    std::size_t dependentVariable(
-        std::find(fieldNames.begin(), fieldNames.end(), "c5") - fieldNames.begin());
+        makeSpec("target", numberExamples, persisterSupplier), outputWriterFactory};
+    std::size_t dependentVariable(std::find(fieldNames.begin(), fieldNames.end(), "target") -
+                                  fieldNames.begin());
 
-    auto frame = setupLinearRegressionData(fieldNames, fieldValues, analyzer, weights, values);
+    TStrVec targets;
+    auto frame = setupLinearRegressionData(fieldNames, fieldValues, analyzer,
+                                           weights, regressors, targets);
     analyzer.handleRecord(fieldNames, {"", "", "", "", "", "", "$"});
 
     TStrVec persistedStates{
@@ -313,9 +325,11 @@ void testOneRunOfBoostedTreeTrainingWithStateRecovery(F makeSpec, std::size_t it
     };
 
     api::CDataFrameAnalyzer restoredAnalyzer{
-        makeSpec("c5", numberExamples, persisterSupplier), outputWriterFactory};
+        makeSpec("target", numberExamples, persisterSupplier), outputWriterFactory};
 
-    setupLinearRegressionData(fieldNames, fieldValues, restoredAnalyzer, weights, values);
+    targets.clear();
+    setupLinearRegressionData(fieldNames, fieldValues, restoredAnalyzer,
+                              weights, regressors, targets);
     restoredAnalyzer.handleRecord(fieldNames, {"", "", "", "", "", "", "$"});
 
     persistedStates = splitOnNull(std::stringstream{std::move(persistenceStream->str())});
@@ -362,10 +376,10 @@ BOOST_AUTO_TEST_CASE(testRunBoostedTreeRegressionTraining) {
 
     TDoubleVec expectedPredictions;
 
-    TStrVec fieldNames{"c1", "c2", "c3", "c4", "c5", ".", "."};
+    TStrVec fieldNames{"f1", "f2", "f3", "f4", "target", ".", "."};
     TStrVec fieldValues{"", "", "", "", "", "0", ""};
     api::CDataFrameAnalyzer analyzer{
-        test::CDataFrameAnalysisSpecificationFactory::predictionSpec("regression", "c5"),
+        test::CDataFrameAnalysisSpecificationFactory::predictionSpec("regression", "target"),
         outputWriterFactory};
     addPredictionTestData(E_Regression, fieldNames, fieldValues, analyzer, expectedPredictions);
 
@@ -384,7 +398,7 @@ BOOST_AUTO_TEST_CASE(testRunBoostedTreeRegressionTraining) {
             BOOST_TEST_REQUIRE(expectedPrediction != expectedPredictions.end());
             BOOST_REQUIRE_CLOSE_ABSOLUTE(
                 *expectedPrediction,
-                result["row_results"]["results"]["ml"]["c5_prediction"].GetDouble(),
+                result["row_results"]["results"]["ml"]["target_prediction"].GetDouble(),
                 1e-4 * std::fabs(*expectedPrediction));
             ++expectedPrediction;
             BOOST_TEST_REQUIRE(result.HasMember("progress_percent") == false);
@@ -433,13 +447,13 @@ BOOST_AUTO_TEST_CASE(testRunBoostedTreeRegressionTrainingWithParams) {
 
     api::CDataFrameAnalyzer analyzer{
         test::CDataFrameAnalysisSpecificationFactory::predictionSpec(
-            "regression", "c5", 100, 5, 4000000, 0, 0, {}, alpha, lambda, gamma, softTreeDepthLimit,
+            "regression", "target", 100, 5, 4000000, 0, 0, {}, alpha, lambda, gamma, softTreeDepthLimit,
             softTreeDepthTolerance, eta, maximumNumberTrees, featureBagFraction),
         outputWriterFactory};
 
     TDoubleVec expectedPredictions;
 
-    TStrVec fieldNames{"c1", "c2", "c3", "c4", "c5", ".", "."};
+    TStrVec fieldNames{"f1", "f2", "f3", "f4", "target", ".", "."};
     TStrVec fieldValues{"", "", "", "", "", "0", ""};
     addPredictionTestData(E_Regression, fieldNames, fieldValues, analyzer,
                           expectedPredictions, 100, alpha, lambda, gamma,
@@ -477,7 +491,7 @@ BOOST_AUTO_TEST_CASE(testRunBoostedTreeRegressionTrainingWithParams) {
             BOOST_TEST_REQUIRE(expectedPrediction != expectedPredictions.end());
             BOOST_REQUIRE_CLOSE_ABSOLUTE(
                 *expectedPrediction,
-                result["row_results"]["results"]["ml"]["c5_prediction"].GetDouble(),
+                result["row_results"]["results"]["ml"]["target_prediction"].GetDouble(),
                 1e-4 * std::fabs(*expectedPrediction));
             ++expectedPrediction;
             BOOST_TEST_REQUIRE(result.HasMember("progress_percent") == false);
@@ -620,11 +634,11 @@ BOOST_AUTO_TEST_CASE(testRunBoostedTreeClassifierTraining) {
 
     TStrVec expectedPredictions;
 
-    TStrVec fieldNames{"c1", "c2", "c3", "c4", "c5", ".", "."};
+    TStrVec fieldNames{"f1", "f2", "f3", "f4", "target", ".", "."};
     TStrVec fieldValues{"", "", "", "", "", "0", ""};
     api::CDataFrameAnalyzer analyzer{
         test::CDataFrameAnalysisSpecificationFactory::predictionSpec(
-            "classification", "c5", 100, 5, 6000000, 0, 0, {"c5"}),
+            "classification", "target", 100, 5, 6000000, 0, 0, {"target"}),
         outputWriterFactory};
     addPredictionTestData(E_BinaryClassification, fieldNames, fieldValues,
                           analyzer, expectedPredictions);
@@ -643,7 +657,7 @@ BOOST_AUTO_TEST_CASE(testRunBoostedTreeClassifierTraining) {
         if (result.HasMember("row_results")) {
             BOOST_TEST_REQUIRE(expectedPrediction != expectedPredictions.end());
             std::string actualPrediction{
-                result["row_results"]["results"]["ml"]["c5_prediction"].GetString()};
+                result["row_results"]["results"]["ml"]["target_prediction"].GetString()};
             BOOST_REQUIRE_EQUAL(*expectedPrediction, actualPrediction);
             ++expectedPrediction;
             BOOST_TEST_REQUIRE(result.HasMember("progress_percent") == false);
@@ -668,6 +682,65 @@ BOOST_AUTO_TEST_CASE(testRunBoostedTreeClassifierTraining) {
     BOOST_TEST_REQUIRE(core::CProgramCounters::counter(counter_t::E_DFTPMPeakMemoryUsage) < 1400000);
     BOOST_TEST_REQUIRE(core::CProgramCounters::counter(counter_t::E_DFTPMTimeToTrain) > 0);
     BOOST_TEST_REQUIRE(core::CProgramCounters::counter(counter_t::E_DFTPMTimeToTrain) <= duration);
+}
+
+BOOST_AUTO_TEST_CASE(testRunBoostedTreeClassifierImbalanced) {
+
+    // Test we get high average recall for each class when the training data are
+    // imbalanced.
+
+    using TStrSizeUMap = boost::unordered_map<std::string, std::size_t>;
+
+    std::stringstream output;
+    auto outputWriterFactory = [&output]() {
+        return std::make_unique<core::CJsonOutputStreamWrapper>(output);
+    };
+
+    std::size_t numberExamples{500};
+    TStrVec fieldNames{"f1", "f2", "f3", "target", ".", "."};
+    TStrVec fieldValues{"", "", "", "", "0", ""};
+    test::CRandomNumbers rng;
+    TDoubleVec weights{1.0, 1.0, 1.0};
+    TDoubleVec regressors;
+    rng.generateUniformSamples(-5.0, 10.0, numberExamples * weights.size(), regressors);
+
+    api::CDataFrameAnalyzer analyzer{
+        test::CDataFrameAnalysisSpecificationFactory::predictionSpec(
+            "classification", "target", numberExamples, 4, 14000000, 0, 0, {"target"}),
+        outputWriterFactory};
+
+    TStrVec actuals;
+    setupBinaryClassificationData(fieldNames, fieldValues, analyzer, weights,
+                                  regressors, actuals);
+    analyzer.handleRecord(fieldNames, {"", "", "", "", "", "$"});
+
+    rapidjson::Document results;
+    rapidjson::ParseResult ok(results.Parse(output.str()));
+    BOOST_TEST_REQUIRE(static_cast<bool>(ok) == true);
+
+    TStrSizeUMap correct;
+    TStrSizeUMap counts;
+
+    auto actual = actuals.begin();
+    for (const auto& result : results.GetArray()) {
+        if (result.HasMember("row_results")) {
+            BOOST_TEST_REQUIRE(actual != actuals.end());
+            std::string prediction{
+                result["row_results"]["results"]["ml"]["target_prediction"].GetString()};
+
+            if (*actual == prediction) {
+                ++correct[*actual];
+            }
+            ++counts[*actual];
+            ++actual;
+        }
+    }
+
+    for (const auto& label : {"foo", "bar"}) {
+        double recall{static_cast<double>(correct[label]) /
+                      static_cast<double>(counts[label])};
+        BOOST_TEST_REQUIRE(recall > 0.85);
+    }
 }
 
 BOOST_AUTO_TEST_CASE(testCategoricalFields) {
