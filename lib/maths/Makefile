@@ -39,7 +39,7 @@ CConstantPrior.cc \
 CCooccurrences.cc \
 CCountMinSketch.cc \
 CDataFrameCategoryEncoder.cc \
-CDataFrameRegressionModel.cc \
+CDataFramePredictiveModel.cc \
 CDataFrameUtils.cc \
 CDecayRateController.cc \
 CDecompositionComponent.cc \

@@ -218,10 +218,9 @@ void CBoostedTreeFactory::initializeMissingFeatureMasks(const core::CDataFrame& 
             for (std::size_t i = 0; i < row->numberColumns(); ++i) {
                 double value{(*row)[i]};
                 if (CDataFrameUtils::isMissing(value)) {
-                    m_TreeImpl->m_MissingFeatureRowMasks[i].extend(
-                        false, row->index() -
-                                   m_TreeImpl->m_MissingFeatureRowMasks[i].size());
-                    m_TreeImpl->m_MissingFeatureRowMasks[i].extend(true);
+                    auto& mask = m_TreeImpl->m_MissingFeatureRowMasks[i];
+                    mask.extend(false, row->index() - mask.size());
+                    mask.extend(true);
                 }
             }
         }
@@ -288,40 +287,22 @@ void CBoostedTreeFactory::initializeNumberFolds(core::CDataFrame& frame) const {
 void CBoostedTreeFactory::initializeCrossValidation(core::CDataFrame& frame) const {
 
     core::CPackedBitVector allTrainingRowsMask{m_TreeImpl->allTrainingRowsMask()};
-
-    TDoubleVec frequencies;
-    core::CDataFrame::TRowFunc writeRowWeight;
+    std::size_t dependentVariable{m_TreeImpl->m_DependentVariable};
 
     std::size_t numberBuckets(m_StratifyRegressionCrossValidation ? 10 : 1);
-    std::tie(m_TreeImpl->m_TrainingRowMasks, m_TreeImpl->m_TestingRowMasks, frequencies) =
+    std::tie(m_TreeImpl->m_TrainingRowMasks, m_TreeImpl->m_TestingRowMasks, std::ignore) =
         CDataFrameUtils::stratifiedCrossValidationRowMasks(
-            m_TreeImpl->m_NumberThreads, frame, m_TreeImpl->m_DependentVariable,
-            m_TreeImpl->m_Rng, m_TreeImpl->m_NumberFolds, numberBuckets, allTrainingRowsMask);
+            m_TreeImpl->m_NumberThreads, frame, dependentVariable, m_TreeImpl->m_Rng,
+            m_TreeImpl->m_NumberFolds, numberBuckets, allTrainingRowsMask);
 
-    if (frame.columnIsCategorical()[m_TreeImpl->m_DependentVariable]) {
-        writeRowWeight = [&](TRowItr beginRows, TRowItr endRows) {
-            for (auto row = beginRows; row != endRows; ++row) {
-                if (m_BalanceClassTrainingLoss) {
-                    // Weight by inverse category frequency.
-                    std::size_t category{static_cast<std::size_t>(
-                        (*row)[m_TreeImpl->m_DependentVariable])};
-                    row->writeColumn(exampleWeightColumn(row->numberColumns()),
-                                     1.0 / frequencies[category]);
-                } else {
-                    row->writeColumn(exampleWeightColumn(row->numberColumns()), 1.0);
-                }
-            }
-        };
-    } else {
-        writeRowWeight = [&](TRowItr beginRows, TRowItr endRows) {
+    frame.writeColumns(
+        m_NumberThreads, 0, frame.numberRows(),
+        [&](TRowItr beginRows, TRowItr endRows) {
             for (auto row = beginRows; row != endRows; ++row) {
                 row->writeColumn(exampleWeightColumn(row->numberColumns()), 1.0);
             }
-        };
-    }
-
-    frame.writeColumns(m_NumberThreads, 0, frame.numberRows(), writeRowWeight,
-                       &allTrainingRowsMask);
+        },
+        &allTrainingRowsMask);
 }
 
 void CBoostedTreeFactory::selectFeaturesAndEncodeCategories(const core::CDataFrame& frame) const {
@@ -964,6 +945,12 @@ CBoostedTreeFactory& CBoostedTreeFactory::operator=(CBoostedTreeFactory&&) = def
 
 CBoostedTreeFactory::~CBoostedTreeFactory() = default;
 
+CBoostedTreeFactory&
+CBoostedTreeFactory::classAssignmentObjective(CBoostedTree::EClassAssignmentObjective objective) {
+    m_TreeImpl->m_ClassAssignmentObjective = objective;
+    return *this;
+}
+
 CBoostedTreeFactory& CBoostedTreeFactory::minimumFrequencyToOneHotEncode(double frequency) {
     if (frequency >= 1.0) {
         LOG_WARN(<< "Frequency to one-hot encode must be less than one");
@@ -1100,8 +1087,9 @@ CBoostedTreeFactory& CBoostedTreeFactory::rowsPerFeature(std::size_t rowsPerFeat
     return *this;
 }
 
-CBoostedTreeFactory& CBoostedTreeFactory::balanceClassTrainingLoss(bool balance) {
-    m_BalanceClassTrainingLoss = balance;
+CBoostedTreeFactory& CBoostedTreeFactory::topShapValues(std::size_t topShapValues) {
+    m_TopShapValues = topShapValues;
+    m_TreeImpl->m_TopShapValues = topShapValues;
     return *this;
 }
 
@@ -1195,19 +1183,13 @@ std::size_t CBoostedTreeFactory::mainLoopMaximumNumberTrees(double eta) const {
     return *m_TreeImpl->m_MaximumNumberTreesOverride;
 }
 
-void CBoostedTreeFactory::noopRecordTrainingState(std::function<void(core::CStatePersistInserter&)>) {
-}
-
 void CBoostedTreeFactory::noopRecordProgress(double) {
 }
 
 void CBoostedTreeFactory::noopRecordMemoryUsage(std::int64_t) {
 }
 
-CBoostedTreeFactory& CBoostedTreeFactory::topShapValues(std::size_t topShapValues) {
-    m_TopShapValues = topShapValues;
-    m_TreeImpl->m_TopShapValues = topShapValues;
-    return *this;
+void CBoostedTreeFactory::noopRecordTrainingState(CBoostedTree::TPersistFunc) {
 }
 }
 }
