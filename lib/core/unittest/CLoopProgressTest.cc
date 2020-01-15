@@ -21,6 +21,7 @@ BOOST_AUTO_TEST_SUITE(CLoopProgressTest)
 
 using namespace ml;
 
+using TIntVec = std::vector<int>;
 using TSizeVec = std::vector<std::size_t>;
 
 BOOST_AUTO_TEST_CASE(testShort) {
@@ -139,6 +140,49 @@ BOOST_AUTO_TEST_CASE(testScaled) {
         }
 
         BOOST_REQUIRE_CLOSE_ABSOLUTE(1.0 / static_cast<double>(step[0]), progress, 1e-15);
+    }
+}
+
+BOOST_AUTO_TEST_CASE(testIncrementRange) {
+
+    for (std::size_t steps : {30, 100}) {
+        double progress{0.0};
+        auto recordProgress = [&progress](double p) { progress += p; };
+        core::CLoopProgress loopProgress{50, recordProgress, 1.0, steps};
+
+        for (std::size_t i = 0; i < 20; ++i) {
+            loopProgress.increment();
+        }
+
+        loopProgress.incrementRange(-20);
+        BOOST_REQUIRE_CLOSE(20.0 / 30.0, progress, 2.0);
+
+        loopProgress.incrementRange(30);
+        for (std::size_t i = 0; i < 40; ++i) {
+            loopProgress.increment();
+            BOOST_REQUIRE_CLOSE(std::max(static_cast<double>(20 + i) / 60.0, 20.0 / 30.0),
+                                progress, 4.0);
+        }
+    }
+
+    for (std::size_t steps : {30, 100}) {
+        double progress{0.0};
+        auto recordProgress = [&progress](double p) { progress += p; };
+        core::CLoopProgress loopProgress{50, recordProgress, 1.0, steps};
+
+        for (std::size_t i = 0; i < 20; ++i) {
+            loopProgress.increment();
+        }
+
+        loopProgress.incrementRange(30);
+        BOOST_REQUIRE_CLOSE(20.0 / 50.0, progress, 2.0);
+
+        loopProgress.incrementRange(-20);
+        for (std::size_t i = 0; i < 40; ++i) {
+            loopProgress.increment();
+            BOOST_REQUIRE_CLOSE(std::max(static_cast<double>(20 + i) / 60.0, 20.0 / 50.0),
+                                progress, 4.0);
+        }
     }
 }
 

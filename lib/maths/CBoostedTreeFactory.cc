@@ -36,8 +36,8 @@ const double MIN_SOFT_DEPTH_LIMIT{2.0};
 const double MIN_SOFT_DEPTH_LIMIT_TOLERANCE{0.05};
 const double MAX_SOFT_DEPTH_LIMIT_TOLERANCE{0.25};
 const double MIN_ETA{1e-3};
-const double MIN_ETA_SCALE{0.3};
-const double MAX_ETA_SCALE{3.0};
+const double MIN_ETA_SCALE{0.5};
+const double MAX_ETA_SCALE{2.0};
 const double MIN_ETA_GROWTH_RATE_SCALE{0.5};
 const double MAX_ETA_GROWTH_RATE_SCALE{1.5};
 const double MIN_FEATURE_BAG_FRACTION{0.2};
@@ -73,7 +73,7 @@ std::size_t computeMaximumNumberTrees(double eta) {
     return static_cast<std::size_t>(3.0 / eta / MIN_DOWNSAMPLE_FACTOR_SCALE + 0.5);
 }
 
-std::size_t scaleMaximumNumberTrees(std::size_t maximumNumberTrees) {
+std::size_t scaleMaximumNumberTreesForMainLoop(std::size_t maximumNumberTrees) {
     // We actively optimise for eta and allow it to be up to MIN_ETA_SCALE
     // smaller than the initial value. We need to allow the number of trees
     // to increase proportionally to avoid bias. In practice, we should use
@@ -191,8 +191,8 @@ void CBoostedTreeFactory::initializeHyperparameterOptimisation() const {
     }
     if (m_TreeImpl->m_EtaOverride == boost::none) {
         double rate{m_TreeImpl->m_EtaGrowthRatePerTree - 1.0};
-        boundingBox.emplace_back(std::log(MIN_ETA_SCALE * m_TreeImpl->m_Eta),
-                                 std::log(MAX_ETA_SCALE * m_TreeImpl->m_Eta));
+        boundingBox.emplace_back(m_LogEtaSearchInterval(MIN_REGULARIZER_INDEX),
+                                 m_LogEtaSearchInterval(MAX_REGULARIZER_INDEX));
         boundingBox.emplace_back(1.0 + MIN_ETA_GROWTH_RATE_SCALE * rate,
                                  1.0 + MAX_ETA_GROWTH_RATE_SCALE * rate);
     }
@@ -405,10 +405,11 @@ void CBoostedTreeFactory::initializeHyperparameters(core::CDataFrame& frame) {
     }
 
     this->initializeUnsetDownsampleFactor(frame);
+    this->initializeUnsetEta(frame);
 
     if (m_TreeImpl->m_MaximumNumberTreesOverride == boost::none) {
         m_TreeImpl->m_MaximumNumberTrees =
-            scaleMaximumNumberTrees(m_TreeImpl->m_MaximumNumberTrees);
+            scaleMaximumNumberTreesForMainLoop(m_TreeImpl->m_MaximumNumberTrees);
     }
 }
 
@@ -705,6 +706,52 @@ void CBoostedTreeFactory::initializeUnsetDownsampleFactor(core::CDataFrame& fram
         if (intervalIsEmpty(m_LogDownsampleFactorSearchInterval)) {
             m_TreeImpl->m_DownsampleFactorOverride = m_TreeImpl->m_DownsampleFactor;
         }
+    }
+}
+
+void CBoostedTreeFactory::initializeUnsetEta(core::CDataFrame& frame) {
+
+    if (m_TreeImpl->m_EtaOverride == boost::none) {
+        double searchIntervalSize{5.0 * MAX_ETA_SCALE / MIN_ETA_SCALE};
+        double logMaxEta{std::log(std::sqrt(searchIntervalSize) * m_TreeImpl->m_Eta)};
+        double logMinEta{logMaxEta - std::log(searchIntervalSize)};
+        double meanLogEta{(logMaxEta + logMinEta) / 2.0};
+        double mainLoopSearchInterval{std::log(0.2 * searchIntervalSize)};
+        LOG_TRACE(<< "mean log eta = " << meanLogEta);
+
+        auto applyEta = [](CBoostedTreeImpl& tree, double eta) {
+            tree.m_Eta = std::exp(eta);
+            tree.m_EtaGrowthRatePerTree = 1.0 + tree.m_Eta / 2.0;
+            tree.m_MaximumNumberTrees = computeMaximumNumberTrees(tree.m_Eta);
+            return true;
+        };
+
+        double eta{m_TreeImpl->m_Eta};
+
+        TVector fallback;
+        fallback(MIN_REGULARIZER_INDEX) = logMinEta;
+        fallback(BEST_REGULARIZER_INDEX) = meanLogEta;
+        fallback(MAX_REGULARIZER_INDEX) = logMaxEta;
+
+        m_LogEtaSearchInterval =
+            this->testLossLineSearch(frame, applyEta, logMinEta, logMaxEta,
+                                     -mainLoopSearchInterval / 2.0,
+                                     mainLoopSearchInterval / 2.0)
+                .value_or(fallback);
+        m_LogEtaSearchInterval = min(m_LogEtaSearchInterval, TVector{0.0});
+        LOG_TRACE(<< "log eta search interval = ["
+                  << m_LogEtaSearchInterval.toDelimited() << "]");
+        m_TreeImpl->m_Eta = std::exp(m_LogEtaSearchInterval(BEST_REGULARIZER_INDEX));
+        m_TreeImpl->m_EtaGrowthRatePerTree = 1.0 + m_TreeImpl->m_Eta / 2.0;
+        m_TreeImpl->m_MaximumNumberTrees = computeMaximumNumberTrees(m_TreeImpl->m_Eta);
+
+        if (intervalIsEmpty(m_LogEtaSearchInterval)) {
+            m_TreeImpl->m_EtaOverride = m_TreeImpl->m_Eta;
+        }
+
+        m_TreeImpl->m_TrainingProgress.incrementRange(
+            static_cast<int>(this->mainLoopNumberSteps(m_TreeImpl->m_Eta)) -
+            static_cast<int>(this->mainLoopNumberSteps(eta)));
     }
 }
 
@@ -1138,14 +1185,17 @@ void CBoostedTreeFactory::initializeTrainingProgressMonitoring(const core::CData
     //    parameter which isn't user defined,
     //  - LINE_SEARCH_ITERATIONS * "maximum number trees" per forest for training
     //    the downsampling factor if it isn't user defined,
+    //  - LINE_SEARCH_ITERATIONS * "maximum number trees" per forest for the learn
+    //    learn rate if it isn't user defined,
     //  - The main optimisation loop which costs number folds * maximum number
     //    trees per forest units per iteration,
     //  - The cost of the final train which we count as an extra loop.
 
-    std::size_t totalNumberSteps{2};
     double eta{m_TreeImpl->m_EtaOverride != boost::none
                    ? *m_TreeImpl->m_EtaOverride
                    : computeEta(frame.numberColumns())};
+
+    std::size_t totalNumberSteps{2};
     std::size_t lineSearchMaximumNumberTrees{computeMaximumNumberTrees(eta)};
     if (m_TreeImpl->m_RegularizationOverride.softTreeDepthLimit() == boost::none) {
         totalNumberSteps += MAX_LINE_SEARCH_ITERATIONS * lineSearchMaximumNumberTrees;
@@ -1162,8 +1212,12 @@ void CBoostedTreeFactory::initializeTrainingProgressMonitoring(const core::CData
     if (m_TreeImpl->m_DownsampleFactorOverride == boost::none) {
         totalNumberSteps += MAX_LINE_SEARCH_ITERATIONS * lineSearchMaximumNumberTrees;
     }
-    totalNumberSteps += (this->numberHyperparameterTuningRounds() + 1) *
-                        this->mainLoopMaximumNumberTrees(eta) * m_TreeImpl->m_NumberFolds;
+    if (m_TreeImpl->m_EtaOverride == boost::none) {
+        // The maximum number of trees varies in this loop so we use a margin.
+        totalNumberSteps += 2 * MAX_LINE_SEARCH_ITERATIONS * lineSearchMaximumNumberTrees;
+    }
+    // We don't know what we'll choose in the line search so we use a margin.
+    totalNumberSteps += 2 * this->mainLoopNumberSteps(eta);
     LOG_TRACE(<< "total number steps = " << totalNumberSteps);
     m_TreeImpl->m_TrainingProgress =
         core::CLoopProgress{totalNumberSteps, m_RecordProgress, 1.0, 1024};
@@ -1174,10 +1228,15 @@ void CBoostedTreeFactory::resumeRestoredTrainingProgressMonitoring() {
     m_TreeImpl->m_TrainingProgress.resumeRestored();
 }
 
+std::size_t CBoostedTreeFactory::mainLoopNumberSteps(double eta) const {
+    return (this->numberHyperparameterTuningRounds() + 1) *
+           this->mainLoopMaximumNumberTrees(eta) * m_TreeImpl->m_NumberFolds;
+}
+
 std::size_t CBoostedTreeFactory::mainLoopMaximumNumberTrees(double eta) const {
     if (m_TreeImpl->m_MaximumNumberTreesOverride == boost::none) {
         std::size_t maximumNumberTrees{computeMaximumNumberTrees(eta)};
-        maximumNumberTrees = scaleMaximumNumberTrees(maximumNumberTrees);
+        maximumNumberTrees = scaleMaximumNumberTreesForMainLoop(maximumNumberTrees);
         return maximumNumberTrees;
     }
     return *m_TreeImpl->m_MaximumNumberTreesOverride;

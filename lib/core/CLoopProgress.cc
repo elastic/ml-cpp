@@ -17,22 +17,22 @@
 namespace ml {
 namespace core {
 namespace {
-const std::string LOOP_SIZE_TAG{"loop_size_tag"};
+const std::string LOOP_RANGE_TAG{"loop_size_tag"};
 const std::string PROGRESS_STEPS_TAG{"progress_steps_tag"};
 const std::string CURRENT_STEP_PROGRESS_TAG{"current_step_progress_tag"};
 const std::string LOOP_POS_TAG{"loop_pos_tag"};
 }
 
 CLoopProgress::CLoopProgress()
-    : m_Size{std::numeric_limits<std::size_t>::max()}, m_Steps{1},
+    : m_Range{std::numeric_limits<std::size_t>::max()}, m_Steps{1},
       m_StepProgress{1.0}, m_RecordProgress{noop} {
 }
 
-CLoopProgress::CLoopProgress(std::size_t size,
+CLoopProgress::CLoopProgress(std::size_t range,
                              const TProgressCallback& recordProgress,
                              double scale,
                              std::size_t steps)
-    : m_Size{size}, m_Steps{std::min(size, steps)},
+    : m_Range{range}, m_Steps{std::min(range, steps)},
       m_StepProgress{scale / static_cast<double>(m_Steps)}, m_RecordProgress{recordProgress} {
 }
 
@@ -42,14 +42,25 @@ void CLoopProgress::progressCallback(const TProgressCallback& recordProgress) {
 
 void CLoopProgress::increment(std::size_t i) {
     m_Pos += i;
-
-    if (m_Steps * m_Pos + 1 > (m_LastProgress + 1) * m_Size) {
+    if (m_Steps * m_Pos + 1 > (m_LastProgress + 1) * m_Range) {
         // Account for the fact that if i is large we may have jumped several steps.
-        std::size_t stride{m_Steps * std::min(m_Pos, m_Size) / m_Size - m_LastProgress};
-
+        std::size_t stride{m_Steps * std::min(m_Pos, m_Range) / m_Range - m_LastProgress};
         m_RecordProgress(static_cast<double>(stride) * m_StepProgress);
         m_LastProgress += stride;
     }
+}
+
+void CLoopProgress::incrementRange(int i) {
+    std::size_t steps{m_Steps};
+    m_Range += i;
+    m_Steps = std::min(m_Range, m_Steps);
+    // Check if we need to advance progress to reflect a lower range.
+    if (steps * m_Pos + 1 > (m_LastProgress + 1) * m_Range) {
+        std::size_t stride{steps * std::min(m_Pos, m_Range) / m_Range - m_LastProgress};
+        m_RecordProgress(static_cast<double>(stride) * m_StepProgress);
+        m_LastProgress = m_Steps * std::min(m_Pos, m_Range) / m_Range;
+    }
+    m_StepProgress *= static_cast<double>(steps) / static_cast<double>(m_Steps);
 }
 
 void CLoopProgress::resumeRestored() {
@@ -59,7 +70,7 @@ void CLoopProgress::resumeRestored() {
 
 std::uint64_t CLoopProgress::checksum() const {
     std::uint64_t seed{core::CHashing::hashCombine(
-        static_cast<std::uint64_t>(m_Size), static_cast<std::uint64_t>(m_Steps))};
+        static_cast<std::uint64_t>(m_Range), static_cast<std::uint64_t>(m_Steps))};
     std::hash<std::string> stringHasher;
     seed = core::CHashing::hashCombine(
         seed, stringHasher(core::CStringUtils::typeToStringPrecise(
@@ -68,7 +79,7 @@ std::uint64_t CLoopProgress::checksum() const {
 }
 
 void CLoopProgress::acceptPersistInserter(CStatePersistInserter& inserter) const {
-    inserter.insertValue(LOOP_SIZE_TAG, m_Size);
+    inserter.insertValue(LOOP_RANGE_TAG, m_Range);
     inserter.insertValue(PROGRESS_STEPS_TAG, m_Steps);
     inserter.insertValue(CURRENT_STEP_PROGRESS_TAG, m_StepProgress,
                          core::CIEEE754::E_DoublePrecision);
@@ -80,7 +91,7 @@ void CLoopProgress::acceptPersistInserter(CStatePersistInserter& inserter) const
 bool CLoopProgress::acceptRestoreTraverser(CStateRestoreTraverser& traverser) {
     do {
         const std::string& name{traverser.name()};
-        RESTORE_BUILT_IN(LOOP_SIZE_TAG, m_Size)
+        RESTORE_BUILT_IN(LOOP_RANGE_TAG, m_Range)
         RESTORE_BUILT_IN(PROGRESS_STEPS_TAG, m_Steps)
         RESTORE_BUILT_IN(CURRENT_STEP_PROGRESS_TAG, m_StepProgress)
         RESTORE_BUILT_IN(LOOP_POS_TAG, m_Pos)
