@@ -25,6 +25,12 @@ public:
         E_PredictionFieldTypeBool
     };
 
+public:
+    static const std::string NUM_TOP_CLASSES;
+    static const std::string PREDICTION_FIELD_TYPE;
+    static const std::string CLASS_ASSIGNMENT_OBJECTIVE;
+
+public:
     static const CDataFrameAnalysisConfigReader& parameterReader();
 
     //! This is not intended to be called directly: use CDataFrameTrainBoostedTreeClassifierRunnerFactory.
