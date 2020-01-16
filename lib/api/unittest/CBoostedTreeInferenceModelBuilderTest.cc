@@ -97,10 +97,11 @@ BOOST_AUTO_TEST_CASE(testIntegrationRegression) {
         values[2].push_back(values[0][i] * weights[0] + values[1][i] * weights[1]);
     }
 
-    api::CDataFrameAnalyzer analyzer{test::CDataFrameAnalysisSpecificationFactory::predictionSpec(
-                                         "regression", "target_col", numberExamples,
-                                         cols, 30000000, 0, 0, {"categorical_col"}),
-                                     outputWriterFactory};
+    api::CDataFrameAnalyzer analyzer{
+        test::CDataFrameAnalysisSpecificationFactory::predictionSpec(
+            test::CDataFrameAnalysisSpecificationFactory::regression(), "target_col",
+            numberExamples, cols, 30000000, 0, 0, {"categorical_col"}),
+        outputWriterFactory};
 
     TDataFrameUPtr frame =
         core::makeMainStorageDataFrame(cols + 2, numberExamples).first;
@@ -187,8 +188,8 @@ BOOST_AUTO_TEST_CASE(testIntegrationClassification) {
 
     api::CDataFrameAnalyzer analyzer{
         test::CDataFrameAnalysisSpecificationFactory::predictionSpec(
-            "classification", "target_col", numberExamples, cols, 30000000, 0,
-            0, {"categorical_col", "target_col"}),
+            test::CDataFrameAnalysisSpecificationFactory::classification(), "target_col",
+            numberExamples, cols, 30000000, 0, 0, {"categorical_col", "target_col"}),
         outputWriterFactory};
 
     TDataFrameUPtr frame =
@@ -247,10 +248,11 @@ BOOST_AUTO_TEST_CASE(testJsonSchema) {
         values[2].push_back(values[0][i] * weights[0] + values[1][i] * weights[1]);
     }
 
-    api::CDataFrameAnalyzer analyzer{test::CDataFrameAnalysisSpecificationFactory::predictionSpec(
-                                         "regression", "target_col", numberExamples,
-                                         cols, 30000000, 0, 0, {"categorical_col"}),
-                                     outputWriterFactory};
+    api::CDataFrameAnalyzer analyzer{
+        test::CDataFrameAnalysisSpecificationFactory::predictionSpec(
+            test::CDataFrameAnalysisSpecificationFactory::regression(), "target_col",
+            numberExamples, cols, 30000000, 0, 0, {"categorical_col"}),
+        outputWriterFactory};
 
     TDataFrameUPtr frame =
         core::makeMainStorageDataFrame(cols + 2, numberExamples).first;
