@@ -21,6 +21,7 @@
 namespace CPersistenceManagerTest {
 class CTestFixture;
 struct testCategorizationOnlyPersist;
+struct testBackgroundPersistCategorizationConsistency;
 }
 
 namespace ml {
@@ -218,6 +219,7 @@ private:
     // For testing
     friend class CPersistenceManagerTest::CTestFixture;
     friend struct CPersistenceManagerTest::testCategorizationOnlyPersist;
+    friend struct CPersistenceManagerTest::testBackgroundPersistCategorizationConsistency;
 };
 }
 }

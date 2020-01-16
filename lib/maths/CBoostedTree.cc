@@ -264,6 +264,10 @@ bool CMse::isCurvatureConstant() const {
     return true;
 }
 
+double CMse::transform(double prediction) const {
+    return prediction;
+}
+
 CArgMinLoss CMse::minimizer(double lambda) const {
     return this->makeMinimizer(CArgMinMseImpl{lambda});
 }
@@ -302,6 +306,10 @@ double CLogistic::curvature(double prediction, double /*actual*/, double weight)
 
 bool CLogistic::isCurvatureConstant() const {
     return false;
+}
+
+double CLogistic::transform(double prediction) const {
+    return CTools::logisticFunction(prediction);
 }
 
 CArgMinLoss CLogistic::minimizer(double lambda) const {
@@ -401,7 +409,7 @@ void CBoostedTreeNode::accept(CVisitor& visitor) const {
 CBoostedTree::CBoostedTree(core::CDataFrame& frame,
                            TTrainingStateCallback recordTrainingState,
                            TImplUPtr&& impl)
-    : CDataFrameRegressionModel{frame, std::move(recordTrainingState)}, m_Impl{std::move(impl)} {
+    : CDataFramePredictiveModel{frame, std::move(recordTrainingState)}, m_Impl{std::move(impl)} {
 }
 
 CBoostedTree::~CBoostedTree() = default;
@@ -418,10 +426,6 @@ void CBoostedTree::computeShapValues() {
     m_Impl->computeShapValues(this->frame());
 }
 
-const CBoostedTree::TDoubleVec& CBoostedTree::featureWeights() const {
-    return m_Impl->featureWeights();
-}
-
 std::size_t CBoostedTree::columnHoldingDependentVariable() const {
     return m_Impl->columnHoldingDependentVariable();
 }
@@ -430,8 +434,16 @@ std::size_t CBoostedTree::columnHoldingPrediction() const {
     return m_Impl->numberInputColumns();
 }
 
+double CBoostedTree::probabilityAtWhichToAssignClassOne() const {
+    return m_Impl->probabilityAtWhichToAssignClassOne();
+}
+
 const CBoostedTree::TNodeVecVec& CBoostedTree::trainedModel() const {
     return m_Impl->trainedModel();
+}
+
+const CBoostedTree::TDoubleVec& CBoostedTree::featureWeightsForTraining() const {
+    return m_Impl->featureSampleProbabilities();
 }
 
 const std::string& CBoostedTree::bestHyperparametersName() {
@@ -462,7 +474,7 @@ const CBoostedTreeHyperparameters& CBoostedTree::bestHyperparameters() const {
     return m_Impl->bestHyperparameters();
 }
 
-CDataFrameRegressionModel::TSizeRange CBoostedTree::columnsHoldingShapValues() const {
+CBoostedTree::TSizeRange CBoostedTree::columnsHoldingShapValues() const {
     return m_Impl->columnsHoldingShapValues();
 }
 

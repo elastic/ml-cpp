@@ -91,6 +91,7 @@ BOOST_AUTO_TEST_CASE(testAccuracy) {
     // resource limit is close enough to the limit that we specified
 
     std::size_t nonLimitedUsage{0};
+    std::size_t limitedUsage{0};
 
     {
         // Without limits, this data set should make the models around
@@ -131,9 +132,9 @@ BOOST_AUTO_TEST_CASE(testAccuracy) {
             LOG_TRACE(<< "Checking results");
 
             BOOST_REQUIRE_EQUAL(uint64_t(18630), job.numRecordsHandled());
-        }
 
-        nonLimitedUsage = limits.resourceMonitor().totalMemory();
+            nonLimitedUsage = limits.resourceMonitor().totalMemory();
+        }
     }
     {
         // Now run the data with limiting
@@ -174,12 +175,13 @@ BOOST_AUTO_TEST_CASE(testAccuracy) {
             LOG_TRACE(<< "Checking results");
 
             BOOST_REQUIRE_EQUAL(uint64_t(18630), job.numRecordsHandled());
+
+            // TODO this limit must be tightened once there is more granular
+            // control over the model memory creation
+            limitedUsage = limits.resourceMonitor().totalMemory();
         }
         LOG_TRACE(<< outputStrm.str());
 
-        // TODO this limit must be tightened once there is more granular control
-        // over the model memory creation
-        std::size_t limitedUsage = limits.resourceMonitor().totalMemory();
         LOG_DEBUG(<< "Non-limited usage: " << nonLimitedUsage << "; limited: " << limitedUsage);
         BOOST_TEST_REQUIRE(limitedUsage < nonLimitedUsage);
     }

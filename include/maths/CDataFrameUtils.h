@@ -67,7 +67,7 @@ public:
     using TSizeDoublePrVecVec = std::vector<TSizeDoublePrVec>;
     using TSizeDoublePrVecVecVec = std::vector<TSizeDoublePrVecVec>;
     using TRowRef = core::CDataFrame::TRowRef;
-    using TWeightFunction = std::function<double(TRowRef)>;
+    using TWeightFunction = std::function<double(const TRowRef&)>;
     using TQuantileSketchVec = std::vector<CQuantileSketch>;
     using TPackedBitVectorVec = std::vector<core::CPackedBitVector>;
 
@@ -337,6 +337,21 @@ public:
                                           const core::CDataFrame& frame,
                                           const core::CPackedBitVector& rowMask,
                                           TSizeVec columnMask);
+
+    //! Compute the decision threshold to apply to the predicted probability a row
+    //! is class one which maximizes the minimum per class recall.
+    //!
+    //! \param[in] numberThreads The number of threads available.
+    //! \param[in] frame The data frame for which to compute the threshold.
+    //! \param[in] rowMask A mask of the rows from which to compute the threshold.
+    //! \param[in] targetColumn The index of the column to predict.
+    //! \param[in] predictionColumn The index of the column containing the prediction.
+    static double
+    maximumMinimumRecallDecisionThreshold(std::size_t numberThreads,
+                                          const core::CDataFrame& frame,
+                                          const core::CPackedBitVector& rowMask,
+                                          std::size_t targetColumn,
+                                          std::size_t predictionColumn);
 
     //! Check if a data frame value is missing.
     static bool isMissing(double value);

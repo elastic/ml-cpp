@@ -12,6 +12,7 @@
 
 #include <maths/CBoostedTree.h>
 #include <maths/CBoostedTreeFactory.h>
+#include <maths/CDataFramePredictiveModel.h>
 #include <maths/CDataFrameUtils.h>
 #include <maths/COrderings.h>
 #include <maths/CTools.h>
@@ -35,34 +36,41 @@ using TStrSet = std::set<std::string>;
 // Configuration
 const std::string NUM_TOP_CLASSES{"num_top_classes"};
 const std::string PREDICTION_FIELD_TYPE{"prediction_field_type"};
-const std::string BALANCED_CLASS_LOSS{"balanced_class_loss"};
+const std::string CLASS_ASSIGNMENT_OBJECTIVE{"class_assignment_objective"};
 
 // Output
 const std::string IS_TRAINING_FIELD_NAME{"is_training"};
 const std::string PREDICTION_PROBABILITY_FIELD_NAME{"prediction_probability"};
+const std::string PREDICTION_SCORE_FIELD_NAME{"prediction_score"};
 const std::string TOP_CLASSES_FIELD_NAME{"top_classes"};
 const std::string CLASS_NAME_FIELD_NAME{"class_name"};
 const std::string CLASS_PROBABILITY_FIELD_NAME{"class_probability"};
+const std::string CLASS_SCORE_FIELD_NAME{"class_score"};
 
 const TStrSet PREDICTION_FIELD_NAME_BLACKLIST{
-    IS_TRAINING_FIELD_NAME, PREDICTION_PROBABILITY_FIELD_NAME, TOP_CLASSES_FIELD_NAME};
+    IS_TRAINING_FIELD_NAME, PREDICTION_PROBABILITY_FIELD_NAME,
+    PREDICTION_SCORE_FIELD_NAME, TOP_CLASSES_FIELD_NAME};
 }
 
 const CDataFrameAnalysisConfigReader&
 CDataFrameTrainBoostedTreeClassifierRunner::parameterReader() {
     static const CDataFrameAnalysisConfigReader PARAMETER_READER{[] {
+        auto theReader = CDataFrameTrainBoostedTreeRunner::parameterReader();
+        theReader.addParameter(NUM_TOP_CLASSES, CDataFrameAnalysisConfigReader::E_OptionalParameter);
         const std::string typeString{"string"};
         const std::string typeInt{"int"};
         const std::string typeBool{"bool"};
-        auto theReader = CDataFrameTrainBoostedTreeRunner::parameterReader();
-        theReader.addParameter(NUM_TOP_CLASSES, CDataFrameAnalysisConfigReader::E_OptionalParameter);
         theReader.addParameter(PREDICTION_FIELD_TYPE,
                                CDataFrameAnalysisConfigReader::E_OptionalParameter,
                                {{typeString, int{E_PredictionFieldTypeString}},
                                 {typeInt, int{E_PredictionFieldTypeInt}},
                                 {typeBool, int{E_PredictionFieldTypeBool}}});
-        theReader.addParameter(BALANCED_CLASS_LOSS,
-                               CDataFrameAnalysisConfigReader::E_OptionalParameter);
+        const std::string accuracy{"maximize_accuracy"};
+        const std::string minRecall{"maximize_minimum_recall"};
+        theReader.addParameter(
+            CLASS_ASSIGNMENT_OBJECTIVE, CDataFrameAnalysisConfigReader::E_OptionalParameter,
+            {{accuracy, int{maths::CDataFramePredictiveModel::E_Accuracy}},
+             {minRecall, int{maths::CDataFramePredictiveModel::E_MinimumRecall}}});
         return theReader;
     }()};
     return PARAMETER_READER;
@@ -76,8 +84,8 @@ CDataFrameTrainBoostedTreeClassifierRunner::CDataFrameTrainBoostedTreeClassifier
     m_NumTopClasses = parameters[NUM_TOP_CLASSES].fallback(std::size_t{0});
     m_PredictionFieldType =
         parameters[PREDICTION_FIELD_TYPE].fallback(E_PredictionFieldTypeString);
-    this->boostedTreeFactory().balanceClassTrainingLoss(
-        parameters[BALANCED_CLASS_LOSS].fallback(true));
+    this->boostedTreeFactory().classAssignmentObjective(
+        parameters[CLASS_ASSIGNMENT_OBJECTIVE].fallback(maths::CBoostedTree::E_MinimumRecall));
 
     const TStrVec& categoricalFieldNames{spec.categoricalFieldNames()};
     if (std::find(categoricalFieldNames.begin(), categoricalFieldNames.end(),
@@ -111,47 +119,64 @@ TBoolVec CDataFrameTrainBoostedTreeClassifierRunner::columnsForWhichEmptyIsMissi
 
 void CDataFrameTrainBoostedTreeClassifierRunner::writeOneRow(
     const core::CDataFrame& frame,
-    const std::size_t columnHoldingDependentVariable,
-    const std::size_t columnHoldingPrediction,
     const TRowRef& row,
     core::CRapidJsonConcurrentLineWriter& writer) const {
 
-    const TStrVec& categoryValues{frame.categoricalColumnValues()[columnHoldingDependentVariable]};
+    const auto& tree = this->boostedTree();
+    this->writeOneRow(frame, tree.columnHoldingDependentVariable(),
+                      tree.columnHoldingPrediction(),
+                      tree.probabilityAtWhichToAssignClassOne(), row, writer);
+}
+
+void CDataFrameTrainBoostedTreeClassifierRunner::writeOneRow(
+    const core::CDataFrame& frame,
+    std::size_t columnHoldingDependentVariable,
+    std::size_t columnHoldingPrediction,
+    double probabilityAtWhichToAssignClassOne,
+    const TRowRef& row,
+    core::CRapidJsonConcurrentLineWriter& writer) const {
+
     // TODO generalise when supporting multiple categories.
 
-    // Fetch log odds of category encoded as "1" (the categories are encoded as "0" and "1").
-    double predictedLogOddsOfCategory1{row[columnHoldingPrediction]};
-    double probabilityOfCategory1{maths::CTools::logisticFunction(predictedLogOddsOfCategory1)};
-    // Since currently we only support two categories, we can calculate probability of category "0"
-    // as (1.0 - probabilityOfCategory1).
-    TDoubleVec probabilityOfCategory{1.0 - probabilityOfCategory1, probabilityOfCategory1};
+    // Fetch log odds of class encoded as "1" (the classes are encoded as "0" and "1").
+    double predictedLogOddsOfClass1{row[columnHoldingPrediction]};
+    double probabilityOfClass1{maths::CTools::logisticFunction(predictedLogOddsOfClass1)};
 
-    double actualCategoryId{row[columnHoldingDependentVariable]};
-    std::size_t predictedCategoryId(std::max_element(probabilityOfCategory.begin(),
-                                                     probabilityOfCategory.end()) -
-                                    probabilityOfCategory.begin());
+    // We adjust the probabilities to account for the threshold for choosing class 1.
 
+    TDoubleVec probabilities{1.0 - probabilityOfClass1, probabilityOfClass1};
+    TDoubleVec scores{0.5 / (1.0 - probabilityAtWhichToAssignClassOne) * probabilities[0],
+                      0.5 / probabilityAtWhichToAssignClassOne * probabilities[1]};
+
+    double actualClassId{row[columnHoldingDependentVariable]};
+    std::size_t predictedClassId(std::max_element(scores.begin(), scores.end()) -
+                                 scores.begin());
+
+    const TStrVec& classValues{frame.categoricalColumnValues()[columnHoldingDependentVariable]};
     writer.StartObject();
     writer.Key(this->predictionFieldName());
-    writePredictedCategoryValue(categoryValues[predictedCategoryId], writer);
+    writePredictedCategoryValue(classValues[predictedClassId], writer);
     writer.Key(PREDICTION_PROBABILITY_FIELD_NAME);
-    writer.Double(probabilityOfCategory[predictedCategoryId]);
+    writer.Double(probabilities[predictedClassId]);
+    writer.Key(PREDICTION_SCORE_FIELD_NAME);
+    writer.Double(scores[predictedClassId]);
     writer.Key(IS_TRAINING_FIELD_NAME);
-    writer.Bool(maths::CDataFrameUtils::isMissing(actualCategoryId) == false);
+    writer.Bool(maths::CDataFrameUtils::isMissing(actualClassId) == false);
 
     if (m_NumTopClasses > 0) {
-        TSizeVec categoryIds(probabilityOfCategory.size());
-        std::iota(categoryIds.begin(), categoryIds.end(), 0);
-        maths::COrderings::simultaneousSort(probabilityOfCategory, categoryIds,
-                                            std::greater<double>());
+        TSizeVec classIds(scores.size());
+        std::iota(classIds.begin(), classIds.end(), 0);
+        maths::COrderings::simultaneousSort(scores, classIds, std::greater<double>());
         writer.Key(TOP_CLASSES_FIELD_NAME);
         writer.StartArray();
-        for (std::size_t i = 0; i < std::min(categoryIds.size(), m_NumTopClasses); ++i) {
+        for (std::size_t i = 0; i < std::min(classIds.size(), m_NumTopClasses); ++i) {
             writer.StartObject();
             writer.Key(CLASS_NAME_FIELD_NAME);
-            writePredictedCategoryValue(categoryValues[categoryIds[i]], writer);
+            writePredictedCategoryValue(classValues[classIds[i]], writer);
             writer.Key(CLASS_PROBABILITY_FIELD_NAME);
-            writer.Double(probabilityOfCategory[i]);
+            writer.Double(probabilities[i]);
+            writer.Key(CLASS_SCORE_FIELD_NAME);
+            writer.Double(scores[i]);
             writer.EndObject();
         }
         writer.EndArray();
@@ -168,23 +193,13 @@ void CDataFrameTrainBoostedTreeClassifierRunner::writeOneRow(
         }
         largestShapValues.sort();
         for (auto i : largestShapValues) {
-            writer.Key(frame.columnNames()[i]);
-            writer.Double(row[i]);
+            if (row[i] != 0.0) {
+                writer.Key(frame.columnNames()[i]);
+                writer.Double(row[i]);
+            }
         }
     }
     writer.EndObject();
-}
-
-void CDataFrameTrainBoostedTreeClassifierRunner::writeOneRow(
-    const core::CDataFrame& frame,
-    const TRowRef& row,
-    core::CRapidJsonConcurrentLineWriter& writer) const {
-
-    const auto& tree = this->boostedTree();
-    const std::size_t columnHoldingDependentVariable{tree.columnHoldingDependentVariable()};
-    const std::size_t columnHoldingPrediction{tree.columnHoldingPrediction()};
-    this->writeOneRow(frame, columnHoldingDependentVariable,
-                      columnHoldingPrediction, row, writer);
 }
 
 void CDataFrameTrainBoostedTreeClassifierRunner::writePredictedCategoryValue(

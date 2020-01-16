@@ -56,12 +56,17 @@ public:
     CBoostedTreeFactory(CBoostedTreeFactory&&);
     CBoostedTreeFactory& operator=(CBoostedTreeFactory&&);
 
+    //! Set the objective to use when choosing the class assignments.
+    CBoostedTreeFactory&
+    classAssignmentObjective(CBoostedTree::EClassAssignmentObjective objective);
     //! Set the minimum fraction with a category value to one-hot encode.
     CBoostedTreeFactory& minimumFrequencyToOneHotEncode(double frequency);
     //! Set the number of folds to use for estimating the generalisation error.
     CBoostedTreeFactory& numberFolds(std::size_t numberFolds);
-    //! Stratify the cross validation we do for regression.
+    //! Stratify the cross-validation we do for regression.
     CBoostedTreeFactory& stratifyRegressionCrossValidation(bool stratify);
+    //! Stop cross-validation early if the test loss is not promising.
+    CBoostedTreeFactory& stopCrossValidationEarly(bool stopEarly);
     //! The number of rows per feature to sample in the initial downsample.
     CBoostedTreeFactory& initialDownsampleRowsPerFeature(double rowsPerFeature);
     //! Set the sum of leaf depth penalties multiplier.
@@ -90,14 +95,9 @@ public:
     CBoostedTreeFactory& bayesianOptimisationRestarts(std::size_t restarts);
     //! Set the number of training examples we need per feature we'll include.
     CBoostedTreeFactory& rowsPerFeature(std::size_t rowsPerFeature);
-
     //! Set the number of training examples we need per feature we'll include.
     CBoostedTreeFactory& topShapValues(std::size_t topShapValues);
 
-    //! Set whether to try and balance within class accuracy. For classification
-    //! this reweights examples so approximately the same total loss is assigned
-    //! to every class.
-    CBoostedTreeFactory& balanceClassTrainingLoss(bool balance);
     //! Set pointer to the analysis instrumentation.
     CBoostedTreeFactory& analysisInstrumentation(TAnalysisInstrumentationPtr instrumentation);
     //! Set the callback function for progress monitoring.
@@ -136,6 +136,9 @@ private:
 
     //! Compute the row masks for the missing values for each feature.
     void initializeMissingFeatureMasks(const core::CDataFrame& frame) const;
+
+    //! Set up the number of folds we'll use for cross-validation.
+    void initializeNumberFolds(core::CDataFrame& frame) const;
 
     //! Set up cross validation.
     void initializeCrossValidation(core::CDataFrame& frame) const;
@@ -191,16 +194,15 @@ private:
     void resumeRestoredTrainingProgressMonitoring();
 
     //! The maximum number of trees to use in the hyperparameter optimisation loop.
-    std::size_t mainLoopMaximumNumberTrees() const;
+    std::size_t mainLoopMaximumNumberTrees(double eta) const;
 
     static void noopRecordProgress(double);
     static void noopRecordMemoryUsage(std::int64_t);
-    static void noopRecordTrainingState(CDataFrameRegressionModel::TPersistFunc);
+    static void noopRecordTrainingState(CBoostedTree::TPersistFunc);
 
 private:
     TOptionalDouble m_MinimumFrequencyToOneHotEncode;
     TOptionalSize m_BayesianOptimisationRestarts;
-    bool m_BalanceClassTrainingLoss = true;
     bool m_StratifyRegressionCrossValidation = true;
     double m_InitialDownsampleRowsPerFeature = 200.0;
     std::size_t m_NumberThreads;

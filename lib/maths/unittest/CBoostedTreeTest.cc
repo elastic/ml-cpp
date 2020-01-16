@@ -516,10 +516,11 @@ BOOST_AUTO_TEST_CASE(testConstantFeatures) {
 
     regression->train();
 
-    TDoubleVec featureWeights(regression->featureWeights());
+    TDoubleVec featureWeightsForTraining(regression->featureWeightsForTraining());
 
-    LOG_DEBUG(<< "feature weights = " << core::CContainerPrinter::print(featureWeights));
-    BOOST_TEST_REQUIRE(featureWeights[cols - 2] < 1e-4);
+    LOG_DEBUG(<< "feature weights = "
+              << core::CContainerPrinter::print(featureWeightsForTraining));
+    BOOST_TEST_REQUIRE(featureWeightsForTraining[cols - 2] < 1e-4);
 }
 
 BOOST_AUTO_TEST_CASE(testConstantTarget) {
@@ -1148,7 +1149,6 @@ BOOST_AUTO_TEST_CASE(testLogisticRegression) {
         auto regression =
             maths::CBoostedTreeFactory::constructFromParameters(1)
                 .analysisInstrumentation(&instr)
-                .balanceClassTrainingLoss(false)
                 .buildFor(*frame, std::make_unique<maths::boosted_tree::CLogistic>(),
                           cols - 1);
 
@@ -1180,12 +1180,10 @@ BOOST_AUTO_TEST_CASE(testLogisticRegression) {
     BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(meanLogRelativeError) < 0.52);
 }
 
-// TODO We need to actively (rather than indirectly control error rates) at which
-// point I should be able to tighten the assertions and re-enable this test.
-BOOST_AUTO_TEST_CASE(testUnbalancedClasses, *boost::unit_test::disabled()) {
+BOOST_AUTO_TEST_CASE(testImbalancedClasses) {
 
     // Test we get similar per class precision and recall with unbalanced training
-    // data targeting balanced within class accuracy.
+    // data when using the calculated decision threshold to assign to class one.
 
     test::CRandomNumbers rng;
 
@@ -1206,36 +1204,35 @@ BOOST_AUTO_TEST_CASE(testUnbalancedClasses, *boost::unit_test::disabled()) {
         x.insert(x.end(), xi.begin(), xi.end());
     }
 
-    TDoubleVecVec precisions;
-    TDoubleVecVec recalls;
-
-    for (bool balanceClassTrainingLoss : {false, true}) {
-        auto frame = core::makeMainStorageDataFrame(cols).first;
-        frame->categoricalColumns(TBoolVec{false, false, true});
-        for (std::size_t i = 0, index = 0; i < 4; ++i) {
-            for (std::size_t j = 0; j < classesRowCounts[i]; ++j, ++index) {
-                frame->writeRow([&](core::CDataFrame::TFloatVecItr column, std::int32_t&) {
-                    for (std::size_t k = 0; k < cols - 1; ++k, ++column) {
-                        *column = x[index][k];
-                    }
-                    *column = index < trainRows ? static_cast<double>(i)
-                                                : core::CDataFrame::valueOfMissing();
-                });
-            }
+    auto frame = core::makeMainStorageDataFrame(cols).first;
+    frame->categoricalColumns(TBoolVec{false, false, true});
+    for (std::size_t i = 0, index = 0; i < 4; ++i) {
+        for (std::size_t j = 0; j < classesRowCounts[i]; ++j, ++index) {
+            frame->writeRow([&](core::CDataFrame::TFloatVecItr column, std::int32_t&) {
+                for (std::size_t k = 0; k < cols - 1; ++k, ++column) {
+                    *column = x[index][k];
+                }
+                *column = index < trainRows ? static_cast<double>(i)
+                                            : core::CDataFrame::valueOfMissing();
+            });
         }
-        frame->finishWritingRows();
-        CStubInstrumentation instr;
+    }
+    frame->finishWritingRows();
+    CStubInstrumentation instr;
 
-        auto regression =
-            maths::CBoostedTreeFactory::constructFromParameters(1)
-                .analysisInstrumentation(&instr)
-                .balanceClassTrainingLoss(balanceClassTrainingLoss)
-                .buildFor(*frame, std::make_unique<maths::boosted_tree::CLogistic>(),
-                          cols - 1);
+    auto regression =
+        maths::CBoostedTreeFactory::constructFromParameters(1)
+            .analysisInstrumentation(&instr)
+            .buildFor(*frame, std::make_unique<maths::boosted_tree::CLogistic>(), cols - 1);
 
-        regression->train();
-        regression->predict();
+    regression->train();
+    regression->predict();
+    LOG_DEBUG(<< "P(class 1) threshold = "
+              << regression->probabilityAtWhichToAssignClassOne());
 
+    TDoubleVec precisions;
+    TDoubleVec recalls;
+    {
         TDoubleVec truePositives(2, 0.0);
         TDoubleVec trueNegatives(2, 0.0);
         TDoubleVec falsePositives(2, 0.0);
@@ -1243,8 +1240,10 @@ BOOST_AUTO_TEST_CASE(testUnbalancedClasses, *boost::unit_test::disabled()) {
         frame->readRows(1, [&](TRowItr beginRows, TRowItr endRows) {
             for (auto row = beginRows; row != endRows; ++row) {
                 double logOddsClassOne{(*row)[regression->columnHoldingPrediction()]};
-                double prediction{
-                    maths::CTools::logisticFunction(logOddsClassOne) < 0.5 ? 0.0 : 1.0};
+                double prediction{maths::CTools::logisticFunction(logOddsClassOne) <
+                                          regression->probabilityAtWhichToAssignClassOne()
+                                      ? 0.0
+                                      : 1.0};
                 if (row->index() >= trainRows &&
                     row->index() < trainRows + classesRowCounts[2]) {
                     // Actual is zero.
@@ -1257,22 +1256,17 @@ BOOST_AUTO_TEST_CASE(testUnbalancedClasses, *boost::unit_test::disabled()) {
                 }
             }
         });
-
-        precisions.push_back(
-            {truePositives[0] / (truePositives[0] + falsePositives[0]),
-             truePositives[1] / (truePositives[1] + falsePositives[1])});
-        recalls.push_back({truePositives[0] / (truePositives[0] + falseNegatives[0]),
-                           truePositives[1] / (truePositives[1] + falseNegatives[1])});
+        precisions.push_back(truePositives[0] / (truePositives[0] + falsePositives[0]));
+        precisions.push_back(truePositives[1] / (truePositives[1] + falsePositives[1]));
+        recalls.push_back(truePositives[0] / (truePositives[0] + falseNegatives[0]));
+        recalls.push_back(truePositives[1] / (truePositives[1] + falseNegatives[1]));
     }
 
     LOG_DEBUG(<< "precisions = " << core::CContainerPrinter::print(precisions));
     LOG_DEBUG(<< "recalls    = " << core::CContainerPrinter::print(recalls));
 
-    // We expect more similar precision and recall when balancing training loss.
-    BOOST_TEST_REQUIRE(std::fabs(precisions[1][0] - precisions[1][1]) <
-                       0.4 * std::fabs(precisions[0][0] - precisions[0][1]));
-    BOOST_TEST_REQUIRE(std::fabs(recalls[1][0] - recalls[1][1]) <
-                       0.25 * std::fabs(recalls[0][0] - recalls[0][1]));
+    BOOST_TEST_REQUIRE(std::fabs(precisions[0] - precisions[1]) < 0.1);
+    BOOST_TEST_REQUIRE(std::fabs(recalls[0] - recalls[1]) < 0.15);
 }
 
 BOOST_AUTO_TEST_CASE(testEstimateMemoryUsedByTrain) {

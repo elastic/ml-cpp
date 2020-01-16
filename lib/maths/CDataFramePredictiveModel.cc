@@ -4,24 +4,24 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
-#include <maths/CDataFrameRegressionModel.h>
+#include <maths/CDataFramePredictiveModel.h>
 
 namespace ml {
 namespace maths {
 
-const std::string CDataFrameRegressionModel::SHAP_PREFIX{"feature_importance."};
+const std::string CDataFramePredictiveModel::SHAP_PREFIX{"feature_importance."};
 
-CDataFrameRegressionModel::CDataFrameRegressionModel(core::CDataFrame& frame,
+CDataFramePredictiveModel::CDataFramePredictiveModel(core::CDataFrame& frame,
                                                      TTrainingStateCallback recordTrainingState)
     : m_Frame{frame}, m_RecordTrainingState(std::move(recordTrainingState)) {
 }
 
-core::CDataFrame& CDataFrameRegressionModel::frame() const {
+core::CDataFrame& CDataFramePredictiveModel::frame() const {
     return m_Frame;
 }
 
-const CDataFrameRegressionModel::TTrainingStateCallback&
-CDataFrameRegressionModel::trainingStateRecorder() const {
+const CDataFramePredictiveModel::TTrainingStateCallback&
+CDataFramePredictiveModel::trainingStateRecorder() const {
     return m_RecordTrainingState;
 }
 }

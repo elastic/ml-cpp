@@ -54,9 +54,11 @@ public:
     using TMeanAccumulator = CBasicStatistics::SSampleMean<double>::TAccumulator;
     using TMeanVarAccumulator = CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
     using TMeanVarAccumulatorSizePr = std::pair<TMeanVarAccumulator, std::size_t>;
+    using TMeanVarAccumulatorVec = std::vector<TMeanVarAccumulator>;
     using TBayesinOptimizationUPtr = std::unique_ptr<maths::CBayesianOptimisation>;
     using TNodeVec = CBoostedTree::TNodeVec;
     using TNodeVecVec = CBoostedTree::TNodeVecVec;
+    using TLossFunctionUPtr = CBoostedTree::TLossFunctionUPtr;
     using TProgressCallback = CBoostedTree::TProgressCallback;
     using TMemoryUsageCallback = CBoostedTree::TMemoryUsageCallback;
     using TTrainingStateCallback = CBoostedTree::TTrainingStateCallback;
@@ -71,7 +73,7 @@ public:
 
 public:
     CBoostedTreeImpl(std::size_t numberThreads,
-                     CBoostedTree::TLossFunctionUPtr loss,
+                     TLossFunctionUPtr loss,
                      TAnalysisInstrumentationPtr instrumentation = nullptr);
 
     ~CBoostedTreeImpl();
@@ -91,9 +93,6 @@ public:
     //!
     //! \note Must be called only if a trained model is available.
     void computeShapValues(core::CDataFrame& frame);
-
-    //! Get the feature sample probabilities.
-    const TDoubleVec& featureWeights() const;
 
     //! Get the model produced by training if it has been run.
     const TNodeVecVec& trainedModel() const;
@@ -119,16 +118,6 @@ public:
     //! frame with \p numberRows row and \p numberColumns columns will use.
     std::size_t estimateMemoryUsage(std::size_t numberRows, std::size_t numberColumns) const;
 
-    //! The name of the object holding the best hyperaparameters in the state document.
-    static const std::string& bestHyperparametersName();
-
-    //! The name of the object holding the best regularisation hyperparameters in the
-    //! state document.
-    static const std::string& bestRegularizationHyperparametersName();
-
-    //! A list of the names of the best individual hyperparameters in the state document.
-    static TStrVec bestHyperparameterNames();
-
     //! Persist by passing information to \p inserter.
     void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
 
@@ -141,6 +130,9 @@ public:
     //! \return The best hyperparameters for validation error found so far.
     const CBoostedTreeHyperparameters& bestHyperparameters() const;
 
+    //! Get the probability threshold at which to classify a row as class one.
+    double probabilityAtWhichToAssignClassOne() const;
+
     //! Get the indices of the columns containing SHAP values.
     TSizeRange columnsHoldingShapValues() const;
 
@@ -150,9 +142,29 @@ public:
     //! Get the number of columns in the original data frame.
     std::size_t numberInputColumns() const;
 
+    //!\ name Test Only
+    //@{
+    //! The name of the object holding the best hyperaparameters in the state document.
+    static const std::string& bestHyperparametersName();
+
+    //! The name of the object holding the best regularisation hyperparameters in the
+    //! state document.
+    static const std::string& bestRegularizationHyperparametersName();
+
+    //! A list of the names of the best individual hyperparameters in the state document.
+    static TStrVec bestHyperparameterNames();
+
+    //! Get the threshold on the predicted probability of class one at which to
+    //!
+    //! Get the feature sample probabilities.
+    const TDoubleVec& featureSampleProbabilities() const;
+    //@}
+
 private:
     using TSizeDoublePr = std::pair<std::size_t, double>;
     using TDoubleDoublePr = std::pair<double, double>;
+    using TOptionalDoubleVec = std::vector<TOptionalDouble>;
+    using TOptionalDoubleVecVec = std::vector<TOptionalDoubleVec>;
     using TOptionalSize = boost::optional<std::size_t>;
     using TImmutableRadixSetVec = std::vector<core::CImmutableRadixSet<double>>;
     using TVector = CDenseVector<double>;
@@ -417,6 +429,12 @@ private:
     TDoubleDoublePr gainAndCurvatureAtPercentile(double percentile,
                                                  const TNodeVecVec& forest) const;
 
+    //! Presize the collection to hold the per fold test errors.
+    void initializePerFoldTestLosses();
+
+    //! Compute the probability threshold at which to classify a row as class one.
+    void computeProbabilityAtWhichToAssignClassOne(const core::CDataFrame& frame);
+
     //! Train the forest and compute loss moments on each fold.
     TMeanVarAccumulatorSizePr crossValidateForest(core::CDataFrame& frame,
                                                   const TMemoryUsageCallback& recordMemoryUsage);
@@ -447,6 +465,16 @@ private:
                        const TImmutableRadixSetVec& candidateSplits,
                        const std::size_t maximumTreeSize,
                        const TMemoryUsageCallback& recordMemoryUsage) const;
+
+    //! Compute the minimum mean test loss per fold for any round.
+    double minimumTestLoss() const;
+
+    //! Estimate the loss we'll get including the missing folds.
+    TMeanVarAccumulator correctTestLossMoments(const TSizeVec& missing,
+                                               TMeanVarAccumulator lossMoments) const;
+
+    //! Estimate test losses for the \p missing folds.
+    TMeanVarAccumulatorVec estimateMissingTestLosses(const TSizeVec& missing) const;
 
     //! Get the number of features including category encoding.
     std::size_t numberFeatures() const;
@@ -504,8 +532,7 @@ private:
     std::size_t maximumTreeSize(std::size_t numberRows) const;
 
     //! Restore \p loss function pointer from the \p traverser.
-    static bool restoreLoss(CBoostedTree::TLossFunctionUPtr& loss,
-                            core::CStateRestoreTraverser& traverser);
+    static bool restoreLoss(TLossFunctionUPtr& loss, core::CStateRestoreTraverser& traverser);
 
     //! Record the training state using the \p recordTrainState callback function
     void recordState(const TTrainingStateCallback& recordTrainState) const;
@@ -514,13 +541,18 @@ private:
     mutable CPRNG::CXorOShiro128Plus m_Rng;
     std::size_t m_NumberThreads;
     std::size_t m_DependentVariable = std::numeric_limits<std::size_t>::max();
-    CBoostedTree::TLossFunctionUPtr m_Loss;
+    TLossFunctionUPtr m_Loss;
+    CBoostedTree::EClassAssignmentObjective m_ClassAssignmentObjective =
+        CBoostedTree::E_MinimumRecall;
+    bool m_StopCrossValidationEarly = true;
     TRegularizationOverride m_RegularizationOverride;
     TOptionalDouble m_DownsampleFactorOverride;
     TOptionalDouble m_EtaOverride;
+    TOptionalSize m_NumberFoldsOverride;
     TOptionalSize m_MaximumNumberTreesOverride;
     TOptionalDouble m_FeatureBagFractionOverride;
     TRegularization m_Regularization;
+    double m_ProbabilityAtWhichToAssignClassOne = 0.5;
     double m_DownsampleFactor = 0.5;
     double m_Eta = 0.1;
     double m_EtaGrowthRatePerTree = 1.05;
@@ -538,6 +570,7 @@ private:
     TPackedBitVectorVec m_TrainingRowMasks;
     TPackedBitVectorVec m_TestingRowMasks;
     double m_BestForestTestLoss = INF;
+    TOptionalDoubleVecVec m_FoldRoundTestLosses;
     CBoostedTreeHyperparameters m_BestHyperparameters;
     TNodeVecVec m_BestForest;
     TBayesinOptimizationUPtr m_BayesianOptimization;
