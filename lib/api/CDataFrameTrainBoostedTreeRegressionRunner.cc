@@ -24,9 +24,6 @@
 namespace ml {
 namespace api {
 namespace {
-// Configuration
-const std::string STRATIFIED_CROSS_VALIDATION{"stratified_cross_validation"};
-
 // Output
 const std::string IS_TRAINING_FIELD_NAME{"is_training"};
 
@@ -119,6 +116,10 @@ CDataFrameTrainBoostedTreeRegressionRunner::inferenceModelDefinition(
 
     return std::make_unique<CInferenceModelDefinition>(builder.build());
 }
+
+// clang-format off
+const std::string CDataFrameTrainBoostedTreeRegressionRunner::STRATIFIED_CROSS_VALIDATION{"stratified_cross_validation"};
+// clang-format on
 
 const std::string& CDataFrameTrainBoostedTreeRegressionRunnerFactory::name() const {
     return NAME;
