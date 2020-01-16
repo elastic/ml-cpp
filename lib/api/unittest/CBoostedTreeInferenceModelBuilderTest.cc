@@ -9,6 +9,7 @@
 #include <core/CDataSearcher.h>
 #include <core/CFloatStorage.h>
 #include <core/CProgramCounters.h>
+#include <core/CStringUtils.h>
 
 #include <maths/CLinearAlgebraEigen.h>
 
@@ -40,20 +41,16 @@ using namespace ml;
 
 namespace {
 
-using TStrVec = std::vector<std::string>;
-using TDataAdderUPtr = std::unique_ptr<ml::core::CDataAdder>;
-using TPersisterSupplier = std::function<TDataAdderUPtr()>;
-using TDataSearcherUPtr = std::unique_ptr<ml::core::CDataSearcher>;
-using TRestoreSearcherSupplier = std::function<TDataSearcherUPtr()>;
-using TDataFrameUPtr = std::unique_ptr<ml::core::CDataFrame>;
+using TBoolVec = std::vector<bool>;
 using TDoubleVec = std::vector<double>;
 using TDoubleVecVec = std::vector<TDoubleVec>;
-using TPoint = maths::CDenseVector<maths::CFloatStorage>;
-using TPointVec = std::vector<TPoint>;
-using TRowItr = core::CDataFrame::TRowItr;
+using TStrVec = std::vector<std::string>;
 using TStrVecVec = std::vector<TStrVec>;
+using TDataFrameUPtr = std::unique_ptr<core::CDataFrame>;
 
-auto generateCategoricalData(test::CRandomNumbers& rng, std::size_t rows, TDoubleVec expectedFrequencies) {
+auto generateCategoricalData(test::CRandomNumbers& rng,
+                             std::size_t rows,
+                             const TDoubleVec& expectedFrequencies) {
 
     TDoubleVecVec frequencies;
     rng.generateDirichletSamples(expectedFrequencies, 1, frequencies);
@@ -211,16 +208,46 @@ BOOST_AUTO_TEST_CASE(testIntegrationClassification) {
     // assert trained model
     auto trainedModel = dynamic_cast<api::CEnsemble*>(definition->trainedModel().get());
     BOOST_REQUIRE_EQUAL(api::CTrainedModel::E_Classification, trainedModel->targetType());
-    std::size_t expectedSize{core::CProgramCounters::counter(
-        ml::counter_t::E_DFTPMTrainedForestNumberTrees)};
+    std::size_t expectedSize{
+        core::CProgramCounters::counter(counter_t::E_DFTPMTrainedForestNumberTrees)};
     BOOST_REQUIRE_EQUAL(expectedSize, trainedModel->size());
     BOOST_TEST_REQUIRE("logistic_regression" ==
                        trainedModel->aggregateOutput()->stringType());
-    const auto& classificationLabels{trainedModel->classificationLabels()};
-    BOOST_TEST_REQUIRE(classificationLabels.is_initialized() == true);
+    const auto& classificationLabels = trainedModel->classificationLabels();
+    BOOST_TEST_REQUIRE(classificationLabels.is_initialized());
     BOOST_REQUIRE_EQUAL_COLLECTIONS(
         classificationLabels->begin(), classificationLabels->end(),
         expectedClassificationLabels.begin(), expectedClassificationLabels.end());
+
+    const auto& classificationWeights = trainedModel->classificationWeights();
+    BOOST_TEST_REQUIRE(classificationWeights.is_initialized());
+
+    // Check that predicted score matches the value calculated from the inference
+    // classification weights.
+    std::map<bool, std::size_t> classLookup;
+    for (std::size_t i = 0; i < classificationLabels->size(); ++i) {
+        bool labelAsBool;
+        core::CStringUtils::stringToType((*classificationLabels)[i], labelAsBool);
+        classLookup[labelAsBool] = i;
+    }
+    rapidjson::Document results;
+    rapidjson::ParseResult ok(results.Parse(output.str()));
+    BOOST_TEST_REQUIRE(static_cast<bool>(ok) == true);
+    for (const auto& result : results.GetArray()) {
+        if (result.HasMember("row_results")) {
+            std::string prediction{
+                result["row_results"]["results"]["ml"]["target_col_prediction"].GetString()};
+            double probability{
+                result["row_results"]["results"]["ml"]["prediction_probability"].GetDouble()};
+            double score{
+                result["row_results"]["results"]["ml"]["prediction_score"].GetDouble()};
+            bool predictionAsBool;
+            core::CStringUtils::stringToType(prediction, predictionAsBool);
+            std::size_t weight{classLookup[predictionAsBool]};
+            BOOST_REQUIRE_CLOSE((*classificationWeights)[weight] * probability,
+                                score, 1e-3); // 0.001%
+        }
+    }
 }
 
 BOOST_AUTO_TEST_CASE(testJsonSchema) {

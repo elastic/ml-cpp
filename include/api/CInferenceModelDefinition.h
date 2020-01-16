@@ -106,8 +106,10 @@ enum ENumericRelationship { E_LT };
 
 class API_EXPORT CTrainedModel : public CSerializableToJson {
 public:
+    using TDoubleVec = std::vector<double>;
     using TStringVec = std::vector<std::string>;
-    using TStringVecOptional = boost::optional<TStringVec>;
+    using TOptionalDoubleVec = boost::optional<TDoubleVec>;
+    using TOptionalStringVec = boost::optional<TStringVec>;
 
     enum ETargetType { E_Classification, E_Regression };
 
@@ -126,13 +128,20 @@ public:
     virtual ETargetType targetType() const;
     //! Adjust the feature names, e.g. to exclude not used feature names like the target column.
     virtual TStringVec removeUnusedFeatures() = 0;
-    virtual const TStringVecOptional& classificationLabels() const;
+    //! Set the labels to use for each class.
     virtual void classificationLabels(const TStringVec& classificationLabels);
+    //! Get the labels to use for each class.
+    virtual const TOptionalStringVec& classificationLabels() const;
+    //! Set weights by which to multiply classes when doing label assignment.
+    virtual void classificationWeights(const TDoubleVec& classificationWeights);
+    //! Get weights by which to multiply classes when doing label assignment.
+    virtual const TOptionalDoubleVec& classificationWeights() const;
 
 private:
     TStringVec m_FeatureNames;
     ETargetType m_TargetType;
-    TStringVecOptional m_ClassificationLabels;
+    TOptionalStringVec m_ClassificationLabels;
+    TOptionalDoubleVec m_ClassificationWeights;
 };
 
 //! Classification and regression trees.
@@ -203,9 +212,13 @@ public:
     std::size_t size() const;
     TStringVec removeUnusedFeatures() override;
     void targetType(ETargetType targetType) override;
-    ETargetType targetType() const override;
+    //! Set the labels to use for each class.
     void classificationLabels(const TStringVec& classificationLabels) override;
-    const TStringVecOptional& classificationLabels() const override;
+    //! Set weights by which to multiply classes when doing label assignment.
+    void classificationWeights(const TDoubleVec& classificationWeights) override;
+    using CTrainedModel::classificationLabels;
+    using CTrainedModel::classificationWeights;
+    using CTrainedModel::targetType;
 
 private:
     TTrainedModelUPtrVec m_TrainedModels;
