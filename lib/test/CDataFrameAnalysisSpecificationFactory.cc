@@ -11,6 +11,8 @@
 #include <api/CDataFrameAnalysisSpecification.h>
 #include <api/CDataFrameAnalysisSpecificationJsonWriter.h>
 #include <api/CDataFrameOutliersRunner.h>
+#include <api/CDataFrameTrainBoostedTreeClassifierRunner.h>
+#include <api/CDataFrameTrainBoostedTreeRegressionRunner.h>
 #include <api/CDataFrameTrainBoostedTreeRunner.h>
 
 #include <test/CTestTmpDir.h>
@@ -20,6 +22,14 @@
 namespace ml {
 namespace test {
 using TRapidJsonLineWriter = core::CRapidJsonLineWriter<rapidjson::StringBuffer>;
+
+const std::string& CDataFrameAnalysisSpecificationFactory::classification() {
+    return api::CDataFrameTrainBoostedTreeClassifierRunnerFactory::NAME;
+}
+
+const std::string& CDataFrameAnalysisSpecificationFactory::regression() {
+    return api::CDataFrameTrainBoostedTreeRegressionRunnerFactory::NAME;
+}
 
 CDataFrameAnalysisSpecificationFactory::TSpecificationUPtr
 CDataFrameAnalysisSpecificationFactory::outlierSpec(std::size_t rows,
@@ -134,6 +144,10 @@ CDataFrameAnalysisSpecificationFactory::predictionSpec(
     if (numTopFeatureImportanceValues > 0) {
         writer.Key(api::CDataFrameTrainBoostedTreeRunner::NUM_TOP_FEATURE_IMPORTANCE_VALUES);
         writer.Uint64(numTopFeatureImportanceValues);
+    }
+    if (analysis == classification()) {
+        writer.Key(api::CDataFrameTrainBoostedTreeClassifierRunner::NUM_TOP_CLASSES);
+        writer.Uint64(1);
     }
     writer.EndObject();
 
