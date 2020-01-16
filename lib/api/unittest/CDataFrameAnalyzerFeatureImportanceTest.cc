@@ -105,9 +105,10 @@ struct SFixture {
         };
         api::CDataFrameAnalyzer analyzer{
             test::CDataFrameAnalysisSpecificationFactory::predictionSpec(
-                "regression", "target", s_Rows, 5, 8000000, 0, 0, {"c1"}, s_Alpha,
-                s_Lambda, s_Gamma, s_SoftTreeDepthLimit, s_SoftTreeDepthTolerance,
-                s_Eta, s_MaximumNumberTrees, s_FeatureBagFraction, shapValues),
+                test::CDataFrameAnalysisSpecificationFactory::regression(),
+                "target", s_Rows, 5, 8000000, 0, 0, {"c1"}, s_Alpha, s_Lambda,
+                s_Gamma, s_SoftTreeDepthLimit, s_SoftTreeDepthTolerance, s_Eta,
+                s_MaximumNumberTrees, s_FeatureBagFraction, shapValues),
             outputWriterFactory};
         TStrVec fieldNames{"target", "c1", "c2", "c3", "c4", ".", "."};
         TStrVec fieldValues{"", "", "", "", "", "0", ""};
@@ -137,9 +138,10 @@ struct SFixture {
         };
         api::CDataFrameAnalyzer analyzer{
             test::CDataFrameAnalysisSpecificationFactory::predictionSpec(
-                "classification", "target", s_Rows, 5, 8000000, 0, 0, {"target"},
-                s_Alpha, s_Lambda, s_Gamma, s_SoftTreeDepthLimit, s_SoftTreeDepthTolerance,
-                s_Eta, s_MaximumNumberTrees, s_FeatureBagFraction, shapValues),
+                test::CDataFrameAnalysisSpecificationFactory::classification(),
+                "target", s_Rows, 5, 8000000, 0, 0, {"target"}, s_Alpha, s_Lambda,
+                s_Gamma, s_SoftTreeDepthLimit, s_SoftTreeDepthTolerance, s_Eta,
+                s_MaximumNumberTrees, s_FeatureBagFraction, shapValues),
             outputWriterFactory};
         TStrVec fieldNames{"target", "c1", "c2", "c3", "c4", ".", "."};
         TStrVec fieldValues{"", "", "", "", "", "0", ""};

@@ -19,6 +19,9 @@ namespace api {
 class API_EXPORT CDataFrameTrainBoostedTreeRegressionRunner final
     : public CDataFrameTrainBoostedTreeRunner {
 public:
+    static const std::string STRATIFIED_CROSS_VALIDATION;
+
+public:
     static const CDataFrameAnalysisConfigReader& parameterReader();
 
     //! This is not intended to be called directly: use CDataFrameTrainBoostedTreeRegressionRunnerFactory.
