@@ -35,12 +35,17 @@
 * The macOS build platform for the {ml} C++ code is now High Sierra running Xcode 10.1,
   or Ubuntu 18.04 running clang 6.0 for cross compilation. (See {ml-pull}867[#867].)
 
-== {es} version 7.6.0
+== {es} version 7.7.0
 
 === New Features
 
 * Add instrumentation to report statistics related to data frame analytics jobs, i.e.
 progress, memory usage, etc. (See {ml-pull}906[#906].)
+
+== {es} version 7.6.0
+
+=== New Features
+
 * Add feature importance values to classification and regression results (using tree
 SHapley Additive exPlanation, or SHAP). (See {ml-pull}857[#857].)
 
