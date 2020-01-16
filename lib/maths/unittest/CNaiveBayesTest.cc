@@ -262,8 +262,8 @@ BOOST_AUTO_TEST_CASE(testPropagationByTime) {
 BOOST_AUTO_TEST_CASE(testMemoryUsage) {
     // Check invariants.
 
-    using TMemoryUsagePtr = std::unique_ptr<core::CMemoryUsage>;
-    using TNaiveBayesPtr = std::unique_ptr<maths::CNaiveBayes>;
+    using TMemoryUsageUPtr = std::unique_ptr<core::CMemoryUsage>;
+    using TNaiveBayesUPtr = std::unique_ptr<maths::CNaiveBayes>;
 
     test::CRandomNumbers rng;
 
@@ -277,8 +277,8 @@ BOOST_AUTO_TEST_CASE(testMemoryUsage) {
 
     maths::CNormalMeanPrecConjugate normal{maths::CNormalMeanPrecConjugate::nonInformativePrior(
         maths_t::E_ContinuousData, 0.1)};
-    TNaiveBayesPtr nb{new maths::CNaiveBayes{
-        maths::CNaiveBayesFeatureDensityFromPrior(normal), 0.1}};
+    TNaiveBayesUPtr nb{std::make_unique<maths::CNaiveBayes>(
+        maths::CNaiveBayesFeatureDensityFromPrior(normal), 0.1)};
 
     for (std::size_t i = 0u; i < 100; ++i) {
         nb->addTrainingDataPoint(1, {{trainingData[0][i]}, {trainingData[1][i]}});
@@ -288,7 +288,7 @@ BOOST_AUTO_TEST_CASE(testMemoryUsage) {
     }
 
     std::size_t memoryUsage{nb->memoryUsage()};
-    TMemoryUsagePtr mem{new core::CMemoryUsage};
+    TMemoryUsageUPtr mem{std::make_unique<core::CMemoryUsage>()};
     nb->debugMemoryUsage(mem.get());
 
     LOG_DEBUG(<< "Memory = " << memoryUsage);
