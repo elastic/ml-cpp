@@ -31,7 +31,8 @@ BOOST_AUTO_TEST_CASE(testPredictionFieldNameClash) {
     core::CLogger::CScopeSetFatalErrorHandler scope{errorHandler};
 
     const auto spec{test::CDataFrameAnalysisSpecificationFactory::predictionSpec(
-        "classification", "dep_var", 5, 6, 13000000, 0, 0, {"dep_var"})};
+        test::CDataFrameAnalysisSpecificationFactory::classification(),
+        "dep_var", 5, 6, 13000000, 0, 0, {"dep_var"})};
     rapidjson::Document jsonParameters;
     jsonParameters.Parse("{"
                          "  \"dependent_variable\": \"dep_var\","
@@ -76,8 +77,8 @@ void testWriteOneRow(const std::string& dependentVariableField,
 
     // Create classification analysis runner object
     const auto spec{test::CDataFrameAnalysisSpecificationFactory::predictionSpec(
-        "classification", dependentVariableField, rows.size(),
-        columnNames.size(), 13000000, 0, 0, categoricalColumns)};
+        test::CDataFrameAnalysisSpecificationFactory::classification(), dependentVariableField,
+        rows.size(), columnNames.size(), 13000000, 0, 0, categoricalColumns)};
     rapidjson::Document jsonParameters;
     if (predictionFieldType.empty()) {
         jsonParameters.Parse("{\"dependent_variable\": \"" + dependentVariableField + "\"}");
