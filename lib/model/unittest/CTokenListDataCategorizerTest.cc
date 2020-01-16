@@ -17,6 +17,7 @@
 
 #include <boost/test/unit_test.hpp>
 
+#include <memory>
 #include <sstream>
 
 BOOST_AUTO_TEST_SUITE(CTokenListDataCategorizerTest)
@@ -38,9 +39,12 @@ using TTokenListDataCategorizerKeepsFields =
 const TTokenListDataCategorizerKeepsFields::TTokenListReverseSearchCreatorIntfCPtr NO_REVERSE_SEARCH_CREATOR;
 
 void checkMemoryUsageInstrumentation(const TTokenListDataCategorizerKeepsFields& categorizer) {
+
+    using TMemoryUsageUPtr = std::unique_ptr<ml::core::CMemoryUsage>;
+
     std::size_t memoryUsage{categorizer.memoryUsage()};
-    ml::core::CMemoryUsage::TMemoryUsagePtr mem{new ml::core::CMemoryUsage};
-    categorizer.debugMemoryUsage(mem);
+    TMemoryUsageUPtr mem{std::make_unique<ml::core::CMemoryUsage>()};
+    categorizer.debugMemoryUsage(mem.get());
 
     std::ostringstream strm;
     mem->compress();
