@@ -373,6 +373,7 @@ public:
     public:
         virtual ~CVisitor() = default;
         virtual void addTree() = 0;
+        virtual void addProbabilityAtWhichToAssignClassOne(double probability) = 0;
     };
 
 public:
