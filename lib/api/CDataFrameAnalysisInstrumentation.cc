@@ -94,7 +94,7 @@ void CDataFrameAnalysisInstrumentation::writeMemory(std::uint32_t step) {
         m_Writer->Key(STEP_TAG);
         m_Writer->Uint(step);
         m_Writer->Key(PEAK_MEMORY_USAGE_TAG);
-        m_Writer->Uint64(m_Memory.load());
+        m_Writer->Int64(m_Memory.load());
         m_Writer->EndObject();
     }
 }

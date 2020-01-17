@@ -477,12 +477,12 @@ CBoostedTreeImpl& CBoostedTreeImpl::operator=(CBoostedTreeImpl&&) = default;
 
 void CBoostedTreeImpl::train(core::CDataFrame& frame,
                              const TTrainingStateCallback& recordTrainStateCallback) {
-    if (m_Instrumentation == nullptr) {
-        HANDLE_FATAL(<< "Internal error: analysis state was not initialize. Please report this problem.");
-        return;
+    auto recordProgress{std::function<void(double)>()};
+    auto recordMemoryUsage{std::function<void(std::int64_t)>()};
+    if (m_Instrumentation != nullptr) {
+        recordProgress = this->m_Instrumentation->progressCallback();
+        recordMemoryUsage = this->m_Instrumentation->memoryUsageCallback();
     }
-    auto recordProgress{this->m_Instrumentation->progressCallback()};
-    auto recordMemoryUsage{this->m_Instrumentation->memoryUsageCallback()};
 
     if (m_DependentVariable >= frame.numberColumns()) {
         HANDLE_FATAL(<< "Internal error: dependent variable '" << m_DependentVariable
