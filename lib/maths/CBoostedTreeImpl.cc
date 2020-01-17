@@ -1719,10 +1719,11 @@ void CBoostedTreeImpl::accept(CBoostedTree::CVisitor& visitor) {
     m_Encoder->accept(visitor);
     for (const auto& tree : m_BestForest) {
         visitor.addTree();
-        for (std::size_t i = 0; i < tree.size(); ++i) {
-            tree[i].accept(visitor);
+        for (const auto& node : tree) {
+            node.accept(visitor);
         }
     }
+    visitor.addProbabilityAtWhichToAssignClassOne(m_ProbabilityAtWhichToAssignClassOne);
 }
 
 const CBoostedTreeHyperparameters& CBoostedTreeImpl::bestHyperparameters() const {
