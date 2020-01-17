@@ -71,7 +71,6 @@ struct SFixtureSingleTree {
         s_Frame->finishWritingRows();
 
         TTree tree(1);
-        tree.reserve(7);
         tree[0].split(0, 0.5, true, 0.0, 0.0, tree);
         tree[1].split(1, 0.5, true, 0.0, 0.0, tree);
         tree[2].split(1, 0.5, true, 0.0, 0.0, tree);
@@ -189,7 +188,6 @@ struct SFixtureMultipleTrees {
         s_Frame->finishWritingRows();
 
         TTree tree1(1);
-        tree1.reserve(7);
         tree1[0].split(0, 0.55, true, 0.0, 0.0, tree1);
         tree1[1].split(0, 0.41, true, 0.0, 0.0, tree1);
         tree1[2].split(1, 0.25, true, 0.0, 0.0, tree1);
@@ -199,7 +197,6 @@ struct SFixtureMultipleTrees {
         tree1[6].value(2.42384369);
 
         TTree tree2(1);
-        tree2.reserve(7);
         tree2[0].split(0, 0.45, true, 0.0, 0.0, tree2);
         tree2[1].split(0, 0.25, true, 0.0, 0.0, tree2);
         tree2[2].split(0, 0.59, true, 0.0, 0.0, tree2);
