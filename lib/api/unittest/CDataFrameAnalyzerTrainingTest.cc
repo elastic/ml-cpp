@@ -451,15 +451,6 @@ BOOST_AUTO_TEST_CASE(testRunBoostedTreeRegressionTrainingStateReport) {
     rapidjson::Document results;
     rapidjson::ParseResult ok(results.Parse(output.str()));
     BOOST_TEST_REQUIRE(static_cast<bool>(ok) == true);
-
-    std::ostringstream stream;
-    {
-        core::CJsonOutputStreamWrapper wrapper{stream};
-        core::CRapidJsonConcurrentLineWriter writer{wrapper};
-        writer.write(results);
-        stream.flush();
-    }
-    LOG_DEBUG(<< stream.str());
 }
 
 BOOST_AUTO_TEST_CASE(testRunBoostedTreeRegressionTrainingWithParams) {

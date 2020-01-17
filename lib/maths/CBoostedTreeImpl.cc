@@ -477,11 +477,14 @@ CBoostedTreeImpl& CBoostedTreeImpl::operator=(CBoostedTreeImpl&&) = default;
 
 void CBoostedTreeImpl::train(core::CDataFrame& frame,
                              const TTrainingStateCallback& recordTrainStateCallback) {
-    auto recordProgress{std::function<void(double)>()};
-    auto recordMemoryUsage{std::function<void(std::int64_t)>()};
+    std::function<void(double)> recordProgress;
+    std::function<void(std::int64_t)> recordMemoryUsage;
     if (m_Instrumentation != nullptr) {
         recordProgress = this->m_Instrumentation->progressCallback();
         recordMemoryUsage = this->m_Instrumentation->memoryUsageCallback();
+    } else {
+        recordProgress = [](double) {};
+        recordMemoryUsage = [](std::int64_t) {};
     }
 
     if (m_DependentVariable >= frame.numberColumns()) {
@@ -548,7 +551,9 @@ void CBoostedTreeImpl::train(core::CDataFrame& frame,
             std::uint64_t currentLap{stopWatch.lap()};
             timeAccumulator.add(static_cast<double>(currentLap - lastLap));
             lastLap = currentLap;
-            this->m_Instrumentation->nextStep(static_cast<std::uint32_t>(m_CurrentRound));
+            if (m_Instrumentation != nullptr) {
+                m_Instrumentation->nextStep(static_cast<std::uint32_t>(m_CurrentRound));
+            }
         }
 
         LOG_TRACE(<< "Test loss = " << m_BestForestTestLoss);
@@ -557,7 +562,9 @@ void CBoostedTreeImpl::train(core::CDataFrame& frame,
         std::tie(m_BestForest, std::ignore) =
             this->trainForest(frame, allTrainingRowsMask, allTrainingRowsMask,
                               m_TrainingProgress, recordMemoryUsage);
-        this->m_Instrumentation->nextStep(static_cast<std::uint32_t>(m_CurrentRound));
+        if (m_Instrumentation != nullptr) {
+            this->m_Instrumentation->nextStep(static_cast<std::uint32_t>(m_CurrentRound));
+        }
         this->recordState(recordTrainStateCallback);
 
         timeAccumulator.add(static_cast<double>(stopWatch.stop()));
