@@ -77,7 +77,6 @@ CStringStore.cc \
 CTokenListCategory.cc \
 CTokenListDataCategorizerBase.cc \
 CTokenListReverseSearchCreator.cc \
-CTokenListReverseSearchCreatorIntf.cc \
 FrequencyPredicates.cc \
 FunctionTypes.cc \
 ModelTypes.cc

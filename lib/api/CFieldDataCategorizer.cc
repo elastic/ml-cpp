@@ -188,7 +188,7 @@ int CFieldDataCategorizer::computeCategory(const TStrStrUMap& dataRowFields) {
 void CFieldDataCategorizer::createCategorizer(const std::string& fieldName) {
     // TODO - if we ever have more than one data categorizer class, this should be
     // replaced with a factory
-    TTokenListDataCategorizerKeepsFields::TTokenListReverseSearchCreatorIntfCPtr reverseSearchCreator(
+    TTokenListDataCategorizerKeepsFields::TTokenListReverseSearchCreatorCPtr reverseSearchCreator(
         new model::CTokenListReverseSearchCreator(fieldName));
     m_DataCategorizer.reset(new TTokenListDataCategorizerKeepsFields(
         m_Limits, reverseSearchCreator, SIMILARITY_THRESHOLD, fieldName));

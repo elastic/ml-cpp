@@ -5,13 +5,14 @@
  */
 #include <model/CTokenListReverseSearchCreator.h>
 
+#include <core/CMemory.h>
 #include <core/CRegex.h>
 
 namespace ml {
 namespace model {
 
 CTokenListReverseSearchCreator::CTokenListReverseSearchCreator(const std::string& fieldName)
-    : CTokenListReverseSearchCreatorIntf(fieldName) {
+    : m_FieldName(fieldName) {
 }
 
 size_t CTokenListReverseSearchCreator::availableCost() const {
@@ -84,13 +85,19 @@ void CTokenListReverseSearchCreator::closeStandardSearch(std::string& /*part1*/,
     part2 += ".*";
 }
 
+const std::string& CTokenListReverseSearchCreator::fieldName() const {
+    return m_FieldName;
+}
+
 void CTokenListReverseSearchCreator::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const {
     mem->setName("CTokenListReverseSearchCreator");
-    this->CTokenListReverseSearchCreatorIntf::debugMemoryUsage(mem->addChild());
+    core::CMemoryDebug::dynamicSize("m_FieldName", m_FieldName, mem);
 }
 
 std::size_t CTokenListReverseSearchCreator::memoryUsage() const {
-    return this->CTokenListReverseSearchCreatorIntf::memoryUsage();
+    std::size_t mem = 0;
+    mem += core::CMemory::dynamicSize(m_FieldName);
+    return mem;
 }
 }
 }
