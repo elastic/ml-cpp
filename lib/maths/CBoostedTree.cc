@@ -349,8 +349,10 @@ CBoostedTreeNode::TSizeSizePr CBoostedTreeNode::split(std::size_t splitFeature,
     m_RightChild = static_cast<TNodeIndex>(tree.size() + 1);
     m_Gain = gain;
     m_Curvature = curvature;
+    TSizeSizePr result{m_LeftChild.get(), m_RightChild.get()};
+    // Don't access members after calling resize because this object is likely an element of the vector being resized.
     tree.resize(tree.size() + 2);
-    return {m_LeftChild.get(), m_RightChild.get()};
+    return result;
 }
 
 void CBoostedTreeNode::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
