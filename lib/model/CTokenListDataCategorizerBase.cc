@@ -297,7 +297,7 @@ bool CTokenListDataCategorizerBase::createReverseSearch(int categoryId,
                                                category.maxMatchingStringLen(),
                                                part1, part2);
 
-    bool first{true};
+    bool firstInOrderToken{true};
     std::size_t endOfOrdered{category.outOfOrderCommonTokenIndex()};
     for (std::size_t index = 0; index < baseTokenIds.size(); ++index) {
         std::size_t tokenId(baseTokenIds[index].first);
@@ -305,8 +305,8 @@ bool CTokenListDataCategorizerBase::createReverseSearch(int categoryId,
             costedCommonUniqueTokenIds.end()) {
             if (index < endOfOrdered) {
                 m_ReverseSearchCreator->addInOrderCommonToken(
-                    m_TokenIdLookup[tokenId].str(), first, part1, part2);
-                first = false;
+                    m_TokenIdLookup[tokenId].str(), firstInOrderToken, part1, part2);
+                firstInOrderToken = false;
             } else {
                 m_ReverseSearchCreator->addOutOfOrderCommonToken(
                     m_TokenIdLookup[tokenId].str(), part1, part2);
