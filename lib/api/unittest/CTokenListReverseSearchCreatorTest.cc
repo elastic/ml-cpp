@@ -27,11 +27,11 @@ CppUnit::Test* CTokenListReverseSearchCreatorTest::suite() {
         "CTokenListReverseSearchCreatorTest::testInitStandardSearch",
         &CTokenListReverseSearchCreatorTest::testInitStandardSearch));
     suiteOfTests->addTest(new CppUnit::TestCaller<CTokenListReverseSearchCreatorTest>(
-        "CTokenListReverseSearchCreatorTest::testAddCommonUniqueToken",
-        &CTokenListReverseSearchCreatorTest::testAddCommonUniqueToken));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CTokenListReverseSearchCreatorTest>(
         "CTokenListReverseSearchCreatorTest::testAddInOrderCommonToken",
         &CTokenListReverseSearchCreatorTest::testAddInOrderCommonToken));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CTokenListReverseSearchCreatorTest>(
+        "CTokenListReverseSearchCreatorTest::testAddOutOfOrderCommonToken",
+        &CTokenListReverseSearchCreatorTest::testAddOutOfOrderCommonToken));
     suiteOfTests->addTest(new CppUnit::TestCaller<CTokenListReverseSearchCreatorTest>(
         "CTokenListReverseSearchCreatorTest::testCloseStandardSearch",
         &CTokenListReverseSearchCreatorTest::testCloseStandardSearch));
@@ -83,19 +83,6 @@ void CTokenListReverseSearchCreatorTest::testInitStandardSearch() {
     CPPUNIT_ASSERT_EQUAL(std::string(""), reverseSearchPart2);
 }
 
-void CTokenListReverseSearchCreatorTest::testAddCommonUniqueToken() {
-    CTokenListReverseSearchCreator reverseSearchCreator("foo");
-
-    std::string reverseSearchPart1;
-    std::string reverseSearchPart2;
-
-    reverseSearchCreator.addCommonUniqueToken("user", reverseSearchPart1, reverseSearchPart2);
-    reverseSearchCreator.addCommonUniqueToken("logged", reverseSearchPart1, reverseSearchPart2);
-
-    CPPUNIT_ASSERT_EQUAL(std::string(""), reverseSearchPart1);
-    CPPUNIT_ASSERT_EQUAL(std::string(""), reverseSearchPart2);
-}
-
 void CTokenListReverseSearchCreatorTest::testAddInOrderCommonToken() {
     CTokenListReverseSearchCreator reverseSearchCreator("foo");
 
@@ -114,6 +101,20 @@ void CTokenListReverseSearchCreatorTest::testAddInOrderCommonToken() {
     CPPUNIT_ASSERT_EQUAL(std::string("user logged b=0.15+a logged"), reverseSearchPart1);
     CPPUNIT_ASSERT_EQUAL(std::string(".*?user.+?logged.+?b=0\\.15\\+a.+?logged"),
                          reverseSearchPart2);
+}
+
+void CTokenListReverseSearchCreatorTest::testAddOutOfOrderCommonToken() {
+    CTokenListReverseSearchCreator reverseSearchCreator("foo");
+
+    std::string reverseSearchPart1;
+    std::string reverseSearchPart2;
+
+    reverseSearchCreator.addOutOfOrderCommonToken("user", reverseSearchPart1, reverseSearchPart2);
+    reverseSearchCreator.addOutOfOrderCommonToken("logged", reverseSearchPart1,
+                                                  reverseSearchPart2);
+
+    CPPUNIT_ASSERT_EQUAL(std::string("user logged"), reverseSearchPart1);
+    CPPUNIT_ASSERT_EQUAL(std::string(""), reverseSearchPart2);
 }
 
 void CTokenListReverseSearchCreatorTest::testCloseStandardSearch() {
