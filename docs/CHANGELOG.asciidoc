@@ -69,7 +69,8 @@ issue: {ml-issue}724[#724].)
 * Fixes potential memory corruption when determining seasonality. (See {ml-pull}852[#852].)
 * Prevent prediction_field_name clashing with other fields in ml results.
 (See {ml-pull}861[#861].)
-
+* Include out-of-order as well as in-order terms in categorization reverse searches.
+(See {ml-pull}950[#950], issue: {ml-issue}949[#949].)
 
 == {es} version 7.5.2
 

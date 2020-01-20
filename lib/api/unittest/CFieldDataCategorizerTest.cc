@@ -222,6 +222,53 @@ BOOST_AUTO_TEST_CASE(testNodeReverseSearch) {
     BOOST_TEST_REQUIRE(output.find("\"message\"") == std::string::npos);
 }
 
+BOOST_AUTO_TEST_CASE(testJobKilledReverseSearch) {
+    model::CLimits limits;
+    CFieldConfig config;
+    BOOST_TEST_REQUIRE(config.initFromFile("testfiles/new_persist_categorization.conf"));
+
+    std::ostringstream outputStrm;
+    {
+        CNullOutput nullOutput;
+        core::CJsonOutputStreamWrapper wrappedOutputStream(outputStrm);
+        CJsonOutputWriter writer("job", wrappedOutputStream);
+
+        CFieldDataCategorizer categorizer("job", config, limits, nullOutput, writer);
+
+        CFieldDataCategorizer::TStrStrUMap dataRowFields;
+        dataRowFields["message"] = "[count_tweets] Killing job";
+
+        BOOST_TEST_REQUIRE(categorizer.handleRecord(dataRowFields));
+
+        dataRowFields["message"] = "Killing job [count_tweets]";
+
+        BOOST_TEST_REQUIRE(categorizer.handleRecord(dataRowFields));
+
+        dataRowFields["message"] = "[tweets_by_location] Killing job";
+
+        BOOST_TEST_REQUIRE(categorizer.handleRecord(dataRowFields));
+
+        dataRowFields["message"] = "Killing job [tweets_by_location]";
+
+        BOOST_TEST_REQUIRE(categorizer.handleRecord(dataRowFields));
+
+        categorizer.finalise();
+    }
+
+    const std::string& output = outputStrm.str();
+    LOG_DEBUG(<< "Output is: " << output);
+
+    // Assert that the reverse search contains all expected tokens when
+    // categorization is run end-to-end (obviously computation of categories and
+    // reverse search creation are tested more thoroughly in the unit tests for
+    // their respective classes, but this test helps to confirm that they work
+    // together)
+    BOOST_TEST_REQUIRE(output.find("\"terms\":\"Killing job\"") != std::string::npos);
+    BOOST_TEST_REQUIRE(output.find("\"regex\":\".*\"") != std::string::npos);
+    // The input data should NOT be in the output
+    BOOST_TEST_REQUIRE(output.find("\"message\"") == std::string::npos);
+}
+
 BOOST_AUTO_TEST_CASE(testPassOnControlMessages) {
     model::CLimits limits;
     CFieldConfig config;

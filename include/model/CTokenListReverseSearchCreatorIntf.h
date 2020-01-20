@@ -72,19 +72,19 @@ public:
                                     std::string& part2) const = 0;
 
     //! Modify the two strings that form a reverse search to account for the
-    //! specified token, which may occur anywhere within the original
-    //! message, but has been determined to be a good thing to distinguish
-    //! this category of messages from other categories.
-    virtual void addCommonUniqueToken(const std::string& token,
-                                      std::string& part1,
-                                      std::string& part2) const = 0;
-
-    //! Modify the two strings that form a reverse search to account for the
     //! specified token.
     virtual void addInOrderCommonToken(const std::string& token,
                                        bool first,
                                        std::string& part1,
                                        std::string& part2) const = 0;
+
+    //! Modify the two strings that form a reverse search to account for the
+    //! specified token, which may occur anywhere within the original
+    //! message, but has been determined to be a good thing to distinguish
+    //! this category of messages from other categories.
+    virtual void addOutOfOrderCommonToken(const std::string& token,
+                                          std::string& part1,
+                                          std::string& part2) const = 0;
 
     //! Close off the two strings that form a reverse search.  For example,
     //! this may be when closing brackets need to be appended.
