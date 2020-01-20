@@ -45,7 +45,7 @@ public:
     size_t costOfToken(const std::string& token, size_t numOccurrences) const;
 
     //! Create a reverse search for a NULL field value.
-    bool createNullSearch(std::string& part1, std::string& part2) const;
+    bool createNullSearch(std::string& terms, std::string& regex) const;
 
     //! If possible, create a reverse search for the case where there are no
     //! unique tokens identifying the category.  (If this is not possible return
@@ -53,8 +53,8 @@ public:
     bool createNoUniqueTokenSearch(int categoryId,
                                    const std::string& example,
                                    size_t maxMatchingStringLen,
-                                   std::string& part1,
-                                   std::string& part2) const;
+                                   std::string& terms,
+                                   std::string& regex) const;
 
     //! Initialise the two strings that form a reverse search.  For example,
     //! this could be as simple as clearing the strings or setting them to
@@ -62,27 +62,27 @@ public:
     void initStandardSearch(int categoryId,
                             const std::string& example,
                             size_t maxMatchingStringLen,
-                            std::string& part1,
-                            std::string& part2) const;
+                            std::string& terms,
+                            std::string& regex) const;
 
     //! Modify the two strings that form a reverse search to account for the
     //! specified token.
     void addInOrderCommonToken(const std::string& token,
                                bool first,
-                               std::string& part1,
-                               std::string& part2) const;
+                               std::string& terms,
+                               std::string& regex) const;
 
     //! Modify the two strings that form a reverse search to account for the
     //! specified token, which may occur anywhere within the original
     //! message, but has been determined to be a good thing to distinguish
     //! this category of messages from other categories.
     void addOutOfOrderCommonToken(const std::string& token,
-                                  std::string& part1,
-                                  std::string& part2) const;
+                                  std::string& terms,
+                                  std::string& regex) const;
 
     //! Close off the two strings that form a reverse search.  For example,
     //! this may be when closing brackets need to be appended.
-    void closeStandardSearch(std::string& part1, std::string& part2) const;
+    void closeStandardSearch(std::string& terms, std::string& regex) const;
 
     //! Access to the field name
     const std::string& fieldName() const;
