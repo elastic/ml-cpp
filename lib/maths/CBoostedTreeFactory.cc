@@ -746,9 +746,7 @@ void CBoostedTreeFactory::initializeUnsetEta(core::CDataFrame& frame) {
         m_LogEtaSearchInterval = min(m_LogEtaSearchInterval, TVector{0.0});
         LOG_TRACE(<< "log eta search interval = ["
                   << m_LogEtaSearchInterval.toDelimited() << "]");
-        m_TreeImpl->m_Eta = std::exp(m_LogEtaSearchInterval(BEST_REGULARIZER_INDEX));
-        m_TreeImpl->m_EtaGrowthRatePerTree = 1.0 + m_TreeImpl->m_Eta / 2.0;
-        m_TreeImpl->m_MaximumNumberTrees = computeMaximumNumberTrees(m_TreeImpl->m_Eta);
+        applyEta(*m_Tree, m_LogEtaSearchInterval(BEST_REGULARIZER_INDEX));
 
         if (intervalIsEmpty(m_LogEtaSearchInterval)) {
             m_TreeImpl->m_EtaOverride = m_TreeImpl->m_Eta;
