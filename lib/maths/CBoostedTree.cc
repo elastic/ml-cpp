@@ -350,7 +350,7 @@ CBoostedTreeNode::TSizeSizePr CBoostedTreeNode::split(std::size_t splitFeature,
     m_Gain = gain;
     m_Curvature = curvature;
     TSizeSizePr result{m_LeftChild.get(), m_RightChild.get()};
-    // Don't access members after calling resize.
+    // Don't access members after calling resize because this object is likely an element of the vector being resized.
     tree.resize(tree.size() + 2);
     return result;
 }
