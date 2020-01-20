@@ -28,6 +28,13 @@
 
 //=== Regressions
 
+== {es} version 6.8.7
+
+=== Bug Fixes
+
+* Include out-of-order as well as in-order terms in categorization reverse searches.
+(See {ml-pull}950[#950], issue: {ml-issue}949[#949].)
+
 == {es} version 6.8.5
 
 === Enhancements

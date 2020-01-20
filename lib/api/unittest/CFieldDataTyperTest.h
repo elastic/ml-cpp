@@ -14,6 +14,7 @@ class CFieldDataTyperTest : public CppUnit::TestFixture {
 public:
     void testAll();
     void testNodeReverseSearch();
+    void testJobKilledReverseSearch();
     void testPassOnControlMessages();
     void testHandleControlMessages();
     void testRestoreStateFailsWithEmptyState();

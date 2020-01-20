@@ -14,8 +14,8 @@ public:
     void testCreateNullSearch();
     void testCreateNoUniqueTokenSearch();
     void testInitStandardSearch();
-    void testAddCommonUniqueToken();
     void testAddInOrderCommonToken();
+    void testAddOutOfOrderCommonToken();
     void testCloseStandardSearch();
 
     static CppUnit::Test* suite();

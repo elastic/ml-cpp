@@ -56,11 +56,6 @@ void CTokenListReverseSearchCreator::initStandardSearch(int /*type*/,
     part2.clear();
 }
 
-void CTokenListReverseSearchCreator::addCommonUniqueToken(const std::string& /*token*/,
-                                                          std::string& /*part1*/,
-                                                          std::string& /*part2*/) const {
-}
-
 void CTokenListReverseSearchCreator::addInOrderCommonToken(const std::string& token,
                                                            bool first,
                                                            std::string& part1,
@@ -73,6 +68,15 @@ void CTokenListReverseSearchCreator::addInOrderCommonToken(const std::string& to
     }
     part1 += token;
     part2 += core::CRegex::escapeRegexSpecial(token);
+}
+
+void CTokenListReverseSearchCreator::addOutOfOrderCommonToken(const std::string& token,
+                                                              std::string& part1,
+                                                              std::string& /*part2*/) const {
+    if (part1.empty() == false) {
+        part1 += ' ';
+    }
+    part1 += token;
 }
 
 void CTokenListReverseSearchCreator::closeStandardSearch(std::string& /*part1*/,

@@ -229,6 +229,53 @@ void CFieldDataTyperTest::testNodeReverseSearch() {
     CPPUNIT_ASSERT(output.find("\"message\"") == std::string::npos);
 }
 
+void CFieldDataTyperTest::testJobKilledReverseSearch() {
+    model::CLimits limits;
+    CFieldConfig config;
+    CPPUNIT_ASSERT(config.initFromFile("testfiles/new_persist_categorization.conf"));
+
+    std::ostringstream outputStrm;
+    {
+        CNullOutput nullOutput;
+        core::CJsonOutputStreamWrapper wrappedOutputStream(outputStrm);
+        CJsonOutputWriter writer("job", wrappedOutputStream);
+
+        CFieldDataTyper categorizer("job", config, limits, nullOutput, writer);
+
+        CFieldDataTyper::TStrStrUMap dataRowFields;
+        dataRowFields["message"] = "[count_tweets] Killing job";
+
+        CPPUNIT_ASSERT(categorizer.handleRecord(dataRowFields));
+
+        dataRowFields["message"] = "Killing job [count_tweets]";
+
+        CPPUNIT_ASSERT(categorizer.handleRecord(dataRowFields));
+
+        dataRowFields["message"] = "[tweets_by_location] Killing job";
+
+        CPPUNIT_ASSERT(categorizer.handleRecord(dataRowFields));
+
+        dataRowFields["message"] = "Killing job [tweets_by_location]";
+
+        CPPUNIT_ASSERT(categorizer.handleRecord(dataRowFields));
+
+        categorizer.finalise();
+    }
+
+    const std::string& output = outputStrm.str();
+    LOG_DEBUG(<< "Output is: " << output);
+
+    // Assert that the reverse search contains all expected tokens when
+    // categorization is run end-to-end (obviously computation of categories and
+    // reverse search creation are tested more thoroughly in the unit tests for
+    // their respective classes, but this test helps to confirm that they work
+    // together)
+    CPPUNIT_ASSERT(output.find("\"terms\":\"Killing job\"") != std::string::npos);
+    CPPUNIT_ASSERT(output.find("\"regex\":\".*\"") != std::string::npos);
+    // The input data should NOT be in the output
+    CPPUNIT_ASSERT(output.find("\"message\"") == std::string::npos);
+}
+
 void CFieldDataTyperTest::testPassOnControlMessages() {
     model::CLimits limits;
     CFieldConfig config;
@@ -307,6 +354,9 @@ CppUnit::Test* CFieldDataTyperTest::suite() {
         "CFieldDataTyperTest::testAll", &CFieldDataTyperTest::testAll));
     suiteOfTests->addTest(new CppUnit::TestCaller<CFieldDataTyperTest>(
         "CFieldDataTyperTest::testNodeReverseSearch", &CFieldDataTyperTest::testNodeReverseSearch));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CFieldDataTyperTest>(
+        "CFieldDataTyperTest::testJobKilledReverseSearch",
+        &CFieldDataTyperTest::testJobKilledReverseSearch));
     suiteOfTests->addTest(new CppUnit::TestCaller<CFieldDataTyperTest>(
         "CFieldDataTyperTest::testPassOnControlMessages",
         &CFieldDataTyperTest::testPassOnControlMessages));

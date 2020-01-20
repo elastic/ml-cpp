@@ -297,20 +297,20 @@ bool CBaseTokenListDataTyper::createReverseSearch(int type,
     m_ReverseSearchCreator->initStandardSearch(
         type, typeObj.baseString(), typeObj.maxMatchingStringLen(), part1, part2);
 
-    for (auto costedCommonUniqueTokenId : costedCommonUniqueTokenIds) {
-        m_ReverseSearchCreator->addCommonUniqueToken(
-            m_TokenIdLookup[costedCommonUniqueTokenId].str(), part1, part2);
-    }
-
-    bool first(true);
-    size_t end(typeObj.outOfOrderCommonTokenIndex());
-    for (size_t index = 0; index < end; ++index) {
-        size_t tokenId(baseTokenIds[index].first);
+    bool firstInOrderToken{true};
+    std::size_t endOfOrdered{typeObj.outOfOrderCommonTokenIndex()};
+    for (std::size_t index = 0; index < baseTokenIds.size(); ++index) {
+        std::size_t tokenId(baseTokenIds[index].first);
         if (costedCommonUniqueTokenIds.find(tokenId) !=
             costedCommonUniqueTokenIds.end()) {
-            m_ReverseSearchCreator->addInOrderCommonToken(
-                m_TokenIdLookup[tokenId].str(), first, part1, part2);
-            first = false;
+            if (index < endOfOrdered) {
+                m_ReverseSearchCreator->addInOrderCommonToken(
+                    m_TokenIdLookup[tokenId].str(), firstInOrderToken, part1, part2);
+                firstInOrderToken = false;
+            } else {
+                m_ReverseSearchCreator->addOutOfOrderCommonToken(
+                    m_TokenIdLookup[tokenId].str(), part1, part2);
+            }
         }
     }
 
