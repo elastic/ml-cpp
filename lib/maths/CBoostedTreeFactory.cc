@@ -51,6 +51,11 @@ const double MAX_DOWNSAMPLE_FACTOR_SCALE{3.0};
 const double MAX_DESIRED_INITIAL_DOWNSAMPLE_FRACTION{0.5};
 const double MAX_NUMBER_FOLDS{5.0};
 const std::size_t MAX_NUMBER_TREES{static_cast<std::size_t>(2.0 / MIN_ETA + 0.5)};
+// We scale eta in the upfront calculation of the total number of steps we expect
+// for progress monitoring because we don't know what value we'll choose in the
+// line search. Assuming it is less than one avoids a large pause in progress if
+// it is reduced in the line search.
+const double MAIN_LOOP_ETA_SCALE_FOR_PROGRESS_MARGIN{0.5};
 
 double computeEta(std::size_t numberRegressors) {
     // eta is the learning rate. There is a lot of empirical evidence that
@@ -751,7 +756,8 @@ void CBoostedTreeFactory::initializeUnsetEta(core::CDataFrame& frame) {
 
         m_TreeImpl->m_TrainingProgress.incrementRange(
             static_cast<int>(this->mainLoopNumberSteps(m_TreeImpl->m_Eta)) -
-            static_cast<int>(this->mainLoopNumberSteps(eta)));
+            static_cast<int>(this->mainLoopNumberSteps(
+                MAIN_LOOP_ETA_SCALE_FOR_PROGRESS_MARGIN * eta)));
     }
 }
 
@@ -1214,10 +1220,13 @@ void CBoostedTreeFactory::initializeTrainingProgressMonitoring(const core::CData
     }
     if (m_TreeImpl->m_EtaOverride == boost::none) {
         // The maximum number of trees varies in this loop so we use a margin.
-        totalNumberSteps += 2 * MAX_LINE_SEARCH_ITERATIONS * lineSearchMaximumNumberTrees;
+        totalNumberSteps +=
+            MAX_LINE_SEARCH_ITERATIONS * lineSearchMaximumNumberTrees *
+            computeMaximumNumberTrees(MAIN_LOOP_ETA_SCALE_FOR_PROGRESS_MARGIN * eta);
     }
     // We don't know what we'll choose in the line search so we use a margin.
-    totalNumberSteps += 2 * this->mainLoopNumberSteps(eta);
+    totalNumberSteps +=
+        this->mainLoopNumberSteps(MAIN_LOOP_ETA_SCALE_FOR_PROGRESS_MARGIN * eta);
     LOG_TRACE(<< "total number steps = " << totalNumberSteps);
     m_TreeImpl->m_TrainingProgress =
         core::CLoopProgress{totalNumberSteps, m_RecordProgress, 1.0, 1024};
