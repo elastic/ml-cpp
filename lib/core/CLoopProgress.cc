@@ -51,6 +51,17 @@ void CLoopProgress::increment(std::size_t i) {
 }
 
 void CLoopProgress::incrementRange(int i) {
+    // This function deals with the case that the number of iterations of the "loop"
+    // are changed after the CLoopProgress object is initialized. The main task we
+    // need to perform is to record progress and update last progress point. We treat
+    // progress as monotonic, so if the range is increased we'll simply stick at the
+    // current progress until some number of iterations have passed. However, if the
+    // range is reduced our fractional progress is now m_Pos / m_Range. If this is
+    // larger than the next step at which we need to output progress, i.e. larger than
+    // (m_LastProgress + 1) / m_Steps, then we output the new progress and update the
+    // last progress to the corresponding proportion of steps. We also always cap the
+    // number of progress steps by the loop range so must reduce this if necessary.
+
     std::size_t steps{m_Steps};
     m_Range += i;
     m_Steps = std::min(m_Range, m_Steps);
