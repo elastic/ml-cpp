@@ -44,9 +44,9 @@ public:
     bool createNullSearch(std::string& part1, std::string& part2) const override;
 
     //! If possible, create a reverse search for the case where there are no
-    //! unique tokens identifying the type.  (If this is not possible return
+    //! unique tokens identifying the category.  (If this is not possible return
     //! false.)
-    bool createNoUniqueTokenSearch(int type,
+    bool createNoUniqueTokenSearch(int categoryId,
                                    const std::string& example,
                                    size_t maxMatchingStringLen,
                                    std::string& part1,
@@ -55,19 +55,11 @@ public:
     //! Initialise the two strings that form a reverse search.  For example,
     //! this could be as simple as clearing the strings or setting them to
     //! some sort of one-off preamble.
-    void initStandardSearch(int type,
+    void initStandardSearch(int categoryId,
                             const std::string& example,
                             size_t maxMatchingStringLen,
                             std::string& part1,
                             std::string& part2) const override;
-
-    //! Modify the two strings that form a reverse search to account for the
-    //! specified token, which may occur anywhere within the original
-    //! message, but has been determined to be a good thing to distinguish
-    //! this type of messages from other types.
-    void addCommonUniqueToken(const std::string& token,
-                              std::string& part1,
-                              std::string& part2) const override;
 
     //! Modify the two strings that form a reverse search to account for the
     //! specified token.
@@ -75,6 +67,12 @@ public:
                                bool first,
                                std::string& part1,
                                std::string& part2) const override;
+
+    //! Modify the two strings that form a reverse search to account for the
+    //! specified token, which may occur anywhere within the original
+    //! message, but has been determined to be a good thing to distinguish
+    //! this category of messages from other categories.
+    void addOutOfOrderCommonToken(const std::string&, std::string&, std::string&) const override;
 
     //! Close off the two strings that form a reverse search.  For example,
     //! this may be when closing brackets need to be appended.
