@@ -72,7 +72,9 @@ public:
     //! specified token, which may occur anywhere within the original
     //! message, but has been determined to be a good thing to distinguish
     //! this category of messages from other categories.
-    void addOutOfOrderCommonToken(const std::string&, std::string&, std::string&) const override;
+    void addOutOfOrderCommonToken(const std::string& token,
+                                  std::string& part1,
+                                  std::string& part2) const override;
 
     //! Close off the two strings that form a reverse search.  For example,
     //! this may be when closing brackets need to be appended.
