@@ -67,13 +67,13 @@ public:
     //! Compute a category from a string.  The raw string length may be longer
     //! than the length of the passed string, because the passed string may
     //! have the date stripped out of it.
-    int computeCategory(bool isDryRun, const std::string& str, size_t rawStringLen);
+    int computeCategory(bool isDryRun, const std::string& str, std::size_t rawStringLen);
 
     //! As above, but also take into account field names/values.
     virtual int computeCategory(bool isDryRun,
                                 const TStrStrUMap& fields,
                                 const std::string& str,
-                                size_t rawStringLen) = 0;
+                                std::size_t rawStringLen) = 0;
 
     //! Create reverse search commands that will (more or less) just
     //! select the records that are classified as the given category when
@@ -83,7 +83,7 @@ public:
     virtual bool createReverseSearch(int categoryId,
                                      std::string& part1,
                                      std::string& part2,
-                                     size_t& maxMatchingLength,
+                                     std::size_t& maxMatchingLength,
                                      bool& wasCached) = 0;
 
     //! Has the data categorizer's state changed?

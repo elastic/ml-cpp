@@ -26,7 +26,7 @@ CDataCategorizer::~CDataCategorizer() {
     m_Limits.resourceMonitor().unRegisterComponent(*this);
 }
 
-int CDataCategorizer::computeCategory(bool isDryRun, const std::string& str, size_t rawStringLen) {
+int CDataCategorizer::computeCategory(bool isDryRun, const std::string& str, std::size_t rawStringLen) {
     return this->computeCategory(isDryRun, EMPTY_FIELDS, str, rawStringLen);
 }
 

@@ -18,18 +18,6 @@ BOOST_AUTO_TEST_CASE(testCostOfToken) {
     BOOST_REQUIRE_EQUAL(std::size_t(110), reverseSearchCreator.costOfToken("someToken", 5));
 }
 
-BOOST_AUTO_TEST_CASE(testCreateNullSearch) {
-    CTokenListReverseSearchCreator reverseSearchCreator("foo");
-
-    std::string terms;
-    std::string regex;
-
-    BOOST_TEST_REQUIRE(reverseSearchCreator.createNullSearch(terms, regex));
-
-    BOOST_REQUIRE_EQUAL(std::string(), terms);
-    BOOST_REQUIRE_EQUAL(std::string(), regex);
-}
-
 BOOST_AUTO_TEST_CASE(testCreateNoUniqueTokenSearch) {
     CTokenListReverseSearchCreator reverseSearchCreator("status");
 
@@ -40,7 +28,7 @@ BOOST_AUTO_TEST_CASE(testCreateNoUniqueTokenSearch) {
         reverseSearchCreator.createNoUniqueTokenSearch(1, "404", 4, terms, regex));
 
     BOOST_REQUIRE_EQUAL(std::string(), terms);
-    BOOST_REQUIRE_EQUAL(std::string(), regex);
+    BOOST_REQUIRE_EQUAL(std::string(".*"), regex);
 }
 
 BOOST_AUTO_TEST_CASE(testInitStandardSearch) {
@@ -62,10 +50,10 @@ BOOST_AUTO_TEST_CASE(testAddInOrderCommonToken) {
     std::string terms;
     std::string regex;
 
-    reverseSearchCreator.addInOrderCommonToken("user", true, terms, regex);
-    reverseSearchCreator.addInOrderCommonToken("logged", false, terms, regex);
-    reverseSearchCreator.addInOrderCommonToken("b=0.15+a", false, terms, regex);
-    reverseSearchCreator.addInOrderCommonToken("logged", false, terms, regex);
+    reverseSearchCreator.addInOrderCommonToken("user", terms, regex);
+    reverseSearchCreator.addInOrderCommonToken("logged", terms, regex);
+    reverseSearchCreator.addInOrderCommonToken("b=0.15+a", terms, regex);
+    reverseSearchCreator.addInOrderCommonToken("logged", terms, regex);
 
     BOOST_REQUIRE_EQUAL(std::string("user logged b=0.15+a logged"), terms);
     BOOST_REQUIRE_EQUAL(std::string(".*?user.+?logged.+?b=0\\.15\\+a.+?logged"), regex);
