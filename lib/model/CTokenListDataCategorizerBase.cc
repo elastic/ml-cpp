@@ -11,7 +11,7 @@
 #include <core/CStateRestoreTraverser.h>
 #include <core/CStringUtils.h>
 
-#include <model/CTokenListReverseSearchCreatorIntf.h>
+#include <model/CTokenListReverseSearchCreator.h>
 
 #include <algorithm>
 #include <cmath>
@@ -34,11 +34,10 @@ const std::string CATEGORY_TAG("c");
 const std::string EMPTY_STRING;
 }
 
-CTokenListDataCategorizerBase::CTokenListDataCategorizerBase(
-    CLimits& limits,
-    const TTokenListReverseSearchCreatorIntfCPtr& reverseSearchCreator,
-    double threshold,
-    const std::string& fieldName)
+CTokenListDataCategorizerBase::CTokenListDataCategorizerBase(CLimits& limits,
+                                                             const TTokenListReverseSearchCreatorCPtr& reverseSearchCreator,
+                                                             double threshold,
+                                                             const std::string& fieldName)
     : CDataCategorizer{limits, fieldName}, m_ReverseSearchCreator{reverseSearchCreator},
       m_LowerThreshold{std::min(0.99, std::max(0.01, threshold))},
       // Upper threshold is half way between the lower threshold and 1

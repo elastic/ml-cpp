@@ -36,7 +36,7 @@ using TTokenListDataCategorizerKeepsFields =
                                          2,     // Min dictionary word length
                                          ml::core::CWordDictionary::TWeightVerbs5Other2>;
 
-const TTokenListDataCategorizerKeepsFields::TTokenListReverseSearchCreatorIntfCPtr NO_REVERSE_SEARCH_CREATOR;
+const TTokenListDataCategorizerKeepsFields::TTokenListReverseSearchCreatorCPtr NO_REVERSE_SEARCH_CREATOR;
 
 void checkMemoryUsageInstrumentation(const TTokenListDataCategorizerKeepsFields& categorizer) {
 
@@ -360,7 +360,7 @@ BOOST_FIXTURE_TEST_CASE(testPersist, CTestFixture) {
 }
 
 BOOST_FIXTURE_TEST_CASE(testLongReverseSearch, CTestFixture) {
-    TTokenListDataCategorizerKeepsFields::TTokenListReverseSearchCreatorIntfCPtr reverseSearchCreator(
+    TTokenListDataCategorizerKeepsFields::TTokenListReverseSearchCreatorCPtr reverseSearchCreator(
         new ml::model::CTokenListReverseSearchCreator("_raw"));
     TTokenListDataCategorizerKeepsFields categorizer(m_Limits, reverseSearchCreator,
                                                      0.7, "_raw");
