@@ -151,7 +151,7 @@ private:
         }
 
         //! Debug the memory used by the sub-sample.
-        void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const {
+        void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
             mem->setName("SSubSample", sizeof(*this));
             core::CMemoryDebug::dynamicSize("s_Statistic", s_Statistic, mem);
         }
@@ -339,7 +339,7 @@ public:
     }
 
     //! Debug the memory used by the queue.
-    void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const {
+    void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
         mem->setName("CSampleQueue", sizeof(*this));
         core::CMemoryDebug::dynamicSize("m_Queue", m_Queue, mem);
     }

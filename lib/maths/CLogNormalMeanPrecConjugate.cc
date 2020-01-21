@@ -1489,7 +1489,7 @@ uint64_t CLogNormalMeanPrecConjugate::checksum(uint64_t seed) const {
     return CChecksum::calculate(seed, m_GammaRate);
 }
 
-void CLogNormalMeanPrecConjugate::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const {
+void CLogNormalMeanPrecConjugate::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
     mem->setName("CLogNormalMeanPrecConjugate");
 }
 

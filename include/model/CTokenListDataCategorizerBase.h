@@ -152,7 +152,7 @@ public:
     TPersistFunc makeBackgroundPersistFunc() const override;
 
     //! Debug the memory used by this categorizer.
-    void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const override;
+    void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const override;
 
     //! Get the memory used by this categorizer.
     std::size_t memoryUsage() const override;
@@ -225,7 +225,7 @@ private:
         void incCategoryCount();
 
         //! Debug the memory used by this item.
-        void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const;
+        void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const;
 
         //! Get the memory used by this item.
         std::size_t memoryUsage() const;

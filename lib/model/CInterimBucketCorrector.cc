@@ -77,7 +77,7 @@ CInterimBucketCorrector::corrections(const TDouble10Vec& modes,
     return corrections;
 }
 
-void CInterimBucketCorrector::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const {
+void CInterimBucketCorrector::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
     mem->setName("CInterimBucketCorrector");
     core::CMemoryDebug::dynamicSize("m_CountTrend", m_FinalCountTrend, mem);
 }

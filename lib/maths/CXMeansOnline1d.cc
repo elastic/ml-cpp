@@ -1003,7 +1003,7 @@ double CXMeansOnline1d::probability(std::size_t index) const {
     return Z == 0.0 ? 0.0 : weight / Z;
 }
 
-void CXMeansOnline1d::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const {
+void CXMeansOnline1d::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
     mem->setName("CXMeansOnline1d");
     core::CMemoryDebug::dynamicSize("m_ClusterIndexGenerator", m_ClusterIndexGenerator, mem);
     core::CMemoryDebug::dynamicSize("m_Clusters", m_Clusters, mem);
@@ -1516,7 +1516,7 @@ uint64_t CXMeansOnline1d::CCluster::checksum(uint64_t seed) const {
     return CChecksum::calculate(seed, m_Structure);
 }
 
-void CXMeansOnline1d::CCluster::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const {
+void CXMeansOnline1d::CCluster::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
     mem->setName("CXMeansOnline1d::CCluster");
     core::CMemoryDebug::dynamicSize("m_Prior", m_Prior, mem);
     core::CMemoryDebug::dynamicSize("m_Structure", m_Structure, mem);

@@ -116,7 +116,7 @@ public:
     void lastPersistTime(core_t::TTime lastPersistTime);
 
     //! Debug the memory used by this categorizer.
-    void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const override;
+    void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const override;
 
     //! Get the memory used by this categorizer.
     std::size_t memoryUsage() const override;

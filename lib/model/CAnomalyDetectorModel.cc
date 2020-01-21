@@ -299,7 +299,7 @@ uint64_t CAnomalyDetectorModel::checksum(bool /*includeCurrentBucketStats*/) con
     return maths::CChecksum::calculate(seed, hashes);
 }
 
-void CAnomalyDetectorModel::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const {
+void CAnomalyDetectorModel::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
     mem->setName("CAnomalyDetectorModel");
     core::CMemoryDebug::dynamicSize("m_DataGatherer", m_DataGatherer, mem);
     core::CMemoryDebug::dynamicSize("m_Params", m_Params, mem);
@@ -513,7 +513,8 @@ void CAnomalyDetectorModel::SFeatureModels::acceptPersistInserter(core::CStatePe
     }
 }
 
-void CAnomalyDetectorModel::SFeatureModels::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const {
+void CAnomalyDetectorModel::SFeatureModels::debugMemoryUsage(
+    const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
     mem->setName("SFeatureModels");
     core::CMemoryDebug::dynamicSize("s_NewModel", s_NewModel, mem);
     core::CMemoryDebug::dynamicSize("s_Models", s_Models, mem);
@@ -556,7 +557,7 @@ void CAnomalyDetectorModel::SFeatureCorrelateModels::acceptPersistInserter(
 }
 
 void CAnomalyDetectorModel::SFeatureCorrelateModels::debugMemoryUsage(
-    core::CMemoryUsage::TMemoryUsagePtr mem) const {
+    const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
     mem->setName("SFeatureCorrelateModels");
     core::CMemoryDebug::dynamicSize("s_ModelPrior", s_ModelPrior, mem);
     core::CMemoryDebug::dynamicSize("s_Models", s_Models, mem);

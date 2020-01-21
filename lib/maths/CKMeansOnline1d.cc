@@ -253,7 +253,7 @@ double CKMeansOnline1d::probability(std::size_t index) const {
     return weightSum == 0.0 ? 0.0 : weight / weightSum;
 }
 
-void CKMeansOnline1d::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const {
+void CKMeansOnline1d::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
     mem->setName("CKMeansOnline1d");
     core::CMemoryDebug::dynamicSize("m_Clusters", m_Clusters, mem);
 }

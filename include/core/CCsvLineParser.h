@@ -62,7 +62,7 @@ public:
     bool atEnd() const;
 
     //! Debug the memory used by this parser.
-    void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const;
+    void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const;
 
     //! Get the memory used by this parser.
     std::size_t memoryUsage() const;

@@ -68,7 +68,7 @@ public:
     uint64_t checksum() const;
 
     //! Get the memory usage of this object in a tree structure.
-    void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const;
+    void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const;
 
     //! Get the memory usage of this object.
     std::size_t memoryUsage() const;
@@ -242,7 +242,7 @@ public:
     virtual uint64_t checksum() const;
 
     //! Get the memory used by this object.
-    virtual void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const;
+    virtual void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const;
 
     //! Get the memory used by this object.
     virtual std::size_t memoryUsage() const;

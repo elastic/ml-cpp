@@ -172,7 +172,7 @@ uint64_t CCalendarComponent::checksum(uint64_t seed) const {
     return CChecksum::calculate(seed, m_Bucketing);
 }
 
-void CCalendarComponent::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const {
+void CCalendarComponent::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
     mem->setName("CCalendarComponent");
     core::CMemoryDebug::dynamicSize("m_Bucketing", m_Bucketing, mem);
     core::CMemoryDebug::dynamicSize("m_Splines", this->splines(), mem);

@@ -217,7 +217,7 @@ uint64_t CDynamicStringIdRegistry::checksum() const {
     return maths::CChecksum::calculate(0, people);
 }
 
-void CDynamicStringIdRegistry::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const {
+void CDynamicStringIdRegistry::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
     mem->setName("CDynamicStringIdRegistry");
     core::CMemoryDebug::dynamicSize("m_NameType", m_NameType, mem);
     core::CMemoryDebug::dynamicSize("m_PersonUids", m_Uids, mem);

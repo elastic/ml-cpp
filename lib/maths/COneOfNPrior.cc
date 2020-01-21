@@ -1000,7 +1000,7 @@ uint64_t COneOfNPrior::checksum(uint64_t seed) const {
     return seed;
 }
 
-void COneOfNPrior::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const {
+void COneOfNPrior::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
     mem->setName("COneOfNPrior");
     core::CMemoryDebug::dynamicSize("m_Models", m_Models, mem);
 }

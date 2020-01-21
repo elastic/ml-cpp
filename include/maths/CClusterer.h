@@ -68,7 +68,7 @@ public:
         void recycle(std::size_t index);
 
         //! Get the memory used by this component
-        void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const;
+        void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const;
 
         //! Get the memory used by this component
         std::size_t memoryUsage() const;
@@ -237,7 +237,7 @@ public:
     virtual uint64_t checksum(uint64_t seed = 0) const = 0;
 
     //! Get the memory used by this component
-    virtual void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const = 0;
+    virtual void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const = 0;
 
     //! Get the memory used by this component
     virtual std::size_t memoryUsage() const = 0;

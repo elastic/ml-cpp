@@ -256,7 +256,7 @@ std::size_t CDecayRateController::dimension() const {
     return m_PredictionMean.size();
 }
 
-void CDecayRateController::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const {
+void CDecayRateController::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
     mem->setName("CDecayRateController");
     core::CMemoryDebug::dynamicSize("m_PredictionMean", m_PredictionMean, mem);
     core::CMemoryDebug::dynamicSize("m_Bias", m_Bias, mem);

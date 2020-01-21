@@ -72,7 +72,7 @@ public:
     virtual uint64_t checksum(uint64_t seed = 0) const = 0;
 
     //! Debug the memory used by this object.
-    virtual void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const = 0;
+    virtual void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const = 0;
 
     //! Get the static size of object.
     virtual std::size_t staticSize() const = 0;
@@ -208,7 +208,7 @@ public:
     }
 
     //! Debug the memory used by this object.
-    virtual void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const {
+    virtual void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
         mem->setName("CTimeSeriesMultibucketMean");
         core::CMemoryDebug::dynamicSize("m_SlidingWindow", m_SlidingWindow, mem);
     }

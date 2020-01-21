@@ -297,7 +297,7 @@ public:
     uint64_t checksum(uint64_t seed) const;
 
     //! Debug the memory used by this object.
-    void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const;
+    void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const;
 
     //! Get the memory used by this object.
     std::size_t memoryUsage() const;
@@ -563,7 +563,7 @@ uint64_t CTimeSeriesAnomalyModel::checksum(uint64_t seed) const {
     return CChecksum::calculate(seed, m_AnomalyFeatureModels[1]);
 }
 
-void CTimeSeriesAnomalyModel::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const {
+void CTimeSeriesAnomalyModel::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
     mem->setName("CTimeSeriesAnomalyModel");
     core::CMemoryDebug::dynamicSize("m_Anomalies", m_Anomaly, mem);
     core::CMemoryDebug::dynamicSize("m_AnomalyFeatureModels", m_AnomalyFeatureModels, mem);
@@ -1257,7 +1257,7 @@ uint64_t CUnivariateTimeSeriesModel::checksum(uint64_t seed) const {
     return CChecksum::calculate(seed, m_Correlations != nullptr);
 }
 
-void CUnivariateTimeSeriesModel::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const {
+void CUnivariateTimeSeriesModel::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
     mem->setName("CUnivariateTimeSeriesModel");
     core::CMemoryDebug::dynamicSize("m_Controllers", m_Controllers, mem);
     core::CMemoryDebug::dynamicSize("m_TrendModel", m_TrendModel, mem);
@@ -1956,7 +1956,7 @@ CTimeSeriesCorrelations::correlationModels() const {
     return m_CorrelationDistributionModels;
 }
 
-void CTimeSeriesCorrelations::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const {
+void CTimeSeriesCorrelations::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
     mem->setName("CTimeSeriesCorrelations");
     core::CMemoryDebug::dynamicSize("m_SampleData", m_SampleData, mem);
     core::CMemoryDebug::dynamicSize("m_Correlations", m_Correlations, mem);
@@ -2698,7 +2698,7 @@ uint64_t CMultivariateTimeSeriesModel::checksum(uint64_t seed) const {
     return CChecksum::calculate(seed, m_AnomalyModel);
 }
 
-void CMultivariateTimeSeriesModel::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const {
+void CMultivariateTimeSeriesModel::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
     mem->setName("CUnivariateTimeSeriesModel");
     core::CMemoryDebug::dynamicSize("m_Controllers", m_Controllers, mem);
     core::CMemoryDebug::dynamicSize("m_TrendModel", m_TrendModel, mem);

@@ -123,7 +123,7 @@ public:
     }
 
     //! Debug the memory used by the statistic.
-    inline void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const {
+    inline void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
         mem->setName("CMetricPartialStatistic", sizeof(*this));
         core::CMemoryDebug::dynamicSize("m_Value", m_Value, mem);
         core::CMemoryDebug::dynamicSize("m_Time", m_Time, mem);

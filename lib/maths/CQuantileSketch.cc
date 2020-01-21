@@ -322,7 +322,7 @@ std::uint64_t CQuantileSketch::checksum(std::uint64_t seed) const {
     return CChecksum::calculate(seed, m_Count);
 }
 
-void CQuantileSketch::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const {
+void CQuantileSketch::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
     mem->setName("CQuantileSketch");
     core::CMemoryDebug::dynamicSize("m_Knots", m_Knots, mem);
 }
@@ -561,7 +561,7 @@ std::uint64_t CFastQuantileSketch::checksum(std::uint64_t seed) const {
     return CChecksum::calculate(seed, m_ReductionFraction);
 }
 
-void CFastQuantileSketch::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const {
+void CFastQuantileSketch::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
     mem->setName("CFastQuantileSketch");
     core::CMemoryDebug::dynamicSize("m_Knots", this->knots(), mem);
     core::CMemoryDebug::dynamicSize("m_MergeCosts", m_MergeCosts, mem);

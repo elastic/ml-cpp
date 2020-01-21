@@ -400,7 +400,7 @@ void CTokenListCategory::cacheReverseSearch(const std::string& part1,
     m_ReverseSearchPart2 = part2;
 }
 
-void CTokenListCategory::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const {
+void CTokenListCategory::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
     mem->setName("CTokenListCategory");
     core::CMemoryDebug::dynamicSize("m_BaseString", m_BaseString, mem);
     core::CMemoryDebug::dynamicSize("m_BaseTokenIds", m_BaseTokenIds, mem);

@@ -132,7 +132,7 @@ public:
     uint64_t checksum() const;
 
     //! Debug the memory used by this registry.
-    void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const;
+    void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const;
 
     //! Get the memory used by this registry.
     std::size_t memoryUsage() const;

@@ -551,7 +551,7 @@ uint64_t CBucketGatherer::checksum() const {
     return result;
 }
 
-void CBucketGatherer::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const {
+void CBucketGatherer::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
     mem->setName("CBucketGatherer");
     core::CMemoryDebug::dynamicSize("m_PersonAttributeCounts", m_PersonAttributeCounts, mem);
     core::CMemoryDebug::dynamicSize("m_PersonAttributeExplicitNulls",

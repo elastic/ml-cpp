@@ -236,7 +236,7 @@ std::uint64_t CCalendarCyclicTest::checksum(std::uint64_t seed) const {
     return CChecksum::calculate(seed, errors);
 }
 
-void CCalendarCyclicTest::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const {
+void CCalendarCyclicTest::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
     mem->setName("CCalendarCyclicTest");
     core::CMemoryDebug::dynamicSize("m_ErrorQuantiles", m_ErrorQuantiles, mem);
     core::CMemoryDebug::dynamicSize("m_CompressedBucketErrorStats",
