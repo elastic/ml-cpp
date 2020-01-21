@@ -34,7 +34,7 @@ bool CRapidJsonConcurrentLineWriter::EndObject(rapidjson::SizeType memberCount) 
     return baseReturnCode;
 }
 
-void CRapidJsonConcurrentLineWriter::debugMemoryUsage(CMemoryUsage::TMemoryUsagePtr mem) const {
+void CRapidJsonConcurrentLineWriter::debugMemoryUsage(const CMemoryUsage::TMemoryUsagePtr& mem) const {
     mem->setName("CRapidJsonConcurrentLineWriter", sizeof(*this));
     m_OutputStreamWrapper.debugMemoryUsage(mem->addChild());
 }

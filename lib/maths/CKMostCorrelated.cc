@@ -361,7 +361,7 @@ uint64_t CKMostCorrelated::checksum(uint64_t seed) const {
     return CChecksum::calculate(seed, m_MostCorrelated);
 }
 
-void CKMostCorrelated::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const {
+void CKMostCorrelated::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
     mem->setName("CKMostCorrelated");
     core::CMemoryDebug::dynamicSize("m_Projections", m_Projections, mem);
     core::CMemoryDebug::dynamicSize("m_CurrentProjected", m_CurrentProjected, mem);

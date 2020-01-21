@@ -1238,7 +1238,7 @@ uint64_t CMultinomialConjugate::checksum(uint64_t seed) const {
     return CChecksum::calculate(seed, m_TotalConcentration);
 }
 
-void CMultinomialConjugate::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const {
+void CMultinomialConjugate::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
     mem->setName("CMultinomialConjugate");
     core::CMemoryDebug::dynamicSize("m_Categories", m_Categories, mem);
     core::CMemoryDebug::dynamicSize("m_Concentrations", m_Concentrations, mem);

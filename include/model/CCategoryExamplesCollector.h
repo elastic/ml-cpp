@@ -65,7 +65,7 @@ public:
     void clear();
 
     //! Debug the memory used by this examples collector.
-    void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const;
+    void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const;
 
     //! Get the memory used by this examples collector.
     std::size_t memoryUsage() const;

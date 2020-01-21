@@ -105,10 +105,10 @@ BOOST_AUTO_TEST_CASE(testOnlineEventRateModel) {
     LOG_INFO(<< "Sizeof model now: " << model.memoryUsage());
     BOOST_TEST_REQUIRE(model.memoryUsage() > startMemoryUsage);
 
-    core::CMemoryUsage memoryUsage;
-    model.debugMemoryUsage(&memoryUsage);
-    LOG_DEBUG(<< "Debug sizeof model: " << memoryUsage.usage());
-    BOOST_REQUIRE_EQUAL(model.computeMemoryUsage(), memoryUsage.usage());
+    auto memoryUsage = std::make_shared<core::CMemoryUsage>();
+    model.debugMemoryUsage(memoryUsage);
+    LOG_DEBUG(<< "Debug sizeof model: " << memoryUsage->usage());
+    BOOST_REQUIRE_EQUAL(model.computeMemoryUsage(), memoryUsage->usage());
 }
 
 BOOST_AUTO_TEST_CASE(testOnlineMetricModel) {
@@ -165,10 +165,10 @@ BOOST_AUTO_TEST_CASE(testOnlineMetricModel) {
     LOG_INFO(<< "Sizeof model now: " << model.memoryUsage());
     BOOST_TEST_REQUIRE(model.memoryUsage() > startMemoryUsage);
 
-    core::CMemoryUsage memoryUsage;
-    model.debugMemoryUsage(&memoryUsage);
-    LOG_DEBUG(<< "Debug sizeof model: " << memoryUsage.usage());
-    BOOST_REQUIRE_EQUAL(model.computeMemoryUsage(), memoryUsage.usage());
+    auto memoryUsage = std::make_shared<core::CMemoryUsage>();
+    model.debugMemoryUsage(memoryUsage);
+    LOG_DEBUG(<< "Debug sizeof model: " << memoryUsage->usage());
+    BOOST_REQUIRE_EQUAL(model.computeMemoryUsage(), memoryUsage->usage());
 }
 
 BOOST_AUTO_TEST_SUITE_END()

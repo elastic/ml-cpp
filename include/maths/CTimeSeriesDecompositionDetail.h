@@ -173,7 +173,7 @@ public:
         void registerHandler(CHandler& handler);
 
         //! Debug the memory used by this object.
-        void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const;
+        void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const;
 
         //! Get the memory used by this object.
         std::size_t memoryUsage() const;
@@ -234,7 +234,7 @@ public:
         uint64_t checksum(uint64_t seed = 0) const;
 
         //! Debug the memory used by this object.
-        void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const;
+        void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const;
 
         //! Get the memory used by this object.
         std::size_t memoryUsage() const;
@@ -320,7 +320,7 @@ public:
         uint64_t checksum(uint64_t seed = 0) const;
 
         //! Debug the memory used by this object.
-        void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const;
+        void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const;
 
         //! Get the memory used by this object.
         std::size_t memoryUsage() const;
@@ -441,7 +441,7 @@ public:
         uint64_t checksum(uint64_t seed = 0) const;
 
         //! Debug the memory used by this object.
-        void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const;
+        void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const;
 
         //! Get the memory used by this object.
         std::size_t memoryUsage() const;
@@ -650,7 +650,7 @@ public:
             uint64_t checksum(uint64_t seed = 0) const;
 
             //! Debug the memory used by this object.
-            void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const;
+            void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const;
 
             //! Get the memory used by this object.
             std::size_t memoryUsage() const;
@@ -731,7 +731,7 @@ public:
             uint64_t checksum(uint64_t seed = 0) const;
 
             //! Debug the memory used by this object.
-            void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const;
+            void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const;
 
             //! Get the memory used by this object.
             std::size_t memoryUsage() const;

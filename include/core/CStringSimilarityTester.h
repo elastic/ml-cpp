@@ -288,7 +288,7 @@ public:
     }
 
     //! Debug the memory used by this similarity tester.
-    void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const;
+    void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const;
 
     //! Get the memory used by this similarity tester.
     std::size_t memoryUsage() const;

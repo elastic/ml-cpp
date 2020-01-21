@@ -57,7 +57,7 @@ struct MODEL_EXPORT SEventRateFeatureData {
     std::size_t memoryUsage() const;
 
     //! Get the memory usage of this component in a tree structure.
-    void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const;
+    void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const;
 
     uint64_t s_Count;
     TStrCRefDouble1VecDoublePrPrVecVec s_InfluenceValues;
@@ -92,7 +92,7 @@ struct MODEL_EXPORT SMetricFeatureData {
     std::size_t memoryUsage() const;
 
     //! Get the memory usage of this component in a tree structure.
-    void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const;
+    void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const;
 
     //! The bucket value.
     TOptionalSample s_BucketValue;

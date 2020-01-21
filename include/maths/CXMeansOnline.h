@@ -325,7 +325,7 @@ public:
         }
 
         //! Debug the memory used by this component.
-        void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const {
+        void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
             mem->setName("CXMeansOnline");
             core::CMemoryDebug::dynamicSize("m_Structure", m_Structure, mem);
         }
@@ -928,7 +928,7 @@ public:
     }
 
     //! Debug the memory used by the object.
-    virtual void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const {
+    virtual void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
         mem->setName("CXMeansOnline");
         core::CMemoryDebug::dynamicSize("m_ClusterIndexGenerator",
                                         m_ClusterIndexGenerator, mem);

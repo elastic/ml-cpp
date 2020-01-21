@@ -282,7 +282,7 @@ uint64_t CSeasonalComponent::checksum(uint64_t seed) const {
     return CChecksum::calculate(seed, m_Bucketing);
 }
 
-void CSeasonalComponent::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const {
+void CSeasonalComponent::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
     mem->setName("CSeasonalComponent");
     core::CMemoryDebug::dynamicSize("m_Bucketing", m_Bucketing, mem);
     core::CMemoryDebug::dynamicSize("m_Splines", this->splines(), mem);

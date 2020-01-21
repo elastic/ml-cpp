@@ -70,7 +70,7 @@ struct SFooWithMemoryUsage {
     }
     std::size_t memoryUsage() const { return 0; }
 
-    void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const {
+    void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
         mem->setName("SFooWithMemoryUsage", 0);
     }
 
@@ -110,7 +110,7 @@ struct SBarDebug {
         return sizeof(SFoo) * s_State.capacity();
     }
 
-    void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const {
+    void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
         mem->setName("SBarDebug", 0);
         core::CMemoryDebug::dynamicSize("s_State", s_State, mem);
     }
@@ -133,7 +133,7 @@ struct SBarVectorDebug {
         return core::CMemory::dynamicSize(s_State);
     }
 
-    void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const {
+    void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
         mem->setName("SBarVectorDebug", 0);
         core::CMemoryDebug::dynamicSize("s_State", s_State, mem);
     }
@@ -160,7 +160,7 @@ public:
         return core::CMemory::dynamicSize(m_Vec);
     }
 
-    virtual void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const {
+    virtual void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
         mem->setName("CBase", 0);
         core::CMemoryDebug::dynamicSize("m_Vec", m_Vec, mem);
     }
@@ -185,7 +185,7 @@ public:
         return mem;
     }
 
-    virtual void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const {
+    virtual void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
         mem->setName("CDerived", 0);
         core::CMemoryDebug::dynamicSize("m_Strings", m_Strings, mem);
         this->CBase::debugMemoryUsage(mem->addChild());
@@ -549,30 +549,30 @@ BOOST_AUTO_TEST_CASE(testUsage) {
         debugVisitor.registerCallback<TDoubleVec>();
         debugVisitor.registerCallback<TFooVec>();
 
-        core::CMemoryUsage mem;
-        core::CMemoryDebug::dynamicSize("", variables, &mem);
-        BOOST_REQUIRE_EQUAL(mem.usage(), core::CMemory::dynamicSize(variables));
+        auto mem = std::make_shared<core::CMemoryUsage>();
+        core::CMemoryDebug::dynamicSize("", variables, mem);
+        BOOST_REQUIRE_EQUAL(mem->usage(), core::CMemory::dynamicSize(variables));
         std::ostringstream ss;
-        mem.print(ss);
+        mem->print(ss);
         LOG_DEBUG(<< ss.str());
     }
     {
         CBase* base = new CBase(10);
         CBase* derived = new CDerived(10);
         {
-            core::CMemoryUsage mem;
-            core::CMemoryDebug::dynamicSize("", *base, &mem);
-            BOOST_REQUIRE_EQUAL(mem.usage(), core::CMemory::dynamicSize(*base));
+            auto mem = std::make_shared<core::CMemoryUsage>();
+            core::CMemoryDebug::dynamicSize("", *base, mem);
+            BOOST_REQUIRE_EQUAL(mem->usage(), core::CMemory::dynamicSize(*base));
             std::ostringstream ss;
-            mem.print(ss);
+            mem->print(ss);
             LOG_TRACE(<< ss.str());
         }
         {
-            core::CMemoryUsage mem;
-            core::CMemoryDebug::dynamicSize("", *derived, &mem);
-            BOOST_REQUIRE_EQUAL(mem.usage(), core::CMemory::dynamicSize(*derived));
+            auto mem = std::make_shared<core::CMemoryUsage>();
+            core::CMemoryDebug::dynamicSize("", *derived, mem);
+            BOOST_REQUIRE_EQUAL(mem->usage(), core::CMemory::dynamicSize(*derived));
             std::ostringstream ss;
-            mem.print(ss);
+            mem->print(ss);
             LOG_TRACE(<< ss.str());
         }
         BOOST_TEST_REQUIRE(core::CMemory::dynamicSize(*base) <
@@ -581,30 +581,30 @@ BOOST_AUTO_TEST_CASE(testUsage) {
         TBasePtr sharedBase(new CBase(10));
         TBasePtr sharedDerived(new CDerived(10));
         {
-            core::CMemoryUsage mem;
-            core::CMemoryDebug::dynamicSize("", sharedBase, &mem);
-            BOOST_REQUIRE_EQUAL(mem.usage(), core::CMemory::dynamicSize(sharedBase));
+            auto mem = std::make_shared<core::CMemoryUsage>();
+            core::CMemoryDebug::dynamicSize("", sharedBase, mem);
+            BOOST_REQUIRE_EQUAL(mem->usage(), core::CMemory::dynamicSize(sharedBase));
             std::ostringstream ss;
-            mem.print(ss);
+            mem->print(ss);
             LOG_TRACE(<< ss.str());
         }
         {
-            core::CMemoryUsage mem;
-            core::CMemoryDebug::dynamicSize("", sharedDerived, &mem);
-            BOOST_REQUIRE_EQUAL(mem.usage(), core::CMemory::dynamicSize(sharedDerived));
+            auto mem = std::make_shared<core::CMemoryUsage>();
+            core::CMemoryDebug::dynamicSize("", sharedDerived, mem);
+            BOOST_REQUIRE_EQUAL(mem->usage(), core::CMemory::dynamicSize(sharedDerived));
             std::ostringstream ss;
-            mem.print(ss);
+            mem->print(ss);
             LOG_TRACE(<< ss.str());
         }
         // boost:reference_wrapper should give zero
         std::reference_wrapper<CBase> baseRef(std::ref(*base));
         BOOST_REQUIRE_EQUAL(std::size_t(0), core::CMemory::dynamicSize(baseRef));
         {
-            core::CMemoryUsage mem;
-            core::CMemoryDebug::dynamicSize("", baseRef, &mem);
-            BOOST_REQUIRE_EQUAL(mem.usage(), core::CMemory::dynamicSize(baseRef));
+            auto mem = std::make_shared<core::CMemoryUsage>();
+            core::CMemoryDebug::dynamicSize("", baseRef, mem);
+            BOOST_REQUIRE_EQUAL(mem->usage(), core::CMemory::dynamicSize(baseRef));
             std::ostringstream ss;
-            mem.print(ss);
+            mem->print(ss);
             LOG_TRACE(<< ss.str());
         }
     }
@@ -691,22 +691,22 @@ BOOST_AUTO_TEST_CASE(testDebug) {
         BOOST_REQUIRE_EQUAL(sbar.memoryUsage(), sbarVectorDebug.memoryUsage());
 
         {
-            core::CMemoryUsage memoryUsage;
-            sbarDebug.debugMemoryUsage(&memoryUsage);
-            BOOST_REQUIRE_EQUAL(sbarDebug.memoryUsage(), memoryUsage.usage());
+            auto mem = std::make_shared<core::CMemoryUsage>();
+            sbarDebug.debugMemoryUsage(mem);
+            BOOST_REQUIRE_EQUAL(sbarDebug.memoryUsage(), mem->usage());
             std::ostringstream ss;
-            memoryUsage.print(ss);
+            mem->print(ss);
             LOG_TRACE(<< "SBarDebug: " + ss.str());
         }
         {
-            core::CMemoryUsage memoryUsage;
-            sbarVectorDebug.debugMemoryUsage(&memoryUsage);
+            auto mem = std::make_shared<core::CMemoryUsage>();
+            sbarVectorDebug.debugMemoryUsage(mem);
             std::ostringstream ss;
-            memoryUsage.print(ss);
+            mem->print(ss);
             LOG_TRACE(<< "SBarVectorDebug: " + ss.str());
             LOG_TRACE(<< "memoryUsage: " << sbarVectorDebug.memoryUsage()
-                      << ", debugUsage: " << memoryUsage.usage());
-            BOOST_REQUIRE_EQUAL(sbarVectorDebug.memoryUsage(), memoryUsage.usage());
+                      << ", debugUsage: " << mem->usage());
+            BOOST_REQUIRE_EQUAL(sbarVectorDebug.memoryUsage(), mem->usage());
         }
     }
     {
@@ -828,7 +828,7 @@ BOOST_AUTO_TEST_CASE(testCompress) {
         mem.setName("root", 1);
         mem.addChild()->setName("muffin", 4);
         mem.addChild()->setName("child", 3);
-        core::CMemoryUsage* child = mem.addChild();
+        auto child = mem.addChild();
         child->setName("child", 5);
         child->addChild()->setName("grandchild", 100);
         mem.addChild()->setName("child", 7);

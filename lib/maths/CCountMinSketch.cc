@@ -308,7 +308,7 @@ uint64_t CCountMinSketch::checksum(uint64_t seed) const {
     return CChecksum::calculate(seed, *counts);
 }
 
-void CCountMinSketch::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const {
+void CCountMinSketch::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
     mem->setName("CCountMinSketch");
     const TUInt32FloatPrVec* counts = boost::get<TUInt32FloatPrVec>(&m_Sketch);
     if (counts) {

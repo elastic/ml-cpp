@@ -194,7 +194,7 @@ uint64_t CExpandingWindow::checksum(uint64_t seed) const {
     return CChecksum::calculate(seed, m_MeanOffset);
 }
 
-void CExpandingWindow::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const {
+void CExpandingWindow::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
     mem->setName("CExpandingWindow");
     core::CMemoryDebug::dynamicSize("m_BucketValues", m_BucketValues, mem);
     core::CMemoryDebug::dynamicSize("m_DeflatedBucketValues", m_DeflatedBucketValues, mem);

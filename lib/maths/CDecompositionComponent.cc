@@ -325,7 +325,8 @@ uint64_t CDecompositionComponent::CPackedSplines::checksum(uint64_t seed) const 
     return CChecksum::calculate(seed, m_Curvatures);
 }
 
-void CDecompositionComponent::CPackedSplines::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const {
+void CDecompositionComponent::CPackedSplines::debugMemoryUsage(
+    const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
     mem->setName("CPackedSplines");
     core::CMemoryDebug::dynamicSize("m_Knots", m_Knots, mem);
     core::CMemoryDebug::dynamicSize("m_Values[0]", m_Values[0], mem);

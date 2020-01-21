@@ -208,7 +208,7 @@ public:
     // @}
 
     //! Debug the memory usage of this object.
-    void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const {
+    void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
         mem->setName("CDenseMatrix");
         mem->addItem("components", this->memoryUsage());
     }
@@ -259,7 +259,7 @@ public:
     // @}
 
     //! Debug the memory usage of this object.
-    void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const {
+    void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
         mem->setName("CDenseVector");
         mem->addItem("components", this->memoryUsage());
     }

@@ -491,7 +491,7 @@ uint64_t CNaturalBreaksClassifier::checksum(uint64_t seed) const {
     return CChecksum::calculate(seed, m_PointsBuffer);
 }
 
-void CNaturalBreaksClassifier::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const {
+void CNaturalBreaksClassifier::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
     mem->setName("CNaturalBreaksClassifier");
     core::CMemoryDebug::dynamicSize("m_Categories", m_Categories, mem);
     core::CMemoryDebug::dynamicSize("m_PointsBuffer", m_PointsBuffer, mem);

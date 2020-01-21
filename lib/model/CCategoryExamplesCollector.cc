@@ -144,7 +144,7 @@ void CCategoryExamplesCollector::clear() {
     m_ExamplesByCategory.clear();
 }
 
-void CCategoryExamplesCollector::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const {
+void CCategoryExamplesCollector::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
     mem->setName("CCategoryExamplesCollector");
     core::CMemoryDebug::dynamicSize("m_ExamplesByCategory", m_ExamplesByCategory, mem);
 }

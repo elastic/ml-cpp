@@ -467,7 +467,8 @@ void CTimeSeriesDecompositionDetail::CMediator::registerHandler(CHandler& handle
     handler.mediator(this);
 }
 
-void CTimeSeriesDecompositionDetail::CMediator::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const {
+void CTimeSeriesDecompositionDetail::CMediator::debugMemoryUsage(
+    const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
     mem->setName("CMediator");
     core::CMemoryDebug::dynamicSize("m_Handlers", m_Handlers, mem);
 }
@@ -671,7 +672,7 @@ uint64_t CTimeSeriesDecompositionDetail::CPeriodicityTest::checksum(uint64_t see
 }
 
 void CTimeSeriesDecompositionDetail::CPeriodicityTest::debugMemoryUsage(
-    core::CMemoryUsage::TMemoryUsagePtr mem) const {
+    const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
     mem->setName("CPeriodicityTest");
     core::CMemoryDebug::dynamicSize("m_Windows", m_Windows, mem);
     core::CMemoryDebug::dynamicSize("m_LinearScales", m_LinearScales, mem);
@@ -989,7 +990,7 @@ uint64_t CTimeSeriesDecompositionDetail::CCalendarTest::checksum(uint64_t seed) 
 }
 
 void CTimeSeriesDecompositionDetail::CCalendarTest::debugMemoryUsage(
-    core::CMemoryUsage::TMemoryUsagePtr mem) const {
+    const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
     mem->setName("CCalendarTest");
     core::CMemoryDebug::dynamicSize("m_Test", m_Test, mem);
 }
@@ -1522,7 +1523,8 @@ uint64_t CTimeSeriesDecompositionDetail::CComponents::checksum(uint64_t seed) co
     return CChecksum::calculate(seed, m_UsingTrendForPrediction);
 }
 
-void CTimeSeriesDecompositionDetail::CComponents::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const {
+void CTimeSeriesDecompositionDetail::CComponents::debugMemoryUsage(
+    const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
     mem->setName("CComponents");
     core::CMemoryDebug::dynamicSize("m_Trend", m_Trend, mem);
     core::CMemoryDebug::dynamicSize("m_Seasonal", m_Seasonal, mem);
@@ -2412,7 +2414,7 @@ uint64_t CTimeSeriesDecompositionDetail::CComponents::CSeasonal::checksum(uint64
 }
 
 void CTimeSeriesDecompositionDetail::CComponents::CSeasonal::debugMemoryUsage(
-    core::CMemoryUsage::TMemoryUsagePtr mem) const {
+    const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
     mem->setName("CSeasonal");
     core::CMemoryDebug::dynamicSize("m_Components", m_Components, mem);
     core::CMemoryDebug::dynamicSize("m_PredictionErrors", m_PredictionErrors, mem);
@@ -2631,7 +2633,7 @@ uint64_t CTimeSeriesDecompositionDetail::CComponents::CCalendar::checksum(uint64
 }
 
 void CTimeSeriesDecompositionDetail::CComponents::CCalendar::debugMemoryUsage(
-    core::CMemoryUsage::TMemoryUsagePtr mem) const {
+    const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
     mem->setName("CCalendar");
     core::CMemoryDebug::dynamicSize("m_Components", m_Components, mem);
     core::CMemoryDebug::dynamicSize("m_PredictionErrors", m_PredictionErrors, mem);

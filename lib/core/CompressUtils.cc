@@ -136,7 +136,7 @@ bool CCompressUtil::prepareToReturnData(bool finish) {
     return true;
 }
 
-void CCompressUtil::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const {
+void CCompressUtil::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
     mem->setName("CCompressUtil");
     core::CMemoryDebug::dynamicSize("m_FullResult", m_FullResult, mem);
     if (m_ZlibStrm.state != nullptr) {

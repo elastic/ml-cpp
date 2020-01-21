@@ -202,7 +202,7 @@ public:
         uint64_t checksum(uint64_t seed) const;
 
         //! Debug the memory used by this object.
-        void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const;
+        void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const;
 
         //! Get the memory used by this cluster.
         std::size_t memoryUsage() const;
@@ -351,7 +351,7 @@ public:
     virtual double probability(std::size_t index) const;
 
     //! Debug the memory used by the object.
-    virtual void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const;
+    virtual void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const;
 
     //! Get the memory used by this object.
     virtual std::size_t memoryUsage() const;

@@ -226,7 +226,7 @@ uint64_t CSampleCounts::checksum(const CDataGatherer& gatherer) const {
     return maths::CChecksum::calculate(0, hashes);
 }
 
-void CSampleCounts::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const {
+void CSampleCounts::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
     mem->setName("CSampleCounts");
     core::CMemoryDebug::dynamicSize("m_SampleCounts", m_SampleCounts, mem);
     core::CMemoryDebug::dynamicSize("m_MeanNonZeroBucketCounts",
