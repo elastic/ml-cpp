@@ -593,7 +593,7 @@ void CAnomalyDetector::showMemoryUsage(std::ostream& stream) const {
     }
 }
 
-void CAnomalyDetector::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const {
+void CAnomalyDetector::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
     mem->setName("Anomaly Detector Memory Usage");
     core::CMemoryDebug::dynamicSize("m_DataGatherer", m_DataGatherer, mem);
     core::CMemoryDebug::dynamicSize("m_Model", m_Model, mem);

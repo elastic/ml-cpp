@@ -293,7 +293,7 @@ uint64_t CGathererTools::CSumGatherer::checksum() const {
     return maths::CChecksum::calculate(seed, m_InfluencerBucketSums);
 }
 
-void CGathererTools::CSumGatherer::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const {
+void CGathererTools::CSumGatherer::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
     mem->setName("CSumGatherer");
     core::CMemoryDebug::dynamicSize("m_BucketSums", m_BucketSums, mem);
     core::CMemoryDebug::dynamicSize("m_InfluencerBucketSums", m_InfluencerBucketSums, mem);

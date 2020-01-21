@@ -304,7 +304,7 @@ uint64_t CCountingModel::checksum(bool includeCurrentBucketStats) const {
     return result;
 }
 
-void CCountingModel::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const {
+void CCountingModel::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
     mem->setName("CCountingModel");
     this->CAnomalyDetectorModel::debugMemoryUsage(mem->addChild());
     core::CMemoryDebug::dynamicSize("m_Counts", m_Counts, mem);

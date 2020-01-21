@@ -794,7 +794,7 @@ public:
     }
 
     //! Get the memory used by this component
-    virtual void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const {
+    virtual void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
         mem->setName("CMultivariateMultimodalPrior");
         core::CMemoryDebug::dynamicSize("m_Clusterer", m_Clusterer, mem);
         core::CMemoryDebug::dynamicSize("m_SeedPrior", m_SeedPrior, mem);

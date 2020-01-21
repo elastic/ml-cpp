@@ -798,7 +798,7 @@ uint64_t CEventRatePopulationModel::checksum(bool includeCurrentBucketStats) con
     return maths::CChecksum::calculate(seed, hashes);
 }
 
-void CEventRatePopulationModel::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const {
+void CEventRatePopulationModel::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
     mem->setName("CEventRatePopulationModel");
     this->CPopulationModel::debugMemoryUsage(mem->addChild());
     core::CMemoryDebug::dynamicSize("m_CurrentBucketStats.s_PersonCounts",

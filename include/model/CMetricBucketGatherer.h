@@ -191,7 +191,7 @@ public:
     virtual uint64_t checksum() const;
 
     //! Debug the memory used by this object.
-    virtual void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const;
+    virtual void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const;
 
     //! Get the memory used by this object.
     virtual std::size_t memoryUsage() const;

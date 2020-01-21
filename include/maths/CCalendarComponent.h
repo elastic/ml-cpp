@@ -135,7 +135,7 @@ public:
     uint64_t checksum(uint64_t seed = 0) const;
 
     //! Debug the memory used by this component.
-    void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const;
+    void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const;
 
     //! Get the memory used by this component.
     std::size_t memoryUsage() const;

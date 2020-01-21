@@ -51,19 +51,13 @@ public:
         std::size_t s_Unused;
     };
 
-    using TMemoryUsagePtr = CMemoryUsage*;
+    using TMemoryUsagePtr = std::shared_ptr<CMemoryUsage>;
     using TMemoryUsagePtrList = std::list<TMemoryUsagePtr>;
-    using TMemoryUsagePtrListCItr = TMemoryUsagePtrList::const_iterator;
-    using TMemoryUsagePtrListItr = TMemoryUsagePtrList::iterator;
     using TMemoryUsageVec = std::vector<SMemoryUsage>;
-    using TMemoryUsageVecCitr = TMemoryUsageVec::const_iterator;
 
 public:
     //! Constructor
     CMemoryUsage();
-
-    //! Destructor
-    ~CMemoryUsage();
 
     //! Create a child node
     TMemoryUsagePtr addChild();

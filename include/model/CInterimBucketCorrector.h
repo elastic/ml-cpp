@@ -77,7 +77,7 @@ public:
     TDouble10Vec corrections(const TDouble10Vec& modes, const TDouble10Vec& values) const;
 
     //! Get the memory used by the corrector
-    void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const;
+    void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const;
 
     //! Get the memory used by the corrector
     std::size_t memoryUsage() const;

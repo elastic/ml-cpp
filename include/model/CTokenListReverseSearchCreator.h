@@ -88,7 +88,7 @@ public:
     const std::string& fieldName() const;
 
     //! Debug the memory used by this reverse search creator.
-    void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const;
+    void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const;
 
     //! Get the memory used by this reverse search creator.
     std::size_t memoryUsage() const;

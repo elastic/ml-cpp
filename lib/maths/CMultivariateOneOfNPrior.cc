@@ -747,7 +747,7 @@ uint64_t CMultivariateOneOfNPrior::checksum(uint64_t seed) const {
     return CChecksum::calculate(seed, m_Models);
 }
 
-void CMultivariateOneOfNPrior::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const {
+void CMultivariateOneOfNPrior::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
     mem->setName("CMultivariateOneOfNPrior");
     core::CMemoryDebug::dynamicSize("m_Models", m_Models, mem);
 }

@@ -288,7 +288,8 @@ uint64_t CSeasonalComponentAdaptiveBucketing::checksum(uint64_t seed) const {
     return CChecksum::calculate(seed, m_Buckets);
 }
 
-void CSeasonalComponentAdaptiveBucketing::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const {
+void CSeasonalComponentAdaptiveBucketing::debugMemoryUsage(
+    const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
     mem->setName("CSeasonalComponentAdaptiveBucketing");
     core::CMemoryDebug::dynamicSize("m_Endpoints", this->endpoints(), mem);
     core::CMemoryDebug::dynamicSize("m_Centres", this->centres(), mem);

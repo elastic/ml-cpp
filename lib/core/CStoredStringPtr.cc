@@ -75,7 +75,7 @@ std::size_t CStoredStringPtr::actualMemoryUsage() const {
     return CMemory::dynamicSize(m_String.get());
 }
 
-void CStoredStringPtr::debugActualMemoryUsage(CMemoryUsage::TMemoryUsagePtr mem) const {
+void CStoredStringPtr::debugActualMemoryUsage(const CMemoryUsage::TMemoryUsagePtr& mem) const {
     // This is NOT the standard way to account for the memory of a
     // shared_ptr - do NOT copy this to other classes with shared_ptr members
     mem->addItem("m_String", this->actualMemoryUsage());

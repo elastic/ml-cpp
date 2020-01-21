@@ -86,7 +86,7 @@ public:
 
     uint64_t checksum(bool includeCurrentBucketStats = true) const override;
 
-    void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const override;
+    void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const override;
 
     std::size_t memoryUsage() const override;
 

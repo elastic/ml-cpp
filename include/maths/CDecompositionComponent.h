@@ -99,7 +99,7 @@ protected:
         uint64_t checksum(uint64_t seed) const;
 
         //! Debug the memory used by the splines.
-        void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const;
+        void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const;
 
         //! Get the memory used by these splines.
         std::size_t memoryUsage() const;

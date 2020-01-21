@@ -1239,7 +1239,7 @@ uint64_t CNormalMeanPrecConjugate::checksum(uint64_t seed) const {
     return CChecksum::calculate(seed, m_GammaRate);
 }
 
-void CNormalMeanPrecConjugate::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const {
+void CNormalMeanPrecConjugate::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
     mem->setName("CNormalMeanPrecConjugate");
 }
 

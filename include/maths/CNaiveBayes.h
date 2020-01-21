@@ -67,7 +67,7 @@ public:
     virtual void propagateForwardsByTime(double time) = 0;
 
     //! Debug the memory used by this object.
-    virtual void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const = 0;
+    virtual void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const = 0;
 
     //! Get the static size of this object.
     virtual std::size_t staticSize() const = 0;
@@ -120,7 +120,7 @@ public:
     virtual void propagateForwardsByTime(double time);
 
     //! Debug the memory used by this object.
-    virtual void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const;
+    virtual void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const;
 
     //! Get the static size of this object.
     virtual std::size_t staticSize() const;
@@ -221,7 +221,7 @@ public:
     TDoubleSizePrVec classProbabilities(const TDouble1VecVec& x) const;
 
     //! Debug the memory used by this object.
-    void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const;
+    void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const;
 
     //! Get the memory used by this object.
     std::size_t memoryUsage() const;
@@ -261,7 +261,7 @@ private:
         TFeatureDensityPtrVec& conditionalDensities();
 
         //! Debug the memory used by this object.
-        void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const;
+        void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const;
         //! Get the memory used by this object.
         std::size_t memoryUsage() const;
 

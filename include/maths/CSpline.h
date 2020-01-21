@@ -614,7 +614,7 @@ public:
     }
 
     //! Get the memory used by this component
-    void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const {
+    void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
         mem->setName("CSpline");
         core::CMemoryDebug::dynamicSize("m_Knots", m_Knots, mem);
         core::CMemoryDebug::dynamicSize("m_Values", m_Values, mem);

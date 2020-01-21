@@ -1323,7 +1323,7 @@ uint64_t CMetricBucketGatherer::checksum() const {
     return maths::CChecksum::calculate(seed, hashes);
 }
 
-void CMetricBucketGatherer::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const {
+void CMetricBucketGatherer::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
     registerMemoryCallbacks();
     mem->setName("CMetricBucketGatherer");
     this->CBucketGatherer::debugMemoryUsage(mem->addChild());

@@ -57,7 +57,7 @@ public:
     }
 
     //! Debug the memory used by this component.
-    void debugMemoryUsage(CMemoryUsage::TMemoryUsagePtr mem) const {
+    void debugMemoryUsage(const CMemoryUsage::TMemoryUsagePtr& mem) const {
         mem->setName("CConcurrentWrapper");
         m_Queue.debugMemoryUsage(mem->addChild());
     }

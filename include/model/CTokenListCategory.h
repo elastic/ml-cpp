@@ -116,7 +116,7 @@ public:
     void cacheReverseSearch(const std::string& part1, const std::string& part2);
 
     //! Debug the memory used by this category.
-    void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const;
+    void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const;
 
     //! Get the memory used by this category.
     std::size_t memoryUsage() const;
