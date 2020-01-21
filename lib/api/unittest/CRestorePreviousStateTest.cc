@@ -49,8 +49,8 @@ struct SRestoreTestConfig {
 };
 
 const std::vector<SRestoreTestConfig> BWC_VERSIONS{
-    SRestoreTestConfig{"5.6.0", false, true}, SRestoreTestConfig{"6.0.0", false, true},
-    SRestoreTestConfig{"6.1.0", false, true}};
+    SRestoreTestConfig{"5.6.0", false, false}, SRestoreTestConfig{"6.0.0", false, false},
+    SRestoreTestConfig{"6.1.0", false, false}};
 
 std::string stripDocIds(const std::string& persistedState) {
     // State is persisted in the Elasticsearch bulk format.

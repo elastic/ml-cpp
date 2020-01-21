@@ -264,7 +264,7 @@ BOOST_AUTO_TEST_CASE(testJobKilledReverseSearch) {
     // their respective classes, but this test helps to confirm that they work
     // together)
     BOOST_TEST_REQUIRE(output.find("\"terms\":\"Killing job\"") != std::string::npos);
-    BOOST_TEST_REQUIRE(output.find("\"regex\":\".*\"") != std::string::npos);
+    BOOST_TEST_REQUIRE(output.find("\"regex\":\".*?Killing.+?job.*\"") != std::string::npos);
     // The input data should NOT be in the output
     BOOST_TEST_REQUIRE(output.find("\"message\"") == std::string::npos);
 }
