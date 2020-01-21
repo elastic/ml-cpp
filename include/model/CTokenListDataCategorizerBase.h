@@ -32,7 +32,7 @@ class CStatePersistInserter;
 class CStateRestoreTraverser;
 }
 namespace model {
-class CTokenListReverseSearchCreatorIntf;
+class CTokenListReverseSearchCreator;
 
 //! \brief
 //! Abstract base class for categorising strings based on tokens.
@@ -67,8 +67,8 @@ public:
 public:
     //! Shared pointer to reverse search creator that we're will function
     //! after being shallow copied
-    using TTokenListReverseSearchCreatorIntfCPtr =
-        std::shared_ptr<const CTokenListReverseSearchCreatorIntf>;
+    using TTokenListReverseSearchCreatorCPtr =
+        std::shared_ptr<const CTokenListReverseSearchCreator>;
 
     //! Used to associate tokens with weightings:
     //! first -> token ID
@@ -98,7 +98,7 @@ public:
     //! 0.0 means everything is the same category
     //! 1.0 means things have to match exactly to be the same category
     CTokenListDataCategorizerBase(CLimits& limits,
-                                  const TTokenListReverseSearchCreatorIntfCPtr& reverseSearchCreator,
+                                  const TTokenListReverseSearchCreatorCPtr& reverseSearchCreator,
                                   double threshold,
                                   const std::string& fieldName);
 
@@ -287,7 +287,7 @@ private:
 
 private:
     //! Reference to the object we'll use to create reverse searches
-    const TTokenListReverseSearchCreatorIntfCPtr m_ReverseSearchCreator;
+    const TTokenListReverseSearchCreatorCPtr m_ReverseSearchCreator;
 
     //! The lower threshold for comparison.  If another category matches this
     //! closely, we'll take it providing there's no other better match.
