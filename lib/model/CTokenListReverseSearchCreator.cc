@@ -95,9 +95,7 @@ void CTokenListReverseSearchCreator::debugMemoryUsage(core::CMemoryUsage::TMemor
 }
 
 std::size_t CTokenListReverseSearchCreator::memoryUsage() const {
-    std::size_t mem = 0;
-    mem += core::CMemory::dynamicSize(m_FieldName);
-    return mem;
+    return core::CMemory::dynamicSize(m_FieldName);
 }
 }
 }
