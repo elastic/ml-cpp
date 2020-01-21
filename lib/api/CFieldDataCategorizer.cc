@@ -22,6 +22,7 @@
 #include <api/COutputHandler.h>
 #include <api/CPersistenceManager.h>
 
+#include <memory>
 #include <sstream>
 
 namespace ml {
@@ -186,12 +187,11 @@ int CFieldDataCategorizer::computeCategory(const TStrStrUMap& dataRowFields) {
 }
 
 void CFieldDataCategorizer::createCategorizer(const std::string& fieldName) {
-    // TODO - if we ever have more than one data categorizer class, this should be
-    // replaced with a factory
-    TTokenListDataCategorizerKeepsFields::TTokenListReverseSearchCreatorIntfCPtr reverseSearchCreator(
-        new model::CTokenListReverseSearchCreator(fieldName));
-    m_DataCategorizer.reset(new TTokenListDataCategorizerKeepsFields(
-        m_Limits, reverseSearchCreator, SIMILARITY_THRESHOLD, fieldName));
+    // TODO - if we ever have more than one data categorizer class, this should
+    // be replaced with a factory
+    m_DataCategorizer = std::make_shared<TTokenListDataCategorizerKeepsFields>(
+        m_Limits, std::make_shared<model::CTokenListReverseSearchCreator>(fieldName),
+        SIMILARITY_THRESHOLD, fieldName);
 
     LOG_TRACE(<< "Created new categorizer for field '" << fieldName << "'");
 }

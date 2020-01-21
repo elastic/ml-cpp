@@ -53,7 +53,7 @@ public:
     //! 0.0 means everything is the same category
     //! 1.0 means things have to match exactly to be the same category
     CTokenListDataCategorizer(CLimits& limits,
-                              const TTokenListReverseSearchCreatorIntfCPtr& reverseSearchCreator,
+                              const TTokenListReverseSearchCreatorCPtr& reverseSearchCreator,
                               double threshold,
                               const std::string& fieldName)
         : CTokenListDataCategorizerBase{limits, reverseSearchCreator, threshold, fieldName},
