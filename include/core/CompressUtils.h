@@ -100,7 +100,7 @@ public:
     void reset();
 
     //! Debug the memory used by these compression utils.
-    void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const;
+    void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const;
 
     //! Get the memory used by these compression utils.
     std::size_t memoryUsage() const;

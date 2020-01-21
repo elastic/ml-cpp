@@ -64,7 +64,7 @@ public:
     CTokenListDataCategorizer& operator=(const CTokenListDataCategorizer&) = delete;
 
     //! Debug the memory used by this categorizer.
-    void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const override {
+    void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const override {
         mem->setName("CTokenListDataCategorizer");
         this->CTokenListDataCategorizerBase::debugMemoryUsage(mem->addChild());
         core::CMemoryDebug::dynamicSize("m_SimilarityTester", m_SimilarityTester, mem);

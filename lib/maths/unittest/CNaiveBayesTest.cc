@@ -262,7 +262,6 @@ BOOST_AUTO_TEST_CASE(testPropagationByTime) {
 BOOST_AUTO_TEST_CASE(testMemoryUsage) {
     // Check invariants.
 
-    using TMemoryUsageUPtr = std::unique_ptr<core::CMemoryUsage>;
     using TNaiveBayesUPtr = std::unique_ptr<maths::CNaiveBayes>;
 
     test::CRandomNumbers rng;
@@ -288,8 +287,8 @@ BOOST_AUTO_TEST_CASE(testMemoryUsage) {
     }
 
     std::size_t memoryUsage{nb->memoryUsage()};
-    TMemoryUsageUPtr mem{std::make_unique<core::CMemoryUsage>()};
-    nb->debugMemoryUsage(mem.get());
+    auto mem{std::make_shared<core::CMemoryUsage>()};
+    nb->debugMemoryUsage(mem);
 
     LOG_DEBUG(<< "Memory = " << memoryUsage);
     BOOST_REQUIRE_EQUAL(memoryUsage, mem->usage());

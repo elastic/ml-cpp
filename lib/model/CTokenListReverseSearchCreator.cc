@@ -89,7 +89,7 @@ const std::string& CTokenListReverseSearchCreator::fieldName() const {
     return m_FieldName;
 }
 
-void CTokenListReverseSearchCreator::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const {
+void CTokenListReverseSearchCreator::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
     mem->setName("CTokenListReverseSearchCreator");
     core::CMemoryDebug::dynamicSize("m_FieldName", m_FieldName, mem);
 }

@@ -377,7 +377,7 @@ std::uint64_t CModelStub::checksum(std::uint64_t seed) const {
     return seed;
 }
 
-void CModelStub::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr /*mem*/) const {
+void CModelStub::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& /*mem*/) const {
 }
 
 std::size_t CModelStub::memoryUsage() const {

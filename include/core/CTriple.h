@@ -68,7 +68,7 @@ public:
         return seed;
     }
 
-    void debugMemoryUsage(CMemoryUsage::TMemoryUsagePtr mem) const {
+    void debugMemoryUsage(const CMemoryUsage::TMemoryUsagePtr& mem) const {
         mem->setName("CTriple");
         CMemoryDebug::dynamicSize("first", first, mem);
         CMemoryDebug::dynamicSize("second", second, mem);

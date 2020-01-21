@@ -479,7 +479,7 @@ uint64_t CTimeSeriesDecomposition::checksum(uint64_t seed) const {
     return CChecksum::calculate(seed, m_Components);
 }
 
-void CTimeSeriesDecomposition::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const {
+void CTimeSeriesDecomposition::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
     mem->setName("CTimeSeriesDecomposition");
     core::CMemoryDebug::dynamicSize("m_Mediator", m_Mediator, mem);
     core::CMemoryDebug::dynamicSize("m_PeriodicityTest", m_PeriodicityTest, mem);

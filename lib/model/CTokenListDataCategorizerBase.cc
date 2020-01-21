@@ -515,7 +515,7 @@ bool CTokenListDataCategorizerBase::addPretokenisedTokens(const std::string& tok
     return true;
 }
 
-void CTokenListDataCategorizerBase::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const {
+void CTokenListDataCategorizerBase::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
     mem->setName("CTokenListDataCategorizerBase");
     this->CDataCategorizer::debugMemoryUsage(mem->addChild());
     core::CMemoryDebug::dynamicSize("m_ReverseSearchCreator", m_ReverseSearchCreator, mem);
@@ -549,7 +549,7 @@ const std::string& CTokenListDataCategorizerBase::CTokenInfoItem::str() const {
 }
 
 void CTokenListDataCategorizerBase::CTokenInfoItem::debugMemoryUsage(
-    core::CMemoryUsage::TMemoryUsagePtr mem) const {
+    const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
     mem->setName("CTokenInfoItem");
     core::CMemoryDebug::dynamicSize("m_Str", m_Str, mem);
 }

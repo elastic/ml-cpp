@@ -42,7 +42,7 @@ void CDataCategorizer::lastPersistTime(core_t::TTime lastPersistTime) {
     m_LastPersistTime = lastPersistTime;
 }
 
-void CDataCategorizer::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const {
+void CDataCategorizer::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
     mem->setName("CDataCategorizer");
     core::CMemoryDebug::dynamicSize("m_FieldName", m_FieldName, mem);
     core::CMemoryDebug::dynamicSize("m_ExamplesCollector", m_ExamplesCollector, mem);

@@ -134,7 +134,7 @@ int** CStringSimilarityTester::setupBerghelRoachMatrix(int maxDist,
     return matrix;
 }
 
-void CStringSimilarityTester::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const {
+void CStringSimilarityTester::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
     mem->setName("CStringSimilarityTester");
     core::CMemoryDebug::dynamicSize("m_Compressor", m_Compressor, mem);
 }

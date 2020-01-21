@@ -341,7 +341,7 @@ uint64_t CConstantPrior::checksum(uint64_t seed) const {
     return CChecksum::calculate(seed, m_Constant);
 }
 
-void CConstantPrior::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const {
+void CConstantPrior::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
     mem->setName("CConstantPrior");
 }
 

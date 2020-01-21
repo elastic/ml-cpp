@@ -249,7 +249,7 @@ public:
     void showMemoryUsage(std::ostream& stream) const;
 
     //! Get the memory used by this detector
-    void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const override;
+    void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const override;
 
     //! Return the total memory usage
     std::size_t memoryUsage() const override;
