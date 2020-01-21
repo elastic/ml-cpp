@@ -746,7 +746,7 @@ void CBoostedTreeFactory::initializeUnsetEta(core::CDataFrame& frame) {
         m_LogEtaSearchInterval = min(m_LogEtaSearchInterval, TVector{0.0});
         LOG_TRACE(<< "log eta search interval = ["
                   << m_LogEtaSearchInterval.toDelimited() << "]");
-        applyEta(*m_Tree, m_LogEtaSearchInterval(BEST_REGULARIZER_INDEX));
+        applyEta(*m_TreeImpl, m_LogEtaSearchInterval(BEST_REGULARIZER_INDEX));
 
         if (intervalIsEmpty(m_LogEtaSearchInterval)) {
             m_TreeImpl->m_EtaOverride = m_TreeImpl->m_Eta;
