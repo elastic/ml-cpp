@@ -918,7 +918,7 @@ CBoostedTreeFactory::testLossLineSearch(core::CDataFrame& frame,
     TVector interval{{returnedIntervalLeftEndOffset, 0.0, returnedIntervalRightEndOffset}};
     if (minGoodRegularizer > intervalLeftEnd) {
         interval(MIN_REGULARIZER_INDEX) = std::max(
-            maxGoodRegularizer - bestRegularizer, interval(MIN_REGULARIZER_INDEX));
+            minGoodRegularizer - bestRegularizer, interval(MIN_REGULARIZER_INDEX));
     }
     if (maxGoodRegularizer < intervalRightEnd) {
         interval(MAX_REGULARIZER_INDEX) = std::min(
