@@ -15,42 +15,35 @@ CTokenListReverseSearchCreator::CTokenListReverseSearchCreator(const std::string
     : m_FieldName(fieldName) {
 }
 
-size_t CTokenListReverseSearchCreator::availableCost() const {
+std::size_t CTokenListReverseSearchCreator::availableCost() const {
     // This is pretty arbitrary, but MUST be less than the maximum length of a
     // field in ES (currently 32766 bytes), and ideally should be quite a lot
     // less as a huge reverse search is pretty unwieldy
     return 10000;
 }
 
-size_t CTokenListReverseSearchCreator::costOfToken(const std::string& token,
-                                                   size_t numOccurrences) const {
-    size_t tokenLength = token.length();
+std::size_t CTokenListReverseSearchCreator::costOfToken(const std::string& token,
+                                                        std::size_t numOccurrences) const {
+    std::size_t tokenLength{token.length()};
     return (1 + tokenLength + // length of what we add to the terms
             3 + tokenLength   // length of what we add to the regex
             ) *
            numOccurrences;
 }
 
-bool CTokenListReverseSearchCreator::createNullSearch(std::string& terms,
-                                                      std::string& regex) const {
-    terms.clear();
-    regex.clear();
-    return true;
-}
-
 bool CTokenListReverseSearchCreator::createNoUniqueTokenSearch(int /*categoryId*/,
                                                                const std::string& /*example*/,
-                                                               size_t /*maxMatchingStringLen*/,
+                                                               std::size_t /*maxMatchingStringLen*/,
                                                                std::string& terms,
                                                                std::string& regex) const {
     terms.clear();
-    regex.clear();
+    regex = ".*";
     return true;
 }
 
 void CTokenListReverseSearchCreator::initStandardSearch(int /*categoryId*/,
                                                         const std::string& /*example*/,
-                                                        size_t /*maxMatchingStringLen*/,
+                                                        std::size_t /*maxMatchingStringLen*/,
                                                         std::string& terms,
                                                         std::string& regex) const {
     terms.clear();
@@ -58,14 +51,15 @@ void CTokenListReverseSearchCreator::initStandardSearch(int /*categoryId*/,
 }
 
 void CTokenListReverseSearchCreator::addInOrderCommonToken(const std::string& token,
-                                                           bool first,
                                                            std::string& terms,
                                                            std::string& regex) const {
-    if (first) {
+    if (regex.empty()) {
         regex += ".*?";
     } else {
-        terms += ' ';
         regex += ".+?";
+    }
+    if (terms.empty() == false) {
+        terms += ' ';
     }
     terms += token;
     regex += core::CRegex::escapeRegexSpecial(token);

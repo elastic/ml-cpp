@@ -57,6 +57,7 @@ SRCS=\
 	CSampleQueueTest.cc \
 	CSearchKeyTest.cc \
 	CStringStoreTest.cc \
+	CTokenListCategoryTest.cc \
 	CTokenListDataCategorizerBaseTest.cc \
 	CTokenListDataCategorizerTest.cc \
 	CTokenListReverseSearchCreatorTest.cc \

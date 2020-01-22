@@ -38,21 +38,18 @@ public:
     //! What's the maximum cost of tokens we can include in the reverse
     //! search?  This cost is loosely based on the maximum length of an
     //! Internet Explorer URL.
-    size_t availableCost() const;
+    std::size_t availableCost() const;
 
     //! What would be the cost of adding the specified token occurring the
     //! specified number of times to the reverse search?
-    size_t costOfToken(const std::string& token, size_t numOccurrences) const;
-
-    //! Create a reverse search for a NULL field value.
-    bool createNullSearch(std::string& terms, std::string& regex) const;
+    std::size_t costOfToken(const std::string& token, std::size_t numOccurrences) const;
 
     //! If possible, create a reverse search for the case where there are no
     //! unique tokens identifying the category.  (If this is not possible return
     //! false.)
     bool createNoUniqueTokenSearch(int categoryId,
                                    const std::string& example,
-                                   size_t maxMatchingStringLen,
+                                   std::size_t maxMatchingStringLen,
                                    std::string& terms,
                                    std::string& regex) const;
 
@@ -61,16 +58,13 @@ public:
     //! some sort of one-off preamble.
     void initStandardSearch(int categoryId,
                             const std::string& example,
-                            size_t maxMatchingStringLen,
+                            std::size_t maxMatchingStringLen,
                             std::string& terms,
                             std::string& regex) const;
 
     //! Modify the two strings that form a reverse search to account for the
     //! specified token.
-    void addInOrderCommonToken(const std::string& token,
-                               bool first,
-                               std::string& terms,
-                               std::string& regex) const;
+    void addInOrderCommonToken(const std::string& token, std::string& terms, std::string& regex) const;
 
     //! Modify the two strings that form a reverse search to account for the
     //! specified token, which may occur anywhere within the original
