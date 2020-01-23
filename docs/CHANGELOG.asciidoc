@@ -28,6 +28,13 @@
 
 //=== Regressions
 
+== {es} version 7.7.0
+
+=== Enhancements
+
+* Improve initialization of learn rate for better and more stable results in regression
+and classification. (See {ml-pull}948[#948].)
+
 == {es} version 7.6.0
 
 === New Features
