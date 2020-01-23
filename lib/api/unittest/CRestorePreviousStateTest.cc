@@ -104,7 +104,7 @@ void categorizerRestoreHelper(const std::string& stateFile, bool isSymmetric) {
 
     if (isSymmetric) {
         // Test the persisted state of the restored detector is the
-        // same as the riginial
+        // same as the original
         std::string newPersistedState;
         {
             std::ostringstream* strm(nullptr);
