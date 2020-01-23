@@ -1425,7 +1425,7 @@ BOOST_AUTO_TEST_CASE(testMissingFeatures) {
 
     BOOST_REQUIRE_EQUAL(expectedPredictions.size(), actualPredictions.size());
     for (std::size_t i = 0; i < expectedPredictions.size(); ++i) {
-        BOOST_REQUIRE_CLOSE_ABSOLUTE(expectedPredictions[i], actualPredictions[i], 0.8);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(expectedPredictions[i], actualPredictions[i], 0.9);
     }
 }
 
