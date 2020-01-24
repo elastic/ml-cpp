@@ -607,8 +607,8 @@ BOOST_AUTO_TEST_CASE(testCategoricalRegressors) {
 
     LOG_DEBUG(<< "bias = " << modelBias);
     LOG_DEBUG(<< " R^2 = " << modelRSquared);
-    BOOST_REQUIRE_CLOSE_ABSOLUTE(0.0, modelBias, 0.12);
-    BOOST_TEST_REQUIRE(modelRSquared > 0.97);
+    BOOST_REQUIRE_CLOSE_ABSOLUTE(0.0, modelBias, 0.18);
+    BOOST_TEST_REQUIRE(modelRSquared > 0.96);
 }
 
 BOOST_AUTO_TEST_CASE(testIntegerRegressor) {
@@ -1425,7 +1425,7 @@ BOOST_AUTO_TEST_CASE(testMissingFeatures) {
 
     BOOST_REQUIRE_EQUAL(expectedPredictions.size(), actualPredictions.size());
     for (std::size_t i = 0; i < expectedPredictions.size(); ++i) {
-        BOOST_REQUIRE_CLOSE_ABSOLUTE(expectedPredictions[i], actualPredictions[i], 0.8);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(expectedPredictions[i], actualPredictions[i], 0.9);
     }
 }
 
