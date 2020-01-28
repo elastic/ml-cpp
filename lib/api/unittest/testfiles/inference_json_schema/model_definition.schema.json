@@ -434,7 +434,6 @@
     }
   },
   "required": [
-    "input",
     "trained_model"
   ],
   "additionalProperties": false

@@ -114,11 +114,6 @@ BOOST_AUTO_TEST_CASE(testIntegrationRegression) {
     TStrVecVec categoryMappingVector{{}, {"cat1", "cat2", "cat3"}, {}};
     auto definition = analysisRunner->inferenceModelDefinition(fieldNames, categoryMappingVector);
 
-    LOG_DEBUG(<< "Inference model definition: " << definition->jsonString());
-
-    // assert input
-    BOOST_TEST_REQUIRE(expectedFieldNames == definition->input().fieldNames());
-
     // test pre-processing
     BOOST_REQUIRE_EQUAL(std::size_t(3), definition->preprocessors().size());
     bool frequency = false;
