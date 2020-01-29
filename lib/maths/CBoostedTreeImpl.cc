@@ -477,8 +477,8 @@ CBoostedTreeImpl& CBoostedTreeImpl::operator=(CBoostedTreeImpl&&) = default;
 
 void CBoostedTreeImpl::train(core::CDataFrame& frame,
                              const TTrainingStateCallback& recordTrainStateCallback) {
-    std::function<void(double)> recordProgress;
-    std::function<void(std::int64_t)> recordMemoryUsage;
+    CDataFrameAnalysisInstrumentationInterface::TProgressCallback recordProgress;
+    CDataFrameAnalysisInstrumentationInterface::TMemoryUsageCallback recordMemoryUsage;
     if (m_Instrumentation != nullptr) {
         recordProgress = this->m_Instrumentation->progressCallback();
         recordMemoryUsage = this->m_Instrumentation->memoryUsageCallback();
