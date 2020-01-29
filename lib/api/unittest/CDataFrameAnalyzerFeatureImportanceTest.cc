@@ -26,7 +26,6 @@ using namespace ml;
 
 namespace {
 using TDoubleVec = std::vector<double>;
-using TBoolVec = std::vector<bool>;
 using TStrVec = std::vector<std::string>;
 using TRowItr = core::CDataFrame::TRowItr;
 using TRowRef = core::CDataFrame::TRowRef;
@@ -81,14 +80,15 @@ void setupRegressionDataWithMissingFeatures(const TStrVec& fieldNames,
     };
 
     for (std::size_t i = 0; i < rows; ++i) {
-        TDoubleVec row;
-        rng.generateUniformSamples(0.0, 10.0, cols - 1, row);
+        TDoubleVec regressors;
+        rng.generateUniformSamples(0.0, 10.0, cols - 1, regressors);
 
-        fieldValues[0] = target(row);
-        for (std::size_t j = 0; j < row.size(); ++j) {
-            double value = row[j] > 9.0 ? core::CDataFrame::valueOfMissing() : row[j];
+        fieldValues[0] = target(regressors);
+        for (std::size_t j = 0; j < regressors.size(); ++j) {
+            double regressor = regressors[j] > 9.0 ? core::CDataFrame::valueOfMissing()
+                                                   : regressors[j];
             fieldValues[j + 1] = core::CStringUtils::typeToStringPrecise(
-                value, core::CIEEE754::E_DoublePrecision);
+                regressor, core::CIEEE754::E_DoublePrecision);
         }
 
         analyzer.handleRecord(fieldNames, fieldValues);
@@ -403,10 +403,6 @@ BOOST_FIXTURE_TEST_CASE(testMissingFeatures, SFixture) {
             c2Sum += std::fabs(c2);
             c3Sum += std::fabs(c3);
             c4Sum += std::fabs(c4);
-            // assert that no SHAP value for the dependent variable is returned
-            BOOST_TEST_REQUIRE(result["row_results"]["results"]["ml"].HasMember(
-                                   maths::CDataFramePredictiveModel::SHAP_PREFIX +
-                                   "target") == false);
         }
     }
 
