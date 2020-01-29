@@ -29,7 +29,6 @@ const std::string JSON_FIELD_TAG{"field"};
 const std::string JSON_FREQUENCY_ENCODING_TAG{"frequency_encoding"};
 const std::string JSON_FREQUENCY_MAP_TAG{"frequency_map"};
 const std::string JSON_HOT_MAP_TAG{"hot_map"};
-const std::string JSON_INPUT_TAG{"input"};
 const std::string JSON_LEAF_VALUE_TAG{"leaf_value"};
 const std::string JSON_LEFT_CHILD_TAG{"left_child"};
 const std::string JSON_LOGISTIC_REGRESSION_TAG{"logistic_regression"};
@@ -278,11 +277,7 @@ std::string CInferenceModelDefinition::jsonString() {
 }
 
 void CInferenceModelDefinition::addToDocument(rapidjson::Value& parentObject,
-                                              TRapidJsonWriter& writer) const { //input
-    rapidjson::Value inputObject = writer.makeObject();
-    m_Input.addToDocument(inputObject, writer);
-    writer.addMember(JSON_INPUT_TAG, inputObject, parentObject);
-
+                                              TRapidJsonWriter& writer) const {
     // preprocessors
     rapidjson::Value preprocessingArray = writer.makeArray();
     for (const auto& encoding : m_Preprocessors) {
@@ -368,12 +363,8 @@ void CTrainedModel::classificationWeights(const TDoubleVec& classificationWeight
     m_ClassificationWeights = classificationWeights;
 }
 
-void CInferenceModelDefinition::fieldNames(TStringVec&& fieldNames,
-                                           std::size_t dependentVariableColumnIndex) {
-    m_FieldNames = fieldNames;
-    fieldNames.erase(fieldNames.begin() +
-                     static_cast<std::ptrdiff_t>(dependentVariableColumnIndex));
-    m_Input.fieldNames(std::move(fieldNames));
+void CInferenceModelDefinition::fieldNames(TStringVec&& fieldNames) {
+    m_FieldNames = std::move(fieldNames);
 }
 
 void CInferenceModelDefinition::trainedModel(CEnsemble::TTrainedModelUPtr&& trainedModel) {
@@ -382,10 +373,6 @@ void CInferenceModelDefinition::trainedModel(CEnsemble::TTrainedModelUPtr&& trai
 
 CEnsemble::TTrainedModelUPtr& CInferenceModelDefinition::trainedModel() {
     return m_TrainedModel;
-}
-
-const CInput& CInferenceModelDefinition::input() const {
-    return m_Input;
 }
 
 CInferenceModelDefinition::TApiEncodingUPtrVec& CInferenceModelDefinition::preprocessors() {
@@ -410,18 +397,6 @@ size_t CInferenceModelDefinition::dependentVariableColumnIndex() const {
 
 void CInferenceModelDefinition::dependentVariableColumnIndex(std::size_t dependentVariableColumnIndex) {
     m_DependentVariableColumnIndex = dependentVariableColumnIndex;
-}
-
-const CInput::TStringVec& CInput::fieldNames() const {
-    return m_FieldNames;
-}
-
-void CInput::fieldNames(TStringVec&& fieldNames) {
-    m_FieldNames = std::move(fieldNames);
-}
-
-void CInput::addToDocument(rapidjson::Value& parentObject, TRapidJsonWriter& writer) const {
-    addJsonArray(JSON_FIELD_NAMES_TAG, m_FieldNames, parentObject, writer);
 }
 
 const std::string& CTargetMeanEncoding::typeString() const {
