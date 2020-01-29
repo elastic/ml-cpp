@@ -29,7 +29,6 @@ const std::string JSON_FIELD_TAG{"field"};
 const std::string JSON_FREQUENCY_ENCODING_TAG{"frequency_encoding"};
 const std::string JSON_FREQUENCY_MAP_TAG{"frequency_map"};
 const std::string JSON_HOT_MAP_TAG{"hot_map"};
-const std::string JSON_INPUT_TAG{"input"};
 const std::string JSON_LEAF_VALUE_TAG{"leaf_value"};
 const std::string JSON_LEFT_CHILD_TAG{"left_child"};
 const std::string JSON_LOGISTIC_REGRESSION_TAG{"logistic_regression"};
