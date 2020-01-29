@@ -43,9 +43,7 @@ public:
 
     virtual std::unique_ptr<CArgMinLossImpl> clone() const = 0;
     virtual bool nextPass() = 0;
-    virtual void add(const TDouble1Vec& prediction,
-                     const TDouble1Vec& actual,
-                     double weight = 1.0) = 0;
+    virtual void add(TDouble1Vec prediction, TDouble1Vec actual, double weight = 1.0) = 0;
     virtual void merge(const CArgMinLossImpl& other) = 0;
     virtual TDouble1Vec value() const = 0;
 
@@ -63,7 +61,7 @@ public:
     CArgMinMseImpl(double lambda);
     std::unique_ptr<CArgMinLossImpl> clone() const override;
     bool nextPass() override;
-    void add(const TDouble1Vec& prediction, const TDouble1Vec& actual, double weight = 1.0) override;
+    void add(TDouble1Vec prediction, TDouble1Vec actual, double weight = 1.0) override;
     void merge(const CArgMinLossImpl& other) override;
     TDouble1Vec value() const override;
 
@@ -81,7 +79,7 @@ public:
     CArgMinLogisticImpl(double lambda);
     std::unique_ptr<CArgMinLossImpl> clone() const override;
     bool nextPass() override;
-    void add(const TDouble1Vec& prediction, const TDouble1Vec& actual, double weight = 1.0) override;
+    void add(TDouble1Vec prediction, TDouble1Vec actual, double weight = 1.0) override;
     void merge(const CArgMinLossImpl& other) override;
     TDouble1Vec value() const override;
 
@@ -135,7 +133,7 @@ public:
     bool nextPass() const;
 
     //! Update with a point prediction and actual value.
-    void add(const TDouble1Vec& prediction, const TDouble1Vec& actual, double weight = 1.0);
+    void add(TDouble1Vec prediction, TDouble1Vec actual, double weight = 1.0);
 
     //! Get the minimiser over the predictions and actual values added to both
     //! this and \p other.
@@ -172,21 +170,18 @@ public:
     //! The number of parameters to the loss function.
     virtual std::size_t numberParameters() const = 0;
     //! The value of the loss function.
-    virtual TDouble1Vec value(const TDouble1Vec& prediction,
-                              const TDouble1Vec& actual,
-                              double weight = 1.0) const = 0;
+    virtual TDouble1Vec
+    value(TDouble1Vec prediction, TDouble1Vec actual, double weight = 1.0) const = 0;
     //! The gradient of the loss function.
-    virtual TDouble1Vec gradient(const TDouble1Vec& prediction,
-                                 const TDouble1Vec& actual,
-                                 double weight = 1.0) const = 0;
+    virtual TDouble1Vec
+    gradient(TDouble1Vec prediction, TDouble1Vec actual, double weight = 1.0) const = 0;
     //! The Hessian of the loss function (flattened).
-    virtual TDouble1Vec curvature(const TDouble1Vec& prediction,
-                                  const TDouble1Vec& actual,
-                                  double weight = 1.0) const = 0;
+    virtual TDouble1Vec
+    curvature(TDouble1Vec prediction, TDouble1Vec actual, double weight = 1.0) const = 0;
     //! Returns true if the loss curvature is constant.
     virtual bool isCurvatureConstant() const = 0;
     //! Transforms a prediction from the forest to the target space.
-    virtual TDouble1Vec transform(const TDouble1Vec& prediction) const = 0;
+    virtual TDouble1Vec transform(TDouble1Vec prediction) const = 0;
     //! Get an object which computes the leaf value that minimises loss.
     virtual CArgMinLoss minimizer(double lambda) const = 0;
     //! Get the name of the loss function
@@ -204,17 +199,11 @@ public:
 public:
     std::unique_ptr<CLoss> clone() const override;
     std::size_t numberParameters() const override;
-    TDouble1Vec value(const TDouble1Vec& prediction,
-                      const TDouble1Vec& actual,
-                      double weight = 1.0) const override;
-    TDouble1Vec gradient(const TDouble1Vec& prediction,
-                         const TDouble1Vec& actual,
-                         double weight = 1.0) const override;
-    TDouble1Vec curvature(const TDouble1Vec& prediction,
-                          const TDouble1Vec& actual,
-                          double weight = 1.0) const override;
+    TDouble1Vec value(TDouble1Vec prediction, TDouble1Vec actual, double weight = 1.0) const override;
+    TDouble1Vec gradient(TDouble1Vec prediction, TDouble1Vec actual, double weight = 1.0) const override;
+    TDouble1Vec curvature(TDouble1Vec prediction, TDouble1Vec actual, double weight = 1.0) const override;
     bool isCurvatureConstant() const override;
-    TDouble1Vec transform(const TDouble1Vec& prediction) const override;
+    TDouble1Vec transform(TDouble1Vec prediction) const override;
     CArgMinLoss minimizer(double lambda) const override;
     const std::string& name() const override;
 };
@@ -235,17 +224,11 @@ public:
 public:
     std::unique_ptr<CLoss> clone() const override;
     std::size_t numberParameters() const override;
-    TDouble1Vec value(const TDouble1Vec& prediction,
-                      const TDouble1Vec& actual,
-                      double weight = 1.0) const override;
-    TDouble1Vec gradient(const TDouble1Vec& prediction,
-                         const TDouble1Vec& actual,
-                         double weight = 1.0) const override;
-    TDouble1Vec curvature(const TDouble1Vec& prediction,
-                          const TDouble1Vec& actual,
-                          double weight = 1.0) const override;
+    TDouble1Vec value(TDouble1Vec prediction, TDouble1Vec actual, double weight = 1.0) const override;
+    TDouble1Vec gradient(TDouble1Vec prediction, TDouble1Vec actual, double weight = 1.0) const override;
+    TDouble1Vec curvature(TDouble1Vec prediction, TDouble1Vec actual, double weight = 1.0) const override;
     bool isCurvatureConstant() const override;
-    TDouble1Vec transform(const TDouble1Vec& prediction) const override;
+    TDouble1Vec transform(TDouble1Vec prediction) const override;
     CArgMinLoss minimizer(double lambda) const override;
     const std::string& name() const override;
 };
