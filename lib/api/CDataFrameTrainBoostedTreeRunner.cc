@@ -124,9 +124,8 @@ CDataFrameTrainBoostedTreeRunner::CDataFrameTrainBoostedTreeRunner(
 
     (*m_BoostedTreeFactory)
         .stopCrossValidationEarly(stopCrossValidationEarly)
-        .progressCallback(this->progressRecorder())
-        .trainingStateCallback(this->statePersister())
-        .memoryUsageCallback(this->memoryMonitor(counter_t::E_DFTPMPeakMemoryUsage));
+        .analysisInstrumentation(&m_Instrumentation)
+        .trainingStateCallback(this->statePersister());
 
     if (downsampleRowsPerFeature > 0) {
         m_BoostedTreeFactory->initialDownsampleRowsPerFeature(
@@ -272,11 +271,9 @@ bool CDataFrameTrainBoostedTreeRunner::restoreBoostedTree(core::CDataFrame& fram
             LOG_ERROR(<< "State restoration search returned failed stream");
             return false;
         }
-
         m_BoostedTree = maths::CBoostedTreeFactory::constructFromString(*inputStream)
-                            .progressCallback(this->progressRecorder())
+                            .analysisInstrumentation(&m_Instrumentation)
                             .trainingStateCallback(this->statePersister())
-                            .memoryUsageCallback(this->memoryMonitor(counter_t::E_DFTPMPeakMemoryUsage))
                             .restoreFor(frame, dependentVariableColumn);
     } catch (std::exception& e) {
         LOG_ERROR(<< "Failed to restore state! " << e.what());
@@ -298,6 +295,15 @@ std::size_t CDataFrameTrainBoostedTreeRunner::topShapValues() const {
         return m_BoostedTree->topShapValues();
     }
     return 0;
+}
+
+const CDataFrameAnalysisInstrumentation&
+CDataFrameTrainBoostedTreeRunner::instrumentation() const {
+    return m_Instrumentation;
+}
+
+CDataFrameAnalysisInstrumentation& CDataFrameTrainBoostedTreeRunner::instrumentation() {
+    return m_Instrumentation;
 }
 
 // clang-format off

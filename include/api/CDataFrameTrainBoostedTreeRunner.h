@@ -9,6 +9,7 @@
 
 #include <maths/CBasicStatistics.h>
 
+#include <api/CDataFrameAnalysisInstrumentation.h>
 #include <api/CDataFrameAnalysisRunner.h>
 #include <api/CDataFrameAnalysisSpecification.h>
 #include <api/ImportExport.h>
@@ -63,6 +64,11 @@ public:
 
     std::size_t topShapValues() const;
 
+    //! \return Reference to the analysis state.
+    const CDataFrameAnalysisInstrumentation& instrumentation() const override;
+    //! \return Reference to the analysis state.
+    CDataFrameAnalysisInstrumentation& instrumentation() override;
+
 protected:
     using TBoostedTreeUPtr = std::unique_ptr<maths::CBoostedTree>;
     using TLossFunctionUPtr = std::unique_ptr<maths::boosted_tree::CLoss>;
@@ -106,6 +112,7 @@ private:
     std::string m_PredictionFieldName;
     TBoostedTreeFactoryUPtr m_BoostedTreeFactory;
     TBoostedTreeUPtr m_BoostedTree;
+    CDataFrameTrainBoostedTreeInstrumentation m_Instrumentation;
 };
 }
 }

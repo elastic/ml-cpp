@@ -409,29 +409,23 @@ void CBoostedTreeNode::accept(CVisitor& visitor) const {
 }
 
 CBoostedTree::CBoostedTree(core::CDataFrame& frame,
-                           TProgressCallback recordProgress,
-                           TMemoryUsageCallback recordMemoryUsage,
                            TTrainingStateCallback recordTrainingState,
                            TImplUPtr&& impl)
-    : CDataFramePredictiveModel{frame, std::move(recordProgress),
-                                std::move(recordMemoryUsage),
-                                std::move(recordTrainingState)},
-      m_Impl{std::move(impl)} {
+    : CDataFramePredictiveModel{frame, std::move(recordTrainingState)}, m_Impl{std::move(impl)} {
 }
 
 CBoostedTree::~CBoostedTree() = default;
 
 void CBoostedTree::train() {
-    m_Impl->train(this->frame(), this->progressRecorder(),
-                  this->memoryUsageRecorder(), this->trainingStateRecorder());
+    m_Impl->train(this->frame(), this->trainingStateRecorder());
 }
 
 void CBoostedTree::predict() const {
-    m_Impl->predict(this->frame(), this->progressRecorder());
+    m_Impl->predict(this->frame());
 }
 
 void CBoostedTree::computeShapValues() {
-    m_Impl->computeShapValues(this->frame(), this->progressRecorder());
+    m_Impl->computeShapValues(this->frame());
 }
 
 std::size_t CBoostedTree::columnHoldingDependentVariable() const {

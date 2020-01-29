@@ -126,19 +126,18 @@ void CDataFrameAnalyzer::run() {
 
     LOG_TRACE(<< "Running analysis...");
 
-    CDataFrameAnalysisRunner* analysis{m_AnalysisSpecification->run(*m_DataFrame)};
-
-    if (analysis == nullptr) {
-        return;
-    }
-
     // We create the writer in run so that when it is finished destructors
     // get called and the wrapped stream does its job to close the array.
 
-    // TODO Revisit this can probably be core::CRapidJsonLineWriter.
     auto outStream = m_ResultsStreamSupplier();
     core::CRapidJsonConcurrentLineWriter outputWriter{*outStream};
 
+    CDataFrameAnalysisRunner* analysis{m_AnalysisSpecification->runner()};
+    if (analysis == nullptr) {
+        return;
+    }
+    analysis->instrumentation().writer(&outputWriter);
+    m_AnalysisSpecification->run(*m_DataFrame);
     this->monitorProgress(*analysis, outputWriter);
     analysis->waitToFinish();
     this->writeResultsOf(*analysis, outputWriter);
@@ -271,9 +270,10 @@ void CDataFrameAnalyzer::monitorProgress(const CDataFrameAnalysisRunner& analysi
                                          core::CRapidJsonConcurrentLineWriter& writer) const {
     // Progress as percentage
     int progress{0};
-    while (analysis.finished() == false) {
+    while (analysis.instrumentation().finished() == false) {
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
-        int latestProgress{static_cast<int>(std::floor(100.0 * analysis.progress()))};
+        int latestProgress{static_cast<int>(
+            std::floor(100.0 * analysis.instrumentation().progress()))};
         if (latestProgress > progress) {
             progress = latestProgress;
             this->writeProgress(progress, writer);

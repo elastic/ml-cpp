@@ -187,7 +187,7 @@ public:
     TDataSearcherUPtr restoreSearcher() const;
 
     //! Get pointer to the analysis runner.
-    const CDataFrameAnalysisRunner* runner();
+    CDataFrameAnalysisRunner* runner();
 
 private:
     void initializeRunner(const rapidjson::Value& jsonAnalysis);
