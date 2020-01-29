@@ -7,12 +7,18 @@
 #ifndef INCLUDED_CDataFrameMockAnalysisRunner_h
 #define INCLUDED_CDataFrameMockAnalysisRunner_h
 
+#include <api/CDataFrameAnalysisInstrumentation.h>
 #include <api/CDataFrameAnalysisRunner.h>
 #include <api/CDataFrameAnalysisSpecification.h>
 
 #include <test/CRandomNumbers.h>
 
 #include <functional>
+
+class CDataFrameMockAnalysisState final : public ml::api::CDataFrameAnalysisInstrumentation {
+protected:
+    ml::counter_t::ECounterTypes memoryCounterType() override;
+};
 
 class CDataFrameMockAnalysisRunner final : public ml::api::CDataFrameAnalysisRunner {
 public:
@@ -23,6 +29,10 @@ public:
                      const TRowRef&,
                      ml::core::CRapidJsonConcurrentLineWriter&) const override;
 
+    const ml::api::CDataFrameAnalysisInstrumentation& instrumentation() const override;
+
+    ml::api::CDataFrameAnalysisInstrumentation& instrumentation() override;
+
 private:
     void runImpl(ml::core::CDataFrame&) override;
     std::size_t estimateBookkeepingMemoryUsage(std::size_t,
@@ -32,6 +42,7 @@ private:
 
 private:
     static ml::test::CRandomNumbers ms_Rng;
+    CDataFrameMockAnalysisState m_State;
 };
 
 class CDataFrameMockAnalysisRunnerFactory final : public ml::api::CDataFrameAnalysisRunnerFactory {

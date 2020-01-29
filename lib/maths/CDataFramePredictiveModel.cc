@@ -12,26 +12,12 @@ namespace maths {
 const std::string CDataFramePredictiveModel::SHAP_PREFIX{"feature_importance."};
 
 CDataFramePredictiveModel::CDataFramePredictiveModel(core::CDataFrame& frame,
-                                                     TProgressCallback recordProgress,
-                                                     TMemoryUsageCallback recordMemoryUsage,
                                                      TTrainingStateCallback recordTrainingState)
-    : m_Frame{frame}, m_RecordProgress{std::move(recordProgress)},
-      m_RecordMemoryUsage{std::move(recordMemoryUsage)},
-      m_RecordTrainingState(std::move(recordTrainingState)) {
+    : m_Frame{frame}, m_RecordTrainingState(std::move(recordTrainingState)) {
 }
 
 core::CDataFrame& CDataFramePredictiveModel::frame() const {
     return m_Frame;
-}
-
-const CDataFramePredictiveModel::TProgressCallback&
-CDataFramePredictiveModel::progressRecorder() const {
-    return m_RecordProgress;
-}
-
-const CDataFramePredictiveModel::TMemoryUsageCallback&
-CDataFramePredictiveModel::memoryUsageRecorder() const {
-    return m_RecordMemoryUsage;
 }
 
 const CDataFramePredictiveModel::TTrainingStateCallback&

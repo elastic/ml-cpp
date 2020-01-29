@@ -10,6 +10,7 @@
 #include <core/CDataFrame.h>
 
 #include <maths/CBoostedTree.h>
+#include <maths/CDataFrameAnalysisInstrumentationInterface.h>
 #include <maths/CLinearAlgebra.h>
 #include <maths/ImportExport.h>
 
@@ -38,6 +39,7 @@ public:
     using TMemoryUsageCallback = CBoostedTree::TMemoryUsageCallback;
     using TTrainingStateCallback = CBoostedTree::TTrainingStateCallback;
     using TLossFunctionUPtr = CBoostedTree::TLossFunctionUPtr;
+    using TAnalysisInstrumentationPtr = CDataFrameAnalysisInstrumentationInterface*;
 
 public:
     //! Construct a boosted tree object from parameters.
@@ -96,6 +98,8 @@ public:
     //! Set the number of training examples we need per feature we'll include.
     CBoostedTreeFactory& topShapValues(std::size_t topShapValues);
 
+    //! Set pointer to the analysis instrumentation.
+    CBoostedTreeFactory& analysisInstrumentation(TAnalysisInstrumentationPtr instrumentation);
     //! Set the callback function for progress monitoring.
     CBoostedTreeFactory& progressCallback(TProgressCallback callback);
     //! Set the callback function for memory monitoring.
@@ -215,6 +219,7 @@ private:
     TVector m_LogLeafWeightPenaltyMultiplierSearchInterval;
     TVector m_SoftDepthLimitSearchInterval;
     TVector m_LogEtaSearchInterval;
+    TAnalysisInstrumentationPtr m_Instrumentation;
     TProgressCallback m_RecordProgress = noopRecordProgress;
     TMemoryUsageCallback m_RecordMemoryUsage = noopRecordMemoryUsage;
     TTrainingStateCallback m_RecordTrainingState = noopRecordTrainingState;

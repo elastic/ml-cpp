@@ -116,8 +116,8 @@ CBoostedTreeFactory::buildFor(core::CDataFrame& frame,
     auto treeImpl = std::make_unique<CBoostedTreeImpl>(m_NumberThreads,
                                                        m_TreeImpl->m_Loss->clone());
     std::swap(m_TreeImpl, treeImpl);
-    return TBoostedTreeUPtr{new CBoostedTree{frame, m_RecordProgress, m_RecordMemoryUsage,
-                                             m_RecordTrainingState, std::move(treeImpl)}};
+    return TBoostedTreeUPtr{
+        new CBoostedTree{frame, m_RecordTrainingState, std::move(treeImpl)}};
 }
 
 CBoostedTreeFactory::TBoostedTreeUPtr
@@ -132,11 +132,12 @@ CBoostedTreeFactory::restoreFor(core::CDataFrame& frame, std::size_t dependentVa
     this->resumeRestoredTrainingProgressMonitoring();
 
     m_TreeImpl->m_NumberInputColumns = frame.numberColumns();
+    m_TreeImpl->m_Instrumentation = m_Instrumentation;
     frame.resizeColumns(m_TreeImpl->m_NumberThreads,
                         frame.numberColumns() + this->numberExtraColumnsForTrain());
 
-    return TBoostedTreeUPtr{new CBoostedTree{frame, m_RecordProgress, m_RecordMemoryUsage,
-                                             m_RecordTrainingState, std::move(m_TreeImpl)}};
+    return TBoostedTreeUPtr{
+        new CBoostedTree{frame, m_RecordTrainingState, std::move(m_TreeImpl)}};
 }
 
 std::size_t CBoostedTreeFactory::numberHyperparameterTuningRounds() const {
@@ -1238,6 +1239,17 @@ void CBoostedTreeFactory::noopRecordMemoryUsage(std::int64_t) {
 }
 
 void CBoostedTreeFactory::noopRecordTrainingState(CBoostedTree::TPersistFunc) {
+}
+
+CBoostedTreeFactory&
+CBoostedTreeFactory::analysisInstrumentation(TAnalysisInstrumentationPtr instrumentation) {
+    m_Instrumentation = instrumentation;
+    if (m_Instrumentation != nullptr) {
+        m_TreeImpl->m_Instrumentation = m_Instrumentation;
+        this->progressCallback(m_Instrumentation->progressCallback());
+        this->memoryUsageCallback(m_Instrumentation->memoryUsageCallback());
+    }
+    return *this;
 }
 }
 }
