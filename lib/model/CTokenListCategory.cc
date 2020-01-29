@@ -19,15 +19,15 @@ namespace model {
 
 // We use short field names to reduce the state size
 namespace {
-const std::string BASE_STRING("a");
-const std::string BASE_TOKEN_ID("b");
-const std::string BASE_TOKEN_WEIGHT("c");
-const std::string MAX_STRING_LEN("d");
-const std::string OUT_OF_ORDER_COMMON_TOKEN_INDEX("e");
-const std::string COMMON_UNIQUE_TOKEN_ID("f");
-const std::string COMMON_UNIQUE_TOKEN_WEIGHT("g");
-const std::string ORIG_UNIQUE_TOKEN_WEIGHT("h");
-const std::string NUM_MATCHES("i");
+const std::string BASE_STRING{"a"};
+const std::string BASE_TOKEN_ID{"b"};
+const std::string BASE_TOKEN_WEIGHT{"c"};
+const std::string MAX_STRING_LEN{"d"};
+const std::string ORDERED_COMMON_TOKEN_END_INDEX{"e"};
+const std::string COMMON_UNIQUE_TOKEN_ID{"f"};
+const std::string COMMON_UNIQUE_TOKEN_WEIGHT{"g"};
+const std::string ORIG_UNIQUE_TOKEN_WEIGHT{"h"};
+const std::string NUM_MATCHES{"i"};
 
 const std::string EMPTY_STRING;
 
@@ -42,41 +42,40 @@ public:
 
 CTokenListCategory::CTokenListCategory(bool isDryRun,
                                        const std::string& baseString,
-                                       size_t rawStringLen,
+                                       std::size_t rawStringLen,
                                        const TSizeSizePrVec& baseTokenIds,
-                                       size_t baseWeight,
+                                       std::size_t baseWeight,
                                        const TSizeSizeMap& uniqueTokenIds)
     : m_BaseString(baseString), m_BaseTokenIds(baseTokenIds),
       m_BaseWeight(baseWeight), m_MaxStringLen(rawStringLen),
-      m_OutOfOrderCommonTokenIndex(baseTokenIds.size()),
+      m_OrderedCommonTokenEndIndex(baseTokenIds.size()),
       // Note: m_CommonUniqueTokenIds is required to be in sorted order, and
       // this relies on uniqueTokenIds being in sorted order
       m_CommonUniqueTokenIds(uniqueTokenIds.begin(), uniqueTokenIds.end()),
       m_CommonUniqueTokenWeight(0), m_OrigUniqueTokenWeight(0),
       m_NumMatches(isDryRun ? 0 : 1) {
-    for (TSizeSizeMapCItr iter = uniqueTokenIds.begin();
-         iter != uniqueTokenIds.end(); ++iter) {
-        m_CommonUniqueTokenWeight += iter->second;
+    for (auto uniqueTokenId : uniqueTokenIds) {
+        m_CommonUniqueTokenWeight += uniqueTokenId.second;
     }
     m_OrigUniqueTokenWeight = m_CommonUniqueTokenWeight;
 }
 
 CTokenListCategory::CTokenListCategory(core::CStateRestoreTraverser& traverser)
-    : m_BaseWeight(0), m_MaxStringLen(0), m_OutOfOrderCommonTokenIndex(0),
+    : m_BaseWeight(0), m_MaxStringLen(0), m_OrderedCommonTokenEndIndex(0),
       m_CommonUniqueTokenWeight(0), m_OrigUniqueTokenWeight(0), m_NumMatches(0) {
     traverser.traverseSubLevel(std::bind(&CTokenListCategory::acceptRestoreTraverser,
                                          this, std::placeholders::_1));
 }
 
 bool CTokenListCategory::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
-    bool expectWeight(false);
+    bool expectWeight{false};
 
     do {
-        const std::string& name = traverser.name();
+        const std::string& name{traverser.name()};
         if (name == BASE_STRING) {
             m_BaseString = traverser.value();
         } else if (name == BASE_TOKEN_ID) {
-            TSizeSizePr tokenAndWeight(0, 0);
+            TSizeSizePr tokenAndWeight{0, 0};
             if (core::CStringUtils::stringToType(traverser.value(),
                                                  tokenAndWeight.first) == false) {
                 LOG_ERROR(<< "Invalid base token ID in " << traverser.value());
@@ -104,14 +103,15 @@ bool CTokenListCategory::acceptRestoreTraverser(core::CStateRestoreTraverser& tr
                 LOG_ERROR(<< "Invalid maximum string length in " << traverser.value());
                 return false;
             }
-        } else if (name == OUT_OF_ORDER_COMMON_TOKEN_INDEX) {
+        } else if (name == ORDERED_COMMON_TOKEN_END_INDEX) {
             if (core::CStringUtils::stringToType(
-                    traverser.value(), m_OutOfOrderCommonTokenIndex) == false) {
-                LOG_ERROR(<< "Invalid maximum string length in " << traverser.value());
+                    traverser.value(), m_OrderedCommonTokenEndIndex) == false) {
+                LOG_ERROR(<< "Invalid ordered common token end index in "
+                          << traverser.value());
                 return false;
             }
         } else if (name == COMMON_UNIQUE_TOKEN_ID) {
-            TSizeSizePr tokenAndWeight(0, 0);
+            TSizeSizePr tokenAndWeight{0, 0};
             if (core::CStringUtils::stringToType(traverser.value(),
                                                  tokenAndWeight.first) == false) {
                 LOG_ERROR(<< "Invalid common unique token ID in " << traverser.value());
@@ -156,17 +156,16 @@ bool CTokenListCategory::acceptRestoreTraverser(core::CStateRestoreTraverser& tr
 
 bool CTokenListCategory::addString(bool isDryRun,
                                    const std::string& /* str */,
-                                   size_t rawStringLen,
+                                   std::size_t rawStringLen,
                                    const TSizeSizePrVec& tokenIds,
-                                   const TSizeSizeMap& uniqueTokenIds,
-                                   double /* similarity */) {
-    bool changed(false);
+                                   const TSizeSizeMap& uniqueTokenIds) {
+    bool changed{false};
 
     // Remove any token IDs from the common unique token map that aren't present
     // with the same weight in the new string, and adjust the common weight
     // accordingly
-    TSizeSizePrVecItr commonIter = m_CommonUniqueTokenIds.begin();
-    TSizeSizeMapCItr newIter = uniqueTokenIds.begin();
+    auto commonIter = m_CommonUniqueTokenIds.begin();
+    auto newIter = uniqueTokenIds.begin();
     while (commonIter != m_CommonUniqueTokenIds.end()) {
         if (newIter == uniqueTokenIds.end() || commonIter->first < newIter->first) {
             m_CommonUniqueTokenWeight -= commonIter->second;
@@ -189,8 +188,8 @@ bool CTokenListCategory::addString(bool isDryRun,
     // Reduce the out-of-order common token index if there are tokens that
     // aren't in the same order in the new string, and adjust the common weight
     // accordingly
-    TSizeSizePrVecCItr testIter = tokenIds.begin();
-    for (size_t index = 0; index < m_OutOfOrderCommonTokenIndex; ++index) {
+    auto testIter = tokenIds.begin();
+    for (std::size_t index = 0; index < m_OrderedCommonTokenEndIndex; ++index) {
         // Ignore tokens that are not in the common unique tokens
         if (std::binary_search(m_CommonUniqueTokenIds.begin(),
                                m_CommonUniqueTokenIds.end(), m_BaseTokenIds[index],
@@ -205,7 +204,7 @@ bool CTokenListCategory::addString(bool isDryRun,
         // to be reset.
         do {
             if (testIter == tokenIds.end()) {
-                m_OutOfOrderCommonTokenIndex = index;
+                m_OrderedCommonTokenEndIndex = index;
                 changed = true;
                 break;
             }
@@ -240,7 +239,7 @@ const CTokenListCategory::TSizeSizePrVec& CTokenListCategory::baseTokenIds() con
     return m_BaseTokenIds;
 }
 
-size_t CTokenListCategory::baseWeight() const {
+std::size_t CTokenListCategory::baseWeight() const {
     return m_BaseWeight;
 }
 
@@ -248,32 +247,32 @@ const CTokenListCategory::TSizeSizePrVec& CTokenListCategory::commonUniqueTokenI
     return m_CommonUniqueTokenIds;
 }
 
-size_t CTokenListCategory::commonUniqueTokenWeight() const {
+std::size_t CTokenListCategory::commonUniqueTokenWeight() const {
     return m_CommonUniqueTokenWeight;
 }
 
-size_t CTokenListCategory::origUniqueTokenWeight() const {
+std::size_t CTokenListCategory::origUniqueTokenWeight() const {
     return m_OrigUniqueTokenWeight;
 }
 
-size_t CTokenListCategory::maxStringLen() const {
+std::size_t CTokenListCategory::maxStringLen() const {
     return m_MaxStringLen;
 }
 
-size_t CTokenListCategory::outOfOrderCommonTokenIndex() const {
-    return m_OutOfOrderCommonTokenIndex;
+CTokenListCategory::TSizeSizePr CTokenListCategory::orderedCommonTokenBounds() const {
+    return {std::size_t{0}, m_OrderedCommonTokenEndIndex};
 }
 
-size_t CTokenListCategory::maxMatchingStringLen() const {
+std::size_t CTokenListCategory::maxMatchingStringLen() const {
     // Add a 10% margin of error
     return (m_MaxStringLen * 11) / 10;
 }
 
-size_t CTokenListCategory::missingCommonTokenWeight(const TSizeSizeMap& uniqueTokenIds) const {
-    size_t presentWeight(0);
+std::size_t CTokenListCategory::missingCommonTokenWeight(const TSizeSizeMap& uniqueTokenIds) const {
+    std::size_t presentWeight{0};
 
-    TSizeSizePrVecCItr commonIter = m_CommonUniqueTokenIds.begin();
-    TSizeSizeMapCItr testIter = uniqueTokenIds.begin();
+    auto commonIter = m_CommonUniqueTokenIds.begin();
+    auto testIter = uniqueTokenIds.begin();
     while (commonIter != m_CommonUniqueTokenIds.end() &&
            testIter != uniqueTokenIds.end()) {
         if (commonIter->first == testIter->first) {
@@ -304,8 +303,8 @@ bool CTokenListCategory::isMissingCommonTokenWeightZero(const TSizeSizeMap& uniq
     //
     // However, it's much faster to return false as soon as a mismatch occurs
 
-    TSizeSizePrVecCItr commonIter = m_CommonUniqueTokenIds.begin();
-    TSizeSizeMapCItr testIter = uniqueTokenIds.begin();
+    auto commonIter = m_CommonUniqueTokenIds.begin();
+    auto testIter = uniqueTokenIds.begin();
     while (commonIter != m_CommonUniqueTokenIds.end() &&
            testIter != uniqueTokenIds.end()) {
         if (commonIter->first < testIter->first) {
@@ -328,12 +327,11 @@ bool CTokenListCategory::isMissingCommonTokenWeightZero(const TSizeSizeMap& uniq
 }
 
 bool CTokenListCategory::containsCommonTokensInOrder(const TSizeSizePrVec& tokenIds) const {
-    TSizeSizePrVecCItr testIter = tokenIds.begin();
-    for (TSizeSizePrVecCItr baseIter = m_BaseTokenIds.begin();
-         baseIter != m_BaseTokenIds.end(); ++baseIter) {
+    auto testIter = tokenIds.begin();
+    for (auto baseTokenId : m_BaseTokenIds) {
         // Ignore tokens that are not in the common unique tokens
         if (std::binary_search(m_CommonUniqueTokenIds.begin(),
-                               m_CommonUniqueTokenIds.end(), *baseIter,
+                               m_CommonUniqueTokenIds.end(), baseTokenId,
                                CSizePairFirstElementLess()) == false) {
             continue;
         }
@@ -346,32 +344,30 @@ bool CTokenListCategory::containsCommonTokensInOrder(const TSizeSizePrVec& token
             if (testIter == tokenIds.end()) {
                 return false;
             }
-        } while ((testIter++)->first != baseIter->first);
+        } while ((testIter++)->first != baseTokenId.first);
     }
 
     return true;
 }
 
-size_t CTokenListCategory::numMatches() const {
+std::size_t CTokenListCategory::numMatches() const {
     return m_NumMatches;
 }
 
 void CTokenListCategory::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
     inserter.insertValue(BASE_STRING, m_BaseString);
 
-    for (TSizeSizePrVecCItr iter = m_BaseTokenIds.begin();
-         iter != m_BaseTokenIds.end(); ++iter) {
-        inserter.insertValue(BASE_TOKEN_ID, iter->first);
-        inserter.insertValue(BASE_TOKEN_WEIGHT, iter->second);
+    for (auto baseTokenId : m_BaseTokenIds) {
+        inserter.insertValue(BASE_TOKEN_ID, baseTokenId.first);
+        inserter.insertValue(BASE_TOKEN_WEIGHT, baseTokenId.second);
     }
 
     inserter.insertValue(MAX_STRING_LEN, m_MaxStringLen);
-    inserter.insertValue(OUT_OF_ORDER_COMMON_TOKEN_INDEX, m_OutOfOrderCommonTokenIndex);
+    inserter.insertValue(ORDERED_COMMON_TOKEN_END_INDEX, m_OrderedCommonTokenEndIndex);
 
-    for (TSizeSizePrVecCItr iter = m_CommonUniqueTokenIds.begin();
-         iter != m_CommonUniqueTokenIds.end(); ++iter) {
-        inserter.insertValue(COMMON_UNIQUE_TOKEN_ID, iter->first);
-        inserter.insertValue(COMMON_UNIQUE_TOKEN_WEIGHT, iter->second);
+    for (auto commonUniqueTokenId : m_CommonUniqueTokenIds) {
+        inserter.insertValue(COMMON_UNIQUE_TOKEN_ID, commonUniqueTokenId.first);
+        inserter.insertValue(COMMON_UNIQUE_TOKEN_WEIGHT, commonUniqueTokenId.second);
     }
 
     inserter.insertValue(ORIG_UNIQUE_TOKEN_WEIGHT, m_OrigUniqueTokenWeight);
@@ -400,7 +396,7 @@ void CTokenListCategory::cacheReverseSearch(const std::string& part1,
     m_ReverseSearchPart2 = part2;
 }
 
-void CTokenListCategory::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const {
+void CTokenListCategory::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
     mem->setName("CTokenListCategory");
     core::CMemoryDebug::dynamicSize("m_BaseString", m_BaseString, mem);
     core::CMemoryDebug::dynamicSize("m_BaseTokenIds", m_BaseTokenIds, mem);

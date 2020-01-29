@@ -72,7 +72,7 @@ public:
     //! Get the actual memory usage of the string.  For use by the string
     //! store.
     std::size_t actualMemoryUsage() const;
-    void debugActualMemoryUsage(CMemoryUsage::TMemoryUsagePtr mem) const;
+    void debugActualMemoryUsage(const CMemoryUsage::TMemoryUsagePtr& mem) const;
 
     //! These factory methods return a stored string pointer given a string.
     //! They must only be used within string store classes that contain code

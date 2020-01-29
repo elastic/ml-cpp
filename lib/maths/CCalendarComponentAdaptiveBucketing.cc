@@ -154,7 +154,8 @@ uint64_t CCalendarComponentAdaptiveBucketing::checksum(uint64_t seed) const {
     return CChecksum::calculate(seed, m_Values);
 }
 
-void CCalendarComponentAdaptiveBucketing::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const {
+void CCalendarComponentAdaptiveBucketing::debugMemoryUsage(
+    const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
     mem->setName("CCalendarComponentAdaptiveBucketing");
     core::CMemoryDebug::dynamicSize("m_Endpoints", this->endpoints(), mem);
     core::CMemoryDebug::dynamicSize("m_Centres", this->centres(), mem);

@@ -256,13 +256,13 @@ BOOST_AUTO_TEST_CASE(testPiecewiseConstant) {
             0.0, modelBias[i][0],
             9.1 * std::sqrt(noiseVariance / static_cast<double>(trainRows)));
         // Good R^2...
-        BOOST_TEST_REQUIRE(modelRSquared[i][0] > 0.95);
+        BOOST_TEST_REQUIRE(modelRSquared[i][0] > 0.97);
 
         meanModelRSquared.add(modelRSquared[i][0]);
     }
 
     LOG_DEBUG(<< "mean R^2 = " << maths::CBasicStatistics::mean(meanModelRSquared));
-    BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(meanModelRSquared) > 0.97);
+    BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(meanModelRSquared) > 0.98);
 }
 
 BOOST_AUTO_TEST_CASE(testLinear) {
@@ -317,7 +317,7 @@ BOOST_AUTO_TEST_CASE(testLinear) {
         meanModelRSquared.add(modelRSquared[i][0]);
     }
     LOG_DEBUG(<< "mean R^2 = " << maths::CBasicStatistics::mean(meanModelRSquared));
-    BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(meanModelRSquared) > 0.97);
+    BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(meanModelRSquared) > 0.98);
 }
 
 BOOST_AUTO_TEST_CASE(testNonLinear) {
@@ -379,12 +379,12 @@ BOOST_AUTO_TEST_CASE(testNonLinear) {
             0.0, modelBias[i][0],
             5.0 * std::sqrt(noiseVariance / static_cast<double>(trainRows)));
         // Good R^2...
-        BOOST_TEST_REQUIRE(modelRSquared[i][0] > 0.95);
+        BOOST_TEST_REQUIRE(modelRSquared[i][0] > 0.97);
 
         meanModelRSquared.add(modelRSquared[i][0]);
     }
     LOG_DEBUG(<< "mean R^2 = " << maths::CBasicStatistics::mean(meanModelRSquared));
-    BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(meanModelRSquared) > 0.97);
+    BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(meanModelRSquared) > 0.98);
 }
 
 BOOST_AUTO_TEST_CASE(testThreading) {
@@ -636,8 +636,8 @@ BOOST_AUTO_TEST_CASE(testCategoricalRegressors) {
 
     LOG_DEBUG(<< "bias = " << modelBias);
     LOG_DEBUG(<< " R^2 = " << modelRSquared);
-    BOOST_REQUIRE_CLOSE_ABSOLUTE(0.0, modelBias, 0.12);
-    BOOST_TEST_REQUIRE(modelRSquared > 0.97);
+    BOOST_REQUIRE_CLOSE_ABSOLUTE(0.0, modelBias, 0.08);
+    BOOST_TEST_REQUIRE(modelRSquared > 0.98);
 }
 
 BOOST_AUTO_TEST_CASE(testIntegerRegressor) {
@@ -1171,13 +1171,13 @@ BOOST_AUTO_TEST_CASE(testLogisticRegression) {
         LOG_DEBUG(<< "log relative error = "
                   << maths::CBasicStatistics::mean(logRelativeError));
 
-        BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(logRelativeError) < 0.75);
+        BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(logRelativeError) < 0.7);
         meanLogRelativeError.add(maths::CBasicStatistics::mean(logRelativeError));
     }
 
     LOG_DEBUG(<< "mean log relative error = "
               << maths::CBasicStatistics::mean(meanLogRelativeError));
-    BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(meanLogRelativeError) < 0.52);
+    BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(meanLogRelativeError) < 0.5);
 }
 
 BOOST_AUTO_TEST_CASE(testImbalancedClasses) {

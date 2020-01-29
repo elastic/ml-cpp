@@ -716,7 +716,7 @@ uint64_t CMetricPopulationModel::checksum(bool includeCurrentBucketStats) const 
     return maths::CChecksum::calculate(seed, hashes);
 }
 
-void CMetricPopulationModel::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const {
+void CMetricPopulationModel::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
     mem->setName("CMetricPopulationModel");
     this->CPopulationModel::debugMemoryUsage(mem->addChild());
     core::CMemoryDebug::dynamicSize("m_CurrentBucketStats.s_PersonCounts",

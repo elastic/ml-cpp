@@ -45,7 +45,7 @@ template<bool DO_WARPING = true,
          bool IGNORE_HEX = true,
          bool IGNORE_DATE_WORDS = true,
          bool IGNORE_FIELD_NAMES = true,
-         size_t MIN_DICTIONARY_LENGTH = 2,
+         std::size_t MIN_DICTIONARY_LENGTH = 2,
          typename DICTIONARY_WEIGHT_FUNC = core::CWordDictionary::TWeightAll2>
 class CTokenListDataCategorizer : public CTokenListDataCategorizerBase {
 public:
@@ -53,7 +53,7 @@ public:
     //! 0.0 means everything is the same category
     //! 1.0 means things have to match exactly to be the same category
     CTokenListDataCategorizer(CLimits& limits,
-                              const TTokenListReverseSearchCreatorIntfCPtr& reverseSearchCreator,
+                              const TTokenListReverseSearchCreatorCPtr& reverseSearchCreator,
                               double threshold,
                               const std::string& fieldName)
         : CTokenListDataCategorizerBase{limits, reverseSearchCreator, threshold, fieldName},
@@ -64,7 +64,7 @@ public:
     CTokenListDataCategorizer& operator=(const CTokenListDataCategorizer&) = delete;
 
     //! Debug the memory used by this categorizer.
-    void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const override {
+    void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const override {
         mem->setName("CTokenListDataCategorizer");
         this->CTokenListDataCategorizerBase::debugMemoryUsage(mem->addChild());
         core::CMemoryDebug::dynamicSize("m_SimilarityTester", m_SimilarityTester, mem);
@@ -95,7 +95,7 @@ protected:
                         const std::string& str,
                         TSizeSizePrVec& tokenIds,
                         TSizeSizeMap& tokenUniqueIds,
-                        size_t& totalWeight) override {
+                        std::size_t& totalWeight) override {
         tokenIds.clear();
         tokenUniqueIds.clear();
         totalWeight = 0;
@@ -146,7 +146,7 @@ protected:
     void tokenToIdAndWeight(const std::string& token,
                             TSizeSizePrVec& tokenIds,
                             TSizeSizeMap& tokenUniqueIds,
-                            size_t& totalWeight) override {
+                            std::size_t& totalWeight) override {
         TSizeSizePr idWithWeight(this->idForToken(token), 1);
 
         if (token.length() >= MIN_DICTIONARY_LENGTH) {
@@ -160,15 +160,15 @@ protected:
 
     //! Compute similarity between two vectors
     double similarity(const TSizeSizePrVec& left,
-                      size_t leftWeight,
+                      std::size_t leftWeight,
                       const TSizeSizePrVec& right,
-                      size_t rightWeight) const override {
+                      std::size_t rightWeight) const override {
         double similarity(1.0);
 
-        size_t maxWeight(std::max(leftWeight, rightWeight));
+        std::size_t maxWeight(std::max(leftWeight, rightWeight));
         if (maxWeight > 0) {
-            size_t diff(DO_WARPING ? m_SimilarityTester.weightedEditDistance(left, right)
-                                   : this->compareNoWarp(left, right));
+            std::size_t diff(DO_WARPING ? m_SimilarityTester.weightedEditDistance(left, right)
+                                        : this->compareNoWarp(left, right));
 
             similarity = 1.0 - double(diff) / double(maxWeight);
         }
@@ -180,13 +180,13 @@ private:
     //! Compare two vectors of tokens without doing any warping (this is an
     //! alternative to using the Levenshtein distance, which is a form of
     //! warping)
-    size_t compareNoWarp(const TSizeSizePrVec& left, const TSizeSizePrVec& right) const {
-        size_t minSize(std::min(left.size(), right.size()));
-        size_t maxSize(std::max(left.size(), right.size()));
+    std::size_t compareNoWarp(const TSizeSizePrVec& left, const TSizeSizePrVec& right) const {
+        std::size_t minSize(std::min(left.size(), right.size()));
+        std::size_t maxSize(std::max(left.size(), right.size()));
 
-        size_t diff(0);
+        std::size_t diff(0);
 
-        for (size_t index = 0; index < minSize; ++index) {
+        for (std::size_t index = 0; index < minSize; ++index) {
             if (left[index].first != right[index].first) {
                 diff += std::max(left[index].second, right[index].second);
             }
@@ -194,11 +194,11 @@ private:
 
         // Account for different length vector instances
         if (left.size() < right.size()) {
-            for (size_t index = minSize; index < maxSize; ++index) {
+            for (std::size_t index = minSize; index < maxSize; ++index) {
                 diff += right[index].second;
             }
         } else if (left.size() > right.size()) {
-            for (size_t index = minSize; index < maxSize; ++index) {
+            for (std::size_t index = minSize; index < maxSize; ++index) {
                 diff += left[index].second;
             }
         }
@@ -214,7 +214,7 @@ private:
                        std::string& token,
                        TSizeSizePrVec& tokenIds,
                        TSizeSizeMap& tokenUniqueIds,
-                       size_t& totalWeight) {
+                       std::size_t& totalWeight) {
         if (IGNORE_LEADING_DIGIT && std::isdigit(static_cast<unsigned char>(token[0]))) {
             return;
         }

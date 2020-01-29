@@ -66,7 +66,7 @@ public:
     void addValue(const TSizeArray& predictors, std::size_t memory);
 
     //! Debug the memory used by this component.
-    void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const;
+    void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const;
 
     //! Get the memory used by this component.
     std::size_t memoryUsage() const;

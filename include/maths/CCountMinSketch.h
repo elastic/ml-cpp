@@ -108,7 +108,7 @@ public:
     uint64_t checksum(uint64_t seed = 0) const;
 
     //! Get the memory used by this sketch.
-    void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const;
+    void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const;
 
     //! Get the memory used by this sketch.
     std::size_t memoryUsage() const;

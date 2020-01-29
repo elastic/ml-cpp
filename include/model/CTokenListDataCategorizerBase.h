@@ -32,7 +32,7 @@ class CStatePersistInserter;
 class CStateRestoreTraverser;
 }
 namespace model {
-class CTokenListReverseSearchCreatorIntf;
+class CTokenListReverseSearchCreator;
 
 //! \brief
 //! Abstract base class for categorising strings based on tokens.
@@ -67,19 +67,19 @@ public:
 public:
     //! Shared pointer to reverse search creator that we're will function
     //! after being shallow copied
-    using TTokenListReverseSearchCreatorIntfCPtr =
-        std::shared_ptr<const CTokenListReverseSearchCreatorIntf>;
+    using TTokenListReverseSearchCreatorCPtr =
+        std::shared_ptr<const CTokenListReverseSearchCreator>;
 
     //! Used to associate tokens with weightings:
     //! first -> token ID
     //! second -> weighting
-    using TSizeSizePr = std::pair<size_t, size_t>;
+    using TSizeSizePr = std::pair<std::size_t, std::size_t>;
 
     //! Used for storing token ID sequences
     using TSizeSizePrVec = std::vector<TSizeSizePr>;
 
     //! Used for storing distinct token IDs
-    using TSizeSizeMap = std::map<size_t, size_t>;
+    using TSizeSizeMap = std::map<std::size_t, std::size_t>;
 
     //! Used for stream output of token IDs translated back to the original
     //! tokens
@@ -98,7 +98,7 @@ public:
     //! 0.0 means everything is the same category
     //! 1.0 means things have to match exactly to be the same category
     CTokenListDataCategorizerBase(CLimits& limits,
-                                  const TTokenListReverseSearchCreatorIntfCPtr& reverseSearchCreator,
+                                  const TTokenListReverseSearchCreatorCPtr& reverseSearchCreator,
                                   double threshold,
                                   const std::string& fieldName);
 
@@ -116,7 +116,7 @@ public:
     int computeCategory(bool dryRun,
                         const TStrStrUMap& fields,
                         const std::string& str,
-                        size_t rawStringLen) override;
+                        std::size_t rawStringLen) override;
 
     // Bring the other overload of computeCategory() into scope
     using CDataCategorizer::computeCategory;
@@ -128,7 +128,7 @@ public:
     bool createReverseSearch(int categoryId,
                              std::string& part1,
                              std::string& part2,
-                             size_t& maxMatchingLength,
+                             std::size_t& maxMatchingLength,
                              bool& wasCached) override;
 
     //! Has the data categorizer's state changed?
@@ -152,7 +152,7 @@ public:
     TPersistFunc makeBackgroundPersistFunc() const override;
 
     //! Debug the memory used by this categorizer.
-    void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const override;
+    void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const override;
 
     //! Get the memory used by this categorizer.
     std::size_t memoryUsage() const override;
@@ -165,20 +165,20 @@ protected:
                                 const std::string& str,
                                 TSizeSizePrVec& tokenIds,
                                 TSizeSizeMap& tokenUniqueIds,
-                                size_t& totalWeight) = 0;
+                                std::size_t& totalWeight) = 0;
 
     //! Take a string token, convert it to a numeric ID and a weighting and
     //! add these to the provided data structures.
     virtual void tokenToIdAndWeight(const std::string& token,
                                     TSizeSizePrVec& tokenIds,
                                     TSizeSizeMap& tokenUniqueIds,
-                                    size_t& totalWeight) = 0;
+                                    std::size_t& totalWeight) = 0;
 
     //! Compute similarity between two vectors
     virtual double similarity(const TSizeSizePrVec& left,
-                              size_t leftWeight,
+                              std::size_t leftWeight,
                               const TSizeSizePrVec& right,
-                              size_t rightWeight) const = 0;
+                              std::size_t rightWeight) const = 0;
 
     //! Used to hold statistics about the categories we compute:
     //! first -> count of matches
@@ -189,43 +189,42 @@ protected:
     //! Add a match to an existing category
     void addCategoryMatch(bool isDryRun,
                           const std::string& str,
-                          size_t rawStringLen,
+                          std::size_t rawStringLen,
                           const TSizeSizePrVec& tokenIds,
                           const TSizeSizeMap& tokenUniqueIds,
-                          double similarity,
                           TSizeSizePrListItr& iter);
 
     //! Given the total token weight in a vector and a threshold, what is
     //! the minimum possible token weight in a different vector that could
     //! possibly be considered to match?
-    static size_t minMatchingWeight(size_t weight, double threshold);
+    static std::size_t minMatchingWeight(std::size_t weight, double threshold);
 
     //! Given the total token weight in a vector and a threshold, what is
     //! maximum possible token weight in a different vector that could
     //! possibly be considered to match?
-    static size_t maxMatchingWeight(size_t weight, double threshold);
+    static std::size_t maxMatchingWeight(std::size_t weight, double threshold);
 
     //! Get the unique token ID for a given token (assigning one if it's
     //! being seen for the first time)
-    size_t idForToken(const std::string& token);
+    std::size_t idForToken(const std::string& token);
 
 private:
     //! Value category for the TTokenMIndex below
     class CTokenInfoItem {
     public:
-        CTokenInfoItem(const std::string& str, size_t index);
+        CTokenInfoItem(const std::string& str, std::size_t index);
 
         //! Accessors
         const std::string& str() const;
-        size_t index() const;
-        size_t categoryCount() const;
-        void categoryCount(size_t categoryCount);
+        std::size_t index() const;
+        std::size_t categoryCount() const;
+        void categoryCount(std::size_t categoryCount);
 
         //! Increment the category count
         void incCategoryCount();
 
         //! Debug the memory used by this item.
-        void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const;
+        void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const;
 
         //! Get the memory used by this item.
         std::size_t memoryUsage() const;
@@ -235,26 +234,26 @@ private:
         std::string m_Str;
 
         //! Index of the token
-        size_t m_Index;
+        std::size_t m_Index;
 
         //! How many categories use this token?
-        size_t m_CategoryCount;
+        std::size_t m_CategoryCount;
     };
 
     //! Compute equality based on the first element of a pair only
     class CSizePairFirstElementEquals {
     public:
-        CSizePairFirstElementEquals(size_t value);
+        CSizePairFirstElementEquals(std::size_t value);
 
         //! PAIRTYPE can be any struct with a data member named "first"
-        //! that can be checked for equality to a size_t
+        //! that can be checked for equality to a std::size_t
         template<typename PAIRTYPE>
         bool operator()(const PAIRTYPE& lhs) const {
             return lhs.first == m_Value;
         }
 
     private:
-        size_t m_Value;
+        std::size_t m_Value;
     };
 
     //! Used to hold the distinct categories we compute (vector reallocations are
@@ -283,11 +282,11 @@ private:
     bool addPretokenisedTokens(const std::string& tokensCsv,
                                TSizeSizePrVec& tokenIds,
                                TSizeSizeMap& tokenUniqueIds,
-                               size_t& totalWeight);
+                               std::size_t& totalWeight);
 
 private:
     //! Reference to the object we'll use to create reverse searches
-    const TTokenListReverseSearchCreatorIntfCPtr m_ReverseSearchCreator;
+    const TTokenListReverseSearchCreatorCPtr m_ReverseSearchCreator;
 
     //! The lower threshold for comparison.  If another category matches this
     //! closely, we'll take it providing there's no other better match.

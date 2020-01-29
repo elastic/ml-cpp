@@ -296,7 +296,8 @@ bool CModelTools::CCategoryProbabilityCache::lookup(std::size_t attribute, doubl
     return true;
 }
 
-void CModelTools::CCategoryProbabilityCache::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const {
+void CModelTools::CCategoryProbabilityCache::debugMemoryUsage(
+    const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
     mem->setName("CTools::CLessLikelyProbability");
     core::CMemoryDebug::dynamicSize("m_Cache", m_Cache, mem->addChild());
     if (m_Prior) {

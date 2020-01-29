@@ -70,6 +70,9 @@ public:
     //! Increment the progress by \p i.
     void increment(std::size_t i = 1);
 
+    //! Update the loop range by adding \p range.
+    void incrementRange(int range);
+
     //! Resume progress monitoring which was restored.
     void resumeRestored();
 
@@ -86,7 +89,7 @@ private:
     static void noop(double);
 
 private:
-    std::size_t m_Size;
+    std::size_t m_Range;
     std::size_t m_Steps;
     double m_StepProgress;
     std::size_t m_Pos = 0;

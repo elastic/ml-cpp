@@ -33,11 +33,6 @@ using TDoubleVec = std::vector<double>;
 using TSizeVec = std::vector<std::size_t>;
 using TStrSet = std::set<std::string>;
 
-// Configuration
-const std::string NUM_TOP_CLASSES{"num_top_classes"};
-const std::string PREDICTION_FIELD_TYPE{"prediction_field_type"};
-const std::string CLASS_ASSIGNMENT_OBJECTIVE{"class_assignment_objective"};
-
 // Output
 const std::string IS_TRAINING_FIELD_NAME{"is_training"};
 const std::string PREDICTION_PROBABILITY_FIELD_NAME{"prediction_probability"};
@@ -166,13 +161,17 @@ void CDataFrameTrainBoostedTreeClassifierRunner::writeOneRow(
     if (m_NumTopClasses > 0) {
         TSizeVec classIds(scores.size());
         std::iota(classIds.begin(), classIds.end(), 0);
-        maths::COrderings::simultaneousSort(scores, classIds, std::greater<double>());
+        std::sort(classIds.begin(), classIds.end(),
+                  [&scores](std::size_t lhs, std::size_t rhs) {
+                      return scores[lhs] > scores[rhs];
+                  });
+        classIds.resize(std::min(classIds.size(), m_NumTopClasses));
         writer.Key(TOP_CLASSES_FIELD_NAME);
         writer.StartArray();
-        for (std::size_t i = 0; i < std::min(classIds.size(), m_NumTopClasses); ++i) {
+        for (std::size_t i : classIds) {
             writer.StartObject();
             writer.Key(CLASS_NAME_FIELD_NAME);
-            writePredictedCategoryValue(classValues[classIds[i]], writer);
+            writePredictedCategoryValue(classValues[i], writer);
             writer.Key(CLASS_PROBABILITY_FIELD_NAME);
             writer.Double(probabilities[i]);
             writer.Key(CLASS_SCORE_FIELD_NAME);
@@ -252,6 +251,12 @@ CDataFrameTrainBoostedTreeClassifierRunner::inferenceModelDefinition(
     this->boostedTree().accept(builder);
     return std::make_unique<CInferenceModelDefinition>(builder.build());
 }
+
+// clang-format off
+const std::string CDataFrameTrainBoostedTreeClassifierRunner::NUM_TOP_CLASSES{"num_top_classes"};
+const std::string CDataFrameTrainBoostedTreeClassifierRunner::PREDICTION_FIELD_TYPE{"prediction_field_type"};
+const std::string CDataFrameTrainBoostedTreeClassifierRunner::CLASS_ASSIGNMENT_OBJECTIVE{"class_assignment_objective"};
+// clang-format off
 
 const std::string& CDataFrameTrainBoostedTreeClassifierRunnerFactory::name() const {
     return NAME;

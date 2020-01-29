@@ -77,7 +77,7 @@ public:
     void syncFlush();
 
     //! Debug the memory used by this component.
-    void debugMemoryUsage(CMemoryUsage::TMemoryUsagePtr mem) const;
+    void debugMemoryUsage(const CMemoryUsage::TMemoryUsagePtr& mem) const;
 
     //! Get the memory used by this component.
     std::size_t memoryUsage() const;

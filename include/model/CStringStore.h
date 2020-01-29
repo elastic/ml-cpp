@@ -99,7 +99,7 @@ public:
     void pruneNotThreadSafe();
 
     //! Get the memory used by this string store
-    void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const;
+    void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const;
 
     //! Get the memory used by this string store
     std::size_t memoryUsage() const;

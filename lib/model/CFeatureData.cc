@@ -86,7 +86,7 @@ std::size_t SEventRateFeatureData::memoryUsage() const {
     return mem;
 }
 
-void SEventRateFeatureData::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const {
+void SEventRateFeatureData::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
     mem->setName("SMetricFeatureData", sizeof(*this));
     core::CMemoryDebug::dynamicSize("s_InfluenceValues", s_InfluenceValues, mem);
 }
@@ -125,7 +125,7 @@ std::size_t SMetricFeatureData::memoryUsage() const {
     return mem;
 }
 
-void SMetricFeatureData::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const {
+void SMetricFeatureData::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
     mem->setName("SMetricFeatureData");
     core::CMemoryDebug::dynamicSize("s_BucketValue", s_BucketValue, mem);
     core::CMemoryDebug::dynamicSize("s_InfluenceValues", s_InfluenceValues, mem);

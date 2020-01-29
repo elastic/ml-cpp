@@ -51,7 +51,7 @@ public:
     ANNOTATION& annotation() { return m_Annotation; }
 
     //! Debug the memory usage of this object.
-    void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const {
+    void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
         mem->setName("CAnnotatedVector");
         mem->addItem("vector", core::CMemory::dynamicSize(static_cast<VECTOR>(*this)));
         mem->addItem("annotation", core::CMemory::dynamicSize(m_Annotation));

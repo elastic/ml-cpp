@@ -592,7 +592,7 @@ uint64_t CDataGatherer::checksum() const {
     return result;
 }
 
-void CDataGatherer::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const {
+void CDataGatherer::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
     mem->setName("CDataGatherer");
     core::CMemoryDebug::dynamicSize("m_Features", m_Features, mem);
     core::CMemoryDebug::dynamicSize("m_PeopleRegistry", m_PeopleRegistry, mem);

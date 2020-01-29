@@ -104,7 +104,7 @@ uint64_t CTimeSeriesDecompositionStub::checksum(uint64_t seed) const {
     return seed;
 }
 
-void CTimeSeriesDecompositionStub::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const {
+void CTimeSeriesDecompositionStub::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
     mem->setName("CTimeSeriesDecompositionStub");
 }
 

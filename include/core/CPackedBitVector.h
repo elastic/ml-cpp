@@ -190,7 +190,7 @@ public:
     std::uint64_t checksum() const;
 
     //! Debug the memory used by this object.
-    void debugMemoryUsage(CMemoryUsage::TMemoryUsagePtr mem) const;
+    void debugMemoryUsage(const CMemoryUsage::TMemoryUsagePtr& mem) const;
 
     //! Get the memory used by this object.
     std::size_t memoryUsage() const;

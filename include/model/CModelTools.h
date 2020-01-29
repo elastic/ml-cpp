@@ -184,7 +184,7 @@ public:
         bool lookup(std::size_t category, double& result) const;
 
         //! Get the memory usage of the component
-        void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const;
+        void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const;
 
         //! Get the memory usage of the component
         std::size_t memoryUsage() const;

@@ -507,7 +507,7 @@ uint64_t CCooccurrences::checksum(uint64_t seed) const {
     return CChecksum::calculate(seed, m_Indicators);
 }
 
-void CCooccurrences::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const {
+void CCooccurrences::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
     mem->setName("CCooccurrences");
     core::CMemoryDebug::dynamicSize("m_CurrentIndicators", m_CurrentIndicators, mem);
     core::CMemoryDebug::dynamicSize("m_Indicators", m_Indicators, mem);

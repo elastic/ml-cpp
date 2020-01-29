@@ -382,7 +382,8 @@ BOOST_AUTO_TEST_CASE(testRunBoostedTreeRegressionTraining) {
     TStrVec fieldNames{"f1", "f2", "f3", "f4", "target", ".", "."};
     TStrVec fieldValues{"", "", "", "", "", "0", ""};
     api::CDataFrameAnalyzer analyzer{
-        test::CDataFrameAnalysisSpecificationFactory::predictionSpec("regression", "target"),
+        test::CDataFrameAnalysisSpecificationFactory::predictionSpec(
+            test::CDataFrameAnalysisSpecificationFactory::regression(), "target"),
         outputWriterFactory};
     addPredictionTestData(E_Regression, fieldNames, fieldValues, analyzer, expectedPredictions);
 
@@ -474,7 +475,8 @@ BOOST_AUTO_TEST_CASE(testRunBoostedTreeRegressionTrainingWithParams) {
 
     api::CDataFrameAnalyzer analyzer{
         test::CDataFrameAnalysisSpecificationFactory::predictionSpec(
-            "regression", "target", 100, 5, 4000000, 0, 0, {}, alpha, lambda, gamma, softTreeDepthLimit,
+            test::CDataFrameAnalysisSpecificationFactory::regression(), "target",
+            100, 5, 4000000, 0, 0, {}, alpha, lambda, gamma, softTreeDepthLimit,
             softTreeDepthTolerance, eta, maximumNumberTrees, featureBagFraction),
         outputWriterFactory};
 
@@ -547,9 +549,10 @@ BOOST_AUTO_TEST_CASE(testRunBoostedTreeRegressionTrainingWithRowsMissingTargetVa
 
     auto target = [](double feature) { return 10.0 * feature; };
 
-    api::CDataFrameAnalyzer analyzer{test::CDataFrameAnalysisSpecificationFactory::predictionSpec(
-                                         "regression", "target", 50, 2, 4000000),
-                                     outputWriterFactory};
+    api::CDataFrameAnalyzer analyzer{
+        test::CDataFrameAnalysisSpecificationFactory::predictionSpec(
+            test::CDataFrameAnalysisSpecificationFactory::regression(), "target", 50, 2, 4000000),
+        outputWriterFactory};
 
     TDoubleVec feature;
     rng.generateUniformSamples(1.0, 3.0, 50, feature);
@@ -630,11 +633,11 @@ BOOST_AUTO_TEST_CASE(testRunBoostedTreeRegressionTrainingWithStateRecovery) {
         auto makeSpec = [&](const std::string& dependentVariable, std::size_t numberExamples,
                             TPersisterSupplier persisterSupplier) {
             return test::CDataFrameAnalysisSpecificationFactory::predictionSpec(
-                "regression", dependentVariable, numberExamples, 5, 15000000,
-                numberRoundsPerHyperparameter, 12, {}, params.s_Alpha,
-                params.s_Lambda, params.s_Gamma, params.s_SoftTreeDepthLimit,
-                params.s_SoftTreeDepthTolerance, params.s_Eta,
-                params.s_MaximumNumberTrees, params.s_FeatureBagFraction,
+                test::CDataFrameAnalysisSpecificationFactory::regression(), dependentVariable,
+                numberExamples, 5, 15000000, numberRoundsPerHyperparameter, 12,
+                {}, params.s_Alpha, params.s_Lambda, params.s_Gamma,
+                params.s_SoftTreeDepthLimit, params.s_SoftTreeDepthTolerance,
+                params.s_Eta, params.s_MaximumNumberTrees, params.s_FeatureBagFraction,
                 0 /*numTopFeatureImportanceValues*/, &persisterSupplier);
         };
 
@@ -665,7 +668,8 @@ BOOST_AUTO_TEST_CASE(testRunBoostedTreeClassifierTraining) {
     TStrVec fieldValues{"", "", "", "", "", "0", ""};
     api::CDataFrameAnalyzer analyzer{
         test::CDataFrameAnalysisSpecificationFactory::predictionSpec(
-            "classification", "target", 100, 5, 6000000, 0, 0, {"target"}),
+            test::CDataFrameAnalysisSpecificationFactory::classification(),
+            "target", 100, 5, 6000000, 0, 0, {"target"}),
         outputWriterFactory};
     addPredictionTestData(E_BinaryClassification, fieldNames, fieldValues,
                           analyzer, expectedPredictions);
@@ -686,6 +690,19 @@ BOOST_AUTO_TEST_CASE(testRunBoostedTreeClassifierTraining) {
             std::string actualPrediction{
                 result["row_results"]["results"]["ml"]["target_prediction"].GetString()};
             BOOST_REQUIRE_EQUAL(*expectedPrediction, actualPrediction);
+            // Check the prediction values match the first entry in the top-classes.
+            BOOST_REQUIRE_EQUAL(
+                result["row_results"]["results"]["ml"]["target_prediction"].GetString(),
+                result["row_results"]["results"]["ml"]["top_classes"][0]["class_name"]
+                    .GetString());
+            BOOST_REQUIRE_EQUAL(
+                result["row_results"]["results"]["ml"]["prediction_probability"].GetDouble(),
+                result["row_results"]["results"]["ml"]["top_classes"][0]["class_probability"]
+                    .GetDouble());
+            BOOST_REQUIRE_EQUAL(
+                result["row_results"]["results"]["ml"]["prediction_score"].GetDouble(),
+                result["row_results"]["results"]["ml"]["top_classes"][0]["class_score"]
+                    .GetDouble());
             ++expectedPrediction;
             BOOST_TEST_REQUIRE(result.HasMember("progress_percent") == false);
         } else if (result.HasMember("progress_percent")) {
@@ -733,7 +750,8 @@ BOOST_AUTO_TEST_CASE(testRunBoostedTreeClassifierImbalanced) {
 
     api::CDataFrameAnalyzer analyzer{
         test::CDataFrameAnalysisSpecificationFactory::predictionSpec(
-            "classification", "target", numberExamples, 4, 14000000, 0, 0, {"target"}),
+            test::CDataFrameAnalysisSpecificationFactory::classification(),
+            "target", numberExamples, 4, 14000000, 0, 0, {"target"}),
         outputWriterFactory};
 
     TStrVec actuals;
@@ -766,7 +784,7 @@ BOOST_AUTO_TEST_CASE(testRunBoostedTreeClassifierImbalanced) {
     for (const auto& label : {"foo", "bar"}) {
         double recall{static_cast<double>(correct[label]) /
                       static_cast<double>(counts[label])};
-        BOOST_TEST_REQUIRE(recall > 0.85);
+        BOOST_TEST_REQUIRE(recall > 0.84);
     }
 }
 
@@ -780,7 +798,8 @@ BOOST_AUTO_TEST_CASE(testCategoricalFields) {
     {
         api::CDataFrameAnalyzer analyzer{
             test::CDataFrameAnalysisSpecificationFactory::predictionSpec(
-                "regression", "x5", 1000, 5, 19000000, 0, 0, {"x1", "x2"}),
+                test::CDataFrameAnalysisSpecificationFactory::regression(),
+                "x5", 1000, 5, 19000000, 0, 0, {"x1", "x2"}),
             outputWriterFactory};
 
         TStrVec x[]{{"x11", "x12", "x13", "x14", "x15"},
@@ -821,7 +840,8 @@ BOOST_AUTO_TEST_CASE(testCategoricalFields) {
 
         api::CDataFrameAnalyzer analyzer{
             test::CDataFrameAnalysisSpecificationFactory::predictionSpec(
-                "regression", "x5", rows, 5, 8000000000, 0, 0, {"x1"}),
+                test::CDataFrameAnalysisSpecificationFactory::regression(),
+                "x5", rows, 5, 8000000000, 0, 0, {"x1"}),
             outputWriterFactory};
 
         TStrVec fieldNames{"x1", "x2", "x3", "x4", "x5", ".", "."};
@@ -884,7 +904,8 @@ BOOST_AUTO_TEST_CASE(testCategoricalFieldsEmptyAsMissing) {
 
     api::CDataFrameAnalyzer analyzer{
         test::CDataFrameAnalysisSpecificationFactory::predictionSpec(
-            "classification", "x5", 1000, 5, 19000000, 0, 0, {"x1", "x2", "x5"}),
+            test::CDataFrameAnalysisSpecificationFactory::classification(),
+            "x5", 1000, 5, 19000000, 0, 0, {"x1", "x2", "x5"}),
         outputWriterFactory};
 
     TStrVec fieldNames{"x1", "x2", "x3", "x4", "x5", ".", "."};

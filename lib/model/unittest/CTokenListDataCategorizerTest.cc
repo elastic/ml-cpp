@@ -17,6 +17,7 @@
 
 #include <boost/test/unit_test.hpp>
 
+#include <memory>
 #include <sstream>
 
 BOOST_AUTO_TEST_SUITE(CTokenListDataCategorizerTest)
@@ -35,11 +36,12 @@ using TTokenListDataCategorizerKeepsFields =
                                          2,     // Min dictionary word length
                                          ml::core::CWordDictionary::TWeightVerbs5Other2>;
 
-const TTokenListDataCategorizerKeepsFields::TTokenListReverseSearchCreatorIntfCPtr NO_REVERSE_SEARCH_CREATOR;
+const TTokenListDataCategorizerKeepsFields::TTokenListReverseSearchCreatorCPtr NO_REVERSE_SEARCH_CREATOR;
 
 void checkMemoryUsageInstrumentation(const TTokenListDataCategorizerKeepsFields& categorizer) {
+
     std::size_t memoryUsage{categorizer.memoryUsage()};
-    ml::core::CMemoryUsage::TMemoryUsagePtr mem{new ml::core::CMemoryUsage};
+    auto mem{std::make_shared<ml::core::CMemoryUsage>()};
     categorizer.debugMemoryUsage(mem);
 
     std::ostringstream strm;
@@ -356,7 +358,7 @@ BOOST_FIXTURE_TEST_CASE(testPersist, CTestFixture) {
 }
 
 BOOST_FIXTURE_TEST_CASE(testLongReverseSearch, CTestFixture) {
-    TTokenListDataCategorizerKeepsFields::TTokenListReverseSearchCreatorIntfCPtr reverseSearchCreator(
+    TTokenListDataCategorizerKeepsFields::TTokenListReverseSearchCreatorCPtr reverseSearchCreator(
         new ml::model::CTokenListReverseSearchCreator("_raw"));
     TTokenListDataCategorizerKeepsFields categorizer(m_Limits, reverseSearchCreator,
                                                      0.7, "_raw");

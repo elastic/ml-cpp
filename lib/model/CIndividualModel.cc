@@ -283,7 +283,7 @@ uint64_t CIndividualModel::checksum(bool includeCurrentBucketStats) const {
     return maths::CChecksum::calculate(seed, hashes2);
 }
 
-void CIndividualModel::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const {
+void CIndividualModel::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
     mem->setName("CIndividualModel");
     this->CAnomalyDetectorModel::debugMemoryUsage(mem->addChild());
     core::CMemoryDebug::dynamicSize("m_FirstBucketTimes", m_FirstBucketTimes, mem);

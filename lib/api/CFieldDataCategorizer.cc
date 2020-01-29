@@ -22,6 +22,7 @@
 #include <api/COutputHandler.h>
 #include <api/CPersistenceManager.h>
 
+#include <memory>
 #include <sstream>
 
 namespace ml {
@@ -123,7 +124,7 @@ void CFieldDataCategorizer::finalise() {
     }
 }
 
-uint64_t CFieldDataCategorizer::numRecordsHandled() const {
+std::uint64_t CFieldDataCategorizer::numRecordsHandled() const {
     return m_NumRecordsHandled;
 }
 
@@ -132,8 +133,8 @@ COutputHandler& CFieldDataCategorizer::outputHandler() {
 }
 
 int CFieldDataCategorizer::computeCategory(const TStrStrUMap& dataRowFields) {
-    const std::string& categorizationFieldName = m_DataCategorizer->fieldName();
-    TStrStrUMapCItr fieldIter = dataRowFields.find(categorizationFieldName);
+    const std::string& categorizationFieldName{m_DataCategorizer->fieldName()};
+    auto fieldIter = dataRowFields.find(categorizationFieldName);
     if (fieldIter == dataRowFields.end()) {
         LOG_WARN(<< "Assigning ML category -1 to record with no "
                  << categorizationFieldName << " field:" << core_t::LINE_ENDING
@@ -141,7 +142,7 @@ int CFieldDataCategorizer::computeCategory(const TStrStrUMap& dataRowFields) {
         return -1;
     }
 
-    const std::string& fieldValue = fieldIter->second;
+    const std::string& fieldValue{fieldIter->second};
     if (fieldValue.empty()) {
         LOG_WARN(<< "Assigning ML category -1 to record with blank "
                  << categorizationFieldName << " field:" << core_t::LINE_ENDING
@@ -149,7 +150,7 @@ int CFieldDataCategorizer::computeCategory(const TStrStrUMap& dataRowFields) {
         return -1;
     }
 
-    int categoryId = -1;
+    int categoryId{-1};
     if (m_CategorizationFilter.empty()) {
         categoryId = m_DataCategorizer->computeCategory(
             false, dataRowFields, fieldValue, fieldValue.length());
@@ -186,12 +187,11 @@ int CFieldDataCategorizer::computeCategory(const TStrStrUMap& dataRowFields) {
 }
 
 void CFieldDataCategorizer::createCategorizer(const std::string& fieldName) {
-    // TODO - if we ever have more than one data categorizer class, this should be
-    // replaced with a factory
-    TTokenListDataCategorizerKeepsFields::TTokenListReverseSearchCreatorIntfCPtr reverseSearchCreator(
-        new model::CTokenListReverseSearchCreator(fieldName));
-    m_DataCategorizer.reset(new TTokenListDataCategorizerKeepsFields(
-        m_Limits, reverseSearchCreator, SIMILARITY_THRESHOLD, fieldName));
+    // TODO - if we ever have more than one data categorizer class, this should
+    // be replaced with a factory
+    m_DataCategorizer = std::make_shared<TTokenListDataCategorizerKeepsFields>(
+        m_Limits, std::make_shared<model::CTokenListReverseSearchCreator>(fieldName),
+        SIMILARITY_THRESHOLD, fieldName);
 
     LOG_TRACE(<< "Created new categorizer for field '" << fieldName << "'");
 }
@@ -360,10 +360,10 @@ bool CFieldDataCategorizer::doPersistState(const model::CDataCategorizer::TPersi
                                            const model::CCategoryExamplesCollector& examplesCollector,
                                            core::CDataAdder& persister) {
     try {
-        core::CStateCompressor compressor(persister);
+        core::CStateCompressor compressor{persister};
 
-        core::CDataAdder::TOStreamP strm =
-            compressor.addStreamed(ML_STATE_INDEX, m_JobId + '_' + STATE_TYPE);
+        core::CDataAdder::TOStreamP strm{
+            compressor.addStreamed(ML_STATE_INDEX, m_JobId + '_' + STATE_TYPE)};
 
         if (strm == nullptr) {
             LOG_ERROR(<< "Failed to create persistence stream");
@@ -379,7 +379,7 @@ bool CFieldDataCategorizer::doPersistState(const model::CDataCategorizer::TPersi
         {
             // Keep the JSON inserter scoped as it only finishes the stream
             // when it is destructed
-            core::CJsonStatePersistInserter inserter(*strm);
+            core::CJsonStatePersistInserter inserter{*strm};
             this->acceptPersistInserter(dataCategorizerPersistFunc,
                                         examplesCollector, inserter);
         }

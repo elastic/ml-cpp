@@ -282,7 +282,7 @@ uint64_t CMultivariateConstantPrior::checksum(uint64_t seed) const {
     return CChecksum::calculate(seed, m_Constant);
 }
 
-void CMultivariateConstantPrior::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const {
+void CMultivariateConstantPrior::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
     mem->setName("CMultivariateConstantPrior");
     core::CMemoryDebug::dynamicSize("m_Constant", m_Constant, mem);
 }

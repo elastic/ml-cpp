@@ -529,7 +529,7 @@ uint64_t CMultimodalPrior::checksum(uint64_t seed) const {
     return CChecksum::calculate(seed, m_Modes);
 }
 
-void CMultimodalPrior::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const {
+void CMultimodalPrior::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
     mem->setName("CMultimodalPrior");
     core::CMemoryDebug::dynamicSize("m_Clusterer", m_Clusterer, mem);
     core::CMemoryDebug::dynamicSize("m_SeedPrior", m_SeedPrior, mem);

@@ -412,7 +412,7 @@ public:
     virtual std::uint64_t checksum(std::uint64_t seed = 0) const = 0;
 
     //! Debug the memory used by this object.
-    virtual void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const = 0;
+    virtual void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const = 0;
 
     //! Get the memory used by this object.
     virtual std::size_t memoryUsage() const = 0;
@@ -547,7 +547,7 @@ public:
     std::uint64_t checksum(std::uint64_t seed = 0) const override;
 
     //! Debug the memory used by this object.
-    void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const override;
+    void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const override;
 
     //! Get the memory used by this object.
     std::size_t memoryUsage() const override;

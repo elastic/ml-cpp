@@ -163,6 +163,9 @@ private:
     //! Estimates a good central value for the downsample factor search interval.
     void initializeUnsetDownsampleFactor(core::CDataFrame& frame);
 
+    //! Estimate a good central value for learn rate.
+    void initializeUnsetEta(core::CDataFrame& frame);
+
     //! Estimate the reduction in gain from a split and the total curvature of
     //! the loss function at a split.
     TDoubleDoublePrVec estimateTreeGainAndCurvature(core::CDataFrame& frame,
@@ -193,6 +196,9 @@ private:
     //! Refresh progress monitoring after restoring from saved training state.
     void resumeRestoredTrainingProgressMonitoring();
 
+    //! The total number of progress steps used in the main loop.
+    std::size_t mainLoopNumberSteps(double eta) const;
+
     //! The maximum number of trees to use in the hyperparameter optimisation loop.
     std::size_t mainLoopMaximumNumberTrees(double eta) const;
 
@@ -212,6 +218,7 @@ private:
     TVector m_LogTreeSizePenaltyMultiplierSearchInterval;
     TVector m_LogLeafWeightPenaltyMultiplierSearchInterval;
     TVector m_SoftDepthLimitSearchInterval;
+    TVector m_LogEtaSearchInterval;
     TAnalysisInstrumentationPtr m_Instrumentation;
     TProgressCallback m_RecordProgress = noopRecordProgress;
     TMemoryUsageCallback m_RecordMemoryUsage = noopRecordMemoryUsage;

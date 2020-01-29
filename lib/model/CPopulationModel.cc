@@ -201,7 +201,7 @@ uint64_t CPopulationModel::checksum(bool includeCurrentBucketStats) const {
     return maths::CChecksum::calculate(seed, hashes);
 }
 
-void CPopulationModel::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const {
+void CPopulationModel::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
     mem->setName("CPopulationModel");
     this->CAnomalyDetectorModel::debugMemoryUsage(mem->addChild());
     core::CMemoryDebug::dynamicSize("m_PersonLastBucketTimes", m_PersonLastBucketTimes, mem);

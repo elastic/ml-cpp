@@ -20,6 +20,7 @@ all: build
 SRCS= \
 CAnomalyJob.cc \
 CBenchMarker.cc \
+CBoostedTreeInferenceModelBuilder.cc \
 CCmdSkeleton.cc \
 CConfigUpdater.cc \
 CCsvInputParser.cc \
@@ -41,7 +42,6 @@ CFieldDataCategorizer.cc \
 CForecastRunner.cc \
 CHierarchicalResultsWriter.cc \
 CInferenceModelDefinition.cc \
-CBoostedTreeInferenceModelBuilder.cc \
 CInputParser.cc \
 CIoManager.cc \
 CJsonOutputWriter.cc \

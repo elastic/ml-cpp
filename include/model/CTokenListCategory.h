@@ -41,25 +41,21 @@ public:
     //! Used to associate tokens with weightings:
     //! first -> token ID
     //! second -> weighting
-    using TSizeSizePr = std::pair<size_t, size_t>;
+    using TSizeSizePr = std::pair<std::size_t, std::size_t>;
 
     //! Used for storing token ID sequences
     using TSizeSizePrVec = std::vector<TSizeSizePr>;
-    using TSizeSizePrVecItr = TSizeSizePrVec::iterator;
-    using TSizeSizePrVecCItr = TSizeSizePrVec::const_iterator;
 
     //! Used for storing distinct token IDs mapped to weightings
-    using TSizeSizeMap = std::map<size_t, size_t>;
-    using TSizeSizeMapItr = TSizeSizeMap::iterator;
-    using TSizeSizeMapCItr = TSizeSizeMap::const_iterator;
+    using TSizeSizeMap = std::map<std::size_t, std::size_t>;
 
 public:
     //! Create a new category
     CTokenListCategory(bool isDryRun,
                        const std::string& baseString,
-                       size_t rawStringLen,
+                       std::size_t rawStringLen,
                        const TSizeSizePrVec& baseTokenIds,
-                       size_t baseWeight,
+                       std::size_t baseWeight,
                        const TSizeSizeMap& uniqueTokenIds);
 
     //! Constructor used when restoring from XML
@@ -69,28 +65,27 @@ public:
     //! how well matched the string is
     bool addString(bool isDryRun,
                    const std::string& str,
-                   size_t rawStringLen,
+                   std::size_t rawStringLen,
                    const TSizeSizePrVec& tokenIds,
-                   const TSizeSizeMap& uniqueTokenIds,
-                   double similarity);
+                   const TSizeSizeMap& uniqueTokenIds);
 
     //! Accessors
     const std::string& baseString() const;
     const TSizeSizePrVec& baseTokenIds() const;
-    size_t baseWeight() const;
+    std::size_t baseWeight() const;
     const TSizeSizePrVec& commonUniqueTokenIds() const;
-    size_t commonUniqueTokenWeight() const;
-    size_t origUniqueTokenWeight() const;
-    size_t maxStringLen() const;
-    size_t outOfOrderCommonTokenIndex() const;
+    std::size_t commonUniqueTokenWeight() const;
+    std::size_t origUniqueTokenWeight() const;
+    std::size_t maxStringLen() const;
+    TSizeSizePr orderedCommonTokenBounds() const;
 
     //! What's the longest string we'll consider a match for this category?
     //! Currently simply 10% longer than the longest string we've seen.
-    size_t maxMatchingStringLen() const;
+    std::size_t maxMatchingStringLen() const;
 
     //! What is the weight of tokens in a given map that are missing from
     //! this category's common unique tokens?
-    size_t missingCommonTokenWeight(const TSizeSizeMap& uniqueTokenIds) const;
+    std::size_t missingCommonTokenWeight(const TSizeSizeMap& uniqueTokenIds) const;
 
     //! Is the weight of tokens in a given map that are missing from this
     //! category's common unique tokens equal to zero?  It is possible to test:
@@ -104,7 +99,7 @@ public:
     bool containsCommonTokensInOrder(const TSizeSizePrVec& tokenIds) const;
 
     //! How many matching strings are there?
-    size_t numMatches() const;
+    std::size_t numMatches() const;
 
     //! Persist state by passing information to the supplied inserter
     void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
@@ -116,7 +111,7 @@ public:
     void cacheReverseSearch(const std::string& part1, const std::string& part2);
 
     //! Debug the memory used by this category.
-    void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const;
+    void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const;
 
     //! Get the memory used by this category.
     std::size_t memoryUsage() const;
@@ -130,34 +125,33 @@ private:
     TSizeSizePrVec m_BaseTokenIds;
 
     //! Cache the total weight of the base tokens
-    size_t m_BaseWeight;
+    std::size_t m_BaseWeight;
 
     //! The maximum original length of all the strings that have been
     //! classified as this category.  The original length may be longer than the
     //! length of the strings in passed to the addString() method, because
     //! it will include the date.
-    size_t m_MaxStringLen;
+    std::size_t m_MaxStringLen;
 
-    //! The index into the base token IDs that we should stop at when
-    //! generating an ordered regex, because subsequent common token IDs are
-    //! not in the same order for all strings of this category.
-    size_t m_OutOfOrderCommonTokenIndex;
+    //! One past the index into the base token IDs where the subsequence of
+    //! tokens that are in the same order for all strings of this category ends.
+    std::size_t m_OrderedCommonTokenEndIndex;
 
     //! The unique token IDs that all strings classified to be this category
     //! contain.  This vector must always be sorted into ascending order.
     TSizeSizePrVec m_CommonUniqueTokenIds;
 
     //! Cache the weight of the common unique tokens
-    size_t m_CommonUniqueTokenWeight;
+    std::size_t m_CommonUniqueTokenWeight;
 
     //! What was the weight of the original unique tokens (i.e. when the category
     //! only represented one string)?  Remembering this means we can ensure
     //! that the degree of commonality doesn't fall below a certain level as
     //! the number of strings classified as this category grows.
-    size_t m_OrigUniqueTokenWeight;
+    std::size_t m_OrigUniqueTokenWeight;
 
     //! Number of matched strings
-    size_t m_NumMatches;
+    std::size_t m_NumMatches;
 
     //! Cache reverse searches to save repeated recalculations
     std::string m_ReverseSearchPart1;

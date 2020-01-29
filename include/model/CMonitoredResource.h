@@ -32,7 +32,7 @@ public:
     virtual ~CMonitoredResource() = default;
 
     //! Get the memory used by this detector.
-    virtual void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const = 0;
+    virtual void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const = 0;
 
     //! Return the total memory usage.
     virtual std::size_t memoryUsage() const = 0;

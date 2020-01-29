@@ -26,7 +26,7 @@ CDataCategorizer::~CDataCategorizer() {
     m_Limits.resourceMonitor().unRegisterComponent(*this);
 }
 
-int CDataCategorizer::computeCategory(bool isDryRun, const std::string& str, size_t rawStringLen) {
+int CDataCategorizer::computeCategory(bool isDryRun, const std::string& str, std::size_t rawStringLen) {
     return this->computeCategory(isDryRun, EMPTY_FIELDS, str, rawStringLen);
 }
 
@@ -42,7 +42,7 @@ void CDataCategorizer::lastPersistTime(core_t::TTime lastPersistTime) {
     m_LastPersistTime = lastPersistTime;
 }
 
-void CDataCategorizer::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const {
+void CDataCategorizer::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
     mem->setName("CDataCategorizer");
     core::CMemoryDebug::dynamicSize("m_FieldName", m_FieldName, mem);
     core::CMemoryDebug::dynamicSize("m_ExamplesCollector", m_ExamplesCollector, mem);

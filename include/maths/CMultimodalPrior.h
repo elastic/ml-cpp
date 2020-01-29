@@ -278,7 +278,7 @@ public:
     virtual uint64_t checksum(uint64_t seed = 0) const;
 
     //! Debug the memory used by this component.
-    virtual void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const;
+    virtual void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const;
 
     //! Get the memory used by this component.
     virtual std::size_t memoryUsage() const;

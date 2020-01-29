@@ -578,7 +578,7 @@ private:
 
 namespace memory_detail {
 
-template<typename T, void (T::*)(CMemoryUsage::TMemoryUsagePtr) const, typename R = void>
+template<typename T, void (T::*)(const CMemoryUsage::TMemoryUsagePtr&) const, typename R = void>
 struct enable_if_member_debug_function {
     using type = R;
 };
@@ -586,7 +586,7 @@ struct enable_if_member_debug_function {
 //! Default template declaration for SDebugMemoryDynamicSize::dispatch.
 template<typename T, typename ENABLE = void>
 struct SDebugMemoryDynamicSize {
-    static void dispatch(const char* name, const T& t, CMemoryUsage::TMemoryUsagePtr mem) {
+    static void dispatch(const char* name, const T& t, const CMemoryUsage::TMemoryUsagePtr& mem) {
         std::size_t used = CMemory::dynamicSize(t);
         if (used > 0) {
             std::string description(name);
@@ -600,7 +600,7 @@ struct SDebugMemoryDynamicSize {
 //! Template specialisation for when T has a debugMemoryUsage member function.
 template<typename T>
 struct SDebugMemoryDynamicSize<T, typename enable_if_member_debug_function<T, &T::debugMemoryUsage>::type> {
-    static void dispatch(const char*, const T& t, CMemoryUsage::TMemoryUsagePtr mem) {
+    static void dispatch(const char*, const T& t, const CMemoryUsage::TMemoryUsagePtr& mem) {
         t.debugMemoryUsage(mem->addChild());
     }
 };
@@ -615,7 +615,7 @@ struct SDebugMemoryDynamicSize<T, typename enable_if_member_debug_function<T, &T
 //! classes and containers, utilising the CMemoryUsage class.
 //!
 //! ML classes can declare a public member function:
-//!     void debugMemoryUsage(CMemoryUsage::TMemoryUsagePtr) const;
+//!     void debugMemoryUsage(const CMemoryUsage::TMemoryUsagePtr&) const;
 //!
 //! which should call CMemoryDebug::dynamicSize("t_name", t, memUsagePtr)
 //! on all its dynamic members.
@@ -640,7 +640,7 @@ public:
     public:
         using TDynamicSizeFunc = void (*)(const char*,
                                           const boost::any& any,
-                                          CMemoryUsage::TMemoryUsagePtr mem);
+                                          const CMemoryUsage::TMemoryUsagePtr& mem);
         using TTypeInfoDynamicSizeFuncPr = std::pair<TTypeInfoCRef, TDynamicSizeFunc>;
         using TTypeInfoDynamicSizeFuncPrVec = std::vector<TTypeInfoDynamicSizeFuncPr>;
 
@@ -667,7 +667,7 @@ public:
         //! registered for its type.
         void dynamicSize(const char* name,
                          const boost::any& x,
-                         CMemoryUsage::TMemoryUsagePtr mem) const {
+                         const CMemoryUsage::TMemoryUsagePtr& mem) const {
             if (!x.empty()) {
                 auto i = std::lower_bound(m_Callbacks.begin(),
                                           m_Callbacks.end(), std::cref(x.type()),
@@ -685,7 +685,7 @@ public:
         template<typename T>
         static void dynamicSizeCallback(const char* name,
                                         const boost::any& any,
-                                        CMemoryUsage::TMemoryUsagePtr mem) {
+                                        const CMemoryUsage::TMemoryUsagePtr& mem) {
             try {
                 mem->addItem(name, sizeof(T));
                 CMemoryDebug::dynamicSize(name, boost::any_cast<const T&>(any), mem);
@@ -703,7 +703,7 @@ public:
     static void
     dynamicSize(const char* name,
                 const T& t,
-                CMemoryUsage::TMemoryUsagePtr mem,
+                const CMemoryUsage::TMemoryUsagePtr& mem,
                 typename boost::disable_if<typename boost::is_pointer<T>>::type* = nullptr) {
         memory_detail::SDebugMemoryDynamicSize<T>::dispatch(name, t, mem);
     }
@@ -713,7 +713,7 @@ public:
     static void
     dynamicSize(const char* name,
                 const T& t,
-                CMemoryUsage::TMemoryUsagePtr mem,
+                const CMemoryUsage::TMemoryUsagePtr& mem,
                 typename boost::enable_if<typename boost::is_pointer<T>>::type* = nullptr) {
         if (t != nullptr) {
             mem->addItem("ptr", CMemory::staticSize(*t));
@@ -725,7 +725,7 @@ public:
     template<typename T>
     static void dynamicSize(const char* name,
                             const std::shared_ptr<T>& t,
-                            CMemoryUsage::TMemoryUsagePtr mem) {
+                            const CMemoryUsage::TMemoryUsagePtr& mem) {
         // The check for nullptr here may seem unnecessary but there are situations
         // where an unset shared_ptr can have a use_count greater than 0, see
         // https://stackoverflow.com/questions/48885252/c-sharedptr-use-count-for-nullptr/48885643
@@ -757,7 +757,7 @@ public:
     template<typename T>
     static void dynamicSize(const char* name,
                             const std::unique_ptr<T>& t,
-                            CMemoryUsage::TMemoryUsagePtr mem) {
+                            const CMemoryUsage::TMemoryUsagePtr& mem) {
         if (t != nullptr) {
             mem->addItem("ptr", CMemory::staticSize(*t));
             memory_detail::SDebugMemoryDynamicSize<T>::dispatch(name, *t, mem);
@@ -768,7 +768,7 @@ public:
     template<typename T, std::size_t N>
     static void dynamicSize(const char* name,
                             const std::array<T, N>& t,
-                            CMemoryUsage::TMemoryUsagePtr mem) {
+                            const CMemoryUsage::TMemoryUsagePtr& mem) {
         if (!memory_detail::SDynamicSizeAlwaysZero<T>::value()) {
             std::string componentName(name);
             componentName += "_item";
@@ -784,7 +784,7 @@ public:
     template<typename T>
     static void dynamicSize(const char* name,
                             const std::vector<T>& t,
-                            CMemoryUsage::TMemoryUsagePtr mem) {
+                            const CMemoryUsage::TMemoryUsagePtr& mem) {
         std::string componentName(name);
 
         std::size_t items = t.size();
@@ -805,7 +805,7 @@ public:
     template<typename T, std::size_t N>
     static void dynamicSize(const char* name,
                             const CSmallVector<T, N>& t,
-                            CMemoryUsage::TMemoryUsagePtr mem) {
+                            const CMemoryUsage::TMemoryUsagePtr& mem) {
         std::string componentName(name);
 
         std::size_t items = memory_detail::inplace(t) ? 0 : t.size();
@@ -823,7 +823,9 @@ public:
     }
 
     //! Overload for std::string.
-    static void dynamicSize(const char* name, const std::string& t, CMemoryUsage::TMemoryUsagePtr mem) {
+    static void dynamicSize(const char* name,
+                            const std::string& t,
+                            const CMemoryUsage::TMemoryUsagePtr& mem) {
         std::string componentName(name);
         componentName += "_string";
         std::size_t length = t.size();
@@ -856,7 +858,7 @@ public:
     template<typename K, typename V, typename H, typename P, typename A>
     static void dynamicSize(const char* name,
                             const boost::unordered_map<K, V, H, P, A>& t,
-                            CMemoryUsage::TMemoryUsagePtr mem) {
+                            const CMemoryUsage::TMemoryUsagePtr& mem) {
         std::string componentName(name);
         componentName += "_umap";
 
@@ -878,7 +880,7 @@ public:
     template<typename K, typename V, typename C, typename A>
     static void dynamicSize(const char* name,
                             const std::map<K, V, C, A>& t,
-                            CMemoryUsage::TMemoryUsagePtr mem) {
+                            const CMemoryUsage::TMemoryUsagePtr& mem) {
         // std::map appears to use 4 pointers/size_ts per tree node
         // (colour, parent, left and right child pointers)
         std::string componentName(name);
@@ -901,7 +903,7 @@ public:
     template<typename K, typename V, typename C, typename A>
     static void dynamicSize(const char* name,
                             const boost::container::flat_map<K, V, C, A>& t,
-                            CMemoryUsage::TMemoryUsagePtr mem) {
+                            const CMemoryUsage::TMemoryUsagePtr& mem) {
         std::string componentName(name);
         componentName += "_fmap";
 
@@ -925,7 +927,7 @@ public:
     template<typename T, typename H, typename P, typename A>
     static void dynamicSize(const char* name,
                             const boost::unordered_set<T, H, P, A>& t,
-                            CMemoryUsage::TMemoryUsagePtr mem) {
+                            const CMemoryUsage::TMemoryUsagePtr& mem) {
         std::string componentName(name);
         componentName += "_uset";
 
@@ -945,7 +947,7 @@ public:
     template<typename T, typename C, typename A>
     static void dynamicSize(const char* name,
                             const std::set<T, C, A>& t,
-                            CMemoryUsage::TMemoryUsagePtr mem) {
+                            const CMemoryUsage::TMemoryUsagePtr& mem) {
         // std::set appears to use 4 pointers/size_ts per tree node
         // (colour, parent, left and right child pointers)
         std::string componentName(name);
@@ -967,7 +969,7 @@ public:
     template<typename T, typename C, typename A>
     static void dynamicSize(const char* name,
                             const boost::container::flat_set<T, C, A>& t,
-                            CMemoryUsage::TMemoryUsagePtr mem) {
+                            const CMemoryUsage::TMemoryUsagePtr& mem) {
         std::string componentName(name);
         componentName += "_fset";
 
@@ -989,7 +991,7 @@ public:
     template<typename T, typename A>
     static void dynamicSize(const char* name,
                             const std::list<T, A>& t,
-                            CMemoryUsage::TMemoryUsagePtr mem) {
+                            const CMemoryUsage::TMemoryUsagePtr& mem) {
         // std::list appears to use 2 pointers per list node
         // (prev and next pointers).
         std::string componentName(name);
@@ -1011,7 +1013,7 @@ public:
     template<typename T, typename C, typename A>
     static void dynamicSize(const char* name,
                             const std::deque<T, A>& t,
-                            CMemoryUsage::TMemoryUsagePtr mem) {
+                            const CMemoryUsage::TMemoryUsagePtr& mem) {
         // std::deque is a pointer to an array of pointers to pages
         std::string componentName(name);
         componentName += "_deque";
@@ -1039,7 +1041,7 @@ public:
     template<typename T, typename I, typename A>
     static void dynamicSize(const char* name,
                             const boost::multi_index::multi_index_container<T, I, A>& t,
-                            CMemoryUsage::TMemoryUsagePtr mem) {
+                            const CMemoryUsage::TMemoryUsagePtr& mem) {
         // It's tricky to determine the container overhead of a multi-index
         // container.  It can have an arbitrary number of indices, each of which
         // can be of a different type.  To accurately determine the overhead
@@ -1070,7 +1072,7 @@ public:
     template<typename T, typename A>
     static void dynamicSize(const char* name,
                             const boost::circular_buffer<T, A>& t,
-                            CMemoryUsage::TMemoryUsagePtr mem) {
+                            const CMemoryUsage::TMemoryUsagePtr& mem) {
         std::string componentName(name);
 
         std::size_t items = t.size();
@@ -1091,7 +1093,7 @@ public:
     template<typename T>
     static void dynamicSize(const char* name,
                             const boost::optional<T>& t,
-                            CMemoryUsage::TMemoryUsagePtr mem) {
+                            const CMemoryUsage::TMemoryUsagePtr& mem) {
         if (t) {
             dynamicSize(name, *t, mem);
         }
@@ -1101,7 +1103,7 @@ public:
     template<typename T>
     static void dynamicSize(const char* /*name*/,
                             const std::reference_wrapper<T>& /*t*/,
-                            CMemoryUsage::TMemoryUsagePtr /*mem*/) {
+                            const CMemoryUsage::TMemoryUsagePtr& /*mem*/) {
         return;
     }
 
@@ -1109,7 +1111,7 @@ public:
     template<typename T, typename V>
     static void dynamicSize(const char* name,
                             const std::pair<T, V>& t,
-                            CMemoryUsage::TMemoryUsagePtr mem) {
+                            const CMemoryUsage::TMemoryUsagePtr& mem) {
         std::string keyName(name);
         keyName += "_key";
         std::string valueName(name);
@@ -1119,7 +1121,9 @@ public:
     }
 
     //! Overload for boost::any.
-    static void dynamicSize(const char* name, const boost::any& t, CMemoryUsage::TMemoryUsagePtr mem) {
+    static void dynamicSize(const char* name,
+                            const boost::any& t,
+                            const CMemoryUsage::TMemoryUsagePtr& mem) {
         // boost::any holds a pointer to a new'd item.
         ms_AnyVisitor.dynamicSize(name, t, mem);
     }

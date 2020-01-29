@@ -32,6 +32,9 @@ public:
     using TSpecificationUPtr = std::unique_ptr<api::CDataFrameAnalysisSpecification>;
 
 public:
+    static const std::string& classification();
+    static const std::string& regression();
+
     static TSpecificationUPtr outlierSpec(std::size_t rows = 110,
                                           std::size_t cols = 5,
                                           std::size_t memoryLimit = 100000,

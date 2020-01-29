@@ -864,7 +864,7 @@ uint64_t CPoissonMeanConjugate::checksum(uint64_t seed) const {
     return CChecksum::calculate(seed, m_Rate);
 }
 
-void CPoissonMeanConjugate::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const {
+void CPoissonMeanConjugate::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
     mem->setName("CPoissonMeanConjugate");
 }
 

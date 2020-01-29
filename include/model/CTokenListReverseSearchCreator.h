@@ -6,7 +6,11 @@
 #ifndef INCLUDED_ml_model_CTokenListReverseSearchCreator_h
 #define INCLUDED_ml_model_CTokenListReverseSearchCreator_h
 
-#include <model/CTokenListReverseSearchCreatorIntf.h>
+#include <core/CMemoryUsage.h>
+
+#include <model/ImportExport.h>
+
+#include <string>
 
 namespace ml {
 namespace model {
@@ -27,64 +31,65 @@ namespace model {
 //! the tokens are in the required order and maximum length to prevent
 //! short token lists matching much longer messages.
 //!
-class MODEL_EXPORT CTokenListReverseSearchCreator : public CTokenListReverseSearchCreatorIntf {
+class MODEL_EXPORT CTokenListReverseSearchCreator {
 public:
     CTokenListReverseSearchCreator(const std::string& fieldName);
 
     //! What's the maximum cost of tokens we can include in the reverse
     //! search?  This cost is loosely based on the maximum length of an
     //! Internet Explorer URL.
-    size_t availableCost() const override;
+    std::size_t availableCost() const;
 
     //! What would be the cost of adding the specified token occurring the
     //! specified number of times to the reverse search?
-    size_t costOfToken(const std::string& token, size_t numOccurrences) const override;
-
-    //! Create a reverse search for a NULL field value.
-    bool createNullSearch(std::string& part1, std::string& part2) const override;
+    std::size_t costOfToken(const std::string& token, std::size_t numOccurrences) const;
 
     //! If possible, create a reverse search for the case where there are no
-    //! unique tokens identifying the type.  (If this is not possible return
+    //! unique tokens identifying the category.  (If this is not possible return
     //! false.)
-    bool createNoUniqueTokenSearch(int type,
+    bool createNoUniqueTokenSearch(int categoryId,
                                    const std::string& example,
-                                   size_t maxMatchingStringLen,
-                                   std::string& part1,
-                                   std::string& part2) const override;
+                                   std::size_t maxMatchingStringLen,
+                                   std::string& terms,
+                                   std::string& regex) const;
 
     //! Initialise the two strings that form a reverse search.  For example,
     //! this could be as simple as clearing the strings or setting them to
     //! some sort of one-off preamble.
-    void initStandardSearch(int type,
+    void initStandardSearch(int categoryId,
                             const std::string& example,
-                            size_t maxMatchingStringLen,
-                            std::string& part1,
-                            std::string& part2) const override;
+                            std::size_t maxMatchingStringLen,
+                            std::string& terms,
+                            std::string& regex) const;
+
+    //! Modify the two strings that form a reverse search to account for the
+    //! specified token.
+    void addInOrderCommonToken(const std::string& token, std::string& terms, std::string& regex) const;
 
     //! Modify the two strings that form a reverse search to account for the
     //! specified token, which may occur anywhere within the original
     //! message, but has been determined to be a good thing to distinguish
-    //! this type of messages from other types.
-    void addCommonUniqueToken(const std::string& token,
-                              std::string& part1,
-                              std::string& part2) const override;
-
-    //! Modify the two strings that form a reverse search to account for the
-    //! specified token.
-    void addInOrderCommonToken(const std::string& token,
-                               bool first,
-                               std::string& part1,
-                               std::string& part2) const override;
+    //! this category of messages from other categories.
+    void addOutOfOrderCommonToken(const std::string& token,
+                                  std::string& terms,
+                                  std::string& regex) const;
 
     //! Close off the two strings that form a reverse search.  For example,
     //! this may be when closing brackets need to be appended.
-    void closeStandardSearch(std::string& part1, std::string& part2) const override;
+    void closeStandardSearch(std::string& terms, std::string& regex) const;
+
+    //! Access to the field name
+    const std::string& fieldName() const;
 
     //! Debug the memory used by this reverse search creator.
-    void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const override;
+    void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const;
 
     //! Get the memory used by this reverse search creator.
-    std::size_t memoryUsage() const override;
+    std::size_t memoryUsage() const;
+
+private:
+    //! Which field name is being used for categorization?
+    std::string m_FieldName;
 };
 }
 }
