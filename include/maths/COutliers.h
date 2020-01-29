@@ -14,6 +14,7 @@
 #include <core/Concurrency.h>
 
 #include <maths/CBasicStatistics.h>
+#include <maths/CDataFrameAnalysisInstrumentationInterface.h>
 #include <maths/CKdTree.h>
 #include <maths/CLinearAlgebraShims.h>
 #include <maths/COrthogonaliser.h>
@@ -695,8 +696,7 @@ public:
     //! memory being used is written.
     static void compute(const SComputeParameters& params,
                         core::CDataFrame& frame,
-                        TProgressCallback recordProgress = noopRecordProgress,
-                        TMemoryUsageCallback recordMemoryUsage = noopRecordMemoryUsage);
+                        CDataFrameAnalysisInstrumentationInterface& instrumentation);
 
     //! Estimate the amount of memory that will be used computing outliers
     //! for a data frame.

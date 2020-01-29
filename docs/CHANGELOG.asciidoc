@@ -37,6 +37,11 @@
 
 == {es} version 7.7.0
 
+=== New Features
+
+* Add instrumentation to report statistics related to data frame analytics jobs, i.e.
+progress, memory usage, etc. (See {ml-pull}906[#906].)
+
 === Enhancements
 
 * Improve initialization of learn rate for better and more stable results in regression
@@ -46,7 +51,7 @@ and classification. (See {ml-pull}948[#948].)
 
 === New Features
 
-* Add feature importance values to classification and regression results (using tree 
+* Add feature importance values to classification and regression results (using tree
 SHapley Additive exPlanation, or SHAP). (See {ml-pull}857[#857].)
 
 === Enhancements

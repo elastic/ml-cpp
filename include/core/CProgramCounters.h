@@ -118,7 +118,7 @@ enum ECounterTypes {
     //! The estimated peak memory usage for training a predictive model
     E_DFTPMEstimatedPeakMemoryUsage = 24,
 
-    //! The peak memory usage of outlier detection in bytes
+    //! The peak memory usage for training a predictive model in bytes
     E_DFTPMPeakMemoryUsage = 25,
 
     //! The time in ms to train the model
