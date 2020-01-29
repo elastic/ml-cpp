@@ -114,7 +114,7 @@ CBoostedTreeInferenceModelBuilder::CBoostedTreeInferenceModelBuilder(TStrVec fie
     m_FieldNames = fieldNames;
 
     m_Definition.dependentVariableColumnIndex(dependentVariableColumnIndex);
-    m_Definition.fieldNames(std::move(fieldNames), dependentVariableColumnIndex);
+    m_Definition.fieldNames(std::move(fieldNames));
     m_Definition.trainedModel(std::make_unique<CEnsemble>());
     m_Definition.typeString(INFERENCE_MODEL);
 }

@@ -225,23 +225,6 @@ private:
     TAggregateOutputUPtr m_AggregateOutput;
 };
 
-//!\brief Information related to the input.
-class API_EXPORT CInput final : public CSerializableToJson {
-public:
-    using TStringVec = std::vector<std::string>;
-
-public:
-    void addToDocument(rapidjson::Value& parentObject, TRapidJsonWriter& writer) const override;
-    //! List of the field names.
-    const TStringVec& fieldNames() const;
-    //! List of the field names.
-    void fieldNames(TStringVec&& fieldNames);
-
-private:
-    //! List of the column names.
-    TStringVec m_FieldNames;
-};
-
 class API_EXPORT CEncoding : public CSerializableToJson {
 public:
     ~CEncoding() override = default;
@@ -335,13 +318,12 @@ public:
     using TSizeStringUMapVec = std::vector<TSizeStringUMap>;
 
 public:
-    const CInput& input() const;
     TApiEncodingUPtrVec& preprocessors();
     void trainedModel(std::unique_ptr<CTrainedModel>&& trainedModel);
     std::unique_ptr<CTrainedModel>& trainedModel();
     void addToDocument(rapidjson::Value& parentObject, TRapidJsonWriter& writer) const override;
     std::string jsonString();
-    void fieldNames(TStringVec&& fieldNames, std::size_t dependentVariableColumnIndex);
+    void fieldNames(TStringVec&& fieldNames);
     const TStringVec& fieldNames() const;
     const std::string& typeString() const;
     void typeString(const std::string& typeString);
@@ -349,8 +331,6 @@ public:
     void dependentVariableColumnIndex(size_t dependentVariableColumnIndex);
 
 private:
-    //! Information related to the input.
-    CInput m_Input;
     //! Optional step for pre-processing data, e.g. vector embedding, one-hot-encoding, etc.
     TApiEncodingUPtrVec m_Preprocessors;
     //! Details of the model evaluation step with a trained_model.
