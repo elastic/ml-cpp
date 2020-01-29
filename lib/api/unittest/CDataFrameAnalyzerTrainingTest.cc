@@ -262,7 +262,7 @@ void addPredictionTestData(EPredictionType type,
     if (type == E_Regression) {
         loss = std::make_unique<maths::boosted_tree::CMse>();
     } else {
-        loss = std::make_unique<maths::boosted_tree::CLogistic>();
+        loss = std::make_unique<maths::boosted_tree::CBinomialLogistic>();
     }
     auto tree = treeFactory.buildFor(*frame, std::move(loss), weights.size());
 

@@ -29,8 +29,9 @@ using namespace boosted_tree_detail;
 
 namespace {
 using TStrVec = CBoostedTreeImpl::TStrVec;
-using TMeanVarAccumulator = CBoostedTreeImpl::TMeanVarAccumulator;
 using TRowRef = core::CDataFrame::TRowRef;
+using TDouble1Vec = core::CSmallVector<double, 1>;
+using TMeanVarAccumulator = CBoostedTreeImpl::TMeanVarAccumulator;
 
 class CScopeRecordMemoryUsage {
 public:
@@ -675,7 +676,7 @@ void CBoostedTreeImpl::initializePerFoldTestLosses() {
 }
 
 void CBoostedTreeImpl::computeProbabilityAtWhichToAssignClassOne(const core::CDataFrame& frame) {
-    if (m_Loss->name() == boosted_tree::CLogistic::NAME) {
+    if (m_Loss->name() == boosted_tree::CBinomialLogistic::NAME) {
         switch (m_ClassAssignmentObjective) {
         case CBoostedTree::E_Accuracy:
             break;
@@ -1226,7 +1227,7 @@ void CBoostedTreeImpl::refreshPredictionsAndLossDerivatives(core::CDataFrame& fr
                         double actual{readActual(*row, m_DependentVariable)};
                         double weight{readExampleWeight(*row)};
                         leafValues_[root(tree).leafIndex(m_Encoder->encode(*row), tree)]
-                            .add(prediction, actual, weight);
+                            .add({prediction}, {actual}, weight);
                     }
                 },
                 std::move(leafValues)),
@@ -1241,7 +1242,7 @@ void CBoostedTreeImpl::refreshPredictionsAndLossDerivatives(core::CDataFrame& fr
     } while (nextPass());
 
     for (std::size_t i = 0; i < tree.size(); ++i) {
-        tree[i].value(eta * leafValues[i].value());
+        tree[i].value(eta * leafValues[i].value()[0]);
     }
 
     LOG_TRACE(<< "tree =\n" << root(tree).print(tree));
@@ -1259,9 +1260,9 @@ void CBoostedTreeImpl::refreshPredictionsAndLossDerivatives(core::CDataFrame& fr
 
                 row->writeColumn(predictionColumn(numberColumns), prediction);
                 row->writeColumn(lossGradientColumn(numberColumns),
-                                 m_Loss->gradient(prediction, actual, weight));
+                                 m_Loss->gradient({prediction}, {actual}, weight)[0]);
                 row->writeColumn(lossCurvatureColumn(numberColumns),
-                                 m_Loss->curvature(prediction, actual, weight));
+                                 m_Loss->curvature({prediction}, {actual}, weight)[0]);
             }
         },
         &updateRowMask);
@@ -1277,7 +1278,7 @@ double CBoostedTreeImpl::meanLoss(const core::CDataFrame& frame,
                 for (auto row = beginRows; row != endRows; ++row) {
                     double prediction{readPrediction(*row)};
                     double actual{readActual(*row, m_DependentVariable)};
-                    loss.add(m_Loss->value(prediction, actual));
+                    loss.add(m_Loss->value({prediction}, {actual}));
                 }
             },
             TMeanAccumulator{}),
