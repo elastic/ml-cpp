@@ -175,7 +175,8 @@ public:
                  CPRNG::CXorOShiro128Plus rng = CPRNG::CXorOShiro128Plus{});
 
     //! Compute the outlier scores for \p points.
-    TScorerVec computeOutlierScores(const std::vector<POINT>& points) const;
+    TScorerVec computeOutlierScores(const std::vector<POINT>& points,
+                                    CDataFrameAnalysisInstrumentationInterface& state) const;
 
     //! Estimate the amount of memory that will be used by the ensemble.
     static std::size_t
@@ -367,7 +368,8 @@ CEnsemble<POINT>::makeBuilders(const TSizeVecVec& methods,
 
 template<typename POINT>
 typename CEnsemble<POINT>::TScorerVec
-CEnsemble<POINT>::computeOutlierScores(const std::vector<POINT>& points) const {
+CEnsemble<POINT>::computeOutlierScores(const std::vector<POINT>& points,
+                                       CDataFrameAnalysisInstrumentationInterface& state) const {
     if (points.empty()) {
         return {};
     }
@@ -377,8 +379,10 @@ CEnsemble<POINT>::computeOutlierScores(const std::vector<POINT>& points) const {
     TScorerVec scores(points.size());
     m_RecordMemoryUsage(core::CMemory::dynamicSize(scores));
 
+    std::uint32_t step{0ul};
     for (const auto& model : m_Models) {
         model.addOutlierScores(points, scores, m_RecordMemoryUsage);
+        state.nextStep(step++);
     }
     return scores;
 }
@@ -883,6 +887,7 @@ CEnsemble<POINT> buildEnsemble(const COutliers::SComputeParameters& params,
 
 bool computeOutliersNoPartitions(const COutliers::SComputeParameters& params,
                                  core::CDataFrame& frame,
+                                 CDataFrameAnalysisInstrumentationInterface& state,
                                  TProgressCallback recordProgress,
                                  TMemoryUsageCallback recordMemoryUsage) {
 
@@ -928,7 +933,7 @@ bool computeOutliersNoPartitions(const COutliers::SComputeParameters& params,
         }
 
         watch.reset(true);
-        scores = ensemble.computeOutlierScores(points);
+        scores = ensemble.computeOutlierScores(points, state);
         core::CProgramCounters::counter(counter_t::E_DFOTimeToComputeScores) =
             watch.stop();
 
@@ -969,6 +974,7 @@ bool computeOutliersNoPartitions(const COutliers::SComputeParameters& params,
 
 bool computeOutliersPartitioned(const COutliers::SComputeParameters& params,
                                 core::CDataFrame& frame,
+                                CDataFrameAnalysisInstrumentationInterface& state,
                                 TProgressCallback recordProgress,
                                 TMemoryUsageCallback recordMemoryUsage) {
 
@@ -1029,7 +1035,7 @@ bool computeOutliersPartitioned(const COutliers::SComputeParameters& params,
         }
 
         watch.reset(true);
-        auto scores = ensemble.computeOutlierScores(points);
+        auto scores = ensemble.computeOutlierScores(points, state);
         core::CProgramCounters::counter(counter_t::E_DFOTimeToComputeScores) +=
             watch.stop();
 
@@ -1059,19 +1065,22 @@ bool computeOutliersPartitioned(const COutliers::SComputeParameters& params,
 
 void COutliers::compute(const SComputeParameters& params,
                         core::CDataFrame& frame,
-                        TProgressCallback recordProgress,
-                        TMemoryUsageCallback recordMemoryUsage) {
+                        CDataFrameAnalysisInstrumentationInterface& instrumentation) {
 
     if (params.s_StandardizeColumns) {
         CDataFrameUtils::standardizeColumns(params.s_NumberThreads, frame);
     }
 
-    bool successful{
-        frame.inMainMemory() && params.s_NumberPartitions == 1
-            ? computeOutliersNoPartitions(params, frame, std::move(recordProgress),
-                                          std::move(recordMemoryUsage))
-            : computeOutliersPartitioned(params, frame, std::move(recordProgress),
-                                         std::move(recordMemoryUsage))};
+    auto recordProgress{instrumentation.progressCallback()};
+    auto recordMemoryUsage{instrumentation.memoryUsageCallback()};
+
+    bool successful{frame.inMainMemory() && params.s_NumberPartitions == 1
+                        ? computeOutliersNoPartitions(params, frame, instrumentation,
+                                                      std::move(recordProgress),
+                                                      std::move(recordMemoryUsage))
+                        : computeOutliersPartitioned(params, frame, instrumentation,
+                                                     std::move(recordProgress),
+                                                     std::move(recordMemoryUsage))};
 
     if (successful == false) {
         HANDLE_FATAL(<< "Internal error: computing outliers for data frame. There "

@@ -77,6 +77,13 @@ public:
     std::size_t commonUniqueTokenWeight() const;
     std::size_t origUniqueTokenWeight() const;
     std::size_t maxStringLen() const;
+    //! \return A pair of indices indicating the beginning and end of the
+    //!         common ordered tokens within the base tokens.  Importantly,
+    //!         the tokens within the range may not all be common across the
+    //!         category.  The consumer of these bounds must check whether each
+    //!         base token in the range is common before using it for any
+    //!         purpose that relies on commonality (for example creating a
+    //!         reverse search).
     TSizeSizePr orderedCommonTokenBounds() const;
 
     //! What's the longest string we'll consider a match for this category?
@@ -97,6 +104,9 @@ public:
     //! Does the supplied token vector contain all our common tokens in the
     //! same order as our base token vector?
     bool containsCommonTokensInOrder(const TSizeSizePrVec& tokenIds) const;
+
+    //! \return Does the supplied token ID represent a common unique token?
+    bool isTokenCommon(std::size_t tokenId) const;
 
     //! How many matching strings are there?
     std::size_t numMatches() const;
@@ -119,6 +129,18 @@ public:
 private:
     bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
 
+    //! Remove any token IDs from the common unique token map that aren't
+    //! present with the same weight in the new string, and adjust the common
+    //! weight accordingly.
+    //! \return Was a change made?
+    bool updateCommonUniqueTokenIds(const TSizeSizeMap& newUniqueTokenIds);
+
+    //! Adjust the common ordered token indices if there are tokens that
+    //! aren't in the same order in the new string, and adjust the common weight
+    //! accordingly.
+    //! \return Was a change made?
+    bool updateOrderedCommonTokenIds(const TSizeSizePrVec& newTokenIds);
+
 private:
     //! The string and tokens we base this category on
     std::string m_BaseString;
@@ -132,6 +154,10 @@ private:
     //! length of the strings in passed to the addString() method, because
     //! it will include the date.
     std::size_t m_MaxStringLen;
+
+    //! The index into the base token IDs where the subsequence of tokens that
+    //! are in the same order for all strings of this category begins.
+    std::size_t m_OrderedCommonTokenBeginIndex;
 
     //! One past the index into the base token IDs where the subsequence of
     //! tokens that are in the same order for all strings of this category ends.

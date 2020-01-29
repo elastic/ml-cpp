@@ -114,8 +114,7 @@ void CDataFrameOutliersRunner::runImpl(core::CDataFrame& frame) {
                                                 m_NumberNeighbours,
                                                 m_ComputeFeatureInfluence,
                                                 m_OutlierFraction};
-    maths::COutliers::compute(params, frame, this->progressRecorder(),
-                              this->memoryMonitor(counter_t::E_DFOPeakMemoryUsage));
+    maths::COutliers::compute(params, frame, m_Instrumentation);
 }
 
 std::size_t
@@ -140,6 +139,14 @@ const std::string CDataFrameOutliersRunner::METHOD{"method"};
 const std::string CDataFrameOutliersRunner::COMPUTE_FEATURE_INFLUENCE{"compute_feature_influence"};
 const std::string CDataFrameOutliersRunner::FEATURE_INFLUENCE_THRESHOLD{"feature_influence_threshold"};
 const std::string CDataFrameOutliersRunner::OUTLIER_FRACTION{"outlier_fraction"};
+
+const CDataFrameAnalysisInstrumentation& CDataFrameOutliersRunner::instrumentation() const {
+    return m_Instrumentation;
+}
+
+CDataFrameAnalysisInstrumentation& CDataFrameOutliersRunner::instrumentation() {
+    return m_Instrumentation;
+}
 
 const std::string& CDataFrameOutliersRunnerFactory::name() const {
     return NAME;

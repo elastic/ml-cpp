@@ -258,6 +258,9 @@ void addPredictionTestData(EPredictionType type,
         treeFactory.featureBagFraction(featureBagFraction);
     }
 
+    ml::api::CDataFrameTrainBoostedTreeInstrumentation instrumentation;
+    treeFactory.analysisInstrumentation(&instrumentation);
+
     std::unique_ptr<maths::boosted_tree::CLoss> loss;
     if (type == E_Regression) {
         loss = std::make_unique<maths::boosted_tree::CMse>();
@@ -425,6 +428,30 @@ BOOST_AUTO_TEST_CASE(testRunBoostedTreeRegressionTraining) {
     BOOST_TEST_REQUIRE(core::CProgramCounters::counter(counter_t::E_DFTPMPeakMemoryUsage) < 1400000);
     BOOST_TEST_REQUIRE(core::CProgramCounters::counter(counter_t::E_DFTPMTimeToTrain) > 0);
     BOOST_TEST_REQUIRE(core::CProgramCounters::counter(counter_t::E_DFTPMTimeToTrain) <= duration);
+}
+
+BOOST_AUTO_TEST_CASE(testRunBoostedTreeRegressionTrainingStateReport) {
+
+    // Test the results the analyzer produces match running the regression directly.
+
+    std::stringstream output;
+    auto outputWriterFactory = [&output]() {
+        return std::make_unique<core::CJsonOutputStreamWrapper>(output);
+    };
+
+    TDoubleVec expectedPredictions;
+
+    TStrVec fieldNames{"c1", "c2", "c3", "c4", "c5", ".", "."};
+    TStrVec fieldValues{"", "", "", "", "", "0", ""};
+    api::CDataFrameAnalyzer analyzer{
+        test::CDataFrameAnalysisSpecificationFactory::predictionSpec("regression", "c5"),
+        outputWriterFactory};
+    addPredictionTestData(E_Regression, fieldNames, fieldValues, analyzer, expectedPredictions);
+    analyzer.handleRecord(fieldNames, {"", "", "", "", "", "", "$"});
+
+    rapidjson::Document results;
+    rapidjson::ParseResult ok(results.Parse(output.str()));
+    BOOST_TEST_REQUIRE(static_cast<bool>(ok) == true);
 }
 
 BOOST_AUTO_TEST_CASE(testRunBoostedTreeRegressionTrainingWithParams) {
