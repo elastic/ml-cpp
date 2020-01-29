@@ -114,11 +114,6 @@ BOOST_AUTO_TEST_CASE(testIntegrationRegression) {
     TStrVecVec categoryMappingVector{{}, {"cat1", "cat2", "cat3"}, {}};
     auto definition = analysisRunner->inferenceModelDefinition(fieldNames, categoryMappingVector);
 
-    LOG_DEBUG(<< "Inference model definition: " << definition->jsonString());
-
-    // assert input
-    BOOST_TEST_REQUIRE(expectedFieldNames == definition->input().fieldNames());
-
     // test pre-processing
     BOOST_REQUIRE_EQUAL(std::size_t(3), definition->preprocessors().size());
     bool frequency = false;
@@ -295,7 +290,7 @@ BOOST_AUTO_TEST_CASE(testJsonSchema) {
     TStrVecVec categoryMappingVector{{}, {"cat1", "cat2", "cat3"}, {}};
     auto definition = analysisRunner->inferenceModelDefinition(fieldNames, categoryMappingVector);
 
-    std::ifstream schemaFileStream("testfiles/inference_json_schema/definition.schema.json");
+    std::ifstream schemaFileStream("testfiles/inference_json_schema/model_definition.schema.json");
     BOOST_REQUIRE_MESSAGE(schemaFileStream.is_open(), "Cannot open test file!");
     std::string schemaJson((std::istreambuf_iterator<char>(schemaFileStream)),
                            std::istreambuf_iterator<char>());

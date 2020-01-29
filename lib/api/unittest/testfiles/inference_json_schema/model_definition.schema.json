@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-04/schema#",
-  "$id": "https://raw.githubusercontent.com/elastic/ml_json_schemas/master/schemas/definition.schema.combined.json",
+  "$id": "https://raw.githubusercontent.com/elastic/ml-json-schemas/master/schemas/model_definition.schema.json",
   "title": "definition",
   "description": "Technical details required for model evaluation.",
   "definitions": {
@@ -98,6 +98,7 @@
     },
     "tree": {
       "$id": "#tree",
+      "description": "Technical specification for an decision tree model definition.",
       "properties": {
         "feature_names": {
           "type": "array",
@@ -139,6 +140,7 @@
     },
     "ensemble": {
       "$id": "#ensemble",
+      "description": "Technical specification for an ensemble model definition.",
       "properties": {
         "feature_names": {
           "type": "array",
@@ -150,20 +152,42 @@
           "type": "array",
           "items": {
             "type": "object",
-            "properties": {
-              "tree": {
-                "$ref": "#/definitions/tree"
+            "oneOf": [
+              {
+                "properties": {
+                  "ensemble": {
+                    "$ref": "#/definitions/ensemble"
+                  }
+                },
+                "required": [
+                  "ensemble"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "properties": {
+                  "tree": {
+                    "$ref": "#/definitions/tree"
+                  }
+                },
+                "required": [
+                  "tree"
+                ],
+                "additionalProperties": false
               }
-            },
-            "required": [
-              "tree"
-            ],
-            "additionalProperties": false
-          }
+            ]
+          },
+          "minItems": 1,
+          "uniqueItems": true
         },
         "classification_labels": {
           "items": {
             "type": "string"
+          }
+        },
+        "classification_weights": {
+          "items": {
+            "type": "number"
           }
         },
         "target_type": {
@@ -254,26 +278,88 @@
         "aggregate_output"
       ],
       "additionalProperties": false
+    },
+    "one_hot_encoding": {
+      "description": "Applies one-hot encoding to a specified set of categories for a single categorical field.",
+      "type": "object",
+      "properties": {
+        "field": {
+          "description": "Input field name. Must be defined in the input section.",
+          "type": "string"
+        },
+        "hot_map": {
+          "type": "object",
+          "description": "Map from the categories of the original field to the binary feature names referenced by the model.",
+          "additionalProperties": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "field",
+        "hot_map"
+      ]
+    },
+    "target_mean_encoding": {
+      "description": "Applies target encoding to a categorical field.",
+      "type": "object",
+      "properties": {
+        "field": {
+          "description": "Input field name",
+          "type": "string"
+        },
+        "feature_name": {
+          "description": "Name of this target feature referenced by the model.",
+          "type": "string"
+        },
+        "target_map": {
+          "type": "object",
+          "description": "Map from the categories to the target values.",
+          "additionalProperties": {
+            "type": "number"
+          }
+        },
+        "default_value": {
+          "description": "Value for categories that have not been seen before",
+          "type": "number"
+        }
+      },
+      "required": [
+        "field",
+        "feature_name",
+        "target_map",
+        "default_value"
+      ]
+    },
+    "frequency_encoding": {
+      "description": "Applies frequency encoding to a categorical field.",
+      "type": "object",
+      "properties": {
+        "field": {
+          "description": "Input field name",
+          "type": "string"
+        },
+        "feature_name": {
+          "description": "Name of this frequency feature referenced by the model.",
+          "type": "string"
+        },
+        "frequency_map": {
+          "type": "object",
+          "description": "Map from the category names to the frequency values.",
+          "additionalProperties": {
+            "type": "number"
+          }
+        }
+      },
+      "required": [
+        "field",
+        "feature_name",
+        "frequency_map"
+      ]
     }
   },
   "type": "object",
   "properties": {
-    "input": {
-      "description": "Information related to the input.",
-      "type": "object",
-      "properties": {
-        "field_names": {
-          "description": "List of the field names.",
-          "type": "array",
-          "items": {
-            "type": "string"
-          },
-          "minItems": 1,
-          "uniqueItems": true
-        }
-      },
-      "additionalItems": false
-    },
     "preprocessors": {
       "description": "Optional step for pre-processing data, e.g. vector embedding, one-hot-encoding, etc.",
       "type": "array",
@@ -281,106 +367,37 @@
         "type": "object",
         "oneOf": [
           {
-            "type": "object",
             "properties": {
               "one_hot_encoding": {
-                "description": "Application of the one-hot encoding function on a single column.",
-                "type": "object",
-                "properties": {
-                  "field": {
-                    "description": "Input field name. Must be defined in the input section.",
-                    "type": "string"
-                  },
-                  "hot_map": {
-                    "type": "object",
-                    "description": "Map from the category names of the original field to the new field names.",
-                    "additionalProperties": {
-                      "type": "string"
-                    }
-                  }
-                },
-                "required": [
-                  "field",
-                  "hot_map"
-                ]
+                "$ref": "#/definitions/one_hot_encoding"
               }
             },
             "required": [
               "one_hot_encoding"
-            ]
+            ],
+            "additionalProperties": false
           },
           {
-            "type": "object",
             "properties": {
               "target_mean_encoding": {
-                "description": "Mapping from categorical columns to numerical values related to the target value",
-                "type": "object",
-                "properties": {
-                  "field": {
-                    "description": "Input field name",
-                    "type": "string"
-                  },
-                  "feature_name": {
-                    "description": "Feature name after pre-processing",
-                    "type": "string"
-                  },
-                  "target_map": {
-                    "type": "object",
-                    "description": "Map from the category names to the target values.",
-                    "additionalProperties": {
-                      "type": "number"
-                    }
-                  },
-                  "default_value": {
-                    "description": "Value for categories that have not been seen before",
-                    "type": "number"
-                  }
-                },
-                "required": [
-                  "field",
-                  "feature_name",
-                  "target_map",
-                  "default_value"
-                ]
+                "$ref": "#/definitions/target_mean_encoding"
               }
             },
             "required": [
               "target_mean_encoding"
-            ]
+            ],
+            "additionalProperties": false
           },
           {
-            "type": "object",
             "properties": {
               "frequency_encoding": {
-                "description": "Mapping from categorical columns to numerical values related to categorical value distribution",
-                "type": "object",
-                "properties": {
-                  "field": {
-                    "description": "Input field name",
-                    "type": "string"
-                  },
-                  "feature_name": {
-                    "description": "Feature name after pre-processing",
-                    "type": "string"
-                  },
-                  "frequency_map": {
-                    "type": "object",
-                    "description": "Map from the category names to the frequency values.",
-                    "additionalProperties": {
-                      "type": "number"
-                    }
-                  }
-                },
-                "required": [
-                  "field",
-                  "feature_name",
-                  "frequency_map"
-                ]
+                "$ref": "#/definitions/frequency_encoding"
               }
             },
             "required": [
               "frequency_encoding"
-            ]
+            ],
+            "additionalProperties": false
           }
         ]
       },
@@ -417,7 +434,6 @@
     }
   },
   "required": [
-    "input",
     "trained_model"
   ],
   "additionalProperties": false
