@@ -23,15 +23,13 @@ namespace ml {
 namespace model {
 
 // Initialise statics
-const std::string CTokenListDataCategorizerBase::PRETOKENISED_TOKEN_FIELD("...");
+const std::string CTokenListDataCategorizerBase::PRETOKENISED_TOKEN_FIELD{"..."};
 
 // We use short field names to reduce the state size
 namespace {
 const std::string TOKEN_TAG{"a"};
 const std::string TOKEN_CATEGORY_COUNT_TAG{"b"};
 const std::string CATEGORY_TAG{"c"};
-
-const std::string EMPTY_STRING;
 }
 
 CTokenListDataCategorizerBase::CTokenListDataCategorizerBase(CLimits& limits,
