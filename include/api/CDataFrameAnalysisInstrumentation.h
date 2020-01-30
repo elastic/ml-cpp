@@ -32,8 +32,6 @@ class API_EXPORT CDataFrameAnalysisInstrumentation
 public:
     CDataFrameAnalysisInstrumentation();
 
-    virtual ~CDataFrameAnalysisInstrumentation() = default;
-
     //! Adds \p delta to the memory usage statistics.
     void updateMemoryUsage(std::int64_t delta) override;
 

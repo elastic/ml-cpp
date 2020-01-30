@@ -42,11 +42,11 @@ public:
         return [this](double fractionalProgress) {
             this->updateProgress(fractionalProgress);
         };
-    };
+    }
     //! Factory for the updateMemoryUsage() callback function object.
     TMemoryUsageCallback memoryUsageCallback() {
         return [this](std::int64_t delta) { this->updateMemoryUsage(delta); };
-    };
+    }
 };
 }
 }

@@ -233,7 +233,7 @@ CDataFrameTrainBoostedTreeClassifierRunner::chooseLossFunction(const core::CData
     std::size_t categoryCount{
         frame.categoricalColumnValues()[dependentVariableColumn].size()};
     if (categoryCount == 2) {
-        return std::make_unique<maths::boosted_tree::CLogistic>();
+        return std::make_unique<maths::boosted_tree::CBinomialLogistic>();
     }
     HANDLE_FATAL(<< "Input error: only binary classification is supported. "
                  << "Trying to predict '" << frame.columnNames()[dependentVariableColumn]
