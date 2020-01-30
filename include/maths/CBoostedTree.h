@@ -170,8 +170,7 @@ public:
     //! The number of parameters to the loss function.
     virtual std::size_t numberParameters() const = 0;
     //! The value of the loss function.
-    virtual TDouble1Vec
-    value(TDouble1Vec prediction, double actual, double weight = 1.0) const = 0;
+    virtual double value(TDouble1Vec prediction, double actual, double weight = 1.0) const = 0;
     //! The gradient of the loss function.
     virtual TDouble1Vec
     gradient(TDouble1Vec prediction, double actual, double weight = 1.0) const = 0;
@@ -199,7 +198,7 @@ public:
 public:
     std::unique_ptr<CLoss> clone() const override;
     std::size_t numberParameters() const override;
-    TDouble1Vec value(TDouble1Vec prediction, double actual, double weight = 1.0) const override;
+    double value(TDouble1Vec prediction, double actual, double weight = 1.0) const override;
     TDouble1Vec gradient(TDouble1Vec prediction, double actual, double weight = 1.0) const override;
     TDouble1Vec curvature(TDouble1Vec prediction, double actual, double weight = 1.0) const override;
     bool isCurvatureConstant() const override;
@@ -224,7 +223,7 @@ public:
 public:
     std::unique_ptr<CLoss> clone() const override;
     std::size_t numberParameters() const override;
-    TDouble1Vec value(TDouble1Vec prediction, double actual, double weight = 1.0) const override;
+    double value(TDouble1Vec prediction, double actual, double weight = 1.0) const override;
     TDouble1Vec gradient(TDouble1Vec prediction, double actual, double weight = 1.0) const override;
     TDouble1Vec curvature(TDouble1Vec prediction, double actual, double weight = 1.0) const override;
     bool isCurvatureConstant() const override;

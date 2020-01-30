@@ -250,8 +250,8 @@ std::size_t CMse::numberParameters() const {
     return 1;
 }
 
-CMse::TDouble1Vec CMse::value(TDouble1Vec prediction, double actual, double weight) const {
-    return {weight * CTools::pow2(prediction[0] - actual)};
+double CMse::value(TDouble1Vec prediction, double actual, double weight) const {
+    return weight * CTools::pow2(prediction[0] - actual);
 }
 
 CMse::TDouble1Vec CMse::gradient(TDouble1Vec prediction, double actual, double weight) const {
@@ -289,11 +289,10 @@ std::size_t CBinomialLogistic::numberParameters() const {
     return 1;
 }
 
-CBinomialLogistic::TDouble1Vec
-CBinomialLogistic::value(TDouble1Vec prediction, double actual, double weight) const {
+double CBinomialLogistic::value(TDouble1Vec prediction, double actual, double weight) const {
     // Cross entropy
-    return {-weight * ((1.0 - actual) * logOneMinusLogistic(prediction[0]) +
-                       actual * logLogistic(prediction[0]))};
+    return -weight * ((1.0 - actual) * logOneMinusLogistic(prediction[0]) +
+                      actual * logLogistic(prediction[0]));
 }
 
 CBinomialLogistic::TDouble1Vec

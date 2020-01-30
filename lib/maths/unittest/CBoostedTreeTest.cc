@@ -940,8 +940,7 @@ BOOST_AUTO_TEST_CASE(testLogisticMinimizerEdgeCases) {
         for (double eps : {-10.0, 0.0, 10.0}) {
             double lossAtEps{0.0};
             for (std::size_t i = 0; i < predictions.size(); ++i) {
-                lossAtEps += loss.value({predictions[i] + minimizer + eps},
-                                        actuals[i])[0];
+                lossAtEps += loss.value({predictions[i] + minimizer + eps}, actuals[i]);
             }
             losses.push_back(lossAtEps);
         }
@@ -1055,11 +1054,11 @@ BOOST_AUTO_TEST_CASE(testLogisticLossForUnderflow) {
 
     // Losses should be very nearly linear function of log-odds when they're large.
     {
-        TDoubleVec lastLoss{loss.value({1.0 - std::log(eps)}, 0.0)[0],
-                            loss.value({1.0 + std::log(eps)}, 1.0)[0]};
+        TDoubleVec lastLoss{loss.value({1.0 - std::log(eps)}, 0.0),
+                            loss.value({1.0 + std::log(eps)}, 1.0)};
         for (double scale : {0.75, 0.5, 0.25, 0.0, -0.25, -0.5, -0.75, -1.0}) {
-            TDoubleVec currentLoss{loss.value({scale - std::log(eps)}, 0.0)[0],
-                                   loss.value({scale + std::log(eps)}, 1.0)[0]};
+            TDoubleVec currentLoss{loss.value({scale - std::log(eps)}, 0.0),
+                                   loss.value({scale + std::log(eps)}, 1.0)};
             BOOST_REQUIRE_CLOSE_ABSOLUTE(0.25, lastLoss[0] - currentLoss[0], 5e-3);
             BOOST_REQUIRE_CLOSE_ABSOLUTE(-0.25, lastLoss[1] - currentLoss[1], 5e-3);
             lastLoss = currentLoss;
