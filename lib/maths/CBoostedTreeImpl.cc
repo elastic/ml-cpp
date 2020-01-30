@@ -1241,7 +1241,7 @@ void CBoostedTreeImpl::refreshPredictionsAndLossDerivatives(core::CDataFrame& fr
                         double actual{readActual(*row, m_DependentVariable)};
                         double weight{readExampleWeight(*row)};
                         leafValues_[root(tree).leafIndex(m_Encoder->encode(*row), tree)]
-                            .add({prediction}, {actual}, weight);
+                            .add({prediction}, actual, weight);
                     }
                 },
                 std::move(leafValues)),
@@ -1274,9 +1274,9 @@ void CBoostedTreeImpl::refreshPredictionsAndLossDerivatives(core::CDataFrame& fr
 
                 row->writeColumn(predictionColumn(numberColumns), prediction);
                 row->writeColumn(lossGradientColumn(numberColumns),
-                                 m_Loss->gradient({prediction}, {actual}, weight)[0]);
+                                 m_Loss->gradient({prediction}, actual, weight)[0]);
                 row->writeColumn(lossCurvatureColumn(numberColumns),
-                                 m_Loss->curvature({prediction}, {actual}, weight)[0]);
+                                 m_Loss->curvature({prediction}, actual, weight)[0]);
             }
         },
         &updateRowMask);
@@ -1292,7 +1292,7 @@ double CBoostedTreeImpl::meanLoss(const core::CDataFrame& frame,
                 for (auto row = beginRows; row != endRows; ++row) {
                     double prediction{readPrediction(*row)};
                     double actual{readActual(*row, m_DependentVariable)};
-                    loss.add(m_Loss->value({prediction}, {actual}));
+                    loss.add(m_Loss->value({prediction}, actual));
                 }
             },
             TMeanAccumulator{}),
