@@ -880,12 +880,12 @@ BOOST_AUTO_TEST_CASE(testLogisticMinimizerEdgeCases) {
     // All predictions equal and zero.
     {
         CArgMinLogisticImpl argmin{0.0};
-        argmin.add(0.0, 0.0);
-        argmin.add(0.0, 1.0);
-        argmin.add(0.0, 1.0);
-        argmin.add(0.0, 0.0);
+        argmin.add({0.0}, 0.0);
+        argmin.add({0.0}, 1.0);
+        argmin.add({0.0}, 1.0);
+        argmin.add({0.0}, 0.0);
         argmin.nextPass();
-        BOOST_REQUIRE_EQUAL(0.0, argmin.value());
+        BOOST_REQUIRE_EQUAL(0.0, argmin.value()[0]);
     }
 
     // All predictions are equal.
@@ -907,14 +907,14 @@ BOOST_AUTO_TEST_CASE(testLogisticMinimizerEdgeCases) {
         do {
             ++numberPasses;
             for (std::size_t i = 0; i < labels.size(); ++i) {
-                argmin.add(weights[i], labels[i]);
+                argmin.add({weights[i]}, labels[i]);
                 ++counts[static_cast<std::size_t>(labels[i])];
             }
         } while (argmin.nextPass());
 
         double p{static_cast<double>(counts[1]) / 1000.0};
         double expected{std::log(p / (1.0 - p))};
-        double actual{argmin.value()};
+        double actual{argmin.value()[0]};
 
         BOOST_REQUIRE_EQUAL(std::size_t{1}, numberPasses);
         BOOST_REQUIRE_CLOSE_ABSOLUTE(expected, actual, 0.01 * std::fabs(expected));
@@ -928,19 +928,19 @@ BOOST_AUTO_TEST_CASE(testLogisticMinimizerEdgeCases) {
         TDoubleVec actuals{1.0, 1.0, 0.0, 1.0};
         do {
             for (std::size_t i = 0; i < predictions.size(); ++i) {
-                argmin.add(predictions[i], actuals[i]);
+                argmin.add({predictions[i]}, actuals[i]);
             }
         } while (argmin.nextPass());
 
-        double minimizer{argmin.value()};
+        double minimizer{argmin.value()[0]};
 
         // Check we're at the minimum.
-        maths::boosted_tree::CLogistic loss;
+        maths::boosted_tree::CBinomialLogistic loss;
         TDoubleVec losses;
         for (double eps : {-10.0, 0.0, 10.0}) {
             double lossAtEps{0.0};
             for (std::size_t i = 0; i < predictions.size(); ++i) {
-                lossAtEps += loss.value(predictions[i] + minimizer + eps, actuals[i]);
+                lossAtEps += loss.value({predictions[i] + minimizer + eps}, actuals[i]);
             }
             losses.push_back(lossAtEps);
         }
@@ -1016,19 +1016,19 @@ BOOST_AUTO_TEST_CASE(testLogisticMinimizerRandom) {
 
             do {
                 for (std::size_t i = 0; i < labels.size() / 2; ++i) {
-                    argmin.add(weights[i], labels[i]);
-                    argminPartition[0].add(weights[i], labels[i]);
+                    argmin.add({weights[i]}, labels[i]);
+                    argminPartition[0].add({weights[i]}, labels[i]);
                 }
                 for (std::size_t i = labels.size() / 2; i < labels.size(); ++i) {
-                    argmin.add(weights[i], labels[i]);
-                    argminPartition[1].add(weights[i], labels[i]);
+                    argmin.add({weights[i]}, labels[i]);
+                    argminPartition[1].add({weights[i]}, labels[i]);
                 }
                 argminPartition[0].merge(argminPartition[1]);
                 argminPartition[1] = argminPartition[0];
             } while (nextPass());
 
-            double actual{argmin.value()};
-            double actualPartition{argminPartition[0].value()};
+            double actual{argmin.value()[0]};
+            double actualPartition{argminPartition[0].value()[0]};
             LOG_DEBUG(<< "actual = " << actual
                       << " objective at actual = " << objective(actual));
 
@@ -1050,15 +1050,15 @@ BOOST_AUTO_TEST_CASE(testLogisticLossForUnderflow) {
 
     double eps{100.0 * std::numeric_limits<double>::epsilon()};
 
-    maths::boosted_tree::CLogistic loss;
+    maths::boosted_tree::CBinomialLogistic loss;
 
     // Losses should be very nearly linear function of log-odds when they're large.
     {
-        TDoubleVec lastLoss{loss.value(1.0 - std::log(eps), 0.0),
-                            loss.value(1.0 + std::log(eps), 1.0)};
+        TDoubleVec lastLoss{loss.value({1.0 - std::log(eps)}, 0.0),
+                            loss.value({1.0 + std::log(eps)}, 1.0)};
         for (double scale : {0.75, 0.5, 0.25, 0.0, -0.25, -0.5, -0.75, -1.0}) {
-            TDoubleVec currentLoss{loss.value(scale - std::log(eps), 0.0),
-                                   loss.value(scale + std::log(eps), 1.0)};
+            TDoubleVec currentLoss{loss.value({scale - std::log(eps)}, 0.0),
+                                   loss.value({scale + std::log(eps)}, 1.0)};
             BOOST_REQUIRE_CLOSE_ABSOLUTE(0.25, lastLoss[0] - currentLoss[0], 5e-3);
             BOOST_REQUIRE_CLOSE_ABSOLUTE(-0.25, lastLoss[1] - currentLoss[1], 5e-3);
             lastLoss = currentLoss;
@@ -1068,15 +1068,16 @@ BOOST_AUTO_TEST_CASE(testLogisticLossForUnderflow) {
     // The gradient and curvature should be proportional to the exponential of the
     // log-odds when they're small.
     {
-        TDoubleVec lastGradient{loss.gradient(1.0 + std::log(eps), 0.0),
-                                loss.gradient(1.0 - std::log(eps), 1.0)};
-        TDoubleVec lastCurvature{loss.curvature(1.0 + std::log(eps), 0.0),
-                                 loss.curvature(1.0 - std::log(eps), 1.0)};
+        TDoubleVec lastGradient{loss.gradient({1.0 + std::log(eps)}, 0.0)[0],
+                                loss.gradient({1.0 - std::log(eps)}, 1.0)[0]};
+        TDoubleVec lastCurvature{loss.curvature({1.0 + std::log(eps)}, 0.0)[0],
+                                 loss.curvature({1.0 - std::log(eps)}, 1.0)[0]};
         for (double scale : {0.75, 0.5, 0.25, 0.0, -0.25, -0.5, -0.75, -1.0}) {
-            TDoubleVec currentGradient{loss.gradient(scale + std::log(eps), 0.0),
-                                       loss.gradient(scale - std::log(eps), 1.0)};
-            TDoubleVec currentCurvature{loss.curvature(scale + std::log(eps), 0.0),
-                                        loss.curvature(scale - std::log(eps), 1.0)};
+            TDoubleVec currentGradient{loss.gradient({scale + std::log(eps)}, 0.0)[0],
+                                       loss.gradient({scale - std::log(eps)}, 1.0)[0]};
+            TDoubleVec currentCurvature{
+                loss.curvature({scale + std::log(eps)}, 0.0)[0],
+                loss.curvature({scale - std::log(eps)}, 1.0)[0]};
             BOOST_REQUIRE_CLOSE_ABSOLUTE(std::exp(0.25),
                                          lastGradient[0] / currentGradient[0], 5e-3);
             BOOST_REQUIRE_CLOSE_ABSOLUTE(std::exp(-0.25),
@@ -1149,7 +1150,7 @@ BOOST_AUTO_TEST_CASE(testLogisticRegression) {
         auto regression =
             maths::CBoostedTreeFactory::constructFromParameters(1)
                 .analysisInstrumentation(&instr)
-                .buildFor(*frame, std::make_unique<maths::boosted_tree::CLogistic>(),
+                .buildFor(*frame, std::make_unique<maths::boosted_tree::CBinomialLogistic>(),
                           cols - 1);
 
         regression->train();
@@ -1218,12 +1219,14 @@ BOOST_AUTO_TEST_CASE(testImbalancedClasses) {
         }
     }
     frame->finishWritingRows();
+
     CStubInstrumentation instr;
 
     auto regression =
         maths::CBoostedTreeFactory::constructFromParameters(1)
             .analysisInstrumentation(&instr)
-            .buildFor(*frame, std::make_unique<maths::boosted_tree::CLogistic>(), cols - 1);
+            .buildFor(*frame, std::make_unique<maths::boosted_tree::CBinomialLogistic>(),
+                      cols - 1);
 
     regression->train();
     regression->predict();

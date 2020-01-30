@@ -32,9 +32,6 @@ std::size_t maximumNumberPartitions(const CDataFrameAnalysisSpecification& spec)
     // user to allocate more resources for the job in this case.
     return static_cast<std::size_t>(std::sqrt(static_cast<double>(spec.numberRows())) + 0.5);
 }
-
-const std::size_t MAXIMUM_FRACTIONAL_PROGRESS{std::size_t{1}
-                                              << ((sizeof(std::size_t) - 2) * 8)};
 }
 
 CDataFrameAnalysisRunner::CDataFrameAnalysisRunner(const CDataFrameAnalysisSpecification& spec)
