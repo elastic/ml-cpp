@@ -64,7 +64,7 @@ void CDataFrameAnalysisInstrumentation::writer(core::CRapidJsonConcurrentLineWri
     m_Writer = writer;
 }
 
-void CDataFrameAnalysisInstrumentation::nextStep(std::uint32_t step) {
+void CDataFrameAnalysisInstrumentation::nextStep(std::uint32_t /*step*/) {
     // TODO reactivate state writing, once the Java backend can accept it
     //    this->writeState(step);
 }

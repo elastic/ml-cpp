@@ -67,8 +67,8 @@ bool CArgMinMseImpl::nextPass() {
     return false;
 }
 
-void CArgMinMseImpl::add(double prediction, double actual, double weight) {
-    m_MeanError.add(actual - prediction, weight);
+void CArgMinMseImpl::add(TDouble1Vec prediction, double actual, double weight) {
+    m_MeanError.add(actual - prediction[0], weight);
 }
 
 void CArgMinMseImpl::merge(const CArgMinLossImpl& other) {
@@ -78,7 +78,7 @@ void CArgMinMseImpl::merge(const CArgMinLossImpl& other) {
     }
 }
 
-double CArgMinMseImpl::value() const {
+CArgMinMseImpl::TDouble1Vec CArgMinMseImpl::value() const {
 
     // We searching for the value x which minimises
     //
@@ -89,9 +89,7 @@ double CArgMinMseImpl::value() const {
     // error m = 1/n sum_i{ a_i - p_i } we have x^* = n / (n + lambda) m.
 
     double count{CBasicStatistics::count(m_MeanError)};
-    return count == 0.0
-               ? 0.0
-               : count / (count + this->lambda()) * CBasicStatistics::mean(m_MeanError);
+    return {count == 0.0 ? 0.0 : count / (count + this->lambda()) * CBasicStatistics::mean(m_MeanError)};
 }
 
 CArgMinLogisticImpl::CArgMinLogisticImpl(double lambda)
@@ -108,15 +106,15 @@ bool CArgMinLogisticImpl::nextPass() {
     return m_CurrentPass < 2;
 }
 
-void CArgMinLogisticImpl::add(double prediction, double actual, double weight) {
+void CArgMinLogisticImpl::add(TDouble1Vec prediction, double actual, double weight) {
     switch (m_CurrentPass) {
     case 0: {
-        m_PredictionMinMax.add(prediction);
+        m_PredictionMinMax.add(prediction[0]);
         m_CategoryCounts(static_cast<std::size_t>(actual)) += weight;
         break;
     }
     case 1: {
-        auto& count = m_BucketCategoryCounts[this->bucket(prediction)];
+        auto& count = m_BucketCategoryCounts[this->bucket(prediction[0])];
         count(static_cast<std::size_t>(actual)) += weight;
         break;
     }
@@ -144,7 +142,7 @@ void CArgMinLogisticImpl::merge(const CArgMinLossImpl& other) {
     }
 }
 
-double CArgMinLogisticImpl::value() const {
+CArgMinLogisticImpl::TDouble1Vec CArgMinLogisticImpl::value() const {
 
     std::function<double(double)> objective;
     double minWeight;
@@ -193,7 +191,7 @@ double CArgMinLogisticImpl::value() const {
     }
 
     if (minWeight == maxWeight) {
-        return minWeight;
+        return {minWeight};
     }
 
     double minimum;
@@ -203,7 +201,7 @@ double CArgMinLogisticImpl::value() const {
                        objective, 1e-3, maxIterations, minimum, objectiveAtMinimum);
     LOG_TRACE(<< "minimum = " << minimum << " objective(minimum) = " << objectiveAtMinimum);
 
-    return minimum;
+    return {minimum};
 }
 }
 
@@ -225,7 +223,7 @@ bool CArgMinLoss::nextPass() const {
     return m_Impl->nextPass();
 }
 
-void CArgMinLoss::add(double prediction, double actual, double weight) {
+void CArgMinLoss::add(TDouble1Vec prediction, double actual, double weight) {
     return m_Impl->add(prediction, actual, weight);
 }
 
@@ -233,7 +231,7 @@ void CArgMinLoss::merge(CArgMinLoss& other) {
     return m_Impl->merge(*other.m_Impl);
 }
 
-double CArgMinLoss::value() const {
+CArgMinLoss::TDouble1Vec CArgMinLoss::value() const {
     return m_Impl->value();
 }
 
@@ -248,23 +246,28 @@ std::unique_ptr<CLoss> CMse::clone() const {
     return std::make_unique<CMse>(*this);
 }
 
-double CMse::value(double prediction, double actual, double weight) const {
-    return weight * CTools::pow2(prediction - actual);
+std::size_t CMse::numberParameters() const {
+    return 1;
 }
 
-double CMse::gradient(double prediction, double actual, double weight) const {
-    return 2.0 * weight * (prediction - actual);
+double CMse::value(TDouble1Vec prediction, double actual, double weight) const {
+    return weight * CTools::pow2(prediction[0] - actual);
 }
 
-double CMse::curvature(double /*prediction*/, double /*actual*/, double weight) const {
-    return 2.0 * weight;
+CMse::TDouble1Vec CMse::gradient(TDouble1Vec prediction, double actual, double weight) const {
+    return {2.0 * weight * (prediction[0] - actual)};
+}
+
+CMse::TDouble1Vec
+CMse::curvature(TDouble1Vec /*prediction*/, double /*actual*/, double weight) const {
+    return {2.0 * weight};
 }
 
 bool CMse::isCurvatureConstant() const {
     return true;
 }
 
-double CMse::transform(double prediction) const {
+CMse::TDouble1Vec CMse::transform(TDouble1Vec prediction) const {
     return prediction;
 }
 
@@ -278,49 +281,54 @@ const std::string& CMse::name() const {
 
 const std::string CMse::NAME{"mse"};
 
-std::unique_ptr<CLoss> CLogistic::clone() const {
-    return std::make_unique<CLogistic>(*this);
+std::unique_ptr<CLoss> CBinomialLogistic::clone() const {
+    return std::make_unique<CBinomialLogistic>(*this);
 }
 
-double CLogistic::value(double prediction, double actual, double weight) const {
+std::size_t CBinomialLogistic::numberParameters() const {
+    return 1;
+}
+
+double CBinomialLogistic::value(TDouble1Vec prediction, double actual, double weight) const {
     // Cross entropy
-    return -weight * ((1.0 - actual) * logOneMinusLogistic(prediction) +
-                      actual * logLogistic(prediction));
+    return -weight * ((1.0 - actual) * logOneMinusLogistic(prediction[0]) +
+                      actual * logLogistic(prediction[0]));
 }
 
-double CLogistic::gradient(double prediction, double actual, double weight) const {
-    if (prediction > -LOG_EPSILON && actual == 1.0) {
-        return -weight * std::exp(-prediction);
+CBinomialLogistic::TDouble1Vec
+CBinomialLogistic::gradient(TDouble1Vec prediction, double actual, double weight) const {
+    if (prediction[0] > -LOG_EPSILON && actual == 1.0) {
+        return {-weight * std::exp(-prediction[0])};
     }
-    prediction = CTools::logisticFunction(prediction);
-    return weight * (prediction - actual);
+    return {weight * CTools::logisticFunction(prediction[0]) - actual};
 }
 
-double CLogistic::curvature(double prediction, double /*actual*/, double weight) const {
-    if (prediction > -LOG_EPSILON) {
-        return weight * std::exp(-prediction);
+CBinomialLogistic::TDouble1Vec
+CBinomialLogistic::curvature(TDouble1Vec prediction, double /*actual*/, double weight) const {
+    if (prediction[0] > -LOG_EPSILON) {
+        return {weight * std::exp(-prediction[0])};
     }
-    prediction = CTools::logisticFunction(prediction);
-    return weight * prediction * (1.0 - prediction);
+    double probability{CTools::logisticFunction(prediction[0])};
+    return {weight * probability * (1.0 - probability)};
 }
 
-bool CLogistic::isCurvatureConstant() const {
+bool CBinomialLogistic::isCurvatureConstant() const {
     return false;
 }
 
-double CLogistic::transform(double prediction) const {
-    return CTools::logisticFunction(prediction);
+CBinomialLogistic::TDouble1Vec CBinomialLogistic::transform(TDouble1Vec prediction) const {
+    return {CTools::logisticFunction(prediction[0])};
 }
 
-CArgMinLoss CLogistic::minimizer(double lambda) const {
+CArgMinLoss CBinomialLogistic::minimizer(double lambda) const {
     return this->makeMinimizer(CArgMinLogisticImpl{lambda});
 }
 
-const std::string& CLogistic::name() const {
+const std::string& CBinomialLogistic::name() const {
     return NAME;
 }
 
-const std::string CLogistic::NAME{"binomial_logistic"};
+const std::string CBinomialLogistic::NAME{"binomial_logistic"};
 }
 
 CBoostedTreeNode::TNodeIndex CBoostedTreeNode::leafIndex(const CEncodedDataFrameRowRef& row,

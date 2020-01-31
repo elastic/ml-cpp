@@ -690,10 +690,7 @@ public:
     //! \param[in] params The calculation parameters.
     //! \param[in] frame The data frame whose rows hold the coordinated of
     //! the points for which to compute outliers.
-    //! \param[in] recordProgress A function to which fractional progress
-    //! is written.
-    //! \param[in] recordMemoryUsage A function to which changes in the
-    //! memory being used is written.
+    //! \param[in] instrumentation Manages writing out telemetry.
     static void compute(const SComputeParameters& params,
                         core::CDataFrame& frame,
                         CDataFrameAnalysisInstrumentationInterface& instrumentation);
