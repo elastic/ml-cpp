@@ -113,20 +113,57 @@ private:
     TDoubleSizePrMinAccumulator m_BestTestLoss;
 };
 
-double readPrediction(const TRowRef& row) {
-    return row[predictionColumn(row.numberColumns())];
+TDouble1Vec readPrediction(const TRowRef& row,
+                           std::size_t numberInputColumns,
+                           std::size_t numberLossParamaters) {
+    const auto* start = row.data() + predictionColumn(numberInputColumns);
+    return TDouble1Vec(start, start + numberLossParamaters);
 }
 
-double readLossGradient(const TRowRef& row) {
-    return row[lossGradientColumn(row.numberColumns())];
+void writePrediction(const TRowRef& row, std::size_t numberInputColumns, const TDouble1Vec& prediction) {
+    std::size_t offset{predictionColumn(numberInputColumns)};
+    for (std::size_t i = 0; i < prediction.size(); ++i) {
+        row.writeColumn(offset + i, prediction[i]);
+    }
 }
 
-double readLossCurvature(const TRowRef& row) {
-    return row[lossCurvatureColumn(row.numberColumns())];
+TDouble1Vec readLossGradient(const TRowRef& row,
+                             std::size_t numberInputColumns,
+                             std::size_t numberLossParameters) {
+    const auto* start = row.data() + lossGradientColumn(numberInputColumns, numberLossParameters);
+    return TDouble1Vec(start, start + numberLossParameters);
 }
 
-double readExampleWeight(const TRowRef& row) {
-    return row[exampleWeightColumn(row.numberColumns())];
+void writeLossGradient(const TRowRef& row, std::size_t numberInputColumns, const TDouble1Vec& gradient) {
+    std::size_t offset{lossGradientColumn(numberInputColumns, gradient.size())};
+    for (std::size_t i = 0; i < gradient.size(); ++i) {
+        row.writeColumn(offset + i, gradient[i]);
+    }
+}
+
+TDouble1Vec readLossCurvature(const TRowRef& row,
+                              std::size_t numberInputColumns,
+                              std::size_t numberLossParameters) {
+    const auto* start = row.data() + lossCurvatureColumn(numberInputColumns, numberLossParameters);
+    return TDouble1Vec(start, start + lossHessianStoredSize(numberLossParameters);
+}
+
+void writeLossCurvature(const TRowRef& row,
+                        std::size_t numberInputColumns,
+                        const TDouble1Vec& curvature) {
+    // This comes from solving x(x+1)/2 = n.
+    std::size_t numberLossParameters{
+        numberLossParametersForHessianStoredSize(curvature.size())};
+    std::size_t offset{lossCurvatureColumn(numberInputColumns, numberLossParameters)};
+    for (std::size_t i = 0; i < curvature.size(); ++i) {
+        row.writeColumn(offset + i, curvature[i]);
+    }
+}
+
+double readExampleWeight(const TRowRef& row,
+                         std::size_t numberInputColumns,
+                         std::size_t numberLossParameters) {
+    return row[exampleWeightColumn(numberInputColumns, numberLossParameters)];
 }
 
 double readActual(const TRowRef& row, std::size_t dependentVariable) {
@@ -150,6 +187,8 @@ const double MINIMUM_SPLIT_REFRESH_INTERVAL{3.0};
 
 CBoostedTreeImpl::CLeafNodeStatistics::CLeafNodeStatistics(
     std::size_t id,
+    std::size_t numberInputColumns,
+    std::size_t numberLossParameters,
     std::size_t numberThreads,
     const core::CDataFrame& frame,
     const CDataFrameCategoryEncoder& encoder,
@@ -158,7 +197,8 @@ CBoostedTreeImpl::CLeafNodeStatistics::CLeafNodeStatistics(
     const TSizeVec& featureBag,
     std::size_t depth,
     const core::CPackedBitVector& rowMask)
-    : m_Id{id}, m_CandidateSplits{candidateSplits}, m_Depth{depth}, m_RowMask{rowMask} {
+    : m_Id{id}, m_Depth{depth}, m_NumberInputColumns{numberInputColumns},
+      m_NumberLossParameters{numberLossParameters}, m_CandidateSplits{candidateSplits}, m_RowMask{rowMask} {
 
     LOG_TRACE(<< "row mask = " << m_RowMask);
     this->computeAggregateLossDerivatives(numberThreads, frame, encoder);
@@ -167,6 +207,8 @@ CBoostedTreeImpl::CLeafNodeStatistics::CLeafNodeStatistics(
 
 CBoostedTreeImpl::CLeafNodeStatistics::CLeafNodeStatistics(
     std::size_t id,
+    std::size_t numberInputColumns,
+    std::size_t numberLossParameters,
     std::size_t numberThreads,
     const core::CDataFrame& frame,
     const CDataFrameCategoryEncoder& encoder,
@@ -177,7 +219,8 @@ CBoostedTreeImpl::CLeafNodeStatistics::CLeafNodeStatistics(
     std::size_t depth,
     const CBoostedTreeNode& split,
     const core::CPackedBitVector& parentRowMask)
-    : m_Id{id}, m_CandidateSplits{candidateSplits}, m_Depth{depth} {
+    : m_Id{id}, m_Depth{depth}, m_NumberInputColumns{numberInputColumns},
+      m_NumberLossParameters{numberLossParameters}, m_CandidateSplits{candidateSplits} {
 
     this->computeRowMaskAndAggregateLossDerivatives(
         numberThreads, frame, encoder, isLeftChild, split, parentRowMask);
@@ -190,8 +233,9 @@ CBoostedTreeImpl::CLeafNodeStatistics::CLeafNodeStatistics(std::size_t id,
                                                            const TRegularization& regularization,
                                                            const TSizeVec& featureBag,
                                                            core::CPackedBitVector rowMask)
-    : m_Id{id}, m_CandidateSplits{sibling.m_CandidateSplits},
-      m_Depth{sibling.m_Depth}, m_RowMask{std::move(rowMask)} {
+    : m_Id{id}, m_Depth{sibling.m_Depth}, m_NumberInputColumns{sibling.m_NumberInputColumns},
+      m_NumberLossParameters{sibling.m_NumberLossParameters},
+      m_CandidateSplits{sibling.m_CandidateSplits}, m_RowMask{std::move(rowMask)} {
 
     LOG_TRACE(<< "row mask = " << m_RowMask);
 
@@ -254,7 +298,8 @@ auto CBoostedTreeImpl::CLeafNodeStatistics::split(std::size_t leftChildId,
 
     if (leftChildHasFewerRows) {
         auto leftChild = std::make_shared<CLeafNodeStatistics>(
-            leftChildId, numberThreads, frame, encoder, regularization, candidateSplits,
+            leftChildId, m_NumberInputColumns, m_NumberLossParameters,
+            numberThreads, frame, encoder, regularization, candidateSplits,
             featureBag, true /*is left child*/, m_Depth + 1, split, m_RowMask);
         core::CPackedBitVector rightChildRowMask{m_RowMask};
         rightChildRowMask ^= leftChild->rowMask();
@@ -266,7 +311,8 @@ auto CBoostedTreeImpl::CLeafNodeStatistics::split(std::size_t leftChildId,
     }
 
     auto rightChild = std::make_shared<CLeafNodeStatistics>(
-        rightChildId, numberThreads, frame, encoder, regularization, candidateSplits,
+        rightChildId, m_NumberInputColumns, m_NumberLossParameters,
+        numberThreads, frame, encoder, regularization, candidateSplits,
         featureBag, false /*is left child*/, m_Depth + 1, split, m_RowMask);
     core::CPackedBitVector leftChildRowMask{m_RowMask};
     leftChildRowMask ^= rightChild->rowMask();
@@ -361,8 +407,10 @@ void CBoostedTreeImpl::CLeafNodeStatistics::addRowDerivatives(
     SSplitAggregateDerivatives& splitAggregateDerivatives) const {
 
     const TRowRef& unencodedRow{row.unencodedRow()};
-    double gradient{readLossGradient(unencodedRow)};
-    double curvature{readLossCurvature(unencodedRow)};
+    TDouble1Vec gradient{readLossGradient(unencodedRow, m_NumberInputColumns,
+                                          m_NumberLossParameters)};
+    TDouble1Vec curvature{readLossCurvature(unencodedRow, m_NumberInputColumns,
+                                            m_NumberLossParameters)};
 
     for (std::size_t i = 0; i < m_CandidateSplits.size(); ++i) {
         double featureValue{row[i]};
@@ -493,6 +541,9 @@ void CBoostedTreeImpl::train(core::CDataFrame& frame,
                      << "' was incorrectly initialized. Please report this problem.");
         return;
     }
+    if (m_Loss == nullptr) {
+        HANDLE_FATAL(<< "Internal error: must supply a loss function. Please report this problem.");
+    }
 
     LOG_TRACE(<< "Main training loop...");
 
@@ -605,8 +656,8 @@ void CBoostedTreeImpl::predict(core::CDataFrame& frame) const {
     std::tie(std::ignore, successful) = frame.writeColumns(
         m_NumberThreads, 0, frame.numberRows(), [&](TRowItr beginRows, TRowItr endRows) {
             for (auto row = beginRows; row != endRows; ++row) {
-                row->writeColumn(predictionColumn(row->numberColumns()),
-                                 predictRow(m_Encoder->encode(*row), m_BestForest));
+                writePrediction(*row, m_NumberInputColumns,
+                                {predictRow(m_Encoder->encode(*row), m_BestForest)});
             }
         });
     if (successful == false) {
@@ -624,7 +675,7 @@ std::size_t CBoostedTreeImpl::estimateMemoryUsage(std::size_t numberRows,
     std::size_t forestMemoryUsage{
         m_MaximumNumberTrees *
         (sizeof(TNodeVec) + maximumNumberNodes * sizeof(CBoostedTreeNode))};
-    std::size_t extraColumnsMemoryUsage{this->numberExtraColumnsForTrain() *
+    std::size_t extraColumnsMemoryUsage{numberExtraColumnsForTrain(m_Loss->numberParameters()) *
                                         numberRows * sizeof(CFloatStorage)};
     std::size_t hyperparametersMemoryUsage{numberColumns * sizeof(double)};
     std::size_t leafNodeStatisticsMemoryUsage{
@@ -697,7 +748,7 @@ void CBoostedTreeImpl::computeProbabilityAtWhichToAssignClassOne(const core::CDa
         case CBoostedTree::E_MinimumRecall:
             m_ProbabilityAtWhichToAssignClassOne = CDataFrameUtils::maximumMinimumRecallDecisionThreshold(
                 m_NumberThreads, frame, this->allTrainingRowsMask(),
-                m_DependentVariable, predictionColumn(frame.numberColumns()));
+                m_DependentVariable, predictionColumn(m_NumberInputColumns));
             break;
         }
     }
@@ -767,16 +818,19 @@ CBoostedTreeImpl::TNodeVec CBoostedTreeImpl::initializePredictionsAndLossDerivat
     const core::CPackedBitVector& testingRowMask) const {
 
     core::CPackedBitVector updateRowMask{trainingRowMask | testingRowMask};
-    frame.writeColumns(m_NumberThreads, 0, frame.numberRows(),
-                       [](TRowItr beginRows, TRowItr endRows) {
-                           for (auto row = beginRows; row != endRows; ++row) {
-                               std::size_t numberColumns{row->numberColumns()};
-                               row->writeColumn(predictionColumn(numberColumns), 0.0);
-                               row->writeColumn(lossGradientColumn(numberColumns), 0.0);
-                               row->writeColumn(lossCurvatureColumn(numberColumns), 0.0);
-                           }
-                       },
-                       &updateRowMask);
+    frame.writeColumns(
+        m_NumberThreads, 0, frame.numberRows(),
+        [this](TRowItr beginRows, TRowItr endRows) {
+            std::size_t numberLossParameters{m_Loss->numberParameters()};
+            TDouble1Vec zero(numberLossParameters, 0.0);
+            TDouble1Vec zeroHessian(lossHessianStoredSize(numberLossParameters), 0.0);
+            for (auto row = beginRows; row != endRows; ++row) {
+                writePrediction(*row, m_NumberInputColumns, zero);
+                writeLossGradient(*row, m_NumberInputColumns, zero);
+                writeLossCurvature(*row, m_NumberInputColumns, zeroHessian);
+            }
+        },
+        &updateRowMask);
 
     // At the start we will centre the data w.r.t. the given loss function.
     TNodeVec tree(1);
@@ -920,7 +974,12 @@ CBoostedTreeImpl::candidateSplits(const core::CDataFrame& frame,
             m_NumberThreads, frame, trainingRowMask, features,
             CFastQuantileSketch{CFastQuantileSketch::E_Linear,
                                 std::max(m_NumberSplitsPerFeature, std::size_t{50}), m_Rng},
-            m_Encoder.get(), readLossCurvature)
+            m_Encoder.get(),
+            [this](const TRowRef& row) {
+                // TODO Think about what scalar measure of the Hessian to use here?
+                return readLossCurvature(row, m_NumberInputColumns,
+                                         m_Loss->numberParameters())[0];
+            })
             .first;
 
     TImmutableRadixSetVec candidateSplits(this->numberFeatures());
@@ -992,8 +1051,9 @@ CBoostedTreeImpl::trainTree(core::CDataFrame& frame,
 
     TLeafNodeStatisticsPtrQueue leaves;
     leaves.push(std::make_shared<CLeafNodeStatistics>(
-        0 /*root*/, m_NumberThreads, frame, *m_Encoder, m_Regularization,
-        candidateSplits, this->featureBag(), 0 /*depth*/, trainingRowMask));
+        0 /*root*/, m_NumberInputColumns, m_Loss->numberParameters(),
+        m_NumberThreads, frame, *m_Encoder, m_Regularization, candidateSplits,
+        this->featureBag(), 0 /*depth*/, trainingRowMask));
 
     // We update local variables because the callback can be expensive if it
     // requires accessing atomics.
@@ -1236,12 +1296,15 @@ void CBoostedTreeImpl::refreshPredictionsAndLossDerivatives(core::CDataFrame& fr
             m_NumberThreads, 0, frame.numberRows(),
             core::bindRetrievableState(
                 [&](TArgMinLossVec& leafValues_, TRowItr beginRows, TRowItr endRows) {
+                    std::size_t numberLossParameters{m_Loss->numberParameters()};
                     for (auto row = beginRows; row != endRows; ++row) {
-                        double prediction{readPrediction(*row)};
+                        TDouble1Vec prediction{readPrediction(
+                            *row, m_NumberInputColumns, numberLossParameters)};
                         double actual{readActual(*row, m_DependentVariable)};
-                        double weight{readExampleWeight(*row)};
+                        double weight{readExampleWeight(*row, m_NumberInputColumns,
+                                                        numberLossParameters)};
                         leafValues_[root(tree).leafIndex(m_Encoder->encode(*row), tree)]
-                            .add({prediction}, actual, weight);
+                            .add(prediction, actual, weight);
                     }
                 },
                 std::move(leafValues)),
@@ -1265,18 +1328,18 @@ void CBoostedTreeImpl::refreshPredictionsAndLossDerivatives(core::CDataFrame& fr
     auto results = frame.writeColumns(
         m_NumberThreads, 0, frame.numberRows(),
         [&](TRowItr beginRows, TRowItr endRows) {
+            std::size_t numberLossParameters{m_Loss->numberParameters()};
             for (auto row = beginRows; row != endRows; ++row) {
-                std::size_t numberColumns{row->numberColumns()};
-                double prediction{readPrediction(*row) +
-                                  root(tree).value(m_Encoder->encode(*row), tree)};
+                TDouble1Vec prediction{readPrediction(*row, m_NumberInputColumns,
+                                                      numberLossParameters)};
+                prediction[0] += root(tree).value(m_Encoder->encode(*row), tree);
                 double actual{readActual(*row, m_DependentVariable)};
-                double weight{readExampleWeight(*row)};
-
-                row->writeColumn(predictionColumn(numberColumns), prediction);
-                row->writeColumn(lossGradientColumn(numberColumns),
-                                 m_Loss->gradient({prediction}, actual, weight)[0]);
-                row->writeColumn(lossCurvatureColumn(numberColumns),
-                                 m_Loss->curvature({prediction}, actual, weight)[0]);
+                double weight{readExampleWeight(*row, m_NumberInputColumns, numberLossParameters)};
+                writePrediction(*row, m_NumberInputColumns, prediction);
+                writeLossGradient(*row, m_NumberInputColumns,
+                                  m_Loss->gradient({prediction}, actual, weight));
+                writeLossCurvature(*row, m_NumberInputColumns,
+                                   m_Loss->curvature({prediction}, actual, weight));
             }
         },
         &updateRowMask);
@@ -1289,10 +1352,12 @@ double CBoostedTreeImpl::meanLoss(const core::CDataFrame& frame,
         m_NumberThreads, 0, frame.numberRows(),
         core::bindRetrievableState(
             [&](TMeanAccumulator& loss, TRowItr beginRows, TRowItr endRows) {
+                std::size_t numberLossParameters{m_Loss->numberParameters()};
                 for (auto row = beginRows; row != endRows; ++row) {
-                    double prediction{readPrediction(*row)};
+                    TDouble1Vec prediction{readPrediction(*row, m_NumberInputColumns,
+                                                          numberLossParameters)};
                     double actual{readActual(*row, m_DependentVariable)};
-                    loss.add(m_Loss->value({prediction}, actual));
+                    loss.add(m_Loss->value(prediction, actual));
                 }
             },
             TMeanAccumulator{}),
@@ -1449,7 +1514,8 @@ void CBoostedTreeImpl::restoreBestHyperparameters() {
     m_EtaGrowthRatePerTree = m_BestHyperparameters.etaGrowthRatePerTree();
     m_MaximumNumberTrees = m_BestHyperparameters.maximumNumberTrees();
     m_FeatureBagFraction = m_BestHyperparameters.featureBagFraction();
-    LOG_INFO(<< "regularization* = " << m_Regularization.print()
+    LOG_INFO(<< "loss* = " << m_BestForestTestLoss
+             << ", regularization* = " << m_Regularization.print()
              << ", downsample factor* = " << m_DownsampleFactor << ", eta* = " << m_Eta
              << ", eta growth rate per tree* = " << m_EtaGrowthRatePerTree
              << ", maximum number trees* = " << m_MaximumNumberTrees
@@ -1754,14 +1820,13 @@ void CBoostedTreeImpl::computeShapValues(core::CDataFrame& frame) {
         }
         auto treeFeatureImportance = std::make_unique<CTreeShapFeatureImportance>(
             m_BestForest, m_NumberThreads);
-        std::size_t numberInputFields = m_NumberInputColumns;
-        // resize data frame to write SHAP values
+        // Resize data frame to write SHAP values.
         std::size_t offset{frame.numberColumns()};
-        frame.resizeColumns(m_NumberThreads, frame.numberColumns() + numberInputFields);
+        frame.resizeColumns(m_NumberThreads, frame.numberColumns() + m_NumberInputColumns);
         m_FirstShapColumnIndex = offset;
         m_LastShapColumnIndex = frame.numberColumns() - 1;
         TStrVec columnNames(frame.columnNames());
-        for (std::size_t i = 0; i < numberInputFields; ++i) {
+        for (std::size_t i = 0; i < m_NumberInputColumns; ++i) {
             columnNames[offset + i] = CDataFramePredictiveModel::SHAP_PREFIX +
                                       frame.columnNames()[i];
         }

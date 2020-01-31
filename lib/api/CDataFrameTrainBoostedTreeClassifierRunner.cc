@@ -74,7 +74,8 @@ CDataFrameTrainBoostedTreeClassifierRunner::parameterReader() {
 CDataFrameTrainBoostedTreeClassifierRunner::CDataFrameTrainBoostedTreeClassifierRunner(
     const CDataFrameAnalysisSpecification& spec,
     const CDataFrameAnalysisParameters& parameters)
-    : CDataFrameTrainBoostedTreeRunner{spec, parameters} {
+    : CDataFrameTrainBoostedTreeRunner{
+          spec, parameters, std::make_unique<maths::boosted_tree::CBinomialLogistic>()} {
 
     m_NumTopClasses = parameters[NUM_TOP_CLASSES].fallback(std::size_t{0});
     m_PredictionFieldType =
@@ -92,11 +93,6 @@ CDataFrameTrainBoostedTreeClassifierRunner::CDataFrameTrainBoostedTreeClassifier
                      << core::CContainerPrinter::print(PREDICTION_FIELD_NAME_BLACKLIST)
                      << ".");
     }
-}
-
-CDataFrameTrainBoostedTreeClassifierRunner::CDataFrameTrainBoostedTreeClassifierRunner(
-    const CDataFrameAnalysisSpecification& spec)
-    : CDataFrameTrainBoostedTreeRunner{spec} {
 }
 
 TBoolVec CDataFrameTrainBoostedTreeClassifierRunner::columnsForWhichEmptyIsMissing(
@@ -181,10 +177,10 @@ void CDataFrameTrainBoostedTreeClassifierRunner::writeOneRow(
         writer.EndArray();
     }
 
-    if (this->topShapValues() > 0) {
+    if (this->numberTopShapValues() > 0) {
         auto largestShapValues =
             maths::CBasicStatistics::orderStatisticsAccumulator<std::size_t>(
-                this->topShapValues(), [&row](std::size_t lhs, std::size_t rhs) {
+                this->numberTopShapValues(), [&row](std::size_t lhs, std::size_t rhs) {
                     return std::fabs(row[lhs]) > std::fabs(row[rhs]);
                 });
         for (auto col : this->boostedTree().columnsHoldingShapValues()) {
@@ -227,19 +223,16 @@ void CDataFrameTrainBoostedTreeClassifierRunner::writePredictedCategoryValue(
     }
 }
 
-CDataFrameTrainBoostedTreeClassifierRunner::TLossFunctionUPtr
-CDataFrameTrainBoostedTreeClassifierRunner::chooseLossFunction(const core::CDataFrame& frame,
-                                                               std::size_t dependentVariableColumn) const {
+void CDataFrameTrainBoostedTreeClassifierRunner::validate(const core::CDataFrame& frame,
+                                                          std::size_t dependentVariableColumn) const {
     std::size_t categoryCount{
         frame.categoricalColumnValues()[dependentVariableColumn].size()};
-    if (categoryCount == 2) {
-        return std::make_unique<maths::boosted_tree::CBinomialLogistic>();
+    if (categoryCount != 2) {
+        HANDLE_FATAL(<< "Input error: only binary classification is supported. "
+                     << "Trying to predict '" << frame.columnNames()[dependentVariableColumn]
+                     << "' which has '" << categoryCount << "' categories. "
+                     << "The number of rows read is '" << frame.numberRows() << "'.");
     }
-    HANDLE_FATAL(<< "Input error: only binary classification is supported. "
-                 << "Trying to predict '" << frame.columnNames()[dependentVariableColumn]
-                 << "' which has '" << categoryCount << "' categories. "
-                 << "The number of rows read is '" << frame.numberRows() << "'.");
-    return nullptr;
 }
 
 CDataFrameAnalysisRunner::TInferenceModelDefinitionUPtr
@@ -263,8 +256,9 @@ const std::string& CDataFrameTrainBoostedTreeClassifierRunnerFactory::name() con
 }
 
 CDataFrameTrainBoostedTreeClassifierRunnerFactory::TRunnerUPtr
-CDataFrameTrainBoostedTreeClassifierRunnerFactory::makeImpl(const CDataFrameAnalysisSpecification& spec) const {
-    return std::make_unique<CDataFrameTrainBoostedTreeClassifierRunner>(spec);
+CDataFrameTrainBoostedTreeClassifierRunnerFactory::makeImpl(const CDataFrameAnalysisSpecification&) const {
+    HANDLE_FATAL(<< "Input error: classification has a non-optional parameter '" << CDataFrameTrainBoostedTreeRunner::DEPENDENT_VARIABLE_NAME << "'.")
+    return nullptr;
 }
 
 CDataFrameTrainBoostedTreeClassifierRunnerFactory::TRunnerUPtr

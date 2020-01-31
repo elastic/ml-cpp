@@ -44,7 +44,8 @@ CDataFrameTrainBoostedTreeRegressionRunner::parameterReader() {
 CDataFrameTrainBoostedTreeRegressionRunner::CDataFrameTrainBoostedTreeRegressionRunner(
     const CDataFrameAnalysisSpecification& spec,
     const CDataFrameAnalysisParameters& parameters)
-    : CDataFrameTrainBoostedTreeRunner{spec, parameters} {
+    : CDataFrameTrainBoostedTreeRunner{
+          spec, parameters, std::make_unique<maths::boosted_tree::CMse>()} {
 
     this->boostedTreeFactory().stratifyRegressionCrossValidation(
         parameters[STRATIFIED_CROSS_VALIDATION].fallback(true));
@@ -61,11 +62,6 @@ CDataFrameTrainBoostedTreeRegressionRunner::CDataFrameTrainBoostedTreeRegression
     }
 }
 
-CDataFrameTrainBoostedTreeRegressionRunner::CDataFrameTrainBoostedTreeRegressionRunner(
-    const CDataFrameAnalysisSpecification& spec)
-    : CDataFrameTrainBoostedTreeRunner{spec} {
-}
-
 void CDataFrameTrainBoostedTreeRegressionRunner::writeOneRow(
     const core::CDataFrame& frame,
     const TRowRef& row,
@@ -80,10 +76,10 @@ void CDataFrameTrainBoostedTreeRegressionRunner::writeOneRow(
     writer.Double(row[columnHoldingPrediction]);
     writer.Key(IS_TRAINING_FIELD_NAME);
     writer.Bool(maths::CDataFrameUtils::isMissing(row[columnHoldingDependentVariable]) == false);
-    if (this->topShapValues() > 0) {
+    if (this->numberTopShapValues() > 0) {
         auto largestShapValues =
             maths::CBasicStatistics::orderStatisticsAccumulator<std::size_t>(
-                this->topShapValues(), [&row](std::size_t lhs, std::size_t rhs) {
+                this->numberTopShapValues(), [&row](std::size_t lhs, std::size_t rhs) {
                     return std::fabs(row[lhs]) > std::fabs(row[rhs]);
                 });
         for (auto col : this->boostedTree().columnsHoldingShapValues()) {
@@ -100,10 +96,8 @@ void CDataFrameTrainBoostedTreeRegressionRunner::writeOneRow(
     writer.EndObject();
 }
 
-CDataFrameTrainBoostedTreeRegressionRunner::TLossFunctionUPtr
-CDataFrameTrainBoostedTreeRegressionRunner::chooseLossFunction(const core::CDataFrame&,
-                                                               std::size_t) const {
-    return std::make_unique<maths::boosted_tree::CMse>();
+void CDataFrameTrainBoostedTreeRegressionRunner::validate(const core::CDataFrame&,
+                                                          std::size_t) const {
 }
 
 CDataFrameAnalysisRunner::TInferenceModelDefinitionUPtr
@@ -126,8 +120,10 @@ const std::string& CDataFrameTrainBoostedTreeRegressionRunnerFactory::name() con
 }
 
 CDataFrameTrainBoostedTreeRegressionRunnerFactory::TRunnerUPtr
-CDataFrameTrainBoostedTreeRegressionRunnerFactory::makeImpl(const CDataFrameAnalysisSpecification& spec) const {
-    return std::make_unique<CDataFrameTrainBoostedTreeRegressionRunner>(spec);
+CDataFrameTrainBoostedTreeRegressionRunnerFactory::makeImpl(const CDataFrameAnalysisSpecification&) const {
+    HANDLE_FATAL(<< "Input error: classification has a non-optional parameter '"
+                 << CDataFrameTrainBoostedTreeRunner::DEPENDENT_VARIABLE_NAME << "'.")
+    return nullptr;
 }
 
 CDataFrameTrainBoostedTreeRegressionRunnerFactory::TRunnerUPtr

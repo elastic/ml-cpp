@@ -13,6 +13,7 @@
 #include <core/CLogger.h>
 #include <core/CMemory.h>
 #include <core/CPackedBitVector.h>
+#include <core/CSmallVector.h>
 #include <core/CStatePersistInserter.h>
 #include <core/CStateRestoreTraverser.h>
 
@@ -101,14 +102,13 @@ public:
     std::size_t columnHoldingDependentVariable() const;
 
     //! Get the number of columns training the model will add to the data frame.
-    constexpr static std::size_t numberExtraColumnsForTrain() {
+    static std::size_t numberExtraColumnsForTrain(std::size_t numberLossParameters) {
         // We store as follows:
-        //   1. The predicted value for the dependent variable
+        //   1. The predicted values for the dependent variables
         //   2. The gradient of the loss function
-        //   3. The curvature of the loss function
+        //   3. The upper triangle of the hessian of the loss function
         //   4. The example's weight
-        // In the last four rows of the data frame.
-        return 4;
+        return numberLossParameters * (numberLossParameters + 5) / 2 + 1;
     }
 
     //! Get the memory used by this object.
@@ -185,6 +185,8 @@ private:
     class CLeafNodeStatistics final {
     public:
         CLeafNodeStatistics(std::size_t id,
+                            std::size_t numberInputColumns,
+                            std::size_t numberLossParameters,
                             std::size_t numberThreads,
                             const core::CDataFrame& frame,
                             const CDataFrameCategoryEncoder& encoder,
@@ -196,6 +198,8 @@ private:
 
         //! Only called by split but is public so it's accessible to std::make_shared.
         CLeafNodeStatistics(std::size_t id,
+                            std::size_t numberInputColumns,
+                            std::size_t numberLossParameters,
                             std::size_t numberThreads,
                             const core::CDataFrame& frame,
                             const CDataFrameCategoryEncoder& encoder,
@@ -215,10 +219,9 @@ private:
                             core::CPackedBitVector rowMask);
 
         CLeafNodeStatistics(const CLeafNodeStatistics&) = delete;
-
-        // Move construction/assignment not possible due to const reference member
-
         CLeafNodeStatistics& operator=(const CLeafNodeStatistics&) = delete;
+
+        // Move construction/assignment not possible due to const reference member.
 
         //! Apply the split defined by \p split.
         //!
@@ -293,6 +296,8 @@ private:
         }
 
     private:
+        using TDouble1Vec = core::CSmallVector<double, 1>;
+
         //! \brief Statistics relating to a split of the node.
         struct SSplitStatistics : private boost::less_than_comparable<SSplitStatistics> {
             SSplitStatistics() = default;
@@ -328,14 +333,14 @@ private:
 
         //! \brief Aggregate derivatives.
         struct SAggregateDerivatives {
-            void add(std::size_t count, double gradient, double curvature) {
+            void add(std::size_t count, const TDouble1Vec& gradient, const TDouble1Vec& curvature) {
                 s_Count += count;
-                s_Gradient += gradient;
-                s_Curvature += curvature;
+                s_Gradient += gradient[0];
+                s_Curvature += curvature[0];
             }
 
             void merge(const SAggregateDerivatives& other) {
-                this->add(other.s_Count, other.s_Gradient, other.s_Curvature);
+                this->add(other.s_Count, {other.s_Gradient}, {other.s_Curvature});
             }
 
             std::string print() const {
@@ -400,8 +405,10 @@ private:
 
     private:
         std::size_t m_Id;
-        const TImmutableRadixSetVec& m_CandidateSplits;
         std::size_t m_Depth;
+        std::size_t m_NumberInputColumns;
+        std::size_t m_NumberLossParameters;
+        const TImmutableRadixSetVec& m_CandidateSplits;
         core::CPackedBitVector m_RowMask;
         TAggregateDerivativesVecVec m_Derivatives;
         TAggregateDerivativesVec m_MissingDerivatives;
@@ -541,6 +548,7 @@ private:
     mutable CPRNG::CXorOShiro128Plus m_Rng;
     std::size_t m_NumberThreads;
     std::size_t m_DependentVariable = std::numeric_limits<std::size_t>::max();
+    std::size_t m_NumberInputColumns = 0;
     TLossFunctionUPtr m_Loss;
     CBoostedTree::EClassAssignmentObjective m_ClassAssignmentObjective =
         CBoostedTree::E_MinimumRecall;
@@ -580,7 +588,6 @@ private:
     std::size_t m_TopShapValues = 0;
     std::size_t m_FirstShapColumnIndex = 0;
     std::size_t m_LastShapColumnIndex = 0;
-    std::size_t m_NumberInputColumns = 0;
     TAnalysisInstrumentationPtr m_Instrumentation; // no persist/restore
 
 private:
@@ -588,20 +595,33 @@ private:
 };
 
 namespace boosted_tree_detail {
-constexpr inline std::size_t predictionColumn(std::size_t numberColumns) {
-    return numberColumns - CBoostedTreeImpl::numberExtraColumnsForTrain();
+inline std::size_t lossHessianStoredSize(std::size_t numberInputColumns) {
+    return numberLossParameters * (numberLossParameters + 1) / 2;
 }
 
-constexpr inline std::size_t lossGradientColumn(std::size_t numberColumns) {
-    return predictionColumn(numberColumns) + 1;
+inline std::size_t numberLossParametersForHessianStoredSize(std::size_t lossHessianStoredSize) {
+    return static_cast<std::size_t>(
+        (std::sqrt(8.0 * static_cast<double>(lossHessianStoredSize) + 1.0) - 1.0) / 2.0 + 0.5)
 }
 
-constexpr inline std::size_t lossCurvatureColumn(std::size_t numberColumns) {
-    return predictionColumn(numberColumns) + 2;
+inline std::size_t predictionColumn(std::size_t numberInputColumns) {
+    return numberInputColumns;
 }
 
-constexpr inline std::size_t exampleWeightColumn(std::size_t numberColumns) {
-    return predictionColumn(numberColumns) + 3;
+inline std::size_t lossGradientColumn(std::size_t numberInputColumns,
+                                      std::size_t numberLossParameters) {
+    return predictionColumn(numberInputColumns) + numberLossParameters;
+}
+
+inline std::size_t lossCurvatureColumn(std::size_t numberInputColumns,
+                                       std::size_t numberLossParameters) {
+    return lossGradientColumn(numberInputColumns, numberLossParameters) + numberLossParameters;
+}
+
+inline std::size_t exampleWeightColumn(std::size_t numberInputColumns,
+                                       std::size_t numberLossParameters) {
+    return lossCurvatureColumn(numberInputColumns, numberLossParameters) +
+           lossHessianStoredSize(numberLossParameters);
 }
 }
 }

@@ -62,7 +62,8 @@ public:
     //! The boosted tree factory.
     const maths::CBoostedTreeFactory& boostedTreeFactory() const;
 
-    std::size_t topShapValues() const;
+    //! The number of (largest magnitude) SHAP values to return.
+    std::size_t numberTopShapValues() const;
 
     //! \return Reference to the analysis state.
     const CDataFrameAnalysisInstrumentation& instrumentation() const override;
@@ -75,8 +76,8 @@ protected:
 
 protected:
     CDataFrameTrainBoostedTreeRunner(const CDataFrameAnalysisSpecification& spec,
-                                     const CDataFrameAnalysisParameters& parameters);
-    CDataFrameTrainBoostedTreeRunner(const CDataFrameAnalysisSpecification& spec);
+                                     const CDataFrameAnalysisParameters& parameters,
+                                     TLossFunctionUPtr loss);
 
     //! Parameter reader handling parameters that are shared by subclasses.
     static const CDataFrameAnalysisConfigReader& parameterReader();
@@ -102,8 +103,8 @@ private:
                                                std::size_t partitionNumberRows,
                                                std::size_t numberColumns) const override;
 
-    virtual TLossFunctionUPtr chooseLossFunction(const core::CDataFrame& frame,
-                                                 std::size_t dependentVariableColumn) const = 0;
+    virtual void validate(const core::CDataFrame& frame,
+                          std::size_t dependentVariableColumn) const = 0;
 
 private:
     // Note custom config is written directly to the factory object.
