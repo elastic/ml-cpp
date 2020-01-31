@@ -595,13 +595,13 @@ private:
 };
 
 namespace boosted_tree_detail {
-inline std::size_t lossHessianStoredSize(std::size_t numberInputColumns) {
+inline std::size_t lossHessianStoredSize(std::size_t numberLossParameters) {
     return numberLossParameters * (numberLossParameters + 1) / 2;
 }
 
 inline std::size_t numberLossParametersForHessianStoredSize(std::size_t lossHessianStoredSize) {
     return static_cast<std::size_t>(
-        (std::sqrt(8.0 * static_cast<double>(lossHessianStoredSize) + 1.0) - 1.0) / 2.0 + 0.5)
+        (std::sqrt(8.0 * static_cast<double>(lossHessianStoredSize) + 1.0) - 1.0) / 2.0 + 0.5);
 }
 
 inline std::size_t predictionColumn(std::size_t numberInputColumns) {

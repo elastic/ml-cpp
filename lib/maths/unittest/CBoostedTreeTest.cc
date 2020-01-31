@@ -1529,7 +1529,7 @@ BOOST_AUTO_TEST_CASE(testPersistRestore) {
         persistOnceSStream.flush();
     }
     // restore
-    auto boostedTree = maths::CBoostedTreeFactory::constructFromStream(persistOnceSStream)
+    auto boostedTree = maths::CBoostedTreeFactory::constructFromString(persistOnceSStream)
                            .analysisInstrumentation(&instr)
                            .restoreFor(*frame, cols - 1);
     {
@@ -1572,7 +1572,7 @@ BOOST_AUTO_TEST_CASE(testRestoreErrorHandling) {
 
     bool throwsExceptions{false};
     try {
-        auto boostedTree = maths::CBoostedTreeFactory::constructFromStream(errorInBayesianOptimisationState)
+        auto boostedTree = maths::CBoostedTreeFactory::constructFromString(errorInBayesianOptimisationState)
                                .restoreFor(*frame, 2);
     } catch (const std::exception& e) {
         LOG_DEBUG(<< "got = " << e.what());
@@ -1592,7 +1592,7 @@ BOOST_AUTO_TEST_CASE(testRestoreErrorHandling) {
     throwsExceptions = false;
     stream->clear();
     try {
-        auto boostedTree = maths::CBoostedTreeFactory::constructFromStream(errorInBoostedTreeImplState)
+        auto boostedTree = maths::CBoostedTreeFactory::constructFromString(errorInBoostedTreeImplState)
                                .restoreFor(*frame, 2);
     } catch (const std::exception& e) {
         LOG_DEBUG(<< "got = " << e.what());
@@ -1612,7 +1612,7 @@ BOOST_AUTO_TEST_CASE(testRestoreErrorHandling) {
     throwsExceptions = false;
     stream->clear();
     try {
-        auto boostedTree = maths::CBoostedTreeFactory::constructFromStream(errorInBoostedTreeImplState)
+        auto boostedTree = maths::CBoostedTreeFactory::constructFromString(errorInBoostedTreeImplState)
                                .restoreFor(*frame, 2);
     } catch (const std::exception& e) {
         LOG_DEBUG(<< "got = " << e.what());

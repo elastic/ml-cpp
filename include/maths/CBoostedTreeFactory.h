@@ -49,7 +49,7 @@ public:
     //! Construct a boosted tree object from its serialized version.
     //!
     //! \warning Throws runtime error on fail to restore.
-    static CBoostedTreeFactory constructFromStream(std::istream& jsonStream);
+    static CBoostedTreeFactory constructFromString(std::istream& jsonStream);
 
     ~CBoostedTreeFactory();
     CBoostedTreeFactory(CBoostedTreeFactory&) = delete;

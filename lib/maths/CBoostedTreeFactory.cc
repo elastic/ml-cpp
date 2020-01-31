@@ -955,7 +955,7 @@ CBoostedTreeFactory CBoostedTreeFactory::constructFromParameters(std::size_t num
     return {numberThreads, std::move(loss)};
 }
 
-CBoostedTreeFactory CBoostedTreeFactory::constructFromStream(std::istream& jsonStream) {
+CBoostedTreeFactory CBoostedTreeFactory::constructFromString(std::istream& jsonStream) {
     CBoostedTreeFactory result{1, nullptr};
     try {
         core::CJsonStateRestoreTraverser traverser(jsonStream);

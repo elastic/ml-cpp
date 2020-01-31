@@ -206,7 +206,7 @@ const maths::CBoostedTreeFactory& CDataFrameTrainBoostedTreeRunner::boostedTreeF
     return *m_BoostedTreeFactory;
 }
 
-std::size_t CDataFrameTrainBoostedTreeRunner::numberTopShapValues() const {
+std::size_t CDataFrameTrainBoostedTreeRunner::topShapValues() const {
     return m_BoostedTree == nullptr ? 0 : m_BoostedTree->topShapValues();
 }
 
@@ -272,7 +272,7 @@ bool CDataFrameTrainBoostedTreeRunner::restoreBoostedTree(core::CDataFrame& fram
             LOG_ERROR(<< "State restoration search returned failed stream");
             return false;
         }
-        m_BoostedTree = maths::CBoostedTreeFactory::constructFromStream(*inputStream)
+        m_BoostedTree = maths::CBoostedTreeFactory::constructFromString(*inputStream)
                             .analysisInstrumentation(&m_Instrumentation)
                             .trainingStateCallback(this->statePersister())
                             .restoreFor(frame, dependentVariableColumn);

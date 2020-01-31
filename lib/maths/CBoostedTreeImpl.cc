@@ -145,7 +145,7 @@ TDouble1Vec readLossCurvature(const TRowRef& row,
                               std::size_t numberInputColumns,
                               std::size_t numberLossParameters) {
     const auto* start = row.data() + lossCurvatureColumn(numberInputColumns, numberLossParameters);
-    return TDouble1Vec(start, start + lossHessianStoredSize(numberLossParameters);
+    return TDouble1Vec(start, start + lossHessianStoredSize(numberLossParameters));
 }
 
 void writeLossCurvature(const TRowRef& row,
