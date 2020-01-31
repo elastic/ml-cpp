@@ -85,10 +85,10 @@ void setupRegressionDataWithMissingFeatures(const TStrVec& fieldNames,
 
         fieldValues[0] = target(regressors);
         for (std::size_t j = 0; j < regressors.size(); ++j) {
-            double regressor = regressors[j] > 9.0 ? core::CDataFrame::valueOfMissing()
-                                                   : regressors[j];
-            fieldValues[j + 1] = core::CStringUtils::typeToStringPrecise(
-                regressor, core::CIEEE754::E_DoublePrecision);
+            if (regressors[j] <= 9.0) {
+                fieldValues[j + 1] = core::CStringUtils::typeToStringPrecise(
+                    regressors[j], core::CIEEE754::E_DoublePrecision);
+            }
         }
 
         analyzer.handleRecord(fieldNames, fieldValues);
@@ -381,7 +381,7 @@ BOOST_FIXTURE_TEST_CASE(testRegressionFeatureImportanceNoShap, SFixture) {
 
 BOOST_FIXTURE_TEST_CASE(testMissingFeatures, SFixture) {
     // Test that feature importance behaves correctly when some features are missing:
-    // We randomly 10% of all data in a simple additive model target=c1+c2+c3+c4. Hence,
+    // We randomly omit 10% of all data in a simple additive model target=c1+c2+c3+c4. Hence,
     // calculated feature importances should be very similar and the bias should be close
     // to 0.
     std::size_t topShapValues{4};
@@ -406,9 +406,9 @@ BOOST_FIXTURE_TEST_CASE(testMissingFeatures, SFixture) {
         }
     }
 
-    BOOST_REQUIRE_CLOSE(c1Sum, c2Sum, 10.0); // c1 and c2 within 10% of each other
-    BOOST_REQUIRE_CLOSE(c1Sum, c3Sum, 10.0); // c1 and c3 within 10% of each other
-    BOOST_REQUIRE_CLOSE(c1Sum, c4Sum, 10.0); // c1 and c4 within 10% of each other
+    BOOST_REQUIRE_CLOSE(c1Sum, c2Sum, 15.0); // c1 and c2 within 15% of each other
+    BOOST_REQUIRE_CLOSE(c1Sum, c3Sum, 15.0); // c1 and c3 within 15% of each other
+    BOOST_REQUIRE_CLOSE(c1Sum, c4Sum, 15.0); // c1 and c4 within 15% of each other
     // make sure the local approximation differs from the prediction always by the same bias (up to a numeric error)
     BOOST_REQUIRE_SMALL(maths::CBasicStatistics::variance(bias), 1e-6);
 }
