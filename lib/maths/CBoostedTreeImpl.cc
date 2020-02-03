@@ -407,10 +407,8 @@ void CBoostedTreeImpl::CLeafNodeStatistics::addRowDerivatives(
     SSplitAggregateDerivatives& splitAggregateDerivatives) const {
 
     const TRowRef& unencodedRow{row.unencodedRow()};
-    TDouble1Vec gradient{readLossGradient(unencodedRow, m_NumberInputColumns,
-                                          m_NumberLossParameters)};
-    TDouble1Vec curvature{readLossCurvature(unencodedRow, m_NumberInputColumns,
-                                            m_NumberLossParameters)};
+    auto gradient = readLossGradient(unencodedRow, m_NumberInputColumns, m_NumberLossParameters);
+    auto curvature = readLossCurvature(unencodedRow, m_NumberInputColumns, m_NumberLossParameters);
 
     for (std::size_t i = 0; i < m_CandidateSplits.size(); ++i) {
         double featureValue{row[i]};
