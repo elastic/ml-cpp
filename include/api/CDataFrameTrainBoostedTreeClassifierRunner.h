@@ -37,9 +37,6 @@ public:
     CDataFrameTrainBoostedTreeClassifierRunner(const CDataFrameAnalysisSpecification& spec,
                                                const CDataFrameAnalysisParameters& parameters);
 
-    //! This is not intended to be called directly: use CDataFrameTrainBoostedTreeClassifierRunnerFactory.
-    CDataFrameTrainBoostedTreeClassifierRunner(const CDataFrameAnalysisSpecification& spec);
-
     //! \return Indicator of columns for which empty value should be treated as missing.
     TBoolVec columnsForWhichEmptyIsMissing(const TStrVec& fieldNames) const override;
 
@@ -63,8 +60,8 @@ public:
                              const TStrVecVec& categoryNames) const override;
 
 private:
-    TLossFunctionUPtr chooseLossFunction(const core::CDataFrame& frame,
-                                         std::size_t dependentVariableColumn) const override;
+    void validate(const core::CDataFrame& frame,
+                  std::size_t dependentVariableColumn) const override;
 
     void writePredictedCategoryValue(const std::string& categoryValue,
                                      core::CRapidJsonConcurrentLineWriter& writer) const;

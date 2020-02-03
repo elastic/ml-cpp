@@ -231,8 +231,15 @@ void addPredictionTestData(EPredictionType type,
                      : setupBinaryClassificationData(fieldNames, fieldValues, analyzer,
                                                      weights, regressors, targets);
 
+    std::unique_ptr<maths::boosted_tree::CLoss> loss;
+    if (type == E_Regression) {
+        loss = std::make_unique<maths::boosted_tree::CMse>();
+    } else {
+        loss = std::make_unique<maths::boosted_tree::CBinomialLogistic>();
+    }
+
     maths::CBoostedTreeFactory treeFactory{
-        maths::CBoostedTreeFactory::constructFromParameters(1)};
+        maths::CBoostedTreeFactory::constructFromParameters(1, std::move(loss))};
     if (alpha >= 0.0) {
         treeFactory.depthPenaltyMultiplier(alpha);
     }
@@ -261,13 +268,7 @@ void addPredictionTestData(EPredictionType type,
     ml::api::CDataFrameTrainBoostedTreeInstrumentation instrumentation;
     treeFactory.analysisInstrumentation(&instrumentation);
 
-    std::unique_ptr<maths::boosted_tree::CLoss> loss;
-    if (type == E_Regression) {
-        loss = std::make_unique<maths::boosted_tree::CMse>();
-    } else {
-        loss = std::make_unique<maths::boosted_tree::CBinomialLogistic>();
-    }
-    auto tree = treeFactory.buildFor(*frame, std::move(loss), weights.size());
+    auto tree = treeFactory.buildFor(*frame, weights.size());
 
     tree->train();
     tree->predict();

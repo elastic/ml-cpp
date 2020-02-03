@@ -43,12 +43,13 @@ public:
 
 public:
     //! Construct a boosted tree object from parameters.
-    static CBoostedTreeFactory constructFromParameters(std::size_t numberThreads);
+    static CBoostedTreeFactory constructFromParameters(std::size_t numberThreads,
+                                                       TLossFunctionUPtr loss);
 
     //! Construct a boosted tree object from its serialized version.
     //!
     //! \warning Throws runtime error on fail to restore.
-    static CBoostedTreeFactory constructFromString(std::istream& jsonStringStream);
+    static CBoostedTreeFactory constructFromString(std::istream& jsonStream);
 
     ~CBoostedTreeFactory();
     CBoostedTreeFactory(CBoostedTreeFactory&) = delete;
@@ -113,9 +114,7 @@ public:
     //! Get the number of columns training the model will add to the data frame.
     std::size_t numberExtraColumnsForTrain() const;
     //! Build a boosted tree object for a given data frame.
-    TBoostedTreeUPtr buildFor(core::CDataFrame& frame,
-                              TLossFunctionUPtr loss,
-                              std::size_t dependentVariable);
+    TBoostedTreeUPtr buildFor(core::CDataFrame& frame, std::size_t dependentVariable);
     //! Restore a boosted tree object for a given data frame.
     //! \warning A tree object can only be restored once.
     TBoostedTreeUPtr restoreFor(core::CDataFrame& frame, std::size_t dependentVariable);
@@ -132,13 +131,16 @@ private:
     using TApplyRegularizer = std::function<bool(CBoostedTreeImpl&, double)>;
 
 private:
-    CBoostedTreeFactory(std::size_t numberThreads);
+    CBoostedTreeFactory(std::size_t numberThreads, TLossFunctionUPtr loss);
 
     //! Compute the row masks for the missing values for each feature.
     void initializeMissingFeatureMasks(const core::CDataFrame& frame) const;
 
     //! Set up the number of folds we'll use for cross-validation.
     void initializeNumberFolds(core::CDataFrame& frame) const;
+
+    //! Resize the data frame with the extra columns used by train.
+    void resizeDataFrame(core::CDataFrame& frame) const;
 
     //! Set up cross validation.
     void initializeCrossValidation(core::CDataFrame& frame) const;

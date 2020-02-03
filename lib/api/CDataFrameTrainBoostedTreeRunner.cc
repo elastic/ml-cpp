@@ -66,8 +66,9 @@ const CDataFrameAnalysisConfigReader& CDataFrameTrainBoostedTreeRunner::paramete
 
 CDataFrameTrainBoostedTreeRunner::CDataFrameTrainBoostedTreeRunner(
     const CDataFrameAnalysisSpecification& spec,
-    const CDataFrameAnalysisParameters& parameters)
-    : CDataFrameTrainBoostedTreeRunner{spec} {
+    const CDataFrameAnalysisParameters& parameters,
+    TLossFunctionUPtr loss)
+    : CDataFrameAnalysisRunner{spec} {
 
     m_DependentVariableFieldName = parameters[DEPENDENT_VARIABLE_NAME].as<std::string>();
 
@@ -120,7 +121,8 @@ CDataFrameTrainBoostedTreeRunner::CDataFrameTrainBoostedTreeRunner(
     }
 
     m_BoostedTreeFactory = std::make_unique<maths::CBoostedTreeFactory>(
-        maths::CBoostedTreeFactory::constructFromParameters(this->spec().numberThreads()));
+        maths::CBoostedTreeFactory::constructFromParameters(
+            this->spec().numberThreads(), std::move(loss)));
 
     (*m_BoostedTreeFactory)
         .stopCrossValidationEarly(stopCrossValidationEarly)
@@ -169,10 +171,6 @@ CDataFrameTrainBoostedTreeRunner::CDataFrameTrainBoostedTreeRunner(
     }
 }
 
-CDataFrameTrainBoostedTreeRunner::CDataFrameTrainBoostedTreeRunner(const CDataFrameAnalysisSpecification& spec)
-    : CDataFrameAnalysisRunner{spec} {
-}
-
 CDataFrameTrainBoostedTreeRunner::~CDataFrameTrainBoostedTreeRunner() = default;
 
 std::size_t CDataFrameTrainBoostedTreeRunner::numberExtraColumns() const {
@@ -208,6 +206,10 @@ const maths::CBoostedTreeFactory& CDataFrameTrainBoostedTreeRunner::boostedTreeF
     return *m_BoostedTreeFactory;
 }
 
+std::size_t CDataFrameTrainBoostedTreeRunner::topShapValues() const {
+    return m_BoostedTree == nullptr ? 0 : m_BoostedTree->topShapValues();
+}
+
 void CDataFrameTrainBoostedTreeRunner::runImpl(core::CDataFrame& frame) {
     auto dependentVariablePos = std::find(frame.columnNames().begin(),
                                           frame.columnNames().end(),
@@ -235,11 +237,10 @@ void CDataFrameTrainBoostedTreeRunner::runImpl(core::CDataFrame& frame) {
         treeRestored = this->restoreBoostedTree(frame, dependentVariableColumn, restoreSearcher);
     }
     if (treeRestored == false) {
-        auto loss = this->chooseLossFunction(frame, dependentVariableColumn);
-        m_BoostedTree = m_BoostedTreeFactory->buildFor(frame, std::move(loss),
-                                                       dependentVariableColumn);
+        m_BoostedTree = m_BoostedTreeFactory->buildFor(frame, dependentVariableColumn);
     }
 
+    this->validate(frame, dependentVariableColumn);
     m_BoostedTree->train();
     m_BoostedTree->predict();
     m_BoostedTree->computeShapValues();
@@ -250,7 +251,7 @@ void CDataFrameTrainBoostedTreeRunner::runImpl(core::CDataFrame& frame) {
 bool CDataFrameTrainBoostedTreeRunner::restoreBoostedTree(core::CDataFrame& frame,
                                                           std::size_t dependentVariableColumn,
                                                           TDataSearcherUPtr& restoreSearcher) {
-    // Restore from Elasticsearch compressed data
+    // Restore from compressed JSON.
     try {
         core::CStateDecompressor decompressor(*restoreSearcher);
         decompressor.setStateRestoreSearch(
@@ -288,13 +289,6 @@ std::size_t CDataFrameTrainBoostedTreeRunner::estimateBookkeepingMemoryUsage(
     std::size_t /*partitionNumberRows*/,
     std::size_t numberColumns) const {
     return m_BoostedTreeFactory->estimateMemoryUsage(totalNumberRows, numberColumns);
-}
-
-std::size_t CDataFrameTrainBoostedTreeRunner::topShapValues() const {
-    if (m_BoostedTree) {
-        return m_BoostedTree->topShapValues();
-    }
-    return 0;
 }
 
 const CDataFrameAnalysisInstrumentation&
