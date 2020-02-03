@@ -28,9 +28,6 @@ public:
     CDataFrameTrainBoostedTreeRegressionRunner(const CDataFrameAnalysisSpecification& spec,
                                                const CDataFrameAnalysisParameters& parameters);
 
-    //! This is not intended to be called directly: use CDataFrameTrainBoostedTreeRegressionRunnerFactory.
-    CDataFrameTrainBoostedTreeRegressionRunner(const CDataFrameAnalysisSpecification& spec);
-
     //! Write the prediction for \p row to \p writer.
     void writeOneRow(const core::CDataFrame& frame,
                      const TRowRef& row,
@@ -42,8 +39,8 @@ public:
                              const TStrVecVec& categoryNameMap) const override;
 
 private:
-    TLossFunctionUPtr chooseLossFunction(const core::CDataFrame& frame,
-                                         std::size_t dependentVariableColumn) const override;
+    void validate(const core::CDataFrame& frame,
+                  std::size_t dependentVariableColumn) const override;
 };
 
 //! \brief Makes a core::CDataFrame boosted tree regression runner.
