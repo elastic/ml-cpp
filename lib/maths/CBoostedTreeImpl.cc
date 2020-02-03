@@ -1296,8 +1296,8 @@ void CBoostedTreeImpl::refreshPredictionsAndLossDerivatives(core::CDataFrame& fr
                 [&](TArgMinLossVec& leafValues_, TRowItr beginRows, TRowItr endRows) {
                     std::size_t numberLossParameters{m_Loss->numberParameters()};
                     for (auto row = beginRows; row != endRows; ++row) {
-                        TDouble1Vec prediction{readPrediction(
-                            *row, m_NumberInputColumns, numberLossParameters)};
+                        auto prediction = readPrediction(*row, m_NumberInputColumns,
+                                                         numberLossParameters);
                         double actual{readActual(*row, m_DependentVariable)};
                         double weight{readExampleWeight(*row, m_NumberInputColumns,
                                                         numberLossParameters)};
@@ -1328,8 +1328,7 @@ void CBoostedTreeImpl::refreshPredictionsAndLossDerivatives(core::CDataFrame& fr
         [&](TRowItr beginRows, TRowItr endRows) {
             std::size_t numberLossParameters{m_Loss->numberParameters()};
             for (auto row = beginRows; row != endRows; ++row) {
-                TDouble1Vec prediction{readPrediction(*row, m_NumberInputColumns,
-                                                      numberLossParameters)};
+                auto prediction = readPrediction(*row, m_NumberInputColumns, numberLossParameters);
                 prediction[0] += root(tree).value(m_Encoder->encode(*row), tree);
                 double actual{readActual(*row, m_DependentVariable)};
                 double weight{readExampleWeight(*row, m_NumberInputColumns, numberLossParameters)};
@@ -1352,8 +1351,8 @@ double CBoostedTreeImpl::meanLoss(const core::CDataFrame& frame,
             [&](TMeanAccumulator& loss, TRowItr beginRows, TRowItr endRows) {
                 std::size_t numberLossParameters{m_Loss->numberParameters()};
                 for (auto row = beginRows; row != endRows; ++row) {
-                    TDouble1Vec prediction{readPrediction(*row, m_NumberInputColumns,
-                                                          numberLossParameters)};
+                    auto prediction = readPrediction(*row, m_NumberInputColumns,
+                                                     numberLossParameters);
                     double actual{readActual(*row, m_DependentVariable)};
                     loss.add(m_Loss->value(prediction, actual));
                 }
