@@ -1334,9 +1334,9 @@ void CBoostedTreeImpl::refreshPredictionsAndLossDerivatives(core::CDataFrame& fr
                 double weight{readExampleWeight(*row, m_NumberInputColumns, numberLossParameters)};
                 writePrediction(*row, m_NumberInputColumns, prediction);
                 writeLossGradient(*row, m_NumberInputColumns,
-                                  m_Loss->gradient({prediction}, actual, weight));
+                                  m_Loss->gradient(prediction, actual, weight));
                 writeLossCurvature(*row, m_NumberInputColumns,
-                                   m_Loss->curvature({prediction}, actual, weight));
+                                   m_Loss->curvature(prediction, actual, weight));
             }
         },
         &updateRowMask);
