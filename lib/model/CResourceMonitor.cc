@@ -272,10 +272,30 @@ CResourceMonitor::SResults CResourceMonitor::createMemoryUsageReport(core_t::TTi
     res.s_AllocationFailures = 0;
     res.s_MemoryStatus = m_MemoryStatus;
     res.s_BucketStartTime = bucketStartTime;
+    res.s_CategorizedMessages = 0;
+    res.s_TotalCategories = 0;
+    res.s_FrequentCategories = 0;
+    res.s_RareCategories = 0;
+    res.s_DeadCategories = 0;
+    res.s_CategorizationStatus = model_t::E_CategorizationStatusOk;
     for (const auto& resource : m_Resources) {
         resource.first->updateMemoryResults(res);
     }
     res.s_AllocationFailures += m_AllocationFailures.size();
+    // Categorization status is poor if:
+    // - At least 100 messages have been categorized
+    // and one of the following holds:
+    // - There is only 1 category
+    // - More than 90% of categories have 1 message
+    // - The number of categories is greater than 50% of the number of categorized messages
+    // - There are no frequent match categories
+    // - More than 50% of categories are dead
+    if (res.s_CategorizedMessages > 100 &&
+        (res.s_TotalCategories == 1 || 10 * res.s_RareCategories > 9 * res.s_TotalCategories ||
+         2 * res.s_TotalCategories > res.s_CategorizedMessages ||
+         res.s_FrequentCategories == 0 || 2 * res.s_DeadCategories > res.s_TotalCategories)) {
+        res.s_CategorizationStatus = model_t::E_CategorizationStatusPoor;
+    }
     return res;
 }
 

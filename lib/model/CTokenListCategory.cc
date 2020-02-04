@@ -411,52 +411,27 @@ std::size_t CTokenListCategory::missingCommonTokenWeight(const TSizeSizeMap& uni
     return m_CommonUniqueTokenWeight - presentWeight;
 }
 
-bool CTokenListCategory::isMissingCommonTokenWeightZero(const TSizeSizeMap& uniqueTokenIds) const {
-    // This method could be implemented as:
-    // return this->missingCommonTokenWeight(uniqueTokenIds) == 0;
-    //
-    // However, it's much faster to return false as soon as a mismatch occurs
+bool CTokenListCategory::containsCommonInOrderTokensInOrder(const TSizeSizePrVec& tokenIds) const {
 
-    auto commonIter = m_CommonUniqueTokenIds.begin();
-    auto testIter = uniqueTokenIds.begin();
-    while (commonIter != m_CommonUniqueTokenIds.end() &&
-           testIter != uniqueTokenIds.end()) {
-        if (commonIter->first < testIter->first) {
-            return false;
-        }
-
-        if (commonIter->first == testIter->first) {
-            // The tokens must appear the same number of times in the two
-            // strings
-            if (commonIter->second != testIter->second) {
-                return false;
-            }
-            ++commonIter;
-        }
-
-        ++testIter;
-    }
-
-    return commonIter == m_CommonUniqueTokenIds.end();
-}
-
-bool CTokenListCategory::containsCommonTokensInOrder(const TSizeSizePrVec& tokenIds) const {
     auto testIter = tokenIds.begin();
-    for (auto baseTokenId : m_BaseTokenIds) {
+    for (std::size_t index = m_OrderedCommonTokenBeginIndex;
+         index < m_OrderedCommonTokenEndIndex; ++index) {
+        std::size_t baseTokenId{m_BaseTokenIds[index].first};
+
         // Ignore tokens that are not in the common unique tokens
-        if (this->isTokenCommon(baseTokenId.first) == false) {
+        if (this->isTokenCommon(baseTokenId) == false) {
             continue;
         }
 
         // Skip tokens in the test tokens until we find one that matches the
         // base token.  If we reach the end of the test tokens whilst doing
-        // this, it means the test tokens don't contain the base tokens in the
-        // correct order.
+        // this, it means the test tokens don't contain the common ordered base
+        // tokens in the correct order.
         do {
             if (testIter == tokenIds.end()) {
                 return false;
             }
-        } while ((testIter++)->first != baseTokenId.first);
+        } while ((testIter++)->first != baseTokenId);
     }
 
     return true;

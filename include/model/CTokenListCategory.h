@@ -99,11 +99,35 @@ public:
     //!     if (category.missingCommonTokenWeight(uniqueTokenIds) == 0)
     //! instead of calling this method.  However, this method is much faster
     //! as it can return false as soon as a mismatch occurs.
-    bool isMissingCommonTokenWeightZero(const TSizeSizeMap& uniqueTokenIds) const;
+    template<typename PAIR_CONTAINER>
+    bool isMissingCommonTokenWeightZero(const PAIR_CONTAINER& uniqueTokenIds) const {
+
+        auto commonIter = m_CommonUniqueTokenIds.begin();
+        auto testIter = uniqueTokenIds.begin();
+        while (commonIter != m_CommonUniqueTokenIds.end() &&
+               testIter != uniqueTokenIds.end()) {
+            if (commonIter->first < testIter->first) {
+                return false;
+            }
+
+            if (commonIter->first == testIter->first) {
+                // The tokens must appear the same number of times in the two
+                // strings
+                if (commonIter->second != testIter->second) {
+                    return false;
+                }
+                ++commonIter;
+            }
+
+            ++testIter;
+        }
+
+        return commonIter == m_CommonUniqueTokenIds.end();
+    }
 
     //! Does the supplied token vector contain all our common tokens in the
     //! same order as our base token vector?
-    bool containsCommonTokensInOrder(const TSizeSizePrVec& tokenIds) const;
+    bool containsCommonInOrderTokensInOrder(const TSizeSizePrVec& tokenIds) const;
 
     //! \return Does the supplied token ID represent a common unique token?
     bool isTokenCommon(std::size_t tokenId) const;

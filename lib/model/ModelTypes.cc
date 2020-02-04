@@ -2045,5 +2045,15 @@ std::string print(EMemoryStatus memoryStatus) {
     }
     return "-";
 }
+
+std::string print(ECategorizationStatus categorizationStatus) {
+    switch (categorizationStatus) {
+    case E_CategorizationStatusOk:
+        return "ok";
+    case E_CategorizationStatusPoor:
+        return "poor";
+    }
+    return "-";
+}
 }
 }

@@ -37,8 +37,13 @@ BOOST_AUTO_TEST_CASE(testWrite) {
             model_t::E_MemoryStatusOk, // memory status
             core_t::TTime(1521046309), // bucket start time
             0,                         // model bytes exceeded
-            50000                      // model bytes memory limit
-        };
+            50000,                     // model bytes memory limit
+            1000,                      // categorized messages
+            100,                       // total categories
+            7,                         // frequent categories
+            13,                        // rare categories
+            2,                         // dead categories
+            model_t::E_CategorizationStatusPoor};
 
         CModelSnapshotJsonWriter::SModelSnapshotReport report{
             "6.3.0",
@@ -110,14 +115,27 @@ BOOST_AUTO_TEST_CASE(testWrite) {
     BOOST_TEST_REQUIRE(modelSizeStats.HasMember("memory_status"));
     BOOST_REQUIRE_EQUAL(std::string("ok"),
                         std::string(modelSizeStats["memory_status"].GetString()));
-    BOOST_TEST_REQUIRE(modelSizeStats.HasMember("timestamp"));
-    BOOST_REQUIRE_EQUAL(int64_t(1521046309000), modelSizeStats["timestamp"].GetInt64());
-    BOOST_TEST_REQUIRE(modelSizeStats.HasMember("log_time"));
     BOOST_TEST_REQUIRE(modelSizeStats.HasMember("model_bytes_exceeded"));
     BOOST_REQUIRE_EQUAL(int64_t(0), modelSizeStats["model_bytes_exceeded"].GetInt64());
     BOOST_TEST_REQUIRE(modelSizeStats.HasMember("model_bytes_memory_limit"));
     BOOST_REQUIRE_EQUAL(int64_t(50000),
                         modelSizeStats["model_bytes_memory_limit"].GetInt64());
+    BOOST_TEST_REQUIRE(modelSizeStats.HasMember("categorized_doc_count"));
+    BOOST_REQUIRE_EQUAL(int64_t(1000), modelSizeStats["categorized_doc_count"].GetInt64());
+    BOOST_TEST_REQUIRE(modelSizeStats.HasMember("total_category_count"));
+    BOOST_REQUIRE_EQUAL(int64_t(100), modelSizeStats["total_category_count"].GetInt64());
+    BOOST_TEST_REQUIRE(modelSizeStats.HasMember("frequent_category_count"));
+    BOOST_REQUIRE_EQUAL(int64_t(7), modelSizeStats["frequent_category_count"].GetInt64());
+    BOOST_TEST_REQUIRE(modelSizeStats.HasMember("rare_category_count"));
+    BOOST_REQUIRE_EQUAL(int64_t(13), modelSizeStats["rare_category_count"].GetInt64());
+    BOOST_TEST_REQUIRE(modelSizeStats.HasMember("dead_category_count"));
+    BOOST_REQUIRE_EQUAL(int64_t(2), modelSizeStats["dead_category_count"].GetInt64());
+    BOOST_TEST_REQUIRE(modelSizeStats.HasMember("memory_status"));
+    BOOST_REQUIRE_EQUAL(std::string("poor"),
+                        std::string(modelSizeStats["categorization_status"].GetString()));
+    BOOST_TEST_REQUIRE(modelSizeStats.HasMember("timestamp"));
+    BOOST_REQUIRE_EQUAL(int64_t(1521046309000), modelSizeStats["timestamp"].GetInt64());
+    BOOST_TEST_REQUIRE(modelSizeStats.HasMember("log_time"));
 
     BOOST_TEST_REQUIRE(snapshot.HasMember("quantiles"));
     const rapidjson::Value& quantiles = snapshot["quantiles"];

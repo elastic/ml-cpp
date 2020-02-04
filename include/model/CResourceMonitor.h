@@ -49,6 +49,12 @@ public:
         core_t::TTime s_BucketStartTime;
         std::size_t s_BytesExceeded;
         std::size_t s_BytesMemoryLimit;
+        std::size_t s_CategorizedMessages;
+        std::size_t s_TotalCategories;
+        std::size_t s_FrequentCategories;
+        std::size_t s_RareCategories;
+        std::size_t s_DeadCategories;
+        model_t::ECategorizationStatus s_CategorizationStatus;
     };
 
 public:

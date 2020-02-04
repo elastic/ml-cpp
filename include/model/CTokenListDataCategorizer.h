@@ -81,12 +81,6 @@ public:
     //! Get the static size of this object - used for virtual hierarchies
     std::size_t staticSize() const override { return sizeof(*this); }
 
-    //! Currently the overall model memory stats do not contain any categorizer
-    //! stats fields.
-    void updateMemoryResults(CResourceMonitor::SResults& /*results*/) const override {
-        // NO-OP
-    }
-
 protected:
     //! Split the string into a list of tokens.  The result of the
     //! tokenisation is returned in \p tokenIds, \p tokenUniqueIds and
