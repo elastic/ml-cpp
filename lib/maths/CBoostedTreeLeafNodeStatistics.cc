@@ -134,8 +134,7 @@ CBoostedTreeLeafNodeStatistics::split(std::size_t leftChildId,
                                       const TImmutableRadixSetVec& candidateSplits,
                                       const TSizeVec& featureBag,
                                       const CBoostedTreeNode& split,
-                                      bool leftChildHasFewerRows,
-                                      TNodeVec& tree) {
+                                      bool leftChildHasFewerRows) {
     if (leftChildHasFewerRows) {
         auto leftChild = std::make_shared<CBoostedTreeLeafNodeStatistics>(
             leftChildId, m_NumberInputColumns, m_NumberLossParameters,
@@ -146,9 +145,6 @@ CBoostedTreeLeafNodeStatistics::split(std::size_t leftChildId,
         auto rightChild = std::make_shared<CBoostedTreeLeafNodeStatistics>(
             rightChildId, *this, *leftChild, regularization, featureBag,
             std::move(rightChildRowMask));
-
-        tree[leftChildId].numberSamples(leftChild->numberSamples());
-        tree[rightChildId].numberSamples(rightChild->numberSamples());
 
         return std::make_pair(leftChild, rightChild);
     }
@@ -162,8 +158,6 @@ CBoostedTreeLeafNodeStatistics::split(std::size_t leftChildId,
     auto leftChild = std::make_shared<CBoostedTreeLeafNodeStatistics>(
         leftChildId, *this, *rightChild, regularization, featureBag,
         std::move(leftChildRowMask));
-    tree[leftChildId].numberSamples(leftChild->numberSamples());
-    tree[rightChildId].numberSamples(rightChild->numberSamples());
 
     return std::make_pair(leftChild, rightChild);
 }
@@ -403,10 +397,6 @@ CBoostedTreeLeafNodeStatistics::computeBestSplitStatistics(const TRegularization
     LOG_TRACE(<< "best split: " << result.print());
 
     return result;
-}
-
-std::size_t CBoostedTreeLeafNodeStatistics::numberSamples() const {
-    return static_cast<std::size_t>(m_RowMask.manhattan());
 }
 }
 }
