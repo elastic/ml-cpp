@@ -441,7 +441,7 @@ std::size_t CBoostedTree::columnHoldingDependentVariable() const {
 }
 
 std::size_t CBoostedTree::columnHoldingPrediction() const {
-    return m_Impl->numberInputColumns();
+    return predictionColumn(m_Impl->numberInputColumns());
 }
 
 double CBoostedTree::probabilityAtWhichToAssignClassOne() const {

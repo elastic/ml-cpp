@@ -84,25 +84,15 @@ bool intervalIsEmpty(const CBoostedTreeFactory::TVector& interval) {
 }
 
 CBoostedTreeFactory::TBoostedTreeUPtr
-CBoostedTreeFactory::buildFor(core::CDataFrame& frame,
-                              TLossFunctionUPtr loss,
-                              std::size_t dependentVariable) {
-
-    if (loss == nullptr) {
-        HANDLE_FATAL(<< "Internal error: must supply a loss function");
-        return nullptr;
-    }
+CBoostedTreeFactory::buildFor(core::CDataFrame& frame, std::size_t dependentVariable) {
 
     m_TreeImpl->m_DependentVariable = dependentVariable;
-    m_TreeImpl->m_Loss = std::move(loss);
 
     this->initializeNumberFolds(frame);
     this->initializeTrainingProgressMonitoring(frame);
     this->initializeMissingFeatureMasks(frame);
 
-    m_TreeImpl->m_NumberInputColumns = frame.numberColumns();
-    frame.resizeColumns(m_TreeImpl->m_NumberThreads,
-                        frame.numberColumns() + this->numberExtraColumnsForTrain());
+    this->resizeDataFrame(frame);
 
     this->initializeCrossValidation(frame);
     this->selectFeaturesAndEncodeCategories(frame);
@@ -130,11 +120,9 @@ CBoostedTreeFactory::restoreFor(core::CDataFrame& frame, std::size_t dependentVa
     }
 
     this->resumeRestoredTrainingProgressMonitoring();
-
-    m_TreeImpl->m_NumberInputColumns = frame.numberColumns();
     m_TreeImpl->m_Instrumentation = m_Instrumentation;
-    frame.resizeColumns(m_TreeImpl->m_NumberThreads,
-                        frame.numberColumns() + this->numberExtraColumnsForTrain());
+
+    this->resizeDataFrame(frame);
 
     return TBoostedTreeUPtr{
         new CBoostedTree{frame, m_RecordTrainingState, std::move(m_TreeImpl)}};
@@ -281,6 +269,12 @@ void CBoostedTreeFactory::initializeNumberFolds(core::CDataFrame& frame) const {
     }
 }
 
+void CBoostedTreeFactory::resizeDataFrame(core::CDataFrame& frame) const {
+    m_TreeImpl->m_NumberInputColumns = frame.numberColumns();
+    frame.resizeColumns(m_TreeImpl->m_NumberThreads,
+                        frame.numberColumns() + this->numberExtraColumnsForTrain());
+}
+
 void CBoostedTreeFactory::initializeCrossValidation(core::CDataFrame& frame) const {
 
     core::CPackedBitVector allTrainingRowsMask{m_TreeImpl->allTrainingRowsMask()};
@@ -292,14 +286,16 @@ void CBoostedTreeFactory::initializeCrossValidation(core::CDataFrame& frame) con
             m_TreeImpl->m_NumberThreads, frame, dependentVariable, m_TreeImpl->m_Rng,
             m_TreeImpl->m_NumberFolds, numberBuckets, allTrainingRowsMask);
 
-    frame.writeColumns(
-        m_NumberThreads, 0, frame.numberRows(),
-        [&](TRowItr beginRows, TRowItr endRows) {
-            for (auto row = beginRows; row != endRows; ++row) {
-                row->writeColumn(exampleWeightColumn(row->numberColumns()), 1.0);
-            }
-        },
-        &allTrainingRowsMask);
+    frame.writeColumns(m_NumberThreads, 0, frame.numberRows(),
+                       [&](TRowItr beginRows, TRowItr endRows) {
+                           std::size_t column{exampleWeightColumn(
+                               m_TreeImpl->m_NumberInputColumns,
+                               m_TreeImpl->m_Loss->numberParameters())};
+                           for (auto row = beginRows; row != endRows; ++row) {
+                               row->writeColumn(column, 1.0);
+                           }
+                       },
+                       &allTrainingRowsMask);
 }
 
 void CBoostedTreeFactory::selectFeaturesAndEncodeCategories(const core::CDataFrame& frame) const {
@@ -954,14 +950,15 @@ CBoostedTreeFactory::testLossLineSearch(core::CDataFrame& frame,
     return TOptionalVector{interval};
 }
 
-CBoostedTreeFactory CBoostedTreeFactory::constructFromParameters(std::size_t numberThreads) {
-    return {numberThreads};
+CBoostedTreeFactory CBoostedTreeFactory::constructFromParameters(std::size_t numberThreads,
+                                                                 TLossFunctionUPtr loss) {
+    return {numberThreads, std::move(loss)};
 }
 
-CBoostedTreeFactory CBoostedTreeFactory::constructFromString(std::istream& jsonStringStream) {
-    CBoostedTreeFactory result{1};
+CBoostedTreeFactory CBoostedTreeFactory::constructFromString(std::istream& jsonStream) {
+    CBoostedTreeFactory result{1, nullptr};
     try {
-        core::CJsonStateRestoreTraverser traverser(jsonStringStream);
+        core::CJsonStateRestoreTraverser traverser(jsonStream);
         if (result.m_TreeImpl->acceptRestoreTraverser(traverser) == false ||
             traverser.haveBadState()) {
             throw std::runtime_error{"failed to restore boosted tree"};
@@ -972,9 +969,9 @@ CBoostedTreeFactory CBoostedTreeFactory::constructFromString(std::istream& jsonS
     return result;
 }
 
-CBoostedTreeFactory::CBoostedTreeFactory(std::size_t numberThreads)
+CBoostedTreeFactory::CBoostedTreeFactory(std::size_t numberThreads, TLossFunctionUPtr loss)
     : m_NumberThreads{numberThreads},
-      m_TreeImpl{std::make_unique<CBoostedTreeImpl>(numberThreads, nullptr)},
+      m_TreeImpl{std::make_unique<CBoostedTreeImpl>(numberThreads, std::move(loss))},
       m_LogDepthPenaltyMultiplierSearchInterval{0.0}, m_LogTreeSizePenaltyMultiplierSearchInterval{0.0},
       m_LogLeafWeightPenaltyMultiplierSearchInterval{0.0}, m_TopShapValues{0} {
 }
@@ -1163,7 +1160,7 @@ std::size_t CBoostedTreeFactory::estimateMemoryUsage(std::size_t numberRows,
 }
 
 std::size_t CBoostedTreeFactory::numberExtraColumnsForTrain() const {
-    return CBoostedTreeImpl::numberExtraColumnsForTrain();
+    return CBoostedTreeImpl::numberExtraColumnsForTrain(m_TreeImpl->m_Loss->numberParameters());
 }
 
 void CBoostedTreeFactory::initializeTrainingProgressMonitoring(const core::CDataFrame& frame) {

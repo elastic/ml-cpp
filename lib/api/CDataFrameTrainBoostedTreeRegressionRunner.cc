@@ -44,7 +44,8 @@ CDataFrameTrainBoostedTreeRegressionRunner::parameterReader() {
 CDataFrameTrainBoostedTreeRegressionRunner::CDataFrameTrainBoostedTreeRegressionRunner(
     const CDataFrameAnalysisSpecification& spec,
     const CDataFrameAnalysisParameters& parameters)
-    : CDataFrameTrainBoostedTreeRunner{spec, parameters} {
+    : CDataFrameTrainBoostedTreeRunner{
+          spec, parameters, std::make_unique<maths::boosted_tree::CMse>()} {
 
     this->boostedTreeFactory().stratifyRegressionCrossValidation(
         parameters[STRATIFIED_CROSS_VALIDATION].fallback(true));
@@ -59,11 +60,6 @@ CDataFrameTrainBoostedTreeRegressionRunner::CDataFrameTrainBoostedTreeRegression
                      << core::CContainerPrinter::print(PREDICTION_FIELD_NAME_BLACKLIST)
                      << ".");
     }
-}
-
-CDataFrameTrainBoostedTreeRegressionRunner::CDataFrameTrainBoostedTreeRegressionRunner(
-    const CDataFrameAnalysisSpecification& spec)
-    : CDataFrameTrainBoostedTreeRunner{spec} {
 }
 
 void CDataFrameTrainBoostedTreeRegressionRunner::writeOneRow(
@@ -100,10 +96,8 @@ void CDataFrameTrainBoostedTreeRegressionRunner::writeOneRow(
     writer.EndObject();
 }
 
-CDataFrameTrainBoostedTreeRegressionRunner::TLossFunctionUPtr
-CDataFrameTrainBoostedTreeRegressionRunner::chooseLossFunction(const core::CDataFrame&,
-                                                               std::size_t) const {
-    return std::make_unique<maths::boosted_tree::CMse>();
+void CDataFrameTrainBoostedTreeRegressionRunner::validate(const core::CDataFrame&,
+                                                          std::size_t) const {
 }
 
 CDataFrameAnalysisRunner::TInferenceModelDefinitionUPtr
@@ -126,8 +120,10 @@ const std::string& CDataFrameTrainBoostedTreeRegressionRunnerFactory::name() con
 }
 
 CDataFrameTrainBoostedTreeRegressionRunnerFactory::TRunnerUPtr
-CDataFrameTrainBoostedTreeRegressionRunnerFactory::makeImpl(const CDataFrameAnalysisSpecification& spec) const {
-    return std::make_unique<CDataFrameTrainBoostedTreeRegressionRunner>(spec);
+CDataFrameTrainBoostedTreeRegressionRunnerFactory::makeImpl(const CDataFrameAnalysisSpecification&) const {
+    HANDLE_FATAL(<< "Input error: classification has a non-optional parameter '"
+                 << CDataFrameTrainBoostedTreeRunner::DEPENDENT_VARIABLE_NAME << "'.")
+    return nullptr;
 }
 
 CDataFrameTrainBoostedTreeRegressionRunnerFactory::TRunnerUPtr
