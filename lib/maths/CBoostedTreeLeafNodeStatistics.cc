@@ -398,5 +398,9 @@ CBoostedTreeLeafNodeStatistics::computeBestSplitStatistics(const TRegularization
 
     return result;
 }
+
+std::size_t CBoostedTreeLeafNodeStatistics::numberSamples() const {
+    return static_cast<std::size_t>(m_RowMask.manhattan());
+}
 }
 }

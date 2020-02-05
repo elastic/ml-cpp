@@ -265,8 +265,9 @@ public:
                              bool assignMissingToLeft,
                              double nodeValue,
                              double gain,
-                             TOptionalNodeIndex leftChild,
-                             TOptionalNodeIndex rightChild) = 0;
+                             std::size_t numberSamples,
+                             maths::CBoostedTreeNode::TOptionalNodeIndex leftChild,
+                             maths::CBoostedTreeNode::TOptionalNodeIndex rightChild) = 0;
     };
 
 public:
@@ -313,12 +314,13 @@ public:
     TNodeIndex rightChildIndex() const { return m_RightChild.get(); }
 
     //! Split this node and add its child nodes to \p tree.
-    TSizeSizePr split(std::size_t splitFeature,
-                      double splitValue,
-                      bool assignMissingToLeft,
-                      double gain,
-                      double curvature,
-                      TNodeVec& tree);
+    CBoostedTreeNode::TSizeSizePr split(std::size_t splitFeature,
+                                        double splitValue,
+                                        bool assignMissingToLeft,
+                                        double gain,
+                                        double curvature,
+                                        std::size_t numberSamples,
+                                        TNodeVec& tree);
 
     //! Get the feature index of the split.
     std::size_t splitFeature() const { return m_SplitFeature; }
@@ -348,6 +350,12 @@ private:
     double m_NodeValue = 0.0;
     double m_Gain = 0.0;
     double m_Curvature = 0.0;
+    std::size_t m_NumberSamples = 0;
+
+public:
+    size_t numberSamples() const;
+
+    void numberSamples(size_t numberSamples);
 };
 
 //! \brief A boosted regression tree model.

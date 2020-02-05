@@ -665,6 +665,7 @@ CBoostedTreeImpl::trainTree(core::CDataFrame& frame,
         std::priority_queue<TLeafNodeStatisticsPtr, std::vector<TLeafNodeStatisticsPtr>, COrderings::SLess>;
 
     TNodeVec tree(1);
+    tree[0].numberSamples(trainingRowMask.manhattan());
     tree.reserve(2 * maximumTreeSize + 1);
 
     TLeafNodeStatisticsPtrQueue leaves;
@@ -712,9 +713,9 @@ CBoostedTreeImpl::trainTree(core::CDataFrame& frame,
         bool assignMissingToLeft{leaf->assignMissingToLeft()};
 
         std::size_t leftChildId, rightChildId;
-        std::tie(leftChildId, rightChildId) =
-            tree[leaf->id()].split(splitFeature, splitValue, assignMissingToLeft,
-                                   leaf->gain(), leaf->curvature(), tree);
+        std::tie(leftChildId, rightChildId) = tree[leaf->id()].split(
+            splitFeature, splitValue, assignMissingToLeft, leaf->gain(),
+            leaf->curvature(), leaf->numberSamples(), tree);
 
         TLeafNodeStatisticsPtr leftChild;
         TLeafNodeStatisticsPtr rightChild;
@@ -722,6 +723,8 @@ CBoostedTreeImpl::trainTree(core::CDataFrame& frame,
             leaf->split(leftChildId, rightChildId, m_NumberThreads, frame, *m_Encoder,
                         m_Regularization, candidateSplits, this->featureBag(),
                         tree[leaf->id()], leftChildHasFewerRows);
+        tree[leftChild->id()].numberSamples(leftChild->numberSamples());
+        tree[rightChild->id()].numberSamples(rightChild->numberSamples());
 
         scopeMemoryUsage.add(leftChild);
         scopeMemoryUsage.add(rightChild);

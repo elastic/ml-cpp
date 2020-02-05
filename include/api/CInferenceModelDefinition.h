@@ -154,9 +154,15 @@ public:
         using TOptionalDouble = boost::optional<double>;
 
     public:
-        CTreeNode(TNodeIndex nodeIndex, double threshold, bool defaultLeft, double leafValue, size_t splitFeature,
-                  const TOptionalNodeIndex &leftChild, const TOptionalNodeIndex &rightChild,
-                  const TOptionalDouble &splitGain, std::size_t samplesNumber);
+        CTreeNode(TNodeIndex nodeIndex,
+                  double threshold,
+                  bool defaultLeft,
+                  double leafValue,
+                  size_t splitFeature,
+                  const TOptionalNodeIndex& leftChild,
+                  const TOptionalNodeIndex& rightChild,
+                  const TOptionalDouble& splitGain,
+                  std::size_t numberSamples);
 
         void addToDocument(rapidjson::Value& parentObject, TRapidJsonWriter& writer) const override;
         size_t splitFeature() const;

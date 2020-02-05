@@ -113,12 +113,18 @@ void CTree::CTreeNode::addToDocument(rapidjson::Value& parentObject,
     }
 }
 
-CTree::CTreeNode::CTreeNode(TNodeIndex nodeIndex, double threshold, bool defaultLeft, double leafValue,
+CTree::CTreeNode::CTreeNode(TNodeIndex nodeIndex,
+                            double threshold,
+                            bool defaultLeft,
+                            double leafValue,
                             size_t splitFeature,
-                            const TOptionalNodeIndex &leftChild, const TOptionalNodeIndex &rightChild,
-                            const TOptionalDouble &splitGain, std::size_t samplesNumber)
-    : m_DefaultLeft(defaultLeft), m_NodeIndex(nodeIndex), m_LeftChild(leftChild),
-      m_RightChild(rightChild), m_SplitFeature(splitFeature), m_SamplesNumber(samplesNumber),
+                            const TOptionalNodeIndex& leftChild,
+                            const TOptionalNodeIndex& rightChild,
+                            const TOptionalDouble& splitGain,
+                            std::size_t numberSamples)
+    : m_DefaultLeft(defaultLeft), m_NodeIndex(nodeIndex),
+      m_LeftChild(leftChild), m_RightChild(rightChild),
+      m_SplitFeature(splitFeature), m_SamplesNumber(numberSamples),
       m_Threshold(threshold), m_LeafValue(leafValue), m_SplitGain(splitGain) {
 }
 

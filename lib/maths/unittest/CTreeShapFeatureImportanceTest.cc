@@ -71,9 +71,9 @@ struct SFixtureSingleTree {
         s_Frame->finishWritingRows();
 
         TTree tree(1);
-        tree[0].split(0, 0.5, true, 0.0, 0.0, tree);
-        tree[1].split(1, 0.5, true, 0.0, 0.0, tree);
-        tree[2].split(1, 0.5, true, 0.0, 0.0, tree);
+        tree[0].split(0, 0.5, true, 0.0, 0.0, 0, tree);
+        tree[1].split(1, 0.5, true, 0.0, 0.0, 0, tree);
+        tree[2].split(1, 0.5, true, 0.0, 0.0, 0, tree);
         tree[3].value(3);
         tree[4].value(8);
         tree[5].value(13);
@@ -138,7 +138,7 @@ struct SFixtureSingleTreeRandom {
             rng.generateUniformSamples(bottom[nodeIndex][splitFeature[0]],
                                        top[nodeIndex][splitFeature[0]], 1, splitThreshold);
             s_Tree[nodeIndex].split(splitFeature[0], splitThreshold[0], true,
-                                    0.0, 0.0, s_Tree);
+                                    0.0, 0.0, 0, s_Tree);
             // keep the management of the boundaries, to make sure the generated thresholds are realistic
             TDoubleVec leftChildBottom{bottom[nodeIndex]};
             TDoubleVec rightChildBottom{bottom[nodeIndex]};
@@ -188,18 +188,18 @@ struct SFixtureMultipleTrees {
         s_Frame->finishWritingRows();
 
         TTree tree1(1);
-        tree1[0].split(0, 0.55, true, 0.0, 0.0, tree1);
-        tree1[1].split(0, 0.41, true, 0.0, 0.0, tree1);
-        tree1[2].split(1, 0.25, true, 0.0, 0.0, tree1);
+        tree1[0].split(0, 0.55, true, 0.0, 0.0, 0, tree1);
+        tree1[1].split(0, 0.41, true, 0.0, 0.0, 0, tree1);
+        tree1[2].split(1, 0.25, true, 0.0, 0.0, 0, tree1);
         tree1[3].value(1.18230136);
         tree1[4].value(1.98006658);
         tree1[5].value(3.25350885);
         tree1[6].value(2.42384369);
 
         TTree tree2(1);
-        tree2[0].split(0, 0.45, true, 0.0, 0.0, tree2);
-        tree2[1].split(0, 0.25, true, 0.0, 0.0, tree2);
-        tree2[2].split(0, 0.59, true, 0.0, 0.0, tree2);
+        tree2[0].split(0, 0.45, true, 0.0, 0.0, 0, tree2);
+        tree2[1].split(0, 0.25, true, 0.0, 0.0, 0, tree2);
+        tree2[2].split(0, 0.59, true, 0.0, 0.0, 0, tree2);
         tree2[3].value(1.04476388);
         tree2[4].value(1.52799228);
         tree2[5].value(1.98006658);
