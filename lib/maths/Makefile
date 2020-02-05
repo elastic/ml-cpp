@@ -27,6 +27,8 @@ CBoostedTree.cc \
 CBoostedTreeFactory.cc \
 CBoostedTreeHyperparameters.cc \
 CBoostedTreeImpl.cc \
+CBoostedTreeLeafNodeStatistics.cc \
+CBoostedTreeUtils.cc \
 CCalendarCyclicTest.cc \
 CCalendarComponentAdaptiveBucketing.cc \
 CCalendarComponent.cc \
