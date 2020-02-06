@@ -1159,7 +1159,8 @@ std::size_t CBoostedTreeImpl::maximumTreeSize(std::size_t numberRows) const {
 namespace {
 const std::string VERSION_7_5_TAG{"7.5"};
 const std::string VERSION_7_6_TAG{"7.6"};
-const TStrVec SUPPORTED_VERSIONS{VERSION_7_5_TAG, VERSION_7_6_TAG};
+const std::string VERSION_7_7_TAG{"7.6"};
+const TStrVec SUPPORTED_VERSIONS{VERSION_7_7_TAG};
 
 const std::string BAYESIAN_OPTIMIZATION_TAG{"bayesian_optimization"};
 const std::string BEST_FOREST_TAG{"best_forest"};
@@ -1223,7 +1224,7 @@ CBoostedTreeImpl::TStrVec CBoostedTreeImpl::bestHyperparameterNames() {
 }
 
 void CBoostedTreeImpl::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
-    core::CPersistUtils::persist(VERSION_7_6_TAG, "", inserter);
+    core::CPersistUtils::persist(VERSION_7_7_TAG, "", inserter);
     core::CPersistUtils::persist(BAYESIAN_OPTIMIZATION_TAG, *m_BayesianOptimization, inserter);
     core::CPersistUtils::persist(BEST_FOREST_TEST_LOSS_TAG, m_BestForestTestLoss, inserter);
     core::CPersistUtils::persist(CURRENT_ROUND_TAG, m_CurrentRound, inserter);
@@ -1275,15 +1276,7 @@ void CBoostedTreeImpl::acceptPersistInserter(core::CStatePersistInserter& insert
 }
 
 bool CBoostedTreeImpl::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
-    if (traverser.name() == VERSION_7_5_TAG) {
-        // Force downsample factor to 1.0.
-        m_DownsampleFactorOverride = 1.0;
-        m_DownsampleFactor = 1.0;
-        m_BestHyperparameters.downsampleFactor(1.0);
-        // We can't stop cross-validation early because we haven't gathered the
-        // per fold test losses.
-        m_StopCrossValidationEarly = false;
-    } else if (traverser.name() != VERSION_7_6_TAG) {
+    if (traverser.name() != VERSION_7_7_TAG) {
         LOG_ERROR(<< "Input error: unsupported state serialization version. "
                   << "Currently supported versions: "
                   << core::CContainerPrinter::print(SUPPORTED_VERSIONS) << ".");
