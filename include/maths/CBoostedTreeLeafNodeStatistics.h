@@ -11,6 +11,7 @@
 #include <core/CPackedBitVector.h>
 #include <core/CSmallVector.h>
 
+#include <maths/CBoostedTree.h>
 #include <maths/CBoostedTreeHyperparameters.h>
 #include <maths/CBoostedTreeUtils.h>
 #include <maths/COrderings.h>
@@ -45,6 +46,7 @@ public:
     using TImmutableRadixSetVec = std::vector<core::CImmutableRadixSet<double>>;
     using TPtr = std::shared_ptr<CBoostedTreeLeafNodeStatistics>;
     using TPtrPtrPr = std::pair<TPtr, TPtr>;
+    using TNodeVec = CBoostedTree::TNodeVec;
 
 public:
     CBoostedTreeLeafNodeStatistics(std::size_t id,
@@ -99,7 +101,8 @@ public:
                     const TImmutableRadixSetVec& candidateSplits,
                     const TSizeVec& featureBag,
                     const CBoostedTreeNode& split,
-                    bool leftChildHasFewerRows);
+                    bool leftChildHasFewerRows,
+                    TNodeVec& tree);
 
     //! Order two leaves by decreasing gain in splitting them.
     bool operator<(const CBoostedTreeLeafNodeStatistics& rhs) const;
