@@ -568,7 +568,7 @@ void CTokenListDataCategorizerBase::updateModelSizeStats(CResourceMonitor::SMode
         }
     }
 
-    // Categorization status is poor if:
+    // Categorization status is "warn" if:
     // - At least 100 messages have been categorized
     // and one of the following holds:
     // - There is only 1 category
@@ -582,7 +582,7 @@ void CTokenListDataCategorizerBase::updateModelSizeStats(CResourceMonitor::SMode
          2 * modelSizeStats.s_TotalCategories > modelSizeStats.s_CategorizedMessages ||
          modelSizeStats.s_FrequentCategories == 0 ||
          2 * modelSizeStats.s_DeadCategories > modelSizeStats.s_TotalCategories)) {
-        modelSizeStats.s_CategorizationStatus = model_t::E_CategorizationStatusPoor;
+        modelSizeStats.s_CategorizationStatus = model_t::E_CategorizationStatusWarn;
     } else {
         modelSizeStats.s_CategorizationStatus = model_t::E_CategorizationStatusOk;
     }

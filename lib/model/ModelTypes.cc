@@ -2050,8 +2050,8 @@ std::string print(ECategorizationStatus categorizationStatus) {
     switch (categorizationStatus) {
     case E_CategorizationStatusOk:
         return "ok";
-    case E_CategorizationStatusPoor:
-        return "poor";
+    case E_CategorizationStatusWarn:
+        return "warn";
     }
     return "-";
 }

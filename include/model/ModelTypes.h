@@ -803,11 +803,11 @@ MODEL_EXPORT
 std::string print(EMemoryStatus memoryStatus);
 
 //! An enumeration of the TokenListDataCategorizer status -
-//! Start in the OK state. Moves into the poor state if too
+//! Start in the OK state. Moves into the "warn" state if too
 //! few categories are being seen frequently.
 enum ECategorizationStatus {
     E_CategorizationStatusOk = 0,  //!< Categorization working as intended
-    E_CategorizationStatusPoor = 1 //!< Too many categories being created
+    E_CategorizationStatusWarn = 1 //!< Too many categories being created
 };
 
 //! Get a string description of \p categorizationStatus.
