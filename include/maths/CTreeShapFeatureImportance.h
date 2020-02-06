@@ -41,10 +41,7 @@ public:
     void shap(core::CDataFrame& frame, const CDataFrameCategoryEncoder& encoder, std::size_t offset);
 
     //! Compute number of training samples from \p frame that pass every node in the \p tree.
-    static TDoubleVec samplesPerNode(const TTree& tree,
-                                     const core::CDataFrame& frame,
-                                     const CDataFrameCategoryEncoder& encoder,
-                                     std::size_t numThreads);
+    static CTreeShapFeatureImportance::TDoubleVec numberSamples(const TTree& tree);
 
     //! Recursively computes inner node values as weighted average of the children (leaf) values
     //! \returns The maximum depth the the tree.

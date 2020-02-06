@@ -309,6 +309,8 @@ public:
 
     void numberSamples(size_t numberSamples);
 
+    size_t numberSamples() const;
+
     //! Get the index of the left child node.
     TNodeIndex leftChildIndex() const { return m_LeftChild.get(); }
 

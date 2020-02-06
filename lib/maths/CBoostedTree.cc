@@ -426,6 +426,10 @@ void CBoostedTreeNode::numberSamples(size_t numberSamples) {
     m_NumberSamples = numberSamples;
 }
 
+size_t CBoostedTreeNode::numberSamples() const {
+    return m_NumberSamples;
+}
+
 CBoostedTree::CBoostedTree(core::CDataFrame& frame,
                            TTrainingStateCallback recordTrainingState,
                            TImplUPtr&& impl)
