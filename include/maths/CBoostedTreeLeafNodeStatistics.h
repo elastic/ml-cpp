@@ -119,6 +119,7 @@ public:
     //! Check if the left child has fewer rows than the right child.
     bool leftChildHasFewerRows() const;
 
+    //! Get number of training samples in this leaf node.
     std::size_t numberSamples() const;
 
     //! Check if we should assign the missing feature rows to the left child

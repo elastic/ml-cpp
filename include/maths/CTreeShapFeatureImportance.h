@@ -40,7 +40,7 @@ public:
     //! by \p offset.
     void shap(core::CDataFrame& frame, const CDataFrameCategoryEncoder& encoder, std::size_t offset);
 
-    //! Compute number of training samples from \p frame that pass every node in the \p tree.
+    //! Return the array with number of training samples affected by every node of the \p tree.
     static CTreeShapFeatureImportance::TDoubleVec numberSamples(const TTree& tree);
 
     //! Recursively computes inner node values as weighted average of the children (leaf) values

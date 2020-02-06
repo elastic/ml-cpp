@@ -307,8 +307,10 @@ public:
     //! Get the total curvature at the rows below this node.
     double curvature() const { return m_Curvature; }
 
-    void numberSamples(size_t numberSamples);
+    //! Set the number of samples to \p value.
+    void numberSamples(size_t value);
 
+    //! Get number of samples affected by the node.
     size_t numberSamples() const;
 
     //! Get the index of the left child node.
