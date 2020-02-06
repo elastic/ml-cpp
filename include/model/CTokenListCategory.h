@@ -108,15 +108,14 @@ public:
     bool isMissingCommonTokenWeightZero(const PAIR_CONTAINER& uniqueTokenIds) const {
 
         auto testIter = uniqueTokenIds.begin();
-        for (auto commonIter = m_CommonUniqueTokenIds.begin();
-             commonIter != m_CommonUniqueTokenIds.end(); ++commonIter) {
+        for (const auto& commonItem : m_CommonUniqueTokenIds) {
             testIter = std::find_if(testIter, uniqueTokenIds.end(),
-                                    [&commonIter](const auto& testItem) {
-                                        return testItem.first >= commonIter->first;
+                                    [&commonItem](const auto& testItem) {
+                                        return testItem.first >= commonItem.first;
                                     });
             if (testIter == uniqueTokenIds.end() ||
-                testIter->first != commonIter->first ||
-                testIter->second != commonIter->second) {
+                testIter->first != commonItem.first ||
+                testIter->second != commonItem.second) {
                 return false;
             }
             ++testIter;

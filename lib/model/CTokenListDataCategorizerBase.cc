@@ -568,24 +568,54 @@ void CTokenListDataCategorizerBase::updateModelSizeStats(CResourceMonitor::SMode
         }
     }
 
+    modelSizeStats.s_CategorizationStatus = CTokenListDataCategorizerBase::calculateCategorizationStatus(
+        modelSizeStats.s_CategorizedMessages, modelSizeStats.s_TotalCategories,
+        modelSizeStats.s_FrequentCategories, modelSizeStats.s_RareCategories,
+        modelSizeStats.s_DeadCategories);
+}
+
+model_t::ECategorizationStatus
+CTokenListDataCategorizerBase::calculateCategorizationStatus(std::size_t categorizedMessages,
+                                                             std::size_t totalCategories,
+                                                             std::size_t frequentCategories,
+                                                             std::size_t rareCategories,
+                                                             std::size_t deadCategories) {
+
     // Categorization status is "warn" if:
+
     // - At least 100 messages have been categorized
-    // and one of the following holds:
-    // - There is only 1 category
-    // - More than 90% of categories are rare
-    // - The number of categories is greater than 50% of the number of categorized messages
-    // - There are no frequent match categories
-    // - More than 50% of categories are dead
-    if (modelSizeStats.s_CategorizedMessages > 100 &&
-        (modelSizeStats.s_TotalCategories == 1 ||
-         10 * modelSizeStats.s_RareCategories > 9 * modelSizeStats.s_TotalCategories ||
-         2 * modelSizeStats.s_TotalCategories > modelSizeStats.s_CategorizedMessages ||
-         modelSizeStats.s_FrequentCategories == 0 ||
-         2 * modelSizeStats.s_DeadCategories > modelSizeStats.s_TotalCategories)) {
-        modelSizeStats.s_CategorizationStatus = model_t::E_CategorizationStatusWarn;
-    } else {
-        modelSizeStats.s_CategorizationStatus = model_t::E_CategorizationStatusOk;
+    if (categorizedMessages <= 100) {
+        return model_t::E_CategorizationStatusOk;
     }
+
+    // and one of the following holds:
+
+    // - There is only 1 category
+    if (totalCategories == 1) {
+        return model_t::E_CategorizationStatusWarn;
+    }
+
+    // - More than 90% of categories are rare
+    if (10 * rareCategories > 9 * totalCategories) {
+        return model_t::E_CategorizationStatusWarn;
+    }
+
+    // - The number of categories is greater than 50% of the number of categorized messages
+    if (2 * totalCategories > categorizedMessages) {
+        return model_t::E_CategorizationStatusWarn;
+    }
+
+    // - There are no frequent match categories
+    if (frequentCategories == 0) {
+        return model_t::E_CategorizationStatusWarn;
+    }
+
+    // - More than 50% of categories are dead
+    if (2 * deadCategories > totalCategories) {
+        return model_t::E_CategorizationStatusWarn;
+    }
+
+    return model_t::E_CategorizationStatusOk;
 }
 
 CTokenListDataCategorizerBase::CTokenInfoItem::CTokenInfoItem(const std::string& str,

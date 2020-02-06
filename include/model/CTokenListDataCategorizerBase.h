@@ -12,6 +12,7 @@
 #include <model/CDataCategorizer.h>
 #include <model/CTokenListCategory.h>
 #include <model/ImportExport.h>
+#include <model/ModelTypes.h>
 
 #include <iosfwd>
 #include <map>
@@ -159,6 +160,21 @@ public:
 
     //! Update the model size stats with information from this categorizer.
     void updateModelSizeStats(CResourceMonitor::SModelSizeStats& modelSizeStats) const override;
+
+    //! Categorization status is "warn" if:
+    //! - At least 100 messages have been categorized
+    //! and one of the following holds:
+    //! - There is only 1 category
+    //! - More than 90% of categories are rare
+    //! - The number of categories is greater than 50% of the number of categorized messages
+    //! - There are no frequent match categories
+    //! - More than 50% of categories are dead
+    static model_t::ECategorizationStatus
+    calculateCategorizationStatus(std::size_t categorizedMessages,
+                                  std::size_t totalCategories,
+                                  std::size_t frequentCategories,
+                                  std::size_t rareCategories,
+                                  std::size_t deadCategories);
 
 protected:
     //! Split the string into a list of tokens.  The result of the
