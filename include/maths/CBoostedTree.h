@@ -307,6 +307,8 @@ public:
     //! Get the total curvature at the rows below this node.
     double curvature() const { return m_Curvature; }
 
+    void numberSamples(size_t numberSamples);
+
     //! Get the index of the left child node.
     TNodeIndex leftChildIndex() const { return m_LeftChild.get(); }
 
@@ -351,11 +353,6 @@ private:
     double m_Gain = 0.0;
     double m_Curvature = 0.0;
     std::size_t m_NumberSamples = 0;
-
-public:
-    size_t numberSamples() const;
-
-    void numberSamples(size_t numberSamples);
 };
 
 //! \brief A boosted regression tree model.

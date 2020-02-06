@@ -158,11 +158,11 @@ public:
                   double threshold,
                   bool defaultLeft,
                   double leafValue,
-                  size_t splitFeature,
+                  std::size_t splitFeature,
+                  std::size_t numberSamples,
                   const TOptionalNodeIndex& leftChild,
                   const TOptionalNodeIndex& rightChild,
-                  const TOptionalDouble& splitGain,
-                  std::size_t numberSamples);
+                  const TOptionalDouble& splitGain);
 
         void addToDocument(rapidjson::Value& parentObject, TRapidJsonWriter& writer) const override;
         size_t splitFeature() const;

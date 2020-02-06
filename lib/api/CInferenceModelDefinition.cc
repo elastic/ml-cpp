@@ -80,7 +80,8 @@ void addJsonArray(const std::string& tag,
 void CTree::CTreeNode::addToDocument(rapidjson::Value& parentObject,
                                      TRapidJsonWriter& writer) const {
     writer.addMember(JSON_NODE_INDEX_TAG, rapidjson::Value(m_NodeIndex).Move(), parentObject);
-    writer.addMember(JSON_NUMBER_SAMPLES_TAG, rapidjson::Value(m_NumberSamples).Move(), parentObject);
+    writer.addMember(JSON_NUMBER_SAMPLES_TAG,
+                     rapidjson::Value(m_NumberSamples).Move(), parentObject);
 
     if (m_LeftChild) {
         // internal node
@@ -119,11 +120,11 @@ CTree::CTreeNode::CTreeNode(TNodeIndex nodeIndex,
                             double threshold,
                             bool defaultLeft,
                             double leafValue,
-                            size_t splitFeature,
+                            std::size_t splitFeature,
+                            std::size_t numberSamples,
                             const TOptionalNodeIndex& leftChild,
                             const TOptionalNodeIndex& rightChild,
-                            const TOptionalDouble& splitGain,
-                            std::size_t numberSamples)
+                            const TOptionalDouble& splitGain)
     : m_DefaultLeft(defaultLeft), m_NodeIndex(nodeIndex),
       m_LeftChild(leftChild), m_RightChild(rightChild),
       m_SplitFeature(splitFeature), m_NumberSamples(numberSamples),

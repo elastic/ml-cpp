@@ -247,7 +247,7 @@ BOOST_AUTO_TEST_CASE(testIntegrationClassification) {
 }
 
 BOOST_AUTO_TEST_CASE(testJsonSchema) {
-    std::size_t numberExamples = 200;
+    std::size_t numberExamples = 1000;
     std::size_t cols = 3;
     test::CRandomNumbers rng;
     TDoubleVec weights{0.1, 100.0};
@@ -289,8 +289,6 @@ BOOST_AUTO_TEST_CASE(testJsonSchema) {
     auto analysisRunner = analyzer.runner();
     TStrVecVec categoryMappingVector{{}, {"cat1", "cat2", "cat3"}, {}};
     auto definition = analysisRunner->inferenceModelDefinition(fieldNames, categoryMappingVector);
-
-    LOG_DEBUG(<< definition->jsonString());
 
     std::ifstream schemaFileStream("testfiles/inference_json_schema/model_definition.schema.json");
     BOOST_REQUIRE_MESSAGE(schemaFileStream.is_open(), "Cannot open test file!");
