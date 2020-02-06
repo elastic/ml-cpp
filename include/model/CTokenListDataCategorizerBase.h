@@ -157,9 +157,8 @@ public:
     //! Get the memory used by this categorizer.
     std::size_t memoryUsage() const override;
 
-    //! Currently the overall model memory stats do not contain any categorizer
-    //! stats fields.
-    void updateMemoryResults(CResourceMonitor::SResults& results) const override;
+    //! Update the model size stats with information from this categorizer.
+    void updateModelSizeStats(CResourceMonitor::SModelSizeStats& modelSizeStats) const override;
 
 protected:
     //! Split the string into a list of tokens.  The result of the

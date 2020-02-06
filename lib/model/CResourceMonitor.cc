@@ -260,42 +260,19 @@ void CResourceMonitor::sendMemoryUsageReport(core_t::TTime bucketStartTime) {
     m_PreviousTotal = total;
 }
 
-CResourceMonitor::SResults CResourceMonitor::createMemoryUsageReport(core_t::TTime bucketStartTime) {
-    SResults res;
-    res.s_ByFields = 0;
-    res.s_OverFields = 0;
-    res.s_PartitionFields = 0;
+CResourceMonitor::SModelSizeStats
+CResourceMonitor::createMemoryUsageReport(core_t::TTime bucketStartTime) {
+    SModelSizeStats res;
     res.s_Usage = this->totalMemory();
     res.s_AdjustedUsage = this->adjustedUsage(res.s_Usage);
     res.s_BytesMemoryLimit = 2 * m_ByteLimitHigh;
     res.s_BytesExceeded = m_CurrentBytesExceeded;
-    res.s_AllocationFailures = 0;
     res.s_MemoryStatus = m_MemoryStatus;
     res.s_BucketStartTime = bucketStartTime;
-    res.s_CategorizedMessages = 0;
-    res.s_TotalCategories = 0;
-    res.s_FrequentCategories = 0;
-    res.s_RareCategories = 0;
-    res.s_DeadCategories = 0;
-    res.s_CategorizationStatus = model_t::E_CategorizationStatusOk;
     for (const auto& resource : m_Resources) {
-        resource.first->updateMemoryResults(res);
+        resource.first->updateModelSizeStats(res);
     }
     res.s_AllocationFailures += m_AllocationFailures.size();
-    // Categorization status is poor if:
-    // - At least 100 messages have been categorized
-    // and one of the following holds:
-    // - There is only 1 category
-    // - More than 90% of categories have 1 message
-    // - The number of categories is greater than 50% of the number of categorized messages
-    // - There are no frequent match categories
-    // - More than 50% of categories are dead
-    if (res.s_CategorizedMessages > 100 &&
-        (res.s_TotalCategories == 1 || 10 * res.s_RareCategories > 9 * res.s_TotalCategories ||
-         2 * res.s_TotalCategories > res.s_CategorizedMessages ||
-         res.s_FrequentCategories == 0 || 2 * res.s_DeadCategories > res.s_TotalCategories)) {
-        res.s_CategorizationStatus = model_t::E_CategorizationStatusPoor;
-    }
     return res;
 }
 

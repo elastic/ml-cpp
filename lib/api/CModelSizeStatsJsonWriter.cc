@@ -34,7 +34,7 @@ const std::string LOG_TIME{"log_time"};
 }
 
 void CModelSizeStatsJsonWriter::write(const std::string& jobId,
-                                      const model::CResourceMonitor::SResults& results,
+                                      const model::CResourceMonitor::SModelSizeStats& results,
                                       core::CRapidJsonConcurrentLineWriter& writer) {
     writer.String(MODEL_SIZE_STATS);
     writer.StartObject();

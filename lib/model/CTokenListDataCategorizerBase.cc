@@ -91,11 +91,11 @@ int CTokenListDataCategorizerBase::computeCategory(bool isDryRun,
         // further checks.  The first condition here ensures that we never say
         // a string with tokens matches the reverse search of a string with no
         // tokens (which the other criteria alone might say matched).
-        bool matchesSearch(
+        bool matchesSearch{
             (baseWeight == 0) == (workWeight == 0) &&
             compCategory.maxMatchingStringLen() >= rawStringLen &&
             compCategory.isMissingCommonTokenWeightZero(m_WorkTokenUniqueIds) &&
-            compCategory.containsCommonInOrderTokensInOrder(m_WorkTokenIds));
+            compCategory.containsCommonInOrderTokensInOrder(m_WorkTokenIds)};
         if (!matchesSearch) {
             // Quickly rule out wildly different token weights prior to doing
             // the expensive similarity calculations
@@ -528,15 +528,15 @@ std::size_t CTokenListDataCategorizerBase::memoryUsage() const {
     return mem;
 }
 
-void CTokenListDataCategorizerBase::updateMemoryResults(CResourceMonitor::SResults& results) const {
+void CTokenListDataCategorizerBase::updateModelSizeStats(CResourceMonitor::SModelSizeStats& modelSizeStats) const {
 
-    results.s_TotalCategories = m_Categories.size();
+    modelSizeStats.s_TotalCategories = m_Categories.size();
 
     std::size_t categorizedMessagesThisCategorizer{0};
     for (auto categoryByCount : m_CategoriesByCount) {
         categorizedMessagesThisCategorizer += categoryByCount.first;
     }
-    results.s_CategorizedMessages += categorizedMessagesThisCategorizer;
+    modelSizeStats.s_CategorizedMessages += categorizedMessagesThisCategorizer;
 
     for (std::size_t i = 0; i < m_CategoriesByCount.size(); ++i) {
         const CTokenListCategory& category{m_Categories[m_CategoriesByCount[i].second]};
@@ -544,21 +544,21 @@ void CTokenListDataCategorizerBase::updateMemoryResults(CResourceMonitor::SResul
         // - rare = single match
         // - frequent = matches more than 1% of messages
         if (category.numMatches() == 1) {
-            ++results.s_RareCategories;
+            ++modelSizeStats.s_RareCategories;
         } else if (category.numMatches() * 100 > categorizedMessagesThisCategorizer) {
-            ++results.s_FrequentCategories;
+            ++modelSizeStats.s_FrequentCategories;
         }
         for (std::size_t j = 0; j < i; ++j) {
             const CTokenListCategory& moreFrequentCategory{
                 m_Categories[m_CategoriesByCount[j].second]};
-            bool matchesSearch(moreFrequentCategory.maxMatchingStringLen() >=
+            bool matchesSearch{moreFrequentCategory.maxMatchingStringLen() >=
                                    category.maxMatchingStringLen() &&
                                moreFrequentCategory.isMissingCommonTokenWeightZero(
                                    category.commonUniqueTokenIds()) &&
                                moreFrequentCategory.containsCommonInOrderTokensInOrder(
-                                   category.baseTokenIds()));
+                                   category.baseTokenIds())};
             if (matchesSearch) {
-                ++results.s_DeadCategories;
+                ++modelSizeStats.s_DeadCategories;
                 LOG_DEBUG(<< "Category " << (m_CategoriesByCount[i].second + 1)
                           << " (" << category.baseString() << ") is killed by category "
                           << (m_CategoriesByCount[j].second + 1) << " ("
@@ -567,11 +567,30 @@ void CTokenListDataCategorizerBase::updateMemoryResults(CResourceMonitor::SResul
             }
         }
     }
+
+    // Categorization status is poor if:
+    // - At least 100 messages have been categorized
+    // and one of the following holds:
+    // - There is only 1 category
+    // - More than 90% of categories are rare
+    // - The number of categories is greater than 50% of the number of categorized messages
+    // - There are no frequent match categories
+    // - More than 50% of categories are dead
+    if (modelSizeStats.s_CategorizedMessages > 100 &&
+        (modelSizeStats.s_TotalCategories == 1 ||
+         10 * modelSizeStats.s_RareCategories > 9 * modelSizeStats.s_TotalCategories ||
+         2 * modelSizeStats.s_TotalCategories > modelSizeStats.s_CategorizedMessages ||
+         modelSizeStats.s_FrequentCategories == 0 ||
+         2 * modelSizeStats.s_DeadCategories > modelSizeStats.s_TotalCategories)) {
+        modelSizeStats.s_CategorizationStatus = model_t::E_CategorizationStatusPoor;
+    } else {
+        modelSizeStats.s_CategorizationStatus = model_t::E_CategorizationStatusOk;
+    }
 }
 
 CTokenListDataCategorizerBase::CTokenInfoItem::CTokenInfoItem(const std::string& str,
                                                               std::size_t index)
-    : m_Str(str), m_Index(index), m_CategoryCount(0) {
+    : m_Str{str}, m_Index{index}, m_CategoryCount{0} {
 }
 
 const std::string& CTokenListDataCategorizerBase::CTokenInfoItem::str() const {
@@ -611,7 +630,7 @@ CTokenListDataCategorizerBase::CSizePairFirstElementEquals::CSizePairFirstElemen
 CTokenListDataCategorizerBase::SIdTranslater::SIdTranslater(const CTokenListDataCategorizerBase& categorizer,
                                                             const TSizeSizePrVec& tokenIds,
                                                             char separator)
-    : s_Categorizer(categorizer), s_TokenIds(tokenIds), s_Separator(separator) {
+    : s_Categorizer{categorizer}, s_TokenIds{tokenIds}, s_Separator{separator} {
 }
 
 std::ostream& operator<<(std::ostream& strm,

@@ -11,7 +11,6 @@
 #include <core/CStateRestoreTraverser.h>
 #include <core/CStringUtils.h>
 
-#include <algorithm>
 #include <functional>
 
 namespace ml {

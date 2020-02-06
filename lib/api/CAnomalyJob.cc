@@ -1179,7 +1179,7 @@ bool CAnomalyJob::persistModelsState(const TKeyCRefAnomalyDetectorPtrPrVec& dete
 bool CAnomalyJob::persistCopiedState(const std::string& descriptionPrefix,
                                      core_t::TTime time,
                                      const TKeyCRefAnomalyDetectorPtrPrVec& detectors,
-                                     const model::CResourceMonitor::SResults& modelSizeStats,
+                                     const model::CResourceMonitor::SModelSizeStats& modelSizeStats,
                                      const model::CInterimBucketCorrector& interimBucketCorrector,
                                      const model::CHierarchicalResultsAggregator& aggregator,
                                      const std::string& normalizerState,
@@ -1563,7 +1563,7 @@ void CAnomalyJob::addRecord(const TAnomalyDetectorPtr detector,
 
 CAnomalyJob::SBackgroundPersistArgs::SBackgroundPersistArgs(
     core_t::TTime time,
-    const model::CResourceMonitor::SResults& modelSizeStats,
+    const model::CResourceMonitor::SModelSizeStats& modelSizeStats,
     const model::CInterimBucketCorrector& interimBucketCorrector,
     const model::CHierarchicalResultsAggregator& aggregator,
     core_t::TTime latestRecordTime,

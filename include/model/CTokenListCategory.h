@@ -10,6 +10,7 @@
 
 #include <model/ImportExport.h>
 
+#include <algorithm>
 #include <map>
 #include <string>
 #include <utility>
@@ -94,35 +95,34 @@ public:
     //! this category's common unique tokens?
     std::size_t missingCommonTokenWeight(const TSizeSizeMap& uniqueTokenIds) const;
 
-    //! Is the weight of tokens in a given map that are missing from this
-    //! category's common unique tokens equal to zero?  It is possible to test:
+    //! Is the weight of tokens in the provided container that are missing from
+    //! this category's common unique tokens equal to zero?  It is possible to
+    //! test:
     //!     if (category.missingCommonTokenWeight(uniqueTokenIds) == 0)
     //! instead of calling this method.  However, this method is much faster
     //! as it can return false as soon as a mismatch occurs.
+    //! \param uniqueTokenIds A container of pairs where the first element is
+    //!                       a token ID and the container is sorted into
+    //!                       ascending token ID order.
     template<typename PAIR_CONTAINER>
     bool isMissingCommonTokenWeightZero(const PAIR_CONTAINER& uniqueTokenIds) const {
 
-        auto commonIter = m_CommonUniqueTokenIds.begin();
         auto testIter = uniqueTokenIds.begin();
-        while (commonIter != m_CommonUniqueTokenIds.end() &&
-               testIter != uniqueTokenIds.end()) {
-            if (commonIter->first < testIter->first) {
+        for (auto commonIter = m_CommonUniqueTokenIds.begin();
+             commonIter != m_CommonUniqueTokenIds.end(); ++commonIter) {
+            testIter = std::find_if(testIter, uniqueTokenIds.end(),
+                                    [&commonIter](const auto& testItem) {
+                                        return testItem.first >= commonIter->first;
+                                    });
+            if (testIter == uniqueTokenIds.end() ||
+                testIter->first != commonIter->first ||
+                testIter->second != commonIter->second) {
                 return false;
             }
-
-            if (commonIter->first == testIter->first) {
-                // The tokens must appear the same number of times in the two
-                // strings
-                if (commonIter->second != testIter->second) {
-                    return false;
-                }
-                ++commonIter;
-            }
-
             ++testIter;
         }
 
-        return commonIter == m_CommonUniqueTokenIds.end();
+        return true;
     }
 
     //! Does the supplied token vector contain all our common tokens in the
