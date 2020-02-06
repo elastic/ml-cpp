@@ -472,6 +472,7 @@ CBoostedTreeImpl::trainForest(core::CDataFrame& frame,
     TNodeVecVec forest{this->initializePredictionsAndLossDerivatives(
         frame, trainingRowMask, testingRowMask)};
     forest.reserve(m_MaximumNumberTrees);
+    forest[0][0].numberSamples(trainingRowMask.manhattan());
 
     CScopeRecordMemoryUsage scopeMemoryUsage{forest, recordMemoryUsage};
 

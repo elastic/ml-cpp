@@ -176,7 +176,7 @@ public:
         TOptionalNodeIndex m_LeftChild;
         TOptionalNodeIndex m_RightChild;
         std::size_t m_SplitFeature;
-        std::size_t m_SamplesNumber;
+        std::size_t m_NumberSamples;
         double m_Threshold;
         double m_LeafValue;
         TOptionalDouble m_SplitGain;

@@ -290,6 +290,8 @@ BOOST_AUTO_TEST_CASE(testJsonSchema) {
     TStrVecVec categoryMappingVector{{}, {"cat1", "cat2", "cat3"}, {}};
     auto definition = analysisRunner->inferenceModelDefinition(fieldNames, categoryMappingVector);
 
+    LOG_DEBUG(<< definition->jsonString());
+
     std::ifstream schemaFileStream("testfiles/inference_json_schema/model_definition.schema.json");
     BOOST_REQUIRE_MESSAGE(schemaFileStream.is_open(), "Cannot open test file!");
     std::string schemaJson((std::istreambuf_iterator<char>(schemaFileStream)),

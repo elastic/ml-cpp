@@ -419,7 +419,7 @@ std::ostringstream& CBoostedTreeNode::doPrint(std::string pad,
 
 void CBoostedTreeNode::accept(CVisitor& visitor) const {
     visitor.addNode(m_SplitFeature, m_SplitValue, m_AssignMissingToLeft,
-                    m_NodeValue, m_Gain, 0, m_LeftChild, m_RightChild);
+                    m_NodeValue, m_Gain, m_NumberSamples, m_LeftChild, m_RightChild);
 }
 
 size_t CBoostedTreeNode::numberSamples() const {

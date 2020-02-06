@@ -34,6 +34,7 @@ const std::string JSON_LEFT_CHILD_TAG{"left_child"};
 const std::string JSON_LOGISTIC_REGRESSION_TAG{"logistic_regression"};
 const std::string JSON_LT{"lt"};
 const std::string JSON_NODE_INDEX_TAG{"node_index"};
+const std::string JSON_NUMBER_SAMPLES_TAG{"number_samples"};
 const std::string JSON_ONE_HOT_ENCODING_TAG{"one_hot_encoding"};
 const std::string JSON_PREPROCESSORS_TAG{"preprocessors"};
 const std::string JSON_RIGHT_CHILD_TAG{"right_child"};
@@ -79,6 +80,7 @@ void addJsonArray(const std::string& tag,
 void CTree::CTreeNode::addToDocument(rapidjson::Value& parentObject,
                                      TRapidJsonWriter& writer) const {
     writer.addMember(JSON_NODE_INDEX_TAG, rapidjson::Value(m_NodeIndex).Move(), parentObject);
+    writer.addMember(JSON_NUMBER_SAMPLES_TAG, rapidjson::Value(m_NumberSamples).Move(), parentObject);
 
     if (m_LeftChild) {
         // internal node
@@ -124,7 +126,7 @@ CTree::CTreeNode::CTreeNode(TNodeIndex nodeIndex,
                             std::size_t numberSamples)
     : m_DefaultLeft(defaultLeft), m_NodeIndex(nodeIndex),
       m_LeftChild(leftChild), m_RightChild(rightChild),
-      m_SplitFeature(splitFeature), m_SamplesNumber(numberSamples),
+      m_SplitFeature(splitFeature), m_NumberSamples(numberSamples),
       m_Threshold(threshold), m_LeafValue(leafValue), m_SplitGain(splitGain) {
 }
 
