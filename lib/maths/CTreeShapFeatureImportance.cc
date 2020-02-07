@@ -36,8 +36,8 @@ void CTreeShapFeatureImportance::shap(core::CDataFrame& frame,
                 for (std::size_t i = 0; i < m_Trees.size(); ++i) {
                     SPath path(maxDepthVec[i] + 1);
                     CTreeShapFeatureImportance::shapRecursive(
-                            m_Trees[i], m_NumberSamples[i], encoder, encodedRow,
-                            path, 0, 1.0, 1.0, -1, offset, row);
+                        m_Trees[i], m_NumberSamples[i], encoder, encodedRow,
+                        path, 0, 1.0, 1.0, -1, offset, row);
                 }
             }
         });
@@ -68,9 +68,9 @@ std::size_t CTreeShapFeatureImportance::updateNodeValues(TTree& tree,
     }
 
     std::size_t depthLeft{CTreeShapFeatureImportance::updateNodeValues(
-            tree, node.leftChildIndex(), numberSamples, depth + 1)};
+        tree, node.leftChildIndex(), numberSamples, depth + 1)};
     std::size_t depthRight{CTreeShapFeatureImportance::updateNodeValues(
-            tree, node.rightChildIndex(), numberSamples, depth + 1)};
+        tree, node.rightChildIndex(), numberSamples, depth + 1)};
 
     double leftWeight{numberSamples[node.leftChildIndex()]};
     double rightWeight{numberSamples[node.rightChildIndex()]};
