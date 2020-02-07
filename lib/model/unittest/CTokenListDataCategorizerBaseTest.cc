@@ -60,4 +60,34 @@ BOOST_AUTO_TEST_CASE(testMaxMatchingWeights) {
                         ml::model::CTokenListDataCategorizerBase::maxMatchingWeight(10, 0.7));
 }
 
+BOOST_AUTO_TEST_CASE(testCalculateCategorizationStatus) {
+    BOOST_REQUIRE_EQUAL(ml::model_t::E_CategorizationStatusOk,
+                        ml::model::CTokenListDataCategorizerBase::calculateCategorizationStatus(
+                            99, 99, 0, 99, 0));
+
+    BOOST_REQUIRE_EQUAL(ml::model_t::E_CategorizationStatusWarn,
+                        ml::model::CTokenListDataCategorizerBase::calculateCategorizationStatus(
+                            1000, 1, 1, 0, 0));
+
+    BOOST_REQUIRE_EQUAL(ml::model_t::E_CategorizationStatusWarn,
+                        ml::model::CTokenListDataCategorizerBase::calculateCategorizationStatus(
+                            1000, 100, 3, 91, 1));
+
+    BOOST_REQUIRE_EQUAL(ml::model_t::E_CategorizationStatusWarn,
+                        ml::model::CTokenListDataCategorizerBase::calculateCategorizationStatus(
+                            1000, 501, 1, 99, 0));
+
+    BOOST_REQUIRE_EQUAL(ml::model_t::E_CategorizationStatusWarn,
+                        ml::model::CTokenListDataCategorizerBase::calculateCategorizationStatus(
+                            1000, 200, 0, 20, 0));
+
+    BOOST_REQUIRE_EQUAL(ml::model_t::E_CategorizationStatusWarn,
+                        ml::model::CTokenListDataCategorizerBase::calculateCategorizationStatus(
+                            1000, 300, 2, 50, 151));
+
+    BOOST_REQUIRE_EQUAL(ml::model_t::E_CategorizationStatusOk,
+                        ml::model::CTokenListDataCategorizerBase::calculateCategorizationStatus(
+                            1000, 120, 20, 40, 1));
+}
+
 BOOST_AUTO_TEST_SUITE_END()

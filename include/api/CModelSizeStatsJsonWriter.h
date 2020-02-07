@@ -24,7 +24,7 @@ class API_EXPORT CModelSizeStatsJsonWriter : private core::CNonInstantiatable {
 public:
     //! Writes the model size stats in the \p results in JSON format.
     static void write(const std::string& jobId,
-                      const model::CResourceMonitor::SResults& results,
+                      const model::CResourceMonitor::SModelSizeStats& results,
                       core::CRapidJsonConcurrentLineWriter& writer);
 };
 }

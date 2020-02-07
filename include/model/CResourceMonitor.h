@@ -38,23 +38,30 @@ class CMonitoredResource;
 //! Assess memory used by models and decide on further memory allocations.
 class MODEL_EXPORT CResourceMonitor {
 public:
-    struct MODEL_EXPORT SResults {
-        std::size_t s_Usage;
-        std::size_t s_AdjustedUsage;
-        std::size_t s_ByFields;
-        std::size_t s_PartitionFields;
-        std::size_t s_OverFields;
-        std::size_t s_AllocationFailures;
-        model_t::EMemoryStatus s_MemoryStatus;
-        core_t::TTime s_BucketStartTime;
-        std::size_t s_BytesExceeded;
-        std::size_t s_BytesMemoryLimit;
+    struct MODEL_EXPORT SModelSizeStats {
+        std::size_t s_Usage = 0;
+        std::size_t s_AdjustedUsage = 0;
+        std::size_t s_ByFields = 0;
+        std::size_t s_PartitionFields = 0;
+        std::size_t s_OverFields = 0;
+        std::size_t s_AllocationFailures = 0;
+        model_t::EMemoryStatus s_MemoryStatus = model_t::E_MemoryStatusOk;
+        core_t::TTime s_BucketStartTime = 0;
+        std::size_t s_BytesExceeded = 0;
+        std::size_t s_BytesMemoryLimit = 0;
+        std::size_t s_CategorizedMessages = 0;
+        std::size_t s_TotalCategories = 0;
+        std::size_t s_FrequentCategories = 0;
+        std::size_t s_RareCategories = 0;
+        std::size_t s_DeadCategories = 0;
+        model_t::ECategorizationStatus s_CategorizationStatus = model_t::E_CategorizationStatusOk;
     };
 
 public:
     using TMonitoredResourcePtrSizeUMap =
         boost::unordered_map<CMonitoredResource*, std::size_t>;
-    using TMemoryUsageReporterFunc = std::function<void(const CResourceMonitor::SResults&)>;
+    using TMemoryUsageReporterFunc =
+        std::function<void(const CResourceMonitor::SModelSizeStats&)>;
     using TTimeSizeMap = std::map<core_t::TTime, std::size_t>;
 
     //! The minimum time between prunes
@@ -109,7 +116,7 @@ public:
     void sendMemoryUsageReport(core_t::TTime bucketStartTime);
 
     //! Create a memory usage report
-    SResults createMemoryUsageReport(core_t::TTime bucketStartTime);
+    SModelSizeStats createMemoryUsageReport(core_t::TTime bucketStartTime);
 
     //! We are being told that a class has failed to allocate memory
     //! based on the resource limits, and we will report this to the

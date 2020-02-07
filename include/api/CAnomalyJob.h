@@ -120,14 +120,14 @@ public:
 
     struct SBackgroundPersistArgs {
         SBackgroundPersistArgs(core_t::TTime time,
-                               const model::CResourceMonitor::SResults& modelSizeStats,
+                               const model::CResourceMonitor::SModelSizeStats& modelSizeStats,
                                const model::CInterimBucketCorrector& interimBucketCorrector,
                                const model::CHierarchicalResultsAggregator& aggregator,
                                core_t::TTime latestRecordTime,
                                core_t::TTime lastResultsTime);
 
         core_t::TTime s_Time;
-        model::CResourceMonitor::SResults s_ModelSizeStats;
+        model::CResourceMonitor::SModelSizeStats s_ModelSizeStats;
         model::CInterimBucketCorrector s_InterimBucketCorrector;
         model::CHierarchicalResultsAggregator s_Aggregator;
         std::string s_NormalizerState;
@@ -258,7 +258,7 @@ private:
     bool persistCopiedState(const std::string& descriptionPrefix,
                             core_t::TTime time,
                             const TKeyCRefAnomalyDetectorPtrPrVec& detectors,
-                            const model::CResourceMonitor::SResults& modelSizeStats,
+                            const model::CResourceMonitor::SModelSizeStats& modelSizeStats,
                             const model::CInterimBucketCorrector& interimBucketCorrector,
                             const model::CHierarchicalResultsAggregator& aggregator,
                             const std::string& normalizerState,

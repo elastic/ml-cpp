@@ -58,9 +58,10 @@ public:
     //! discarding the least recently seen entities it knows about.
     virtual void prune(std::size_t maximumAge);
 
-    //! Update the overall model memory stats results with stats from this
+    //! Update the overall model size stats results with stats from this
     //! monitored resource.
-    virtual void updateMemoryResults(CResourceMonitor::SResults& results) const = 0;
+    virtual void
+    updateModelSizeStats(CResourceMonitor::SModelSizeStats& modelSizeStats) const = 0;
 };
 }
 }

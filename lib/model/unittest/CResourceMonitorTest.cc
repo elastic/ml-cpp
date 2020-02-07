@@ -32,8 +32,8 @@ public:
         CStringStore::influencers().clearEverythingTestOnly();
     }
 
-    void reportCallback(const CResourceMonitor::SResults& results) {
-        m_CallbackResults = results;
+    void reportCallback(const CResourceMonitor::SModelSizeStats& modelSizeStats) {
+        m_ReportedModelSizeStats = modelSizeStats;
     }
 
     void addTestData(core_t::TTime& firstTime,
@@ -83,7 +83,7 @@ public:
     }
 
 protected:
-    CResourceMonitor::SResults m_CallbackResults;
+    CResourceMonitor::SModelSizeStats m_ReportedModelSizeStats;
 };
 
 BOOST_FIXTURE_TEST_CASE(testMonitor, CTestFixture) {
@@ -252,15 +252,15 @@ BOOST_FIXTURE_TEST_CASE(testMonitor, CTestFixture) {
 
         mon.memoryUsageReporter(std::bind(&CTestFixture::reportCallback, this,
                                           std::placeholders::_1));
-        m_CallbackResults.s_Usage = 0;
-        BOOST_REQUIRE_EQUAL(std::size_t(0), m_CallbackResults.s_Usage);
+        m_ReportedModelSizeStats.s_Usage = 0;
+        BOOST_REQUIRE_EQUAL(std::size_t(0), m_ReportedModelSizeStats.s_Usage);
 
         mon.refresh(categorizer);
         mon.refresh(detector1);
         mon.refresh(detector2);
         mon.sendMemoryUsageReportIfSignificantlyChanged(0);
-        BOOST_REQUIRE_EQUAL(mem, m_CallbackResults.s_Usage);
-        BOOST_REQUIRE_EQUAL(model_t::E_MemoryStatusOk, m_CallbackResults.s_MemoryStatus);
+        BOOST_REQUIRE_EQUAL(mem, m_ReportedModelSizeStats.s_Usage);
+        BOOST_REQUIRE_EQUAL(model_t::E_MemoryStatusOk, m_ReportedModelSizeStats.s_MemoryStatus);
     }
     {
         // Test the report callback for allocation failures
@@ -271,8 +271,8 @@ BOOST_FIXTURE_TEST_CASE(testMonitor, CTestFixture) {
 
         mon.memoryUsageReporter(std::bind(&CTestFixture::reportCallback, this,
                                           std::placeholders::_1));
-        m_CallbackResults.s_AllocationFailures = 0;
-        BOOST_REQUIRE_EQUAL(std::size_t(0), m_CallbackResults.s_AllocationFailures);
+        m_ReportedModelSizeStats.s_AllocationFailures = 0;
+        BOOST_REQUIRE_EQUAL(std::size_t(0), m_ReportedModelSizeStats.s_AllocationFailures);
 
         // Set a soft-limit degraded status
         mon.acceptPruningResult();
@@ -282,27 +282,28 @@ BOOST_FIXTURE_TEST_CASE(testMonitor, CTestFixture) {
         mon.refresh(detector1);
         mon.refresh(detector2);
         mon.sendMemoryUsageReportIfSignificantlyChanged(0);
-        BOOST_REQUIRE_EQUAL(std::size_t(0), m_CallbackResults.s_AllocationFailures);
-        BOOST_REQUIRE_EQUAL(mem, m_CallbackResults.s_Usage);
-        BOOST_REQUIRE_EQUAL(model_t::E_MemoryStatusSoftLimit, m_CallbackResults.s_MemoryStatus);
+        BOOST_REQUIRE_EQUAL(std::size_t(0), m_ReportedModelSizeStats.s_AllocationFailures);
+        BOOST_REQUIRE_EQUAL(mem, m_ReportedModelSizeStats.s_Usage);
+        BOOST_REQUIRE_EQUAL(model_t::E_MemoryStatusSoftLimit,
+                            m_ReportedModelSizeStats.s_MemoryStatus);
 
         // Set some canary values
-        m_CallbackResults.s_AllocationFailures = 12345;
-        m_CallbackResults.s_ByFields = 54321;
-        m_CallbackResults.s_OverFields = 23456;
-        m_CallbackResults.s_PartitionFields = 65432;
-        m_CallbackResults.s_Usage = 1357924;
+        m_ReportedModelSizeStats.s_AllocationFailures = 12345;
+        m_ReportedModelSizeStats.s_ByFields = 54321;
+        m_ReportedModelSizeStats.s_OverFields = 23456;
+        m_ReportedModelSizeStats.s_PartitionFields = 65432;
+        m_ReportedModelSizeStats.s_Usage = 1357924;
 
         // This should not trigger a report
         mon.refresh(categorizer);
         mon.refresh(detector1);
         mon.refresh(detector2);
         mon.sendMemoryUsageReportIfSignificantlyChanged(0);
-        BOOST_REQUIRE_EQUAL(std::size_t(12345), m_CallbackResults.s_AllocationFailures);
-        BOOST_REQUIRE_EQUAL(std::size_t(54321), m_CallbackResults.s_ByFields);
-        BOOST_REQUIRE_EQUAL(std::size_t(23456), m_CallbackResults.s_OverFields);
-        BOOST_REQUIRE_EQUAL(std::size_t(65432), m_CallbackResults.s_PartitionFields);
-        BOOST_REQUIRE_EQUAL(std::size_t(1357924), m_CallbackResults.s_Usage);
+        BOOST_REQUIRE_EQUAL(std::size_t(12345), m_ReportedModelSizeStats.s_AllocationFailures);
+        BOOST_REQUIRE_EQUAL(std::size_t(54321), m_ReportedModelSizeStats.s_ByFields);
+        BOOST_REQUIRE_EQUAL(std::size_t(23456), m_ReportedModelSizeStats.s_OverFields);
+        BOOST_REQUIRE_EQUAL(std::size_t(65432), m_ReportedModelSizeStats.s_PartitionFields);
+        BOOST_REQUIRE_EQUAL(std::size_t(1357924), m_ReportedModelSizeStats.s_Usage);
 
         // Add some memory failures, which should be reported
         mon.acceptAllocationFailureResult(14400000);
@@ -316,28 +317,29 @@ BOOST_FIXTURE_TEST_CASE(testMonitor, CTestFixture) {
         mon.refresh(detector1);
         mon.refresh(detector2);
         mon.sendMemoryUsageReportIfSignificantlyChanged(0);
-        BOOST_REQUIRE_EQUAL(std::size_t(3), m_CallbackResults.s_AllocationFailures);
-        BOOST_REQUIRE_EQUAL(mem, m_CallbackResults.s_Usage);
+        BOOST_REQUIRE_EQUAL(std::size_t(3), m_ReportedModelSizeStats.s_AllocationFailures);
+        BOOST_REQUIRE_EQUAL(mem, m_ReportedModelSizeStats.s_Usage);
         BOOST_REQUIRE_EQUAL(core_t::TTime(14402000), mon.m_LastAllocationFailureReport);
-        BOOST_REQUIRE_EQUAL(model_t::E_MemoryStatusHardLimit, m_CallbackResults.s_MemoryStatus);
+        BOOST_REQUIRE_EQUAL(model_t::E_MemoryStatusHardLimit,
+                            m_ReportedModelSizeStats.s_MemoryStatus);
 
         // Set some canary values
-        m_CallbackResults.s_AllocationFailures = 12345;
-        m_CallbackResults.s_ByFields = 54321;
-        m_CallbackResults.s_OverFields = 23456;
-        m_CallbackResults.s_PartitionFields = 65432;
-        m_CallbackResults.s_Usage = 1357924;
+        m_ReportedModelSizeStats.s_AllocationFailures = 12345;
+        m_ReportedModelSizeStats.s_ByFields = 54321;
+        m_ReportedModelSizeStats.s_OverFields = 23456;
+        m_ReportedModelSizeStats.s_PartitionFields = 65432;
+        m_ReportedModelSizeStats.s_Usage = 1357924;
 
         // As nothing has changed, nothing should be reported
         mon.refresh(categorizer);
         mon.refresh(detector1);
         mon.refresh(detector2);
         mon.sendMemoryUsageReportIfSignificantlyChanged(0);
-        BOOST_REQUIRE_EQUAL(std::size_t(12345), m_CallbackResults.s_AllocationFailures);
-        BOOST_REQUIRE_EQUAL(std::size_t(54321), m_CallbackResults.s_ByFields);
-        BOOST_REQUIRE_EQUAL(std::size_t(23456), m_CallbackResults.s_OverFields);
-        BOOST_REQUIRE_EQUAL(std::size_t(65432), m_CallbackResults.s_PartitionFields);
-        BOOST_REQUIRE_EQUAL(std::size_t(1357924), m_CallbackResults.s_Usage);
+        BOOST_REQUIRE_EQUAL(std::size_t(12345), m_ReportedModelSizeStats.s_AllocationFailures);
+        BOOST_REQUIRE_EQUAL(std::size_t(54321), m_ReportedModelSizeStats.s_ByFields);
+        BOOST_REQUIRE_EQUAL(std::size_t(23456), m_ReportedModelSizeStats.s_OverFields);
+        BOOST_REQUIRE_EQUAL(std::size_t(65432), m_ReportedModelSizeStats.s_PartitionFields);
+        BOOST_REQUIRE_EQUAL(std::size_t(1357924), m_ReportedModelSizeStats.s_Usage);
     }
     {
         // Test the need to report usage based on a change in levels, up and down
@@ -352,7 +354,7 @@ BOOST_FIXTURE_TEST_CASE(testMonitor, CTestFixture) {
         mon.m_MonitoredResourceCurrentMemory = 10;
         BOOST_TEST_REQUIRE(mon.needToSendReport());
         mon.sendMemoryUsageReport(0);
-        BOOST_REQUIRE_EQUAL(origTotalMemory + 10, m_CallbackResults.s_Usage);
+        BOOST_REQUIRE_EQUAL(origTotalMemory + 10, m_ReportedModelSizeStats.s_Usage);
 
         // Nothing new added, so no report
         BOOST_TEST_REQUIRE(!mon.needToSendReport());
@@ -362,13 +364,13 @@ BOOST_FIXTURE_TEST_CASE(testMonitor, CTestFixture) {
         BOOST_TEST_REQUIRE(mon.needToSendReport());
         mon.sendMemoryUsageReport(0);
         BOOST_REQUIRE_EQUAL(origTotalMemory + 11 + (origTotalMemory + 9) / 10,
-                            m_CallbackResults.s_Usage);
+                            m_ReportedModelSizeStats.s_Usage);
 
         // Huge increase should trigger a need
         mon.m_MonitoredResourceCurrentMemory = 1000;
         BOOST_TEST_REQUIRE(mon.needToSendReport());
         mon.sendMemoryUsageReport(0);
-        BOOST_REQUIRE_EQUAL(origTotalMemory + 1000, m_CallbackResults.s_Usage);
+        BOOST_REQUIRE_EQUAL(origTotalMemory + 1000, m_ReportedModelSizeStats.s_Usage);
 
         // 0.1% increase should not trigger a need
         mon.m_MonitoredResourceCurrentMemory += 1 + (origTotalMemory + 999) / 1000;
@@ -378,7 +380,7 @@ BOOST_FIXTURE_TEST_CASE(testMonitor, CTestFixture) {
         mon.m_MonitoredResourceCurrentMemory = 900;
         BOOST_TEST_REQUIRE(mon.needToSendReport());
         mon.sendMemoryUsageReport(0);
-        BOOST_REQUIRE_EQUAL(origTotalMemory + 900, m_CallbackResults.s_Usage);
+        BOOST_REQUIRE_EQUAL(origTotalMemory + 900, m_ReportedModelSizeStats.s_Usage);
 
         // A tiny decrease should not trigger a need
         mon.m_MonitoredResourceCurrentMemory = 899;

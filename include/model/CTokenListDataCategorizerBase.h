@@ -12,9 +12,9 @@
 #include <model/CDataCategorizer.h>
 #include <model/CTokenListCategory.h>
 #include <model/ImportExport.h>
+#include <model/ModelTypes.h>
 
 #include <iosfwd>
-#include <list>
 #include <map>
 #include <memory>
 #include <string>
@@ -75,8 +75,9 @@ public:
     //! second -> weighting
     using TSizeSizePr = std::pair<std::size_t, std::size_t>;
 
-    //! Used for storing token ID sequences
+    //! Used for storing token ID sequences and categories with counts
     using TSizeSizePrVec = std::vector<TSizeSizePr>;
+    using TSizeSizePrVecItr = TSizeSizePrVec::iterator;
 
     //! Used for storing distinct token IDs
     using TSizeSizeMap = std::map<std::size_t, std::size_t>;
@@ -157,6 +158,24 @@ public:
     //! Get the memory used by this categorizer.
     std::size_t memoryUsage() const override;
 
+    //! Update the model size stats with information from this categorizer.
+    void updateModelSizeStats(CResourceMonitor::SModelSizeStats& modelSizeStats) const override;
+
+    //! Categorization status is "warn" if:
+    //! - At least 100 messages have been categorized
+    //! and one of the following holds:
+    //! - There is only 1 category
+    //! - More than 90% of categories are rare
+    //! - The number of categories is greater than 50% of the number of categorized messages
+    //! - There are no frequent match categories
+    //! - More than 50% of categories are dead
+    static model_t::ECategorizationStatus
+    calculateCategorizationStatus(std::size_t categorizedMessages,
+                                  std::size_t totalCategories,
+                                  std::size_t frequentCategories,
+                                  std::size_t rareCategories,
+                                  std::size_t deadCategories);
+
 protected:
     //! Split the string into a list of tokens.  The result of the
     //! tokenisation is returned in \p tokenIds, \p tokenUniqueIds and
@@ -180,19 +199,13 @@ protected:
                               const TSizeSizePrVec& right,
                               std::size_t rightWeight) const = 0;
 
-    //! Used to hold statistics about the categories we compute:
-    //! first -> count of matches
-    //! second -> category vector index
-    using TSizeSizePrList = std::list<TSizeSizePr>;
-    using TSizeSizePrListItr = TSizeSizePrList::iterator;
-
     //! Add a match to an existing category
     void addCategoryMatch(bool isDryRun,
                           const std::string& str,
                           std::size_t rawStringLen,
                           const TSizeSizePrVec& tokenIds,
                           const TSizeSizeMap& tokenUniqueIds,
-                          TSizeSizePrListItr& iter);
+                          TSizeSizePrVecItr& iter);
 
     //! Given the total token weight in a vector and a threshold, what is
     //! the minimum possible token weight in a different vector that could
@@ -304,7 +317,7 @@ private:
 
     //! List of match count/index into category vector in descending order of
     //! match count
-    TSizeSizePrList m_CategoriesByCount;
+    TSizeSizePrVec m_CategoriesByCount;
 
     //! Used for looking up tokens to a unique ID
     TTokenMIndex m_TokenIdLookup;

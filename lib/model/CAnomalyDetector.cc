@@ -627,11 +627,11 @@ void CAnomalyDetector::prune(std::size_t maximumAge) {
     m_Model->prune(maximumAge);
 }
 
-void CAnomalyDetector::updateMemoryResults(CResourceMonitor::SResults& results) const {
-    ++results.s_PartitionFields;
+void CAnomalyDetector::updateModelSizeStats(CResourceMonitor::SModelSizeStats& modelSizeStats) const {
+    ++modelSizeStats.s_PartitionFields;
     const auto& dataGatherer = m_Model->dataGatherer();
-    results.s_OverFields += dataGatherer.numberOverFieldValues();
-    results.s_ByFields += dataGatherer.numberByFieldValues();
+    modelSizeStats.s_OverFields += dataGatherer.numberOverFieldValues();
+    modelSizeStats.s_ByFields += dataGatherer.numberByFieldValues();
 }
 
 const core_t::TTime& CAnomalyDetector::lastBucketEndTime() const {
