@@ -1159,7 +1159,7 @@ std::size_t CBoostedTreeImpl::maximumTreeSize(std::size_t numberRows) const {
 namespace {
 const std::string VERSION_7_5_TAG{"7.5"};
 const std::string VERSION_7_6_TAG{"7.6"};
-const std::string VERSION_7_7_TAG{"7.6"};
+const std::string VERSION_7_7_TAG{"7.7"};
 const TStrVec SUPPORTED_VERSIONS{VERSION_7_7_TAG};
 
 const std::string BAYESIAN_OPTIMIZATION_TAG{"bayesian_optimization"};
