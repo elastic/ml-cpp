@@ -33,7 +33,7 @@ public:
         std::string s_Description;
         std::string s_SnapshotId;
         size_t s_NumDocs;
-        model::CResourceMonitor::SResults s_ModelSizeStats;
+        model::CResourceMonitor::SModelSizeStats s_ModelSizeStats;
         std::string s_NormalizerState;
         core_t::TTime s_LatestRecordTime;
         core_t::TTime s_LatestFinalResultTime;

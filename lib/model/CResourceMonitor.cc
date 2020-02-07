@@ -260,20 +260,17 @@ void CResourceMonitor::sendMemoryUsageReport(core_t::TTime bucketStartTime) {
     m_PreviousTotal = total;
 }
 
-CResourceMonitor::SResults CResourceMonitor::createMemoryUsageReport(core_t::TTime bucketStartTime) {
-    SResults res;
-    res.s_ByFields = 0;
-    res.s_OverFields = 0;
-    res.s_PartitionFields = 0;
+CResourceMonitor::SModelSizeStats
+CResourceMonitor::createMemoryUsageReport(core_t::TTime bucketStartTime) {
+    SModelSizeStats res;
     res.s_Usage = this->totalMemory();
     res.s_AdjustedUsage = this->adjustedUsage(res.s_Usage);
     res.s_BytesMemoryLimit = 2 * m_ByteLimitHigh;
     res.s_BytesExceeded = m_CurrentBytesExceeded;
-    res.s_AllocationFailures = 0;
     res.s_MemoryStatus = m_MemoryStatus;
     res.s_BucketStartTime = bucketStartTime;
     for (const auto& resource : m_Resources) {
-        resource.first->updateMemoryResults(res);
+        resource.first->updateModelSizeStats(res);
     }
     res.s_AllocationFailures += m_AllocationFailures.size();
     return res;
