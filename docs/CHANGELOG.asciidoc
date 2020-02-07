@@ -46,6 +46,8 @@ progress, memory usage, etc. (See {ml-pull}906[#906].)
 
 * Improve initialization of learn rate for better and more stable results in regression
 and classification. (See {ml-pull}948[#948].)
+* Add new model_size_stats fields to instrument categorization.  (See {ml-pull}948[#948]
+and {pull}51879[#51879], issue: {issue}50794[#50749].)
 
 === Bug Fixes
 

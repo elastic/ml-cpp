@@ -270,9 +270,9 @@ public:
     //! Prune the model.
     void prune(std::size_t maximumAge) override;
 
-    //! Update the overall model memory stats results with stats from this
-    //! anomaly detector.
-    void updateMemoryResults(CResourceMonitor::SResults& results) const override;
+    //! Update the overall model size stats with information from this anomaly
+    //! detector.
+    void updateModelSizeStats(CResourceMonitor::SModelSizeStats& modelSizeStats) const override;
 
     //! Get end of the last complete bucket we've observed.
     const core_t::TTime& lastBucketEndTime() const;

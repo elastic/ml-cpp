@@ -232,7 +232,7 @@ public:
 
     //! Report the current levels of resource usage, as given to us
     //! from the CResourceMonitor via a callback
-    void reportMemoryUsage(const model::CResourceMonitor::SResults& results);
+    void reportMemoryUsage(const model::CResourceMonitor::SModelSizeStats& modelSizeStats);
 
     //! Acknowledge a flush request by echoing back the flush ID
     void acknowledgeFlush(const std::string& flushId, core_t::TTime lastFinalizedBucketEnd);

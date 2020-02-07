@@ -11,6 +11,8 @@
 #include <core/CStateRestoreTraverser.h>
 #include <core/CStringUtils.h>
 
+#include <maths/COrderings.h>
+
 #include <model/CTokenListReverseSearchCreator.h>
 
 #include <algorithm>
@@ -77,10 +79,9 @@ int CTokenListDataCategorizerBase::computeCategory(bool isDryRun,
 
     // We search previous categories in descending order of the number of matches
     // we've seen for them
-    TSizeSizePrListItr bestSoFarIter(m_CategoriesByCount.end());
+    auto bestSoFarIter = m_CategoriesByCount.end();
     double bestSoFarSimilarity(m_LowerThreshold);
-    for (TSizeSizePrListItr iter = m_CategoriesByCount.begin();
-         iter != m_CategoriesByCount.end(); ++iter) {
+    for (auto iter = m_CategoriesByCount.begin(); iter != m_CategoriesByCount.end(); ++iter) {
         const CTokenListCategory& compCategory = m_Categories[iter->second];
         const TSizeSizePrVec& baseTokenIds = compCategory.baseTokenIds();
         std::size_t baseWeight(compCategory.baseWeight());
@@ -90,10 +91,11 @@ int CTokenListDataCategorizerBase::computeCategory(bool isDryRun,
         // further checks.  The first condition here ensures that we never say
         // a string with tokens matches the reverse search of a string with no
         // tokens (which the other criteria alone might say matched).
-        bool matchesSearch((baseWeight == 0) == (workWeight == 0) &&
-                           compCategory.maxMatchingStringLen() >= rawStringLen &&
-                           compCategory.isMissingCommonTokenWeightZero(m_WorkTokenUniqueIds) &&
-                           compCategory.containsCommonTokensInOrder(m_WorkTokenIds));
+        bool matchesSearch{
+            (baseWeight == 0) == (workWeight == 0) &&
+            compCategory.maxMatchingStringLen() >= rawStringLen &&
+            compCategory.isMissingCommonTokenWeightZero(m_WorkTokenUniqueIds) &&
+            compCategory.containsCommonInOrderTokensInOrder(m_WorkTokenIds)};
         if (!matchesSearch) {
             // Quickly rule out wildly different token weights prior to doing
             // the expensive similarity calculations
@@ -149,17 +151,16 @@ int CTokenListDataCategorizerBase::computeCategory(bool isDryRun,
 
     if (bestSoFarIter != m_CategoriesByCount.end()) {
         // Return the best match - use vector index plus one as ML category
-        int categoryId(1 + int(bestSoFarIter->second));
+        int categoryId{1 + static_cast<int>(bestSoFarIter->second)};
         this->addCategoryMatch(isDryRun, str, rawStringLen, m_WorkTokenIds,
                                m_WorkTokenUniqueIds, bestSoFarIter);
         return categoryId;
     }
 
     // If we get here we haven't matched, so create a new category
-    CTokenListCategory obj{isDryRun,       str,        rawStringLen,
-                           m_WorkTokenIds, workWeight, m_WorkTokenUniqueIds};
-    m_CategoriesByCount.push_back(TSizeSizePr(1, m_Categories.size()));
-    m_Categories.push_back(obj);
+    m_CategoriesByCount.emplace_back(1, m_Categories.size());
+    m_Categories.emplace_back(isDryRun, str, rawStringLen, m_WorkTokenIds,
+                              workWeight, m_WorkTokenUniqueIds);
     m_HasChanged = true;
 
     // Increment the counts of categories that use a given token
@@ -319,19 +320,6 @@ bool CTokenListDataCategorizerBase::createReverseSearch(int categoryId,
     return true;
 }
 
-namespace {
-
-class CPairFirstElementGreater {
-public:
-    //! This operator is designed for pairs that are small enough for
-    //! passing by value to be most efficient
-    template<typename PAIR>
-    bool operator()(const PAIR pr1, const PAIR pr2) {
-        return pr1.first > pr2.first;
-    }
-};
-}
-
 bool CTokenListDataCategorizerBase::hasChanged() const {
     return m_HasChanged;
 }
@@ -374,7 +362,8 @@ bool CTokenListDataCategorizerBase::acceptRestoreTraverser(core::CStateRestoreTr
 
     // Categories are persisted in order of creation, but this list needs to be
     // sorted by count instead
-    m_CategoriesByCount.sort(CPairFirstElementGreater());
+    std::sort(m_CategoriesByCount.begin(), m_CategoriesByCount.end(),
+              maths::COrderings::SFirstGreater());
 
     return true;
 }
@@ -420,7 +409,7 @@ void CTokenListDataCategorizerBase::addCategoryMatch(bool isDryRun,
                                                      std::size_t rawStringLen,
                                                      const TSizeSizePrVec& tokenIds,
                                                      const TSizeSizeMap& tokenUniqueIds,
-                                                     TSizeSizePrListItr& iter) {
+                                                     TSizeSizePrVecItr& iter) {
     if (m_Categories[iter->second].addString(isDryRun, str, rawStringLen,
                                              tokenIds, tokenUniqueIds) == true) {
         m_HasChanged = true;
@@ -489,7 +478,7 @@ std::size_t CTokenListDataCategorizerBase::idForToken(const std::string& token) 
         return iter->index();
     }
 
-    std::size_t nextIndex(m_TokenIdLookup.size());
+    std::size_t nextIndex{m_TokenIdLookup.size()};
     m_TokenIdLookup.push_back(CTokenInfoItem(token, nextIndex));
     return nextIndex;
 }
@@ -539,9 +528,99 @@ std::size_t CTokenListDataCategorizerBase::memoryUsage() const {
     return mem;
 }
 
+void CTokenListDataCategorizerBase::updateModelSizeStats(CResourceMonitor::SModelSizeStats& modelSizeStats) const {
+
+    modelSizeStats.s_TotalCategories = m_Categories.size();
+
+    std::size_t categorizedMessagesThisCategorizer{0};
+    for (auto categoryByCount : m_CategoriesByCount) {
+        categorizedMessagesThisCategorizer += categoryByCount.first;
+    }
+    modelSizeStats.s_CategorizedMessages += categorizedMessagesThisCategorizer;
+
+    for (std::size_t i = 0; i < m_CategoriesByCount.size(); ++i) {
+        const CTokenListCategory& category{m_Categories[m_CategoriesByCount[i].second]};
+        // Definitions for frequent/rare categories are:
+        // - rare = single match
+        // - frequent = matches more than 1% of messages
+        if (category.numMatches() == 1) {
+            ++modelSizeStats.s_RareCategories;
+        } else if (category.numMatches() * 100 > categorizedMessagesThisCategorizer) {
+            ++modelSizeStats.s_FrequentCategories;
+        }
+        for (std::size_t j = 0; j < i; ++j) {
+            const CTokenListCategory& moreFrequentCategory{
+                m_Categories[m_CategoriesByCount[j].second]};
+            bool matchesSearch{moreFrequentCategory.maxMatchingStringLen() >=
+                                   category.maxMatchingStringLen() &&
+                               moreFrequentCategory.isMissingCommonTokenWeightZero(
+                                   category.commonUniqueTokenIds()) &&
+                               moreFrequentCategory.containsCommonInOrderTokensInOrder(
+                                   category.baseTokenIds())};
+            if (matchesSearch) {
+                ++modelSizeStats.s_DeadCategories;
+                LOG_DEBUG(<< "Category " << (m_CategoriesByCount[i].second + 1)
+                          << " (" << category.baseString() << ") is killed by category "
+                          << (m_CategoriesByCount[j].second + 1) << " ("
+                          << moreFrequentCategory.baseString() << ")");
+                break;
+            }
+        }
+    }
+
+    modelSizeStats.s_CategorizationStatus = CTokenListDataCategorizerBase::calculateCategorizationStatus(
+        modelSizeStats.s_CategorizedMessages, modelSizeStats.s_TotalCategories,
+        modelSizeStats.s_FrequentCategories, modelSizeStats.s_RareCategories,
+        modelSizeStats.s_DeadCategories);
+}
+
+model_t::ECategorizationStatus
+CTokenListDataCategorizerBase::calculateCategorizationStatus(std::size_t categorizedMessages,
+                                                             std::size_t totalCategories,
+                                                             std::size_t frequentCategories,
+                                                             std::size_t rareCategories,
+                                                             std::size_t deadCategories) {
+
+    // Categorization status is "warn" if:
+
+    // - At least 100 messages have been categorized
+    if (categorizedMessages <= 100) {
+        return model_t::E_CategorizationStatusOk;
+    }
+
+    // and one of the following holds:
+
+    // - There is only 1 category
+    if (totalCategories == 1) {
+        return model_t::E_CategorizationStatusWarn;
+    }
+
+    // - More than 90% of categories are rare
+    if (10 * rareCategories > 9 * totalCategories) {
+        return model_t::E_CategorizationStatusWarn;
+    }
+
+    // - The number of categories is greater than 50% of the number of categorized messages
+    if (2 * totalCategories > categorizedMessages) {
+        return model_t::E_CategorizationStatusWarn;
+    }
+
+    // - There are no frequent match categories
+    if (frequentCategories == 0) {
+        return model_t::E_CategorizationStatusWarn;
+    }
+
+    // - More than 50% of categories are dead
+    if (2 * deadCategories > totalCategories) {
+        return model_t::E_CategorizationStatusWarn;
+    }
+
+    return model_t::E_CategorizationStatusOk;
+}
+
 CTokenListDataCategorizerBase::CTokenInfoItem::CTokenInfoItem(const std::string& str,
                                                               std::size_t index)
-    : m_Str(str), m_Index(index), m_CategoryCount(0) {
+    : m_Str{str}, m_Index{index}, m_CategoryCount{0} {
 }
 
 const std::string& CTokenListDataCategorizerBase::CTokenInfoItem::str() const {
@@ -581,7 +660,7 @@ CTokenListDataCategorizerBase::CSizePairFirstElementEquals::CSizePairFirstElemen
 CTokenListDataCategorizerBase::SIdTranslater::SIdTranslater(const CTokenListDataCategorizerBase& categorizer,
                                                             const TSizeSizePrVec& tokenIds,
                                                             char separator)
-    : s_Categorizer(categorizer), s_TokenIds(tokenIds), s_Separator(separator) {
+    : s_Categorizer{categorizer}, s_TokenIds{tokenIds}, s_Separator{separator} {
 }
 
 std::ostream& operator<<(std::ostream& strm,
