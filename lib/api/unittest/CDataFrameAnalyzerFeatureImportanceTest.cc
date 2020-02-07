@@ -299,8 +299,9 @@ BOOST_FIXTURE_TEST_CASE(testRegressionFeatureImportanceNoImportance, SFixture) {
             // c1 explains 95% of the prediction value, i.e. the difference from the prediction is less than 2%.
             BOOST_REQUIRE_CLOSE(c1, prediction, 5.0);
             for (const auto& feature : {"c2", "c3", "c4"}) {
-                BOOST_REQUIRE_SMALL(readShapValue(result, feature), 2.0);
-                cNoImportanceMean.add(std::fabs(readShapValue(result, feature)));
+                double c = readShapValue(result, feature);
+                BOOST_REQUIRE_SMALL(c, 2.5);
+                cNoImportanceMean.add(std::fabs(c));
             }
         }
     }
