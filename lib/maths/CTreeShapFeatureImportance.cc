@@ -22,11 +22,11 @@ void CTreeShapFeatureImportance::shap(core::CDataFrame& frame,
     TSizeVec maxDepthVec;
     maxDepthVec.reserve(m_Trees.size());
     for (auto& tree : m_Trees) {
-        auto samplesPerNode = CTreeShapFeatureImportance::numberSamples(tree);
+        auto numberSamples = CTreeShapFeatureImportance::numberSamples(tree);
         std::size_t maxDepth =
-            CTreeShapFeatureImportance::updateNodeValues(tree, 0, samplesPerNode, 0);
+            CTreeShapFeatureImportance::updateNodeValues(tree, 0, numberSamples, 0);
         maxDepthVec.push_back(maxDepth);
-        m_SamplesPerNode.emplace_back(std::move(samplesPerNode));
+        m_NumberSamples.emplace_back(std::move(numberSamples));
     }
 
     auto result = frame.writeColumns(
@@ -36,8 +36,8 @@ void CTreeShapFeatureImportance::shap(core::CDataFrame& frame,
                 for (std::size_t i = 0; i < m_Trees.size(); ++i) {
                     SPath path(maxDepthVec[i] + 1);
                     CTreeShapFeatureImportance::shapRecursive(
-                        m_Trees[i], m_SamplesPerNode[i], encoder, encodedRow,
-                        path, 0, 1.0, 1.0, -1, offset, row);
+                            m_Trees[i], m_NumberSamples[i], encoder, encodedRow,
+                            path, 0, 1.0, 1.0, -1, offset, row);
                 }
             }
         });
@@ -54,13 +54,13 @@ CTreeShapFeatureImportance::numberSamples(const TTree& tree) {
 }
 
 CTreeShapFeatureImportance::CTreeShapFeatureImportance(TTreeVec trees, std::size_t threads)
-    : m_Trees{std::move(trees)}, m_NumberThreads{threads}, m_SamplesPerNode() {
-    m_SamplesPerNode.reserve(m_Trees.size());
+    : m_Trees{std::move(trees)}, m_NumberThreads{threads}, m_NumberSamples() {
+    m_NumberSamples.reserve(m_Trees.size());
 }
 
 std::size_t CTreeShapFeatureImportance::updateNodeValues(TTree& tree,
                                                          std::size_t nodeIndex,
-                                                         const TDoubleVec& samplesPerNode,
+                                                         const TDoubleVec& numberSamples,
                                                          std::size_t depth) {
     auto& node{tree[nodeIndex]};
     if (node.isLeaf()) {
@@ -68,12 +68,12 @@ std::size_t CTreeShapFeatureImportance::updateNodeValues(TTree& tree,
     }
 
     std::size_t depthLeft{CTreeShapFeatureImportance::updateNodeValues(
-        tree, node.leftChildIndex(), samplesPerNode, depth + 1)};
+            tree, node.leftChildIndex(), numberSamples, depth + 1)};
     std::size_t depthRight{CTreeShapFeatureImportance::updateNodeValues(
-        tree, node.rightChildIndex(), samplesPerNode, depth + 1)};
+            tree, node.rightChildIndex(), numberSamples, depth + 1)};
 
-    double leftWeight{samplesPerNode[node.leftChildIndex()]};
-    double rightWeight{samplesPerNode[node.rightChildIndex()]};
+    double leftWeight{numberSamples[node.leftChildIndex()]};
+    double rightWeight{numberSamples[node.rightChildIndex()]};
     double averageValue{(leftWeight * tree[node.leftChildIndex()].value() +
                          rightWeight * tree[node.rightChildIndex()].value()) /
                         (leftWeight + rightWeight)};
@@ -82,7 +82,7 @@ std::size_t CTreeShapFeatureImportance::updateNodeValues(TTree& tree,
 }
 
 void CTreeShapFeatureImportance::shapRecursive(const TTree& tree,
-                                               const TDoubleVec& samplesPerNode,
+                                               const TDoubleVec& numberSamples,
                                                const CDataFrameCategoryEncoder& encoder,
                                                const CEncodedDataFrameRowRef& encodedRow,
                                                SPath& splitPath,
@@ -141,14 +141,14 @@ void CTreeShapFeatureImportance::shapRecursive(const TTree& tree,
             CTreeShapFeatureImportance::unwindPath(splitPath, pathIndex);
         }
 
-        double hotFractionZero = samplesPerNode[hotIndex] / samplesPerNode[nodeIndex];
-        double coldFractionZero = samplesPerNode[coldIndex] / samplesPerNode[nodeIndex];
+        double hotFractionZero = numberSamples[hotIndex] / numberSamples[nodeIndex];
+        double coldFractionZero = numberSamples[coldIndex] / numberSamples[nodeIndex];
         std::size_t nextIndex = splitPath.nextIndex();
-        this->shapRecursive(tree, samplesPerNode, encoder, encodedRow, splitPath,
+        this->shapRecursive(tree, numberSamples, encoder, encodedRow, splitPath,
                             hotIndex, incomingFractionZero * hotFractionZero,
                             incomingFractionOne, splitFeature, offset, row);
         this->unwindPath(splitPath, nextIndex);
-        this->shapRecursive(tree, samplesPerNode, encoder, encodedRow, splitPath,
+        this->shapRecursive(tree, numberSamples, encoder, encodedRow, splitPath,
                             coldIndex, incomingFractionZero * coldFractionZero,
                             0.0, splitFeature, offset, row);
         this->unwindPath(splitPath, nextIndex);

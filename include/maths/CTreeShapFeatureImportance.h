@@ -47,7 +47,7 @@ public:
     //! \returns The maximum depth the the tree.
     static std::size_t updateNodeValues(TTree& tree,
                                         std::size_t nodeIndex,
-                                        const TDoubleVec& samplesPerNode,
+                                        const TDoubleVec& numberSamples,
                                         std::size_t depth);
 
     //! Get the reference to the trees.
@@ -123,7 +123,7 @@ private:
     //! Recursively traverses all pathes in the \p tree and updated SHAP values once it hits a leaf.
     //! Ref. Algorithm 2 in the paper by Lundberg et al.
     void shapRecursive(const TTree& tree,
-                       const TDoubleVec& samplesPerNode,
+                       const TDoubleVec& numberSamples,
                        const CDataFrameCategoryEncoder& encoder,
                        const CEncodedDataFrameRowRef& encodedRow,
                        SPath& splitPath,
@@ -143,7 +143,7 @@ private:
 private:
     TTreeVec m_Trees;
     std::size_t m_NumberThreads;
-    TDoubleVecVec m_SamplesPerNode;
+    TDoubleVecVec m_NumberSamples;
 };
 }
 }
