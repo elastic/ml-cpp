@@ -80,8 +80,9 @@ void addJsonArray(const std::string& tag,
 void CTree::CTreeNode::addToDocument(rapidjson::Value& parentObject,
                                      TRapidJsonWriter& writer) const {
     writer.addMember(JSON_NODE_INDEX_TAG, rapidjson::Value(m_NodeIndex).Move(), parentObject);
-    writer.addMember(JSON_NUMBER_SAMPLES_TAG,
-                     rapidjson::Value(m_NumberSamples).Move(), parentObject);
+    writer.addMember(
+        JSON_NUMBER_SAMPLES_TAG,
+        rapidjson::Value(static_cast<std::uint64_t>(m_NumberSamples)).Move(), parentObject);
 
     if (m_LeftChild) {
         // internal node
