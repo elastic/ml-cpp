@@ -857,7 +857,7 @@ void CJsonOutputWriter::popAllocator() {
     m_Writer.popAllocator();
 }
 
-void CJsonOutputWriter::reportMemoryUsage(const model::CResourceMonitor::SResults& results) {
+void CJsonOutputWriter::reportMemoryUsage(const model::CResourceMonitor::SModelSizeStats& results) {
     m_Writer.StartObject();
     CModelSizeStatsJsonWriter::write(m_JobId, results, m_Writer);
     m_Writer.EndObject();

@@ -10,6 +10,7 @@
 
 #include <model/ImportExport.h>
 
+#include <algorithm>
 #include <map>
 #include <string>
 #include <utility>
@@ -94,16 +95,38 @@ public:
     //! this category's common unique tokens?
     std::size_t missingCommonTokenWeight(const TSizeSizeMap& uniqueTokenIds) const;
 
-    //! Is the weight of tokens in a given map that are missing from this
-    //! category's common unique tokens equal to zero?  It is possible to test:
+    //! Is the weight of tokens in the provided container that are missing from
+    //! this category's common unique tokens equal to zero?  It is possible to
+    //! test:
     //!     if (category.missingCommonTokenWeight(uniqueTokenIds) == 0)
     //! instead of calling this method.  However, this method is much faster
     //! as it can return false as soon as a mismatch occurs.
-    bool isMissingCommonTokenWeightZero(const TSizeSizeMap& uniqueTokenIds) const;
+    //! \param uniqueTokenIds A container of pairs where the first element is
+    //!                       a token ID and the container is sorted into
+    //!                       ascending token ID order.
+    template<typename PAIR_CONTAINER>
+    bool isMissingCommonTokenWeightZero(const PAIR_CONTAINER& uniqueTokenIds) const {
+
+        auto testIter = uniqueTokenIds.begin();
+        for (const auto& commonItem : m_CommonUniqueTokenIds) {
+            testIter = std::find_if(testIter, uniqueTokenIds.end(),
+                                    [&commonItem](const auto& testItem) {
+                                        return testItem.first >= commonItem.first;
+                                    });
+            if (testIter == uniqueTokenIds.end() ||
+                testIter->first != commonItem.first ||
+                testIter->second != commonItem.second) {
+                return false;
+            }
+            ++testIter;
+        }
+
+        return true;
+    }
 
     //! Does the supplied token vector contain all our common tokens in the
     //! same order as our base token vector?
-    bool containsCommonTokensInOrder(const TSizeSizePrVec& tokenIds) const;
+    bool containsCommonInOrderTokensInOrder(const TSizeSizePrVec& tokenIds) const;
 
     //! \return Does the supplied token ID represent a common unique token?
     bool isTokenCommon(std::size_t tokenId) const;
