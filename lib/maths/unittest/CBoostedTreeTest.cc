@@ -42,6 +42,7 @@ using TRowRef = core::CDataFrame::TRowRef;
 using TRowItr = core::CDataFrame::TRowItr;
 using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
 using TMeanVarAccumulator = maths::CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
+using TMemoryMappedFloatVector = maths::boosted_tree::CLoss::TMemoryMappedFloatVector;
 
 namespace {
 
@@ -879,10 +880,12 @@ BOOST_AUTO_TEST_CASE(testLogisticMinimizerEdgeCases) {
     // All predictions equal and zero.
     {
         CArgMinLogisticImpl argmin{0.0};
-        argmin.add({0.0}, 0.0);
-        argmin.add({0.0}, 1.0);
-        argmin.add({0.0}, 1.0);
-        argmin.add({0.0}, 0.0);
+        maths::CFloatStorage storage[]{0.0};
+        TMemoryMappedFloatVector prediction{storage, 1};
+        argmin.add(prediction, 0.0);
+        argmin.add(prediction, 1.0);
+        argmin.add(prediction, 1.0);
+        argmin.add(prediction, 0.0);
         argmin.nextPass();
         BOOST_REQUIRE_EQUAL(0.0, argmin.value()[0]);
     }
@@ -906,7 +909,9 @@ BOOST_AUTO_TEST_CASE(testLogisticMinimizerEdgeCases) {
         do {
             ++numberPasses;
             for (std::size_t i = 0; i < labels.size(); ++i) {
-                argmin.add({weights[i]}, labels[i]);
+                maths::CFloatStorage storage[]{weights[i]};
+                TMemoryMappedFloatVector prediction{storage, 1};
+                argmin.add(prediction, labels[i]);
                 ++counts[static_cast<std::size_t>(labels[i])];
             }
         } while (argmin.nextPass());
@@ -927,7 +932,9 @@ BOOST_AUTO_TEST_CASE(testLogisticMinimizerEdgeCases) {
         TDoubleVec actuals{1.0, 1.0, 0.0, 1.0};
         do {
             for (std::size_t i = 0; i < predictions.size(); ++i) {
-                argmin.add({predictions[i]}, actuals[i]);
+                maths::CFloatStorage storage[]{predictions[i]};
+                TMemoryMappedFloatVector prediction{storage, 1};
+                argmin.add(prediction, actuals[i]);
             }
         } while (argmin.nextPass());
 
@@ -939,7 +946,9 @@ BOOST_AUTO_TEST_CASE(testLogisticMinimizerEdgeCases) {
         for (double eps : {-10.0, 0.0, 10.0}) {
             double lossAtEps{0.0};
             for (std::size_t i = 0; i < predictions.size(); ++i) {
-                lossAtEps += loss.value({predictions[i] + minimizer + eps}, actuals[i]);
+                maths::CFloatStorage storage[]{predictions[i] + minimizer + eps};
+                TMemoryMappedFloatVector probe{storage, 1};
+                lossAtEps += loss.value(probe, actuals[i]);
             }
             losses.push_back(lossAtEps);
         }
@@ -1015,19 +1024,23 @@ BOOST_AUTO_TEST_CASE(testLogisticMinimizerRandom) {
 
             do {
                 for (std::size_t i = 0; i < labels.size() / 2; ++i) {
-                    argmin.add({weights[i]}, labels[i]);
-                    argminPartition[0].add({weights[i]}, labels[i]);
+                    maths::CFloatStorage storage[]{weights[i]};
+                    TMemoryMappedFloatVector prediction{storage, 1};
+                    argmin.add(prediction, labels[i]);
+                    argminPartition[0].add(prediction, labels[i]);
                 }
                 for (std::size_t i = labels.size() / 2; i < labels.size(); ++i) {
-                    argmin.add({weights[i]}, labels[i]);
-                    argminPartition[1].add({weights[i]}, labels[i]);
+                    maths::CFloatStorage storage[]{weights[i]};
+                    TMemoryMappedFloatVector prediction{storage, 1};
+                    argmin.add(prediction, labels[i]);
+                    argminPartition[1].add(prediction, labels[i]);
                 }
                 argminPartition[0].merge(argminPartition[1]);
                 argminPartition[1] = argminPartition[0];
             } while (nextPass());
 
-            double actual{argmin.value()[0]};
-            double actualPartition{argminPartition[0].value()[0]};
+            double actual{argmin.value()(0)};
+            double actualPartition{argminPartition[0].value()(0)};
             LOG_DEBUG(<< "actual = " << actual
                       << " objective at actual = " << objective(actual));
 
@@ -1053,13 +1066,17 @@ BOOST_AUTO_TEST_CASE(testLogisticLossForUnderflow) {
 
     // Losses should be very nearly linear function of log-odds when they're large.
     {
-        TDoubleVec lastLoss{loss.value({1.0 - std::log(eps)}, 0.0),
-                            loss.value({1.0 + std::log(eps)}, 1.0)};
+        maths::CFloatStorage predictions[]{1.0 - std::log(eps), 1.0 + std::log(eps)};
+        TMemoryMappedFloatVector prediction0{&predictions[0], 1};
+        TMemoryMappedFloatVector prediction1{&predictions[1], 1};
+        TDoubleVec lastLoss{loss.value(prediction0, 0.0), loss.value(prediction1, 1.0)};
         for (double scale : {0.75, 0.5, 0.25, 0.0, -0.25, -0.5, -0.75, -1.0}) {
-            TDoubleVec currentLoss{loss.value({scale - std::log(eps)}, 0.0),
-                                   loss.value({scale + std::log(eps)}, 1.0)};
-            BOOST_REQUIRE_CLOSE_ABSOLUTE(0.25, lastLoss[0] - currentLoss[0], 5e-3);
-            BOOST_REQUIRE_CLOSE_ABSOLUTE(-0.25, lastLoss[1] - currentLoss[1], 5e-3);
+            predictions[0] = scale - std::log(eps);
+            predictions[1] = scale + std::log(eps);
+            TDoubleVec currentLoss{loss.value(prediction0, 0.0),
+                                   loss.value(prediction1, 1.0)};
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(0.25, lastLoss[0] - currentLoss[0], 0.005);
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(-0.25, lastLoss[1] - currentLoss[1], 0.005);
             lastLoss = currentLoss;
         }
     }
@@ -1067,24 +1084,42 @@ BOOST_AUTO_TEST_CASE(testLogisticLossForUnderflow) {
     // The gradient and curvature should be proportional to the exponential of the
     // log-odds when they're small.
     {
-        TDoubleVec lastGradient{loss.gradient({1.0 + std::log(eps)}, 0.0)[0],
-                                loss.gradient({1.0 - std::log(eps)}, 1.0)[0]};
-        TDoubleVec lastCurvature{loss.curvature({1.0 + std::log(eps)}, 0.0)[0],
-                                 loss.curvature({1.0 - std::log(eps)}, 1.0)[0]};
+        auto readDerivatives = [&](double prediction, TDoubleVec& gradients,
+                                   TDoubleVec& curvatures) {
+            maths::CFloatStorage predictions[]{prediction + std::log(eps),
+                                               prediction - std::log(eps)};
+            TMemoryMappedFloatVector prediction0{&predictions[0], 1};
+            TMemoryMappedFloatVector prediction1{&predictions[1], 1};
+            loss.gradient(prediction0, 0.0, [&](std::size_t, double value) {
+                gradients[0] = value;
+            });
+            loss.gradient(prediction1, 1.0, [&](std::size_t, double value) {
+                gradients[1] = value;
+            });
+            loss.curvature(prediction0, 0.0, [&](std::size_t, double value) {
+                curvatures[0] = value;
+            });
+            loss.curvature(prediction1, 1.0, [&](std::size_t, double value) {
+                curvatures[1] = value;
+            });
+        };
+
+        TDoubleVec lastGradient(2);
+        TDoubleVec lastCurvature(2);
+        readDerivatives(1.0, lastGradient, lastCurvature);
+
         for (double scale : {0.75, 0.5, 0.25, 0.0, -0.25, -0.5, -0.75, -1.0}) {
-            TDoubleVec currentGradient{loss.gradient({scale + std::log(eps)}, 0.0)[0],
-                                       loss.gradient({scale - std::log(eps)}, 1.0)[0]};
-            TDoubleVec currentCurvature{
-                loss.curvature({scale + std::log(eps)}, 0.0)[0],
-                loss.curvature({scale - std::log(eps)}, 1.0)[0]};
+            TDoubleVec currentGradient(2);
+            TDoubleVec currentCurvature(2);
+            readDerivatives(scale, currentGradient, currentCurvature);
             BOOST_REQUIRE_CLOSE_ABSOLUTE(std::exp(0.25),
-                                         lastGradient[0] / currentGradient[0], 5e-3);
+                                         lastGradient[0] / currentGradient[0], 0.01);
             BOOST_REQUIRE_CLOSE_ABSOLUTE(std::exp(-0.25),
-                                         lastGradient[1] / currentGradient[1], 5e-3);
+                                         lastGradient[1] / currentGradient[1], 0.01);
             BOOST_REQUIRE_CLOSE_ABSOLUTE(
-                std::exp(0.25), lastCurvature[0] / currentCurvature[0], 5e-3);
+                std::exp(0.25), lastCurvature[0] / currentCurvature[0], 0.01);
             BOOST_REQUIRE_CLOSE_ABSOLUTE(
-                std::exp(-0.25), lastCurvature[1] / currentCurvature[1], 5e-3);
+                std::exp(-0.25), lastCurvature[1] / currentCurvature[1], 0.01);
             lastGradient = currentGradient;
             lastCurvature = currentCurvature;
         }
