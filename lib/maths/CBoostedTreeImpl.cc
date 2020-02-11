@@ -718,7 +718,6 @@ CBoostedTreeImpl::trainTree(core::CDataFrame& frame,
         double splitValue;
         std::tie(splitFeature, splitValue) = leaf->bestSplit();
 
-        bool leftChildHasFewerRows{leaf->leftChildHasFewerRows()};
         bool assignMissingToLeft{leaf->assignMissingToLeft()};
 
         std::size_t leftChildId, rightChildId;
@@ -728,10 +727,9 @@ CBoostedTreeImpl::trainTree(core::CDataFrame& frame,
 
         TLeafNodeStatisticsPtr leftChild;
         TLeafNodeStatisticsPtr rightChild;
-        std::tie(leftChild, rightChild) =
-            leaf->split(leftChildId, rightChildId, m_NumberThreads, frame, *m_Encoder,
-                        m_Regularization, candidateSplits, this->featureBag(),
-                        tree[leaf->id()], leftChildHasFewerRows);
+        std::tie(leftChild, rightChild) = leaf->split(
+            leftChildId, rightChildId, m_NumberThreads, frame, *m_Encoder,
+            m_Regularization, candidateSplits, this->featureBag(), tree[leaf->id()]);
 
         scopeMemoryUsage.add(leftChild);
         scopeMemoryUsage.add(rightChild);

@@ -31,10 +31,8 @@ using TMatrixVec = std::vector<TMatrix>;
 using TMatrixVecVec = std::vector<TMatrixVec>;
 using TImmutableRadixSet = maths::CBoostedTreeLeafNodeStatistics::TImmutableRadixSet;
 using TImmutableRadixSetVec = maths::CBoostedTreeLeafNodeStatistics::TImmutableRadixSetVec;
-using TDerivativesVec = maths::CBoostedTreeLeafNodeStatistics::TDerivativesVec;
-using TDerivativesVecVec = maths::CBoostedTreeLeafNodeStatistics::TDerivativesVecVec;
-using TDerivativesAccumulator = maths::CBoostedTreeLeafNodeStatistics::CDerivativesAccumulator;
-using TSplitDerivativesAccumulator = maths::CBoostedTreeLeafNodeStatistics::CSplitDerivativesAccumulator;
+using TDerivatives = maths::CBoostedTreeLeafNodeStatistics::CDerivatives;
+using TPerSplitDerivatives = maths::CBoostedTreeLeafNodeStatistics::CPerSplitDerivatives;
 
 namespace {
 
@@ -59,15 +57,14 @@ TMatrix rowMajorHessian(std::size_t n, const maths::CMemoryMappedDenseVector<T>&
     return result;
 }
 
-void testDerivativesAccumulatorFor(std::size_t numberParameters) {
+void testDerivativesFor(std::size_t numberParameters) {
 
     LOG_DEBUG(<< "Testing " << numberParameters << " parameters");
 
     test::CRandomNumbers rng;
 
     std::size_t numberGradients{numberParameters};
-    std::size_t numberCurvatures{
-        maths::boosted_tree_detail::lossHessianStoredSize(numberParameters)};
+    std::size_t numberCurvatures{numberParameters * (numberParameters + 1) / 2};
 
     TDoubleVecVec gradients(numberGradients);
     TDoubleVecVec curvatures(numberCurvatures);
@@ -78,10 +75,10 @@ void testDerivativesAccumulatorFor(std::size_t numberParameters) {
         rng.generateUniformSamples(0.1, 0.5, 20, curvatures[i]);
     }
 
-    TDoubleVec storage1(numberGradients + numberCurvatures, 0.0);
-    auto totalGradient1 = makeGradient(&storage1[0], numberGradients);
-    auto totalCurvature1 = makeCurvature(&storage1[numberGradients], numberCurvatures);
-    TDerivativesAccumulator accumulator1{totalGradient1, totalCurvature1};
+    LOG_DEBUG(<< "Accumulate");
+
+    TDoubleVec storage1(numberGradients * (numberGradients + 1), 0.0);
+    TDerivatives derivatives1{numberParameters, &storage1[0]};
 
     for (std::size_t j = 0; j < 10; ++j) {
         TFloatVec storage;
@@ -93,25 +90,28 @@ void testDerivativesAccumulatorFor(std::size_t numberParameters) {
         }
         auto gradient = makeGradient(&storage[0], numberGradients);
         auto curvature = makeCurvature(&storage[numberGradients], numberCurvatures);
-        accumulator1.add(1, gradient, curvature);
+        derivatives1.add(1, gradient, curvature);
     }
+    derivatives1.remapCurvature();
 
-    BOOST_REQUIRE_EQUAL(10, accumulator1.count());
+    BOOST_REQUIRE_EQUAL(10, derivatives1.count());
     for (std::size_t i = 0; i < numberGradients; ++i) {
         BOOST_REQUIRE_CLOSE(
             std::accumulate(gradients[i].begin(), gradients[i].begin() + 10, 0.0),
-            accumulator1.gradient()(i), 1e-4);
+            derivatives1.gradient()(i), 1e-4);
     }
-    for (std::size_t i = 0; i < numberCurvatures; ++i) {
-        BOOST_REQUIRE_CLOSE(std::accumulate(curvatures[i].begin(),
-                                            curvatures[i].begin() + 10, 0.0),
-                            accumulator1.curvature()(i), 1e-4);
+    for (std::size_t j = 0, k = 0; j < numberGradients; ++j) {
+        for (std::size_t i = j; i < numberGradients; ++i, ++k) {
+            BOOST_REQUIRE_CLOSE(std::accumulate(curvatures[k].begin(),
+                                                curvatures[k].begin() + 10, 0.0),
+                                derivatives1.curvature()(i, j), 1e-4);
+        }
     }
 
-    TDoubleVec storage2(numberGradients + numberCurvatures, 0.0);
-    auto totalGradient2 = makeGradient(&storage2[0], numberGradients);
-    auto totalCurvature2 = makeCurvature(&storage2[numberGradients], numberCurvatures);
-    TDerivativesAccumulator accumulator2{totalGradient2, totalCurvature2};
+    LOG_DEBUG(<< "Merge");
+
+    TDoubleVec storage2(numberGradients * (numberGradients + 1), 0.0);
+    TDerivatives derivatives2{numberParameters, &storage2[0]};
 
     for (std::size_t j = 10; j < 20; ++j) {
         TFloatVec storage;
@@ -123,34 +123,48 @@ void testDerivativesAccumulatorFor(std::size_t numberParameters) {
         }
         auto gradient = makeGradient(&storage[0], numberGradients);
         auto curvature = makeCurvature(&storage[numberGradients], numberCurvatures);
-        accumulator2.add(1, gradient, curvature);
+        derivatives2.add(1, gradient, curvature);
     }
+    derivatives2.remapCurvature();
 
-    BOOST_REQUIRE_EQUAL(10, accumulator2.count());
-    for (std::size_t i = 0; i < numberGradients; ++i) {
-        BOOST_REQUIRE_CLOSE(
-            std::accumulate(gradients[i].begin() + 10, gradients[i].end(), 0.0),
-            accumulator2.gradient()(i), 1e-4);
-    }
-    for (std::size_t i = 0; i < numberCurvatures; ++i) {
-        BOOST_REQUIRE_CLOSE(
-            std::accumulate(curvatures[i].begin() + 10, curvatures[i].end(), 0.0),
-            accumulator2.curvature()(i), 1e-4);
-    }
+    derivatives1.merge(derivatives2);
 
-    accumulator1.merge(accumulator2);
-    BOOST_REQUIRE_EQUAL(20, accumulator1.count());
+    BOOST_REQUIRE_EQUAL(20, derivatives1.count());
     for (std::size_t i = 0; i < numberGradients; ++i) {
         BOOST_REQUIRE_CLOSE(std::accumulate(gradients[i].begin(), gradients[i].end(), 0.0),
-                            accumulator1.gradient()(i), 1e-4);
+                            derivatives1.gradient()(i), 1e-4);
     }
-    for (std::size_t i = 0; i < numberCurvatures; ++i) {
-        BOOST_REQUIRE_CLOSE(std::accumulate(curvatures[i].begin(), curvatures[i].end(), 0.0),
-                            accumulator1.curvature()(i), 1e-4);
+    for (std::size_t j = 0, k = 0; j < numberGradients; ++j) {
+        for (std::size_t i = j; i < numberGradients; ++i, ++k) {
+            BOOST_REQUIRE_CLOSE(
+                std::accumulate(curvatures[k].begin(), curvatures[k].end(), 0.0),
+                derivatives1.curvature()(i, j), 1e-4);
+        }
+    }
+
+    LOG_DEBUG(<< "Difference");
+
+    TDoubleVec storage3(numberGradients * (numberGradients + 1), 0.0);
+    TDerivatives derivatives3{numberParameters, &storage2[0]};
+
+    derivatives3.assignDifference(derivatives1, derivatives2);
+
+    BOOST_REQUIRE_EQUAL(10, derivatives3.count());
+    for (std::size_t i = 0; i < numberGradients; ++i) {
+        BOOST_REQUIRE_CLOSE(
+            std::accumulate(gradients[i].begin(), gradients[i].begin() + 10, 0.0),
+            derivatives3.gradient()(i), 1e-4);
+    }
+    for (std::size_t j = 0, k = 0; j < numberGradients; ++j) {
+        for (std::size_t i = j; i < numberGradients; ++i, ++k) {
+            BOOST_REQUIRE_CLOSE(std::accumulate(curvatures[k].begin(),
+                                                curvatures[k].begin() + 10, 0.0),
+                                derivatives3.curvature()(i, j), 1e-4);
+        }
     }
 }
 
-void testSplitDerivativesAccumulatorFor(std::size_t numberParameters) {
+void testPerSplitDerivativesFor(std::size_t numberParameters) {
 
     LOG_DEBUG(<< "Testing " << numberParameters << " parameters");
 
@@ -162,8 +176,7 @@ void testSplitDerivativesAccumulatorFor(std::size_t numberParameters) {
 
     std::size_t numberSamples{20};
     std::size_t numberGradients{numberParameters};
-    std::size_t numberCurvatures{
-        maths::boosted_tree_detail::lossHessianStoredSize(numberParameters)};
+    std::size_t numberCurvatures{numberParameters * (numberParameters + 1) / 2};
 
     for (std::size_t t = 0; t < 100; ++t) {
         TSizeVec features;
@@ -189,28 +202,30 @@ void testSplitDerivativesAccumulatorFor(std::size_t numberParameters) {
         for (std::size_t i = 0; i < 2; ++i) {
             expectedCounts[i].resize(featureSplits[i].size() + 1, 0);
             expectedGradients[i].resize(featureSplits[i].size() + 1,
-                                         TVector::Zero(numberParameters));
+                                        TVector::Zero(numberParameters));
             expectedCurvatures[i].resize(featureSplits[i].size() + 1,
-                                          TMatrix::Zero(numberParameters, numberParameters));
+                                         TMatrix::Zero(numberParameters, numberParameters));
         }
 
-        auto addDerivatives = [&](TSplitDerivativesAccumulator& accumulator) {
+        auto addDerivatives = [&](TPerSplitDerivatives& derivatives) {
             for (std::size_t i = 0, j = 0, k = 0; i < numberSamples;
-                ++i, j += numberGradients, k += numberCurvatures) {
+                 ++i, j += numberGradients, k += numberCurvatures) {
 
                 TFloatVec storage;
                 storage.insert(storage.end(), &gradients[j], &gradients[j + numberGradients]);
-                storage.insert(storage.end(), &curvatures[j], &curvatures[k + numberCurvatures]);
+                storage.insert(storage.end(), &curvatures[j],
+                               &curvatures[k + numberCurvatures]);
                 auto gradient = makeGradient(&storage[0], numberGradients);
                 auto curvature = makeCurvature(&storage[numberGradients], numberCurvatures);
 
                 if (uniform01[i] < 0.1) {
-                    accumulator.addMissingDerivatives(features[i], gradient, curvature);
+                    derivatives.addMissingDerivatives(features[i], gradient, curvature);
                     ++expectedMissingCounts[features[i]];
                     expectedMissingGradients[features[i]] += gradient;
-                    expectedMissingCurvatures[features[i]] += rowMajorHessian(numberParameters, curvature);
+                    expectedMissingCurvatures[features[i]] +=
+                        rowMajorHessian(numberParameters, curvature);
                 } else {
-                    accumulator.addDerivatives(features[i], splits[features[i]][i],
+                    derivatives.addDerivatives(features[i], splits[features[i]][i],
                                                gradient, curvature);
                     ++expectedCounts[features[i]][splits[features[i]][i]];
                     expectedGradients[features[i]][splits[features[i]][i]] += gradient;
@@ -218,41 +233,36 @@ void testSplitDerivativesAccumulatorFor(std::size_t numberParameters) {
                         rowMajorHessian(numberParameters, curvature);
                 }
             }
+            derivatives.remapCurvature();
         };
 
-        auto validate = [&](const TDerivativesVecVec& derivatives, 
-                            const TDerivativesVec& missingDerivatives) {
-            BOOST_REQUIRE_EQUAL(expectedCounts.size(), derivatives.size());
+        auto validate = [&](const TPerSplitDerivatives& derivatives) {
             for (std::size_t i = 0; i < expectedCounts.size(); ++i) {
-                BOOST_REQUIRE_EQUAL(expectedCounts[i].size(), derivatives[i].size());
                 for (std::size_t j = 0; j < expectedGradients[i].size(); ++j) {
                     TMatrix curvature{
-                        derivatives[i][j].s_Curvature.selfadjointView<Eigen::Upper>()};
-                    BOOST_REQUIRE_EQUAL(expectedCounts[i][j], derivatives[i][j].s_Count);
-                    BOOST_REQUIRE_EQUAL(expectedGradients[i][j], derivatives[i][j].s_Gradient);
+                        derivatives.curvature(i, j).selfadjointView<Eigen::Lower>()};
+                    BOOST_REQUIRE_EQUAL(expectedCounts[i][j], derivatives.count(i, j));
+                    BOOST_REQUIRE_EQUAL(expectedGradients[i][j],
+                                        derivatives.gradient(i, j));
                     BOOST_REQUIRE_EQUAL(expectedCurvatures[i][j], curvature);
                 }
             }
-            BOOST_REQUIRE_EQUAL(expectedMissingCounts.size(), missingDerivatives.size());
             for (std::size_t i = 0; i < expectedMissingCounts.size(); ++i) {
                 TMatrix curvature{
-                    missingDerivatives[i].s_Curvature.selfadjointView<Eigen::Upper>()};
-                BOOST_REQUIRE_EQUAL(expectedMissingCounts[i], missingDerivatives[i].s_Count);
-                BOOST_REQUIRE_EQUAL(expectedMissingGradients[i], missingDerivatives[i].s_Gradient);
+                    derivatives.missingCurvature(i).selfadjointView<Eigen::Lower>()};
+                BOOST_REQUIRE_EQUAL(expectedMissingCounts[i], derivatives.missingCount(i));
+                BOOST_REQUIRE_EQUAL(expectedMissingGradients[i],
+                                    derivatives.missingGradient(i));
                 BOOST_REQUIRE_EQUAL(expectedMissingCurvatures[i], curvature);
             }
         };
 
         LOG_TRACE(<< "Test accumulation");
 
-        TSplitDerivativesAccumulator accumulator1{featureSplits, numberParameters};
-        addDerivatives(accumulator1);
+        TPerSplitDerivatives derivatives1{featureSplits, numberParameters};
 
-        TDerivativesVecVec derivatives;
-        TDerivativesVec missingDerivatives;
-        std::tie(derivatives, missingDerivatives) = accumulator1.read();
-
-        validate(derivatives, missingDerivatives);
+        addDerivatives(derivatives1);
+        validate(derivatives1);
 
         LOG_TRACE(<< "Test merge");
 
@@ -260,38 +270,36 @@ void testSplitDerivativesAccumulatorFor(std::size_t numberParameters) {
         rng.generateUniformSamples(-1.5, 1.0, numberSamples * numberGradients, gradients);
         rng.generateUniformSamples(0.1, 0.5, numberSamples * numberCurvatures, curvatures);
 
-        TSplitDerivativesAccumulator accumulator2{featureSplits, numberParameters};
-        addDerivatives(accumulator2);
-        accumulator1.merge(accumulator2);
+        TPerSplitDerivatives derivatives2{featureSplits, numberParameters};
 
-        std::tie(derivatives, missingDerivatives) = accumulator1.read();
-
-        validate(derivatives, missingDerivatives);
+        addDerivatives(derivatives2);
+        derivatives1.merge(derivatives2);
+        validate(derivatives1);
 
         LOG_TRACE(<< "Test copy");
 
-        TSplitDerivativesAccumulator accumulator3{accumulator1};
-        BOOST_REQUIRE_EQUAL(accumulator1.checksum(), accumulator3.checksum());
+        TPerSplitDerivatives derivatives3{derivatives1};
+        BOOST_REQUIRE_EQUAL(derivatives1.checksum(), derivatives3.checksum());
     }
 }
 }
 
-BOOST_AUTO_TEST_CASE(testDerivativesAccumulator) {
+BOOST_AUTO_TEST_CASE(testDerivatives) {
 
     // Test individual derivatives accumulation for single and multi parameter
     // loss functions.
 
-    testDerivativesAccumulatorFor(1 /*loss function parameter*/);
-    testDerivativesAccumulatorFor(3 /*loss function parameters*/);
+    testDerivativesFor(1 /*loss function parameter*/);
+    testDerivativesFor(3 /*loss function parameters*/);
 }
 
-BOOST_AUTO_TEST_CASE(testSplitDerivativesAccumulator) {
+BOOST_AUTO_TEST_CASE(testPerSplitDerivatives) {
 
     // Test per split derivatives accumulation for single and multi parameter
     // loss functions.
 
-    testSplitDerivativesAccumulatorFor(1 /*loss function parameter*/);
-    testSplitDerivativesAccumulatorFor(3 /*loss function parameters*/);
+    testPerSplitDerivativesFor(1 /*loss function parameter*/);
+    testPerSplitDerivativesFor(3 /*loss function parameters*/);
 }
 
 BOOST_AUTO_TEST_SUITE_END()
