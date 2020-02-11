@@ -303,22 +303,32 @@ CBoostedTreeLeafNodeStatistics::computeBestSplitStatistics(const TRegularization
         };
     }
 
+    int d{static_cast<int>(m_NumberLossParameters)};
+    TDoubleVector g{d};
+    TDoubleMatrix h{d, d};
+    TDoubleVector gl[]{TDoubleVector{d}, TDoubleVector{d}};
+    TDoubleVector gr[]{TDoubleVector{d}, TDoubleVector{d}};
+    TDoubleMatrix hl[]{TDoubleMatrix{d, d}, TDoubleMatrix{d, d}};
+    TDoubleMatrix hr[]{TDoubleMatrix{d, d}, TDoubleMatrix{d, d}};
+
     for (auto feature : featureBag) {
         std::size_t c{m_Derivatives.missingCount(feature)};
-        TDoubleVector g{m_Derivatives.missingGradient(feature)};
-        TDoubleMatrix h{m_Derivatives.missingCurvature(feature)};
+        g = m_Derivatives.missingGradient(feature);
+        h = m_Derivatives.missingCurvature(feature);
         for (const auto& derivatives : m_Derivatives.derivatives(feature)) {
             c += derivatives.count();
             g += derivatives.gradient();
             h += derivatives.curvature();
         }
         std::size_t cl[]{m_Derivatives.missingCount(feature), 0};
-        TDoubleVector gl[]{m_Derivatives.missingGradient(feature),
-                           TDoubleVector::Zero(g.rows())};
-        TDoubleMatrix hl[]{m_Derivatives.missingCurvature(feature),
-                           TDoubleMatrix::Zero(h.rows(), h.cols())};
-        TDoubleVector gr[]{g - m_Derivatives.missingGradient(feature), g};
-        TDoubleMatrix hr[]{h - m_Derivatives.missingCurvature(feature), h};
+        gl[ASSIGN_MISSING_TO_LEFT] = m_Derivatives.missingGradient(feature);
+        gl[ASSIGN_MISSING_TO_RIGHT] = TDoubleVector::Zero(g.rows());
+        gr[ASSIGN_MISSING_TO_LEFT] = g - m_Derivatives.missingGradient(feature);
+        gr[ASSIGN_MISSING_TO_RIGHT] = g;
+        hl[ASSIGN_MISSING_TO_LEFT] = m_Derivatives.missingCurvature(feature);
+        hl[ASSIGN_MISSING_TO_RIGHT] = TDoubleMatrix::Zero(h.rows(), h.cols());
+        hr[ASSIGN_MISSING_TO_LEFT] = h - m_Derivatives.missingCurvature(feature);
+        hr[ASSIGN_MISSING_TO_RIGHT] = h;
 
         double maximumGain{-INF};
         double splitAt{-INF};
@@ -329,22 +339,22 @@ CBoostedTreeLeafNodeStatistics::computeBestSplitStatistics(const TRegularization
         for (std::size_t split = 0; split + 1 < size; ++split) {
 
             std::size_t count{m_Derivatives.count(feature, split)};
-            const TMemoryMappedDoubleVector& gradient{m_Derivatives.gradient(feature, split)};
-            const TMemoryMappedDoubleMatrix& curvature{m_Derivatives.curvature(feature, split)};
-
-            if (m_Derivatives.count(feature, split) == 0) {
+            if (count == 0) {
                 continue;
             }
 
+            const TMemoryMappedDoubleVector& gradient{m_Derivatives.gradient(feature, split)};
+            const TMemoryMappedDoubleMatrix& curvature{m_Derivatives.curvature(feature, split)};
+
             cl[ASSIGN_MISSING_TO_LEFT] += count;
-            gl[ASSIGN_MISSING_TO_LEFT] += gradient;
-            gr[ASSIGN_MISSING_TO_LEFT] -= gradient;
-            hl[ASSIGN_MISSING_TO_LEFT] += curvature;
-            hr[ASSIGN_MISSING_TO_LEFT] -= curvature;
             cl[ASSIGN_MISSING_TO_RIGHT] += count;
+            gl[ASSIGN_MISSING_TO_LEFT] += gradient;
             gl[ASSIGN_MISSING_TO_RIGHT] += gradient;
+            gr[ASSIGN_MISSING_TO_LEFT] -= gradient;
             gr[ASSIGN_MISSING_TO_RIGHT] -= gradient;
+            hl[ASSIGN_MISSING_TO_LEFT] += curvature;
             hl[ASSIGN_MISSING_TO_RIGHT] += curvature;
+            hr[ASSIGN_MISSING_TO_LEFT] -= curvature;
             hr[ASSIGN_MISSING_TO_RIGHT] -= curvature;
 
             double gain[2];
