@@ -14,8 +14,6 @@
 #include <maths/CDataFrameCategoryEncoder.h>
 #include <maths/CTools.h>
 
-#include <maths/CMathsFuncs.h>
-
 namespace ml {
 namespace maths {
 using namespace boosted_tree_detail;
@@ -284,26 +282,28 @@ CBoostedTreeLeafNodeStatistics::computeBestSplitStatistics(const TRegularization
     using TDoubleMatrix = CDenseMatrix<double>;
     using TMinimumLoss = std::function<double(const TDoubleVector&, const TDoubleMatrix&)>;
 
+    int d{static_cast<int>(m_NumberLossParameters)};
+
     TMinimumLoss minimumLoss;
 
     double lambda{regularization.leafWeightPenaltyMultiplier()};
+    Eigen::MatrixXd placeholder{d, d};
     if (m_NumberLossParameters == 1) {
+        // There is a large fixed overhead for using ldl^t even when g and h are
+        // scalar so we have special case handling.
         minimumLoss = [&](const TDoubleVector& g, const TDoubleMatrix& h) -> double {
             return CTools::pow2(g(0)) / (h(0, 0) + lambda);
         };
     } else {
-        // TODO this turns out to be extremely expensive even when g and h are scalar.
-        // I'm not sure why yet. Maybe solving in-place would help.
+        // TODO use Cholesky (but need to handle positive semi-definite case).
         minimumLoss = [&](const TDoubleVector& g, const TDoubleMatrix& h) -> double {
-            return g.transpose() *
-                   (h + lambda * TDoubleMatrix::Identity(h.rows(), h.cols()))
-                       .selfadjointView<Eigen::Lower>()
-                       .ldlt()
-                       .solve(g);
+            placeholder =
+                (h + lambda * TDoubleMatrix::Identity(d, d)).selfadjointView<Eigen::Lower>();
+            Eigen::LDLT<Eigen::Ref<Eigen::MatrixXd>> ldlt{placeholder};
+            return g.transpose() * ldlt.solve(g);
         };
     }
 
-    int d{static_cast<int>(m_NumberLossParameters)};
     TDoubleVector g{d};
     TDoubleMatrix h{d, d};
     TDoubleVector gl[]{TDoubleVector{d}, TDoubleVector{d}};
