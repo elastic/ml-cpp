@@ -127,7 +127,7 @@ void testDerivativesFor(std::size_t numberParameters) {
     }
     derivatives2.remapCurvature();
 
-    derivatives1.merge(derivatives2);
+    derivatives1.add(derivatives2);
 
     BOOST_REQUIRE_EQUAL(20, derivatives1.count());
     for (std::size_t i = 0; i < numberGradients; ++i) {
@@ -144,22 +144,19 @@ void testDerivativesFor(std::size_t numberParameters) {
 
     LOG_DEBUG(<< "Difference");
 
-    TDoubleVec storage3(numberGradients * (numberGradients + 1), 0.0);
-    TDerivatives derivatives3{numberParameters, &storage2[0]};
+    derivatives1.subtract(derivatives2);
 
-    derivatives3.assignDifference(derivatives1, derivatives2);
-
-    BOOST_REQUIRE_EQUAL(10, derivatives3.count());
+    BOOST_REQUIRE_EQUAL(10, derivatives1.count());
     for (std::size_t i = 0; i < numberGradients; ++i) {
         BOOST_REQUIRE_CLOSE(
             std::accumulate(gradients[i].begin(), gradients[i].begin() + 10, 0.0),
-            derivatives3.gradient()(i), 1e-4);
+            derivatives1.gradient()(i), 1e-4);
     }
     for (std::size_t j = 0, k = 0; j < numberGradients; ++j) {
         for (std::size_t i = j; i < numberGradients; ++i, ++k) {
             BOOST_REQUIRE_CLOSE(std::accumulate(curvatures[k].begin(),
                                                 curvatures[k].begin() + 10, 0.0),
-                                derivatives3.curvature()(i, j), 1e-4);
+                                derivatives1.curvature()(i, j), 1e-4);
         }
     }
 }
@@ -273,7 +270,7 @@ void testPerSplitDerivativesFor(std::size_t numberParameters) {
         TPerSplitDerivatives derivatives2{featureSplits, numberParameters};
 
         addDerivatives(derivatives2);
-        derivatives1.merge(derivatives2);
+        derivatives1.add(derivatives2);
         validate(derivatives1);
 
         LOG_TRACE(<< "Test copy");

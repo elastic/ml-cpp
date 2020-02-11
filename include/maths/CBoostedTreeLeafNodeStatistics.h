@@ -96,25 +96,18 @@ public:
         }
 
         //! Compute the accumulation of both collections of derivatives.
-        void merge(const CDerivatives& other) {
+        void add(const CDerivatives& other) {
             m_Count += other.m_Count;
             m_Gradient += other.m_Gradient;
             m_Curvature += other.m_Curvature;
         }
 
         //! Set to the difference of \p lhs and \p rhs.
-        void assignDifference(const CDerivatives& lhs, const CDerivatives& rhs) {
-            // Numeric errors mean that it's possible the sum curvature for a candidate
-            // split is identically zero while the gradient is epsilon. This can cause
-            // the node gain to appear infinite (when there is no weight regularisation)
-            // which in turns causes problems initialising the region we search for optimal
-            // hyperparameter values. We can safely force the gradient and curvature to
-            // be zero if we detect that the count is zero.
-            std::size_t count{lhs.m_Count - rhs.m_Count};
-            if (count > 0) {
-                m_Count = count;
-                m_Gradient.array() = lhs.m_Gradient - rhs.m_Gradient;
-                m_Curvature.array() = lhs.m_Curvature - rhs.m_Curvature;
+        void subtract(const CDerivatives& rhs) {
+            m_Count -= rhs.m_Count;
+            if (m_Count > 0) {
+                m_Gradient -= rhs.m_Gradient;
+                m_Curvature -= rhs.m_Curvature;
                 // None of our loss functions have negative curvature therefore we
                 // shouldn't allow the cumulative curvature to be negative either.
                 // In this case we force it to be a v.small multiple of the magnitude
@@ -124,6 +117,16 @@ public:
                                                  SMALLEST_RELATIVE_CURVATURE *
                                                      std::fabs(m_Gradient(i)));
                 }
+            } else {
+                // Numeric errors mean that it's possible the sum curvature for a
+                // candidate split is identically zero while the gradient is epsilon.
+                // This can cause the node gain to appear infinite (when there is no
+                // weight regularisation) which in turns causes problems initialising
+                // the region we search for optimal hyperparameter values. We can
+                // safely force the gradient and curvature to be zero if we detect
+                // that the count is zero.
+                m_Gradient.setZero();
+                m_Curvature.setZero();
             }
         }
 
@@ -166,7 +169,7 @@ public:
         using TDerivativesVec = std::vector<CDerivatives>;
 
     public:
-        explicit CPerSplitDerivatives(std::size_t numberLossParameters = 0) 
+        explicit CPerSplitDerivatives(std::size_t numberLossParameters = 0)
             : m_NumberLossParameters{numberLossParameters} {}
         CPerSplitDerivatives(const TImmutableRadixSetVec& candidateSplits,
                              std::size_t numberLossParameters)
@@ -176,7 +179,7 @@ public:
         CPerSplitDerivatives(const CPerSplitDerivatives& other)
             : m_NumberLossParameters{other.m_NumberLossParameters} {
             this->map(other.m_Derivatives);
-            this->merge(other);
+            this->add(other);
         }
         CPerSplitDerivatives(CPerSplitDerivatives&&) = default;
 
@@ -236,29 +239,23 @@ public:
         }
 
         //! Compute the accumulation of both collections of per split derivatives.
-        void merge(const CPerSplitDerivatives& other) {
+        void add(const CPerSplitDerivatives& other) {
             for (std::size_t i = 0; i < other.m_Derivatives.size(); ++i) {
                 for (std::size_t j = 0; j < other.m_Derivatives[i].size(); ++j) {
-                    m_Derivatives[i][j].merge(other.m_Derivatives[i][j]);
+                    m_Derivatives[i][j].add(other.m_Derivatives[i][j]);
                 }
-                m_MissingDerivatives[i].merge(other.m_MissingDerivatives[i]);
+                m_MissingDerivatives[i].add(other.m_MissingDerivatives[i]);
             }
         }
 
-        //! Set to the difference of \p lhs and \p rhs.
-        static CPerSplitDerivatives difference(const CPerSplitDerivatives& lhs,
-                                               const CPerSplitDerivatives& rhs) {
-            CPerSplitDerivatives result{lhs.m_NumberLossParameters};
-            result.map(lhs.m_Derivatives);
-            for (std::size_t i = 0; i < lhs.m_Derivatives.size(); ++i) {
-                for (std::size_t j = 0; j < lhs.m_Derivatives[i].size(); ++j) {
-                    result.m_Derivatives[i][j].assignDifference(
-                        lhs.m_Derivatives[i][j], rhs.m_Derivatives[i][j]);
+        //! Subtract \p rhs.
+        void subtract(const CPerSplitDerivatives& rhs) {
+            for (std::size_t i = 0; i < m_Derivatives.size(); ++i) {
+                for (std::size_t j = 0; j < m_Derivatives[i].size(); ++j) {
+                    m_Derivatives[i][j].subtract(rhs.m_Derivatives[i][j]);
                 }
-                result.m_MissingDerivatives[i].assignDifference(
-                    lhs.m_MissingDerivatives[i], rhs.m_MissingDerivatives[i]);
+                m_MissingDerivatives[i].subtract(rhs.m_MissingDerivatives[i]);
             }
-            return result;
         }
 
         //! Remap the accumulated curvature to lower triangle row major format.
@@ -374,7 +371,7 @@ public:
 
     //! Only called by split but is public so it's accessible to std::make_shared.
     CBoostedTreeLeafNodeStatistics(std::size_t id,
-                                   const CBoostedTreeLeafNodeStatistics& parent,
+                                   CBoostedTreeLeafNodeStatistics&& parent,
                                    const CBoostedTreeLeafNodeStatistics& sibling,
                                    const TRegularization& regularization,
                                    const TSizeVec& featureBag,

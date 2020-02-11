@@ -69,7 +69,7 @@ CBoostedTreeLeafNodeStatistics::CBoostedTreeLeafNodeStatistics(
 
 CBoostedTreeLeafNodeStatistics::CBoostedTreeLeafNodeStatistics(
     std::size_t id,
-    const CBoostedTreeLeafNodeStatistics& parent,
+    CBoostedTreeLeafNodeStatistics&& parent,
     const CBoostedTreeLeafNodeStatistics& sibling,
     const TRegularization& regularization,
     const TSizeVec& featureBag,
@@ -77,9 +77,9 @@ CBoostedTreeLeafNodeStatistics::CBoostedTreeLeafNodeStatistics(
     : m_Id{id}, m_Depth{sibling.m_Depth}, m_NumberInputColumns{sibling.m_NumberInputColumns},
       m_NumberLossParameters{sibling.m_NumberLossParameters},
       m_CandidateSplits{sibling.m_CandidateSplits}, m_RowMask{std::move(rowMask)},
-      m_Derivatives{CPerSplitDerivatives::difference(parent.m_Derivatives,
-                                                     sibling.m_Derivatives)} {
+      m_Derivatives{std::move(parent.m_Derivatives)} {
 
+    m_Derivatives.subtract(sibling.m_Derivatives);
     m_BestSplit = this->computeBestSplitStatistics(regularization, featureBag);
 }
 
@@ -93,6 +93,7 @@ CBoostedTreeLeafNodeStatistics::split(std::size_t leftChildId,
                                       const TImmutableRadixSetVec& candidateSplits,
                                       const TSizeVec& featureBag,
                                       const CBoostedTreeNode& split) {
+
     if (this->leftChildHasFewerRows()) {
         auto leftChild = std::make_shared<CBoostedTreeLeafNodeStatistics>(
             leftChildId, m_NumberInputColumns, m_NumberLossParameters,
@@ -101,8 +102,8 @@ CBoostedTreeLeafNodeStatistics::split(std::size_t leftChildId,
         core::CPackedBitVector rightChildRowMask{m_RowMask};
         rightChildRowMask ^= leftChild->rowMask();
         auto rightChild = std::make_shared<CBoostedTreeLeafNodeStatistics>(
-            rightChildId, *this, *leftChild, regularization, featureBag,
-            std::move(rightChildRowMask));
+            rightChildId, std::move(*this), *leftChild, regularization,
+            featureBag, std::move(rightChildRowMask));
 
         return std::make_pair(leftChild, rightChild);
     }
@@ -114,7 +115,7 @@ CBoostedTreeLeafNodeStatistics::split(std::size_t leftChildId,
     core::CPackedBitVector leftChildRowMask{m_RowMask};
     leftChildRowMask ^= rightChild->rowMask();
     auto leftChild = std::make_shared<CBoostedTreeLeafNodeStatistics>(
-        leftChildId, *this, *rightChild, regularization, featureBag,
+        leftChildId, std::move(*this), *rightChild, regularization, featureBag,
         std::move(leftChildRowMask));
 
     return std::make_pair(leftChild, rightChild);
@@ -189,7 +190,7 @@ void CBoostedTreeLeafNodeStatistics::computeAggregateLossDerivatives(
 
     m_Derivatives = std::move(result.first[0].s_FunctionState);
     for (std::size_t i = 1; i < result.first.size(); ++i) {
-        m_Derivatives.merge(result.first[i].s_FunctionState);
+        m_Derivatives.add(result.first[i].s_FunctionState);
     }
     m_Derivatives.remapCurvature();
 }
@@ -232,7 +233,7 @@ void CBoostedTreeLeafNodeStatistics::computeRowMaskAndAggregateLossDerivatives(
     m_Derivatives = std::move(result.first[0].s_FunctionState.second);
     for (std::size_t i = 1; i < result.first.size(); ++i) {
         m_RowMask |= result.first[i].s_FunctionState.first;
-        m_Derivatives.merge(result.first[i].s_FunctionState.second);
+        m_Derivatives.add(result.first[i].s_FunctionState.second);
     }
     m_Derivatives.remapCurvature();
 }
