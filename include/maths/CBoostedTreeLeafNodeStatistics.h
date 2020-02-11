@@ -132,10 +132,10 @@ public:
 
         //! Remap the accumulated curvature to lower triangle row major format.
         void remapCurvature() {
-            // We accumulate curvatures in the first n (n + 1) / elements however
-            // users of TMemoryMappedDoubleMatrix expect them stored column major
-            // in the lower triangle of n x n matrix. This copies them backwards
-            // to their correct positions.
+            // For performance, we accumulate curvatures into the first n (n + 1) / 2
+            // elements of the array backing m_Curvature. However, the memory mapped
+            // matrix class expects them to be stored column major in the lower triangle
+            // of n x n matrix. This copies them backwards to their correct positions.
             for (std::ptrdiff_t j = m_Curvature.cols() - 1,
                                 k = m_Curvature.rows() * (m_Curvature.rows() + 1) / 2 - 1;
                  j >= 0; --j) {
