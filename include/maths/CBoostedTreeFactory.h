@@ -216,7 +216,6 @@ private:
     TVector m_SoftDepthLimitSearchInterval;
     TVector m_LogEtaSearchInterval;
     TTrainingStateCallback m_RecordTrainingState = noopRecordTrainingState;
-    std::size_t m_TopShapValues = 0;
 };
 }
 }

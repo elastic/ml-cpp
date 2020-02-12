@@ -974,7 +974,7 @@ CBoostedTreeFactory::CBoostedTreeFactory(std::size_t numberThreads, TLossFunctio
     : m_NumberThreads{numberThreads},
       m_TreeImpl{std::make_unique<CBoostedTreeImpl>(numberThreads, std::move(loss))},
       m_LogDepthPenaltyMultiplierSearchInterval{0.0}, m_LogTreeSizePenaltyMultiplierSearchInterval{0.0},
-      m_LogLeafWeightPenaltyMultiplierSearchInterval{0.0}, m_TopShapValues{0} {
+      m_LogLeafWeightPenaltyMultiplierSearchInterval{0.0} {
 }
 
 CBoostedTreeFactory::CBoostedTreeFactory(CBoostedTreeFactory&&) = default;
@@ -1126,7 +1126,6 @@ CBoostedTreeFactory& CBoostedTreeFactory::rowsPerFeature(std::size_t rowsPerFeat
 }
 
 CBoostedTreeFactory& CBoostedTreeFactory::topShapValues(std::size_t topShapValues) {
-    m_TopShapValues = topShapValues;
     m_TreeImpl->m_TopShapValues = topShapValues;
     return *this;
 }
@@ -1144,14 +1143,11 @@ CBoostedTreeFactory& CBoostedTreeFactory::trainingStateCallback(TTrainingStateCa
 
 std::size_t CBoostedTreeFactory::estimateMemoryUsage(std::size_t numberRows,
                                                      std::size_t numberColumns) const {
-    std::size_t shapValuesExtraColumns =
-        (m_TopShapValues > 0) ? numberRows * numberColumns * sizeof(CFloatStorage) : 0;
     std::size_t maximumNumberTrees{this->mainLoopMaximumNumberTrees(
         m_TreeImpl->m_EtaOverride != boost::none ? *m_TreeImpl->m_EtaOverride
                                                  : computeEta(numberColumns))};
     std::swap(maximumNumberTrees, m_TreeImpl->m_MaximumNumberTrees);
-    std::size_t result{m_TreeImpl->estimateMemoryUsage(numberRows, numberColumns) +
-                       shapValuesExtraColumns};
+    std::size_t result{m_TreeImpl->estimateMemoryUsage(numberRows, numberColumns)};
     std::swap(maximumNumberTrees, m_TreeImpl->m_MaximumNumberTrees);
     return result;
 }

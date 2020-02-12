@@ -288,8 +288,11 @@ std::size_t CBoostedTreeImpl::estimateMemoryUsage(std::size_t numberRows,
                                          PACKED_BIT_VECTOR_MAXIMUM_ROWS_PER_BYTE};
     std::size_t bayesianOptimisationMemoryUsage{CBayesianOptimisation::estimateMemoryUsage(
         this->numberHyperparametersToTune(), m_NumberRounds)};
+    std::size_t shapMemoryUsage{
+        m_TopShapValues > 0 ? numberRows * numberColumns * sizeof(CFloatStorage) : 0};
     return sizeof(*this) + forestMemoryUsage + extraColumnsMemoryUsage +
-           hyperparametersMemoryUsage + leafNodeStatisticsMemoryUsage +
+           hyperparametersMemoryUsage +
+           std::max(leafNodeStatisticsMemoryUsage, shapMemoryUsage) + // not current
            dataTypeMemoryUsage + featureSampleProbabilities + missingFeatureMaskMemoryUsage +
            trainTestMaskMemoryUsage + bayesianOptimisationMemoryUsage;
 }
@@ -1418,9 +1421,13 @@ void CBoostedTreeImpl::computeShapValues(core::CDataFrame& frame) {
         }
         auto treeFeatureImportance = std::make_unique<CTreeShapFeatureImportance>(
             m_BestForest, m_NumberThreads);
-        // Resize data frame to write SHAP values.
         std::size_t offset{frame.numberColumns()};
+
+        // Resize data frame to write SHAP values.
+        std::size_t lastMemoryUsage{core::CMemory::dynamicSize(frame)};
         frame.resizeColumns(m_NumberThreads, frame.numberColumns() + m_NumberInputColumns);
+        m_Instrumentation->updateMemoryUsage(core::CMemory::dynamicSize(frame) - lastMemoryUsage);
+
         m_FirstShapColumnIndex = offset;
         m_LastShapColumnIndex = frame.numberColumns() - 1;
         TStrVec columnNames(frame.columnNames());
