@@ -753,8 +753,8 @@ CBoostedTreeFactory::estimateTreeGainAndCurvature(core::CDataFrame& frame,
     std::swap(maximumNumberOfTrees, m_TreeImpl->m_MaximumNumberTrees);
     CBoostedTreeImpl::TNodeVecVec forest;
     std::tie(forest, std::ignore) = m_TreeImpl->trainForest(
-        frame, m_TreeImpl->m_TrainingRowMasks[0], m_TreeImpl->m_TestingRowMasks[0],
-        m_TreeImpl->m_TrainingProgress);
+        frame, m_TreeImpl->m_TrainingRowMasks[0],
+        m_TreeImpl->m_TestingRowMasks[0], m_TreeImpl->m_TrainingProgress);
     std::swap(maximumNumberOfTrees, m_TreeImpl->m_MaximumNumberTrees);
 
     TDoubleDoublePrVec result;
@@ -821,8 +821,8 @@ CBoostedTreeFactory::testLossLineSearch(core::CDataFrame& frame,
         CBoostedTreeImpl::TNodeVecVec forest;
         double testLoss;
         std::tie(forest, testLoss) = m_TreeImpl->trainForest(
-            frame, m_TreeImpl->m_TrainingRowMasks[0], m_TreeImpl->m_TestingRowMasks[0],
-            m_TreeImpl->m_TrainingProgress);
+            frame, m_TreeImpl->m_TrainingRowMasks[0],
+            m_TreeImpl->m_TestingRowMasks[0], m_TreeImpl->m_TrainingProgress);
         bopt.add(boptVector(regularizer), testLoss, 0.0);
         minTestLoss.add(testLoss);
         testLosses.emplace_back(regularizer, testLoss);
@@ -842,8 +842,8 @@ CBoostedTreeFactory::testLossLineSearch(core::CDataFrame& frame,
         CBoostedTreeImpl::TNodeVecVec forest;
         double testLoss;
         std::tie(forest, testLoss) = m_TreeImpl->trainForest(
-            frame, m_TreeImpl->m_TrainingRowMasks[0], m_TreeImpl->m_TestingRowMasks[0],
-            m_TreeImpl->m_TrainingProgress);
+            frame, m_TreeImpl->m_TrainingRowMasks[0],
+            m_TreeImpl->m_TestingRowMasks[0], m_TreeImpl->m_TrainingProgress);
         bopt.add(regularizer, testLoss, 0.0);
         minTestLoss.add(testLoss);
         testLosses.emplace_back(regularizer(0), testLoss);
@@ -1131,8 +1131,8 @@ CBoostedTreeFactory& CBoostedTreeFactory::topShapValues(std::size_t topShapValue
     return *this;
 }
 
-CBoostedTreeFactory&
-CBoostedTreeFactory::analysisInstrumentation(CDataFrameAnalysisInstrumentationInterface& instrumentation) {
+CBoostedTreeFactory& CBoostedTreeFactory::analysisInstrumentation(
+    CDataFrameAnalysisInstrumentationInterface& instrumentation) {
     m_TreeImpl->m_Instrumentation = &instrumentation;
     return *this;
 }
@@ -1205,12 +1205,13 @@ void CBoostedTreeFactory::initializeTrainingProgressMonitoring(const core::CData
     }
     totalNumberSteps += this->mainLoopNumberSteps(LINE_SEARCH_ETA_MARGIN * eta);
     LOG_TRACE(<< "total number steps = " << totalNumberSteps);
-    m_TreeImpl->m_TrainingProgress =
-        core::CLoopProgress{totalNumberSteps, m_TreeImpl->m_Instrumentation->progressCallback(), 1.0, 1024};
+    m_TreeImpl->m_TrainingProgress = core::CLoopProgress{
+        totalNumberSteps, m_TreeImpl->m_Instrumentation->progressCallback(), 1.0, 1024};
 }
 
 void CBoostedTreeFactory::resumeRestoredTrainingProgressMonitoring() {
-    m_TreeImpl->m_TrainingProgress.progressCallback(m_TreeImpl->m_Instrumentation->progressCallback());
+    m_TreeImpl->m_TrainingProgress.progressCallback(
+        m_TreeImpl->m_Instrumentation->progressCallback());
     m_TreeImpl->m_TrainingProgress.resumeRestored();
 }
 

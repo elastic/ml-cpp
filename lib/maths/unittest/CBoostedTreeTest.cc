@@ -1109,7 +1109,6 @@ BOOST_AUTO_TEST_CASE(testLogisticRegression) {
         fillDataFrame(trainRows, rows - trainRows, cols, {false, false, false, true},
                       x, TDoubleVec(rows, 0.0), target, *frame);
 
-
         auto regression = maths::CBoostedTreeFactory::constructFromParameters(
                               1, std::make_unique<maths::boosted_tree::CBinomialLogistic>())
                               .buildFor(*frame, cols - 1);

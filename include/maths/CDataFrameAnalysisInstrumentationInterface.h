@@ -50,7 +50,8 @@ public:
 };
 
 //! \brief Dummies out all instrumentation.
-class MATHS_EXPORT CDataFrameAnalysisInstrumentationStub final : public CDataFrameAnalysisInstrumentationInterface {
+class MATHS_EXPORT CDataFrameAnalysisInstrumentationStub final
+    : public CDataFrameAnalysisInstrumentationInterface {
     void updateMemoryUsage(std::int64_t) override {}
     void updateProgress(double) override {}
     void nextStep(std::uint32_t) override {}

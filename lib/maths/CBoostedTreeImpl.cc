@@ -215,8 +215,8 @@ void CBoostedTreeImpl::train(core::CDataFrame& frame,
         LOG_TRACE(<< "Test loss = " << m_BestForestTestLoss);
 
         this->restoreBestHyperparameters();
-        std::tie(m_BestForest, std::ignore) =
-            this->trainForest(frame, allTrainingRowsMask, allTrainingRowsMask, m_TrainingProgress);
+        std::tie(m_BestForest, std::ignore) = this->trainForest(
+            frame, allTrainingRowsMask, allTrainingRowsMask, m_TrainingProgress);
         m_Instrumentation->nextStep(static_cast<std::uint32_t>(m_CurrentRound));
         this->recordState(recordTrainStateCallback);
 
@@ -235,7 +235,8 @@ void CBoostedTreeImpl::train(core::CDataFrame& frame,
 
     // Force progress to one because we can have early exit from loop skip altogether.
     m_Instrumentation->updateProgress(1.0);
-    m_Instrumentation->updateMemoryUsage(static_cast<std::int64_t>(this->memoryUsage()) - lastMemoryUsage);
+    m_Instrumentation->updateMemoryUsage(
+        static_cast<std::int64_t>(this->memoryUsage()) - lastMemoryUsage);
 }
 
 void CBoostedTreeImpl::recordState(const TTrainingStateCallback& recordTrainState) const {

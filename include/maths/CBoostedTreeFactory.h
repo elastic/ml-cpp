@@ -98,7 +98,8 @@ public:
     CBoostedTreeFactory& topShapValues(std::size_t topShapValues);
 
     //! Set pointer to the analysis instrumentation.
-    CBoostedTreeFactory& analysisInstrumentation(CDataFrameAnalysisInstrumentationInterface& instrumentation);
+    CBoostedTreeFactory&
+    analysisInstrumentation(CDataFrameAnalysisInstrumentationInterface& instrumentation);
     //! Set the callback function for training state recording.
     CBoostedTreeFactory& trainingStateCallback(TTrainingStateCallback callback);
 
