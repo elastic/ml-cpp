@@ -752,7 +752,7 @@ BOOST_AUTO_TEST_CASE(testRunBoostedTreeClassifierImbalanced) {
     api::CDataFrameAnalyzer analyzer{
         test::CDataFrameAnalysisSpecificationFactory::predictionSpec(
             test::CDataFrameAnalysisSpecificationFactory::classification(),
-            "target", numberExamples, 4, 14000000, 0, 0, {"target"}),
+            "target", numberExamples, 4, 16000000, 0, 0, {"target"}),
         outputWriterFactory};
 
     TStrVec actuals;
@@ -800,7 +800,7 @@ BOOST_AUTO_TEST_CASE(testCategoricalFields) {
         api::CDataFrameAnalyzer analyzer{
             test::CDataFrameAnalysisSpecificationFactory::predictionSpec(
                 test::CDataFrameAnalysisSpecificationFactory::regression(),
-                "x5", 1000, 5, 19000000, 0, 0, {"x1", "x2"}),
+                "x5", 1000, 5, 24000000, 0, 0, {"x1", "x2"}),
             outputWriterFactory};
 
         TStrVec x[]{{"x11", "x12", "x13", "x14", "x15"},
@@ -906,7 +906,7 @@ BOOST_AUTO_TEST_CASE(testCategoricalFieldsEmptyAsMissing) {
     api::CDataFrameAnalyzer analyzer{
         test::CDataFrameAnalysisSpecificationFactory::predictionSpec(
             test::CDataFrameAnalysisSpecificationFactory::classification(),
-            "x5", 1000, 5, 19000000, 0, 0, {"x1", "x2", "x5"}),
+            "x5", 1000, 5, 24000000, 0, 0, {"x1", "x2", "x5"}),
         outputWriterFactory};
 
     TStrVec fieldNames{"x1", "x2", "x3", "x4", "x5", ".", "."};

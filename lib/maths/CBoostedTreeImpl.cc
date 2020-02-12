@@ -300,18 +300,21 @@ std::size_t CBoostedTreeImpl::estimateMemoryUsage(std::size_t numberRows,
     // A binary tree with n + 1 leaves has 2n + 1 nodes in total.
     std::size_t maximumNumberLeaves{this->maximumTreeSize(numberRows) + 1};
     std::size_t maximumNumberNodes{2 * maximumNumberLeaves - 1};
+    std::size_t maximumNumberFeatures{std::min(numberColumns - 1, numberRows / m_RowsPerFeature)};
     std::size_t forestMemoryUsage{
         m_MaximumNumberTrees *
         (sizeof(TNodeVec) + maximumNumberNodes * sizeof(CBoostedTreeNode))};
     std::size_t extraColumnsMemoryUsage{numberExtraColumnsForTrain(m_Loss->numberParameters()) *
                                         numberRows * sizeof(CFloatStorage)};
+    std::size_t foldRoundLossMemoryUsage{m_NumberFolds * m_NumberRounds *
+                                         sizeof(TOptionalDouble)};
     std::size_t hyperparametersMemoryUsage{numberColumns * sizeof(double)};
     std::size_t leafNodeStatisticsMemoryUsage{
         maximumNumberLeaves * CBoostedTreeLeafNodeStatistics::estimateMemoryUsage(
-                                  numberRows, numberColumns, m_NumberSplitsPerFeature,
+                                  numberRows, maximumNumberFeatures, m_NumberSplitsPerFeature,
                                   m_Loss->numberParameters())};
-    std::size_t dataTypeMemoryUsage{numberColumns * sizeof(CDataFrameUtils::SDataType)};
-    std::size_t featureSampleProbabilities{numberColumns * sizeof(double)};
+    std::size_t dataTypeMemoryUsage{maximumNumberFeatures * sizeof(CDataFrameUtils::SDataType)};
+    std::size_t featureSampleProbabilities{maximumNumberFeatures * sizeof(double)};
     std::size_t missingFeatureMaskMemoryUsage{
         numberColumns * numberRows / PACKED_BIT_VECTOR_MAXIMUM_ROWS_PER_BYTE};
     std::size_t trainTestMaskMemoryUsage{2 * m_NumberFolds * numberRows /
@@ -319,8 +322,9 @@ std::size_t CBoostedTreeImpl::estimateMemoryUsage(std::size_t numberRows,
     std::size_t bayesianOptimisationMemoryUsage{CBayesianOptimisation::estimateMemoryUsage(
         this->numberHyperparametersToTune(), m_NumberRounds)};
     return sizeof(*this) + forestMemoryUsage + extraColumnsMemoryUsage +
-           hyperparametersMemoryUsage + leafNodeStatisticsMemoryUsage +
-           dataTypeMemoryUsage + featureSampleProbabilities + missingFeatureMaskMemoryUsage +
+           foldRoundLossMemoryUsage + hyperparametersMemoryUsage +
+           leafNodeStatisticsMemoryUsage + dataTypeMemoryUsage +
+           featureSampleProbabilities + missingFeatureMaskMemoryUsage +
            trainTestMaskMemoryUsage + bayesianOptimisationMemoryUsage;
 }
 

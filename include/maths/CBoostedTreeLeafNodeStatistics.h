@@ -278,13 +278,12 @@ public:
         //! Estimate the split derivatives' memory usage for a data frame with
         //! \p numberCols columns using \p numberSplitsPerFeature for a loss
         //! function with \p numberLossParameters parameters.
-        static std::size_t estimateMemoryUsage(std::size_t numberCols,
+        static std::size_t estimateMemoryUsage(std::size_t numberFeatures,
                                                std::size_t numberSplitsPerFeature,
                                                std::size_t numberLossParameters) {
-            std::size_t derivativesSize{(numberCols - 1) * (numberSplitsPerFeature + 1) *
+            std::size_t derivativesSize{numberFeatures * (numberSplitsPerFeature + 1) *
                                         sizeof(CDerivatives)};
-            std::size_t storageSize{(numberCols - 1) * (numberSplitsPerFeature + 1) *
-                                    numberLossParameters *
+            std::size_t storageSize{numberFeatures * (numberSplitsPerFeature + 1) * numberLossParameters *
                                     (numberLossParameters + 1) * sizeof(double)};
             return sizeof(CPerSplitDerivatives) + derivativesSize + storageSize;
         }
@@ -467,6 +466,7 @@ private:
     };
 
 private:
+    void maybeRecoverMemory();
     void computeAggregateLossDerivatives(std::size_t numberThreads,
                                          const core::CDataFrame& frame,
                                          const CDataFrameCategoryEncoder& encoder);

@@ -97,11 +97,13 @@ CBoostedTreeLeafNodeStatistics::split(std::size_t leftChildId,
             leftChildId, m_NumberInputColumns, m_NumberLossParameters,
             numberThreads, frame, encoder, regularization, candidateSplits,
             featureBag, true /*is left child*/, m_Depth + 1, split, m_RowMask);
-        core::CPackedBitVector rightChildRowMask{m_RowMask};
+        core::CPackedBitVector rightChildRowMask{std::move(m_RowMask)};
         rightChildRowMask ^= leftChild->rowMask();
         auto rightChild = std::make_shared<CBoostedTreeLeafNodeStatistics>(
             rightChildId, std::move(*this), *leftChild, regularization,
             featureBag, std::move(rightChildRowMask));
+        leftChild->maybeRecoverMemory();
+        rightChild->maybeRecoverMemory();
 
         return std::make_pair(leftChild, rightChild);
     }
@@ -110,11 +112,13 @@ CBoostedTreeLeafNodeStatistics::split(std::size_t leftChildId,
         rightChildId, m_NumberInputColumns, m_NumberLossParameters,
         numberThreads, frame, encoder, regularization, candidateSplits,
         featureBag, false /*is left child*/, m_Depth + 1, split, m_RowMask);
-    core::CPackedBitVector leftChildRowMask{m_RowMask};
+    core::CPackedBitVector leftChildRowMask{std::move(m_RowMask)};
     leftChildRowMask ^= rightChild->rowMask();
     auto leftChild = std::make_shared<CBoostedTreeLeafNodeStatistics>(
         leftChildId, std::move(*this), *rightChild, regularization, featureBag,
         std::move(leftChildRowMask));
+    leftChild->maybeRecoverMemory();
+    rightChild->maybeRecoverMemory();
 
     return std::make_pair(leftChild, rightChild);
 }
@@ -157,7 +161,7 @@ std::size_t CBoostedTreeLeafNodeStatistics::memoryUsage() const {
 
 std::size_t
 CBoostedTreeLeafNodeStatistics::estimateMemoryUsage(std::size_t numberRows,
-                                                    std::size_t numberCols,
+                                                    std::size_t numberFeatures,
                                                     std::size_t numberSplitsPerFeature,
                                                     std::size_t numberLossParameters) {
     // We will typically get the close to the best compression for most of the
@@ -166,8 +170,15 @@ CBoostedTreeLeafNodeStatistics::estimateMemoryUsage(std::size_t numberRows,
     // rows so the masks will mainly contain 0 bits in this case.
     std::size_t rowMaskSize{numberRows / PACKED_BIT_VECTOR_MAXIMUM_ROWS_PER_BYTE};
     std::size_t perSplitDerivativesSize{CPerSplitDerivatives::estimateMemoryUsage(
-        numberCols, numberSplitsPerFeature, numberLossParameters)};
+        numberFeatures, numberSplitsPerFeature, numberLossParameters)};
     return sizeof(CBoostedTreeLeafNodeStatistics) + rowMaskSize + perSplitDerivativesSize;
+}
+
+void CBoostedTreeLeafNodeStatistics::maybeRecoverMemory() {
+    if (this->gain() <= 0.0) {
+        m_RowMask = core::CPackedBitVector{};
+        m_Derivatives = CPerSplitDerivatives{};
+    }
 }
 
 void CBoostedTreeLeafNodeStatistics::computeAggregateLossDerivatives(
