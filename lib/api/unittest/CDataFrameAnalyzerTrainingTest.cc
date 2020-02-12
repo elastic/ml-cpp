@@ -266,7 +266,7 @@ void addPredictionTestData(EPredictionType type,
     }
 
     ml::api::CDataFrameTrainBoostedTreeInstrumentation instrumentation;
-    treeFactory.analysisInstrumentation(&instrumentation);
+    treeFactory.analysisInstrumentation(instrumentation);
 
     auto tree = treeFactory.buildFor(*frame, weights.size());
 
