@@ -18,14 +18,16 @@
 #include <api/CDataFrameAnalysisSpecification.h>
 #include <api/ElasticsearchStateIndex.h>
 
+#include <cmath>
+#include <set>
+
 namespace ml {
 namespace api {
 namespace {
-// Configuration
-const std::string STRATIFIED_CROSS_VALIDATION{"stratified_cross_validation"};
-
 // Output
 const std::string IS_TRAINING_FIELD_NAME{"is_training"};
+
+const std::set<std::string> PREDICTION_FIELD_NAME_BLACKLIST{IS_TRAINING_FIELD_NAME};
 }
 
 const CDataFrameAnalysisConfigReader&
@@ -42,7 +44,8 @@ CDataFrameTrainBoostedTreeRegressionRunner::parameterReader() {
 CDataFrameTrainBoostedTreeRegressionRunner::CDataFrameTrainBoostedTreeRegressionRunner(
     const CDataFrameAnalysisSpecification& spec,
     const CDataFrameAnalysisParameters& parameters)
-    : CDataFrameTrainBoostedTreeRunner{spec, parameters} {
+    : CDataFrameTrainBoostedTreeRunner{
+          spec, parameters, std::make_unique<maths::boosted_tree::CMse>()} {
 
     this->boostedTreeFactory().stratifyRegressionCrossValidation(
         parameters[STRATIFIED_CROSS_VALIDATION].fallback(true));
@@ -52,40 +55,49 @@ CDataFrameTrainBoostedTreeRegressionRunner::CDataFrameTrainBoostedTreeRegression
                   this->dependentVariableFieldName()) != categoricalFieldNames.end()) {
         HANDLE_FATAL(<< "Input error: trying to perform regression with categorical target.");
     }
-    const std::set<std::string> predictionFieldNameBlacklist{IS_TRAINING_FIELD_NAME};
-    if (predictionFieldNameBlacklist.count(this->predictionFieldName()) > 0) {
-        HANDLE_FATAL(<< "Input error: prediction_field_name must not be equal to any of "
-                     << core::CContainerPrinter::print(predictionFieldNameBlacklist)
+    if (PREDICTION_FIELD_NAME_BLACKLIST.count(this->predictionFieldName()) > 0) {
+        HANDLE_FATAL(<< "Input error: " << PREDICTION_FIELD_NAME << " must not be equal to any of "
+                     << core::CContainerPrinter::print(PREDICTION_FIELD_NAME_BLACKLIST)
                      << ".");
     }
 }
 
-CDataFrameTrainBoostedTreeRegressionRunner::CDataFrameTrainBoostedTreeRegressionRunner(
-    const CDataFrameAnalysisSpecification& spec)
-    : CDataFrameTrainBoostedTreeRunner{spec} {
-}
-
 void CDataFrameTrainBoostedTreeRegressionRunner::writeOneRow(
-    const core::CDataFrame&,
+    const core::CDataFrame& frame,
     const TRowRef& row,
     core::CRapidJsonConcurrentLineWriter& writer) const {
+
     const auto& tree = this->boostedTree();
-    const std::size_t columnHoldingDependentVariable = tree.columnHoldingDependentVariable();
-    const std::size_t columnHoldingPrediction =
-        tree.columnHoldingPrediction(row.numberColumns());
+    const std::size_t columnHoldingDependentVariable{tree.columnHoldingDependentVariable()};
+    const std::size_t columnHoldingPrediction{tree.columnHoldingPrediction()};
 
     writer.StartObject();
     writer.Key(this->predictionFieldName());
     writer.Double(row[columnHoldingPrediction]);
     writer.Key(IS_TRAINING_FIELD_NAME);
     writer.Bool(maths::CDataFrameUtils::isMissing(row[columnHoldingDependentVariable]) == false);
+    if (this->topShapValues() > 0) {
+        auto largestShapValues =
+            maths::CBasicStatistics::orderStatisticsAccumulator<std::size_t>(
+                this->topShapValues(), [&row](std::size_t lhs, std::size_t rhs) {
+                    return std::fabs(row[lhs]) > std::fabs(row[rhs]);
+                });
+        for (auto col : this->boostedTree().columnsHoldingShapValues()) {
+            largestShapValues.add(col);
+        }
+        largestShapValues.sort();
+        for (auto i : largestShapValues) {
+            if (row[i] != 0.0) {
+                writer.Key(frame.columnNames()[i]);
+                writer.Double(row[i]);
+            }
+        }
+    }
     writer.EndObject();
 }
 
-CDataFrameTrainBoostedTreeRegressionRunner::TLossFunctionUPtr
-CDataFrameTrainBoostedTreeRegressionRunner::chooseLossFunction(const core::CDataFrame&,
-                                                               std::size_t) const {
-    return std::make_unique<maths::boosted_tree::CMse>();
+void CDataFrameTrainBoostedTreeRegressionRunner::validate(const core::CDataFrame&,
+                                                          std::size_t) const {
 }
 
 CDataFrameAnalysisRunner::TInferenceModelDefinitionUPtr
@@ -99,13 +111,19 @@ CDataFrameTrainBoostedTreeRegressionRunner::inferenceModelDefinition(
     return std::make_unique<CInferenceModelDefinition>(builder.build());
 }
 
+// clang-format off
+const std::string CDataFrameTrainBoostedTreeRegressionRunner::STRATIFIED_CROSS_VALIDATION{"stratified_cross_validation"};
+// clang-format on
+
 const std::string& CDataFrameTrainBoostedTreeRegressionRunnerFactory::name() const {
     return NAME;
 }
 
 CDataFrameTrainBoostedTreeRegressionRunnerFactory::TRunnerUPtr
-CDataFrameTrainBoostedTreeRegressionRunnerFactory::makeImpl(const CDataFrameAnalysisSpecification& spec) const {
-    return std::make_unique<CDataFrameTrainBoostedTreeRegressionRunner>(spec);
+CDataFrameTrainBoostedTreeRegressionRunnerFactory::makeImpl(const CDataFrameAnalysisSpecification&) const {
+    HANDLE_FATAL(<< "Input error: classification has a non-optional parameter '"
+                 << CDataFrameTrainBoostedTreeRunner::DEPENDENT_VARIABLE_NAME << "'.")
+    return nullptr;
 }
 
 CDataFrameTrainBoostedTreeRegressionRunnerFactory::TRunnerUPtr

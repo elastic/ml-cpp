@@ -117,7 +117,7 @@ uint64_t CMockModel::checksum(bool /*includeCurrentBucketStats*/) const {
     return 0;
 }
 
-void CMockModel::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr /*mem*/) const {
+void CMockModel::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& /*mem*/) const {
 }
 
 std::size_t CMockModel::memoryUsage() const {

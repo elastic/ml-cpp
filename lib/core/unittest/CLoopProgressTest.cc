@@ -21,6 +21,7 @@ BOOST_AUTO_TEST_SUITE(CLoopProgressTest)
 
 using namespace ml;
 
+using TIntVec = std::vector<int>;
 using TSizeVec = std::vector<std::size_t>;
 
 BOOST_AUTO_TEST_CASE(testShort) {
@@ -139,6 +140,63 @@ BOOST_AUTO_TEST_CASE(testScaled) {
         }
 
         BOOST_REQUIRE_CLOSE_ABSOLUTE(1.0 / static_cast<double>(step[0]), progress, 1e-15);
+    }
+}
+
+BOOST_AUTO_TEST_CASE(testIncrementRange) {
+
+    // We're interested in four separate cases:
+    //   1) Number steps < range, decrement range followed by increment range.
+    //   2) Number steps > range, decrement range followed by increment range.
+    //   3) Number steps < range, increment range followed by decrement range.
+    //   4) Number steps > range, increment range followed by decrement range.
+
+    for (std::size_t steps : {30, 100}) {
+        double progress{0.0};
+        auto recordProgress = [&progress](double p) { progress += p; };
+        core::CLoopProgress loopProgress{50, recordProgress, 1.0, steps};
+
+        for (std::size_t i = 0; i < 20; ++i) {
+            loopProgress.increment();
+        }
+
+        // This should advance progress to iteration 20 out of (range) 30.
+        loopProgress.incrementRange(-20);
+        BOOST_REQUIRE_CLOSE(20.0 / 30.0, progress, 2.0);
+
+        // We've already incremented progress 20 times. We should be stuck at
+        // progress 2/3 until the iteration exceeds 2/3 x 60 = 40 and thereafter
+        // track (i + 20) / 60.
+        loopProgress.incrementRange(30);
+        for (std::size_t i = 0; i < 40; ++i) {
+            loopProgress.increment();
+            BOOST_REQUIRE_CLOSE(std::max(static_cast<double>(20 + i) / 60.0, 20.0 / 30.0),
+                                progress, 4.0);
+        }
+    }
+
+    for (std::size_t steps : {30, 100}) {
+        double progress{0.0};
+        auto recordProgress = [&progress](double p) { progress += p; };
+        core::CLoopProgress loopProgress{50, recordProgress, 1.0, steps};
+
+        for (std::size_t i = 0; i < 20; ++i) {
+            loopProgress.increment();
+        }
+
+        // Progress should remain unchanged at 20 out of (original range) 50.
+        loopProgress.incrementRange(30);
+        BOOST_REQUIRE_CLOSE(20.0 / 50.0, progress, 2.0);
+
+        // We've already incremented progress 20 times. We should be stuck at
+        // progress 2/5 until the iteration exceeds 2/5 x 60 = 24 and thereafter
+        // track (i + 20) / 60.
+        loopProgress.incrementRange(-20);
+        for (std::size_t i = 0; i < 40; ++i) {
+            loopProgress.increment();
+            BOOST_REQUIRE_CLOSE(std::max(static_cast<double>(20 + i) / 60.0, 20.0 / 50.0),
+                                progress, 4.0);
+        }
     }
 }
 

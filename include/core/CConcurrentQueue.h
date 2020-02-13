@@ -116,7 +116,7 @@ public:
     }
 
     //! Debug the memory used by this component.
-    void debugMemoryUsage(CMemoryUsage::TMemoryUsagePtr mem) const {
+    void debugMemoryUsage(const CMemoryUsage::TMemoryUsagePtr& mem) const {
         mem->setName("CConcurrentQueue");
         CMemoryDebug::dynamicSize("m_Queue", m_Queue, mem);
     }

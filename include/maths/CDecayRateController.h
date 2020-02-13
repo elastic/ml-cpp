@@ -84,7 +84,7 @@ public:
     std::size_t dimension() const;
 
     //! Debug the memory used by this controller.
-    void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const;
+    void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const;
 
     //! Get the memory used by this controller.
     std::size_t memoryUsage() const;

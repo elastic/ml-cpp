@@ -108,7 +108,7 @@ void CJsonOutputStreamWrapper::syncFlush() {
     c.wait(lock);
 }
 
-void CJsonOutputStreamWrapper::debugMemoryUsage(CMemoryUsage::TMemoryUsagePtr mem) const {
+void CJsonOutputStreamWrapper::debugMemoryUsage(const CMemoryUsage::TMemoryUsagePtr& mem) const {
     std::size_t bufferSize = 0;
     for (size_t i = 0; i < BUFFER_POOL_SIZE; ++i) {
         // GetSize() returns the length of the string, not the used memory, need to inspect internals

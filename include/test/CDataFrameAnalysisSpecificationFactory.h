@@ -32,6 +32,9 @@ public:
     using TSpecificationUPtr = std::unique_ptr<api::CDataFrameAnalysisSpecification>;
 
 public:
+    static const std::string& classification();
+    static const std::string& regression();
+
     static TSpecificationUPtr outlierSpec(std::size_t rows = 110,
                                           std::size_t cols = 5,
                                           std::size_t memoryLimit = 100000,
@@ -45,7 +48,7 @@ public:
                    const std::string& dependentVariable,
                    std::size_t rows = 100,
                    std::size_t cols = 5,
-                   std::size_t memoryLimit = 5000000,
+                   std::size_t memoryLimit = 7000000,
                    std::size_t numberRoundsPerHyperparameter = 0,
                    std::size_t bayesianOptimisationRestarts = 0,
                    const TStrVec& categoricalFieldNames = TStrVec{},
@@ -57,6 +60,7 @@ public:
                    double eta = -1.0,
                    std::size_t maximumNumberTrees = 0,
                    double featureBagFraction = -1.0,
+                   size_t topShapValues = 0,
                    TPersisterSupplier* persisterSupplier = nullptr,
                    TRestoreSearcherSupplier* restoreSearcherSupplier = nullptr);
 };

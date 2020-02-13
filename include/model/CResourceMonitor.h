@@ -30,8 +30,7 @@ struct testLimit;
 namespace ml {
 namespace model {
 
-class CAnomalyDetector;
-class CAnomalyDetectorModel;
+class CMonitoredResource;
 
 //! \brief Assess memory used by models and decide on further memory allocations.
 //!
@@ -39,23 +38,30 @@ class CAnomalyDetectorModel;
 //! Assess memory used by models and decide on further memory allocations.
 class MODEL_EXPORT CResourceMonitor {
 public:
-    struct MODEL_EXPORT SResults {
-        std::size_t s_Usage;
-        std::size_t s_AdjustedUsage;
-        std::size_t s_ByFields;
-        std::size_t s_PartitionFields;
-        std::size_t s_OverFields;
-        std::size_t s_AllocationFailures;
-        model_t::EMemoryStatus s_MemoryStatus;
-        core_t::TTime s_BucketStartTime;
-        std::size_t s_BytesExceeded;
-        std::size_t s_BytesMemoryLimit;
+    struct MODEL_EXPORT SModelSizeStats {
+        std::size_t s_Usage = 0;
+        std::size_t s_AdjustedUsage = 0;
+        std::size_t s_ByFields = 0;
+        std::size_t s_PartitionFields = 0;
+        std::size_t s_OverFields = 0;
+        std::size_t s_AllocationFailures = 0;
+        model_t::EMemoryStatus s_MemoryStatus = model_t::E_MemoryStatusOk;
+        core_t::TTime s_BucketStartTime = 0;
+        std::size_t s_BytesExceeded = 0;
+        std::size_t s_BytesMemoryLimit = 0;
+        std::size_t s_CategorizedMessages = 0;
+        std::size_t s_TotalCategories = 0;
+        std::size_t s_FrequentCategories = 0;
+        std::size_t s_RareCategories = 0;
+        std::size_t s_DeadCategories = 0;
+        model_t::ECategorizationStatus s_CategorizationStatus = model_t::E_CategorizationStatusOk;
     };
 
 public:
-    using TDetectorPtrSizePr = std::pair<CAnomalyDetector*, std::size_t>;
-    using TDetectorPtrSizeUMap = boost::unordered_map<CAnomalyDetector*, std::size_t>;
-    using TMemoryUsageReporterFunc = std::function<void(const CResourceMonitor::SResults&)>;
+    using TMonitoredResourcePtrSizeUMap =
+        boost::unordered_map<CMonitoredResource*, std::size_t>;
+    using TMemoryUsageReporterFunc =
+        std::function<void(const CResourceMonitor::SModelSizeStats&)>;
     using TTimeSizeMap = std::map<core_t::TTime, std::size_t>;
 
     //! The minimum time between prunes
@@ -79,23 +85,23 @@ public:
     //! Return the amount of remaining space for allocations
     std::size_t allocationLimit() const;
 
-    //! Tell this resource monitor about a CAnomalyDetector class -
-    //! these classes contain all the model memory and are used
-    //! to query the current overall usage
-    void registerComponent(CAnomalyDetector& detector);
+    //! Register a resource with the monitor - these classes
+    //! contain all the model memory and are used to query
+    //! the current overall usage
+    void registerComponent(CMonitoredResource& resource);
 
-    //! Tell this resource monitor that a CAnomalyDetector class is
+    //! Inform this resource monitor instance that a monitored resource is
     //! going to be deleted.
-    void unRegisterComponent(CAnomalyDetector& detector);
+    void unRegisterComponent(CMonitoredResource& resource);
 
-    //! Set a callback used when the memory usage grows
+    //! Register a callback to be used when the memory usage grows
     void memoryUsageReporter(const TMemoryUsageReporterFunc& reporter);
 
     //! Recalculate the memory usage if there is a memory limit
-    void refresh(CAnomalyDetector& detector);
+    void refresh(CMonitoredResource& resource);
 
     //! Recalculate the memory usage regardless of whether there is a memory limit
-    void forceRefresh(CAnomalyDetector& detector);
+    void forceRefresh(CMonitoredResource& resource);
 
     //! Set the internal memory limit, as specified in a limits config file
     void memoryLimit(std::size_t limitMBs);
@@ -110,7 +116,7 @@ public:
     void sendMemoryUsageReport(core_t::TTime bucketStartTime);
 
     //! Create a memory usage report
-    SResults createMemoryUsageReport(core_t::TTime bucketStartTime);
+    SModelSizeStats createMemoryUsageReport(core_t::TTime bucketStartTime);
 
     //! We are being told that a class has failed to allocate memory
     //! based on the resource limits, and we will report this to the
@@ -152,7 +158,7 @@ private:
     void updateMemoryLimitsAndPruneThreshold(std::size_t limitMBs);
 
     //! Update the given model and recalculate the total usage
-    void memUsage(CAnomalyDetector* detector);
+    void memUsage(CMonitoredResource* resource);
 
     //! Determine if we need to send a usage report, based on
     //! increased usage, or increased errors
@@ -181,7 +187,7 @@ private:
 
 private:
     //! The registered collection of components
-    TDetectorPtrSizeUMap m_Detectors;
+    TMonitoredResourcePtrSizeUMap m_Resources;
 
     //! Is there enough free memory to allow creating new components
     bool m_AllowAllocations;
@@ -195,8 +201,9 @@ private:
     //! The lower limit for memory usage, checked on decreasing values
     std::size_t m_ByteLimitLow;
 
-    //! Memory usage by anomaly detectors on the most recent calculation
-    std::size_t m_CurrentAnomalyDetectorMemory;
+    //! The memory usage of the monitored resources based on the most recent
+    //! calculation
+    std::size_t m_MonitoredResourceCurrentMemory;
 
     //! Extra memory to enable accounting of soon to be allocated memory
     std::size_t m_ExtraMemory;
@@ -256,7 +263,6 @@ private:
 };
 
 } // model
-
 } // ml
 
 #endif // INCLUDED_ml_model_CResourceMonitor_h

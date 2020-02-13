@@ -9,6 +9,8 @@
 #include <core/CMemoryUsage.h>
 #include <core/CoreTypes.h>
 
+#include <model/CCategoryExamplesCollector.h>
+#include <model/CMonitoredResource.h>
 #include <model/ImportExport.h>
 
 #include <boost/unordered_map.hpp>
@@ -23,6 +25,7 @@ class CStatePersistInserter;
 class CStateRestoreTraverser;
 }
 namespace model {
+class CLimits;
 
 //! \brief
 //! Interface for classes that convert a raw event string to a category.
@@ -37,7 +40,7 @@ namespace model {
 //! there are specialist data categorizers for XML, JSON or delimited files,
 //! so it is good to have an abstract interface that they can all use.
 //!
-class MODEL_EXPORT CDataCategorizer {
+class MODEL_EXPORT CDataCategorizer : public CMonitoredResource {
 public:
     //! Used for storing distinct token IDs
     using TStrStrUMap = boost::unordered_map<std::string, std::string>;
@@ -50,10 +53,13 @@ public:
     using TPersistFunc = std::function<void(core::CStatePersistInserter&)>;
 
 public:
-    CDataCategorizer(const std::string& fieldName);
+    CDataCategorizer(CLimits& limits, const std::string& fieldName);
 
-    //! Virtual destructor for an abstract base class
-    virtual ~CDataCategorizer();
+    //! No copying allowed (because it would complicate the resource monitoring).
+    CDataCategorizer(const CDataCategorizer&) = delete;
+    CDataCategorizer& operator=(const CDataCategorizer&) = delete;
+
+    ~CDataCategorizer() override;
 
     //! Dump stats
     virtual void dumpStats() const = 0;
@@ -61,13 +67,13 @@ public:
     //! Compute a category from a string.  The raw string length may be longer
     //! than the length of the passed string, because the passed string may
     //! have the date stripped out of it.
-    int computeCategory(bool isDryRun, const std::string& str, size_t rawStringLen);
+    int computeCategory(bool isDryRun, const std::string& str, std::size_t rawStringLen);
 
     //! As above, but also take into account field names/values.
     virtual int computeCategory(bool isDryRun,
                                 const TStrStrUMap& fields,
                                 const std::string& str,
-                                size_t rawStringLen) = 0;
+                                std::size_t rawStringLen) = 0;
 
     //! Create reverse search commands that will (more or less) just
     //! select the records that are classified as the given category when
@@ -77,7 +83,7 @@ public:
     virtual bool createReverseSearch(int categoryId,
                                      std::string& part1,
                                      std::string& part2,
-                                     size_t& maxMatchingLength,
+                                     std::size_t& maxMatchingLength,
                                      bool& wasCached) = 0;
 
     //! Has the data categorizer's state changed?
@@ -89,8 +95,16 @@ public:
     //! Persist state by passing information to the supplied inserter
     virtual void acceptPersistInserter(core::CStatePersistInserter& inserter) const = 0;
 
-    //! Make a function that can be called later to persist state
-    virtual TPersistFunc makePersistFunc() const = 0;
+    //! Make a function that can be called later to persist state in the
+    //! foreground, i.e. in the knowledge that no other thread will be
+    //! accessing the data structures this method accesses.
+    virtual TPersistFunc makeForegroundPersistFunc() const = 0;
+
+    //! Make a function that can be called later to persist state in the
+    //! background, i.e. copying any required data such that other threads
+    //! may modify the original data structures while persistence is taking
+    //! place.
+    virtual TPersistFunc makeBackgroundPersistFunc() const = 0;
 
     //! Access to the field name
     const std::string& fieldName() const;
@@ -102,18 +116,34 @@ public:
     void lastPersistTime(core_t::TTime lastPersistTime);
 
     //! Debug the memory used by this categorizer.
-    virtual void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const;
+    void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const override;
 
     //! Get the memory used by this categorizer.
-    virtual std::size_t memoryUsage() const;
+    std::size_t memoryUsage() const override;
+
+    //! Add an example if the limit for the category has not be reached.
+    //! \return true if the example was added, false if not.
+    bool addExample(int categoryId, const std::string& example);
+
+    //! Access to the examples collector
+    const CCategoryExamplesCollector& examplesCollector() const;
+
+    //! Restore the examples collector
+    bool restoreExamplesCollector(core::CStateRestoreTraverser& traverser);
 
 protected:
     //! Used if no fields are supplied to the computeCategory() method.
     static const TStrStrUMap EMPTY_FIELDS;
 
 private:
+    //! Configurable limits
+    CLimits& m_Limits;
+
     //! Which field name are we working on?
     std::string m_FieldName;
+
+    //! Collects up to a configurable number of examples per category
+    CCategoryExamplesCollector m_ExamplesCollector;
 
     //! When was data last persisted for this categorizer?  (0 means never.)
     core_t::TTime m_LastPersistTime;

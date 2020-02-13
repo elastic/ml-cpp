@@ -178,7 +178,9 @@ public:
     double euclidean() const { return std::sqrt(this->inner(*this)); }
 
     //! Manhattan norm.
-    double manhattan() const { return this->inner(*this); }
+    double manhattan() const {
+        return this->size() == 0 ? 0 : this->inner(*this);
+    }
     //@}
 
     //! Convert to a bit vector.
@@ -188,7 +190,7 @@ public:
     std::uint64_t checksum() const;
 
     //! Debug the memory used by this object.
-    void debugMemoryUsage(CMemoryUsage::TMemoryUsagePtr mem) const;
+    void debugMemoryUsage(const CMemoryUsage::TMemoryUsagePtr& mem) const;
 
     //! Get the memory used by this object.
     std::size_t memoryUsage() const;

@@ -120,7 +120,7 @@ void CMemoryUsageEstimator::addValue(const TSizeArray& predictors, std::size_t m
     ++core::CProgramCounters::counter(counter_t::E_TSADNumberMemoryUsageChecks);
 }
 
-void CMemoryUsageEstimator::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const {
+void CMemoryUsageEstimator::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
     mem->setName("CMemoryUsageEstimator");
     core::CMemoryDebug::dynamicSize("m_Values", m_Values, mem);
 }

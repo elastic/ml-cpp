@@ -15,9 +15,9 @@ namespace api {
 //! Elasticsearch index for state
 extern API_EXPORT const std::string ML_STATE_INDEX;
 extern API_EXPORT const std::string MODEL_STATE_TYPE;
-extern API_EXPORT const std::string REGRESSION_TRAIN_STATE_TYPE;
+extern API_EXPORT const std::string STATE_ID_SUFFIX;
 
-API_EXPORT std::string getRegressionStateId(const std::string& jobId);
+API_EXPORT std::string getStateId(const std::string& jobId, const std::string& analysisName);
 }
 }
 

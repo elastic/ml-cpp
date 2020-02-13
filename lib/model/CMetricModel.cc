@@ -429,7 +429,7 @@ uint64_t CMetricModel::checksum(bool includeCurrentBucketStats) const {
     return maths::CChecksum::calculate(seed, hashes);
 }
 
-void CMetricModel::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const {
+void CMetricModel::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
     mem->setName("CMetricModel");
     this->CIndividualModel::debugMemoryUsage(mem->addChild());
     core::CMemoryDebug::dynamicSize("m_CurrentBucketStats.s_PersonCounts",

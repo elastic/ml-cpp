@@ -5,11 +5,13 @@
  */
 
 #include <core/CDataFrame.h>
+#include <core/CRegex.h>
 
 #include <api/CDataFrameAnalysisConfigReader.h>
 #include <api/CDataFrameTrainBoostedTreeClassifierRunner.h>
 
 #include <test/CDataFrameAnalysisSpecificationFactory.h>
+#include <test/CRandomNumbers.h>
 
 #include <boost/test/unit_test.hpp>
 
@@ -19,11 +21,9 @@
 BOOST_AUTO_TEST_SUITE(CDataFrameTrainBoostedTreeClassifierRunnerTest)
 
 using namespace ml;
-namespace {
 using TRowItr = core::CDataFrame::TRowItr;
 using TStrVec = std::vector<std::string>;
 using TStrVecVec = std::vector<TStrVec>;
-}
 
 BOOST_AUTO_TEST_CASE(testPredictionFieldNameClash) {
     TStrVec errors;
@@ -31,7 +31,8 @@ BOOST_AUTO_TEST_CASE(testPredictionFieldNameClash) {
     core::CLogger::CScopeSetFatalErrorHandler scope{errorHandler};
 
     const auto spec{test::CDataFrameAnalysisSpecificationFactory::predictionSpec(
-        "classification", "dep_var", 5, 6, 13000000, 0, 0, {"dep_var"})};
+        test::CDataFrameAnalysisSpecificationFactory::classification(),
+        "dep_var", 5, 6, 13000000, 0, 0, {"dep_var"})};
     rapidjson::Document jsonParameters;
     jsonParameters.Parse("{"
                          "  \"dependent_variable\": \"dep_var\","
@@ -42,20 +43,29 @@ BOOST_AUTO_TEST_CASE(testPredictionFieldNameClash) {
     api::CDataFrameTrainBoostedTreeClassifierRunner runner(*spec, parameters);
 
     BOOST_TEST_REQUIRE(errors.size() == 1);
-    BOOST_TEST_REQUIRE(errors[0] == "Input error: prediction_field_name must not be equal to any of [is_training, prediction_probability, top_classes].");
+
+    core::CRegex regex;
+    regex.init("Input error: prediction_field_name must not be equal to.*");
+    BOOST_TEST_REQUIRE(regex.matches(errors[0]));
 }
 
-BOOST_AUTO_TEST_CASE(testWriteOneRow) {
+namespace {
+template<typename T>
+void testWriteOneRow(const std::string& dependentVariableField,
+                     const std::string& predictionFieldType,
+                     T (rapidjson::Value::*extract)() const,
+                     const std::vector<T>& expectedPredictions) {
     // Prepare input data frame
-    const TStrVec columnNames{"x1", "x2", "x3", "x4", "x5", "x5_prediction"};
-    const TStrVec categoricalColumns{"x1", "x2", "x5"};
+    const std::string predictionField = dependentVariableField + "_prediction";
+    const TStrVec columnNames{"x1", "x2", "x3", "x4", "x5", predictionField};
+    const TStrVec categoricalColumns{"x1", "x2", "x3", "x4", "x5"};
     const TStrVecVec rows{{"a", "b", "1.0", "1.0", "cat", "-1.0"},
-                          {"a", "b", "2.0", "2.0", "cat", "-0.5"},
-                          {"a", "b", "5.0", "5.0", "dog", "-0.1"},
-                          {"c", "d", "5.0", "5.0", "dog", "1.0"},
-                          {"e", "f", "5.0", "5.0", "dog", "1.5"}};
-    std::unique_ptr<core::CDataFrame> frame =
-        core::makeMainStorageDataFrame(columnNames.size()).first;
+                          {"a", "b", "1.0", "1.0", "cat", "-0.5"},
+                          {"a", "b", "5.0", "0.0", "dog", "-0.1"},
+                          {"c", "d", "5.0", "0.0", "dog", "1.0"},
+                          {"e", "f", "5.0", "0.0", "dog", "1.5"}};
+    std::unique_ptr<core::CDataFrame> frame{
+        core::makeMainStorageDataFrame(columnNames.size()).first};
     frame->columnNames(columnNames);
     frame->categoricalColumns(categoricalColumns);
     for (std::size_t i = 0; i < rows.size(); ++i) {
@@ -67,13 +77,24 @@ BOOST_AUTO_TEST_CASE(testWriteOneRow) {
 
     // Create classification analysis runner object
     const auto spec{test::CDataFrameAnalysisSpecificationFactory::predictionSpec(
-        "classification", "x5", rows.size(), columnNames.size(), 13000000, 0, 0,
-        categoricalColumns)};
+        test::CDataFrameAnalysisSpecificationFactory::classification(), dependentVariableField,
+        rows.size(), columnNames.size(), 13000000, 0, 0, categoricalColumns)};
     rapidjson::Document jsonParameters;
-    jsonParameters.Parse("{\"dependent_variable\": \"x5\"}");
+    if (predictionFieldType.empty()) {
+        jsonParameters.Parse("{\"dependent_variable\": \"" + dependentVariableField + "\"}");
+    } else {
+        jsonParameters.Parse("{"
+                             "  \"dependent_variable\": \"" +
+                             dependentVariableField +
+                             "\","
+                             "  \"prediction_field_type\": \"" +
+                             predictionFieldType +
+                             "\""
+                             "}");
+    }
     const auto parameters{
         api::CDataFrameTrainBoostedTreeClassifierRunner::parameterReader().read(jsonParameters)};
-    api::CDataFrameTrainBoostedTreeClassifierRunner runner(*spec, parameters);
+    api::CDataFrameTrainBoostedTreeClassifierRunner runner{*spec, parameters};
 
     // Write results to the output stream
     std::stringstream output;
@@ -83,29 +104,29 @@ BOOST_AUTO_TEST_CASE(testWriteOneRow) {
 
         frame->readRows(1, [&](TRowItr beginRows, TRowItr endRows) {
             const auto columnHoldingDependentVariable{
-                std::find(columnNames.begin(), columnNames.end(), "x5") -
+                std::find(columnNames.begin(), columnNames.end(), dependentVariableField) -
                 columnNames.begin()};
             const auto columnHoldingPrediction{
-                std::find(columnNames.begin(), columnNames.end(), "x5_prediction") -
+                std::find(columnNames.begin(), columnNames.end(), predictionField) -
                 columnNames.begin()};
             for (auto row = beginRows; row != endRows; ++row) {
                 runner.writeOneRow(*frame, columnHoldingDependentVariable,
-                                   columnHoldingPrediction, *row, writer);
+                                   columnHoldingPrediction, 0.5, *row, writer);
             }
         });
     }
     // Verify results
-    const TStrVec expectedPredictions{"cat", "cat", "cat", "dog", "dog"};
     rapidjson::Document arrayDoc;
     arrayDoc.Parse<rapidjson::kParseDefaultFlags>(output.str().c_str());
     BOOST_TEST_REQUIRE(arrayDoc.IsArray());
     BOOST_TEST_REQUIRE(arrayDoc.Size() == rows.size());
+    BOOST_TEST_REQUIRE(arrayDoc.Size() == expectedPredictions.size());
     for (std::size_t i = 0; i < arrayDoc.Size(); ++i) {
         BOOST_TEST_CONTEXT("Result for row " << i) {
             const rapidjson::Value& object = arrayDoc[rapidjson::SizeType(i)];
             BOOST_TEST_REQUIRE(object.IsObject());
-            BOOST_TEST_REQUIRE(object.HasMember("x5_prediction"));
-            BOOST_TEST_REQUIRE(object["x5_prediction"].GetString() ==
+            BOOST_TEST_REQUIRE(object.HasMember(predictionField));
+            BOOST_TEST_REQUIRE((object[predictionField].*extract)() ==
                                expectedPredictions[i]);
             BOOST_TEST_REQUIRE(object.HasMember("prediction_probability"));
             BOOST_TEST_REQUIRE(object["prediction_probability"].GetDouble() > 0.5);
@@ -113,6 +134,26 @@ BOOST_AUTO_TEST_CASE(testWriteOneRow) {
             BOOST_TEST_REQUIRE(object["is_training"].GetBool());
         }
     }
+}
+}
+
+BOOST_AUTO_TEST_CASE(testWriteOneRowPredictionFieldTypeIsInt) {
+    testWriteOneRow("x3", "int", &rapidjson::Value::GetInt, {1, 1, 1, 5, 5});
+}
+
+BOOST_AUTO_TEST_CASE(testWriteOneRowPredictionFieldTypeIsBool) {
+    testWriteOneRow("x4", "bool", &rapidjson::Value::GetBool,
+                    {true, true, true, false, false});
+}
+
+BOOST_AUTO_TEST_CASE(testWriteOneRowPredictionFieldTypeIsString) {
+    testWriteOneRow("x5", "string", &rapidjson::Value::GetString,
+                    {"cat", "cat", "cat", "dog", "dog"});
+}
+
+BOOST_AUTO_TEST_CASE(testWriteOneRowPredictionFieldTypeIsMissing) {
+    testWriteOneRow("x5", "", &rapidjson::Value::GetString,
+                    {"cat", "cat", "cat", "dog", "dog"});
 }
 
 BOOST_AUTO_TEST_SUITE_END()

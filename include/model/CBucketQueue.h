@@ -165,7 +165,7 @@ public:
     core_t::TTime latestBucketEnd() const { return m_LatestBucketEnd; }
 
     //! Debug the memory used by this component.
-    void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const {
+    void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
         mem->setName("CBucketQueue");
         core::CMemoryDebug::dynamicSize("m_Queue", m_Queue, mem);
     }

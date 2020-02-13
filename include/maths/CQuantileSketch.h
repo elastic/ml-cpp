@@ -9,6 +9,7 @@
 
 #include <core/CMemoryUsage.h>
 
+#include <maths/CPRNG.h>
 #include <maths/ImportExport.h>
 #include <maths/MathsTypes.h>
 
@@ -53,18 +54,19 @@ public:
 
 public:
     CQuantileSketch(EInterpolation interpolation, std::size_t size);
+    virtual ~CQuantileSketch() = default;
 
-    //! Create reading state from \p traverser.
+    //! Initialize reading state from \p traverser.
     bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
 
-    //! Convert to a node tree.
+    //! Write a description to \p inserter.
     void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
 
     //! Combine two sketches.
     const CQuantileSketch& operator+=(const CQuantileSketch& rhs);
 
     //! Define a function operator for use with std:: algorithms.
-    inline void operator()(double x) { this->add(x); }
+    void operator()(double x) { this->add(x); }
 
     //! Add \p x to the sketch.
     void add(double x, double n = 1.0);
@@ -94,19 +96,48 @@ public:
     double count() const;
 
     //! Get a checksum of this object.
-    std::uint64_t checksum(std::uint64_t seed = 0) const;
+    virtual std::uint64_t checksum(std::uint64_t seed = 0) const;
 
     //! Debug the memory used by this object.
-    void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const;
+    virtual void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const;
 
     //! Get the memory used by this object.
-    std::size_t memoryUsage() const;
+    virtual std::size_t memoryUsage() const;
+
+    //! Get the static size of this object.
+    virtual std::size_t staticSize() const;
 
     //! Check invariants.
     bool checkInvariants() const;
 
     //! Print the sketch for debug.
     std::string print() const;
+
+protected:
+    using TBoolVec = std::vector<bool>;
+    using TSizeVec = std::vector<std::size_t>;
+
+protected:
+    //! Reduce to the maximum permitted size.
+    virtual void reduce();
+
+    //! Get the target size for sketch post reduce.
+    virtual std::size_t target() const;
+
+    //! Reduce to the maximum permitted size.
+    void reduce(CPRNG::CXorOShiro128Plus& rng,
+                TFloatFloatPrVec& mergeCosts,
+                TSizeVec& mergeCandidates,
+                TBoolVec& stale);
+
+    //! Sort and combine any co-located values.
+    void orderAndDeduplicate();
+
+    //! Compute the cost of combining \p vl and \p vr.
+    static double cost(const TFloatFloatPr& vl, const TFloatFloatPr& vr);
+
+    //! The maximum permitted size for the sketch.
+    std::size_t maxSize() const { return m_MaxSize; }
 
 private:
     //! Compute quantiles on the supplied knots.
@@ -116,18 +147,6 @@ private:
                          double percentage,
                          double& result);
 
-    //! Reduce to the maximum permitted size.
-    void reduce();
-
-    //! Sort and combine any co-located values.
-    void orderAndDeduplicate();
-
-    //! Get the target size for sketch post reduce.
-    std::size_t target() const;
-
-    //! Compute the cost of combining \p vl and \p vr.
-    double cost(const TFloatFloatPr& vl, const TFloatFloatPr& vr) const;
-
 private:
     //! The style of interpolation to use.
     EInterpolation m_Interpolation;
@@ -135,8 +154,7 @@ private:
     std::size_t m_MaxSize;
     //! The number of unsorted values.
     std::size_t m_Unsorted;
-    //! The values and counts used as knot points in a linear
-    //! interpolation of the c.d.f.
+    //! The values and counts used as knot points to interpolate the c.d.f.
     TFloatFloatPrVec m_Knots;
     //! The total count of points in the sketch.
     double m_Count;
@@ -145,32 +163,77 @@ private:
 //! \brief Template wrapper for fixed size sketches which can be
 //! default constructed.
 template<CQuantileSketch::EInterpolation INTERPOLATION, std::size_t N>
-class CFixedQuantileSketch : public CQuantileSketch {
+class CFixedQuantileSketch final : public CQuantileSketch {
 public:
     CFixedQuantileSketch() : CQuantileSketch(INTERPOLATION, N) {}
 
-    //! NB1: Needs to be redeclared to work with CChecksum.
-    //! NB2: This method is not currently virtual - needs changing if any of the
-    //! methods of this class ever do anything other than forward to the base class
-    std::uint64_t checksum(std::uint64_t seed = 0) const {
+    //! Get a checksum of this object.
+    //!
+    //! \note Needs to be redeclared to work with CChecksum.
+    std::uint64_t checksum(std::uint64_t seed = 0) const override {
         return this->CQuantileSketch::checksum(seed);
     }
 
     //! Debug the memory used by this object.
-    //! NB1: Needs to be redeclared to work with CMemoryDebug.
-    //! NB2: This method is not currently virtual - needs changing if any of the
-    //! methods of this class ever do anything other than forward to the base class
-    void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const {
+    //!
+    //! \note Needs to be redeclared to work with CMemoryDebug.
+    void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const override {
         this->CQuantileSketch::debugMemoryUsage(mem);
     }
 
     //! Get the memory used by this object.
-    //! NB1: Needs to be redeclared to work with CMemory.
-    //! NB2: This method is not currently virtual - needs changing if any of the
-    //! methods of this class ever do anything other than forward to the base class
-    std::size_t memoryUsage() const {
+    //!
+    //! \note Needs to be redeclared to work with CMemory.
+    std::size_t memoryUsage() const override {
         return this->CQuantileSketch::memoryUsage();
     }
+};
+
+//! \brief This tunes the quantile sketch for performance when space is less important.
+//!
+//! DESCRIPTION:\n
+//! This uses around 2.5x the memory than `CQuantileSketch` but updating is around 2.0x
+//! faster when using its default reduction factor.
+class MATHS_EXPORT CFastQuantileSketch final : public CQuantileSketch {
+public:
+    CFastQuantileSketch(EInterpolation interpolation,
+                        std::size_t size,
+                        CPRNG::CXorOShiro128Plus rng = CPRNG::CXorOShiro128Plus{},
+                        double reductionFraction = 0.8)
+        : CQuantileSketch{interpolation, size}, m_Rng{rng}, m_ReductionFraction{reductionFraction} {
+    }
+
+    // We don't bother to checksum or persist and restore the bookkeeping state because
+    // it is reinitialised at the start of each reduce.
+
+    //! Get a checksum of this object.
+    std::uint64_t checksum(std::uint64_t seed = 0) const override;
+
+    //! Debug the memory used by this object.
+    void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const override;
+
+    //! Get the memory used by this object.
+    std::size_t memoryUsage() const override;
+
+    //! Get the static size of this object.
+    std::size_t staticSize() const override;
+
+private:
+    using CQuantileSketch::reduce;
+
+private:
+    //! Reduce to the maximum permitted size.
+    void reduce() override;
+
+    //! Get the target size for sketch post reduce.
+    std::size_t target() const override;
+
+private:
+    CPRNG::CXorOShiro128Plus m_Rng;
+    TFloatFloatPrVec m_MergeCosts;
+    TSizeVec m_MergeCandidates;
+    TBoolVec m_Stale;
+    double m_ReductionFraction;
 };
 
 //! Write to stream using print member.

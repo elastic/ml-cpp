@@ -38,7 +38,7 @@ endif
 
 # Start by enabling all warnings and then disable the really pointless/annoying ones
 CFLAGS=-g $(OPTCFLAGS) -msse4.2 -fstack-protector -Weverything -Werror-switch -Wno-deprecated -Wno-disabled-macro-expansion -Wno-documentation-deprecated-sync -Wno-documentation-unknown-command -Wno-float-equal -Wno-missing-prototypes -Wno-padded -Wno-sign-conversion -Wno-unreachable-code -Wno-used-but-marked-unused $(COVERAGE)
-CXXFLAGS=$(CFLAGS) -Wno-c++98-compat -Wno-c++98-compat-pedantic -Wno-exit-time-destructors -Wno-global-constructors -Wno-unused-member-function -Wno-weak-vtables
+CXXFLAGS=$(CFLAGS) -Wno-c++98-compat -Wno-c++98-compat-pedantic -Wno-exit-time-destructors -Wno-global-constructors -Wno-return-std-move-in-c++11 -Wno-unused-member-function -Wno-weak-vtables
 CPPFLAGS=-isystem $(SYSROOT)/usr/include/c++/v1 -isystem $(CPP_SRC_HOME)/3rd_party/include -isystem $(SYSROOT)/usr/local/include -D$(OS) $(OPTCPPFLAGS)
 ANALYZEFLAGS=--analyze
 CDEPFLAGS=-MM

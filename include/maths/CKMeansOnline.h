@@ -482,7 +482,7 @@ public:
     }
 
     //! Get the memory used by this component
-    void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const {
+    void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
         mem->setName("CKMeansOnline");
         core::CMemoryDebug::dynamicSize("m_Clusters", m_Clusters, mem);
         core::CMemoryDebug::dynamicSize("m_PointsBuffer", m_PointsBuffer, mem);

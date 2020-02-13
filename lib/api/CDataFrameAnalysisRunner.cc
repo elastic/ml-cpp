@@ -32,13 +32,10 @@ std::size_t maximumNumberPartitions(const CDataFrameAnalysisSpecification& spec)
     // user to allocate more resources for the job in this case.
     return static_cast<std::size_t>(std::sqrt(static_cast<double>(spec.numberRows())) + 0.5);
 }
-
-const std::size_t MAXIMUM_FRACTIONAL_PROGRESS{std::size_t{1}
-                                              << ((sizeof(std::size_t) - 2) * 8)};
 }
 
 CDataFrameAnalysisRunner::CDataFrameAnalysisRunner(const CDataFrameAnalysisSpecification& spec)
-    : m_Spec{spec}, m_Finished{false}, m_FractionalProgress{0}, m_Memory{0} {
+    : m_Spec{spec} {
 }
 
 CDataFrameAnalysisRunner::~CDataFrameAnalysisRunner() {
@@ -145,11 +142,10 @@ void CDataFrameAnalysisRunner::run(core::CDataFrame& frame) {
     if (m_Runner.joinable()) {
         LOG_INFO(<< "Already running analysis");
     } else {
-        m_FractionalProgress.store(0.0);
-        m_Finished.store(false);
+        this->instrumentation().resetProgress();
         m_Runner = std::thread([&frame, this]() {
             this->runImpl(frame);
-            this->setToFinished();
+            this->instrumentation().setToFinished();
         });
     }
 }
@@ -160,40 +156,8 @@ void CDataFrameAnalysisRunner::waitToFinish() {
     }
 }
 
-bool CDataFrameAnalysisRunner::finished() const {
-    return m_Finished.load();
-}
-
-double CDataFrameAnalysisRunner::progress() const {
-    return this->finished()
-               ? 1.0
-               : static_cast<double>(std::min(m_FractionalProgress.load(),
-                                              MAXIMUM_FRACTIONAL_PROGRESS - 1)) /
-                     static_cast<double>(MAXIMUM_FRACTIONAL_PROGRESS);
-}
-
 const CDataFrameAnalysisSpecification& CDataFrameAnalysisRunner::spec() const {
     return m_Spec;
-}
-
-CDataFrameAnalysisRunner::TProgressRecorder CDataFrameAnalysisRunner::progressRecorder() {
-    return [this](double fractionalProgress) {
-        this->recordProgress(fractionalProgress);
-    };
-}
-
-CDataFrameAnalysisRunner::TMemoryMonitor
-CDataFrameAnalysisRunner::memoryMonitor(counter_t::ECounterTypes counter) {
-    return [counter, this](std::int64_t delta) {
-        std::int64_t memory{m_Memory.fetch_add(delta)};
-        if (memory >= 0) {
-            core::CProgramCounters::counter(counter).max(memory);
-        } else {
-            // Something has gone wrong with memory estimation. Trap this case
-            // to avoid underflowing the peak memory usage statistic.
-            LOG_WARN(<< "Memory estimate " << memory << " is negative!");
-        }
-    };
 }
 
 std::size_t CDataFrameAnalysisRunner::estimateMemoryUsage(std::size_t totalNumberRows,
@@ -205,23 +169,13 @@ std::size_t CDataFrameAnalysisRunner::estimateMemoryUsage(std::size_t totalNumbe
                                                 partitionNumberRows, numberColumns);
 }
 
-void CDataFrameAnalysisRunner::recordProgress(double fractionalProgress) {
-    m_FractionalProgress.fetch_add(static_cast<std::size_t>(std::max(
-        static_cast<double>(MAXIMUM_FRACTIONAL_PROGRESS) * fractionalProgress + 0.5, 1.0)));
-}
-
-void CDataFrameAnalysisRunner::setToFinished() {
-    m_Finished.store(true);
-    m_FractionalProgress.store(MAXIMUM_FRACTIONAL_PROGRESS);
-}
-
 CDataFrameAnalysisRunner::TStatePersister CDataFrameAnalysisRunner::statePersister() {
     return [this](std::function<void(core::CStatePersistInserter&)> persistFunction) -> void {
         auto persister = m_Spec.persister();
         if (persister != nullptr) {
             core::CStateCompressor compressor(*persister);
             auto persistStream = compressor.addStreamed(
-                ML_STATE_INDEX, getRegressionStateId(m_Spec.jobId()));
+                ML_STATE_INDEX, getStateId(m_Spec.jobId(), m_Spec.analysisName()));
             {
                 core::CJsonStatePersistInserter inserter{*persistStream};
                 persistFunction(inserter);

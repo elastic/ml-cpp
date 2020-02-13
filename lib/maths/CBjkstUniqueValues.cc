@@ -416,7 +416,7 @@ uint64_t CBjkstUniqueValues::checksum(uint64_t seed) const {
     return CChecksum::calculate(seed, *values);
 }
 
-void CBjkstUniqueValues::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const {
+void CBjkstUniqueValues::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
     mem->setName("CBjkstUniqueValues");
     const TUInt32Vec* values = boost::get<TUInt32Vec>(&m_Sketch);
     if (values) {

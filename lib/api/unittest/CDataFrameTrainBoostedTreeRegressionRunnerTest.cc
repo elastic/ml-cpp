@@ -29,7 +29,8 @@ BOOST_AUTO_TEST_CASE(testPredictionFieldNameClash) {
     core::CLogger::CScopeSetFatalErrorHandler scope{errorHandler};
 
     const auto spec{test::CDataFrameAnalysisSpecificationFactory::predictionSpec(
-        "regression", "dep_var", 5, 6, 13000000, 0, 0)};
+        test::CDataFrameAnalysisSpecificationFactory::regression(), "dep_var",
+        5, 6, 13000000, 0, 0)};
     rapidjson::Document jsonParameters;
     jsonParameters.Parse("{"
                          "  \"dependent_variable\": \"dep_var\","

@@ -7,6 +7,9 @@
 #ifndef INCLUDED_ml_api_CDataFrameTrainBoostedTreeRunner_h
 #define INCLUDED_ml_api_CDataFrameTrainBoostedTreeRunner_h
 
+#include <maths/CBasicStatistics.h>
+
+#include <api/CDataFrameAnalysisInstrumentation.h>
 #include <api/CDataFrameAnalysisRunner.h>
 #include <api/CDataFrameAnalysisSpecification.h>
 #include <api/ImportExport.h>
@@ -42,8 +45,10 @@ public:
     static const std::string MAXIMUM_NUMBER_TREES;
     static const std::string FEATURE_BAG_FRACTION;
     static const std::string NUMBER_FOLDS;
+    static const std::string STOP_CROSS_VALIDATION_EARLY;
     static const std::string NUMBER_ROUNDS_PER_HYPERPARAMETER;
     static const std::string BAYESIAN_OPTIMISATION_RESTARTS;
+    static const std::string NUM_TOP_FEATURE_IMPORTANCE_VALUES;
 
 public:
     ~CDataFrameTrainBoostedTreeRunner() override;
@@ -57,14 +62,22 @@ public:
     //! The boosted tree factory.
     const maths::CBoostedTreeFactory& boostedTreeFactory() const;
 
+    //! The number of (largest magnitude) SHAP values to return.
+    std::size_t topShapValues() const;
+
+    //! \return Reference to the analysis state.
+    const CDataFrameAnalysisInstrumentation& instrumentation() const override;
+    //! \return Reference to the analysis state.
+    CDataFrameAnalysisInstrumentation& instrumentation() override;
+
 protected:
     using TBoostedTreeUPtr = std::unique_ptr<maths::CBoostedTree>;
     using TLossFunctionUPtr = std::unique_ptr<maths::boosted_tree::CLoss>;
 
 protected:
     CDataFrameTrainBoostedTreeRunner(const CDataFrameAnalysisSpecification& spec,
-                                     const CDataFrameAnalysisParameters& parameters);
-    CDataFrameTrainBoostedTreeRunner(const CDataFrameAnalysisSpecification& spec);
+                                     const CDataFrameAnalysisParameters& parameters,
+                                     TLossFunctionUPtr loss);
 
     //! Parameter reader handling parameters that are shared by subclasses.
     static const CDataFrameAnalysisConfigReader& parameterReader();
@@ -90,8 +103,8 @@ private:
                                                std::size_t partitionNumberRows,
                                                std::size_t numberColumns) const override;
 
-    virtual TLossFunctionUPtr chooseLossFunction(const core::CDataFrame& frame,
-                                                 std::size_t dependentVariableColumn) const = 0;
+    virtual void validate(const core::CDataFrame& frame,
+                          std::size_t dependentVariableColumn) const = 0;
 
 private:
     // Note custom config is written directly to the factory object.
@@ -100,6 +113,7 @@ private:
     std::string m_PredictionFieldName;
     TBoostedTreeFactoryUPtr m_BoostedTreeFactory;
     TBoostedTreeUPtr m_BoostedTree;
+    CDataFrameTrainBoostedTreeInstrumentation m_Instrumentation;
 };
 }
 }

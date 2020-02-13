@@ -54,7 +54,7 @@ void CClustererTypes::CIndexGenerator::recycle(std::size_t index) {
     std::push_heap(m_IndexHeap->begin(), m_IndexHeap->end(), std::greater<std::size_t>());
 }
 
-void CClustererTypes::CIndexGenerator::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const {
+void CClustererTypes::CIndexGenerator::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
     mem->setName("CClusterer::CIndexGenerator");
     core::CMemoryDebug::dynamicSize("m_IndexHeap", m_IndexHeap, mem);
 }

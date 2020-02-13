@@ -145,7 +145,7 @@ public:
     virtual uint64_t checksum(bool includeCurrentBucketStats = true) const = 0;
 
     //! Debug the memory used by this model.
-    virtual void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const = 0;
+    virtual void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const = 0;
 
     //! Get the memory used by this model.
     virtual std::size_t memoryUsage() const = 0;

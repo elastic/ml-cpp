@@ -34,6 +34,11 @@ double shift(double score) {
     return std::exp(-2.0) + score;
 }
 
+template<typename T>
+std::int64_t signedMemoryUsage(const T& obj) {
+    return static_cast<std::int64_t>(core::CMemory::dynamicSize(obj));
+}
+
 //! \brief This encapsulates creating a collection of models used for outlier
 //! detection.
 //!
@@ -170,7 +175,8 @@ public:
                  CPRNG::CXorOShiro128Plus rng = CPRNG::CXorOShiro128Plus{});
 
     //! Compute the outlier scores for \p points.
-    TScorerVec computeOutlierScores(const std::vector<POINT>& points) const;
+    TScorerVec computeOutlierScores(const std::vector<POINT>& points,
+                                    CDataFrameAnalysisInstrumentationInterface& state) const;
 
     //! Estimate the amount of memory that will be used by the ensemble.
     static std::size_t
@@ -362,7 +368,8 @@ CEnsemble<POINT>::makeBuilders(const TSizeVecVec& methods,
 
 template<typename POINT>
 typename CEnsemble<POINT>::TScorerVec
-CEnsemble<POINT>::computeOutlierScores(const std::vector<POINT>& points) const {
+CEnsemble<POINT>::computeOutlierScores(const std::vector<POINT>& points,
+                                       CDataFrameAnalysisInstrumentationInterface& state) const {
     if (points.empty()) {
         return {};
     }
@@ -372,8 +379,10 @@ CEnsemble<POINT>::computeOutlierScores(const std::vector<POINT>& points) const {
     TScorerVec scores(points.size());
     m_RecordMemoryUsage(core::CMemory::dynamicSize(scores));
 
+    std::uint32_t step{0ul};
     for (const auto& model : m_Models) {
         model.addOutlierScores(points, scores, m_RecordMemoryUsage);
+        state.nextStep(step++);
     }
     return scores;
 }
@@ -759,21 +768,21 @@ void CEnsemble<POINT>::CModel::addOutlierScores(const std::vector<POINT>& points
         points_.emplace_back(m_Projection * points[i], index);
     }
 
-    std::int64_t pointsMemory(core::CMemory::dynamicSize(points_));
+    std::int64_t pointsMemory{signedMemoryUsage(points_)};
     recordMemoryUsage(pointsMemory);
-    std::int64_t methodMemoryBeforeRun(core::CMemory::dynamicSize(m_Method));
+    std::int64_t methodMemoryBeforeRun{signedMemoryUsage(m_Method)};
 
     // Run the method.
     TDouble1VecVec2Vec methodScores(m_Method->run(points_, index));
 
-    std::int64_t methodMemoryAfterRun(core::CMemory::dynamicSize(m_Method));
+    std::int64_t methodMemoryAfterRun{signedMemoryUsage(m_Method)};
     recordMemoryUsage(methodMemoryAfterRun - methodMemoryBeforeRun);
 
     // Recover temporary memory.
     m_Method->recoverMemory();
 
-    recordMemoryUsage(std::int64_t(core::CMemory::dynamicSize(m_Method)) - methodMemoryAfterRun);
-    std::int64_t scoresMemoryBeforeAdd(core::CMemory::dynamicSize(scores));
+    recordMemoryUsage(signedMemoryUsage(m_Method) - methodMemoryAfterRun);
+    std::int64_t scoresMemoryBeforeAdd{signedMemoryUsage(scores)};
 
     // Update the scores.
     TDouble1Vec2Vec pointScores(methodScores.size());
@@ -785,8 +794,7 @@ void CEnsemble<POINT>::CModel::addOutlierScores(const std::vector<POINT>& points
         scores[i].add(m_LogScoreMoments, m_RowNormalizedProjection, pointScores);
     }
 
-    recordMemoryUsage(std::int64_t(core::CMemory::dynamicSize(scores)) -
-                      scoresMemoryBeforeAdd - pointsMemory);
+    recordMemoryUsage(signedMemoryUsage(scores) - scoresMemoryBeforeAdd - pointsMemory);
 }
 
 template<typename POINT>
@@ -879,13 +887,14 @@ CEnsemble<POINT> buildEnsemble(const COutliers::SComputeParameters& params,
 
 bool computeOutliersNoPartitions(const COutliers::SComputeParameters& params,
                                  core::CDataFrame& frame,
+                                 CDataFrameAnalysisInstrumentationInterface& state,
                                  TProgressCallback recordProgress,
                                  TMemoryUsageCallback recordMemoryUsage) {
 
     using TPoint = CMemoryMappedDenseVector<CFloatStorage>;
     using TPointVec = std::vector<TPoint>;
 
-    std::uint64_t frameMemory(frame.memoryUsage());
+    std::int64_t frameMemory{signedMemoryUsage(frame)};
     recordMemoryUsage(frameMemory);
 
     CEnsemble<TPoint>::TScorerVec scores;
@@ -904,7 +913,7 @@ bool computeOutliersNoPartitions(const COutliers::SComputeParameters& params,
         // access and write to each element. Since it does this once per element it
         // is thread safe.
         TPointVec points(frame.numberRows(), TPoint{nullptr, 1});
-        std::uint64_t pointsMemory(core::CMemory::dynamicSize(points));
+        std::int64_t pointsMemory{signedMemoryUsage(points)};
         recordMemoryUsage(pointsMemory);
 
         auto rowsToPoints = [&points](TRowItr beginRows, TRowItr endRows) {
@@ -924,7 +933,7 @@ bool computeOutliersNoPartitions(const COutliers::SComputeParameters& params,
         }
 
         watch.reset(true);
-        scores = ensemble.computeOutlierScores(points);
+        scores = ensemble.computeOutlierScores(points, state);
         core::CProgramCounters::counter(counter_t::E_DFOTimeToComputeScores) =
             watch.stop();
 
@@ -952,7 +961,7 @@ bool computeOutliersNoPartitions(const COutliers::SComputeParameters& params,
 
     frame.resizeColumns(params.s_NumberThreads,
                         (params.s_ComputeFeatureInfluence ? 2 : 1) * dimension + 1);
-    recordMemoryUsage(frame.memoryUsage() - frameMemory);
+    recordMemoryUsage(signedMemoryUsage(frame) - frameMemory);
 
     bool successful;
     std::tie(std::ignore, successful) = frame.writeColumns(params.s_NumberThreads, writeScores);
@@ -965,6 +974,7 @@ bool computeOutliersNoPartitions(const COutliers::SComputeParameters& params,
 
 bool computeOutliersPartitioned(const COutliers::SComputeParameters& params,
                                 core::CDataFrame& frame,
+                                CDataFrameAnalysisInstrumentationInterface& state,
                                 TProgressCallback recordProgress,
                                 TMemoryUsageCallback recordMemoryUsage) {
 
@@ -986,7 +996,7 @@ bool computeOutliersPartitioned(const COutliers::SComputeParameters& params,
 
     frame.resizeColumns(params.s_NumberThreads,
                         (params.s_ComputeFeatureInfluence ? 2 : 1) * dimension + 1);
-    recordMemoryUsage(frame.memoryUsage());
+    recordMemoryUsage(signedMemoryUsage(frame));
 
     std::size_t rowsPerPartition{(frame.numberRows() + params.s_NumberPartitions - 1) /
                                  params.s_NumberPartitions};
@@ -997,7 +1007,7 @@ bool computeOutliersPartitioned(const COutliers::SComputeParameters& params,
     // This is presized so that rowsToPoints only needs to access and write to
     // each element. Since it does this once per element it is thread safe.
     TPointVec points(rowsPerPartition, SConstant<TPoint>::get(dimension, 0.0));
-    recordMemoryUsage(core::CMemory::dynamicSize(points));
+    recordMemoryUsage(signedMemoryUsage(points));
 
     for (std::size_t i = 0, beginPartitionRows = 0; i < params.s_NumberPartitions;
          ++i, beginPartitionRows += rowsPerPartition) {
@@ -1025,7 +1035,7 @@ bool computeOutliersPartitioned(const COutliers::SComputeParameters& params,
         }
 
         watch.reset(true);
-        auto scores = ensemble.computeOutlierScores(points);
+        auto scores = ensemble.computeOutlierScores(points, state);
         core::CProgramCounters::counter(counter_t::E_DFOTimeToComputeScores) +=
             watch.stop();
 
@@ -1046,7 +1056,7 @@ bool computeOutliersPartitioned(const COutliers::SComputeParameters& params,
             return false;
         }
 
-        recordMemoryUsage(-std::int64_t(core::CMemory::dynamicSize(scores)));
+        recordMemoryUsage(-signedMemoryUsage(scores));
     }
 
     return true;
@@ -1055,19 +1065,22 @@ bool computeOutliersPartitioned(const COutliers::SComputeParameters& params,
 
 void COutliers::compute(const SComputeParameters& params,
                         core::CDataFrame& frame,
-                        TProgressCallback recordProgress,
-                        TMemoryUsageCallback recordMemoryUsage) {
+                        CDataFrameAnalysisInstrumentationInterface& instrumentation) {
 
     if (params.s_StandardizeColumns) {
         CDataFrameUtils::standardizeColumns(params.s_NumberThreads, frame);
     }
 
-    bool successful{
-        frame.inMainMemory() && params.s_NumberPartitions == 1
-            ? computeOutliersNoPartitions(params, frame, std::move(recordProgress),
-                                          std::move(recordMemoryUsage))
-            : computeOutliersPartitioned(params, frame, std::move(recordProgress),
-                                         std::move(recordMemoryUsage))};
+    auto recordProgress{instrumentation.progressCallback()};
+    auto recordMemoryUsage{instrumentation.memoryUsageCallback()};
+
+    bool successful{frame.inMainMemory() && params.s_NumberPartitions == 1
+                        ? computeOutliersNoPartitions(params, frame, instrumentation,
+                                                      std::move(recordProgress),
+                                                      std::move(recordMemoryUsage))
+                        : computeOutliersPartitioned(params, frame, instrumentation,
+                                                     std::move(recordProgress),
+                                                     std::move(recordMemoryUsage))};
 
     if (successful == false) {
         HANDLE_FATAL(<< "Internal error: computing outliers for data frame. There "

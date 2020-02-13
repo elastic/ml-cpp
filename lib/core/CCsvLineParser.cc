@@ -125,7 +125,7 @@ bool CCsvLineParser::parseNextToken(const char* end, const char*& current) {
     return true;
 }
 
-void CCsvLineParser::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const {
+void CCsvLineParser::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
     mem->setName("CCsvLineParser");
     mem->addItem("m_WorkField", m_WorkFieldCapacity);
 }

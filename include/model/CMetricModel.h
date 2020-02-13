@@ -246,7 +246,7 @@ public:
     uint64_t checksum(bool includeCurrentBucketStats = true) const override;
 
     //! Debug the memory used by this model.
-    void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const override;
+    void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const override;
 
     //! Get the memory used by this model.
     std::size_t memoryUsage() const override;

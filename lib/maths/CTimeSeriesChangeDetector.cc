@@ -306,7 +306,8 @@ void CUnivariateTimeSeriesChangeDetector::addSamples(const TTimeDoublePr1Vec& sa
     }
 }
 
-void CUnivariateTimeSeriesChangeDetector::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const {
+void CUnivariateTimeSeriesChangeDetector::debugMemoryUsage(
+    const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
     core::CMemoryDebug::dynamicSize("m_ChangeModels", m_ChangeModels, mem);
 }
 
@@ -353,7 +354,7 @@ void CUnivariateChangeModel::acceptPersistInserter(core::CStatePersistInserter& 
     inserter.insertValue(SAMPLE_MOMENTS_TAG, m_SampleMoments.toDelimited());
 }
 
-void CUnivariateChangeModel::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const {
+void CUnivariateChangeModel::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
     // Note if the trend and residual models are shallow copied their
     // reference count will be updated so core::CMemory::dynamicSize
     // will give the correct contribution for these reference.

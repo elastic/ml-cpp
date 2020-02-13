@@ -1004,7 +1004,7 @@ uint64_t CEventRateBucketGatherer::checksum() const {
     return core::CHashing::hashCombine(seed, hasher(core::CContainerPrinter::print(hashes)));
 }
 
-void CEventRateBucketGatherer::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const {
+void CEventRateBucketGatherer::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
     registerMemoryCallbacks();
     mem->setName("CPopulationEventRateDataGatherer");
     CBucketGatherer::debugMemoryUsage(mem->addChild());
@@ -1850,7 +1850,7 @@ uint64_t CUniqueStringFeatureData::checksum() const {
     return maths::CChecksum::calculate(seed, m_InfluencerUniqueStrings);
 }
 
-void CUniqueStringFeatureData::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const {
+void CUniqueStringFeatureData::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
     mem->setName("CUniqueStringFeatureData", sizeof(*this));
     core::CMemoryDebug::dynamicSize("s_NoInfluenceUniqueStrings", m_UniqueStrings, mem);
     core::CMemoryDebug::dynamicSize("s_InfluenceUniqueStrings",

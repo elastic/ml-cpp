@@ -1524,7 +1524,7 @@ uint64_t CGammaRateConjugate::checksum(uint64_t seed) const {
     return CChecksum::calculate(seed, m_PriorRate);
 }
 
-void CGammaRateConjugate::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const {
+void CGammaRateConjugate::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
     mem->setName("CGammaRateConjugate");
 }
 

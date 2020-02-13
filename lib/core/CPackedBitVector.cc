@@ -250,7 +250,7 @@ uint64_t CPackedBitVector::checksum() const {
         static_cast<int>(sizeof(std::uint8_t) * m_RunLengths.size()), seed);
 }
 
-void CPackedBitVector::debugMemoryUsage(CMemoryUsage::TMemoryUsagePtr mem) const {
+void CPackedBitVector::debugMemoryUsage(const CMemoryUsage::TMemoryUsagePtr& mem) const {
     mem->setName("CPackedBitVector");
     CMemoryDebug::dynamicSize("m_RunLengths", m_RunLengths, mem);
 }

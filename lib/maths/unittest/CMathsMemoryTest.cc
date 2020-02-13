@@ -4,7 +4,6 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
-#include <maths/CBasicStatistics.h>
 #include <maths/CBjkstUniqueValues.h>
 #include <maths/CConstantPrior.h>
 #include <maths/CGammaRateConjugate.h>
@@ -121,10 +120,10 @@ BOOST_AUTO_TEST_CASE(testBjkstVec) {
     {
         // Test empty
         TBjkstValuesVec values;
-        core::CMemoryUsage mem;
-        mem.setName("root", 0);
-        core::CMemoryDebug::dynamicSize("values", values, &mem);
-        BOOST_REQUIRE_EQUAL(core::CMemory::dynamicSize(values), mem.usage());
+        auto mem = std::make_shared<core::CMemoryUsage>();
+        mem->setName("root", 0);
+        core::CMemoryDebug::dynamicSize("values", values, mem);
+        BOOST_REQUIRE_EQUAL(core::CMemory::dynamicSize(values), mem->usage());
     }
     {
         // Test adding values to the vector part
@@ -136,10 +135,10 @@ BOOST_AUTO_TEST_CASE(testBjkstVec) {
                 values[i].add(j);
             }
         }
-        core::CMemoryUsage mem;
-        mem.setName("root", 0);
-        core::CMemoryDebug::dynamicSize("values", values, &mem);
-        BOOST_REQUIRE_EQUAL(core::CMemory::dynamicSize(values), mem.usage());
+        auto mem = std::make_shared<core::CMemoryUsage>();
+        mem->setName("root", 0);
+        core::CMemoryDebug::dynamicSize("values", values, mem);
+        BOOST_REQUIRE_EQUAL(core::CMemory::dynamicSize(values), mem->usage());
     }
     {
         // Test adding values to the sketch part
@@ -151,10 +150,10 @@ BOOST_AUTO_TEST_CASE(testBjkstVec) {
                 values[i].add(j);
             }
         }
-        core::CMemoryUsage mem;
-        mem.setName("root", 0);
-        core::CMemoryDebug::dynamicSize("values", values, &mem);
-        BOOST_REQUIRE_EQUAL(core::CMemory::dynamicSize(values), mem.usage());
+        auto mem = std::make_shared<core::CMemoryUsage>();
+        mem->setName("root", 0);
+        core::CMemoryDebug::dynamicSize("values", values, mem);
+        BOOST_REQUIRE_EQUAL(core::CMemory::dynamicSize(values), mem->usage());
     }
 }
 

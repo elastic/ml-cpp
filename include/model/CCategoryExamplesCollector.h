@@ -6,6 +6,8 @@
 #ifndef INCLUDED_ml_model_CCategoryExamplesCollector_h
 #define INCLUDED_ml_model_CCategoryExamplesCollector_h
 
+#include <core/CMemoryUsage.h>
+
 #include <model/ImportExport.h>
 
 #include <boost/container/flat_set.hpp>
@@ -61,6 +63,12 @@ public:
 
     //! Clear all examples
     void clear();
+
+    //! Debug the memory used by this examples collector.
+    void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const;
+
+    //! Get the memory used by this examples collector.
+    std::size_t memoryUsage() const;
 
 private:
     using TIntStrFSetUMap = boost::unordered_map<int, TStrFSet>;

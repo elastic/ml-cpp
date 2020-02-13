@@ -729,7 +729,7 @@ public:
     }
 
     //! Get the memory used by this component
-    virtual void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const {
+    virtual void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
         mem->setName("CMultivariateNormalConjugate");
     }
 

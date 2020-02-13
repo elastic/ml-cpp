@@ -92,7 +92,7 @@ task format(type: Exec) {
 }
 
 def zipSpec = copySpec {
-  from("${projectDir}/build/distribution") {
+  from("${buildDir}/distribution") {
     // Don't copy Windows import libraries
     exclude "**/*.lib"
     // Don't copy the test support library
@@ -117,7 +117,7 @@ task buildZip(type: Zip) {
 }
 
 def zipSpecSymbols = copySpec {
-  from("${projectDir}/build/distribution") {
+  from("${buildDir}/distribution") {
     // only take debug files
     include "**/*-debug"
     include "**/*.pdb"
@@ -140,7 +140,7 @@ def uberZipSpec = copySpec {
   // We know we'll have binaries from the current build
   from(zipTree(buildZip.outputs.files.singleFile))
   // We might also have binaries for other platforms (e.g. if they've been built in Docker)
-  def localZips = fileTree("${projectDir}/build/distributions").matching {
+  def localZips = fileTree("${buildDir}/distributions").matching {
       include "${artifactName}-${project.version}-darwin-*.zip"
       include "${artifactName}-${project.version}-linux-*.zip"
       include "${artifactName}-${project.version}-windows-*.zip"
@@ -190,21 +190,20 @@ task build(dependsOn: [check, assemble]) {
   description = 'Assemble and test the C++ part of Machine Learning'
 }
 
-/*
- * This breaks when ml-cpp is in elasticsearch-extra
- * and elasticsearch is still using Gradle 4.x
- * TODO: Uncomment next time Gradle is upgraded
- *
-wrapper {
+// The wrapper task causes an error when ml-cpp is in elasticsearch-extra
+// because it's only permitted in the root project, so exclude it in this case.
+// See https://github.com/gradle/gradle/issues/5816 for more discussion on this.
+if (rootProject == project) {
+  wrapper {
     distributionType = 'ALL'
     doLast {
-        final DistributionLocator locator = new DistributionLocator()
-        final GradleVersion version = GradleVersion.version(wrapper.gradleVersion)
-        final URI distributionUri = locator.getDistributionFor(version, wrapper.distributionType.name().toLowerCase(Locale.ENGLISH))
-        final URI sha256Uri = new URI(distributionUri.toString() + ".sha256")
-        final String sha256Sum = new String(sha256Uri.toURL().bytes)
-        wrapper.getPropertiesFile() << "distributionSha256Sum=${sha256Sum}\n"
-        println "Added checksum to wrapper properties"
+      final DistributionLocator locator = new DistributionLocator()
+      final GradleVersion version = GradleVersion.version(wrapper.gradleVersion)
+      final URI distributionUri = locator.getDistributionFor(version, wrapper.distributionType.name().toLowerCase(Locale.ENGLISH))
+      final URI sha256Uri = new URI(distributionUri.toString() + ".sha256")
+      final String sha256Sum = new String(sha256Uri.toURL().bytes)
+      wrapper.getPropertiesFile() << "distributionSha256Sum=${sha256Sum}\n"
+      println "Added checksum to wrapper properties"
     }
+  }
 }
-*/

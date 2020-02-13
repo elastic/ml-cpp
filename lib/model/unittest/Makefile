@@ -22,7 +22,6 @@ SRCS=\
 	CAnnotatedProbabilityBuilderTest.cc \
 	CAnomalyDetectorModelConfigTest.cc \
 	CAnomalyScoreTest.cc \
-	CBaseTokenListDataCategorizerTest.cc \
 	CBucketQueueTest.cc \
 	CCategoryExamplesCollectorTest.cc \
 	CCountingModelTest.cc \
@@ -58,6 +57,8 @@ SRCS=\
 	CSampleQueueTest.cc \
 	CSearchKeyTest.cc \
 	CStringStoreTest.cc \
+	CTokenListCategoryTest.cc \
+	CTokenListDataCategorizerBaseTest.cc \
 	CTokenListDataCategorizerTest.cc \
 	CTokenListReverseSearchCreatorTest.cc \
 	CToolsTest.cc \

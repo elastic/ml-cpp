@@ -293,7 +293,8 @@ BOOST_AUTO_TEST_CASE(testMaximumExpectedImprovement) {
 
         LOG_TRACE(<< "Bayesian optimisation...");
         for (std::size_t i = 0; i < 10; ++i) {
-            TVector x{bopt.maximumExpectedImprovement()};
+            TVector x;
+            std::tie(x, std::ignore) = bopt.maximumExpectedImprovement();
             LOG_TRACE(<< "x = " << x.transpose() << ", f(x) = " << f(x));
             bopt.add(x, f(x), 10.0);
             fminBopt = std::min(fminBopt, f(x));

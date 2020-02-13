@@ -180,29 +180,34 @@ public:
 
 public:
     CBoostedTreeHyperparameters() = default;
-
     CBoostedTreeHyperparameters(const TRegularization& regularization,
                                 double downsampleFactor,
                                 double eta,
                                 double etaGrowthRatePerTree,
+                                std::size_t maximumNumberTrees,
                                 double featureBagFraction);
-    //! The regularisation parameters.
+
+    //! Set the regularisation parameters.
     void regularization(const TRegularization& regularization);
     //! The regularisation parameters.
     const TRegularization& regularization() const;
-    //! The downsample factor.
+    //! Set the maximum number of trees to use.
+    void maximumNumberTrees(std::size_t maximumNumberTrees);
+    //! The maximum number of trees to use.
+    std::size_t maximumNumberTrees() const;
+    //! Set the downsample factor.
     void downsampleFactor(double downsampleFactor);
     //! The downsample factor.
     double downsampleFactor() const;
-    //! Shrinkage.
+    //! Set the shrinkage.
     void eta(double eta);
     //! Shrinkage.
     double eta() const;
-    //! Rate of growth of shrinkage in the training loop.
+    //! Set the rate of growth of shrinkage in the training loop.
     void etaGrowthRatePerTree(double etaGrowthRatePerTree);
     //! Rate of growth of shrinkage in the training loop.
     double etaGrowthRatePerTree() const;
-    //! The fraction of features we use per bag.
+    //! Set the fraction of features we use per bag.
     void featureBagFraction(double featureBagFraction);
     //! The fraction of features we use per bag.
     double featureBagFraction() const;
@@ -218,6 +223,7 @@ public:
     static const std::string HYPERPARAM_ETA_TAG;
     static const std::string HYPERPARAM_ETA_GROWTH_RATE_PER_TREE_TAG;
     static const std::string HYPERPARAM_FEATURE_BAG_FRACTION_TAG;
+    static const std::string HYPERPARAM_MAXIMUM_NUMBER_TREES_TAG;
     static const std::string HYPERPARAM_REGULARIZATION_TAG;
 
 private:
@@ -225,16 +231,19 @@ private:
     TRegularization m_Regularization;
 
     //! The downsample factor.
-    double m_downsampleFactor;
+    double m_DownsampleFactor = 0.0;
 
     //! Shrinkage.
-    double m_eta;
+    double m_Eta = 0.0;
 
     //! Rate of growth of shrinkage in the training loop.
-    double m_etaGrowthRatePerTree;
+    double m_EtaGrowthRatePerTree = 0.0;
+
+    //! The maximum number of trees we'll use.
+    std::size_t m_MaximumNumberTrees = 0;
 
     //! The fraction of features we use per bag.
-    double m_featureBagFraction;
+    double m_FeatureBagFraction = 0.0;
 };
 }
 }

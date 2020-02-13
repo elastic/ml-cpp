@@ -4,12 +4,10 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
-#include <core/CPersistUtils.h>
-#include <core/CStringUtils.h>
-
 #include <maths/CPRNG.h>
 
-#include <boost/numeric/conversion/bounds.hpp>
+#include <core/CPersistUtils.h>
+#include <core/CStringUtils.h>
 
 #include <algorithm>
 
@@ -21,14 +19,14 @@ namespace detail {
 
 //! Discard a sequence of \p n random numbers.
 template<typename PRNG>
-inline void discard(uint64_t n, PRNG& rng) {
+inline void discard(std::uint64_t n, PRNG& rng) {
     for (/**/; n > 0; --n) {
         rng();
     }
 }
 
 //! Rotate about the \p k'th bit.
-uint64_t rotl(const uint64_t x, int k) {
+std::uint64_t rotl(const std::uint64_t x, int k) {
     return (x << k) | (x >> (64 - k));
 }
 }
@@ -38,7 +36,7 @@ CPRNG::CSplitMix64::CSplitMix64() : m_X(0) {
     this->seed();
 }
 
-CPRNG::CSplitMix64::CSplitMix64(uint64_t seed) : m_X(0) {
+CPRNG::CSplitMix64::CSplitMix64(result_type seed) : m_X(0) {
     this->seed(seed);
 }
 
@@ -50,26 +48,18 @@ void CPRNG::CSplitMix64::seed() {
     m_X = 0;
 }
 
-void CPRNG::CSplitMix64::seed(uint64_t seed) {
+void CPRNG::CSplitMix64::seed(result_type seed) {
     m_X = seed;
 }
 
-uint64_t CPRNG::CSplitMix64::min() {
-    return 0;
-}
-
-uint64_t CPRNG::CSplitMix64::max() {
-    return boost::numeric::bounds<uint64_t>::highest();
-}
-
-uint64_t CPRNG::CSplitMix64::operator()() {
-    uint64_t x = (m_X += A);
+CPRNG::CSplitMix64::result_type CPRNG::CSplitMix64::operator()() {
+    result_type x = (m_X += A);
     x = (x ^ (x >> 30)) * B;
     x = (x ^ (x >> 27)) * C;
     return x ^ (x >> 31);
 }
 
-void CPRNG::CSplitMix64::discard(uint64_t n) {
+void CPRNG::CSplitMix64::discard(result_type n) {
     detail::discard(n, *this);
 }
 
@@ -81,15 +71,15 @@ bool CPRNG::CSplitMix64::fromString(const std::string& state) {
     return core::CStringUtils::stringToType(state, m_X);
 }
 
-const uint64_t CPRNG::CSplitMix64::A(0x9E3779B97F4A7C15);
-const uint64_t CPRNG::CSplitMix64::B(0xBF58476D1CE4E5B9);
-const uint64_t CPRNG::CSplitMix64::C(0x94D049BB133111EB);
+const CPRNG::CSplitMix64::result_type CPRNG::CSplitMix64::A(0x9E3779B97F4A7C15);
+const CPRNG::CSplitMix64::result_type CPRNG::CSplitMix64::B(0xBF58476D1CE4E5B9);
+const CPRNG::CSplitMix64::result_type CPRNG::CSplitMix64::C(0x94D049BB133111EB);
 
 CPRNG::CXorOShiro128Plus::CXorOShiro128Plus() {
     this->seed();
 }
 
-CPRNG::CXorOShiro128Plus::CXorOShiro128Plus(uint64_t seed) {
+CPRNG::CXorOShiro128Plus::CXorOShiro128Plus(result_type seed) {
     this->seed(seed);
 }
 
@@ -101,35 +91,27 @@ void CPRNG::CXorOShiro128Plus::seed() {
     this->seed(0);
 }
 
-void CPRNG::CXorOShiro128Plus::seed(uint64_t seed) {
+void CPRNG::CXorOShiro128Plus::seed(result_type seed) {
     CSplitMix64 seeds(seed);
     seeds.generate(&m_X[0], &m_X[2]);
 }
 
-uint64_t CPRNG::CXorOShiro128Plus::min() {
-    return 0;
-}
-
-uint64_t CPRNG::CXorOShiro128Plus::max() {
-    return boost::numeric::bounds<uint64_t>::highest();
-}
-
-uint64_t CPRNG::CXorOShiro128Plus::operator()() {
-    uint64_t x0 = m_X[0];
-    uint64_t x1 = m_X[1];
-    uint64_t result = x0 + x1;
+CPRNG::CXorOShiro128Plus::result_type CPRNG::CXorOShiro128Plus::operator()() {
+    result_type x0 = m_X[0];
+    result_type x1 = m_X[1];
+    result_type result = x0 + x1;
     x1 ^= x0;
     m_X[0] = detail::rotl(x0, 55) ^ x1 ^ (x1 << 14);
     m_X[1] = detail::rotl(x1, 36);
     return result;
 }
 
-void CPRNG::CXorOShiro128Plus::discard(uint64_t n) {
+void CPRNG::CXorOShiro128Plus::discard(result_type n) {
     detail::discard(n, *this);
 }
 
 void CPRNG::CXorOShiro128Plus::jump() {
-    uint64_t x[2] = {0};
+    result_type x[2] = {0};
     for (std::size_t i = 0; i < 2; ++i) {
         for (unsigned int b = 0; b < 64; ++b) {
             if (JUMP[i] & 1ULL << b) {
@@ -145,8 +127,8 @@ void CPRNG::CXorOShiro128Plus::jump() {
 }
 
 std::string CPRNG::CXorOShiro128Plus::toString() const {
-    const uint64_t* begin = &m_X[0];
-    const uint64_t* end = &m_X[2];
+    const result_type* begin = &m_X[0];
+    const result_type* end = &m_X[2];
     return core::CPersistUtils::toString(begin, end);
 }
 
@@ -154,13 +136,14 @@ bool CPRNG::CXorOShiro128Plus::fromString(const std::string& state) {
     return core::CPersistUtils::fromString(state, &m_X[0], &m_X[2]);
 }
 
-const uint64_t CPRNG::CXorOShiro128Plus::JUMP[] = {0xbeac0467eba5facb, 0xd86b048b86aa9922};
+const CPRNG::CXorOShiro128Plus::result_type CPRNG::CXorOShiro128Plus::JUMP[] = {
+    0xbeac0467eba5facb, 0xd86b048b86aa9922};
 
 CPRNG::CXorShift1024Mult::CXorShift1024Mult() : m_P(0) {
     this->seed();
 }
 
-CPRNG::CXorShift1024Mult::CXorShift1024Mult(uint64_t seed) : m_P(0) {
+CPRNG::CXorShift1024Mult::CXorShift1024Mult(result_type seed) : m_P(0) {
     this->seed(seed);
 }
 
@@ -172,34 +155,26 @@ void CPRNG::CXorShift1024Mult::seed() {
     this->seed(0);
 }
 
-void CPRNG::CXorShift1024Mult::seed(uint64_t seed) {
+void CPRNG::CXorShift1024Mult::seed(result_type seed) {
     CSplitMix64 seeds(seed);
     seeds.generate(&m_X[0], &m_X[16]);
 }
 
-uint64_t CPRNG::CXorShift1024Mult::min() {
-    return 0;
-}
-
-uint64_t CPRNG::CXorShift1024Mult::max() {
-    return boost::numeric::bounds<uint64_t>::highest();
-}
-
-uint64_t CPRNG::CXorShift1024Mult::operator()() {
-    uint64_t x0 = m_X[m_P];
+CPRNG::CXorShift1024Mult::result_type CPRNG::CXorShift1024Mult::operator()() {
+    result_type x0 = m_X[m_P];
     m_P = (m_P + 1) & 15;
-    uint64_t x1 = m_X[m_P];
+    result_type x1 = m_X[m_P];
     x1 ^= x1 << 31;
     m_X[m_P] = x1 ^ x0 ^ (x1 >> 11) ^ (x0 >> 30);
     return m_X[m_P] * A;
 }
 
-void CPRNG::CXorShift1024Mult::discard(uint64_t n) {
+void CPRNG::CXorShift1024Mult::discard(result_type n) {
     detail::discard(n, *this);
 }
 
 void CPRNG::CXorShift1024Mult::jump() {
-    uint64_t t[16] = {0};
+    result_type t[16] = {0};
 
     for (std::size_t i = 0; i < 16; ++i) {
         for (unsigned int b = 0; b < 64; ++b) {
@@ -218,8 +193,8 @@ void CPRNG::CXorShift1024Mult::jump() {
 }
 
 std::string CPRNG::CXorShift1024Mult::toString() const {
-    const uint64_t* begin = &m_X[0];
-    const uint64_t* end = &m_X[16];
+    const result_type* begin = &m_X[0];
+    const result_type* end = &m_X[16];
     return core::CPersistUtils::toString(begin, end) +
            core::CPersistUtils::PAIR_DELIMITER + core::CStringUtils::typeToString(m_P);
 }
@@ -238,8 +213,8 @@ bool CPRNG::CXorShift1024Mult::fromString(std::string state) {
     return core::CPersistUtils::fromString(state, &m_X[0], &m_X[16]);
 }
 
-const uint64_t CPRNG::CXorShift1024Mult::A(1181783497276652981);
-const uint64_t CPRNG::CXorShift1024Mult::JUMP[16] = {
+const CPRNG::CXorShift1024Mult::result_type CPRNG::CXorShift1024Mult::A(1181783497276652981);
+const CPRNG::CXorShift1024Mult::result_type CPRNG::CXorShift1024Mult::JUMP[16] = {
     0x84242f96eca9c41d, 0xa3c65b8776f96855, 0x5b34a39f070b5837,
     0x4489affce4f31a1e, 0x2ffeeb0a48316f40, 0xdc2d9891fe68c022,
     0x3659132bb12fea70, 0xaac17d8efa43cab8, 0xc4cb815590989b13,

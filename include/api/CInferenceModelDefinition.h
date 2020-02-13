@@ -106,8 +106,10 @@ enum ENumericRelationship { E_LT };
 
 class API_EXPORT CTrainedModel : public CSerializableToJson {
 public:
+    using TDoubleVec = std::vector<double>;
     using TStringVec = std::vector<std::string>;
-    using TStringVecOptional = boost::optional<TStringVec>;
+    using TOptionalDoubleVec = boost::optional<TDoubleVec>;
+    using TOptionalStringVec = boost::optional<TStringVec>;
 
     enum ETargetType { E_Classification, E_Regression };
 
@@ -126,13 +128,20 @@ public:
     virtual ETargetType targetType() const;
     //! Adjust the feature names, e.g. to exclude not used feature names like the target column.
     virtual TStringVec removeUnusedFeatures() = 0;
-    virtual const TStringVecOptional& classificationLabels() const;
+    //! Set the labels to use for each class.
     virtual void classificationLabels(const TStringVec& classificationLabels);
+    //! Get the labels to use for each class.
+    virtual const TOptionalStringVec& classificationLabels() const;
+    //! Set weights by which to multiply classes when doing label assignment.
+    virtual void classificationWeights(const TDoubleVec& classificationWeights);
+    //! Get weights by which to multiply classes when doing label assignment.
+    virtual const TOptionalDoubleVec& classificationWeights() const;
 
 private:
     TStringVec m_FeatureNames;
     ETargetType m_TargetType;
-    TStringVecOptional m_ClassificationLabels;
+    TOptionalStringVec m_ClassificationLabels;
+    TOptionalDoubleVec m_ClassificationWeights;
 };
 
 //! Classification and regression trees.
@@ -203,30 +212,17 @@ public:
     std::size_t size() const;
     TStringVec removeUnusedFeatures() override;
     void targetType(ETargetType targetType) override;
-    ETargetType targetType() const override;
+    //! Set the labels to use for each class.
     void classificationLabels(const TStringVec& classificationLabels) override;
-    const TStringVecOptional& classificationLabels() const override;
+    //! Set weights by which to multiply classes when doing label assignment.
+    void classificationWeights(const TDoubleVec& classificationWeights) override;
+    using CTrainedModel::classificationLabels;
+    using CTrainedModel::classificationWeights;
+    using CTrainedModel::targetType;
 
 private:
     TTrainedModelUPtrVec m_TrainedModels;
     TAggregateOutputUPtr m_AggregateOutput;
-};
-
-//!\brief Information related to the input.
-class API_EXPORT CInput final : public CSerializableToJson {
-public:
-    using TStringVec = std::vector<std::string>;
-
-public:
-    void addToDocument(rapidjson::Value& parentObject, TRapidJsonWriter& writer) const override;
-    //! List of the field names.
-    const TStringVec& fieldNames() const;
-    //! List of the field names.
-    void fieldNames(TStringVec&& fieldNames);
-
-private:
-    //! List of the column names.
-    TStringVec m_FieldNames;
 };
 
 class API_EXPORT CEncoding : public CSerializableToJson {
@@ -322,13 +318,12 @@ public:
     using TSizeStringUMapVec = std::vector<TSizeStringUMap>;
 
 public:
-    const CInput& input() const;
     TApiEncodingUPtrVec& preprocessors();
     void trainedModel(std::unique_ptr<CTrainedModel>&& trainedModel);
     std::unique_ptr<CTrainedModel>& trainedModel();
     void addToDocument(rapidjson::Value& parentObject, TRapidJsonWriter& writer) const override;
     std::string jsonString();
-    void fieldNames(TStringVec&& fieldNames, std::size_t dependentVariableColumnIndex);
+    void fieldNames(TStringVec&& fieldNames);
     const TStringVec& fieldNames() const;
     const std::string& typeString() const;
     void typeString(const std::string& typeString);
@@ -336,8 +331,6 @@ public:
     void dependentVariableColumnIndex(size_t dependentVariableColumnIndex);
 
 private:
-    //! Information related to the input.
-    CInput m_Input;
     //! Optional step for pre-processing data, e.g. vector embedding, one-hot-encoding, etc.
     TApiEncodingUPtrVec m_Preprocessors;
     //! Details of the model evaluation step with a trained_model.

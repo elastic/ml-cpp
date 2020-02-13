@@ -85,6 +85,7 @@ public:
 
     //! \name Operators
     //@{
+    CFloatStorage operator-() const { return CFloatStorage{-m_Value}; }
     bool operator==(const CFloatStorage& rhs) const {
         return m_Value == rhs.m_Value;
     }

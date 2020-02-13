@@ -99,7 +99,8 @@ void CNaiveBayesFeatureDensityFromPrior::propagateForwardsByTime(double time) {
     m_Prior->propagateForwardsByTime(time);
 }
 
-void CNaiveBayesFeatureDensityFromPrior::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const {
+void CNaiveBayesFeatureDensityFromPrior::debugMemoryUsage(
+    const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
     return core::CMemoryDebug::dynamicSize("m_Prior", m_Prior, mem);
 }
 
@@ -338,7 +339,7 @@ CNaiveBayes::TDoubleSizePrVec CNaiveBayes::classProbabilities(const TDouble1VecV
     return p;
 }
 
-void CNaiveBayes::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const {
+void CNaiveBayes::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
     core::CMemoryDebug::dynamicSize("m_Exemplar", m_Exemplar, mem);
     core::CMemoryDebug::dynamicSize("m_ClassConditionalDensities",
                                     m_ClassConditionalDensities, mem);
@@ -441,7 +442,7 @@ CNaiveBayes::TFeatureDensityPtrVec& CNaiveBayes::CClass::conditionalDensities() 
     return m_ConditionalDensities;
 }
 
-void CNaiveBayes::CClass::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const {
+void CNaiveBayes::CClass::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
     core::CMemoryDebug::dynamicSize("s_ConditionalDensities", m_ConditionalDensities, mem);
 }
 

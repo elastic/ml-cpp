@@ -8,6 +8,7 @@
 #include <core/CDataFrame.h>
 #include <core/CLogger.h>
 
+#include <maths/CDataFrameAnalysisInstrumentationInterface.h>
 #include <maths/CLinearAlgebraEigen.h>
 #include <maths/CLinearAlgebraShims.h>
 #include <maths/COutliers.h>
@@ -19,6 +20,7 @@
 #include <test/CTestTmpDir.h>
 
 #include <boost/filesystem.hpp>
+#include <boost/optional.hpp>
 #include <boost/test/unit_test.hpp>
 
 #include <atomic>
@@ -39,6 +41,39 @@ using TMaxAccumulator =
 using TPoint = maths::CDenseVector<double>;
 using TPointVec = std::vector<TPoint>;
 using TFactoryFunc = std::function<std::unique_ptr<core::CDataFrame>(const TPointVec&)>;
+
+class CStubInstrumentation final : public maths::CDataFrameAnalysisInstrumentationInterface {
+public:
+    using TProgressCallbackOpt = boost::optional<TProgressCallback>;
+    using TMemoryUsageCallbackOpt = boost::optional<TMemoryUsageCallback>;
+
+public:
+    void updateMemoryUsage(std::int64_t delta) override {
+        if (m_MemoryUsageCallback) {
+            m_MemoryUsageCallback.get()(delta);
+        }
+    }
+
+    void updateProgress(double d) override {
+        if (m_ProgressCallback) {
+            m_ProgressCallback.get()(d);
+        }
+    }
+
+    void progressCallback(const TProgressCallback& progressCallback) {
+        m_ProgressCallback = progressCallback;
+    }
+
+    void memoryUsageCallback(const TMemoryUsageCallback& memoryUsageCallback) {
+        m_MemoryUsageCallback = memoryUsageCallback;
+    }
+
+    void nextStep(std::uint32_t /*uint32*/) override {}
+
+private:
+    TProgressCallbackOpt m_ProgressCallback;
+    TMemoryUsageCallbackOpt m_MemoryUsageCallback;
+};
 
 void nearestNeightbours(std::size_t k, const TPointVec& points, const TPoint& point, TPointVec& result) {
     using TDoubleVectorPr = std::pair<double, TPoint>;
@@ -114,6 +149,8 @@ void outlierErrorStatisticsForEnsemble(std::size_t numberThreads,
     TPointVec points;
     TDoubleVec scores(numberInliers + numberOutliers);
 
+    CStubInstrumentation instr;
+
     for (std::size_t t = 0; t < 100; ++t) {
         gaussianWithUniformNoise(rng, numberInliers, numberOutliers, points);
 
@@ -126,7 +163,7 @@ void outlierErrorStatisticsForEnsemble(std::size_t numberThreads,
                                                     0, // Compute number neighbours
                                                     false, // Compute feature influences
                                                     0.05}; // Outlier fraction
-        maths::COutliers::compute(params, *frame);
+        maths::COutliers::compute(params, *frame, instr);
 
         frame->readRows(1, [&scores](core::CDataFrame::TRowItr beginRows,
                                      core::CDataFrame::TRowItr endRows) {
@@ -456,6 +493,8 @@ BOOST_AUTO_TEST_CASE(testFeatureInfluences) {
 
     std::string tags[]{"sequential", "parallel"};
 
+    CStubInstrumentation instr;
+
     // Test in/out of core.
     for (std::size_t i = 0; i < 2; ++i) {
 
@@ -471,7 +510,7 @@ BOOST_AUTO_TEST_CASE(testFeatureInfluences) {
                                                         0, // Compute number neighbours
                                                         true, // Compute feature influences
                                                         0.05}; // Outlier fraction
-            maths::COutliers::compute(params, *frame);
+            maths::COutliers::compute(params, *frame, instr);
 
             bool passed{true};
             TMeanAccumulator averageSignificances[2];
@@ -565,19 +604,22 @@ BOOST_AUTO_TEST_CASE(testEstimateMemoryUsedByCompute) {
         std::atomic<std::int64_t> memoryUsage{0};
         std::atomic<std::int64_t> maxMemoryUsage{0};
 
-        maths::COutliers::compute(
-            params, *frame, [](double) {},
-            [&](std::int64_t delta) {
-                std::int64_t memoryUsage_{memoryUsage.fetch_add(delta)};
+        CStubInstrumentation instr;
 
-                std::int64_t prevMaxMemoryUsage{maxMemoryUsage};
-                while (prevMaxMemoryUsage < memoryUsage_ &&
-                       maxMemoryUsage.compare_exchange_weak(prevMaxMemoryUsage,
-                                                            memoryUsage_) == false) {
-                }
-                LOG_TRACE(<< "current memory = " << memoryUsage_
-                          << ", high water mark = " << maxMemoryUsage.load());
-            });
+        auto memoryUsageCallback = [&](std::int64_t delta) {
+            std::int64_t memoryUsage_{memoryUsage.fetch_add(delta)};
+
+            std::int64_t prevMaxMemoryUsage{maxMemoryUsage};
+            while (prevMaxMemoryUsage < memoryUsage_ &&
+                   maxMemoryUsage.compare_exchange_weak(prevMaxMemoryUsage,
+                                                        memoryUsage_) == false) {
+            }
+            LOG_TRACE(<< "current memory = " << memoryUsage_
+                      << ", high water mark = " << maxMemoryUsage.load());
+        };
+        instr.memoryUsageCallback(memoryUsageCallback);
+
+        maths::COutliers::compute(params, *frame, instr);
 
         LOG_DEBUG(<< "estimated peak memory = " << estimatedMemoryUsage);
         LOG_DEBUG(<< "high water mark = " << maxMemoryUsage);
@@ -618,10 +660,12 @@ BOOST_AUTO_TEST_CASE(testProgressMonitoring) {
 
         std::atomic_int totalFractionalProgress{0};
 
+        CStubInstrumentation instr;
         auto reportProgress = [&totalFractionalProgress](double fractionalProgress) {
             totalFractionalProgress.fetch_add(
                 static_cast<int>(65536.0 * fractionalProgress + 0.5));
         };
+        instr.progressCallback(std::move(reportProgress));
 
         std::atomic_bool finished{false};
 
@@ -633,7 +677,7 @@ BOOST_AUTO_TEST_CASE(testProgressMonitoring) {
                                                         0, // Compute number neighbours
                                                         false, // Compute feature influences
                                                         0.05}; // Outlier fraction
-            maths::COutliers::compute(params, *frame, reportProgress);
+            maths::COutliers::compute(params, *frame, instr);
             finished.store(true);
         }};
 
@@ -679,6 +723,8 @@ BOOST_AUTO_TEST_CASE(testMostlyDuplicate) {
         points.push_back(std::move(point));
     }
 
+    CStubInstrumentation instr;
+
     for (std::size_t numberPartitions : {1, 3}) {
         auto frame = test::CDataFrameTestUtils::toMainMemoryDataFrame(points);
 
@@ -689,7 +735,7 @@ BOOST_AUTO_TEST_CASE(testMostlyDuplicate) {
                                                     0, // Compute number neighbours
                                                     false, // Compute feature influences
                                                     0.05}; // Outlier fraction
-        maths::COutliers::compute(params, *frame);
+        maths::COutliers::compute(params, *frame, instr);
 
         TDoubleVec outlierScores(outliers.size());
         frame->readRows(1, [&](core::CDataFrame::TRowItr beginRows,
@@ -720,6 +766,8 @@ BOOST_AUTO_TEST_CASE(testFewPoints) {
     std::size_t rows{101};
     test::CRandomNumbers rng;
 
+    CStubInstrumentation instr;
+
     for (std::size_t numberPoints : {1, 2, 5}) {
 
         LOG_DEBUG(<< "# points = " << numberPoints);
@@ -744,7 +792,7 @@ BOOST_AUTO_TEST_CASE(testFewPoints) {
                                                     0, // Compute number neighbours
                                                     true, // Compute feature influences
                                                     0.05}; // Outlier fraction
-        maths::COutliers::compute(params, *frame);
+        maths::COutliers::compute(params, *frame, instr);
 
         bool passed{true};
 

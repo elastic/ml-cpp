@@ -211,7 +211,8 @@ public:
     };
 
 public:
-    CDataFrameCategoryEncoder(CMakeDataFrameCategoryEncoder parameters);
+    CDataFrameCategoryEncoder(CMakeDataFrameCategoryEncoder& builder);
+    CDataFrameCategoryEncoder(CMakeDataFrameCategoryEncoder&& builder);
 
     //! Initialize from serialized data.
     CDataFrameCategoryEncoder(core::CStateRestoreTraverser& traverser);
@@ -288,6 +289,8 @@ public:
                                   const core::CDataFrame& frame,
                                   std::size_t targetColumn);
 
+    virtual ~CMakeDataFrameCategoryEncoder() = default;
+
     //! Set the minimum number of training rows needed per feature used.
     CMakeDataFrameCategoryEncoder& minimumRowsPerFeature(std::size_t minimumRowsPerFeature);
 
@@ -313,7 +316,7 @@ public:
     CMakeDataFrameCategoryEncoder& columnMask(TSizeVec columnMask);
 
     //! Make the encoding.
-    TEncodingUPtrVec makeEncodings();
+    virtual TEncodingUPtrVec makeEncodings();
 
     //! \name Test Methods
     //@{

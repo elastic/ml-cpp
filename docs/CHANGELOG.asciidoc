@@ -35,7 +35,31 @@
 * The macOS build platform for the {ml} C++ code is now High Sierra running Xcode 10.1,
   or Ubuntu 18.04 running clang 6.0 for cross compilation. (See {ml-pull}867[#867].)
 
+== {es} version 7.7.0
+
+=== New Features
+
+* Add instrumentation to report statistics related to data frame analytics jobs, i.e.
+progress, memory usage, etc. (See {ml-pull}906[#906].)
+
+=== Enhancements
+
+* Improve initialization of learn rate for better and more stable results in regression
+and classification. (See {ml-pull}948[#948].)
+* Add new model_size_stats fields to instrument categorization.  (See {ml-pull}948[#948]
+and {pull}51879[#51879], issue: {issue}50794[#50749].)
+
+=== Bug Fixes
+
+* Use largest ordered subset of categorization tokens for category reverse search regex.
+(See {ml-pull}970[#970], issue: {ml-issue}949[#949].)
+
 == {es} version 7.6.0
+
+=== New Features
+
+* Add feature importance values to classification and regression results (using tree
+SHapley Additive exPlanation, or SHAP). (See {ml-pull}857[#857].)
 
 === Enhancements
 
@@ -52,12 +76,33 @@ tree which is trained for both regression and classification. (See {ml-pull}811[
 (See {ml-pull}818[#818].)
 * Reduce memory usage of {ml} native processes on Windows. (See {ml-pull}844[#844].)
 * Reduce runtime of classification and regression. (See {ml-pull}863[#863].)
+* Stop early training a classification and regression forest when the validation error
+is no longer decreasing. (See {ml-pull}875[#875].)
+* Emit `prediction_field_name` in ml results using the type provided as
+`prediction_field_type` parameter. (See {ml-pull}877[#877].)
+* Improve performance updating quantile estimates. (See {ml-pull}881[#881].)
+* Migrate to use Bayesian Optimisation for initial hyperparameter value line searches and
+stop early if the expected improvement is too small. (See {ml-pull}903[#903].)
+* Stop cross-validation early if the predicted test loss has a small chance of being
+smaller than for the best parameter values found so far. (See {ml-pull}915[#915].)
+* Optimize decision threshold for classification to maximize minimum class recall.
+(See {ml-pull}926[#926].)
+* Include categorization memory usage in the `model_bytes` field in `model_size_stats`,
+so that it is taken into account in node assignment decisions. (See {ml-pull}927[#927],
+issue: {ml-issue}724[#724].)
 
 === Bug Fixes
 * Fixes potential memory corruption when determining seasonality. (See {ml-pull}852[#852].)
 * Prevent prediction_field_name clashing with other fields in ml results.
 (See {ml-pull}861[#861].)
+* Include out-of-order as well as in-order terms in categorization reverse searches.
+(See {ml-pull}950[#950], issue: {ml-issue}949[#949].)
 
+== {es} version 7.5.2
+
+=== Bug Fixes
+* Fixes potential memory corruption or inconsistent state when background persisting
+categorizer state. (See {ml-pull}921[#921].)
 
 == {es} version 7.5.0
 

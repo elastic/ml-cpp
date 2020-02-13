@@ -147,7 +147,7 @@ void CStringStore::pruneNotThreadSafe() {
     }
 }
 
-void CStringStore::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const {
+void CStringStore::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
     mem->setName(this == &CStringStore::names()
                      ? "names StringStore"
                      : (this == &CStringStore::influencers() ? "influencers StringStore"

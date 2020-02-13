@@ -6,29 +6,22 @@
 #ifndef INCLUDED_ml_model_CAnomalyDetector_h
 #define INCLUDED_ml_model_CAnomalyDetector_h
 
-#include <core/CNonCopyable.h>
-#include <core/CSmallVector.h>
 #include <core/CoreTypes.h>
 
 #include <model/CAnomalyDetectorModel.h>
 #include <model/CAnomalyDetectorModelConfig.h>
-#include <model/CEventData.h>
 #include <model/CForecastDataSink.h>
 #include <model/CHierarchicalResults.h>
 #include <model/CLimits.h>
 #include <model/CModelFactory.h>
 #include <model/CModelPlotData.h>
-#include <model/FunctionTypes.h>
+#include <model/CMonitoredResource.h>
 #include <model/ImportExport.h>
 #include <model/ModelTypes.h>
 
 #include <functional>
-#include <map>
 #include <memory>
-#include <string>
 #include <vector>
-
-#include <stdint.h>
 
 namespace ml {
 namespace core {
@@ -65,7 +58,7 @@ class CSearchKey;
 //! choose to analyse certain field values either individually or as
 //! a population.
 
-class MODEL_EXPORT CAnomalyDetector : private core::CNonCopyable {
+class MODEL_EXPORT CAnomalyDetector : public CMonitoredResource {
 public:
     using TStrVec = std::vector<std::string>;
     using TStrCPtrVec = std::vector<const std::string*>;
@@ -126,7 +119,11 @@ public:
     //! a general purpose copy constructor.
     CAnomalyDetector(bool isForPersistence, const CAnomalyDetector& other);
 
-    virtual ~CAnomalyDetector();
+    //! No general copying allowed.
+    CAnomalyDetector(const CAnomalyDetector&) = delete;
+    CAnomalyDetector& operator=(const CAnomalyDetector&) = delete;
+
+    ~CAnomalyDetector() override;
 
     //! Get the total number of people which this is modeling.
     size_t numberActivePeople() const;
@@ -252,10 +249,30 @@ public:
     void showMemoryUsage(std::ostream& stream) const;
 
     //! Get the memory used by this detector
-    void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const;
+    void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const override;
 
     //! Return the total memory usage
-    std::size_t memoryUsage() const;
+    std::size_t memoryUsage() const override;
+
+    //! Get the static size of this object - used for virtual hierarchies
+    std::size_t staticSize() const override;
+
+    //! Returns true, as anomaly detectors do support pruning.
+    bool supportsPruning() const override;
+
+    //! Initialize the pruning window.
+    bool initPruneWindow(std::size_t& defaultPruneWindow,
+                         std::size_t& minimumPruneWindow) const override;
+
+    //! Get the bucket length.
+    core_t::TTime bucketLength() const override;
+
+    //! Prune the model.
+    void prune(std::size_t maximumAge) override;
+
+    //! Update the overall model size stats with information from this anomaly
+    //! detector.
+    void updateModelSizeStats(CResourceMonitor::SModelSizeStats& modelSizeStats) const override;
 
     //! Get end of the last complete bucket we've observed.
     const core_t::TTime& lastBucketEndTime() const;
