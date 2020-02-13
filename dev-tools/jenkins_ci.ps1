@@ -47,7 +47,10 @@ if (!(Test-Path Env:BUILD_SNAPSHOT)) {
 }
 
 # Run the build and unit tests
-& ".\gradlew.bat" --info "-Dbuild.snapshot=$Env:BUILD_SNAPSHOT" clean buildZip buildZipSymbols check
+# The | %{ "$_" } at the end converts error objects to strings
+# This solves a problem where stderr output is treated as error objects when
+# running PowerShell scripts remotely, but not locally
+& ".\gradlew.bat" --info "-Dbuild.snapshot=$Env:BUILD_SNAPSHOT" clean buildZip buildZipSymbols check | %{ "$_" }
 if ($LastExitCode -ne 0) {
     Exit $LastExitCode
 }
