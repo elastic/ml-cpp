@@ -232,6 +232,10 @@ void CBoostedTreeImpl::train(core::CDataFrame& frame,
         std::tie(m_BestForest, std::ignore) =
             this->trainForest(frame, allTrainingRowsMask, allTrainingRowsMask,
                               m_TrainingProgress, recordMemoryUsage);
+
+        // populate numberSamples field in the final forest
+        this->computeNumberSamples(frame);
+
         if (m_Instrumentation != nullptr) {
             this->m_Instrumentation->nextStep(static_cast<std::uint32_t>(m_CurrentRound));
         }
@@ -256,6 +260,47 @@ void CBoostedTreeImpl::train(core::CDataFrame& frame,
 
     std::int64_t memoryUsage(this->memoryUsage());
     recordMemoryUsage(memoryUsage - lastMemoryUsage);
+}
+
+void CBoostedTreeImpl::computeNumberSamples(const core::CDataFrame& frame) {
+    for (auto& tree : m_BestForest) {
+        if (tree.size() == 1) {
+            tree[0].numberSamples(frame.numberRows());
+        } else {
+            auto result = frame.readRows(
+                m_NumberThreads,
+                core::bindRetrievableState(
+                    [&](TSizeVec& samplesPerNode, const TRowItr& beginRows, const TRowItr& endRows) {
+                        for (auto row = beginRows; row != endRows; ++row) {
+                            auto encodedRow{m_Encoder->encode(*row)};
+                            const CBoostedTreeNode* node{&tree[0]};
+                            samplesPerNode[0] += 1;
+                            std::size_t nextIndex;
+                            while (node->isLeaf() == false) {
+                                if (node->assignToLeft(encodedRow)) {
+                                    nextIndex = node->leftChildIndex();
+                                } else {
+                                    nextIndex = node->rightChildIndex();
+                                }
+                                samplesPerNode[nextIndex] += 1;
+                                node = &(tree[nextIndex]);
+                            }
+                        }
+                    },
+                    TSizeVec(tree.size())));
+            auto& state = result.first;
+            TSizeVec totalSamplesPerNode{std::move(state[0].s_FunctionState)};
+            for (std::size_t i = 1; i < state.size(); ++i) {
+                for (std::size_t nodeIndex = 0;
+                     nodeIndex < totalSamplesPerNode.size(); ++nodeIndex) {
+                    totalSamplesPerNode[nodeIndex] += state[i].s_FunctionState[nodeIndex];
+                }
+            }
+            for (std::size_t i = 0; i < tree.size(); ++i) {
+                tree[i].numberSamples(totalSamplesPerNode[i]);
+            }
+        }
+    }
 }
 
 void CBoostedTreeImpl::recordState(const TTrainingStateCallback& recordTrainState) const {
@@ -472,7 +517,6 @@ CBoostedTreeImpl::trainForest(core::CDataFrame& frame,
     TNodeVecVec forest{this->initializePredictionsAndLossDerivatives(
         frame, trainingRowMask, testingRowMask)};
     forest.reserve(m_MaximumNumberTrees);
-    forest[0][0].numberSamples(static_cast<std::size_t>(trainingRowMask.manhattan()));
 
     CScopeRecordMemoryUsage scopeMemoryUsage{forest, recordMemoryUsage};
 
@@ -713,9 +757,9 @@ CBoostedTreeImpl::trainTree(core::CDataFrame& frame,
         bool assignMissingToLeft{leaf->assignMissingToLeft()};
 
         std::size_t leftChildId, rightChildId;
-        std::tie(leftChildId, rightChildId) = tree[leaf->id()].split(
-            splitFeature, splitValue, assignMissingToLeft, leaf->gain(),
-            leaf->curvature(), leaf->numberSamples(), tree);
+        std::tie(leftChildId, rightChildId) =
+            tree[leaf->id()].split(splitFeature, splitValue, assignMissingToLeft,
+                                   leaf->gain(), leaf->curvature(), tree);
 
         TLeafNodeStatisticsPtr leftChild;
         TLeafNodeStatisticsPtr rightChild;
@@ -1157,8 +1201,6 @@ std::size_t CBoostedTreeImpl::maximumTreeSize(std::size_t numberRows) const {
 }
 
 namespace {
-const std::string VERSION_7_5_TAG{"7.5"};
-const std::string VERSION_7_6_TAG{"7.6"};
 const std::string VERSION_7_7_TAG{"7.7"};
 const TStrVec SUPPORTED_VERSIONS{VERSION_7_7_TAG};
 

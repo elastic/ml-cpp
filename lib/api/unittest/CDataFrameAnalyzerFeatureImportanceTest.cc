@@ -300,7 +300,7 @@ BOOST_FIXTURE_TEST_CASE(testRegressionFeatureImportanceNoImportance, SFixture) {
             BOOST_REQUIRE_CLOSE(c1, prediction, 5.0);
             for (const auto& feature : {"c2", "c3", "c4"}) {
                 double c = readShapValue(result, feature);
-                BOOST_REQUIRE_SMALL(c, 2.5);
+                BOOST_REQUIRE_SMALL(c, 2.0);
                 cNoImportanceMean.add(std::fabs(c));
             }
         }

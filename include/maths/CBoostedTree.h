@@ -266,8 +266,8 @@ public:
                              double nodeValue,
                              double gain,
                              std::size_t numberSamples,
-                             maths::CBoostedTreeNode::TOptionalNodeIndex leftChild,
-                             maths::CBoostedTreeNode::TOptionalNodeIndex rightChild) = 0;
+                             TOptionalNodeIndex leftChild,
+                             TOptionalNodeIndex rightChild) = 0;
     };
 
 public:
@@ -308,10 +308,10 @@ public:
     double curvature() const { return m_Curvature; }
 
     //! Set the number of samples to \p value.
-    void numberSamples(size_t value);
+    void numberSamples(std::size_t value);
 
     //! Get number of samples affected by the node.
-    size_t numberSamples() const;
+    std::size_t numberSamples() const;
 
     //! Get the index of the left child node.
     TNodeIndex leftChildIndex() const { return m_LeftChild.get(); }
@@ -325,7 +325,6 @@ public:
                                         bool assignMissingToLeft,
                                         double gain,
                                         double curvature,
-                                        std::size_t numberSamples,
                                         TNodeVec& tree);
 
     //! Get the feature index of the split.

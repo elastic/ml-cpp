@@ -292,6 +292,9 @@ private:
     //! Record the training state using the \p recordTrainState callback function
     void recordState(const TTrainingStateCallback& recordTrainState) const;
 
+    //! Populate numberSamples field in the m_BestForest
+    void computeNumberSamples(const core::CDataFrame& frame);
+
 private:
     mutable CPRNG::CXorOShiro128Plus m_Rng;
     std::size_t m_NumberThreads;

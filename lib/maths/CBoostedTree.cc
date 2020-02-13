@@ -350,7 +350,6 @@ CBoostedTreeNode::TSizeSizePr CBoostedTreeNode::split(std::size_t splitFeature,
                                                       bool assignMissingToLeft,
                                                       double gain,
                                                       double curvature,
-                                                      std::size_t numberSamples,
                                                       TNodeVec& tree) {
     m_SplitFeature = splitFeature;
     m_SplitValue = splitValue;
@@ -359,7 +358,6 @@ CBoostedTreeNode::TSizeSizePr CBoostedTreeNode::split(std::size_t splitFeature,
     m_RightChild = static_cast<TNodeIndex>(tree.size() + 1);
     m_Gain = gain;
     m_Curvature = curvature;
-    m_NumberSamples = numberSamples;
     TSizeSizePr result{m_LeftChild.get(), m_RightChild.get()};
     // Don't access members after calling resize because this object is likely an element of the vector being resized.
     tree.resize(tree.size() + 2);
@@ -422,11 +420,11 @@ void CBoostedTreeNode::accept(CVisitor& visitor) const {
                     m_Gain, m_NumberSamples, m_LeftChild, m_RightChild);
 }
 
-void CBoostedTreeNode::numberSamples(size_t numberSamples) {
+void CBoostedTreeNode::numberSamples(std::size_t numberSamples) {
     m_NumberSamples = numberSamples;
 }
 
-size_t CBoostedTreeNode::numberSamples() const {
+std::size_t CBoostedTreeNode::numberSamples() const {
     return m_NumberSamples;
 }
 
