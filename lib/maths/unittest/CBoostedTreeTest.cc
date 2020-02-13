@@ -45,6 +45,37 @@ using TMeanVarAccumulator = maths::CBasicStatistics::SSampleMeanVar<double>::TAc
 
 namespace {
 
+class CTestInstrumentation : public maths::CDataFrameAnalysisInstrumentationInterface {
+public:
+    CTestInstrumentation()
+        : m_TotalFractionalProgress{0}, m_MemoryUsage{0}, m_MaxMemoryUsage{0} {}
+
+    int progress() const { return m_TotalFractionalProgress.load(); }
+    std::int64_t maxMemoryUsage() const { return m_MaxMemoryUsage.load(); }
+
+    void updateProgress(double fractionalProgress) override {
+        m_TotalFractionalProgress.fetch_add(
+            static_cast<int>(65536.0 * fractionalProgress + 0.5));
+    }
+
+    void updateMemoryUsage(std::int64_t delta) override {
+        std::int64_t memory{m_MemoryUsage.fetch_add(delta)};
+        std::int64_t previousMaxMemoryUsage{m_MaxMemoryUsage.load(std::memory_order_relaxed)};
+        while (previousMaxMemoryUsage < memory &&
+               m_MaxMemoryUsage.compare_exchange_weak(previousMaxMemoryUsage, memory) == false) {
+        }
+        LOG_TRACE(<< "current memory = " << m_MemoryUsage.load()
+                  << ", high water mark = " << m_MaxMemoryUsage.load());
+    }
+
+    void nextStep(std::uint32_t) override {}
+
+private:
+    std::atomic_int m_TotalFractionalProgress;
+    std::atomic<std::int64_t> m_MemoryUsage;
+    std::atomic<std::int64_t> m_MaxMemoryUsage;
+};
+
 template<typename F>
 auto computeEvaluationMetrics(const core::CDataFrame& frame,
                               std::size_t beginTestRows,
@@ -1269,25 +1300,18 @@ BOOST_AUTO_TEST_CASE(testEstimateMemoryUsedByTrain) {
                                          1, std::make_unique<maths::boosted_tree::CMse>())
                                          .estimateMemoryUsage(rows, cols));
 
-        std::int64_t memoryUsage{0};
-        std::int64_t maxMemoryUsage{0};
+        CTestInstrumentation instrumentation;
         auto regression = maths::CBoostedTreeFactory::constructFromParameters(
                               1, std::make_unique<maths::boosted_tree::CMse>())
-                              .analysisInstrumentation(&instr)
-                              .memoryUsageCallback([&](std::int64_t delta) {
-                                  memoryUsage += delta;
-                                  maxMemoryUsage = std::max(maxMemoryUsage, memoryUsage);
-                                  LOG_TRACE(<< "current memory = " << memoryUsage
-                                            << ", high water mark = " << maxMemoryUsage);
-                              })
+                              .analysisInstrumentation(instrumentation)
                               .buildFor(*frame, cols - 1);
 
         regression->train();
 
         LOG_DEBUG(<< "estimated memory usage = " << estimatedMemory);
-        LOG_DEBUG(<< "high water mark = " << maxMemoryUsage);
+        LOG_DEBUG(<< "high water mark = " << instrumentation.maxMemoryUsage());
 
-        BOOST_TEST_REQUIRE(maxMemoryUsage < estimatedMemory);
+        BOOST_TEST_REQUIRE(instrumentation.maxMemoryUsage() < estimatedMemory);
     }
 }
 
@@ -1320,19 +1344,13 @@ BOOST_AUTO_TEST_CASE(testProgressMonitoring) {
 
         fillDataFrame(rows, 0, cols, x, TDoubleVec(rows, 0.0), target, *frame);
 
-        std::atomic_int totalFractionalProgress{0};
-
-        auto reportProgress = [&totalFractionalProgress](double fractionalProgress) {
-            totalFractionalProgress.fetch_add(
-                static_cast<int>(65536.0 * fractionalProgress + 0.5));
-        };
-
+        CTestInstrumentation instrumentation;
         std::atomic_bool finished{false};
 
         std::thread worker{[&]() {
             auto regression = maths::CBoostedTreeFactory::constructFromParameters(
                                   threads, std::make_unique<maths::boosted_tree::CMse>())
-                                  .progressCallback(reportProgress)
+                                  .analysisInstrumentation(instrumentation)
                                   .buildFor(*frame, cols - 1);
 
             regression->train();
@@ -1345,13 +1363,13 @@ BOOST_AUTO_TEST_CASE(testProgressMonitoring) {
         bool monotonic{true};
         std::size_t percentage{0};
         while (finished.load() == false) {
-            if (totalFractionalProgress.load() > lastProgressReport) {
+            if (instrumentation.progress() > lastProgressReport) {
                 LOG_DEBUG(<< percentage << "% complete");
                 percentage += 10;
                 lastProgressReport += 6554;
             }
-            monotonic &= (totalFractionalProgress.load() >= lastTotalFractionalProgress);
-            lastTotalFractionalProgress = totalFractionalProgress.load();
+            monotonic &= (instrumentation.progress() >= lastTotalFractionalProgress);
+            lastTotalFractionalProgress = instrumentation.progress();
         }
         worker.join();
 
@@ -1480,7 +1498,6 @@ BOOST_AUTO_TEST_CASE(testPersistRestore) {
     }
     // restore
     auto boostedTree = maths::CBoostedTreeFactory::constructFromString(persistOnceSStream)
-                           .analysisInstrumentation(&instr)
                            .restoreFor(*frame, cols - 1);
     {
         core::CJsonStatePersistInserter inserter(persistTwiceSStream);
