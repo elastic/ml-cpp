@@ -46,18 +46,21 @@ if (!(Test-Path Env:BUILD_SNAPSHOT)) {
     $Env:BUILD_SNAPSHOT="true"
 }
 
+# The exit code of the gradlew commands is checked explicitly, and their
+# stderr is treated as an error by PowerShell without this
+$ErrorActionPreference="Continue"
+
 # Run the build and unit tests
-# The | %{ "$_" } at the end converts error objects to strings
-# This solves a problem where stderr output is treated as error objects when
-# running PowerShell scripts remotely, but not locally
-& ".\gradlew.bat" --info "-Dbuild.snapshot=$Env:BUILD_SNAPSHOT" clean buildZip buildZipSymbols check | %{ "$_" }
+# The | % { "$_" } at the end converts any error objects on stderr to strings
+& ".\gradlew.bat" --info "-Dbuild.snapshot=$Env:BUILD_SNAPSHOT" clean buildZip buildZipSymbols check 2>&1 | % { "$_" }
 if ($LastExitCode -ne 0) {
     Exit $LastExitCode
 }
 
 # If this isn't a PR build then upload the artifacts
 if (!(Test-Path Env:PR_AUTHOR)) {
-    & ".\gradlew.bat" --info -b "upload.gradle" "-Dbuild.snapshot=$Env:BUILD_SNAPSHOT" upload
+    # The | % { "$_" } at the end converts any error objects on stderr to strings
+    & ".\gradlew.bat" --info -b "upload.gradle" "-Dbuild.snapshot=$Env:BUILD_SNAPSHOT" upload 2>&1 | % { "$_" }
     if ($LastExitCode -ne 0) {
         Exit $LastExitCode
     }
