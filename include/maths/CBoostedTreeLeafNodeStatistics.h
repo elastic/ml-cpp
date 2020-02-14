@@ -223,7 +223,7 @@ public:
         }
 
         //! Add \p gradient and \p curvature to the accumulated derivatives for
-        //! the split \p split of feature \p feature.
+        //! the \p split of \p feature.
         void addDerivatives(std::size_t feature,
                             std::size_t split,
                             const TMemoryMappedFloatVector& gradient,
