@@ -320,12 +320,12 @@ public:
     TNodeIndex rightChildIndex() const { return m_RightChild.get(); }
 
     //! Split this node and add its child nodes to \p tree.
-    CBoostedTreeNode::TSizeSizePr split(std::size_t splitFeature,
-                                        double splitValue,
-                                        bool assignMissingToLeft,
-                                        double gain,
-                                        double curvature,
-                                        TNodeVec& tree);
+    TSizeSizePr split(std::size_t splitFeature,
+                      double splitValue,
+                      bool assignMissingToLeft,
+                      double gain,
+                      double curvature,
+                      TNodeVec& tree);
 
     //! Get the feature index of the split.
     std::size_t splitFeature() const { return m_SplitFeature; }
