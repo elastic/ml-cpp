@@ -44,6 +44,8 @@ public:
     //! than 0.001. In fact, it is unlikely that such high resolution is needed
     //! and typically this would be called significantly less frequently.
     void updateProgress(double fractionalProgress) override;
+
+    //! Record that the analysis is complete.
     void setToFinished();
 
     //! \return True if the running analysis has finished.

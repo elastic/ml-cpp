@@ -35,8 +35,6 @@ class MATHS_EXPORT CBoostedTreeFactory final {
 public:
     using TVector = CVectorNx1<double, 3>;
     using TBoostedTreeUPtr = std::unique_ptr<CBoostedTree>;
-    using TProgressCallback = CBoostedTree::TProgressCallback;
-    using TMemoryUsageCallback = CBoostedTree::TMemoryUsageCallback;
     using TTrainingStateCallback = CBoostedTree::TTrainingStateCallback;
     using TLossFunctionUPtr = CBoostedTree::TLossFunctionUPtr;
     using TAnalysisInstrumentationPtr = CDataFrameAnalysisInstrumentationInterface*;
@@ -100,11 +98,8 @@ public:
     CBoostedTreeFactory& topShapValues(std::size_t topShapValues);
 
     //! Set pointer to the analysis instrumentation.
-    CBoostedTreeFactory& analysisInstrumentation(TAnalysisInstrumentationPtr instrumentation);
-    //! Set the callback function for progress monitoring.
-    CBoostedTreeFactory& progressCallback(TProgressCallback callback);
-    //! Set the callback function for memory monitoring.
-    CBoostedTreeFactory& memoryUsageCallback(TMemoryUsageCallback callback);
+    CBoostedTreeFactory&
+    analysisInstrumentation(CDataFrameAnalysisInstrumentationInterface& instrumentation);
     //! Set the callback function for training state recording.
     CBoostedTreeFactory& trainingStateCallback(TTrainingStateCallback callback);
 
@@ -204,8 +199,7 @@ private:
     //! The maximum number of trees to use in the hyperparameter optimisation loop.
     std::size_t mainLoopMaximumNumberTrees(double eta) const;
 
-    static void noopRecordProgress(double);
-    static void noopRecordMemoryUsage(std::int64_t);
+    //! Stubs out persistence.
     static void noopRecordTrainingState(CBoostedTree::TPersistFunc);
 
 private:
@@ -221,11 +215,7 @@ private:
     TVector m_LogLeafWeightPenaltyMultiplierSearchInterval;
     TVector m_SoftDepthLimitSearchInterval;
     TVector m_LogEtaSearchInterval;
-    TAnalysisInstrumentationPtr m_Instrumentation;
-    TProgressCallback m_RecordProgress = noopRecordProgress;
-    TMemoryUsageCallback m_RecordMemoryUsage = noopRecordMemoryUsage;
     TTrainingStateCallback m_RecordTrainingState = noopRecordTrainingState;
-    std::size_t m_TopShapValues = 0;
 };
 }
 }
