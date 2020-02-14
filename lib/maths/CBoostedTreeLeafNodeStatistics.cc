@@ -282,12 +282,12 @@ CBoostedTreeLeafNodeStatistics::computeBestSplitStatistics(const TRegularization
     //
     // where H(\lambda) = \sum_i H_i + \lambda I, g = \sum_i g_i and w is the leaf's
     // weight. Here, g_i and H_i denote an example's loss gradient and Hessian and i
-    // ranges over the examples in the leaf. Completing the square and noting that
-    // the minimum is given when the quadratic form is zero we have
+    // ranges over the examples in the leaf. Writing this as the sum of a quadratic
+    // form and constant, i.e. x(w)^t H(\lambda) x(w) + constant, and noting that H
+    // is positive definite, we see that we'll minimise loss by choosing w such that
+    // x is zero, i.e. w^* = arg\min_w(L(w)) satisfies x(w) = 0. This gives
     //
-    //   L(w^*) = -1/2 g^t H(\lambda) g
-    //
-    // where w^* = arg\min_w{ L(w) }.
+    //   L(w^*) = -1/2 g^t H(\lambda)^{-1} g
 
     using TDoubleVector = CDenseVector<double>;
     using TDoubleMatrix = CDenseMatrix<double>;
@@ -392,6 +392,9 @@ CBoostedTreeLeafNodeStatistics::computeBestSplitStatistics(const TRegularization
 
         double penaltyForDepth{regularization.penaltyForDepth(m_Depth)};
         double penaltyForDepthPlusOne{regularization.penaltyForDepth(m_Depth + 1)};
+
+        // The gain is the difference between the quadratic minimum for loss with
+        // no split and the loss with the minimum loss split we found.
         double gain{0.5 * (maximumGain - minimumLoss(g, h)) -
                     regularization.treeSizePenaltyMultiplier() -
                     regularization.depthPenaltyMultiplier() *
