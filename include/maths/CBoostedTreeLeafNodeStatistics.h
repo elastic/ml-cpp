@@ -110,8 +110,9 @@ public:
                 m_Curvature -= rhs.m_Curvature;
                 // None of our loss functions have negative curvature therefore we
                 // shouldn't allow the cumulative curvature to be negative either.
-                // In this case we force it to be a v.small multiple of the magnitude
-                // of the gradient since this is the closest feasible estimate.
+                // In this case we force it to be a very small multiple of the
+                // magnitude of the gradient since this is the closest feasible
+                // estimate.
                 for (int i = 0; i < m_Gradient.size(); ++i) {
                     m_Curvature(i, i) = std::max(m_Curvature(i, i),
                                                  SMALLEST_RELATIVE_CURVATURE *
