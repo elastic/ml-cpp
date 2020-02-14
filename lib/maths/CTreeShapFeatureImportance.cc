@@ -33,15 +33,14 @@ void CTreeShapFeatureImportance::shap(core::CDataFrame& frame,
 
     auto result = frame.writeColumns(
         m_NumberThreads, [&](const TRowItr& beginRows, const TRowItr& endRows) {
-            TSPathVec backupPathVec(maxDepthOverall, SPath(maxDepthOverall));
-//            backupPathVec.reserve(maxDepthOverall);
+                TElementVec pathVector;
+                pathVector.reserve(((maxDepthOverall)*(maxDepthOverall+1)));
             for (auto row = beginRows; row != endRows; ++row) {
                 auto encodedRow{encoder.encode(*row)};
                 for (std::size_t i = 0; i < m_Trees.size(); ++i) {
-                    SPath path(maxDepthVec[i] + 1);
                     CTreeShapFeatureImportance::shapRecursive(
-                            m_Trees[i], m_SamplesPerNode[i], encoder, encodedRow,
-                            path, 0, 1.0, 1.0, -1, offset, row, 0, backupPathVec, 0);
+                            m_Trees[i], m_SamplesPerNode[i], encoder, encodedRow, 0, 1.0, 1.0, -1, offset, row,
+                            pathVector.begin(), 0);
                 }
             }
         });
@@ -115,13 +114,15 @@ std::size_t CTreeShapFeatureImportance::updateNodeValues(TTree& tree,
 
 void CTreeShapFeatureImportance::shapRecursive(const TTree &tree, const TDoubleVec &samplesPerNode,
                                                const CDataFrameCategoryEncoder &encoder,
-                                               const CEncodedDataFrameRowRef &encodedRow, SPath &splitPath,
-                                               std::size_t nodeIndex, double parentFractionZero,
-                                               double parentFractionOne, int parentFeatureIndex, std::size_t offset,
-                                               core::CDataFrame::TRowItr &row, std::size_t treeDepth,
-                                               TSPathVec &backupPathVec, int nextIndex) const {
+                                               const CEncodedDataFrameRowRef &encodedRow, std::size_t nodeIndex,
+                                               double parentFractionZero, double parentFractionOne,
+                                               int parentFeatureIndex, std::size_t offset,
+                                               core::CDataFrame::TRowItr &row, TElementIt parentSplitPath,
+                                               int nextIndex) const {
 //    boost::optional<SPath> backupPath;
     bool backupCreated{false};
+    ElementAccessor splitPath(parentSplitPath + nextIndex );
+    std::copy(parentSplitPath, parentSplitPath + nextIndex, splitPath.begin());
     CTreeShapFeatureImportance::extendPath(splitPath, parentFractionZero,
                                            parentFractionOne, parentFeatureIndex, nextIndex);
     if (tree[nodeIndex].isLeaf()) {
@@ -158,15 +159,12 @@ void CTreeShapFeatureImportance::shapRecursive(const TTree &tree, const TDoubleV
         double incomingFractionZero{1.0};
         double incomingFractionOne{1.0};
         int splitFeature{static_cast<int>(tree[nodeIndex].splitFeature())};
-        auto featureIndexEnd{(splitPath.s_Elements.begin() + nextIndex)};
-        auto it = std::find_if(splitPath.s_Elements.begin(), featureIndexEnd,
+        auto featureIndexEnd{(splitPath.begin() + nextIndex)};
+        auto it = std::find_if(splitPath.begin(), featureIndexEnd,
                 [splitFeature](const SPathElement& el){return el.s_FeatureIndex == splitFeature;});
         if (it != featureIndexEnd) {
             // Since we pass splitPath by reference, we need to backup the object before unwinding it.
-            backupPathVec[treeDepth] = splitPath;
-            backupCreated = true;
-            auto pathIndex = static_cast<std::size_t>(
-                std::distance(splitPath.s_Elements.begin(), it));
+            int pathIndex {std::distance(splitPath.begin(), it)};
             incomingFractionZero = splitPath.fractionZeros(pathIndex);
             incomingFractionOne = splitPath.fractionOnes(pathIndex);
             CTreeShapFeatureImportance::unwindPath(splitPath, pathIndex, nextIndex);
@@ -174,25 +172,16 @@ void CTreeShapFeatureImportance::shapRecursive(const TTree &tree, const TDoubleV
 
         double hotFractionZero = samplesPerNode[hotIndex] / samplesPerNode[nodeIndex];
         double coldFractionZero = samplesPerNode[coldIndex] / samplesPerNode[nodeIndex];
-        backupPathVec[treeDepth] = splitPath;
-        this->shapRecursive(tree, samplesPerNode, encoder, encodedRow, splitPath,
+        this->shapRecursive(tree, samplesPerNode, encoder, encodedRow,
                             hotIndex, incomingFractionZero * hotFractionZero,
-                            incomingFractionOne, splitFeature, offset, row, treeDepth + 1, backupPathVec, nextIndex);
-//        this->unwindPath(splitPath, nextIndex, nextIndex);
-        splitPath = backupPathVec[treeDepth];
-        this->shapRecursive(tree, samplesPerNode, encoder, encodedRow, splitPath,
+                            incomingFractionOne, splitFeature, offset, row, splitPath.begin(), nextIndex);
+        this->shapRecursive(tree, samplesPerNode, encoder, encodedRow,
                             coldIndex, incomingFractionZero * coldFractionZero,
-                            0.0, splitFeature, offset, row, treeDepth + 1, backupPathVec, nextIndex);
-        splitPath = backupPathVec[treeDepth];
-//        this->unwindPath(splitPath, nextIndex, nextIndex);
-//        if (backupCreated) {
-//            // now we swap to restore the data before unwinding
-//            splitPath = backupPathVec[treeDepth];
-//        }
+                            0.0, splitFeature, offset, row, splitPath.begin(), nextIndex);
     }
 }
 
-void CTreeShapFeatureImportance::extendPath(SPath &path, double fractionZero, double fractionOne, int featureIndex,
+void CTreeShapFeatureImportance::extendPath(ElementAccessor &path, double fractionZero, double fractionOne, int featureIndex,
                                             int &nextIndex) {
     // Update binomial coefficients to be able to compute Equation (2) from the paper.  In particular,
     // we have in the line path.s_Scale[i + 1] += fractionOne * path.s_Scale[i] * (i + 1.0) / (pathDepth +
@@ -202,19 +191,29 @@ void CTreeShapFeatureImportance::extendPath(SPath &path, double fractionZero, do
     // to sets of size i and we **also** need to scale by the difference in binomial coefficients as both M
     // increases by one and i increases by one. So we get additive term 1{last feature selects path if in S}
     // * scale(i) * (i+1)! (M+1-(i+1)-1)!/(M+1)! / (i! (M-i-1)!/ M!), whence += scale(i) * (i+1) / (M+1).
-    path.extend(featureIndex, fractionZero, fractionOne, nextIndex);
+
+    path.featureIndex(nextIndex) = featureIndex;
+    path.fractionZeros(nextIndex)= fractionZero;
+    path.fractionOnes(nextIndex) = fractionOne;
+    if (nextIndex == 0) {
+        path.scale(nextIndex) = 1.0;
+    } else {
+        path.scale(nextIndex) = 0.0;
+    }
+    ++nextIndex;
+
     int pathDepth = nextIndex-1;
     for (int i = (pathDepth - 1); i >= 0; --i) {
-        path.s_Elements[i + 1].s_Scale += fractionOne * path.s_Elements[i].s_Scale *
+        path.scale(i + 1) += fractionOne * path.scale(i) *
                                static_cast<double>(i + 1) /
                                static_cast<double>(pathDepth + 1);
-        path.s_Elements[i].s_Scale = fractionZero * path.s_Elements[i].s_Scale *
+        path.scale(i) = fractionZero * path.scale(i) *
                           static_cast<double>(pathDepth - i) /
                           static_cast<double>(pathDepth + 1);
     }
 }
 
-double CTreeShapFeatureImportance::sumUnwoundPath(const SPath &path, std::size_t pathIndex, int nextIndex) {
+double CTreeShapFeatureImportance::sumUnwoundPath(const ElementAccessor &path, int pathIndex, int nextIndex) {
     double total{0.0};
     int pathDepth = nextIndex - 1;
     double nextFractionOne{path.scale(pathDepth)};
@@ -242,27 +241,32 @@ double CTreeShapFeatureImportance::sumUnwoundPath(const SPath &path, std::size_t
     return total;
 }
 
-void CTreeShapFeatureImportance::unwindPath(SPath &path, std::size_t pathIndex, int &nextIndex) {
+void CTreeShapFeatureImportance::unwindPath(ElementAccessor &path, int pathIndex, int &nextIndex) {
     int pathDepth = nextIndex-1;
     double nextFractionOne{path.scale(pathDepth)};
     double fractionOne{path.fractionOnes(pathIndex)};
     double fractionZero{path.fractionZeros(pathIndex)};
 
     if (fractionOne != 0) {
-        for (int i = pathDepth - 1; i >= 0; --i) {
+        for (int i = pathDepth ; i >= 0; --i) {
             double tmp = nextFractionOne * (pathDepth + 1) /
                          (static_cast<double>(i + 1) * fractionOne);
             nextFractionOne = path.scale(i) - tmp * fractionZero * (pathDepth - i) /
                                                   (pathDepth + 1);
-            path.s_Elements[i].s_Scale = tmp;
+            path.scale(i) = tmp;
         }
     } else {
-        for (int i = pathDepth - 1; i >= 0; --i) {
-            path.s_Elements[i].s_Scale = path.scale(i) * static_cast<double>(pathDepth + 1) /
+        for (int i = pathDepth ; i >= 0; --i) {
+            path.scale(i) = path.scale(i) * static_cast<double>(pathDepth + 1) /
                               (fractionZero * static_cast<double>(pathDepth - i));
         }
     }
-    path.reduce(pathIndex, nextIndex);
+        for (int i = pathIndex; i < nextIndex-1; ++i) {
+            path.featureIndex(i) = path.featureIndex(i + 1);
+            path.fractionZeros(i) = path.fractionZeros(i + 1);
+            path.fractionOnes(i) = path.fractionOnes(i + 1);
+        }
+        --nextIndex;
 }
 }
 }

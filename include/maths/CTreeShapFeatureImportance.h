@@ -32,6 +32,13 @@ public:
     using TDoubleVec = std::vector<double>;
     using TDoubleVecVec = std::vector<TDoubleVec>;
 
+    struct SPathElement {
+        double s_FractionOnes;
+        double s_FractionZeros;
+        double s_Scale;
+        int s_FeatureIndex;
+    };
+
 public:
     explicit CTreeShapFeatureImportance(TTreeVec trees, std::size_t threads = 1);
 
@@ -59,98 +66,80 @@ public:
 private:
     using TSizeVec = std::vector<std::size_t>;
 
-    struct SPathElement {
-        double s_FractionOnes;
-        double s_FractionZeros;
-        double s_Scale;
-        int s_FeatureIndex;
+
+    using TElementVec = std::vector<SPathElement>;
+    using TElementIt = TElementVec::iterator;
+
+    class ElementAccessor {
+    public:
+        explicit ElementAccessor(TElementIt iterator) {
+            m_Iterator = iterator;
+        }
+
+
+        SPathElement& operator[](int index) {
+            return *(m_Iterator + index);
+        }
+
+        TElementIt& begin() {
+            return m_Iterator;
+        }
+
+        int& featureIndex(int nextIndex) {
+            return (m_Iterator+nextIndex)->s_FeatureIndex;
+        }
+
+        double& fractionZeros(int nextIndex) {
+            return (m_Iterator+nextIndex)->s_FractionZeros;
+        }
+
+        double& fractionOnes(int nextIndex) {
+            return (m_Iterator+nextIndex)->s_FractionOnes;
+        }
+
+        double& scale(int nextIndex) {
+            return (m_Iterator+nextIndex)->s_Scale;
+        }
+
+        int featureIndex(int nextIndex) const {
+            return (m_Iterator+nextIndex)->s_FeatureIndex;
+        }
+
+        double fractionZeros(int nextIndex) const {
+            return (m_Iterator+nextIndex)->s_FractionZeros;
+        }
+
+        double fractionOnes(int nextIndex) const {
+            return (m_Iterator+nextIndex)->s_FractionOnes;
+        }
+
+        double scale(int nextIndex) const {
+            return (m_Iterator+nextIndex)->s_Scale;
+        }
+
+    private:
+        TElementIt m_Iterator;
     };
 
-    //! Manages variables for the current path through the tree as the main algorithm proceeds.
-    struct SPath {
-        using TElementVec = std::vector<SPathElement>;
-        explicit SPath(std::size_t length)
-            : s_Elements(length) {};
-
-//        SPath(const SPath & other) {
-//            *this = other;
-//        }
-//
-//        SPath& operator=(const SPath& other) {
-//            s_FractionOnes = other.s_FractionOnes;
-//            s_FractionZeros = other.s_FractionZeros;
-//            s_FeatureIndex = other.s_FeatureIndex;
-//            s_Scale = other.s_Scale;
-//            s_MaxLength = other.s_MaxLength;
-//            s_NextIndex = other.s_NextIndex;
-//
-//            return *this;
-//        }
-
-        void extend(int featureIndex, double fractionZero, double fractionOne, int &nextIndex) {
-            if (nextIndex < s_Elements.size()) {
-                s_Elements[nextIndex].s_FeatureIndex = featureIndex;
-                s_Elements[nextIndex].s_FractionZeros = fractionZero;
-                s_Elements[nextIndex].s_FractionOnes = fractionOne;
-                if (nextIndex == 0) {
-                    s_Elements[nextIndex].s_Scale = 1.0;
-                } else {
-                    s_Elements[nextIndex].s_Scale = 0.0;
-                }
-                ++nextIndex;
-            }
-        }
-
-        void reduce(std::size_t pathIndex, int &nextIndex) {
-            for (int i = static_cast<int>(pathIndex); i < nextIndex-1; ++i) {
-                s_Elements[i].s_FeatureIndex = s_Elements[i + 1].s_FeatureIndex;
-                s_Elements[i].s_FractionZeros = s_Elements[i + 1].s_FractionZeros;
-                s_Elements[i].s_FractionOnes = s_Elements[i + 1].s_FractionOnes;
-            }
-            --nextIndex;
-        }
-
-        //! Indicator whether or not the feature \p pathIndex is decisive for the path.
-        double fractionOnes(std::size_t pathIndex) const {
-            return s_Elements[pathIndex].s_FractionOnes;
-        }
-
-        //! Fraction of all training data that reached the \p pathIndex in the path.
-        double fractionZeros(std::size_t pathIndex) const {
-            return s_Elements[pathIndex].s_FractionZeros;
-        }
-
-        int featureIndex(std::size_t pathIndex) const {
-            return s_Elements[pathIndex].s_FeatureIndex;
-        }
-
-        //! Scaling coefficients (factorials), see. Equation (2) in the paper by Lundberg et al.
-        double scale(std::size_t pathIndex) const { return s_Elements[pathIndex].s_Scale; }
-
-        //        TDoubleVec s_FractionOnes;
-//        TDoubleVec s_FractionZeros;
-//        TIntVec s_FeatureIndex;
-//        TDoubleVec s_Scale;
-        TElementVec s_Elements;
-    };
-    using TSPathVec = std::vector<SPath>;
 
 private:
     //! Recursively traverses all pathes in the \p tree and updated SHAP values once it hits a leaf.
     //! Ref. Algorithm 2 in the paper by Lundberg et al.
     void shapRecursive(const TTree &tree, const TDoubleVec &samplesPerNode,
                        const CDataFrameCategoryEncoder &encoder,
-                       const CEncodedDataFrameRowRef &encodedRow, SPath &splitPath,
-                       std::size_t nodeIndex, double parentFractionZero,
-                       double parentFractionOne, int parentFeatureIndex, std::size_t offset,
-                       core::CDataFrame::TRowItr &row, std::size_t treeDepth,
-                       TSPathVec &backupPathVec, int nextIndex) const;
+                       const CEncodedDataFrameRowRef &encodedRow, std::size_t nodeIndex,
+                       double parentFractionZero, double parentFractionOne,
+                       int parentFeatureIndex, std::size_t offset,
+                       core::CDataFrame::TRowItr &row, TElementIt parentSplitPath,
+                       int nextIndex) const;
     //! Extend the \p path object, update the variables and factorial scaling coefficients.
-    static void extendPath(SPath &path, double fractionZero, double fractionOne, int featureIndex, int &nextIndex);
+    static void extendPath(ElementAccessor &path, double fractionZero, double fractionOne, int featureIndex, int &nextIndex);
     //! Sum the scaling coefficients for the \p path without the feature defined in \p pathIndex.
-    static double sumUnwoundPath(const SPath &path, std::size_t pathIndex, int nextIndex);
+    static double sumUnwoundPath(const ElementAccessor &path, int pathIndex, int nextIndex);
     //! Updated the scaling coefficients in the \p path if the feature defined in \p pathIndex was seen again.
-    static void unwindPath(SPath &path, std::size_t pathIndex, int &nextIndex);
+    static void unwindPath(ElementAccessor &path, int pathIndex, int &nextIndex);
+
+
 
 private:
     TTreeVec m_Trees;
