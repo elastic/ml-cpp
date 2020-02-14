@@ -46,11 +46,15 @@ progress, memory usage, etc. (See {ml-pull}906[#906].)
 
 * Improve initialization of learn rate for better and more stable results in regression
 and classification. (See {ml-pull}948[#948].)
+* Add new model_size_stats fields to instrument categorization.  (See {ml-pull}948[#948]
+and {pull}51879[#51879], issue: {issue}50794[#50749].)
 
 === Bug Fixes
 
 * Use largest ordered subset of categorization tokens for category reverse search regex.
 (See {ml-pull}970[#970], issue: {ml-issue}949[#949].)
+* Account for the data frame's memory when estimating the peak memory used by classification
+and regression model training. (See {ml-pull}996[#996].)
 
 == {es} version 7.6.0
 

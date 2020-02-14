@@ -1746,7 +1746,7 @@ BOOST_AUTO_TEST_CASE(testReportMemoryUsage) {
         ml::core::CJsonOutputStreamWrapper outputStream(sstream);
         ml::api::CJsonOutputWriter writer("job", outputStream);
 
-        ml::model::CResourceMonitor::SResults resourceUsage;
+        ml::model::CResourceMonitor::SModelSizeStats resourceUsage;
         resourceUsage.s_Usage = 1;
         resourceUsage.s_AdjustedUsage = 2;
         resourceUsage.s_ByFields = 3;
