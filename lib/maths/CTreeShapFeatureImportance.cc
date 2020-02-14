@@ -119,8 +119,6 @@ void CTreeShapFeatureImportance::shapRecursive(const TTree &tree, const TDoubleV
                                                int parentFeatureIndex, std::size_t offset,
                                                core::CDataFrame::TRowItr &row, TElementIt parentSplitPath,
                                                int nextIndex) const {
-//    boost::optional<SPath> backupPath;
-    bool backupCreated{false};
     ElementAccessor splitPath(parentSplitPath + nextIndex );
     std::copy(parentSplitPath, parentSplitPath + nextIndex, splitPath.begin());
     CTreeShapFeatureImportance::extendPath(splitPath, parentFractionZero,
