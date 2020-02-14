@@ -34,7 +34,7 @@ void CTreeShapFeatureImportance::shap(core::CDataFrame& frame,
     auto result = frame.writeColumns(
         m_NumberThreads, [&](const TRowItr& beginRows, const TRowItr& endRows) {
                 TElementVec pathVector;
-                pathVector.reserve(((maxDepthOverall)*(maxDepthOverall+1)));
+                pathVector.reserve(((maxDepthOverall+2)*(maxDepthOverall+3))/2);
             for (auto row = beginRows; row != endRows; ++row) {
                 auto encodedRow{encoder.encode(*row)};
                 for (std::size_t i = 0; i < m_Trees.size(); ++i) {
@@ -198,17 +198,17 @@ void CTreeShapFeatureImportance::extendPath(ElementAccessor &path, double fracti
     } else {
         path.scale(nextIndex) = 0.0;
     }
-    ++nextIndex;
 
-    int pathDepth = nextIndex-1;
-    for (int i = (pathDepth - 1); i >= 0; --i) {
+    for (int i = (nextIndex - 1); i >= 0; --i) {
         path.scale(i + 1) += fractionOne * path.scale(i) *
                                static_cast<double>(i + 1) /
-                               static_cast<double>(pathDepth + 1);
+                               static_cast<double>(nextIndex + 1);
         path.scale(i) = fractionZero * path.scale(i) *
-                          static_cast<double>(pathDepth - i) /
-                          static_cast<double>(pathDepth + 1);
+                          static_cast<double>(nextIndex - i) /
+                          static_cast<double>(nextIndex + 1);
     }
+
+    ++nextIndex;
 }
 
 double CTreeShapFeatureImportance::sumUnwoundPath(const ElementAccessor &path, int pathIndex, int nextIndex) {
