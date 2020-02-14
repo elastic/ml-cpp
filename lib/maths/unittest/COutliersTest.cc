@@ -42,7 +42,7 @@ using TPoint = maths::CDenseVector<double>;
 using TPointVec = std::vector<TPoint>;
 using TFactoryFunc = std::function<std::unique_ptr<core::CDataFrame>(const TPointVec&)>;
 
-class CStubInstrumentation final : public maths::CDataFrameAnalysisInstrumentationInterface {
+class CTestInstrumentation final : public maths::CDataFrameAnalysisInstrumentationInterface {
 public:
     using TProgressCallbackOpt = boost::optional<TProgressCallback>;
     using TMemoryUsageCallbackOpt = boost::optional<TMemoryUsageCallback>;
@@ -149,7 +149,7 @@ void outlierErrorStatisticsForEnsemble(std::size_t numberThreads,
     TPointVec points;
     TDoubleVec scores(numberInliers + numberOutliers);
 
-    CStubInstrumentation instr;
+    CTestInstrumentation instrumentation;
 
     for (std::size_t t = 0; t < 100; ++t) {
         gaussianWithUniformNoise(rng, numberInliers, numberOutliers, points);
@@ -163,7 +163,7 @@ void outlierErrorStatisticsForEnsemble(std::size_t numberThreads,
                                                     0, // Compute number neighbours
                                                     false, // Compute feature influences
                                                     0.05}; // Outlier fraction
-        maths::COutliers::compute(params, *frame, instr);
+        maths::COutliers::compute(params, *frame, instrumentation);
 
         frame->readRows(1, [&scores](core::CDataFrame::TRowItr beginRows,
                                      core::CDataFrame::TRowItr endRows) {
@@ -493,7 +493,7 @@ BOOST_AUTO_TEST_CASE(testFeatureInfluences) {
 
     std::string tags[]{"sequential", "parallel"};
 
-    CStubInstrumentation instr;
+    CTestInstrumentation instrumentation;
 
     // Test in/out of core.
     for (std::size_t i = 0; i < 2; ++i) {
@@ -510,7 +510,7 @@ BOOST_AUTO_TEST_CASE(testFeatureInfluences) {
                                                         0, // Compute number neighbours
                                                         true, // Compute feature influences
                                                         0.05}; // Outlier fraction
-            maths::COutliers::compute(params, *frame, instr);
+            maths::COutliers::compute(params, *frame, instrumentation);
 
             bool passed{true};
             TMeanAccumulator averageSignificances[2];
@@ -604,7 +604,7 @@ BOOST_AUTO_TEST_CASE(testEstimateMemoryUsedByCompute) {
         std::atomic<std::int64_t> memoryUsage{0};
         std::atomic<std::int64_t> maxMemoryUsage{0};
 
-        CStubInstrumentation instr;
+        CTestInstrumentation instrumentation;
 
         auto memoryUsageCallback = [&](std::int64_t delta) {
             std::int64_t memoryUsage_{memoryUsage.fetch_add(delta)};
@@ -617,9 +617,9 @@ BOOST_AUTO_TEST_CASE(testEstimateMemoryUsedByCompute) {
             LOG_TRACE(<< "current memory = " << memoryUsage_
                       << ", high water mark = " << maxMemoryUsage.load());
         };
-        instr.memoryUsageCallback(memoryUsageCallback);
+        instrumentation.memoryUsageCallback(memoryUsageCallback);
 
-        maths::COutliers::compute(params, *frame, instr);
+        maths::COutliers::compute(params, *frame, instrumentation);
 
         LOG_DEBUG(<< "estimated peak memory = " << estimatedMemoryUsage);
         LOG_DEBUG(<< "high water mark = " << maxMemoryUsage);
@@ -660,12 +660,12 @@ BOOST_AUTO_TEST_CASE(testProgressMonitoring) {
 
         std::atomic_int totalFractionalProgress{0};
 
-        CStubInstrumentation instr;
+        CTestInstrumentation instrumentation;
         auto reportProgress = [&totalFractionalProgress](double fractionalProgress) {
             totalFractionalProgress.fetch_add(
                 static_cast<int>(65536.0 * fractionalProgress + 0.5));
         };
-        instr.progressCallback(std::move(reportProgress));
+        instrumentation.progressCallback(std::move(reportProgress));
 
         std::atomic_bool finished{false};
 
@@ -677,7 +677,7 @@ BOOST_AUTO_TEST_CASE(testProgressMonitoring) {
                                                         0, // Compute number neighbours
                                                         false, // Compute feature influences
                                                         0.05}; // Outlier fraction
-            maths::COutliers::compute(params, *frame, instr);
+            maths::COutliers::compute(params, *frame, instrumentation);
             finished.store(true);
         }};
 
@@ -723,7 +723,7 @@ BOOST_AUTO_TEST_CASE(testMostlyDuplicate) {
         points.push_back(std::move(point));
     }
 
-    CStubInstrumentation instr;
+    CTestInstrumentation instrumentation;
 
     for (std::size_t numberPartitions : {1, 3}) {
         auto frame = test::CDataFrameTestUtils::toMainMemoryDataFrame(points);
@@ -735,7 +735,7 @@ BOOST_AUTO_TEST_CASE(testMostlyDuplicate) {
                                                     0, // Compute number neighbours
                                                     false, // Compute feature influences
                                                     0.05}; // Outlier fraction
-        maths::COutliers::compute(params, *frame, instr);
+        maths::COutliers::compute(params, *frame, instrumentation);
 
         TDoubleVec outlierScores(outliers.size());
         frame->readRows(1, [&](core::CDataFrame::TRowItr beginRows,
@@ -766,7 +766,7 @@ BOOST_AUTO_TEST_CASE(testFewPoints) {
     std::size_t rows{101};
     test::CRandomNumbers rng;
 
-    CStubInstrumentation instr;
+    CTestInstrumentation instrumentation;
 
     for (std::size_t numberPoints : {1, 2, 5}) {
 
@@ -792,7 +792,7 @@ BOOST_AUTO_TEST_CASE(testFewPoints) {
                                                     0, // Compute number neighbours
                                                     true, // Compute feature influences
                                                     0.05}; // Outlier fraction
-        maths::COutliers::compute(params, *frame, instr);
+        maths::COutliers::compute(params, *frame, instrumentation);
 
         bool passed{true};
 
