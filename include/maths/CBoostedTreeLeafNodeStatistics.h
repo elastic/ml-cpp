@@ -308,6 +308,15 @@ public:
         }
         template<typename SPLITS>
         void map(const SPLITS& splits) {
+            // This function maps the memory in a single presized buffer containing
+            // enough space to store all gradient vectors and curvatures. For each
+            // feature the layout in this buffer is as follows:
+            //
+            // "split grad" "split hessian"       "missing grad" "missing hessian"
+            //       |            |                     |              |
+            //       V            V                     V              V
+            // |     n     |      n^2      | ... |      n       |      n^2       |
+
             std::size_t totalNumberSplits{
                 std::accumulate(splits.begin(), splits.end(), std::size_t{0},
                                 [](std::size_t size, const auto& featureSplits) {
