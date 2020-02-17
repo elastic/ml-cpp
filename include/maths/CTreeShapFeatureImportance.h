@@ -73,11 +73,11 @@ private:
     public:
         explicit ElementAccessor(TElementIt iterator) { m_Iterator = iterator; }
 
-        inline  SPathElement& operator[](int index) { return m_Iterator[index]; }
+        inline SPathElement& operator[](int index) { return m_Iterator[index]; }
 
-        inline  TElementIt& begin() { return m_Iterator; }
+        inline TElementIt& begin() { return m_Iterator; }
 
-        inline void setValues(int index, double fractionOnes, double fractionZeros,  int featureIndex) {
+        inline void setValues(int index, double fractionOnes, double fractionZeros, int featureIndex) {
             m_Iterator[index].s_FractionOnes = fractionOnes;
             m_Iterator[index].s_FractionZeros = fractionZeros;
             m_Iterator[index].s_FeatureIndex = featureIndex;

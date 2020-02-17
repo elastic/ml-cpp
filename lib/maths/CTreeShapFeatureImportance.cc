@@ -223,8 +223,9 @@ void CTreeShapFeatureImportance::extendPath(ElementAccessor& path,
     double countDown{static_cast<double>(nextIndex)};
     double countUp{1.0};
     for (int i = (nextIndex - 1); i >= 0; --i, --countDown, ++countUp) {
-        scalePath[i + 1] +=  scalePath[i] * countDown * fractionOne /static_cast<double>(nextIndex + 1);
-        scalePath[i] *= countUp * fractionZero/static_cast<double>(nextIndex + 1);
+        scalePath[i + 1] += scalePath[i] * countDown * fractionOne /
+                            static_cast<double>(nextIndex + 1);
+        scalePath[i] *= countUp * fractionZero / static_cast<double>(nextIndex + 1);
     }
 
     ++nextIndex;
@@ -241,26 +242,20 @@ double CTreeShapFeatureImportance::sumUnwoundPath(const ElementAccessor& path,
     double fractionZero{path.fractionZeros(pathIndex)};
     if (fractionOne != 0) {
         double pD = static_cast<double>(pathDepth + 1);
-        double const1 = -fractionOne/pD;
-        double const2 = fractionZero / pD;
-        double countUp = const2;
-        double countDown = (1.0 - pD)*const1;
+        double countUp{fractionZero / pD};
+        double countDown{(pD - 1.0) * (fractionOne / pD)};
         for (int i = pathDepth - 1; i >= 0; --i) {
             double tmp = nextFractionOne / countDown;
             nextFractionOne = scalePath[i] - tmp * countUp;
             total += tmp;
-            countUp += const2;
-            countDown += const1;
+            countUp += fractionZero / pD;
+            countDown -= (fractionOne / pD);
         }
     } else {
         double pD{static_cast<double>(pathDepth)};
-        total = std::accumulate(scalePath, scalePath+pathDepth, 0.0,
-                [&pD](double a, double b){return a+b/pD--;});
-//        for (int i = 0; i <= pathDepth - 1; ++i) {
-//            total += scalePath[i] / pD;
-//            pD -= 1.0;
-//        }
-
+        total =
+            std::accumulate(scalePath, scalePath + pathDepth, 0.0,
+                            [&pD](double a, double b) { return a + b / pD--; });
         total *= static_cast<double>(pathDepth + 1) / fractionZero;
     }
 
@@ -277,25 +272,24 @@ void CTreeShapFeatureImportance::unwindPath(ElementAccessor& path,
     double fractionZero{path.fractionZeros(pathIndex)};
     double c{static_cast<double>(pathDepth + 1) / fractionZero};
 
-
     if (fractionOne != 0) {
         double countUp{0.0};
         double countDown{static_cast<double>(nextIndex)};
-        double c2{countDown/fractionOne};
+        double c2{countDown / fractionOne};
         for (int i = pathDepth; i >= 0; --i, ++countUp, --countDown) {
-            double tmp = nextFractionOne * c2 / countDown ;
+            double tmp = nextFractionOne * c2 / countDown;
             nextFractionOne = scalePath[i] - tmp * countUp / c;
             scalePath[i] = tmp;
         }
     } else {
-        double pD {static_cast<double>(pathDepth)};
+        double pD{static_cast<double>(pathDepth)};
         for (int i = 0; i <= pathDepth; ++i, --pD) {
-            scalePath[i] = scalePath[i]*c/ pD;
-
+            scalePath[i] = scalePath[i] * c / pD;
         }
     }
     for (int i = pathIndex; i < pathDepth; ++i) {
-        path.setValues(i, path.fractionOnes(i + 1), path.fractionZeros(i + 1), path.featureIndex(i + 1));
+        path.setValues(i, path.fractionOnes(i + 1), path.fractionZeros(i + 1),
+                       path.featureIndex(i + 1));
     }
     --nextIndex;
 }
