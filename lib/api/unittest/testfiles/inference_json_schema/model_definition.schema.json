@@ -66,6 +66,10 @@
         },
         "right_child": {
           "type": "integer"
+        },
+        "number_samples": {
+          "description": "Number of training samples that were affected by the node.",
+          "type": "integer"
         }
       },
       "required": [
@@ -75,7 +79,8 @@
         "decision_type",
         "default_left",
         "left_child",
-        "right_child"
+        "right_child",
+        "number_samples"
       ],
       "additionalProperties": false
     },
@@ -88,11 +93,16 @@
         },
         "leaf_value": {
           "type": "number"
+        },
+        "number_samples": {
+          "description": "Number of training samples that were affected by the node.",
+          "type": "integer"
         }
       },
       "required": [
         "node_index",
-        "leaf_value"
+        "leaf_value",
+        "number_samples"
       ],
       "additionalProperties": false
     },
@@ -234,10 +244,14 @@
                       "items": {
                         "type": "number"
                       }
+                    },
+                    "num_classes": {
+                      "type": "integer"
                     }
                   },
                   "required": [
-                    "weights"
+                    "weights",
+                    "num_classes"
                   ]
                 }
               },

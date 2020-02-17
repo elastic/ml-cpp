@@ -252,6 +252,9 @@ private:
     //! Get the root node of \p tree.
     static const CBoostedTreeNode& root(const TNodeVec& tree);
 
+    //! Get the root node of \p tree.
+    static CBoostedTreeNode& root(TNodeVec& tree);
+
     //! Get the forest's prediction for \p row.
     static double predictRow(const CEncodedDataFrameRowRef& row, const TNodeVecVec& forest);
 
@@ -286,6 +289,9 @@ private:
 
     //! Record the training state using the \p recordTrainState callback function
     void recordState(const TTrainingStateCallback& recordTrainState) const;
+
+    //! Populate numberSamples field in the m_BestForest
+    void computeNumberSamples(const core::CDataFrame& frame);
 
 private:
     mutable CPRNG::CXorOShiro128Plus m_Rng;

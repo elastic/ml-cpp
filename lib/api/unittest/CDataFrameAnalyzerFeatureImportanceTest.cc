@@ -136,7 +136,7 @@ struct SFixture {
         api::CDataFrameAnalyzer analyzer{
             test::CDataFrameAnalysisSpecificationFactory::predictionSpec(
                 test::CDataFrameAnalysisSpecificationFactory::regression(),
-                "target", s_Rows, 5, 8000000, 0, 0, {"c1"}, s_Alpha, s_Lambda,
+                "target", s_Rows, 5, 26000000, 0, 0, {"c1"}, s_Alpha, s_Lambda,
                 s_Gamma, s_SoftTreeDepthLimit, s_SoftTreeDepthTolerance, s_Eta,
                 s_MaximumNumberTrees, s_FeatureBagFraction, shapValues),
             outputWriterFactory};
@@ -169,9 +169,9 @@ struct SFixture {
         api::CDataFrameAnalyzer analyzer{
             test::CDataFrameAnalysisSpecificationFactory::predictionSpec(
                 test::CDataFrameAnalysisSpecificationFactory::classification(),
-                "target", s_Rows, 5, 8000000, 0, 0, {"target"}, s_Alpha, s_Lambda,
-                s_Gamma, s_SoftTreeDepthLimit, s_SoftTreeDepthTolerance, s_Eta,
-                s_MaximumNumberTrees, s_FeatureBagFraction, shapValues),
+                "target", s_Rows, 5, 26000000, 0, 0, {"target"}, s_Alpha,
+                s_Lambda, s_Gamma, s_SoftTreeDepthLimit, s_SoftTreeDepthTolerance,
+                s_Eta, s_MaximumNumberTrees, s_FeatureBagFraction, shapValues),
             outputWriterFactory};
         TStrVec fieldNames{"target", "c1", "c2", "c3", "c4", ".", "."};
         TStrVec fieldValues{"", "", "", "", "", "0", ""};
@@ -197,7 +197,7 @@ struct SFixture {
         api::CDataFrameAnalyzer analyzer{
             test::CDataFrameAnalysisSpecificationFactory::predictionSpec(
                 test::CDataFrameAnalysisSpecificationFactory::regression(),
-                "target", s_Rows, 5, 8000000, 0, 0, {}, s_Alpha, s_Lambda,
+                "target", s_Rows, 5, 26000000, 0, 0, {}, s_Alpha, s_Lambda,
                 s_Gamma, s_SoftTreeDepthLimit, s_SoftTreeDepthTolerance, s_Eta,
                 s_MaximumNumberTrees, s_FeatureBagFraction, shapValues),
             outputWriterFactory};
@@ -299,8 +299,9 @@ BOOST_FIXTURE_TEST_CASE(testRegressionFeatureImportanceNoImportance, SFixture) {
             // c1 explains 95% of the prediction value, i.e. the difference from the prediction is less than 2%.
             BOOST_REQUIRE_CLOSE(c1, prediction, 5.0);
             for (const auto& feature : {"c2", "c3", "c4"}) {
-                BOOST_REQUIRE_SMALL(readShapValue(result, feature), 2.0);
-                cNoImportanceMean.add(std::fabs(readShapValue(result, feature)));
+                double c = readShapValue(result, feature);
+                BOOST_REQUIRE_SMALL(c, 2.0);
+                cNoImportanceMean.add(std::fabs(c));
             }
         }
     }
