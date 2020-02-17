@@ -126,7 +126,7 @@ CDataFrameTrainBoostedTreeRunner::CDataFrameTrainBoostedTreeRunner(
 
     (*m_BoostedTreeFactory)
         .stopCrossValidationEarly(stopCrossValidationEarly)
-        .analysisInstrumentation(&m_Instrumentation)
+        .analysisInstrumentation(m_Instrumentation)
         .trainingStateCallback(this->statePersister());
 
     if (downsampleRowsPerFeature > 0) {
@@ -273,7 +273,7 @@ bool CDataFrameTrainBoostedTreeRunner::restoreBoostedTree(core::CDataFrame& fram
             return false;
         }
         m_BoostedTree = maths::CBoostedTreeFactory::constructFromString(*inputStream)
-                            .analysisInstrumentation(&m_Instrumentation)
+                            .analysisInstrumentation(m_Instrumentation)
                             .trainingStateCallback(this->statePersister())
                             .restoreFor(frame, dependentVariableColumn);
     } catch (std::exception& e) {
