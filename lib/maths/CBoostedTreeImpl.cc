@@ -218,9 +218,6 @@ void CBoostedTreeImpl::train(core::CDataFrame& frame,
         std::tie(m_BestForest, std::ignore) = this->trainForest(
             frame, allTrainingRowsMask, allTrainingRowsMask, m_TrainingProgress);
 
-        // populate numberSamples field in the final forest
-        this->computeNumberSamples(frame);
-
         m_Instrumentation->nextStep(static_cast<std::uint32_t>(m_CurrentRound));
         this->recordState(recordTrainStateCallback);
 
@@ -236,6 +233,9 @@ void CBoostedTreeImpl::train(core::CDataFrame& frame,
     }
 
     this->computeProbabilityAtWhichToAssignClassOne(frame);
+
+    // populate numberSamples field in the final forest
+    this->computeNumberSamples(frame);
 
     // Force progress to one because we can have early exit from loop skip altogether.
     m_Instrumentation->updateProgress(1.0);
