@@ -266,25 +266,26 @@ void CTreeShapFeatureImportance::unwindPath(ElementAccessor& path,
                                             int pathIndex,
                                             int& nextIndex,
                                             TDoubleVecIt& scalePath) {
-    int pathDepth = nextIndex - 1;
+    int pathDepth{nextIndex - 1};
     double nextFractionOne{scalePath[pathDepth]};
     double fractionOne{path.fractionOnes(pathIndex)};
     double fractionZero{path.fractionZeros(pathIndex)};
-    double c{static_cast<double>(pathDepth + 1) / fractionZero};
 
     if (fractionOne != 0) {
         double countUp{0.0};
         double countDown{static_cast<double>(nextIndex)};
-        double c2{countDown / fractionOne};
         for (int i = pathDepth; i >= 0; --i, ++countUp, --countDown) {
-            double tmp = nextFractionOne * c2 / countDown;
-            nextFractionOne = scalePath[i] - tmp * countUp / c;
+            double tmp = nextFractionOne * static_cast<double>(nextIndex) / (countDown * fractionOne );
+            nextFractionOne =
+                scalePath[i] -
+                tmp * countUp * (fractionZero / static_cast<double>(pathDepth + 1));
             scalePath[i] = tmp;
         }
     } else {
         double pD{static_cast<double>(pathDepth)};
         for (int i = 0; i <= pathDepth; ++i, --pD) {
-            scalePath[i] = scalePath[i] * c / pD;
+            scalePath[i] = scalePath[i] *
+                           (static_cast<double>(pathDepth + 1) / fractionZero) / pD;
         }
     }
     for (int i = pathIndex; i < pathDepth; ++i) {
