@@ -124,10 +124,10 @@ void CTreeShapFeatureImportance::shapRecursive(const TTree& tree,
             CTreeShapFeatureImportance::unwindPath(splitPath, pathIndex);
         }
 
-        double hotFractionZero = static_cast<double>(tree[hotIndex].numberSamples()) /
-                                 tree[nodeIndex].numberSamples();
-        double coldFractionZero = static_cast<double>(tree[coldIndex].numberSamples()) /
-                                  tree[nodeIndex].numberSamples();
+        double hotFractionZero{static_cast<double>(tree[hotIndex].numberSamples()) /
+                                 tree[nodeIndex].numberSamples()};
+        double coldFractionZero{static_cast<double>(tree[coldIndex].numberSamples()) /
+                                  tree[nodeIndex].numberSamples()};
         std::size_t nextIndex = splitPath.nextIndex();
         this->shapRecursive(tree, encoder, encodedRow, splitPath, hotIndex,
                             incomingFractionZero * hotFractionZero,
