@@ -217,6 +217,7 @@ void CBoostedTreeImpl::train(core::CDataFrame& frame,
         this->restoreBestHyperparameters();
         std::tie(m_BestForest, std::ignore) = this->trainForest(
             frame, allTrainingRowsMask, allTrainingRowsMask, m_TrainingProgress);
+
         m_Instrumentation->nextStep(static_cast<std::uint32_t>(m_CurrentRound));
         this->recordState(recordTrainStateCallback);
 
@@ -233,10 +234,54 @@ void CBoostedTreeImpl::train(core::CDataFrame& frame,
 
     this->computeProbabilityAtWhichToAssignClassOne(frame);
 
+    // populate numberSamples field in the final forest
+    this->computeNumberSamples(frame);
+
     // Force progress to one because we can have early exit from loop skip altogether.
     m_Instrumentation->updateProgress(1.0);
     m_Instrumentation->updateMemoryUsage(
         static_cast<std::int64_t>(this->memoryUsage()) - lastMemoryUsage);
+}
+
+void CBoostedTreeImpl::computeNumberSamples(const core::CDataFrame& frame) {
+    for (auto& tree : m_BestForest) {
+        if (tree.size() == 1) {
+            root(tree).numberSamples(frame.numberRows());
+        } else {
+            auto result = frame.readRows(
+                m_NumberThreads,
+                core::bindRetrievableState(
+                    [&](TSizeVec& samplesPerNode, const TRowItr& beginRows, const TRowItr& endRows) {
+                        for (auto row = beginRows; row != endRows; ++row) {
+                            auto encodedRow{m_Encoder->encode(*row)};
+                            const CBoostedTreeNode* node{&root(tree)};
+                            samplesPerNode[0] += 1;
+                            std::size_t nextIndex;
+                            while (node->isLeaf() == false) {
+                                if (node->assignToLeft(encodedRow)) {
+                                    nextIndex = node->leftChildIndex();
+                                } else {
+                                    nextIndex = node->rightChildIndex();
+                                }
+                                samplesPerNode[nextIndex] += 1;
+                                node = &(tree[nextIndex]);
+                            }
+                        }
+                    },
+                    TSizeVec(tree.size())));
+            auto& state = result.first;
+            TSizeVec totalSamplesPerNode{std::move(state[0].s_FunctionState)};
+            for (std::size_t i = 1; i < state.size(); ++i) {
+                for (std::size_t nodeIndex = 0;
+                     nodeIndex < totalSamplesPerNode.size(); ++nodeIndex) {
+                    totalSamplesPerNode[nodeIndex] += state[i].s_FunctionState[nodeIndex];
+                }
+            }
+            for (std::size_t i = 0; i < tree.size(); ++i) {
+                tree[i].numberSamples(totalSamplesPerNode[i]);
+            }
+        }
+    }
 }
 
 void CBoostedTreeImpl::recordState(const TTrainingStateCallback& recordTrainState) const {
@@ -987,6 +1032,10 @@ const CBoostedTreeNode& CBoostedTreeImpl::root(const TNodeVec& tree) {
     return tree[0];
 }
 
+CBoostedTreeNode& CBoostedTreeImpl::root(TNodeVec& tree) {
+    return tree[0];
+}
+
 double CBoostedTreeImpl::predictRow(const CEncodedDataFrameRowRef& row,
                                     const TNodeVecVec& forest) {
     double result{0.0};
@@ -1138,9 +1187,8 @@ std::size_t CBoostedTreeImpl::maximumTreeSize(std::size_t numberRows) const {
 }
 
 namespace {
-const std::string VERSION_7_5_TAG{"7.5"};
-const std::string VERSION_7_6_TAG{"7.6"};
-const TStrVec SUPPORTED_VERSIONS{VERSION_7_5_TAG, VERSION_7_6_TAG};
+const std::string VERSION_7_7_TAG{"7.7"};
+const TStrVec SUPPORTED_VERSIONS{VERSION_7_7_TAG};
 
 const std::string BAYESIAN_OPTIMIZATION_TAG{"bayesian_optimization"};
 const std::string BEST_FOREST_TAG{"best_forest"};
@@ -1204,7 +1252,7 @@ CBoostedTreeImpl::TStrVec CBoostedTreeImpl::bestHyperparameterNames() {
 }
 
 void CBoostedTreeImpl::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
-    core::CPersistUtils::persist(VERSION_7_6_TAG, "", inserter);
+    core::CPersistUtils::persist(VERSION_7_7_TAG, "", inserter);
     core::CPersistUtils::persist(BAYESIAN_OPTIMIZATION_TAG, *m_BayesianOptimization, inserter);
     core::CPersistUtils::persist(BEST_FOREST_TEST_LOSS_TAG, m_BestForestTestLoss, inserter);
     core::CPersistUtils::persist(CURRENT_ROUND_TAG, m_CurrentRound, inserter);
@@ -1256,15 +1304,7 @@ void CBoostedTreeImpl::acceptPersistInserter(core::CStatePersistInserter& insert
 }
 
 bool CBoostedTreeImpl::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
-    if (traverser.name() == VERSION_7_5_TAG) {
-        // Force downsample factor to 1.0.
-        m_DownsampleFactorOverride = 1.0;
-        m_DownsampleFactor = 1.0;
-        m_BestHyperparameters.downsampleFactor(1.0);
-        // We can't stop cross-validation early because we haven't gathered the
-        // per fold test losses.
-        m_StopCrossValidationEarly = false;
-    } else if (traverser.name() != VERSION_7_6_TAG) {
+    if (traverser.name() != VERSION_7_7_TAG) {
         LOG_ERROR(<< "Input error: unsupported state serialization version. "
                   << "Currently supported versions: "
                   << core::CContainerPrinter::print(SUPPORTED_VERSIONS) << ".");

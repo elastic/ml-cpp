@@ -38,6 +38,7 @@ public:
                  bool assignMissingToLeft,
                  double nodeValue,
                  double gain,
+                 std::size_t numberSamples,
                  maths::CBoostedTreeNode::TOptionalNodeIndex leftChild,
                  maths::CBoostedTreeNode::TOptionalNodeIndex rightChild) override;
     void addIdentityEncoding(std::size_t inputColumnIndex) override;
