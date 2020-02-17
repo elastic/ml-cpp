@@ -752,7 +752,7 @@ BOOST_AUTO_TEST_CASE(testRunBoostedTreeClassifierImbalanced) {
     api::CDataFrameAnalyzer analyzer{
         test::CDataFrameAnalysisSpecificationFactory::predictionSpec(
             test::CDataFrameAnalysisSpecificationFactory::classification(),
-            "target", numberExamples, 4, 17000000, 0, 0, {"target"}),
+            "target", numberExamples, 4, 18000000, 0, 0, {"target"}),
         outputWriterFactory};
 
     TStrVec actuals;
