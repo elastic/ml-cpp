@@ -27,6 +27,7 @@ const std::string SPLIT_FEATURE_TAG{"split_feature"};
 const std::string ASSIGN_MISSING_TO_LEFT_TAG{"assign_missing_to_left "};
 const std::string NODE_VALUE_TAG{"node_value"};
 const std::string SPLIT_VALUE_TAG{"split_value"};
+const std::string NUMBER_SAMPLES_TAG{"number_samples"};
 
 double LOG_EPSILON{std::log(100.0 * std::numeric_limits<double>::epsilon())};
 
@@ -393,6 +394,7 @@ void CBoostedTreeNode::acceptPersistInserter(core::CStatePersistInserter& insert
     core::CPersistUtils::persist(ASSIGN_MISSING_TO_LEFT_TAG, m_AssignMissingToLeft, inserter);
     core::CPersistUtils::persist(NODE_VALUE_TAG, m_NodeValue, inserter);
     core::CPersistUtils::persist(SPLIT_VALUE_TAG, m_SplitValue, inserter);
+    core::CPersistUtils::persist(NUMBER_SAMPLES_TAG, m_NumberSamples, inserter);
 }
 
 bool CBoostedTreeNode::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
@@ -411,6 +413,8 @@ bool CBoostedTreeNode::acceptRestoreTraverser(core::CStateRestoreTraverser& trav
                 core::CPersistUtils::restore(NODE_VALUE_TAG, m_NodeValue, traverser))
         RESTORE(SPLIT_VALUE_TAG,
                 core::CPersistUtils::restore(SPLIT_VALUE_TAG, m_SplitValue, traverser))
+        RESTORE(NUMBER_SAMPLES_TAG,
+                core::CPersistUtils::restore(NUMBER_SAMPLES_TAG, m_NumberSamples, traverser))
     } while (traverser.next());
     return true;
 }
@@ -435,8 +439,16 @@ std::ostringstream& CBoostedTreeNode::doPrint(std::string pad,
 }
 
 void CBoostedTreeNode::accept(CVisitor& visitor) const {
-    visitor.addNode(m_SplitFeature, m_SplitValue, m_AssignMissingToLeft,
-                    m_NodeValue, m_Gain, m_LeftChild, m_RightChild);
+    visitor.addNode(m_SplitFeature, m_SplitValue, m_AssignMissingToLeft, m_NodeValue,
+                    m_Gain, m_NumberSamples, m_LeftChild, m_RightChild);
+}
+
+void CBoostedTreeNode::numberSamples(std::size_t numberSamples) {
+    m_NumberSamples = numberSamples;
+}
+
+std::size_t CBoostedTreeNode::numberSamples() const {
+    return m_NumberSamples;
 }
 
 CBoostedTree::CBoostedTree(core::CDataFrame& frame,
