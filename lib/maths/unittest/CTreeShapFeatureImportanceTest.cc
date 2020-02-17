@@ -393,8 +393,8 @@ BOOST_FIXTURE_TEST_CASE(testSingleTreeBruteForceShap, SFixtureSingleTree) {
 }
 
 BOOST_FIXTURE_TEST_CASE(testSingleTreeShapRandomDataFrame, SFixtureSingleTreeRandom) {
-    //     Compare tree shap algorithm with the brute force approach (Algorithm
-    //     1 in paper by Lundberg et al.) on a random data set with a random tree.
+    // Compare tree shap algorithm with the brute force approach (Algorithm
+    // 1 in paper by Lundberg et al.) on a random data set with a random tree.
     auto samplesPerNode = maths::CTreeShapFeatureImportance::samplesPerNode(
         s_TreeFeatureImportance->trees()[0], *s_Frame, *s_Encoder, 1);
     BruteForceTreeShap bfShap(this->s_Tree, samplesPerNode, s_NumberFeatures);
