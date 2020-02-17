@@ -370,6 +370,16 @@ public:
     }
     //@}
 
+    //! Get a checksum of this object.
+    std::uint64_t checksum(std::uint64_t seed = 0) const {
+        for (std::ptrdiff_t i = 0; i < this->rows(); ++i) {
+            for (std::ptrdiff_t j = 0; j < this->rows(); ++j) {
+                seed = CChecksum::calculate(seed, (*this)(i, j));
+            }
+        }
+        return seed;
+    }
+
 private:
     void reseat(const CMemoryMappedDenseMatrix& other) {
         TBase* base{static_cast<TBase*>(this)};
@@ -666,6 +676,18 @@ CVector<T>::CVector(const CDenseVectorInitializer<VECTOR>& v) {
     }
 }
 }
+}
+
+namespace Eigen {
+template<typename BIN_OP>
+struct ScalarBinaryOpTraits<ml::core::CFloatStorage, double, BIN_OP> {
+    using ReturnType = double;
+};
+
+template<typename BIN_OP>
+struct ScalarBinaryOpTraits<double, ml::core::CFloatStorage, BIN_OP> {
+    using ReturnType = double;
+};
 }
 
 #endif // INCLUDED_ml_maths_CLinearAlgebraEigen_h
