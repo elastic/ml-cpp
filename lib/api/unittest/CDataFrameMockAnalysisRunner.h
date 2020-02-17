@@ -30,7 +30,6 @@ public:
                      ml::core::CRapidJsonConcurrentLineWriter&) const override;
 
     const ml::api::CDataFrameAnalysisInstrumentation& instrumentation() const override;
-
     ml::api::CDataFrameAnalysisInstrumentation& instrumentation() override;
 
 private:
@@ -42,7 +41,7 @@ private:
 
 private:
     static ml::test::CRandomNumbers ms_Rng;
-    CDataFrameMockAnalysisState m_State;
+    CDataFrameMockAnalysisState m_Instrumentation;
 };
 
 class CDataFrameMockAnalysisRunnerFactory final : public ml::api::CDataFrameAnalysisRunnerFactory {

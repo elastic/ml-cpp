@@ -285,8 +285,6 @@ std::size_t CBoostedTreeImpl::estimateMemoryUsage(std::size_t numberRows,
     std::size_t forestMemoryUsage{
         m_MaximumNumberTrees *
         (sizeof(TNodeVec) + maximumNumberNodes * sizeof(CBoostedTreeNode))};
-    std::size_t extraColumnsMemoryUsage{numberExtraColumnsForTrain(m_Loss->numberParameters()) *
-                                        numberRows * sizeof(CFloatStorage)};
     std::size_t foldRoundLossMemoryUsage{m_NumberFolds * m_NumberRounds *
                                          sizeof(TOptionalDouble)};
     std::size_t hyperparametersMemoryUsage{numberColumns * sizeof(double)};
@@ -304,8 +302,8 @@ std::size_t CBoostedTreeImpl::estimateMemoryUsage(std::size_t numberRows,
         this->numberHyperparametersToTune(), m_NumberRounds)};
     std::size_t shapMemoryUsage{
         m_TopShapValues > 0 ? numberRows * numberColumns * sizeof(CFloatStorage) : 0};
-    return sizeof(*this) + forestMemoryUsage + extraColumnsMemoryUsage +
-           foldRoundLossMemoryUsage + hyperparametersMemoryUsage +
+    return sizeof(*this) + forestMemoryUsage + foldRoundLossMemoryUsage +
+           hyperparametersMemoryUsage +
            std::max(leafNodeStatisticsMemoryUsage, shapMemoryUsage) + // not concurrent
            dataTypeMemoryUsage + featureSampleProbabilities + missingFeatureMaskMemoryUsage +
            trainTestMaskMemoryUsage + bayesianOptimisationMemoryUsage;

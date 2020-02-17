@@ -156,6 +156,13 @@ struct SFixture {
 
         analyzer.handleRecord(fieldNames, {"", "", "", "", "", "", "$"});
 
+        LOG_DEBUG(<< "estimated memory usage = "
+                  << core::CProgramCounters::counter(counter_t::E_DFTPMEstimatedPeakMemoryUsage));
+        LOG_DEBUG(<< "peak memory = "
+                  << core::CProgramCounters::counter(counter_t::E_DFTPMPeakMemoryUsage));
+        LOG_DEBUG(<< "time to train = " << core::CProgramCounters::counter(counter_t::E_DFTPMTimeToTrain)
+                  << "ms");
+
         rapidjson::Document results;
         rapidjson::ParseResult ok(results.Parse(s_Output.str()));
         BOOST_TEST_REQUIRE(static_cast<bool>(ok) == true);
@@ -184,6 +191,13 @@ struct SFixture {
 
         analyzer.handleRecord(fieldNames, {"", "", "", "", "", "", "$"});
 
+        LOG_DEBUG(<< "estimated memory usage = "
+                  << core::CProgramCounters::counter(counter_t::E_DFTPMEstimatedPeakMemoryUsage));
+        LOG_DEBUG(<< "peak memory = "
+                  << core::CProgramCounters::counter(counter_t::E_DFTPMPeakMemoryUsage));
+        LOG_DEBUG(<< "time to train = " << core::CProgramCounters::counter(counter_t::E_DFTPMTimeToTrain)
+                  << "ms");
+
         rapidjson::Document results;
         rapidjson::ParseResult ok(results.Parse(s_Output.str()));
         BOOST_TEST_REQUIRE(static_cast<bool>(ok) == true);
@@ -207,6 +221,13 @@ struct SFixture {
         setupRegressionDataWithMissingFeatures(fieldNames, fieldValues, analyzer, s_Rows, 5);
 
         analyzer.handleRecord(fieldNames, {"", "", "", "", "", "", "$"});
+
+        LOG_DEBUG(<< "estimated memory usage = "
+                  << core::CProgramCounters::counter(counter_t::E_DFTPMEstimatedPeakMemoryUsage));
+        LOG_DEBUG(<< "peak memory = "
+                  << core::CProgramCounters::counter(counter_t::E_DFTPMPeakMemoryUsage));
+        LOG_DEBUG(<< "time to train = " << core::CProgramCounters::counter(counter_t::E_DFTPMTimeToTrain)
+                  << "ms");
 
         rapidjson::Document results;
         rapidjson::ParseResult ok(results.Parse(s_Output.str()));
