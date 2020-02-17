@@ -56,8 +56,8 @@ size_t CTreeShapFeatureImportance::updateNodeValues(TTree& tree,
     std::size_t depthRight{CTreeShapFeatureImportance::updateNodeValues(
         tree, node.rightChildIndex(), depth + 1)};
 
-    double leftWeight{tree[node.leftChildIndex()].numberSamples()};
-    double rightWeight{tree[node.rightChildIndex()].numberSamples()};
+    std::size_t leftWeight{tree[node.leftChildIndex()].numberSamples()};
+    std::size_t rightWeight{tree[node.rightChildIndex()].numberSamples()};
     double averageValue{(leftWeight * tree[node.leftChildIndex()].value() +
                          rightWeight * tree[node.rightChildIndex()].value()) /
                         (leftWeight + rightWeight)};
@@ -125,9 +125,9 @@ void CTreeShapFeatureImportance::shapRecursive(const TTree& tree,
         }
 
         double hotFractionZero{static_cast<double>(tree[hotIndex].numberSamples()) /
-                                 tree[nodeIndex].numberSamples()};
+                               tree[nodeIndex].numberSamples()};
         double coldFractionZero{static_cast<double>(tree[coldIndex].numberSamples()) /
-                                  tree[nodeIndex].numberSamples()};
+                                tree[nodeIndex].numberSamples()};
         std::size_t nextIndex = splitPath.nextIndex();
         this->shapRecursive(tree, encoder, encodedRow, splitPath, hotIndex,
                             incomingFractionZero * hotFractionZero,

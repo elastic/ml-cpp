@@ -246,7 +246,7 @@ void CBoostedTreeImpl::train(core::CDataFrame& frame,
 void CBoostedTreeImpl::computeNumberSamples(const core::CDataFrame& frame) {
     for (auto& tree : m_BestForest) {
         if (tree.size() == 1) {
-            tree[0].numberSamples(frame.numberRows());
+            root(tree).numberSamples(frame.numberRows());
         } else {
             auto result = frame.readRows(
                 m_NumberThreads,
@@ -254,7 +254,7 @@ void CBoostedTreeImpl::computeNumberSamples(const core::CDataFrame& frame) {
                     [&](TSizeVec& samplesPerNode, const TRowItr& beginRows, const TRowItr& endRows) {
                         for (auto row = beginRows; row != endRows; ++row) {
                             auto encodedRow{m_Encoder->encode(*row)};
-                            const CBoostedTreeNode* node{&tree[0]};
+                            const CBoostedTreeNode* node{&root(tree)};
                             samplesPerNode[0] += 1;
                             std::size_t nextIndex;
                             while (node->isLeaf() == false) {
@@ -748,7 +748,7 @@ CBoostedTreeImpl::trainTree(core::CDataFrame& frame,
         std::tie(leftChild, rightChild) =
             leaf->split(leftChildId, rightChildId, m_NumberThreads, frame, *m_Encoder,
                         m_Regularization, candidateSplits, this->featureBag(),
-                        tree[leaf->id()], leftChildHasFewerRows, tree);
+                        tree[leaf->id()], leftChildHasFewerRows);
 
         scopeMemoryUsage.add(leftChild);
         scopeMemoryUsage.add(rightChild);
@@ -1029,6 +1029,10 @@ CBoostedTreeImpl::TSizeVec CBoostedTreeImpl::candidateRegressorFeatures() const 
 }
 
 const CBoostedTreeNode& CBoostedTreeImpl::root(const TNodeVec& tree) {
+    return root(tree);
+}
+
+CBoostedTreeNode& CBoostedTreeImpl::root(TNodeVec& tree) {
     return tree[0];
 }
 

@@ -252,6 +252,9 @@ private:
     //! Get the root node of \p tree.
     static const CBoostedTreeNode& root(const TNodeVec& tree);
 
+    //! Get the root node of \p tree.
+    static CBoostedTreeNode& root(TNodeVec& tree);
+
     //! Get the forest's prediction for \p row.
     static double predictRow(const CEncodedDataFrameRowRef& row, const TNodeVecVec& forest);
 
