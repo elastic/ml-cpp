@@ -162,7 +162,7 @@ struct SFixtureSingleTreeRandom {
 
     TDataFrameUPtr s_Frame;
     std::size_t s_NumberFeatures{5};
-    std::size_t s_NumberRows{1000};
+    std::size_t s_NumberRows{5000};
     std::size_t s_NumberInnerNodes{1023};
     TTreeShapFeatureImportanceUPtr s_TreeFeatureImportance;
     TEncoderUPtr s_Encoder;

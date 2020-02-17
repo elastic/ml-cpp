@@ -10,6 +10,7 @@
 
 #include <algorithm>
 #include <limits>
+#include <numeric>
 
 namespace ml {
 namespace maths {
@@ -213,20 +214,19 @@ void CTreeShapFeatureImportance::extendPath(ElementAccessor& path,
     // increases by one and i increases by one. So we get additive term 1{last feature selects path if in S}
     // * scale(i) * (i+1)! (M+1-(i+1)-1)!/(M+1)! / (i! (M-i-1)!/ M!), whence += scale(i) * (i+1) / (M+1).
 
-    path.featureIndex(nextIndex) = featureIndex;
-    path.fractionZeros(nextIndex) = fractionZero;
-    path.fractionOnes(nextIndex) = fractionOne;
+    path.setValues(nextIndex, fractionOne, fractionZero, featureIndex);
     if (nextIndex == 0) {
         scalePath[nextIndex] = 1.0;
     } else {
         scalePath[nextIndex] = 0.0;
     }
-
-    for (int i = (nextIndex - 1); i >= 0; --i) {
-        scalePath[i + 1] += fractionOne * scalePath[i] * static_cast<double>(i + 1) /
-                            static_cast<double>(nextIndex + 1);
-        scalePath[i] = fractionZero * scalePath[i] * static_cast<double>(nextIndex - i) /
-                       static_cast<double>(nextIndex + 1);
+    double countDown{static_cast<double>(nextIndex)};
+    double c1{fractionOne /(countDown + 1)};
+    double c2{fractionZero/(countDown + 1)};
+    double countUp{1.0};
+    for (int i = (nextIndex - 1); i >= 0; --i, --countDown, ++countUp) {
+        scalePath[i + 1] +=  scalePath[i] * countDown *c1;
+        scalePath[i] *= countUp *c2;
     }
 
     ++nextIndex;
@@ -243,21 +243,25 @@ double CTreeShapFeatureImportance::sumUnwoundPath(const ElementAccessor& path,
     double fractionZero{path.fractionZeros(pathIndex)};
     if (fractionOne != 0) {
         double pD = static_cast<double>(pathDepth + 1);
-        double countUp = 1.0;
-        double countDown = pD - 1.0;
+        double const1 = -fractionOne/pD;
+        double const2 = fractionZero / pD;
+        double countUp = const2;
+        double countDown = (1.0 - pD)*const1;
         for (int i = pathDepth - 1; i >= 0; --i) {
-            double tmp = nextFractionOne / countDown  * (pD / fractionOne);
-            nextFractionOne = scalePath[i] - tmp * countUp * (fractionZero / pD);
+            double tmp = nextFractionOne / countDown;
+            nextFractionOne = scalePath[i] - tmp * countUp;
             total += tmp;
-            countUp += 1.0;
-            countDown -= 1.0;
+            countUp += const2;
+            countDown += const1;
         }
     } else {
         double pD{static_cast<double>(pathDepth)};
-        for (int i = 0; i <= pathDepth - 1; ++i) {
-            total += scalePath[i] / pD;
-            pD -= 1.0;
-        }
+        total = std::accumulate(scalePath, scalePath+pathDepth, 0.0,
+                [&pD](double a, double b){return a+b/pD--;});
+//        for (int i = 0; i <= pathDepth - 1; ++i) {
+//            total += scalePath[i] / pD;
+//            pD -= 1.0;
+//        }
 
         total *= static_cast<double>(pathDepth + 1) / fractionZero;
     }
@@ -273,25 +277,27 @@ void CTreeShapFeatureImportance::unwindPath(ElementAccessor& path,
     double nextFractionOne{scalePath[pathDepth]};
     double fractionOne{path.fractionOnes(pathIndex)};
     double fractionZero{path.fractionZeros(pathIndex)};
+    double c{static_cast<double>(pathDepth + 1) / fractionZero};
+
 
     if (fractionOne != 0) {
-        for (int i = pathDepth; i >= 0; --i) {
-            double tmp = nextFractionOne * (pathDepth + 1) /
-                         (static_cast<double>(i + 1) * fractionOne);
-            nextFractionOne = scalePath[i] - tmp * fractionZero * (pathDepth - i) /
-                                                 (pathDepth + 1);
+        double countUp{0.0};
+        double countDown{static_cast<double>(nextIndex)};
+        double c2{countDown/fractionOne};
+        for (int i = pathDepth; i >= 0; --i, ++countUp, --countDown) {
+            double tmp = nextFractionOne * c2 / countDown ;
+            nextFractionOne = scalePath[i] - tmp * countUp / c;
             scalePath[i] = tmp;
         }
     } else {
-        for (int i = pathDepth; i >= 0; --i) {
-            scalePath[i] = scalePath[i] * static_cast<double>(pathDepth + 1) /
-                           (fractionZero * static_cast<double>(pathDepth - i));
+        double pD {static_cast<double>(pathDepth)};
+        for (int i = 0; i <= pathDepth; ++i, --pD) {
+            scalePath[i] = scalePath[i]*c/ pD;
+
         }
     }
-    for (int i = pathIndex; i < nextIndex - 1; ++i) {
-        path.featureIndex(i) = path.featureIndex(i + 1);
-        path.fractionZeros(i) = path.fractionZeros(i + 1);
-        path.fractionOnes(i) = path.fractionOnes(i + 1);
+    for (int i = pathIndex; i < pathDepth; ++i) {
+        path.setValues(i, path.fractionOnes(i + 1), path.fractionZeros(i + 1), path.featureIndex(i + 1));
     }
     --nextIndex;
 }

@@ -63,7 +63,6 @@ private:
         double s_FractionOnes;
         double s_FractionZeros;
         int s_FeatureIndex;
-        double s_Scale;
     };
 
     using TElementVec = std::vector<SPathElement>;
@@ -74,32 +73,26 @@ private:
     public:
         explicit ElementAccessor(TElementIt iterator) { m_Iterator = iterator; }
 
-        SPathElement& operator[](int index) { return *(m_Iterator + index); }
+        inline  SPathElement& operator[](int index) { return m_Iterator[index]; }
 
-        TElementIt& begin() { return m_Iterator; }
+        inline  TElementIt& begin() { return m_Iterator; }
 
-        int& featureIndex(int nextIndex) {
-            return (m_Iterator + nextIndex)->s_FeatureIndex;
+        inline void setValues(int index, double fractionOnes, double fractionZeros,  int featureIndex) {
+            m_Iterator[index].s_FractionOnes = fractionOnes;
+            m_Iterator[index].s_FractionZeros = fractionZeros;
+            m_Iterator[index].s_FeatureIndex = featureIndex;
         }
 
-        double& fractionZeros(int nextIndex) {
-            return (m_Iterator + nextIndex)->s_FractionZeros;
+        inline int featureIndex(int nextIndex) const {
+            return m_Iterator[nextIndex].s_FeatureIndex;
         }
 
-        double& fractionOnes(int nextIndex) {
-            return (m_Iterator + nextIndex)->s_FractionOnes;
+        inline double fractionZeros(int nextIndex) const {
+            return m_Iterator[nextIndex].s_FractionZeros;
         }
 
-        int featureIndex(int nextIndex) const {
-            return (m_Iterator + nextIndex)->s_FeatureIndex;
-        }
-
-        double fractionZeros(int nextIndex) const {
-            return (m_Iterator + nextIndex)->s_FractionZeros;
-        }
-
-        double fractionOnes(int nextIndex) const {
-            return (m_Iterator + nextIndex)->s_FractionOnes;
+        inline double fractionOnes(int nextIndex) const {
+            return m_Iterator[nextIndex].s_FractionOnes;
         }
 
     private:
