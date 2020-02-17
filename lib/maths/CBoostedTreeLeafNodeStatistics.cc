@@ -9,7 +9,6 @@
 #include <core/CDataFrame.h>
 #include <core/CImmutableRadixSet.h>
 #include <core/CLogger.h>
-#include <core/CMemory.h>
 
 #include <maths/CBoostedTree.h>
 #include <maths/CDataFrameCategoryEncoder.h>
@@ -23,7 +22,6 @@ using TRowItr = core::CDataFrame::TRowItr;
 namespace {
 const std::size_t ASSIGN_MISSING_TO_LEFT{0};
 const std::size_t ASSIGN_MISSING_TO_RIGHT{1};
-const double SMALLEST_RELATIVE_CURVATURE{1e-20};
 }
 
 CBoostedTreeLeafNodeStatistics::CBoostedTreeLeafNodeStatistics(
@@ -69,58 +67,17 @@ CBoostedTreeLeafNodeStatistics::CBoostedTreeLeafNodeStatistics(
 
 CBoostedTreeLeafNodeStatistics::CBoostedTreeLeafNodeStatistics(
     std::size_t id,
-    const CBoostedTreeLeafNodeStatistics& parent,
+    CBoostedTreeLeafNodeStatistics&& parent,
     const CBoostedTreeLeafNodeStatistics& sibling,
     const TRegularization& regularization,
     const TSizeVec& featureBag,
     core::CPackedBitVector rowMask)
     : m_Id{id}, m_Depth{sibling.m_Depth}, m_NumberInputColumns{sibling.m_NumberInputColumns},
       m_NumberLossParameters{sibling.m_NumberLossParameters},
-      m_CandidateSplits{sibling.m_CandidateSplits}, m_RowMask{std::move(rowMask)} {
+      m_CandidateSplits{sibling.m_CandidateSplits}, m_RowMask{std::move(rowMask)},
+      m_Derivatives{std::move(parent.m_Derivatives)} {
 
-    m_Derivatives.resize(m_CandidateSplits.size());
-    m_MissingDerivatives.resize(m_CandidateSplits.size());
-
-    for (std::size_t i = 0; i < m_CandidateSplits.size(); ++i) {
-        std::size_t numberSplits{m_CandidateSplits[i].size() + 1};
-        m_Derivatives[i].resize(numberSplits);
-        for (std::size_t j = 0; j < numberSplits; ++j) {
-            // Numeric errors mean that it's possible the sum curvature for a candidate
-            // split is identically zero while the gradient is epsilon. This can cause
-            // the node gain to appear infinite (when there is no weight regularisation)
-            // which in turns causes problems initialising the region we search for optimal
-            // hyperparameter values. We can safely force the gradient and curvature to
-            // be zero if we detect that the count is zero. Also, none of our loss functions
-            // have negative curvature therefore we shouldn't allow the cumulative curvature
-            // to be negative either. In this case we force it to be a v.small multiple
-            // of the magnitude of the gradient since this is the closest feasible estimate.
-            std::size_t count{parent.m_Derivatives[i][j].s_Count -
-                              sibling.m_Derivatives[i][j].s_Count};
-            if (count > 0) {
-                double gradient{parent.m_Derivatives[i][j].s_Gradient -
-                                sibling.m_Derivatives[i][j].s_Gradient};
-                double curvature{parent.m_Derivatives[i][j].s_Curvature -
-                                 sibling.m_Derivatives[i][j].s_Curvature};
-                curvature = std::max(curvature, SMALLEST_RELATIVE_CURVATURE *
-                                                    std::fabs(gradient));
-                m_Derivatives[i][j] = SAggregateDerivatives{count, gradient, curvature};
-            }
-        }
-        std::size_t count{parent.m_MissingDerivatives[i].s_Count -
-                          sibling.m_MissingDerivatives[i].s_Count};
-        if (count > 0) {
-            double gradient{parent.m_MissingDerivatives[i].s_Gradient -
-                            sibling.m_MissingDerivatives[i].s_Gradient};
-            double curvature{parent.m_MissingDerivatives[i].s_Curvature -
-                             sibling.m_MissingDerivatives[i].s_Curvature};
-            curvature = std::max(curvature, SMALLEST_RELATIVE_CURVATURE * std::fabs(gradient));
-            m_MissingDerivatives[i] = SAggregateDerivatives{count, gradient, curvature};
-        }
-    }
-    LOG_TRACE(<< "derivatives = " << core::CContainerPrinter::print(m_Derivatives));
-    LOG_TRACE(<< "missing derivatives = "
-              << core::CContainerPrinter::print(m_MissingDerivatives));
-
+    m_Derivatives.subtract(sibling.m_Derivatives);
     m_BestSplit = this->computeBestSplitStatistics(regularization, featureBag);
 }
 
@@ -133,18 +90,20 @@ CBoostedTreeLeafNodeStatistics::split(std::size_t leftChildId,
                                       const TRegularization& regularization,
                                       const TImmutableRadixSetVec& candidateSplits,
                                       const TSizeVec& featureBag,
-                                      const CBoostedTreeNode& split,
-                                      bool leftChildHasFewerRows) {
-    if (leftChildHasFewerRows) {
+                                      const CBoostedTreeNode& split) {
+
+    if (this->leftChildHasFewerRows()) {
         auto leftChild = std::make_shared<CBoostedTreeLeafNodeStatistics>(
             leftChildId, m_NumberInputColumns, m_NumberLossParameters,
             numberThreads, frame, encoder, regularization, candidateSplits,
             featureBag, true /*is left child*/, m_Depth + 1, split, m_RowMask);
-        core::CPackedBitVector rightChildRowMask{m_RowMask};
+        core::CPackedBitVector rightChildRowMask{std::move(m_RowMask)};
         rightChildRowMask ^= leftChild->rowMask();
         auto rightChild = std::make_shared<CBoostedTreeLeafNodeStatistics>(
-            rightChildId, *this, *leftChild, regularization, featureBag,
-            std::move(rightChildRowMask));
+            rightChildId, std::move(*this), *leftChild, regularization,
+            featureBag, std::move(rightChildRowMask));
+        leftChild->maybeRecoverMemory();
+        rightChild->maybeRecoverMemory();
 
         return std::make_pair(leftChild, rightChild);
     }
@@ -153,11 +112,13 @@ CBoostedTreeLeafNodeStatistics::split(std::size_t leftChildId,
         rightChildId, m_NumberInputColumns, m_NumberLossParameters,
         numberThreads, frame, encoder, regularization, candidateSplits,
         featureBag, false /*is left child*/, m_Depth + 1, split, m_RowMask);
-    core::CPackedBitVector leftChildRowMask{m_RowMask};
+    core::CPackedBitVector leftChildRowMask{std::move(m_RowMask)};
     leftChildRowMask ^= rightChild->rowMask();
     auto leftChild = std::make_shared<CBoostedTreeLeafNodeStatistics>(
-        leftChildId, *this, *rightChild, regularization, featureBag,
+        leftChildId, std::move(*this), *rightChild, regularization, featureBag,
         std::move(leftChildRowMask));
+    leftChild->maybeRecoverMemory();
+    rightChild->maybeRecoverMemory();
 
     return std::make_pair(leftChild, rightChild);
 }
@@ -195,25 +156,29 @@ core::CPackedBitVector& CBoostedTreeLeafNodeStatistics::rowMask() {
 }
 
 std::size_t CBoostedTreeLeafNodeStatistics::memoryUsage() const {
-    std::size_t mem{core::CMemory::dynamicSize(m_RowMask)};
-    mem += core::CMemory::dynamicSize(m_Derivatives);
-    mem += core::CMemory::dynamicSize(m_MissingDerivatives);
-    return mem;
+    return core::CMemory::dynamicSize(m_RowMask) + core::CMemory::dynamicSize(m_Derivatives);
 }
 
-std::size_t CBoostedTreeLeafNodeStatistics::estimateMemoryUsage(std::size_t numberRows,
-                                                                std::size_t numberCols,
-                                                                std::size_t numberSplitsPerFeature) {
+std::size_t
+CBoostedTreeLeafNodeStatistics::estimateMemoryUsage(std::size_t numberRows,
+                                                    std::size_t numberFeatures,
+                                                    std::size_t numberSplitsPerFeature,
+                                                    std::size_t numberLossParameters) {
     // We will typically get the close to the best compression for most of the
     // leaves when the set of splits becomes large, corresponding to the worst
     // case for memory usage. This is because the rows will be spread over many
     // rows so the masks will mainly contain 0 bits in this case.
     std::size_t rowMaskSize{numberRows / PACKED_BIT_VECTOR_MAXIMUM_ROWS_PER_BYTE};
-    std::size_t derivativesSize{(numberCols - 1) * numberSplitsPerFeature *
-                                sizeof(SAggregateDerivatives)};
-    std::size_t missingDerivativesSize{(numberCols - 1) * sizeof(SAggregateDerivatives)};
-    return sizeof(CBoostedTreeLeafNodeStatistics) + rowMaskSize +
-           derivativesSize + missingDerivativesSize;
+    std::size_t perSplitDerivativesSize{CPerSplitDerivatives::estimateMemoryUsage(
+        numberFeatures, numberSplitsPerFeature, numberLossParameters)};
+    return sizeof(CBoostedTreeLeafNodeStatistics) + rowMaskSize + perSplitDerivativesSize;
+}
+
+void CBoostedTreeLeafNodeStatistics::maybeRecoverMemory() {
+    if (this->gain() <= 0.0) {
+        m_RowMask = core::CPackedBitVector{};
+        m_Derivatives = CPerSplitDerivatives{};
+    }
 }
 
 void CBoostedTreeLeafNodeStatistics::computeAggregateLossDerivatives(
@@ -224,26 +189,19 @@ void CBoostedTreeLeafNodeStatistics::computeAggregateLossDerivatives(
     auto result = frame.readRows(
         numberThreads, 0, frame.numberRows(),
         core::bindRetrievableState(
-            [&](SSplitAggregateDerivatives& splitAggregateDerivatives,
-                TRowItr beginRows, TRowItr endRows) {
+            [&](CPerSplitDerivatives& perSplitDerivatives, TRowItr beginRows, TRowItr endRows) {
                 for (auto row = beginRows; row != endRows; ++row) {
-                    this->addRowDerivatives(encoder.encode(*row), splitAggregateDerivatives);
+                    this->addRowDerivatives(encoder.encode(*row), perSplitDerivatives);
                 }
             },
-            SSplitAggregateDerivatives{m_CandidateSplits}),
+            CPerSplitDerivatives{m_CandidateSplits, m_NumberLossParameters}),
         &m_RowMask);
-    auto& state = result.first;
 
-    SSplitAggregateDerivatives derivatives{std::move(state[0].s_FunctionState)};
-    for (std::size_t i = 1; i < state.size(); ++i) {
-        derivatives.merge(state[i].s_FunctionState);
+    m_Derivatives = std::move(result.first[0].s_FunctionState);
+    for (std::size_t i = 1; i < result.first.size(); ++i) {
+        m_Derivatives.add(result.first[i].s_FunctionState);
     }
-
-    std::tie(m_Derivatives, m_MissingDerivatives) = derivatives.move();
-
-    LOG_TRACE(<< "derivatives = " << core::CContainerPrinter::print(m_Derivatives));
-    LOG_TRACE(<< "missing derivatives = "
-              << core::CContainerPrinter::print(m_MissingDerivatives));
+    m_Derivatives.remapCurvature();
 }
 
 void CBoostedTreeLeafNodeStatistics::computeRowMaskAndAggregateLossDerivatives(
@@ -257,59 +215,51 @@ void CBoostedTreeLeafNodeStatistics::computeRowMaskAndAggregateLossDerivatives(
     auto result = frame.readRows(
         numberThreads, 0, frame.numberRows(),
         core::bindRetrievableState(
-            [&](std::pair<core::CPackedBitVector, SSplitAggregateDerivatives>& state,
+            [&](std::pair<core::CPackedBitVector, CPerSplitDerivatives>& state,
                 TRowItr beginRows, TRowItr endRows) {
                 auto& mask = state.first;
-                auto& splitAggregateDerivatives = state.second;
+                auto& perSplitDerivatives = state.second;
                 for (auto row = beginRows; row != endRows; ++row) {
                     auto encodedRow = encoder.encode(*row);
                     if (split.assignToLeft(encodedRow) == isLeftChild) {
                         std::size_t index{row->index()};
                         mask.extend(false, index - mask.size());
                         mask.extend(true);
-                        this->addRowDerivatives(encodedRow, splitAggregateDerivatives);
+                        this->addRowDerivatives(encodedRow, perSplitDerivatives);
                     }
                 }
             },
-            std::make_pair(core::CPackedBitVector{}, SSplitAggregateDerivatives{m_CandidateSplits})),
+            std::make_pair(core::CPackedBitVector{},
+                           CPerSplitDerivatives{m_CandidateSplits, m_NumberLossParameters})),
         &parentRowMask);
-    auto& state = result.first;
 
-    for (auto& mask_ : state) {
+    for (auto& mask_ : result.first) {
         auto& mask = mask_.s_FunctionState.first;
         mask.extend(false, parentRowMask.size() - mask.size());
     }
 
-    m_RowMask = std::move(state[0].s_FunctionState.first);
-    SSplitAggregateDerivatives derivatives{std::move(state[0].s_FunctionState.second)};
-    for (std::size_t i = 1; i < state.size(); ++i) {
-        m_RowMask |= state[i].s_FunctionState.first;
-        derivatives.merge(state[i].s_FunctionState.second);
+    m_RowMask = std::move(result.first[0].s_FunctionState.first);
+    m_Derivatives = std::move(result.first[0].s_FunctionState.second);
+    for (std::size_t i = 1; i < result.first.size(); ++i) {
+        m_RowMask |= result.first[i].s_FunctionState.first;
+        m_Derivatives.add(result.first[i].s_FunctionState.second);
     }
-
-    std::tie(m_Derivatives, m_MissingDerivatives) = derivatives.move();
-
-    LOG_TRACE(<< "row mask = " << m_RowMask);
-    LOG_TRACE(<< "derivatives = " << core::CContainerPrinter::print(m_Derivatives));
-    LOG_TRACE(<< "missing derivatives = "
-              << core::CContainerPrinter::print(m_MissingDerivatives));
+    m_Derivatives.remapCurvature();
 }
 
-void CBoostedTreeLeafNodeStatistics::addRowDerivatives(
-    const CEncodedDataFrameRowRef& row,
-    SSplitAggregateDerivatives& splitAggregateDerivatives) const {
+void CBoostedTreeLeafNodeStatistics::addRowDerivatives(const CEncodedDataFrameRowRef& row,
+                                                       CPerSplitDerivatives& perSplitDerivatives) const {
 
     const TRowRef& unencodedRow{row.unencodedRow()};
     auto gradient = readLossGradient(unencodedRow, m_NumberInputColumns, m_NumberLossParameters);
     auto curvature = readLossCurvature(unencodedRow, m_NumberInputColumns, m_NumberLossParameters);
-
-    for (std::size_t i = 0; i < m_CandidateSplits.size(); ++i) {
-        double featureValue{row[i]};
+    for (std::size_t feature = 0; feature < m_CandidateSplits.size(); ++feature) {
+        double featureValue{row[feature]};
         if (CDataFrameUtils::isMissing(featureValue)) {
-            splitAggregateDerivatives.s_MissingDerivatives[i].add(1, gradient, curvature);
+            perSplitDerivatives.addMissingDerivatives(feature, gradient, curvature);
         } else {
-            std::ptrdiff_t j{m_CandidateSplits[i].upperBound(featureValue)};
-            splitAggregateDerivatives.s_Derivatives[i][j].add(1, gradient, curvature);
+            std::ptrdiff_t split{m_CandidateSplits[feature].upperBound(featureValue)};
+            perSplitDerivatives.addDerivatives(feature, split, gradient, curvature);
         }
     }
 }
@@ -325,54 +275,116 @@ CBoostedTreeLeafNodeStatistics::computeBestSplitStatistics(const TRegularization
 
     SSplitStatistics result;
 
-    for (auto i : featureBag) {
-        std::size_t c{m_MissingDerivatives[i].s_Count};
-        double g{m_MissingDerivatives[i].s_Gradient};
-        double h{m_MissingDerivatives[i].s_Curvature};
-        for (const auto& derivatives : m_Derivatives[i]) {
-            c += derivatives.s_Count;
-            g += derivatives.s_Gradient;
-            h += derivatives.s_Curvature;
+    // We seek to find the value at the minimum of the quadratic expansion of the
+    // regularized loss function. For a given leaf this expansion is
+    //
+    //   L(w) = 1/2 w^t H(\lambda) w + g^t w
+    //
+    // where H(\lambda) = \sum_i H_i + \lambda I, g = \sum_i g_i and w is the leaf's
+    // weight. Here, g_i and H_i denote an example's loss gradient and Hessian and i
+    // ranges over the examples in the leaf. Writing this as the sum of a quadratic
+    // form and constant, i.e. x(w)^t H(\lambda) x(w) + constant, and noting that H
+    // is positive definite, we see that we'll minimise loss by choosing w such that
+    // x is zero, i.e. w^* = arg\min_w(L(w)) satisfies x(w) = 0. This gives
+    //
+    //   L(w^*) = -1/2 g^t H(\lambda)^{-1} g
+
+    using TDoubleVector = CDenseVector<double>;
+    using TDoubleMatrix = CDenseMatrix<double>;
+    using TMinimumLoss = std::function<double(const TDoubleVector&, const TDoubleMatrix&)>;
+
+    int d{static_cast<int>(m_NumberLossParameters)};
+
+    TMinimumLoss minimumLoss;
+
+    double lambda{regularization.leafWeightPenaltyMultiplier()};
+    Eigen::MatrixXd placeholder{d, d};
+    if (m_NumberLossParameters == 1) {
+        // There is a large fixed overhead for using ldl^t even when g and h are
+        // scalar so we have special case handling.
+        minimumLoss = [&](const TDoubleVector& g, const TDoubleMatrix& h) -> double {
+            return CTools::pow2(g(0)) / (h(0, 0) + lambda);
+        };
+    } else {
+        // TODO use Cholesky (but need to handle positive semi-definite case).
+        minimumLoss = [&](const TDoubleVector& g, const TDoubleMatrix& h) -> double {
+            placeholder =
+                (h + lambda * TDoubleMatrix::Identity(d, d)).selfadjointView<Eigen::Lower>();
+            Eigen::LDLT<Eigen::Ref<Eigen::MatrixXd>> ldlt{placeholder};
+            return g.transpose() * ldlt.solve(g);
+        };
+    }
+
+    TDoubleVector g{d};
+    TDoubleMatrix h{d, d};
+    TDoubleVector gl[]{TDoubleVector{d}, TDoubleVector{d}};
+    TDoubleVector gr[]{TDoubleVector{d}, TDoubleVector{d}};
+    TDoubleMatrix hl[]{TDoubleMatrix{d, d}, TDoubleMatrix{d, d}};
+    TDoubleMatrix hr[]{TDoubleMatrix{d, d}, TDoubleMatrix{d, d}};
+
+    for (auto feature : featureBag) {
+        std::size_t c{m_Derivatives.missingCount(feature)};
+        g = m_Derivatives.missingGradient(feature);
+        h = m_Derivatives.missingCurvature(feature);
+        for (const auto& derivatives : m_Derivatives.derivatives(feature)) {
+            c += derivatives.count();
+            g += derivatives.gradient();
+            h += derivatives.curvature();
         }
-        std::size_t cl[]{m_MissingDerivatives[i].s_Count, 0};
-        double gl[]{m_MissingDerivatives[i].s_Gradient, 0.0};
-        double hl[]{m_MissingDerivatives[i].s_Curvature, 0.0};
+        std::size_t cl[]{m_Derivatives.missingCount(feature), 0};
+        gl[ASSIGN_MISSING_TO_LEFT] = m_Derivatives.missingGradient(feature);
+        gl[ASSIGN_MISSING_TO_RIGHT] = TDoubleVector::Zero(g.rows());
+        gr[ASSIGN_MISSING_TO_LEFT] = g - m_Derivatives.missingGradient(feature);
+        gr[ASSIGN_MISSING_TO_RIGHT] = g;
+        hl[ASSIGN_MISSING_TO_LEFT] = m_Derivatives.missingCurvature(feature);
+        hl[ASSIGN_MISSING_TO_RIGHT] = TDoubleMatrix::Zero(h.rows(), h.cols());
+        hr[ASSIGN_MISSING_TO_LEFT] = h - m_Derivatives.missingCurvature(feature);
+        hr[ASSIGN_MISSING_TO_RIGHT] = h;
 
         double maximumGain{-INF};
         double splitAt{-INF};
         bool leftChildHasFewerRows{true};
         bool assignMissingToLeft{true};
+        std::size_t size{m_Derivatives.derivatives(feature).size()};
 
-        for (std::size_t j = 0; j + 1 < m_Derivatives[i].size(); ++j) {
-            cl[ASSIGN_MISSING_TO_LEFT] += m_Derivatives[i][j].s_Count;
-            gl[ASSIGN_MISSING_TO_LEFT] += m_Derivatives[i][j].s_Gradient;
-            hl[ASSIGN_MISSING_TO_LEFT] += m_Derivatives[i][j].s_Curvature;
-            cl[ASSIGN_MISSING_TO_RIGHT] += m_Derivatives[i][j].s_Count;
-            gl[ASSIGN_MISSING_TO_RIGHT] += m_Derivatives[i][j].s_Gradient;
-            hl[ASSIGN_MISSING_TO_RIGHT] += m_Derivatives[i][j].s_Curvature;
+        for (std::size_t split = 0; split + 1 < size; ++split) {
 
-            double gain[]{CTools::pow2(gl[ASSIGN_MISSING_TO_LEFT]) /
-                                  (hl[ASSIGN_MISSING_TO_LEFT] +
-                                   regularization.leafWeightPenaltyMultiplier()) +
-                              CTools::pow2(g - gl[ASSIGN_MISSING_TO_LEFT]) /
-                                  (h - hl[ASSIGN_MISSING_TO_LEFT] +
-                                   regularization.leafWeightPenaltyMultiplier()),
-                          CTools::pow2(gl[ASSIGN_MISSING_TO_RIGHT]) /
-                                  (hl[ASSIGN_MISSING_TO_RIGHT] +
-                                   regularization.leafWeightPenaltyMultiplier()) +
-                              CTools::pow2(g - gl[ASSIGN_MISSING_TO_RIGHT]) /
-                                  (h - hl[ASSIGN_MISSING_TO_RIGHT] +
-                                   regularization.leafWeightPenaltyMultiplier())};
+            std::size_t count{m_Derivatives.count(feature, split)};
+            if (count == 0) {
+                continue;
+            }
+
+            const TMemoryMappedDoubleVector& gradient{m_Derivatives.gradient(feature, split)};
+            const TMemoryMappedDoubleMatrix& curvature{m_Derivatives.curvature(feature, split)};
+
+            cl[ASSIGN_MISSING_TO_LEFT] += count;
+            cl[ASSIGN_MISSING_TO_RIGHT] += count;
+            gl[ASSIGN_MISSING_TO_LEFT] += gradient;
+            gl[ASSIGN_MISSING_TO_RIGHT] += gradient;
+            gr[ASSIGN_MISSING_TO_LEFT] -= gradient;
+            gr[ASSIGN_MISSING_TO_RIGHT] -= gradient;
+            hl[ASSIGN_MISSING_TO_LEFT] += curvature;
+            hl[ASSIGN_MISSING_TO_RIGHT] += curvature;
+            hr[ASSIGN_MISSING_TO_LEFT] -= curvature;
+            hr[ASSIGN_MISSING_TO_RIGHT] -= curvature;
+
+            double gain[2];
+            gain[ASSIGN_MISSING_TO_LEFT] =
+                minimumLoss(gl[ASSIGN_MISSING_TO_LEFT], hl[ASSIGN_MISSING_TO_LEFT]) +
+                minimumLoss(gr[ASSIGN_MISSING_TO_LEFT], hr[ASSIGN_MISSING_TO_LEFT]);
+            gain[ASSIGN_MISSING_TO_RIGHT] =
+                minimumLoss(gl[ASSIGN_MISSING_TO_RIGHT], hl[ASSIGN_MISSING_TO_RIGHT]) +
+                minimumLoss(gr[ASSIGN_MISSING_TO_RIGHT], hr[ASSIGN_MISSING_TO_RIGHT]);
 
             if (gain[ASSIGN_MISSING_TO_LEFT] > maximumGain) {
                 maximumGain = gain[ASSIGN_MISSING_TO_LEFT];
-                splitAt = m_CandidateSplits[i][j];
+                splitAt = m_CandidateSplits[feature][split];
                 leftChildHasFewerRows = (2 * cl[ASSIGN_MISSING_TO_LEFT] < c);
                 assignMissingToLeft = true;
             }
             if (gain[ASSIGN_MISSING_TO_RIGHT] > maximumGain) {
                 maximumGain = gain[ASSIGN_MISSING_TO_RIGHT];
-                splitAt = m_CandidateSplits[i][j];
+                splitAt = m_CandidateSplits[feature][split];
                 leftChildHasFewerRows = (2 * cl[ASSIGN_MISSING_TO_RIGHT] < c);
                 assignMissingToLeft = false;
             }
@@ -380,13 +392,20 @@ CBoostedTreeLeafNodeStatistics::computeBestSplitStatistics(const TRegularization
 
         double penaltyForDepth{regularization.penaltyForDepth(m_Depth)};
         double penaltyForDepthPlusOne{regularization.penaltyForDepth(m_Depth + 1)};
-        double gain{0.5 * (maximumGain - CTools::pow2(g) / (h + regularization.leafWeightPenaltyMultiplier())) -
+
+        // The gain is the difference between the quadratic minimum for loss with
+        // no split and the loss with the minimum loss split we found.
+        double gain{0.5 * (maximumGain - minimumLoss(g, h)) -
                     regularization.treeSizePenaltyMultiplier() -
                     regularization.depthPenaltyMultiplier() *
                         (2.0 * penaltyForDepthPlusOne - penaltyForDepth)};
 
-        SSplitStatistics candidate{
-            gain, h, i, splitAt, leftChildHasFewerRows, assignMissingToLeft};
+        SSplitStatistics candidate{gain,
+                                   h.trace() / static_cast<double>(m_NumberLossParameters),
+                                   feature,
+                                   splitAt,
+                                   leftChildHasFewerRows,
+                                   assignMissingToLeft};
         LOG_TRACE(<< "candidate split: " << candidate.print());
 
         if (candidate > result) {
