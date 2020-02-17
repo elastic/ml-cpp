@@ -207,9 +207,10 @@ BOOST_AUTO_TEST_CASE(testRunOutlierDetection) {
 
     BOOST_TEST_REQUIRE(core::CProgramCounters::counter(counter_t::E_DFONumberPartitions) == 1);
     BOOST_TEST_REQUIRE(core::CProgramCounters::counter(counter_t::E_DFOPeakMemoryUsage) < 100000);
+    // Allow a 16% margin
     BOOST_TEST_REQUIRE(
         core::CProgramCounters::counter(counter_t::E_DFOPeakMemoryUsage) <
-        core::CProgramCounters::counter(counter_t::E_DFOEstimatedPeakMemoryUsage));
+        (116 * core::CProgramCounters::counter(counter_t::E_DFOEstimatedPeakMemoryUsage)) / 100);
 }
 
 BOOST_AUTO_TEST_CASE(testRunOutlierDetectionPartitioned) {
@@ -259,10 +260,11 @@ BOOST_AUTO_TEST_CASE(testRunOutlierDetectionPartitioned) {
               << core::CProgramCounters::counter(counter_t::E_DFOPeakMemoryUsage));
 
     BOOST_TEST_REQUIRE(core::CProgramCounters::counter(counter_t::E_DFONumberPartitions) > 1);
-    BOOST_TEST_REQUIRE(core::CProgramCounters::counter(counter_t::E_DFOPeakMemoryUsage) < 100000);
+    // Allow a 16% margin
+    BOOST_TEST_REQUIRE(core::CProgramCounters::counter(counter_t::E_DFOPeakMemoryUsage) < 116000);
     BOOST_TEST_REQUIRE(
         core::CProgramCounters::counter(counter_t::E_DFOPeakMemoryUsage) <
-        core::CProgramCounters::counter(counter_t::E_DFOEstimatedPeakMemoryUsage));
+        (116 * core::CProgramCounters::counter(counter_t::E_DFOEstimatedPeakMemoryUsage)) / 100);
 }
 
 BOOST_AUTO_TEST_CASE(testRunOutlierFeatureInfluences) {
