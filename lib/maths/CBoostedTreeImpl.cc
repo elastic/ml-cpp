@@ -1029,7 +1029,7 @@ CBoostedTreeImpl::TSizeVec CBoostedTreeImpl::candidateRegressorFeatures() const 
 }
 
 const CBoostedTreeNode& CBoostedTreeImpl::root(const TNodeVec& tree) {
-    return root(tree);
+    return tree[0];
 }
 
 CBoostedTreeNode& CBoostedTreeImpl::root(TNodeVec& tree) {
