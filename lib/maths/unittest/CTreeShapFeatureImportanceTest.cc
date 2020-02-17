@@ -162,8 +162,8 @@ struct SFixtureSingleTreeRandom {
 
     TDataFrameUPtr s_Frame;
     std::size_t s_NumberFeatures{5};
-    std::size_t s_NumberRows{5000};
-    std::size_t s_NumberInnerNodes{1023};
+    std::size_t s_NumberRows{1000};
+    std::size_t s_NumberInnerNodes{15};
     TTreeShapFeatureImportanceUPtr s_TreeFeatureImportance;
     TEncoderUPtr s_Encoder;
     TTree s_Tree;
@@ -393,23 +393,23 @@ BOOST_FIXTURE_TEST_CASE(testSingleTreeBruteForceShap, SFixtureSingleTree) {
 }
 
 BOOST_FIXTURE_TEST_CASE(testSingleTreeShapRandomDataFrame, SFixtureSingleTreeRandom) {
-    // Compare tree shap algorithm with the brute force approach (Algorithm
-    // 1 in paper by Lundberg et al.) on a random data set with a random tree.
-    //    auto samplesPerNode = maths::CTreeShapFeatureImportance::samplesPerNode(
-    //        s_TreeFeatureImportance->trees()[0], *s_Frame, *s_Encoder, 1);
-    //    BruteForceTreeShap bfShap(this->s_Tree, samplesPerNode, s_NumberFeatures);
-    //    auto expectedPhi = bfShap.shap(*s_Frame, *s_Encoder, 1);
+    //     Compare tree shap algorithm with the brute force approach (Algorithm
+    //     1 in paper by Lundberg et al.) on a random data set with a random tree.
+    auto samplesPerNode = maths::CTreeShapFeatureImportance::samplesPerNode(
+        s_TreeFeatureImportance->trees()[0], *s_Frame, *s_Encoder, 1);
+    BruteForceTreeShap bfShap(this->s_Tree, samplesPerNode, s_NumberFeatures);
+    auto expectedPhi = bfShap.shap(*s_Frame, *s_Encoder, 1);
     std::size_t offset{s_Frame->numberColumns()};
     s_Frame->resizeColumns(1, offset * 2);
     s_TreeFeatureImportance->shap(*s_Frame, *s_Encoder, offset);
-    //    s_Frame->readRows(1, [&](TRowItr beginRows, TRowItr endRows) {
-    //        for (auto row = beginRows; row != endRows; ++row) {
-    //            for (std::size_t col = 0; col < s_NumberFeatures; ++col) {
-    //                BOOST_REQUIRE_CLOSE_ABSOLUTE(expectedPhi[row->index()][col],
-    //                                             static_cast<double>((*row)[offset + col]), 1e-5);
-    //            }
-    //        }
-    //    });
+    s_Frame->readRows(1, [&](TRowItr beginRows, TRowItr endRows) {
+        for (auto row = beginRows; row != endRows; ++row) {
+            for (std::size_t col = 0; col < s_NumberFeatures; ++col) {
+                BOOST_REQUIRE_CLOSE_ABSOLUTE(expectedPhi[row->index()][col],
+                                             static_cast<double>((*row)[offset + col]), 1e-5);
+            }
+        }
+    });
 }
 
 BOOST_AUTO_TEST_SUITE_END()

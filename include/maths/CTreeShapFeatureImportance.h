@@ -59,6 +59,7 @@ public:
 private:
     using TSizeVec = std::vector<std::size_t>;
 
+    //! Collects the elements of the path through decision tree that are updated together
     struct SPathElement {
         double s_FractionOnes;
         double s_FractionZeros;
@@ -69,9 +70,11 @@ private:
     using TElementIt = TElementVec::iterator;
     using TDoubleVecIt = TDoubleVec::iterator;
 
-    class ElementAccessor {
+    class PathElementAccessor {
     public:
-        explicit ElementAccessor(TElementIt iterator) { m_Iterator = iterator; }
+        explicit PathElementAccessor(TElementIt iterator) {
+            m_Iterator = iterator;
+        }
 
         inline SPathElement& operator[](int index) { return m_Iterator[index]; }
 
@@ -116,19 +119,20 @@ private:
                        int nextIndex,
                        TDoubleVecIt parentScalePath) const;
     //! Extend the \p path object, update the variables and factorial scaling coefficients.
-    static void extendPath(ElementAccessor& path,
+    static void extendPath(PathElementAccessor& path,
                            TDoubleVecIt& scalePath,
                            double fractionZero,
                            double fractionOne,
                            int featureIndex,
                            int& nextIndex);
-    //! Sum the scaling coefficients for the \p path without the feature defined in \p pathIndex.
-    static double sumUnwoundPath(const ElementAccessor& path,
+    //! Sum the scaling coefficients for the \p scalePath without the feature defined in \p pathIndex.
+    static double sumUnwoundPath(const PathElementAccessor& path,
+                                 const TDoubleVecIt& scalePath,
                                  int pathIndex,
-                                 int nextIndex,
-                                 const TDoubleVecIt& scalePath);
+                                 int nextIndex);
     //! Updated the scaling coefficients in the \p path if the feature defined in \p pathIndex was seen again.
-    static void unwindPath(ElementAccessor& path, int pathIndex, int& nextIndex, TDoubleVecIt& scalePath);
+    static void
+    unwindPath(PathElementAccessor& path, TDoubleVecIt& scalePath, int pathIndex, int& nextIndex);
 
 private:
     TTreeVec m_Trees;
