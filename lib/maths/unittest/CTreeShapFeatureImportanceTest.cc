@@ -271,8 +271,8 @@ struct SFixtureMultipleTrees {
 
 class BruteForceTreeShap {
 public:
-    BruteForceTreeShap(const TTree& tree, const TDoubleVec& samplesPerNode, std::size_t numberFeatures)
-        : m_Tree{tree}, m_SamplesPerNode{samplesPerNode}, m_Powerset{}, m_NumberFeatures{numberFeatures} {
+    BruteForceTreeShap(const TTree& tree, std::size_t numberFeatures)
+        : m_Tree{tree}, m_Powerset{}, m_NumberFeatures{numberFeatures} {
         this->initPowerset({}, numberFeatures);
     }
 
@@ -355,36 +355,28 @@ private:
                 }
 
             } else {
-                return this->conditionalExpectation(x, S, leftChildIndex,
-                                                    weight * m_SamplesPerNode[leftChildIndex] /
-                                                        m_SamplesPerNode[nodeIndex]) +
-                       this->conditionalExpectation(x, S, rightChildIndex,
-                                                    weight * m_SamplesPerNode[rightChildIndex] /
-                                                        m_SamplesPerNode[nodeIndex]);
+                return this->conditionalExpectation(
+                           x, S, leftChildIndex,
+                           weight * m_Tree[leftChildIndex].numberSamples() /
+                               m_Tree[nodeIndex].numberSamples()) +
+                       this->conditionalExpectation(
+                           x, S, rightChildIndex,
+                           weight * m_Tree[rightChildIndex].numberSamples() /
+                               m_Tree[nodeIndex].numberSamples());
             }
         }
     }
 
 private:
     const TTree& m_Tree;
-    const TDoubleVec& m_SamplesPerNode;
     TSizePowerset m_Powerset{};
     std::size_t m_NumberFeatures;
 };
 
-BOOST_FIXTURE_TEST_CASE(testSingleTreeSamplesPerNode, SFixtureSingleTree) {
-
-    auto samplesPerNode = maths::CTreeShapFeatureImportance::numberSamples(
-        s_TreeFeatureImportance->trees()[0]);
-    TDoubleVec expectedSamplesPerNode{4, 2, 2, 1, 1, 1, 1};
-    BOOST_TEST_REQUIRE(samplesPerNode == expectedSamplesPerNode);
-}
-
 BOOST_FIXTURE_TEST_CASE(testSingleTreeExpectedNodeValues, SFixtureSingleTree) {
 
-    TDoubleVec samplesPerNode{4, 2, 2, 1, 1, 1, 1};
     std::size_t depth = maths::CTreeShapFeatureImportance::updateNodeValues(
-        s_TreeFeatureImportance->trees()[0], 0, samplesPerNode, 0);
+        s_TreeFeatureImportance->trees()[0], 0, 0);
     BOOST_TEST_REQUIRE(depth == 2);
     TDoubleVec expectedValues{10.5, 5.5, 15.5, 3.0, 8.0, 13.0, 18.0};
     auto& tree{s_TreeFeatureImportance->trees()[0]};
@@ -429,10 +421,7 @@ BOOST_FIXTURE_TEST_CASE(testMultipleTreesShap, SFixtureMultipleTrees) {
 }
 
 BOOST_FIXTURE_TEST_CASE(testSingleTreeBruteForceShap, SFixtureSingleTree) {
-    auto samplesPerNode = maths::CTreeShapFeatureImportance::numberSamples(
-        s_TreeFeatureImportance->trees()[0]);
-    BruteForceTreeShap bfShap(s_TreeFeatureImportance->trees()[0],
-                              samplesPerNode, s_NumberFeatures);
+    BruteForceTreeShap bfShap(s_TreeFeatureImportance->trees()[0], s_NumberFeatures);
     auto actualPhi = bfShap.shap(*s_Frame, *s_Encoder, 1);
     TDoubleVecVec expectedPhi{{-5., -2.5}, {-5., 2.5}, {5., -2.5}, {5., 2.5}};
     for (std::size_t i = 0; i < s_NumberRows; ++i) {
@@ -445,9 +434,7 @@ BOOST_FIXTURE_TEST_CASE(testSingleTreeBruteForceShap, SFixtureSingleTree) {
 BOOST_FIXTURE_TEST_CASE(testSingleTreeShapRandomDataFrame, SFixtureSingleTreeRandom) {
     // Compare tree shap algorithm with the brute force approach (Algorithm
     // 1 in paper by Lundberg et al.) on a random data set with a random tree.
-    auto samplesPerNode = maths::CTreeShapFeatureImportance::numberSamples(
-        s_TreeFeatureImportance->trees()[0]);
-    BruteForceTreeShap bfShap(this->s_Tree, samplesPerNode, s_NumberFeatures);
+    BruteForceTreeShap bfShap(this->s_Tree, s_NumberFeatures);
     auto expectedPhi = bfShap.shap(*s_Frame, *s_Encoder, 1);
     std::size_t offset{s_Frame->numberColumns()};
     s_Frame->resizeColumns(1, offset * 2);

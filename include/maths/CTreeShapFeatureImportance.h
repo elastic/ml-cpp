@@ -40,15 +40,9 @@ public:
     //! by \p offset.
     void shap(core::CDataFrame& frame, const CDataFrameCategoryEncoder& encoder, std::size_t offset);
 
-    //! Return the array with number of training samples affected by every node of the \p tree.
-    static TDoubleVec numberSamples(const TTree& tree);
-
     //! Recursively computes inner node values as weighted average of the children (leaf) values
     //! \returns The maximum depth the the tree.
-    static std::size_t updateNodeValues(TTree& tree,
-                                        std::size_t nodeIndex,
-                                        const TDoubleVec& numberSamples,
-                                        std::size_t depth);
+    static size_t updateNodeValues(TTree& tree, std::size_t nodeIndex, std::size_t depth);
 
     //! Get the reference to the trees.
     TTreeVec& trees() { return m_Trees; }
@@ -123,7 +117,6 @@ private:
     //! Recursively traverses all pathes in the \p tree and updated SHAP values once it hits a leaf.
     //! Ref. Algorithm 2 in the paper by Lundberg et al.
     void shapRecursive(const TTree& tree,
-                       const TDoubleVec& numberSamples,
                        const CDataFrameCategoryEncoder& encoder,
                        const CEncodedDataFrameRowRef& encodedRow,
                        SPath& splitPath,
@@ -143,7 +136,6 @@ private:
 private:
     TTreeVec m_Trees;
     std::size_t m_NumberThreads;
-    TDoubleVecVec m_NumberSamples;
 };
 }
 }
