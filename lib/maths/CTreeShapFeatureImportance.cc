@@ -223,12 +223,10 @@ void CTreeShapFeatureImportance::extendPath(ElementAccessor& path,
     }
 
     for (int i = (nextIndex - 1); i >= 0; --i) {
-        scalePath[i + 1] += fractionOne * scalePath[ i] *
-                                static_cast<double>(i + 1) /
-                                static_cast<double>(nextIndex + 1);
-        scalePath[i] = fractionZero * scalePath[i] *
-                           static_cast<double>(nextIndex - i) /
-                           static_cast<double>(nextIndex + 1);
+        scalePath[i + 1] += fractionOne * scalePath[i] * static_cast<double>(i + 1) /
+                            static_cast<double>(nextIndex + 1);
+        scalePath[i] = fractionZero * scalePath[i] * static_cast<double>(nextIndex - i) /
+                       static_cast<double>(nextIndex + 1);
     }
 
     ++nextIndex;
@@ -244,21 +242,24 @@ double CTreeShapFeatureImportance::sumUnwoundPath(const ElementAccessor& path,
     double fractionOne{path.fractionOnes(pathIndex)};
     double fractionZero{path.fractionZeros(pathIndex)};
     if (fractionOne != 0) {
+        double pD = static_cast<double>(pathDepth + 1);
+        double countUp = 1.0;
+        double countDown = pD - 1.0;
         for (int i = pathDepth - 1; i >= 0; --i) {
-            double tmp = nextFractionOne * static_cast<double>(pathDepth + 1) /
-                         (static_cast<double>(i + 1) * fractionOne +
-                          std::numeric_limits<double>::epsilon());
-            nextFractionOne = scalePath[i] - tmp * fractionZero *
-                                                 static_cast<double>(pathDepth - i) /
-                                                 static_cast<double>(pathDepth + 1);
+            double tmp = nextFractionOne / countDown  * (pD / fractionOne);
+            nextFractionOne = scalePath[i] - tmp * countUp * (fractionZero / pD);
             total += tmp;
+            countUp += 1.0;
+            countDown -= 1.0;
         }
     } else {
-        for (int i = pathDepth - 1; i >= 0; --i) {
-            total += scalePath[i] * static_cast<double>(pathDepth + 1) /
-                     (fractionZero * static_cast<double>(pathDepth - i) +
-                      std::numeric_limits<double>::epsilon());
+        double pD{static_cast<double>(pathDepth)};
+        for (int i = 0; i <= pathDepth - 1; ++i) {
+            total += scalePath[i] / pD;
+            pD -= 1.0;
         }
+
+        total *= static_cast<double>(pathDepth + 1) / fractionZero;
     }
 
     return total;
