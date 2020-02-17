@@ -136,7 +136,7 @@ struct SFixture {
         api::CDataFrameAnalyzer analyzer{
             test::CDataFrameAnalysisSpecificationFactory::predictionSpec(
                 test::CDataFrameAnalysisSpecificationFactory::regression(),
-                "target", s_Rows, 5, 8000000, 0, 0, {"c1"}, s_Alpha, s_Lambda,
+                "target", s_Rows, 5, 26000000, 0, 0, {"c1"}, s_Alpha, s_Lambda,
                 s_Gamma, s_SoftTreeDepthLimit, s_SoftTreeDepthTolerance, s_Eta,
                 s_MaximumNumberTrees, s_FeatureBagFraction, shapValues),
             outputWriterFactory};
@@ -169,9 +169,9 @@ struct SFixture {
         api::CDataFrameAnalyzer analyzer{
             test::CDataFrameAnalysisSpecificationFactory::predictionSpec(
                 test::CDataFrameAnalysisSpecificationFactory::classification(),
-                "target", s_Rows, 5, 8000000, 0, 0, {"target"}, s_Alpha, s_Lambda,
-                s_Gamma, s_SoftTreeDepthLimit, s_SoftTreeDepthTolerance, s_Eta,
-                s_MaximumNumberTrees, s_FeatureBagFraction, shapValues),
+                "target", s_Rows, 5, 26000000, 0, 0, {"target"}, s_Alpha,
+                s_Lambda, s_Gamma, s_SoftTreeDepthLimit, s_SoftTreeDepthTolerance,
+                s_Eta, s_MaximumNumberTrees, s_FeatureBagFraction, shapValues),
             outputWriterFactory};
         TStrVec fieldNames{"target", "c1", "c2", "c3", "c4", ".", "."};
         TStrVec fieldValues{"", "", "", "", "", "0", ""};
@@ -197,7 +197,7 @@ struct SFixture {
         api::CDataFrameAnalyzer analyzer{
             test::CDataFrameAnalysisSpecificationFactory::predictionSpec(
                 test::CDataFrameAnalysisSpecificationFactory::regression(),
-                "target", s_Rows, 5, 8000000, 0, 0, {}, s_Alpha, s_Lambda,
+                "target", s_Rows, 5, 26000000, 0, 0, {}, s_Alpha, s_Lambda,
                 s_Gamma, s_SoftTreeDepthLimit, s_SoftTreeDepthTolerance, s_Eta,
                 s_MaximumNumberTrees, s_FeatureBagFraction, shapValues),
             outputWriterFactory};
