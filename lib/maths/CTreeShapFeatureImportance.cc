@@ -275,7 +275,8 @@ void CTreeShapFeatureImportance::unwindPath(ElementAccessor& path,
         double countUp{0.0};
         double countDown{static_cast<double>(nextIndex)};
         for (int i = pathDepth; i >= 0; --i, ++countUp, --countDown) {
-            double tmp = nextFractionOne * static_cast<double>(nextIndex) / (countDown * fractionOne );
+            double tmp = nextFractionOne * static_cast<double>(nextIndex) /
+                         (countDown * fractionOne);
             nextFractionOne =
                 scalePath[i] -
                 tmp * countUp * (fractionZero / static_cast<double>(pathDepth + 1));
