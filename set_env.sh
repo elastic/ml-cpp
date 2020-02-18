@@ -71,8 +71,14 @@ if [ "$SIMPLE_PLATFORM" = "windows" ] ; then
     # We have to use 8.3 names for directories with spaces in the names, as some
     # tools won't quote paths with spaces correctly
     PFX86_DIR=`cd $ROOT && cygpath -m -s "Program Files (x86)"`
+    echo "PFX86_DIR is '$PFX86_DIR'"
     MSVC_DIR=`cd $ROOT/$PFX86_DIR && cygpath -m -s "Microsoft Visual Studio"`
+    echo "MSVC_DIR is '$MSVC_DIR'"
     WIN_KITS_DIR=`cd $ROOT/$PFX86_DIR && cygpath -m -s "Windows Kits"`
+    echo "WIN_KITS_DIR is '$WIN_KITS_DIR'"
+    echo Start of directory tree print
+    (cd '/c/Program Files (x86)' && find 'Microsoft Visual Studio' -type d)
+    echo End of directory tree print
     VCVER=`/bin/ls -1 $ROOT/$PFX86_DIR/$MSVC_DIR/2019/Professional/VC/Tools/MSVC | tail -1`
     # NB: Some SDK tools are 32 bit only, hence the 64 bit SDK bin directory
     #     is followed by the 32 bit SDK bin directory
