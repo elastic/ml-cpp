@@ -370,6 +370,13 @@ public:
     }
     //@}
 
+    //! Assignment from a dense matrix.
+    template<typename OTHER_SCALAR>
+    CMemoryMappedDenseMatrix& operator=(const CDenseMatrix<OTHER_SCALAR>& rhs) {
+        static_cast<TBase&>(*this) = rhs.template cast<SCALAR>();
+        return *this;
+    }
+
     //! Get a checksum of this object.
     std::uint64_t checksum(std::uint64_t seed = 0) const {
         for (std::ptrdiff_t i = 0; i < this->rows(); ++i) {
@@ -477,6 +484,13 @@ public:
         return *this;
     }
     //@}
+
+    //! Assignment from a dense vector.
+    template<typename OTHER_SCALAR>
+    CMemoryMappedDenseVector& operator=(const CDenseVector<OTHER_SCALAR>& rhs) {
+        static_cast<TBase&>(*this) = rhs.template cast<SCALAR>();
+        return *this;
+    }
 
     //! Get a checksum of this object.
     std::uint64_t checksum(std::uint64_t seed = 0) const {

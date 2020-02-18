@@ -33,6 +33,13 @@ using TRowItr = core::CDataFrame::TRowItr;
 using TSizeSet = std::set<std::size_t>;
 using TSizePowerset = std::set<TSizeSet>;
 using TSizeVec = std::vector<std::size_t>;
+using TVector = maths::CDenseVector<double>;
+
+TVector toVector(double value) {
+    TVector result{1};
+    result(0) = value;
+    return result;
+}
 
 class CStubMakeDataFrameCategoryEncoder final : public maths::CMakeDataFrameCategoryEncoder {
 public:
@@ -166,7 +173,7 @@ struct SFixtureSingleTreeRandom {
         TDoubleVec leafValues(numberLeafs);
         rng.generateUniformSamples(-5, 5, numberLeafs, leafValues);
         for (std::size_t i = 0; i < numberLeafs; ++i) {
-            s_Tree[s_NumberInnerNodes + i].value(leafValues[i]);
+            s_Tree[s_NumberInnerNodes + i].value(toVector(leafValues[i]));
         }
 
         // set correct number samples
@@ -230,13 +237,13 @@ struct SFixtureMultipleTrees {
         tree1[1].numberSamples(6);
         tree1[2].split(1, 0.25, true, 0.0, 0.0, tree1);
         tree1[2].numberSamples(4);
-        tree1[3].value(1.18230136);
+        tree1[3].value(toVector(1.18230136));
         tree1[3].numberSamples(5);
-        tree1[4].value(1.98006658);
+        tree1[4].value(toVector(1.98006658));
         tree1[4].numberSamples(1);
-        tree1[5].value(3.25350885);
+        tree1[5].value(toVector(3.25350885));
         tree1[5].numberSamples(3);
-        tree1[6].value(2.42384369);
+        tree1[6].value(toVector(2.42384369));
         tree1[6].numberSamples(1);
 
         TTree tree2(1);
@@ -246,13 +253,13 @@ struct SFixtureMultipleTrees {
         tree2[1].numberSamples(5);
         tree2[2].split(0, 0.59, true, 0.0, 0.0, tree2);
         tree2[2].numberSamples(5);
-        tree2[3].value(1.04476388);
+        tree2[3].value(toVector(1.04476388));
         tree2[3].numberSamples(3);
-        tree2[4].value(1.52799228);
+        tree2[4].value(toVector(1.52799228));
         tree2[4].numberSamples(2);
-        tree2[5].value(1.98006658);
+        tree2[5].value(toVector(1.98006658));
         tree2[5].numberSamples(1);
-        tree2[6].value(2.950216);
+        tree2[6].value(toVector(2.950216));
         tree2[6].numberSamples(4);
 
         s_TreeFeatureImportance =
@@ -343,7 +350,8 @@ private:
                                   std::size_t nodeIndex,
                                   double weight) {
         if (m_Tree[nodeIndex].isLeaf()) {
-            return weight * m_Tree[nodeIndex].value();
+            // TODO fixme
+            return weight * m_Tree[nodeIndex].value()(0);
         } else {
             auto leftChildIndex{m_Tree[nodeIndex].leftChildIndex()};
             auto rightChildIndex{m_Tree[nodeIndex].rightChildIndex()};
@@ -381,7 +389,8 @@ BOOST_FIXTURE_TEST_CASE(testSingleTreeExpectedNodeValues, SFixtureSingleTree) {
     TDoubleVec expectedValues{10.5, 5.5, 15.5, 3.0, 8.0, 13.0, 18.0};
     auto& tree{s_TreeFeatureImportance->trees()[0]};
     for (std::size_t i = 0; i < tree.size(); ++i) {
-        BOOST_TEST_REQUIRE(tree[i].value() == expectedValues[i]);
+        // TODO fixme
+        BOOST_TEST_REQUIRE(tree[i].value()(0) == expectedValues[i]);
     }
 }
 

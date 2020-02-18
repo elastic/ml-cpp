@@ -43,10 +43,10 @@ CTreeShapFeatureImportance::CTreeShapFeatureImportance(TTreeVec trees, std::size
     : m_Trees{std::move(trees)}, m_NumberThreads{threads} {
 }
 
-size_t CTreeShapFeatureImportance::updateNodeValues(TTree& tree,
-                                                    std::size_t nodeIndex,
-                                                    std::size_t depth) {
-    auto& node{tree[nodeIndex]};
+std::size_t CTreeShapFeatureImportance::updateNodeValues(TTree& tree,
+                                                         std::size_t nodeIndex,
+                                                         std::size_t depth) {
+    auto& node = tree[nodeIndex];
     if (node.isLeaf()) {
         return 0;
     }
@@ -56,11 +56,12 @@ size_t CTreeShapFeatureImportance::updateNodeValues(TTree& tree,
     std::size_t depthRight{CTreeShapFeatureImportance::updateNodeValues(
         tree, node.rightChildIndex(), depth + 1)};
 
-    std::size_t leftWeight{tree[node.leftChildIndex()].numberSamples()};
-    std::size_t rightWeight{tree[node.rightChildIndex()].numberSamples()};
-    double averageValue{(leftWeight * tree[node.leftChildIndex()].value() +
-                         rightWeight * tree[node.rightChildIndex()].value()) /
-                        (leftWeight + rightWeight)};
+    double leftWeight{static_cast<double>(tree[node.leftChildIndex()].numberSamples())};
+    double rightWeight{static_cast<double>(tree[node.rightChildIndex()].numberSamples())};
+    CBoostedTreeNode::TVector averageValue{
+        (leftWeight * tree[node.leftChildIndex()].value() +
+         rightWeight * tree[node.rightChildIndex()].value()) /
+        (leftWeight + rightWeight)};
     node.value(averageValue);
     return std::max(depthLeft, depthRight) + 1;
 }
@@ -79,7 +80,8 @@ void CTreeShapFeatureImportance::shapRecursive(const TTree& tree,
     CTreeShapFeatureImportance::extendPath(splitPath, parentFractionZero,
                                            parentFractionOne, parentFeatureIndex);
     if (tree[nodeIndex].isLeaf()) {
-        double leafValue = tree[nodeIndex].value();
+        // TODO fix me
+        double leafValue{tree[nodeIndex].value()(0)};
         for (int i = 1; i <= splitPath.depth(); ++i) {
             double scale = CTreeShapFeatureImportance::sumUnwoundPath(splitPath, i);
             std::size_t inputColumnIndex{
