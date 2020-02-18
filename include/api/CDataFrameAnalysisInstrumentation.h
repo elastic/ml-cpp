@@ -74,7 +74,7 @@ protected:
 private:
     void writeProgress(std::uint32_t step);
     void writeMemory(std::uint32_t step);
-    void writeState(uint32_t step);
+    void writeState(std::uint32_t step);
 
 private:
     std::atomic_bool m_Finished;

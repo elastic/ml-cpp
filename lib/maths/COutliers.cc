@@ -29,6 +29,7 @@ using namespace outliers_detail;
 
 namespace {
 using TRowItr = core::CDataFrame::TRowItr;
+using TStepCallback = std::function<void(std::uint32_t)>;
 
 double shift(double score) {
     return std::exp(-2.0) + score;
@@ -103,7 +104,6 @@ public:
         TSampler m_Sampler;
         TMatrix m_Projection;
         TPointVec m_SampledProjectedPoints;
-        TMemoryUsageCallback m_RecordMemoryUsage;
     };
     using TModelBuilderVec = std::vector<CModelBuilder>;
 
@@ -123,8 +123,8 @@ public:
             return core::CMemory::dynamicSize(m_State);
         }
 
-        static std::size_t estimateMemoryUsage(std::size_t dimension) {
-            return (dimension + 2) * sizeof(CFloatStorage);
+        static std::size_t estimateMemoryUsage(std::size_t numberInfluences) {
+            return sizeof(CScorer) + (numberInfluences + 2) * sizeof(CFloatStorage);
         }
 
     private:
@@ -156,10 +156,9 @@ public:
 public:
     CEnsemble(const TMethodFactoryVec& methodFactories,
               TModelBuilderVec builders,
-              TMemoryUsageCallback recordMemoryUsage);
-    ~CEnsemble() {
-        m_RecordMemoryUsage(-std::int64_t(core::CMemory::dynamicSize(m_Models)));
-    }
+              TMemoryUsageCallback recordMemoryUsage,
+              TStepCallback recordStep);
+    ~CEnsemble() { m_RecordMemoryUsage(-signedMemoryUsage(m_Models)); }
 
     CEnsemble(const CEnsemble&) = delete;
     CEnsemble& operator=(const CEnsemble&) = delete;
@@ -175,17 +174,15 @@ public:
                  CPRNG::CXorOShiro128Plus rng = CPRNG::CXorOShiro128Plus{});
 
     //! Compute the outlier scores for \p points.
-    TScorerVec computeOutlierScores(const std::vector<POINT>& points,
-                                    CDataFrameAnalysisInstrumentationInterface& state) const;
+    TScorerVec computeOutlierScores(const std::vector<POINT>& points) const;
 
     //! Estimate the amount of memory that will be used by the ensemble.
-    static std::size_t
-    estimateMemoryUsedToComputeOutlierScores(TMethodSize methodSize,
-                                             std::size_t numberMethodsPerModel,
-                                             bool computeFeatureInfluence,
-                                             std::size_t totalNumberPoints,
-                                             std::size_t partitionNumberPoints,
-                                             std::size_t dimension);
+    static std::size_t estimateMemoryUsage(TMethodSize methodSize,
+                                           std::size_t numberMethodsPerModel,
+                                           bool computeFeatureInfluence,
+                                           std::size_t totalNumberPoints,
+                                           std::size_t partitionNumberPoints,
+                                           std::size_t dimension);
 
     //! Get a human readable description of the ensemble.
     std::string print() const;
@@ -291,6 +288,7 @@ private:
 private:
     TModelVec m_Models;
     TMemoryUsageCallback m_RecordMemoryUsage;
+    TStepCallback m_RecordStep;
 };
 
 template<typename POINT>
@@ -301,8 +299,9 @@ const double CEnsemble<POINT>::NEIGHBOURHOOD_FRACTION{0.01};
 template<typename POINT>
 CEnsemble<POINT>::CEnsemble(const TMethodFactoryVec& methodFactories,
                             TModelBuilderVec builders,
-                            TMemoryUsageCallback recordMemoryUsage)
-    : m_RecordMemoryUsage{std::move(recordMemoryUsage)} {
+                            TMemoryUsageCallback recordMemoryUsage,
+                            TStepCallback recordStep)
+    : m_RecordMemoryUsage{std::move(recordMemoryUsage)}, m_RecordStep{std::move(recordStep)} {
 
     m_Models.reserve(builders.size());
     for (auto& builder : builders) {
@@ -368,8 +367,7 @@ CEnsemble<POINT>::makeBuilders(const TSizeVecVec& methods,
 
 template<typename POINT>
 typename CEnsemble<POINT>::TScorerVec
-CEnsemble<POINT>::computeOutlierScores(const std::vector<POINT>& points,
-                                       CDataFrameAnalysisInstrumentationInterface& state) const {
+CEnsemble<POINT>::computeOutlierScores(const std::vector<POINT>& points) const {
     if (points.empty()) {
         return {};
     }
@@ -379,22 +377,21 @@ CEnsemble<POINT>::computeOutlierScores(const std::vector<POINT>& points,
     TScorerVec scores(points.size());
     m_RecordMemoryUsage(core::CMemory::dynamicSize(scores));
 
-    std::uint32_t step{0ul};
+    std::uint32_t step{0};
     for (const auto& model : m_Models) {
         model.addOutlierScores(points, scores, m_RecordMemoryUsage);
-        state.nextStep(step++);
+        m_RecordStep(step++);
     }
     return scores;
 }
 
 template<typename POINT>
-std::size_t
-CEnsemble<POINT>::estimateMemoryUsedToComputeOutlierScores(TMethodSize methodSize,
-                                                           std::size_t numberMethodsPerModel,
-                                                           bool computeFeatureInfluence,
-                                                           std::size_t totalNumberPoints,
-                                                           std::size_t partitionNumberPoints,
-                                                           std::size_t dimension) {
+std::size_t CEnsemble<POINT>::estimateMemoryUsage(TMethodSize methodSize,
+                                                  std::size_t numberMethodsPerModel,
+                                                  bool computeFeatureInfluence,
+                                                  std::size_t totalNumberPoints,
+                                                  std::size_t partitionNumberPoints,
+                                                  std::size_t dimension) {
     std::size_t ensembleSize{computeEnsembleSize(numberMethodsPerModel,
                                                  totalNumberPoints, dimension)};
     std::size_t sampleSize{computeSampleSize(totalNumberPoints)};
@@ -403,30 +400,21 @@ CEnsemble<POINT>::estimateMemoryUsedToComputeOutlierScores(TMethodSize methodSiz
     std::size_t projectionDimension{computeProjectionDimension(sampleSize, dimension)};
     std::size_t numberNeighbours{(3 + maxNumberNeighbours) / 2};
 
-    auto pointsMemory = [&] {
-        return partitionNumberPoints *
-               (sizeof(TPoint) + las::estimateMemoryUsage<TPoint>(dimension));
-    };
-    auto scorersMemory = [&] {
-        return partitionNumberPoints *
-               (sizeof(CScorer) +
-                CScorer::estimateMemoryUsage(computeFeatureInfluence ? dimension : 0));
-    };
-    auto modelMemory = [&] {
-        return CModel::estimateMemoryUsage(methodSize, sampleSize, numberNeighbours,
-                                           projectionDimension, dimension);
-    };
-    auto partitionScoringMemory = [&] {
-        // The scores for a single method plus bookkeeping overhead
-        // for a single partition.
-        return numberMethodsPerModel * partitionNumberPoints *
-                   (sizeof(TDouble1Vec) +
-                    (computeFeatureInfluence ? projectionDimension * sizeof(double) : 0)) +
-               methodSize(numberNeighbours, partitionNumberPoints, projectionDimension);
-    };
+    std::size_t pointsMemory{partitionNumberPoints *
+                             (sizeof(TPoint) + las::estimateMemoryUsage<TPoint>(dimension))};
+    std::size_t scorersMemory{
+        partitionNumberPoints *
+        CScorer::estimateMemoryUsage(computeFeatureInfluence ? dimension : 0)};
+    std::size_t modelMemory{CModel::estimateMemoryUsage(
+        methodSize, sampleSize, numberNeighbours, projectionDimension, dimension)};
+    // The scores for a single method plus bookkeeping overhead for a single partition.
+    std::size_t partitionScoringMemory{
+        numberMethodsPerModel * partitionNumberPoints *
+            (sizeof(TDouble1Vec) +
+             (computeFeatureInfluence ? projectionDimension * sizeof(double) : 0)) +
+        methodSize(numberNeighbours, partitionNumberPoints, projectionDimension)};
 
-    return pointsMemory() + scorersMemory() + numberModels * modelMemory() +
-           partitionScoringMemory();
+    return pointsMemory + scorersMemory + numberModels * modelMemory + partitionScoringMemory;
 }
 
 template<typename POINT>
@@ -803,13 +791,10 @@ std::size_t CEnsemble<POINT>::CModel::estimateMemoryUsage(TMethodSize methodSize
                                                           std::size_t numberNeighbours,
                                                           std::size_t projectionDimension,
                                                           std::size_t dimension) {
-    auto lookupMemory = [&] {
-        return TKdTree::estimateMemoryUsage(sampleSize, projectionDimension);
-    };
-    auto projectionMemory = [&] {
-        return projectionDimension * dimension * sizeof(typename SCoordinate<TPoint>::Type);
-    };
-    return lookupMemory() + 2 * projectionMemory() +
+    std::size_t lookupMemory{TKdTree::estimateMemoryUsage(sampleSize, projectionDimension)};
+    std::size_t projectionMemory{projectionDimension * dimension *
+                                 sizeof(typename SCoordinate<TPoint>::Type)};
+    return sizeof(CModel) + lookupMemory + 2 * projectionMemory +
            methodSize(numberNeighbours, sampleSize, projectionDimension);
 }
 
@@ -854,7 +839,8 @@ template<typename POINT>
 CEnsemble<POINT> buildEnsemble(const COutliers::SComputeParameters& params,
                                core::CDataFrame& frame,
                                TProgressCallback recordProgress,
-                               TMemoryUsageCallback recordMemoryUsage) {
+                               TMemoryUsageCallback recordMemoryUsage,
+                               TStepCallback recordStep) {
 
     using TSizeVec = typename CEnsemble<POINT>::TSizeVec;
     using TSizeVecVec = typename CEnsemble<POINT>::TSizeVecVec;
@@ -881,21 +867,20 @@ CEnsemble<POINT> buildEnsemble(const COutliers::SComputeParameters& params,
         }
     });
 
-    return {methodFactories<POINT>(params.s_ComputeFeatureInfluence, std::move(recordProgress)),
-            std::move(builders), std::move(recordMemoryUsage)};
+    return CEnsemble<POINT>{
+        methodFactories<POINT>(params.s_ComputeFeatureInfluence, std::move(recordProgress)),
+        std::move(builders), std::move(recordMemoryUsage), std::move(recordStep)};
 }
 
 bool computeOutliersNoPartitions(const COutliers::SComputeParameters& params,
                                  core::CDataFrame& frame,
-                                 CDataFrameAnalysisInstrumentationInterface& state,
-                                 TProgressCallback recordProgress,
-                                 TMemoryUsageCallback recordMemoryUsage) {
+                                 CDataFrameAnalysisInstrumentationInterface& instrumentation) {
 
     using TPoint = CMemoryMappedDenseVector<CFloatStorage>;
     using TPointVec = std::vector<TPoint>;
 
     std::int64_t frameMemory{signedMemoryUsage(frame)};
-    recordMemoryUsage(frameMemory);
+    instrumentation.updateMemoryUsage(frameMemory);
 
     CEnsemble<TPoint>::TScorerVec scores;
 
@@ -903,7 +888,8 @@ bool computeOutliersNoPartitions(const COutliers::SComputeParameters& params,
     {
         core::CStopWatch watch{true};
         CEnsemble<TPoint> ensemble{buildEnsemble<TPoint>(
-            params, frame, std::move(recordProgress), recordMemoryUsage)};
+            params, frame, instrumentation.progressCallback(),
+            instrumentation.memoryUsageCallback(), instrumentation.stepCallback())};
         LOG_TRACE(<< "Ensemble = " << ensemble.print());
         core::CProgramCounters::counter(counter_t::E_DFOTimeToCreateEnsemble) =
             watch.stop();
@@ -914,7 +900,7 @@ bool computeOutliersNoPartitions(const COutliers::SComputeParameters& params,
         // is thread safe.
         TPointVec points(frame.numberRows(), TPoint{nullptr, 1});
         std::int64_t pointsMemory{signedMemoryUsage(points)};
-        recordMemoryUsage(pointsMemory);
+        instrumentation.updateMemoryUsage(pointsMemory);
 
         auto rowsToPoints = [&points](TRowItr beginRows, TRowItr endRows) {
             for (auto row = beginRows; row != endRows; ++row) {
@@ -933,11 +919,11 @@ bool computeOutliersNoPartitions(const COutliers::SComputeParameters& params,
         }
 
         watch.reset(true);
-        scores = ensemble.computeOutlierScores(points, state);
+        scores = ensemble.computeOutlierScores(points);
         core::CProgramCounters::counter(counter_t::E_DFOTimeToComputeScores) =
             watch.stop();
 
-        recordMemoryUsage(-pointsMemory);
+        instrumentation.updateMemoryUsage(-pointsMemory);
 
         // This is a sanity check against CEnsemble accidentally writing to the data
         // frame via one of the memory mapped vectors. All bets are off as to whether
@@ -961,7 +947,7 @@ bool computeOutliersNoPartitions(const COutliers::SComputeParameters& params,
 
     frame.resizeColumns(params.s_NumberThreads,
                         (params.s_ComputeFeatureInfluence ? 2 : 1) * dimension + 1);
-    recordMemoryUsage(signedMemoryUsage(frame) - frameMemory);
+    instrumentation.updateMemoryUsage(signedMemoryUsage(frame) - frameMemory);
 
     bool successful;
     std::tie(std::ignore, successful) = frame.writeColumns(params.s_NumberThreads, writeScores);
@@ -974,9 +960,7 @@ bool computeOutliersNoPartitions(const COutliers::SComputeParameters& params,
 
 bool computeOutliersPartitioned(const COutliers::SComputeParameters& params,
                                 core::CDataFrame& frame,
-                                CDataFrameAnalysisInstrumentationInterface& state,
-                                TProgressCallback recordProgress,
-                                TMemoryUsageCallback recordMemoryUsage) {
+                                CDataFrameAnalysisInstrumentationInterface& instrumentation) {
 
     using TPoint = CDenseVector<CFloatStorage>;
     using TPointVec = std::vector<TPoint>;
@@ -984,10 +968,11 @@ bool computeOutliersPartitioned(const COutliers::SComputeParameters& params,
     core::CStopWatch watch{true};
     CEnsemble<TPoint> ensemble{buildEnsemble<TPoint>(
         params, frame,
-        [=](double progress) {
-            recordProgress(progress / static_cast<double>(params.s_NumberPartitions));
+        [&](double progress) {
+            instrumentation.updateProgress(
+                progress / static_cast<double>(params.s_NumberPartitions));
         },
-        recordMemoryUsage)};
+        instrumentation.memoryUsageCallback(), instrumentation.stepCallback())};
     core::CProgramCounters::counter(counter_t::E_DFOTimeToCreateEnsemble) =
         watch.stop();
     LOG_TRACE(<< "Ensemble = " << ensemble.print());
@@ -996,7 +981,7 @@ bool computeOutliersPartitioned(const COutliers::SComputeParameters& params,
 
     frame.resizeColumns(params.s_NumberThreads,
                         (params.s_ComputeFeatureInfluence ? 2 : 1) * dimension + 1);
-    recordMemoryUsage(signedMemoryUsage(frame));
+    instrumentation.updateMemoryUsage(signedMemoryUsage(frame));
 
     std::size_t rowsPerPartition{(frame.numberRows() + params.s_NumberPartitions - 1) /
                                  params.s_NumberPartitions};
@@ -1006,8 +991,8 @@ bool computeOutliersPartitioned(const COutliers::SComputeParameters& params,
 
     // This is presized so that rowsToPoints only needs to access and write to
     // each element. Since it does this once per element it is thread safe.
-    TPointVec points(rowsPerPartition, SConstant<TPoint>::get(dimension, 0.0));
-    recordMemoryUsage(signedMemoryUsage(points));
+    TPointVec points(rowsPerPartition, SConstant<TPoint>::get(dimension, 0));
+    instrumentation.updateMemoryUsage(signedMemoryUsage(points));
 
     for (std::size_t i = 0, beginPartitionRows = 0; i < params.s_NumberPartitions;
          ++i, beginPartitionRows += rowsPerPartition) {
@@ -1035,7 +1020,7 @@ bool computeOutliersPartitioned(const COutliers::SComputeParameters& params,
         }
 
         watch.reset(true);
-        auto scores = ensemble.computeOutlierScores(points, state);
+        auto scores = ensemble.computeOutlierScores(points);
         core::CProgramCounters::counter(counter_t::E_DFOTimeToComputeScores) +=
             watch.stop();
 
@@ -1056,7 +1041,7 @@ bool computeOutliersPartitioned(const COutliers::SComputeParameters& params,
             return false;
         }
 
-        recordMemoryUsage(-signedMemoryUsage(scores));
+        instrumentation.updateMemoryUsage(-signedMemoryUsage(scores));
     }
 
     return true;
@@ -1071,16 +1056,9 @@ void COutliers::compute(const SComputeParameters& params,
         CDataFrameUtils::standardizeColumns(params.s_NumberThreads, frame);
     }
 
-    auto recordProgress{instrumentation.progressCallback()};
-    auto recordMemoryUsage{instrumentation.memoryUsageCallback()};
-
     bool successful{frame.inMainMemory() && params.s_NumberPartitions == 1
-                        ? computeOutliersNoPartitions(params, frame, instrumentation,
-                                                      std::move(recordProgress),
-                                                      std::move(recordMemoryUsage))
-                        : computeOutliersPartitioned(params, frame, instrumentation,
-                                                     std::move(recordProgress),
-                                                     std::move(recordMemoryUsage))};
+                        ? computeOutliersNoPartitions(params, frame, instrumentation)
+                        : computeOutliersPartitioned(params, frame, instrumentation)};
 
     if (successful == false) {
         HANDLE_FATAL(<< "Internal error: computing outliers for data frame. There "
@@ -1123,7 +1101,7 @@ std::size_t COutliers::estimateMemoryUsedByCompute(const SComputeParameters& par
         }
         return std::size_t{0};
     };
-    return CEnsemble<POINT>::estimateMemoryUsedToComputeOutlierScores(
+    return CEnsemble<POINT>::estimateMemoryUsage(
         methodSize, params.s_Method == E_Ensemble ? 2 : 1 /*number methods*/,
         params.s_ComputeFeatureInfluence, totalNumberPoints,
         partitionNumberPoints, dimension);

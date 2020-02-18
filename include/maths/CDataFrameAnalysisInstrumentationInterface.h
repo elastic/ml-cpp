@@ -20,6 +20,7 @@ class MATHS_EXPORT CDataFrameAnalysisInstrumentationInterface {
 public:
     using TProgressCallback = std::function<void(double)>;
     using TMemoryUsageCallback = std::function<void(std::int64_t)>;
+    using TStepCallback = std::function<void(std::uint32_t)>;
 
 public:
     virtual ~CDataFrameAnalysisInstrumentationInterface() = default;
@@ -46,6 +47,10 @@ public:
     //! Factory for the updateMemoryUsage() callback function object.
     TMemoryUsageCallback memoryUsageCallback() {
         return [this](std::int64_t delta) { this->updateMemoryUsage(delta); };
+    }
+    //! Factory for the nextStep() callback function object.
+    TStepCallback stepCallback() {
+        return [this](std::uint32_t step) { this->nextStep(step); };
     }
 };
 
