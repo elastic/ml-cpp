@@ -55,7 +55,7 @@ const std::size_t MAX_NUMBER_TREES{static_cast<std::size_t>(2.0 / MIN_ETA + 0.5)
 // for progress monitoring because we don't know what value we'll choose in the
 // line search. Assuming it is less than one avoids a large pause in progress if
 // it is reduced in the line search.
-const double LINE_SEARCH_ETA_MARGIN{0.5};
+const double MAIN_LOOP_ETA_SCALE_FOR_PROGRESS{0.5};
 
 double computeEta(std::size_t numberRegressors) {
     // eta is the learning rate. There is a lot of empirical evidence that
@@ -315,7 +315,7 @@ void CBoostedTreeFactory::selectFeaturesAndEncodeCategories(const core::CDataFra
             .minimumFrequencyToOneHotEncode(m_MinimumFrequencyToOneHotEncode)
             .rowMask(m_TreeImpl->allTrainingRowsMask())
             .columnMask(std::move(regressors)));
-    m_TreeImpl->m_TrainingProgress.increment(1);
+    m_TreeImpl->m_TrainingProgress.increment(100);
 }
 
 void CBoostedTreeFactory::determineFeatureDataTypes(const core::CDataFrame& frame) const {
@@ -741,7 +741,7 @@ void CBoostedTreeFactory::initializeUnsetEta(core::CDataFrame& frame) {
 
         m_TreeImpl->m_TrainingProgress.incrementRange(
             static_cast<int>(this->mainLoopNumberSteps(m_TreeImpl->m_Eta)) -
-            static_cast<int>(this->mainLoopNumberSteps(LINE_SEARCH_ETA_MARGIN * eta)));
+            static_cast<int>(this->mainLoopNumberSteps(MAIN_LOOP_ETA_SCALE_FOR_PROGRESS * eta)));
     }
 }
 
@@ -1162,7 +1162,7 @@ void CBoostedTreeFactory::initializeTrainingProgressMonitoring(const core::CData
     //
     // This comprises:
     //  - The cost of category encoding and feature selection which we count as
-    //    one unit,
+    //    one hundred units,
     //  - One unit for estimating the expected gain and sum curvature per node,
     //  - LINE_SEARCH_ITERATIONS * "maximum number trees" units per regularization
     //    parameter which isn't user defined,
@@ -1178,7 +1178,7 @@ void CBoostedTreeFactory::initializeTrainingProgressMonitoring(const core::CData
                    ? *m_TreeImpl->m_EtaOverride
                    : computeEta(frame.numberColumns())};
 
-    std::size_t totalNumberSteps{2};
+    std::size_t totalNumberSteps{101};
     std::size_t lineSearchMaximumNumberTrees{computeMaximumNumberTrees(eta)};
     if (m_TreeImpl->m_RegularizationOverride.softTreeDepthLimit() == boost::none) {
         totalNumberSteps += MAX_LINE_SEARCH_ITERATIONS * lineSearchMaximumNumberTrees;
@@ -1196,10 +1196,10 @@ void CBoostedTreeFactory::initializeTrainingProgressMonitoring(const core::CData
         totalNumberSteps += MAX_LINE_SEARCH_ITERATIONS * lineSearchMaximumNumberTrees;
     }
     if (m_TreeImpl->m_EtaOverride == boost::none) {
-        totalNumberSteps += MAX_LINE_SEARCH_ITERATIONS * lineSearchMaximumNumberTrees *
-                            computeMaximumNumberTrees(LINE_SEARCH_ETA_MARGIN * eta);
+        totalNumberSteps += MAX_LINE_SEARCH_ITERATIONS *
+                            computeMaximumNumberTrees(MAIN_LOOP_ETA_SCALE_FOR_PROGRESS * eta);
     }
-    totalNumberSteps += this->mainLoopNumberSteps(LINE_SEARCH_ETA_MARGIN * eta);
+    totalNumberSteps += this->mainLoopNumberSteps(MAIN_LOOP_ETA_SCALE_FOR_PROGRESS * eta);
     LOG_TRACE(<< "total number steps = " << totalNumberSteps);
     m_TreeImpl->m_TrainingProgress = core::CLoopProgress{
         totalNumberSteps, m_TreeImpl->m_Instrumentation->progressCallback(), 1.0, 1024};
