@@ -48,15 +48,29 @@ namespace {
 
 class CTestInstrumentation : public maths::CDataFrameAnalysisInstrumentationInterface {
 public:
+    using TIntVec = std::vector<int>;
+
+public:
     CTestInstrumentation()
         : m_TotalFractionalProgress{0}, m_MemoryUsage{0}, m_MaxMemoryUsage{0} {}
 
-    int progress() const { return m_TotalFractionalProgress.load(); }
+    int progress() const {
+        return (100 * m_TotalFractionalProgress.load()) / 65536;
+    }
+    TIntVec tenPercentProgressPoints() const {
+        return m_TenPercentProgressPoints;
+    }
     std::int64_t maxMemoryUsage() const { return m_MaxMemoryUsage.load(); }
 
     void updateProgress(double fractionalProgress) override {
-        m_TotalFractionalProgress.fetch_add(
-            static_cast<int>(65536.0 * fractionalProgress + 0.5));
+        int progress{m_TotalFractionalProgress.fetch_add(
+            static_cast<int>(65536.0 * fractionalProgress + 0.5))};
+        // This needn't be protected because progress is only written from one thread and
+        // the tests arrange that it is never read at the same time it is being written.
+        if (m_TenPercentProgressPoints.empty() ||
+            100 * progress > 65536 * (m_TenPercentProgressPoints.back() + 10)) {
+            m_TenPercentProgressPoints.push_back(10 * ((10 * progress) / 65536));
+        }
     }
 
     void updateMemoryUsage(std::int64_t delta) override {
@@ -73,6 +87,7 @@ public:
 
 private:
     std::atomic_int m_TotalFractionalProgress;
+    TIntVec m_TenPercentProgressPoints;
     std::atomic<std::int64_t> m_MemoryUsage;
     std::atomic<std::int64_t> m_MaxMemoryUsage;
 };
@@ -1392,23 +1407,26 @@ BOOST_AUTO_TEST_CASE(testProgressMonitoring) {
             finished.store(true);
         }};
 
-        int lastTotalFractionalProgress{0};
         int lastProgressReport{0};
 
         bool monotonic{true};
-        std::size_t percentage{0};
+        int percentage{0};
         while (finished.load() == false) {
-            if (instrumentation.progress() > lastProgressReport) {
+            if (instrumentation.progress() > percentage) {
                 LOG_DEBUG(<< percentage << "% complete");
                 percentage += 10;
-                lastProgressReport += 6554;
             }
-            monotonic &= (instrumentation.progress() >= lastTotalFractionalProgress);
-            lastTotalFractionalProgress = instrumentation.progress();
+            monotonic &= (instrumentation.progress() >= lastProgressReport);
+            lastProgressReport = instrumentation.progress();
         }
         worker.join();
 
         BOOST_TEST_REQUIRE(monotonic);
+        LOG_DEBUG(<< "progress points = "
+                  << core::CContainerPrinter::print(instrumentation.tenPercentProgressPoints()));
+        BOOST_REQUIRE_EQUAL("[0, 10, 20, 30, 40, 50, 60, 70, 80, 90]",
+                            core::CContainerPrinter::print(
+                                instrumentation.tenPercentProgressPoints()));
 
         core::startDefaultAsyncExecutor();
     }
