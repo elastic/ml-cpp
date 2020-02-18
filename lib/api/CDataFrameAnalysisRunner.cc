@@ -48,7 +48,7 @@ TBoolVec CDataFrameAnalysisRunner::columnsForWhichEmptyIsMissing(const TStrVec& 
 
 void CDataFrameAnalysisRunner::estimateMemoryUsage(CMemoryUsageEstimationResultJsonWriter& writer) const {
     std::size_t numberRows{m_Spec.numberRows()};
-    std::size_t numberColumns{m_Spec.numberColumns() + this->numberExtraColumns()};
+    std::size_t numberColumns{m_Spec.numberColumns()};
     std::size_t maxNumberPartitions{maximumNumberPartitions(m_Spec)};
     if (maxNumberPartitions == 0) {
         writer.write("0", "0");
@@ -68,7 +68,7 @@ void CDataFrameAnalysisRunner::estimateMemoryUsage(CMemoryUsageEstimationResultJ
 void CDataFrameAnalysisRunner::computeAndSaveExecutionStrategy() {
 
     std::size_t numberRows{m_Spec.numberRows()};
-    std::size_t numberColumns{m_Spec.numberColumns() + this->numberExtraColumns()};
+    std::size_t numberColumns{m_Spec.numberColumns()};
     std::size_t memoryLimit{m_Spec.memoryLimit()};
 
     LOG_TRACE(<< "memory limit = " << memoryLimit);
@@ -163,8 +163,9 @@ const CDataFrameAnalysisSpecification& CDataFrameAnalysisRunner::spec() const {
 std::size_t CDataFrameAnalysisRunner::estimateMemoryUsage(std::size_t totalNumberRows,
                                                           std::size_t partitionNumberRows,
                                                           std::size_t numberColumns) const {
-    return core::CDataFrame::estimateMemoryUsage(this->storeDataFrameInMainMemory(),
-                                                 totalNumberRows, numberColumns) +
+    return core::CDataFrame::estimateMemoryUsage(
+               this->storeDataFrameInMainMemory(), totalNumberRows,
+               numberColumns + this->numberExtraColumns()) +
            this->estimateBookkeepingMemoryUsage(m_NumberPartitions, totalNumberRows,
                                                 partitionNumberRows, numberColumns);
 }
