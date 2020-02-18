@@ -293,6 +293,7 @@ public:
                              bool assignMissingToLeft,
                              double nodeValue,
                              double gain,
+                             std::size_t numberSamples,
                              TOptionalNodeIndex leftChild,
                              TOptionalNodeIndex rightChild) = 0;
     };
@@ -333,6 +334,12 @@ public:
 
     //! Get the total curvature at the rows below this node.
     double curvature() const { return m_Curvature; }
+
+    //! Set the number of samples to \p value.
+    void numberSamples(std::size_t value);
+
+    //! Get number of samples affected by the node.
+    std::size_t numberSamples() const;
 
     //! Get the index of the left child node.
     TNodeIndex leftChildIndex() const { return m_LeftChild.get(); }
@@ -376,6 +383,7 @@ private:
     double m_NodeValue = 0.0;
     double m_Gain = 0.0;
     double m_Curvature = 0.0;
+    std::size_t m_NumberSamples = 0;
 };
 
 //! \brief A boosted regression tree model.
