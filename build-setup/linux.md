@@ -7,16 +7,16 @@ You will need the following environment variables to be defined:
 
 - `JAVA_HOME` - Should point to the JDK you want to use to run Gradle.
 - `CPP_SRC_HOME` - Only required if building the C++ code directly using `make`, as Gradle sets it automatically.
-- `PATH` - Must have `/usr/local/gcc73/bin` before `/usr/bin` and `/bin`.
-- `LD_LIBRARY_PATH` - Must have `/usr/local/gcc73/lib64` and `/usr/local/gcc73/lib` before `/usr/lib` and `/lib`.
+- `PATH` - Must have `/usr/local/gcc75/bin` before `/usr/bin` and `/bin`.
+- `LD_LIBRARY_PATH` - Must have `/usr/local/gcc75/lib64` and `/usr/local/gcc75/lib` before `/usr/lib` and `/lib`.
 
 For example, you might create a `.bashrc` file in your home directory containing something like this:
 
 ```
 umask 0002
 export JAVA_HOME=/usr/local/jdk1.8.0_121
-export LD_LIBRARY_PATH=/usr/local/gcc73/lib64:/usr/local/gcc73/lib:/usr/lib:/lib
-export PATH=$JAVA_HOME/bin:/usr/local/gcc73/bin:/usr/bin:/bin:/usr/sbin:/sbin:/home/vagrant/bin
+export LD_LIBRARY_PATH=/usr/local/gcc75/lib64:/usr/local/gcc75/lib:/usr/lib:/lib
+export PATH=$JAVA_HOME/bin:/usr/local/gcc75/bin:/usr/bin:/bin:/usr/sbin:/sbin:/home/vagrant/bin
 # Only required if building the C++ code directly using make - adjust depending on the location of your Git clone
 export CPP_SRC_HOME=$HOME/ml-cpp
 ```
@@ -28,6 +28,7 @@ You need the C++ compiler and the headers for the `zlib` library that comes with
 ```
 sudo yum install bzip2
 sudo yum install gcc-c++
+sudo yum install texinfo
 sudo yum install tzdata
 sudo yum install unzip
 sudo yum install zlib-devel
@@ -54,22 +55,22 @@ These environment variables only need to be set when building tools on Linux. Th
 
 We have to build on old Linux versions to enable our software to run on the older versions of Linux that users have.  However, this means the default compiler on our Linux build servers is also very old.  To enable use of more modern C++ features, we use the default compiler to build a newer version of gcc and then use that to build all our other dependencies.
 
-Download `gcc-7.3.0.tar.gz` from <http://ftpmirror.gnu.org/gcc/gcc-7.3.0/gcc-7.3.0.tar.gz>.
+Download `gcc-7.5.0.tar.gz` from <http://ftpmirror.gnu.org/gcc/gcc-7.5.0/gcc-7.5.0.tar.gz>.
 
 Unlike most automake-based tools, gcc must be built in a directory adjacent to the directory containing its source code, so build and install it like this:
 
 ```
-tar zxvf gcc-7.3.0.tar.gz
-cd gcc-7.3.0
+tar zxvf gcc-7.5.0.tar.gz
+cd gcc-7.5.0
 contrib/download_prerequisites
 sed -i -e 's/$(SHLIB_LDFLAGS)/$(LDFLAGS) $(SHLIB_LDFLAGS)/' libgcc/config/t-slibgcc
 cd ..
-mkdir gcc-7.3.0-build
-cd gcc-7.3.0-build
+mkdir gcc-7.5.0-build
+cd gcc-7.5.0-build
 unset CXX
 unset LD_LIBRARY_PATH
 export PATH=/usr/bin:/bin:/usr/sbin:/sbin
-../gcc-7.3.0/configure --prefix=/usr/local/gcc73 --enable-languages=c,c++ --enable-vtable-verify --with-system-zlib --disable-multilib
+../gcc-7.5.0/configure --prefix=/usr/local/gcc75 --enable-languages=c,c++ --enable-vtable-verify --with-system-zlib --disable-multilib
 make -j 6
 sudo make install
 ```
@@ -91,10 +92,31 @@ g++ --version
 It should print:
 
 ```
-g++ (GCC) 7.3.0
+g++ (GCC) 7.5.0
 ```
 
-in the first line of the output. If it doesn't then double check that `/usr/local/gcc73/bin` is near the beginning of your `PATH`.
+in the first line of the output. If it doesn't then double check that `/usr/local/gcc75/bin` is near the beginning of your `PATH`.
+
+### binutils
+
+Also due to building on old Linux versions yet wanting to use modern libraries we have to install an up-to-date version of binutils.
+
+Download `binutils-2.34.tar.bz2` from <http://ftpmirror.gnu.org/binutils/binutils-2.34.tar.bz2>.
+
+Uncompress and untar the resulting file. Then run:
+
+```
+./configure --prefix=/usr/local/gcc75 --enable-vtable-verify --with-system-zlib --disable-libstdcxx --with-gcc-major-version-only
+```
+
+This should build an appropriate Makefile. Assuming it does, type:
+
+```
+make
+sudo make install
+```
+
+to install.
 
 ### Git
 
@@ -139,7 +161,7 @@ Anonymous FTP to ftp.xmlsoft.org, change directory to libxml2, switch to binary 
 Uncompress and untar the resulting file. Then run:
 
 ```
-./configure --prefix=/usr/local/gcc73 --without-python --without-readline
+./configure --prefix=/usr/local/gcc75 --without-python --without-readline
 ```
 
 This should build an appropriate Makefile. Assuming it does, type:
@@ -197,7 +219,7 @@ Finally, run:
 
 ```
 ./b2 -j6 --layout=versioned --disable-icu pch=off optimization=speed inlining=full define=BOOST_MATH_NO_LONG_DOUBLE_MATH_FUNCTIONS define=BOOST_LOG_WITHOUT_DEBUG_OUTPUT define=BOOST_LOG_WITHOUT_EVENT_LOG define=BOOST_LOG_WITHOUT_SYSLOG define=BOOST_LOG_WITHOUT_IPC define=_FORTIFY_SOURCE=2 cxxflags=-std=gnu++14 cxxflags=-fstack-protector linkflags=-Wl,-z,relro linkflags=-Wl,-z,now
-sudo env PATH="$PATH" LD_LIBRARY_PATH="$LD_LIBRARY_PATH" ./b2 install --prefix=/usr/local/gcc73 --layout=versioned --disable-icu pch=off optimization=speed inlining=full define=BOOST_MATH_NO_LONG_DOUBLE_MATH_FUNCTIONS define=BOOST_LOG_WITHOUT_DEBUG_OUTPUT define=BOOST_LOG_WITHOUT_EVENT_LOG define=BOOST_LOG_WITHOUT_SYSLOG define=BOOST_LOG_WITHOUT_IPC define=_FORTIFY_SOURCE=2 cxxflags=-std=gnu++14 cxxflags=-fstack-protector linkflags=-Wl,-z,relro linkflags=-Wl,-z,now
+sudo env PATH="$PATH" LD_LIBRARY_PATH="$LD_LIBRARY_PATH" ./b2 install --prefix=/usr/local/gcc75 --layout=versioned --disable-icu pch=off optimization=speed inlining=full define=BOOST_MATH_NO_LONG_DOUBLE_MATH_FUNCTIONS define=BOOST_LOG_WITHOUT_DEBUG_OUTPUT define=BOOST_LOG_WITHOUT_EVENT_LOG define=BOOST_LOG_WITHOUT_SYSLOG define=BOOST_LOG_WITHOUT_IPC define=_FORTIFY_SOURCE=2 cxxflags=-std=gnu++14 cxxflags=-fstack-protector linkflags=-Wl,-z,relro linkflags=-Wl,-z,now
 ```
 
 to install the Boost headers and libraries.  (Note the `env PATH="$PATH"` bit in the install command - this is because `sudo` usually resets `PATH` and that will cause Boost to rebuild everything again with the default compiler as part of the install!)
@@ -215,7 +237,7 @@ bzip2 -cd patchelf-0.9.tar.bz2 | tar xvf -
 In the resulting `patchelf-0.9` directory, run the:
 
 ```
-./configure --prefix=/usr/local/gcc73
+./configure --prefix=/usr/local/gcc75
 ```
 
 script. This should build an appropriate Makefile. Assuming it does, run:
