@@ -166,14 +166,10 @@ void CTreeShapFeatureImportance::shapRecursive(const TTree& tree,
         double incomingFractionZero{1.0};
         double incomingFractionOne{1.0};
         int splitFeature{static_cast<int>(tree[nodeIndex].splitFeature())};
-        auto featureIndexEnd{(splitPath.fractionsBegin() + nextIndex)};
-        auto it = std::find_if(splitPath.fractionsBegin(), featureIndexEnd,
-                               [splitFeature](const SPathElement& el) {
-                                   return el.s_FeatureIndex == splitFeature;
-                               });
-        if (it != featureIndexEnd) {
+        
+        int pathIndex{splitPath.find(splitFeature, nextIndex)};
+        if (pathIndex >= 0) {
             // Since we pass splitPath by reference, we need to backup the object before unwinding it.
-            int pathIndex{std::distance(splitPath.fractionsBegin(), it)};
             incomingFractionZero = splitPath.fractionZeros(pathIndex);
             incomingFractionOne = splitPath.fractionOnes(pathIndex);
             CTreeShapFeatureImportance::unwindPath(splitPath, pathIndex, nextIndex);
