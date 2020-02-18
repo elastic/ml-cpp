@@ -127,7 +127,7 @@ void CTreeShapFeatureImportance::shapRecursive(const TTree& tree,
                                                std::size_t offset,
                                                core::CDataFrame::TRowItr& row,
                                                int nextIndex,
-                                               const CPathElementAccessor & parentSplitPath) const {
+                                               const CPathElementAccessor& parentSplitPath) const {
     CPathElementAccessor splitPath{parentSplitPath, nextIndex};
 
     CTreeShapFeatureImportance::extendPath(splitPath, parentFractionZero, parentFractionOne,
@@ -246,7 +246,8 @@ double CTreeShapFeatureImportance::sumUnwoundPath(const CPathElementAccessor& pa
         total =
             std::accumulate(scalePath, scalePath + pathDepth, 0.0,
                             [&pD](double a, double b) { return a + b / pD--; });
-        total *= static_cast<double>(pathDepth + 1) / (fractionZero + std::numeric_limits<double>::epsilon());
+        total *= static_cast<double>(pathDepth + 1) /
+                 (fractionZero + std::numeric_limits<double>::epsilon());
     }
 
     return total;
@@ -276,7 +277,9 @@ void CTreeShapFeatureImportance::unwindPath(CPathElementAccessor& path,
         double pD{static_cast<double>(pathDepth)};
         for (int i = 0; i <= pathDepth; ++i, --pD) {
             scalePath[i] = scalePath[i] *
-                           (static_cast<double>(pathDepth + 1) / (fractionZero + std::numeric_limits<double>::epsilon())) / pD;
+                           (static_cast<double>(pathDepth + 1) /
+                            (fractionZero + std::numeric_limits<double>::epsilon())) /
+                           pD;
         }
     }
     for (int i = pathIndex; i < pathDepth; ++i) {

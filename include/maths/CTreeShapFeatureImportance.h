@@ -145,7 +145,7 @@ private:
                        std::size_t offset,
                        core::CDataFrame::TRowItr& row,
                        int nextIndex,
-                       const CPathElementAccessor & path) const;
+                       const CPathElementAccessor& path) const;
     //! Extend the \p path object, update the variables and factorial scaling coefficients.
     static void extendPath(CPathElementAccessor& path,
                            double fractionZero,
