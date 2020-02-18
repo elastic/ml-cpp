@@ -56,13 +56,14 @@ std::size_t CTreeShapFeatureImportance::updateNodeValues(TTree& tree,
     std::size_t depthRight{CTreeShapFeatureImportance::updateNodeValues(
         tree, node.rightChildIndex(), depth + 1)};
 
-    double leftWeight{static_cast<double>(tree[node.leftChildIndex()].numberSamples())};
-    double rightWeight{static_cast<double>(tree[node.rightChildIndex()].numberSamples())};
+    auto& leftChild = tree[node.leftChildIndex()];
+    auto& rightChild = tree[node.rightChildIndex()];
+    double leftWeight{static_cast<double>(leftChild.numberSamples())};
+    double rightWeight{static_cast<double>(rightChild.numberSamples())};
     CBoostedTreeNode::TVector averageValue{
-        (leftWeight * tree[node.leftChildIndex()].value() +
-         rightWeight * tree[node.rightChildIndex()].value()) /
+        (leftWeight * leftChild.value() + rightWeight * rightChild.value()) /
         (leftWeight + rightWeight)};
-    node.value(averageValue);
+    node.value(std::move(averageValue));
     return std::max(depthLeft, depthRight) + 1;
 }
 

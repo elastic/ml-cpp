@@ -35,6 +35,7 @@ using TSizePowerset = std::set<TSizeSet>;
 using TSizeVec = std::vector<std::size_t>;
 using TVector = maths::CDenseVector<double>;
 
+namespace {
 TVector toVector(double value) {
     TVector result{1};
     result(0) = value;
@@ -81,10 +82,10 @@ struct SFixtureSingleTree {
         tree[0].split(0, 0.5, true, 0.0, 0.0, tree);
         tree[1].split(1, 0.5, true, 0.0, 0.0, tree);
         tree[2].split(1, 0.5, true, 0.0, 0.0, tree);
-        tree[3].value(3);
-        tree[4].value(8);
-        tree[5].value(13);
-        tree[6].value(18);
+        tree[3].value(toVector(3.0));
+        tree[4].value(toVector(8.0));
+        tree[5].value(toVector(13.0));
+        tree[6].value(toVector(18.0));
 
         tree[0].numberSamples(4);
         tree[1].numberSamples(2);
@@ -380,6 +381,7 @@ private:
     TSizePowerset m_Powerset{};
     std::size_t m_NumberFeatures;
 };
+}
 
 BOOST_FIXTURE_TEST_CASE(testSingleTreeExpectedNodeValues, SFixtureSingleTree) {
 
