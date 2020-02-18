@@ -67,39 +67,68 @@ private:
     };
 
     using TElementVec = std::vector<SPathElement>;
-    using TElementIt = TElementVec::iterator;
-    using TDoubleVecIt = TDoubleVec::iterator;
+    using TElementItr = TElementVec::iterator;
+    using TDoubleVecItr = TDoubleVec::iterator;
 
-    class PathElementAccessor {
+    class CPathElementAccessor {
     public:
-        explicit PathElementAccessor(TElementIt iterator) {
-            m_Iterator = iterator;
+        CPathElementAccessor(TElementItr fractionsIterator, TDoubleVecItr scaleIterator) {
+            m_FractionsIterator = fractionsIterator;
+            m_ScaleIterator = scaleIterator;
         }
 
-        inline SPathElement& operator[](int index) { return m_Iterator[index]; }
-
-        inline TElementIt& begin() { return m_Iterator; }
-
-        inline void setValues(int index, double fractionOnes, double fractionZeros, int featureIndex) {
-            m_Iterator[index].s_FractionOnes = fractionOnes;
-            m_Iterator[index].s_FractionZeros = fractionZeros;
-            m_Iterator[index].s_FeatureIndex = featureIndex;
+        CPathElementAccessor(const CPathElementAccessor& parentSplitPath, int nextIndex)
+            : CPathElementAccessor(parentSplitPath.fractionsBegin() + nextIndex,
+                                   parentSplitPath.scaleBegin() + nextIndex) {
+            std::copy(parentSplitPath.fractionsBegin(),
+                      parentSplitPath.fractionsBegin() + nextIndex,
+                      this->fractionsBegin());
+            std::copy(parentSplitPath.scaleBegin(),
+                      parentSplitPath.scaleBegin() + nextIndex, this->scaleBegin());
         }
 
-        inline int featureIndex(int nextIndex) const {
-            return m_Iterator[nextIndex].s_FeatureIndex;
+        TElementItr& fractions() { return m_FractionsIterator; }
+        const TElementItr& fractions() const { return m_FractionsIterator; }
+        TDoubleVecItr& scale() { return m_ScaleIterator; }
+        const TDoubleVecItr& scale() const { return m_ScaleIterator; }
+
+        SPathElement& operator[](int index) {
+            return m_FractionsIterator[index];
         }
 
-        inline double fractionZeros(int nextIndex) const {
-            return m_Iterator[nextIndex].s_FractionZeros;
+        TElementItr& fractionsBegin() { return m_FractionsIterator; }
+        const TElementItr& fractionsBegin() const {
+            return m_FractionsIterator;
         }
 
-        inline double fractionOnes(int nextIndex) const {
-            return m_Iterator[nextIndex].s_FractionOnes;
+        TDoubleVecItr& scaleBegin() { return m_ScaleIterator; }
+        const TDoubleVecItr& scaleBegin() const { return m_ScaleIterator; }
+
+        void setValues(int index, double fractionOnes, double fractionZeros, int featureIndex) {
+            m_FractionsIterator[index].s_FractionOnes = fractionOnes;
+            m_FractionsIterator[index].s_FractionZeros = fractionZeros;
+            m_FractionsIterator[index].s_FeatureIndex = featureIndex;
+        }
+
+        void scale(int index, double value) { m_ScaleIterator[index] = value; }
+
+        double scale(int index) const { return m_ScaleIterator[index]; }
+
+        int featureIndex(int nextIndex) const {
+            return m_FractionsIterator[nextIndex].s_FeatureIndex;
+        }
+
+        double fractionZeros(int nextIndex) const {
+            return m_FractionsIterator[nextIndex].s_FractionZeros;
+        }
+
+        double fractionOnes(int nextIndex) const {
+            return m_FractionsIterator[nextIndex].s_FractionOnes;
         }
 
     private:
-        TElementIt m_Iterator;
+        TElementItr m_FractionsIterator;
+        TDoubleVecItr m_ScaleIterator;
     };
 
 private:
@@ -115,24 +144,18 @@ private:
                        int parentFeatureIndex,
                        std::size_t offset,
                        core::CDataFrame::TRowItr& row,
-                       TElementIt parentSplitPath,
                        int nextIndex,
-                       TDoubleVecIt parentScalePath) const;
+                       const CPathElementAccessor & path) const;
     //! Extend the \p path object, update the variables and factorial scaling coefficients.
-    static void extendPath(PathElementAccessor& path,
-                           TDoubleVecIt& scalePath,
+    static void extendPath(CPathElementAccessor& path,
                            double fractionZero,
                            double fractionOne,
                            int featureIndex,
                            int& nextIndex);
     //! Sum the scaling coefficients for the \p scalePath without the feature defined in \p pathIndex.
-    static double sumUnwoundPath(const PathElementAccessor& path,
-                                 const TDoubleVecIt& scalePath,
-                                 int pathIndex,
-                                 int nextIndex);
+    static double sumUnwoundPath(const CPathElementAccessor& path, int pathIndex, int nextIndex);
     //! Updated the scaling coefficients in the \p path if the feature defined in \p pathIndex was seen again.
-    static void
-    unwindPath(PathElementAccessor& path, TDoubleVecIt& scalePath, int pathIndex, int& nextIndex);
+    static void unwindPath(CPathElementAccessor& path, int pathIndex, int& nextIndex);
 
 private:
     TTreeVec m_Trees;
