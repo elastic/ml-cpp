@@ -1468,9 +1468,7 @@ BOOST_AUTO_TEST_CASE(testMemoryMapped) {
         TMappedFloatMatrix mappedMatrix(components, 3, 3);
 
         TDenseMatrix matrix{3, 3};
-        matrix << 1.1, 2.7, 0.1,
-                  3.0, 1.2, 0.4,
-                  5.1, 0.2, 9.3;
+        matrix << 1.1, 2.7, 0.1, 3.0, 1.2, 0.4, 5.1, 0.2, 9.3;
         mappedMatrix = matrix;
 
         for (int i = 0; i < 3; ++i) {
