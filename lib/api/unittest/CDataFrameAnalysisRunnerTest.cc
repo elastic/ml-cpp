@@ -115,6 +115,7 @@ BOOST_AUTO_TEST_CASE(testComputeAndSaveExecutionStrategyDiskUsageFlag) {
     }
 }
 
+namespace {
 void testEstimateMemoryUsage(std::int64_t numberRows,
                              const std::string& expectedExpectedMemoryWithoutDisk,
                              const std::string& expectedExpectedMemoryWithDisk,
@@ -152,12 +153,13 @@ void testEstimateMemoryUsage(std::int64_t numberRows,
 
     BOOST_TEST_REQUIRE(result.HasMember("expected_memory_without_disk"));
     BOOST_REQUIRE_EQUAL(expectedExpectedMemoryWithoutDisk,
-                        std::string(result["expected_memory_without_disk"].GetString()));
+                        result["expected_memory_without_disk"].GetString());
     BOOST_TEST_REQUIRE(result.HasMember("expected_memory_with_disk"));
     BOOST_REQUIRE_EQUAL(expectedExpectedMemoryWithDisk,
-                        std::string(result["expected_memory_with_disk"].GetString()));
+                        result["expected_memory_with_disk"].GetString());
 
     BOOST_REQUIRE_EQUAL(expectedNumberErrors, static_cast<int>(errors.size()));
+}
 }
 
 BOOST_AUTO_TEST_CASE(testEstimateMemoryUsageFor0Rows) {
@@ -165,19 +167,19 @@ BOOST_AUTO_TEST_CASE(testEstimateMemoryUsageFor0Rows) {
 }
 
 BOOST_AUTO_TEST_CASE(testEstimateMemoryUsageFor1Row) {
-    testEstimateMemoryUsage(1, "6kB", "6kB", 0);
+    testEstimateMemoryUsage(1, "4kB", "4kB", 0);
 }
 
 BOOST_AUTO_TEST_CASE(testEstimateMemoryUsageFor10Rows) {
-    testEstimateMemoryUsage(10, "15kB", "13kB", 0);
+    testEstimateMemoryUsage(10, "12kB", "10kB", 0);
 }
 
 BOOST_AUTO_TEST_CASE(testEstimateMemoryUsageFor100Rows) {
-    testEstimateMemoryUsage(100, "62kB", "35kB", 0);
+    testEstimateMemoryUsage(100, "57kB", "35kB", 0);
 }
 
 BOOST_AUTO_TEST_CASE(testEstimateMemoryUsageFor1000Rows) {
-    testEstimateMemoryUsage(1000, "450kB", "143kB", 0);
+    testEstimateMemoryUsage(1000, "403kB", "142kB", 0);
 }
 
 void testColumnsForWhichEmptyIsMissing(const std::string& analysis,

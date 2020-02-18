@@ -40,11 +40,11 @@ std::size_t CDataFrameMockAnalysisRunner::estimateBookkeepingMemoryUsage(std::si
 
 const ml::api::CDataFrameAnalysisInstrumentation&
 CDataFrameMockAnalysisRunner::instrumentation() const {
-    return m_State;
+    return m_Instrumentation;
 }
 
 ml::api::CDataFrameAnalysisInstrumentation& CDataFrameMockAnalysisRunner::instrumentation() {
-    return m_State;
+    return m_Instrumentation;
 }
 
 ml::test::CRandomNumbers CDataFrameMockAnalysisRunner::ms_Rng;
