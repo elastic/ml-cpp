@@ -53,6 +53,8 @@ and {pull}51879[#51879], issue: {issue}50794[#50749].)
 * Improve upfront memory estimation for all data frame analyses, which were higher than
 necessary. This will improve the allocation of data frame analyses to cluster nodes.
 (See {ml-pull}1003[#1003].)
+* Upgrade the compiler used on Linux from gcc 7.3 to gcc 7.5, and the binutils used in
+the build from version 2.20 to 2.34.  (See {ml-pull}1013[#1013].)
 
 === Bug Fixes
 
