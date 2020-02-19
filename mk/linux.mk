@@ -27,7 +27,7 @@ PLATPICFLAGS=-fPIC
 PLATPIEFLAGS=-fPIE
 CFLAGS=-g $(OPTCFLAGS) -msse4.2 -mfpmath=sse -fstack-protector -fno-math-errno -fno-permissive -Wall -Wcast-align -Wconversion -Wextra -Winit-self -Wparentheses -Wpointer-arith -Wswitch-enum $(COVERAGE)
 CXXFLAGS=$(CFLAGS) -Wno-ctor-dtor-privacy -Wno-deprecated-declarations -Wold-style-cast -fvisibility-inlines-hidden
-CPPFLAGS=-isystem $(CPP_SRC_HOME)/3rd_party/include -isystem /usr/local/gcc73/include -D$(OS) -D_REENTRANT $(OPTCPPFLAGS)
+CPPFLAGS=-isystem $(CPP_SRC_HOME)/3rd_party/include -isystem /usr/local/gcc75/include -D$(OS) -D_REENTRANT $(OPTCPPFLAGS)
 CDEPFLAGS=-MM
 COMP_OUT_FLAG=-o
 LINK_OUT_FLAG=-o
@@ -45,7 +45,7 @@ NETLIBS=-lnsl
 BOOSTVER=1_71
 BOOSTGCCVER:=$(shell $(CXX) -dumpversion | awk -F. '{ print $$1; }')
 # Use -isystem instead of -I for Boost headers to suppress warnings from Boost
-BOOSTINCLUDES=-isystem /usr/local/gcc73/include/boost-$(BOOSTVER)
+BOOSTINCLUDES=-isystem /usr/local/gcc75/include/boost-$(BOOSTVER)
 BOOSTCPPFLAGS=-DBOOST_ALL_DYN_LINK -DBOOST_MATH_NO_LONG_DOUBLE_MATH_FUNCTIONS
 BOOSTLOGLIBS=-lboost_log-gcc$(BOOSTGCCVER)-mt-x64-$(BOOSTVER)
 BOOSTLOGSETUPLIBS=-lboost_log_setup-gcc$(BOOSTGCCVER)-mt-x64-$(BOOSTVER)
@@ -60,8 +60,8 @@ RAPIDJSONINCLUDES=-isystem $(CPP_SRC_HOME)/3rd_party/rapidjson/include
 RAPIDJSONCPPFLAGS=-DRAPIDJSON_HAS_STDSTRING -DRAPIDJSON_SSE42
 EIGENINCLUDES=-isystem $(CPP_SRC_HOME)/3rd_party/eigen
 EIGENCPPFLAGS=-DEIGEN_MPL2_ONLY
-XMLINCLUDES=`/usr/local/gcc73/bin/xml2-config --cflags`
-XMLLIBS=`/usr/local/gcc73/bin/xml2-config --libs`
+XMLINCLUDES=`/usr/local/gcc75/bin/xml2-config --cflags`
+XMLLIBS=`/usr/local/gcc75/bin/xml2-config --libs`
 DYNAMICLIBLDFLAGS=$(PLATPICFLAGS) -shared -Wl,--as-needed -L$(CPP_PLATFORM_HOME)/$(DYNAMIC_LIB_DIR) $(COVERAGE) -Wl,-z,relro -Wl,-z,now -Wl,-rpath,'$$ORIGIN/.'
 JAVANATIVEINCLUDES=-I$(JAVA_HOME)/include
 JAVANATIVELDFLAGS=-L$(JAVA_HOME)/jre/lib/server
@@ -80,7 +80,7 @@ LIB_ML_SECCOMP=-lMlSeccomp
 ML_SECCOMP_LDFLAGS=-L$(CPP_SRC_HOME)/lib/seccomp/.objs
 LIB_ML_TEST=-lMlTest
 
-LIB_PATH+=-L/usr/local/gcc73/lib
+LIB_PATH+=-L/usr/local/gcc75/lib
 
 # Using cp instead of install here, to avoid every file being given execute
 # permissions
