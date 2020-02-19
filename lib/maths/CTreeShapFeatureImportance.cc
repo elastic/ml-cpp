@@ -44,7 +44,7 @@ void CTreeShapFeatureImportance::shap(core::CDataFrame& frame,
                 CTreeShapFeatureImportance::shapRecursive(
                     m_Trees[i], m_SamplesPerNode[i], encoder, encodedRow, 0,
                     1.0, 1.0, -1, offset, row, 0,
-                    CPathElementAccessor(pathVector.begin(), scaleVector.begin()));
+                    CSplitPath(pathVector.begin(), scaleVector.begin()));
             }
         }
     });
@@ -127,8 +127,8 @@ void CTreeShapFeatureImportance::shapRecursive(const TTree& tree,
                                                std::size_t offset,
                                                core::CDataFrame::TRowItr& row,
                                                int nextIndex,
-                                               const CPathElementAccessor& parentSplitPath) const {
-    CPathElementAccessor splitPath{parentSplitPath, nextIndex};
+                                               const CSplitPath& parentSplitPath) const {
+    CSplitPath splitPath{parentSplitPath, nextIndex};
 
     CTreeShapFeatureImportance::extendPath(splitPath, parentFractionZero, parentFractionOne,
                                            parentFeatureIndex, nextIndex);
@@ -186,7 +186,7 @@ void CTreeShapFeatureImportance::shapRecursive(const TTree& tree,
     }
 }
 
-void CTreeShapFeatureImportance::extendPath(CPathElementAccessor& path,
+void CTreeShapFeatureImportance::extendPath(CSplitPath& splitPath,
                                             double fractionZero,
                                             double fractionOne,
                                             int featureIndex,
@@ -199,8 +199,8 @@ void CTreeShapFeatureImportance::extendPath(CPathElementAccessor& path,
     // to sets of size i and we **also** need to scale by the difference in binomial coefficients as both M
     // increases by one and i increases by one. So we get additive term 1{last feature selects path if in S}
     // * scale(i) * (i+1)! (M+1-(i+1)-1)!/(M+1)! / (i! (M-i-1)!/ M!), whence += scale(i) * (i+1) / (M+1).
-    path.setValues(nextIndex, fractionOne, fractionZero, featureIndex);
-    auto scalePath{path.scale()};
+    splitPath.setValues(nextIndex, fractionOne, fractionZero, featureIndex);
+    auto scalePath{splitPath.scale()};
     if (nextIndex == 0) {
         scalePath[nextIndex] = 1.0;
     } else {
@@ -218,9 +218,7 @@ void CTreeShapFeatureImportance::extendPath(CPathElementAccessor& path,
     ++nextIndex;
 }
 
-double CTreeShapFeatureImportance::sumUnwoundPath(const CPathElementAccessor& path,
-                                                  int pathIndex,
-                                                  int nextIndex) {
+double CTreeShapFeatureImportance::sumUnwoundPath(const CSplitPath& path, int pathIndex, int nextIndex) {
     const auto& scalePath{path.scale()};
     double total{0.0};
     int pathDepth = nextIndex - 1;
@@ -250,9 +248,7 @@ double CTreeShapFeatureImportance::sumUnwoundPath(const CPathElementAccessor& pa
     return total;
 }
 
-void CTreeShapFeatureImportance::unwindPath(CPathElementAccessor& path,
-                                            int pathIndex,
-                                            int& nextIndex) {
+void CTreeShapFeatureImportance::unwindPath(CSplitPath& path, int pathIndex, int& nextIndex) {
     auto& scalePath{path.scale()};
     int pathDepth{nextIndex - 1};
     double nextFractionOne{scalePath[pathDepth]};

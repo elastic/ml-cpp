@@ -70,16 +70,16 @@ private:
     using TElementItr = TElementVec::iterator;
     using TDoubleVecItr = TDoubleVec::iterator;
 
-    class CPathElementAccessor {
+    class CSplitPath {
     public:
-        CPathElementAccessor(TElementItr fractionsIterator, TDoubleVecItr scaleIterator) {
+        CSplitPath(TElementItr fractionsIterator, TDoubleVecItr scaleIterator) {
             m_FractionsIterator = fractionsIterator;
             m_ScaleIterator = scaleIterator;
         }
 
-        CPathElementAccessor(const CPathElementAccessor& parentSplitPath, int nextIndex)
-            : CPathElementAccessor(parentSplitPath.fractionsBegin() + nextIndex,
-                                   parentSplitPath.scaleBegin() + nextIndex) {
+        CSplitPath(const CSplitPath& parentSplitPath, int nextIndex)
+            : CSplitPath(parentSplitPath.fractionsBegin() + nextIndex,
+                         parentSplitPath.scaleBegin() + nextIndex) {
             std::copy(parentSplitPath.fractionsBegin(),
                       parentSplitPath.fractionsBegin() + nextIndex,
                       this->fractionsBegin());
@@ -158,17 +158,17 @@ private:
                        std::size_t offset,
                        core::CDataFrame::TRowItr& row,
                        int nextIndex,
-                       const CPathElementAccessor& path) const;
+                       const CSplitPath& path) const;
     //! Extend the \p path object, update the variables and factorial scaling coefficients.
-    static void extendPath(CPathElementAccessor& path,
+    static void extendPath(CSplitPath& splitPath,
                            double fractionZero,
                            double fractionOne,
                            int featureIndex,
                            int& nextIndex);
     //! Sum the scaling coefficients for the \p scalePath without the feature defined in \p pathIndex.
-    static double sumUnwoundPath(const CPathElementAccessor& path, int pathIndex, int nextIndex);
+    static double sumUnwoundPath(const CSplitPath& path, int pathIndex, int nextIndex);
     //! Updated the scaling coefficients in the \p path if the feature defined in \p pathIndex was seen again.
-    static void unwindPath(CPathElementAccessor& path, int pathIndex, int& nextIndex);
+    static void unwindPath(CSplitPath& path, int pathIndex, int& nextIndex);
 
 private:
     TTreeVec m_Trees;
