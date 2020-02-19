@@ -55,7 +55,7 @@ const std::size_t MAX_NUMBER_TREES{static_cast<std::size_t>(2.0 / MIN_ETA + 0.5)
 // for progress monitoring because we don't know what value we'll choose in the
 // line search. Assuming it is less than one avoids a large pause in progress if
 // it is reduced in the line search.
-const double LINE_SEARCH_ETA_MARGIN{0.5};
+const double MAIN_LOOP_ETA_SCALE_FOR_PROGRESS{0.5};
 
 double computeEta(std::size_t numberRegressors) {
     // eta is the learning rate. There is a lot of empirical evidence that
@@ -97,6 +97,7 @@ CBoostedTreeFactory::buildFor(core::CDataFrame& frame, std::size_t dependentVari
     this->initializeCrossValidation(frame);
     this->selectFeaturesAndEncodeCategories(frame);
     this->determineFeatureDataTypes(frame);
+    m_TreeImpl->m_Instrumentation->updateMemoryUsage(core::CMemory::dynamicSize(m_TreeImpl));
 
     if (this->initializeFeatureSampleDistribution()) {
         this->initializeHyperparameters(frame);
@@ -120,9 +121,8 @@ CBoostedTreeFactory::restoreFor(core::CDataFrame& frame, std::size_t dependentVa
     }
 
     this->resumeRestoredTrainingProgressMonitoring();
-    m_TreeImpl->m_Instrumentation = m_Instrumentation;
-
     this->resizeDataFrame(frame);
+    m_TreeImpl->m_Instrumentation->updateMemoryUsage(core::CMemory::dynamicSize(m_TreeImpl));
 
     return TBoostedTreeUPtr{
         new CBoostedTree{frame, m_RecordTrainingState, std::move(m_TreeImpl)}};
@@ -273,6 +273,7 @@ void CBoostedTreeFactory::resizeDataFrame(core::CDataFrame& frame) const {
     m_TreeImpl->m_NumberInputColumns = frame.numberColumns();
     frame.resizeColumns(m_TreeImpl->m_NumberThreads,
                         frame.numberColumns() + this->numberExtraColumnsForTrain());
+    m_TreeImpl->m_Instrumentation->updateMemoryUsage(core::CMemory::dynamicSize(frame));
 }
 
 void CBoostedTreeFactory::initializeCrossValidation(core::CDataFrame& frame) const {
@@ -314,7 +315,7 @@ void CBoostedTreeFactory::selectFeaturesAndEncodeCategories(const core::CDataFra
             .minimumFrequencyToOneHotEncode(m_MinimumFrequencyToOneHotEncode)
             .rowMask(m_TreeImpl->allTrainingRowsMask())
             .columnMask(std::move(regressors)));
-    m_TreeImpl->m_TrainingProgress.increment(1);
+    m_TreeImpl->m_TrainingProgress.increment(100);
 }
 
 void CBoostedTreeFactory::determineFeatureDataTypes(const core::CDataFrame& frame) const {
@@ -740,7 +741,7 @@ void CBoostedTreeFactory::initializeUnsetEta(core::CDataFrame& frame) {
 
         m_TreeImpl->m_TrainingProgress.incrementRange(
             static_cast<int>(this->mainLoopNumberSteps(m_TreeImpl->m_Eta)) -
-            static_cast<int>(this->mainLoopNumberSteps(LINE_SEARCH_ETA_MARGIN * eta)));
+            static_cast<int>(this->mainLoopNumberSteps(MAIN_LOOP_ETA_SCALE_FOR_PROGRESS * eta)));
     }
 }
 
@@ -752,8 +753,8 @@ CBoostedTreeFactory::estimateTreeGainAndCurvature(core::CDataFrame& frame,
     std::swap(maximumNumberOfTrees, m_TreeImpl->m_MaximumNumberTrees);
     CBoostedTreeImpl::TNodeVecVec forest;
     std::tie(forest, std::ignore) = m_TreeImpl->trainForest(
-        frame, m_TreeImpl->m_TrainingRowMasks[0], m_TreeImpl->m_TestingRowMasks[0],
-        m_TreeImpl->m_TrainingProgress, m_RecordMemoryUsage);
+        frame, m_TreeImpl->m_TrainingRowMasks[0],
+        m_TreeImpl->m_TestingRowMasks[0], m_TreeImpl->m_TrainingProgress);
     std::swap(maximumNumberOfTrees, m_TreeImpl->m_MaximumNumberTrees);
 
     TDoubleDoublePrVec result;
@@ -820,8 +821,8 @@ CBoostedTreeFactory::testLossLineSearch(core::CDataFrame& frame,
         CBoostedTreeImpl::TNodeVecVec forest;
         double testLoss;
         std::tie(forest, testLoss) = m_TreeImpl->trainForest(
-            frame, m_TreeImpl->m_TrainingRowMasks[0], m_TreeImpl->m_TestingRowMasks[0],
-            m_TreeImpl->m_TrainingProgress, m_RecordMemoryUsage);
+            frame, m_TreeImpl->m_TrainingRowMasks[0],
+            m_TreeImpl->m_TestingRowMasks[0], m_TreeImpl->m_TrainingProgress);
         bopt.add(boptVector(regularizer), testLoss, 0.0);
         minTestLoss.add(testLoss);
         testLosses.emplace_back(regularizer, testLoss);
@@ -841,8 +842,8 @@ CBoostedTreeFactory::testLossLineSearch(core::CDataFrame& frame,
         CBoostedTreeImpl::TNodeVecVec forest;
         double testLoss;
         std::tie(forest, testLoss) = m_TreeImpl->trainForest(
-            frame, m_TreeImpl->m_TrainingRowMasks[0], m_TreeImpl->m_TestingRowMasks[0],
-            m_TreeImpl->m_TrainingProgress, m_RecordMemoryUsage);
+            frame, m_TreeImpl->m_TrainingRowMasks[0],
+            m_TreeImpl->m_TestingRowMasks[0], m_TreeImpl->m_TrainingProgress);
         bopt.add(regularizer, testLoss, 0.0);
         minTestLoss.add(testLoss);
         testLosses.emplace_back(regularizer(0), testLoss);
@@ -973,7 +974,7 @@ CBoostedTreeFactory::CBoostedTreeFactory(std::size_t numberThreads, TLossFunctio
     : m_NumberThreads{numberThreads},
       m_TreeImpl{std::make_unique<CBoostedTreeImpl>(numberThreads, std::move(loss))},
       m_LogDepthPenaltyMultiplierSearchInterval{0.0}, m_LogTreeSizePenaltyMultiplierSearchInterval{0.0},
-      m_LogLeafWeightPenaltyMultiplierSearchInterval{0.0}, m_TopShapValues{0} {
+      m_LogLeafWeightPenaltyMultiplierSearchInterval{0.0} {
 }
 
 CBoostedTreeFactory::CBoostedTreeFactory(CBoostedTreeFactory&&) = default;
@@ -1125,18 +1126,13 @@ CBoostedTreeFactory& CBoostedTreeFactory::rowsPerFeature(std::size_t rowsPerFeat
 }
 
 CBoostedTreeFactory& CBoostedTreeFactory::topShapValues(std::size_t topShapValues) {
-    m_TopShapValues = topShapValues;
     m_TreeImpl->m_TopShapValues = topShapValues;
     return *this;
 }
 
-CBoostedTreeFactory& CBoostedTreeFactory::progressCallback(TProgressCallback callback) {
-    m_RecordProgress = std::move(callback);
-    return *this;
-}
-
-CBoostedTreeFactory& CBoostedTreeFactory::memoryUsageCallback(TMemoryUsageCallback callback) {
-    m_RecordMemoryUsage = std::move(callback);
+CBoostedTreeFactory& CBoostedTreeFactory::analysisInstrumentation(
+    CDataFrameAnalysisInstrumentationInterface& instrumentation) {
+    m_TreeImpl->m_Instrumentation = &instrumentation;
     return *this;
 }
 
@@ -1147,14 +1143,11 @@ CBoostedTreeFactory& CBoostedTreeFactory::trainingStateCallback(TTrainingStateCa
 
 std::size_t CBoostedTreeFactory::estimateMemoryUsage(std::size_t numberRows,
                                                      std::size_t numberColumns) const {
-    std::size_t shapValuesExtraColumns =
-        (m_TopShapValues > 0) ? numberRows * numberColumns * sizeof(CFloatStorage) : 0;
     std::size_t maximumNumberTrees{this->mainLoopMaximumNumberTrees(
         m_TreeImpl->m_EtaOverride != boost::none ? *m_TreeImpl->m_EtaOverride
                                                  : computeEta(numberColumns))};
     std::swap(maximumNumberTrees, m_TreeImpl->m_MaximumNumberTrees);
-    std::size_t result{m_TreeImpl->estimateMemoryUsage(numberRows, numberColumns) +
-                       shapValuesExtraColumns};
+    std::size_t result{m_TreeImpl->estimateMemoryUsage(numberRows, numberColumns)};
     std::swap(maximumNumberTrees, m_TreeImpl->m_MaximumNumberTrees);
     return result;
 }
@@ -1169,7 +1162,7 @@ void CBoostedTreeFactory::initializeTrainingProgressMonitoring(const core::CData
     //
     // This comprises:
     //  - The cost of category encoding and feature selection which we count as
-    //    one unit,
+    //    one hundred units,
     //  - One unit for estimating the expected gain and sum curvature per node,
     //  - LINE_SEARCH_ITERATIONS * "maximum number trees" units per regularization
     //    parameter which isn't user defined,
@@ -1185,7 +1178,7 @@ void CBoostedTreeFactory::initializeTrainingProgressMonitoring(const core::CData
                    ? *m_TreeImpl->m_EtaOverride
                    : computeEta(frame.numberColumns())};
 
-    std::size_t totalNumberSteps{2};
+    std::size_t totalNumberSteps{101};
     std::size_t lineSearchMaximumNumberTrees{computeMaximumNumberTrees(eta)};
     if (m_TreeImpl->m_RegularizationOverride.softTreeDepthLimit() == boost::none) {
         totalNumberSteps += MAX_LINE_SEARCH_ITERATIONS * lineSearchMaximumNumberTrees;
@@ -1203,17 +1196,18 @@ void CBoostedTreeFactory::initializeTrainingProgressMonitoring(const core::CData
         totalNumberSteps += MAX_LINE_SEARCH_ITERATIONS * lineSearchMaximumNumberTrees;
     }
     if (m_TreeImpl->m_EtaOverride == boost::none) {
-        totalNumberSteps += MAX_LINE_SEARCH_ITERATIONS * lineSearchMaximumNumberTrees *
-                            computeMaximumNumberTrees(LINE_SEARCH_ETA_MARGIN * eta);
+        totalNumberSteps += MAX_LINE_SEARCH_ITERATIONS *
+                            computeMaximumNumberTrees(MAIN_LOOP_ETA_SCALE_FOR_PROGRESS * eta);
     }
-    totalNumberSteps += this->mainLoopNumberSteps(LINE_SEARCH_ETA_MARGIN * eta);
+    totalNumberSteps += this->mainLoopNumberSteps(MAIN_LOOP_ETA_SCALE_FOR_PROGRESS * eta);
     LOG_TRACE(<< "total number steps = " << totalNumberSteps);
-    m_TreeImpl->m_TrainingProgress =
-        core::CLoopProgress{totalNumberSteps, m_RecordProgress, 1.0, 1024};
+    m_TreeImpl->m_TrainingProgress = core::CLoopProgress{
+        totalNumberSteps, m_TreeImpl->m_Instrumentation->progressCallback(), 1.0, 1024};
 }
 
 void CBoostedTreeFactory::resumeRestoredTrainingProgressMonitoring() {
-    m_TreeImpl->m_TrainingProgress.progressCallback(m_RecordProgress);
+    m_TreeImpl->m_TrainingProgress.progressCallback(
+        m_TreeImpl->m_Instrumentation->progressCallback());
     m_TreeImpl->m_TrainingProgress.resumeRestored();
 }
 
@@ -1229,24 +1223,7 @@ std::size_t CBoostedTreeFactory::mainLoopMaximumNumberTrees(double eta) const {
     return *m_TreeImpl->m_MaximumNumberTreesOverride;
 }
 
-void CBoostedTreeFactory::noopRecordProgress(double) {
-}
-
-void CBoostedTreeFactory::noopRecordMemoryUsage(std::int64_t) {
-}
-
 void CBoostedTreeFactory::noopRecordTrainingState(CBoostedTree::TPersistFunc) {
-}
-
-CBoostedTreeFactory&
-CBoostedTreeFactory::analysisInstrumentation(TAnalysisInstrumentationPtr instrumentation) {
-    m_Instrumentation = instrumentation;
-    if (m_Instrumentation != nullptr) {
-        m_TreeImpl->m_Instrumentation = m_Instrumentation;
-        this->progressCallback(m_Instrumentation->progressCallback());
-        this->memoryUsageCallback(m_Instrumentation->memoryUsageCallback());
-    }
-    return *this;
 }
 }
 }

@@ -335,37 +335,63 @@ outer(const CAnnotatedVector<VECTOR, ANNOTATION>& x) {
 
 namespace las_detail {
 template<typename VECTOR>
-struct SEstimateMemoryUsage {
+struct SEstimateVectorMemoryUsage {
     static std::size_t value(std::size_t) { return 0; }
 };
 template<typename T>
-struct SEstimateMemoryUsage<CVector<T>> {
+struct SEstimateVectorMemoryUsage<CVector<T>> {
     static std::size_t value(std::size_t dimension) {
         return dimension * sizeof(T);
     }
 };
 template<typename SCALAR>
-struct SEstimateMemoryUsage<CDenseVector<SCALAR>> {
+struct SEstimateVectorMemoryUsage<CDenseVector<SCALAR>> {
     static std::size_t value(std::size_t dimension) {
         // Ignore pad for alignment.
         return dimension * sizeof(SCALAR);
     }
 };
 template<typename VECTOR, typename ANNOTATION>
-struct SEstimateMemoryUsage<CAnnotatedVector<VECTOR, ANNOTATION>> {
+struct SEstimateVectorMemoryUsage<CAnnotatedVector<VECTOR, ANNOTATION>> {
     static std::size_t value(std::size_t dimension) {
         // Ignore any dynamic memory used by the annotation: we don't know how to
         // compute this here. It will be up to the calling code to estimate this
         // correctly.
-        return SEstimateMemoryUsage<VECTOR>::value(dimension);
+        return SEstimateVectorMemoryUsage<VECTOR>::value(dimension);
+    }
+};
+
+template<typename MATRIX>
+struct SEstimateMatrixMemoryUsage {
+    static std::size_t value(std::size_t, std::size_t) { return 0; }
+};
+template<typename T>
+struct SEstimateMatrixMemoryUsage<CSymmetricMatrix<T>> {
+    static std::size_t value(std::size_t rows, std::size_t) {
+        return sizeof(T) * rows * (rows + 1) / 2;
+    }
+};
+template<typename SCALAR>
+struct SEstimateMatrixMemoryUsage<CDenseMatrix<SCALAR>> {
+    static std::size_t value(std::size_t rows, std::size_t columns) {
+        // Ignore pad for alignment.
+        return sizeof(SCALAR) * rows * columns;
     }
 };
 }
 
-//! Estimate the amount of memory a point of type VECTOR and \p dimension will use.
+//! Estimate the amount of memory a vector of type VECTOR and size \p dimension
+//! will use.
 template<typename VECTOR>
 std::size_t estimateMemoryUsage(std::size_t dimension) {
-    return las_detail::SEstimateMemoryUsage<VECTOR>::value(dimension);
+    return las_detail::SEstimateVectorMemoryUsage<VECTOR>::value(dimension);
+}
+
+//! Estimate the amount of memory a matrix of type MATRIX and size \p rows by
+//! \p columns will use.
+template<typename MATRIX>
+std::size_t estimateMemoryUsage(std::size_t rows, std::size_t columns) {
+    return las_detail::SEstimateMatrixMemoryUsage<MATRIX>::value(rows, columns);
 }
 }
 }

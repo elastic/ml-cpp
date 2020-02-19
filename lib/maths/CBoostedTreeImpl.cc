@@ -12,7 +12,6 @@
 #include <core/CLoopProgress.h>
 #include <core/CPersistUtils.h>
 #include <core/CProgramCounters.h>
-#include <core/CSmallVector.h>
 #include <core/CStopWatch.h>
 
 #include <maths/CBasicStatisticsPersist.h>
@@ -31,6 +30,7 @@ using namespace boosted_tree_detail;
 using TStrVec = CBoostedTreeImpl::TStrVec;
 using TRowItr = core::CDataFrame::TRowItr;
 using TMeanVarAccumulator = CBoostedTreeImpl::TMeanVarAccumulator;
+using TMemoryUsageCallback = CDataFrameAnalysisInstrumentationInterface::TMemoryUsageCallback;
 
 namespace {
 // It isn't critical to recompute splits every tree we add because random
@@ -39,20 +39,12 @@ namespace {
 // by only refreshing once every MINIMUM_SPLIT_REFRESH_INTERVAL trees we add.
 const double MINIMUM_SPLIT_REFRESH_INTERVAL{3.0};
 
-double lossAtNSigma(double n, const TMeanVarAccumulator& lossMoments) {
-    return CBasicStatistics::mean(lossMoments) +
-           n * std::sqrt(CBasicStatistics::variance(lossMoments));
-}
-
 //! \brief Record the memory used by a supplied object using the RAII idiom.
 class CScopeRecordMemoryUsage {
 public:
-    using TMemoryUsageCallback = CBoostedTreeImpl::TMemoryUsageCallback;
-
-public:
     template<typename T>
-    CScopeRecordMemoryUsage(const T& object, const TMemoryUsageCallback& recordMemoryUsage)
-        : m_RecordMemoryUsage{recordMemoryUsage},
+    CScopeRecordMemoryUsage(const T& object, TMemoryUsageCallback&& recordMemoryUsage)
+        : m_RecordMemoryUsage{std::move(recordMemoryUsage)},
           m_MemoryUsage(core::CMemory::dynamicSize(object)) {
         m_RecordMemoryUsage(m_MemoryUsage);
     }
@@ -60,7 +52,6 @@ public:
     ~CScopeRecordMemoryUsage() { m_RecordMemoryUsage(-m_MemoryUsage); }
 
     CScopeRecordMemoryUsage(const CScopeRecordMemoryUsage&) = delete;
-
     CScopeRecordMemoryUsage& operator=(const CScopeRecordMemoryUsage&) = delete;
 
     template<typename T>
@@ -78,7 +69,7 @@ public:
     }
 
 private:
-    const TMemoryUsageCallback& m_RecordMemoryUsage;
+    TMemoryUsageCallback m_RecordMemoryUsage;
     std::int64_t m_MemoryUsage;
 };
 
@@ -124,6 +115,23 @@ private:
     std::size_t m_MaximumNumberTreesWithoutImprovement;
     TDoubleSizePrMinAccumulator m_BestTestLoss;
 };
+
+double lossAtNSigma(double n, const TMeanVarAccumulator& lossMoments) {
+    return CBasicStatistics::mean(lossMoments) +
+           n * std::sqrt(CBasicStatistics::variance(lossMoments));
+}
+
+double trace(std::size_t columns, const TMemoryMappedFloatVector& upperTriangle) {
+    // This assumes the upper triangle of the matrix is stored row major.
+    double result{0.0};
+    for (int i = 0, j = static_cast<int>(columns);
+         i < upperTriangle.size() && j > 0; i += j, --j) {
+        result += upperTriangle(i);
+    }
+    return result;
+}
+
+CDataFrameAnalysisInstrumentationStub INSTRUMENTATION_STUB;
 }
 
 CBoostedTreeImpl::CBoostedTreeImpl(std::size_t numberThreads,
@@ -133,7 +141,7 @@ CBoostedTreeImpl::CBoostedTreeImpl(std::size_t numberThreads,
       m_BestHyperparameters{
           m_Regularization,       m_DownsampleFactor,   m_Eta,
           m_EtaGrowthRatePerTree, m_MaximumNumberTrees, m_FeatureBagFraction},
-      m_Instrumentation{instrumentation} {
+      m_Instrumentation{instrumentation != nullptr ? instrumentation : &INSTRUMENTATION_STUB} {
 }
 
 CBoostedTreeImpl::CBoostedTreeImpl() = default;
@@ -144,15 +152,6 @@ CBoostedTreeImpl& CBoostedTreeImpl::operator=(CBoostedTreeImpl&&) = default;
 
 void CBoostedTreeImpl::train(core::CDataFrame& frame,
                              const TTrainingStateCallback& recordTrainStateCallback) {
-    CDataFrameAnalysisInstrumentationInterface::TProgressCallback recordProgress;
-    CDataFrameAnalysisInstrumentationInterface::TMemoryUsageCallback recordMemoryUsage;
-    if (m_Instrumentation != nullptr) {
-        recordProgress = this->m_Instrumentation->progressCallback();
-        recordMemoryUsage = this->m_Instrumentation->memoryUsageCallback();
-    } else {
-        recordProgress = [](double) {};
-        recordMemoryUsage = [](std::int64_t) {};
-    }
 
     if (m_DependentVariable >= frame.numberColumns()) {
         HANDLE_FATAL(<< "Internal error: dependent variable '" << m_DependentVariable
@@ -165,10 +164,9 @@ void CBoostedTreeImpl::train(core::CDataFrame& frame,
 
     LOG_TRACE(<< "Main training loop...");
 
-    m_TrainingProgress.progressCallback(recordProgress);
+    m_TrainingProgress.progressCallback(m_Instrumentation->progressCallback());
 
     std::int64_t lastMemoryUsage(this->memoryUsage());
-    recordMemoryUsage(lastMemoryUsage);
 
     core::CPackedBitVector allTrainingRowsMask{this->allTrainingRowsMask()};
     core::CPackedBitVector noRowsMask{allTrainingRowsMask.size(), false};
@@ -198,8 +196,7 @@ void CBoostedTreeImpl::train(core::CDataFrame& frame,
 
             TMeanVarAccumulator lossMoments;
             std::size_t maximumNumberTrees;
-            std::tie(lossMoments, maximumNumberTrees) =
-                this->crossValidateForest(frame, recordMemoryUsage);
+            std::tie(lossMoments, maximumNumberTrees) = this->crossValidateForest(frame);
 
             this->captureBestHyperparameters(lossMoments, maximumNumberTrees);
 
@@ -209,7 +206,7 @@ void CBoostedTreeImpl::train(core::CDataFrame& frame,
             }
 
             std::int64_t memoryUsage(this->memoryUsage());
-            recordMemoryUsage(memoryUsage - lastMemoryUsage);
+            m_Instrumentation->updateMemoryUsage(memoryUsage - lastMemoryUsage);
             lastMemoryUsage = memoryUsage;
 
             // Store the training state after each hyperparameter search step.
@@ -221,20 +218,16 @@ void CBoostedTreeImpl::train(core::CDataFrame& frame,
             std::uint64_t currentLap{stopWatch.lap()};
             timeAccumulator.add(static_cast<double>(currentLap - lastLap));
             lastLap = currentLap;
-            if (m_Instrumentation != nullptr) {
-                m_Instrumentation->nextStep(static_cast<std::uint32_t>(m_CurrentRound));
-            }
+            m_Instrumentation->nextStep(static_cast<std::uint32_t>(m_CurrentRound));
         }
 
         LOG_TRACE(<< "Test loss = " << m_BestForestTestLoss);
 
         this->restoreBestHyperparameters();
-        std::tie(m_BestForest, std::ignore) =
-            this->trainForest(frame, allTrainingRowsMask, allTrainingRowsMask,
-                              m_TrainingProgress, recordMemoryUsage);
-        if (m_Instrumentation != nullptr) {
-            this->m_Instrumentation->nextStep(static_cast<std::uint32_t>(m_CurrentRound));
-        }
+        std::tie(m_BestForest, std::ignore) = this->trainForest(
+            frame, allTrainingRowsMask, allTrainingRowsMask, m_TrainingProgress);
+
+        m_Instrumentation->nextStep(static_cast<std::uint32_t>(m_CurrentRound));
         this->recordState(recordTrainStateCallback);
 
         timeAccumulator.add(static_cast<double>(stopWatch.stop()));
@@ -250,12 +243,54 @@ void CBoostedTreeImpl::train(core::CDataFrame& frame,
 
     this->computeProbabilityAtWhichToAssignClassOne(frame);
 
-    // Force to at least one here because we can have early exit from loop or take
-    // a different path.
-    recordProgress(1.0);
+    // populate numberSamples field in the final forest
+    this->computeNumberSamples(frame);
 
-    std::int64_t memoryUsage(this->memoryUsage());
-    recordMemoryUsage(memoryUsage - lastMemoryUsage);
+    // Force progress to one because we can have early exit from loop skip altogether.
+    m_Instrumentation->updateProgress(1.0);
+    m_Instrumentation->updateMemoryUsage(
+        static_cast<std::int64_t>(this->memoryUsage()) - lastMemoryUsage);
+}
+
+void CBoostedTreeImpl::computeNumberSamples(const core::CDataFrame& frame) {
+    for (auto& tree : m_BestForest) {
+        if (tree.size() == 1) {
+            root(tree).numberSamples(frame.numberRows());
+        } else {
+            auto result = frame.readRows(
+                m_NumberThreads,
+                core::bindRetrievableState(
+                    [&](TSizeVec& samplesPerNode, const TRowItr& beginRows, const TRowItr& endRows) {
+                        for (auto row = beginRows; row != endRows; ++row) {
+                            auto encodedRow{m_Encoder->encode(*row)};
+                            const CBoostedTreeNode* node{&root(tree)};
+                            samplesPerNode[0] += 1;
+                            std::size_t nextIndex;
+                            while (node->isLeaf() == false) {
+                                if (node->assignToLeft(encodedRow)) {
+                                    nextIndex = node->leftChildIndex();
+                                } else {
+                                    nextIndex = node->rightChildIndex();
+                                }
+                                samplesPerNode[nextIndex] += 1;
+                                node = &(tree[nextIndex]);
+                            }
+                        }
+                    },
+                    TSizeVec(tree.size())));
+            auto& state = result.first;
+            TSizeVec totalSamplesPerNode{std::move(state[0].s_FunctionState)};
+            for (std::size_t i = 1; i < state.size(); ++i) {
+                for (std::size_t nodeIndex = 0;
+                     nodeIndex < totalSamplesPerNode.size(); ++nodeIndex) {
+                    totalSamplesPerNode[nodeIndex] += state[i].s_FunctionState[nodeIndex];
+                }
+            }
+            for (std::size_t i = 0; i < tree.size(); ++i) {
+                tree[i].numberSamples(totalSamplesPerNode[i]);
+            }
+        }
+    }
 }
 
 void CBoostedTreeImpl::recordState(const TTrainingStateCallback& recordTrainState) const {
@@ -273,9 +308,10 @@ void CBoostedTreeImpl::predict(core::CDataFrame& frame) const {
     bool successful;
     std::tie(std::ignore, successful) = frame.writeColumns(
         m_NumberThreads, 0, frame.numberRows(), [&](TRowItr beginRows, TRowItr endRows) {
+            std::size_t numberLossParameters{m_Loss->numberParameters()};
             for (auto row = beginRows; row != endRows; ++row) {
-                writePrediction(*row, m_NumberInputColumns,
-                                {predictRow(m_Encoder->encode(*row), m_BestForest)});
+                auto prediction = readPrediction(*row, m_NumberInputColumns, numberLossParameters);
+                prediction(0) = predictRow(m_Encoder->encode(*row), m_BestForest);
             }
         });
     if (successful == false) {
@@ -290,25 +326,30 @@ std::size_t CBoostedTreeImpl::estimateMemoryUsage(std::size_t numberRows,
     // A binary tree with n + 1 leaves has 2n + 1 nodes in total.
     std::size_t maximumNumberLeaves{this->maximumTreeSize(numberRows) + 1};
     std::size_t maximumNumberNodes{2 * maximumNumberLeaves - 1};
+    std::size_t maximumNumberFeatures{std::min(numberColumns - 1, numberRows / m_RowsPerFeature)};
     std::size_t forestMemoryUsage{
         m_MaximumNumberTrees *
         (sizeof(TNodeVec) + maximumNumberNodes * sizeof(CBoostedTreeNode))};
-    std::size_t extraColumnsMemoryUsage{numberExtraColumnsForTrain(m_Loss->numberParameters()) *
-                                        numberRows * sizeof(CFloatStorage)};
+    std::size_t foldRoundLossMemoryUsage{m_NumberFolds * m_NumberRounds *
+                                         sizeof(TOptionalDouble)};
     std::size_t hyperparametersMemoryUsage{numberColumns * sizeof(double)};
     std::size_t leafNodeStatisticsMemoryUsage{
         maximumNumberLeaves * CBoostedTreeLeafNodeStatistics::estimateMemoryUsage(
-                                  numberRows, numberColumns, m_NumberSplitsPerFeature)};
-    std::size_t dataTypeMemoryUsage{numberColumns * sizeof(CDataFrameUtils::SDataType)};
-    std::size_t featureSampleProbabilities{numberColumns * sizeof(double)};
+                                  numberRows, maximumNumberFeatures, m_NumberSplitsPerFeature,
+                                  m_Loss->numberParameters())};
+    std::size_t dataTypeMemoryUsage{maximumNumberFeatures * sizeof(CDataFrameUtils::SDataType)};
+    std::size_t featureSampleProbabilities{maximumNumberFeatures * sizeof(double)};
     std::size_t missingFeatureMaskMemoryUsage{
         numberColumns * numberRows / PACKED_BIT_VECTOR_MAXIMUM_ROWS_PER_BYTE};
     std::size_t trainTestMaskMemoryUsage{2 * m_NumberFolds * numberRows /
                                          PACKED_BIT_VECTOR_MAXIMUM_ROWS_PER_BYTE};
     std::size_t bayesianOptimisationMemoryUsage{CBayesianOptimisation::estimateMemoryUsage(
         this->numberHyperparametersToTune(), m_NumberRounds)};
-    return sizeof(*this) + forestMemoryUsage + extraColumnsMemoryUsage +
-           hyperparametersMemoryUsage + leafNodeStatisticsMemoryUsage +
+    std::size_t shapMemoryUsage{
+        m_TopShapValues > 0 ? numberRows * numberColumns * sizeof(CFloatStorage) : 0};
+    return sizeof(*this) + forestMemoryUsage + foldRoundLossMemoryUsage +
+           hyperparametersMemoryUsage +
+           std::max(leafNodeStatisticsMemoryUsage, shapMemoryUsage) + // not concurrent
            dataTypeMemoryUsage + featureSampleProbabilities + missingFeatureMaskMemoryUsage +
            trainTestMaskMemoryUsage + bayesianOptimisationMemoryUsage;
 }
@@ -373,8 +414,7 @@ void CBoostedTreeImpl::computeProbabilityAtWhichToAssignClassOne(const core::CDa
 }
 
 CBoostedTreeImpl::TMeanVarAccumulatorSizePr
-CBoostedTreeImpl::crossValidateForest(core::CDataFrame& frame,
-                                      const TMemoryUsageCallback& recordMemoryUsage) {
+CBoostedTreeImpl::crossValidateForest(core::CDataFrame& frame) {
 
     // We want to ensure we evaluate on equal proportions for each fold.
     TSizeVec folds(m_NumberFolds);
@@ -409,8 +449,7 @@ CBoostedTreeImpl::crossValidateForest(core::CDataFrame& frame,
         TNodeVecVec forest;
         double loss;
         std::tie(forest, loss) = this->trainForest(
-            frame, m_TrainingRowMasks[fold], m_TestingRowMasks[fold],
-            m_TrainingProgress, recordMemoryUsage);
+            frame, m_TrainingRowMasks[fold], m_TestingRowMasks[fold], m_TrainingProgress);
         LOG_TRACE(<< "fold = " << fold << " forest size = " << forest.size()
                   << " test set loss = " << loss);
         lossMoments.add(loss);
@@ -440,12 +479,10 @@ CBoostedTreeImpl::TNodeVec CBoostedTreeImpl::initializePredictionsAndLossDerivat
         m_NumberThreads, 0, frame.numberRows(),
         [this](TRowItr beginRows, TRowItr endRows) {
             std::size_t numberLossParameters{m_Loss->numberParameters()};
-            TDouble1Vec zero(numberLossParameters, 0.0);
-            TDouble1Vec zeroHessian(lossHessianStoredSize(numberLossParameters), 0.0);
             for (auto row = beginRows; row != endRows; ++row) {
-                writePrediction(*row, m_NumberInputColumns, zero);
-                writeLossGradient(*row, m_NumberInputColumns, zero);
-                writeLossCurvature(*row, m_NumberInputColumns, zeroHessian);
+                zeroPrediction(*row, m_NumberInputColumns, numberLossParameters);
+                zeroLossGradient(*row, m_NumberInputColumns, numberLossParameters);
+                zeroLossCurvature(*row, m_NumberInputColumns, numberLossParameters);
             }
         },
         &updateRowMask);
@@ -462,8 +499,7 @@ CBoostedTreeImpl::TNodeVecVecDoublePr
 CBoostedTreeImpl::trainForest(core::CDataFrame& frame,
                               const core::CPackedBitVector& trainingRowMask,
                               const core::CPackedBitVector& testingRowMask,
-                              core::CLoopProgress& trainingProgress,
-                              const TMemoryUsageCallback& recordMemoryUsage) const {
+                              core::CLoopProgress& trainingProgress) const {
 
     LOG_TRACE(<< "Training one forest...");
 
@@ -473,7 +509,7 @@ CBoostedTreeImpl::trainForest(core::CDataFrame& frame,
         frame, trainingRowMask, testingRowMask)};
     forest.reserve(m_MaximumNumberTrees);
 
-    CScopeRecordMemoryUsage scopeMemoryUsage{forest, recordMemoryUsage};
+    CScopeRecordMemoryUsage scopeMemoryUsage{forest, m_Instrumentation->memoryUsageCallback()};
 
     // For each iteration:
     //  1. Compute weighted quantiles for features F
@@ -495,14 +531,14 @@ CBoostedTreeImpl::trainForest(core::CDataFrame& frame,
         forest.size() + static_cast<std::size_t>(std::max(0.5 / eta, 1.0))};
 
     auto downsampledRowMask = this->downsample(trainingRowMask);
+    scopeMemoryUsage.add(downsampledRowMask);
     auto candidateSplits = this->candidateSplits(frame, downsampledRowMask);
     scopeMemoryUsage.add(candidateSplits);
 
     std::size_t retries{0};
     CTrainForestStoppingCondition stoppingCondition{m_MaximumNumberTrees};
     do {
-        auto tree = this->trainTree(frame, downsampledRowMask, candidateSplits,
-                                    maximumTreeSize, recordMemoryUsage);
+        auto tree = this->trainTree(frame, downsampledRowMask, candidateSplits, maximumTreeSize);
 
         retries = tree.size() == 1 ? retries + 1 : 0;
 
@@ -595,8 +631,9 @@ CBoostedTreeImpl::candidateSplits(const core::CDataFrame& frame,
             m_Encoder.get(),
             [this](const TRowRef& row) {
                 // TODO Think about what scalar measure of the Hessian to use here?
-                return readLossCurvature(row, m_NumberInputColumns,
-                                         m_Loss->numberParameters())[0];
+                std::size_t numberLossParameters{m_Loss->numberParameters()};
+                return trace(numberLossParameters,
+                             readLossCurvature(row, m_NumberInputColumns, numberLossParameters));
             })
             .first;
 
@@ -655,8 +692,7 @@ CBoostedTreeImpl::TNodeVec
 CBoostedTreeImpl::trainTree(core::CDataFrame& frame,
                             const core::CPackedBitVector& trainingRowMask,
                             const TImmutableRadixSetVec& candidateSplits,
-                            const std::size_t maximumTreeSize,
-                            const TMemoryUsageCallback& recordMemoryUsage) const {
+                            const std::size_t maximumTreeSize) const {
 
     LOG_TRACE(<< "Training one tree...");
 
@@ -675,13 +711,15 @@ CBoostedTreeImpl::trainTree(core::CDataFrame& frame,
 
     // We update local variables because the callback can be expensive if it
     // requires accessing atomics.
-    std::int64_t memory{0};
-    std::int64_t maxMemory{0};
+    struct SMemoryStats {
+        std::int64_t s_Current = 0;
+        std::int64_t s_Max = 0;
+    } memory;
     TMemoryUsageCallback localRecordMemoryUsage{[&](std::int64_t delta) {
-        memory += delta;
-        maxMemory = std::max(maxMemory, memory);
+        memory.s_Current += delta;
+        memory.s_Max = std::max(memory.s_Max, memory.s_Current);
     }};
-    CScopeRecordMemoryUsage scopeMemoryUsage{leaves, localRecordMemoryUsage};
+    CScopeRecordMemoryUsage scopeMemoryUsage{leaves, std::move(localRecordMemoryUsage)};
 
     // For each iteration we:
     //   1. Find the leaf with the greatest decrease in loss
@@ -708,7 +746,6 @@ CBoostedTreeImpl::trainTree(core::CDataFrame& frame,
         double splitValue;
         std::tie(splitFeature, splitValue) = leaf->bestSplit();
 
-        bool leftChildHasFewerRows{leaf->leftChildHasFewerRows()};
         bool assignMissingToLeft{leaf->assignMissingToLeft()};
 
         std::size_t leftChildId, rightChildId;
@@ -718,10 +755,9 @@ CBoostedTreeImpl::trainTree(core::CDataFrame& frame,
 
         TLeafNodeStatisticsPtr leftChild;
         TLeafNodeStatisticsPtr rightChild;
-        std::tie(leftChild, rightChild) =
-            leaf->split(leftChildId, rightChildId, m_NumberThreads, frame, *m_Encoder,
-                        m_Regularization, candidateSplits, this->featureBag(),
-                        tree[leaf->id()], leftChildHasFewerRows);
+        std::tie(leftChild, rightChild) = leaf->split(
+            leftChildId, rightChildId, m_NumberThreads, frame, *m_Encoder,
+            m_Regularization, candidateSplits, this->featureBag(), tree[leaf->id()]);
 
         scopeMemoryUsage.add(leftChild);
         scopeMemoryUsage.add(rightChild);
@@ -733,8 +769,8 @@ CBoostedTreeImpl::trainTree(core::CDataFrame& frame,
     tree.shrink_to_fit();
 
     // Flush the maximum memory used by the leaf statistics to the callback.
-    recordMemoryUsage(maxMemory);
-    recordMemoryUsage(-maxMemory);
+    m_Instrumentation->updateMemoryUsage(memory.s_Max);
+    m_Instrumentation->updateMemoryUsage(-memory.s_Max);
 
     LOG_TRACE(<< "Trained one tree. # nodes = " << tree.size());
 
@@ -949,14 +985,13 @@ void CBoostedTreeImpl::refreshPredictionsAndLossDerivatives(core::CDataFrame& fr
             std::size_t numberLossParameters{m_Loss->numberParameters()};
             for (auto row = beginRows; row != endRows; ++row) {
                 auto prediction = readPrediction(*row, m_NumberInputColumns, numberLossParameters);
-                prediction[0] += root(tree).value(m_Encoder->encode(*row), tree);
                 double actual{readActual(*row, m_DependentVariable)};
                 double weight{readExampleWeight(*row, m_NumberInputColumns, numberLossParameters)};
-                writePrediction(*row, m_NumberInputColumns, prediction);
-                writeLossGradient(*row, m_NumberInputColumns,
-                                  m_Loss->gradient(prediction, actual, weight));
-                writeLossCurvature(*row, m_NumberInputColumns,
-                                   m_Loss->curvature(prediction, actual, weight));
+                prediction(0) += root(tree).value(m_Encoder->encode(*row), tree);
+                writeLossGradient(*row, m_NumberInputColumns, *m_Loss,
+                                  prediction, actual, weight);
+                writeLossCurvature(*row, m_NumberInputColumns, *m_Loss,
+                                   prediction, actual, weight);
             }
         },
         &updateRowMask);
@@ -1002,6 +1037,10 @@ CBoostedTreeImpl::TSizeVec CBoostedTreeImpl::candidateRegressorFeatures() const 
 }
 
 const CBoostedTreeNode& CBoostedTreeImpl::root(const TNodeVec& tree) {
+    return tree[0];
+}
+
+CBoostedTreeNode& CBoostedTreeImpl::root(TNodeVec& tree) {
     return tree[0];
 }
 
@@ -1156,9 +1195,8 @@ std::size_t CBoostedTreeImpl::maximumTreeSize(std::size_t numberRows) const {
 }
 
 namespace {
-const std::string VERSION_7_5_TAG{"7.5"};
-const std::string VERSION_7_6_TAG{"7.6"};
-const TStrVec SUPPORTED_VERSIONS{VERSION_7_5_TAG, VERSION_7_6_TAG};
+const std::string VERSION_7_7_TAG{"7.7"};
+const TStrVec SUPPORTED_VERSIONS{VERSION_7_7_TAG};
 
 const std::string BAYESIAN_OPTIMIZATION_TAG{"bayesian_optimization"};
 const std::string BEST_FOREST_TAG{"best_forest"};
@@ -1222,7 +1260,7 @@ CBoostedTreeImpl::TStrVec CBoostedTreeImpl::bestHyperparameterNames() {
 }
 
 void CBoostedTreeImpl::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
-    core::CPersistUtils::persist(VERSION_7_6_TAG, "", inserter);
+    core::CPersistUtils::persist(VERSION_7_7_TAG, "", inserter);
     core::CPersistUtils::persist(BAYESIAN_OPTIMIZATION_TAG, *m_BayesianOptimization, inserter);
     core::CPersistUtils::persist(BEST_FOREST_TEST_LOSS_TAG, m_BestForestTestLoss, inserter);
     core::CPersistUtils::persist(CURRENT_ROUND_TAG, m_CurrentRound, inserter);
@@ -1274,15 +1312,7 @@ void CBoostedTreeImpl::acceptPersistInserter(core::CStatePersistInserter& insert
 }
 
 bool CBoostedTreeImpl::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
-    if (traverser.name() == VERSION_7_5_TAG) {
-        // Force downsample factor to 1.0.
-        m_DownsampleFactorOverride = 1.0;
-        m_DownsampleFactor = 1.0;
-        m_BestHyperparameters.downsampleFactor(1.0);
-        // We can't stop cross-validation early because we haven't gathered the
-        // per fold test losses.
-        m_StopCrossValidationEarly = false;
-    } else if (traverser.name() != VERSION_7_6_TAG) {
+    if (traverser.name() != VERSION_7_7_TAG) {
         LOG_ERROR(<< "Input error: unsupported state serialization version. "
                   << "Currently supported versions: "
                   << core::CContainerPrinter::print(SUPPORTED_VERSIONS) << ".");
@@ -1403,6 +1433,7 @@ bool CBoostedTreeImpl::restoreLoss(CBoostedTree::TLossFunctionUPtr& loss,
 std::size_t CBoostedTreeImpl::memoryUsage() const {
     std::size_t mem{core::CMemory::dynamicSize(m_Loss)};
     mem += core::CMemory::dynamicSize(m_Encoder);
+    mem += core::CMemory::dynamicSize(m_FeatureDataTypes);
     mem += core::CMemory::dynamicSize(m_FeatureSampleProbabilities);
     mem += core::CMemory::dynamicSize(m_MissingFeatureRowMasks);
     mem += core::CMemory::dynamicSize(m_TrainingRowMasks);
@@ -1410,6 +1441,7 @@ std::size_t CBoostedTreeImpl::memoryUsage() const {
     mem += core::CMemory::dynamicSize(m_FoldRoundTestLosses);
     mem += core::CMemory::dynamicSize(m_BestForest);
     mem += core::CMemory::dynamicSize(m_BayesianOptimization);
+    mem += core::CMemory::dynamicSize(m_Instrumentation);
     return mem;
 }
 
@@ -1437,9 +1469,13 @@ void CBoostedTreeImpl::computeShapValues(core::CDataFrame& frame) {
         }
         auto treeFeatureImportance = std::make_unique<CTreeShapFeatureImportance>(
             m_BestForest, m_NumberThreads);
-        // Resize data frame to write SHAP values.
         std::size_t offset{frame.numberColumns()};
+
+        // Resize data frame to write SHAP values.
+        std::size_t lastMemoryUsage{core::CMemory::dynamicSize(frame)};
         frame.resizeColumns(m_NumberThreads, frame.numberColumns() + m_NumberInputColumns);
+        m_Instrumentation->updateMemoryUsage(core::CMemory::dynamicSize(frame) - lastMemoryUsage);
+
         m_FirstShapColumnIndex = offset;
         m_LastShapColumnIndex = frame.numberColumns() - 1;
         TStrVec columnNames(frame.columnNames());

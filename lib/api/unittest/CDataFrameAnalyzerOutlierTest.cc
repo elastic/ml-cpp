@@ -4,8 +4,6 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
-#include "CDataFrameMockAnalysisRunner.h"
-
 #include <core/CContainerPrinter.h>
 #include <core/CJsonOutputStreamWrapper.h>
 #include <core/CProgramCounters.h>
@@ -17,10 +15,9 @@
 #include <api/CDataFrameAnalysisSpecification.h>
 #include <api/CDataFrameAnalyzer.h>
 
+#include <test/BoostTestCloseAbsolute.h>
 #include <test/CDataFrameAnalysisSpecificationFactory.h>
 #include <test/CRandomNumbers.h>
-
-#include <test/BoostTestCloseAbsolute.h>
 
 #include <boost/test/unit_test.hpp>
 
@@ -87,9 +84,10 @@ void addOutlierTestData(TStrVec fieldNames,
     }
 
     frame->finishWritingRows();
-    CDataFrameMockAnalysisState state;
+    maths::CDataFrameAnalysisInstrumentationStub instrumentation;
     maths::COutliers::compute(
-        {1, 1, true, method, numberNeighbours, computeFeatureInfluence, 0.05}, *frame, state);
+        {1, 1, true, method, numberNeighbours, computeFeatureInfluence, 0.05},
+        *frame, instrumentation);
 
     expectedScores.resize(numberInliers + numberOutliers);
     expectedFeatureInfluences.resize(numberInliers + numberOutliers, TDoubleVec(5));
@@ -202,10 +200,17 @@ BOOST_AUTO_TEST_CASE(testRunOutlierDetection) {
 
     LOG_DEBUG(<< "number partitions = "
               << core::CProgramCounters::counter(counter_t::E_DFONumberPartitions));
+    LOG_DEBUG(<< "estimated memory usage = "
+              << core::CProgramCounters::counter(counter_t::E_DFOEstimatedPeakMemoryUsage));
     LOG_DEBUG(<< "peak memory = "
               << core::CProgramCounters::counter(counter_t::E_DFOPeakMemoryUsage));
+
     BOOST_TEST_REQUIRE(core::CProgramCounters::counter(counter_t::E_DFONumberPartitions) == 1);
     BOOST_TEST_REQUIRE(core::CProgramCounters::counter(counter_t::E_DFOPeakMemoryUsage) < 100000);
+    // Allow a 20% margin
+    BOOST_TEST_REQUIRE(
+        core::CProgramCounters::counter(counter_t::E_DFOPeakMemoryUsage) <
+        (120 * core::CProgramCounters::counter(counter_t::E_DFOEstimatedPeakMemoryUsage)) / 100);
 }
 
 BOOST_AUTO_TEST_CASE(testRunOutlierDetectionPartitioned) {
@@ -249,11 +254,17 @@ BOOST_AUTO_TEST_CASE(testRunOutlierDetectionPartitioned) {
 
     LOG_DEBUG(<< "number partitions = "
               << core::CProgramCounters::counter(counter_t::E_DFONumberPartitions));
+    LOG_DEBUG(<< "estimated memory usage = "
+              << core::CProgramCounters::counter(counter_t::E_DFOEstimatedPeakMemoryUsage));
     LOG_DEBUG(<< "peak memory = "
               << core::CProgramCounters::counter(counter_t::E_DFOPeakMemoryUsage));
+
     BOOST_TEST_REQUIRE(core::CProgramCounters::counter(counter_t::E_DFONumberPartitions) > 1);
-    BOOST_TEST_REQUIRE(core::CProgramCounters::counter(counter_t::E_DFOPeakMemoryUsage) <
-                       300000); // + 16%
+    // Allow a 20% margin
+    BOOST_TEST_REQUIRE(core::CProgramCounters::counter(counter_t::E_DFOPeakMemoryUsage) < 120000);
+    BOOST_TEST_REQUIRE(
+        core::CProgramCounters::counter(counter_t::E_DFOPeakMemoryUsage) <
+        (120 * core::CProgramCounters::counter(counter_t::E_DFOEstimatedPeakMemoryUsage)) / 100);
 }
 
 BOOST_AUTO_TEST_CASE(testRunOutlierFeatureInfluences) {

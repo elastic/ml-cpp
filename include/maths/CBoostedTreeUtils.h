@@ -8,24 +8,25 @@
 #define INCLUDED_ml_maths_CBoostedTreeUtils_h
 
 #include <core/CDataFrame.h>
-#include <core/CSmallVector.h>
+
+#include <maths/CLinearAlgebraEigen.h>
+#include <maths/ImportExport.h>
+#include <maths/MathsTypes.h>
 
 #include <cmath>
 #include <cstddef>
 
 namespace ml {
 namespace maths {
+namespace boosted_tree {
+class CLoss;
+}
 namespace boosted_tree_detail {
-using TDouble1Vec = core::CSmallVector<double, 1>;
 using TRowRef = core::CDataFrame::TRowRef;
+using TMemoryMappedFloatVector = CMemoryMappedDenseVector<CFloatStorage>;
 
 inline std::size_t lossHessianStoredSize(std::size_t numberLossParameters) {
     return numberLossParameters * (numberLossParameters + 1) / 2;
-}
-
-inline std::size_t numberLossParametersForHessianStoredSize(std::size_t lossHessianStoredSize) {
-    return static_cast<std::size_t>(
-        (std::sqrt(8.0 * static_cast<double>(lossHessianStoredSize) + 1.0) - 1.0) / 2.0 + 0.5);
 }
 
 inline std::size_t predictionColumn(std::size_t numberInputColumns) {
@@ -48,31 +49,50 @@ inline std::size_t exampleWeightColumn(std::size_t numberInputColumns,
            lossHessianStoredSize(numberLossParameters);
 }
 
+//! Read the prediction from \p row.
 MATHS_EXPORT
-TDouble1Vec readPrediction(const TRowRef& row,
-                           std::size_t numberInputColumns,
-                           std::size_t numberLossParamaters);
+TMemoryMappedFloatVector readPrediction(const TRowRef& row,
+                                        std::size_t numberInputColumns,
+                                        std::size_t numberLossParamaters);
+
+//! Zero the prediction of \p row.
+MATHS_EXPORT
+void zeroPrediction(const TRowRef& row, std::size_t numberInputColumns, std::size_t numberLossParamaters);
+
+//! Read the loss gradient from \p row.
+MATHS_EXPORT
+TMemoryMappedFloatVector readLossGradient(const TRowRef& row,
+                                          std::size_t numberInputColumns,
+                                          std::size_t numberLossParameters);
+
+//! Zero the loss gradient of \p row.
+MATHS_EXPORT
+void zeroLossGradient(const TRowRef& row, std::size_t numberInputColumns, std::size_t numberLossParameters);
+
+//! Write the loss gradient to \p row.
+MATHS_EXPORT
+void writeLossGradient(const TRowRef& row,
+                       std::size_t numberInputColumns,
+                       const boosted_tree::CLoss& loss,
+                       const TMemoryMappedFloatVector& prediction,
+                       double actual,
+                       double weight = 1.0);
 
 MATHS_EXPORT
-void writePrediction(const TRowRef& row, std::size_t numberInputColumns, const TDouble1Vec& prediction);
+TMemoryMappedFloatVector readLossCurvature(const TRowRef& row,
+                                           std::size_t numberInputColumns,
+                                           std::size_t numberLossParameters);
 
 MATHS_EXPORT
-TDouble1Vec readLossGradient(const TRowRef& row,
-                             std::size_t numberInputColumns,
-                             std::size_t numberLossParameters);
-
-MATHS_EXPORT
-void writeLossGradient(const TRowRef& row, std::size_t numberInputColumns, const TDouble1Vec& gradient);
-
-MATHS_EXPORT
-TDouble1Vec readLossCurvature(const TRowRef& row,
-                              std::size_t numberInputColumns,
-                              std::size_t numberLossParameters);
+void zeroLossCurvature(const TRowRef& row, std::size_t numberInputColumns, std::size_t numberLossParameters);
 
 MATHS_EXPORT
 void writeLossCurvature(const TRowRef& row,
                         std::size_t numberInputColumns,
-                        const TDouble1Vec& curvature);
+                        const boosted_tree::CLoss& curvature,
+                        const TMemoryMappedFloatVector& prediction,
+                        double actual,
+                        double weight = 1.0);
 
 MATHS_EXPORT
 double readExampleWeight(const TRowRef& row,
