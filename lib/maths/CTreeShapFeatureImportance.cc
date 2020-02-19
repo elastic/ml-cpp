@@ -166,7 +166,7 @@ void CTreeShapFeatureImportance::shapRecursive(const TTree& tree,
         double incomingFractionZero{1.0};
         double incomingFractionOne{1.0};
         int splitFeature{static_cast<int>(tree[nodeIndex].splitFeature())};
-        
+
         int pathIndex{splitPath.find(splitFeature, nextIndex)};
         if (pathIndex >= 0) {
             // Since we pass splitPath by reference, we need to backup the object before unwinding it.
@@ -206,12 +206,13 @@ void CTreeShapFeatureImportance::extendPath(CPathElementAccessor& path,
     } else {
         scalePath[nextIndex] = 0.0;
     }
-    double countDown{static_cast<double>(nextIndex)};
-    double countUp{1.0};
-    for (int i = (nextIndex - 1); i >= 0; --i, --countDown, ++countUp) {
-        scalePath[i + 1] += scalePath[i] * countDown * fractionOne /
-                            static_cast<double>(nextIndex + 1);
-        scalePath[i] *= countUp * fractionZero / static_cast<double>(nextIndex + 1);
+    double stepDown{fractionOne / static_cast<double>(nextIndex + 1)};
+    double stepUp {fractionZero / static_cast<double>(nextIndex + 1)};
+    double countDown{static_cast<double>(nextIndex)*stepDown};
+    double countUp{stepUp};
+    for (int i = (nextIndex - 1); i >= 0; --i, countDown -= stepDown, countUp += stepUp) {
+        scalePath[i + 1] += scalePath[i] * countDown;
+        scalePath[i] *= countUp;
     }
 
     ++nextIndex;
