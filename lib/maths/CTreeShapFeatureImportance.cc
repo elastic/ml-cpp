@@ -207,8 +207,8 @@ void CTreeShapFeatureImportance::extendPath(CPathElementAccessor& path,
         scalePath[nextIndex] = 0.0;
     }
     double stepDown{fractionOne / static_cast<double>(nextIndex + 1)};
-    double stepUp {fractionZero / static_cast<double>(nextIndex + 1)};
-    double countDown{static_cast<double>(nextIndex)*stepDown};
+    double stepUp{fractionZero / static_cast<double>(nextIndex + 1)};
+    double countDown{static_cast<double>(nextIndex) * stepDown};
     double countUp{stepUp};
     for (int i = (nextIndex - 1); i >= 0; --i, countDown -= stepDown, countUp += stepUp) {
         scalePath[i + 1] += scalePath[i] * countDown;

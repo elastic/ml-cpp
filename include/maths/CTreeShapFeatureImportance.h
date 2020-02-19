@@ -128,14 +128,13 @@ private:
 
         int find(int feature, int nextIndex) {
             auto featureIndexEnd{(this->fractionsBegin() + nextIndex)};
-             auto it = std::find_if(this->fractionsBegin(), featureIndexEnd,
-                               [feature](const SPathElement& el) {
-                                   return el.s_FeatureIndex == feature;
-                               });
+            auto it = std::find_if(this->fractionsBegin(), featureIndexEnd,
+                                   [feature](const SPathElement& el) {
+                                       return el.s_FeatureIndex == feature;
+                                   });
             if (it != featureIndexEnd) {
                 return std::distance(this->fractionsBegin(), it);
-            }
-            else {
+            } else {
                 return -1;
             }
         }
