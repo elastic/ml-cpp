@@ -256,7 +256,7 @@ private:
     static CBoostedTreeNode& root(TNodeVec& tree);
 
     //! Get the forest's prediction for \p row.
-    static double predictRow(const CEncodedDataFrameRowRef& row, const TNodeVecVec& forest);
+    TVector predictRow(const CEncodedDataFrameRowRef& row, const TNodeVecVec& forest) const;
 
     //! Select the next hyperparameters for which to train a model.
     bool selectNextHyperparameters(const TMeanVarAccumulator& lossMoments,

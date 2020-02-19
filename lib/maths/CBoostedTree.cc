@@ -11,6 +11,7 @@
 
 #include <maths/CBoostedTreeImpl.h>
 #include <maths/CLinearAlgebraPersist.h>
+#include <maths/CLinearAlgebraShims.h>
 #include <maths/CSolvers.h>
 #include <maths/CTools.h>
 
@@ -355,6 +356,10 @@ const std::string& CBinomialLogistic::name() const {
 const std::string CBinomialLogistic::NAME{"binomial_logistic"};
 }
 
+CBoostedTreeNode::CBoostedTreeNode(std::size_t numberLossParameters)
+    : m_NodeValue{TVector::Zero(numberLossParameters)} {
+}
+
 CBoostedTreeNode::TNodeIndex CBoostedTreeNode::leafIndex(const CEncodedDataFrameRowRef& row,
                                                          const TNodeVec& tree,
                                                          TNodeIndex index) const {
@@ -368,12 +373,12 @@ CBoostedTreeNode::TNodeIndex CBoostedTreeNode::leafIndex(const CEncodedDataFrame
                : tree[m_RightChild.get()].leafIndex(row, tree, m_RightChild.get());
 }
 
-CBoostedTreeNode::TSizeSizePr CBoostedTreeNode::split(std::size_t splitFeature,
-                                                      double splitValue,
-                                                      bool assignMissingToLeft,
-                                                      double gain,
-                                                      double curvature,
-                                                      TNodeVec& tree) {
+CBoostedTreeNode::TNodeIndexNodeIndexPr CBoostedTreeNode::split(std::size_t splitFeature,
+                                                                double splitValue,
+                                                                bool assignMissingToLeft,
+                                                                double gain,
+                                                                double curvature,
+                                                                TNodeVec& tree) {
     m_SplitFeature = splitFeature;
     m_SplitValue = splitValue;
     m_AssignMissingToLeft = assignMissingToLeft;
@@ -381,10 +386,19 @@ CBoostedTreeNode::TSizeSizePr CBoostedTreeNode::split(std::size_t splitFeature,
     m_RightChild = static_cast<TNodeIndex>(tree.size() + 1);
     m_Gain = gain;
     m_Curvature = curvature;
-    TSizeSizePr result{m_LeftChild.get(), m_RightChild.get()};
-    // Don't access members after calling resize because this object is likely an element of the vector being resized.
+    TNodeIndexNodeIndexPr result{m_LeftChild.get(), m_RightChild.get()};
+    // Don't access members after calling resize because this object is likely an
+    // element of the vector being resized.
     tree.resize(tree.size() + 2);
     return result;
+}
+
+std::size_t CBoostedTreeNode::memoryUsage() const {
+    return core::CMemory::dynamicSize(m_NodeValue);
+}
+
+std::size_t CBoostedTreeNode::estimateMemoryUsage(std::size_t numberLossParameters) {
+    return sizeof(CBoostedTreeNode) + las::estimateMemoryUsage<TVector>(numberLossParameters);
 }
 
 void CBoostedTreeNode::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
