@@ -229,14 +229,14 @@ double CTreeShapFeatureImportance::sumUnwoundPath(const CPathElementAccessor& pa
     double fractionZero{path.fractionZeros(pathIndex)};
     if (fractionOne != 0) {
         double pD = static_cast<double>(pathDepth + 1);
-        double countUp{fractionZero / pD};
-        double countDown{(pD - 1.0) * (fractionOne / pD)};
-        for (int i = pathDepth - 1; i >= 0; --i) {
+        double stepUp{fractionZero / pD};
+        double stepDown{fractionOne / pD};
+        double countUp{stepUp};
+        double countDown{(pD - 1.0) * stepDown};
+        for (int i = pathDepth - 1; i >= 0; --i, countUp += stepUp, countDown -= stepDown) {
             double tmp = nextFractionOne / countDown;
             nextFractionOne = scalePath[i] - tmp * countUp;
             total += tmp;
-            countUp += fractionZero / pD;
-            countDown -= (fractionOne / pD);
         }
     } else {
         double pD{static_cast<double>(pathDepth)};
