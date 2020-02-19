@@ -32,9 +32,9 @@ void CTreeShapFeatureImportance::shap(core::CDataFrame& frame,
                                                           const TRowItr& endRows) {
         // When traversing a tree, we successively copy the parent path and add one
         // new element to it. This means that if a tree has maxDepthOverall depth,
-        // we store 1, 2, ... (maxDepthOverall+1) elements. The "+1" here comes from 
+        // we store 1, 2, ... (maxDepthOverall+1) elements. The "+1" here comes from
         // the fact that the initial element in the path has split feature -1.
-        // Alltogether it results in ((maxDepthOverall + 1) * (maxDepthOverall + 2)) / 2 
+        // Alltogether it results in ((maxDepthOverall + 1) * (maxDepthOverall + 2)) / 2
         // elements to be store.
         TElementVec pathVector(((maxDepthOverall + 1) * (maxDepthOverall + 2)) / 2);
         TDoubleVec scaleVector(((maxDepthOverall + 1) * (maxDepthOverall + 2)) / 2);
@@ -42,8 +42,8 @@ void CTreeShapFeatureImportance::shap(core::CDataFrame& frame,
             auto encodedRow{encoder.encode(*row)};
             for (std::size_t i = 0; i < m_Trees.size(); ++i) {
                 CTreeShapFeatureImportance::shapRecursive(
-                    m_Trees[i], encoder, encodedRow, 0, 1.0, 1.0, -1, offset,
-                    row, 0, CSplitPath(pathVector.begin(), scaleVector.begin()));
+                    m_Trees[i], encoder, encodedRow, 0, 1.0, 1.0, -1,
+                    CSplitPath(pathVector.begin(), scaleVector.begin()), offset, row, 0);
             }
         }
     });
@@ -82,10 +82,10 @@ void CTreeShapFeatureImportance::shapRecursive(const TTree& tree,
                                                double parentFractionZero,
                                                double parentFractionOne,
                                                int parentFeatureIndex,
+                                               const CSplitPath& parentSplitPath,
                                                std::size_t offset,
                                                core::CDataFrame::TRowItr& row,
-                                               int nextIndex,
-                                               const CSplitPath& parentSplitPath) const {
+                                               int nextIndex) const {
     CSplitPath splitPath{parentSplitPath, nextIndex};
 
     CTreeShapFeatureImportance::extendPath(splitPath, parentFractionZero, parentFractionOne,
@@ -139,10 +139,10 @@ void CTreeShapFeatureImportance::shapRecursive(const TTree& tree,
                                 tree[nodeIndex].numberSamples()};
         this->shapRecursive(tree, encoder, encodedRow, hotIndex,
                             incomingFractionZero * hotFractionZero, incomingFractionOne,
-                            splitFeature, offset, row, nextIndex, splitPath);
+                            splitFeature, splitPath, offset, row, nextIndex);
         this->shapRecursive(tree, encoder, encodedRow, coldIndex,
                             incomingFractionZero * coldFractionZero, 0.0,
-                            splitFeature, offset, row, nextIndex, splitPath);
+                            splitFeature, splitPath, offset, row, nextIndex);
     }
 }
 

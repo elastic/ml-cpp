@@ -145,10 +145,10 @@ private:
                        double parentFractionZero,
                        double parentFractionOne,
                        int parentFeatureIndex,
+                       const CSplitPath& path,
                        std::size_t offset,
                        core::CDataFrame::TRowItr& row,
-                       int nextIndex,
-                       const CSplitPath& path) const;
+                       int nextIndex) const;
     //! Extend the \p path object, update the variables and factorial scaling coefficients.
     static void extendPath(CSplitPath& splitPath,
                            double fractionZero,
