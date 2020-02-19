@@ -36,8 +36,8 @@ void CTreeShapFeatureImportance::shap(core::CDataFrame& frame,
     auto result = frame.writeColumns(m_NumberThreads, [&](const TRowItr& beginRows,
                                                           const TRowItr& endRows) {
         // need a bit more memory than max depth
-        TElementVec pathVector(((maxDepthOverall + 2) * (maxDepthOverall + 3)) / 2);
-        TDoubleVec scaleVector(((maxDepthOverall + 2) * (maxDepthOverall + 3)) / 2);
+        TElementVec pathVector(((maxDepthOverall + 1) * (maxDepthOverall + 2)) / 2);
+        TDoubleVec scaleVector(((maxDepthOverall + 1) * (maxDepthOverall + 2)) / 2);
         for (auto row = beginRows; row != endRows; ++row) {
             auto encodedRow{encoder.encode(*row)};
             for (std::size_t i = 0; i < m_Trees.size(); ++i) {
