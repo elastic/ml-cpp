@@ -278,11 +278,12 @@ class CBoostedTreeImpl;
 class MATHS_EXPORT CBoostedTreeNode final {
 public:
     using TNodeIndex = std::uint32_t;
-    using TSizeSizePr = std::pair<TNodeIndex, TNodeIndex>;
+    using TNodeIndexNodeIndexPr = std::pair<TNodeIndex, TNodeIndex>;
     using TPackedBitVectorPackedBitVectorPr =
         std::pair<core::CPackedBitVector, core::CPackedBitVector>;
     using TNodeVec = std::vector<CBoostedTreeNode>;
     using TOptionalNodeIndex = boost::optional<TNodeIndex>;
+    using TVector = CDenseVector<double>;
 
     class MATHS_EXPORT CVisitor {
     public:
@@ -291,7 +292,7 @@ public:
         virtual void addNode(std::size_t splitFeature,
                              double splitValue,
                              bool assignMissingToLeft,
-                             double nodeValue,
+                             const TVector& nodeValue,
                              double gain,
                              std::size_t numberSamples,
                              TOptionalNodeIndex leftChild,
@@ -299,8 +300,8 @@ public:
     };
 
 public:
-    //! See core::CMemory.
-    static bool dynamicSizeAlwaysZero() { return true; }
+    CBoostedTreeNode() = default;
+    explicit CBoostedTreeNode(std::size_t numberLossParameters);
 
     //! Check if this is a leaf node.
     bool isLeaf() const { return m_LeftChild.is_initialized() == false; }
@@ -319,15 +320,15 @@ public:
     }
 
     //! Get the value predicted by \p tree for the feature vector \p row.
-    double value(const CEncodedDataFrameRowRef& row, const TNodeVec& tree) const {
+    const TVector& value(const CEncodedDataFrameRowRef& row, const TNodeVec& tree) const {
         return tree[this->leafIndex(row, tree)].m_NodeValue;
     }
 
     //! Get the value of this node.
-    double value() const { return m_NodeValue; }
+    const TVector& value() const { return m_NodeValue; }
 
     //! Set the node value to \p value.
-    void value(double value) { m_NodeValue = value; }
+    void value(TVector value) { m_NodeValue = std::move(value); }
 
     //! Get the gain of the split.
     double gain() const { return m_Gain; }
@@ -348,15 +349,22 @@ public:
     TNodeIndex rightChildIndex() const { return m_RightChild.get(); }
 
     //! Split this node and add its child nodes to \p tree.
-    TSizeSizePr split(std::size_t splitFeature,
-                      double splitValue,
-                      bool assignMissingToLeft,
-                      double gain,
-                      double curvature,
-                      TNodeVec& tree);
+    TNodeIndexNodeIndexPr split(std::size_t splitFeature,
+                                double splitValue,
+                                bool assignMissingToLeft,
+                                double gain,
+                                double curvature,
+                                TNodeVec& tree);
 
     //! Get the feature index of the split.
     std::size_t splitFeature() const { return m_SplitFeature; }
+
+    //! Get the memory used by this object.
+    std::size_t memoryUsage() const;
+
+    //! Get the node's memory usage for a loss function with \p numberLossParameters
+    //! parameters.
+    static std::size_t estimateMemoryUsage(std::size_t numberLossParameters);
 
     //! Persist by passing information to \p inserter.
     void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
@@ -380,7 +388,7 @@ private:
     bool m_AssignMissingToLeft = true;
     TOptionalNodeIndex m_LeftChild;
     TOptionalNodeIndex m_RightChild;
-    double m_NodeValue = 0.0;
+    TVector m_NodeValue;
     double m_Gain = 0.0;
     double m_Curvature = 0.0;
     std::size_t m_NumberSamples = 0;

@@ -26,6 +26,7 @@ public:
     using TStrVecVec = std::vector<TStrVec>;
     using TSizeStringUMap = std::unordered_map<std::size_t, std::string>;
     using TSizeStringUMapVec = std::vector<TSizeStringUMap>;
+    using TVector = maths::CBoostedTreeNode::TVector;
 
 public:
     CBoostedTreeInferenceModelBuilder(TStrVec fieldNames,
@@ -36,7 +37,7 @@ public:
     void addNode(std::size_t splitFeature,
                  double splitValue,
                  bool assignMissingToLeft,
-                 double nodeValue,
+                 const TVector& nodeValue,
                  double gain,
                  std::size_t numberSamples,
                  maths::CBoostedTreeNode::TOptionalNodeIndex leftChild,

@@ -1445,6 +1445,40 @@ BOOST_AUTO_TEST_CASE(testShims) {
     }
 }
 
+BOOST_AUTO_TEST_CASE(testMemoryMapped) {
+    using TDenseVector = maths::CDenseVector<double>;
+    using TDenseMatrix = maths::CDenseMatrix<double>;
+    using TMappedFloatVector = maths::CMemoryMappedDenseVector<float>;
+    using TMappedFloatMatrix = maths::CMemoryMappedDenseMatrix<float>;
+
+    {
+        float components[4];
+        TMappedFloatVector mappedVector(components, 4);
+
+        TDenseVector vector{4};
+        vector << 1.1, 2.7, 0.1, -3.0;
+        mappedVector = vector;
+
+        for (int i = 0; i < 4; ++i) {
+            BOOST_REQUIRE_CLOSE(vector(i), mappedVector(i), 1e-4);
+        }
+    }
+    {
+        float components[9];
+        TMappedFloatMatrix mappedMatrix(components, 3, 3);
+
+        TDenseMatrix matrix{3, 3};
+        matrix << 1.1, 2.7, 0.1, 3.0, 1.2, 0.4, 5.1, 0.2, 9.3;
+        mappedMatrix = matrix;
+
+        for (int i = 0; i < 3; ++i) {
+            for (int j = 0; j < 3; ++j) {
+                BOOST_REQUIRE_CLOSE(matrix(i, j), mappedMatrix(i, j), 1e-4);
+            }
+        }
+    }
+}
+
 BOOST_AUTO_TEST_CASE(testPersist) {
     // Check conversion to and from delimited is idempotent and parsing
     // bad input produces an error.

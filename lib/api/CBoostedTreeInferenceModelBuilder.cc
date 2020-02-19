@@ -87,7 +87,7 @@ CInferenceModelDefinition&& CBoostedTreeInferenceModelBuilder::build() {
 void CBoostedTreeInferenceModelBuilder::addNode(std::size_t splitFeature,
                                                 double splitValue,
                                                 bool assignMissingToLeft,
-                                                double nodeValue,
+                                                const TVector& nodeValue,
                                                 double gain,
                                                 std::size_t numberSamples,
                                                 maths::CBoostedTreeNode::TOptionalNodeIndex leftChild,
@@ -98,8 +98,9 @@ void CBoostedTreeInferenceModelBuilder::addNode(std::size_t splitFeature,
     if (tree == nullptr) {
         HANDLE_FATAL(<< "Internal error. Tree points to a nullptr.")
     }
+    // TODO fixme
     tree->treeStructure().emplace_back(tree->size(), splitValue, assignMissingToLeft,
-                                       nodeValue, splitFeature, numberSamples,
+                                       nodeValue(0), splitFeature, numberSamples,
                                        leftChild, rightChild, gain);
 }
 
