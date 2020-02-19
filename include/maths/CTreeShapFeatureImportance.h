@@ -52,9 +52,9 @@ private:
 
     //! Collects the elements of the path through decision tree that are updated together
     struct SPathElement {
-        double s_FractionOnes;
-        double s_FractionZeros;
-        int s_FeatureIndex;
+        double s_FractionOnes = 1.0;
+        double s_FractionZeros = 1.0;
+        int s_FeatureIndex = -1;
     };
 
     using TElementVec = std::vector<SPathElement>;

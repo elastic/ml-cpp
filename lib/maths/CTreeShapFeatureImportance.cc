@@ -34,7 +34,7 @@ void CTreeShapFeatureImportance::shap(core::CDataFrame& frame,
         // new element to it. This means that if a tree has maxDepthOverall depth,
         // we store 1, 2, ... (maxDepthOverall+1) elements. The "+1" here comes from
         // the fact that the initial element in the path has split feature -1.
-        // Alltogether it results in ((maxDepthOverall + 1) * (maxDepthOverall + 2)) / 2
+        // Altogether it results in ((maxDepthOverall + 1) * (maxDepthOverall + 2)) / 2
         // elements to be store.
         TElementVec pathVector(((maxDepthOverall + 1) * (maxDepthOverall + 2)) / 2);
         TDoubleVec scaleVector(((maxDepthOverall + 1) * (maxDepthOverall + 2)) / 2);
@@ -216,23 +216,21 @@ void CTreeShapFeatureImportance::unwindPath(CSplitPath& path, int pathIndex, int
     double fractionZero{path.fractionZeros(pathIndex)};
 
     if (fractionOne != 0) {
+        double stepUp{fractionZero / static_cast<double>(pathDepth + 1)};
+        double stepDown{fractionOne / static_cast<double>(nextIndex)};
         double countUp{0.0};
-        double countDown{static_cast<double>(nextIndex)};
-        for (int i = pathDepth; i >= 0; --i, ++countUp, --countDown) {
-            double tmp = nextFractionOne * static_cast<double>(nextIndex) /
-                         (countDown * fractionOne);
-            nextFractionOne =
-                scalePath[i] -
-                tmp * countUp * (fractionZero / static_cast<double>(pathDepth + 1));
+        double countDown{static_cast<double>(nextIndex) * stepDown};
+        for (int i = pathDepth; i >= 0; --i, countUp += stepUp, countDown -= stepDown) {
+            double tmp{nextFractionOne / countDown};
+            nextFractionOne = scalePath[i] - tmp * countUp;
             scalePath[i] = tmp;
         }
     } else {
-        double pD{static_cast<double>(pathDepth)};
-        for (int i = 0; i <= pathDepth; ++i, --pD) {
-            scalePath[i] = scalePath[i] *
-                           (static_cast<double>(pathDepth + 1) /
-                            (fractionZero + std::numeric_limits<double>::epsilon())) /
-                           pD;
+        double stepDown{(fractionZero + std::numeric_limits<double>::epsilon()) /
+                        static_cast<double>(pathDepth + 1)};
+        double countDown{static_cast<double>(pathDepth) * stepDown};
+        for (int i = 0; i <= pathDepth; ++i, countDown -= stepDown) {
+            scalePath[i] = scalePath[i] / countDown;
         }
     }
     for (int i = pathIndex; i < pathDepth; ++i) {
