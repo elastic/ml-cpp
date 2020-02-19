@@ -50,67 +50,89 @@ public:
 private:
     using TSizeVec = std::vector<std::size_t>;
 
-    //! Manages variables for the current path through the tree as the main algorithm proceeds.
-    struct SPath {
-        explicit SPath(std::size_t length)
-            : s_FractionOnes(length), s_FractionZeros(length),
-              s_FeatureIndex(length, -1), s_Scale(length), s_MaxLength(length) {}
+    //! Collects the elements of the path through decision tree that are updated together
+    struct SPathElement {
+        double s_FractionOnes = 1.0;
+        double s_FractionZeros = 1.0;
+        int s_FeatureIndex = -1;
+    };
 
-        void extend(int featureIndex, double fractionZero, double fractionOne) {
-            if (s_NextIndex < s_MaxLength) {
-                s_FeatureIndex[s_NextIndex] = featureIndex;
-                s_FractionZeros[s_NextIndex] = fractionZero;
-                s_FractionOnes[s_NextIndex] = fractionOne;
-                if (s_NextIndex == 0) {
-                    s_Scale[s_NextIndex] = 1.0;
-                } else {
-                    s_Scale[s_NextIndex] = 0.0;
-                }
-                ++s_NextIndex;
+    using TElementVec = std::vector<SPathElement>;
+    using TElementItr = TElementVec::iterator;
+    using TDoubleVecItr = TDoubleVec::iterator;
+
+    class CSplitPath {
+    public:
+        CSplitPath(TElementItr fractionsIterator, TDoubleVecItr scaleIterator) {
+            m_FractionsIterator = fractionsIterator;
+            m_ScaleIterator = scaleIterator;
+        }
+
+        CSplitPath(const CSplitPath& parentSplitPath, int nextIndex)
+            : CSplitPath(parentSplitPath.fractionsBegin() + nextIndex,
+                         parentSplitPath.scaleBegin() + nextIndex) {
+            std::copy(parentSplitPath.fractionsBegin(),
+                      parentSplitPath.fractionsBegin() + nextIndex,
+                      this->fractionsBegin());
+            std::copy(parentSplitPath.scaleBegin(),
+                      parentSplitPath.scaleBegin() + nextIndex, this->scaleBegin());
+        }
+
+        TElementItr& fractions() { return m_FractionsIterator; }
+        const TElementItr& fractions() const { return m_FractionsIterator; }
+        TDoubleVecItr& scale() { return m_ScaleIterator; }
+        const TDoubleVecItr& scale() const { return m_ScaleIterator; }
+
+        SPathElement& operator[](int index) {
+            return m_FractionsIterator[index];
+        }
+
+        TElementItr& fractionsBegin() { return m_FractionsIterator; }
+        const TElementItr& fractionsBegin() const {
+            return m_FractionsIterator;
+        }
+
+        TDoubleVecItr& scaleBegin() { return m_ScaleIterator; }
+        const TDoubleVecItr& scaleBegin() const { return m_ScaleIterator; }
+
+        void setValues(int index, double fractionOnes, double fractionZeros, int featureIndex) {
+            m_FractionsIterator[index].s_FractionOnes = fractionOnes;
+            m_FractionsIterator[index].s_FractionZeros = fractionZeros;
+            m_FractionsIterator[index].s_FeatureIndex = featureIndex;
+        }
+
+        void scale(int index, double value) { m_ScaleIterator[index] = value; }
+
+        double scale(int index) const { return m_ScaleIterator[index]; }
+
+        int featureIndex(int nextIndex) const {
+            return m_FractionsIterator[nextIndex].s_FeatureIndex;
+        }
+
+        double fractionZeros(int nextIndex) const {
+            return m_FractionsIterator[nextIndex].s_FractionZeros;
+        }
+
+        double fractionOnes(int nextIndex) const {
+            return m_FractionsIterator[nextIndex].s_FractionOnes;
+        }
+
+        int find(int feature, int nextIndex) {
+            auto featureIndexEnd{(this->fractionsBegin() + nextIndex)};
+            auto it = std::find_if(this->fractionsBegin(), featureIndexEnd,
+                                   [feature](const SPathElement& el) {
+                                       return el.s_FeatureIndex == feature;
+                                   });
+            if (it != featureIndexEnd) {
+                return std::distance(this->fractionsBegin(), it);
+            } else {
+                return -1;
             }
         }
 
-        void reduce(std::size_t pathIndex) {
-            for (int i = static_cast<int>(pathIndex); i < this->depth(); ++i) {
-                s_FeatureIndex[i] = s_FeatureIndex[i + 1];
-                s_FractionZeros[i] = s_FractionZeros[i + 1];
-                s_FractionOnes[i] = s_FractionOnes[i + 1];
-            }
-            --s_NextIndex;
-        }
-
-        //! Indicator whether or not the feature \p pathIndex is decicive for the path.
-        double fractionOnes(std::size_t pathIndex) const {
-            return s_FractionOnes[pathIndex];
-        }
-
-        //! Fraction of all training data that reached the \pathIndex in the path.
-        double fractionZeros(std::size_t pathIndex) const {
-            return s_FractionZeros[pathIndex];
-        }
-
-        int featureIndex(std::size_t pathIndex) const {
-            return s_FeatureIndex[pathIndex];
-        }
-
-        //! Scaling coefficients (factorials), see. Equation (2) in the paper by Lundberg et al.
-        double scale(std::size_t pathIndex) const { return s_Scale[pathIndex]; }
-
-        //! Current depth in the tree
-        int depth() const { return static_cast<int>(s_NextIndex) - 1; }
-
-        //! Get next index.
-        std::size_t nextIndex() const { return s_NextIndex; }
-
-        //! Set next index.
-        void nextIndex(std::size_t nextIndex) { s_NextIndex = nextIndex; }
-
-        TDoubleVec s_FractionOnes;
-        TDoubleVec s_FractionZeros;
-        TIntVec s_FeatureIndex;
-        TDoubleVec s_Scale;
-        std::size_t s_NextIndex = 0;
-        std::size_t s_MaxLength = 0;
+    private:
+        TElementItr m_FractionsIterator;
+        TDoubleVecItr m_ScaleIterator;
     };
 
 private:
@@ -119,19 +141,24 @@ private:
     void shapRecursive(const TTree& tree,
                        const CDataFrameCategoryEncoder& encoder,
                        const CEncodedDataFrameRowRef& encodedRow,
-                       SPath& splitPath,
                        std::size_t nodeIndex,
                        double parentFractionZero,
                        double parentFractionOne,
                        int parentFeatureIndex,
+                       const CSplitPath& path,
                        std::size_t offset,
-                       core::CDataFrame::TRowItr& row) const;
+                       core::CDataFrame::TRowItr& row,
+                       int nextIndex) const;
     //! Extend the \p path object, update the variables and factorial scaling coefficients.
-    static void extendPath(SPath& path, double fractionZero, double fractionOne, int featureIndex);
-    //! Sum the scaling coefficients for the \p path without the feature defined in \p pathIndex.
-    static double sumUnwoundPath(const SPath& path, std::size_t pathIndex);
+    static void extendPath(CSplitPath& splitPath,
+                           double fractionZero,
+                           double fractionOne,
+                           int featureIndex,
+                           int& nextIndex);
+    //! Sum the scaling coefficients for the \p scalePath without the feature defined in \p pathIndex.
+    static double sumUnwoundPath(const CSplitPath& path, int pathIndex, int nextIndex);
     //! Updated the scaling coefficients in the \p path if the feature defined in \p pathIndex was seen again.
-    static void unwindPath(SPath& path, std::size_t pathIndex);
+    static void unwindPath(CSplitPath& path, int pathIndex, int& nextIndex);
 
 private:
     TTreeVec m_Trees;

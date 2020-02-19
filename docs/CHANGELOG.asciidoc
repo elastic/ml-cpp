@@ -37,6 +37,7 @@ progress, memory usage, etc. (See {ml-pull}906[#906].)
 
 === Enhancements
 
+* Improve computational performance of the feature importance computation. (See {ml-pull}1005[1005].)
 * Improve initialization of learn rate for better and more stable results in regression
 and classification. (See {ml-pull}948[#948].)
 * Add number of processed training samples to the definition of decision tree nodes.
