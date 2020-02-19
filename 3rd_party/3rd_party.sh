@@ -47,15 +47,15 @@ case `uname` in
 
     Linux)
         if [ -z "$CPP_CROSS_COMPILE" ] ; then
-            BOOST_LOCATION=/usr/local/gcc73/lib
+            BOOST_LOCATION=/usr/local/gcc75/lib
             BOOST_COMPILER=gcc
             BOOST_EXTENSION=mt-x64-1_71.so.1.71.0
             BOOST_LIBRARIES='atomic chrono date_time filesystem iostreams log log_setup program_options regex system thread'
-            XML_LOCATION=/usr/local/gcc73/lib
+            XML_LOCATION=/usr/local/gcc75/lib
             XML_EXTENSION=.so.2
-            GCC_RT_LOCATION=/usr/local/gcc73/lib64
+            GCC_RT_LOCATION=/usr/local/gcc75/lib64
             GCC_RT_EXTENSION=.so.1
-            STL_LOCATION=/usr/local/gcc73/lib64
+            STL_LOCATION=/usr/local/gcc75/lib64
             STL_PREFIX=libstdc++
             STL_EXTENSION=.so.6
             ZLIB_LOCATION=
