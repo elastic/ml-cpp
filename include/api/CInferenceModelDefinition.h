@@ -158,7 +158,8 @@ public:
                   double threshold,
                   bool defaultLeft,
                   double leafValue,
-                  size_t splitFeature,
+                  std::size_t splitFeature,
+                  std::size_t numberSamples,
                   const TOptionalNodeIndex& leftChild,
                   const TOptionalNodeIndex& rightChild,
                   const TOptionalDouble& splitGain);
@@ -175,6 +176,7 @@ public:
         TOptionalNodeIndex m_LeftChild;
         TOptionalNodeIndex m_RightChild;
         std::size_t m_SplitFeature;
+        std::size_t m_NumberSamples;
         double m_Threshold;
         double m_LeafValue;
         TOptionalDouble m_SplitGain;

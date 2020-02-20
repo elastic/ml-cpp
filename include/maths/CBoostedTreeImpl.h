@@ -56,8 +56,6 @@ public:
     using TNodeVec = CBoostedTree::TNodeVec;
     using TNodeVecVec = CBoostedTree::TNodeVecVec;
     using TLossFunctionUPtr = CBoostedTree::TLossFunctionUPtr;
-    using TProgressCallback = CBoostedTree::TProgressCallback;
-    using TMemoryUsageCallback = CBoostedTree::TMemoryUsageCallback;
     using TTrainingStateCallback = CBoostedTree::TTrainingStateCallback;
     using TOptionalDouble = boost::optional<double>;
     using TRegularization = CBoostedTreeRegularization<double>;
@@ -191,8 +189,7 @@ private:
     void computeProbabilityAtWhichToAssignClassOne(const core::CDataFrame& frame);
 
     //! Train the forest and compute loss moments on each fold.
-    TMeanVarAccumulatorSizePr crossValidateForest(core::CDataFrame& frame,
-                                                  const TMemoryUsageCallback& recordMemoryUsage);
+    TMeanVarAccumulatorSizePr crossValidateForest(core::CDataFrame& frame);
 
     //! Initialize the predictions and loss function derivatives for the masked
     //! rows in \p frame.
@@ -204,8 +201,7 @@ private:
     TNodeVecVecDoublePr trainForest(core::CDataFrame& frame,
                                     const core::CPackedBitVector& trainingRowMask,
                                     const core::CPackedBitVector& testingRowMask,
-                                    core::CLoopProgress& trainingProgress,
-                                    const TMemoryUsageCallback& recordMemoryUsage) const;
+                                    core::CLoopProgress& trainingProgress) const;
 
     //! Randomly downsamples the training row mask by the downsample factor.
     core::CPackedBitVector downsample(const core::CPackedBitVector& trainingRowMask) const;
@@ -218,8 +214,7 @@ private:
     TNodeVec trainTree(core::CDataFrame& frame,
                        const core::CPackedBitVector& trainingRowMask,
                        const TImmutableRadixSetVec& candidateSplits,
-                       const std::size_t maximumTreeSize,
-                       const TMemoryUsageCallback& recordMemoryUsage) const;
+                       const std::size_t maximumTreeSize) const;
 
     //! Compute the minimum mean test loss per fold for any round.
     double minimumTestLoss() const;
@@ -257,8 +252,11 @@ private:
     //! Get the root node of \p tree.
     static const CBoostedTreeNode& root(const TNodeVec& tree);
 
+    //! Get the root node of \p tree.
+    static CBoostedTreeNode& root(TNodeVec& tree);
+
     //! Get the forest's prediction for \p row.
-    static double predictRow(const CEncodedDataFrameRowRef& row, const TNodeVecVec& forest);
+    TVector predictRow(const CEncodedDataFrameRowRef& row, const TNodeVecVec& forest) const;
 
     //! Select the next hyperparameters for which to train a model.
     bool selectNextHyperparameters(const TMeanVarAccumulator& lossMoments,
@@ -292,6 +290,9 @@ private:
     //! Record the training state using the \p recordTrainState callback function
     void recordState(const TTrainingStateCallback& recordTrainState) const;
 
+    //! Populate numberSamples field in the m_BestForest
+    void computeNumberSamples(const core::CDataFrame& frame);
+
 private:
     mutable CPRNG::CXorOShiro128Plus m_Rng;
     std::size_t m_NumberThreads;
@@ -319,8 +320,8 @@ private:
     std::size_t m_MaximumOptimisationRoundsPerHyperparameter = 2;
     std::size_t m_RowsPerFeature = 50;
     double m_FeatureBagFraction = 0.5;
-    TDataTypeVec m_FeatureDataTypes;
     TDataFrameCategoryEncoderUPtr m_Encoder;
+    TDataTypeVec m_FeatureDataTypes;
     TDoubleVec m_FeatureSampleProbabilities;
     TPackedBitVectorVec m_MissingFeatureRowMasks;
     TPackedBitVectorVec m_TrainingRowMasks;

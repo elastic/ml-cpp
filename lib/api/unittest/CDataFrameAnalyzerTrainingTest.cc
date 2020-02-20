@@ -266,7 +266,7 @@ void addPredictionTestData(EPredictionType type,
     }
 
     ml::api::CDataFrameTrainBoostedTreeInstrumentation instrumentation;
-    treeFactory.analysisInstrumentation(&instrumentation);
+    treeFactory.analysisInstrumentation(instrumentation);
 
     auto tree = treeFactory.buildFor(*frame, weights.size());
 
@@ -426,7 +426,10 @@ BOOST_AUTO_TEST_CASE(testRunBoostedTreeRegressionTraining) {
 
     BOOST_TEST_REQUIRE(core::CProgramCounters::counter(
                            counter_t::E_DFTPMEstimatedPeakMemoryUsage) < 6000000);
-    BOOST_TEST_REQUIRE(core::CProgramCounters::counter(counter_t::E_DFTPMPeakMemoryUsage) < 1400000);
+    BOOST_TEST_REQUIRE(core::CProgramCounters::counter(counter_t::E_DFTPMPeakMemoryUsage) < 1500000);
+    BOOST_TEST_REQUIRE(
+        core::CProgramCounters::counter(counter_t::E_DFTPMPeakMemoryUsage) <
+        core::CProgramCounters::counter(counter_t::E_DFTPMEstimatedPeakMemoryUsage));
     BOOST_TEST_REQUIRE(core::CProgramCounters::counter(counter_t::E_DFTPMTimeToTrain) > 0);
     BOOST_TEST_REQUIRE(core::CProgramCounters::counter(counter_t::E_DFTPMTimeToTrain) <= duration);
 }
@@ -722,9 +725,13 @@ BOOST_AUTO_TEST_CASE(testRunBoostedTreeClassifierTraining) {
               << core::CProgramCounters::counter(counter_t::E_DFTPMPeakMemoryUsage));
     LOG_DEBUG(<< "time to train = " << core::CProgramCounters::counter(counter_t::E_DFTPMTimeToTrain)
               << "ms");
+
     BOOST_TEST_REQUIRE(core::CProgramCounters::counter(
                            counter_t::E_DFTPMEstimatedPeakMemoryUsage) < 6000000);
-    BOOST_TEST_REQUIRE(core::CProgramCounters::counter(counter_t::E_DFTPMPeakMemoryUsage) < 1400000);
+    BOOST_TEST_REQUIRE(core::CProgramCounters::counter(counter_t::E_DFTPMPeakMemoryUsage) < 1500000);
+    BOOST_TEST_REQUIRE(
+        core::CProgramCounters::counter(counter_t::E_DFTPMPeakMemoryUsage) <
+        core::CProgramCounters::counter(counter_t::E_DFTPMEstimatedPeakMemoryUsage));
     BOOST_TEST_REQUIRE(core::CProgramCounters::counter(counter_t::E_DFTPMTimeToTrain) > 0);
     BOOST_TEST_REQUIRE(core::CProgramCounters::counter(counter_t::E_DFTPMTimeToTrain) <= duration);
 }
@@ -752,7 +759,7 @@ BOOST_AUTO_TEST_CASE(testRunBoostedTreeClassifierImbalanced) {
     api::CDataFrameAnalyzer analyzer{
         test::CDataFrameAnalysisSpecificationFactory::predictionSpec(
             test::CDataFrameAnalysisSpecificationFactory::classification(),
-            "target", numberExamples, 4, 14000000, 0, 0, {"target"}),
+            "target", numberExamples, 4, 18000000, 0, 0, {"target"}),
         outputWriterFactory};
 
     TStrVec actuals;
@@ -800,7 +807,7 @@ BOOST_AUTO_TEST_CASE(testCategoricalFields) {
         api::CDataFrameAnalyzer analyzer{
             test::CDataFrameAnalysisSpecificationFactory::predictionSpec(
                 test::CDataFrameAnalysisSpecificationFactory::regression(),
-                "x5", 1000, 5, 19000000, 0, 0, {"x1", "x2"}),
+                "x5", 1000, 5, 27000000, 0, 0, {"x1", "x2"}),
             outputWriterFactory};
 
         TStrVec x[]{{"x11", "x12", "x13", "x14", "x15"},
@@ -906,7 +913,7 @@ BOOST_AUTO_TEST_CASE(testCategoricalFieldsEmptyAsMissing) {
     api::CDataFrameAnalyzer analyzer{
         test::CDataFrameAnalysisSpecificationFactory::predictionSpec(
             test::CDataFrameAnalysisSpecificationFactory::classification(),
-            "x5", 1000, 5, 19000000, 0, 0, {"x1", "x2", "x5"}),
+            "x5", 1000, 5, 27000000, 0, 0, {"x1", "x2", "x5"}),
         outputWriterFactory};
 
     TStrVec fieldNames{"x1", "x2", "x3", "x4", "x5", ".", "."};

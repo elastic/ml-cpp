@@ -11,6 +11,7 @@
 
 #include <maths/CBoostedTreeImpl.h>
 #include <maths/CLinearAlgebraPersist.h>
+#include <maths/CLinearAlgebraShims.h>
 #include <maths/CSolvers.h>
 #include <maths/CTools.h>
 
@@ -27,6 +28,7 @@ const std::string SPLIT_FEATURE_TAG{"split_feature"};
 const std::string ASSIGN_MISSING_TO_LEFT_TAG{"assign_missing_to_left "};
 const std::string NODE_VALUE_TAG{"node_value"};
 const std::string SPLIT_VALUE_TAG{"split_value"};
+const std::string NUMBER_SAMPLES_TAG{"number_samples"};
 
 double LOG_EPSILON{std::log(100.0 * std::numeric_limits<double>::epsilon())};
 
@@ -67,8 +69,8 @@ bool CArgMinMseImpl::nextPass() {
     return false;
 }
 
-void CArgMinMseImpl::add(TDouble1Vec prediction, double actual, double weight) {
-    m_MeanError.add(actual - prediction[0], weight);
+void CArgMinMseImpl::add(const TMemoryMappedFloatVector& prediction, double actual, double weight) {
+    m_MeanError.add(actual - prediction(0), weight);
 }
 
 void CArgMinMseImpl::merge(const CArgMinLossImpl& other) {
@@ -78,7 +80,7 @@ void CArgMinMseImpl::merge(const CArgMinLossImpl& other) {
     }
 }
 
-CArgMinMseImpl::TDouble1Vec CArgMinMseImpl::value() const {
+CArgMinMseImpl::TDoubleVector CArgMinMseImpl::value() const {
 
     // We searching for the value x which minimises
     //
@@ -89,12 +91,16 @@ CArgMinMseImpl::TDouble1Vec CArgMinMseImpl::value() const {
     // error m = 1/n sum_i{ a_i - p_i } we have x^* = n / (n + lambda) m.
 
     double count{CBasicStatistics::count(m_MeanError)};
-    return {count == 0.0 ? 0.0 : count / (count + this->lambda()) * CBasicStatistics::mean(m_MeanError)};
+    double meanError{CBasicStatistics::mean(m_MeanError)};
+
+    TDoubleVector result(1);
+    result(0) = count == 0.0 ? 0.0 : count / (count + this->lambda()) * meanError;
+    return result;
 }
 
 CArgMinLogisticImpl::CArgMinLogisticImpl(double lambda)
     : CArgMinLossImpl{lambda}, m_CategoryCounts{0},
-      m_BucketCategoryCounts(128, TVector{0.0}) {
+      m_BucketCategoryCounts(128, TDoubleVector2x1{0.0}) {
 }
 
 std::unique_ptr<CArgMinLossImpl> CArgMinLogisticImpl::clone() const {
@@ -106,15 +112,17 @@ bool CArgMinLogisticImpl::nextPass() {
     return m_CurrentPass < 2;
 }
 
-void CArgMinLogisticImpl::add(TDouble1Vec prediction, double actual, double weight) {
+void CArgMinLogisticImpl::add(const TMemoryMappedFloatVector& prediction,
+                              double actual,
+                              double weight) {
     switch (m_CurrentPass) {
     case 0: {
-        m_PredictionMinMax.add(prediction[0]);
+        m_PredictionMinMax.add(prediction(0));
         m_CategoryCounts(static_cast<std::size_t>(actual)) += weight;
         break;
     }
     case 1: {
-        auto& count = m_BucketCategoryCounts[this->bucket(prediction[0])];
+        auto& count = m_BucketCategoryCounts[this->bucket(prediction(0))];
         count(static_cast<std::size_t>(actual)) += weight;
         break;
     }
@@ -142,7 +150,7 @@ void CArgMinLogisticImpl::merge(const CArgMinLossImpl& other) {
     }
 }
 
-CArgMinLogisticImpl::TDouble1Vec CArgMinLogisticImpl::value() const {
+CArgMinLogisticImpl::TDoubleVector CArgMinLogisticImpl::value() const {
 
     std::function<double(double)> objective;
     double minWeight;
@@ -190,8 +198,11 @@ CArgMinLogisticImpl::TDouble1Vec CArgMinLogisticImpl::value() const {
         maxWeight = -m_PredictionMinMax.min() + 5.0;
     }
 
+    TDoubleVector result(1);
+
     if (minWeight == maxWeight) {
-        return {minWeight};
+        result(0) = minWeight;
+        return result;
     }
 
     double minimum;
@@ -201,7 +212,8 @@ CArgMinLogisticImpl::TDouble1Vec CArgMinLogisticImpl::value() const {
                        objective, 1e-3, maxIterations, minimum, objectiveAtMinimum);
     LOG_TRACE(<< "minimum = " << minimum << " objective(minimum) = " << objectiveAtMinimum);
 
-    return {minimum};
+    result(0) = minimum;
+    return result;
 }
 }
 
@@ -223,7 +235,7 @@ bool CArgMinLoss::nextPass() const {
     return m_Impl->nextPass();
 }
 
-void CArgMinLoss::add(TDouble1Vec prediction, double actual, double weight) {
+void CArgMinLoss::add(const TMemoryMappedFloatVector& prediction, double actual, double weight) {
     return m_Impl->add(prediction, actual, weight);
 }
 
@@ -231,7 +243,7 @@ void CArgMinLoss::merge(CArgMinLoss& other) {
     return m_Impl->merge(*other.m_Impl);
 }
 
-CArgMinLoss::TDouble1Vec CArgMinLoss::value() const {
+CArgMinLoss::TDoubleVector CArgMinLoss::value() const {
     return m_Impl->value();
 }
 
@@ -250,25 +262,30 @@ std::size_t CMse::numberParameters() const {
     return 1;
 }
 
-double CMse::value(TDouble1Vec prediction, double actual, double weight) const {
-    return weight * CTools::pow2(prediction[0] - actual);
+double CMse::value(const TMemoryMappedFloatVector& prediction, double actual, double weight) const {
+    return weight * CTools::pow2(prediction(0) - actual);
 }
 
-CMse::TDouble1Vec CMse::gradient(TDouble1Vec prediction, double actual, double weight) const {
-    return {2.0 * weight * (prediction[0] - actual)};
+void CMse::gradient(const TMemoryMappedFloatVector& prediction,
+                    double actual,
+                    TWriter writer,
+                    double weight) const {
+    writer(0, 2.0 * weight * (prediction(0) - actual));
 }
 
-CMse::TDouble1Vec
-CMse::curvature(TDouble1Vec /*prediction*/, double /*actual*/, double weight) const {
-    return {2.0 * weight};
+void CMse::curvature(const TMemoryMappedFloatVector& /*prediction*/,
+                     double /*actual*/,
+                     TWriter writer,
+                     double weight) const {
+    writer(0, 2.0 * weight);
 }
 
 bool CMse::isCurvatureConstant() const {
     return true;
 }
 
-CMse::TDouble1Vec CMse::transform(TDouble1Vec prediction) const {
-    return prediction;
+CMse::TDoubleVector CMse::transform(const TMemoryMappedFloatVector& prediction) const {
+    return TDoubleVector{prediction};
 }
 
 CArgMinLoss CMse::minimizer(double lambda) const {
@@ -289,35 +306,43 @@ std::size_t CBinomialLogistic::numberParameters() const {
     return 1;
 }
 
-double CBinomialLogistic::value(TDouble1Vec prediction, double actual, double weight) const {
-    // Cross entropy
-    return -weight * ((1.0 - actual) * logOneMinusLogistic(prediction[0]) +
-                      actual * logLogistic(prediction[0]));
+double CBinomialLogistic::value(const TMemoryMappedFloatVector& prediction,
+                                double actual,
+                                double weight) const {
+    return -weight * ((1.0 - actual) * logOneMinusLogistic(prediction(0)) +
+                      actual * logLogistic(prediction(0)));
 }
 
-CBinomialLogistic::TDouble1Vec
-CBinomialLogistic::gradient(TDouble1Vec prediction, double actual, double weight) const {
-    if (prediction[0] > -LOG_EPSILON && actual == 1.0) {
-        return {-weight * std::exp(-prediction[0])};
+void CBinomialLogistic::gradient(const TMemoryMappedFloatVector& prediction,
+                                 double actual,
+                                 TWriter writer,
+                                 double weight) const {
+    if (prediction(0) > -LOG_EPSILON && actual == 1.0) {
+        writer(0, -weight * std::exp(-prediction(0)));
     }
-    return {weight * CTools::logisticFunction(prediction[0]) - actual};
+    writer(0, weight * (CTools::logisticFunction(prediction(0)) - actual));
 }
 
-CBinomialLogistic::TDouble1Vec
-CBinomialLogistic::curvature(TDouble1Vec prediction, double /*actual*/, double weight) const {
-    if (prediction[0] > -LOG_EPSILON) {
-        return {weight * std::exp(-prediction[0])};
+void CBinomialLogistic::curvature(const TMemoryMappedFloatVector& prediction,
+                                  double /*actual*/,
+                                  TWriter writer,
+                                  double weight) const {
+    if (prediction(0) > -LOG_EPSILON) {
+        writer(0, weight * std::exp(-prediction(0)));
     }
-    double probability{CTools::logisticFunction(prediction[0])};
-    return {weight * probability * (1.0 - probability)};
+    double probability{CTools::logisticFunction(prediction(0))};
+    writer(0, weight * probability * (1.0 - probability));
 }
 
 bool CBinomialLogistic::isCurvatureConstant() const {
     return false;
 }
 
-CBinomialLogistic::TDouble1Vec CBinomialLogistic::transform(TDouble1Vec prediction) const {
-    return {CTools::logisticFunction(prediction[0])};
+CBinomialLogistic::TDoubleVector
+CBinomialLogistic::transform(const TMemoryMappedFloatVector& prediction) const {
+    TDoubleVector result{prediction};
+    result(0) = CTools::logisticFunction(result(0));
+    return result;
 }
 
 CArgMinLoss CBinomialLogistic::minimizer(double lambda) const {
@@ -329,6 +354,10 @@ const std::string& CBinomialLogistic::name() const {
 }
 
 const std::string CBinomialLogistic::NAME{"binomial_logistic"};
+}
+
+CBoostedTreeNode::CBoostedTreeNode(std::size_t numberLossParameters)
+    : m_NodeValue{TVector::Zero(numberLossParameters)} {
 }
 
 CBoostedTreeNode::TNodeIndex CBoostedTreeNode::leafIndex(const CEncodedDataFrameRowRef& row,
@@ -344,12 +373,12 @@ CBoostedTreeNode::TNodeIndex CBoostedTreeNode::leafIndex(const CEncodedDataFrame
                : tree[m_RightChild.get()].leafIndex(row, tree, m_RightChild.get());
 }
 
-CBoostedTreeNode::TSizeSizePr CBoostedTreeNode::split(std::size_t splitFeature,
-                                                      double splitValue,
-                                                      bool assignMissingToLeft,
-                                                      double gain,
-                                                      double curvature,
-                                                      TNodeVec& tree) {
+CBoostedTreeNode::TNodeIndexNodeIndexPr CBoostedTreeNode::split(std::size_t splitFeature,
+                                                                double splitValue,
+                                                                bool assignMissingToLeft,
+                                                                double gain,
+                                                                double curvature,
+                                                                TNodeVec& tree) {
     m_SplitFeature = splitFeature;
     m_SplitValue = splitValue;
     m_AssignMissingToLeft = assignMissingToLeft;
@@ -357,10 +386,19 @@ CBoostedTreeNode::TSizeSizePr CBoostedTreeNode::split(std::size_t splitFeature,
     m_RightChild = static_cast<TNodeIndex>(tree.size() + 1);
     m_Gain = gain;
     m_Curvature = curvature;
-    TSizeSizePr result{m_LeftChild.get(), m_RightChild.get()};
-    // Don't access members after calling resize because this object is likely an element of the vector being resized.
+    TNodeIndexNodeIndexPr result{m_LeftChild.get(), m_RightChild.get()};
+    // Don't access members after calling resize because this object is likely an
+    // element of the vector being resized.
     tree.resize(tree.size() + 2);
     return result;
+}
+
+std::size_t CBoostedTreeNode::memoryUsage() const {
+    return core::CMemory::dynamicSize(m_NodeValue);
+}
+
+std::size_t CBoostedTreeNode::estimateMemoryUsage(std::size_t numberLossParameters) {
+    return sizeof(CBoostedTreeNode) + las::estimateMemoryUsage<TVector>(numberLossParameters);
 }
 
 void CBoostedTreeNode::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
@@ -370,6 +408,7 @@ void CBoostedTreeNode::acceptPersistInserter(core::CStatePersistInserter& insert
     core::CPersistUtils::persist(ASSIGN_MISSING_TO_LEFT_TAG, m_AssignMissingToLeft, inserter);
     core::CPersistUtils::persist(NODE_VALUE_TAG, m_NodeValue, inserter);
     core::CPersistUtils::persist(SPLIT_VALUE_TAG, m_SplitValue, inserter);
+    core::CPersistUtils::persist(NUMBER_SAMPLES_TAG, m_NumberSamples, inserter);
 }
 
 bool CBoostedTreeNode::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
@@ -388,6 +427,8 @@ bool CBoostedTreeNode::acceptRestoreTraverser(core::CStateRestoreTraverser& trav
                 core::CPersistUtils::restore(NODE_VALUE_TAG, m_NodeValue, traverser))
         RESTORE(SPLIT_VALUE_TAG,
                 core::CPersistUtils::restore(SPLIT_VALUE_TAG, m_SplitValue, traverser))
+        RESTORE(NUMBER_SAMPLES_TAG,
+                core::CPersistUtils::restore(NUMBER_SAMPLES_TAG, m_NumberSamples, traverser))
     } while (traverser.next());
     return true;
 }
@@ -412,8 +453,16 @@ std::ostringstream& CBoostedTreeNode::doPrint(std::string pad,
 }
 
 void CBoostedTreeNode::accept(CVisitor& visitor) const {
-    visitor.addNode(m_SplitFeature, m_SplitValue, m_AssignMissingToLeft,
-                    m_NodeValue, m_Gain, m_LeftChild, m_RightChild);
+    visitor.addNode(m_SplitFeature, m_SplitValue, m_AssignMissingToLeft, m_NodeValue,
+                    m_Gain, m_NumberSamples, m_LeftChild, m_RightChild);
+}
+
+void CBoostedTreeNode::numberSamples(std::size_t numberSamples) {
+    m_NumberSamples = numberSamples;
+}
+
+std::size_t CBoostedTreeNode::numberSamples() const {
+    return m_NumberSamples;
 }
 
 CBoostedTree::CBoostedTree(core::CDataFrame& frame,

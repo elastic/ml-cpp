@@ -1,2 +1,2 @@
 name,version,revision,url,license,copyright
-GCC Runtime Library,6.2.0,6ac74a62ba7258299cf85fbef9bf45333ddf10c0,https://gcc.gnu.org,GPL-3.0 WITH GCC-exception-3.1,"Copyright (C) 2016 Free Software Foundation, Inc."
+GCC Runtime Library,7.5.0,b2d961e7342b5ba4e57adfa81cb189b738d10901,https://gcc.gnu.org,GPL-3.0 WITH GCC-exception-3.1,"Copyright (C) 2019 Free Software Foundation, Inc."

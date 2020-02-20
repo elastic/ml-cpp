@@ -87,8 +87,9 @@ CInferenceModelDefinition&& CBoostedTreeInferenceModelBuilder::build() {
 void CBoostedTreeInferenceModelBuilder::addNode(std::size_t splitFeature,
                                                 double splitValue,
                                                 bool assignMissingToLeft,
-                                                double nodeValue,
+                                                const TVector& nodeValue,
                                                 double gain,
+                                                std::size_t numberSamples,
                                                 maths::CBoostedTreeNode::TOptionalNodeIndex leftChild,
                                                 maths::CBoostedTreeNode::TOptionalNodeIndex rightChild) {
     auto ensemble{static_cast<CEnsemble*>(m_Definition.trainedModel().get())};
@@ -97,8 +98,10 @@ void CBoostedTreeInferenceModelBuilder::addNode(std::size_t splitFeature,
     if (tree == nullptr) {
         HANDLE_FATAL(<< "Internal error. Tree points to a nullptr.")
     }
-    tree->treeStructure().emplace_back(tree->size(), splitValue, assignMissingToLeft, nodeValue,
-                                       splitFeature, leftChild, rightChild, gain);
+    // TODO fixme
+    tree->treeStructure().emplace_back(tree->size(), splitValue, assignMissingToLeft,
+                                       nodeValue(0), splitFeature, numberSamples,
+                                       leftChild, rightChild, gain);
 }
 
 CBoostedTreeInferenceModelBuilder::CBoostedTreeInferenceModelBuilder(TStrVec fieldNames,

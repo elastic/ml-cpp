@@ -35,7 +35,8 @@ class CEncodedDataFrameRowRef;
 namespace boosted_tree_detail {
 class MATHS_EXPORT CArgMinLossImpl {
 public:
-    using TDouble1Vec = core::CSmallVector<double, 1>;
+    using TDoubleVector = CDenseVector<double>;
+    using TMemoryMappedFloatVector = CMemoryMappedDenseVector<CFloatStorage>;
 
 public:
     CArgMinLossImpl(double lambda);
@@ -43,9 +44,11 @@ public:
 
     virtual std::unique_ptr<CArgMinLossImpl> clone() const = 0;
     virtual bool nextPass() = 0;
-    virtual void add(TDouble1Vec prediction, double actual, double weight = 1.0) = 0;
+    virtual void add(const TMemoryMappedFloatVector& prediction,
+                     double actual,
+                     double weight = 1.0) = 0;
     virtual void merge(const CArgMinLossImpl& other) = 0;
-    virtual TDouble1Vec value() const = 0;
+    virtual TDoubleVector value() const = 0;
 
 protected:
     double lambda() const;
@@ -61,9 +64,9 @@ public:
     CArgMinMseImpl(double lambda);
     std::unique_ptr<CArgMinLossImpl> clone() const override;
     bool nextPass() override;
-    void add(TDouble1Vec prediction, double actual, double weight = 1.0) override;
+    void add(const TMemoryMappedFloatVector& prediction, double actual, double weight = 1.0) override;
     void merge(const CArgMinLossImpl& other) override;
-    TDouble1Vec value() const override;
+    TDoubleVector value() const override;
 
 private:
     using TMeanAccumulator = CBasicStatistics::SSampleMean<double>::TAccumulator;
@@ -79,14 +82,14 @@ public:
     CArgMinLogisticImpl(double lambda);
     std::unique_ptr<CArgMinLossImpl> clone() const override;
     bool nextPass() override;
-    void add(TDouble1Vec prediction, double actual, double weight = 1.0) override;
+    void add(const TMemoryMappedFloatVector& prediction, double actual, double weight = 1.0) override;
     void merge(const CArgMinLossImpl& other) override;
-    TDouble1Vec value() const override;
+    TDoubleVector value() const override;
 
 private:
     using TMinMaxAccumulator = CBasicStatistics::CMinMax<double>;
-    using TVector = CVectorNx1<double, 2>;
-    using TVectorVec = std::vector<TVector>;
+    using TDoubleVector2x1 = CVectorNx1<double, 2>;
+    using TDoubleVector2x1Vec = std::vector<TDoubleVector2x1>;
 
 private:
     std::size_t bucket(double prediction) const {
@@ -108,8 +111,8 @@ private:
 private:
     std::size_t m_CurrentPass = 0;
     TMinMaxAccumulator m_PredictionMinMax;
-    TVector m_CategoryCounts;
-    TVectorVec m_BucketCategoryCounts;
+    TDoubleVector2x1 m_CategoryCounts;
+    TDoubleVector2x1Vec m_BucketCategoryCounts;
 };
 }
 
@@ -118,7 +121,8 @@ namespace boosted_tree {
 //! \brief Computes the leaf value which minimizes the loss function.
 class MATHS_EXPORT CArgMinLoss {
 public:
-    using TDouble1Vec = core::CSmallVector<double, 1>;
+    using TDoubleVector = CDenseVector<double>;
+    using TMemoryMappedFloatVector = CMemoryMappedDenseVector<CFloatStorage>;
 
 public:
     CArgMinLoss(const CArgMinLoss& other);
@@ -133,7 +137,7 @@ public:
     bool nextPass() const;
 
     //! Update with a point prediction and actual value.
-    void add(TDouble1Vec prediction, double actual, double weight = 1.0);
+    void add(const TMemoryMappedFloatVector& prediction, double actual, double weight = 1.0);
 
     //! Get the minimiser over the predictions and actual values added to both
     //! this and \p other.
@@ -144,7 +148,7 @@ public:
     //!
     //! Formally, returns \f$x^* = arg\min_x\{\sum_i{L(p_i + x, a_i)}\}\f$
     //! for predictions and actuals \f$p_i\f$ and \f$a_i\f$, respectively.
-    TDouble1Vec value() const;
+    TDoubleVector value() const;
 
 private:
     using TArgMinLossImplUPtr = std::unique_ptr<boosted_tree_detail::CArgMinLossImpl>;
@@ -161,7 +165,9 @@ private:
 //! \brief Defines the loss function for the regression problem.
 class MATHS_EXPORT CLoss {
 public:
-    using TDouble1Vec = core::CSmallVector<double, 1>;
+    using TDoubleVector = CDenseVector<double>;
+    using TMemoryMappedFloatVector = CMemoryMappedDenseVector<CFloatStorage>;
+    using TWriter = std::function<void(std::size_t, double)>;
 
 public:
     virtual ~CLoss() = default;
@@ -170,17 +176,23 @@ public:
     //! The number of parameters to the loss function.
     virtual std::size_t numberParameters() const = 0;
     //! The value of the loss function.
-    virtual double value(TDouble1Vec prediction, double actual, double weight = 1.0) const = 0;
+    virtual double value(const TMemoryMappedFloatVector& prediction,
+                         double actual,
+                         double weight = 1.0) const = 0;
     //! The gradient of the loss function.
-    virtual TDouble1Vec
-    gradient(TDouble1Vec prediction, double actual, double weight = 1.0) const = 0;
+    virtual void gradient(const TMemoryMappedFloatVector& prediction,
+                          double actual,
+                          TWriter writer,
+                          double weight = 1.0) const = 0;
     //! The Hessian of the loss function (flattened).
-    virtual TDouble1Vec
-    curvature(TDouble1Vec prediction, double actual, double weight = 1.0) const = 0;
+    virtual void curvature(const TMemoryMappedFloatVector& prediction,
+                           double actual,
+                           TWriter writer,
+                           double weight = 1.0) const = 0;
     //! Returns true if the loss curvature is constant.
     virtual bool isCurvatureConstant() const = 0;
     //! Transforms a prediction from the forest to the target space.
-    virtual TDouble1Vec transform(TDouble1Vec prediction) const = 0;
+    virtual TDoubleVector transform(const TMemoryMappedFloatVector& prediction) const = 0;
     //! Get an object which computes the leaf value that minimises loss.
     virtual CArgMinLoss minimizer(double lambda) const = 0;
     //! Get the name of the loss function
@@ -198,11 +210,19 @@ public:
 public:
     std::unique_ptr<CLoss> clone() const override;
     std::size_t numberParameters() const override;
-    double value(TDouble1Vec prediction, double actual, double weight = 1.0) const override;
-    TDouble1Vec gradient(TDouble1Vec prediction, double actual, double weight = 1.0) const override;
-    TDouble1Vec curvature(TDouble1Vec prediction, double actual, double weight = 1.0) const override;
+    double value(const TMemoryMappedFloatVector& prediction,
+                 double actual,
+                 double weight = 1.0) const override;
+    void gradient(const TMemoryMappedFloatVector& prediction,
+                  double actual,
+                  TWriter writer,
+                  double weight = 1.0) const override;
+    void curvature(const TMemoryMappedFloatVector& prediction,
+                   double actual,
+                   TWriter writer,
+                   double weight = 1.0) const override;
     bool isCurvatureConstant() const override;
-    TDouble1Vec transform(TDouble1Vec prediction) const override;
+    TDoubleVector transform(const TMemoryMappedFloatVector& prediction) const override;
     CArgMinLoss minimizer(double lambda) const override;
     const std::string& name() const override;
 };
@@ -223,11 +243,19 @@ public:
 public:
     std::unique_ptr<CLoss> clone() const override;
     std::size_t numberParameters() const override;
-    double value(TDouble1Vec prediction, double actual, double weight = 1.0) const override;
-    TDouble1Vec gradient(TDouble1Vec prediction, double actual, double weight = 1.0) const override;
-    TDouble1Vec curvature(TDouble1Vec prediction, double actual, double weight = 1.0) const override;
+    double value(const TMemoryMappedFloatVector& prediction,
+                 double actual,
+                 double weight = 1.0) const override;
+    void gradient(const TMemoryMappedFloatVector& prediction,
+                  double actual,
+                  TWriter writer,
+                  double weight = 1.0) const override;
+    void curvature(const TMemoryMappedFloatVector& prediction,
+                   double actual,
+                   TWriter writer,
+                   double weight = 1.0) const override;
     bool isCurvatureConstant() const override;
-    TDouble1Vec transform(TDouble1Vec prediction) const override;
+    TDoubleVector transform(const TMemoryMappedFloatVector& prediction) const override;
     CArgMinLoss minimizer(double lambda) const override;
     const std::string& name() const override;
 };
@@ -250,11 +278,12 @@ class CBoostedTreeImpl;
 class MATHS_EXPORT CBoostedTreeNode final {
 public:
     using TNodeIndex = std::uint32_t;
-    using TSizeSizePr = std::pair<TNodeIndex, TNodeIndex>;
+    using TNodeIndexNodeIndexPr = std::pair<TNodeIndex, TNodeIndex>;
     using TPackedBitVectorPackedBitVectorPr =
         std::pair<core::CPackedBitVector, core::CPackedBitVector>;
     using TNodeVec = std::vector<CBoostedTreeNode>;
     using TOptionalNodeIndex = boost::optional<TNodeIndex>;
+    using TVector = CDenseVector<double>;
 
     class MATHS_EXPORT CVisitor {
     public:
@@ -263,15 +292,16 @@ public:
         virtual void addNode(std::size_t splitFeature,
                              double splitValue,
                              bool assignMissingToLeft,
-                             double nodeValue,
+                             const TVector& nodeValue,
                              double gain,
+                             std::size_t numberSamples,
                              TOptionalNodeIndex leftChild,
                              TOptionalNodeIndex rightChild) = 0;
     };
 
 public:
-    //! See core::CMemory.
-    static bool dynamicSizeAlwaysZero() { return true; }
+    CBoostedTreeNode() = default;
+    explicit CBoostedTreeNode(std::size_t numberLossParameters);
 
     //! Check if this is a leaf node.
     bool isLeaf() const { return m_LeftChild.is_initialized() == false; }
@@ -290,21 +320,27 @@ public:
     }
 
     //! Get the value predicted by \p tree for the feature vector \p row.
-    double value(const CEncodedDataFrameRowRef& row, const TNodeVec& tree) const {
+    const TVector& value(const CEncodedDataFrameRowRef& row, const TNodeVec& tree) const {
         return tree[this->leafIndex(row, tree)].m_NodeValue;
     }
 
     //! Get the value of this node.
-    double value() const { return m_NodeValue; }
+    const TVector& value() const { return m_NodeValue; }
 
     //! Set the node value to \p value.
-    void value(double value) { m_NodeValue = value; }
+    void value(TVector value) { m_NodeValue = std::move(value); }
 
     //! Get the gain of the split.
     double gain() const { return m_Gain; }
 
     //! Get the total curvature at the rows below this node.
     double curvature() const { return m_Curvature; }
+
+    //! Set the number of samples to \p value.
+    void numberSamples(std::size_t value);
+
+    //! Get number of samples affected by the node.
+    std::size_t numberSamples() const;
 
     //! Get the index of the left child node.
     TNodeIndex leftChildIndex() const { return m_LeftChild.get(); }
@@ -313,15 +349,22 @@ public:
     TNodeIndex rightChildIndex() const { return m_RightChild.get(); }
 
     //! Split this node and add its child nodes to \p tree.
-    TSizeSizePr split(std::size_t splitFeature,
-                      double splitValue,
-                      bool assignMissingToLeft,
-                      double gain,
-                      double curvature,
-                      TNodeVec& tree);
+    TNodeIndexNodeIndexPr split(std::size_t splitFeature,
+                                double splitValue,
+                                bool assignMissingToLeft,
+                                double gain,
+                                double curvature,
+                                TNodeVec& tree);
 
     //! Get the feature index of the split.
     std::size_t splitFeature() const { return m_SplitFeature; }
+
+    //! Get the memory used by this object.
+    std::size_t memoryUsage() const;
+
+    //! Get the node's memory usage for a loss function with \p numberLossParameters
+    //! parameters.
+    static std::size_t estimateMemoryUsage(std::size_t numberLossParameters);
 
     //! Persist by passing information to \p inserter.
     void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
@@ -345,9 +388,10 @@ private:
     bool m_AssignMissingToLeft = true;
     TOptionalNodeIndex m_LeftChild;
     TOptionalNodeIndex m_RightChild;
-    double m_NodeValue = 0.0;
+    TVector m_NodeValue;
     double m_Gain = 0.0;
     double m_Curvature = 0.0;
+    std::size_t m_NumberSamples = 0;
 };
 
 //! \brief A boosted regression tree model.

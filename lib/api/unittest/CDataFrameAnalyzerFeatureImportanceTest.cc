@@ -136,7 +136,7 @@ struct SFixture {
         api::CDataFrameAnalyzer analyzer{
             test::CDataFrameAnalysisSpecificationFactory::predictionSpec(
                 test::CDataFrameAnalysisSpecificationFactory::regression(),
-                "target", s_Rows, 5, 8000000, 0, 0, {"c1"}, s_Alpha, s_Lambda,
+                "target", s_Rows, 5, 26000000, 0, 0, {"c1"}, s_Alpha, s_Lambda,
                 s_Gamma, s_SoftTreeDepthLimit, s_SoftTreeDepthTolerance, s_Eta,
                 s_MaximumNumberTrees, s_FeatureBagFraction, shapValues),
             outputWriterFactory};
@@ -156,6 +156,17 @@ struct SFixture {
 
         analyzer.handleRecord(fieldNames, {"", "", "", "", "", "", "$"});
 
+        LOG_DEBUG(<< "estimated memory usage = "
+                  << core::CProgramCounters::counter(counter_t::E_DFTPMEstimatedPeakMemoryUsage));
+        LOG_DEBUG(<< "peak memory = "
+                  << core::CProgramCounters::counter(counter_t::E_DFTPMPeakMemoryUsage));
+        LOG_DEBUG(<< "time to train = " << core::CProgramCounters::counter(counter_t::E_DFTPMTimeToTrain)
+                  << "ms");
+
+        BOOST_TEST_REQUIRE(
+            core::CProgramCounters::counter(counter_t::E_DFTPMPeakMemoryUsage) <
+            core::CProgramCounters::counter(counter_t::E_DFTPMEstimatedPeakMemoryUsage));
+
         rapidjson::Document results;
         rapidjson::ParseResult ok(results.Parse(s_Output.str()));
         BOOST_TEST_REQUIRE(static_cast<bool>(ok) == true);
@@ -169,9 +180,9 @@ struct SFixture {
         api::CDataFrameAnalyzer analyzer{
             test::CDataFrameAnalysisSpecificationFactory::predictionSpec(
                 test::CDataFrameAnalysisSpecificationFactory::classification(),
-                "target", s_Rows, 5, 8000000, 0, 0, {"target"}, s_Alpha, s_Lambda,
-                s_Gamma, s_SoftTreeDepthLimit, s_SoftTreeDepthTolerance, s_Eta,
-                s_MaximumNumberTrees, s_FeatureBagFraction, shapValues),
+                "target", s_Rows, 5, 26000000, 0, 0, {"target"}, s_Alpha,
+                s_Lambda, s_Gamma, s_SoftTreeDepthLimit, s_SoftTreeDepthTolerance,
+                s_Eta, s_MaximumNumberTrees, s_FeatureBagFraction, shapValues),
             outputWriterFactory};
         TStrVec fieldNames{"target", "c1", "c2", "c3", "c4", ".", "."};
         TStrVec fieldValues{"", "", "", "", "", "0", ""};
@@ -183,6 +194,17 @@ struct SFixture {
         setupBinaryClassificationData(fieldNames, fieldValues, analyzer, weights, values);
 
         analyzer.handleRecord(fieldNames, {"", "", "", "", "", "", "$"});
+
+        LOG_DEBUG(<< "estimated memory usage = "
+                  << core::CProgramCounters::counter(counter_t::E_DFTPMEstimatedPeakMemoryUsage));
+        LOG_DEBUG(<< "peak memory = "
+                  << core::CProgramCounters::counter(counter_t::E_DFTPMPeakMemoryUsage));
+        LOG_DEBUG(<< "time to train = " << core::CProgramCounters::counter(counter_t::E_DFTPMTimeToTrain)
+                  << "ms");
+
+        BOOST_TEST_REQUIRE(
+            core::CProgramCounters::counter(counter_t::E_DFTPMPeakMemoryUsage) <
+            core::CProgramCounters::counter(counter_t::E_DFTPMEstimatedPeakMemoryUsage));
 
         rapidjson::Document results;
         rapidjson::ParseResult ok(results.Parse(s_Output.str()));
@@ -197,7 +219,7 @@ struct SFixture {
         api::CDataFrameAnalyzer analyzer{
             test::CDataFrameAnalysisSpecificationFactory::predictionSpec(
                 test::CDataFrameAnalysisSpecificationFactory::regression(),
-                "target", s_Rows, 5, 8000000, 0, 0, {}, s_Alpha, s_Lambda,
+                "target", s_Rows, 5, 26000000, 0, 0, {}, s_Alpha, s_Lambda,
                 s_Gamma, s_SoftTreeDepthLimit, s_SoftTreeDepthTolerance, s_Eta,
                 s_MaximumNumberTrees, s_FeatureBagFraction, shapValues),
             outputWriterFactory};
@@ -207,6 +229,17 @@ struct SFixture {
         setupRegressionDataWithMissingFeatures(fieldNames, fieldValues, analyzer, s_Rows, 5);
 
         analyzer.handleRecord(fieldNames, {"", "", "", "", "", "", "$"});
+
+        LOG_DEBUG(<< "estimated memory usage = "
+                  << core::CProgramCounters::counter(counter_t::E_DFTPMEstimatedPeakMemoryUsage));
+        LOG_DEBUG(<< "peak memory = "
+                  << core::CProgramCounters::counter(counter_t::E_DFTPMPeakMemoryUsage));
+        LOG_DEBUG(<< "time to train = " << core::CProgramCounters::counter(counter_t::E_DFTPMTimeToTrain)
+                  << "ms");
+
+        BOOST_TEST_REQUIRE(
+            core::CProgramCounters::counter(counter_t::E_DFTPMPeakMemoryUsage) <
+            core::CProgramCounters::counter(counter_t::E_DFTPMEstimatedPeakMemoryUsage));
 
         rapidjson::Document results;
         rapidjson::ParseResult ok(results.Parse(s_Output.str()));
@@ -299,8 +332,9 @@ BOOST_FIXTURE_TEST_CASE(testRegressionFeatureImportanceNoImportance, SFixture) {
             // c1 explains 95% of the prediction value, i.e. the difference from the prediction is less than 2%.
             BOOST_REQUIRE_CLOSE(c1, prediction, 5.0);
             for (const auto& feature : {"c2", "c3", "c4"}) {
-                BOOST_REQUIRE_SMALL(readShapValue(result, feature), 2.0);
-                cNoImportanceMean.add(std::fabs(readShapValue(result, feature)));
+                double c = readShapValue(result, feature);
+                BOOST_REQUIRE_SMALL(c, 2.0);
+                cNoImportanceMean.add(std::fabs(c));
             }
         }
     }
