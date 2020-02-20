@@ -187,18 +187,15 @@ bool CDetachedProcessSpawner::spawn(const std::string& processPath,
                 (processPathHasExeExt ? processPath : processPath + ".exe").c_str(),
                 const_cast<char*>(cmdLine.c_str()), 0, 0, FALSE,
                 // The CREATE_NO_WINDOW flag is used instead of
-                // DETACHED_PROCESS, as Visual Studio 2017 optimises
-                // away the file handles that underlie stdin, stdout
-                // and stderr if a process has no knowledge of any
-                // console.  With CREATE_NO_WINDOW the process will
-                // not initially be attached to any console, but has
-                // the option to attach to its parent process's
-                // console later on, and this appears to prevent the
-                // file handles being optimised away.  This wouldn't
-                // be a problem if we redirected stderr using
-                // freopen(), but instead we redirect the underlying
-                // OS level file handles so that we can revert the
-                // redirection.
+                // DETACHED_PROCESS, as Windows does not create the file handles
+                // that underlie stdin, stdout and stderr if a process has no
+                // knowledge of any console.  With CREATE_NO_WINDOW the process
+                // will not initially be attached to any console, but has the
+                // option to attach to its parent process's console later on,
+                // and this means the three standard file handles are created.
+                // None of this would be a problem if we redirected stderr using
+                // freopen(), but instead we redirect the underlying OS level
+                // file handles so that we can revert the redirection.
                 CREATE_NEW_PROCESS_GROUP | CREATE_NO_WINDOW, 0, 0, &startupInfo,
                 &processInformation) == FALSE) {
             LOG_ERROR(<< "Failed to spawn '" << processPath << "': " << CWindowsError());
