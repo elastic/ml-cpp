@@ -7,8 +7,8 @@
 #ifndef INCLUDED_ml_maths_CTreeShapFeatureImportance_h
 #define INCLUDED_ml_maths_CTreeShapFeatureImportance_h
 
-#include "maths/CLinearAlgebraEigen.h"
 #include <maths/CBoostedTree.h>
+#include <maths/CLinearAlgebraEigen.h>
 #include <maths/ImportExport.h>
 
 #include <vector>
