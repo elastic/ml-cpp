@@ -259,6 +259,14 @@ CDataFrameCategoryEncoder::TDoubleVec CDataFrameCategoryEncoder::encodedColumnMi
     return mics;
 }
 
+std::size_t CDataFrameCategoryEncoder::numberInputColumns() const {
+    std::size_t result{0};
+    for (const auto& encoding : m_Encodings) {
+        result = std::max(result, encoding->inputColumnIndex());
+    }
+    return result + 1;
+}
+
 std::size_t CDataFrameCategoryEncoder::numberEncodedColumns() const {
     return m_Encodings.size();
 }

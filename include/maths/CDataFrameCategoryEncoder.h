@@ -226,7 +226,10 @@ public:
     //! Get the MICs of the selected features.
     TDoubleVec encodedColumnMics() const;
 
-    //! Get the total number of dimensions in the feature vector.
+    //! Get the dimension of the feature vector.
+    std::size_t numberInputColumns() const;
+
+    //! Get the dimension of the encoded feature vector.
     std::size_t numberEncodedColumns() const;
 
     //! Get the encoded feature at position \p encodedColumnIndex.
