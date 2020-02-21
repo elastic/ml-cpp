@@ -316,7 +316,7 @@ BOOST_AUTO_TEST_CASE(testJsonSchema) {
         BOOST_FAIL("Schema validation failed");
     }
 
-    // TODO add multivalued leaf test. 
+    // TODO add multivalued leaf test.
 }
 
 BOOST_AUTO_TEST_CASE(testEncoders) {
