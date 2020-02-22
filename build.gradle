@@ -45,6 +45,7 @@ project.ext.make = (isMacOsX || isWindows) ? "gnumake" : (isLinux ? "make" : "gm
 project.ext.numCpus = Runtime.runtime.availableProcessors()
 project.ext.makeEnvironment = [ 'CPP_CROSS_COMPILE': cppCrossCompile,
                                 'TMP': "${projectDir}/build/tmp",
+                                'TEMP': "${projectDir}/build/tmp",
                                 'VERSION_QUALIFIER': versionQualifier,
                                 'SNAPSHOT': (isSnapshot ? 'yes' : 'no') ]
 
