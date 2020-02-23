@@ -44,8 +44,6 @@ project.ext.bash = isWindows ? "C:\\Program Files\\Git\\bin\\bash" : "/bin/bash"
 project.ext.make = (isMacOsX || isWindows) ? "gnumake" : (isLinux ? "make" : "gmake")
 project.ext.numCpus = Runtime.runtime.availableProcessors()
 project.ext.makeEnvironment = [ 'CPP_CROSS_COMPILE': cppCrossCompile,
-                                'TMP': "${projectDir}/build/tmp",
-                                'TEMP': "${projectDir}/build/tmp",
                                 'VERSION_QUALIFIER': versionQualifier,
                                 'SNAPSHOT': (isSnapshot ? 'yes' : 'no') ]
 
@@ -67,14 +65,14 @@ task compile(type: Exec) {
   enabled numCpus >= 4
   environment makeEnvironment
   commandLine bash
-  args '-c', 'source ./set_env.sh && mkdir -p build/tmp && ' + make + ' -j' + numCpus + ' objcompile'
+  args '-c', 'source ./set_env.sh && ' + make + ' -j' + numCpus + ' objcompile'
   workingDir "${projectDir}"
 }
 
 task make(type: Exec) {
   environment makeEnvironment
   commandLine bash
-  args '-c', 'source ./set_env.sh && mkdir -p build/tmp && ' + make + ' -j' + numCpus
+  args '-c', 'source ./set_env.sh && ' + make + ' -j' + numCpus
   workingDir "${projectDir}"
   dependsOn 'compile'
 }
@@ -171,7 +169,7 @@ artifacts {
 task test(type: Exec) {
   environment makeEnvironment
   commandLine bash
-  args '-c', 'source ./set_env.sh && mkdir -p build/tmp && ' + make + ' -j' + numCpus + ' test'
+  args '-c', 'source ./set_env.sh && ' + make + ' -j' + numCpus + ' test'
   workingDir "${projectDir}"
   dependsOn 'strip'
   description = 'Run C++ tests'
