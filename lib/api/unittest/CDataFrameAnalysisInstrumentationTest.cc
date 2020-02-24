@@ -20,20 +20,20 @@ BOOST_AUTO_TEST_CASE(testMemoryState) {
     std::string jobId{"JOB123"};
     std::int64_t memoryUsage{1000};
     std::int64_t timeBefore{core::CTimeUtils::toEpochMs(core::CTimeUtils::now())};
-    std::stringstream s_Output;
+    std::stringstream outpustStream;
     {
-        core::CJsonOutputStreamWrapper streamWrapper(s_Output);
+        core::CJsonOutputStreamWrapper streamWrapper(outpustStream);
         core::CRapidJsonConcurrentLineWriter writer(streamWrapper);
         api::CDataFrameTrainBoostedTreeInstrumentation instrumentation(jobId);
         instrumentation.updateMemoryUsage(memoryUsage);
         instrumentation.writer(&writer);
         instrumentation.nextStep(0);
-        s_Output.flush();
+        outpustStream.flush();
     }
     std::int64_t timeAfter{core::CTimeUtils::toEpochMs(core::CTimeUtils::now())};
 
     rapidjson::Document results;
-    rapidjson::ParseResult ok(results.Parse(s_Output.str()));
+    rapidjson::ParseResult ok(results.Parse(outpustStream.str()));
     BOOST_TEST_REQUIRE(static_cast<bool>(ok) == true);
     BOOST_TEST_REQUIRE(results.IsArray() == true);
 
