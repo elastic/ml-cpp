@@ -265,7 +265,7 @@ void addPredictionTestData(EPredictionType type,
         treeFactory.featureBagFraction(featureBagFraction);
     }
 
-    ml::api::CDataFrameTrainBoostedTreeInstrumentation instrumentation;
+    ml::api::CDataFrameTrainBoostedTreeInstrumentation instrumentation("testJob");
     treeFactory.analysisInstrumentation(instrumentation);
 
     auto tree = treeFactory.buildFor(*frame, weights.size());
