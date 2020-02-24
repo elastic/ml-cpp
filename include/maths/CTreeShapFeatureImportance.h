@@ -8,6 +8,7 @@
 #define INCLUDED_ml_maths_CTreeShapFeatureImportance_h
 
 #include <maths/CBoostedTree.h>
+#include <maths/CLinearAlgebraEigen.h>
 #include <maths/ImportExport.h>
 
 #include <vector>
@@ -48,8 +49,6 @@ public:
     TTreeVec& trees() { return m_Trees; }
 
 private:
-    using TSizeVec = std::vector<std::size_t>;
-
     //! Collects the elements of the path through decision tree that are updated together
     struct SPathElement {
         double s_FractionOnes = 1.0;
@@ -60,13 +59,13 @@ private:
     using TElementVec = std::vector<SPathElement>;
     using TElementItr = TElementVec::iterator;
     using TDoubleVecItr = TDoubleVec::iterator;
+    using TVector = CDenseVector<double>;
+    using TVectorVec = std::vector<TVector>;
 
     class CSplitPath {
     public:
-        CSplitPath(TElementItr fractionsIterator, TDoubleVecItr scaleIterator) {
-            m_FractionsIterator = fractionsIterator;
-            m_ScaleIterator = scaleIterator;
-        }
+        CSplitPath(TElementItr fractionsIterator, TDoubleVecItr scaleIterator)
+            : m_FractionsIterator{fractionsIterator}, m_ScaleIterator{scaleIterator} {}
 
         CSplitPath(const CSplitPath& parentSplitPath, int nextIndex)
             : CSplitPath(parentSplitPath.fractionsBegin() + nextIndex,
@@ -117,14 +116,14 @@ private:
             return m_FractionsIterator[nextIndex].s_FractionOnes;
         }
 
-        int find(int feature, int nextIndex) {
+        int find(int feature, int nextIndex) const {
             auto featureIndexEnd{(this->fractionsBegin() + nextIndex)};
             auto it = std::find_if(this->fractionsBegin(), featureIndexEnd,
                                    [feature](const SPathElement& el) {
                                        return el.s_FeatureIndex == feature;
                                    });
             if (it != featureIndexEnd) {
-                return std::distance(this->fractionsBegin(), it);
+                return static_cast<int>(std::distance(this->fractionsBegin(), it));
             } else {
                 return -1;
             }
@@ -146,9 +145,8 @@ private:
                        double parentFractionOne,
                        int parentFeatureIndex,
                        const CSplitPath& path,
-                       std::size_t offset,
-                       core::CDataFrame::TRowItr& row,
-                       int nextIndex) const;
+                       int nextIndex,
+                       TVectorVec& shap) const;
     //! Extend the \p path object, update the variables and factorial scaling coefficients.
     static void extendPath(CSplitPath& splitPath,
                            double fractionZero,

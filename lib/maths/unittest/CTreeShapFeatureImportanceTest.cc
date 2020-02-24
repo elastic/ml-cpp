@@ -277,9 +277,9 @@ struct SFixtureMultipleTrees {
     TEncoderUPtr s_Encoder;
 };
 
-class BruteForceTreeShap {
+class CBruteForceTreeShap {
 public:
-    BruteForceTreeShap(const TTree& tree, std::size_t numberFeatures)
+    CBruteForceTreeShap(const TTree& tree, std::size_t numberFeatures)
         : m_Tree{tree}, m_Powerset{}, m_NumberFeatures{numberFeatures} {
         this->initPowerset({}, numberFeatures);
     }
@@ -310,13 +310,14 @@ public:
                                          static_cast<unsigned>(m_NumberFeatures),
                                          static_cast<unsigned>(S.size())) *
                                      (static_cast<double>(m_NumberFeatures - S.size())))};
-                                double fWithoutIndex =
-                                    this->conditionalExpectation(encodedRow, S);
+                                TVector fWithoutIndex{
+                                    this->conditionalExpectation(encodedRow, S)};
                                 S.insert(inputColumnIndex);
-                                double fWithIndex =
-                                    this->conditionalExpectation(encodedRow, S);
+                                TVector fWithIndex{
+                                    this->conditionalExpectation(encodedRow, S)};
+                                // TODO fixme
                                 phi[inputColumnIndex] +=
-                                    scalingFactor * (fWithIndex - fWithoutIndex);
+                                    scalingFactor * (fWithIndex - fWithoutIndex)(0);
                             }
                         }
                         phiVec.push_back(std::move(phi));
@@ -326,9 +327,9 @@ public:
         return result.first[0].s_FunctionState;
     }
 
-    double conditionalExpectation(const maths::CEncodedDataFrameRowRef& x,
-                                  const TSizeSet& S) {
-        return this->conditionalExpectation(x, S, 0ul, 1.0);
+    TVector conditionalExpectation(const maths::CEncodedDataFrameRowRef& x,
+                                   const TSizeSet& S) {
+        return this->conditionalExpectation(x, S, 0, 1.0);
     }
 
 private:
@@ -338,21 +339,20 @@ private:
             return;
         }
 
-        //branch without n-th element
+        // branch without n-th element
         initPowerset(workset, n - 1);
 
-        //branch with n-th element
+        // branch with n-th element
         workset.emplace(n - 1);
         initPowerset(workset, n - 1);
     }
 
-    double conditionalExpectation(const maths::CEncodedDataFrameRowRef& x,
-                                  const TSizeSet& S,
-                                  std::size_t nodeIndex,
-                                  double weight) {
+    TVector conditionalExpectation(const maths::CEncodedDataFrameRowRef& x,
+                                   const TSizeSet& S,
+                                   std::size_t nodeIndex,
+                                   double weight) {
         if (m_Tree[nodeIndex].isLeaf()) {
-            // TODO fixme
-            return weight * m_Tree[nodeIndex].value()(0);
+            return weight * m_Tree[nodeIndex].value();
         } else {
             auto leftChildIndex{m_Tree[nodeIndex].leftChildIndex()};
             auto rightChildIndex{m_Tree[nodeIndex].rightChildIndex()};
@@ -362,7 +362,6 @@ private:
                 } else {
                     return this->conditionalExpectation(x, S, rightChildIndex, weight);
                 }
-
             } else {
                 return this->conditionalExpectation(
                            x, S, leftChildIndex,
@@ -378,7 +377,7 @@ private:
 
 private:
     const TTree& m_Tree;
-    TSizePowerset m_Powerset{};
+    TSizePowerset m_Powerset;
     std::size_t m_NumberFeatures;
 };
 }
@@ -432,7 +431,7 @@ BOOST_FIXTURE_TEST_CASE(testMultipleTreesShap, SFixtureMultipleTrees) {
 }
 
 BOOST_FIXTURE_TEST_CASE(testSingleTreeBruteForceShap, SFixtureSingleTree) {
-    BruteForceTreeShap bfShap(s_TreeFeatureImportance->trees()[0], s_NumberFeatures);
+    CBruteForceTreeShap bfShap(s_TreeFeatureImportance->trees()[0], s_NumberFeatures);
     auto actualPhi = bfShap.shap(*s_Frame, *s_Encoder, 1);
     TDoubleVecVec expectedPhi{{-5., -2.5}, {-5., 2.5}, {5., -2.5}, {5., 2.5}};
     for (std::size_t i = 0; i < s_NumberRows; ++i) {
@@ -445,7 +444,7 @@ BOOST_FIXTURE_TEST_CASE(testSingleTreeBruteForceShap, SFixtureSingleTree) {
 BOOST_FIXTURE_TEST_CASE(testSingleTreeShapRandomDataFrame, SFixtureSingleTreeRandom) {
     // Compare tree shap algorithm with the brute force approach (Algorithm
     // 1 in paper by Lundberg et al.) on a random data set with a random tree.
-    BruteForceTreeShap bfShap(this->s_Tree, s_NumberFeatures);
+    CBruteForceTreeShap bfShap(this->s_Tree, s_NumberFeatures);
     auto expectedPhi = bfShap.shap(*s_Frame, *s_Encoder, 1);
     std::size_t offset{s_Frame->numberColumns()};
     s_Frame->resizeColumns(1, offset * 2);

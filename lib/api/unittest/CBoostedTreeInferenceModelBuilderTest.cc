@@ -315,6 +315,8 @@ BOOST_AUTO_TEST_CASE(testJsonSchema) {
         LOG_DEBUG(<< "Document: " << definition->jsonString());
         BOOST_FAIL("Schema validation failed");
     }
+
+    // TODO add multivalued leaf test.
 }
 
 BOOST_AUTO_TEST_CASE(testEncoders) {
