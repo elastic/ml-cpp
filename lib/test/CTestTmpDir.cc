@@ -14,9 +14,9 @@ namespace ml {
 namespace test {
 
 std::string CTestTmpDir::tmpDir() {
-    // Try to create a temp sub-directory under the build directory at the top
-    // level of the repo.  This ensures multiple users sharing the same server
-    // don't clash.
+    // Try to create a temporary sub-directory under the build directory at the
+    // top level of the repo.  This ensures multiple users sharing the same
+    // server don't clash.
     boost::filesystem::path tmpPath{core::CResourceLocator::cppRootDir()};
     tmpPath /= "build";
     tmpPath /= "tmp";
