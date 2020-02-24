@@ -9,8 +9,6 @@
 namespace ml {
 namespace maths {
 
-const std::string CDataFramePredictiveModel::SHAP_PREFIX{"feature_importance."};
-
 CDataFramePredictiveModel::CDataFramePredictiveModel(core::CDataFrame& frame,
                                                      TTrainingStateCallback recordTrainingState)
     : m_Frame{frame}, m_RecordTrainingState(std::move(recordTrainingState)) {

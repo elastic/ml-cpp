@@ -42,6 +42,7 @@ class CImmutableRadixSet;
 }
 namespace maths {
 class CBayesianOptimisation;
+class CTreeShapFeatureImportance;
 
 //! \brief Implementation of CBoostedTree.
 class MATHS_EXPORT CBoostedTreeImpl final {
@@ -81,13 +82,13 @@ public:
 
     //! Write the predictions of the best trained model to \p frame.
     //!
-    //! \note Must be called only if a trained model is available.
+    //! \warning Must be called only if a trained model is available.
     void predict(core::CDataFrame& frame) const;
 
-    //! Compute SHAP values using the best trained model to \p frame.
+    //! Get the SHAP value calculator.
     //!
-    //! \note Must be called only if a trained model is available.
-    void computeShapValues(core::CDataFrame& frame);
+    //! \warning Will return a nullptr if a trained model isn't available.
+    CTreeShapFeatureImportance* shap();
 
     //! Get the model produced by training if it has been run.
     const TNodeVecVec& trainedModel() const;
@@ -127,12 +128,6 @@ public:
     //! Get the probability threshold at which to classify a row as class one.
     double probabilityAtWhichToAssignClassOne() const;
 
-    //! Get the indices of the columns containing SHAP values.
-    TSizeRange columnsHoldingShapValues() const;
-
-    //! Get the number of largest SHAP values that will be returned for every row.
-    std::size_t topShapValues() const;
-
     //! Get the number of columns in the original data frame.
     std::size_t numberInputColumns() const;
 
@@ -166,6 +161,7 @@ private:
     using TDataFrameCategoryEncoderUPtr = std::unique_ptr<CDataFrameCategoryEncoder>;
     using TDataTypeVec = CDataFrameUtils::TDataTypeVec;
     using TRegularizationOverride = CBoostedTreeRegularization<TOptionalDouble>;
+    using TTreeShapFeatureImportanceUPtr = std::unique_ptr<CTreeShapFeatureImportance>;
 
 private:
     CBoostedTreeImpl();
@@ -290,9 +286,6 @@ private:
     //! Record the training state using the \p recordTrainState callback function
     void recordState(const TTrainingStateCallback& recordTrainState) const;
 
-    //! Populate numberSamples field in the m_BestForest
-    void computeNumberSamples(const core::CDataFrame& frame);
-
 private:
     mutable CPRNG::CXorOShiro128Plus m_Rng;
     std::size_t m_NumberThreads;
@@ -334,9 +327,8 @@ private:
     std::size_t m_NumberRounds = 1;
     std::size_t m_CurrentRound = 0;
     core::CLoopProgress m_TrainingProgress;
-    std::size_t m_TopShapValues = 0;
-    std::size_t m_FirstShapColumnIndex = 0;
-    std::size_t m_LastShapColumnIndex = 0;
+    std::size_t m_NumberTopShapValues = 0;
+    TTreeShapFeatureImportanceUPtr m_TreeShap;
     TAnalysisInstrumentationPtr m_Instrumentation; // no persist/restore
 
 private:
