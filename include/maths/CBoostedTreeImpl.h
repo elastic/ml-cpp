@@ -184,6 +184,9 @@ private:
     //! Compute the probability threshold at which to classify a row as class one.
     void computeProbabilityAtWhichToAssignClassOne(const core::CDataFrame& frame);
 
+    //! Prepare to calculate SHAP feature importances.
+    void initializeTreeShap(const core::CDataFrame& frame);
+
     //! Train the forest and compute loss moments on each fold.
     TMeanVarAccumulatorSizePr crossValidateForest(core::CDataFrame& frame);
 

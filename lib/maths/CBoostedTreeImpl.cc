@@ -242,19 +242,7 @@ void CBoostedTreeImpl::train(core::CDataFrame& frame,
     }
 
     this->computeProbabilityAtWhichToAssignClassOne(frame);
-
-    // Populate number samples reaching each node.
-    CTreeShapFeatureImportance::computeNumberSamples(m_NumberThreads, frame,
-                                                     *m_Encoder, m_BestForest);
-
-    if (m_NumberTopShapValues > 0) {
-        // Create the SHAP calculator.
-        m_TreeShap = std::make_unique<CTreeShapFeatureImportance>(
-            frame, *m_Encoder, m_BestForest, m_NumberTopShapValues);
-    } else {
-        // Make sure the internal node values are set anyway.
-        CTreeShapFeatureImportance::computeInternalNodeValues(m_BestForest);
-    }
+    this->initializeTreeShap(frame);
 
     // Force progress to one because we can have early exit from loop skip altogether.
     m_Instrumentation->updateProgress(1.0);
@@ -377,6 +365,21 @@ void CBoostedTreeImpl::computeProbabilityAtWhichToAssignClassOne(const core::CDa
                 m_DependentVariable, predictionColumn(m_NumberInputColumns));
             break;
         }
+    }
+}
+
+void CBoostedTreeImpl::initializeTreeShap(const core::CDataFrame& frame) {
+    // Populate number samples reaching each node.
+    CTreeShapFeatureImportance::computeNumberSamples(m_NumberThreads, frame,
+                                                     *m_Encoder, m_BestForest);
+
+    if (m_NumberTopShapValues > 0) {
+        // Create the SHAP calculator.
+        m_TreeShap = std::make_unique<CTreeShapFeatureImportance>(
+            frame, *m_Encoder, m_BestForest, m_NumberTopShapValues);
+    } else {
+        // Set internal node values anyway.
+        CTreeShapFeatureImportance::computeInternalNodeValues(m_BestForest);
     }
 }
 
