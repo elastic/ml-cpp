@@ -75,7 +75,7 @@ void CDataFrameAnalysisInstrumentation::nextStep(std::uint32_t step) {
 
 void CDataFrameAnalysisInstrumentation::writeState(std::uint32_t step) {
     // this->writeProgress(step);
-    int64_t timestamp = core::CTimeUtils::toEpochMs(core::CTimeUtils::now());
+    std::int64_t timestamp{core::CTimeUtils::toEpochMs(core::CTimeUtils::now())};
     this->writeMemory(timestamp);
 }
 

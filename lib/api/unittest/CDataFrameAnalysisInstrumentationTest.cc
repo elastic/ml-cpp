@@ -17,9 +17,9 @@ BOOST_AUTO_TEST_SUITE(CDataFrameAnalysisInstrumentationTest)
 using namespace ml;
 
 BOOST_AUTO_TEST_CASE(testMemoryState) {
-    std::string jobId("JOB123");
-    std::int64_t memoryUsage = 1000;
-    std::int64_t timestamp = core::CTimeUtils::toEpochMs(core::CTimeUtils::now());
+    std::string jobId{"JOB123"};
+    std::int64_t memoryUsage{1000};
+    std::int64_t timeBefore{core::CTimeUtils::toEpochMs(core::CTimeUtils::now())};
     std::stringstream s_Output;
     {
         core::CJsonOutputStreamWrapper streamWrapper(s_Output);
@@ -30,6 +30,7 @@ BOOST_AUTO_TEST_CASE(testMemoryState) {
         instrumentation.nextStep(0);
         s_Output.flush();
     }
+    std::int64_t timeAfter{core::CTimeUtils::toEpochMs(core::CTimeUtils::now())};
 
     rapidjson::Document results;
     rapidjson::ParseResult ok(results.Parse(s_Output.str()));
@@ -40,7 +41,8 @@ BOOST_AUTO_TEST_CASE(testMemoryState) {
     BOOST_TEST_REQUIRE(result["job_id"].GetString() == jobId);
     BOOST_TEST_REQUIRE(result["type"].GetString() == "analytics_memory_usage");
     BOOST_TEST_REQUIRE(result["peak_usage_bytes"].GetInt64() == memoryUsage);
-    BOOST_REQUIRE_SMALL(result["timestamp"].GetInt64() - timestamp, 10l);
+    BOOST_TEST_REQUIRE(result["timestamp"].GetInt64() >= timeBefore);
+    BOOST_TEST_REQUIRE(result["timestamp"].GetInt64() <= timeAfter);
 }
 
 BOOST_AUTO_TEST_SUITE_END()
