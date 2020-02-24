@@ -1131,7 +1131,7 @@ CBoostedTreeFactory& CBoostedTreeFactory::topShapValues(std::size_t topShapValue
 }
 
 CBoostedTreeFactory& CBoostedTreeFactory::analysisInstrumentation(
-    CDataFrameAnalysisInstrumentationInterface& instrumentation) {
+    CDataFrameTrainBoostedTreeInstrumentationInterface& instrumentation) {
     m_TreeImpl->m_Instrumentation = &instrumentation;
     return *this;
 }

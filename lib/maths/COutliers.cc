@@ -1050,7 +1050,7 @@ bool computeOutliersPartitioned(const COutliers::SComputeParameters& params,
 
 void COutliers::compute(const SComputeParameters& params,
                         core::CDataFrame& frame,
-                        CDataFrameAnalysisInstrumentationInterface& instrumentation) {
+                        CDataFrameOutliersInstrumentationInterface& instrumentation) {
 
     if (params.s_StandardizeColumns) {
         CDataFrameUtils::standardizeColumns(params.s_NumberThreads, frame);

@@ -27,7 +27,7 @@ namespace api {
 //! progress, parameters, quality of results. The class also implements the functionality to
 //! write the state at different iteration into the results pipe.
 class API_EXPORT CDataFrameAnalysisInstrumentation
-    : public maths::CDataFrameAnalysisInstrumentationInterface {
+    : virtual public maths::CDataFrameAnalysisInstrumentationInterface {
 
 public:
     explicit CDataFrameAnalysisInstrumentation(const std::string& jobId);
@@ -68,12 +68,16 @@ public:
     //! \return The peak memory usage.
     std::int64_t memory() const;
 
+    const std::string& jobId() const;
+
 protected:
     virtual counter_t::ECounterTypes memoryCounterType() = 0;
+    core::CRapidJsonConcurrentLineWriter* writer();
 
 private:
     void writeProgress(std::uint32_t step);
     void writeMemory(std::int64_t timestamp);
+    virtual void writeAnalysisStats(std::int64_t timestamp, std::uint32_t step) = 0;
     void writeState(std::uint32_t step);
 
 private:
@@ -85,23 +89,31 @@ private:
 };
 
 class API_EXPORT CDataFrameOutliersInstrumentation final
-    : public CDataFrameAnalysisInstrumentation {
+    : public CDataFrameAnalysisInstrumentation,
+      public maths::CDataFrameOutliersInstrumentationInterface {
 public:
     explicit CDataFrameOutliersInstrumentation(const std::string& jobId)
         : CDataFrameAnalysisInstrumentation(jobId){};
 
 protected:
     counter_t::ECounterTypes memoryCounterType() override;
+
+private:
+    void writeAnalysisStats(std::int64_t timestamp, std::uint32_t step) override;
 };
 
 class API_EXPORT CDataFrameTrainBoostedTreeInstrumentation final
-    : public CDataFrameAnalysisInstrumentation {
+    : public CDataFrameAnalysisInstrumentation,
+      public maths::CDataFrameTrainBoostedTreeInstrumentationInterface {
 public:
     explicit CDataFrameTrainBoostedTreeInstrumentation(const std::string& jobId)
         : CDataFrameAnalysisInstrumentation(jobId){};
 
 protected:
     counter_t::ECounterTypes memoryCounterType() override;
+
+private:
+    void writeAnalysisStats(std::int64_t timestamp, std::uint32_t step) override;
 };
 }
 }

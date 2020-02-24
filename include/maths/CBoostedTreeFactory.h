@@ -99,7 +99,7 @@ public:
 
     //! Set pointer to the analysis instrumentation.
     CBoostedTreeFactory&
-    analysisInstrumentation(CDataFrameAnalysisInstrumentationInterface& instrumentation);
+    analysisInstrumentation(CDataFrameTrainBoostedTreeInstrumentationInterface& instrumentation);
     //! Set the callback function for training state recording.
     CBoostedTreeFactory& trainingStateCallback(TTrainingStateCallback callback);
 

@@ -61,7 +61,7 @@ public:
     using TRegularization = CBoostedTreeRegularization<double>;
     using TSizeVec = std::vector<std::size_t>;
     using TSizeRange = boost::integer_range<std::size_t>;
-    using TAnalysisInstrumentationPtr = CDataFrameAnalysisInstrumentationInterface*;
+    using TAnalysisInstrumentationPtr = CDataFrameTrainBoostedTreeInstrumentationInterface*;
 
 public:
     static const double MINIMUM_RELATIVE_GAIN_PER_SPLIT;

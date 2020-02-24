@@ -5,6 +5,7 @@
  */
 #include <api/CDataFrameAnalysisInstrumentation.h>
 
+#include <boost/iostreams/filter/zlib.hpp>
 #include <core/CTimeUtils.h>
 
 namespace ml {
@@ -17,7 +18,18 @@ const std::string PEAK_MEMORY_USAGE_TAG{"peak_usage_bytes"};
 const std::string TYPE_TAG{"type"};
 const std::string JOB_ID_TAG{"job_id"};
 const std::string TIMESTAMP_TAG{"timestamp"};
-const std::string MEMORY_TYPE{"analytics_memory_usage"};
+const std::string MEMORY_TYPE_TAG{"analytics_memory_usage"};
+const std::string ANALYSIS_TYPE_TAG{"analysis_stats"};
+const std::string REGRESSION_STATS_TAG{"regression_stats"};
+const std::string ITERATION_TAG{"iteration"};
+const std::string HYPERPARAMETERS_TAG{"hyperparameters"};
+const std::string VALIDATION_LOSS_TAG{"validation_loss"};
+const std::string TIMING_STATS_TAG{"timing_stats"};
+const std::string VALIDATION_LOSS_TYPE_TAG{"loss_type"};
+const std::string VALIDATION_LOSS_VALUES_TAG{"values"};
+const std::string VALIDATION_NUM_FOLDS_TAG{"num_folds"};
+const std::string TIMING_ELAPSED_TIME_TAG{"elapsed_time"};
+const std::string TIMING_ITERATION_TIME_TAG{"iteration_time"};
 
 const std::size_t MAXIMUM_FRACTIONAL_PROGRESS{std::size_t{1}
                                               << ((sizeof(std::size_t) - 2) * 8)};
@@ -98,7 +110,7 @@ void CDataFrameAnalysisInstrumentation::writeMemory(std::int64_t timestamp) {
     if (m_Writer != nullptr) {
         m_Writer->StartObject();
         m_Writer->Key(TYPE_TAG);
-        m_Writer->String(MEMORY_TYPE);
+        m_Writer->String(MEMORY_TYPE_TAG);
         m_Writer->Key(JOB_ID_TAG);
         m_Writer->String(m_JobId);
         m_Writer->Key(TIMESTAMP_TAG);
@@ -109,12 +121,46 @@ void CDataFrameAnalysisInstrumentation::writeMemory(std::int64_t timestamp) {
     }
 }
 
+const std::string& CDataFrameAnalysisInstrumentation::jobId() const {
+    return m_JobId;
+}
+
+core::CRapidJsonConcurrentLineWriter* CDataFrameAnalysisInstrumentation::writer() {
+    return m_Writer;
+}
+
 counter_t::ECounterTypes CDataFrameOutliersInstrumentation::memoryCounterType() {
     return counter_t::E_DFOPeakMemoryUsage;
 }
 
 counter_t::ECounterTypes CDataFrameTrainBoostedTreeInstrumentation::memoryCounterType() {
     return counter_t::E_DFTPMPeakMemoryUsage;
+}
+
+void CDataFrameOutliersInstrumentation::writeAnalysisStats(std::int64_t timestamp,
+                                                           std::uint32_t /*step*/) {
+    auto* writer{this->writer()};
+    if (writer != nullptr) {
+        writer->StartObject();
+        writer->Key(JOB_ID_TAG);
+        writer->String(this->jobId());
+        writer->Key(TIMESTAMP_TAG);
+        writer->Int64(timestamp);
+        writer->EndObject();
+    }
+}
+
+void CDataFrameTrainBoostedTreeInstrumentation::writeAnalysisStats(std::int64_t timestamp,
+                                                                   std::uint32_t step) {
+    auto* writer{this->writer()};
+    if (writer != nullptr) {
+        writer->StartObject();
+        writer->Key(JOB_ID_TAG);
+        writer->String(this->jobId());
+        writer->Key(TIMESTAMP_TAG);
+        writer->Int64(timestamp);
+        writer->EndObject();
+    }
 }
 }
 }
