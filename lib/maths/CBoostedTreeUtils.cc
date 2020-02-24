@@ -7,6 +7,7 @@
 #include <maths/CBoostedTreeUtils.h>
 
 #include <maths/CBoostedTree.h>
+#include <maths/CBoostedTreeLoss.h>
 
 namespace ml {
 namespace maths {

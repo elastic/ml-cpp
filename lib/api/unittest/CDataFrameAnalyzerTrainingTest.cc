@@ -12,6 +12,7 @@
 #include <core/CStopWatch.h>
 
 #include <maths/CBoostedTree.h>
+#include <maths/CBoostedTreeLoss.h>
 #include <maths/CBoostedTreeFactory.h>
 #include <maths/CTools.h>
 
