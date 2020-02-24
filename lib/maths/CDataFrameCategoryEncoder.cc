@@ -260,6 +260,10 @@ CDataFrameCategoryEncoder::TDoubleVec CDataFrameCategoryEncoder::encodedColumnMi
 }
 
 std::size_t CDataFrameCategoryEncoder::numberInputColumns() const {
+    // This returns the highest "column index" + 1 of any feature selected as part
+    // of encoding and feature selection. For example, this is used to presize arrays
+    // containing values associated the features (such as feature importance) which
+    // allows direct addressing by the feature column index.
     std::size_t result{0};
     for (const auto& encoding : m_Encodings) {
         result = std::max(result, encoding->inputColumnIndex());

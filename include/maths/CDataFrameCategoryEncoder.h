@@ -227,6 +227,10 @@ public:
     TDoubleVec encodedColumnMics() const;
 
     //! Get the dimension of the feature vector.
+    //!
+    //! \note Strictly this is the dimension of the selected features vector. If the
+    //! *last* five features from the original vector are dropped then this will be
+    //! "number of input features" - 5.
     std::size_t numberInputColumns() const;
 
     //! Get the dimension of the encoded feature vector.
