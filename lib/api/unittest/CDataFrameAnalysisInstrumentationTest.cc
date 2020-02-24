@@ -22,13 +22,13 @@ BOOST_AUTO_TEST_CASE(testMemoryState) {
     std::int64_t timestamp = core::CTimeUtils::toEpochMs(core::CTimeUtils::now());
     std::stringstream s_Output;
     {
-    core::CJsonOutputStreamWrapper streamWrapper(s_Output);
-    core::CRapidJsonConcurrentLineWriter writer(streamWrapper);
-    api::CDataFrameTrainBoostedTreeInstrumentation instrumentation(jobId);
-    instrumentation.updateMemoryUsage(memoryUsage);
-    instrumentation.writer(&writer);
-    instrumentation.nextStep(0);
-    s_Output.flush();
+        core::CJsonOutputStreamWrapper streamWrapper(s_Output);
+        core::CRapidJsonConcurrentLineWriter writer(streamWrapper);
+        api::CDataFrameTrainBoostedTreeInstrumentation instrumentation(jobId);
+        instrumentation.updateMemoryUsage(memoryUsage);
+        instrumentation.writer(&writer);
+        instrumentation.nextStep(0);
+        s_Output.flush();
     }
 
     rapidjson::Document results;
