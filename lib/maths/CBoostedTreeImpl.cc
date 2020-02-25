@@ -311,7 +311,7 @@ void CBoostedTreeImpl::predict(core::CDataFrame& frame) const {
             std::size_t numberLossParameters{m_Loss->numberParameters()};
             for (auto row = beginRows; row != endRows; ++row) {
                 auto prediction = readPrediction(*row, m_NumberInputColumns, numberLossParameters);
-                prediction(0) = predictRow(m_Encoder->encode(*row), m_BestForest);
+                prediction = predictRow(m_Encoder->encode(*row), m_BestForest);
             }
         });
     if (successful == false) {
@@ -329,7 +329,8 @@ std::size_t CBoostedTreeImpl::estimateMemoryUsage(std::size_t numberRows,
     std::size_t maximumNumberFeatures{std::min(numberColumns - 1, numberRows / m_RowsPerFeature)};
     std::size_t forestMemoryUsage{
         m_MaximumNumberTrees *
-        (sizeof(TNodeVec) + maximumNumberNodes * sizeof(CBoostedTreeNode))};
+        (sizeof(TNodeVec) + maximumNumberNodes * CBoostedTreeNode::estimateMemoryUsage(
+                                                     m_Loss->numberParameters()))};
     std::size_t foldRoundLossMemoryUsage{m_NumberFolds * m_NumberRounds *
                                          sizeof(TOptionalDouble)};
     std::size_t hyperparametersMemoryUsage{numberColumns * sizeof(double)};
@@ -488,7 +489,7 @@ CBoostedTreeImpl::TNodeVec CBoostedTreeImpl::initializePredictionsAndLossDerivat
         &updateRowMask);
 
     // At the start we will centre the data w.r.t. the given loss function.
-    TNodeVec tree(1);
+    TNodeVec tree{CBoostedTreeNode{m_Loss->numberParameters()}};
     this->refreshPredictionsAndLossDerivatives(frame, trainingRowMask,
                                                testingRowMask, 1.0, tree);
 
@@ -973,7 +974,7 @@ void CBoostedTreeImpl::refreshPredictionsAndLossDerivatives(core::CDataFrame& fr
     } while (nextPass());
 
     for (std::size_t i = 0; i < tree.size(); ++i) {
-        tree[i].value(eta * leafValues[i].value()[0]);
+        tree[i].value(eta * leafValues[i].value());
     }
 
     LOG_TRACE(<< "tree =\n" << root(tree).print(tree));
@@ -987,7 +988,7 @@ void CBoostedTreeImpl::refreshPredictionsAndLossDerivatives(core::CDataFrame& fr
                 auto prediction = readPrediction(*row, m_NumberInputColumns, numberLossParameters);
                 double actual{readActual(*row, m_DependentVariable)};
                 double weight{readExampleWeight(*row, m_NumberInputColumns, numberLossParameters)};
-                prediction(0) += root(tree).value(m_Encoder->encode(*row), tree);
+                prediction += root(tree).value(m_Encoder->encode(*row), tree);
                 writeLossGradient(*row, m_NumberInputColumns, *m_Loss,
                                   prediction, actual, weight);
                 writeLossCurvature(*row, m_NumberInputColumns, *m_Loss,
@@ -1044,9 +1045,9 @@ CBoostedTreeNode& CBoostedTreeImpl::root(TNodeVec& tree) {
     return tree[0];
 }
 
-double CBoostedTreeImpl::predictRow(const CEncodedDataFrameRowRef& row,
-                                    const TNodeVecVec& forest) {
-    double result{0.0};
+CBoostedTreeImpl::TVector CBoostedTreeImpl::predictRow(const CEncodedDataFrameRowRef& row,
+                                                       const TNodeVecVec& forest) const {
+    TVector result{TVector::Zero(m_Loss->numberParameters())};
     for (const auto& tree : forest) {
         result += root(tree).value(row, tree);
     }
