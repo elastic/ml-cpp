@@ -162,7 +162,7 @@ private:
     using TVector = CDenseVector<double>;
     using TPackedBitVectorVec = std::vector<core::CPackedBitVector>;
     using TImmutableRadixSetVec = std::vector<core::CImmutableRadixSet<double>>;
-    using TNodeVecVecDoublePr = std::pair<TNodeVecVec, double>;
+    using TNodeVecVecDoubleDoubleVecTuple = std::tuple<TNodeVecVec, double, TDoubleVec>;
     using TDataFrameCategoryEncoderUPtr = std::unique_ptr<CDataFrameCategoryEncoder>;
     using TDataTypeVec = CDataFrameUtils::TDataTypeVec;
     using TRegularizationOverride = CBoostedTreeRegularization<TOptionalDouble>;
@@ -198,10 +198,11 @@ private:
                                                      const core::CPackedBitVector& testingRowMask) const;
 
     //! Train one forest on the rows of \p frame in the mask \p trainingRowMask.
-    TNodeVecVecDoublePr trainForest(core::CDataFrame& frame,
-                                    const core::CPackedBitVector& trainingRowMask,
-                                    const core::CPackedBitVector& testingRowMask,
-                                    core::CLoopProgress& trainingProgress) const;
+    TNodeVecVecDoubleDoubleVecTuple
+    trainForest(core::CDataFrame& frame,
+                const core::CPackedBitVector& trainingRowMask,
+                const core::CPackedBitVector& testingRowMask,
+                core::CLoopProgress& trainingProgress) const;
 
     //! Randomly downsamples the training row mask by the downsample factor.
     core::CPackedBitVector downsample(const core::CPackedBitVector& trainingRowMask) const;
@@ -292,6 +293,8 @@ private:
 
     //! Populate numberSamples field in the m_BestForest
     void computeNumberSamples(const core::CDataFrame& frame);
+
+    void recordHyperparameters();
 
 private:
     mutable CPRNG::CXorOShiro128Plus m_Rng;

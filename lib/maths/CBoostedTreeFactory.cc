@@ -752,7 +752,7 @@ CBoostedTreeFactory::estimateTreeGainAndCurvature(core::CDataFrame& frame,
     std::size_t maximumNumberOfTrees{1};
     std::swap(maximumNumberOfTrees, m_TreeImpl->m_MaximumNumberTrees);
     CBoostedTreeImpl::TNodeVecVec forest;
-    std::tie(forest, std::ignore) = m_TreeImpl->trainForest(
+    std::tie(forest, std::ignore, std::ignore) = m_TreeImpl->trainForest(
         frame, m_TreeImpl->m_TrainingRowMasks[0],
         m_TreeImpl->m_TestingRowMasks[0], m_TreeImpl->m_TrainingProgress);
     std::swap(maximumNumberOfTrees, m_TreeImpl->m_MaximumNumberTrees);
@@ -820,7 +820,7 @@ CBoostedTreeFactory::testLossLineSearch(core::CDataFrame& frame,
 
         CBoostedTreeImpl::TNodeVecVec forest;
         double testLoss;
-        std::tie(forest, testLoss) = m_TreeImpl->trainForest(
+        std::tie(forest, testLoss, std::ignore) = m_TreeImpl->trainForest(
             frame, m_TreeImpl->m_TrainingRowMasks[0],
             m_TreeImpl->m_TestingRowMasks[0], m_TreeImpl->m_TrainingProgress);
         bopt.add(boptVector(regularizer), testLoss, 0.0);
@@ -841,7 +841,7 @@ CBoostedTreeFactory::testLossLineSearch(core::CDataFrame& frame,
         }
         CBoostedTreeImpl::TNodeVecVec forest;
         double testLoss;
-        std::tie(forest, testLoss) = m_TreeImpl->trainForest(
+        std::tie(forest, testLoss, std::ignore) = m_TreeImpl->trainForest(
             frame, m_TreeImpl->m_TrainingRowMasks[0],
             m_TreeImpl->m_TestingRowMasks[0], m_TreeImpl->m_TrainingProgress);
         bopt.add(regularizer, testLoss, 0.0);

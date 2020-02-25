@@ -109,11 +109,24 @@ public:
     explicit CDataFrameTrainBoostedTreeInstrumentation(const std::string& jobId)
         : CDataFrameAnalysisInstrumentation(jobId){};
 
+    void type(EStatsType /* type */) override{};
+    void iteration(std::size_t /* iteration */) override{};
+    void startTime(std::uint64_t /* timestamp */) override{};
+    void iterationTime(std::uint64_t /* delta */) override{};
+    void lossType(const std::string& /* lossType */) override{};
+    void lossValues(std::size_t /* fold */, TDoubleVec&& /* lossValues */) override{};
+    void numFolds(std::size_t /* numFolds */) override{};
+    void hyperparameters(const SHyperparameters& /* hyperparameters */) override{};
+    SHyperparameters& hyperparameters() override { return m_Hyperparameters; };
+
 protected:
     counter_t::ECounterTypes memoryCounterType() override;
 
 private:
     void writeAnalysisStats(std::int64_t timestamp, std::uint32_t step) override;
+
+private:
+    SHyperparameters m_Hyperparameters;
 };
 }
 }
