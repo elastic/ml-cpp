@@ -20,29 +20,29 @@ BOOST_AUTO_TEST_CASE(testMemoryState) {
     std::string jobId{"JOB123"};
     std::int64_t memoryUsage{1000};
     std::int64_t timeBefore{core::CTimeUtils::toEpochMs(core::CTimeUtils::now())};
-    std::stringstream outpustStream;
+    std::stringstream outputStream;
     {
-        core::CJsonOutputStreamWrapper streamWrapper(outpustStream);
+        core::CJsonOutputStreamWrapper streamWrapper(outputStream);
         core::CRapidJsonConcurrentLineWriter writer(streamWrapper);
         api::CDataFrameTrainBoostedTreeInstrumentation instrumentation(jobId);
         instrumentation.updateMemoryUsage(memoryUsage);
         instrumentation.writer(&writer);
         instrumentation.nextStep(0);
-        outpustStream.flush();
+        outputStream.flush();
     }
     std::int64_t timeAfter{core::CTimeUtils::toEpochMs(core::CTimeUtils::now())};
-
     rapidjson::Document results;
-    rapidjson::ParseResult ok(results.Parse(outpustStream.str()));
+    rapidjson::ParseResult ok(results.Parse(outputStream.str()));
     BOOST_TEST_REQUIRE(static_cast<bool>(ok) == true);
     BOOST_TEST_REQUIRE(results.IsArray() == true);
 
     const auto& result{results[0]};
-    BOOST_TEST_REQUIRE(result["job_id"].GetString() == jobId);
-    BOOST_TEST_REQUIRE(result["type"].GetString() == "analytics_memory_usage");
-    BOOST_TEST_REQUIRE(result["peak_usage_bytes"].GetInt64() == memoryUsage);
-    BOOST_TEST_REQUIRE(result["timestamp"].GetInt64() >= timeBefore);
-    BOOST_TEST_REQUIRE(result["timestamp"].GetInt64() <= timeAfter);
+    BOOST_TEST_REQUIRE(result["analytics_memory_usage"].IsObject() == true);
+    BOOST_TEST_REQUIRE(result["analytics_memory_usage"]["job_id"].GetString() == jobId);
+    BOOST_TEST_REQUIRE(result["analytics_memory_usage"]["peak_usage_bytes"].GetInt64() ==
+                       memoryUsage);
+    BOOST_TEST_REQUIRE(result["analytics_memory_usage"]["timestamp"].GetInt64() >= timeBefore);
+    BOOST_TEST_REQUIRE(result["analytics_memory_usage"]["timestamp"].GetInt64() <= timeAfter);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

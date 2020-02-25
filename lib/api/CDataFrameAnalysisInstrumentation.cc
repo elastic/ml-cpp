@@ -97,14 +97,15 @@ void CDataFrameAnalysisInstrumentation::writeProgress(std::uint32_t step) {
 void CDataFrameAnalysisInstrumentation::writeMemory(std::int64_t timestamp) {
     if (m_Writer != nullptr) {
         m_Writer->StartObject();
-        m_Writer->Key(TYPE_TAG);
-        m_Writer->String(MEMORY_TYPE);
+        m_Writer->Key(MEMORY_TYPE);
+        m_Writer->StartObject();
         m_Writer->Key(JOB_ID_TAG);
         m_Writer->String(m_JobId);
         m_Writer->Key(TIMESTAMP_TAG);
         m_Writer->Int64(timestamp);
         m_Writer->Key(PEAK_MEMORY_USAGE_TAG);
         m_Writer->Int64(m_Memory.load());
+        m_Writer->EndObject();
         m_Writer->EndObject();
     }
 }
